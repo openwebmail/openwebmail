@@ -21,11 +21,20 @@
 <td align="right" nowrap>Domain: </td><td>@@@DOMAINMENU@@@</td>
 @@@DOMAINEND@@@
 </tr><tr>
+<td align=center colspan=2>
+
+<table><tr>
+<td align=center>@@@LOGINBUTTON@@@</td>
 <td align=center>
-<table><tr><td>@@@LOGINBUTTON@@@</td></tr></table>
+<table><tr>
+<td>@@@HTTPCOMPRESSIONCHECKBOX@@@</td><td><font size=1>HTTP<br>압축</font></td>
+@@@AUTOLOGINSTART@@@
+<td>@@@AUTOLOGINCHECKBOX@@@</td><td><font size=1>자동<br>로그인</font></td>
+@@@AUTOLOGINEND@@@
+</tr></table>
 </td>
-<td align=center>
-<table><tr><td><font size=1>use HTTP<br>compression</font></td><td>@@@HTTPCOMPRESSIONCHECKBOX@@@</td></tr></table>
+</tr></table>
+
 </td>
 </tr>
 </table>
@@ -61,15 +70,28 @@
    {
       if (document.login.httpcompress.checked) {
          alert(
-"HTTP Compression can reduce the use of network bandwidth between your computer and the webmail server effectively, "+
-"but there are some compatibility issues:\n\n"+
-"1. some proxy servers only support HTTP compression via HTTP 1.1, "+
-"you may have to enable the HTTP1.1 support for proxy in your browser\n"+
-"2. some proxy servers don't support HTTP compression at all, "+
-"you may have to list the webmail server as directly connected in the proxy configuration of your browser.\n"+
-"3. some browsers have problems when using HTTP compression with SSL...\n"+
-"4. some browsers claim to support HTTP compression but actually not...\n\n"+
-"So if you encounter any problem, please login again with this checkbox unchecked.\n"
+"HTTP 압축은 웹메일 서버와 사용자 컴퓨터 사이의 대역폭 사용을 효과적으로 줄일 수 있습니다.\n"+
+"그러나 일부 호환성에 문제가 있을 수도 있습니다.:\n\n"+
+"1. 일부 프록시 서버는 HTTP1.1을 통한 HTTP 압축만을 지원합니다.\n"+
+"브라우저 프록시 설정에서 HTTP1.1의 사용이 가능하도록 해야합니다.\n"+
+"2. 일부 프록시 서버는 HTTP 압축을 지원하지 않습니다.\n"+
+"브라우저 프록시 설정에서 이 웹메일 서버로 프록시 경유없이 직접 연결되도록 지정하셔야 합니다.\n"+
+"3. 일부 브라우저는 SSL과 HTTP 압축을 함께 사용하는 경우 문제가 발생할 수 있습니다.\n"+
+"4. 일부 브라우저는 HTTP 압축이 제대로 지원되지 않는 경우도 있습니다.\n\n"+
+"따라서 로그인에 문제가 발생하는 경우는 이항목을 체크하지 말고 다시 로그인 하시기 바랍니다.\n"
+         );
+      }
+      return(true);
+   }
+
+   function autologinhelp()
+   {
+      if (document.login.autologin.checked) {
+         alert(
+"로그아웃하지 않은 상태에서 세션이 만료되지 않은 경우,\n"+
+"사용자 ID/패스워드 재입력없이 계정으로 자동 로그인할 수 있습니다.\n\n"+
+"활성화할 경우 이 컴퓨터를 사용하는 타인도 계정 접근이 가능하므로\n"+
+"공용으로 사용하는 컴퓨터에서는 사용하지 마십시요.\n"
          );
       }
       return(true);

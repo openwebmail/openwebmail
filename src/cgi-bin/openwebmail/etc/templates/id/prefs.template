@@ -17,59 +17,59 @@
 </table>
 &nbsp;
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Personal Information</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Informasi Personal</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@ @@@DESCWIDTH@@@>
 <B>Bahasa:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@LANGUAGEMENU@@@&nbsp;Charset @@@CHARSETMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>TimeZone offset:</B>
+<B>Zona Waktu (+/- Waktu Local):</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@TIMEOFFSETMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Daylight Saving Time:</B>
+<B>Pergantian Waktu:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DAYLIGHTSAVINGMENU@@@
 </td></tr>
 @@@WEBMAILSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Pengirim</B>
+<B>Dari Alamat Email Pengirim:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FROMEMAILMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Balas untuk:</B>
+<B>Balas ke Alamat Email:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REPLYTOFIELD@@@
 </td></tr>
 @@@FORWARDSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Forward surat ke:</B>
+<B>Meneruskan pesan ke Alamat Email:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FORWARDADDRESS@@@
 &nbsp;
 @@@KEEPLOCALCOPY@@@
-Batas hari pertinggal
+Batas hari per tanggal
 </td></tr>
 @@@FORWARDEND@@@
 @@@AUTOREPLYSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>otomatis balas surat:</B>
+<B>Otomatis Balas ke Alamat Email:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@AUTOREPLYCHECKBOX@@@
 &nbsp;
-Judul:
+Otomatis Balas dengan Subjek:
 @@@AUTOREPLYSUBJECT@@@
 </td></tr>
 <tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@ class=msgbody>
-<B>Balas otomatis (maksimal 250 huruf)</B><BR>
+<B>Otomatis Balas dengan menggunakan teks (maksimal 250 huruf) </B><BR>
 @@@AUTOREPLYTEXT@@@
 </td></tr>
 @@@AUTOREPLYEND@@@
 <tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@ class=msgbody>
-<B>Tanda Tangan (Maksimak 250 huruf)</B><BR>
+<B>Tanda Tangan (Maksimal 250 huruf)</B><BR>
 @@@SIGAREA@@@
 <br>&nbsp;
 </td></tr>
@@ -77,138 +77,143 @@ Judul:
 
 @@@FULLPREFSSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Display Preference</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Pilihan Tampilan Layar</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Latar:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@STYLEMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Icon:</B>
+<B>Ikon:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ICONSETMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Gambar Latar:</B>
+<B>Latar Belakang:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@ nowrap>
 @@@BACKGROUNDMENU@@@ <font size=-2>URL </font>@@@BGURLFIELD@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Background image repeated:</B>
+<B>Gambar Latar Belakang yang berulang-ulang:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BGREPEATCHECKBOX@@@<br>
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Font size:</B>
+<B>Ukuran Tulisan:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FONTSIZEMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Format Waktu:</B>
+<B>Format Tanggal:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DATEFORMATMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Format jam:</B>
+<B>Format Jam:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@HOURFORMATMENU@@@ jam
 </td></tr>
 
 @@@WEBMAILSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Folder browsing</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Melihat Folder</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Controlbar position in folder view:</B>
+<B>Posisi tombol Navigasi di dalam Folder Lihat:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CTRLPOSITIONFOLDERVIEWMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>jumlah Surat 1 halaman:</B>
+<B>Jumlah Email per halaman:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@HEADERSPERPAGE@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Field order:</B>
+<B>Urutan Kolom:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FIELDORDERMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Cara Urut:</B>
+<B>Diurut berdasarkan:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SORTMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Display mini search icon@@@MINISEARCHICON@@@:</B>
+<B>Tampilan mini untuk ikon pencarian @@@MINISEARCHICON@@@:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USEMINISEARCHICONCHECKBOX@@@<br>
 </td></tr>
 
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Message Operation</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Pengoperasian Pesan</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Konfirmasi sewaktu pemindahan:</B>
+<B>Konfirmasi waktu Pemindahan Pesan:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CONFIRMMSGMOVECOPY@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Tujuan Folder default</B>
+<B>Default Tujuan:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DEFAULTDESTINATIONMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Smart Destination:</B>
+<B>Tujuan Cepat:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SMARTDESTINATION@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Sewaktu pemindahan,membaca surat selanjutnya</B>
+<B>Lihat Selanjutnya setelah Pemindahan Pesan</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@VIEWNEXTAFTERMSGMOVECOPY@@@
 </td></tr>
 @@@AUTOPOP3START@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Sewaktu Login,simpan surat POP3:</B>
+<B>Waktu Login, simpan pesan POP3:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@AUTOPOP3CHECKBOX@@@ (tunggu @@@AUTOPOP3WAITMENU@@@ sekon)
+@@@AUTOPOP3CHECKBOX@@@ (menunggu @@@AUTOPOP3WAITMENU@@@ detik)
 </td></tr>
 @@@AUTOPOP3END@@@
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Menunggu waktu untuk mem-<i>filter</i> email</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+(menunggu @@@BGFILTERWAITMENU@@@ detik)
+</td></tr>
 @@@MOVEOLDSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>pindah surat ke kotak surat sewaktu keluar:</B>
+<B>Pindahkan pesan ke kotak EMAIL BARU: </B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@MOVEOLDMSGFROMINBOX@@@
 </td></tr>
 @@@MOVEOLDEND@@@
 
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Message Reading Options</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Pilihan untuk Membaca Pesan</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Controlbar position in message reading:</B>
+<B>Posisi tombol navigasi di dalam membaca pesan: </B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CTRLPOSITIONMSGREADMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Header Default:</B>
+<B>Default Catatan Atas:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@HEADERSMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Menggunakan lebar tulisan tetap:</B>
+<B>Menggunakan ukuran tulisan tetap:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USEFIXEDFONT@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Menggunakan Icon senyum:</B>
+<B>Menggunakan Ikon senyum:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USESMILEICON@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Show HTML message as plain text:</B>
+<B>Tampilkan pesan HTML sebagai <i>plain text</i>: </B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SHOWHTMLASTEXT@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Show image attachment as link:</B>
+<B>Tampilkan gambar <i>attachment</i> sebagai link:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SHOWIMGASLINK@@@
 </td></tr>
@@ -218,79 +223,119 @@ Judul:
 @@@DISABLEJS@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Tutup embed/object/applet tag</B>
+<B>Tutup tag <i>Embed/object/applet</i></B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEEMBCODE@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Tutup Embedded links</B>
+<B>Tutup <i>Link Embedded</i></B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEEMBLINKMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Mengirim konfirmasi bacaan:</B>
+<B>Mengirimkan Konfirmasi Penerima:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SENDRECEIPTMENU@@@
 </td></tr>
 
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Message Replying Options</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Pilihan untuk Membalas Pesan</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Message format:</B>
+<B>Format Pesan:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@MSGFORMATMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Ukuran Kotak Tulis:</B>
+<B>Ukuran Kolom:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-Lebar @@@EDITCOLUMNSMENU@@@ Tinggi @@@EDITROWSMENU@@@
+Ubah Lebar Kolom @@@EDITCOLUMNSMENU@@@ Ubah Tinggi Kolom @@@EDITROWSMENU@@@ 
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Compose button position:</B>
+<B>Posisi Tombol Menyusun Pesan:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SENDBUTTONPOSITIONMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Mengatur paragraf sewaktu balas surat:</B>
+<B>Mengatur paragraf sewaktu membalas pesan asli:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REPARAGRAPHORIGMSG@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Lampir asal surat:</B>
+<B>Balas dengan pesan original: </B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REPLYWITHORIGMSGMENU@@@
-</td></tr>
+</td><i>BackUp<i> pesan yang dikirim ke folder </tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Backup outgoing message to SENT folder:</B>
+<B>Simpan pesan yang dikirim ke folder KIRIM:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BACKUPSENTMSG@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Charset for outgoing message:</B>
+<B>Set Karakter untuk Pesan yang dikirim:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SENDCHARSETMENU@@@
 </td></tr>
 
-@@@FILTERSTART@@@
+@@@VIRUSCHECKSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Message Filtering Options</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Memeriksa Virus</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Batas pengulangan surat:</B>
+<B>Pesan yang harus diperiksa:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@FILTERREPEATLIMIT@@@ &nbsp;( 0 Tidak periksa )
+@@@VIRUSCHECKSOURCEMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Filter msgs with email address in bad format:</B>
+<B>Ukuran Maksimum waktu memeriksa Pesan:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@VIRUSCHECKMAXSIZEMENU@@@ KB
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Ukuran Minimum waktu memeriksa Pesan:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@VIRUSCHECKMINBODYSIZEMENU@@@ KB
+</td></tr>
+@@@VIRUSCHECKEND@@@
+
+@@@SPAMCHECKSTART@@@
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Memeriksa Spam</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Pesan SPAM yang harus diperiksa:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SPAMCHECKSOURCEMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Ukuran Maximum waktu memeriksa pesan:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SPAMCHECKMAXSIZEMENU@@@ KB
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Jumlah dari email yang ditetapkan sebagai Email Spam:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SPAMCHECKTHRESHOLDMENU@@@
+</td></tr>
+@@@SPAMCHECKEND@@@
+
+@@@FILTERSTART@@@
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Pilihan untuk Filter Pesan</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Batas Pengulangan Pesan:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@FILTERREPEATLIMIT@@@ &nbsp;(0 Tidak periksa)
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Filter pesan dengan alamat email di dalam format yang buruk:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERBADADDRFORMAT@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Periksa Asal surat palsu:</B>
+<B>Filter dengan alamat SMTP yang palsu: </B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDSMTP@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Filter messages with faked From field:</B>
+<B>Filter pesan dengan kolom Dari Alamat Pengirim yang palsu:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDFROM@@@
 </td></tr>
@@ -302,19 +347,19 @@ Lebar @@@EDITCOLUMNSMENU@@@ Tinggi @@@EDITROWSMENU@@@
 @@@FILTEREND@@@
 
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>AddressBook Options</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Pilihan untuk Daftar Alamat</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Size for addressbook window:</B>
+<B>Ukuran layar untuk Daftar Alamat:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 Lebar @@@ABOOKWIDTHMENU@@@ Tinggi @@@ABOOKHEIGHTMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Addressbook button position:</B>
+<B>Posisi Tombol Daftar Alamat:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKBUTTONPOSITIONMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Addressbook default filter:</B>
+<B>Default Filter Daftar Alamat:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKDEFAULTFILTER@@@
 </td></tr>
@@ -322,55 +367,55 @@ Lebar @@@ABOOKWIDTHMENU@@@ Tinggi @@@ABOOKHEIGHTMENU@@@
 
 @@@CALENDARSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Calendar Options</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Pilihan untuk Kalender</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Default calendar view:</B>
+<B>Default Lihat Kalendar:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DEFAULTVIEWMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Holiday definition:</B>
+<B>Definisi Hari Libur:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@HOLIDAYDEFMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Number of items in month view:</B>
+<B>Lihat Jumlah item di bulan ke:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@MONTHVIEWNUMITEMSMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Week start:</B>
+<B>Dimulai Minggu ke:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@WEEKSTARTMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Start hour:</B>
+<B>Waktu Mulai:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@STARTHOURMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>End hour:</B>
+<B>Waktu Selesai:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ENDHOURMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Time interval in dayview:</B>
+<B>Lihat Interval waktu di hari ke:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@INTERVALMENU@@@ menit
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Show empty hours:</B>
+<B>Tampilkan jam yang kosong:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SHOWEMPTYHOURSCHECKBOX@@@
 </td></tr>
 @@@REMINDERSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Event reminder check days:</B>
+<B>Waktu Pengingat dimulai:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REMINDERDAYSMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Reminder for global calendar events:</B>
+<B>Pengingat untuk events kalender global:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REMINDERFORGLOBALCHECKBOX@@@
 </td></tr>
@@ -379,73 +424,83 @@ Lebar @@@ABOOKWIDTHMENU@@@ Tinggi @@@ABOOKHEIGHTMENU@@@
 
 @@@WEBDISKSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>WebDisk Options</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Pilihan untuk WebDisk</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Number of items in directory list:</B>
+<B>Jumlah item di daftar direktori:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DIRNUMITEMSMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Confirm before directory/file move/copy:</B>
+<B>Konfirmasi sebelum direktori/file dipindahkan/dicopy:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CONFIRMFILEMOVECOPY@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Confirm before directory/file deletion:</B>
+<B>Konfirmasi sebelum direktori/file dihapus:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CONFIRMFILEDEL@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Confirm before directory/file compress:</B>
+<B>Konfirmasi sebelum direktori/file dikompress:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CONFIRMFILECOMPRESS@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Size for file edit window:</B>
+<B>Ukuran layar untuk ubah file:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 Lebar @@@FILEEDITCOLUMNSMENU@@@ Tinggi @@@FILEEDITROWSMENU@@@
 </td></tr>
 @@@WEBDISKEND@@@
 
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Misc Options</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Pilihan Lain-Lain</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Gunakan Gunakan record yang dipilih dengan warna yang berbeda:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@USELIGHTBARCHECKBOX@@@
+</td></tr>
 @@@WEBMAILSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Use Regex in search and filterrule:</B>
+<B>Gunakan <i>Regex<i> di dalam pencarian dan aturan filter:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REGEXMATCH@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Simpan Informasi surat:</B>
+<B>Simpan Informasi pesan:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@HIDEINTERNAL@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Suara Pemberitahuan</B>
+<B>Suara untuk Pemberitahuan Email Baru: </B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@NEWMAILSOUNDMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>NewMail window notification:</B>
+<B>Layar Pemberitahuan Email Baru:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-remaining @@@NEWMAILWINDOWTIMEMENU@@@ sekon &nbsp;( 0 means No window notification )
+tinggal @@@NEWMAILWINDOWTIMEMENU@@@ detik &nbsp;(0 berarti Tidak ada Layar Pemberitahuan)
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Mail sent window notification:</B>
+<B>Layar Pemberitahuan Email yang dikirimkan:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-remaining @@@MAILSENTWINDOWTIMEMENU@@@ sekon &nbsp;( 0 means No window notification )
+tinggal @@@MAILSENTWINDOWTIMEMENU@@@ sekon &nbsp; (0 berarti Tidak ada Layar Pemberitahuan)
 </td></tr>
 @@@SPELLCHECKSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Kamus periksa Spell:</B>
+<B>Periksa Ejaan pada Kamus: </B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DICTIONARYMENU@@@
 </td></tr>
 @@@SPELLCHECKEND@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Hari simpan Kotak sampah</B>
+<B>Hari simpan pesan di Kotak sampah</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@RESERVEDDAYSMENU@@@
+@@@TRASHRESERVEDDAYSMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Hari Spam/Virus Email disimpan:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SPAMVIRUSRESERVEDDAYSMENU@@@
 </td></tr>
 @@@WEBMAILEND@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>

@@ -13,7 +13,7 @@ if ($SCRIPT_DIR eq '' && open(F, '/etc/openwebmail_path.conf')) {
 if ($SCRIPT_DIR eq '') { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
 push (@INC, $SCRIPT_DIR);
 
-foreach (qw(PATH ENV BASH_ENV CDPATH IFS TERM)) { $ENV{$_}='' }	# secure ENV
+foreach (qw(ENV BASH_ENV CDPATH IFS TERM)) {delete $ENV{$_}}; $ENV{PATH}='/bin:/usr/bin'; # secure ENV
 umask(0002); # make sure the openwebmail group can write
 
 use strict;
@@ -288,7 +288,7 @@ sub search_folders2 {
    # search for the messageid in selected folder, return @result
    foreach my $foldertosearch (@{$r_folders}) {
       my ($folderfile, $folderdb)=get_folderpath_folderdb($user, $foldertosearch);
-      my ($totalsize, $new, $r_messageids)=get_info_messageids_sorted_by_date($folderdb, 1);
+      my $r_messageids=get_messageids_sorted_by_date($folderdb, 1);
       my (%FDB, %status);
 
       ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or

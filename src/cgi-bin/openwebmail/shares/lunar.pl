@@ -9,10 +9,10 @@ use Fcntl qw(:DEFAULT :flock);
 
 sub mkdb_lunar {
    my %LUNAR;
-   my $lunardb=ow::tool::untaint("$config{'ow_etcdir'}/lunar");
+   my $lunardb=ow::tool::untaint("$config{'ow_mapsdir'}/lunar");
 
    ow::dbm::open(\%LUNAR, $lunardb, LOCK_EX, 0644) or return -1;
-   open (T, "$config{'lunar_map'}");
+   open (T, $config{'lunar_map'});
    $_=<T>; $_=<T>;
    while (<T>) {
       my @a=split(/,/, $_);
@@ -28,7 +28,7 @@ sub solar2lunar {
    my ($year, $month, $day)=@_;
    my ($lunar_year, $lunar_monthday);
 
-   my $lunardb=ow::tool::untaint("$config{'ow_etcdir'}/lunar");
+   my $lunardb=ow::tool::untaint("$config{'ow_mapsdir'}/lunar");
    if (ow::dbm::exist($lunardb)) {
       my %LUNAR;
       my $date=sprintf("%04d%02d%02d", $year, $month, $day);

@@ -10,6 +10,11 @@ package ow::th;
    'sent-mail'      => 'ส่งแล้ว',
    'saved-drafts'   => 'ร่าง',
    'mail-trash'     => 'ถังขยะ',
+   'spam-mail'      => 'Spam',
+   'virus-mail'     => 'Virus',
+   LEARNSPAM        => '--LEARN SPAM--',
+   LEARNHAM         => '--LEARN HAM--',
+   FORWARD          => '--FORWARD--',
    DELETE           => '--ลบทิ้ง--'
    );
 
@@ -87,6 +92,13 @@ package ow::th;
    before => 'ก่อนรายการสมุดรายชื่อ',
    after  => 'หลังรายการสมุดรายชื่อ',
    both   => 'ก่อนและหลังรายการสมุดรายชื่อ'
+   );
+
+%lang_checksourcelabels =
+   (
+   all  => 'All new messages in INBOX',
+   pop3 => 'Only messages from pop3 server',
+   none => 'None'
    );
 
 %lang_timelabels =
@@ -225,6 +237,7 @@ package ow::th;
    userprefs  => 'ตัวเลือก',
    addressbook=> 'สมุดรายชื่อ',
    folders    => 'โฟลเดอร์',
+   emptyfolder=> 'Empty folder',
    emptytrash => 'ล้างถังขยะ',
    totrash    => 'ทิ้งถังขยะ',
    forever    => 'ตลอดไป',
@@ -451,6 +464,7 @@ package ow::th;
    abook_invalid     => 'แฟ้มนี้ไม่ใช่สมุดรายชื่อที่ถูกส่งออกจากโปรแกรม Microsoft Outlook Express 5 ในรูปแบบ CSV กรุณาตรวจสอบว่า เมื่ออ่านแฟ้มนี้ในโปรแกรมแก้ไขข้อความ แฟ้มนี้จะขึ้นต้นด้วย "Name,E-mail Address"',
    back              => 'กลับ',
    tryagain          => 'ลองใหม่อีกครั้ง',
+   mailfilter_error  => 'Mail Filter Error',
    abook_toobig      => 'การกระทำนี้จะทำให้สมุดรายชื่อของคุณใหญ่กว่าที่กำหนดไว้',
    cant_create_dir   => 'ไม่สามารถสร้างไดเรกทอรีส่วนตัวของคุณได้!',
    att_overlimit     => 'แฟ้มที่แนบของคุณใหญ่กว่าขนาดที่กำหนดไว้',

@@ -172,6 +172,11 @@
 @@@AUTOPOP3CHECKBOX@@@ (รอ @@@AUTOPOP3WAITMENU@@@ วินาที)
 </td></tr>
 @@@AUTOPOP3END@@@
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Wait time for background mail filtering:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@BGFILTERWAITMENU@@@ seconds
+</td></tr>
 @@@MOVEOLDSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>ย้ายจดหมายเก่าไปโฟลเดอร์บันทึกเมื่อออกจากระบบ:</B>
@@ -270,6 +275,46 @@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SENDCHARSETMENU@@@
 </td></tr>
+
+@@@VIRUSCHECKSTART@@@
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Virus Check</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Messages to be checked:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@VIRUSCHECKSOURCEMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Maximum size of the checked messages:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@VIRUSCHECKMAXSIZEMENU@@@ KB
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Minimum size of the body of checked messages:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@VIRUSCHECKMINBODYSIZEMENU@@@ KB
+</td></tr>
+@@@VIRUSCHECKEND@@@
+
+@@@SPAMCHECKSTART@@@
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Spam Check</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Messages to be checked:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SPAMCHECKSOURCEMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Maximum size of the checked messages:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SPAMCHECKMAXSIZEMENU@@@ KB
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Threshold to determine Spam:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SPAMCHECKTHRESHOLDMENU@@@
+</td></tr>
+@@@SPAMCHECKEND@@@
 
 @@@FILTERSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
@@ -409,6 +454,11 @@
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>ตัวเลือกอื่นๆ</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Use lightbar for selection:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@USELIGHTBARCHECKBOX@@@
+</td></tr>
 @@@WEBMAILSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>ใช้ Regex ในการค้นหา และการกลั่นกรองจดหมาย:</B>
@@ -445,7 +495,12 @@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>เก็บจดหมายในถังขยะไว้:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@RESERVEDDAYSMENU@@@ วัน
+@@@TRASHRESERVEDDAYSMENU@@@ วัน
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Spam/Virus mail reserved day(s):</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SPAMVIRUSRESERVEDDAYSMENU@@@
 </td></tr>
 @@@WEBMAILEND@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>

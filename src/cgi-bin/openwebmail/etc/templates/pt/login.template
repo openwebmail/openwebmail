@@ -21,11 +21,20 @@
 <td align="right" nowrap>Dominio: </td><td>@@@DOMAINMENU@@@</td>
 @@@DOMAINEND@@@
 </tr><tr>
+<td align=center colspan=2>
+
+<table><tr>
+<td align=center>@@@LOGINBUTTON@@@</td>
 <td align=center>
-<table><tr><td>@@@LOGINBUTTON@@@</td></tr></table>
+<table><tr>
+<td>@@@HTTPCOMPRESSIONCHECKBOX@@@</td><td><font size=1>HTTP<br>Compression</font></td>
+@@@AUTOLOGINSTART@@@
+<td>@@@AUTOLOGINCHECKBOX@@@</td><td><font size=1>Auto<br>Login</font></td>
+@@@AUTOLOGINEND@@@
+</tr></table>
 </td>
-<td align=center>
-<table><tr><td><font size=1>usar compressão<br>  HTTP</font></td><td>@@@HTTPCOMPRESSIONCHECKBOX@@@</td></tr></table>
+</tr></table>
+
 </td>
 </tr>
 </table>
@@ -70,6 +79,19 @@
 "3. alguns browsers têm problemas quando utilizam compressão HTTP com SSL...\n"+
 "4. alguns browsers dizem que têm suporte para compressão HTTP mas na realidade não a suportam...\n\n"+
 "Por tudo o que atrás se disse, na eventualidade de se deparar com algum problema, volte atrás e entre com esta caixa não seleccionada.\n"
+         );
+      }
+      return(true);
+   }
+
+   function autologinhelp()
+   {
+      if (document.login.autologin.checked) {
+         alert(
+"When this feature is enabled, you may login into openwebmail without typing username/password "+
+"if you didn't do logout in your previous openwebmail session and that session is not timeout. "+
+"However, others may also auto login into your openwebmail account with this computer, "+
+"so please DO NOT enable this feature on a public computer\n"
          );
       }
       return(true);

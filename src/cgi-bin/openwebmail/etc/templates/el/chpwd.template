@@ -7,13 +7,13 @@
 <BR>
 <table align=center border=0 cellspacing=2 cellpadding=0>
 <tr>
-<td align="right">UserID: </td><td>@@@LOGINNAMEFIELD@@@</td>
+<td align="right">Όνομα: </td><td>@@@LOGINNAMEFIELD@@@</td>
 </tr><tr>
-<td align="right">Old Password: </td><td>@@@OLDPASSWORDFIELD@@@</td>
+<td align="right">Παλαιός Κωδικός: </td><td>@@@OLDPASSWORDFIELD@@@</td>
 </tr><tr>
-<td align="right">New Password: </td><td>@@@NEWPASSWORDFIELD@@@</td>
+<td align="right">Νέος Κωδικός: </td><td>@@@NEWPASSWORDFIELD@@@</td>
 </tr><tr>
-<td align="right">Confirm New Password: </td><td>@@@CONFIRMNEWPASSWORDFIELD@@@</td>
+<td align="right">Επιβεβαίωση Νέου Κωδικού: </td><td>@@@CONFIRMNEWPASSWORDFIELD@@@</td>
 </tr><tr>
 <td colspan=2>
 <table width="100%"><tr>
@@ -31,17 +31,17 @@
       var s;
       s=document.passwordform.newpassword.value;
       if (s.length < @@@PASSWDMINLEN@@@) {
-         alert("Password must has at least @@@PASSWDMINLEN@@@ characters.");
+         alert("Ο κωδικός πρέπει να είναι τουλάχιστον @@@PASSWDMINLEN@@@ χαρακτήρες.");
          return false;
       }
       if (document.passwordform.newpassword.value !=
 	  document.passwordform.confirmnewpassword.value) {
-         alert("New password confirm mismatch.");
+         alert("Αποτυχημένη επιβεβαίωση νέου κωδικού.");
          return false;
       }
       if (document.passwordform.newpassword.value ==
 	  document.passwordform.oldpassword.value) {
-         alert("New password is the same as the old one.");
+         alert("Ο νέος κωδικός είναι ίδιος με τον παλαιό.");
          return false;
       }
       return true;

@@ -11,7 +11,7 @@ if ($SCRIPT_DIR eq '' && open(F, '/etc/openwebmail_path.conf')) {
 if ($SCRIPT_DIR eq '') { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
 push (@INC, $SCRIPT_DIR);
 
-foreach (qw(PATH ENV BASH_ENV CDPATH IFS TERM)) { $ENV{$_}='' }	# secure ENV
+foreach (qw(ENV BASH_ENV CDPATH IFS TERM)) {delete $ENV{$_}}; $ENV{PATH}='/bin:/usr/bin'; # secure ENV
 umask(0002); # make sure the openwebmail group can write
 
 use strict;
@@ -155,9 +155,9 @@ sub addressbook {
       openwebmailerror(__FILE__, __LINE__, $err) if ($stat<0);
 
       foreach (@namelist) {
-         delete $addresses{$_} if ( ! is_entry_matched($abook_keyword,$abook_searchtype, $_, $notes{$_}, $addresses{$_}) );
+         delete $addresses{$_} if (!is_entry_matched($abook_keyword,$abook_searchtype, 
+                                                     $_, $notes{$_}, $addresses{$_}));
       }
-
       foreach my $name (sort { lc($a) cmp lc($b) } keys %addresses) {
          my $email=$addresses{$name};
          my $emailstr;
@@ -221,6 +221,8 @@ sub addressbook {
       openwebmailerror(__FILE__, __LINE__, $err) if ($stat<0);
 
       foreach my $name (@namelist) {
+         next if (!is_entry_matched($abook_keyword,$abook_searchtype, 
+                                    $name, $globalnotes{$name}, $globaladdresses{$name})); 
          my $email=$globaladdresses{$name};
          my $emailstr;
 
@@ -343,7 +345,7 @@ sub importabook {
          open (ABOOK, ">>$addrbookfile"); # Create if nonexistent
          close(ABOOK);
       }
-      ow::filelock::lock($addrbookfile, LOCK_EX|LOCK_NB) or
+      ow::filelock::lock($addrbookfile, LOCK_EX) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $addrbookfile!");
 
       my ($stat,$err,@namelist)=read_abook($addrbookfile,\%addresses,\%notes);
@@ -449,7 +451,7 @@ sub importabook {
 sub exportabook {
    my $addrbookfile=dotpath('address.book');
 
-   ow::filelock::lock($addrbookfile, LOCK_EX|LOCK_NB) or
+   ow::filelock::lock($addrbookfile, LOCK_EX) or
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $addrbookfile!");
 
    my %addresses=();
@@ -495,7 +497,7 @@ sub importabook_pine {
       my (%addresses, %notes);
       my $abooktowrite='';
 
-      ow::filelock::lock($addrbookfile, LOCK_EX|LOCK_NB) or
+      ow::filelock::lock($addrbookfile, LOCK_EX) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $addrbookfile!");
 
       my ($stat,$err,@namelist)=read_abook($addrbookfile, \%addresses, \%notes);
@@ -527,7 +529,7 @@ sub exportabook_pine {
    my $addrbookfile=dotpath('address.book');
 
    if (-f $addrbookfile) {
-      ow::filelock::lock($addrbookfile, LOCK_SH) or
+      ow::filelock::lock($addrbookfile, LOCK_SH|LOCK_NB) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $addrbookfile!");
 
       my (%nicknames, %emails, %fccs, %notes);
@@ -794,40 +796,42 @@ sub modaddress {
 
    if (($realname && $address) || (($mode eq 'delete') && $realname) ) {
 
-      my (%addresses, %notes, $name, $email, $note);
       my $addrbookfile=dotpath('address.book');
+      my ($stat,$err,@namelist);
+      my (%addresses, %notes, $name, $email, $note);
 
-      if ( -f $addrbookfile ) {
-         if ($mode ne 'delete') {
-            if ( (-s $addrbookfile) >= ($config{'maxbooksize'} * 1024) ) {
-               openwebmailerror(__FILE__, __LINE__, qq|$lang_err{'abook_toobig'} <a href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=editaddresses&amp;sessionid=$thissession&amp;sort=$sort&amp;folder=$escapedfolder&amp;page=$page&amp;message_id=$escapedmessageid">$lang_err{'back'}</a>$lang_err{'tryagain'}|);
-            }
+      ow::filelock::lock($addrbookfile, LOCK_EX) or
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $addrbookfile!");
+
+      if (! -z $addrbookfile ) {
+         ($stat,$err,@namelist)=read_abook($addrbookfile, \%addresses, \%notes);
+         if ($stat<0) {
+            ow::filelock::lock($addrbookfile, LOCK_UN);
+            openwebmailerror(__FILE__, __LINE__, $err);
          }
-         ow::filelock::lock($addrbookfile, LOCK_EX|LOCK_NB) or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $addrbookfile!");
-         my ($stat,$err,@namelist)=read_abook($addrbookfile, \%addresses, \%notes);
-         openwebmailerror(__FILE__, __LINE__, $err) if ($stat<0);
-
-         if ($mode eq 'delete') {
-            delete $addresses{"$realname"};
-         } else {
-            $addresses{"$realname"} = $address;
-            # overwrite old note only if new one is not _reserved_
-            # check addaddress in openwebmail-read.pl
-            if ($usernote ne '_reserved_') {
-               $notes{"$realname"} = $usernote;
-            }
-         }
-
-         # replace the address book
-         my ($stat,$err)=write_abook($addrbookfile,$config{'maxbooksize'},\%addresses,\%notes);
-         openwebmailerror(__FILE__, __LINE__, $err) if ($stat<0);
-         ow::filelock::lock($addrbookfile, LOCK_UN);
-      } else {
-         # create a new address book
-         my ($stat,$err)=write_abook($addrbookfile,$config{'maxbooksize'},\%addresses,\%notes);
-         openwebmailerror(__FILE__, __LINE__, $err) if ($stat<0);
       }
+
+      if ($mode eq 'delete') {
+         delete $addresses{"$realname"};
+      } else {
+         if ( (-s $addrbookfile) >= ($config{'maxbooksize'} * 1024) ) {
+            ow::filelock::lock($addrbookfile, LOCK_UN);
+            openwebmailerror(__FILE__, __LINE__, qq|$lang_err{'abook_toobig'} <a href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=editaddresses&amp;sessionid=$thissession&amp;sort=$sort&amp;folder=$escapedfolder&amp;page=$page&amp;message_id=$escapedmessageid">$lang_err{'back'}</a>$lang_err{'tryagain'}|);
+         }
+         $addresses{"$realname"} = $address;
+         # overwrite old note only if new one is not _reserved_
+         # check addaddress in openwebmail-read.pl         
+         $notes{"$realname"} = $usernote if ($usernote ne '_reserved_');
+      }
+
+      # replace the address book
+      ($stat,$err)=write_abook($addrbookfile,$config{'maxbooksize'},\%addresses,\%notes);
+      if ($stat<0) {
+         ow::filelock::lock($addrbookfile, LOCK_UN) or
+         openwebmailerror(__FILE__, __LINE__, $err);
+      }
+
+      ow::filelock::lock($addrbookfile, LOCK_UN);
    }
 
    if ( param('message_id') ) {

@@ -1,7 +1,7 @@
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>About</B></font>
+<B>ο σιστενε</B></font>
 </td></tr>
 <tr><td bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
@@ -13,23 +13,23 @@
 @@@INFOSOFTWARESTART@@@
 <tr><td colspan=2 bgcolor=@@@COLUMNHEADER@@@><B>SOFTWARE</B></td></tr>
 @@@INFOSOFTWARE@@@
+<tr><td colspan=2>&nbsp;</td></tr>
 @@@INFOSOFTWAREEND@@@
 
 @@@INFOPROTOCOLSTART@@@
-<tr><td colspan=2>&nbsp;</td></tr>
-<tr><td colspan=2 bgcolor=@@@COLUMNHEADER@@@><B>PROTOCOL</B></td></tr>
+<tr><td colspan=2 bgcolor=@@@COLUMNHEADER@@@><B>πςοτολομ</B></td></tr>
 @@@INFOPROTOCOL@@@
+<tr><td colspan=2>&nbsp;</td></tr>
 @@@INFOPROTOCOLEND@@@
 
 @@@INFOSERVERSTART@@@
-<tr><td colspan=2>&nbsp;</td></tr>
-<tr><td colspan=2 bgcolor=@@@COLUMNHEADER@@@><B>SERVER</B></td></tr>
+<tr><td colspan=2 bgcolor=@@@COLUMNHEADER@@@><B>σεςχες</B></td></tr>
 @@@INFOSERVER@@@
+<tr><td colspan=2>&nbsp;</td></tr>
 @@@INFOSERVEREND@@@
 
 @@@INFOCLIENTSTART@@@
-<tr><td colspan=2>&nbsp;</td></tr>
-<tr><td colspan=2 bgcolor=@@@COLUMNHEADER@@@><B>CLIENT</B></td></tr>
+<tr><td colspan=2 bgcolor=@@@COLUMNHEADER@@@><B>λμιεξτ</B></td></tr>
 @@@INFOCLIENT@@@
 @@@INFOCLIENTEND@@@
 

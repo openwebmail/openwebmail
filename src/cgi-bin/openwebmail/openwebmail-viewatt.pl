@@ -11,7 +11,7 @@ if ($SCRIPT_DIR eq '' && open(F, '/etc/openwebmail_path.conf')) {
 if ($SCRIPT_DIR eq '') { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
 push (@INC, $SCRIPT_DIR);
 
-foreach (qw(PATH ENV BASH_ENV CDPATH IFS TERM)) { $ENV{$_}='' }	# secure ENV
+foreach (qw(ENV BASH_ENV CDPATH IFS TERM)) {delete $ENV{$_}}; $ENV{PATH}='/bin:/usr/bin'; # secure ENV
 umask(0002); # make sure the openwebmail group can write
 
 use strict;
@@ -29,6 +29,7 @@ require "modules/datetime.pl";
 require "modules/lang.pl";
 require "modules/mime.pl";
 require "modules/mailparse.pl";
+require "modules/tnef.pl";
 require "modules/htmltext.pl";
 require "modules/htmlrender.pl";
 require "modules/execute.pl";
@@ -37,6 +38,7 @@ require "quota/quota.pl";
 require "shares/ow-shared.pl";
 require "shares/iconv.pl";
 require "shares/maildb.pl";
+require "shares/lockget.pl";
 
 # common globals
 use vars qw(%config %config_raw);
@@ -126,19 +128,10 @@ sub getattachment {
    my ($folder, $messageid, $nodeid, $wordpreview)=@_;
    my ($folderfile, $folderdb)=get_folderpath_folderdb($user, $folder);
    my $folderhandle=do { local *FH };
+   my ($msgsize, $errmsg, $block);
 
-   ow::filelock::lock($folderfile, LOCK_SH|LOCK_NB) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $folderfile!");
-   if (update_folderindex($folderfile, $folderdb)<0) {
-      ow::filelock::lock($folderfile, LOCK_UN);
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_updatedb'} $folderdb");
-   }
-   open($folderhandle, "$folderfile");
-   my $r_block= get_message_block($messageid, $folderdb, $folderhandle);
-   close($folderhandle);
-   ow::filelock::lock($folderfile, LOCK_UN);
-
-   if ( !defined(${$r_block}) ) {
+   ($msgsize, $errmsg)=lockget_message_block($messageid, $folderfile, $folderdb, \$block);
+   if ( $msgsize<=0 ) {
       openwebmailerror(__FILE__, __LINE__, "What the heck? Message ".ow::htmltext::str2html($messageid)." seems to be gone!");
    }
 
@@ -160,7 +153,7 @@ sub getattachment {
       }
       $subject =~ s/\s+/_/g;
 
-      my $length = length(${$r_block});
+      my $length = length($block);
       my $attheader=qq|Content-Length: $length\n|.
                     qq|Connection: close\n|.
                     qq|Content-Type: message/rfc822; name="$subject.msg"\n|;
@@ -178,12 +171,12 @@ sub getattachment {
                      qq|Cache-Control: private,max-age=900\n|;
       }
 
-      return("$subject.msg", $length, \$attheader, $r_block);
+      return("$subject.msg", $length, \$attheader, \$block);
 
    } else {
       # return a specific attachment
-      my ($header, $body, $r_attachments)=ow::mailparse::parse_rfc822block($r_block, "0", $nodeid);
-      undef(${$r_block}); undef($r_block);
+      my ($header, $body, $r_attachments)=ow::mailparse::parse_rfc822block(\$block, "0", $nodeid);
+      undef($block);
 
       my $r_attachment;
       for (my $i=0; $i<=$#{$r_attachments}; $i++) {
@@ -196,11 +189,8 @@ sub getattachment {
                      ${$r_attachment}{charset}||
                      $convfrom||
                      $attr[$_CHARSET];
-         if (is_convertable($charset, $prefs{'charset'})) {
-            (${$r_attachment}{filename})=iconv($charset, $prefs{'charset'},
-                                                ${$r_attachment}{filename});
-         }
-
+         my $contenttype = ${$r_attachment}{'content-type'};
+         my $filename = ${$r_attachment}{filename}; $filename=~s/\s$//;
          my $content;
          if (${$r_attachment}{'content-transfer-encoding'} =~ /^base64$/i) {
             $content = decode_base64(${${$r_attachment}{r_content}});
@@ -211,7 +201,20 @@ sub getattachment {
          } else { ## Guessing it's 7-bit, at least sending SOMETHING back! :)
             $content = ${${$r_attachment}{r_content}};
          }
-         if (${$r_attachment}{'content-type'} =~ m#^text/html#i ) {
+
+         if ($contenttype =~ m#^application/ms\-tnef#) {	# try to convery tnef -> zip/tgz/tar
+            my $tnefbin=ow::tool::findbin('tnef');
+            if ($tnefbin ne '') {
+               my ($arcname, $r_arcdata)=ow::tnef::get_tnef_archive($tnefbin, $filename, \$content);
+               if ($arcname ne '') {	# tnef extraction and conversion successed
+                  $filename=$arcname;
+                  $contenttype=ow::tool::ext2contenttype($filename);
+                  $content=${$r_arcdata};
+               }
+            }
+         }
+
+         if ($contenttype =~ m#^text/html#i ) {			# try to rendering html
             my $escapedfolder = ow::tool::escapeURL($folder);
             my $escapedmessageid = ow::tool::escapeURL($messageid);
             $content = ow::htmlrender::html4nobase($content);
@@ -223,9 +226,9 @@ sub getattachment {
 #            $content = ow::htmlrender::html4mailto($content, "$config{'ow_cgiurl'}/openwebmail-send.pl", "action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page&amp;sessionid=$thissession&amp;composetype=sendto");
          }
 
-         my $contenttype = ${$r_attachment}{'content-type'};
-         my $filename = ${$r_attachment}{filename}; $filename=~s/\s$//;
-
+         if (is_convertable($charset, $prefs{'charset'})) {
+            ($filename)=iconv($charset, $prefs{'charset'}, $filename);
+         }
          # remove char disallowed in some fs
          if ($prefs{'charset'} eq 'big5' || $prefs{'charset'} eq 'gb2312') {
             $filename = ow::tool::zh_dospath2fname($filename, '_');	# dos path
@@ -256,7 +259,7 @@ sub getattachment {
          }
 
          if ($wordpreview && $filename =~ /\.(?:doc|dot)$/i &&	# in wordpreview mode?
-             word2simplehtml(\$content)) {	
+             msword2html(\$content)) {	
              $contenttype="text/html";
          }
 
@@ -352,7 +355,7 @@ sub getattfile {
    }
 
    if ($wordpreview && $att{filename} =~ /\.(?:doc|dot)$/i &&	# in wordpreview mode?
-       word2simplehtml(\$attcontent)) {
+       msword2html(\$attcontent)) {
        $attheader=~s!$att{'content-type'}!text/html!;
        $att{'content-type'}="text/html";
    }
@@ -397,7 +400,7 @@ sub savefile2webdisk {
    if (!open(F, ">$webdiskrootdir/$vpath") ) {
       autoclosewindow($lang_text{'savefile'}, "$lang_text{'savefile'} $lang_text{'failed'} ($vpath: $!)");
    }
-   ow::filelock::lock("$webdiskrootdir/$vpath", LOCK_EX|LOCK_NB) or
+   ow::filelock::lock("$webdiskrootdir/$vpath", LOCK_EX) or
       autoclosewindow($lang_text{'savefile'}, "$lang_err{'couldnt_lock'} $webdiskrootdir/$vpath!");
    print F ${$r_content};
    close(F);
@@ -411,13 +414,13 @@ sub savefile2webdisk {
 }
 ########## END SAVEFILE2WEBDISK ##################################
 
-########## WORD2SIMPLEHTML #######################################
-sub word2simplehtml {
+########## MSWORD2HTML ###########################################
+sub msword2html {
    my $r_content=$_[0];
    my $antiwordbin=ow::tool::findbin('antiword');
    return 0 if ($antiwordbin eq '');
 
-   my $tmpfile=ow::tool::untaint("/tmp/.tmpfile.".time());
+   my $tmpfile=ow::tool::untaint("/tmp/.msword2html.tmpfile.$$");
    my $err=0;
    open(F, ">$tmpfile") or return 0; 
    print F ${$r_content} or $err++; 
@@ -441,4 +444,4 @@ sub word2simplehtml {
                  qq|<body><pre>\n$stdout\n</pre></body></html>\n|;
    return 1;
 }
-########## WORD2SIMPLEHTML #######################################
+########## MSWORD2HTML ###########################################

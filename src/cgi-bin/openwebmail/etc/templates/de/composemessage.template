@@ -177,7 +177,8 @@
          alert("Bitte geben Sie einen Empfänger an, bevor Sie die Nachricht abschicken!");
          return false;
       }
-      if (document.composeform.subject.value == "" ) {
+      if (document.composeform.subject.value == "" 
+       || document.composeform.subject.value == "N/A" ) {
          return(confirm("Sie haben keinen Betreff angegeben, trotzdem absenden?"));
       }
       return true;

@@ -5,7 +5,7 @@ package ow::pl;
 #    michal talecki, mik.AT.orka.ibz.pl
 #    Grzegorz Nosek, blackfire.AT.virtual.net.pl
 #    Andrzej Cuber, rea.AT.supermedia.pl
-#    Pawel Foremski, pavcio.AT.4lo.bytom.pl 
+#    Pawe³ Foremski, pjf.AT.gna.org 
 
 %lang_folders =
    (
@@ -14,6 +14,11 @@ package ow::pl;
    'sent-mail'      => 'WYS£ANE',
    'saved-drafts'   => 'BRUDNOPIS',
    'mail-trash'     => 'KOSZ',
+   'spam-mail'      => 'Spam',
+   'virus-mail'     => 'Wirusy',
+   LEARNSPAM        => '--ZG£O¦ SPAM--',
+   LEARNHAM         => '--ZG£O¦ HAM--',
+   FORWARD          => '--PRZEKIERUJ--',
    DELETE           => '--USUÑ--'
    );
 
@@ -91,6 +96,13 @@ package ow::pl;
    before => 'Przed wpisami ksi±¿ki adresowej',
    after  => 'Po wpisach ksi±¿ki adresowej',
    both   => 'Przed i po wpisach ksi±¿ki adresowej'
+   );
+
+%lang_checksourcelabels =
+   (
+   all  => 'Wszystkie nowe wiadomo¶ci w folderze PRZYCHODZ¡CA',
+   pop3 => 'Tylko wiadomo¶ci z serwera POP3',
+   none => '¯adne'
    );
 
 %lang_timelabels =
@@ -229,6 +241,7 @@ package ow::pl;
    userprefs  => 'Preferencje u¿ytkownika',
    addressbook=> 'Ksi±¿ka adresowa',
    folders    => 'Foldery',
+   emptyfolder=> 'Opró¿nij folder',
    emptytrash => 'Opró¿nij kosz',
    totrash    => 'Przenie¶ do kosza',
    forever    => 'Zawsze',
@@ -455,6 +468,7 @@ package ow::pl;
    abook_invalid     => 'Niestety, ale ten plik nie wygl±da na wyeksportowany z Outlook Express 5 w formacie CSV.  Upewnij siê przy pomocy edytora tekstu, czy pierwsza linia rozpoczyna siê od "Name,E-mail", przejd¼',
    back              => 'wstecz',
    tryagain          => 'i spróbuj jeszcze raz.',
+   mailfilter_error  => 'B³±d filtra poczty',
    abook_toobig      => 'Niestety przekraczasz dopuszczalny rozmiar swojej Ksi±¿ki Adresowej.  Przejd¼',
    cant_create_dir   => 'Nie mo¿na utworzyæ twojego osobistego katalogu!',
    att_overlimit     => 'Niestety rozmiar za³±cznika przekracza limit, który wynosi',

@@ -9,7 +9,7 @@ use strict;
 require "modules/tool.pl";
 
 my %conf;
-if (($_=ow::tool::find_configfile('etc/suid.conf', 'etc/suid.conf.default')) ne '') {
+if (($_=ow::tool::find_configfile('etc/suid.conf', 'etc/defaults/suid.conf')) ne '') {
    my ($ret, $err)=ow::tool::load_configfile($_, \%conf);
    die $err if ($ret<0);
 }
@@ -38,7 +38,8 @@ sub set_uid_to_root {
    $> = 0; 	# first set the user to root
    $) = 0; 	# set effective group to root
    $< = $>;	# set real user to root, 
-                # some cmds checks ruid even euid is already root
+                # since 1. some cmds checks ruid even euid is already root
+                #       2. some shells(eg:bash) switch euid back to ruid before execution
    return ($origruid, $origeuid, $origegid);
 }
 
@@ -48,6 +49,32 @@ sub restore_uid_from_root {
    $< = $ruid;
    $> = $euid;
    return;
+}
+
+# drop ruid/rgid by setting ruid=euid, rgid=egid, to guarentee process 
+# forked later will have ruid=euid=current euid
+#
+# on system without savedsuid support (which store 0 in ruid), 
+# drop ruid 0 will lose root privilege forever, 
+# so this routine is used in 'forked then die' process only in openwebmail,
+# or owm won't get root back in persistence mode
+#
+# ps: perl process will invoke shell to execute commands in the following cases
+#     a. open with pipe |
+#     b. command within ``
+#     c. command passed to system() or exec() as a whole string
+#        and the string has shell escape char in it
+#
+#     When bash is started and parent ruid!=0, 
+#     it will have ruid=parent ruid, euid=parnet ruid (for security reason, I guess)
+#     instead of ruid=parnet ruid, euid=parent euid
+#
+#     So the command executed by shell may have different euid than perl process
+#
+sub drop_ruid_rgid {
+   my $euid=$>;
+   $>=0; $(=$); $<=$euid; $>=$euid;
+   return
 }
 
 1;

@@ -177,7 +177,8 @@
          alert("Vastaanottajan sähköpostiosoite puuttuu.");
          return false;
       }
-      if (document.composeform.subject.value == "" ) {
+      if (document.composeform.subject.value == "" 
+       || document.composeform.subject.value == "N/A" ) {
          return(confirm("Tällä viestillä ei ole aihe- riviä, haluatko lähettää sen kuitenkin?"));
       }
       return true;

@@ -9,6 +9,7 @@ attachment_light="#E5E5E5"
 columnheader="#BFCCD7"
 tablerow_dark="#E6E6E6"
 tablerow_light="#EEEEEE"
+tablerow_hicolor="#FFCCCC"
 fontface="Verdana, Arial, Helvetica, sans-serif"
 ###STARTSTYLESHEET###
 <!--

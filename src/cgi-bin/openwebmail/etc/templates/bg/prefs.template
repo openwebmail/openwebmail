@@ -172,6 +172,11 @@
 @@@AUTOPOP3CHECKBOX@@@ (чакай @@@AUTOPOP3WAITMENU@@@ секунди)
 </td></tr>
 @@@AUTOPOP3END@@@
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Време за изчакване на филтъра за входящата поща:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@BGFILTERWAITMENU@@@ seconds
+</td></tr>
 @@@MOVEOLDSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Преместване на старите в Записани при изход:</B>
@@ -271,6 +276,46 @@
 @@@SENDCHARSETMENU@@@
 </td></tr>
 
+@@@VIRUSCHECKSTART@@@
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Проверка за вируси</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Съобщения за проверка:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@VIRUSCHECKSOURCEMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Максимална големина на съобщенията за проверка:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@VIRUSCHECKMAXSIZEMENU@@@ KB
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Минимална големина на тялото на съобщението:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@VIRUSCHECKMINBODYSIZEMENU@@@ KB
+</td></tr>
+@@@VIRUSCHECKEND@@@
+
+@@@SPAMCHECKSTART@@@
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Spam Check</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Съобщения за проверка:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SPAMCHECKSOURCEMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Максимална големина на съобщенията за проверкa:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SPAMCHECKMAXSIZEMENU@@@ KB
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Праг при оппеделяне на спам:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SPAMCHECKTHRESHOLDMENU@@@
+</td></tr>
+@@@SPAMCHECKEND@@@
+
 @@@FILTERSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Опции за филтриране</B></td></tr>
@@ -302,7 +347,7 @@
 @@@FILTEREND@@@
 
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>AddressBook Options</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Опции на адресната книга</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Големина на прозореца на адресната книга:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -409,6 +454,11 @@
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Други опции</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Използване на светла лента при селекция:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@USELIGHTBARCHECKBOX@@@
+</td></tr>
 @@@WEBMAILSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Използване на съвпадение при търсене и филтриране:</B>
@@ -445,7 +495,12 @@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Изпразни кошчетo след (дни):</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@RESERVEDDAYSMENU@@@
+@@@TRASHRESERVEDDAYSMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Дни за запазване на съобщения със спам или вирус:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SPAMVIRUSRESERVEDDAYSMENU@@@
 </td></tr>
 @@@WEBMAILEND@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
@@ -454,7 +509,7 @@
 @@@REFRESHINTERVALMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>"Timeout" на сесията:</B>
+<B>Период на бездействие, след който сесията се прекъсва:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SESSIONTIMEOUTMENU@@@
 </td></tr>

@@ -10,6 +10,11 @@ package ow::da;
    'sent-mail'      => 'Sendt mail',
    'saved-drafts'   => 'Kladder',
    'mail-trash'     => 'Papirkurv',
+   'spam-mail'      => 'Spam',
+   'virus-mail'     => 'Virus',
+   LEARNSPAM        => '--LEARN SPAM--',
+   LEARNHAM         => '--LEARN HAM--',
+   FORWARD          => '--FORWARD--',
    DELETE           => '--Slet permanent--'
    );
 
@@ -87,6 +92,13 @@ package ow::da;
    before => 'over optagelserne',
    after  => 'under optagelserne',
    both   => 'både over og under optagelserne'
+   );
+
+%lang_checksourcelabels =
+   (
+   all  => 'All new messages in INBOX',
+   pop3 => 'Only messages from pop3 server',
+   none => 'None'
    );
 
 %lang_timelabels =
@@ -225,6 +237,7 @@ package ow::da;
    userprefs  => 'Standard indstillinger',
    addressbook=> 'Adressebog',
    folders    => 'Mappe oversigt',
+   emptyfolder=> 'Empty folder',
    emptytrash => 'Tøm papirkurven',
    totrash    => 'Flyt til papirkurv',
    forever    => 'Aldrig',
@@ -451,6 +464,7 @@ package ow::da;
    abook_invalid     => 'Denne fil ser desværre ikke ud til at være en adressebog fra Microsoft Outlook Express 5 i CSV-format. Check i en teksteditor, at den første linie starter med "Name, mailaddress", og gå ',
    back              => 'tilbage',
    tryagain          => 'og forsøg igen.',
+   mailfilter_error  => 'Mail Filter Error',
    abook_toobig      => 'Dette vil gøre din adressebog større end tilladt. Gå',
    cant_create_dir   => 'Kan ikke oprette mappen!',
    att_overlimit     => 'Dine vedhæftede filer er større end tilladt',

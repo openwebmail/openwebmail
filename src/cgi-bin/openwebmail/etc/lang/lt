@@ -10,6 +10,11 @@ package ow::lt;
    'sent-mail'      => 'Iðsiøsti laiðkai',
    'saved-drafts'   => 'Raðomi laiðkai',
    'mail-trash'     => 'Ðiukðliadëþë',
+   'spam-mail'      => 'Spam',
+   'virus-mail'     => 'Virus',
+   LEARNSPAM        => '--LEARN SPAM--',
+   LEARNHAM         => '--LEARN HAM--',
+   FORWARD          => '--FORWARD--',
    DELETE           => '--TRINTI--'
    );
 
@@ -87,6 +92,13 @@ package ow::lt;
    before => 'Before addressbook entries',
    after  => 'After addressbook entries',
    both   => 'Before and after addressbook entries'
+   );
+
+%lang_checksourcelabels =
+   (
+   all  => 'All new messages in INBOX',
+   pop3 => 'Only messages from pop3 server',
+   none => 'None'
    );
 
 %lang_timelabels =
@@ -225,6 +237,7 @@ package ow::lt;
    userprefs  => 'Vartotojo nustatymai',
    addressbook=> 'Adresø sàraðas',
    folders    => 'Segtuvai',
+   emptyfolder=> 'Empty folder',
    emptytrash => 'Ar iðtrinti ðiukðledëþæ',
    totrash    => 'Perkelti á ðiukðledëþæ',
    forever    => 'Visam laikui',
@@ -451,6 +464,7 @@ package ow::lt;
    abook_invalid     => 'Atrodo, kad norite importuoti bylà, kuri neatitinka Microsoft Outlook Express 5 CSV formato. Pasiþiûrëkit ar pirmoje eilutë tokia: "Name,E-mail Address", jei taip, bandykite importuoti',
    back              => 'atgal',
    tryagain          => 'bandykit dar kartà.',
+   mailfilter_error  => 'Mail Filter Error',
    abook_toobig      => 'Gaila, bet Jûs iðnaudojote adresø knygelei skirtà disko vietà.',
    cant_create_dir   => 'Nepavyko sukurti segtuvo Jûsø darbui!',
    att_overlimit     => 'Gaila, bet Jûsø prikabinta byla didesnë uþ leistinà',

@@ -55,7 +55,7 @@ HTMLArea.I18N = {
 		indent:         "Uveæaj razmak",
 		forecolor:      "Boja fonta",
 		hilitecolor:    "Boja pozadine",
-		horizontalrule: "Horizontal Rule",
+		horizontalrule: "Horizontalna linija",
 		createlink:     "Ubaci vezu",
 		insertimage:    "Ubaci sliku",
 		insertsound:    "Ubaci zvuk",
@@ -65,20 +65,20 @@ HTMLArea.I18N = {
 		about:          "O editoru",
 		showhelp:       "Pomoæ u kori¹æenju editora",
 		textindicator:  "Trenutni stil",
-		undo:           "Undoes your last action",
-		redo:           "Redoes your last action",
-		cut:            "Cut selection",
-		copy:           "Copy selection",
-		paste:          "Paste from clipboard"
+		undo:           "Poni¹tavanje poslednje promene",
+		redo:           "Vrati poni¹tenu promenu",
+		cut:            "Iseci izbor",
+		copy:           "Kopiraj izbor",
+		paste:          "Nalepi izbor"
 	},
 
 	buttons: {
-		"ok":           "OK",
-		"cancel":       "Cancel"
+		"ok":           "U redu",
+		"cancel":       "Otka¾i"
 	},
 
 	msg: {
-		"Path":         "Path",
-		"TEXT_MODE":    "You are in TEXT MODE.  Use the [<>] button to switch back to WYSIWIG."
+		"Path":         "Putanja",
+		"TEXT_MODE":    "Nalazite se u TEKST MODU.  Koristite dugme [<>] da se vratite u WYSIWIG."
 	}
 };

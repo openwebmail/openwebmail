@@ -2,7 +2,7 @@ package ow::sk;
 
 # Slovak translation, charset: iso-8859-2
 # by lubos klokner, lubos.AT.klokner.sk, 2002-JUL-11
-#    PeSe, pese.AT.svf.stuba.sk, 2003-01-15
+#    PeSe, pese.AT.svf.stuba.sk, 2003-06-17
 
 %lang_folders =
    (
@@ -11,6 +11,11 @@ package ow::sk;
    'sent-mail'      => 'ODOSLANÉ',
    'saved-drafts'   => 'KONCEPT',
    'mail-trash'     => 'KÔ©',
+   'spam-mail'      => 'Spam',
+   'virus-mail'     => 'Virus',
+   LEARNSPAM        => '--LEARN SPAM--',
+   LEARNHAM         => '--LEARN HAM--',
+   FORWARD          => '--FORWARD--',
    DELETE           => '--ZMAZA«--'
    );
 
@@ -37,8 +42,8 @@ package ow::sk;
 %lang_prioritylabels =
    (
    normal      => 'Normálna',
-   urgent      => 'Urgentné',
-   'non-urgent'=> 'Neurgentné'
+   urgent      => 'Vysoká',
+   'non-urgent'=> 'Nízka'
    );
 
 %lang_msgformatlabels =
@@ -90,9 +95,16 @@ package ow::sk;
    both   => 'Pred aj za zoznamom kontaktov'
    );
 
+%lang_checksourcelabels =
+   (
+   all  => 'All new messages in INBOX',
+   pop3 => 'Only messages from pop3 server',
+   none => 'None'
+   );
+
 %lang_timelabels =
    (
-      3 => '3 minút',
+      3 => '3 minúty',
       5 => '5 minút',
      10 => '10 minút',
      20 => '20 minút',
@@ -152,7 +164,7 @@ package ow::sk;
    (
    0 => 'Nedeµa',
    1 => 'Pondelok',
-   2 => 'Útorok',
+   2 => 'Utorok',
    3 => 'Streda',
    4 => '©tvrtok',
    5 => 'Piatok',
@@ -188,8 +200,8 @@ package ow::sk;
    listarchive=> 'Zobrazi»',
    decompress=>'Dekomprimova»',
    extract  => 'Rozbali»',
-   mkpdf    => 'Make Pdf',
-   mkps     => 'Make Ps',
+   mkpdf    => 'Vytvor Pdf',
+   mkps     => 'Vytvor Ps',
    chdir    => 'ZmeòAdr',
    mkdir    => 'VytvorAdr',
    newfile  => 'NovýSúbor',
@@ -226,6 +238,7 @@ package ow::sk;
    userprefs  => 'Pou¾ívateµské nastavenia',
    addressbook=> 'Adresár',
    folders    => 'Katalógy',
+   emptyfolder=> 'Empty folder',
    emptytrash => 'Vysypa» kô¹',
    totrash    => 'Presunú» do ko¹a',
    forever    => 'Nav¾dy',
@@ -233,7 +246,7 @@ package ow::sk;
    userdef    => 'Vlastné',
    logout     => 'Odhlási»',
    page       => 'Stránka',
-   msgsperpage=> '@@@MSGCOUNT@@@ messages per page',
+   msgsperpage=> '@@@MSGCOUNT@@@ správ na stránku',
    msgcopyconf=> '\'Chcete naozaj kopírova» vybranú(é) správu(y)?\'',
    copy       => 'Kopírova»',
    msgmoveconf=> '\'Chcete naozaj presunú» vybranú(é) správu(y)?\'',
@@ -276,9 +289,9 @@ package ow::sk;
    msgrebuild => 'Správa bola prestavaná',
    editdraft  => 'Upravi» koncept',
    savedraft  => 'Ulo¾i» koncept',
-   draftsaved => 'Draft @@@SUBJECT@@@ has been saved successfully',
+   draftsaved => 'Koncept správy @@@SUBJECT@@@ bol úspe¹ne ulo¾ený',
    send       => 'Odosla»',
-   msgsent    => 'Message @@@SUBJECT@@@ has been sent successfully',
+   msgsent    => 'Správa @@@SUBJECT@@@ bola úspe¹ne odoslaná',
    about      => 'O aplikácii',
    close      => 'Zatvori»',
    cancel     => 'Zru¹i»',
@@ -375,8 +388,8 @@ package ow::sk;
    autosel    => 'Automaticky vybrané',
    none       => '¾iadny',
    moreitems  => 'viac polo¾iek',
-   multieditconf => 'Táto polo¾ka bola pridaná pre viac dátumov.\\nÚprava zmení hodnoty pre v¹etky dátumi.\\nPokraèova» s úpravou?',
-   multidelconf  => 'Táto polo¾ka bola pridaná pre viac dátumov.\\nVymazanie zma¾e hodnoty pre v¹etky dátumi.\\nPokraèova» s mazaním?',
+   multieditconf => 'Táto polo¾ka bola pridaná pre viac dátumov.\\nÚprava zmení hodnoty pre v¹etky dátumy.\\nPokraèova» s úpravou?',
+   multidelconf  => 'Táto polo¾ka bola pridaná pre viac dátumov.\\nVymazanie zma¾e hodnoty pre v¹etky dátumy.\\nPokraèova» s mazaním?',
    caldelconf => 'Ste si istý, ¾e si ¾eláte zmaza» túto polo¾ku?',
    noitemforthisday => '®iadne polo¾ky pre tento deò',
    thisday_only          => 'Iba dne¹ný dátum',
@@ -397,9 +410,9 @@ package ow::sk;
    name_of_newdir => 'meno adresára pre vytvorenie',
    name_of_newfile=> 'meno súboru pre vytvorenie',
    dest_of_thecopy=> 'cieµový adresár alebo súbor pre kopírovanie',
-   dest_of_themove=> 'cieµový adresár alebo súbor pre presunitie',
+   dest_of_themove=> 'cieµový adresár alebo súbor pre presunutie',
    dest_of_thezip=> 'názov súboru nového zip archívu',
-   dest_of_thetgz=> 'názov súboru novího tgz archívu',
+   dest_of_thetgz=> 'názov súboru nového tgz archívu',
    homedir      => 'Domovský adresár',
    showthumbnail    => 'Náhµady',
    showhidden   => 'Zobrazi» skryté súbory',
@@ -449,15 +462,16 @@ package ow::sk;
    already_exists    => 'u¾ existuje!',
    cant_create_folder=> 'Nedá sa vytvori» katalóg!',
    under_indexing    => 'sa e¹te indexuje, skúste to prosím neskôr',
-   abook_invalid     => 'Prepáète, ale tento súbor nevyzerá ako adresár exportovaný z Microsoft Outlook Express 5 v CVS formáte. Uistite sa o tom prezretím v textovom editori. Prvý riadok by mal zaèína» "Name,E-mail Address", potom pokraèujte.',
+   abook_invalid     => 'Tento súbor nevyzerá ako adresár exportovaný z aplikácie Microsoft Outlook Express 5 v CVS formáte. Presvedèite sa o tom prezretím v textovom editori. Prvý riadok sa musí zaèína» "Name,E-mail Address", potom pokraèujte.',
    back              => 'spä»',
    tryagain          => 'a skúste znova.',
+   mailfilter_error  => 'Mail Filter Error',
    abook_toobig      => 'Prepáète, toto by presiahlo veµkostný limit pre Vá¹ adresár. Prosím pokraèujte.',
    cant_create_dir   => 'Nadá sa vytvori» Vá¹ pou¾ívateµský adresár!',
    att_overlimit     => 'Prepáète, Va¹a príloha presiahla veµkostný limit, ktorý je',
    inv_msg_op        => 'Neplatná operácia pre správu',
    sess_cookieerr    => 'Va¹a po¾iadavka neobsahuje korektné ID sedenia -- prístup zamietnutý!',
-   sess_iperr        => 'Va¹a po¾iadavka nepri¹la z ip adresy, ktorá je ulo¾ená v sedení tohoto spojenia -- prístup zamietnutý!',
+   sess_iperr        => 'Va¹a po¾iadavka nepri¹la z IP adresy, ktorá je ulo¾ená v sedení tohoto spojenia -- prístup zamietnutý!',
    no_endpart        => 'Koncová èas» chýba',
    part_missing      => 'Niektoré èasti chýbajú',
    rebuild_fmterr    => 'Chybný formát novej správy',
@@ -467,7 +481,7 @@ package ow::sk;
    auth_syserr       => 'systémová chyba pri overovaní',
    param_fmterr      => 'chybný formát parametra',
    pwd_incorrect     => 'nesprávne heslo',
-   pwd_confirmmismatch=>'Potvrdenie nového hesla zlyhalo',
+   pwd_confirmmismatch=>'Neúspe¹né potvrdenie nového hesla',
    pwd_tooshort      => 'Heslo je príli¹ krátke (minimálna då¾ka @@@PASSWDMINLEN@@@)',
    pwd_toosimple     => 'Heslo je príli¹ jednoduché (po¾adované sú aj èísla aj písmená)',
    network_server_error => 'chyba sie»ového servera',
@@ -482,14 +496,14 @@ package ow::sk;
    no_file_todownload=> 'Nebol ¹pecifikovaný súbor na prebranie.',
    upload_overlimit  => 'Súbor, ktorý sa pokú¹ate nahra» prekraèuje Vám pridelený diskový priestor (quotu)',
    decomp_notsupported =>'Dekompresia pre tento typ súbor nie je dostupná.',
-   filefmt_notsupported =>'The file format is not supported.',
+   filefmt_notsupported =>'Formát súboru nie je podporovaný.',
    webdisk_readonly  => 'Prepáète, ale Vá¹ WebDisk je nastavený iba na èítanie.',
    quota_syserr      => 'Chyba systému vyu¾itia diskového priestoru',
-   quotahit_alert    => 'Prepáète, ale Va¹e dáta dostiahli veµkos» prideleného diskového priestoru. Prosím zma¾te nejaké správy alebo súbory.',
-   quotahit_delmail  => 'Varovanie! Nakoµko Va¹e dáta dostiali veµkos» prideleného deleného diskového priestoru (@@@QUOTALIMIT@@@), Va¹e najstar¹ie správy boli automaticky zmazané',
-   quotahit_delfile  => 'Varovanie! Nakoµko Va¹e dáta dostiali veµkos» prideleného deleného diskového priestoru (@@@QUOTALIMIT@@@), niektoré súbory z WebDisk-u boli automaticky zmazané',
-   spool_overlimit   => 'Prepáète, Vá¹e prijaté spravy (katalóg: PRIJATÉ) dostiali limit (@@@SPOOLLIMIT@@@). Prosím presuòte nejaké správy do iných katalógov.',
-   vdomain_toomanyuser  => 'Prepáète, poèet pou¾ívateµov dostiahol limit pre túto doménu',
+   quotahit_alert    => 'Prepáète, ale Va¹e dáta dosiahli veµkos» prideleného diskového priestoru. Prosím zma¾te nejaké správy alebo súbory.',
+   quotahit_delmail  => 'Varovanie! Nakoµko Va¹e dáta dosiali veµkos» prideleného deleného diskového priestoru (@@@QUOTALIMIT@@@), Va¹e najstar¹ie správy boli automaticky zmazané',
+   quotahit_delfile  => 'Varovanie! Nakoµko Va¹e dáta dosiali veµkos» prideleného deleného diskového priestoru (@@@QUOTALIMIT@@@), niektoré súbory z WebDisk-u boli automaticky zmazané',
+   spool_overlimit   => 'Prepáète, Va¹e prijaté správy (katalóg: PRIJATÉ) dostiali limit (@@@SPOOLLIMIT@@@). Prosím presuòte nejaké správy do iných katalógov.',
+   vdomain_toomanyuser  => 'Prepáète, poèet pou¾ívateµov dosiahol limit pre túto doménu',
    vdomain_toomanyalias => 'Prepáète, poèet e-mailových aliasov pre tohto pou¾íveteµa dosiahol maximum',
    vdomain_userrequired => 'Meno pou¾ívateµa je potrebné',
    vdomain_fwdrequired => 'Platná e-mailová adresa pre preposielanie je potrebná',

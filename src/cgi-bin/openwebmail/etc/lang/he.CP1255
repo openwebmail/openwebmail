@@ -11,6 +11,11 @@ package ow::he_CP1255;
    'sent-mail'      => 'דואר שנשלח',
    'saved-drafts'   => 'טיוטה',
    'mail-trash'     => 'סל מיחזור',
+   'spam-mail'      => 'Spam',
+   'virus-mail'     => 'Virus',
+   LEARNSPAM        => '--LEARN SPAM--',
+   LEARNHAM         => '--LEARN HAM--',
+   FORWARD          => '--FORWARD--',
    DELETE           => '--מחיקה--'
    );   
   
@@ -90,6 +95,13 @@ package ow::he_CP1255;
    both   => 'לפני ואחרי הרשומות בספר הכתובות'
    );   
   
+%lang_checksourcelabels =
+   (
+   all  => 'All new messages in INBOX',
+   pop3 => 'Only messages from pop3 server',
+   none => 'None'
+   );
+
 %lang_timelabels =
    (   
       3 => '3 דקות',
@@ -226,6 +238,7 @@ package ow::he_CP1255;
    userprefs  => 'הגדרות משתמש',
    addressbook=> 'ספר כתובות',
    folders    => 'מחיצות',
+   emptyfolder=> 'Empty folder',
    emptytrash => 'נקה סל מיחזור',
    totrash    => 'העבר לסל מיחזור',
    forever    => 'תמיד',
@@ -452,6 +465,7 @@ package ow::he_CP1255;
    abook_invalid     => 'מצטער, הקובץ כנראה איננו ייצוא של ספר הכתובות של  Microsoft Outlook 5 Express במבנה CVS. אנא וודא שכאשר מציגים את תכולתו בעורך טקסט השורה הראשונה מתחליה ב "Name,E-mail Address", נא המשך לאחר מכן',
    back              => 'חזור',
    tryagain          => '.ונסה שנית',
+   mailfilter_error  => 'Mail Filter Error',
    abook_toobig      => 'מצטער, דבר זה יגרום לחריגה מקצבת המקום של ספר הכתובות',
    cant_create_dir   => 'לא מצליח ליצור את סיפרית המשתמש שלך!',
    att_overlimit     => 'מצטער, הינך חורג ממגבלת גודל ה"סיפוח" המורשה',

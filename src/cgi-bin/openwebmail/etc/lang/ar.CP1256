@@ -10,6 +10,11 @@ package ow::ar_CP1256;
    'sent-mail'      => 'ÚáÈÉ ÇáÕÇÏÑ',
    'saved-drafts'   => 'ÇáãÓæøÏÇÊ',
    'mail-trash'     => 'ÓáÉ ÇáãåãáÇÊ',
+   'spam-mail'      => 'Spam',
+   'virus-mail'     => 'Virus',
+   LEARNSPAM        => '--LEARN SPAM--',
+   LEARNHAM         => '--LEARN HAM--',
+   FORWARD          => '--FORWARD--',
    DELETE           => '--ÇÍÐÝ--'
    );
 
@@ -87,6 +92,13 @@ package ow::ar_CP1256;
    before => 'ÞÈá ÚäÇÕÑ ÏÝÊÑ ÇáÚäÇæíä',
    after  => 'ÈÚÏ ÚäÇÕÑ ÏÝÊÑ ÇáÚäÇæíä',
    both   => 'ÞÈá æÈÚÏ ÚäÇÕÑ ÏÝÊÑ ÇáÚäÇæíä'
+   );
+
+%lang_checksourcelabels =
+   (
+   all  => 'All new messages in INBOX',
+   pop3 => 'Only messages from pop3 server',
+   none => 'None'
    );
 
 %lang_timelabels =
@@ -225,6 +237,7 @@ package ow::ar_CP1256;
    userprefs  => 'ÊÝÖíáÇÊ ÇáãÓÊÎÏã',
    addressbook=> 'ÏÝÊÑ ÇáÚäÇæíä',
    folders    => 'ãÌáÏÇÊ',
+   emptyfolder=> 'Empty folder',
    emptytrash => 'ÊÝÑíÛ ÓáÉ ÇáãåãáÇÊ',
    totrash    => 'ÇäÞá Åáì ÓáÉ ÇáãåãáÇÊ',
    forever    => 'Åáì ÇáÃÈÏ',
@@ -451,6 +464,7 @@ package ow::ar_CP1256;
    abook_invalid     => 'Sorry, this file doesn\'t appear to be an address book exported from Microsoft Outlook Express 5 in CSV format.  Make sure that when viewing it in a text editor, the first line starts out "Name,E-mail Address", then go',
    back              => 'back',
    tryagain          => 'and try again.',
+   mailfilter_error  => 'Mail Filter Error',
    abook_toobig      => 'Sorry, this would exceed the size limit for your address book.  Please go',
    cant_create_dir   => 'Can\'t create your user directory!',
    att_overlimit     => 'Sorry, your attachments exceed the attachment size limit, which is',

@@ -30,6 +30,7 @@
    'editst.gif'        => ' [±à¼­ÐÅÖ½µ×¸å] ',
    'editst.s.gif'      => ' [±à¼­ÐÅÖ½µ×¸å] ',
    'email.gif'         => ' M+ ',
+   'emptyfolder.gif'   => ' [Çå¿ÕÐÅÏ»] ',
    'export.gif'        => ' [»ã³ö] ',
    'filtersetup.gif'   => ' [ÓÊ¼þ¹æÔò] ',
    'first-grey.gif'    => ' << ',

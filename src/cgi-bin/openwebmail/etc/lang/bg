@@ -10,6 +10,11 @@ package ow::bg;
    'sent-mail'      => 'Изпратени',
    'saved-drafts'   => 'Чернови',
    'mail-trash'     => 'Кошче',
+   'spam-mail'      => 'Спам',
+   'virus-mail'     => 'Вирус',
+   LEARNSPAM        => '--СПАМ ОБУЧЕНИЕ--',
+   LEARNHAM         => '--ХАМ ОБУЧЕНИЕ--',
+   FORWARD          => '--ПРЕПРАТИ--',
    DELETE           => '--ИЗТРИЙ--'
    );
 
@@ -87,6 +92,13 @@ package ow::bg;
    before => 'над адресната книга',
    after  => 'под адресната книга',
    both   => 'над и под адресната книга'
+   );
+
+%lang_checksourcelabels =
+   (
+   all  => 'Всички нови във Входящи',
+   pop3 => 'Само съобщения от pop3 сървър',
+   none => 'Никои'
    );
 
 %lang_timelabels =
@@ -194,7 +206,7 @@ package ow::bg;
    newfile  => 'Нов файл',
    copy     => 'Копиране',
    move     => 'Преместване',
-   symlink  => 'Symlink',
+   symlink  => 'Препратка',
    delete   => 'Изтриване',
    gzip     => 'gz-компресия',
    mkzip    => 'Създаване Zip',
@@ -225,6 +237,7 @@ package ow::bg;
    userprefs  => 'Потребителски настройки',
    addressbook=> 'Книга с адреси',
    folders    => 'Папки',
+   emptyfolder=> 'Празна папка',
    emptytrash => 'Изпразни кошчето',
    totrash    => 'Премести в коша',
    forever    => 'Завинаги',
@@ -364,8 +377,8 @@ package ow::bg;
    calendar   => 'Календар',
    allday     => 'Всички дни',
    today      => 'Днес',
-   am         => 'am',
-   pm         => 'pm',
+   am         => 'пр.о',
+   pm         => 'сл.о',
    calfmt_year          => 'година @@@YEAR@@@',
    calfmt_yearmonth     => '@@@MONTH_STR@@@ @@@YEAR@@@',
    calfmt_yearmonthday  => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@',
@@ -448,9 +461,10 @@ package ow::bg;
    already_exists    => 'вече съществува!',
    cant_create_folder=> 'Папката не може да бъде създадена!',
    under_indexing    => 'в процес на индексиране, опитайте по късно',
-   abook_invalid     => 'За съжаление не е запесан от Microsoft Outlook Express 5 в CSV формат. Чрез текстов редактор се уверете, че записите са със синтаксис "Име,E-mail адрес", върнете се',
+   abook_invalid     => 'За съжаление не е записан от Microsoft Outlook Express 5 в CSV формат. Чрез текстов редактор се уверете, че записите са със синтаксис "Име,E-mail адрес", върнете се',
    back              => 'назад',
    tryagain          => 'и опитайте отново.',
+   mailfilter_error  => 'Грешка на пощенския филтър',
    abook_toobig      => 'За съжаление сте достигнали лимита си за адресна книга. Моля върнете се',
    cant_create_dir   => 'Невъзможно е създаването на личната Ви папка!',
    att_overlimit     => 'За съжаление превишавате лимита за прикачени файлове, който е',

@@ -13,22 +13,22 @@
 @@@INFOSOFTWARESTART@@@
 <tr><td colspan=2 bgcolor=@@@COLUMNHEADER@@@><B>軟體版本</B></td></tr>
 @@@INFOSOFTWARE@@@
+<tr><td colspan=2>&nbsp;</td></tr>
 @@@INFOSOFTWAREEND@@@
 
 @@@INFOPROTOCOLSTART@@@
-<tr><td colspan=2>&nbsp;</td></tr>
 <tr><td colspan=2 bgcolor=@@@COLUMNHEADER@@@><B>通訊協定</B></td></tr>
 @@@INFOPROTOCOL@@@
+<tr><td colspan=2>&nbsp;</td></tr>
 @@@INFOPROTOCOLEND@@@
 
 @@@INFOSERVERSTART@@@
-<tr><td colspan=2>&nbsp;</td></tr>
 <tr><td colspan=2 bgcolor=@@@COLUMNHEADER@@@><B>伺服器端資訊</B></td></tr>
 @@@INFOSERVER@@@
+<tr><td colspan=2>&nbsp;</td></tr>
 @@@INFOSERVEREND@@@
 
 @@@INFOCLIENTSTART@@@
-<tr><td colspan=2>&nbsp;</td></tr>
 <tr><td colspan=2 bgcolor=@@@COLUMNHEADER@@@><B>客戶端資訊</B></td></tr>
 @@@INFOCLIENT@@@
 @@@INFOCLIENTEND@@@

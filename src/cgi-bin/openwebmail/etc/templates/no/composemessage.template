@@ -177,7 +177,8 @@
          alert("Spesifisér mottaker før sending.");
          return false;
       }
-      if (document.composeform.subject.value == "" ) {
+      if (document.composeform.subject.value == "" 
+       || document.composeform.subject.value == "N/A" ) {
          return(confirm("Meldingen mangler emne. Vil for likevel sende den?"));
       }
       return true;

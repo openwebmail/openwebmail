@@ -5,7 +5,6 @@ use strict;
 use Fcntl qw(:DEFAULT :flock);
 
 use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE $_STATUS $_SIZE $_REFERENCES $_CHARSET);	# defined in maildb.pl
-use vars qw(%is_defaultfolder);
 use vars qw(%config);
 
 ########## CUTFOLDERMAILS/CUTDIRFILES ############################
@@ -18,7 +17,7 @@ sub cutfoldermails {
    foreach my $f (@folders) {
       ($folderfile{$f},$folderdb{$f})=get_folderpath_folderdb($user, $f);
       my $foldersize=(-s "$folderfile{$f}");
-      if (!$is_defaultfolder{$f}) {
+      if (!is_defaultfolder($f)) {
          push (@userfolders, $f);
          $user_foldersize+=$foldersize;
       }
@@ -33,17 +32,21 @@ sub cutfoldermails {
    }
 
    # empty folders
-   foreach my $f ('mail-trash', 'saved-drafts') {
+   my @f;
+   push(@f, 'virus-mail') if ($config{'has_virusfolder_by_default'});
+   push(@f, 'spam-mail') if ($config{'has_spamfolder_by_default'});
+   push(@f, 'mail-trash', 'saved-drafts');
+   foreach my $f (@f) {
       next if ( (-s "$folderfile{$f}")==0 );
 
       my $sizereduced = (-s "$folderfile{$f}");
 
-      if (!ow::filelock::lock($folderfile{$f}, LOCK_EX|LOCK_NB)) {
+      if (!ow::filelock::lock($folderfile{$f}, LOCK_EX)) {
          writelog("emptyfolder error - Couldn't get write lock on $folderfile{$f}");
          writehistory("emptyfolder error - Couldn't get write lock on $folderfile{$f}");
          next;
       }
-      my $ret=emptyfolder($folderfile{$f}, $folderdb{$f});
+      my $ret=empty_folder($folderfile{$f}, $folderdb{$f});
       ow::filelock::lock($folderfile{$f}, LOCK_UN);
       if ($ret<0) {
          writelog("emptyfolder error - folder $f ret=$ret");
@@ -117,15 +120,20 @@ sub cutfolder {				# reduce folder size by $cutpercent
 
    ow::filelock::lock($folderfile, LOCK_SH|LOCK_NB) or return -1;
 
-   return -2 if (update_folderindex($folderfile, $folderdb)<0);
-
-   my ($totalsize, $new, $r_messageids)=get_info_messageids_sorted_by_date($folderdb, 0);
-
-   ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or return -3;
+   if (update_folderindex($folderfile, $folderdb)<0) {
+      ow::filelock::lock($folderfile, LOCK_UN);
+      return -2;
+   }
+   my $r_messageids=get_messageids_sorted_by_date($folderdb, 0);
+   if (!ow::dbm::open(\%FDB, $folderdb, LOCK_SH)) {
+      ow::filelock::lock($folderfile, LOCK_UN);
+      return -3;
+   }
+   my $totalsize=(stat($folderfile))[7];
    foreach my $id  (reverse @{$r_messageids}) {
       push(@delids, $id);
       $cutsize += (string2msgattr($FDB{$id}))[$_SIZE];
-      last if ($cutsize > $totalsize*$cutpercent);
+      last if ($cutsize+$FDB{'ZAPSIZE'} > $totalsize*$cutpercent);
    }
    ow::dbm::close(\%FDB, $folderdb);
    my $counted=operate_message_with_ids("delete", \@delids, $folderfile, $folderdb);

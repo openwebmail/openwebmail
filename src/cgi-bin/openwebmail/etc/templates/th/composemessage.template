@@ -177,7 +177,8 @@
          alert("กรุณาระบุชื่อผู้รับก่อน");
          return false;
       }
-      if (document.composeform.subject.value == "" ) {
+      if (document.composeform.subject.value == "" 
+       || document.composeform.subject.value == "N/A" ) {
          return(confirm("จดหมายนี้ไม่มีชื่อเรื่อง ต้องการส่งโดยไม่มีชื่อเรื่องหรือไม่?"));
       }
       return true;

@@ -177,7 +177,8 @@
          alert("Моля напишете адреса на получателя.");
          return false;
       }
-      if (document.composeform.subject.value == "" ) {
+      if (document.composeform.subject.value == "" 
+       || document.composeform.subject.value == "N/A" ) {
          return(confirm("Съобщението няма Тема, искате ли да го изпратите така?"));
       }
       return true;

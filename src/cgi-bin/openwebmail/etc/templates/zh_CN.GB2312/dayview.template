@@ -2,7 +2,7 @@
 <table border="0" align="center" width="95%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>日行事历</b></font>
+<b>日历</b></font>
 </td><td align="right" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <b>@@@DAYDIFF@@@&nbsp;</b></font>
@@ -32,7 +32,7 @@
 
 <table border=0 cellspacing=2 width=100%>
 @@@STARTADDITEMFORM@@@
-<tr><td colspan=2 align=center><B>新增行事历项目</B></td></tr>
+<tr><td colspan=2 align=center><B>新增日程表项目</B></td></tr>
 <tr><td colspan=2 nowrap>@@@ITEMDATEMENU@@@</td></tr>
 <tr><td colspan=2 nowrap>@@@STRINGFIELD@@@</td></tr>
 <tr><td width=25% nowrap>开始时间</td><td nowrap>@@@STARTHOURMINMENU@@@</td></tr>
@@ -41,7 +41,7 @@
 <tr><td colspan=2 nowrap>@@@THISANDNEXTNDAYSCHECKBOX@@@ 本日与之后连续 @@@NDAYSFIELD@@@ 日</td></tr>
 <tr><td colspan=2 nowrap>@@@MONTHFREQMENU@@@</td></tr>
 <tr><td colspan=2 nowrap>@@@EVERYYEARCHECKBOX@@@ 每年</td></tr>
-<tr><td colspan=2 nowrap>将本项目连结到下列网址</td></tr>
+<tr><td colspan=2 nowrap>将本项目连接到下列网址</td></tr>
 <tr><td colspan=2 nowrap>@@@LINKFIELD@@@</td></tr>
 @@@EMAILSTART@@@
 <tr><td colspan=2 nowrap>寄送通知 Email 到下列地址</td></tr>

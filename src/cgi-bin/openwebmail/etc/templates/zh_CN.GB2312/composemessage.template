@@ -8,7 +8,7 @@
 <td>@@@BACKTOFOLDER@@@</td>
 <td align="right">
 <table border="0" cellpadding="0" cellspacing="0"><tr>
-<td>写信使用字符集: </td>
+<td>写信使用字符集：</td>
 <td>@@@CONVTOMENU@@@&nbsp;</td>
 </tr></table>
 </td>
@@ -19,7 +19,7 @@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 <table border="0" cellpadding="0" cellspacing="1"><tr>
 <td>@@@FROMMENU@@@&nbsp;&nbsp;</td>
-<td><B>优先级:</B></td>
+<td><B>优先级：</B></td>
 <td>@@@PRIORITYMENU@@@</td>
 </tr></table>
 </td></tr>
@@ -122,7 +122,7 @@
       if ((document.composeform.msgformat.value == "html" ||
            document.composeform.msgformat.value == "both") &&
           document.composeform.newmsgformat.value == "text" ) {
-         if (confirm("转换后 HTML 格式会遗失, 确定要转成纯文字吗?")) {
+         if (confirm("转换后 HTML 格式会遗失, 确定要转成纯文本吗？")) {
             bodygethtml();
             document.composeform.submit();
             return true;
@@ -177,7 +177,8 @@
          alert("请填妥收件人，再开始发信。");
          return false;
       }
-      if (document.composeform.subject.value == "" ) {
+      if (document.composeform.subject.value == "" 
+       || document.composeform.subject.value == "N/A" ) {
          return(confirm("这封邮件没有主题，请问仍然要发出吗？"));
       }
       return true;

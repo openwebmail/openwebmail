@@ -1,7 +1,7 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>Advanced Search</b></font>
+<b>РАСШИРЕННЫЙ ПОИСК</b></font>
 </td></tr><tr><td bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
 </td></tr><tr><td>&nbsp;</td></tr>
@@ -10,7 +10,7 @@
 
 <table border="0" width="100%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@COLUMNHEADER@@@>
-<B>Select Folder</B>
+<B>Выделить папки</B>
 &nbsp;<input name="allbox" type="checkbox" value="1" onClick="CheckAll();">
 </td></tr>
 <tr><td bgcolor=@@@TABLEROW_LIGHT@@@>
@@ -22,21 +22,21 @@
 
 <table border="0" width="100%" cellpadding="0" cellspacing="0">
 <tr>
-<td bgcolor=@@@COLUMNHEADER@@@><B>Where</B></td>
-<td bgcolor=@@@COLUMNHEADER@@@><B>Type of search</B></td>
-<td bgcolor=@@@COLUMNHEADER@@@><B>Text to search</B></td>
-<td bgcolor=@@@COLUMNHEADER@@@ align=center><B>Line Results</B></td>
+<td bgcolor=@@@COLUMNHEADER@@@><B>Где</B></td>
+<td bgcolor=@@@COLUMNHEADER@@@><B>Тип поиска</B></td>
+<td bgcolor=@@@COLUMNHEADER@@@><B>Строка поиска</B></td>
+<td bgcolor=@@@COLUMNHEADER@@@ align=center><B>Выводить строк результата</B></td>
 </tr>
 <tr>
 <td bgcolor=@@@TABLEROW_LIGHT@@@>@@@WHEREMENU0@@@</td>
 <td bgcolor=@@@TABLEROW_LIGHT@@@>@@@TYPEMENU0@@@</td>
-<td bgcolor=@@@TABLEROW_LIGHT@@@>@@@SEARCHTEXT0@@@ and</td>
+<td bgcolor=@@@TABLEROW_LIGHT@@@>@@@SEARCHTEXT0@@@ и</td>
 <td bgcolor=@@@TABLEROW_LIGHT@@@ align=center>@@@RESLINE@@@</td>
 </tr>
 <tr>
 <td bgcolor=@@@TABLEROW_LIGHT@@@>@@@WHEREMENU1@@@</td>
 <td bgcolor=@@@TABLEROW_LIGHT@@@>@@@TYPEMENU1@@@</td>
-<td bgcolor=@@@TABLEROW_LIGHT@@@>@@@SEARCHTEXT1@@@ and</td>
+<td bgcolor=@@@TABLEROW_LIGHT@@@>@@@SEARCHTEXT1@@@ и</td>
 <td bgcolor=@@@TABLEROW_LIGHT@@@ align=center>&nbsp;</td>
 </tr>
 <tr>
@@ -50,7 +50,7 @@
 </td></tr><tr><td>&nbsp;</td></tr><tr><td>
 
 <table border="0" width="100%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
-<tr><td colspan="4"><B>Results: @@@TOTALFOUND@@@</B></td></tr>
+<tr><td colspan="4"><B>Результаты: @@@TOTALFOUND@@@</B></td></tr>
 <tr><td width="10%" bgcolor=@@@COLUMNHEADER@@@>
 <B>@@@FOLDER@@@</B></td>
 <td width="18%" bgcolor=@@@COLUMNHEADER@@@>

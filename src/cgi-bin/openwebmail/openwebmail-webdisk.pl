@@ -24,7 +24,7 @@ if ($SCRIPT_DIR eq '' && open(F, '/etc/openwebmail_path.conf')) {
 if ($SCRIPT_DIR eq '') { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
 push (@INC, $SCRIPT_DIR);
 
-foreach (qw(PATH ENV BASH_ENV CDPATH IFS TERM)) { $ENV{$_}='' }	# secure ENV
+foreach (qw(ENV BASH_ENV CDPATH IFS TERM)) {delete $ENV{$_}}; $ENV{PATH}='/bin:/usr/bin'; # secure ENV
 umask(0002); # make sure the openwebmail group can write
 
 use strict;
@@ -622,7 +622,7 @@ sub savefile {
    if (!open(F, ">$webdiskrootdir/$vpath") ) {
       autoclosewindow($lang_text{'savefile'}, "$lang_text{'savefile'} $lang_text{'failed'} ($vpath: $!)", 60);
    }
-   ow::filelock::lock("$webdiskrootdir/$vpath", LOCK_EX|LOCK_NB) or
+   ow::filelock::lock("$webdiskrootdir/$vpath", LOCK_EX) or
       autoclosewindow($lang_text{'savefile'}, "$lang_err{'couldnt_lock'} $webdiskrootdir/$vpath!", 60);
    print F "$content";
    close(F);
@@ -687,8 +687,7 @@ sub compressfiles {	# pack files with zip or tgz (tar -zcvf)
       my $gzipbin=ow::tool::findbin('gzip');
       my $tarbin=ow::tool::findbin('tar');
       if ($gzipbin ne '') {
-         $ENV{'PATH'}=$gzipbin;
-         $ENV{'PATH'}=~s|/gzip||; # tar finds gzip through PATH
+         $ENV{'PATH'}=$gzipbin; $ENV{'PATH'}=~s|/gzip||; # for tar
          @cmd=($tarbin, '-zcpf', "$webdiskrootdir/$vpath2");
       } else {
          @cmd=($tarbin, '-cpf', "$webdiskrootdir/$vpath2");
@@ -713,7 +712,7 @@ sub compressfiles {	# pack files with zip or tgz (tar -zcvf)
 ########## END COMPRESSFILES #####################################
 
 ########## DECOMPRESSFILE ########################################
-sub decompressfile {	# unpack tar.gz, tgz, tar.bz2, tbz, gz, zip, rar, arj, lzh, tnef
+sub decompressfile {	# unpack tar.gz, tgz, tar.bz2, tbz, gz, zip, rar, arj, lzh, tnef/tnf
    my ($currentdir, $selitem)=@_;
    my $vpath=absolute_vpath($currentdir, $selitem);
 
@@ -768,7 +767,7 @@ sub decompressfile {	# unpack tar.gz, tgz, tar.bz2, tbz, gz, zip, rar, arj, lzh,
       return("$lang_text{'program'} lha $lang_err{'doesnt_exist'}\n") if ($lhabin eq '');
       @cmd=($lhabin, '-xfq');
 
-   } elsif ($vpath=~/\.tnef$/i) {
+   } elsif ($vpath=~/\.tne?f$/i) {
       my $tnefbin=ow::tool::findbin('tnef');
       return("$lang_text{'program'} tnef $lang_err{'doesnt_exist'}\n") if ($tnefbin eq '');
       @cmd=($tnefbin, '--overwrite', '-v', '-f');
@@ -781,7 +780,7 @@ sub decompressfile {	# unpack tar.gz, tgz, tar.bz2, tbz, gz, zip, rar, arj, lzh,
       return("$lang_err{'couldnt_chdirto'} $currentdir\n");
 
    my $opstr;
-   if ($vpath=~/\.(?:zip|rar|arj|lhz|t[bg]z|tar\.g?z|tar\.bz2?|tnef)$/i) {
+   if ($vpath=~/\.(?:zip|rar|arj|lhz|t[bg]z|tar\.g?z|tar\.bz2?|tne?f)$/i) {
       $opstr=$lang_wdbutton{'extract'};
    } else {
       $opstr=$lang_wdbutton{'decompress'};
@@ -843,7 +842,7 @@ sub listarchive {
       autoclosewindow($lang_wdbutton{'listarchive'}, "$lang_text{'program'} lha $lang_err{'doesnt_exist'}\n") if ($lhabin eq '');
       @cmd=($lhabin, '-l');
 
-   } elsif ($vpath=~/\.tnef$/i) {
+   } elsif ($vpath=~/\.tne?f$/i) {
       my $tnefbin=ow::tool::findbin('tnef');
       autoclosewindow($lang_wdbutton{'listarchive'}, "$lang_text{'program'} tnef $lang_err{'doesnt_exist'}\n") if ($tnefbin eq '');
       @cmd=($tnefbin, '-t');
@@ -1111,8 +1110,7 @@ sub downloadfiles {	# through zip or tgz
       my $gzipbin=ow::tool::findbin('gzip');
       my $tarbin=ow::tool::findbin('tar');
       if ($gzipbin ne '') {
-         $ENV{'PATH'}=$gzipbin;
-         $ENV{'PATH'}=~s|/gzip||; # tar finds gzip through PATH
+         $ENV{'PATH'}=$gzipbin; $ENV{'PATH'}=~s|/gzip||; # for tar
          @cmd=($tarbin, '-zcpf', '-');
          $dlname.=".tgz";
       } else {
@@ -1553,7 +1551,6 @@ sub dirfilesel {
    my $filelisthtml='';
    if ($#sortedlist>=0) {
       my $os=$^O||'generic';
-      my $bgcolor;
       my ($i_first, $i_last)=(0, $#sortedlist);
       if (!$singlepage) {
          $i_first=($page-1)*10; # use 10 instead of $prefs{'webdisk_dirnumitems'} for shorter page
@@ -1570,7 +1567,7 @@ sub dirfilesel {
             $accesskeystr=qq|accesskey="$accesskeystr"|;
          }
 
-         my ($imgstr, $namestr, $opstr);
+         my ($imgstr, $namestr, $opstr, $onclickstr);
          $namestr=ow::htmltext::str2html($fname);
          $namestr.=ow::htmltext::str2html($flink{$fname}) if (defined($flink{$fname}));
          if ($ftype{$fname} eq "d") {
@@ -1583,6 +1580,9 @@ sub dirfilesel {
                      ow::tool::escapeURL("$fname").qq|" $accesskeystr>$imgstr <b>$namestr</b></a>|;
             $opstr=qq|<a href="$wd_url_sort_page&amp;action=$action&amp;gotodir=|.
                    ow::tool::escapeURL("$fname").qq|"><b>&lt;$lang_text{'dir'}&gt;</b></a>|;
+            $onclickstr=qq|onClick="window.location.href='$wd_url_sort_page&amp;action=$action&amp;gotodir=|.
+                        ow::tool::escapeURL("$fname").
+                        qq|';"|;
 
          } else {
             my $is_txt= (-T "$webdiskrootdir/$currentdir/$fname");
@@ -1592,6 +1592,7 @@ sub dirfilesel {
                        qq|" align="absmiddle" border="0">|;
             }
             $namestr=qq|<a href=#here onClick="filldestname('$vpath');" $accesskeystr>$imgstr $namestr</a>|;
+            $onclickstr=qq|onClick="filldestname('$vpath')"|;
          }
 
          my $right='right'; $right='left' if ($ow::lang::RTL{$prefs{'language'}});
@@ -1607,21 +1608,31 @@ sub dirfilesel {
                                       $prefs{'dateformat'}, $prefs{'hourformat'});
          }
 
-         $bgcolor = ($style{'tablerow_dark'},$style{'tablerow_light'})[$i%2];
-         $filelisthtml.=qq|<tr>\n|.
-                        qq|<td bgcolor=$bgcolor>$namestr</td>\n|.
-                        qq|<td bgcolor=$bgcolor align="right">$sizestr</td>\n|.
-                        qq|<td bgcolor=$bgcolor align="center">$datestr</td>\n|.
+         my ($tr_bgcolorstr, $td_bgcolorstr);
+         if ($prefs{'uselightbar'}) {
+            $tr_bgcolorstr=qq|bgcolor=$style{tablerow_light} |.
+                           qq|onMouseOver='this.style.backgroundColor=$style{tablerow_hicolor};' |.
+                           qq|onMouseOut='this.style.backgroundColor=$style{tablerow_light};' |.
+                           qq|$onclickstr |;
+           $td_bgcolorstr='';
+         } else {
+            $tr_bgcolorstr='';
+            $td_bgcolorstr=qq|bgcolor=|.($style{"tablerow_dark"},$style{"tablerow_light"})[$i%2];
+         }
+         $filelisthtml.=qq|<tr $tr_bgcolorstr>\n|.
+                        qq|<td $td_bgcolorstr>$namestr</td>\n|.
+                        qq|<td $td_bgcolorstr align="right">$sizestr</td>\n|.
+                        qq|<td $td_bgcolorstr align="center">$datestr</td>\n|.
                         qq|</tr>\n\n|;
       }
    } else {
-      my $bgcolor = $style{"tablerow_light"};
+      my $td_bgcolorstr = qq|bgcolor=|.$style{"tablerow_light"};
       $filelisthtml.=qq|<tr>\n|.
-                     qq|<td bgcolor=$bgcolor align=center>|.
+                     qq|<td $td_bgcolorstr align=center>|.
                      qq|<table><tr><td><font color=#aaaaaa>$lang_text{'noitemfound'}</font></td</tr></table>|.
                      qq|</td>\n|.
-                     qq|<td bgcolor=$bgcolor>&nbsp;</td>\n|.
-                     qq|<td bgcolor=$bgcolor>&nbsp;</td>\n|.
+                     qq|<td $td_bgcolorstr>&nbsp;</td>\n|.
+                     qq|<td $td_bgcolorstr>&nbsp;</td>\n|.
                      qq|</tr>\n\n|;
    }
    undef(%fsize); undef(%fdate); undef(%ftype); undef(%flink);	# relase mem if possible
@@ -2041,10 +2052,16 @@ sub showdir {
    }
    $html =~ s/\@\@\@FILEPERM\@\@\@/$temphtml/g;
 
+   $temphtml = checkbox(-name=>'allbox',
+                        -value=>'1',
+                        -onClick=>"CheckAll($prefs{'uselightbar'});",
+                        -label=>'',
+                        -override=>'1');
+   $html =~ s/\@\@\@ALLBOXCHECKBOX\@\@\@/$temphtml/;
+
    my $filelisthtml;
    if ($#sortedlist>=0) {
       my $os=$^O||'generic';
-      my $bgcolor;
       my ($i_first, $i_last)=(0, $#sortedlist);
       if (!$singlepage) {
          $i_first=($page-1)*$prefs{'webdisk_dirnumitems'};
@@ -2130,7 +2147,7 @@ sub showdir {
                           qq|','_editfile','width=720,height=550,scrollbars=yes,resizable=yes,location=no');|.
                           qq|">[$lang_wdbutton{'edit'}]</a>|;
                }
-            } elsif ($p=~/\.(?:zip|rar|arj|lzh|t[bg]z|tar\.g?z|tar\.bz2?|tnef)$/i ) {
+            } elsif ($p=~/\.(?:zip|rar|arj|lzh|t[bg]z|tar\.g?z|tar\.bz2?|tne?f)$/i ) {
                $opstr=qq|<a href=#here onClick="window.open('|.
                       qq|$wd_url&amp;action=listarchive&amp;selitems=|.ow::tool::escapeURL($p).
                       qq|','_editfile','width=780,height=550,scrollbars=yes,resizable=yes,location=no');|.
@@ -2207,29 +2224,44 @@ sub showdir {
                      qq|<td align=center width=12>$3</td>|.
                      qq|</tr></table>|;
 
-         $bgcolor = ($style{'tablerow_dark'},$style{'tablerow_light'})[$i%2];
-         $filelisthtml.=qq|<tr>\n|.
-                        qq|<td bgcolor=$bgcolor>$namestr</td>\n|.
-                        qq|<td bgcolor=$bgcolor align="right">$sizestr</td>\n|.
-                        qq|<td bgcolor=$bgcolor align="center">$datestr</td>\n|.
-                        qq|<td bgcolor=$bgcolor align="center">$permstr</td>\n|.
-                        qq|<td bgcolor=$bgcolor align="center">|.
+         my ($tr_bgcolorstr, $td_bgcolorstr, $checkbox_onclickstr);
+         if ($prefs{'uselightbar'}) {
+            $tr_bgcolorstr=qq|bgcolor=$style{tablerow_light} |.
+                           qq|onMouseOver='this.style.backgroundColor=$style{tablerow_hicolor};' |.
+                           qq|onMouseOut='this.style.backgroundColor = document.getElementById("$i").checked? $style{tablerow_dark}:$style{tablerow_light};' |.
+                           qq|onClick='if (!document.layers) {var cb=document.getElementById("$i"); cb.checked=!cb.checked}' |.
+                           qq|id='tr_$i' |;
+            $td_bgcolorstr='';
+            $checkbox_onclickstr='if (!document.layers) {this.checked=!this.checked}';	# disable checkbox change since it is already done once by tr onclick event
+         } else {
+            $tr_bgcolorstr='';
+            $td_bgcolorstr=qq|bgcolor=|.($style{"tablerow_dark"},$style{"tablerow_light"})[$i%2];
+            $checkbox_onclickstr='';
+         }
+         $filelisthtml.=qq|<tr $tr_bgcolorstr>\n|.
+                        qq|<td $td_bgcolorstr>$namestr</td>\n|.
+                        qq|<td $td_bgcolorstr align="right">$sizestr</td>\n|.
+                        qq|<td $td_bgcolorstr align="center">$datestr</td>\n|.
+                        qq|<td $td_bgcolorstr align="center">$permstr</td>\n|.
+                        qq|<td $td_bgcolorstr align="center">|.
                         checkbox(-name=>'selitems',
                                  -value=>$p,
                                  -override=>'1',
-                                 -label=>'').
+                                 -label=>'',
+                                 -onclick=> $checkbox_onclickstr,
+                                 -id=>$i).
                         qq|</td>\n</tr>\n\n|;
       }
    } else {
-      my $bgcolor = $style{"tablerow_light"};
+      my $td_bgcolorstr = qq|bgcolor=|.$style{"tablerow_light"};
       $filelisthtml.=qq|<tr>\n|.
-                     qq|<td bgcolor=$bgcolor align=center>|.
+                     qq|<td $td_bgcolorstr align=center>|.
                      qq|<table><tr><td><font color=#aaaaaa>$lang_text{'noitemfound'}</font></td</tr></table>|.
                      qq|</td>\n|.
-                     qq|<td bgcolor=$bgcolor>&nbsp;</td>\n|.
-                     qq|<td bgcolor=$bgcolor>&nbsp;</td>\n|.
-                     qq|<td bgcolor=$bgcolor>&nbsp;</td>\n|.
-                     qq|<td bgcolor=$bgcolor>&nbsp;</td>\n|.
+                     qq|<td $td_bgcolorstr>&nbsp;</td>\n|.
+                     qq|<td $td_bgcolorstr>&nbsp;</td>\n|.
+                     qq|<td $td_bgcolorstr>&nbsp;</td>\n|.
+                     qq|<td $td_bgcolorstr>&nbsp;</td>\n|.
                      qq|</tr>\n\n|;
    }
    undef(%fsize); undef(%fdate); undef(%fperm); undef(%ftype); undef(%flink);	# release mem if possible
@@ -2586,7 +2618,7 @@ sub findicon {
       return("ttf.gif")    if ( /\.tt[cf]$/ );
       return("video.gif")  if ( /\.(avi|mov|dat|mpe?g)$/ );
       return("xls.gif")    if ( /\.xl[abcdmst]$/ );
-      return("zip.gif")    if ( /\.(zip|tar|t?g?z|tbz|bz2?|rar|lzh|arj|bhx|hqx|jar|tnef)$/ );
+      return("zip.gif")    if ( /\.(zip|tar|t?g?z|tbz|bz2?|rar|lzh|arj|bhx|hqx|jar|tne?f)$/ );
 
       return("file".lc($1).".gif") if ( $os =~ /(bsd|linux|solaris)/i );
       return("file.gif");

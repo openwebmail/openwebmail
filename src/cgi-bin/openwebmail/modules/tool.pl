@@ -8,12 +8,13 @@ use Digest::MD5 qw(md5);
 use Carp;
 $Carp::MaxArgNums = 0; # return all args in Carp output
 
+use vars qw(%_bincache);
 sub findbin {
-   my $name=$_[0];
-   foreach ('/usr/local/bin', '/usr/bin', '/bin', '/usr/X11R6/bin/', '/opt/bin') {
-      return "$_/$name" if ( -x "$_/$name");
+   return $_bincache{$_[0]} if (defined($_bincache{$_[0]}));
+   foreach my $p ('/usr/local/bin', '/usr/bin', '/bin', '/usr/X11R6/bin/', '/opt/bin') {
+      return($_bincache{$_[0]}="$p/$_[0]") if (-x "$p/$_[0]");
    }
-   return;
+   return ($_bincache{$_[0]}='');
 }
 
 sub find_configfile {
@@ -256,7 +257,7 @@ sub ext2contenttype {
    return("application/x-troff")	if ($ext =~ /^(?:tr|roff)$/);
    return("application/x-troff-$1")     if ($ext =~ /^(man|me|ms)$/);
    return("application/x-$1")		if ($ext =~ /^(dvi|latex|shar|tar|tcl|tex)$/);
-   return("application/ms-tnef")        if ($ext =~ /^tnef$/);
+   return("application/ms-tnef")        if ($ext =~ /^tne?f$/ || $_[0] eq 'winmail.dat');
    return("application/$1")		if ($ext =~ /^(pdf|zip)$/);
 
    return("application/octet-stream");
@@ -307,13 +308,13 @@ sub _email2nameaddr {	# name may be null
    my $email=$_[0];
    my ($name, $address);
 
-   if ($email =~ m/^\s*"?<?(.+?)>?"?\s*<(.*)>$/) {
+   if ($email=~/^\s*"?<?(.+?)>?"?\s*<(.*)>$/) {
       $name = $1; $address = $2;
-   } elsif ($email =~ m/<?(.*?@.*?)>?\s+\((.+?)\)/) {
+   } elsif ($email=~/<?(.*?@.*?)>?\s+\((.+?)\)/) {
       $name = $2; $address = $1;
-   } elsif ($email =~ m/<(.+)>/) {
+   } elsif ($email=~/<(.+)>/) {
       $name = ""; $address = $1;
-   } elsif ($email =~ m/(.+)/) {
+   } elsif ($email=~/(.+)/) {
       $name = "" ; $address = $1;
    }
    $name=~s/^\s+//; $name=~s/\s+$//;
@@ -410,7 +411,7 @@ sub dumpref {
       }
    } elsif ($type=~/ARRAY/) {
       foreach my $member (@{$var}) {
-         $output.=$prefix." ".refdump($member, $c+1)."\n";
+         $output.=$prefix." ".dumpref($member, $c+1)."\n";
       }
    } else {
       return("$var (untaint)") if (!is_tainted($_[0]));

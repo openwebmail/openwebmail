@@ -118,7 +118,7 @@ function makeCalHtml(id, calYear, calMonth, calDay, formName, validationScript) 
    html += '<table cellpadding="3" cellspacing="1" border="0">\n';
    html += '<tr>\n';
    html += '<td><a class="stylecal" href="#" onClick="updateCal(\''+id+'\','+calLastYear+','+calLastMonth+','+calDay+',\''+formName+'\',\''+validationScript+'\'); return false;">&lt;&lt;</a></td>\n';
-   html += '<td class="stylecal" align="center" colspan="5">&nbsp;' +wMonth[calDate.getMonth()]+ ' ' +calDate.getFullYear()+ '&nbsp;</td>\n';
+   html += '<td class="stylecal" align="center" colspan="5">&nbsp;' +calDate.getFullYear()+ '³â ' +wMonth[calDate.getMonth()]+ '&nbsp;</td>\n';
    html += '<td><a class="stylecal" href="#" onClick="updateCal(\''+id+'\','+calNextYear+','+calNextMonth+','+calDay+',\''+formName+'\',\''+validationScript+'\'); return false;">&gt;&gt;</a></td>\n';
    html += '</tr>\n';
    for (var row=1; row <= 7; row++) {

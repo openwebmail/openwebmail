@@ -38,8 +38,11 @@ about_info_scriptfilename	no
 about_info_protocol		yes
 about_info_server		yes
 about_info_client		yes
-xmailer_has_version		yes
-xoriginatingip_has_userid	yes
+
+<xheaders>
+X-Mailer: %name% %version% %releasedate%
+X-OriginatingIP: @@@CLIENTIP@@@ (@@@USERID@@@)
+</xheaders>
 
 enable_preference		yes
 enable_loadfrombook		yes
@@ -58,12 +61,19 @@ enable_webdisk			yes
 enable_sshterm			yes
 
 enable_pop3		yes
-disallowed_pop3servers	your_server, your_server.domain
-delpop3mail_by_default	yes
-delpop3mail_hidden	no
+pop3_disallowed_servers	your_server, your_server.domain
+pop3_delmail_by_default	yes
+pop3_delmail_hidden	no
+pop3_usessl_by_default	no
 
-loginerrordelay		10
-fetchpop3interval	15
+authpop3_server		localhost
+authpop3_port		110
+authpop3_getmail	no
+authpop3_delmail	yes
+authpop3_usessl		no
+
+loginerrordelay			10
+fetchpop3interval		15
 calendar_email_notifyinterval	120
 
 enable_strictfoldername	no

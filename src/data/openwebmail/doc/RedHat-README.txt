@@ -54,9 +54,9 @@ Open WebMail.
 
 You will need:
 
-CGI.pm-2.74.tar.gz
-MIME-Base64-2.12.tar.gz
-libnet-1.0901.tar.gz
+CGI.pm-3.05.tar.gz
+MIME-Base64-3.01.tar.gz
+libnet-1.19.tar.gz
 Text-Iconv-1.2.tar.gz
 
 ------------------------------------------------------------------------------
@@ -75,8 +75,8 @@ Download above-mentioned packages and copy them to /tmp directory.
 For CGI.pm do the following:
 
    cd /tmp
-   tar -zxvf CGI.pm-2.74.tar.gz
-   cd CGI.pm-2.74
+   tar -zxvf CGI.pm-3.05.tar.gz
+   cd CGI.pm-3.05
    perl Makefile.PL
    make
    make install
@@ -84,8 +84,8 @@ For CGI.pm do the following:
 For MIME-Base64 do the following:
 
    cd /tmp
-   tar -zxvf MIME-Base64-2.12.tar.gz
-   cd MIME-Base64-2.12
+   tar -zxvf MIME-Base64-3.01.tar.gz
+   cd MIME-Base64-3.01
    perl Makefile.PL
    make
    make install
@@ -93,8 +93,8 @@ For MIME-Base64 do the following:
 For libnet do the following:
 
    cd /tmp
-   tar -zxvf libnet-1.0901.tar.gz
-   cd libnet-1.0901
+   tar -zxvf libnet-1.19.tar.gz
+   cd libnet-1.19
    perl Makefile.PL
    make
    make install
@@ -119,7 +119,7 @@ For Text-Iconv-1.2 do the following:
 
    ps: If the 'make test' failed, it means you set wrong value for LIBS and
        INC in Makefile.PL or your iconv support is not complete.
-       You may copy the uty/iconv.pl.fake to shares/iconv.pl to make 
+       You may copy the misc/patches/iconv.pl.fake to shares/iconv.pl to make 
        openwebmail work without iconv support.
 
    make install
@@ -128,11 +128,11 @@ For Text-Iconv-1.2 do the following:
 Now download and install your openwebmail software.
 
 (RedHat 6.x users) Go to /home/httpd directory and extract your
-openwebmail-1.xx.tgz file you have just downloaded.
+openwebmail-1.xx.tar.gz file you have just downloaded.
 
    cd /home/httpd
-   tar -zxvBpf openwebmail-1.xx.tgz
-   edit etc/auth_unix.conf (from etc/auth_unix.conf.default)
+   tar -zxvBpf openwebmail-1.xx.tar.gz
+   edit etc/auth_unix.conf (from etc/defaults/auth_unix.conf)
    set passwdfile_encrypted to /etc/shadow
        passwdmkdb           to none
 
@@ -144,11 +144,11 @@ openwebmail-1.xx.tgz file you have just downloaded.
        spellcheck to /usr/bin/aspell
 
 (RedHat 7.x users) Go to /var/www directory and extract your
-openwebmail-1.xx.tgz file you have just downloaded.
+openwebmail-1.xx.tar.gz file you have just downloaded.
 
    cd /var/www
-   tar -zxvBpf openwebmail-1.xx.tgz
-   edit etc/auth_unix.conf (from etc/auth_unix.conf.default)
+   tar -zxvBpf openwebmail-1.xx.tar.gz
+   edit etc/auth_unix.conf (from etc/defaults/auth_unix.conf)
    set passwdfile_encrypted to /etc/shadow
        passwdmkdb           to none
 
@@ -165,7 +165,7 @@ Bellow is the example of my openwebmail.conf file on RedHat 7.x:
 #
 # Open WebMail configuration file
 #
-# This file contains just the overrides from openwebmail.conf.default
+# This file contains just the overrides from defaults/openwebmail.conf
 # please make all changes to this file.
 #
 # This file set options for all domains and all users.

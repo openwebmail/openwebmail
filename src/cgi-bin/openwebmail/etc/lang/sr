@@ -10,6 +10,11 @@ package ow::sr;
    'sent-mail'      => 'Poslate',
    'saved-drafts'   => 'Nedovr¹ene',
    'mail-trash'     => 'Smeæe',
+   'spam-mail'      => 'Spam',
+   'virus-mail'     => 'Virus',
+   LEARNSPAM        => '--OBELE¾I SPAM--',
+   LEARNHAM         => '--OBELE¾I HAM--',
+   FORWARD          => '--PROSLEDI--',
    DELETE           => '--IZBRI©I--'
    );
 
@@ -87,6 +92,13 @@ package ow::sr;
    before => 'Ispred zapisa u adresaru',
    after  => 'Iza zapisa u adresaru',
    both   => 'Ispred i iza zapisa u adresaru'
+   );
+
+%lang_checksourcelabels =
+   (
+   all  => 'Sve nove poruke u Pristiglim',
+   pop3 => 'Samo poruke sa pop3 servera',
+   none => 'Nijedan'
    );
 
 %lang_timelabels =
@@ -225,6 +237,7 @@ package ow::sr;
    userprefs  => 'Pode¹avanja',
    addressbook=> 'Adresar',
    folders    => 'Omotnice',
+   emptyfolder=> 'Isprazni folder',
    emptytrash => 'Isprazni smeæe',
    totrash    => 'Premesti u smeæe',
    forever    => 'Zauvek',
@@ -451,6 +464,7 @@ package ow::sr;
    abook_invalid     => 'Na¾alost izgleda da ova datoteka nije adresar izvezen iz Microsoft Outlook Express-a 5 u CSV formatu.  Proverite u editoru teksta da li prva linija poèinje sa "Name,E-mail Address", zatim se vratite',
    back              => 'nazad',
    tryagain          => 'i poku¹ate ponovo.',
+   mailfilter_error  => 'Gre¹ka filtera poruka',
    abook_toobig      => 'Ovim biste prema¹ili limit Va¹eg adresara.  Molim da se',
    cant_create_dir   => 'Ne mo¾ete da napravite svoju korisnièku omotnicu!',
    att_overlimit     => 'Velièina Va¹eg priloga je veæa od dozvoljene velièine, koja je',
@@ -481,7 +495,7 @@ package ow::sr;
    no_file_todownload=> 'Nije odabrana nijedna datoteka za prenos sa servera',
    upload_overlimit  => 'Velièina datoteke za prebacivanje na server je prevelika',
    decomp_notsupported =>'Dekompresija ovog tipa datoteke nije moguæa.',
-   filefmt_notsupported =>'The file format is not supported.',
+   filefmt_notsupported =>'Format datoteke nije podr¾an.',
    webdisk_readonly  => 'Na¾alost, na Va¹ mre¾ni disk ne mogu da se pi¹u podaci.',
    quota_syserr      => 'Sistemska gre¹ka sa kvotama',
    quotahit_alert    => 'Na¾alost, dostigli ste limit kvote. Molim da izbri¹ete neke poruke iz omotnice ili datoteke sa mre¾nog diska da bi ste oslobodili prostor.',

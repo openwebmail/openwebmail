@@ -9,7 +9,12 @@ package ow::zh_CN_GB2312;
    'saved-messages' => '存档箱',
    'sent-mail'      => '已发送邮件',
    'saved-drafts'   => '草稿箱',
-   'mail-trash'     => '垃圾箱',
+   'mail-trash'     => '废件箱',
+   'spam-mail'      => '垃圾邮件箱',
+   'virus-mail'     => '病毒邮件箱',
+   LEARNSPAM        => '--垃圾邮件学习--',
+   LEARNHAM         => '--正常邮件学习--',
+   FORWARD          => '--邮件转发--',
    DELETE           => '--直接删除--'
    );
 
@@ -43,9 +48,9 @@ package ow::zh_CN_GB2312;
 %lang_msgformatlabels =
    (
    auto => '自动选择',
-   text => '纯文字',
+   text => '纯文本',
    html => 'HTML',
-   both => '同时使用纯文字与HTML'
+   both => '同时使用纯文本与HTML'
    );
 
 %lang_withoriglabels =
@@ -77,9 +82,9 @@ package ow::zh_CN_GB2312;
 
 %lang_sendpositionlabels =
    (
-   before => '在信件编辑区之前',
-   after  => '在信件编辑区之后',
-   both   => '在信件编辑区前后'
+   before => '在邮件编辑区之前',
+   after  => '在邮件编辑区之后',
+   both   => '在邮件编辑区前后'
    );
 
 %lang_abookbuttonpositionlabels = 
@@ -87,6 +92,13 @@ package ow::zh_CN_GB2312;
    before => '在地址簿项目之前',
    after  => '在地址簿项目之后',
    both   => '在地址簿项目前后'
+   );
+
+%lang_checksourcelabels =
+   (
+   all  => '收件箱内所有新进邮件',
+   pop3 => '从 POP3 服务器收取的邮件',
+   none => '无'
    );
 
 %lang_timelabels =
@@ -112,7 +124,7 @@ package ow::zh_CN_GB2312;
    isnot       => '不是',
    startswith  => '开始于',
    endswith    => '结束于',
-   regexp      => '正规表示式',
+   regexp      => '正则表示式',
    );
 
 %lang_sizes =
@@ -194,7 +206,7 @@ package ow::zh_CN_GB2312;
    newfile  => '建新文件',
    copy     => '复制',
    move     => '移动',
-   symlink  => '捷径连结',
+   symlink  => '快捷连接',
    delete   => '删除',
    gzip     => 'gz 压缩',
    mkzip    => '建 zip 文件',
@@ -206,11 +218,11 @@ package ow::zh_CN_GB2312;
 
 %lang_text =
    (
-   loading    => 'Loading, please wait',
+   loading    => '载入中，请稍等',
    help       => '帮助',
    login      => '登录',
    clear      => '清除',
-   webmail    => '网路邮局',
+   webmail    => '网络邮箱',
    point      => '点',
    pixel      => '像素',
    changepwd  => '修改密码',
@@ -225,8 +237,9 @@ package ow::zh_CN_GB2312;
    userprefs  => '设定个人模版',
    addressbook=> '地址簿',
    folders    => '邮件箱',
-   emptytrash => '清空垃圾箱',
-   totrash    => '移至垃圾箱',
+   emptyfolder=> '清空邮件箱',
+   emptytrash => '清空废件箱',
+   totrash    => '移至废件箱',
    forever    => '永久保留',
    delatlogout=> '退出时删除',
    userdef    => '用户自定义',
@@ -314,8 +327,8 @@ package ow::zh_CN_GB2312;
    note       => '备注',
    max        => '最大值',
    group      => '邮件组',
-   quotausage => 'Quota usage',
-   quotalimit => 'Quota limit',
+   quotausage => '限额用量',
+   quotalimit => '限额上限',
    quotahit   => '存储空间已满',
    tzmap      => '世界时区地图',
    testsound  => '试听',
@@ -336,7 +349,7 @@ package ow::zh_CN_GB2312;
    no         => '否',
    filtered   => '过滤',
    blockrelay => '封锁转信主机',
-   blockemail => '封锁 email',
+   blockemail => '封锁邮件地址',
    read       => '读取',
    yourmsg    => '您发出的邮件',
    delivered  => '传送',
@@ -416,15 +429,15 @@ package ow::zh_CN_GB2312;
    vdomain_createuser => '新增用户',
    vdomain_changeuser => '修改用户',
    vdomain_deleteuser => '删除用户',
-   vdomain_changeview => '改变检视方式',
-   vdomain_usersonly  => '只列出使用者',
-   vdomain_useralias  => '列出使用者/别名',
-   vdomain_fmtuseralias => '列出格式化的使用者/别名',
-   vdomain_admin      => '管理者',
+   vdomain_changeview => '改变显示方式',
+   vdomain_usersonly  => '只列出用户',
+   vdomain_useralias  => '列出用户/别名',
+   vdomain_fmtuseralias => '列出格式化的用户/别名',
+   vdomain_admin      => '管理员',
    vdomain_localuser  => '本地帐号',
    set_passwd         => '设定密码',
    reset_passwd       => '重设密码',
-   email_alias        => 'Email Alias'
+   email_alias        => 'Email 别名'
    );
 
 %lang_err =
@@ -451,6 +464,7 @@ package ow::zh_CN_GB2312;
    abook_invalid     => '抱歉！该文件不是Outlook Express 5的CSV格式。',
    back              => '返回上一页',
    tryagain          => '再试。',
+   mailfilter_error  => '邮件过滤错误',
    abook_toobig      => '地址簿超过容量限制。请',
    cant_create_dir   => '无法建立用户目录！',
    att_overlimit     => '附件大小超过限制',
@@ -468,7 +482,7 @@ package ow::zh_CN_GB2312;
    pwd_incorrect     => '密码错误',
    pwd_confirmmismatch=>'新密码与确认项不符',
    pwd_tooshort      => '密码太短 (最小长度 @@@PASSWDMINLEN@@@)',
-   pwd_toosimple     => '密码太简单 (同时要有字母与数字)',
+   pwd_toosimple     => '密码太简单（同时要有字母与数字）',
    network_server_error => '网络服务器错误',
    sendmail_error    => '抱歉！无法发出您的邮件，请回到上一页检查是否输入错误后，再重发一次。',
    at_char_not_allowed => '栏位中不能有 @ 字符。请回到上一页再试一次',
@@ -481,18 +495,18 @@ package ow::zh_CN_GB2312;
    no_file_todownload=> '尚未选择要下载的目录或文件',
    upload_overlimit  => '上传文件的大小超出限制',
    decomp_notsupported =>'系统不支持这种文件的解压缩。',
-   filefmt_notsupported =>'系统不支援这种档案格式.',
+   filefmt_notsupported =>'系统不支援这种文件格式.',
    webdisk_readonly  => '抱歉, 您的网络磁盘是只读的。',
-   quota_syserr      => 'Quota 系统内部错误',
-   quotahit_alert    => '很抱歉, 由于您的使用空间已经超过上限, 请先删除信件匣中的信件, 或是网路硬碟中的档案以便释出一些可用空间.',
-   quotahit_delmail  => '注意, 由于使空间已经超过上限(@@@QUOTALIMIT@@@), 信件匣中最旧的一些信件已经被自动删除了.',
-   quotahit_delfile  => '注意, 由于使空间已经超过上限(@@@QUOTALIMIT@@@), 网路硬碟中的一些档案已经被自动删除了.',
-   spool_overlimit   => '很抱歉, 您的新信匣已经超出其容量上限(@@@SPOOLLIMIT@@@). 请将部份信件由新信匣搬到其他信件匣.',
-   vdomain_toomanyuser  => '抱歉, 这个网域的使用者数目已经到达上限',
-   vdomain_toomanyalias => '抱歉, 这个使用者的 E-MAIL alias 个数已经到达上限',
-   vdomain_userrequired => '需要输入使用者名称',
-   vdomain_fwdrequired => '需要输入合法的转寄邮件地址',
-   all_module_disabled => '所有模组都被关闭'
+   quota_syserr      => '限额系统内部错误',
+   quotahit_alert    => '很抱歉, 由于您的使用空间已经超过上限, 请先删除邮件箱中的信件, 或是网络磁盘中的文件以便释出一些可用空间。',
+   quotahit_delmail  => '注意, 由于您的使用空间已经超过上限(@@@QUOTALIMIT@@@), 邮件箱中最旧的一些邮件已经被自动删除了。',
+   quotahit_delfile  => '注意, 由于您的使用空间已经超过上限(@@@QUOTALIMIT@@@), 网络磁盘中的一些文件已经被自动删除了。',
+   spool_overlimit   => '很抱歉, 您的收件箱已经超出其容量上限(@@@SPOOLLIMIT@@@)。请将部份邮件由收件箱移到其他邮件箱。',
+   vdomain_toomanyuser  => '抱歉, 这个域的用户数目已经到达上限',
+   vdomain_toomanyalias => '抱歉, 这个用户的 E-MAIL 别名个数已经到达上限',
+   vdomain_userrequired => '需要输入用户名称',
+   vdomain_fwdrequired => '需要输入合法的转发邮件地址',
+   all_module_disabled => '所有模块都被关闭'
    );
 
 1;

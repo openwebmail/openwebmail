@@ -9,53 +9,32 @@ use vars qw(%config %lang_err);
 sub getmessage {
    my ($user, $folder, $messageid, $mode) = @_;
    my ($folderfile, $folderdb)=get_folderpath_folderdb($user, $folder);
-   my $folderhandle=do { local *FH };
-   my $r_messageblock;
+   my ($msgsize, $errmsg, $block);
    my %message = ();
 
-   ow::filelock::lock($folderfile, LOCK_SH|LOCK_NB) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $folderfile!");
-   if (update_folderindex($folderfile, $folderdb)<0) {
-      ow::filelock::lock($folderfile, LOCK_UN);
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_updatedb'} $folderdb");
-   }
-   open($folderhandle, "$folderfile");
-   $r_messageblock=get_message_block($messageid, $folderdb, $folderhandle);
-   close($folderhandle);
-   ow::filelock::lock($folderfile, LOCK_UN);
+   ($msgsize, $errmsg)=lockget_message_block($messageid, $folderfile, $folderdb, \$block);
 
-   if (${$r_messageblock} eq "") {	# msgid not found
-      writelog("db warning - msg $messageid in $folderfile index missing");
-      writehistory("db warning - msg $messageid in $folderfile index missing");
+   # -1 lock/open error
+   # -2 msg not found in db
+   # -3 size in db invalid, -4 read size mismatch, -5 folder index inconsistence
+   if ($msgsize==-1) {
+      openwebmailerror(__FILE__, __LINE__, ow::htmltext::str2html($errmsg));
+   } elsif ($msgsize==-2) {
+      my $m="db warning - $errmsg"; writelog($m); writehistory($m);
       return \%message;
+   } elsif ($msgsize==-3 || $msgsize==-4 || $msgsize==-5) {
+      my $m="db warning - $errmsg - ".__FILE__.':'.__LINE__; writelog($m); writehistory($m);
 
-   } elsif (${$r_messageblock}!~/^From / ) {	# db index inconsistance
-      writelog("db warning - msg $messageid in $folderfile index inconsistence - ".__FILE__.':'.__LINE__);
-      writehistory("db warning - msg $messageid in $folderfile index inconsistence - ".__FILE__.':'.__LINE__);
-
-      my %FDB;
+      my %FDB;	# set metainfo=ERR to force reindex in next update_folderindex
       ow::dbm::open(\%FDB, $folderdb, LOCK_EX) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $folderdb");
-      $FDB{'METAINFO'}="ERR";
+      @FDB{'METAINFO', 'LSTMTIME'}=('ERR', -1);
       ow::dbm::close(\%FDB, $folderdb);
 
-      ow::filelock::lock($folderfile, LOCK_SH|LOCK_NB) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $folderfile!");
-
-      # forced reindex since metainfo = ERR
-      if (update_folderindex($folderfile, $folderdb)<0) {
-         ow::filelock::lock($folderfile, LOCK_UN);
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_updatedb'} $folderdb");
-      }
-
-      open($folderhandle, "$folderfile");
-      $r_messageblock=get_message_block($messageid, $folderdb, $folderhandle);
-      close($folderhandle);
-
-      ow::filelock::lock($folderfile, LOCK_UN);
-
-      return \%message if (${$r_messageblock} eq "" );
+      ($msgsize, $errmsg)=lockget_message_block($messageid, $folderfile, $folderdb, \$block);
+      openwebmailerror(__FILE__, __LINE__, ow::htmltext::str2html($errmsg)) if ($msgsize<0 && $msgsize!=-2);
    }
+   return \%message if ($msgsize<=0);
 
    # member: header, body, attachment
    #         return-path from to cc bcc reply-to date subject status
@@ -66,10 +45,10 @@ sub getmessage {
    # $r_attachment is a reference to attachment array!
    if ($mode eq "all") {
       ($message{header}, $message{body}, $message{attachment})
-		=ow::mailparse::parse_rfc822block($r_messageblock, "0", "all");
+		=ow::mailparse::parse_rfc822block(\$block, "0", "all");
    } else {
       ($message{header}, $message{body}, $message{attachment})
-		=ow::mailparse::parse_rfc822block($r_messageblock, "0", "");
+		=ow::mailparse::parse_rfc822block(\$block, "0", "");
    }
    return {} if ( $message{header} eq "" ); 	# return empty hash if no header found
 

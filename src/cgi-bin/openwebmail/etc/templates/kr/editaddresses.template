@@ -64,7 +64,7 @@
    function addcheck()
    {
       if (document.newaddress.email.value  == "") {
-         alert("Please specify the email address.");
+         alert("이메일 주소를 선택해주세요.");
          return false;
       }
       return true;

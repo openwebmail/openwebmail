@@ -177,7 +177,8 @@
          alert("Adja meg a címzett nevét!");
          return false;
       }
-      if (document.composeform.subject.value == "" ) {
+      if (document.composeform.subject.value == "" 
+       || document.composeform.subject.value == "N/A" ) {
          return(confirm("A tárgy nincs kitöltve, biztosan elküldi?"));
       }
       return true;

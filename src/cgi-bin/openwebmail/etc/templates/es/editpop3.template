@@ -14,13 +14,13 @@
 <td nowrap bgcolor=@@@COLUMNHEADER@@@>
 <B>Puerto</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-@@@USEPOP3SSLSTART@@@<B>Use SSL</B>@@@USEPOP3SSLEND@@@</td>
+@@@USEPOP3SSLSTART@@@<B>Usar SSL</B>@@@USEPOP3SSLEND@@@</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Cuenta</B> (clic para recibir)</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Contrase&ntilde;a</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-@@@DELPOP3STRSTART@@@<B>Eliminar correo al descargar</B>@@@DELPOP3STREND@@@</td>
+@@@DELPOP3STRSTART@@@<B>Eliminar mensajes al descargar</B>@@@DELPOP3STREND@@@</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Activar</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>

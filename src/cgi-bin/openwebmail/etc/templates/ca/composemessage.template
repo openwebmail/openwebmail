@@ -3,7 +3,7 @@
 <tr><td colspan="2" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>REDACTA UN MISSATGE</B></font>
-</td></tr><tr><td colspan="3" bgcolor=@@@MENUBAR@@@>
+</td></tr><tr><td colspan="2" bgcolor=@@@MENUBAR@@@>
 <table width="100%" cellspacing="0" cellpadding="0"><tr>
 <td>@@@BACKTOFOLDER@@@</td>
 <td align="right">
@@ -13,7 +13,7 @@
 </tr></table>
 </td>
 </tr></table>
-</td></tr><tr><td colspan="3">&nbsp;</td></tr>
+</td></tr><tr><td colspan="2">&nbsp;</td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
 <B>De:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -177,7 +177,8 @@
          alert("Especifiqueu el destinatari del missatge.");
          return false;
       }
-      if (document.composeform.subject.value == "" ) {
+      if (document.composeform.subject.value == "" 
+       || document.composeform.subject.value == "N/A" ) {
          return(confirm("Missatge sense assumpte, voleu continuar?"));
       }
       return true;

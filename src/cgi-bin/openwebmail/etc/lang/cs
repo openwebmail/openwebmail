@@ -13,6 +13,11 @@ package ow::cs;
    'sent-mail'      => 'Odeslané',
    'saved-drafts'   => 'Rozepsané',
    'mail-trash'     => 'Ko¹',
+   'spam-mail'      => 'Spam',
+   'virus-mail'     => 'Virus',
+   LEARNSPAM        => '--LEARN SPAM--',
+   LEARNHAM         => '--LEARN HAM--',
+   FORWARD          => '--FORWARD--',
    DELETE           => '--SMAZAT--'
    );
 
@@ -90,6 +95,13 @@ package ow::cs;
    before => 'Pøed adresáøovımi vstupy',
    after  => 'Za adresáøovımi vstupy',
    both   => 'Pøed a za adresáøovımi vstupy'
+   );
+
+%lang_checksourcelabels =
+   (
+   all  => 'All new messages in INBOX',
+   pop3 => 'Only messages from pop3 server',
+   none => 'None'
    );
 
 %lang_timelabels =
@@ -228,6 +240,7 @@ package ow::cs;
    userprefs  => 'U¾ivatelské nastavení',
    addressbook=> 'Adresáø',
    folders    => 'Správa slo¾ek',
+   emptyfolder=> 'Empty folder',
    emptytrash => 'Vysypat Ko¹',
    totrash    => 'Pøesunout do Ko¹e',
    forever    => 'Napoøád',
@@ -454,6 +467,7 @@ package ow::cs;
    abook_invalid     => 'Zdá se, ¾e tento soubor není slo¾kou adresáøe, exportované z Microsoft Outlook Express 5 jako soubor .CSV. Otevøete ho v textovém editoru a ujistìte se, ¾e první øádek má formát: "Name,E-mail Address" a poté pokraèujte.',
    back              => 'zpìt',
    tryagain          => 'a zkuste operaci opakovat.',
+   mailfilter_error  => 'Mail Filter Error',
    abook_toobig      => 'Touto operací by do¹lo k pøekroèení kapacitního limitu Va¹eho adresáøe.',
    cant_create_dir   => 'Nelze vytvoøit Va¹i u¾ivatelskou slo¾ku!',
    att_overlimit     => 'Velikost pøílohy pøekroèila kapacitní limit, kterı je',

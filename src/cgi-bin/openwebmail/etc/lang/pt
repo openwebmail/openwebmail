@@ -10,6 +10,11 @@ package ow::pt;
    'sent-mail'      => 'Enviadas',
    'saved-drafts'   => 'Rascunho',
    'mail-trash'     => 'Lixo',
+   'spam-mail'      => 'Spam',
+   'virus-mail'     => 'Virus',
+   LEARNSPAM        => '--LEARN SPAM--',
+   LEARNHAM         => '--LEARN HAM--',
+   FORWARD          => '--FORWARD--',
    DELETE           => '--APAGAR--'
    );
 
@@ -87,6 +92,13 @@ package ow::pt;
    before => 'Antes do livro de endereços',
    after  => 'Depois do livro de endereços',
    both   => 'Antes e depois do livro de endereços'
+   );
+
+%lang_checksourcelabels =
+   (
+   all  => 'All new messages in INBOX',
+   pop3 => 'Only messages from pop3 server',
+   none => 'None'
    );
 
 %lang_timelabels =
@@ -225,6 +237,7 @@ package ow::pt;
    userprefs  => 'Preferências do Utilizador',
    addressbook=> 'Livro de endereços',
    folders    => 'Pastas',
+   emptyfolder=> 'Empty folder',
    emptytrash => 'Apagar lixo',
    totrash    => 'Mover para o Lixo',
    forever    => 'Para sempre',
@@ -451,6 +464,7 @@ package ow::pt;
    abook_invalid     => 'Lamento, este ficheiro não aparenta ter o formato correcto para o livro de endereços. Verifique se está exportando o ficheiro no formato correcto.',
    back              => 'Recue',
    tryagain          => 'e tente de novo.',
+   mailfilter_error  => 'Mail Filter Error',
    abook_toobig      => 'Lamento, excedeu o limite permitido para o livro de endereços.',
    cant_create_dir   => 'Não foi possível criar a directoria do utilizador!',
    att_overlimit     => 'Lamento, o tamanho do ficheiro anexado ultrapassou o limite permitido.',

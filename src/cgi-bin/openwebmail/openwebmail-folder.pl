@@ -11,7 +11,7 @@ if ($SCRIPT_DIR eq '' && open(F, '/etc/openwebmail_path.conf')) {
 if ($SCRIPT_DIR eq '') { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
 push (@INC, $SCRIPT_DIR);
 
-foreach (qw(PATH ENV BASH_ENV CDPATH IFS TERM)) { $ENV{$_}='' }	# secure ENV
+foreach (qw(ENV BASH_ENV CDPATH IFS TERM)) {delete $ENV{$_}}; $ENV{PATH}='/bin:/usr/bin'; # secure ENV
 umask(0002); # make sure the openwebmail group can write
 
 use strict;
@@ -43,7 +43,6 @@ use vars qw($quotausage $quotalimit);
 # extern vars
 use vars qw(%lang_folders %lang_text %lang_err);	# defined in lang/xy
 use vars qw($_OFFSET $_STATUS %is_internal_dbkey);	# defined in maildb.pl
-use vars qw(%is_defaultfolder @defaultfolders);		# defined in ow-shared.pl
 
 # local globals
 use vars qw($folder);
@@ -99,7 +98,7 @@ sub editfolders {
 
    getfolders(\@validfolders, \$inboxusage, \$folderusage);
    foreach (@validfolders) {
-      push (@userfolders, $_) if (!$is_defaultfolder{$_});
+      push (@userfolders, $_) if (!is_defaultfolder($_));
    }
 
    my $total_newmessages=0;
@@ -158,7 +157,7 @@ sub editfolders {
 
    $bgcolor = $style{"tablerow_dark"};
    $temphtml='';
-   foreach $currfolder (@defaultfolders) {
+   foreach $currfolder (get_defaultfolders()) {
       $temphtml .= _folderline($currfolder, $form_i, $bgcolor,
                                \$total_newmessages, \$total_allmessages, \$total_foldersize);
       if ($bgcolor eq $style{"tablerow_dark"}) {
@@ -285,10 +284,10 @@ sub _folderline {
       $temphtml .= submit(-name=>$lang_text{'rename'},
                           -class=>"medtext",
                           -onClick=>"return OpConfirm('folderform$i', 'renamefolder', $lang_text{'folderrenprop'}+' ( $jsfolderstr )')");
-      $temphtml .= submit(-name=>$lang_text{'delete'},
-                          -class=>"medtext",
-                          -onClick=>"return OpConfirm('folderform$i', 'deletefolder', $lang_text{'folderdelconf'}+' ( $jsfolderstr )')");
    }
+   $temphtml .= submit(-name=>$lang_text{'delete'},
+                       -class=>"medtext",
+                       -onClick=>"return OpConfirm('folderform$i', 'deletefolder', $lang_text{'folderdelconf'}+' ( $jsfolderstr )')");
 
    $temphtml .= "</td></tr>".end_form()."\n";
 
@@ -306,7 +305,7 @@ sub refreshfolders {
    foreach my $currfolder (@validfolders) {
       my ($folderfile,$folderdb)=get_folderpath_folderdb($user, $currfolder);
 
-      ow::filelock::lock($folderfile, LOCK_EX|LOCK_NB) or
+      ow::filelock::lock($folderfile, LOCK_EX) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $folderfile!");
       if (update_folderindex($folderfile, $folderdb)<0) {
          $errcount++;
@@ -333,7 +332,7 @@ sub markreadfolder {
 
    my $ioerr=0;
 
-   ow::filelock::lock($folderfile, LOCK_EX|LOCK_NB) or
+   ow::filelock::lock($folderfile, LOCK_EX) or
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $folderfile!");
 
    if (update_folderindex($folderfile, $folderdb)<0) {
@@ -355,8 +354,8 @@ sub markreadfolder {
    ow::dbm::close(\%FDB, $folderdb);
    my @unreadmsgids=(sort { $offset{$a}<=>$offset{$b} } keys %offset);
 
-   my $tmpfile=ow::tool::untaint("/tmp/markread_tmp_$$");
-   my $tmpdb=ow::tool::untaint("/tmp/.markread_tmp_$$");
+   my $tmpfile=ow::tool::untaint("/tmp/.markread.tmpfile.$$");
+   my $tmpdb=ow::tool::untaint("/tmp/.markread.tmpdb.$$");
 
    while (!$ioerr && $#unreadmsgids>=0) {
       my @markids=();
@@ -421,15 +420,19 @@ sub reindexfolder {
    my $foldertoindex = ow::tool::untaint(safefoldername(param('foldername'))) || '';
    my ($folderfile, $folderdb)=get_folderpath_folderdb($user, $foldertoindex);
 
+   ow::filelock::lock($folderfile, LOCK_SH|LOCK_NB) or
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $folderfile");
+
    if ($recreate) {
       ow::dbm::unlink($folderdb);
    }
    if (ow::dbm::exist($folderdb) ) {
       my %FDB;
-      ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} db $folderdb");
-
-      $FDB{'METAINFO'}={'RENEW'};
+      if (!ow::dbm::open(\%FDB, $folderdb, LOCK_SH)) {
+         ow::filelock::lock($folderfile, LOCK_UN);
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} db $folderdb");
+      }
+      @FDB{'METAINFO', 'LSTMTIME'}=('RENEW', -1);
       ow::dbm::close(\%FDB, $folderdb);
    }
    if (update_folderindex($folderfile, $folderdb)<0) {
@@ -446,6 +449,8 @@ sub reindexfolder {
       writelog("chkindex folder - $foldertoindex");
       writehistory("chkindex folder - $foldertoindex");
    }
+
+   ow::filelock::lock($folderfile, LOCK_UN);
 
    editfolders();
 }
@@ -464,7 +469,7 @@ sub addfolder {
    if (length($foldertoadd) > $config{'foldername_maxlen'}) {
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'foldername_long'}");
    }
-   if ( is_defaultfolder($foldertoadd) ||
+   if ( is_defaultfolder($foldertoadd) || is_lang_defaultfolder($foldertoadd) ||
         $foldertoadd eq "$user" || $foldertoadd eq "" ) {
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'cant_create_folder'}");
    }
@@ -490,10 +495,9 @@ sub addfolder {
    editfolders();
 }
 
-sub is_defaultfolder {
-   return 1 if ($is_defaultfolder{$_[0]});
-   foreach (keys %is_defaultfolder) {
-      return 1 if ($_[0] eq $lang_folders{$_})
+sub is_lang_defaultfolder {
+   foreach (keys %lang_folders) {	# defaultfolder locallized name check
+      return 1 if ($_[0] eq $lang_folders{$_} && is_defaultfolder($_));
    }
    return 0;
 }
@@ -502,12 +506,6 @@ sub is_defaultfolder {
 ########## DELETEFOLDER ##########################################
 sub deletefolder {
    my $foldertodel = safefoldername(param('foldername')) || '';
-
-   # if is INBOX, return to editfolder immediately
-   if ($foldertodel eq 'INBOX') {
-      editfolders();
-      return;
-   }
 
    my ($folderfile, $folderdb)=get_folderpath_folderdb($user, $foldertodel);
    if ( -f $folderfile) {
@@ -540,7 +538,7 @@ sub renamefolder {
    if (length($newname) > $config{'foldername_maxlen'}) {
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'foldername_long'}");
    }
-   if ( is_defaultfolder($newname) ||
+   if ( is_defaultfolder($newname) || is_lang_defaultfolder($newname) ||
         $newname eq "$user" || $newname eq "" ) {
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'cant_create_folder'}");
    }
@@ -573,7 +571,7 @@ sub downloadfolder {
    my $buff;
 
    if ( ($cmd=ow::tool::findbin("zip")) ne "" ) {
-      $cmd.=" -rq - $folderfile |";
+      $cmd.=" -jrq - $folderfile |";
       $contenttype='application/x-zip-compressed';
       $filename="$folder.zip";
 
@@ -590,7 +588,7 @@ sub downloadfolder {
 
    $filename=~s/\s+/_/g;
 
-   ow::filelock::lock($folderfile, LOCK_EX|LOCK_NB) or
+   ow::filelock::lock($folderfile, LOCK_EX) or
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $folderfile");
 
    # disposition:attachment default to save

@@ -32,6 +32,7 @@
    'editst.gif'        => ' [스태셔내리 편집] ',
    'editst.s.gif'      => ' [스태셔내리 편집] ',
    'email.gif'         => ' M+ ',
+   'emptyfolder.gif'   => ' [EmptyFolder] ',
    'export.gif'        => ' [주소 내보내기] ',
    'filtersetup.gif'   => ' [필터설정] ',
    'first-grey.gif'    => ' << ',

@@ -169,9 +169,14 @@ Assumpte:
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Recollir correu POP3 automàticament en entrar:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@AUTOPOP3CHECKBOX@@@ (wait @@@AUTOPOP3WAITMENU@@@ segons)
+@@@AUTOPOP3CHECKBOX@@@ (espera @@@AUTOPOP3WAITMENU@@@ segons)
 </td></tr>
 @@@AUTOPOP3END@@@
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Temps d'espera pel filtratge de correu:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@BGFILTERWAITMENU@@@ segons
+</td></tr>
 @@@MOVEOLDSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Moure els missatges vells a missatges DESATS en sortir:</B>
@@ -271,18 +276,58 @@ Ample @@@EDITCOLUMNSMENU@@@ Alt @@@EDITROWSMENU@@@
 @@@SENDCHARSETMENU@@@
 </td></tr>
 
+@@@VIRUSCHECKSTART@@@
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Comprovació de Virus</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Missatges a comprovar:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@VIRUSCHECKSOURCEMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Mida màxima dels missatges comprovats:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@VIRUSCHECKMAXSIZEMENU@@@ KB
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Mida mínima del cos dels missatges comprovats:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@VIRUSCHECKMINBODYSIZEMENU@@@ KB
+</td></tr>
+@@@VIRUSCHECKEND@@@
+
+@@@SPAMCHECKSTART@@@
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Comprovació d'Spam</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Missatges a comprovar:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SPAMCHECKSOURCEMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Mida màxima dels missatges comprovats:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SPAMCHECKMAXSIZEMENU@@@ KB
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Llindar per determinar Spam:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SPAMCHECKTHRESHOLDMENU@@@
+</td></tr>
+@@@SPAMCHECKEND@@@
+
 @@@FILTERSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Opcions de Filtrat de Missatges</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Límit de missatges repetits:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@FILTERREPEATLIMIT@@@ &nbsp;( 0 no comprova repeticions )
+@@@FILTERREPEATLIMIT@@@ &nbsp;( 0 vol dir que no comprova repeticions )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Filtrar missatges amb format de Remitent erroni:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@FILTERBADFORMATFROM@@@
+@@@FILTERBADADDRFORMAT@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Filtrar missatges amb un SMTP fals:</B>
@@ -290,7 +335,7 @@ Ample @@@EDITCOLUMNSMENU@@@ Alt @@@EDITROWSMENU@@@
 @@@FILTERFAKEDSMTP@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Filtrar missatges on el camp "de" és intencionadament erroni:</B>
+<B>Filtrar missatges on el camp "De" és intencionadament erroni:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDFROM@@@
 </td></tr>
@@ -401,7 +446,7 @@ Ample @@@ABOOKWIDTHMENU@@@ Alt @@@ABOOKHEIGHTMENU@@@
 @@@CONFIRMFILECOMPRESS@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Mida de la finestre d'edició de fitxers:</B>
+<B>Mida de la finestra d'edició de fitxers:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 Ample @@@FILEEDITCOLUMNSMENU@@@ Alt @@@FILEEDITROWSMENU@@@
 </td></tr>
@@ -409,6 +454,11 @@ Ample @@@FILEEDITCOLUMNSMENU@@@ Alt @@@FILEEDITROWSMENU@@@
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Resta d'Opcions</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Resalta les seleccions:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@USELIGHTBARCHECKBOX@@@
+</td></tr>
 @@@WEBMAILSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Usar expresions regulars en les cerques i filtres:</B>
@@ -443,9 +493,14 @@ durant @@@MAILSENTWINDOWTIMEMENU@@@ segons &nbsp;( 0 desactiva la finestra de no
 </td></tr>
 @@@SPELLCHECKEND@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Desar el correu suprimit durant (dies):</B>
+<B>Reserva el correu suprimit durant (dies):</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@RESERVEDDAYSMENU@@@
+@@@TRASHRESERVEDDAYSMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Reserva el correu Spam/Virus durant (dies):</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SPAMVIRUSRESERVEDDAYSMENU@@@
 </td></tr>
 @@@WEBMAILEND@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>

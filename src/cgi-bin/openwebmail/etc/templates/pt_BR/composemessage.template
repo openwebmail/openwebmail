@@ -177,7 +177,8 @@
          alert("Por favor, informe o destinatário antes de enviar.");
          return false;
       }
-      if (document.composeform.subject.value == "" ) {
+      if (document.composeform.subject.value == "" 
+       || document.composeform.subject.value == "N/A" ) {
          return(confirm("Esta mensagem não tem assunto, envia assim mesmo?"));
       }
       return true;

@@ -9,15 +9,16 @@ Open WebMail Frequently Asked Questions
 6.  READ MESSAGE
 7.  COMPOSE MESSAGE
 8.  MAIL FILTERING
-9.  SEND MESSAGE
-10. AUTOREPLY
-11. SPELLCHECK
-12. CALENDAR
-13. SSL RELATED
-14. MISC PROBLEMS
-15. SPEED TUNING
-16. SOME CONCEPT
-17. HOW CAN I...
+9.  VIRUSCHECK/SPAMCHECK
+10. SEND MESSAGE
+11. AUTOREPLY
+12. SPELLCHECK
+13. CALENDAR
+14. SSL RELATED
+15. MISC PROBLEMS
+16. SPEED TUNING
+17. SOME CONCEPT
+18. HOW CAN I...
 
 
 ========================================================================
@@ -89,8 +90,8 @@ Q: I got "Internal server error" when running Open WebMail?
 A: There are many possible answers...
 
    1. Please check if you have installed a complete set of perl 5.005 or above.
-      and You have uncompressed the openwebmail-1.xx.tgz with proper parameter.
-      It should be "tar -zxvBpf openwebmail-1.xx.tgz"
+      and You have uncompressed the openwebmail-1.xx.tar.gz with proper parameter.
+      It should be "tar -zxvBpf openwebmail-1.xx.tar.gz"
 
    2. Your openwebmail scripts may have wrong owner or mode.
       The permission of all openwebmail*.pl should be
@@ -101,6 +102,13 @@ A: There are many possible answers...
 
    3. The suidperl may not have enough permission for SUID scripts.
       It should owned by root with permission bits set to 4555
+
+   ps: If you are using Suse Linux 9.0 Professional, please note that the 
+       permissions of suidperl is changed at each time SuSEconfig is run.
+       To avoid having to change these permissions manually each time,
+       please modify /etc/permissions.easy (or what permissions file used ever)
+       to set the proper permissions.
+       (thanks to dialsc.AT.t-online.de, Schaefer, Dirk Alexander)
 
    4. Execute openwebmail.pl from command line, if it still complains
       it could not do suid, then your perl executable was compiled without
@@ -114,10 +122,10 @@ A: There are many possible answers...
          d_dosuid='define'
          d_suidsafe='undef'
 
-      ps:If you run './Configure' to configure the perl interactively, 
-         then don't forget to answer 'yes' for question 
-         "Do you want to do setuid/setgid emulation? "
-         Or you won't be able to execute openwebmail
+      ps: If you run './Configure' to configure the perl interactively, 
+          then don't forget to answer 'yes' for question 
+          "Do you want to do setuid/setgid emulation? "
+          Or you won't be able to execute openwebmail
 
       d. then make, make install (make suidperl if needed)
       e. if you have compiled suidperl, then chmod 4555 suidperl
@@ -125,32 +133,32 @@ A: There are many possible answers...
          the path of your perl
          (thanks to Nemo Kaiser, nemoo.AT.users.sourceforge.net)
 
-      ps:If you are using FreeBSD and your perl is compiled from port,
-         then please note that the SUID support is disabled by default
-         since the port for perl 5.8.1
+      ps: If you are using FreeBSD and your perl is compiled from port,
+          then please note that the SUID support is disabled by default
+          since the port for perl 5.8.1
 
-         You need to do 'make -DENABLE_SUIDPER' in making port
+          You need to do 'make -DENABLE_SUIDPER' in making port
 
-      ps:If you don't want to recompile perl, you choose to may use 
-         uty/suidwrap.pl to generate C wrappers for all suid scripts.
+      ps: If you don't want to recompile perl, you choose to may use 
+          misc/tools/suidwrap.pl to generate C wrappers for all suid scripts.
 
-         However, this is not recommended, as you will not be able to
-         use SpeedyCGI with the openwebmail system.
+          However, this is not recommended, as you will not be able to
+          use SpeedyCGI with the openwebmail system.
 
-         Here are the steps:
-         1. cd cgi-bin/openwebmail
-         2. perl uty/wrapsuid.pl /fullpath/cgi-bin/openwebmail
-         3. change #!/usr/bin/suidperl to the path of your perl
+          Here are the steps:
+          1. cd cgi-bin/openwebmail
+          2. perl misc/tool/wrapsuid/wrapsuid.pl /fullpath/cgi-bin/openwebmail
+          3. change #!/usr/bin/suidperl to the path of your perl
 
-         All suid scripts will be renamed to .scriptname.pl and
-         the C wrapper will be generated and named as script.pl
-         (thanks to Chris Heegard, heegard.AT.NativeI.com)
+          All suid scripts will be renamed to .scriptname.pl and
+          the C wrapper will be generated and named as script.pl
+          (thanks to Chris Heegard, heegard.AT.NativeI.com)
 
-         The spellcheck may not work on Solaris when using C wrappers.
-         (thanks to Isam Ishaq, isam.AT.planet.edu)
+          The spellcheck may not work on Solaris when using C wrappers.
+          (thanks to Isam Ishaq, isam.AT.planet.edu)
 
    4. If you are using SpeedyCGI, and openwebmail always shows Internal error,
-      then you SpeedyCGI may be compiled without SUID support.
+      then your SpeedyCGI may be compiled without SUID support.
       a. please be sure the speedycgi executable is owned by root with 
          permission 4555
       b. please be sure you are using SpeedyCGI 2.22 or above
@@ -170,9 +178,9 @@ A: There are many possible answers...
       please set have_savedsuid_suooprt to 'no' in etc/suid.conf
       
    6. Some perl modules may be too old or not exist on your system
-      a. install MIME-Base64-2.12.tar.gz or above
-      b. install CGI.pm-2.74.tar.gz or above
-      c. install the libnet-1.0901.tar.gz or above
+      a. install MIME-Base64-3.01.tar.gz or above
+      b. install CGI.pm-3.05.tar.gz or above
+      c. install the libnet-1.19.tar.gz or above
 
 ps: In most cases, you can run the './openwebmail.pl' in text terminal
     to get more information about the error.
@@ -215,7 +223,7 @@ A: The perl system may use different dbm format depending on what packages
    have been installed in your server. These dbm format may be not compatible.
    To know what dbm packages are used by your perl, please execute:
 
-   perl uty/dbmtest.pl
+   perl misc/test/dbmtest.pl
 
    And you will see output like below:
 
@@ -270,26 +278,25 @@ A: Check auth_module option in openwebmail.conf:
    2. login to openwebmail
    3. check the /tmp/openwebmail.debug for more information.
 
-ps:If you are running openwebmail under SpeedyCGI, don't forget to do a
-   'touch openwebmail*pl' after you complete the modification to 
-   auth module or auth conf file.
+ps: If you are running openwebmail under SpeedyCGI, don't forget to do a
+    'touch openwebmail*pl' after you complete the modification to 
+    auth module or auth conf file.
 
 Q: It took a long time in the first login?
 A: Openwebmail has to initialize some mapping tables for future use,
    it creates these tables in the first successful login, this guarantees
    that openwebmail creates files only if it is correctly installed.
 
-ps:This automatic table initialization has been removed since openwebmail-1.80.
-   The sysadm have to initialize the db by himself explicitly with the command
+ps: This automatic table initialization has been removed since openwebmail-1.80.
+    The sysadm have to initialize the db by himself explicitly with the command
 
-   './openwebmail-tool.pl --init'
+    './openwebmail-tool.pl --init'
 
 Q: It took a long time in every login?
 Q: Openwebmail hangs at every login after I saved the preference in the first
    time?
 A: You probably have wrong settings in the dbm.conf,
-   please execute 'perl uty/dbmtest.pl' to find correct settings.
-
+   please execute 'perl misc/test/dbmtest.pl' to find correct settings.
 
 Q: Some of my users login okay, but others don't, why?
 A: It is possible that you are upgrading from version prior to 1.41
@@ -309,20 +316,48 @@ Q: A string 'Sessions : 5, 10, 20' appeared at the bottom of the copyright
 A: It means the number of users that were active in the last 1, 5 and 15 
    minutes, which gives a rough estimation of the webmail usage state.
 
+Q: How does autologin work? Will my password be stored somewhere?
+A: Whenever you have successfully logined openwebmail, 
+   openwebmail will store your loginanme/logindomain as cookies in your browser.
+   If you didn't logout the session, then openwebmail will bring you into 
+   main screen at your next login if the session is still not timeouted.
+
+   Openwebmail does this by checking if you have a valid session file on server,
+   so your pasword is not required or stored in either server or cleint side.
+
+Q: Is it safe to use autologin feature?
+A: It depends. You can enable it on your private computer if the computer is secure.
+   And if you are using a public computer, please don't enable autologin,
+   or be sure to do a logout before leaving that public computer.
+
+Q: I have enabled autologin on some public computer and forget to logout,
+   what can I do to prevent others to autologin my account?
+A: 1. go to that computer and do logout explicitly :)
+   2. If 1 is not possible, then you may login openwebmail, switch to webdisk,
+      turn on the checkbox of ShowHidden at the up-right corner,
+      then chdir to subdir .openwebmail, and remove the autologin.check.db
+   ps: this will remove all old remembered autologin sessions.
+   3. If you don't do anything, the old session will be finally timeouted anyway.
+  
+Q: Can I limit the use of autologin feature?
+A: Yes, option allowed_autologinip can be used to control which subnets are 
+   allowed to use the autologin, or even disable it at all.
+   Please refer to openwbemail.conf.help for more detail.
+   
 
 ========================================================================
 RUNTIME ERRORS
 ========================================================================
 
 Q: I got "Couldn't open XXX-session-0.370606494136155!" error after login?
-A: You openwebmail-1.xx.tgz was uncompressed with improper parameter.
-   It should be "tar -zxvBpf openwebmail-1.xx.tgz"
+A: You openwebmail-1.xx.tar.gz was uncompressed with improper parameter.
+   It should be "tar -zxvBpf openwebmail-1.xx.tar.gz"
    Or you can refer to the file permission list in the end of readme.txt
 ps: you may check the permission cgi-bin/openwebmail/etc/sessions first,
     it should be owner=root, group=mail, mode=771
 
 Q: I got "Software error: Can't locate MIME/Base64.pm in @INC"?
-A: Please install the  MIME-Base64-2.12.tar.gz.
+A: Please install the  MIME-Base64-3.01.tar.gz.
 
 Q: I got "Software error: Can't locate Text/Iconv.pm in @INC"?
 A: Please install the Text-Iconv-1.2.tar.gz, this is required since
@@ -658,7 +693,7 @@ A: set option enable_loadfrombook to 'yes' and
    in either openwebmal.conf or per user config.   
 
 Q: Can I install openwebmail without iconv() support?
-A: Yes, you may copy the uty/iconv.pl.fake over the shares/iconv.pl,
+A: Yes, you may copy the misc/patches/iconv.pl.fake over the shares/iconv.pl,
    which doesn't use iconv() at all but still support charset conversion for
    Chinese and Japanese.
 
@@ -720,9 +755,9 @@ A: This is due to a bug of tell() in perl 5.8. And RedHat 8.0 bundles Perl
 
 Q: Some mails were not displayed right....
 A: please check
-   http://openwebmail.com/openwebmail/download/doc/changes.txt
+   http://openwebmail.org/openwebmail/download/doc/changes.txt
    to see if any update fixes your problem and download the
-   openwebmail-current.tgz
+   openwebmail-current.tar.gz
 
 Q: I got some messages that have attachment with filename "Unknown.tnef"
    and contenttype "application/ms-tnef",
@@ -741,6 +776,10 @@ A: Solution 1:
    attachment into openwebmail webdisk, than extract files through webdisk
    interface.
 
+ps: Open WebMail has supported tnef extraction since 2.32 20040719,
+    you may see the files encaspulated in tnef attachment directly 
+    without extract them in webdisk by yourself
+
 ========================================================================
 COMPOSE MESSAGE
 ========================================================================
@@ -748,8 +787,8 @@ COMPOSE MESSAGE
 Q: I could not add attachments?
    Open WebMail was hanged when I pressed the 'add' button to add attachments?
 A: 1. Your CGI or MIME-Base64 module may be too old,
-      Please download CGI.pm-2.74.tar.gz and MIME-Base64-2.12.tar.gz in
-      http://openwebmail.com/openwebmail/download/packages/
+      Please download CGI.pm-3.05.tar.gz and MIME-Base64-3.01.tar.gz in
+      http://openwebmail.org/openwebmail/download/packages/
       and install them to your system.
    2. Your proxy may limit the size of a POST request.
       Try to add attachments with no proxy setting in your browser.
@@ -876,14 +915,20 @@ A: 1. Set default_filter_fakedsmtp and default_filter_fakedexecontenttype
 Q: Some of my messages disappeared?
 A: Your messages may be removed by the delmail_ifquota feature.
 
+Q: How can I know which filter rule move my messages?
+   How to debug the mailfilter message movement?
+A: An option log_filtermove_detail is available since openwebmail20040727,
+   please set it to yes in openwebmail.conf, and you will see message
+   movement detail in logfile
+
 Q: How does the delmail_ifquotahit option work?
    Which message will be removed first?
 A: It will clean trash and draft first,
    then remove oldest messages in other folders.
    The removal will stop if the quota size is download to the 90% of user 
    quota limit.
-ps:The messages in INBOX and user defined folders will be removed only if
-   these folders occupy the majority of the mailfolder space.
+ps: The messages in INBOX and user defined folders will be removed only if
+    these folders occupy the majority of the mailfolder space.
 
    Please refer to routine cutfolders in ow-shared.pl for detail
 
@@ -893,7 +938,7 @@ A: This is due to the dbmopen() of your perl didn't add the ".db" extension
    automatically, so the ~/.filter.book and its index were written to the same
    file. This problem can be fixed by properly setting dbm options.
 
-   perl cgi-bin/openwebmail/uty/dbmtest.pl [enter]
+   perl cgi-bin/openwebmail/misc/test/dbmtest.pl [enter]
 
    and you will get output like this:
 
@@ -904,13 +949,49 @@ A: This is due to the dbmopen() of your perl didn't add the ".db" extension
    Then put the three lines into your etc/dbm.conf.
 
 ========================================================================
+SPAMCHECK/VIRUSCHECK
+========================================================================
+
+Q: What is the difference between pop3 and all when setting option 
+   viruscheck_source and spamcheck_source?
+A: If check source is set to pop3, pop3 messages are checked after fetching
+   and the result is append as X-OWM-... in message header.
+
+   If check source is set to all, pop3 messages are checked after fetching,
+   and the result is append as X-OWM-... in message header.
+
+   For messages without the X-OWM-... headers, which means they are not 
+   fetched from pop3 servers, and they will be checked when user want 
+   to browse the message list of the INBOX folder.
+
+Q: What is the order of the processing of viruscheck, spamcheck, filter rules
+   and smart filter?
+A: viruscheck -> filter rules -> spamcheck -> smart filters
+
+Q: The spamcheck is very slow, even there are only few messages in INBOX?
+A: Please be sure you have start the spamd with --local option
+
+Q: The spamcheck is still slow even with --local option?
+A: Your server may be not fast enough to do the viruschecking or spamchecking
+   for all messages, please change the viruscheck_source_allowed and 
+   spamcheck_source_allowed to pop3, and try to add viruscheck/spamcheck 
+   to your mail system in MTA level or mail deliver.
+
+Q: My spamcheck/viruscheck/learnspam doesn't work?
+   I see spamcheck/viruscheck/learnspam error in openwebmail.log?
+A: Please be sure your system has installed the spamassassin and clamav,
+   then test spamc, sa-lean, clamdscan with the argument defined in pipecmd 
+   in openwebmail.conf.
+ps:You should do the test in both root and non-root acocunt.
+
+========================================================================
 SEND MESSAGE
 ========================================================================
 
 Q: Most functions work fine, but I could not send message.
    I got "Can't locate Net/SMTP.pm in @INC ..." error?
    I got "Internal server error"?
-A: Please install the libnet-1.0901.tar.gz, this is required since
+A: Please install the libnet-1.19.tar.gz, this is required since
    openwebmail 1.60.
 
 Q: I am sure the sendmail was running up on my mail server, but I got
@@ -1089,8 +1170,8 @@ A: This is due to those messages were parsed at the time that DST option
    2. goto folder management
    3. choose 'recreate index' for your folders.
 
-ps:This could be quite time-consuming if you have large folder,
-   you may do it with openwebmail-tools.pl in background.
+ps: This could be quite time-consuming if you have large folder,
+    you may do it with openwebmail-tools.pl in background.
 
 Q: Is the 'filename search' in webdisk case sensitive or case insensitive?
 A: If the 'find' command in your unix supports -iname, the search will be
@@ -1202,7 +1283,7 @@ A: The HTTP compression feature won't be available if any one of the three
 
    To enable the HTTP compression support:
 
-   1. Please install the Compress-Zlib-1.21.tar.gz on openwebmail server
+   1. Please install the Compress-Zlib-1.33.tar.gz on openwebmail server
    2. Please enable "HTTP 1.1 support for direct connection" in your browser
    3. If your connect to openwebmail server through proxy server,
       please enable "HTTP 1.1 support over proxy" in your browser.
@@ -1397,19 +1478,25 @@ A: First, you can try to set option error_with_debuginfo to yes in
    openwebmailerror() happens.
 
    Second, if you want to have a stack trace of how openwebmail is running,
-   you may use the uty/debugadd.pl to add debugging code to openwebmail
+   you may use the misc/test/debugadd.pl to add debugging code to openwebmail
    scripts
 
    1. cd cgi-bin/openwebmail/
-   2. perl uty/debugadd.pl *pl
+   2. perl misc/test/debugadd.pl *pl
 
    Then use openwebmail as normal, all sub routine calls will be logged into
    /tmp/openwebmail.debug with timestamp. It should be helpful in debugging.
 
-   While you finish the debugging, you have to use uty/debugdel.pl to
+   While you finish the debugging, you have to use misc/test/debugdel.pl to
    remove debugging code from those scripts
    1. cd cgi-vin/openwebmail/
-   2. perl uty/debugdel.pl *pl
+   2. perl misc/test/debugdel.pl *pl
+
+   Third, you may try to add lines like below to openwebmail scripts to log 
+   some runtime information to /tmp/openwebmail.debug
+   
+   ow::tool::log_time("$variablename");
+   ow::tool::log_time(ow::tool::stacktrace("$variablename and some other string"));
 
 Q: Can I specify the composemessage menu as the openwebmail default?
 A: You can call the openwebmail with url
@@ -1436,6 +1523,10 @@ A: this is a little dangerous since the loginname and password will
    or even with action specified
    http://server/openwebmail.pl?action=calmonth&loginname=USER&password=PASS
 
+ps: Openwebmail supports autologin since 2004/06/01, users doesn't have to
+    input username/password at login if he didn't logout his previous session
+    and that previous session is not timeouted.
+
 Q: Can I get the mail/event status of a user before he logins openwebmail?
    How can I get the username before user really types it?
 A: If a user has ever successfully logined into openwebmail, the loginname
@@ -1454,14 +1545,22 @@ if ($loginname ne "") {
 print $info;
 ------------------------------------------
 
-Q: I already have a web application which would do authentication for user,
-   how can I integrate openwebmail with it so the user doesn't need to login
-   again when click the openwebmail link?
-A: All you have to do is to write a very simple auth_xxx.pl which checks if
-   a user have already logined on your web application through server session
-   file or cookies.
+Q: I already have a web application XYZ which would do authentication on user,
+   how can I integrate openwebmail with it so the user of XYZ doesn't need to 
+   login again when click the openwebmail link?
+A: All you have to do is writing an auth_XYZ.pl for openwebmail.
+
+   The auth_XYZ.pl should check if the user USERNAME has already logined into
+   application XYZ by verifying related session file or cookies.
+   If yes, routine check_userpassword() in auth_XYZ.pl should return 1; 
+   if not, the routine should return 0
+
+   Then you sepcify auth_XYZ,pl as authentication module in openwebmail.conf
    And the link to call the openwebmail.pl should be
    http:/xxxx/openwebmail.pl?loginname=USERNAME&password=dummy
+
+ps: you may modify the check_userpassword() in auth module that you already
+    use in openwebmail as a start.
 
 Q: How can I setup IE to trigger Open WebMail compose window when I click
    a "mailto:someone@somehost" link?

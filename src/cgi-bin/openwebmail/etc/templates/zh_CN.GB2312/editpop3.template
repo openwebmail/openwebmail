@@ -12,7 +12,7 @@
 <td nowrap bgcolor=@@@COLUMNHEADER@@@>
 <B>POP3主机</B>（按一下修改）</td>
 <td nowrap bgcolor=@@@COLUMNHEADER@@@>
-<B>连接埠</B></td>
+<B>端口</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 @@@USEPOP3SSLSTART@@@<B>Use SSL</B>@@@USEPOP3SSLEND@@@</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>

@@ -22,7 +22,7 @@ if ($SCRIPT_DIR eq '') {
 }
 push (@INC, $SCRIPT_DIR);
 
-foreach (qw(PATH ENV BASH_ENV CDPATH IFS TERM)) { $ENV{$_}='' }	# secure ENV
+foreach (qw(ENV BASH_ENV CDPATH IFS TERM)) {delete $ENV{$_}}; $ENV{PATH}='/bin:/usr/bin'; # secure ENV
 umask(0002); # make sure the openwebmail group can write
 
 use strict;
@@ -38,13 +38,16 @@ require "modules/datetime.pl";
 require "modules/lang.pl";
 require "modules/mime.pl";
 require "modules/mailparse.pl";
-require "modules/pop3.pl";
+require "modules/spamcheck.pl";
+require "modules/viruscheck.pl";
 require "auth/auth.pl";
 require "quota/quota.pl";
 require "shares/ow-shared.pl";
 require "shares/maildb.pl";
+require "shares/lockget.pl";
 require "shares/cut.pl";
 require "shares/mailfilter.pl";
+require "shares/fetchmail.pl";
 require "shares/pop3book.pl";
 require "shares/calbook.pl";
 require "shares/lunar.pl";
@@ -81,6 +84,11 @@ my @list=();
 # set to ruid for secure access, this will be set to euid $>
 # if operation is from inetd or -m (query mail status ) or -e(query event status)
 my $euid_to_use=$<;
+
+# set clientip to 127.0.0.1 so openwebmail.log won't log wrong ip
+# when openwebmail-tool.pl is invoked from web program
+delete $ENV{'HTTP_X_FORWARDED_FOR'};
+$ENV{'REMOTE_ADDR'}='127.0.0.1';
 
 # no buffer on stdout
 local $|=1;
@@ -234,7 +242,7 @@ sub init {
 
    foreach my $table ('b2g', 'g2b', 'lunar') {
       if ( $config{$table.'_map'} ) {
-         my $tabledb="$config{'ow_etcdir'}/$table";
+         my $tabledb="$config{'ow_mapsdir'}/$table";
          my $err=0;
          if (ow::dbm::exist($tabledb)) {
             my %T;
@@ -246,7 +254,7 @@ sub init {
          }
          if ( !ow::dbm::exist($tabledb)) {
             die "$config{$table.'_map'} not found" if (!-f $config{$table.'_map'});
-            print "creating db $config{'ow_etcdir'}/$table ...";
+            print "creating db $config{'ow_mapsdir'}/$table ...";
 
             $err=-2 if ($table eq 'b2g' and mkdb_b2g()<0);
             $err=-3 if ($table eq 'g2b' and mkdb_g2b()<0);
@@ -306,7 +314,7 @@ sub do_test {
    my $err=0;
    print "\n";
 
-   load_owconf(\%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf.default");
+   load_owconf(\%config_raw, "$SCRIPT_DIR/etc/defaults/openwebmail.conf");
    if ( -f "$SCRIPT_DIR/etc/openwebmail.conf") {
       read_owconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf");
       print "D readconf $SCRIPT_DIR/etc/openwebmail.conf\n" if ($opt{'debug'});
@@ -520,7 +528,7 @@ sub allusers {
    my $loaded_domain=0;
    my %userhash=();
 
-   load_owconf(\%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf.default");
+   load_owconf(\%config_raw, "$SCRIPT_DIR/etc/defaults/openwebmail.conf");
    if ( -f "$SCRIPT_DIR/etc/openwebmail.conf") {
       read_owconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf");
       print "D readconf $SCRIPT_DIR/etc/openwebmail.conf\n" if ($opt{'debug'});
@@ -555,7 +563,7 @@ sub allusers {
 
    foreach $logindomain (@domains) {
       %config_raw=();
-      load_owconf(\%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf.default");
+      load_owconf(\%config_raw, "$SCRIPT_DIR/etc/defaults/openwebmail.conf");
       if ( -f "$SCRIPT_DIR/etc/openwebmail.conf") {
          read_owconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf");
          print "D readconf $SCRIPT_DIR/etc/openwebmail.conf\n" if ($opt{'debug'});
@@ -630,7 +638,7 @@ sub usertool {
       $>=$euid_to_use;
 
       %config_raw=();
-      load_owconf(\%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf.default");
+      load_owconf(\%config_raw, "$SCRIPT_DIR/etc/defaults/openwebmail.conf");
       if ( -f "$SCRIPT_DIR/etc/openwebmail.conf") {
          read_owconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf");
          print "D readconf $SCRIPT_DIR/etc/openwebmail.conf\n" if ($opt{'debug'});
@@ -686,11 +694,6 @@ sub usertool {
          print "D system user $user, skipped!\n" if ($opt{'debug'});
          next;
       }
-      if (defined($homedir_processed{$homedir})) {
-         print "D $loginname homedir already processed, skipped!\n" if ($opt{'debug'});
-         next;
-      }
-      $homedir_processed{$homedir}=1;
 
       if ( $>!=$uuid &&
            $>!=0 &&	# setuid root is required if spool is located in system dir
@@ -725,6 +728,12 @@ sub usertool {
       if ($homedir eq '/') {
          print "D homedir is /, skipped!\n" if ($opt{'debug'});
       }
+
+      if (defined($homedir_processed{$homedir})) {
+         print "D $loginname homedir already processed, skipped!\n" if ($opt{'debug'});
+         next;
+      }
+      $homedir_processed{$homedir}=1;
 
       $user=ow::tool::untaint($user);
       $uuid=ow::tool::untaint($uuid);
@@ -816,12 +825,12 @@ sub usertool {
       %prefs = readprefs();
 
       if ($opt{'pop3'}) {
-         my $ret=getpop3s($POP3_TIMEOUT);
-         print "getpop3s($POP3_TIMEOUT) return $ret\n" if (!$opt{'quiet'} && $ret!=0);
+         my $ret=pop3_fetches($POP3_TIMEOUT);
+         print "pop3_fetches($POP3_TIMEOUT) return $ret\n" if (!$opt{'quiet'} && $ret!=0);
       }
       if ($opt{'zap'}) {
-         my $ret=cleantrash();
-         print "cleantrash() return $ret\n" if (!$opt{'quiet'} && $ret!=0);
+         my $ret=clean_trash_spamvirus();
+         print "clean_trash_spamvirus() return $ret\n" if (!$opt{'quiet'} && $ret!=0);
       }
 
       if ($opt{'ir'}) {
@@ -900,7 +909,7 @@ sub folderindex {
          }
          @messageids=get_messageids_sorted_by_offset($folderdb);
 
-         if (!ow::filelock::lock($folderfile, LOCK_SH)) {
+         if (!ow::filelock::lock($folderfile, LOCK_SH|LOCK_NB)) {
             print "Couldn't get read lock on $folderfile\n" if (!$opt{'quiet'});
             return -1;
          }
@@ -913,6 +922,8 @@ sub folderindex {
 
          for(my $i=0; $i<=$#messageids; $i++) {
             @attr=get_message_attributes($messageids[$i], $folderdb);
+            next if ($#attr<0);        # msg not found in db
+
             $headerlen=$attr[$_HEADERSIZE]||6;
             seek(FOLDER, $attr[$_OFFSET], 0);
             read(FOLDER, $buff, $headerlen);
@@ -933,16 +944,20 @@ sub folderindex {
             #printf ("buf=$buff, buff2=$buff2\n");
 
             $folderinfo{'ALLMESSAGES'}++;
-            $folderinfo{'NEWMESSAGES'}++ if ($attr[$_STATUS]!~/r/i);
-            $folderinfo{'INTERNALMESSAGES'}++ if (is_internal_subject($attr[$_SUBJECT]));
-            $folderinfo{'ZAPSIZE'}+=$attr[$_SIZE] if ($attr[$_STATUS]=~/Z/i);
+            if ($attr[$_STATUS]=~/Z/i) {
+               $folderinfo{'ZAPMESSAGES'}++; $folderinfo{'ZAPSIZE'}+=$attr[$_SIZE];
+            } elsif (is_internal_subject($attr[$_SUBJECT])) {
+               $folderinfo{'INTERNALMESSAGES'}++; $folderinfo{'INTERNALSIZE'}+=$attr[$_SIZE];
+            } elsif ($attr[$_STATUS]!~/R/i) {
+               $folderinfo{'NEWMESSAGES'}++;
+            }
          }
 
          $folderinfo{'DBVERSION'}=$DBVERSION;
          $folderinfo{'METAINFO'}=ow::tool::metainfo($folderfile);
          if (!$opt{'quiet'}) {
             print "\n";
-            foreach my $key (qw(DBVERSION METAINFO ALLMESSAGES NEWMESSAGES INTERNALMESSAGES ZAPSIZE)) {
+            foreach my $key (qw(DBVERSION METAINFO ALLMESSAGES NEWMESSAGES INTERNALMESSAGES INTERNALSIZE ZAPMESSAGES ZAPSIZE)) {
                my $sign="+++";
                if ($FDB{$key} ne $folderinfo{$key}) {
                   $sign="---"; $error++;
@@ -957,7 +972,7 @@ sub folderindex {
          print "$error errors in db $folderdb\n" if (!$opt{'quiet'});
 
       } elsif ($op eq "zap") {
-         if (!ow::filelock::lock($folderfile, LOCK_EX|LOCK_NB)) {
+         if (!ow::filelock::lock($folderfile, LOCK_EX)) {
             print "Couldn't get write lock on $folderfile\n" if (!$opt{'quiet'});
             next;
          }
@@ -971,7 +986,7 @@ sub folderindex {
          ow::filelock::lock($folderfile, LOCK_UN);
 
       } else {
-         if (!ow::filelock::lock($folderfile, LOCK_EX|LOCK_NB)) {
+         if (!ow::filelock::lock($folderfile, LOCK_EX)) {
             print "Couldn't get write lock on $folderfile\n" if (!$opt{'quiet'});
             next;
          }
@@ -987,7 +1002,7 @@ sub folderindex {
                ow::filelock::lock($folderfile, LOCK_UN);
                next;
             }
-            $FDB{'METAINFO'}="ERR";
+            @FDB{'METAINFO', 'LSTMTIME'}=('ERR', -1);
             ow::dbm::close(\%FDB, $folderdb);
             $ret=update_folderindex($folderfile, $folderdb);
          }
@@ -1008,16 +1023,29 @@ sub folderindex {
 }
 
 
-sub cleantrash {
-   my ($trashfile, $trashdb)=get_folderpath_folderdb($user, 'mail-trash');
-   if (ow::filelock::lock($trashfile, LOCK_EX|LOCK_NB)) {
-      my $deleted=delete_message_by_age($prefs{'trashreserveddays'}, $trashdb, $trashfile);
-      if ($deleted >0) {
-         writelog("clean trash - delete $deleted msgs from mail-trash");
-         writehistory("clean trash - delete $deleted msgs from mail-trash");
-         print "$deleted msgs deleted from mail-trash\n" if (!$opt{'quiet'});
+sub clean_trash_spamvirus {
+   my %reserveddays=('mail-trash' => $prefs{'trashreserveddays'},
+                     'spam-mail'  => $prefs{'spamvirusreserveddays'},
+                     'virus-mail' => $prefs{'spamvirusreserveddays'} );
+   my (@f, $msg);
+   push(@f, 'virus-mail') if ($config{'has_virusfolder_by_default'});
+   push(@f, 'spam-mail') if ($config{'has_spamfolder_by_default'});
+   push(@f, 'mail-trash');
+   foreach my $folder (@f) {
+      my ($folderfile, $folderdb)=get_folderpath_folderdb($user, $folder);
+      if (ow::filelock::lock($folderfile, LOCK_EX)) {
+         my $deleted=delete_message_by_age($reserveddays{$folder}, $folderdb, $folderfile);
+         if ($deleted > 0) {
+            $msg.=', ' if ($msg ne '');
+            $msg.="$deleted msg deleted from $folder";
+         }
+         ow::filelock::lock($folderfile, LOCK_UN);
       }
-      ow::filelock::lock($trashfile, LOCK_UN);
+   }
+   if ($msg ne '') {
+      writelog("clean trash/spam/virus - $msg");
+      writehistory("clean trash/spam/virus - $msg");
+      print "clean trash/spam/virus - $msg\n" if (!$opt{'quiet'});
    }
    return 0;
 }
@@ -1074,10 +1102,9 @@ sub checknewmail {
          my $login=$user;  $login.="\@$domain" if ($config{'auth_withdomain'});
          my ($pop3ssl, $pop3passwd, $pop3del)
 		=(split(/\@\@\@/, $accounts{"$config{'authpop3_server'}:$config{'authpop3_port'}\@\@\@$login"}))[2,4,5];
-         my ($ret, $errmsg) = ow::pop3::fetchmail($config{'authpop3_server'},$config{'authpop3_port'}, $pop3ssl,
-                                                  $login, $pop3passwd, $pop3del,
-                                                  dotpath("uidl.$login\@$config{'authpop3_server'}"), $spoolfile,
-                                                  $config{'deliver_use_GMT'}, $prefs{'daylightsaving'});
+
+         my ($ret, $errmsg) = fetchmail($config{'authpop3_server'}, $config{'authpop3_port'}, $pop3ssl,
+                                        $login, $pop3passwd, $pop3del);
          if ($ret<0) {
             writelog("pop3 error - $errmsg at $login\@$config{'authpop3_server'}:$config{'authpop3_port'}");
          }
@@ -1091,35 +1118,19 @@ sub checknewmail {
 
    update_folderindex($spoolfile, $folderdb);
 
-   my ($filtered, $r_filtered)=filtermessage($user, 'INBOX', \%prefs);
-   if ($filtered==-10) {	# check again if abort due to db inconsistence
-      ($filtered, $r_filtered)=filtermessage($user, 'INBOX', \%prefs);
-   }
-
-   if ($filtered>0) {
-      my $dststr;
-      foreach my $destination (sort keys %{$r_filtered}) {
-         next if ($destination eq '_ALL' || $destination eq 'INBOX');
-         $dststr .= ", " if ($dststr ne "");
-         $dststr .= $destination;
-         $dststr .= "(${$r_filtered}{$destination})" if (${$r_filtered}{$destination} ne $filtered);
-      }
-      writelog("filter message - filter $filtered msgs from INBOX to $dststr");
-      writehistory("filter message - filter $filtered msgs from INBOX to $dststr");
-   }
+   # filtermessage in background
+   filtermessage($user, 'INBOX', \%prefs);
 
    if (!$opt{'quiet'}) {
-      my (%FDB, $allmessages, $internalmessages, $newmessages);
+      my %FDB;
       if (!ow::dbm::open(\%FDB, $folderdb, LOCK_SH)) {
          print "couldn't get read lock on db $folderdb\n";
          return -1;
       }
-      $allmessages=$FDB{'ALLMESSAGES'};
-      $internalmessages=$FDB{'INTERNALMESSAGES'};
-      $newmessages=$FDB{'NEWMESSAGES'};
+      my $newmessages=$FDB{'NEWMESSAGES'};
+      my $oldmessages=$FDB{'ALLMESSAGES'}-$FDB{'ZAPMESSAGES'}-$FDB{'INTERNALMESSAGES'}-$newmessages;
       ow::dbm::close(\%FDB, $folderdb);
 
-      my $oldmessages=$allmessages-$internalmessages;
       if ($newmessages == 1 ) {
          print "has 1 new mail\n";
       } elsif ($newmessages > 1 ) {
@@ -1161,8 +1172,6 @@ sub checknewevent {
       }
    }
 
-   my ($easter_month, $easter_day) = ow::datetime::gregorian_easter($year); # compute once
-
    my @indexlist=();
    push(@indexlist, @{$indexes{$date}}) if (defined($indexes{$date}));
    push(@indexlist, @{$indexes{'*'}})   if (defined($indexes{'*'}));
@@ -1171,9 +1180,7 @@ sub checknewevent {
    for my $index (@indexlist) {
       if ($date=~/$items{$index}{'idate'}/ ||
           $date2=~/$items{$index}{'idate'}/ ||
-          ow::datetime::easter_match($year,$month,$day,
-                                     $easter_month,$easter_day,
-                                     $items{$index}{'idate'}) ) {
+          ow::datetime::easter_match($year,$month,$day,$items{$index}{'idate'}) ) {
          if ($items{$index}{'starthourmin'}>=$hourmin ||
              $items{$index}{'endhourmin'}>$hourmin ||
              $items{$index}{'starthourmin'}==0) {
@@ -1241,8 +1248,6 @@ sub checknotify {
       }
    }
 
-   my ($easter_month, $easter_day) = ow::datetime::gregorian_easter($year); # compute once
-
    my @indexlist=();
    push(@indexlist, @{$indexes{$date}}) if (defined($indexes{$date}));
    push(@indexlist, @{$indexes{'*'}})   if (defined($indexes{'*'}));
@@ -1253,9 +1258,7 @@ sub checknotify {
       if ( $items{$index}{'email'} &&
            ($date=~/$items{$index}{'idate'}/  ||
             $date2=~/$items{$index}{'idate'}/ ||
-            ow::datetime::easter_match($year,$month,$day,
-                                       $easter_month,$easter_day,
-                                       $items{$index}{'idate'})) ) {
+            ow::datetime::easter_match($year,$month,$day,$items{$index}{'idate'})) ) {
          if ( ($items{$index}{'starthourmin'}>=$checkstart &&
                $items{$index}{'starthourmin'}<$checkend) ||
               ($items{$index}{'starthourmin'}==0 &&
@@ -1363,13 +1366,10 @@ sub send_mail {
                    "To: ".ow::mime::encode_mimewords($to, ('Charset'=>$prefs{'charset'}))."\n");
    $smtp->datasend("Reply-To: ".ow::mime::encode_mimewords($prefs{'replyto'}, ('Charset'=>$prefs{'charset'}))."\n") if ($prefs{'replyto'});
 
-   my $xmailer = $config{'name'};
-   $xmailer .= " $config{'version'} $config{'releasedate'}" if ($config{'xmailer_has_version'});
-
    $smtp->datasend("Subject: ".ow::mime::encode_mimewords($subject, ('Charset'=>$prefs{'charset'}))."\n",
                    "Date: $date\n",
                    "Message-Id: $fakedid\n",
-                   "X-Mailer: $xmailer\n",
+                   safexheaders($config{'xheaders'}),
                    "MIME-Version: 1.0\n",
                    "Content-Type: text/plain; charset=$prefs{'charset'}\n\n",
                    $body, "\n\n");
@@ -1385,16 +1385,15 @@ sub send_mail {
    return 0;
 }
 
-sub getpop3s {
+sub pop3_fetches {
    my $timeout=$_[0];
    my ($spoolfile, $header)=get_folderpath_folderdb($user, 'INBOX');
-   my (%accounts, $response);
-
    # create system spool file /var/mail/xxxx
    if ( ! -f "$spoolfile" ) {
       open (F, ">>$spoolfile"); close(F);
    }
 
+   my %accounts=();
    my $pop3bookfile=dotpath('pop3.book');
 
    return 0 if (!-f $pop3bookfile);
@@ -1412,10 +1411,8 @@ sub getpop3s {
       }
       next if ($disallowed);
 
-      my ($ret, $errmsg) = ow::pop3::fetchmail($pop3host, $pop3port, $pop3ssl,
-                                               $pop3user, $pop3passwd, $pop3del,
-                                               dotpath("uidl.$pop3user\@$pop3host"), $spoolfile,
-                                               $config{'deliver_use_GMT'}, $prefs{'daylightsaving'});
+      my ($ret, $errmsg) = fetchmail($pop3host, $pop3port, $pop3ssl,
+                                     $pop3user, $pop3passwd, $pop3del);
       if ( $ret<0) {
          writelog("pop3 error - $errmsg at $pop3user\@$pop3host:$pop3port");
       }

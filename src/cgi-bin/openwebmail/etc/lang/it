@@ -10,6 +10,11 @@ package ow::it;
    'sent-mail'      => 'INVIATI',
    'saved-drafts'   => 'BOZZE',
    'mail-trash'     => 'CESTINO',
+   'spam-mail'      => 'Spam',
+   'virus-mail'     => 'Virus',
+   LEARNSPAM        => '--AGG. SPAM--',
+   LEARNHAM         => '--AGG. HAM--',
+   FORWARD          => '--INOLTRA--',
    DELETE           => '--CANCELLA--'
    );
 
@@ -85,8 +90,15 @@ package ow::it;
 %lang_abookbuttonpositionlabels = 
    (
    before => 'Prima voci agenda',
-   after  => 'Prima voci agenda',
+   after  => 'Dopo voci agenda',
    both   => 'Prima e dopo voci agenda'
+   );
+
+%lang_checksourcelabels =
+   (
+   all  => 'Tutti i nuovi messaggi in INBOX',
+   pop3 => 'Solo i messaggi da server pop3',
+   none => 'Nessuno'
    );
 
 %lang_timelabels =
@@ -183,7 +195,7 @@ package ow::it;
    (
    refresh  => 'Aggiorna',
    preview  => 'Anteprima',
-   edit     => 'Ed',
+   edit     => 'Modifica',
    listarchive=> 'Elenca',
    decompress=>'Scomprimi',
    extract  => 'Estrai',
@@ -225,6 +237,7 @@ package ow::it;
    userprefs  => 'Preferenze utente',
    addressbook=> 'Rubrica',
    folders    => 'Cartelle',
+   emptyfolder=> 'Svuota cartella',
    emptytrash => 'Svuota cestino',
    totrash    => 'Sposta in cestino',
    forever    => 'Per Sempre',
@@ -451,6 +464,7 @@ package ow::it;
    abook_invalid     => 'Questo file non è una rubrica esportata da Outlook Express 5 in formato CSV. Assicurati che la prima riga inizi con "Nome, E-mail", quindi riprova',
    back              => 'indietro',
    tryagain          => 'e riprova.',
+   mailfilter_error  => 'Errore Filtro Posta',
    abook_toobig      => 'Spiacente, questo eccederebbe il limite per la tua rubrica. Torna',
    cant_create_dir   => 'Non posso creare la tua directory utente!',
    att_overlimit     => 'L\'allegato è troppo grande. Il limite è',

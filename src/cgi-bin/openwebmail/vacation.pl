@@ -74,7 +74,7 @@
 #
 
 use strict;
-$ENV{PATH} = "/bin:/usr/bin"; # only little PATH should be needed
+foreach (qw(ENV BASH_ENV CDPATH IFS TERM)) {delete $ENV{$_}}; $ENV{PATH}='/bin:/usr/bin'; # secure ENV
 
 my $myname = $0;
 if ($myname !~ m!^/! || ! -x $myname) {
@@ -115,6 +115,57 @@ my @aliases = ();
 
 my ($opt_i, $opt_d, $opt_j, $home_path)=(0,0,0,0);
 
+########## MAIN ##################################################
+
+if (defined($ENV{'GATEWAY_INTERFACE'})) {	# cgi mode
+   my $clientip=clientip();
+   my $info=$ENV{'HTTP_ACCEPT_LANGUAGE'}; $info.=', ' if ($info ne ''); 
+   $info.=$ENV{'HTTP_USER_AGENT'}; $info=" ($info)" if ($info ne '');
+   log_debug("$clientip$info is cracking the system by calling vacation.pl as CGI?");
+   sleep 10;
+   die "This program should not be called as CGI!\n";
+}
+
+# parse options, handle initialization or interactive mode
+while (defined($ARGV[0]) && $ARGV[0] =~ /^-/) {
+   $_ = shift;
+   if (/^-I/i) {  # eric allman's source has both cases
+      $opt_i=1;
+   } elsif (/^-d/) {      # log debug information to /tmp/vacation.debug
+      $opt_d=1;
+   } elsif (/^-j/) {      # don't check if user is a valid receiver
+      $opt_j=1;
+   } elsif (/^-f(.*)/) {   # read ignorelist from file
+      push(@ignores, read_list_from_file($1 ? $1 : shift));
+   } elsif (/^-a(.*)/) {   # specify alias name
+      push(@aliases, $1 ? $1 : shift);
+   } elsif (/^-t([\d.]*)([smhdw])/) {   # specify reply once interval
+      $timeout = $1;
+      $timeout *= $scale{$2} if $2;
+   } elsif (/^-p(.*)/) {      # use an alternate home path
+      $home_path=$1;
+   } else {
+      die $usage;
+   }
+}
+
+if ($opt_i) {
+   log_debug($0, "init mode with arg: ", @ARGV,
+             "ruid=$<, euid=$>, rgid=$(, egid=$)" ) if ($opt_d);
+   init_mode();
+} elsif (@ARGV) {
+   log_debug($0, "piped mode with arg: ", @ARGV,
+             "ruid=$<, euid=$>, rgid=$(, egid=$)" ) if ($opt_d);
+   push(@ignores, $ARGV[0]);
+   push(@aliases, $ARGV[0]);
+   pipe_mode($ARGV[0]);
+} else {
+   log_debug($0, "interactive mode(no arg)",
+             "ruid=$<, euid=$>, rgid=$(, egid=$)") if ($opt_d);
+   interactive_mode();
+}
+exit 0;
+
 
 ########## INIT MODE #############################################
 sub init_mode {
@@ -154,7 +205,7 @@ sub interactive_mode {
    }
    my $home = $home_path || $ENV{'HOME'} || (getpwnam($user))[7] or die "No home directory for user $user\n";
    my $editor = $ENV{'VISUAL'} || $ENV{'EDITOR'} || 'vi';
-   my $pager = $ENV{'PAGER'} || 'more';
+   my $pager = 'more'; $pager=$ENV{'PAGER'} if (-f $ENV{'PAGER'});
 
    # guess real homedir under automounter
    $home="/export$home" if ( -d "/export$home" );
@@ -373,8 +424,11 @@ sub pipe_mode {
 }
 
 sub read_list_from_file {
+   my $file=$_[0];
+   die "File $file doesn't exist!\n" if (! -f "$file");
+
    my @list=();
-   if ( open (FILE, $_[0]) ) {
+   if ( open(FILE, $file) ) {
       while (<FILE>) {
          push(@list, split);
       }
@@ -518,6 +572,19 @@ sub _decode_Q {
    $str;
 }
 
+sub clientip {
+   my $clientip;
+   if (defined($ENV{'HTTP_CLIENT_IP'})) {
+      $clientip=$ENV{'HTTP_CLIENT_IP'};
+   } elsif (defined($ENV{'HTTP_X_FORWARDED_FOR'}) &&
+            $ENV{'HTTP_X_FORWARDED_FOR'} !~ /^(?:10\.|172\.(?:1[6-9]|2[0-9]|3[0-1])\.|192\.168\.|127\.0\.)/ ) {
+      $clientip=(split(/,/,$ENV{'HTTP_X_FORWARDED_FOR'}))[0];
+   } else {
+      $clientip=$ENV{'REMOTE_ADDR'}||"127.0.0.1";
+   }
+   return $clientip;
+}
+
 sub log_debug {
    my @msg=@_;
    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst);
@@ -539,44 +606,3 @@ sub log_debug {
    chmod(0666, "/tmp/vacation.debug");
 }
 
-########## MAIN ##################################################
-
-# parse options, handle initialization or interactive mode
-while (defined($ARGV[0]) && $ARGV[0] =~ /^-/) {
-   $_ = shift;
-   if (/^-I/i) {  # eric allman's source has both cases
-      $opt_i=1;
-   } elsif (/^-d/) {      # log debug information to /tmp/vacation.debug
-      $opt_d=1;
-   } elsif (/^-j/) {      # don't check if user is a valid receiver
-      $opt_j=1;
-   } elsif (/^-f(.*)/) {   # read ignorelist from file
-      push(@ignores, read_list_from_file($1 ? $1 : shift));
-   } elsif (/^-a(.*)/) {   # specify alias name
-      push(@aliases, $1 ? $1 : shift);
-   } elsif (/^-t([\d.]*)([smhdw])/) {   # specify reply once interval
-      $timeout = $1;
-      $timeout *= $scale{$2} if $2;
-   } elsif (/^-p(.*)/) {      # use an alternate home path
-      $home_path=$1;
-   } else {
-      die $usage;
-   }
-}
-
-if ($opt_i) {
-   log_debug($0, "init mode with arg: ", @ARGV,
-             "ruid=$<, euid=$>, rgid=$(, egid=$)" ) if ($opt_d);
-   init_mode();
-} elsif (@ARGV) {
-   log_debug($0, "piped mode with arg: ", @ARGV,
-             "ruid=$<, euid=$>, rgid=$(, egid=$)" ) if ($opt_d);
-   push(@ignores, $ARGV[0]);
-   push(@aliases, $ARGV[0]);
-   pipe_mode($ARGV[0]);
-} else {
-   log_debug($0, "interactive mode(no arg)",
-             "ruid=$<, euid=$>, rgid=$(, egid=$)") if ($opt_d);
-   interactive_mode();
-}
-exit 0;

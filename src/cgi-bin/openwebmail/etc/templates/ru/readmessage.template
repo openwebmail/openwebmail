@@ -69,9 +69,9 @@
 <!--
    function replyreceiptconfirm(url, yes)
    {
-      if (yes==1 || confirm('This message requests a read receipt, do you want to transmit?')) {
+      if (yes==1 || confirm('Это сообщение запрашивает подтверждение о прочтении, отправить подтверждение?')) {
          var hWnd = window.open("","_replyreceipt","width=100,height=50,resizable=no,scrollbars=no");
-         hWnd.document.write('Transmitting...');
+         hWnd.document.write('Передача...');
          hWnd.location.href=url;
 //         hWnd.close();
       }

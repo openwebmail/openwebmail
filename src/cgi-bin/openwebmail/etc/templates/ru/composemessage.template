@@ -8,7 +8,7 @@
 <td>@@@BACKTOFOLDER@@@</td>
 <td align="right">
 <table border="0" cellpadding="0" cellspacing="0"><tr>
-<td>Charset for composing: </td>
+<td>Кодировка сообщения: </td>
 <td>@@@CONVTOMENU@@@&nbsp;</td>
 </tr></table>
 </td>
@@ -57,7 +57,7 @@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 <table border="0" cellpadding="0" cellspacing="0"><tr>
 <td>@@@SUBJECTFIELD@@@&nbsp;&nbsp;</td>
-<td><B>Backup sent message</B></td>
+<td><B>Сохранять отосланное сообщение</B></td>
 <td>@@@BACKUPSENTMSGCHECKBOX@@@</td>
 </tr></table>
 </td></tr>
@@ -122,7 +122,7 @@
       if ((document.composeform.msgformat.value == "html" ||
            document.composeform.msgformat.value == "both") &&
           document.composeform.newmsgformat.value == "text" ) {
-         if (confirm("The HTML data format will be lost after the conversion, are you sure to change to Text mode?")) {
+         if (confirm("Данные в формате HTML будут потеряны после преобразования. Вы уверены, что хотите перейти в режим простого текста?")) {
             bodygethtml();
             document.composeform.submit();
             return true;
@@ -177,8 +177,9 @@
          alert("Please specify the receiver before sending.");
          return false;
       }
-      if (document.composeform.subject.value == "" ) {
-         return(confirm("This message has no subject, do you still want to send it?"));
+      if (document.composeform.subject.value == "" 
+       || document.composeform.subject.value == "N/A" ) {
+         return(confirm("Это сообщение не имеет темы, Вы все равно хотите отправить его?"));
       }
       return true;
    }

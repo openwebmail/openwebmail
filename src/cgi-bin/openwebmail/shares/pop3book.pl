@@ -12,7 +12,7 @@ sub readpop3book {
    %{$r_accounts}=();
 
    if ( -f "$pop3book" ) {
-      ow::filelock::lock($pop3book, LOCK_SH) or return -1;
+      ow::filelock::lock($pop3book, LOCK_SH|LOCK_NB) or return -1;
       open (POP3BOOK,"$pop3book") or return -1;
       while (<POP3BOOK>) {
       	 chomp($_);

@@ -177,7 +177,8 @@
          alert("請填妥收信人, 再開始寄信.");
          return false;
       }
-      if (document.composeform.subject.value == "" ) {
+      if (document.composeform.subject.value == "" 
+       || document.composeform.subject.value == "N/A" ) {
          return(confirm("這封信件沒有主旨, 請問仍然要寄出嗎?"));
       }
       return true;

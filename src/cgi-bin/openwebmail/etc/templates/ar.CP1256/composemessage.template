@@ -177,7 +177,8 @@
          alert("«·—Ã«¡  ÕœÌœ „” ·„ ··—”·… ﬁ»· ≈—”«·Â«.");
          return false;
       }
-      if (document.composeform.subject.value == "" ) {
+      if (document.composeform.subject.value == "" 
+       || document.composeform.subject.value == "N/A" ) {
          return(confirm("Â–Â «·—”«·… »œÊ‰ „Ê÷Ê⁄° Â·  —Ìœ ≈—”«·Â«ø"));
       }
       return true;

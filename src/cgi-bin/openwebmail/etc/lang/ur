@@ -10,6 +10,11 @@ package ow::ur;
    'sent-mail'      => 'ﺭﻭﺍﻧﮧ ﺷﺪﻩ ﻣﻴﻞ',
    'saved-drafts'   => 'ﻣﺤﻔﻮﻇ ﮈﺭﺍﻓﭧ',
    'mail-trash'     => 'ﺭﺩﻯ ﻛﻰ ﭨﻮﻛﺮﻯ',
+   'spam-mail'      => 'Spam',
+   'virus-mail'     => 'Virus',
+   LEARNSPAM        => '--LEARN SPAM--',
+   LEARNHAM         => '--LEARN HAM--',
+   FORWARD          => '--FORWARD--',
    DELETE           => '-- ﻣﭩﺎ ﺩ ﻳﮟ --'
    );
 
@@ -87,6 +92,13 @@ package ow::ur;
    before => 'Before addressbook entries',
    after  => 'After addressbook entries',
    both   => 'Before and after addressbook entries'
+   );
+
+%lang_checksourcelabels =
+   (
+   all  => 'All new messages in INBOX',
+   pop3 => 'Only messages from pop3 server',
+   none => 'None'
    );
 
 %lang_timelabels =
@@ -225,6 +237,7 @@ package ow::ur;
    userprefs  => 'ﺗﺮﺟﻴﺤﺎﺕ',
    addressbook=> 'ﺍﮈﺭﻳﺲ ﺑﮏ',
    folders    => 'ﻓﻮﻟﮉﺭ',
+   emptyfolder=> 'Empty folder',
    emptytrash => 'ﺭﺩﻯ ﺧﺎﻟﻰ ﻛﺮﻳﮟ',
    totrash    => 'ﺭﺩﻯ ﻣﻴﮟ',
    forever    => 'ﮬﻤﻴﺸﮧ',
@@ -451,6 +464,7 @@ package ow::ur;
    abook_invalid     => 'Sorry, this file doesn\'t appear to be an address book exported from Microsoft Outlook Express 5 in CSV format.  Make sure that when viewing it in a text editor, the first line starts out "Name,E-mail Address", then go',
    back              => 'back',
    tryagain          => 'and try again.',
+   mailfilter_error  => 'Mail Filter Error',
    abook_toobig      => 'Sorry, this would exceed the size limit for your address book.  Please go',
    cant_create_dir   => 'Can\'t create your user directory!',
    att_overlimit     => 'Sorry, your attachments exceed the attachment size limit, which is',

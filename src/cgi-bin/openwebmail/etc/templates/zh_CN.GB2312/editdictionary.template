@@ -7,7 +7,7 @@
 <tr><td bgcolor=@@@COLUMNHEADER@@@ width="85%">
 <B>单词</B>
 </td><td bgcolor=@@@COLUMNHEADER@@@ align=center>
-<B>动作</B>
+<B>操作</B>
 </td></tr>
 @@@STARTFORM@@@
 @@@DICTIONARYWORDS@@@

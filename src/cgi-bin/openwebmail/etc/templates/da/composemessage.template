@@ -177,7 +177,8 @@
          alert("Please specify the receiver before sending.");
          return false;
       }
-      if (document.composeform.subject.value == "" ) {
+      if (document.composeform.subject.value == "" 
+       || document.composeform.subject.value == "N/A" ) {
          return(confirm("This message has no subject, do you still want to send it?"));
       }
       return true;

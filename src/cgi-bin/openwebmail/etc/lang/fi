@@ -10,6 +10,11 @@ package ow::fi;
    'sent-mail'      => 'LƒHETETYT',
    'saved-drafts'   => 'LUONNOKSET',
    'mail-trash'     => 'ROSKAKORI',
+   'spam-mail'      => 'Spam',
+   'virus-mail'     => 'Virus',
+   LEARNSPAM        => '--LEARN SPAM--',
+   LEARNHAM         => '--LEARN HAM--',
+   FORWARD          => '--FORWARD--',
    DELETE           => '--POISTA--'
    );
 
@@ -87,6 +92,13 @@ package ow::fi;
    before => 'Before addressbook entries',
    after  => 'After addressbook entries',
    both   => 'Before and after addressbook entries'
+   );
+
+%lang_checksourcelabels =
+   (
+   all  => 'All new messages in INBOX',
+   pop3 => 'Only messages from pop3 server',
+   none => 'None'
    );
 
 %lang_timelabels =
@@ -225,6 +237,7 @@ package ow::fi;
    userprefs  => 'Asetukset',
    addressbook=> 'Osoitekirja',
    folders    => 'Kansiot',
+   emptyfolder=> 'Empty folder',
    emptytrash => 'Tyhjenn‰ roskakori',
    totrash    => 'Siirr‰ roskakoriin',
    forever    => 'Aina',
@@ -451,6 +464,7 @@ package ow::fi;
    abook_invalid     => 'Tiedosto ei ole Microsoft Outlook Express 5 CVS muodossa. Varmista ett‰ osoite on oikein ja kokeile uudelleen',
    back              => 'takaisin',
    tryagain          => 'kokeile uudelleen.',
+   mailfilter_error  => 'Mail Filter Error',
    abook_toobig      => 'Osoitekirjasi koko ei riit‰',
    cant_create_dir   => 'Ei voi luoda k‰ytt‰j‰kansiota!',
    att_overlimit     => 'Liitetiedostosi koko ylitt‰‰ sallitun rajan joka on',

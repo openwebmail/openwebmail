@@ -10,6 +10,11 @@ package ow::fr;
    'sent-mail'      => 'Envoyés',
    'saved-drafts'   => 'Brouillons',
    'mail-trash'     => 'Poubelle',
+   'spam-mail'      => 'Spam',
+   'virus-mail'     => 'Virus',
+   LEARNSPAM        => '--LEARN SPAM--',
+   LEARNHAM         => '--LEARN HAM--',
+   FORWARD          => '--FORWARD--',
    DELETE           => '-- SUPPRIMER --'
    );
 
@@ -87,6 +92,13 @@ package ow::fr;
    before => 'Avant les adresses',
    after  => 'Après les adresses',
    both   => 'Avant et après les adresses'
+   );
+
+%lang_checksourcelabels =
+   (
+   all  => 'All new messages in INBOX',
+   pop3 => 'Only messages from pop3 server',
+   none => 'None'
    );
 
 %lang_timelabels =
@@ -225,6 +237,7 @@ package ow::fr;
    userprefs  => 'Préférences Utilisateur',
    addressbook=> 'Carnet d\'adresses',
    folders    => 'Dossiers',
+   emptyfolder=> 'Empty folder',
    emptytrash => 'Vider la poubelle',
    totrash    => 'Mettre à la poubelle',
    forever    => 'Toujours',
@@ -451,6 +464,7 @@ package ow::fr;
    abook_invalid     => 'Désolé, ce fichier ne semble pas être un carnet d\'adresses au format CSV exporté depuis Microsoft Outlook Express 5. Assurez-vous en le visualisant avec un éditeur de texte la première ligne débute par "Name,E-mail Address", puis recommencez.',
    back              => 'retour',
    tryagain          => 'réessayez.',
+   mailfilter_error  => 'Mail Filter Error',
    abook_toobig      => 'Désolé, la taille limite de votre carnet d\'adresses serait dépassée.',
    cant_create_dir   => 'Impossible de créer votre répertoire utilisateur !',
    att_overlimit     => 'Désolé, vous avez atteint la taille maximale d\'attachements, à savoir',

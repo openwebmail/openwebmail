@@ -41,7 +41,7 @@
 <tr><td colspan=2 nowrap>@@@THISANDNEXTNDAYSCHECKBOX@@@ Avui i els propers @@@NDAYSFIELD@@@ dies</td></tr>
 <tr><td colspan=2 nowrap>@@@MONTHFREQMENU@@@</td></tr>
 <tr><td colspan=2 nowrap>@@@EVERYYEARCHECKBOX@@@ Cada any</td></tr>
-<tr><td colspan=2 nowrap>Fes aquest ítem un enllaç cap a</td></tr>
+<tr><td colspan=2 nowrap>Fes d'aquest ítem un enllaç cap a</td></tr>
 <tr><td colspan=2 nowrap>@@@LINKFIELD@@@</td></tr>
 @@@EMAILSTART@@@
 <tr><td colspan=2 nowrap>Envia missatge de notificació a</td></tr>

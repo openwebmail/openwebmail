@@ -11,7 +11,7 @@ if ($SCRIPT_DIR eq '' && open(F, '/etc/openwebmail_path.conf')) {
 if ($SCRIPT_DIR eq '') { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
 push (@INC, $SCRIPT_DIR);
 
-foreach (qw(PATH ENV BASH_ENV CDPATH IFS TERM)) { $ENV{$_}='' }	# secure ENV
+foreach (qw(ENV BASH_ENV CDPATH IFS TERM)) {delete $ENV{$_}}; $ENV{PATH}='/bin:/usr/bin'; # secure ENV
 umask(0002); # make sure the openwebmail group can write
 
 use strict;
@@ -46,9 +46,10 @@ use vars qw($persistence_count);
 use vars qw(@openwebmailrcitem); # defined in ow-shared.pl
 use vars qw(%lang_folders %lang_sizes %lang_text %lang_err
             %lang_calendar %lang_onofflabels %lang_sortlabels
-            %lang_disableemblinklabels  %lang_msgformatlabels
+            %lang_disableemblinklabels %lang_msgformatlabels
             %lang_withoriglabels %lang_receiptlabels
             %lang_ctrlpositionlabels %lang_sendpositionlabels
+            %lang_checksourcelabels
             %lang_abookbuttonpositionlabels
 	    %lang_timelabels %lang_wday);	# defined in lang/xy
 use vars qw(%charset_convlist);			# defined in iconv.pl
@@ -60,6 +61,30 @@ use vars qw($sort $page);
 use vars qw($userfirsttime $prefs_caller);
 use vars qw($urlparmstr $formparmstr);
 use vars qw($escapedfolder $escapedmessageid);
+
+# const globals
+use vars qw(%op_order %ruletype_order %folder_order);	# filterrule prefered order, the smaller one is prefered
+%op_order=(
+   copy   => 0, 
+   move   => 1,
+   delete => 2,
+);
+%ruletype_order=(
+   from        => 0, 
+   to          => 1,
+   subject     => 2,
+   header      => 3,
+   smtprelay   => 4,
+   attfilename => 5,
+   textcontent => 6
+);
+%folder_order=(		# folders not listed have order 0
+   INBOX        => -1,
+   DELETE       => 1,
+   'virus-mail' => 2,
+   'spam-mail'  => 3,
+   'mail-trash' => 4
+);
 
 ########## MAIN ##################################################
 openwebmail_requestbegin();
@@ -725,6 +750,13 @@ sub editprefs {
             templateblock_disable($html, 'AUTOPOP3');
          }
 
+         $temphtml = popup_menu(-name=>'bgfilterwait',
+                                -values=>[5,10,15,20,25,30,35,40,45,50,55,60,90,120],
+                                -default=>$prefs{'bgfilterwait'},
+                                -override=>'1',
+                                defined($config_raw{'DEFAULT_bgfilterwait'})?('-disabled'=>'1'):());
+         $html =~ s/\@\@\@BGFILTERWAITMENU\@\@\@/$temphtml/;
+
          if ($config{'forced_moveoldmsgfrominbox'}) {
             templateblock_disable($html, 'MOVEOLD');
          } else {
@@ -883,13 +915,101 @@ sub editprefs {
          $html =~ s/\@\@\@SENDCHARSETMENU\@\@\@/$temphtml/;
 
 
+         if ($config{'enable_viruscheck'}) {
+            templateblock_enable($html, 'VIRUSCHECK');
+
+            my @source=('none');
+            if ($config{'viruscheck_source_allowed'} eq 'pop3') {
+               @source=('none', 'pop3');
+            } elsif ($config{'viruscheck_source_allowed'} eq 'all') {
+               @source=('none', 'pop3', 'all');
+            }
+            $temphtml = popup_menu(-name=>'viruscheck_source',
+                                   -values=> \@source,
+                                   -labels=> \%lang_checksourcelabels,
+                                   -default=>$prefs{'viruscheck_source'},
+                                   -accesskey=>'7',
+                                   -override=>'1',
+                                   defined($config_raw{'DEFAULT_viruscheck_source'})?('-disabled'=>'1'):());
+            $html =~ s/\@\@\@VIRUSCHECKSOURCEMENU\@\@\@/$temphtml/;
+
+            my (@maxsize, $defmaxsize);
+            foreach my $n (250, 500, 1000, 2000, 3000, 4000, 5000, 10000, 20000, 50000) {
+               if ($n <= $config{'viruscheck_maxsize_allowed'}) {
+                  push(@maxsize, $n);
+                  $defmaxsize=$n if ($n <= $prefs{'viruscheck_maxsize'});
+               }
+            }
+            $temphtml = popup_menu(-name=>'viruscheck_maxsize',
+                                   -values=> \@maxsize,
+                                   -default=> $defmaxsize
+                                   -override=>'1',
+                                   defined($config_raw{'DEFAULT_viruscheck_maxsize'})?('-disabled'=>'1'):());
+            $html =~ s/\@\@\@VIRUSCHECKMAXSIZEMENU\@\@\@/$temphtml/;
+
+            $temphtml = popup_menu(-name=>'viruscheck_minbodysize',
+                                   -values=> [0, 0.5, 1, 1.5, 2],
+                                   -default=>$prefs{'viruscheck_minbodysize'},
+                                   -override=>'1',
+                                   defined($config_raw{'DEFAULT_viruscheck_minbodysize'})?('-disabled'=>'1'):());
+            $html =~ s/\@\@\@VIRUSCHECKMINBODYSIZEMENU\@\@\@/$temphtml/;
+
+         } else {
+            templateblock_disable($html, 'VIRUSCHECK');
+         }
+
+
+         if ($config{'enable_spamcheck'}) {
+            templateblock_enable($html, 'SPAMCHECK');
+
+            my @source=('none');
+            if ($config{'spamcheck_source_allowed'} eq 'pop3') {
+               @source=('none', 'pop3');
+            } elsif ($config{'spamcheck_source_allowed'} eq 'all') {
+               @source=('none', 'pop3', 'all');
+            }
+            $temphtml = popup_menu(-name=>'spamcheck_source',
+                                   -values=> \@source,
+                                   -labels=> \%lang_checksourcelabels,
+                                   -default=>$prefs{'spamcheck_source'},
+                                   -accesskey=>'7',
+                                   -override=>'1',
+                                   defined($config_raw{'DEFAULT_spamcheck_source'})?('-disabled'=>'1'):());
+            $html =~ s/\@\@\@SPAMCHECKSOURCEMENU\@\@\@/$temphtml/;
+
+            my (@maxsize, $defmaxsize);
+            foreach my $n (100, 150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000) {
+               if ($n <= $config{'spamcheck_maxsize_allowed'}) {
+                  push(@maxsize, $n);
+                  $defmaxsize=$n if ($n <= $prefs{'spamcheck_maxsize'});
+               }
+            }
+            $temphtml = popup_menu(-name=>'spamcheck_maxsize',
+                                   -values=> \@maxsize,
+                                   -default=> $defmaxsize
+                                   -override=>'1',
+                                   defined($config_raw{'DEFAULT_spamcheck_maxsize'})?('-disabled'=>'1'):());
+            $html =~ s/\@\@\@SPAMCHECKMAXSIZEMENU\@\@\@/$temphtml/;
+
+            $temphtml = popup_menu(-name=>'spamcheck_threshold',
+                                   -values=> [5..30],
+                                   -default=>$prefs{'spamcheck_threshold'},
+                                   -override=>'1',
+                                   defined($config_raw{'DEFAULT_spamcheck_threshold'})?('-disabled'=>'1'):());
+            $html =~ s/\@\@\@SPAMCHECKTHRESHOLDMENU\@\@\@/$temphtml/;
+
+         } else {
+            templateblock_disable($html, 'SPAMCHECK');
+         }
+
+
          if ($config{'enable_smartfilter'}) {
             templateblock_enable($html, 'FILTER');
 
-            my $filterbookfile=dotpath('filter.book');
-            my (%FILTERDB, $matchcount, $matchdate);
-            ow::dbm::open(\%FILTERDB, $filterbookfile, LOCK_SH) or
-                  openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} db $filterbookfile");
+            my $filterruledb=dotpath('filter.ruledb');
+            my (%FILTERRULEDB, $matchcount, $matchdate);
+            ow::dbm::open(\%FILTERRULEDB, $filterruledb, LOCK_SH) or
+                  openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} db $filterruledb");
 
             $temphtml = popup_menu(-name=>'filter_repeatlimit',
                                    -values=>['0','5','10','20','30','40','50','100'],
@@ -897,7 +1017,7 @@ sub editprefs {
                                    -accesskey=>'7',
                                    -override=>'1',
                                    defined($config_raw{'DEFAULT_filter_repeatlimit'})?('-disabled'=>'1'):());
-            ($matchcount, $matchdate)=split(":", $FILTERDB{"filter_repeatlimit"});
+            ($matchcount, $matchdate)=split(":", $FILTERRULEDB{"filter_repeatlimit"});
             if ($matchdate) {
                $matchdate=ow::datetime::dateserial2str($matchdate,
                                            $prefs{'timeoffset'}, $prefs{'daylightsaving'},
@@ -911,7 +1031,7 @@ sub editprefs {
                                  -checked=>$prefs{'filter_badaddrformat'},
                                  -label=>'',
                                  defined($config_raw{'DEFAULT_filter_badaddrformat'})?('-disabled'=>'1'):());
-            ($matchcount, $matchdate)=split(":", $FILTERDB{'filter_badaddrformat'});
+            ($matchcount, $matchdate)=split(":", $FILTERRULEDB{'filter_badaddrformat'});
             if ($matchdate) {
                $matchdate=ow::datetime::dateserial2str($matchdate,
                                            $prefs{'timeoffset'}, $prefs{'daylightsaving'},
@@ -925,7 +1045,7 @@ sub editprefs {
                                  -checked=>$prefs{'filter_fakedsmtp'},
                                  -label=>'',
                                  defined($config_raw{'DEFAULT_filter_fakedsmtp'})?('-disabled'=>'1'):());
-            ($matchcount, $matchdate)=split(":", $FILTERDB{'filter_fakedsmtp'});
+            ($matchcount, $matchdate)=split(":", $FILTERRULEDB{'filter_fakedsmtp'});
             if ($matchdate) {
                $matchdate=ow::datetime::dateserial2str($matchdate,
                                            $prefs{'timeoffset'}, $prefs{'daylightsaving'},
@@ -939,7 +1059,7 @@ sub editprefs {
                                  -checked=>$prefs{'filter_fakedfrom'},
                                  -label=>'',
                                  defined($config_raw{'DEFAULT_filter_fakedfrom'})?('-disabled'=>'1'):());
-            ($matchcount, $matchdate)=split(":", $FILTERDB{'filter_fakedfrom'});
+            ($matchcount, $matchdate)=split(":", $FILTERRULEDB{'filter_fakedfrom'});
             if ($matchdate) {
                $matchdate=ow::datetime::dateserial2str($matchdate,
                                            $prefs{'timeoffset'}, $prefs{'daylightsaving'},
@@ -953,7 +1073,7 @@ sub editprefs {
                                  -checked=>$prefs{'filter_fakedexecontenttype'},
                                  -label=>'',
                                  defined($config_raw{'DEFAULT_filter_fakedexecontenttype'})?('-disabled'=>'1'):());
-            ($matchcount, $matchdate)=split(":", $FILTERDB{'filter_fakedexecontenttype'});
+            ($matchcount, $matchdate)=split(":", $FILTERRULEDB{'filter_fakedexecontenttype'});
             if ($matchdate) {
                $matchdate=ow::datetime::dateserial2str($matchdate,
                                            $prefs{'timeoffset'}, $prefs{'daylightsaving'},
@@ -962,7 +1082,7 @@ sub editprefs {
             }
             $html =~ s/\@\@\@FILTERFAKEDEXECONTENTTYPE\@\@\@/$temphtml/;
 
-            ow::dbm::close(\%FILTERDB, $filterbookfile);
+            ow::dbm::close(\%FILTERRULEDB, $filterruledb);
 
          } else {
             templateblock_disable($html, 'FILTER');
@@ -1187,6 +1307,13 @@ sub editprefs {
       }
 
 
+      $temphtml = checkbox(-name=>'uselightbar',
+                           -value=>'1',
+                           -checked=>$prefs{'uselightbar'},
+                           -label=>'',
+                           defined($config_raw{'DEFAULT_uselightbar'})?('-disabled'=>'1'):());
+      $html =~ s/\@\@\@USELIGHTBARCHECKBOX\@\@\@/$temphtml/;
+
       if ($config{'enable_webmail'}) {
          $temphtml = checkbox(-name=>'regexmatch',
                               -value=>'1',
@@ -1261,7 +1388,15 @@ sub editprefs {
                                 -labels=>\%dayslabels,
                                 -override=>'1',
                                 defined($config_raw{'DEFAULT_trashreserveddays'})?('-disabled'=>'1'):());
-         $html =~ s/\@\@\@RESERVEDDAYSMENU\@\@\@/$temphtml/;
+         $html =~ s/\@\@\@TRASHRESERVEDDAYSMENU\@\@\@/$temphtml/;
+
+         $temphtml = popup_menu(-name=>'spamvirusreserveddays',
+                                -values=>[0,1,2,3,4,5,6,7,14,21,30,60,90,180,999999],
+                                -default=>$prefs{'spamvirusreserveddays'},
+                                -labels=>\%dayslabels,
+                                -override=>'1',
+                                defined($config_raw{'DEFAULT_spamvirusreserveddays'})?('-disabled'=>'1'):());
+         $html =~ s/\@\@\@SPAMVIRUSRESERVEDDAYSMENU\@\@\@/$temphtml/;
       }
 
       my @intervals;
@@ -1356,6 +1491,7 @@ sub saveprefs {
       webdisk_confirmmovecopy 1
       webdisk_confirmdel 1
       webdisk_confirmcompress 1
+      uselightbar 1
       regexmatch 1
       hideinternal 1
    );
@@ -1631,11 +1767,12 @@ sub writedotvacationmsg {
       local $|=1; # flush all output
       if ( fork() == 0 ) {		# child
          close(STDIN); close(STDOUT); close(STDERR);
+         ow::suid::drop_ruid_rgid();
          # set enviro's for vacation program
          $ENV{'USER'}=$user;
          $ENV{'LOGNAME'}=$user;
          $ENV{'HOME'}=$homedir;
-         $<=$>;		# drop ruid by setting ruid = euid
+         delete $ENV{'GATEWAY_INTERFACE'};
          my @cmd;
          foreach (split(/\s/, $config{'vacationinit'})) {
             /^(.*)$/ && push(@cmd, $1); # untaint all argument
@@ -1851,10 +1988,11 @@ sub viewhistory {
       my $record;
       my ($timestamp, $pid, $ip, $misc)=($1, $2, $3, $4);
       my ($u, $event, $desc, $desc2)=split(/ \- /, $misc, 4);
+      $desc=ow::htmltext::str2html($desc);
       foreach my $field ($timestamp, $ip, $u, $event, $desc) {
          if ($event=~/error/i) {
             $record.=qq|<td bgcolor=$bgcolor align="center"><font color="#cc0000"><b>$field</font></b></td>\n|;
-         } elsif ($event=~/warning/i) {
+         } elsif ($event=~/warning/i || $desc=~/(?:spam|virus) .* found/i) {
             $record.=qq|<td bgcolor=$bgcolor align="center"><font color="#0000cc"><b>$field</font></b></td>\n|;
          } else {
             $record.=qq|<td bgcolor=$bgcolor align="center">$field</td>\n|;
@@ -2010,7 +2148,7 @@ sub editpop3 {
 
    $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $lang_text{'userprefs'}", qq|accesskey="F" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;$urlparmstr"|);
    $temphtml .= "&nbsp;\n";
-   $temphtml .= iconlink("pop3.gif", $lang_text{'retr_pop3s'}, qq|accesskey="G" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=retrpop3s&amp;$urlparmstr"|). qq| \n|;
+   $temphtml .= iconlink("pop3.gif", $lang_text{'retr_pop3s'}, qq|accesskey="G" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=pop3fetches&amp;$urlparmstr"|). qq| \n|;
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/;
 
    $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-prefs.pl",
@@ -2108,7 +2246,7 @@ sub editpop3 {
       }
       $temphtml .= "</td>";
 
-      $temphtml .= qq|<td align="center" bgcolor=$bgcolor><a href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=retrpop3&pop3user=$pop3user&pop3host=$pop3host&pop3port=$pop3port&pop3user=$pop3user&$urlparmstr">$pop3user</a></td>\n|.
+      $temphtml .= qq|<td align="center" bgcolor=$bgcolor><a href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=pop3fetch&pop3user=$pop3user&pop3host=$pop3host&pop3port=$pop3port&pop3user=$pop3user&$urlparmstr">$pop3user</a></td>\n|.
                    qq|<td align="center" bgcolor=$bgcolor>\*\*\*\*\*\*</td>\n|.
                    qq|<td align="center" bgcolor=$bgcolor>\n|;
 
@@ -2242,6 +2380,8 @@ sub editfilter {
    $html = applystyle(readtemplate("editfilter.template"));
 
    my $filterbookfile = dotpath('filter.book');
+   my $filterruledb = dotpath('filter.ruledb');
+
    my $filterbooksize = ( -s $filterbookfile ) || 0;
    my $freespace = int($config{'maxbooksize'} - ($filterbooksize/1024) + .5);
    $html =~ s/\@\@\@FREESPACE\@\@\@/$freespace $lang_sizes{'kb'}/;
@@ -2332,19 +2472,6 @@ sub editfilter {
                       -class=>"medtext");
    $html =~ s/\@\@\@ADDBUTTON\@\@\@/$temphtml/;
 
-   my %op_order=(
-      copy   => 0,
-      move   => 1,
-   );
-   my %ruletype_order=(
-      from        => 0, 
-      to          => 1,
-      subject     => 2,
-      header      => 3,
-      smtprelay   => 4,
-      attfilename => 5,
-      textcontent => 6
-   );
    my ($_PRIORITY, $_RULETYPE, $_INCLUDE, $_TEXT, $_OP, $_DESTINATION, $_ENABLE, $_REGEX_TEXT)=(0,1,2,3,4,5,6,7);
 
    ## get @filterrules ##
@@ -2361,12 +2488,10 @@ sub editfilter {
       close (FILTER) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $filterbookfile! ($!)");
    }
    @filterrules=sort { 
-                     ${$a}[$_PRIORITY] <=> ${$b}[$_PRIORITY] or
-                     $op_order{${$a}[$_OP]} <=>  $op_order{${$b}[$_OP]} or
-                     (${$a}[$_DESTINATION] ne 'INBOX') <=> (${$b}[$_DESTINATION] ne 'INBOX') or
-                     (${$a}[$_DESTINATION] eq 'DELETE') <=> (${$b}[$_DESTINATION] eq 'DELETE') or
-                     (${$a}[$_DESTINATION] eq 'mail-trash') <=> (${$b}[$_DESTINATION] eq 'mail-trash') or
-                     $ruletype_order{${$a}[$_RULETYPE]} <=>  $ruletype_order{${$b}[$_RULETYPE]}
+                     ${$a}[$_PRIORITY]                   <=> ${$b}[$_PRIORITY]                   or
+                     $op_order{${$a}[$_OP]}              <=> $op_order{${$b}[$_OP]}              or
+                     $ruletype_order{${$a}[$_RULETYPE]}  <=> $ruletype_order{${$b}[$_RULETYPE]}  or
+                     $folder_order{${$a}[$_DESTINATION]} <=> $folder_order{${$b}[$_DESTINATION]}
                      } @filterrules;
 
    if ( $config{'global_filterbook'} ne "" && -f "$config{'global_filterbook'}" ) {
@@ -2382,23 +2507,21 @@ sub editfilter {
       }
    }
    @globalfilterrules=sort { 
-                     ${$a}[$_PRIORITY] <=> ${$b}[$_PRIORITY] or
-                     $op_order{${$a}[$_OP]} <=>  $op_order{${$b}[$_OP]} or
-                     (${$a}[$_DESTINATION] ne 'INBOX') <=> (${$b}[$_DESTINATION] ne 'INBOX') or
-                     (${$a}[$_DESTINATION] eq 'DELETE') <=> (${$b}[$_DESTINATION] eq 'DELETE') or
-                     (${$a}[$_DESTINATION] eq 'mail-trash') <=> (${$b}[$_DESTINATION] eq 'mail-trash') or
-                     $ruletype_order{${$a}[$_RULETYPE]} <=>  $ruletype_order{${$b}[$_RULETYPE]}
+                     ${$a}[$_PRIORITY]                   <=> ${$b}[$_PRIORITY]                   or
+                     $op_order{${$a}[$_OP]}              <=> $op_order{${$b}[$_OP]}              or
+                     $ruletype_order{${$a}[$_RULETYPE]}  <=> $ruletype_order{${$b}[$_RULETYPE]}  or
+                     $folder_order{${$a}[$_DESTINATION]} <=> $folder_order{${$b}[$_DESTINATION]}
                      } @globalfilterrules;
 
    $temphtml = '';
-   my %FILTERDB;
+   my %FILTERRULEDB;
    my $bgcolor = $style{"tablerow_dark"};
-   ow::dbm::open(\%FILTERDB, $filterbookfile, LOCK_SH) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} db $filterbookfile");
+   ow::dbm::open(\%FILTERRULEDB, $filterruledb, LOCK_SH) or
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} db $filterruledb");
 
    for (my $i=0; $i<=$#filterrules; $i++) {
       my ($priority, $ruletype, $include, $text, $op, $destination, $enable) = @{$filterrules[$i]};
-      my ($matchcount, $matchdate)=split(":", $FILTERDB{"$ruletype\@\@\@$include\@\@\@$text\@\@\@$destination"});
+      my ($matchcount, $matchdate)=split(":", $FILTERRULEDB{"$ruletype\@\@\@$include\@\@\@$text\@\@\@$destination"});
 
       $temphtml .= "<tr>\n";
       if ($matchdate) {
@@ -2462,7 +2585,7 @@ sub editfilter {
 
    for (my $i=0; $i<=$#globalfilterrules; $i++) {
       my ($priority, $ruletype, $include, $text, $op, $destination, $enable) = @{$globalfilterrules[$i]};
-      my ($matchcount, $matchdate)=split(":", $FILTERDB{"$ruletype\@\@\@$include\@\@\@$text\@\@\@$destination"});
+      my ($matchcount, $matchdate)=split(":", $FILTERRULEDB{"$ruletype\@\@\@$include\@\@\@$text\@\@\@$destination"});
 
       $temphtml .= "<tr>\n";
       if ($matchdate) {
@@ -2506,7 +2629,7 @@ sub editfilter {
       }
    }
 
-   ow::dbm::close(\%FILTERDB, $filterbookfile);
+   ow::dbm::close(\%FILTERRULEDB, $filterruledb);
 
    $html =~ s/\@\@\@FILTERRULES\@\@\@/$temphtml/;
 
@@ -2528,6 +2651,7 @@ sub modfilter {
    $enable = param('enable') || 0;
 
    my $filterbookfile = dotpath('filter.book');
+   my $filterruledb = dotpath('filter.ruledb');
 
    ## add mode -> can't have null $ruletype, null $text, null $destination ##
    ## delete mode -> can't have null $filter ##
@@ -2540,7 +2664,7 @@ sub modfilter {
             openwebmailerror(__FILE__, __LINE__, qq|$lang_err{'abook_toobig'} <a href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editaddresses&amp;$urlparmstr">$lang_err{'back'}</a>$lang_err{'tryagain'}|);
          }
          # read personal filter and update it
-         ow::filelock::lock($filterbookfile, LOCK_EX|LOCK_NB) or
+         ow::filelock::lock($filterbookfile, LOCK_EX) or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $filterbookfile!");
          open (FILTER,$filterbookfile) or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $filterbookfile! ($!)");
@@ -2578,10 +2702,10 @@ sub modfilter {
          }
 
          # remove stale entries in filterrule db by checking %filterrules
-         my (%FILTERDB, @keys);
-         ow::dbm::open(\%FILTERDB, $filterbookfile, LOCK_EX) or
+         my (%FILTERRULEDB, @keys);
+         ow::dbm::open(\%FILTERRULEDB, $filterruledb, LOCK_EX) or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} db $filterbookfile");
-         @keys=keys %FILTERDB;
+         @keys=keys %FILTERRULEDB;
          foreach my $key (@keys) {
            if ( ! defined($filterrules{$key}) &&
                 $key ne "filter_badaddrformat" &&
@@ -2589,10 +2713,10 @@ sub modfilter {
                 $key ne "filter_fakedfrom" &&
                 $key ne "filter_fakedsmtp" &&
                 $key ne "filter_repeatlimit") {
-              delete $FILTERDB{$key};
+              delete $FILTERRULEDB{$key};
            }
          }
-         ow::dbm::close(\%FILTERDB, $filterbookfile);
+         ow::dbm::close(\%FILTERRULEDB, $filterruledb);
       } else {
          open (FILTER, ">$filterbookfile" ) or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $filterbookfile! ($!)");
@@ -2708,7 +2832,7 @@ sub delstat {
       my %stationery;
       my $statbookfile=dotpath('stationery.book');
       if ( -f $statbookfile ) {
-         ow::filelock::lock($statbookfile, LOCK_EX|LOCK_NB) or
+         ow::filelock::lock($statbookfile, LOCK_EX) or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $statbookfile!");
          my ($stat,$err)=read_stationarybook($statbookfile,\%stationery);
          openwebmailerror(__FILE__, __LINE__, $err) if ($stat<0);
@@ -2752,7 +2876,7 @@ sub addstat {
       # load the stationery first and save after, if exist overwrite
       my $statbookfile=dotpath('stationery.book');
       if ( -f $statbookfile ) {
-         ow::filelock::lock($statbookfile, LOCK_EX|LOCK_NB) or
+         ow::filelock::lock($statbookfile, LOCK_EX) or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $statbookfile!");
 
          my ($stat,$err)=read_stationarybook($statbookfile,\%stationery);

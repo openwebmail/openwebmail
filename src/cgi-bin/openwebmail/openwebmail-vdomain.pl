@@ -108,7 +108,7 @@ if ($SCRIPT_DIR eq '' && open(F, '/etc/openwebmail_path.conf')) {
 if ($SCRIPT_DIR eq '') { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
 push (@INC, $SCRIPT_DIR);
 
-foreach (qw(PATH ENV BASH_ENV CDPATH IFS TERM)) { $ENV{$_}='' }	# secure ENV
+foreach (qw(ENV BASH_ENV CDPATH IFS TERM)) {delete $ENV{$_}}; $ENV{PATH}='/bin:/usr/bin'; # secure ENV
 umask(0002); # make sure the openwebmail group can write
 
 use strict;
@@ -473,14 +473,18 @@ sub edit_vuser {
       my $val=$from_list{$_};$val=~s/'/\\'/;
       my $txt=$_;
       $txt .= " ($lang_text{'email_alias'})" if (/\@$domain$/);
-      $temphtml .= qq|<tr bgcolor=$bgcolor><td><a href="Javascript:Update('$key','$val')">$txt</a></td>| .
-                               qq|<td>$from_list{$_}</td>| .
-                               qq|<td align="center">| .
-                               submit(-name=>'aliasdel_button',
-                                  -value=>$lang_text{'delete'},
-                                  -onClick=>"Delete('$key')",
-                                  -class=>'medtext') .
-                               "</td></tr>\n";
+      $temphtml .= qq|<tr bgcolor=$bgcolor |.
+                   qq|onMouseOver='this.style.backgroundColor=$style{tablerow_hicolor};' |.
+                   qq|onMouseOut='this.style.backgroundColor=$bgcolor;' |.
+                   qq|>\n|.
+                   qq|<td><a href="Javascript:Update('$key','$val')">$txt</a></td>|.
+                   qq|<td>$from_list{$_}</td>|.
+                   qq|<td align="center">|.
+                   submit(-name=>'aliasdel_button',
+                          -value=>$lang_text{'delete'},
+                          -onClick=>"Delete('$key')",
+                          -class=>'medtext') .
+                   qq|</td></tr>\n|;
       if ($bgcolor eq $style{"tablerow_dark"}) {
          $bgcolor = $style{"tablerow_light"};
       } else {

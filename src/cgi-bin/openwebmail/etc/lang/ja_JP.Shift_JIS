@@ -10,6 +10,11 @@ package ow::ja_JP_Shift_JIS;
    'sent-mail'      => '送信済み',
    'saved-drafts'   => '下書き',
    'mail-trash'     => 'ごみ箱',
+   'spam-mail'      => 'Spam',
+   'virus-mail'     => 'Virus',
+   LEARNSPAM        => '--LEARN SPAM--',
+   LEARNHAM         => '--LEARN HAM--',
+   FORWARD          => '--FORWARD--',
    DELETE           => '--削除--'
    );
 
@@ -87,6 +92,13 @@ package ow::ja_JP_Shift_JIS;
    before => 'アドレス帳入力の前に',
    after  => 'アドレス帳入力後に',
    both   => 'アドレス帳入力前後に'
+   );
+
+%lang_checksourcelabels =
+   (
+   all  => 'All new messages in INBOX',
+   pop3 => 'Only messages from pop3 server',
+   none => 'None'
    );
 
 %lang_timelabels =
@@ -225,6 +237,7 @@ package ow::ja_JP_Shift_JIS;
    userprefs  => 'ユーザーのお気に入り',
    addressbook=> 'アドレス帳',
    folders    => 'フォルダー',
+   emptyfolder=> 'Empty folder',
    emptytrash => 'ごみ箱を空にする',
    totrash    => 'ごみ箱に移動する',
    forever    => '永久に',
@@ -451,6 +464,7 @@ package ow::ja_JP_Shift_JIS;
    abook_invalid     => '申し訳ありませんが、このファイルはCSVフォーマットでマイクロソフトアウトルックからエクスポートされたアドレス帳ではありません。テキストエディターで、最初の行が"名前、Eメールアドレス"で始まっているかどうか確認してください',
    back              => '戻る',
    tryagain          => '再度試してください。',
+   mailfilter_error  => 'Mail Filter Error',
    abook_toobig      => '申し訳ありませんが、これはあなたのアドレス帳のサイズ制限を越えてしまいますので、次へ進んでください。',
    cant_create_dir   => 'あなたのユーザーディレクトリーが作成できません!',
    att_overlimit     => '申し訳ありませんが、添付ファイルが制限サイズを超えています。制限サイズは次のようになっています',

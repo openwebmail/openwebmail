@@ -9,7 +9,7 @@
 <tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Название папки (@@@FOLDERNAME_MAXLEN@@@ символов)</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Новая</B></td>
+<B>Новых</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Сообщений</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
@@ -37,7 +37,7 @@
 <tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Стандартные папки</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Новая</B></td>
+<B>Новых</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Сообщений</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>

@@ -9,6 +9,7 @@
 # so the user won't encounter the script startup delay.
 #
 use strict;
+foreach (qw(ENV BASH_ENV CDPATH IFS TERM)) {delete $ENV{$_}}; $ENV{PATH}='/bin:/usr/bin'; # secure ENV
 
 # encrypted password for cgi access
 #

@@ -177,7 +177,8 @@
          alert("Koks laiðko gavëjo adresas?");
          return false;
       }
-      if (document.composeform.subject.value == "" ) {
+      if (document.composeform.subject.value == "" 
+       || document.composeform.subject.value == "N/A" ) {
          return(confirm("Laiðkas neturi temos. Ar norite já iðsiøsti?"));
       }
       return true;

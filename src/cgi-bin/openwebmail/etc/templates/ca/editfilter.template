@@ -16,15 +16,15 @@
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Regles</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Inc/Exc</B></td>
+<B>Amb/Sense</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Cadena</B> (clica per editar)</td>
+<B>Text</B> (clica per editar)</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Acci&oacute;</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Destí</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Activar</B></td>
+<B>Activa</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Acci&oacute;</B>
 </td></tr>

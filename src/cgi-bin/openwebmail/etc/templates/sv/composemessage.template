@@ -177,7 +177,8 @@
          alert("Du måste ange en mottagare.");
          return false;
       }
-      if (document.composeform.subject.value == "" ) {
+      if (document.composeform.subject.value == "" 
+       || document.composeform.subject.value == "N/A" ) {
          return(confirm("Du har inte angett något ämne. Vill du skicka ändå?"));
       }
       return true;

@@ -21,11 +21,20 @@
 <td align="right" nowrap>Domini: </td><td>@@@DOMAINMENU@@@</td>
 @@@DOMAINEND@@@
 </tr><tr>
+<td align=center colspan=2>
+
+<table><tr>
+<td align=center>@@@LOGINBUTTON@@@</td>
 <td align=center>
-<table><tr><td>@@@LOGINBUTTON@@@</td></tr></table>
+<table><tr>
+<td>@@@HTTPCOMPRESSIONCHECKBOX@@@</td><td><font size=1>Activa compressió<br>HTTP</font></td>
+@@@AUTOLOGINSTART@@@
+<td>@@@AUTOLOGINCHECKBOX@@@</td><td><font size=1>Sessió<br>Automàtica</font></td>
+@@@AUTOLOGINEND@@@
+</tr></table>
 </td>
-<td align=center>
-<table><tr><td><font size=1>Activa compressió<br>HTTP</font></td><td>@@@HTTPCOMPRESSIONCHECKBOX@@@</td></tr></table>
+</tr></table>
+
 </td>
 </tr>
 </table>
@@ -70,6 +79,19 @@
 "3. alguns navegadors tenen problemes utilitzant compressió HTTP juntament amb SSL...\n"+
 "4. alguns navegadors diuen que suporten compressió HTTP però en realitat no ho fan...\n\n"+
 "Per tant si us trobeu amb problemes, si us plau, inicieu una nova sessió sense activar aquesta ocpció.\n"
+         );
+      }
+      return(true);
+   }
+
+   function autologinhelp()
+   {
+      if (document.login.autologin.checked) {
+         alert(
+"Quan aquesta funció està activa, vol dir que podeu iniciar la sessió d'OpenWebmail sense haver de teclejar el nom ni la contrassenya "+
+"si no vàreu tancar la sessió l'últim cop que vàreu fer servir OpenWebmail (i que aquesta no hagi caducat). "+
+"Tanmateix, altres persones també podran iniciar automàticament la sessió d'OpenWebmail amb el vostre compte des d'aquest ordinador, "+
+"o sigui que per seguretat, NO ACTIVEU aquesta funció en un ordinador públic\n"
          );
       }
       return(true);

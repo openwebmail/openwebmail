@@ -50,7 +50,7 @@
 </td></tr><tr><td>&nbsp;</td></tr><tr><td>
 
 <table border="0" width="100%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
-<tr><td colspan="4"><B>Results: @@@TOTALFOUND@@@</B></td></tr>
+<tr><td colspan="4"><B>Resultats: @@@TOTALFOUND@@@</B></td></tr>
 <tr><td width="10%" bgcolor=@@@COLUMNHEADER@@@>
 <B>@@@FOLDER@@@</B></td>
 <td width="18%" bgcolor=@@@COLUMNHEADER@@@>

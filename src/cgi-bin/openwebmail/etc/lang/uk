@@ -10,6 +10,11 @@ package ow::uk;
    'sent-mail'      => 'В╤ДПРАВЛЕН╤',
    'saved-drafts'   => 'ЧЕРНЕТКИ',
    'mail-trash'     => 'СМ╤ТНИК',
+   'spam-mail'      => 'Spam',
+   'virus-mail'     => 'Virus',
+   LEARNSPAM        => '--LEARN SPAM--',
+   LEARNHAM         => '--LEARN HAM--',
+   FORWARD          => '--FORWARD--',
    DELETE           => '--ВИДАЛИТИ--'
    );
 
@@ -87,6 +92,13 @@ package ow::uk;
    before => 'Перед елементами адресно╖ книги',
    after  => 'П╕сля елемент╕в адресно╖ книги',
    both   => 'Перед ╕ п╕сля елемент╕в адресно╖ книги'
+   );
+
+%lang_checksourcelabels =
+   (
+   all  => 'All new messages in INBOX',
+   pop3 => 'Only messages from pop3 server',
+   none => 'None'
    );
 
 %lang_timelabels =
@@ -225,6 +237,7 @@ package ow::uk;
    userprefs  => 'Налаштування',
    addressbook=> 'Адресна книга',
    folders    => 'Теки',
+   emptyfolder=> 'Empty folder',
    emptytrash => 'Очистити см╕тник',
    totrash    => 'Перенести в см╕тник',
    forever    => 'Завжди',
@@ -451,6 +464,7 @@ package ow::uk;
    abook_invalid     => 'Вибачте, цей файл не схожий на адресну книгу, експортовану з Microsoft Outlook Express 5 у формат╕ CSV.  Переконайтеся за допомогою текстового редактора, що перший рядок у файл╕ почина╓ться з посл╕довност╕ "Name,E-mail Address", пот╕м поверн╕ться',
    back              => 'назад',
    tryagain          => '╕ спробуйте знову.',
+   mailfilter_error  => 'Mail Filter Error',
    abook_toobig      => 'Вибачте, але це перевищу╓ л╕м╕т на розм╕р адресно╖ книги.  Будь ласка, ╕д╕ть',
    cant_create_dir   => 'Не можу створити домашн╕й каталог для вашого користувача!',
    att_overlimit     => 'Вибачте, ваше долучення перевищу╓ допустимий л╕м╕т в ',

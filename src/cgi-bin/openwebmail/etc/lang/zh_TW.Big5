@@ -10,6 +10,11 @@ package ow::zh_TW_Big5;
    'sent-mail'      => '寄件備份',
    'saved-drafts'   => '草稿匣',
    'mail-trash'     => '垃圾桶',
+   'spam-mail'      => '廣告信匣',
+   'virus-mail'     => '病毒信匣',
+   LEARNSPAM        => '--廣告信學習--',
+   LEARNHAM         => '--正常信學習--',
+   FORWARD          => '--信件轉寄--',
    DELETE           => '--直接刪除--'
    );
 
@@ -87,6 +92,13 @@ package ow::zh_TW_Big5;
    before => '在通訊錄項目之前',
    after  => '在通訊錄項目之後',
    both   => '在通訊錄項目前後'
+   );
+
+%lang_checksourcelabels =
+   (
+   all  => '新信匣內所有新進信件',
+   pop3 => '由 POP3 伺服器抓取的信件',
+   none => '無'
    );
 
 %lang_timelabels =
@@ -225,6 +237,7 @@ package ow::zh_TW_Big5;
    userprefs  => '個人偏好設定',
    addressbook=> '通訊錄',
    folders    => '信件匣',
+   emptyfolder=> '清空信件匣',
    emptytrash => '清空垃圾桶',
    totrash    => '搬到垃圾桶',
    forever    => '永久保留',
@@ -451,6 +464,7 @@ package ow::zh_TW_Big5;
    abook_invalid     => '抱歉！這檔案不是 Outlook Express 5 的 CSV 格式.',
    back              => '回上一頁',
    tryagain          => '再試一次.',
+   mailfilter_error  => '郵件過濾錯誤',
    abook_toobig      => '通訊錄超過容量限制. 請',
    cant_create_dir   => '無法建立使用者目錄!',
    att_overlimit     => '附件大小超過限制',

@@ -5,7 +5,7 @@ use strict;
 #
 # Since we call open3 with @cmd array,
 # perl will call execvp() directly without shell interpretation.
-# this is much secure than system()
+# this is much secure than system() + shell redirect chars (|,>)
 #
 
 use IPC::Open3;

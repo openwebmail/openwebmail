@@ -21,11 +21,20 @@
 <td align="right" nowrap>Домейн: </td><td>@@@DOMAINMENU@@@</td>
 @@@DOMAINEND@@@
 </tr><tr>
+<td align=center colspan=2>
+
+<table><tr>
+<td align=center>@@@LOGINBUTTON@@@</td>
 <td align=center>
-<table><tr><td>@@@LOGINBUTTON@@@</td></tr></table>
+<table><tr>
+<td>@@@HTTPCOMPRESSIONCHECKBOX@@@</td><td><font size=1>HTTP<br>Компресия</font></td>
+@@@AUTOLOGINSTART@@@
+<td>@@@AUTOLOGINCHECKBOX@@@</td><td><font size=1>Автоматичен<br>Вход</font></td>
+@@@AUTOLOGINEND@@@
+</tr></table>
 </td>
-<td align=center>
-<table><tr><td><font size=1>с HTTP<br>компресия</font></td><td>@@@HTTPCOMPRESSIONCHECKBOX@@@</td></tr></table>
+</tr></table>
+
 </td>
 </tr>
 </table>
@@ -70,6 +79,18 @@
 "3. някои браузери имат проблем когато използват HTTP компресия и SSL...\n"+
 "4. някои браузери си мислят че подържат HTTP компресия, но всъщност се лъжат ;o) \n\n"+
 "И така, ако имате неразрешим проблем с компресията се прелогнете като изключите тази опция.\n"
+         );
+      }
+      return(true);
+   }
+
+   function autologinhelp()
+   {
+      if (document.login.autologin.checked) {
+         alert(
+"Ако тази опция е включена, ще имате въможност за вход, без да изписвате повторно на потребител/парола, "+
+"за продължаване на сесия, прекъсната поради неактивност за дълго време. "+
+"Не активирайте тази възможност на публични компютри, за да се предпазите от нежелан достъп\n"
          );
       }
       return(true);

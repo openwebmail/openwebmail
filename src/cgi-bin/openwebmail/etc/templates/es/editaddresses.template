@@ -64,7 +64,7 @@
    function addcheck()
    {
       if (document.newaddress.email.value  == "") {
-         alert("Por favor, especifique la dirección de correo electrónico.");
+         alert("Por favor, especifique la dirección de e-mail.");
          return false;
       }
       return true;

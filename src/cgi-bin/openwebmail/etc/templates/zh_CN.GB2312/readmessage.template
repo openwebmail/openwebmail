@@ -69,7 +69,7 @@
 <!--
    function replyreceiptconfirm(url, yes)
    {
-      if (yes==1 || confirm('这封信件要求发送读取收条，是否要发送？')) {
+      if (yes==1 || confirm('这封邮件要求发送读取收条，是否要发送？')) {
          var hWnd = window.open("","_replyreceipt","width=100,height=50,resizable=no,scrollbars=no");
          hWnd.document.write('发送中...');
          hWnd.location.href=url;

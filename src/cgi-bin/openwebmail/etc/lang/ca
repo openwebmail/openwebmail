@@ -1,17 +1,22 @@
 package ow::ca;
 
 # Catalan translation, charset: iso-8859-1
+# by Jordi Sanfeliu, mikaku.AT.fiwix.org, 29-JUL-2004
 # by Jordi Vidal, st.AT.e-puntcom.com
-# by Jordi Sanfeliu, mikaku.AT.fibranet.com, 21-NOV-2003
 
 %lang_folders =
    (
-   INBOX            => 'ENTRADA',
-   'saved-messages' => 'DESATS',
-   'sent-mail'      => 'ENVIATS',
-   'saved-drafts'   => 'ESBORRANYS',
-   'mail-trash'     => 'PAPERERA',
-   DELETE           => '--ESBORRAR--'
+   INBOX            => 'Entrada',
+   'saved-messages' => 'Desats',
+   'sent-mail'      => 'Enviats',
+   'saved-drafts'   => 'Esborranys',
+   'mail-trash'     => 'Paperera',
+   'spam-mail'      => 'Spam',
+   'virus-mail'     => 'Virus',
+   LEARNSPAM        => '--APRENDRE SPAM--',
+   LEARNHAM         => '--APRENDRE HAM--',
+   FORWARD          => '--REENVIA--',
+   DELETE           => '--SUPRIMEIX--'
    );
 
 %lang_sortlabels =
@@ -90,6 +95,13 @@ package ow::ca;
    both   => 'Abans i després de les entrades'
    );
 
+%lang_checksourcelabels =
+   (
+   all  => 'Tots els missatges nous d\'ENTRADA',
+   pop3 => 'Només missatges d\'un servidor POP3',
+   none => 'Cap'
+   );
+
 %lang_timelabels =
    (
       3 => '3 minuts',
@@ -119,7 +131,7 @@ package ow::ca;
 %lang_sizes =
    (
    mb   => ' MB',	# mega bytes
-   kb   => ' KB',	# kilo bytes
+   kb   => ' KB',	# quilo bytes
    byte => ' bytes'
    );
 
@@ -165,7 +177,7 @@ package ow::ca;
    0 => 'Dg',
    1 => 'Dl',
    2 => 'Dm',
-   3 => 'Dx',
+   3 => 'Dc',
    4 => 'Dj',
    5 => 'Dv',
    6 => 'Ds'
@@ -183,7 +195,7 @@ package ow::ca;
 %lang_wdbutton =
    (
    refresh  => 'Refresca',
-   preview  => 'Previsualitzar',
+   preview  => 'Previsualitza',
    edit     => 'Edita',
    listarchive=> 'Llista',
    decompress=>'Descomprimeix',
@@ -195,7 +207,7 @@ package ow::ca;
    newfile  => 'Nou Fitxer',
    copy     => 'Copia',
    move     => 'Mou',
-   symlink  => 'Symlink',
+   symlink  => 'Enllaç',
    delete   => 'Suprimeix',
    gzip     => 'Crea gzip',
    mkzip    => 'Crea zip',
@@ -226,6 +238,7 @@ package ow::ca;
    userprefs  => 'Preferències personals',
    addressbook=> 'Llibreta d\'adreces',
    folders    => 'Carpetes',
+   emptyfolder=> 'Buida carpeta',
    emptytrash => 'Buida paperera',
    totrash    => 'Envia a la paperera',
    forever    => 'Per sempre',
@@ -251,8 +264,8 @@ package ow::ca;
    reply      => 'Respondre',
    replyall   => 'Respondre a tots',
    forward    => 'Reenvia',
-   forwardasatt=>'Reenvia com fitxer adjunt',
-   forwardasorig=>'Reenvia com original',
+   forwardasatt=>'Reenvia com un fitxer adjunt',
+   forwardasorig=>'Reenvia com un original',
    printfriendly=> 'Versió imprimible',
    msgformat  => 'Format',
    from       => 'Remitent',
@@ -296,7 +309,7 @@ package ow::ca;
    foldermarkreadconf => '\'Voleu marcar com llegits tots els missatges d\'aquesta carpeta?\'',
    chkindex   => 'Verifica index',
    folderchkindexconf => '\'Voleu verificar l\'index d\'aquesta carpeta?\'',
-   reindex    => 'Re-indexa',
+   reindex    => 'Reindexa',
    folderreindexconf => '\'Voleu reindexar aquesta carpeta?\'',
    total      => 'Total',
    edit       => 'Edita',
@@ -364,7 +377,7 @@ package ow::ca;
    statreply  => '-- Membrete de resposta --',
    calendar   => 'Calendari',
    allday     => 'Tot el dia',
-   today      => 'Today',
+   today      => 'Avui',
    am         => 'am',
    pm         => 'pm',
    calfmt_year          => 'Any @@@YEAR@@@',
@@ -410,9 +423,9 @@ package ow::ca;
    savefile     => 'Fitxer de desat',
    succeeded    => 'completat amb èxit',
    failed       => 'fallat',
-   savefile_towd=> 'Desar fitxer en el Disc Web',
-   saveatt_towd => 'Desar adjunt en el Disc Web',
-   addatt_fromwd=> 'Adjuntar fitxer des del Disc Web',
+   savefile_towd=> 'Desa fitxer en el Disc Web',
+   saveatt_towd => 'Desa adjunt en el Disc Web',
+   addatt_fromwd=> 'Adjunta fitxer des del Disc Web',
    vdomain_usermgr    => 'Administració d\'usuaris de domini virual',
    vdomain_createuser => 'Crea usuari',
    vdomain_changeuser => 'Modifica usuari',
@@ -423,8 +436,8 @@ package ow::ca;
    vdomain_fmtuseralias => 'usuaris/àlies formatats',
    vdomain_admin      => 'Administrador',
    vdomain_localuser  => 'Usuari local',
-   set_passwd         => 'Establir contrassenya',
-   reset_passwd       => 'Restablir contrassenya',
+   set_passwd         => 'Estableix contrassenya',
+   reset_passwd       => 'Restableix contrassenya',
    email_alias        => 'Àlies de correu electrònic'
    );
 
@@ -452,6 +465,7 @@ package ow::ca;
    abook_invalid     => 'Ho sento, aquest fitxer sembla ser una llibreta d\'adreces exportada des de Microsoft Outlook Express 5 en format CSV. Assegureu-vos de veure aquest fitxer en un editor de textes i que la primera línia comenci amb "Nom,Adreça E-mail", llavors torneu cap aqui',
    back              => 'enrere',
    tryagain          => 'i proveu-ho un altre cop.',
+   mailfilter_error  => 'Error en el filtre del correu',
    abook_toobig      => 'Ho sento, s\'ha sobrepassat la mida límit de la seva llibreta d\'adreces. Si us plau aneu',
    cant_create_dir   => 'No puc crear el seu directori d\'usuari!',
    att_overlimit     => 'Ho sento, la mida del seu fitxer sobrepassa el límit permès, que és de',

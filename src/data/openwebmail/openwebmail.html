@@ -48,10 +48,10 @@
   <tr><td>&nbsp;</td><td>&nbsp;</td></tr>
 
   <tr valign="top">
-  <td nowrap><font color=#cc0000>SourceForge Forums&nbsp;</font></td>
+  <td nowrap><font color=#cc0000>Official Forum&nbsp;</font></td>
   <td nowrap>
-    <a href="http://sourceforge.net/forum/?group_id=34552">
-    http://sourceforge.net/forum/?group_id=34552</a>
+    <a href="http://openwebmail.org/forum">
+    http://openwebmail.org/forum</a>
   </td>
   </tr>
 
@@ -76,11 +76,9 @@
 </blockquote>
 
 <h3>MIRRORS</h3>
-
 <center><font color="#ff000000"><b>
 Please use mirror sites near you to avoid overload on official sites!
 </b></font></center>
-
 <blockquote>
 
   <table border=1 cellspacing=0 width=85%>
@@ -89,14 +87,10 @@ Please use mirror sites near you to avoid overload on official sites!
       <td bgcolor=#999999><font color=#ffffff>Location</td>
       <td bgcolor=#999999><font color=#ffffff>Maintainer</td><tr>
   <tr>
-  <td rowspan=2>Official</td>
+  <td>Official</td>
   <td><a href="http://openwebmail.org/openwebmail/">http://openwebmail.org/openwebmail/</a></td>
   <td>US</td>
-  <td rowspan=2><a href="mailto:tchung.AT.openwebmail.org">Thomas Chung</a></td>
-  </tr>
-  <tr>
-  <td><a href="http://openwebmail.com/openwebmail/">http://openwebmail.com/openwebmail/</a></td>
-  <td>US</td>
+  <td><a href="mailto:tchung.AT.openwebmail.org">Thomas Chung</a></td>
   </tr>
 
   <tr>
@@ -236,9 +230,9 @@ Please use mirror sites near you to avoid overload on official sites!
 
   <tr>
   <td>19</td>
-  <td><a href="http://unixnetworks.org/openwebmail/">http://unixnetworks.org/openwebmail/</a></td>
-  <td>Florida, USA</td>
-  <td><a href="mailto:elonex.AT.kirkwor.com">Elonex at Kirkwor.Com</a></td>
+  <td><a href="http://www.xtremhosting.com/openwebmail/">http://www.xtremhosting.com/openwebmail/</a></td>
+  <td>EU, Israel</td>
+  <td><a href="mailto:elonex.AT.kirkwor.com">Johnny</a></td>
   </tr>
 
   <tr>
@@ -251,8 +245,29 @@ Please use mirror sites near you to avoid overload on official sites!
   <tr>
   <td>21</td>
   <td><a href="http://openwebmail.mirrors.redwire.net">http://openwebmail.mirrors.redwire.net</a></td>
-  <td>San Diego, CA, US</td>
+  <td>San Diego, CA, USA</td>
   <td><a href="mailto:mirror.AT.redwire.net">Japheth Cleaver</a></td>
+  </tr>
+
+  <tr>
+  <td>22</td>
+  <td><a href="http://www.holodeck3.net/owmirror/">http://www.holodeck3.net/owmirror/</a></td>
+  <td>Ft Lauderdale, FL, USA</td>
+  <td><a href="mailto:webmaster.AT.holodeck3.net">Peter Friedrich</a></td>
+  </tr>
+
+  <tr>
+  <td>23</td>
+  <td><a href="http://opensourcerules.com/openwebmail/">http://opensourcerules.com/openwebmail/</a></td>
+  <td>Raleigh, North Carolina, USA</td>
+  <td><a href="mailto:sam.AT.opensourcerules.com">Sam Gates</a></td>
+  </tr>
+
+  <tr>
+  <td>24</td>
+  <td><a href="http://www.openwebmail.nl/">http://www.openwebmail.nl/</a></td>
+  <td>Amsterdam, Netherlands</td>
+  <td><a href="mailto:mirrors.AT.generalwebhosting.com">Tino Donderwinkel</a></td>
   </tr>
 
   </table>
@@ -260,9 +275,21 @@ Please use mirror sites near you to avoid overload on official sites!
 </blockquote>
 <br>
 
-<h3>FEATURES</h3>
+<h3>FEATURES for Users</h3>
 
 <blockquote>
+  <h4>Auto Login</h4>
+  <p>
+  Each user can determinte if he want to enable the auto login feature 
+  in Open WebMail. When enabled, the user don't have type his username 
+  and password in every login to Open WebMail.
+  Open WebMail will do this automatically for him. However, for security 
+  reason, the auto login feature will be actived only if user doesn't log
+  out in previous session and the previous session is still not timeouted.
+  Further more, the sysadm can limit the range of IPs that are allowed to 
+  use the auto login feature.
+  </p>
+
   <h4>Multiple Languages/Multiple Charsets</h4>
   <p>
   Open WebMail is currently available for more than 30 languages, and it is quite easy 
@@ -270,150 +297,6 @@ Please use mirror sites near you to avoid overload on official sites!
   For languages with more than one charsets, Open WebMail will choose one as the default 
   charset for the language. If a message is written with charset other than the 
   default, it will be converted to the default charset automatically.
-  </p>
-
-  <h4>Fast Folder Access</h4>
-  <p>
-  Folder access performance is greatly improved through the use of dbm (a simple
-  database provided by perl). When a mail folder is selected in the folder view,
-  Open WebMail will parse the mail folder file and cache the parsed result to a
-  dbm. This dbm is reused whenever the user wants to access the folder. The dbm
-  cache eliminates the scan of an entire folder for every access, a significant
-  benefit when dealing with a large folders. The dbm is automatically synchronized
-  with any changes to the folder itself; the dbm update is incremental if the
-  folder modification is done by the Open WebMail application itself.
-  The dbm will however be recreated when a folder is found to have been changed
-  by an external program.
-  </p>
-
-  <h4> Efficient Message Movement</h4>
-  <p>
-  The size of a message will be slightly increased after it is read at the first
-  time because of status change. A large movement of messages may be introduced
-  due to the size change. Also, the user may want to move a group of messages
-  between two folders. The routines for message update and movement have been
-  totally rewritten so that minimal movement occurs, with correspondingly minimal
-  memory utilization.
-  </p>
-
-  <h4> Smaller Memory Footprint</h4>
-  <p>
-  Much effort has been put into optimizing Open WebMail's memory utilization. The
-  memory footprint of Open WebMail is much smaller than its predecessors when
-  dealing with messages with large attachments (e.g. a 20MB document), as a result
-  of which the application now runs smoothly on a medium sized machine, (e.g. a
-  Celeron 300 with 128MB RAM).
-  </p>
-
-  <h4>Convenient Folder/Message Operation</h4>
-  <p>
-  Open WebMail supports 'create', 'rename', 'delete', and 'download' operations
-  on folders, and 'move', 'copy', 'delete' and 'download' operations on messages.
-  </p>
-
-  <h4>Graceful File Lock</h4>
-  <p>
-  Since a mail folder may be used by multiple programs simultaneously, it is
-  necessary to lock the file before accessing the folder. Open WebMail uses a
-  blocking lock with a timeout limit of 60 seconds. It gives the lock a better
-  chance of success than a nonblocking lock, which returns an error if the lock
-  can not be acquired immediately. Open WebMail also supports locking by dotlock
-  file to ensure that the file locking operates correctly on platforms operating
-  with an incomplete implementation of NFS lockd.
-  </p>
-
-  <h4>Remote SMTP Relaying</h4>
-  <p>
-  With the help of Net::SMTP module, openwebmail can talk SMTP to SMTP daemons
-  on either localhost or remote machine. This gives openwebmail the better
-  compatibility with various SMTP daemons. The system administrator also has
-  more flexibility when designing the mail service system.
-  </p>
-
-  <h4>Virtual Hosting</h4>
-  <p>
-  You can have as many virtual domains as you want on same server with only one copy
-  of openwebmail installed. Open Webmail supports per domain config file.
-  Each domain can have its own set of configuration options, including domainname,
-  authentication module, quota limit, mailspooldir ...
-  </p>
-  <p>
-  You can even setup mail accounts for users without creating real unix accounts for them.
-  Please refer to <a href="mailto:kevin.AT.bluelavalamp.net">Kevin Ellis</a>'s web page:
-  <a href="http://www.bluelavalamp.net/owmvirtual/">"How to setup virtual users on Open WebMail 
-  using Postfix & vm-pop3d"</a>
-  </p>
-
-  <h4>User Alias</h4>
-  <p>
-  Open Webmail can use the <a href="http://www.sendmail.org/virtual-hosting.html">
-  sendmail virtusertable</a> for user alias mapping.
-
-  The loginname typed by user may be pure name or name@somedomain. And this loginname
-  can be mapped to another pure name or name@otherdomain in the virtusertable.
-
-  This gives you the great flexibility in account management. For example,
-  you may have john for different domains by actually mapping them to
-  different real user ids.
-  <pre>
-  john@domain1.com	john1
-  john@domain2.com	john2
-  john@domain3.com	john3
-  </pre>
-  </p>
-
-  <h4>Pure Virtual User Support</h4>
-  <p>
-  Pure virtual user means a mail user who can use pop3 or openwebmail 
-  to access his mails on the mail server but actually has no unix account 
-  on the server.
-  Openwebmail pure virtual user support is currently available for system 
-  running  
-  <a href="http://www.reedmedia.net/software/virtualmail-pop3d/">vm-pop3d</a>
-  + <a href="http://www.postfix.org/">PostFix</a>. 
-  The authentication module auth_vdomain.pl is 
-  designed for this purpose. Openwebmail also provides the web interface 
-  which can be used to manage(add/delete/edit) these virtual users under
-  various virtual domains.
-  <a href="mailto:kevin.AT.bluelavalamp.net">Kevin L. Ellis</a> has written 
-  <a href="http://www.bluelavalamp.net/owmvirtual/">
-  a tutorial for openwebmail + vm-pop3d + postfix</a> for this.
-  </p>
-
-  <h4>Per User Capability Configuration</h4>
-  <p>
-  While options in system config file(openwebmail.conf) are applied to all users,
-  you may find it useful to set the options on per user basis sometimes.
-  For example, you may want to limit the client ip access for some users or limit
-  the domain which the user can sent to. This could be easily done with the per
-  user config file support in Open Webmail.
-  </p>
-
-  <h4>Various Authentication Modules</h4>
-  <p>
-  Various authentication modules are directly available for openwebmail,
-  including auth_unix.pl, auth_ldap.pl, auth_mysql.pl, auth_pgsql.pl and
-  auth_pop3.pl, auth_vm-pop3d.pl.
-  With these modules, openwebmail can be integrated with other systems easily.
-  </p>
-
-  <h4>PAM support</h4>
-  <p>
-  Openwebmail can also use other sources for authentication through the PAM
-  (pluggable authentication module). Ex: NIS+, NIS, LDAP, Radius.... Solaris 2.6,
-  Linux and FreeBSD 3.1 are known to support PAM.
-  For more information about PAM, please see
-  <a href="http://www.kernel.org/pub/linux/libs/pam/">
-  http://www.kernel.org/pub/linux/libs/pam/</a>
-  </p>
-
-  <h4>Full Content Search</h4>
-  <p>
-  Full content search with regular expression support is provided. When a user
-  enters a keyword in the search box, the scope of the mail folder is limited
-  to the keyword related messages. This means the user can use the sort or
-  static functions on the search result. The scope limit is released when the
-  user selects another folder or refreshes the current folder.
   </p>
 
   <h4>Strong MIME Message Capability</h4>
@@ -434,6 +317,15 @@ Please use mirror sites near you to avoid overload on official sites!
   for Windows or Mozilla1.3+ for all platforms :)
   </p>
 
+  <h4>Full Content Search</h4>
+  <p>
+  Full content search with regular expression support is provided. When a user
+  enters a keyword in the search box, the scope of the mail folder is limited
+  to the keyword related messages. This means the user can use the sort or
+  static functions on the search result. The scope limit is released when the
+  user selects another folder or refreshes the current folder.
+  </p>
+
   <h4>Draft Folder Support</h4>
   <p>
   This feature enables the user to write a message in a number of stages,
@@ -441,10 +333,10 @@ Please use mirror sites near you to avoid overload on official sites!
   draft folder and continue editing at any time.
   </p>
 
-  <h4>Reply with Stationery</h4>
+  <h4>Confirm Reading Support</h4>
   <p>
-  Several stationeries could be defined. It enables the user to quickly reply 
-  mail with the same answer. 
+  The user can request a 'confirm-reading receipt' for each message sent. When
+  the message is read by the recipient, a receipt will be sent back to this user.
   </p>
 
   <h4>Spelling Check Support</h4>
@@ -452,6 +344,63 @@ Please use mirror sites near you to avoid overload on official sites!
   The spelling check in Open WebMail is very user-friendly and powerful:
   It makes suggestions for mis-spelled words, and the user can correct the
   errors very easily by selecting one of the suggestions from a drop-down menu.
+  </p>
+
+  <h4>POP3 Support</h4>
+  <p>
+  Multiple POP3 accounts can be defined, allowing a single user to fetch mails
+  from a number of mail servers. All messages fetched will be stored in the
+  INBOX folder. Should the fetch operation exceed 10 seconds (due to a slow
+  link or large message for example), the operation will be put into background
+  to avoid an http timeout.
+  </p>
+
+  <h4>Mail Filter Support</h4>
+  <p>
+  Multiple filter rules can be set to move or copy incoming mails to different
+  folders automatically or even delete them directly. The user can categorize
+  mails from a specific person or spammer, and identify mails containing viruses
+  very easily by defining rules of sender, receiver, SMTP relay, subject, body
+  or filename of attachments.
+  </p>
+  <p>
+  In addition to the static filter rules, openwebmail has build-in five smart
+  filters: repeatness filter, bad format from filter, faked smtp filter, 
+  faked from filter and faked exe contenttype filter.
+  Repeatness filter, bad format from filter and faked SMTP filter are useful in filtering 
+  messages from spammer, faked from filter and faked exe contenttype filter are useful in 
+  filtering messages generated from virus.
+  </p>
+  <p>
+  Since mail filtering is activated only in Open WebMail, messages will stay in
+  the INBOX until the user reads their mail with Open WebMail. 'finger' or other
+  mail status check utilities may report new mail incorrectly, since they are not
+  aware of filters: A command tool 'openwebmail-tool.pl' is provided for use as
+  finger replacement, which performs mail filtering before reporting mail status.
+  </p>
+
+  <h4>AntiSpam Support through <a href="http://www.spamassassin.org">SpamAssassin</a></h4>
+  <p>
+  Open WebMail can use the <a href="http://www.spamassassin.org">SpamAssassin</a>
+  as the external spamcheck module to scan messages fetched from pop3 servers 
+  or all incoming messages. The <a href="http://www.spamassassin.org">SpamAssassin</a>
+  will determine a spamlevel for each scanned message based on its content. 
+  The user can define a spamlevel threshold for all his messages in Open WebMail, 
+  any message with spamlevel more than this threshold will be moved from INBOX to the 
+  SPAM folder automatically.
+  </p>
+  <p>
+  Open WebMail also supports the Spam/NotSpam Learning through the sa-learn program 
+  in SpamAssassin. In case the spamlevel determined by SpamAssassin is not very appropriate, 
+  the user can train the system by telling it to learn the messages as Spam or NotSpam.
+  </p>
+
+  <h4>AntiVirus Support through <a href="http://www.clamav.net">ClamAV</a></h4>
+  <p>
+  Open WebMail can use the <a href="http://www.clamav.net">ClamAV</a> as the external
+  viruscheck module to scan messages fetched from pop3 servers or all incoming 
+  messages. If a message or its attachments is found to have virus, Open WebMail will 
+  move the message from INBOX to the VIRUS folder automatically.
   </p>
 
   <h4>Calendar with Reminder/Notification Support</h4>
@@ -489,53 +438,65 @@ Please use mirror sites near you to avoid overload on official sites!
   the contents of archives without copying them into his computer.
   </p>
 
-  <h4>POP3 Support</h4>
+  <h4>HTTP Compression</h4>
   <p>
-  Multiple POP3 accounts can be defined, allowing a single user to fetch mails
-  from a number of mail servers. All messages fetched will be stored in the
-  INBOX folder. Should the fetch operation exceed 10 seconds (due to a slow
-  link or large message for example), the operation will be put into background
-  to avoid an http timeout.
+  Open WebMail supports compression of HTML content over HTTP. 
+  With compression turned on, the average page size has been reduced for 
+  over 80%. This feature effectively reduces the use of nework bandwidth 
+  between the client computer and the webmail server and is very useful 
+  for users with slow connection to the webmail server, eg: dialup users, 
+  PDA users.
+  </p>
+</blockquote>
+
+<h3>FEATURES for System</h3>
+
+<blockquote>
+  <h4>Fast Folder Access</h4>
+  <p>
+  Folder access performance is greatly improved through the use of dbm (a simple
+  database provided by perl). When a mail folder is selected in the folder view,
+  Open WebMail will parse the mail folder file and cache the parsed result to a
+  dbm. This dbm is reused whenever the user wants to access the folder. The dbm
+  cache eliminates the scan of an entire folder for every access, a significant
+  benefit when dealing with a large folders. The dbm is automatically synchronized
+  with any changes to the folder itself; the dbm update is incremental if the
+  folder modification is done by the Open WebMail application itself.
+  The dbm will however be recreated when a folder is found to have been changed
+  by an external program.
   </p>
 
-  <h4>Mail Filter Support</h4>
+  <h4>Efficient Message Movement</h4>
   <p>
-  Multiple filter rules can be set to move or copy incoming mails to different
-  folders automatically or even delete them directly. The user can categorize
-  mails from a specific person or spammer, and identify mails containing viruses
-  very easily by defining rules of sender, receiver, SMTP relay, subject, body
-  or filename of attachments.
-  </p>
-  <p>
-  In addition to the static filter rules, openwebmail has build-in five smart
-  filters: repeatness filter, bad format from filter, faked smtp filter, 
-  faked from filter and faked exe contenttype filter.
-  Repeatness filter, bad format from filter and faked SMTP filter are useful in filtering 
-  messages from spammer, faked from filter and faked exe contenttype filter are useful in 
-  filtering messages generated from virus.
-  </p>
-  <p>
-  Since mail filtering is activated only in Open WebMail, messages will stay in
-  the INBOX until the user reads their mail with Open WebMail. 'finger' or other
-  mail status check utilities may report new mail incorrectly, since they are not
-  aware of filters: A command tool 'openwebmail-tool.pl' is provided for use as
-  finger replacement, which performs mail filtering before reporting mail status.
+  The size of a message will be slightly increased after it is read at the first
+  time because of status change. A large movement of messages may be introduced
+  due to the size change. Also, the user may want to move a group of messages
+  between two folders. The routines for message update and movement have been
+  totally rewritten so that minimal movement occurs, with correspondingly minimal
+  memory utilization.
   </p>
 
-  <h4>Message Count Preview</h4>
+  <h4>Smaller Memory Footprint</h4>
   <p>
-  When the user pulls down the folderlist menu to select a folder, the counts of
-  new messages and total messages of each mail folder are displayed after the
-  folder name to assist the user in finding unread messages.
+  Much effort has been put into optimizing Open WebMail's memory utilization. The
+  memory footprint of Open WebMail is much smaller than its predecessors when
+  dealing with messages with large attachments (e.g. a 20MB document), as a result
+  of which the application now runs smoothly on a medium sized machine, (e.g. a
+  Celeron 300 with 128MB RAM).
   </p>
 
-  <h4>Confirm Reading Support</h4>
+  <h4>Graceful File Lock</h4>
   <p>
-  The user can request a 'confirm-reading receipt' for each message sent. When
-  the message is read by the recipient, a receipt will be sent back to this user.
+  Since a mail folder may be used by multiple programs simultaneously, it is
+  necessary to lock the file before accessing the folder. Open WebMail uses a
+  blocking lock with a timeout limit of 60 seconds. It gives the lock a better
+  chance of success than a nonblocking lock, which returns an error if the lock
+  can not be acquired immediately. Open WebMail also supports locking by dotlock
+  file to ensure that the file locking operates correctly on platforms operating
+  with an incomplete implementation of NFS lockd.
   </p>
 
-  <h4>Persistent Running through SpeedyCGI</h4>
+  <h4>Persistent Running through <a href="http://www.daemoninc.com/SpeedyCGI/">SpeedyCGI</a></h4>
   <p>
   <a href="http://www.daemoninc.com/SpeedyCGI/">SpeedyCGI</a> 
   is a way to run perl scripts persistently, which can make 
@@ -552,22 +513,95 @@ Please use mirror sites near you to avoid overload on official sites!
   a tutorial and benchmark for Open WebMail + SpeedyCGI</a>.
   </p>
   
-  <h4>HTTP Compression</h4>
+  <h4>Remote SMTP Relaying</h4>
   <p>
-  Open WebMail supports compression of HTML content over HTTP. 
-  With compression turned on, the average page size has been reduced for 
-  over 80%. This feature effectively reduces the use of nework bandwidth 
-  between the client computer and the webmail server and is very useful 
-  for users with slow connection to the webmail server, eg: dialup users, 
-  PDA users.
+  With the help of Net::SMTP module, openwebmail can talk SMTP to SMTP daemons
+  on either localhost or remote machine. This gives openwebmail the better
+  compatibility with various SMTP daemons. The system administrator also has
+  more flexibility when designing the mail service system.
   </p>
 
+  <h4>Various Authentication Modules</h4>
   <p>
-  There are too many other small enhancements to mention. You may choose to find
-  them by yourself...
+  Various authentication modules are directly available for openwebmail,
+  including auth_unix.pl, auth_ldap.pl, auth_mysql.pl, auth_pgsql.pl and
+  auth_pop3.pl, auth_vm-pop3d.pl.
+  With these modules, openwebmail can be integrated with other systems easily.
   </p>
 
+  <h4>PAM support</h4>
+  <p>
+  Openwebmail can also use other sources for authentication through the PAM
+  (pluggable authentication module). Ex: NIS+, NIS, LDAP, Radius.... Solaris 2.6,
+  Linux and FreeBSD 3.1 are known to support PAM.
+  For more information about PAM, please see
+  <a href="http://www.kernel.org/pub/linux/libs/pam/">
+  http://www.kernel.org/pub/linux/libs/pam/</a>
+  </p>
+
+  <h4>Virtual Hosting</h4>
+  <p>
+  You can have as many virtual domains as you want on same server with only one copy
+  of openwebmail installed. Open Webmail supports per domain config file.
+  Each domain can have its own set of configuration options, including domainname,
+  authentication module, quota limit, mailspooldir ...
+  </p>
+  <p>
+  You can even setup mail accounts for users without creating real unix accounts for them.
+  Please refer to <a href="mailto:kevin.AT.bluelavalamp.net">Kevin Ellis</a>'s web page:
+  <a href="http://www.bluelavalamp.net/owmvirtual/">"How to setup virtual users on Open WebMail 
+  using Postfix & vm-pop3d"</a>
+  </p>
+
+  <h4>User Alias</h4>
+  <p>
+  Open Webmail can use the <a href="http://www.sendmail.org/virtual-hosting.html">
+  sendmail virtusertable</a> for user alias mapping.
+
+  The loginname typed by user may be pure name or name@somedomain. And this loginname
+  can be mapped to another pure name or name@otherdomain in the virtusertable.
+
+  This gives you the great flexibility in account management. For example,
+  you may have john for different domains by actually mapping them to
+  different real user ids.
+  <pre>
+  john@domain1.com	john1
+  john@domain2.com	john2
+  john@domain3.com	john3</pre>
+  </p>
+
+  <h4>Pure Virtual User Support</h4>
+  <p>
+  Pure virtual user means a mail user who can use pop3 or openwebmail 
+  to access his mails on the mail server but actually has no unix account 
+  on the server.
+  Openwebmail pure virtual user support is currently available for system 
+  running  
+  <a href="http://www.reedmedia.net/software/virtualmail-pop3d/">vm-pop3d</a>
+  + <a href="http://www.postfix.org/">PostFix</a>. 
+  The authentication module auth_vdomain.pl is 
+  designed for this purpose. Openwebmail also provides the web interface 
+  which can be used to manage(add/delete/edit) these virtual users under
+  various virtual domains.
+  <a href="mailto:kevin.AT.bluelavalamp.net">Kevin L. Ellis</a> has written 
+  <a href="http://www.bluelavalamp.net/owmvirtual/">
+  a tutorial for openwebmail + vm-pop3d + postfix</a> for this.
+  </p>
+
+  <h4>Per User Capability Configuration</h4>
+  <p>
+  While options in system config file(openwebmail.conf) are applied to all users,
+  you may find it useful to set the options on per user basis sometimes.
+  For example, you may want to limit the client ip access for some users or limit
+  the domain which the user can sent to. This could be easily done with the per
+  user config file support in Open Webmail.
+  </p>
 </blockquote>
+<p>
+There are too many other small enhancements to mention. You may choose to find
+them by yourself...<br>&nbsp;
+</p>
+
 
 <h3>AUTHENTICATION MODULES</h3>
 <blockquote>
@@ -580,8 +614,7 @@ Please use mirror sites near you to avoid overload on official sites!
       <td bgcolor=#999999><font color=#ffffff>Maintainer</td><tr>
   <tr><td nowrap>auth_ldap.pl</td>
       <td>authenticate user with LDAP</td>
-      <td nowrap><a href="mailto:pengus.AT.libero.it">Ivan Cerrato</a>
-      <br><a href="mailto:kelson.AT.speed.net">Kelson Vibber</a></td></tr>
+      <td nowrap><a href="mailto:pengus.AT.libero.it">Ivan Cerrato</a></td></tr>
   <tr><td nowrap>auth_ldap_vpopmail.pl</td>
       <td>authenticate user with LDAP for vpopmail</td>
       <td nowrap><a href="mailto:sivix.AT.users.sourceforge.net">Andrea Siviero</a></td><tr>
@@ -621,6 +654,7 @@ Please use mirror sites near you to avoid overload on official sites!
   </table>
   </p>
 </blockquote>
+<br>
 
 <h3>LANGUAGES</h3>
 <blockquote>
@@ -650,14 +684,14 @@ Please use mirror sites near you to avoid overload on official sites!
   <tr><td nowrap>Bulgarian</td>
       <td>bg</td>
       <td nowrap>
-          04/23/2004 <a href="mailto:vess.AT.vess.bnc.bg">Veselin Slavov</a>
+          07/26/2004 <a href="mailto:vess.AT.slavof.net">Veselin Slavov</a>
       </td>
       <td>&nbsp;</td>
       <td><a href="mailto:vess.AT.vess.bnc.bg">Veselin Slavov</a></td></tr>
   <tr><td nowrap>Catalan</td>
       <td>ca</td>
       <td nowrap>
-          12/04/2003 <a href="mailto:mikaku.AT.fiwix.org">Jordi Sanfeliu</a>,<br>
+          07/29/2004 <a href="mailto:mikaku.AT.fiwix.org">Jordi Sanfeliu</a>,<br>
           05/21/2002 <a href="mailto:st.AT.e-puntcom.com">Jordi Vidal</a>
       </td>
       <td>&nbsp;</td>
@@ -675,7 +709,7 @@ Please use mirror sites near you to avoid overload on official sites!
   <tr><td nowrap>Chinese - Simplified</td>
       <td>zh_CN.GB2312</td>
       <td nowrap>
-          03/02/2003 <a href="mailto:wjun.AT.mail.iap.ac.cn">Wang Jun</a>
+          07/28/2004 <a href="mailto:wjun.AT.mail.iap.ac.cn">Wang Jun</a>
       </td>
       <td>from zh_TW.Big5</td>
       <td><a href="mailto:compass.AT.compass.9966.org">Compass Studio WebMail System</td></tr>
@@ -741,7 +775,7 @@ Please use mirror sites near you to avoid overload on official sites!
   <tr><td nowrap>Hellenic/Greek</td>
       <td>el</td>
       <td nowrap>
-          05/08/2004 <a href="mailto:dimitris.AT.michelinakis.gr">Dimitris sehh<br>Michelinakis</a>
+          07/26/2004 <a href="mailto:dimitris.AT.michelinakis.gr">Dimitris sehh<br>Michelinakis</a>
       </td>
       <td>&nbsp;</td>
       <td><a href="mailto:dimitris.AT.michelinakis.gr">Dimitris sehh Michelinakis</a></td></tr>
@@ -772,7 +806,7 @@ Please use mirror sites near you to avoid overload on official sites!
   <tr><td nowrap>Indonesian</td>
       <td>id</td>
       <td nowrap>
-          11/15/2003 <a href="mailto:james.AT.ActionMessage.com">Captain James</a>,<br>
+          08/04/2004 <a href="mailto:james.AT.ActionMessage.com">Captain James</a>,<br>
           04/02/2002 <a href="mailto:liangs.AT.kunchang.com.tw">Hu-Wei Liang</a>
       </td>
       <td>&nbsp;</td>
@@ -780,7 +814,7 @@ Please use mirror sites near you to avoid overload on official sites!
   <tr><td nowrap>Italian</td>
       <td>it</td>
       <td nowrap>
-          01/03/2004 <a href="mailto:marvi.AT.menhir.biz">Benedet Marvi</a>
+          07/29/2004 <a href="mailto:marvi.AT.menhir.biz">Benedet Marvi</a>
       </td>
       <td>&nbsp;</td>
       <td><a href="mailto:andrea.AT.linsys.it">Andrea Partinico</a></td></tr>
@@ -801,6 +835,7 @@ Please use mirror sites near you to avoid overload on official sites!
   <tr><td nowrap>Korean</td>
       <td>kr</td>
       <td nowrap>
+          07/27/2004 <a href="mailto:psj.AT.soosan.co.kr">Sungjun Park</a>,<br>
           06/24/2003 <a href="mailto:tchung.AT.openwebmail.org">Thomas Chung</a>,<br>
           12/31/2001 <a href="mailto:kmscom.AT.snu.ac.kr">Moonsang Kwon</a>
       </td>
@@ -823,7 +858,7 @@ Please use mirror sites near you to avoid overload on official sites!
   <tr><td nowrap>Polish</td>
       <td>pl</td>
       <td nowrap>
-          04/24/2004 <a href="mailto:pavcio.AT.4lo.bytom.pl">Pawel Foremski</a>,<br>
+          07/26/2004 <a href="mailto:pjf.AT.gna.org">Pawel Foremski</a>,<br>
           04/14/2003 <a href="mailto:miki.AT.z.pl">Mikolaj Menke</a>,<br>
           03/13/2003 <a href="mailto:pawelj.AT.lodz.dialog.net.pl">Pawel Jablonski</a>,<br>
           06/03/2002 <a href="mailto:blackfire.AT.virtual.net.pl">Grzegorz Nosek</a>,<br>
@@ -860,6 +895,7 @@ Please use mirror sites near you to avoid overload on official sites!
   <tr><td nowrap>Russian</td>
       <td>ru</td>
       <td nowrap>
+          07/17/2004 <a href="mailto:"dzoleg.AT.mail.ru">Oleg Dzyza</a>,<br>
           03/07/2002 <a href="mailto:duster.AT.tpu.ru">Denis Mysenko</a>
       </td>
       <td>&nbsp;</td>
@@ -867,22 +903,22 @@ Please use mirror sites near you to avoid overload on official sites!
   <tr><td nowrap>Serbian</td>
       <td>sr</td>
       <td nowrap>
-          01/10/2004 <a href="mailto:alexa.AT.yunord.net">Aleksandar Pejic</a>
+          07/27/2004 <a href="mailto:alexa.AT.yunord.net">Aleksandar Pejic</a>
       </td>
       <td>&nbsp;</td>
       <td>&nbsp;</td></tr>
   <tr><td nowrap>Slovak</td>
       <td>sk</td>
       <td nowrap>
-          09/13/2003 <a href="mailto:lubos.AT.klokner.sk">Lubos Klokner</a>,<br>
-          01/16/2003 <a href="mailto:pese.AT.us.svf.stuba.sk">Peter Sedivy</a>
+          06/18/2004 <a href="mailto:pese.AT.us.svf.stuba.sk">Peter Sedivy</a>,<br>
+          09/13/2003 <a href="mailto:lubos.AT.klokner.sk">Lubos Klokner</a>
       </td>
       <td>&nbsp;</td>
       <td><a href="mailto:lubos.AT.klokner.sk">Lubos Klokner</a></td></tr>
   <tr><td nowrap>Spanish</td>
       <td>es</td>
       <td nowrap>
-          12/31/2003 <a href="mailto:jsmaldone.AT.yahoo.com">Javier Smaldone</a>
+          07/26/2004 <a href="mailto:jsmaldone.AT.yahoo.com">Javier Smaldone</a>
       </td>
       <td><a href="mailto:jsmaldone.AT.yahoo.com">Javier Smaldone</a></td>
       <td><a href="mailto:jsmaldone.AT.yahoo.com">Javier Smaldone</a></td></tr>
@@ -937,7 +973,7 @@ Please use mirror sites near you to avoid overload on official sites!
     Valid Locale Identifiers</a><br>
   </p>
 </blockquote>
-
+<br>
 
 <h3>BASED SOFTWARES</h3>
   <p>
@@ -1029,8 +1065,11 @@ Please use mirror sites near you to avoid overload on official sites!
   Thanks to <a href="mailto:lfrigault.AT.users.sourceforge.net">Laurent Frigault</a>,
    who has made an unoffical release of 
    <a href="http://www.agneau.org/openwebmail/openwebmail-2.01-storage-20031027.tgz">
-   openwebmail-2.01 with maildir support</a>.
-   We hope we can merge it into main stream in the future.
+   openwebmail-2.01 with maildir support</a>. <br>
+  Thanks to <a href="varadi.AT.mithrandir.hu">Varadi Gabor</a>, who has made 
+   <a href="http://turtle.ee.ncku.edu.tw/openwebmail/download/contrib/openwebmail-2.32-storage.diff.gz">
+   a maildir patch for 2.32</a> based on Laurent Frigult's implementation.<br>
+  We hope we can merge the maildir support into main stream in the future.
   </li>
   <li>
   Thanks to <a href="mailto:dsembry.AT.users.sourceforge.net">Darren Stuart Embry</a>,
@@ -1071,13 +1110,13 @@ Please use mirror sites near you to avoid overload on official sites!
   Thanks to <a href="mailto:zimerman.AT.mailandnews.com">Nimrod Zimerman</a> and
     <a href="mailto:simba.AT.schoolsucks.com">Nimrod S. Carmi</a>,
     who contributed the
-    <a href="http://openwebmail.com/openwebmail/download/contrib/useraddbyweb.tar.gz">
+    <a href="http://openwebmail.org/openwebmail/download/contrib/useraddbyweb.tar.gz">
     useraddbyweb</a> package in contrib/. This allows users to be added to a
     Linux system dynamically through web sign-up.<br>
   Thanks to Fr. V. Chua, S.J., who wrote the
     <a href="http://mail.savs.hcc.edu.tw/~chuavv/articles/UserAddByWeb.html">
     How to Install</a> document for this 
-    <a href="http://openwebmail.com/openwebmail/download/contrib/useraddbyweb.tar.gz">
+    <a href="http://openwebmail.org/openwebmail/download/contrib/useraddbyweb.tar.gz">
     useraddbyweb</a> package.
   </li>
   <li>
@@ -1091,7 +1130,7 @@ Please use mirror sites near you to avoid overload on official sites!
     who provided free webmail accounts on site 
     <a href="http://www.postman.net/">http://www.postman.net/</a> 
     with the openwebmail package. He also released the automatic sign-up program
-    <a href="http://openwebmail.com/openwebmail/download/contrib/adduser.pl-0.2.tar.gz">
+    <a href="http://openwebmail.org/openwebmail/download/contrib/adduser.pl-0.2.tar.gz">
     adduser.pl-0.2.tar.gz</a> for linux platform.
   </li>
   </ul>
@@ -1110,14 +1149,14 @@ Please use mirror sites near you to avoid overload on official sites!
     to the Open Webmail project, setup
     <a href="http://openwebmail.org">openwebmail.org</a>
     site and maintained
-    <a href="http://openwebmail.com/openwebmail/download/redhat/">
+    <a href="http://openwebmail.org/openwebmail/download/redhat/">
     the RPM package</a> for Open Webmail on RedHat/Linux platform.
     He also helped other users to solve problems on installing Open Webmail.
     Thank you, Thomas!
   </li>
   <li>
   Thanks to <a href="http://www.norvasen.com/">Norvasen</a> 
-  for hardware, DNS and bandwidth for <a href="http://www.openwebmail.org">openwebmail.org</a>.
+  who has had hosted hardware, DNS and bandwidth for <a href="http://www.openwebmail.org">openwebmail.org</a> for over 18 months.
   <br>
   Thanks to <a href="http://www.davoice.net/">Pentecost Inc.</a> 
   for their consulting expertise and operational support.
@@ -1151,7 +1190,7 @@ Please use mirror sites near you to avoid overload on official sites!
   <a href="mailto:billy.AT.pdcweb.net">William Brillinger</a> of 
   <a href="http://www.pdcweb.net/">Precision Design Co.</a>, Altona, Manitoba, Canada.,
   who wrote the great 
-  <a href="http://openwebmail.com/openwebmail/help/en/index.html">help tutorial</a> 
+  <a href="http://openwebmail.org/openwebmail/help/en/index.html">help tutorial</a> 
   for openwebmail.
   </li>
   <li>
@@ -1220,7 +1259,7 @@ Please use mirror sites near you to avoid overload on official sites!
   Thanks to <a href="mailto:heegard.AT.NativeI.com">Chris Heegard</a>,
     who provided the information of how to use openwebmail on Mac OS X and
     suggested the use of
-    <a href="http://openwebmail.com/openwebmail/download/contrib/wrapsuid.pl">wrapsuid.pl</a>
+    <a href="http://openwebmail.org/openwebmail/download/contrib/wrapsuid.pl">wrapsuid.pl</a>
     to generate C wrappers for suid scripts.
   </li>
   <li>
@@ -1308,20 +1347,20 @@ Please use mirror sites near you to avoid overload on official sites!
 
 <h3>CONTACT</h3>
 <blockquote>
-  <p> If you encountered any problem with Open Webmail, please check
-     <a href="http://openwebmail.com/openwebmail/doc/changes.txt">
+  <p>If you encountered any problem with Open Webmail, please check
+     <a href="http://openwebmail.org/openwebmail/doc/changes.txt">
      changes.txt</a> to see if the problem is fixed in
-     <a href="http://openwebmail.com/openwebmail/download/openwebmail-current.tgz">
+     <a href="http://openwebmail.org/openwebmail/download/openwebmail-current.tgz">
      the latest current version</a>.
      If not, try the
-     <a href="http://openwebmail.com/openwebmail/doc/readme.txt">
+     <a href="http://openwebmail.org/openwebmail/doc/readme.txt">
      readme.txt</a> and
-     <a href="http://openwebmail.com/openwebmail/doc/faq.txt">
+     <a href="http://openwebmail.org/openwebmail/doc/faq.txt">
      faq.txt</a>.
      <br>
      If you want to <b>seek help</b>, please post your problem in the
-     <a href="http://sourceforge.net/forum/forum.php?forum_id=108433">
-     openwebmail-users discussion forum</a>.
+     <a href="http://openwebmail.org/forum/">
+     openwebmail forum</a>.
      <br>
      If you want to <b>submit patch or bug-report</b>, please email to
      <a href="mailto: openwebmail.AT.turtle.ee.ncku.edu.tw">
@@ -1334,12 +1373,12 @@ Please use mirror sites near you to avoid overload on official sites!
      Please <b>DO NOT</b> email questions/problems to openwebmail.AT.turtle.ee.ncku.edu.tw 
      or the authors directly, they will be just <b>simplely ignored</b>. 
      We would prefer to do the discussion on the 
-     <a href="http://sourceforge.net/forum/forum.php?forum_id=108433">forum</a>
+     <a href="http://openwebmail.org/forum/">forum</a>
      thus the information could be shared by others.
   </p>
 </blockquote>
+<br>
 
-<p>
 <h3>OPENWEBMAIL TEAM</h3>
 <blockquote>
   <p>The Open WebMail is brought to you by</p>
@@ -1387,13 +1426,13 @@ Please use mirror sites near you to avoid overload on official sites!
     <font color=#000000>National Cheng-Kung University</font></a>,
     Tainan, Taiwan, R.O.C. </p>
 </blockquote>
-<p>11/10/2003</p>
+<p>Aug/05/2004</p>
 
 <br>
 <center>
 <table>
 <tr><td>
-<a href="http://openwebmail.com/openwebmail/download/icons">
+<a href="http://openwebmail.org/openwebmail/download/icons">
 <IMG src="images/powered-by-openwebmail.gif" 
 border=0 alt="Small icon collections"></a>
 </td><td>
@@ -1402,12 +1441,6 @@ border=0 alt="Small icon collections"></a>
 <a href="http://sourceforge.net/projects/openwebmail/">
 <IMG src="http://sourceforge.net/sflogo.php?group_id=34552&type=1" 
 width="88" height="31" border="0" alt="SourceForge Logo"></a>
-</td><td>
-&nbsp;&nbsp;
-</td><td>
-<a href="http://www.norvasen.com/">
-<IMG src="images/spon_by_norv.gif" 
-border="0" alt="Sponsored by Norvasen"></a>
 </td></tr>
 </table>
 </center>

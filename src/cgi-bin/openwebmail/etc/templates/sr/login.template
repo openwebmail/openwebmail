@@ -21,11 +21,20 @@
 <td align="right" nowrap>Domen: </td><td>@@@DOMAINMENU@@@</td>
 @@@DOMAINEND@@@
 </tr><tr>
+<td align=center colspan=2>
+
+<table><tr>
+<td align=center>@@@LOGINBUTTON@@@</td>
 <td align=center>
-<table><tr><td>@@@LOGINBUTTON@@@</td></tr></table>
+<table><tr>
+<td>@@@HTTPCOMPRESSIONCHECKBOX@@@</td><td><font size=1>HTTP<br>Kompresija</font></td>
+@@@AUTOLOGINSTART@@@
+<td>@@@AUTOLOGINCHECKBOX@@@</td><td><font size=1>Automatska<br>prijava</font></td>
+@@@AUTOLOGINEND@@@
+</tr></table>
 </td>
-<td align=center>
-<table><tr><td><font size=1>koristi HTTP<br>kompresiju</font></td><td>@@@HTTPCOMPRESSIONCHECKBOX@@@</td></tr></table>
+</tr></table>
+
 </td>
 </tr>
 </table>
@@ -61,15 +70,28 @@
    {
       if (document.login.httpcompress.checked) {
          alert(
-"HTTP Compression can reduce the use of network bandwidth between your computer and the webmail server effectively, "+
-"but there are some compatibility issues:\n\n"+
-"1. some proxy servers only support HTTP compression via HTTP 1.1, "+
-"you may have to enable the HTTP1.1 support for proxy in your browser\n"+
-"2. some proxy servers don't support HTTP compression at all, "+
-"you may have to list the webmail server as directly connected in the proxy configuration of your browser.\n"+
-"3. some browsers have problems when using HTTP compression with SSL...\n"+
-"4. some browsers claim to support HTTP compression but actually not...\n\n"+
-"So if you encounter any problem, please login again with this checkbox unchecked.\n"
+"HTTP kompresija mo¾e efektivno da smanji optereæenje mre¾ne veze va¹eg raèunara sa webmail serverom, "+
+"ali su moguæi sledeæi problemi:\n\n"+
+"1. neki proksi serveri podr¾avaju samo HTTP kompresiju preko protokola HTTP 1.1, "+
+"morate ukljuèiti HTTP1.1 podr¹ku za proksi u va¹em browseru\n"+
+"2. neki proksi serveri ne podr¾avaju HTTP kompresiju uop¹te, "+
+"morate iskljuéiti proksi u va¹em browseru.\n"+
+"3. neki browseri imaju problema sa HTTP kompresijom sa SSL...\n"+
+"4. neki browseri trvde da podr¾avaju HTTP kompresiju ali zapravo ne podr¾avaju...\n\n"+
+"Ukoliko se suoèite sa nekim problemim, prijavite se sa iskljuèenom HTTP kompresijom.\n"
+         );
+      }
+      return(true);
+   }
+
+   function autologinhelp()
+   {
+      if (document.login.autologin.checked) {
+         alert(
+"Kada je opcija odabrana, mo¾ete se prijaviti bez uno¹enja korisnièkog imena/lozinke "+
+"ukoliko se niste odjavili prilikom poslednje provere po¹te i ukoliko prethodna sesija nije istekla. "+
+"Meðutim, ovo omoguæava da se drugi prijave sa va¹im korisnièkim imenom i lozinkom, "+
+"iz navedenih razloga nemojte koristiti ovu opciju na javim raèunarima.\n"
          );
       }
       return(true);

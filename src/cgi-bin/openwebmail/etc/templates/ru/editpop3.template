@@ -1,10 +1,10 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td colspan="5" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>РЕДАКТИРОВАТЬ УЧЕТНУЮ ЗАПИСЬ POP3</b></font>
+<b>РЕДАКТОР ДОПОЛНИТЕЛЬНЫХ УЧЕТНЫХ ЗАПИСЕЙ POP3</b></font>
 </td><td nowrap colspan="3" bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b> @@@FREESPACE@@@ кб осталось</b></font>
+<b> @@@FREESPACE@@@ осталось</b></font>
 </td></tr><tr><td colspan="8" bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
 </td></tr><tr><td colspan="8">&nbsp;</td></tr>
@@ -12,11 +12,11 @@
 <td nowrap bgcolor=@@@COLUMNHEADER@@@>
 <B>POP3 сервер</B> (редактировать)</td>
 <td nowrap bgcolor=@@@COLUMNHEADER@@@>
-<B>Port</B></td>
+<B>Порт</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 @@@USEPOP3SSLSTART@@@<B>Use SSL</B>@@@USEPOP3SSLEND@@@</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Идентификатор</B> (получить)</td>
+<B>Пользователь</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Пароль</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>

@@ -9,8 +9,8 @@ File: Mandrake-README.txt
 ------------------------------------------------------------------------------
 
 1. Download redhat RPM and tar/gzipped packages.
-   You will need both. Make sure you get the latest 1.71 version of the
-   ".tgz" package.
+   You will need both. Make sure you get the latest released version of 
+   openwebmail, openwebmail-x.yy.tar.gz
 
 2. Make sure you have all of Perl installed. I did not.
    And it was the cause of much frustration.
@@ -20,7 +20,7 @@ File: Mandrake-README.txt
 
 3. Install the Openwebmail.rpm file.
 
-4. Copy or move the latest "1.71" tar/gzip ".tgz" file to /var/www.
+4. Copy or move the latest openwebmail-x.yy.tar.gz" file to /var/www.
    Unzip it there, it will write over the existing (older) version.
 
 5. Now the fun begins, this is what you have to do to make it work.....
@@ -99,7 +99,7 @@ Best to everyone, and thanks again all you who contributed to this project.
 #
 # Open WebMail configuration file
 #
-# This file contains just the overrides from openwebmail.conf.default
+# This file contains just the overrides from defaults/openwebmail.conf
 # please make all changes to this file.
 #
 # This file sets options for all domains and all users.

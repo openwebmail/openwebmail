@@ -13,22 +13,22 @@
 @@@INFOSOFTWARESTART@@@
 <tr><td colspan=2 bgcolor=@@@COLUMNHEADER@@@><B>SOFTWARE</B></td></tr>
 @@@INFOSOFTWARE@@@
+<tr><td colspan=2>&nbsp;</td></tr>
 @@@INFOSOFTWAREEND@@@
 
 @@@INFOPROTOCOLSTART@@@
-<tr><td colspan=2>&nbsp;</td></tr>
 <tr><td colspan=2 bgcolor=@@@COLUMNHEADER@@@><B>PROTOCOL</B></td></tr>
 @@@INFOPROTOCOL@@@
+<tr><td colspan=2>&nbsp;</td></tr>
 @@@INFOPROTOCOLEND@@@
 
 @@@INFOSERVERSTART@@@
-<tr><td colspan=2>&nbsp;</td></tr>
-<tr><td colspan=2 bgcolor=@@@COLUMNHEADER@@@><B>SERVER</B></td></tr>
+<tr><td colspan=2 bgcolor=@@@COLUMNHEADER@@@><B>SERVIDOR</B></td></tr>
 @@@INFOSERVER@@@
+<tr><td colspan=2>&nbsp;</td></tr>
 @@@INFOSERVEREND@@@
 
 @@@INFOCLIENTSTART@@@
-<tr><td colspan=2>&nbsp;</td></tr>
 <tr><td colspan=2 bgcolor=@@@COLUMNHEADER@@@><B>CLIENT</B></td></tr>
 @@@INFOCLIENT@@@
 @@@INFOCLIENTEND@@@

@@ -292,6 +292,12 @@ sub upgrade_all {	# called if user releasedate is too old
       }
    }
 
+   if ( $user_releasedate lt "20040724" ) {
+      my $filterbook = dotpath('filter.book');
+      my $filterruledb = dotpath('filter.ruledb');
+      # rename filter.book.db -> filter.ruledb.db
+      ow::dbm::rename($filterbook, $filterruledb);
+   }
 }
 
 sub read_releasedatefile {

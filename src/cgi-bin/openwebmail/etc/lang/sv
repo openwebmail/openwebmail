@@ -10,6 +10,11 @@ package ow::sv;
    'sent-mail'      => 'SKICKAT',
    'saved-drafts'   => 'UTKAST',
    'mail-trash'     => 'PAPPERSKORG',
+   'spam-mail'      => 'Spam',
+   'virus-mail'     => 'Virus',
+   LEARNSPAM        => '--LEARN SPAM--',
+   LEARNHAM         => '--LEARN HAM--',
+   FORWARD          => '--FORWARD--',
    DELETE           => '--RADERA--'
    );
 
@@ -87,6 +92,13 @@ package ow::sv;
    before => 'Before addressbook entries',
    after  => 'After addressbook entries',
    both   => 'Before and after addressbook entries'
+   );
+
+%lang_checksourcelabels =
+   (
+   all  => 'All new messages in INBOX',
+   pop3 => 'Only messages from pop3 server',
+   none => 'None'
    );
 
 %lang_timelabels =
@@ -225,6 +237,7 @@ package ow::sv;
    userprefs  => 'Användarinställningar',
    addressbook=> 'Adressbok',
    folders    => 'Mappar',
+   emptyfolder=> 'Empty folder',
    emptytrash => 'Töm papperskorgen',
    totrash    => 'Move to Trash',
    forever    => 'Tills vidare',
@@ -451,6 +464,7 @@ package ow::sv;
    abook_invalid     => 'Beklagar, den här filen ser inte ut som en adressbok som exporterats från Microsoft Outlook Express 5 i CVS-format. Forsäkra dig om att filen startar med:"Name,E-mail Address", och gå',
    back              => 'tillbaka',
    tryagain          => 'och försök på nytt.',
+   mailfilter_error  => 'Mail Filter Error',
    abook_toobig      => 'Beklagar, du överstiger den tillåtna storleken på din adressbok. Gå',
    cant_create_dir   => 'Kunde inte skapa din användarkatalog!',
    att_overlimit     => 'Beklagar, du har överskridit den tillåtna storleken för bilagor. Bilagorna får inte omfatta mer än',

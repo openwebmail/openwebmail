@@ -30,6 +30,7 @@
    'editst.gif'        => ' [EditSt] ',
    'editst.s.gif'      => ' [EditSt] ',
    'email.gif'         => ' M+ ',
+   'emptyfolder.gif'   => ' [EmptyFolder] ',
    'export.gif'        => ' [Export] ',
    'filtersetup.gif'   => ' [Filter] ',
    'first-grey.gif'    => ' << ',

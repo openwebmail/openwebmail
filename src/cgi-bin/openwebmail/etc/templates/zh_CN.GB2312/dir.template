@@ -39,8 +39,7 @@
 <td bgcolor=@@@COLUMNHEADER@@@ width="7%" align="center" nowrap>
 <B>@@@FILEPERM@@@</B></td>
 <td bgcolor=@@@COLUMNHEADER@@@ width="3%" align ="center">
-<input name="allbox" type="checkbox" value="1"
-   onClick="CheckAll();"></td>
+@@@ALLBOXCHECKBOX@@@</td>
 </tr>
 @@@FILELIST@@@
 </table>
@@ -48,7 +47,7 @@
 <table border="0" align="center" width="95%" cellpadding="0" cellspacing="0"><tr>
 <td width="15%" nowrap>&nbsp;@@@INFOCOUNT@@@</td>
 <td align=center nowrap>@@@LEFTPAGECONTROL@@@ @@@PAGELINKS@@@ @@@RIGHTPAGECONTROL@@@</td>
-<td width="15%" nowrap align="right">列表文件大小: @@@INFOSIZE@@@&nbsp;</td>
+<td width="15%" nowrap align="right">列表文件大小：@@@INFOSIZE@@@&nbsp;</td>
 </tr></table>
 
 <table border="0" align="center" width="95%" cellpadding="1" cellspacing="1">
@@ -66,7 +65,7 @@
 <td>
 
 <table border="0" width="100%" cellpadding="1" cellspacing="1"><tr>
-<td nopwrap bgcolor=@@@COLUMNHEADER@@@><B>搜寻</B></td>
+<td nopwrap bgcolor=@@@COLUMNHEADER@@@><B>搜索</B></td>
 </tr><tr>
 <td nowrap bgcolor=@@@MENUBAR@@@>@@@SEARCHFILEFIELD@@@</td>
 </tr></table>
@@ -88,7 +87,7 @@
 
 <table border="0" align="center" width="95%" cellpadding="1" cellspacing="1">
 <tr><td bgcolor=@@@COLUMNHEADER@@@>
-<B>讯息</B>
+<B>信息</B>
 </td></tr><tr><td bgcolor=@@@MENUBAR@@@>
 @@@MSGTEXTAREA@@@
 </td></tr>
@@ -97,7 +96,7 @@
 
 <script language="JavaScript">
 <!--
-   function CheckAll()
+   function CheckAll(setbgcolor)
    {
       for (var i=0;i<document.dirform.elements.length;i++)
       {
@@ -106,8 +105,17 @@
              e.name != 'showthumbnail' &&
              e.name != 'showhidden' &&
              e.name != 'singlepage' &&
-             e.name != 'allbox')
+             e.name != 'allbox') {
             e.checked = document.dirform.allbox.checked;
+            if (!document.layers && setbgcolor) {
+               var tr = document.getElementById('tr_'+e.id);
+               if (e.checked) {
+                  tr.style.backgroundColor=@@@TABLEROW_DARK@@@;
+               } else {
+                  tr.style.backgroundColor=@@@TABLEROW_LIGHT@@@;
+               }
+            }
+         }
       }
    }
    function anyfileselected()
@@ -161,7 +169,7 @@
          alert("请先选择要上传文件。");
          return false;
       } else {
-         document.dirform.msg.value = '文件 '+document.dirform.upload.value+' 上传中, 请稍待...';
+         document.dirform.msg.value = '文件 '+document.dirform.upload.value+' 上传中, 请稍等...';
          return true;
       }
    }

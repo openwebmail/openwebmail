@@ -20,7 +20,6 @@ use vars qw(%lang_sizes %lang_text %lang_err);	# defined in lang/xy
 use vars qw(%is_config_option);
 use vars qw(@openwebmailrcitem);
 use vars qw(%fontsize);
-use vars qw(%is_defaultfolder @defaultfolders);
 
 # yes no type config options
 foreach (qw(
@@ -29,48 +28,51 @@ foreach (qw(
    auth_withdomain deliver_use_GMT
    error_with_debuginfo
    case_insensitive_login forced_ssl_login stay_ssl_afterlogin
-   enable_rootlogin enable_domainselectmenu enable_strictvirtuser
+   enable_domainselectmenu enable_strictvirtuser
    enable_changepwd enable_strictpwd
    enable_loadfrombook enable_editfrombook frombook_for_realname_only
    session_multilogin session_checksameip session_checkcookie session_count_display
    cache_userinfo
    auto_createrc domainnames_override symboliclink_mbox
-   enable_history enable_about about_info_software about_info_protocol
-   about_info_server about_info_client about_info_scriptfilename
-   xmailer_has_version xoriginatingip_has_userid
-   enable_preference enable_setforward enable_strictforward
-   enable_autoreply enable_strictfoldername enable_stationery
-   enable_smartfilter enable_userfilter
    enable_webmail enable_spellcheck enable_calendar enable_webdisk 
    enable_sshterm enable_vdomain
+   enable_history enable_about about_info_software about_info_protocol
+   about_info_server about_info_client about_info_scriptfilename
+   enable_preference enable_setforward enable_strictforward
+   enable_autoreply enable_strictfoldername enable_stationery
+   enable_smartfilter enable_userfilter 
+   smartfilter_bypass_goodmessage log_filtermove_detail
+   enable_viruscheck enable_spamcheck enable_learnspam
+   has_virusfolder_by_default has_spamfolder_by_default
    enable_pop3 pop3_delmail_by_default pop3_delmail_hidden pop3_usessl_by_default 
    authpop3_getmail authpop3_delmail authpop3_usessl
    webdisk_readonly webdisk_lsmailfolder webdisk_lshidden webdisk_lsunixspec webdisk_lssymlink
    webdisk_allow_symlinkcreate webdisk_allow_symlinkout webdisk_allow_thumbnail
-   webdisk_allow_untar webdisk_allow_unzip webdisk_allow_unrar webdisk_allow_unarj webdisk_allow_unlzh
+   webdisk_allow_untar webdisk_allow_unzip webdisk_allow_unrar 
+   webdisk_allow_unarj webdisk_allow_unlzh
    delmail_ifquotahit delfile_ifquotahit
    default_bgrepeat default_useminisearchicon
-   default_confirmmsgmovecopy default_viewnextaftermsgmovecopy
+   default_confirmmsgmovecopy default_smartdestination
+   default_viewnextaftermsgmovecopy default_autopop3 
    default_moveoldmsgfrominbox forced_moveoldmsgfrominbox
-   default_autopop3 default_hideinternal
-   default_disablejs default_disableembcode
-   default_showhtmlastext default_showimgaslink
-   default_regexmatch
    default_usefixedfont default_usesmileicon
+   default_showhtmlastext default_showimgaslink
+   default_disablejs default_disableembcode
    default_reparagraphorigmsg default_backupsentmsg
-   default_abook_defaultfilter
    default_filter_badaddrformat default_filter_fakedsmtp
    default_filter_fakedfrom default_filter_fakedexecontenttype
+   default_abook_defaultfilter
    default_calendar_showemptyhours default_calendar_reminderforglobal
-   default_webdisk_confirmmovecopy default_webdisk_confirmdel
-   default_webdisk_confirmcompress
+   default_webdisk_confirmmovecopy default_webdisk_confirmdel default_webdisk_confirmcompress
+   default_uselightbar default_regexmatch default_hideinternal
 )) { $is_config_option{'yesno'}{$_}=1}
 
 # none type config options
 foreach (qw(
    logfile b2g_map g2b_map lunar_map 
    header_pluginfile footer_pluginfile
-   allowed_clientip allowed_clientdomain
+   allowed_serverdomain allowed_clientdomain allowed_clientip
+   allowed_receiverdomain allowed_autologinip allowed_rootloginip
    localusers vdomain_mailbox_command
    default_realname default_bgurl
    default_abook_defaultkeyword default_abook_defaultsearchtype
@@ -87,10 +89,10 @@ foreach (qw(
 # list type config options
 foreach (qw(	
    domainnames domainselmenu_list spellcheck_dictionaries
-   allowed_serverdomain
-   allowed_clientdomain allowed_clientip
-   allowed_receiverdomain pop3_disallowed_servers
-   vdomain_admlist vdomain_postfix_aliases vdomain_postfix_virtual localusers
+   allowed_serverdomain allowed_clientdomain allowed_clientip
+   allowed_receiverdomain allowed_autologinip allowed_rootloginip
+   pop3_disallowed_servers localusers
+   vdomain_admlist vdomain_postfix_aliases vdomain_postfix_virtual
    default_fromemails
 )) { $is_config_option{'list'}{$_}=1}
 
@@ -99,7 +101,8 @@ foreach (qw(
     domainnames default_language
     smtpserver auth_module virtusertable
     mailspooldir homedirspoolname homedirfolderdirname logfile
-    ow_cgidir ow_htmldir ow_etcdir ow_stylesdir ow_langdir ow_templatesdir
+    ow_cgidir ow_htmldir ow_etcdir
+    ow_stylesdir ow_langdir ow_templatesdir ow_mapsdir
     ow_sitesconfdir ow_usersconfdir ow_usersdir ow_sessionsdir
     vacationinit vacationpipe spellcheck
     global_addressbook global_filterbook global_calendarbook
@@ -121,9 +124,11 @@ foreach (qw(
    ctrlposition_msgread headers usefixedfont usesmileicon
    disablejs disableembcode disableemblink showhtmlastext showimgaslink sendreceipt
    confirmmsgmovecopy defaultdestination smartdestination
-   viewnextaftermsgmovecopy autopop3 autopop3wait moveoldmsgfrominbox
+   viewnextaftermsgmovecopy autopop3 autopop3wait bgfilterwait moveoldmsgfrominbox
    msgformat editcolumns editrows sendbuttonposition
    reparagraphorigmsg replywithorigmsg backupsentmsg sendcharset
+   viruscheck_source viruscheck_maxsize viruscheck_minbodysize
+   spamcheck_source spamcheck_maxsize spamcheck_threshold
    filter_repeatlimit filter_badaddrformat
    filter_fakedsmtp filter_fakedfrom filter_fakedexecontenttype
    abook_width abook_height abook_buttonposition
@@ -134,9 +139,9 @@ foreach (qw(
    calendar_reminderdays calendar_reminderforglobal
    webdisk_dirnumitems webdisk_confirmmovecopy webdisk_confirmdel
    webdisk_confirmcompress webdisk_fileeditcolumns  webdisk_fileeditrows
-   regexmatch hideinternal refreshinterval
+   uselightbar regexmatch hideinternal refreshinterval
    newmailsound newmailwindowtime mailsentwindowtime
-   dictionary trashreserveddays sessiontimeout
+   dictionary trashreserveddays spamvirusreserveddays sessiontimeout
 );
 
 %fontsize= (
@@ -156,15 +161,6 @@ foreach (qw(
    '17px'=> ['16px', '15px']
 );
 
-@defaultfolders=(
-   'INBOX',
-   'saved-messages',
-   'sent-mail',
-   'saved-drafts',
-   'mail-trash'
-);
-foreach (@defaultfolders, 'DELETE') { $is_defaultfolder{$_}=1 };
-
 ########## CLEARVAR/ENDREQUEST/EXIT ##############################
 use vars qw($_vars_used);
 sub openwebmail_clearall {
@@ -181,6 +177,7 @@ sub openwebmail_clearall {
    undef($thissession)	if (defined($thissession));
    undef(%icontext)	if (defined(%icontext));
 
+   undef($default_logindomain) if (defined($default_logindomain));
    undef($loginname)	if (defined($loginname));
    undef($logindomain)	if (defined($logindomain));
    undef($loginuser)	if (defined($loginuser));
@@ -223,7 +220,7 @@ sub openwebmail_exit {
 ########## USERENV_INIT ##########################################
 # init user globals, switch euid
 sub userenv_init {
-   load_owconf(\%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf.default");
+   load_owconf(\%config_raw, "$SCRIPT_DIR/etc/defaults/openwebmail.conf");
    read_owconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf") if (-f "$SCRIPT_DIR/etc/openwebmail.conf");
    loadlang($config{'default_language'});	# so %lang... can be used in error msg
 
@@ -235,8 +232,8 @@ sub userenv_init {
    }
 
    if (!defined(param('sessionid')) ) {
-      my $clientip=ow::tool::clientip();
-      sleep $config{'loginerrordelay'} if ($clientip ne "127.0.0.1");	# delayed response for non localhost
+      # delayed response for non localhost
+      sleep $config{'loginerrordelay'} if (ow::tool::clientip() ne "127.0.0.1");
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'param_fmterr'}, $lang_err{'access_denied'}");
    }
    $thissession = param('sessionid')||'';
@@ -274,7 +271,8 @@ sub userenv_init {
       sleep $config{'loginerrordelay'};	# delayed response
       openwebmailerror(__FILE__, __LINE__, "$loginuser@$logindomain $lang_err{'user_not_exist'}!");
    }
-   if (!$config{'enable_rootlogin'}) {
+
+   if (!matchlist_fromhead('allowed_rootloginip', ow::tool::clientip())) {
       if ($user eq 'root' || $uuid==0) {
          sleep $config{'loginerrordelay'};	# delayed response
          writelog("userinfo error - possible root hacking attempt");
@@ -460,19 +458,9 @@ sub load_owconf {
       $_rawconfcache{$configfile}{'c'}=_load_owconf($configfile);
    }
 
-   my $r_cache=$_rawconfcache{$configfile}{'c'};
-   my ($key, $value);
-   foreach $key (keys %{$r_cache}) {
-      $value=${$r_cache}{$key};
-
-      # backward compatibility
-      $key='use_syshomedir'    if ($key eq 'use_homedirfolders');
-      $key='create_syshomedir' if ($key eq 'create_homedir');
-
-      # OK, put this to existing hash %{$r_config_raw}
-      ${$r_config_raw}{$key}=$value;
+   foreach (keys %{$_rawconfcache{$configfile}{'c'}}) {
+      ${$r_config_raw}{$_}=${$_rawconfcache{$configfile}{'c'}}{$_};
    }
-
    return;
 }
 
@@ -540,7 +528,7 @@ sub fmt_subvars {
    return $value;
 }
 sub fmt_yesno {	# translate yes/no text into 1/0  (true/false)
-   return 1 if ($_[0] =~ m/y(es)?/i || $_[0] eq '1');
+   return 1 if ($_[0]=~/y(es)?/i || $_[0] eq '1');
    return 0;
 }
 sub fmt_none {	# blank out a 'none' value
@@ -552,6 +540,51 @@ sub fmt_require { # remove / and .. for variables used in require statement for 
    return $_;
 }
 ########## END READCONF ##########################################
+
+########## MATCHLIST_... #########################################
+sub matchlist_all {
+   my ($listname)=@_;
+   return 1 if (!defined($config{$listname}));
+
+   foreach my $token (@{$config{$listname}}) {
+      return 1 if (lc($token) eq 'all');
+   }
+   return 0;
+}
+
+sub matchlist_exact {
+   my ($listname, $value)=($_[0], lc($_[1]));
+   return 1 if (!defined($config{$listname}));
+
+   foreach (@{$config{$listname}}) {
+      my $token=lc($_);
+      return 1 if ($token eq 'all' || $token eq $value);
+   }
+   return 0;
+}
+
+sub matchlist_fromhead {
+   my ($listname, $value)=($_[0], lc($_[1]));
+   return 1 if (!defined($config{$listname}));
+
+   foreach (@{$config{$listname}}) {
+      my $token=lc($_);
+      return 1 if ($token eq 'all' || $value=~/^\Q$token\E/);
+   }
+   return 0;
+}
+
+sub matchlist_fromtail {
+   my ($listname, $value)=($_[0], lc($_[1]));
+   return 1 if (!defined($config{$listname}));
+
+   foreach (@{$config{$listname}}) {
+      my $token=lc($_);
+      return 1 if ($token eq 'all' || $value=~/\Q$token\E$/);
+   }
+   return 0;
+}
+########## END MATCHLIST_... #####################################
 
 ########## LOADLANG ##############################################
 sub loadlang {
@@ -649,6 +682,12 @@ sub readprefs {
 
    $prefshash{'refreshinterval'}=$config{'min_refreshinterval'} if ($prefshash{'refreshinterval'} < $config{'min_refreshinterval'});
    $prefshash{'charset'}=$ow::lang::languagecharsets{$prefshash{'language'}} if ($prefshash{'charset'} eq 'auto');
+
+   # rentries related to spamcheck or viruscheck limit
+   $prefshash{'viruscheck_source'}='pop3' if ($prefshash{'viruscheck_source'} eq 'all' && $config{'viruscheck_source_allowed'} eq 'pop3');
+   $prefshash{'spamcheck_source'}='pop3' if ($prefshash{'spamcheck_source'} eq 'all' && $config{'spamcheck_source_allowed'} eq 'pop3');
+   $prefshash{'viruscheck_maxsize'}=$config{'viruscheck_maxsize_allowed'} if ($prefshash{'viruscheck_maxsize'} > $config{'viruscheck_maxsize_allowed'});
+   $prefshash{'spamcheck_maxsize'}=$config{'spamcheck_maxsize_allowed'} if ($prefshash{'spamcheck_maxsize'} > $config{'spamcheck_maxsize_allowed'});
 
    return %prefshash;
 }
@@ -789,7 +828,6 @@ sub verifysession {
       openwebmail_exit(0);
    }
 
-   my $clientip=ow::tool::clientip();
    my $clientcookie=cookie("$user-sessionid");
 
    my ($cookie, $ip, $userinfo)=sessioninfo($thissession);
@@ -800,7 +838,7 @@ sub verifysession {
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'sess_cookieerr'}");
    }
    if ( $config{'session_checksameip'} &&
-        $clientip ne $ip) {
+        ow::tool::clientip() ne $ip) {
       writelog("session error - request doesn't come from the same ip, access denied!");
       writehistory("session error - request doesn't com from the same ip, access denied !");
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'sess_iperr'}");
@@ -845,7 +883,7 @@ sub update_virtuserdb {
 
    # convert file name and path into a simple file name
    my $virtname=$config{'virtusertable'}; $virtname=~s!/!.!g; $virtname=~s/^\.+//;
-   my $virtdb=ow::tool::untaint(("$config{'ow_etcdir'}/$virtname"));
+   my $virtdb=ow::tool::untaint(("$config{'ow_mapsdir'}/$virtname"));
 
    if (! -e $config{'virtusertable'}) {
       ow::dbm::unlink($virtdb) if (ow::dbm::exist($virtdb));
@@ -905,7 +943,7 @@ sub get_user_by_virtualuser {
 
    # convert file name and path into a simple file name
    my $virtname=$config{'virtusertable'}; $virtname=~s!/!.!g; $virtname=~s/^\.+//;
-   my $virtdb=ow::tool::untaint(("$config{'ow_etcdir'}/$virtname"));
+   my $virtdb=ow::tool::untaint(("$config{'ow_mapsdir'}/$virtname"));
 
    if (ow::dbm::exist($virtdb)) {
       ow::dbm::open(\%DB, $virtdb, LOCK_SH) or return $u;
@@ -921,7 +959,7 @@ sub get_virtualuser_by_user {
 
    # convert file name and path into a simple file name
    my $virtname=$config{'virtusertable'}; $virtname=~s!/!.!g; $virtname=~s/^\.+//;
-   my $virtdbr=ow::tool::untaint(("$config{'ow_etcdir'}/$virtname.rev"));
+   my $virtdbr=ow::tool::untaint(("$config{'ow_mapsdir'}/$virtname.rev"));
 
    if (ow::dbm::exist($virtdbr)) {
       ow::dbm::open(\%DBR, $virtdbr, LOCK_SH) or return $vu;
@@ -1180,10 +1218,13 @@ sub htmlfooter {
 sub openwebmailerror {
    my ($file, $linenum, $msg)=@_;
    my $mailgid=getgrnam('mail');
+   my $stackdump='';
    $file=~s!.*/!!;
    $msg="Unknow error $msg at $file:$linenum" if (length($msg)<5);
    if ($config{'error_with_debuginfo'}) {
-      $msg.=qq|<br><font class="medtext">( $file:$linenum, ruid=$<, euid=$>, egid=$), mailgid=$mailgid )</font>\n|;
+      $msg.=qq|<br><font class="medtext">( $file:$linenum, pid=$$, ruid=$<, euid=$>, egid=$), mailgid=$mailgid )</font>\n|;
+      $stackdump=ow::tool::stacktrace();
+      $stackdump=~s/^\s*//gm;
    }
 
    if (defined($ENV{'GATEWAY_INTERFACE'})) {	# in CGI mode
@@ -1207,6 +1248,7 @@ sub openwebmailerror {
       my $titlebar_text = $style{"titlebar_text"}||"#FFFFFF";
       my $window_light = $style{"window_light"}||"#EEEEEE";
 
+      $stackdump=qq|<pre>$stackdump</pre>| if ($stackdump ne '');
       my $html = start_html(-title=>$config{'name'},
                             -bgcolor=>$background,
                             -background=>$bgurl);
@@ -1219,7 +1261,7 @@ sub openwebmailerror {
              qq|<font color=$titlebar_text face=$fontface size="3"><b>$config{'name'} ERROR</b></font>\n|.
              qq|</td></tr>|.
              qq|<tr><td align="center" bgcolor=$window_light>\n|.
-             qq|<br>$msg<br><br>\n|.
+             qq|<br>$msg<br><br>$stackdump\n|.
              qq|</td></tr>|.
              qq|</table>\n|.
              qq|<p align="center"><br>$config{'page_footer'}<br></p>\n|.
@@ -1231,8 +1273,10 @@ sub openwebmailerror {
       httpprint([], [$html]);
 
    } else { # command mode
-      print "$msg\n($file:$linenum, ruid=$<, euid=$>, egid=$), mailgid=$mailgid)\n";
+      print "($file:$linenum, pid=$$, ruid=$<, euid=$>, egid=$), mailgid=$mailgid)\n$msg\n$stackdump";
    }
+
+   autologin_rm();	# disable next autologin for specific ip/browser/user
    openwebmail_exit(1);
 }
 ########## END OPENWEBMAILERROR ##################################
@@ -1354,7 +1398,7 @@ sub update_authpop3book {
 }
 ########## END UPDATE_AUTHPOP3BOOK ###############################
 
-########## SAFE DOMAINNAME/FOLDERNAME/DLNAME #####################
+########## SAFE DOMAINNAME/FOLDERNAME/DLNAME/XHEADERS ############
 sub safedomainname {
    my $domainname=$_[0];
    $domainname=~s!\.\.+!!g;
@@ -1391,7 +1435,21 @@ sub safedlname {
    $dlname=~s|__+|_|g;
    return($dlname);
 }
-########## END SAFE DOMAINNAME/FOLDERNAME/DLNAME #################
+
+sub safexheaders {
+   my $xheaders='';
+   foreach (split("\n", $_[0])) {
+      s/^\s*//; s/\s*//;
+      $xheaders.="X-$1: $2\n" if (/^[Xx]\-([\w\d\-_]+):\s*(.*)$/);
+   }
+   my $clientip=ow::tool::clientip();
+   $xheaders=~s/\@\@\@CLIENTIP\@\@\@/$clientip/g;
+   my $userid=$loginuser; $userid.="\@$logindomain" if ($config{'auth_withdomain'});
+   $xheaders=~s/\@\@\@USERID\@\@\@/$userid/g;
+
+   return $xheaders;
+}
+########## END SAFE DOMAINNAME/FOLDERNAME/DLNAME/XHEADERS ########
 
 ########## VPATH RELATED #########################################
 sub path2array {
@@ -1580,10 +1638,10 @@ sub templateblock_disable {
 ########## DOTDIR RELATED ########################################
 use vars qw(%_is_dotpath);
 foreach (qw(
-   openwebmailrc release.date history.log
+   openwebmailrc release.date autologin.check history.log
 )) { $_is_dotpath{'root'}{$_}=1; }
 foreach (qw(
-   filter.book filter.check
+   filter.book filter.check filter.pid filter.ruledb filter.folderdb
    from.book address.book stationery.book
    trash.check search.cache signature
 )) { $_is_dotpath{'webmail'}{$_}=1; }
@@ -1654,6 +1712,73 @@ sub is_under_dotdir_or_folderdir {
 }
 ########## END DOTDIR RELATED ####################################
 
+########## AUTOLOGIN DB related ##################################
+# we store ip and browsername in autologin db,
+# so a user may have different autologin settings on different computer
+# or even different browsers on same computer
+sub autologin_add {
+   my $agentip=$ENV{'HTTP_USER_AGENT'}.ow::tool::clientip();
+   my $autologindb=dotpath('autologin.check');
+   my (%DB, $timestamp);
+
+   return 0 if (!ow::dbm::open(\%DB, $autologindb, LOCK_EX));
+   $timestamp=time();
+   foreach my $key (%DB) {
+      delete $DB{$key} if ($timestamp-$DB{$key}>86400*7);
+   }
+   $DB{$agentip}=$timestamp;
+   ow::dbm::close(\%DB, $autologindb);
+   return 1;
+}
+
+sub autologin_rm {
+   my $agentip=$ENV{'HTTP_USER_AGENT'}.ow::tool::clientip();
+   my $autologindb=dotpath('autologin.check');
+   my %DB;
+
+   return 0 if (!ow::dbm::exist($autologindb));
+   return 0 if (!ow::dbm::open(\%DB, $autologindb, LOCK_EX));
+   delete $DB{$agentip};
+   ow::dbm::close(\%DB, $autologindb);
+   return 1;
+}
+
+sub autologin_check {
+   my $agentip=$ENV{'HTTP_USER_AGENT'}.ow::tool::clientip();
+   my $autologindb=dotpath('autologin.check');
+   my (%DB, $timestamp);
+
+   return 0 if (!ow::dbm::exist($autologindb));
+   return 0 if (!ow::dbm::open(\%DB, $autologindb, LOCK_EX));
+   $DB{$agentip}=$timestamp=time() if (defined($DB{$agentip}));
+   ow::dbm::close(\%DB, $autologindb);
+   return 1 if ($timestamp ne '');
+}
+########## END AUTOLOGIN DB related ##############################
+
+# DEFAULTFOLDERS related #########################################
+use vars qw(@_defaultfolders %_is_defaultfolder);
+@_defaultfolders=('INBOX', 'saved-messages', 'sent-mail', 'saved-drafts', 'mail-trash');
+foreach (@_defaultfolders, 'LEARNSPAM', 'LEARNHAM', 'DELETE', 'FORWARD') { $_is_defaultfolder{$_}=1 };
+
+sub get_defaultfolders {
+   my @f;
+   push(@f, 'spam-mail') if ($config{'has_spamfolder_by_default'});
+   push(@f, 'virus-mail') if ($config{'has_virusfolder_by_default'});
+   return(@_defaultfolders, @f);
+}
+
+sub is_defaultfolder {
+   if ($_is_defaultfolder{$_[0]} ||
+       ($config{'has_spamfolder_by_default'} && $_[0] eq 'spam-mail') ||
+       ($config{'has_virusfolder_by_default'} && $_[0] eq 'virus-mail') ) {
+      return 1;
+   } else {
+      return 0;
+   }
+}
+# END DEFAULTFOLDERS related #####################################
+
 ########## GETFOLDERS ############################################
 # return list of valid folders and size of INBOX and other folders
 sub getfolders {
@@ -1688,14 +1813,14 @@ sub getfolders {
          $totalsize += ( -s "$folderdir/$filename" );
 
          # find all user folders
-         if (!$is_defaultfolder{$filename} || $fdir ne $folderdir) {
+         if (!is_defaultfolder($filename) || $fdir ne $folderdir) {
             push(@userfolders, substr("$fdir/$filename",length($folderdir)+1));
          }
       }
    }
 
-   @{$r_folders}=();
-   push (@{$r_folders}, @defaultfolders, sort(@userfolders));
+   @{$r_folders}=get_defaultfolders();
+   push (@{$r_folders}, sort(@userfolders));
 
    ${$r_inboxusage}=0;
    ${$r_inboxusage}=(-s $spoolfile)/1024 if (-f $spoolfile);

@@ -177,7 +177,8 @@
          alert("Okre¶l odbiorcê przed wys³aniem");
          return false;
       }
-      if (document.composeform.subject.value == "" ) {
+      if (document.composeform.subject.value == "" 
+       || document.composeform.subject.value == "N/A" ) {
          return(confirm("Wiadomo¶æ nie ma tematu, wys³aæ mimo to?"));
       }
       return true;

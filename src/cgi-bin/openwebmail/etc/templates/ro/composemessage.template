@@ -177,7 +177,8 @@
          alert("Va rugam specificati destinatarul inainte de trimitere.");
          return false;
       }
-      if (document.composeform.subject.value == "" ) {
+      if (document.composeform.subject.value == "" 
+       || document.composeform.subject.value == "N/A" ) {
          return(confirm("Nu ati specificat subiectul mesajului, doriti sa-l trimiteti fara subiect?"));
       }
       return true;

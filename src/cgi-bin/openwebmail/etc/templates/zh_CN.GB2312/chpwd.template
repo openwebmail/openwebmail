@@ -7,13 +7,13 @@
 <BR>
 <table align=center border=0 cellspacing=2 cellpadding=0>
 <tr>
-<td align="right">账号:</td><td>@@@LOGINNAMEFIELD@@@</td>
+<td align="right">账号：</td><td>@@@LOGINNAMEFIELD@@@</td>
 </tr><tr>
-<td align="right">旧密码:</td><td>@@@OLDPASSWORDFIELD@@@</td>
+<td align="right">旧密码：</td><td>@@@OLDPASSWORDFIELD@@@</td>
 </tr><tr>
-<td align="right">新密码:</td><td>@@@NEWPASSWORDFIELD@@@</td>
+<td align="right">新密码：</td><td>@@@NEWPASSWORDFIELD@@@</td>
 </tr><tr>
-<td align="right">确认新密码:</td><td>@@@CONFIRMNEWPASSWORDFIELD@@@</td>
+<td align="right">确认新密码：</td><td>@@@CONFIRMNEWPASSWORDFIELD@@@</td>
 </tr><tr>
 <td colspan=2>
 <table width="100%"><tr>
@@ -31,17 +31,17 @@
       var s;
       s=document.passwordform.newpassword.value;
       if (s.length < @@@PASSWDMINLEN@@@) {
-         alert("密码长度至少要有 @@@PASSWDMINLEN@@@ 个字元.");
+         alert("密码长度至少要有 @@@PASSWDMINLEN@@@ 个字符。");
          return false;
       }
       if (document.passwordform.newpassword.value !=
 	  document.passwordform.confirmnewpassword.value) {
-         alert("新密码与确认栏位内容不符.");
+         alert("新密码与确认栏位内容不符。");
          return false;
       }
       if (document.passwordform.newpassword.value ==
 	  document.passwordform.oldpassword.value) {
-         alert("新密码与旧密码完全相同.");
+         alert("新密码与旧密码完全相同。");
          return false;
       }
       return true;

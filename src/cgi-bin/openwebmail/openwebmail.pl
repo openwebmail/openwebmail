@@ -24,7 +24,7 @@ if ($SCRIPT_DIR eq '' && open(F, '/etc/openwebmail_path.conf')) {
 if ($SCRIPT_DIR eq '') { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
 push (@INC, $SCRIPT_DIR);
 
-foreach (qw(PATH ENV BASH_ENV CDPATH IFS TERM)) { $ENV{$_}='' }	# secure ENV
+foreach (qw(ENV BASH_ENV CDPATH IFS TERM)) {delete $ENV{$_}}; $ENV{PATH}='/bin:/usr/bin'; # secure ENV
 umask(0002); # make sure the openwebmail group can write
 
 use strict;
@@ -63,13 +63,13 @@ openwebmail_requestbegin();
 $SIG{PIPE}=\&openwebmail_exit;	# for user stop
 $SIG{TERM}=\&openwebmail_exit;	# for user stop
 
-load_owconf(\%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf.default");
+load_owconf(\%config_raw, "$SCRIPT_DIR/etc/defaults/openwebmail.conf");
 read_owconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf") if (-f "$SCRIPT_DIR/etc/openwebmail.conf");
 loadlang($config{'default_language'});	# so %lang... can be used in error msg
 
 # check & create mapping table for solar/lunar, b2g, g2b convertion
 foreach my $table ('b2g', 'g2b', 'lunar') {
-   if ( $config{$table.'_map'} && !ow::dbm::exist("$config{'ow_etcdir'}/$table")) {
+   if ( $config{$table.'_map'} && !ow::dbm::exist("$config{'ow_mapsdir'}/$table")) {
       print qq|Content-type: text/html\n\n|.
             qq|Please execute '$config{'ow_cgidir'}/openwebmail-tool.pl --init' on server first!|;
       openwebmail_exit(0);
@@ -113,6 +113,9 @@ if ( $config{'forced_ssl_login'} &&	# check the forced use of SSL
 
 if ( param('loginname') && param('password') ) {
    login();
+} elsif (matchlist_fromhead('allowed_autologinip', ow::tool::clientip()) && 
+         cookie('openwebmail-autologin')) {
+   autologin();
 } else {
    loginmenu();	# display login page if no login
 }
@@ -122,13 +125,16 @@ openwebmail_requestend();
 
 ########## LOGINMENU #############################################
 sub loginmenu {
+   # clear vars that may have values from autologin
+   ($domain, $user, $userrealname, $uuid, $ugid, $homedir)=('', '', '', '', '', '');
+
    $logindomain=param('logindomain')||lc($ENV{'HTTP_HOST'});
    $logindomain=~s/:\d+$//;	# remove port number
    $logindomain=lc(safedomainname($logindomain));
    $logindomain=$config{'domainname_equiv'}{'map'}{$logindomain} if (defined($config{'domainname_equiv'}{'map'}{$logindomain}));
-   if (!is_serverdomain_allowed($logindomain)) {
+
+   matchlist_exact('allowed_serverdomain', $logindomain) or
       openwebmailerror(__FILE__, __LINE__, "Service is not available for domain  '$logindomain'");
-   }
 
    read_owconf(\%config, \%config_raw, "$config{'ow_sitesconfdir'}/$logindomain") if ( -f "$config{'ow_sitesconfdir'}/$logindomain");
    if ( $>!=0 &&	# setuid is required if spool is located in system dir
@@ -155,14 +161,14 @@ sub loginmenu {
 
    $temphtml = textfield(-name=>'loginname',
                          -default=>'',
-                         -size=>'12',
+                         -size=>'14',
                          -onChange=>'focuspwd()',
                          -override=>'1');
    $html =~ s/\@\@\@LOGINNAMEFIELD\@\@\@/$temphtml/;
 
    $temphtml = password_field(-name=>'password',
                               -default=>'',
-                              -size=>'12',
+                              -size=>'14',
                               -onChange=>'focusloginbutton()',
                               -override=>'1');
    $html =~ s/\@\@\@PASSWORDFIELD\@\@\@/$temphtml/;
@@ -183,7 +189,20 @@ sub loginmenu {
    }
    $html =~ s/\@\@\@HTTPCOMPRESSIONCHECKBOX\@\@\@/$temphtml/;
 
-   if ( $#{$config{'domainnames'}} >0 && $config{'enable_domainselectmenu'} ) {
+   if (matchlist_fromhead('allowed_autologinip', ow::tool::clientip()) ) {
+      templateblock_enable($html, 'AUTOLOGIN');
+      $temphtml = checkbox(-name=>'autologin',
+                           -value=>'1',
+                           -checked=>cookie("openwebmail-autologin")||0,
+                           -onClick=>'autologinhelp()',
+                           -label=>'');
+      $html =~ s/\@\@\@AUTOLOGINCHECKBOX\@\@\@/$temphtml/;
+   } else {
+      $temphtml = '';
+      templateblock_disable($html, 'AUTOLOGIN', $temphtml);
+   }
+
+   if ($config{'enable_domainselectmenu'} && $#{$config{'domainnames'}} >0) {
       templateblock_enable($html, 'DOMAIN');
       $temphtml = popup_menu(-name=>'logindomain',
                              -default=>$logindomain,
@@ -210,13 +229,15 @@ sub loginmenu {
 
 ########## LOGIN #################################################
 sub login {
+   my $clientip=ow::tool::clientip();
+
    $loginname=param('loginname')||'';
    $default_logindomain=param('logindomain')||'';
 
    ($logindomain, $loginuser)=login_name2domainuser($loginname, $default_logindomain);
-   if (!is_serverdomain_allowed($logindomain)) {
+
+   matchlist_exact('allowed_serverdomain', $logindomain) or
       openwebmailerror(__FILE__, __LINE__, "Service is not available for domain  '$logindomain'");
-   }
 
    if (!is_localuser("$loginuser\@$logindomain") && -f "$config{'ow_sitesconfdir'}/$logindomain") {
       read_owconf(\%config, \%config_raw, "$config{'ow_sitesconfdir'}/$logindomain");
@@ -258,7 +279,8 @@ sub login {
       httpprint([], [htmlheader(), $html, htmlfooter(1)]);
       return;
    }
-   if (! $config{'enable_rootlogin'}) {
+
+   if (!matchlist_fromhead('allowed_rootloginip', $clientip)) {
       if ($user eq 'root' || $uuid==0) {
          sleep $config{'loginerrordelay'};	# delayed response
          writelog("login error - root login attempt");
@@ -273,41 +295,16 @@ sub login {
    $userconf="$config{'ow_usersconfdir'}/$domain/$user" if ($config{'auth_withdomain'});
    read_owconf(\%config, \%config_raw, "$userconf") if ( -f "$userconf");
 
-   # valid server domain
-   if (!is_serverdomain_allowed($logindomain)) {
+   matchlist_exact('allowed_serverdomain', $logindomain) or
       openwebmailerror(__FILE__, __LINE__, "Service is not available for $loginuser at '$logindomain'");
-   }
-   # validate client ip
-   my $clientip=ow::tool::clientip();
-   if (defined($config{'allowed_clientip'})) {
-      my $allowed=0;
-      foreach my $token (@{$config{'allowed_clientip'}}) {
-         if (lc($token) eq 'all' || $clientip=~/^\Q$token\E/) {
-            $allowed=1; last;
-         }
-      }
-      if (!$allowed) {
-         openwebmailerror(__FILE__, __LINE__, $lang_err{'disallowed_client'}."<br> ( ip: $clientip )");
-      }
-   }
-   # validate client domain
-   if (defined($config{'allowed_clientdomain'})) {
-      my $clientdomain;
-      my $allowed=0;
-      foreach my $token (@{$config{'allowed_clientdomain'}}) {
-         if (lc($token) eq 'all') {
-            $allowed=1; last;
-         }
-         $clientdomain=ip2hostname($clientip) if ($clientdomain eq "");
-         if ($clientdomain=~/\Q$token\E$/ || # matched
-             $clientdomain!~/\./) { 		# shortname in /etc/hosts
-            $allowed=1; last;
-         }
-      }
-      if (!$allowed) {
-         $clientdomain=ip2hostname($clientip) if ($clientdomain eq "");
+
+   matchlist_fromhead('allowed_clientip', $clientip) or
+      openwebmailerror(__FILE__, __LINE__, $lang_err{'disallowed_client'}."<br> ( ip: $clientip )");
+
+   if (!matchlist_all('allowed_clientdomain')) {
+      my $clientdomain=ip2hostname($clientip);
+      matchlist_fromtail('allowed_clientdomain', $clientdomain) or
          openwebmailerror(__FILE__, __LINE__, $lang_err{'disallowed_client'}."<br> ( host: $clientdomain )");
-      }
    }
 
    my $owuserdir = ow::tool::untaint("$config{'ow_usersdir'}/".($config{'auth_withdomain'}?"$domain/$user":$user));
@@ -332,6 +329,13 @@ sub login {
    }
    upgrade_20030323();
 
+   # try to load lang and style based on user's preference (for error msg)
+   if ($>==0 || $>== $uuid) {
+      %prefs = readprefs();
+      %style = readstyle($prefs{'style'});
+      loadlang($prefs{'language'});
+   }
+
    my ($errorcode, $errormsg, @sessioncount);
    my $password = param('password') || '';
    if ($config{'auth_withdomain'}) {
@@ -341,9 +345,11 @@ sub login {
    }
    if ( $errorcode==0 ) {
       # search old alive session and deletes old expired sessionids
-      ($thissession, @sessioncount) = search_and_cleanoldsessions(cookie("$user-sessionid"), $uuid);
+      ($thissession, @sessioncount) = search_clean_oldsessions
+		($loginname, $default_logindomain, $uuid, cookie("$user-sessionid"));
       if ($thissession eq "") {	# name the new sessionid
-         $thissession = $loginname."*".$default_logindomain."-session-".rand();
+         my $n=rand(); for (1..5) { last if $n>=0.1; $n*=10; }	# cover bug if rand return too small value
+         $thissession = $loginname."*".$default_logindomain."-session-$n";
       }
       $thissession =~ s!\.\.+!!g;  # remove ..
       if ($thissession =~ /^([\w\.\-\%\@]+\*[\w\.\-]*\-session\-0\.\d+)$/) {
@@ -352,9 +358,6 @@ sub login {
          openwebmailerror(__FILE__, __LINE__, "Session ID $thissession $lang_err{'has_illegal_chars'}");
       }
       writelog("login - $thissession - active=$sessioncount[0],$sessioncount[1],$sessioncount[2]");
-
-      # get user release date
-      my $user_releasedate=read_releasedatefile();
 
       # create owuserdir for stuff not put in syshomedir
       # this must be done before changing to the user's uid.
@@ -387,6 +390,9 @@ sub login {
          }
       }
 
+      # get user release date
+      my $user_releasedate=read_releasedatefile();
+
       # create folderdir if it doesn't exist
       my $folderdir="$homedir/$config{'homedirfolderdirname'}";
       if (! -d $folderdir ) {
@@ -418,7 +424,7 @@ sub login {
       open (SESSION, "> $config{'ow_sessionsdir'}/$thissession") or # create sessionid
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}/$thissession! ($!)");
       print SESSION $sessioncookie_value, "\n";
-      print SESSION ow::tool::clientip(), "\n";
+      print SESSION $clientip, "\n";
       print SESSION join("\@\@\@", $domain, $user, $userrealname, $uuid, $ugid, $homedir), "\n";
       close (SESSION);
       writehistory("login - $thissession");
@@ -465,63 +471,63 @@ sub login {
          update_authpop3book(dotpath('authpop3.book'), $domain, $user, $password);
       }
 
-      # set cookie in header and redirect page to openwebmail-main
-      my $action=param('action')||'';
-      my $refreshurl;
+      # redirect page to openwebmail main/calendar/webdisk/prefs
+      my $refreshurl=refreshurl_after_login(param('action'));
       if ( ! -f dotpath('openwebmailrc') ) {
          $refreshurl="$config{'ow_cgiurl'}/openwebmail-prefs.pl?sessionid=$thissession&action=userfirsttime";
-      } elsif ( $action eq 'composemessage' ) {
-         my $to=param('to')||'';
-         $to =~ s!^mailto\:!!; # IE passes mailto: with mailaddr to mail client
-         my $subject=param('subject')||'';
-         $refreshurl="$config{'ow_cgiurl'}/openwebmail-send.pl?sessionid=$thissession&action=composemessage&to=$to&subject=$subject";
-      } elsif ( $action eq 'calyear' || $action eq 'calmonth' ||
-                $action eq 'calweek' || $action eq 'calday' ) {
-         $refreshurl="$config{'ow_cgiurl'}/openwebmail-cal.pl?sessionid=$thissession&action=$action";
-      } elsif ( $action eq 'showdir' ) {
-         $refreshurl="$config{'ow_cgiurl'}/openwebmail-webdisk.pl?sessionid=$thissession&action=$action";
-      } elsif ( $action eq 'editfolders' ) {
-         $refreshurl="$config{'ow_cgiurl'}/openwebmail-folder.pl?sessionid=$thissession&action=$action";
-      } else {
-         if ($config{'enable_webmail'}) {
-            $refreshurl="$config{'ow_cgiurl'}/openwebmail-main.pl?sessionid=$thissession&action=listmessages_afterlogin";
-         } elsif ($config{'enable_calendar'}) {
-            $refreshurl="$config{'ow_cgiurl'}/openwebmail-cal.pl?sessionid=$thissession&action=calmonth";
-         } elsif ($config{'enable_webdisk'}) {
-            $refreshurl="$config{'ow_cgiurl'}/openwebmail-webdisk.pl?sessionid=$thissession&action=showdir";
-         } else {
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'all_module_disabled'}, $lang_err{'access_denied'}");
-         }
       }
-
       if ( !$config{'stay_ssl_afterlogin'} &&	# leave SSL
            ($ENV{'HTTPS'}=~/on/i || $ENV{'SERVER_PORT'}==443) ) {
          $refreshurl="http://$ENV{'HTTP_HOST'}$refreshurl" if ($refreshurl!~s!^https?://!http://!i);
       }
 
-      # cookie for openwebmail to verify session, expired if browser closed
-      my $cookie1 = cookie( -name  => "$user-sessionid",
-                            -value => "$sessioncookie_value",
-                            -path  => '/');
-      # cookie for other ap to find openwebmail loginname, expired until 1 month later
-      my $cookie2 = cookie( -name  => "openwebmail-loginname",
-                            -value => "$loginname",
+      my @cookies=(); 
+
+      # cookie for autologin switch, expired until 1 month later
+      my $autologin=param('autologin')||0;
+      if ($autologin && matchlist_fromhead('allowed_autologinip', $clientip)) {
+         $autologin=autologin_add();
+      } else {
+         autologin_rm();
+         $autologin=0;
+      }
+      push(@cookies, cookie(-name  => 'openwebmail-autologin',
+                            -value => $autologin,
                             -path  => '/',
-                            -expires => "+1M" );
-      # cookie for httpcompress switch, expired until 1 month later
-      my $cookie3 = cookie( -name  => "openwebmail-httpcompress",
-                            -value => param('httpcompress')||0,
+                            -expires => '+1M') );
+
+      # if autologin then expired until 1 week, else expired until browser close
+      my @expire=(); @expire=(-expires => '+7d') if ($autologin);
+      # cookie for openwebmail to verify session, 
+      push(@cookies, cookie(-name  => "$user-sessionid",
+                            -value => $sessioncookie_value,
                             -path  => '/',
-                            -expires => "+1M" );
-      # cookie for ssl session, expired if not same session
-      my $cookie4 = cookie( -name  => "openwebmail-ssl",
+                            @expire) );
+      # cookie for ssl session, expired if browser closed
+      push(@cookies, cookie(-name  => 'openwebmail-ssl',
                             -value => ($ENV{'HTTPS'}=~/on/i ||
                                        $ENV{'SERVER_PORT'}==443 ||
                                        0),
-                            -path  => '/');
+                            @expire) );
+
+      # cookie for autologin other other ap to find openwebmail loginname, default_logindomain, 
+      # expired until 1 month later
+      push(@cookies, cookie(-name  => 'openwebmail-loginname',
+                            -value => $loginname,
+                            -path  => '/',
+                            -expires => '+1M') );
+      push(@cookies, cookie(-name  => 'openwebmail-default_logindomain',
+                            -value => $default_logindomain,
+                            -path  => '/',
+                            -expires => '+1M') );
+      # cookie for httpcompress switch, expired until 1 month later
+      push(@cookies, cookie(-name  => 'openwebmail-httpcompress',
+                            -value => param('httpcompress')||0,
+                            -path  => '/',
+                            -expires => '+1M') );
 
       my ($js, $repeatstr)=('', 'no-repeat');
-      my @header=(-cookie=>[$cookie1, $cookie2, $cookie3, $cookie4]);
+      my @header=(-cookie=>\@cookies);
       if ($ENV{'HTTP_USER_AGENT'}!~/MSIE.+Mac/) {
          # reload page with Refresh header only if not MSIE on Mac
          push(@header, -refresh=>"0.1;URL=$refreshurl");
@@ -532,6 +538,11 @@ sub login {
              qq|//-->\n</script>|;
       }
       $repeatstr='repeat' if ($prefs{'bgrepeat'});
+
+      my $softwarestr=$config{'name'};
+      if ($config{'enable_about'} && $config{'about_info_software'}) {
+         $softwarestr.=qq| $config{'version'} $config{'releasedate'}|;
+      }
 
       my $countstr='';
       if ($config{'session_count_display'}) {
@@ -560,7 +571,7 @@ sub login {
 		 qq|<font color="#333333"> &nbsp; $lang_text{'loading'} ...</font></a>\n|.
 		 qq|<br><br><br>\n\n|.
 		 qq|<a href="http://openwebmail.org/" title="click to home of $config{'name'}" target="_blank" style="text-decoration: none">\n|.
-		 qq|$config{'name'} $config{'version'} $config{'releasedate'}<br><br>\n|.
+		 qq|$softwarestr<br><br>\n|.
 		 qq|Copyright (C) 2001-2004<br>\n|.
 		 qq|Chung-Kie Tung, Nai-Jung Kuo, Chao-Chiu Wang, Emir Litric,<br>|.
                  qq|Thomas Chung, Dattola Filippo, Bernd Bass, Scott Mazur<br><br>\n|.
@@ -627,27 +638,89 @@ sub ip2hostname {
 }
 ########## END LOGIN #############################################
 
-########## IS_SERVERDOMAIN_ALLOWED ###############################
-sub is_serverdomain_allowed {
-   my $domain=$_[0];
-   if (defined($config{'allowed_serverdomain'})) {
-      foreach my $token (@{$config{'allowed_serverdomain'}}) {
-         if (lc($token) eq 'all' || lc($domain) eq lc($token)) {
-            return 1;
-         }
-      }
-      return 0;
-   } else {
-      return 1;
+########## AUTOLOGIN #############################################
+sub autologin {
+   # auto login with cgi parm or cookie
+   $default_logindomain=param('default_logindomain')||cookie('openwebmail-default_logindomain');
+   $loginname=param('loginname')||cookie('openwebmail-loginname');
+   return loginmenu() if ($loginname eq '');
+
+   ($logindomain, $loginuser)=login_name2domainuser($loginname, $default_logindomain);
+   if (!is_localuser("$loginuser\@$logindomain") && -f "$config{'ow_sitesconfdir'}/$logindomain") {
+      read_owconf(\%config, \%config_raw, "$config{'ow_sitesconfdir'}/$logindomain");
    }
+   ow::auth::load($config{'auth_module'});
+
+   ($domain, $user, $userrealname, $uuid, $ugid, $homedir)
+				=get_domain_user_userinfo($logindomain, $loginuser);
+   if ($user eq '' ||
+       ($uuid==0 && !matchlist_fromhead('allowed_rootloginip', ow::tool::clientip())) ||
+       cookie("$user-sessionid") eq '') {
+      return loginmenu();
+   }
+
+   my $userconf="$config{'ow_usersconfdir'}/$user";
+   $userconf="$config{'ow_usersconfdir'}/$domain/$user" if ($config{'auth_withdomain'});
+   read_owconf(\%config, \%config_raw, "$userconf") if ( -f "$userconf");
+
+   my $owuserdir = ow::tool::untaint("$config{'ow_usersdir'}/".($config{'auth_withdomain'}?"$domain/$user":$user));
+   $homedir = $owuserdir if ( !$config{'use_syshomedir'} );
+   return loginmenu() if (!autologin_check());	# db won't be created if it doesn't exist as euid has not been switched
+
+   # load user prefs for search_clean_oldsessions, it  will check $prefs{sessiontimeout}
+   %prefs = readprefs();	
+   $thissession = (search_clean_oldsessions
+		($loginname, $default_logindomain, $uuid, cookie("$user-sessionid")))[0];
+   $thissession =~ s!\.\.+!!g;  # remove ..
+   return loginmenu() if ($thissession !~ /^([\w\.\-\%\@]+\*[\w\.\-]*\-session\-0\.\d+)$/);
+
+   # redirect page to openwebmail main/calendar/webdisk
+   my $refreshurl=refreshurl_after_login(param('action'));
+   if ( !$config{'stay_ssl_afterlogin'} &&	# leave SSL
+        ($ENV{'HTTPS'}=~/on/i || $ENV{'SERVER_PORT'}==443) ) {
+      $refreshurl="http://$ENV{'HTTP_HOST'}$refreshurl" if ($refreshurl!~s!^https?://!http://!i);
+   }
+   print redirect(-location=>$refreshurl);
 }
-########## END IS_SERVERDOMAIN_ALLOWED ###########################
+########## END AUTOLOGIN #########################################
+
+########## REFRESHURL_AFTER_LOGIN ################################
+sub refreshurl_after_login {
+   my $action=$_[0];
+   my $refreshurl='';
+
+   if ( $action eq 'composemessage' ) {
+      my $to=param('to')||'';
+      $to =~ s!^mailto\:!!; # IE passes mailto: with mailaddr to mail client
+      my $subject=param('subject')||'';
+      $refreshurl="$config{'ow_cgiurl'}/openwebmail-send.pl?sessionid=$thissession&action=composemessage&to=$to&subject=$subject";
+   } elsif ( $action eq 'calyear' || $action eq 'calmonth' ||
+             $action eq 'calweek' || $action eq 'calday' ) {
+      $refreshurl="$config{'ow_cgiurl'}/openwebmail-cal.pl?sessionid=$thissession&action=$action";
+   } elsif ( $action eq 'showdir' ) {
+      $refreshurl="$config{'ow_cgiurl'}/openwebmail-webdisk.pl?sessionid=$thissession&action=$action";
+   } elsif ( $action eq 'editfolders' ) {
+      $refreshurl="$config{'ow_cgiurl'}/openwebmail-folder.pl?sessionid=$thissession&action=$action";
+   } else {
+      if ($config{'enable_webmail'}) {
+         $refreshurl="$config{'ow_cgiurl'}/openwebmail-main.pl?sessionid=$thissession&action=listmessages_afterlogin";
+      } elsif ($config{'enable_calendar'}) {
+         $refreshurl="$config{'ow_cgiurl'}/openwebmail-cal.pl?sessionid=$thissession&action=calmonth";
+      } elsif ($config{'enable_webdisk'}) {
+         $refreshurl="$config{'ow_cgiurl'}/openwebmail-webdisk.pl?sessionid=$thissession&action=showdir";
+      } else {
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'all_module_disabled'}, $lang_err{'access_denied'}");
+      }
+   }
+   return($refreshurl);
+}
+########## END REFRESHURL_AFTER_LOGIN ############################
 
 ########## SEARCH_AND_CLEANOLDSESSIONS ###########################
-# delete expired session files and
 # try to find old session that is still valid for the same user cookie
-sub search_and_cleanoldsessions {
-   my ($oldcookie, $owner_uid)=@_;
+# and delete expired session files
+sub search_clean_oldsessions {
+   my ($loginname, $default_logindomain, $owner_uid, $oldcookie)=@_;
    my $oldsessionid="";
    my @sessioncount=(0,0,0);	# active sessions in 1, 5, 15 minutes
    my @delfiles;
@@ -658,6 +731,7 @@ sub search_and_cleanoldsessions {
    closedir(SESSIONSDIR);
 
    my $t=time();
+   my $clientip=ow::tool::clientip();
    foreach my $sessfile (@sessfiles) {
       next if ($sessfile !~ /^([\w\.\-\%\@]+)\*([\w\.\-]*)\-session\-(0\.\d+)(-.*)?$/);
 
@@ -671,8 +745,8 @@ sub search_and_cleanoldsessions {
             push(@delfiles, $sessfile);
          } elsif ($misc eq '') {	# this is a session info file
             my ($cookie, $ip, $userinfo)=sessioninfo($sessfile);
-            if ($oldcookie && $cookie eq $oldcookie && $ip eq ow::tool::clientip() &&
-               (stat("$config{'ow_sessionsdir'}/$sessfile"))[4] == $owner_uid ) {
+            if ($oldcookie && $cookie eq $oldcookie && $ip eq $clientip &&
+                (stat("$config{'ow_sessionsdir'}/$sessfile"))[4] == $owner_uid ) {
                $oldsessionid=$sessfile;
             } elsif (!$config{'session_multilogin'}) { # remove old session of this user
                push(@delfiles, $sessfile);
@@ -697,6 +771,7 @@ sub search_and_cleanoldsessions {
 
    return($oldsessionid, @sessioncount);
 }
+
 ########## END SEARCH_AND_CLEANOLDSESSIONS #######################
 
 ########## UPDATE_OPENWEBMAILRC ##################################
@@ -706,7 +781,7 @@ sub update_openwebmailrc {
    my $rcfile=dotpath('openwebmailrc');
    my $saverc=0;
    if (-f $rcfile) {
-      $saverc=1 if ( $user_releasedate lt "20031214" );	# rc upgrade
+      $saverc=1 if ( $user_releasedate lt "20040724" );	# rc upgrade
       %prefs = readprefs() if ($saverc);		# load user old prefs + sys defaults
    } else {
       $saverc=1 if ($config{'auto_createrc'});		# rc auto create

@@ -39,8 +39,7 @@
 <td bgcolor=@@@COLUMNHEADER@@@ width="7%" align="center" nowrap>
 <B>@@@FILEPERM@@@</B></td>
 <td bgcolor=@@@COLUMNHEADER@@@ width="3%" align ="center">
-<input name="allbox" type="checkbox" value="1"
-   onClick="CheckAll();"></td>
+@@@ALLBOXCHECKBOX@@@</td>
 </tr>
 @@@FILELIST@@@
 </table>
@@ -97,7 +96,7 @@
 
 <script language="JavaScript">
 <!--
-   function CheckAll()
+   function CheckAll(setbgcolor)
    {
       for (var i=0;i<document.dirform.elements.length;i++)
       {
@@ -106,8 +105,17 @@
              e.name != 'showthumbnail' &&
              e.name != 'showhidden' &&
              e.name != 'singlepage' &&
-             e.name != 'allbox')
+             e.name != 'allbox') {
             e.checked = document.dirform.allbox.checked;
+            if (!document.layers && setbgcolor) {
+               var tr = document.getElementById('tr_'+e.id);
+               if (e.checked) {
+                  tr.style.backgroundColor=@@@TABLEROW_DARK@@@;
+               } else {
+                  tr.style.backgroundColor=@@@TABLEROW_LIGHT@@@;
+               }
+            }
+         }
       }
    }
    function anyfileselected()

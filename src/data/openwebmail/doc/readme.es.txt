@@ -51,32 +51,32 @@ REQUERIMIENTOS
 Servidor web Apache con cgi habilitado
 Perl 5.005 o superior
 
-CGI.pm-2.74.tar.gz        (requerido)
-MIME-Base64-2.12.tar.gz   (requerido)
-libnet-1.0901.tar.gz      (requerido)
+CGI.pm-3.05.tar.gz        (requerido)
+MIME-Base64-3.01.tar.gz   (requerido)
+libnet-1.19.tar.gz        (requerido)
 Text-Iconv-1.2.tar.gz     (requerido)
 libiconv-1.9.1.tar.gz     (requerido si el sistema no soporta iconv)
 
 CGI-SpeedyCGI-2.22.tar.gz (opcional)
-Compress-Zlib-1.21.tar.gz (opcional)
+Compress-Zlib-1.33.tar.gz (opcional)
 ispell-3.1.20.tar.gz      (opcional)
-Quota-1.4.6.tar.gz        (opcional)
-Authen-PAM-0.12.tar.gz    (opcional)
+Quota-1.4.10.tar.gz       (opcional)
+Authen-PAM-0.14.tar.gz    (opcional)
 ImageMagick-5.5.3.tar.gz  (opcional)
 
 
 INSTALACIÓN DE LOS PAQUETES REQUERIDOS
 --------------------------------------
 Primero, debe descargar los paquetes requeridos desde
-http://openwebmail.com/openwebmail/download/packages/
+http://openwebmail.org/openwebmail/download/packages/
 y copiarlos a /tmp
 
 
 Para CGI.pm haga lo siguiente:
 
    cd /tmp
-   tar -zxvf CGI.pm-2.74.tar.gz
-   cd CGI.pm-2.74
+   tar -zxvf CGI.pm-3.05.tar.gz
+   cd CGI.pm-3.05
    perl Makefile.PL
    make
    make install
@@ -93,8 +93,8 @@ ps: Se ha reportado que Open Webmail se cuelga en la carga de
 Para MIME-Base64 haga lo siguiente:
 
    cd /tmp
-   tar -zxvf MIME-Base64-2.12.tar.gz
-   cd MIME-Base64-2.12
+   tar -zxvf MIME-Base64-3.01.tar.gz
+   cd MIME-Base64-3.01
    perl Makefile.PL
    make
    make install
@@ -108,8 +108,8 @@ ps: Aunque quizás ya tenga el módulo perl MIME-Base64, le
 Para libnet haga lo siguiente:
 
    cd /tmp
-   tar -zxvf libnet-1.0901.tar.gz
-   cd libnet-1.0901
+   tar -zxvf libnet-1.19.tar.gz
+   cd libnet-1.19
    perl Makefile.PL (responda 'no' si se le pregunta sobre actualizar 
                      la configuración)
    make
@@ -156,7 +156,7 @@ Para Text-Iconv-1.2 haga lo siguiente:
 
    ps: Si 'make test' falla, significa que ha puesto un valor incorrecto
        en LIBS e INC en Makefile.PL o su soporte de iconv no está completo.
-       Puede copiar uty/iconv.pl.fake a shares/iconv.pl para hacer que
+       Puede copiar misc/patches/iconv.pl.fake a shares/iconv.pl para hacer que
        Open Webmail trabaje sin soporte de iconv.
 
    make install
@@ -165,7 +165,7 @@ Para Text-Iconv-1.2 haga lo siguiente:
 INSTALACIÓN DE OPENWEBMAIL
 --------------------------
 La última versión o la versión actual están disponibles en
-http://openwebmail.com/openwebmail/
+http://openwebmail.org/openwebmail/
 
 Si está usando FreeBSD e instala apache con pkg_add,
 simplemente haga lo siguiente
@@ -173,7 +173,7 @@ simplemente haga lo siguiente
 1. chmod 4555 /usr/bin/suidperl
 
 2. cd /usr/local/www
-   tar -zxvBpf openwebmail-X.XX.tgz
+   tar -zxvBpf openwebmail-X.XX.tar.gz
 
 3. modique /usr/local/www/cgi-bin/openwebmail/etc/openwebmail.conf 
    a sus necesidades.
@@ -184,12 +184,12 @@ simplemente haga lo siguiente
 ps: Si está usando RedHat 7.x (o la mayoría de los Linux) con Apache
 
 1. cd /var/www
-   tar -zxvBpf openwebmail-X.XX.tgz
+   tar -zxvBpf openwebmail-X.XX.tar.gz
    mv data/openwebmail html/
    rmdir data
 
 2. cd /var/www/cgi-bin/openwebmail/etc
-   modique auth_unix.conf from auth_unix.conf.default
+   modique auth_unix.conf from defaults/auth_unix.conf
    a. cambie la opción passwdfile_encrypted a '/etc/shadow'
    b  cambie la opción passwdmkdb a 'none'
 
@@ -220,7 +220,7 @@ ps: Se recomienda altamente leer doc/RedHat-README.txt (contribuido por
 
 ps: Thomas Chung (tchung.AT.openwebmail.org) mantiene el rpm para todas
     las versiones de openwebmail. Está disponible en 
-    http://openwebmail.com/openwebmail/download/redhat/rpm/
+    http://openwebmail.org/openwebmail/download/redhat/rpm/
     Puede tener a Open Webmail funcionnando en 5 minutos con esto :)
 
 Si está usando otro UNIX con apache, está bien
@@ -229,7 +229,7 @@ Trate de encontrar el directorio padre de los directorios data y cgi-bin,
 ej: /usr/local/apache/share, luego
 
 1. cd /usr/local/apache/share
-   tar -zxvBpf openwebmail-X.XX.tgz
+   tar -zxvBpf openwebmail-X.XX.tar.gz
    mv data/openwebmail htdocs/
    rmdir data
 
@@ -247,7 +247,7 @@ ej: /usr/local/apache/share, luego
    cambie la línea #!/usr/bin/suidperl a la ubicación en donde se encuentra 
    suidperl.
 
-   modifique etc/auth_unix.conf from auth_unix.conf.default
+   modifique etc/auth_unix.conf from etc/defaults/auth_unix.conf
    a. cambie la opción passwdfile_encrypted a '/etc/shadow'
    b. cambie la opción passwdmkdb a 'none'
 
@@ -350,7 +350,7 @@ LÍMITES DE ESPACIO DE USUARIO
 El espacio de disco usado por el webmail, el calendario o el disco web, se
 cuentan en suma como el uso del límite de espacio (quota) de usuario. Hay 
 cinco opciones que pueden utilizarse para controlar el límite de espacio en 
-openwebmail.conf.default. Puede modificar los valores por defecto configurando
+defaults/openwebmail.conf. Puede modificar los valores por defecto configurando
 las opciones en openwebmail.conf.
 
 1. quota_module
@@ -365,7 +365,7 @@ openwebmail es el usuario real de unix y su sistema tiene habilitados los
 límites de espacio (disk quota).
 Produce una sobrecarga mínima.
 
-ps:Debe instalar Quota-1.4.6.tar.gz para utilizar este módulo.
+ps:Debe instalar Quota-1.4.10.tar.gz para utilizar este módulo.
 
 b. quota_du.pl
 
@@ -504,7 +504,7 @@ el paquete ispell o aspell.
 
 ps: Si está compilando ispell desde los fuentes, puede extenderlo 
     utilizando un diccionario mejorado (en inglés)
-    a. descargue http://openwebmail.com/openwebmail/download/contrib/words.gz
+    a. descargue http://openwebmail.org/openwebmail/download/contrib/words.gz
     b. gzip -d words.gz
     c. mkdir /usr/dict; cp words /usr/dict/words
     d. comience a compilar su ispell leyendo el archivo README
@@ -757,7 +757,7 @@ eg: To creat the capability file for user 'guest':
 
 ps: Openwebmail loads configuration files in the following order
 
-1. cgi-bin/openwebmail/etc/openwebmail.conf.default
+1. cgi-bin/openwebmail/etc/defaults/openwebmail.conf
 2. cgi-bin/openwebmail/etc/openwebmail.conf
 3. cgi-bin/openwebmail/etc/sites.conf/domainname if file exists
 
@@ -779,11 +779,11 @@ http://www.kernel.org/pub/linux/libs/pam/
 Solaris 2.6, Linux and FreeBSD 3.1 are known to support PAM.
 To make Open WebMail use the support of PAM, you have to:
 
-1. download the Perl Authen::PAM module (Authen-PAM-0.12.tar.gz)
+1. download the Perl Authen::PAM module (Authen-PAM-0.14.tar.gz)
    It is available at http://www.cs.kuleuven.ac.be/~pelov/pam/
 2. cd /tmp
-   tar -zxvf Authen-PAM-0.12.tar.gz
-   cd Authen-PAM-0.12
+   tar -zxvf Authen-PAM-0.14.tar.gz
+   cd Authen-PAM-0.14
    perl Makefile.PL
    make
    make install
@@ -970,7 +970,7 @@ ps: If you wish your translation to be included in the next release of
 
     IMPORTANT!!!
     Please be sure your translation is based on the template files in the
-    latest openwebmail-current.tgz. And please send both your tranlsation
+    latest openwebmail-current.tar.gz. And please send both your tranlsation
     and english version files it based on to us. So we can check if there
     is any latest modification should be added your translation.
 
@@ -1031,7 +1031,7 @@ you have to
 ps: If your are going to make Cool3D iconset for your language with Photoshop,
     you may start with the psd file created by Jan Bilik <jan.AT.bilik.org>,
     it could save some of your time. The psd file is available at
-    http://openwebmail.com/openwebmail/contrib/Cool3D.iconset.Photoshop.template.zip
+    http://openwebmail.org/openwebmail/contrib/Cool3D.iconset.Photoshop.template.zip
 
 ps: If you wish the your new iconset to be included in the next release of
     openwebmail, please submit it to openwebmail.AT.turtle.ee.ncku.edu.tw
@@ -1054,7 +1054,7 @@ TEST
 
 If there is any problem, please check the faq.txt.
 The latest version of FAQ will be available at
-http://openwebmail.com/openwebmail/download/doc/faq.txt
+http://openwebmail.org/openwebmail/download/doc/faq.txt
 
 
 PERSISTENT RUNNING through SpeedyCGI
@@ -1156,7 +1156,7 @@ ps: Kevin L. Ellis (kevin.AT.bluelavalamp.net) has written a tutorial
 
 HTTP COMPRESSION
 ----------------
-To make this feature work, you have to install the Compress-Zlib-1.21.tar.gz.
+To make this feature work, you have to install the Compress-Zlib-1.33.tar.gz.
 HTTP Compression is very useful for users with slow connection to the
 openwebmail server (eg: dialup user, PDA user).
 

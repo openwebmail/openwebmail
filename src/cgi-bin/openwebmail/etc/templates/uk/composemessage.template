@@ -177,7 +177,8 @@
          alert("Будь ласка вкаж╕ть отримувача перед в╕дправкою.");
          return false;
       }
-      if (document.composeform.subject.value == "" ) {
+      if (document.composeform.subject.value == "" 
+       || document.composeform.subject.value == "N/A" ) {
          return(confirm("Це пов╕домлення не ма╓ теми. Ви хочете в╕дправити його?"));
       }
       return true;

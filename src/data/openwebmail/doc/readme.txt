@@ -11,32 +11,37 @@ FEATURES
 ---------
 Open WebMail has the following enhanced features:
 
-1.  fast folder access
-2.  efficient messages movement
-3.  smaller memory footprint
-4.  convenient folder and message operation
-5.  graceful filelock
-6.  remote SMTP relaying
-7.  virtual hosting
-8.  user alias
-9.  pure virtual user support
-10. per user capability configuration
-11. various authentication modules
-12. pam support
-13. full content search
-14. strong MIME support (presentation and composing)
-15. draft folder support
-16. reply with stationery support
-17. spelling check support
-18. POP3 mail support
-19. mail filter support
-20. message count preview
-21. confirm reading support
-22. charset auto conversion
-23. calendar with reminder/notification support
-24. web disk support
-25. persistent running through SpeedyCGI
-26. HTTP compression support
+For Users:
+
+* Auto Login
+* Multiple Languages/Multiple Charsets
+* Strong MIME Message Capability
+* Full Content Search
+* Draft Folder Support
+* Confirm Reading Support
+* Spelling Check Support
+* POP3 Support
+* Mail Filter Support
+* AntiSpam Support through <a href="http://www.spamassassin.org">SpamAssassin</a>
+* AntiVirus Support through <a href="http://www.clamav.net">ClamAV</a>
+* Calendar with Reminder/Notification Support
+* Webdisk Support
+* HTTP Compression
+
+For System:
+
+* Fast Folder Access
+* Efficient Message Movement
+* Smaller Memory Footprint
+* Graceful File Lock
+* Various Authentication Modules
+* PAM support
+* Remote SMTP Relaying
+* Virtual Hosting
+* User Alias
+* Pure Virtual User Support
+* Per User Capability Configuration
+* Persistent Running through SpeedyCGI
 
 
 REQUIREMENT
@@ -44,39 +49,43 @@ REQUIREMENT
 Apache web server with cgi enabled
 Perl 5.005 or above
 
-CGI.pm-2.74.tar.gz        (required)
-MIME-Base64-2.12.tar.gz   (required)
-libnet-1.0901.tar.gz      (required)
-Digest-1.05.tar.gz        (required)
-Digest-MD5-2.33.tar.gz    (required)
-Text-Iconv-1.2.tar.gz     (required)
-libiconv-1.9.1.tar.gz     (required if system doesn't support iconv)
+CGI.pm-3.05.tar.gz            (required)
+MIME-Base64-3.01.tar.gz       (required)
+libnet-1.19.tar.gz            (required)
+Digest-1.08.tar.gz            (required)
+Digest-MD5-2.33.tar.gz        (required)
+Text-Iconv-1.2.tar.gz         (required)
+libiconv-1.9.1.tar.gz         (required if system doesn't support iconv)
 
-CGI-SpeedyCGI-2.22.tar.gz (optional, for persistent running)
-Compress-Zlib-1.21.tar.gz (optional, for HTTP compression)
-ispell-3.1.20.tar.gz      (optional, for spellcheck)
-Quota-1.4.6.tar.gz        (optional, for unixfs quota support)
-Authen-PAM-0.12.tar.gz    (optional, for auth_pam support)
-ImageMagick-5.5.3.tar.gz  (optional, for thumbnail support in webdisk)
-antiword-0.35.tar.gz      (optional, for msword preview)
-openssl-0.9.7c.tar.gz     (optional, for pop3 over SSL support,
-                           this is required only if system doesn't support libssl) 
-Net_SSLeay.pm-1.25.tar.gz (optional, for pop3 over SSL support)
-IO-Socket-SSL-0.95.tar.gz (optional, for pop3 over SSL support)
+CGI-SpeedyCGI-2.22.tar.gz     (optional, for persistent running)
+Compress-Zlib-1.33.tar.gz     (optional, for HTTP compression)
+ispell-3.1.20.tar.gz          (optional, for spellcheck)
+Quota-1.4.10.tar.gz           (optional, for unixfs quota support)
+Authen-PAM-0.14.tar.gz        (optional, for auth_pam support)
+ImageMagick-5.5.3.tar.gz      (optional, for thumbnail support in webdisk)
+antiword-0.35.tar.gz          (optional, for msword preview)
+openssl-0.9.7d.tar.gz         (optional, for pop3 over SSL support,
+                               required only if system doesn't support libssl) 
+Net_SSLeay.pm-1.25.tar.gz     (optional, for pop3 over SSL support)
+IO-Socket-SSL-0.96.tar.gz     (optional, for pop3 over SSL support)
+clamav-0.70.tar.gz            (optional, for viruscheck, 
+                               available at http://www.clamav.net)
+Mail-SpamAssassin-2.63.tar.gz (optional, for spamcheck,
+                               available at http://www.spamassassin.org)
 
 
 INSTALL REQUIRED PACKAGES
 -------------------------
 First, you have to download required packages from
-http://openwebmail.com/openwebmail/download/packages/
+http://openwebmail.org/openwebmail/download/packages/
 and copy them to /tmp
 
 
 CGI.pm installation:
 
    cd /tmp
-   tar -zxvf CGI.pm-2.74.tar.gz
-   cd CGI.pm-2.74
+   tar -zxvf CGI.pm-3.05.tar.gz
+   cd CGI.pm-3.05
    perl Makefile.PL
    make
    make install
@@ -92,8 +101,8 @@ ps: It is reported that Open Webmail will hang in attachment uploading
 MIME-Base64 installation:
 
    cd /tmp
-   tar -zxvf MIME-Base64-2.12.tar.gz
-   cd MIME-Base64-2.12
+   tar -zxvf MIME-Base64-3.01.tar.gz
+   cd MIME-Base64-3.01
    perl Makefile.PL
    make
    make install
@@ -107,8 +116,8 @@ ps: Though you may already have the MIME-Base64 perl module,
 libnet installation:
 
    cd /tmp
-   tar -zxvf libnet-1.0901.tar.gz
-   cd libnet-1.0901
+   tar -zxvf libnet-1.19.tar.gz
+   cd libnet-1.19
    perl Makefile.PL (ans 'no' if asked to update configuration)
    make
    make install
@@ -152,7 +161,7 @@ Text-Iconv-1.2 installation:
 
    ps: If the 'make test' failed, it means you set wrong value for LIBS and
        INC in Makefile.PL or your iconv support is not complete.
-       You may copy the uty/iconv.pl.fake to shares/iconv.pl to make 
+       You may copy the misc/patches/iconv.pl.fake to shares/iconv.pl to make 
        openwebmail work without iconv support.
 
    make install
@@ -161,7 +170,7 @@ Text-Iconv-1.2 installation:
 INSTALL OPENWEBMAIL
 -------------------
 The latest released or current version is available at
-http://openwebmail.com/openwebmail/
+http://openwebmail.org/openwebmail/
 
 
 If you are using FreeBSD and install apache with pkg_add,
@@ -169,7 +178,7 @@ If you are using FreeBSD and install apache with pkg_add,
 1. chmod 4555 /usr/bin/suidperl
 
 2. cd /usr/local/www
-   tar -zxvBpf openwebmail-X.XX.tgz
+   tar -zxvBpf openwebmail-X.XX.tar.gz
 
 3. cd /usr/local/www/cgi-bin/openwebmail/etc
    modify openwebmail.conf for your need.
@@ -180,13 +189,13 @@ If you are using FreeBSD and install apache with pkg_add,
 If you are using RedHat 7.x (or most Linux) with Apache
 
 1. cd /var/www
-   tar -zxvBpf openwebmail-X.XX.tgz
+   tar -zxvBpf openwebmail-X.XX.tar.gz
    mv data/openwebmail html/
    rmdir data
 
 2. cd /var/www/cgi-bin/openwebmail/etc
 
-   modify auth_unix.conf from auth_unix.conf.default
+   modify auth_unix.conf from defaults/auth_unix.conf
    a. set passwdfile_encrypted to '/etc/shadow'
    b  set passwdmkdb           to 'none'
 
@@ -214,7 +223,7 @@ ps: It is highly recommended to read the doc/RedHat-README.txt(contributed by
 
 ps: Thomas Chung (tchung.AT.openwebmail.org) maintains the rpm for all
     released and current version of openwebmail, It is available at
-    http://openwebmail.com/openwebmail/download/redhat/rpm/
+    http://openwebmail.org/openwebmail/download/redhat/rpm/
     You can get openwebmail working in 5 minutes with this :)
 
 
@@ -224,7 +233,7 @@ Try to find the parent directory of both your data and cgi-bin directory,
 eg: /usr/local/apache/share, then
 
 1. cd /usr/local/apache/share
-   tar -zxvBpf openwebmail-X.XX.tgz
+   tar -zxvBpf openwebmail-X.XX.tar.gz
    mv data/openwebmail htdocs/
    rmdir data
 
@@ -243,7 +252,7 @@ eg: /usr/local/apache/share, then
    d. change default_signature for your need
    e. other changes you want
 
-   modify auth_unix.conf from auth_unix.conf.default
+   modify auth_unix.conf from defaults/auth_unix.conf
    a. set passwdfile_encrypted to '/etc/shadow'
    b  set passwdmkdb           to 'none'
 
@@ -338,11 +347,99 @@ any message matching this rule will be kept in the INBOX folder and
 other rules will be ignored.
 
 
+VIRUSCHECK SUPPORT
+------------------
+Openwebmail can call external programs to do viruscheck for pop3 or 
+other messages in INBOX. To enable virus check support, you have to 
+
+1. install ClamAV (http://www.clamav.net/)
+   And ensure you have started up the daemon of the clamav - clamd
+2. modify option viruscheck_pipe according to the location of clamdscan
+   (it is the client side of ClamAV)
+3. set viruscheck_source_allowed to either pop3 or all.
+   This depends on the configuration of your mail system
+   If MTA or mail deliver will do virus scanning, 
+   then you should set this to pop3, otherwise, you may set it to all.
+4. set enable_viruscheck to yes in openwebmail.conf
+5. there are some other viruscheck related options in defaults/openwebmail.conf,
+   please refer to openwebmail.conf.help for more detail
+
+ps: Thomas Chung has written a document 
+    "HOWTO install and configure ClamAV for Open WebMail on Red Hat/Fedora Core"
+    It is available at http://openwebmail.org/openwebmail/download/redhat/howto/virus/ClamAV/HOWTO-clamav.txt
+
+
+SPAMCHECK SUPPORT
+-----------------
+Openwebmail can call external programs to do spamcheck for pop3 or 
+other messages in INBOX. To enable spam check support, you have to 
+
+1. install SpamAssassin (http://www.spamassassin.org)
+   And ensure you have started up the daemon of the spamassasin (spamd)
+ps:Please be sure that the spamd is started with -L or --local option
+   This causes spamd to do local only test, or the spamcheck will take
+   a much longer time.
+2. modify option spamcheck_pipe according to the location of spamc
+   (it is the client side of spamassassin)
+3. set spamcheck_source_allowed to either pop3 or all.
+   This depends on the configuration of your mail system
+   If MTA or mail deliver will do spam scanning, 
+   then you should set this to pop3, otherwise, you should set it to all.
+4. set enable_spamcheck to yes in openwebmail.conf
+5. there are some other spamcheck related options in defaults/openwebmail.conf,
+   please refer to openwebmail.conf.help for more detail
+
+ps: How and when does openwebmail call the external programs to check messages?
+
+    The pop3 messages are checked when they are fetched 
+    from remote pop3 server, the fetching and checking are done in background.
+    Other new messages in INBOX (which is delivered by mail system) are checked 
+    at the time user accesses the mail folder. A mail filtering process will be
+    forked at background to check the messages in INBOX. 
+
+ps: An option "wait time for background filtering" is provided in preference,
+    which can be used to control how long user would like to wait for mail 
+    filtering before the folder message list or message content is returned.
+
+    Please don't set it too short or some spam/virus may not get filtered 
+    in time before user accesses them.
+
+ps: The viruscheck/spamcheck is majorly designed to check messages fetched 
+    from pop3 server since these messages won't be checked by scanners in 
+    MTA or local deliver.
+
+    While viruscheck/spamcheck can also check all messages in INBOX, but
+    we suggest that the sysadm should install antispam/antivurs softwares 
+    in either MTA or local deliver so mails can get checked before delivered 
+    into INBOX. It is more efficient than scanning all mails in Open WebMail. 
+    And the mails will get checked even the user is using client other than 
+    Open WebMail.
+
+
+LEARNSPAM SUPPORT
+-----------------
+Openwebmail can call external programs to learn HAM/SPAM messages by storing
+the tokens of messages in per user bayesian db..
+To enable learn ham/spam support, you have to 
+
+1. install SpamAssassin (http://www.spamassassin.org)
+2. modify option learnspam_pipe and learnham_pipe according to the location 
+   of sa-learn (it is the ham/psam learner of spamassassin)
+3. set enable_learnspam to yes in openwebmail.conf
+
+ps:The learned result are stored as per user bayesian db,
+   and learnspam is useful only if the db is referenced.
+
+   The two cases that the per user bayesian db is used:
+   a. spamassassin check is called in local deliver, or
+   b. spamassassin check is enabled in openwebmail
+
+
 USER QUOTA
 ----------
 The disk space used by webmail, webcalendar or webdisk are counted together as
 the user quota usage. There are five options can be used to control the user
-quota in openwebmail.conf.default. You may override the defaults by setting
+quota in defaults/openwebmail.conf. You may override the defaults by setting
 them in openwebmail.conf.
 
 1. quota_module
@@ -356,7 +453,7 @@ This is the recommended quota module if the openwebmail user is the real
 unix user and you system has enables the disk quota.
 It has the minimal overhead.
 
-ps:You have to install the Quota-1.4.6.tar.gz to use the module.
+ps:You have to install the Quota-1.4.10.tar.gz to use the module.
 
 b. quota_du.pl
 
@@ -474,7 +571,7 @@ aspell package.
 
 ps: if you are compiling ispell from source, you may enhance your ispell
     by using a better dictionary source.
-    a. download http://openwebmail.com/openwebmail/download/contrib/words.gz
+    a. download http://openwebmail.org/openwebmail/download/contrib/words.gz
     b. gzip -d words.gz
     c. mkdir /usr/dict; cp words /usr/dict/words
     d. start to make your ispell by reading README
@@ -754,7 +851,7 @@ eg: To creat the capability file for user 'guest':
 
 ps: Openwebmail loads configuration files in the following order
 
-1. cgi-bin/openwebmail/etc/openwebmail.conf.default
+1. cgi-bin/openwebmail/etc/defaults/openwebmail.conf
 2. cgi-bin/openwebmail/etc/openwebmail.conf
 3. cgi-bin/openwebmail/etc/sites.conf/domainname if file exists
 
@@ -776,11 +873,11 @@ http://www.kernel.org/pub/linux/libs/pam/
 Solaris 2.6, Linux and FreeBSD 3.1 are known to support PAM.
 To make Open WebMail use the support of PAM, you have to:
 
-1. download the Perl Authen::PAM module (Authen-PAM-0.12.tar.gz)
+1. download the Perl Authen::PAM module (Authen-PAM-0.14.tar.gz)
    It is available at http://www.cs.kuleuven.ac.be/~pelov/pam/
 2. cd /tmp
-   tar -zxvf Authen-PAM-0.12.tar.gz
-   cd Authen-PAM-0.12
+   tar -zxvf Authen-PAM-0.14.tar.gz
+   cd Authen-PAM-0.14
    perl Makefile.PL
    make
    make install
@@ -789,46 +886,9 @@ ps: Doing 'make test' is recommended when making the Authen::PAM,
     if you encounter error in 'make test', the PAM on your system
     will probable-ly not work.
 
-3. add the following 3 lines to your /etc/pam.conf
+3. change auth_module to 'auth_pam.pl' in the openwebmail.conf
 
-(on Solaris)
-openwebmail   auth	required	/usr/lib/security/pam_unix.so.1
-openwebmail   account	required	/usr/lib/security/pam_unix.so.1
-openwebmail   password	required	/usr/lib/security/pam_unix.so.1
-
-(on Linux)
-openwebmail   auth	required	/lib/security/pam_unix.so
-openwebmail   account	required	/lib/security/pam_unix.so
-openwebmail   password	required	/lib/security/pam_unix.so
-
-(on Linux without /etc/pam.conf, by protech.AT.protech.net.tw)
-If you don't have /etc/pam.conf but the directory /etc/pam.d/,
-please create a file /etc/pam.d/openwebmail with the following content
-
-auth       required	/lib/security/pam_unix.so
-account    required	/lib/security/pam_unix.so
-password   required	/lib/security/pam_unix.so
-
-If you are using Red Hat Enterprise Linux 3, Fedora Core 1  or 
-Red Hat Linux 9, please use the following content instead.
-(by Milan Kerslager, milan.kerslager.AT.pslib.cz)
-
-auth       required     pam_stack.so service=system-auth
-account    required     pam_stack.so service=system-auth
-session    required     pam_stack.so service=system-auth
-password   required     pam_stack.so service=system-auth 
-
-
-(on FreeBSD)
-openwebmail   auth	required	/usr/lib/pam_unix.so
-openwebmail   account	required	/usr/lib/pam_unix.so
-openwebmail   password	required	/usr/lib/pam_unix.so
-
-ps: PAM support on some release of FreeBSD seems broken (eg:4.1)
-
-4. change auth_module to 'auth_pam.pl' in the openwebmail.conf
-
-5. check auth_pam.pl and auth_pam.conf for further information.
+4. check auth_pam.pl and auth_pam.conf for further information.
 
 ps: Since the authentication module is loaded only once in persistent mode,
     you need to do 'touch openwebmail*pl' to make the modification active.
@@ -838,6 +898,17 @@ ps: For more detail about PAM configuration, it is recommended to read
     "The Linux-PAM System Administrators' Guide"
     http://www.kernel.org/pub/linux/libs/pam/Linux-PAM-html/pam.html
     by Andrew G. Morgan, morgan.AT.kernel.org
+
+ps: The script in cgi-bin/openwebmail/misc/test/authtest.pl can used to 
+    test if the a authentication module under cgi-bin/openwebmail/auth/ works
+    on your system.
+
+    eg: cd your_cgi-bin/openwebmail/
+        perl authtest.pl auth_unix.pl someusername passwd
+        perl authtest.pl auth_pam.pl someusername passwd
+    
+    ps: On some system, root is not allowed to login,
+        and PAM will always return false for root login
 
 
 ADD NEW AUTHENTICATION MODULE TO OPENWEBMAIL
@@ -977,7 +1048,7 @@ ps: If you wish your translation to be included in the next release of
 
     IMPORTANT!!!
     Please be sure your translation is based on the template files in the
-    latest openwebmail-current.tgz. And please send both your tranlsation
+    latest openwebmail-current.tar.gz. And please send both your tranlsation
     and english version files it based on to us. So we can check if there
     is any latest modification should be added your translation.
 
@@ -1038,7 +1109,7 @@ you have to
 ps: If your are going to make Cool3D iconset for your language with Photoshop,
     you may start with the psd file created by Jan Bilik <jan.AT.bilik.org>,
     it could save some of your time. The psd file is available at
-    http://openwebmail.com/openwebmail/contrib/Cool3D.iconset.Photoshop.template.zip
+    http://openwebmail.org/openwebmail/contrib/Cool3D.iconset.Photoshop.template.zip
 
 ps: If you wish the your new iconset to be included in the next release of
     openwebmail, please submit it to openwebmail.AT.turtle.ee.ncku.edu.tw
@@ -1061,7 +1132,7 @@ TEST
 
 If there is any problem, please check the faq.txt.
 The latest version of FAQ will be available at
-http://openwebmail.com/openwebmail/download/doc/faq.txt
+http://openwebmail.org/openwebmail/download/doc/faq.txt
 
 
 PERSISTENT RUNNING through SpeedyCGI
@@ -1103,8 +1174,8 @@ Note: Don't try to fly before you can walk...
 
    Assume it is installed in /usr/bin/speedy
 
-   cp /usr/bin/speedy /usr/bin/speedy_suid
-   chmod 4555 /usr/bin/speedy_suid
+   cp /usr/bin/speedy /usr/bin/speedy_suidperl
+   chmod 4555 /usr/bin/speedy_suidperl
 
 3. modify openwebmail for speedy
 
@@ -1114,7 +1185,7 @@ Note: Don't try to fly before you can walk...
    from
 	#!/usr/bin/suidperl -T
    to
-	#!/usr/bin/speedy_suid -T -- -T/tmp/speedy
+	#!/usr/bin/speedy_suidperl -T -- -T/tmp/speedy
 
    The first -T option (before --) is for perl interpreter.
    The second -T/tmp/speedy option is for SpeedyCGI system,
@@ -1160,10 +1231,39 @@ ps: Kevin L. Ellis (kevin.AT.bluelavalamp.net) has written a tutorial
     and benchmark for OWM + SpeedyCGI.
     It is available at http://www.bluelavalamp.net/owmspeedycgi/
 
+7. Compatibility with perl 5.8.4
+
+   The latest perl 5.8.4 does more strict check for suid scripts, 
+   and the following two may cause incompatibility for some users
+
+   a. the name of the perl interpreter must has string 'perl'
+
+      We used suggest 'speedy_suid' as the name of suid speedy perl interpreter,
+      but we would like to suggest 'speedy_suidperl' as the name of speedy perl
+      interpreter now.
+
+   b. the parameter passed in the first line of the script must be the same 
+      as the one the perl interpreter get.
+
+      This restirction stop us from using the following line in the script
+
+	#!/usr/bin/speedy_suidperl -T -- -T/tmp/speedy
+
+      All we can use is 
+
+	#!/usr/bin/speedy_suidperl -T
+
+      In other words, we can't use "-- -parameter_for_speedy" to pass parameter 
+      to speedycgi itself
+
+   ps: If you really need to change the tmpbase for SpeedyCGI, you may apply the 
+       patch in cgi-bin/openwebmail/misc/patches/speedycgi.tmpbase.patch to the
+       SpeedyCGi 2.22 source, it changes tmpbase from /tmp/speedy to /var/run/speedy
+
 
 HTTP COMPRESSION
 ----------------
-To make this feature work, you have to install the Compress-Zlib-1.21.tar.gz.
+To make this feature work, you have to install the Compress-Zlib-1.33.tar.gz.
 HTTP Compression is very useful for users with slow connection to the
 openwebmail server (eg: dialup user, PDA user).
 

@@ -19,7 +19,7 @@
 @@@STARTSTATFORM@@@
 <tr><td colspan="3" bgcolor=@@@COLUMNHEADER@@@><B>建立新信纸底稿</B></td></tr>
 <tr><td colspan="3" align="center" bgcolor=@@@WINDOW_DARK@@@>
-<B>标题:</B>&nbsp; &nbsp; 
+<B>标题：</B>&nbsp; &nbsp; 
 @@@STATNAME@@@
 </td></tr>
 <tr><td colspan="3" align="center" bgcolor=@@@WINDOW_DARK@@@ class=msgbody>

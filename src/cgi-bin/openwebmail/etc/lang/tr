@@ -10,6 +10,11 @@ package ow::tr;
    'sent-mail'      => 'Gönderilmiþ',
    'saved-drafts'   => 'Taslak',
    'mail-trash'     => 'Çöp Kutusu',
+   'spam-mail'      => 'Spam',
+   'virus-mail'     => 'Virus',
+   LEARNSPAM        => '--LEARN SPAM--',
+   LEARNHAM         => '--LEARN HAM--',
+   FORWARD          => '--FORWARD--',
    DELETE           => '--ÇÖPE AT--'
    );
 
@@ -87,6 +92,13 @@ package ow::tr;
    before => 'Before addressbook entries',
    after  => 'After addressbook entries',
    both   => 'Before and after addressbook entries'
+   );
+
+%lang_checksourcelabels =
+   (
+   all  => 'All new messages in INBOX',
+   pop3 => 'Only messages from pop3 server',
+   none => 'None'
    );
 
 %lang_timelabels =
@@ -225,6 +237,7 @@ package ow::tr;
    userprefs  => 'Kullanýcý Tercihleri',
    addressbook=> 'Adres Defteri',
    folders    => 'Klasörler',
+   emptyfolder=> 'Empty folder',
    emptytrash => 'Çöpü Boþalt',
    totrash    => 'Çöpe At',
    forever    => 'Herzaman',
@@ -451,6 +464,7 @@ package ow::tr;
    abook_invalid     => 'Bu dosya geçerli Outlook Express 5 CSV formatýnda deðil. Lütfen metin düzenleyiciniz ile kontrol edip "Ýsim,Eposta" bilgileriyle baþladýðýna emin olunuz!',
    back              => 'geri',
    tryagain          => 've tekrar deneyiniz.',
+   mailfilter_error  => 'Mail Filter Error',
    abook_toobig      => 'Adres defterinizin sýnýrda olduðu için bu deðer girilemiyor',
    cant_create_dir   => 'Kullanýcý klasörünüz oluþturulamýyor!',
    att_overlimit     => 'Ek dosyasý sýnýrýný aþtýnýz,dosyanýzýn boyutu',

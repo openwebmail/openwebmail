@@ -19,9 +19,9 @@ sub getinfomessageids {
 
    # do new indexing in background if folder > 10 M && empty db
    if (!ow::dbm::exist($folderdb) && (-s $folderfile) >= 10485760) {
-      local $|=1; # flush all output
-      local $SIG{CHLD} = sub { wait; $_index_complete=1 if ($?==0) };	# handle zombie
       local $_index_complete=0;
+      local $SIG{CHLD} = sub { wait; $_index_complete=1 if ($?==0) };	# handle zombie
+      local $|=1; # flush all output
       if ( fork() == 0 ) {		# child
          close(STDIN); close(STDOUT); close(STDERR);
          ow::filelock::lock($folderfile, LOCK_SH|LOCK_NB) or openwebmail_exit(1);
@@ -58,13 +58,15 @@ sub getinfomessageids {
       $sort='recipient' if ($sort eq 'sender');
    }
 
+   my ($totalsize, $new, $r_messageids, $r_messagedepths);
+
    if ( $keyword ne '' ) {
       my $folderhandle=do { local *FH };
-      my ($totalsize, $new, $r_haskeyword, $r_messageids, $r_messagedepths);
+      my $r_haskeyword;
       my @messageids=();
       my @messagedepths=();
 
-      ($totalsize, $new, $r_messageids, $r_messagedepths)=get_info_messageids_sorted($folderdb, $sort, "$folderdb.cache", $prefs{'hideinternal'});
+      ($r_messageids, $r_messagedepths)=get_messageids_sorted($folderdb, $sort, "$folderdb.cache", $prefs{'hideinternal'});
 
       ow::filelock::lock($folderfile, LOCK_SH|LOCK_NB) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $folderfile!");
@@ -85,7 +87,18 @@ sub getinfomessageids {
       return($totalsize, $new, \@messageids, \@messagedepths);
 
    } else { # return: $totalsize, $new, $r_messageids for whole folder
-      return(get_info_messageids_sorted($folderdb, $sort, "$folderdb.cache", $prefs{'hideinternal'}))
+      my %FDB;
+
+      ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or 
+         return($totalsize, $new, $r_messageids, $r_messagedepths);
+      $new=$FDB{'NEWMESSAGES'};
+      $totalsize=(stat($folderfile))[7];
+      $totalsize=$totalsize-$FDB{'INTERNALSIZE'}-$FDB{'ZAPSIZE'};
+      ow::dbm::close(\%FDB, $folderdb);
+
+      ($r_messageids, $r_messagedepths)=get_messageids_sorted($folderdb, $sort, "$folderdb.cache", $prefs{'hideinternal'});
+
+      return($totalsize, $new, $r_messageids, $r_messagedepths);
    }
 }
 
@@ -93,14 +106,14 @@ sub getinfomessageids {
 # prefs_charset: the charset of the keyword
 sub search_info_messages_for_keyword {
    my ($keyword, $prefs_charset, $searchtype, $folderdb, $folderhandle, $cachefile, $ignore_internal, $regexmatch)=@_;
-   my ($cache_metainfo, $cache_folderdb, $cache_keyword, $cache_searchtype, $cache_ignore_internal);
+   my ($cache_lstmtime, $cache_folderdb, $cache_keyword, $cache_searchtype, $cache_ignore_internal);
    my (%FDB, @messageids, $messageid);
    my ($totalsize, $new)=(0,0);
    my %found=();
 
    ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or
       return($totalsize, $new, \%found);
-   my $metainfo=$FDB{'METAINFO'};
+   my $lstmtime=$FDB{'LSTMTIME'};
    ow::dbm::close(\%FDB, $folderdb);
 
    ow::filelock::lock($cachefile, LOCK_EX) or
@@ -108,13 +121,13 @@ sub search_info_messages_for_keyword {
 
    if ( -e $cachefile ) {
       open(CACHE, $cachefile);
-      foreach ($cache_metainfo, $cache_folderdb, $cache_keyword, $cache_searchtype, $cache_ignore_internal) {
+      foreach ($cache_lstmtime, $cache_folderdb, $cache_keyword, $cache_searchtype, $cache_ignore_internal) {
          $_=<CACHE>; chomp;
       }
       close(CACHE);
    }
 
-   if ( $cache_metainfo ne $metainfo || $cache_folderdb ne $folderdb ||
+   if ( $cache_lstmtime ne $lstmtime || $cache_folderdb ne $folderdb ||
         $cache_keyword ne $keyword || $cache_searchtype ne $searchtype ||
         $cache_ignore_internal ne $ignore_internal ) {
       $cachefile=ow::tool::untaint($cachefile);
@@ -128,6 +141,7 @@ sub search_info_messages_for_keyword {
       foreach $messageid (@messageids) {
          my (@attr, @references, $block, $header, $body, $r_attachments) ;
          @attr=string2msgattr($FDB{$messageid});
+         next if ($attr[$_STATUS]=~/Z/i);
          next if ($ignore_internal && is_internal_subject($attr[$_SUBJECT]));
          @references=split(/\s+/, $attr[$_REFERENCES]);
 
@@ -167,7 +181,7 @@ sub search_info_messages_for_keyword {
             }
          }
          if ($found{$messageid}) {
-            $new++ if ($attr[$_STATUS]!~/r/i);
+            $new++ if ($attr[$_STATUS]!~/R/i);
             $totalsize+=$attr[$_SIZE];
             next;
          }
@@ -187,7 +201,7 @@ sub search_info_messages_for_keyword {
 
             if ( ($regexmatch && $header =~ /$keyword/im) ||
                  $header =~ /\Q$keyword\E/im ) {
-               $new++ if ($attr[$_STATUS]!~/r/i);
+               $new++ if ($attr[$_STATUS]!~/R/i);
                $totalsize+=$attr[$_SIZE];
                $found{$messageid}=1;
                next;
@@ -216,7 +230,7 @@ sub search_info_messages_for_keyword {
                ($body)=iconv($attr[$_CHARSET], $prefs_charset, $body) if ($is_conv);
                if ( ($regexmatch && $body =~ /$keyword/im) ||
                     $body =~ /\Q$keyword\E/im ) {
-                  $new++ if ($attr[$_STATUS]!~/r/i);
+                  $new++ if ($attr[$_STATUS]!~/R/i);
                   $totalsize+=$attr[$_SIZE];
                   $found{$messageid}=1;
                   next;
@@ -243,7 +257,7 @@ sub search_info_messages_for_keyword {
 
                   if ( ($regexmatch && $content =~ /$keyword/im) ||
                        $content =~ /\Q$keyword\E/im ) {
-                     $new++ if ($attr[$_STATUS]!~/r/i);
+                     $new++ if ($attr[$_STATUS]!~/R/i);
                      $totalsize+=$attr[$_SIZE];
                      $found{$messageid}=1;
                      last;	# leave attachments check in one message
@@ -262,7 +276,7 @@ sub search_info_messages_for_keyword {
                }
                if ( ($regexmatch && $filename =~ /$keyword/im) ||
                     $filename =~ /\Q$keyword\E/im ) {
-                  $new++ if ($attr[$_STATUS]!~/r/i);
+                  $new++ if ($attr[$_STATUS]!~/R/i);
                   $totalsize+=$attr[$_SIZE];
                   $found{$messageid}=1;
                   last;	# leave attachments check in one message
@@ -274,7 +288,7 @@ sub search_info_messages_for_keyword {
       ow::dbm::close(\%FDB, $folderdb);
 
       open(CACHE, ">$cachefile") or logtime("cache write error $!");
-      foreach ($metainfo, $folderdb, $keyword, $searchtype, $ignore_internal) {
+      foreach ($lstmtime, $folderdb, $keyword, $searchtype, $ignore_internal) {
          print CACHE $_, "\n";
       }
       print CACHE join("\n", $totalsize, $new, keys(%found));
@@ -298,23 +312,135 @@ sub search_info_messages_for_keyword {
 
 ########## GET_MESSAGEIDS_SORTED_BY_...  #########################
 
-sub get_info_messageids_sorted_by_date {
+use vars qw(%sorttype);
+%sorttype= (
+   'date'          => ['date', 0],
+   'date_rev'      => ['date', 1],
+   'sender'        => ['sender', 0],
+   'sender_rev'    => ['sender', 1],
+   'recipient'     => ['recipient', 0],
+   'recipient_rev' => ['recipient', 1],
+   'size'          => ['size', 0],
+   'size_rev'      => ['size', 1],
+   'subject'       => ['subject', 1],
+   'subject_rev'   => ['subject', 0],
+   'status'        => ['status', 0],
+   'status_rev'    => ['status', 1]
+   );
+
+sub get_messageids_sorted {
+   my ($folderdb, $sort, $cachefile, $ignore_internal)=@_;
+   my ($cache_lstmtime, $cache_folderdb, $cache_sort, $cache_ignore_internal);
+   my %FDB;
+   my $r_messageids;
+   my $r_messagedepths;
+   my @messageids=();
+   my @messagedepths=();
+   my $messageids_size;
+   my $messagedepths_size;
+   my $rev;
+
+   if (defined($sorttype{$sort})) {
+      ($sort, $rev)=@{$sorttype{$sort}};
+   } else {
+      ($sort, $rev)= ('date', 0);
+   }
+
+   ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or 
+      return(\@messageids, \@messagedepths);
+   my $lstmtime=$FDB{'LSTMTIME'};
+   ow::dbm::close(\%FDB, $folderdb);
+
+   ow::filelock::lock($cachefile, LOCK_EX) or
+      return(\@messageids, \@messagedepths);
+
+   if ( -e $cachefile ) {
+      open(CACHE, $cachefile);
+      foreach ($cache_lstmtime, $cache_folderdb, $cache_sort, $cache_ignore_internal) {
+         $_=<CACHE>; chomp;
+      }
+      close(CACHE);
+   }
+
+   # LSTMTIME will be upated in case the message list of a folder is changed, 
+   # eg: 1. db is rebuild
+   #     2. messages added into or removed from db
+   # But LSTMTIME won't be changed in message_status_update.
+   # so we don't have to reload msglist form db a message status change
+   if ( $cache_lstmtime ne $lstmtime || $cache_folderdb ne $folderdb ||
+        $cache_sort ne $sort || $cache_ignore_internal ne $ignore_internal) {
+      $cachefile=ow::tool::untaint($cachefile);
+      open(CACHE, ">$cachefile");
+      print CACHE $lstmtime, "\n", $folderdb, "\n", $sort, "\n", $ignore_internal, "\n";
+      if ( $sort eq 'date' ) {
+         ($r_messageids)=get_messageids_sorted_by_date($folderdb, $ignore_internal);
+      } elsif ( $sort eq 'sender' ) {
+         ($r_messageids)=get_messageids_sorted_by_from($folderdb, $ignore_internal);
+      } elsif ( $sort eq 'recipient' ) {
+         ($r_messageids)=get_messageids_sorted_by_to($folderdb, $ignore_internal);
+      } elsif ( $sort eq 'size' ) {
+         ($r_messageids)=get_messageids_sorted_by_size($folderdb, $ignore_internal);
+      } elsif ( $sort eq 'subject' ) {
+         ($r_messageids, $r_messagedepths)=get_messageids_sorted_by_subject($folderdb, $ignore_internal);
+      } elsif ( $sort eq 'status' ) {
+         ($r_messageids)=get_messageids_sorted_by_status($folderdb, $ignore_internal);
+      }
+
+      $messageids_size = @{$r_messageids};
+
+      @messagedepths=@{$r_messagedepths} if $r_messagedepths;
+      $messagedepths_size = @messagedepths;
+
+      print CACHE join("\n", $messageids_size, $messagedepths_size, @{$r_messageids}, @messagedepths);
+      close(CACHE);
+      if ($rev) {
+         @messageids=reverse @{$r_messageids};
+         @messagedepths=reverse @{$r_messagedepths} if $r_messagedepths;
+      } else {
+         @messageids=@{$r_messageids};
+         @messagedepths=@{$r_messagedepths} if $r_messagedepths;
+      }
+
+   } else {
+      open(CACHE, $cachefile);
+      for (0..3) { $_=<CACHE>; }	# skip $lstmtime, $folderdb, $sort, $ignore_internal
+      foreach ($messageids_size, $messagedepths_size) {
+         $_=<CACHE>; chomp;
+      }
+      my $i = 0;
+      while (<CACHE>) {
+         chomp;
+         if ($rev) {
+            if ($i < $messageids_size) { unshift (@messageids, $_); }
+            else { unshift (@messagedepths, $_); }
+         } else {
+            if ($i < $messageids_size) { push (@messageids, $_); }
+            else { push (@messagedepths, $_); }
+         }
+	 $i++;
+      }
+      close(CACHE);
+   }
+   ow::filelock::lock($cachefile, LOCK_UN);
+
+   return(\@messageids, \@messagedepths);
+}
+
+
+sub get_messageids_sorted_by_date {
    my ($folderdb, $ignore_internal)=@_;
 
-   my ($totalsize, $total, $new, $r_msgid2attrs)
-      =get_info_msgid2attrs($folderdb, $ignore_internal, $_DATE);
+   my ($total, $r_msgid2attrs)=get_msgid2attrs($folderdb, $ignore_internal, $_DATE);
    my @messageids= sort {
                         ${${$r_msgid2attrs}{$b}}[0]<=>${${$r_msgid2attrs}{$a}}[0];
                         } keys %{$r_msgid2attrs};
-
-   return($totalsize, $new, \@messageids);
+   return(\@messageids);
 }
 
-sub get_info_messageids_sorted_by_from {
+sub get_messageids_sorted_by_from {
    my ($folderdb, $ignore_internal)=@_;
 
-   my ($totalsize, $total, $new, $r_msgid2attrs)
-      =get_info_msgid2attrs($folderdb, $ignore_internal, $_DATE, $_FROM);
+   my ($total, $r_msgid2attrs)=get_msgid2attrs($folderdb, $ignore_internal, $_DATE, $_FROM);
    my @messageids= sort {
                         ${${$r_msgid2attrs}{$b}}[0]<=>${${$r_msgid2attrs}{$a}}[0];
                         } keys %{$r_msgid2attrs};
@@ -340,14 +466,14 @@ sub get_info_messageids_sorted_by_from {
       push(@messageids, @{$groupmembers{$from}});
    }
 
-   return($totalsize, $new, \@messageids);
+   return(\@messageids);
 }
 
-sub get_info_messageids_sorted_by_to {
+sub get_messageids_sorted_by_to {
    my ($folderdb, $ignore_internal)=@_;
 
-   my ($totalsize, $total, $new, $r_msgid2attrs)
-      =get_info_msgid2attrs($folderdb, $ignore_internal, $_DATE, $_TO);
+   my ($total, $r_msgid2attrs)
+      =get_msgid2attrs($folderdb, $ignore_internal, $_DATE, $_TO);
    my @messageids= sort {
                         ${${$r_msgid2attrs}{$b}}[0]<=>${${$r_msgid2attrs}{$a}}[0]
                         } keys(%{$r_msgid2attrs});
@@ -373,32 +499,28 @@ sub get_info_messageids_sorted_by_to {
       push(@messageids, @{$groupmembers{$from}});
    }
 
-   return($totalsize, $new, \@messageids);
+   return(\@messageids);
 }
 
-sub get_info_messageids_sorted_by_size {
+sub get_messageids_sorted_by_size {
    my ($folderdb, $ignore_internal)=@_;
 
-   my ($totalsize, $total, $new, $r_msgid2attrs)
-      =get_info_msgid2attrs($folderdb, $ignore_internal, $_DATE, $_SIZE);
+   my ($total, $r_msgid2attrs)=get_msgid2attrs($folderdb, $ignore_internal, $_DATE, $_SIZE);
    my @messageids= sort {
                         ${${$r_msgid2attrs}{$b}}[1]<=>${${$r_msgid2attrs}{$a}}[1] or
                         ${${$r_msgid2attrs}{$b}}[0]<=>${${$r_msgid2attrs}{$a}}[0]
                         } keys %{$r_msgid2attrs};
-
-   return($totalsize, $new, \@messageids);
+   return(\@messageids);
 }
 
-sub get_info_messageids_sorted_by_status {
+sub get_messageids_sorted_by_status {
    my ($folderdb, $ignore_internal)=@_;
 
-   my ($totalsize, $total, $new, $r_msgid2attrs)
-      =get_info_msgid2attrs($folderdb, $ignore_internal, $_DATE, $_STATUS);
-
+   my ($total, $r_msgid2attrs)=get_msgid2attrs($folderdb, $ignore_internal, $_DATE, $_STATUS);
    my %status;
    foreach my $key (keys %{$r_msgid2attrs}) {
       my $status=${${$r_msgid2attrs}{$key}}[1];
-      if ($status=~/r/i) {
+      if ($status=~/R/i) {
          $status{$key}=0;
       } else {
          $status{$key}=2;
@@ -409,17 +531,15 @@ sub get_info_messageids_sorted_by_status {
                        $status{$b} <=> $status{$a} or
                        ${${$r_msgid2attrs}{$b}}[0]<=>${${$r_msgid2attrs}{$a}}[0]
                        } keys %status;
-
-   return($totalsize, $new, \@messageids);
+   return(\@messageids);
 }
 
 # this routine actually sorts messages by thread,
 # contributed by <james@tiger-marmalade.com"> James Dean Palmer
-sub get_info_messageids_sorted_by_subject {
+sub get_messageids_sorted_by_subject {
    my ($folderdb, $ignore_internal)=@_;
 
-   my ($totalsize, $total, $new, $r_msgid2attrs)
-      =get_info_msgid2attrs($folderdb, $ignore_internal, $_DATE, $_REFERENCES, $_SUBJECT);
+   my ($total, $r_msgid2attrs)=get_msgid2attrs($folderdb, $ignore_internal, $_DATE, $_REFERENCES, $_SUBJECT);
 
    my (%subject, %date);
    foreach my $key (keys %{$r_msgid2attrs}) {
@@ -491,7 +611,7 @@ sub get_info_messageids_sorted_by_subject {
       _recursively_thread ($key, 0,
 		\@message_ids, \@message_depths, \%thread_children, \%date);
    }
-   return($totalsize, $new, \@message_ids, \@message_depths);
+   return(\@message_ids, \@message_depths);
 }
 
 sub _recursively_thread {
@@ -508,118 +628,6 @@ sub _recursively_thread {
       }
    }
    return;
-}
-
-use vars qw(%sorttype);
-%sorttype= (
-   'date'          => ['date', 0],
-   'date_rev'      => ['date', 1],
-   'sender'        => ['sender', 0],
-   'sender_rev'    => ['sender', 1],
-   'recipient'     => ['recipient', 0],
-   'recipient_rev' => ['recipient', 1],
-   'size'          => ['size', 0],
-   'size_rev'      => ['size', 1],
-   'subject'       => ['subject', 1],
-   'subject_rev'   => ['subject', 0],
-   'status'        => ['status', 0],
-   'status_rev'    => ['status', 1]
-   );
-
-sub get_info_messageids_sorted {
-   my ($folderdb, $sort, $cachefile, $ignore_internal)=@_;
-   my ($cache_metainfo, $cache_folderdb, $cache_sort, $cache_ignore_internal);
-   my %FDB;
-   my ($totalsize, $new)=(0,0);
-   my $r_messageids;
-   my $r_messagedepths;
-   my @messageids=();
-   my @messagedepths=();
-   my $messageids_size;
-   my $messagedepths_size;
-   my $rev;
-
-   if (defined($sorttype{$sort})) {
-      ($sort, $rev)=@{$sorttype{$sort}};
-   } else {
-      ($sort, $rev)= ('date', 0);
-   }
-
-   ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or 
-      return($totalsize, $new, \@messageids, \@messagedepths);
-   my $metainfo=$FDB{'METAINFO'};
-   ow::dbm::close(\%FDB, $folderdb);
-
-   ow::filelock::lock($cachefile, LOCK_EX) or
-      return($totalsize, $new, \@messageids, \@messagedepths);
-
-   if ( -e $cachefile ) {
-      open(CACHE, $cachefile);
-      foreach ($cache_metainfo, $cache_folderdb, $cache_sort, $cache_ignore_internal, $totalsize) {
-         $_=<CACHE>; chomp;
-      }
-      close(CACHE);
-   }
-
-   if ( $cache_metainfo ne $metainfo || $cache_folderdb ne $folderdb ||
-        $cache_sort ne $sort || $cache_ignore_internal ne $ignore_internal ||
-        $totalsize=~/[^\d]/ ) {
-      $cachefile=ow::tool::untaint($cachefile);
-      open(CACHE, ">$cachefile");
-      print CACHE $metainfo, "\n", $folderdb, "\n", $sort, "\n", $ignore_internal, "\n";
-      if ( $sort eq 'date' ) {
-         ($totalsize, $new, $r_messageids)=get_info_messageids_sorted_by_date($folderdb, $ignore_internal);
-      } elsif ( $sort eq 'sender' ) {
-         ($totalsize, $new, $r_messageids)=get_info_messageids_sorted_by_from($folderdb, $ignore_internal);
-      } elsif ( $sort eq 'recipient' ) {
-         ($totalsize, $new, $r_messageids)=get_info_messageids_sorted_by_to($folderdb, $ignore_internal);
-      } elsif ( $sort eq 'size' ) {
-         ($totalsize, $new, $r_messageids)=get_info_messageids_sorted_by_size($folderdb, $ignore_internal);
-      } elsif ( $sort eq 'subject' ) {
-         ($totalsize, $new, $r_messageids, $r_messagedepths)=get_info_messageids_sorted_by_subject($folderdb, $ignore_internal);
-      } elsif ( $sort eq 'status' ) {
-         ($totalsize, $new, $r_messageids)=get_info_messageids_sorted_by_status($folderdb, $ignore_internal);
-      }
-
-      $messageids_size = @{$r_messageids};
-
-      @messagedepths=@{$r_messagedepths} if $r_messagedepths;
-      $messagedepths_size = @messagedepths;
-
-      print CACHE join("\n", $totalsize, $new, $messageids_size, $messagedepths_size, @{$r_messageids}, @messagedepths);
-      close(CACHE);
-      if ($rev) {
-         @messageids=reverse @{$r_messageids};
-         @messagedepths=reverse @{$r_messagedepths} if $r_messagedepths;
-      } else {
-         @messageids=@{$r_messageids};
-         @messagedepths=@{$r_messagedepths} if $r_messagedepths;
-      }
-
-   } else {
-      open(CACHE, $cachefile);
-      for (0..3) { $_=<CACHE>; }	# skip 4 lines
-      foreach ($totalsize, $new, $messageids_size, $messagedepths_size) {
-         $_=<CACHE>; chomp;
-      }
-      my $i = 0;
-      while (<CACHE>) {
-         chomp;
-         if ($rev) {
-            if ($i < $messageids_size) { unshift (@messageids, $_); }
-            else { unshift (@messagedepths, $_); }
-         } else {
-            if ($i < $messageids_size) { push (@messageids, $_); }
-            else { push (@messagedepths, $_); }
-         }
-	 $i++;
-      }
-      close(CACHE);
-   }
-
-   ow::filelock::lock($cachefile, LOCK_UN);
-
-   return($totalsize, $new, \@messageids, \@messagedepths);
 }
 
 ########## END GET_MESSAGEIDS_SORTED_BY_...  #####################

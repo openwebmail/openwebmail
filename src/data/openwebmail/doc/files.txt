@@ -26,7 +26,7 @@ javascript/htmlarea.openwebmail/popups	lang and html file of popup windows in
 
 cgi-bin/openwebmail/            mapping to url http://your_site/cgi-bin/openwebmail
 ------------------------------
-etc/                            configuraation, template, language, temporary files
+etc/                            configuraation, template, language, holidays, maps, temporary files
 auth/				place for auth_xxx.pl modules
 				routines/variables in these files belong to ow::auth_xxx::
 quota/				place for quota_xxx.pl modules
@@ -35,7 +35,7 @@ modules/			place for module files
 				routines/variables in these files belong to packages other than main::
 shares/				place for shared routines files
 				routines/variables in these files belong to main::				
-uty/                            debug uty or tool used by sysadm
+misc/                           mkrelease uty, test script, patches, tools for adm
 
 openwebmail-abook.pl            CGI programs of openwebmail
 openwebmail-advsearch.pl
@@ -60,21 +60,17 @@ vacation.pl                     vacation utility for auto reply
 /usr/local/www/cgi-bin/etc/
 ------------------------------
 openwebmail.conf                customized configuration file
-openwebmail.conf.default        default configuration file
 openwebmail.conf.help           help for default configuration file
 
-dbm.conf.default		default config file for dbm.pl
-suid.conf.default		default config file for suid.pl
-filelock.conf.default		default config file for filelock.pl
 smtpauth.conf                   file to store username/passwd for SMTP auth
-
-auth_xxx.conf.default		default config file for auth_xxx.pl
 auth_xxx.conf			customized config file for auth_xxx.pl
 
+defaults/			default conf files for openwebmail and other modules
 styles/                         various CSS files
 lang/                           translation files for various languages
 templates/                      template files for various languages
 holidays/                       holidays calendar for various languages
+maps/				b2g, g2b, lunar maps and db of maps
 sites.conf/                     configuration file for different virtual domain
 users.conf/                     configuration file for different user
 users/                          user directories (used only if use_syshomedir disabled)
@@ -83,17 +79,6 @@ sessions/                       directory to store temporary session files
 address.book                    global address book
 calendar.book                   global calendar book
 filter.book                     global filter book
-
-b2g.map                         Chinese Big5 to GB charset mapping file
-g2b.map                         Chinese GB to Big5 charset mapping file
-lunar.map                       Chinese lunar calendar mapping file
-
-b2g.db                          index db of b2g.map
-g2b.db                          index db of g2b.map
-lunar.db                        index db of lunar.map
-
-etc.mail.virtusertable.db       index db of /etc/mail/virtusertable
-etc.mail.virtusertable.rev.db   reverse index db of /etc/mail/virtusertable
 
 
 for each USER

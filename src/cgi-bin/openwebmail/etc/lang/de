@@ -12,6 +12,11 @@ package ow::de;
    'sent-mail'      => 'GESENDET',
    'saved-drafts'   => 'ENTWÜRFE',
    'mail-trash'     => 'PAPIERKORB',
+   'spam-mail'      => 'Spam',
+   'virus-mail'     => 'Virus',
+   LEARNSPAM        => '--LEARN SPAM--',
+   LEARNHAM         => '--LEARN HAM--',
+   FORWARD          => '--FORWARD--',
    DELETE           => '--LÖSCHEN--'
    );
 
@@ -89,6 +94,13 @@ package ow::de;
    before => 'Vor den Adressbucheinträgen',
    after  => 'Hinter den Adressbucheinträgen',
    both   => 'Vor und hinter den Adressbucheinträgen'
+   );
+
+%lang_checksourcelabels =
+   (
+   all  => 'All new messages in INBOX',
+   pop3 => 'Only messages from pop3 server',
+   none => 'None'
    );
 
 %lang_timelabels =
@@ -227,6 +239,7 @@ package ow::de;
    userprefs  => 'Benutzer-Einstellungen',
    addressbook=> 'Adressbuch',
    folders    => 'Ordner-Optionen',
+   emptyfolder=> 'Empty folder',
    emptytrash => 'Papierkorb leeren',
    totrash    => 'In Papierkorb verschieben',
    forever    => 'für immer',
@@ -453,6 +466,7 @@ package ow::de;
    abook_invalid     => 'Diese Datei scheint kein gültiges Outlook-Express-5-CVS-Format zu haben. Stellen Sie sicher, dass die erste Zeile der Datei "Name,E-mail Adresse" lautet.',
    back              => 'Gehen Sie zurück',
    tryagain          => 'und versuchen Sie es noch einmal',
+   mailfilter_error  => 'Mail Filter Error',
    abook_toobig      => 'Diese Aktion würde die maximale Größe Ihres Adressbuches überschreiten. Versuchen Sie Speicherplatz frei zu machen.',
    cant_create_dir   => 'Fehler beim Erstellen Ihres Benutzerverzeichnisses!',
    att_overlimit     => 'Der Dateianhang überschreitet die zugelassene Maximalgröße von',

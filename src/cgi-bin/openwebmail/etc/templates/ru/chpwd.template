@@ -1,7 +1,7 @@
 <BR><BR><BR><BR><BR>
 <table border="0" align="center" width="60%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@>
-<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><B>CHANGE PASSWORD</B></FONT>
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><B>СМЕНА ПАРОЛЯ</B></FONT>
 </td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 @@@STARTFORM@@@
 <BR>
@@ -31,17 +31,17 @@
       var s;
       s=document.passwordform.newpassword.value;
       if (s.length < @@@PASSWDMINLEN@@@) {
-         alert("Password must has at least @@@PASSWDMINLEN@@@ characters.");
+         alert("Пароль должен быть не менее @@@PASSWDMINLEN@@@ символов.");
          return false;
       }
       if (document.passwordform.newpassword.value !=
 	  document.passwordform.confirmnewpassword.value) {
-         alert("New password confirm mismatch.");
+         alert("Новый пароль и подтверждение не соответствуют друг другу.");
          return false;
       }
       if (document.passwordform.newpassword.value ==
 	  document.passwordform.oldpassword.value) {
-         alert("New password is the same as the old one.");
+         alert("Новый пароль такой же, как и старый.");
          return false;
       }
       return true;

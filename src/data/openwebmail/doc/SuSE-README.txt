@@ -42,7 +42,7 @@ What do i need to install?
 4. No comment ;-)
 
 5. Get Openwebmail from the official OWM Site
-	wget http://openwebmail.com/openwebmail/download/openwebmail-current.tgz
+	wget http://openwebmail.org/openwebmail/download/current/openwebmail-current.tar.gz
 	
 6. Get optional  and required Components (needed by OWM)
 
@@ -52,33 +52,33 @@ What do i need to install?
 	
 	absolutly needed components
 	
-	CGI.pm-2.74.tar.gz        (required)
-	MIME-Base64-2.12.tar.gz   (required)
-	libnet-1.0901.tar.gz      (required)
+	CGI.pm-3.05.tar.gz        (required)
+	MIME-Base64-3.01.tar.gz   (required)
+	libnet-1.19.tar.gz        (required)
 	Text-Iconv-1.2.tar.gz     (required)
 	libiconv-1.9.1.tar.gz     (required if system doesn't support iconv)
 	
-	wget http://openwebmail.com/openwebmail/download/packages/CGI.pm-2.74.tar.gz
-  	wget http://openwebmail.com/openwebmail/download/packages/MIME-Base64-2.12.tar.gz
-  	wget http://openwebmail.com/openwebmail/download/packages/libnet-1.0901.tar.gz
-    	wget http://openwebmail.com/openwebmail/download/packages/Text-Iconv-1.2.tar.gz
-  	wget http://openwebmail.com/openwebmail/download/packages/libiconv-1.9.1.tar.gz    	  	  	
+	wget http://openwebmail.org/openwebmail/download/packages/CGI.pm-3.05.tar.gz
+  	wget http://openwebmail.org/openwebmail/download/packages/MIME-Base64-3.01.tar.gz
+  	wget http://openwebmail.org/openwebmail/download/packages/libnet-1.19.tar.gz
+    	wget http://openwebmail.org/openwebmail/download/packages/Text-Iconv-1.2.tar.gz
+  	wget http://openwebmail.org/openwebmail/download/packages/libiconv-1.9.1.tar.gz    	  	  	
 
 	
 	optional components
 
 	CGI-SpeedyCGI-2.22.tar.gz (optional)
-	Compress-Zlib-1.21.tar.gz (optional)
+	Compress-Zlib-1.33.tar.gz (optional)
+	Quota-1.4.10.tar.gz       (optional)
 	ispell-3.1.20.tar.gz      (optional)
-	Quota-1.4.6.tar.gz        (optional)
-	Authen-PAM-0.12.tar.gz    (optional)
+	Authen-PAM-0.14.tar.gz    (optional)
 	
- 	wget http://openwebmail.com/openwebmail/download/packages/Authen-PAM-0.12.tar.gz
-  	wget http://openwebmail.com/openwebmail/download/packages/CGI-SpeedyCGI-2.22.tar.gz
-  	wget http://openwebmail.com/openwebmail/download/packages/Compress-Zlib-1.21.tar.gz
-  	wget http://openwebmail.com/openwebmail/download/packages/Quota-1.4.6.tar.gz
-  	wget http://openwebmail.com/openwebmail/download/packages/Convert-ASN1-0.07.tar.gz
-  	wget http://openwebmail.com/openwebmail/download/packages/ispell-3.1.20.tar.gz
+  	wget http://openwebmail.org/openwebmail/download/packages/CGI-SpeedyCGI-2.22.tar.gz
+  	wget http://openwebmail.org/openwebmail/download/packages/Compress-Zlib-1.33.tar.gz
+  	wget http://openwebmail.org/openwebmail/download/packages/Quota-1.4.10.tar.gz
+  	wget http://openwebmail.org/openwebmail/download/packages/Convert-ASN1-0.18.tar.gz
+  	wget http://openwebmail.org/openwebmail/download/packages/ispell-3.1.20.tar.gz
+ 	wget http://openwebmail.org/openwebmail/download/packages/Authen-PAM-0.14.tar.gz
 
    Not all are needed, but download it, its possible that you need it later... who knows ???
 
@@ -89,22 +89,21 @@ INSTALLATION
 	
 	1.1 needed Modules
 	
-	tar -zxvBpf ~/tmp/Authen-PAM-0.12.tar.gz
-  	tar -zxvBpf ~/tmp/CGI-SpeedyCGI-2.22.tar.gz
-  	tar -zxvBpf ~/tmp/CGI.pm-2.74.tar.gz
-  	tar -zxvBpf ~/tmp/Compress-Zlib-1.21.tar.gz
-  	tar -zxvBpf ~/tmp/MIME-Base64-2.12.tar.gz
+
+  	tar -zxvBpf ~/tmp/CGI.pm-3.05.tar.gz
+  	tar -zxvBpf ~/tmp/MIME-Base64-3.01.tar.gz
+  	tar -zxvBpf ~/tmp/libnet-1.19.tar.gz
   	tar -zxvBpf ~/tmp/Text-Iconv-1.2.tar.gz
-  	tar -zxvBpf ~/tmp/libnet-1.0901.tar.gz
-    	tar -zxvBpf ~/tmp/Text-Iconv-1.2.tar.gz
   	tar -zxvBpf ~/tmp/libiconv-1.9.1.tar.gz
-  	tar -zxvBpf ~/tmp/Compress-Zlib-1.21.tar.gz
-  	tar -zxvBpf ~/tmp/Quota-1.4.6.tar.gz
-  	tar -zxvBpf ~/tmp/Convert-ASN1-0.07.tar.gz
+  	tar -zxvBpf ~/tmp/CGI-SpeedyCGI-2.22.tar.gz
+  	tar -zxvBpf ~/tmp/Compress-Zlib-1.33.tar.gz
+  	tar -zxvBpf ~/tmp/Quota-1.4.10.tar.gz
+  	tar -zxvBpf ~/tmp/Convert-ASN1-0.18.tar.gz
+	tar -zxvBpf ~/tmp/Authen-PAM-0.14.tar.gz
   	
   	1.2 Openwebmail Programm
   	
-  	tar -zxvBpf ~/tmp/openwebmail-current.tgz
+  	tar -zxvBpf ~/tmp/openwebmail-current.tar.gz
   	
  2. compile all modules
 

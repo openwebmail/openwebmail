@@ -177,7 +177,8 @@
          alert("Prosím uveïte adresáta pred odoslaním.");
          return false;
       }
-      if (document.composeform.subject.value == "" ) {
+      if (document.composeform.subject.value == "" 
+       || document.composeform.subject.value == "N/A" ) {
          return(confirm("Táto správa neobsahuje predmet, prajete si ju skutoène posla»?"));
       }
       return true;

@@ -341,6 +341,58 @@ sub hour24to12 {
 }
 ########## END HOUR24TO12 ########################################
 
+########## EASTER_MATCH ##########################################
+# Allow use of expression 'easter +- offset' for month and day field in $idate
+# Example: Mardi Gras is ".*,easter,easter-47,.*"
+# Written by James Dugal, jpd@louisiana.edu, Sept. 2002
+use vars qw(%_gregoria_cache %_orthodox_cache);
+sub easter_match {
+   my ($year, $month, $day, $idate) = @_;
+   my @fields = split(/,/,$idate); 
+   return 0 unless ($year =~ /$fields[0]/);  # year matches?
+
+   if ($idate =~ /easter/i) {
+      $_gregoria_cache{$year}=[gregorian_easter($year)] if (!defined($_gregoria_cache{$year}));
+      $fields[1] =~ s/easter/${$_gregoria_cache{$year}}[0]/i;	# month
+      $fields[2] =~ s/easter/${$_gregoria_cache{$year}}[1]/i;	# day
+   } elsif ($idate =~ /orthodox/i) {
+      $_orthodox_cache{$year}=[orthodox_easter($year)] if (!defined($_orthodox_cache{$year}));
+      $fields[1] =~ s/orthodox/${$_orthodox_cache{$year}}[0]/i;	# month
+      $fields[2] =~ s/orthodox/${$_orthodox_cache{$year}}[1]/i;	# day
+   } else {
+      return 0;
+   }
+
+   if ($fields[1] =~ /^([\d+-]+)$/) {  #untaint
+      $fields[1] = eval($1);      # allow simple arithmetic: easter-7  1+easter
+   } else {
+      return 0;  # bad syntax, only 0-9 + -  chars allowed
+   }
+   if ($fields[2] =~ /^([\d+-]+)$/) {  #untaint
+      $fields[2] = eval($1);      # allow simple arithmetic: easter-7  1+easter
+   } else {
+      return 0;  # bad syntax, only 0-9 + -  chars allowed
+   }
+   # days_in_month ought to be pre-computed just once per $year, externally!
+   my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
+   if ( ($year%4)==0 && ( ($year%100)!=0 || ($year%400)==0 ) ) {
+      $days_in_month[2]++;
+   }
+   if ($fields[1] > 0) { # same year, so proceed
+      while($fields[2] > $days_in_month[$fields[1]]) {
+         $fields[2] -= $days_in_month[$fields[1]];
+         $fields[1]++;
+      }
+      while($fields[2] < 1) {
+         $fields[1]--;
+         $fields[2] += $days_in_month[$fields[1]];
+      }
+      return 1 if ($month == $fields[1] && $day == $fields[2]);
+   }
+   return 0;
+}
+########## END EASTER_MATCH ######################################
+
 ########## GREGORIAN_EASTER ######################################
 # ($month, $day) = gregorian_easter($year);
 # This subroutine returns the month and day of Easter in the given year,
@@ -362,46 +414,33 @@ sub gregorian_easter {
 }
 ########## END GREGORIAN_EASTER ##################################
 
-########## EASTER_MATCH ##########################################
-# Allow use of expression 'easter +- offset' for month and day field in $idate
-# Example: Mardi Gras is ".*,easter,easter-47,.*"
-# Written by James Dugal, jpd@louisiana.edu, Sept. 2002
-sub easter_match {
-   my ($year,$month,$day, $easter_month,$easter_day, $idate) = @_;
-   return (0) unless ($idate =~ /easter/i);    # an easter record?
-   my @fields = split(/,/,$idate);
-   return (0) unless ($year =~ /$fields[0]/);  # year matches?
-
-   $fields[1] =~ s/easter/$easter_month/i;
-   $fields[2] =~ s/easter/$easter_day/i;
-   if ($fields[1] =~ /^([\d+-]+)$/) {  #untaint
-      $fields[1] = eval($1);      # allow simple arithmetic: easter-7  1+easter
+########## ORTHODOX_EASTER #######################################
+# ($month, $day) = orthodox_easter($year);
+# This subroutine returns the month and day of the Orthodox Easter
+# in the given year, as celebrated in Greece and other Balcan
+# countries, which is also related to Russian Orthodox easter.
+# Written by Dimitrios Michelinakis, dimitris@michelinakis.gr, Jun. 2004
+sub orthodox_easter {
+   my $year = $_[0];
+   my ($month);
+   my $r1 = $year % 4;
+   my $r2 = $year % 7;
+   my $r3 = $year % 19;
+   my $r4 = (19 * $r3 + 15) % 30;
+   my $r5 = (2 * $r1 + 4 * $r2 + 6 * $r4 + 6) % 7;
+   my $day = $r5 + $r4 + 13;
+   if ($day > 39) {
+      $day -= 39;
+      $month = 5;
+   } elsif ($day >9) {
+      $day -= 9;
+      $month = 4;
    } else {
-      return (0);  # bad syntax, only 0-9 + -  chars allowed
+      $day +=22;
+      $month = 3;
    }
-   if ($fields[2] =~ /^([\d+-]+)$/) {  #untaint
-      $fields[2] = eval($1);      # allow simple arithmetic: easter-7  1+easter
-   } else {
-      return (0);  # bad syntax, only 0-9 + -  chars allowed
-   }
-   # days_in_month ought to be pre-computed just once per $year, externally!
-   my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
-   if ( ($year%4)==0 && ( ($year%100)!=0 || ($year%400)==0 ) ) {
-      $days_in_month[2]++;
-   }
-   if ($fields[1] > 0) { # same year, so proceed
-      while($fields[2] > $days_in_month[$fields[1]]) {
-         $fields[2] -= $days_in_month[$fields[1]];
-         $fields[1]++;
-      }
-      while($fields[2] < 1) {
-         $fields[1]--;
-         $fields[2] += $days_in_month[$fields[1]];
-      }
-      return (1) if ($month == $fields[1] && $day == $fields[2]);
-   }
-   return (0);
+   return ( $month, $day );
 }
-########## END EASTER_MATCH ######################################
+########## END ORTHODOX_EASTER ###################################
 
 1;

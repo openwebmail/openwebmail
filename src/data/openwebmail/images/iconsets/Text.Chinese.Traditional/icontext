@@ -30,6 +30,7 @@
    'editst.gif'        => ' [編輯信紙底稿] ',
    'editst.s.gif'      => ' [編輯信紙底稿] ',
    'email.gif'         => ' M+ ',
+   'emptyfolder.gif'   => ' [清空信匣] ',
    'export.gif'        => ' [匯出] ',
    'filtersetup.gif'   => ' [郵件規則] ',
    'first-grey.gif'    => ' << ',

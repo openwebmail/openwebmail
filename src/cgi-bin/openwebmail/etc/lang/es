@@ -1,7 +1,7 @@
 package ow::es;
 
 # Spanish translation, charset: iso-8859-1
-# by Javier Smaldone, jsmaldone.AT.yahoo.com, 12-28-2003
+# by Javier Smaldone, jsmaldone.AT.yahoo.com, 07-26-2004
 
 %lang_folders =
    (
@@ -10,6 +10,11 @@ package ow::es;
    'sent-mail'      => 'ENVIADOS',
    'saved-drafts'   => 'BORRADOR',
    'mail-trash'     => 'PAPELERA',
+   'spam-mail'      => 'Spam',
+   'virus-mail'     => 'Virus',
+   LEARNSPAM        => '--APRENDER SPAM--',
+   LEARNHAM         => '--APRENDER HAM--',
+   FORWARD          => '--REENVIAR--',
    DELETE           => '--BORRAR--'
    );
 
@@ -87,6 +92,13 @@ package ow::es;
    before => 'Antes de las entradas',
    after  => 'Después de las entradas',
    both   => 'Antes y después de las entradas'
+   );
+
+%lang_checksourcelabels =
+   (
+   all  => 'Todos los mensajes nuevos en INBOX',
+   pop3 => 'Sólo mensajes de un servidor pop3',
+   none => 'Ninguno'
    );
 
 %lang_timelabels =
@@ -225,6 +237,7 @@ package ow::es;
    userprefs  => 'Preferencias personales',
    addressbook=> 'Libreta de Direcciones',
    folders    => 'Bandejas',
+   emptyfolder=> 'Vaciar bandeja',
    emptytrash => 'Vaciar Papelera',
    totrash    => 'Enviar a la Papelera',
    forever    => 'Para siempre',
@@ -232,7 +245,7 @@ package ow::es;
    userdef    => 'Definido por el usuario',
    logout     => 'Salir',
    page       => 'Página',
-   msgsperpage=> '@@@MSGCOUNT@@@ messages per page',
+   msgsperpage=> '@@@MSGCOUNT@@@ mensajes por página',
    msgcopyconf=> '\'¿Está seguro de querer copiar los mensajes seleccionados?\'',
    copy       => 'Copiar',
    msgmoveconf=> '\'¿Está seguro de querer mover los mensajes seleccionados?\'',
@@ -319,9 +332,9 @@ package ow::es;
    quotahit   => 'CUPO MÁXIMO PERMITIDO',
    tzmap      => 'Mapa de zonas horarias',
    testsound  => 'Probar sonido',
-   editfroms  => 'Editar direcciones de correo',
+   editfroms  => 'Editar direcciones de e-mail',
    pop3book   => 'Configuración POP3',
-   retr_pop3s => 'Descargar correo POP3',
+   retr_pop3s => 'Descargar e-mail POP3',
    filterbook => 'Filtros de mensajes',
    include    => 'contiene',
    exclude    => 'no contiene',
@@ -424,7 +437,7 @@ package ow::es;
    vdomain_localuser  => 'Usuario local',
    set_passwd         => 'Establecer contraseña',
    reset_passwd       => 'Restablecer contraseña',
-   email_alias        => 'Alias de E-mail'
+   email_alias        => 'Alias de e-mail'
    );
 
 %lang_err =
@@ -438,7 +451,7 @@ package ow::es;
    couldnt_updatedb  => 'No pude actualizar el índice',
    disallowed_pop3   => 'Servidor POP3 no permitido',
    disallowed_client => 'No esta permitido conectarse desde este cliente',
-   disallowed_receiverdomain => 'No tiene permiso para enviar un mensaje a esa dirección de correo',
+   disallowed_receiverdomain => 'No tiene permiso para enviar un mensaje a esa dirección de e-mail',
    norootlogin       => 'Lo siento, el acceso para la cuenta de root está inhabilitado por razones de seguridad.',
    shouldnt_move_here=> 'No debería de tratar de mover mensajes hasta aquí!',
    destination_folder=> 'Bandeja de destino',
@@ -448,9 +461,10 @@ package ow::es;
    already_exists    => '¡ya existe!',
    cant_create_folder=> '¡No puedo crear la bandeja!',
    under_indexing    => 'está aún indexándose, por favor intente después',
-   abook_invalid     => 'Lo siento, este archivo no parece ser una libreta de direcciones exportada desde Microsoft Outlook Express 5 en formato CSV.  Asegurese de ver este archivo en un editor de textos y que la primera línea comience con "Nombre,Dirección E-mail", entonces regrese',
+   abook_invalid     => 'Lo siento, este archivo no parece ser una libreta de direcciones exportada desde Microsoft Outlook Express 5 en formato CSV.  Asegurese de ver este archivo en un editor de textos y que la primera línea comience con "Nombre,Dirección e-mail", entonces regrese',
    back              => 'atrás',
    tryagain          => 'y trate nuevamente.',
+   mailfilter_error  => 'Error en filtro de e-mail',
    abook_toobig      => 'Lo siento, se ha excedido del tamaño límite para su libreta de direcciones.  Por favor, regrese',
    cant_create_dir   => '¡No puedo crear su directorio de usuario!',
    att_overlimit     => 'Lo siento, el tamaño de su archivo excede el tamaño límite permitido, el cual es de',
@@ -489,9 +503,9 @@ package ow::es;
    quotahit_delfile  => 'Atención, debido a que el límite de espacio (@@@QUOTALIMIT@@@) ha sido alcanzado, algunos archivos en el disco web han sido eliminados automaticamente.',
    spool_overlimit   => 'Lo lamento, su Bandeja de Entrada ha excedido el límite (@@@SPOOLLIMIT@@@). Por favor, mueva algunos mensajes de la Bandeja de Entrada a otras bandejas.',
    vdomain_toomanyuser  => 'Lo lamento, la candidad de usuarios de este dominio ha alcanzado su límite máximo.',
-   vdomain_toomanyalias => 'Lo lamento, la cantidad de alias de E-mail para este usuario ha alcanzado su límite máximo.',
+   vdomain_toomanyalias => 'Lo lamento, la cantidad de alias de e-mail para este usuario ha alcanzado su límite máximo.',
    vdomain_userrequired => 'Se requiere un nombre de usuario',
-   vdomain_fwdrequired => 'Se requiere una dirección de E-mail válida',
+   vdomain_fwdrequired => 'Se requiere una dirección de e-mail válida',
    all_module_disabled => 'Todos los módulos se encuentran deshabilitados'
    );
 

@@ -10,6 +10,11 @@ package ow::no;
    'sent-mail'      => 'Sendt',
    'saved-drafts'   => 'Kladd',
    'mail-trash'     => 'Papirkurv',
+   'spam-mail'      => 'Spam',
+   'virus-mail'     => 'Virus',
+   LEARNSPAM        => '--LEARN SPAM--',
+   LEARNHAM         => '--LEARN HAM--',
+   FORWARD          => '--FORWARD--',
    DELETE           => '--SLETT--'
    );
 
@@ -87,6 +92,13 @@ package ow::no;
    before => 'Før adressebok-valg',
    after  => 'Etter adressebok-valg',
    both   => 'Før og etter adressebok-valg'
+   );
+
+%lang_checksourcelabels =
+   (
+   all  => 'All new messages in INBOX',
+   pop3 => 'Only messages from pop3 server',
+   none => 'None'
    );
 
 %lang_timelabels =
@@ -225,6 +237,7 @@ package ow::no;
    userprefs  => 'Brukerinnstillinger',
    addressbook=> 'Adressebok',
    folders    => 'Mapper',
+   emptyfolder=> 'Empty folder',
    emptytrash => 'Tøm papirkurven',
    totrash    => 'Flytt til papirkurven',
    forever    => 'Alltid',
@@ -451,6 +464,7 @@ package ow::no;
    abook_invalid     => 'Beklager, denne filen virker ikke som om den er en adressebok eksportert fra Microsoft Outlook Express 5 i CVS-format. Forsikre deg om at filen starter med: "Name,E-mail Address", og gå',
    back              => 'tilbake',
    tryagain          => 'og prøv på nytt.',
+   mailfilter_error  => 'Mail Filter Error',
    abook_toobig      => 'Beklager, du overstiger tillatt størrelse på adresseboken din. Gå',
    cant_create_dir   => 'Brukerkatalogen din kunne ikke opprettes!',
    att_overlimit     => 'Beklager, du har oversteget tillatt størrelse for vedlegg. Vedlegg må ikke overstige',

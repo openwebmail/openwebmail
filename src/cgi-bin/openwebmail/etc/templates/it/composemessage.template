@@ -177,7 +177,8 @@
          alert("Specificare destinatario prima di spedire.");
          return false;
       }
-      if (document.composeform.subject.value == "" ) {
+      if (document.composeform.subject.value == "" 
+       || document.composeform.subject.value == "N/A" ) {
          return(confirm("Questo messaggio non ha soggetto, vuoi spedirlo ugualmente?"));
       }
       return true;

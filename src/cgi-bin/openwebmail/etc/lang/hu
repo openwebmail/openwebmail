@@ -11,6 +11,11 @@ package ow::hu;
    'sent-mail'      => 'KÜLDÖTT',
    'saved-drafts'   => 'FÉLRETETT',
    'mail-trash'     => 'SZEMETES',
+   'spam-mail'      => 'Spam',
+   'virus-mail'     => 'Virus',
+   LEARNSPAM        => '--LEARN SPAM--',
+   LEARNHAM         => '--LEARN HAM--',
+   FORWARD          => '--FORWARD--',
    DELETE           => '--TÖRÖL--'
    );
 
@@ -88,6 +93,13 @@ package ow::hu;
    before => 'Címjegyzék elõtt',
    after  => 'Címjegyzék után',
    both   => 'Címjegyzék elõtt és után'
+   );
+
+%lang_checksourcelabels =
+   (
+   all  => 'All new messages in INBOX',
+   pop3 => 'Only messages from pop3 server',
+   none => 'None'
    );
 
 %lang_timelabels =
@@ -226,6 +238,7 @@ package ow::hu;
    userprefs  => 'Beállítások',
    addressbook=> 'Címjegyzék',
    folders    => 'Mappák',
+   emptyfolder=> 'Empty folder',
    emptytrash => 'Szemetes ürítése',
    totrash    => 'Szemetesbe',
    forever    => 'örökre',
@@ -452,6 +465,7 @@ package ow::hu;
    abook_invalid     => 'Ez az állomány nem szabályosan exportált Outlook vagy Communicator címjegyzék. Kérem, lépjen vissza ',
    back              => 'vissza',
    tryagain          => 'és próbálja újra.',
+   mailfilter_error  => 'Mail Filter Error',
    abook_toobig      => 'Ezzel túllépné a mérethatárt. Kérem, lépjen vissza ',
    cant_create_dir   => 'Nem sikerült létrehozni a mappát!',
    att_overlimit     => 'A csatolás túllépte a mengedett mérethatárt, ami ',

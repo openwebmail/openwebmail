@@ -13,10 +13,10 @@
 
 <table align="center" border="0" cellspacing="0" cellpadding="1">
 <tr>
-<td align="right">虚拟使用者: </td>
+<td align="right">虚拟用户：</td>
 <td>@@@VUSER@@@&nbsp;@&nbsp;@@@DOMAINNAME@@@</td>
 <td width="10%">&nbsp;</td>
-<td align="right">真实姓名: </td>
+<td align="right">真实姓名：</td>
 <td>@@@REALNAME@@@</td>
 </tr>
 </table>
@@ -36,10 +36,10 @@
 <td>&nbsp;</td>
 </tr>
 <tr>
-<td align="right">确认密码: </td>
+<td align="right">确认密码：</td>
 <td>@@@CONFIRMNEWPASSWORDFIELD@@@</td>
 <td width="10%" align="right">@@@CHKFWD@@@ </td>
-<td>转寄邮件到: </td>
+<td>转发邮件到：</td>
 <td>@@@DIRECT@@@</td>
 </tr>
 </table>
@@ -54,7 +54,7 @@
 <tr>
  <td nowrap bgcolor=@@@COLUMNHEADER@@@><B>邮件地址/别名</B> (click to edit)</td>
  <td nowrap bgcolor=@@@COLUMNHEADER@@@><B>真实姓名</B></td>
- <td align="center" bgcolor=@@@COLUMNHEADER@@@><B>动作</B></td>
+ <td align="center" bgcolor=@@@COLUMNHEADER@@@><B>操作</B></td>
 </tr>
 <tr>
  <td nowrap bgcolor=@@@TABLEROW_LIGHT@@@>@@@EMAILFIELD@@@</td>

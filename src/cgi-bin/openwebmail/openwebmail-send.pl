@@ -11,7 +11,7 @@ if ($SCRIPT_DIR eq '' && open(F, '/etc/openwebmail_path.conf')) {
 if ($SCRIPT_DIR eq '') { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
 push (@INC, $SCRIPT_DIR);
 
-foreach (qw(PATH ENV BASH_ENV CDPATH IFS TERM)) { $ENV{$_}='' }	# secure ENV
+foreach (qw(ENV BASH_ENV CDPATH IFS TERM)) {delete $ENV{$_}}; $ENV{PATH}='/bin:/usr/bin'; # secure ENV
 umask(0002); # make sure the openwebmail group can write
 
 use strict;
@@ -33,12 +33,14 @@ require "modules/mailparse.pl";
 require "modules/htmltext.pl";
 require "modules/htmlrender.pl";
 require "modules/enriched.pl";
+require "modules/tnef.pl";
 require "auth/auth.pl";
 require "quota/quota.pl";
 require "shares/ow-shared.pl";
 require "shares/iconv.pl";
 require "shares/maildb.pl";
 require "shares/getmessage.pl";
+require "shares/lockget.pl";
 
 # common globals
 use vars qw(%config %config_raw);
@@ -148,13 +150,6 @@ sub replyreceipt {
          }
 
          $mymessageid=fakemessageid($from) if ($mymessageid eq '');
-         my $xmailer = $config{'name'};
-         $xmailer .= " $config{'version'} $config{'releasedate'}" if ($config{'xmailer_has_version'});
-         my $xoriginatingip = ow::tool::clientip();
-         if ($config{'xoriginatingip_has_userid'}) {
-            my $id=$loginuser; $id.="\@$logindomain" if ($config{'auth_withdomain'});
-            $xoriginatingip .= " ($id)";
-         }
 
          my $smtp;
          my $timeout=120; $timeout=180 if ($#recipients>=1); # more than 1 recipient
@@ -201,8 +196,7 @@ sub replyreceipt {
          }
          $s .= "Date: $date\n".
                "Message-Id: $mymessageid\n".
-               "X-Mailer: $xmailer\n".
-               "X-OriginatingIP: $xoriginatingip\n".
+               safexheaders($config{'xheaders'}).
                "MIME-Version: 1.0\n";
          if ($is_samecharset) {
             $s .= "Content-Type: text/plain; charset=$prefs{'charset'}\n\n".
@@ -280,6 +274,18 @@ sub composemessage {
    my $references = param('references') || '';
    my $priority = param('priority') || 'normal';	# normal/urgent/non-urgent
    my $statname = param('statname') || '';
+   my $composetype = param('composetype')||'';
+
+   my @forwardids=();
+   if ($composetype eq 'forwardids' || $composetype eq 'forwardids_delete') {
+      # parameter passed with file from openwebmail-main.pl
+      open (FORWARDIDS, "$config{'ow_sessionsdir'}/$thissession-forwardids");
+      while(<FORWARDIDS>) {
+         chomp(); push(@forwardids, $_);
+      }
+      close(FORWARDIDS);
+      unlink("$config{'ow_sessionsdir'}/$thissession-forwardids");
+   }
 
    my %userfrom=get_userfrom($logindomain, $loginuser, $user, $userrealname, dotpath('from.book'));
    if ( defined(param('from')) ) {
@@ -304,6 +310,18 @@ sub composemessage {
          $composecharset=$_; last;
       }
    }
+
+   # convfrom is the charset choosed by user in last reading message
+   my $convfrom=param('convfrom')||'';
+   if ($convfrom =~/^none\.(.*)$/) {
+      my $cf=$1;
+      foreach (values %ow::lang::languagecharsets) {
+         if ($_ eq $cf) {
+            $composecharset=$_; last;
+         }
+      }
+   }
+
 
    my ($attfiles_totalsize, $r_attfiles);
    if ( param('deleteattfile') ne '' ) { # user click 'del' link
@@ -407,7 +425,6 @@ sub composemessage {
       deleteattachments();
    }
 
-   my $composetype = param('composetype')||'';
    if ($composetype eq "reply" || $composetype eq "replyall" ||
        $composetype eq "forward" || $composetype eq "forwardasorig" ||
        $composetype eq "editdraft" ) {
@@ -522,13 +539,19 @@ sub composemessage {
          if (defined(${$message{attachment}[0]}{header})) {
             my $attserial=time(); $attserial=ow::tool::untaint($attserial);
             foreach my $attnumber (0 .. $#{$message{attachment}}) {
+               my $r_attachment=$message{attachment}[$attnumber];
                $attserial++;
-               if (${$message{attachment}[$attnumber]}{header} ne "" &&
-                   defined(${${$message{attachment}[$attnumber]}{r_content}}) ) {
+               if (${$r_attachment}{header} ne "" &&
+                   defined(${$r_attachment}{r_content}) ) {
+                  my ($attheader, $r_content)=(${$r_attachment}{header}, ${$r_attachment}{r_content});
+
+                  if (${$r_attachment}{'content-type'}=~/^application\/ms\-tnef/i) {
+                     my ($arc_attheader, $arc_r_content)=tnefatt2archive($r_attachment, $convfrom, $composecharset);
+                     ($attheader, $r_content)=($arc_attheader, $arc_r_content) if ($arc_attheader ne '');
+                  }
                   open (ATTFILE, ">$config{'ow_sessionsdir'}/$thissession-att$attserial") or
                      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}/$thissession-att$attserial! ($!)");
-                  print ATTFILE ${$message{attachment}[$attnumber]}{header}, "\n\n";
-                  print ATTFILE ${${$message{attachment}[$attnumber]}{r_content}};
+                  print ATTFILE $attheader, "\n", ${$r_content};
                   close ATTFILE;
                }
             }
@@ -560,17 +583,6 @@ sub composemessage {
          $body=ow::htmltext::text2html($body);
       } elsif ($bodyformat ne 'text' && $msgformat eq 'text')  {
          $body=ow::htmltext::html2text($body);
-      }
-
-      # convfrom is the charset choosed by user in last reading message
-      my $convfrom=param('convfrom')||'';
-      if ($convfrom =~/^none\.(.*)$/) {
-         my $cf=$1;
-         foreach (values %ow::lang::languagecharsets) {
-            if ($_ eq $cf) {
-               $composecharset=$_; last;
-            }
-         }
       }
 
       my $fromemail=$prefs{'email'};
@@ -807,6 +819,7 @@ sub composemessage {
       }
 
       my @attr=get_message_attributes($messageid, $folderdb);
+      openwebmailerror(__FILE__, __LINE__, "$folderdb $messageid $lang_err{'doesnt_exist'}") if ($#attr<0);
 
       my $fromemail=$prefs{'email'};
       foreach (keys %userfrom) {
@@ -825,22 +838,21 @@ sub composemessage {
       open (ATTFILE, ">$config{'ow_sessionsdir'}/$thissession-att$attserial") or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}/$thissession-att$attserial! ($!)");
       print ATTFILE qq|Content-Type: message/rfc822;\n|,
-                    qq|Content-Disposition: attachment; filename="Forward.msg"\n\n|;
+                    qq|Content-Transfer-Encoding: 8bit\n|,
+                    qq|Content-Disposition: attachment; filename="Forward.msg"\n|,
+                    qq|Content-Description: $attr[$_SUBJECT]\n\n|;
 
       # copy message to be forwarded
       my $left=$attr[$_SIZE];
       seek(FOLDER, $attr[$_OFFSET], 0);
 
       # do not copy 1st line if it is the 'From ' delimiter
-      $_ = <FOLDER>; $left-=length($_);
-      if ( ! /^From / ) {
-         print ATTFILE $_;
-      }
+      $_ = <FOLDER>; print ATTFILE $_ if (!/^From /); $left-=length($_);
+
       # copy other lines with the 'From ' delimiter escaped
       while ($left>0) {
-         $_ = <FOLDER>; $left-=length($_);
-         s/^From />From /;
-         print ATTFILE $_;
+         $_ = <FOLDER>; s/^From />From /;
+         print ATTFILE $_; $left-=length($_);
       }
 
       close(ATTFILE);
@@ -868,6 +880,67 @@ sub composemessage {
 
       my $n="\n"; $n="<br>" if ($msgformat ne 'text');
       $body = $n."# Message forwarded as attachment".$n.$n;
+      $body .= str2str($prefs{'signature'}, $msgformat).$n if ($prefs{'signature'}=~/[^\s]/);
+
+   } elsif ($composetype eq 'forwardids' || $composetype eq 'forwardids_delete') {
+      $msgformat='text' if ($msgformat eq 'auto');
+
+      my ($folderfile, $folderdb)=get_folderpath_folderdb($user, $folder);
+      ow::filelock::lock($folderfile, LOCK_SH|LOCK_NB) or
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $folderfile!");
+
+      if (update_folderindex($folderfile, $folderdb)<0) {
+         ow::filelock::lock($folderfile, LOCK_UN);
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_updatedb'} $folderdb");
+      }
+
+      open(FOLDER, "$folderfile");
+      my $attserial=time(); $attserial=ow::tool::untaint($attserial);
+      for (my $i=0; $i<=$#forwardids; $i++) {
+         $attserial++;
+         my @attr=get_message_attributes($forwardids[$i], $folderdb);
+         open (ATTFILE, ">$config{'ow_sessionsdir'}/$thissession-att$attserial") or
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}/$thissession-att$attserial! ($!)");
+         print ATTFILE qq|Content-Type: message/rfc822;\n|,
+                       qq|Content-Transfer-Encoding: 8bit\n|,
+                       qq|Content-Disposition: attachment; filename="Forward$i.msg"\n|,
+                       qq|Content-Description: $attr[$_SUBJECT]\n\n|;
+
+         # copy message to be forwarded
+         my $left=$attr[$_SIZE];
+         seek(FOLDER, $attr[$_OFFSET], 0);
+
+         # do not copy 1st line if it is the 'From ' delimiter
+         $_ = <FOLDER>; print ATTFILE $_ if (!/^From /); $left-=length($_);
+
+         # copy other lines with the 'From ' delimiter escaped
+         while ($left>0) {
+            $_ = <FOLDER>; s/^From />From /;
+            print ATTFILE $_; $left-=length($_);
+         }
+
+         close(ATTFILE);
+      }
+      close(FOLDER);
+
+      # delete the forwarded messages if required
+      if ($composetype eq 'forwardids_delete') {
+         my $deleted=operate_message_with_ids('delete', \@forwardids, $folderfile, $folderdb);
+         folder_zapmessages($folderfile, $folderdb) if ($deleted>0);
+      }
+      ow::filelock::lock($folderfile, LOCK_UN);
+
+      ($attfiles_totalsize, $r_attfiles) = getattfilesinfo();
+
+      $subject = "Fw: ";
+      $replyto = $prefs{'replyto'} if (defined($prefs{'replyto'}));
+
+      my $n="\n"; $n="<br>" if ($msgformat ne 'text');
+      if ($#forwardids>0) {
+         $body = $n."# Messages forwarded as attachment".$n.$n;
+      } else {
+         $body = $n."# Message forwarded as attachment".$n.$n;
+      }
       $body .= str2str($prefs{'signature'}, $msgformat).$n if ($prefs{'signature'}=~/[^\s]/);
 
    } elsif ($composetype eq 'continue') {
@@ -1438,17 +1511,6 @@ sub sendmessage {
    my $msgformat = param('msgformat')||'';
    my $body = param('body')||'';
 
-   my $xmailer = $config{'name'};
-   if ($config{'xmailer_has_version'}) {
-      $xmailer .= " $config{'version'} $config{'releasedate'}";
-   }
-   my $xoriginatingip = ow::tool::clientip();
-   if ($config{'xoriginatingip_has_userid'}) {
-      $xoriginatingip .= " ($loginuser";
-      $xoriginatingip .="\@$logindomain" if ($config{'auth_withdomain'});
-      $xoriginatingip .= ")";
-   }
-
    $mymessageid= fakemessageid($from) if ($mymessageid eq '');
 
    my ($attfiles_totalsize, $r_attfiles)=getattfilesinfo();
@@ -1500,7 +1562,7 @@ sub sendmessage {
    if ($msgformat ne 'text') {
       $body=qq|<HTML>\n<HEAD>\n|.
             qq|<META content="text/html; charset=$composecharset" http-equiv=Content-Type>\n|.
-            qq|<META content="$xmailer" name=GENERATOR>\n|.
+            qq|<META content="OPENWEBMAIL" name=GENERATOR>\n|.
             qq|</HEAD>\n<BODY bgColor=#ffffff>\n|.
             $body.
             qq|\n</BODY>\n</HTML>\n|;
@@ -1543,22 +1605,9 @@ sub sendmessage {
             push (@recipients, $addr);
          }
       }
-
-      # validate receiver email
-      if ($#{$config{'allowed_receiverdomain'}}>=0) {
-         foreach my $email (@recipients) {
-            my $allowed=0;
-            foreach my $token (@{$config{'allowed_receiverdomain'}}) {
-               if (lc($token) eq 'all' || $email=~/\Q$token\E$/i) {
-                  $allowed=1; last;
-               } elsif (lc($token) eq 'none') {
-                  last;
-               }
-            }
-            if (!$allowed) {
-               openwebmailerror(__FILE__, __LINE__, $lang_err{'disallowed_receiverdomain'}." ( $email )");
-            }
-         }
+      foreach my $email (@recipients) {	# validate receiver email
+         matchlist_fromtail('allowed_receiverdomain', $email) or
+            openwebmailerror(__FILE__, __LINE__, $lang_err{'disallowed_receiverdomain'}." ( $email )");
       }
 
       # redirect stderr to smtperrfile
@@ -1616,7 +1665,7 @@ sub sendmessage {
          }
       }
 
-      if (!$saveerr && ow::filelock::lock($savefile, LOCK_EX|LOCK_NB)) {
+      if (!$saveerr && ow::filelock::lock($savefile, LOCK_EX)) {
          if (update_folderindex($savefile, $savedb)<0) {
             ow::filelock::lock($savefile, LOCK_UN);
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_updatedb'} $savedb");
@@ -1723,8 +1772,7 @@ sub sendmessage {
    $s .= "In-Reply-To: $inreplyto\n" if ($inreplyto);
    $s .= "References: $references\n" if ($references);
    $s .= "Priority: $priority\n" if ($priority && $priority ne 'normal');
-   $s .= "X-Mailer: $xmailer\n";
-   $s .= "X-OriginatingIP: $xoriginatingip\n";
+   $s .= safexheaders($config{'xheaders'});
    if ($confirmreading) {
       if ($replyto ne '') {
          $s .= "X-Confirm-Reading-To: ".ow::mime::encode_mimewords($replyto, ('Charset'=>$composecharset))."\n";
@@ -2044,6 +2092,7 @@ sub sendmessage {
          $FDB{$mymessageid}=msgattr2string(@attr);
          $FDB{'ALLMESSAGES'}++;
          $FDB{'METAINFO'}=ow::tool::metainfo($savefile);
+         $FDB{'LSTMTIME'}=time();
          ow::dbm::close(\%FDB, $savedb);
       } else {
          truncate($folderhandle, $messagestart);
@@ -2053,6 +2102,7 @@ sub sendmessage {
          ow::dbm::open(\%FDB, $savedb, LOCK_EX) or
                openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $savedb");
          $FDB{'METAINFO'}=ow::tool::metainfo($savefile);
+         $FDB{'LSTMTIME'}=time();
          ow::dbm::close(\%FDB, $savedb);
       }
 
@@ -2098,7 +2148,7 @@ sub sendmessage {
          if ( $found ) {
             if ($oldstatus !~ /a/i) {
                # try to mark answered if get filelock
-               if (ow::filelock::lock($folderfile, LOCK_EX|LOCK_NB)) {
+               if (ow::filelock::lock($folderfile, LOCK_EX)) {
                   update_message_status($inreplyto, $oldstatus."A", $folderdb, $folderfile);
                   ow::filelock::lock($folderfile, LOCK_UN);
                }
@@ -2450,3 +2500,45 @@ sub htmlarea_compatible {
    return 0;
 }
 ########## END HTMLAREA_COMPATIBLE ###############################
+
+########## TNEFATT2ARCHIVE #######################################
+sub tnefatt2archive {
+   my ($r_attachment, $convfrom, $composecharset)=@_;
+   my $tnefbin=ow::tool::findbin('tnef');
+   return('') if ($tnefbin eq '');
+
+   my $content;
+   if (${$r_attachment}{'content-transfer-encoding'} =~ /^base64$/i) {
+      $content = decode_base64(${${$r_attachment}{r_content}});
+   } elsif (${$r_attachment}{'content-transfer-encoding'} =~ /^quoted-printable$/i) {
+      $content = decode_qp(${${$r_attachment}{r_content}});
+   } else { ## Guessing it's 7-bit, at least sending SOMETHING back! :)
+      $content = ${${$r_attachment}{r_content}};
+   }
+   my ($arcname, $r_arcdata, @arcfilelist)=ow::tnef::get_tnef_archive($tnefbin, ${$r_attachment}{filename}, \$content);
+   return('') if ($arcname eq '');
+
+   my $arccontenttype=ow::tool::ext2contenttype($arcname);
+   my $arcdescription=join(', ', @arcfilelist);
+
+   # convfrom is the charset choosed by user in message reading
+   # we convert att attributes from convfrom to current composecharset
+   if (is_convertable($convfrom, $composecharset) ) {
+      ($arcname, $arcdescription)=iconv($convfrom, $composecharset, $arcname, $arcdescription);
+      $arcname=ow::mime::encode_mimewords($arcname, ('Charset'=>$composecharset));
+      $arcdescription=ow::mime::encode_mimewords($arcdescription, ('Charset'=>$composecharset));
+   } else {
+      $arcname=ow::mime::encode_mimewords($arcname, ('Charset'=>${$r_attachment}{charset}));
+      $arcdescription=ow::mime::encode_mimewords($arcdescription, ('Charset'=>${$r_attachment}{charset}));
+   }
+
+   my $attheader = qq|Content-Type: $arccontenttype;\n|.
+                   qq|\tname="$arcname"\n|.
+                   qq|Content-Disposition: attachment; filename="$arcname"\n|.
+                   qq|Content-Transfer-Encoding: base64\n|;
+   $attheader.= qq|Content-Description: $arcdescription\n| if ($#arcfilelist>0);
+
+   $content=encode_base64(${$r_arcdata});
+   return($attheader, \$content);
+}
+########## TNEFATT2ARCHIVE #######################################

@@ -1,14 +1,15 @@
 background="#FFFFFF"
 titlebar="#662266"
-titlebar_text="#EEDDEE"
+titlebar_text="#F8E0F8"
 menubar="#EECCEE"
 window_dark="#EED0EE"
-window_light="#EEDDEE"
+window_light="#F8E0F8"
 attachment_dark="#EEC0EE"
 attachment_light="#EED0EE"
 columnheader="#DDBBDD"
 tablerow_dark="#EED0EE"
-tablerow_light="#EEDDEE"
+tablerow_light="#F8E0F8"
+tablerow_hicolor="#BBEEBB"
 fontface="Arial, Helvetica"
 ###STARTSTYLESHEET###
 <!--

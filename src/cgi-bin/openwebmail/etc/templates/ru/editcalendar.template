@@ -3,31 +3,31 @@
 <table border="0" align="center" width="60%" cellpadding="3" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
 <tr><td colspan="2" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>Change Calendar Entry</B></FONT>
+<B>РЕДАКТИРОВАТЬ СОБЫТИЕ ИЗ КАЛЕНДАРЯ</B></FONT>
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Date:</B>
+<B>Дата:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ITEMDATEMENU@@@
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>New entry:</B>
+<B>Новое событие:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@STRINGFIELD@@@
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Start time:</B>
+<B>Начало:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@STARTHOURMINMENU@@@
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>End time:</B>
+<B>Конец:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ENDHOURMINMENU@@@
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Recurrence:</B>
+<B>Повторение:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FREQMENU@@@
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>&nbsp;</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@THISANDNEXTNDAYSCHECKBOX@@@ This day and next @@@NDAYSFIELD@@@ days
+@@@THISANDNEXTNDAYSCHECKBOX@@@ Этот день и следующие @@@NDAYSFIELD@@@ дней
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>&nbsp;</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -35,19 +35,19 @@
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>&nbsp;</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@EVERYYEARCHECKBOX@@@ Every year
+@@@EVERYYEARCHECKBOX@@@ Каждый год
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>New link:</B>
+<B>Новая ссылка:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@LINKFIELD@@@
 @@@EMAILSTART@@@
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Notify Email:</B>
+<B>Адрес для уведомления:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@EMAILFIELD@@@
 @@@EMAILEND@@@
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Event Color:</B>
+<B>Цвет события:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@EVENTCOLORMENU@@@
 </td></tr><tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>

@@ -3,31 +3,31 @@
 <table border="0" align="center" width="60%" cellpadding="3" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
 <tr><td colspan="2" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>Change Calendar Entry</B></FONT>
+<B>일정 수정</B></FONT>
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Date:</B>
+<B>일자:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ITEMDATEMENU@@@
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>New entry:</B>
+<B>일정:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@STRINGFIELD@@@
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Start time:</B>
+<B>시작 시간:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@STARTHOURMINMENU@@@
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>End time:</B>
+<B>종료 시간:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ENDHOURMINMENU@@@
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Recurrence:</B>
+<B>반복:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FREQMENU@@@
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>&nbsp;</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@THISANDNEXTNDAYSCHECKBOX@@@ This day and next @@@NDAYSFIELD@@@ days
+@@@THISANDNEXTNDAYSCHECKBOX@@@ 오늘부터 @@@NDAYSFIELD@@@ 일간
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>&nbsp;</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -35,19 +35,19 @@
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>&nbsp;</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@EVERYYEARCHECKBOX@@@ Every year
+@@@EVERYYEARCHECKBOX@@@ 매년
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>New link:</B>
+<B>관련된 웹주소:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@LINKFIELD@@@
 @@@EMAILSTART@@@
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Notify Email:</B>
+<B>알림 이메일:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@EMAILFIELD@@@
 @@@EMAILEND@@@
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Event Color:</B>
+<B>색깔:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@EVENTCOLORMENU@@@
 </td></tr><tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>

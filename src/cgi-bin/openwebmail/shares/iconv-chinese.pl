@@ -12,10 +12,10 @@ use Fcntl qw(:DEFAULT :flock);
 
 sub mkdb_b2g {
    my %B2G;
-   my $b2gdb=ow::tool::untaint("$config{'ow_etcdir'}/b2g");
+   my $b2gdb=ow::tool::untaint("$config{'ow_mapsdir'}/b2g");
 
    ow::dbm::open(\%B2G, $b2gdb, LOCK_EX, 0644) or return -1;
-   open (T, "$config{'b2g_map'}");
+   open (T, $config{'b2g_map'});
    $_=<T>; $_=<T>;
    while (<T>) {
       /^(..)\s(..)/;
@@ -29,10 +29,10 @@ sub mkdb_b2g {
 
 sub mkdb_g2b {
    my %G2B;
-   my $g2bdb=ow::tool::untaint("$config{'ow_etcdir'}/g2b");
+   my $g2bdb=ow::tool::untaint("$config{'ow_mapsdir'}/g2b");
 
    ow::dbm::open(\%G2B, $g2bdb, LOCK_EX, 0644) or return -1;
-   open (T, "$config{'g2b_map'}");
+   open (T, $config{'g2b_map'});
    $_=<T>; $_=<T>;
    while (<T>) {
       /^(..)\s(..)/;
@@ -50,7 +50,7 @@ sub mkdb_g2b {
 # from http://i18n.linux.org.tw/li18nux/big5/doc/big5-intro.txt
 sub b2g { # use range of big5
    my $str = $_[0];
-   my $b2gdb=ow::tool::untaint("$config{'ow_etcdir'}/b2g");
+   my $b2gdb=ow::tool::untaint("$config{'ow_mapsdir'}/b2g");
 
    if (ow::dbm::exist($b2gdb)) {
       my %B2G;
@@ -67,7 +67,7 @@ sub b2g { # use range of big5
 # from http://www.haiyan.com/steelk/navigator/ref/gbindex1.htm
 sub g2b { # use range of gb2312
    my $str = $_[0];
-   my $g2bdb=ow::tool::untaint("$config{'ow_etcdir'}/g2b");
+   my $g2bdb=ow::tool::untaint("$config{'ow_mapsdir'}/g2b");
 
    if (ow::dbm::exist($g2bdb)) {
       my %G2B;

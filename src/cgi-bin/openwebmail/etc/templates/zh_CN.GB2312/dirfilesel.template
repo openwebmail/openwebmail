@@ -37,7 +37,7 @@
 </tr></table>
 
 <table border="0" align="center" width="95%" cellpadding="2" cellspacing="0"><tr>
-<td bgcolor=@@@MENUBAR@@@ nowrap width="5%">档案名称&nbsp;</td>
+<td bgcolor=@@@MENUBAR@@@ nowrap width="5%">文件名称&nbsp;</td>
 <td bgcolor=@@@MENUBAR@@@ nowrap width="40%">@@@DESTNAMEFIELD@@@&nbsp;</td>
 <td bgcolor=@@@MENUBAR@@@ nowrap>@@@BUTTONS@@@</td>
 @@@ENDFORM@@@

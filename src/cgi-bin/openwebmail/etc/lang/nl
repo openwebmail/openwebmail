@@ -11,6 +11,11 @@ package ow::nl;
    'sent-mail'      => 'Verzonden',
    'saved-drafts'   => 'Concepten',
    'mail-trash'     => 'Prullenbak',
+   'spam-mail'      => 'Spam',
+   'virus-mail'     => 'Virus',
+   LEARNSPAM        => '--LEARN SPAM--',
+   LEARNHAM         => '--LEARN HAM--',
+   FORWARD          => '--FORWARD--',
    DELETE           => '--VERWIJDER--'
    );
 
@@ -88,6 +93,13 @@ package ow::nl;
    before => 'Boven adresboek velden',
    after  => 'Onder adresboek velden',
    both   => 'Boven en onder Boven adresboek velden'
+   );
+
+%lang_checksourcelabels =
+   (
+   all  => 'All new messages in INBOX',
+   pop3 => 'Only messages from pop3 server',
+   none => 'None'
    );
 
 %lang_timelabels =
@@ -226,6 +238,7 @@ package ow::nl;
    userprefs  => 'Gebruikersinstellingen',
    addressbook=> 'Adresboek',
    folders    => 'Mappen',
+   emptyfolder=> 'Empty folder',
    emptytrash => 'Prullenbak legen',
    totrash    => 'Verplaats naar prullenbak',
    forever    => 'Altijd',
@@ -452,6 +465,7 @@ package ow::nl;
    abook_invalid     => 'Sorry, dit bestand lijkt niet op een adres boek geexporteerd uit Outlook Express 5 in CSV format.  Let erop dat de eerste regel van het tekst bestand start met "Name,E-mail Address", ga dan',
    back              => 'terug',
    tryagain          => 'en probeer opnieuw.',
+   mailfilter_error  => 'Mail Filter Error',
    abook_toobig      => 'Sorry, uw adresboek is vol, er is geen plaats meer. Ga',
    cant_create_dir   => 'Kan uw eigen directory niet maken!',
    att_overlimit     => 'Sorry, uw bijlage overschrijdt de maximale grootte van',

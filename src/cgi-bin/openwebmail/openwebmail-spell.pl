@@ -63,7 +63,7 @@ if ($SCRIPT_DIR eq '' && open(F, '/etc/openwebmail_path.conf')) {
 if ($SCRIPT_DIR eq '') { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
 push (@INC, $SCRIPT_DIR);
 
-foreach (qw(PATH ENV BASH_ENV CDPATH IFS TERM)) { $ENV{$_}='' }	# secure ENV
+foreach (qw(ENV BASH_ENV CDPATH IFS TERM)) {delete $ENV{$_}}; $ENV{PATH}='/bin:/usr/bin'; # secure ENV
 umask(0002); # make sure the openwebmail group can write
 
 use strict;
@@ -477,11 +477,14 @@ sub spellcheck_words2html {
       # add words to person dict
       # the 2nd \n guarentees we have output in piperead
       pipewrite($spellcmd."\#\n\n");
-      ($stdout, $stderr)=piperead();
-      if ($stderr=~/[^\s]/) {
-         pipeclose();
-         openwebmailerror(__FILE__, __LINE__, "Spellcheck error: $stderr");
-      }
+      ($stdout, $stderr)=piperead(2);
+
+      # it seems adding words to pdict doesn't generate output on aspell 0.50,
+      # so we comment out the result check here
+      # if ($stderr=~/[^\s]/) {
+      #    pipeclose();
+      #    openwebmailerror(__FILE__, __LINE__, "Spellcheck error: $stderr");
+      # }
    }
 
    my %dupwordhtml=();

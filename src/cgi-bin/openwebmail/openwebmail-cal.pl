@@ -25,7 +25,7 @@ if ($SCRIPT_DIR eq '' && open(F, '/etc/openwebmail_path.conf')) {
 if ($SCRIPT_DIR eq '') { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
 push (@INC, $SCRIPT_DIR);
 
-foreach (qw(PATH ENV BASH_ENV CDPATH IFS TERM)) { $ENV{$_}='' }	# secure ENV
+foreach (qw(ENV BASH_ENV CDPATH IFS TERM)) {delete $ENV{$_}}; $ENV{PATH}='/bin:/usr/bin'; # secure ENV
 umask(0002); # make sure the openwebmail group can write
 
 use strict;
@@ -268,19 +268,20 @@ sub yearview {
    }
 
    my @accesskey=qw(0 1 2 3 4 5 6 7 8 9 0 J Q);
-   my ($easter_month, $easter_day) = ow::datetime::gregorian_easter($year); # compute once
    my $week=1;
    for my $month (1..12) {
       my @days = set_days_in_month($year, $month, $days_in_month[$month]);
-      my $bgcolor;
 
-      if ($month==$current_month && $year == $current_year) {
-         $bgcolor=qq|bgcolor=$style{'tablerow_light'}|;
-      } else {
-         $bgcolor=qq|bgcolor=$style{'tablerow_dark'}|;
+      my $bgcolor=$style{tablerow_light}; 
+      $bgcolor=$style{tablerow_dark} if ($month==$current_month && $year == $current_year);
+      my $td_bgcolorstr=qq|bgcolor=$bgcolor |;
+      if ($prefs{'uselightbar'}) {
+         $td_bgcolorstr.=qq|onMouseOver='this.style.backgroundColor=$style{tablerow_hicolor};' |.
+                         qq|onMouseOut='this.style.backgroundColor=$bgcolor;' |.
+                         qq|onClick="window.location.href='$cal_url&amp;action=calmonth&amp;year=$year&amp;month=$month';"|;
       }
 
-      $temphtml  = qq|<td valign=top align=center $bgcolor>\n|;
+      $temphtml  = qq|<td valign=top align=center $td_bgcolorstr>\n|;
       $temphtml .= qq|<table border="0" width="100%"><tr><td align="center">|.
                    qq|<a accesskey="$accesskey[$month]" href="$cal_url&amp;action=calmonth&amp;year=$year&amp;month=$month">|.
                    qq|<B>$lang_month{$month}</B></a>|.
@@ -316,9 +317,7 @@ sub yearview {
                   foreach my $index (@{$indexes{$_}}) {
                      if ($date =~/$items{$index}{'idate'}/ ||
                          $date2=~/$items{$index}{'idate'}/ ||
-                         ow::datetime::easter_match($year,$month,$day,
-                                                    $easter_month,$easter_day,
-                                                    $items{$index}{'idate'}) ) {
+                         ow::datetime::easter_match($year,$month,$day,$items{$index}{'idate'}) ) {
                         push(@indexlist, $index);
                      }
                   }
@@ -338,13 +337,13 @@ sub yearview {
                      $eventstr=qq|title='$eventstr'|;
                   }
                }
-               if ($day==$current_day && $month==$current_month && $year==$current_year) {
-                  $bgcolor=qq|bgcolor=$style{'columnheader'}|;
-               } else {
-                  $bgcolor="";
-               }
 
-               $temphtml .= qq|<td $bgcolor><a href="$cal_url&amp;action=calday&amp;year=$year&amp;month=$month&amp;day=$day" $eventstr>|;
+               if ($day==$current_day && $month==$current_month && $year==$current_year) {
+                  $temphtml .= qq|<td bgcolor=$style{'tablerow_hicolor'}>|;
+               } else {
+                  $temphtml .= qq|<td>|;
+               }
+               $temphtml .= qq|<a href="$cal_url&amp;action=calday&amp;year=$year&amp;month=$month&amp;day=$day" $eventstr>|;
                if ($eventstr ne '') {
                   $temphtml .= qq|<b>$days[$x][$y]</b>|;
                } else {
@@ -480,23 +479,27 @@ sub monthview {
                                  month=>$month);
    $html =~ s/\@\@\@STARTDAYFORM\@\@\@/$temphtml/;
 
-   my ($easter_month, $easter_day) = ow::datetime::gregorian_easter($year); # compute once
    my @days = set_days_in_month($year, $month, $days_in_month[$month]);
    for my $x ( 0..5 ) {
       for my $y ( 0..6 ) {
-         my $bgcolor;
          my $day = $days[$x][$y];
-         if ($year==$current_year &&
-             $month==$current_month &&
-             $day==$current_day) {
-            $bgcolor="bgcolor=$style{'tablerow_light'}";
-         } elsif ($days[$x][$y]) {
-            $bgcolor="bgcolor=$style{'tablerow_dark'}";
-         } else {	# else cell is not unused
-            $bgcolor="";
-         }
 
-         $temphtml = qq|<td valign=top $bgcolor>|.
+         my ($td_bgcolorstr, $bgcolor);
+         if ($year==$current_year && $month==$current_month && $day==$current_day) {
+            $bgcolor=$style{tablerow_dark};
+         } elsif ($days[$x][$y]) {
+            $bgcolor=$style{tablerow_light}; 
+         } # else cell is not unused, bgcolor is not required
+         if ($bgcolor ne '') {
+            $td_bgcolorstr=qq|bgcolor=$bgcolor |;
+            if ($prefs{'uselightbar'}) {
+               $td_bgcolorstr.=qq|onMouseOver='this.style.backgroundColor=$style{tablerow_hicolor};' |.
+                               qq|onMouseOut='this.style.backgroundColor=$bgcolor;' |.
+                               qq|onClick="window.location.href='$cal_url&amp;action=calday&amp;year=$year&amp;month=$month&amp;day=$day';"|;
+            }
+         } 
+
+         $temphtml = qq|<td $td_bgcolorstr valign=top>|.
                      qq|<table width="100%" cellpadding="0" cellspacing="0">\n|;
 
          if ($days[$x][$y] =~ /\d+/) {
@@ -522,9 +525,7 @@ sub monthview {
                foreach my $index (@{$indexes{$_}}) {
                   if ($date =~/$items{$index}{'idate'}/ ||
                       $date2=~/$items{$index}{'idate'}/ ||
-                      ow::datetime::easter_match($year,$month,$day,
-                                                 $easter_month,$easter_day,
-                                                 $items{$index}{'idate'}) ) {
+                      ow::datetime::easter_match($year,$month,$day,$items{$index}{'idate'}) ) {
                      push(@indexlist, $index);
                   }
                }
@@ -696,16 +697,16 @@ sub weekview {
       ($year, $month, $day)=(ow::datetime::seconds2array($start_time+$x*86400))[5,4,3];
       $year+=1900; $month++;
 
-      my $bgcolor;
-      if ($year==$current_year &&
-          $month==$current_month &&
-          $day==$current_day) {
-         $bgcolor="bgcolor=$style{'tablerow_light'}";
-      } else {
-         $bgcolor="bgcolor=$style{'tablerow_dark'}";
+      my $bgcolor=$style{tablerow_light}; 
+      $bgcolor=$style{tablerow_dark} if ($month==$current_month && $year == $current_year);
+      my $td_bgcolorstr=qq|bgcolor=$bgcolor |;
+      if ($prefs{'uselightbar'}) {
+         $td_bgcolorstr.=qq|onMouseOver='this.style.backgroundColor=$style{tablerow_hicolor};' |.
+                         qq|onMouseOut='this.style.backgroundColor=$bgcolor;' |.
+                         qq|onClick="window.location.href='$cal_url&amp;action=calday&amp;year=$year&amp;month=$month&amp;day=$day';"|;
       }
 
-      $temphtml = qq|<td valign=top $bgcolor>|.
+      $temphtml = qq|<td $td_bgcolorstr valign=top>|.
                   qq|<table width="100%" cellpadding="0" cellspacing="0">\n|;
 
       my $daystr=$day; $daystr=" ".$daystr if (length($daystr)<2);
@@ -724,8 +725,6 @@ sub weekview {
                    qq|</td></tr>|.
                    end_form();
 
-      my ($easter_month, $easter_day) = ow::datetime::gregorian_easter($year); # compute once
-
       my $t=ow::datetime::array2seconds(1,1,1, $day,$month-1,$year-1900);
       my $dow=$ow::datetime::wday_en[(ow::datetime::seconds2array($t))[6]];
       my $date=sprintf("%04d%02d%02d", $year, $month, $day);
@@ -738,9 +737,7 @@ sub weekview {
          foreach my $index (@{$indexes{$_}}) {
             if ($date =~/$items{$index}{'idate'}/ ||
                 $date2=~/$items{$index}{'idate'}/ ||
-                ow::datetime::easter_match($year,$month,$day,
-                                           $easter_month,$easter_day,
-                                           $items{$index}{'idate'}) ) {
+                ow::datetime::easter_match($year,$month,$day,$items{$index}{'idate'}) ) {
                push(@indexlist, $index);
             }
          }
@@ -921,8 +918,6 @@ sub dayview {
    }
    $html =~ s/\@\@\@CALTITLE\@\@\@/$temphtml/g;
 
-   my ($easter_month, $easter_day) = ow::datetime::gregorian_easter($year); # compute once
-
    # Find all indexes that take place today and sort them by starthourmin
    my $dow   = $ow::datetime::wday_en[$wdaynum];
    my $date  = sprintf("%04d%02d%02d", $year, $month, $day);
@@ -934,9 +929,7 @@ sub dayview {
       foreach my $index (@{$indexes{$_}}) {
          if ($date =~/$items{$index}{'idate'}/ ||
              $date2=~/$items{$index}{'idate'}/ ||
-             ow::datetime::easter_match($year,$month,$day,
-                                        $easter_month,$easter_day,
-                                        $items{$index}{'idate'}) ) {
+             ow::datetime::easter_match($year,$month,$day,$items{$index}{'idate'}) ) {
             push(@indexlist, $index);
          }
       }
@@ -995,7 +988,7 @@ sub dayview {
          $eventemail = qq|&nbsp;|. iconlink("email.gif", "${$r_event}{'email'}", "");
       }
       my ($jsedit, $jsdel)=('','');
-      if (${$r_event}{'idate'} =~ m/[\*|,|\|]/) {
+      if (${$r_event}{'idate'}=~/[\*|,|\|]/) {
          $jsedit = qq|onclick="return confirm('$lang_text{multieditconf}')"|;
          $jsdel = qq|onclick="return confirm('$lang_text{multidelconf}')"|;
       } else {
@@ -1136,7 +1129,7 @@ sub dayview {
                   $eventemail = qq|&nbsp;|. iconlink("email.gif", "${$r_event}{'email'}", "");
                }
                my ($jsedit, $jsdel)=('','');
-               if (${$r_event}{'idate'} =~ m/[\*|,|\|]/) {
+               if (${$r_event}{'idate'}=~/[\*|,|\|]/) {
                   $jsedit = qq|onclick="return confirm('$lang_text{multieditconf}')"|;
                   $jsdel = qq|onclick="return confirm('$lang_text{multidelconf}')"|;
                } else {
@@ -1494,7 +1487,7 @@ sub build_event_matrix {
 sub bordercolor {
    # take a hex number and calculate a hex number that
    # will be a nice complement to it as a bordercolor
-   my ($redhex, $greenhex, $bluehex) = $_[0] =~ m/(..)(..)(..)/;
+   my ($redhex, $greenhex, $bluehex) = $_[0]=~/(..)(..)(..)/;
    my ($r, $g, $blue) = (sprintf("%d", hex($redhex)), sprintf("%d", hex($greenhex)), sprintf("%d", hex($bluehex)));
    my ($h, $s, $v) = rgb2hsv($r, $g, $blue);
 
@@ -1644,7 +1637,6 @@ sub listview {
    my $t0 = ow::datetime::array2seconds(1,1,1, $current_day,$current_month-1,$current_year-1900);
    my @accesskey=qw(0 1 2 3 4 5 6 7 8 9 0 J Q);
 
-   my ($easter_month, $easter_day) = ow::datetime::gregorian_easter($year); # compute once
    $temphtml="";
    for my $month (1..12) {
       for my $day (1..$days_in_month[$month]) {
@@ -1660,9 +1652,7 @@ sub listview {
             foreach my $index (@{$indexes{$_}}) {
                if ($date =~/$items{$index}{'idate'}/ ||
                    $date2=~/$items{$index}{'idate'}/ ||
-                   ow::datetime::easter_match($year,$month,$day,
-                                              $easter_month,$easter_day,
-                                              $items{$index}{'idate'}) ) {
+                   ow::datetime::easter_match($year,$month,$day,$items{$index}{'idate'}) ) {
                   push(@indexlist, $index);
                }
             }
@@ -1676,19 +1666,27 @@ sub listview {
             $dayhtml .= listview_item($index, \%items, $cal_url, "year=$year&amp;month=$month&amp;day=$day&amp;index=$index&amp;callist=1", ($index>=1E6))
          }
 
-         my $bgcolor;
-         if ($year==$current_year && $month==$current_month && $day==$current_day) {
-            $bgcolor="bgcolor=$style{'tablerow_light'}";
+
+         my ($tr_bgcolorstr, $td_bgcolorstr);
+         my $bgcolor=$style{tablerow_light}; 
+         $bgcolor=$style{tablerow_dark} if ($year==$current_year && $month==$current_month && $day==$current_day);
+         if ($prefs{'uselightbar'}) {
+            $tr_bgcolorstr=qq|bgcolor=$bgcolor |.
+                           qq|onMouseOver='this.style.backgroundColor=$style{tablerow_hicolor};' |.
+                           qq|onMouseOut='this.style.backgroundColor=$bgcolor;' |.
+                           qq|onClick="window.location.href='$cal_url&amp;action=calday&amp;year=$year&amp;month=$month&amp;day=$day';"|;
+           $td_bgcolorstr='';
          } else {
-            $bgcolor="bgcolor=$style{'tablerow_dark'}";
+            $tr_bgcolorstr='';
+            $td_bgcolorstr=qq|bgcolor= $bgcolor|;
          }
 
          if ($dayhtml ne "" || $t==$t0) {
             my $daydiffstr=int(($t-$t0)/86400);
             $daydiffstr="+$daydiffstr" if ($daydiffstr>0);
             $dayhtml = qq|<tr><td>&nbsp;</td></tr>| if ($dayhtml eq "");
-            $temphtml .= qq|<tr>|.
-                         qq|<td $bgcolor nowrap>|.
+            $temphtml .= qq|<tr $tr_bgcolorstr>|.
+                         qq|<td $td_bgcolorstr nowrap>|.
                          qq|<a accesskey="$accesskey[$month]" href="$cal_url&amp;action=calday&amp;year=$year&amp;month=$month&amp;day=$day"><b>|;
             if ($prefs{'dateformat'}=~m!mm([/\-\.])dd!) {
                $temphtml.=sprintf("%02d$1%02d", $month, $day);
@@ -1702,12 +1700,12 @@ sub listview {
                $temphtml .= qq| &nbsp; |.lunar_str($year, $month, $day, $prefs{'charset'});
             }
             $temphtml .= qq|</td>|.
-                         qq|<td $bgcolor>|.
+                         qq|<td $td_bgcolorstr $bgcolor>|.
                          qq|<a href="$cal_url&amp;action=calweek&amp;year=$year&amp;month=$month">|.
                          qq|$lang_wday{$wdaynum}</a>|.
                          qq|</td>|.
-                         qq|<td $bgcolor align="right" nowrap>$daydiffstr &nbsp;</td>|.
-                         qq|<td $bgcolor><table width="100%" cellspacing="0" cellpadding="2">$dayhtml</table></td>|.
+                         qq|<td $td_bgcolorstr align="right" nowrap>$daydiffstr &nbsp;</td>|.
+                         qq|<td $td_bgcolorstr><table width="100%" cellspacing="0" cellpadding="2">$dayhtml</table></td>|.
                          qq|</tr>\n|;
          }
       } # day loop end
@@ -1749,7 +1747,7 @@ sub listview_item {
       $eventemail = qq|&nbsp;|. iconlink("email.gif", "${$r_item}{'email'}", "");
    }
    my ($jsedit, $jsdel)=('','');
-   if (${$r_item}{'idate'} =~ m/[\*|,|\|]/) {
+   if (${$r_item}{'idate'}=~/[\*|,|\|]/) {
       $jsedit = qq|onclick="return confirm('$lang_text{multieditconf}')"|;
       $jsdel = qq|onclick="return confirm('$lang_text{multidelconf}')"|;
    } else {
@@ -1960,7 +1958,7 @@ sub edit_item {
    my $linkstr_default=$items{$index}{'link'};
    my $emailstr_default=$items{$index}{'email'};
 
-   if ($items{$index}{'idate'} =~ m/,/) { #idate has recurrance in it
+   if ($items{$index}{'idate'}=~/,/) { #idate has recurrance in it
        ($everyyear, $monthfreq, $dayfreq, $dow) = split(/,/, $items{$index}{'idate'});
        my %weekorder_day_wild_reversed = ( "0[1-7]" => 1,
                                            "((0[8-9])|(1[0-4]))" => 2,
@@ -1982,7 +1980,7 @@ sub edit_item {
        if ($everyyear eq '.*') {
           $everyyear_default = 1;
        }
-   } elsif ($items{$index}{'idate'} =~ m/^\(?(\d+)\|?.*?\|?(\d+)?\)?$/) {
+   } elsif ($items{$index}{'idate'}=~/^\(?(\d+)\|?.*?\|?(\d+)?\)?$/) {
        # That regex breaks apart idates like (20030808|20030809)
        $startdate = $1;
        $enddate = $2 || '';
