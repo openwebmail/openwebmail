@@ -4,16 +4,16 @@
 <b>ADRESSBUCH BEARBEITEN</b></font>
 </td><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>@@@FREESPACE@@@ kB Frei</b></font>
+<b>@@@FREESPACE@@@ kB frei</b></font>
 </td></tr><tr><td colspan="4" bgcolor=@@@MENUBAR@@@ align="left">
 @@@MENUBARLINKS@@@
 </td></tr><tr><td colspan="4">&nbsp;</td></tr>
 <tr><td bgcolor=@@@COLUMNHEADER@@@>
 <B>Name</B> (Zum Bearbeiten anklicken)</td>
 <td bgcolor=@@@COLUMNHEADER@@@>
-<B>eMail Adresse(n)</B> (Zum eMail schreiben anklicken)</td>
+<B>eMail Adresse(n)</B> (Zum eMail verfassen anklicken)</td>
 <td bgcolor=@@@COLUMNHEADER@@@>
-<B>Note</B></td>
+<B>Notiz</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Aktion</B>
 </td></tr>

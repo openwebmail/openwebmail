@@ -114,7 +114,7 @@
       document.spellcheckform.field.value = "body";
       document.spellcheckform.string.value = document.composeform.body.value;
       window.open('','SpellChecker','width=600,height=400,top=40,left=80,scrollbars=yes,resizable=yes,location=no');
-      return ture;
+      return true;
    }
 
    function sendcheck()

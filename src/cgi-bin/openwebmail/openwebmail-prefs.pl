@@ -1683,7 +1683,7 @@ sub editfilter {
    $html =~ s/\@\@\@OPMENU\@\@\@/$temphtml/;
 
    ## replace @@@FOLDERMENU@@@ ##
-   @validfolders = @{&getfolders()};
+   @validfolders = @{&getfolders(0)};
    push(@validfolders, 'DELETE');
    foreach (@validfolders) {
       if ( defined($lang_folders{$_}) ) {

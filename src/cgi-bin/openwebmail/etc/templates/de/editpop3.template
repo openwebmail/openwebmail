@@ -1,26 +1,26 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td colspan="3" bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>EDITING POP3 ACCOUNT</b></font>
+<b>POSTFÄCHER BEARBEITEN</b></font>
 </td><td nowrap colspan="3" bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b> @@@FREESPACE@@@ KB Available</b></font>
+<b> @@@FREESPACE@@@ KB frei</b></font>
 </td></tr><tr><td colspan="6" bgcolor=@@@MENUBAR@@@ align="left">
 @@@MENUBARLINKS@@@
 </td></tr><tr><td colspan="6">&nbsp;</td></tr>
 <tr>
 <td nowrap bgcolor=@@@COLUMNHEADER@@@>
-<B>POP3 Server</B> (click to edit)</td>
+<B>POP3 Server</B> (Zum Bearbeiten anklicken)</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Id</B></td>
+<B>Benutzer</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Passwd</B></td>
+<B>Passwort</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Email</B> (click to receive)</td>
+<B>Email</B> (Zum Abholen anklicken)</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Del remote mail</B></td>
+<B>Nachr. vom Server löschen</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Action</B>
+<B>Aktion</B>
 </td></tr>
 @@@STARTADDRESSFORM@@@
 <tr>

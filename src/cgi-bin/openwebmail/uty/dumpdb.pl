@@ -7,6 +7,7 @@ push (@INC, ".");
 use Fcntl qw(:DEFAULT :flock);
 
 require "maildb.pl";
+require "filelock.pl";
 
 sub dump_headerdb {
    my ($headerdb, $folderfile) = @_;

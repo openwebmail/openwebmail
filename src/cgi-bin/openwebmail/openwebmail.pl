@@ -146,7 +146,7 @@ if ($user) {
       $useremail = $user . "@" . $domainname; 
    } 
 
-   @validfolders = @{&getfolders()};
+   @validfolders = @{&getfolders(0)};
    if (param("folder")) {
       my $isvalid = 0;
       $folder = param("folder");
@@ -342,7 +342,7 @@ sub login {
             $useremail = $user . "@" . $domainname; 
          } 
 
-         @validfolders = @{&getfolders()};
+         @validfolders = @{&getfolders(1)};	# 1 to del stale .db .cache of folders
          $folder = "INBOX";
 
          $headersperpage = $prefs{'headersperpage'} || $headersperpage;
@@ -407,8 +407,8 @@ sub cleantrash {
    return if ( $m && $m<1 );
 
    my ($trashfile, $trashdb)=get_folderfile_headerdb($user, 'mail-trash');
-   filelock($trashfile, LOCK_SH|LOCK_NB) or
-      openwebmailerror("$lang_err{'couldnt_locksh'} $trashfile!");
+   filelock($trashfile, LOCK_EX|LOCK_NB) or
+      openwebmailerror("$lang_err{'couldnt_lock'} $trashfile!");
    my $deleted=delete_message_by_age($days, $trashdb, $trashfile);
    if ($deleted >0) {
       writelog("delete $deleted msgs from mail-trash");
@@ -428,15 +428,19 @@ sub cleantrash {
 sub displayheaders {
    verifysession() unless $setcookie;
 
-   my $orig_inbox_newmessages;
-   my ($now_inbox_newmessages, $now_inbox_allmessages);
-   my $trash_allmessages;
+   my $orig_inbox_newmessages=0;
+   my $now_inbox_newmessages=0;
+   my $now_inbox_allmessages=0;
+   my $trash_allmessages=0;
    my %HDB;
-   filelock("$folderdir/.$user.$dbm_ext", LOCK_SH);
-   dbmopen (%HDB, "$folderdir/.$user", undef);		# dbm for INBOX
-   $orig_inbox_newmessages=$HDB{'NEWMESSAGES'};		# new msg in INBOX
-   dbmclose(%HDB);
-   filelock("$folderdir/.$user.$dbm_ext", LOCK_UN);
+
+   if ( -f "$folderdir/.$user.$dbm_ext") {
+      filelock("$folderdir/.$user.$dbm_ext", LOCK_SH);
+      dbmopen (%HDB, "$folderdir/.$user", undef);	# dbm for INBOX
+      $orig_inbox_newmessages=$HDB{'NEWMESSAGES'};	# new msg in INBOX
+      dbmclose(%HDB);
+      filelock("$folderdir/.$user.$dbm_ext", LOCK_UN);
+   }
 
    filtermessage();
 
@@ -530,7 +534,7 @@ sub displayheaders {
 
    my %folderlabels;
    foreach my $foldername (@validfolders) {
-      my ($folderfile, $headerdb, $newmessages, $allmessages);
+      my ($folderfile, $headerdb);
 
       if (defined $lang_folders{$foldername}) {
          $folderlabels{$foldername}=$lang_folders{$foldername};
@@ -538,26 +542,32 @@ sub displayheaders {
          $folderlabels{$foldername}=$foldername;
       }
 
+      # add message count in folderlabel
       ($folderfile, $headerdb)=get_folderfile_headerdb($user, $foldername);
-      filelock("$headerdb.$dbm_ext", LOCK_SH);
-      dbmopen (%HDB, $headerdb, undef);
-      $allmessages=$HDB{'ALLMESSAGES'};
-      $allmessages-=$HDB{'INTERNALMESSAGES'} if ($hide_internal);
-      $newmessages=$HDB{'NEWMESSAGES'};
-      if ($foldername eq 'INBOX') {
-         $now_inbox_allmessages=$allmessages;
-         $now_inbox_newmessages=$newmessages;
-      } elsif ($foldername eq 'mail-trash')  {
-         $trash_allmessages=$allmessages;
+      if ( -f "$headerdb.$dbm_ext" ) {
+         my ($newmessages, $allmessages);
+
+         filelock("$headerdb.$dbm_ext", LOCK_SH);
+         dbmopen (%HDB, $headerdb, undef);
+         $allmessages=$HDB{'ALLMESSAGES'};
+         $allmessages-=$HDB{'INTERNALMESSAGES'} if ($hide_internal);
+         $newmessages=$HDB{'NEWMESSAGES'};
+         if ($foldername eq 'INBOX') {
+            $now_inbox_allmessages=$allmessages;
+            $now_inbox_newmessages=$newmessages;
+         } elsif ($foldername eq 'mail-trash')  {
+            $trash_allmessages=$allmessages;
+         }
+         dbmclose(%HDB);
+         filelock("$headerdb.$dbm_ext", LOCK_UN);
+
+         if ( $newmessages ne "" && $allmessages ne "" ) {
+            $folderlabels{$foldername}.= " ($newmessages/$allmessages)";
+         }
       }
 
-      dbmclose(%HDB);
-      filelock("$headerdb.$dbm_ext", LOCK_UN);
-
-      if ( $newmessages ne "" && $allmessages ne "" ) {
-         $folderlabels{$foldername}.= " ($newmessages/$allmessages)";
-      }
    }
+
    $temphtml = popup_menu(-name=>'folder',
                           -"values"=>\@validfolders,
                           -default=>$folder,
@@ -664,7 +674,6 @@ sub displayheaders {
                           -name=>'moveform');
    my @movefolders;
    foreach my $checkfolder (@validfolders) {
-#      if ( ($checkfolder ne 'INBOX') && ($checkfolder ne $folder) )
       if ( $checkfolder ne $folder ) {
          push (@movefolders, $checkfolder);
       }
@@ -1387,7 +1396,7 @@ sub text_att2table {
 
 sub message_att2table {
    my ($r_attachments, $attnumber, $headercolor)=@_;
-   $headercolor='#dddddd' if ($header eq '');
+   $headercolor='#dddddd' if ($headercolor eq '');
 
    my $r_attachment=${$r_attachments}[$attnumber];
    my ($header, $body)=split(/\n\r*\n/, ${${$r_attachment}{r_content}}, 2);
@@ -2387,7 +2396,7 @@ sub sendmessage {
 
          $attr[$_OFFSET]=$messagestart;
          $attr[$_TO]=$to;
-         $attr[$_FROM]=(split(/,/, $to))[0];	# since this is sent folder
+         $attr[$_FROM]="$realname <$from>";
          ### we store localtime on dbm, so day offset is not needed
          $attr[$_DATE]="$month{$datearray[1]}/$datearray[0]/$datearray[2] $datearray[3]";
          $attr[$_SUBJECT]=$subject;

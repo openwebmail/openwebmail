@@ -1,11 +1,24 @@
-06/13/2001
+06/14/2001
 ----------
-1. spanish language and template translation
-   (thanks to Pakito Asinkecualo, pakito@asinkecualo.org)
-2. german language translation
+1. fix minor error in sendmessage which sets $from value in dbm to $to
+   when store message backup to SENT folder
+2. german language and template translation
    (thanks to Andreas Roedl, flood@flood-net.de)
-3. fix .pop3.book open error when pop3book size=0
+
+
+06/13/2001 (version 1.22)
+----------
+1. use new 3D icons instead of the original flat icons.
+   (thanks to Emir Litric, danguba@usa.net, for his grea work of art!!!)
+2. spanish language and template translation
+   (thanks to Pakito Asinkecualo, pakito@asinkecualo.org)
+3. german language translation
+   (thanks to Andreas Roedl, flood@flood-net.de)
+4. fix .pop3.book open error when pop3book size=0
    (thanks to kwang@mail.cgjh.tcc.edu.tw)
+5. fix a bug in javascript routine 'spellcheck' in compose template
+   (thanks to Antony Street, antony@vigen.com.au)
+6. fix a color bug when displaying message/rfc822 header
 
 
 06/12/2001
@@ -17,7 +30,6 @@
    same time from same client.
 3. the from address used in replying to a receipt rquest will depend
    on the receiver whom the message was deliver to
-
 
 
 06/11/2001 (version 1.21)

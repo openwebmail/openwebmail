@@ -2,9 +2,6 @@
 Open WeMail is a webmail system based on 
 the Neomail version 1.14 from Ernie Miller. 
 
-While the NeoMail has a great user interface and many neat features, 
-it is somewhat slow in handling big folder files and has large memory usage. 
-
 Open WebMail is targeted on dealing with very big mail folder files in a 
 memory efficient way. It also provides many features to help users to 
 switch from Microsoft Outlook smoothly. 
@@ -12,7 +9,7 @@ switch from Microsoft Outlook smoothly.
 
 FEATURES
 ---------
-The enhanced feature over neomail 1.14 are
+Open WebMail has the following enhanced features:
 
 1.  faster folder access
 2.  efficient messages movement
@@ -55,13 +52,14 @@ If you are using Redhat 6.2/CLE 0.9p1(or most Linux) with apache
    rmdir data
 2. modify /home/httpd/cgi-bin/openwebmail/etc/openwebmail.conf
    for your need
-   a. change the $passwdfile to '/etc/shadow'
-   b. search all '/usr/local/www' and replace to '/home/httpd'
-   c. change the $mailspooldir to '/var/spool/mail'
-   d. change the $defaultsignature as your need
-   e. other changes as your needed
+   a. change the $spellcheck to '/usr/bin/ispell'
+   b. change the $passwdfile to '/etc/shadow'
+   c. search all '/usr/local/www' and replace to '/home/httpd'
+   d. change the $mailspooldir to '/var/spool/mail'
+   e. change the $defaultsignature as your need
+   f. other changes as your needed
 3. cd /home/httpd/cgi-bin/openwebmail
-   modify openwebmail*.pl and checkmail.pl
+   modify checkmail.pl openwebmail-prefs.pl openwebmail.pl spellcheck.pl
    a. change the '/usr/local/www/cgi-bin/openwebmail'
               to '/home/httpd/cgi-bin/openwebmail'
 4. add 'Tnobody' to the 'Trusted users' session in your /etc/sendmail.cf
@@ -235,7 +233,7 @@ but we are not sure if they will happen or not...:)
 5. vacation reply
 
 
-06/11/2001
+06/13/2001
 
 Ebola@turtle.ee.ncku.edu.tw
 eddie@turtle.ee.ncku.edu.tw

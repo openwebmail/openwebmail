@@ -96,8 +96,9 @@ sub verifysession {
 
 ################## GETFOLDERS ####################
 sub getfolders {
-   my (@folders, @userfolders);
+   my $do_delfiles=$_[0];
    my @delfiles=();
+   my (@folders, @userfolders);
    my $totalsize = 0;
    my $filename;
 
@@ -114,10 +115,12 @@ sub getfolders {
            $filename=~/^\.(.*)\.pag$/ ||
            $filename=~/^(.*)\.lock$/ ||
            ($filename=~/^\.(.*)\.cache$/ && $filename ne ".search.cache") ) {
-         if ( ($1 ne $user) && (! -f "$folderdir/$1") ){
-            # dbm or cache whose folder doesn't exist
-            ($filename =~ /^(.+)$/) && ($filename = $1); # bypass taint check
-            push (@delfiles, "$folderdir/$filename");
+         if ($1 ne $user && ! -f "$folderdir/$1" ) {
+            if ($do_delfiles) {
+               # dbm or cache whose folder doesn't exist
+               ($filename =~ /^(.+)$/) && ($filename = $1); # bypass taint check
+               push (@delfiles, "$folderdir/$filename");
+            }
             next;
          }
       }

@@ -4,6 +4,6 @@
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>SITZUNG ABGELAUFEN</B></FONT></TD></TR>
 <tr><td valign="middle" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>Diese Sitzung ist abgelaufen, da die Verbindung zum Server zulange inaktiv war! Bitte melden Sie sich
+<BR>Diese Sitzung ist abgelaufen, da die Verbindung zum Server zu lange inaktiv war! Bitte melden Sie sich
 <a href="@@@SCRIPTURL@@@">erneut</a> an.<BR><BR>
 </td></tr></table>
