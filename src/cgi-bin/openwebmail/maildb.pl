@@ -10,7 +10,7 @@
 # 4. it supports search on mail spool file and cache the results for 
 #    repeated queries.
 #
-# 2001/04/20 tung@turtle.ee.ncku.edu.tw
+# 2001/05/18 tung@turtle.ee.ncku.edu.tw
 #
 # IMPORTANT!!!
 #
@@ -142,7 +142,6 @@ if ( $dbm_ext eq "" ) {
 }
 
 ######################### UPDATE_HEADERDB ############################
-
 # this routine indexes the messages in a mailfolder
 # and remove those with duplicated messageids
 sub update_headerdb {
@@ -235,12 +234,6 @@ sub update_headerdb {
             if ($line =~ /^\r*$/) {
                $inheader = 0;
 
-               # We aren't interested in the sender in this case, but the recipient
-               # Handling it this way avoids having a separate sort sub for To:.
-               if ( $folderfile=~ m#/sent-mail#i || 
-                    $folderfile=~ m#/saved-drafts#i ) {
-                  $_from = (split(/,/, $_to))[0];
-               }
                ### Convert to readable text from MIME-encoded
                $_from = decode_mimewords($_from);
                $_subject = decode_mimewords($_subject);
@@ -401,6 +394,10 @@ sub get_info_messageids_sorted {
       $sort='sender'; $rev=0;
    } elsif ( $sort eq 'sender_rev' ) {
       $sort='sender'; $rev=1;
+   } elsif ( $sort eq 'recipient' ) {
+      $sort='recipient'; $rev=0;
+   } elsif ( $sort eq 'recipient_rev' ) {
+      $sort='recipient'; $rev=1;
    } elsif ( $sort eq 'size' ) {
       $sort='size'; $rev=0;
    } elsif ( $sort eq 'size_rev' ) {
@@ -442,6 +439,8 @@ sub get_info_messageids_sorted {
          ($totalsize, $new, $internal, $r_messageids)=get_info_messageids_sorted_by_date($headerdb);
       } elsif ( $sort eq 'sender' ) {
          ($totalsize, $new, $internal, $r_messageids)=get_info_messageids_sorted_by_from($headerdb);
+      } elsif ( $sort eq 'recipient' ) {
+         ($totalsize, $new, $internal, $r_messageids)=get_info_messageids_sorted_by_to($headerdb);
       } elsif ( $sort eq 'size' ) {
          ($totalsize, $new, $internal, $r_messageids)=get_info_messageids_sorted_by_size($headerdb);
       } elsif ( $sort eq 'subject' ) {
@@ -545,6 +544,41 @@ sub get_info_messageids_sorted_by_from {
    @messageids=sort {
                     lc($from{$a}) cmp lc($from{$b}) or $datestr{$b} <=> $datestr{$a};
                     } keys(%from);
+   return($totalsize, $new, $internal, \@messageids);
+}
+
+sub get_info_messageids_sorted_by_to {
+   my $headerdb=$_[0];
+   my (%HDB, @attr, %to, %datestr, $key, $data);
+   my ($totalsize, $new, $internal)=(0,0,0);
+   my @messageids;
+
+   filelock("$headerdb.$dbm_ext", LOCK_SH);
+   dbmopen(%HDB, $headerdb, undef);
+   while ( ($key, $data)=each(%HDB) ) {
+      if ( $key eq 'METAINFO' ||
+           $key eq 'ALLMESSAGES' ||
+           $key eq "" ) {
+         next;
+      } elsif ( $key eq 'NEWMESSAGES' ) {
+         $new=$data;
+         next;
+      } elsif ( $key eq 'INTERNALMESSAGES' ) {
+         $internal=$data;
+         next;
+      } else {
+         @attr=split( /@@@/, $data );
+         $totalsize+=$attr[$_SIZE];
+         $to{$key}=$attr[$_TO];
+         $datestr{$key}=datestr($attr[$_DATE]);
+      }
+   }
+   dbmclose(%HDB);
+   filelock("$headerdb.$dbm_ext", LOCK_UN);
+
+   @messageids=sort {
+                    lc($to{$a}) cmp lc($to{$b}) or $datestr{$b} <=> $datestr{$a};
+                    } keys(%to);
    return($totalsize, $new, $internal, \@messageids);
 }
 
@@ -1112,7 +1146,8 @@ sub parse_attblock {
    my $lastline='NONE';
    foreach (split(/\n/, $attheader)) {
       if (/^\s/) {
-         if ($lastline eq 'TYPE') { $attcontenttype .= $_ }
+         if    ($lastline eq 'TYPE')     { $attcontenttype .= $_ }
+         elsif ($lastline eq 'LOCATION') { s/^\s+//; $attlocation .= $_ } 
       } elsif (/^content-type:\s+(.+)$/ig) {
          $attcontenttype = $1;
          $lastline = 'TYPE';
@@ -1128,7 +1163,7 @@ sub parse_attblock {
          $lastline = 'NONE';
       } elsif (/^content-location:\s+(.+)$/ig) {
          $attlocation = $1;
-         $lastline = 'NONE';
+         $lastline = 'LOCATION';
       } else {
          $lastline = 'NONE';
       }
@@ -1339,8 +1374,11 @@ sub contenttype2ext {
    my $contenttype=$_[0];
    my ($class, $ext, $dummy)=split(/[\/\s;,]+/, $contenttype);
    
+   return("mp3") if ($contenttype=~m!audio/mpeg!i);
+   return("ra")  if ($contenttype=~m!audio/x-realaudio!i);
+
+   $ext=~s/^x-//;
    return($ext)  if length($ext) <=4;
-   return("vcf") if ($ext =~ /vcard/i);
 
    return("txt") if ($class =~ /text/i);
    return("msg") if ($class =~ /message/i);
@@ -1348,9 +1386,16 @@ sub contenttype2ext {
    return("doc") if ($ext =~ /msword/i);
    return("ppt") if ($ext =~ /powerpoint/i);
    return("xls") if ($ext =~ /excel/i);
+   return("vsd") if ($ext =~ /visio/i);
+   return("vcf") if ($ext =~ /vcard/i);
    return("tar") if ($ext =~ /tar/i);
    return("zip") if ($ext =~ /zip/i);
-   return("vsd") if ($ext =~ /visio/i);
+   return("avi") if ($ext =~ /msvideo/i);
+   return("mov") if ($ext =~ /quicktime/i);
+   return("swf") if ($ext =~ /shockwave-flash/i);
+   return("hqx") if ($ext =~ /mac-binhex40/i);
+   return("ps")  if ($ext =~ /postscript/i);
+   return("js")  if ($ext =~ /javascript/i);
    return("bin");
 }
 ####################### END PARSE_.... related ###########################
@@ -1484,68 +1529,7 @@ sub search_info_messages_for_keyword {
 
 #################### END SEARCH_MESSAGES_FOR_KEYWORD ######################
 
-#################### GET_MESSAGEADDRS_SORTED_BY_COUNT #############
-sub get_messageaddrs_sorted_by_count {
-   my @headerdbs = @_;
-   my (@messageids, %count, %name, %date);
-   my ($headerdb, $messageid);
-   my @emails;
-
-   foreach $headerdb (@headerdbs) {
-      @messageids=get_messageids_sorted_by_offset($headerdb);
-      foreach $messageid (@messageids) {
-         my (@attr, $from, $name, $email);
-
-         @attr=get_message_attributes($messageid, $headerdb);
-         if ( $headerdb=~ m#/sent-mail#i ||
-              $headerdb=~ m#/saved-drafts#i ) {
-            $from=$attr[$_TO];
-         } else {
-            $from=$attr[$_FROM];
-         }
-
-         if ( $from=~/@/ ) {
-            if ($from=~ /^"?(.+?)"?\s*<(.*)>$/ ) {
-               $name=$1;
-               $email=$2;
-            } elsif ($from=~ /<?(.*@.*)>?\s+\((.+?)\)/ ) {
-               $email=$2;
-               $name=$1;
-            } else {
-               $email=$from;
-               $email=~s/\s*(.+@.+)\s*/$1/;
-               $name=$email;
-            }
-            if ($email=~/^root@/ || $email=~/daemon@/i ) {
-               next;
-            }
-            $count{$email}++;
-
-### change name for same email addr if date is newer
-            if (datestr($attr[$_DATE]) > $date{$email} ) {
-               $date{$email}=datestr($attr[$_DATE]); 
-               $name{$email}=$name;
-            }
-         }
-      }
-   }   
-
-   @emails=sort { $count{$b} <=> $count {$a} ||
-                  $date{$b} <=> $date{$a} } keys(%count);
-
-   for (my $i=0; $i<=$#emails; $i++) {
-      $emails[$i]=$name{$emails[$i]}.":".
-                  $emails[$i].":".
-                  $count{$emails[$i]}.":".
-                  $date{$emails[$i]};
-   }
-   return(@emails);
-}
-
-################ END GET_MESSAGEADDRS_SORTED_BY_COUNT #############
-
 ######################## HTML related ##############################
-
 # since this routine deals with base directive, 
 # it must be called first before other html...routines when converting html
 sub html4nobase {
@@ -1919,7 +1903,7 @@ sub log_time {
 
    open(Z, ">> /tmp/time.log");
 
-# unbuffer mode
+   # unbuffer mode
    select(Z); $| = 1;    
    select(stdout); 
 

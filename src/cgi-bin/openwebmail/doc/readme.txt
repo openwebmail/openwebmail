@@ -101,10 +101,11 @@ If you are using other UNIX with apache, that is okay
 FILTER SUPPORT
 --------------
 The mailfilter checks if messages in INBOX folder matches the filters rules 
-defined by user. If matches, move/copy the message to the specific folder.
-If you move a message to the DELETE folder, which means delete messages 
+defined by user. If matches, move/copy the message to the target folder.
+If you move a message to the DELETE folder, which means deleting messages 
 from a folder. If you use INBOX as the destination in a filter rule, 
-the message will be kept in the INBOX folder and skip other rule.
+any message matching this rule will be kept in the INBOX folder and 
+other rules will be ignored.
 
 Mail filtering is activated only in Open WebMail. It means messages 
 will stay in the INBOX until user reads their mail with Open WebMail. 

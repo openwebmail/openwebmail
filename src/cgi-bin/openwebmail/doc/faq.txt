@@ -3,16 +3,21 @@ Q: I got "Internal server error" when running openwebmail?
    I got "can not do setuid" error?
    I got "Software error: Can't locate etc/openwebmail.conf in @INC" error?
 
-A: Please check you have install a complete set of perl 5.005 above.
-   And You should uncompress the openwebmail-1.xx.tgz with proper parameter.
-   It is "tar -zxvBpf openwebmail-.1.xx.tgz"
+A: There are many possible answers...
 
-Q: The error is still there?
-A: You perl may be compiled with suid ability disabled.
-   a. check if you have a executable of suidperl 
-      'chmod 4555 suidperl'
-      and change #!/usr/bin/perl to the path of this suidperl
-   b. recompile your perl with suid enabled
+   1. Please check you have install a complete set of perl 5.005 above.
+      And You should uncompress the openwebmail-1.xx.tgz with proper parameter.
+      It is "tar -zxvBpf openwebmail-.1.xx.tgz"
+
+   2. Your perl may be compiled with suid ability disabled.
+      a. check if you have a executable of suidperl 
+         'chmod 4555 suidperl'
+         and change #!/usr/bin/perl to the path of this suidperl
+      b. Or recompile your perl with suid enabled
+
+   3. The MIME::Base64 or CGI module on your system may be too old
+      a. install MIME-Base64-2.12.tar.gz
+      b. install CGI.pm-2.74.tar.gz
 
 Q: I got "Software error: Can't locate MIME/Base64.pm in @INC"?
 A: please download MIME-Base64-2.12.tar.gz and install
@@ -25,7 +30,7 @@ A: please download MIME-Base64-2.12.tar.gz and install
    make install
 
 Q: I got "can't open /var/log/openwebmail.log" error?
-A: please check the openwebmail.log permission, it shoule be
+A: please check the openwebmail.log permission, it should be
    owner=root, group=mail, mode=660
 
 Q: The 'From' field of my message contains only 'username@'?
@@ -80,13 +85,13 @@ A: If your Open WebMail doesn't work, please describe your problem
    Perl Version
    the ls -l of the perl executable used in your openwebmail.pl
    the ls -l of your cgi-bin/openwebmail and cgi-bin/openwebmail/etc
-   the error message in your brower
+   the error message in your browser
 
    If your Open WebMail works but it shows strange output for some messages,
    please forward the message as an attachment to me 
    ps: clicking the 'forward as attachment' icon in message reading menu
 
-Q: Can I use Open WebMail in a commerical web site? 
+Q: Can I use Open WebMail in a commercial web site? 
    Can I change the page layout of openwebmail?
 A: Open WebMail is GPL software (please see copyright.txt for detail of GPL).
    You can use or distribute it freely and you can also change the layout 
@@ -96,9 +101,9 @@ A: Open WebMail is GPL software (please see copyright.txt for detail of GPL).
    b. The link 'Open WebMail' must be kept on the web page to enable the user
       link back to the home of Open WebMail.
 
-ps: I would be happy if you mail me a message that your commerical website
-    is using Open WebMail. I may put it into the webpage as some kind of 
-    advertisments :)
+ps: I would be happy if you mail me a message that your commercial web site
+    is using Open WebMail. I may put it into the web page as some kind of 
+    advertisements :)
    
 
 05/05/2001 

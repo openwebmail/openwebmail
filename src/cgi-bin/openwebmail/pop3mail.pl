@@ -13,7 +13,6 @@ sub getpop3book {
    my %account;
 
    if ( -f "$pop3book" ) {
-
       filelock($pop3book, LOCK_SH);
       open (POP3BOOK,"$pop3book") or
          return ();
@@ -154,7 +153,7 @@ sub retrpop3mail {
          }
          $FileContent .= "$_\n";
 
-         ### 取得其中兩行的資訊來組合出第一行所需的訊息
+         # get $stAddress, $stDate to compose the mail delimer 'From xxxx' line
          if ( /^from:\s+(.+)$/i && $stAddress eq "" ) {
             $_ = $1;
             if ($_=~ /^"?(.+?)"?\s*<(.*)>$/ ) {

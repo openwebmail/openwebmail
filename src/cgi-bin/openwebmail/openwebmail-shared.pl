@@ -81,10 +81,14 @@ sub verifysession {
 
    openwebmailerror("Session ID $lang_err{'has_illegal_chars'}") unless
       (($thissession =~ /^([\w\.\-]+)$/) && ($thissession = $1));
-   open (SESSION, "> $openwebmaildir/sessions/$thissession") or
-      openwebmailerror("$lang_err{'couldnt_open'} $thissession!");
-   print SESSION cookie("sessionid");
-   close (SESSION);
+
+   if ( !defined(param("refresh")) ) {
+      # extend the session lifetime only if this is not a auto-refresh
+      open (SESSION, "> $openwebmaildir/sessions/$thissession") or
+         openwebmailerror("$lang_err{'couldnt_open'} $thissession!");
+      print SESSION cookie("sessionid");
+      close (SESSION);
+   }
    $validsession = 1;
    return 1;
 }
@@ -94,60 +98,56 @@ sub verifysession {
 sub getfolders {
    my (@folders, @userfolders);
    my @delfiles=();
-   my $totalfoldersize = 0;
+   my $totalsize = 0;
    my $filename;
-
-   @folders = qw(INBOX saved-messages sent-mail saved-drafts mail-trash);
-   $totalfoldersize += ( -s "$folderdir/saved-messages" ) || 0;
-   $totalfoldersize += ( -s "$folderdir/sent-mail" ) || 0;
-   $totalfoldersize += ( -s "$folderdir/saved-drafts" ) || 0;
-   $totalfoldersize += ( -s "$folderdir/mail-trash" ) || 0;
 
    opendir (FOLDERDIR, "$folderdir") or 
       openwebmailerror("$lang_err{'couldnt_open'} $folderdir!");
 
    while (defined($filename = readdir(FOLDERDIR))) {
 
-      ### files started with . are not folders
-      ### they are openwebmail internal files (., .., dbm, search caches)
-      if ( $filename=~/^\./ ) {	# .* are files other than folder
-         if ( $filename=~/^\.(.*)\.db$/ ||
-              $filename=~/^\.(.*)\.dir$/ ||
-              $filename=~/^\.(.*)\.pag$/ ||
-              $filename=~/^(.*)\.lock$/ ||
-              ($filename=~/^\.(.*)\.cache$/ && $filename ne ".search.cache") ) {
-            if ( ($1 ne $user) && (! -f "$folderdir/$1") ){
-               # dbm or cache whose folder doesn't exist
-               ($filename =~ /^(.+)$/) && ($filename = $1); # bypass taint check
-               push (@delfiles, "$folderdir/$filename");	
-            }
+      next if ( $filename eq "." || $filename eq ".." );
+
+      # find internal file that are stale
+      if ( $filename=~/^\.(.*)\.db$/ ||
+           $filename=~/^\.(.*)\.dir$/ ||
+           $filename=~/^\.(.*)\.pag$/ ||
+           $filename=~/^(.*)\.lock$/ ||
+           ($filename=~/^\.(.*)\.cache$/ && $filename ne ".search.cache") ) {
+         if ( ($1 ne $user) && (! -f "$folderdir/$1") ){
+            # dbm or cache whose folder doesn't exist
+            ($filename =~ /^(.+)$/) && ($filename = $1); # bypass taint check
+            push (@delfiles, "$folderdir/$filename");
+            next;
          }
-         next;
       }
 
+      # summary file size
+      $totalsize += ( -s "$folderdir/$filename" ) || 0;
+
+      ### skip openwebmail internal files (conf, dbm, lock, search caches...)
+      next if ( $filename=~/^\./ || $filename =~ /\.lock$/);
+      
       ### find all user folders
-      if ( ($filename ne 'saved-messages') &&
-           ($filename ne 'sent-mail') &&
-           ($filename ne 'saved-drafts') &&
-           ($filename ne 'mail-trash') &&
-           ($filename ne '.') && ($filename ne '..') &&
-           ($filename !~ /\.lock$/) ) {
+      if ( $filename ne 'saved-messages' &&
+           $filename ne 'sent-mail' &&
+           $filename ne 'saved-drafts' &&
+           $filename ne 'mail-trash' ) {
          push (@userfolders, $filename);
-         $totalfoldersize += ( -s "$folderdir/$filename" );
       }
    }
 
    closedir (FOLDERDIR) or
       openwebmailerror("$lang_err{'couldnt_close'} $folderdir!");
 
-   push (@folders, sort(@userfolders));
-
    if ($#delfiles >= 0) {
       unlink(@delfiles);
    }
 
+   @folders = qw(INBOX saved-messages sent-mail saved-drafts mail-trash);
+   push (@folders, sort(@userfolders));
    if ($folderquota) {
-      ($hitquota = 1) if ($totalfoldersize >= ($folderquota * 1024));
+      ($hitquota = 1) if ($totalsize >= ($folderquota*1024));
    }
 
    return \@folders;

@@ -31,6 +31,11 @@ b. When the browser gets the html page, it will request all inline
 
    	5.5MB(main) + message_size + 2 * attachment_size
 
+   When the image transferring is starting, the memory usage will down to
+
+   	5.5MB(main) + message_size + attachment_size
+
+
 ps: Most browser will request at most 4 images simultaneously.
 
 example:

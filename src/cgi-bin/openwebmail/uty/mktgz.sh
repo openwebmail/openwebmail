@@ -17,6 +17,8 @@ tar -zxBpf ../openwebmail-current.tgz
 rm -Rf cgi-bin/openwebmail/etc/*-session-*
 rm -Rf cgi-bin/openwebmail/etc/sessions/*
 rm -Rf cgi-bin/openwebmail/etc/users/*
+rm -Rf data/openwebmail/screenshots
+rm -Rf data/openwebmail/download
 #rm     cgi-bin/openwebmail/uty/mktgz.sh
 
 chmod 755 data cgi-bin

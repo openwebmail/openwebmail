@@ -1,3 +1,33 @@
+05/25/2001 (version 1.14)
+----------
+1. fix a minor layout problem in folderview on konqueror browser
+2. fix the 'session never timeout' problem caused by the 'auto refresh'
+3. the $folderquota counts both folders and folder indexes now.
+   The message operation will be limited to 'delete' only if the quota is hit.
+
+
+05/18/2001
+----------
+1. remove foldername dependence from maildb.pl. 
+   This eliminates the need of faking 'from' with 'to' in SENT/DRAFT db
+   and gives a consistent view when moving messages between SENT/DRAFT folder
+   and other folders.
+
+ps: you may remove .saved-drafts.db and .sent-mail.db from all ~user/mail/ 
+    to ensure the 2 db will be recreated before being used next time.
+
+
+05/16/2001
+----------
+1. minor improvement of mailfilter of smtp relays
+2. add option $enable_setfromname to openwebmail.conf.
+
+
+05/15/2001
+----------
+1. move 'clean trash by days' from logout to login to ensure it happens.
+
+
 05/07/2001 (version 1.13)
 ----------
 1. the 'whole message download' is now available by clicking the download
@@ -5,7 +35,7 @@
 2. fix the bug that openwebmail.log will be created with wrong gid.
 3. fix a bug of a javascript routine for message move
 4. better support for 'confirm reading', it pops up a confirm window
-   rather than transmitting the 'read receipt' back to sender immediately
+   rather than transmitting the 'read receipt' back to sender silently
 
 
 05/06/2001
@@ -14,14 +44,14 @@
    that belongs to the same domain as the destination mail server
 2. add option to user preference that controls the size of text area 
    in mail editing
-3. save draft will keep the original draft if the new one is saved with
-   a different subject 
+3. Saving an existing draft backto draft folder will put it into a new draft 
+   if it is saved with a different subject
 
 
 05/05/2001
 ----------
 1. add option 'disable JavaScript inside message' to user preference
-   It is used to protect your browser being hijacked by some evil java scripts
+   It is used to protect the browser being hijacked by some evil java scripts
    inside a message.
 2. change option 'autoemptytrash' in userpreference to 'trash mail reserved days'
    User can set how long a message will live in the mail-trash folder.
@@ -45,10 +75,10 @@
 
 05/02/2001
 ----------
-1. fix thet replyto bug, the value of replyto field in message editing 
+1. fix the replyto bug, the value of replyto field in message editing 
    will override the replyto setting in user preference now.
-2. domainname in user preference will be checked if it is valid one of
-   the system domainanames.
+2. domainname in user preference will be checked if it is one of
+   the defined system domainanames.
 
 
 05/01/2001 (version 1.11)
@@ -98,20 +128,20 @@
 4. change the character check of filename and preference to eliminate
    incompatibility with som chinese characters
 5. change '$numberofheaders' to '$headersperpage' in openwebmail.conf
-6. change the method to find the smtprelay
+6. change the method in finding the smtprelay
 
 
 04/25/2001
 ----------
 1. support 'download attachment' in message editing
-2. add option of 'default destination folder' in user preference
-   add option of 'newmail sound notification' in user preference
+2. add option 'default destination folder' to user preference
+   add option 'newmail sound notification' to user preference
 
 
 04/24/2001 (version 1.09)
 ----------
-1. add option of 'autofetch pop3 mail at login' in user preference
-   add option of 'auto empty trash at logout'   in user preference
+1. add option 'autofetch pop3 mail at login' to user preference
+   add option 'auto empty trash at logout'   to user preference
 2. fix a bug that shows the attribute of plain text message in sent-mail folder
    with a '@' mistakenly.
 3. support 'delete attachment' in message editing
@@ -361,7 +391,7 @@ ps. a script migrate.pl is provided for administer
 10/02/2000
 ----------
 Since basically I have a different point of view for programming than 
-Erine, I decide to put my modification to a new version --- neomail 1.14+
+Ernie, I decide to put my modification to a new version --- neomail 1.14+
 
 1. add support for full content search
 2. improve speed of movemessage
@@ -370,7 +400,7 @@ Erine, I decide to put my modification to a new version --- neomail 1.14+
 
 09/28/2000
 ----------
-Erine merged my code into neomail 1.20
+Ernie merged my code into neomail 1.20
 
 
 09/22/2000

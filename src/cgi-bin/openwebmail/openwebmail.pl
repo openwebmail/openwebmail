@@ -138,13 +138,12 @@ if ($user) {
       }
    }
    $domainname=$domainnames[0] if ($domainname eq '');
-   if ($prefs{"fromname"}) {
+   if ($enable_setfromname eq 'yes' && $prefs{"fromname"}) {
       # Create from: address when "fromname" is not null
       $useremail = $prefs{"fromname"} . "@" . $domainname; 
    } else {	
       # Create from: address when "fromname" is null
-      $useremail = $thissession;
-      $useremail =~ s/\-session\-0.*$/\@$domainname/; # create from: address
+      $useremail = $user . "@" . $domainname; 
    } 
 
    @validfolders = @{&getfolders()};
@@ -328,13 +327,12 @@ sub login {
             }
          }
          $domainname=$domainnames[0] if ($domainname eq '');
-         if ($prefs{"fromname"}) {
+         if ($enable_setfromname eq 'yes' && $prefs{"fromname"}) {
             # Create from: address for when "fromname" is not null
             $useremail = $prefs{"fromname"} . "@" . $domainname; 
          } else {
             # Create from: address for when "fromname" is null
-            $useremail = $thissession;
-            $useremail =~ s/\-session\-0.*$/\@$domainname/; # create from: address
+            $useremail = $user . "@" . $domainname; 
          } 
 
          @validfolders = @{&getfolders()};
@@ -344,7 +342,10 @@ sub login {
 
          $sort = $prefs{"sort"} || 'date';
 
+         cleantrash($prefs{'trashreserveddays'});
+
          displayheaders();
+
          if ($prefs{"autopop3"}==1 && $enable_pop3 eq 'yes') {
             _retrpop3s(0);
          }
@@ -374,23 +375,10 @@ sub login {
 #################### LOGOUT ########################
 sub logout {
    verifysession();
+
    openwebmailerror("Session ID $lang_err{'has_illegal_chars'}") unless
       (($thissession =~ /^(.+?\-\d?\.\d+)$/) && ($thissession = $1));
    $thissession =~ s/\///g;  # just in case someone gets tricky ...
-
-   if ($prefs{'trashreserveddays'}>0) {
-      my ($trashfile, $trashdb)=get_folderfile_headerdb($user, 'mail-trash');
-      filelock($trashfile, LOCK_SH|LOCK_NB) or
-         openwebmailerror("$lang_err{'couldnt_locksh'} $trashfile!");
-
-      my $deleted=delete_message_by_age($prefs{'trashreserveddays'}, $trashdb, $trashfile);
-      if ($deleted >0) {
-         writelog("delete $deleted msgs from mail-trash");
-      }
-
-      filelock($trashfile, LOCK_UN);
-   }   
-
    unlink "$openwebmaildir/sessions/$thissession";
    writelog("logout - $thissession");
 
@@ -402,11 +390,38 @@ sub logout {
 }
 ################## END LOGOUT ######################
 
+################# CLEANTRASH ################
+sub cleantrash {
+   my $days=$_[0];
+   return if ($days<=0);
+
+   # check only if last check has passed for more than one day
+   my $m=(-M "$folderdir/.trash.check");
+   return if ( $m && $m<1 );
+
+   my ($trashfile, $trashdb)=get_folderfile_headerdb($user, 'mail-trash');
+   filelock($trashfile, LOCK_SH|LOCK_NB) or
+      openwebmailerror("$lang_err{'couldnt_locksh'} $trashfile!");
+   my $deleted=delete_message_by_age($days, $trashdb, $trashfile);
+   if ($deleted >0) {
+      writelog("delete $deleted msgs from mail-trash");
+   }
+   filelock($trashfile, LOCK_UN);
+
+   open (TRASHCHECK, ">$folderdir/.trash.check" ) or 
+      openwebmailerror("$lang_err{'couldnt_open'} .trash.check!");
+   my $t=localtime();
+   print TRASHCHECK "checktime=", $t;
+   close (TRASHCHECK);
+
+   return;
+}
+
 ################ DISPLAYHEADERS #####################
 sub displayheaders {
    verifysession() unless $setcookie;
 
-   my ($orig_inbox_newmessages, $now_inbox_newmessages);
+   my ($orig_inbox_newmessages, $now_inbox_newmessages, $now_inbox_allmessages);
    my %HDB;
    filelock("$folderdir/.$user.$dbm_ext", LOCK_SH);
    dbmopen (%HDB, "$folderdir/.$user", undef);		# dbm for INBOX
@@ -449,8 +464,12 @@ sub displayheaders {
    my $base_url = "$scripturl?sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder";
    my $base_url_nokeyword = "$scripturl?sessionid=$thissession&amp;sort=$sort&amp;folder=$escapedfolder";
 
+   # since some browser always treat refresh directive as realtive url.
+   # we use relative path for refresh
    my $refresh=param("refresh")+1;
-   printheader(-Refresh=>"900;URL='$scripturl?sessionid=$thissession&sort=$sort&keyword=$escapedkeyword&searchcontent=$searchcontent&folder=INBOX&action=displayheaders&firstmessage=1&refresh=$refresh'");
+   my $relative_url=$scripturl; 
+   $relative_url=~s!/.*/!!g;
+   printheader(-Refresh=>"900;URL=$relative_url?sessionid=$thissession&sort=$sort&keyword=$escapedkeyword&searchcontent=$searchcontent&folder=INBOX&action=displayheaders&firstmessage=1&refresh=$refresh");
 
    my $page_nb;
    if ($numheaders > 0) {
@@ -517,6 +536,7 @@ sub displayheaders {
 						#-$HDB{'INTERNALMESSAGES'};
          $allmessages=$HDB{'ALLMESSAGES'};
          $newmessages=$HDB{'NEWMESSAGES'};
+         $now_inbox_allmessages=$allmessages;
          $now_inbox_newmessages=$newmessages;
       } else {
          $allmessages=$HDB{'ALLMESSAGES'};
@@ -641,7 +661,11 @@ sub displayheaders {
       }
    }
    # option to del message directly from folder
-   push(@movefolders, 'DELETE');   
+   if ($hitquota) {
+      @movefolders=('DELETE');
+   } else {
+      push(@movefolders, 'DELETE');   
+   }
 
    $temphtml .= hidden(-name=>'action',
                        -default=>'movemessage',
@@ -664,10 +688,10 @@ sub displayheaders {
    $html =~ s/\@\@\@STARTMOVEFORM\@\@\@/$temphtml/g;
    
    my $defaultdestination;
-   if ($folder eq 'sent-mail' || $folder eq 'saved-drafts') {
-      $defaultdestination='mail-trash';
-   } elsif ($folder eq 'mail-trash') {
+   if ($hitquota || $folder eq 'mail-trash') {
       $defaultdestination='DELETE';
+   } elsif ($folder eq 'sent-mail' || $folder eq 'saved-drafts') {
+      $defaultdestination='mail-trash';
    } else {
       $defaultdestination=$prefs{'defaultdestination'} || 'mail-trash';
       $defaultdestination='mail-trash' if ( $folder eq $defaultdestination);
@@ -680,8 +704,10 @@ sub displayheaders {
 
    $temphtml .= submit(-name=>"$lang_text{'move'}",
                        -onClick=>"return OpConfirm($lang_text{'msgmoveconf'})");
-   $temphtml .= submit(-name=>"$lang_text{'copy'}",
+   if (!$hitquota) {
+      $temphtml .= submit(-name=>"$lang_text{'copy'}",
                        -onClick=>"return OpConfirm($lang_text{'msgcopyconf'})");
+   }
 
    $html =~ s/\@\@\@MOVECONTROLS\@\@\@/$temphtml/g;
 
@@ -707,12 +733,12 @@ sub displayheaders {
                 ($firstmessage)."&amp;sessionid=$thissession&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;sort=";
 
    if ( ($folder eq 'sent-mail') || ($folder eq 'saved-drafts') ) {
-      if ($sort eq "sender") {
-         $temphtml .= "sender_rev\">$lang_text{'recipient'} <IMG SRC=\"$imagedir_url/down.gif\" border=\"0\" alt=\"v\"></a></B></td>";
-      } elsif ($sort eq "sender_rev") {
-         $temphtml .= "sender\">$lang_text{'recipient'} <IMG SRC=\"$imagedir_url/up.gif\" border=\"0\" alt=\"^\"></a></B></td>";
+      if ($sort eq "recipient") {
+         $temphtml .= "recipient_rev\">$lang_text{'recipient'} <IMG SRC=\"$imagedir_url/down.gif\" border=\"0\" alt=\"v\"></a></B></td>";
+      } elsif ($sort eq "recipient_rev") {
+         $temphtml .= "recipient\">$lang_text{'recipient'} <IMG SRC=\"$imagedir_url/up.gif\" border=\"0\" alt=\"^\"></a></B></td>";
       } else {
-         $temphtml .= "sender\">$lang_text{'recipient'}</a>";
+         $temphtml .= "recipient\">$lang_text{'recipient'}</a>";
       }
    } else {
       if ($sort eq "sender") {
@@ -771,6 +797,12 @@ sub displayheaders {
       $escapedmessageid = CGI::escape($messageid);
       ($offset, $from, $to, $date, $subject, 
 	$content_type, $status, $messagesize)=split(/@@@/, $HDB{$messageid});
+
+      # We aren't interested in the sender of SENT/DRAFT folder, 
+      # but the recipient, so display $to instead of $from
+      if ( $folderfile=~ m#/sent-mail#i || $folderfile=~ m#/saved-drafts#i ) {
+         $from = (split(/,/, $to))[0];
+      }
 
       ($from =~ s/^"?(.+?)"?\s*<(.*)>$/<a href="$scripturl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$2">$1<\/a>/) ||
       ($from =~ s/<?(.*@.*)>?\s+\((.+?)\)/<a href="$scripturl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$1">$2<\/a>/) ||
@@ -865,21 +897,28 @@ sub displayheaders {
                   -value=>'1',
                   -label=>$lang_text{content});
 
-
    $html =~ s/\@\@\@SEARCH\@\@\@/$temphtml/g;
 
    print $html;
 
    # show 'you have new messages' at status line
-   if ($folder ne 'INBOX' && $now_inbox_newmessages>0) {
+   if ($folder ne 'INBOX' ) {
       my $msg;
-      if ($now_inbox_newmessages==1) {
-         $msg="You have 1 new message at INBOX";
+
+      if ($now_inbox_newmessages>1) {
+         $msg="$now_inbox_newmessages new messages";
+      } elsif ($now_inbox_newmessages==1) {
+         $msg="1 new message";
+      } elsif ($now_inbox_allmessages>1) {
+         $msg="$now_inbox_allmessages messages";
+      } elsif ($now_inbox_allmessages==1) {
+         $msg="1 message";
       } else {
-         $msg="You have $now_inbox_newmessages new messages at INBOX.";
+         $msg="No message";
       }
+
       print qq|<script language="JavaScript">\n<!--\n|.
-            qq|window.defaultStatus = "$msg"\n|.
+            qq|window.defaultStatus = "$msg in INBOX"\n|.
             qq|//-->\n</script>\n|;
    }
 
@@ -908,7 +947,7 @@ sub readmessage {
    my $messageid = param("message_id");
    my $escapedmessageid = CGI::escape($messageid);
    my %message = %{&getmessage($messageid)};
-   my $headers = param("headers") || 'simple';
+   my $headers = param("headers") || $prefs{"headers"} || 'simple';
    my $attmode = param("attmode") || 'simple';
 
    if (%message) {
@@ -1026,8 +1065,12 @@ sub readmessage {
             push (@movefolders, $checkfolder);
          }
       }
-      # add option to delete message from folder directly
-      push(@movefolders, 'DELETE');
+      # option to del message directly from folder
+      if ($hitquota) {
+         @movefolders=('DELETE');
+      } else {
+         push(@movefolders, 'DELETE');   
+      }
 
       $temphtml .= hidden(-name=>'action',
                           -default=>'movemessage',
@@ -1047,6 +1090,9 @@ sub readmessage {
       $temphtml .= hidden(-name=>'folder',
                           -default=>$folder,
                           -override=>'1');
+      $temphtml .= hidden(-name=>'headers',
+                          -default=>$headers,
+                          -override=>'1');
       $temphtml .= hidden(-name=>'message_ids',
                           -default=>$messageid,
                           -override=>'1');
@@ -1061,10 +1107,10 @@ sub readmessage {
       $html =~ s/\@\@\@STARTMOVEFORM\@\@\@/$temphtml/g;
    
       my $defaultdestination;
-      if ($folder eq 'sent-mail' || $folder eq 'saved-drafts') {
-         $defaultdestination='mail-trash';
-      } elsif ($folder eq 'mail-trash') {
+      if ($hitquota || $folder eq 'mail-trash') {
          $defaultdestination='DELETE';
+      } elsif ($folder eq 'sent-mail' || $folder eq 'saved-drafts') {
+         $defaultdestination='mail-trash';
       } else {
          $defaultdestination=$prefs{'defaultdestination'} || 'mail-trash';
          $defaultdestination='mail-trash' if ( $folder eq $defaultdestination);
@@ -1077,8 +1123,10 @@ sub readmessage {
 
       $temphtml .= submit(-name=>"$lang_text{'move'}",
                        -onClick=>"document.moveform.message_id.value='$messageaftermove'; return confirm($lang_text{'msgmoveconf'})");
-      $temphtml .= submit(-name=>"$lang_text{'copy'}",
+      if (!$hitquota) {
+         $temphtml .= submit(-name=>"$lang_text{'copy'}",
                        -onClick=>"document.moveform.message_id.value='$messageid'; return confirm($lang_text{'msgcopyconf'})");
+      }
 
       $html =~ s/\@\@\@MOVECONTROLS\@\@\@/$temphtml/g;
 
@@ -1260,8 +1308,12 @@ sub readmessage {
       if ( fork() == 0 ) {		# child
          close(STDOUT);
          close(STDIN);
-         updatestatus($messageid,"R");
-         exit;
+
+         my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
+         filelock($folderfile, LOCK_EX|LOCK_NB) or exit 1;
+         update_message_status($messageid, "R", $headerdb, $folderfile);
+         filelock("$folderfile", LOCK_UN);
+         exit 0;
       }
    }
 }
@@ -1958,7 +2010,6 @@ sub sendmessage {
       composemessage();
 
    } else {
-### Add a header that will allow sent-mail/saved-drafts folder to function correctly
       my $localtime = scalar(localtime);
       my $date = localtime();
       my @datearray = split(/ +/, $date);
@@ -2085,6 +2136,8 @@ sub sendmessage {
          openwebmailerror($savefolder_errorstr);
       }
 
+      # Add a 'From ' as the message delimeter before save a message
+      # into sent-mail/saved-drafts folder 
       print FOLDER "From $user $localtime\n" if ($do_savefolder);
 
       my $tempcontent="";
@@ -2277,7 +2330,6 @@ sub viewattachment {	# view attachments inside a message
 
    } else {
       # return a specific attachment
-
       my ($header, $body, $r_attachments)=parse_rfc822block($r_block, "0", $nodeid);
       undef(${$r_block});
       undef($r_block);
@@ -2331,7 +2383,6 @@ sub viewattachment {	# view attachments inside a message
          undef $r_attachment;
          undef @{$r_attachments};
          undef $r_attachments;
-
          print qq|\n|, $content;
       } else {
          printheader();
@@ -2465,11 +2516,18 @@ sub getinfomessageids {
       filelock($folderfile, LOCK_UN);
    }
 
+   # Since recipients are displayed instead of sender in folderview of 
+   # SENT/DRAFT folder, the $sort must be changed from 'sender' to 
+   # 'recipient' in this case
+   if ( $folderfile=~ m#/sent-mail#i || $folderfile=~ m#/saved-drafts#i ) {
+      $sort='recipient' if ($sort eq 'sender');
+   }
+
    if ( $keyword ne '' ) {
       my $folderhandle=FileHandle->new();
       my ($totalsize, $new, $internal, $r_haskeyword, $r_messageids);
       my @messageids=();
-
+      
       ($totalsize, $new, $internal, $r_messageids)=get_info_messageids_sorted($headerdb, $sort, "$headerdb.cache");
 
       filelock($folderfile, LOCK_SH|LOCK_NB) or
@@ -2576,6 +2634,8 @@ sub getmessage {
          }
          if ($currentreceived=~ /.*\sfrom\s([^\s]+)\s.*/) {
             unshift(@smtprelays, $1);
+         } elsif ($currentreceived=~ /.*\(from\s([^\s]+)\).*/is) {
+            unshift(@smtprelays, $1);
          }
          $currentreceived=$tmp;
          $lastline = 'RECEIVED';
@@ -2588,6 +2648,8 @@ sub getmessage {
       unshift(@smtprelays, $1) if ($smtprelays[0] ne $1);
    }
    if ($currentreceived=~ /.*\sfrom\s([^\s]+)\s.*/) {
+      unshift(@smtprelays, $1);
+   } elsif ($currentreceived=~ /.*\(from\s([^\s]+)\).*/is) {
       unshift(@smtprelays, $1);
    }
    # count first fromhost as relay only if there are just 2 host on relaylist 
@@ -2631,22 +2693,6 @@ sub getmessage {
    return \%message;
 }
 #################### END GETMESSAGE #######################
-
-#################### UPDATESTATUS #########################
-sub updatestatus {
-   my ($messageid, $status) = @_;
-   my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
-
-   filelock($folderfile, LOCK_EX|LOCK_NB) or
-      openwebmailerror("$lang_err{'couldnt_lock'} $folderfile!");
-
-   update_message_status($messageid, $status, $headerdb, $folderfile);
-
-   filelock("$folderfile", LOCK_UN);
-
-}
-
-################### END UPDATESTATUS ######################
 
 #################### MOVEMESSAGE ########################
 sub movemessage {
@@ -3015,23 +3061,20 @@ sub filtermessage {
 
 ################ CHECKLOGIN ###############################
 sub checklogin {
-  my ($passwdfile, $username, $password)=@_;
-  my $success = 1; # default to success
+   my ($passwdfile, $username, $password)=@_;
+   return 0 unless ( $passwdfile && $username && $password );
 
-   if ( $passwdfile && $username && $password ) {
-      open (PASSWD, $passwdfile) or exit 1;
-      while (defined($line = <PASSWD>)) {
-         ($usr,$pswd) = (split(/:/, $line))[0,1];
-         last if ($usr eq $username); # We've found the user in /etc/passwd
-      }
-      close (PASSWD);
-      if (($usr ne $username) or (crypt($password, $pswd) ne $pswd)) {
-         $success = 0; # User/Pass combo is WRONG!
-      }
-   } else {
-      $success = 0;
+   open (PASSWD, $passwdfile) or return 0;
+   while (defined($line = <PASSWD>)) {
+      ($usr,$pswd) = (split(/:/, $line))[0,1];
+      last if ($usr eq $username); # We've found the user in /etc/passwd
    }
+   close (PASSWD);
 
-   return $success;
+   if ($usr eq $username && crypt($password,$pswd) eq $pswd) {
+      return 1;
+   } else { 		# User/Pass combo is WRONG!
+      return 0;
+   }
 }
 ###################### END CHECKLOGIN ######################

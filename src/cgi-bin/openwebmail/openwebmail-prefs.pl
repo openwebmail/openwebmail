@@ -167,7 +167,7 @@ if (defined(param("action"))) {      # an action has been chosen
 }
 ###################### END MAIN ##############################
 
-####################EDITPREFS ###########################
+#################### EDITPREFS ###########################
 sub editprefs {
    verifysession();
 
@@ -239,10 +239,18 @@ sub editprefs {
 
    $html =~ s/\@\@\@REALNAMEFIELD\@\@\@/$temphtml/;
 
-   $temphtml = textfield(-name=>'fromname',
-                         -default=>$prefs{"fromname"} || $user,
-                         -size=>'15',
-                         -override=>'1');
+   if ($enable_setfromname eq 'yes') {
+      $temphtml = textfield(-name=>'fromname',
+                            -default=>$prefs{"fromname"} || $user,
+                            -size=>'15',
+                            -override=>'1');
+   } else {
+      $temphtml = textfield(-name=>'fromname',
+                            -default=>$user,
+                            -disabled=>1,
+                            -size=>'15',
+                            -override=>'1');
+   }
 
    $html =~ s/\@\@\@USERNAME\@\@\@/$temphtml/;
 
@@ -566,7 +574,9 @@ sub _folderline {
    dbmclose(%HDB);
    filelock("$headerdb.$dbm_ext", LOCK_UN);
 
-   $foldersize = (-s "$folderfile");
+   # we count size for both folder file and related dbm
+   $foldersize = (-s "$folderfile") + (-s "$headerdb.$dbm_ext");
+
    $total_foldersize+=$foldersize;
    # round foldersize and change to an appropriate unit for display
    if ($foldersize > 1048575){
@@ -1926,6 +1936,7 @@ sub saveprefs {
          }
       } elsif ($key eq 'fromname') {
          $value =~ s/\s+//g; # Spaces will just screw people up.
+         $value = $user if ($value eq '');
          print CONFIG "$key=$value\n";
       } elsif ($key eq 'filter_repeatlimit') {
          # if repeatlimit changed, redo filtering maybe needed

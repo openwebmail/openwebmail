@@ -1,19 +1,18 @@
 <table border="0" align="center" width="95%" cellpadding="1" cellspacing="0">
 <tr>
 @@@STARTFOLDERFORM@@@
-<td width="150" bgcolor=@@@TITLEBAR@@@ align="left">
+<td width="55%" bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@>
 <B>@@@FOLDERPOPUP@@@</B></FONT></td>
 @@@ENDFORM@@@
-<td bgcolor=@@@TITLEBAR@@@ colspan="2" align="right">
+<td nowrap width="45%" bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>@@@NUMBEROFMESSAGES@@@</B></font></td></tr>
-<tr><td valign="middle" width="33%" bgcolor=@@@MENUBAR@@@ align="left">
-<font face=@@@FONTFACE@@@ size="2">
+<tr><td nowrap valign="middle" bgcolor=@@@MENUBAR@@@ align="left">
 @@@MENUBARLINKS@@@
 </td>
 @@@STARTMOVEFORM@@@
-<td valign="middle" width="33%" bgcolor=@@@MENUBAR@@@ align="right">
+<td nowrap valign="middle" bgcolor=@@@MENUBAR@@@ align="right">
 @@@MOVECONTROLS@@@
 </td></tr></table>
 <BR>

@@ -490,6 +490,8 @@ sub get_smtprelays_connectfrom {
             $connectfrom{$1}=$2;
          } elsif ($received=~ /^.*\sfrom\s([^\s]+)\s.*$/is) {
             unshift(@smtprelays, $1);
+         } elsif ($received=~ /^.*\(from\s([^\s]+)\).*$/is) {
+            unshift(@smtprelays, $1);
          }
          $received=$tmp;
          $lastline = 'RECEIVED';
@@ -506,7 +508,9 @@ sub get_smtprelays_connectfrom {
       $connectfrom{$1}=$2;
    } elsif ($received=~ /^.*\sfrom\s([^\s]+)\s.*$/is) {
       unshift(@smtprelays, $1);
-   }
+   } elsif ($received=~ /^.*\(from\s([^\s]+)\).*$/is) {
+      unshift(@smtprelays, $1);
+   } 
    # count first fromhost as relay only if there are just 2 host on relaylist 
    # since it means sender pc uses smtp to talk to our mail server directly
    shift(@smtprelays) if ($#smtprelays>1);

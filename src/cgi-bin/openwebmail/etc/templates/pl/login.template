@@ -7,7 +7,7 @@
 </td></tr><tr><td align="center" valign="middle" bgcolor=@@@WINDOW_LIGHT@@@>
 @@@STARTFORM@@@
 <BR>
-<table border=0 cellspacing=0 cellpadding=0>
+<table align=center border=0 cellspacing=2 cellpadding=0>
 <tr>
 <td align=right>U¿ytkownik: </td><td align=left>@@@USERIDFIELD@@@</td>
 </tr><tr>
