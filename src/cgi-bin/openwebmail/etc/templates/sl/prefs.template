@@ -510,6 +510,11 @@ Tema:
 @@@HIDEINTERNAL@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Categorized Folders list:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CATEGORIZEDFOLDERS@@@ &nbsp;( Category-Folder Separator @@@CATEGORIZEDFOLDERS_FS@@@ )
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Zvok za obvešèanje o novoprispelem sporoèilu:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@NEWMAILSOUNDMENU@@@

@@ -512,7 +512,7 @@ Largeur @@@FILEEDITCOLUMNSMENU@@@ Hauteur @@@FILEEDITROWSMENU@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Categorized Folders list:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@CATEGORIZEDFOLDERS@@@
+@@@CATEGORIZEDFOLDERS@@@ &nbsp;( Category-Folder Separator @@@CATEGORIZEDFOLDERS_FS@@@ )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Notification sonore de nouveau(x) message(s) :</B>

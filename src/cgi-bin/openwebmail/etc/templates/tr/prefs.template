@@ -512,7 +512,7 @@ Geniþlik @@@FILEEDITCOLUMNSMENU@@@ Yükseklik @@@FILEEDITROWSMENU@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Categorized Folders list:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@CATEGORIZEDFOLDERS@@@
+@@@CATEGORIZEDFOLDERS@@@ &nbsp;( Category-Folder Separator @@@CATEGORIZEDFOLDERS_FS@@@ )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>YeniÝleti Sesli Bildirim:</B>

@@ -146,12 +146,13 @@ sub editfolders {
 
       $temphtml='';
       my ($thisfolderprefix, $lastfolderprefix);
+      my $categorizedfolders_fs = $prefs{'categorizedfolders_fs'}||'-';
       foreach $currfolder (@userfolders) {
          if ($prefs{'categorizedfolders'} &&
              !is_defaultfolder($currfolder) &&
              !is_lang_defaultfolder($currfolder)) {
             my $folderstr=$lang_folders{$currfolder}||(iconv($prefs{'fscharset'}, $prefs{'charset'}, $currfolder))[0];
-            if ($folderstr=~/^(.+?)\-/) {
+            if ($folderstr=~/^(.+?)\Q$categorizedfolders_fs\E/) {
                $thisfolderprefix=$1;
                if ($thisfolderprefix ne $lastfolderprefix) {
                   $temphtml .= qq|<tr>|.
@@ -275,7 +276,8 @@ sub _folderline {
    if ($prefs{'categorizedfolders'} &&
        !is_defaultfolder($currfolder) &&
        !is_lang_defaultfolder($currfolder)) {
-      if ($folderstr=~/^.+?\-(.+)$/) {
+      my $categorizedfolders_fs = $prefs{'categorizedfolders_fs'}||'-';
+      if ($folderstr=~/^.+?\Q$categorizedfolders_fs\E(.+)$/) {
          $gifstr=qq| &nbsp; - &nbsp; |;
          $folderbasename=$1;
       }

@@ -1176,7 +1176,7 @@ sub downloadfile {
    if ($contenttype=~/^text/ && $length>512 &&
        is_http_compression_enabled()) {
       my $content;
-      local $/; undef $/; $content=<F>; # no seperator, read whole file at once
+      local $/; undef $/; $content=<F>; # no separator, read whole file at once
       close (F);
       $content=Compress::Zlib::memGzip($content);
       $length=length($content);
@@ -1213,7 +1213,7 @@ sub previewfile {
 
    if ($filecontent eq "") {
       open(F, "$webdiskrootdir/$vpath") or return("$lang_err{'couldnt_open'} $vpath\n");
-      local $/; undef $/; $filecontent=<F>; # no seperator, read whole file at once
+      local $/; undef $/; $filecontent=<F>; # no separator, read whole file at once
       close(F);
    }
 

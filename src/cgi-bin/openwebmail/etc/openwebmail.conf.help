@@ -523,7 +523,7 @@ This limits the virtualdomain that openwebmail will serve.
 
 If this option is empty or 'all', request to any hostname will be served.
 If this option is 'none', no request be served, this disables openwebmail.
-If this option is a list of domainname tokens seperated by comma, request
+If this option is a list of domainname tokens separated by comma, request
 will be served only if the hostname in URL($ENV{HTTP_HOST}) appears in list
 
 The default is all.
@@ -538,7 +538,7 @@ This limits the clients access by their domainnam
 
 If this option is empty or 'all', any client can access the system.
 If this option is 'none', no client can access the system.
-If this option is a list of domainname tokens seperated by comma,
+If this option is a list of domainname tokens separated by comma,
 then only clients whose domainname matches the tokens from the tail can
 access the openwebmail system
 
@@ -568,7 +568,7 @@ This limits the receiver the user can send mail to.
 
 If this option is empty or 'all', the mail can be sent to any email address.
 If this option is 'none', the mail can not be sent to any email address.
-If this option is a list of email domain tokens seperated by comma, then
+If this option is a list of email domain tokens separated by comma, then
 user can only send mail to email address which matches the tokens from tail
 
 The default is all.
@@ -583,7 +583,7 @@ This limits the clients that can use autologin by their ip address
 
 If this option is empty or 'all', any client can use autologin
 If this option is 'none', no client can use autologin
-If this option is a list of ips seperated by comma, only clients whose
+If this option is a list of ips separated by comma, only clients whose
 IP address matches these tokens from the beginning can use autologin.
 
 The default is all.
@@ -601,7 +601,7 @@ This limits the clients that can login as root user in openwebmail.
 
 If this option is empty or 'all', any client can login as root
 If this option is 'none', no client can login as root.
-If this option is a list of ips seperated by comma, only clients whose
+If this option is a list of ips separated by comma, only clients whose
 IP address matches these tokens from the beginning can login as root
 
 The default is none.
@@ -1991,9 +1991,11 @@ server will be hidden from users
 
 
 default_categorizedfolders
+default_categorizedfolders_fs
 -----------------------------------------------------------------------
 If this option is enabled, the foldernames listed in folders menu
-will be categroized by their prefix (the string before -)
+will be categroized by their prefix, which is the string in foldername 
+before categorizedfolders_fs (fs means field separator)
 
 
 default_refreshinterval

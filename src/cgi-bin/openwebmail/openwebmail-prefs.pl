@@ -1475,6 +1475,13 @@ sub editprefs {
                               defined($config_raw{'DEFAULT_categorizedfolders'})?('-disabled'=>'1'):());
          $html =~ s/\@\@\@CATEGORIZEDFOLDERS\@\@\@/$temphtml/;
 
+         $temphtml = textfield(-name=>'categorizedfolders_fs',
+                               -default=>$prefs{'categorizedfolders_fs'},
+                               -size=>'4',
+                               -override=>'1',
+                               defined($config_raw{'DEFAULT_categorizedfolders_fs'})?('-disabled'=>'1'):());
+         $html =~ s/\@\@\@CATEGORIZEDFOLDERS_FS\@\@\@/$temphtml/;
+
          # Get a list of new mail sound
          my @sounds;
          opendir(SOUNDDIR, "$config{'ow_htmldir'}/sounds") or

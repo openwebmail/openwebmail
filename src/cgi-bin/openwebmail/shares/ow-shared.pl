@@ -78,6 +78,7 @@ foreach (qw(
    localusers vdomain_mailbox_command
    default_realname default_bgurl
    default_abook_defaultkeyword default_abook_defaultsearchtype
+   default_categorizedfolders_fs
 )) { $is_config_option{'none'}{$_}=1}
 
 # auto type config options
@@ -119,21 +120,14 @@ foreach (qw(
    default_language auth_module
 )) { $is_config_option{'require'}{$_}=1}
 
-
-# Why was this done? Consider what happens to 'list' types at line
-# 402. They get assigned a DEFAULT_ empty array, which forces all
-# 'list' type properties that are user customizable to get disabled
-# in openwebmail-pref.pl because now DEFAULT_whatever exists in
-# config_raw. This is wrong and should not be in here.
-
 # set type for DEFAULT_ options (the forced defaults for default_ options)
-#foreach my $opttype ('yesno', 'none', 'list') {
-#   foreach my $optname (keys %{$is_config_option{$opttype}}) {
-#      if ($optname=~s/^default_/DEFAULT_/) {
-#         $is_config_option{$opttype}{$optname}=1;
-#      }
-#   }
-#}
+foreach my $opttype ('yesno', 'none', 'list') {
+   foreach my $optname (keys %{$is_config_option{$opttype}}) {
+      if ($optname=~s/^default_/DEFAULT_/) {
+         $is_config_option{$opttype}{$optname}=1;
+      }
+   }
+}
 
 @openwebmailrcitem=qw(
    language charset timeoffset daylightsaving email replyto
@@ -159,8 +153,9 @@ foreach (qw(
    calendar_reminderdays calendar_reminderforglobal
    webdisk_dirnumitems webdisk_confirmmovecopy webdisk_confirmdel
    webdisk_confirmcompress webdisk_fileeditcolumns  webdisk_fileeditrows
-   fscharset uselightbar regexmatch hideinternal categorizedfolders refreshinterval
-   newmailsound newmailwindowtime mailsentwindowtime
+   fscharset uselightbar regexmatch hideinternal
+   categorizedfolders categorizedfolders_fs
+   refreshinterval newmailsound newmailwindowtime mailsentwindowtime
    dictionary trashreserveddays spamvirusreserveddays sessiontimeout
 );
 
@@ -414,7 +409,11 @@ sub read_owconf {
       ${$r_config_raw}{'domainname_equiv'}= { 'map'=>{}, 'list'=>{} };
    }
    foreach $key (keys %{$is_config_option{'list'}}) {
-      ${$r_config_raw}{$key}=[] if (!defined(${$r_config_raw}{$key}));
+      if (!defined ${$r_config_raw}{$key} && $key!~/^DEFAULT_/) {
+         ${$r_config_raw}{$key}=[];
+      }
+      # NOTE: We don't set defualt value for DEFAULT_ options, or the default_ options will be overriden.
+      #       DEFAULT_ options should be set only if they appear in config file
    }
 
    # copy config_raw to config
@@ -1237,7 +1236,7 @@ sub htmlplugin {
    my ($file, $fromcharset, $tocharset)=@_;
    my $html='';
    if ($file ne '' && open(F, $file) ) {	# $file is plugin file
-      local $/; undef $/; $html=<F>;	# no seperator, read whole file in once
+      local $/; undef $/; $html=<F>;	# no separator, read whole file in once
       close(F);
       $html=~s/\%THISSESSION\%/$thissession/;
       ($html)=iconv($fromcharset, $tocharset, "<center>\n$html</center>\n") if ($html ne '');

@@ -512,7 +512,7 @@ Bredde @@@FILEEDITCOLUMNSMENU@@@ H&oslash;jde @@@FILEEDITROWSMENU@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Categorized Folders list:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@CATEGORIZEDFOLDERS@@@
+@@@CATEGORIZEDFOLDERS@@@ &nbsp;( Category-Folder Separator @@@CATEGORIZEDFOLDERS_FS@@@ )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Afspil f&oslash;lgende lyd n&aring;r der ankommer ny mail:</B>

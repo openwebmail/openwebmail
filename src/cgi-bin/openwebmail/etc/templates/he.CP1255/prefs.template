@@ -512,7 +512,7 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>Categorized Folders list:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@CATEGORIZEDFOLDERS@@@
+@@@CATEGORIZEDFOLDERS@@@ &nbsp;( Category-Folder Separator @@@CATEGORIZEDFOLDERS_FS@@@ )
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>צליל הודעת דואר:</B>

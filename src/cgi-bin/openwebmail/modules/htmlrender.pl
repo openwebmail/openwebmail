@@ -217,7 +217,7 @@ sub _link2cid {
 # this routine chnage mailto: into webmail composemail function
 # to make it works with base directive, we use full url
 # to make it compatible with undecoded base64 block,
-# we put new url into a seperate line
+# we put new url into a separated line
 sub html4mailto {
    my ($html, $scripturl, $scriptparm)=@_;
    $html =~ s/(=\s*"?)mailto:\s?([^'"\>]*?)("|'|\>)/_mailtoparm($scripturl,$scriptparm,$1,$2,$3)/egis;

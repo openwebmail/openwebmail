@@ -512,7 +512,7 @@ Colunas @@@FILEEDITCOLUMNSMENU@@@ Linhas @@@FILEEDITROWSMENU@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Lista pastas por categoria:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@CATEGORIZEDFOLDERS@@@
+@@@CATEGORIZEDFOLDERS@@@ &nbsp;( Separador Categoria-Pasta @@@CATEGORIZEDFOLDERS_FS@@@ )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Som para notificação de nova mensagem:</B>

@@ -1,3 +1,12 @@
+01/16/2005
+----------
+1. fix a bug that DEFUALT_ options of list/yesno/none type in config file
+   may be parsed incorrectly, this was introduced by a fix in 20041030
+2. add the categorized folder setarator support
+   add description of categorzied folder to help tutorial
+   (thanks to Joao S Veiga, openwebmail.AT.rf.com.br for his code)
+
+
 01/15/2005
 ----------
 1. auto move .openwebmail between syshome and owuserdir
@@ -385,7 +394,7 @@ ps: This function requires the program 'lsof',
 
 11/10/2004
 ----------
-1. the import/export support for csv and tab-seperated addressbook!
+1. the import/export support for csv and tab-separated addressbook!
    (thanks to Joao S Veiga, openwebmail.AT.rf.com.br for his code)
 2. add option webmail_middle_plugfile to plugin content between menubar
    and messagelist in webmail
