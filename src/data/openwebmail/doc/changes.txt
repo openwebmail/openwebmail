@@ -1,3 +1,17 @@
+01/09/2005
+----------
+1. fix a minor bug in openwebmail-saprefs.pl that the default score
+   for no score testrule should be 1 instead of 0
+   (thanks to Yen-Ming Lee, leeym.AT.leeym.com for his fix)
+2. fix a bug that the number of maxlen of foldernames is hard-coded
+   in language files
+   (reported by Thomas Chung, tchung.AT.openwebmail.org)
+3. add crypt support to auth_mysql_vmail.pl
+   fix a bug that auth_mysql_vmail refered to wrong option name
+   which didn't exist in auth_mysql_vmail.conf
+   (thanks to Svyatoslav Y.Abramenkov, slavic.AT.promarmatura.dp.ua)
+
+
 01/08/2005
 ----------
 1. minor change to search form in addressbook listview to avoid security

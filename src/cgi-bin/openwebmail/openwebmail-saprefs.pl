@@ -233,8 +233,13 @@ sub edittest {
       }
       my $ignorecase=0; $ignorecase=1 if ($test{modifier}=~/i/);
       my $singleline=0; $singleline=1 if ($test{modifier}=~/s/);
-      my $score=0; $score=${$test{score}}[0] if (defined ${$test{score}}[0]);
-
+      my $score;
+      if (defined ${$test{score}}[0]) {
+         $score=${$test{score}}[0];
+      } else {
+         $score=1;				# default 1 for no score test
+         $score=0.01 if ($testname=~/^T_/);	# default 0.01 if test is for testing only
+      }
       my $testhtml=qq|<table width="100%" cellspacing="0" cellpadding="0">\n|.
                    qq|<tr><td width="15%">$lang_satestfields{'name'}&nbsp;</td><td>$testname</td></tr>\n|.
                    qq|<tr><td>$lang_satestfields{'desc'}&nbsp;</td><td>$esc{desc}</td></tr>\n|.

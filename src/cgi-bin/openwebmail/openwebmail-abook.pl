@@ -221,7 +221,7 @@ sub addrbookadd {
       if (length($abookfoldernew) > $config{'foldername_maxlen'}) {
          my $msg="$lang_err{'abook_name_too_long'}";
          $msg =~ s/\@\@\@ADDRESSBOOK\@\@\@/$abookfoldernew/;
-         $msg =~ s/\@\@\@FOLDERNAME_MAX\@\@\@/$config{'foldername_maxlen'}/;
+         $msg =~ s/\@\@\@FOLDERNAME_MAXLEN\@\@\@/$config{'foldername_maxlen'}/;
          openwebmailerror(__FILE__, __LINE__, $msg);
       } else {
          open(NEWBOOK,">$abookfilenew") or
@@ -429,7 +429,7 @@ sub addrbookrename {
       if (length($abookfoldernew) > $config{'foldername_maxlen'}) {
          my $msg=$lang_err{'abook_name_too_long'};
          $msg =~ s/\@\@\@ADDRESSBOOK\@\@\@/$abookfoldernew/;
-         $msg =~ s/\@\@\@FOLDERNAME_MAX\@\@\@/$config{'foldername_maxlen'}/;
+         $msg =~ s/\@\@\@FOLDERNAME_MAXLEN\@\@\@/$config{'foldername_maxlen'}/;
          openwebmailerror(__FILE__, __LINE__, $msg);
       } else {
          rename($abookfile, $abookfilenew) or

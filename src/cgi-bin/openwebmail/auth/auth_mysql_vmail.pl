@@ -37,8 +37,8 @@ my %mysql_auth=(
 #################
 my %mysql_query=(
    userlist        => $conf{'userlist'},
-   user_password   => $conf{'password'},
-   user_homedir    => $conf{'homedir'},
+   user_password   => $conf{'user_password'},
+   user_homedir    => $conf{'user_homedir'},
    unix_user       => $conf{'unix_user'},
    change_password => $conf{'change_password'}
 );
@@ -121,6 +121,8 @@ sub check_userpassword {
 
    if ( $mysql_auth{password_hash_method} =~ /plaintext/i ) {
       return (0,'') if ( $passwd_hash eq $passwd );
+   } elsif ( $mysql_auth{password_hash_method} =~ /crypt/i ) {
+      return (0, '') if ( $passwd_hash eq crypt($passwd, $passwd_hash) );
    } elsif ( $mysql_auth{password_hash_method} =~ /md5/i ) {
       $passwd_hash =~ s/^\{.*\}(.*)$/$1/;
       return (0, '') if ( $passwd_hash eq Digest::MD5::md5_hex($passwd) );
@@ -153,6 +155,11 @@ sub change_userpassword {
    $q=~s/_user_/$user/g; $q=~s/_domain_/$domain/g;
    if ( $mysql_auth{password_hash_method} =~ /plaintext/i ) {
       $q=~ s/_new_password_/$newpasswd/g;
+   } elsif ( $mysql_auth{password_hash_method} =~ /crypt/i ) {
+      my @salt_chars = ('a'..'z','A'..'Z','0'..'9');
+      my $salt = $salt_chars[rand(62)] . $salt_chars[rand(62)];
+      $newpasswd = crypt($newpasswd, $salt);
+      $q =~ s/_new_password_/$newpasswd/g;
    } elsif ( $mysql_auth{password_hash_method} =~ /md5/i ) {
       $newpasswd = "{md5}".Digest::MD5::md5_hex($newpasswd);
       $q =~ s/_new_password_/$newpasswd/g;

@@ -506,7 +506,9 @@ sub addfolder {
    return editfolders() if ($foldertoadd eq '');
 
    if (length($foldertoadd) > $config{'foldername_maxlen'}) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'foldername_long'}");
+      my $msg=$lang_err{'foldername_long'};
+      $msg =~ s/\@\@\@FOLDERNAME_MAXLEN\@\@\@/$config{'foldername_maxlen'}/;
+      openwebmailerror(__FILE__, __LINE__, $msg);
    }
    if ( is_defaultfolder($foldertoadd) || is_lang_defaultfolder($foldertoadd) ||
         $foldertoadd eq "$user") {
@@ -582,7 +584,9 @@ sub renamefolder {
    return editfolders() if ($newname eq '');
 
    if (length($newname) > $config{'foldername_maxlen'}) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'foldername_long'}");
+      my $msg=$lang_err{'foldername_long'};
+      $msg =~ s/\@\@\@FOLDERNAME_MAXLEN\@\@\@/$config{'foldername_maxlen'}/;
+      openwebmailerror(__FILE__, __LINE__, $msg);
    }
    if ( is_defaultfolder($newname) || is_lang_defaultfolder($newname) ||
         $newname eq "$user") {
