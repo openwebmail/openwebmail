@@ -686,34 +686,42 @@ sub autologin {
 ########## REFRESHURL_AFTER_LOGIN ################################
 sub refreshurl_after_login {
    my $action=$_[0];
-   my $refreshurl='';
 
-   if ( $action eq 'composemessage' ) {
-      my $to=param('to')||'';
-      $to =~ s!^mailto\:!!; # IE passes mailto: with mailaddr to mail client
-      my $subject=param('subject')||'';
-      $refreshurl="$config{'ow_cgiurl'}/openwebmail-send.pl?sessionid=$thissession&action=composemessage&to=$to&subject=$subject";
-   } elsif ( $action eq 'calyear' || $action eq 'calmonth' ||
-             $action eq 'calweek' || $action eq 'calday' ) {
-      $refreshurl="$config{'ow_cgiurl'}/openwebmail-cal.pl?sessionid=$thissession&action=$action";
-   } elsif ( $action eq 'showdir' ) {
-      $refreshurl="$config{'ow_cgiurl'}/openwebmail-webdisk.pl?sessionid=$thissession&action=$action";
-   } elsif ( $action eq 'addrlistview' ) {
-      $refreshurl="$config{'ow_cgiurl'}/openwebmail-abook.pl?sessionid=$thissession&action=$action";
-   } else {
-      if ($config{'enable_webmail'}) {
-         $refreshurl="$config{'ow_cgiurl'}/openwebmail-main.pl?sessionid=$thissession&action=listmessages_afterlogin";
-      } elsif ($config{'enable_calendar'}) {
-         $refreshurl="$config{'ow_cgiurl'}/openwebmail-cal.pl?sessionid=$thissession&action=calmonth";
-      } elsif ($config{'enable_webdisk'}) {
-         $refreshurl="$config{'ow_cgiurl'}/openwebmail-webdisk.pl?sessionid=$thissession&action=showdir";
-      } elsif ($config{'enable_addressbook'}) {
-         $refreshurl="$config{'ow_cgiurl'}/openwebmail-abook.pl?sessionid=$thissession&action=addrlistview";
-      } else {
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'all_module_disabled'}, $lang_err{'access_denied'}");
+   my %action_redirect= (
+      listmessages   => [1, 'enable_webmail',     'openwebmail-main.pl',    ['folder']],
+      calmonth       => [2, 'enable_calendar',    'openwebmail-cal.pl',     ['year', 'month']],
+      showdir        => [3, 'enable_webdisk',     'openwebmail-webdisk.pl', ['currentdir']],
+      addrlistview   => [4, 'enable_addressbook', 'openwebmail-abook.pl',   ['abookfolder']],
+      callist        => [5, 'enable_calendar',    'openwebmail-cal.pl',     ['year']],
+      calyear        => [6, 'enable_calendar',    'openwebmail-cal.pl',     ['year']],
+      calday         => [7, 'enable_calendar',    'openwebmail-cal.pl',     ['year', 'month', 'day']],
+      readmessage    => [8, 'enable_webmail',     'openwebmail-read.pl',    ['folder', 'message_id']],
+      composemessage => [9, 'enable_webmail',     'openwebmail-send.pl',    ['to', 'cc', 'bcc', 'subject']],
+   );
+   my @actions = sort { ${$action_redirect{$a}}[0] <=> ${$action_redirect{$b}}[0] } keys (%action_redirect);
+
+   my $validaction;
+   foreach (@actions) {
+      my $enable=$config{${$action_redirect{$_}}[1]};
+      if ($action eq $_) { $validaction=$_ if ($enable); last }
+   }
+   if ($validaction eq '') {
+      foreach (@actions) {
+         my $enable=$config{${$action_redirect{$_}}[1]};
+         if ($enable) { $validaction=$_; last }
       }
    }
-   return($refreshurl);
+   if ($validaction eq '') {
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'all_module_disabled'}, $lang_err{'access_denied'}");
+   }
+
+   my $script= ${$action_redirect{$validaction}}[2];
+   my @parms = @{${$action_redirect{$validaction}}[3]};
+   my $refreshurl="$config{'ow_cgiurl'}/$script?sessionid=$thissession&action=$validaction";
+   foreach my $parm ( @parms ) {
+      $refreshurl.='&'.$parm.'='.ow::tool::escapeURL(param($parm)) if (param($parm) ne '');
+   }
+   return $refreshurl;
 }
 ########## END REFRESHURL_AFTER_LOGIN ############################
 

@@ -1,3 +1,9 @@
+11/12/2004
+----------
+1. use dispatch table for url redirection in refreshurl_after_login() in
+   openwebmail.pl
+
+
 11/11/2004
 ----------
 1. fix a bug that caused the following warning in system log on linux system
