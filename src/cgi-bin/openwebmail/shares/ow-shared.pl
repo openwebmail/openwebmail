@@ -1305,7 +1305,8 @@ sub openwebmailerror {
       my $window_light = $style{"window_light"}||"#EEEEEE";
 
       $stackdump=qq|<pre>$stackdump</pre>| if ($stackdump ne '');
-      my $html = start_html(-title=>$config{'name'},
+
+      my $html = start_html(-title=>"$prefs{'charset'} - $config{'name'}",
                             -bgcolor=>$background,
                             -background=>$bgurl);
       $html.=qq|<style type="text/css">\n|.

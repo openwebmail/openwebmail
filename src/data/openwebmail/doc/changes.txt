@@ -1,10 +1,20 @@
+01/30/2005
+----------
+1. fix a bug in spellcheck that unreognized words in URL would cause
+   error in spellcheck output
+   (reported by Thomas Chung, tchung.AT.openwebmail.org)
+2. show link to original message saved in draft folder in sendmail error message
+3. add charset support for stationery book
+   replace all stationary in code to stationery
+
+
 01/29/2005
 ----------
 1. support autuo cc feature
    (suggested by Dominique, dominique.fournier.AT.grenoble.cnrs.fr)
 2. new mirror site at Khonkaen, Thailand
    http://openwebmail.nameserver.in.th/
-   (thanks to Buagern Buataitom, buagern.AT.hotmail.com)
+   (thanks to Pakon Jamsai, buagern.AT.hotmail.com)
 
 
 01/28/2005

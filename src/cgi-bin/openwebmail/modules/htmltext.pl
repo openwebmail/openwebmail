@@ -95,9 +95,33 @@ sub text2html {
    $t=~s/</ &lt; /g;
    $t=~s/>/ &gt; /g;
 
+   # conver url or FQDN to link
    $t=~s!(https?|ftp|mms|nntp|news|gopher|telnet)://([\w\d\-\.]+?/?[^\s\(\)\<\>\x80-\xFF]*[\w/])([\b|\n| ]*)!<a href="$1://$2" target="_blank">$1://$2</a>$3!igs;
    $t=~s!([\b|\n| ]+)(www\.[\w\d\-\.]+\.[\w\d\-]{2,4})([\b|\n| ]*)!$1<a href="http://$2" target="_blank">$2</a>$3!igs;
    $t=~s!([\b|\n| ]+)(ftp\.[\w\d\-\.]+\.[\w\d\-]{2,4})([\b|\n| ]*)!$1<a href="ftp://$2" target="_blank">$2</a>$3!igs;
+
+   # remove the blank inserted just now
+   $t=~s/ (&quot;|&lt;|&gt;) /$1/g;
+
+   $t=~s/ {2}/ &nbsp;/g;
+   $t=~s/\t/ &nbsp;&nbsp;&nbsp;&nbsp;/g;
+   $t=~s/\n/ <BR>\n/g;
+
+   $t=~s/ESCAPE_AMP/&amp;/g;
+   $t=~s/ESCAPE_UNICODE_(\d\d\d+)/&#$1;/g;
+
+   return($t);
+}
+
+sub text2html_nolink {
+   my $t=$_[0];
+
+   $t=~s/&#(\d\d\d+);/ESCAPE_UNICODE_$1/g;
+   $t=~s/&/ESCAPE_AMP/g;
+
+   $t=~s/"/ &quot; /g;
+   $t=~s/</ &lt; /g;
+   $t=~s/>/ &gt; /g;
 
    # remove the blank inserted just now
    $t=~s/ (&quot;|&lt;|&gt;) /$1/g;

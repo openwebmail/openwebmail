@@ -45,6 +45,7 @@ require "shares/getmsgids.pl";
 require "shares/getmessage.pl";
 require "shares/lockget.pl";
 require "shares/mailfilter.pl";
+require "shares/statbook.pl";
 
 # common globals
 use vars qw(%config %config_raw);
@@ -494,24 +495,24 @@ sub readmessage {
                   qq|</td>|.end_form().qq|</tr></table>|;
    }
 
-   # reply with stationary selection
+   # reply with stationery selection
    if ( $folder ne 'saved-drafts' && $folder ne 'sent-mail' &&
         $config{'enable_stationery'} ) {
-      my (@stationery,%escstat);
-      push(@stationery, $lang_text{'statreply'});
 
+      my (@statvalues, %statlabels);
+      push(@statvalues, $lang_text{'statreply'});
       my $statbookfile=dotpath('stationery.book');
-      if ( -f $statbookfile ) {
-         open (STATBOOK, $statbookfile) or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $statbookfile! ($!)");
-         while (<STATBOOK>) {
-            my ($name, $content) = split(/\@\@\@/, $_, 2);
-            chomp($name); chomp($content);
-            push(@stationery,ow::tool::escapeURL($name));
-            $escstat{ow::tool::escapeURL($name)} = $name;
+      if (-f $statbookfile) {
+         my %stationery;
+         my ($ret, $errmsg)=read_stationerybook($statbookfile, \%stationery);
+         openwebmailerror($errmsg) if ($ret<0);
+         foreach (sort keys %stationery) {
+            my $statname=$_;
+            my $escapedstatname=ow::tool::escapeURL($statname);
+            my $label=ow::htmltext::str2html((iconv($stationery{$statname}{charset}, $readcharset, $statname))[0]);
+            push(@statvalues, $escapedstatname);
+            $statlabels{$escapedstatname} = $label;
          }
-         close (STATBOOK) or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $statbookfile! ($!)");
       }
 
       $htmlstat = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-send.pl",
@@ -527,8 +528,8 @@ sub readmessage {
                                     compose_caller=>'read').
                   qq|<table cellspacing=0 cellpadding=0 border=0><tr vlign=center>$htmlstat<td>|.
                   popup_menu(-name=>'statname',
-                             -values=>\@stationery,
-                             -labels=>\%escstat,
+                             -values=>\@statvalues,
+                             -labels=>\%statlabels,
                              -onChange=>'JavaScript:document.ReplyWith.submit();',
                              -override=>'1').
                   qq|</td><td>|.

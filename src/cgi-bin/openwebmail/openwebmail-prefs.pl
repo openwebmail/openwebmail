@@ -32,6 +32,7 @@ require "quota/quota.pl";
 require "shares/ow-shared.pl";
 require "shares/iconv.pl";
 require "shares/pop3book.pl";
+require "shares/statbook.pl";
 
 # common globals
 use vars qw(%config %config_raw);
@@ -2917,8 +2918,8 @@ sub editstat {
 
    my $statbookfile=dotpath('stationery.book');
    if ( -f $statbookfile ) {
-      my ($stat,$err)=read_stationarybook($statbookfile,\%stationery);
-      openwebmailerror(__FILE__, __LINE__, $err) if ($stat<0);
+      my ($ret, $errmsg)=read_stationerybook($statbookfile,\%stationery);
+      openwebmailerror(__FILE__, __LINE__, $errmsg) if ($ret<0);
    }
 
    if ($prefs_caller eq "") {
@@ -2933,25 +2934,28 @@ sub editstat {
 
    $temphtml = '';
    my $bgcolor = $style{"tablerow_dark"};
-   foreach my $key (sort keys %stationery) {
-      my ($name2, $content2)=($key, $stationery{$key});
-      $content2=substr($content2, 0, 100)."..." if (length($content2)>105);
-      $content2=ow::htmltext::str2html($content2);
-      $temphtml .= qq|<tr>|.
-                   qq|<td bgcolor=$bgcolor>$name2</a></td>|.
-                   qq|<td bgcolor=$bgcolor>$content2</td>|.
-                   qq|<td bgcolor=$bgcolor nowrap>|;
+   foreach (sort keys %stationery) {
+      my ($name, $content, $charset)=($_, $stationery{$_}{content}, $stationery{$_}{charset});
 
+      my $namestr=ow::htmltext::str2html((iconv($charset, $prefs{charset}, $name))[0]);
+
+      my $contentstr=(iconv($charset||$prefs{charset}, $prefs{charset}, $content))[0];
+      $contentstr=substr($contentstr, 0, 100)."..." if (length($contentstr)>105);
+      $contentstr=ow::htmltext::str2html($contentstr);
+
+      $temphtml .= qq|<tr>|.
+                   qq|<td bgcolor=$bgcolor>$namestr</a></td>|.
+                   qq|<td bgcolor=$bgcolor>$contentstr</td>|.
+                   qq|<td bgcolor=$bgcolor nowrap>|;
       $temphtml .= startform(-action=>"$config{'ow_cgiurl'}/openwebmail-prefs.pl",
                              -name=>'stationery').
                    ow::tool::hiddens(action=>'editstat',
-                                     statname=>$name2).
+                                     statname=>ow::tool::escapeURL($name)).
                    $formparmstr.
                    submit(-name=>'editstatbutton',
                           -value=>$lang_text{'edit'}).
                    submit(-name=>'delstatbutton',
                           -value=>$lang_text{'delete'});
-
       $temphtml .= '</td>'.end_form().'</tr>';
 
       if ($bgcolor eq $style{"tablerow_dark"}) {
@@ -2970,17 +2974,18 @@ sub editstat {
    $html =~ s/\@\@\@STARTSTATFORM\@\@\@/$temphtml/;
 
    # load the stat for edit only if editstat button is clicked
-   my $statname;
-   $statname=ow::tool::unescapeURL(param('statname')) if (defined param('editstatbutton'));
+   my $statname=ow::tool::unescapeURL(param('statname'));
+   my $statnamestr=(iconv($stationery{$statname}{charset}, $prefs{charset}, $statname))[0];
+   my $statbodystr=(iconv($stationery{$statname}{charset}, $prefs{charset}, $stationery{$statname}{content}))[0];
 
    $temphtml = textfield(-name=>'statname',
-                         -default=>$statname,
+                         -default=>$statnamestr,
                          -size=>'66',
                          -override=>'1');
    $html =~ s/\@\@\@STATNAME\@\@\@/$temphtml/;
 
    $temphtml = textarea(-name=>'statbody',
-                        -default=>$stationery{$statname},
+                        -default=>$statbodystr,
                         -rows=>'5',
                         -columns=>$prefs{'editcolumns'}||'78',
                         -wrap=>'hard',
@@ -2998,20 +3003,20 @@ sub editstat {
 
 ########## DELSTAT ###############################################
 sub delstat {
-   my $statname = param('statname') || '';
+   my $statname = ow::tool::unescapeURL(param('statname')) || '';
    if ($statname) {
       my %stationery;
       my $statbookfile=dotpath('stationery.book');
       if ( -f $statbookfile ) {
          ow::filelock::lock($statbookfile, LOCK_EX) or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $statbookfile!");
-         my ($stat,$err)=read_stationarybook($statbookfile,\%stationery);
-         openwebmailerror(__FILE__, __LINE__, $err) if ($stat<0);
+         my ($ret, $errmsg)=read_stationerybook($statbookfile,\%stationery);
+         openwebmailerror(__FILE__, __LINE__, $errmsg) if ($ret<0);
 
          delete $stationery{$statname};
 
-         ($stat,$err)=write_stationarybook($statbookfile,\%stationery);
-         openwebmailerror(__FILE__, __LINE__, $err) if ($stat<0);
+         ($ret, $errmsg)=write_stationerybook($statbookfile,\%stationery);
+         openwebmailerror(__FILE__, __LINE__, $errmsg) if ($ret<0);
 
          ow::filelock::lock($statbookfile, LOCK_UN);
       }
@@ -3050,19 +3055,22 @@ sub addstat {
          ow::filelock::lock($statbookfile, LOCK_EX) or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $statbookfile!");
 
-         my ($stat,$err)=read_stationarybook($statbookfile,\%stationery);
-         openwebmailerror(__FILE__, __LINE__, $err) if ($stat<0);
+         my ($ret, $errmsg)=read_stationerybook($statbookfile,\%stationery);
+         openwebmailerror(__FILE__, __LINE__, $errmsg) if ($ret<0);
 
-         $stationery{"$newname"} = $newcontent;
+         $stationery{$newname}{content} = $newcontent;
+         $stationery{$newname}{charset} = $prefs{charset};
 
-         ($stat,$err)=write_stationarybook($statbookfile,\%stationery);
-         openwebmailerror(__FILE__, __LINE__, $err) if ($stat<0);
+         ($ret, $errmsg)=write_stationerybook($statbookfile,\%stationery);
+         openwebmailerror(__FILE__, __LINE__, $errmsg) if ($ret<0);
 
          ow::filelock::lock($statbookfile, LOCK_UN);
       } else {
-         $stationery{"$newname"} = $newcontent;
-         my ($stat,$err)=write_stationarybook($statbookfile,\%stationery);
-         openwebmailerror(__FILE__, __LINE__, $err) if ($stat<0);
+         $stationery{$newname}{content} = $newcontent;
+         $stationery{$newname}{charset} = $prefs{charset};
+
+         my ($ret, $errmsg)=write_stationerybook($statbookfile,\%stationery);
+         openwebmailerror(__FILE__, __LINE__, $errmsg) if ($ret<0);
       }
    }
 
@@ -3078,49 +3086,3 @@ sub timeoutwarning {
    httpprint([], [htmlheader(), $html, htmlfooter(0)]);
 }
 ########## END TIMEOUTWARNING ####################################
-
-########## READ_STATIONARYBOOK ######################################
-# Read the stationary book file (assumes locking has been done elsewhere)
-sub read_stationarybook {
-   my ($file, $r_stationary)=@_;
-   my ($stat,$err)=(0);
-
-   # read openwebmail addressbook
-   if ( open(STATBOOK, $file) ) {
-      while (<STATBOOK>) {
-         my ($name, $content) = split(/\@\@\@/, $_, 2);
-         chomp($name); chomp($content);
-         $$r_stationary{"$name"} = ow::tool::unescapeURL($content);
-      }
-      close (STATBOOK) or  ($stat,$err)=(-1, "$lang_err{'couldnt_close'} $file! ($!)");
-   } else {
-      ($stat,$err)=(-1, "$lang_err{'couldnt_open'} $file! ($!)");
-   }
-
-   return ($stat,$err);
-}
-########## END READ_STATIONARYBOOK ######################################
-
-########## WRITE_STATIONARYBOOK ######################################
-# Write the stationary book file (assumes locking has been done elsewhere)
-sub write_stationarybook {
-   my ($file, $r_stationary)=@_;
-   my ($stat,$err, $stationarytowrite)=(0);
-
-   # maybe this should be limited in size some day?
-   foreach (sort keys %$r_stationary) {
-      my ($name,$content)=($_, ow::tool::escapeURL($$r_stationary{$_}));
-      $name=~s/\@\@/\@\@ /g; $name=~s/\@$/\@ /;
-      $stationarytowrite .= "$name\@\@\@$content\n";
-   }
-
-   if ( open(STATBOOK, ">$file") ) {
-      print STATBOOK $stationarytowrite;
-      close (STATBOOK) or  ($stat,$err)=(-1, "$lang_err{'couldnt_close'} $file! ($!)");
-   } else {
-      ($stat,$err)=(-1, "$lang_err{'couldnt_open'} $file! ($!)");
-   }
-
-   return ($stat,$err);
-}
-########## END WRITE_STATIONARYBOOK ######################################

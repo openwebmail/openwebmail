@@ -336,7 +336,7 @@ sub text2words {
               "isn't wasn't aren't weren't ";
 
    # put url to ignore
-   foreach my $word ($text=~m![A-Za-z]+tp://[A-Za-z\d\.]+!ig) {
+   foreach my $word ($text=~m![A-Za-z]+tp://[^\s]+!ig) {
       $ignore.=" $word";
    }
    # put email to ignore
@@ -453,7 +453,7 @@ sub spellcheck_words2html {
    }
 
    # conversion make text for happy html display
-   $html=ow::htmltext::text2html($html);
+   $html=ow::htmltext::text2html_nolink($html);
 
    # find all words leading with ~!~, remove ~!~ and add them to pdict
    my %pdicword=();

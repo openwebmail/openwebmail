@@ -42,6 +42,7 @@ require "shares/iconv.pl";
 require "shares/maildb.pl";
 require "shares/getmessage.pl";
 require "shares/lockget.pl";
+require "shares/statbook.pl";
 
 # common globals
 use vars qw(%config %config_raw);
@@ -268,7 +269,7 @@ sub composemessage {
    my $inreplyto = param('inreplyto') || '';
    my $references = param('references') || '';
    my $priority = param('priority') || 'normal';	# normal/urgent/non-urgent
-   my $statname = param('statname') || '';
+   my $statname = ow::tool::unescapeURL(param('statname')) || '';
    my $composetype = param('composetype')||'';
 
    # hashify to,cc,bcc to eliminate duplicates and strip off xowmuid tracker stuff after %@#
@@ -726,26 +727,19 @@ sub composemessage {
 
          my $origbody=$body;
 
-         my $stationery;
+         my $statcontent;
          if ($config{'enable_stationery'} && $statname ne '') {
             my $statbookfile=dotpath('stationery.book');
-            my ($name,$content,%stationery);
-            if ( -f $statbookfile ) {
-               open (STATBOOK, $statbookfile) or
-                  openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $statbookfile! ($!)");
-               while (<STATBOOK>) {
-                  ($name, $content) = split(/\@\@\@/, $_, 2);
-                  chomp($name); chomp($content);
-                  $stationery{ow::tool::escapeURL($name)} = ow::tool::unescapeURL($content);
-               }
-               close (STATBOOK) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $statbookfile! ($!)");
+            if (-f $statbookfile) {
+               my %stationery;
+               my ($ret, $errmsg)=read_stationerybook($statbookfile, \%stationery);
+               $statcontent=(iconv($stationery{$statname}{charset}, $composecharset, $stationery{$statname}{content}))[0] if ($ret==0);
             }
-            $stationery = $stationery{$statname};
          }
 
          my $n="\n"; $n="<br>" if ($msgformat ne 'text');
-         if ($stationery=~/[^\s]/) {
-            $body = str2str($stationery, $msgformat).$n;
+         if ($statcontent=~/[^\s]/) {
+            $body = str2str($statcontent, $msgformat).$n;
          } else {
             $body = $n.$n;
          }
@@ -2083,12 +2077,20 @@ sub sendmessage {
       } else {
          $smtp->close() if ($smtp); # close smtp if it was sucessfully opened
          if ($senderrstr eq "") {
+            $senderrstr= qq|$lang_err{'sendmail_error'}|;
+
+            if ($do_save && $savefolder eq 'saved-drafts') {
+               my $draft_url = qq|$config{'ow_cgiurl'}/openwebmail-send.pl?sessionid=$thissession&amp;|.
+                               qq|action=composemessage&amp;composetype=editdraft&amp;|.
+                               qq|folder=$escapedfolder&amp;message_id=|.ow::tool::escapeURL($mymessageid);
+               $senderrstr.= qq|<br>\n<a href="$draft_url">$lang_err{'sendmail_chkdraft'}</a>|;
+            }
+
             my $smtperr=readsmtperr($smtperrfile);
-            $senderrstr= qq|$lang_err{'sendmail_error'}!|.
-                         qq|<form>|.
+            $senderrstr.=qq|<form>|.
                          textarea(-name=>'smtperror',
                                   -default=>$smtperr,
-                                  -rows=>'5',
+                                  -rows=>'10',
                                   -columns=>'72',
                                   -wrap=>'soft',
                                   -override=>'1').
