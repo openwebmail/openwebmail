@@ -1,3 +1,175 @@
+11/08/2001
+----------
+1. minor fix to pop3mail.pl to handle message with month and mday in reverse
+   order 
+
+
+11/07/2001
+----------
+1. use red instead of blue for message download icon if the message is sent 
+   with 'X-Mailer: OpenWebmail'
+
+
+10/31/2001 (version 1.50)
+----------
+1. doc/RedHat-README.txt is updated for Openwebmail 1.50
+2. catalan language and templates translation,
+   cool3d iconset for catalan
+   (thanks Jordi Vidal, st@e-puntcom.com)
+3. portuguese language and templates translation
+   (thanks to Jose Ferradeira, jferra@sfconsultores.pt)
+
+
+10/29/2001
+----------
+1. minor fix to maildb.pl to handle buggy mailheader that contains
+   multiple 'From ' line
+
+
+10/27/2001
+----------
+1. minor fix for spanish templates
+   (thanks to Osvaldo Ancarola, ancarola@web724.com)
+2. correct a bug that locates background images in wrong path
+   (thanks to Osvaldo Ancarola, ancarola@web724.com)
+
+
+10/22/2001
+----------
+1. minor fix to smtprelay code to ignore smtp relays with local domainanames
+
+
+10/21/2001
+----------
+1. fix a bug that virtualuser could not be mattached if loginname is only the username 
+   part of the virtualuser
+2. if a username is mapped by any virtualuser, it would be only accessable from
+   the virtualuser
+
+
+10/12/2001
+----------
+1. assume *.bmp display is support by the browser
+2. dutch language and templates translation update
+   (thanks to Christian Boer, chris@connectux.com)
+3. minor correction to readme.txt for linux 7.x
+   (thanks to borching, borching@seed.net.tw)  
+
+
+10/07/2001
+----------
+1. minor change to the interface function in auth_xxx.pl
+
+
+10/05/2001
+----------
+1. fix the bug that shows session timeout window when login failed
+2. minor change to auth_pam.pl to fix the change password failure
+
+
+10/04/2001
+----------
+1. minor changes to virtual user mapping, it uses $ENV{'HTTP_HOST'} as
+   a clue to find correct user.
+
+
+10/03/2001
+----------
+1. split auth.pl into 2 modules: auth_unix.pl and auth_pam.pm, 
+   move global variables used by auth_xxx.pl from openwebmail.conf to 
+   auth_xxx.pl
+
+
+09/27/2001
+----------
+1. fix a bug that dictionary other than english won't be used in spellcheck.pl
+   (thanks to helio@compuland.com.br for his patch)
+2. minor fix to increase compatibility with https
+3. rename imageset to iconset in codes, openwebmail.conf and templates
+   put all iconsets to images/iconsets/
+   put all background images to images/backgrounds/
+4. change mode of cgi-bin/openwebmail/etc from 750 to 755
+
+
+09/26/2001
+----------
+1. minor fix to the address import routine so it can import fields other
+   than username and email.
+2. autofocus to passwd and autosubmit in loginmenu
+   (thanks to Burghardt Fischer, mrql@users.sourceforge.net for his patch) 
+3. fix "Insecure dependency in chown while running setuid at 
+   openwebmail-share.pl line..." bug
+   (reported by borching, borching@seed.net.tw)
+4. fix a bug that causes the reply error for read receipt request.
+   (reported by ws81050, ws81050@fire.tkvs.ylc.edu.tw)
+
+
+09/22/2001
+----------
+1. chinese GB language and templates translation update
+   (thanks to Wang Jun, wjun@mail.iap.ac.cn)
+
+
+09/21/2001
+----------
+1. add option autopop3_at_refresh to openwebmail.conf
+   Openwebmail will fetch pop3mail for user at refresh if this option 
+   is set to yes
+
+
+09/20/2001
+----------
+1. fix the 'Couldn't open openwebmail.log!' error in checkmail.pl
+2. Portuguese Brazil language and templates translation
+   (thanks to Edison Figueira Junior, edison@brc.com.br)
+3. change the abbreviation of languages to i18n format
+
+
+09/19/2001
+----------
+1. History function now records not only login but also other important 
+   events like pop3 error, folder/message operation, password changing...
+2. fix a bug that autoreply subject and text for new user are empty
+
+
+09/18/2001
+----------
+1. reimplement the virtual user support
+   a. use /etc/mail/virtusertable instead of /etc/mail/genericstale for
+      virtual user mapping
+   b. login name can be virtualuser@virtualdomain or virtualuser now
+2. add support for 'from email address book'
+
+
+09/13/2001
+----------
+1. support multiple dictionaries in spellcheck
+   (thanks to Raul Monferrer, raul@est.ct.upc.es)
+
+
+09/11/2001
+----------
+1. remove the dependence on Lingua-Ispell module from spellcheck.pl
+   with the code from WBOSS 1.5a. 
+   (http://www.dontpokebadgers.com/spellchecker/, 2001, Joshua Cantara)
+   The spellcheck feature now works well on RedHat 7.x.
+
+
+09/10/2001
+----------
+1. The format of openwebmail.conf is totally changed.
+   it is now a pure text file and parsed by openwebmail at runtime.
+   Some options were changed to a more descriptive name.
+2. The default setting for most items in user preference are now available
+   in openwebmail.conf.
+3. all static links in templates are removed.
+4. spanish language and templates translation update
+   (thanks to Félix Martos, pakito@asinkecualo.org)
+
+Note: Since openwebmail.conf is totally changed, a reinstallation is 
+      required for those who upgrade from old version...
+
+
 09/06/2001
 ----------
 1. fix a bug that trashreserveddays is always displayed as 'forever' 
@@ -146,7 +318,7 @@
 08/02/2001
 ----------
 1. portuguese language and templates translation
-   (thanks to Jos Ferradeira, jferra@sfconsultores.pt)
+   (thanks to Jose Ferradeira, jferra@sfconsultores.pt)
 
 
 07/30/2001

@@ -25,18 +25,12 @@ $lang_charset = 'iso-8859-1';
    subject_rev => 'Onderwerp (Omgekeerd Alfabetisch)'
    );
 
-%lang_mualabels =
-   (
-   outlookexp5 => 'Outlook Express 5',
-   nsmail      => 'Netscape Mail 4.x'
-   );
-
 %lang_text =
    (  
    login      => 'Inloggen',
    clear      => 'Wissen',
-   changepwd  => 'Change Password',
-   loginhistory=>'Login History',
+   changepwd  => 'Wachtwoord wijzigen',
+   viewhistory=> 'Bekijk Geschiedenis',
    of         => 'van',
    messages   => 'berichten',
    unread     => 'ongelezen',
@@ -48,6 +42,7 @@ $lang_charset = 'iso-8859-1';
    folders    => 'Mappen',
    emptytrash => 'Prullenbak legen',
    forever    => 'Altijd',
+   userdef    => 'Gebruiker Bepaald',
    logout     => 'Uitloggen',
    page       => 'Pagina',
    msgcopyconf=> '\'Weet u zeker dat u de geselecteerde berichten wilt kopieren?\'',
@@ -92,17 +87,19 @@ $lang_charset = 'iso-8859-1';
    folderdelconf => '\'Weet u zeker dat u deze map inclusief zijn inhoud wilt verwijderen?\'',
    total      => 'Totaal',
    delete     => 'Verwijder',
-   reserve    => 'Reserve',
+   reserve    => 'Bewaar',
    clearadd   => 'Verwijder alle adressen',
    importadd  => 'Importeer adressen',
    exportadd  => 'Exporteer adressen',
    import     => 'Importeer',
    addmod     => 'Toevoegen/Wijzigen',
+   modify     => 'Wijzigen',
    abooktitle => 'Adresboek',
    abook      => 'ADRESBOEK',
    group      => 'Groep',
-   quota_hit  => 'QUOTA OVERSCHREDEN',
+   quota_hit  => 'QUOTUM OVERSCHREDEN',
    usage      => 'Gebruik',
+   editfroms  => 'Edit personal email addresses',
    pop3book   => 'POP3 Configuratie',
    retr_pop3s => 'Ontvang POP3 Mail',
    filterbook => 'Mail Filter Configuratie',
@@ -129,12 +126,11 @@ $lang_charset = 'iso-8859-1';
    spellcheck => 'Spellingscontrole',
    checkagain => 'Controleer opnieuw',
    finishchecking => 'Controle voltooid',
-   cancel     => 'Annuleer',
    manuallyfix=> 'Handmatig herstellen',
    );
 
 %lang_err = (
-            has_illegal_chars => 'bevat onjuiste karakters!',
+            has_illegal_chars => 'bevat onjuiste tekens!',
             couldnt_open      => 'Kan niet geopend worden',
             couldnt_locksh    => 'Kon niet openen om te lezen',
             couldnt_lock      => 'Kon niet openen om te schrijven',
@@ -145,7 +141,7 @@ $lang_charset = 'iso-8859-1';
             shouldnt_move_here=> 'Kan hier geen berichten verplaatsen!',
             destination_folder=> 'Bestemmingsmap',
             doesnt_exist      => 'bestaat niet!',
-            foldername_long   => 'Mapnaam kan niet langer dan 16 karakters zijn!',
+            foldername_long   => 'Mapnaam kan niet langer dan 16 tekens zijn!',
             folder_with_name  => 'Een map met de naam',
             already_exists    => 'bestaat al!',
             cant_create_folder=> 'Kan de map niet maken!',
@@ -155,12 +151,15 @@ $lang_charset = 'iso-8859-1';
             tryagain          => 'en probeer opnieuw.',
             abook_toobig      => 'Sorry, uw adresboek is vol, er is geen plaats meer. Ga',
             cant_create_dir   => 'Kan uw eigen directory niet maken!',
-            folder_hitquota   => 'Sorry, uw mail quota is vol, er kan niet meer mail opgeslagen worden. Uw kunt alleen nog maar berichten verplaatsen naar de PRULLENBAK, waar ze zullen worden verwijderd.  Ga terug, verwijder oude berichten of leeg uw PRULLENBAK, probeer dan opnieuw.',
+            folder_hitquota   => 'Sorry, uw mail quotum is overschreden, er kan niet meer mail opgeslagen worden. Uw kunt nog wel berichten verplaatsen naar de PRULLENBAK, waar ze zullen worden verwijderd.  Ga terug, verwijder oude berichten of leeg uw PRULLENBAK, probeer dan opnieuw.',
             att_overlimit     => 'Sorry, uw bijlage overschrijdt de maximale lengte, deze is',
             inv_msg_op        => 'Onjuiste handeling op het bericht',
-            inv_sessid        => 'Uw verzoek bevatte het geen juist cookie -- toegang gewijgerd!',
+            inv_sessid        => 'Uw verzoek bevatte geen juist cookie -- toegang gewijgerd!',
             user_not_exist    => 'gebruiker bestaat niet',
-            password_error    => 'verkeerd wachtwoord',
+            func_notsupported => 'functie wordt niet ondersteund',
+            auth_syserr       => 'inlogsysteem fout',
+            param_fmterr      => 'parameter formaat fout',
+            pwd_incorrect     => 'wachtwoord verkeerd',
             network_server_error => 'netwerkserver fout',
             sendmail_error    => 'Sorry, er is een fout opgetreden bij het verzenden van uw bericht.  Klik op de \'Terug\' knop van uw browser, controleer het bericht, en probeer het opnieuw.'
             );

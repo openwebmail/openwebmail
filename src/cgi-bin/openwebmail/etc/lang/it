@@ -25,18 +25,12 @@ $lang_charset = 'iso-8859-1';
    subject_rev => 'Oggetto (Ordine alfabetico inverso)'
    );
 
-%lang_mualabels =
-   (
-   outlookexp5 => 'Outlook Express 5',
-   nsmail      => 'Netscape Mail 4.x'
-   );
-
 %lang_text =
    (  
    login      => 'Login',
    clear      => 'Pulisci',
    changepwd  => 'Change Password',
-   loginhistory=>'Login History',
+   viewhistory=> 'View History',
    of         => 'di',
    messages   => 'messaggi',
    unread     => 'non letti',
@@ -48,6 +42,7 @@ $lang_charset = 'iso-8859-1';
    folders    => 'Cartelle',
    emptytrash => 'Svuota cestino',
    forever    => 'Per Sempre',
+   userdef    => 'User Define',
    logout     => 'Esci',
    page       => 'Pagina',
    msgcopyconf=> '\'Sei sicuro di voler copiare i messaggi selezionati?\'',
@@ -98,11 +93,13 @@ $lang_charset = 'iso-8859-1';
    exportadd  => 'Esporta indirizzi',
    import     => 'Importa',
    addmod     => 'Aggiungi/Modifica',
+   modify     => 'Modifica',
    abooktitle => 'Rubrica di ',
    abook      => 'RUBRICA',
    group      => 'Group',
    quota_hit  => 'LIMITE RAGGIUNTO',
    usage      => 'Usage',
+   editfroms  => 'Edit personal email addresses',
    pop3book   => 'POP3 Setup',
    retr_pop3s => 'Scarica posta POP3',
    filterbook => 'Setup filtro posta',
@@ -129,7 +126,6 @@ $lang_charset = 'iso-8859-1';
    spellcheck => 'Controllo Ortografico',
    checkagain => 'Controlla Ancora',
    finishchecking => 'Finish Checking',
-   cancel     => 'Cancella',
    manuallyfix=> 'Correggi a mano'
    );
 
@@ -160,7 +156,10 @@ $lang_charset = 'iso-8859-1';
             inv_msg_op        => 'Operazione invalida per il messaggio',
             inv_sessid        => 'La tua richiesta non contiene un session ID cookie valido -- accesso negato!',
             user_not_exist    => 'non esiste l\'utente',
-            password_error    => 'password errata',
+            func_notsupported => 'function not supported',
+            auth_syserr       => 'authentication system error',
+            param_fmterr      => 'parameter format error',
+            pwd_incorrect     => 'password incorrect',
             network_server_error => 'errore del server di rete',
             sendmail_error    => 'Spiacente, si e\' verificato  un errore nella spedizione del tuo messaggio. Prova a cliccare su bottone  indietro del tuo browser, controlla il messaggio e riprova'
             );

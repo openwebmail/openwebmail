@@ -25,18 +25,12 @@ $lang_charset = 'iso-8859-2';
    subject_rev => 'Tárgy (Fordított ABC szerint)'
    );
 
-%lang_mualabels =
-   (
-   outlookexp5 => 'Outlook Express 5',
-   nsmail      => 'Netscape Mail 4.x'
-   );
-
 %lang_text =
    (  
    login      => 'Login',
    clear      => 'Töröl',
    changepwd  => 'Jelszócsere',
-   loginhistory=>'Belépési napló',
+   viewhistory=> 'View History',
    of         => '',
    messages   => 'üzenet',
    unread     => 'olvasatlan',
@@ -48,6 +42,7 @@ $lang_charset = 'iso-8859-2';
    folders    => 'Mappák',
    emptytrash => 'Szemetes ürítése',
    forever    => 'örökre',
+   userdef    => 'User Define',
    logout     => 'Kijelentkezés',
    page       => 'oldal',
    msgcopyconf=> '\'Biztosan átmásolja a kijelölt üzenet(ek)et?\'',
@@ -98,11 +93,13 @@ $lang_charset = 'iso-8859-2';
    exportadd  => 'Címek exportálása',
    import     => 'Importál',
    addmod     => 'Hozzáad / Módosít',
+   modify     => 'Módosít',
    abooktitle => 'Címjegyzék',
    abook      => 'CÍMJEGYZÉK',
    group      => 'Csoport',
    quota_hit  => 'KVÓTA',
    usage      => 'kihasználtság',
+   editfroms  => 'Edit personal email addresses',
    pop3book   => 'POP3 beállítások',
    retr_pop3s => 'POP3 levelek letöltése',
    filterbook => 'Szûrõ beállítások',
@@ -129,7 +126,6 @@ $lang_charset = 'iso-8859-2';
    spellcheck => 'Helyesírás',
    checkagain => 'Újra ellenõriz',
    finishchecking => 'Befejezi az ellenõrzést',
-   cancel     => 'Mégsem',
    manuallyfix=> 'Manuálisan javít'
    );
 
@@ -160,7 +156,10 @@ $lang_charset = 'iso-8859-2';
             inv_msg_op        => 'Érvénytelen mûvelet üzenetre!',
             inv_sessid        => 'Az Ön üzenete nem a helyes cookie-t tartalmazza -- a hozzáférés letiltva!',
             user_not_exist    => 'a felhasználó nem létezik',
-            password_error    => 'hibás jelszó',
+            func_notsupported => 'function not supported',
+            auth_syserr       => 'authentication system error',
+            param_fmterr      => 'parameter format error',
+            pwd_incorrect     => 'password incorrect',
             network_server_error => 'szerverhiba',
             sendmail_error    => 'Nem sikerült elküldeni az üzenetét. Kérem, hogy lépjen vissza egy oldalt a böngészõben, ellenõrizze az üzenetet, és próbálja újra.'
             );

@@ -25,18 +25,12 @@ $lang_charset = 'iso-8859-2';
    subject_rev => 'Temat (odwrotnie alfabetycznie)'
    );
 
-%lang_mualabels =
-   (
-   outlookexp5 => 'Outlook Express 5',
-   nsmail      => 'Netscape Mail 4.x'
-   );
-
 %lang_text =
    (  
    login      => 'Wejd¼',
    clear      => 'Wyczy¶æ',
    changepwd  => 'Zmiana has³a',
-   loginhistory=>'Historia odwiedzin',
+   viewhistory=> 'View History',
    of         => 'z',
    messages   => 'wiadomo¶ci',
    unread     => 'nieprzeczytane',
@@ -48,6 +42,7 @@ $lang_charset = 'iso-8859-2';
    folders    => 'Foldery',
    emptytrash => 'Opró¿nij kosz',
    forever    => 'Zawsze',
+   userdef    => 'User Define',
    logout     => 'Wyloguj',
    page       => 'Strona',
    msgcopyconf=> '\'Na pewno chcesz skopiowaæ zaznaczone widomo¶ci?\'',
@@ -98,11 +93,13 @@ $lang_charset = 'iso-8859-2';
    exportadd  => 'Exportuj adresy',
    import     => 'Importuj',
    addmod     => 'Dodaj/Zmieñ',
+   modify     => 'Zmieñ',
    abooktitle => 'Ksi±¿ka Adresowa',
    abook      => 'KSI¡¯KA ADRESOWA',
    group      => 'Grupa',
    quota_hit  => 'LIMIT PRZESTRZENI NA DYSKU OSI¡GNIÊTY',
    usage      => 'U¿ycie',
+   editfroms  => 'Edit personal email addresses',
    pop3book   => 'Konfiguracja POP3',
    retr_pop3s => 'Odbierz POP3 Mail',
    filterbook => 'Konfiguracja filtrowania',
@@ -129,7 +126,6 @@ $lang_charset = 'iso-8859-2';
    spellcheck => 'Sprawd¼ pisowniê',
    checkagain => 'Sprawd¼ powtórnie',
    finishchecking => 'Zakoñcz sprawdzanie ',
-   cancel     => 'Anuluj',
    manuallyfix=> 'Popraw rêcznie'
    );
 
@@ -160,7 +156,10 @@ $lang_charset = 'iso-8859-2';
             inv_msg_op        => 'Nieprawid³owa operacja dla tej wiadomo¶ci',
             inv_sessid        => 'Twoje zapytanie nie zawiera w³asciwego identyfikatora sesji - dostêp zabroniony!',
             user_not_exist    => 'u¿ytkownik nie istnieje',
-            password_error    => 'niepoprawne has³o',
+            func_notsupported => 'function not supported',
+            auth_syserr       => 'authentication system error',
+            param_fmterr      => 'parameter format error',
+            pwd_incorrect     => 'password incorrect',
             network_server_error => 'b³±d sieci',
             sendmail_error    => 'Niestety wyst±pi³ problem podczas wysya³ania Twojej wiadomo¶ci Naci¶nij przycisk wstecz w przegl±darce, sprawd¼ wiadomo¶æ i spróbuj ponownie.'
             );

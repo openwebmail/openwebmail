@@ -1,9 +1,9 @@
 #!/usr/bin/perl -T
 #
-# this is a command used to check mail status for a user
+# this is a command tool to check mail for a user
 #
 # 03/17/2001 Ebola@turtle.ee.ncku.edu.tw
-#
+#            tung@turtle.ee.ncku.edu.tw
 #
 # syntax: checkmail.pl [-q] [-p] [-i] [-a] [-f userlist] [user1 user2 ...]
 #
@@ -18,8 +18,6 @@ use Fcntl qw(:DEFAULT :flock);
 $ENV{PATH} = ""; # no PATH should be needed
 
 push (@INC, '/usr/local/www/cgi-bin/openwebmail', ".");
-require "etc/openwebmail.conf";
-require "auth.pl";
 require "openwebmail-shared.pl";
 require "mime.pl";
 require "filelock.pl";
@@ -27,64 +25,165 @@ require "maildb.pl";
 require "mailfilter.pl";
 require "pop3mail.pl";
 
+local %config;
+readconf(\%config, "/usr/local/www/cgi-bin/openwebmail/etc/openwebmail.conf");
+require $config{'auth_module'} or
+   openwebmailerror("Can't open authentication module $config{'auth_module'}");
+
 local $opt_pop3=0;
 local $opt_verify=0;
 local $opt_quiet=0;
 local $pop3_process_count=0;
 
-local $user;
-local @userlist;
-local %username=();
-local %complete=();
-local ($uid, $gid, $homedir);
+local ($virtualuser, $user, $userrealname, $uuid, $ugid, $mailgid, $homedir);
 local $folderdir;
 local %prefs;
 
+local @userlist;
+local %complete=();
+
+$mailgid=getgrnam('mail');
+
+################################ main ##################################
+
+# handle zombie
+$SIG{CHLD} = sub { my $pid=wait; $complete{$pid}=1; $pop3_process_count--; };	
+
+if ($ARGV[0] eq "--") {
+   push(@userlist, $ARGV[1]);
+} else {
+   my $i=0;
+   for ($i=0; $i<=$#ARGV; $i++) {
+      if ($ARGV[$i] eq "--pop3" || $ARGV[$i] eq "-p") {
+         $opt_pop3=1;
+      } elsif ($ARGV[$i] eq "--index" || $ARGV[$i] eq "-i") {
+         $opt_verify=1;
+      } elsif ($ARGV[$i] eq "--quiet" || $ARGV[$i] eq "-q") {
+         $opt_quiet=1;
+      } elsif ($ARGV[$i] eq "--alluser" || $ARGV[$i] eq "-a") {
+         my $u;
+         foreach $u (get_userlist()) {
+            push(@userlist, $u);
+         }
+      } elsif ($ARGV[$i] eq "--file" || $ARGV[$i] eq "-f") {
+         $i++;
+         if ( -f $ARGV[$i] ) {
+            open(USER, $ARGV[$i]);
+            while (<USER>) {
+               push(@userlist, $_);
+            }
+            close(USER);
+         }
+      } else {
+         push(@userlist, $ARGV[$i]);
+      }
+   }
+}
+
+if ($#userlist<0) {
+   print "Syntax: checkmail.pl [-q] [-p] [-i] [-f userlist] [user1 user2 ...]
+
+ -q, --quite  \t quiet, no output
+ -p, --pop3   \t fetch pop3 mail for user
+ -i, --index  \t check index for user folders and reindex if needed
+ -a, --alluser\t check for all users in passwd
+ -f, --file   \t user list file, each line contains a username
+
+";
+   exit 1;
+}
+
+my $usercount=0;
+foreach my $loginname (@userlist) {
+   # reset back to root before switch to next user
+   $>=0;
+
+   ($virtualuser, $user, $userrealname, $uuid, $ugid, $homedir)=get_virtualuser_user_userinfo($loginname);
+   if ($user eq "") {
+      print("user $loginname doesn't exist\n") if (!$opt_quiet);
+      next;
+   }
+   next if ($homedir eq '/');
+   next if ($user eq 'root' || $user eq 'toor'||
+            $user eq 'daemon' || $user eq 'operator' || $user eq 'bin' ||
+            $user eq 'tty' || $user eq 'kmem' || $user eq 'uucp');
+
+   if ( $config{'use_homedirspools'} || $config{'use_homedirfolders'} ) {
+      set_euid_egid_umask($uuid, $mailgid, 0077);	
+   } else {
+      set_euid_egid_umask($>, $mailgid, 0077);	
+   }
+
+   if ( $config{'use_homedirfolders'} ) {
+      $folderdir = "$homedir/$config{'homedirfolderdirname'}";
+   } else {
+      $folderdir = "$config{'ow_etcdir'}/users/$user";
+   }
+
+   ($user =~ /^(.+)$/) && ($user = $1);  # untaint $user
+   ($uuid =~ /^(.+)$/) && ($uuid = $1);
+   ($ugid =~ /^(.+)$/) && ($ugid = $1);
+   ($homedir =~ /^(.+)$/) && ($homedir = $1);  # untaint $homedir
+   ($folderdir =~ /^(.+)$/) && ($folderdir = $1);  # untaint $folderdir
+
+   if ( ! -d $folderdir ) {
+      print("$folderdir doesn't exist\n") if (!$opt_quiet);
+      next;
+   }
+   if ( ! -f "$folderdir/.openwebmailrc" ) {
+      print("$folderdir/.openwebmailrc doesn't exist\n") if (!$opt_quiet);
+      next;
+   }
+
+   %prefs = %{&readprefs};
+
+   getpop3s($POP3_TIMEOUT) if ($opt_pop3);
+   verifyfolders() if ($opt_verify);
+   checknewmail();
+
+   $usercount++;
+}
+
+if ($usercount>0) {
+   exit 0;
+} else {
+   exit 1;
+}
+
+############################## routines #######################################
+
 sub checknewmail {
    my ($spoolfile, $headerdb)=get_folderfile_headerdb($user, 'INBOX');
-   my $user_filter_repeatlimit;
-   my $user_filter_fakedsmtp;
 
    if ( ! -f $spoolfile || (stat($spoolfile))[7]==0 ) {
-      print ("$username{$user} has no mail\n") if (!$opt_quiet);
+      print (($virtualuser||$user)." has no mail\n") if (!$opt_quiet);
       return 0;
-   }
-
-   # get setting from user preference or global
-   if ( defined($prefs{'filter_repeatlimit'}) ) {
-      $user_filter_repeatlimit=$prefs{'filter_repeatlimit'};
-   } else {
-      $user_filter_repeatlimit=$filter_repeatlimit;
-   }
-   if ( defined($prefs{'filter_fakedsmtp'}) ) {
-      $user_filter_fakedsmtp=$prefs{'filter_fakedsmtp'};
-   } else {
-      $user_filter_fakedsmtp=($filter_fakedsmtp eq 'yes'||$filter_fakedsmtp==1)?1:0;
    }
 
    my @folderlist=();
    my $filtered=mailfilter($user, 'INBOX', $folderdir, \@folderlist, 
-				$filter_repeatlimit, $filter_fakedsmtp);
+				$prefs{'filter_repeatlimit'}, $prefs{'filter_fakedsmtp'});
    if ($filtered>0) {
-      writelog("filter $filtered msgs from INBOX");
+      writelog("filtermsg - filter $filtered msgs from INBOX");
+      writehistory("filtermsg - filter $filtered msgs from INBOX");
    }
 
    if (!$opt_quiet) {
       my (%HDB, $allmessages, $internalmessages, $newmessages);
-      filelock("$headerdb$dbm_ext", LOCK_SH);
+      filelock("$headerdb$config{'dbm_ext'}", LOCK_SH);
       dbmopen (%HDB, $headerdb, undef);
       $allmessages=$HDB{'ALLMESSAGES'};
       $internalmessages=$HDB{'INTERNALMESSAGES'};
       $newmessages=$HDB{'NEWMESSAGES'};
       dbmclose(%HDB);
-      filelock("$headerdb$dbm_ext", LOCK_UN);
+      filelock("$headerdb$config{'dbm_ext'}", LOCK_UN);
 
       if ($newmessages > 0 ) {
-         print ("$username{$user} has new mail\n");
+         print (($virtualuser||$user)." has new mail\n");
       } elsif ($allmessages-$internalmessages > 0 ) {
-         print ("$username{$user} has mail\n");
+         print (($virtualuser||$user)." has mail\n");
       } else {
-         print ("$username{$user} has no mail\n");
+         print (($virtualuser||$user)." has no mail\n");
       }
    }
 }
@@ -133,14 +232,21 @@ sub getpop3s {
          close(STDIN);
 
          foreach (values %accounts) {
-            my ($pop3host, $pop3user, $mbox);
-            my ($response, $dummy);
+            my ($pop3host, $pop3user, $enable);
+            my ($response, $dummy, $h);
 
-            ($pop3host, $pop3user, $dummy) = split(/:/,$_, 3);
+            ($pop3host, $pop3user, $dummy, $dummy, $dummy, $enable) = split(/:/,$_);
+            next if (!$enable);
+
+            foreach $h ( @{$config{'disallowed_pop3servers'}} ) {
+               last if ($pop3host eq $h);
+            }
+            next if ($pop3host eq $h);
+
             $response = retrpop3mail($pop3host, $pop3user, 
          				"$folderdir/.pop3.book",  $spoolfile);
             if ( $response<0) {
-               writelog("pop3 $pop3error{$response} at $pop3user\@$pop3host");
+               writelog("pop3 error - $pop3error{$response} at $pop3user\@$pop3host");
             }
          }
          exit;
@@ -156,123 +262,14 @@ sub getpop3s {
 }
 
 sub verifyfolders {
-   my @validfolders = @{&getfolders(0)};
-   my ($folderfile, $headerdb);
+   my @validfolders;
+   my $folderusage;
+
+   getfolders(\@validfolders, \$folderusage, 0);
    foreach (@validfolders) {
-      ($folderfile, $headerdb)=get_folderfile_headerdb($user, $_);
+      my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $_);
       update_headerdb($headerdb, $folderfile);
    }
    return;
 }
 
-sub adduser2list {
-   my $name=$_[0];
-   my @realids=();
-
-   $name=~s/\s+$//;
-   $name=~s/^\s+//;
-   if ($name=~/^[A-Za-z0-9_]+$/) {
-      @realids=get_userlist_by_virtualuser($name, "$openwebmaildir/genericstable.r");
-      if ($#realids>=0) {
-         foreach (@realids) {
-            push(@userlist, $_);
-            $username{$_}=$name;
-         }
-      } else {
-         push(@userlist, $name);
-         $username{$name}=$name;
-      }
-   }
-   return;
-}
-
-################################ main ##################################
-
-# handle zombie
-$SIG{CHLD} = sub { my $pid=wait; $complete{$pid}=1; $pop3_process_count--; };	
-
-if ($ARGV[0] eq "--") {
-   adduser2list($ARGV[1]);
-} else {
-   my $i=0;
-   for ($i=0; $i<=$#ARGV; $i++) {
-      if ($ARGV[$i] eq "--pop3" || $ARGV[$i] eq "-p") {
-         $opt_pop3=1;
-      } elsif ($ARGV[$i] eq "--index" || $ARGV[$i] eq "-i") {
-         $opt_verify=1;
-      } elsif ($ARGV[$i] eq "--quiet" || $ARGV[$i] eq "-q") {
-         $opt_quiet=1;
-      } elsif ($ARGV[$i] eq "--alluser" || $ARGV[$i] eq "-a") {
-         foreach $u (get_userlist()) {
-            next if ($u eq 'root' || $u eq 'toor'||
-                     $u eq 'daemon' || $u eq 'operator' || $u eq 'bin' ||
-                     $u eq 'tty' || $u eq 'kmem' || $u eq 'uucp');
-            adduser2list($u);
-         }
-      } elsif ($ARGV[$i] eq "--file" || $ARGV[$i] eq "-f") {
-         $i++;
-         if ( -f $ARGV[$i] ) {
-            open(USER, $ARGV[$i]);
-            while (<USER>) {
-               adduser2list($_);
-            }
-            close(USER);
-         }
-      } else {
-         adduser2list($ARGV[$i]);
-      }
-   }
-}
-           
-
-my $usercount=0;
-foreach $user (@userlist) {
-   # reset back to root before switch to next user
-   $>=0;
-
-   ($user =~ /^(.+)$/) && ($user = $1);  # untaint $user...
-   ($uid, $homedir) = (get_userinfo($user))[1,3];
-   next if ($uid eq '' || $homedir eq '/');
-
-   $uid=$> if (($homedirspools ne 'yes') && ($homedirfolders ne 'yes'));
-   $gid=getgrnam('mail');
-
-   set_euid_egid_umask($uid, $gid, 0077);
-
-   if ( $homedirfolders eq 'yes') {
-      $folderdir = "$homedir/$homedirfolderdirname";
-   } else {
-      $folderdir = "$openwebmaildir/users/$user";
-   }
-   if ( ! -d $folderdir ) {
-      print("$folderdir doesn't exist\n") if (!$opt_quiet);
-      next;
-   }
-   if ( ! -f "$folderdir/.openwebmailrc" ) {
-      print("$folderdir/.openwebmailrc doesn't exist\n") if (!$opt_quiet);
-      next;
-   }
-
-   %prefs = %{&readprefs};
-
-   getpop3s($POP3_TIMEOUT) if ($opt_pop3);
-   verifyfolders() if ($opt_verify);
-   checknewmail();
-
-   $usercount++;
-}
-
-if ($usercount>0) {
-   exit 0;
-} else {
-   print "Syntax: checkmail.pl [-q] [-p] [-i] [-f userlist] [user1 user2 ...]
-
- -q, --quite  \t quiet, no output
- -p, --pop3   \t fetch pop3 mail for user
- -i, --index  \t check index for user folders and reindex if needed
- -a, --alluser\t check for all users in passwd
- -f, --file   \t user list file, each line contains a username
-
-";
-   exit 1;
-}

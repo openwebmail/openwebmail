@@ -25,18 +25,12 @@ $lang_charset = 'iso-8859-1';
    subject_rev => 'Ämne (Omvänt alfabetisk)'
    );
 
-%lang_mualabels =
-   (
-   outlookexp5 => 'Outlook Express 5',
-   nsmail      => 'Netscape Mail 4.x'
-   );
-
 %lang_text =
    (
    login      => 'Logga in',
    clear      => 'Rensa',
    changepwd  => 'Change Password',
-   loginhistory=>'Login History',
+   viewhistory=> 'View History',
    of         => 'av',
    messages   => 'meddelanden',
    unread     => 'oläst',
@@ -48,6 +42,7 @@ $lang_charset = 'iso-8859-1';
    folders    => 'Mappar',
    emptytrash => 'Töm papperskorgen',
    forever    => 'Tills vidare',
+   userdef    => 'User Define',
    logout     => 'Logga ut',
    page       => 'Sida',
    msgcopyconf=> '\'Är du säker på att du vill kopiera de markerade meddelandena?\'',
@@ -98,11 +93,13 @@ $lang_charset = 'iso-8859-1';
    exportadd  => 'Exportera adresser',
    import     => 'Importera',
    addmod     => 'Lägg till / Ändra',
+   modify     => 'Ändra',
    abooktitle => 'Adressbok',
    abook      => 'ADRESSBOK',
    group      => 'Grupp',
    quota_hit  => 'Ditt lagringsutrymme är slut!',
    usage      => 'Använt',
+   editfroms  => 'Edit personal email addresses',
    pop3book   => 'POP3 Inställningar',
    retr_pop3s => 'Hämta post från POP3-konto',
    filterbook => 'Filterinställningar',
@@ -129,7 +126,6 @@ $lang_charset = 'iso-8859-1';
    spellcheck => 'Stavningskontroll',
    checkagain => 'Kontrollera igen',
    finishchecking => 'Avsluta kontroll',
-   cancel     => 'Avbryt',
    manuallyfix=> 'Fixa manuellt'
    );
 
@@ -160,7 +156,10 @@ $lang_charset = 'iso-8859-1';
             inv_msg_op        => 'Otillåten operation',
             inv_sessid        => 'Din begäran saknade rätt cookie. Operationen medges inte!',
             user_not_exist    => 'Användaren finns inte',
-            password_error    => 'Fel lösenord',
+            func_notsupported => 'function not supported',
+            auth_syserr       => 'authentication system error',
+            param_fmterr      => 'parameter format error',
+            pwd_incorrect     => 'password incorrect',
             network_server_error => 'Nätverksfel',
             sendmail_error    => 'Beklagar, det uppstod ett problem med att skicka ditt meddelande.  Klicka på Back i din webbläsare, kontrollera meddelandet och försök igen.'
             );

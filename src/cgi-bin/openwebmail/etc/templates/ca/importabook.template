@@ -1,0 +1,40 @@
+<table border="0" align="center" width="80%" cellpadding="0" cellspacing="0">
+<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>IMPORTAR LLIBRETA D'ADRECES</B></font>
+</td><td bgcolor=@@@TITLEBAR@@@ align="right">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>@@@FREESPACE@@@ Koctets Lliures</B></font>
+</td></tr>
+<tr><td colspan="2" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
+
+<table border="0" align="center" width="80%" cellpadding="0" cellspacing="0">
+<tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
+<BR>Outlook Express 5 i Netscape Mail poden exportar libres d'adreces en
+format CSV, ó Comma Separated Values.  OpenWebMail pot importar-ho.
+<ul>
+<li> En Netscape, obri la seva llibreta d'adreces, seleccioni
+Arxiu-Exportar,desprès a "Guardar com tipus:" esculliu "Comma Separated (*.csv)." <BR><BR>
+<li> En Outlook Express, a la finestra principal, esculli la persiana de
+Arxiu-Exportar-Llibreta i seleccioni com a tipus d'arxiu "Arxiu de Text."
+Assegureu-vos que els camps Nom i E-mail estiguin primer. 
+</ul>
+</td></tr></table>
+
+@@@STARTIMPORTFORM@@@
+@@@MUARADIOGROUP@@@
+<BR>
+@@@IMPORTFILEFIELD@@@
+</td></tr>
+<tr><td colspan=2 bgcolor=@@@WINDOW_LIGHT@@@>&nbsp;</td></tr>
+<tr><td width="50%" align="right" bgcolor=@@@WINDOW_LIGHT@@@>
+@@@IMPORTBUTTON@@@ &nbsp;&nbsp;
+</td>
+@@@ENDFORM@@@
+@@@STARTCANCELFORM@@@
+<td width="50%" align="left" bgcolor=@@@WINDOW_LIGHT@@@>
+&nbsp;&nbsp;@@@CANCELBUTTON@@@
+</td></tr>
+<tr><td colspan=2 bgcolor=@@@WINDOW_LIGHT@@@>&nbsp;</td></tr>
+</table>
+@@@ENDFORM@@@

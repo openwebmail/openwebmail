@@ -8,7 +8,7 @@ A: There are many possible answers...
       And You uncompress the openwebmail-1.xx.tgz with proper parameter.
       It should be "tar -zxvBpf openwebmail-1.xx.tgz"
 
-   2. Your openwebmail scripts have wrong owner and mode.
+   2. Your openwebmail scripts may have wrong owner or mode.
       The owner and mode of openwebmail.pl, openwebmail-prefs.pl, 
       checkmail.pl, spellcheck.pl should be
       mode=4555
@@ -28,6 +28,27 @@ A: There are many possible answers...
 ps: In most cases, you can run the './openwebmail.pl' in text terminal
     to get more information about the error.
 
+Q: I got "Can't check filesystem of script "./openwebmail.pl" for nosuid"?
+A: Your openwebmail may be installed on a filesystem mounted nosuid.
+   Please remove the nosuid parameter from /etc/fstab or install openwebmail
+   to other filesystemm.
+
+ps: 'man mount' for more information about nosuid
+
+Q: The login menu showed okay, but I always got login failure?
+A: Check auth_module option in openwebmail.conf:
+
+   If it is 'auth_unix.pl', 
+   check if $unix_passwdfile and $unix_passwdmkdb in auth_unix.pl are correct
+
+   If it is 'auth_pam.pl', 
+   make sure you have followed the instructions of 'PAM SUPPORT' in readme.txt.
+   If you still got login failure, you can debug the pam module by:
+   1. modify auth_pam.pl
+      uncomment all the lines of log_time(...)
+   2. login to openwebmail
+   3. check the /tmp/openwebmail.debug for more information.
+
 Q: I got "Couldn't open XXX-session-0.370606494136155!" error after login?
 A: You openwebmail-1.xx.tgz was uncompressed with improper parameter.
    It should be "tar -zxvBpf openwebmail-1.xx.tgz"
@@ -46,17 +67,77 @@ Q: I got "can't open /var/log/openwebmail.log" error?
 A: Please check the openwebmail.log permission, it should be
    owner=root, group=mail, mode=660
 
-Q: The 'From' field of my message contains only 'username@'?
+Q: The 'From' field of my message contained only 'username@'?
 A: You may has wrong setting of domainname in openwebmail.conf
-   Please be sure to use '' for a text string of hostname
-   or use `` for the program (ex: /bin/hostname)
+   1. For version older than 1.41 ,
+      please be sure to use '' for a text string of hostname
+      or use `` for the program (ex: /bin/hostname)
+   2. For version 1.50 or above,
+      please list all domainnames seperated with comma.
+      or use auto for this setting, openwebmail will call '/bin/hostname'
+      to get the fqdn of your host.
 
-Q: Some of my messages are moved to trash folder automatically?
-A: Your messages are either filtered by 'global filter rule' or 
+Q: How can I use multiple virtual domains with openwebmail?
+A: First, you have to decide if you want to let user defines multiple 
+   from email address by themself. 
+   If yes, set 'enable_setfromemail' to 'yes', else set it to 'no'
+
+   Second, you have to decide if you want to let user pick up the domainname
+   from all domainnames supported by your mail server or you want to statically
+   specify domainname used by each user.
+
+   To let user to pick doaminname from all supported domainnames, you have to 
+   specify all domainnames in the option 'domainnames' in openwebmail.conf.
+
+   To statically specify domain name used by each user, you have to define the
+   mappping from email address to userid in /etc/mail/virtusertable.
+   For example, a line like below
+
+   guest@virtual.com	guest
+
+   will make the user guest using the domainname 'virtual.com'
+   
+Q: What happens if users with same usernames exist in different domains?
+A: You have to create different accounts for each user.
+
+   For example, you have 3 users with name 'john':
+   john@company1.com, john@company2.com and john@company3.com.
+
+   You need to create 3 accounts for these 3 johns and mapping the 3 email address
+   to the created accounts in /etc/mail/virtusertable
+
+   john@company1.com	john1
+   john@company2.com	john2
+   john@company3.com	john3
+
+   Then user can login with full email address, ex: 'john@company1.com'.
+
+Q: If user login with only username instead of full email address,
+   which user is choosed in above case?
+A: Since openwebmail is unable determine which user is the right one, 
+   it will return 'no such user'. But if there is only one virtual user john
+   defined in /etc/mail/virtusertable
+
+   john@company1.com	john1
+
+   The john@company1.com will be choosed even user logins with only 'john'
+
+Q: What happens if a real userid 'john' exists in above case?
+A: Openwebmail will choose real userid 'john' first.
+   But if the /etc/mail/virtusertable tables is defines as below
+
+   john@company1.com	john
+
+   Then john@company1.com will be choosed.
+
+Q: Some of my messages were moved to trash folder automatically?
+A: Your messages were either filtered by 'global filter rule' or 
    'faked smtp message filter'. 
 
    Global filter will filter messages with know virus attachments. The global
-   filter rules are defined in the file $global_filterbook in openwebmail.conf.
+   filter rules are defined in the file global_filterbook
+   (global_filterbook is defined as %ow_etcdir%/global_filterbook in 
+    openwebmail.conf.)
 
    The 'faked smtp message filter' will filter messages that have a faked smtp
    source, those messages are often from spammers. 'faked smtp filter' is 
@@ -92,7 +173,7 @@ A: In short, they are messages coming from mail servers that fake their
 
 Q: I still want the filtered messages, 
    how can I disable faked smtp filter completely?
-A: 1. Set the $filter_fakedsmtp='no' in openwebmail.conf
+A: 1. Set default_filter_fakedsmtp to 'no' in openwebmail.conf
       This will unset the default fakedsmtp filter for all newly created user
    2. Uncheck the faked smtp filter option in user preference
       This will disable the fakedsmtp filter for a specific user
@@ -110,7 +191,7 @@ A: 1. Your CGI or MIME-Base64 module may be too old,
 
 Q: Attachments disappeared when I forwarded a message?
 A: Check permission of the following directories
-   cgi-bin/openwebmail/etc          - owner=root, group=mail, mode=750
+   cgi-bin/openwebmail/etc          - owner=root, group=mail, mode=755
    cgi-bin/openwebmail/etc/sessions - owner=root, group=mail, mode=770
    cgi-bin/openwebmail/etc/users    - owner=root, group=mail, mode=770
 
@@ -127,8 +208,15 @@ A: The disk space occupied by a folder shown in 'edit folder menu' includes
 
 Q: When I clicked 'spell check' button, I got "Internal Server error" in new
    window?
-A: Please be sure that you have installed Lingua-Ispell-0.07.tar.gz and
-   ispell-3.1.20.tar.gz
+A: Please be sure that you have installed ispell-3.1.20.tar.gz
+
+Q: Ispell has been correctly installed, but spellcheck still doesn't work?
+A: The spellcheck in old version of openwebmail doesn't work on RedHat 7.x,
+   please upgrade your openwebmail to the latest version.
+
+Q: Why is spellcheck.pl a suid root program?
+A: Because it needs to read the preference file, ~/mail/.openwebmailrc, 
+   of different users to get their langage and dictionary setting.
 
 Q: I have problems in reading some mail....
 A: please check 
@@ -136,8 +224,18 @@ A: please check
    to see if any update fixes your problem and download the 
    openwebmail-current.tgz
 
+Q: I got 'Sorry, there was a problem sending your message' error?
+A: please check if sendmail option in openwebmail.conf has pointed to correct 
+   program
+
+ps:If you are using postfix as an replacement for sendmail, you have to
+   use its compatiable wrapper 'sendmail' instead of 'postfix'.
+   Also remember to change the mode of main.cf of postfix to 644,
+   thus it could be read by all users. 
+   (thanks to Rex_Chen, rex@ispro.com.tw)
+
 Q: The autoreply function doesn't work?
-A: Please be sure that $vacationinit and $vacationpipe in openwebmail.conf 
+A: Please be sure that vacationinit and vacationpipe in openwebmail.conf 
    have pointed to the path where the vacation program is.
 
    If the path is correct, you can do debug with the -d option
@@ -148,9 +246,9 @@ A: Please be sure that $vacationinit and $vacationpipe in openwebmail.conf
    3. send a message to this user to test the autoreply
    4. check the /var/tmp/vacation.debug for possible error information
 
-   Please add this '-d' parameter to the $vacationpipe in openwebmail.conf.
+   Please add this '-d' parameter to the vacationpipe in openwebmail.conf.
 
-   $vacationpipe = '/usr/local/www/cgi-bin/openwebmail/vacation.pl -d -t60s';
+   vacationpipe		/usr/local/www/cgi-bin/openwebmail/vacation.pl -d -t60s
 
    Then send a testing mail to someone who enabled the autoreply.
    The debugging information will be written into /var/tmp/vacation.debug.
@@ -177,6 +275,26 @@ A: This problem occurs if you installed Open WebMail on the same partition
    this, since this problem mostly occurs on RedHat Linux 6.2 and bellow. 
    (thanks to Emir Litric, elitric@yahoo.com)
 
+Q: My openwebmail was okay, but I got "Your request didn't contain the proper 
+   session ID cookie -- access denied!" in these days?
+A: Openwebmail puts user uploaded attachments in cgi-bin/openwebmail/etc/sessions/ 
+   temporarily. User will get error if there is no space left on the partion where
+   cgi-bin/openwebmail/etc/sessions/ lives or user has exceeded his disk quota.
+
+   Please move cgi-bin/openwebmail/etc/sessions to a larger parition with
+   diskquota disablaed, then create a symbolic link to that new directory
+
+   cd /new_palce
+
+   mkdir sessions
+   chmod 770 sessions
+   chown 0 sessions
+   chgrp mail sessios
+
+   cd yourweb_cgi-bin/openwebmail/etc/
+   rm -Rf sessions
+   ln -s /new_place/sessions .
+
 Q: The Open WebMail is very slow on my machine?
 A: It depends on how you define the "slow". 
 
@@ -196,7 +314,8 @@ ps: Some operations would take more time than normal operation, for example:
    http://turtle.ee.ncku.edu.tw/openwebmail/download/doc/memory.usage
 
 Q: How can I report problem?
-A: If your Open WebMail doesn't work, please describe your problem
+A: If your Open WebMail doesn't work, please post your problem on
+   openwebmail forum http://sourceforge.net/forum/forum.php?forum_id=108433
    with the following information
 
    OS
@@ -214,9 +333,9 @@ A: If your Open WebMail doesn't work, please describe your problem
 
 Q: Can I call openwebmail from my programs with username/password specified?
 A: You can call the openwebmail with url
-   http://server/openwebmail.pl?action=login&userid=USER&password=PASS
+   http://server/openwebmail.pl?action=login&loginname=USER&password=PASS
 
-   But this is somewhat dangerous since the username and password will
+   But this is somewhat dangerous since the loginname and password will
    be displayed at the URL line on the user's browser.
 
 Q: How can I set an alias or link to the openwebmail script so users can 
@@ -263,6 +382,6 @@ ps: We would be happy if you mail us a message that your commercial web site
     advertisements :)
    
 
-08/28/2001 
+11/05/2001 
 
 openwebmail@turtle.ee.ncku.edu.tw

@@ -25,18 +25,12 @@ $lang_charset = 'iso-8859-1';
    subject_rev => 'Betreff (rückwärts)'
    );
 
-%lang_mualabels =
-   (
-   outlookexp5 => 'Outlook Express 5',
-   nsmail      => 'Netscape Mail 4.x'
-   );
-
 %lang_text =
    (  
    login      => 'Anmelden',
    clear      => 'Löschen',
    changepwd  => 'Change Password',
-   loginhistory=>'Login History',
+   viewhistory=> 'View History',
    of         => 'von',
    messages   => 'Nachrichten',
    unread     => 'ungelesen',
@@ -48,6 +42,7 @@ $lang_charset = 'iso-8859-1';
    folders    => 'Ordner Optionen',
    emptytrash => 'Papierkorb leeren',
    forever    => 'für immer',
+   userdef    => 'User Define',
    logout     => 'Abmelden',
    page       => 'Seite',
    msgcopyconf=> '\'Sind Sie sicher, dass Sie die markierte(n) Nachricht(en) kopieren möchten?\'',
@@ -98,11 +93,13 @@ $lang_charset = 'iso-8859-1';
    exportadd  => 'Adressbuch exportieren',
    import     => 'Importieren',
    addmod     => 'Neu/Bearbeiten',
+   modify     => 'Bearbeiten',
    abooktitle => 'Adressbuch',
    abook      => 'ADRESSBUCH',
    group      => 'Gruppe',
    quota_hit  => 'SPEICHERPLATZLIMIT ÜBERSCHRITTEN',
    usage      => 'Usage',
+   editfroms  => 'Edit personal email addresses',
    pop3book   => 'Postfächer bearbeiten',
    retr_pop3s => 'Nachrichten abholen',
    filterbook => 'Mail Filter Einstellungen',
@@ -129,7 +126,6 @@ $lang_charset = 'iso-8859-1';
    spellcheck => 'Rechtschreibprüfung',
    checkagain => 'Nochmal prüfen',
    finishchecking => 'Prüfung beenden',
-   cancel     => 'Abbrechen',
    manuallyfix=> 'manuell'
    );
 
@@ -160,7 +156,10 @@ $lang_charset = 'iso-8859-1';
             inv_msg_op        => 'Aktion für diese Nachricht nicht möglich',
             inv_sessid        => 'Ihre Anfrage enthält keine gültige Sitzungskennung -- Zugriff verweigert!',
             user_not_exist    => 'Benutzer existiert nicht',
-            password_error    => 'Falsches Passwort',
+            func_notsupported => 'function not supported',
+            auth_syserr       => 'authentication system error',
+            param_fmterr      => 'parameter format error',
+            pwd_incorrect     => 'password incorrect',
             network_server_error => 'Netzwerk Fehler',
             sendmail_error    => 'Das Absenden der Nachricht war leider nicht möglich. Drücken Sie auf den Zurück-Knopf Ihres Browsers, überprüfen Sie Ihre Nachricht und versuchen Sie es erneut.'
             );

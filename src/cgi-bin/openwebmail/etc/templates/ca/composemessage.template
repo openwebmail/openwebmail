@@ -1,0 +1,135 @@
+@@@STARTCOMPOSEFORM@@@
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="1">
+<tr><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="left">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>COMPONDRE UN MISSATGE</B></font>
+</td></tr><tr><td colspan="3" bgcolor=@@@MENUBAR@@@ align="left">
+@@@BACKTOFOLDER@@@
+</td></tr><tr><td colspan="3">&nbsp;</td></tr>
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+<B>De:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@FROMMENU@@@
+</td></tr>
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+<a href="Javascript:GoAddressWindow('to')" tabindex="-1"><B>Per a:</B></a>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@TOFIELD@@@
+</td></tr>
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+<a href="Javascript:GoAddressWindow('cc')" tabindex="-1"><B>CC:</B></a>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@CCFIELD@@@
+</td></tr>
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+<a href="Javascript:GoAddressWindow('bcc')" tabindex="-1"><B>CCO:</B></a>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@BCCFIELD@@@
+</td></tr>
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+<B>Contestar a:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@REPLYTOFIELD@@@
+</td></tr>
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+<B>Afegits:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@ATTACHMENTFIELD@@@
+</td></tr>
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+<B>Títol:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@SUBJECTFIELD@@@
+&nbsp;
+<B>Confirmar Lectura</B>
+@@@CONFIRMREADINGCHECKBOX@@@
+</td></tr>
+<tr><td colspan="3" bgcolor=@@@WINDOW_LIGHT@@@>
+@@@BODYAREA@@@
+</td></tr>
+<tr><td colspan="3" align="left" valign="top">
+
+<table cellspacing="0" cellpadding="0" border="0"><tr>
+<td align="center" valign="top">
+@@@SENDBUTTON@@@
+&nbsp;&nbsp;
+</td>
+<td align="center" valign="top">
+@@@SAVEDRAFTBUTTON@@@
+&nbsp;&nbsp;
+</td>
+@@@ENDFORM@@@ <!-- End of message composition form -->
+@@@STARTSPELLCHECKFORM@@@
+<td align="center" valign="top">
+@@@DICTIONARYMENU@@@
+@@@SPELLCHECKBUTTON@@@
+&nbsp;&nbsp;
+</td>
+@@@ENDFORM@@@
+@@@STARTCANCELFORM@@@
+<td align="center" valign="top">
+@@@CANCELBUTTON@@@
+&nbsp;&nbsp;
+</td>
+@@@ENDFORM@@@
+</tr></table>
+
+</td></tr></table>
+
+<script language="JavaScript">
+  <!--
+   if (self.focus != null)
+      self.focus();
+
+   function OnLoadHandler()
+   {
+      document.composeform.to.focus();
+   }
+
+   function GoAddressWindow(toccbcc)
+   {
+      var url = "@@@PREFSURL@@@?action=addressbook&sessionid=@@@SESSIONID@@@&form=composeform&field=" + toccbcc;
+      
+      if (toccbcc == "to")
+         url += "&preexisting=" + escape (document.composeform.to.value);
+      else if (toccbcc == "cc")
+         url += "&preexisting=" + escape (document.composeform.cc.value);
+      else if (toccbcc == "bcc")
+         url += "&preexisting=" + escape (document.composeform.bcc.value);   
+   
+      var hWnd = window.open(url,"HelpWindow","width=300,height=360,resizable=yes,scrollbars=yes");
+      if ((document.window != null) && (!hWnd.opener))
+         hWnd.opener = document.window;
+   }
+
+   function DeleteAttFile(deleteattfile)
+   {
+      document.composeform.deleteattfile.value=deleteattfile;
+      document.composeform.submit();
+   }
+
+   function spellcheck()
+   {
+      document.spellcheckform.sessionid.value = document.composeform.sessionid.value;
+      document.spellcheckform.form.value = "composeform";
+      document.spellcheckform.field.value = "body";
+      document.spellcheckform.string.value = document.composeform.body.value;
+      window.open('','Verificar Ortograf&iacute;a','width=600,height=400,top=40,left=80,scrollbars=yes,resizable=yes,location=no');
+      return true;
+   }
+
+   function sendcheck()
+   {
+      if (document.composeform.to.value == "" 
+       && document.composeform.cc.value == "" 
+       && document.composeform.bcc.value == "" ) {
+         alert("Especifiqueu el receptor del missatge.");
+         return false;
+      }
+      if (document.composeform.subject.value == "" ) {
+         return(confirm("Missatge sense títol, vol enviar-lo?"));
+      }
+      return true;
+   }
+   //-->
+</script>

@@ -28,18 +28,12 @@ $lang_charset = 'iso-8859-2';
    subject_rev => 'Predmet (Obrátene podµa abecedy)'
    );
 
-%lang_mualabels =
-   (
-   outlookexp5 => 'Outlook Express 5',
-   nsmail      => 'Netscape Mail 4.x'
-   );
-
 %lang_text =
    (  
    login      => 'Prihlási»',
    clear      => 'Zmaza»',
    changepwd  => 'Change Password',
-   loginhistory=>'Login History',
+   viewhistory=> 'View History',
    of         => 'z',
    messages   => 'správ',
    unread     => 'nepreèítaných',
@@ -51,6 +45,7 @@ $lang_charset = 'iso-8859-2';
    folders    => 'Katalógy',
    emptytrash => 'Vysypa» kô¹',
    forever    => 'Forever',
+   userdef    => 'User Define',
    logout     => 'Odhlasi»',
    page       => 'Strana',
    msgcopyconf=> '\'Are you sure you want to copy the selected message(s)?\'',
@@ -101,11 +96,13 @@ $lang_charset = 'iso-8859-2';
    exportadd  => 'Export adries',
    import     => 'Import',
    addmod     => 'Prida»/Zmeni»',
+   modify     => 'Zmeni»',
    abooktitle => 'Adresár',
    abook      => 'ADRESÁR',
    group      => 'Group',
    quota_hit  => 'VRCHOL KVÔTY',
    usage      => 'Usage',
+   editfroms  => 'Edit personal email addresses',
    pop3book   => 'POP3 Setup',
    retr_pop3s => 'Retrieve POP3 Mail',
    filterbook => 'Mail Filter Setup',
@@ -132,7 +129,6 @@ $lang_charset = 'iso-8859-2';
    spellcheck => 'Spell Check',
    checkagain => 'Check Again',
    finishchecking => 'Finish Checking',
-   cancel     => 'Cancel',
    manuallyfix=> 'Manually Fix'
    );
 
@@ -163,7 +159,10 @@ $lang_charset = 'iso-8859-2';
             inv_msg_op        => 'Invalid operation for message',
             inv_sessid        => 'Your request didn\'t contain the proper session ID cookie -- access denied!',
             user_not_exist    => 'user does not exist',
-            password_error    => 'wrong password',
+            func_notsupported => 'function not supported',
+            auth_syserr       => 'authentication system error',
+            param_fmterr      => 'parameter format error',
+            pwd_incorrect     => 'password incorrect',
             network_server_error => 'network server error',
             sendmail_error    => 'Sorry, there was a problem sending your message.  Please click your browser\'s Back button, check your message, and try again.'
             );

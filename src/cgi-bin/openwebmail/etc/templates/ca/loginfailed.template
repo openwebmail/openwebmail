@@ -1,0 +1,10 @@
+<BR><BR><BR><BR><BR><BR>
+<table border="0" align="center" width="25%" cellpadding="0" cellspacing="0">
+<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>ENTRADA INVALIDA</B></FONT></TD></TR>
+<tr><td valign="middle" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
+<BR>@@@ERRORMSG@@@! Aneu enrera i
+<br>
+<a href="@@@SCRIPTURL@@@">torneu a provar-ho</a>.<BR><BR>
+</td></tr></table>

@@ -5,7 +5,7 @@ $lang_charset = 'GB2312';
 %lang_folders =
    (
    INBOX => '收件箱',
-   'saved-messages' => '已存档邮件',
+   'saved-messages' => '存档箱',
    'sent-mail'      => '已发送邮件',
    'saved-drafts'   => '草稿箱',
    'mail-trash'     => '垃圾箱',
@@ -25,18 +25,12 @@ $lang_charset = 'GB2312';
    subject_rev => '主题（递减）'
    );
 
-%lang_mualabels =
-   (
-   outlookexp5 => 'Outlook Express 5',
-   nsmail      => 'Netscape Mail 4.x'
-   );
-
 %lang_text =
    (  
    login      => '登录',
    clear      => '清除',
    changepwd  => '修改密码',
-   loginhistory=>'登录记录',
+   viewhistory=> '查看历史记录',
    of         => '/',
    messages   => '封信',
    unread     => '未读',
@@ -48,11 +42,12 @@ $lang_charset = 'GB2312';
    folders    => '邮件夹',
    emptytrash => '清空垃圾箱',
    forever    => '永久保留',
+   userdef    => 'User Define',
    logout     => '退出',
    page       => '页',
    msgcopyconf=> '\'您确定要复制所选择的邮件吗？\'',
    copy       => '复制',
-   msgmoveconf=> '\'您确定要转移所选择的邮件吗？\'',
+   msgmoveconf=> '\'您确定要移动所选择的邮件吗？\'',
    move       => '移动',
    date       => '日期',
    recipient  => '收件人',
@@ -98,11 +93,13 @@ $lang_charset = 'GB2312';
    exportadd  => '导出地址簿',
    import     => '导入',
    addmod     => '增加/修改',
+   modify     => '修改',
    abooktitle => '地址簿',
    abook      => '地址簿',
    group      => '邮件组',
    quota_hit  => '存储空间已满',
    usage      => '使用空间',
+   editfroms  => '编辑个人邮件地址',
    pop3book   => '设定POP3邮件',
    retr_pop3s => '收取POP3邮件',
    filterbook => '设定邮件规则',
@@ -129,7 +126,6 @@ $lang_charset = 'GB2312';
    spellcheck => '拼写检查',
    checkagain => '重新检查',
    finishchecking => '检查完毕',
-   cancel     => '取消',
    manuallyfix=> '手动修正'
    );
 
@@ -152,7 +148,7 @@ $lang_charset = 'GB2312';
             under_indexing    => '还在索引中，请稍候再试',
             abook_invalid     => '抱歉！该文件不是Outlook Express5的CSV格式。',
             back              => '返回上一页',
-            tryagain          => '再试.',
+            tryagain          => '再试。',
             abook_toobig      => '地址簿超过容量限制。请',
             cant_create_dir   => '无法建立使用者目录！',
             folder_hitquota   => '抱歉！您的容量已经超过限制，请先将不要的信件删除并清空垃圾箱，否则，您将收不到新邮件！',
@@ -160,7 +156,10 @@ $lang_charset = 'GB2312';
             inv_msg_op        => '无效的邮件操作',
             inv_sessid        => '使用他人的 session id 或是重复登录 -- 拒绝存取！',
             user_not_exist    => '使用者不存在',
-            password_error    => '密码错误',
+            func_notsupported => 'function not supported',
+            auth_syserr       => 'authentication system error',
+            param_fmterr      => 'parameter format error',
+            pwd_incorrect     => 'password incorrect',
             network_server_error => '网络服务器错误',
             sendmail_error    => '抱歉！无法发出您的邮件，请回到上一页检查是否输入错误后，再重发一次。'
             );
