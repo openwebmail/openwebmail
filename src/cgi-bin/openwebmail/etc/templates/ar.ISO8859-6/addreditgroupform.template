@@ -2,7 +2,14 @@
 
 <table cellpadding="0" cellspacing="0" border="0" align="center" width="90%">
 <tr>
-  <td bgcolor=@@@TITLEBAR@@@><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>Addressbook Entry Information</b></font></td>
+  <td bgcolor=@@@TITLEBAR@@@>
+    <table cellpadding="0" cellspacing="0" border="0" width="100%">
+    <tr>
+      <td bgcolor=@@@TITLEBAR@@@><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>Edit Group Information</b></font></td>
+      <td bgcolor=@@@TITLEBAR@@@ align="left"><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>@@@ABOOKNAME@@@</b></td>
+    </tr>
+    </table>
+  </td>
 </tr>
 <tr>
   <td bgcolor=@@@MENUBAR@@@>@@@MENUBARLINKS@@@</td>
@@ -15,7 +22,7 @@
     <table cellpadding="0" cellspacing="0" border="0" align="center" width="100%">
     <tr>
       <td>&nbsp;@@@AGENTPATH@@@</td>
-      <td align="right">Character Set:&nbsp;@@@CONVTOMENU@@@</td>
+      <td align="left">Character Set:&nbsp;@@@CONVTOMENU@@@</td>
     </tr>
     </table>
   </td>

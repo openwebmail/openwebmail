@@ -2625,7 +2625,7 @@ sub editfilter {
       $temphtml .= qq|<td bgcolor=$bgcolor align=center>$priority</td>\n|.
                    qq|<td bgcolor=$bgcolor align=center>$lang_text{$ruletype}</td>\n|.
                    qq|<td bgcolor=$bgcolor align=center>$lang_text{$include}</td>\n|.
-                   qq|<td bgcolor=$bgcolor align=center><a $accesskeystr href="Javascript:Update('$priority','$ruletype','$include','$jstext','$op','$destination','$enable')">$text</a></td>\n|;
+                   qq|<td bgcolor=$bgcolor align=center><a $accesskeystr href="Javascript:Update('$priority','$ruletype','$include','$jstext','$op','$destination','$enable')">|.ow::htmltext::str2html($text).qq|</a></td>\n|;
       if ($destination eq 'INBOX') {
          $temphtml .= "<td bgcolor=$bgcolor align=center>-----</td>\n";
       } else {
@@ -2689,7 +2689,7 @@ sub editfilter {
       $temphtml .= qq|<td bgcolor=$bgcolor align=center>$priority</td>\n|.
                    qq|<td bgcolor=$bgcolor align=center>$lang_text{$ruletype}</td>\n|.
                    qq|<td bgcolor=$bgcolor align=center>$lang_text{$include}</td>\n|.
-                   qq|<td bgcolor=$bgcolor align=center><a $accesskeystr href="Javascript:Update('$priority','$ruletype','$include','$jstext','$op','$destination','$enable')">$text</a></td>\n|.
+                   qq|<td bgcolor=$bgcolor align=center><a $accesskeystr href="Javascript:Update('$priority','$ruletype','$include','$jstext','$op','$destination','$enable')">|.ow::htmltext::str2html($text).qq|</a></td>\n|.
                    qq|<td bgcolor=$bgcolor align=center>$lang_text{$op}</td>\n|;
       if (defined($lang_folders{$destination})) {
          $temphtml .= "<td bgcolor=$bgcolor align=center>$lang_folders{$destination}</td>\n";

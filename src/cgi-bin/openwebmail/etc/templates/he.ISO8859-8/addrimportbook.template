@@ -3,7 +3,7 @@
   <td bgcolor=@@@TITLEBAR@@@>
     <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>Import Addressbook Information</b></font>
   </td>
-  <td bgcolor=@@@TITLEBAR@@@ align="right">
+  <td bgcolor=@@@TITLEBAR@@@ align="left">
     <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>@@@AVAILFREESPACE@@@ Available</b></font>
   </td>
 </tr>

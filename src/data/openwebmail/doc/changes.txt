@@ -1,3 +1,18 @@
+10/31/2004
+----------
+1. integrate addressbook with other modules by putting the link of web 
+   addresssbook to the menubar of msgread, webcalendar and webdisk
+2. Traditional Chinese language and templates translation update
+3. fix a bug in mailfilter that string with < > could not be showed correctly
+   (reported by Noah Wallach, admin2.AT.enabled.com)
+4. swap the forward.gif and forwardasatt.gif. they were with wrong name before.
+   (reported by Dan Burke, drburke.AT.crhc.uiuc.edu)
+5. use a image itself as the thumbnail if the image size < 2k in webdisk.
+6. show addressbook name in editing addressbook personal/group entries
+7. fix alignment directives in addressbook templates for RTL languages 
+   (eg:ar.* hr.* ur)
+
+
 10/30/2004
 ----------
 1. replace the openwebmail-abook.pl with the whole new vCard compliant 

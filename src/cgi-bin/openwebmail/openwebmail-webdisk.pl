@@ -1025,7 +1025,9 @@ sub makethumbnail {
       if ($err ne '') {
          $msg.="$err\n"; next;
       }
-      next if ( $vpath!~/\.(jpe?g|gif|png|bmp|tif)$/i || !-f "$webdiskrootdir/$vpath");
+      next if ( $vpath!~/\.(jpe?g|gif|png|bmp|tif)$/i || 
+                !-f "$webdiskrootdir/$vpath" ||
+                -s _ < 2048);				# use image itself is as thumbnail if size<2k
 
       my $thumbnail=ow::tool::untaint(path2thumbnail($vpath));
       my @p=split(/\//, $thumbnail); pop(@p);
@@ -2195,6 +2197,7 @@ sub showdir {
             } elsif ($p=~/\.(?:jpe?g|gif|png|bmp|tif)$/i ) {
                if ($showthumbnail) {
                   my $thumbnail=path2thumbnail($p);
+                  $thumbnail=$p if ($fsize{$p}<2048);	# show image itself if size <2k
                   if ( -f "$webdiskrootdir/$currentdir/$thumbnail") {
                      my $fname=$p; $fname=~s|.*/||g;
                      $opstr=qq|<a href="$config{'ow_cgiurl'}/openwebmail-webdisk.pl/|.ow::tool::escapeURL($fname).

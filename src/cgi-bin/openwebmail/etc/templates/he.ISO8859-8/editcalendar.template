@@ -24,19 +24,19 @@
 <B>Recurrence:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FREQMENU@@@
-</td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+</td></tr><tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>&nbsp;</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@THISANDNEXTNDAYSCHECKBOX@@@ This day and next @@@NDAYSFIELD@@@ days
-</td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+</td></tr><tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>&nbsp;</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@MONTHFREQMENU@@@
-</td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+</td></tr><tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>&nbsp;</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@EVERYYEARCHECKBOX@@@ Every year
-</td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+</td></tr><tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>שדח רושיק:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@LINKFIELD@@@

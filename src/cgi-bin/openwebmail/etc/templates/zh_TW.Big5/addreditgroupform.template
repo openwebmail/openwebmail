@@ -2,7 +2,14 @@
 
 <table cellpadding="0" cellspacing="0" border="0" align="center" width="90%">
 <tr>
-  <td bgcolor=@@@TITLEBAR@@@><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>通訊錄 群組詳細資料</b></font></td>
+  <td bgcolor=@@@TITLEBAR@@@>
+    <table cellpadding="0" cellspacing="0" border="0" width="100%">
+    <tr>
+      <td bgcolor=@@@TITLEBAR@@@><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>編輯群組資料</b></font></td>
+      <td bgcolor=@@@TITLEBAR@@@ align="right"><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>@@@ABOOKNAME@@@</b></td>
+    </tr>
+    </table>
+  </td>
 </tr>
 <tr>
   <td bgcolor=@@@MENUBAR@@@>@@@MENUBARLINKS@@@</td>
@@ -40,7 +47,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>增加相關檔案到此群組 - 尚有 @@@AVAILABLEATTSPACE@@@ 空間</b></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>增加相關檔案到這個群組 - 尚有 @@@AVAILABLEATTSPACE@@@ 空間</b></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -110,9 +117,9 @@ function check_toggle(target) {
 
 function popupNotice (msgOption) {
    if (msgOption == 'agentmustsave') {
-      return(confirm('All data must be saved before viewing or creating an agent card.\nSave and continue?'));
+      return(confirm('檢視或建立相關連絡人資料前, 現有資料必須先存檔.\n 確定繼續?'));
    } else if (msgOption == 'cancelchanges') {
-      return(confirm('All changes to this agent will be lost, continue?'));
+      return(confirm('所有對這位相關連絡人的修改都將會作廢, 確定?'));
    }
 }
 

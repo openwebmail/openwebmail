@@ -1449,7 +1449,7 @@ sub addrlistview {
 
                      $escapedemail = ow::tool::escapeURL($email);
                      if ($listviewmode eq '') {
-                        $newrow[$headingpos{'email'}] .= qq|<td bgcolor=$bgcolor[$colornum] nowrap><a href="$composeurl&amp;to=$escapedemail" title="|.ow::htmltext::str2html($email).qq|">|.ow::htmltext::str2html($addresses{$xowmuid}{EMAIL}[$index]{VALUE}).qq|</a></td>\n|;
+                        $newrow[$headingpos{'email'}] .= qq|<td bgcolor=$bgcolor[$colornum] nowrap><a href="$composeurl&amp;to=$escapedemail" title="$lang_text{'abook_listview_writemailto'}|.ow::htmltext::str2html($email).qq|">|.ow::htmltext::str2html($addresses{$xowmuid}{EMAIL}[$index]{VALUE}).qq|</a></td>\n|;
                      } else {
                         $newrow[$headingpos{'email'}] .= qq|<td bgcolor=$bgcolor[$colornum] nowrap>|.ow::htmltext::str2html($addresses{$xowmuid}{EMAIL}[$index]{VALUE}).qq|</td>\n|;
                      }
@@ -1838,19 +1838,20 @@ sub addreditform {
    # Align $contact so it is pointing to the completevcard data we want to modify.
    my $path_to_agent_string = $completevcard->{$xowmuid}{FN}[0]{VALUE};
    my $target = \%{$completevcard->{$xowmuid}};
+   my $nextgif="right.s.gif"; $nextgif="left.s.gif" if ($ow::lang::RTL{$prefs{'language'}});
    for(my $depth=1;$depth<=$targetdepth;$depth++) { # 0,0
    print "<pre>Digging: targetagent position ".($depth-1)." is ".$targetagent[$depth-1]."</pre>\n" if $addrdebug;
       if (exists $target->{AGENT}[$targetagent[$depth-1]]{VALUE}) {
          foreach my $agentxowmuid (keys %{$target->{AGENT}[$targetagent[$depth-1]]{VALUE}}) {
             print "<pre>The AGENTXOWMUID at this position is $agentxowmuid</pre>\n" if $addrdebug;
             $target = \%{$target->{AGENT}[$targetagent[$depth-1]]{VALUE}{$agentxowmuid}};
-            $path_to_agent_string .= "&nbsp;-&gt;&nbsp;" . $target->{FN}[0]{VALUE};
+            $path_to_agent_string .= "&nbsp;".iconlink($nextgif)."&nbsp;" . $target->{FN}[0]{VALUE};
          }
       } else {
          # we're creating a new agent from scratch
          $target->{AGENT}[$targetagent[$depth-1]]{TYPES}{VCARD} = 'TYPE';
          $target = \%{$target->{AGENT}[$targetagent[$depth-1]]{VALUE}{''}};
-         $path_to_agent_string .= "&nbsp;-&gt; $lang_text{'abook_editform_new_agent'}";
+         $path_to_agent_string .= "&nbsp;".iconlink($nextgif)."&nbsp;" . $lang_text{'abook_editform_new_agent'};
       }
    }
    $contact->{$xowmuid} = $target;
@@ -1951,6 +1952,7 @@ sub addreditform {
    # build up the template
    my ($html, $temphtml);
    $html = applystyle(readtemplate((param('editgroupform')?'addreditgroupform.template':'addreditform.template')));
+   $html =~ s/\@\@\@ABOOKNAME\@\@\@/$lang_text{'addressbook'}: $abookfolder&nbsp;/;
 
    if (param('editgroupform')) {
      # for the GoAddressWindow popup
@@ -1997,7 +1999,7 @@ sub addreditform {
                             );
       $html =~ s/\@\@\@AGENTPATH\@\@\@/$temphtml/;
    } else {
-      $temphtml = hidden(-name=>"abookfolder", -default=>$abookfolder, -override=>1).$path_to_agent_string;
+      $temphtml = hidden(-name=>"abookfolder", -default=>$abookfolder, -override=>1)."<b>$path_to_agent_string</b>";
       $html =~ s/\@\@\@AGENTPATH\@\@\@/$temphtml/;
    }
 

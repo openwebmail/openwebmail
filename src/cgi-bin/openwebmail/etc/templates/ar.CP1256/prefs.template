@@ -137,7 +137,7 @@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SORTMENU@@@
 </td></tr>
-<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>Display mini search icon@@@MINISEARCHICON@@@:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USEMINISEARCHICONCHECKBOX@@@<br>
@@ -279,17 +279,17 @@
 @@@VIRUSCHECKSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Virus Check</B></td></tr>
-<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>Messages to be checked:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@VIRUSCHECKSOURCEMENU@@@
 </td></tr>
-<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>Maximum size of the checked messages:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@VIRUSCHECKMAXSIZEMENU@@@ KB
 </td></tr>
-<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>Minimum size of the body of checked messages:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@VIRUSCHECKMINBODYSIZEMENU@@@ KB
@@ -299,17 +299,17 @@
 @@@SPAMCHECKSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Spam Check</B></td></tr>
-<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>Messages to be checked:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SPAMCHECKSOURCEMENU@@@
 </td></tr>
-<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>Maximum size of the checked messages:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SPAMCHECKMAXSIZEMENU@@@ KB
 </td></tr>
-<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>Threshold to determine Spam:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SPAMCHECKTHRESHOLDMENU@@@
@@ -350,37 +350,37 @@
 @@@WEBADDRSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>AddressBook Options</B></td></tr>
-<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>Size for addressbook window:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 </td></tr>
-<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>Addressbook button position:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKBUTTONPOSITIONMENU@@@
 </td></tr>
-<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>Addressbook default filter:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKDEFAULTFILTER@@@
 </td></tr>
-<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>Addresses displayed per page:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKADDRSPERPAGE@@@
 </td></tr>
-<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>Display only one line per contact:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKADDRCOLLAPSE@@@
 </td></tr>
-<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>Default addressbook sort order:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKADDRSORTORDER@@@
 </td></tr>
-<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>Listview field order:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@ nowrap>
 @@@ABOOKLISTVIEWFIELDORDERMENU@@@

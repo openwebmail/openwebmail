@@ -2,7 +2,14 @@
 
 <table cellpadding="0" cellspacing="0" border="0" align="center" width="90%">
 <tr>
-  <td bgcolor=@@@TITLEBAR@@@><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>通讯录 连络人详细资料</b></font></td>
+  <td bgcolor=@@@TITLEBAR@@@>
+    <table cellpadding="0" cellspacing="0" border="0" width="100%">
+    <tr>
+      <td bgcolor=@@@TITLEBAR@@@><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>编辑个人资料</b></font></td>
+      <td bgcolor=@@@TITLEBAR@@@ align="right"><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>@@@ABOOKNAME@@@</b></td>
+    </tr>
+    </table>
+  </td>
 </tr>
 <tr>
   <td bgcolor=@@@MENUBAR@@@>@@@MENUBARLINKS@@@</td>
@@ -152,7 +159,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>增加联络人档案 - 尚有 @@@AVAILABLEATTSPACE@@@ 空间</b></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>增加相关档案到这份个人资料 - 尚有 @@@AVAILABLEATTSPACE@@@ 空间</b></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -163,11 +170,11 @@
     <tr>
       <td>
         <select name="UPLOAD.FILE.TYPE" class="mono">
-        <option value="PHOTO" selected>联络人照片</option>
+        <option value="PHOTO" selected>个人照片</option>
         <option value="SOUND">声音档</option>
         <option value="LOGO">公司识别标志</option>
         <option value="KEY">公开加密金钥</option>
-        <option value="AGENT">Agent vCard</option>
+        <option value="AGENT">相关连络人 vCard</option>
         </select>
       </td>
       <td width="5">&nbsp;</td>
@@ -290,9 +297,9 @@ function showGeo (formName, geoNumber, showThing) {
 
 function popupNotice (msgOption) {
    if (msgOption == 'agentmustsave') {
-      return(confirm('在观察或是建立 agent 资料时, 现有资料必须先存档, 确定继续?'));
+      return(confirm('在检视或是建立相关连络人资料前, 现有资料必须先存档.\n 确定继续?'));
    } else if (msgOption == 'cancelchanges') {
-      return(confirm('所有对这个 agent 的修改将会遗失, 继续?'));
+      return(confirm('所有对这位相关连络人的修改都将会作废, 确定?'));
    }
 }
 

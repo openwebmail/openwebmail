@@ -349,39 +349,39 @@
 
 @@@WEBADDRSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>AddressBook Options</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>通讯录设定</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Size for addressbook window:</B>
+<B>通讯录视窗大小:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
+宽 @@@ABOOKWIDTHMENU@@@ 高 @@@ABOOKHEIGHTMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Addressbook button position:</B>
+<B>编辑资料时按钮位置:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKBUTTONPOSITIONMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Addressbook default filter:</B>
+<B>预设过滤条件:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKDEFAULTFILTER@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Addresses displayed per page:</B>
+<B>每页显示几笔资料:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKADDRSPERPAGE@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Display only one line per contact:</B>
+<B>每笔资料各栏位最多显示一行:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKADDRCOLLAPSE@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Default addressbook sort order:</B>
+<B>预设排序方式:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKADDRSORTORDER@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Listview field order:</B>
+<B>列表时显示栏位:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@ nowrap>
 @@@ABOOKLISTVIEWFIELDORDERMENU@@@
 </td></tr>
