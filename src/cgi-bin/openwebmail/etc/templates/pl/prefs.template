@@ -120,9 +120,9 @@ Temat:
 
 @@@WEBMAILSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Messages Listing</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Listowanie wiadomo¶ci</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Controlbar position in messages list:</B>
+<B>Pozycja belki przy listowaniu wiadomo¶ci:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CTRLPOSITIONFOLDERVIEWMENU@@@
 </td></tr>
@@ -275,7 +275,7 @@ Szeroko¶æ @@@EDITCOLUMNSMENU@@@ Wysoko¶æ @@@EDITROWSMENU@@@
 @@@REPLYWITHORIGMSGMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Automatic CC:</B>
+<B>Automatyczne UDW (CC):</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@AUTOCCFIELD@@@
 </td></tr>
@@ -514,9 +514,9 @@ Szeroko¶æ @@@FILEEDITCOLUMNSMENU@@@ Wysoko¶æ @@@FILEEDITROWSMENU@@@
 @@@HIDEINTERNAL@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Categorized Folders list:</B>
+<B>Lista skategoryzowanych folderów:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@CATEGORIZEDFOLDERS@@@ &nbsp;( Category-Folder Separator @@@CATEGORIZEDFOLDERS_FS@@@ )
+@@@CATEGORIZEDFOLDERS@@@ &nbsp;(separator kategorii @@@CATEGORIZEDFOLDERS_FS@@@)
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Powiadomianie d¼wiêkowe o nowej poczcie:</B>

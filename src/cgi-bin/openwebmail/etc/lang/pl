@@ -5,9 +5,9 @@ package ow::pl;
 #    Micha³ Talecki, mik.AT.orka.ibz.pl
 #    Grzegorz Nosek, blackfire.AT.virtual.net.pl
 #    Andrzej Cuber, rea.AT.supermedia.pl
-#    Pawe³ Foremski, pjf.AT.gna.org
+#    Pawe³ Foremski, pjf.AT.asn.pl
 #
-# Last update: 23.12.2004 (Pawe³ Foremski)
+# Last update: 12.02.2005 (Pawe³ Foremski)
 
 %lang_folders =
    (
@@ -368,7 +368,7 @@ package ow::pl;
    emptyfolder=> 'Opró¿nij folder',
    emptytrash => 'Opró¿nij kosz',
    totrash    => 'Przenie¶ do kosza',
-   learnham   => 'ZG£O¦ HAM',
+   learnham   => 'Zg³o¶ ham',
    learnspam  => 'Zg³o¶ spam',
    forever    => 'Zawsze',
    delatlogout=> 'Usuñ przy wylogowaniu',
@@ -567,8 +567,8 @@ package ow::pl;
    email      => 'Email',
    note       => 'Notatka',
    abooks => 'Ksi±¿ki adresowe',
-   abook_personal => 'Personal addressbook',
-   abook_global => 'Global addressbook',
+   abook_personal => 'Osobista ksi±¿ka adresowa',
+   abook_global => 'Globalna ksi±¿ka adresowa',
    abook_converted => 'Skonwertowane',
    abook_group_member => 'Cz³onek',
    abook_group_allmembers => 'Wszyscy cz³onkowie',
@@ -684,12 +684,12 @@ package ow::pl;
    has_illegal_chars => 'ma niedozwolone znaki!',
    couldnt_readlock  => 'Nie mo¿na odczytaæ blokady',
    couldnt_writelock => 'Nie mo¿na zablokowaæ pliku',
-   couldnt_create    => 'Couldn\'t create',
-   couldnt_delete    => 'Couldn\'t delete',
+   couldnt_create    => 'Nie mo¿na utworzyæ',
+   couldnt_delete    => 'Nie mo¿na usun±æ',
    couldnt_open      => 'Nie mo¿na otworzyæ',
-   couldnt_seek      => 'Couldn\'t seek in',
-   couldnt_read      => 'Couldn\'t read',
-   couldnt_write     => 'Couldn\'t write',
+   couldnt_seek      => 'Nie mo¿na szukaæ w',
+   couldnt_read      => 'Nie mo¿na czytaæ',
+   couldnt_write     => 'Nie mo¿na pisaæ',
    couldnt_close     => 'Nie mo¿na zamkn±æ',
    couldnt_updatedb  => 'Nie mo¿na uaktualniæ indeksu bazy ',
    disallowed_pop3   => 'Niedozwolony serwer POP3',
@@ -724,8 +724,8 @@ package ow::pl;
    pwd_tooshort      => 'Has³o za krótkie (minimalna d³ugo¶æ @@@PASSWDMINLEN@@@)',
    pwd_toosimple     => 'Has³o za proste (wymagane litery i cyfry)',
    network_server_error => 'b³±d sieci',
-   sendmail_error    => 'Sorry, there was a problem sending your message.',
-   sendmail_chkdraft => 'Please check the message saved in draft folder, and try again.',
+   sendmail_error    => 'Przepraszamy, w czasie wysy³ania Twojej wiadomo¶ci pojawi³ siê problem.',
+   sendmail_chkdraft => 'Proszê sprawdziæ wiadomo¶æ zapisan± w folderze szkiców i spróbowaæ jeszcze raz.',
    at_char_not_allowed => 'Znak @ jest niedozwolony. Naci¶nij przycisk wstecz w przegl±darce i spróbuj ponownie.',
    badnum_in_days => 'nieprawid³owa liczba w polu kolejno¶ci dni',
    access_denied     => 'Dostêp zabroniony',
@@ -759,7 +759,7 @@ package ow::pl;
    abook_delete_book => 'Nie mo¿na usun±æ Ksi±¿ki Adresowej @@@ADDRESSBOOK@@@',
    abook_doesnt_exist => 'Ksi±¿ka adresowa @@@ADDRESSBOOK@@@ nie istnieje',
    abook_already_exists => 'Ksia¿ka adresowa @@@ADDRESSBOOK@@@ ju¿ istnieje. Proszê wybraæ inn± nazwê',
-   abook_name_too_long => 'Nazwa Ksi±¿ki adresowej, @@@ADDRESSBOOK@@@, jest za d³uga. Limit to @@@FOLDERNAME_MAXLEN@@@',
+   abook_name_too_long => 'Nazwa ksi±¿ki adresowej, @@@ADDRESSBOOK@@@, jest za d³uga. Limit to @@@FOLDERNAME_MAXLEN@@@',
    abook_cant_rename => 'Nie mo¿na zmieniæ nazwy Ksi±¿ki adresowej',
    abook_ext_notsupported => 'Typ za³adowanego pliku nie jest obs³ugiwany jako ',
    abook_toobig => 'Przepraszamy, to by przekroczy³o maksymalny rozmiar wszystkich Twoich ksi±¿ek adresowych. Proszê przej¶æ',

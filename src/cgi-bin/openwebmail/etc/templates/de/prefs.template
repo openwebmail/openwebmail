@@ -120,9 +120,9 @@ Betreff:
 
 @@@WEBMAILSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Messages Listing</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Nachrichtenliste</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Controlbar position in messages list:</B>
+<B>Position der Steuerleiste in der Nachrichtenliste:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CTRLPOSITIONFOLDERVIEWMENU@@@
 </td></tr>
@@ -275,7 +275,7 @@ Breite @@@EDITCOLUMNSMENU@@@ H&ouml;he @@@EDITROWSMENU@@@
 @@@REPLYWITHORIGMSGMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Automatic CC:</B>
+<B>Automatisches CC:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@AUTOCCFIELD@@@
 </td></tr>
@@ -514,9 +514,9 @@ Breite @@@FILEEDITCOLUMNSMENU@@@ H&ouml;he @@@FILEEDITROWSMENU@@@
 @@@HIDEINTERNAL@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Categorized Folders list:</B>
+<B>Kategorisierte Ordnerliste:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@CATEGORIZEDFOLDERS@@@ &nbsp;( Category-Folder Separator @@@CATEGORIZEDFOLDERS_FS@@@ )
+@@@CATEGORIZEDFOLDERS@@@ &nbsp;( Trennzeichen f&uuml;r Kategorie-Ordner @@@CATEGORIZEDFOLDERS_FS@@@ )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Akkustische Benachrichtigung:</B>

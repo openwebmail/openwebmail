@@ -49,7 +49,7 @@
 <script language="JavaScript">
 <!--
    function filldestname(name, escapedname) {
-      document.selform.destname.value =name;		// to be dispalyed
+      document.selform.destname.value =name;		// to be displayed
       document.selform.destname2.value =escapedname;	// to be copied to composeform in send.pl
       document.selform.okbutton.focus();
    }

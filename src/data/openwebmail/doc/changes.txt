@@ -1,3 +1,14 @@
+02/13/2005
+----------
+1. Deutsch language and template files translation minor update
+   (thanks to Martin Bronk, martin.AT.bronk.de)
+2. Polish language and template files translation minor update
+   (thanks to Pawel Foremski, pjf.AT.asn.pl)
+3. fix a bug that charset was not correctly converted when adding
+   emails in message to addresbook
+4. remove opensourcerules.net from mirror sites list
+
+
 02/12/2005
 ----------
 1. fix a bug that arbitary XSS code may be pluged in login page
@@ -380,7 +391,7 @@ ps: This is used to convert openwebmail lang/template and htmlarea files
    determine whether the mail filter should be put into background
    based on the message count in INBOX folder
 3. Polish language and template files translation update
-   (thanks to Pawel Foremski, pjf.AT.gna.org)
+   (thanks to Pawel Foremski, pjf.AT.asn.pl)
 
 
 12/23/2004
@@ -512,7 +523,7 @@ ps: This function requires the program 'lsof',
 3. fix a problem that shares/vfile.pl won't work without Text::Iconv.pm
    (reported by marvi.AT.menhir.biz, Marvi Benedet)
 4. Polish language and template files translation update
-   (thanks to Pawel Foremski, pjf.AT.gna.org)
+   (thanks to Pawel Foremski, pjf.AT.asn.pl)
 5. Italian language and template files translation update
    (thanks to Benedet Marvi, marvi.AT.menhir.biz)
 
@@ -523,7 +534,7 @@ ps: This function requires the program 'lsof',
    in openwebmail-tool.pl that
    (reported by Yang Yao-Strong, ysyang.AT.visionnext.com)
 2. Polish language and template files translation update
-   (thanks to Pawel Foremski, pjf.AT.gna.org)
+   (thanks to Pawel Foremski, pjf.AT.asn.pl)
 3. fix a bug that DEFAULT_ restriction in openwebmail.conf is always active
    even when its default_ counterpart has been overridden
    (reported by Yves MARTIN, ymartin.AT.mail.com)

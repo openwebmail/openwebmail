@@ -680,9 +680,9 @@ sub readmessage {
             }
 
             if ($is_writableabook_found) {
-               my ($firstname, @lastname) = split(/ /,$ename);
-               my $lastname = join(" ",@lastname);
-               $temphtml .= qq|&nbsp;|. iconlink("import.s.gif",  "$lang_text{'importadd'} $eaddr", qq|href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addreditform&amp;sessionid=$thissession&amp;sort=$sort&amp;page=$page&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;N.0.VALUE.GIVENNAME=|.ow::tool::escapeURL($firstname).qq|&amp;N.0.VALUE.FAMILYNAME=|.ow::tool::escapeURL($lastname).qq|&amp;FN.0.VALUE=|.ow::tool::escapeURL($ename).qq|&amp;EMAIL.0.VALUE=|.ow::tool::escapeURL($eaddr).qq|&amp;formchange=1" onclick="return confirm('$lang_text{importadd} $eaddr ?');"|) . qq|\n|;
+               my $fullname=(iconv($message{charset}, $prefs{charset}, $ename))[0];
+               my ($firstname, $lastname) = split(/\s+/, $fullname, 2);
+               $temphtml .= qq|&nbsp;|. iconlink("import.s.gif",  "$lang_text{'importadd'} $eaddr", qq|href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addreditform&amp;sessionid=$thissession&amp;sort=$sort&amp;page=$page&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;N.0.VALUE.GIVENNAME=|.ow::tool::escapeURL($firstname).qq|&amp;N.0.VALUE.FAMILYNAME=|.ow::tool::escapeURL($lastname).qq|&amp;FN.0.VALUE=|.ow::tool::escapeURL($fullname).qq|&amp;EMAIL.0.VALUE=|.ow::tool::escapeURL($eaddr).qq|&amp;formchange=1" onclick="return confirm('$lang_text{importadd} $eaddr ?');"|) . qq|\n|;
             } else {
                $temphtml .= qq|&nbsp;|. iconlink("import.s.gif",  "$lang_text{'importadd'} $eaddr", qq|href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrbookedit&amp;sessionid=$thissession&amp;sort=$sort&amp;page=$page&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid" onclick="return confirm('$lang_err{abook_all_readonly}');"|) . qq|\n|;
             }

@@ -47,7 +47,7 @@
 <table border="0" align="center" width="95%" cellpadding="0" cellspacing="0"><tr>
 <td width="15%" nowrap>&nbsp;@@@INFOCOUNT@@@</td>
 <td align=center nowrap>@@@LEFTPAGECONTROL@@@ @@@PAGELINKS@@@ @@@RIGHTPAGECONTROL@@@</td>
-<td width="15%" nowrap align="right">Speicheverbrauch: @@@INFOSIZE@@@&nbsp;</td>
+<td width="15%" nowrap align="right">Speicherverbrauch: @@@INFOSIZE@@@&nbsp;</td>
 </tr></table>
 
 <table border="0" align="center" width="95%" cellpadding="1" cellspacing="1">
@@ -75,7 +75,7 @@
 
 @@@UPLOADSTART@@@
 <table border="0" width="100%" cellpadding="1" cellspacing="1"><tr>
-<td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Upload</B> ( filename or URL )</td>
+<td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Hochladen</B> ( Dateiname oder URL )</td>
 </tr><tr>
 <td nowrap bgcolor=@@@MENUBAR@@@>@@@UPLOADFILEFIELD@@@</td>
 </tr></table>
