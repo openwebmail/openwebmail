@@ -1,0 +1,14 @@
+<BR><BR><BR><BR><BR><BR>
+<table border="0" align="center" width="40%" cellpadding="1" cellspacing="1">
+<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>Seja bem-vindo ao OPEN WEBMAIL!</B></font>
+</td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
+<BR>Bem-vindo ao Open WebMail!  Esta &eacute; a primeira vez
+que est&aacute; utilizando este servi&ccedil;o de
+correio via web. Para conhec&ecirc;-lo melhor, vamos configurar o seu perfil
+(Nome, encaminhamento, estilo, etc). Depois da configura&ccedil;&atilde;o esta
+mensagem n&atilde;o ser&aacute mais exibida. Por favor clique no bot&atilde;o
+continuar, para ir &agrave; p&aacute;gina de configura&ccedil;&atilde;o.
+@@@CONTINUEBUTTON@@@
+</td></tr></table>
