@@ -4,6 +4,6 @@
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>登录失败</B></FONT></TD></TR>
 <tr><td valign="middle" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>@@@ERRORMSG@@@，请回到登录画面
-<a href="@@@SCRIPTURL@@@">再试一次</a>.<BR><BR>
+<BR>@@@ERRORMSG@@@，请回到登录页面
+<a href="@@@SCRIPTURL@@@">再试一次</a>。<BR><BR>
 </td></tr></table>

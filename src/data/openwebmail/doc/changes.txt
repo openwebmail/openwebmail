@@ -1,9 +1,100 @@
+02/21/2002 (version 1.62)
+----------
+1. portuguese brazil template translation minor update
+   (thanks to ruisb, ruisb@ig.com.br)
+2. fix a bug that created opewebmail.log with wrong group
+   (reported by Thomas Chung, tchung@pasadena.oao.com)
+   
+
+02/20/2002
+----------
+1. add option allowed_clientdomain to openwebmail.conf
+2. fix bugs related to allowed_clientip and allowed_receiverdomain
+3. support per virtualdomain configuration
+
+
+02/19/2002
+----------
+1. portuguese brazil language translation minor update
+   (thanks to ruisb, ruisb@ig.com.br)
+2. finnish template file translation minor update
+   (thanks to Jouni Kivilahti, jouni.kivilahti@los.fi)
+3. add option disable_embcgi to openwebmail.conf and user preference.
+   This prevents the user email addresses being confirmed by spammer through
+   embeded CGIs inside html messages
+   (thanks to Frank@post12.tele.dk, frank@post12.tele.dk for his idea and code)
+4. no more need to modify the *.pl at install
+   (thanks to Frank@post12.tele.dk, frank@post12.tele.dk for his idea)
+5. clean the code of vacation.pl
+
+
+02/18/2002
+----------
+1. add 'print friendly' support in read message
+   (suggested by Alex Janis, alex@alexjanis.com)
+
+
+02/17/2002
+----------
+1. fix a bug in mailfilter.pl introduced by the patch at 02/13/2002.
+   The bug will cause messages at INBOX being droped silently.
+   Please DO UPGRADE if you use release of 02/13/2002 and 02/14/2002
+
+
+02/14/2002
+----------
+1. add option allowed_clientip and allowed_receiverdomain to openwebmail.conf
+   These 2 options could be very useful when used in the per user capability 
+   config file.
+2. add new iconset: Cool3D.Francais
+   (thanks to Cyril SABATIER, c.sabatier@bocquet.com)
+3. portuguese brazil language and trmplates translation update
+   (thanks to ruisb, ruisb@ig.com.br)
+
+
+02/13/2002
+----------
+1. new internal flag 'V' which means 'verified by mailfilter'
+2. minor change to virtualuser mapping
+   loginname@HTTP_HOST will be checked before loginname itself
+
+
+02/12/2002
+----------
+1. update internal flags into index db for sent messages
+2. auth_pop3.pl module
+
+
+02/11/2002
+----------
+1. enable big5 <-> GB automatic conversion only if convert program is 
+   available to avoid 'converter not available' error.
+
+
+02/10/2002
+----------
+1. rename spellcheck.pl to openwebmail-spell.pl
+2. fix the openwebmail-spell.pl to use dictionaries to check vocabularies
+   composed by non english letters.
+   (thanks to Volodymyr M. Lisivka, lvm@mystery.lviv.net for his patch)
+3. ukrainian language and template files translation
+   (thanks to Volodymyr M. Lisivka, lvm@mystery.lviv.net)
+4. finnish language and template files translation
+   (thanks to Jouni Kivilahti, jouni.kivilahti@los.fi)
+5. portuguese brazil language and trmplates translation update
+   (thanks to ruisb, ruisb@ig.com.br
+              Valdimir M Costa, vlad@univap.br)
+6. chinese GB language and templates translation update
+   (thanks to Wang Jun, wjun@mail.iap.ac.cn)
+
+
 02/07/2002
 ----------
 1. display 'login again' instead of 'continue' at logout page
    (suggested by /Frank, frank@post12.tele.dk)
 2. fix the bug that the bcc field will be always empty when loading a draft 
    to edit
+3. fix a bug in the vacation.pl introduced by the fix of 20020206
 
 
 02/06/2002
@@ -613,7 +704,7 @@ ps: The user .*.book file will be converted automatically when user logins.
 
 09/27/2001
 ----------
-1. fix a bug that dictionary other than english won't be used in spellcheck.pl
+1. fix a bug that dictionary other than english won't be used in openwebmail-spell.pl
    (thanks to helio@compuland.com.br for his patch)
 2. minor fix to increase compatibility with https
 3. rename imageset to iconset in codes, openwebmail.conf and templates
@@ -680,7 +771,7 @@ ps: The user .*.book file will be converted automatically when user logins.
 
 09/11/2001
 ----------
-1. remove the dependence on Lingua-Ispell module from spellcheck.pl
+1. remove the dependence on Lingua-Ispell module from openwebmail-spell.pl
    with the code from WBOSS 1.5a. 
    (http://www.dontpokebadgers.com/spellchecker/, 2001, Joshua Cantara)
    The spellcheck feature now works well on RedHat 7.x.

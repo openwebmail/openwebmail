@@ -78,6 +78,10 @@ Width @@@EDITCOLUMNSMENU@@@ Height @@@EDITROWSMENU@@@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEJS@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Disable embeded CGI inside message:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@DISABLEEMBCGI@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Confirm before message move/copy:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@CONFIRMMSGMOVECOPY@@@
@@ -86,7 +90,7 @@ Width @@@EDITCOLUMNSMENU@@@ Height @@@EDITROWSMENU@@@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@VIEWNEXTAFTERMSGMOVECOPY@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Reparagrpah message before reply:</B>
+<B>Reparagraph message before reply:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@REPARAGRAPHORIGMSG@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>

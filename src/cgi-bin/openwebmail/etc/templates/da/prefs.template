@@ -78,6 +78,10 @@ Bredde (i karakterer) @@@EDITCOLUMNSMENU@@@ Højde (i linier) @@@EDITROWSMENU@@@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEJS@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Disable embeded CGI inside message:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@DISABLEEMBCGI@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Bekræft inden meddelse flyttes/kopieres:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@CONFIRMMSGMOVECOPY@@@
@@ -148,12 +152,12 @@ Behold lokal kopi
 &nbsp;
 Subject:
 @@@AUTOREPLYSUBJECT@@@
-</td></tr><tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>
+</td></tr><tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@ class=msgbody>
 <B>Autosvar med denne tekst (max 500 tegn)</B><BR>
 @@@AUTOREPLYTEXT@@@
 </td></tr>
 @@@AUTOREPLYEND@@@
-<tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@ class=msgbody>
 <B>Signatur ved afsendelse af post/autosvar (max 500 tegn)</B><BR>
 @@@SIGAREA@@@
 </td></tr><tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>

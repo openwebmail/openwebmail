@@ -13,7 +13,7 @@ A: There are many possible answers...
 
       openwebmail.pl, openwebmail-main.pl, openwebmail-prefs.pl,
       openwebmail-read.pl, openwebmail-viewatt.pl, openwebmail-send.pl,
-      spellcheck.pl and checkmail.pl
+      openwebmail-spell.pl and checkmail.pl
 
       should be
       mode=4555
@@ -292,7 +292,7 @@ Q: Ispell has been correctly installed, but spellcheck still doesn't work?
 A: The spellcheck in old version of openwebmail doesn't work on RedHat 7.x,
    please upgrade your openwebmail to the latest version.
 
-Q: Why is spellcheck.pl a suid root program?
+Q: Why is openwebmail-spell.pl a suid root program?
 A: Because it needs to read the preference file, ~/mail/.openwebmailrc, 
    of different users to get their language and dictionary setting.
 
@@ -325,8 +325,10 @@ A: please check
 
 Q: I got 'Sorry, there was a problem sending your message' error?
 A: Please check if smtpserver option in openwebmail.conf points to valid
-   SMTP server, its default is localhost. If you set it to name of some SMTP 
-   server, please be sure the SMTP server allows mail relayed from your host.
+   SMTP server, its default is localhost. 
+   1. Please be sure the name 'localhost' is defined in your /etc/hosts
+   2. If you set it to name of some SMTP server, please be sure that SMTP 
+      server allows mails relayed from your host.
 
 Q: The autoreply function doesn't work?
 A: An incoming message won't be replied by vacation.pl if

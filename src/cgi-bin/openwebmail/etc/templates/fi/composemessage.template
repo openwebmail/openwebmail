@@ -11,7 +11,7 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@FROMMENU@@@
 &nbsp;&nbsp;
-<B>Priority:</B>
+<B>Kiireellisyys:</B>
 @@@PRIORITYMENU@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
@@ -44,7 +44,7 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@SUBJECTFIELD@@@
 &nbsp;
-<B>Confirm Reading</B>
+<B>Ilmoitus postin lukemisesta</B>
 @@@CONFIRMREADINGCHECKBOX@@@
 </td></tr>
 <tr><td colspan="2" bgcolor=@@@WINDOW_LIGHT@@@ class=msgbody>
@@ -126,11 +126,11 @@
       if (document.composeform.to.value == "" 
        && document.composeform.cc.value == "" 
        && document.composeform.bcc.value == "" ) {
-         alert("Please specify the receiver before sending.");
+         alert("Vastaanottajan sähköpostiosoite puuttuu.");
          return false;
       }
       if (document.composeform.subject.value == "" ) {
-         return(confirm("This message has no subject, do you still want to send it?"));
+         return(confirm("Tällä viestillä ei ole aihe- riviä, haluatko lähettää sen kuitenkin?"));
       }
       return true;
    }

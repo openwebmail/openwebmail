@@ -78,11 +78,15 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEJS@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>邮件搬移/复制前先行确认：</B>
+<B>Disable embeded CGI inside message:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@DISABLEEMBCGI@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>邮件移动/复制前先行确认：</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@CONFIRMMSGMOVECOPY@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>邮件搬移/复制後, 续读下一封：</B>
+<B>邮件移动/复制后, 续读下一封：</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@VIEWNEXTAFTERMSGMOVECOPY@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
@@ -107,7 +111,7 @@
 @@@AUTOPOP3END@@@
 @@@MOVEOLDSTART@@@
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>登出时将已读信件搬到存档箱：</B>
+<B>退出时将已读邮件移至存档箱：</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@MOVEOLDMSGFROMINBOX@@@
 </td></tr>

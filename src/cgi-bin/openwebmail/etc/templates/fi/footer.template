@@ -2,14 +2,13 @@
 <!--
    // alert before session end
    var remainingseconds=@@@REMAININGSECONDS@@@;
-   var msg="Dear @@@USEREMAIL@@@,<br><br>\n"+
-           "You have been idle for a long time. "+
-           "If no more action is taken, "+
-           "this session will be ended within 60 seconds.";
+   var msg="@@@USEREMAIL@@@,<br><br>\n"+
+	   "Postipalvelin suorittaa toiminnon aikakatkaisun"+
+	   "60 sekunnin kuluttua, mikäli et peru sitä.";
 
    function timeoutwarning () {
       var hWnd = window.open("","timeoutwarning","width=400,height=140,resizable=no,scrollbars=no");
-      hWnd.document.write('<html><head><title>Warning! @@@NAME@@@ Session Timeout</title></head><body>\n');
+      hWnd.document.write('<html><head><title>Varoitus! @@@NAME@@@ istunnon aikakatkaisu</title></head><body>\n');
       hWnd.document.write('<center><table width="90%" cellspacing="0" cellpadding="0" border="0"><tr><td><font size="-1" color="#dd0000"><b>\n');
       hWnd.document.write(msg);
       hWnd.document.write('</b></font></td></tr></table><br>\n');

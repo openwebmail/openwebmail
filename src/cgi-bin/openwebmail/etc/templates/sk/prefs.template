@@ -78,6 +78,10 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEJS@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Disable embeded CGI inside message:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@DISABLEEMBCGI@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Potvrdenie pred kopírovaním/presunom správy:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@CONFIRMMSGMOVECOPY@@@

@@ -261,7 +261,7 @@ sub update_headerdb {
                $_message_id="<$_message_id>";
             }
 
-            # flags flag used by openwebmail internally
+            # flags used by openwebmail internally
             $_status .= "T" if ($namedatt_count>0);
             $_status .= "B" if ($zhtype eq 'big5');
             $_status .= "G" if ($zhtype eq 'gb');
@@ -2112,8 +2112,9 @@ sub search_info_messages_for_keyword {
 #################### END SEARCH_MESSAGES_FOR_KEYWORD ######################
 
 ######################## HTML related ##############################
-# it is suggest calling these following routine in the following order:
-# html4base, html4link, html4js, html4attachment, html4mailto, html2table
+# it is suggested calling these following routine in the following order:
+# html4nobase, html4link, html4disablejs, html4disableembcgi, 
+# html4attachment, html4mailto, html2table
 
 # since this routine deals with base directive, 
 # it must be called first before other html...routines when converting html
@@ -2127,23 +2128,13 @@ sub html4nobase {
 
    $html =~ s#\<base\s+([^\<\>]*?)\>##gi;
    if ( ($urlbase ne "") && ($urlbase !~ /^file:/) ) {
-      $html =~ s#(\<a\s+href=\s*"?)#$1$urlbase#gi;
-      $html =~ s#(src\s*=\s*"?)#$1$urlbase#gi;
-      $html =~ s#(background\s*=\s*"?)#$1$urlbase#gi;
-
-      # restore links that should be chnaged by base directive
-      $html =~ s#\Q$urlbase\E(http://)#$1#gi;
-      $html =~ s#\Q$urlbase\E(https://)#$1#gi;
-      $html =~ s#\Q$urlbase\E(ftp://)#$1#gi;
-      $html =~ s#\Q$urlbase\E(cid:)#$1#gi;
-      $html =~ s#\Q$urlbase\E(mailto:)#$1#gi;
+      $html =~ s#(\<a\s+href|background|src|method|action)(=\s*"?)#$1$2$urlbase#gi;
+      # recover links that should not be changed by base directive
+      $html =~ s#\Q$urlbase\E(http://|https://|ftp://|cid:|mailto:)#$1#gi;
    }
-
    return($html);
 }
 
-# this routine disables the javascript in a html page
-# to avoid user being hijacked by some eval programs
 my @jsevents=('onAbort', 'onBlur', 'onChange', 'onClick', 'onDblClick', 
               'onDragDrop', 'onError', 'onFocus', 'onKeyDown', 'onKeyPress', 
               'onKeyUp', 'onLoad', 'onMouseDown', 'onMouseMove', 'onMouseOut',
@@ -2171,6 +2162,8 @@ sub _link_target_blank {
    return($link);
 }
 
+# this routine disables the javascript in a html message
+# to avoid user being hijacked by some eval programs
 sub html4disablejs {
    my $html=$_[0];
    my $event;
@@ -2185,6 +2178,25 @@ sub html4disablejs {
    $html=~s/<([^\<\>]*?)javascript:([^\<\>]*?)>/<$1disable_javascript:$2>/imsg;
    
    return($html);
+}
+
+# this routine disables the embeded CGI in a html message
+# to avoid user email addresses being confirmed by spammer through embeded CGIs
+sub html4disableembcgi {
+   my $html=$_[0];
+   $html=~s!(src|background)\s*=\s*("?https?://[\w\.\-]+?/?[^\s<>]*[\w/])([\b|\n| ]*)!_clean_embcgi($1,$2,$3)!egis;
+   return($html);
+}
+
+sub _clean_embcgi {
+   my ($type, $url, $end)=@_;
+
+   if ($url=~/\?/ && $url !~ /\Q$ENV{'HTTP_HOST'}\E/i) { # non local CGI found
+      $url=~s/["']//g;
+      return("alt='embeded CGI removed ($url)'".$end);
+   } else {
+      return("$type=$url".$end);
+   }
 }
 
 # this routine is used to resolve crossreference inside attachments
@@ -2284,18 +2296,22 @@ sub html2text {
 sub text2html {
    my $t=$_[0];
 
-   $t=~s/&/&amp;/g;
-   $t=~s/\"/&quot;/g;
-   $t=~s/</&lt;/g;
-   $t=~s/>/&gt;/g;
-   $t=~s/\n/<BR>\n/g;
+   $t=~s/&/ &amp;/g;
+   $t=~s/\"/ &quot;/g;
+   $t=~s/</ &lt;/g;
+   $t=~s/>/ &gt;/g;
+
    $t=~s/ {2}/ &nbsp;/g;
    $t=~s/\t/ &nbsp;&nbsp;&nbsp;&nbsp;/g;
-         
+   $t=~s/\n/<BR>\n/g;
+
    foreach (qw(http https ftp nntp news gopher telnet)) {
-      $t=~s!($_://[\w\.\-]+?/?[^\s<>]*[\w/])([\b|\n| ]*)!<a href="$1" target="_blank">$1</A>$2!gs;
+      $t=~s!($_://[\w\d\-\.]+?/?[^\s<>]*[\w/])([\b|\n| ]*)!<a href="$1" target="_blank">$1</A>$2!gs;
    }
-   $t=~s!([\b|\n| ]+)(www\.[\w\-\.]+\.[\w\-]{2,3})([\b|\n| ]*)!$1<a href="http://$2" target="_blank">$2</a>$3!gs;
+   $t=~s!([\b|\n| ]+)(www\.[\w\d\-\.]+\.[\w\d\-]{2,3})([\b|\n| ]*)!$1<a href="http://$2" target="_blank">$2</a>$3!gs;
+
+   # remove the blank inserted just now
+   $t=~s/ (&amp;|&quot|&lt;|&gt;)/$1/g;
 
    return($t);
 }

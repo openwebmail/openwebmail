@@ -7,6 +7,19 @@
 # and is copyrighted by 2001, Joshua Cantara
 #
 
+my $SCRIPT_DIR="";
+if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-]+\.pl! ) { $SCRIPT_DIR=$1; }
+if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!"; exit 0; }
+
+# This is the table of valid letters for various dictionaries.
+# If your dictionary checks vocabularies composed by characters other 
+# than english letters, you have to define new entry in below hash
+my %dictionary_letters =
+   (
+   english => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
+   ukrainian => 'ÊÃÕËÅÎÇÛÝÚÈ§Æ¦×ÁÐÒÏÌÄÖ¤­ÑÞÓÍÉÔØÂÀ\'êãõëåîçûýúè·æ¶÷áðòïìäö´½ñþóíéôøâà',
+   );
+
 use strict;
 no strict 'vars';
 use IPC::Open3;
@@ -15,20 +28,20 @@ use CGI::Carp qw(fatalsToBrowser);
 CGI::nph();   # Treat script as a non-parsed-header script
 
 $ENV{PATH} = ""; # no PATH should be needed
-$ENV{BASH_ENV} = ""; # no startup sciprt for bash
+$ENV{BASH_ENV} = ""; # no startup script for bash
 umask(0007); # make sure the openwebmail group can write
 
-push (@INC, '/usr/local/www/cgi-bin/openwebmail', ".");
+push (@INC, $SCRIPT_DIR, ".");
 require "openwebmail-shared.pl";
 require "filelock.pl";
 
 local %config;
-readconf(\%config, "/usr/local/www/cgi-bin/openwebmail/etc/openwebmail.conf");
+readconf(\%config, "$SCRIPT_DIR/etc/openwebmail.conf");
 require $config{'auth_module'} or
    openwebmailerror("Can't open authentication module $config{'auth_module'}");
 
 local $thissession;
-local ($virtualuser, $user, $userrealname, $uuid, $ugid, $mailgid, $homedir);
+local ($virtualuser, $user, $userrealname, $uuid, $ugid, $homedir);
 
 local %prefs;
 local %style;
@@ -36,13 +49,19 @@ local ($lang_charset, %lang_folders, %lang_sortlabels, %lang_text, %lang_err);
 
 local $folderdir;
 
-$mailgid=getgrnam('mail');
-
 if ( defined(param("sessionid")) ) {
    $thissession = param("sessionid");
 
    my $loginname = $thissession || '';
    $loginname =~ s/\-session\-0.*$//; # Grab loginname from sessionid
+
+   my $siteconf;
+   if ($loginname=~/\@(.+)$/) {
+       $siteconf="$config{'ow_etcdir'}/sites.conf/$1";
+   } else {
+       $siteconf="$config{'ow_etcdir'}/sites.conf/$ENV{'HTTP_HOST'}";
+   }
+   readconf(\%config, "$siteconf") if ( -f "$siteconf"); 
 
    ($virtualuser, $user, $userrealname, $uuid, $ugid, $homedir)=get_virtualuser_user_userinfo($loginname);
    if ($user eq "") {
@@ -54,13 +73,11 @@ if ( defined(param("sessionid")) ) {
    }
 
    if ( $config{'use_homedirspools'} || $config{'use_homedirfolders'} ) {
+      my $mailgid=getgrnam('mail');
       set_euid_egid_umask($uuid, $mailgid, 0077);	
-   } else {
-      set_euid_egid_umask($>, $mailgid, 0077);	
-   }
-   # egid must be mail since this is a mail program...
-   if ( $) != $mailgid) { 
-      openwebmailerror("Set effective gid to mail($mailgid) failed!");
+      if ( $) != $mailgid) {	# egid must be mail since this is a mail program...
+         openwebmailerror("Set effective gid to mail($mailgid) failed!");
+      }
    }
 
    if ( $config{'use_homedirfolders'} ) {
@@ -102,6 +119,7 @@ my $form = param('form');
 my $field = param('field');
 my $dictionary = param('dictionary') || $prefs{'dictionary'};
 ($dictionary =~ /^([\w\d\._]+)$/) && ($dictionary = $1);
+my $dicletters = $dictionary_letters{$dictionary} || $dictionary_letters{'english'};
 
 if (defined(param('string'))) {
    my $pid = open3(\*spellWRITE, \*spellREAD, \*spellERROR, "$config{'spellcheck'} -a -S -d $dictionary");
@@ -157,7 +175,7 @@ sub docheck {
    # since $wordframe may changed in words2html()
    $escapedwordframe=escapeURL($wordframe);	
 
-   $temphtml = startform(-action=>"$config{'ow_cgiurl'}/spellcheck.pl",
+   $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-spell.pl",
                          -name=>'spellcheck') .
                hidden(-name=>'sessionid',
                       -default=>$thissession,
@@ -295,7 +313,7 @@ sub text2words {
    @words=();
    $wordcount=0;
    $wordframe=$text;
-   $wordframe=~s/([A-Za-z][A-Za-z\-]*[A-Za-z])|(~~[A-Za-z][A-Za-z\-]*[A-Za-z])/_word2label($1)/ge;
+   $wordframe=~s/([$dicletters][$dicletters\-]*[$dicletters])|(~~[$dicletters][$dicletters\-]*[$dicletters])/_word2label($1)/ge;
    return $wordcount;
 }   
 
@@ -317,7 +335,7 @@ sub cgiparam2words {
 sub words2text {
    my $text=$wordframe;
    $text=~s/%%WORD(\d+)%%/$words[$1]/g;
-   $text=~s/~~([A-Za-z]*)/$1/g;		# covert manualfix to origword
+   $text=~s/~~([$dicletters]*)/$1/g;		# covert manualfix to origword
    return($text);
 }
 

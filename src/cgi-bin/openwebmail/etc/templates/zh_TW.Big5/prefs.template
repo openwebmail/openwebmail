@@ -78,6 +78,10 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEJS@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>關閉郵件內的 Embeded CGI：</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@DISABLEEMBCGI@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>信件搬移/複製前先行確認：</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@CONFIRMMSGMOVECOPY@@@

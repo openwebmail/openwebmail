@@ -12,7 +12,7 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@FROMEMAILMENU@@@ @@@EDITFROMSBUTTON@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Enchaminhar para:</B>
+<B>Encaminhar para:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@REPLYTOFIELD@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
@@ -78,6 +78,10 @@ Colunas @@@EDITCOLUMNSMENU@@@ Linhas @@@EDITROWSMENU@@@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEJS@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Desativar CGI embutido em mensagens:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@DISABLEEMBCGI@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Confirmar antes de mover/copiar uma mensagem:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@CONFIRMMSGMOVECOPY@@@
@@ -107,7 +111,7 @@ Colunas @@@EDITCOLUMNSMENU@@@ Linhas @@@EDITROWSMENU@@@
 @@@AUTOPOP3END@@@
 @@@MOVEOLDSTART@@@
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Mover mensagens antigas para GUARDADES ao sair:</B>
+<B>Mover mensagens antigas para GUARDADAS ao sair:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@MOVEOLDMSGFROMINBOX@@@
 </td></tr>

@@ -1,6 +1,6 @@
---- openwebmail.conf.orig	Thu Jan 31 15:43:53 2002
-+++ openwebmail.conf	Thu Jan 31 15:43:30 2002
-@@ -292,7 +292,7 @@
+--- openwebmail.conf.orig	Wed Feb 20 11:30:06 2002
++++ openwebmail.conf	Wed Feb 20 11:29:44 2002
+@@ -342,7 +342,7 @@
  # may share the same mailspool, or for some administrative reason be
  # undesirable.
  #
@@ -9,7 +9,7 @@
  
  #
  # autopop3_at_refresh : If user enables autopop3 in user preference,
-@@ -406,7 +406,7 @@
+@@ -457,7 +457,7 @@
  # zh_CN.GB2312 => Chinese ( Simplified )
  # zh_TW.Big5   => Chinese ( Traditional )
  #
@@ -18,7 +18,7 @@
  
  #
  # default_bgurl : the default background image used for new user
-@@ -597,7 +597,5 @@
+@@ -656,7 +656,5 @@
  #
  <default_signature>
  --

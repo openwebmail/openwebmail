@@ -27,6 +27,7 @@
                  'ru'           => 'Russian',
                  'sk'           => 'Slovak',
                  'sv'           => 'Swedish',			# Svenska
+                 'uk'           => 'Ukrainian',
                  'zh_CN.GB2312' => 'Chinese ( Simplified )',
                  'zh_TW.Big5'   => 'Chinese ( Traditional )'
                  );
@@ -86,7 +87,8 @@ sub readconf {
                   'default_moveoldmsgfrominbox', 'forced_moveoldmsgfrominbox',
                   'default_hideinternal', 'symboliclink_mbox',
                   'default_filter_fakedsmtp', 'default_filter_fakedexecontenttype',
-                  'default_disablejs', 'default_newmailsound', 
+                  'default_disablejs', 'default_disableembcgi', 
+                  'default_newmailsound', 
                   'default_usefixedfont', 'default_usesmileicon') {
       if (${$r_confighash}{$key} =~ /yes/i || ${$r_confighash}{$key} == 1) {
          ${$r_confighash}{$key}=1;
@@ -106,7 +108,9 @@ sub readconf {
    }
 
    # processing list
-   foreach $key ('domainnames', 'spellcheck_dictionaries', 'disallowed_pop3servers') {
+   foreach $key ('domainnames', 'spellcheck_dictionaries', 
+		 'allowed_clientip', 'allowed_clientdomain', 
+                 'allowed_receiverdomain', 'disallowed_pop3servers') {
       if (! defined(@{${$r_confighash}{$key}}) ) { # conv str to list
          my @list=split(/\s*,\s*/, ${$r_confighash}{$key});
          ${$r_confighash}{$key}=\@list;
@@ -264,54 +268,44 @@ sub get_virtualuser_user_userinfo {
    my $default_realname=$loginname; 
    $default_realname=~s/\@.*^//;
 
-   # loginname is a real user and not mappped by any virtualuser
-   $virtualuser=get_virtualuser_by_user($loginname, "$config{'ow_etcdir'}/virtusertable.rev");
-   if ($virtualuser eq "") {    # loginname is a real userid (uuu)
-      ($realname, $uid, $gid, $homedir)=get_userinfo($loginname);
-      if ($uid ne "") {
-         return("", $loginname, $realname||$default_realname, $uid, $gid, $homedir);
-      }
-   }
-
-   # loginname@HTTP_HOST is a virtualuser (uuu)
-   if ($loginname !~ /\@/) {
-      my $domain=$ENV{'HTTP_HOST'};
-      $user=get_user_by_virtualuser($loginname.'@'.$domain, "$config{'ow_etcdir'}/virtusertable");
-      if ($user eq "" && $domain=~s/^mail\.//) {
-         $user=get_user_by_virtualuser($loginname.'@'.$domain, "$config{'ow_etcdir'}/virtusertable");
-      }
-      if ($user ne "") {
-         ($realname, $uid, $gid, $homedir)=get_userinfo($user);
-         if ($uid ne "") {
-            return($loginname.'@'.$domain, $user, $realname||$default_realname, $uid, $gid, $homedir);
-         }
-      }
-   }
-
-   # loginname is a virtualuser (uuu or uuu@hhh)
-   $user=get_user_by_virtualuser($loginname, "$config{'ow_etcdir'}/virtusertable");
-   if ($user ne "") {
-      ($realname, $uid, $gid, $homedir)=get_userinfo($user);
-      if ($uid ne "") {
-         return($loginname, $user, $realname||$default_realname, $uid, $gid, $homedir);
-      }
-   }
-
-   # loginname is the username part of a virtualuser (uuu)
-   $virtualuser=get_virtualuser_by_shortname($loginname, "$config{'ow_etcdir'}/virtusertable.short");
-   # and this username appears only in this virtualuser
-   if ($virtualuser ne "" && $virtualuser !~ /,/) {	
+   if ($loginname=~/^(.*)\@(.*)$/) {
+      my ($name, $domain)=($1, $2);
+      $virtualuser=$name.'@'.$domain;
       $user=get_user_by_virtualuser($virtualuser, "$config{'ow_etcdir'}/virtusertable");
-      if ($user ne "") {
-         ($realname, $uid, $gid, $homedir)=get_userinfo($user);
-         if ($uid ne "") {
-            return($virtualuser, $user, $realname||$default_realname, $uid, $gid, $homedir);
+      if ($user eq "") {
+         if ($domain=~s/^mail\.//) {
+            $virtualuser=$name.'@'.$domain;
+         } else {
+            $virtualuser=$name.'@mail.'.$domain;
          }
+         $user=get_user_by_virtualuser($virtualuser, "$config{'ow_etcdir'}/virtusertable");
+      }
+   } else {
+      $virtualuser=$loginname.'@'.$ENV{'HTTP_HOST'};
+      $user=get_user_by_virtualuser($virtualuser, "$config{'ow_etcdir'}/virtusertable");
+      if ($user eq "" && $virtualuser=~s/\@mail\./\@/) {
+         $user=get_user_by_virtualuser($virtualuser, "$config{'ow_etcdir'}/virtusertable");
+      }
+      if ($user eq "") {
+         $virtualuser=$loginname;
+         $user=get_user_by_virtualuser($virtualuser, "$config{'ow_etcdir'}/virtusertable");
       }
    }
 
-   # user not found
-   return("", "", "", "", "", "");
+   if ($user eq "") {
+      $user=$loginname;
+      $virtualuser=get_virtualuser_by_user($loginname, "$config{'ow_etcdir'}/virtusertable.rev");
+      if ($virtualuser ne "") {	# user not used if virtualuser mapping exist
+         return("", "", "", "", "", "");
+      }
+   }
+
+   ($realname, $uid, $gid, $homedir)=get_userinfo($user);
+   if ($uid ne "") {
+      return($virtualuser, $user, $realname||$default_realname, $uid, $gid, $homedir);
+   } else {
+      return("", "", "", "", "", "");
+   }
 }
 ##################### END VIRTUALUSER related ################
 
@@ -422,7 +416,7 @@ sub readprefs {
                   'sendreceipt', 'moveoldmsgfrominbox',
                   'filter_repeatlimit', 'filter_fakedsmtp', 
                   'filter_fakedexecontenttype',
-                  'disablejs', 'hideinternal', 'newmailsound', 
+                  'disablejs', 'disableembcgi', 'hideinternal', 'newmailsound', 
                   'usefixedfont', 'usesmileicon', 'autopop3',
                   'trashreserveddays') {
       if ( !defined($prefshash{$key}) || $prefshash{$key} eq "" ) {
@@ -710,9 +704,8 @@ sub getmessage {
    close($folderhandle);
    filelock($folderfile, LOCK_UN);
 
-   return \%message if (${$r_messageblock} eq "" );
-
-   if (${$r_messageblock}!~/^From /) {	# db index inconsistance found
+   if (${$r_messageblock} eq "" ||	# msgid not found
+       ${$r_messageblock}!~/^From / ) {	# db index inconsistance
       filelock($folderfile, LOCK_SH|LOCK_NB) or
          openwebmailerror("$lang_err{'couldnt_locksh'} $folderfile!");
 
@@ -733,6 +726,8 @@ sub getmessage {
       filelock($folderfile, LOCK_UN);
       writelog("db error - $folderfile index inconsistence fixed");
       writehistory("db error - $folderfile index inconsistence fixed");
+
+      return \%message if (${$r_messageblock} eq "" );
    }
 
    my ($currentheader, $currentbody, $r_currentattachments, $currentfrom, $currentdate,
@@ -1143,6 +1138,8 @@ sub printfooter {
 
 ##################### OPENWEBMAILERROR ##########################
 sub openwebmailerror {
+   my $mailgid=getgrnam('mail');
+
    if (defined($ENV{'HTTP_HOST'})) {	# in CGI mode
       # load prefs if possible, or use default value
       my $background = $style{"background"}||"#FFFFFF";

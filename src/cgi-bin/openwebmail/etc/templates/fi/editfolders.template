@@ -9,11 +9,11 @@
 <tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Kansion nimi (@@@FOLDERNAME_MAXLEN@@@ merkkiä)</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>New</B></td>
+<B>Uusia</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Mesg</B></td>
+<B>Viestien lkm</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Size</B></td>
+<B>Koko</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Toiminto</B>
 </td></tr>
@@ -35,13 +35,13 @@
 
 <tr><td colspan="5">&nbsp;</td></tr>
 <tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Default folders</B></td>
+<B>Oletuskansiot</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>New</B></td>
+<B>Uusia</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Mesg</B></td>
+<B>Viestien lkm</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Size</B></td>
+<B>Koko</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 &nbsp;
 </td></tr>

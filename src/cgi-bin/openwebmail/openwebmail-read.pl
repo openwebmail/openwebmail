@@ -10,6 +10,10 @@
 # This program is distributed under GNU General Public License              #
 #############################################################################
 
+my $SCRIPT_DIR="";
+if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-]+\.pl! ) { $SCRIPT_DIR=$1; }
+if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!"; exit 0; }
+
 use strict;
 no strict 'vars';
 use Fcntl qw(:DEFAULT :flock);
@@ -18,10 +22,10 @@ use CGI::Carp qw(fatalsToBrowser);
 CGI::nph();   # Treat script as a non-parsed-header script
 
 $ENV{PATH} = ""; # no PATH should be needed
-$ENV{BASH_ENV} = ""; # no startup sciprt for bash
+$ENV{BASH_ENV} = ""; # no startup script for bash
 umask(0007); # make sure the openwebmail group can write
 
-push (@INC, '/usr/local/www/cgi-bin/openwebmail', ".");
+push (@INC, $SCRIPT_DIR, ".");
 require "openwebmail-shared.pl";
 require "mime.pl";
 require "filelock.pl";
@@ -29,12 +33,12 @@ require "maildb.pl";
 require "mailfilter.pl";
 
 local %config;
-readconf(\%config, "/usr/local/www/cgi-bin/openwebmail/etc/openwebmail.conf");
+readconf(\%config, "$SCRIPT_DIR/etc/openwebmail.conf");
 require $config{'auth_module'} or
    openwebmailerror("Can't open authentication module $config{'auth_module'}");
 
 local $thissession;
-local ($virtualuser, $user, $userrealname, $uuid, $ugid, $mailgid, $homedir);
+local ($virtualuser, $user, $userrealname, $uuid, $ugid, $homedir);
 
 local %prefs;
 local %style;
@@ -48,17 +52,9 @@ local ($searchtype, $keyword, $escapedkeyword);
 local $firstmessage;
 local $sort;
 
-$mailgid=getgrnam('mail');
-
 # setuid is required if mails is located in user's dir
-if ( $config{'use_homedirspools'} || $config{'use_homedirfolders'} ) {
-   if ( $> != 0 ) {
-      my $suidperl=$^X;
-      $suidperl=~s/perl/suidperl/;
-      openwebmailerror("<b>$0 must setuid to root!</b><br>".
-                       "<br>1. check if script is owned by root with mode 4555".
-                       "<br>2. use '#!$suidperl' instead of '#!$^X' in script");
-   }  
+if ( $>!=0 && ($config{'use_homedirspools'}||$config{'use_homedirfolders'}) ) {
+   print "Content-type: text/html\n\n'$0' must setuid to root"; exit 0;
 }
 
 if ( defined(param("sessionid")) ) {
@@ -66,6 +62,14 @@ if ( defined(param("sessionid")) ) {
 
    my $loginname = $thissession || '';
    $loginname =~ s/\-session\-0.*$//; # Grab loginname from sessionid
+
+   my $siteconf;
+   if ($loginname=~/\@(.+)$/) {
+       $siteconf="$config{'ow_etcdir'}/sites.conf/$1";
+   } else {
+       $siteconf="$config{'ow_etcdir'}/sites.conf/$ENV{'HTTP_HOST'}";
+   }
+   readconf(\%config, "$siteconf") if ( -f "$siteconf"); 
 
    ($virtualuser, $user, $userrealname, $uuid, $ugid, $homedir)=get_virtualuser_user_userinfo($loginname);
    if ($user eq "") {
@@ -77,13 +81,11 @@ if ( defined(param("sessionid")) ) {
    }
 
    if ( $config{'use_homedirspools'} || $config{'use_homedirfolders'} ) {
+      my $mailgid=getgrnam('mail');
       set_euid_egid_umask($uuid, $mailgid, 0077);	
-   } else {
-      set_euid_egid_umask($>, $mailgid, 0077);	
-   }
-   # egid must be mail since this is a mail program...
-   if ( $) != $mailgid) { 
-      openwebmailerror("Set effective gid to mail($mailgid) failed!");
+      if ( $) != $mailgid) {	# egid must be mail since this is a mail program...
+         openwebmailerror("Set effective gid to mail($mailgid) failed!");
+      }
    }
 
    if ( $config{'use_homedirfolders'} ) {
@@ -224,10 +226,16 @@ sub readmessage {
       my $send_url_with_id = "$config{'ow_cgiurl'}/openwebmail-send.pl?sessionid=$thissession&amp;firstmessage=$firstmessage".
                              "&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid";
 
+      my $printfriendly = param("printfriendly");
+      my $templatefile="readmessage.template";
+      if ($printfriendly eq 'yes') {
+         $templatefile="printmessage.template";
+      }
+
       my $html = '';
       my ($temphtml, $temphtml1, $temphtml2);
-      open (READMESSAGE, "$config{'ow_etcdir'}/templates/$prefs{'language'}/readmessage.template") or
-         openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/templates/$prefs{'language'}/readmessage.template!");
+      open (READMESSAGE, "$config{'ow_etcdir'}/templates/$prefs{'language'}/$templatefile") or
+         openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/templates/$prefs{'language'}/$templatefile!");
       while (<READMESSAGE>) {
          $html .= $_;
       }
@@ -277,6 +285,10 @@ sub readmessage {
                   }
                }
             }
+            if ($zhconvert eq "g2b" &&
+                ! -x (split(/\s+/, $config{'g2b_converter'}))[0] ) {
+               $zhconvert="";
+            }
          } elsif ($lang_charset eq "gb2312") {
             if ($message{contenttype}=~/charset="?big5"?/i) {
                $zhconvert="b2g";
@@ -287,15 +299,21 @@ sub readmessage {
                   }
                }
             }
+            if ($zhconvert eq "b2g" &&
+                ! -x (split(/\s+/, $config{'b2g_converter'}))[0] ) {
+               $zhconvert="";
+            }
          }
       }
       # convert between gb and big5
       if ( $zhconvert eq 'b2g' ) {
          $from= b2g($from);
+         $to= b2g($to);
          $subject= b2g($subject);
          $body= b2g($body);
       } elsif ( $zhconvert eq 'g2b' ) {
          $from= g2b($from);
+         $to= g2b($to);
          $subject= g2b($subject);
          $body= g2b($body);
       }
@@ -312,6 +330,7 @@ sub readmessage {
          $body = html4nobase($body); 
          $body = html4link($body);
          $body = html4disablejs($body) if ($prefs{'disablejs'}==1);
+         $body = html4disableembcgi($body) if ($prefs{'disableembcgi'}==1);
          $body = html4mailto($body, "$config{'ow_cgiurl'}/openwebmail-send.pl", "action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto");
          $body = html2table($body); 
       } else { 					     # body must be html or text
@@ -374,7 +393,8 @@ sub readmessage {
             $temphtml .= "<a href=\"$read_url_with_id&amp;action=readmessage&amp;headers=$headers&amp;attmode=$attmode&amp;zhconvert=g2b\"><img src=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/gb2big5.gif\" border=\"0\" alt=\"GB to Big5\"></a> ";
          }
       }
-
+      $temphtml .= "<a onclick=\"javascript:window.open('$read_url_with_id&amp;action=readmessage&amp;headers=$headers&amp;attmode=simple&amp;zhconvert=$zhconvert&amp;printfriendly=yes','PrintWindow', 'width=720,height=360,resizable=yes,menubar=yes,scrollbars=yes')\">".
+                   "<img src=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/print.gif\" border=\"0\" alt=\"$lang_text{'printfriendly'}\"></a> ";
       $temphtml .= "<a href=\"$main_url&amp;action=logout\"><IMG SRC=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/logout.gif\" border=\"0\" ALT=\"$lang_text{'logout'} $prefs{'email'}\"></a>";
    
       $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
@@ -498,16 +518,18 @@ sub readmessage {
 
          my ($ename, $eaddr)=email2nameaddr($message{from});
          $temphtml .= "<B>$lang_text{'from'}:</B> <a href='http://www.google.com/search?q=$eaddr' title='google $lang_text{'search'}...' target=_blank>$from</a> &nbsp;";
-         $temphtml .= "&nbsp;<a href=\"$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=addaddress&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid&amp;realname=".escapeURL($ename)."&amp;email=".escapeURL($eaddr)."\">".
-                      "<IMG SRC=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/import.s.gif\" align=\"absmiddle\" border=\"0\" ALT=\"$lang_text{'importadd'} $eaddr\" onclick=\"return confirm('$lang_text{importadd} $eaddr ?');\">".
-                      "</a>";
-         $temphtml .= "&nbsp;<a href=\"$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=addfilter&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid&amp;priority=20&amp;rules=from&amp;include=include&amp;text=$eaddr&amp;destination=mail-trash&amp;enable=1\">".
-                      "<IMG SRC=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/blockemail.gif\" align=\"absmiddle\" border=\"0\" ALT=\"$lang_text{'blockemail'} $eaddr\" onclick=\"return confirm('$lang_text{blockemail} $eaddr ?');\">".
-                      "</a>";
-         if ($message{smtprelay} !~ /^\s*$/) {
-            $temphtml .= "&nbsp; <a href=\"$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=addfilter&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid&amp;priority=20&amp;rules=smtprelay&amp;include=include&amp;text=$message{smtprelay}&amp;destination=mail-trash&amp;enable=1\">".
-                      "<IMG SRC=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/blockrelay.gif\" align=\"absmiddle\" border=\"0\" ALT=\"$lang_text{'blockrelay'} $message{smtprelay}\" onclick=\"return confirm('$lang_text{blockrelay} $message{smtprelay} ?');\">".
-                      "</a>";
+         if ($printfriendly ne "yes") {
+            $temphtml .= "&nbsp;<a href=\"$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=addaddress&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid&amp;realname=".escapeURL($ename)."&amp;email=".escapeURL($eaddr)."\">".
+                         "<IMG SRC=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/import.s.gif\" align=\"absmiddle\" border=\"0\" ALT=\"$lang_text{'importadd'} $eaddr\" onclick=\"return confirm('$lang_text{importadd} $eaddr ?');\">".
+                         "</a>";
+            $temphtml .= "&nbsp;<a href=\"$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=addfilter&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid&amp;priority=20&amp;rules=from&amp;include=include&amp;text=$eaddr&amp;destination=mail-trash&amp;enable=1\">".
+                         "<IMG SRC=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/blockemail.gif\" align=\"absmiddle\" border=\"0\" ALT=\"$lang_text{'blockemail'} $eaddr\" onclick=\"return confirm('$lang_text{blockemail} $eaddr ?');\">".
+                         "</a>";
+            if ($message{smtprelay} !~ /^\s*$/) {
+               $temphtml .= "&nbsp; <a href=\"$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=addfilter&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid&amp;priority=20&amp;rules=smtprelay&amp;include=include&amp;text=$message{smtprelay}&amp;destination=mail-trash&amp;enable=1\">".
+                         "<IMG SRC=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/blockrelay.gif\" align=\"absmiddle\" border=\"0\" ALT=\"$lang_text{'blockrelay'} $message{smtprelay}\" onclick=\"return confirm('$lang_text{blockrelay} $message{smtprelay} ?');\">".
+                         "</a>";
+            }
          }
 
          $temphtml .= "<BR>";
@@ -538,21 +560,23 @@ sub readmessage {
             $temphtml .= "<B>$lang_text{'subject'}:</B> $subject\n";
          }
 
-         # display import icon
-         if ($message{'priority'} eq 'urgent') {
-            $temphtml .= "&nbsp<IMG SRC=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/important.gif\" align=\"absmiddle\" border=\"0\">";
-         }     
-
-         # enable download the whole message
-         my $dlicon;
-         if ($message{'header'}=~/X\-Mailer:\s+Open WebMail/) {
-            $dlicon="download.s.ow.gif";
-         } else {
-            $dlicon="download.s.gif";
+         if ($printfriendly ne "yes") {
+            # display import icon
+            if ($message{'priority'} eq 'urgent') {
+               $temphtml .= "&nbsp<IMG SRC=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/important.gif\" align=\"absmiddle\" border=\"0\">";
+            }     
+            # enable download the whole message
+            my $dlicon;
+            if ($message{'header'}=~/X\-Mailer:\s+Open WebMail/) {
+               $dlicon="download.s.ow.gif";
+            } else {
+               $dlicon="download.s.gif";
+            }
+            $temphtml .= "&nbsp;<a href=\"$config{'ow_cgiurl'}/openwebmail-viewatt.pl/Unknown.msg?action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder&amp;attachment_nodeid=all\">".
+                         "<IMG SRC=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/$dlicon\" align=\"absmiddle\" border=\"0\" ALT=\"$lang_text{'download'} $subject.msg\">".
+                         "</a>\n";
          }
-         $temphtml .= "&nbsp;<a href=\"$config{'ow_cgiurl'}/openwebmail-viewatt.pl/Unknown.msg?action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder&amp;attachment_nodeid=all\">".
-                      "<IMG SRC=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/$dlicon\" align=\"absmiddle\" border=\"0\" ALT=\"$lang_text{'download'} $subject.msg\">".
-                      "</a>\n";
+
       }
 
       $html =~ s/\@\@\@HEADERS\@\@\@/$temphtml/g;
@@ -690,7 +714,11 @@ sub readmessage {
          }
       }
 
-      printfooter();
+      if ($printfriendly eq "yes") {
+         print qq|</body></html>\n|;
+      } else {
+         printfooter();
+      }
 
       # fork a child to do the status update and headerdb update
       # thus the result of readmessage can be returned as soon as possible
@@ -740,6 +768,7 @@ sub html_att2table {
    $temphtml = html4nobase($temphtml);
    $temphtml = html4link($temphtml);
    $temphtml = html4disablejs($temphtml) if ($prefs{'disablejs'}==1);
+   $temphtml = html4disableembcgi($temphtml) if ($prefs{'disableembcgi'}==1);
    $temphtml = html4attachments($temphtml, $r_attachments, "$config{'ow_cgiurl'}/openwebmail-viewatt.pl", "action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder");
    $temphtml = html4mailto($temphtml, "$config{'ow_cgiurl'}/openwebmail-send.pl", "action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto");
    $temphtml = html2table($temphtml);
@@ -802,6 +831,7 @@ sub message_att2table {
    if ($contenttype =~ m#^text/html#i) { # convert into html table
       $body = html4nobase($body); 
       $body = html4disablejs($body) if ($prefs{'disablejs'}==1);
+      $body = html4disableembcgi($body) if ($prefs{'disableembcgi'}==1);
       $body = html2table($body); 
    } else {	
       $body = text2html($body);
@@ -869,7 +899,7 @@ sub misc_att2table {
       $temphtml .= qq|<br>$lang_text{'description'}: ${$r_attachment}{description}|;
    }
    my $blank="";
-   if ($contenttpye=~/^text/ ||
+   if ($contenttype=~/^text/ ||
        ${$r_attachment}{filename}=~/\.(jpg|jpeg|gif|png|bmp)$/i) {
       $blank="target=_blank";
    }

@@ -20,7 +20,7 @@ Open WebMail has the following enhanced features:
 7.  virtual hosting and account alias
 8.  pam support
 9.  per user capability configuration
-10.  full content search
+10. full content search
 11. strong MIME message capability
 12. draft folder support
 13. spelling check support
@@ -111,7 +111,7 @@ then just
    b. change #!/usr/bin/perl to #!/usr/bin/suidperl in
       openwebmail.pl, openwebmail-main.pl, openwebmail-prefs.pl,
       openwebmail-read.pl, openwebmail-send.pl, openwebmail-viewatt.pl,
-      spellcheck.pl and checkmail.pl
+      openwebmail-spell.pl and checkmail.pl
 
 If you are using RedHat 6.2/CLE 0.9p1(or most Linux) with apache
 (by clarinet@totoro.cs.nthu.edu.tw)
@@ -122,23 +122,14 @@ If you are using RedHat 6.2/CLE 0.9p1(or most Linux) with apache
    rmdir data
 
 2. cd /home/httpd/cgi-bin/openwebmail
-   modify openwebmail.pl, openwebmail-main.pl, openwebmail-prefs.pl,
-          openwebmail-read.pl, openwebmail-send.pl, openwebmail-viewatt.pl,
-          spellcheck.pl and checkmail.pl
-   a. change all '/usr/local/www/cgi-bin/openwebmail'
-              to '/home/httpd/cgi-bin/openwebmail'
-      or make a symbolic link with 'ln -s /home/httpd /usr/local/www'
    modify auth_unix.pl
    a. set variable $unix_passwdfile to '/etc/shadow'
    b  set variable $unix_passwdmkdb to 'none'
 
 3. modify /home/httpd/cgi-bin/openwebmail/etc/openwebmail.conf
    a. set mailspooldir to '/var/spool/mail'
-   b. if /usr/local/www is not link to /home/httpd at 2.a
-         set ow_htmldir to '/home/httpd/html/openwebmail'
-         set ow_cgidir  to '/home/httpd/cgi-bin/openwebmail'
-      else 
-         set ow_htmldir to '/usr/local/www/html/openwebmail'
+   b. set ow_htmldir to '/home/httpd/html/openwebmail'
+      set ow_cgidir  to '/home/httpd/cgi-bin/openwebmail'
    c. set spellcheck to '/usr/bin/ispell'
    d. change default_signature for your need
    e. other changes you want
@@ -181,10 +172,9 @@ eg: /usr/local/apache/share, then
 3. cd /usr/local/apache/share/cgi-bin/openwebmail
    modify openwebmail.pl, openwebmail-main.pl, openwebmail-prefs.pl,
           openwebmail-read.pl, openwebmail-send.pl, openwebmail-viewatt.pl,
-          spellcheck.pl and checkmail.pl
-   a. change the #!/usr/bin/perl to the location where your perl is.
-   b. change all '/usr/local/www/cgi-bin/openwebmail'
-              to '/usr/local/apache/share/cgi-bin/openwebmail'
+          openwebmail-spell.pl and checkmail.pl
+   change the #!/usr/bin/perl to the location where your perl is.
+
    modify auth_unix.pl
    a. set variable $unix_passwdfile to '/etc/shadow'
    b  set variable $unix_passwdmkdb to 'none'
@@ -324,10 +314,30 @@ http://www.sendmail.org/virtual-hosting.html for more detail
 
 When a user logins Open WebMail with a loginname, 
 this loginname will be checked in the following order:
-1. Is this loginname@HTTP_HOST a virtualuser defined in virtusertable?
-2. Is this loginname a virtualuser defined in virtusertable?
-3. Is this loginname matched by the username part of a specific virtualuser?
-4. Is this loginname a real userid in system?
+
+if loginname is in the form of 'name@hostname' {
+   if hostname contains 'mail.domain' {
+      is name@mail.domain is a virtualuser defined in virtusertable
+      is name@domain is a virtuser defined in virtusertable
+   } else {
+      is name@hostname is a virtualuser defined in virtusertable
+      is name@mail.hostname is a virtuser defined in virtusertable
+   }
+
+} else { loginname is purename
+   grap the hostname in the url line
+   is loginname@hostname is a virtualuser defined in virtusertable
+   if hostname contains 'mail.domain' {
+      is loginname@domain is a virtualuser defined in virtusertable
+   }
+}
+
+if virtualuser mapping to any realuser {
+   checkpassword for the realuser
+} else {
+   checkpassword for the loginname
+}
+
 
 Here is an example of /etc/virtusertable
 
@@ -341,9 +351,9 @@ Assume the url of the webmail server is http://mail.company1.com/....
 
 The above virtusertable means:
 1. if a user logins as projectmanager, 
-   openwebmail checks  project@mail.company1.com
-                       project@company1.com
-                       project as virtualuser	---> pm
+   openwebmail checks  projectmanager@mail.company1.com
+                       projectmanager@company1.com
+                       projectmanager as virtualuser	---> pm
 
 2. if a user logins as johnson@company1.com 
    openwebmail checks  johnson@company1.com	---> john1
@@ -367,8 +377,7 @@ The above virtusertable means:
                        mary@company1.com
                        mary as virtualuser
                        mary as real user
-                       mary as username part of a specific virtualuser ---> mary3
-   
+                                                ---> user not found   
 
 AUTOREPLY SUPPORT
 -----------------
@@ -455,6 +464,21 @@ ps: An account may be created to maintain the global addressbook/filterbook,
     and readable by others
 
 
+PER VIRTUALDOMAIN CONFIGURATION
+-------------------------------
+IF you are running serveral virtualdomain on same server with openwebmail,
+you may want to have different settings for different virtualdomain.
+
+eg: To create configuration file for virtualdomain 'sr1.domain.com'
+
+1. cd cgi-bin/openwebmail/etc/sites.conf/
+2. cp ../openwebmail.conf sr1.domain.com
+3. edit options in file 'sr1.domain.com' for domain 'vr1.domain.com'
+
+ps: The openwebmail.conf will be loaded first and then virtualdomain specific
+    configuration file will be loaded
+
+
 PER USER CAPABILITY CONFIGURATION
 ---------------------------------
 While the user capability related options in openwebmail.conf are applied to 
@@ -469,7 +493,7 @@ eg: To creat the capability file for user 'guest':
 
 1. cd cgi-bin/openwebmail/etc/users.conf/
 2. cp SAMPLE guest
-3. edit options in file 'guest' for your need
+3. edit options in file 'guest' for user guest
 
 ps: only users that have different setting than others need the capability file
 
@@ -534,7 +558,7 @@ TEST
    ~/openwebmail-read.pl        - owner=root, group=mail, mode=4755
    ~/openwebmail-send.pl        - owner=root, group=mail, mode=4755
    ~/openwebmail-viewatt.pl     - owner=root, group=mail, mode=4755
-   ~/spellcheck.pl              - owner=root, group=mail, mode=4755
+   ~/openwebmail-spell.pl       - owner=root, group=mail, mode=4755
    ~/checkmail.pl               - owner=root, group=mail, mode=4755
    ~/vacation.pl                - owner=root, group=mail, mode=0755
    ~/etc                        - owner=root, group=mail, mode=755
@@ -566,7 +590,7 @@ Features that people may also be interested
 3. log analyzer
 
 
-01/30/2002
+02/20/2002
 
 openwebmail@turtle.ee.ncku.edu.tw
 

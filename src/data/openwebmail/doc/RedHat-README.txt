@@ -22,6 +22,7 @@ text of the GPL license. For copy of GPL license please see copyright.txt file.
 
 Changes: 
 
+- 02/20/2002 - Revision for 1.52.  Use of new openwebmail.conf file.
 - 10/29/2001 - Revision for 1.50.  Use of new openwebmail.conf file.
                Link to /usr/local/www directory instead of editing of all 
                configuration files.
@@ -104,37 +105,47 @@ openwebmail-1.xx.tgz file you have just downloaded.
 
    cd /home/httpd
    tar -zxvBpf openwebmail-1.xx.tgz
+   edit auth_unix.pl:
+   set $unix_passwdfile to /etc/shadow
+       $unix_passwdmkdb to none
+
+   cd cgi-bin/etc
+   edit openwebmail.conf:
+   set mailspool  to /var/spool/mail
+       ow_cgidir  to /home/httpd/cgi-bin
+       ow_htmldir to /home/httpd/data
+       spellcheck to /usr/bin/aspell
 
 (RedHat 7.x users) Go to /var/www directory and extract your 
 openwebmail-1.xx.tgz file you have just downloaded.  
 
    cd /var/www
    tar -zxvBpf openwebmail-1.xx.tgz
-       
-Link /usr/local/www directory to whatever your web root is.
+   edit auth_unix.pl:
+   set $unix_passwdfile to /etc/shadow
+       $unix_passwdmkdb to none
 
-For RedHat Linux 6.x it will be linked to /home/httpd:
-For RedHat Linux 7.x it will be linked to /var/www:
+   cd cgi-bin/etc
+   edit openwebmail.conf:
+   set mailspool  to /var/spool/mail
+       ow_cgidir  to /var/www/cgi-bin
+       ow_htmldir to /var/www/data
+       spellcheck to /usr/bin/aspell
 
-(Quick command help):
-
-RH 6.x:    ln -s /home/httpd/ /usr/local/www
-RH 7.x:    ln -s /var/www/ /usr/local/www
-
-
-
-Go to /usr/local/www/cgi-bin/openwebmail/etc directory and edit 
-openwebmail.conf file so that it matches your configuration.
-
-Bellow is the example of my openwebmail.conf file:
+Bellow is the example of my openwebmail.conf file on RedHat 7.x:
 
 --------------------------------------------------------------------- start --
 #
 # Open WebMail configuration file
 #
+# This is the global settings for the whole system and all users, if you want 
+# to set the options on per user basis, please refer to the example of user 
+# capability file in user.conf/SAMPLE
+#
+
 name			Open WebMail
-version			1.60
-releasedate		20020123
+version			1.62
+releasedate		20020220
 
 ##############################################################################
 # host depend configuration
@@ -152,10 +163,10 @@ domainnames		auto
 #
 # smtpserver : The SMTP server will be relayed by openwebmail for outgoing mail
 # If you are running smtp daemon(ex: sendmail) on this host, you can set
-# this to 'localhost', or you can set this to either a hostname.domain or ip address
-# of a remote server that will do relay for you
+# this to '127.0.0.1', or you can set this to either a hostname.domain or 
+# ip address of a remote server that will do relay for you
 #
-smtpserver		localhost
+smtpserver		127.0.0.1
 
 #
 # virtusertable : the location of sendmail virtusertable.
@@ -167,7 +178,7 @@ smtpserver		localhost
 # this loginname will be checked in the following order:
 # 1. Is this loginname a virtualuser defined in virtusertable?
 # 2. Is this loginname a real userid in system?
-# 3. Does this loginname match the username part of a specific virtualuser?
+# Please refer to readme.txt for more information
 #
 virtusertable		/etc/mail/virtusertable
 
@@ -178,11 +189,15 @@ virtusertable		/etc/mail/virtusertable
 # ------------------------------   --------------------------------
 # auth_unix.pl                     unix passwd
 # auth_pam.pl		           pam (pluggable authentication module)
+# auth_ldap.pl		           ldap server
+# auth_pop3.pl		           remote pop3 server
 # ------------------------------   --------------------------------
 #
-# ps: ONCE YOU HAVE DECIDED WHICH AUTH_MODULE TO USE,
-#     DON'T FORGET TO EDIT THE GLOBAL VARIABLE DEFINITION IN THE BEGINING
-#     OF THAT AUTH_MODULE!!!
+# IMPORTANT!!!
+#
+# You may get more information by reading the description in the beginning
+# of each auth module script. Once you have decided which module to use,
+# don't forget to edit the global variables defined in the module
 #
 auth_module		auth_unix.pl
 
@@ -242,9 +257,24 @@ timeoffset		-0600
 #
 # deliver_use_GMT : Set this to 'yes' if you mail deliver uses GMT time
 # in the delimiter line when writing new messages to mailspool.
-# ex: Qmail is know to use GMT time in mail delivery.
+# eg: Qmail is know to use GMT time in mail delivery.
 #
 deliver_use_GMT		no
+
+#
+# savedsuid_support: Does your system support 'saved set-user-ID' ?
+# On system with saved set-user-ID support, the effective uid of a process 
+# will be saved to 'saved set-user-ID' (structure prepared by OS) before euid 
+# is changed, thus the process can switch back to previous euid if required.
+#
+# If this option is set to 'no', openwebmail will tries to save euid 0 to ruid,
+# this give the same effect as 'saved set-user-ID' but is somewhat unsafe 
+# since child forked by openwebmail may have ruid 0
+#
+# Only set this to 'no' if you got 'authentication error' in changing passwd.
+# eg: perl 5.6.1 on FreeBSD 4.4 is found to need setting this to 'no'.
+#
+savedsuid_support	yes
 
 
 
@@ -254,7 +284,7 @@ deliver_use_GMT		no
 #
 # ow_cgidir : the directory for openwebmail cgi programs
 #
-ow_cgidir		/usr/local/www/cgi-bin/openwebmail
+ow_cgidir		/var/www/cgi-bin/openwebmail
 
 #
 # ow_cgiurl : the url for ow_cgidir
@@ -264,7 +294,7 @@ ow_cgiurl		/cgi-bin/openwebmail
 #
 # ow_htmldir : the directory for openwebmail webpage/image/sound files
 #
-ow_htmldir		/usr/local/www/data/openwebmail
+ow_htmldir		/var/www/data/openwebmail
 
 #
 # ow_htmlurl : the url for ow_htmldir
@@ -343,6 +373,10 @@ spellcheck		/usr/bin/aspell
 # spellcheck_dictionaries : The names of all dictionaries supported by your
 # spellcheck program.
 #
+# note: If your dictionary checks vocabularies composed by characters other 
+# than english letters, you have to define new entries in %dictionary_letters 
+# for the dictionary in openwebmail-spell.pl
+#
 spellcheck_dictionaries	english, american
 
 #
@@ -366,6 +400,43 @@ vacationpipe		%ow_cgidir%/vacation.pl -t60s
 #
 g2b_converter		%ow_cgidir%/hc -mode g2b -t %ow_cgidir%/hc.tab
 b2g_converter		%ow_cgidir%/hc -mode b2g -t %ow_cgidir%/hc.tab
+
+#
+# allowed_clientip : This limits the clients that can access the openwebmail
+# If this option is empty or 'ALL', any client can access the system.
+# If this option is 'NONE', no client can access the system.
+# If this option is a list of IP tokens seperated by comma, then only 
+# clients whose IP address matches these tokens from the beginning can 
+# access the openwebmail system
+#
+# Example:
+# allowed_clientip	140.116.72., 192.168.
+# 
+allowed_clientip	ALL
+
+#
+# allowed_clientdomain : This limits the clients access by their domainname
+# Only clients whos domainname matches the tokens from the tail can access
+# the openwebmail system
+#
+# Example:
+# allowed_clientdomain	ee.ncku.edu.tw, hosp.ncku.edu.tw
+# 
+# ps: A valid client has to pass both ip and domain check.
+#
+allowed_clientdomain	ALL
+
+#
+# allowed_receiverdomain : This limits the receiver the user can send mail to.
+# If this option is empty or 'ALL', the mail can be sent to any email address.
+# If this option is 'NONE', the mail can not be sent to any email address.
+# If this option is a list of email domain tokens seperated by comma, then
+# user can only send mail to email address which matches the tokens from tail
+#
+# Example:
+# allowed_receiverdomain	company.com, someone@company2.com
+#
+allowed_receiverdomain	ALL
 
 #
 # enable_rootlogin : Set this to 'yes' if you want to allow root login
@@ -519,6 +590,7 @@ attlimit		50
 # ru           => Russian
 # sk           => Slovak
 # sv           => Swedish		# Svenska
+# uk           => Ukrainian
 # zh_CN.GB2312 => Chinese ( Simplified )
 # zh_TW.Big5   => Chinese ( Traditional )
 #
@@ -590,6 +662,13 @@ default_newmailsound	yes
 default_hideinternal	yes
 
 #
+# default_usefixedfont : if this option is set to yes, openwebmail will 
+# display message text with fixed width font (courier) instead of proportional 
+# width font (Arial). This giver better effect when displaying text tables
+#
+default_usefixedfont	no
+
+#
 # default_usesmileicon : if this option is set to yes, all smile symbol :) in a
 # message will be replaced with icons.
 #
@@ -597,9 +676,17 @@ default_usesmileicon	yes
 
 #
 # default_disablejs : if set this option to 'yes', the java script in in html
-# message will be disabled
+# message will be disabled. This prevents user being hijacked to some web site
+# by eval javascript
 #
 default_disablejs	no
+
+#
+# default_disablejs : if set this option to 'yes', the embeded CGI in in html
+# message will be disabled. This prevents user email addresses being confirmed 
+# by spammer through the embeded CGIs.
+#
+default_disableembcgi	no
 
 #
 # default_confirmmsgmovecopy : display confirm window before message move/copy
@@ -689,7 +776,7 @@ default_trashreserveddays	7
 #
 # default_autoreplysubject : default subject for auto reply message
 #
-default_autoreplysubject	This is an autoreply...[Re: \$SUBJECT]
+default_autoreplysubject	This is an autoreply...[Re: $SUBJECT]
 
 #
 # defaultautoreplytext : default text for auto reply message
@@ -698,7 +785,7 @@ default_autoreplysubject	This is an autoreply...[Re: \$SUBJECT]
 Hello,
 
 I will not be reading my mail for a while.
-Your mail regarding '\$SUBJECT' will be read when I return.
+Your mail regarding '$SUBJECT' will be read when I return.
 </default_autoreplytext>
 
 #

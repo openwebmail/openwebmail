@@ -8,18 +8,21 @@
 # syntax: checkmail.pl [-q] [-p] [-i] [-a] [-f userlist] [user1 user2 ...]
 #
 
-use strict;
-no strict 'vars';
+my $SCRIPT_DIR="";
+if ( $0 =~ m!^(.*?)/[\w\d\-]+\.pl! ) { $SCRIPT_DIR=$1; }
+if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in script checkmail.pl!"; exit 0; }
 
 local $POP3_PROCESS_LIMIT=10;
 local $POP3_TIMEOUT=20;
 
+use strict;
+no strict 'vars';
 use Fcntl qw(:DEFAULT :flock);
 
 $ENV{PATH} = ""; # no PATH should be needed
-$ENV{BASH_ENV} = ""; # no startup sciprt for bash
+$ENV{BASH_ENV} = ""; # no startup script for bash
 
-push (@INC, '/usr/local/www/cgi-bin/openwebmail', ".");
+push (@INC, $SCRIPT_DIR, ".");
 require "openwebmail-shared.pl";
 require "mime.pl";
 require "filelock.pl";
@@ -28,7 +31,7 @@ require "mailfilter.pl";
 require "pop3mail.pl";
 
 local %config;
-readconf(\%config, "/usr/local/www/cgi-bin/openwebmail/etc/openwebmail.conf");
+readconf(\%config, "$SCRIPT_DIR/etc/openwebmail.conf");
 require $config{'auth_module'} or
    openwebmailerror("Can't open authentication module $config{'auth_module'}");
 
@@ -37,14 +40,12 @@ local $opt_verify=0;
 local $opt_quiet=0;
 local $pop3_process_count=0;
 
-local ($virtualuser, $user, $userrealname, $uuid, $ugid, $mailgid, $homedir);
+local ($virtualuser, $user, $userrealname, $uuid, $ugid, $homedir);
 local $folderdir;
 local %prefs;
 
 local @userlist;
 local %complete=();
-
-$mailgid=getgrnam('mail');
 
 ################################ main ##################################
 
@@ -111,9 +112,11 @@ foreach my $loginname (@userlist) {
             $user eq 'tty' || $user eq 'kmem' || $user eq 'uucp');
 
    if ( $config{'use_homedirspools'} || $config{'use_homedirfolders'} ) {
+      my $mailgid=getgrnam('mail');
       set_euid_egid_umask($uuid, $mailgid, 0077);	
-   } else {
-      set_euid_egid_umask($>, $mailgid, 0077);	
+      if ( $) != $mailgid) {	# egid must be mail since this is a mail program...
+         openwebmailerror("Set effective gid to mail($mailgid) failed!");
+      }
    }
 
    if ( $config{'use_homedirfolders'} ) {

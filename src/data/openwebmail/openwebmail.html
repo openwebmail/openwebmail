@@ -89,8 +89,8 @@
   <tr valign="top">
   <td nowrap><font color=#cc0000>Freshmeat&nbsp;</font></td>
   <td>
-    <a href="http://freshmeat.net/projects/openwebmail/">
-    http://freshmeat.net/projects/openwebmail/</a>
+    <a href="http://freshmeat.net/projects/openwebmail">
+    http://freshmeat.net/projects/openwebmail</a>
   </td>
   </tr>
 
@@ -310,7 +310,8 @@
       <td><A href="mailto:openwebmail@turtle.ee.ncku.edu.tw">openwebmail</A></td></tr>
   <tr><td>Finnish</td>
       <td>fi</td>
-      <td>incomplete</td></tr>
+      <td><A href="mailto:kivilahti@exdecfinland.org">Jouni Kivilahti</A>,
+          <A href="mailto:heljalaitinen@hotmail.com">Helja Laitinen</A></td></tr>
   <tr><td>French</td>
       <td>fr</td>
       <td><A href="mailto:c.sabatier@bocquet.com">Cyril Sabatier</A></td></tr>
@@ -358,6 +359,9 @@
   <tr><td>Swedish</td>
       <td>sv</td>
       <td><A href="mailto:tryfan@telia.com">Goran Jartin</A></td></tr>
+  <tr><td>Ukrainian</td>
+      <td>uk</td>
+      <td><A href="mailto:lvm@mystery.lviv.net">Volodymyr M. Lisivka</A></td></tr>
   </table>
   </p>
 </blockquote>
@@ -468,7 +472,9 @@
   </li>
   <li>
   Thanks to <A href="mailto:pengus@libero.it">Ivan Cerrato</A>,
-    who contributed the LDAP authentication module(auth_ldap.pl).
+    who contributed the LDAP authentication module(auth_ldap.pl) and script 
+    <a href="download/contrib/add_user.pl">add_user.pl</a> to add an user 
+    account on a LDAP server
   </li>
   <li>
   Thanks to <A href="mailto:jsb@ductape.net">Jordi S. Bunster</A>,
@@ -477,6 +483,17 @@
   <li>
   Thanks to <A href="mailto:kevlo@openbsd.org">Kevin Lo</A>,
     who made the <A href="http://www.openbsd.org/cgi-bin/cvsweb/ports/mail/openwebmail/">OpenBSD port</A> for openwebmail.
+  </li>
+  <li>
+  Thanks to <A href="mailto:lvm@mystery.lviv.ne">Volodymyr M. Lisivka</A>,
+    who patched the openwebmail-spell.pl to check vocabularies composed by characters 
+    other than english letters.
+  </li>
+  <li>
+  Thanks to <A href="mailto:frank@post12.tele.dk">Frank@post12.tele.dk</A>,
+    who provides the idea and code for disable_embded_CGI option.
+    He also suggested the use of $ENV{SCRIPT_FILENAME} so *.pl can find required 
+    modules automatically
   </li>
   </ul>
   </p>
@@ -539,7 +556,7 @@
     <font color=#000000>National Chung-Kung University</font></a>, 
     Tainan, Taiwan, R.O.C. </p>
 </blockquote>
-<p>01/28/2002 </p>
+<p>02/20/2002 </p>
 
 <br>
 <center>

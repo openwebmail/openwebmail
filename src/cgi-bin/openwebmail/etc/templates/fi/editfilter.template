@@ -1,32 +1,32 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td colspan="4" bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>Setting Mail Filter</b></font>
+<b>Postisuotimien asetukset</b></font>
 </td><td nowrap colspan="6" bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b> @@@FREESPACE@@@ KB Available</b></font>
+<b> @@@FREESPACE@@@ KB Vapaana</b></font>
 </td></tr><tr><td colspan="9" bgcolor=@@@MENUBAR@@@ align="left">
 @@@MENUBARLINKS@@@
 </td></tr><tr><td colspan="9">&nbsp;</td></tr>
 <tr>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Count</B>&nbsp;</td>
+<B>Määrä</B>&nbsp;</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Priority</B></td>
+<B>Prioriteetti</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Rules</B></td>
+<B>Säännöt</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Inc/Exc</B></td>
+<B>Sisällytä/Sulje</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>String</B> (click to edit)</td>
+<B>Merkkijono</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Action</B></td>
+<B>Toiminto</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Destination</B></td>
+<B>Kohdekansio</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Enable</B></td>
+<B>Käytössä?</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Action</B>
+<B>Toiminto</B>
 </td></tr>
 @@@STARTFILTERFORM@@@
 <tr>

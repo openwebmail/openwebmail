@@ -10,6 +10,10 @@
 # This program is distributed under GNU General Public License              #
 #############################################################################
 
+my $SCRIPT_DIR="";
+if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-]+\.pl! ) { $SCRIPT_DIR=$1; }
+if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!"; exit 0; }
+
 use strict;
 no strict 'vars';
 use Fcntl qw(:DEFAULT :flock);
@@ -18,10 +22,10 @@ use CGI::Carp qw(fatalsToBrowser);
 CGI::nph();   # Treat script as a non-parsed-header script
 
 $ENV{PATH} = ""; # no PATH should be needed
-$ENV{BASH_ENV} = ""; # no startup sciprt for bash
+$ENV{BASH_ENV} = ""; # no startup script for bash
 umask(0007); # make sure the openwebmail group can write
 
-push (@INC, '/usr/local/www/cgi-bin/openwebmail', ".");
+push (@INC, $SCRIPT_DIR, ".");
 require "openwebmail-shared.pl";
 require "mime.pl";
 require "filelock.pl";
@@ -30,12 +34,12 @@ require "pop3mail.pl";
 require "mailfilter.pl";
 
 local %config;
-readconf(\%config, "/usr/local/www/cgi-bin/openwebmail/etc/openwebmail.conf");
+readconf(\%config, "$SCRIPT_DIR/etc/openwebmail.conf");
 require $config{'auth_module'} or
    openwebmailerror("Can't open authentication module $config{'auth_module'}");
 
 local $thissession;
-local ($virtualuser, $user, $userrealname, $uuid, $ugid, $mailgid, $homedir);
+local ($virtualuser, $user, $userrealname, $uuid, $ugid, $homedir);
 
 local %prefs;
 local %style;
@@ -49,17 +53,9 @@ local ($searchtype, $keyword, $escapedkeyword);
 local $firstmessage;
 local $sort;
 
-$mailgid=getgrnam('mail');
-
 # setuid is required if mails is located in user's dir
-if ( $config{'use_homedirspools'} || $config{'use_homedirfolders'} ) {
-   if ( $> != 0 ) {
-      my $suidperl=$^X;
-      $suidperl=~s/perl/suidperl/;
-      openwebmailerror("<b>$0 must setuid to root!</b><br>".
-                       "<br>1. check if script is owned by root with mode 4555".
-                       "<br>2. use '#!$suidperl' instead of '#!$^X' in script");
-   }  
+if ( $>!=0 && ($config{'use_homedirspools'}||$config{'use_homedirfolders'}) ) {
+   print "Content-type: text/html\n\n'$0' must setuid to root"; exit 0;
 }
 
 if ( defined(param("sessionid")) ) {
@@ -67,6 +63,14 @@ if ( defined(param("sessionid")) ) {
 
    my $loginname = $thissession || '';
    $loginname =~ s/\-session\-0.*$//; # Grab loginname from sessionid
+
+   my $siteconf;
+   if ($loginname=~/\@(.+)$/) {
+       $siteconf="$config{'ow_etcdir'}/sites.conf/$1";
+   } else {
+       $siteconf="$config{'ow_etcdir'}/sites.conf/$ENV{'HTTP_HOST'}";
+   }
+   readconf(\%config, "$siteconf") if ( -f "$siteconf"); 
 
    ($virtualuser, $user, $userrealname, $uuid, $ugid, $homedir)=get_virtualuser_user_userinfo($loginname);
    if ($user eq "") {
@@ -78,13 +82,11 @@ if ( defined(param("sessionid")) ) {
    }
 
    if ( $config{'use_homedirspools'} || $config{'use_homedirfolders'} ) {
+      my $mailgid=getgrnam('mail');
       set_euid_egid_umask($uuid, $mailgid, 0077);	
-   } else {
-      set_euid_egid_umask($>, $mailgid, 0077);	
-   }
-   # egid must be mail since this is a mail program...
-   if ( $) != $mailgid) { 
-      openwebmailerror("Set effective gid to mail($mailgid) failed!");
+      if ( $) != $mailgid) {	# egid must be mail since this is a mail program...
+         openwebmailerror("Set effective gid to mail($mailgid) failed!");
+      }
    }
 
    if ( $config{'use_homedirfolders'} ) {
@@ -590,12 +592,16 @@ sub displayheaders {
 
       # convert between gb and big5
       if ( ($content_type=~/charset="?gb2312"?/i || $status=~/G/i)
-           && $lang_charset eq "big5" ) {
+           && $lang_charset eq "big5"
+           && -x (split(/\s+/, $config{'g2b_converter'}))[0] ) {
          $from= g2b($from);
+         $to= g2b($to);
          $subject= g2b($subject);
       } elsif ( ($content_type=~/charset="?big5"?/i || $status=~/B/i)
-           && $lang_charset eq "gb2312" ) {
+           && $lang_charset eq "gb2312" 
+           && -x (split(/\s+/, $config{'b2g_converter'}))[0] ) {
          $from= b2g($from);
+         $to= b2g($to);
          $subject= b2g($subject);
       }
 
@@ -659,14 +665,14 @@ sub displayheaders {
          my $icon="read.gif";
          $icon="read.a.gif" if ($status =~ m/a/i);
          $message_status .= qq|<a href="$main_url_with_keyword&amp;action=markasunread&amp;message_id=$escapedmessageid&amp;status=$status&amp;firstmessage=$firstmessage">|.
-                            qq|<img src="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/$icon" align="absmiddle" border="0" ALT="$lang_text{'markasunread'}"></a>|;
+                            qq|<img src="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/$icon" align="absmiddle" border="0" ALT="$lang_text{'markasunread'} "></a>|;
          $boldon = '';
          $boldoff = '';
       } else {
          my $icon="unread.gif";
          $icon="unread.a.gif" if ($status =~ m/a/i);
          $message_status .= qq|<a href="$main_url_with_keyword&amp;action=markasread&amp;message_id=$escapedmessageid&amp;status=$status&amp;firstmessage=$firstmessage">|.
-                            qq|<img src="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/$icon" align="absmiddle" border="0" ALT="$lang_text{'markasread'}"></a>|;
+                            qq|<img src="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/$icon" align="absmiddle" border="0" ALT="$lang_text{'markasread'} "></a>|;
          $boldon = "<B>";
          $boldoff = "</B>";
       }
@@ -838,7 +844,7 @@ sub markasread {
 
    my @attr=get_message_attributes($messageid, $headerdb);
 
-   if ($attr[$_STATUS] !~ /r/i) {
+   if ($attr[$_STATUS] !~ /R/i) {
       filelock($folderfile, LOCK_EX|LOCK_NB) or
          openwebmailerror("$lang_err{'couldnt_lock'} $folderfile!");
       update_message_status($messageid, $attr[$_STATUS]."R", $headerdb, $folderfile);
@@ -856,11 +862,10 @@ sub markasunread {
 
    my @attr=get_message_attributes($messageid, $headerdb);
 
-   if ($attr[$_STATUS] =~ /r/i) {
-
-      # clear R(read) flag
+   if ($attr[$_STATUS] =~ /[RV]/i) {
+      # clear flag R(read), V(verified by mailfilter)
       my $newstatus=$attr[$_STATUS];
-      $newstatus=~s/r//ig;
+      $newstatus=~s/[RV]//ig;
 
       filelock($folderfile, LOCK_EX|LOCK_NB) or
          openwebmailerror("$lang_err{'couldnt_lock'} $folderfile!");

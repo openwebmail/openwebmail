@@ -107,7 +107,7 @@ sub change_userpassword {
    return -2 if (length($newpassword)<4);
 
    # a passwdfile could be modified only if it is local accessable
-   return -3 if (! -f $unix_passwdfile);
+   return -1 if (! -f $unix_passwdfile);
 
    filelock("$unix_passwdfile", LOCK_EX);
    open (PASSWD, $unix_passwdfile) or return -3;

@@ -7,11 +7,13 @@
 
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
-<BR>A set of suggested replacements will be provided for each mis-spelled word.
-The user can choose one from them to replace the original word.
-If no suggested replacement is found or the user chooses "-manually fix-" 
-and then clicks [Check Again], a text field will be available for user to 
-input manually.
+<BR>
+Jokaiselle v‰‰rin kirjoitetulle sanalle tarjotaan muutamia vaihtoehtoja.
+N‰ist‰ k‰ytt‰j‰ voi valita parhaiten sopivan. Jos vaihtoehtoa ei lˆydy tai
+k‰ytt‰j‰ haluaa "- k‰sin korjata-" jonka j‰lkeen klikkaa [Tarkista
+uudelleen] - nappia, k‰ytt‰j‰ pystyy tekem‰‰n muutokset
+tekstikentt‰‰n manuaalisesti.
+
 </td></tr>
 </table>
 <br>

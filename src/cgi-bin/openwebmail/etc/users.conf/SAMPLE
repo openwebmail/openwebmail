@@ -1,6 +1,7 @@
 #
-# This is an example of per user capability file,
-# any option set in this file will overide the same one in openwebmail.conf.
+# This is the example of per user capability file, each user can has his own
+# settings by creating config file with filename the same as his userid.
+# Any option set in this file will overide the same one in openwebmail.conf.
 # Please refer to openwebmail.conf for detailed description of each option
 #
 
@@ -10,11 +11,14 @@ logfile			/var/log/openwebmail.log
 global_addressbook	%ow_etcdir%/address.book
 global_filterbook	%ow_etcdir%/filter.book
 
-enable_changepwd		yes
-enable_setfromemail		yes
-enable_autoreply		yes
-enable_setforward		yes
-enable_pop3			yes
+allowed_clientip	ALL
+allowed_clientdomain	ALL
+allowed_receiverdomain	ALL
+enable_changepwd	yes
+enable_setfromemail	yes
+enable_autoreply	yes
+enable_setforward	yes
+enable_pop3		yes
 
 #disallowed_pop3servers		your_server, your_server.domain
 autopop3_at_refresh		yes

@@ -10,6 +10,10 @@
 # This program is distributed under GNU General Public License              #
 #############################################################################
 
+my $SCRIPT_DIR="";
+if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-]+\.pl! ) { $SCRIPT_DIR=$1; }
+if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!"; exit 0; }
+
 use strict;
 no strict 'vars';
 use Fcntl qw(:DEFAULT :flock);
@@ -19,22 +23,22 @@ use CGI::Carp qw(fatalsToBrowser);
 CGI::nph();   # Treat script as a non-parsed-header script
 
 $ENV{PATH} = ""; # no PATH should be needed
-$ENV{BASH_ENV} = ""; # no startup sciprt for bash
+$ENV{BASH_ENV} = ""; # no startup script for bash
 umask(0007); # make sure the openwebmail group can write
 
-push (@INC, '/usr/local/www/cgi-bin/openwebmail', ".");
+push (@INC, $SCRIPT_DIR, ".");
 require "openwebmail-shared.pl";
 require "mime.pl";
 require "filelock.pl";
 require "maildb.pl";
 
 local %config;
-readconf(\%config, "/usr/local/www/cgi-bin/openwebmail/etc/openwebmail.conf");
+readconf(\%config, "$SCRIPT_DIR/etc/openwebmail.conf");
 require $config{'auth_module'} or
    openwebmailerror("Can't open authentication module $config{'auth_module'}");
 
 local $thissession;
-local ($virtualuser, $user, $userrealname, $uuid, $ugid, $mailgid, $homedir);
+local ($virtualuser, $user, $userrealname, $uuid, $ugid, $homedir);
 
 local %prefs;
 local %style;
@@ -48,17 +52,9 @@ local ($searchtype, $keyword, $escapedkeyword);
 local $firstmessage;
 local $sort;
 
-$mailgid=getgrnam('mail');
-
 # setuid is required if mails is located in user's dir
-if ( $config{'use_homedirspools'} || $config{'use_homedirfolders'} ) {
-   if ( $> != 0 ) {
-      my $suidperl=$^X;
-      $suidperl=~s/perl/suidperl/;
-      openwebmailerror("<b>$0 must setuid to root!</b><br>".
-                       "<br>1. check if script is owned by root with mode 4555".
-                       "<br>2. use '#!$suidperl' instead of '#!$^X' in script");
-   }  
+if ( $>!=0 && ($config{'use_homedirspools'}||$config{'use_homedirfolders'}) ) {
+   print "Content-type: text/html\n\n'$0' must setuid to root"; exit 0;
 }
 
 if ( defined(param("sessionid")) ) {
@@ -66,6 +62,14 @@ if ( defined(param("sessionid")) ) {
 
    my $loginname = $thissession || '';
    $loginname =~ s/\-session\-0.*$//; # Grab loginname from sessionid
+
+   my $siteconf;
+   if ($loginname=~/\@(.+)$/) {
+       $siteconf="$config{'ow_etcdir'}/sites.conf/$1";
+   } else {
+       $siteconf="$config{'ow_etcdir'}/sites.conf/$ENV{'HTTP_HOST'}";
+   }
+   readconf(\%config, "$siteconf") if ( -f "$siteconf"); 
 
    ($virtualuser, $user, $userrealname, $uuid, $ugid, $homedir)=get_virtualuser_user_userinfo($loginname);
    if ($user eq "") {
@@ -77,13 +81,11 @@ if ( defined(param("sessionid")) ) {
    }
 
    if ( $config{'use_homedirspools'} || $config{'use_homedirfolders'} ) {
+      my $mailgid=getgrnam('mail');
       set_euid_egid_umask($uuid, $mailgid, 0077);	
-   } else {
-      set_euid_egid_umask($>, $mailgid, 0077);	
-   }
-   # egid must be mail since this is a mail program...
-   if ( $) != $mailgid) { 
-      openwebmailerror("Set effective gid to mail($mailgid) failed!");
+      if ( $) != $mailgid) {	# egid must be mail since this is a mail program...
+         openwebmailerror("Set effective gid to mail($mailgid) failed!");
+      }
    }
 
    if ( $config{'use_homedirfolders'} ) {
@@ -218,10 +220,13 @@ sub replyreceipt {
          $smtp=Net::SMTP->new($config{'smtpserver'}, Timeout => 20, Hello => ${$config{'domainnames'}}[0]) or 
             openwebmailerror("$lang_err{'couldnt_open'} SMTP server $config{'smtpserver'}!");
          $smtp->mail($from);
-         $smtp->recipient(str2list($to), { SkipBad => 1 });
-         $smtp->data() or 
+         if (! $smtp->recipient(str2list($to), { SkipBad => 1 }) ) {
+            $smtp->reset();
+            $smtp->quit();
             openwebmailerror("$lang_err{'sendmail_error'}!");
+         }
 
+         $smtp->data();
          $smtp->datasend("From: $realname <$from>\n",
                          "To: $to\n");
          $smtp->datasend("Reply-To: ", $prefs{"replyto"}, "\n") if ($prefs{"replyto"});
@@ -258,8 +263,11 @@ sub replyreceipt {
          $smtp->datasend($prefs{'signature'},   "\n") if (defined($prefs{'signature'}));
          $smtp->datasend($config{'mailfooter'}, "\n") if ($config{'mailfooter'}=~/[^\s]/);
 
-         $smtp->dataend() or
+         if (!$smtp->dataend()) {
+            $smtp->reset();
+            $smtp->quit();
             openwebmailerror("$lang_err{'sendmail_error'}!");
+         }
          $smtp->quit();
       }
 
@@ -854,7 +862,7 @@ sub composemessage {
    $temphtml = end_form();
    $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/g;
 
-   $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/spellcheck.pl",
+   $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-spell.pl",
                           -name=>'spellcheckform',
                           -target=>'SpellChecker').
                hidden(-name=>'sessionid',
@@ -1051,6 +1059,29 @@ sub sendmessage {
          $do_sendmail=0;
 
       } else {				# sent message and save it to sent folder
+         my @recipients=();
+         push(@recipients, str2list($to)) if ($to=~/\w/);
+         push(@recipients, str2list($cc)) if ($cc=~/\w/);
+         push(@recipients, str2list($bcc)) if ($bcc=~/\w/);
+
+         # validate receiver email
+         if ($#{$config{'allowed_receiverdomain'}}>=0) {
+            foreach (@recipients) {
+               my $email=(email2nameaddr($_))[1];
+               my $allowed=0;
+               foreach my $token (@{$config{'allowed_receiverdomain'}}) {
+                  if ($token eq 'ALL' || $email=~/\Q$token\E$/i) {
+                     $allowed=1; last;
+                  } elsif ($token eq 'NONE') {
+                     last;
+                  }
+               }
+               if (!$allowed) {
+                  openwebmailerror($lang_err{'disallowed_receiverdomain'}." ( $email )");
+               }
+            }
+         }
+
          # redirect stderr to smtperrfile
          ($smtperrfile =~ /^(.+)$/) && ($smtperrfile = $1);   # bypass taint check
          open(STDERR, ">$smtperrfile"); 
@@ -1059,18 +1090,20 @@ sub sendmessage {
          $smtp=Net::SMTP->new($config{'smtpserver'}, Timeout => 20, Hello => ${$config{'domainnames'}}[0], Debug=>1) or 
             openwebmailerror("$lang_err{'couldnt_open'} SMTP server $config{'smtpserver'}!");
          $smtp->mail($from);
-         $smtp->recipient(str2list($to), { SkipBad => 1 }) if ($to=~/\w/);
-         $smtp->recipient(str2list($cc), { SkipBad => 1 }) if ($cc=~/\w/);
-         $smtp->recipient(str2list($bcc), { SkipBad => 1 }) if ($bcc=~/\w/);
-         if (! $smtp->data() ) {
+
+         if (! $smtp->recipient(@recipients, { SkipBad => 1 }) ) {
             close(STDERR);
             my $msg="$lang_err{'sendmail_error'}!".
                     readsmtperr($smtperrfile);
             unlink($smtperrfile);
+            $smtp->reset();
+            $smtp->quit();
             openwebmailerror($msg);
          }
-         $savefolder = 'sent-mail';
+
+         $smtp->data();
          $do_sendmail=1;
+         $savefolder = 'sent-mail';
       }
       ($savefile, $savedb)=get_folderfile_headerdb($user, $savefolder);
 
@@ -1250,6 +1283,7 @@ sub sendmessage {
       close(FOLDER);
       if ($do_sendmail) {
          if (! $smtp->dataend() ) {
+            $smtp->reset();
             $smtp->quit();
             close(STDERR);
             $sendmail_errorstr="$lang_err{'sendmail_error'}!".
@@ -1281,6 +1315,12 @@ sub sendmessage {
          $attr[$_CONTENT_TYPE]=$contenttype;
          $attr[$_STATUS]="R";
          $attr[$_STATUS].="I" if ($priority eq 'urgent');
+
+         # flags used by openwebmail internally
+         $attr[$_STATUS].="T" if ($attachment || $#attfilelist>=0 );
+         $attr[$_STATUS].="B" if ($lang_charset=~/big5/i);
+         $attr[$_STATUS].="G" if ($lang_charset=~/gb2312/i);
+
          $attr[$_SIZE]=$messagesize;
 
          my %HDB;

@@ -10,6 +10,10 @@
 # This program is distributed under GNU General Public License              #
 #############################################################################
 
+my $SCRIPT_DIR="";
+if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-]+\.pl! ) { $SCRIPT_DIR=$1; }
+if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!"; exit 0; }
+
 use strict;
 no strict 'vars';
 use Fcntl qw(:DEFAULT :flock);
@@ -18,22 +22,22 @@ use CGI::Carp qw(fatalsToBrowser);
 CGI::nph();   # Treat script as a non-parsed-header script
 
 $ENV{PATH} = ""; # no PATH should be needed
-$ENV{BASH_ENV} = ""; # no startup sciprt for bash
+$ENV{BASH_ENV} = ""; # no startup script for bash
 umask(0007); # make sure the openwebmail group can write
 
-push (@INC, '/usr/local/www/cgi-bin/openwebmail', ".");
+push (@INC, $SCRIPT_DIR, ".");
 require "openwebmail-shared.pl";
 require "mime.pl";
 require "filelock.pl";
 require "maildb.pl";
 
 local %config;
-readconf(\%config, "/usr/local/www/cgi-bin/openwebmail/etc/openwebmail.conf");
+readconf(\%config, "$SCRIPT_DIR/etc/openwebmail.conf");
 require $config{'auth_module'} or
    openwebmailerror("Can't open authentication module $config{'auth_module'}");
 
 local $thissession;
-local ($virtualuser, $user, $userrealname, $uuid, $ugid, $mailgid, $homedir);
+local ($virtualuser, $user, $userrealname, $uuid, $ugid, $homedir);
 
 local %prefs;
 local %style;
@@ -47,17 +51,9 @@ local ($searchtype, $keyword, $escapedkeyword);
 local $firstmessage;
 local $sort;
 
-$mailgid=getgrnam('mail');
-
 # setuid is required if mails is located in user's dir
-if ( $config{'use_homedirspools'} || $config{'use_homedirfolders'} ) {
-   if ( $> != 0 ) {
-      my $suidperl=$^X;
-      $suidperl=~s/perl/suidperl/;
-      openwebmailerror("<b>$0 must setuid to root!</b><br>".
-                       "<br>1. check if script is owned by root with mode 4555".
-                       "<br>2. use '#!$suidperl' instead of '#!$^X' in script");
-   }  
+if ( $>!=0 && ($config{'use_homedirspools'}||$config{'use_homedirfolders'}) ) {
+   print "Content-type: text/html\n\n'$0' must setuid to root"; exit 0;
 }
 
 if ( defined(param("sessionid")) ) {
@@ -65,6 +61,14 @@ if ( defined(param("sessionid")) ) {
 
    my $loginname = $thissession || '';
    $loginname =~ s/\-session\-0.*$//; # Grab loginname from sessionid
+
+   my $siteconf;
+   if ($loginname=~/\@(.+)$/) {
+       $siteconf="$config{'ow_etcdir'}/sites.conf/$1";
+   } else {
+       $siteconf="$config{'ow_etcdir'}/sites.conf/$ENV{'HTTP_HOST'}";
+   }
+   readconf(\%config, "$siteconf") if ( -f "$siteconf"); 
 
    ($virtualuser, $user, $userrealname, $uuid, $ugid, $homedir)=get_virtualuser_user_userinfo($loginname);
    if ($user eq "") {
@@ -76,13 +80,11 @@ if ( defined(param("sessionid")) ) {
    }
 
    if ( $config{'use_homedirspools'} || $config{'use_homedirfolders'} ) {
+      my $mailgid=getgrnam('mail');
       set_euid_egid_umask($uuid, $mailgid, 0077);	
-   } else {
-      set_euid_egid_umask($>, $mailgid, 0077);	
-   }
-   # egid must be mail since this is a mail program...
-   if ( $) != $mailgid) { 
-      openwebmailerror("Set effective gid to mail($mailgid) failed!");
+      if ( $) != $mailgid) {	# egid must be mail since this is a mail program...
+         openwebmailerror("Set effective gid to mail($mailgid) failed!");
+      }
    }
 
    if ( $config{'use_homedirfolders'} ) {
@@ -219,6 +221,7 @@ sub viewattachment {	# view attachments inside a message
             $content = html4nobase($content);
             $content = html4link($content);
             $content = html4disablejs($content) if ($prefs{'disablejs'}==1);
+            $content = html4disableembcgi($content) if ($prefs{'disableembcgi'}==1);
             $content = html4attachments($content, $r_attachments, "$config{'ow_cgiurl'}/openwebmail-viewatt.pl", "action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder");
             $content = html4mailto($content, "$config{'ow_cgiurl'}/openwebmail-send.pl", "action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto");
          }

@@ -10,28 +10,42 @@
 # This program is distributed under GNU General Public License              #
 #############################################################################
 
+my $SCRIPT_DIR="";
+if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-]+\.pl! ) { $SCRIPT_DIR=$1; }
+if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!"; exit 0; }
+
 use strict;
 no strict 'vars';
 use Fcntl qw(:DEFAULT :flock);
+use Socket;
 use CGI qw(:standard);
 use CGI::Carp qw(fatalsToBrowser);
 CGI::nph();   # Treat script as a non-parsed-header script
 
 $ENV{PATH} = ""; # no PATH should be needed
-$ENV{BASH_ENV} = ""; # no startup sciprt for bash
+$ENV{BASH_ENV} = ""; # no startup script for bash
 umask(0007); # make sure the openwebmail group can write
 
-push (@INC, '/usr/local/www/cgi-bin/openwebmail', ".");
+push (@INC, $SCRIPT_DIR, ".");
 require "openwebmail-shared.pl";
 require "filelock.pl";
 
 local %config;
-readconf(\%config, "/usr/local/www/cgi-bin/openwebmail/etc/openwebmail.conf");
+readconf(\%config, "$SCRIPT_DIR/etc/openwebmail.conf");
 require $config{'auth_module'} or
    openwebmailerror("Can't open authentication module $config{'auth_module'}");
 
+if ( $config{'logfile'} ne 'no' && ! -f $config{'logfile'} ) {
+   my $mailgid=getgrnam('mail');
+   open (LOGFILE,">>$config{'logfile'}") or 
+      openwebmailerror("Can't open log file $config{'logfile'}!");
+   close(LOGFILE);
+   chmod(0660, $config{'logfile'});
+   chown($>, $mailgid, $config{'logfile'});
+}
+
 local $thissession;
-local ($virtualuser, $user, $userrealname, $uuid, $ugid, $mailgid, $homedir);
+local ($virtualuser, $user, $userrealname, $uuid, $ugid, $homedir);
 
 local %prefs;
 local %style;
@@ -39,25 +53,9 @@ local ($lang_charset, %lang_folders, %lang_sortlabels, %lang_text, %lang_err);
 
 local $folderdir;
 
-$mailgid=getgrnam('mail');
-
 # setuid is required if mails is located in user's dir
-if ( $config{'use_homedirspools'} || $config{'use_homedirfolders'} ) {
-   if ( $> != 0 ) {
-      my $suidperl=$^X;
-      $suidperl=~s/perl/suidperl/;
-      openwebmailerror("<b>$0 must setuid to root!</b><br>".
-                       "<br>1. check if script is owned by root with mode 4555".
-                       "<br>2. use '#!$suidperl' instead of '#!$^X' in script");
-   }  
-}
-
-if ( ($config{'logfile'} ne 'no') && (! -f $config{'logfile'})  ) {
-   open (LOGFILE,">>$config{'logfile'}") or 
-      openwebmailerror("Can't open log file $config{'logfile'}!");
-   close(LOGFILE);
-   chmod(0660, $config{'logfile'});
-   chown($>, $mailgid, $config{'logfile'});
+if ( $>!=0 && ($config{'use_homedirspools'}||$config{'use_homedirfolders'}) ) {
+   print "Content-type: text/html\n\n'$0' must setuid to root"; exit 0;
 }
 
 %prefs = %{&readprefs};
@@ -69,7 +67,26 @@ $lang_charset ||= 'iso-8859-1';
 
 ####################### MAIN ##########################
 if ( param("loginname") && param("password") ) {
+   my $loginname=param("loginname");
+   my $siteconf;
+   if ($loginname=~/\@(.+)$/) {
+       $siteconf="$config{'ow_etcdir'}/sites.conf/$1";
+   } else {
+       $siteconf="$config{'ow_etcdir'}/sites.conf/$ENV{'HTTP_HOST'}";
+   }
+   readconf(\%config, "$siteconf") if ( -f "$siteconf"); 
+
+   if ( ($config{'logfile'} ne 'no') && (! -f $config{'logfile'})  ) {
+      my $mailgid=getgrnam('mail');
+      open (LOGFILE,">>$config{'logfile'}") or 
+         openwebmailerror("Can't open log file $config{'logfile'}!");
+      close(LOGFILE);
+      chmod(0660, $config{'logfile'});
+      chown($>, $mailgid, $config{'logfile'});
+   }
+
    update_virtusertable("$config{'ow_etcdir'}/virtusertable", $config{'virtusertable'});
+
    login();
 } else {            # no action has been taken, display login page
    loginmenu();
@@ -149,18 +166,52 @@ sub login {
          readconf(\%config, "$config{'ow_etcdir'}/users.conf/$user");
       }
 
+      my $clientip=get_clientip();
+      # validate client ip
+      if ($#{$config{'allowed_clientip'}}>=0) {
+         my $allowed=0;
+         foreach my $token (@{$config{'allowed_clientip'}}) {
+            if ($token eq 'ALL' || $clientip=~/^\Q$token\E/) {
+               $allowed=1; last;
+            } elsif ($token eq 'NONE') {
+               last;
+            }
+         }
+         if (!$allowed) {
+            openwebmailerror($lang_err{'disallowed_client'}." ( ip:$clientip )");
+         }
+      }
+      # validate client domain
+      if ($#{$config{'allowed_clientdomain'}}>=0) {
+         my $clientdomain;
+         my $allowed=0;
+         foreach my $token (@{$config{'allowed_clientdomain'}}) {
+            if ($token eq 'ALL') {
+               $allowed=1; last;
+            } elsif ($token eq 'NONE') {
+               last;
+            }
+            $clientdomain=ip2hostname($clientip) if ($clientdomain eq "");
+            if ($clientdomain=~/\Q$token\E$/ || # matched
+                $clientdomain!~/\./) { 		# shortname in /etc/hosts
+               $allowed=1; last; 
+            }
+         }
+         if (!$allowed) {
+            openwebmailerror($lang_err{'disallowed_client'}." ( hotname:$clientdomain )");
+         }
+      }
+
       $thissession = $loginname. "-session-" . rand(); # name the sessionid
       writelog("login - $thissession");
       cleanupoldsessions(); # Deletes sessionids that have expired
 
       if ( $config{'use_homedirspools'} || $config{'use_homedirfolders'} ) {
+         my $mailgid=getgrnam('mail');
          set_euid_egid_umask($uuid, $mailgid, 0077);	
-      } else {
-         set_euid_egid_umask($>, $mailgid, 0077);	
-      }
-      # egid must be mail since this is a mail program...
-      if ( $) != $mailgid) { 
-         openwebmailerror("Set effective gid to mail($mailgid) failed!");
+         if ( $) != $mailgid) {	# egid must be mail since this is a mail program...
+            openwebmailerror("Set effective gid to mail($mailgid) failed!");
+         }
       }
 
       if ( $config{'use_homedirfolders'} ) {
@@ -300,10 +351,10 @@ sub login {
       writelog("login error - $errorcode - loginname=$loginname");
 
       if ( $config{'use_homedirspools'} || $config{'use_homedirfolders'} ) {
+         my $mailgid=getgrnam('mail');
          set_euid_egid_umask($uuid, $mailgid, 0077);	
-      } else {
-         set_euid_egid_umask($>, $mailgid, 0077);	
       }
+
       if ( $config{'use_homedirfolders'} ) {
          $folderdir = "$homedir/$config{'homedirfolderdirname'}";
       } else {
@@ -314,7 +365,7 @@ sub login {
          if ( ! -f "$folderdir/.history.log" ) {
             open(HISTORYLOG, ">>$folderdir/.history.log");
             close(HISTORYLOG);
-            chown($uuid, $mailgid, "$folderdir/.history.log");
+            chown($uuid, $ugid, "$folderdir/.history.log");
          }
          writehistory("login error - $errorcode - loginname=$loginname");
       }
@@ -337,6 +388,19 @@ sub login {
       printfooter();
       exit 0;
    }
+}
+
+sub ip2hostname {
+   my $ip=$_[0];
+   my $hostname;
+   eval {
+      local $SIG{ALRM} = sub { die "alarm\n" }; # NB: \n required
+      alarm 10; # timeout 10sec
+      $hostname=gethostbyaddr(inet_aton($ip),AF_INET);
+      alarm 0;
+   };
+   return($ip) if ($@);	# eval error, it means timeout
+   return($hostname);
 }
 #################### END LOGIN #####################
 
@@ -580,7 +644,7 @@ sub releaseupgrade {
       writelog("release upgrade - $folderdir/.*$config{'dbm_ext'} by 20020108.02");
    }
 
-   if ( $user_releasedate lt "20020119" ) {
+   if ( $user_releasedate lt "20020220" ) {
       $rc_upgrade=1;	# .openwebmailrc upgrade will be requested
    }
 

@@ -4,6 +4,6 @@
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>PASSWORD CHANGED</B></font>
 </td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>Password successfully changed.<BR>
+<BR>Salasanan vaihto onnistui.<BR>
 @@@CONTINUEBUTTON@@@
 </td></tr></table>

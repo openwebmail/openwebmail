@@ -1,0 +1,81 @@
+<table border="0" align="center" width="70%" cellpadding="0" cellspacing="0">
+<tr><td colspan="5" bgcolor=@@@TITLEBAR@@@ align="left">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<b>Редагування папок</b></font>
+</td></tr>
+<tr><td colspan="5" bgcolor=@@@MENUBAR@@@ align="left">
+@@@MENUBARLINKS@@@
+</td></tr><tr><td colspan="5">&nbsp;</td></tr>
+<tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>Назва папки (@@@FOLDERNAME_MAXLEN@@@ символ╕в)</B></td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>Нових</B></td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>Лист╕в</B></td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>Розм╕р</B></td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>Виконати</B>
+</td></tr>
+@@@STARTFOLDERFORM@@@
+<tr><td align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
+@@@FOLDERNAMEFIELD@@@
+</td><td align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
+&nbsp;
+</td><td align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
+&nbsp;
+</td><td align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
+&nbsp;
+</td><td align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
+@@@ADDBUTTON@@@
+</td></tr>
+@@@ENDFORM@@@
+
+@@@FOLDERS@@@
+
+<tr><td colspan="5">&nbsp;</td></tr>
+<tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>Типов╕ папки</B></td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>Нових</B></td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>Лист╕в</B></td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>Розм╕р</B></td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+&nbsp;
+</td></tr>
+
+@@@DEFAULTFOLDERS@@@
+
+<tr><td colspan="5">&nbsp;</td></tr>
+@@@TOTAL@@@
+
+</table>
+<script language="JavaScript">
+   <!--
+   function OpConfirm(formname, op, text)
+   {   
+      var newname='';
+
+      if ( op == 'deletefolder' ) {
+         document.forms[formname].action.value='deletefolder';
+         document.forms[formname].foldernewname.value='';
+         return(confirm(text));
+
+      } else {	// renamefolder
+         newname=prompt(text, document.forms[formname].foldername.value);
+         if ( newname==document.forms[formname].foldername.value ||
+              newname==null || 
+              newname==''      ) {
+            return false;
+         }
+         document.forms[formname].action.value='renamefolder';
+         document.forms[formname].foldernewname.value=newname;
+         return true;
+      }
+
+      return false;
+   }
+   //-->
+</script>

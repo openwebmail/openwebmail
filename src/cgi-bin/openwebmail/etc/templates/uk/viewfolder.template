@@ -1,0 +1,87 @@
+<table border="0" align="center" width="95%" cellpadding="0" cellspacing="0"><tr><td bgcolor=@@@TITLEBAR@@@ >
+
+<table border="0" width="100%" cellpadding="0" cellspacing="0"><tr>
+<td nowrap bgcolor=@@@TITLEBAR@@@ align="left">
+@@@STARTFOLDERFORM@@@
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@>
+<B>@@@FOLDERPOPUP@@@</B></FONT></td>
+@@@ENDFORM@@@
+<td nowrap bgcolor=@@@TITLEBAR@@@ align="right">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>@@@NUMBEROFMESSAGES@@@</B></font>&nbsp;</td>
+</tr></table>
+
+</td></tr><tr><td bgcolor=@@@MENUBAR@@@>
+
+<table border="0" width="100%" cellpadding="0" cellspacing="0"><tr>
+<td nowrap bgcolor=@@@MENUBAR@@@ align="left">
+@@@MENUBARLINKS@@@</td>
+<td nowrap bgcolor=@@@MENUBAR@@@ align="right">
+@@@STARTMOVEFORM@@@
+@@@MOVECONTROLS@@@&nbsp;</td>
+</tr></table>
+
+</td></tr></table>
+<br>
+<table border="0" align="center" width="95%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
+<tr><td valign="middle" width="6%" bgcolor=@@@COLUMNHEADER@@@>
+<CENTER>@@@STATUS@@@</CENTER></td>
+<td valign="middle" width="18%" bgcolor=@@@COLUMNHEADER@@@>
+<B>@@@DATE@@@</B></td>
+<td valign="middle" width="25%" bgcolor=@@@COLUMNHEADER@@@>
+<B>@@@SENDER@@@</B></td>
+<td valign="middle" bgcolor=@@@COLUMNHEADER@@@>
+<B>@@@SUBJECT@@@</B></td>
+<td valign="middle" align="right" width="5%" bgcolor=@@@COLUMNHEADER@@@>
+<B>@@@SIZE@@@</B></td>
+<td align ="center" valign="middle" width="3%" bgcolor=@@@COLUMNHEADER@@@>
+<input name="allbox" type="checkbox" value="1"
+   onClick="CheckAll();"></td>
+</tr>
+@@@HEADERS@@@
+@@@ENDFORM@@@
+</table>
+<br>
+<table border="0" align="center" width="95%" cellpadding="1" cellspacing="0">
+<tr>
+<td width="33%" align="center" bgcolor=@@@MENUBAR@@@ nowrap>
+@@@STARTPAGEFORM@@@
+@@@PAGECONTROL@@@
+</td>
+@@@ENDFORM@@@
+<td align="center" bgcolor=@@@MENUBAR@@@ nowrap>
+@@@STARTSEARCHFORM@@@
+@@@SEARCH@@@
+</td>
+@@@ENDFORM@@@
+</tr>
+</table>
+
+<script language="JavaScript">
+   <!--
+   function CheckAll()
+   {
+      for (var i=0;i<document.moveform.elements.length;i++)
+      {
+         var e = document.moveform.elements[i];
+         if (e.type == 'checkbox' && e.name != 'allbox')
+            e.checked = document.moveform.allbox.checked;
+      }
+   }
+   function OpConfirm(text, conf)
+   {   
+      for (var i=0;i<document.moveform.elements.length;i++)
+      {
+         var e = document.moveform.elements[i];
+         if (e.type == 'checkbox' && e.name != 'allbox' && e.checked == 1 ) {
+            if (conf) {
+               return confirm(text);
+            } else {
+               return 1;
+            }
+         }
+      }
+      return false;
+   }
+   //-->
+</script>
