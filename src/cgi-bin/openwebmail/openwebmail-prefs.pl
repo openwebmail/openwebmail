@@ -422,7 +422,8 @@ sub editprefs {
    $temphtml = popup_menu(-name=>'charset',
                           -values=>\@allcharsets,
                           -default=>$defaultcharset,
-                          -override=>'1');
+                          -override=>'1',
+                          defined($config_raw{'DEFAULT_charset'})?('-disabled'=>'1'):());
    $html =~ s/\@\@\@CHARSETMENU\@\@\@/$temphtml/;
 
    my @timeoffsets=qw( -1200 -1100 -1000 -0900 -0800 -0700
@@ -489,7 +490,8 @@ sub editprefs {
          $temphtml = checkbox(-name=>'keeplocalcopy',
                               -value=>'1',
                               -checked=>$keeplocalcopy,
-                              -label=>'');
+                              -label=>'',
+                              -override=>'1');
          $html =~ s/\@\@\@KEEPLOCALCOPY\@\@\@/$temphtml/;
       } else {
          templateblock_disable($html, 'FORWARD');
@@ -504,7 +506,8 @@ sub editprefs {
          $temphtml = checkbox(-name=>'autoreply',
                               -value=>'1',
                               -checked=>$autoreply,
-                              -label=>'');
+                              -label=>'',
+                              -override=>'1');
          $html =~ s/\@\@\@AUTOREPLYCHECKBOX\@\@\@/$temphtml/;
 
          $temphtml = textfield(-name=>'autoreplysubject',
@@ -612,6 +615,7 @@ sub editprefs {
                            -value=>'1',
                            -checked=>$prefs{'bgrepeat'},
                            -label=>'',
+                           -override=>'1',
                            defined($config_raw{'DEFAULT_bgrepeat'})?('-disabled'=>'1'):());
       $html =~ s/\@\@\@BGREPEATCHECKBOX\@\@\@/$temphtml/;
 
@@ -708,6 +712,7 @@ sub editprefs {
                               -value=>'1',
                               -checked=>$prefs{'useminisearchicon'},
                               -label=>'',
+                              -override=>'1',
                               defined($config_raw{'DEFAULT_useminisearchicon'})?('-disabled'=>'1'):());
          $html =~ s/\@\@\@USEMINISEARCHICONCHECKBOX\@\@\@/$temphtml/;
 
@@ -717,6 +722,7 @@ sub editprefs {
                               -checked=>$prefs{'confirmmsgmovecopy'},
                               -accesskey=>'4',
                               -label=>'',
+                              -override=>'1',
                               defined($config_raw{'DEFAULT_confirmmsgmovecopy'})?('-disabled'=>'1'):());
          $html =~ s/\@\@\@CONFIRMMSGMOVECOPY\@\@\@/$temphtml/;
 
@@ -732,6 +738,7 @@ sub editprefs {
                               -value=>'1',
                               -checked=>$prefs{'smartdestination'},
                               -label=>'',
+                              -override=>'1',
                               defined($config_raw{'DEFAULT_smartdestination'})?('-disabled'=>'1'):());
          $html =~ s/\@\@\@SMARTDESTINATION\@\@\@/$temphtml/;
 
@@ -739,6 +746,7 @@ sub editprefs {
                               -value=>'1',
                               -checked=>$prefs{'viewnextaftermsgmovecopy'},
                               -label=>'',
+                              -override=>'1',
                               defined($config_raw{'DEFAULT_viewnextaftermsgmovecopy'})?('-disabled'=>'1'):());
          $html =~ s/\@\@\@VIEWNEXTAFTERMSGMOVECOPY\@\@\@/$temphtml/;
 
@@ -748,6 +756,7 @@ sub editprefs {
                                  -value=>'1',
                                  -checked=>$prefs{'autopop3'},
                                  -label=>'',
+                                 -override=>'1',
                                  defined($config_raw{'DEFAULT_autopop3'})?('-disabled'=>'1'):());
             $html =~ s/\@\@\@AUTOPOP3CHECKBOX\@\@\@/$temphtml/;
             $temphtml = popup_menu(-name=>'autopop3wait',
@@ -783,6 +792,7 @@ sub editprefs {
                                  -value=>'1',
                                  -checked=>$prefs{'moveoldmsgfrominbox'},
                                  -label=>'',
+                                 -override=>'1',
                                  defined($config_raw{'DEFAULT_moveoldmsgfrominbox'})?('-disabled'=>'1'):());
             $html =~ s/\@\@\@MOVEOLDMSGFROMINBOX\@\@\@/$temphtml/;
          }
@@ -811,6 +821,7 @@ sub editprefs {
                               -value=>'1',
                               -checked=>$prefs{'readwithmsgcharset'},
                               -label=>'',
+                              -override=>'1',
                               defined($config_raw{'DEFAULT_readwithmsgcharset'})?('-disabled'=>'1'):());
          $html =~ s/\@\@\@READWITHMSGCHARSET\@\@\@/$temphtml/;
 
@@ -818,6 +829,7 @@ sub editprefs {
                               -value=>'1',
                               -checked=>$prefs{'usefixedfont'},
                               -label=>'',
+                              -override=>'1',
                               defined($config_raw{'DEFAULT_usefixedfont'})?('-disabled'=>'1'):());
          $html =~ s/\@\@\@USEFIXEDFONT\@\@\@/$temphtml/;
 
@@ -825,6 +837,7 @@ sub editprefs {
                               -value=>'1',
                               -checked=>$prefs{'usesmileicon'},
                               -label=>'',
+                              -override=>'1',
                               defined($config_raw{'DEFAULT_usesmileicon'})?('-disabled'=>'1'):());
          $html =~ s/\@\@\@USESMILEICON\@\@\@/$temphtml/;
 
@@ -832,6 +845,7 @@ sub editprefs {
                               -value=>'1',
                               -checked=>$prefs{'disablejs'},
                               -label=>'',
+                              -override=>'1',
                               defined($config_raw{'DEFAULT_disablejs'})?('-disabled'=>'1'):());
          $html =~ s/\@\@\@DISABLEJS\@\@\@/$temphtml/;
 
@@ -839,6 +853,7 @@ sub editprefs {
                               -value=>'1',
                               -checked=>$prefs{'disableembcode'},
                               -label=>'',
+                              -override=>'1',
                               defined($config_raw{'DEFAULT_disableembcode'})?('-disabled'=>'1'):());
          $html =~ s/\@\@\@DISABLEEMBCODE\@\@\@/$temphtml/;
 
@@ -861,6 +876,7 @@ sub editprefs {
                               -value=>'1',
                               -checked=>$prefs{'showimgaslink'},
                               -label=>'',
+                              -override=>'1',
                               defined($config_raw{'DEFAULT_showimgaslink'})?('-disabled'=>'1'):());
          $html =~ s/\@\@\@SHOWIMGASLINK\@\@\@/$temphtml/;
 
@@ -908,6 +924,7 @@ sub editprefs {
                               -value=>'1',
                               -checked=>$prefs{'reparagraphorigmsg'},
                               -label=>'',
+                              -override=>'1',
                               defined($config_raw{'DEFAULT_reparagraphorigmsg'})?('-disabled'=>'1'):());
          $html =~ s/\@\@\@REPARAGRAPHORIGMSG\@\@\@/$temphtml/;
 
@@ -932,6 +949,7 @@ sub editprefs {
                                  -value=>'1',
                                  -checked=>$prefs{'backupsentmsg'},
                                  -label=>'',
+                                 -override=>'1',
                                  defined($config_raw{'DEFAULT_backupsentmsg'})?('-disabled'=>'1'):());
             $html =~ s/\@\@\@BACKUPSENTMSG\@\@\@/$temphtml/;
          } else {
@@ -1074,6 +1092,7 @@ sub editprefs {
                                  -value=>'1',
                                  -checked=>$prefs{'filter_badaddrformat'},
                                  -label=>'',
+                                 -override=>'1',
                                  defined($config_raw{'DEFAULT_filter_badaddrformat'})?('-disabled'=>'1'):());
             ($matchcount, $matchdate)=split(":", $FILTERRULEDB{'filter_badaddrformat'});
             if ($matchdate) {
@@ -1088,6 +1107,7 @@ sub editprefs {
                                  -value=>'1',
                                  -checked=>$prefs{'filter_fakedsmtp'},
                                  -label=>'',
+                                 -override=>'1',
                                  defined($config_raw{'DEFAULT_filter_fakedsmtp'})?('-disabled'=>'1'):());
             ($matchcount, $matchdate)=split(":", $FILTERRULEDB{'filter_fakedsmtp'});
             if ($matchdate) {
@@ -1102,6 +1122,7 @@ sub editprefs {
                                  -value=>'1',
                                  -checked=>$prefs{'filter_fakedfrom'},
                                  -label=>'',
+                                 -override=>'1',
                                  defined($config_raw{'DEFAULT_filter_fakedfrom'})?('-disabled'=>'1'):());
             ($matchcount, $matchdate)=split(":", $FILTERRULEDB{'filter_fakedfrom'});
             if ($matchdate) {
@@ -1116,6 +1137,7 @@ sub editprefs {
                                  -value=>'1',
                                  -checked=>$prefs{'filter_fakedexecontenttype'},
                                  -label=>'',
+                                 -override=>'1',
                                  defined($config_raw{'DEFAULT_filter_fakedexecontenttype'})?('-disabled'=>'1'):());
             ($matchcount, $matchdate)=split(":", $FILTERRULEDB{'filter_fakedexecontenttype'});
             if ($matchdate) {
@@ -1173,6 +1195,7 @@ sub editprefs {
                                -value=>'1',
                                -checked=>$prefs{'abook_defaultfilter'},
                                -label=>'',
+                               -override=>'1',
                                defined($config_raw{'DEFAULT_abook_defaultfilter'})?('-disabled'=>'1'):());
          $temphtml .= "&nbsp;";
 
@@ -1207,6 +1230,7 @@ sub editprefs {
                               -value=>'1',
                               -checked=>$prefs{'abook_collapse'},
                               -label=>'',
+                              -override=>'1',
                               defined($config_raw{'DEFAULT_abook_collapse'})?('-disabled'=>'1'):());
          $html =~ s/\@\@\@ABOOKADDRCOLLAPSE\@\@\@/$temphtml/;
 
@@ -1357,6 +1381,7 @@ sub editprefs {
                               -value=>'1',
                               -checked=>$prefs{'calendar_showemptyhours'},
                               -label=>'',
+                              -override=>'1',
                               defined($config_raw{'DEFAULT_calendar_showemptyhours'})?('-disabled'=>'1'):());
          $html =~ s/\@\@\@SHOWEMPTYHOURSCHECKBOX\@\@\@/$temphtml/;
 
@@ -1374,6 +1399,7 @@ sub editprefs {
                                  -value=>'1',
                                  -checked=>$prefs{'calendar_reminderforglobal'},
                                  -label=>'',
+                                 -override=>'1',
                                  defined($config_raw{'DEFAULT_calendar_reminderforglobal'})?('-disabled'=>'1'):());
             $html =~ s/\@\@\@REMINDERFORGLOBALCHECKBOX\@\@\@/$temphtml/;
          } else {
@@ -1399,6 +1425,7 @@ sub editprefs {
                               -value=>'1',
                               -checked=>$prefs{'webdisk_confirmmovecopy'},
                               -label=>'',
+                              -override=>'1',
                               defined($config_raw{'DEFAULT_webdisk_confirmmovecopy'})?('-disabled'=>'1'):());
          $html =~ s/\@\@\@CONFIRMFILEMOVECOPY\@\@\@/$temphtml/;
 
@@ -1406,6 +1433,7 @@ sub editprefs {
                               -value=>'1',
                               -checked=>$prefs{'webdisk_confirmdel'},
                               -label=>'',
+                              -override=>'1',
                               defined($config_raw{'DEFAULT_webdisk_confirmdel'})?('-disabled'=>'1'):());
          $html =~ s/\@\@\@CONFIRMFILEDEL\@\@\@/$temphtml/;
 
@@ -1413,6 +1441,7 @@ sub editprefs {
                               -value=>'1',
                               -checked=>$prefs{'webdisk_confirmcompress'},
                               -label=>'',
+                              -override=>'1',
                               defined($config_raw{'DEFAULT_webdisk_confirmcompress'})?('-disabled'=>'1'):());
          $html =~ s/\@\@\@CONFIRMFILECOMPRESS\@\@\@/$temphtml/;
 
@@ -1439,13 +1468,15 @@ sub editprefs {
                              -values=>['none', @allcharsets],
                              -labels=>{ 'none'=>$lang_text{'none'} },
                              -default=>$prefs{'fscharset'},
-                             -override=>'1');
+                             -override=>'1',
+                             defined($config_raw{'DEFAULT_fscharset'})?('-disabled'=>'1'):());
       $html =~ s/\@\@\@FSCHARSETMENU\@\@\@/$temphtml/;
 
       $temphtml = checkbox(-name=>'uselightbar',
                            -value=>'1',
                            -checked=>$prefs{'uselightbar'},
                            -label=>'',
+                           -override=>'1',
                            defined($config_raw{'DEFAULT_uselightbar'})?('-disabled'=>'1'):());
       $html =~ s/\@\@\@USELIGHTBARCHECKBOX\@\@\@/$temphtml/;
 
@@ -1455,6 +1486,7 @@ sub editprefs {
                               -checked=>$prefs{'regexmatch'},
                               -accesskey=>'0',
                               -label=>'',
+                              -override=>'1',
                               defined($config_raw{'DEFAULT_regexmatch'})?('-disabled'=>'1'):());
          $html =~ s/\@\@\@REGEXMATCH\@\@\@/$temphtml/;
 
@@ -1462,6 +1494,7 @@ sub editprefs {
                               -value=>'1',
                               -checked=>$prefs{'hideinternal'},
                               -label=>'',
+                              -override=>'1',
                               defined($config_raw{'DEFAULT_hideinternal'})?('-disabled'=>'1'):());
          $html =~ s/\@\@\@HIDEINTERNAL\@\@\@/$temphtml/;
 
@@ -1469,6 +1502,7 @@ sub editprefs {
                               -value=>'1',
                               -checked=>$prefs{'categorizedfolders'},
                               -label=>'',
+                              -override=>'1',
                               defined($config_raw{'DEFAULT_categorizedfolders'})?('-disabled'=>'1'):());
          $html =~ s/\@\@\@CATEGORIZEDFOLDERS\@\@\@/$temphtml/;
 
@@ -2352,6 +2386,7 @@ sub editpop3 {
       $temphtml = checkbox(-name=>'pop3del',
                            -value=>'1',
                            -checked=>$config{'pop3_delmail_by_default'},
+                           -override=>'1',
                            -label=>'');
       $html =~ s/\@\@\@DELCHECKBOX\@\@\@/$temphtml/;
    }
@@ -2362,6 +2397,7 @@ sub editpop3 {
                            -value=>'1',
                            -checked=>$config{'pop3_usessl_by_default'},
                            -label=>'',
+                           -override=>'1',
                            -onClick=>'ssl();');
       $html =~ s/\@\@\@USEPOP3SSLCHECKBOX\@\@\@/$temphtml/;
    } else {
@@ -2373,7 +2409,8 @@ sub editpop3 {
    $temphtml = checkbox(-name=>'enable',
                   -value=>'1',
                   -checked=>'checked',
-                  -label=>'');
+                  -label=>'',
+                  -override=>'1');
    $html =~ s/\@\@\@ENABLECHECKBOX\@\@\@/$temphtml/;
 
    $temphtml = submit(-name=>$lang_text{'addmod'},
@@ -2616,7 +2653,8 @@ sub editfilter {
    $temphtml = checkbox(-name=>'enable',
                         -value=>'1',
                         -checked=>"checked",
-                        -label=>'');
+                        -label=>'',
+                        -override=>'1');
    $html =~ s/\@\@\@ENABLECHECKBOX\@\@\@/$temphtml/;
 
    $temphtml = submit(-name=>$lang_text{'addmod'},

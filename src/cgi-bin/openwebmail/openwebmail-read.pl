@@ -677,10 +677,10 @@ sub readmessage {
    } else {
       my $smartdestination;
       if ($prefs{'smartdestination'}) {
-         my $subject=$message{'subject'}; $subject=~s/\s//g;
-         foreach (@movefolders) {
-            next if ($_ eq "DELETE");
-            if ($subject=~/\Q$_\E/i || $message{'from'}=~/\Q$_\E/i) {
+         my $subject=(iconv($message{'charset'}, $readcharset, $message{'subject'}))[0]; $subject=~s/\s//g;
+         my $from=(iconv($message{'charset'}, $readcharset, $message{'from'}))[0];
+         foreach (@validfolders) {	# use validfolders instead of movefolders because validfolders are real folders and it is not escaped
+            if ($subject=~/\Q$_\E/i || $from=~/\Q$_\E/i) {
                $smartdestination=$_; last;
             }
          }

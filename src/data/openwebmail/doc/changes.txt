@@ -1,3 +1,13 @@
+03/06/2004
+----------
+1. fix the bug that DEFAULT_charset and DEFAULT_fscharset didn't lock the
+   related field in preference.
+   (reported by Florian Effenberger, floeff.AT.arcor.de)
+2. fix a bug in readmessage that smartdestination was not correctly
+   iconved/unescaped during folder name comparison
+   (reported by MarkDoliner, thekingant.AT.users.sourceforge.net)
+
+
 03/04/2005
 ----------
 1. minor improvement on addressbook quick selection
