@@ -5,10 +5,11 @@
 # the encoding/decoding speed would be much faster if you install 
 # MIME-Base64 perl module (MIME-Base64-2.12.tar.gz) with XS support
 #
+use strict;
 
 if (eval "require MIME::Base64") {
    import MIME::Base64;
-   push @Uses, "B$MIME::Base64::VERSION";
+   push @::Uses, "B$MIME::Base64::VERSION";
 } else {
    eval q{
 
@@ -58,7 +59,7 @@ sub decode_base64
 
 if (eval "require MIME::QuotedPrint") {
    import MIME::QuotedPrint qw(decode_qp);
-   push @Uses, "Q$MIME::QuotedPrint::VERSION";
+   push @::Uses, "Q$MIME::QuotedPrint::VERSION";
 } else {
    eval q{
 
@@ -73,7 +74,6 @@ sub decode_qp
 
   } # q
 } #if
-
 
 
 sub decode_mimewords {

@@ -4,6 +4,12 @@
 # 2001/11/13 Ebola@turtle.ee.ncku.edu.tw
 #            tung@turtle.ee.ncku.edu.tw
 #
+use strict;
+use Fcntl qw(:DEFAULT :flock);
+
+# extern vars
+use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE $_STATUS $_SIZE $_REFERENCES);
+use vars qw(%config);
 
 # return: 0=nothing, <0=error, n=filted count
 # there are 4 op for a msg: 'copy', 'move', 'delete' and 'keep'
@@ -57,9 +63,9 @@ sub mailfilter {
    }
 
    if ( ! -e "$folderdir/.filter.book$config{'dbm_ext'}" ) {
-      dbmopen (%FTDB, "$folderdir/.filter.book", 0600);
+      dbmopen (%FTDB, "$folderdir/.filter.book$config{'dbmopen_ext'}", 0600);
    } else {
-      dbmopen (%FTDB, "$folderdir/.filter.book", undef);
+      dbmopen (%FTDB, "$folderdir/.filter.book$config{'dbmopen_ext'}", undef);
    }
    filelock("$folderdir/.filter.book$config{'dbm_ext'}", LOCK_EX);
 
@@ -75,7 +81,7 @@ sub mailfilter {
 
    ## open INBOX dbm => lock before open ##
    filelock("$headerdb$config{'dbm_ext'}", LOCK_EX);
-   dbmopen (%HDB, $headerdb, 0600);
+   dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", 0600);
 
    my ($blockstart, $blockend, $writepointer)=(0,0,0);
    my $filtered=0;
@@ -453,13 +459,9 @@ sub mailfilter {
             }
             # check executable attachment and contenttype 
             foreach my $r_attachment (@{$r_attachments}) {
-               if ( ( ${$r_attachment}{filename} =~ /\.exe$/i ||
-                      ${$r_attachment}{filename} =~ /\.com$/i ||
-                      ${$r_attachment}{filename} =~ /\.pif$/i ||
-                      ${$r_attachment}{filename} =~ /\.lnk$/i ||
-                      ${$r_attachment}{filename} =~ /\.scr$/i )  &&
-                     ${$r_attachment}{contenttype} !~ /application\/octet\-stream/i &&
-                     ${$r_attachment}{contenttype} !~ /application\/x\-msdownload/i ) {
+               if ( ${$r_attachment}{filename} =~ /\.(exe|com|bat|pif|lnk|scr)$/i &&
+                    ${$r_attachment}{contenttype} !~ /application\/octet\-stream/i &&
+                    ${$r_attachment}{contenttype} !~ /application\/x\-msdownload/i ) {
                   my ($matchcount, $matchdate)=split(":", $FTDB{"filter_fakedexecontenttype"});
                   $matchcount++; $matchdate=getdateserial();
                   $FTDB{"filter_fakedexecontenttype"}="$matchcount:$matchdate";
@@ -666,7 +668,7 @@ sub append_message_to_folder {
              
    filelock("$dstdb$config{'dbm_ext'}", LOCK_EX);
 
-   dbmopen (%HDB2, $dstdb, 0600);
+   dbmopen (%HDB2, "$dstdb$config{'dbmopen_ext'}", 0600);
    if (! defined($HDB2{$messageid}) ) {	# append only if not found in dstfile
       if (! open(DEST, ">>$dstfile")) {
          dbmclose(%HDB2);

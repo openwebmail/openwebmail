@@ -1,14 +1,19 @@
 #!/bin/sh
+#
 # this is used by author to create the tarball of openwebmail
+#
+
+##########################################################
+
+echo make openwebmail-current.tgz
 
 rm -f /tmp/openwebmail-current.tgz 2>/dev/null
-
 cd /usr/local/www
 tar --exclude data/openwebmail/download \
     -zcBpf /tmp/openwebmail-current.tgz cgi-bin/openwebmail data/openwebmail
 
 cd /tmp
-rm -Rf openwebmail-current 2>/dev/null
+rm -Rf openwebmail-current www.orig www 2>/dev/null
 mkdir openwebmail-current
 cd    openwebmail-current
 
@@ -36,9 +41,45 @@ rm cgi-bin/openwebmail/etc/openwebmail.conf.orig
 
 tar -zcBpf /tmp/openwebmail-current.tgz *
 
-cp /usr/local/www/data/openwebmail/doc/*.txt /usr/local/www/data/openwebmail/download/doc/
-rm /usr/local/www/data/openwebmail/download/openwebmail-current.tgz
-mv /tmp/openwebmail-current.tgz /usr/local/www/data/openwebmail/download/
-chmod 644 /usr/local/www/data/openwebmail/download/openwebmail-current.tgz
 
-su webmail -c '/usr/local/www/cgi-bin/openwebmail/uty/notify.sh'
+##########################################################
+
+oldtgz=`ls -tr /usr/local/www/data/openwebmail/download/openwebmail-?.*tgz|tail -1`
+oldrelease=`echo $oldtgz|sed -e 's/.*openwebmail-//'|sed -e 's/\.tgz.*//'`
+
+echo make openwebmail-current-$oldrelease.diff.gz
+
+cd /tmp
+mv openwebmail-current www
+
+mkdir www.orig
+cd www.orig
+tar -zxBpf $oldtgz
+cd ..
+
+rm -Rf \
+www.orig/data/openwebmail/images \
+www.orig/data/openwebmail/*.wav \
+www.orig/data/openwebmail/*.au \
+www/data/openwebmail/images \
+www/data/openwebmail/*.wav \
+www/data/openwebmail/*.au \
+
+diff -ruN www.orig www|grep -v '^Binary files '|gzip -9>openwebmail-current-$oldrelease.diff.gz
+
+rm -Rf www.orig
+mv www openwebmail-current
+
+##########################################################
+
+echo cp new stuff to download
+
+cp /usr/local/www/data/openwebmail/doc/*.txt /usr/local/www/data/openwebmail/download/doc/
+
+rm /usr/local/www/data/openwebmail/download/openwebmail-current*gz
+for f in openwebmail-current.tgz openwebmail-current-$oldrelease.diff.gz; do
+   mv /tmp/$f /usr/local/www/data/openwebmail/download/
+   chmod 644 /usr/local/www/data/openwebmail/download/$f
+done
+
+su webmail -c '/bin/sh /usr/local/www/cgi-bin/openwebmail/uty/notify.sh'

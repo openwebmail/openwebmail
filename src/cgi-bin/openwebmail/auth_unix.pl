@@ -32,6 +32,9 @@ my $unix_passwdmkdb="/usr/sbin/pwd_mkdb";
 
 ################### No configuration required from here ###################
 
+use strict;
+use Fcntl qw(:DEFAULT :flock);
+
 sub get_userinfo {
    my $user=$_[0];
    my ($uid, $gid, $realname, $homedir) = (getpwnam($user))[2,3,6,7];

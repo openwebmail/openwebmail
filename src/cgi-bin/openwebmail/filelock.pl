@@ -3,12 +3,13 @@
 #
 # 2001/04/25 tung@turtle.ee.ncku.edu.tw
 #
-
+use strict;
+use Fcntl qw(:DEFAULT :flock);
 use FileHandle;
 
 sub filelock {
    my $ret;
-   if ( $config{'use_dotlockfile'} ) {
+   if ( $::config{'use_dotlockfile'} ) {
       $ret=filelock_dotlockfile(@_);
    } else {
       $ret=filelock_flock(@_);
@@ -93,7 +94,7 @@ sub filelock_dotlockfile {
    while (-l "$filename") {
       $filename=readlink($filename);
    }
-   ($filename =~ /^(.+)$/) && ($filename = $1);		# bypass taint check
+   ($filename =~ /^(.+)$/) && ($filename = $1);		# untaint ...
    
    while (time() <= $endtime) {
       my $status=0;
@@ -185,7 +186,7 @@ sub filelock_dotlockfile {
 # _lock and _unlock are used to lock/unlock xxx.lock
 sub _lock {
    my ($filename, $staletimeout)=@_;
-   ($filename =~ /^(.+)$/) && ($filename = $1);		# bypass taint check
+   ($filename =~ /^(.+)$/) && ($filename = $1);		# untaint ...
 
    $staletimeout=60 if $staletimeout eq 0;
    if ( -f "$filename.lock" ) {
@@ -201,7 +202,7 @@ sub _lock {
 }
 sub _unlock {
    my ($filename)=$_[0];
-   ($filename =~ /^(.+)$/) && ($filename = $1);		# bypass taint check
+   ($filename =~ /^(.+)$/) && ($filename = $1);		# untaint ...
 
    if ( unlink("$filename.lock") ) {
       return(1);

@@ -522,7 +522,7 @@ ps: For more detail about PAM configuration, it is recommended to read
 ADD NEW AUTHENTICATION MODULE TO OPENWEBMAIL
 --------------------------------------------
 Various authentications are directly available for openwebmail, including
-auth_unix.pl, auth_ldap.pl, auth_mysql, auth_pop3.pl and auth_pam.pl.
+auth_unix.pl, auth_ldap.pl, auth_mysql, auth_pgsql, auth_pop3.pl and auth_pam.pl.
 In case you found these modules not suitable for your need, you may write 
 a new authentication module for your own.
 

@@ -1,0 +1,227 @@
+#!/usr/bin/perl -T
+
+$lang_charset = 'iso-8859-9';
+
+%lang_folders =
+   (
+   INBOX => 'Gelen Kutusu',
+   'saved-messages' => 'Saklı',
+   'sent-mail'      => 'Gönderilmiş',
+   'saved-drafts'   => 'Taslak',
+   'mail-trash'     => 'Çöp Kutusu',
+   DELETE => '--SİLİN--'
+   );
+
+%lang_sortlabels =
+   (
+   status      => 'Durum (Okunmamış Önce)',
+   date        => 'Tarih (En Yeni Önce)',
+   date_rev    => 'Tarih (En Eski Önce)',
+   sender      => 'Gönderen (En Yeni Önce)',
+   sender_rev  => 'Gönderen (En Eski Önce)',
+   subject     => 'Konu (En YEni Önce)',
+   subject_rev => 'Konu (En Eski Önce)',
+   size        => 'Boyut (En Büyük Önce)',
+   size_rev    => 'Boyut (En Küçük Önce)'
+   );
+
+%lang_prioritylabels =
+   (
+   normal      => 'Normal',
+   urgent      => 'Acil',
+   'non-urgent'=> 'Acil-Değil'
+   );
+
+%lang_withoriglabels =
+   (
+   at_beginning => 'Başlangıçta',
+   at_end      => 'Sonunda',
+   none        => 'Hiçbiri'
+   );
+
+%lang_receiptlabels =
+   (
+   ask => 'Onay iste',
+   yes => 'Evet',
+   no  => 'Hayır'
+   );
+
+%lang_timelabels =
+   (
+     10 => '10 minutes',
+     30 => '30 minutes',
+     60 => '60 minutes',
+    120 => '2 hours',
+    180 => '3 hours',
+    360 => '6 hours',
+    720 => '12 hours',
+   1440 => '24 hours'
+   );
+
+%lang_text =
+   (  
+   login      => 'Gir',
+   clear      => 'Temizle',
+   changepwd  => 'Parolayı Değiştir',
+   viewhistory=> 'Geçmişi Görüntüle',
+   of         => '',
+   messages   => 'ileti',
+   unread     => 'Okunmamış',
+   nomessages => 'İleti Yok',
+   composenew => 'Yeni İleti Oluştur',
+   refresh    => 'Yenile',
+   userprefs  => 'Kullanıcı Tercihleri',
+   addressbook=> 'Adres Defteri',
+   folders    => 'Klasörler',
+   emptytrash => 'Çöpü Boşalt',
+   forever    => 'Herzaman',
+   userdef    => 'Kullancı Tanımlı',
+   logout     => 'Çıkış',
+   page       => 'Sayfa',
+   msgcopyconf=> '\'Seçili iletiy(ler)i kopyalamak istediğinize emin misiniz ?\'',
+   copy       => 'Kopyala',
+   msgmoveconf=> '\'Seçili iletileri göndermek istediğinize emin misiniz?\'',
+   move       => 'Gönder',
+   markasread => 'Okumuş Olarak İşaretle',
+   markasunread => 'Okunmamış Olarak İşaretle',
+   dateformat => 'Tarih Biçemi',
+   date       => 'Tarih',
+   recipient  => 'Alıcı',
+   sender     => 'Gönderen',
+   subject    => 'Konu',
+   thread     => 'Atı',
+   size       => 'Boyut',
+   backto     => 'Geri',
+   reply      => 'Cevap Ver',
+   replyall   => 'Herkese Cevap Ver',
+   forward    => 'Aktar',
+   forwardasatt=>'Ek Dosyası Olarak Aktar',
+   printfriendly=> 'Yazıcı Dostu',
+   from       => 'Kimden',
+   replyto    => 'Cevap-Ver',
+   to         => 'Kime',
+   cc         => 'KK',
+   bcc        => 'GKK',
+   simplehead => 'Basit Başlık',
+   allhead    => 'Tüm Başlık',
+   simpleattmode => 'Basit Ek Dosyası',
+   allattmode    => 'Tüm Ek Dosyası',
+   attachment => 'Ek Dosyası',
+   type       => 'Tip',
+   filename   => 'DosyaAdı',
+   encoding   => 'Kodlama',
+   description=> 'Tanım',
+   download   => 'İndir',
+   thisispartialmsg => 'Bu kısmi bir ileti',
+   msgrebuild => 'İletiyi yeniden yapılandır',
+   editdraft  => 'Taslağı Düzenle',
+   savedraft  => 'Taslağı Kaydet',
+   send       => 'Gönder',
+   about      => 'About',
+   close      => 'Close',
+   cancel     => 'İptal',
+   continue   => 'Devam',
+   loginagain => 'Yeniden Gir',
+   exit       => 'Çıkış',
+   for        => 'için',
+   yourname   => 'İsminiz',
+   save       => 'Kaydet',
+   add        => 'Ekle',
+   folderrenprop => '\'Bu klasör için lütfen yeni bir isim giriniz\'',
+   rename     => 'Yeniden İsimlendir',
+   folderdelconf => '\'Bu klasörü içindekilerle beraber silmek istediğinize emin misiniz?\'',
+   chkindex    => 'İndeksKontrol',
+   folderchkindexconf => '\'Bu klasörün indeksine bakmak istediğinize emin misiniz?\'',
+   reindex    => 'Yenidenİndeksle',
+   folderreindexconf => '\'Bu klasörü yeniden indekslemek istediğinize emin misiniz?\'',
+   total      => 'Toplam',
+   delete     => 'Sil',
+   reserve    => 'Rezerve',
+   clearadd   => 'Tüm adresleri sil',
+   importadd  => 'Adres Al',
+   exportadd  => 'Adres Ver',
+   import     => 'Al',
+   addmod     => 'Ekle/Değiştir',
+   modify     => 'Değiştir',
+   abooktitle => 'Adres Defteri',
+   abook      => 'ADRES DEFTERİ',
+   name       => 'İsim',
+   email      => 'Eposta',
+   note       => 'Not',
+   group      => 'Grup',
+   quota_hit  => 'KOTA SINIRINA ULAŞILDI',
+   usage      => 'Kullanım',
+   editfroms  => 'Kişisel eposta adreslerini düzenle',
+   pop3book   => 'POP3 Kurulum',
+   retr_pop3s => 'POP3 epostalarını al',
+   filterbook => 'Eposta filitre defteri',
+   include    => 'Dahil Et',
+   exclude    => 'Hariç Tut',
+   smtprelay  => 'SMTP Relay',
+   header     => 'Başlık',
+   body       => 'Gövde',
+   attfilename=> 'EkDosyaAdı',
+   all        => 'Hepsi',
+   enable     => 'Etkinleştir',
+   disable    => 'Engelle',
+   filtered   => 'Filitrelenmiş',
+   blockrelay => 'SMTP Relay Engelle',
+   blockemail => 'eposta engelle',
+   read       => 'Oku',
+   yourmsg    => 'İletiniz',
+   delivered  => 'Gönderildi',
+   wasreadon1 => 'okundu',
+   wasreadon2 => '.',
+   globaladdressbook => 'Genel Adres Defteri',
+   globalfilterrule => 'Genel Filitre Kuralı',
+   readonly   => 'SaltOkunur',
+   textcontent=> 'Metinİçeriği',
+   search     => 'Ara',
+   spellcheck => 'Yazım Kontrolü',
+   checkagain => 'Tekrar Kontrol Edin',
+   finishchecking => 'Kontrolü Bitir',
+   manuallyfix=> 'Manuel Düzelt'
+   );
+
+%lang_err = (
+            has_illegal_chars => 'anlamsız karakterler var!',
+            couldnt_open      => 'Açamadı',
+            couldnt_locksh    => 'Okuma kilidi açılamadı',
+            couldnt_lock      => 'Yazma kilidi açılamadı',
+            couldnt_seek      => 'Başlangıca kadar aranamadı',
+            couldnt_close     => 'Kapatamadı',
+            disallowed_pop3   => 'Engellenmiş POP3 sunucusu',
+            disallowed_client => 'Buradan bağlantınız engellendi',
+            disallowed_receiverdomain => 'Bu eposta adresine ileti göndermeniz engellenmiştir',
+            norootlogin       => 'Güvenlik nedeniyle root girişi engellenmiştir.',
+            shouldnt_move_here=> 'İletiyi buraya katdetmemelisiniz!',
+            destination_folder=> 'Hedef klasör',
+            doesnt_exist      => 'yok!',
+            foldername_long   => 'Klasör ismi 16 karakterden uzun olamaz!',
+            folder_with_name  => 'Klasör',
+            already_exists    => 'zaten var!',
+            cant_create_folder=> 'Klasör oluşturamıyor!',
+            under_indexing    => 'hala indeksleme devam ediyor,daha sonra tekrar deneyiniz',
+            abook_invalid     => 'Bu dosya geçerli Outlook Express 5 CSV formatında değil. Lütfen metin düzenleyiciniz ile kontrol edip "İsim,Eposta" bilgileriyle başladığına emin olunuz!',
+            back              => 'geri',
+            tryagain          => 've tekrar deneyiniz.',
+            abook_toobig      => 'Adres defterinizin sınırda olduğu için bu değer girilemiyor',
+            cant_create_dir   => 'Kullanıcı klasörünüz oluşturulamıyor!',
+            folder_hitquota   => 'Kota sınırını doldurnuz ve bu yüzden yeni iletiler kaydedilemiyor.Lütfen "Çöp Kutusu"nu boşaltın veya iletilerinizin bir kısmını siliniz.',
+            att_overlimit     => 'Ek dosyası sınırını aştınız,dosyanızın boyutu',
+            inv_msg_op        => 'İleti için geçersiz işlem',
+            inv_sessid        => 'İsteğiniz geçerli bir sezon numrası veya çerez içermemektedir.--erşim engellendi!',
+            no_endpart        => 'Son kısım bulunamadı',
+            part_missing      => 'Bazı kısımlar eksik',
+            rebuild_fmterr    => 'Yeni ileti biçem hatası',
+            rebuild_sizeerr   => 'Yeni ileti boyut uyumsuzluğu',
+            user_not_exist    => 'kullanıcı bulunamdı',
+            func_notsupported => 'işlem desteklenmiyor',
+            auth_syserr       => 'onaylama sistem hatası',
+            param_fmterr      => 'parametre biçem hatası',
+            pwd_incorrect     => 'hatalı parola',
+            network_server_error => 'ağ sunucu hatası',
+            sendmail_error    => 'İleti gönderimi sırasında hata oluştu. Tarayıcınızın Geri tuşuna basın,iletinizi kontrol edip tekrar deneyiniz.'
+            );
+
+1;

@@ -10,43 +10,44 @@
 # This program is distributed under GNU General Public License              #
 #############################################################################
 
-local $SCRIPT_DIR="";
+use vars qw($SCRIPT_DIR);
 if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-]+\.pl! ) { $SCRIPT_DIR=$1; }
 if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
-
-use strict;
-no strict 'vars';
-use Fcntl qw(:DEFAULT :flock);
-use CGI qw(:standard);
-use CGI::Carp qw(fatalsToBrowser);
-CGI::nph();   # Treat script as a non-parsed-header script
+push (@INC, $SCRIPT_DIR, ".");
 
 $ENV{PATH} = ""; # no PATH should be needed
 $ENV{BASH_ENV} = ""; # no startup script for bash
 umask(0007); # make sure the openwebmail group can write
 
-push (@INC, $SCRIPT_DIR, ".");
+use strict;
+use Fcntl qw(:DEFAULT :flock);
+use CGI qw(:standard);
+use CGI::Carp qw(fatalsToBrowser);
+CGI::nph();   # Treat script as a non-parsed-header script
+
 require "openwebmail-shared.pl";
 require "filelock.pl";
 require "mime.pl";
 require "maildb.pl";
 
-local (%config, %config_raw);
-local $thissession;
-local ($loginname, $domain, $user, $userrealname, $uuid, $ugid, $homedir);
-local (%prefs, %style);
-local ($lang_charset, %lang_folders, %lang_sortlabels, %lang_text, %lang_err);
-local ($folderdir, @validfolders, $folderusage);
-local ($folder, $printfolder, $escapedfolder);
+use vars qw(%config %config_raw);
+use vars qw($thissession);
+use vars qw($loginname $domain $user $userrealname $uuid $ugid $homedir);
+use vars qw(%prefs %style);
+use vars qw($folderdir @validfolders $folderusage);
+use vars qw($folder $printfolder $escapedfolder);
 
 openwebmail_init();
 verifysession();
 
-local $firstmessage;
-local $sort;
+use vars qw($firstmessage);
+use vars qw($sort);
 
 $firstmessage = param("firstmessage") || 1;
 $sort = param("sort") || $prefs{"sort"} || 'date';
+
+# extern vars
+use vars qw($lang_charset %lang_folders %lang_text %lang_err);	# defined in lang/xy
 
 ########################## MAIN ##############################
 
@@ -71,9 +72,14 @@ if ($action eq "editfolders") {
 ###################### END MAIN ##############################
 
 #################### EDITFOLDERS ###########################
+my ($total_newmessages, $total_allmessages, $total_foldersize);
+
 sub editfolders {
    my (@defaultfolders, @userfolders);
-   local ($total_newmessages, $total_allmessages, $total_foldersize)=(0,0,0);
+
+   $total_newmessages=0;
+   $total_allmessages=0;
+   $total_foldersize=0;
 
    push(@defaultfolders, 'INBOX', 
                          'saved-messages', 
@@ -200,7 +206,7 @@ sub editfolders {
 
    print $html;
 
-   printfooter();
+   printfooter(1);
 }
 
 # this is inline function used by sub editfolders(), it changes
@@ -213,7 +219,7 @@ sub _folderline {
 
    if ( -f "$headerdb$config{'dbm_ext'}" ) {
       filelock("$headerdb$config{'dbm_ext'}", LOCK_SH);
-      dbmopen (%HDB, $headerdb, undef);
+      dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
       if ( defined($HDB{'ALLMESSAGES'}) ) {
          $allmessages=$HDB{'ALLMESSAGES'};
          $total_allmessages+=$allmessages;
@@ -259,6 +265,8 @@ sub _folderline {
                 qq|<td align="center" bgcolor=$bgcolor>$allmessages</td>|.
                 qq|<td align="center" bgcolor=$bgcolor>$foldersize</td>\n|;
 
+   $temphtml .= qq|<td bgcolor=$bgcolor align="center">\n|;
+
    $temphtml .= start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-folder.pl",
                            -name=>"folderform$i");
    $temphtml .= hidden(-name=>'action',
@@ -282,27 +290,25 @@ sub _folderline {
    $temphtml .= hidden(-name=>'foldernewname',
                        -value=>$currfolder,
                        -override=>'1');
-
-   $temphtml .= qq|\n<td bgcolor=$bgcolor align="center">|;
+   $temphtml .= "\n";
 
    $temphtml .= submit(-name=>"$lang_text{'chkindex'}",
                        -class=>"medtext",
-                       -onClick=>"return OpConfirm('folderform$i', 'chkindexfolder', $lang_text{'folderchkindexconf'}+' ( $currfolder )')")."\n";
+                       -onClick=>"return OpConfirm('folderform$i', 'chkindexfolder', $lang_text{'folderchkindexconf'}+' ( $currfolder )')");
    $temphtml .= submit(-name=>"$lang_text{'reindex'}", 
                        -class=>"medtext",
-                       -onClick=>"return OpConfirm('folderform$i', 'reindexfolder', $lang_text{'folderreindexconf'}+' ( $currfolder )')")."\n";
-
+                       -onClick=>"return OpConfirm('folderform$i', 'reindexfolder', $lang_text{'folderreindexconf'}+' ( $currfolder )')");
    if ($currfolder ne "INBOX") {
       $temphtml .= submit(-name=>"$lang_text{'rename'}", 
                           -class=>"medtext",
-                          -onClick=>"return OpConfirm('folderform$i', 'renamefolder', $lang_text{'folderrenprop'}+' ( $currfolder )')")."\n";
+                          -onClick=>"return OpConfirm('folderform$i', 'renamefolder', $lang_text{'folderrenprop'}+' ( $currfolder )')");
       $temphtml .= submit(-name=>"$lang_text{'delete'}",
                           -class=>"medtext",
-                          -onClick=>"return OpConfirm('folderform$i', 'deletefolder', $lang_text{'folderdelconf'}+' ( $currfolder )')")."\n";
+                          -onClick=>"return OpConfirm('folderform$i', 'deletefolder', $lang_text{'folderdelconf'}+' ( $currfolder )')");
    }
 
-   $temphtml .= '</td></tr>';
-   $temphtml .= end_form(). "\n";
+   $temphtml .= "</td></tr>";
+   $temphtml .= end_form()."\n";
 
    return($temphtml);
 }
@@ -326,7 +332,7 @@ sub reindexfolder {
    if ( -f "$headerdb$config{'dbm_ext'}" ) {
       my %HDB;
       filelock("$headerdb$config{'dbm_ext'}", LOCK_SH);
-      dbmopen (%HDB, $headerdb, undef);
+      dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
       $HDB{'METAINFO'}={'RENEW'};
       dbmclose(%HDB);
       filelock("$headerdb$config{'dbm_ext'}", LOCK_UN);
@@ -366,7 +372,7 @@ sub addfolder {
 
    # create empty index dbm with mode 0600
    my %HDB;
-   dbmopen(%HDB, $headerdb, 0600);
+   dbmopen(%HDB, "$headerdb$config{'dbmopen_ext'}", 0600);
    dbmclose(%HDB);
 
    writelog("create folder - $foldertoadd");
@@ -522,7 +528,7 @@ sub downloadfolder {
    }
    print qq|\n|;
 
-   ($cmd =~ /^(.+)$/) && ($cmd = $1);		# bypass taint check
+   ($cmd =~ /^(.+)$/) && ($cmd = $1);		# untaint ...
    open (T, $cmd);
    while ( read(T, $buff,32768) ) {
      print $buff;

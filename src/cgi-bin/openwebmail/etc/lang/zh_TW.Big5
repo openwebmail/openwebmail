@@ -46,6 +46,18 @@ $lang_charset = 'big5';
    no  => '否'
    );
 
+%lang_timelabels =
+   (
+     10 => '10 分鐘',
+     30 => '30 分鐘',
+     60 => '60 分鐘',
+    120 => '2 小時',
+    180 => '3 小時',
+    360 => '6 小時',
+    720 => '12 小時',
+   1440 => '24 小時'
+   );
+
 %lang_text =
    (  
    login      => '登入',
@@ -105,6 +117,8 @@ $lang_charset = 'big5';
    editdraft  => '編輯草稿',
    savedraft  => '暫存草稿',
    send       => '寄信',
+   about      => '關於',
+   close      => '關閉',
    cancel     => '取消',
    continue   => '繼續',
    loginagain => '重新登入',

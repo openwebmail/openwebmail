@@ -10,48 +10,50 @@
 # This program is distributed under GNU General Public License              #
 #############################################################################
 
-local $SCRIPT_DIR="";
+use vars qw($SCRIPT_DIR);
 if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-]+\.pl! ) { $SCRIPT_DIR=$1; }
 if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
+push (@INC, $SCRIPT_DIR, ".");
+
+$ENV{PATH} = ""; # no PATH should be needed
+$ENV{BASH_ENV} = ""; # no startup script for bash
+umask(0007); # make sure the openwebmail group can write
 
 use strict;
-no strict 'vars';
 use Fcntl qw(:DEFAULT :flock);
 use CGI qw(:standard);
 use CGI::Carp qw(fatalsToBrowser);
 CGI::nph();   # Treat script as a non-parsed-header script
 use Net::SMTP;
 
-$ENV{PATH} = ""; # no PATH should be needed
-$ENV{BASH_ENV} = ""; # no startup script for bash
-umask(0007); # make sure the openwebmail group can write
-
-push (@INC, $SCRIPT_DIR, ".");
 require "openwebmail-shared.pl";
 require "filelock.pl";
 require "mime.pl";
 require "maildb.pl";
 
-local (%config, %config_raw);
-local $thissession;
-local ($loginname, $domain, $user, $userrealname, $uuid, $ugid, $homedir);
-local (%prefs, %style);
-local ($lang_charset, %lang_folders, %lang_sortlabels, %lang_text, %lang_err);
-local ($folderdir, @validfolders, $folderusage);
-local ($folder, $printfolder, $escapedfolder);
+use vars qw(%config %config_raw);
+use vars qw($thissession);
+use vars qw($loginname $domain $user $userrealname $uuid $ugid $homedir);
+use vars qw(%prefs %style);
+use vars qw($folderdir @validfolders $folderusage);
+use vars qw($folder $printfolder $escapedfolder);
 
 openwebmail_init();
 verifysession();
 
-local $firstmessage;
-local $sort;
-local ($searchtype, $keyword, $escapedkeyword);
+use vars qw($firstmessage);
+use vars qw($sort);
+use vars qw($searchtype $keyword $escapedkeyword);
 
 $firstmessage = param("firstmessage") || 1;
 $sort = param("sort") || $prefs{"sort"} || 'date';
 $searchtype = param("searchtype") || 'subject';
 $keyword = param("keyword") || '';
 $escapedkeyword = escapeURL($keyword);
+
+# extern vars
+use vars qw($lang_charset %lang_folders %lang_text %lang_err %lang_prioritylabels);	# defined in lang/xy
+use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE $_STATUS $_SIZE $_REFERENCES);	# defined in maildb.pl
 
 ########################## MAIN ##############################
 
@@ -78,7 +80,7 @@ sub replyreceipt {
    my %HDB;
 
    filelock("$headerdb$config{'dbm_ext'}", LOCK_SH);
-   dbmopen (%HDB, $headerdb, undef);
+   dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
    @attr=split(/@@@/, $HDB{$messageid});
    dbmclose(%HDB);
    filelock("$headerdb$config{'dbm_ext'}", LOCK_UN);
@@ -102,7 +104,7 @@ sub replyreceipt {
          my $to=$1;
          my $from=$prefs{'email'};
 
-         my %userfrom=get_userfrom($loginname, $userrealname, "$folderdir/.from.book");
+         my %userfrom=get_userfrom($loginname, $user, $userrealname, "$folderdir/.from.book");
          foreach (sort keys %userfrom) {
             if ($header=~/$_/) {
                $from=$_; last;
@@ -137,6 +139,14 @@ sub replyreceipt {
                               Timeout => 30, 
                               Hello => ${$config{'domainnames'}}[0]) or 
             openwebmailerror("$lang_err{'couldnt_open'} SMTP server $config{'smtpserver'}:$config{'smtpport'}!");
+
+         # SMTP SASL authentication (PLAIN only)
+         if ($config{'smtpauth'}) {
+            my $auth = $smtp->supports("AUTH");
+            $smtp->auth($config{'smtpauth_username'}, $config{'smtpauth_password'}) or
+               openwebmailerror("$lang_err{'network_server_error'}!<br>($config{'smtpserver'} - ".$smtp->message.")");
+         }
+
          $smtp->mail($from);
          if (! $smtp->recipient(str2list($to), { SkipBad => 1 }) ) {
             $smtp->reset();
@@ -148,7 +158,6 @@ sub replyreceipt {
          $smtp->datasend("From: $realname <$from>\n",
                          "To: $to\n");
          $smtp->datasend("Reply-To: ", $prefs{"replyto"}, "\n") if ($prefs{"replyto"});
-
 
          # reply with english if sender has different charset than us
          if ( $attr[$_CONTENT_TYPE]=~/charset="?\Q$lang_charset\E"?/i) {
@@ -199,7 +208,7 @@ sub replyreceipt {
       $messageid = str2html($messageid);
       print "What the heck? Message $messageid seems to be gone!";
    }
-   printfooter();   
+   printfooter(1);
 }
 ################ END REPLYRECEIPT ################
 
@@ -228,7 +237,7 @@ sub composemessage {
       my $deleteattfile=param("deleteattfile");
 
       $deleteattfile =~ s/\///g;  # just in case someone gets tricky ...
-      ($deleteattfile =~ /^(.+)$/) && ($deleteattfile = $1);   # bypass taint check
+      ($deleteattfile =~ /^(.+)$/) && ($deleteattfile = $1);   # untaint ...
       # only allow to delete attfiles belongs the $thissession
       if ($deleteattfile=~/^$thissession/) {
          unlink ("$config{'ow_etcdir'}/sessions/$deleteattfile");
@@ -298,7 +307,7 @@ sub composemessage {
    my $references = param("references") || '';
    my $priority = param("priority") || 'normal';	# normal/urgent/non-urgent
 
-   my %userfrom=get_userfrom($loginname, $userrealname, "$folderdir/.from.book");
+   my %userfrom=get_userfrom($loginname, $user, $userrealname, "$folderdir/.from.book");
    if ($userfrom{$prefs{'email'}} ne "") {
       $from=qq|"$userfrom{$prefs{'email'}}" <$prefs{'email'}>|;
    } else {
@@ -458,7 +467,7 @@ sub composemessage {
          # carry attachments from old mesage to the new one
          if (defined(${$message{attachment}[0]}{header})) {
             my $attserial=time();
-            ($attserial =~ /^(.+)$/) && ($attserial = $1);   # bypass taint check
+            ($attserial =~ /^(.+)$/) && ($attserial = $1);   # untaint ...
             foreach my $attnumber (0 .. $#{$message{attachment}}) {
                $attserial++;
                open (ATTFILE, ">$config{'ow_etcdir'}/sessions/$thissession-att$attserial") or 
@@ -498,13 +507,15 @@ sub composemessage {
                $references = $message{'messageid'};
             }
 
-            if ($body =~ /[^\s]/) {
-               $body = "\n".
-                       "\n---------- Forwarded Message -----------\n".
-                       "$body".
-                       "\n------- End of Forwarded Message -------\n";
-               $body .= "\n\n".$prefs{"signature"} if (defined($prefs{"signature"}));
-            }
+            $body = "\n".
+                    "\n---------- Forwarded Message -----------\n".
+                    "From: $message{'from'}\n".
+                    "To: $message{'to'}\n".
+                    "Sent: $message{'date'}\n".
+                    "Subject: $message{'subject'}\n\n".
+                    "$body".
+                    "\n------- End of Forwarded Message -------\n";
+            $body .= "\n\n".$prefs{"signature"} if (defined($prefs{"signature"}));
          }
       }
 
@@ -522,7 +533,7 @@ sub composemessage {
 
       my $fromemail=$prefs{'email'};
       foreach (keys %userfrom) {
-         if ($attr{$_TO}=~/$_/) {
+         if ($attr[$_TO]=~/$_/) {
             $fromemail=$_; last;
          }
       }
@@ -534,7 +545,7 @@ sub composemessage {
 
       open($folderhandle, "$folderfile");
       my $attserial=time();
-      ($attserial =~ /^(.+)$/) && ($attserial = $1);   # bypass taint check
+      ($attserial =~ /^(.+)$/) && ($attserial = $1);   # untaint ...
       open ($atthandle, ">$config{'ow_etcdir'}/sessions/$thissession-att$attserial") or
          openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/sessions/$thissession-att$attserial!");
       print $atthandle qq|Content-Type: message/rfc822;\n|,
@@ -756,7 +767,6 @@ sub composemessage {
                          -override=>'1');
    $html =~ s/\@\@\@SUBJECTFIELD\@\@\@/$temphtml/g;
 
-
    $temphtml = checkbox(-name=>'confirmreading',
                         -value=>'1',
                         -label=>'');
@@ -876,7 +886,7 @@ sub composemessage {
 
    print $html;
 
-   printfooter();
+   printfooter(2);
 }
 ############# END COMPOSEMESSAGE #################
 
@@ -901,7 +911,7 @@ sub sendmessage {
       my @datearray = split(/ +/, $localtime);
       my $date = "$datearray[0], $datearray[2] $datearray[1] $datearray[4] $datearray[3] ".dst_adjust($config{'timeoffset'});
 
-      my %userfrom=get_userfrom($loginname, $userrealname, "$folderdir/.from.book");
+      my %userfrom=get_userfrom($loginname, $user, $userrealname, "$folderdir/.from.book");
       my ($realname, $from);
       if (param('from')) {
          ($realname, $from)=email2nameaddr(param('from'));
@@ -990,7 +1000,6 @@ sub sendmessage {
          $do_savemsg=0 if  ($folderusage>=100);
       }
 
-
       if ($do_sendmsg) { 
          my @recipients=();
          foreach my $recv ($to, $cc, $bcc) {
@@ -1007,9 +1016,9 @@ sub sendmessage {
             foreach my $email (@recipients) {
                my $allowed=0;
                foreach my $token (@{$config{'allowed_receiverdomain'}}) {
-                  if ($token eq 'ALL' || $email=~/\Q$token\E$/i) {
+                  if (lc($token) eq 'all' || $email=~/\Q$token\E$/i) {
                      $allowed=1; last;
-                  } elsif ($token eq 'NONE') {
+                  } elsif (lc($token) eq 'none') {
                      last;
                   }
                }
@@ -1020,7 +1029,7 @@ sub sendmessage {
          }
 
          # redirect stderr to smtperrfile
-         ($smtperrfile =~ /^(.+)$/) && ($smtperrfile = $1);   # bypass taint check
+         ($smtperrfile =~ /^(.+)$/) && ($smtperrfile = $1);   # untaint ...
          open(STDERR, ">$smtperrfile"); 
          select(STDERR); $| = 1; select(STDOUT);
 
@@ -1030,6 +1039,14 @@ sub sendmessage {
                               Hello => ${$config{'domainnames'}}[0], 
                               Debug=>1) or 
             openwebmailerror("$lang_err{'couldnt_open'} SMTP server $config{'smtpserver'}:$config{'smtpport'}!");
+
+         # SMTP SASL authentication (PLAIN only)
+         if ($config{'smtpauth'}) {
+            my $auth = $smtp->supports("AUTH");
+            $smtp->auth($config{'smtpauth_username'}, $config{'smtpauth_password'}) or
+               openwebmailerror("$lang_err{'network_server_error'}!<br>($config{'smtpserver'} - ".$smtp->message.")");
+         }
+
          $smtp->mail($from);
 
          if (! $smtp->recipient(@recipients, { SkipBad => 1 }) ) {
@@ -1067,7 +1084,7 @@ sub sendmessage {
                my %HDB;
 
                filelock("$savedb$config{'dbm_ext'}", LOCK_EX);
-               dbmopen(%HDB, $savedb, undef);
+               dbmopen(%HDB, "$savedb$config{'dbmopen_ext'}", undef);
                if (defined($HDB{$messageid})) {
                   my @oldheaders=split(/@@@/, $HDB{$messageid});
                   if ($oldheaders[$_SUBJECT] eq $subject) {
@@ -1266,7 +1283,7 @@ sub sendmessage {
 
             my %HDB;
             filelock("$savedb$config{'dbm_ext'}", LOCK_EX);
-            dbmopen(%HDB, $savedb, 0600);
+            dbmopen(%HDB, "$savedb$config{'dbmopen_ext'}", 0600);
             $HDB{$fakedid}=join('@@@', @attr);
             $HDB{'ALLMESSAGES'}++;
             $HDB{'METAINFO'}=metainfo($savefile);
@@ -1281,7 +1298,7 @@ sub sendmessage {
 
             my %HDB;
             filelock("$savedb$config{'dbm_ext'}", LOCK_EX);
-            dbmopen(%HDB, $savedb, 0600);
+            dbmopen(%HDB, "$savedb$config{'dbmopen_ext'}", 0600);
             $HDB{'METAINFO'}=metainfo($savefile);
             dbmclose(%HDB);
             filelock("$savedb$config{'dbm_ext'}", LOCK_UN);
@@ -1316,7 +1333,7 @@ sub sendmessage {
             my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $foldername);
             my (%HDB, $oldstatus, $found);
 
-            dbmopen(%HDB, $headerdb, 0600);
+            dbmopen(%HDB, "$headerdb$config{'dbmopen_ext'}", 0600);
             filelock("$headerdb$config{'dbm_ext'}", LOCK_EX);
             if (defined($HDB{$inreplyto})) {
                $oldstatus = (split(/@@@/, $HDB{$inreplyto}))[$_STATUS];

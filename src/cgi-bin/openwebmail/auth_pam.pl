@@ -22,6 +22,7 @@ my $pam_passwdfile="/etc/passwd";
 # routines get_userinfo() and get_userlist still depend on /etc/passwd
 # you may have to write your own routines if your user are not form /etc/passwd
 
+use strict;
 use Authen::PAM;
 
 sub get_userinfo {
@@ -50,17 +51,19 @@ sub get_userlist {	# only used by checkmail.pl -a
    return(@userlist);
 }
 
+# globals passed to inner function to avoid closure effect
+use vars qw($pam_user $pam_password $pam_newpassword $pam_convstate);
 
 #  0 : ok
 # -2 : parameter format error
 # -3 : authentication system/internal error
 # -4 : password incorrect
 sub check_userpassword {
-   my ($user, $password)=@_;
+   local ($pam_user, $pam_password)=@_;	# localized global to make reentry safe
    my $pamh;
    my $ret=0;
    
-   return -2 if ($user eq "");
+   return -2 if ($pam_user eq "");
 
    sub checkpwd_conv_func {
       my @res;
@@ -70,9 +73,9 @@ sub check_userpassword {
          my $ans = "";
 
          if ($code == PAM_PROMPT_ECHO_ON() ) {
-            $ans = $user;
+            $ans = $pam_user;
          } elsif ($code == PAM_PROMPT_ECHO_OFF() ) {
-            $ans = $password;
+            $ans = $pam_password;
          }
          push @res, (PAM_SUCCESS(),$ans);
 #         log_time("code:$code, msg:$msg, ans:$ans\n");	# debug
@@ -81,7 +84,7 @@ sub check_userpassword {
       return @res;
    }
 
-   if ( ref($pamh = new Authen::PAM($pam_servicename, $user, \&checkpwd_conv_func)) ) {
+   if ( ref($pamh = new Authen::PAM($pam_servicename, $pam_user, \&checkpwd_conv_func)) ) {
       my $error=$pamh->pam_authenticate();
       if ($error==0) {
          $ret=0;
@@ -105,13 +108,13 @@ sub check_userpassword {
 # -3 : authentication system/internal error
 # -4 : password incorrect
 sub change_userpassword {
-   my ($user, $oldpassword, $newpassword)=@_;
+   local ($pam_user, $pam_password, $pam_newpassword)=@_; # localized global to make reentry safe
    my $pamh;
    my $ret=0;
 
-   return -2 if ($user eq "");
+   return -2 if ($pam_user eq "");
 
-   local $state=0;
+   local $pam_convstate=0;	# localized global to make reentry safe
    sub changepwd_conv_func {
       my @res;
 
@@ -121,14 +124,14 @@ sub change_userpassword {
          my $ans = "";
 
          if ($code == PAM_PROMPT_ECHO_ON() ) {
-            $ans = $user;
+            $ans = $pam_user;
          } elsif ($code == PAM_PROMPT_ECHO_OFF() ) {
-            if ($state>1 || $msg =~ /new/i ) {
-               $ans = $newpassword;
+            if ($pam_convstate>1 || $msg =~ /new/i ) {
+               $ans = $pam_newpassword;
             } else {
-               $ans = $oldpassword;
+               $ans = $pam_password;
             }
-            $state++;
+            $pam_convstate++;
          }
          push @res, (PAM_SUCCESS(),$ans);
 #         log_time("code:$code, msg:$msg, ans:$ans\n");	# debug
@@ -137,7 +140,7 @@ sub change_userpassword {
       return @res;
    }
 
-   if (ref($pamh = new Authen::PAM($pam_servicename, $user, \&changepwd_conv_func)) ) {
+   if (ref($pamh = new Authen::PAM($pam_servicename, $pam_user, \&changepwd_conv_func)) ) {
       my $error=$pamh->pam_chauthtok();
       if ( $error==0 ) {
          $ret=0;

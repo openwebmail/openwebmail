@@ -1,6 +1,7 @@
 #!/usr/bin/perl
+#
 # this is used for debuging auth_pam.pl routines only...
-
+#
 use strict;
 no strict 'vars';
 push (@INC, '/usr/local/www/cgi-bin/openwebmail', ".");

@@ -1,0 +1,138 @@
+@@@STARTCOMPOSEFORM@@@
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="1">
+<tr><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="left">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>Ново писмо</B></font>
+</td></tr><tr><td colspan="2" bgcolor=@@@MENUBAR@@@ align="left">
+@@@BACKTOFOLDER@@@
+</td></tr><tr><td colspan="2">&nbsp;</td></tr>
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+<B>От:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@FROMMENU@@@
+&nbsp;&nbsp;
+<B>Приоритет:</B>
+@@@PRIORITYMENU@@@
+</td></tr>
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+<B>До:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@TOFIELD@@@
+</td></tr>
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+<B>Копие:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@CCFIELD@@@
+</td></tr>
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+<B>Скрито копие:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@BCCFIELD@@@
+</td></tr>
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+<B>Отговори на:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@REPLYTOFIELD@@@
+</td></tr>
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+<B>Прикачени:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@ATTACHMENTFIELD@@@
+</td></tr>
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+<B>Тема:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@SUBJECTFIELD@@@
+&nbsp;
+<B>Прочетено OK</B>
+@@@CONFIRMREADINGCHECKBOX@@@
+</td></tr>
+<tr><td colspan="2" bgcolor=@@@WINDOW_LIGHT@@@ class=msgbody>
+@@@BODYAREA@@@
+</td></tr>
+<tr><td colspan="2" align="left" valign="top">
+
+<table cellspacing="0" cellpadding="0" border="0"><tr>
+<td align="center" valign="top">
+@@@SENDBUTTON@@@
+&nbsp;&nbsp;
+</td>
+<td align="center" valign="top">
+@@@SAVEDRAFTBUTTON@@@
+&nbsp;&nbsp;
+</td>
+@@@ENDFORM@@@<!-- End of message composition form -->
+@@@STARTSPELLCHECKFORM@@@
+<td align="center" valign="top">
+@@@DICTIONARYMENU@@@
+@@@SPELLCHECKBUTTON@@@
+&nbsp;&nbsp;
+</td>
+@@@ENDFORM@@@
+@@@STARTCANCELFORM@@@
+<td align="center" valign="top">
+@@@CANCELBUTTON@@@
+&nbsp;&nbsp;
+</td>
+@@@ENDFORM@@@
+</tr></table>
+
+</td></tr></table>
+
+<script language="JavaScript">
+<!--
+   if (self.focus != null)
+      self.focus();
+
+   function OnLoadHandler()
+   {
+      document.composeform.to.focus();
+   }
+
+   function GoAddressWindow(toccbcc)
+   {
+      var url = "@@@PREFSURL@@@?action=addressbook&sessionid=@@@SESSIONID@@@&form=composeform&field=" + toccbcc;
+      
+      if (toccbcc == "to")
+         url += "&preexisting=" + escape (document.composeform.to.value);
+      else if (toccbcc == "cc")
+         url += "&preexisting=" + escape (document.composeform.cc.value);
+      else if (toccbcc == "bcc")
+         url += "&preexisting=" + escape (document.composeform.bcc.value);   
+   
+      var hWnd = window.open(url,"HelpWindow","width=380,height=360,resizable=yes,scrollbars=yes");
+      if ((document.window != null) && (!hWnd.opener))
+         hWnd.opener = document.window;
+   }
+
+   function DeleteAttFile(deleteattfile)
+   {
+      document.composeform.deleteattfile.value=deleteattfile;
+      document.composeform.submit();
+   }
+
+   function spellcheck()
+   {
+      document.spellcheckform.sessionid.value = document.composeform.sessionid.value;
+      document.spellcheckform.form.value = "composeform";
+      document.spellcheckform.field.value = "body";
+      document.spellcheckform.string.value = document.composeform.body.value;
+      window.open('','SpellChecker','width=600,height=400,top=40,left=80,scrollbars=yes,resizable=yes,location=no');
+      return true;
+   }
+
+   function sendcheck()
+   {
+      if (document.composeform.to.value == "" 
+       && document.composeform.cc.value == "" 
+       && document.composeform.bcc.value == "" ) {
+         alert("Моля напишете адреса на получателя.");
+         return false;
+      }
+      if (document.composeform.subject.value == "" ) {
+         return(confirm("Съобщението няма Тема, искате ли да го изпратите така?"));
+      }
+      return true;
+   }
+//-->
+</script>

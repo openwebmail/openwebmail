@@ -1,7 +1,7 @@
 <p align="center">
 <a href="@@@LOGO_LINK@@@">
 <img border="0" src="@@@LOGO_URL@@@"></a></p>
-<table border="0" align="center" width="250" cellpadding="0" cellspacing="0">
+<table border="0" align="center" width="260" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@ background="@@@IMAGEDIR_URL@@@/bg-titleblue.gif" align="left">
 &nbsp;<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><B>LOG IND</B></FONT>
 </td></tr><tr><td align="center" valign="middle" bgcolor=#3161bd>
@@ -16,6 +16,10 @@
 <td align=right nowrap>Brugernavn: </td><td align=left>@@@USERIDFIELD@@@</td>
 </tr><tr>
 <td align=right nowrap>Adgangskode: </td><td align=left>@@@PASSWORDFIELD@@@</td>
+@@@DOMAINSTART@@@
+</tr><tr>
+<td align=right nowrap>Domain: </td><td align=left>@@@DOMAINMENU@@@</td>
+@@@DOMAINEND@@@
 </tr><tr>
 <td align=center>
 <table><tr><td>@@@LOGINBUTTON@@@</td></tr></table>

@@ -2,7 +2,7 @@
 # This is the example of per user capability file, each user can has his own
 # settings by creating config file with filename the same as his userid.
 # Any option set in this file will overide the same one in openwebmail.conf.
-# Please refer to openwebmail.conf for detailed description of each option
+# Please refer to openwebmail.conf.help for detailed description of each option
 #
 
 #domainnames		server1.domain1.com, server2.domain2.com

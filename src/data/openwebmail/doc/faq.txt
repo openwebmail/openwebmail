@@ -1,4 +1,32 @@
 
+Q: I got "You don't have permission to access openwebmail.pl on this
+   server" error?
+
+A: Your apache is not properly configured to execute CGI program.
+   Please edit the httpd.conf for your apache and modify it as follow:
+
+   <Directory /var/www/cgi-bin>
+      AllowOverride All
+      Options ExecCGI
+      Order allow,deny
+      Allow from all
+   </Directory>
+
+   You will notice "Order allow,deny" and "Allow from all" lines are
+   missing in default.
+
+   Then reload httpd.
+
+   (thanks to Thomas Chung, tchung1970@users.sourceforge.net)
+
+ps: If you are using Mandrake:
+    httpd config file is loated at /etc/httpd/conf/commonhttpd.conf
+    httpd reload command is "service httpd reload"
+
+    If you are using FreeBSD:
+    httpd config file is loated at /usr/local/etc/apache/httpd.conf
+    httpd reload command is "/usr/local/sbin/apachectl restart"
+
 Q: I got "Internal server error" when running Open WebMail?
    I got "can not do setuid" error?
    I got "Software error: Can't locate etc/openwebmail.conf in @INC" error?
@@ -17,6 +45,7 @@ A: There are many possible answers...
       openwebmail-prefs.pl, openwebmail-folder.pl and checkmail.pl
 
       should be
+
       mode=4555
       owner=root
       group=mail
@@ -96,8 +125,8 @@ A: There are 2 possible answers for this:
       enough privilege to change the passwdfile.
       Try to set savedsuid_support to 'no' in openwebmail.conf to solve 
       this problem.
-   3. The authentication module you used didn't support password changing, 
-      ex: auth_pop3.pl
+   3. The authentication module which you used doesn't support password 
+      changing, ex: auth_pop3.pl
 
 Q: I got "Couldn't open XXX-session-0.370606494136155!" error after login?
 A: You openwebmail-1.xx.tgz was uncompressed with improper parameter.
@@ -117,20 +146,47 @@ Q: I got "can't open /var/log/openwebmail.log" error?
 A: Please check the openwebmail.log permission, it should be
    owner=root, group=mail, mode=660
 
-Q: Most functions works fine, but I got "Internal server error" when sending
-   messages?
+Q: Most functions works fine, but I could not send message.
+   I got "Can't locate Net/SMTP.pm in @INC ..." error?
+   I got "Internal server error"?
 A: Please install the libnet-1.0901.tar.gz, this is required since 
-    version 1.60.
+   openwebmail 1.60.
+
+Q: I am sure the sendmail was running up on my mail server, but I got 
+   "Couldn't open SMTP server 127.0.0.1" error when sending mesages?
+A: Your sendmail may be configured to listen on the server_ip:25 only,
+   it didn't listen on 127.0.0.1:25
+   You can either
+
+   a. override the option smtpserver in openwebmail.conf and 
+      set it to your server_ip
+
+   b. modify the sendmail.cf and find the following line
+
+   O DaemonPortOptions=Port=smtp,Addr=x.x.x.x, Name=MTA
+   (where x.x.x.x is the server_ip)
+
+   Please change the x.x.x.x to 0.0.0.0 to make sendmail 
+   listen on all IPs binding on the server network interfaces.
+
+Q: Does openwebmail support SASL authentication on SMTP?
+A: Yes, but only the PLAIN type authentication is supported.
+   The username/password will be encoded with base64, so it is not very secure.
+   To enable the SASL authentication:
+   1. set option smtpauth to yes in openwebmail.conf
+   2. set the smtpauth_username, smtpauth_password in smtpauth.conf
 
 Q: The 'From' field of my message contained only 'username@'?
-A: You may has wrong setting for option domainname in openwebmail.conf
-   1. For version older than 1.41 ,
-      please be sure to use '' for a text string of hostname
-      or use `` for the program (ex: /bin/hostname)
-   2. For version 1.50 or above,
-      please list all domainnames separated with comma.
-      or use auto for this setting, openwebmail will call '/bin/hostname'
-      to get the fqdn of your host.
+A: You may has wrong setting for option domainnames in openwebmail.conf
+   please list all domainnames separated with comma, or
+   use auto for this setting, openwebmail will use the hostname in the url 
+   or call '/bin/hostname' to get the fqdn of your host.
+
+Q: The domainname detected by openwebmail is not what I want,
+   how can I specified the outgoing mail domain for all my users?
+A: Please set the domainnames option in openwebmail.conf from 'auto' to
+   the domainname you want. Multiple domainnames can be specified only 
+   if seperated by comma
 
 Q: How can I use LDAP to authenticate user in openwebmail?
 A: You have 2 ways to do this:
@@ -234,8 +290,8 @@ A: First, you have to decide whetherto use real virtual hosting or
    "How to setup virtual users on Open WebMail using Postfix & vm-pop3d"
    http://www.bluelavalamp.net/owmvirtual/
 
-Q: The default email address for my user is always wrong, how can I set it?
-A: To have openwemail find the correct email for the user, 
+Q: The default mail domain for my user is always wrong, how can I set it?
+A: To have openwebmail find the correct mail domain for the user, 
    you'd give it some hint.
 
    For example, if the webmail url is
@@ -246,15 +302,30 @@ A: To have openwemail find the correct email for the user,
 
    You can achieve this in either the following 3 ways:
 
-   1. add an entry to virtusertable
-      tom@virtual_1.com tom
-   2. create per user config file etc/users.conf/tom
+   1. create per user config file etc/users.conf/tom
       and set option domainnames to virtual_1.com
-   3. create per domain config file etc/sites.cof/mail1.server_1.com
+   2. create per domain config file etc/sites.cof/mail1.server_1.com
       and set option domainnames to virtual_1.com
 
-   While 1,2 are only for the user tom, the method 3 has effect for all users 
+   While 1 is only for the user tom, the method 2 has effect for all users 
    who logins with the url http://mail.server_1.com/cgi-bin/....
+
+Q: I want to change not only the domainname part but also the username part 
+   of the default email address?
+A: You can use the virtusertable or the per user config file
+
+   1. virtusertable:
+      One or more email address can be defined in virtusertable for same user,
+      all those email addresses will be used as the default email address for 
+      that user
+   2. per user config file:
+      You can set the default_fromemails option in the per user config file.
+      Multiple default email addresses can be specified only if you seperate
+      them with comma.
+
+   ps: While virtusertable is convinet in setting default email addresses for 
+       many users, per user config file let sysadm control many properties for 
+       a specific user.
 
 Q: How can I disallow the user to set their from email address?
 A: set option allow_setfromemail to 'no' in either openwebmal.conf or per 
@@ -262,7 +333,7 @@ A: set option allow_setfromemail to 'no' in either openwebmal.conf or per
 
 Q: Some of my messages were moved to trash folder automatically?
 A: Your messages were either filtered by 'global filter rule' or 
-   'faked smtp message filter'. 
+   'faked smtp message filter' or 'faked exe contenttype filter'. 
 
    Global filter will filter messages with know virus attachments. The global
    filter rules are defined in the file global_filterbook
@@ -271,8 +342,14 @@ A: Your messages were either filtered by 'global filter rule' or
 
    The 'faked smtp message filter' will filter messages that have a faked smtp
    source, those messages are often from spammers. 'faked smtp filter' is 
-   default enabled and can be changed in openwebmail.conf. The user can also 
-   disable it in the user preference. 
+   default disabled and can be changed in openwebmail.conf. The user can also 
+   enable/disable it in the user preference. 
+
+   The 'faked exe contenttype filter' will filter messages that have 
+   executable attachment with faked contenttype, eg: audio, midi...
+   These messages are often generated by viruses, the borwser will download
+   the attachment because its contenttype is audio and then execute the 
+   downloaded file because it file extension is exe/com/bat/scr/pif/lnk.
 
 Q: What are "messages with faked smtp"?
 A: In short, they are messages coming from mail servers that fake their 
@@ -301,12 +378,14 @@ A: In short, they are messages coming from mail servers that fake their
    c. $connectfrom has different domain than the desition server B, and
    d. $connectfrom is not private IP
 
-Q: I still want the filtered messages, 
-   how can I disable faked smtp filter completely?
-A: 1. Set default_filter_fakedsmtp to 'no' in openwebmail.conf
-      This will unset the default fakedsmtp filter for all newly created user
-   2. Uncheck the faked smtp filter option in user preference
-      This will disable the fakedsmtp filter for a specific user
+Q: I still want the filtered messages, how can I disable faked smtp filter 
+   and faked exe contenttype filter completely?
+A: 1. Set default_filter_fakedsmtp and default_filter_fakedexecontenttype
+      to 'no' in openwebmail.conf. This will turn off the two filter for 
+      all newly created user
+   2. Uncheck the faked smtp filter and faked exe contenttype filter option 
+      in user preference. This will disable the two filters for a specific 
+      user
 
 Q: I could not add attachments?
    Open WebMail was hanged when I pressed the 'add' button to add attachments?
@@ -328,7 +407,7 @@ A: Check permission of the following directories
 Q: The permission of cgi-bin/openwebmail/etc is correct but attachments 
    still disappeared in message forwarding?
 A: Hmmm, please upgrade to the latest version. 
-   Some old version(1.03,1.04) has little problem in attachment handling.
+   Some very old version(1.03,1.04) has little problem in attachment handling.
 
 Q: When I checked 'edit folder menu', I found some folders were empty but 
    took disk space?
@@ -366,7 +445,7 @@ A: This may hapeen if the folder openwebmail want to access is locked by
       the debug output will be written to /tmp/openwebmail.debug
    4. login into openwebmail and do some operation that will cause lock error,
       then check /tmp/openwebmail.debug for further information
-   5. Finally, don't forgt to do 'patch < uty/filelock.pl.diff' again to 
+   5. Finally, don't forget to do 'patch < uty/filelock.pl.diff' again to 
       reverse filelock.pl back to normal version.
 
 Q: I have problems in reading some mail....
@@ -416,6 +495,17 @@ A: Your sendmail may be configured with Sendmail Restricted SHell or smrsh.
    ln -s /var/www/cgi-bin/openwebmail/vacation.pl /etc/smrsh/vacation.pl
    (thanks to Emir Litric, elitric@yahoo.com)
 
+Q: Can I use openwebmail with SSL?
+   I got "site not found" or "could not connect to the server" error?
+A: Yes, openwebmail can work with SSL.
+   The error is due to IE doesn't do keepalives correctly when using SSL.
+
+   Please add the following line to your Apache configuration for SSL
+   (or VirtualHost container)
+
+   SetEnvIf User-Agent ".*MSIE.*" nokeepalive ssl-unclean-shutdown
+   (thanks to Happy Camper, hcamper@users.sourceforge.net) 
+
 Q: My SENT folder shows -1 or other negative message size rather then
    regular message size?
 A: This problem occurs if you installed Open WebMail on the same partition 
@@ -427,10 +517,18 @@ A: This problem occurs if you installed Open WebMail on the same partition
    this, since this problem mostly occurs on RedHat Linux 6.2 and bellow. 
    (thanks to Emir Litric, elitric@yahoo.com)
 
+Q: There were strange characters in the mail filter menu and those rules could
+   not be deleted?
+A: The ~/.filter.book and its index may be written into the same file.
+   The is due to the dbmopen() of your perl didn't add the ".db" extension 
+   automatically. You may set dbmopen_ext to %dbm_ext% in openwebmail.conf 
+   to fix this problem.
+   I
 Q: My openwebmail was okay, but I got "Your request didn't contain the proper 
    session ID cookie -- access denied!" in these days?
-A: Openwebmail puts user uploaded attachments in cgi-bin/openwebmail/etc/sessions/ 
-   temporarily. User will get error if there is no space left on the partition where
+A: Openwebmail puts user uploaded attachments in 
+   cgi-bin/openwebmail/etc/sessions/ temporarily. 
+   User will get error if there is no space left on the partition where
    cgi-bin/openwebmail/etc/sessions/ lives or user has exceeded his disk quota.
 
    Please move cgi-bin/openwebmail/etc/sessions to a larger partition with
@@ -518,10 +616,10 @@ A: In Windows Explorer, if you go to Tools -> Folder Options, click on the
 
    (Thanks to Mike Andrews, mike@lcso.org)
 
-Q: How can I set an alias or link to the openwebmail script so users can 
-   user openwebmail with a shorter url?
+Q: How can I set an alias/redirection/link to the openwebmail script so users 
+   can use openwebmail with a shorter url?
 A: Please create a file, index.html, like below. Either a or b is okay. 
-   Than put this index.html to the location mapped by the url you want.
+   Then put this index.html to the location mapped by the url you want.
    a.
    ----------------------------------------
    <html><head>
@@ -569,6 +667,6 @@ A: Yes. Open WebMail is GPLed software (please see copyright.txt for
    c. Products based on Open Webmail must be also distributed under GPL.
 
 
-03/08/2002 
+04/02/2002 
 
 openwebmail@turtle.ee.ncku.edu.tw

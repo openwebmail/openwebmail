@@ -1,0 +1,171 @@
+@@@STARTPREFSFORM@@@
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
+<tr><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="left">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>Kullanýcý Tercihleri @@@REALNAME@@@</B></font>
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Dil:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@LANGUAGEFIELD@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Kimden:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@FROMEMAILMENU@@@ @@@EDITFROMSBUTTON@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Cevap-adresi:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@REPLYTOFIELD@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Stil:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@STYLEMENU@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Ýkonlar:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@ICONSETMENU@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Ardalan resmi:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+@@@BACKGROUNDMENU@@@
+&nbsp;URL
+@@@BGURLFIELD@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Sayfa baþýna ileti:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@HEADERSPERPAGE@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Öntanýmlý sýralama:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@SORTMENU@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Tarih Biçemi:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@DATEFORMATMENU@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Öngörülen Hedef Klasör:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@DEFAULTDESTINATIONMENU@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Öngörülen baþlýk:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@HEADERSMENU@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Ýleti düzenleme alaný için boyut:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+Geniþlik @@@EDITCOLUMNSMENU@@@ Yükseklik @@@EDITROWSMENU@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Yazým Kontrolü için Sözlük :</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@DICTIONARYMENU@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>YeniÝleti Sesli Bildirim:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@NEWMAILSOUND@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Klasör içi bilgileri düzenle:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@HIDEINTERNAL@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Ýleti okurken sabit font geniþliði kullan:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@USEFIXEDFONT@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Ýleti okurken smiley kullan:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@USESMILEICON@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Ýleti içi Java çalýþmasýný engelle:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@DISABLEJS@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Ýleti içi CGI çalýþmasýný engelle:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@DISABLEEMBCGI@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Ýleti silmeden önce onay iste:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@CONFIRMMSGMOVECOPY@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Ýleti silindiðinde sonraki iletiyi göster:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@VIEWNEXTAFTERMSGMOVECOPY@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Ýletiyi cevaplamadan önce düzenle:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@REPARAGRAPHORIGMSG@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Orjinal ileti ile beraber yanýtla:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@REPLYWITHORIGMSGMENU@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Alýcýdan 'Okundu Onayý' iste :</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@SENDRECEIPTMENU@@@
+</td></tr>
+@@@AUTOPOP3START@@@
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Giriþte POP3 iletilerini otomatik al:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@AUTOPOP3CHECKBOX@@@
+</td></tr>
+@@@AUTOPOP3END@@@
+@@@MOVEOLDSTART@@@
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Eski iletileri çýkýþta SAKLI klasörüne kaydet:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@MOVEOLDMSGFROMINBOX@@@
+</td></tr>
+@@@MOVEOLDEND@@@
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Tekrarlanan iletiler için limit:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@FILTERREPEATLIMIT@@@ &nbsp( 0, ileti tekrar kontrolü yapmaz )
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Sahte SMTP iletilerini filitrele:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@FILTERFAKEDSMTP@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>exe uzantýlý iletileri engelle:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@FILTERFAKEDEXECONTENTTYPE@@@
+</td></tr>
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Silinmiþ iletilerin Çöp Kutusu ömrü:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@RESERVEDDAYSMENU@@@
+</td></tr>
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Session timeout:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@SESSIONTIMEOUTMENU@@@
+</td></tr>
+@@@FORWARDSTART@@@
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Gelen iletilerin aktarýlacaðý adres:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@FORWARDADDRESS@@@
+&nbsp;
+@@@KEEPLOCALCOPY@@@
+Bir kopyasýný sakla
+</td></tr>
+@@@FORWARDEND@@@
+@@@AUTOREPLYSTART@@@
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Otomatik cevapla:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@AUTOREPLYCHECKBOX@@@
+&nbsp;
+Konu:
+@@@AUTOREPLYSUBJECT@@@
+</td></tr><tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@ class=msgbody>
+<B>Otomatik cevap metni (En fazla 500 karakter)</B><BR>
+@@@AUTOREPLYTEXT@@@
+</td></tr>
+@@@AUTOREPLYEND@@@
+<tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@ class=msgbody>
+<B>Ýmza (En fazla 500 karakter)</B><BR>
+@@@SIGAREA@@@
+</td></tr><tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>
+<table><tr><td>
+@@@BUTTONS@@@
+</td></tr></table></td></tr></table>

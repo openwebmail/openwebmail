@@ -10,47 +10,49 @@
 # This program is distributed under GNU General Public License              #
 #############################################################################
 
-local $SCRIPT_DIR="";
+use vars qw($SCRIPT_DIR);
 if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-]+\.pl! ) { $SCRIPT_DIR=$1; }
 if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
-
-use strict;
-no strict 'vars';
-use Fcntl qw(:DEFAULT :flock);
-use CGI qw(:standard);
-use CGI::Carp qw(fatalsToBrowser);
-CGI::nph();   # Treat script as a non-parsed-header script
+push (@INC, $SCRIPT_DIR, ".");
 
 $ENV{PATH} = ""; # no PATH should be needed
 $ENV{BASH_ENV} = ""; # no startup script for bash
 umask(0007); # make sure the openwebmail group can write
 
-push (@INC, $SCRIPT_DIR, ".");
+use strict;
+use Fcntl qw(:DEFAULT :flock);
+use CGI qw(:standard);
+use CGI::Carp qw(fatalsToBrowser);
+CGI::nph();   # Treat script as a non-parsed-header script
+
 require "openwebmail-shared.pl";
 require "filelock.pl";
 require "mime.pl";
 require "maildb.pl";
 
-local (%config, %config_raw);
-local $thissession;
-local ($loginname, $domain, $user, $userrealname, $uuid, $ugid, $homedir);
-local (%prefs, %style);
-local ($lang_charset, %lang_folders, %lang_sortlabels, %lang_text, %lang_err);
-local ($folderdir, @validfolders, $folderusage);
-local ($folder, $printfolder, $escapedfolder);
+use vars qw(%config %config_raw);
+use vars qw($thissession);
+use vars qw($loginname $domain $user $userrealname $uuid $ugid $homedir);
+use vars qw(%prefs %style);
+use vars qw($folderdir @validfolders $folderusage);
+use vars qw($folder $printfolder $escapedfolder);
 
 openwebmail_init();
 verifysession();
 
-local $firstmessage;
-local $sort;
-local ($searchtype, $keyword, $escapedkeyword);
+use vars qw($firstmessage);
+use vars qw($sort);
+use vars qw($searchtype $keyword $escapedkeyword);
 
 $firstmessage = param("firstmessage") || 1;
 $sort = param("sort") || $prefs{"sort"} || 'date';
 $keyword = param("keyword") || '';
 $escapedkeyword = escapeURL($keyword);
 $searchtype = param("searchtype") || 'subject';
+
+# extern vars
+use vars qw(%lang_err);		# defined in lang/xy
+use vars qw($_SUBJECT);		# defined in maildb.pl
 
 ########################## MAIN ##############################
 
@@ -84,7 +86,7 @@ sub viewattachment {	# view attachments inside a message
       printheader();
       $messageid = str2html($messageid);
       print "What the heck? Message $messageid seems to be gone!";
-      printfooter();
+      printfooter(1);
       return;
    }
 
@@ -172,16 +174,12 @@ sub viewattachment {	# view attachments inside a message
          }
 
          # we change the filename of an attachment 
-         # from *.exe, *.com *.pif, *.lnk, *.scr to *.file
+         # from *.exe, *.com *.bat, *.pif, *.lnk, *.scr to *.file
          # if its contenttype is not application/octet-stream
          # to avoid this attachment is referenced by html and executed directly ie
-         if ( ( $filename =~ /\.exe$/i || 
-                $filename =~ /\.com$/i ||
-                $filename =~ /\.pif$/i || 
-                $filename =~ /\.lnk$/i ||
-                $filename =~ /\.scr$/i )  &&
-               $contenttype !~ /application\/octet\-stream/i &&
-               $contenttype !~ /application\/x\-msdownload/i ) {
+         if ( $filename =~ /\.(exe|com|bat|pif|lnk|scr)$/i &&
+              $contenttype !~ /application\/octet\-stream/i &&
+              $contenttype !~ /application\/x\-msdownload/i ) {
             $filename="$filename.file";
          }
 
@@ -210,7 +208,7 @@ sub viewattachment {	# view attachments inside a message
          printheader();
          $messageid = str2html($messageid);
          print "What the heck? Message $messageid attachmment $nodeid seems to be gone!";
-         printfooter();
+         printfooter(1);
       }
       return;
 
@@ -226,7 +224,7 @@ sub viewattfile {	# view attachments uploaded to openwebmail/etc/sessions/
    if ($attfile!~/^$thissession/  || !-f "$config{'ow_etcdir'}/sessions/$attfile") {
       printheader();
       print "What the heck? Attfile $config{'ow_etcdir'}/sessions/$attfile seems to be gone!";
-      printfooter();
+      printfooter(1);
       return;
    }
 

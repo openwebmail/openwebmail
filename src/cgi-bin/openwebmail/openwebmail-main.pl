@@ -10,22 +10,21 @@
 # This program is distributed under GNU General Public License              #
 #############################################################################
 
-local $SCRIPT_DIR="";
+use vars qw($SCRIPT_DIR);
 if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-]+\.pl! ) { $SCRIPT_DIR=$1; }
 if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
-
-use strict;
-no strict 'vars';
-use Fcntl qw(:DEFAULT :flock);
-use CGI qw(:standard);
-use CGI::Carp qw(fatalsToBrowser);
-CGI::nph();   # Treat script as a non-parsed-header script
+push (@INC, $SCRIPT_DIR, ".");
 
 $ENV{PATH} = ""; # no PATH should be needed
 $ENV{BASH_ENV} = ""; # no startup script for bash
 umask(0007); # make sure the openwebmail group can write
 
-push (@INC, $SCRIPT_DIR, ".");
+use strict;
+use Fcntl qw(:DEFAULT :flock);
+use CGI qw(:standard);
+use CGI::Carp qw(fatalsToBrowser);
+CGI::nph();   # Treat script as a non-parsed-header script
+
 require "openwebmail-shared.pl";
 require "filelock.pl";
 require "mime.pl";
@@ -33,26 +32,30 @@ require "maildb.pl";
 require "pop3mail.pl";
 require "mailfilter.pl";
 
-local (%config, %config_raw);
-local $thissession;
-local ($loginname, $domain, $user, $userrealname, $uuid, $ugid, $homedir);
-local (%prefs, %style);
-local ($lang_charset, %lang_folders, %lang_sortlabels, %lang_text, %lang_err);
-local ($folderdir, @validfolders, $folderusage);
-local ($folder, $printfolder, $escapedfolder);
+use vars qw(%config %config_raw);
+use vars qw($thissession);
+use vars qw($loginname $domain $user $userrealname $uuid $ugid $homedir);
+use vars qw(%prefs %style);
+use vars qw($folderdir @validfolders $folderusage);
+use vars qw($folder $printfolder $escapedfolder);
 
 openwebmail_init();
 verifysession();
 
-local $firstmessage;
-local $sort;
-local ($searchtype, $keyword, $escapedkeyword);
+use vars qw($firstmessage);
+use vars qw($sort);
+use vars qw($searchtype $keyword $escapedkeyword);
 
 $firstmessage = param("firstmessage") || 1;
 $sort = param("sort") || $prefs{"sort"} || 'date';
 $searchtype = param("searchtype") || 'subject';
 $keyword = param("keyword") || '';
 $escapedkeyword = escapeURL($keyword);
+
+# extern vars
+use vars qw($lang_charset %lang_folders %lang_text %lang_err %lang_sortlabels);	# defined in lang/xy
+use vars qw($pop3_authserver);	# defined in auth_pop3.pl
+use vars qw($_STATUS);		# defined in maildb.pl
 
 ########################## MAIN ##############################
 
@@ -62,9 +65,9 @@ if ($action eq "displayheaders_afterlogin") {
    if ($config{'forced_moveoldmsgfrominbox'} || $prefs{'moveoldmsgfrominbox'}) {
       moveoldmsg2saved();
    }
+   update_pop3check();
    if (defined($pop3_authserver) && $config{'getmail_from_pop3_authserver'}) {
-      my $login=$user; 
-      $login .= "\@$domain" if ($config{'auth_withdomain'});
+      my $login=$user; $login .= "\@$domain" if ($config{'auth_withdomain'});
       _retrpop3($pop3_authserver, $login, "$folderdir/.authpop3.book");
    }
    displayheaders();
@@ -73,14 +76,31 @@ if ($action eq "displayheaders_afterlogin") {
    }
 } elsif ($action eq "userrefresh") {
    if (defined($pop3_authserver) && $config{'getmail_from_pop3_authserver'} 
-    && $folder eq "INBOX" ) {
-      my $login=$user; 
-      $login .= "\@$domain" if ($config{'auth_withdomain'});
+      && $folder eq "INBOX" ) {
+      my $login=$user; $login .= "\@$domain" if ($config{'auth_withdomain'});
       _retrpop3($pop3_authserver, $login, "$folderdir/.authpop3.book");
    }
    displayheaders();
+   if (update_pop3check()) {
+      if ($config{'enable_pop3'} && $prefs{"autopop3"}==1 ) {
+         _retrpop3s(0, "$folderdir/.pop3.book");
+      }
+   }
+
 } elsif ($action eq "displayheaders") {
+   my $update=0; $update=1 if (update_pop3check());
+   if ($update) {
+      if (defined($pop3_authserver) && $config{'getmail_from_pop3_authserver'}) {
+         my $login=$user; $login .= "\@$domain" if ($config{'auth_withdomain'});
+         _retrpop3($pop3_authserver, $login, "$folderdir/.authpop3.book");
+      }
+   }
    displayheaders();
+   if ($update) {
+      if ($config{'enable_pop3'} && $prefs{"autopop3"}==1 ) {
+         _retrpop3s(0, "$folderdir/.pop3.book");
+      }
+   }
 } elsif ($action eq "markasread") {
    markasread();
 } elsif ($action eq "markasunread") {
@@ -115,7 +135,7 @@ sub displayheaders {
 
    if ( -f "$folderdir/.$user$config{'dbm_ext'}") {
       filelock("$folderdir/.$user$config{'dbm_ext'}", LOCK_SH);
-      dbmopen (%HDB, "$folderdir/.$user", undef);	# dbm for INBOX
+      dbmopen (%HDB, "$folderdir/.$user$config{'dbmopen_ext'}", undef);	# dbm for INBOX
       $orig_inbox_newmessages=$HDB{'NEWMESSAGES'};	# new msg in INBOX
       dbmclose(%HDB);
       filelock("$folderdir/.$user$config{'dbm_ext'}", LOCK_UN);
@@ -229,7 +249,7 @@ sub displayheaders {
          my ($newmessages, $allmessages);
 
          filelock("$headerdb$config{'dbm_ext'}", LOCK_SH);
-         dbmopen (%HDB, $headerdb, undef);
+         dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
          $allmessages=$HDB{'ALLMESSAGES'};
          $allmessages-=$HDB{'INTERNALMESSAGES'} if ($prefs{'hideinternal'});
          $newmessages=$HDB{'NEWMESSAGES'};
@@ -505,7 +525,7 @@ sub displayheaders {
    my ($boldon, $boldoff); # Used to control whether text is bold for new mails
 
    filelock("$headerdb$config{'dbm_ext'}", LOCK_SH);
-   dbmopen (%HDB, $headerdb, undef);
+   dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
 
    $temphtml = '';
    foreach my $messnum (($firstmessage - 1) .. ($lastmessage - 1)) {
@@ -607,7 +627,7 @@ sub displayheaders {
 
 #      if ( ($content_type ne '') && 
 #           ($content_type ne 'N/A') && 
-#           ($content_type !~ /^text/i) ) {
+#           ($content_type !~ /^text/i) ) 
       # T flag is only supported by openwebmail internally
       # see routine update_headerdb in maildb.pl for detail
       if ($status =~ /T/i) { 
@@ -673,7 +693,6 @@ sub displayheaders {
    dbmclose(%HDB);
    filelock("$headerdb$config{'dbm_ext'}", LOCK_UN);
 
-
    $html =~ s/\@\@\@HEADERS\@\@\@/$temphtml/;
 
 
@@ -734,36 +753,17 @@ sub displayheaders {
             qq|//-->\n</script>\n|;
    }
 
-
-   # fetch pop3 mail in refresh mode
-   if (defined(param("refresh")) &&
-       $config{'autopop3_at_refresh'}) {
-      if (defined($pop3_authserver) && $config{'getmail_from_pop3_authserver'}) {
-         my $login=$user;
-         $login .= "\@$domain" if ($config{'auth_withdomain'});
-         _retrpop3($pop3_authserver, $login, "$folderdir/.authpop3.book");
-      }
-      if ($config{'enable_pop3'} &&
-          $prefs{"autopop3"}==1 ) {
-         _retrpop3s(0, "$folderdir/.pop3.book");
-      }
-   }
-
    # play sound if 
    # a. INBOX has new msg and in refresh mode
    # b. user is viewing other folder and new msg increases in INBOX
    if ( (defined(param("refresh")) && $now_inbox_newmessages>0) ||
         ($folder ne 'INBOX' && $now_inbox_newmessages>$orig_inbox_newmessages) ) {
       if ($prefs{'newmailsound'}==1 && $config{'sound_url'} ne "" ) {
-         # only enable sound on Windows platform
-         if ( $ENV{'HTTP_USER_AGENT'} =~ /Win/ ) {
-            print qq|<embed src="$config{'sound_url'}" autostart=true hidden=true>|;
-         }
+         print qq|<embed src="$config{'sound_url'}" autostart=true hidden=true>|;
       }
    }
 
-   printfooter();
-
+   printfooter(2);
 }
 ############### END DISPLAYHEADERS ##################
 
@@ -833,12 +833,21 @@ sub movemessage {
 
    $destination =~ s/\.\.+//g;
    $destination =~ s/[\s\/\`\|\<\>;]//g;		# remove dangerous char
-   ($destination =~ /(.+)/) && ($destination = $1);	# bypass taint check
+   ($destination =~ /^(.+)$/) && ($destination = $1);	# untaint ...
 
    my $op;
    if ( defined(param($lang_text{copy})) ) {	# copy button pressed
       if ($destination eq 'DELETE') {
-         return(0);	# copy to DELETE is meaningless, so return
+         if (param("messageaftermove")) {
+            my $headers = param("headers") || $prefs{"headers"} || 'simple';
+            my $attmode = param("attmode") || 'simple';
+            my $messageid = param("message_id");
+            my $escapedmessageid=escapeURL($messageid);
+            print "Location: $config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&sessionid=$thissession&firstmessage=$firstmessage&sort=$sort&keyword=$escapedkeyword&searchtype=$searchtype&folder=$escapedfolder&message_id=$escapedmessageid&headers=$headers&attmode=$attmode\n\n";
+         } else {
+            displayheaders();
+         }
+         return;	# copy to DELETE is meaningless, so return
       } else {
          $op='copy';
       }
@@ -905,6 +914,8 @@ sub movemessage {
 
    if (param("messageaftermove")) {
 #      readmessage();
+      my $headers = param("headers") || $prefs{"headers"} || 'simple';
+      my $attmode = param("attmode") || 'simple';
       my $messageid = param("message_id");
       my $escapedmessageid=escapeURL($messageid);
       print "Location: $config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&sessionid=$thissession&firstmessage=$firstmessage&sort=$sort&keyword=$escapedkeyword&searchtype=$searchtype&folder=$escapedfolder&message_id=$escapedmessageid&headers=$headers&attmode=$attmode\n\n";
@@ -934,7 +945,7 @@ sub emptytrash {
 #################### END EMPTYTRASH #######################
 
 ################## RETRIVEPOP3/RETRPOP3S ###########################
-local %pop3error;
+use vars qw(%pop3error);
 %pop3error=( -1=>"pop3book read error",
              -2=>"connect error",
              -3=>"server not ready",
@@ -945,7 +956,6 @@ local %pop3error;
              -8=>"spoolfile write error",
              -9=>"pop3book write error"
            );
-
 
 sub retrpop3 {
    my $pop3host = param("pop3host") || '';
@@ -1001,18 +1011,24 @@ sub _retrpop3 {
    }
 }
 
-
 sub retrpop3s {
    if ( ! -f "$folderdir/.pop3.book" ) {
       print "Location: $config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editpop3&sessionid=$thissession&sort=$sort&keyword=$escapedkeyword&searchtype=$searchtype&folder=$escapedfolder&firstmessage=$firstmessage\n\n";
       return;
    }
-  
+
+   if (update_pop3check()) {
+      if (defined($pop3_authserver) && $config{'getmail_from_pop3_authserver'}) {
+         my $login=$user; $login .= "\@$domain" if ($config{'auth_withdomain'});
+         _retrpop3($pop3_authserver, $login, "$folderdir/.authpop3.book");
+      }
+   }
    _retrpop3s(10, "$folderdir/.pop3.book");
 
    displayheaders();
 }
 
+use vars qw($_retrpop3s_fetch_complete);
 sub _retrpop3s {
    my ($timeout, $pop3book)=@_;
    my ($spoolfile, $headerdb)=get_folderfile_headerdb($user, 'INBOX');
@@ -1024,10 +1040,11 @@ sub _retrpop3s {
       openwebmailerror("$lang_err{'couldnt_open'} $pop3book!");
    }
 
+   local $_retrpop3s_fetch_complete=0;	# localsize this var for reentry safe
    # fork a child to do fetch pop3 mails and return immediately
    if (%accounts >0) {
       $|=1; 				# flush all output
-      $SIG{CHLD} = sub { wait; $fetch_complete=1; };	# handle zombie
+      $SIG{CHLD} = sub { wait; $_retrpop3s_fetch_complete=1; };	# handle zombie
 
       if ( fork() == 0 ) {		# child
          close(STDOUT);
@@ -1059,14 +1076,25 @@ sub _retrpop3s {
       }
    }
 
-   my $fetch_complete=0;
    for (my $i=0; $i<$timeout; $i++) {	# wait fetch to complete for $timeout seconds
       sleep 1;
-      if ($fetch_complete==1) {
-         last;
-      }
+      last if ($_retrpop3s_fetch_complete);
    }   
    return;
+}
+
+sub update_pop3check {
+   if ( (-M "$folderdir/.pop3.check") > $config{'fetchpop3interval'}/60/24
+     || !(-e "$folderdir/.pop3.check")) {
+      my $timestamp = localtime();
+      open (POP3CHECK, "> $folderdir/.pop3.check") or
+         openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.pop3.check!");
+      print POP3CHECK $timestamp;
+      close (POP3CHECK);
+      return 1;
+   } else {
+      return 0;
+   }
 }
 ################## END RETRIVEPOP3/RETRPOP3S ###########################
 
@@ -1155,13 +1183,13 @@ sub logout {
                   "&nbsp; &nbsp;".
                   button(-name=>"exit",
                          -value=>$lang_text{'exit'},
-                         -onclick=>'javascript:window.close();',
+                         -onclick=>'javascript:top.window.close();',
                          -override=>'1').
                   end_form();
    $html =~ s/\@\@\@BUTTONS\@\@\@/$temphtml/;
       
    print $html;
 
-   printfooter();
+   printfooter(2);
 }
 ################## END LOGOUT ######################

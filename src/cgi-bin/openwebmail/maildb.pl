@@ -26,11 +26,17 @@
 #
 # 2001/12/21 tung@turtle.ee.ncku.edu.tw
 #
-
+use strict;
 use Fcntl qw(:DEFAULT :flock);
 use FileHandle;
 
-# CONSTANT, message attribute number
+use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE $_STATUS $_SIZE $_REFERENCES);
+use vars qw(%month %timezones);
+
+# extern vars
+use vars qw(%config);	# defined in caller openwebmail-xxx.pl
+
+# message attribute number, CONST
 ($_OFFSET, $_FROM, $_TO, $_DATE, $_SUBJECT, $_CONTENT_TYPE, $_STATUS, $_SIZE, $_REFERENCES)
  =(0,1,2,3,4,5,6,7,8);
 
@@ -52,91 +58,91 @@ use FileHandle;
 # @monthday=qw(31 31 29 31 30 31 30 31 31 30 31 30 31);
 
 %timezones = qw(ACDT +1030
-                   ACST +0930
-                   ADT  -0300
-                   AEDT +1100
-                   AEST +1000
-                   AHDT -0900
-                   AHST -1000
-                   AST  -0400
-                   AT   -0200
-                   AWDT +0900
-                   AWST +0800
-                   AZST +0400
-                   BAT  +0300
-                   BDST +0200
-                   BET  -1100
-                   BST  -0300
-                   BT   +0300
-                   BZT2 -0300
-                   CADT +1030
-                   CAST +0930
-                   CAT  -1000
-                   CCT  +0800
-                   CDT  -0500
-                   CED  +0200
-                   CET  +0100
-                   CST  -0600
-                   EAST +1000
-                   EDT  -0400
-                   EED  +0300
-                   EET  +0200
-                   EEST +0300
-                   EST  -0500
-                   FST  +0200
-                   FWT  +0100
-                   GMT  +0000
-                   GST  +1000
-                   HDT  -0900
-                   HST  -1000
-                   IDLE +1200
-                   IDLW -1200
-                   IST  +0530
-                   IT   +0330
-                   JST  +0900
-                   JT   +0700
-                   MDT  -0600
-                   MED  +0200
-                   MET  +0100
-                   MEST +0200
-                   MEWT +0100
-                   MST  -0700
-                   MT   +0800
-                   NDT  -0230
-                   NFT  -0330
-                   NT   -1100
-                   NST  +0630
-                   NZ   +1100
-                   NZST +1200
-                   NZDT +1300
-                   NZT  +1200
-                   PDT  -0700
-                   PST  -0800
-                   ROK  +0900
-                   SAD  +1000
-                   SAST +0900
-                   SAT  +0900
-                   SDT  +1000
-                   SST  +0200
-                   SWT  +0100
-                   USZ3 +0400
-                   USZ4 +0500
-                   USZ5 +0600
-                   USZ6 +0700
-                   UT   +0000
-                   UTC  +0000
-                   UZ10 +1100
-                   WAT  -0100
-                   WET  +0000
-                   WST  +0800
-                   YDT  -0800
-                   YST  -0900
-                   ZP4  +0400
-                   ZP5  +0500
-                   ZP6  +0600);
+                ACST +0930
+                ADT  -0300
+                AEDT +1100
+                AEST +1000
+                AHDT -0900
+                AHST -1000
+                AST  -0400
+                AT   -0200
+                AWDT +0900
+                AWST +0800
+                AZST +0400
+                BAT  +0300
+                BDST +0200
+                BET  -1100
+                BST  -0300
+                BT   +0300
+                BZT2 -0300
+                CADT +1030
+                CAST +0930
+                CAT  -1000
+                CCT  +0800
+                CDT  -0500
+                CED  +0200
+                CET  +0100
+                CST  -0600
+                EAST +1000
+                EDT  -0400
+                EED  +0300
+                EET  +0200
+                EEST +0300
+                EST  -0500
+                FST  +0200
+                FWT  +0100
+                GMT  +0000
+                GST  +1000
+                HDT  -0900
+                HST  -1000
+                IDLE +1200
+                IDLW -1200
+                IST  +0530
+                IT   +0330
+                JST  +0900
+                JT   +0700
+                MDT  -0600
+                MED  +0200
+                MET  +0100
+                MEST +0200
+                MEWT +0100
+                MST  -0700
+                MT   +0800
+                NDT  -0230
+                NFT  -0330
+                NT   -1100
+                NST  +0630
+                NZ   +1100
+                NZST +1200
+                NZDT +1300
+                NZT  +1200
+                PDT  -0700
+                PST  -0800
+                ROK  +0900
+                SAD  +1000
+                SAST +0900
+                SAT  +0900
+                SDT  +1000
+                SST  +0200
+                SWT  +0100
+                USZ3 +0400
+                USZ4 +0500
+                USZ5 +0600
+                USZ6 +0700
+                UT   +0000
+                UTC  +0000
+                UZ10 +1100
+                WAT  -0100
+                WET  +0000
+                WST  +0800
+                YDT  -0800
+                YST  -0900
+                ZP4  +0400
+                ZP5  +0500
+                ZP6  +0600);
 
 if ( $config{'dbm_ext'} eq "" ) {
-   $config{'dbm_ext'}="db";
+   $config{'dbm_ext'}=".db";
 }
 
 ######################### UPDATE_HEADERDB ############################
@@ -147,12 +153,12 @@ sub update_headerdb {
    my (%HDB, %OLDHDB);
    my @oldmessageids=();
 
-   ($headerdb =~ /^(.+)$/) && ($headerdb = $1);		# bypass taint check
+   ($headerdb =~ /^(.+)$/) && ($headerdb = $1);		# untaint ...
    if ( -e "$headerdb$config{'dbm_ext'}" ) {
       my ($metainfo, $allmessages, $internalmessages, $newmessages);
 
       filelock("$headerdb$config{'dbm_ext'}", LOCK_SH);
-      dbmopen (%HDB, $headerdb, undef);
+      dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
       $metainfo=$HDB{'METAINFO'};
       $allmessages=$HDB{'ALLMESSAGES'};
       $internalmessages=$HDB{'INTERNALMESSAGES'};
@@ -175,7 +181,7 @@ sub update_headerdb {
       # we will try to reference records in old headerdb if possible
       @oldmessageids=get_messageids_sorted_by_offset("$headerdb.old");
       filelock("$headerdb.old$config{'dbm_ext'}", LOCK_SH);
-      dbmopen(%OLDHDB, "$headerdb.old", undef);
+      dbmopen(%OLDHDB, "$headerdb.old$config{'dbmopen_ext'}", undef);
    }
 
    my $messagenumber = -1;
@@ -188,12 +194,12 @@ sub update_headerdb {
 
    my @duplicateids=();
 
-   my ($line, $lastline, $lastheader, $namedatt_count, $zhtype);
+   my ($line, $lastheader, $namedatt_count, $zhtype);
    my ($_message_id, $_offset);
    my ($_from, $_to, $_date, $_subject);
    my ($_content_type, $_status, $_messagesize, $_references, $_inreplyto);
 
-   dbmopen(%HDB, $headerdb, 0600);
+   dbmopen(%HDB, "$headerdb$config{'dbmopen_ext'}", 0600);
    filelock("$headerdb$config{'dbm_ext'}", LOCK_EX);
    %HDB=();	# ensure the headerdb is empty
 
@@ -227,7 +233,6 @@ sub update_headerdb {
    }
    seek(FOLDER, $totalsize, 0);		# set file ptr back to totalsize
 
-   $lastline="\r";
    while (defined($line = <FOLDER>)) {
 
       $offset=$totalsize;
@@ -236,8 +241,7 @@ sub update_headerdb {
       # ex: From tung@turtle.ee.ncku.edu.tw Fri Jun 22 14:15:33 2001
       # ex: From tung@turtle.ee.ncku.edu.tw Mon Aug 20 18:24 CST 2001
       # ex: From nsb@thumper.bellcore.com Wed Mar 11 16:27:37 EST 1992
-      if ( $lastline =~ /^\r*$/ &&
-           $line =~ /^From .*(\w\w\w)\s+(\w\w\w)\s+(\d+)\s+(\d+):(\d+):?(\d*)\s+(\w\w\w\s+)?(\d\d+)/ ) {
+      if ( $line =~ /^From .*(\w\w\w)\s+(\w\w\w)\s+(\d+)\s+(\d+):(\d+):?(\d*)\s+(\w\w\w\s+)?(\d\d+)/ ) {
          if ($_messagesize >0) {
 
             $_from=~s/\@\@/\@\@ /g;         $_from=~s/\@$/\@ /;
@@ -256,7 +260,11 @@ sub update_headerdb {
 	    $_references =~ s/\s{2,}/ /g;
 
             if ($_message_id eq '') {	# fake messageid with date and from
-               $_message_id="$_date.".(email2nameaddr($_from))[1];
+               if ($_date ne "") {
+                  $_message_id="$_date.".(email2nameaddr($_from))[1];
+               } else {
+                  $_message_id = getdateserial().'.X'.int(rand()*100000);
+               }
                $_message_id=~s![\<\>\(\)\s\/"':]!!g;
                $_message_id="<$_message_id>";
             }
@@ -298,7 +306,7 @@ sub update_headerdb {
             if ($line =~ /^\r*$/) {
                $inheader = 0;
 
-               ### Convert to readable text from MIME-encoded
+               # Convert to readable text from MIME-encoded
                $_from = decode_mimewords($_from);
                $_subject = decode_mimewords($_subject);
 
@@ -412,7 +420,6 @@ sub update_headerdb {
          }
       }
 
-      $lastline=$line;
    }
 
    # Catch the last message, since there won't be a From: to trigger the capture
@@ -488,7 +495,7 @@ sub get_messageids_sorted_by_offset {
    my (%HDB, @attr, %offset, $key, $data);
 
    filelock("$headerdb$config{'dbm_ext'}", LOCK_SH);
-   dbmopen(%HDB, $headerdb, undef);
+   dbmopen(%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
 
    while ( ($key, $data)=each(%HDB) ) {
       next if ( $key eq 'METAINFO' 
@@ -545,7 +552,7 @@ sub get_info_messageids_sorted {
    }
 
    filelock("$headerdb$config{'dbm_ext'}", LOCK_SH);
-   dbmopen(%HDB, $headerdb, undef);
+   dbmopen(%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
    $metainfo=$HDB{'METAINFO'};
    dbmclose(%HDB);
    filelock("$headerdb$config{'dbm_ext'}", LOCK_UN);
@@ -565,7 +572,7 @@ sub get_info_messageids_sorted {
    if ( $cache_metainfo ne $metainfo || $cache_headerdb ne $headerdb ||
         $cache_sort ne $sort || $cache_ignore_internal ne $ignore_internal || 
         $totalsize=~/[^\d]/ ) { 
-      ($cachefile =~ /^(.+)$/) && ($cachefile = $1);		# bypass taint check
+      ($cachefile =~ /^(.+)$/) && ($cachefile = $1);		# untaint ...
       open(CACHE, ">$cachefile");
       print CACHE $metainfo, "\n", $headerdb, "\n", $sort, "\n", $ignore_internal, "\n";
       if ( $sort eq 'date' ) {
@@ -634,7 +641,7 @@ sub get_info_messageids_sorted_by_date {
    my @messageids;
 
    filelock("$headerdb$config{'dbm_ext'}", LOCK_SH);
-   dbmopen(%HDB, $headerdb, undef);
+   dbmopen(%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
    while ( ($key, $data)=each(%HDB) ) {
       if ( $key eq 'METAINFO' ||
            $key eq 'ALLMESSAGES' ||
@@ -665,7 +672,7 @@ sub get_info_messageids_sorted_by_from {
    my @messageids;
 
    filelock("$headerdb$config{'dbm_ext'}", LOCK_SH);
-   dbmopen(%HDB, $headerdb, undef);
+   dbmopen(%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
    while ( ($key, $data)=each(%HDB) ) {
       if ( $key eq 'METAINFO' ||
            $key eq 'ALLMESSAGES' ||
@@ -719,7 +726,7 @@ sub get_info_messageids_sorted_by_to {
    my @messageids;
 
    filelock("$headerdb$config{'dbm_ext'}", LOCK_SH);
-   dbmopen(%HDB, $headerdb, undef);
+   dbmopen(%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
    while ( ($key, $data)=each(%HDB) ) {
       if ( $key eq 'METAINFO' ||
            $key eq 'ALLMESSAGES' ||
@@ -776,7 +783,7 @@ sub get_info_messageids_sorted_by_subject {
    my (@message_ids, @message_depths);
 
    filelock("$headerdb$config{'dbm_ext'}", LOCK_SH);
-   dbmopen(%HDB, $headerdb, undef);
+   dbmopen(%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
    while ( ($key, $data)=each(%HDB) ) {
       if ( $key eq 'METAINFO' ||
            $key eq 'ALLMESSAGES' ||
@@ -852,22 +859,29 @@ sub get_info_messageids_sorted_by_subject {
    }
 
    # Finally, we recursively traverse the tree.
-   sub recursively_thread {
-      my ($id, $depth) = @_;
-      push @message_ids, $id;
-      push @message_depths, $depth;
-      my @children = sort { $dateserial{$a} <=> $dateserial{$b}; } @{$thread_children{$id}};
-      foreach my $thread (@children) {
-         recursively_thread ($thread, $depth+1);
-      }
-   }
-
    @thread_roots = sort { $dateserial{$a} <=> $dateserial{$b}; } @thread_roots;
    foreach my $key (@thread_roots) {
-      recursively_thread ($key, 0);
+      _recursively_thread ($key, 0, 
+		\@message_ids, \@message_depths, \%thread_children, \%dateserial);
    }
    return($totalsize, $new, \@message_ids, \@message_depths);
 }
+
+sub _recursively_thread {
+   my ($id, $depth,  
+	$r_message_ids, $r_message_depths, $r_thread_children, $r_dateserial) = @_;
+
+   push @{$r_message_ids}, $id;
+   push @{$r_message_depths}, $depth;
+   if (defined(${$r_thread_children}{$id})) {
+      my @children = sort { ${$r_dateserial}{$a} <=> ${$r_dateserial}{$b}; } @{${$r_thread_children}{$id}};
+      foreach my $thread (@children) {
+         _recursively_thread ($thread, $depth+1, 
+	 $r_message_ids, $r_message_depths, $r_thread_children, $r_dateserial);
+      }
+   }
+}
+
 
 sub get_info_messageids_sorted_by_size {
    my ($headerdb, $ignore_internal)=@_;
@@ -876,7 +890,7 @@ sub get_info_messageids_sorted_by_size {
    my @messageids;
 
    filelock("$headerdb$config{'dbm_ext'}", LOCK_SH);
-   dbmopen(%HDB, $headerdb, undef);
+   dbmopen(%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
    while ( ($key, $data)=each(%HDB) ) {
       if ( $key eq 'METAINFO' ||
            $key eq 'ALLMESSAGES' ||
@@ -910,7 +924,7 @@ sub get_info_messageids_sorted_by_status {
    my @messageids;
 
    filelock("$headerdb$config{'dbm_ext'}", LOCK_SH);
-   dbmopen(%HDB, $headerdb, undef);
+   dbmopen(%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
    while ( ($key, $data)=each(%HDB) ) {
       if ( $key eq 'METAINFO' ||
            $key eq 'ALLMESSAGES' ||
@@ -948,8 +962,6 @@ sub get_info_messageids_sorted_by_status {
                     } keys(%status);
    return($totalsize, $new, \@messageids);
 }
-
-
 ############### END GET_MESSAGEIDS_SORTED_BY_...  #################
 
 ####################### GET_MESSAGE_.... ###########################
@@ -958,13 +970,12 @@ sub get_message_attributes {
    my (%HDB, @attr);
 
    filelock("$headerdb$config{'dbm_ext'}", LOCK_SH);
-   dbmopen(%HDB, $headerdb, undef);
+   dbmopen(%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
    @attr=split(/@@@/, $HDB{$messageid} );
    dbmclose(%HDB);
    filelock("$headerdb$config{'dbm_ext'}", LOCK_UN);
    return(@attr);
 }
-
 
 sub get_message_block {
    my ($messageid, $headerdb, $folderhandle)=@_;
@@ -981,7 +992,6 @@ sub get_message_block {
    }
    return(\$buff);
 }
-
 
 sub get_message_header {
    my ($messageid, $headerdb, $folderhandle)=@_;
@@ -1005,7 +1015,6 @@ sub get_message_header {
 
 ###################### END GET_MESSAGE_.... ########################
 
-
 ###################### UPDATE_MESSAGE_STATUS ########################
 sub update_message_status {
    my ($messageid, $status, $headerdb, $folderfile) = @_;
@@ -1021,7 +1030,7 @@ sub update_message_status {
    my $i;
 
    filelock("$headerdb$config{'dbm_ext'}", LOCK_EX);
-   dbmopen (%HDB, $headerdb, 0600);
+   dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", 0600);
 
    for ($i=0; $i<=$#messageids; $i++) {
       if ($messageids[$i] eq $messageid) {
@@ -1158,11 +1167,11 @@ sub operate_message_with_ids {
    my $counted=0;
    
    filelock("$srcdb$config{'dbm_ext'}", LOCK_EX);
-   dbmopen (%HDB, $srcdb, 0600);
+   dbmopen (%HDB, "$srcdb$config{'dbmopen_ext'}", 0600);
 
    if ($op eq "move" || $op eq "copy") {
       filelock("$dstdb$config{'dbm_ext'}", LOCK_EX);
-      dbmopen (%HDB2, "$dstdb", 0600);
+      dbmopen (%HDB2, "$dstdb$config{'dbmopen_ext'}", 0600);
    }
 
    $blockstart=$blockend=$writepointer=0;
@@ -1174,8 +1183,14 @@ sub operate_message_with_ids {
       $messagevalid=1;
 
       seek($folderhandle, $attr[$_OFFSET], 0);
-      read($folderhandle, $buff, 5);
-      $messagevalid=0 if ($buff!~/^From /);
+      if ($attr[$_OFFSET] == 0) {
+         $messagevalid=1;
+      } elsif ($attr[$_SIZE]<=5) {
+         $messagevalid=0;
+      } else {
+         read($folderhandle, $buff, 5);
+         $messagevalid=0 if ($buff!~/^From /);
+      }
 
       if ($messageids =~ /^\Q$allmessageids[$i]\E$/m && $messagevalid) { # msg to be operated
          $counted++;
@@ -1274,7 +1289,7 @@ sub delete_message_by_age {
    @allmessageids=get_messageids_sorted_by_offset($headerdb);
 
    filelock("$headerdb$config{'dbm_ext'}", LOCK_EX);
-   dbmopen (%HDB, $headerdb, 0600);
+   dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", 0600);
    foreach (@allmessageids) {
       my @attr = split(/@@@/, $HDB{$_});
       push(@agedids, $_) if (dateserial2age($attr[$_DATE])>=$age);
@@ -1295,7 +1310,7 @@ sub move_oldmsg_from_folder {
    my @messageids=();
 
    filelock("$srcdb$config{'dbm_ext'}", LOCK_SH);
-   dbmopen (%HDB, $srcdb, undef);
+   dbmopen (%HDB, "$srcdb$config{'dbmopen_ext'}", undef);
 
    # if oldmsg == internal msg or 0, then do not read ids
    if ( $HDB{'ALLMESSAGES'}-$HDB{'NEWMESSAGES'} > $HDB{'INTERNALMESSAGES'} ) {
@@ -1335,7 +1350,7 @@ sub rebuild_message_with_partialid {
 
    # find all partial msgids
    filelock("$headerdb$config{'dbm_ext'}", LOCK_SH);
-   dbmopen (%HDB, $headerdb, undef);
+   dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
    @messageids=keys %HDB;
    foreach my $id (@messageids) {
       next if ( $id eq 'METAINFO' 
@@ -1371,7 +1386,8 @@ sub rebuild_message_with_partialid {
       }
    }
 
-   my ($tmpfile, $tmpdb)=get_folderfile_headerdb($user, "_rebuild_tmp_$$");
+   my $tmpfile="/tmp/rebuild_tmp_$$";
+   my $tmpdb="/tmp/.rebuild_tmp_$$";
    ($tmpfile =~ /^(.+)$/) && ($tmpfile = $1);
    ($tmpdb =~ /^(.+)$/) && ($tmpdb = $1);
 
@@ -1422,22 +1438,12 @@ sub rebuild_message_with_partialid {
       return(-4);
    }
 
-   my ($trashfile, $trashdb)=get_folderfile_headerdb($user, "mail-trash");
-   ($trashfile =~ /^(.+)$/) && ($trashfile = $1);
-   ($trashdb =~ /^(.+)$/) && ($trashdb = $1);
-
-   # move partial msgs to trash folder
-   if ($folderfile ne $trashfile) {
-      filelock("$trashfile", LOCK_EX);
-      my $moved=operate_message_with_ids("move", \@partialmsgids, 
-				$folderfile, $headerdb, $trashfile, $trashdb);
-      filelock("$trashfile", LOCK_UN);
-   }
-
    my $moved=operate_message_with_ids("move", \@rebuildmsgids, 
 				$tmpfile, $tmpdb, $folderfile, $headerdb);
+
    unlink("$tmpdb$config{'dbm_ext'}", $tmpfile);
-   return(0, $rebuildmsgids[0]);
+
+   return(0, $rebuildmsgids[0], @partialmsgids);
 }
 
 ##################### END REBUILD_MESSAGE_WITH_PARTIALID #################
@@ -1473,7 +1479,9 @@ sub parse_rfc822block {
       my $boundarylen;
       my ($bodystart, $boundarystart, $nextboundarystart, $attblockstart);
 
-      $boundary =~ s/.*?boundary\s?=\s?"?([^\s"]+)[\s"]?.*$/$1/i;
+      $boundary =~ s/.*?boundary\s?=\s?"([^"]+)".*$/$1/i ||
+      $boundary =~ s/.*?boundary\s?=\s?([^\s]+)\s?.*$/$1/i;
+
       $boundary="--$boundary";
       $boundarylen=length($boundary);
 
@@ -1598,7 +1606,8 @@ sub parse_rfc822block {
          # null searchid means CGI is in returning html code or in context searching
          # thus content of an non-text based attachment is no need to be returned
          my $bodylength=length(${$r_block})-($headerlen+2);
-         push(@attachments, make_attachment("","", "","snipped...",$bodylength,
+         my $fakeddata="snipped...";
+         push(@attachments, make_attachment("","", "",\$fakeddata,$bodylength,
 					$encoding,$contenttype, "","","",$description, $nodeid) );
       }
       return($header, " ", \@attachments);
@@ -1660,6 +1669,9 @@ sub parse_attblock {
 
       my ($boundarystart, $nextboundarystart, $subattblockstart);
       my $subattblock="";
+
+      $boundary =~ s/.*?boundary\s?=\s?"([^"]+)".*$/$1/i ||
+      $boundary =~ s/.*?boundary\s?=\s?([^\s]+)\s?.*$/$1/i;
 
       $boundary =~ s/.*?boundary\s?=\s?"?([^\s"]+)[\s"]?.*$/$1/i;
       $boundary="--$boundary";
@@ -1783,7 +1795,8 @@ sub parse_attblock {
          # null searchid means CGI is in returning html code or in context searching
          # thus content of an non-text based attachment is no need to be returned
          my $attcontentlength=$attblocklen-($attheaderlen+2);
-         push(@attachments, make_attachment($subtype,$boundary, $attheader,"snipped...",$attcontentlength,
+         my $fakeddata="snipped...";
+         push(@attachments, make_attachment($subtype,$boundary, $attheader,\$fakeddata,$attcontentlength,
 		$attencoding,$attcontenttype, $attdisposition,$attid,$attlocation,$attdescription, $nodeid) );
       }
 
@@ -1980,7 +1993,7 @@ sub search_info_messages_for_keyword {
    my %found=();
 
    filelock("$headerdb$config{'dbm_ext'}", LOCK_SH);
-   dbmopen (%HDB, $headerdb, undef);
+   dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
    $metainfo=$HDB{'METAINFO'};
    dbmclose(%HDB);
    filelock("$headerdb$config{'dbm_ext'}", LOCK_UN);
@@ -2000,7 +2013,7 @@ sub search_info_messages_for_keyword {
    if ( $cache_metainfo ne $metainfo || $cache_headerdb ne $headerdb ||
         $cache_keyword ne $keyword || $cache_searchtype ne $searchtype ||
         $cache_ignore_internal ne $ignore_internal ) {
-      ($cachefile =~ /^(.+)$/) && ($cachefile = $1);		# bypass taint check
+      ($cachefile =~ /^(.+)$/) && ($cachefile = $1);		# untaint ...
       open(CACHE, ">$cachefile");
       print CACHE $metainfo, "\n";
       print CACHE $headerdb, "\n";
@@ -2011,7 +2024,7 @@ sub search_info_messages_for_keyword {
       @messageids=get_messageids_sorted_by_offset($headerdb, $folderhandle);
 
       filelock("$headerdb$config{'dbm_ext'}", LOCK_SH);
-      dbmopen (%HDB, $headerdb, undef);
+      dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
 
       foreach $messageid (@messageids) {
          my (@attr, $block, $header, $body, $r_attachments) ;

@@ -1,3 +1,6 @@
+#
+# this is used by author to mail tarball to mirror
+#
 date=`date "+%y%m%d"`
 
 echo send openwebmail-current.tgz to mirror sites?
@@ -8,6 +11,7 @@ if [ "$ans" = "y" -o "$ans" = "Y" ]; then
   echo "openwebmail current $date"| \
   /usr/local/bin/mutt -s "openwebmail current $date" \
   -a /usr/local/www/data/openwebmail/download/openwebmail-current.tgz \
+  -a /usr/local/www/data/openwebmail/download/openwebmail-current-*.diff.gz \
   -a /usr/local/www/data/openwebmail/download/doc/changes.txt \
   openwebmail@turtle.ee.ncku.edu.tw \
   tchung@lmitlinux.jpl.nasa.gov 
@@ -42,7 +46,10 @@ if [ "$ans" = "y" -o "$ans" = "Y" ]; then
   kivilahti@exdecfinland.org \
   heljalaitinen@hotmail.com \
   michal@stavlib.hiedu.cz \
-  duster@tpu.ru
+  duster@tpu.ru \
+  vess@btc.net \
+  liangs@kunchang.com.tw \
+  eguler@aegee.metu.edu.tr
 
   echo "openwebmail current $date is available at
 http://turtle.ee.ncku.edu.tw/openwebmail/download/openwebmail-current.tgz">/tmp/mktgz.tmp.$$

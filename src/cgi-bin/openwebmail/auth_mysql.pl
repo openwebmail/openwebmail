@@ -3,6 +3,7 @@
 # 
 # 2002/03/07 Alan Sung - AlanSung@dragon2.net
 #
+
 my $MySQLHost = "dragon2.net";	# INSERT THE MYSQL SERVER IP HERE.
 my $sqlusr = "";		# INSERT THE MYSQL USER HERE.
 my $sqlpwd = "";		# INSERT THE MYSQL PASSWORD HERE.
@@ -16,8 +17,11 @@ my $field_uid = "u_id";
 my $field_gid = "g_id";
 my $field_home = "home";
 
+my $pass_type	= "cleartxt"; 		# crypt, cleartxt
+
 ################### No configuration required from here ###################
 
+use strict;
 use DBI;
 
 sub get_userinfo {
@@ -46,7 +50,6 @@ sub get_userinfo {
 }
 
 
-# Not Yet Implement for MySQL
 sub get_userlist {      # only used by checkmail.pl -a
    my @userlist=();
 
@@ -96,11 +99,19 @@ sub check_userpassword {
          $sth->finish;
          $dbh->disconnect or warn "Disconnection failed: $DBI::errstr\n";
 	 my $tmp_pwd = $result->{$field_password};
-	 if ($tmp_pwd ne $password) {
-	    return -4;
-	 } else {
-	    return 0;
-	 }
+         if ($pass_type eq "cleartxt") {
+	    if ($tmp_pwd eq $password) {
+	       return 0;
+	    } else {
+	       return -4;
+	    }
+         } elsif ($pass_type eq "crypt") {
+	    if ($tmp_pwd eq crypt($password, $tmp_pwd)) {
+               return 0;
+	    } else {
+	       return -4;
+	    }
+         }
       }
    }
 }
@@ -122,6 +133,14 @@ sub change_userpassword {
 
    my $test = &check_userpassword ($user, $oldpassword);
    return -4 unless $test eq 0;
+
+   if ($pass_type eq "crypt") { # encrypt the passwd
+      srand();
+      my $table="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+      my $salt=substr($table, int(rand(length($table))), 1).
+               substr($table, int(rand(length($table))), 1);
+      $newpassword = crypt($newpassword, $salt);
+   }
 
    my $dbh = DBI->connect("dbi:mysql:$auth_db;host=$MySQLHost", $sqlusr,$sqlpwd)
       or die "Cannot connect to db server: ", $DBI::errstr, "\n";

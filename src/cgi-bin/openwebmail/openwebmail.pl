@@ -10,35 +10,49 @@
 # This program is distributed under GNU General Public License              #
 #############################################################################
 
-local $SCRIPT_DIR="";
+use vars qw($SCRIPT_DIR);
 if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-]+\.pl! ) { $SCRIPT_DIR=$1; }
 if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
+push (@INC, $SCRIPT_DIR, ".");
+
+$ENV{PATH} = ""; # no PATH should be needed
+$ENV{BASH_ENV} = ""; # no startup script for bash
+umask(0007); # make sure the openwebmail group can write
 
 use strict;
-no strict 'vars';
 use Fcntl qw(:DEFAULT :flock);
 use Socket;
 use CGI qw(:standard);
 use CGI::Carp qw(fatalsToBrowser);
 CGI::nph();   # Treat script as a non-parsed-header script
 
-$ENV{PATH} = ""; # no PATH should be needed
-$ENV{BASH_ENV} = ""; # no startup script for bash
-umask(0007); # make sure the openwebmail group can write
-
-push (@INC, $SCRIPT_DIR, ".");
 require "openwebmail-shared.pl";
 require "filelock.pl";
 
-local (%config, %config_raw);
-local $thissession;
-local ($loginname, $domain, $user, $userrealname, $uuid, $ugid, $homedir);
-local (%prefs, %style);
-local ($lang_charset, %lang_folders, %lang_sortlabels, %lang_text, %lang_err);
-local $folderdir;
+use vars qw(%config %config_raw);
+use vars qw($thissession);
+use vars qw($loginname $domain $user $userrealname $uuid $ugid $homedir);
+use vars qw(%prefs %style);
+use vars qw($folderdir);
+
+# extern vars
+use vars qw($lang_charset %lang_text %lang_err);	# defined in lang/xy
+use vars qw($pop3_authserver);	# defined in auth_pop3.pl
 
 readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf.default");
 readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf") if (-f "$SCRIPT_DIR/etc/openwebmail.conf");
+
+# setuid is required if mails is located in user's dir
+if ( $>!=0 && ($config{'use_homedirspools'}||$config{'use_homedirfolders'}) ) {
+   print "Content-type: text/html\n\n'$0' must setuid to root"; exit 0;
+}
+
+# validate allowed_serverdomain
+my $httphost=$ENV{'HTTP_HOST'}; $httphost=~s/:\d+$//;	# remove port number
+if (! is_serverdomain_allowed($httphost) ) {
+   print "Content-type: text/html\n\nService is not available for domain  ' $httphost '";
+   exit 0;
+}
 
 if ( $config{'logfile'} ne 'no' && ! -f $config{'logfile'} ) {
    my $mailgid=getgrnam('mail');
@@ -47,11 +61,6 @@ if ( $config{'logfile'} ne 'no' && ! -f $config{'logfile'} ) {
    close(LOGFILE);
    chmod(0660, $config{'logfile'});
    chown($>, $mailgid, $config{'logfile'});
-}
-
-# setuid is required if mails is located in user's dir
-if ( $>!=0 && ($config{'use_homedirspools'}||$config{'use_homedirfolders'}) ) {
-   print "Content-type: text/html\n\n'$0' must setuid to root"; exit 0;
 }
 
 %prefs = %{&readprefs};
@@ -64,11 +73,19 @@ $lang_charset ||= 'iso-8859-1';
 ####################### MAIN ##########################
 if ( param("loginname") && param("password") ) {
    $loginname=param("loginname");
+   if ($loginname!~/\@/ && param("logindomain") ne "") {
+      $loginname .= "\@".param("logindomain");
+   }
    my $siteconf;
    if ($loginname=~/\@(.+)$/) {
-       $siteconf="$config{'ow_etcdir'}/sites.conf/$1";
+       my $domain=$1;
+       if (! is_serverdomain_allowed($domain)) {
+          openwebmailerror("Service is not available for domain  ' $domain '");
+       }
+       $siteconf="$config{'ow_etcdir'}/sites.conf/$domain";
    } else {
-       $siteconf="$config{'ow_etcdir'}/sites.conf/$ENV{'HTTP_HOST'}";
+       my $httphost=$ENV{'HTTP_HOST'}; $httphost=~s/:\d+$//;	# remove port number
+       $siteconf="$config{'ow_etcdir'}/sites.conf/$httphost";
    }
    readconf(\%config, \%config_raw, "$siteconf") if ( -f "$siteconf"); 
 
@@ -84,7 +101,9 @@ if ( param("loginname") && param("password") ) {
       chown($>, $mailgid, $config{'logfile'});
    }
 
-   update_virtusertable("$config{'ow_etcdir'}/virtusertable", $config{'virtusertable'});
+   my $virtname=$config{'virtusertable'}; 
+   $virtname=~s!/!.!g; $virtname=~s/^\.+//;
+   update_virtusertable("$config{'ow_etcdir'}/$virtname", $config{'virtusertable'});
 
    login();
 } else {            # no action has been taken, display login page
@@ -114,16 +133,28 @@ sub loginmenu {
    $html =~ s/\@\@\@STARTFORM\@\@\@/$temphtml/;
    $temphtml = textfield(-name=>'loginname',
                          -default=>'',
-                         -size=>'10',
+                         -size=>'12',
                          -onChange=>'focuspwd()', 
                          -override=>'1');
    $html =~ s/\@\@\@USERIDFIELD\@\@\@/$temphtml/;
    $temphtml = password_field(-name=>'password',
                               -default=>'',
-                              -size=>'10',
+                              -size=>'12',
                               -onChange=>'focuslogin()', 
                               -override=>'1');
    $html =~ s/\@\@\@PASSWORDFIELD\@\@\@/$temphtml/;
+
+   if ( $#{$config{'domainnames'}} >0 ) {
+      $temphtml = popup_menu(-name=>'logindomain',
+                             -values=>[@{$config{'domainnames'}}] );
+      $html =~ s/\@\@\@DOMAINMENU\@\@\@/$temphtml/;
+      $html =~ s/\@\@\@DOMAINSTART\@\@\@//;
+      $html =~ s/\@\@\@DOMAINEND\@\@\@//;
+   } else {
+      $html =~ s/\@\@\@DOMAINSTART\@\@\@/<!--/;
+      $html =~ s/\@\@\@DOMAINEND\@\@\@/-->/;
+   }
+
    $temphtml = submit(-name =>"login",
 		      -value=>"$lang_text{'login'}" );
 
@@ -163,12 +194,7 @@ sub login {
    if ($config{'auth_withdomain'}) {
       $errorcode=check_userpassword("$user\@$domain", $password);
    } else {
-      if ($domain eq $ENV{'HTTP_HOST'}) {
-         $errorcode=check_userpassword($user, $password);
-      } else {
-         sleep $config{'loginerrordelay'};	# delayed response
-         openwebmailerror("$lang_err{'user_not_exist'}");
-      }
+      $errorcode=check_userpassword($user, $password);
    }
    if ( $errorcode==0 ) {
       my $userconf="$config{'ow_etcdir'}/users.conf/$user";
@@ -180,9 +206,9 @@ sub login {
       if ($#{$config{'allowed_clientip'}}>=0) {
          my $allowed=0;
          foreach my $token (@{$config{'allowed_clientip'}}) {
-            if ($token eq 'ALL' || $clientip=~/^\Q$token\E/) {
+            if (lc($token) eq 'all' || $clientip=~/^\Q$token\E/) {
                $allowed=1; last;
-            } elsif ($token eq 'NONE') {
+            } elsif (lc($token) eq 'none') {
                last;
             }
          }
@@ -195,9 +221,9 @@ sub login {
          my $clientdomain;
          my $allowed=0;
          foreach my $token (@{$config{'allowed_clientdomain'}}) {
-            if ($token eq 'ALL') {
+            if (lc($token) eq 'all') {
                $allowed=1; last;
-            } elsif ($token eq 'NONE') {
+            } elsif (lc($token) eq 'none') {
                last;
             }
             $clientdomain=ip2hostname($clientip) if ($clientdomain eq "");
@@ -211,9 +237,12 @@ sub login {
          }
       }
 
-      $thissession = $loginname. "-session-" . rand(); # name the sessionid
+      # search old alive session and deletes old expired sessionids 
+      $thissession = search_and_cleanoldsessions(cookie("$user-sessionid")); 
+      if ($thissession eq "") {
+         $thissession = $loginname. "-session-" . rand(); # name the sessionid
+      }
       writelog("login - $thissession");
-      cleanupoldsessions(); # Deletes sessionids that have expired
 
       if ( $config{'use_homedirspools'} || $config{'use_homedirfolders'} ) {
          my $mailgid=getgrnam('mail');
@@ -246,16 +275,22 @@ sub login {
       # create system spool file /var/mail/xxxx
       my ($spoolfile, $headerdb)=get_folderfile_headerdb($user, 'INBOX');
       if ( ! -f "$spoolfile" ) {
-         ($spoolfile =~ /^(.+)$/) && ($spoolfile = $1); # bypass taint check
+         ($spoolfile =~ /^(.+)$/) && ($spoolfile = $1); # untaint ...
          open (F, ">>$spoolfile"); close(F);
          chown($uuid, $ugid, $spoolfile);
       }
 
       # create session file
-      my $setcookie = crypt(rand(),'OW');
+      my $setcookie;
+      if ( -f "$config{'ow_etcdir'}/sessions/$thissession" ) { # continue an old session?
+         $setcookie = cookie("$user-sessionid");
+      } else {						       # a brand new sesion?
+         $setcookie = crypt(rand(),'OW');
+      }
       open (SESSION, "> $config{'ow_etcdir'}/sessions/$thissession") or # create sessionid
          openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/sessions/$thissession!");
-      print SESSION $setcookie;
+      print SESSION $setcookie, "\n";
+      print SESSION get_clientip(), "\n";
       close (SESSION);
       writehistory("login - $thissession");
 
@@ -351,12 +386,19 @@ sub login {
                            -path    => '/' );
       push(@headers, -cookie=>$cookie);
       push(@headers, -charset=>$lang_charset) if ($CGI::VERSION>=2.57);
-      push(@headers, -Refresh=>"0;URL=$url");
+
+      # load page with Refresh header only if not MSIE on Mac
+      my $refresh;
+      if ($ENV{'HTTP_USER_AGENT'} !~ /MSIE.+Mac/) { 
+         # push(@headers, -Refresh=>"0;URL=$url");
+         $refresh=qq|<meta http-equiv="refresh" content="0;URL=$url">|;
+      }
+
       print header(@headers);
 
       # display copyright. Don't touch it, please.
       print	qq|<html>\n|,
-		qq|<head><title>Copyright</title></head>\n|,
+		qq|<head><title>Copyright</title>$refresh</head>\n|,
 		qq|<body bgcolor="#ffffff" background="$prefs{'bgurl'}">\n|,
 		qq|<style type="text/css"><!--\n|,
 		qq|body { background-image: url($prefs{'bgurl'}); background-repeat: no-repeat; }\n|,
@@ -369,7 +411,7 @@ sub login {
 		qq|<font color="#cccccc" face="arial,helvetica,sans-serif" size=-1>\n|,
                 qq|$config{'name'} $config{'version'} $config{'releasedate'}<br><br>\n|,
 		qq|Copyright (C) 2001-2002<br>\n|,
-		qq|Chung-Kie Tung, Nai-Jung Kuo, Chao-Chiu Wang, Emir Litric<br><br>\n|,
+		qq|Chung-Kie Tung, Nai-Jung Kuo, Chao-Chiu Wang, Emir Litric, Thomas Chung<br><br>\n|,
 		qq|Copyright (C) 2000<br>\n|,
 		qq|Ernie Miller  (original GPL project: Neomail)<br><br>\n|,
 		qq|</font></a>\n\n|,
@@ -383,11 +425,16 @@ sub login {
 		qq|MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.<br>\n|,
 		qq|See the GNU General Public License for more details.<br><br>\n|,
 		qq|Removal or change of this copyright is prohibited.\n|,
-		qq|</font></a>\n\n|,
-                qq|<script language="JavaScript">\n<!--\n|,
-                qq|window.open('$url','_self')\n|,
-                qq|//-->\n</script>\n|,
-		qq|</center></body></html>\n|;
+		qq|</font></a>\n\n|;
+
+      # load page with java script if MSIE on Mac
+      if ($ENV{'HTTP_USER_AGENT'}=~/MSIE.+Mac/) { 
+         print  qq|<script language="JavaScript">\n<!--\n|,
+		qq|setTimeout("window.open('$url','_self')", 1*1000);\n|,
+		qq|//-->\n</script>\n|;
+      }
+
+      print     qq|</center></body></html>\n|;
       exit(0);
 
    } else { # Password is INCORRECT
@@ -442,7 +489,7 @@ sub login {
       $html = applystyle($html);
       
       print $html;
-      printfooter();
+      printfooter(1);
       exit 0;
    }
 }
@@ -461,21 +508,65 @@ sub ip2hostname {
 }
 #################### END LOGIN #####################
 
+############### IS_SERVERDOMAIN_ALLOWED ###################
+sub is_serverdomain_allowed {
+   my $domain=$_[0];
+   if ($#{$config{'allowed_serverdomain'}}>=0) {
+      foreach my $token (@{$config{'allowed_serverdomain'}}) {
+         if (lc($token) eq 'all' || lc($domain) eq lc($token)) {
+            return 1;
+         } elsif (lc($token) eq 'none') {
+            return 0;
+         }
+      }
+      return 0;
+   } else {
+      return 1;
+   }
+}
+############### END IS_SERVERDOMAIN_ALLOWED ###################
+
 ################ CLEANUPOLDSESSIONS ##################
-sub cleanupoldsessions {
+# delete expired session files and 
+# try to find old session that is still valid for the same user cookie
+sub search_and_cleanoldsessions {
+   my $oldcookie=$_[0];
+   my $oldsessionid="";
+
    my $sessionid;
    opendir (SESSIONSDIR, "$config{'ow_etcdir'}/sessions") or
       openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/sessions!");
    while (defined($sessionid = readdir(SESSIONSDIR))) {
       if ($sessionid =~ /^(.+\-session\-0.*)$/) {
          $sessionid = $1;
-         if ( -M "$config{'ow_etcdir'}/sessions/$sessionid" > $config{'sessiontimeout'}/60/24 ) {
-            writelog("session cleanup - $sessionid");
-            unlink "$config{'ow_etcdir'}/sessions/$sessionid";
+         if ($sessionid =~ /^$loginname\-session\-0./) { # remove user old session if timeout
+            if ( -M "$config{'ow_etcdir'}/sessions/$sessionid" > $prefs{'sessiontimeout'}/60/24 ) {
+               writelog("session cleanup - $sessionid");
+               unlink "$config{'ow_etcdir'}/sessions/$sessionid";
+            } else {	# remove user old session from same client 
+               open (SESSION, "$config{'ow_etcdir'}/sessions/$sessionid");
+               my $cookie = <SESSION>; chomp $cookie;
+               my $ip = <SESSION>; chomp $ip;
+               close (SESSION);
+               if ($ip eq get_clientip()) {
+                  if ($cookie eq $oldcookie && $oldcookie ne "") {
+                     $oldsessionid=$sessionid;
+                  } else {
+                     writelog("session cleanup - $sessionid");
+                     unlink "$config{'ow_etcdir'}/sessions/$sessionid";
+                  }
+               }
+            }
+         } else {	# remove others old session if more than 1 day
+            if ( -M "$config{'ow_etcdir'}/sessions/$sessionid" > 1 ) {
+               writelog("session cleanup - $sessionid");
+               unlink "$config{'ow_etcdir'}/sessions/$sessionid";
+            }
          }
       }
    }
    closedir (SESSIONSDIR);
+   return($oldsessionid);
 }
 ############## END CLEANUPOLDSESSIONS ################
 
@@ -485,9 +576,8 @@ sub releaseupgrade {
    my ($folderdir, $user_releasedate)=@_;
    my $content;
    my $rc_upgrade=0;
-   local ($_OFFSET, $_FROM, $_TO, $_DATE, $_SUBJECT, $_CONTENT_TYPE, $_STATUS, $_SIZE, $_REFERENCES)
+   my ($_OFFSET, $_FROM, $_TO, $_DATE, $_SUBJECT, $_CONTENT_TYPE, $_STATUS, $_SIZE, $_REFERENCES)
        =(0,1,2,3,4,5,6,7,8);
-
 
    if ( $user_releasedate lt "20011101" ) {
       if ( -f "$folderdir/.filter.book" ) {
@@ -577,9 +667,8 @@ sub releaseupgrade {
       opendir (FOLDERDIR, "$folderdir") or
          openwebmailerror("$lang_err{'couldnt_open'} $folderdir");
       while (defined($file = readdir(FOLDERDIR))) {
-         if ($file=~/^\..*.cache$/) {
-            $file="$folderdir/$file";
-            ($file=~/^(.*)$/) && ($file=$1);
+         if ($file=~/^(\..+\.cache)$/) {
+            $file="$folderdir/$1";
             push(@cachefiles, $file);
          }
       }
@@ -605,7 +694,7 @@ sub releaseupgrade {
          filelock($folderfile, LOCK_SH);
          open (FOLDER, $folderfile);
          filelock("$headerdb$config{'dbm_ext'}", LOCK_EX);
-         dbmopen (%HDB, $headerdb, undef);
+         dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
 
          if ( $HDB{'METAINFO'} eq metainfo($folderfile) ) { # upgrade only if hdb is uptodate
             @messageids=keys %HDB;
@@ -668,7 +757,7 @@ sub releaseupgrade {
          next if ( ! -f "$headerdb$config{'dbm_ext'}");
 
          filelock("$headerdb$config{'dbm_ext'}", LOCK_EX);
-         dbmopen (%HDB, $headerdb, undef);
+         dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
 
          @messageids=keys %HDB;
          foreach my $id (@messageids) {
@@ -701,7 +790,7 @@ sub releaseupgrade {
       writelog("release upgrade - $folderdir/.*$config{'dbm_ext'} by 20020108.02");
    }
 
-   if ( $user_releasedate lt "20020220" ) {
+   if ( $user_releasedate lt "20020329" ) {
       $rc_upgrade=1;	# .openwebmailrc upgrade will be requested
    }
 

@@ -3,6 +3,7 @@
 # 
 # 2002/01/27 Ivan Cerrato - pengus@libero.it
 #
+
 my $ldapHost = "HOSTNAME";	# INSERT THE LDAP SERVER IP HERE.
 my $cn = "cn=LOGIN";		# INSERT THE LDAP USER HERE.
 my $dc1 = "dc=DC1";		# INSERT THE FIRST DC HERE.
@@ -11,6 +12,7 @@ my $pwd = "PASSWORD";		# INSERT THE LDAP PASSWORD HERE.
 
 ################### No configuration required from here ###################
 
+use strict;
 use Net::LDAP;
 
 my $ldapBase = "$dc1, $dc2";

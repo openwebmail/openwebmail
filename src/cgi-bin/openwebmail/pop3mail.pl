@@ -36,8 +36,9 @@ sub retrpop3mail {
    ($dummy, $dummy, $pop3passwd, $pop3lastid, $pop3del, $enable)=
 			split(/\@\@\@/, $accounts{"$pop3host:$pop3user"});
 
-   # bypass taint check for file create
+   # untaint for file creation
    ($spoolfile =~ /^(.+)$/) && ($spoolfile = $1); 	
+   # untaint for connection creation
    ($pop3host =~ /^(.+)$/) && ($pop3host = $1); 	
 
    $ServerPort='110';

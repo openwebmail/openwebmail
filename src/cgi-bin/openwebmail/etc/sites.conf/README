@@ -18,4 +18,5 @@ information to find which virtualdomain configuration file to load:
 2. the domainname in the loginame 
 
 Settings in virtualdomain specific configuration will override the same one
-in openwebmail.conf
+in openwebmail.conf and openwebmail.conf.default
+

@@ -46,6 +46,18 @@ $lang_charset = 'iso-8859-1';
    no  => 'Ei'
    );
 
+%lang_timelabels =
+   (
+     10 => '10 minutes',
+     30 => '30 minutes',
+     60 => '60 minutes',
+    120 => '2 hours',
+    180 => '3 hours',
+    360 => '6 hours',
+    720 => '12 hours',
+   1440 => '24 hours'
+   );
+
 %lang_text =
    (  
    login      => 'Kirjaudu',
@@ -105,6 +117,8 @@ $lang_charset = 'iso-8859-1';
    editdraft  => 'Muuta luonnosta',
    savedraft  => 'Talleta luonnos',
    send       => 'Lähetä',
+   about      => 'About',
+   close      => 'Close',
    cancel     => 'Peruuta',
    continue   => 'Jatka',
    loginagain => 'Login again',

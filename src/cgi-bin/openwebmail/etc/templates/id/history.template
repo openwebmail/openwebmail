@@ -1,0 +1,24 @@
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="1">
+<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>Bekas kegiatan Pengguna</B></font>
+</td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
+&nbsp;
+<table border="0" align="center" width="90%" cellspacing="0" cellpadding="0">
+<tr>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>Waktu</B></td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>Dari</B></td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>ID</B></td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>Kegiatan</B></td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>Keterangan</B></td>
+</tr>
+@@@LOGINHISTORY@@@
+</table>
+
+@@@CONTINUEBUTTON@@@
+</td></tr></table>

@@ -46,6 +46,18 @@ $lang_charset = 'iso-8859-1';
    no  => 'Não'
    );
 
+%lang_timelabels =
+   (
+     10 => '10 minutos',
+     30 => '30 minutos',
+     60 => '60 minutos',
+    120 => '2 horas',
+    180 => '3 horas',
+    360 => '6 horas',
+    720 => '12 horas',
+   1440 => '24 horas'
+   );
+
 %lang_text =
    (  
    login      => 'Entrar',
@@ -104,6 +116,8 @@ $lang_charset = 'iso-8859-1';
    editdraft  => 'Editar Rascunho',
    savedraft  => 'Salvar Rascunho',
    send       => 'Enviar',
+   about      => 'Sobre...',
+   close      => 'Fechar',
    cancel     => 'Cancelar',
    continue   => 'Continuar',
    loginagain => 'Novo Acesso',
@@ -176,7 +190,7 @@ $lang_charset = 'iso-8859-1';
             couldnt_seek      => 'Não foi possível procurar no início de',
             couldnt_close     => 'Não foi possível fechar',
             disallowed_pop3   => 'Erro no Servidor POP3',
-            disallowed_client => 'Você não tem permissão para se conectar a partir des endereço IP',
+            disallowed_client => 'Você não tem permissão para se conectar a partir deste endereço IP',
             disallowed_receiverdomain => 'Você não tem permissão para enviar mensagens para este endereço de e-mail',
             norootlogin       => 'O que está tentando fazer, hã!? ;-)',
             shouldnt_move_here=> 'Não deveria tentar mover as mensagens aqui!',
@@ -190,12 +204,12 @@ $lang_charset = 'iso-8859-1';
 	    abook_invalid     => 'Lamento, este arquivo não aparenta ter o formato correto para o livro de endereços. Verifique se exportou o arquivo no formato correto.',
             back              => 'Voltar',
             tryagain          => 'Tentar novamente.',
-            abook_toobig      => 'Lamento, excedeu o limite permitido para o livro de endereços.',
+            abook_toobig      => 'Lamento, foi excedido o limite permitido para o livro de endereços.',
             cant_create_dir   => 'Não foi possível criar o diretório do usuário!',
             folder_hitquota   => 'Lamento, chegou ao limite de espaço da sua pasta, mais nenhum e-mail será guardado. Por favor envie as mensagens antigas para o LIXO e depois apague-as definitivamente.',
             att_overlimit     => 'Lamento, o tamanho do arquivo anexado ultrapassou o limite permitido.',
             inv_msg_op        => 'Operação inválida para a mensagem',
-            inv_sessid        => 'O pedido não tem o ID correcto -- acesso negado!',
+            inv_sessid        => 'O pedido não tem o ID correto -- acesso negado!',
             no_endpart        => 'Parte final não encontrada',
             part_missing      => 'Alguma parte está perdida',
             rebuild_fmterr    => 'Erro no formato da nova mensagem',

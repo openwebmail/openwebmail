@@ -7,55 +7,54 @@
 # and is copyrighted by 2001, Joshua Cantara
 #
 
-local $SCRIPT_DIR="";
-if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-]+\.pl! ) { $SCRIPT_DIR=$1; }
-if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
-
 # This is the table of valid letters for various dictionaries.
 # If your dictionary checks vocabularies composed by characters other 
 # than english letters, you have to define new entry in below hash
+
 my %dictionary_letters =
    (
-   english => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
-   magyar => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzáÁéÉíÍóÓúÚüÜõÕûÛÀÁÈÉÌÍÒÓÔÕÖÙÚÛÜàáèéêëìíòóôõö¢~ûü',
+   english   => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
+   magyar    => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzáÁéÉíÍóÓúÚüÜõÕûÛÀÁÈÉÌÍÒÓÔÕÖÙÚÛÜàáèéêëìíòóôõö¢~ûü',
    ukrainian => 'ÊÃÕËÅÎÇÛÝÚÈ§Æ¦×ÁÐÒÏÌÄÖ¤­ÑÞÓÍÉÔØÂÀ\'êãõëåîçûýúè·æ¶÷áðòïìäö´½ñþóíéôøâà',
+   deutsch   => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzäÄöÖüÜß',
    );
 
-use strict;
-no strict 'vars';
-use IPC::Open3;
-use CGI qw(:standard);
-use CGI::Carp qw(fatalsToBrowser);
-CGI::nph();   # Treat script as a non-parsed-header script
+
+use vars qw($SCRIPT_DIR);
+if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-]+\.pl! ) { $SCRIPT_DIR=$1; }
+if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
+push (@INC, $SCRIPT_DIR, ".");
 
 $ENV{PATH} = ""; # no PATH should be needed
 $ENV{BASH_ENV} = ""; # no startup script for bash
 umask(0007); # make sure the openwebmail group can write
 
-push (@INC, $SCRIPT_DIR, ".");
+use strict;
+use Fcntl qw(:DEFAULT :flock);
+use IPC::Open3;
+use CGI qw(:standard);
+use CGI::Carp qw(fatalsToBrowser);
+CGI::nph();   # Treat script as a non-parsed-header script
+
 require "openwebmail-shared.pl";
 require "filelock.pl";
 
-local (%config, %config_raw);
-local $thissession;
-local ($loginname, $domain, $user, $userrealname, $uuid, $ugid, $homedir);
-local (%prefs, %style);
-local ($lang_charset, %lang_folders, %lang_sortlabels, %lang_text, %lang_err);
-local ($folderdir, @validfolders, $folderusage);
-local ($folder, $printfolder, $escapedfolder);
+use vars qw(%config %config_raw);
+use vars qw($thissession);
+use vars qw($loginname $domain $user $userrealname $uuid $ugid $homedir);
+use vars qw(%prefs %style);
+use vars qw($folderdir @validfolders $folderusage);
+use vars qw($folder $printfolder $escapedfolder);
 
 openwebmail_init();
 verifysession();
 
-local @words=();	# global
-local $wordframe="";	# global
-local $wordcount=0;	# global 
-local $worderror=0;	# global
-local $wordignore="";	# global
+# extern vars
+use vars qw(%lang_text %lang_err);	# defined in lang/xy
 
 ################################ MAIN #################################
 
-local (*spellREAD, *spellWRITE, *spellERROR);
+use vars qw(*spellREAD *spellWRITE *spellERROR);
 
 my $form = param('form');
 my $field = param('field');
@@ -90,12 +89,17 @@ if (defined(param('string'))) {
 } else {
    printheader();
    print "What the heck? Inavlid input for Spellcheck!";
-   printfooter();
+   printfooter(1);
 }
 
 exit;
 
 ############################### ROUTINES ##############################
+my @words=();
+my $wordframe="";
+my $wordcount=0;
+my $worderror=0;
+my $wordignore="";
 
 sub docheck {
    my ($formname, $fieldname) = @_;
@@ -176,7 +180,7 @@ sub docheck {
 
    printheader();
    print $html;
-   printfooter();
+   printfooter(2);
 }
 
 

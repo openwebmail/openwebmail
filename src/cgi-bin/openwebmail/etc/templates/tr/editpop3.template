@@ -1,0 +1,70 @@
+<table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
+<tr><td colspan="3" bgcolor=@@@TITLEBAR@@@ align="left">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<b>POP3 Ayarlarýný Düzenle</b></font>
+</td><td nowrap colspan="3" bgcolor=@@@TITLEBAR@@@ align="right">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<b> @@@FREESPACE@@@ KB Available</b></font>
+</td></tr><tr><td colspan="6" bgcolor=@@@MENUBAR@@@ align="left">
+@@@MENUBARLINKS@@@
+</td></tr><tr><td colspan="6">&nbsp;</td></tr>
+<tr>
+<td nowrap bgcolor=@@@COLUMNHEADER@@@>
+<B>POP3 Sunucusu</B> (Düzenlemek için Týkla)</td>
+<td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>Kullanýcý Adý</B> (Almak için Týkla)</td>
+<td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>Parola</B></td>
+<td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>Uzaktaki iletiyi sil</B></td>
+<td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>Etkinleþtir</B></td>
+<td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>Eylem</B>
+</td></tr>
+@@@STARTPOP3FORM@@@
+<tr>
+<td nowrap bgcolor=@@@TABLEROW_LIGHT@@@>
+@@@HOSTFIELD@@@
+</td>
+<td nowrap align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
+@@@REALNAMEFIELD@@@
+</td>
+<td nowrap align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
+@@@PASSFIELD@@@
+</td>
+<td nowrap align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
+@@@DELCHECKBOX@@@
+</td>
+<td nowrap align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
+@@@ENABLECHECKBOX@@@
+</td>
+<td nowrap align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
+@@@ADDBUTTON@@@
+</td>
+</tr>
+@@@ENDFORM@@@
+
+@@@ADDRESSES@@@
+
+</table>
+
+<script language="JavaScript">
+<!--
+   function Update(pop3host,pop3user,pop3pass,pop3del,enable)
+   {
+      document.newpop3.pop3host.value = pop3host;
+      document.newpop3.pop3user.value = pop3user;
+      document.newpop3.pop3pass.value = pop3pass;
+      if (pop3del == 1)
+      	document.newpop3.pop3del.checked = true;
+      else
+        document.newpop3.pop3del.checked = false;
+      if (enable == 1)
+      	document.newpop3.enable.checked = true;
+      else
+        document.newpop3.enable.checked = false;
+   }
+//-->
+</script>
+

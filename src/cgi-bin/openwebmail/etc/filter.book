@@ -1,13 +1,12 @@
 50@@@subject@@@include@@@\s{40,}\[[a-z0-9]{5}\]$@@@move@@@mail-trash@@@1
 50@@@subject@@@include@@@new photos from my party@@@move@@@mail-trash@@@1
-50@@@textcontent@@@include@@@sulfnbk.exe@@@move@@@mail-trash@@@1
+50@@@subject@@@include@@@bill caricature@@@move@@@mail-trash@@@1
 50@@@textcontent@@@include@@@Welcome to Yahoo! Mail@@@move@@@mail-trash@@@1
 50@@@textcontent@@@include@@@I want a good job,I must support my parents.@@@move@@@mail-trash@@@1
 50@@@textcontent@@@include@@@I send you this file in order to have your advice OR@@@move@@@mail-trash@@@1
 50@@@textcontent@@@include@@@Te mando este archivo para que me des tu punto de vista OR@@@move@@@mail-trash@@@1
-50@@@attfilename@@@include@@@patch.exe@@@1
+50@@@attfilename@@@include@@@patch.exe|sulfnbk.exe|Mmsn_offline.htm@@@move@@@mail-trash@@@1
 50@@@attfilename@@@include@@@GuessGame.html|GuessGame.vbe@@@move@@@mail-trash@@@1
-50@@@attfilename@@@include@@@Mmsn_offline.htm@@@move@@@mail-trash@@@1
 50@@@attfilename@@@include@@@readme.eml|readme.exe|readme.com|readme.wav@@@move@@@mail-trash@@@1
 50@@@attfilename@@@include@@@navidad.exe|Emanuel.exe|creative.exe@@@move@@@mail-trash@@@1
 50@@@attfilename@@@include@@@zipped_files.exe|myromeo.exe|xromeo.exe@@@move@@@mail-trash@@@1
@@ -19,6 +18,5 @@
 50@@@attfilename@@@include@@@BINLADEN_BRASIL.EXE|STOPTERRORISTS.EXE@@@move@@@mail-trash@@@1
 50@@@attfilename@@@include@@@Anti_TeRRoRisM.exe|WTC.exe@@@move@@@mail-trash@@@1
 50@@@attfilename@@@include@@@antraxinfo.vbs|GONE.SCR|CHRISTMAS.EXE@@@move@@@mail-trash@@@1
-50@@@from@@@include@@@[a-z][0-9]{6,11}@hotmail.com@@@move@@@mail-trash@@@1
-50@@@from@@@include@@@[a-z][0-9]{6,11}@yahoo.com@@@move@@@mail-trash@@@1
+50@@@from@@@include@@@[a-z][0-9]{6,11}@(yahoo|hotmail).com@@@move@@@mail-trash@@@1
 50@@@from@@@include@@@[a-z][0-9]{6,11}@pchome.com.tw@@@move@@@mail-trash@@@1

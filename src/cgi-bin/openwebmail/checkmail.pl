@@ -7,22 +7,17 @@
 #
 # syntax: checkmail.pl [-q] [-p] [-i] [-a] [-f userlist] [user1 user2 ...]
 #
-
-local $SCRIPT_DIR="";
+use vars qw($SCRIPT_DIR);
 if ( $0 =~ m!^(.*?)/[\w\d\-]+\.pl! ) { $SCRIPT_DIR=$1; }
 if (!$SCRIPT_DIR) { print "Content-type: text/html\n\nPlease execute script checkmail.pl with full path!\n"; exit 0; }
+push (@INC, $SCRIPT_DIR, ".");
 
-local $POP3_PROCESS_LIMIT=10;
-local $POP3_TIMEOUT=20;
+$ENV{PATH} = ""; 	# no PATH should be needed
+$ENV{BASH_ENV} = ""; 	# no startup script for bash
 
 use strict;
-no strict 'vars';
 use Fcntl qw(:DEFAULT :flock);
 
-$ENV{PATH} = ""; # no PATH should be needed
-$ENV{BASH_ENV} = ""; # no startup script for bash
-
-push (@INC, $SCRIPT_DIR, ".");
 require "openwebmail-shared.pl";
 require "mime.pl";
 require "filelock.pl";
@@ -30,36 +25,31 @@ require "maildb.pl";
 require "mailfilter.pl";
 require "pop3mail.pl";
 
-local (%config, %config_raw);
+use vars qw(%config %config_raw);
 readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf.default");
 readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf") if (-f "$SCRIPT_DIR/etc/openwebmail.conf");
 require $config{'auth_module'} or
    openwebmailerror("Can't open authentication module $config{'auth_module'}");
 
-local $opt_pop3=0;
-local $opt_verify=0;
-local $opt_quiet=0;
-local $pop3_process_count=0;
+use vars qw($loginname $domain $user $userrealname $uuid $ugid $homedir);
+use vars qw($folderdir);
+use vars qw(%prefs);
 
-local ($loginname, $domain, $user, $userrealname, $uuid, $ugid, $homedir);
-local $folderdir;
-local %prefs;
-
-local @userlist;
-local %complete=();
-
-local %pop3error;
-%pop3error=( -1=>"pop3book read error",
-             -2=>"connect error",
-             -3=>"server not ready",
-             -4=>"'user' error",
-             -5=>"'pass' error",
-             -6=>"'stat' error",
-             -7=>"'retr' error",
-             -8=>"spoolfile write error",
-             -9=>"pop3book write error");
+# extern vars
+use vars qw($pop3_authserver);	# defined in auth_pop3.pl
 
 ################################ main ##################################
+
+my $POP3_PROCESS_LIMIT=10;
+my $POP3_TIMEOUT=20;
+
+my @userlist=();
+my %complete=();
+
+my $opt_pop3=0;
+my $opt_verify=0;
+my $opt_quiet=0;
+my $pop3_process_count=0;
 
 # handle zombie
 $SIG{CHLD} = sub { my $pid=wait; $complete{$pid}=1; $pop3_process_count--; };	
@@ -173,6 +163,15 @@ if ($usercount>0) {
 }
 
 ############################## routines #######################################
+my %pop3error=( -1=>"pop3book read error",
+                -2=>"connect error",
+                -3=>"server not ready",
+                -4=>"'user' error",
+                -5=>"'pass' error",
+                -6=>"'stat' error",
+                -7=>"'retr' error",
+                -8=>"spoolfile write error",
+                -9=>"pop3book write error");
 
 sub checknewmail {
    my ($spoolfile, $headerdb)=get_folderfile_headerdb($user, 'INBOX');
@@ -182,7 +181,7 @@ sub checknewmail {
       $login .= "\@$domain" if ($config{'auth_withdomain'});
       my $response = retrpop3mail($login, $pop3_authserver, "$folderdir/.authpop3.book", $spoolfile);
       if ( $response<0) {
-         writelog("pop3 error - $pop3error{$response} at $pop3user\@$pop3host");
+         writelog("pop3 error - $pop3error{$response} at $login\@$pop3_authserver");
       }
    }
 
@@ -202,7 +201,7 @@ sub checknewmail {
    if (!$opt_quiet) {
       my (%HDB, $allmessages, $internalmessages, $newmessages);
       filelock("$headerdb$config{'dbm_ext'}", LOCK_SH);
-      dbmopen (%HDB, $headerdb, undef);
+      dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
       $allmessages=$HDB{'ALLMESSAGES'};
       $internalmessages=$HDB{'INTERNALMESSAGES'};
       $newmessages=$HDB{'NEWMESSAGES'};

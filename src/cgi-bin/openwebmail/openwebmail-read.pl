@@ -10,48 +10,50 @@
 # This program is distributed under GNU General Public License              #
 #############################################################################
 
-local $SCRIPT_DIR="";
+use vars qw($SCRIPT_DIR);
 if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-]+\.pl! ) { $SCRIPT_DIR=$1; }
 if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
-
-use strict;
-no strict 'vars';
-use Fcntl qw(:DEFAULT :flock);
-use CGI qw(:standard);
-use CGI::Carp qw(fatalsToBrowser);
-CGI::nph();   # Treat script as a non-parsed-header script
+push (@INC, $SCRIPT_DIR, ".");
 
 $ENV{PATH} = ""; # no PATH should be needed
 $ENV{BASH_ENV} = ""; # no startup script for bash
 umask(0007); # make sure the openwebmail group can write
 
-push (@INC, $SCRIPT_DIR, ".");
+use strict;
+use Fcntl qw(:DEFAULT :flock);
+use CGI qw(:standard);
+use CGI::Carp qw(fatalsToBrowser);
+CGI::nph();   # Treat script as a non-parsed-header script
+
 require "openwebmail-shared.pl";
 require "filelock.pl";
 require "mime.pl";
 require "maildb.pl";
 require "mailfilter.pl";
 
-local (%config, %config_raw);
-local $thissession;
-local ($loginname, $domain, $user, $userrealname, $uuid, $ugid, $homedir);
-local (%prefs, %style);
-local ($lang_charset, %lang_folders, %lang_sortlabels, %lang_text, %lang_err);
-local ($folderdir, @validfolders, $folderusage);
-local ($folder, $printfolder, $escapedfolder);
+use vars qw(%config %config_raw);
+use vars qw($thissession);
+use vars qw($loginname $domain $user $userrealname $uuid $ugid $homedir);
+use vars qw(%prefs %style);
+use vars qw($folderdir @validfolders $folderusage);
+use vars qw($folder $printfolder $escapedfolder);
 
 openwebmail_init();
 verifysession();
 
-local $firstmessage;
-local $sort;
-local ($searchtype, $keyword, $escapedkeyword);
+use vars qw($firstmessage);
+use vars qw($sort);
+use vars qw($searchtype $keyword $escapedkeyword);
 
 $firstmessage = param("firstmessage") || 1;
 $sort = param("sort") || $prefs{"sort"} || 'date';
 $searchtype = param("searchtype") || 'subject';
 $keyword = param("keyword") || '';
 $escapedkeyword = escapeURL($keyword);
+
+# extern vars
+use vars qw($lang_charset %lang_folders %lang_text %lang_err);	# defined in lang/xy
+use vars qw($_STATUS);	# defined in maildb.pl
 
 ########################## MAIN ##############################
 
@@ -435,7 +437,7 @@ sub readmessage {
          my ($ename, $eaddr)=email2nameaddr($message{from});
          $temphtml .= "<B>$lang_text{'from'}:</B> <a href='http://www.google.com/search?q=$eaddr' title='google $lang_text{'search'}...' target=_blank>$from</a>&nbsp; \n";
          if ($printfriendly ne "yes") {
-            $temphtml .= qq|&nbsp;<a href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=addaddress&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid&amp;realname=|.escapeURL($ename).qq|&amp;email=|.escapeURL($eaddr).qq|" title="$lang_text{'importadd'} $eaddr">|.
+            $temphtml .= qq|&nbsp;<a href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=addaddress&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid&amp;realname=|.escapeURL($ename).qq|&amp;email=|.escapeURL($eaddr).qq|&amp;usernote=_reserved_" title="$lang_text{'importadd'} $eaddr">|.
                          qq|<IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/import.s.gif" align="absmiddle" border="0" ALT="$lang_text{'importadd'} $eaddr" onclick="return confirm('$lang_text{importadd} $eaddr ?');">|.
                          qq|</a>\n|;
             $temphtml .= qq|&nbsp;<a href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=addfilter&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid&amp;priority=20&amp;rules=from&amp;include=include&amp;text=$eaddr&amp;destination=mail-trash&amp;enable=1" title="$lang_text{'blockemail'} $eaddr">|.
@@ -643,9 +645,9 @@ sub readmessage {
       }
 
       if ($printfriendly eq "yes") {
-         print qq|</body></html>\n|;
+         printfooter(0);
       } else {
-         printfooter();
+         printfooter(2);
       }
 
       # fork a child to do the status update and headerdb update
@@ -857,17 +859,29 @@ sub rebuildmessage {
    my $partialid = $_[0];
    my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
 
-   ($folderfile =~ /^(.+)$/) && ($folderfile = $1);	# bypass taint
+   ($folderfile =~ /^(.+)$/) && ($folderfile = $1);	# untaint ...
    ($headerdb =~ /^(.+)$/) && ($headerdb = $1);
 
    filelock($folderfile, LOCK_EX|LOCK_NB) or
       openwebmailerror("$lang_err{'couldnt_lock'} $folderfile!");
 
-   my ($errorcode, $rebuildmsgid)=rebuild_message_with_partialid($folderfile, $headerdb, $partialid);
+   my ($errorcode, $rebuildmsgid, @partialmsgids)=
+	rebuild_message_with_partialid($folderfile, $headerdb, $partialid);
 
    filelock("$folderfile", LOCK_UN);
 
    if ($errorcode==0) {
+      # move partial msgs to trash folder
+      my ($trashfile, $trashdb)=get_folderfile_headerdb($user, "mail-trash");
+      ($trashfile =~ /^(.+)$/) && ($trashfile = $1);
+      ($trashdb =~ /^(.+)$/) && ($trashdb = $1);
+      if ($folderfile ne $trashfile) {
+         filelock("$trashfile", LOCK_EX);
+         my $moved=operate_message_with_ids("move", \@partialmsgids, 
+				$folderfile, $headerdb, $trashfile, $trashdb);
+         filelock("$trashfile", LOCK_UN);
+      }
+
       readmessage($rebuildmsgid);
       writelog("rebuildmsg - rebuild $rebuildmsgid in $folder");
       writehistory("rebuildmsg - rebuild $rebuildmsgid from $folder");
@@ -936,7 +950,7 @@ sub rebuildmessage {
 
       print $html;
 
-      printfooter();
+      printfooter(2);
    }
 }
 ################# END REBUILDMESSGAE ####################

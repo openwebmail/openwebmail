@@ -1,6 +1,7 @@
 #!/usr/local/bin/perl
+#
 # this is used for debuging maildb routines only...
-
+#
 use strict;
 no strict 'vars';
 push (@INC, ".");

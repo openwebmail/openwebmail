@@ -1,7 +1,11 @@
 # 
 # auth_pop3.pl - authenticate user with POP3 server
 # 
-# This module assumes that users are located on remote pop3 server,
+# This module assumes that
+#
+#   a. users are located on remote pop3 server, or
+#   b. users are virtual users on this machine
+#
 # so it uses the same uid for all openwebmail users on the local machine.
 #
 # You have to do the following things to make the whole system work
@@ -16,7 +20,13 @@
 #       Then the openwebmail runtime user will be the same as your web server, 
 #       normally 'nobody'
 #
-#    b. if you don't have root permission on this machine
+#    b. if you have root permission on this machine.
+#       1> install openwebmail as readme.txt described
+#       2> cd cgi-bin/openwebmail
+#       3> change the $local_uid in this script
+#       Then the openwebmail runtime user will be the $local_uid
+#
+#    c. if you don't have root permission on this machine
 #       1> create an user for the openwebmail runtime, ex: owmail
 #          login as owmail
 #       2> mkdir public_html; cd public_html
@@ -28,7 +38,7 @@
 #           know how to do user specific CGI
 #       The openwebmail runtime user will be 'owmail'
 #
-# 3. set the following options in openwebmail.conf
+# 2. set the following options in openwebmail.conf
 #
 #    auth_module		auth_pop3.pl
 #    mailspooldir		any directory that the runtime user could write
@@ -40,12 +50,25 @@
 #    enable_setforward		no
 #    getmail_from_pop3_authserver	yes
 #
+# 3. if your users are not on remote server but virtual users on this machine
+#    (eg: you use vm-pop3d on this machine for authentication)
+#    
+#    a. you need to install openwebmail as described in step 1.b or 1.c
+#       and the user must be the same as the vm-pop3d is.
+#    b. replace the following two options in step 2
+#    
+#       mailspooldir			the mailspool used by vmpop3d
+#       getmail_from_pop3_authserver	no
+#
 # $pop3_authserver: the server used to authenticate pop3 user
 # $pop3_authport: the port which pop3 server is listening to
 # $local_uid: uid used on this machine
 #
 # 2002/03/08 tung@turtle.ee.ncku.edu.tw
 # 
+
+# global vars, also used by openwebmail.pl
+use vars qw($pop3_authserver $pop3_authport $local_uid);
 
 $pop3_authserver="localhost";
 $pop3_authport='110';
@@ -56,6 +79,7 @@ $local_uid=$>;
 # routines get_userinfo() and get_userlist still depend on /etc/passwd
 # you may have to write your own routines if your user are not form /etc/passwd
 
+use strict;
 use FileHandle;
 use IO::Socket;
 

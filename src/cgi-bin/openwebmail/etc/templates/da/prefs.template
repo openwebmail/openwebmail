@@ -134,6 +134,11 @@ Bredde (i karakterer) @@@EDITCOLUMNSMENU@@@ Højde (i linier) @@@EDITROWSMENU@@@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@RESERVEDDAYSMENU@@@ dag(e) gammel
 </td></tr>
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Session timeout:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@SESSIONTIMEOUTMENU@@@
+</td></tr>
 @@@FORWARDSTART@@@
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Videresend post til:</B>
