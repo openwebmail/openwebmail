@@ -1,3 +1,9 @@
+10/06/2004
+----------
+1. Austria holiday file
+   (thanks to gottfried hufnagel, gottfried.hufnagel.AT.onb.ac.at)
+
+
 10/04/2004
 ----------
 1. Hellenic/Greek language file minor update
