@@ -17,14 +17,33 @@ $lang_charset = 'iso-8859-1';
    status      => 'Status (Unread first)',
    date        => 'Date (Newest first)',
    date_rev    => 'Date (Oldest first)',
-   sender      => 'Sender (Alphabetical)',
-   sender_rev  => 'Sender (Reverse alphabetical)',
+   sender      => 'Sender (Newest first)',
+   sender_rev  => 'Sender (Oldest first)',
+   subject     => 'Subject (Newest first)',
+   subject_rev => 'Subject (Oldest first)',
    size        => 'Size (Largest first)',
-   size_rev    => 'Size (Smallest first)',
-   subject     => 'Subject (Alphabetical)',
-   subject_rev => 'Subject (Reverse alphabetical)',
-   thread      => 'Thread (Newest First)',
-   thread_rev  => 'Thread (Oldest First)'
+   size_rev    => 'Size (Smallest first)'
+   );
+
+%lang_prioritylabels =
+   (
+   normal      => 'Normal',
+   urgent      => 'Urgent',
+   'non-urgent'=> 'Non-Urgent'
+   );
+
+%lang_withoriglabels =
+   (
+   at_beginning => 'at Beginning',
+   at_end      => 'at End',
+   none        => 'None'
+   );
+
+%lang_receiptlabels =
+   (
+   ask => 'Ask to confirm',
+   yes => 'Yes',
+   no  => 'No'
    );
 
 %lang_text =
@@ -51,6 +70,9 @@ $lang_charset = 'iso-8859-1';
    copy       => 'Copy',
    msgmoveconf=> '\'Are you sure you want to move the selected message(s)?\'',
    move       => 'Move',
+   markasread => 'Mark as read',
+   markasunread => 'Mark as unread',
+   dateformat => 'Date format',
    date       => 'Date',
    recipient  => 'Recipient',
    sender     => 'Sender',
@@ -76,6 +98,10 @@ $lang_charset = 'iso-8859-1';
    filename   => 'Filename',
    encoding   => 'Encoding',
    download   => 'Download',
+   thisispartialmsg => 'This is a partial message.',
+   msgrebuild => 'Message Rebuild',
+   thisispartialmsg => 'This is a partial message',
+   msgrebuild => 'Message Rebuild',
    editdraft  => 'Edit Draft',
    savedraft  => 'Save Draft',
    send       => 'Send',
@@ -100,6 +126,9 @@ $lang_charset = 'iso-8859-1';
    modify     => 'Modify',
    abooktitle => 'Address Book',
    abook      => 'ADDRESS BOOK',
+   name       => 'Name',
+   email      => 'Email',
+   note       => 'Note',
    group      => 'Group',
    quota_hit  => 'QUOTA HIT',
    usage      => 'Usage',
@@ -116,7 +145,9 @@ $lang_charset = 'iso-8859-1';
    all        => 'All',
    enable     => 'Enable',
    disable    => 'Disable',
+   filtered   => 'Filtered',
    blockrelay => 'Block SMTP Relay',
+   blockemail => 'Block email',
    read       => 'Read',
    yourmsg    => 'Your message',
    delivered  => 'Delivered',
@@ -159,6 +190,10 @@ $lang_charset = 'iso-8859-1';
             att_overlimit     => 'Sorry, your attachments exceed the attachment size limit, which is',
             inv_msg_op        => 'Invalid operation for message',
             inv_sessid        => 'Your request didn\'t contain the proper session ID cookie -- access denied!',
+            no_endpart        => 'End part not found',
+            part_missing      => 'Some part was missing',
+            rebuild_fmterr    => 'New message format error',
+            rebuild_sizeerr   => 'New message size mismatch',
             user_not_exist    => 'user does not exist',
             func_notsupported => 'function not supported',
             auth_syserr       => 'authentication system error',

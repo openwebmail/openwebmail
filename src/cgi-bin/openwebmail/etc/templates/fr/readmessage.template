@@ -2,7 +2,7 @@
 <tr><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="center">
    <table border="0" width="100%" cellpadding="0" cellspacing="0">
    <tr><td align="left" width="33%"><font color=@@@TITLEBAR_TEXT@@@
-   face=@@@FONTFACE@@@ size="3"><B>MESSAGE DISPLAY</B></font></td>
+   face=@@@FONTFACE@@@ size="3"><B>LIRE UN MESSAGE</B></font></td>
    <td align="center"><font color=@@@TITLEBAR_TEXT@@@
    face=@@@FONTFACE@@@ size="3"><B>@@@FOLDER@@@</B></font></td>
    <td align="right" width="33%"><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@
@@ -13,7 +13,7 @@
    @@@MENUBARLINKS@@@
    </td><td valign="middle" align="center" nowrap>
    @@@MESSAGECONTROL@@@
-   </td>@@@STARTMOVEFORM@@@<td valign="middle" align="right" nowrap>
+   </td><td valign="middle" align="right" nowrap>@@@STARTMOVEFORM@@@
    @@@MOVECONTROLS@@@&nbsp;
    </td></tr></table>
 </td></tr><tr><td colspan="2" width="100%">&nbsp;</td></tr>
@@ -23,7 +23,7 @@
 @@@HEADERSTOGGLE@@@
 </td></tr><tr><td width="10%" nowrap valign="bottom" align="right" bgcolor=@@@WINDOW_DARK@@@>
 @@@ATTMODETOGGLE@@@
-</td></tr><tr><td colspan="2" width="100%" bgcolor=@@@WINDOW_LIGHT@@@>
+</td></tr><tr><td colspan="2" width="100%" bgcolor=@@@WINDOW_LIGHT@@@ class=msgbody>
 @@@BODY@@@
 </td></tr>
 <tr><td colspan="2" width="100%">&nbsp;</td></tr>
@@ -39,9 +39,9 @@
 </td></tr></table>
 <script language="JavaScript">
    <!--
-   function replyreceiptconfirm(url)
+   function replyreceiptconfirm(url, yes)
    {
-      if (confirm('This message requests a read receipt, do you want to transmit?')) {
+      if (yes==1 || confirm('This message requests a read receipt, do you want to transmit?')) {
          var hWnd = window.open("","ReplyReceipt","width=100,height=50,resizable=no,scrollbars=no");
          hWnd.document.write('Transmitting...');
          hWnd.location.href=url;

@@ -8,6 +8,7 @@ use Fcntl qw(:DEFAULT :flock);
 
 require "maildb.pl";
 require "filelock.pl";
+require "openwebmail-shared.pl";
 
 sub dump_headerdb {
    my ($headerdb, $folderfile) = @_;
@@ -38,11 +39,13 @@ sub dump_headerdb {
       $id=substr($id,0,50);
       if ( ${$r_buff}!~/^From / ) {
          $error++;
-         printf ("!!! %3d offset:%8d size:%8d date:%s msgid:$id\n",
-		$i, $attr[$_OFFSET], $attr[$_SIZE], $attr[$_DATE]);
+#         printf ("buf=${$r_buff}\n");
+         printf ("!!! %3d offset:%8d size:%8d date:%s msgid:$id stat:%s\n",
+		$i, $attr[$_OFFSET], $attr[$_SIZE], $attr[$_DATE], $attr[$_STATUS]);
       } else {
-         printf ("+++ %3d offset:%8d size:%8d date:%s msgid:$id\n",
-		$i, $attr[$_OFFSET], $attr[$_SIZE], $attr[$_DATE]);
+#         printf ("buf=${$r_buff}\n");
+         printf ("+++ %3d offset:%8d size:%8d date:%s msgid:$id stat:%s\n",
+		$i, $attr[$_OFFSET], $attr[$_SIZE], $attr[$_DATE], $attr[$_STATUS]);
       }
    }
 
@@ -51,7 +54,12 @@ sub dump_headerdb {
 }
       
 if ( $#ARGV ==1 ) {
-  dump_headerdb($ARGV[0], $ARGV[1]);
+  dump_headerdb($ARGV[1], $ARGV[0]);
+} elsif ( $#ARGV ==0 ) {
+  my @a=split(/\//, $ARGV[0]);
+  $a[$#a]=".$a[$#a]";
+  my $db=join('/', @a);
+  dump_headerdb($db, $ARGV[0]);
 } else {
-  print "dumpdb [headerdb] [folderfile]\n";
+  print "dumpdb folderfile [headerdb_without_extension]\n";
 }

@@ -27,7 +27,7 @@ $defaulttimeout = 7 * 24 * 60 * 60;		# unit: second
 #               recipient in the To: or the Cc: line.
 #
 #     -a alias  Indicate that alias is one of the valid names of the 
-#               username, so the reply will be generated is the alias
+#               username, so the reply will be generated if the alias
 #               appears in To: or Cc:
 #
 #     -f ifile  Specify a file containing ignored users. Mails sent
@@ -39,7 +39,7 @@ $defaulttimeout = 7 * 24 * 60 * 60;		# unit: second
 #               s, m, h, d, or w scales  N  to  seconds,  minutes,
 #               hours, days, or weeks respectively.
 #
-#     -d        log debug information to /var/tmp/vacation.debug
+#     -d        log debug information to /tmp/vacation.debug
 #
 #    The options -a and -f can be specified for more than one times.
 #
@@ -125,7 +125,7 @@ while ($ARGV[0] =~ /^-/) {
     $_ = shift;
     if (/^-I/i) {  # eric allman's source has both cases
         $opt_i=1;
-    } elsif (/^-d/) {		# log debug information to /var/tmp/vacation.debug
+    } elsif (/^-d/) {		# log debug information to /tmp/vacation.debug
 	$opt_d=1;
     } elsif (/^-j/) {		# don't check if user is a valid receiver
 	$opt_j=1;
@@ -538,7 +538,7 @@ sub log_debug {
    $today=sprintf("%4d%02d%02d", $year, $mon, $mday);
    $time=sprintf("%02d%02d%02d",$hour,$min, $sec);
 
-   open(Z, ">> /var/tmp/vacation.debug");
+   open(Z, ">> /tmp/vacation.debug");
 
    # unbuffer mode
    select(Z); $| = 1;    
@@ -547,5 +547,5 @@ sub log_debug {
    print Z "$today $time ", join(" ",@msg), "\n";
    close(Z);
    
-   chmod(0666, "/var/tmp/vacation.debug");
+   chmod(0666, "/tmp/vacation.debug");
 }

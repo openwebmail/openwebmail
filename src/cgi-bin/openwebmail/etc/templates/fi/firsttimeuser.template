@@ -1,9 +1,9 @@
-<BR><BR><BR><BR><BR><BR>
+<BR><BR><BR><BR><BR><BR><BR>
 <table border="0" align="center" width="40%" cellpadding="1" cellspacing="1">
 <tr><td bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>TERVELULOA OPEN WEBMAILIIN!</B></font>
+<B>TERVELULOA @@@NAME@@@IIN!</B></font>
 </td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>Tervetuloa Open WebMailiin!  Olet kirjautunut Open WebMailiin ensimm‰ist‰ kertaa, t‰ytell‰‰np‰s v‰h‰n tietoja ensin, paina jatka nappia niin p‰‰st‰‰n alkuun.
+<BR>Tervetuloa @@@NAME@@@iin!  Olet kirjautunut @@@NAME@@@iin ensimm‰ist‰ kertaa, t‰ytell‰‰np‰s v‰h‰n tietoja ensin, paina jatka nappia niin p‰‰st‰‰n alkuun.
 @@@CONTINUEBUTTON@@@
 </td></tr></table>

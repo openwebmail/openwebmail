@@ -1,33 +1,38 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
-<tr><td colspan="3" bgcolor=@@@TITLEBAR@@@ align="left">
+<tr><td colspan="4" bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>Setting Mail Filter</b></font>
-</td><td nowrap colspan="5" bgcolor=@@@TITLEBAR@@@ align="right">
+<b>REGLES DE FILTRAGE</b></font>
+</td><td nowrap colspan="6" bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b> @@@FREESPACE@@@ KB Available</b></font>
-</td></tr><tr><td colspan="8" bgcolor=@@@MENUBAR@@@ align="left">
+<b> @@@FREESPACE@@@ Ko disponibles</b></font>
+</td></tr><tr><td colspan="9" bgcolor=@@@MENUBAR@@@ align="left">
 @@@MENUBARLINKS@@@
-</td></tr><tr><td colspan="8">&nbsp;</td></tr>
+</td></tr><tr><td colspan="9">&nbsp;</td></tr>
 <tr>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Priority</B></td>
+<B>Cpt.</B>&nbsp;</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Rules</B></td>
+<B>Priorité</B></td>
+<td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>Règles</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Inc/Exc</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>String</B> (click to edit)</td>
+<B>Chaîne</B> (cliquer pour éditer)</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Action</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Destination</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Enable</B></td>
+<B>Actif</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Action</B>
 </td></tr>
 @@@STARTFILTERFORM@@@
 <tr>
+<td nowrap bgcolor=@@@TABLEROW_LIGHT@@@ align=center>
+&nbsp;
+</td>
 <td nowrap bgcolor=@@@TABLEROW_LIGHT@@@ align=center>
 @@@PRIORITYMENU@@@
 </td>

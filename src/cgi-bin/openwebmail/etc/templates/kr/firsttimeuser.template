@@ -1,12 +1,12 @@
-<BR><BR><BR><BR><BR><BR>
+<BR><BR><BR><BR><BR><BR><BR>
 <table border="0" align="center" width="40%" cellpadding="1" cellspacing="1">
 <tr><td bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>Welcome to Open WebMail!</B></font>
+<B>Welcome to @@@NAME@@@!</B></font>
 </td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>Welcome to Open WebMail!  It appears that this is your first time using Open WebMail,
-so we need to gather some information about you to better configure Open WebMail to
-suit your needs.  Please click continue to proceed to the Open WebMail configuration
+<BR>Welcome to @@@NAME@@@!  It appears that this is your first time using @@@NAME@@@,
+so we need to gather some information about you to better configure @@@NAME@@@ to
+suit your needs.  Please click continue to proceed to the @@@NAME@@@ configuration
 screen.
 @@@CONTINUEBUTTON@@@
 </td></tr></table>

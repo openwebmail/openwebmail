@@ -1,12 +1,12 @@
-<BR><BR><BR><BR><BR><BR>
+<BR><BR><BR><BR><BR><BR><BR>
 <table border="0" align="center" width="40%" cellpadding="1" cellspacing="1">
 <tr><td bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>WELKOM BIJ OPEN WEBMAIL!</B></font>
+<B>WELKOM BIJ @@@NAME@@@!</B></font>
 </td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>Welkom bij Open WebMail!  Dit lijkt de eerste keer te zijn dat u Open WebMail gebruikt,
-er moet nog enige informatie over u worden verzameld om Open WebMail beter naar uw
+<BR>Welkom bij @@@NAME@@@!  Dit lijkt de eerste keer te zijn dat u @@@NAME@@@ gebruikt,
+er moet nog enige informatie over u worden verzameld om @@@NAME@@@ beter naar uw
 persoonlijke wensen te configureren.
-Klik op doorgaan om naar het Open WebMail configuratiescherm te gaan.
+Klik op doorgaan om naar het @@@NAME@@@ configuratiescherm te gaan.
 @@@CONTINUEBUTTON@@@
 </td></tr></table>

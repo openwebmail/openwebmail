@@ -1,8 +1,8 @@
-<BR><BR><BR><BR><BR><BR>
+<BR><BR><BR><BR><BR><BR><BR>
 <table border="0" align="center" width="40%" cellpadding="1" cellspacing="1">
 <tr><td bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>WebMail - patogu skaityti laiðkus!</B></font>
+<B>@@@NAME@@@ - patogu skaityti laiðkus!</B></font>
 </td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 <BR>Sveiki!  Ðis langas matomas pirmà kartà prisijungus. 
 Kad programa geriausiai atitiktø 

@@ -13,7 +13,7 @@
    @@@MENUBARLINKS@@@
    </td><td valign="middle" align="center" nowrap>
    @@@MESSAGECONTROL@@@
-   </td>@@@STARTMOVEFORM@@@<td valign="middle" align="right" nowrap>
+   </td><td valign="middle" align="right" nowrap>@@@STARTMOVEFORM@@@
    @@@MOVECONTROLS@@@&nbsp;
    </td></tr></table>
 </td></tr><tr><td colspan="2" width="100%">&nbsp;</td></tr>
@@ -23,7 +23,7 @@
 @@@HEADERSTOGGLE@@@
 </td></tr><tr><td width="10%" nowrap valign="bottom" align="right" bgcolor=@@@WINDOW_DARK@@@>
 @@@ATTMODETOGGLE@@@
-</td></tr><tr><td colspan="2" width="100%" bgcolor=@@@WINDOW_LIGHT@@@>
+</td></tr><tr><td colspan="2" width="100%" bgcolor=@@@WINDOW_LIGHT@@@ class=msgbody>
 @@@BODY@@@
 </td></tr>
 <tr><td colspan="2" width="100%">&nbsp;</td></tr>
@@ -39,9 +39,9 @@
 </td></tr></table>
 <script language="JavaScript">
    <!--
-   function replyreceiptconfirm(url)
+   function replyreceiptconfirm(url, yes)
    {
-      if (confirm('Az üzenet küldõje visszaigazolást kért. Engedélyezi?')) {
+      if (yes==1 || confirm('Az üzenet küldõje visszaigazolást kért. Engedélyezi?')) {
          var hWnd = window.open("","Visszaigazolás","width=100,height=50,resizable=no,scrollbars=no");
          hWnd.document.write('Küldés...');
          hWnd.location.href=url;

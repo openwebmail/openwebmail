@@ -259,7 +259,7 @@ sub _word2label {
    my $word=$_[0];
    my $label='%%WORD'.$wordcount.'%%';
 
-   if ($wordignore=~/$word/i || $word =~/^WORD/) {
+   if ($wordignore=~/\Q$word\E/i || $word =~/^WORD/) {
        return($word);
    }
    $words[$wordcount]=$word;
@@ -273,7 +273,7 @@ sub text2words {
    local $_;
 
    # init don't care term
-   $wordignore="http https ftp nntp smtp nfs html xml mailto bsd linux gnu gpl openwebmail";
+   $wordignore="http https ftp nntp smtp nfs html xml sgml mailto freebsd linux solaris gnu gpl bsd openwebmail";
 
    # put url to ignore
    foreach ($text=~m![A-Za-z]+tp://[A-Za-z\d\.]+!ig) {	

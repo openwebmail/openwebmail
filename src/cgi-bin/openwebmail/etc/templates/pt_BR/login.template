@@ -8,8 +8,8 @@
 
 <table width="100%" cellpadding="0" cellspacing="1" border="0">
 <tr>
-@@@STARTFORM@@@
 <td bgcolor=#ffffff>
+@@@STARTFORM@@@
 <BR>
 <table align=center border=0 cellspacing=2 cellpadding=0>
 <tr>
@@ -33,7 +33,7 @@
 </td></tr></table>
 <p align="center">
 <BR>
-<a href="@@@HTML_URL@@@/openwebmail.html">Open WebMail</a> versão @@@VERSION@@@<BR>
+@@@PAGE_FOOTER@@@<BR>
 </p>
 <script language="JavaScript">
    document.login.loginname.focus()

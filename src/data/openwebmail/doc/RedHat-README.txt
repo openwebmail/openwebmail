@@ -55,6 +55,7 @@ You will need:
 
 CGI.pm-2.74.tar.gz
 MIME-Base64-2.12.tar.gz
+libnet-1.0901.tar.gz
 
 ------------------------------------------------------------------------------
 INPORTANT NOTE:
@@ -83,6 +84,15 @@ For MIME-Base64 do the following:
    cd /tmp
    tar -zxvf MIME-Base64-2.12.tar.gz
    cd MIME-Base64-2.12
+   perl Makefile.PL
+   make
+   make install
+
+For libnet do the following:
+
+   cd /tmp
+   tar -zxvf libnet-1.0901.tar.gz
+   cd libnet-1.0901
    perl Makefile.PL
    make
    make install
@@ -122,29 +132,30 @@ Bellow is the example of my openwebmail.conf file:
 #
 # Open WebMail configuration file
 #
-
-version                 1.51
+name			Open WebMail
+version			1.60
+releasedate		20020123
 
 ##############################################################################
 # host depend configuration
 ##############################################################################
 #
 # domainnames : Users can choose their outgoing mail domain from any one
-# listed here, enabling admins to now only install a single copy of OpenWebMail
+# listed here, enabling admins to now only install a single copy of openwebmail
 # and still support multiple domains.
 #
 # ps: if set this to auto, the domainname will be got by running '/bin/hostname'
 #
-#domainnames            server1.domain1.com, server2.domain2.com
-domainnames             auto
+#domainnames		server1.domain1.com, server2.domain2.com
+domainnames		auto
 
 #
-# sendmail : The location of your sendmail binary, works with both sendmail
-# and exim, which can be run as sendmail and accepts the parameters sent in
-# this script.  Hopefully works with qmail's sendmail compatibility mode as
-# well...
+# smtpserver : The SMTP server will be relayed by openwebmail for outgoing mail
+# If you are running smtp daemon(ex: sendmail) on this host, you can set
+# this to 'localhost', or you can set this to either a hostname.domain or ip address
+# of a remote server that will do relay for you
 #
-sendmail                /usr/sbin/sendmail
+smtpserver		localhost
 
 #
 # virtusertable : the location of sendmail virtusertable.
@@ -158,45 +169,44 @@ sendmail                /usr/sbin/sendmail
 # 2. Is this loginname a real userid in system?
 # 3. Does this loginname match the username part of a specific virtualuser?
 #
-virtusertable           /etc/mail/virtusertable
+virtusertable		/etc/mail/virtusertable
 
 #
-# ------------------------------   --------------------------------
 # auth_module : the authentication module used in openwebmail
 # ------------------------------   --------------------------------
 # auth_module                      authentication by
 # ------------------------------   --------------------------------
 # auth_unix.pl                     unix passwd
-# auth_pam.pl                      pam (pluggable authentication module)
+# auth_pam.pl		           pam (pluggable authentication module)
 # ------------------------------   --------------------------------
 #
 # ps: ONCE YOU HAVE DECIDED WHICH AUTH_MODULE TO USE,
 #     DON'T FORGET TO EDIT THE GLOBAL VARIABLE DEFINITION IN THE BEGINING
 #     OF THAT AUTH_MODULE!!!
 #
-auth_module             auth_unix.pl
+auth_module		auth_unix.pl
 
 #
 # mailspooldir : This is where your user mail spools are kept.  This value
 # will be ignored if you're using a system that doesn't store mail spools
 # in a common directory, and you set homedirspools to 'yes'
 #
-mailspooldir            /var/spool/mail
+mailspooldir		/var/spool/mail
 
 #
 # use_hashedmailspools : Set this to 'yes' if your mail spool directory is
 # set up like /var/spool/mail/u/s/username. Most default sendmail installs
 # aren't set up this way, you'll know if you need it.
 #
-use_hashedmailspools    no
+use_hashedmailspools	no
 
 #
 # use_homedirspools : Set this to 'yes' if you're using qmail, and set the
 # next variable to the filename of the mail spool in their directories.
 # Appropriate defaults have been supplied.
 #
-use_homedirspools       no
-homedirspoolname        Mailbox
+use_homedirspools	no
+homedirspoolname	Mailbox
 
 #
 # use_homedirfolders   : Set this to 'yes' to put settings and folders for a
@@ -205,8 +215,8 @@ homedirspoolname        Mailbox
 # homedirfolderdirname : Set this to 'mail' to use ~user/mail/ for user's
 # homdirfolders, it is compatible with 'PINE' MUA.
 #
-use_homedirfolders      no
-homedirfolderdirname    mail
+use_homedirfolders	yes
+homedirfolderdirname	mail
 
 #
 # use_dotlockfile : Set this to 'yes' to use .lock file for filelock
@@ -214,19 +224,27 @@ homedirfolderdirname    mail
 # an remote nfs server and the lockd on your nfs server or client has problems
 # ps: the freebsd/linux nfs may need this. solaris doesn't.
 #
-use_dotlockfile         no
+use_dotlockfile		no
 
 #
 # dbm_ext : This is the extension name for the dbm file on your system
 # Set this to '.db' for FreeBSD, '.dir' for Solaris
 #
-dbm_ext                 .db
+dbm_ext			.db
 
 #
-# timeoffset : This is the offset from GMT, in the notation [-|+]XXXX.
+# timeoffset : This is the time offset of your timezone from GMT.
+# You can set it to 'auto' or value in the notation [-|+]XXXX.
 # For example, for Taiwan, the offset is +0800.
 #
-timeoffset              -0600
+timeoffset		-0600
+
+#
+# deliver_use_GMT : Set this to 'yes' if you mail deliver uses GMT time
+# in the delimiter line when writing new messages to mailspool.
+# ex: Qmail is know to use GMT time in mail delivery.
+#
+deliver_use_GMT		no
 
 
 
@@ -236,22 +254,22 @@ timeoffset              -0600
 #
 # ow_cgidir : the directory for openwebmail cgi programs
 #
-ow_cgidir               /usr/local/www/cgi-bin/openwebmail
+ow_cgidir		/usr/local/www/cgi-bin/openwebmail
 
 #
 # ow_cgiurl : the url for ow_cgidir
 #
-ow_cgiurl               /cgi-bin/openwebmail
+ow_cgiurl		/cgi-bin/openwebmail
 
 #
 # ow_htmldir : the directory for openwebmail webpage/image/sound files
 #
-ow_htmldir              /usr/local/www/data/openwebmail
+ow_htmldir		/usr/local/www/data/openwebmail
 
 #
 # ow_htmlurl : the url for ow_htmldir
 #
-ow_htmlurl              /openwebmail
+ow_htmlurl		/openwebmail
 
 #
 # ow_etcdir : the directory for openwebmail runtime resource files,
@@ -269,80 +287,88 @@ ow_htmlurl              /openwebmail
 #     user that openwebmail script will be running as (root in many cases) for
 #     better security.
 #
-ow_etcdir               %ow_cgidir%/etc
+ow_etcdir		%ow_cgidir%/etc
 
 #
-# logo_url : This graphic will appear at the top of OpenWebMail login pages.
+# logo_url : This graphic that appears at the top of openwebmail login pages.
 #
-logo_url                %ow_htmlurl%/images/openwebmail.gif
+logo_url		%ow_htmlurl%/images/openwebmail.gif
 
 #
 # logo_link : The link to go when user clicks the logo image
 #
-logo_link               http://turtle.ee.ncku.edu.tw/openwebmail/
+logo_link		http://openwebmail.org/
+
+#
+# page_footer : This is the block that will be appended at the bottom of
+# each page of openwebmail
+#
+<page_footer>
+<a href="%ow_htmlurl%/openwebmail.html" target="_blank">%name%</a>
+version %version%
+</page_footer>
 
 #
 # sound_url : this is the sound file played if new mail is found.
 # Openwebmail checks new mail for user every 15 min if user is in INBOX
 # folderview. Set to '' will disable this feature
 #
-sound_url               %ow_htmlurl%/yougotmail.wav
+sound_url		%ow_htmlurl%/yougotmail.wav
 
 #
 # logfile : This should be set either to 'no' or the filename of a file
 # you'd like to log actions to.
 #
-logfile         %ow_cgidir%/openwebmail.log
-#logfile                        /var/log/openwebmail.log
+#logfile		%ow_cgidir%/openwebmail.log
+logfile			/var/log/openwebmail.log
 
 #
 # global_addressbook : addressbook shared by all user
 #
-global_addressbook      %ow_etcdir%/address.book
+global_addressbook	%ow_etcdir%/address.book
 
 #
 # global_filterbook : filterbook shared by all user
 #
-global_filterbook       %ow_etcdir%/filter.book
+global_filterbook	%ow_etcdir%/filter.book
 
 #
 # spellcheck : The location of your spelling check program, it could be ether
 # ispell(http://fmg-www.cs.ucla.edu/geoff/ispell.html) or aspell
 # (http://aspell.sourceforge.net/)
 #
-spellcheck              /usr/bin/aspell
+spellcheck		/usr/bin/aspell
 
 #
 # spellcheck_dictionaries : The names of all dictionaries supported by your
 # spellcheck program.
 #
-spellcheck_dictionaries english, american
+spellcheck_dictionaries	english, american
 
 #
 # vacationinit : The location of the vacation program with option to init
 # the vacation db
 #
-vacationinit            %ow_cgidir%/vacation.pl -i
+vacationinit		%ow_cgidir%/vacation.pl -i
 
 #
 # vacationpipe : The location of the vacation program with option to read
 # data piped from sendmail. 60s means mails from same user within 60 seconds
 # will be replied only once
 #
-vacationpipe            %ow_cgidir%/vacation.pl -t60s
+vacationpipe		%ow_cgidir%/vacation.pl -t60s
 
-#
 #
 # g2b_converter : program to convert chinese GB to Big5 code
 # b2g_converter : program to convert chinese Big5 to GB code
 #
 # these 2 converter will be required only if lang is 'tw' or 'cn'
 #
-g2b_converter           %ow_cgidir%/hc -mode g2b -t %ow_cgidir%/hc.tab
-b2g_converter           %ow_cgidir%/hc -mode b2g -t %ow_cgidir%/hc.tab
+g2b_converter		%ow_cgidir%/hc -mode g2b -t %ow_cgidir%/hc.tab
+b2g_converter		%ow_cgidir%/hc -mode b2g -t %ow_cgidir%/hc.tab
 
 #
-# enable_rootlogin : Set this to 'yes' if you want to allow root login 
+# enable_rootlogin : Set this to 'yes' if you want to allow root login
 # Warning! The option is dangerous, use it at your own risk!
 #
 enable_rootlogin	no
@@ -351,46 +377,52 @@ enable_rootlogin	no
 # enable_changepwd : Set this to 'yes' if you want to let user set their
 # password through the web mail interface
 #
-enable_changepwd        yes
+enable_changepwd	yes
 
 #
 # enable_setfromemail : This option would allow user to set their from
 # email address in a message
 #
-enable_setfromemail     yes
+enable_setfromemail	yes
 
 #
 # enable_autoreply : This option would allow user to enable autoreply
 # for their incoming messages
 #
-enable_autoreply        yes
+enable_autoreply	yes
+
+#
+# enable_setforward : This option would allow user to set their ~/.forward
+# which will forward their mail to other server automatically
+#
+enable_setforward	yes
 
 #
 # enable_pop3 : Open WebMail has complete support for pop3 mail. If you want
 # to disable pop3 related functions from user, please set this to 'no'
 #
-enable_pop3             yes
+enable_pop3		yes
 
 #
-# @disallowed_pop3servers : Array of hostnames which we disallow. The host
+# @disallowed_pop3servers : a List of hostnames which we disallow. The host
 # may share the same mailspool, or for some administrative reason be
 # undesirable.
 #
-disallowed_pop3servers  turtle.ee.ncku.edu.tw, turtle
+disallowed_pop3servers	your_server, your_server.domain
 
 #
 # autopop3_at_refresh : If user enables autopop3 in user preference,
 # openwebmail will fetch pop3mail automatically when he login.
-# In that case, if this option is set to yes, openwebamil will also
-# fecth pop3mail at refresh, please refer to option refreshinterval
+# In that case, if this option is set to yes, openwebmail will also
+# fetch pop3mail at refresh, please refer to option refreshinterval
 #
-autopop3_at_refresh     yes
+autopop3_at_refresh	yes
 
 #
-# symboliclink_mbox : Some pop3d moves messages from mail spool to ~/mbox 
+# symboliclink_mbox : Some pop3d moves messages from mail spool to ~/mbox
 # if the pop3 client chooses to reserve the message on server.
-# With this option set to 'yes', openwebmail will symlink 
-# ~/mbox -> ~/mail/saved-messages to make messages accessable either in 
+# With this option set to 'yes', openwebmail will symlink
+# ~/mbox -> ~/mail/saved-messages to make messages accessible either in
 # pop3 client or openwebmail
 #
 symboliclink_mbox	yes
@@ -401,7 +433,7 @@ symboliclink_mbox	yes
 # Make sure this is big enough that a user typing a long message won't get
 # timeouted while typing!
 #
-sessiontimeout          60
+sessiontimeout		60
 
 #
 # refreshinterval : This is the interval in minutes that openwebmail will
@@ -409,12 +441,12 @@ sessiontimeout          60
 # It gives the openwebmail a chance to check the new mail status.
 # This value should be shorter than 'sessiontimeout'.
 #
-refreshinterval         15
+refreshinterval		15
 
 #
 # foldername_maxlen : This is the maximum length for the name of a folder
 #
-foldername_maxlen       32
+foldername_maxlen	32
 
 #
 # folderquota : Once a user's saved mail spools (including their INBOX)
@@ -424,7 +456,7 @@ foldername_maxlen       32
 # over this limit from completing, it simply inhibits further saving of
 # messages until the folder size is brought down again.
 #
-folderquota             10000
+folderquota		10000
 
 #
 # maxbooksize : This is the maximum size, in kilobytes, that a user's
@@ -432,7 +464,7 @@ folderquota             10000
 # a user filling up your server's hard drive space by spamming garbage book
 # entries.
 #
-maxbooksize             10
+maxbooksize		32
 
 #
 # attlimit : This is the limit on the size of attachments (in MB).  Large
@@ -446,10 +478,19 @@ maxbooksize             10
 # Some proxy server also has size limit on POST operation, the size of your
 # attachment will also be limited by that
 #
-attlimit                50
+attlimit		50
+
+#
+# mailfooter : This block of text will be appended at the tail of each
+# outgoing mail, which can be used as some kind of advertisement.
+#
+<mailfooter>
+</mailfooter>
+
+
 
 ##############################################################################
-# default setting for user preference
+# default setting for new user's preference
 ##############################################################################
 #
 # default_language : This is the language defaulted to if a user hasn't saved
@@ -460,16 +501,16 @@ attlimit                50
 # ca           => Catalan
 # cs           => Czech
 # da           => Danish
-# de           => German                # Deutsch
+# de           => German		# Deutsch
 # en           => English
-# es           => Spanish               # Espanol
+# es           => Spanish		# Espanol
 # fi           => Finnish
-# fr           => French
+# fr           => French	
 # hu           => Hungarian
 # it           => Italian
 # kr           => Korean
 # lt           => Lithuanian
-# nl           => Dutch # Nederlands
+# nl           => Dutch	# Nederlands
 # no_NY        => Norwegian Nynorsk
 # pl           => Polish
 # pt           => Portuguese
@@ -477,64 +518,139 @@ attlimit                50
 # ro           => Romanian
 # ru           => Russian
 # sk           => Slovak
-# sv           => Swedish               # Svenska
+# sv           => Swedish		# Svenska
 # zh_CN.GB2312 => Chinese ( Simplified )
 # zh_TW.Big5   => Chinese ( Traditional )
 #
-#default_language       zh_TW.Big5
-default_language       en
+default_language	en
 
 #
 # default_bgurl : the default background image used for new user
 #
 # ps: if set this to none, a transparent blank background will be used
 #
-#default_bgurl          none
-default_bgurl           %ow_htmlurl%/images/backgrounds/Globe.gif
+#default_bgurl		none
+default_bgurl		%ow_htmlurl%/images/backgrounds/Globe.gif
 
 #
-# default_style - the default style used for new user
+# default_style	- the default style used for new user
 #
-default_style           Default
+default_style		Default
 
 #
 # default_iconset : the default iconset used for new user
 #
-default_iconset         Default
-
-#
-# default_sort : default message sorting, available value:
-#                date, subject, size, sender, recipient
-#
-default_sort            date
+default_iconset		Default
 
 #
 # default_headersperpage : This indicates the maximum number of headers to
 # display to a user at a time. Keep this reasonable to ensure fast load time
 # for slow connection users.
 #
-default_headersperpage  10
+default_headersperpage	10
+
+#
+# default_sort : default message sorting, available value:
+#                date, sender, subject, size
+#
+default_sort		date		
+
+#
+# default_dateformat : default date format, available value:
+#                      mm/dd/yyyy, dd/mm/yyyy, yyyy/mm/dd,
+#                      mm-dd-yyyy, dd-mm-yyyy, yyyy-mm-dd
+#
+default_dateformat	mm/dd/yyyy
+
+#
+# default_editcolumns : default columns for message composing windows
+#
+default_editcolumns	78
+
+#
+# default_editrows : default rows for message composing windows
+#
+default_editrows	20
+
+#
+# default_dictionary - the default dictionary used in spellcheck for new user
+#
+default_dictionary	english
+
+#
+# default_newmailsound : if this option is set to yes, the user will be
+# notified with sound 'You have mail' when new mail is available
+#
+default_newmailsound	yes
 
 #
 # hideinternal : If this option is enabled, internal messages used by
 # POP3 or IMAP server will be hidden from users
 #
-default_hideinternal    yes
+default_hideinternal	yes
 
 #
-# default_editcolumns : default columns for message composing windows
+# default_usesmileicon : if this option is set to yes, all smile symbol :) in a
+# message will be replaced with icons.
 #
-default_editcolumns     78
+default_usesmileicon	yes
 
 #
-# default_editrows : default rows for message composing windows
+# default_disablejs : if set this option to 'yes', the java script in in html
+# message will be disabled
 #
-default_editrows        20
+default_disablejs	no
 
 #
-# default_dictionary - the default dictionary used in spellcheck for new user
+# default_confirmmsgmovecopy : display confirm window before message move/copy
 #
-default_dictionary      english
+default_confirmmsgmovecopy	yes
+
+#
+# default_viewnextaftermsgmovecopy: goto next message after a message
+# move/copy/deletion in the message view window
+#
+default_viewnextaftermsgmovecopy	yes
+
+#
+# default_reparagraphorigmsg : reparagraph original message before appending
+# it into the body of reply message
+#
+default_reparagraphorigmsg	yes
+
+#
+# default_replywithorigmsg : whether to append original message into the body
+# of the reply message, available value: at_beginning, at_end, none
+#
+default_replywithorigmsg	at_beginning
+
+#
+# default_sendreceipt: whether to sent the receipt for a message with
+# the 'confirm reading' request, available value: ask, yes, no
+#
+default_sendreceipt		ask
+
+#
+# default_autopop3 : if this option is set to yes, openwebmail will fetch
+# pop3 mail for user automatically when the user login
+#
+default_autopop3		yes
+
+#
+# default_moveoldmsgfrominbox: if this option is set to yes, old messages in
+# INBOX will be moved into saved-messages at login/logout automatically
+#
+default_moveoldmsgfrominbox	yes
+
+#
+# When forced, old msg will be forced to move to SAVED folder at login/logout
+# and the option moveoldmsgfrominbox won't be visible in user preference
+#
+# This is useful for servers with small mail spools.
+# Openwebmail also gets better performance with this option set to yes
+# since this prevents the need of rescanning a large INBOX folder
+#
+forced_moveoldmsgfrominbox	no
 
 #
 # default_filter_repeatlimit : Messages in INBOX with same subject from same
@@ -542,53 +658,38 @@ default_dictionary      english
 # this value, messages will be moved to mail-trash folder.
 # Set this value to 0 will disable this feature.
 #
-default_filter_repeatlimit      10
+default_filter_repeatlimit	10
 
 #
 # default_filter_fakedsmtp : We call a message 'fakedsmtp' if
-# 1.the message from sender to receiver passes through one or more smtp relays
-#   and the first smtp relay has a invalid hostname.
+# 1.the message from sender to receiver passes through one or more SMTP relays
+#   and the first SMTP relay has a invalid hostname.
 # 2.The message is delivered from sender to receiver directly and the sender
-#   has invalid hostname. When this option is set to 'yes', those fakedsmtp
-#   messages will be moved to mail-trash.
+#   has invalid hostname.
+# Messages of the above cases are normally from spammers. When this option is
+# set to 'yes', these fakedsmtp messages will be moved to mail-trash.
 #
-default_filter_fakedsmtp        no
+default_filter_fakedsmtp	no
 
 #
-# default_disablejs : if set this option to 'yes', the java script in in html
-# message will be disabled
+# default_filter_fakedexecontenttype : If an executable attachment has
+# content-type other than 'application/octet-stream', ex: audio/wav,
+# audio/midi, it may be download and executed automatically on some browser.
+# Messages with such attachments are normally virus mail. When this option is
+# set to 'yes', these messages will be moved to mail-trash.
 #
-default_disablejs               no
+default_filter_fakedexecontenttype	yes
 
-#
-# default_newmailsound : if this option is set to yes, the user will be
-# notified with sound 'You have mail' when new mail is available
-#
-default_newmailsound            yes
-
-#
-# default_usesmileicon : if this option is set to yes, all smile symbol :) in a 
-# message will be repleaced with icons.
-#
-default_usesmileicon		yes
-
-#
-# default_autopop3 : if this option is set to yes, openwebmail will fetch
-# pop3 mail for user automatically when the user login
-#
-default_autopop3                yes
-
-#
 #
 # default_trashreserveddays : message in trash will be deleted if its day
 # age is more than this value, 0 means forever
 #
-default_trashreserveddays       7
+default_trashreserveddays	7
 
 #
 # default_autoreplysubject : default subject for auto reply message
 #
-default_autoreplysubject        This is an autoreply...[Re: \$SUBJECT]
+default_autoreplysubject	This is an autoreply...[Re: \$SUBJECT]
 
 #
 # defaultautoreplytext : default text for auto reply message
@@ -605,9 +706,7 @@ Your mail regarding '\$SUBJECT' will be read when I return.
 #
 <default_signature>
 --
-Distributed System Laboratory (http://dslab.ee.ncku.edu.tw)
-Department of Electrical Engineering
-National Cheng Kung University, Tainan, Taiwan, R.O.C.
+Open WebMail Project (http://openwebmail.org)
 </default_signature>
 ----------------------------------------------------------------------- end --
 

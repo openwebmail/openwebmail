@@ -1,6 +1,6 @@
 <HTML>
 <HEAD>
-<TITLE>OpenWebMail @@@VERSION@@@ @@@USERINFO@@@</TITLE>
+<TITLE>@@@USERINFO@@@ @@@NAME@@@</TITLE>
 <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=@@@CHARSET@@@">
 </HEAD><BODY BACKGROUND="@@@BG_URL@@@" BGCOLOR=@@@BACKGROUND@@@>
 <style type="text/css">

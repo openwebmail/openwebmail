@@ -1,11 +1,11 @@
-<BR><BR><BR><BR><BR><BR>
+<BR><BR><BR><BR><BR><BR><BR>
 <table border="0" align="center" width="40%" cellpadding="1" cellspacing="1">
 <tr><td bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>BENVENUTO!</B></font>
 </td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 <BR>
-Benvenuto su Open WebMail! Sembra che questa sia la prima volta che usi Open WebMail,
+Benvenuto su @@@NAME@@@! Sembra che questa sia la prima volta che usi @@@NAME@@@,
 quindi ho bisogno di alcune informazioni per meglio configurare il sistema.
 Clicca su continua per procedere.
 @@@CONTINUEBUTTON@@@

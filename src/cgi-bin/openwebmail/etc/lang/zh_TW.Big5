@@ -17,14 +17,33 @@ $lang_charset = 'big5';
    status      => '狀態 (未讀優先)',
    date        => '日期 (新信優先)',
    date_rev    => '日期 (舊信優先)',
-   sender      => '寄信人 (筆劃少)',
-   sender_rev  => '寄信人 (筆劃多)',
+   sender      => '寄信人 (新信優先)',
+   sender_rev  => '寄信人 (舊信優先)',
+   subject     => '主旨 (新信優先)',
+   subject_rev => '主旨 (舊信優先)',
    size        => '大小 (大優先)',
-   size_rev    => '大小 (小優先)',
-   subject     => '主旨 (遞增)',
-   subject_rev => '主旨 (遞減)',
-   thread      => '信件串連 (新信優先)',
-   thread_rev  => '信件串連 (舊信優先)'
+   size_rev    => '大小 (小優先)'
+   );
+
+%lang_prioritylabels =
+   (
+   urgent      => '急件',
+   normal      => '普通',
+   'non-urgent'=> '非緊急'
+   );
+
+%lang_withoriglabels =
+   (
+   at_beginning => '附在前面',
+   at_end      => '附在後面',
+   none        => '不要附上'
+   );
+
+%lang_receiptlabels =
+   (
+   ask => '要求確認',
+   yes => '是',
+   no  => '否'
    );
 
 %lang_text =
@@ -38,7 +57,7 @@ $lang_charset = 'big5';
    unread     => '未讀',
    nomessages => '無信件',
    composenew => '編寫新信',
-   refresh    => '檢查信箱',
+   refresh    => '重新檢視',
    userprefs  => '個人偏好設定',
    addressbook=> '通訊錄',
    folders    => '信件匣',
@@ -51,6 +70,9 @@ $lang_charset = 'big5';
    copy       => '複製',
    msgmoveconf=> '\'您確定要搬移選擇的信件嗎?\'',
    move       => '搬移',
+   markasread => '標示成已讀',
+   markasunread => '標示成未讀',
+   dateformat => '日期格式',
    date       => '日期',
    recipient  => '收件者',
    sender     => '寄件者',
@@ -76,6 +98,8 @@ $lang_charset = 'big5';
    filename   => '檔名',
    encoding   => '編碼',
    download   => '下載',
+   thisispartialmsg => '這是某封信件的一部分.',
+   msgrebuild => '信件重組',
    editdraft  => '編輯草稿',
    savedraft  => '暫存草稿',
    send       => '寄信',
@@ -100,6 +124,9 @@ $lang_charset = 'big5';
    modify     => '修改',
    abooktitle => '通訊錄',
    abook      => '通訊錄',
+   name       => '姓名',
+   email      => 'Email 地址',
+   note       => '附註',
    group      => '群組',
    quota_hit  => '儲存空間已滿',
    usage      => '使用空間', 
@@ -116,7 +143,9 @@ $lang_charset = 'big5';
    all        => '全部',
    enable     => '啟動',
    disable    => '停用',
+   filtered   => '過濾',
    blockrelay => '封鎖轉信主機',
+   blockemail => '封鎖郵件地址',
    read       => '讀取',
    yourmsg    => '您發出的信件',
    delivered  => '傳送',
@@ -158,7 +187,11 @@ $lang_charset = 'big5';
             folder_hitquota   => '抱歉！您的容量已經超過限制，請先將不要的信件刪除和清空垃圾匣，否則您將收不到新信.',
             att_overlimit     => '附件大小超過限制',
             inv_msg_op        => '不認得的信件操作',
-            inv_sessid        => '使用他人的 session id 或是重複登入 -- 拒絕存取!',
+            inv_sessid        => 'Session ID cookie 不正確，拒絕存取. 請檢查是否瀏覽器 cookie 功能未開或是重複登入.',
+            no_endpart        => '找不到結尾部分',
+            part_missing      => '某些部分找不到',
+            rebuild_fmterr    => '組出的信件格式有誤',
+            rebuild_sizeerr   => '組出的信件大小不對',
             user_not_exist    => '使用者不存在',
             func_notsupported => '系統不支援本功能',
             auth_syserr       => '認證系統內部錯誤',

@@ -12,7 +12,7 @@
 <tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
 <br>Mind az Outlook Express 5, mind a Netscape Mail képes a címjegyzékét kiexportálni
 egy vesszõvel elválasztott értékeket tartalmazó formátumban (csv), melyeket
-az Open WebMail be tud olvasni.
+az @@@NAME@@@ be tud olvasni.
 <ul>
 <li>Netscape esetén nyissa meg az Address Book-ot, és válassza a File-&gt;Export menüpontot,
 majd a "Save as type:" menüben a "Comma Separated (*csv)" formátumot.

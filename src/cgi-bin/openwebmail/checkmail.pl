@@ -8,11 +8,12 @@
 # syntax: checkmail.pl [-q] [-p] [-i] [-a] [-f userlist] [user1 user2 ...]
 #
 
+use strict;
+no strict 'vars';
+
 local $POP3_PROCESS_LIMIT=10;
 local $POP3_TIMEOUT=20;
 
-use strict;
-no strict 'vars';
 use Fcntl qw(:DEFAULT :flock);
 
 $ENV{PATH} = ""; # no PATH should be needed
@@ -266,7 +267,7 @@ sub verifyfolders {
    my @validfolders;
    my $folderusage;
 
-   getfolders(\@validfolders, \$folderusage, 0);
+   getfolders(\@validfolders, \$folderusage);
    foreach (@validfolders) {
       my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $_);
       update_headerdb($headerdb, $folderfile);

@@ -17,14 +17,33 @@ $lang_charset = 'windows-1257';
    status      => 'Ruðiavimas (pirma neskaityti)',
    date        => 'Pagal datà (pirma naujausi)',
    date_rev    => 'Pagal datà (pirma seniausi)',
-   sender      => 'Pagal siuntëjà (pagal abëcëlæ a-z)',
-   sender_rev  => 'Pagal siuntëjà (pagal abëcëlæ z-a)',
+   sender      => 'Pagal siuntëjà (pirma naujausi)',
+   sender_rev  => 'Pagal siuntëjà (pirma seniausi)',
+   subject     => 'Pagal  temà (pirma naujausi)',
+   subject_rev => 'Pagal  temà (pirma seniausi)',
    size        => 'Pagal dydá (pirma didþiausi)',
-   size_rev    => 'Pagal dydá (pirma maþiausia)',
-   subject     => 'Pagal  temà (Pagal abëcëlæ a-z)',
-   subject_rev => 'Pagal  temà (Pagal abëcëlæ z-a)',
-   thread      => 'Thread (Newest First)',
-   thread_rev  => 'Thread (Oldest First)'
+   size_rev    => 'Pagal dydá (pirma maþiausia)'
+   );
+
+%lang_prioritylabels =
+   (
+   normal      => 'Normal',
+   urgent      => 'Urgent',
+   'non-urgent'=> 'Non-Urgent'
+   );
+
+%lang_withoriglabels =
+   (
+   at_beginning => 'at Beginning',
+   at_end      => 'at End',
+   none        => 'None'
+   );
+
+%lang_receiptlabels =
+   (
+   ask => 'Ask to confirm',
+   yes => 'Yes',
+   no  => 'No'
    );
 
 %lang_text =
@@ -51,6 +70,9 @@ $lang_charset = 'windows-1257';
    copy       => 'Kopijuoti',
    msgmoveconf=> '\'Ar tikrai norite perkelti paþymëtus laiðkus?\'',
    move       => 'Perkelti',
+   markasread => 'Mark as read',
+   markasunread => 'Mark as unread',
+   dateformat => 'Data format',
    date       => 'Data',
    recipient  => 'Gavëjas',
    sender     => 'Siuntëjas',
@@ -76,6 +98,8 @@ $lang_charset = 'windows-1257';
    filename   => 'Bylos vardas',
    encoding   => 'Kodavimas',
    download   => 'Parsisiøsti',
+   thisispartialmsg => 'This is a partial message.',
+   msgrebuild => 'Message Rebuild',
    editdraft  => 'Redaguoti raðomà laiðkà',
    savedraft  => 'Áraðyti neiðsiunèiant',
    send       => 'Siøsti',
@@ -100,6 +124,9 @@ $lang_charset = 'windows-1257';
    modify     => 'Keisti',
    abooktitle => 'Adresø knygutë',
    abook      => 'ADRESØ KNYGUTË',
+   name       => 'Name',
+   email      => 'Email',
+   note       => 'Note',
    group      => 'Grupë',
    quota_hit  => 'JÛSØ DISKO VIETA IÐNAUDOTA',
    usage      => 'Iðnaudota disko vietos',
@@ -116,7 +143,9 @@ $lang_charset = 'windows-1257';
    all        => 'All',
    enable     => '',
    disable    => 'Uþdrausta',
+   filtered   => 'Filtered',
    blockrelay => 'Uþdraustas SMTP',
+   blockemail => 'Block email',
    read       => 'Skaityti',
    yourmsg    => 'Jûsø laiðkas',
    delivered  => 'Pristatytas',
@@ -159,6 +188,10 @@ $lang_charset = 'windows-1257';
             att_overlimit     => 'Gaila, bet Jûsø prikabinta byla didesnë uþ leistinà',
             inv_msg_op        => 'Neteisingi veiksmai su laiðku',
             inv_sessid        => 'Sesijos ID nesutampa su esamu "sausainiu" - Jûsø veiksmai neleistini!',
+            no_endpart        => 'End part not found',
+            part_missing      => 'Some part was missing',
+            rebuild_fmterr    => 'New message format error',
+            rebuild_sizeerr   => 'New message size mismatch',
             user_not_exist    => 'vartotojo nëra',
             func_notsupported => 'nenaudojama funkcija',
             auth_syserr       => 'slaptaþodþio tikrinimo klaida',

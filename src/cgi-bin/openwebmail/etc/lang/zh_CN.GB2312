@@ -1,6 +1,6 @@
 #!/usr/bin/perl -T
 
-$lang_charset = 'GB2312';
+$lang_charset = 'gb2312';
 
 %lang_folders =
    (
@@ -17,14 +17,33 @@ $lang_charset = 'GB2312';
    status      => '状态（未读优先）',
    date        => '日期（新信优先）',
    date_rev    => '日期（旧信优先）',
-   sender      => '发件人（笔划少）',
-   sender_rev  => '发件人（笔划多）',
+   sender      => '发件人（新信优先）',
+   sender_rev  => '发件人（旧信优先）',
+   subject     => '主题（新信优先）',
+   subject_rev => '主题（旧信优先）',
    size        => '大小（大优先）',
-   size_rev    => '大小（小优先）',
-   subject     => '主题（递增）',
-   subject_rev => '主题（递减）',
-   thread      => '信件串连 (新信优先)',
-   thread_rev  => '信件串连 (旧信优先)'
+   size_rev    => '大小（小优先）'
+   );
+
+%lang_prioritylabels =
+   (
+   urgent      => '急件',
+   normal      => '普通',
+   'non-urgent'=> '非紧急'
+   );
+
+%lang_withoriglabels =
+   (
+   at_beginning => '附在前面',
+   at_end      => '附在後面',
+   none        => '不要附上'
+   );
+
+%lang_receiptlabels =
+   (
+   ask => '要求确认',
+   yes => '是',
+   no  => '否'
    );
 
 %lang_text =
@@ -51,6 +70,9 @@ $lang_charset = 'GB2312';
    copy       => '复制',
    msgmoveconf=> '\'您确定要移动所选择的邮件吗？\'',
    move       => '移动',
+   markasread => '标示成已读',
+   markasunread => '标示成未读',
+   dateformat => '日期格式',
    date       => '日期',
    recipient  => '收件人',
    sender     => '发件人',
@@ -76,6 +98,8 @@ $lang_charset = 'GB2312';
    filename   => '文件名',
    encoding   => '编码',
    download   => '下载',
+   thisispartialmsg => '这是某封邮件的一部分.',
+   msgrebuild => '邮件重组',
    editdraft  => '编辑草稿',
    savedraft  => '暂存草稿',
    send       => '发送',
@@ -100,6 +124,9 @@ $lang_charset = 'GB2312';
    modify     => '修改',
    abooktitle => '地址簿',
    abook      => '地址簿',
+   name       => 'Name',
+   email      => 'Email',
+   note       => 'Note',
    group      => '邮件组',
    quota_hit  => '存储空间已满',
    usage      => '使用空间',
@@ -116,7 +143,9 @@ $lang_charset = 'GB2312';
    all        => '全部',
    enable     => '启用',
    disable    => '停用',
+   filtered   => '过滤',
    blockrelay => '封锁转信主机',
+   blockemail => '封锁 email',
    read       => '读取',
    yourmsg    => '您发出的邮件',
    delivered  => '传送',
@@ -158,7 +187,11 @@ $lang_charset = 'GB2312';
             folder_hitquota   => '抱歉！您的容量已经超过限制，请先将不要的信件删除并清空垃圾箱，否则，您将收不到新邮件！',
             att_overlimit     => '附件大小超过限制',
             inv_msg_op        => '无效的邮件操作',
-            inv_sessid        => '使用他人的 session id 或是重复登录 -- 拒绝存取！',
+            inv_sessid        => 'Session ID cookie 不正确，拒绝存取. 请检查是否浏览器 cookie 功能未开或是重复登入.',
+            no_endpart        => '找不到结尾部分',
+            part_missing      => '某些部分找不到',
+            rebuild_fmterr    => '组出的邮件格式有误',
+            rebuild_sizeerr   => '组出的邮件大小不对',
             user_not_exist    => '使用者不存在',
             func_notsupported => '系统不支援本功能',
             auth_syserr       => '认证系统内部错误',

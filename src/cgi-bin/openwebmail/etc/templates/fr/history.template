@@ -1,19 +1,19 @@
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="1">
 <tr><td bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>User History</B></font>
+<B>HISTORIQUE</B></font>
 </td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 &nbsp;
 <table border="0" align="center" width="90%" cellspacing="0" cellpadding="0">
 <tr>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Time</B></td>
+<B>Date / Heure</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Client Address</B></td>
+<B>Adresse IP</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>User</B></td>
+<B>Util.</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Event</B></td>
+<B>Evènement</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Description</B></td>
 </tr>

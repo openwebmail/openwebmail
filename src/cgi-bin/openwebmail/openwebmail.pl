@@ -2,7 +2,7 @@
 #############################################################################
 # Open WebMail - Provides a web interface to user mailboxes                 #
 #                                                                           #
-# Copyright (C) 2001                                                        #
+# Copyright (C) 2001-2002                                                   #
 # Chung-Kie Tung, Nai-Jung Kuo, Chao-Chiu Wang, Emir Litric                 #
 # Copyright (C) 2000                                                        #
 # Ernie Miller  (original GPL project: Neomail)                             #
@@ -208,6 +208,8 @@ sub login {
 
       # check ~/mail/.release.date to see if releaseupgrade() is required
       my $user_releasedate;
+      my $rc_upgrade=0;	# .openwebmailrc upgrade will be requested if 1
+
       if ( -f "$folderdir/.release.date" ) {
          open(D, "$folderdir/.release.date");
          $user_releasedate=<D>;
@@ -215,46 +217,52 @@ sub login {
          close(D);
       }
       if ($user_releasedate ne $config{'releasedate'}) {
-         releaseupgrade($folderdir, $user_releasedate);
+         $rc_upgrade=releaseupgrade($folderdir, $user_releasedate);
          open(D, ">$folderdir/.release.date");
          print D $config{'releasedate'};
          close(D);
       }
 
       # set cookie in header and redirect page to openwebmail-main
-      if ( -f "$folderdir/.openwebmailrc" ) {
-         $action='displayheaders_afterlogin';
+      my $url;
+      if ( ! -f "$folderdir/.openwebmailrc" ) {
+         $url="$config{'ow_cgiurl'}/openwebmail-prefs.pl?sessionid=$thissession&action=firsttimeuser";
+      } elsif ( $rc_upgrade ) {
+         $url="$config{'ow_cgiurl'}/openwebmail-prefs.pl?sessionid=$thissession&action=editprefs";
       } else {
-         $action='firsttimeuser';
+         $url="$config{'ow_cgiurl'}/openwebmail-main.pl?sessionid=$thissession&action=displayheaders_afterlogin";
       }
 
       my @headers=();
       push(@headers, -pragma=>'no-cache');
-      $cookie = cookie( -name    => "$user-sessionid",
-                        -value   => "$setcookie",
-                        -path    => '/' );
+      my $cookie = cookie( -name    => "$user-sessionid",
+                           -value   => "$setcookie",
+                           -path    => '/' );
       push(@headers, -cookie=>$cookie);
       push(@headers, -charset=>$lang_charset) if ($CGI::VERSION>=2.57);
-      push(@headers, -Refresh=>"0;URL=$config{'ow_cgiurl'}/openwebmail-main.pl?sessionid=$thissession&action=$action");
+      push(@headers, -Refresh=>"0;URL=$url");
       print header(@headers);
 
       # display copyright. Don't touch it, please.
       print	qq|<html>\n|,
 		qq|<head><title>Copyright</title></head>\n|,
 		qq|<body bgcolor="#ffffff" background="$prefs{'bgurl'}">\n|,
+		qq|<style type="text/css"><!--\n|,
+		qq|body { background-image: url($prefs{'bgurl'}); background-repeat: no-repeat; }\n|,
+		qq|--></style>\n|,
                 qq|<center><br><br><br>\n|,
-                qq|<a href="$config{'ow_cgiurl'}/openwebmail-main.pl?sessionid=$thissession&action=$action" style="text-decoration: none">|,
+                qq|<a href="$url" title="click to next page..." style="text-decoration: none">|,
 		qq|<font color="#888888"> &nbsp; Loading . . .</font></a>\n|,
 		qq|<br><br><br>\n\n|.
-                qq|<a href="http://turtle.ee.ncku.edu.tw/openwebmail/" style="text-decoration: none">\n|,
+                qq|<a href="http://openwebmail.org/" title="click to home of $config{'name'}" style="text-decoration: none">\n|,
 		qq|<font color="#cccccc" face="arial,helvetica,sans-serif" size=-1>\n|,
-                qq|Open WebMail $config{'version'} $config{'releasedate'}<br><br>\n|,
-		qq|Copyright (C) 2001<br>\n|,
+                qq|$config{'name'} $config{'version'} $config{'releasedate'}<br><br>\n|,
+		qq|Copyright (C) 2001-2002<br>\n|,
 		qq|Chung-Kie Tung, Nai-Jung Kuo, Chao-Chiu Wang, Emir Litric<br><br>\n|,
 		qq|Copyright (C) 2000<br>\n|,
 		qq|Ernie Miller  (original GPL project: Neomail)<br><br>\n|,
 		qq|</font></a>\n\n|,
-                qq|<a href="http://turtle.ee.ncku.edu.tw/openwebmail/download/doc/copyright.txt" style="text-decoration: none">\n|,
+                qq|<a href="http://openwebmail.org/openwebmail/download/doc/copyright.txt" title="click to see GPL version 2 licence" style="text-decoration: none">\n|,
 		qq|<font color="#cccccc" face="arial,helvetica,sans-serif" size=-1>\n|,
 		qq|This program is free software; you can redistribute it and/or modify<br>\n|,
 		qq|it under the terms of the version 2 of GNU General Public License<br>\n|,
@@ -265,6 +273,9 @@ sub login {
 		qq|See the GNU General Public License for more details.<br><br>\n|,
 		qq|Removal or change of this copyright is prohibited.\n|,
 		qq|</font></a>\n\n|,
+                qq|<script language="JavaScript">\n<!--\n|,
+                qq|window.open('$url','_self')\n|,
+                qq|--->\n</script>\n|,
 		qq|</center></body></html>\n|;
       exit(0);
 
@@ -323,7 +334,6 @@ sub login {
       exit 0;
    }
 }
-
 #################### END LOGIN #####################
 
 ################ CLEANUPOLDSESSIONS ##################
@@ -349,6 +359,10 @@ sub cleanupoldsessions {
 sub releaseupgrade {
    my ($folderdir, $user_releasedate)=@_;
    my $content;
+   my $rc_upgrade=0;
+   local ($_OFFSET, $_FROM, $_TO, $_DATE, $_SUBJECT, $_CONTENT_TYPE, $_STATUS, $_SIZE, $_REFERENCES)
+       =(0,1,2,3,4,5,6,7,8);
+
 
    if ( $user_releasedate lt "20011101" ) {
       if ( -f "$folderdir/.filter.book" ) {
@@ -453,6 +467,119 @@ sub releaseupgrade {
       }
    }
 
-}
+   if ( $user_releasedate lt "20020108.02" ) {
+      my (@validfolders, $folderusage);
+      getfolders(\@validfolders, \$folderusage);
 
+      foreach my $foldername (@validfolders) {
+         my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $foldername);
+         my (%HDB, @messageids, @attr);
+
+         next if ( ! -f "$headerdb$config{'dbm_ext'}");
+
+         filelock($folderfile, LOCK_SH);
+         open (FOLDER, $folderfile);
+         filelock("$headerdb$config{'dbm_ext'}", LOCK_EX);
+         dbmopen (%HDB, $headerdb, undef);
+
+         if ( $HDB{'METAINFO'} eq metainfo($folderfile) ) { # upgrade only if hdb is uptodate
+            @messageids=keys %HDB;
+            foreach my $id (@messageids) {
+               next if ( $id eq 'METAINFO' 
+                || $id eq 'NEWMESSAGES' 
+                || $id eq 'INTERNALMESSAGES' 
+                || $id eq 'ALLMESSAGES' 
+                || $id eq "" );
+
+               @attr=split( /@@@/, $HDB{$id} );
+
+               next if ( ($attr[$_CONTENT_TYPE] eq '' ||
+                          $attr[$_CONTENT_TYPE] eq 'N/A' ||
+                          $attr[$_CONTENT_TYPE] =~ /^text/i) 
+                       && $attr[$_SIZE]<4096 );
+
+               next if ($attr[$_STATUS] =~ /T/i);
+
+               if ($attr[$_SIZE]>65536) { # assume message > 64k has attachments
+                  $attr[$_STATUS].="T";
+               } else {
+                  my $buff;
+                  seek(FOLDER, $attr[$_OFFSET], 0);
+                  read(FOLDER, $buff, $attr[$_SIZE]);
+                  if ( $buff =~ /\ncontent\-type:.*;\s+name\s*=(.+?)\n/ims ||
+                       $buff =~ /\n\s+name\s*=(.+?)\n/ims ||
+                       $buff =~ /\ncontent\-disposition:.*;\s+filename\s*=(.+?)\n/ims ||
+                       $buff =~ /\n\s+filename\s*=(.+?)\n/ims ||
+                       $buff =~ /\nbegin [0-7][0-7][0-7][0-7]? [^\n\r]+\n/ims ) {
+                     my $misc=$1;
+                     if ($misc !~ /[\<\>]/ && $misc !~ /type=/i) {
+                        $attr[$_STATUS].="T";
+                     } else {
+                        next;
+                     }
+                  } else {
+                     next;
+                  }
+               }
+               $HDB{$id}=join('@@@', @attr);
+            }
+         }
+         dbmclose(%HDB);
+         filelock("$headerdb$config{'dbm_ext'}", LOCK_UN);
+         filelock($folderfile, LOCK_UN);
+      }
+      writehistory("release upgrade - $folderdir/* by 20020108.02");
+      writelog("release upgrade - $folderdir/* by 20020108.02");
+   }
+
+   if ( $user_releasedate lt "20020108.02" ) {
+      my (@validfolders, $folderusage);
+      getfolders(\@validfolders, \$folderusage);
+
+      foreach my $foldername (@validfolders) {
+         my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $foldername);
+         my (%HDB, @messageids, @attr);
+
+         next if ( ! -f "$headerdb$config{'dbm_ext'}");
+
+         filelock("$headerdb$config{'dbm_ext'}", LOCK_EX);
+         dbmopen (%HDB, $headerdb, undef);
+
+         @messageids=keys %HDB;
+         foreach my $id (@messageids) {
+            next if ( $id eq 'METAINFO' 
+             || $id eq 'NEWMESSAGES' 
+             || $id eq 'INTERNALMESSAGES' 
+             || $id eq 'ALLMESSAGES' 
+             || $id eq "" );
+
+            @attr=split( /@@@/, $HDB{$id} );
+            next if ( $attr[$_DATE] !~ m!(\d+)/(\d+)/(\d\d+)\s+(\d+):(\d+):(\d+)! );
+            my @d = ($1, $2, $3, $4, $5, $6);
+            if ($d[2]<50) {
+               $d[2]+=2000;
+            } elsif ($d[2]<=1900) {
+               $d[2]+=1900;
+            }
+            $attr[$_DATE]=sprintf("%4d%02d%02d%02d%02d%02d", 
+					$d[2],$d[0],$d[1], $d[3],$d[4],$d[5]);
+            $HDB{$id}=join('@@@', @attr);
+         }
+         dbmclose(%HDB);
+         filelock("$headerdb$config{'dbm_ext'}", LOCK_UN);
+
+         my $cachefile="$headerdb.cache";
+         ($cachefile =~ /^(.+)$/) && ($cachefile = $1);  # untaint ...
+         unlink($cachefile); # remove cache possiblely for old dbm
+      }
+      writehistory("release upgrade - $folderdir/.*$config{'dbm_ext'} by 20020108.02");
+      writelog("release upgrade - $folderdir/.*$config{'dbm_ext'} by 20020108.02");
+   }
+
+   if ( $user_releasedate lt "20020119" ) {
+      $rc_upgrade=1;	# .openwebmailrc upgrade will be requested
+   }
+
+   return($rc_upgrade);
+}
 #################### END RELEASEUPGRADE ####################

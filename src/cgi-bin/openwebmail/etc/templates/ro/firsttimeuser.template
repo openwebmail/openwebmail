@@ -1,11 +1,11 @@
-<BR><BR><BR><BR><BR><BR>
+<BR><BR><BR><BR><BR><BR><BR>
 <table border="0" align="center" width="40%" cellpadding="1" cellspacing="1">
 <tr><td bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>WELCOME TO OPEN WEBMAIL!</B></font>
+<B>WELCOME TO @@@NAME@@@!</B></font>
 </td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>Bine ai venit in Open WebMail!  Vad ca e prima data cand intri aici,
-asa ca iti voi cere niste informatii pentru a configura Open WebMail sa
-iti fie de ajutor. Apasa pe continua pentru a incepe sa configuram Open WebMail.
+<BR>Bine ai venit in @@@NAME@@@!  Vad ca e prima data cand intri aici,
+asa ca iti voi cere niste informatii pentru a configura @@@NAME@@@ sa
+iti fie de ajutor. Apasa pe continua pentru a incepe sa configuram @@@NAME@@@.
 @@@CONTINUEBUTTON@@@
 </td></tr></table>

@@ -11,7 +11,7 @@
 <table border="0" align="center" width="80%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
 <BR>Outlook Express 5 i Netscape Mail poden exportar libres d'adreces en
-format CSV, ó Comma Separated Values.  OpenWebMail pot importar-ho.
+format CSV, ó Comma Separated Values.  @@@NAME@@@ pot importar-ho.
 <ul>
 <li> En Netscape, obri la seva llibreta d'adreces, seleccioni
 Arxiu-Exportar,desprès a "Guardar com tipus:" esculliu "Comma Separated (*.csv)." <BR><BR>

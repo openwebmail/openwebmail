@@ -11,7 +11,7 @@
 <table border="0" align="center" width="75%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
 <BR>Outlook Express 5 och Netscape Mail kan exportera adressboken i ett format kallat
-CSV, eller "Comma Separated Values". Open WebMail kan importera sådana filer till din
+CSV, eller "Comma Separated Values". @@@NAME@@@ kan importera sådana filer till din
 personliga adressbok, så att du slipper lägga in dem manuellt.
 <ul>
 <li> I Netscape öppnar du din adressbok och väljer File-&gt;Export. Sedan,

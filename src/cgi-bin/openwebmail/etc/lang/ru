@@ -19,12 +19,31 @@ $lang_charset = 'koi8-r';
    date_rev    => 'по дате (Обратный порядок)',
    sender      => 'по автору',
    sender_rev  => 'по автору (Обратный порядок)',
-   size        => 'по размеру ',
-   size_rev    => 'по размеру (Обратный порядок)',
    subject     => 'по теме ',
    subject_rev => 'по теме (Обратный порядок)',
-   thread      => 'Thread (Newest First)',
-   thread_rev  => 'Thread (Oldest First)'
+   size        => 'по размеру ',
+   size_rev    => 'по размеру (Обратный порядок)'
+   );
+
+%lang_prioritylabels =
+   (
+   normal      => 'Normal',
+   urgent      => 'Urgent',
+   'non-urgent'=> 'Non-Urgent'
+   );
+
+%lang_withoriglabels =
+   (
+   at_beginning => 'at Beginning',
+   at_end      => 'at End',
+   none        => 'None'
+   );
+
+%lang_receiptlabels =
+   (
+   ask => 'Ask to confirm',
+   yes => 'Yes',
+   no  => 'No'
    );
 
 %lang_text =
@@ -51,6 +70,9 @@ $lang_charset = 'koi8-r';
    copy       => 'Copy',
    msgmoveconf=> '\'Удалить выбранные сообщения?\'',
    move       => 'Переместить',
+   markasread => 'Mark as read',
+   markasunread => 'Mark as unread',
+   dateformat => 'Дата format',
    date       => 'Дата',
    recipient  => 'Отправлено',
    sender     => 'Автор',
@@ -76,6 +98,8 @@ $lang_charset = 'koi8-r';
    filename   => 'Имя файла',
    encoding   => 'Кодировка',
    download   => 'Загрузить',
+   thisispartialmsg => 'This is a partial message.',
+   msgrebuild => 'Message Rebuild',
    editdraft  => 'Edit Draft',
    savedraft  => 'Save Draft',
    send       => 'Отправить',
@@ -100,6 +124,9 @@ $lang_charset = 'koi8-r';
    modify     => 'Изменить',
    abooktitle => 'Адресная книга ',
    abook      => 'АДРЕСНАЯ КНИГА',
+   name       => 'Name',
+   email      => 'Email',
+   note       => 'Note',
    group      => 'Group',
    quota_hit  => 'Превышение Квоты',
    usage      => 'Usage',
@@ -116,7 +143,9 @@ $lang_charset = 'koi8-r';
    all        => 'All',
    enable     => 'Enable',
    disable    => 'Disable',
+   filtered   => 'Filtered',
    blockrelay => 'Block SMTP Relay',
+   blockemail => 'Block email',
    read       => 'Read',
    yourmsg    => 'Your message',
    delivered  => 'Delivered',
@@ -159,6 +188,10 @@ $lang_charset = 'koi8-r';
             att_overlimit     => 'Извините, ваше вложение превышает разрешенный размер, в',
             inv_msg_op        => 'Invalid operation for message',
             inv_sessid        => 'Your request didn\'t contain the proper session ID cookie -- access denied!',
+            no_endpart        => 'End part not found',
+            part_missing      => 'Some part was missing',
+            rebuild_fmterr    => 'New message format error',
+            rebuild_sizeerr   => 'New message size mismatch',
             user_not_exist    => 'user does not exist',
             func_notsupported => 'function not supported',
             auth_syserr       => 'authentication system error',

@@ -1,9 +1,7 @@
-<br>
-<br>
-<br>
+<BR><BR><BR><BR><BR>
 <table border="0" align="center" width="60%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@ align="left">
-<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><B>CHANGE PASSWORD</B></FONT>
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><B>MODIFICA PASSWORD</B></FONT>
 </td></tr><tr><td align="center" valign="middle" bgcolor=@@@WINDOW_LIGHT@@@>
 @@@STARTFORM@@@
 <BR>
@@ -11,11 +9,11 @@
 <tr>
 <td align=right>UserID: </td><td align=left>@@@USERIDFIELD@@@</td>
 </tr><tr>
-<td align=right>Old Password: </td><td align=left>@@@OLDPASSWORDFIELD@@@</td>
+<td align=right>Vecchia Password: </td><td align=left>@@@OLDPASSWORDFIELD@@@</td>
 </tr><tr>
-<td align=right>New Password: </td><td align=left>@@@NEWPASSWORDFIELD@@@</td>
+<td align=right>Nuova Password: </td><td align=left>@@@NEWPASSWORDFIELD@@@</td>
 </tr><tr>
-<td align=right>Confirm New Password: </td><td align=left>@@@CONFIRMNEWPASSWORDFIELD@@@</td>
+<td align=right>Conferma Nuova Password: </td><td align=left>@@@CONFIRMNEWPASSWORDFIELD@@@</td>
 </tr><tr>
 <td colspan=2>
 <table width="100%"><tr>
@@ -33,17 +31,17 @@
       var s;
       s=document.passwordform.newpassword.value;
       if (s.length < 4) {
-         alert("Password must has at least 4 characters.");
+         alert("La password deve avere almeno 4 caratteri.");
          return false;
       }
       if (document.passwordform.newpassword.value !=
 	  document.passwordform.confirmnewpassword.value) {
-         alert("New password confirm mismatch.");
+         alert("Le password non coincidono.");
          return false;
       }
       if (document.passwordform.newpassword.value ==
 	  document.passwordform.oldpassword.value) {
-         alert("New password is the same as the old one.");
+         alert("La nuova password coicide con la vecchia.");
          return false;
       }
       return true;

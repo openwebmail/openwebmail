@@ -7,11 +7,13 @@
 use FileHandle;
 
 sub filelock {
+   my $ret;
    if ( $config{'use_dotlockfile'} ) {
-      return filelock_dotlockfile(@_);
+      $ret=filelock_dotlockfile(@_);
    } else {
-      return filelock_flock(@_);
+      $ret=filelock_flock(@_);
    }
+   return($ret);
 }
 
 # this routine provides flock with filename
@@ -46,14 +48,14 @@ sub filelock_flock {
 
    # Since nonblocking lock may return errors 
    # even the target is locked by others for just a few seconds,
-   # we turn nonblocking lock into a blocking lock with timeout limit=30sec
+   # we turn nonblocking lock into a blocking lock with timeout limit=60sec
    # thus the lock will have more chance to success.
 
    if ( $lockflag & LOCK_NB ) {	# nonblocking lock
       my $retval;
       eval {
          local $SIG{ALRM} = sub { die "alarm\n" }; # NB: \n required
-         alarm 30;
+         alarm 60;
          $retval=flock($fh, $lockflag & (~LOCK_NB) );	
          alarm 0;
       };
@@ -79,8 +81,8 @@ sub filelock_dotlockfile {
    return 1 unless ($lockflag & (LOCK_SH|LOCK_EX|LOCK_UN));
 
    my $endtime;
-   if ($lockflag & LOCK_NB) {	# turn nonblock lock to 30sec blocking lock
-      $endtime=time()+30;
+   if ($lockflag & LOCK_NB) {	# turn nonblock lock to 60sec blocking lock
+      $endtime=time()+60;
    } else {
       $endtime=time()+86400;
    }
@@ -185,7 +187,7 @@ sub _lock {
    my ($filename, $staletimeout)=@_;
    ($filename =~ /^(.+)$/) && ($filename = $1);		# bypass taint check
 
-   $staletimeout=30 if $staletimeout eq 0;
+   $staletimeout=60 if $staletimeout eq 0;
    if ( -f "$filename.lock" ) {
       my $t=(stat("$filename.lock"))[9];
       unlink("$filename.lock") if (time()-$t > $staletimeout);

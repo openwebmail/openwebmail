@@ -10,7 +10,7 @@
 
 <table border="0" align="center" width="75%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
-<BR>Outlook Express 5 ja Netscape Mail ohjelmista voi vied‰ osoitekirjan CVS muodossa Open WebMail osaa hyˆdynt‰‰ t‰m‰n tiedon. (ja samalla s‰‰st‰‰ aikaa)
+<BR>Outlook Express 5 ja Netscape Mail ohjelmista voi vied‰ osoitekirjan CVS muodossa @@@NAME@@@ osaa hyˆdynt‰‰ t‰m‰n tiedon. (ja samalla s‰‰st‰‰ aikaa)
 <ul>
 <li> Netscapessa valitset, address book, ja File-&gt;Export, "Save as type:" valitse "Comma Separated (*.csv)." <BR><BR>
 <li> Outlook Expressiss‰, valitset

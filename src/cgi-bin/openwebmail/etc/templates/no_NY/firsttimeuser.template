@@ -1,10 +1,10 @@
-<BR><BR><BR><BR><BR><BR>
+<BR><BR><BR><BR><BR><BR><BR>
 <table border="0" align="center" width="40%" cellpadding="1" cellspacing="1">
 <tr><td bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>VELKOMMEN TIL OPEN WEBMAIL!</B></font>
+<B>VELKOMMEN TIL @@@NAME@@@!</B></font>
 </td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>Velkommen til Open WebMail! Det ser ut til at dette er første gang du benytter Open WebMail.
+<BR>Velkommen til @@@NAME@@@! Det ser ut til at dette er første gang du benytter @@@NAME@@@.
 Du må legge inn noe informasjon om deg selv, slik at alle personlige innstillinger blir korrekte.
 Trykk fortsett for å komme videre til brukerinnstillingene.
 @@@CONTINUEBUTTON@@@

@@ -47,6 +47,8 @@ sub readconf {
       if ($blockmode) {
          if ( $line =~ m!</$key>! ) {
             $blockmode=0;
+            # resolv %var% but forward reference is not supported
+            ${$r_confighash}{$key} =~ s/\%([\w\d_]+)\%/${$r_confighash}{$1}/msg; 
          } else {
             ${$r_confighash}{$key} .= "$line\n";
          }
@@ -62,8 +64,8 @@ sub readconf {
          } else {
             ($key, $value)=split(/\s+/, $line, 2);
             if ($key ne "" && $value ne "" ) {
-               # resolv %var% and forward reference is not allowed
-               $value =~ s/\%([\w\d_]+)\%/${$r_confighash}{$1}/g; 
+               # resolv %var% but forward reference is not supported
+               $value =~ s/\%([\w\d_]+)\%/${$r_confighash}{$1}/msg; 
                ${$r_confighash}{$key}=$value; 
             }
          }
@@ -72,13 +74,16 @@ sub readconf {
    close(CONFIG);
 
    # processing yes/no
-   foreach $key ( 'use_hashedmailspools', 'use_homedirspools',
+   foreach $key ( 'deliver_use_GMT',
+                  'use_hashedmailspools', 'use_homedirspools',
                   'use_homedirfolders', 'use_dotlockfile', 
                   'refresh_after_login', 'enable_rootlogin',
                   'enable_changepwd', 'enable_setfromemail', 
-                  'enable_autoreply', 'enable_pop3', 
+                  'enable_autoreply', 'enable_pop3', 'enable_setforward',
                   'autopop3_at_refresh', 'default_autopop3', 
-                  'default_confirmmsgmovecopy',
+                  'default_reparagraphorigmsg',
+                  'default_confirmmsgmovecopy', 'default_viewnextaftermsgmovecopy',
+                  'default_moveoldmsgfrominbox', 'forced_moveoldmsgfrominbox',
                   'default_hideinternal', 'symboliclink_mbox',
                   'default_filter_fakedsmtp', 'default_filter_fakedexecontenttype',
                   'default_disablejs', 'default_newmailsound', 'default_usesmileicon') {
@@ -95,6 +100,9 @@ sub readconf {
       $value=~s/^\s+//; $value=~s/\s+$//;
       ${$r_confighash}{'domainnames'}=$value;
    }
+   if ( ${$r_confighash}{'timeoffset'} eq 'auto' ) {
+      ${$r_confighash}{'timeoffset'}=gettimeoffset();
+   }
 
    # processing list
    foreach $key ('domainnames', 'spellcheck_dictionaries', 'disallowed_pop3servers') {
@@ -109,7 +117,7 @@ sub readconf {
    }
 
    # bypass taint check for pathname defined in openwebmail.conf
-   foreach $key ( 'sendmail', 'auth_module', 
+   foreach $key ( 'smtpserver', 'auth_module', 
         'mailspooldir', 'homedirspoolname', 'homedirfolderdirname', 'dbm_ext',
         'ow_cgidir', 'ow_htmldir','ow_etcdir', 'logfile', 'spellcheck',
 	'vacationinit', 'vacationpipe', 'g2b_converter', 'b2g_converter' ) {
@@ -400,12 +408,15 @@ sub readprefs {
       }
    }
 
-   # get default value from config for undefined/empty prefs entries
+   # get default value from config for err/undefined/empty prefs entries
 
    # entries disallowed to be empty
    foreach $key ( 'language', 'dictionary', 'style', 'iconset', 'bgurl', 
-                  'sort', 'headersperpage', 'editcolumns', 'editrows',
-                  'confirmmsgmovecopy',
+                  'sort', 'dateformat', 'headersperpage', 
+                  'editcolumns', 'editrows',
+                  'confirmmsgmovecopy', 'viewnextaftermsgmovecopy', 
+                  'reparagraphorigmsg', 'replywithorigmsg',
+                  'sendreceipt', 'moveoldmsgfrominbox',
                   'filter_repeatlimit', 'filter_fakedsmtp', 
                   'filter_fakedexecontenttype',
                   'disablejs', 'hideinternal', 'newmailsound', 'usesmileicon', 'autopop3',
@@ -477,10 +488,11 @@ sub applystyle {
    my $template = shift;
    my $url;
 
+   $template =~ s/\@\@\@NAME\@\@\@/$config{'name'}/g;
    $template =~ s/\@\@\@VERSION\@\@\@/$config{'version'}/g;
-   $template =~ s/\@\@\@HTML_URL\@\@\@/$config{'ow_htmlurl'}/g;
    $template =~ s/\@\@\@LOGO_URL\@\@\@/$config{'logo_url'}/g;
    $template =~ s/\@\@\@LOGO_LINK\@\@\@/$config{'logo_link'}/g;
+   $template =~ s/\@\@\@PAGE_FOOTER\@\@\@/$config{'page_footer'}/g;
 
    $url="$config{'ow_cgiurl'}/openwebmail.pl";
    $template =~ s/\@\@\@SCRIPTURL\@\@\@/$url/g;
@@ -506,38 +518,6 @@ sub applystyle {
    return $template;
 }
 ################ END APPLYSTYLE ###########################
-
-##################### escapeURL, unescapeURL #################
-# escape & unescape routine are not available in CGI.pm 3.0
-# so we borrow the 2 routines from 2.xx version of CGI.pm
-sub unescapeURL {
-    my $todecode = shift;
-    return undef unless defined($todecode);
-    $todecode =~ tr/+/ /;       # pluses become spaces
-    $todecode =~ s/%([0-9a-fA-F]{2})/pack("c",hex($1))/ge;
-    return $todecode;
-}
-
-sub escapeURL {
-    my $toencode = shift;
-    return undef unless defined($toencode);
-    $toencode=~s/([^a-zA-Z0-9_.-])/uc sprintf("%%%02x",ord($1))/eg;
-    return $toencode;
-}
-
-##################### END escapeURL, unescapeURL #################
-
-##################### SET_EUID_EGID_UMASK #################
-sub set_euid_egid_umask {
-   my ($uid, $gid, $umask)=@_;
-
-   # note! egid must be set before set euid to normal user,
-   #       since a normal user can not set egid to others
-   $) = $gid;
-   $> = $uid if ($> != $uid);
-   umask($umask);
-}
-################### END SET_EUID_EGID_UMASK ###############
 
 ############## VERIFYSESSION ########################
 sub verifysession {
@@ -621,7 +601,7 @@ sub get_folderfile_headerdb {
 ################## GETFOLDERS ####################
 # return list of valid folders and calc the total folder usage(0..100%)
 sub getfolders {
-   my ($r_folders, $r_usage, $do_delfiles)=@_;
+   my ($r_folders, $r_usage)=@_;
    my @delfiles=();
    my @userfolders;
    my $totalsize = 0;
@@ -640,14 +620,21 @@ sub getfolders {
            $filename=~/^\.(.*)\.pag$/ ||
            $filename=~/^(.*)\.lock$/ ||
            ($filename=~/^\.(.*)\.cache$/ && $filename ne ".search.cache") ) {
-         if ($1 ne $user && ! -f "$folderdir/$1" ) {
-            if ($do_delfiles) {
-               # dbm or cache whose folder doesn't exist
-               ($filename =~ /^(.+)$/) && ($filename = $1); # bypass taint check
-               push (@delfiles, "$folderdir/$filename");
-            }
+         if ($1 ne $user && 
+             $1 ne 'address.book' && 
+             $1 ne 'filter.book' && 
+             ! -f "$folderdir/$1" ) {
+            # dbm or cache whose folder doesn't exist
+            ($filename =~ /^(.+)$/) && ($filename = $1); # bypass taint check
+            push (@delfiles, "$folderdir/$filename");
             next;
          }
+      # clean tmp file in msg rebuild
+      } elsif ($filename=~/^_rebuild_tmp_\d+$/ ||
+               $filename=~/^\._rebuild_tmp_\d+$/ ) {
+         ($filename =~ /^(.+)$/) && ($filename = $1); # bypass taint check
+         push (@delfiles, "$folderdir/$filename");
+         next;
       }
 
       # summary file size
@@ -698,6 +685,284 @@ sub getfolders {
    return;
 }
 ################ END GETFOLDERS ##################
+
+#################### GETMESSAGE ###########################
+sub getmessage {
+   my ($messageid, $mode) = @_;
+   my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
+   my $folderhandle=FileHandle->new();
+   my %message = ();
+
+   my ($currentheader, $currentbody, $r_currentattachments, $currentfrom, $currentdate,
+       $currentsubject, $currentid, $currenttype, $currentto, $currentcc,
+       $currentreplyto, $currentencoding, $currentstatus, $currentreceived,
+       $currentpriority, $currentinreplyto, $currentreferences);
+
+   filelock($folderfile, LOCK_SH|LOCK_NB) or
+      openwebmailerror("$lang_err{'couldnt_locksh'} $folderfile!");
+   update_headerdb($headerdb, $folderfile);
+   open($folderhandle, "$folderfile");
+
+   # $r_attachment is a reference to attachment array!
+   if ($mode eq "all") {
+      ($currentheader, $currentbody, $r_currentattachments)
+		=parse_rfc822block(get_message_block($messageid, $headerdb, $folderhandle), "0", "all");
+   } else {
+      ($currentheader, $currentbody, $r_currentattachments)
+		=parse_rfc822block(get_message_block($messageid, $headerdb, $folderhandle), "0", "");
+   }
+
+   close($folderhandle);
+   filelock($folderfile, LOCK_UN);
+
+   return \%message if ( $currentheader eq "" );
+
+   $currentfrom = $currentdate = $currentsubject = $currenttype = 
+   $currentto = $currentcc = $currentreplyto = $currentencoding = 'N/A';
+   $currentstatus = '';
+   $currentpriority = '';
+   $currentinreplyto = $currentreferences = '';
+
+   my $lastline = 'NONE';
+   my @smtprelays=();
+   foreach (split(/\n/, $currentheader)) {
+      if (/^\s/) {
+         s/^\s+/ /;
+         if    ($lastline eq 'FROM') { $currentfrom .= $_ }
+         elsif ($lastline eq 'REPLYTO') { $currentreplyto .= $_ }
+         elsif ($lastline eq 'DATE') { $currentdate .= $_ }
+         elsif ($lastline eq 'SUBJ') { $currentsubject .= $_ }
+         elsif ($lastline eq 'MESSID') { s/^\s+//; $currentid .= $_ }
+         elsif ($lastline eq 'TYPE') { $currenttype .= $_ }
+         elsif ($lastline eq 'ENCODING') { $currentencoding .= $_ }
+         elsif ($lastline eq 'TO')   { $currentto .= $_ }
+         elsif ($lastline eq 'CC')   { $currentcc .= $_ }
+         elsif ($lastline eq 'INREPLYTO') { $currentinreplyto .= $_ }
+         elsif ($lastline eq 'REFERENCES') { $currentreferences .= $_ }
+         elsif ($lastline eq 'RECEIVED') { $currentreceived .= $_ }
+      } elsif (/^from:\s+(.+)$/ig) {
+         $currentfrom = $1;
+         $lastline = 'FROM';
+      } elsif (/^reply-to:\s+(.+)$/ig) {
+         $currentreplyto = $1;
+         $lastline = 'REPLYTO';
+      } elsif (/^to:\s+(.+)$/ig) {
+         $currentto = $1;
+         $lastline = 'TO';
+      } elsif (/^cc:\s+(.+)$/ig) {
+         $currentcc = $1;
+         $lastline = 'CC';
+      } elsif (/^date:\s+(.+)$/ig) {
+         $currentdate = $1;
+         $lastline = 'DATE';
+      } elsif (/^subject:\s+(.+)$/ig) {
+         $currentsubject = $1;
+         $lastline = 'SUBJ';
+      } elsif (/^message-id:\s+(.*)$/ig) {
+         $currentid = $1;
+         $lastline = 'MESSID';
+      } elsif (/^content-type:\s+(.+)$/ig) {
+         $currenttype = $1;
+         $lastline = 'TYPE';
+      } elsif (/^content-transfer-encoding:\s+(.+)$/ig) {
+         $currentencoding = $1;
+         $lastline = 'ENCODING';
+      } elsif (/^status:\s+(.+)$/ig) {
+         $currentstatus .= $1;
+         $currentstatus =~ s/\s//g;
+         $lastline = 'NONE';
+      } elsif (/^x-status:\s+(.+)$/ig) {
+         $currentstatus .= $1;
+         $currentstatus =~ s/\s//g;
+         $lastline = 'NONE';
+      } elsif (/^references:\s+(.+)$/ig) {
+         $currentreferences = $1;
+         $lastline = 'REFERENCES';
+      } elsif (/^in-reply-to:\s+(.+)$/ig) {
+         $currentinreplyto = $1;
+         $lastline = 'INREPLYTO';
+      } elsif (/^priority:\s+(.*)$/ig) {
+         $currentpriority = $1;
+         $currentstatus .= "I";
+         $lastline = 'NONE';
+      } elsif (/^Received:(.+)$/ig) {
+         my $tmp=$1;
+         if ($currentreceived=~ /.*\sby\s([^\s]+)\s.*/) {
+            unshift(@smtprelays, $1) if ($smtprelays[0] ne $1);
+         }
+         if ($currentreceived=~ /.*\sfrom\s([^\s]+)\s.*/) {
+            unshift(@smtprelays, $1);
+         } elsif ($currentreceived=~ /.*\(from\s([^\s]+)\).*/is) {
+            unshift(@smtprelays, $1);
+         }
+         $currentreceived=$tmp;
+         $lastline = 'RECEIVED';
+      } else {
+         $lastline = 'NONE';
+      }
+   }
+   # capture last Received: block
+   if ($currentreceived=~ /.*\sby\s([^\s]+)\s.*/) {
+      unshift(@smtprelays, $1) if ($smtprelays[0] ne $1);
+   }
+   if ($currentreceived=~ /.*\sfrom\s([^\s]+)\s.*/) {
+      unshift(@smtprelays, $1);
+   } elsif ($currentreceived=~ /.*\(from\s([^\s]+)\).*/is) {
+      unshift(@smtprelays, $1);
+   }
+   # count first fromhost as relay only if there are just 2 host on relaylist 
+   # since it means sender pc uses smtp to talk to our mail server directly
+   shift(@smtprelays) if ($#smtprelays>1);
+
+search_smtprelay:
+   foreach my $relay (@smtprelays) {
+      next if ($relay !~ /[\w\d\-_]+\.[\w\d\-_]+/);
+      foreach (@{$config{'domainnames'}}) {
+         next search_smtprelay if ($relay =~ $_);
+      }
+      $relay=~s/[\[\]]//g;	# remove [] around ip addr in mailheader
+				# since $message{smtprelay} may be put into filterrule
+                        	# and we don't want [] be treat as regular expression
+      $message{smtprelay} = $relay;
+      last;
+   }
+
+   $message{header} = $currentheader;
+   $message{body} = $currentbody;
+   $message{attachment} = $r_currentattachments;
+
+   $message{from}    = decode_mimewords($currentfrom);
+   $message{replyto} = decode_mimewords($currentreplyto) unless ($currentreplyto eq "N/A");
+   $message{to}      = decode_mimewords($currentto) unless ($currentto eq "N/A");
+   $message{cc}      = decode_mimewords($currentcc) unless ($currentcc eq "N/A");
+   $message{subject} = decode_mimewords($currentsubject);
+
+   $message{date} = $currentdate;
+   $message{status} = $currentstatus;
+   $message{messageid} = $currentid;
+   $message{contenttype} = $currenttype;
+   $message{encoding} = $currentencoding;
+   $message{inreplyto} = $currentinreplyto;
+   $message{references} = $currentreferences;
+   $message{priority} = $currentpriority;
+
+   # Determine message's number and previous and next message IDs.
+   my ($totalsize, $newmessages, $r_messageids)=getinfomessageids();
+   foreach my $i (0..$#{$r_messageids}) {
+      if (${$r_messageids}[$i] eq $messageid) {
+         $message{"prev"} = ${$r_messageids}[$i-1] if ($i > 0);
+         $message{"next"} = ${$r_messageids}[$i+1] if ($i < $#{$r_messageids});
+         $message{"number"} = $i+1;
+         $message{"total"}=$#{$r_messageids}+1;
+         last;
+      }
+   }
+   return \%message;
+}
+#################### END GETMESSAGE #######################
+
+################### GETINFOMESSAGEIDS ###################
+sub getinfomessageids {
+   my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
+   my $index_complete=0;
+
+   # do new indexing in background if folder > 10 M && empty db
+   if ( (stat("$headerdb$config{'dbm_ext'}"))[7]==0 && 
+        (stat($folderfile))[7] >= 10485760 ) {
+      $|=1; 				# flush all output
+      $SIG{CHLD} = sub { wait; $index_complete=1 if ($?==0) };	# handle zombie
+      if ( fork() == 0 ) {		# child
+         close(STDOUT);
+         close(STDIN);
+         filelock($folderfile, LOCK_SH|LOCK_NB) or exit 1;
+         update_headerdb($headerdb, $folderfile);
+         filelock("$headerdb$config{'dbm_ext'}", LOCK_UN);
+         exit 0;
+      }
+
+      for (my $i=0; $i<120; $i++) {	# wait index to complete for 120 seconds
+         sleep 1;
+         if ($index_complete==1) {
+            last;
+         }
+      }   
+      if ($index_complete==0) {
+         openwebmailerror("$folderfile $lang_err{'under_indexing'}");
+      }
+   } else {	# do indexing directly if small folder
+      filelock($folderfile, LOCK_SH|LOCK_NB) or
+         openwebmailerror("$lang_err{'couldnt_locksh'} $folderfile!");
+      update_headerdb($headerdb, $folderfile);
+      filelock($folderfile, LOCK_UN);
+   }
+
+   # Since recipients are displayed instead of sender in folderview of 
+   # SENT/DRAFT folder, the $sort must be changed from 'sender' to 
+   # 'recipient' in this case
+   if ( $folder=~ m#sent-mail#i || 
+        $folder=~ m#saved-drafts#i ||
+        $folder=~ m#$lang_folders{'sent-mail'}#i ||
+        $folder=~ m#$lang_folders{'saved-drafts'}#i ) {
+      $sort='recipient' if ($sort eq 'sender');
+   }
+
+   if ( $keyword ne '' ) {
+      my $folderhandle=FileHandle->new();
+      my ($totalsize, $new, $r_haskeyword, $r_messageids, $r_messagedepths);
+      my @messageids=();
+      my @messagedepths=();
+      
+      ($totalsize, $new, $r_messageids, $r_messagedepths)=get_info_messageids_sorted($headerdb, $sort, "$headerdb.cache", $prefs{'hideinternal'});
+
+      filelock($folderfile, LOCK_SH|LOCK_NB) or
+         openwebmailerror("$lang_err{'couldnt_locksh'} $folderfile!");
+      open($folderhandle, $folderfile);
+      ($totalsize, $new, $r_haskeyword)=search_info_messages_for_keyword($keyword, $searchtype, $headerdb, $folderhandle, "$folderdir/.search.cache", $prefs{'hideinternal'});
+      close($folderhandle);
+      filelock($folderfile, LOCK_UN);
+
+      for (my $i=0; $i<@{$r_messageids}; $i++) {
+	my $id = ${$r_messageids}[$i];
+	if ( ${$r_haskeyword}{$id} == 1 ) {
+	  push (@messageids, $id);
+	  push (@messagedepths, ${$r_messagedepths}[$i]);
+        }
+      }
+#      foreach (@{$r_messageids}) {
+#         push (@messageids, $_) if ( ${$r_haskeyword}{$_} == 1 ); 
+#      }
+      return($totalsize, $new, \@messageids, \@messagedepths);
+
+   } else { # return: $totalsize, $new, $r_messageids for whole folder
+
+      return(get_info_messageids_sorted($headerdb, $sort, "$headerdb.cache", $prefs{'hideinternal'}))
+
+   }
+}
+################# END GETINFOMESSAGEIDS #################
+
+################# FILTERMESSAGE ###########################
+sub filtermessage {
+   my $filtered=mailfilter($user, 'INBOX', $folderdir, \@validfolders, 
+	$prefs{'filter_repeatlimit'}, $prefs{'filter_fakedsmtp'}, $prefs{'filter_fakedexecontenttype'});
+   if ($filtered > 0) {
+      writelog("filtermsg - filter $filtered msgs from INBOX");
+      writehistory("filtermsg - filter $filtered msgs from INBOX");
+   } elsif ($filtered == -1 ) {
+      openwebmailerror("$lang_err{'couldnt_open'} .filter.check!");
+   } elsif ($filtered == -2 ) {
+      openwebmailerror("$lang_err{'couldnt_open'} .filter.book!");
+   } elsif ($filtered == -3 ) {
+      openwebmailerror("$lang_err{'couldnt_lock'} INBOX!");
+   } elsif ($filtered == -4 ) {
+      openwebmailerror("$lang_err{'couldnt_open'} INBOX!");
+   } elsif ($filtered == -5 ) {
+      openwebmailerror("$lang_err{'couldnt_lock'} mail-trash!");
+   } elsif ($filtered == -6 ) {
+      openwebmailerror("$lang_err{'couldnt_open'} .filter.check!");
+   }
+}
+################# END FILTERMESSAGE #######################
 
 ##################### WRITELOG ############################
 sub writelog {
@@ -790,9 +1055,9 @@ sub printheader {
 
       if ($user) {
          if ($config{'folderquota'}) {
-            $html =~ s/\@\@\@USERINFO\@\@\@/\- $prefs{'email'} \($folderusage%\)/g;
+            $html =~ s/\@\@\@USERINFO\@\@\@/$prefs{'email'} \($folderusage%\) \-/g;
          } else {
-            $html =~ s/\@\@\@USERINFO\@\@\@/\- $prefs{'email'}/g;
+            $html =~ s/\@\@\@USERINFO\@\@\@/$prefs{'email'} \-/g;
          }
       } else {
          $html =~ s/\@\@\@USERINFO\@\@\@//g;
@@ -859,7 +1124,7 @@ sub openwebmailerror {
          } else {
             print header(-pragma=>'no-cache');
          }
-         print start_html(-"title"=>"Open WebMail version $config{'version'}",
+         print start_html(-"title"=>"$config{'name'}",
                           -BGCOLOR=>"$background",
                           -BACKGROUND=>$prefs{'bgurl'});
          print qq|<style type="text/css">|,
@@ -867,25 +1132,20 @@ sub openwebmailerror {
                qq|</style>|,
                qq|<FONT FACE=$fontface>\n|;
       }
-      print qq|<BR><BR><BR><BR><BR><BR>|,
+      print qq|<BR><BR><BR><BR><BR><BR><BR>|,
             qq|<table border="0" align="center" width="40%" cellpadding="1" cellspacing="1">|,
             qq|<tr><td bgcolor=$titlebar align="left">|,
-            qq|<font color=$titlebar_text face=$fontface size="3"><b>OPENWEBMAIL ERROR</b></font>|,
+            qq|<font color=$titlebar_text face=$fontface size="3"><b>$config{'name'} ERROR</b></font>|,
             qq|</td></tr>|,
-            qq|<form>|,
-            qq|<tr><td align="center" bgcolor=$window_light><BR>|,
-            @_,
-            qq|<BR><font color=$window_light size=-2>|,	# hide the fonts
-            qq|euid=$>, egid=$), mailgid=$mailgid|,
+            qq|<tr><td align="center" bgcolor=$window_light><BR>\n|,
+            @_, "\n",
+            qq|<BR><font color=$window_light size=-2>\n|,	# hide the fonts
+            qq|euid=$>, egid=$), mailgid=$mailgid\n|,
             qq|</font><BR>|,
-            qq|<input type="submit" value=" Back " onclick=history.go(-1)>|,
-            qq|<BR><BR>|,
             qq|</td></tr>|,
-            qq|</form>|,
-            qq|</table>|;
-      print qq|<p align="center"><font size="1"><BR>|,
-            qq|<a href="$config{'ow_htmlurl'}/openwebmail/openwebmail.html">|,
-            qq|Open WebMail</a> version $config{'version'}<BR>|,
+            qq|</table>\n|;
+      print qq|<p align="center"><font size="-1"><BR>|,
+            qq|$config{'page_footer'}<BR>|,
             qq|</FONT></FONT></P></BODY></HTML>|;
 
       $headerprinted = 0;
@@ -897,6 +1157,98 @@ sub openwebmailerror {
    }
 }
 ################### END OPENWEBMAILERROR #######################
+
+##################### BIG5 <-> GB #########################
+sub g2b {
+   return($_[0]) if ($_[0]!~/[\x80-\xff]/);
+
+   my $big5="";
+   my $prog=(split(/\s+/, $config{'g2b_converter'}))[0];
+   if (! -x $prog ) {
+      openwebmailerror("GB to Big5 conversion is not available.<br>( $prog not found )");
+   }
+
+   my $tmpfile="/tmp/.openwebmail.tmp.$$";
+   ($tmpfile =~ /^(.+)$/) && ($tmpfile = $1);   # bypass taint check
+   open (TMP, ">$tmpfile");
+   print TMP $_[0];		# orig gb
+   close(TMP);
+
+   # required on linux since it execute shell with real uid (nobody),
+   # thus $config{'g2b_converter'} won't be able to read $tmpfile if mode not set
+   chmod(0644, $tmpfile);	
+
+   open(CONV, "$config{'g2b_converter'} < $tmpfile |");
+   while (<CONV>) {
+      $big5 .= $_;
+   }
+   close(CONV);
+
+   unlink $tmpfile;
+   return($big5);
+}
+
+sub b2g {
+   return($_[0]) if ($_[0]!~/[\x80-\xff]/);
+
+   my $gb="";
+   my $prog=(split(/\s+/, $config{'b2g_converter'}))[0];
+   if (! -x $prog ) {
+      openwebmailerror("Big5 to GB conversion is not available.<br>( $prog not found )");
+   }
+
+   my $tmpfile="/tmp/.openwebmail.tmp.$$";
+   ($tmpfile =~ /^(.+)$/) && ($tmpfile = $1);   # bypass taint check
+   open (TMP, ">$tmpfile");
+   print TMP $_[0];		# orig big5
+   close(TMP);
+
+   # required on linux since it execute shell with real uid (nobody),
+   # thus $config{'b2g_converter'} won't be able to read $tmpfile if mode not set
+   chmod(0644, $tmpfile);
+
+   open(CONV, "$config{'b2g_converter'} < $tmpfile |");
+   while (<CONV>) {
+      $gb .= $_;
+   }
+   close(CONV);
+
+   unlink $tmpfile;
+   return($gb);
+}
+##################### END BIG5 <-> GB #########################
+
+##################### escapeURL, unescapeURL #################
+# escape & unescape routine are not available in CGI.pm 3.0
+# so we borrow the 2 routines from 2.xx version of CGI.pm
+sub unescapeURL {
+    my $todecode = shift;
+    return undef unless defined($todecode);
+    $todecode =~ tr/+/ /;       # pluses become spaces
+    $todecode =~ s/%([0-9a-fA-F]{2})/pack("c",hex($1))/ge;
+    return $todecode;
+}
+
+sub escapeURL {
+    my $toencode = shift;
+    return undef unless defined($toencode);
+    $toencode=~s/([^a-zA-Z0-9_.-])/uc sprintf("%%%02x",ord($1))/eg;
+    return $toencode;
+}
+
+##################### END escapeURL, unescapeURL #################
+
+##################### SET_EUID_EGID_UMASK #################
+sub set_euid_egid_umask {
+   my ($uid, $gid, $umask)=@_;
+
+   # note! egid must be set before set euid to normal user,
+   #       since a normal user can not set egid to others
+   $) = $gid;
+   $> = $uid if ($> != $uid);
+   umask($umask);
+}
+################### END SET_EUID_EGID_UMASK ###############
 
 ########################## METAINFO #########################
 # return a string composed by the modify time & size of a file
@@ -944,25 +1296,174 @@ sub get_protocol {
 }
 #################### END GET_PROTOCOL #########################
 
-################### DST_ADJUST #######################
-# adjust timeoffset for DaySavingTime
-sub dst_adjust {
-   my $timeoffset=$_[0];
-   
-   if ( (localtime())[8] ) {
-      if ($timeoffset =~ m|^([\+\-]\d\d)(\d\d)| ) {
-         my ($h, $m)=($1, $2);
-         $h++;
-         if ($h>=0) {
-            $timeoffset=sprintf("+%02d%02d", $h, $m);
-         } else {
-            $timeoffset=sprintf("-%02d%02d", abs($h), $m);
+#################### GETTIMEOFFSET #########################
+sub gettimeoffset {
+   my $t=time();
+   my @g=gmtime($t);
+   my @l=localtime($t);
+   my $gserial=sprintf("%04d%02d%02d%02d%02d%02d", $g[5], $g[4], $g[3], $g[2], $g[1]);
+   my $lserial=sprintf("%04d%02d%02d%02d%02d%02d", $l[5], $l[4], $l[3], $l[2], $l[1]);
+   my $offset;
+
+   if ( $lserial gt $gserial ) {
+      my ($hour, $min)=($l[2]-$g[2], $l[1]-$g[1]);
+      if ($min<0) { $min+=60; $hour--; }
+      if ($hour<0) { $hour+=24; }
+      $offset=sprintf("+%02d%02d", $hour, $min);
+   } elsif ( $lserial lt $gserial ) {
+      my ($hour, $min)=($g[2]-$l[2], $g[1]-$l[1]);
+      if ($min<0) { $min+=60; $hour--; }
+      if ($hour<0) { $hour+=24; }
+      $offset=sprintf("-%02d%02d", $hour, $min);
+   } else {
+      $offset="+0000";
+   }
+   return($offset);
+}
+#################### END GETTIMEOFFSET #########################
+
+#################### GETDATESERIAL #########################
+sub getdateserial {
+   my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) =localtime;
+   my $serial;
+
+   $year+=1900; $mon++;
+   $serial=sprintf("%4d%02d%02d%02d%02d%02d", 
+			$year, $mon, $mday, $hour, $min, $sec);
+   return($serial);
+}                      
+#################### END GETDATESERIAL #########################
+
+#################### ADD_DATESERIAL_TIMEOFFSET #########################
+sub add_dateserial_timeoffset {
+   my ($dateserial, $timeoffset)=@_;
+
+   $dateserial=~/^(\d\d\d\d)(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)$/;
+   my ($y, $m, $d, $hour, $min, $sec)=($1,$2,$3, $4,$5,$6);
+   $timeoffset=~/^([+\-]?)(\d\d)(\d\d)$/;
+   my ($sign, $houroffset, $minoffset)=($1, $2, $3);
+
+   my @mday=(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31);
+   $mday[1]++ if ( $y%400==0 || ($y%100!=0 && $y%4==0) ); # leap year
+
+   if ($sign eq "-") {
+      $min-=$minoffset;
+      $hour-=$houroffset;
+      if ($min  < 0 ) { $min +=60; $hour--; }
+      if ($hour < 0 ) { $hour+=24; $d--; }
+      if ($d    < 1 ) { 
+         $m--; 
+         if ($m < 1) { $m+=12; $y--; }
+         $d+=$mday[$m-1];
+      }
+   } else {
+      $min+=$minoffset;
+      $hour+=$houroffset;
+      if ($min  >= 60 )          { $min -=60; $hour++; }
+      if ($hour >= 24 )          { $hour-=24; $d++; }
+      if ($d    >  $mday[$m-1] ) { $d-=$mday[$m-1]; $m++; }
+      if ($m    >  12 )          { $m-=12; $y++; }
+   }
+   return(sprintf("%04d%02d%02d%02d%02d%02d", $y, $m, $d, $hour, $min, $sec));
+}
+#################### END ADD_DATESERIAL_TIMEOFFSET #########################
+
+##################### DATESERIAL2STR #######################
+sub dateserial2str {
+   my ($serial, $format)=@_;
+   my $str;
+
+   return $serial if ( $serial !~ /^(\d\d\d\d)(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)$/ );
+   if ( $format eq "mm/dd/yyyy") {
+      $str="$2/$3/$1 $4:$5:$6";
+   } elsif ( $format eq "dd/mm/yyyy") {
+      $str="$3/$2/$1 $4:$5:$6";
+   } elsif ( $format eq "yyyy/mm/dd") {
+      $str="$1/$2/$3 $4:$5:$6";
+   } elsif ( $format eq "mm-dd-yyyy") {
+      $str="$2-$3-$1 $4:$5:$6";
+   } elsif ( $format eq "dd-mm-yyyy") {
+      $str="$3-$2-$1 $4:$5:$6";
+   } elsif ( $format eq "yyyy-mm-dd") {
+      $str="$1-$2-$3 $4:$5:$6";
+   } else {
+      $str="$2/$3/$1 $4:$5:$6";
+   }
+   return($str);
+}
+################### END DATESERIAL2STR #####################
+
+#################### EMAIL2NAMEADDR ######################
+sub email2nameaddr {
+   my $email=$_[0];
+   my ($name, $address);
+
+   if ($email =~ m/^\s*"?(.+?)"?\s*<(.*)>$/) {
+      $name = $1;
+      $address = $2;
+   } elsif ($email =~ m/<?(.*?@.*?)>?\s+\((.+?)\)/) {
+      $name = $2;
+      $address = $1;
+   } elsif ($email =~ m/<(.+)>/) {
+      $name = $1;
+      $address = $1;
+      $name =~ s/\@.*$//;
+   } elsif ($email =~ m/(.+)/) {
+      $name = $1;
+      $address = $1;
+      $name =~ s/\@.*$//;
+   }
+   return($name, $address);
+}
+################ END EMAIL2NAMEADDR  #####################
+
+###################### STR2LIST #######################
+sub str2list {
+   my $str=$_[0];
+   my (@list, @tmp, $delimiter);
+   my $pairmode=0; 
+   my ($prevchar, $postchar);
+
+   if ($str=~/,/) {
+      @tmp=split(/,/, $str);
+      $delimiter=',';
+   } elsif ($str=~/;/) {
+      @tmp=split(/;/, $str);
+      $delimiter=';';
+   } else {
+      return($str);
+   }
+
+   foreach my $token (@tmp) {
+      next if ($token=~/^\s*$/);
+      if ($pairmode) {
+         push(@list, pop(@list).$delimiter.$token);
+         if ($token=~/\Q$postchar\E/ && $token!~/\Q$prevchar\E.*\Q$postchar\E/) {
+            $pairmode=0 
+         }
+      } else {
+         push(@list, $token);
+         if ($token=~/^.*?(['"\(])/) {
+            $prevchar=$1;
+            if ($prevchar eq '(' ) {
+               $postchar=')';
+            } else {
+               $postchar=$prevchar;
+            }
+            if ($token!~/\Q$prevchar\E.*\Q$postchar\E/) {
+               $pairmode=1;
+            }
          }
       }
    }
-   return $timeoffset;
+
+   foreach (@list) {
+      s/^\s+//g;
+      s/\s+$//g;
+   }
+   return(@list);
 }
-################### END DST_ADJUST #######################
+#################### END STR2LIST #####################
 
 #################### LOG_TIME (for profiling) ####################
 sub log_time {

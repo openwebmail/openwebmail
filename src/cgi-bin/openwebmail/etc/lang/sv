@@ -17,14 +17,33 @@ $lang_charset = 'iso-8859-1';
    status      => 'Status (Olästa först)',
    date        => 'Datum (Nyaste först)',
    date_rev    => 'Datum (Äldsta först)',
-   sender      => 'Avsändare (Alfabetisk)',
-   sender_rev  => 'Avsändare (Omvänt alfabetisk)',
+   sender      => 'Avsändare (Nyaste först)',
+   sender_rev  => 'Avsändare (Äldsta först)',
+   subject     => 'Ämne (Nyaste först)',
+   subject_rev => 'Ämne (Äldsta först)',
    size        => 'Storlek (Största först)',
-   size_rev    => 'Storlek (Minsta först)',
-   subject     => 'Ämne (Alfabetisk)',
-   subject_rev => 'Ämne (Omvänt alfabetisk)',
-   thread      => 'Thread (Newest First)',
-   thread_rev  => 'Thread (Oldest First)'
+   size_rev    => 'Storlek (Minsta först)'
+   );
+
+%lang_prioritylabels =
+   (
+   normal      => 'Normal',
+   urgent      => 'Urgent',
+   'non-urgent'=> 'Non-Urgent'
+   );
+
+%lang_withoriglabels =
+   (
+   at_beginning => 'at Beginning',
+   at_end      => 'at End',
+   none        => 'None'
+   );
+
+%lang_receiptlabels =
+   (
+   ask => 'Ask to confirm',
+   yes => 'Yes',
+   no  => 'No'
    );
 
 %lang_text =
@@ -51,6 +70,9 @@ $lang_charset = 'iso-8859-1';
    copy       => 'Kopiera',
    msgmoveconf=> '\'Är du säker på att du vill flytta de markerade meddelandena?\'',
    move       => 'Flytta',
+   markasread => 'Mark as read',
+   markasunread => 'Mark as unread',
+   dateformat => 'Datum format',
    date       => 'Datum',
    recipient  => 'Mottagare',
    sender     => 'Avsändare',
@@ -76,6 +98,8 @@ $lang_charset = 'iso-8859-1';
    filename   => 'Filnamn',
    encoding   => 'Kodning',
    download   => 'Lagra',
+   thisispartialmsg => 'This is a partial message.',
+   msgrebuild => 'Message Rebuild',
    editdraft  => 'Redigera utkast',
    savedraft  => 'Spara utkast',
    send       => 'Skicka',
@@ -100,6 +124,9 @@ $lang_charset = 'iso-8859-1';
    modify     => 'Ändra',
    abooktitle => 'Adressbok',
    abook      => 'ADRESSBOK',
+   name       => 'Name',
+   email      => 'Email',
+   note       => 'Note',
    group      => 'Grupp',
    quota_hit  => 'Ditt lagringsutrymme är slut!',
    usage      => 'Använt',
@@ -116,7 +143,9 @@ $lang_charset = 'iso-8859-1';
    all        => 'Alla',
    enable     => 'Aktivera',
    disable    => 'Avaktivera',
+   filtered   => 'Filtered',
    blockrelay => 'Blockera SMTP Relay',
+   blockemail => 'Blockera email',
    read       => 'Läst',
    yourmsg    => 'Ditt meddelande',
    delivered  => 'levererades',
@@ -159,6 +188,10 @@ $lang_charset = 'iso-8859-1';
             att_overlimit     => 'Beklagar, du har överskridit den tillåtna storleken för bilagor. Bilagorna får inte omfatta mer än',
             inv_msg_op        => 'Otillåten operation',
             inv_sessid        => 'Din begäran saknade rätt cookie. Operationen medges inte!',
+            no_endpart        => 'End part not found',
+            part_missing      => 'Some part was missing',
+            rebuild_fmterr    => 'New message format error',
+            rebuild_sizeerr   => 'New message size mismatch',
             user_not_exist    => 'Användaren finns inte',
             func_notsupported => 'function not supported',
             auth_syserr       => 'authentication system error',

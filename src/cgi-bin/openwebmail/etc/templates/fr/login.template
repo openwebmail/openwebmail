@@ -3,25 +3,25 @@
 <img border="0" src="@@@LOGO_URL@@@"></a></p>
 <table border="0" align="center" width="250" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@ background="@@@IMAGEDIR_URL@@@/bg-titleblue.gif" align="left">
-&nbsp;<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><B>LOGIN</B></FONT>
+&nbsp;<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><B>IDENTIFICATION</B></FONT>
 </td></tr><tr><td align="center" valign="middle" bgcolor=#3161bd>
 
 <table width="100%" cellpadding="0" cellspacing="1" border="0">
 <tr>
-@@@STARTFORM@@@
 <td bgcolor=#ffffff>
+@@@STARTFORM@@@
 <BR>
 <table align=center border=0 cellspacing=2 cellpadding=0>
 <tr>
-<td align=right nowrap>UserID: </td><td align=left>@@@USERIDFIELD@@@</td>
+<td align=right nowrap>Identifiant : </td><td align=left>@@@USERIDFIELD@@@</td>
 </tr><tr>
-<td align=right nowrap>Password: </td><td align=left>@@@PASSWORDFIELD@@@</td>
+<td align=right nowrap>Mot de Passe : </td><td align=left>@@@PASSWORDFIELD@@@</td>
 </tr><tr>
 <td align=center>
 <table><tr><td>@@@LOGINBUTTON@@@</td></tr></table>
 </td>
 <td align=center>
-<table><tr><td><font size=1>All fields are<br>case sensitive</font></td></tr></table>
+<table><tr><td><font size=1>La casse doit être respecté<br>dans tous les champs.</font></td></tr></table>
 </td>
 </tr>
 </table>
@@ -33,7 +33,7 @@
 </td></tr></table>
 <p align="center">
 <BR>
-<a href="@@@HTML_URL@@@/openwebmail.html">Open WebMail</a> version @@@VERSION@@@<BR>
+@@@PAGE_FOOTER@@@<BR>
 </p>
 <script language="JavaScript">
    document.login.loginname.focus()

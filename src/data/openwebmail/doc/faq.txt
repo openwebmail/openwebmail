@@ -9,8 +9,13 @@ A: There are many possible answers...
       It should be "tar -zxvBpf openwebmail-1.xx.tgz"
 
    2. Your openwebmail scripts may have wrong owner or mode.
-      The permission of openwebmail.pl, openwebmail-main.pl, openwebmail-prefs.pl, 
-      checkmail.pl, spellcheck.pl should be
+      The permission of 
+
+      openwebmail.pl, openwebmail-main.pl, openwebmail-prefs.pl,
+      openwebmail-read.pl, openwebmail-viewatt.pl, openwebmail-send.pl,
+      spellcheck.pl and checkmail.pl
+
+      should be
       mode=4555
       owner=root
       group=mail
@@ -19,11 +24,23 @@ A: There are many possible answers...
       a. check if you have a executable of suidperl, 
          then 'chmod 4555 suidperl'
          and change #!/usr/bin/perl to the path of this suidperl
+
       b. Or recompile your perl with suid enabled
+         Here are the steps: 
+         1. grab the perl source tar ball
+         2. sh Configure -de (de means default perl config) 
+         3. edit config.sh and set this : 
+            d_dosuid='define' 
+            d_suidsafe='undef'
+         4. then make, make install (make suidperl if needed) 
+         (thanks to Nemo Kaiser, nemoo@users.sourceforge.net)
 
    4. The MIME::Base64 or CGI module on your system may be too old
       a. install MIME-Base64-2.12.tar.gz
       b. install CGI.pm-2.74.tar.gz
+
+   5. Please install the libnet-1.0901.tar.gz, this is required since 
+      version 1.60.
 
 ps: In most cases, you can run the './openwebmail.pl' in text terminal
     to get more information about the error.
@@ -31,7 +48,7 @@ ps: In most cases, you can run the './openwebmail.pl' in text terminal
 Q: I got "Can't check filesystem of script "./openwebmail.pl" for nosuid"?
 A: Your openwebmail may be installed on a filesystem mounted nosuid.
    Please remove the nosuid parameter from /etc/fstab or install openwebmail
-   to other filesystemm.
+   to other filesystem.
 
 ps: 'man mount' for more information about nosuid
 
@@ -48,6 +65,52 @@ A: Check auth_module option in openwebmail.conf:
       uncomment all the lines of log_time(...)
    2. login to openwebmail
    3. check the /tmp/openwebmail.debug for more information.
+
+Q: Some of my users login okay, but others don't, why?
+A: It is possible that you are upgrading from version prior to 1.41 
+   to the newer version. The virtual user support is totally reimplemented.
+   It uses virtusertable instead of genericstable for user mapping now. 
+   Please refer to 
+   http://www.sendmail.org/virtual-hosting.html to know how to translate 
+   entries in genericstable to virtusertable.
+
+Q: The login is okay, but I can't change by my password with openwebmail?
+A: If you use auth_unix.pl for authentication and your $unix_passwdfile
+   is not a local accessible file (ex: examples in auth_unix.pl that are
+   terminated with |), the changepassword feature won't be available.
+   In these cases, you have to use auth_pam.pl to get the changepassword
+   to work.
+
+Q: How can I use LDAP to authenticate user in openwebmail?
+A: Below is a article posted at sourceforge by "ispman@user.sourceforge.net
+   (http://sourceforge.net/forum/message.php?msg_id=1462314)
+
+   ---------------- begin ----------------
+   I hope this is useful to someone:
+
+   I was able to get openwebmail to authenticate using ldap/pam on a system 
+   with Redhat 7.1, pam_ldap135, and OpenLDAP 2.0.18.
+
+   In openwebmail.conf ~
+
+   auth_module             auth_pam.pl
+
+   In auth_pam.pl ~
+
+   my $pam_servicename="openwebmail"; 
+   my $pam_passwdfile="/etc/passwd";
+
+   vi /etc/pam.d/openwebmail:
+
+   #%PAM-1.0 
+   auth         required     /lib/security/pam_unix.so 
+   auth         sufficient   /lib/security/pam_ldap.so 
+   account    required     /lib/security/pam_unix.so 
+   account    sufficient   /lib/security/pam_ldap.so
+
+   That's it.  LDAP users will authenticate with the pam_ldap module and 
+   system users with pam_unix.
+   ---------------- end ----------------
 
 Q: I got "Couldn't open XXX-session-0.370606494136155!" error after login?
 A: You openwebmail-1.xx.tgz was uncompressed with improper parameter.
@@ -73,7 +136,7 @@ A: You may has wrong setting of domainname in openwebmail.conf
       please be sure to use '' for a text string of hostname
       or use `` for the program (ex: /bin/hostname)
    2. For version 1.50 or above,
-      please list all domainnames seperated with comma.
+      please list all domainnames separated with comma.
       or use auto for this setting, openwebmail will call '/bin/hostname'
       to get the fqdn of your host.
 
@@ -86,11 +149,11 @@ A: First, you have to decide if you want to let user defines multiple
    from all domainnames supported by your mail server or you want to statically
    specify domainname used by each user.
 
-   To let user to pick doaminname from all supported domainnames, you have to 
+   To let user to pick domainname from all supported domainnames, you have to 
    specify all domainnames in the option 'domainnames' in openwebmail.conf.
 
    To statically specify domain name used by each user, you have to define the
-   mappping from email address to userid in /etc/mail/virtusertable.
+   mapping from email address to userid in /etc/mail/virtusertable.
    For example, a line like below
 
    guest@virtual.com	guest
@@ -216,7 +279,28 @@ A: The spellcheck in old version of openwebmail doesn't work on RedHat 7.x,
 
 Q: Why is spellcheck.pl a suid root program?
 A: Because it needs to read the preference file, ~/mail/.openwebmailrc, 
-   of different users to get their langage and dictionary setting.
+   of different users to get their language and dictionary setting.
+
+Q: I got 'Couldn't get read lock on ....' error?
+         'Couldn't get write lock on ....' error?
+A: This may hapeen if the folder openwebmail want to access is locked by
+   other process. Most of the time, it is due to the concurrent accesses 
+   to the folder by other mail client through the pop3/imap daemons.
+   This is okay, just back to previous page and try again.
+
+   If you always got this error and be sure it is not caused by pop3/imap,
+   you may try to debug the filelock in the following steps:
+
+   1. install the 'lsof' utility on your system
+      (lsof is available at http://freshmeat.net/projects/lsof/)
+   2. cd  your_web/cgi-bin/openwebmail
+      patch < uty/filelock.pl.diff
+   3. step 2 will turn the filelock.pl to a version special for debugging,
+      the debug output will be written to /tmp/openwebmail.debug
+   4. login into openwebmail and do some operation that will cause lock error,
+      then check /tmp/openwebmail.debug for further information
+   5. Finally, don't forgt to do 'patch < uty/filelock.pl.diff' again to 
+      reverse filelock.pl back to normal version.
 
 Q: I have problems in reading some mail....
 A: please check 
@@ -225,24 +309,9 @@ A: please check
    openwebmail-current.tgz
 
 Q: I got 'Sorry, there was a problem sending your message' error?
-A: please check if sendmail option in openwebmail.conf has pointed to correct
-   program, it is normally /usr/sbin/sendmail or /usr/lib/sendmail.
-
-ps:If you are using postfix as an replacement for sendmail, you have to
-   use its compatiable wrapper 'sendmail' instead of 'postfix'.
-   Also remember to change the mode of main.cf of postfix to 644,
-   thus it could be read by all users. 
-   (thanks to Rex_Chen, rex@ispro.com.tw)
-
-Q: The message sent from me has warning message like:
-   'X-Authentication-Warning: myhostname : apache set sender to ....'
-A: This is due to the effective user that openwebmail runs as is not trusted 
-   by sendmail. This effective user is actually inherited from httpd.
-   In above example, the effective user is 'apache', so add 
-   'Tapache' to sendmail to the 'Trusted users' session in your sendmail.cf
-
-ps: If you has followed the guide in readme.txt and added 'Tnobody' to 
-    sendmail.cf, please remove it if your httpd runs as other user
+A: Please check if smtpserver option in openwebmail.conf points to valid
+   SMTP server, its default is localhost. If you set it to name of some SMTP 
+   server, please be sure the SMTP server allows mail relayed from your host.
 
 Q: The autoreply function doesn't work?
 A: An incoming message won't be replied by vacation.pl if
@@ -251,24 +320,22 @@ A: An incoming message won't be replied by vacation.pl if
    2. the destinated username doesn't not appear as an recipient in To: or Cc:
    3. this message is sent by the destinated username himself
 
-   If your message is not in the above 2 cases, please be sure that 
+   If your message is not in the above 3 cases, please be sure that 
    vacationinit and vacationpipe in openwebmail.conf have pointed to the 
    path where the vacation program is.
 
    If the path is correct, you can do debug with the -d option
 
-   1. choose a user, enable his autoreply in openwebmail user preference
-   2. edit the ~user/.forward file,
-      add the '-d' option after vacation.pl
-   3. send a message to this user to test the autoreply
-   4. check the /var/tmp/vacation.debug for possible error information
+   1. add the '-d' parameter to the vacationpipe in openwebmail.conf
+      like below
 
-   Please add this '-d' parameter to the vacationpipe in openwebmail.conf.
+      vacationpipe   /usr/local/www/cgi-bin/openwebmail/vacation.pl -d -t60s
 
-   vacationpipe		/usr/local/www/cgi-bin/openwebmail/vacation.pl -d -t60s
-
-   Then send a testing mail to someone who enabled the autoreply.
-   The debugging information will be written into /var/tmp/vacation.debug.
+   2. choose a user, enable his autoreply in openwebmail user preference
+   3. check the ~user/.forward file, the '-d' option should appear after 
+      vacation.pl
+   4. send a message to this user to test the autoreply
+   5. check the /tmp/vacation.debug for possible error information
 
 Q: When I enable autoreply feature, others get "Returned mail: see
    transcript for details" instead of my autoreply message?
@@ -295,11 +362,11 @@ A: This problem occurs if you installed Open WebMail on the same partition
 Q: My openwebmail was okay, but I got "Your request didn't contain the proper 
    session ID cookie -- access denied!" in these days?
 A: Openwebmail puts user uploaded attachments in cgi-bin/openwebmail/etc/sessions/ 
-   temporarily. User will get error if there is no space left on the partion where
+   temporarily. User will get error if there is no space left on the partition where
    cgi-bin/openwebmail/etc/sessions/ lives or user has exceeded his disk quota.
 
-   Please move cgi-bin/openwebmail/etc/sessions to a larger parition with
-   diskquota disablaed, then create a symbolic link to that new directory
+   Please move cgi-bin/openwebmail/etc/sessions to a larger partition with
+   diskquota disabled, then create a symbolic link to that new directory
 
    cd /new_place
 
@@ -324,8 +391,8 @@ ps: Some operations would take more time than normal operation, for example:
     indexing on a large folder, adding large attachment to a message.
 
    It is recommended that you install Open WebMail on a medium-sized machine.
-   (ex: Celeron 300 with 128MB ram). Actually it runs well on a pentium 200mmx
-   machine only if you have enough ram installed.
+   (ex: Celeron 300 with 128MB ram). Actually it runs quite well on a pentium 
+   200mmx machine if you have enough ram installed.
 
    There is an analysis of memory usage of Open WebMail available at
    http://turtle.ee.ncku.edu.tw/openwebmail/download/doc/memory.usage
@@ -361,7 +428,7 @@ A: You can call the openwebmail with url
    http://server/openwebmail.pl?action=login&loginname=USER&password=PASS
 
    But this is a little dangerous since the loginname and password will
-   be displayed at the URL line of the user's browser.
+   be displayed on the URL line of the user's browser.
 
 Q: How can I set an alias or link to the openwebmail script so users can 
    type in a shorter url?
@@ -397,12 +464,12 @@ A: No, lots of code needs to be changed to make Open WebMail a good behavior
 
 Q: Can I use Open WebMail in a commercial web site? 
 A: Yes. Open WebMail is GPLed software (please see copyright.txt for 
-   detail of GPL). You can distribute/use/modify it freely only if
+   detail of GPL). You can distribute/use/modify/sell it freely ONLY IF
 
-   a. the GPL Copyright page must be kept untouched.
-   b. any improvement of Open WebMail or any product based on Open WebMail
+   a. The GPL Copyright page must be kept untouched.
+   b. Any improvement of Open WebMail or any product based on Open WebMail
       must be released to the public for free if it is not for internal use.
-   c. products based on Open Webmail must be also distributed under GPL.
+   c. Products based on Open Webmail must be also distributed under GPL.
 
 
 ps: We would be happy if you mail us a message that your commercial web site
@@ -410,6 +477,6 @@ ps: We would be happy if you mail us a message that your commercial web site
     advertisements :)
    
 
-11/22/2001 
+01/16/2002 
 
 openwebmail@turtle.ee.ncku.edu.tw

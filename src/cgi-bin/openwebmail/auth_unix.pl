@@ -23,7 +23,7 @@
 # Solaris                          none
 # ------------------------------   --------------------------------
 #
-# 2001/08/22 tung@turtle.ee.ncku.edu.tw
+# 2001/12/20 tung@turtle.ee.ncku.edu.tw
 #
 
 my $unix_passwdfile="/etc/master.passwd";
@@ -143,25 +143,26 @@ sub change_userpassword {
       return -3;
    }
 
-   open(TMP, ">$unix_passwdfile.tmp") || goto authsys_error;
+   open(TMP, ">$unix_passwdfile.tmp.$$") || goto authsys_error;
    print TMP $content || goto authsys_error;
    close(TMP) || goto authsys_error;
 
-   chown(0,0, "$unix_passwdfile.tmp");
-   chmod(0600, "$unix_passwdfile.tmp");
-   rename("$unix_passwdfile.tmp", $unix_passwdfile) || goto authsys_error;
-
-   # update passwd db
    if ($unix_passwdmkdb ne "" && $unix_passwdmkdb ne "none" ) {
-      if ( system("$unix_passwdmkdb $unix_passwdfile")!=0 ) {
+      # update passwd and db with pwdmkdb program
+      if ( system("$unix_passwdmkdb $unix_passwdfile.tmp.$$")!=0 ) {
          goto authsys_error;
       }
+   } else {
+      # automic update passwd by rename
+      chown(0,0, "$unix_passwdfile.tmp.$$");
+      chmod(0600, "$unix_passwdfile.tmp.$$");
+      rename("$unix_passwdfile.tmp.$$", $unix_passwdfile) || goto authsys_error;
    }
-
    filelock("$unix_passwdfile", LOCK_UN);
    return(0);
 
 authsys_error:
+   unlink("$unix_passwdfile.tmp.$$");
    filelock("$unix_passwdfile", LOCK_UN);
    return(-3);
 }

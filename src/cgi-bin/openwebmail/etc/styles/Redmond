@@ -25,7 +25,7 @@ body
 }
 th   {  font-family: Geneva, Arial, Helvetica, sans-serif; font-size: 10pt; font-weight: bold; background-color: #D3DCE3;}
 td   {  font-family: Geneva, Arial, Helvetica, sans-serif; font-size: 10pt;}
-test.td   {  font-family: Geneva, Arial, Helvetica, sans-serif; font-size: 10pt;}
+td.msgbody   {  font-family: Geneva, Arial, Helvetica, sans-serif; font-size: 10pt;}
 form   {  font-family: Geneva, Arial, Helvetica, sans-serif; font-size: 10pt}
 h1   {  font-family: Geneva, Arial, Helvetica, sans-serif; font-size: 16pt; font-weight: bold}
 A:link    {  font-family: Geneva, Arial, Helvetica, sans-serif; font-size: 10pt; text-decoration: none; color: black}

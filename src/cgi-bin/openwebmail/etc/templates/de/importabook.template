@@ -11,7 +11,7 @@
 <table border="0" align="center" width="75%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
 <BR>Outlook Express 5 und Netscape Mail können Adressbücher in einem Format
-das als CSV (Comma Separated Values) bezeichnet wird exportieren. Open WebMail kann
+das als CSV (Comma Separated Values) bezeichnet wird exportieren. @@@NAME@@@ kann
 Adressbücher im CSV Format in Ihr Adressbuch importieren.
 <ul>
 <li> In Netscape, öffnen Sie Ihr Adressbuch und wählen Sie Datei-&gt;Exportieren, dann

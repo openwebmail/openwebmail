@@ -5,9 +5,15 @@
 </td><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <b>@@@FREESPACE@@@ KB 사용 가능</b></font>
-</td></tr><tr><td colspan="4" bgcolor=@@@MENUBAR@@@ align="left">
+</td></tr><tr><td colspan="2" bgcolor=@@@MENUBAR@@@ align="left">
 @@@MENUBARLINKS@@@
-</td></tr><tr><td colspan="4">&nbsp;</td></tr>
+</td><td colspan="2" bgcolor=@@@MENUBAR@@@ align="right" nowrap>
+@@@STARTSEARCHFORM@@@
+@@@SEARCH@@@
+&nbsp;
+</td>
+@@@ENDFORM@@@
+</tr><tr><td colspan="4">&nbsp;</td></tr>
 <tr><td bgcolor=@@@COLUMNHEADER@@@>
 <B>이름</B> (편집하려면 이름을 눌러 주세요!)</td>
 <td bgcolor=@@@COLUMNHEADER@@@>
@@ -24,7 +30,7 @@
 @@@EMAILFIELD@@@
 </td><td bgcolor=@@@TABLEROW_LIGHT@@@>
 @@@NOTEFIELD@@@
-</td><td align="center" bgcolor=@@@TABLEROW_LIGHT@@@ width="80">
+</td><td align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
 @@@ADDBUTTON@@@
 </td></tr>
 @@@ENDFORM@@@
@@ -42,7 +48,7 @@
       if (field == "email")
          url += "&preexisting=" + escape (document.newaddress.email.value);
    
-      var hWnd = window.open(url,"HelpWindow","width=300,height=360,resizable=yes,scrollbars=yes");
+      var hWnd = window.open(url,"HelpWindow","width=320,height=360,resizable=yes,scrollbars=yes");
       if ((document.window != null) && (!hWnd.opener))
          hWnd.opener = document.window;
    }

@@ -10,7 +10,7 @@
 
 <table border="0" align="center" width="75%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
-<BR>Outlook Express 5 a Netscape Mail mô¾u exportova» svoje adresáre vo formáte známom ako CSV alebo Comma Separated Values. Open WebMail doká¾e importova» tieto súbory do Vá¹ho osobného Adresára. Tým sa zabráni hodinám prepisovania z jedného adresára do druhého.
+<BR>Outlook Express 5 a Netscape Mail mô¾u exportova» svoje adresáre vo formáte známom ako CSV alebo Comma Separated Values. @@@NAME@@@ doká¾e importova» tieto súbory do Vá¹ho osobného Adresára. Tým sa zabráni hodinám prepisovania z jedného adresára do druhého.
 <ul>
 <li> V Netscape, otvorte Vá¹ adresár a zvoµte File-&gt;Export, potom
 zvoµte "Save as type:" a vyberte "Comma Separated (*.csv)." <BR><BR>

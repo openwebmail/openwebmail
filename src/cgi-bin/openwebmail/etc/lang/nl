@@ -16,15 +16,34 @@ $lang_charset = 'iso-8859-1';
    (
    status      => 'Status (Ongelezen eerst)',
    date        => 'Datum (Nieuwste eerst)',
-   date_rev    => 'Date (Oudste eerst)',
-   sender      => 'Afzender (Alfabetisch)',
-   sender_rev  => 'Afzender (Omgekeerd Alfabetisch)',
+   date_rev    => 'Datum (Oudste eerst)',
+   sender      => 'Afzender (Nieuwste eerst)',
+   sender_rev  => 'Afzender (Oudste eerst)',
+   subject     => 'Onderwerp (Nieuwste eerst)',
+   subject_rev => 'Onderwerp (Oudste eerst)',
    size        => 'Grootte (Grootste eerst)',
-   size_rev    => 'Grootte (Kleinste eerst)',
-   subject     => 'Onderwerp (Alfabetisch)',
-   subject_rev => 'Onderwerp (Omgekeerd Alfabetisch)',
-   thread      => 'Thread (Newest First)',
-   thread_rev  => 'Thread (Oldest First)'
+   size_rev    => 'Grootte (Kleinste eerst)'
+   );
+
+%lang_prioritylabels =
+   (
+   normal      => 'Normal',
+   urgent      => 'Urgent',
+   'non-urgent'=> 'Non-Urgent'
+   );
+
+%lang_withoriglabels =
+   (
+   at_beginning => 'at Beginning',
+   at_end      => 'at End',
+   none        => 'None'
+   );
+
+%lang_receiptlabels =
+   (
+   ask => 'Ask to confirm',
+   yes => 'Yes',
+   no  => 'No'
    );
 
 %lang_text =
@@ -51,6 +70,9 @@ $lang_charset = 'iso-8859-1';
    copy       => 'Kopieer',
    msgmoveconf=> '\'Weet u zeker dat u de geselecteerde berichten wilt verplaatsen?\'',
    move       => 'Verplaats',
+   markasread => 'Mark as read',
+   markasunread => 'Mark as unread',
+   dateformat => 'Datum format',
    date       => 'Datum',
    recipient  => 'Geadresseerde',
    sender     => 'Afzender',
@@ -76,6 +98,8 @@ $lang_charset = 'iso-8859-1';
    filename   => 'Bestandsnaam',
    encoding   => 'Codering',
    download   => 'Ophalen',
+   thisispartialmsg => 'This is a partial message.',
+   msgrebuild => 'Message Rebuild',
    editdraft  => 'Wijzig Concept',
    savedraft  => 'Bewaar Concept',
    send       => 'Verstuur',
@@ -100,6 +124,9 @@ $lang_charset = 'iso-8859-1';
    modify     => 'Wijzigen',
    abooktitle => 'Adresboek',
    abook      => 'ADRESBOEK',
+   name       => 'Name',
+   email      => 'Email',
+   note       => 'Note',
    group      => 'Groep',
    quota_hit  => 'QUOTUM OVERSCHREDEN',
    usage      => 'Gebruik',
@@ -116,7 +143,9 @@ $lang_charset = 'iso-8859-1';
    all        => 'Alle',
    enable     => 'Activeer',
    disable    => 'De-activeer',
+   filtered   => 'Filtered',
    blockrelay => 'Blokkeer SMTP Relay',
+   blockemail => 'Blokkeer email',
    read       => 'Gelezen',
    yourmsg    => 'Uw bericht',
    delivered  => 'Bezorgd',
@@ -159,6 +188,10 @@ $lang_charset = 'iso-8859-1';
             att_overlimit     => 'Sorry, uw bijlage overschrijdt de maximale lengte, deze is',
             inv_msg_op        => 'Onjuiste handeling op het bericht',
             inv_sessid        => 'Uw verzoek bevatte geen juist cookie -- toegang gewijgerd!',
+            no_endpart        => 'End part not found',
+            part_missing      => 'Some part was missing',
+            rebuild_fmterr    => 'New message format error',
+            rebuild_sizeerr   => 'New message size mismatch',
             user_not_exist    => 'gebruiker bestaat niet',
             func_notsupported => 'functie wordt niet ondersteund',
             auth_syserr       => 'inlogsysteem fout',

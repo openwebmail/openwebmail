@@ -11,14 +11,14 @@
 <table border="0" align="center" width="75%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
 <BR>Para o Outlook Express 5 e o Netscape Mail pode exportar os livros de endereços
-no fornato CSV, ou valores separado por v&iacute;rgula. O Open WebMail pode importar 
+no formato CSV, ou valores separado por v&iacute;rgula. O @@@NAME@@@ pode importar 
 estes arquivos para o seu livro de endereços.
 <ul>
 <li> No Netscape, abra o livro de endereços  e selecione File-&gt;Export,
 depois clique em "Save as type:" e escolha "Comma Separated
 (*.csv)."<BR><BR>
 <li> No Outlook Express, escolha
-Ficheiro-&gt;Exportar-&gt;Cat&aacute;logo de endere&ccedil;os, e selecione
+Arquivo-&gt;Exportar-&gt;Cat&aacute;logo de endere&ccedil;os, e selecione
 exportar "Arquivo de texto (valores separados por v&iacute;rgula)." Tenha a
 certeza que os campos nome e e-mail est&atilde;o
 primeiro.

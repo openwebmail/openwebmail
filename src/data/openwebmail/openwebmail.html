@@ -145,7 +145,7 @@
   <p>
   Since a mail folder may be used by multiple programs simultaneously, it is 
   necessary to lock the file before accessing the folder. Open WebMail uses a 
-  blocking lock with a timeout limit of 30 seconds. It gives the lock a better 
+  blocking lock with a timeout limit of 60 seconds. It gives the lock a better 
   chance of success than a nonblocking lock, which returns an error if the lock 
   can not be aquired immediately. Open WebMail also supports locking by dotlock 
   file to ensure that the file locking operates correctly on platforms operating 
@@ -289,13 +289,14 @@
       <td>incomplete</td></tr>
   <tr><td>French</td>
       <td>fr</td>
-      <td>incomplete</td></tr>
+      <td><A href="mailto:c.sabatier@bocquet.com">Cyril Sabatier</A></td></tr>
   <tr><td>German</td>
       <td>de</td>
       <td><A href="mailto:flood@flood-net.de">Andreas Roedl</A></td></tr>
   <tr><td>Hungarian</td>
       <td>hu</td>
-      <td><A href="mailto:gumo@lucifer.kgt.bme.hu">Nagy Endre</A></td></tr>
+      <td><A href="mailto:gumo@lucifer.kgt.bme.hu">Nagy Endre</A>, 
+          <A href="mailto:ful_s@fazekas.hu">Posz Marton</A></td></tr>
   <tr><td>Italian</td>
       <td>it</td>
       <td><A href="mailto:i3100579@ingstud.univ.trieste.it">Benedet Marvi</A></td></tr>
@@ -316,7 +317,8 @@
       <td><A href="mailto:jferra@sfconsultores.pt">Jos Ferradeira</A></td></tr>
   <tr><td>Portuguese Brazil</td>
       <td>pt_BR</td>
-      <td><A href="mailto:edison@brc.com.br">Edison Figueira Junior</A></td></tr>
+      <td><A href="mailto:edison@brc.com.br">Edison Figueira Junior</A>,
+          <A href="mailto:ruisb@ig.com.br">Rui - iG</A></td></tr>
   <tr><td>Romanian</td>
       <td>ro</td>
       <td>incomplete</td></tr>
@@ -328,7 +330,7 @@
       <td><A href="mailto:lubos@klokner.sk">Lubos Klokner</A></td></tr>
   <tr><td>Spanish</td>
       <td>es</td>
-      <td><A href="mailto:pakito@asinkecualo.org">Felix Martos</A></td></tr>
+      <td><A href="mailto:javier@dc.exa.unrc.edu.ar">Javier Smaldone</A></td></tr>
   <tr><td>Swedish</td>
       <td>sv</td>
       <td><A href="mailto:tryfan@telia.com">Goran Jartin</A></td></tr>
@@ -386,7 +388,23 @@
     who contributed the support for new mail headers: In-Reply-To, References and X-Status.
     He also wrote a new sort method "by thread" for folderview, added the 'A' flag display 
     of answered messages and made the from column more concise by cutting it off at @ 
-    symbol if it is a pure address.
+    symbol if it is a pure address.<BR>
+  Thanks to <A href="mailto:nimalr@mail.pdn.ac.lk">Nimal Ratnayake</A>,
+    who submitted the patch for .forward editing.<BR>
+  Thanks to <A href="mailto:chenhsiu@gens.dhs.org">Chen-hsiu Huang</A>,
+    who fixed the templates to solve the display problem on Mozilla/Netscape browser and added 
+    support for 'markasread'.<BR>
+  Thanks to <A href="mailto:javier@dc.exa.unrc.edu.ar">Javier Smaldone</A>,
+    who contributed the Default.Spanish and Cool3D.Spanish iconsets.<BR>
+  Thanks to <A href="mailto:u8711028@cc.nkfust.edu.tw">©ú³Ó</A>,
+    who contributed the patch of search support in addressbook.<BR>
+  Thanks to <A href="mailto:calle@batliv.nu.">Carl Olsen</A>,
+    who contributed the code of using Net::SMTP module.
+    This allows openwebmail to use other host as SMTP relay for mail sending<BR>
+  Thanks to <A href="mailto:hoyuan@istyle.idv.tw">Yuan</A>,
+    who contributed the Cool3D.Chinese.Traditional iconset.<BR>
+  Thanks to <A href="mailto:suttonb@users.sourceforge.net">Brian Suttonb</A>,
+    who contributed the Hotmail style definition file.<BR>
   </p>
 </blockquote>
 <h3>CONTACT</h3>
@@ -420,14 +438,24 @@
 <blockquote> 
   <p>The Open WebMail is brought to you by</p>
   <p> 
-    <a href="mailto: Ebola@turtle.ee.ncku.edu.tw">
-    Nai-Jung Kuo</a> &nbsp ³¢¤Dºa<br>
-    <a href="mailto: eddie@turtle.ee.ncku.edu.tw">
-    Chao-Chiu Wang</a> &nbsp ¤ý¶@¥C<br>
-    <a href="mailto: tung@turtle.ee.ncku.edu.tw">
-    Chung-Kie Tung</a> &nbsp ¸³¥ò·_<br>
-    <a href="mailto: elitric@yahoo.com">
-    Emir Litric</a><br>
+    <table border=0>
+    <tr>
+    <td><a href="mailto: tung@turtle.ee.ncku.edu.tw">Chung-Kie Tung</a></td>
+    <td>¸³¥ò·_</td>
+    </tr>
+    <tr>
+    <td><a href="mailto: Ebola@turtle.ee.ncku.edu.tw">Nai-Jung Kuo</a></td>
+    <td>³¢¤Dºa</td>
+    </tr>
+    <tr>
+    <td><a href="mailto: eddie@turtle.ee.ncku.edu.tw">Chao-Chiu Wang</a></td>
+    <td>¤ý¶@¥C</td>
+    </tr>
+    <tr>
+    <td><a href="mailto: elitric@yahoo.com">Emir Litric</a></td>
+    <td>&nbsp;</td>
+    </tr>
+    </table>
     <br>
     <a href="http://dslab.ee.ncku.edu.tw/" target=_blank style="text-decoration: none">
     <font color=#000000>Distributed System Laboratory</font></a> <br>
@@ -437,7 +465,7 @@
     <font color=#000000>National Chung-Kung University</font></a>, 
     Tainan, Taiwan, R.O.C. </p>
 </blockquote>
-<p>12/15/2001 </p>
+<p>12/26/2001 </p>
 
 <br>
 <center>

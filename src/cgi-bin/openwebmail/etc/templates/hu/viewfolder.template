@@ -1,8 +1,8 @@
 <table border="0" align="center" width="95%" cellpadding="0" cellspacing="0"><tr><td bgcolor=@@@TITLEBAR@@@ >
 
 <table border="0" width="100%" cellpadding="0" cellspacing="0"><tr>
-@@@STARTFOLDERFORM@@@
 <td nowrap bgcolor=@@@TITLEBAR@@@ align="left">
+@@@STARTFOLDERFORM@@@
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@>
 <B>@@@FOLDERPOPUP@@@</B></FONT></td>
 @@@ENDFORM@@@
@@ -16,8 +16,8 @@
 <table border="0" width="100%" cellpadding="0" cellspacing="0"><tr>
 <td nowrap bgcolor=@@@MENUBAR@@@ align="left">
 @@@MENUBARLINKS@@@</td>
-@@@STARTMOVEFORM@@@
 <td nowrap bgcolor=@@@MENUBAR@@@ align="right">
+@@@STARTMOVEFORM@@@
 @@@MOVECONTROLS@@@&nbsp;</td>
 </tr></table>
 
@@ -26,13 +26,13 @@
 <table border="0" align="center" width="95%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
 <tr><td valign="middle" width="6%" bgcolor=@@@COLUMNHEADER@@@>
 <CENTER>@@@STATUS@@@</CENTER></td>
-<td valign="middle" width="16%" bgcolor=@@@COLUMNHEADER@@@>
+<td valign="middle" width="18%" bgcolor=@@@COLUMNHEADER@@@>
 <B>@@@DATE@@@</B></td>
 <td valign="middle" width="25%" bgcolor=@@@COLUMNHEADER@@@>
 <B>@@@SENDER@@@</B></td>
 <td valign="middle" bgcolor=@@@COLUMNHEADER@@@>
-<table width="100%" cellpadding="0" cellspacing="0"><tr><td><B>@@@SUBJECT@@@</B></td><td align="right"><B>@@@THREAD@@@<B>&nbsp;</td></tr></table></td>
-<td valign="middle" width="5%" bgcolor=@@@COLUMNHEADER@@@>
+<B>@@@SUBJECT@@@</B></td>
+<td valign="middle" align="right" width="5%" bgcolor=@@@COLUMNHEADER@@@>
 <B>@@@SIZE@@@</B></td>
 <td align ="center" valign="middle" width="3%" bgcolor=@@@COLUMNHEADER@@@>
 <input name="allbox" type="checkbox" value="1"
@@ -44,13 +44,13 @@
 <br>
 <table border="0" align="center" width="95%" cellpadding="1" cellspacing="0">
 <tr>
-@@@STARTPAGEFORM@@@
 <td width="33%" align="center" bgcolor=@@@MENUBAR@@@ nowrap>
+@@@STARTPAGEFORM@@@
 @@@PAGECONTROL@@@
 </td>
 @@@ENDFORM@@@
-@@@STARTSEARCHFORM@@@
 <td align="center" bgcolor=@@@MENUBAR@@@ nowrap>
+@@@STARTSEARCHFORM@@@
 @@@SEARCH@@@
 </td>
 @@@ENDFORM@@@

@@ -17,14 +17,33 @@ $lang_charset = 'iso-8859-1';
    status      => 'Status (Unread first)',
    date        => 'Dato (Nyeste først)',
    date_rev    => 'Dato (Ældste først)',
-   sender      => 'Afsender (Alfabetisk)',
-   sender_rev  => 'Afsender (Omvendt alfabetisk)',
+   sender      => 'Afsender (Nyeste først)',
+   sender_rev  => 'Afsender (Ældste først)',
+   subject     => 'Emne (Nyeste først)',
+   subject_rev => 'Emne (Ældste først)',
    size        => 'Størrelse (Den største først)',
-   size_rev    => 'Størrelse (Den mindste først)',
-   subject     => 'Emne (Alfabetisk)',
-   subject_rev => 'Emne (Omvendt alfabetisk)',
-   thread      => 'Thread (Newest First)',
-   thread_rev  => 'Thread (Oldest First)'
+   size_rev    => 'Størrelse (Den mindste først)'
+   );
+
+%lang_prioritylabels =
+   (
+   normal      => 'Normal',
+   urgent      => 'Urgent',
+   'non-urgent'=> 'Non-Urgent'
+   );
+
+%lang_withoriglabels =
+   (
+   at_beginning => 'at Beginning',
+   at_end      => 'at End',
+   none        => 'None'
+   );
+
+%lang_receiptlabels =
+   (
+   ask => 'Ask to confirm',
+   yes => 'Yes',
+   no  => 'No'
    );
 
 %lang_text =
@@ -51,6 +70,9 @@ $lang_charset = 'iso-8859-1';
    copy       => 'Copy',
    msgmoveconf=> '\'Er du siker på, at du vil flytte de(n) valgte meddelelse(r)?\'',
    move       => 'Flyt',
+   markasread => 'Mark as read',
+   markasunread => 'Mark as unread',
+   dateformat => 'Dato format',
    date       => 'Dato',
    recipient  => 'Modtager',
    sender     => 'Afsender',
@@ -76,6 +98,8 @@ $lang_charset = 'iso-8859-1';
    filename   => 'Filnavn',
    encoding   => 'Encoding',
    download   => 'Gem',
+   thisispartialmsg => 'This is a partial message.',
+   msgrebuild => 'Message Rebuild',
    editdraft  => 'Edit Draft',
    savedraft  => 'Save Draft',
    send       => 'Send',
@@ -100,6 +124,9 @@ $lang_charset = 'iso-8859-1';
    modify     => 'Rediger',
    abooktitle => 'Adressebog',
    abook      => 'ADRESSEBOG',
+   name       => 'Name',
+   email      => 'Email',
+   note       => 'Note',
    group      => 'Group',
    quota_hit  => 'KVOTA HIT',
    usage      => 'Usage',
@@ -116,7 +143,9 @@ $lang_charset = 'iso-8859-1';
    all        => 'All',
    enable     => 'Enable',
    disable    => 'Disable',
+   filtered   => 'Filtered',
    blockrelay => 'Block SMTP Relay',
+   blockemail => 'Block email',
    read       => 'Read',
    yourmsg    => 'Your message',
    delivered  => 'Delivered',
@@ -159,6 +188,10 @@ $lang_charset = 'iso-8859-1';
             att_overlimit     => 'Dine vedhæftninger er større end de tilladte',
             inv_msg_op        => 'Invalid operation for message',
             inv_sessid        => 'Your request didn\'t contain the proper session ID cookie -- access denied!',
+            no_endpart        => 'End part not found',
+            part_missing      => 'Some part was missing',
+            rebuild_fmterr    => 'New message format error',
+            rebuild_sizeerr   => 'New message size mismatch',
             user_not_exist    => 'user does not exist',
             func_notsupported => 'function not supported',
             auth_syserr       => 'authentication system error',

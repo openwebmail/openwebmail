@@ -17,14 +17,33 @@ $lang_charset = 'iso-8859-1';
    status      => 'Estat (Primer els no llegits)',
    date        => 'Data (Primer els nous)',
    date_rev    => 'Data (Primer els vells)',
-   sender      => 'Qui ho envia (Alfabètic - Ascendent)',
-   sender_rev  => 'Qui ho envia (Alfabètic - Descendent)',
+   sender      => 'Qui ho envia (Primer els nous)',
+   sender_rev  => 'Qui ho envia (Primer els vells)',
+   subject     => 'Títol (Primer els nous)',
+   subject_rev => 'Títol (Primer els vells)',
    size        => 'Mida (Primer els grans)',
-   size_rev    => 'Mida (Primer els petits)',
-   subject     => 'Títol (Alfabètic - Ascendent)',
-   subject_rev => 'Títol (Alfabètic - Descendent)',
-   thread      => 'Thread (Newest First)',
-   thread_rev  => 'Thread (Oldest First)'
+   size_rev    => 'Mida (Primer els petits)'
+   );
+
+%lang_prioritylabels =
+   (
+   normal      => 'Normal',
+   urgent      => 'Urgent',
+   'non-urgent'=> 'No Urgent'
+   );
+
+%lang_withoriglabels =
+   (
+   at_beginning => 'a l´inici',
+   at_end      => 'al final',
+   none        => 'cap'
+   );
+
+%lang_receiptlabels =
+   (
+   ask => 'Ask to confirm',
+   yes => 'Yes',
+   no  => 'No'
    );
 
 %lang_text =
@@ -44,18 +63,21 @@ $lang_charset = 'iso-8859-1';
    folders    => 'Carpetes',
    emptytrash => 'Paperera buida',
    forever    => 'Per sempre',
-   userdef    => 'Definit per lusuari',
+   userdef    => 'Definit per l`usuari',
    logout     => 'Sortir',
    page       => 'Pàgina',
    msgcopyconf=> '\'Està segur de voler copiar els missatges seleccionats?\'',
    copy       => 'Copiar',
    msgmoveconf=> '\'Està segur de moure els missatges seleccionats?\'',
    move       => 'Moure',
+   markasread => 'Marcar com a llegit',
+   markasunread => 'Mark com a no llegit',
+   dateformat => 'format de la data',
    date       => 'Data',
    recipient  => 'Per a',
    sender     => 'Qui ho envia',
    subject    => 'Títol',
-   thread     => 'Thread',
+   thread     => 'fil',
    size       => 'Mida',
    backto     => 'Tornar a',
    reply      => 'Contestar',
@@ -76,12 +98,14 @@ $lang_charset = 'iso-8859-1';
    filename   => 'Arxiu',
    encoding   => 'Codificant',
    download   => 'Descarregar',
+   thisispartialmsg => 'Això es una part del missatge.',
+   msgrebuild => 'Reconstrucció del missatge',
    editdraft  => 'Editar l´esborrany',
    savedraft  => 'Guardar l´esborrany',
    send       => 'Enviar',
    cancel     => 'Cancel.lar',
    continue   => 'Continuar',
-   exit       => 'Exit',
+   exit       => 'sortir',
    for        => 'PER A',
    yourname   => 'El seu nom i cognom',
    save       => 'Guardar',
@@ -100,6 +124,9 @@ $lang_charset = 'iso-8859-1';
    modify     => 'Modificar',
    abooktitle => 'Llibreta d´adreces',
    abook      => 'LLIBRETA D´ADRECES',
+   name       => 'Nom',
+   email      => 'Correul',
+   note       => 'Nota',
    group      => 'Grup',
    quota_hit  => 'MÀXIMA MIDA PERMESA',
    usage      => 'Ús',
@@ -116,7 +143,9 @@ $lang_charset = 'iso-8859-1';
    all        => 'Tot',
    enable     => 'Activar',
    disable    => 'Desactivar',
+   filtered   => 'Filtered',
    blockrelay => 'Bloquejar el relé SMTP',
+   blockemail => 'Bloquejar correu',
    read       => 'Llegir',
    yourmsg    => 'El seu missatge',
    delivered  => 'Lliurat',
@@ -136,12 +165,12 @@ $lang_charset = 'iso-8859-1';
 %lang_err = (
             has_illegal_chars => 'té caràcters il.legals!',
             couldnt_open      => 'No ho puc obrir',
-            couldnt_locksh    => 'No ho puc bloquejar de lectura',
-            couldnt_lock      => 'No ho puc bloquejar d´escriptura',
+            couldnt_locksh    => 'No puc bloquejar-ho en lectura',
+            couldnt_lock      => 'No puc bloquejar-ho d´escriptura',
             couldnt_seek      => 'No puc trobar l´inici de',
             couldnt_close     => 'No ho puc tancar',
             disallowed_pop3   => 'Rebutjat pel servidor POP3 ',
-            norootlogin       => 'Ho sento, accés a ROOT negat per raons de seguretat.',
+            norootlogin       => 'Ho sento, accés a ROOT negat per  seguretat.',
             shouldnt_move_here=> 'No hauria de moure missatges fins aquí!',
             destination_folder=> 'Carpeta de destí',
             doesnt_exist      => 'no existeix!',
@@ -162,6 +191,10 @@ més missatges en cap carpeta. Només pot moure els missatges a la carpeta PAPERER
 és de',
             inv_msg_op        => 'Operació no vàlida pel missatge',
             inv_sessid        => 'La seva petició no inclou la corresponent GALETA Identificativa -- accés denegat!',
+            no_endpart        => 'La part final no s´ha trobat',
+            part_missing      => 'Algunes part s´han perdut',
+            rebuild_fmterr    => 'error de format en el nou missatge',
+            rebuild_sizeerr   => 'error de tamany al missatge nou',
             user_not_exist    => 'l´usuari no existeix',
             func_notsupported => 'Funció no suportada',
             auth_syserr       => 'Error d´autenticació',

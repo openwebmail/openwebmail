@@ -21,14 +21,33 @@ $lang_charset = 'iso-8859-2';
    status      => 'Stav (Nepreèítané prvé)',
    date        => 'Dátum (Najnov¹ie prvé)',
    date_rev    => 'Dátum (Najstar¹ie prvé)',
-   sender      => 'Odosielateµ (Podµa abecedy)',
-   sender_rev  => 'Odosielateµ (Obrátene podµa abecedy)',
+   sender      => 'Odosielateµ (Najnov¹ie prvé)',
+   sender_rev  => 'Odosielateµ (Najstar¹ie prvé)',
+   subject     => 'Predmet (Najnov¹ie prvé)',
+   subject_rev => 'Predmet (Najstar¹ie prvé)',
    size        => 'Veµkos» (Najväè¹ie prvé)',
-   size_rev    => 'Veµkos» (Najmen¹ie prvé)',
-   subject     => 'Predmet (Podµa abecedy)',
-   subject_rev => 'Predmet (Obrátene podµa abecedy)',
-   thread      => 'Thread (Newest First)',
-   thread_rev  => 'Thread (Oldest First)'
+   size_rev    => 'Veµkos» (Najmen¹ie prvé)'
+   );
+
+%lang_prioritylabels =
+   (
+   normal      => 'Normálna',
+   urgent      => 'Urgentné',
+   'non-urgent'=> 'Ne-urgentné'
+   );
+
+%lang_withoriglabels =
+   (
+   at_beginning => 'na zaèiatku',
+   at_end      => 'na konci',
+   none        => 'nikde'
+   );
+
+%lang_receiptlabels =
+   (
+   ask => 'Ask to confirm',
+   yes => 'Yes',
+   no  => 'No'
    );
 
 %lang_text =
@@ -55,11 +74,14 @@ $lang_charset = 'iso-8859-2';
    copy       => 'Kopírova»',
    msgmoveconf=> '\'Ste si istı, ¾e chcete presunú» vybranú správu(y)?\'',
    move       => 'Presunú»',
+   markasread => 'Oznaèi» ako preèítané',
+   markasunread => 'Oznaèi» ako nepreèítané',
+   dateformat => 'Formát dátumu',
    date       => 'Dátum',
    recipient  => 'Príjemca',
    sender     => 'Odosielateµ',
    subject    => 'Predmet',
-   thread     => 'Thread',
+   thread     => 'Diskusia',
    size       => 'Veµkos»',
    backto     => 'Spä»',
    reply      => 'Odpoveda»',
@@ -80,6 +102,8 @@ $lang_charset = 'iso-8859-2';
    filename   => 'Meno súboru',
    encoding   => 'Kódovanie',
    download   => 'Ulo¾i» do súboru',
+   thisispartialmsg => 'Toto je èiastková správa.',
+   msgrebuild => 'Správa bola prestavaná',
    editdraft  => 'Upravi» koncept',
    savedraft  => 'Ulo¾i» koncept',
    send       => 'Posla»',
@@ -104,6 +128,9 @@ $lang_charset = 'iso-8859-2';
    modify     => 'Zmeni»',
    abooktitle => 'Adresár',
    abook      => 'ADRESÁR',
+   name       => 'Meno',
+   email      => 'E-mail',
+   note       => 'Poznámka',
    group      => 'Skupina',
    quota_hit  => 'VRCHOL KVÔTY',
    usage      => 'Vyu¾itie',
@@ -120,7 +147,9 @@ $lang_charset = 'iso-8859-2';
    all        => 'V¹etko',
    enable     => 'Zapnuté',
    disable    => 'Vypnuté',
+   filtered   => 'Filtered',
    blockrelay => 'Blokova» SMTP Relay',
+   blockemail => 'Blokova» email',
    read       => 'Preèítané',
    yourmsg    => 'Va¹a správa',
    delivered  => 'Doruèené',
@@ -162,14 +191,18 @@ $lang_charset = 'iso-8859-2';
             folder_hitquota   => 'Prepáète, dosiahli ste hranicu kvôty a u¾ ¾iadna z Va¹ích správ nemô¾e by» ulo¾ená do ¾iadneho katalógu. Nebudete môc» presunú» správu do iného katalógu okrem KO©A, kde mô¾e by» zmazaná. Vrá»te sa a zma¾te niektoré správy alebo vysypte KÔ© a skúste znovu.',
             att_overlimit     => 'Prepáète, Vá¹a príloha presiahla veµkostnı limit, ktorı je',
             inv_msg_op        => 'Neplatná operácia pre správu',
-            inv_sessid        => 'Vs¹a po¾iadavka neobsahuje korektné ID sedenia -- prístup zamietnutı!',
+            inv_sessid        => 'Va¹a po¾iadavka neobsahuje korektné ID sedenia -- prístup zamietnutı!',
+            no_endpart        => 'Koncová èas» chıba',
+            part_missing      => 'Niekoré èasti chıbaju',
+            rebuild_fmterr    => 'Chybnı formát novej správy',
+            rebuild_sizeerr   => 'Chybná veµkos» novej správy',
             user_not_exist    => 'pu¾ívateµ neexistuje',
             func_notsupported => 'funkcia nieje podporovaná',
             auth_syserr       => 'systémová chyba pri overovaní',
             param_fmterr      => 'chybnı formát parametra',
             pwd_incorrect     => 'nesprávne heslo',
             network_server_error => 'chyba sie»ového servera',
-            sendmail_error    => 'Prepáète, nastal problem pri posielaní Va¹ej správy.  Prosím kliknite vo Va¹om prehliadaèi na tlaèítko Spä», skontrolujte Va¹u spravu a skúste to znovu.'
+            sendmail_error    => 'Prepáète, nastal problem pri posielaní Va¹ej správy. Prosím kliknite vo Va¹om prehliadaèi na tlaèítko Spä», skontrolujte Va¹u spravu a skúste to znovu.'
             );
 
 1;

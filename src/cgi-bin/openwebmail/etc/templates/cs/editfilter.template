@@ -1,14 +1,16 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
-<tr><td colspan="3" bgcolor=@@@TITLEBAR@@@ align="left">
+<tr><td colspan="4" bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <b>Nastavení filtrù</b></font>
-</td><td nowrap colspan="5" bgcolor=@@@TITLEBAR@@@ align="right">
+</td><td nowrap colspan="6" bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <b> @@@FREESPACE@@@ KB Umo¾nìno</b></font>
-</td></tr><tr><td colspan="8" bgcolor=@@@MENUBAR@@@ align="left">
+</td></tr><tr><td colspan="9" bgcolor=@@@MENUBAR@@@ align="left">
 @@@MENUBARLINKS@@@
-</td></tr><tr><td colspan="8">&nbsp;</td></tr>
+</td></tr><tr><td colspan="9">&nbsp;</td></tr>
 <tr>
+<td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>Count</B>&nbsp;</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Priority</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
@@ -28,6 +30,9 @@
 </td></tr>
 @@@STARTFILTERFORM@@@
 <tr>
+<td nowrap bgcolor=@@@TABLEROW_LIGHT@@@ align=center>
+&nbsp;
+</td>
 <td nowrap bgcolor=@@@TABLEROW_LIGHT@@@ align=center>
 @@@PRIORITYMENU@@@
 </td>

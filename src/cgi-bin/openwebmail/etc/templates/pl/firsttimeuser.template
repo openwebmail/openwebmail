@@ -1,11 +1,11 @@
-<BR><BR><BR><BR><BR><BR>
+<BR><BR><BR><BR><BR><BR><BR>
 <table border="0" align="center" width="40%" cellpadding="1" cellspacing="1">
 <tr><td bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>Witam w systemie OPEN WEBMAIL!</B></font>
+<B>Witam w systemie @@@NAME@@@!</B></font>
 </td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>Witamy w systemie Open WebMail!  Wygl±da na to, ¿e po raz pierwszy korzystasz z systemu Open WebMail,
-dlatego potrzebujemy zebraæ pewne informacje o Tobie aby skonfigurowaæ Open WebMail tak by lepiej dostosowaæ go do Twoich potrzeb
+<BR>Witamy w systemie @@@NAME@@@!  Wygl±da na to, ¿e po raz pierwszy korzystasz z systemu @@@NAME@@@,
+dlatego potrzebujemy zebraæ pewne informacje o Tobie aby skonfigurowaæ @@@NAME@@@ tak by lepiej dostosowaæ go do Twoich potrzeb
 .  Kliknij "Kontynuuj" aby przej¶c do ekranu konfiguratora.
 @@@CONTINUEBUTTON@@@
 </td></tr></table>

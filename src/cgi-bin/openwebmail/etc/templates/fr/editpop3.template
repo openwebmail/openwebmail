@@ -1,24 +1,24 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td colspan="3" bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>EDITING POP3 ACCOUNT</b></font>
+<b>GESTION DE COMPTES POP3</b></font>
 </td><td nowrap colspan="3" bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b> @@@FREESPACE@@@ KB Available</b></font>
+<b> @@@FREESPACE@@@ Ko disponible</b></font>
 </td></tr><tr><td colspan="6" bgcolor=@@@MENUBAR@@@ align="left">
 @@@MENUBARLINKS@@@
 </td></tr><tr><td colspan="6">&nbsp;</td></tr>
 <tr>
 <td nowrap bgcolor=@@@COLUMNHEADER@@@>
-<B>POP3 Server</B> (click to edit)</td>
+<B>Serveur POP3</B> (cliquer pour éditer)</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Id</B> (click to receive)</td>
+<B>Identifiant</B> (cliquer pour rappatrier)</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Passwd</B></td>
+<B>Mot de Passe</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Del remote mail</B></td>
+<B>Supprimer les mails du serveur</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Enable</B></td>
+<B>Actif</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Action</B>
 </td></tr>

@@ -8,7 +8,7 @@
 
    function timeoutwarning () {
       var hWnd = window.open("","timeoutwarning","width=400,height=140,resizable=no,scrollbars=no");
-      hWnd.document.write('<html><head><title>Vigyázat! Open WebMail idõlimit!</title></head><body>\n');
+      hWnd.document.write('<html><head><title>Vigyázat! @@@NAME@@@ idõlimit!</title></head><body>\n');
       hWnd.document.write('<center><table width="90%" cellspacing="0" cellpadding="0" border="0"><tr><td><font size="-1" color="#dd0000"><b>\n');
       hWnd.document.write(msg);
       hWnd.document.write('</b></font></td></tr></table><br>\n');
@@ -36,5 +36,5 @@
 </script>
 
 <p align="center"><font size="-1"><BR>
-<a href="@@@HTML_URL@@@/openwebmail.html" target="_blank">Open WebMail</a> @@@VERSION@@@-es verzió<BR>
+@@@PAGE_FOOTER@@@<BR>
 </FONT></P></BODY></HTML>

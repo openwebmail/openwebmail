@@ -34,18 +34,67 @@ REQUIREMENT
 Apache web server with cgi enabled
 Perl 5.005 or above
 
-CGI.pm-2.74.tar.gz
-MIME-Base64-2.12.tar.gz
-Authen-PAM-0.12.tar.gz
-ispell-3.1.20.tar.gz
-hc-30.tar.gz
+CGI.pm-2.74.tar.gz       (required)
+MIME-Base64-2.12.tar.gz  (required)
+libnet-1.0901.tar.gz     (required)
+Authen-PAM-0.12.tar.gz   (optional)
+ispell-3.1.20.tar.gz     (optional)
+hc-30.tar.gz             (optional)
 
 
-INSTALL
--------
-First, please connect to http://turtle.ee.ncku.edu.tw/openwebmail/ 
-to get the latest released openwebmail and required packages.
+INSTALL REQUIRED PACKAGES
+-------------------------
+First, you have to download required packages from
+http://turtle.ee.ncku.edu.tw/openwebmail/download/packages/
+and copy them to /tmp
 
+
+For CGI.pm do the following:
+
+   cd /tmp
+   tar -zxvf CGI.pm-2.74.tar.gz
+   cd CGI.pm-2.74
+   perl Makefile.PL
+   make
+   make install
+
+ps: It is reported that Open Webmail will hang in attachment uploading 
+    when used with older version of CGI module. We recommend using CGI 
+    version 2.74 or above for Open WebMail.
+    To check the version of your CGI module :
+
+    perldoc -m CGI.pm | grep CGI::VERSION 
+
+
+For MIME-Base64 do the following:
+
+   cd /tmp
+   tar -zxvf MIME-Base64-2.12.tar.gz
+   cd MIME-Base64-2.12
+   perl Makefile.PL
+   make
+   make install
+
+ps: Though you may already have the MIME-Base64 perl module,
+    we recommended you install MIME-Base64 module from source.
+    This would enable the XS support in this module which greatly
+    improves the encoding/decoding speed of MIME attachment.
+
+
+For libnet do the following:
+
+   cd /tmp
+   tar -zxvf libnet-1.0901.tar.gz
+   cd libnet-1.0901
+   perl Makefile.PL
+   make
+   make install
+
+
+INSTALL OPENWEBMAIL
+-------------------
+The latest released or current version is available at
+http://turtle.ee.ncku.edu.tw/openwebmail/ 
 
 If you are using FreeBSD and install apache with pkg_add,
 then just
@@ -55,16 +104,12 @@ then just
 
 2. modify /usr/local/www/cgi-bin/openwebmail/etc/openwebmail.conf for your need.
 
-3. add 'Thttpd_user' to the 'Trusted users' session in your sendmail.cf,
-   where 'httpd_user' is the effective user your httpd runs as.
-   it is 'nobody' or 'apache', please check it in the httpd configuration file
-
-4. If your FreeBSD is 4.2 or later
+3. If your FreeBSD is 4.2 or later
    a. chmod 4555 /usr/bin/suidperl
    b. change #!/usr/bin/perl to #!/usr/bin/suidperl in
-      openwebmail.pl, openwebmail-main.pl, openwebmail-prefs.pl
+      openwebmail.pl, openwebmail-main.pl, openwebmail-prefs.pl,
+      openwebmail-read.pl, openwebmail-send.pl, openwebmail-viewatt.pl,
       spellcheck.pl and checkmail.pl
-
 
 If you are using RedHat 6.2/CLE 0.9p1(or most Linux) with apache
 (by clarinet@totoro.cs.nthu.edu.tw)
@@ -75,7 +120,8 @@ If you are using RedHat 6.2/CLE 0.9p1(or most Linux) with apache
    rmdir data
 
 2. cd /home/httpd/cgi-bin/openwebmail
-   modify openwebmail.pl, openwebmail-main.pl, openwebmail-prefs.pl, 
+   modify openwebmail.pl, openwebmail-main.pl, openwebmail-prefs.pl,
+          openwebmail-read.pl, openwebmail-send.pl, openwebmail-viewatt.pl,
           spellcheck.pl and checkmail.pl
    a. change all '/usr/local/www/cgi-bin/openwebmail'
               to '/home/httpd/cgi-bin/openwebmail'
@@ -95,11 +141,7 @@ If you are using RedHat 6.2/CLE 0.9p1(or most Linux) with apache
    d. change default_signature for your need
    e. other changes you want
 
-4. add 'Thttpd_user' to the 'Trusted users' session in your sendmail.cf,
-   where 'httpd_user' is the effective user your httpd runs as.
-   it is 'nobody' or 'apache', please check it in the httpd configuration file
-
-5. add
+4. add
    /var/log/openwebmail.log {
        postrotate
            /usr/bin/killall -HUP syslogd
@@ -135,7 +177,8 @@ eg: /usr/local/apache/share, then
    e. other changes you want
 
 3. cd /usr/local/apache/share/cgi-bin/openwebmail
-   modify openwebmail.pl, openwebmail-main.pl, openwebmail-prefs.pl, 
+   modify openwebmail.pl, openwebmail-main.pl, openwebmail-prefs.pl,
+          openwebmail-read.pl, openwebmail-send.pl, openwebmail-viewatt.pl,
           spellcheck.pl and checkmail.pl
    a. change the #!/usr/bin/perl to the location where your perl is.
    b. change all '/usr/local/www/cgi-bin/openwebmail'
@@ -144,55 +187,14 @@ eg: /usr/local/apache/share, then
    a. set variable $unix_passwdfile to '/etc/shadow'
    b  set variable $unix_passwdmkdb to 'none'
 
-4. add 'Thttpd_user' to the 'Trusted users' session in your sendmail.cf,
-   where 'httpd_user' is the effective user your httpd runs as.
-   it is 'nobody' or 'apache', please check it in the httpd configuration file
 
+USING OPENWEBMAIL WITH OTHER SMTP SERVER
+----------------------------------------
+To make openwebmail use other SMTP server for mail sending,
+you have to edit the option 'smtpserver' in openwebmail.conf.
+Just change the default value 'localhost' to the name/ip of that SMTP server.
 
-
-USING OPENWEBMAIL WITH POSTFIX
-------------------------------
-If you are using postfix instead of sendmail as the MTA(mail transport agent):
-
-1. chmod 644 /etc/postfix/main.cf
-2. Use postfix 'sendmail' wrapper for the option sendmail in the 
-   openwebmail.conf. In most case, postfix installs the wrapper
-   where the original sendmail lives (/usr/lib/sendmail or /usr/sbin/sendmail)
-
-
-CHECK VERSION OF CGI MODULE
----------------------------
-It is reported that Open Webmail will hang in attachment uploading when used 
-with older version of CGI module. We recommend using CGI version 2.74 or 
-above for Open WebMail.
-
-To check the version of your CGI module :
-
-perldoc -m CGI.pm | grep CGI::VERSION 
-
-To install the newer CGI module:
-
-1. download new CGI module (CGI.pm-2.74.tar.gz)
-2. cd /tmp
-   tar -zxvf CGI.pm-2.74.tar.gz
-   cd CGI.pm-2.74
-   perl Makefile.PL
-   make
-   make install
-
-
-SPEEDUP ENCODING/DECODING OF MIME ATTACHMENTS
----------------------------------------------
-The encoding/decoding speed would be much faster if you install the 
-MIME-Base64 module from CPAN with XS support
-
-1. download MIME-Base64 module (MIME-Base64-2.12.tar.gz)
-2. cd /tmp
-   tar -zxvf MIME-Base64-2.12.tar.gz
-   cd MIME-Base64-2.12
-   perl Makefile.PL
-   make
-   make install
+Please be sure the SMTP server allows mail relayed from your openwebmail host.
 
 
 SPELL CHECK SUPPORT
@@ -382,7 +384,7 @@ you can do debug with the -d option
 2. edit the ~user/.forward file,
    add the '-d' option after vacation.pl
 3. send a message to this user to test the autoreply
-4. check the /var/tmp/vacation.debug for possible error information
+4. check the /tmp/vacation.debug for possible error information
 
 
 BIG5<->GB CONVERSION
@@ -508,6 +510,9 @@ TEST
    ~/openwebmail.pl             - owner=root, group=mail, mode=4755
    ~/openwebmail-main.pl        - owner=root, group=mail, mode=4755
    ~/openwebmail-prefs.pl       - owner=root, group=mail, mode=4755
+   ~/openwebmail-read.pl        - owner=root, group=mail, mode=4755
+   ~/openwebmail-send.pl        - owner=root, group=mail, mode=4755
+   ~/openwebmail-viewatt.pl     - owner=root, group=mail, mode=4755
    ~/spellcheck.pl              - owner=root, group=mail, mode=4755
    ~/checkmail.pl               - owner=root, group=mail, mode=4755
    ~/vacation.pl                - owner=root, group=mail, mode=0755

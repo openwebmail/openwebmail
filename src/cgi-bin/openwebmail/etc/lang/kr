@@ -17,14 +17,33 @@ $lang_charset = 'euc-kr';
    status      => '상태 (읽지 않은 편지 먼저)',
    date        => '날짜 (최근 편지 먼저)',
    date_rev    => '날짜 (오래된 편지 먼저)',
-   sender      => '보낸사람 (알파벳 순)',
-   sender_rev  => '보낸사람 (알파벳 역순)',
+   sender      => '보낸사람 (최근 편지 먼저)',
+   sender_rev  => '보낸사람 (오래된 편지 먼저)',
+   subject     => '주제 (최근 편지 먼저)',
+   subject_rev => '주제 (오래된 편지 먼저)',
    size        => '크기 (큰 편지 먼저)',
-   size_rev    => '크기 (작은 편지 먼저)',
-   subject     => '주제 (알파벳 순)',
-   subject_rev => '주제 (알파벳 역순)',
-   thread      => 'Thread (Newest First)',
-   thread_rev  => 'Thread (Oldest First)'
+   size_rev    => '크기 (작은 편지 먼저)'
+   );
+
+%lang_prioritylabels =
+   (
+   normal      => 'Normal',
+   urgent      => 'Urgent',
+   'non-urgent'=> 'Non-Urgent'
+   );
+
+%lang_withoriglabels =
+   (
+   at_beginning => 'at Beginning',
+   at_end      => 'at End',
+   none        => 'None'
+   );
+
+%lang_receiptlabels =
+   (
+   ask => 'Ask to confirm',
+   yes => 'Yes',
+   no  => 'No'
    );
 
 %lang_text =
@@ -51,6 +70,9 @@ $lang_charset = 'euc-kr';
    copy       => '복사하기',
    msgmoveconf=> '\'선택된 메시지(들)을 옮기시겠습니까?\'',
    move       => '옮기기',
+   markasread => 'Mark as read',
+   markasunread => 'Mark as unread',
+   dateformat => '날짜 format',
    date       => '날짜',
    recipient  => '받는 사람',
    sender     => '보낸 사람',
@@ -76,6 +98,8 @@ $lang_charset = 'euc-kr';
    filename   => '화일이름',
    encoding   => '인코딩',
    download   => '다운로드',
+   thisispartialmsg => 'This is a partial message.',
+   msgrebuild => 'Message Rebuild',
    editdraft  => '드래프트 편집',
    savedraft  => '드래프트 저장',
    send       => '보내기',
@@ -100,6 +124,9 @@ $lang_charset = 'euc-kr';
    modify     => '변경',
    abooktitle => '주소록',
    abook      => '주소록',
+   name       => 'Name',
+   email      => 'Email',
+   note       => 'Note',
    group      => '그룹',
    quota_hit  => '사용량 제한을 초과하였습니다.',
    usage      => '사용량',
@@ -116,7 +143,9 @@ $lang_charset = 'euc-kr';
    all        => '모두',
    enable     => '활성',
    disable    => '비활성',
+   filtered   => 'Filtered',
    blockrelay => 'SMTP 릴래이 막기',
+   blockemail => 'Email 막기',
    read       => '읽음',
    yourmsg    => '당신이 보낸 메시지가',
    delivered  => '잘 전달되었습니다.',
@@ -159,6 +188,10 @@ $lang_charset = 'euc-kr';
             att_overlimit     => 'Sorry, your attachments exceed the attachment size limit, which is',
             inv_msg_op        => 'Invalid operation for message',
             inv_sessid        => 'Your request didn\'t contain the proper session ID cookie -- access denied!',
+            no_endpart        => 'End part not found',
+            part_missing      => 'Some part was missing',
+            rebuild_fmterr    => 'New message format error',
+            rebuild_sizeerr   => 'New message size mismatch',
             user_not_exist    => 'user does not exist',
             func_notsupported => 'function not supported',
             auth_syserr       => 'authentication system error',

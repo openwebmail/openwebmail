@@ -1,17 +1,17 @@
 <table border="0" align="center" width="75%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>IMPORT ADDRESS BOOK</B></font>
+<B>IMPORTER UN CARNET D'ADRESSES</B></font>
 </td><td bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>@@@FREESPACE@@@ KB Available</B></font>
+<B>@@@FREESPACE@@@ Ko disponibles</B></font>
 </td></tr>
 <tr><td colspan="2" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 
 <table border="0" align="center" width="75%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
-<BR>Outlook Express 5 and Netscape Messenger peuvent exporter leurs carnets
-d'adresses dans un format CSV, ou alors dans des champs séparées par une virgule.  Open WebMail peut importer ces fichiers dans votre Carnet d'Adresses personnel pour vous éviter de les rentrer à la main.
+<BR>Outlook Express 5 et Netscape Messenger peuvent exporter leurs carnets
+d'adresses dans un format CSV, ou alors dans des champs séparées par une virgule.  @@@NAME@@@ peut importer ces fichiers dans votre Carnet d'Adresses personnel pour vous éviter de les rentrer à la main.
 <ul>
 <li> Dans Netscape, ouvrez votre carnet d'adresses, et sélectionner File-&gt;Export, ensuite dans
 "Save as type:" choisissez  "Comma Separated (*.csv)." <BR><BR>

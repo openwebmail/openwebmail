@@ -10,16 +10,17 @@
 
 <table border="0" align="center" width="75%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
-<BR>Outlook Express 5 and Netscape Mail can export their address books in a
-format known as CSV, or Comma Separated Values.  Open WebMail can import these files
-into your personal Address Book to save you hours of tediously typing them in
-by hand.
+<BR>Outlook Express 5 和 Netscape Mail 都具有匯出一種檔案格式為 CSV (Comma Seperated Values, 
+用逗號分開的文字檔) 的通訊錄的功能, @@@NAME@@@ 可以匯入這類的檔案並且將其內容存到您的個人通訊錄裡,
+這樣可節省用手鍵入這些資料的時間。這項功能並不會覆蓋您原先的通訊錄內容, 除非原本有相同的名字在上面; 
+碰到這種情形時, 則原本的該筆資料會被覆蓋過去。
 <ul>
-<li> In Netscape, open your address book, and select File-&gt;Export, then
-under "Save as type:" choose "Comma Separated (*.csv)." <BR><BR>
-<li> For Outlook Express, in the main Outlook Express window. choose
-File-&gt;Export-&gt;Address Book, and select the export type "Text file." Make
-sure that the Name and E-mail fields come first, which is the default setting.
+<li> Netscpe 使用者: 開啟通訊錄, 選擇 檔案-&gt;匯出, 然後
+在 "Save as type:" 選擇 "Comma Separated (*.csv)." <BR><BR>
+<li> Outlook Express 使用者: 在 Outlook Express 視窗主選單下.選擇
+檔案-&gt;匯出-&gt;通訊錄, 並選擇匯出檔案類型"文字檔案(逗點分開)"。讓"姓名"
+、"電子郵件地址" 欄位是第一與第二順位(這是預設的).然後按下一步,產生文字檔。
+再按下面的"瀏覽"選擇剛剛的文字檔,再匯入即可。
 </ul>
 </td></tr></table>
 
