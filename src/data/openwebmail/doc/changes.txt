@@ -1,3 +1,16 @@
+03/17/2005
+----------
+1. fix a bug that relative links in message would be converted to absolute
+   openwebmail links in forwarded message
+   (reported by Grund Helmut RZ, Helmut.Grund.AT.fh-furtwangen.de)
+2. fix a bug that messages with self id in references header won't be
+   displayed in message list when the list is soirted by subject
+   (reported by Cruzio Research, research.AT.cruzio.com)
+3. new auth module: auth_mysql_postnuke.pl
+   It is based on auth_mysql.pl and to be used with users in postnuke.
+   (thanks to Didier MICHAUT, dmichaut.AT.mt71.fr for his modification)
+
+
 03/15/2005
 ----------
 1. new mirror site at Raleigh, NC

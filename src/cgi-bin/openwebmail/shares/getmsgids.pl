@@ -551,7 +551,7 @@ sub get_messageids_sorted_by_subject {
       my @parents = reverse split(/ /, ${${$r_msgid2attrs}{$key}}[1]); # most nearby first
       my $parent = "ROOT.nonexist";	# this should be a string that would never be used as a messageid
       foreach my $id (@parents) {
-         if (defined $subject{$id}) {
+         if ($id ne $key && defined $subject{$id}) {
  	    $parent = $id;
 	    last;
          }

@@ -1561,8 +1561,11 @@ sub sendmessage {
    my ($attfiles_totalsize, $r_attfiles)=getattfilesinfo();
 
    $body =~ s/\r//g;		# strip ^M characters from message. How annoying!
-   if ($msgformat ne 'text') {	# replace links to attfiles with their cid
+   if ($msgformat ne 'text') {
+      # replace links to attfiles with their cid
       $body = ow::htmlrender::html4attfiles_link2cid($body, $r_attfiles, "$config{'ow_cgiurl'}/openwebmail-viewatt.pl");
+      # replace url#anchor with #anchor (to remove url added by htmlarea)
+      $body =~ s!https?://$ENV{'HTTP_HOST'}$config{'ow_cgiurl'}/openwebmail-send.pl.*?action=composemessage.*?#!#!gs;
    }
 
    my $attachment = param('attachment');
