@@ -66,13 +66,13 @@ package ow::id;
 
 %lang_bgfilterthresholdlabels =
    (
-     0 => 'Tidak',
-     1 => 'Ya',
-    20 => 'Hanya jika FOLDER EMAIL BARU memiliki lebih dari 20 pesan',
-    50 => 'Hanya jika FOLDER EMAIL BARU memiliki lebih dari 50 pesan',
-   100 => 'Hanya jika FOLDER EMAIL BARU memiliki lebih dari 100 pesan',
-   200 => 'Hanya jika FOLDER EMAIL BARU memiliki lebih dari 200 pesan',
-   500 => 'Hanya jika FOLDER EMAIL BARU memiliki lebih dari 500 pesan',
+     0 => 'No',
+     1 => 'Yes',
+    20 => 'Only if INBOX has more than 20 new messages',
+    50 => 'Only if INBOX has more than 50 new messages',
+   100 => 'Only if INBOX has more than 100 new messages',
+   200 => 'Only if INBOX has more than 200 new messages',
+   500 => 'Only if INBOX has more than 500 new messages',
    );
 
 %lang_prioritylabels =

@@ -2,6 +2,7 @@ package ow::fi;
 
 # Finnish translation, charset: iso-8859-1
 # by Jouni Kivilahti and Helja Laitinen
+# 2004 and beyond updates by Pasi Sjöholm
 
 %lang_folders =
    (
@@ -44,7 +45,7 @@ package ow::fi;
    last         => 'Sukunimi (aakkosjärjestys)',
    last_rev     => 'Sukunimi (käänteinen aakkosjärjestys)',
    suffix       => 'Nimen jälkiliite (aakkosjärjestys)',
-   suffix_rev   => 'Name Suffix (käänteinen aakkosjärjestys)',
+   suffix_rev   => 'Nimen jälkiliite (käänteinen aakkosjärjestys)',
    email        => 'Ensimmäinen email-osoite (aakkosjärjestys)',
    email_rev    => 'Ensimmäinen email-osoite (käänteinen aakkosjärjestys)',
    phone        => 'Ensimmäinen puhelinnumero (nousevassa järjestyksessä)',
@@ -68,11 +69,11 @@ package ow::fi;
    (
      0 => 'No',
      1 => 'Yes',
-    20 => 'Only if INBOX has more than 20 messages',
-    50 => 'Only if INBOX has more than 50 messages',
-   100 => 'Only if INBOX has more than 100 messages',
-   200 => 'Only if INBOX has more than 200 messages',
-   500 => 'Only if INBOX has more than 500 messages',
+    20 => 'Only if INBOX has more than 20 new messages',
+    50 => 'Only if INBOX has more than 50 new messages',
+   100 => 'Only if INBOX has more than 100 new messages',
+   200 => 'Only if INBOX has more than 200 new messages',
+   500 => 'Only if INBOX has more than 500 new messages',
    );
 
 %lang_prioritylabels =
@@ -198,32 +199,32 @@ package ow::fi;
 
 %lang_satestfields =
    (
-   name       => 'Name',
-   desc       => 'Description',
-   type       => 'Test Type',
-   expression => 'Expression',
-   score      => 'Score',
+   name       => 'Nimi',
+   desc       => 'Kuvaus',
+   type       => 'Testityyppi',
+   expression => 'Ekspressio',
+   score      => 'Tulos',
    );
 
 %lang_satesttypes =
    (
-   header  => 'Message Header',
-   body    => 'Text in Msgbody (HTML tag removed)',
-   uri     => 'Links in Message Body',
-   rawbody => 'Text in Msgbody and Attachments (HTML tag reserved)',
-   full    => 'Undecoded Msgbody and Attachments',
+   header  => 'Viestin otsikko',
+   body    => 'Viestin runko (HTML tagit poistettu)',
+   uri     => 'Viestin URL:t',
+   rawbody => 'Raakaviesti (HTML tagit säilytetty)',
+   full    => 'Koko viesti',
    );
 
 %lang_satestheaderattrs =
    (
-   ALL        => 'All',
-   Subject    => 'Subject',
-   From       => 'From',
-   To         => 'To',
-   Cc         => 'Cc',
-   ToCc       => 'To and Cc',
-   MESSAGEID  => 'Message Id',
-   USERDEFINE => 'User Define',
+   ALL        => 'Kaikki',
+   Subject    => 'Otsikko',
+   From       => 'Lähettäjä',
+   To         => 'Vastaanottaja',
+   Cc         => 'Kopio',
+   ToCc       => 'Vastaanottaja ja Kopio',
+   MESSAGEID  => 'Viestin Id',
+   USERDEFINE => 'Käyttäjän määrittelemä',
    );
 
 %lang_searchtypelabels =
@@ -239,14 +240,14 @@ package ow::fi;
 
 %lang_searchdaterangelabels =
    (
-   all         => 'All',
-   today       => 'Today',
-   oneweek     => 'One week',
-   twoweeks    => 'Two weeks',
-   onemonth    => 'One month',
-   threemonths => 'Three months',
-   sixmonths   => 'Six months',
-   oneyear     => 'One year',
+   all         => 'Kaikki',
+   today       => 'Tänään',
+   oneweek     => 'Yksi viikko',
+   twoweeks    => 'Kaksi viikkoa',
+   onemonth    => 'Yksi kuukausi',
+   threemonths => 'Kolme kuukautta',
+   sixmonths   => 'Kuusi kuukautta',
+   oneyear     => 'Yksi vuosi',
    );
 
 %lang_sizes =
@@ -507,7 +508,7 @@ package ow::fi;
    moreitems  => 'Lisää tapahtumia',
    multieditconf => 'Tämä tapahtuma on merkitty useammalle päiville.\\nTämän muokkaaminen muokkaa kaikkien lisättyjen päivien tapahtumia.\\nHaluatko jatkaa?',
    multidelconf  => 'Tämä tapahtuma on merkitty useammalle päivälle.\\nTämän poistaminen poistaa myös muille päiville merkityt tapahtumat.\\nHaluatko jatkaa?',
-   caldelconf => 'Are you sure you want to delete this item?',
+   caldelconf => 'Oletko varma että haluat poistaa tämän kohteen?',
    noitemforthisday => 'Ei tapahtumia tänään',
    thisday_only          => 'Vain tämä päivä',
    the_wday_of_thismonth => 'Joka kuukauden @@@ORDER@@@ @@@WDAY@@@',
@@ -570,7 +571,7 @@ package ow::fi;
    abook_exportnow => 'Vie heti',
    abook_newcontact => 'Uusi kontakti',
    abook_newgroup => 'Uusi ryhmä',
-   abook_noconversion => 'No Conversion',
+   abook_noconversion => 'Ei konversiota',
    abook_listview_addrperpage => '@@@ADDRCOUNT@@@ osoitteita per sivu',
    abook_listview_writemailto => 'Kirjoita postia',
    abook_listview_edit => 'Muokkaa',
@@ -626,7 +627,7 @@ package ow::fi;
    abook_editform_valuelabel_TITLE => 'v.p., tutkimus ja kehitys',
    abook_editform_valuelabel_ROLE => 'manageri, johtaja, etc',
    abook_editform_valuelabel_ORGANIZATIONNAME => 'abc, inc.',
-   abook_editform_valuelabel_ORGANIZATIONALUNITS => 'accounting, european division',
+   abook_editform_valuelabel_ORGANIZATIONALUNITS => 'tilinpito, euroopan jaosto',
    abook_editform_namelabel_URL => 'Websivustot</b> @@@ADDMORELINK@@@<b>',
    abook_editform_valuelabel_URL => 'http://www.mysite.com',
    abook_editform_namelabel_TZ => 'Aikavyöhyke',
@@ -641,7 +642,7 @@ package ow::fi;
    abook_editform_pgp_KEY => 'IETF Pretty Good Privacy PGP avain',
    abook_editform_gpg_KEY => 'GNU Privacy Guard GPG avain',
    abook_editform_namelabel_AGENT => 'Agentit',
-   abook_editform_undef_AGENT => 'no one acts on behalf of this contact.',
+   abook_editform_undef_AGENT => 'kukaan ei toimi tämän kontaktin puolesta',
    abook_editform_download_AGENT => 'lataa tämän agentin vcard-informaatio',
    abook_editform_unknown_AGENT => 'Ei tunnettu agentti-tyyppi',
    abook_editform_vcf_AGENT => 'Versit Card-tiedosto',
@@ -651,7 +652,7 @@ package ow::fi;
    abook_editform_GEO_photo => 'Näytä tämän paikan sateelliittikuva',
    abook_editform_namelabel_CLASS => 'Pääsyluokitus',
    abook_editform_namelabel_PRODID => 'Tekijäohjelma',
-   abook_editform_valuelabel_PRODID => 'outlook, openwebmail, etc',
+   abook_editform_valuelabel_PRODID => 'outlook, openwebmail, jne.',
    abook_editform_namelabel_UID => 'Ulkoinen uniikki ID',
    abook_editform_valuelabel_UID => 'Ulkoiset ohjelmat käyttävät tätä identioidakseen tämän kortin',
    abook_editform_namelabel_SOURCE => 'vCard Lähde-URL',
@@ -665,10 +666,10 @@ package ow::fi;
    abook_editform_save_and_return => 'Tallenna ja palaa edelliseen',
    abook_editform_cancel_and_return => 'Peruuta ja palaa edelliseen',
    abook_editform_new_agent_link => 'Luo',
-   sa_prefs         => 'SpamAssassin user preferences',
-   sa_edittest      => 'Edit Test Rules',
-   sa_editblacklist => 'Edit Black List',
-   sa_editwhitelist => 'Edit White List',
+   sa_prefs         => 'SpamAssassin-asetukset',
+   sa_edittest      => 'Muokkaa testisääntöjä',
+   sa_editblacklist => 'Muokkaa mustaa listaa',
+   sa_editwhitelist => 'Muokkaa valkoista listaa',
    );
 
 %lang_err =

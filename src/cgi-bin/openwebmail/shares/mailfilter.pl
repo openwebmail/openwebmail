@@ -147,7 +147,17 @@ sub filtermessage {
       ow::filelock::lock($folderfile, LOCK_UN);
       openwebmailerror("$lang_err{'mailfilter_error'} (Couldn't update index db $folderdb)");
    }
-   my @allmessageids=get_messageids_sorted_by_offset($folderdb);
+
+   my @allmessageids=();
+   my ($total, $r_msgid2attrs)=get_msgid2attrs($folderdb, 1, $_OFFSET, $_STATUS); # 1 means ignore_internal
+   foreach my $id (keys %{$r_msgid2attrs}) {
+      next if (${${$r_msgid2attrs}{$id}}[1]=~/V/ && !$forced_recheck);	# skip verified msg if no forced check
+      next if (${${$r_msgid2attrs}{$id}}[1]=~/Z/);			# skip any zapped msg
+      push(@allmessageids, $id);
+   }
+   @allmessageids= sort {
+                        ${${$r_msgid2attrs}{$a}}[0]<=>${${$r_msgid2attrs}{$b}}[0]
+                        } @allmessageids;
    if ($#allmessageids<0) {
       ow::filelock::lock($folderfile, LOCK_UN);
       return 1;				# retuen immediately if no message found
@@ -210,7 +220,9 @@ sub filter_allmessageids {
        $r_filterrules, $r_allmessageids, $has_globallock)=@_;
 
    my $pidfile;
-   if (!$has_globallock) {
+   # threshold>0 means the bg filter may be actived if inbox have enough new msgs,
+   # so we update pid file to terminate any other bg filter process
+   if (${$r_prefs}{'bgfilterthreshold'}>0) {
       $pidfile=dotpath('filter.pid');
       open(F, ">$pidfile"); print F $$; close(F);
    }
@@ -543,6 +555,9 @@ sub filter_allmessageids {
                   my $m="spamcheck - spam $spamlevel/${$r_prefs}{'spamcheck_threshold'} found in msg $messageid_i";
                   writelog($m); writehistory($m);
                   $spamfound=1;
+               } else {
+                  my $m="spamcheck - notspam $spamlevel/${$r_prefs}{'spamcheck_threshold'} found in msg $messageid_i";
+                  writelog($m); writehistory($m);
                }
             }
             if ($spamfound) {

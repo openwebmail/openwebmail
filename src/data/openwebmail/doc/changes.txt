@@ -1,3 +1,11 @@
+12/30/2004
+----------
+1. Finish language translation update
+   (thanks to Pasi Sjoholm, pasi.sjoholm.AT.tieto-x.fi)
+2. imporve the speed of mailfilter.pl by skipping zapped/verified messageids
+   as earily as possible
+
+
 12/28/2004
 ----------
 1. Deutsch lang and template files translation update
@@ -60,7 +68,7 @@
 
 12/20/2004
 ----------
-1. explcitly check old password in change_userpassword(0 in auth_pam.pl,
+1. explcitly check old password in change_userpassword() in auth_pam.pl,
    as the PAM of underlying authentication doesn't always check the old
    password before changing the password
    (thanks to Sergio Rua, srua.AT.pattrynet.org for his fix)

@@ -1793,7 +1793,8 @@ default_bgfilterthreshold
 This defines when openwebmail should do mail filtering at background.
 If this option is set to 0, mail filtering is always done at foreground.
 If this option is set to equal or more than 1, the mail filtering is 
-put into background only if INBOX has messages more than this value.
+put into background only if the number of new messages in INBOX is more 
+than this threshold.
 
 
 default_bgfilterwait
