@@ -332,6 +332,7 @@ package ow::ro;
    move     => 'Muta',
    symlink  => 'Symlink',
    delete   => 'Sterge',
+   chmod    => 'Chmod',
    gzip     => 'Arhiva GZ',
    mkzip    => 'Arhiva ZIP',
    mktgz    => 'Arhiva TGZ',

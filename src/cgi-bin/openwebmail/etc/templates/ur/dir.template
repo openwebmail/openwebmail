@@ -181,5 +181,20 @@
          return true;
       }
    }
+   function chmodinput() {
+      var oldperm=document.dirform.permission.value;
+      var newperm;
+      newperm=prompt('Please enter the permission for selected items ( '+selectedstr()+' )\n\n'+
+                     'Permission examples:\n'+
+                     '0755 for shared directories , 0644 for shared files\n'+
+                     '0700 for private directories , 0600 for private files', oldperm);
+      if ( newperm==oldperm ||
+           newperm==null ) {
+         return false;
+      } else {
+         document.dirform.permission.value=newperm;
+         return true;
+      }
+   }
 //-->
 </script>

@@ -319,8 +319,8 @@ package ow::ca;
    refresh  => 'Refresca',
    preview  => 'Previsualitza',
    edit     => 'Edita',
-   listarchive=> 'Llista',
-   decompress=>'Descomprimeix',
+   listarchive => 'Llista',
+   decompress => 'Descomprimeix',
    extract  => 'Extrau',
    mkpdf    => 'Fes PDF',
    mkps     => 'Fes PS',
@@ -331,10 +331,11 @@ package ow::ca;
    move     => 'Mou',
    symlink  => 'Enllaç',
    delete   => 'Suprimeix',
+   chmod    => 'Chmod',
    gzip     => 'Crea gzip',
    mkzip    => 'Crea zip',
    mktgz    => 'Crea tgz',
-   mkthumbnail  => 'Crea miniatura',
+   mkthumbnail => 'Crea miniatura',
    download => 'Descàrrega',
    upload   => 'Càrrega'
    );

@@ -181,5 +181,20 @@
          return true;
       }
    }
+   function chmodinput() {
+      var oldperm=document.dirform.permission.value;
+      var newperm;
+      newperm=prompt('請輸入已選擇項目的存取權限 ( '+selectedstr()+' )\n\n'+
+                     '權限設定範例:\n'+
+                     '0755 公用目錄 , 0644 公用檔案\n'+
+                     '0700 私人目錄 , 0600 私人檔案', oldperm);
+      if ( newperm==oldperm ||
+           newperm==null ) {
+         return false;
+      } else {
+         document.dirform.permission.value=newperm;
+         return true;
+      }
+   }
 //-->
 </script>

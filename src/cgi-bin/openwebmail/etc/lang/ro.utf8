@@ -330,6 +330,7 @@ package ow::ro_utf8;
    move     => 'Mută',
    symlink  => 'Symlink',
    delete   => 'Şterge',
+   chmod    => 'Chmod',
    gzip     => 'Arhivă GZ',
    mkzip    => 'Arhivă ZIP',
    mktgz    => 'Arhivă TGZ',

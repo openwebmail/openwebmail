@@ -171,6 +171,14 @@ if ($action eq "mkdir" || defined param('mkdirbutton') ) {
    }
    showdir($currentdir, $gotodir, $filesort, $page, $msg);
 
+} elsif ($action eq "chmod" || defined param('chmodbutton')) {
+   if ($config{'webdisk_readonly'}) {
+      $msg="$lang_err{'webdisk_readonly'}\n";
+   } else {
+      $msg=chmoddirfiles(param('permission'), $currentdir, @selitems) if  ($#selitems>=0);
+   }
+   showdir($currentdir, $gotodir, $filesort, $page, $msg);
+
 } elsif ($action eq "editfile" || defined param('editbutton')) {
    if ($config{'webdisk_readonly'}) {
       autoclosewindow($lang_wdbutton{'edit'}, $lang_err{'webdisk_readonly'});
@@ -462,6 +470,48 @@ sub deletedirfiles {
    return($msg);
 }
 ########## END DELETEDIRFILES ####################################
+
+########## CHMODDIRFILES #########################################
+sub chmoddirfiles {
+   my ($perm, $currentdir, @selitems)=@_;
+   my ($msg, $err);
+
+   $perm=~s/\s//g;
+   if ($perm=~/[^0-7]/) {	# has invalid char for chmod?
+      return("$lang_wdbutton{'chmod'} $lang_err{'has_illegal_chars'}\n");
+   } elsif ($perm!~/^0/) {	# should leading with 0
+      $perm='0'.$perm;
+   }
+
+   my @filelist;
+   foreach (@selitems) {
+      my $vpath=ow::tool::untaint(absolute_vpath($currentdir, $_));
+      my $vpathstr=f2u($vpath);
+      $err=verify_vpath($webdiskrootdir, $vpath);
+      if ($err) {
+         $msg.="$lang_err{'access_denied'} ($vpathstr: $err)\n"; next;
+      }
+      if (!-l "$webdiskrootdir/$vpath" && !-e "$webdiskrootdir/$vpath") {
+         $msg.="$vpathstr $lang_err{'doesnt_exist'}\n"; next;
+      }
+      if (-f _ && $vpath=~/\.(?:jpe?g|gif|png|bmp|tif)$/i) {
+         my $thumbnail=path2thumbnail("$webdiskrootdir/$vpath");
+         push(@filelist, $thumbnail) if (-f $thumbnail);
+      }
+      push(@filelist, "$webdiskrootdir/$vpath");
+   }
+   return($msg) if ($#filelist<0);
+
+   chdir("$webdiskrootdir/$currentdir") or
+      return("$lang_err{'couldnt_chdirto'} $currentdir\n");
+
+   my $notchanged=$#filelist+1 - chmod(oct(ow::tool::untaint($perm)), @filelist);
+   if ($notchanged!=0) {
+      return("$notchanged item(s) not chnaged ($!)");
+   }
+   return($msg);
+}
+########## END CHMODDIRFILES #####################################
 
 ########## COPYDIRFILES ##########################################
 sub copymovesymlink_dirfiles {
@@ -1872,7 +1922,7 @@ sub showdir {
    }
    $escapedcurrentdir=ow::tool::escapeURL($currentdir);
 
-   my (%fsize, %fdate, %fperm, %ftype, %flink);
+   my (%fsize, %fdate, %fowner, %fmode, %fperm, %ftype, %flink);
    my ($dcount, $fcount, $sizecount)=(0,0,0);
    foreach my $p (@list) {
       next if ( $p eq "." || $p eq "..");
@@ -1911,12 +1961,14 @@ sub showdir {
          next if (!$config{'webdisk_lsunixspec'});
          $ftype{$fname}="u";
       }
-      my $r=(-r _)?'R':'-';
-      my $w=(-w _)?'W':'-';
-      my $x=(-x _)?'X':'-';
+      my $r=(-r _)?'r':'-';
+      my $w=(-w _)?'w':'-';
+      my $x=(-x _)?'x':'-';
       $fperm{$p}="$r$w$x";
       $fsize{$p}=$st_size;
       $fdate{$p}=$st_mtime;
+      $fowner{$p}=getpwuid($st_uid).':'.getgrgid($st_gid);
+      $fmode{$p}=sprintf("%04o", $st_mode&07777);
    }
    close(D);
 
@@ -2011,7 +2063,8 @@ sub showdir {
                                  currentdir=>ow::tool::escapeURL($currentdir),
                                  gotodir=>ow::tool::escapeURL($currentdir),
                                  filesort=>$filesort,
-                                 page=>$page);
+                                 page=>$page,
+                                 permission=>'');
    $html =~ s/\@\@\@STARTDIRFORM\@\@\@/$temphtml/g;
 
    if ($keyword ne '') {
@@ -2151,7 +2204,7 @@ sub showdir {
                        qq|" align="absmiddle" border="0">|;
             }
             $namestr=qq|<a href="$wd_url_sort_page&amp;action=showdir&amp;gotodir=|.
-                     ow::tool::escapeURL($p).qq|" $accesskeystr>$imgstr <b> |.
+                     ow::tool::escapeURL($p).qq|" title="$fowner{$p}" $accesskeystr>$imgstr <b> |.
                      ow::htmltext::str2html(f2u($p));
             $namestr.=ow::htmltext::str2html(f2u($flink{$p})) if (defined $flink{$p});
             $namestr.=qq|</b></a>|;
@@ -2177,7 +2230,7 @@ sub showdir {
             my $a=qq|<a href="$config{'ow_cgiurl'}/openwebmail-webdisk.pl/|.ow::tool::escapeURL($fname).
                   qq|?sessionid=$thissession&amp;currentdir=$escapedcurrentdir&amp;|.
                   qq|action=download&amp;selitems=|.ow::tool::escapeURL($p).
-                  qq|" $accesskeystr $blank>|;
+                  qq|" title="$fowner{$p}" $accesskeystr $blank>|;
 
             $namestr="$a$imgstr</a> ";
             if ($dname ne '') {
@@ -2287,11 +2340,7 @@ sub showdir {
          }
 
          $fperm{$p}=~/^(.)(.)(.)$/;
-         my $permstr=qq|<table cellspacing="0" cellpadding="0" border="0"><tr>|.
-                     qq|<td align=center width=12>$1</td>|.
-                     qq|<td align=center width=12>$2</td>|.
-                     qq|<td align=center width=12>$3</td>|.
-                     qq|</tr></table>|;
+         my $permstr=qq|<a title="$fmode{$p}">$1 $2 $3</a>|;
 
          my ($tr_bgcolorstr, $td_bgcolorstr, $checkbox_onclickstr);
          if ($prefs{'uselightbar'}) {
@@ -2441,6 +2490,10 @@ sub showdir {
                         -accesskey=>'Y',
                         -onClick=>"return (anyfileselected() && opconfirm('$lang_wdbutton{delete}', $prefs{webdisk_confirmdel}));",
                         -value=>$lang_wdbutton{'delete'});
+      $temphtml.=submit(-name=>'chmodbutton',
+                        -accesskey=>'O',
+                        -onClick=>"return (anyfileselected() && chmodinput());",
+                        -value=>$lang_wdbutton{'chmod'});
       $temphtml.=qq|&nbsp;\n|;
    }
 

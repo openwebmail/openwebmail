@@ -181,5 +181,20 @@
          return true;
       }
    }
+   function chmodinput() {
+      var oldperm=document.dirform.permission.value;
+      var newperm;
+      newperm=prompt('请输入已选择项目的存取权限 ( '+selectedstr()+' )\n\n'+
+                     '权限设定范例:\n'+
+                     '0755 公用目录 , 0644 公用档案\n'+
+                     '0700 私人目录 , 0600 私人档案', oldperm);
+      if ( newperm==oldperm ||
+           newperm==null ) {
+         return false;
+      } else {
+         document.dirform.permission.value=newperm;
+         return true;
+      }
+   }
 //-->
 </script>
