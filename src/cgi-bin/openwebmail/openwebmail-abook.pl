@@ -102,7 +102,11 @@ $escapedmessageid = ow::tool::escapeURL($messageid);
 $escapedkeyword = ow::tool::escapeURL($keyword);
 
 # addressbook globals
-$abookfolder = param('abookfolder') || 'ALL';
+if (defined(param('abookfolder')) && param('abookfolder') ne "") {
+   $abookfolder = param('abookfolder');
+} else {
+   $abookfolder = cookie("$user-abookfolder") || 'ALL';
+}
 $abookpage = param('abookpage') || 1;
 $abooklongpage = param('abooklongpage') || 0;
 $abooksort = param('abooksort') || $prefs{'abook_sort'} || 'fullname';
@@ -980,11 +984,11 @@ sub addrlistview {
       }
       if ($config{'enable_calendar'}) {
          $temphtml .= iconlink("calendar.gif", $lang_text{'calendar'},
-                               qq|accesskey="K" href="$config{'ow_cgiurl'}/openwebmail-cal.pl?action=$prefs{'calendar_defaultview'}&amp;$urlparm"|);
+                               qq|accesskey="K" href="$config{'ow_cgiurl'}/openwebmail-cal.pl?action=$prefs{'calendar_defaultview'}&amp;sessionid=$thissession&amp;$webmail_urlparm"|);
       }
       if ($config{'enable_webdisk'}) {
          $temphtml .= iconlink("webdisk.gif", $lang_text{'webdisk'},
-                               qq|accesskey="E" href="$config{'ow_cgiurl'}/openwebmail-webdisk.pl?action=showdir&amp;$urlparm"|);
+                               qq|accesskey="E" href="$config{'ow_cgiurl'}/openwebmail-webdisk.pl?action=showdir&amp;sessionid=$thissession&amp;$webmail_urlparm"|);
       }
       if ( $config{'enable_sshterm'}) {
          if ( -r "$config{'ow_htmldir'}/applet/mindterm2/mindterm.jar" ) {
@@ -1230,7 +1234,9 @@ sub addrlistview {
          $temphtml .= qq|<td rowspan="2" align="center" valign="center">&nbsp;&nbsp;|.
                       submit(-name=>$lang_text{'abook_listview_quickadd'},
                              -accesskey=>'A',
-                             -class=>"medtext").
+                             -class=>"medtext",
+                             -onClick=>"if (document.quickAddForm.elements['$addaddressmap{first}'].value=='' && document.quickAddForm.elements['$addaddressmap{last}'].value=='') {return false; } else {return true;}"
+                             ).
                       qq|&nbsp;&nbsp;</td>\n|.
                       qq|</tr>\n|.
                       qq|<tr>\n|;
@@ -1441,7 +1447,6 @@ sub addrlistview {
             # the fullname stuff
             if (exists $addresses{$xowmuid}{FN}) {
                if (defined $addresses{$xowmuid}{FN}[$index]) {
-                  # do iconv on fullname
                   my $s=$addresses{$xowmuid}{FN}[$index]{VALUE};
                   ($s)=iconv($addresses{$xowmuid}{'X-OWM-CHARSET'}[0]{VALUE}, $prefs{charset}, $s) if ($is_convertable);
                   if ($listviewmode eq '') {
@@ -1511,10 +1516,12 @@ sub addrlistview {
                                             map { [(defined($TELsort{$_})?$TELsort{$_}:100), lc($_)] }
                                            grep { !m/VOICE/ } keys %{$addresses{$xowmuid}{TEL}[$index]{TYPES}}
                                      );
+                  my $s=$addresses{$xowmuid}{TEL}[$index]{VALUE};
+                  ($s)=iconv($addresses{$xowmuid}{'X-OWM-CHARSET'}[0]{VALUE}, $prefs{charset}, $s) if ($s=~/[^\d\-\+]/ && $is_convertable);
                   if ($listviewmode eq '') {
-                     $newrow[$headingpos{'phone'}] .= qq|<td $td_bgcolorstr nowrap><a href="$editurl">|.ow::htmltext::str2html("$addresses{$xowmuid}{TEL}[$index]{VALUE} $typestag").qq|</a></td>\n|;
+                     $newrow[$headingpos{'phone'}] .= qq|<td $td_bgcolorstr nowrap><a href="$editurl">|.ow::htmltext::str2html("$s $typestag").qq|</a></td>\n|;
                   } else {
-                     $newrow[$headingpos{'phone'}] .= qq|<td $td_bgcolorstr nowrap>|.ow::htmltext::str2html("$addresses{$xowmuid}{TEL}[$index]{VALUE} $typestag").qq|</td>\n|;
+                     $newrow[$headingpos{'phone'}] .= qq|<td $td_bgcolorstr nowrap>|.ow::htmltext::str2html("$s $typestag").qq|</td>\n|;
                   }
                }
             }
@@ -1706,7 +1713,10 @@ sub addrlistview {
       $html =~ s/\@\@\@BUTTONSBEFORE\@\@\@//g;
    }
 
-   httpprint([], [htmlheader(), $html, htmlfooter(2)]);
+   my $cookie = cookie( -name  => "$user-abookfolder",
+                        -value => $abookfolder,
+                        -path  => '/');
+   httpprint([-cookie=>[$cookie]], [htmlheader(), $html, htmlfooter(2)]);
 }
 ########## END ADDRLISTVIEW ######################################
 
@@ -2144,12 +2154,14 @@ sub addreditform {
       my $agenttarget = join(",",(-1,@targetagent));
       $temphtml .= submit(-name=>$lang_text{'abook_editform_save_and_return'},
                           -class=>"medtext",
-                          -onClick=>"document.editForm.targetagent.value='$agenttarget'; return popupNotice('agentmustsave');");
+                          -onClick=>"document.editForm.targetagent.value='$agenttarget'; return (popupNotice('agentmustsave') && savecheck('editForm'));");
       $temphtml .= "&nbsp;";
    }
    if ($xowmuid eq '' ||			# new entry
        is_abookfolder_writable($abookfolder)) {	# old entry on writablebook
-      $temphtml .= submit(-name=>$lang_text{'save'}, -class=>"medtext");
+      $temphtml .= submit(-name=>$lang_text{'save'}, 
+                          -class=>"medtext",
+                          -onClick=> "return savecheck('editForm');");
    }
    $html =~ s/\@\@\@EDITFORMSUBMIT\@\@\@/$temphtml/;
 
@@ -2552,7 +2564,8 @@ sub addreditform_KEYAGENT {
          my $valuestring = "&nbsp;&nbsp;" . (exists($lang_text{"abook_editform_$type\_$name"})?$lang_text{"abook_editform_$type\_$name"}:$lang_text{"abook_editform_unknown_$name"});
 
          if (exists $r_data->[$index]{TYPES}{URI}) {
-            my $escapedvalue = ow::htmltext::str2html($r_data->[$index]{VALUE});
+            my $uri=$r_data->[$index]{VALUE}; $uri=~s/\%THISSESSION\%/$thissession/;	# replace '%THISSESSION%' with $thissession for OWM link
+            my $escapedvalue = ow::htmltext::str2html($uri);
             $tablehtml .= iconlink(lc($name).".gif", $lang_text{"abook_editform_view_$name"}, qq|href="$escapedvalue" target="_new"|).qq|\n|.
                           qq|<a href="$escapedvalue" target="_new">$valuestring</a>\n|;
          } elsif (exists $r_data->[$index]{TYPES}{VCARD}) {
@@ -2561,11 +2574,15 @@ sub addreditform_KEYAGENT {
             my $agentvcard = readadrbook($targetfile, undef, undef);
             my $escapedabookfolder = ow::tool::escapeURL($abookfolder);
             foreach my $agentowmuid (keys %{$agentvcard}) {
-               $valuestring = "&nbsp;&nbsp;" . $agentvcard->{$agentowmuid}{FN}[0]{VALUE};
+               my $s=$agentvcard->{$agentowmuid}{FN}[0]{VALUE};
+               if (is_convertable($agentvcard->{$agentowmuid}{'X-OWM-CHARSET'}[0]{VALUE}, $prefs{'charset'})) {
+                  ($s)=iconv($agentvcard->{$agentowmuid}{'X-OWM-CHARSET'}[0]{VALUE}, $prefs{'charset'}, $s);
+               }
+               $valuestring = "&nbsp;&nbsp;" . $s;
             }
             my $agenttarget = join(",",(1,(@{$r_targetagent}?@{$r_targetagent}:()),$index)); # the leading 1 sets 'access agent' mode
             $tablehtml .= iconlink("abook".lc($name).".gif", $lang_text{"abook_editform_download_$name"}, qq|href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrviewatt&amp;sessionid=$thissession&amp;file=$r_data->[$index]{VALUE}&amp;type=$type" target="_new"|).qq|\n|;
-            $tablehtml .= ($writable)?qq|<a href="javascript:document.editForm.targetagent.value='$agenttarget'; document.editForm.submit();" onClick="return popupNotice('agentmustsave');">$valuestring</a>\n|:qq|$valuestring\n|;
+            $tablehtml .= ($writable)?qq|<a href="javascript:document.editForm.targetagent.value='$agenttarget'; document.editForm.submit();" onClick="return (popupNotice('agentmustsave') && savecheck('editForm'));">$valuestring</a>\n|:qq|$valuestring\n|;
          } else { # binary data
             $tablehtml .= iconlink("abook".lc($name).".gif", $lang_text{"abook_editform_view_$name"}, qq|href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrviewatt&amp;sessionid=$thissession&amp;file=$r_data->[$index]{VALUE}&amp;type=$type" target="_new"|).qq|\n|.
                           qq|<a href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrviewatt&amp;sessionid=$thissession&amp;file=$r_data->[$index]{VALUE}&amp;type=$type" target="_new">$valuestring</a>\n|;
@@ -2592,7 +2609,7 @@ sub addreditform_KEYAGENT {
    if ($writable && $name eq 'AGENT') {
       my $nextagentposition = @{$r_data};
       my $agenttarget = join(",",(1,(@{$r_targetagent}?@{$r_targetagent}:()),$nextagentposition));
-      my $newagentlink = qq|<a href="javascript:document.editForm.targetagent.value='$agenttarget'; document.editForm.submit();" onClick="return popupNotice('agentmustsave');">$lang_text{'abook_editform_new_agent_link'}</a>|;
+      my $newagentlink = qq|<a href="javascript:document.editForm.targetagent.value='$agenttarget'; document.editForm.submit();" onClick="return (popupNotice('agentmustsave') && savecheck('editForm'));">$lang_text{'abook_editform_new_agent_link'}</a>|;
       $template =~ s/\@\@\@NEWAGENTLINK\@\@\@/$newagentlink/;
    } else {
       $template =~ s/\@\@\@NEWAGENTLINK\@\@\@/&nbsp;/;
@@ -2861,7 +2878,8 @@ sub addreditform_SOUND {
       # take the first type as the filetype (this has a chance of being wrong, but 99.9% will be right)
       my $type = (grep {!m/(?:BASE64|URI)/} keys %{$r_data->[$index]{TYPES}})[0];
       if (exists $r_data->[$index]{TYPES}{URI}) {
-         my $escapedvalue = ow::htmltext::str2html($r_data->[$index]{VALUE});
+         my $uri=$r_data->[$index]{VALUE}; $uri=~s/\%THISSESSION\%/$thissession/;	# replace '%THISSESSION%' with $thissession for OWM link
+         my $escapedvalue = ow::htmltext::str2html($uri);
          if ($escapedvalue =~ m#^(?:https?|ftp|mms|nntp|news|gopher|telnet|file)://#i) {
             $soundhtml .= iconlink("abooksound.gif", "$lang_text{'abook_editform_playsound'}", qq|href="$escapedvalue" target="_new"|)."&nbsp;".
                           iconlink("cal-delete.gif", "$lang_text{'abook_editform_deletesound'}", qq|href="javascript:document.editForm.formchange.value='$name,$index,-1'; document.editForm.submit();"|).
@@ -2893,7 +2911,8 @@ sub addreditform_PHOTO {
 
       my $photo;
       if (exists $r_data->[$index]{TYPES}{URI}) {
-         my $escapedvalue = ow::htmltext::str2html($r_data->[$index]{VALUE});
+         my $uri=$r_data->[$index]{VALUE}; $uri=~s/\%THISSESSION\%/$thissession/;	# replace '%THISSESSION%' with $thissession for OWM link
+         my $escapedvalue = ow::htmltext::str2html($uri);
          if ($type =~ m/^(?:GIF|JPE?G|PNG)$/) {
             $photo = qq|<td><a href="$escapedvalue" target="_new"><img src="$escapedvalue" border="1"></a></td>|; # display inline and as a link
          } else {
@@ -3289,6 +3308,8 @@ sub addredit {
       my ($attfiles_totalsize, $r_attfiles) = getattfilesinfo();
 
       my $uri = param('UPLOAD.URI') || '';
+      $uri=~s/\Q$thissession\E/\%THISSESSION\%/;	# remove $thissession from uri if it is a OWM link
+
       my $attachment = param('UPLOAD.FILE') || '';
       my $webdisksel = param('webdisksel') || '';
 

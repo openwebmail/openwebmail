@@ -5,6 +5,7 @@
 #
 use strict;
 use Text::Iconv;
+require "modules/mime.pl";
 require "shares/iconv-chinese.pl";
 require "shares/iconv-japan.pl";
 

@@ -303,7 +303,16 @@ function popupNotice (msgOption) {
    }
 }
 
+function savecheck (formName) {
+   if (document.forms[formName].elements['N.0.VALUE.GIVENNAME'].value == '' &&
+       document.forms[formName].elements['N.0.VALUE.FAMILYNAME'].value == '') {
+      alert("请先填入这个人的姓氏和名字栏位.");
+      return false;
+   }
+   if (document.forms[formName].elements['EMAIL.0.VALUE'].value == '') {
+      return(confirm("电子邮件地址是空白的, 您确定要储存这笔资料吗?"));
+   }
+   return true
+}
 // -->
 </script>
-
-

@@ -629,7 +629,11 @@ sub readmessage {
    }
 
    if ($headers eq "all") {
-      $temphtml = ow::mime::decode_mimewords($message{header});
+      if ($convfrom=~/none\.(.*)/) {
+         $temphtml = decode_mimewords_iconv($message{header}, $1);
+      } else {
+         $temphtml = decode_mimewords_iconv($message{header}, $convfrom);
+      }
       if (is_convertable($convfrom, $readcharset) ) {
          ($temphtml)=iconv($convfrom, $readcharset, $temphtml);
       }

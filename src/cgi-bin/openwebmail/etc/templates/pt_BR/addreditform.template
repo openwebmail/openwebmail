@@ -303,7 +303,16 @@ function popupNotice (msgOption) {
    }
 }
 
+function savecheck (formName) {
+   if (document.forms[formName].elements['N.0.VALUE.GIVENNAME'].value == '' &&
+       document.forms[formName].elements['N.0.VALUE.FAMILYNAME'].value == '') {
+      alert("Please fill in the firstname or lastname field first.");
+      return false;
+   }
+   if (document.forms[formName].elements['EMAIL.0.VALUE'].value == '') {
+      return(confirm("Email address is empty, are you sure to save this contact?"));
+   }
+   return true
+}
 // -->
 </script>
-
-

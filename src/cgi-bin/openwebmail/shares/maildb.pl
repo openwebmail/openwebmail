@@ -386,6 +386,7 @@ sub _get_validated_msgattr {
    return ();
 }
 
+# get msgheader attrs to msghash with minimum process
 sub _get_msghash_from_header {
    my ($header_offset, $r_header_content)=@_;
 
@@ -395,25 +396,6 @@ sub _get_msghash_from_header {
    foreach (qw(message-id status references charset in-reply-to)) { $message{$_}='' }
 
    ow::mailparse::parse_header($r_header_content, \%message);
-   $message{status}.=$message{'x-status'} if (defined($message{'x-status'}));
-   $message{status}.='I' if ($message{priority}=~/urgent/i);
-
-   # Convert to readable text from MIME-encoded
-   foreach (qw(from to subject)) {
-      $message{$_} = ow::mime::decode_mimewords($message{$_});
-   }
-
-   my $dateserial=ow::datetime::datefield2dateserial($message{date});
-   my $deliserial=ow::datetime::delimiter2dateserial($message{delimiter}, $config{'deliver_use_GMT'}, $prefs{'daylightsaving'}) ||
-                  ow::datetime::gmtime2dateserial();
-   if ($dateserial eq "") {
-      $dateserial=$deliserial;
-   } elsif ($deliserial ne "") {
-      my $t=ow::datetime::dateserial2gmtime($deliserial) - ow::datetime::dateserial2gmtime($dateserial);
-      $dateserial=$deliserial if ($t>86400*7 || $t<-86400); # msg transmission time use deliverytime in case sender host may have wrong time configuration
-   }
-   $message{date}=$dateserial;
-
    if ($message{'content-type'}=~/^multipart/i) {
       $message{msg_type}='m';
    } elsif ($message{'content-type'} eq 'N/A' or $message{'content-type'}=~/^text\/plain/i ) {
@@ -492,13 +474,35 @@ sub _skip_to_next_text_block {
    return ($block_content);
 }
 
+# more process on mshhash attributes for maildb
 sub _prepare_msghash {
    my ($r_message, $r_flag)=@_;
+
+   # msg status
+   $$r_message{status}.=$$r_message{'x-status'} if (defined($$r_message{'x-status'}));
+   $$r_message{status}.='I' if ($$r_message{priority}=~/urgent/i);
+
+   # msg dateserial
+   my $dateserial=ow::datetime::datefield2dateserial($$r_message{date});
+   my $deliserial=ow::datetime::delimiter2dateserial($$r_message{delimiter}, $config{'deliver_use_GMT'}, $prefs{'daylightsaving'}) ||
+                  ow::datetime::gmtime2dateserial();
+   if ($dateserial eq "") {
+      $dateserial=$deliserial;
+   } elsif ($deliserial ne "") {
+      my $t=ow::datetime::dateserial2gmtime($deliserial) - ow::datetime::dateserial2gmtime($dateserial);
+      $dateserial=$deliserial if ($t>86400*7 || $t<-86400); # msg transmission time use deliverytime in case sender host may have wrong time configuration
+   }
+   $$r_message{date}=$dateserial;
 
    # try to get charset from contenttype header
    if ($$r_message{charset} eq "" &&
        $$r_message{'content-type'}=~/charset\s*=\s*"?([^\s"';]*)"?\s?/i) {
       $$r_message{charset}=$1;
+   }
+
+   # decode mime and convert from/to/subject to msg charset with iconv
+   foreach (qw(from to subject)) {
+      $$r_message{$_} = decode_mimewords_iconv($$r_message{$_}, $$r_message{'charset'});
    }
 
    # in most case, a msg references field should already contain

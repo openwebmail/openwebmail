@@ -303,7 +303,7 @@ sub filtermessage {
 
                   if ( $ruletype eq 'from' || $ruletype eq 'to' || $ruletype eq 'subject') {
                      if ($decoded_header eq "") {
-                        $decoded_header=ow::mime::decode_mimewords($header);
+                        $decoded_header=decode_mimewords_iconv($header, $attr[$_CHARSET]);
                         $decoded_header=~s/\s*\n\s+/ /sg; # concate folding lines
                      }
                      if (!defined($msg{from})) { # this is defined after parse_header is called
@@ -316,7 +316,7 @@ sub filtermessage {
 
                   } elsif ( $ruletype eq 'header' ) {
                      if ($decoded_header eq "") {
-                        $decoded_header=ow::mime::decode_mimewords($header);
+                        $decoded_header=decode_mimewords_iconv($header, $attr[$_CHARSET]);
                         $decoded_header=~s/\s*\n\s+/ /sg; # concate folding lines
                      }
                      if ($decoded_header=~/${$r_rule}[$_REGEX_TEXT]/

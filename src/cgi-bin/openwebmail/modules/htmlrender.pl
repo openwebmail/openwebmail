@@ -220,10 +220,18 @@ sub _link2cid {
 # we put new url into a seperate line
 sub html4mailto {
    my ($html, $scripturl, $scriptparm)=@_;
-   $html =~ s/(=\s*"?)mailto:\s?([^\s]*?)\s?(\s|"?\s*\>)/$1\n$scripturl\?$scriptparm&amp;to=$2\n$3/ig;
+   $html =~ s/(=\s*"?)mailto:\s?([^'"\>]*?)("|'|\>)/_mailtoparm($scripturl,$scriptparm,$1,$2,$3)/egis;
    return($html);
 }
 
+# convert param in mailto for outlook to parm for owm
+sub _mailtoparm {
+   my ($scripturl, $scriptparm, $prefix, $parm, $suffix)=@_;
+   $parm=~s/&amp;/&/g;
+   $parm=~s/\?/&/;
+   $parm=~s/&/&amp;/g;
+   return "$prefix\n$scripturl?$scriptparm&amp;to=$parm\n$suffix";
+}
 
 sub html2table {	# for msg reading
    my $html=_htmlclean($_[0]);

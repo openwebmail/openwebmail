@@ -31,6 +31,7 @@ require "modules/htmltext.pl";
 require "auth/auth.pl";
 require "quota/quota.pl";
 require "shares/ow-shared.pl";
+require "shares/iconv.pl";
 require "shares/maildb.pl";
 
 # common globals

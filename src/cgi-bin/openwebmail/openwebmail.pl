@@ -700,8 +700,8 @@ sub refreshurl_after_login {
       $refreshurl="$config{'ow_cgiurl'}/openwebmail-cal.pl?sessionid=$thissession&action=$action";
    } elsif ( $action eq 'showdir' ) {
       $refreshurl="$config{'ow_cgiurl'}/openwebmail-webdisk.pl?sessionid=$thissession&action=$action";
-   } elsif ( $action eq 'editfolders' ) {
-      $refreshurl="$config{'ow_cgiurl'}/openwebmail-folder.pl?sessionid=$thissession&action=$action";
+   } elsif ( $action eq 'addrlistview' ) {
+      $refreshurl="$config{'ow_cgiurl'}/openwebmail-abook.pl?sessionid=$thissession&action=$action";
    } else {
       if ($config{'enable_webmail'}) {
          $refreshurl="$config{'ow_cgiurl'}/openwebmail-main.pl?sessionid=$thissession&action=listmessages_afterlogin";
@@ -709,6 +709,8 @@ sub refreshurl_after_login {
          $refreshurl="$config{'ow_cgiurl'}/openwebmail-cal.pl?sessionid=$thissession&action=calmonth";
       } elsif ($config{'enable_webdisk'}) {
          $refreshurl="$config{'ow_cgiurl'}/openwebmail-webdisk.pl?sessionid=$thissession&action=showdir";
+      } elsif ($config{'enable_addressbook'}) {
+         $refreshurl="$config{'ow_cgiurl'}/openwebmail-abook.pl?sessionid=$thissession&action=addrlistview";
       } else {
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'all_module_disabled'}, $lang_err{'access_denied'}");
       }

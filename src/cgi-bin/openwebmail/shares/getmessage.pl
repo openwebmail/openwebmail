@@ -84,9 +84,6 @@ sub getmessage {
 					# since $message{smtprelay} may be put into filterrule
                         		# and we don't want [] be treat as regular expression
 
-   foreach (qw(from reply-to to cc bcc subject)) {
-      $message{$_}=ow::mime::decode_mimewords($message{$_}) if ($message{$_} ne 'N/A');
-   }
    $message{status}.= "I" if ($message{priority}=~/urgent/i);
    $message{status} =~ s/\s//g;
    if ($message{'content-type'}=~/charset="?([^\s"';]*)"?\s?/i) {
@@ -99,6 +96,9 @@ sub getmessage {
             last;
          }
       }
+   }
+   foreach (qw(from reply-to to cc bcc subject)) {
+      $message{$_}=decode_mimewords_iconv($message{$_}, $message{charset}) if ($message{$_} ne 'N/A');
    }
 
    return \%message;

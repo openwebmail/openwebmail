@@ -303,7 +303,16 @@ function popupNotice (msgOption) {
    }
 }
 
+function savecheck (formName) {
+   if (document.forms[formName].elements['N.0.VALUE.GIVENNAME'].value == '' &&
+       document.forms[formName].elements['N.0.VALUE.FAMILYNAME'].value == '') {
+      alert("請先填入這個人的姓氏和名字欄位.");
+      return false;
+   }
+   if (document.forms[formName].elements['EMAIL.0.VALUE'].value == '') {
+      return(confirm("電子郵件地址是空白的, 您確定要儲存這筆資料嗎?"));
+   }
+   return true
+}
 // -->
 </script>
-
-

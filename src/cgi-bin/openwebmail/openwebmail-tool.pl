@@ -43,6 +43,7 @@ require "modules/viruscheck.pl";
 require "auth/auth.pl";
 require "quota/quota.pl";
 require "shares/ow-shared.pl";
+require "shares/iconv.pl";
 require "shares/maildb.pl";
 require "shares/lockget.pl";
 require "shares/cut.pl";
@@ -51,7 +52,6 @@ require "shares/fetchmail.pl";
 require "shares/pop3book.pl";
 require "shares/calbook.pl";
 require "shares/lunar.pl";
-require "shares/iconv-chinese.pl";
 require "shares/upgrade.pl";
 require "shares/adrbook.pl";
 

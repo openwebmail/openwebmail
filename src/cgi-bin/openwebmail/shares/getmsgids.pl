@@ -195,7 +195,7 @@ sub search_info_messages_for_keyword {
                $header.=$_;
                last if ($_ eq "\n");
             }
-            $header = ow::mime::decode_mimewords($header);
+            $header = decode_mimewords_iconv($header, $attr[$_CHARSET]);
             $header=~s/\n / /g;	# handle folding roughly
             ($header)=iconv($attr[$_CHARSET], $prefs_charset, $header) if ($is_conv);
 

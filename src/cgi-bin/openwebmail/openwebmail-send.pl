@@ -977,7 +977,7 @@ sub composemessage {
       $replyto = $prefs{'replyto'} if (defined($prefs{'replyto'}));
 
       my $n="\n"; $n="<br>" if ($msgformat ne 'text');
-      $body=$n.$n.str2str($prefs{'signature'}, $msgformat).$n if ($prefs{'signature'}=~/[^\s]/);
+      $body.=$n.$n.str2str($prefs{'signature'}, $msgformat).$n if ($prefs{'signature'}=~/[^\s]/);
 
    }
 

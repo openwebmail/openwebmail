@@ -1,3 +1,18 @@
+11/06/2004
+----------
+1. add routine decode_mimewords_iconv to decode a mimeowrd based its own
+   chaeset, so string encoded with charset other the message charset
+   could be correctly read
+2. fix a bug that parms in mailto: link (to, subject, body) were not 
+   passed into the compose window correctly
+   (reported by WONG, Wai Bun Ada, adawong.AT.ied.edu.hk)
+3. fix a bug that agentname may be show in wrongn charset if the agent has 
+   different charset than its parent contact
+4. use cookie to remember last used addressbook within a browser session
+5. check the firstname/lastname field in addreditform before form submission
+   to avoid unexpected error
+
+
 11/05/2004
 ----------
 1. fix a bug in addressbook that when collapse mode is off,
