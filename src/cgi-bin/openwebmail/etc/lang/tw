@@ -45,6 +45,7 @@ $lang_charset = 'big5';
    addressbook=> '通訊錄',
    folders    => '信件匣',
    emptytrash => '清空垃圾桶',
+   forever    => '永久保留',
    logout     => '登出',
    page       => '頁',
    msgcopyconf=> '\'您確定要複製選擇的信件嗎?\'',

@@ -45,6 +45,7 @@ $lang_charset = 'koi8-r';
    addressbook=> 'Адресная книга',
    folders    => 'Папки',
    emptytrash => 'Очистить корзину',
+   forever    => 'Forever',
    logout     => 'Выход',
    page       => 'Страница',
    msgcopyconf=> '\'Are you sure you want to copy the selected message(s)?\'',

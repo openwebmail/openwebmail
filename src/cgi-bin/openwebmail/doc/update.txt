@@ -1,3 +1,33 @@
+05/07/2001 (version 1.13)
+----------
+1. the 'whole message download' is now available by clicking the download
+   icon at the end of subject line
+2. fix the bug that openwebmail.log will be created with wrong gid.
+3. fix a bug of a javascript routine for message move
+4. better support for 'confirm reading', it pops up a confirm window
+   rather than transmitting the 'read receipt' back to sender immediately
+
+
+05/06/2001
+----------
+1. spammer message filtering will bypass all messages from machine 
+   that belongs to the same domain as the destination mail server
+2. add option to user preference that controls the size of text area 
+   in mail editing
+3. save draft will keep the original draft if the new one is saved with
+   a different subject 
+
+
+05/05/2001
+----------
+1. add option 'disable JavaScript inside message' to user preference
+   It is used to protect your browser being hijacked by some evil java scripts
+   inside a message.
+2. change option 'autoemptytrash' in userpreference to 'trash mail reserved days'
+   User can set how long a message will live in the mail-trash folder.
+   The logout procedure will check the mail-trash and deleted aged messages.
+
+
 05/04/2001 (version 1.12)
 ----------
 1. support 'export addressbook'

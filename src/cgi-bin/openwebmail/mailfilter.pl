@@ -7,7 +7,7 @@
 # there are 4 op for a msg: 'copy', 'move', 'delete' and 'keep'
 sub mailfilter {
    my ($user, $folder, $folderdir, $r_validfolders, 
-				$filter_repeatlimit, $filter_fakedsmtp)=@_;
+		$filter_repeatlimit, $filter_fakedsmtp)=@_;
    my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
    my @filterrules;
    my $folderhandle=FileHandle->new();
@@ -314,11 +314,20 @@ sub mailfilter {
          }
 
          # move msg to trash if the first relay has invalid/faked hostname
-         if (defined(${$r_smtprelays}[0])) { 
+         if ( defined(${$r_smtprelays}[0]) ) { 
             my $relay=${$r_smtprelays}[0];
+            # the last relay is the mail server whose domain is treated as localdomain
+
+            my $localdomain=domain(${$r_smtprelays}[$#{$r_smtprelays}]); 
+
+#log_time("relay $relay");
+#log_time("connectfrom ${$r_connectfrom}{$relay}");
+#log_time("localdomain $localdomain");
+
             if ($relay!~/[\w\d\-_]+\.[\w\d\-_]+/ && 
                 defined(${$r_connectfrom}{$relay}) &&
-                ${$r_connectfrom}{$relay}!~/$relay/i  ) {
+                ${$r_connectfrom}{$relay}!~/$relay/i &&
+                ${$r_connectfrom}{$relay}!~/$localdomain/i ) {
                my $append=append_message_to_folder($allmessageids[$i],
 					\@attr, \$currmessage, 'mail-trash', 
 					$r_validfolders, $user);
@@ -386,7 +395,7 @@ sub mailfilter {
       unless (filelock($trashfile, LOCK_EX|LOCK_NB)) {
          return -5; # $lang_err{'couldnt_lock'} mail-trash!
       }
-      $repeated=op_message_with_ids('move', \@repeatedids, $folderfile, $headerdb, 
+      $repeated=operate_message_with_ids('move', \@repeatedids, $folderfile, $headerdb, 
 							$trashfile, $trashdb);
       filelock($trashfile, LOCK_UN);
       $filtered+=$repeated;
@@ -501,10 +510,16 @@ sub get_smtprelays_connectfrom {
    # count first fromhost as relay only if there are just 2 host on relaylist 
    # since it means sender pc uses smtp to talk to our mail server directly
    shift(@smtprelays) if ($#smtprelays>1);
-   # remove last relay (it is our mail server)
-   pop (@smtprelays);
 
    return(\@smtprelays, \%connectfrom);
+}
+
+
+# return domain part of a FQDN
+sub domain {
+   my @h=split(/\./, $_[0]);
+   shift (@h);
+   return(join(".", @h));
 }
 
 1;

@@ -40,10 +40,11 @@ require "pop3mail.pl";
 require "mailfilter.pl";
 
 if ( ($logfile ne 'no') && (! -f $logfile)  ) {
+   my $mailgid=getgrnam('mail');
    open (LOGFILE,">>$logfile") or openwebmailerror("$lang_err{'couldnt_open'} $logfile!");
    close(LOGFILE);
    chmod(0660, $logfile);
-   chown($>, getgrnam('mail'), $logfile);
+   chown($>, $mailgid, $logfile);
 }
 
 local $thissession;
@@ -188,12 +189,12 @@ if (param("action")) {      # an action has been chosen
          displayheaders();
       } elsif ($action eq "readmessage") {
          readmessage();
-      } elsif ($action eq "emptytrash") {
-         emptytrash();
       } elsif ($action eq "viewattachment") {
          viewattachment();
       } elsif ($action eq "viewattfile") {
          viewattfile();
+      } elsif ($action eq "replyreceipt") {
+         replyreceipt();
       } elsif ($action eq "composemessage") {
          composemessage();
       } elsif ($action eq "sendmessage") {
@@ -204,6 +205,8 @@ if (param("action")) {      # an action has been chosen
       	 retrpop3s();
       } elsif ($action eq "retrpop3" && $enable_pop3 eq 'yes') {
      	 retrpop3();
+      } elsif ($action eq "emptytrash") {
+         emptytrash();
       } elsif ($action eq "logout") {
          logout();
       } else {
@@ -375,8 +378,17 @@ sub logout {
       (($thissession =~ /^(.+?\-\d?\.\d+)$/) && ($thissession = $1));
    $thissession =~ s/\///g;  # just in case someone gets tricky ...
 
-   if ($prefs{'autoemptytrash'}==1) {
-      _emptytrash();
+   if ($prefs{'trashreserveddays'}>0) {
+      my ($trashfile, $trashdb)=get_folderfile_headerdb($user, 'mail-trash');
+      filelock($trashfile, LOCK_SH|LOCK_NB) or
+         openwebmailerror("$lang_err{'couldnt_locksh'} $trashfile!");
+
+      my $deleted=delete_message_by_age($prefs{'trashreserveddays'}, $trashdb, $trashfile);
+      if ($deleted >0) {
+         writelog("delete $deleted msgs from mail-trash");
+      }
+
+      filelock($trashfile, LOCK_UN);
    }   
 
    unlink "$openwebmaildir/sessions/$thissession";
@@ -918,12 +930,15 @@ sub readmessage {
       }
 
 ### these will hold web-ified headers
-      my ($from, $replyto, $to, $cc, $subject, $body);
+      my ($from, $replyto, $to, $notificationto, $cc, $subject, $body);
       $from = str2html($message{from} || '');
       $replyto = str2html($message{replyto} || '');
       $to = str2html($message{to} || '');
       $cc = str2html($message{cc} || '');
       $subject = str2html($message{subject} || '');
+      if ($message{header}=~/^Disposition-Notification-To:\s?(.*?)$/im ) {
+         $notificationto=$1;
+      }
 
       $body = $message{"body"} || '';
 
@@ -937,6 +952,7 @@ sub readmessage {
       if ($message{contenttype} =~ m#^text/html#i) { # convert into html table
          $body = html4nobase($body); 
          $body = html4mailto($body, $scripturl, "action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto");
+         $body = html4disablejs($body) if ($prefs{'disablejs'}==1);
          $body = html2table($body); 
       } else { 					     # body must be html or text
       # remove odds space or blank lines
@@ -1034,12 +1050,12 @@ sub readmessage {
       $temphtml .= hidden(-name=>'message_ids',
                           -default=>$messageid,
                           -override=>'1');
+      $temphtml .= hidden(-name=>'message_id',
+                          -default=>$messageaftermove,
+                          -override=>'1');
       if ($messageaftermove) {
          $temphtml .= hidden(-name=>'messageaftermove',
                              -default=>'1',
-                             -override=>'1');
-         $temphtml .= hidden(-name=>'message_id',
-                             -default=>$messageaftermove,
                              -override=>'1');
       }
       $html =~ s/\@\@\@STARTMOVEFORM\@\@\@/$temphtml/g;
@@ -1086,12 +1102,12 @@ sub readmessage {
          $realname=CGI::escape($realname);
          $escapedemail=CGI::escape($email);
          $temphtml .= "&nbsp;<a href=\"$prefsurl?action=addaddress&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid&amp;realname=$realname&amp;email=$escapedemail\">".
-                      "<IMG SRC=\"$imagedir_url/imports.gif\" border=\"0\" ALT=\"$lang_text{'importadd'} $email\">".
+                      "<IMG SRC=\"$imagedir_url/imports.gif\" align=\"absmiddle\" border=\"0\" ALT=\"$lang_text{'importadd'} $email\">".
                       "</a>";
 
          if ($message{smtprelay} !~ /^\s*$/) {
             $temphtml .= "&nbsp;<a href=\"$prefsurl?action=addfilter&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid&amp;priority=20&amp;rules=smtprelay&amp;include=include&amp;text=$message{smtprelay}&amp;destination=mail-trash&amp;enable=1\">".
-                      "<IMG SRC=\"$imagedir_url/blockrelay.gif\" border=\"0\" ALT=\"$lang_text{'blockrelay'} $message{smtprelay}\">".
+                      "<IMG SRC=\"$imagedir_url/blockrelay.gif\" align=\"absmiddle\" border=\"0\" ALT=\"$lang_text{'blockrelay'} $message{smtprelay}\">".
                       "</a>";
          }
 
@@ -1122,6 +1138,11 @@ sub readmessage {
          if ($subject) {
             $temphtml .= "<B>$lang_text{'subject'}:</B> $subject\n";
          }
+
+         # enable download the whole message
+         $temphtml .= "&nbsp;<a href=\"$scripturl/Unknown.msg?action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder&amp;attachment_nodeid=all\">".
+                      "<IMG SRC=\"$imagedir_url/downloads.gif\" align=\"absmiddle\" border=\"0\" ALT=\"$lang_text{'download'} $subject.msg\">".
+                      "</a>\n";
       }
 
       $html =~ s/\@\@\@HEADERS\@\@\@/$temphtml/g;
@@ -1217,16 +1238,15 @@ sub readmessage {
          }
       }
 
-      # enable download the whole message block in attmode==all
-      if ( $attmode eq 'all' ) {
-         $temphtml .= qq|<table width="100%" border="0" align="center" cellpadding="2"><tr><td align=right>|.
-                      qq|<a href="$scripturl/Unknown.msg?action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder&amp;attachment_nodeid=all">$lang_text{'download'}</a>|.
-                      qq|</td></tr></table>|;
-      }
-
       $html =~ s/\@\@\@BODY\@\@\@/$temphtml/g;
       print $html;
 
+      # if this is unread message, confirm to transmit read receipt if requested
+      if ($message{status} !~ /r/i && $notificationto ne '') {
+         print qq|<script language="JavaScript">\n<!--\n|,
+               qq|replyreceiptconfirm('$base_url&amp;action=replyreceipt');\n|,
+               qq|//-->\n</script>\n|;
+      }
    } else {
       $messageid = str2html($messageid);
       print "What the heck? Message $messageid seems to be gone!";
@@ -1234,7 +1254,7 @@ sub readmessage {
    printfooter();
 
 ### fork a child to do the status update and headerdb update
-   unless ($message{status} =~ /r/i) {
+   if ($message{status} !~ /r/i) {
       $|=1; 				# flush all output
       $SIG{CHLD} = sub { wait };	# handle zombie
       if ( fork() == 0 ) {		# child
@@ -1266,6 +1286,7 @@ sub html_att2table {
    $temphtml = html4nobase($temphtml);
    $temphtml = html4attachments($temphtml, $r_attachments, $scripturl, "action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder");
    $temphtml = html4mailto($temphtml, $scripturl, "action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto");
+   $temphtml = html4disablejs($temphtml) if ($prefs{'disablejs'}==1);
    $temphtml = html2table($temphtml);
 
    return($temphtml);
@@ -1312,6 +1333,7 @@ sub message_att2table {
    }
    if ($contenttype =~ m#^text/html#i) { # convert into html table
       $body = html4nobase($body); 
+      $body = html4disablejs($body) if ($prefs{'disablejs'}==1);
       $body = html2table($body); 
    } else {	
       $body = text2html($body);
@@ -1387,6 +1409,109 @@ sub lenstr {
    return ($len);
 }
 ############### END READMESSAGE ##################
+
+################## REPLYRECEIPT ##################
+sub replyreceipt {
+   verifysession();
+
+   printheader();
+   my $messageid = param("message_id");
+   my $nodeid = param("attachment_nodeid");
+   my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
+   my $folderhandle=FileHandle->new();
+   my @attr;
+
+   filelock("$headerdb.$dbm_ext", LOCK_SH);
+   dbmopen (%HDB, $headerdb, undef);
+   @attr=split(/@@@/, $HDB{$messageid});
+   dbmclose(%HDB);
+   filelock("$headerdb.$dbm_ext", LOCK_UN);
+   
+   if ($attr[$_SIZE]>0) {
+      my ($header, $headerlen, $buff);
+
+      # get message header
+      open ($folderhandle, "+<$folderfile") or 
+          openwebmailerror("$lang_err{'couldnt_open'} $folderfile!");
+      seek ($folderhandle, $attr[$_OFFSET], 0) or openwebmailerror("$lang_err{'couldnt_seek'} $folderfile!");
+      $header="";
+      $headerlen=-1;
+      while ( ($headerlen=index($header,  "\n\n")) < 0 ) {
+         my $left = $attr[$_SIZE]-length($header);
+         if ($left>1024) {
+            read($folderhandle, $buff, 1024);
+         } elsif ($left>0) {
+            read($folderhandle, $buff, $left);
+         } else {
+            $headerlen=length($header);
+            last;
+         }
+         $header .= $buff;
+      }
+      $header=substr($header, 0, $headerlen);
+      close($folderhandle);
+
+      # get notification-to 
+      if ($header=~/^Disposition-Notification-To:\s?(.*?)$/im ) {
+         my $to=$1;
+         my $from = $useremail;
+         my $realname = $prefs{"realname"} || '';
+
+         my $date = localtime();
+         my @datearray = split(/ +/, $date);
+         if ($datearray[0] =~ /[A-Za-z,]/) {
+            shift @datearray; # Get rid of the day of the week
+         }
+         $date="$month{$datearray[0]}/$datearray[1]/$datearray[3] $datearray[2]";
+
+         $to =~ s/^"?(.+?)"?\s*<(.*)>$/$2/ ||
+         $to =~ s/<?(.*@.*)>?\s+\((.+?)\)/$1/ ||
+         $to =~ s/<(.+)>/$1/;
+
+         $realname =~ s/[\||'|"|`]/ /g;  # Get rid of shell escape attempts
+         $from =~ s/[\||'|"|`]/ /g;  # Get rid of shell escape attempts
+         $to =~ s/[\||'|"|`]/ /g;  # Get rid of shell escape attempts
+
+         ($realname =~ /^(.+)$/) && ($realname = '"'.$1.'"');
+         ($from =~ /^(.+)$/) && ($from = $1);
+         ($to =~ /^(.+)$/) && ($to = $1);
+         ($date =~ /^(.+)$/) && ($date = $1);
+
+         if ( open (SENDMAIL, "|" . $sendmail . " -oem -oi -F '$realname' -f '$from' -t 1>&2") ) {
+            print SENDMAIL "From: $realname <$from>\n";
+            print SENDMAIL "To: $to\n";
+            if ($prefs{"replyto"}) {
+               print SENDMAIL "Reply-To: ",$prefs{"replyto"},"\n";
+            }
+            print SENDMAIL "Subject: $lang_text{'read'} - $attr[$_SUBJECT]\n";
+            print SENDMAIL "X-Mailer: Open WebMail $version\n";
+            print SENDMAIL "X-OriginatingIP: $userip ($user)\n";
+
+            print SENDMAIL "MIME-Version: 1.0\n";
+            print SENDMAIL "Content-Type: text/plain; charset=$lang_charset\n\n";
+
+            print SENDMAIL "$lang_text{'yourmsg'}\n\n";
+            print SENDMAIL "  $lang_text{'to'}: $attr[$_TO]\n";
+            print SENDMAIL "  $lang_text{'subject'}: $attr[$_SUBJECT]\n";
+            print SENDMAIL "  $lang_text{'delivered'}: $attr[$_DATE]\n\n";
+            print SENDMAIL "$lang_text{'wasreadon1'} $date $lang_text{'wasreadon2'}\n\n";
+            print SENDMAIL $prefs{"signature"}, "\n\n" if (defined($prefs{"signature"}));
+            close(SENDMAIL);
+         }
+      }
+      # close the window that is processing confirm-reading-receipt 
+      print qq|<script language="JavaScript">\n|,
+            qq|<!--\n|,
+            qq|window.close();\n|,
+            qq|//-->\n|,
+            qq|</script>\n|;
+   } else {
+      $messageid = str2html($messageid);
+      print "What the heck? Message $messageid seems to be gone!";
+   }
+   printfooter();   
+}
+################ END REPLYRECEIPT ################
 
 ############### COMPOSEMESSAGE ###################
 # 7 composetype: continue(used after adding attachment), 
@@ -1748,8 +1873,8 @@ sub composemessage {
 
    $temphtml = textarea(-name=>'body',
                         -default=>$body,
-                        -rows=>'20',
-                        -columns=>'78',
+                        -rows=>$prefs{'editheight'}||'20',
+                        -columns=>$prefs{'editwidth'}||'78',
                         -wrap=>'hard',
                         -override=>'1');
    $html =~ s/\@\@\@BODYAREA\@\@\@/$temphtml/g;
@@ -1921,22 +2046,25 @@ sub sendmessage {
             update_headerdb($savedb, $savefile);
 
             if ( $savefolder eq 'saved-drafts' && defined(param("message_id")) ) {
-               my $alreadyexist=0;
+               my $removeoldone=0;
                my $messageid=param("message_id");
                my %HDB;
 
                filelock("$savedb.$dbm_ext", LOCK_EX);
-               dbmopen(%HDB, $savedb, 0600);
+               dbmopen(%HDB, $savedb, undef);
                if (defined($HDB{$messageid})) {
-                  $alreadyexist=1;
+                  my $oldsubject=(split(/@@@/, $HDB{$messageid}))[$_SUBJECT];
+                  if ($oldsubject eq $subject) {
+                     $removeoldone=1;
+                  }
                }
                dbmclose(%HDB);
                filelock("$savedb.$dbm_ext", LOCK_UN);
 
-               if ($alreadyexist) {
-                  my @a;
-                  push (@a, $messageid);
-                  op_message_with_ids("delete", \@a, $savefile, $savedb);
+               if ($removeoldone) {
+                  my @ids;
+                  push (@ids, $messageid);
+                  operate_message_with_ids("delete", \@ids, $savefile, $savedb);
                }
             }
 
@@ -2137,13 +2265,14 @@ sub viewattachment {	# view attachments inside a message
 
    if ( $nodeid eq 'all' ) { 
       # return whole msg as an message/rfc822 object
+      my $subject = (get_message_attributes($messageid, $headerdb))[$_SUBJECT];
       my $length = length(${$r_block});
       # disposition:attachment default to save
       print qq|Content-Length: $length\n|,
             qq|Content-Transfer-Coding: binary\n|,
             qq|Connection: close\n|,
-            qq|Content-Type: message/rfc822; name="Unknown.msg"\n|,
-            qq|Content-Disposition: attachment; filename="Unknown.msg"\n|,
+            qq|Content-Type: message/rfc822; name="$subject.msg"\n|,
+            qq|Content-Disposition: attachment; filename="$subject.msg"\n|,
             qq|\n|, ${$r_block};
 
    } else {
@@ -2178,6 +2307,7 @@ sub viewattachment {	# view attachments inside a message
             $content = html4nobase($content);
             $content = html4attachments($content, $r_attachments, $scripturl, "action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder");
             $content = html4mailto($content, $scripturl, "action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto");
+            $content = html4disablejs($content) if ($prefs{'disablejs'}==1);
          }
 
          my $length = length($content);
@@ -2463,8 +2593,6 @@ sub getmessage {
    # count first fromhost as relay only if there are just 2 host on relaylist 
    # since it means sender pc uses smtp to talk to our mail server directly
    shift(@smtprelays) if ($#smtprelays>1);
-   # remove last relay (it is our mail server)
-   pop (@smtprelays);
 
    foreach (@smtprelays) {
       if ($_=~/[\w\d\-_]+\.[\w\d\-_]+/ && $_ ne $prefs{domainname}) {
@@ -2508,152 +2636,16 @@ sub getmessage {
 sub updatestatus {
    my ($messageid, $status) = @_;
    my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
-   my $folderhandle=FileHandle->new();
 
-# since spool must exists here, we do lock before open
    filelock($folderfile, LOCK_EX|LOCK_NB) or
       openwebmailerror("$lang_err{'couldnt_lock'} $folderfile!");
-   update_headerdb($headerdb, $folderfile);
-   open ($folderhandle, "+<$folderfile") or 
-	openwebmailerror("$lang_err{'couldnt_open'} $folderfile!");
 
-   my @messageids=get_messageids_sorted_by_offset($headerdb);
-   my $movement;
-   my @attr;
-   my $i;
-
-   filelock("$headerdb.$dbm_ext", LOCK_EX);
-   dbmopen (%HDB, $headerdb, 600);
-
-   for ($i=0; $i<=$#messageids; $i++) {
-      if ($messageids[$i] eq $messageid) {
-         @attr=split(/@@@/, $HDB{$messageid});
-
-         return if ($attr[$_STATUS]=~/$status/i);
-
-         my $messagestart=$attr[$_OFFSET];
-         my $messagesize=$attr[$_SIZE];
-         my $messagenewstatus;
-         my ($header, $headerend, $headerlen, $newheaderlen);
-         my $buff;
-         
-         seek ($folderhandle, $messagestart, 0) or openwebmailerror("$lang_err{'couldnt_seek'} $folderfile!");
-
-         $header="";
-         $headerlen=-1;
-         while ( ($headerlen=index($header,  "\n\n")) < 0 ) {
-             my $left = $messagesize-length($header);
-             if ($left>1024) {
-               read($folderhandle, $buff, 1024);
-             } elsif ($left>0) {
-               read($folderhandle, $buff, $left);
-             } else {
-               $headerlen=length($header);
-               last;
-             }
-             $header .= $buff;
-         }
-         $header=substr($header, 0, $headerlen);
-         $headerend=$messagestart+$headerlen;
-
-         # generate receipt to sender if read-confirmation is requested
-         if ( $attr[$_STATUS]!~/r/i && $status=~/r/i &&
-              $header=~/^Disposition-Notification-To:\s?(.*?)$/im ) {
-            my $from = $useremail;
-            my $to=$1;
-            my $realname = $prefs{"realname"} || '';
-
-            my $date = localtime();
-            my @datearray = split(/ +/, $date);
-            if ($datearray[0] =~ /[A-Za-z,]/) {
-               shift @datearray; # Get rid of the day of the week
-            }
-            $date="$month{$datearray[0]}/$datearray[1]/$datearray[3] $datearray[2]";
-
-            $to =~ s/^"?(.+?)"?\s*<(.*)>$/$2/ ||
-            $to =~ s/<?(.*@.*)>?\s+\((.+?)\)/$1/ ||
-            $to =~ s/<(.+)>/$1/;
-
-            $realname =~ s/[\||'|"|`]/ /g;  # Get rid of shell escape attempts
-            $from =~ s/[\||'|"|`]/ /g;  # Get rid of shell escape attempts
-            $to =~ s/[\||'|"|`]/ /g;  # Get rid of shell escape attempts
-
-            ($realname =~ /^(.+)$/) && ($realname = '"'.$1.'"');
-            ($from =~ /^(.+)$/) && ($from = $1);
-            ($to =~ /^(.+)$/) && ($to = $1);
-            ($date =~ /^(.+)$/) && ($date = $1);
-
-            if ( open (SENDMAIL, "|" . $sendmail . " -oem -oi -F '$realname' -f '$from' -t 1>&2") ) {
-               print SENDMAIL "From: $realname <$from>\n";
-               print SENDMAIL "To: $to\n";
-               if ($prefs{"replyto"}) {
-                  print SENDMAIL "Reply-To: ",$prefs{"replyto"},"\n";
-               }
-               print SENDMAIL "Subject: $lang_text{'read'} - $attr[$_SUBJECT]\n";
-               print SENDMAIL "X-Mailer: Open WebMail $version\n";
-               print SENDMAIL "X-OriginatingIP: $userip ($user)\n";
-
-               print SENDMAIL "MIME-Version: 1.0\n";
-               print SENDMAIL "Content-Type: text/plain; charset=$lang_charset\n\n";
-
-               print SENDMAIL "$lang_text{'yourmsg'}\n\n";
-               print SENDMAIL "  $lang_text{'to'}: $attr[$_TO]\n";
-               print SENDMAIL "  $lang_text{'subject'}: $attr[$_SUBJECT]\n";
-               print SENDMAIL "  $lang_text{'delivered'}: $attr[$_DATE]\n\n";
-               print SENDMAIL "$lang_text{'wasreadon1'} $date $lang_text{'wasreadon2'}\n\n";
-               close(SENDMAIL);
-            }
-         }      
-
-         # update status
-         if ($header =~ s/^status:\s?(.*?)$/Status: $status$1/im) {
-           $messagenewstatus="$status$1";
-         } else {
-           $header .= "\nStatus: $status";
-           $messagenewstatus="$status";
-         }
-         $header="From $header" unless ($header =~ /^From /);
-
-         $newheaderlen=length($header);
-         $movement=$newheaderlen-$headerlen;
-
-         my $foldersize=(stat($folderhandle))[7];
-         shiftblock($folderhandle, $headerend, $foldersize-$headerend, $movement);
-
-         seek($folderhandle, $messagestart, 0) or openwebmailerror("$lang_err{'couldnt_seek'} $folderfile!");
-         print $folderhandle $header;
-
-         seek($folderhandle, $foldersize+$movement, 0);
-         truncate($folderhandle, tell($folderhandle));
-
-### set attributes in headerdb for this status changed message
-         if ($attr[$_STATUS]!~/r/i && $messagenewstatus=~/r/i) {
-            $HDB{'NEWMESSAGES'}--;
-         }
-         $attr[$_SIZE]=$messagesize+$movement;
-         $attr[$_STATUS]=$messagenewstatus;
-         $HDB{$messageid}=join('@@@', @attr);
-
-         last;
-      }
-   }
-   $i++;
-
-### set attributes in headerdb for messages after the above status changed message
-   for (;$i<=$#messageids; $i++) {
-      @attr=split(/@@@/, $HDB{$messageids[$i]});
-      $attr[$_OFFSET]+=$movement;
-      $HDB{$messageids[$i]}=join('@@@', @attr);
-   }
-
-   close ($folderhandle) or openwebmailerror("$lang_err{'couldnt_close'} $folderfile!");
-
-   $HDB{'METAINFO'}=metainfo($folderfile);
-   dbmclose(%HDB);
-   filelock("$headerdb.$dbm_ext", LOCK_UN);
+   update_message_status($messageid, $status, $headerdb, $folderfile);
 
    filelock("$folderfile", LOCK_UN);
+
 }
+
 ################### END UPDATESTATUS ######################
 
 #################### MOVEMESSAGE ########################
@@ -2717,9 +2709,9 @@ sub movemessage {
 
    my $counted=0;
    if ($op eq "delete") {
-      $counted=op_message_with_ids($op, \@messageids, $folderfile, $headerdb);
+      $counted=operate_message_with_ids($op, \@messageids, $folderfile, $headerdb);
    } else {
-      $counted=op_message_with_ids($op, \@messageids, $folderfile, $headerdb, 
+      $counted=operate_message_with_ids($op, \@messageids, $folderfile, $headerdb, 
 							$dstfile, $dstdb);
    }
 

@@ -2,13 +2,12 @@
 Open WeMail is a webmail system based on 
 the Neomail version 1.14 from Ernie Miller. 
 
-While the original neomail has a good user interface and many neat features, 
-it suffers from slow response for big folder files and large memory usage. 
+While the NeoMail has a great user interface and many neat features, 
+it is somewhat slow in handling big folder files and has large memory usage. 
 
-Open WebMail is targeted on dealing with very big mail folder 
-files in a memory efficient way to make it the fastest webmail in the world. 
-It also provides many features to help users to switch from Microsoft 
-Outlook smoothly. 
+Open WebMail is targeted on dealing with very big mail folder files in a 
+memory efficient way. It also provides many features to help users to 
+switch from Microsoft Outlook smoothly. 
 
 
 FEATURES

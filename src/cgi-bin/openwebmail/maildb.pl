@@ -237,7 +237,8 @@ sub update_headerdb {
 
                # We aren't interested in the sender in this case, but the recipient
                # Handling it this way avoids having a separate sort sub for To:.
-               if ( $folderfile=~ m#/SENT#i ) {
+               if ( $folderfile=~ m#/sent-mail#i || 
+                    $folderfile=~ m#/saved-drafts#i ) {
                   $_from = (split(/,/, $_to))[0];
                }
                ### Convert to readable text from MIME-encoded
@@ -341,7 +342,7 @@ sub update_headerdb {
 
    # remove if any duplicates
    if ($#duplicateids>=0) {
-      op_message_with_ids("delete", \@duplicateids, $folderfile, $headerdb);
+      operate_message_with_ids("delete", \@duplicateids, $folderfile, $headerdb);
    }
 
    return;
@@ -691,11 +692,123 @@ sub get_message_block {
 
 ###################### END GET_MESSAGE_.... ########################
 
-###################### MOVE_MESSAGE_WITH_IDS #########################
 
+###################### UPDATE_MESSAGE_STATUS ########################
+sub update_message_status {
+   my ($messageid, $status, $headerdb, $folderfile) = @_;
+   my ($messageoldstatus, $notificationto)=('','');
+   my $folderhandle=FileHandle->new();
+
+   update_headerdb($headerdb, $folderfile);
+
+   my @messageids=get_messageids_sorted_by_offset($headerdb);
+   my $movement;
+   my @attr;
+   my $i;
+
+   filelock("$headerdb.$dbm_ext", LOCK_EX);
+   dbmopen (%HDB, $headerdb, 600);
+
+   for ($i=0; $i<=$#messageids; $i++) {
+      if ($messageids[$i] eq $messageid) {
+         @attr=split(/@@@/, $HDB{$messageid});
+
+         $messageoldstatus=$attr[$_STATUS];
+         last if ($messageoldstatus=~/$status/i);
+
+         my $messagestart=$attr[$_OFFSET];
+         my $messagesize=$attr[$_SIZE];
+         my $messagenewstatus;
+         my ($header, $headerend, $headerlen, $newheaderlen);
+         my $buff;
+         
+         open ($folderhandle, "+<$folderfile") or 
+            openwebmailerror("$lang_err{'couldnt_open'} $folderfile!");
+         seek ($folderhandle, $messagestart, 0) or openwebmailerror("$lang_err{'couldnt_seek'} $folderfile!");
+
+         $header="";
+         $headerlen=-1;
+         while ( ($headerlen=index($header,  "\n\n")) < 0 ) {
+             my $left = $messagesize-length($header);
+             if ($left>1024) {
+               read($folderhandle, $buff, 1024);
+             } elsif ($left>0) {
+               read($folderhandle, $buff, $left);
+             } else {
+               $headerlen=length($header);
+               last;
+             }
+             $header .= $buff;
+         }
+         $header=substr($header, 0, $headerlen);
+         $headerend=$messagestart+$headerlen;
+
+         # get notification-to 
+         if ($header=~/^Disposition-Notification-To:\s?(.*?)$/im ) {
+            $notificationto=$1;
+         } else {
+            $notificationto='';
+         }
+
+         # update status
+         if ($header =~ s/^status:\s?(.*?)$/Status: $status$1/im) {
+           $messagenewstatus="$status$1";
+         } else {
+           $header .= "\nStatus: $status";
+           $messagenewstatus="$status";
+         }
+         $header="From $header" if ($header !~ /^From /);
+
+         $newheaderlen=length($header);
+         $movement=$newheaderlen-$headerlen;
+
+         my $foldersize=(stat($folderhandle))[7];
+         shiftblock($folderhandle, $headerend, $foldersize-$headerend, $movement);
+
+         seek($folderhandle, $messagestart, 0) or openwebmailerror("$lang_err{'couldnt_seek'} $folderfile!");
+         print $folderhandle $header;
+
+         seek($folderhandle, $foldersize+$movement, 0);
+         truncate($folderhandle, tell($folderhandle));
+         close ($folderhandle) or openwebmailerror("$lang_err{'couldnt_close'} $folderfile!");
+
+         # set attributes in headerdb for this status changed message
+         if ($messageoldstatus!~/r/i && $messagenewstatus=~/r/i) {
+            $HDB{'NEWMESSAGES'}--;
+         }
+         $attr[$_SIZE]=$messagesize+$movement;
+         $attr[$_STATUS]=$messagenewstatus;
+         $HDB{$messageid}=join('@@@', @attr);
+
+         last;
+      }
+   }
+   $i++;
+
+   # if status is cahnged
+   if ($messageoldstatus!~/$status/i) {
+      #  change offset attr for messages after the above one 
+      for (;$i<=$#messageids; $i++) {
+         @attr=split(/@@@/, $HDB{$messageids[$i]});
+         $attr[$_OFFSET]+=$movement;
+         $HDB{$messageids[$i]}=join('@@@', @attr);
+      }
+      # change whole folder info
+      $HDB{'METAINFO'}=metainfo($folderfile);
+   }
+
+   dbmclose(%HDB);
+   filelock("$headerdb.$dbm_ext", LOCK_UN);
+
+   return($messageoldstatus, $notificationto);
+}
+
+#################### END UPDATE_MESSAGE_STATUS ######################
+
+###################### OP_MESSAGE_WITH_IDS #########################
 # operate messages with @messageids from src folderfile to dst folderfile
 # available $op: "move", "copy", "delete"
-sub op_message_with_ids {
+sub operate_message_with_ids {
    my ($op, $r_messageids, $srcfile, $srcdb, $dstfile, $dstdb)=@_;
    my $folderhandle=FileHandle->new();
    my (%HDB, %HDB2);
@@ -827,7 +940,35 @@ sub op_message_with_ids {
 
    return($counted);
 }
-#################### END MOVE_MESSAGE_WITH_IDS #######################
+#################### END OP_MESSAGE_WITH_IDS #######################
+
+#################### DELETE_MESSAGE_BY_AGE #######################
+sub delete_message_by_age {
+   my ($age, $headerdb, $folderfile)=@_;
+
+   my $folderhandle=FileHandle->new();
+   my %HDB;
+   my (@allmessageids, @agedids);
+   
+   return 0 if ( ! -f $folderfile );
+
+   update_headerdb($headerdb, $folderfile);
+
+   @allmessageids=get_messageids_sorted_by_offset($headerdb);
+
+   filelock("$headerdb.$dbm_ext", LOCK_EX);
+   dbmopen (%HDB, $headerdb, undef);
+   foreach (@allmessageids) {
+      my @attr = split(/@@@/, $HDB{$_});
+      push(@agedids, $_) if (dateage($attr[$_DATE])>=$age);
+   }
+   dbmclose(%HDB);
+   filelock("$headerdb.$dbm_ext", LOCK_UN);
+
+   return(operate_message_with_ids('delete', \@agedids, $folderfile, $headerdb));
+}
+
+################### END DELETE_MESSAGE_BY_AGE #####################
 
 ####################### PARSE_.... related ###########################
 # Handle "message/rfc822,multipart,uuencode inside message/rfc822" encapsulatio 
@@ -1356,7 +1497,8 @@ sub get_messageaddrs_sorted_by_count {
          my (@attr, $from, $name, $email);
 
          @attr=get_message_attributes($messageid, $headerdb);
-         if ( $headerdb=~ m#/SENT#i ) {
+         if ( $headerdb=~ m#/sent-mail#i ||
+              $headerdb=~ m#/saved-drafts#i ) {
             $from=$attr[$_TO];
          } else {
             $from=$attr[$_FROM];
@@ -1445,6 +1587,29 @@ sub html4attachments {
       # ugly hack for strange CID     
       $html =~ s#CID:\{[\d\w\-]+\}/$filename#$link#ig if ($filename ne "");
    }
+   return($html);
+}
+
+# this routine disables the javascript in a html page
+# to avoid user being hijacked by some eval programs
+my @jsevents=('onAbort', 'onBlur', 'onChange', 'onClick', 'onDblClick', 
+              'onDragDrop', 'onError', 'onFocus', 'onKeyDown', 'onKeyPress', 
+              'onKeyUp', 'onLoad', 'onMouseDown', 'onMouseMove', 'onMouseOut',
+              'onMouseOver', 'onMouseUp', 'onMove', 'onReset', 'onResize', 
+              'onSelect', 'onSubmit', 'onUnload');
+sub html4disablejs {
+   my $html=$_[0];
+   my $event;
+
+   foreach $event (@jsevents) {
+      $html=~s/$event/_$event/ig;
+   }
+   $html=~s/<script(.*?)>/<disable_script$1>\n<!--\n/ig;
+   $html=~s/<!--\s*<!--/<!--/g;
+   $html=~s/<\/script>/\n\/\/-->\n<\/disable_script>/ig;
+   $html=~s/\/\/-->\s*\/\/-->/\/\/-->/g;
+   $html=~s/<(.*?)javascript:(.*?)>/<$1disable_javascript:$2>/ig;
+   
    return($html);
 }
 
@@ -1717,6 +1882,29 @@ sub datestr {
 }
 
 #################### END DATESTR ###########################
+
+#################### END DATEAGE ###########################
+# this routine takes the message date to calc the age of a message
+# it is not very precise since it always count Edb as 28 days
+sub dateage  {
+   my ($date, $time, $offset) = split(/\s/, $_[0]);
+   my @daybase=(0, 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334);
+
+   my ($mon, $day, $year) = split(/\//, $date); 
+   if ($year<50) { 
+     $year+=2000; 
+   } elsif ($year<=1900) {
+     $year+=1900;
+   }
+
+   my ($nowyear,$nowyday) =(localtime())[5,7];
+   $nowyear+=1900;
+   $nowyday++;
+
+   return(($nowyear-$year)*365+$nowyday-($daybase[$mon]+$day));
+}
+
+#################### END DATEAGE ###########################
 
 #################### LOG_TIME (for profiling) ####################
 sub log_time {

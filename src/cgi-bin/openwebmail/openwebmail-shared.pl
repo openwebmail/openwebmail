@@ -337,14 +337,21 @@ sub openwebmailerror{
    print '<table border="0" align="center" width="40%" cellpadding="1" cellspacing="1">';
 
    print '<tr><td bgcolor=',$titlebar,' align="left">',
-   '<font color=',$titlebar_text,' face=',$fontface,' size="3"><b>OPENWEBMAIL ERROR</b></font>',
-   '</td></tr><tr><td align="center" bgcolor=',$window_light,'><BR>';
-   print shift;
-   print '<BR><BR></td></tr></table>';
-   print '<p align="center"><font size="1"><BR>
-          <a href="http://turtle.ee.ncku.edu.tw/openwebmail/">
-          Open WebMail</a> version ', $version,'<BR>
-          </FONT></FONT></P></BODY></HTML>';
+         '<font color=',$titlebar_text,' face=',$fontface,' size="3"><b>OPENWEBMAIL ERROR</b></font>',
+         '</td></tr>',
+         '<form>',
+         '<tr><td align="center" bgcolor=',$window_light,'><BR>',
+         @_,
+         '<BR><BR>',
+         '<input type="submit" value=" Back " onclick=history.go(-1)>',
+         '<BR><BR>',
+         '</td></tr>',
+         '</form>',
+         '</table>';
+   print '<p align="center"><font size="1"><BR>',
+         '<a href="http://turtle.ee.ncku.edu.tw/openwebmail/">',
+         'Open WebMail</a> version ', $version,'<BR>',
+         '</FONT></FONT></P></BODY></HTML>';
    exit 0;
 }
 ################### END OPENWEBMAILERROR #######################

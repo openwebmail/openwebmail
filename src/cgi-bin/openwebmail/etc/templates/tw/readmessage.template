@@ -38,3 +38,16 @@
    @@@RIGHTMESSAGECONTROL@@@
    </td></tr></table>
 </td></tr></table>
+<script language="JavaScript">
+   <!--
+   function replyreceiptconfirm(url)
+   {
+      if (confirm('這封信件要求傳送讀取回條, 是否要傳送?')) {
+         var hWnd = window.open("","ReplyReceipt","width=100,height=50,resizable=no,scrollbars=no");
+         hWnd.document.write('傳送中...');
+         hWnd.location.href=url;
+         hWnd.close();
+      }
+   }
+   //-->
+</script>

@@ -24,6 +24,10 @@ A: please download MIME-Base64-2.12.tar.gz and install
    make
    make install
 
+Q: I got "can't open /var/log/openwebmail.log" error?
+A: please check the openwebmail.log permission, it shoule be
+   owner=root, group=mail, mode=660
+
 Q: The 'From' field of my message contains only 'username@'?
 A: you may has wrong setting of domainname in openwebmail.conf
    Please be sure to use '' for a text string of hostname or

@@ -278,7 +278,7 @@ sub editprefs {
    $html =~ s/\@\@\@SORTMENU\@\@\@/$temphtml/;
 
    $temphtml = popup_menu(-name=>'headersperpage',
-                          -"values"=>['10','20','30','40','50','100','500','1000'],
+                          -"values"=>[8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,50,100,500,1000],
                           -default=>$prefs{"headersperpage"} || $headersperpage,
                           -override=>'1');
 
@@ -311,13 +311,35 @@ sub editprefs {
 
    $html =~ s/\@\@\@DEFAULTDESTINATIONMENU\@\@\@/$temphtml/;
 
+   $temphtml = popup_menu(-name=>'editwidth',
+                          -"values"=>[60,62,64,66,68,70,72,74,76,78,80,82,84,86,88,90,100,110,120],
+                          -default=>$prefs{"editwidth"} || 78,
+                          -override=>'1');
+
+   $html =~ s/\@\@\@EDITWIDTHMENU\@\@\@/$temphtml/;
+
+   $temphtml = popup_menu(-name=>'editheight',
+                          -"values"=>[10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,50,60,70,80],
+                          -default=>$prefs{"editheight"} || 20,
+                          -override=>'1');
+
+   $html =~ s/\@\@\@EDITHEIGHTMENU\@\@\@/$temphtml/;
+
    $filter_fakedsmtp=($filter_fakedsmtp eq 'yes'||$filter_fakedsmtp==1)?1:0;
    $filter_fakedsmtp=$prefs{'filter_fakedsmtp'} if ( defined($prefs{'filter_fakedsmtp'}) );
    $temphtml = checkbox(-name=>'filter_fakedsmtp',
                         -value=>'1',
                         -checked=>$filter_fakedsmtp,
                         -label=>'');
+
    $html =~ s/\@\@\@FILTERFAKEDSMTP\@\@\@/$temphtml/g;
+
+   $temphtml = checkbox(-name=>'disablejs',
+                  -value=>'1',
+                  -checked=>$prefs{"disablejs"},
+                  -label=>'');
+
+   $html =~ s/\@\@\@DISABLEJS\@\@\@/$temphtml/g;
 
    $temphtml = checkbox(-name=>'newmailsound',
                   -value=>'1',
@@ -340,12 +362,14 @@ sub editprefs {
       $html =~ s/\@\@\@AUTOPOP3END\@\@\@/-->/g;
    }
 
-   $temphtml = checkbox(-name=>'autoemptytrash',
-                  -value=>'1',
-                  -checked=>$prefs{"autoemptytrash"},
-                  -label=>'');
+   my %dayslabels = ('0'=>$lang_text{'forever'});
+   $temphtml = popup_menu(-name=>'trashreserveddays',
+                          -"values"=>[0,1,2,3,4,5,6,7,14,21,30,60],
+                          -default=>$prefs{'trashreserveddays'} || '0',
+                          -labels=>\%dayslabels,
+                          -override=>'1');
 
-   $html =~ s/\@\@\@AUTOEMPTYTRASHCHECKBOX\@\@\@/$temphtml/g;
+   $html =~ s/\@\@\@RESERVEDDAYSMENU\@\@\@/$temphtml/;
 
    unless (defined($prefs{"signature"})) {
       $prefs{"signature"} = $defaultsignature;
@@ -394,7 +418,7 @@ sub editprefs {
 sub editfolders {
    verifysession();
    my (@defaultfolders, @userfolders);
-   my ($total_newmessages, $total_allmessages, $total_foldersize)=(0,0,0);
+   local ($total_newmessages, $total_allmessages, $total_foldersize)=(0,0,0);
 
    push(@defaultfolders, 'INBOX', 
                          'saved-messages', 
@@ -474,41 +498,103 @@ sub editfolders {
    my $bgcolor = $style{"tablerow_dark"};
    my $currfolder;
    my $i=0;
-
-   $temphtml = '';
+   $temphtml='';
    foreach $currfolder (sort (@userfolders)) {
-      my (%HDB, $newmessages, $allmessages, $foldersize);
-      my ($folderfile,$headerdb)=get_folderfile_headerdb($user, $currfolder);
-
-      filelock("$headerdb.$dbm_ext", LOCK_SH);
-      dbmopen (%HDB, $headerdb, undef);
-      if ( defined($HDB{'ALLMESSAGES'}) ) {
-         $allmessages=$HDB{'ALLMESSAGES'};
-         $total_allmessages+=$allmessages;
+      $temphtml .= _folderline($currfolder, $i, $bgcolor);
+      if ($bgcolor eq $style{"tablerow_dark"}) {
+         $bgcolor = $style{"tablerow_light"};
       } else {
-         $allmessages='&nbsp;';
+         $bgcolor = $style{"tablerow_dark"};
       }
-      if ( defined($HDB{'NEWMESSAGES'}) ) {
-         $newmessages=$HDB{'NEWMESSAGES'};
-         $total_newmessages+=$newmessages;
+      $i++;
+   }
+   $html =~ s/\@\@\@FOLDERS\@\@\@/$temphtml/;
+
+   $temphtml='';
+   foreach $currfolder (@defaultfolders) {
+      $temphtml .= _folderline($currfolder, $i, $bgcolor);
+      if ($bgcolor eq $style{"tablerow_dark"}) {
+         $bgcolor = $style{"tablerow_light"};
       } else {
-         $newmessages='&nbsp;';
+         $bgcolor = $style{"tablerow_dark"};
       }
-      dbmclose(%HDB);
-      filelock("$headerdb.$dbm_ext", LOCK_UN);
+      $i++;
+   }
+   $html =~ s/\@\@\@DEFAULTFOLDERS\@\@\@/$temphtml/;
 
-      $foldersize = (-s "$folderfile");
-      $total_foldersize+=$foldersize;
-      # round foldersize and change to an appropriate unit for display
-      if ($foldersize > 1048575){
-         $foldersize = int(($foldersize/1048576)+0.5) . "MB";
-      } elsif ($foldersize > 1023) {
-         $foldersize =  int(($foldersize/1024)+0.5) . "KB";
-      }
+   if ($total_foldersize > 1048575){
+      $total_foldersize = int(($total_foldersize/1048576)+0.5) . "MB";
+   } elsif ($total_foldersize > 1023) {
+      $total_foldersize =  int(($total_foldersize/1024)+0.5) . "KB";
+   }
+   $temphtml = "<tr>".
+               "<td align=\"center\" bgcolor=$bgcolor><B>$lang_text{'total'}</B></td>".
+               "<td align=\"center\" bgcolor=$bgcolor><B>$total_newmessages</B></td>".
+               "<td align=\"center\" bgcolor=$bgcolor><B>$total_allmessages</B></td>".
+               "<td align=\"center\" bgcolor=$bgcolor><B>$total_foldersize</B></td>".
+               "<td bgcolor=$bgcolor align=\"center\">&nbsp</td>";
+               "</tr>";
+   $html =~ s/\@\@\@TOTAL\@\@\@/$temphtml/;
 
-      my $escapedcurrfolder = CGI::escape($currfolder);
-      my $url = "$prefsurl?sessionid=$thissession&amp;folder=$escapedcurrfolder&amp;action=downloadfolder";
-      $temphtml .= "<tr><td align=\"center\" bgcolor=$bgcolor><a href=\"$url\">$currfolder</a></td>".
+   print $html;
+
+   printfooter();
+}
+
+# this is inline function used by sub editfolders(), it changes
+# $total_newmessages, $total_allmessages and $total_size in editfolders()
+sub _folderline {
+   my ($currfolder, $i, $bgcolor)=@_;
+   my $temphtml='';
+   my (%HDB, $newmessages, $allmessages, $foldersize);
+   my ($folderfile,$headerdb)=get_folderfile_headerdb($user, $currfolder);
+
+   filelock("$headerdb.$dbm_ext", LOCK_SH);
+   dbmopen (%HDB, $headerdb, undef);
+   if ( defined($HDB{'ALLMESSAGES'}) ) {
+      $allmessages=$HDB{'ALLMESSAGES'};
+      $total_allmessages+=$allmessages;
+   } else {
+      $allmessages='&nbsp;';
+   }
+   if ( defined($HDB{'NEWMESSAGES'}) ) {
+      $newmessages=$HDB{'NEWMESSAGES'};
+      $total_newmessages+=$newmessages;
+   } else {
+      $newmessages='&nbsp;';
+   }
+   dbmclose(%HDB);
+   filelock("$headerdb.$dbm_ext", LOCK_UN);
+
+   $foldersize = (-s "$folderfile");
+   $total_foldersize+=$foldersize;
+   # round foldersize and change to an appropriate unit for display
+   if ($foldersize > 1048575){
+      $foldersize = int(($foldersize/1048576)+0.5) . "MB";
+   } elsif ($foldersize > 1023) {
+      $foldersize =  int(($foldersize/1024)+0.5) . "KB";
+   }
+
+   my $escapedcurrfolder = CGI::escape($currfolder);
+   my $url = "$prefsurl?sessionid=$thissession&amp;folder=$escapedcurrfolder&amp;action=downloadfolder";
+   my $folderstr=$currfolder;
+   $folderstr=$lang_folders{$currfolder} if defined($lang_folders{$currfolder});
+
+   if ($currfolder eq 'INBOX') {
+      $temphtml .= "<tr>".
+                   "<td align=\"center\" bgcolor=$bgcolor>$folderstr".
+                   "&nbsp;<a href=\"$url\"><IMG SRC=\"$imagedir_url/download.gif\" align=\"absmiddle\" border=\"0\" ALT=\"$lang_text{'download'} $folderstr\">".
+                   "</a></td>".
+                   "<td align=\"center\" bgcolor=$bgcolor>$newmessages</td>".
+                   "<td align=\"center\" bgcolor=$bgcolor>$allmessages</td>".
+                   "<td align=\"center\" bgcolor=$bgcolor>$foldersize</td>".
+                   "<td bgcolor=$bgcolor align=\"center\">-----</td>";
+                   "</tr>";
+   } else {
+      $temphtml .= "<tr>".
+                   "<td align=\"center\" bgcolor=$bgcolor>$folderstr".
+                   "&nbsp;<a href=\"$url\"><IMG SRC=\"$imagedir_url/download.gif\" align=\"absmiddle\" border=\"0\" ALT=\"$lang_text{'download'} $folderstr\">".
+                   "</a></td>".
                    "<td align=\"center\" bgcolor=$bgcolor>$newmessages</td>".
                    "<td align=\"center\" bgcolor=$bgcolor>$allmessages</td>".
                    "<td align=\"center\" bgcolor=$bgcolor>$foldersize</td>";
@@ -543,87 +629,13 @@ sub editfolders {
                           -onClick=>"return OpConfirm('folderform$i', 'renamefolder', $lang_text{'folderrenprop'}+' ( $currfolder )')");
       $temphtml .= submit(-name=>"$lang_text{'delete'}",
                           -onClick=>"return OpConfirm('folderform$i', 'deletefolder', $lang_text{'folderdelconf'}+' ( $currfolder )')");
-
       $temphtml .= '</td></tr>';
       $temphtml .= end_form();
-      if ($bgcolor eq $style{"tablerow_dark"}) {
-         $bgcolor = $style{"tablerow_light"};
-      } else {
-         $bgcolor = $style{"tablerow_dark"};
-      }
-
-      $i++;
    }
-   $html =~ s/\@\@\@FOLDERS\@\@\@/$temphtml/;
 
-   $temphtml='';
-   foreach $currfolder (@defaultfolders) {
-      my (%HDB, $newmessages, $allmessages, $foldersize);
-      my ($folderfile,$headerdb)=get_folderfile_headerdb($user, $currfolder);
-
-      filelock("$headerdb.$dbm_ext", LOCK_SH);
-      dbmopen (%HDB, $headerdb, undef);
-      if ( defined($HDB{'ALLMESSAGES'}) ) {
-         $allmessages=$HDB{'ALLMESSAGES'};
-         $total_allmessages+=$allmessages;
-      } else {
-         $allmessages='&nbsp;';
-      }
-      if ( defined($HDB{'NEWMESSAGES'}) ) {
-         $newmessages=$HDB{'NEWMESSAGES'};
-         $total_newmessages+=$newmessages;
-      } else {
-         $newmessages='&nbsp;';
-      }
-      dbmclose(%HDB);
-      filelock("$headerdb.$dbm_ext", LOCK_UN);
-
-      $foldersize = (-s "$folderfile");
-      $total_foldersize+=$foldersize;
-      # round foldersize and change to an appropriate unit for display
-      if ($foldersize > 1048575){
-         $foldersize = int(($foldersize/1048576)+0.5) . "MB";
-      } elsif ($foldersize > 1023) {
-         $foldersize =  int(($foldersize/1024)+0.5) . "KB";
-      }
-
-      my $escapedcurrfolder = CGI::escape($currfolder);
-      my $url = "$prefsurl?sessionid=$thissession&amp;folder=$escapedcurrfolder&amp;action=downloadfolder";
-      my $folderstr=$currfolder;
-      $folderstr=$lang_folders{$currfolder} if defined($lang_folders{$currfolder});
-      $temphtml .= "<tr>".
-                   "<td align=\"center\" bgcolor=$bgcolor><a href=\"$url\">$folderstr</a></td>".
-                   "<td align=\"center\" bgcolor=$bgcolor>$newmessages</td>".
-                   "<td align=\"center\" bgcolor=$bgcolor>$allmessages</td>".
-                   "<td align=\"center\" bgcolor=$bgcolor>$foldersize</td>".
-                   "<td bgcolor=$bgcolor align=\"center\">-----</td>";
-                   "</tr>";
-      if ($bgcolor eq $style{"tablerow_dark"}) {
-         $bgcolor = $style{"tablerow_light"};
-      } else {
-         $bgcolor = $style{"tablerow_dark"};
-      }
-   }
-   $html =~ s/\@\@\@DEFAULTFOLDERS\@\@\@/$temphtml/;
-
-   if ($total_foldersize > 1048575){
-      $total_foldersize = int(($total_foldersize/1048576)+0.5) . "MB";
-   } elsif ($total_foldersize > 1023) {
-      $total_foldersize =  int(($total_foldersize/1024)+0.5) . "KB";
-   }
-   $temphtml = "<tr>".
-               "<td align=\"center\" bgcolor=$bgcolor><B>$lang_text{'total'}</B></td>".
-               "<td align=\"center\" bgcolor=$bgcolor><B>$total_newmessages</B></td>".
-               "<td align=\"center\" bgcolor=$bgcolor><B>$total_allmessages</B></td>".
-               "<td align=\"center\" bgcolor=$bgcolor><B>$total_foldersize</B></td>".
-               "<td bgcolor=$bgcolor align=\"center\">&nbsp</td>";
-               "</tr>";
-   $html =~ s/\@\@\@TOTAL\@\@\@/$temphtml/;
-
-   print $html;
-
-   printfooter();
+   return($temphtml);
 }
+
 ################### END EDITFOLDERS ########################
 
 ################### ADDFOLDER ##############################
@@ -684,9 +696,10 @@ sub deletefolder {
    $foldertodel =~ s/[\s\/\`\|\<\>;]//g; # remove dangerous char
    ($foldertodel =~ /^(.+)$/) && ($foldertodel = $1);
 
-   # if is default folder, return to editfolder immediately
-   if (is_defaultfolder($foldertodel)) {
+   # if is INBOX, return to editfolder immediately
+   if ($foldertodel eq 'INBOX') {
       editfolders();
+      return;
    }
 
    if ( -f "$folderdir/$foldertodel" ) {
@@ -714,8 +727,9 @@ sub renamefolder {
    $oldname =~ s/[\s\/\`\|\<\>;]//g; # remove dangerous char
    ($oldname =~ /^(.+)$/) && ($oldname = $1);
 
-   if (is_defaultfolder($oldname)) {
+   if ($oldname eq 'INBOX') {
       editfolders();
+      return;
    }
 
    my $newname = param('foldernewname');
@@ -1894,8 +1908,9 @@ sub saveprefs {
       openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.openwebmailrc!");
    foreach my $key (qw(language realname fromname domainname replyto 
                        style sort headers headersperpage defaultdestination
-                       filter_repeatlimit filter_fakedsmtp 
-                       newmailsound autopop3 autoemptytrash)) {
+                       editwidth editheight
+                       filter_repeatlimit filter_fakedsmtp disablejs
+                       newmailsound autopop3 trashreserveddays)) {
       my $value = param("$key") || '';
 
       $value =~ s/\.\.+//g;
@@ -1919,9 +1934,9 @@ sub saveprefs {
          }
          print CONFIG "$key=$value\n";
       } elsif ( $key eq 'filter_fakedsmtp' ||
+                $key eq 'disablejs' ||
                 $key eq 'newmailsound' ||
-                $key eq 'autopop3' ||
-                $key eq 'autoemptytrash') {
+                $key eq 'autopop3' ) {
          $value=0 if ($value eq '');
          print CONFIG "$key=$value\n";
       } else {
