@@ -1,7 +1,15 @@
+11/23/2004
+----------
+1. remove the default chld signal handler to eliminate the 
+   "recursive call...,out of memory!" error in httpd error log
+   To avoid zombie, we call zombie_cleaner explicitly at begin/end of 
+   each request
+
+
 11/21/2004
 ----------
-1. rewrite the chkd signal handler to eliminate the 
-   "recursive call...,out of memory!" error
+1. rewrite the chkd signal handler 
+   to eliminate the recursive call...,out of memory!" error 
 
 
 11/18/2004

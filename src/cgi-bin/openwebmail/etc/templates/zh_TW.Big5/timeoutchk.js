@@ -30,6 +30,15 @@
       }
    }
 
+   function sessioncheck () {
+      if (remainingseconds>0) {
+         return true;
+      } else {
+         alert("很抱歉, 您的作業階段已經遹時, 請重新登入");
+         return false;
+      }
+   }
+
    timeoutcheck();
 //-->
 </script>

@@ -1088,7 +1088,7 @@ sub composemessage {
                           -values=>\@ctlist,
                           -labels=>\%ctlabels,
                           -default=>'none',
-                          -onChange=>'javascript:bodygethtml(); submit();',
+                          -onChange=>'javascript:bodygethtml(); return(sessioncheck() && submit());',
                           -accesskey=>'I',
                           -override=>'1');
    $html =~ s/\@\@\@CONVTOMENU\@\@\@/$temphtml/;
@@ -1197,7 +1197,7 @@ sub composemessage {
                          -accesskey=>'A',
                          -override=>'1');
    $temphtml .= submit(-name=>'addbutton',
-                       -OnClick=>'bodygethtml()',
+                       -OnClick=>'bodygethtml(); return sessioncheck();',
                        -value=>$lang_text{'add'});
    $temphtml .= "&nbsp;";
    if ($config{'enable_webdisk'}) {
@@ -1273,7 +1273,7 @@ sub composemessage {
    $temphtml.=qq|<td align="center">|.
               submit(-name=>'sendbutton',
                      -value=>$lang_text{'send'},
-                     -onClick=>'bodygethtml(); return sendcheck();',
+                     -onClick=>'bodygethtml(); return (sessioncheck() && sendcheck());',
                      -accesskey=>'G',	# send, outGoing
                      -override=>'1').
               qq|</td>\n|;
@@ -1282,7 +1282,7 @@ sub composemessage {
       $temphtml.=qq|<td align="center">|.
                  submit(-name=>'savedraftbutton',
                         -value=>$lang_text{'savedraft'},
-                        -onClick=>'bodygethtml();',
+                        -onClick=>'bodygethtml(); return sessioncheck();',
                         -accesskey=>'W',	# savedraft, Write
                         -override=>'1').
                  qq|</td>\n|;
@@ -1302,7 +1302,7 @@ sub composemessage {
                  button(-name=>'spellcheckbutton',
                         -value=> $lang_text{'spellcheck'},
                         -title=> $chkname,
-                        -onClick=>'spellcheck(); document.spellcheckform.submit();',
+                        -onClick=>'spellcheck(); return (sessioncheck() && document.spellcheckform.submit());',
                         -override=>'1').
                  qq|</td></tr></table>|.
                  qq|<!--spellcheckend-->\n|.
@@ -1318,7 +1318,7 @@ sub composemessage {
                             -values=>['text', 'html', 'both'],
                             -default=>$msgformat,
                             -labels=>\%lang_msgformatlabels,
-                            -onChange => "return msgfmtchangeconfirm();",
+                            -onChange => "return (sessioncheck() && msgfmtchangeconfirm());",
                             -override=>'1');
    } else {
       $temphtml.=popup_menu(-name=>'newmsgformat',
@@ -1466,7 +1466,7 @@ sub composemessage {
    if (defined(param('savedraftbutton')) && $session_noupdate) {
       # this is auto savedraft triggered by timeoutwarning,
       # timeoutwarning js code is not required any more
-      httpprint([], [htmlheader(), $html, htmlfooter(1)]);
+      httpprint([], [htmlheader(), $html, htmlfooter(2)]);
    } else {
       # load timeoutchk.js and plugin jscode
       # which will be triggered when timeoutwarning shows up.

@@ -30,6 +30,15 @@
       }
    }
 
+   function sessioncheck () {
+      if (remainingseconds>0) {
+         return true;
+      } else {
+         alert("Sorry, your session is timeouted, please login again.");
+         return false;
+      }
+   }
+
    timeoutcheck();
 //-->
 </script>

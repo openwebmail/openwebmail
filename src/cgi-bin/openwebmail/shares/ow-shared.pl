@@ -182,19 +182,20 @@ foreach (qw(
 );
 
 ########## CLEARVAR/ENDREQUEST/EXIT ##############################
-# default handler for signal CHLD
-use vars qw($_zombie_pending);
-sub sigchld_handler {
-   $_zombie_pending++;
-}
 
 # routine to clean all zombie child processes
 sub zombie_cleaner {
-   return if (!$_zombie_pending);
-   $_zombie_pending=0;
    while (waitpid(-1,WNOHANG)>0) {}
 }
-
+#
+# Note: zombie_cleaner is called at the begin/end of each request 
+#
+# We don't put zombie_cleaner() into $SIG{CHLD} because
+# 1. if $SIG{CHLD} is set some signal handler, even a very simple one,
+#    we got "recursive call...,out of memory!" in httpd error log occasionally
+# 2. if $SIG{CHLD} is set to 'IGNORE', we got warning in system log
+#    "application bug: perl5.8.3 has SIGCHLD set to SIG_IGN but calls wait()..."
+#
 
 use vars qw($_vars_used);
 sub openwebmail_clearall {
@@ -239,9 +240,6 @@ sub openwebmail_requestbegin {
 
    $SIG{PIPE}=\&openwebmail_exit;		# for user stop
    $SIG{TERM}=\&openwebmail_exit;		# for user stop
-   $SIG{CHLD}=\&sigchld_handler;		# catch signal CHLD by default
-						# so in case we need return status of wait()/system()
-                                                # we have to 'loca $SIG{CHLD}; undef $SIG{CHLD};'
 }
 
 # routine used at CGI request end
@@ -250,8 +248,6 @@ sub openwebmail_requestend {
    openwebmail_clearall() if ($_vars_used);	# clear global
    $_vars_used=0;
    $persistence_count++;
-
-   $SIG{CHLD}=\&sigchld_handler;		# we hope this catches sig child inside speedycgi
 }
 
 # routine used at exit
@@ -259,6 +255,7 @@ sub openwebmail_exit {
    openwebmail_requestend();
    exit $_[0];
 }
+
 ########## END CLEARVAR/ENDREQUEST/EXIT ##########################
 
 ########## USERENV_INIT ##########################################
