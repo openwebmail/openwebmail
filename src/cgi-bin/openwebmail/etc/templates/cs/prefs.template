@@ -40,13 +40,13 @@
 @@@FROMEMAILMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Odpovìdi dostávat na:</B>
+<B>Odpovìdi na mé zprávy vracet na adresu:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REPLYTOFIELD@@@
 </td></tr>
 @@@FORWARDSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Pøeposílat po¹tu na adresu:</B>
+<B>Pøeposílat pøíchozí po¹tu na adresu:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FORWARDADDRESS@@@
 &nbsp;
@@ -177,7 +177,7 @@ Pøedmìt:
 </td></tr>
 @@@AUTOPOP3END@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Put mail filter at background:</B>
+<B>Filtrování nové po¹ty odsunout na pozadí:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BGFILTERTHRESHOLDMENU@@@
 </td></tr>
@@ -207,7 +207,7 @@ Pøedmìt:
 @@@HEADERSMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Read with message charset:</B>
+<B>Èíst ve znakové sadì zprávy:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@READWITHMSGCHARSET@@@
 </td></tr>
@@ -453,9 +453,9 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 </td></tr>
 @@@REMINDERSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Pøipomínání událostí kontroluje dny:</B>
+<B>Pøipomínání událostí kontroluje:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@REMINDERDAYSMENU@@@
+@@@REMINDERDAYSMENU@@@ dnù
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Aktivovat pøipomínání událostí pro globální kalendáø:</B>
@@ -519,9 +519,9 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 @@@HIDEINTERNAL@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Categorized Folders list:</B>
+<B>Kategorizovaný výpis slo¾ek:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@CATEGORIZEDFOLDERS@@@ &nbsp;( Category-Folder Separator @@@CATEGORIZEDFOLDERS_FS@@@ )
+@@@CATEGORIZEDFOLDERS@@@ &nbsp;(Oddìlovaè kategorií slo¾ek: @@@CATEGORIZEDFOLDERS_FS@@@)
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Zvukové upozornìní na novou po¹tu:</B>
@@ -529,14 +529,14 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 @@@NEWMAILSOUNDMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Okno s oznámením nové zprávy:</B>
+<B>Okno s oznámením nové zprávy zobrazit:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-zobrazit @@@NEWMAILWINDOWTIMEMENU@@@ sekund &nbsp;(0 znamená nezobrazovat)
+@@@NEWMAILWINDOWTIMEMENU@@@ sekund &nbsp;(0 znamená nezobrazovat)
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Okno s oznámením odeslané zprávy:</B>
+<B>Okno s oznámením odeslané zprávy zobrazit:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-zobrazit @@@MAILSENTWINDOWTIMEMENU@@@ sekund &nbsp;(0 znamená nezobrazovat)
+@@@MAILSENTWINDOWTIMEMENU@@@ sekund &nbsp;(0 znamená nezobrazovat)
 </td></tr>
 @@@SPELLCHECKSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>

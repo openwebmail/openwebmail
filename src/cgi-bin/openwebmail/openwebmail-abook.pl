@@ -531,7 +531,7 @@ sub addrlistview {
    my $editgroupform=0;
    if ($listviewmode eq 'composeselect' && param('editgroupform')) {
       # param(editgroupform) is always set in the submit button in editgroup form
-      # which casue param(editgroupform) here be set even the listviewmode is not composeselect
+      # which causes param(editgroupform) here be set even the listviewmode is not composeselect
       # so we need to check both the listviewmode and editgroup parm
       $editgroupform=1;
    }

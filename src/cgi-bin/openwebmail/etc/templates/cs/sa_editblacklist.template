@@ -13,7 +13,7 @@
 <td nowrap bgcolor=@@@COLUMNHEADER@@@>
 <B>Seznam zakázaných odesílatelù</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Action</B>
+<B>Akce</B>
 </td></tr>
 @@@STARTADDLISTFORM@@@
 <tr>

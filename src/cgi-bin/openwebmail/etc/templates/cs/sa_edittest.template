@@ -13,7 +13,7 @@
 <table bgcolor=@@@TABLEROW_DARK@@@ border="0" cellspacing="1" cellpadding="2" align="center" width="100%">
 @@@STARTADDTESTFORM@@@
 <tr><td><B>Jméno testu:</B></td>
-<td colspan="2">@@@TESTNAMEFIELD@@@&nbsp;(letters, digits & underline only)</td></tr>
+<td colspan="2">@@@TESTNAMEFIELD@@@&nbsp;(jen znaky, písmena a podtr¾ítko)</td></tr>
 <tr><td><B>Popis:</B></td>
 <td colspan="2">@@@TESTDESCFIELD@@@</td></tr>
 

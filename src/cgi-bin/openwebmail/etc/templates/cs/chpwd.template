@@ -13,7 +13,7 @@
 </tr><tr>
 <td align="right">Nové heslo: </td><td>@@@NEWPASSWORDFIELD@@@</td>
 </tr><tr>
-<td align="right">Potvrzení nového hesla: </td><td>@@@CONFIRMNEWPASSWORDFIELD@@@</td>
+<td align="right">Znovu nové heslo (pro kontrolu): </td><td>@@@CONFIRMNEWPASSWORDFIELD@@@</td>
 </tr><tr>
 <td colspan=2>
 <table width="100%"><tr>
@@ -31,7 +31,7 @@
       var s;
       s=document.passwordform.newpassword.value;
       if (s.length < @@@PASSWDMINLEN@@@) {
-	 alert("Heslo musí mít min. @@@PASSWDMINLEN@@@ znakù.");
+	 alert("Heslo musí mít alespoò @@@PASSWDMINLEN@@@ znakù.");
 	 return false;
       }
       if (document.passwordform.newpassword.value !=

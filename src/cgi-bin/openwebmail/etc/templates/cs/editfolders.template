@@ -9,19 +9,19 @@
 
 @@@USERFOLDERSSTART@@@
 <tr><td colspan="5">&nbsp;</td></tr>
-<tr><tdgcolor=@@@COLUMNHEADER@@@>&nbsp;
-<B>Název slo¾ky (@@@FOLDERNAME_MAXLEN@@@ znakù)</B></td>
+<tr><td bgcolor=@@@COLUMNHEADER@@@>&nbsp;
+<B>Jméno slo¾ky (max @@@FOLDERNAME_MAXLEN@@@ znakù)</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Nových</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Poèet</B></td>
+<B>Celkem</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Velikost</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Akce</B>
 </td></tr>
 @@@STARTFOLDERFORM@@@
-<tr><tdgcolor=@@@TABLEROW_LIGHT@@@>&nbsp;
+<tr><td bgcolor=@@@TABLEROW_LIGHT@@@>&nbsp;
 @@@FOLDERNAMEFIELD@@@
 </td><td align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
 &nbsp;
@@ -39,11 +39,11 @@
 
 <tr><td colspan="5">&nbsp;</td></tr>
 <tr><td bgcolor=@@@COLUMNHEADER@@@>&nbsp;
-<B>Výchozí slo¾ka</B></td>
+<B>Implicitní slo¾ky</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Nových</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Poèet</B></td>
+<B>Celkem</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Velikost</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
@@ -62,9 +62,9 @@
    {
       var newname='';
       if ( op == 'markreadfolder' ) {
-          document.forms[formname].action.value='markreadfolder';
-          document.forms[formname].foldernewname.value='';
-          return(confirm(text));
+         document.forms[formname].action.value='markreadfolder';
+         document.forms[formname].foldernewname.value='';
+         return(confirm(text));
 
       } else if ( op == 'deletefolder' ) {
          document.forms[formname].action.value='deletefolder';

@@ -258,19 +258,23 @@ function makeLabel(formName, adrNumber) {
    } else if (extendedaddress != '') {
       label += extendedaddress+'\n';
    }
-   if (locality != '' && region != '') {
-      label += locality+', '+region+'\n';
-   } else if (locality != '') {
-      label += locality+'\n';
-   } else if (region != '') {
-      label += region+'\n';
+   if (postalcode != '') {
+      label += postalcode+' ';
    }
-   if (postalcode != '' && country != '') {
-      label += '         '+postalcode+' '+country;
-   } else if (postalcode != '') {
-      label += '         '+postalcode;
-   } else if (country != '') {
-      label += '         '+country;
+   if (locality != '') {
+      label += locality;
+   }
+   if (region != '') {
+      if (locality != '') {
+        label += ', ';
+      }
+      label += region;
+   }
+   if (postalcode != '' || locality != '' || region != '') {
+      label += '\n';
+   }
+   if (country != '') {
+      label += country;
    }
    // END LANGUAGE-SPECIFIC LABEL CODE
 
@@ -287,7 +291,7 @@ function showGeo (formName, geoNumber, showThing) {
          window.open(url,"_showGeo","width=550,height=500,resizable=yes,scrollbars=yes");
       } else if (showThing == 'map') {
          // change this url to a mapping service that converts addresses to longitude and latitude in decimal degrees
-         var url='http://www.multimap.com/map/browse.cgi?lat='+latItude+'&lon='+longItude+'&scale=5000&icon=x';
+         var url='http://www.multimap.com/map/browse.cgi?lat='+latItude+'&lon='+longItude+'&scale=2000000&icon=x';
          window.open(url,"_showGeo","width=550,height=500,resizable=yes,scrollbars=yes");
       }
    } else {
@@ -297,20 +301,20 @@ function showGeo (formName, geoNumber, showThing) {
 
 function popupNotice (msgOption) {
    if (msgOption == 'agentmustsave') {
-      return(confirm('All data must be saved before viewing or creating an agent card.\nSave and continue?'));
+      return(confirm('Pøed zobrazením nebo vytvoøením karty zástupce (agenta) musí být v¹echna data ulo¾ena.\nUlo¾it a pokraèovat?'));
    } else if (msgOption == 'cancelchanges') {
-      return(confirm('All changes to this agent will be lost, continue?'));
+      return(confirm('V¹echny zmìny pro zástupce (agenta) budou ztraceny. Pokraèovat?'));
    }
 }
 
 function savecheck (formName) {
    if (document.forms[formName].elements['N.0.VALUE.GIVENNAME'].value == '' &&
        document.forms[formName].elements['N.0.VALUE.FAMILYNAME'].value == '') {
-      alert("Please fill in the firstname or lastname field first.");
+      alert("Vyplòte prosím nejprve køestní jméno a pøíjmení.");
       return false;
    }
    if (document.forms[formName].elements['EMAIL.0.VALUE'].value == '') {
-      return(confirm("Email address is empty, are you sure to save this contact?"));
+      return(confirm("Elektronická adresa není vyplnìna. Chcete kontakt ulo¾it?"));
    }
    return true
 }

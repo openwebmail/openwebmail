@@ -413,7 +413,7 @@ sub editlist {
       $temphtml.=qq|<tr $tr_bgcolorstr><td $td_bgcolorstr>&nbsp;$email</td>|.
                  qq|<td align="center" $td_bgcolorstr>|.
                  submit(-name=>$lang_text{'delete'},
-                        -class=>"medtext");
+                        -class=>"medtext").
                  qq|</td></tr>|.
                  end_form();
       $i++;

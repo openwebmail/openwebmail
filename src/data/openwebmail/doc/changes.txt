@@ -1,6 +1,15 @@
+03/03/2005
+----------
+1. fix a bug in blacklist/whitelist deletion which always deles the entry
+   previous to the one user want to delete
+   (reported by Dominic Lu, dominic.AT.dominic.idv.tw)
+2. Czech language and template files translation update
+   (thanks to Milan Kerslager, milan.kerslager.AT.pslib.cz)
+
+
 03/02/2005
 ----------
-1. support quick selection in addressbook (similar to the one in message list)
+1. support quick selection in addressbook (similar to the one in messagelist)
 
 
 03/01/2005
