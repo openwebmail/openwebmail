@@ -84,6 +84,11 @@ sub filelock_dotlockfile {
    }
 
    my $oldumask=umask(0111);
+
+   # resolve symbolic link
+   while (-l "$filename") {
+      $filename=readlink($filename);
+   }
    ($filename =~ /^(.+)$/) && ($filename = $1);		# bypass taint check
    
    while (time() <= $endtime) {
@@ -194,8 +199,11 @@ sub _unlock {
    my ($filename)=$_[0];
    ($filename =~ /^(.+)$/) && ($filename = $1);		# bypass taint check
 
-   unlink("$filename.lock");
-   return(1);
+   if ( unlink("$filename.lock") ) {
+      return(1);
+   } else {
+      return(0);
+   }
 }
 
 1;

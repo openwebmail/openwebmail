@@ -2,22 +2,32 @@
 Q: I got "Internal server error" when running openwebmail?
    I got "can not do setuid" error?
    I got "Software error: Can't locate etc/openwebmail.conf in @INC" error?
-
 A: There are many possible answers...
 
    1. Please check you have install a complete set of perl 5.005 above.
       And You should uncompress the openwebmail-1.xx.tgz with proper parameter.
       It is "tar -zxvBpf openwebmail-1.xx.tgz"
 
-   2. Your perl may be compiled with suid ability disabled.
+   2. Your openwebmail scripts have wrong owner and mode.
+      The owner and mode of openwebmail.pl, openwebmail-prefs.pl, 
+      checkmail.pl and spellcheck.pl should be
+      mode=4555
+      owner=root
+      group=mail
+
+   3. Your perl may be compiled with suid ability disabled.
       a. check if you have a executable of suidperl 
          'chmod 4555 suidperl'
          and change #!/usr/bin/perl to the path of this suidperl
       b. Or recompile your perl with suid enabled
 
-   3. The MIME::Base64 or CGI module on your system may be too old
+   4. The MIME::Base64 or CGI module on your system may be too old
       a. install MIME-Base64-2.12.tar.gz
       b. install CGI.pm-2.74.tar.gz
+
+Q: I got "Couldn't open XXX-session-0.370606494136155!" error after login?
+A: You openwebmail-1.xx.tgz was uncompressed with inproper parameter.
+   It should be "tar -zxvBpf openwebmail-1.xx.tgz"
 
 Q: I got "Software error: Can't locate MIME/Base64.pm in @INC"?
 A: please download MIME-Base64-2.12.tar.gz and install

@@ -1243,7 +1243,7 @@ sub editaddresses {
       $emailstr=substr($emailstr, 0, 35)."..." if (length($emailstr)>40);
       $temphtml .= qq|<tr>|.
                    qq|<td bgcolor=$bgcolor width="150"><a href="Javascript:Update('$key','$globaladdresses{$key}','$globalnotes{$key}')">$namestr</a></td>|.
-                   qq|<td bgcolor=$bgcolor width="250"><a href="$scripturl?action=composemessage&amp;firstmessage=$firstmessage&amp;sort=$sort&amp;folder=$escapedfolder&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$addresses{$key}">$emailstr</a></td>|.
+                   qq|<td bgcolor=$bgcolor width="250"><a href="$scripturl?action=composemessage&amp;firstmessage=$firstmessage&amp;sort=$sort&amp;folder=$escapedfolder&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$globaladdresses{$key}">$emailstr</a></td>|.
                    qq|<td bgcolor=$bgcolor width="150">$notestr</td>|;
 
       $temphtml .= "<td bgcolor=$bgcolor align=\"center\" width=\"80\">";

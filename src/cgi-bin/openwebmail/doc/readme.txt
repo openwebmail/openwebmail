@@ -25,7 +25,8 @@ The enhanced feature over neomail 1.14 are
 9.  POP3 mail support
 10. mail filter support
 11. message count preview
-12. 'confirm reading' support
+12. confirm reading support
+13. spelling check support
 
 
 REQUIREMENT
@@ -120,6 +121,31 @@ Some fingerd allow you specify the name of finger program by -p option
 /etc/inetd.conf, users can get their mail status from remote host.
 
 
+SPELL CHECK SUPPORT
+-------------------
+To enable the spell check in openwebmail, you have to install a spell check 
+program and a perl module that interfaces with the program.
+
+1. download ispell-3.1.20.tar.gz from 
+   http://www.cs.ucla.edu/ficus-members/geoff/ispell.html and install it,
+   or you can install binary from freebsd package or linux rpm
+
+ps: if you are compiling ispell from source, you may enhance your ispell 
+    by using a better dictionary source.
+    a. download http://turtle.ee.ncku.edu.tw/openwebmail/download/words.gz
+    b. gzip -d words.gz
+    c. mkdir /usr/dict; cp words /usr/dict/words
+    d. start to make your ispell by reading README
+
+2. download Lingua-Ispell-0.07.tar.gz from CPAN, then
+   tar -zxvf Lingua-Ispell-0.07.tar.gz
+   cd Lingua-Ispell-0.07
+   perl Makefile.PL; make; make install
+
+3. check the openwebmail.conf to see if $spellcheck is pointed to the 
+   ispell binary
+
+
 GLOBAL ADDRESSBOOK and FILTERRULE
 ---------------------------------
 Current support for global addressbook/filterrule is very limited.
@@ -162,9 +188,22 @@ TEST
 Test your webmail with http://your_server/cgi-bin/openwebmail/openwebmail.pl
 
 If there are any problem, please check the faq.txt.
+The latest version of FAQ will be available at
+http://turtle.ee.ncku.edu.tw/openwebmail/download/faq.txt
 
 
-04/24/2001
+TODO
+----
+Here are some interesting features that we would like to add to Open WebMail,
+but we are not sure if they will happen or not...:)
+
+1. web calendar
+2. web disk
+3. shared folder
+4. LDAP support
+
+
+06/07/2001
 
 Ebola@turtle.ee.ncku.edu.tw
 eddie@turtle.ee.ncku.edu.tw

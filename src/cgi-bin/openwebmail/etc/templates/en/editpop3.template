@@ -1,7 +1,7 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td colspan="1" bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>Setting pop3 mail</b></font>
+<b>EDITING POP3 ACCOUNT</b></font>
 </td><td nowrap colspan="5" bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <b> @@@FREESPACE@@@ KB Available</b></font>
@@ -10,13 +10,13 @@
 </td></tr><tr><td colspan="5">&nbsp;</td></tr>
 <tr>
 <td nowrap bgcolor=@@@COLUMNHEADER@@@>
-<B>Pop3 host</B>(click to receive)</td>
+<B>POP3 Server</B>(click to receive)</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>id</B> (click to edit)</td>
+<B>Id</B> (click to edit)</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>password</B></td>
+<B>Password</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>delete mail on pop3 server</B></td>
+<B>Del mail on server</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Action</B>
 </td></tr>

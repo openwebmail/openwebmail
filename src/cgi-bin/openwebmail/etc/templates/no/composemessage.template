@@ -47,18 +47,33 @@
 <tr><td colspan="3" bgcolor=@@@WINDOW_LIGHT@@@>
 @@@BODYAREA@@@
 </td></tr>
-<td align="left" valign="top">
+<tr><td colspan="3" align="left" valign="top">
+
+<table cellspacing="0" cellpadding="0" border="0"><tr>
+<td align="center" valign="top">
 @@@SENDBUTTON@@@
+&nbsp;&nbsp;
 </td>
-<td align="left" valign="top">
+<td align="center" valign="top">
 @@@SAVEDRAFTBUTTON@@@
+&nbsp;&nbsp;
 </td>
 @@@ENDFORM@@@ <!-- End of message composition form -->
-@@@STARTCANCELFORM@@@
-<td align="left" valign="top">
-@@@CANCELBUTTON@@@
-</td></tr></table>
+@@@STARTSPELLCHECKFORM@@@
+<td align="center" valign="top">
+@@@SPELLCHECKBUTTON@@@
+&nbsp;&nbsp;
+</td>
 @@@ENDFORM@@@
+@@@STARTCANCELFORM@@@
+<td align="center" valign="top">
+@@@CANCELBUTTON@@@
+&nbsp;&nbsp;
+</td>
+@@@ENDFORM@@@
+</tr></table>
+
+</td></tr></table>
 
 <script language="JavaScript">
   <!--
@@ -88,8 +103,18 @@
 
    function DeleteAttFile(deleteattfile)
    {
-     document.composeform.deleteattfile.value=deleteattfile;
-     document.composeform.submit();
+      document.composeform.deleteattfile.value=deleteattfile;
+      document.composeform.submit();
+   }
+
+   function spellcheck()
+   {
+      document.spellcheckform.sessionid.value = document.composeform.sessionid.value;
+      document.spellcheckform.form.value = "composeform";
+      document.spellcheckform.field.value = "body";
+      document.spellcheckform.string.value = document.composeform.body.value;
+      window.open('','SpellChecker','width=600,height=400,top=40,left=80,scrollbars=yes,resizable=yes,location=no');
+      document.spellcheckform.submit();
    }
 
    //-->

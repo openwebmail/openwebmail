@@ -122,7 +122,12 @@ $lang_charset = 'big5';
    globalfilterrule => '共用郵件規則',
    readonly   => '唯讀',
    textcontent=> '文字內容',
-   search     => '搜尋'
+   search     => '搜尋',
+   spellcheck => '拼字檢查',
+   checkagain => '重新檢查',
+   finishchecking => '檢查完畢',
+   cancel     => '取消',
+   manuallyfix=> '手動修正'
    );
 
 %lang_err = (

@@ -1922,8 +1922,8 @@ sub composemessage {
 
 
    $temphtml = checkbox(-name=>'confirmreading',
-                  -value=>'1',
-                  -label=>'');
+                        -value=>'1',
+                        -label=>'');
 
    $html =~ s/\@\@\@CONFIRMREADINGCHECKBOX\@\@\@/$temphtml/;
 
@@ -1940,6 +1940,32 @@ sub composemessage {
 
    $temphtml = submit("$lang_text{'savedraft'}");
    $html =~ s/\@\@\@SAVEDRAFTBUTTON\@\@\@/$temphtml/g;
+
+   $temphtml = end_form();
+   $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/g;
+
+   $temphtml = start_form(-action=>$spellcheckurl,
+                          -name=>'spellcheckform',
+                          -target=>'SpellChecker').
+               hidden(-name=>'sessionid',
+                      -default=>$thissession,
+                      -override=>'1').
+               hidden(-name=>'form',
+                      -default=>'',
+                      -override=>'1').
+               hidden(-name=>'field',
+                      -default=>'',
+                      -override=>'1').
+               hidden(-name=>'string',
+                      -default=>'',
+                      -override=>'1');
+   $html =~ s/\@\@\@STARTSPELLCHECKFORM\@\@\@/$temphtml/g;
+
+   $temphtml = button(-name=>'spellcheckbutton', 
+                      -value=> $lang_text{'spellcheck'},
+                      -onclick=>'spellcheck();',
+                      -override=>'1');
+   $html =~ s/\@\@\@SPELLCHECKBUTTON\@\@\@/$temphtml/g;
 
    $temphtml = end_form();
    $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/g;

@@ -1,3 +1,21 @@
+06/07/2001 (version 1.20)
+----------
+1. add support for spelling check in message composing.
+   This spelling check is base on the code of WBOSS 
+   (http://www.dontpokebadgers.com/spellchecker/, 2001, Joshua Cantara)
+
+
+06/06/2001
+----------
+1. fix a bug that when clicking a email in global addressbook to enter the
+   message editing menu, the 'To' field will be empty.
+   (thanks to karun@mail2000.com.tw)
+
+
+06/02/2001
+----------
+1. change the icons of pop3, pop3setup and logout
+
 
 06/01/2001 (version 1.15)
 ----------
