@@ -1257,7 +1257,8 @@ sub addrlistview {
                                        sort=>$sort,
                                        page=>$page,
                                        folder=>$escapedfolder,
-                                       message_id=>$messageid).
+                                       message_id=>$messageid,
+                                       'X-OWM-CHARSET.0.VALUE'=>$prefs{'charset'}).
                      #qq|<tr><td class="smalltext">&nbsp;</td></tr>\n|.
                      qq|<tr>\n|;
 
@@ -3300,8 +3301,8 @@ sub addredit {
       #################################################
       print "<pre>GOING TO THE ADDREDITFORM via FORMCHANGE\n</pre>" if $addrdebug;
       addreditform();
-   } elsif (defined param('EDITFORMUPLOAD') ||      # user press 'add' button
-                    param('webdisksel') ) {          # file selected from webdisk
+   } elsif (defined param('EDITFORMUPLOAD') ||		# user press 'add' button
+                    param('webdisksel') ) {		# file selected from webdisk
 
       #################################################
       # not ready to process yet, uploading something #

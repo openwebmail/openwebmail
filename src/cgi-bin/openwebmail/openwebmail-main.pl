@@ -410,7 +410,8 @@ sub listmessages {
          $temphtml = iconlink("learnspam.gif", $lang_text{'learnspam'}, qq|accesskey="Z" href="JavaScript:document.pageform.destination.value='LEARNSPAM'; document.pageform.movebutton.click();"|);
       }
    }
-   if ($folder eq 'mail-trash' || $folder eq 'spam-mail' || $folder eq 'virus-mail') {
+   if ($folder eq 'saved-drafts' || $folder eq 'mail-trash' ||
+       $folder eq 'spam-mail' || $folder eq 'virus-mail') {
       $temphtml .= iconlink("emptyfolder.gif", $lang_text{'emptyfolder'}, qq|accesskey="Z" href="$main_url?$urlparmstr&amp;action=emptyfolder" onclick="return confirm('$lang_text{emptyfolder} ($lang_folders{$folder}, $folder_allmessages $lang_text{messages}) ?');"|);
    } else {
       my $trashfolder='mail-trash';
