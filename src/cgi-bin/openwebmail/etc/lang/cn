@@ -100,6 +100,7 @@ $lang_charset = 'GB2312';
    abook      => '地址簿',
    group      => '邮件组',
    quota_hit  => '存储空间已满',
+   usage      => 'Usage',
    pop3book   => '设定POP3邮件',
    retr_pop3s => '收取POP3邮件',
    filterbook => '设定邮件规则',

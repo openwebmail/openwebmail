@@ -71,7 +71,11 @@ sub update_genericstable {
    my ($gendb, $genfile)=@_;
    my (%DB, %DBR, $metainfo);
 
-   return if (! -e $genfile);
+   if (! -e $genfile) {
+      unlink("$gendb.$dbm_ext") if (-e "$gendb.$dbm_ext");
+      unlink("$gendb.r.$dbm_ext") if (-e "$gendb.r.$dbm_ext");
+      return;
+   }
 
    ($gendb =~ /^(.+)$/) && ($gendb = $1);		# bypass taint check
    if ( -e "$gendb.$dbm_ext" ) {
@@ -96,12 +100,16 @@ sub update_genericstable {
 
    open (GEN, $genfile);
    while (<GEN>) {
-      next if (/^#/);
+      s/^\s+//;
+      s/\s+$//;
+      s/#.*$//;
 
       my ($u, $vm)=split(/[\s\t]+/);
+      next if ($u eq "" || $vm eq "");
       $DB{$u}=$vm;
 
       my ($vu, $vh)=split(/\@/, $vm);
+      next if ($vu eq "");
       if ( !defined($DBR{$vu}) ) {
          $DBR{$vu}=$u;
       } else {
@@ -216,6 +224,7 @@ sub get_folderfile_headerdb {
 ############### GET_SPOOLFILE_FOLDERDB ################
 
 ################## GETFOLDERS ####################
+# return list of valid folders and calc the total folder usage(0..100%)
 sub getfolders {
    my $do_delfiles=$_[0];
    my @delfiles=();
@@ -273,10 +282,20 @@ sub getfolders {
 
    # add INBOX size to totalsize
    my ($spoolfile,$headerdb)=get_folderfile_headerdb($user, 'INBOX');
-   $totalsize += ( -s "$spoolfile" ) || 0;
+   if ( -f $spoolfile ) {
+      $totalsize += ( -s "$spoolfile" ) || 0;
+   } else {
+      # create spool file with user uid, gid if it doesn't exist
+      my ($uuid, $ugid) = (getpwnam($user))[2,3];
+      open (F, ">>$spoolfile");
+      close(F);
+      chown ($uuid, $ugid, $spoolfile);
+   }
 
    if ($folderquota) {
-      ($hitquota = 1) if ($totalsize >= ($folderquota*1024));
+      $folderusage=int($totalsize*1000/($folderquota*1024))/10;
+   } else {
+      $folderusage=0;
    }
 
    return \@folders;
@@ -387,6 +406,16 @@ sub printheader {
       $html =~ s/\@\@\@BG_URL\@\@\@/$bg_url/g;
       $html =~ s/\@\@\@CHARSET\@\@\@/$lang_charset/g;
 
+      if ($user) {
+         if ($folderquota) {
+            $html =~ s/\@\@\@USERINFO\@\@\@/\- $useremail \($folderusage%\)/g;
+         } else {
+            $html =~ s/\@\@\@USERINFO\@\@\@/\- $useremail/g;
+         }
+      } else {
+         $html =~ s/\@\@\@USERINFO\@\@\@//g;
+      }
+
       push(@headers, -pragma=>'no-cache');
       if ($setcookie) {
          $cookie = cookie( -name    => "$user-sessionid",
@@ -416,7 +445,7 @@ sub printfooter {
    
    $html = applystyle($html);
    
-   if ($validsession) {
+   if ($validsession || $setcookie) {
       $remainingseconds=
          ($sessiontimeout-(-M "$openwebmaildir/sessions/$thissession"))*24*60*60
          - (time()-$^T);

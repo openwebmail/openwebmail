@@ -96,7 +96,29 @@ A: please check
    to see if any update fixes your problem and download the 
    openwebmail-current.tgz
 
-Q: The OpenWebMail is very slow on my system.
+Q: When I enable autoreply feature, others got "Returned mail: see
+   transcript for details" instead of my autoreply message?
+   (thanks to Emir Litric, elitric@hotmail.com)
+A: Your sendmail may be configured with Sendmail Restricted SHell or smrsh.
+   vacation.pl file needs to be added to smrsh.
+
+   If you are using RedHat 7.1, you may link vacation.pl to /etc/smrsh/
+
+   cd /etc/smrsh
+   ln -s /var/www/cgi-bin/openwebmail/vacation.pl /etc/smrsh/vacation.pl
+
+Q: My SENT folder showes -1 or other negative message size rather then
+   regular message size?
+   (thanks to Emir Litric, elitric@hotmail.com)
+A: This problem occurs if you installed OpenWebmail on the same partition 
+   where quota is enabled. OpenWebmail uses temp files in 
+   cgi-bin/openwebmail/etc/sessions folders.
+   Solution is to move sessions folder to another partition with no Quota.
+
+   Please read RedHat-README.txt for detailed explaination on setting up
+   this, since this problem mostly occurs on RedHat Linux 6.2 and bellow. 
+
+Q: The OpenWebMail is very slow on my system?
 A: It depends on how you define the "slow". 
 
    The response time of OpenWebmail in normal operation would be:
@@ -120,24 +142,15 @@ A: If your Open WebMail doesn't work, please describe your problem
 
    OS
    Perl Version
+   your openwebmail.conf
    the ls -l of the perl executable used in your openwebmail.pl
    the ls -l of your cgi-bin/openwebmail and cgi-bin/openwebmail/etc
+   the ls -la of the ~user/mail/
    the error message in your browser
 
    If your Open WebMail works but it shows strange output for some messages,
    please forward the message as an attachment to me 
    ps: clicking the 'forward as attachment' icon in message reading menu
-
-Q: When I enable autoreply feature, others got "Returned mail: see
-   transcript for details" instead of my autoreply message?
-   (thanks to Emir Litric, danguba@usa.net)
-A: Your sendmail may be configured with Sendmail Restricted SHell or smrsh.
-   vacation.pl file needs to be added to smrsh.
-
-   If you are using RedHat 7.1, you may link vacation.pl to /etc/smrsh/
-
-   cd /etc/smrsh
-   ln -s /var/www/cgi-bin/openwebmail/vacation.pl /etc/smrsh/vacation.pl
 
 Q: Will Open WebMail support maildir and vpop3mail used by Qmail?
 A: Maybe, but it won't be implemented in the near future since we don't use
@@ -145,7 +158,7 @@ A: Maybe, but it won't be implemented in the near future since we don't use
    mode, you may use that mode with openwebmail.
 
 Q: Can I call openwebmail from my programs with username/password specified?
-A: You can call with openwebmail with url
+A: You can call the openwebmail with url
    http://server/openwebmail.pl?action=login&userid=USER&password=PASS
 
    But this is somewhat dangerous since the username and password will
@@ -159,7 +172,7 @@ A: Open WebMail is GPL software (please see copyright.txt for detail of GPL).
    must be released to the public.
 
 ps: We would be happy if you mail us a message that your commercial web site
-    is using Open WebMail. I may put it into the web page as some kind of 
+    is using Open WebMail. It may be put into the web page as some kind of 
     advertisements :)
    
 

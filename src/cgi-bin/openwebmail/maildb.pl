@@ -161,8 +161,8 @@ sub update_headerdb {
       dbmclose(%HDB);
       filelock("$headerdb.$dbm_ext", LOCK_UN);
 
-      if ( $metainfo eq metainfo($folderfile) && $allmessages ne ""  
-           && $internalmessages ne "" && $newmessages ne "" ) {
+      if ( $metainfo eq metainfo($folderfile) && $allmessages >=0  
+           && $internalmessages >=0 && $newmessages >=0 ) {
          return;  
       }
 
@@ -204,8 +204,8 @@ sub update_headerdb {
       $offset=$totalsize;
       $totalsize += length($line);
 
-      if ($line =~ /^From /) {
-
+      # ex: From tung@turtle.ee.ncku.edu.tw Fri Jun 22 14:15:33 2001
+      if ($line =~ /^From .*(\w\w\w)\s+(\w\w\w)\s+(\d+)\s+(\d+:\d+:\d+)\s+(\d\d+)/) {
          if ($messagenumber != -1) {
             if (! defined($HDB{$_message_id}) ) {
                $HDB{$_message_id}=join('@@@', $_offset, $_from, $_to, 
@@ -706,14 +706,14 @@ sub get_message_block {
    my (@attr, $buff);
 
    @attr=get_message_attributes($messageid, $headerdb);
-   return if ($#attr<0);   
-
-   my $oldoffset=tell($folderhandle);
-   seek($folderhandle, $attr[$_OFFSET], 0);
-
-   read($folderhandle, $buff, $attr[$_SIZE]);
-
-   seek($folderhandle, $oldoffset, 0);
+   if ($#attr>=0) {
+      my $oldoffset=tell($folderhandle);
+      seek($folderhandle, $attr[$_OFFSET], 0);
+      read($folderhandle, $buff, $attr[$_SIZE]);
+      seek($folderhandle, $oldoffset, 0);
+   } else {
+      $buff="";
+   }
    return(\$buff);
 }
 
@@ -723,16 +723,18 @@ sub get_message_header {
    my (@attr, $header);
 
    @attr=get_message_attributes($messageid, $headerdb);
-   return if ($#attr<0);   
-
-   my $oldoffset=tell($folderhandle);
-   seek($folderhandle, $attr[$_OFFSET], 0);
-   $header="";
-   while(<$folderhandle>) {
-      $header.=$_;
-      last if ($_ eq "\n");
+   if ($#attr>=0) { 
+      my $oldoffset=tell($folderhandle);
+      seek($folderhandle, $attr[$_OFFSET], 0);
+      $header="";
+      while(<$folderhandle>) {
+         $header.=$_;
+         last if ($_ eq "\n");
+      }
+      seek($folderhandle, $oldoffset, 0);
+   } else {
+      $header="";
    }
-   seek($folderhandle, $oldoffset, 0);
    return(\$header);
 }
 
@@ -811,6 +813,7 @@ sub update_message_status {
          # set attributes in headerdb for this status changed message
          if ($messageoldstatus!~/r/i && $messagenewstatus=~/r/i) {
             $HDB{'NEWMESSAGES'}--;
+            $HDB{'NEWMESSAGES'}=0 if ($HDB{'NEWMESSAGES'}<0); # should not happen
          }
          $attr[$_SIZE]=$messagesize+$movement;
          $attr[$_STATUS]=$messagenewstatus;
@@ -938,6 +941,7 @@ sub operate_message_with_ids {
          
          if ($op eq 'move' || $op eq 'delete') {
             $HDB{'NEWMESSAGES'}-- if ($attr[$_STATUS]!~/r/i);
+            $HDB{'NEWMESSAGES'}=0 if ($HDB{'NEWMESSAGES'}<0); # should not happen
             $HDB{'INTERNALMESSAGES'}-- if ($attr[$_SUBJECT]=~/DON'T DELETE THIS MESSAGE/);
             $HDB{'ALLMESSAGES'}--;
             delete $HDB{$allmessageids[$i]};
@@ -1035,7 +1039,7 @@ sub parse_rfc822block {
       my $boundarylen;
       my ($bodystart, $boundarystart, $nextboundarystart, $attblockstart);
 
-      $boundary =~ s/.*boundary\s?="?([^"]+)"?.*$/$1/i;
+      $boundary =~ s/.*boundary\s?=\s?"?([^"]+)"?.*$/$1/i;
       $boundary="--$boundary";
       $boundarylen=length($boundary);
 
@@ -1179,7 +1183,7 @@ sub parse_attblock {
       my ($boundarystart, $nextboundarystart, $subattblockstart);
       my $subattblock="";
 
-      $boundary =~ s/.*boundary\s?="?([^"]+)"?.*$/$1/i;
+      $boundary =~ s/.*boundary\s?=\s?"?([^"]+)"?.*$/$1/i;
       $boundary="--$boundary";
       $boundarylen=length($boundary);
 
@@ -1346,15 +1350,15 @@ sub make_attachment {
 
    $attfilename = $attcontenttype;
    $attcontenttype =~ s/^(.+);.*/$1/g;
-   if ($attfilename =~ s/^.+name[:=]"?([^"]+)"?.*$/$1/ig) {
+   if ($attfilename =~ s/^.+name\s?[:=]\s?"?([^"]+)"?.*$/$1/ig) {
       $attfilename = decode_mimewords($attfilename);
-   } elsif ($attfilename =~ s/^.+name\*[:=]"?[\w]+''([^"]+)"?.*$/$1/ig) {
+   } elsif ($attfilename =~ s/^.+name\*[:=]\s?"?[\w]+''([^"]+)"?.*$/$1/ig) {
       $attfilename = CGI::unescape($attfilename);
    } else {
       $attfilename = $attdisposition || '';
-      if ($attfilename =~ s/^.+filename="?([^"]+)"?.*$/$1/ig) {
+      if ($attfilename =~ s/^.+filename\s?=\s?"?([^"]+)"?.*$/$1/ig) {
          $attfilename = decode_mimewords($attfilename);
-      } elsif ($attfilename =~ s/^.+filename\*="?[\w]+''([^"]+)"?.*$/$1/ig) {
+      } elsif ($attfilename =~ s/^.+filename\*=\s?"?[\w]+''([^"]+)"?.*$/$1/ig) {
          $attfilename = CGI::unescape($attfilename);
       } else {
          $attfilename = "Unknown.".contenttype2ext($attcontenttype);

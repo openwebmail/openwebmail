@@ -20,14 +20,15 @@ sub mailfilter {
    }
    ## check .filter_check ##
    if ( -f "$folderdir/.filter.check" ) {
+      my $checkinfo;
       open (FILTERCHECK, "$folderdir/.filter.check" ) or 
          return -1; # $lang_err{'couldnt_open'} .filter.check!
-      if (<FILTERCHECK> eq metainfo($folderfile)) {
+      $checkinfo=<FILTERCHECK>;
+      close (FILTERCHECK);
+      if ($checkinfo eq metainfo($folderfile)) {
          return 0;
       }      
-      close (FILTERCHECK);
    }
-
    ## get @filterrules ##
    if ( -f "$folderdir/.filter.book" ) {
       open (FILTER,"$folderdir/.filter.book") or 

@@ -45,8 +45,9 @@ local %style;
 local $lang;
 local $firstmessage;
 local $sort;
-local $hitquota;
 local $folderdir;
+local $folderusage;
+local @validfolders;
 local $folder;
 local $printfolder;
 local $escapedfolder;
@@ -120,8 +121,23 @@ $lang = $prefs{'language'} || $defaultlanguage;
 require "etc/lang/$lang";
 $lang_charset ||= 'iso-8859-1';
 
-$hitquota=0;
-$folder = param("folder") || 'INBOX';
+$folderusage = 0;
+if ($user) {
+   @validfolders = @{&getfolders(0)};
+   if (param("folder")) {
+      my $isvalid = 0;
+      $folder = param("folder");
+      foreach my $checkfolder (@validfolders) {
+         if ($folder eq $checkfolder) {
+            $isvalid = 1;
+            last;
+         }
+      }
+      ($folder = 'INBOX') unless ( $isvalid );
+   } else {
+      $folder = "INBOX";
+   }
+}
 $printfolder = $lang_folders{$folder} || $folder;
 $escapedfolder = CGI::escape($folder);
 
@@ -539,6 +555,7 @@ sub setautoreply {
    my @forwards=();
    my $email;
    my $selfforward=0;
+   my ($uuid, $ugid) = (getpwnam($user))[2,3] or return;
 
    if (open(FOR, "$homedir/.forward")) {
       $/=''; $_=<FOR>; $/='\n';
@@ -590,6 +607,7 @@ sub setautoreply {
       open(FOR, ">$homedir/.forward") || return -1;
       print FOR join("\n", @forwards);
       close FOR;
+      chown($uuid, $ugid, "$homedir/.forward");
    } else {
       if ($#forwards<0) {
          unlink("$homedir/.forward");
@@ -598,6 +616,7 @@ sub setautoreply {
          open(FOR, ">$homedir/.forward") || return -1;
          print FOR join("\n", @forwards);
          close FOR;
+         chown($uuid, $ugid, "$homedir/.forward");
       }
    }
       
@@ -619,6 +638,7 @@ sub setautoreply {
    print MSG "Subject: ", $subject, "\n\n", $text;
    print MSG "\n\n", $prefs{'signature'};	# append signature
    close MSG;
+   chown($uuid, $ugid, "$homedir/.vacation.msg");
 }
 
 #################### END EDITPREFS ###########################
@@ -743,23 +763,15 @@ sub editfolders {
                          'saved-drafts', 
                          'mail-trash');
 
-   opendir (FOLDERDIR, "$folderdir") or
-      openwebmailerror("$lang_err{'couldnt_open'} $folderdir!");
-   while (defined(my $filename = readdir(FOLDERDIR))) {
-### skip files started with ., which are openwebmail internal files (dbm, search caches)
-      if ( $filename=~/^\./ ) {	
-         next;
-      }
-      if  ( $filename !~ /^\./ &&		# not . .. or .xxx
-            $filename ne 'saved-messages' &&
-            $filename ne 'sent-mail' &&
-            $filename ne 'saved-drafts' &&
-            $filename ne 'mail-trash' ) {
-         push (@userfolders, $filename);
+   foreach (@validfolders) {
+      if ($_ ne 'INBOX' &&
+          $_ ne 'saved-messages' &&
+          $_ ne 'sent-mail' &&
+          $_ ne 'saved-drafts' &&
+          $_ ne 'mail-trash') {
+         push (@userfolders, $_);
       }
    }
-   closedir (FOLDERDIR) or
-      openwebmailerror("$lang_err{'couldnt_close'} $folderdir!");
 
    my $html = '';
    my $temphtml;
@@ -816,7 +828,7 @@ sub editfolders {
    my $currfolder;
    my $i=0;
    $temphtml='';
-   foreach $currfolder (sort (@userfolders)) {
+   foreach $currfolder (@userfolders) {
       $temphtml .= _folderline($currfolder, $i, $bgcolor);
       if ($bgcolor eq $style{"tablerow_dark"}) {
          $bgcolor = $style{"tablerow_light"};
@@ -839,6 +851,17 @@ sub editfolders {
    }
    $html =~ s/\@\@\@DEFAULTFOLDERS\@\@\@/$temphtml/;
 
+   my $usagestr;
+   if ($folderquota) {
+      if ($folderusage>=90) {
+         $usagestr="<B><font color='#cc0000'>$folderusage %</font></B>";
+      } else {
+         $usagestr="<B>$folderusage %</B>";
+      }
+   } else {
+      $usagestr="&nbsp;";
+   }
+
    if ($total_foldersize > 1048575){
       $total_foldersize = int(($total_foldersize/1048576)+0.5) . "MB";
    } elsif ($total_foldersize > 1023) {
@@ -849,7 +872,7 @@ sub editfolders {
                "<td align=\"center\" bgcolor=$bgcolor><B>$total_newmessages</B></td>".
                "<td align=\"center\" bgcolor=$bgcolor><B>$total_allmessages</B></td>".
                "<td align=\"center\" bgcolor=$bgcolor><B>$total_foldersize</B></td>".
-               "<td bgcolor=$bgcolor align=\"center\">&nbsp</td>";
+               "<td bgcolor=$bgcolor align=\"center\">$usagestr</td>";
                "</tr>";
    $html =~ s/\@\@\@TOTAL\@\@\@/$temphtml/;
 
@@ -984,6 +1007,7 @@ sub addfolder {
    close (FOLDERTOADD) or openwebmailerror("$lang_err{'couldnt_close'} $foldertoadd!");
 
 #   print "Location: $prefsurl?action=editfolders&sessionid=$thissession&sort=$sort&folder=$escapedfolder&firstmessage=$firstmessage\n\n";
+   @validfolders = @{&getfolders(0)};
    editfolders();
 }
 
@@ -1033,6 +1057,7 @@ sub deletefolder {
    }
 
 #   print "Location: $prefsurl?action=editfolders&sessionid=$thissession&sort=$sort&folder=$escapedfolder&firstmessage=$firstmessage\n\n";
+   @validfolders = @{&getfolders(0)};
    editfolders();
 }
 ################### END DELETEFOLDER ##########################
@@ -1078,6 +1103,7 @@ sub renamefolder {
    }
 
 #   print "Location: $prefsurl?action=editfolders&sessionid=$thissession&sort=$sort&folder=$escapedfolder&firstmessage=$firstmessage\n\n";
+   @validfolders = @{&getfolders(0)};
    editfolders();
 }
 ################### END RENAMEFOLDER ##########################
@@ -1749,11 +1775,31 @@ sub editpop3 {
    my $bgcolor = $style{"tablerow_dark"};
    foreach (sort values %accounts) {
       my ($pop3host, $pop3user, $pop3pass, $pop3email, $pop3del, $lastid) = split(/:/, $_);
+      my $pop3realname="";
+      if ($pop3email=~ /^"?(.+?)"?\s*<(.*)>$/ ) {
+         $pop3email=$2;
+         $pop3realname=$1;
+      } elsif ($pop3email=~ /<?(.*@.*)>?\s+\((.+?)\)/ ) {
+         $pop3email=$1;
+         $pop3realname=$2;
+      } elsif ($pop3email=~ /<\s*(.+@.+)\s*>/ ) { 
+         $pop3email=$1;
+      } elsif ($pop3email=~ /\s*(.+@.+)\s*/ ) {
+         $pop3email=$1;
+      }
+
+      my $pop3emailstr;
+      if ($pop3realname eq "") {
+         $pop3emailstr=$pop3email;
+      } else {
+         $pop3emailstr=qq|"$pop3realname" &lt;$pop3email&gt;|;
+      }
+
       $temphtml .= "<tr>
-      		    <td bgcolor=$bgcolor><a href=\"Javascript:Update('$pop3host','$pop3user','$pop3pass','$pop3email','$pop3del')\">$pop3host</a></td>
+      		    <td bgcolor=$bgcolor><a href=\"Javascript:Update('$pop3host','$pop3user','$pop3pass','$pop3realname','$pop3email','$pop3del')\">$pop3host</a></td>
       		    <td align=\"center\" bgcolor=$bgcolor>$pop3user</td>
                     <td align=\"center\" bgcolor=$bgcolor>\*\*\*\*\*\*</td>
-                    <td align=\"center\" bgcolor=$bgcolor><a href=\"$scripturl?action=retrpop3&pop3user=$pop3user&pop3host=$pop3host&amp;firstmessage=$firstmessage&amp;sort=$sort&amp;folder=$escapedfolder&amp;sessionid=$thissession&\">$pop3email</a></td>
+                    <td align=\"center\" bgcolor=$bgcolor><a href=\"$scripturl?action=retrpop3&pop3user=$pop3user&pop3host=$pop3host&amp;firstmessage=$firstmessage&amp;sort=$sort&amp;folder=$escapedfolder&amp;sessionid=$thissession&\">$pop3emailstr</a></td>
                     <td align=\"center\" bgcolor=$bgcolor>";
       if ( $pop3del == 1) {
       	 $temphtml .= $lang_text{'delete'};
@@ -1834,7 +1880,6 @@ sub modpop3 {
    $pop3email =~ s/^\s*//; 
    $pop3email =~ s/\s*$//;
    $pop3email =~ s/[#&=\?]//g;
-   
    $pop3pass =~ s/://;
    $pop3pass =~ s/^\s*//; 
    $pop3pass =~ s/\s*$//;

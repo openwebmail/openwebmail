@@ -100,6 +100,7 @@ $lang_charset = 'iso-8859-1';
    abook      => 'Osoitekirja',
    group      => 'Group',
    quota_hit  => 'Levytila Täynnä',
+   usage      => 'Usage',
    pop3book   => 'POP3 Setup',
    retr_pop3s => 'Retrieve POP3 Mail',
    filterbook => 'Mail Filter Setup',

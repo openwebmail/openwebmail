@@ -9,11 +9,11 @@
 <tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Nome cartella (max 16 caratteri)</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>New</B></td>
+<B>Nuovo</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Mesg</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Size</B></td>
+<B>Dimensione</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Azione</B>
 </td></tr>
@@ -35,13 +35,13 @@
 
 <tr><td colspan="5">&nbsp;</td></tr>
 <tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Default folders</B></td>
+<B>Cartella Default</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>New</B></td>
+<B>Nuovo</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Mesg</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Size</B></td>
+<B>Dimensione</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 &nbsp;
 </td></tr>

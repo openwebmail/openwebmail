@@ -1,26 +1,26 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td colspan="3" bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>EDITING POP3 ACCOUNT</b></font>
+<b>MODIFICA ACCOUNT POP3</b></font>
 </td><td nowrap colspan="3" bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b> @@@FREESPACE@@@ KB Available</b></font>
+<b> @@@FREESPACE@@@ KB Disponibili</b></font>
 </td></tr><tr><td colspan="6" bgcolor=@@@MENUBAR@@@ align="left">
 @@@MENUBARLINKS@@@
 </td></tr><tr><td colspan="6">&nbsp;</td></tr>
 <tr>
 <td nowrap bgcolor=@@@COLUMNHEADER@@@>
-<B>POP3 Server</B> (click to edit)</td>
+<B>Server POP3</B> (click per modificare)</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Id</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Passwd</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Email</B> (click to receive)</td>
+<B>Email</B> (click per ricevere)</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Del remote mail</B></td>
+<B>Cancella posta remota</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Action</B>
+<B>Azione</B>
 </td></tr>
 @@@STARTADDRESSFORM@@@
 <tr>
@@ -51,12 +51,15 @@
 
 <script language="JavaScript">
 <!--
-   function Update(pop3host,pop3user,pop3pass,pop3email,pop3del)
+   function Update(pop3host,pop3user,pop3pass,pop3realname,pop3email,pop3del)
    {
       document.newpop3.pop3host.value = pop3host;
       document.newpop3.pop3user.value = pop3user;
       document.newpop3.pop3pass.value = pop3pass;
-      document.newpop3.pop3email.value = pop3email;
+      if (pop3realname == "")
+        document.newpop3.pop3email.value = pop3email;
+      else
+        document.newpop3.pop3email.value = '"'+pop3realname+'"'+' <'+pop3email+'>';
       if (del == 1)
       	document.newpop3.pop3del.checked = true;
       else

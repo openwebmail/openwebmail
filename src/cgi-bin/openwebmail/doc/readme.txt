@@ -35,6 +35,9 @@ Perl 5.005 or above
 
 INSTALL
 -------
+First, please connect to http://turtle.ee.ncku.edu.tw/openwebmail/ to
+get the latest released openwebmail.
+
 If you are using FreeBSD and install apache with packages,
 then just
 
@@ -73,7 +76,7 @@ If you are using Redhat 6.2/CLE 0.9p1(or most Linux) with apache
    to /etc/logrotate.d/syslog to enable logrotate on openwebmail.log
 
 ps: if you are using RedHat 7.1, please use /var/www instead of /home/httpd
-    (by danguba@usa.net)
+    (by elitric@hotmail.com)
 
 If you are upgrading from old openwebmail on Redhat 6.2/CLE 0.9p1
 
@@ -83,6 +86,9 @@ If you are upgrading from old openwebmail on Redhat 6.2/CLE 0.9p1
 3. migrate the old settings from openwebmail.old to openwebmail with
    uty/migrate.pl
 4. delete the old original openwebmail dir (openwebmail.old)
+
+ps: It is highly recommended to read the doc/RedHat-README.txt(contribed by 
+    elitric@hotmail.com) if you are intsall OpenWebmail on RedHat Linux.
 
 
 If you are using other UNIX with apache, that is okay
@@ -113,7 +119,7 @@ from a folder. If you use INBOX as the destination in a filter rule,
 any message matching this rule will be kept in the INBOX folder and 
 other rules will be ignored.
 
-Mail filtering is activated only in Open WebMail. It means messages 
+Since mail filtering is activated only in Open WebMail, it means messages 
 will stay in the INBOX until user reads their mail with Open WebMail. 
 So 'finger' or other mail status check utility may give you wrong 
 information since they don't know about the filter.
@@ -121,9 +127,17 @@ information since they don't know about the filter.
 A command tool 'checkmail.pl' can be used as finger replacement.
 It does mail filtering before report mail status. 
 
-Some fingerd allow you specify the name of finger program by -p option
+Some fingerd allow you to specify the name of finger program by -p option
 (ex: fingerd on FreeBSD). By changing the parameter to fingerd in 
 /etc/inetd.conf, users can get their mail status from remote host.
+
+checkmail.pl can be also used in crontab to prefetch pop3mail or do folder 
+index verification for users. For exmaple:
+
+59 23 * * *      /usr/local/www/cgi-bin/openwebmail/checkmail.pl -a -p -i
+
+The above line in crontab will do pop3mail prefetching, mail filtering and
+folder index verification for all users at 23:59 every day.
 
 
 SPELL CHECK SUPPORT

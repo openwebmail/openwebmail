@@ -36,54 +36,54 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@HEADERSMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Default destination:</B>
+<B>Destinazione di Default:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@DEFAULTDESTINATIONMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Size for mail edit area:</B>
+<B>Dimensione finestra modifica messaggio:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-Width @@@EDITWIDTHMENU@@@ Height @@@EDITHEIGHTMENU@@@
+Larghezza @@@EDITWIDTHMENU@@@ Altezza @@@EDITHEIGHTMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Limit for repeated messages:</B>
+<B>Limite per messaggi ripetuti:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@FILTERREPEATLIMIT@@@ &nbsp( 0 means No check for repeatness )
+@@@FILTERREPEATLIMIT@@@ &nbsp( 0 significa nessun controllo sulle ripetizioni )
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Filter messages with faked SMTP:</B>
+<B>Filtra messaggi con intestazioni SMTP alterate:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDSMTP@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Disable JavaScript inside message:</B>
+<B>Disabilita JavaScript all'interno dei messaggi:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEJS@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Hide folder internal data:</B>
+<B>Nascondi dati interni delle cartelle:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@HIDEINTERNAL@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>NewMail sound notification:</B>
+<B>Notifica sonora nuovo mail:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@NEWMAILSOUND@@@
 </td></tr>
 @@@AUTOPOP3START@@@
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Auto fetch POP3 at login:</B>
+<B>Scarica automaticamente posta pop3 al login:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@AUTOPOP3CHECKBOX@@@
 </td></tr>
 @@@AUTOPOP3END@@@
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Trash mail reserved day(s):</B>
+<B>Mantieni posta nel cestino per giorni:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@RESERVEDDAYSMENU@@@
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Auto Reply:</B>
+<B>Risposta Automatica:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@AUTOREPLYCHECKBOX@@@
 &nbsp;
-Subject:
+Soggetto:
 @@@AUTOREPLYSUBJECT@@@
 </td></tr><tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>
-<B>Auto Reply Text (500 characters or less)</B><BR>
+<B>Testo Risposta Automatica (max 500 caratteri)</B><BR>
 @@@AUTOREPLYTEXT@@@
 </td></tr><tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>
 <B>Firma (max 500 caratteri)</B><BR>

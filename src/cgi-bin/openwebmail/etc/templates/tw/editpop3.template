@@ -51,12 +51,15 @@
 
 <script language="JavaScript">
 <!--
-   function Update(pop3host,pop3user,pop3pass,pop3email,pop3del)
+   function Update(pop3host,pop3user,pop3pass,pop3realname,pop3email,pop3del)
    {
       document.newpop3.pop3host.value = pop3host;
       document.newpop3.pop3user.value = pop3user;
       document.newpop3.pop3pass.value = pop3pass;
-      document.newpop3.pop3email.value = pop3email;
+      if (pop3realname == "")
+        document.newpop3.pop3email.value = pop3email;
+      else
+        document.newpop3.pop3email.value = '"'+pop3realname+'"'+' <'+pop3email+'>';
       if (del == 1)
       	document.newpop3.pop3del.checked = true;
       else

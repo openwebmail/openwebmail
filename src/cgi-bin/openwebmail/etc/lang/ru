@@ -100,6 +100,7 @@ $lang_charset = 'koi8-r';
    abook      => 'áäòåóîáñ ëîéçá',
    group      => 'Group',
    quota_hit  => 'ğÒÅ×ÙÛÅÎÉÅ ë×ÏÔÙ',
+   usage      => 'Usage',
    pop3book   => 'POP3 Setup',
    retr_pop3s => 'Retrieve POP3 Mail',
    filterbook => 'Mail Filter Setup',

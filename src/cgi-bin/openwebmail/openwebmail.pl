@@ -53,10 +53,10 @@ local $sort;
 local $keyword;
 local $escapedkeyword;
 local $searchtype;
-local $hitquota;
 local $folderdir;
-local $folder;
+local $folderusage;
 local @validfolders;
+local $folder;
 local $printfolder;
 local $escapedfolder;
 local $savedattsize;
@@ -149,7 +149,7 @@ $lang = $prefs{'language'} || $defaultlanguage;
 require "etc/lang/$lang";
 $lang_charset ||= 'iso-8859-1';
 
-$hitquota = 0;
+$folderusage = 0;
 if ($user) {
    @validfolders = @{&getfolders(0)};
    if (param("folder")) {
@@ -367,6 +367,9 @@ sub login {
          firsttimeuser();
       }
    } else { # Password is INCORRECT
+      # delay response if login failed
+      sleep 5;
+
       my $html = '';
       writelog("invalid login attempt for username=$userid");
       printheader();
@@ -595,7 +598,7 @@ sub displayheaders {
       $temphtml = $lang_text{'nomessages'};
    }
 
-   if ($hitquota) {
+   if ($folderusage>=100) {
       $temphtml .= " [ $lang_text{'quota_hit'} ]";
    }
 
@@ -604,7 +607,11 @@ sub displayheaders {
    $temphtml = "<a href=\"$base_url&amp;action=composemessage&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/compose.gif\" border=\"0\" ALT=\"$lang_text{'composenew'}\"></a> ";
    $temphtml .= "<a href=\"$base_url_nokeyword&amp;action=displayheaders&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/refresh.gif\" border=\"0\" ALT=\"$lang_text{'refresh'}\"></a> ";
    $temphtml .= "<a href=\"$prefsurl?sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/prefs.gif\" border=\"0\" ALT=\"$lang_text{'userprefs'}\"></a> ";
-   $temphtml .= "<a href=\"$prefsurl?action=editfolders&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/folder.gif\" border=\"0\" ALT=\"$lang_text{'folders'}\"></a> ";
+   if ($folderquota) {
+      $temphtml .= "<a href=\"$prefsurl?action=editfolders&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/folder.gif\" border=\"0\" ALT=\"$lang_text{'folders'} ($lang_text{'usage'} $folderusage%)\"></a> ";
+   } else {
+      $temphtml .= "<a href=\"$prefsurl?action=editfolders&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/folder.gif\" border=\"0\" ALT=\"$lang_text{'folders'}\"></a> ";
+   }
    $temphtml .= "<a href=\"$prefsurl?action=editaddresses&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/addresses.gif\" border=\"0\" ALT=\"$lang_text{'addressbook'}\"></a> ";
    $temphtml .= "<a href=\"$prefsurl?action=editfilter&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/filtersetup.gif\" border=\"0\" ALT=\"$lang_text{'filterbook'}\"></a> &nbsp; &nbsp; ";
    if ($enable_pop3 eq 'yes') {
@@ -690,7 +697,7 @@ sub displayheaders {
       }
    }
    # option to del message directly from folder
-   if ($hitquota) {
+   if ($folderusage>=100) {
       @movefolders=('DELETE');
    } else {
       push(@movefolders, 'DELETE');   
@@ -720,7 +727,7 @@ sub displayheaders {
    $html =~ s/\@\@\@STARTMOVEFORM\@\@\@/$temphtml/g;
    
    my $defaultdestination;
-   if ($hitquota || $folder eq 'mail-trash') {
+   if ($folderusage>=100 || $folder eq 'mail-trash') {
       $defaultdestination='DELETE';
    } elsif ($folder eq 'sent-mail' || $folder eq 'saved-drafts') {
       $defaultdestination='mail-trash';
@@ -736,7 +743,7 @@ sub displayheaders {
 
    $temphtml .= submit(-name=>"$lang_text{'move'}",
                        -onClick=>"return OpConfirm($lang_text{'msgmoveconf'})");
-   if (!$hitquota) {
+   if ($folderusage<100) {
       $temphtml .= submit(-name=>"$lang_text{'copy'}",
                        -onClick=>"return OpConfirm($lang_text{'msgcopyconf'})");
    }
@@ -986,6 +993,9 @@ sub displayheaders {
 sub readmessage {
    verifysession();
 
+   # filter junkmail at inbox beofre display any message in inbox
+   filtermessage() if ($folder eq 'INBOX');
+
    printheader();
    my $messageid = param("message_id");
    my $escapedmessageid = CGI::escape($messageid);
@@ -1109,7 +1119,7 @@ sub readmessage {
          }
       }
       # option to del message directly from folder
-      if ($hitquota) {
+      if ($folderusage>=100) {
          @movefolders=('DELETE');
       } else {
          push(@movefolders, 'DELETE');   
@@ -1150,7 +1160,7 @@ sub readmessage {
       $html =~ s/\@\@\@STARTMOVEFORM\@\@\@/$temphtml/g;
    
       my $defaultdestination;
-      if ($hitquota || $folder eq 'mail-trash') {
+      if ($folderusage>=100 || $folder eq 'mail-trash') {
          $defaultdestination='DELETE';
       } elsif ($folder eq 'sent-mail' || $folder eq 'saved-drafts') {
          $defaultdestination='mail-trash';
@@ -1166,7 +1176,7 @@ sub readmessage {
 
       $temphtml .= submit(-name=>"$lang_text{'move'}",
                        -onClick=>"document.moveform.message_id.value='$messageaftermove'; return confirm($lang_text{'msgmoveconf'})");
-      if (!$hitquota) {
+      if ($folderusage<100) {
          $temphtml .= submit(-name=>"$lang_text{'copy'}",
                        -onClick=>"document.moveform.message_id.value='$messageid'; return confirm($lang_text{'msgcopyconf'})");
       }
@@ -2244,7 +2254,7 @@ sub sendmessage {
       my $messagestart=0;
       my $messagesize=0;
 
-      if  ($hitquota) {
+      if  ($folderusage>=100) {
          $do_savefolder=0;
       } else {
          if (filelock($savefile, LOCK_EX|LOCK_NB)) {
@@ -2435,11 +2445,10 @@ sub sendmessage {
       } elsif ($savefolder_errorstr) {
          openwebmailerror($savefolder_errorstr);
       } else {	
-#         if ( defined(param("message_id")) ) {
-#            readmessage();
-#         } else {
-            displayheaders();
-#         }
+         # call getfolders to recalc used quota
+         @validfolders = @{&getfolders(0)};
+
+         displayheaders();
       }
    }
 }
@@ -2894,7 +2903,7 @@ sub movemessage {
          $op='move';
       }
    }
-   if ($hitquota && $op ne "delete") {
+   if ($folderusage>=100 && $op ne "delete") {
       openwebmailerror("$lang_err{'folder_hitquota'}");
    }
 
@@ -2940,6 +2949,9 @@ sub movemessage {
       openwebmailerror("$lang_err{'couldnt_open'} $dstfile!");
    }
     
+   # call getfolders to recalc used quota
+   @validfolders = @{&getfolders(0)};
+
    if (param("messageaftermove")) {
       readmessage();
    } else {
@@ -2961,6 +2973,9 @@ sub emptytrash {
    update_headerdb($trashdb, $trashfile);
 
    writelog("trash emptied");
+
+   # call getfolders to recalc used quota
+   @validfolders = @{&getfolders(0)};
 
    displayheaders();
 }
@@ -3096,8 +3111,10 @@ sub retrpop3 {
 
    # create system spool file /var/mail/xxxx
    if ( ! -f "$spoolfile" ) {
+      my ($uuid, $ugid) = (getpwnam($user))[2,3];
       open (F, ">>$spoolfile");
       close(F);
+      chown ($uuid, $ugid, $spoolfile);
    }
 
    $pop3host = param("pop3host") || '';
@@ -3172,8 +3189,10 @@ sub _retrpop3s {
 
    # create system spool file /var/mail/xxxx
    if ( ! -f "$spoolfile" ) {
+      my ($uuid, $ugid) = (getpwnam($user))[2,3];
       open (F, ">>$spoolfile");
       close(F);
+      chown($uuid, $ugid, $spoolfile);
    }
 
    if (getpop3book("$folderdir/.pop3.book", \%accounts) <0) {

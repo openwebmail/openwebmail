@@ -1,3 +1,92 @@
+07/13/2001
+----------
+1. fix a bug that newly created folder won't be displayed immediately
+   (reported by Carlos Pina Soares, cps@fcsh.unl.pt)
+2. fix the 'undefined subroutine ..." error when checkmail.pl option -i is used
+
+
+07/12/2001 (version 1.32)
+----------
+1. display useremail and folder quota usage in web page title
+
+
+07/09/2001
+----------
+1. fix a little bug related to email address in pop3 book 
+   (reported by Emir Litric, elitric@hotmail.com)
+2. display the total folders space usage when mouse is over 'folders' icon 
+   if folderquota is set.
+
+
+07/08/2001
+----------
+1. fix the 'ndbm store returned -1.." empty key error
+   (reported by Justin Frydman, jfrydman@swiftbiz.ca and 
+    John McKay, john@eddystone.net)   
+
+
+07/05/2001
+----------
+1. add a signup package 'useraddbyweb.tar.gz' to contrib/
+   (contributed by to Nimrod Zimerman, zimerman@mailandnews.com and 
+    Nimrod S. Carmi, simba@schoolsucks.com)   
+2. fix a bug that displays session timeout warning immidiately 
+   after successful login when using netscape 4.04
+   (reported by Fr. Visminlu Vicente L. Chua, S.J., chuavv@mail.savs.hcc.edu.tw)   
+
+
+07/04/2001
+----------
+1. fix a bug that creates ~user/.forward, ~user/.vacation.msg and mail spool
+   with owner=root if both homedirspools and homedirfolders are set to 'no'
+   (reported by karun@mail2000.com.tw)
+2. italian language and templates translation
+   (thanks to Benedet Marvi, i3100579@ingstud.univ.trieste.it)
+3. add check for newmessages and allmessages count for non-negative value
+
+
+07/03/2001
+----------
+1. rewrite checkmail.pl. It supports newmail check, pop3 retrival and 
+   folder index verification now.
+   The sysadm can use 'checkmail.pl -p -a' in crontab to prefetch pop3
+   mail for the user.
+2. fix a bug that returns wrong content when a message is not found 
+   in folder
+
+
+07/02/2001
+----------
+1. add RedHat-README.txt to doc/
+   (contributed by Emir Litric, elitric@hotmail.com)
+
+
+06/29/2001
+----------
+1. fix a bug that treat lines starting with 'From ' as start of a new message
+
+
+06/28/2001
+----------
+1. dutch language translation
+   (thanks to Michiel van Slobbe, m.m.vanslobbe@connectux.com)
+
+
+06/27/2001
+----------
+1. recalculate used quota after operations that change the size of folders
+2. fix a bug that won't clear related db when genericstables is deleted
+
+
+06/26/2001
+----------
+1. fix a bug that won't parse out attachment correctly in rare cases
+2. fix a bug that searchtype will be restored to 'subject' after any message is
+   moved or copied from current folder
+3. italian language translation
+   (thanks to Benedet Marvi, i3100579@ingstud.univ.trieste.it)
+
+
 06/23/2001 (version 1.31)
 ----------
 1. use a new window instead of alert dialog to display the session timeout 
@@ -17,7 +106,7 @@
 ----------
 1. fix a bug that creates .forward and .vacation.msg in / 
    instead of user homedir when homespooldir and homefolderdir is not enables
-   (reported by Emir Litric, danguba@usa.net)
+   (reported by Emir Litric, elitric@hotmail.com)
 
 
 06/20/2001
@@ -33,7 +122,7 @@
    (reported by jerry@email.wtuc.edu.tw)
 2. fix a bug that resets the autoreply message to default when
    setting user preference
-   (reported by Emir Litric, danguba@usa.net)
+   (reported by Emir Litric, elitric@hotmail.com)
 3. Chinese GB language and template translation
    (thanks to Wang Jun, wjun@mail.iap.ac.cn)
 4. Login alias/mapping support
@@ -65,7 +154,7 @@
 06/13/2001 (version 1.22)
 ----------
 1. use new 3D icons instead of the original flat icons.
-   (thanks to Emir Litric, danguba@usa.net, for his grea work of art!!!)
+   (thanks to Emir Litric, elitric@hotmail.com, for his grea work of art!!!)
 2. spanish language and template translation
    (thanks to Pakito Asinkecualo, pakito@asinkecualo.org)
 3. german language translation
@@ -80,7 +169,7 @@
 06/12/2001
 ----------
 1. fix .pop3.book open error when editing pop3book at first time
-   (thanks to Emir Litric, danguba@usa.net)
+   (thanks to Emir Litric, elitric@hotmail.com)
 2. change session control from 'per host' to 'per user'.
    This means a user can login openwebmail with different ids at the 
    same time from same client.

@@ -100,6 +100,7 @@ $lang_charset = 'big5';
    abook      => '通訊錄',
    group      => '群組',
    quota_hit  => '儲存空間已滿',
+   usage      => '使用空間', 
    pop3book   => '設定外部郵件',
    retr_pop3s => '收取所有外部郵件',
    filterbook => '設定郵件規則',

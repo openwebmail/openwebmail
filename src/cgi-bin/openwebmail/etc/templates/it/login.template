@@ -20,7 +20,7 @@
 </td></tr></table>
 <p align="center">
 <BR>
-<a href="/openwebmail/openwebmail.html">Open WebMail</a> version @@@VERSION@@@<BR>
+<a href="/openwebmail/openwebmail.html">Open WebMail</a> versione @@@VERSION@@@<BR>
 </p>
 <script language="JavaScript">
    document.login.userid.focus()
