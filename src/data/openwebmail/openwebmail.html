@@ -1,0 +1,116 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta name="description" content="Open WebMail">
+   <title>Open WebMail</title>
+</head>
+<body bgcolor="#FFFFFF" background="images/openwebmail-bg.gif">
+<center>
+<a href="http://turtle.ee.ncku.edu.tw/openwebmail/">
+<img SRC="images/openwebmail.gif" border="0" ALT="Open WebMail Logo"></a>
+</center>
+<h1> 
+  <hr>
+</h1>
+<p>Open WebMail is a webmail system based on the <a href="http://neomail.sourceforge.net/">Neomail</a> 
+  version 1.14 from <a href="mailto:neorants@users.sourceforge.net">Ernie Miller</a>. 
+  While the original neomail has a good user interface and many neat features, 
+  it suffers from slow response for big folder files and large memory usage. Open 
+  WebMail is targeted on dealing with very big mail folder files 
+  in a memory efficient way to make it the fastest webmail in the world. It also 
+  provides many features to help users to switch from Microsoft Outlook smoothly. 
+  Open WebMail has the following enhancements over Neomail 1.14:</p>
+
+<h3>Folder access speedup with dbm</h3>
+<blockquote>The folder access is greatly improved by using dbm (dbm is a simple 
+  database provided by perl). When a mail folder is selected in the folder view, 
+  Open WebMail will parse the mail folder file and cache the parsed result to a dbm. 
+  This dbm is reused whenever the user wants to access the folder. This dbm cache 
+  eliminates the scanning of whole folder file every time, which makes a big difference 
+  when dealing with a large folder file. In case there are any change in the folder 
+  file, the dbm will be automatically updated. The dbm update is incremental if 
+  the folder modification is done by the Open WebMail itself. The dbm will only be 
+  recreated when a folder is found to be changed by other programs.</blockquote>
+<h3> Efficient movement of messages</h3>
+<blockquote>The size of a message will be slightly increased after it is read 
+  at the first time because of status&nbsp; change. A large movement of messages 
+  may be introduced due to the size change. Also, the user may want to move a 
+  bunch of messages between two folders. The routines for message update and movement 
+  are totally rewrite so that only necessary movement will be made in a very memory 
+  efficient way.</blockquote>
+<h3> More graceful filelock</h3>
+<blockquote>Since a mail folder may be used by various kind of mail programs, 
+  it is necessary to do file lock before using the folder. Open WebMail 
+  uses a blocking lock with timeout limit 10 seconds. It gives the lock a better 
+  chance to success than a nonblocking lock which returns error immediately if 
+  it can not get the lock.</blockquote>
+<h3> Full content search with regular expression support</h3>
+<blockquote>Full content search with regular expression support is added. When 
+  user enters a keyword in the search box, the scope of a mail folder will be 
+  limited to the keyword related messages. This means the user can use the sort 
+  or static functions on the search result. The scope limit will be released when 
+  the user selects another folder or refreshes the current folder.</blockquote>
+<h3> Better support for MIME message display</h3>
+<blockquote>While most webmail packages have poor effect on displaying MIME messages, 
+  the Open Webmail gives you very fancy effect for that. You can get almost 
+  the same output for MIME messages as you can get on Microsoft Outlook. It does 
+  this through supporting unlimited levels of attachments and cid object crossreference 
+  inside attachments.</blockquote>
+<h3> POP3 support</h3>
+<blockquote>Multiple POP3 accounts can be defined at the same time to fetch mails 
+  from various mail servers. All pop3 messages will be stored at the INBOX folder. 
+  In case the pop3 fetching takes more than 10 seconds (ex: slow link or large 
+  messages), it will be put into background to avoid http timeout. </blockquote>
+<h3> Mail filter support</h3>
+<blockquote> 
+  <p>Multiple filter rules can be set to redirect incoming mails into different 
+    folders automatically. The user can categorize mails from specific person, 
+    mails from spammer or mails containing viruses very easily by defining rules 
+    of sender, receiver, subject, body or filename of attachments. </p>
+  <p>Since mail filtering is activated only in Open WebMail, which means messages 
+    will stay in the INBOX until user reads their mail with Open WebMail. 
+    'finger' or other mail status check utility may give you wrong 
+    information because they don't know about the filter.
+    A command tool 'checkmail.pl' can be used as finger replacement.
+    It does mail filtering before report mail status. 
+</blockquote>
+<h3><b>Message Count Preview</b></h3>
+<blockquote> 
+<p>When the user pulls down the folder list menu to select a folder, the counts 
+  of new messages and total messages of each mail folder will be displayed after 
+  the folder name to help the user to find out those folders with unreaded messages.</p>
+</blockquote>
+<h3><b>Confirm Reading support</b></h3>
+<blockquote> 
+<p>The user can request a 'confirm-reading receipt' for the message he sent.
+When the message is read by the receiver, a receipt will be sent back to
+this user.
+</blockquote>
+<p>
+<font color=#cc0000>Download: </font>
+<a href="http://turtle.ee.ncku.edu.tw/openwebmail/download/">
+http://turtle.ee.ncku.edu.tw/openwebmail/download/</a>
+</p>
+
+<hr>
+<p><i>An earlier version of the dbm access and message movement was submitted to 
+the Neomail 1.20. <br>
+Since basically I have a different point of view for programming than Erine, I 
+decide to release this version by myself.</i> 
+</p><p> 
+<hr>
+<br>
+These enhanced features were brought to you by 
+<p> <a href="mailto: Ebola@turtle.ee.ncku.edu.tw" style="text-decoration: none"><font color=#000000>Nai-Jung 
+  Kuo</font></a>, <a href="mailto: eddie@turtle.ee.ncku.edu.tw" style="text-decoration: none"><font color=#000000>Chao-Chiu 
+  Wang</font></a>, <a href="mailto: tung@turtle.ee.ncku.edu.tw" style="text-decoration: none"><font color=#000000>Chung-Kie 
+  Tung</font></a> <br>
+  <a href="http://dslab.ee.ncku.edu.tw/" target=_blank style="text-decoration: none">Distributed 
+  System Laboratory</a> <br>
+  <a href="http://www.ee.ncku.edu.tw/" target=_blank style="text-decoration: none">Department 
+  of Electrical Engineering</a> <br>
+  <a href="http://www.ncku.edu.tw/" target=_blank style="text-decoration: none">National 
+  Chung-Kung University</a>, Tainan, Taiwan, R.O.C. 
+<p>03/11/2001 
+</body>
+</html>

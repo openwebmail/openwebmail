@@ -1,0 +1,61 @@
+<table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
+<tr><td colspan="1" bgcolor=@@@TITLEBAR@@@ align="left">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<b>Setting pop3 mail</b></font>
+</td><td nowrap colspan="5" bgcolor=@@@TITLEBAR@@@ align="right">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<b> @@@FREESPACE@@@ KB Available</b></font>
+</td></tr><tr><td colspan="5" bgcolor=@@@MENUBAR@@@ align="left">
+@@@MENUBARLINKS@@@
+</td></tr><tr><td colspan="5">&nbsp;</td></tr>
+<tr>
+<td nowrap bgcolor=@@@COLUMNHEADER@@@>
+<B>Pop3 host</B>(click to receive)</td>
+<td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>id</B> (click to edit)</td>
+<td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>password</B></td>
+<td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>delete mail on pop3 server</B></td>
+<td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>Action</B>
+</td></tr>
+@@@STARTADDRESSFORM@@@
+<tr>
+<td nowrap bgcolor=@@@TABLEROW_LIGHT@@@>
+@@@HOSTFIELD@@@
+</td>
+<td nowrap align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
+@@@REALNAMEFIELD@@@
+</td>
+<td nowrap align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
+@@@PASSFIELD@@@
+</td>
+<td nowrap align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
+@@@DELFIELD@@@
+</td>
+<td nowrap align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
+@@@ADDBUTTON@@@
+</td>
+</tr>
+@@@ENDFORM@@@
+
+@@@ADDRESSES@@@
+
+</table>
+
+<script language="JavaScript">
+<!--
+   function Update(name,pass,host,del)
+   {
+      document.newpop3.name.value = name;
+      document.newpop3.pass.value = pass;
+      document.newpop3.host.value = host;
+      if (del == 1)
+      	document.newpop3.del.checked = true;
+      else
+        document.newpop3.del.checked = false;
+   }
+//-->
+</script>
+

@@ -1,0 +1,11 @@
+<BR><BR><BR><BR><BR><BR>
+<table border="0" align="center" width="40%" cellpadding="1" cellspacing="1">
+<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>Добро пожаловать в OPEN WEBMAIL!</B></font>
+</td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
+<BR>Добро пожаловать в Open WebMail! Вы впервые воспользовались данным почтовым сервисом, поэтому
+предлагаем Вам ввести некоторые данные для первоначальной настройки Open WebMail.
+Пожалуйста нажмите Продолжить для продолжения настроек.
+@@@CONTINUEBUTTON@@@
+</td></tr></table>

@@ -1,0 +1,134 @@
+#!/usr/bin/perl -T
+
+$lang_charset = 'iso-8859-1';
+
+%lang_folders =
+   (
+   INBOX => 'INBOX',
+   SAVED => 'OPGESLAGEN',
+   SENT  => 'VERZONDEN',
+   TRASH => 'AFVALBAK'
+   );
+
+%lang_sortlabels =
+   (
+   status      => 'Status (Unread first)',
+   date        => 'Datum (Nieuwste eerst)',
+   date_rev    => 'Date (Oudste eerst)',
+   sender      => 'Afzender (Alphabetisch)',
+   sender_rev  => 'Afzender (Omgekeerd alphabetisch)',
+   size        => 'Grootte (Grootste eerst)',
+   size_rev    => 'Grootte (Kleinste eerst)',
+   subject     => 'Onderwerp (Alphabetisch)',
+   subject_rev => 'Onderwerp (Omgekeerd alphabetisch)'
+   );
+
+%lang_mualabels =
+   (
+   outlookexp5 => 'Outlook Express 5',
+   nsmail      => 'Netscape Mail 4.x'
+   );
+
+%lang_text =
+   (  
+   login      => 'Inloggen',
+   clear      => 'Wissen',
+   of         => 'van',
+   messages   => 'berichten',
+   unread     => 'ongelezen',
+   nomessages => 'Geen berichten',
+   composenew => 'Maak nieuw bericht',
+   refresh    => 'Verversen',
+   userprefs  => 'Gebruikers instellingen',
+   addressbook=> 'Adres boek',
+   folders    => 'Mappen',
+   emptytrash => 'Afvalbak legen',
+   logout     => 'Uitloggen',
+   page       => 'Pagina',
+   moveconfirm=> '\'Weet u zeker dat u de geselecteerde berichten wilt verplaatsen?\'',
+   move       => 'Verplaats',
+   date       => 'Datum',
+   recipient  => 'Geadresseerde',
+   sender     => 'Afzender',
+   subject    => 'Onderwerp',
+   size       => 'Grootte',
+   backto     => 'Terug naar',
+   reply      => 'Antwoord',
+   replyall   => 'Antwoord iedereen',
+   forward    => 'Doorsturen',
+   from       => 'Van',
+   replyto    => 'Antwoord naar',
+   to         => 'Naar',
+   cc         => 'CC',
+   bcc        => 'BCC',
+   simplehead => 'Eenvoudige koppen',
+   allhead    => 'Alle koppen',
+   simpleattmode => 'Simple attachments',
+   allattmode    => 'All attachments',
+   attachment => 'Bijlage',
+   type       => 'Type',
+   filename   => 'Bestandsnaam',
+   encoding   => 'Codering',
+   download   => 'Ophalen',
+   send       => 'Zend',
+   cancel     => 'Onderbreken',
+   continue   => 'Doorgaan',
+   for        => 'VOOR',
+   yourname   => 'Uw naam',
+   save       => 'Bewaar',
+   add        => 'Voeg toe',
+   folderconf => '\'Weet u zeker dat u deze map wilt verwijderen inclusief zijn inhoud?\'',
+   delete     => 'Verwijder',
+   importadd  => 'Importeer adressen',
+   import     => 'Importeer',
+   addmod     => 'Toevoegen/Wijzigen',
+   abooktitle => 'Adres Boek',
+   abook      => 'ADRES BOEK',
+   quota_hit  => 'QUOTA HIT',
+   pop3book   => 'POP3 Setup',
+   retr_pop3s => 'Retrieve POP3 Mail',
+   filterbook => 'Mail Filter Setup',
+   include    => 'Include',
+   exclude    => 'Exclude',
+   header     => 'Header',
+   body       => 'Body',
+   attfilename=> 'Attachment Filename',
+   enable     => 'Enable',
+   disable    => 'Disable',
+   read       => 'Read',
+   yourmsg    => 'Your message',
+   delivered  => 'Delivered',
+   wasreadon1 => 'was read on',
+   wasreadon2 => '.',
+   search     => 'Search'
+   );
+
+%lang_err = (
+            has_illegal_chars => 'bevat illegale karakters!',
+            couldnt_open      => 'Kan niet geopend worden',
+            couldnt_locksh    => 'Couldn\'t get read lock on',
+            couldnt_lock      => 'Geen write lock mogelijk',
+            couldnt_seek      => 'Kan niet naar begin van',
+            couldnt_close     => 'Kan niet gesloten worden',
+            norootlogin       => 'Sorry, root login is niet mogelijk ivm veiligheid.',
+            shouldnt_move_here=> 'Kan hier geen berichten verplaatsen!',
+            destination_folder=> 'Bestemmings map',
+            doesnt_exist      => 'bestaat niet!',
+            foldername_long   => 'Mapnaam kan niet langer dan 16 karakters zijn!',
+            folder_with_name  => 'Een map met de naam',
+            already_exists    => 'bestaat al!',
+            cant_create_folder=> 'Kan de map niet maken!',
+            abook_invalid     => 'Sorry, dit bestand lijkt niet op een adres boek geexporteerd uit Outlook Express 5 in CSV format.  Let erop dat de eerste regel van het tekst bestand start met "Name,E-mail Address", ga dan',
+            back              => 'terug',
+            tryagain          => 'en probeer opnieuw.',
+            abook_toobig      => 'Sorry, uw adresboek is vol, er is geen plaats meer. Ga',
+            cant_create_dir   => 'Kan uw eigen directory niet maken!',
+            folder_hitquota   => 'Sorry, uw mail quota is vol, er kan niet meer mail opgeslagen worden.  Uw kunt alleen nog maar berichten verplaatsen naar de AFVALBAK, waar ze zullen worden verwijderd.  Ga terug, verwijder oude berichten of leeg uw AFVALBAK, probeer dan opnieuw.',
+            att_overlimit     => 'Sorry, uw bijlage overschrijdt de maximale lengte, deze is',
+            inv_sessid        => 'Your request didn\'t contain the proper session ID cookie -- access denied!',
+            user_not_exist    => 'user does not exist',
+            password_error    => 'wrong password',
+            network_server_error => 'network server error'
+            );
+
+1;

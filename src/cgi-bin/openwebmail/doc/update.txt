@@ -1,0 +1,135 @@
+04/02/2001
+----------
+1. reduce the memory usage when uploading large attachment
+2. use MIME::Base64 module with XS support to speed up the encoding/decoding 
+   of attachments
+3. minor change for attachments handling in message forward
+4. fix ~openwebmail/etc mode to 770
+
+
+03/17/2001
+----------
+1. zero message count immediately when mail-trash is emptied
+2. 'confirm reading' receipt is changed to a more informative style.
+3. a shell command 'checkmail.pl' is provided.
+   It does mail filtering first, ignores those internal messages used
+   by POP/IMAP server and then reports if a user has new mail or not.
+
+
+03/15/2001 (version 1.02)
+----------
+1. change name to 'Open WebMail'
+2. fix bug related to from attribute
+3. add 'confirm reading' support
+4. for better compatiability with pine(an unix email reader):
+   user folderdir is changed from ~/neomail to ~/mail
+   folder saved_messages is changed to saved-messages
+   folder sent_mail      is changed to sent-mail
+   folder neomail_trash  is changed to mail-trash
+
+ps. a script migrate.pl is provided for administor 
+    to migrate user folders from neomail easily
+
+
+03/11/2001 (version 1.01)
+----------
+1. add 'sort by status (unread first)'
+2. fix date sort bug
+3. add a golbal variable in $homedirfolderdirname neomail.conf
+   to specify the folderdir used in user homedir.
+4. support charset in CGI.pm version > 2.57 
+
+
+03/02/2001 (version 1.00)
+----------
+1. change name to 'Neomail Professional 1.00'
+2. mail filter support
+3. minor correction to mime mail parsing
+4. change the default location for addressbook, pop3book and filterbook 
+   from prefsdir to the homedir of each user
+5. show new/total message counts for each folder in the folder popup menu
+
+
+02/20/2001
+----------
+1. pop3 mail support
+2. put pop3 fetching into background if it takes more than 10 second
+   to avoid http timeout
+
+
+11/06/2000
+----------
+1. minor change of display of message/rfc822 attachment
+2. minor change of display of message forward/reply
+3. always convert uuencode block into attachment when forwarding
+4. fix permission problem in creating files
+
+
+10/31/2000
+----------
+1. minor speedup for search and movemessage
+
+
+10/26/2000
+----------
+1. rewrite message parsing routines for complex mime messages
+2. rewrite layout routine for complex mime messages
+3. provide download link of the raw format of message
+
+
+10/24/2000
+----------
+1. add support for uuencode blocks inside a text/plain mail
+2. add support for addressbook insert at readmessage
+3. minor speedup for readmessage and viewattachments
+4. better contenttype support
+5. fix search routine for messages with mime attachments
+6. code clean
+
+
+10/20/2000
+----------
+1. better support for mime message display (almost the same as outlook)
+2. add support for unlimited levels of attachments
+3. add support for links to attachments with content-id or content-location
+4. merge in content-disipition patch from neomail-1.20
+
+
+10/15/2000
+----------
+1. change all nonblocking lock to a timeout-limited blocking lock
+2. improve speed of sort
+3. improve speed of readmessage
+
+
+10/02/2000
+----------
+Since basically I have a different point of view for programming than 
+Erine, I decide to put my modification to a new version --- neomail 1.14+
+
+1. add support for full content search
+2. improve speed of movemessage
+3. fix bugs on solaris
+
+
+09/28/2000
+----------
+Erine merged my code into neomail 1.20
+
+
+09/22/2000
+----------
+greatly speedup movemessage/updatestatus with shiftblock routine
+submit the patch to Erine
+
+
+09/18/2000
+----------
+use dbm to store the parsed result of mail folder 
+greatly speedup getheaders/readmessages by using of dbm
+submit the patch to Erine
+
+
+09/14/2000
+----------
+first testdrive of the original neomail 1.14

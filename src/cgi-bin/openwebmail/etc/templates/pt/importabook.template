@@ -1,0 +1,41 @@
+<table border="0" align="center" width="75%" cellpadding="0" cellspacing="0">
+<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>Importar Adress Book</B></font>
+</td><td bgcolor=@@@TITLEBAR@@@ align="right">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>@@@FREESPACE@@@ KB Dispon&iacute;vel</B></font>
+</td></tr>
+<tr><td colspan="2" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
+
+<table border="0" align="center" width="75%" cellpadding="0" cellspacing="0">
+<tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
+<BR>Outlook Express 5 e o Netscape Mail pode exportar seus address book
+no fornato CSV, ou valores separado por v&iacute;rgula. O Open WebMail pode importar 
+estes arquivos para o seu address book.
+<ul>
+<li> No Netscape, abra seu address book e selecione File-&gt;Export,
+ent&atilde;o clique sobre "Save as type:" e escolha "Comma Separated
+(*.csv)."<BR><BR>
+<li> No Outlook Express, escolha
+Arquivo-&gt;Exportar-&gt;Cat&aacute;logo de endere&ccedil;os, e selecione
+exportar "Arquivo de texto (valores separados por v&iacute;rgula)." Tenha
+certeza que os campos nome e e-mail est&atilde;o como
+primeiro o qual ser&atilde;o como padr&atilde;o.
+</ul>
+</td></tr></table>
+
+@@@STARTIMPORTFORM@@@
+@@@MUARADIOGROUP@@@
+<BR>
+@@@IMPORTFILEFIELD@@@
+</td></tr>
+<tr><td width="50%" align="right" bgcolor=@@@WINDOW_LIGHT@@@>
+@@@IMPORTBUTTON@@@ &nbsp;&nbsp;
+</td>
+@@@ENDFORM@@@
+@@@STARTCANCELFORM@@@
+<td width="50%" align="left" bgcolor=@@@WINDOW_LIGHT@@@>
+&nbsp;&nbsp;@@@CANCELBUTTON@@@
+</td></tr></table>
+@@@ENDFORM@@@

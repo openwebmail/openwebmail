@@ -1,0 +1,61 @@
+<table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
+<tr><td colspan="1" bgcolor=@@@TITLEBAR@@@ align="left">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<b>編輯外部郵件</b></font>
+</td><td nowrap colspan="5" bgcolor=@@@TITLEBAR@@@ align="right">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<b>尚有 @@@FREESPACE@@@ KB 空間</b></font>
+</td></tr><tr><td colspan="5" bgcolor=@@@MENUBAR@@@ align="left">
+@@@MENUBARLINKS@@@
+</td></tr><tr><td colspan="5">&nbsp;</td></tr>
+<tr>
+<td nowrap bgcolor=@@@COLUMNHEADER@@@>
+<B>外部郵件主機</B>(按一下收信)</td>
+<td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>帳號</B> (按一下修改)</td>
+<td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>密碼</B></td>
+<td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>刪除伺服器端郵件</B></td>
+<td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>Action</B>
+</td></tr>
+@@@STARTADDRESSFORM@@@
+<tr>
+<td nowrap bgcolor=@@@TABLEROW_LIGHT@@@>
+@@@HOSTFIELD@@@
+</td>
+<td nowrap align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
+@@@REALNAMEFIELD@@@
+</td>
+<td nowrap align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
+@@@PASSFIELD@@@
+</td>
+<td nowrap align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
+@@@DELFIELD@@@
+</td>
+<td nowrap align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
+@@@ADDBUTTON@@@
+</td>
+</tr>
+@@@ENDFORM@@@
+
+@@@ADDRESSES@@@
+
+</table>
+
+<script language="JavaScript">
+<!--
+   function Update(name,pass,host,del)
+   {
+      document.newpop3.name.value = name;
+      document.newpop3.pass.value = pass;
+      document.newpop3.host.value = host;
+      if (del == 1)
+      	document.newpop3.del.checked = true;
+      else
+        document.newpop3.del.checked = false;
+   }
+//-->
+</script>
+

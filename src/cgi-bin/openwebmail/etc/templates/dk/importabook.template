@@ -1,0 +1,37 @@
+<table border="0" align="center" width="75%" cellpadding="0" cellspacing="0">
+<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>IMPORTER ADRESSEBOG</B></font>
+</td><td bgcolor=@@@TITLEBAR@@@ align="right">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>@@@FREESPACE@@@ KB Available</B></font>
+</td></tr>
+<tr><td colspan="2" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
+
+<table border="0" align="center" width="75%" cellpadding="0" cellspacing="0">
+<tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
+<BR>Outlook Express 5 og Netscape Mail kan eksportere deres adressebøger i et 
+format, der hedder CSV, eller Comma Separated Values. Open WebMail kan importere disse
+filer ind i din personlige Adressebog for at spare dig for at skulle skrive dem 
+ved håndkraft.
+<ul>
+<li> I Netscape, åbne din adressebog, og vælg Fil-&gt;Eksporter, og under "Gem som filtype:" vælg "Kommasepareret (*.csv)." <BR><BR>
+<li> I Outlook Express, vælg Fil-&gt;Eksporter-&gt;Adressebog, og vælg filtypen "Tekstfil." Check at navnet og emailfelterne kommer 
+først (dette er standard-indstillingen).
+</ul>
+</td></tr></table>
+
+@@@STARTIMPORTFORM@@@
+@@@MUARADIOGROUP@@@
+<BR>
+@@@IMPORTFILEFIELD@@@
+</td></tr>
+<tr><td width="50%" align="right" bgcolor=@@@WINDOW_LIGHT@@@>
+@@@IMPORTBUTTON@@@ &nbsp;&nbsp;
+</td>
+@@@ENDFORM@@@
+@@@STARTCANCELFORM@@@
+<td width="50%" align="left" bgcolor=@@@WINDOW_LIGHT@@@>
+&nbsp;&nbsp;@@@CANCELBUTTON@@@
+</td></tr></table>
+@@@ENDFORM@@@

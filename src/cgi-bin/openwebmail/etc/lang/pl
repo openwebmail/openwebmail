@@ -1,0 +1,134 @@
+#!/usr/bin/perl -T
+
+$lang_charset = 'iso-8859-2';
+
+%lang_folders =
+   (
+   INBOX => 'PRZYCHODZ¡CA',
+   SAVED => 'ZAPISANE',
+   SENT  => 'WYS£ANE',
+   TRASH => 'KOSZ'
+   );
+
+%lang_sortlabels =
+   (
+   status      => 'Status (Unread first)',
+   date        => 'Data (od najnowszych)',
+   date_rev    => 'Data (od najstarszych)',
+   sender      => 'Nadawca (alfabetycznie)',
+   sender_rev  => 'Nadawca (odwrotnie alfabetycznie)',
+   size        => 'Size (od najwiêkszych)',
+   size_rev    => 'Size (od najmniejszych)',
+   subject     => 'Temat (alfabetycznie)',
+   subject_rev => 'Temat (odwrotnie alfabetycznie)'
+   );
+
+%lang_mualabels =
+   (
+   outlookexp5 => 'Outlook Express 5',
+   nsmail      => 'Netscape Mail 4.x'
+   );
+
+%lang_text =
+   (  
+   login      => 'Login',
+   clear      => 'Wyczy¶æ',
+   of         => 'z',
+   messages   => 'wiadomo¶ci',
+   unread     => 'nieprzeczytane',
+   nomessages => 'Brak wiadomo¶ci',
+   composenew => 'Utwórz now± wiadomo¶æ',
+   refresh    => 'Od¶wie¿',
+   userprefs  => 'Preferencje u¿ytkownika',
+   addressbook=> 'Ksi±¿ka adresowa',
+   folders    => 'Foldery',
+   emptytrash => 'Opró¿nij kosz',
+   logout     => 'Wyloguj',
+   page       => 'Strona',
+   moveconfirm=> '\'Na pewno chcesz przenie¶æ zaznaczone wiadomo¶ci?\'',
+   move       => 'Przenie¶',
+   date       => 'Data',
+   recipient  => 'Adresat',
+   sender     => 'Nadawca',
+   subject    => 'Temat',
+   size       => 'Rozmiar',
+   backto     => 'Wróæ do',
+   reply      => 'Odpowiedz',
+   replyall   => 'Odpowiedz wszystkim',
+   forward    => 'Przeka¿',
+   from       => 'Od',
+   replyto    => 'Odpowiedz',
+   to         => 'Do',
+   cc         => 'CC',
+   bcc        => 'BCC',
+   simplehead => 'Proste nag³ówki',
+   allhead    => 'Wszystkie nag³ówki',
+   simpleattmode => 'Simple attachments',
+   allattmode    => 'All attachments',
+   attachment => 'Za³±cznik',
+   type       => 'Typ',
+   filename   => 'Nazwa pliku',
+   encoding   => 'Kodowanie',
+   download   => 'Pobierz',
+   send       => 'Wy¶lij',
+   cancel     => 'Anuluj',
+   continue   => 'Kontynuuj',
+   for        => 'DLA',
+   yourname   => 'Imiê Nazwisko',
+   save       => 'Zapisz',
+   add        => 'Dodaj',
+   folderconf => '\'Na pewno chcesz usun±æ ten folder wraz z zawarto¶ci±?\'',
+   delete     => 'Usuñ',
+   importadd  => 'Importuj adresy',
+   import     => 'Importuj',
+   addmod     => 'Dodaj/Zmieñ',
+   abooktitle => 'Ksi±¿ka Adresowa',
+   abook      => 'KSI¡¯KA ADRESOWA',
+   quota_hit  => 'LIMIT PRZESTRZENI NA DYSKU OSI¡GNIÊTY',
+   pop3book   => 'POP3 Setup',
+   retr_pop3s => 'Retrieve POP3 Mail',
+   filterbook => 'Mail Filter Setup',
+   include    => 'Include',
+   exclude    => 'Exclude',
+   header     => 'Header',
+   body       => 'Body',
+   attfilename=> 'Attachment Filename',
+   enable     => 'Enable',
+   disable    => 'Disable',
+   read       => 'Read',
+   yourmsg    => 'Your message',
+   delivered  => 'Delivered',
+   wasreadon1 => 'was read on',
+   wasreadon2 => '.',
+   search     => 'Search'
+   );
+
+%lang_err = (
+            has_illegal_chars => 'ma niedozwolone znaki!',
+            couldnt_open      => 'Nie mogê otworzyæ',
+            couldnt_locksh    => 'Couldn\'t get read lock on',
+            couldnt_lock      => 'Nie mogê zablokowaæ pliku',
+            couldnt_seek      => 'Ni mogê odnale¼æ pocz±tku',
+            couldnt_close     => 'Nie mogê zamkn±æ',
+            norootlogin       => 'Niestyty root ma zablokowany login ze wzglêdów bezpieczeñstwa',
+            shouldnt_move_here=> 'Niepowiniene¶ próbowaæ przenie¶æ tu wiadomo¶ci!',
+            destination_folder=> 'Folder docelowy',
+            doesnt_exist      => 'nie istnieje!',
+            foldername_long   => 'Nazwa folderu nie mo¿e byæ d³u¿sza ni¿ 16 znaków',
+            folder_with_name  => 'Folder ',
+            already_exists    => 'ju¿ istnieje!',
+            cant_create_folder=> 'Nie mogê utworzyæ foldera!',
+            abook_invalid     => 'Przykro mi ale ten plik nie wygl±da na wyeksportowany z Outlook Express 5 w formacie CSV.  Upewnij siê przy pomocy edytora tekstu, czy pierwsza linia rozpoczyna siê od "Name,E-mail", przejd¼',
+            back              => 'wstecz',
+            tryagain          => 'i spróbuj jeszcze raz.',
+            abook_toobig      => 'Przykro mi ale przekraczasz dopuszczalny rozmiar swojej Ksi±¿ki Adresowej.  Przejd¼',
+            cant_create_dir   => 'Nie mogê utworzyæ twojego osobistego katalogu!',
+            folder_hitquota   => 'Przykro mi, ale przekroczy³e¶ dopuszczalny rozmiar skrzynki pocztowej. Nie bêdziesz teraz móg³ przenie¶æ wiadomo¶ci gdziekolwiek poza Kosze, z którego zostan± natychmiast usuniête.  Wróæ, usuñ czê¶æ wiadomo¶ci, opró¿nij kosz i spróbuj jeszcze raz.',
+            att_overlimit     => 'Przykro mi ale rozmiar za³±cznika przekracza limit, który wynosi',
+            inv_sessid        => 'Your request didn\'t contain the proper session ID cookie -- access denied!',
+            user_not_exist    => 'user does not exist',
+            password_error    => 'wrong password',
+            network_server_error => 'network server error'
+            );
+
+1;

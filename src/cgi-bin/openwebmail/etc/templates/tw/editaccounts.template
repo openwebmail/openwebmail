@@ -1,0 +1,49 @@
+<table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
+<tr><td colspan="1" bgcolor=@@@TITLEBAR@@@ align="left">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<b>編輯 IMAP/POP3 帳號</b></font>
+</td><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="right">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<b>尚有 @@@FREESPACE@@@ KB 空間</b></font>
+</td></tr><tr><td colspan="3" bgcolor=@@@MENUBAR@@@ align="left">
+@@@MENUBARLINKS@@@
+</td></tr><tr><td colspan="3">&nbsp;</td></tr>
+<tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>姓名</B> (按一下修改 E-mail 信箱)</td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>E-mail 信箱</B> (按一下寄信給他)</td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>E-mail 信箱</B> (按一下寄信給他)</td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>E-mail 信箱</B> (按一下寄信給他)</td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>Action</B>
+</td></tr>
+@@@STARTADDRESSFORM@@@
+<tr><td bgcolor=@@@TABLEROW_LIGHT@@@ width="200">
+@@@REALNAMEFIELD@@@
+</td><td bgcolor=@@@TABLEROW_LIGHT@@@ width="200">
+@@@EMAILFIELD@@@
+</td><td bgcolor=@@@TABLEROW_LIGHT@@@ width="200">
+@@@EMAILFIELD@@@
+</td><td bgcolor=@@@TABLEROW_LIGHT@@@ width="200">
+@@@EMAILFIELD@@@
+</td><td align="center" bgcolor=@@@TABLEROW_LIGHT@@@ width="100">
+@@@ADDBUTTON@@@
+</td></tr>
+@@@ENDFORM@@@
+
+@@@ADDRESSES@@@
+
+</table>
+
+<script language="JavaScript">
+<!--
+   function Update(name,email)
+   {
+      document.newaddress.realname.value = name;
+      document.newaddress.email.value = email;
+   }
+//-->
+</script>
+

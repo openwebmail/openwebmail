@@ -1,0 +1,34 @@
+<table border="0" align="center" width="75%" cellpadding="0" cellspacing="0">
+<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>TUO OSOITEKIRJA</B></font>
+</td><td bgcolor=@@@TITLEBAR@@@ align="right">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>@@@FREESPACE@@@ KB K‰ytett‰viss‰</B></font>
+</td></tr>
+<tr><td colspan="2" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
+
+<table border="0" align="center" width="75%" cellpadding="0" cellspacing="0">
+<tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
+<BR>Outlook Express 5 ja Netscape Mail ohjelmista voi vied‰ osoitekirjan CVS muodossa Open WebMail osaa hyˆdynt‰‰ t‰m‰n tiedon. (ja samalla s‰‰st‰‰ aikaa)
+<ul>
+<li> Netscapessa valitset, address book, ja File-&gt;Export, "Save as type:" valitse "Comma Separated (*.csv)." <BR><BR>
+<li> Outlook Expressiss‰, valitset
+File-&gt;Export-&gt;Address Book, ja tallennusmuodoksi "Text file."
+</ul>
+</td></tr></table>
+
+@@@STARTIMPORTFORM@@@
+@@@MUARADIOGROUP@@@
+<BR>
+@@@IMPORTFILEFIELD@@@
+</td></tr>
+<tr><td width="50%" align="right" bgcolor=@@@WINDOW_LIGHT@@@>
+@@@IMPORTBUTTON@@@ &nbsp;&nbsp;
+</td>
+@@@ENDFORM@@@
+@@@STARTCANCELFORM@@@
+<td width="50%" align="left" bgcolor=@@@WINDOW_LIGHT@@@>
+&nbsp;&nbsp;@@@CANCELBUTTON@@@
+</td></tr></table>
+@@@ENDFORM@@@

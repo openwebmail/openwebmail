@@ -1,0 +1,10 @@
+<BR><BR><BR><BR><BR><BR>
+<table border="0" align="center" width="25%" cellpadding="0" cellspacing="0">
+<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<b>FEJL VED AFSENDELSE</B></FONT>
+</td></tr><tr><td valign="middle" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
+Der var desværre et problem med at sende din meddelelse. Klik på Tilbage-knappen i din browser,
+check din meddelelse og forsøg igen. Hvis problemet fortsætter, kontakt forfatteren på 
+<a href="mailto:neorants@users.sourceforge.net">neorants@users.sourceforge.net.</a>
+</td></tr></table>

@@ -1,0 +1,134 @@
+#!/usr/bin/perl -T
+
+$lang_charset = 'iso-8859-2';
+
+%lang_folders =
+   (
+   INBOX => 'INBOX',
+   SAVED => 'SALVATE',
+   SENT  => 'TRIMISE',
+   TRASH => 'STERSE'
+   );
+
+%lang_sortlabels =
+   (
+   status      => 'Status (Unread first)',
+   date        => 'Data (Intai cele mai noi)',
+   date_rev    => 'Data (Intai cele mai vechi)',
+   sender      => 'Expeditor (Alfabetic)',
+   sender_rev  => 'Expeditor (Invers alfabetic)',
+   size        => 'Marime (Intai cele mai mari)',
+   size_rev    => 'Marime (Intai cele mai mici)',
+   subject     => 'Subiect (Alfabetic)',
+   subject_rev => 'Subiect (Invers alfabetic)'
+   );
+
+%lang_mualabels =
+   (
+   outlookexp5 => 'Outlook Express 5',
+   nsmail      => 'Netscape Mail 4.x'
+   );
+
+%lang_text =
+   (  
+   login      => 'Intra',
+   clear      => 'Sterge',
+   of         => 'din',
+   messages   => 'mesaje',
+   unread     => 'necitite',
+   nomessages => 'Nici un mesaj',
+   composenew => 'Compune un mesaj',
+   refresh    => 'Reincarca',
+   userprefs  => 'Preferinte',
+   addressbook=> 'Agenda',
+   folders    => 'Foldere',
+   emptytrash => 'Curata mesajele sterse',
+   logout     => 'Iesire',
+   page       => 'Pagina',
+   moveconfirm=> '\'Esti sigur ca vrei sa muti mesajul(ele) selectate?\'',
+   move       => 'Muta',
+   date       => 'Data',
+   recipient  => 'Destinatar',
+   sender     => 'Expeditor',
+   subject    => 'Subiect',
+   size       => 'Marime',
+   backto     => 'Inapoi la',
+   reply      => 'Raspunde',
+   replyall   => 'Raspunde tuturor',
+   forward    => 'Trimite mai departe',
+   from       => 'De la',
+   replyto    => 'Raspunde',
+   to         => 'Pentru',
+   cc         => 'CC',
+   bcc        => 'BCC',
+   simplehead => 'Header simplu',
+   allhead    => 'Header complet',
+   simpleattmode => 'Simple attachments',
+   allattmode    => 'All attachments',
+   attachment => 'Atasament',
+   type       => 'Tip',
+   filename   => 'Nume fisier',
+   encoding   => 'Encodare',
+   download   => 'Download',
+   send       => 'Trimite',
+   cancel     => 'Anuleaza',
+   continue   => 'Continua',
+   for        => 'PENTRU',
+   yourname   => 'Numele Tau',
+   save       => 'Salveaza',
+   add        => 'Adauga',
+   folderconf => '\'Esti sigur ca vrei sa stergi folderul asta si continutul lui?\'',
+   delete     => 'Sterge',
+   importadd  => 'Importa adrese',
+   import     => 'Importa',
+   addmod     => 'Adauga/Modifica',
+   abooktitle => 'Agenda',
+   abook      => 'AGENDA',
+   quota_hit  => 'DEP&Atilde;SIRE SPATIU ALOCAT',
+   pop3book   => 'POP3 Setup',
+   retr_pop3s => 'Retrieve POP3 Mail',
+   filterbook => 'Mail Filter Setup',
+   include    => 'Include',
+   exclude    => 'Exclude',
+   header     => 'Header',
+   body       => 'Body',
+   attfilename=> 'Attachment Filename',
+   enable     => 'Enable',
+   disable    => 'Disable',
+   read       => 'Read',
+   yourmsg    => 'Your message',
+   delivered  => 'Delivered',
+   wasreadon1 => 'was read on',
+   wasreadon2 => '.',
+   search     => 'Search'
+   );
+
+%lang_err = (
+            has_illegal_chars => 'are caractere ilegale!',
+            couldnt_open      => 'Nu pot deschide',
+            couldnt_locksh    => 'Couldn\'t get read lock on',
+            couldnt_lock      => 'Nu pot bloca',
+            couldnt_seek      => 'Nu pot ajunge la inceputul',
+            couldnt_close     => 'Nu pot inchide',
+            norootlogin       => 'Imi pare rau dar nu poti intra cu root',
+            shouldnt_move_here=> 'Nu ar trebui sa iti muti mesajele aici',
+            destination_folder=> 'Folderul destinatie',
+            doesnt_exist      => 'nu exista!',
+            foldername_long   => 'Numele folderului nu poate contine mai mult de 16 litere!',
+            folder_with_name  => 'Un folder cu numele',
+            already_exists    => 'deja exista!',
+            cant_create_folder=> 'Nu pot crea folderul!',
+            abook_invalid     => 'Imi pare rau dar acest fisier nu pare a fi exportat din Microsoft Outlook Express 5 in format CSV. Asigura-te ca atunci cand il vezi intr-un editor de texte, prima linie incepe cu "Name,E-mail Address", apoi du-te',
+            back              => 'inapoi',
+            tryagain          => 'incearca din nou.',
+            abook_toobig      => 'Imi pare rau dar aceasta ar depasi limita agendei tale. Te rog du-te',
+            cant_create_dir   => 'Nu pot creea directorul tau!',
+            folder_hitquota   => 'Imi pare rau dar ti-ai depasit spatiul alocat si nu mai poti salva scrisori.  Nu vei putea muta decat mesaje spre STERSE.  Du-te inapoi sterge ceva mesaje, distruge mesajele sterse si incearca din nou.',
+            att_overlimit     => 'Imi pare rau, atachmentul dvs. depaseste marimea acceptata, adica',
+            inv_sessid        => 'Your request didn\'t contain the proper session ID cookie -- access denied!',
+            user_not_exist    => 'user does not exist',
+            password_error    => 'wrong password',
+            network_server_error => 'network server error'
+            );
+
+1;

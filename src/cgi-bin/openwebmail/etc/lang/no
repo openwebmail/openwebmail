@@ -1,0 +1,134 @@
+#!/usr/bin/perl -T
+
+$lang_charset = 'iso-8859-1';
+
+%lang_folders =
+   (
+   INBOX => 'INNBOKS',
+   SAVED => 'LAGRET',
+   SENT  => 'SENDT',
+   TRASH => 'SØPPELBØTTE'
+   );
+
+%lang_sortlabels =
+   (
+   status      => 'Status (Unread first)',
+   date        => 'Dato (Nyeste først)',
+   date_rev    => 'Dato (Eldste først)',
+   sender      => 'Avsender (Alfabetisk)',
+   sender_rev  => 'Avsender (Omvendt alfabetisk)',
+   size        => 'Størresle (Største først)',
+   size_rev    => 'Størrelse (Minste først)',
+   subject     => 'Emne (Alfabetisk)',
+   subject_rev => 'Emne (Omvendt alfabetisk)'
+   );
+
+%lang_mualabels =
+   (
+   outlookexp5 => 'Outlook Express 5',
+   nsmail      => 'Netscape Mail 4.x'
+   );
+
+%lang_text =
+   (  
+   login      => 'Logg inn',
+   clear      => 'Slett',
+   of         => 'av',
+   messages   => 'meldinger',
+   unread     => 'ulest',
+   nomessages => 'Ingen meldinger',
+   composenew => 'Skriv ny melding',
+   refresh    => 'Oppdater',
+   userprefs  => 'Brukerinnstillinger',
+   addressbook=> 'Adressebok',
+   folders    => 'Mapper',
+   emptytrash => 'Tøm søppelbøtten',
+   logout     => 'Logg ut',
+   page       => 'Side',
+   moveconfirm=> '\'Er du sikker på at du vil flytte de valgte meldingene?\'',
+   move       => 'Flytt',
+   date       => 'Dato',
+   recipient  => 'Mottaker',
+   sender     => 'Avsender',
+   subject    => 'Emne',
+   size       => 'Størrelse',
+   backto     => 'Tilbake til',
+   reply      => 'Svar',
+   replyall   => 'Svar alle',
+   forward    => 'Videresend',
+   from       => 'Fra',
+   replyto    => 'Svar til',
+   to         => 'Til',
+   cc         => 'Kopi',
+   bcc        => 'Blindkopi',
+   simplehead => 'Enkle meldingshoder',
+   allhead    => 'Alle meldingshoder',
+   simpleattmode => 'Simple attachments',
+   allattmode    => 'All attachments',
+   attachment => 'Vedlegg',
+   type       => 'Type',
+   filename   => 'Filnavn',
+   encoding   => 'Koding',
+   download   => 'Lagre',
+   send       => 'Send',
+   cancel     => 'Avbryt',
+   continue   => 'Fortsett',
+   for        => 'FOR',
+   yourname   => 'Ditt navn',
+   save       => 'Lagre',
+   add        => 'Legg til',
+   folderconf => '\'Er du sikker på at du vil slette denne mappen og alt innholdet?\'',
+   delete     => 'Slett',
+   importadd  => 'Importer adresser',
+   import     => 'Importer',
+   addmod     => 'Legg til/Endre',
+   abooktitle => 'Adressebok',
+   abook      => 'ADRESSEBOK',
+   quota_hit  => 'IKKE MER LAGRINGSPLASS',
+   pop3book   => 'POP3 Setup',
+   retr_pop3s => 'Retrieve POP3 Mail',
+   filterbook => 'Mail Filter Setup',
+   include    => 'Include',
+   exclude    => 'Exclude',
+   header     => 'Header',
+   body       => 'Body',
+   attfilename=> 'Attachment Filename',
+   enable     => 'Enable',
+   disable    => 'Disable',
+   read       => 'Read',
+   yourmsg    => 'Your message',
+   delivered  => 'Delivered',
+   wasreadon1 => 'was read on',
+   wasreadon2 => '.',
+   search     => 'Search'
+   );
+
+%lang_err = (
+            has_illegal_chars => 'inneholder ulovlige tegn!',
+            couldnt_open      => 'Kunne ikke åpne',
+            couldnt_locksh    => 'Couldn\'t get read lock on',
+            couldnt_lock      => 'Fikk ikke skrivetilgang til',
+            couldnt_seek      => 'Kunne ikke finne starten på',
+            couldnt_close     => 'Kunne ikke lukke',
+            norootlogin       => 'Beklager, root kan ikke logge seg inn på grunn av sikkerhetshensyn.',
+            shouldnt_move_here=> 'Du bør ikke flytte meldinger til denne mappen!',
+            destination_folder=> 'Målmappe',
+            doesnt_exist      => 'eksisterer ikke!',
+            foldername_long   => 'Mappenavnet kan ikke være mer enn 16 tegn!',
+            folder_with_name  => 'En mappe med navnet',
+            already_exists    => 'eksisterer allerede!',
+            cant_create_folder=> 'Kan ikke opprette mappen!',
+            abook_invalid     => 'Beklager, denne filen virker ikke som om den er en adressebok eksportert fra Microsoft Outlook Express 5 i CVS-format. Forsikre deg om at filen starter med:"Name,E-mail Address", og gå',
+            back              => 'tilbake',
+            tryagain          => 'og forsøk på nytt.',
+            abook_toobig      => 'Beklager, du overstiger tillatt størrelse på adresseboken din. Gå',
+            cant_create_dir   => 'Brukerkatalogen din kunne ikke opprettes!',
+            folder_hitquota   => 'Beklager, du har oversteget tillatt lagringsplass for mappene dine. Du har ikke adgang til å flytte meldinger til andre mapper enn søppelbøtten, hvor de vil bli slettet automatisk. Gå tilbake og slett noen meldinger eller tømme søppelbøtten, og forsøk på nytt.',
+            att_overlimit     => 'Beklager, du har oversteget tillatt størrelse for vedlegg. Vedlegg må ikke overstige',
+            inv_sessid        => 'Your request didn\'t contain the proper session ID cookie -- access denied!',
+            user_not_exist    => 'user does not exist',
+            password_error    => 'wrong password',
+            network_server_error => 'network server error'
+            );
+
+1;

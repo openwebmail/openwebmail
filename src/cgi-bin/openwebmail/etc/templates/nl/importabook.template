@@ -1,0 +1,38 @@
+<table border="0" align="center" width="75%" cellpadding="0" cellspacing="0">
+<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>IMPORTEER ADRESBOEK</B></font>
+</td><td bgcolor=@@@TITLEBAR@@@ align="right">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>@@@FREESPACE@@@ KB Available</B></font>
+</td></tr>
+<tr><td colspan="2" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
+
+<table border="0" align="center" width="75%" cellpadding="0" cellspacing="0">
+<tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
+<BR>Outlook Express 5 en Netscape Mail kunnen hun adresboeken exporteren in een formaat wat bekendt staat als 
+CSV, of Comma Separated Values.  Open WebMail kan deze bestanden importeren
+in uw persoonlijk adresboek, om u zo veel typewerk te besparen. 
+<ul>
+<li> In Netscape, open uw adres boek, en selecteer File-&gt;Export, dan
+onder "Save as type:" kies "Comma Separated (*.csv)." <BR><BR>
+<li> Voor Outlook Express, in het hoofd Outlook Express window kies
+File-&gt;Export-&gt;Address Book, en selecteer het export type "Text file." Wees
+er zeker van dat de Naam en E-mail veldenfields eerst komen, welke de standaard instelling is.
+</ul>
+</td></tr></table>
+
+@@@STARTIMPORTFORM@@@
+@@@MUARADIOGROUP@@@
+<BR>
+@@@IMPORTFILEFIELD@@@
+</td></tr>
+<tr><td width="50%" align="right" bgcolor=@@@WINDOW_LIGHT@@@>
+@@@IMPORTBUTTON@@@ &nbsp;&nbsp;
+</td>
+@@@ENDFORM@@@
+@@@STARTCANCELFORM@@@
+<td width="50%" align="left" bgcolor=@@@WINDOW_LIGHT@@@>
+&nbsp;&nbsp;@@@CANCELBUTTON@@@
+</td></tr></table>
+@@@ENDFORM@@@

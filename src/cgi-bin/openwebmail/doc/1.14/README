@@ -1,0 +1,75 @@
+NeoMail 1.14
+=================
+
+Thanks for downloading NeoMail!
+
+     Read the file INSTALL in this directory for information on how to make this
+thing work on your system.
+
+     If you're looking for documentation on the user interface and how
+to use it, be sure to have a look at Chris Fischer's NeoMail user docs, in the
+userdocs/ subdirectory of this package.
+
+Requirements:
+   Perl, tested with versions 5.004, 5.005, and 5.6.0 successfully.  Requires
+      the CGI module, which comes with current Perl distributions.
+
+   A sendmail executable.  We aren't picky here, exim's sendmail command works
+      fine, so does qmail's, and postfix's.
+
+   A working webserver with CGI support.  NeoMail currently doesn't support
+      mod_perl.  Patches welcome. :)
+
+   That's about it!
+
+A LITTLE SIDE NOTE
+==================
+
+     This is the culmination of several months' work on creating a webmail
+client that served my needs well, just to see if I could do it.  I'm pretty
+happy with the results at this point, and I hope you are too.  Now that NeoMail
+has hit 1.00 status, I'll only be releasing bugfixes.  After a short break from
+NeoMail development, to clear my head of any preconcieved notions about what
+NeoMail should and shouldn't be extended to support, I plan on starting work
+on NeoMail 2.0, from scratch.  Currently on my wish list for 2.0, if you're
+curious --
+
+   * A *much* more modular architecture.  Think folder handling module,
+     authentication module, check mail modules (plural, as in local mbox, local
+     maildir, pop3, and others), etc.  This may necessitate quite a bit of
+     functionality being obtained by launching external Perl scripts with the
+     proper permissions to perform each functionality, thus allowing the main
+     portion of NeoMail to run without special suid bits or anything, meaning
+     it could work with mod_perl.
+   * A web-based admin module.  This would call separate scripts as well, so
+     that things like adding users, changing passwords, etc, could be
+     accomplished on any playform, given the correct module's availability.
+   * A frame-based user-interface (possibly - still debating).
+
+     Needless to say, this will be a pretty huge project, and any or all of this
+stuff may just not be possible to pull off with reasonable performance in Perl.
+One of the main goals in 2.0 will be to perform *better* than the current
+version -- While 1.0 performs just fine on beefy boxes with plenty of RAM,
+some people running servers in their home with less in the way of system
+resources would complain about NeoMail's performance from time to time.  One
+way I plan to accomplish this is through the use of an internal folder format
+that can be handled much faster when displaying a folder's contents than parsing
+the user's mbox-format spool every single time, and instead using a check mail
+feature to perform these more intensive operatins less frequently.  Suffice to
+say, if I can't get reasonable performance doing all this stuff, one of three
+things is going to happen:
+
+     1. I scrap the project (Unlikely, but it *could* happen -- I only have so
+        much free time with a day job, you know!)
+     2. I drop the really system-intensive features.
+     3. I learn a new language and start the project over again.  I could really
+        stand to learn more C, or maybe PHP.... I figure I taught myself the
+        Perl necessary to write NeoMail in around 6 months (from pretty much no
+        knowledge of Perl at all), can't see why I couldn't take up another
+        language the same way. :)
+
+     Anyway, thanks again for downloading NeoMail -- It's been a great ride thus
+far, here's hoping you'll be hearing more of me, and I of you!
+
+-Ernie "Neo" Miller
+ neorants@users.sourceforge.net

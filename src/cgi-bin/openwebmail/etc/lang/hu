@@ -1,0 +1,134 @@
+#!/usr/bin/perl -T
+
+$lang_charset = 'iso-8859-2';
+
+%lang_folders =
+   (
+   INBOX => 'BEJÖVÕ',
+   SAVED => 'MENTETT',
+   SENT  => 'KÜLDÖTT',
+   TRASH => 'SZEMETES'
+   );
+
+%lang_sortlabels =
+   (
+   status      => 'Status (Unread first)',
+   date        => 'Dátum (Elõre az új)',
+   date_rev    => 'Dátum (Elõre a régi)',
+   sender      => 'Küldõ (ABC sorrend)',
+   sender_rev  => 'Küldõ (Fordított ABC sorrend)',
+   size        => 'Méret (Elõre a nagyok)',
+   size_rev    => 'Méret (Elõre a kicsik)',
+   subject     => 'Tárgy (ABC szerint)',
+   subject_rev => 'Tárgy (Fordított ABC szerint)'
+   );
+
+%lang_mualabels =
+   (
+   outlookexp5 => 'Outlook Express 5',
+   nsmail      => 'Netscape Mail 4.x'
+   );
+
+%lang_text =
+   (  
+   login      => 'Login',
+   clear      => 'Töröl',
+   of         => '',
+   messages   => 'üzenetek',
+   unread     => 'olvasatlan',
+   nomessages => 'Nincs üzenet',
+   composenew => 'Új üzenet',
+   refresh    => 'Frissít',
+   userprefs  => 'Beállítások',
+   addressbook=> 'Címjegyzék',
+   folders    => 'Mappák',
+   emptytrash => 'Szemetes ürítése',
+   logout     => 'Kijelentkezés',
+   page       => 'Oldal',
+   moveconfirm=> '\'Biztosan mozgatod a kijelölt üzenet(ek)et?\'',
+   move       => 'Mozgat',
+   date       => 'Dátum',
+   recipient  => 'Címzett',
+   sender     => 'Küldõ',
+   subject    => 'Tárgy',
+   size       => 'Méret',
+   backto     => 'Vissza:',
+   reply      => 'Válasz',
+   replyall   => 'Válasz mindnek',
+   forward    => 'Tovább',
+   from       => 'Küldõ',
+   replyto    => 'Válaszcím',
+   to         => 'Címzett',
+   cc         => 'Másolat',
+   bcc        => 'Titkos Másolat',
+   simplehead => 'Egyszerû fejlécek',
+   allhead    => 'Teljes fejlécek',
+   simpleattmode => 'Simple attachments',
+   allattmode    => 'All attachments',
+   attachment => 'Csatolás',
+   type       => 'Tipus',
+   filename   => 'Filenév',
+   encoding   => 'Kódolás',
+   download   => 'Letöltés',
+   send       => 'Küld',
+   cancel     => 'Mégsem',
+   continue   => 'Folytat',
+   for        => 'FOR',
+   yourname   => 'Neved',
+   save       => 'Ment',
+   add        => 'Hozzáad',
+   folderconf => '\'Biztosan törlöd a mappát és annak tartalmát?\'',
+   delete     => 'Töröl',
+   importadd  => 'Címek importálása',
+   import     => 'Importál',
+   addmod     => 'Hozzáad / Módosít',
+   abooktitle => 'Címjegyzék',
+   abook      => 'CÍMJEGYZÉK',
+   quota_hit  => 'KVÓTA',
+   pop3book   => 'POP3 Setup',
+   retr_pop3s => 'Retrieve POP3 Mail',
+   filterbook => 'Mail Filter Setup',
+   include    => 'Include',
+   exclude    => 'Exclude',
+   header     => 'Header',
+   body       => 'Body',
+   attfilename=> 'Attachment Filename',
+   enable     => 'Enable',
+   disable    => 'Disable',
+   read       => 'Read',
+   yourmsg    => 'Your message',
+   delivered  => 'Delivered',
+   wasreadon1 => 'was read on',
+   wasreadon2 => '.',
+   search     => 'Search'
+   );
+
+%lang_err = (
+            has_illegal_chars => 'Illegális karakterek!!',
+            couldnt_open      => 'Nem nyitható meg',
+            couldnt_locksh    => 'Couldn\'t get read lock on',
+            couldnt_lock      => 'Nem írható',
+            couldnt_seek      => 'Nem találom az elejét',
+            couldnt_close     => 'Nem tudom bezárni',
+            norootlogin       => 'Sajnálom, biztonsági okokból root nem jelentkezhet be.',
+            shouldnt_move_here=> 'Ide nem kellene üzenetet mozgatnod!',
+            destination_folder=> 'Célmappa',
+            doesnt_exist      => 'nem létezik!',
+            foldername_long   => 'Mappanév nem lehet 16 karakternél hosszabb!',
+            folder_with_name  => 'Ilyen nevû mappa:',
+            already_exists    => 'már létezik!',
+            cant_create_folder=> 'A mappa nem hozható létre!',
+            abook_invalid     => 'Sajnálom, de ez az állomány nem szabályosan exportált Outlook vagy Communicator címjegyzék. Menj vissza',
+            back              => 'vissza',
+            tryagain          => 'és próbáld újra.',
+            abook_toobig      => 'Sajnálom, ezzel túllépnéd a mérethatárt. Menj vissza ',
+            cant_create_dir   => 'Nem tudom létrehozni a mappádat!',
+            folder_hitquota   => 'Sajnálom, de elérted a kvótádat, és több levelet nem tudsz elmenteni. Törölj néhányat és próbáld újra.',
+            att_overlimit     => 'Sajnálom, a csatolás túllépte a mengedett mérethatárt, ami ',
+            inv_sessid        => 'Your request didn\'t contain the proper session ID cookie -- access denied!',
+            user_not_exist    => 'user does not exist',
+            password_error    => 'wrong password',
+            network_server_error => 'network server error'
+            );
+
+1;

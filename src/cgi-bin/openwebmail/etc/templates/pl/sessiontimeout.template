@@ -1,0 +1,9 @@
+<BR><BR><BR><BR><BR><BR>
+<table border="0" align="center" width="25%" cellpadding="0" cellspacing="0">
+<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>PRZEKROCZONY CZAS TRWANIA SESJI</B></FONT></TD></TR>
+<tr><td valign="middle" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
+<BR>Przykro mi, ale up³yn±³ czas trwania twojej sesji.
+<a href="@@@SCRIPTURL@@@">Zaloguj</a> siê ponownie.<BR><BR>
+</td></tr></table>

@@ -1,0 +1,138 @@
+#!/usr/bin/perl -T
+
+$lang_charset = 'big5';
+
+%lang_folders =
+   (
+   INBOX => '新信件',
+   SAVED => '收件匣',
+   SENT  => '寄件備分',
+   TRASH => '垃圾桶',
+   'saved-messages' => '收件匣',
+   'sent-mail'  => '寄件備分',
+   'mail-trash' => '垃圾桶'
+   );
+
+%lang_sortlabels =
+   (
+   status      => '狀態 (未讀優先)',
+   date        => '日期 (新信優先)',
+   date_rev    => '日期 (舊信優先)',
+   sender      => '寄信人 (筆劃少)',
+   sender_rev  => '寄信人 (筆劃多)',
+   size        => '大小 (大優先)',
+   size_rev    => '大小 (小優先)',
+   subject     => '主旨 (遞增)',
+   subject_rev => '主旨 (遞減)'
+   );
+
+%lang_mualabels =
+   (
+   outlookexp5 => 'Outlook Express 5',
+   nsmail      => 'Netscape Mail 4.x'
+   );
+
+%lang_text =
+   (  
+   login      => '登入',
+   clear      => '清除',
+   of         => '/',
+   messages   => '封信',
+   unread     => '未讀',
+   nomessages => '無信件',
+   composenew => '編寫新信',
+   refresh    => '檢查信箱',
+   userprefs  => '個人偏好設定',
+   addressbook=> '通訊錄',
+   folders    => '信件匣',
+   emptytrash => '清空垃圾桶',
+   logout     => '登出',
+   page       => '頁',
+   moveconfirm=> '\'您確定要搬移選擇的信件嗎?\'',
+   move       => '搬移',
+   date       => '日期',
+   recipient  => '收件者',
+   sender     => '寄件者',
+   subject    => '主旨',
+   size       => '大小',
+   backto     => '回至',
+   reply      => '回信',
+   replyall   => '全部回信',
+   forward    => '轉寄',
+   from       => '寄件者',
+   replyto    => '回給',
+   to         => '收件者',
+   cc         => '副本',
+   bcc        => '秘密副本',
+   simplehead => '簡單表頭',
+   allhead    => '完全表頭',
+   simpleattmode => '簡列附件',
+   allattmode    => '詳列附件',
+   attachment => '附件',
+   type       => '類型',
+   filename   => '檔名',
+   encoding   => '編碼',
+   download   => '下載',
+   send       => '寄信',
+   cancel     => '取消',
+   continue   => '繼續',
+   for        => 'FOR',
+   yourname   => '您的姓名',
+   save       => '儲存',
+   add        => '增加',
+   folderconf => '\'您確定要刪除這個信件匣嗎?\'',
+   delete     => '刪除',
+   reserve    => '保留',
+   importadd  => '匯入地址',
+   import     => '匯入',
+   addmod     => '增加/修改',
+   abooktitle => '通訊錄',
+   abook      => '通訊錄',
+   quota_hit  => '儲存空間滿了',
+   pop3book   => '設定外部郵件',
+   retr_pop3s => '收取所有外部郵件',
+   filterbook => '設定郵件規則',
+   include    => '包含',
+   exclude    => '不含',
+   header     => '表頭',
+   body       => '本文',
+   attfilename=> '附件檔名',
+   enable     => '啟動',
+   disable    => '停用',
+   read       => '讀取',
+   yourmsg    => '您發出的信件',
+   delivered  => '傳送',
+   wasreadon1 => '已於',
+   wasreadon2 => '被讀取',
+   search     => '搜尋'
+   );
+
+%lang_err = (
+            has_illegal_chars => '內有非法字元!',
+            couldnt_open      => '無法開啟',
+            couldnt_locksh    => '讀取無法鎖定',
+            couldnt_lock      => '寫入無法鎖定',
+            couldnt_seek      => '無法尋找',
+            couldnt_close     => '無法關閉',
+            norootlogin       => '不能用root登入.',
+            shouldnt_move_here=> '不能在這裡搬移信件!',
+            destination_folder=> '目的信件匣',
+            doesnt_exist      => '不存在!',
+            foldername_long   => '信件匣名稱不能超過16個字元!',
+            folder_with_name  => '該名稱的信件匣',
+            already_exists    => '已存在!',
+            cant_create_folder=> '不能建立信件匣!',
+            abook_invalid     => '抱歉！這檔案不是 Outlook Express 5 的 CSV 格式.',
+            back              => '回上一頁',
+            tryagain          => '再試一次.',
+            abook_toobig      => '通訊錄超過容量限制. 請',
+            cant_create_dir   => '無法建立使用者目錄!',
+            folder_hitquota   => '抱歉！您的容量已經超過限制，請先將不要的信件刪除在清空垃圾匣，否則您將收不到新信.',
+            att_overlimit     => '附件大小超過限制',
+            inv_sess_ip       => '您用的 session 屬於其他人的 -- 拒絕使用!',
+            user_not_exist    => '使用者不存在',
+            password_error    => '密碼錯誤',
+            network_server_error => '網路伺服器錯誤'
+            );
+
+1;

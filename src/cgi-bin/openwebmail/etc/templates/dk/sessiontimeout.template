@@ -1,0 +1,9 @@
+<BR><BR><BR><BR><BR><BR>
+<table border="0" align="center" width="25%" cellpadding="0" cellspacing="0">
+<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>SESSION TIMEOUT</B></FONT></TD></TR>
+<tr><td valign="middle" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
+<BR>Din session har varet for længe! Gå tilbage og 
+<a href="@@@SCRIPTURL@@@">log ind</a>.<BR><BR>
+</td></tr></table>

@@ -1,0 +1,68 @@
+<table border="0" align="center" width="95%" cellpadding="1" cellspacing="0">
+<tr>
+@@@STARTFOLDERFORM@@@
+<td width="150" bgcolor=@@@TITLEBAR@@@ align="left">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@>
+<b>@@@FOLDERPOPUP@@@</b></font></td>
+@@@ENDFORM@@@
+<td bgcolor=@@@TITLEBAR@@@ colspan="2" align="right">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<b>@@@NUMBEROFMESSAGES@@@</b></font></td></tr>
+<tr><td valign="middle" width="33%" bgcolor=@@@MENUBAR@@@ align="left">
+<font face=@@@FONTFACE@@@ size="2">
+@@@MENUBARLINKS@@@
+</td>
+@@@STARTMOVEFORM@@@
+<td valign="middle" width="33%" bgcolor=@@@MENUBAR@@@ align="right">
+@@@MOVECONTROLS@@@
+</td></tr></table>
+<br>
+<table border="0" align="center" width="95%" cellpadding="1" cellspacing="1">
+<tr><td valign="middle" width="50" bgcolor=@@@COLUMNHEADER@@@>
+<CENTER>@@@STATUS@@@</CENTER></td>
+<td valign="middle" width="150" bgcolor=@@@COLUMNHEADER@@@>
+<b>@@@DATE@@@</b></td>
+<td valign="middle" width="150" bgcolor=@@@COLUMNHEADER@@@>
+<b>@@@SENDER@@@</b></td>
+<td valign="middle" width="350" bgcolor=@@@COLUMNHEADER@@@>
+<b>@@@SUBJECT@@@</b></td>
+<td valign="middle" width="50" bgcolor=@@@COLUMNHEADER@@@>
+<b>@@@SIZE@@@</b></td>
+<td valign="middle" width="50" bgcolor=@@@COLUMNHEADER@@@>
+<b>Mind:<input name="allbox" type="checkbox" value="1"
+   onClick="CheckAll();"></b></td>
+</tr>
+@@@HEADERS@@@
+@@@ENDFORM@@@
+</table>
+<br>
+<table border="0" align="center" width="95%" cellpadding="1" cellspacing="0">
+<tr>
+@@@STARTPAGEFORM@@@
+<td valign="middle" width="33%" align="center" bgcolor=@@@MENUBAR@@@>
+@@@PAGECONTROL@@@
+</td>
+@@@ENDFORM@@@
+<td bgcolor=@@@MENUBAR@@@>
+&nbsp;
+</td>
+@@@STARTSEARCHFORM@@@
+<td valign="middle" align="center" bgcolor=@@@MENUBAR@@@>
+@@@SEARCH@@@
+</td>
+@@@ENDFORM@@@
+</tr>
+</table>
+<script language="JavaScript">
+   <!--
+   function CheckAll()
+   {
+      for (var i=0;i<document.moveform.elements.length;i++)
+      {
+         var e = document.moveform.elements[i];
+         if (e.name != "allbox")
+            e.checked = document.moveform.allbox.checked;
+      }
+   }
+   //-->
+</script>

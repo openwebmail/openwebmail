@@ -1,0 +1,179 @@
+NeoMail 1.14 Install Guide
+===============================
+
+   So, it's come to this... you're actually reading the INSTALL file?  Yeah,
+sorry about the need to actually do this with NeoMail... it still has a few
+things that need personal attention during installation.
+
+REQUIREMENTS
+============
+
+   First, double check that you have a sendmail executable (or one that's
+command-line compatible with sendmail at least... exim works fine).
+
+   Also, you'll need a perl interpreter, as well as suidperl.  NeoMail has
+been tested with 5.004, 5.005 and 5.6, though earlier versions may work, so long
+as you have the CGI module installed.
+
+   Lastly, you'll need a webserver running on your system, with CGI support
+enabled for the directory you plan on installing NeoMail in.
+
+INSTALLATION
+============
+
+USING SETUP.PL
+==============
+In this directory, run setup.pl:
+
+   ./setup.pl
+
+Read and answer the questions carefully, and when you're through, a custom
+neomail.pl file will be created to your specifications.  The best part of this
+is that the permissions will be set to values that should work, saving you
+from the one pitfall I'm seeing more of than anything else, users setting
+neomail.pl or other related files to the wrong permissions.  As of version 1.10,
+setup.pl will install the scripts to your specified location, and the images to
+the default directories of DocumentRoot and DocumentRoot/images, as per your
+httpd.conf.  No need to do the manual copying and chmoding that was necessary
+before.
+
+If this works, proceed to FINAL STEPS, below!  If you have problems, continue
+on to MANUAL INSTALLATION.
+
+MANUAL INSTALLATION
+===================
+   Open neomail.template and neomail-prefs.template in your favorite text
+editor.  Near the top of each file, there's a line like this:
+
+push (@INC, '@@@NEOMAILDIR@@@');
+
+You'll want to replace @@@NEOMAILDIR@@@ with the actual NeoMail directory,
+usually /var/neomail.
+
+Then, open up neomail.conf.example, and replace the values therein with your
+own.  Documentation on each option is provided in the file itself.
+
+After configuration
+-------------------
+   Copy the neomail.teplate script to your server's cgi-bin directory, with
+the name you chose in $scripturl (normally something like
+/home/httpd/cgi-bin/neomail.pl) when editing neomail.conf.example.  Do the
+same with neomail-prefs.template, naming it whatever you pointed to with
+$prefsurl when editing the neomail.conf.template file (normally something like
+/home/httpd/cgi-bin/neomail-prefs.pl) You'll want to set them owned by root,
+WITH A GROUP THE SAME AS WHATEVER YOUR MAIL SERVER SAVES SPOOL FILES UNDER.  In
+many cases, this will be "mail."  Then, do a
+
+   chown root.mail neomail.pl
+   chmod 755 neomail.pl
+   chmod g+s neomail.pl
+   chown root.mail neomail-prefs.pl
+   chmod 755 neomail-prefs.pl
+   chmod g+s neomail-prefs.pl
+
+   Next, we'll need to create the neomail directory:
+
+   mkdir /var/neomail
+   chown root.mail /var/neomail
+   chmod 770 /var/neomail
+
+   Do the same for /var/neomail/users, /var/neomail/styles, and
+/var/neomail/templates,  making sure to copy the default styles and templates
+from their directories in this package.  Copy the neomail.conf.example file you
+edited earlier to /var/neomail/neomail.conf, and copy checklogin.pl to
+/var/neomail/checklogin.pl, making sure to
+
+   chown root.root /var/neomail/checklogin.pl
+   chmod 4755 /var/neomail/checklogin.pl
+
+   This is important, as checklogin will NEED to be suid root if you have a
+shadowed password file or one that's otherwise unreadable by non-root users.
+
+FINAL STEPS
+===========
+
+   Finally, we need to tell your MTA that NeoMail is a trusted user, so that
+it can properly set the "From" information in sent mails.  This will ensure
+that any errors sending will be reported to the individual, rather than the
+mailbox of the user that your webserver is running under.
+
+For sendmail, edit the section in /etc/sendmail.cf labeled "Trusted Users."
+You'll want to add a line like:
+
+   Tnobody
+
+Where nobody is the username your webserver runs under.
+
+      --OR--
+
+For exim, find the line in your exim.conf that looks like this:
+
+   trusted_users = mail
+
+and add the username the webserver runs under.  In my case, this is
+
+   trusted_users = mail:www-data
+
+That's it!
+----------
+You should be all set at this point.  Point your browser to the webserver's
+cgi-bin, like so:
+
+   http://yourdomain.com/cgi-bin/neomail.pl
+
+You should be greeted with a login screen.  Type a valid username and password
+and you should have access to the user's mail spool!  Once you have it working,
+if you'd like to provide basic user-level documentation, copy the userdocs/
+directory from this directory somewhere on your web server and provide your
+users with a bookmark or link to it.
+
+IF YOU HAVE PROBLEMS
+====================
+
+If you run into trouble, first check that your permissions are all correct.
+STARTING WITH VERSION 0.99A, THE REQUIREMENTS FOR PERMISSIONS HAVE DRASTICALLY
+CHANGED, SO IF YOU HAVE PROBLEMS, MAKE SURE TO FIX YOUR PERMISSIONS WITH A FEW
+CHMOD -R and CHOWN -R COMMANDS! :)
+Included is a directory listing from my development workstation.  Compare these
+listings to yours.  They should be similar, if not identical.  Possibly, the
+group field will be something other than "mail," because it depends on the
+group your mail server saves spools under.
+
+---------------- terminal output -----------------
+
+[root: /home/emiller/neomail-devel]# ls -la /var/neomail/
+total 44
+drwxrwx---    6 root     mail         4096 May 28 12:07 .
+drwxr-xr-x   20 root     root         4096 May 28 12:05 ..
+-rwsr-xr-x    1 root     root          681 May 28 12:05 checklogin.pl
+drwxr-x---    2 root     mail         4096 May 28 12:05 lang
+-rwxr-x---    1 root     mail         6417 May 28 12:05 neomail.conf
+-rw-r--r--    1 nobody   mail          373 May 28 12:06 neomail.log
+drwxr-x---    2 root     mail         4096 May 28 12:05 styles
+drwxr-x---   14 root     mail         4096 May 28 12:05 templates
+drwxrwx---    3 root     mail         4096 May 28 12:05 users
+[root: /home/emiller/neomail-devel]#
+
+-------------- end terminal output ---------------
+
+If your permissions match these, it may in fact be possible that your mail
+spools aren't readable and writable by a special group ID, in which case you're
+stuck running SUID root.  Do a chmod 4755 on neomail.pl and neomail-prefs.pl,
+and a chmod 755 on checklogin.pl.  Alternatively, look into setting up your
+mail spools to have a common group and have 660 permissions.
+
+If you still have problems, check the FAQ.  After that, drop me an e-mail, or
+post your question to the neomail-users mailing list,
+neomail-users@lists.sourceforge.net.
+
+DISCLAIMER
+==========
+As stated in the script itself, there is no warranty, none at all, included
+with NeoMail.  It works as advertised for me, but YMMV.  That being said, I'm
+looking forward to hearing of your successes and/or failures in using NeoMail
+on your machines, and also receiving word of any security-related issues you
+run into with this.  As stated in the README, this is my first major Perl
+project, so go easy on the flames. Constructive criticism is quite welcome.
+
+- Ernie Miller
+  neorants@users.sourceforge.net

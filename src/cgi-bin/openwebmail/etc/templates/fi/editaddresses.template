@@ -1,0 +1,41 @@
+<table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
+<tr><td colspan="1" bgcolor=@@@TITLEBAR@@@ align="left">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<b>MUOKKAA OSOITEKIRJAA</b></font>
+</td><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="right">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<b>@@@FREESPACE@@@ KB K‰ytett‰viss‰</b></font>
+</td></tr><tr><td colspan="3" bgcolor=@@@MENUBAR@@@ align="left">
+@@@MENUBARLINKS@@@
+</td></tr><tr><td colspan="3">&nbsp;</td></tr>
+<tr><td bgcolor=@@@COLUMNHEADER@@@>
+<B>Nimi</B> (Paina muokataksesi)</td>
+<td bgcolor=@@@COLUMNHEADER@@@>
+<B>S-posti Osoite</B> (Paina l‰hett‰‰ksesi)</td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>Toiminto</B>
+</td></tr>
+@@@STARTADDRESSFORM@@@
+<tr><td bgcolor=@@@TABLEROW_LIGHT@@@ width="200">
+@@@REALNAMEFIELD@@@
+</td><td bgcolor=@@@TABLEROW_LIGHT@@@ width="300">
+@@@EMAILFIELD@@@
+</td><td align="center" bgcolor=@@@TABLEROW_LIGHT@@@ width="100">
+@@@ADDBUTTON@@@
+</td></tr>
+@@@ENDFORM@@@
+
+@@@ADDRESSES@@@
+
+</table>
+
+<script language="JavaScript">
+<!--
+   function Update(name,email)
+   {
+      document.newaddress.realname.value = name;
+      document.newaddress.email.value = email;
+   }
+//-->
+</script>
+

@@ -1,0 +1,134 @@
+#!/usr/bin/perl -T
+
+$lang_charset = 'iso-8859-1';
+
+%lang_folders =
+   (
+   INBOX => 'SAAPUNEET',
+   SAVED => 'TALLENNETUT',
+   SENT  => 'LÄHTENEET',
+   TRASH => 'ROSKAKORI'
+   );
+
+%lang_sortlabels =
+   (
+   status      => 'Status (Unread first)',
+   date        => 'Aika (Uusin ensin)',
+   date_rev    => 'Aika (Vanhin ensin)',
+   sender      => 'Lähettäjä (Aakkosjärjestys)',
+   sender_rev  => 'Lähettäjä (Käännetty Aakkosjärjestys)',
+   size        => 'Koko (Suurin ensin)',
+   size_rev    => 'Koko (Pienin ensin)',
+   subject     => 'Aihe (Aakkosjärjestys)',
+   subject_rev => 'Aihe (Käännetty Aakkosjärjestys)'
+   );
+
+%lang_mualabels =
+   (
+   outlookexp5 => 'Outlook Express 5',
+   nsmail      => 'Netscape Mail 4.x'
+   );
+
+%lang_text =
+   (  
+   login      => 'Kirjaudu',
+   clear      => 'Tyhjennä',
+   of         => ' ',
+   messages   => 'Viestiä',
+   unread     => 'Lukematta',
+   nomessages => 'Ei Viestejä',
+   composenew => 'Kirjoita Uusi Viesti',
+   refresh    => 'Refresh',
+   userprefs  => 'Asetukset',
+   addressbook=> 'Osoitekirja',
+   folders    => 'Kansiot',
+   emptytrash => 'Tyhjennä roskakori',
+   logout     => 'Kirjaudu Ulos',
+   page       => 'Sivu',
+   moveconfirm=> '\'Haluatko VARMASTI siirtää valitut viestit?\'',
+   move       => 'Siirrä',
+   date       => 'Aika',
+   recipient  => 'Vastaanottaja(t)',
+   sender     => 'Lähettäjä',
+   subject    => 'Aihe',
+   size       => 'Koko',
+   backto     => 'Takaisin',
+   reply      => 'Vastaa',
+   replyall   => 'Vastaa kaikille',
+   forward    => 'Lähetä eteenpäin',
+   from       => 'Keneltä',
+   replyto    => 'Vastaa osoitteeseen',
+   to         => 'Kenelle',
+   cc         => 'Kopio',
+   bcc        => 'Tiedoksi',
+   simplehead => 'Pelkistetyt otsikot',
+   allhead    => 'Kaikki otsikot',
+   simpleattmode => 'Simple attachments',
+   allattmode    => 'All attachments',
+   attachment => 'Liite',
+   type       => 'Tyyppi',
+   filename   => 'Tiedostonimi',
+   encoding   => 'Encoding',
+   download   => 'Lataa',
+   send       => 'Lähetä',
+   cancel     => 'Peruuta',
+   continue   => 'Jatka',
+   for        => ' ',
+   yourname   => 'Sinun Nimesi',
+   save       => 'Tallenna',
+   add        => 'Lisää',
+   folderconf => '\'Haluatko poistaa kansion sisältöineen?\'',
+   delete     => 'Poista',
+   importadd  => 'Tuo osoitteet',
+   import     => 'Tuo',
+   addmod     => 'Lisää/Muokkaa',
+   abooktitle => 'Osoitekirja',
+   abook      => 'Osoitekirja',
+   quota_hit  => 'Levytila Täynnä',
+   pop3book   => 'POP3 Setup',
+   retr_pop3s => 'Retrieve POP3 Mail',
+   filterbook => 'Mail Filter Setup',
+   include    => 'Include',
+   exclude    => 'Exclude',
+   header     => 'Header',
+   body       => 'Body',
+   attfilename=> 'Attachment Filename',
+   enable     => 'Enable',
+   disable    => 'Disable',
+   read       => 'Read',
+   yourmsg    => 'Your message',
+   delivered  => 'Delivered',
+   wasreadon1 => 'was read on',
+   wasreadon2 => '.',
+   search     => 'Search'
+   );
+
+%lang_err = (
+            has_illegal_chars => 'laittomia merkkejä!',
+            couldnt_open      => 'Ei voitu avata',
+            couldnt_locksh    => 'Couldn\'t get read lock on',
+            couldnt_lock      => 'Ei saatu kirjoituslukkoa',
+            couldnt_seek      => 'Ei voinut hakea',
+            couldnt_close     => 'Ei voinut sulkea',
+            norootlogin       => 'Pääkäyttäjänä kirjautuminen kielletty',
+            shouldnt_move_here=> 'Sinun ei pitäisi yrittää siirtää viestejä tänne!',
+            destination_folder=> 'Päämärä kansio',
+            doesnt_exist      => 'Ei löydy!',
+            foldername_long   => 'Kansion nimi ei voi ylittää 16 merkkiä!',
+            folder_with_name  => 'kansi jonka nimi on',
+            already_exists    => 'on jo olemassa!',
+            cant_create_folder=> 'Ei voi luoda kansiota!',
+            abook_invalid     => 'Valitan tiedosto ei ole Microsoft Outlook Express 5 CVS muodossa. varmista että se alkaa maili-osoittella ja kokeile uudelleen',
+            back              => 'takaisin',
+            tryagain          => 'kokeile uudelleen.',
+            abook_toobig      => 'Valitan osoitekirjasi koko ei ritä',
+            cant_create_dir   => 'Ei voi luoda käyttäjäkansiota!',
+            folder_hitquota   => 'Olet käyttänyt kaiken sinulle varatun tilan, voit siirtää viestejä ROSKAKORIIN, mistä ne tuhotaan. Siirry takaisin tuhoa vanhoja viestejä ja yritä uudelleen.',
+            att_overlimit     => 'Liitetiedostosi koko ylittää sallitun rajan joka on',
+            inv_sessid        => 'Your request didn\'t contain the proper session ID cookie -- access denied!',
+            user_not_exist    => 'user does not exist',
+            password_error    => 'wrong password',
+            network_server_error => 'network server error'
+            );
+
+1;

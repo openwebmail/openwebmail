@@ -1,0 +1,134 @@
+#!/usr/bin/perl -T
+
+$lang_charset = 'iso-8859-1';
+
+%lang_folders =
+   (
+   INBOX => 'INDBAKKE',
+   SAVED => 'GEMTE',
+   SENT  => 'SENDTE',
+   TRASH => 'PAPIRKURV'
+   );
+
+%lang_sortlabels =
+   (
+   status      => 'Status (Unread first)',
+   date        => 'Dato (Nyeste først)',
+   date_rev    => 'Dato (Ældste først)',
+   sender      => 'Afsender (Alfabetisk)',
+   sender_rev  => 'Afsender (Omvendt alfabetisk)',
+   size        => 'Størrelse (Den største først)',
+   size_rev    => 'Størrelse (Den mindste først)',
+   subject     => 'Emne (Alfabetisk)',
+   subject_rev => 'Emne (Omvendt alfabetisk)'
+   );
+
+%lang_mualabels =
+   (
+   outlookexp5 => 'Outlook Express 5',
+   nsmail      => 'Netscape Mail 4.x'
+   );
+
+%lang_text =
+   (  
+   login      => 'Log ind',
+   clear      => 'Ryd',
+   of         => 'af',
+   messages   => 'meddelelser',
+   unread     => 'ulæste',
+   nomessages => 'Ingen meddelelser',
+   composenew => 'Ny meddelelse',
+   refresh    => 'Opdater',
+   userprefs  => 'Brugerindstilinger',
+   addressbook=> 'Adressebog',
+   folders    => 'Mapper',
+   emptytrash => 'Tøm papirkurv',
+   logout     => 'Log ud',
+   page       => 'Side',
+   moveconfirm=> '\'Er du siker på, at du vil flytte de(n) valgte meddelelse(r)?\'',
+   move       => 'Flyt',
+   date       => 'Dato',
+   recipient  => 'Modtager',
+   sender     => 'Afsender',
+   subject    => 'Emne',
+   size       => 'Størrelse',
+   backto     => 'Tilbage til',
+   reply      => 'Svar',
+   replyall   => 'Svar alle',
+   forward    => 'Videresend',
+   from       => 'Fra',
+   replyto    => 'Svar til',
+   to         => 'Til',
+   cc         => 'CC',
+   bcc        => 'BCC',
+   simplehead => 'Simple headers',
+   allhead    => 'Alle headers',
+   simpleattmode => 'Simple attachments',
+   allattmode    => 'All attachments',
+   attachment => 'Vedhæftning',
+   type       => 'Type',
+   filename   => 'Filnavn',
+   encoding   => 'Encoding',
+   download   => 'Gem',
+   send       => 'Send',
+   cancel     => 'Fortryd',
+   continue   => 'Fortsæt',
+   for        => 'FOR',
+   yourname   => 'Dit navn',
+   save       => 'Gem',
+   add        => 'Tilføj',
+   folderconf => '\'Er du sikker på, at du vil slette denne mappe og hele dens indhold?\'',
+   delete     => 'Slet',
+   importadd  => 'Importer adresser',
+   import     => 'Importer',
+   addmod     => 'Tilføj/Rediger',
+   abooktitle => 'Adressebog',
+   abook      => 'ADRESSEBOG',
+   quota_hit  => 'KVOTA HIT',
+   pop3book   => 'POP3 Setup',
+   retr_pop3s => 'Retrieve POP3 Mail',
+   filterbook => 'Mail Filter Setup',
+   include    => 'Include',
+   exclude    => 'Exclude',
+   header     => 'Header',
+   body       => 'Body',
+   attfilename=> 'Attachment Filename',
+   enable     => 'Enable',
+   disable    => 'Disable',
+   read       => 'Read',
+   yourmsg    => 'Your message',
+   delivered  => 'Delivered',
+   wasreadon1 => 'was read on',
+   wasreadon2 => '.',
+   search     => 'Search'
+   );
+
+%lang_err = (
+            has_illegal_chars => 'indeholder ugyldige tegn!',
+            couldnt_open      => 'Kunne ikke åbne',
+            couldnt_locksh    => 'Couldn\'t get read lock on',
+            couldnt_lock      => 'Kunne ikke låse',
+            couldnt_seek      => 'Kunne ikke søge til starten af',
+            couldnt_close     => 'Kunne ikke lukke',
+            norootlogin       => 'Beklager, rootlogin er slået fra af sikkerhedshensyn.',
+            shouldnt_move_here=> 'Du kan ikke flytte meddelelser hertil!',
+            destination_folder=> 'Destinationsmappe',
+            doesnt_exist      => 'findes ikke!',
+            foldername_long   => 'Mappenavne kan ikke være længere end 16 tegn!',
+            folder_with_name  => 'En mappe ved navn',
+            already_exists    => 'eksisterer allerede!',
+            cant_create_folder=> 'Kan ikke oprette mappe!',
+            abook_invalid     => 'Denne fil ser desværre ikke ud til at være en adressebog fra Microsoft Outlook Express 5 i CSV-format. Check i en teksteditor, at den første linie starter med "Name,E-mail Address", og gå ',
+            back              => 'tilbage',
+            tryagain          => 'og forsøg igen.',
+            abook_toobig      => 'Dette vil gøre din adressebog større end tilladt. Gå',
+            cant_create_dir   => 'Kan ikke oprette din brugermappe!',
+            folder_hitquota   => 'Beklager, du har brugt mere plads i dine mail-mapper end tilladt, og der kan ikke gemmes flere meddelelser i dine mapper. Du kan ikke flytte meddelelser andre steder end til papirkurven, hvor de vil blive slettet. Gå tilbage, slet nogle meddelelser eller tøm papirkurven, og forsøg igen.',
+            att_overlimit     => 'Dine vedhæftninger er større end de tilladte',
+            inv_sessid        => 'Your request didn\'t contain the proper session ID cookie -- access denied!',
+            user_not_exist    => 'user does not exist',
+            password_error    => 'wrong password',
+            network_server_error => 'network server error'
+            );
+
+1;

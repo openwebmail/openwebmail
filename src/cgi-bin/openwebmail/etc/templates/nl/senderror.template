@@ -1,0 +1,10 @@
+<BR><BR><BR><BR><BR><BR>
+<table border="0" align="center" width="25%" cellpadding="0" cellspacing="0">
+<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<b>FOUT BIJ VERZENDEN BERICHT</B></FONT>
+</td></tr><tr><td valign="middle" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
+Sorry, er is een probleem met het verzenden van het bericht.  Klik op uw browsers <BACK> knop,
+controleer uw bericht, en probeer opnieuw.  Als het probleem blijft bestaan,
+neem dan contact op met de auteur op <a href="mailto:neorants@users.sourceforge.net">neorants@users.sourceforge.net.</a>
+</td></tr></table>

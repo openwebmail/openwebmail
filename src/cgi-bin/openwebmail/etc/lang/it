@@ -1,0 +1,135 @@
+#!/usr/bin/perl -T
+
+$lang_charset = 'iso-8859-1';
+
+%lang_folders =
+   (
+   INBOX => 'ARRIVATI',
+   SAVED => 'SALVATI',
+   SENT  => 'INVIATI',
+   TRASH => 'CESTINO'
+   );
+
+%lang_sortlabels =
+   (
+   status      => 'Status (Unread first)',
+   date        => 'Data (Più recenti prima)',
+   date_rev    => 'Data (Più vecchi prima)',
+   sender      => 'Mittente (Ordine alfabetico)',
+   sender_rev  => 'Mittente (Ordine alfabetico inverso)',
+   size        => 'Dimensioni (Ordine decrescente)',
+   size_rev    => 'Dimensioni (Ordine crescente)',
+   subject     => 'Oggetto (Ordine alfabetico)',
+   subject_rev => 'Oggetto (Ordine alfabetico inverso)'
+   );
+
+%lang_mualabels =
+   (
+   outlookexp5 => 'Outlook Express 5',
+   nsmail      => 'Netscape Mail 4.x'
+   );
+
+%lang_text =
+   (  
+   login      => 'Login',
+   clear      => 'Pulisci',
+   of         => 'di',
+   messages   => 'messaggi',
+   unread     => 'non letti',
+   nomessages => 'Nessun messaggio',
+   composenew => 'Componi nuovo messaggio',
+   refresh    => 'Aggiorna',
+   userprefs  => 'Preferenze utente',
+   addressbook=> 'Rubrica',
+   folders    => 'Cartelle',
+   emptytrash => 'Svuota cestino',
+   logout     => 'Esci',
+   page       => 'Pagina',
+   moveconfirm=> '\'Sposto i messaggi selezionati?\'',
+   move       => 'Sposta',
+   date       => 'Data',
+   recipient  => 'Destinatario',
+   sender     => 'Mittente',
+   subject    => 'Oggetto',
+   size       => 'Dimensione',
+   backto     => 'Torna a',
+   reply      => 'Rispondi',
+   replyall   => 'Rispondi a tutti',
+   forward    => 'Inoltra',
+   from       => 'Da',
+   replyto    => 'Rispondi a',
+   to         => 'A',
+   cc         => 'CC',
+   bcc        => 'BCC',
+   simplehead => 'Intestazioni principali',
+   allhead    => 'Tutte le intestazioni',
+   simpleattmode => 'Simple attachments',
+   allattmode    => 'All attachments',
+   attachment => 'Allegato',
+   type       => 'Tipo',
+   filename   => 'Nome del file',
+   encoding   => 'Encoding',
+   download   => 'Scarica',
+   send       => 'Invia',
+   cancel     => 'Annulla',
+   continue   => 'Continua',
+   for        => 'PER',
+   yourname   => 'Nome',
+   save       => 'Salva',
+   add        => 'Aggiungi',
+   folderconf => '\'Cancello questa cartella e tutto il suo contenuto?\'',
+   delete     => 'Cancella',
+   importadd  => 'Importa indirizzi',
+   import     => 'Importa',
+   addmod     => 'Aggiungi/Modifica',
+   abooktitle => 'Rubrica di ',
+   abook      => 'RUBRICA',
+   quota_hit  => 'LIMITE RAGGIUNTO',
+   pop3book   => 'POP3 Setup',
+   retr_pop3s => 'Retrieve POP3 Mail',
+   filterbook => 'Mail Filter Setup',
+   include    => 'Include',
+   exclude    => 'Exclude',
+   header     => 'Header',
+   body       => 'Body',
+   attfilename=> 'Attachment Filename',
+   enable     => 'Enable',
+   disable    => 'Disable',
+   read       => 'Read',
+   yourmsg    => 'Your message',
+   delivered  => 'Delivered',
+   wasreadon1 => 'was read on',
+   wasreadon2 => '.',
+   search     => 'Search'
+   );
+
+%lang_err = (
+            has_illegal_chars => 'contiene caratteri non permessi!',
+            couldnt_open      => 'Non posso aprire',
+            couldnt_locksh    => 'Couldn\'t get read lock on',
+            couldnt_lock      => 'Non posso scrivere',
+            couldnt_seek      => 'Non posso raggiungere l\'inizio di',
+            couldnt_close     => 'Non posso chiudere',
+            norootlogin       => 'Spiacente, ma root non puo\' usare questo sistema per motivi di sicurezza',
+            shouldnt_move_here=> 'Non dovresti tentare di spostare i tuoi messaggi qui!',
+            destination_folder=> 'Cartella destinazione',
+            doesnt_exist      => 'non esiste!',
+            foldername_long   => 'Il nome di una cartella non può essere più lungo di 16 caratteri!',
+            folder_with_name  => 'Una cartella di nome',
+            already_exists    => 'esiste già!',
+            cant_create_folder=> 'Non posso creare la cartella',
+            abook_invalid     => 'Questo file non è una rubrica esportata da Outlook Express 5 in formato CSV. Assicurati che la prima riga inizi con
+"Nome ,E-mail", quindi torna',
+            back              => 'indietro',
+            tryagain          => 'e riprova.',
+            abook_toobig      => 'Spiacente, questo eccederebbe il limite per la tua rubrica. Torna',
+            cant_create_dir   => 'Non posso creare la tua directory utente!',
+            folder_hitquota   => 'Spiacente, hai raggiunto il limite di spazio a te concesso e non puoi più salvare posta. Puoi solo spostare i tuoi messaggi nel cestino dove verranno cancellati. Torna indietro, cancella qualche messaggio, svuota il cestino e riprova.',
+            att_overlimit     => 'L\'allegato è troppo grande. Il limite è',
+            inv_sessid        => 'Your request didn\'t contain the proper session ID cookie -- access denied!',
+            user_not_exist    => 'user does not exist',
+            password_error    => 'wrong password',
+            network_server_error => 'network server error'
+            );
+
+1;

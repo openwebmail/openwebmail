@@ -1,0 +1,39 @@
+<table border="0" align="center" width="80%" cellpadding="0" cellspacing="0">
+<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>IMPORTAR LIBRETA DE DIRECCIONES</B></font>
+</td><td bgcolor=@@@TITLEBAR@@@ align="right">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>@@@FREESPACE@@@ KB Libres</B></font>
+</td></tr>
+<tr><td colspan="2" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
+
+<table border="0" align="center" width="80%" cellpadding="0" cellspacing="0">
+<tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
+<BR>Outlook Express 5 y Netscape Mail pueden exportar sus libretas de dirección
+en un formato conocido como CSV, ó Comma Separated Values.  Open WebMail puede importar
+esos archivos hacia su libreta de direcciones personal y así evitarle horas de 
+tedioso re-escribir.
+<ul>
+<li> En Netscape, abra su libreta de direcciones, seleccione Archivo-&gt;Exportar, luego
+en "Guardar como tipo:" escoja "Comma Separated (*.csv)." <BR><BR>
+<li> En Outlook Express, en la ventana principal, escoja en la persiana de Archivo-&gt;Exportar-&gt;Libreta 
+de Direcciones y seleccione como tipo de archivo "Archivo de Texto." Asegurese
+que los campos Nombre y E-mail esten de primero, lo cual es la propiedad por defacto.
+</ul>
+</td></tr></table>
+
+@@@STARTIMPORTFORM@@@
+@@@MUARADIOGROUP@@@
+<BR>
+@@@IMPORTFILEFIELD@@@
+</td></tr>
+<tr><td width="50%" align="right" bgcolor=@@@WINDOW_LIGHT@@@>
+@@@IMPORTBUTTON@@@ &nbsp;&nbsp;
+</td>
+@@@ENDFORM@@@
+@@@STARTCANCELFORM@@@
+<td width="50%" align="left" bgcolor=@@@WINDOW_LIGHT@@@>
+&nbsp;&nbsp;@@@CANCELBUTTON@@@
+</td></tr></table>
+@@@ENDFORM@@@

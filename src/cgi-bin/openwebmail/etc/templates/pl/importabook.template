@@ -1,0 +1,36 @@
+<table border="0" align="center" width="75%" cellpadding="0" cellspacing="0">
+<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>IMPORT KSI¡¯KI ADRESOWEJ</B></font>
+</td><td bgcolor=@@@TITLEBAR@@@ align="right">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>Dostêpne: @@@FREESPACE@@@ KB</B></font>
+</td></tr>
+<tr><td colspan="2" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
+
+<table border="0" align="center" width="75%" cellpadding="0" cellspacing="0">
+<tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
+<BR>Outlook Express 5 i Netscape Mail maja mozliwo¶æ eksportu swoich ksi±¿ek adresowych do formatu zwanego CSV (<i>Comma Separated Values</i> - warto¶ci oddzielone przecinkami).  Open WebMail potrafi zaimportowaæ te pliki
+do Twojej osobistej Ksi±¿ki Adresowej by zaoszczêdziæ Ci mozolnego "wklepywania" adresów rêcznie.
+<ul>
+<li> W przegl±darce Netscape, otwórz swoj± ksi±¿kê adresow± i wybierz File-&gt;Export, nastêpnie
+w "Save as type:" wybierz "Comma Separated (*.csv)." <BR><BR>
+<li> W programie Outlook Express, w g³ównym oknie wybierz File-&gt;Export-&gt;Address Book, a nastêpnie wybierz typ pliku exportowanego "Text file." 
+Upewnij siê czy pola Name and E-mail bêd± pierwszymi, co jest ustawieniem domy¶lnym.
+</ul>
+</td></tr></table>
+
+@@@STARTIMPORTFORM@@@
+@@@MUARADIOGROUP@@@
+<BR>
+@@@IMPORTFILEFIELD@@@
+</td></tr>
+<tr><td width="50%" align="right" bgcolor=@@@WINDOW_LIGHT@@@>
+@@@IMPORTBUTTON@@@ &nbsp;&nbsp;
+</td>
+@@@ENDFORM@@@
+@@@STARTCANCELFORM@@@
+<td width="50%" align="left" bgcolor=@@@WINDOW_LIGHT@@@>
+&nbsp;&nbsp;@@@CANCELBUTTON@@@
+</td></tr></table>
+@@@ENDFORM@@@

@@ -1,0 +1,139 @@
+#!/usr/bin/perl -T
+
+$lang_charset = 'iso-8859-2';
+
+# Slovak translation by Maros Michalik, michalm@pobox.sk, 2000-MAY-23
+# slovak alphabet encoded by ISO-8859-2
+
+%lang_folders =
+   (
+   INBOX => 'PRIJATÉ',
+   SAVED => 'ULO®ENÉ',
+   SENT  => 'POSLANÉ',
+   TRASH => 'KÔ©'
+   );
+
+%lang_sortlabels =
+   (
+   status      => 'Status (Unread first)',
+   date        => 'Dátum (Najnov¹ie prvé)',
+   date_rev    => 'Dátum (Najstar¹ie prvé)',
+   sender      => 'Odosielateµ (Podµa abecedy)',
+   sender_rev  => 'Odosielateµ (Obrátene podµa abecedy)',
+   size        => 'Veµkos» (Najväè¹ie prvé)',
+   size_rev    => 'Veµkos» (Najmen¹ie prvé)',
+   subject     => 'Predmet (Podµa abecedy)',
+   subject_rev => 'Predmet (Obrátene podµa abecedy)'
+   );
+
+%lang_mualabels =
+   (
+   outlookexp5 => 'Outlook Express 5',
+   nsmail      => 'Netscape Mail 4.x'
+   );
+
+%lang_text =
+   (  
+   login      => 'Prihlási»',
+   clear      => 'Zmaza»',
+   of         => 'z',
+   messages   => 'správ',
+   unread     => 'nepreèítaných',
+   nomessages => '®iadne správy',
+   composenew => 'Napísa» novú správu',
+   refresh    => 'Obnovi»',
+   userprefs  => 'U¾ivateµské nastavenia',
+   addressbook=> 'Adresár',
+   folders    => 'Katalógy',
+   emptytrash => 'Vysypa» kô¹',
+   logout     => 'Odhlasi»',
+   page       => 'Strana',
+   moveconfirm=> '\'Ste si istý ¾e chcete presunú» vybrané správy?\'',
+   move       => 'Presunú»',
+   date       => 'Dátum',
+   recipient  => 'Príjemca',
+   sender     => 'Odosielateµ',
+   subject    => 'Predmet',
+   size       => 'Veµkos»',
+   backto     => 'Spä»',
+   reply      => 'Odpoveda»',
+   replyall   => 'Odpoveda» v¹etkým',
+   forward    => 'Posla» ïalej',
+   from       => 'Od',
+   replyto    => 'Odpoveda»-na',
+   to         => 'Komu',
+   cc         => 'CC',
+   bcc        => 'BCC',
+   simplehead => 'Jednoduché záhlavie',
+   allhead    => 'Kompletné záhlavie',
+   simpleattmode => 'Simple attachments',
+   allattmode    => 'All attachments',
+   attachment => 'Príloha',
+   type       => 'Typ',
+   filename   => 'Meno súboru',
+   encoding   => 'Kódovanie',
+   download   => 'Ulo¾i» do súboru',
+   send       => 'Posla»',
+   cancel     => 'Zru¹i»',
+   continue   => 'Pokraèova»',
+   for        => 'PRE',
+   yourname   => 'Va¹e Meno',
+   save       => 'Ulo¾i»',
+   add        => 'Prida»',
+   folderconf => '\'Ste si istý ¾e chcete zmaza» tento katalóg a celý jeho obsah?\'',
+   delete     => 'Zmaza»',
+   importadd  => 'Import adries',
+   import     => 'Import',
+   addmod     => 'Prida»/Zmeni»',
+   abooktitle => 'Adresár',
+   abook      => 'ADRESÁR',
+   quota_hit  => 'VRCHOL KVÔTY',
+   pop3book   => 'POP3 Setup',
+   retr_pop3s => 'Retrieve POP3 Mail',
+   filterbook => 'Mail Filter Setup',
+   include    => 'Include',
+   exclude    => 'Exclude',
+   header     => 'Header',
+   body       => 'Body',
+   attfilename=> 'Attachment Filename',
+   enable     => 'Enable',
+   disable    => 'Disable',
+   read       => 'Read',
+   yourmsg    => 'Your message',
+   delivered  => 'Delivered',
+   wasreadon1 => 'was read on',
+   wasreadon2 => '.',
+   search     => 'Search'
+   );
+
+%lang_err = (
+            has_illegal_chars => 'má nepovolené znaky!',
+            couldnt_open      => 'Nedá sa otvori»',
+            couldnt_locksh    => 'Couldn\'t get read lock on',
+            couldnt_lock      => 'Nedá sa uzamknú»',
+            couldnt_seek      => 'Nedá sa presunú» na zaèiatok',
+            couldnt_close     => 'Nedá sa zavrie»',
+            norootlogin       => 'Prepáète, prístup administrátora je blokovaný kvôli bespeènostným príèinám.',
+            shouldnt_move_here=> 'Sem by ste sa nemali pokú¹a» presunú» správu!',
+            destination_folder=> 'Cieµový katalóg',
+            doesnt_exist      => 'neexistuje!',
+            foldername_long   => 'Meno katalógu nemô¾e presiahnu» 16 znakov!',
+            folder_with_name  => 'Katalóg s týmto názvom',
+            already_exists    => 'u¾ existuje!',
+            cant_create_folder=> 'Nedá sa vytvori» katalóg!',
+            abook_invalid     => 'Prepáète, ale tento súbor nevyzerá ako adresár exportovaný z Microsoft Outlook Express 5 v CVS formáte. Uistite sa o tom prezretím v textovom editori. Prvý riadok by mal zaèína» "Name,E-mail Address", potom pokraèujte.',
+            back              => 'spä»',
+            tryagain          => 'a skúste znova.',
+            abook_toobig      => 'Prepáète, toto by presiahlo veµkostný limit pre Vá¹ adresár. Peosím pokraèujte.',
+            cant_create_dir   => 'Nadá sa vytvori» Vá¹ u¾ivateµský adresár!',
+            folder_hitquota   => 'Prepáète, dosiahli ste hranicu kvôty a u¾ ¾iadna z Va¹ích správ nemô¾e by» ulo¾ená do ¾iadneho katalógu. Nebudete môc» presunú» správu do iného katalógu okrem KO©A, kde mô¾e by» zmazaná. Vrá»te sa a zma¾te niektoré správy alebo vysypte KÔ© a skúste znovu.',
+            att_overlimit     => 'Prepáète, Vá¹a príloha presiahla veµkostný limit, ktorý je',
+            inv_sessid        => 'Your request didn\'t contain the proper session ID cookie -- access denied!',
+            user_not_exist    => 'user does not exist',
+            password_error    => 'wrong password',
+            network_server_error => 'network server error'
+            );
+
+1;
+
+

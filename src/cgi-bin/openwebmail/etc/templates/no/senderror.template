@@ -1,0 +1,10 @@
+<BR><BR><BR><BR><BR><BR>
+<table border="0" align="center" width="25%" cellpadding="0" cellspacing="0">
+<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<b>FEIL VED  SENDING AV MAIL</B></FONT>
+</td></tr><tr><td valign="middle" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
+Beklager, meldingen kunne ikke sendes. Trykk på nettleserens
+Back-knapp, kontroller meldingen, og forsøk igjen. Hvis du får problemer igjen,
+kontakt utvikleren på neorants@users.sourceforge.net.
+</td></tr></table>

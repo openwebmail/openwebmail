@@ -1,0 +1,134 @@
+#!/usr/bin/perl -T
+
+$lang_charset = 'iso-8859-1';
+
+%lang_folders =
+   (
+   INBOX => 'REÇU',
+   SAVED => 'ENREGISTRÉ',
+   SENT  => 'ENVOYÉ',
+   TRASH => 'CORBEILLE'
+   );
+
+%lang_sortlabels =
+   (
+   status      => 'Status (Unread first)',
+   date        => 'Date (le plus récent d\'abord)',
+   date_rev    => 'Date (le plus ancien d\'abord)',
+   sender      => 'Expéditeur (Ordre alphabétique)',
+   sender_rev  => 'Expéditeur (Ordre alphabétique inverse)',
+   size        => 'Taille (le plus gros d\'abord)',
+   size_rev    => 'Taille (le plus petit d\'abord)',
+   subject     => 'Sujet (Ordre alphabétique)',
+   subject_rev => 'Sujet (Ordre alphabétique inverse)'
+   );
+
+%lang_mualabels =
+   (
+   outlookexp5 => 'Outlook Express 5',
+   nsmail      => 'Netscape Mail 4.x'
+   );
+
+%lang_text =
+   (  
+   login      => 'Identifiant (Login)',
+   clear      => 'Effacer',
+   of         => 'de',
+   messages   => 'messages',
+   unread     => 'non lu(s)',
+   nomessages => 'Pas de messages',
+   composenew => 'Composer un nouveau message',
+   refresh    => 'Rafraîchir',
+   userprefs  => 'Préférences Utilisateur',
+   addressbook=> 'Carnet d\'adresses',
+   folders    => 'Dossiers',
+   emptytrash => 'Corbeille vide',
+   logout     => 'Déconnecter (Logout)',
+   page       => 'Page',
+   moveconfirm=> '\'Êtes-vous sûr(e) de voulir déplacer le(s) message(s) sélectionné(s) ?\'',
+   move       => 'Déplacer',
+   date       => 'Date',
+   recipient  => 'Destinataire',
+   sender     => 'Expéditeur',
+   subject    => 'Sujet',
+   size       => 'Taille',
+   backto     => 'Retour à',
+   reply      => 'Répondre',
+   replyall   => 'Répondre à tous',
+   forward    => 'Faire suivre',
+   from       => 'De',
+   replyto    => 'Répondre à',
+   to         => 'À',
+   cc         => 'Copie',
+   bcc        => 'Copie invisible',
+   simplehead => 'En-têtes simples',
+   allhead    => 'Tous les en-têtes',
+   simpleattmode => 'Simple attachments',
+   allattmode    => 'All attachments',
+   attachment => 'Pièce attachée',
+   type       => 'Type',
+   filename   => 'Nom de fichier',
+   encoding   => 'Encodage',
+   download   => 'Télécharger',
+   send       => 'Envoyer',
+   cancel     => 'Annuler',
+   continue   => 'Reprendre',
+   for        => 'POUR',
+   yourname   => 'Votre nom',
+   save       => 'Enregistrer',
+   add        => 'Ajouter',
+   folderconf => '\'Êtes-vous sûr(e) de vouloir détruire ce dossier et tout son contenu ?\'',
+   delete     => 'Effacer',
+   importadd  => 'Importer adresses',
+   import     => 'Importer',
+   addmod     => 'Ajouter/Modifier',
+   abooktitle => 'Carnet d\'adresses ',
+   abook      => 'CARNET D\'ADRESSES',
+   quota_hit  => 'QUOTA ATTEINT',
+   pop3book   => 'POP3 Setup',
+   retr_pop3s => 'Retrieve POP3 Mail',
+   filterbook => 'Mail Filter Setup',
+   include    => 'Include',
+   exclude    => 'Exclude',
+   header     => 'Header',
+   body       => 'Body',
+   attfilename=> 'Attachment Filename',
+   enable     => 'Enable',
+   disable    => 'Disable',
+   read       => 'Read',
+   yourmsg    => 'Your message',
+   delivered  => 'Delivered',
+   wasreadon1 => 'was read on',
+   wasreadon2 => '.',
+   search     => 'Search'
+   );
+
+%lang_err = (
+            has_illegal_chars => 'a des caractères illégaux !',
+            couldnt_open      => 'Ouverture imposible de ',
+            couldnt_locksh    => 'Couldn\'t get read lock on',
+            couldnt_lock      => 'Protection en écriture de ',
+            couldnt_seek      => 'Recherche impossible vers le début de',
+            couldnt_close     => 'Fermeture impossible de',
+            norootlogin       => 'Connexion root désactivée pour des raisons de sécurité.',
+            shouldnt_move_here=> 'Vous ne devriez pas tenter de déplacer des messages ici !',
+            destination_folder=> 'Dossier de destination',
+            doesnt_exist      => 'n\'existe pas !',
+            foldername_long   => 'Le nom du dossier est limité à 16 caractères !',
+            folder_with_name  => 'Un dossier du nom de',
+            already_exists    => 'existe déjà !',
+            cant_create_folder=> 'impossible de créer le dossier !',
+            abook_invalid     => 'Désolé, ce fichier ne semble pas être un carnet d\'adresses au format CSV exporté depuis Microsoft Outlook Express 5. Assurez-vous en le visualisant avec un éditeur de texte la première ligne débute par "Name,E-mail Address", puis recommencez.',
+            back              => 'retour',
+            tryagain          => 'réessayez.',
+            abook_toobig      => 'Désolé, la taille limite de votre carnet d\'adresses serait dépassée.',
+            cant_create_dir   => 'Impossible de créer votre répertoire utilisateur !',
+            folder_hitquota   => 'Désolé, vous avez atteint votre quota, aucun courrier supplémentaire ne peut plus être stocké dans vos dossiers. Vous ne pouvez plus déplacer de message, sauf vers la CORBEILLE où ils seront détruits.  Effacez quelques messages, videz votre corbeille, et réessayez.',
+            att_overlimit     => 'Sorry, your attachment exceeds the attachment size limit, which is',
+            inv_sessid        => 'Your request didn\'t contain the proper session ID cookie -- access denied!',
+            user_not_exist    => 'user does not exist',
+            password_error    => 'wrong password',
+            network_server_error => 'network server error'
+            );
+
+1;

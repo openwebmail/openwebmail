@@ -1,0 +1,135 @@
+#!/usr/bin/perl -T
+
+$lang_charset = 'iso-8859-1';
+
+%lang_folders =
+   (
+   INBOX => 'INBOX',
+   SAVED => 'SAVED',
+   SENT  => 'SENT',
+   TRASH => 'TRASH'
+   );
+
+%lang_sortlabels =
+   (
+   status      => 'Status (Unread first)',
+   date        => 'Date (Newest first)',
+   date_rev    => 'Date (Oldest first)',
+   sender      => 'Sender (Alphabetical)',
+   sender_rev  => 'Sender (Reverse alphabetical)',
+   size        => 'Size (Largest first)',
+   size_rev    => 'Size (Smallest first)',
+   subject     => 'Subject (Alphabetical)',
+   subject_rev => 'Subject (Reverse alphabetical)'
+   );
+
+%lang_mualabels =
+   (
+   outlookexp5 => 'Outlook Express 5',
+   nsmail      => 'Netscape Mail 4.x'
+   );
+
+%lang_text =
+   (  
+   login      => 'Login',
+   clear      => 'Clear',
+   of         => 'of',
+   messages   => 'messages',
+   unread     => 'unread',
+   nomessages => 'No messages',
+   composenew => 'Compose new message',
+   refresh    => 'Refresh',
+   userprefs  => 'User preferences',
+   addressbook=> 'Address book',
+   folders    => 'Folders',
+   emptytrash => 'Empty trash',
+   logout     => 'Logout',
+   page       => 'Page',
+   moveconfirm=> '\'Are you sure you want to move the selected message(s)?\'',
+   move       => 'Move',
+   date       => 'Date',
+   recipient  => 'Recipient',
+   sender     => 'Sender',
+   subject    => 'Subject',
+   size       => 'Size',
+   backto     => 'Back to',
+   reply      => 'Reply',
+   replyall   => 'Reply all',
+   forward    => 'Forward',
+   from       => 'From',
+   replyto    => 'Reply-to',
+   to         => 'To',
+   cc         => 'CC',
+   bcc        => 'BCC',
+   simplehead => 'Simple headers',
+   allhead    => 'All headers',
+   simpleattmode => 'Simple attachments',
+   allattmode    => 'All attachments',
+   attachment => 'Attachment',
+   type       => 'Type',
+   filename   => 'Filename',
+   encoding   => 'Encoding',
+   download   => 'Download',
+   send       => 'Send',
+   cancel     => 'Cancel',
+   continue   => 'Continue',
+   for        => 'FOR',
+   yourname   => 'Your Name',
+   save       => 'Save',
+   add        => 'Add',
+   folderconf => '\'Are you sure you want to delete this folder and all its contents?\'',
+   delete     => 'Delete',
+   reserve    => 'Reverse',
+   importadd  => 'Import addresses',
+   import     => 'Import',
+   addmod     => 'Add/Modify',
+   abooktitle => 'Address Book',
+   abook      => 'ADDRESS BOOK',
+   quota_hit  => 'QUOTA HIT',
+   pop3book   => 'POP3 Setup',
+   retr_pop3s => 'Retrieve POP3 Mail',
+   filterbook => 'Mail Filter Setup',
+   include    => 'Include',
+   exclude    => 'Exclude',
+   header     => 'Header',
+   body       => 'Body',
+   attfilename=> 'Attachment Filename',
+   enable     => 'Enable',
+   disable    => 'Disable',
+   read       => 'Read',
+   yourmsg    => 'Your message',
+   delivered  => 'Delivered',
+   wasreadon1 => 'was read on',
+   wasreadon2 => '.',
+   search     => 'Search'
+   );
+
+%lang_err = (
+            has_illegal_chars => 'has illegal characters!',
+            couldnt_open      => 'Couldn\'t open',
+            couldnt_locksh    => 'Couldn\'t get read lock on',
+            couldnt_lock      => 'Couldn\'t get write lock on',
+            couldnt_seek      => 'Couldn\'t seek to the beginning of',
+            couldnt_close     => 'Couldn\'t close',
+            norootlogin       => 'Sorry, root login is disabled for security\'s sake.',
+            shouldnt_move_here=> 'You shouldn\'t be trying to move messages here!',
+            destination_folder=> 'Destination folder',
+            doesnt_exist      => 'doesn\'t exist!',
+            foldername_long   => 'Folder name cannot be more than 16 characters!',
+            folder_with_name  => 'A folder with the name',
+            already_exists    => 'already exists!',
+            cant_create_folder=> 'Can\'t create folder!',
+            abook_invalid     => 'Sorry, this file doesn\'t appear to be an address book exported from Microsoft Outlook Express 5 in CSV format.  Make sure that when viewing it in a text editor, the first line starts out "Name,E-mail Address", then go',
+            back              => 'back',
+            tryagain          => 'and try again.',
+            abook_toobig      => 'Sorry, this would exceed the size limit for your address book.  Please go',
+            cant_create_dir   => 'Can\'t create your user directory!',
+            folder_hitquota   => 'Sorry, you\'ve hit your quota, and no more mail can be stored in your mail folders.  You will be unable to move messages anywhere but to the TRASH, where they will be deleted.  Go back, delete some messages or empty your trash, and try again.',
+            att_overlimit     => 'Sorry, your attachments exceed the attachment size limit, which is',
+            inv_sessid        => 'Your request didn\'t contain the proper session ID cookie -- access denied!',
+            user_not_exist    => 'user does not exist',
+            password_error    => 'wrong password',
+            network_server_error => 'network server error'
+            );
+
+1;
