@@ -1,7 +1,7 @@
 <BR><BR><BR><BR><BR>
 <table border="0" align="center" width="60%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@>
-<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><B>SCHIMBARE PAROLA</B></FONT>
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><B>SCHIMBARE PAROLĂ</B></FONT>
 </td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 @@@STARTFORM@@@
 <BR>
@@ -11,9 +11,9 @@
 </tr><tr>
 <td align="right">Parola veche: </td><td>@@@OLDPASSWORDFIELD@@@</td>
 </tr><tr>
-<td align="right">Parola noua: </td><td>@@@NEWPASSWORDFIELD@@@</td>
+<td align="right">Parola nouă: </td><td>@@@NEWPASSWORDFIELD@@@</td>
 </tr><tr>
-<td align="right">Confirmare parola noua: </td><td>@@@CONFIRMNEWPASSWORDFIELD@@@</td>
+<td align="right">Confirmare parola nouă: </td><td>@@@CONFIRMNEWPASSWORDFIELD@@@</td>
 </tr><tr>
 <td colspan=2>
 <table width="100%"><tr>
@@ -31,17 +31,17 @@
       var s;
       s=document.passwordform.newpassword.value;
       if (s.length < @@@PASSWDMINLEN@@@) {
-         alert("Lungimea parolei trebuie sa fie de minim @@@PASSWDMINLEN@@@ caractere.");
+         alert("Lungimea parolei trebuie să fie de minim @@@PASSWDMINLEN@@@ caractere.");
          return false;
       }
       if (document.passwordform.newpassword.value !=
 	  document.passwordform.confirmnewpassword.value) {
-         alert("Confirmarea parolei nu este corecta.");
+         alert("Confirmarea parolei nu este corectă.");
          return false;
       }
       if (document.passwordform.newpassword.value ==
 	  document.passwordform.oldpassword.value) {
-         alert("Parola noua este aceeasi cu cea veche.");
+         alert("Parola nouă este aceeaşi cu cea veche.");
          return false;
       }
       return true;

@@ -1,3 +1,13 @@
+02/02/2005
+----------
+1. fix a bug in fetchmail.pl readdata() which always returns true
+   after remote pop3 socket is closed unespectedly, this caused a fever
+   loop in fetchmail(), thus introduced huge process...
+   (reported by Mike Fahey, mfahey.AT.enter.net)
+2. Romanian (ro & ro.utf8) lang and template files translation update
+   (thanks to Gabriel Hojda, gabriel.hojda.AT.gmail.com)
+
+
 02/01/2005
 ----------
 1. rename option log_filter_detail to debug_mailfilter,

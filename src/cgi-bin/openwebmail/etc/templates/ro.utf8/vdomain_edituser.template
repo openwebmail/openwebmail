@@ -32,11 +32,11 @@
 <td align="right">@@@SETPASS@@@: </td>
 <td>@@@NEWPASSWORDFIELD@@@</td>
 <td width="10%" align="right">@@@CHKLOGIN@@@ </td>
-<td>Suspenda autentificare @@@DISABLECHKLOGIN@@@</td>
+<td>Suspendă autentificare @@@DISABLECHKLOGIN@@@</td>
 <td>&nbsp;</td>
 </tr>
 <tr>
-<td align="right">Confirma parola: </td>
+<td align="right">Confirmă parola: </td>
 <td>@@@CONFIRMNEWPASSWORDFIELD@@@</td>
 <td width="10%" align="right">@@@CHKFWD@@@ </td>
 <td>Trimite email la: </td>
@@ -52,9 +52,9 @@
 <tr><td align="center" valign="middle" bgcolor=@@@WINDOW_LIGHT@@@>
 <table align="center" border="0" cellspacing="0" cellpadding="1" width="90%">
 <tr>
- <td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Adresa email/Alias</B> (click pentru editare)</td>
+ <td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Adresă email/Alias</B> (click pentru editare)</td>
  <td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Nume real</B></td>
- <td align="center" bgcolor=@@@COLUMNHEADER@@@><B>Actiune</B></td>
+ <td align="center" bgcolor=@@@COLUMNHEADER@@@><B>Acţiune</B></td>
 </tr>
 <tr>
  <td nowrap bgcolor=@@@TABLEROW_LIGHT@@@>@@@EMAILFIELD@@@</td>

@@ -4,7 +4,7 @@
     <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>Import Informatii Agenda</b></font>
   </td>
   <td bgcolor=@@@TITLEBAR@@@ align="right">
-    <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>@@@AVAILFREESPACE@@@ Available</b></font>
+    <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>@@@AVAILFREESPACE@@@ disponibili</b></font>
   </td>
 </tr>
 <tr>

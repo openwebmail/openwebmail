@@ -5,7 +5,7 @@
   <td bgcolor=@@@TITLEBAR@@@>
     <table cellpadding="0" cellspacing="0" border="0" width="100%">
     <tr>
-      <td bgcolor=@@@TITLEBAR@@@><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>Editare Informatii Personale</b></font></td>
+      <td bgcolor=@@@TITLEBAR@@@><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>Editare Informaţii Personale</b></font></td>
       <td bgcolor=@@@TITLEBAR@@@ align="right"><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>@@@ABOOKNAME@@@</b></td>
     </tr>
     </table>
@@ -31,7 +31,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Informatii Personale</b></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Informaţii Personale</b></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -79,7 +79,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Adresa</b>&nbsp;<a name="ADR" href="javascript:document.editForm.formchange.value='ADR,0,1'; document.editForm.submit();">+</a></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Adresă</b>&nbsp;<a name="ADR" href="javascript:document.editForm.formchange.value='ADR,0,1'; document.editForm.submit();">+</a></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -95,7 +95,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Informatii Servici</b>&nbsp;<a name="ORG" href="javascript:document.editForm.formchange.value='ORG,0,1'; document.editForm.submit();">+</a></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Informaţii Servici</b>&nbsp;<a name="ORG" href="javascript:document.editForm.formchange.value='ORG,0,1'; document.editForm.submit();">+</a></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -111,7 +111,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Informatii Diverse</b><a name="URL"></a></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Informaţii Diverse</b><a name="URL"></a></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -127,7 +127,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Carte de vizita</b></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Carte de vizită</b></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -159,7 +159,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Adauga fisiere la contact - @@@AVAILABLEATTSPACE@@@ disponibili</b></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Adaugă fişiere la contact - @@@AVAILABLEATTSPACE@@@ disponibili</b></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -170,11 +170,11 @@
     <tr>
       <td>
         <select name="UPLOAD.FILE.TYPE" class="mono">
-        <option value="PHOTO" selected>Poza</option>
-        <option value="SOUND">Transcriere fonetica</option>
-        <option value="LOGO">Emblema companie</option>
-        <option value="KEY">Cheie publica de criptare</option>
-        <option value="AGENT">Carte vizita agent</option>
+        <option value="PHOTO" selected>Poză</option>
+        <option value="SOUND">Transcriere fonetică</option>
+        <option value="LOGO">Emblemă companie</option>
+        <option value="KEY">Cheie publică de criptare</option>
+        <option value="AGENT">Carte vizită agent</option>
         </select>
       </td>
       <td width="5">&nbsp;</td>
@@ -187,9 +187,9 @@
       <td>@@@UPLOADWEBDISKLINK@@@</td>
     </tr>
     <tr>
-      <td colspan="2" class="smalltext" nowrap>alegeti tipul fisierul de adaugat</td>
-      <td colspan="2" class="smalltext" nowrap>introduceti adresa fisierului (http://...)</td>
-      <td colspan="5" class="smalltext" nowrap>sau incarcati fisierul direct</td>
+      <td colspan="2" class="smalltext" nowrap>alegeţi tipul fişierului de adăugat</td>
+      <td colspan="2" class="smalltext" nowrap>introduceţi adresa fişierului (http://...)</td>
+      <td colspan="5" class="smalltext" nowrap>sau încărcaţi fişierul direct</td>
     </tr>
     <tr>
       <td  colspan="9" height="10">&nbsp;</td>
@@ -291,26 +291,26 @@ function showGeo (formName, geoNumber, showThing) {
          window.open(url,"_showGeo","width=550,height=500,resizable=yes,scrollbars=yes");
       }
    } else {
-      alert('Trebuie sa completati latitudine si longitudinea\ninainte de a vizualiza locatii sau imagini.');
+      alert('Trebuie să completaţi latitudinea şi longitudinea\nînainte de a vizualiza locaţii sau imagini.');
    }
 }
 
 function popupNotice (msgOption) {
    if (msgOption == 'agentmustsave') {
-      return(confirm('Trebuie sa salvati inainte de a crea sau vizualiza o carte de vizita pentru agent.\nSalvati si continuati?'));
+      return(confirm('Trebuie să salvaţi înainte de a crea sau vizualiza o carte de vizită pentru agent.\nSalvaţi şi continuaţi?'));
    } else if (msgOption == 'cancelchanges') {
-      return(confirm('Toate modificari la acest agent se vor pierde, continuati?'));
+      return(confirm('Toate modificările la acest agent se vor pierde, continuaţi?'));
    }
 }
 
 function savecheck (formName) {
    if (document.forms[formName].elements['N.0.VALUE.GIVENNAME'].value == '' &&
        document.forms[formName].elements['N.0.VALUE.FAMILYNAME'].value == '') {
-      alert("Completati va rog intai campul nume sau prenume.");
+      alert("Completaţi vă rog întâi câmpul nume sau prenume.");
       return false;
    }
    if (document.forms[formName].elements['EMAIL.0.VALUE'].value == '') {
-      return(confirm("Adresa email necompletata, doriti sa salvati?"));
+      return(confirm("Adresa email necompletată, doriţi să salvaţi?"));
    }
    return true
 }

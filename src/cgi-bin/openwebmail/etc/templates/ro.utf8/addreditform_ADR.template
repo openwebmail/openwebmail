@@ -36,7 +36,7 @@
           <td><input class="mono" type="text" name="@@@POSTOFFICEADDRESS.NAME@@@" value="@@@POSTOFFICEADDRESS.VALUE@@@" size="30"></td>
         </tr>
         <tr>
-          <td class="smalltext">oficiu postal</td>
+          <td class="smalltext">oficiu poştal</td>
         </tr>
         <tr>
           <td class="smalltext">&nbsp;</td>
@@ -50,9 +50,9 @@
               <td><input class="mono" type="text" name="@@@REGION.NAME@@@" value="@@@REGION.VALUE@@@" size="15"></td>
             </tr>
             <tr>
-              <td class="smalltext">oras</td>
+              <td class="smalltext">oraş</td>
               <td>&nbsp;</td>
-              <td class="smalltext">judet</td>
+              <td class="smalltext">judeţ</td>
             </tr>
             </table>
           </td>
@@ -69,9 +69,9 @@
               <td><input class="mono" type="text" name="@@@COUNTRY.NAME@@@" value="@@@COUNTRY.VALUE@@@" size="12" onBlur="javascript:if (document.forms['editForm'].elements['@@@LABEL.NAME@@@'].value == '') { makeLabel('editForm','@@@LABEL.INDEX@@@'); }"></td>
             </tr>
             <tr>
-              <td class="smalltext">cod postal</td>
+              <td class="smalltext">cod poştal</td>
               <td>&nbsp;</td>
-              <td class="smalltext">tara</td>
+              <td class="smalltext">ţara</td>
             </tr>
             <tr>
               <td colspan="3" height="40">&nbsp;</td>
@@ -95,15 +95,15 @@
         </tr>
         <tr>
           <td><input class="mono" type="checkbox" name="@@@DOM.NAME@@@" value="DOM" @@@DOM.VALUE@@@></td>
-          <td nowrap><a href="javascript:check_toggle('@@@DOM.NAME@@@');"><span class="smalltext">nationala</span></a></td>
+          <td nowrap><a href="javascript:check_toggle('@@@DOM.NAME@@@');"><span class="smalltext">naţională</span></a></td>
         </tr>
         <tr>
           <td><input class="mono" type="checkbox" name="@@@INTL.NAME@@@" value="INTL" @@@INTL.VALUE@@@></td>
-          <td nowrap><a href="javascript:check_toggle('@@@INTL.NAME@@@');"><span class="smalltext">internationala</span></a></td>
+          <td nowrap><a href="javascript:check_toggle('@@@INTL.NAME@@@');"><span class="smalltext">internaţională</span></a></td>
         </tr>
         <tr>
           <td><input class="mono" type="checkbox" name="@@@POSTAL.NAME@@@" value="POSTAL" @@@POSTAL.VALUE@@@></td>
-          <td nowrap><a href="javascript:check_toggle('@@@POSTAL.NAME@@@');"><span class="smalltext">postala</span></a></td>
+          <td nowrap><a href="javascript:check_toggle('@@@POSTAL.NAME@@@');"><span class="smalltext">poştală</span></a></td>
         </tr>
         <tr>
           <td><input class="mono" type="checkbox" name="@@@PARCEL.NAME@@@" value="PARCEL" @@@PARCEL.VALUE@@@></td>
@@ -128,7 +128,7 @@
           </td>
         </tr>
         <tr>
-          <td colspan="2"><a href="javascript:makeLabel('editForm','@@@LABEL.INDEX@@@');"><span class="smalltext"><b>autoformatare adresa</b></span></a></td>
+          <td colspan="2"><a href="javascript:makeLabel('editForm','@@@LABEL.INDEX@@@');"><span class="smalltext"><b>autoformatare adresă</b></span></a></td>
         </tr>
         </table>
       </td>

@@ -29,7 +29,7 @@
 <table><tr>
 <td>@@@HTTPCOMPRESSIONCHECKBOX@@@</td><td><font size=1>Compresie<br>HTTP</font></td>
 @@@AUTOLOGINSTART@@@
-<td>@@@AUTOLOGINCHECKBOX@@@</td><td><font size=1>Autentificare<br>Automata</font></td>
+<td>@@@AUTOLOGINCHECKBOX@@@</td><td><font size=1>Autentificare<br>Automată</font></td>
 @@@AUTOLOGINEND@@@
 </tr></table>
 </td>
@@ -70,15 +70,15 @@
    {
       if (document.login.httpcompress.checked) {
          alert(
-"Compresia HTTP poate reduce semnificativ traficul intre calculatorul dvs. si serverul de webmail, "+
-"dar exista anumite probleme in ce priveste compatibilitatea:\n\n"+
+"Compresia HTTP poate reduce semnificativ traficul între calculatorul dvs. şi serverul de webmail, "+
+"dar există anumite probleme în ce priveşte compatibilitatea:\n\n"+
 "1. unele servere proxy permit compresia HTTP doar via HTTP 1.1, "+
-"va trebui sa activati suportul HTTP1.1 pentru serverul proxy in browser\n"+
+"va trebui să activaţi suportul HTTP1.1 pentru serverul proxy în browser\n"+
 "2. unele servere proxy nu permit compresia HTTP, "+
-"va trebui sa treceti serverul webmail in lista de exceptii pentru proxy.\n"+
-"3. unele browser-e au probleme la folosirea compresiei HTTP impreuna cu SSL...\n"+
-"4. unele browser-e pretind ca suporta compresia HTTP dar n-o fac...\n\n"+
-"Deci daca aveti probleme, va rugam sa va autentificati din nou nebifand aceasta optiune.\n"
+"va trebui să treceţi serverul webmail în lista de excepţii pentru proxy.\n"+
+"3. unele browser-e au probleme la folosirea compresiei HTTP împreuna cu SSL...\n"+
+"4. unele browser-e pretind că suportă compresia HTTP dar n-o fac...\n\n"+
+"Deci dacă aveţi probleme, vă rugăm să vă autentificati din nou nebifând această opţiune.\n"
          );
       }
       return(true);
@@ -88,10 +88,10 @@
    {
       if (document.login.autologin.checked) {
          alert(
-"Daca acivati aceasta optiune va puteti autentifica fara a introduce numele si/sau parola "+
-"daca nu v-ati deautentificat in sesiunea anterioara si daca aceasta nu a expirat. "+
-"Tineti insa cont ca si altii s-ar putea astfel autentifica folosind acest calculator, "+
-"deci va rugam sa NU activati optiunea pe un calculator accesibil altora persoane.\n"
+"Dacă activaţi această opţiune vă puteţi autentifica fără a introduce numele şi/sau parola "+
+"dacă nu v-aţi deautentificat în sesiunea anterioara şi dacă aceasta nu a expirat. "+
+"Ţineţi însă cont că şi alţii s-ar putea astfel autentifica folosind acest calculator, "+
+"deci vă rugăm să NU activaţi opţiunea pe un calculator accesibil altora persoane.\n"
          );
       }
       return(true);

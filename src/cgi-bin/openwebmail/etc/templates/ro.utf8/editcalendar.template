@@ -17,17 +17,17 @@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@STARTHOURMINMENU@@@
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Timp de sfarsit:</B>
+<B>Timp de sfârşit:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ENDHOURMINMENU@@@
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Repetitii:</B>
+<B>Repetiţii:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FREQMENU@@@
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>&nbsp;</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@THISANDNEXTNDAYSCHECKBOX@@@ Azi si in urmatoarele @@@NDAYSFIELD@@@ zile
+@@@THISANDNEXTNDAYSCHECKBOX@@@ Azi şi în următoarele @@@NDAYSFIELD@@@ zile
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>&nbsp;</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -35,7 +35,7 @@
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>&nbsp;</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@EVERYYEARCHECKBOX@@@ In fiecare an
+@@@EVERYYEARCHECKBOX@@@ În fiecare an
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Scurtatura noua:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>

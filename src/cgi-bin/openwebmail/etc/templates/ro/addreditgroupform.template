@@ -47,7 +47,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Adauga fsiere la contact - @@@AVAILABLEATTSPACE@@@ disponibili</b></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Adauga fisiere la contact - @@@AVAILABLEATTSPACE@@@ disponibili</b></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -72,7 +72,7 @@
       <td>@@@UPLOADWEBDISKLINK@@@</td>
     </tr>
     <tr>
-      <td colspan="2" class="smalltext" nowrap>alegeti tipul fisierul de adaugat</td>
+      <td colspan="2" class="smalltext" nowrap>alegeti tipul fisierului de adaugat</td>
       <td colspan="2" class="smalltext" nowrap>introduceti adresa fisierului (http://...)</td>
       <td colspan="5" class="smalltext" nowrap>sau incarcati fisierul direct</td>
     </tr>
@@ -119,7 +119,7 @@ function popupNotice (msgOption) {
    if (msgOption == 'agentmustsave') {
       return(confirm('Trebuie sa salvati inainte de a crea sau vizualiza o carte de vizita pentru agent.\nSalvati si continuati?'));
    } else if (msgOption == 'cancelchanges') {
-      return(confirm('Toate modificari la acest agent se vor pierde, continuati?'));
+      return(confirm('Toate modificarile la acest agent se vor pierde, continuati?'));
    }
 }
 

@@ -10,10 +10,10 @@
 </tr>
 <tr>
   <td width="10" bgcolor=@@@COLUMNHEADER@@@>&nbsp;</td>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Nume Agenda (@@@FOLDERNAME_MAXLEN@@@ charactere)</b></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Nume Agendă (@@@FOLDERNAME_MAXLEN@@@ charactere)</b></td>
   <td align="center" bgcolor=@@@COLUMNHEADER@@@><b>Adrese</b></td>
   <td align="center" bgcolor=@@@COLUMNHEADER@@@><b>Dimensiune</b></td>
-  <td align="center" bgcolor=@@@COLUMNHEADER@@@><b>Actiune</b></td>
+  <td align="center" bgcolor=@@@COLUMNHEADER@@@><b>Acţiune</b></td>
 </tr>
 
 @@@STARTFOLDERFORM@@@
@@ -33,7 +33,7 @@
 </tr>
 <tr>
   <td width="10" bgcolor=@@@COLUMNHEADER@@@>&nbsp;</td>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Agenda implicita</b></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Agenda implicită</b></td>
   <td align="center" bgcolor=@@@COLUMNHEADER@@@><b>Adrese</b></td>
   <td align="center" bgcolor=@@@COLUMNHEADER@@@><b>Dimensiune</b></td>
   <td align="center" bgcolor=@@@COLUMNHEADER@@@>&nbsp;</td>

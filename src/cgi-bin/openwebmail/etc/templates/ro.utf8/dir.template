@@ -22,7 +22,7 @@
 <table border="0" cellpadding="0" cellspacing="0"><tr>
 <td>@@@SHOWHIDDENLABEL@@@</td><td>@@@SHOWHIDDENCHECKBOX@@@</td>
 <td>@@@SHOWTHUMBLABEL@@@</td><td>@@@SHOWTHUMBCHECKBOX@@@</td>
-<td>O singura pagina</td><td>@@@SINGLEPAGECHECKBOX@@@</td>
+<td>O singură pagină</td><td>@@@SINGLEPAGECHECKBOX@@@</td>
 </tr></table>
 </td>
 </tr></table>
@@ -47,7 +47,7 @@
 <table border="0" align="center" width="95%" cellpadding="0" cellspacing="0"><tr>
 <td width="15%" nowrap>&nbsp;@@@INFOCOUNT@@@</td>
 <td align=center nowrap>@@@LEFTPAGECONTROL@@@ @@@PAGELINKS@@@ @@@RIGHTPAGECONTROL@@@</td>
-<td width="15%" nowrap align="right">Marime fisier: @@@INFOSIZE@@@&nbsp;</td>
+<td width="15%" nowrap align="right">Mărime fişier: @@@INFOSIZE@@@&nbsp;</td>
 </tr></table>
 
 <table border="0" align="center" width="95%" cellpadding="1" cellspacing="1">
@@ -55,7 +55,7 @@
 <B>Operatie</B>
 </td></tr><tr><td bgcolor=@@@MENUBAR@@@>
 <table border="0" cellpadding="1" cellspacing="1">
-<tr><td width="10%">Nume destinatie:</td><td width=90%>@@@DESTNAMEFIELD@@@ @@@BUTTONS@@@</td></tr>
+<tr><td width="10%">Nume destinaţie:</td><td width=90%>@@@DESTNAMEFIELD@@@ @@@BUTTONS@@@</td></tr>
 <tr><td nowrap colspan="2">@@@BUTTONS2@@@</td></tr>
 </table>
 </td></tr>
@@ -65,7 +65,7 @@
 <td>
 
 <table border="0" width="100%" cellpadding="1" cellspacing="1"><tr>
-<td nopwrap bgcolor=@@@COLUMNHEADER@@@><B>Cauta</B></td>
+<td nopwrap bgcolor=@@@COLUMNHEADER@@@><B>Caută</B></td>
 </tr><tr>
 <td nowrap bgcolor=@@@MENUBAR@@@>@@@SEARCHFILEFIELD@@@</td>
 </tr></table>
@@ -75,7 +75,7 @@
 
 @@@UPLOADSTART@@@
 <table border="0" width="100%" cellpadding="1" cellspacing="1"><tr>
-<td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Incarca</B> ( nume fisier sau adresa )</td>
+<td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Încarcă</B> ( nume fişier sau adresă )</td>
 </tr><tr>
 <td nowrap bgcolor=@@@MENUBAR@@@>@@@UPLOADFILEFIELD@@@</td>
 </tr></table>
@@ -132,7 +132,7 @@
             return true;
          }
       }
-      alert("Nu este nici un director sau fisier selectat.");
+      alert("Nu este nici un director sau fişier selectat.");
       return false;
    }
    function selectedstr()
@@ -159,7 +159,7 @@
    }
    function destnamefilled(target) {
       if (document.dirform.destname.value == '') {
-         alert('Va rog completati intai < '+target+' >.');
+         alert('Vă rog completaţi întâi < '+target+' >.');
          return false;
       } else {
          return true;
@@ -167,16 +167,16 @@
    }
    function uploadfilled() {
       if (document.dirform.upload.value == '') {
-         alert("Va rugam sa selectati fisierul pe care doriti sa-l incarcati.");
+         alert("Vă rugăm să selectaţi fişierul pe care doriţi să-l încărcaţi.");
          return false;
       } else {
-         document.dirform.msg.value = 'Se incarca fisierul '+document.dirform.upload.value+', va rugam asteptati...';
+         document.dirform.msg.value = 'Se încarcă fişierul '+document.dirform.upload.value+', vă rugăm aşteptaţi...';
          return true;
       }
    }
    function opconfirm(op, conf) {
       if (conf) {
-         return(confirm('Sunteti sigur ca doriti sa '+op+' elementele selectate? ( '+selectedstr()+' )'));
+         return(confirm('Sunteti sigur că doriţi să '+op+' elementele selectate? ( '+selectedstr()+' )'));
       } else {
          return true;
       }

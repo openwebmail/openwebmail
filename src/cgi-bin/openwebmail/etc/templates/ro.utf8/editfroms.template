@@ -13,9 +13,9 @@
 <td nowrap bgcolor=@@@COLUMNHEADER@@@>
 <B>Nume</B></td>
 <td nowrap bgcolor=@@@COLUMNHEADER@@@>
-<B>Adresa Email</B> (clic pentru inserare)</td>
+<B>Adresă Email</B> (clic pentru inserare)</td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Actiune</B>
+<B>Acţiune</B>
 </td></tr>
 @@@STARTFROMFORM@@@
 <tr>

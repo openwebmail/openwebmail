@@ -3,9 +3,9 @@
     <table cellpadding="0" cellspacing="0" border="0">
     <tr>
       <td></td>
-      <td><b>Nume Firma</b></td>
+      <td><b>Nume Firmă</b></td>
       <td rowspan="3">&nbsp;</td>
-      <td><b>Titlu Functie</b></td>
+      <td><b>Titlu Funcţie</b></td>
     </tr>
     <tr>
       <td>@@@GROUP@@@</td>
@@ -24,7 +24,7 @@
       <td colspan="3" class="smalltext">&nbsp;</td>
     </tr>
     <tr>
-      <td><b>Functie</b></td>
+      <td><b>Funcţie</b></td>
       <td rowspan="2">&nbsp;</td>
       <td><b>Divizie</b>&nbsp;<a href="javascript:document.editForm.formchange.value='@@@ADDORGANIZATIONALUNITS@@@,0,1'; document.editForm.submit();">+</a></td>
     </tr>

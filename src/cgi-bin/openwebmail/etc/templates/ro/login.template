@@ -88,7 +88,7 @@
    {
       if (document.login.autologin.checked) {
          alert(
-"Daca acivati aceasta optiune va puteti autentifica fara a introduce numele si/sau parola "+
+"Daca activati aceasta optiune va puteti autentifica fara a introduce numele si/sau parola "+
 "daca nu v-ati deautentificat in sesiunea anterioara si daca aceasta nu a expirat. "+
 "Tineti insa cont ca si altii s-ar putea astfel autentifica folosind acest calculator, "+
 "deci va rugam sa NU activati optiunea pe un calculator accesibil altora persoane.\n"

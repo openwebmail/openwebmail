@@ -261,25 +261,27 @@ sub sendcmd {
       alarm 0;
    };
    return 0 if ($@); 		# timeout
+   return 0 if ($ret eq '');	# socket not available?
 
    @{$r_result}=split(/\s+/, $ret);
    shift @{$r_result} if (${$r_result}[0]=~/^[\+\-]/); # rm str +OK or -ERR from @result
    return 1 if ($ret!~/^\-/);
-
    return 0;
 }
 
 sub readdata {
    my ($socket, $r_line, $timeout)=@_;
-
    $timeout=60 if ($timeout<=0);
+
+   ${$r_line}='';	# empty line buff
    eval {
       alarm $timeout; local $SIG{ALRM}= sub {die "alarm\n"};
       ${$r_line}=<$socket>;
       alarm 0;
    };
+   return 0 if ($@); 			# timeout
+   return 0 if (${$r_line} eq '');	# socket not available?
 
-   return 0 if ($@); 		# timeout
    return 1;
 }
 

@@ -2,7 +2,7 @@
 <table border="0" align="center" width="95%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>Afisare zi</b></font>
+<b>Afişare zi</b></font>
 </td><td align="right" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <b>@@@DAYDIFF@@@&nbsp;</b></font>
@@ -32,19 +32,19 @@
 
 <table border=0 cellspacing=2 width=100%>
 @@@STARTADDITEMFORM@@@
-<tr><td colspan=2 align=center><B>Insereaza Eveniment in Calendar</B></td></tr>
+<tr><td colspan=2 align=center><B>Inserează Eveniment în Calendar</B></td></tr>
 <tr><td colspan=2 nowrap>@@@ITEMDATEMENU@@@</td></tr>
 <tr><td colspan=2 nowrap>@@@STRINGFIELD@@@</td></tr>
-<tr><td width=25% nowrap>Timp de inceput</td><td nowrap>@@@STARTHOURMINMENU@@@</td></tr>
-<tr><td width=25% nowrap>Timp de sfarsit</td><td nowrap>@@@ENDHOURMINMENU@@@</td></tr>
+<tr><td width=25% nowrap>Timp de început</td><td nowrap>@@@STARTHOURMINMENU@@@</td></tr>
+<tr><td width=25% nowrap>Timp de sfârşit</td><td nowrap>@@@ENDHOURMINMENU@@@</td></tr>
 <tr><td colspan=2 nowrap>@@@FREQMENU@@@</td></tr>
-<tr><td colspan=2 nowrap>@@@THISANDNEXTNDAYSCHECKBOX@@@ In ziua aceasta si in urmatoarele @@@NDAYSFIELD@@@ zile</td></tr>
+<tr><td colspan=2 nowrap>@@@THISANDNEXTNDAYSCHECKBOX@@@ În ziua aceasta şi în urmatoarele @@@NDAYSFIELD@@@ zile</td></tr>
 <tr><td colspan=2 nowrap>@@@MONTHFREQMENU@@@</td></tr>
-<tr><td colspan=2 nowrap>@@@EVERYYEARCHECKBOX@@@ In fiecare an</td></tr>
-<tr><td colspan=2 nowrap>Creaza o scurtatura catre</td></tr>
+<tr><td colspan=2 nowrap>@@@EVERYYEARCHECKBOX@@@ În fiecare an</td></tr>
+<tr><td colspan=2 nowrap>Crează o scurtatură către</td></tr>
 <tr><td colspan=2 nowrap>@@@LINKFIELD@@@</td></tr>
 @@@EMAILSTART@@@
-<tr><td colspan=2 nowrap>Trimite un email de notificare catre</td></tr>
+<tr><td colspan=2 nowrap>Trimite un email de notificare către</td></tr>
 <tr><td colspan=2 nowrap>@@@EMAILFIELD@@@</td></tr>
 @@@EMAILEND@@@
 <tr><td nowrap>Culoare eveniment</td><td nowrap>@@@EVENTCOLORMENU@@@</td></tr>

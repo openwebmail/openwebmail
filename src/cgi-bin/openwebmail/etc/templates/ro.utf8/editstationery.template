@@ -1,7 +1,7 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td colspan="3" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>EDITARE NOTITE</b></font>
+<b>EDITARE NOTIŢE</b></font>
 </td></tr><tr><td colspan="3" bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
 </td>
@@ -9,7 +9,7 @@
 <tr><td bgcolor=@@@COLUMNHEADER@@@ width="20%">
 <B>Titlu</B></td>
 <td bgcolor=@@@COLUMNHEADER@@@ width="70%">
-<B>Text notita</B></td>
+<B>Text notiţă</B></td>
 <td bgcolor=@@@COLUMNHEADER@@@ width="10%">&nbsp;</td>
 </tr>
 @@@STATIONERY@@@
@@ -17,13 +17,13 @@
 <tr><td colspan="3">&nbsp;</td></tr>
 
 @@@STARTSTATFORM@@@
-<tr><td colspan="3" bgcolor=@@@COLUMNHEADER@@@><B>Redacteaza o notita noua</B></td></tr>
+<tr><td colspan="3" bgcolor=@@@COLUMNHEADER@@@><B>Redactează o notiţă nouă</B></td></tr>
 <tr><td colspan="3" align="center" bgcolor=@@@WINDOW_DARK@@@>
 <B>Titlu:</B>&nbsp; &nbsp; 
 @@@STATNAME@@@
 </td></tr>
 <tr><td colspan="3" align="center" bgcolor=@@@WINDOW_DARK@@@ class=msgbody>
-<B>Text notita</B><BR>
+<B>Text notiţă</B><BR>
 @@@STATBODY@@@
 </td></tr>
 <tr><td colspan="3" align="center" bgcolor=@@@WINDOW_DARK@@@>
