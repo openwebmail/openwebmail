@@ -1,3 +1,12 @@
+12/05/2004
+----------
+1. new iconset: Cool3D.Spanish
+   (thanks to Jaime Caballero, master.AT.xanum.uam.mx)
+2. fix a minor bug in auth_ldap.pl which always used the ou=people for
+   authentication no matter what ou is set to in auth_ldap.conf
+   (thanks to bjacint, bjacint.AT.kvark.hu for his fix)
+
+
 12/02/2004
 ----------
 1. fix a minor bug in adrbook.pl which may generate invalid vcard in

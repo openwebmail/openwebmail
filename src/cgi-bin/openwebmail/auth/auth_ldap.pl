@@ -137,7 +137,7 @@ sub change_userpassword {
    $ldap->bind (dn=>"$cn, $dc1, $dc2", password =>$pwd) or  return(-3, "LDAP error $@");
 
    my $mesg = $ldap->modify (
-                            dn      => "uid=$user, ou=People, $dc1, $dc2",
+                            dn      => "uid=$user, $ou, $dc1, $dc2",
                             replace => {'userPassword'=>$encrypted}
                             );
    undef($ldap);
