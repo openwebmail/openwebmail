@@ -76,7 +76,8 @@ so you have to be very careful about the global variables.
    or server rebooting.
 
 5. if you really need global variables, please remember
-   value of global variables will be kept forever when running in persistent mode
+   value of global variables will be kept forever when running in 
+   persistent mode
 
 6. if you hope to save some connections to your quota server:
 
@@ -90,6 +91,13 @@ so you have to be very careful about the global variables.
       2. if the connection is lost or dead
          => free old/stale connection handle
             reinitialize the connection handle
+
+7. The signal handler for child process $SIG{CHLD} may have been set 
+   before calling the API routines, if your routine will fork new process, 
+   you may need to disable the handler temporarily by putting the following
+   line in the routine
+
+   local $SIG{CHLD}; undef $SIG{CHLD}
 
 
 More about persistent CGI

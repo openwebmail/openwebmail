@@ -1,18 +1,23 @@
 #
-# htmlrender.pl - html attachment rendering routines
+# htmlrender.pl - html page rendering routines
 #
 # 2001/12/21 tung@turtle.ee.ncku.edu.tw
 #
 # it is suggested calling these following routine in the following order:
-# html4nobase, html4link, html4disablejs, html4disableembcgi,
+# html4nobase, html4link, html4disablejs, html4disableemblink,
 # html4attachment, html4mailto, html2table
 #
+use strict;
+
+# extern vars
+use vars qw(%config);
 
 # since this routine deals with base directive,
 # it must be called first before other html...routines when converting html
 sub html4nobase {
    my $html=$_[0];
    my $urlbase;
+
    if ( $html =~ m!\<base\s+href\s*=\s*"?([^\<\>]*?)"?\>!i ) {
       $urlbase=$1;
       $urlbase=~s!/[^/]+$!/!;
@@ -46,9 +51,7 @@ sub _link_target_blank {
 #   foreach my $event (@jsevents) {
 #      return($link) if ($link =~ /$event/i);
 #   }
-   if ($link =~ /target=/i ||
-       $link =~ /javascript:/i ||
-       $link =~ /href="?#/i ) {
+   if ($link =~ /(?:target=|javascript:|href="?#)/i ) {
       return($link);
    }
    $link=~s/<a\s+([^\<\>]*?)>/<a $1 target=_blank>/is;
@@ -76,9 +79,8 @@ sub _frame2iframe {
 # to avoid user being hijacked by some evil programs
 sub html4disablejs {
    my $html=$_[0];
-   my $event;
 
-   foreach $event (@jsevents) {
+   foreach my $event (@jsevents) {
       $html=~s/$event/_$event/imsg;
    }
    $html=~s/<script([^\<\>]*?)>/<disable_script$1>\n<!--\n/imsg;
@@ -92,45 +94,109 @@ sub html4disablejs {
 
 # this routine disables the embedded CGI in a html message
 # to avoid user email addresses being confirmed by spammer through embedded CGIs
-sub html4disableembcgi {
-   my $html=$_[0];
-   $html=~s!(src|background)\s*=\s*("?https?://[\w\.\-]+?/?[^\s<>]*[\w/])([\b|\n| ]*)!_clean_embcgi($1,$2,$3)!egis;
+sub html4disableemblink {
+   my ($html, $range)=@_;
+   $html=~s!(src|background)\s*=\s*("?https?://[\w\.\-]+?/?[^\s<>]*)([\b|\n| ]*)!_clean_emblink($1,$2,$3,$range)!egis;
    return($html);
 }
 
-sub _clean_embcgi {
-   my ($type, $url, $end)=@_;
-
-   if ($url=~/\?/s && $url !~ /\Q$ENV{'HTTP_HOST'}\E/is) { # non local CGI found
-      $url=~s/["']//g;
-      return("alt='Embedded CGI removed by $config{'name'}.\n$url'".$end);
-   } else {
-      return("$type=$url".$end);
+sub _clean_emblink {
+   my ($type, $url, $end, $range)=@_;
+   if ($url !~ /\Q$ENV{'HTTP_HOST'}\E/is) { # non-local URL found
+      if ($range eq 'cgionly' && $url=~/\?/s) {
+         $url=~s/["']//g;
+         return(qq|$type="$config{'ow_htmlurl'}/images/backgrounds/Transparent.gif" |.
+                qq|alt="Embedded CGI removed by $config{'name'}.\n$url" border="1" |.
+                qq|onclick="window.open('$url', '_extobj');" |.
+                $end);
+      } elsif ($range eq 'all') {
+         $url=~s/["']//g;
+         return(qq|$type="$config{'ow_htmlurl'}/images/backgrounds/Transparent.gif" |.
+                qq|alt="Embedded link removed by $config{'name'}.\n$url" border="1" |.
+                qq|onclick="window.open('$url', '_extobj');" |.
+                $end);
+      }
    }
+   return("$type=$url".$end);
 }
 
-# this routine is used to resolve crossreference inside attachments
-# by converting them to request attachment from openwebmail cgi
+# this routine is used to resolve cid or loc in a html message to
+# the cgi openwebmail-viewatt.pl links of cross referenced mime objects 
+# this is for read message
 sub html4attachments {
    my ($html, $r_attachments, $scripturl, $scriptparm)=@_;
-   my $i;
 
-   for ($i=0; $i<=$#{$r_attachments}; $i++) {
+   for (my $i=0; $i<=$#{$r_attachments}; $i++) {
       my $filename=escapeURL(${${$r_attachments}[$i]}{filename});
-      my $link="$scripturl/$filename?$scriptparm&amp;attachment_nodeid=${${$r_attachments}[$i]}{nodeid}&amp;";
+      my $link=qq|$scripturl/$filename?$scriptparm&amp;|.
+               qq|attachment_nodeid=${${$r_attachments}[$i]}{nodeid}&amp;|;
       my $cid="cid:"."${${$r_attachments}[$i]}{id}";
       my $loc=${${$r_attachments}[$i]}{location};
 
-      if ( ($cid ne "cid:" && $html =~ s#\Q$cid\E#$link#ig ) ||
-           ($loc ne "" && $html =~ s#\Q$loc\E#$link#ig ) ||
+      if ( ($cid ne "cid:" && $html =~ s#\Q$cid\E#$link#sig ) ||
+           ($loc ne "" && $html =~ s#\Q$loc\E#$link#sig ) ||
            # ugly hack for strange CID
-           ($filename ne "" && $html =~ s#CID:\{[\d\w\-]+\}/$filename#$link#ig )
+           ($filename ne "" && $html =~ s#CID:\{[\d\w\-]+\}/$filename#$link#sig )
          ) {
          # this attachment is referenced by the html
          ${${$r_attachments}[$i]}{referencecount}++;
       }
    }
    return($html);
+}
+
+# this routine is used to resolve cid or loc in a html message to
+# the cgi openwebmail-viewatt.pl links of cross referenced mime objects 
+# this is for message composing
+sub html4attfiles {
+   my ($html, $r_attfiles, $scripturl, $scriptparm)=@_;
+
+   for (my $i=0; $i<=$#{$r_attfiles}; $i++) {
+      my $filename=escapeURL(${${$r_attfiles}[$i]}{name});
+      my $link=qq|$scripturl/$filename?$scriptparm&amp;|.
+               qq|attfile=|.escapeURL(${${$r_attfiles}[$i]}{file}).qq|&amp;|;
+      my $cid="cid:"."${${$r_attfiles}[$i]}{id}";
+      my $loc=${${$r_attfiles}[$i]}{location};
+
+      if ( ($cid ne "cid:" && $html =~ s#\Q$cid\E#$link#sig ) ||
+           ($loc ne "" && $html =~ s#\Q$loc\E#$link#sig ) ||
+           # ugly hack for strange CID
+           ($filename ne "" && $html =~ s#CID:\{[\d\w\-]+\}/$filename#$link#sig )
+         ) {
+         # this attachment is referenced by the html
+         ${${$r_attfiles}[$i]}{referencecount}++;
+      }
+   }
+   return($html);
+}
+
+# this routine is used to revert links of crossreferenced mime objects
+# backto their cid or loc. the reverse operation of html4attfiles()
+# the is for messag sending
+sub html4attfiles_link2cid {
+   my ($html, $r_attfiles, $scripturl)=@_;
+   $html=~s!(src|background|href)\s*=\s*("?https?://[\w\.\-]+?/?[^\s<>]*[\w/"])([\b|\n| ]*)!_link2cid($1,$2,$3, $r_attfiles, $scripturl)!egis;
+   return($html);
+}
+
+sub _link2cid {
+   my ($type, $url, $end, $r_attfiles, $scripturl)=@_;
+   for (my $i=0; $i<=$#{$r_attfiles}; $i++) {
+      my $filename=escapeURL(${${$r_attfiles}[$i]}{name});
+      my $attfileparm=qq|attfile=|.escapeURL(${${$r_attfiles}[$i]}{file});
+      if ($url=~ /\Q$scripturl\E/ && $url=~ /\Q$attfileparm\E/) {
+         ${${$r_attfiles}[$i]}{referencecount}++;
+
+         my $cid="cid:${${$r_attfiles}[$i]}{id}";
+         my $loc=${${$r_attfiles}[$i]}{location};
+         return(qq|$type="$cid"$end|) if ($cid ne "cid:");
+         return(qq|$type="$loc"$end|) if ($loc);
+         # construct strange CID from attserial
+         ${${$r_attfiles}[$i]}{file}=~/([\w\d\-]+)$/;
+         return(qq|$type="CID:{$1}/$filename"$end|) if ($filename);
+      }
+   }
+   return("$type=$url".$end);
 }
 
 # this routine chnage mailto: into webmail composemail function
@@ -143,24 +209,36 @@ sub html4mailto {
    return($html);
 }
 
-sub html2table {
+
+sub html2table {	# for msg reading
+   my $html=_htmlclean($_[0]);
+   $html =~ s#\<body([^\<\>]*?)\>#<table width=100% border=0 cellpadding=2 cellspacing=0 $1><tr><td>#is;
+   $html =~ s#\</body\>#</td></tr></table>#i;
+   return $html;
+}
+
+sub html2block {	# for msg composing
+   my $html=_htmlclean($_[0]);
+   $html =~ s#\<body([^\<\>]*?)\>##is;
+   $html =~ s#\</body\>##i;
+   return $html;
+}
+
+sub _htmlclean {
    my $html=$_[0];
 
    $html =~ s#<!doctype[^\<\>]*?\>##i;
    $html =~ s#\<html[^\>]*?\>##i;
    $html =~ s#\</html\>##i;
+   $html =~ s#\<head\>.*?\</head\>##is;
    $html =~ s#\<head\>##i;
    $html =~ s#\</head\>##i;
    $html =~ s#\<meta[^\<\>]*?\>##gi;
-   $html =~ s#\<body([^\<\>]*?)\>#\<table width=100% border=0 cellpadding=2 cellspacing=0 $1\>\<tr\>\<td\>#i;
-   $html =~ s#\</body\>#\</td\>\</tr\>\</table\>#i;
-
    $html =~ s#\<!--.*?--\>##ges;
    $html =~ s#\<style[^\<\>]*?\>#\n\<!-- style begin\n#gi;
    $html =~ s#\</style\>#\nstyle end --\>\n#gi;
    $html =~ s#\<[^\<\>]*?stylesheet[^\<\>]*?\>##gi;
    $html =~ s#(\<div[^\<\>]*?)position\s*:\s*absolute\s*;([^\<\>]*?\>)#$1$2#gi;
-
    return($html);
 }
 

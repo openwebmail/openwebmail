@@ -194,19 +194,19 @@
 @@@USESMILEICON@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Покажи прикачените картинки като линк:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SHOWIMGASLINK@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Изключи JavaScript в съобщенията:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEJS@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Изключи вмъкнати CGI в съобщенията:</B>
+<B>Изключи вмъкнати links в съобщенията:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@DISABLEEMBCGI@@@
-</td></tr>
-<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Покажи прикачените картинки като линк:</B>
-</td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@SHOWIMGASLINK@@@
+@@@DISABLEEMBLINKMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Изпращане на 'confirm reading' на получателя:</B>
@@ -216,6 +216,11 @@
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Опции за отговор</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Формат на съобщението:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@MSGFORMATMENU@@@
+</td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Размер на прозореца за ред. на съобщ.:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -293,6 +298,11 @@
 @@@CALENDARSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Опции за календара</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Holiday definition:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@HOLIDAYDEFMENU@@@
+</td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Брой на позициите при месечен изглед:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>

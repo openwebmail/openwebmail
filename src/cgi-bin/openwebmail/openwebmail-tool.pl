@@ -18,7 +18,7 @@ if (!$SCRIPT_DIR) {
          qq|/usr/local/www/cgi-bin/openwebmail/openwebmail-tool.pl,\n\n|.
          qq|then the content of /etc/openwebmail_path.conf should be:\n\n|.
          qq|/usr/local/www/cgi-bin/openwebmail/\n\n|;
-    exit 0;
+   exit 0;
 }
 push (@INC, $SCRIPT_DIR);
 
@@ -48,7 +48,7 @@ use vars qw($folderdir);
 use vars qw(%prefs);
 
 # extern vars
-use vars qw(@wdaystr);	# defined in ow-shared.pl
+use vars qw(@wdaystr %pop3error);	# defined in ow-shared.pl
 use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE $_STATUS $_SIZE $_REFERENCES $_CHARSET);
 
 # local globals
@@ -56,9 +56,11 @@ use vars qw($POP3_PROCESS_LIMIT $POP3_TIMEOUT);
 use vars qw(%opt $pop3_process_count %complete);
 
 ################################ main ##################################
-clearvars();
+openwebmail_requestbegin();
+$SIG{PIPE}=\&openwebmail_exit;	# for user stop
+$SIG{TERM}=\&openwebmail_exit;	# for user stop
+$SIG{CHLD}=sub { wait }; 	# prevent zombie
 
-$SIG{CHLD}=sub { wait }; # whole process scope to prevent zombie
 $POP3_PROCESS_LIMIT=10;
 $POP3_TIMEOUT=20;
 
@@ -86,6 +88,8 @@ if ($ARGV[0] eq "--") {		# called by inetd
          $opt{'yes'}=1;
       } elsif ($ARGV[$i] eq "--no") {
          $opt{'no'}=1;
+      } elsif ($ARGV[$i] eq "--debug") {
+         $opt{'debug'}=1;
 
       } elsif ($ARGV[$i] eq "--file" || $ARGV[$i] eq "-f") {
          $i++; $euid_to_use=$<;
@@ -146,11 +150,9 @@ if ($opt{'init'}) {
 } elsif ($opt{'thumbnail'}) {
    $retval=makethumbnail(\@list); 
 } else {
-   $retval=allusers(\@list) if ($opt{'allusers'});
-   if ($retval <0) {
-      # back to root if possible, required for setuid under persistent perl
-      $<=0; $>=0;
-      exit $retval;
+   if ($opt{'allusers'}) {
+      $retval=allusers(\@list);
+      openwebmail_exit($retval) if ($retval<0);
    }
    if ($#list>=0 && !$opt{'null'}) {
       $retval=usertool($euid_to_use, \@list);
@@ -159,9 +161,7 @@ if ($opt{'init'}) {
    }
 }
 
-# back to root if possible, required for setuid under persistent perl
-$<=0; $>=0;
-exit $retval;
+openwebmail_exit($retval);
 
 ############################## showhelp #######################################
 sub showhelp {
@@ -171,13 +171,16 @@ Syntax: openwebmail-tool.pl --init [options]
         openwebmail-tool.pl -t [options] [image1 image2 ...]
         openwebmail-tool.pl [options] [user1 user2 ...]
 
+common options:
+ -q, --quite  \t quiet, no output
+     --debug  \t print debug information
+
 init options:
  -y, --yes    \t default answer yes to send site report
      --no     \t default answer no  to send site report
 
 thumbnail option:
  -f <imglist> \t image list from file, each line for one path
- -q, --quite  \t quiet, no output
  -t, --thumbnail make thumbnail for images
                 
 mail/calendar options:
@@ -193,7 +196,6 @@ mail/calendar options:
  -m, --mail   \t check new mail
  -n, --notify \t check and send calendar notification email
  -p, --pop3   \t fetch pop3 mail for user
- -q, --quite  \t quiet, no output
  -s, --size   \t check user quota and cut mails/files if over quotalimit
  -z, --zaptrash\t remove stale messages from trash folder
 
@@ -210,14 +212,21 @@ sub init {
 
    if (!defined(%default_config_raw)) {	# read default only once if persistent mode
       readconf(\%default_config, \%default_config_raw, "$SCRIPT_DIR/etc/openwebmail.conf.default");
+      print "D readconf $SCRIPT_DIR/etc/openwebmail.conf.default\n" if ($opt{'debug'});
    }
    %config=%default_config; %config_raw =%default_config_raw;
-   readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf") if (-f "$SCRIPT_DIR/etc/openwebmail.conf");
+   if (-f "$SCRIPT_DIR/etc/openwebmail.conf") {
+      readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf");
+      print "D readconf $SCRIPT_DIR/etc/openwebmail.conf\n" if ($opt{'debug'});
+   }
 
    $logindomain=$default_logindomain||hostname();
    $logindomain=lc(safedomainname($logindomain));
    $logindomain=$config{'domainname_equiv'}{'map'}{$logindomain} if (defined($config{'domainname_equiv'}{'map'}{$logindomain}));
-   readconf(\%config, \%config_raw, "$config{'ow_sitesconfdir'}/$logindomain") if ( -f "$config{'ow_sitesconfdir'}/$logindomain");
+   if ( -f "$config{'ow_sitesconfdir'}/$logindomain") {
+      readconf(\%config, \%config_raw, "$config{'ow_sitesconfdir'}/$logindomain");
+      print "D readconf $config{'ow_sitesconfdir'}/$logindomain\n" if ($opt{'debug'});
+   }
 
    if (check_tell_bug() <0) {
       print qq|Please hit 'Enter' to continue or Ctrl-C to break.\n|;
@@ -306,14 +315,21 @@ sub do_test {
 
    if (!defined(%default_config_raw)) {	# read default only once if persistent mode
       readconf(\%default_config, \%default_config_raw, "$SCRIPT_DIR/etc/openwebmail.conf.default");
+      print "D readconf $SCRIPT_DIR/etc/openwebmail.conf.default\n" if ($opt{'debug'});
    }
    %config=%default_config; %config_raw =%default_config_raw;
-   readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf") if (-f "$SCRIPT_DIR/etc/openwebmail.conf");
+   if (-f "$SCRIPT_DIR/etc/openwebmail.conf") {
+      readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf");
+      print "D readconf $SCRIPT_DIR/etc/openwebmail.conf\n" if ($opt{'debug'});
+   }
 
    $logindomain=$default_logindomain||hostname();
    $logindomain=lc(safedomainname($logindomain));
    $logindomain=$config{'domainname_equiv'}{'map'}{$logindomain} if (defined($config{'domainname_equiv'}{'map'}{$logindomain}));
-   readconf(\%config, \%config_raw, "$config{'ow_sitesconfdir'}/$logindomain") if ( -f "$config{'ow_sitesconfdir'}/$logindomain");
+   if ( -f "$config{'ow_sitesconfdir'}/$logindomain") {
+      readconf(\%config, \%config_raw, "$config{'ow_sitesconfdir'}/$logindomain");
+      print "D readconf $config{'ow_sitesconfdir'}/$logindomain\n" if ($opt{'debug'});
+   }
 
    check_tell_bug();
    my ($dbm_ext, $dbmopen_ext, $dbmopen_haslock)=dbm_test();
@@ -413,7 +429,8 @@ sub check_db_file_pm {
       my $t;
       open(F, $dbfile_pm); while(<F>) {$t.=$_;} close(F);
       $t=~s/\s//gms;
-      if ($t!~/\$arg\[3\]=0666unlessdefined\$arg\[3\];/sm) {
+      if ($t!~/\$arg\[3\]=0666unlessdefined\$arg\[3\];/sm 
+       && $t!~/\$arg\[3\]=0666if\@arg>=4&&!defined\$arg\[3\];/sm) { 
          print qq|Please modify $dbfile_pm by adding\n\n|.
                qq|\t\$arg[3] = 0666 unless defined \$arg[3];\n\n|.
                qq|before the following text (about line 247)\n\n|.
@@ -551,36 +568,34 @@ sub path2thumbnail {
 
 
 ######################### user folder/calendar routines #####################
-my %pop3error=( -1=>"pop3book read error",
-                -2=>"connect error",
-                -3=>"server not ready",
-                -4=>"'user' error",
-                -5=>"'pass' error",
-                -6=>"'stat' error",
-                -7=>"'retr' error",
-                -8=>"spoolfile write error",
-                -9=>"pop3book write error");
-
 sub allusers {
    my $r_list=$_[0];
 
    if (!defined(%default_config_raw)) {	# read default only once if persistent mode
       readconf(\%default_config, \%default_config_raw, "$SCRIPT_DIR/etc/openwebmail.conf.default");
+      print "D readconf $SCRIPT_DIR/etc/openwebmail.conf.default\n" if ($opt{'debug'});
    }
    %config=%default_config; %config_raw =%default_config_raw;
-   readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf") if (-f "$SCRIPT_DIR/etc/openwebmail.conf");
+   if (-f "$SCRIPT_DIR/etc/openwebmail.conf") {
+      readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf");
+      print "D readconf $SCRIPT_DIR/etc/openwebmail.conf\n" if ($opt{'debug'});
+   }
 
    $logindomain=$default_logindomain||hostname();
    $logindomain=lc(safedomainname($logindomain));
    $logindomain=$config{'domainname_equiv'}{'map'}{$logindomain} if (defined($config{'domainname_equiv'}{'map'}{$logindomain}));
-   readconf(\%config, \%config_raw, "$config{'ow_sitesconfdir'}/$logindomain") if ( -f "$config{'ow_sitesconfdir'}/$logindomain");
+   if ( -f "$config{'ow_sitesconfdir'}/$logindomain") {
+      readconf(\%config, \%config_raw, "$config{'ow_sitesconfdir'}/$logindomain");
+      print "D readconf $config{'ow_sitesconfdir'}/$logindomain\n" if ($opt{'debug'});
+   }
 
    if ( $>!=0 &&	# setuid is required if spool is located in system dir
        ($config{'mailspooldir'} eq "/var/mail" || 
         $config{'mailspooldir'} eq "/var/spool/mail")) {
-      print "Content-type: text/html\n\n'$0' must setuid to root"; exit 0;
+      print "Content-type: text/html\n\n'$0' must setuid to root"; openwebmail_exit(0);
    }
    loadauth($config{'auth_module'});
+   print "D loadauth $config{'auth_module'}\n" if ($opt{'debug'});
 
    # update virtusertable
    my $virtname=$config{'virtusertable'}; $virtname=~s!/!.!g; $virtname=~s/^\.+//;
@@ -614,9 +629,13 @@ sub usertool {
       %config=(); %config_raw=();
       if (!defined(%default_config_raw)) {	# read default only once if persistent mode
          readconf(\%default_config, \%default_config_raw, "$SCRIPT_DIR/etc/openwebmail.conf.default");
+         print "D readconf $SCRIPT_DIR/etc/openwebmail.conf.default\n" if ($opt{'debug'});
       }
       %config=%default_config; %config_raw =%default_config_raw;
-      readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf") if (-f "$SCRIPT_DIR/etc/openwebmail.conf");
+      if (-f "$SCRIPT_DIR/etc/openwebmail.conf") {
+         readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf");
+         print "D readconf $SCRIPT_DIR/etc/openwebmail.conf\n" if ($opt{'debug'});
+      }
 
       if ($config{'smtpauth'}) {	# load smtp auth user/pass
          readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/smtpauth.conf");
@@ -633,15 +652,24 @@ sub usertool {
       }
       $loginuser=lc($loginuser) if ($config{'case_insensitive_login'});
       $logindomain=lc(safedomainname($logindomain));
-      $logindomain=$config{'domainname_equiv'}{'map'}{$logindomain} if (defined($config{'domainname_equiv'}{'map'}{$logindomain}));
+      print "D loginuser=$loginuser, logindomain=$logindomain\n" if ($opt{'debug'});
 
-      readconf(\%config, \%config_raw, "$config{'ow_sitesconfdir'}/$logindomain") if (-f "$config{'ow_sitesconfdir'}/$logindomain");
+      if (defined($config{'domainname_equiv'}{'map'}{$logindomain})) {
+         $logindomain=$config{'domainname_equiv'}{'map'}{$logindomain};
+         print "D logindomain equiv to $logindomain\n" if ($opt{'debug'});
+      }
+
+      if (!is_localuser("$loginuser\@$logindomain") && -f "$config{'ow_sitesconfdir'}/$logindomain") {
+         readconf(\%config, \%config_raw, "$config{'ow_sitesconfdir'}/$logindomain");
+         print "D readconf $config{'ow_sitesconfdir'}/$logindomain\n" if ($opt{'debug'});
+      }
       if ( $>!=0 &&	# setuid is required if spool is located in system dir
           ($config{'mailspooldir'} eq "/var/mail" || 
            $config{'mailspooldir'} eq "/var/spool/mail")) {
-         print "Content-type: text/html\n\n'$0' must setuid to root"; exit 0;
+         print "Content-type: text/html\n\n'$0' must setuid to root"; openwebmail_exit(0);
       }
       loadauth($config{'auth_module'});
+      print "D loadauth $config{'auth_module'}\n" if ($opt{'debug'});
 
       # update virtusertable
       my $virtname=$config{'virtusertable'}; $virtname=~s!/!.!g; $virtname=~s/^\.+//;
@@ -649,6 +677,13 @@ sub usertool {
 
       ($domain, $user, $userrealname, $uuid, $ugid, $homedir)
 				=get_domain_user_userinfo($logindomain, $loginuser);
+      if ($opt{'debug'}) {
+         print "D get_domain_user_info()\n";
+         print "D domain=$domain (auth_withdomain=$config{'auth_withdomain'})\n";
+         print "D user=$user, realname=$userrealname\n";
+         print "D uuid=$uuid, ugid=$ugid, homedir=$homedir\n";
+      }
+
       if ($user eq "") {
          print "user $loginname doesn't exist\n" if (!$opt{'quiet'});
          next;
@@ -660,7 +695,10 @@ sub usertool {
       # load user config
       my $userconf="$config{'ow_usersconfdir'}/$user";
       $userconf="$config{'ow_usersconfdir'}/$domain/$user" if ($config{'auth_withdomain'});
-      readconf(\%config, \%config_raw, "$userconf") if ( -f "$userconf");
+      if ( -f "$userconf") {
+         readconf(\%config, \%config_raw, "$userconf");
+         print "D readconf $userconf\n" if ($opt{'debug'});
+      }
 
       # override auto guessing domainanmes if loginame has domain
       if ($config_raw{'domainnames'} eq 'auto' && $loginname=~/\@/) {
@@ -668,14 +706,17 @@ sub usertool {
       }
       # override realname if defined in config
       if ($config{'default_realname'} ne 'auto') {
-         $userrealname=$config{'default_realname'}
+         $userrealname=$config{'default_realname'};
+         print "D change realname to $userrealname\n" if ($opt{'debug'});
       }
 
       if ( !$config{'use_syshomedir'} ) {
          $homedir = "$config{'ow_usersdir'}/$user";
          $homedir = "$config{'ow_usersdir'}/$domain/$user" if ($config{'auth_withdomain'});
+         print "D change homedir to $homedir\n" if ($opt{'debug'});
       }
       $folderdir = "$homedir/$config{'homedirfolderdirname'}";
+      print "D folderdir=$folderdir\n" if ($opt{'debug'});
       next if ($homedir eq '/');
 
       ($user =~ /^(.+)$/) && ($user = $1);  # untaint $user
@@ -687,11 +728,12 @@ sub usertool {
       umask(0077);
       if ( $>==0 ) {			# switch to uuid:mailgid if script is setuid root.
          my $mailgid=getgrnam('mail');	# for better compatibility with other mail progs
-         set_euid_egids($uuid, $mailgid, $ugid); 
-         if ( $) != $mailgid) {	# group mail doesn't exist?
+         set_euid_egids($uuid, $mailgid, split(/\s+/,$ugid)); 
+         if ( $)!~/\b$mailgid\b/) {	# group mail doesn't exist?
             die "Set effective gid to mail($mailgid) failed!";
          }
       }
+      print "D ruid=$<, euid=$>, rgid=$(, eguid=$)\n" if ($opt{'debug'});
 
       if ( ! -d $homedir ) {
          print "$homedir doesn't exist\n" if (!$opt{'quiet'});
@@ -928,11 +970,18 @@ sub checknewmail {
    print "$loginname " if (!$opt{'quiet'});
 
    if ($config{'getmail_from_pop3_authserver'}) {
-      my $login=$user;
-      $login .= "\@$domain" if ($config{'auth_withdomain'});
-      my $response = retrpop3mail($login, $config{'pop3_authserver'}, "$folderdir/.authpop3.book", $spoolfile);
-      if ( $response<0) {
-         writelog("pop3 error - $pop3error{$response} at $login\@$config{'pop3_authserver'}");
+      my $authpop3book="$folderdir/.authpop3.book";
+      my %accounts;
+      if (-f "$authpop3book" && readpop3book("$authpop3book", \%accounts)>0) {
+         my $login=$user;  $login.="\@$domain" if ($config{'auth_withdomain'});
+         my ($pop3passwd, $pop3del)
+		=(split(/\@\@\@/, $accounts{"$config{'pop3_authserver'}:$config{'pop3_authport'}\@\@\@$login"}))[3,4];
+         my $response = retrpop3mail($config{'pop3_authserver'},$config{'pop3_authport'}, $login,$pop3passwd, $pop3del,
+				"$folderdir/.uidl.$login\@$config{'pop3_authserver'}", 
+				$spoolfile);
+         if ( $response<0) {
+            writelog("pop3 error - $pop3error{$response} at $login\@$config{'pop3_authserver'}:$config{'pop3_authport'}");
+         }
       }
    }
 
@@ -1005,7 +1054,11 @@ sub checknewevent {
    }
    if ($prefs{'calendar_reminderforglobal'}) {
       readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6);
-      readcalbook("$config{'ow_holidaysdir'}/$prefs{'language'}", \%items, \%indexes, 1E6);
+      if ($prefs{'calendar_holidaydef'} eq 'auto') {
+         readcalbook("$config{'ow_holidaysdir'}/$prefs{'language'}", \%items, \%indexes, 1E7);
+      } elsif ($prefs{'calendar_holidaydef'} ne 'none') {
+         readcalbook("$config{'ow_holidaysdir'}/$prefs{'calendar_holidaydef'}", \%items, \%indexes, 1E7);
+      }
    }
 
    my ($easter_month, $easter_day) = gregorian_easter($year); # compute once
@@ -1081,7 +1134,11 @@ sub checknotify {
    }
    if ($prefs{'calendar_reminderforglobal'}) {
       readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6);
-      readcalbook("$config{'ow_holidaysdir'}/$prefs{'language'}", \%items, \%indexes, 1E6);
+      if ($prefs{'calendar_holidaydef'} eq 'auto') {
+         readcalbook("$config{'ow_holidaysdir'}/$prefs{'language'}", \%items, \%indexes, 1E7);
+      } elsif ($prefs{'calendar_holidaydef'} ne 'none') {
+         readcalbook("$config{'ow_holidaysdir'}/$prefs{'calendar_holidaydef'}", \%items, \%indexes, 1E7);
+      }
    }
 
    my ($easter_month, $easter_day) = gregorian_easter($year); # compute once
@@ -1153,12 +1210,10 @@ sub checknotify {
    return 0;
 }
 
+
 sub hourmin {
-   if ($_[0] =~ /(\d+)(\d{2})$/) {
-      return("$1:$2");
-   } else {
-      return($_[0]);
-   }
+   return("$1:$2") if ($_[0] =~ /(\d+)(\d{2})$/);
+   return($_[0]);
 }
 
 
@@ -1260,13 +1315,10 @@ sub getpop3s {
          close(STDIN); close(STDOUT); close(STDERR);
 
          foreach (values %accounts) {
-            my ($pop3host, $pop3user, $enable);
-            my ($response, $dummy);
-            my $disallowed=0;
-
-            ($pop3host, $pop3user, $dummy, $dummy, $dummy, $enable) = split(/\@\@\@/,$_);
+            my ($pop3host,$pop3port, $pop3user,$pop3passwd, $pop3del, $enable)=split(/\@\@\@/,$_);
             next if (!$enable);
 
+            my $disallowed=0;
             foreach ( @{$config{'disallowed_pop3servers'}} ) {
                if ($pop3host eq $_) {
                   $disallowed=1; last;
@@ -1274,18 +1326,19 @@ sub getpop3s {
             }
             next if ($disallowed);
 
-            $response = retrpop3mail($pop3host, $pop3user,
-         				"$folderdir/.pop3.book",  $spoolfile);
+            my $response = retrpop3mail($pop3host,$pop3port, $pop3user,$pop3passwd, $pop3del,
+					"$folderdir/.uidl.$pop3user\@$pop3host",
+					$spoolfile);
             if ( $response<0) {
-               writelog("pop3 error - $pop3error{$response} at $pop3user\@$pop3host");
+               writelog("pop3 error - $pop3error{$response} at $pop3user\@$pop3host:$pop3port");
             }
          }
-         exit;
+         openwebmail_exit(0);
       }
 
       for (my $i=0; $i<$timeout; $i++) { # wait fetch to complete for $timeout seconds
          sleep 1;
-         last if ($complete{$childpid}==1);
+         last if ($complete{$childpid});
       }
    }
    return 0;

@@ -1,7 +1,7 @@
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>HISTÓRIA</B></font>
+<B>História</B></font>
 </td></tr>
 <tr><td bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
@@ -15,7 +15,7 @@
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Adresa klienta</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Login</B></td>
+<B>Pou¾ívateµ</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Udalos»</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>

@@ -15,8 +15,8 @@
 #
 
 name			Open WebMail
-version			2.01
-releasedate		20030425
+version			2.10
+releasedate		20030617
 
 ##############################################################################
 # host dependent configuration
@@ -86,6 +86,7 @@ vacationpipe		%ow_cgidir%/vacation.pl -t60s
 <domainname_equiv>
 </domainname_equiv>
 
+error_with_debuginfo	no
 allowed_serverdomain	all
 allowed_clientdomain	all
 allowed_clientip	all
@@ -96,6 +97,7 @@ stay_ssl_afterlogin	yes
 enable_rootlogin	no
 enable_domainselectmenu yes
 domainselmenu_list	auto
+enable_strictvirtuser	no
 enable_changepwd	yes
 enable_strictpwd 	yes
 passwd_minlen		6
@@ -118,6 +120,7 @@ about_info_client		yes
 xmailer_has_version		yes
 xoriginatingip_has_userid	yes
 
+enable_setfrom		yes
 enable_setfromemail	yes
 enable_autoreply	yes
 enable_setforward	yes
@@ -166,6 +169,7 @@ delfile_ifquotahit	no
 
 vdomain_admlist			sysadm
 vdomain_maxuser			100
+vdomain_maxalias			100
 vdomain_vmpop3_pwdpath		/etc/virtual
 vdomain_vmpop3_pwdname		passwd
 vdomain_vmpop3_mailpath		/var/spool/virtual
@@ -174,6 +178,7 @@ vdomain_postfix_virtual		/etc/postfix/virtual
 vdomain_postfix_postalias	/usr/sbin/postalias
 vdomain_postfix_postmap		/usr/sbin/postmap
 vdomain_mailbox_command		none
+localusers			none
 
 <mailfooter>
 </mailfooter>
@@ -233,10 +238,11 @@ default_headers			simple
 default_usefixedfont		no
 default_usesmileicon		yes
 default_disablejs		no
-default_disableembcgi		no
+default_disableemblink		none
 default_showimgaslink		no
 default_sendreceipt		ask
 
+default_msgformat		auto
 default_editcolumns		78
 default_editrows		24
 default_sendbuttonposition	before
@@ -263,10 +269,11 @@ default_filter_fakedexecontenttype	no
 default_abook_width		360
 default_abook_height		300
 default_abook_buttonposition	after
-default_abook_usedefaultfilter	no
+default_abook_defaultfilter	no
 default_abook_defaultsearchtype	none
 default_abook_defaultkeyword	none
 
+default_calendar_holidaydef		auto
 default_calendar_monthviewnumitems	5
 default_calendar_weekstart		0
 default_calendar_starthour		0800

@@ -37,10 +37,11 @@ rm -Rf cgi-bin/openwebmail/hc
 rm -Rf cgi-bin/openwebmail/hc.tab
 rm -Rf cgi-bin/openwebmail/etc/*.db
 rm -Rf cgi-bin/openwebmail/etc/*-session-*
-rm -Rf cgi-bin/openwebmail/etc/sessions/*
+rm -Rf cgi-bin/openwebmail/etc/sessions/* cgi-bin/openwebmail/etc/sessions/.[A-z]*
 rm -Rf cgi-bin/openwebmail/etc/users/*
 rm -Rf data/openwebmail/screenshots
 rm -Rf data/openwebmail/download
+rm -Rf data/openwebmail/applet/mindterm2/*.jar data/openwebmail/applet/mindterm2/*.txt
 
 chmod 755 data cgi-bin
 chmod 755 cgi-bin/openwebmail/etc
@@ -103,15 +104,27 @@ if [ ! -z "$oldtgz" ]; then
    mv www/cgi-bin/openwebmail/etc/openwebmail.conf.default      openwebmail.conf.default
    diff -ruN openwebmail.conf.default.orig openwebmail.conf.default > openwebmail.conf.default-current-$oldrelease.diff
 
-   mkdir -p etc.orig/template etc.orig/lang etc/template etc/lang 
-   mv www.orig/cgi-bin/openwebmail/etc/lang/en      etc.orig/lang/
-   mv www.orig/cgi-bin/openwebmail/etc/templates/en etc.orig/templates/
-   mv www/cgi-bin/openwebmail/etc/lang/en           etc/lang/
-   mv www/cgi-bin/openwebmail/etc/templates/en      etc/templates/
-   diff -ruN etc.orig etc > lang-templates-current-$oldrelease.diff
+   mv www.orig www.orig.tmp
+   mv www www.tmp
 
-   rm -Rf www www.orig \
-          etc etc.orig \
+   mkdir -p \
+   www.orig/cgi-bin/openwebmail/etc/template \
+   www.orig/cgi-bin/openwebmail/etc/lang \
+   www.orig/data/openwebmail/javascript/htmlarea.openwebmail/popups \
+   www/cgi-bin/openwebmail/etc/template \
+   www/cgi-bin/openwebmail/etc/lang \
+   www/data/openwebmail/javascript/htmlarea.openwebmail/popups \
+
+   for d in cgi-bin/openwebmail/etc/lang \
+            cgi-bin/openwebmail/etc/templates \
+            data/openwebmail/javascript/htmlarea.openwebmail/popups; do
+      mv www.orig.tmp/$d/en www.orig/$d/
+      mv www.tmp/$d/en www/$d/
+   done
+
+   diff -ruN www.orig www > lang-templates-current-$oldrelease.diff
+
+   rm -Rf www www.orig www.tmp www.orig.tmp \
           openwebmail.conf.default.orig \
           openwebmail.conf.default \
           md5list.release \

@@ -24,7 +24,7 @@ Open WebMail has the following enhanced features:
 11. various authentication modules
 12. pam support
 13. full content search
-14. strong MIME message capability
+14. strong MIME support (presentation and composing)
 15. draft folder support
 16. reply with stationery support
 17. spelling check support
@@ -36,6 +36,7 @@ Open WebMail has the following enhanced features:
 23. calendar with reminder/notification support
 24. web disk support
 25. persistent running through SpeedyCGI
+26. HTTP compression support
 
 
 REQUIREMENT
@@ -49,17 +50,18 @@ libnet-1.0901.tar.gz      (required)
 Text-Iconv-1.2.tar.gz     (required)
 libiconv-1.8.tar.gz       (required if system doesn't support iconv)
 
+CGI-SpeedyCGI-2.21.tar.gz (optional)
+Compress-Zlib-1.21.tar.gz (optional)
+ispell-3.1.20.tar.gz      (optional)
 Quota-1.4.6.tar.gz        (optional)
 Authen-PAM-0.12.tar.gz    (optional)
-ispell-3.1.20.tar.gz      (optional)
 ImageMagick-5.5.3.tar.gz  (optional)
-CGI-SpeedyCGI-2.21.tar.gz (optional)
 
 
 INSTALL REQUIRED PACKAGES
 -------------------------
 First, you have to download required packages from
-http://turtle.ee.ncku.edu.tw/openwebmail/download/packages/
+http://openwebmail.com/openwebmail/download/packages/
 and copy them to /tmp
 
 
@@ -77,7 +79,7 @@ ps: It is reported that Open Webmail will hang in attachment uploading
     version 2.74 or above for Open WebMail.
     To check the version of your CGI module :
 
-    perldoc -m CGI.pm | grep CGI::VERSION 
+    perl -MCGI -e 'print $CGI::VERSION'
 
 
 For MIME-Base64 do the following:
@@ -152,7 +154,7 @@ For Text-Iconv-1.2 do the following:
 INSTALL OPENWEBMAIL
 -------------------
 The latest released or current version is available at
-http://turtle.ee.ncku.edu.tw/openwebmail/ 
+http://openwebmail.com/openwebmail/ 
 
 If you are using FreeBSD and install apache with pkg_add,
 then just
@@ -203,7 +205,7 @@ ps: It is highly recommended to read the doc/RedHat-README.txt(contributed by
 
 ps: Thomas Chung (tchung.AT.openwebmail.org) maintains the rpm for all 
     released and current version of openwebmail, It is available at 
-    http://openwebmail.org/openwebmail/download/redhat-7x-installer/.
+    http://openwebmail.com/openwebmail/download/redhat/rpm/
     You can get openwebmail working in 5 minutes with this :)
 
 If you are using other UNIX with apache, that is okay
@@ -234,6 +236,27 @@ eg: /usr/local/apache/share, then
    b  set variable $unix_passwdmkdb to 'none'
 
 4. execute /usr/local/apache/share/cgi-bin/openwebmail/openwebmail-tool.pl --init
+
+ps:If you are installing Open WebMail on Solaris, please put 
+   'the path of your openwebmail cgi directory' in the first line of 
+   file /etc/openwebmail_path.conf. 
+
+   For example, if the script is located at 
+
+   /usr/local/apache/share/cgi-bin/openwebmail/openwebmail.pl,
+   
+   then the content of /etc/openwebmail_path.conf should be:
+
+   /usr/local/apache/share/cgi-bin/openwebmail
+
+ps: If you are using Apache server 2.0 or later, 
+    please edit your Apache Configuration file, replace
+   
+    AddDefaultCharset ISO-8859-1
+
+    with
+
+    AddDefaultCharset off
 
 
 INITIALIZE OPENWEBMAIL
@@ -390,16 +413,16 @@ Some fingerd allow you to specify the name of finger program by -p option
 openwebmail-tool.pl can be also used in crontab to prefetch pop3mail or do folder 
 index verification for users. For example:
 
-59 23 * * *      /usr/local/www/cgi-bin/openwebmail/openwebmail-tool.pl -a -p -i -q
+59 5 * * *  /usr/local/www/cgi-bin/openwebmail/openwebmail-tool.pl -q -a -p -i
 
 The above line in crontab will do pop3mail prefetching, mail filtering and
-folder index verification quietly for all users at 23:59 every day .
+folder index verification quietly for all users at 5:59 every morning.
 
 If you have enabled the calendar_email_notifyinterval in openwebmail.conf,
 you will also need to use openwebmail-tool.pl in crontab to check the calendar 
 events for sending the notification emails. For example:
 
-0 */2 * * *      /usr/local/www/cgi-bin/openwebmail/openwebmail-tool.pl -a -n -q
+0 */2 * * *  /usr/local/www/cgi-bin/openwebmail/openwebmail-tool.pl -q -a -n
 
 The above line will use openwebmail-tool.pl to check the calendar events for all
 users every two hours. Please note we use this frequency because the default
@@ -436,7 +459,7 @@ aspell package.
 
 ps: if you are compiling ispell from source, you may enhance your ispell 
     by using a better dictionary source.
-    a. download http://turtle.ee.ncku.edu.tw/openwebmail/download/contrib/words.gz
+    a. download http://openwebmail.com/openwebmail/download/contrib/words.gz
     b. gzip -d words.gz
     c. mkdir /usr/dict; cp words /usr/dict/words
     d. start to make your ispell by reading README
@@ -843,12 +866,33 @@ ps: You may choose the abbreviation by referencing the following url
 6. check iconv.pl, if the charset is not listed, add a line for this charset
    in both %charset_localname and %charset_convlist.
 
-7. If you want, you may create the holidays of your language with the 
+7. translate the files used by HTML editor
+
+   cd data/openwebmail/javascript/htmlarea.openwebmail/popups
+   cd xy
+
+   then translate htmlarea-lang.js, insert_image.html, insert_sound.html,
+   insert_table.html and select_color.html  into language xy
+
+   Some style sheel setting in insert*html may need to be adjusted to
+   get the best layout for your language. They are 
+
+   a. the width and height of the pop window, defined in the first line
+      <html style="width: 398; height: 243">
+
+   b. the boxies for fieldsets, defined in middle of the file
+      .fl { width: 9em; float: left; padding: 2px 5px; text-align: right; }
+      .fr { width: 6em; float: left; padding: 2px 5px; text-align: right; }
+
+      .fl is for box in the left and .fr is for box in the right,
+      you may try wider width for better layout
+   
+8. If you want, you may create the holidays of your language with the 
    openwebmail calendar, then copy the ~/mail/.calendar.book into
    etc/holidaysdir/your_languagename. Them the holidays will be displayed 
    to all users of this language
 
-8. If you want, you may also translation help tutorial to your language
+9. If you want, you may also translation help tutorial to your language
    the help files are located under data/openwebmail/help.
 
 ps: if your language is Right-To-Left oriented and you can read Arabic,
@@ -926,7 +970,7 @@ you have to
 ps: If your are going to make Cool3D iconset for your language with Photoshop,
     you may start with the psd file created by Jan Bilik <jan@bilik.org>,
     it could save some of your time. The psd file is available at
-    http://turtle.ee.ncku.edu.tw/openwebmail/contrib/Cool3D.iconset.Photoshop.template.zip
+    http://openwebmail.com/openwebmail/contrib/Cool3D.iconset.Photoshop.template.zip
 
 ps: If you wish the your new iconset to be included in the next release of 
     openwebmail, please submit it to openwebmail.AT.turtle.ee.ncku.edu.tw
@@ -949,18 +993,20 @@ TEST
 
 If there is any problem, please check the faq.txt.
 The latest version of FAQ will be available at
-http://turtle.ee.ncku.edu.tw/openwebmail/download/doc/faq.txt
+http://openwebmail.com/openwebmail/download/doc/faq.txt
 
 
 PERSISTENT RUNNING through SpeedyCGI
 ------------------------------------
+SpeedyCGI: http://www.daemoninc.com/SpeedyCGI/
+
 "SpeedyCGI is a way to run perl scripts persistently, which can make 
 them run much more quickly."
 
 Openwebmail can get almost 5x to 10x speedup when running with SpeedyCGI.
 You can get a quite reactive openwebmail systems on a very old P133 machine :)
 
-Note: Don't want to fly before you can walk...
+Note: Don't try to fly before you can walk...
       Please do this speedup modification only after your openwebmail is working.
 
 1. install SpeedyCGI
@@ -977,6 +1023,9 @@ Note: Don't want to fly before you can walk...
    then edit speedy/Makefile 
    and add " -DIAMSUID" to the end of the line of "DEFINE = "
 
+   (Now, please check the end of this paragraph to see if any 
+    modification to the source is required for your platform)
+   
    make
    make install
    (If you encounter error complaining about install mod_speedy,
@@ -998,6 +1047,50 @@ ps:To make SpeedyCGI works with setuid scripts on Solaris,
     }
 
    move the block down below the speedy_perl_init(); (after line 201)    
+
+ps:If you have problem to compile SpeedyCGI on RedHat9,
+   please adding the following lines to the top of src/speedy_perl.c: 
+
+   #ifndef setdefout 
+   #       define setdefout(a)     Perl_setdefout(aTHX_ a) 
+   #endif 
+
+   Thanks to Douglas, Joshua, jdouglas.AT.enterasys.com
+
+ps:Since the /usr/lib/perl5/5.8.0/i386-linux-thread-multi/CORE/libperl.so
+   on RedHat9 seems buggy, you may need to replace it with the RedHat8
+   libperl.so to make openwebmail + speedycgi work properly.
+
+   The RedHat8 libperl.so is available at 
+   http://openwebmail.com/openwebmail/download/packages/libperl.so.redhat8.gz
+
+ps:If you are compiling SpeedyCGI on FreeBSD 5.0 or above,
+   please apply the following patch or you may get 'segmentation fault'.
+
+---------------------------------------------------------------
+--- src/speedy_opt.c	Mon Sep 30 07:19:54 2002
++++ /tmp/speedy_opt.c	Tue May 20 11:11:28 2003
+@@ -165,6 +165,8 @@ static void cmdline_split(
+ 		    ++p;
+ 	    if (*p)
+ 		strlist_append(doing_speedy_opts ? speedy_opts : perl_args, *p);
++	    else
++		break;
+ 	}
+ 
+ 	if (*p) {
+@@ -422,7 +424,7 @@ const char * const *speedy_opt_script_ar
+ }
+ 
+ SPEEDY_INLINE const char *speedy_opt_script_fname(void) {
+-    return exec_argv.ptrs[script_argv_loc];
++    return exec_argv.len > script_argv_loc ? exec_argv.ptrs[script_argv_loc] : NULL;
+ }
+ 
+ #ifdef SPEEDY_BACKEND
+---------------------------------------------------------------
+
+   Thanks to Lars Thegler, lars.AT.thegler.dk
 
 2. set speedy to setuid root
 
@@ -1028,8 +1121,8 @@ ps:To make SpeedyCGI works with setuid scripts on Solaris,
    
 4. test you openwebmail for the speedup.
 
-5. If you are installing openwebmail on a very slow machine, then you may
-   wish to hide the firsttime startup delay of the scripts from the user.
+5. If you are installing openwebmail on a low end machine, then you may
+   wish to eliminate the firsttime startup delay of the scripts for the user.
    You may use the preload.pl, it acts as a http client to start 
    openwebmail on the web server automatically.
 
@@ -1038,19 +1131,50 @@ ps:To make SpeedyCGI works with setuid scripts on Solaris,
       Please refer to preload.pl for default password and how to change it.
 
    b. through command line or you can put the following line in crontab
+      to preload the most frequently used scripts into mempry
 
-      0 * * * *	/usr/local/www/cgi-bin/openwebmail/preload.pl -q
+      0 * * * *	/usr/local/www/cgi-bin/openwebmail/preload.pl -q openwebmail.pl openwebmail-main.pl openwebmail-read.pl
+
+      If your machine has a lot of memory, you may choose to preload all 
+      openwebmail scripts
+
+      0 * * * *	/usr/local/www/cgi-bin/openwebmail/preload.pl -q --all
 
 6. Need more speedup? 
+
    Yes, you can try to install the mod_speedycgi to your Apache, 
    but you may need to recompile Apache to make it allow using root as euid
    Please refer to README in SpeedyCGI source tar ball..
+   
+   Another approach for speedup is to use some httpd that handles muliples 
+   connections with only one process, eg: http://www.acme.com/software/thttpd/, 
+   instead of the apache web server.
 
-ps: SpeedyCGI: http://www.daemoninc.com/SpeedyCGI/
+   Please refer to doc/thttpd.txt for some installation tips.
 
-    Kevin L. Ellis (kevin.AT.bluelavalamp.net) has written a tutorial
+ps: Kevin L. Ellis (kevin.AT.bluelavalamp.net) has written a tutorial
     and benchmark for OWM + SpeedyCGI. 
     It is available at http://www.bluelavalamp.net/owmspeedycgi/
+
+
+HTTP COMPRESSION
+----------------
+To make this feature work, you have to install the Compress-Zlib-1.21.tar.gz.
+HTTP Compression is very useful for users with slow connection to the
+openwebmail server (eg: dialup user, PDA user). 
+
+Note: There are some compatibility issues for HTTP compression
+
+1. Some proxy servers only support HTTP compression via HTTP 1.1,
+   the user have to enable the use of HTTP1.1 for proxy in their browser
+2. Some proxy servers don't support HTTP compression at all,
+   the user have to list the webmail server as directly connected in 
+   the advanced proxy setting in their browser
+3. Some browsers have problems when using HTTP compression with SSL,
+4. Some browsers claim to support HTTP compression but actually not.
+
+The login screen has a checkbox for HTTP compression.
+So in case there is any problem, the user can relogin with checkbox unchecked.
 
 
 TODO

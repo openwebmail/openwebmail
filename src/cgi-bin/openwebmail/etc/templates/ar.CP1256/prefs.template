@@ -194,19 +194,19 @@
 @@@USESMILEICON@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ลูๅวั วแีๆั วแใแอÞษ ฿วัสศวุ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SHOWIMGASLINK@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>สฺุํแ JavaScript ฯวฮแ วแัำวฦแ:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEJS@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>สฺุํแ embedded CGI ฯวฮแ วแัำวฦแ:</B>
+<B>สฺุํแ embedded links ฯวฮแ วแัำวฦแ:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@DISABLEEMBCGI@@@
-</td></tr>
-<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>ลูๅวั วแีๆั วแใแอÞษ ฿วัสศวุ:</B>
-</td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@SHOWIMGASLINK@@@
+@@@DISABLEEMBLINKMENU@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>ลัำวแ วํีวแ 'สร฿ํฯ วแÞัวมษ':</B>
@@ -216,6 +216,11 @@
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>ฮํวัวส วแลฬวศษ ฺแ์ วแัำวฦแ</B></td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>Message format:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@MSGFORMATMENU@@@
+</td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>ใำวอษ ใไุÞษ สอัํั วแศัํฯ:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -293,6 +298,11 @@
 @@@CALENDARSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>ฮํวัวส วแสÞๆํใ</B></td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>Holiday definition:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@HOLIDAYDEFMENU@@@
+</td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>ฺฯฯ วแฺไวีั Ýํ ฺัึ วแิๅั:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>

@@ -52,6 +52,7 @@ use CGI::Carp qw(fatalsToBrowser carpout);
 
 require "ow-shared.pl";
 require "filelock.pl";
+require "htmltext.pl";
 
 # common globals
 use vars qw(%config %config_raw);
@@ -68,8 +69,14 @@ use vars qw(%lang_text %lang_err);	# defined in lang/xy
 use vars qw(*spellIN *spellOUT *spellERR);
 
 ################################ MAIN #################################
-clearvars();
-openwebmail_init();
+openwebmail_requestbegin();
+$SIG{PIPE}=\&openwebmail_exit;	# for user stop
+$SIG{TERM}=\&openwebmail_exit;	# for user stop
+
+userenv_init();
+
+# whether we are checking a html
+my $htmlmode = param('htmlmode');
 
 my $form = param('form');
 my $field = param('field');
@@ -81,15 +88,15 @@ $dicletters=$dictionary_letters{$dictionary} if (defined($dictionary_letters{$di
 local $|=1;	# fix the duplicate output problem caused by fork in spellcheck
 
 if (! -x $config{'spellcheck'}) {
-   openwebmailerror("Spellcheck is not available.<br>( $config{'spellcheck'} not found )");
+   openwebmailerror(__FILE__, __LINE__, "Spellcheck is not available.<br>( $config{'spellcheck'} not found )");
 }
 
 my @cmd=($config{'spellcheck'}, '-a', '-S', '-d', $dictionary, '-p', "$homedir/.ispell_words");
 if (defined(param('string'))) {
    my $pid = open3(\*spellIN, \*spellOUT, \*spellERR, @cmd);
-   my ($wordcount, $wordframe, @words)=text2words(param('string'), $dicletters);
-   my ($wordshtml, $error)=spellcheck_words2html($wordcount, \$wordframe, \@words);
-   docheckform($form, $field, $dictionary, $wordshtml, $error, $wordcount, $wordframe);
+   my ($wordcount, $wordframe, @words)=text2words($htmlmode, param('string'), $dicletters);
+   my ($wordshtml, $error)=spellcheck_words2html($htmlmode, $wordcount, \$wordframe, \@words);
+   docheckform($htmlmode, $form, $field, $dictionary, $wordshtml, $error, $wordcount, $wordframe);
    close spellIN;
    close spellOUT;
    wait;
@@ -97,8 +104,8 @@ if (defined(param('string'))) {
 } elsif (defined(param('checkagainbutton'))) {
    my $pid = open3(\*spellIN, \*spellOUT, \*spellERR, @cmd);
    my ($wordcount, $wordframe, @words)=cgiparam2words();
-   my ($wordshtml, $error)=spellcheck_words2html($wordcount, \$wordframe, \@words);
-   docheckform($form, $field, $dictionary, $wordshtml, $error, $wordcount, $wordframe);
+   my ($wordshtml, $error)=spellcheck_words2html($htmlmode, $wordcount, \$wordframe, \@words);
+   docheckform($htmlmode, $form, $field, $dictionary, $wordshtml, $error, $wordcount, $wordframe);
    close spellIN;
    close spellOUT;
    wait;
@@ -112,26 +119,24 @@ if (defined(param('string'))) {
    finalform($form, $field, $finalstring);
 
 } else {
-   print htmlheader(), "What the heck? Invalid input for Spellcheck!", htmlfooter(1);
+   httpprint([], [htmlheader(), "What the heck? Invalid input for Spellcheck!", htmlfooter(1)]);
 }
 
-# back to root if possible, required for setuid under persistent perl
-$<=0; $>=0;
+openwebmail_requestend();
 ############################### END MAIN #################################
 
 ############################### ROUTINES ##############################
 sub docheckform {
-   my ($formname, $fieldname, $dictionary, 
+   my ($htmlmode, $formname, $fieldname, $dictionary, 
        $wordshtml, $error, $wordcount, $wordframe) = @_;
    my $escapedwordframe;
    local $_;
 
    my ($html, $temphtml);
-   $html = readtemplate("spellcheck.template");
-   $html = applystyle($html);
+   $html = applystyle(readtemplate("spellcheck.template"));
 
-   $html =~ s/\@\@\@FORMNAME\@\@\@/$formname/;
-   $html =~ s/\@\@\@FIELDNAME\@\@\@/$fieldname/;
+#   $html =~ s/\@\@\@FORMNAME\@\@\@/$formname/;
+#   $html =~ s/\@\@\@FIELDNAME\@\@\@/$fieldname/;
    $html =~ s/\@\@\@DICTIONARY\@\@\@/$dictionary/;
    $html =~ s/\@\@\@WORDSHTML\@\@\@/$wordshtml/;
 
@@ -139,6 +144,9 @@ sub docheckform {
                          -name=>'spellcheck') .
                hidden(-name=>'sessionid',
                       -default=>$thissession,
+                      -override=>'1') .
+               hidden(-name=>'htmlmode',
+                      -default=>$htmlmode,
                       -override=>'1') .
                hidden(-name=>'form',
                       -default=>$formname,
@@ -193,7 +201,7 @@ sub docheckform {
    $temphtml = end_form();
    $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/;
 
-   print htmlheader(), $html, htmlfooter(2);
+   httpprint([], [htmlheader(), $html, htmlfooter(2)]);
 }
 
 
@@ -226,6 +234,7 @@ sub finalform {
       // unescape !QUOT! to "
       document.spellcheck.finalstring.value=(document.spellcheck.finalstring.value.replace(quot,'"'));
       window.opener.document.$formname.$fieldname.value=document.spellcheck.finalstring.value;
+      window.opener.bodysethtml();
       window.close();
    }
    //-->
@@ -243,8 +252,7 @@ sub editpdict {
    my $count = 1;
 
    my ($html, $temphtml);
-   $html= readtemplate("editdictionary.template");
-   $html = applystyle($html);
+   $html= applystyle(readtemplate("editdictionary.template"));
 
    if ($dictword2delete) {
       open(PERSDICT,"<$homedir/.ispell_words");
@@ -274,7 +282,7 @@ sub editpdict {
       $temphtml .= qq|<tr><td bgcolor=$bgcolor>$dictword</td>\n<td bgcolor=$bgcolor align=center>|.
                    button(-name=>"dictword2delete",
                           -value=>$lang_text{'delete'},
-                          -onclick=>"window.open('$config{'ow_cgiurl'}/openwebmail-spell.pl?editpdictbutton=yes&amp;dictword2delete=$dictword&amp;sessionid=$thissession','_self','width=300,height=350,resizable=yes,menubar=no,scrollbars=yes');",
+                          -onclick=>"window.location.href='$config{ow_cgiurl}/openwebmail-spell.pl?editpdictbutton=yes&amp;dictword2delete=$dictword&amp;sessionid=$thissession';",
                           -class=>"medtext",
                           -override=>'1').    
                    qq|</td></tr>\n|;
@@ -305,7 +313,7 @@ sub editpdict {
    $temphtml = end_form();
    $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/;
 
-   print htmlheader(), $html, htmlfooter();
+   httpprint([], [htmlheader(), $html, htmlfooter(0)]);
 }
 
 
@@ -315,7 +323,7 @@ sub editpdict {
 
 # text -> $wordframe and @words
 sub text2words {
-   my ($text, $dicletters)=@_;
+   my ($htmlmode, $text, $dicletters)=@_;
    my $ignore = "they'll we'll you'll she'll he'll i'll ".	# init don't care term
 		"they've we've you've I've ".
 		"can't couldn't won't wouldn't shouldn't ".
@@ -332,19 +340,37 @@ sub text2words {
       $ignore.=" $word";
    }
    # put FQDN to ignore
-   foreach my $word ($text=~m![A-Za-z\d\.]+\.(com|org|edu|net|gov)[A-Za-z\d\.]*!ig) {
+   foreach my $word ($text=~m![A-Za-z\d\.]+\.(?:com|org|edu|net|gov)[A-Za-z\d\.]*!ig) {
       $ignore.=" $word";
    }
 
    my $wordframe=$text;
    my $wordcount=0;
    my @words=();
-   $wordframe=~s/([$dicletters][$dicletters\-]*[$dicletters])|(~~[$dicletters][$dicletters\-]*[$dicletters])/_word2label($1, $ignore, \$wordcount, \@words)/ge;
+
+   if ($htmlmode) {	# escape html tag so they won't be spellchecked
+      my $tagcount=0;
+      my @tags=();
+      $wordframe=~s/(<.*?>)/_tag2label($1, \$tagcount, \@tags)/ge;
+      $wordframe=~s/([$dicletters][$dicletters\-]*[$dicletters])|(~~[$dicletters][$dicletters\-]*[$dicletters])/_word2label($1, $ignore, \$wordcount, \@words)/ge;
+      $wordframe=~s/%%TAG(\d+)%%/$tags[$1]/g;
+   } else {
+      $wordframe=~s/([$dicletters][$dicletters\-]*[$dicletters])|(~~[$dicletters][$dicletters\-]*[$dicletters])/_word2label($1, $ignore, \$wordcount, \@words)/ge;
+   }
    return($wordcount, $wordframe, @words);
 }
+
+sub _tag2label {
+   my ($tag, $r_tagcount, $r_tags)=@_;
+   my $label='%%TAG'.${$r_tagcount}.'%%';
+   ${$r_tags}[${$r_tagcount}]=$tag;
+   ${$r_tagcount}++;
+   return($label);
+}
+
 sub _word2label {
    my ($word, $wordignore, $r_wordcount, $r_words)=@_;
-   return($word) if ($wordignore=~/\Q$word\E/i || $word =~/^WORD/);
+   return($word) if ($wordignore=~/\Q$word\E/i || $word =~/^WORD/ || $word =~/^TAG/ );
 
    my $label='%%WORD'.${$r_wordcount}.'%%';
    ${$r_words}[${$r_wordcount}]=$word;
@@ -378,10 +404,17 @@ sub words2text {
 # put correct word back to word frame, 
 # and generate query html for incorrect word
 sub spellcheck_words2html {
-   my ($wordcount, $r_wordframe, $r_words)=@_;
+   my ($htmlmode, $wordcount, $r_wordframe, $r_words)=@_;
 
-   # conversion make html display happy
    my $html=${$r_wordframe};
+
+   if ($htmlmode) {	
+      # remove html tage from wordframe 
+      # so they won't be displayed during spellchecking
+      $html=html2text($html);
+   }
+
+   # conversion make text for happy html display
    $html=~s/&/&amp;/g;
    $html=~s/</&lt;/g;
    $html=~s/>/&gt;/g;

@@ -44,8 +44,11 @@ use vars qw($_OFFSET $_STATUS);				# defined in maildb.pl
 use vars qw($sort $page);
 
 ########################## MAIN ##############################
-clearvars();
-openwebmail_init();
+openwebmail_requestbegin();
+$SIG{PIPE}=\&openwebmail_exit;	# for user stop
+$SIG{TERM}=\&openwebmail_exit;	# for user stop
+
+userenv_init();
 
 $page = param("page") || 1;
 $sort = param("sort") || $prefs{'sort'} || 'date';
@@ -70,11 +73,10 @@ if ($action eq "editfolders") {
 } elsif ($action eq "downloadfolder") {
    downloadfolder();
 } else {
-   openwebmailerror("Action $lang_err{'has_illegal_chars'}");
+   openwebmailerror(__FILE__, __LINE__, "Action $lang_err{'has_illegal_chars'}");
 }
 
-# back to root if possible, required for setuid under persistent perl
-$<=0; $>=0;
+openwebmail_requestend();
 ###################### END MAIN ##############################
 
 #################### EDITFOLDERS ###########################
@@ -101,8 +103,7 @@ sub editfolders {
    }
 
    my ($html, $temphtml);
-   $html = readtemplate("editfolders.template");
-   $html = applystyle($html);
+   $html = applystyle(readtemplate("editfolders.template"));
 
    $html =~ s/\@\@\@FOLDERNAME_MAXLEN\@\@\@/$config{'foldername_maxlen'}/g;
 
@@ -203,7 +204,7 @@ sub editfolders {
                qq|</tr>|;
    $html =~ s/\@\@\@TOTAL\@\@\@/$temphtml/;
 
-   print htmlheader(), $html, htmlfooter(1);
+   httpprint([], [htmlheader(), $html, htmlfooter(1)]);
 }
 
 # this is inline function used by sub editfolders(), it changes
@@ -218,7 +219,7 @@ sub _folderline {
    if ( -f "$headerdb$config{'dbm_ext'}" && !-z "$headerdb$config{'dbm_ext'}" ) {
       if (!$config{'dbmopen_haslock'}) {
          filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) or
-            openwebmailerror("$lang_err{'couldnt_locksh'} $headerdb$config{'dbm_ext'}");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $headerdb$config{'dbm_ext'}");
       }
       dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
       if ( defined($HDB{'ALLMESSAGES'}) ) {
@@ -329,7 +330,7 @@ sub refreshfolders {
       my ($folderfile,$headerdb)=get_folderfile_headerdb($user, $currfolder);
 
       filelock($folderfile, LOCK_EX|LOCK_NB) or
-         openwebmailerror("$lang_err{'couldnt_lock'} $folderfile!");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $folderfile!");
       if (update_headerdb($headerdb, $folderfile)<0) {
          $errcount++;
          writelog("db error - Couldn't update index db $headerdb$config{'dbm_ext'}");
@@ -357,17 +358,17 @@ sub markreadfolder {
    my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $foldertomark);
 
    filelock($folderfile, LOCK_EX|LOCK_NB) or
-      openwebmailerror("$lang_err{'couldnt_lock'} $folderfile!");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $folderfile!");
 
    if (update_headerdb($headerdb, $folderfile)<0) {
       filelock($folderfile, LOCK_UN);
-      openwebmailerror("$lang_err{'couldnt_updatedb'} $headerdb$config{'dbm_ext'}");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_updatedb'} $headerdb$config{'dbm_ext'}");
    }
 
    my (%HDB, %offset, %status);
    if (!$config{'dbmopen_haslock'}) {
       filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) or
-         openwebmailerror("$lang_err{'couldnt_locksh'} $headerdb$config{'dbm_ext'}");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $headerdb$config{'dbm_ext'}");
    }
    dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
    foreach my $messageid (keys %HDB) {
@@ -391,12 +392,14 @@ sub markreadfolder {
    ($tmpfile =~ /^(.+)$/) && ($tmpfile = $1);
    ($tmpdb =~ /^(.+)$/) && ($tmpdb = $1);
 
+   open(F, ">$tmpfile"); close(F);
    filelock("$tmpfile", LOCK_EX) or
-      openwebmailerror("$lang_err{'couldnt_lock'} $tmpfile");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $tmpfile");
 
    if (update_headerdb($tmpdb, $tmpfile)<0) {
       filelock($tmpfile, LOCK_UN);
-      openwebmailerror("$lang_err{'couldnt_updatedb'} $tmpdb$config{'dbm_ext'}");
+      unlink("$tmpdb$config{'dbm_ext'}", $tmpfile);
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_updatedb'} $tmpdb$config{'dbm_ext'}");
    }
 
    foreach my $messageid (sort { $offset{$a}<=>$offset{$b} } keys %offset) {
@@ -449,7 +452,7 @@ sub reindexfolder {
       my %HDB;
       if (!$config{'dbmopen_haslock'}) {
          filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) or
-            openwebmailerror("$lang_err{'couldnt_locksh'} $headerdb$config{'dbm_ext'}");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $headerdb$config{'dbm_ext'}");
       }
       dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", 0600);
       $HDB{'METAINFO'}={'RENEW'};
@@ -458,7 +461,7 @@ sub reindexfolder {
    }
    if (update_headerdb($headerdb, $folderfile)<0) {
       filelock($folderfile, LOCK_UN);
-      openwebmailerror("$lang_err{'couldnt_updatedb'} $headerdb$config{'dbm_ext'}");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_updatedb'} $headerdb$config{'dbm_ext'}");
    }
 
    if ($recreate) {
@@ -469,7 +472,7 @@ sub reindexfolder {
       writehistory("chkindex folder - $foldertoindex");
    }
 
-#   print "Location: $config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editfolders&sessionid=$thissession&sort=$sort&folder=$escapedfolder&page=$page\n\n";
+#   print redirect(-location=>"$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editfolders&sessionid=$thissession&sort=$sort&folder=$escapedfolder&page=$page");
    getfolders(\@validfolders, \$folderusage);
    editfolders();
 }
@@ -480,7 +483,7 @@ sub addfolder {
    if ($quotalimit>0 && $quotausage>$quotalimit) {
       $quotausage=(quota_get_usage_limit(\%config, $user, $homedir, 1))[2];	# get uptodate quotausage
       if ($quotausage>$quotalimit) {
-         openwebmailerror($lang_err{'quotahit_alert'});
+         openwebmailerror(__FILE__, __LINE__, $lang_err{'quotahit_alert'});
       }
    }
 
@@ -488,21 +491,21 @@ sub addfolder {
    ($foldertoadd =~ /^(.+)$/) && ($foldertoadd = $1);
 
    if (length($foldertoadd) > $config{'foldername_maxlen'}) {
-      openwebmailerror("$lang_err{'foldername_long'}");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'foldername_long'}");
    }
    if ( is_defaultfolder($foldertoadd) ||
         $foldertoadd eq "$user" || $foldertoadd eq "" ) {
-      openwebmailerror("$lang_err{'cant_create_folder'}");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'cant_create_folder'}");
    }
 
    my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $foldertoadd);
    if ( -f $folderfile ) {
-      openwebmailerror ("$lang_err{'folder_with_name'} $foldertoadd $lang_err{'already_exists'}");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'folder_with_name'} $foldertoadd $lang_err{'already_exists'}");
    }
 
    open (FOLDERTOADD, ">$folderfile") or
-      openwebmailerror("$lang_err{'cant_create_folder'} $foldertoadd! ($!)");
-   close (FOLDERTOADD) or openwebmailerror("$lang_err{'couldnt_close'} $foldertoadd! ($!)");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'cant_create_folder'} $foldertoadd! ($!)");
+   close (FOLDERTOADD) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $foldertoadd! ($!)");
 
    # create empty index dbm with mode 0600
    my %HDB;
@@ -584,14 +587,14 @@ sub renamefolder {
    ($newname =~ /^(.+)$/) && ($newname = $1);
 
    if (length($newname) > $config{'foldername_maxlen'}) {
-      openwebmailerror("$lang_err{'foldername_long'}");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'foldername_long'}");
    }
    if ( is_defaultfolder($newname) ||
         $newname eq "$user" || $newname eq "" ) {
-      openwebmailerror("$lang_err{'cant_create_folder'}");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'cant_create_folder'}");
    }
    if ( -f "$folderdir/$newname" ) {
-      openwebmailerror ("$lang_err{'folder_with_name'} $newname $lang_err{'already_exists'}");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'folder_with_name'} $newname $lang_err{'already_exists'}");
    }
 
    if ( -f "$folderdir/$oldname" ) {
@@ -611,7 +614,7 @@ sub renamefolder {
       writehistory("rename folder - $oldname to $newname");
    }
 
-#   print "Location: $config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editfolders&sessionid=$thissession&sort=$sort&folder=$escapedfolder&page=$page\n\n";
+#   print redirect(-location=>"$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editfolders&sessionid=$thissession&sort=$sort&folder=$escapedfolder&page=$page");
    getfolders(\@validfolders, \$folderusage);
    editfolders();
 }
@@ -652,11 +655,10 @@ sub downloadfolder {
    $filename=~s/\s+/_/g;
 
    filelock($folderfile, LOCK_EX|LOCK_NB) or
-      openwebmailerror("$lang_err{'couldnt_lock'} $folderfile");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $folderfile");
 
    # disposition:attachment default to save
-   print qq|Content-Transfer-Coding: binary\n|,
-         qq|Connection: close\n|,
+   print qq|Connection: close\n|,
          qq|Content-Type: $contenttype; name="$filename"\n|;
    if ( $ENV{'HTTP_USER_AGENT'}=~/MSIE 5.5/ ) {	# ie5.5 is broken with content-disposition: attachment
       print qq|Content-Disposition: filename="$filename"\n|;

@@ -194,19 +194,19 @@ Konu:
 @@@USESMILEICON@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Ek resim dosyalarýný link olarak göster :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SHOWIMGASLINK@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Ýleti içi Java çalýþmasýný engelle:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEJS@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Ýleti içi CGI çalýþmasýný engelle:</B>
+<B>Ýleti içi links çalýþmasýný engelle:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@DISABLEEMBCGI@@@
-</td></tr>
-<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Ek resim dosyalarýný link olarak göster :</B>
-</td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@SHOWIMGASLINK@@@
+@@@DISABLEEMBLINKMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Alýcýdan 'Okundu Onayý' iste :</B>
@@ -216,6 +216,11 @@ Konu:
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Ýleti Yanýtlama Seçenekleri</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Message format:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@MSGFORMATMENU@@@
+</td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Ýleti düzenleme alaný için boyut:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -293,6 +298,11 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 @@@CALENDARSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Takvim Seçenekleri</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Holiday definition:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@HOLIDAYDEFMENU@@@
+</td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Aylýk görünümde girdi sayýsý:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>

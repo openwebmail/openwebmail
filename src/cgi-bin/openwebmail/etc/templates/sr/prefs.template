@@ -194,19 +194,19 @@ Tema:
 @@@USESMILEICON@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Prika¾i prilog kao vezu:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SHOWIMGASLINK@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Onemoguæi izvr¹avanje JavaScript-a unutar poruka:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEJS@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Onemoguæi izvr¹avanje ugraðenog CGI-a unutar poruka:</B>
+<B>Onemoguæi izvr¹avanje ugraðenog links-a unutar poruka:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@DISABLEEMBCGI@@@
-</td></tr>
-<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Prika¾i prilog kao vezu:</B>
-</td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@SHOWIMGASLINK@@@
+@@@DISABLEEMBLINKMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>©alji priznanicu za 'potvrdu èitanja':</B>
@@ -216,6 +216,11 @@ Tema:
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Pode¹avanja odgovaranja na poruke</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Message format:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@MSGFORMATMENU@@@
+</td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Velièina prostora za ureðivanje poruka:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -293,6 +298,11 @@ Tema:
 @@@CALENDARSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Pode¹avanje kalendara</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Holiday definition:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@HOLIDAYDEFMENU@@@
+</td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Broj zapisa u meseènom pregledu:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>

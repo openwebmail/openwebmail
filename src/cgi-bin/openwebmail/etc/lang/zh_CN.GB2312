@@ -40,6 +40,14 @@ package openwebmail::zh_CN_GB2312;
    'non-urgent'=> '非紧急'
    );
 
+%lang_msgformatlabels =
+   (
+   auto => '自动选择',
+   text	=> '纯文字',
+   html => 'HTML',
+   both => '同时使用纯文字与HTML'
+   );
+
 %lang_withoriglabels =
    (
    at_beginning => '附在前面',
@@ -52,6 +60,13 @@ package openwebmail::zh_CN_GB2312;
    ask => '要求确认',
    yes => '是',
    no  => '否'
+   );
+
+%lang_disableemblinklabels =
+   (
+   none    => '无',
+   cgionly => '只关闭 CGI',
+   all     => '关闭所有内嵌的 URL'
    );
 
 %lang_ctrlpositionlabels =
@@ -188,6 +203,7 @@ package openwebmail::zh_CN_GB2312;
 
 %lang_text =
    (
+   loading    => 'Loading, please wait',
    help       => '帮助',
    login      => '登录',
    clear      => '清除',
@@ -232,6 +248,7 @@ package openwebmail::zh_CN_GB2312;
    forwardasatt=>'以附件方式转发',
    forwardasorig=>'原信转发',
    printfriendly=> '友好打印',
+   msgformat  => '邮件格式',
    from       => '发件人',
    replyto    => '回复给',
    to         => '收件人',
@@ -344,6 +361,7 @@ package openwebmail::zh_CN_GB2312;
    calfmt_yearmonthday  => '@@@YEAR@@@年 @@@MONTH_STR@@@ @@@DAY@@@日',
    calfmt_yearmonthdaywday => '@@@YEAR@@@年 @@@MONTH_STR@@@ @@@DAY@@@日 @@@WEEKDAY_STR@@@',
    calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
+   autosel    => '自动选择',
    none       => '无',
    moreitems  => '更多项目...',
    multieditconf => '这个项目已经被放到多份的行程中。\\n如果修改会改动所有相关行程。\\n继续修改？',
@@ -385,11 +403,12 @@ package openwebmail::zh_CN_GB2312;
    saveatt_towd => '保存附件至网络磁盘',
    addatt_fromwd=> '从网络磁盘新增附件',
    vdomain_usermgr    => '虚拟帐号管理',
-   vdomain_createuser => '新增使用者',
-   vdomain_changeuser => '修改使用者',
-   vdomain_deleteuser => '删除使用者',
-   vdomain_usertype_localmbox  => '本地端信件匣',
-   vdomain_usertype_redirected => '转向到外部邮件地址'
+   vdomain_createuser => '新增用户',
+   vdomain_changeuser => '修改用户',
+   vdomain_deleteuser => '删除用户',
+   set_passwd         => '设定密码',
+   reset_passwd       => '重设密码',
+   email_alias        => 'Email Alias'
    );
 
 %lang_err =
@@ -452,7 +471,9 @@ package openwebmail::zh_CN_GB2312;
    quotahit_delmail  => '注意, 由于使空间已经超过上限(@@@QUOTALIMIT@@@), 信件匣中最旧的一些信件已经被自动删除了.',
    quotahit_delfile  => '注意, 由于使空间已经超过上限(@@@QUOTALIMIT@@@), 网路硬碟中的一些档案已经被自动删除了.',
    spool_overlimit   => '很抱歉, 您的新信匣已经超出其容量上限(@@@SPOOLLIMIT@@@). 请将部份信件由新信匣搬到其他信件匣.',
-   vdomain_toomanyuser=> '抱歉, 这个网域的使用者数目已经到达上限'
+   vdomain_toomanyuser  => '抱歉, 这个网域的使用者数目已经到达上限',
+   vdomain_toomanyalias => '抱歉, 这个使用者的 E-MAIL alias 个数已经到达上限',
+   vdomain_userrequired => '需要输入使用者名称'
    );
 
 1;

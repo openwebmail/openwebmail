@@ -40,6 +40,14 @@ package openwebmail::sr;
    'non-urgent'=> 'Nije hitna poruka'
    );
 
+%lang_msgformatlabels =
+   (
+   auto => 'Auto selected',
+   text	=> 'Text',
+   html => 'HTML',
+   both => 'HTML and Text'
+   );
+
 %lang_withoriglabels =
    (
    at_beginning => 'na poèetku',
@@ -52,6 +60,13 @@ package openwebmail::sr;
    ask => 'Pitaj za potvrdu',
    yes => 'Da',
    no  => 'Ne'
+   );
+
+%lang_disableemblinklabels =
+   (
+   none    => 'None',
+   cgionly => 'CGI only',
+   all     => 'All embedded URLs'
    );
 
 %lang_ctrlpositionlabels =
@@ -188,6 +203,7 @@ package openwebmail::sr;
 
 %lang_text =
    (
+   loading    => 'Loading, please wait',
    help       => 'Pomoæ',
    login      => 'Prijava',
    clear      => 'Oèisti',
@@ -232,6 +248,7 @@ package openwebmail::sr;
    forwardasatt=>'Prosledi kao prilog',
    forwardasorig=>'Prosledi kao original',
    printfriendly=> 'Prilagoğeno ¹tampanju',
+   msgformat  => 'MsgFormat',
    from       => '©alje',
    replyto    => 'Odgovor-na',
    to         => 'Prima',
@@ -344,6 +361,7 @@ package openwebmail::sr;
    calfmt_yearmonthday  => '@@@DAY@@@ @@@MONTH_STR@@@ @@@YEAR@@@',
    calfmt_yearmonthdaywday => '@@@DAY@@@ @@@MONTH_STR@@@ @@@YEAR@@@ @@@WEEKDAY_STR@@@',
    calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
+   autosel    => 'Auto selected',
    none       => 'Nijedan',
    moreitems  => 'jo¹ zapisa',
    multieditconf => 'Ovaj zapis je dat za vi¹e datuma.\\nNjena promena æe se odraziti na sve datume.\\nDa li ¾elite da nastavite sa ureğivanjem?',
@@ -388,8 +406,9 @@ package openwebmail::sr;
    vdomain_createuser => 'Novi korisnik',
    vdomain_changeuser => 'Izmena korisnika',
    vdomain_deleteuser => 'Brisanje korisnika',
-   vdomain_usertype_localmbox  => 'Lokalno po¹tansko sanduèe',
-   vdomain_usertype_redirected => 'Preusmeravanje na spoljnu adresu elektronske po¹te'
+   set_passwd         => 'Set Password',
+   reset_passwd       => 'Reset Password',
+   email_alias        => 'E-MAIL Alias'
    );
 
 %lang_err =
@@ -452,7 +471,9 @@ package openwebmail::sr;
    quotahit_delmail  => 'Upozorenje, s obzirom da je dostignut limit kvote (@@@QUOTALIMIT@@@), najstarije poruke u omotnici su izbrisane automatski',
    quotahit_delfile  => 'Upozorenje, s obzirom da je dostignut limit kvote (@@@QUOTALIMIT@@@), neke datoteke sa mre¾nog diska su izbrisani automatski',
    spool_overlimit   => 'Na¾alost, Va¹e PRISTIGLE poruke su prekoraèile kvotu (@@@SPOOLLIMIT@@@). Molim da premestite neke poruke iz PRISTIGLIH  u druge omotnice.',
-   vdomain_toomanyuser=> 'Na¾alost, dostignut je dozvoljen broj korisnika za ovaj domen'
+   vdomain_toomanyuser  => 'Na¾alost, dostignut je dozvoljen broj korisnika za ovaj domen',
+   vdomain_toomanyalias => 'Sorry, the E-MAIL alias count of this user has reached its maximum limit',
+   vdomain_userrequired => 'A user name is required'
    );
 
 1;

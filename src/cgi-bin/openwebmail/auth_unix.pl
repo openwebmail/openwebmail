@@ -68,12 +68,15 @@ sub get_userinfo {
    }
    return(-4, "User $user doesn't exist") if ($uid eq "");
 
-   # use first field only
+   # get other gid for this user in /etc/group
+   while (my @gr=getgrent()) {
+      $gid.=' '.$gr[2] if ($gr[3]=~/\b$user\b/ && $gid!~/\b$gr[2]\b/);
+   }
+   # use 1st field for realname
    $realname=(split(/,/, $realname))[0];
    # guess real homedir under sun's automounter
-   if ($uid) {
-      $homedir="/export$homedir" if (-d "/export$homedir");
-   }
+   $homedir="/export$homedir" if (-d "/export$homedir");
+
    return(0, "", $realname, $uid, $gid, $homedir);
 }
 

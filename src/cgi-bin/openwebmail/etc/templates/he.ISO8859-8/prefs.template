@@ -194,19 +194,19 @@
 @@@USESMILEICON@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>רושיקכ תונומת הארה:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SHOWIMGASLINK@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>לטב JavaScript העדוה ךותב:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEJS@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>לטב embedded CGI העדוה ךותב:</B>
+<B>לטב embedded links העדוה ךותב:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@DISABLEEMBCGI@@@
-</td></tr>
-<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>רושיקכ תונומת הארה:</B>
-</td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@SHOWIMGASLINK@@@
+@@@DISABLEEMBLINKMENU@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>האירק רושיא' חלש':</B>
@@ -216,6 +216,11 @@
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>תועדוה לע הבשה תויורשפא</B></td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>Message format:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@MSGFORMATMENU@@@
+</td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>העדוה תכירעל רוזא לדוג:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -293,6 +298,11 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 @@@CALENDARSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>ןמוי תויורשפא</B></td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>Holiday definition:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@HOLIDAYDEFMENU@@@
+</td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>ישדוח הארמב םיטירפ רפסמ:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>

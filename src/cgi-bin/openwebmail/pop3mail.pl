@@ -1,8 +1,8 @@
 #
 # pop3mail.pl - pop3 mail retrieval routines
 #
+# 2003/05/25 tung@turtle.ee.ncku.edu.tw
 # 2002/03/19 eddie@turtle.ee.ncku.edu.tw
-#            tung@turtle.ee.ncku.edu.tw
 #
 
 use strict;
@@ -13,51 +13,42 @@ require "mime.pl";
 use vars qw(%config);
 
 # return < 0 means error
-# -1 pop3book read error
-# -2 connect error
-# -3 server not ready
-# -4 user name error
-# -5 password error
-# -6 stat error
-# -7 retr error
-# -8 spool write error
-# -9 pop3book write error
-
+# -1 uidldb lock error
+# -2 uidldb open error
+# -3 spool write error
+# -11 connect error
+# -12 server not ready
+# -13 user name error
+# -14 password error
+# -15 stat error
+# -16 bad pop3 support
+# -17 retr error
 sub retrpop3mail {
-   my ($pop3host, $pop3user, $pop3book, $spoolfile)=@_;
-   my (%accounts, $pop3passwd, $pop3lastid, $pop3del, $enable);
-   my ($ServerPort, $remote_sock);
-   my ($uidl_support, $uidl_field);
-   my ($last, $nMailCount, $retr_total);
-   my ($dummy, $i);
+   my ($pop3host, $pop3port, $pop3user, $pop3passwd, $pop3del, $uidldb, $spoolfile)=@_;
+   my $remote_sock;
 
-   if ( readpop3book($pop3book, \%accounts)<0 ) {
-      return -1;
-   }
-
-   ($dummy, $dummy, $pop3passwd, $pop3lastid, $pop3del, $enable)=
-			split(/\@\@\@/, $accounts{"$pop3host\@\@\@$pop3user"});
-
-   # untaint for file creation
-   ($spoolfile =~ /^(.+)$/) && ($spoolfile = $1);
    # untaint for connection creation
    ($pop3host =~ /^(.+)$/) && ($pop3host = $1);
+   ($pop3port =~ /^(.+)$/) && ($pop3port = $1);
+   # untaint for file creation
+   ($spoolfile =~ /^(.+)$/) && ($spoolfile = $1);
+   # untaint for uidldb creation
+   ($uidldb =~ /^(.+)$/) && ($uidldb = $1);		# untaint ...
 
-   $ServerPort='110';
    eval {
       local $SIG{ALRM} = sub { die "alarm\n" }; # NB: \n required
-      alarm 10;
+      alarm 30;
       $remote_sock=new IO::Socket::INET(   Proto=>'tcp',
                                            PeerAddr=>$pop3host,
-                                           PeerPort=>$ServerPort,);
+                                           PeerPort=>$pop3port);
       alarm 0;
    };
-   return -2 if ($@);			# eval error, it means timeout
-   return -2 if (!$remote_sock);	# connect error
+   return -11 if ($@);			# eval error, it means timeout
+   return -11 if (!$remote_sock);	# connect error
 
    $remote_sock->autoflush(1);
    $_=<$remote_sock>;
-   return -3 if (/^\-/);		# server not ready
+   return -12 if (/^\-/);		# server not ready
 
    # try if server supports auth login(base64 encoding) first
    print $remote_sock "auth login\r\n";
@@ -65,35 +56,37 @@ sub retrpop3mail {
    if (/^\+/) {
       print $remote_sock &encode_base64($pop3user);
       $_=<$remote_sock>;
-      (close($remote_sock) && return -4) if (/^\-/);		# username error
+      (close($remote_sock) && return -13) if (/^\-/);		# username error
       print $remote_sock &encode_base64($pop3passwd);
       $_=<$remote_sock>;
    }
+
    if (! /^\+/) {	# not supporting auth login or auth login failed
       print $remote_sock "user $pop3user\r\n";
       $_=<$remote_sock>;
-      (close($remote_sock) && return -4) if (/^\-/);		# username error
+      (close($remote_sock) && return -13) if (/^\-/);		# username error
       print $remote_sock "pass $pop3passwd\r\n";
       $_=<$remote_sock>;
-      (close($remote_sock) && return -5) if (/^\-/);		# passwd error
+      (close($remote_sock) && return -14) if (/^\-/);		# passwd error
    }
    print $remote_sock "stat\r\n";
    $_=<$remote_sock>;
-   (close($remote_sock) && return -6) if (/^\-/);		# stat error
+   (close($remote_sock) && return -15) if (/^\-/);		# stat error
 
-   $nMailCount=(split(/\s/))[1];
-   if ($nMailCount == 0) {		# no message
+
+   my ($mailcount, $retr_total)=(0, 0);
+   my ($uidl_support, $uidl_field, $uidl, $last)=(0, 2, -1, 0);
+   my (%UIDLDB, %uidldb);
+
+   $mailcount=(split(/\s/))[1];
+   if ($mailcount == 0) {		# no message
       print $remote_sock "quit\r\n";
       close($remote_sock);
       return 0;
    }
 
-   $last=-1;
-   $uidl_support=0;
-   $uidl_field=2;
-
    # use 'uidl' to find the msg being retrieved last time
-   print $remote_sock "uidl " . $nMailCount . "\r\n";
+   print $remote_sock "uidl 1\r\n";
    $_ = <$remote_sock>;
 
    if (/^\-/) {	# pop3d not support uidl, try last command
@@ -102,11 +95,13 @@ sub retrpop3mail {
       $_ = <$remote_sock>; s/^\s+//;
       if (/^\+/) { # server does support last
          $last=(split(/\s/))[1];		# +OK N
-         if ($last eq $nMailCount) {
+         if ($last eq $mailcount) {
             print $remote_sock "quit\r\n";
             close($remote_sock);
             return 0;
          }
+      } else {
+         return -16;	# both uid and last not supported
       }
 
    } else {	# pop3d does support uidl
@@ -116,44 +111,44 @@ sub retrpop3mail {
       } else {
          $uidl_field=1;	# some broken pop3d return uidl without leading +
       }
-
-      if ($pop3lastid eq (split(/\s/))[$uidl_field]) {	# +OK N ID
-         print $remote_sock "quit\r\n";
-         close($remote_sock);
-         return 0;
-      }
-      if ($pop3lastid ne "none") {
-         for ($i=1; $i<$nMailCount; $i++) {
-            print $remote_sock "uidl ".$i."\r\n";
-            $_ = <$remote_sock>; s/^\s+//;
-            if ($pop3lastid eq (split(/\s/))[$uidl_field]) {
-               $last = $i;
-               last;
-            }
+      if (!$config{'dbmopen_haslock'}) {
+         if (!filelock("$uidldb$config{'dbm_ext'}", LOCK_EX|LOCK_NB)) {
+            close($remote_sock);
+            return -1;
          }
-
-      } else {
-         $last = 0;
+      }
+      if (!dbmopen(%UIDLDB, "$uidldb$config{'dbmopen_ext'}", 0600)) {
+         filelock("$uidldb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+         close($remote_sock);
+         return -2;
       }
    }
 
-   # if last retrieved msg not found, fetech from the beginning
-   $last=0 if ($last==-1);
-   # set lastid to none if fetech from the beginning
-   $pop3lastid="none" if ($last==0);
-
    # retr messages
-   $retr_total=0;
-   for ($i=$last+1; $i<=$nMailCount; $i++) {
-      my ($FileContent,$stAddress,$stDate)=("","","");
+   for (my $i=$last+1; $i<=$mailcount; $i++) {
+      my ($msgcontent, $msgfrom, $msgdate)=("", "", "");
 
+      if ($uidl_support) {
+         print $remote_sock "uidl $i\r\n";
+         $_ = <$remote_sock>;
+         $uidl=(split(/\s/))[$uidl_field];
+         if ( defined($UIDLDB{$uidl}) ) {		# already fetched before
+            $uidldb{$uidl}=1; next;
+         }
+      }
+          
       print $remote_sock "retr ".$i."\r\n";
       while (<$remote_sock>) {	# use loop to filter out verbose output
          if ( /^\+/ ) {
             next;
          } elsif (/^\-/) {
+            if ($uidl_support) {
+               @UIDLDB{keys %uidldb}=values %uidldb if ($retr_total>0);
+               dbmclose(%UIDLDB);
+               filelock("$uidldb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+            }
             close($remote_sock);
-            return -7;
+            return -17;
          } else {
             last;
          }
@@ -161,22 +156,22 @@ sub retrpop3mail {
 
       # first line of message
       if ( /^From / ) {
-         $FileContent = "";	#drop 1st line if containing msg delimiter
+         $msgcontent = "";	#drop 1st line if containing msg delimiter
       } else {
          s/\s+$//;
-         $FileContent = "$_\n";
-         $stDate=$1 if ( /^Date:\s+(.*)$/i);
+         $msgcontent = "$_\n";
+         $msgdate=$1 if ( /^Date:\s+(.*)$/i);
       }
 
       #####  read else lines of message
       while ( <$remote_sock>) {
          s/\s+$//;
          last if ($_ eq "." );	#end and exit while
-         $FileContent .= "$_\n";
-         # get $stAddress, $stDate to compose the mail delimiter 'From xxxx' line
-         if ( /\(envelope\-from \s*(.+?)\s*\)/i && $stAddress eq "" ) {
-            $stAddress = $1;
-         } elsif ( /^from:\s+(.+)$/i && $stAddress eq "" ) {
+         $msgcontent .= "$_\n";
+         # get $msgfrom, $msgdate to compose the mail delimiter 'From xxxx' line
+         if ( /\(envelope\-from \s*(.+?)\s*\)/i && $msgfrom eq "" ) {
+            $msgfrom = $1;
+         } elsif ( /^from:\s+(.+)$/i && $msgfrom eq "" ) {
             $_ = $1;
             if ($_=~ /^"?(.+?)"?\s*<(.*)>$/ ) {
                $_ = $2;
@@ -187,57 +182,64 @@ sub retrpop3mail {
             } else {
                $_=~ s/\s*(.+@.+)\s*/$1/;
             }
-            $stAddress = $_;
+            $msgfrom = $_;
 
-         } elsif ( /^Date:\s+(.*)$/i && $stDate eq "" ) {
-            $stDate=$1;
+         } elsif ( /^Date:\s+(.*)$/i && $msgdate eq "" ) {
+            $msgdate=$1;
          }
       }
 
-
-      my $dateserial=datefield2dateserial($stDate);
+      my $dateserial=datefield2dateserial($msgdate);
       my $gmserial=gmtime2dateserial();
       if ($dateserial eq "" ||
           dateserial2gmtime($dateserial)-dateserial2gmtime($gmserial)>86400 ) {
          $dateserial=$gmserial;	# use current time if msg time is newer than now for 1 day
       }
       if ($config{'deliver_use_GMT'}) {
-         $stDate=dateserial2delimiter($dateserial, "");
+         $msgdate=dateserial2delimiter($dateserial, "");
       } else {
-         $stDate=dateserial2delimiter($dateserial, gettimeoffset());
+         $msgdate=dateserial2delimiter($dateserial, gettimeoffset());
       }
 
       # append message to mail folder
-      filelock($spoolfile, LOCK_EX) or return -8;
-      open(IN,">>$spoolfile") or return -8;
-      print IN "From $stAddress $stDate\n";
-      print IN $FileContent;
-      print IN "\n";		# mark mail end
-      close(IN);
-      filelock($spoolfile, LOCK_UN);
-
-      if ($uidl_support) {
-         print $remote_sock "uidl " . $i . "\r\n";
-         $_=<$remote_sock>; s/^\s+//;
-         if ($_ !~ /^\-/) {
-            $pop3lastid=(split(/\s/))[$uidl_field];
+      my $append=0;;
+      if (filelock($spoolfile, LOCK_EX)) {
+         if (open(IN,">>$spoolfile")) {
+            print IN "From $msgfrom $msgdate\n";
+            print IN $msgcontent;
+            print IN "\n";		# mark mail end
+            close(IN);
+            $append=1;
+         } 
+         filelock($spoolfile, LOCK_UN);
+      } 
+      if (!$append) {
+         if ($uidl_support) {
+            @UIDLDB{keys %uidldb}=values %uidldb if ($retr_total>0);
+            dbmclose(%UIDLDB);
+            filelock("$uidldb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
          }
+         close($remote_sock);
+         return -3;
       }
 
       if ($pop3del == 1) {
-         print $remote_sock "dele " . $i . "\r\n";
+         print $remote_sock "dele $i\r\n";
          $_=<$remote_sock>;
+         $uidldb{$uidl}=1 if ($uidl_support && !/^\+/);
+      } else {
+         $uidldb{$uidl}=1 if ($uidl_support);
       }
-
       $retr_total++;
    }
+
    print $remote_sock "quit\r\n";
    close($remote_sock);
 
-   ###  write back to pop3book
-   $accounts{"$pop3host\@\@\@$pop3user"} = "$pop3host\@\@\@$pop3user\@\@\@$pop3passwd\@\@\@$pop3lastid\@\@\@$pop3del\@\@\@$enable";
-   if (writepop3book($pop3book, \%accounts)<0) {
-      return -9;
+   if ($uidl_support) {
+      %UIDLDB=%uidldb if ($retr_total>0);
+      dbmclose(%UIDLDB);
+      filelock("$uidldb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
    }
 
    # return number of fetched mail

@@ -25,7 +25,7 @@
 <table><tr><td>@@@LOGINBUTTON@@@</td></tr></table>
 </td>
 <td align=center>
-<table><tr><td><font size=1>remember<br>my userid</font></td><td>@@@REMEMBERMECHECKBOX@@@</td></tr></table>
+<table><tr><td><font size=1>с HTTP<br>компресия</font></td><td>@@@HTTPCOMPRESSIONCHECKBOX@@@</td></tr></table>
 </td>
 </tr>
 </table>
@@ -55,6 +55,24 @@
    {
       document.login.loginbutton.focus();
       return (true);
+   }
+
+   function httpcompresshelp()
+   {
+      if (document.login.httpcompress.checked) {
+         alert(
+"HTTP компресията може да ускори връзката между Вашия компютър и пощенския сървър, "+
+"но съществуват някои особености за съвместимост:\n\n"+
+"1. някои прокси сървъри подържат HTTP компресия само при HTTP 1.1. "+
+"Включете HTTP1.1 подръжката за прокси сървъри във вашия браузер\n"+  
+"2. някои прокси сървъри изобщо не подържат HTTP компресия. "+
+"Включете вашият пощенски сървър в списъка за директна връзка (без прокси) в прокси настройката на вашия браузер.\n"
+"3. някои браузери имат проблем когато използват HTTP компресия и SSL...\n"+
+"4. някои браузери си мислят че подържат HTTP компресия, но всъщност се лъжат ;o) \n\n"+
+"И така, ако имате неразрешим проблем с компресията се прелогнете като изключите тази опция.\n"
+         );
+      }
+      return(true);
    }
 
 //-->

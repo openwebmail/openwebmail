@@ -59,7 +59,7 @@ require "filelock.pl";
 # -3 : authentication system/internal error
 # -4 : user doesn't exist
 sub get_userinfo {
-   my ($r_config, $user)=$_[0];
+   my ($r_config, $user)=@_;
    return(-2, 'User is null') if (!$user);
 
    my ($uid, $gid, $realname, $homedir);
@@ -75,12 +75,15 @@ sub get_userinfo {
    }
    return(-4, "User $user doesn't exist") if ($uid eq "");
 
+   # get other gid for this user in /etc/group
+   while (my @gr=getgrent()) {
+      $gid.=' '.$gr[2] if ($gr[3]=~/\b$user\b/ && $gid!~/\b$gr[2]\b/);
+   }
    # use first field only
    $realname=(split(/,/, $realname))[0];
    # guess real homedir under sun's automounter
-   if ($uid) {
-      $homedir="/export$homedir" if (-d "/export$homedir");
-   }
+   $homedir="/export$homedir" if (-d "/export$homedir");
+
    return(0, "", $realname, $uid, $gid, $homedir);
 }
 

@@ -25,7 +25,7 @@
 <table><tr><td>@@@LOGINBUTTON@@@</td></tr></table>
 </td>
 <td align=center>
-<table><tr><td><font size=1>Benutzername<br>merken</font></td><td>@@@REMEMBERMECHECKBOX@@@</td></tr></table>
+<table><tr><td><font size=1>use HTTP<br>compression</font></td><td>@@@HTTPCOMPRESSIONCHECKBOX@@@</td></tr></table>
 </td>
 </tr>
 </table>
@@ -55,6 +55,24 @@
    {
       document.login.loginbutton.focus();
       return (true);
+   }
+
+   function httpcompresshelp()
+   {
+      if (document.login.httpcompress.checked) {
+         alert(
+"HTTP Compression can reduce the use of network bandwidth between your computer and the webmail server effectively, "+
+"but there are some compatibility issues:\n\n"+
+"1. some proxy servers only support HTTP compression via HTTP 1.1, "+
+"you may have to enable the HTTP1.1 support for proxy in your browser\n"+
+"2. some proxy servers don't support HTTP compression at all, "+
+"you may have to list the webmail server as directly connected in the proxy configuration of your browser.\n"+
+"3. some browsers have problems when using HTTP compression with SSL...\n"+
+"4. some browsers claim to support HTTP compression but actually not...\n\n"+
+"So if you encounter any problem, please login again with this checkbox unchecked.\n"
+         );
+      }
+      return(true);
    }
 
 //-->

@@ -41,6 +41,14 @@ package openwebmail::nl;
    'non-urgent'=> 'Niet-Urgent'
    );
 
+%lang_msgformatlabels =
+   (
+   auto => 'Auto selected',
+   text	=> 'Text',
+   html => 'HTML',
+   both => 'HTML and Text'
+   );
+
 %lang_withoriglabels =
    (
    at_beginning => 'aan het Begin',
@@ -53,6 +61,13 @@ package openwebmail::nl;
    ask => 'Vraag Bevestiging',
    yes => 'Ja',
    no  => 'Nee'
+   );
+
+%lang_disableemblinklabels =
+   (
+   none    => 'None',
+   cgionly => 'CGI only',
+   all     => 'All embedded URLs'
    );
 
 %lang_ctrlpositionlabels =
@@ -189,6 +204,7 @@ package openwebmail::nl;
 
 %lang_text =
    (
+   loading    => 'Loading, please wait',
    help       => 'Help',
    login      => 'Inloggen',
    clear      => 'Wissen',
@@ -233,6 +249,7 @@ package openwebmail::nl;
    forwardasatt=>'Doorsturen als bijlage',
    forwardasorig=>'Forward as original',
    printfriendly=> 'Printvriendelijke versie',
+   msgformat  => 'MsgFormat',
    from       => 'Van',
    replyto    => 'Antwoord naar',
    to         => 'Naar',
@@ -345,6 +362,7 @@ package openwebmail::nl;
    calfmt_yearmonthday  => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@',
    calfmt_yearmonthdaywday => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@ @@@WEEKDAY_STR@@@',
    calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
+   autosel    => 'Auto selected',
    none       => 'Geen',
    moreitems  => 'meer items',
    multieditconf => 'Dit item is verspreid over meerdere datums.\\nWijzigingen in dit item zullen op al deze datums worden doorgevoerd.\\nDoorgaan?',
@@ -389,8 +407,9 @@ package openwebmail::nl;
    vdomain_createuser => 'Create User',
    vdomain_changeuser => 'Change User',
    vdomain_deleteuser => 'Delete User',
-   vdomain_usertype_localmbox  => 'Local Mailbox',
-   vdomain_usertype_redirected => 'Redirect to external mail address'
+   set_passwd         => 'Set Password',
+   reset_passwd       => 'Reset Password',
+   email_alias        => 'E-MAIL Alias'
    );
 
 %lang_err =
@@ -453,7 +472,9 @@ package openwebmail::nl;
    quotahit_delmail  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, oldest messages in folders have been removed automatcially',
    quotahit_delfile  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, some files in the webdisk have been removed automatcially',
    spool_overlimit   => 'Sorry, your INBOX has exceeded the spool limit(@@@SPOOLLIMIT@@@). Please move some messages from INBOX to other folders.',
-   vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
+   vdomain_toomanyuser  => 'Sorry, the user count of this domain has reached its maximum limit',
+   vdomain_toomanyalias => 'Sorry, the E-MAIL alias count of this user has reached its maximum limit',
+   vdomain_userrequired => 'A user name is required'
    );
 
 1;

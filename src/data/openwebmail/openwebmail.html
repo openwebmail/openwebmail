@@ -211,9 +211,9 @@
 
   <tr>
   <td>15</td>
-  <td><a href="http://openwebmail.openbsd.org.my/">http://openwebmail.openbsd.org.my/</a></td>
+  <td><a href="http://openwebmail.mybsd.org.my/">http://openwebmail.mybsd.org.my/</a></td>
   <td>SELANGOR, Malaysia</td>
-  <td><a href="mailto:faisal.AT.MyBSD.org.my">Ahmad Faisal</a></td>
+  <td><a href="mailto:mirror-adm.AT.MyBSD.org.my">Ahmad Faisal</a></td>
   </tr>
 
   <tr>
@@ -393,12 +393,20 @@
 
   <h4>Strong MIME Message Capability</h4>
   <p>
-  Most webmail packages present MIME messages poorly compared to traditional
-  POP clients. Open Webmail presents MIME messages in an attractive format
-  comparable to that presented by Microsoft Outlook. It does this through
-  supporting unlimited levels of attachments and cid object cross-reference
-  inside attachments. Open WebMail also supports uuencoded block inside messages,
-  and displays those uuencoded blocks as if they were normal attachments.
+  Open WebMail has very well support for MIME messages.  While most webmail 
+  packages present MIME messages poorly compared to traditional POP clients,
+  Open Webmail presents MIME messages in an attractive format comparable to 
+  that presented by Microsoft Outlook. Either inline or uuencoded attachments
+  are supported.
+  </p>
+  <p>
+  In addition to the presention, Open WebMail also allow user to
+  compose complex HTML messages with inline attachments or external attachments.
+  A friendly WYSIWYG editor 
+  <a href="http://www.interactivetools.com/products/htmlarea/">HTMLArea 3.0</a>
+  has been built into Open WebMail, the user can write HTML messages conformtably 
+  and easily without any knowledge of HTML tags. This HTML editor can be used on IE5.5+ 
+  for Windows or Mozilla1.3+ for all platforms :)
   </p>
 
   <h4>Draft Folder Support</h4>
@@ -518,6 +526,16 @@
   a tutorial and benchmark for Open WebMail + SpeedyCGI</a>.
   </p>
   
+  <h4>HTTP Compression</h4>
+  <p>
+  Open WebMail supports compression of HTML content over HTTP. 
+  With compression turned on, the average page size has been reduced for 
+  over 80%. This feature effectively reduces the use of nework bandwidth 
+  between the client computer and the webmail server and is very useful 
+  for users with slow connection to the webmail server, eg: dialup users, 
+  PDA users.
+  </p>
+
   <p>
   There are too many other small enhancements to mention. You may choose to find
   them by yourself...
@@ -600,7 +618,7 @@
   <tr><td nowrap>Bulgarian</td>
       <td>bg</td>
       <td nowrap>
-          04/19/2003 <a href="mailto:vess.AT.vess.bnc.bg">Veselin Slavov</a>
+          05/24/2003 <a href="mailto:vess.AT.vess.bnc.bg">Veselin Slavov</a>
       </td>
       <td>&nbsp;</td>
       <td><a href="mailto:vess.AT.vess.bnc.bg">Veselin Slavov</a></td></tr>
@@ -688,7 +706,7 @@
   <tr><td nowrap>Hellenic/Greek</td>
       <td>el</td>
       <td nowrap>
-          10/04/2002 <a href="mailto:dimitris.AT.michelinakis.gr">Dimitris sehh Michelinakis</a>
+          10/04/2002 <a href="mailto:dimitris.AT.michelinakis.gr">Dimitris sehh<br>Michelinakis</a>
       </td>
       <td>&nbsp;</td>
       <td><a href="mailto:dimitris.AT.michelinakis.gr">Dimitris sehh Michelinakis</a></td></tr>
@@ -777,7 +795,7 @@
   <tr><td nowrap>Portuguese Brazil</td>
       <td>pt_BR</td>
       <td nowrap>
-          04/21/2003 <a href="mailto:julio.AT.cnm.org.br">Julio Cesar Cunha</a>,<br>
+          05/26/2003 <a href="mailto:julio.AT.cnm.org.br">Julio Cesar Cunha</a>,<br>
           02/25/2003 <a href="mailto:vlad.AT.univap.br">Vladimir M Costa</a>,<br>
           08/28/2002 <a href="mailto:ruisb.AT.ig.com.br">Rui - iG</a>,<br>
           09/20/2001 <a href="mailto:edison.AT.brc.com.br">Edison Figueira Junior</a>
@@ -817,7 +835,7 @@
   <tr><td nowrap>Spanish</td>
       <td>es</td>
       <td nowrap>
-          02/22/2003 <a href="mailto:jsmaldone.AT.yahoo.com">Javier Smaldone</a>
+          05/25/2003 <a href="mailto:jsmaldone.AT.yahoo.com">Javier Smaldone</a>
       </td>
       <td><a href="mailto:jsmaldone.AT.yahoo.com">Javier Smaldone</a></td>
       <td><a href="mailto:jsmaldone.AT.yahoo.com">Javier Smaldone</a></td></tr>
@@ -831,7 +849,7 @@
   <tr><td nowrap>Thai</td>
       <td>th</td>
       <td nowrap>
-          12/26/2002 <a href="mailto:joke.AT.nakhon.net">Atsawin Chaowanakritsanakul</a>
+          05/26/2003 <a href="mailto:joke.AT.nakhon.net">Atsawin<br>Chaowanakritsanakul</a>
       </td>
       <td>&nbsp;</td>
       <td>&nbsp;</td></tr>
@@ -845,7 +863,7 @@
   <tr><td nowrap>Ukrainian</td>
       <td>uk</td>
       <td nowrap>
-          04/20/2003 <a href="mailto:lvm.AT.mystery.lviv.net">Volodymyr M. Lisivka</a>
+          05/25/2003 <a href="mailto:lvm.AT.mystery.lviv.net">Volodymyr M. Lisivka</a>
       </td>
       <td>&nbsp;</td>
       <td>&nbsp;</td></tr>
@@ -874,7 +892,9 @@
 </blockquote>
 
 <h3>THANKS</h3>
-  <p><ul>
+  <p>
+  <table border=0 cellspacing=0 width=95%><tr><td>
+  <ul>
   <li>
   Thanks to <a href="mailto:neorants.AT.users.sourceforge.net">Ernie Miller</a>.
     His great work <a href="http://neomail.sourceforge.net/">Neomail</a> provided
@@ -945,8 +965,16 @@
   can be used with SpeedyCGI on Solaris.
   </li>
   <li>
+  Thanks to <a href="http://interactivetools.com">interactivetools.com</a>.
+    who wrote the great
+    <a href="http://www.interactivetools.com/products/htmlarea/">HTMLArea</a> 
+    editor, and released it under BSD like licence. The HTML message composing 
+    support in openwebmail is based on this wonderful product.
+  </li>
+  <li>
   Thanks to <a href="mailto:mats.AT.mindbright.se">Mats Andersson</a>,
-    who wrote the <a href="http://www.mindbright.se/mindterm/">Mindterm<a>, a SSH client implemented as a Java applet, and released it under GPL. 
+    who wrote the <a href="http://www.mindbright.se/mindterm/">Mindterm<a>, 
+    a SSH client implemented as a Java applet, and released it under GPL. 
     The SSH terminal support in openwebmail is actually using the great software.
   </li>
   <li>
@@ -1064,7 +1092,7 @@
     a tutorial and benchmark for Open WebMail + SpeedyCGI</a>.
   </li>
   <li>
-  Thanks to <a href="gsorian.AT.yahoo.com">Guillermo Soria</a>,
+  Thanks to <a href="mailto:gsorian.AT.yahoo.com">Guillermo Soria</a>,
     who translated the Kevin's Howto into Spanish 
     <a href="http://sortork.com/owm/">"Howto Open WebMail usando Postifx y vm-pop3d"</a>.
   </li>
@@ -1162,11 +1190,12 @@
     who designed the XP serious (red/green/blue/purple) iconsets for openwebmail.
   </li>
   <li>
-  Thanks to <a href="mailto:operator.AT.littlefish.ca">Littlefish Operator</a>
-    who added the vdomain_mailbox_command support to vdomain module and fixed some
-    bugs related to virtual user aliases table.
+  Thanks to <a href="mailto:scott.AT.littlefish.ca">Scott Mazur</a>
+    who has written the openwebmail-vdomain.pl to add the forward, 
+    autoreply and vdomain_mailbox_command support for vdomain users
   </li>
   </ul>
+  </td></tr></table>
   </p>
 
 <h3>CONTACT</h3>
@@ -1236,6 +1265,10 @@
     <td><a href="mailto:owm.AT.adminsquare.de">Bernd Bass</a></td>
     <td>&nbsp;</td>
     </tr>
+    <tr>
+    <td><a href="mailto:scott.AT.littlefish.ca">Scott Mazur</a></td>
+    <td>&nbsp;</td>
+    </tr>
     </table>
     <br>
     <a href="http://dslab.ee.ncku.edu.tw/" target=_blank style="text-decoration: none">
@@ -1246,7 +1279,7 @@
     <font color=#000000>National Cheng-Kung University</font></a>,
     Tainan, Taiwan, R.O.C. </p>
 </blockquote>
-<p>03/25/2003</p>
+<p>05/16/2003</p>
 
 <br>
 <center>

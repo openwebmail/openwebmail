@@ -23,9 +23,9 @@ use CGI::Carp qw(fatalsToBrowser carpout);
 
 require "ow-shared.pl";
 require "filelock.pl";
-require "pop3mail.pl";
 require "mime.pl";
 require "iconv.pl";
+require "htmltext.pl";
 
 # common globals
 use vars qw(%config %config_raw);
@@ -38,15 +38,17 @@ use vars qw($folderdir @validfolders $folderusage);
 use vars qw($folder $printfolder $escapedfolder);
 
 # extern vars
+use vars qw($persistence_count);
 use vars qw(%languagenames %languagecharsets @openwebmailrcitem); # defined in ow-shared.pl
 use vars qw(%lang_folders %lang_sizes %lang_text %lang_err
-	    %lang_onofflabels %lang_sortlabels 
+	    %lang_onofflabels %lang_sortlabels
+            %lang_disableemblinklabels  %lang_msgformatlabels
             %lang_withoriglabels %lang_receiptlabels
             %lang_ctrlpositionlabels %lang_sendpositionlabels
             %lang_abookbuttonpositionlabels
 	    %lang_timelabels %lang_wday);	# defined in lang/xy
 use vars qw(%charset_convlist);			# defined in iconv.pl
-use vars qw(%medfontsize);			# defined in ow-shared.pl
+use vars qw(%fontsize);				# defined in ow-shared.pl
 
 # local globals
 use vars qw($sort $page);
@@ -55,10 +57,13 @@ use vars qw($userfirsttime $prefs_caller);
 use vars qw($urlparmstr $formparmstr);
 
 ########################## MAIN ##############################
-clearvars();
-openwebmail_init();
+openwebmail_requestbegin();
+$SIG{PIPE}=\&openwebmail_exit;	# for user stop
+$SIG{TERM}=\&openwebmail_exit;	# for user stop
+$SIG{CHLD}=sub { wait }; 	# prevent zombie
 
-$SIG{CHLD}=sub { wait }; # whole process scope to prevent zombie
+userenv_init();
+
 $page = param("page") || 1;
 $sort = param("sort") || $prefs{'sort'} || 'date';
 $messageid=param("message_id") || '';
@@ -105,7 +110,7 @@ if ($action eq "about" && $config{'enable_about'}) {
    changepassword();
 } elsif ($action eq "viewhistory" && $config{'enable_history'}) {
    viewhistory();
-} elsif ($action eq "editfroms") {
+} elsif ($action eq "editfroms" && $config{'enable_setfrom'} ) {
    editfroms();
 } elsif ($action eq "addfrom") {
    modfrom("add");
@@ -134,18 +139,16 @@ if ($action eq "about" && $config{'enable_about'}) {
 } elsif ($action eq "timeoutwarning") {
    timeoutwarning();
 } else {
-   openwebmailerror("Action $lang_err{'has_illegal_chars'}");
+   openwebmailerror(__FILE__, __LINE__, "Action $lang_err{'has_illegal_chars'}");
 }
 
-# back to root if possible, required for setuid under persistent perl
-$<=0; $>=0;
+openwebmail_requestend();
 ###################### END MAIN ##############################
 
 ########################### ABOUT ##############################
 sub about {
    my ($html, $temphtml);
-   $html = readtemplate("about.template");
-   $html = applystyle($html);
+   $html = applystyle(readtemplate("about.template"));
 
    $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $lang_text{'userprefs'}", qq|accesskey="F" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;$urlparmstr"|);
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/;
@@ -154,10 +157,17 @@ sub about {
    if ($config{'about_info_software'}) {
       my $os=`/bin/uname -srm`;
       $os=`/usr/bin/uname -srm` if ( -f "/usr/bin/uname");
+      my $flag;
+      $flag.='Persistence' if ($persistence_count>0);
+      $flag.=', HTTP Compression' if (cookie("openwebmail-httpcompress") &&
+                                     $ENV{'HTTP_ACCEPT_ENCODING'}=~/\bgzip\b/ &&
+                                     has_zlib());
+      $flag="( $flag )" if ($flag);
+
       $temphtml.= qq|<tr><td colspan=2 bgcolor=$style{'columnheader'}><B>SOFTWARE</B></td></tr>\n|;
       $temphtml.= attr_html('OS'     , $os).
                   attr_html('PERL'   , "$^X $]").
-                  attr_html('WebMail', "$config{'name'} $config{'version'} $config{'releasedate'}");
+                  attr_html('WebMail', "$config{'name'} $config{'version'} $config{'releasedate'} $flag");
    }
    if ($config{'about_info_protocol'}) {
       $temphtml.= qq|<tr><td colspan=2 bgcolor=$style{'columnheader'}><B>PROTOCOL</B></td></tr>\n|;
@@ -179,13 +189,13 @@ sub about {
    }
    if ($config{'about_info_client'}) {
       $temphtml.= qq|<tr><td colspan=2 bgcolor=$style{'columnheader'}><B>CLIENT</B></td></tr>\n|;
-      foreach my $attr ( qw(REMOTE_ADDR REMOTE_PORT HTTP_X_FORWARDED_FOR HTTP_VIA HTTP_USER_AGENT) ) {
+      foreach my $attr ( qw(REMOTE_ADDR REMOTE_PORT HTTP_X_FORWARDED_FOR HTTP_VIA HTTP_USER_AGENT HTTP_ACCEPT_ENCODING HTTP_ACCEPT_LANGUAGE) ) {
          $temphtml.= attr_html($attr, $ENV{$attr}) if (defined($ENV{$attr}));
       }
    }
    $html =~ s/\@\@\@INFORECORDS\@\@\@/$temphtml/;
 
-   print htmlheader(), $html, htmlfooter(1);
+   httpprint([], [htmlheader(), $html, htmlfooter(1)]);
 }
 
 sub attr_html {
@@ -200,8 +210,7 @@ sub attr_html {
 ##################### FIRSTTIMEUSER ################################
 sub userfirsttime {
    my ($html, $temphtml);
-   $html = readtemplate("userfirsttime.template");
-   $html = applystyle($html);
+   $html = applystyle(readtemplate("userfirsttime.template"));
 
    $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-prefs.pl");
    $temphtml .= hidden(-name=>'action',
@@ -217,7 +226,7 @@ sub userfirsttime {
    $temphtml .= end_form();
    $html =~ s/\@\@\@CONTINUEBUTTON\@\@\@/$temphtml/;
 
-   print htmlheader(), $html, htmlfooter(2);
+   httpprint([], [htmlheader(), $html, htmlfooter(2)]);
 }
 ################### END FIRSTTIMEUSER ##############################
 
@@ -233,8 +242,7 @@ sub editprefs {
    }
 
    my ($html, $temphtml);
-   $html = readtemplate("prefs.template");
-   $html = applystyle($html);
+   $html = applystyle(readtemplate("prefs.template"));
 
    $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-prefs.pl",
                           -name=>'prefsform').
@@ -281,7 +289,9 @@ sub editprefs {
       $temphtml .= qq|&nbsp;\n|;
    }
 
-   $temphtml .= iconlink("editfroms.gif", $lang_text{'editfroms'}, qq|accesskey="F" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editfroms&amp;$urlparmstr"|);
+   if ($config{'enable_setfrom'}) {
+      $temphtml .= iconlink("editfroms.gif", $lang_text{'editfroms'}, qq|accesskey="F" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editfroms&amp;$urlparmstr"|);
+   }
    if ($config{'enable_stationery'}) {
       $temphtml .= iconlink("editst.gif", $lang_text{'editstat'}, qq|accesskey="S" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editstat&amp;$urlparmstr"|);
    }
@@ -295,14 +305,8 @@ sub editprefs {
       $temphtml .= iconlink("chpwd.gif", $lang_text{'changepwd'}, qq|accesskey="P" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editpassword&amp;$urlparmstr"|);
    }
    if ( $config{'enable_vdomain'} ) {
-      my $is_adm=0;
-      foreach my $adm (@{$config{'vdomain_admlist'}}) {
-         if ($user eq $adm) {
-            $is_adm=1; last;
-         }
-      }
-      if ($is_adm) {
-         $temphtml .= iconlink("vdusers.gif", $lang_text{'vdomain_usermgr'}, qq|accesskey="P" href="$config{'ow_cgiurl'}/openwebmail-vdomain.pl?action=display_vuserlist&amp;sessionid=$thissession&amp;folder=$escapedfolder"|);
+      if (is_vdomain_adm($user)) {
+         $temphtml .= iconlink("vdusers.gif", $lang_text{'vdomain_usermgr'}, qq|accesskey="P" href="$config{'ow_cgiurl'}/openwebmail-vdomain.pl?action=display_vuserlist&amp;$urlparmstr"|);
       }
    }
    if ($config{'enable_history'}) {
@@ -335,7 +339,7 @@ sub editprefs {
                           -values=>\@availablelanguages,
                           -default=>$defaultlanguage,
                           -labels=>\%languagenames,
-                          -onChange=>"javascript:if (this.value != null) { window.open('$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;$urlparmstr&amp;language='+this.value, '_self'); }",
+                          -onChange=>"javascript:if (this.value != null) { window.location.href='$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;$urlparmstr&amp;language='+this.value; }",
                           -accesskey=>'1',
                           -override=>'1');
    $html =~ s/\@\@\@LANGUAGEMENU\@\@\@/$temphtml/;
@@ -366,7 +370,7 @@ sub editprefs {
                           -override=>'1');
    $html =~ s/\@\@\@DAYLIGHTSAVINGMENU\@\@\@/$temphtml/;
 
-   my @fromemails=sort keys %userfrom;
+   my @fromemails=sort_emails_by_domainnames($config{'domainnames'}, keys %userfrom);
    my %fromlabels;
    foreach (@fromemails) {
       if ($userfrom{$_}) {
@@ -380,7 +384,9 @@ sub editprefs {
                                 -labels=>\%fromlabels,
                                 -default=>$prefs{'email'},
                                 -override=>'1');
-   $temphtml .= "&nbsp;".iconlink("editfroms.s.gif", $lang_text{'editfroms'}, qq|href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editfroms&amp;$urlparmstr"|). qq| \n|;
+   if ($config{'enable_editfrom'}) {
+      $temphtml .= "&nbsp;".iconlink("editfroms.s.gif", $lang_text{'editfroms'}, qq|href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editfroms&amp;$urlparmstr"|). qq| \n|;
+   }
    $html =~ s/\@\@\@FROMEMAILMENU\@\@\@/$temphtml/;
 
    $temphtml = textfield(-name=>'replyto',
@@ -390,7 +396,7 @@ sub editprefs {
    $html =~ s/\@\@\@REPLYTOFIELD\@\@\@/$temphtml/;
 
    # read .forward, also see if autoforwarding is on
-   my ($autoreply, $selfforward, @forwards)=readdotforward();
+   my ($autoreply, $keeplocalcopy, @forwards)=readdotforward();
    if ($config{'enable_setforward'}) {
       my $forwardaddress='';
       $forwardaddress = join(",", @forwards) if ($#forwards >= 0);
@@ -400,8 +406,6 @@ sub editprefs {
                          -override=>'1');
       $html =~ s/\@\@\@FORWARDADDRESS\@\@\@/$temphtml/;
 
-      my $keeplocalcopy=$selfforward;
-      $keeplocalcopy=0 if ($#forwards<0 && $autoreply);
       $temphtml = checkbox(-name=>'keeplocalcopy',
                   -value=>'1',
                   -checked=>$keeplocalcopy,
@@ -437,7 +441,7 @@ sub editprefs {
       $temphtml = textarea(-name=>'autoreplytext',
                            -default=>$autoreplytext,
                            -rows=>'5',
-                           -columns=>'72',
+                           -columns=>$prefs{'editcolumns'}||'78',
                            -wrap=>'hard',
                            -override=>'1');
       $html =~ s/\@\@\@AUTOREPLYTEXT\@\@\@/$temphtml/;
@@ -457,7 +461,7 @@ sub editprefs {
    $temphtml = textarea(-name=>'signature',
                         -default=>$prefs{'signature'},
                         -rows=>'5',
-                        -columns=>'72',
+                        -columns=>$prefs{'editcolumns'}||'78',
                         -wrap=>'hard',
                         -override=>'1');
    $html =~ s/\@\@\@SIGAREA\@\@\@/$temphtml/;
@@ -466,7 +470,7 @@ sub editprefs {
    # Get a list of valid style files
    my @styles;
    opendir (STYLESDIR, "$config{'ow_stylesdir'}") or
-      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_stylesdir'} directory for reading! ($!)");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_stylesdir'} directory for reading! ($!)");
    while (defined(my $currstyle = readdir(STYLESDIR))) {
       if ($currstyle =~ /^([^\.].*)$/) {
          push (@styles, $1);
@@ -474,7 +478,7 @@ sub editprefs {
    }
    @styles = sort(@styles);
    closedir(STYLESDIR) or
-      openwebmailerror("$lang_err{'couldnt_close'} $config{'ow_stylesdir'}! ($!)");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $config{'ow_stylesdir'}! ($!)");
 
    $temphtml = popup_menu(-name=>'style',
                           -values=>\@styles,
@@ -486,7 +490,7 @@ sub editprefs {
    # Get a list of valid iconset
    my @iconsets;
    opendir (ICONSETSDIR, "$config{'ow_htmldir'}/images/iconsets") or
-      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_htmldir'}/images/iconsets directory for reading! ($!)");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_htmldir'}/images/iconsets directory for reading! ($!)");
    while (defined(my $currset = readdir(ICONSETSDIR))) {
       if (-d "$config{'ow_htmldir'}/images/iconsets/$currset" && $currset =~ /^([^\.].*)$/) {
          push (@iconsets, $1);
@@ -494,7 +498,7 @@ sub editprefs {
    }
    @iconsets = sort(@iconsets);
    closedir(ICONSETSDIR) or
-      openwebmailerror("$lang_err{'couldnt_close'} $config{'ow_htmldir'}/images/iconsets! ($!)");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $config{'ow_htmldir'}/images/iconsets! ($!)");
 
    $temphtml = popup_menu(-name=>'iconset',
                           -values=>\@iconsets,
@@ -505,14 +509,14 @@ sub editprefs {
    # Get a list of valid background images
    my @backgrounds;
    opendir (BACKGROUNDSDIR, "$config{'ow_htmldir'}/images/backgrounds") or
-      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_htmldir'}/images/backgrounds directory for reading! ($!)");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_htmldir'}/images/backgrounds directory for reading! ($!)");
    while (defined(my $currbackground = readdir(BACKGROUNDSDIR))) {
       if ($currbackground =~ /^([^\.].*)$/) {
          push (@backgrounds, $1);
       }
    }
    closedir(BACKGROUNDSDIR) or
-      openwebmailerror("$lang_err{'couldnt_close'} $config{'ow_htmldir'}/images/backgrounds! ($!)");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $config{'ow_htmldir'}/images/backgrounds! ($!)");
    @backgrounds = sort(@backgrounds);
    push(@backgrounds, "USERDEFINE");
 
@@ -543,7 +547,7 @@ sub editprefs {
                          -override=>'1');
    $html =~ s/\@\@\@BGURLFIELD\@\@\@/$temphtml/;
 
-   my @fontsize=sort { ($a=~/px$/ - $b=~/px$/) || $a <=> $b } keys %medfontsize;
+   my @fontsize=sort { ($a=~/px$/ - $b=~/px$/) || $a <=> $b } keys %fontsize;
    my %fontsizelabels;
    foreach (@fontsize) {
       $fontsizelabels{$_}=$_;
@@ -705,11 +709,12 @@ sub editprefs {
                   -label=>'');
    $html =~ s/\@\@\@DISABLEJS\@\@\@/$temphtml/;
 
-   $temphtml = checkbox(-name=>'disableembcgi',
-                  -value=>'1',
-                  -checked=>$prefs{'disableembcgi'},
-                  -label=>'');
-   $html =~ s/\@\@\@DISABLEEMBCGI\@\@\@/$temphtml/;
+   $temphtml = popup_menu(-name=>'disableemblink',
+                          -values=>['none', 'cgionly', 'all'],
+                          -default=>$prefs{'disableemblink'},
+                          -labels=>\%lang_disableemblinklabels,
+                          -override=>'1');
+   $html =~ s/\@\@\@DISABLEEMBLINKMENU\@\@\@/$temphtml/;
 
    $temphtml = checkbox(-name=>'showimgaslink',
                   -value=>'1',
@@ -725,6 +730,12 @@ sub editprefs {
                           -override=>'1');
    $html =~ s/\@\@\@SENDRECEIPTMENU\@\@\@/$temphtml/;
 
+   $temphtml = popup_menu(-name=>'msgformat',
+                          -values=>['auto', 'text', 'html', 'both'],
+                          -default=>$prefs{'msgformat'},
+                          -labels=>\%lang_msgformatlabels,
+                          -override=>'1');
+   $html =~ s/\@\@\@MSGFORMATMENU\@\@\@/$temphtml/;
 
    $temphtml = popup_menu(-name=>'editcolumns',
                           -values=>[60,62,64,66,68,70,72,74,76,78,80,82,84,86,88,90,100,110,120],
@@ -784,7 +795,7 @@ sub editprefs {
       my (%FTDB, $matchcount, $matchdate);
       if (!$config{'dbmopen_haslock'}) {
          filelock("$folderdir/.filter.book$config{'dbm_ext'}", LOCK_SH) or
-            openwebmailerror("$lang_err{'couldnt_locksh'} $folderdir/.filter.book$config{'dbm_ext'}");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $folderdir/.filter.book$config{'dbm_ext'}");
       }
       dbmopen (%FTDB, "$folderdir/.filter.book$config{'dbmopen_ext'}", 0600);
 
@@ -895,6 +906,28 @@ sub editprefs {
       $html =~ s/\@\@\@CALENDARSTART\@\@\@//;
       $html =~ s/\@\@\@CALENDAREND\@\@\@//;
 
+      # Get a list of valid holiday files
+      my @holidays;
+      opendir (HOLIDAYSDIR, "$config{'ow_holidaysdir'}") or
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_holidaysdir'} directory for reading! ($!)");
+      while (defined(my $currholiday = readdir(HOLIDAYSDIR))) {
+         if ($currholiday =~ /^([^\.].*)$/) {
+            push (@holidays, $1);
+         }
+      }
+      closedir(HOLIDAYSDIR) or
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $config{'ow_holidaysdir'}! ($!)");
+      @holidays = ('auto', sort(@holidays), 'none');
+
+      $temphtml = popup_menu(-name=>'calendar_holidaydef',
+                             -values=>\@holidays,
+                             -labels=>{ 'auto'=>$lang_text{'autosel'},
+                                        'none'=>$lang_text{'none'} },
+                             -default=>$prefs{'calendar_holidaydef'},
+                             -accesskey=>'2',
+                             -override=>'1');
+      $html =~ s/\@\@\@HOLIDAYDEFMENU\@\@\@/$temphtml/;
+
       $temphtml = popup_menu(-name=>'calendar_monthviewnumitems',
                              -values=>[3, 4, 5, 6, 7, 8, 9, 10],
                              -default=>$prefs{'calendar_monthviewnumitems'},
@@ -926,7 +959,7 @@ sub editprefs {
       $html =~ s/\@\@\@ENDHOURMENU\@\@\@/$temphtml/;
 
       $temphtml = popup_menu(-name=>'calendar_interval',
-                             -values=>[5, 10, 15, 20, 30, 60],
+                             -values=>[5, 10, 15, 20, 30, 45, 60, 90, 120],
                              -default=>$prefs{'calendar_interval'},
                              -override=>'1');
       $html =~ s/\@\@\@INTERVALMENU\@\@\@/$temphtml/;
@@ -1030,14 +1063,14 @@ sub editprefs {
    # Get a list of new mail sound
    my @sounds;
    opendir (SOUNDDIR, "$config{'ow_htmldir'}/sounds") or
-      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_htmldir'}/sounds directory for reading! ($!)");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_htmldir'}/sounds directory for reading! ($!)");
    while (defined(my $currsnd = readdir(SOUNDDIR))) {
       if (-f "$config{'ow_htmldir'}/sounds/$currsnd" && $currsnd =~ /^([^\.].*)$/) {
          push (@sounds, $1);
       }
    }
    closedir(SOUNDDIR) or
-      openwebmailerror("$lang_err{'couldnt_close'} $config{'ow_htmldir'}/sounds! ($!)");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $config{'ow_htmldir'}/sounds! ($!)");
 
    @sounds = sort(@sounds);
    unshift(@sounds, 'NONE');
@@ -1122,7 +1155,7 @@ sub editprefs {
    $temphtml = end_form();
    $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/g;
 
-   print htmlheader(), $html, htmlfooter(2);
+   httpprint([], [htmlheader(), $html, htmlfooter(2)]);
 }
 #################### END EDITPREFS ###########################
 
@@ -1130,11 +1163,11 @@ sub editprefs {
 sub saveprefs {
    if (! -d "$folderdir" ) {
       mkdir ("$folderdir", oct(700)) or
-         openwebmailerror("$lang_err{'cant_create_dir'} $folderdir ($!)");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'cant_create_dir'} $folderdir ($!)");
    }
    if ($config{'enable_strictforward'} &&
        param("forwardaddress") =~ /[&;\`\<\>\(\)\{\}]/) {
-      openwebmailerror("$lang_text{'forward'} $lang_text{'email'} $lang_err{'has_illegal_chars'}");
+      openwebmailerror(__FILE__, __LINE__, "$lang_text{'forward'} $lang_text{'email'} $lang_err{'has_illegal_chars'}");
    }
 
    my %rcitem_yn=qw(
@@ -1147,7 +1180,6 @@ sub saveprefs {
       usefixedfont 1
       usesmileicon 1
       disablejs 1
-      disableembcgi 1
       showimgaslink 1
       reparagraphorigmsg 1
       backupsentmsg 1
@@ -1238,35 +1270,13 @@ sub saveprefs {
 
    my %userfrom=get_userfrom($logindomain, $loginuser, $user, $userrealname, "$folderdir/.from.book");
 
-
    # save .forward file
-   my @forwards=();
-   $forwardaddress =~ s/^\s*//; $forwardaddress =~ s/\s*$//;
-   if ($forwardaddress=~/,/) {
-      @forwards= str2list($forwardaddress,0);
-   } elsif ($forwardaddress ne "") {
-      push (@forwards, $forwardaddress);
-   }
-   # if no other forwards, selfforward is required only if autoreply is on
-   my $selfforward;
-   if ($#forwards>=0) {
-      $selfforward=$keeplocalcopy;
-   } else {
-      $selfforward=$autoreply;
-   }
-   my @fromemails=sort keys %userfrom;
-   writedotforward($autoreply, $selfforward, \@forwards, \@fromemails);
+   writedotforward($autoreply, $keeplocalcopy, $forwardaddress, keys %userfrom);
 
    # save .vacation.msg
    if ($config{'enable_autoreply'}) {
-      my $from;
-      if ($userfrom{$newprefs{'email'}}) {
-         $from=qq|"$userfrom{$newprefs{'email'}}" <$newprefs{'email'}>|;
-      } else {
-         $from=$newprefs{'email'};
-      }
-      writedotvacationmsg($autoreply, $from,
-   		$autoreplysubject, $autoreplytext, $newprefs{'signature'});
+      writedotvacationmsg($autoreply, $autoreplysubject, $autoreplytext, $newprefs{'signature'}, 
+				$newprefs{'email'}, $userfrom{$newprefs{'email'}} );
    }
 
    # save .signature
@@ -1277,26 +1287,25 @@ sub saveprefs {
       $signaturefile="$homedir/.signature";
    }
    open (SIGNATURE,">$signaturefile") or
-      openwebmailerror("$lang_err{'couldnt_open'} $signaturefile! ($!)");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $signaturefile! ($!)");
    print SIGNATURE $newprefs{'signature'};
-   close (SIGNATURE) or openwebmailerror("$lang_err{'couldnt_close'} $signaturefile! ($!)");
-   chown($uuid, $ugid, $signaturefile) if ($signaturefile eq "$homedir/.signature");
+   close (SIGNATURE) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $signaturefile! ($!)");
+   chown($uuid, (split(/\s+/,$ugid))[0], $signaturefile) if ($signaturefile eq "$homedir/.signature");
 
    # save .openwebmailrc
    open (RC, ">$folderdir/.openwebmailrc") or
-      openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.openwebmailrc! ($!)");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir/.openwebmailrc! ($!)");
    foreach my $key (@openwebmailrcitem) {
       print RC "$key=$newprefs{$key}\n";
    }
-   close (RC) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.openwebmailrc! ($!)");
+   close (RC) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $folderdir/.openwebmailrc! ($!)");
 
    %prefs = readprefs();
    %style = readstyle($prefs{'style'});
    readlang($prefs{'language'});
 
    my ($html, $temphtml);
-   $html = readtemplate("prefssaved.template");
-   $html = applystyle($html);
+   $html = applystyle(readtemplate("prefssaved.template"));
 
    if ($prefs_caller eq "cal") {
       $temphtml .= startform(-action=>"$config{'ow_cgiurl'}/openwebmail-cal.pl");
@@ -1342,58 +1351,45 @@ sub saveprefs {
    $temphtml = end_form();
    $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/g;
 
-   print htmlheader(), $html, htmlfooter(2);
+   httpprint([], [htmlheader(), $html, htmlfooter(2)]);
 }
 ##################### END SAVEPREFS ######################
 
 ###################### R/W DOTFORWARD/DOTVACATIONMSG ##################
 sub readdotforward {
-   my ($autoreply, $selfforward)=(0,0);
-   my @forwards=();
    my $forwardtext;
 
    if (open(FOR, "$homedir/.forward")) {
-      local $/; undef $/;	# read whole file
-      $forwardtext=<FOR>;
+      local $/; undef $/; $forwardtext=<FOR>; # read whole file at once
       close(FOR);
-      if ($forwardtext =~ /\|\s*$config{'vacationpipe'}\s+/) {
-         $autoreply=1;
-      }
    }
 
-   # get forward list with selfemail and vacationpipe removed
-   foreach my $email ( split(/[,\n\r]+/, $forwardtext) ) {
-      if ($email=~/$config{'vacationpipe'}/) {
-         next;
-      } elsif ( $email eq "\\$user" || $email eq "$user" ) {
-         $selfforward=1;
-         next;
-      } elsif ( $email=~/$user\@(.+)/ ) {
-         my $host=$1;
-         my $islocaldomain=0;
-         foreach (@{$config{'domainnames'}}) {
-            if ($host eq $_) {
-               $islocaldomain=1;
-               last;
-            }
-         }
-         if ($islocaldomain) {
-            $selfforward=1;
-            next;
-         }
-      }
-      push(@forwards, $email);
-   }
-   return ($autoreply, $selfforward, @forwards);
+   # get flags and forward list with selfemail and vacationpipe removed
+   my ($autoreply, $keeplocalcopy, @forwards)=splitforwardtext($forwardtext, 0, 0);
+   $keeplocalcopy=0 if ($#forwards<0);
+   return ($autoreply, $keeplocalcopy, @forwards);
 }
 
 sub writedotforward {
-   my ($autoreply, $selfforward, $r_forwards, $r_fromemails) = @_;
-   my @forwards=@{$r_forwards};
-   my @fromemails=@{$r_fromemails};
+   my ($autoreply, $keeplocalcopy, $forwardtext, @userfrom) = @_;
+   my @forwards=();
+
+   # don't allow forward to self (avoid mail loops!)
+   # splitforwardtext will remove self emails 
+   ($autoreply, $keeplocalcopy, @forwards)=splitforwardtext( $forwardtext, $autoreply, $keeplocalcopy );
+
+   # if no other forwards, keeplocalcopy is required
+   # only if autoreply is on or if this is a virtual user
+   if ($#forwards<0) {
+      if ( $autoreply or $config{'auth_module'} eq 'auth_vdomain.pl') {
+         $keeplocalcopy=1;
+      } else {
+         $keeplocalcopy=0
+      }
+   }
 
    # nothing enabled, clean .forward
-   if (!$autoreply && !$selfforward && $#forwards<0 ) {
+   if (!$autoreply && !$keeplocalcopy && $#forwards<0 ) {
       unlink("$homedir/.forward");
       return 0;
    }
@@ -1402,25 +1398,34 @@ sub writedotforward {
       # if this user has multiple fromemail or be mapped from another loginname
       # then use -a with vacation.pl to add these aliases for to: and cc: checking
       my $aliasparm="";
-      foreach (@fromemails) {
+      foreach (sort_emails_by_domainnames($config{'domainnames'}, @userfrom)) {
          $aliasparm .= "-a $_ ";
       }
       $aliasparm .= "-a $loginname " if ($loginname ne $user);
-      if (length("$config{'vacationpipe'} $aliasparm$user")<250) {
-         push(@forwards, qq!"|$config{'vacationpipe'} $aliasparm$user"!);
+
+      my $vacationuser = $user;
+      if ($config{'auth_module'} eq 'auth_vdomain.pl') {
+         $vacationuser = "-p$homedir nobody";
+      }
+      if (length("xxx$config{'vacationpipe'} $aliasparm $vacationuser")<250) {
+         push(@forwards, qq!| "$config{'vacationpipe'} $aliasparm $vacationuser"!);
       } else {
-         push(@forwards, qq!"|$config{'vacationpipe'} -j $user"!);
+         push(@forwards, qq!| "$config{'vacationpipe'} -j $vacationuser"!);
       }
    }
 
-   if ($selfforward) {
-      push(@forwards, "\\$user");
+   if ($keeplocalcopy) {
+      if ($config{'auth_module'} eq 'auth_vdomain.pl') {
+         push(@forwards, vdomain_userspool($user,$homedir));
+      } else {
+         push(@forwards, "\\$user");
+      }
    }
 
    open(FOR, ">$homedir/.forward") || return -1;
    print FOR join("\n", @forwards), "\n";
    close FOR;
-   chown($uuid, $ugid, "$homedir/.forward");
+   chown($uuid, (split(/\s+/,$ugid))[0], "$homedir/.forward");
    chmod(0600, "$homedir/.forward");
 }
 
@@ -1468,8 +1473,14 @@ sub readdotvacationmsg {
 }
 
 sub writedotvacationmsg {
-   my ($autoreply, $from, $subject, $text, $signature)=@_;
-   my $email;
+   my ($autoreply, $subject, $text, $signature, $email, $userfrom)=@_;
+ 
+   my $from;
+   if ($userfrom) {
+      $from=qq|"$userfrom" <$email>|;
+   } else {
+      $from=$email;
+   }
 
    if ($autoreply) {
       local $|=1; # flush all output
@@ -1485,8 +1496,7 @@ sub writedotvacationmsg {
             /^(.*)$/ && push(@cmd, $1); # untaint all argument
          }
          exec(@cmd);
-#         system("/bin/sh -c '$config{vacationinit} 2>>/tmp/err.log2  >>/tmp/err.log'" );
-         exit 0;
+         exit 0; # should never reach here
       }
    }
 
@@ -1510,15 +1520,42 @@ sub writedotvacationmsg {
              "$text\n\n".
              $signature;		# append signature
    close MSG;
-   chown($uuid, $ugid, "$homedir/.vacation.msg");
+   chown($uuid, (split(/\s+/,$ugid))[0], "$homedir/.vacation.msg");
+}
+
+sub splitforwardtext {
+   my ($forwardtext, $autoreply, $keeplocalcopy)=@_;
+   # remove self email and vacation from forward list
+   # set keeplocalcopy if self email found
+   # set autoreply if vacation found
+   my @forwards=();
+   foreach ( split(/[,;\n\r]+/, $forwardtext) ) {
+      s/^\s+//; s/\s+$//;
+      next if ( /^$/ );
+      if (/$config{'vacationpipe'}/) { $autoreply=1; }
+      elsif ( is_selfemail($_) ) { $keeplocalcopy=1; }
+      else { push(@forwards, $_); }
+   }
+   return ($autoreply, $keeplocalcopy, @forwards);
+}
+
+sub is_selfemail {
+   my ($email)=@_;
+   if ( $email=~/$user\@(.+)/i ) {
+      foreach ( @{$config{'domainnames'}} ) {
+         return 1 if (lc($1) eq lc($_));
+      }
+   }
+   return 1 if ($email eq "\\$user" || $email eq $user);
+   return 1 if ($config{'auth_module'} eq 'auth_vdomain.pl' and $email eq vdomain_userspool($user,$homedir));
+   return 0;
 }
 ###################### END R/W DOTFORWARD/DOTVACATIONMSG ##################
 
 ##################### EDITPASSWORD #######################
 sub editpassword {
    my ($html, $temphtml);
-   $html = readtemplate("chpwd.template");
-   $html = applystyle($html);
+   $html = applystyle(readtemplate("chpwd.template"));
 
    my $chpwd_url="$config{'ow_cgiurl'}/openwebmail-prefs.pl";
    if (cookie("openwebmail-ssl")) {	# backto SSL
@@ -1576,7 +1613,7 @@ sub editpassword {
 
    $html =~ s/\@\@\@PASSWDMINLEN\@\@\@/$config{'passwd_minlen'}/g;
 
-   print htmlheader(), $html, htmlfooter(2);
+   httpprint([], [htmlheader(), $html, htmlfooter(2)]);
 }
 ##################### END EDITPASSWORD #######################
 
@@ -1649,15 +1686,14 @@ sub changepassword {
                end_form();
    $html =~ s/\@\@\@CONTINUEBUTTON\@\@\@/$temphtml/;
 
-   print htmlheader(), $html, htmlfooter(2);
+   httpprint([], [htmlheader(), $html, htmlfooter(2)]);
 }
 ##################### END CHANGEPASSWORD #######################
 
 ##################### LOGINHISTORY #######################
 sub viewhistory {
    my ($html, $temphtml);
-   $html = readtemplate("history.template");
-   $html = applystyle($html);
+   $html = applystyle(readtemplate("history.template"));
 
    $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $lang_text{'userprefs'}", qq|accesskey="F" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;$urlparmstr"|);
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/;
@@ -1693,19 +1729,18 @@ sub viewhistory {
    close(HISTORYLOG);
    $html =~ s/\@\@\@LOGINHISTORY\@\@\@/$temphtml/;
 
-   print htmlheader(), $html, htmlfooter(2);
+   httpprint([], [htmlheader(), $html, htmlfooter(2)]);
 }
 ##################### END LOGINHISTORY #######################
 
 #################### EDITFROMS ###########################
 sub editfroms {
    my ($html, $temphtml);
-   $html = readtemplate("editfroms.template");
-   $html = applystyle($html);
+   $html = applystyle(readtemplate("editfroms.template"));
 
    my $frombooksize = ( -s "$folderdir/.from.book" ) || 0;
    my $freespace = int($config{'maxbooksize'} - ($frombooksize/1024) + .5);
-   my %from=get_userfrom($logindomain, $loginuser, $user, $userrealname, "$folderdir/.from.book");
+   my %userfrom=get_userfrom($logindomain, $loginuser, $user, $userrealname, "$folderdir/.from.book");
 
    $html =~ s/\@\@\@FREESPACE\@\@\@/$freespace $lang_sizes{'kb'}/;
 
@@ -1714,9 +1749,9 @@ sub editfroms {
 
    $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-prefs.pl",
                          -name=>'newfrom') .
-               hidden(-name=>'action',
-                      -value=>'addfrom',
-                      -override=>'1').
+                  hidden(-name=>'action',
+                         -value=>'addfrom',
+                         -override=>'1').
                $formparmstr;
    $html =~ s/\@\@\@STARTFROMFORM\@\@\@/$temphtml/;
 
@@ -1748,8 +1783,8 @@ sub editfroms {
    my ($email, $realname);
 
    $temphtml = '';
-   foreach $email (sort keys %from) {
-      $realname=$from{$email};
+   foreach $email (sort_emails_by_domainnames($config{'domainnames'}, keys %userfrom)) {
+      $realname=$userfrom{$email};
 
       my ($r, $e)=($realname, $email);
       $r=~s/'/\\'/; $e=~s/'/\\'/;	# escape ' for javascript
@@ -1779,7 +1814,7 @@ sub editfroms {
    }
    $html =~ s/\@\@\@FROMS\@\@\@/$temphtml/;
 
-   print htmlheader(), $html, htmlfooter(2);
+   httpprint([], [htmlheader(), $html, htmlfooter(2)]);
 }
 ################### END EDITFROMS ########################
 
@@ -1795,25 +1830,25 @@ sub modfrom {
    $email =~ s/[#&=\?]//g;
 
    if ($email) {
-      my %from=get_userfrom($logindomain, $loginuser, $user, $userrealname, "$folderdir/.from.book");
+      my %userfrom=get_userfrom($logindomain, $loginuser, $user, $userrealname, "$folderdir/.from.book");
 
       if ($mode eq 'delete') {
-         delete $from{$email};
+         delete $userfrom{$email};
       } else {
          if ( (-s "$folderdir/.from.book") >= ($config{'maxbooksize'} * 1024) ) {
-            openwebmailerror(qq|$lang_err{'abook_toobig'} <a href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editfroms&amp;$urlparmstr">$lang_err{'back'}</a>$lang_err{'tryagain'}|);
+            openwebmailerror(__FILE__, __LINE__, qq|$lang_err{'abook_toobig'} <a href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editfroms&amp;$urlparmstr">$lang_err{'back'}</a>$lang_err{'tryagain'}|);
          }
-         if (defined($from{$email}) || $config{'enable_setfromemail'}) {
-            $from{$email} = $realname;
+         if (defined($userfrom{$email}) || $config{'enable_setfromemail'}) {
+            $userfrom{$email} = $realname;
          }
       }
 
       open (FROMBOOK, ">$folderdir/.from.book" ) or
-         openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.from.book! ($!)");
-      foreach $email (sort keys %from) {
-         print FROMBOOK "$email\@\@\@$from{$email}\n";
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir/.from.book! ($!)");
+      foreach $email (sort_emails_by_domainnames($config{'domainnames'}, keys %userfrom)) {
+         print FROMBOOK "$email\@\@\@$userfrom{$email}\n";
       }
-      close (FROMBOOK) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.from.book! ($!)");
+      close (FROMBOOK) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $folderdir/.from.book! ($!)");
    }
 
    editfroms();
@@ -1823,15 +1858,14 @@ sub modfrom {
 #################### EDITPOP3 ###########################
 sub editpop3 {
    my ($html, $temphtml);
-   $html = readtemplate("editpop3.template");
-   $html = applystyle($html);
+   $html = applystyle(readtemplate("editpop3.template"));
 
    my %accounts;
    my $pop3booksize = ( -s "$folderdir/.pop3.book" ) || 0;
    my $freespace = int($config{'maxbooksize'} - ($pop3booksize/1024) + .5);
 
    if (readpop3book("$folderdir/.pop3.book", \%accounts) <0) {
-      openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.pop3.book!");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir/.pop3.book!");
    }
 
    $html =~ s/\@\@\@FREESPACE\@\@\@/$freespace $lang_sizes{'kb'}/;
@@ -1851,19 +1885,25 @@ sub editpop3 {
 
    $temphtml = textfield(-name=>'pop3host',
                          -default=>'',
-                         -size=>'25',
-			 -onChange=>"JavaScript:document.newpop3.pop3pass.value='';",
+                         -size=>'24',
+			 -onChange=>"JavaScript:document.newpop3.pop3passwd.value='';",
                          -override=>'1');
    $html =~ s/\@\@\@HOSTFIELD\@\@\@/$temphtml/;
+
+   $temphtml = textfield(-name=>'pop3port',
+                         -default=>'110',
+                         -size=>'4',
+                         -override=>'1');
+   $html =~ s/\@\@\@PORTFIELD\@\@\@/$temphtml/;
 
    $temphtml = textfield(-name=>'pop3user',
                          -default=>'',
                          -size=>'16',
-			 -onChange=>"JavaScript:document.newpop3.pop3pass.value='';",
+			 -onChange=>"JavaScript:document.newpop3.pop3passwd.value='';",
                          -override=>'1');
    $html =~ s/\@\@\@REALNAMEFIELD\@\@\@/$temphtml/;
 
-   $temphtml = password_field(-name=>'pop3pass',
+   $temphtml = password_field(-name=>'pop3passwd',
                          -default=>'',
                          -size=>'8',
                          -override=>'1');
@@ -1901,11 +1941,12 @@ sub editpop3 {
    $temphtml = '';
    my $bgcolor = $style{"tablerow_dark"};
    foreach (sort values %accounts) {
-      my ($pop3host, $pop3user, $pop3pass, $pop3lastid, $pop3del, $enable) = split(/\@\@\@/, $_);
+      my ($pop3host, $pop3port, $pop3user, $pop3passwd, $pop3del, $enable) = split(/\@\@\@/, $_);
 
       $temphtml .= qq|<tr>\n|.
-      		   qq|<td bgcolor=$bgcolor><a href="Javascript:Update('$pop3host','$pop3user','******','$pop3del','$enable')">$pop3host</a></td>\n|.
-                   qq|<td align="center" bgcolor=$bgcolor><a href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=retrpop3&pop3user=$pop3user&pop3host=$pop3host&amp;$urlparmstr">$pop3user</a></td>\n|.
+      		   qq|<td bgcolor=$bgcolor><a href="Javascript:Update('$pop3host','$pop3port','$pop3user','******','$pop3del','$enable')">$pop3host</a></td>\n|.
+      		   qq|<td bgcolor=$bgcolor>$pop3port</td>\n|.
+                   qq|<td align="center" bgcolor=$bgcolor><a href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=retrpop3&pop3user=$pop3user&pop3host=$pop3host&pop3port=$pop3port&pop3user=$pop3user&$urlparmstr">$pop3user</a></td>\n|.
                    qq|<td align="center" bgcolor=$bgcolor>\*\*\*\*\*\*</td>\n|.
                    qq|<td align="center" bgcolor=$bgcolor>\n|;
 
@@ -1932,11 +1973,14 @@ sub editpop3 {
       $temphtml .= hidden(-name=>'action',
                           -value=>'deletepop3',
                           -override=>'1');
-      $temphtml .= hidden(-name=>'pop3user',
-                          -value=>$pop3user,
-                          -override=>'1');
       $temphtml .= hidden(-name=>'pop3host',
                           -value=>$pop3host,
+                          -override=>'1');
+      $temphtml .= hidden(-name=>'pop3port',
+                          -value=>$pop3port,
+                          -override=>'1');
+      $temphtml .= hidden(-name=>'pop3user',
+                          -value=>$pop3user,
                           -override=>'1');
       $temphtml .= $formparmstr;
       $temphtml .= submit(-name=>"$lang_text{'delete'}",
@@ -1953,18 +1997,18 @@ sub editpop3 {
    }
    $html =~ s/\@\@\@ADDRESSES\@\@\@/$temphtml/;
 
-   print htmlheader(), $html, htmlfooter(2);
+   httpprint([], [htmlheader(), $html, htmlfooter(2)]);
 }
 ################### END EDITPOP3 ########################
 
 ################### MODPOP3 ##############################
 sub modpop3 {
    my $mode = shift;
-   my ($pop3host, $pop3user, $pop3pass, $pop3lastid, $pop3del, $enable);
+   my ($pop3host, $pop3port, $pop3user, $pop3passwd, $pop3del, $enable);
    $pop3host = param("pop3host") || '';
+   $pop3port = param("pop3port") || '110';
    $pop3user = param("pop3user") || '';
-   $pop3pass = param("pop3pass") || '';
-   $pop3lastid = "none";
+   $pop3passwd = param("pop3passwd") || '';
    $pop3del = param("pop3del") || 0;
    $enable = param("enable") || 0;
 
@@ -1973,58 +2017,75 @@ sub modpop3 {
    $pop3host =~ s/\s*$//;
    $pop3host =~ s/[#&=\?]//g;
 
+   $pop3port =~ s/^\s*//;
+   $pop3port =~ s/\s*$//;
+
    $pop3user =~ s/^\s*//;
    $pop3user =~ s/\s*$//;
    $pop3user =~ s/[#&=\?]//g;
 
-   $pop3pass =~ s/^\s*//;
-   $pop3pass =~ s/\s*$//;
+   $pop3passwd =~ s/^\s*//;
+   $pop3passwd =~ s/\s*$//;
 
-   if ( ($pop3host && $pop3user && $pop3pass)
+   if ( ($pop3host && $pop3user && $pop3passwd)
      || (($mode eq 'delete') && $pop3host && $pop3user) ) {
       my %accounts;
 
       if (readpop3book("$folderdir/.pop3.book", \%accounts) <0) {
-         openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.pop3.book!");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir/.pop3.book!");
       }
 
       if ($mode eq 'delete') {
-         delete $accounts{"$pop3host\@\@\@$pop3user"};
+         delete $accounts{"$pop3host:$pop3port\@\@\@$pop3user"};
       } else {
          if ( (-s "$folderdir/.pop3.book") >= ($config{'maxbooksize'} * 1024) ) {
-            openwebmailerror(qq|$lang_err{'abook_toobig'} <a href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editpop3&amp;$urlparmstr">$lang_err{'back'}</a> $lang_err{'tryagain'}|);
+            openwebmailerror(__FILE__, __LINE__, qq|$lang_err{'abook_toobig'} <a href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editpop3&amp;$urlparmstr">$lang_err{'back'}</a> $lang_err{'tryagain'}|);
          }
          foreach ( @{$config{'disallowed_pop3servers'}} ) {
             if ($pop3host eq $_) {
-               openwebmailerror("$lang_err{'disallowed_pop3'} $pop3host");
+               openwebmailerror(__FILE__, __LINE__, "$lang_err{'disallowed_pop3'} $pop3host");
             }
          }
-         if (defined($accounts{"$pop3host\@\@\@$pop3user"})) {
-            my ($origpass, $origlastid)=
-		(split(/\@\@\@/, $accounts{"$pop3host\@\@\@$pop3user"}))[2,3];
-            $pop3pass=$origpass if ($pop3pass eq "******");
-            $pop3lastid=$origlastid;
+         $pop3port=110 if ($pop3port!~/^\d+$/);
+         if ( defined($accounts{"$pop3host:$pop3port\@\@\@$pop3user"}) &&
+              $pop3passwd eq "******") {
+            $pop3passwd=(split(/\@\@\@/, $accounts{"$pop3host:$pop3port\@\@\@$pop3user"}))[3];
          }
-         $accounts{"$pop3host\@\@\@$pop3user"}="$pop3host\@\@\@$pop3user\@\@\@$pop3pass\@\@\@$pop3lastid\@\@\@$pop3del\@\@\@$enable";
+         $accounts{"$pop3host:$pop3port\@\@\@$pop3user"}="$pop3host\@\@\@$pop3port\@\@\@$pop3user\@\@\@$pop3passwd\@\@\@$pop3del\@\@\@$enable";
       }
 
       if (writepop3book("$folderdir/.pop3.book", \%accounts)<0) {
-         openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.pop3.book!");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir/.pop3.book!");
+      }
+
+      # rmove unused pop3 uidl db 
+      if (opendir (FOLDERDIR, $folderdir)) {
+         my @delfiles;
+         while (defined(my $filename = readdir(FOLDERDIR))) {
+            if ( $filename=~/\.uidl\.(.*)\.(?:db|dir|pag)$/) {
+               $_=$1; /^(.*)\@(.*):(.*)$/;
+               ($pop3user, $pop3host, $pop3port)=($1, $2, $3);
+               if (!defined($accounts{"$pop3host:$pop3port\@\@\@$pop3user"})) {
+                  ($filename =~ /^(.+)$/) && ($filename = $1);   # untaint
+                  push (@delfiles, "$folderdir/$filename");
+               }
+            }
+         }
+         closedir (FOLDERDIR);
+         unlink(@delfiles);
       }
    }
-
    editpop3();
 }
 ################## END MODPOP3 ###########################
-#HERE TUNG
+
 #################### EDITFILTER ###########################
 sub editfilter {
    my @filterrules=();
    my @globalfilterrules=();
 
    my ($html, $temphtml);
-   $html = readtemplate("editfilter.template");
-   $html = applystyle($html);
+   $html = applystyle(readtemplate("editfilter.template"));
 
    my $filterbooksize = ( -s "$folderdir/.filter.book" ) || 0;
    my $freespace = int($config{'maxbooksize'} - ($filterbooksize/1024) + .5);
@@ -2120,12 +2181,12 @@ sub editfilter {
 
    if ( -f "$folderdir/.filter.book" ) {
       open (FILTER,"$folderdir/.filter.book") or
-         openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.filter.book! ($!)");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir/.filter.book! ($!)");
       while (<FILTER>) {
          chomp($_);
          push (@filterrules, $_) if(/^\d+\@\@\@/); # add valid rules only (Filippo Dattola)
       }
-      close (FILTER) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.filter.book! ($!)");
+      close (FILTER) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $folderdir/.filter.book! ($!)");
    }
    if ( $config{'global_filterbook'} ne "" && -f "$config{'global_filterbook'}" ) {
       if ( open (FILTER, "$config{'global_filterbook'}") ) {
@@ -2142,7 +2203,7 @@ sub editfilter {
    my $bgcolor = $style{"tablerow_dark"};
    if (!$config{'dbmopen_haslock'}) {
       filelock("$folderdir/.filter.book$config{'dbm_ext'}", LOCK_SH) or
-         openwebmailerror("$lang_err{'couldnt_locksh'} $folderdir/.filter.book$config{'dbm_ext'}");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $folderdir/.filter.book$config{'dbm_ext'}");
    }
    dbmopen(%FTDB, "$folderdir/.filter.book$config{'dbmopen_ext'}", undef);
 
@@ -2267,7 +2328,7 @@ sub editfilter {
 
    $html =~ s/\@\@\@FILTERRULES\@\@\@/$temphtml/;
 
-   print htmlheader(), $html, htmlfooter(2);
+   httpprint([], [htmlheader(), $html, htmlfooter(2)]);
 }
 ################### END EDITFILTER ########################
 
@@ -2292,13 +2353,13 @@ sub modfilter {
       if ( -f "$folderdir/.filter.book" ) {
          if ($mode ne 'delete' &&
              (-s "$folderdir/.filter.book") >= ($config{'maxbooksize'}*1024) ) {
-            openwebmailerror(qq|$lang_err{'abook_toobig'} <a href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editaddresses&amp;$urlparmstr">$lang_err{'back'}</a>$lang_err{'tryagain'}|);
+            openwebmailerror(__FILE__, __LINE__, qq|$lang_err{'abook_toobig'} <a href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editaddresses&amp;$urlparmstr">$lang_err{'back'}</a>$lang_err{'tryagain'}|);
          }
          # read personal filter and update it
          filelock("$folderdir/.filter.book", LOCK_EX|LOCK_NB) or
-            openwebmailerror("$lang_err{'couldnt_lock'} $folderdir/.filter.book!");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $folderdir/.filter.book!");
          open (FILTER,"+<$folderdir/.filter.book") or
-            openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.filter.book! ($!)");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir/.filter.book! ($!)");
          while(<FILTER>) {
             my ($epriority,$erules,$einclude,$etext,$eop,$edestination,$eenable);
             my $line=$_; chomp($line);
@@ -2312,34 +2373,35 @@ sub modfilter {
             $filterrules{"$rules\@\@\@$include\@\@\@$text\@\@\@$destination"}="$priority\@\@\@$rules\@\@\@$include\@\@\@$text\@\@\@$op\@\@\@$destination\@\@\@$enable";
          }
          seek (FILTER, 0, 0) or
-            openwebmailerror("$lang_err{'couldnt_seek'} $folderdir/.filter.book! ($!)");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_seek'} $folderdir/.filter.book! ($!)");
 
          foreach (sort values %filterrules) {
             print FILTER "$_\n";
          }
          truncate(FILTER, tell(FILTER));
-         close (FILTER) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.filter.book! ($!)");
+         close (FILTER) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $folderdir/.filter.book! ($!)");
          filelock("$folderdir/.filter.book", LOCK_UN);
 
          # read global filter into hash %filterrules
          open (FILTER,"$config{'global_filterbook'}") or
-            openwebmailerror("$lang_err{'couldnt_open'} $config{'global_filterbook'}! ($!)");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'global_filterbook'}! ($!)");
          while(<FILTER>) {
             my ($epriority,$erules,$einclude,$etext,$eop,$edestination,$eenable);
             my $line=$_; chomp($line);
             ($epriority,$erules,$einclude,$etext,$eop,$edestination,$eenable) = split(/\@\@\@/, $line);
             $filterrules{"$erules\@\@\@$einclude\@\@\@$etext\@\@\@$edestination"}="$epriority\@\@\@$erules\@\@\@$einclude\@\@\@$etext\@\@\@$eop\@\@\@$edestination\@\@\@$eenable";
          }
-         close (FILTER) or openwebmailerror("$lang_err{'couldnt_close'} $config{'global_filterbook'}! ($!)");
+         close (FILTER) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $config{'global_filterbook'}! ($!)");
 
          # remove stale entries in filterrule db by checking %filterrules
          if (!$config{'dbmopen_haslock'}) {
             filelock("$folderdir/.filter.book$config{'dbm_ext'}", LOCK_EX) or
-               openwebmailerror("$lang_err{'couldnt_lock'} $folderdir/.filter.book$config{'dbm_ext'}");
+               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $folderdir/.filter.book$config{'dbm_ext'}");
          }
-         my %FTDB;
+         my (%FTDB, @keys);
          dbmopen (%FTDB, "$folderdir/.filter.book$config{'dbmopen_ext'}", 0600);
-         foreach my $key (keys %FTDB) {
+         @keys=keys %FTDB;
+         foreach my $key (@keys) {
            if ( ! defined($filterrules{$key}) &&
                 $key ne "filter_fakedsmtp" &&
                 $key ne "filter_fakedfrom" &&
@@ -2352,19 +2414,19 @@ sub modfilter {
 
       } else {
          open (FILTER, ">$folderdir/.filter.book" ) or
-                  openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.filter.book! ($!)");
+                  openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir/.filter.book! ($!)");
          print FILTER "$priority\@\@\@$rules\@\@\@$include\@\@\@$text\@\@\@$op\@\@\@$destination\@\@\@$enable\n";
-         close (FILTER) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.filter.book! ($!)");
+         close (FILTER) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $folderdir/.filter.book! ($!)");
       }
 
       ## remove .filter.check ##
       unlink("$folderdir/.filter.check");
    }
-   if ( param('message_id') && param('message_id') ne "") {
+   if ( param('message_id') ) {
       my $searchtype = param("searchtype") || 'subject';
       my $keyword = param("keyword") || '';
       my $escapedkeyword = escapeURL($keyword);
-      print "Location: $config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&sessionid=$thissession&page=$page&sort=$sort&keyword=$escapedkeyword&searchtype=$searchtype&folder=$escapedfolder&message_id=$escapedmessageid\n\n";
+      print redirect(-location=>"$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&sessionid=$thissession&page=$page&sort=$sort&keyword=$escapedkeyword&searchtype=$searchtype&folder=$escapedfolder&message_id=$escapedmessageid");
    } else {
       editfilter();
    }
@@ -2376,18 +2438,17 @@ sub editstat {
    my (%stationery, $name, $content);
 
    my ($html, $temphtml);
-   $html = readtemplate("editstationery.template");
-   $html = applystyle($html);
+   $html = applystyle(readtemplate("editstationery.template"));
 
    if ( -f "$folderdir/.stationery.book" ) {
       open (STATBOOK,"$folderdir/.stationery.book") or
-         openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.stationery.book! ($!)");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir/.stationery.book! ($!)");
       while (<STATBOOK>) {
          ($name, $content) = split(/\@\@\@/, $_, 2);
          chomp($name); chomp($content);
          $stationery{$name} = unescapeURL($content);
       }
-      close (STATBOOK) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.stationery.book! ($!)");
+      close (STATBOOK) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $folderdir/.stationery.book! ($!)");
    }
 
    if ($prefs_caller eq "") {
@@ -2404,6 +2465,7 @@ sub editstat {
    foreach my $key (sort keys %stationery) {
       my ($name2, $content2)=($key, $stationery{$key});
       $content2=substr($content2, 0, 100)."..." if (length($content2)>105);
+      $content2=str2html($content2);
       $temphtml .= qq|<tr>|.
                    qq|<td bgcolor=$bgcolor>$name2</a></td>|.
                    qq|<td bgcolor=$bgcolor>$content2</td>|.
@@ -2454,7 +2516,7 @@ sub editstat {
    $temphtml = textarea(-name=>'statbody',
                         -default=>$stationery{$statname},
                         -rows=>'5',
-                        -columns=>'72',
+                        -columns=>$prefs{'editcolumns'}||'78',
                         -wrap=>'hard',
                         -override=>'1');
    $html =~ s/\@\@\@STATBODY\@\@\@/$temphtml/;
@@ -2464,7 +2526,7 @@ sub editstat {
    $temphtml = end_form();
    $html =~ s/\@\@\@ENDSTATFORM\@\@\@/$temphtml/;
 
-   print htmlheader(), $html, htmlfooter(2);
+   httpprint([], [htmlheader(), $html, htmlfooter(2)]);
 }
 ################### END EDITSTAT ########################
 
@@ -2476,9 +2538,9 @@ sub delstat {
       my ($name,$content);
       if ( -f "$folderdir/.stationery.book" ) {
          filelock("$folderdir/.stationery.book", LOCK_EX|LOCK_NB) or
-            openwebmailerror("$lang_err{'couldnt_lock'} $folderdir/.stationery.book!");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $folderdir/.stationery.book!");
          open (STATBOOK,"+<$folderdir/.stationery.book") or
-            openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.stationery.book! ($!)");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir/.stationery.book! ($!)");
          while (<STATBOOK>) {
             ($name, $content) = split(/\@\@\@/, $_, 2);
             chomp($name); chomp($content);
@@ -2487,7 +2549,7 @@ sub delstat {
          delete $stationery{$statname};
 
          seek (STATBOOK, 0, 0) or
-            openwebmailerror("$lang_err{'couldnt_seek'} $folderdir/.stationery.book! ($!)");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_seek'} $folderdir/.stationery.book! ($!)");
 
          foreach (sort keys %stationery) {
             ($name,$content)=($_, $stationery{$_});
@@ -2496,7 +2558,7 @@ sub delstat {
          }
          truncate(STATBOOK, tell(STATBOOK));
          close (STATBOOK) or
-            openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.stationery.book! ($!)");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $folderdir/.stationery.book! ($!)");
          filelock("$folderdir/.stationery.book", LOCK_UN);
       }
    }
@@ -2509,7 +2571,7 @@ sub delstat {
 sub clearstat {
    if ( -f "$folderdir/.stationery.book" ) {
       unlink("$folderdir/.stationery.book") or
-         openwebmailerror ("$lang_err{'couldnt_open'} $folderdir/.stationery.book! ($!)");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir/.stationery.book! ($!)");
    }
    writelog("clear stationery");
    writehistory("clear stationery");
@@ -2529,9 +2591,9 @@ sub addstat {
       # load the stationery first and save after, if exist overwrite
       if ( -f "$folderdir/.stationery.book" ) {
          filelock("$folderdir/.stationery.book", LOCK_EX|LOCK_NB) or
-            openwebmailerror("$lang_err{'couldnt_lock'} $folderdir/.stationery.book!");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $folderdir/.stationery.book!");
          open (STATBOOK,"+<$folderdir/.stationery.book") or
-            openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.stationery.book! ($!)");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir/.stationery.book! ($!)");
          while (<STATBOOK>) {
             ($name, $content) = split(/\@\@\@/, $_, 2);
             chomp($name); chomp($content);
@@ -2540,7 +2602,7 @@ sub addstat {
          $stationery{"$newname"} = escapeURL($newcontent);
 
          seek (STATBOOK, 0, 0) or
-            openwebmailerror("$lang_err{'couldnt_seek'} $folderdir/.stationery.book! ($!)");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_seek'} $folderdir/.stationery.book! ($!)");
 
          foreach (sort keys %stationery) {
             ($name,$content)=($_, $stationery{$_});
@@ -2549,14 +2611,14 @@ sub addstat {
          }
          truncate(STATBOOK, tell(STATBOOK));
          close (STATBOOK) or
-            openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.stationery.book! ($!)");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $folderdir/.stationery.book! ($!)");
          filelock("$folderdir/.stationery.book", LOCK_UN);
       } else {
          open (STATBOOK,">$folderdir/.stationery.book") or
-            openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.stationery.book! ($!)");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir/.stationery.book! ($!)");
          print STATBOOK "$newname\@\@\@".escapeURL($newcontent)."\n";
          close (STATBOOK) or
-            openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.stationery.book! ($!)");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $folderdir/.stationery.book! ($!)");
       }
    }
 
@@ -2567,9 +2629,8 @@ sub addstat {
 #################### TIMEOUTWARNING ########################
 sub timeoutwarning {
    my ($html, $temphtml);
-   $html = readtemplate("timeoutwarning.template");
-   $html = applystyle($html);
+   $html = applystyle(readtemplate("timeoutwarning.template"));
    $html =~ s/\@\@\@USEREMAIL\@\@\@/$prefs{'email'}/g;
-   print htmlheader(), $html, htmlfooter(0);
+   httpprint([], [htmlheader(), $html, htmlfooter(0)]);
 }
 #################### END TIMEOUTWARNING ########################

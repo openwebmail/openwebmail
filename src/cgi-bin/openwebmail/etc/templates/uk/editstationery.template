@@ -1,7 +1,7 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td colspan="3" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>Edit Stationery</b></font>
+<b>Редагування поштового набору</b></font>
 </td></tr><tr><td colspan="3" bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
 </td>
@@ -9,7 +9,7 @@
 <tr><td bgcolor=@@@COLUMNHEADER@@@ width="20%">
 <B>Заголовок</B></td>
 <td bgcolor=@@@COLUMNHEADER@@@ width="70%">
-<B>Stationery Text</B></td>
+<B>Текст набору</B></td>
 </td>
 <td bgcolor=@@@COLUMNHEADER@@@ width="10%">&nbsp;</td>
 </tr>
@@ -18,12 +18,12 @@
 <tr><td colspan="3">&nbsp;</td></tr>
 
 @@@STARTSTATFORM@@@
-<tr><td colspan="3" bgcolor=@@@COLUMNHEADER@@@><B>Compose New Stationery</B></td></tr>
+<tr><td colspan="3" bgcolor=@@@COLUMNHEADER@@@><B>Створити новий поштовий наб╕р</B></td></tr>
 </td><td colspan="3" align="center" bgcolor=@@@WINDOW_DARK@@@>
 <B>Заголовок:</B>&nbsp; &nbsp; 
 @@@STATNAME@@@
 <tr><td colspan="3" align="center" bgcolor=@@@WINDOW_DARK@@@ class=msgbody>
-<B>Stationery Text</B><BR>
+<B>Текст поштового набору</B><BR>
 @@@STATBODY@@@
 </td></tr>
 <tr><td colspan="3" align="center" bgcolor=@@@WINDOW_DARK@@@>

@@ -29,9 +29,9 @@ package openwebmail::sk;
 
 %lang_onofflabels =
    (
-   auto => 'Auto switched',
-   on   => 'On',
-   off  => 'Off',
+   auto => 'Automaticky',
+   on   => 'Zapnuté',
+   off  => 'Vypnuté',
    );
 
 %lang_prioritylabels =
@@ -39,6 +39,14 @@ package openwebmail::sk;
    normal      => 'Normálna',
    urgent      => 'Urgentné',
    'non-urgent'=> 'Neurgentné'
+   );
+
+%lang_msgformatlabels =
+   (
+   auto => 'Automaticky',
+   text	=> 'Text',
+   html => 'HTML',
+   both => 'HTML a text'
    );
 
 %lang_withoriglabels =
@@ -53,6 +61,13 @@ package openwebmail::sk;
    ask => 'Spýta» sa na potvrdenie',
    yes => 'Áno',
    no  => 'Nie'
+   );
+
+%lang_disableemblinklabels =
+   (
+   none    => 'None',
+   cgionly => 'CGI only',
+   all     => 'All embedded URLs'
    );
 
 %lang_ctrlpositionlabels =
@@ -168,7 +183,7 @@ package openwebmail::sk;
 %lang_wdbutton =
    (
    refresh  => 'Obnovi»',
-   preview  => 'Preview',
+   preview  => 'Náhµad',
    edit     => 'Upravi»',
    listarchive=> 'Zobrazi»',
    decompress=>'Dekomprimova»',
@@ -189,6 +204,7 @@ package openwebmail::sk;
 
 %lang_text =
    (
+   loading    => 'Nahráva sa, prosím èakajte',
    help       => 'Pomoc',
    login      => 'Prihlási»',
    clear      => 'Zmaza»',
@@ -231,8 +247,9 @@ package openwebmail::sk;
    replyall   => 'Odpoveda» v¹etkým',
    forward    => 'Posla» ïalej',
    forwardasatt=>'Posla» ïalej ako prílohu',
-   forwardasorig=>'Forward as original',
+   forwardasorig=>'Posla» ïalej ako originál',
    printfriendly=> 'Verzia pre tlaè',
+   msgformat  => 'Formát správy',
    from       => 'Od',
    replyto    => 'Odpoveda»',
    to         => 'Komu',
@@ -291,9 +308,9 @@ package openwebmail::sk;
    note       => 'Poznámka',
    max        => 'Maximum',
    group      => 'Skupina',
-   quotausage => 'Quota usage',
-   quotalimit => 'Quota limit',
-   quotahit   => 'Dosiahnutý limit (quota)',
+   quotausage => 'Vyu¾itie diskového priestoru (quota)',
+   quotalimit => 'Limit diskového priestoru (quota)',
+   quotahit   => 'Dosiahnutý limit diskového priestoru (quota)',
    tzmap      => 'Svetová mapa èasových zón',
    testsound  => 'Otestova» zvuk',
    editfroms  => 'Upravi» osobné e-mail adresy',
@@ -345,6 +362,7 @@ package openwebmail::sk;
    calfmt_yearmonthday  => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@',
    calfmt_yearmonthdaywday => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@ @@@WEEKDAY_STR@@@',
    calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
+   autosel    => 'Automaticky vybrané',
    none       => '¾iadny',
    moreitems  => 'viac polo¾iek',
    multieditconf => 'Táto polo¾ka bola pridaná pre viac dátumov.\\nÚprava zmení hodnoty pre v¹etky dátumi.\\nPokraèova» s úpravou?',
@@ -385,12 +403,13 @@ package openwebmail::sk;
    savefile_towd=> 'Ulo¾i» súbor na WebDisk',
    saveatt_towd => 'Ulo¾i» prílohu na WebDisk',
    addatt_fromwd=> 'Prida» prílohu z WebDisk-u',
-   vdomain_usermgr    => 'Virtual Domain User Management',
-   vdomain_createuser => 'Create User',
-   vdomain_changeuser => 'Change User',
-   vdomain_deleteuser => 'Delete User',
-   vdomain_usertype_localmbox  => 'Local Mailbox',
-   vdomain_usertype_redirected => 'Redirect to external mail address'
+   vdomain_usermgr    => 'Správa pou¾ívateµov virtuálnych domén',
+   vdomain_createuser => 'Vytvori» pou¾ívateµa',
+   vdomain_changeuser => 'Zmeni» pou¾ívateµa',
+   vdomain_deleteuser => 'Zmaza» pou¾ívateµa',
+   set_passwd         => 'Nastavi» heslo',
+   reset_passwd       => 'Znovu nastavi» heslo',
+   email_alias        => 'E-mail alias'
    );
 
 %lang_err =
@@ -445,15 +464,17 @@ package openwebmail::sk;
    edit_notfordir    => 'Nie je mo¾né editova» adresár.',
    onefileonly       => 'Pre túto operáciu je povolený len jeden súbor.',
    no_file_todownload=> 'Nebol ¹pecifikovaný súbor na prebranie.',
-   upload_overlimit  => 'Upload file size is over the limit',
+   upload_overlimit  => 'Súbor, ktorý sa pokú¹ate nahra» prekraèuje Vám pridelený diskový priestor (quotu)',
    decomp_notsupported=>'Dekompresia pre tento typ súbor nie je dostupná.',
    webdisk_readonly  => 'Prepáète, ale Vá¹ WebDisk je nastavený iba na èítanie.',
-   quota_syserr      => 'Quota system error',
-   quotahit_alert    => 'Sorry, you\'ve hit your quota limit. Please delete some messages from mail folders or some files from the webdisk to free disk space.',
-   quotahit_delmail  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, oldest messages in folders have been removed automatcially',
-   quotahit_delfile  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, some files in the webdisk have been removed automatcially',
-   spool_overlimit   => 'Sorry, your INBOX has exceeded the spool limit(@@@SPOOLLIMIT@@@). Please move some messages from INBOX to other folders.',
-   vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
+   quota_syserr      => 'Chyba systému vyu¾itia diskového priestoru',
+   quotahit_alert    => 'Prepáète, ale Va¹e dáta dostiahli veµkos» prideleného diskového priestoru. Prosím zma¾te nejaké správy alebo súbory.',
+   quotahit_delmail  => 'Varovanie! Nakoµko Va¹e dáta dostiali veµkos» prideleného deleného diskového priestoru (@@@QUOTALIMIT@@@), Va¹e najstar¹ie správy boli automaticky zmazané',
+   quotahit_delfile  => 'Varovanie! Nakoµko Va¹e dáta dostiali veµkos» prideleného deleného diskového priestoru (@@@QUOTALIMIT@@@), niektoré súbory z WebDisk-u boli automaticky zmazané',
+   spool_overlimit   => 'Prepáète, Vá¹e prijaté spravy (katalóg: PRIJATÉ) dostiali limit (@@@SPOOLLIMIT@@@). Prosím presuòte nejaké správy do iných katalógov.',
+   vdomain_toomanyuser  => 'Prepáète, poèet pou¾ívateµov dostiahol limit pre túto doménu',
+   vdomain_toomanyalias => 'Prepáète, poèet e-mailových aliasov pre tohto pou¾íveteµa dosiahol maximum',
+   vdomain_userrequired => 'Meno pou¾ívateµa je potrebné'
    );
 
 1;

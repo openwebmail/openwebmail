@@ -1,7 +1,7 @@
 package openwebmail::es;
 
 # Spanish translation, charset: iso-8859-1
-# by Javier Smaldone, jsmaldone.AT.yahoo.com, 02-22-2003
+# by Javier Smaldone, jsmaldone.AT.yahoo.com, 05-25-2003
 
 %lang_folders =
    (
@@ -28,9 +28,9 @@ package openwebmail::es;
 
 %lang_onofflabels =
    (
-   auto => 'Auto switched',
-   on   => 'On',
-   off  => 'Off',
+   auto => 'Automático',
+   on   => 'Habilitado',
+   off  => 'Deshabilitado',
    );
 
 %lang_prioritylabels =
@@ -38,6 +38,14 @@ package openwebmail::es;
    normal      => 'Normal',
    urgent      => 'Urgente',
    'non-urgent'=> 'No urgente'
+   );
+
+%lang_msgformatlabels =
+   (
+   auto => 'Automático',
+   text	=> 'Texto',
+   html => 'HTML',
+   both => 'HTML y texto'
    );
 
 %lang_withoriglabels =
@@ -52,6 +60,13 @@ package openwebmail::es;
    ask => 'Pedir confirmación',
    yes => 'Si',
    no  => 'No'
+   );
+
+%lang_disableemblinklabels =
+   (
+   none    => 'None',
+   cgionly => 'CGI only',
+   all     => 'All embedded URLs'
    );
 
 %lang_ctrlpositionlabels =
@@ -188,6 +203,7 @@ package openwebmail::es;
 
 %lang_text =
    (
+   loading    => 'Cargando, por favor espere',
    help       => '¿Ayuda',
    login      => 'Ingresar',
    clear      => 'Restablecer',
@@ -230,8 +246,9 @@ package openwebmail::es;
    replyall   => 'Responder a todos',
    forward    => 'Reenviar',
    forwardasatt=>'Reenviar como archivo adjunto',
-   forwardasorig=>'Forward as original',
+   forwardasorig=>'Reenviar como original',
    printfriendly=> 'Versión imprimible',
+   msgformat  => 'Formato',
    from       => 'Remitente',
    replyto    => 'Responder a',
    to         => 'Destinatario',
@@ -290,9 +307,9 @@ package openwebmail::es;
    note       => 'Nota',
    max        => 'Máximo',
    group      => 'Grupo',
-   quotausage => 'Quota usage',
-   quotalimit => 'Quota limit',
-   quotahit   => 'TAMAÑO MÁXIMO PERMITIDO',
+   quotausage => 'Uso de cupo',
+   quotalimit => 'Límite de cupo',
+   quotahit   => 'CUPO MÁXIMO PERMITIDO',
    tzmap      => 'Mapa de zonas horarias',
    testsound  => 'Probar sonido',
    editfroms  => 'Editar direcciones de correo',
@@ -344,11 +361,12 @@ package openwebmail::es;
    calfmt_yearmonthday  => '@@@DAY@@@ de @@@MONTH_STR@@@ de @@@YEAR@@@',
    calfmt_yearmonthdaywday => '@@@WEEKDAY_STR@@@ @@@DAY@@@ de @@@MONTH_STR@@@ de @@@YEAR@@@',
    calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
+   autosel    => 'Automático',
    none       => 'Ninguno',
    moreitems  => 'más items',
    multieditconf => 'Este ítem fue agregado a múltiples fechas.\\nAl editarlo cambiará para todas las fechas\\n¿Desea continuar con la edición?',
    multidelconf	 => 'Este ítem fue agregado a múltiples fechas.\\nAl eliminarlo se quitará de todas las fechas\\n¿Desea eliminarlo?',
-   caldelconf => 'Are you sure you want to delete this item?',
+   caldelconf => '¿Está seguro de que desea borrar este ítem?',
    noitemforthisday => 'No hay items para este día',
    thisday_only          => 'Solamente hoy',
    the_wday_of_thismonth => 'El @@@ORDER@@@ @@@WDAY@@@ de cada mes',
@@ -384,12 +402,13 @@ package openwebmail::es;
    savefile_towd=> 'Guardar archivo en el Disco Web',
    saveatt_towd => 'Guardar adjunto en el Disco Web',
    addatt_fromwd=> 'Adjuntar archivo desde el Disco Web',
-   vdomain_usermgr    => 'Virtual Domain User Management',
-   vdomain_createuser => 'Create User',
-   vdomain_changeuser => 'Change User',
-   vdomain_deleteuser => 'Delete User',
-   vdomain_usertype_localmbox  => 'Local Mailbox',
-   vdomain_usertype_redirected => 'Redirect to external mail address'
+   vdomain_usermgr    => 'Administración de Usuarios de Dominio Virual',
+   vdomain_createuser => 'Crear Usuario',
+   vdomain_changeuser => 'Modificar Usuario',
+   vdomain_deleteuser => 'Eliminar Usuario',
+   set_passwd         => 'Fijar Contraseña',
+   reset_passwd       => 'Restablecer Contraseña',
+   email_alias        => 'Alias de E-MAIL'
    );
 
 %lang_err =
@@ -404,7 +423,7 @@ package openwebmail::es;
    disallowed_pop3   => 'Servidor POP3 no permitido',
    disallowed_client => 'No esta permitido conectarse desde este cliente',
    disallowed_receiverdomain => 'No tiene permiso para enviar un mensaje a esa dirección de correo',
-   norootlogin       => 'Lo siento, acceso a cuenta de root está inhabilitada por razones de seguridad.',
+   norootlogin       => 'Lo siento, el acceso para la cuenta de root está inhabilitado por razones de seguridad.',
    shouldnt_move_here=> 'No debería de tratar de mover mensajes hasta aquí!',
    destination_folder=> 'Bandeja de destino',
    doesnt_exist      => '¡no existe!',
@@ -447,12 +466,14 @@ package openwebmail::es;
    upload_overlimit  => 'El tamaño del archivo a subir supera el límite',
    decomp_notsupported=>'No se soporta la descompresión de este archivo.',
    webdisk_readonly  => 'Lo lamento, su Disco Web es de sólo-lectura.',
-   quota_syserr      => 'Quota system error',
-   quotahit_alert    => 'Sorry, you\'ve hit your quota limit. Please delete some messages from mail folders or some files from the webdisk to free disk space.',
-   quotahit_delmail  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, oldest messages in folders have been removed automatcially',
-   quotahit_delfile  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, some files in the webdisk have been removed automatcially',
-   spool_overlimit   => 'Sorry, your INBOX has exceeded the spool limit(@@@SPOOLLIMIT@@@). Please move some messages from INBOX to other folders.',
-   vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
+   quota_syserr      => 'Error del sistema de cupo',
+   quotahit_alert    => 'Lo lamento, ha alcanzado su cupo límite de espacio. Por favor, elimine algunos mensajes de las bandejas o algunos archivos del disco web para liberar espacio.',
+   quotahit_delmail  => 'Atención, debido a que el cupo límite (@@@QUOTALIMIT@@@) ha sido alcanzado, los mensajes más antiguos en las bandejas han sido eliminados automaticamente.',
+   quotahit_delfile  => 'Atención, debido a que el cupo límite (@@@QUOTALIMIT@@@) ha sido alcanzado, algunos archivos en el disco web han sido eliminados automaticamente.',
+   spool_overlimit   => 'Lo lamento, su Bandeja de Entrada ha excedido el límite (@@@SPOOLLIMIT@@@). Por favor, mueva algunos mensajes de la Bandeja de Entrada a otras bandejas.',
+   vdomain_toomanyuser  => 'Lo lamento, la candidad de usuarios de este dominio ha alcanzado su límite máximo.',
+   vdomain_toomanyalias => 'Lo lamento, la cantidad de alias de E-MAIL para este usuario ha alcanzado su límite máximo.',
+   vdomain_userrequired => 'Se requiere un nombre de usuario'
    );
 
 1;

@@ -8,27 +8,33 @@ package openwebmail::filelock;
 use strict;
 use Fcntl qw(:DEFAULT :flock);
 
-# this routine provides flock with filename
-# it opens the file to get the handle if need,
-# than do lock operation on the related filehandle
 use vars qw(%opentable);
 %opentable=();
 
+# close all files which were opend for file locking
+# this should be called at the end of each request to free the file handles
+sub closeall {
+   foreach (keys %opentable) {
+      close($opentable{$_}) if ( defined(fileno($opentable{$_})) );
+   }
+   %opentable=();
+}
+
+# this routine provides flock with filename
+# it opens the file to get the handle if need,
+# than do lock operation on the related filehandle
 sub flock_lock {
    my ($filename, $lockflag)=@_;
-   my ($dev, $inode, $fh);
 
    ($filename =~ /^(.+)$/) && ($filename = $1);	# untaint...
-
    if ( (! -e $filename) && $lockflag ne LOCK_UN) {
-      sysopen(F, $filename, O_RDWR|O_CREAT, 0600); # create file for lock
+      sysopen(F, $filename, O_RDWR|O_CREAT, 0600) or return 0; # create file for lock
       close(F);
    }
 
+   my ($dev, $inode, $fh);
    ($dev, $inode)=(stat($filename))[0,1];
-   if ($dev eq '' || $inode eq '') {
-      return 0;
-   }
+   return 0 if ($dev eq '' || $inode eq '');
 
    if (defined($opentable{"$dev-$inode"}) ) {
       $fh=$opentable{"$dev-$inode"};
@@ -76,26 +82,30 @@ sub flock_lock {
 # grant all shared lock and deny all exclusive lock.
 sub dotfile_lock {
    my ($filename, $lockflag)=@_;
-   my ($mode, $count);
-
    return 1 unless ($lockflag & (LOCK_SH|LOCK_EX|LOCK_UN));
 
-   my $endtime;
+   ($filename =~ /^(.+)$/) && ($filename = $1);	# untaint...
+   if ( (! -e $filename) && $lockflag ne LOCK_UN) {
+      sysopen(F, $filename, O_RDWR|O_CREAT, 0600) or return 0; # create file for lock
+      close(F);
+   }
+
+   # resolve symbolic link
+   my $ldepth=0;
+   while (-l "$filename") {
+      $ldepth++; return (0) if ($ldepth>8);		# link to deep
+      $filename=readlink($filename);
+   }
+   ($filename =~ /^(.+)$/) && ($filename = $1);		# untaint ...
+
+   my $oldumask=umask(0111);
+   my ($endtime, $mode, $count);
+
    if ($lockflag & LOCK_NB) {	# turn nonblock lock to 30sec blocking lock
       $endtime=time()+30;
    } else {			# turn blocking lock to 120sec blocking lock
       $endtime=time()+120;
    }
-
-   my $oldumask=umask(0111);
-
-   # resolve symbolic link
-   my $ldepth=0;
-   while (-l "$filename") {
-      $ldepth++; return (0) if ($ldepth>32);		# link to deep
-      $filename=readlink($filename);
-   }
-   ($filename =~ /^(.+)$/) && ($filename = $1);		# untaint ...
 
    while (time() <= $endtime) {
       my $status=0;
@@ -156,7 +166,6 @@ sub dotfile_lock {
       } else { # create failed, assume lock file already exists
          if ( ($lockflag & LOCK_SH) && open(L,"+<$filename.lock") ) {
             $_=<L>; chop;
-            print "$_\n";
             ($mode, $count)=split(/:/);
             if ( $mode eq "READ" ) {
                $count++;

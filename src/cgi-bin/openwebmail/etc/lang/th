@@ -28,9 +28,9 @@ package openwebmail::th;
 
 %lang_onofflabels =
    (
-   auto => 'Auto switched',
-   on   => 'On',
-   off  => 'Off',
+   auto => 'อัตโนมัติ',
+   on   => 'เปิด',
+   off  => 'ปิด',
    );
 
 %lang_prioritylabels =
@@ -38,6 +38,14 @@ package openwebmail::th;
    normal      => 'ปกติ',
    urgent      => 'ด่วน',
    'non-urgent'=> 'ไม่ด่วน'
+   );
+
+%lang_msgformatlabels =
+   (
+   auto => 'เลือกอัตโนมัติ',
+   text	=> 'ข้อความ',
+   html => 'HTML',
+   both => 'HTML และข้อความ'
    );
 
 %lang_withoriglabels =
@@ -54,10 +62,17 @@ package openwebmail::th;
    no  => 'ไม่'
    );
 
+%lang_disableemblinklabels =
+   (
+   none    => 'None',
+   cgionly => 'CGI only',
+   all     => 'All embedded URLs'
+   );
+
 %lang_ctrlpositionlabels =
    (
-   top => 'At top',
-   bottom => 'At bottom'
+   top => 'ที่ด้านบน',
+   bottom => 'ที่ด้านล่าง'
    );
 
 %lang_sendpositionlabels =
@@ -69,9 +84,9 @@ package openwebmail::th;
 
 %lang_abookbuttonpositionlabels = 
    (
-   before => 'Before addressbook entries',
-   after  => 'After addressbook entries',
-   both   => 'Before and after addressbook entries'
+   before => 'ก่อนรายการสมุดรายชื่อ',
+   after  => 'หลังรายการสมุดรายชื่อ',
+   both   => 'ก่อนและหลังรายการสมุดรายชื่อ'
    );
 
 %lang_timelabels =
@@ -166,29 +181,30 @@ package openwebmail::th;
 
 %lang_wdbutton =
    (
-   refresh  => 'Refresh',
-   preview  => 'Preview',
+   refresh  => 'แสดงใหม่',
+   preview  => 'ตัวอย่าง',
    edit     => 'แก้ไข',
-   listarchive=> 'List',
-   decompress=>'Decompress',
-   extract  => 'Extract',
-   chdir    => 'ChDir',
-   mkdir    => 'MkDir',
-   newfile  => 'NewFile',
-   delete   => 'Delete',
-   copy     => 'Copy',
-   move     => 'Move',
-   gzip     => 'gzCompress',
-   mkzip    => 'MkZip',
-   mktgz    => 'MkTgz',
-   mkthumbnail  => 'MkThumb',
-   download => 'Download',
-   upload   => 'Upload',
+   listarchive=> 'รายการ',
+   decompress=>'ขยายไฟล์',
+   extract  => 'แตกไฟล์',
+   chdir    => 'เข้าโฟลเดอร์',
+   mkdir    => 'สร้างโฟลเดอร์',
+   newfile  => 'สร้างไฟล์',
+   delete   => 'ลบ',
+   copy     => 'คัดลอก',
+   move     => 'ย้าย',
+   gzip     => 'ย่อโดย gz',
+   mkzip    => 'สร้าง zip',
+   mktgz    => 'สร้าง tgz',
+   mkthumbnail  => 'สร้างตัวอย่างรูป',
+   download => 'ดาวน์โหลด',
+   upload   => 'อัปโหลด',
    );   
 
 %lang_text =
    (
-   help       => 'Help',
+   loading    => 'กำลังโหลด กรุณารอสักครู่',
+   help       => 'ช่วยเหลือ',
    login      => 'เข้าระบบ',
    clear      => 'ล้าง',
    point      => 'พ้อยต์',
@@ -199,7 +215,7 @@ package openwebmail::th;
    messages   => 'จดหมาย',
    unread     => 'ยังไม่อ่าน',
    nomessages => 'ไม่มีจดหมาย',
-   inmessages => 'Incoming msgs',
+   inmessages => 'จดหมายเข้า',
    composenew => 'เขียนจดหมาย',
    refresh    => 'อ่านข้อมูลใหม่',
    userprefs  => 'ตัวเลือก',
@@ -230,8 +246,9 @@ package openwebmail::th;
    replyall   => 'ตอบถึงทุกคน',
    forward    => 'ส่งต่อ',
    forwardasatt=>'ส่งต่อเป็นแฟ้มแนบ',
-   forwardasorig=>'Forward as original',
+   forwardasorig=>'ส่งต่อเหมือนเขียนเอง',
    printfriendly=> 'เหมาะสำหรับพิมพ์',
+   msgformat  => 'รูปแบบจดหมาย',
    from       => 'ผู้ส่ง',
    replyto    => 'ตอบกลับที่',
    to         => 'ผู้รับ',
@@ -257,7 +274,7 @@ package openwebmail::th;
    about      => 'ข้อมูลระบบ',
    close      => 'ปิด',
    cancel     => 'ยกเลิก',
-   ok         => 'Ok',
+   ok         => 'ตกลง',
    continue   => 'ทำต่อ',
    loginagain => 'เข้าระบบอีกครั้ง',
    exit       => 'ออก',
@@ -288,10 +305,10 @@ package openwebmail::th;
    name       => 'ชื่อ',
    email      => 'ที่อยู่อีเมล',
    note       => 'หมายเหตุ',
-   max        => 'Maximum',
+   max        => 'มากที่สุด',
    group      => 'กลุ่ม',
-   quotausage => 'Quota usage',
-   quotalimit => 'Quota limit',
+   quotausage => 'ใช้โควต้า',
+   quotalimit => 'โควต้าสูงสุด',
    quotahit   => 'จดหมายเต็ม',
    tzmap      => 'แผนที่แสดงเวลามาตรฐานโลก',
    testsound  => 'ทดสอบเสียง',
@@ -328,15 +345,15 @@ package openwebmail::th;
    spellcheck => 'ตรวจคำผิด',
    checkagain => 'ตรวจอีกครั้ง',
    finishchecking => 'ตรวจเสร็จแล้ว',
-   editpdict  => 'Edit Personal Dictionary',
-   addtodict  => 'Add to Dictionary',
+   editpdict  => 'แก้ไขพจนานุกรมส่วนตัว',
+   addtodict  => 'เพิ่มลงในพจนานุกรม',
    manuallyfix=> 'แก้ไขเอง',
    editstat   => 'แก้ไขแบบข้อความ',
    savestat   => 'บันทึกแบบข้อความ',
    clearstat  => 'ลบแบบข้อความทั้งหมด',
-   statreply  => '-- Stationery for Reply --',
+   statreply  => '-- แบบข้อความสำหรับตอบ --',
    calendar   => 'ปฏิทิน',
-   allday     => 'All day',
+   allday     => 'ทั้งวัน',
    am         => 'am',
    pm         => 'pm',
    calfmt_year          => 'ค.ศ. @@@YEAR@@@',
@@ -344,52 +361,54 @@ package openwebmail::th;
    calfmt_yearmonthday  => '@@@DAY@@@ @@@MONTH_STR@@@ @@@YEAR@@@',
    calfmt_yearmonthdaywday => '@@@WEEKDAY_STR@@@ @@@DAY@@@ @@@MONTH_STR@@@ @@@YEAR@@@',
    calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
+   autosel    => 'เลือกอัตโนมัติ',
    none       => 'ไม่มี',
    moreitems  => 'รายการเพิ่มเติม',
    multieditconf => 'รายการนี้ถูกใส่ไว้ในหลายวัน\\nการแก้ไขจะมีผลต่อทุกรายการ\\nกรุณายืนยันการแก้ไข?',
    multidelconf  => 'รายการนี้ถูกใส่ไว้ในหลายวัน\\nการลบจะมีผลต่อทุกรายการ\\nกรุณายืนยันการลบ?',
-   caldelconf => 'Are you sure you want to delete this item?',
+   caldelconf => 'กรุณายืนยันการลบรายการนี้?',
    noitemforthisday => 'ไม่มีรายการในวันนี้',
    thisday_only          => 'วันนี้เท่านั้น',
    the_wday_of_thismonth => 'ใน @@@WDAY@@@ @@@ORDER@@@ ของเดือน',
    every_wday_thismonth  => 'ทุกๆ @@@WDAY@@@ ในเดือนนี้',
-   thismonth_only           => 'This month only',
-   every_oddmonth_thisyear  => 'Every odd month this year',
-   every_evenmonth_thisyear => 'Every even month this year',
-   every_month_thisyear     => 'Every month this year',
-   webdisk      => 'WebDisk',
-   sshterm      => 'SSH Terminal',
-   dir          => 'Dir',
-   dirs         => 'Dirs',
-   file         => 'File',
-   files        => 'Files',
-   program      => 'Program',
-   dest_of_chdir  => 'the destined directory',
-   name_of_newdir => 'the directory name to create',
-   name_of_newfile=> 'the filename to create',
-   dest_of_thecopy=> 'the destined directory or file of the copy',
-   dest_of_themove=> 'the destined directory or file of the move',
-   dest_of_thezip=> 'the destined filename of the new zip',
-   dest_of_thetgz=> 'the destined filename of the new tgz',
-   homedir      => 'Homedir',
-   showthumbnail    => 'Thumbnails',
-   showhidden   => 'Show hidden files',
-   lastmodified => 'Last modified time',
-   perm         => 'Perm',
-   permission   => 'Access Permission',
-   noitemfound  => 'No item found',
-   savefile     => 'Savefile',
-   succeeded    => 'succeeded',
-   failed       => 'failed',
-   savefile_towd=> 'Save file to WebDisk',
-   saveatt_towd => 'Save attachment to WebDisk',
-   addatt_fromwd=> 'Add attachment from WebDisk',
+   thismonth_only           => 'เฉพาะเดือนนี้',
+   every_oddmonth_thisyear  => 'ทุกเดือนคี่ในปีนี้',
+   every_evenmonth_thisyear => 'ทุกเดือนคู่ในปีนี้',
+   every_month_thisyear     => 'ทุกเดือนในปีนี้',
+   webdisk      => 'เว็บดิสก์',
+   sshterm      => 'เทอร์มินอลแบบ SSH',
+   dir          => 'โฟลเดอร์',
+   dirs         => 'โฟลเดอร์',
+   file         => 'ไฟล์',
+   files        => 'ไฟล์',
+   program      => 'โปรแกรม',
+   dest_of_chdir  => 'โฟลเดอร์ที่ต้องการเข้า',
+   name_of_newdir => 'โฟลเดอร์ที่ต้องการสร้าง',
+   name_of_newfile=> 'ไฟล์ที่ต้องการสร้าง',
+   dest_of_thecopy=> 'โฟลเดอร์ หรือไฟล์ ที่ต้องการสำเนาไปสู่',
+   dest_of_themove=> 'โฟลเดอร์ หรือไฟล์ ที่ต้องการย้ายไปสู่',
+   dest_of_thezip=> 'ไฟล์ zip ที่ต้องการสร้าง',
+   dest_of_thetgz=> 'ไฟล์ tgz ที่ต้องการสร้าง',
+   homedir      => 'โฟลเดอร์แรกเริ่ม',
+   showthumbnail    => 'รูปตัวอย่าง',
+   showhidden   => 'แสดงไฟล์ที่ซ่อนไว้',
+   lastmodified => 'เวลาแก้ไขล่าสุด',
+   perm         => 'การใช้',
+   permission   => 'การอนุญาตให้ใช้งาน',
+   noitemfound  => 'ไม่พบรายการ',
+   savefile     => 'บันทึกไฟล์',
+   succeeded    => 'สำเร็จ',
+   failed       => 'ผิดพลาด',
+   savefile_towd=> 'บันทึกไฟล์สู่เว็บดิสก์',
+   saveatt_towd => 'บันทึกแฟ้มแนบสู่เว็บดิสก์',
+   addatt_fromwd=> 'แนบแฟ้มจากเว็บดิสก์',
    vdomain_usermgr    => 'Virtual Domain User Management',
    vdomain_createuser => 'Create User',
    vdomain_changeuser => 'Change User',
    vdomain_deleteuser => 'Delete User',
-   vdomain_usertype_localmbox  => 'Local Mailbox',
-   vdomain_usertype_redirected => 'Redirect to external mail address'
+   set_passwd         => 'Set Password',
+   reset_passwd       => 'Reset Password',
+   email_alias        => 'E-MAIL Alias'
    );
 
 %lang_err =
@@ -421,7 +440,7 @@ package openwebmail::th;
    att_overlimit     => 'แฟ้มที่แนบของคุณใหญ่กว่าขนาดที่กำหนดไว้',
    inv_msg_op        => 'คำสั่งผิดพลาดในจดหมาย',
    sess_cookieerr    => 'การใช้งานของคุณไม่มีรายละเอียด cookie ที่ถูกต้อง คุณไม่สามารถใช้งานได้!',
-   sess_iperr        => 'Your request didn\'t come from the same ip of this session -- access denied!',
+   sess_iperr        => 'การใช้งานของคุณไม่ได้มาจากไอพีเดียวกับการใช้งานครั้งนี้ คุณไม่สามารถใช้งานได้!',
    no_endpart        => 'ไม่พบส่วนสิ้นสุด',
    part_missing      => 'ไม่พบบางส่วน',
    rebuild_fmterr    => 'มีข้อผิดพลาดในจดหมายใหม่',
@@ -438,21 +457,23 @@ package openwebmail::th;
    sendmail_error    => 'มีความผิดพลาดในการส่งจดหมายของคุณ กรุณากดปุ่ม Back ในบราวเซอร์, ตรวจสอบจดหมาย แล้วลองใหม่อีกครั้ง',
    at_char_not_allowed => 'ไม่สามารถใช้เครื่องหมาย @ ในช่องนี้ได้ กรุณากดปุ่ม back แล้วลองใหม่',
    badnum_in_days => 'จำนวนในช่องวันติดต่อกันผิดพลาด',
-   access_denied     => 'Access denied',
-   couldnt_chdirto   => 'Couldn\'t chdir to',
-   isnt_a_dir        => 'is not a directory',
-   edit_notfordir    => 'You can\'t edit a directory',
-   onefileonly       => 'Only one file is allowed for this operation',
-   no_file_todownload=> 'No file is specified for download',
-   upload_overlimit  => 'Upload file size is over the limit',
-   decomp_notsupported=>'Decompression support is not available for this file.',
-   webdisk_readonly  => 'Sorry, your webdisk is read only.',
-   quota_syserr      => 'Quota system error',
-   quotahit_alert    => 'Sorry, you\'ve hit your quota limit. Please delete some messages from mail folders or some files from the webdisk to free disk space.',
-   quotahit_delmail  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, oldest messages in folders have been removed automatcially',
-   quotahit_delfile  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, some files in the webdisk have been removed automatcially',
-   spool_overlimit   => 'Sorry, your INBOX has exceeded the spool limit(@@@SPOOLLIMIT@@@). Please move some messages from INBOX to other folders.',
-   vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
+   access_denied     => 'ไม่อนุญาตให้ใช้งาน',
+   couldnt_chdirto   => 'ไม่สามารถเข้าโฟลเดอร์',
+   isnt_a_dir        => 'ไม่ใช่โฟลเดอร์',
+   edit_notfordir    => 'ไม่สามารถแก้ไขโฟลเดอร์ได้',
+   onefileonly       => 'คำสั่งนี้ใช้ได้ครั้งละ 1 ไฟล์เท่านั้น',
+   no_file_todownload=> 'ไม่ได้ระบุไฟล์สำหรับดาวน์โหลด',
+   upload_overlimit  => 'ขนาดของไฟล์ที่จะอัปโหลดใหญ่กว่าข้อจำกัด',
+   decomp_notsupported=>'ไม่สามารถขยายไฟล์แบบนี้ได้',
+   webdisk_readonly  => 'เว็บดิสก์ของคุณเป็นแบบอ่านได้เท่านั้น',
+   quota_syserr      => 'ระบบโควต้ามีปัญหา',
+   quotahit_alert    => 'คุณใช้งานเต็มโควต้าแล้ว กรุณาลบจดหมายบางฉบับ หรือลบไฟล์บางไฟล์จากเว็บดิสก์ เพื่อให้มีเนื้อที่ว่างสำหรับใช้งาน',
+   quotahit_delmail  => 'คำเตือน, เนื่องจากมีการใช้งานเต็มโควต้า (@@@QUOTALIMIT@@@) จดหมายฉบับที่เก่าที่สุด ได้ถูกลบทิ้งโดยอัตโนมัติแล้ว',
+   quotahit_delfile  => 'คำเตือน, เนื่องจากมีการใช้งานเต็มโควต้า (@@@QUOTALIMIT@@@) ไฟล์ที่เก่าที่สุดจำนวนหนึ่ง ได้ถูกลบออกจากเว็บดิสก์โดยอัตโนมัติแล้ว',
+   spool_overlimit   => 'จดหมายในกล่อง จดหมายเข้า ของคุณเต็ม (@@@SPOOLLIMIT@@@) กรุณาย้ายจดหมายจากกล่องจดหมายเข้า ไปไว้ในกล่องอื่นบ้าง',
+   vdomain_toomanyuser  => 'อีเมลสำหรับโดเมนนี้เต็มแล้ว',
+   vdomain_toomanyalias => 'ชื่อแฝงของอีเมลสำหรับโดเมนนี้เต็มแล้ว',
+   vdomain_userrequired => 'กรุณาใส่ชื่อผู้ใช้ด้วย'
    );
 
 1;

@@ -194,19 +194,19 @@
 @@@USESMILEICON@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﭘﻴﻐﺎﻡ ﻣﻴﮟ ﻣﻨﺴﻠﮏ ﺗﺼﻮﻳﺮﻭﮞ ﻛﻭ ﻟﻴﻨﮏ ﺩﻛﻬﺎﻳﮟ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SHOWIMGASLINK@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>ﭘﻴﻐﺎﻡ ﻣﻴﮟ ﺟﺎﻭﺍ ﺍﺳﻜﺮﻳﭙﭧ ﻧﺎﻗﺎﺑﻞ ﺍﺳﺘﻌﻤﺎﻝ ﺭﻛﻬﻴﮟ :</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEJS@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>ﭘﻴﻐﺎﻡ ﻣﻴﮟ CGI ﻧﺎﻗﺎﺑﻞ ﺍﺳﺘﻌﻤﺎﻝ ﺭﻛﻬﻴﮟ :</B>
+<B>ﭘﻴﻐﺎﻡ ﻣﻴﮟ links ﻧﺎﻗﺎﺑﻞ ﺍﺳﺘﻌﻤﺎﻝ ﺭﻛﻬﻴﮟ :</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@DISABLEEMBCGI@@@
-</td></tr>
-<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>ﭘﻴﻐﺎﻡ ﻣﻴﮟ ﻣﻨﺴﻠﮏ ﺗﺼﻮﻳﺮﻭﮞ ﻛﻭ ﻟﻴﻨﮏ ﺩﻛﻬﺎﻳﮟ :</B>
-</td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@SHOWIMGASLINK@@@
+@@@DISABLEEMBLINKMENU@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>ﭘﮍﻫﮯﺟﺎﻧﮯ ﻛﻰ ﺭﺳﻴﺪ ﺑﻬﻴﺠﻴﮟ :</B>
@@ -216,6 +216,11 @@
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B> ﺟﻮﺍﺏ  ﻛﮯ ﺁﭘﺸﻦ </B></td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>Message format:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@MSGFORMATMENU@@@
+</td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>ﺟﻮﺍﺏ ﻛﻰ ﻟﻜﻬﺎﺋﻰ ﻛﮯ ﻟﺌﮯ ﺟﮕﮧ :</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -293,6 +298,11 @@
 @@@CALENDARSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B> ﻛﻠﻴﻨﮉﺭ ﻛﮯ ﺁﭘﺸﻦ </B></td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>Holiday definition:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@HOLIDAYDEFMENU@@@
+</td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B> ﻣﻬﻴﻨﮯ ﻛﮯ ﻧﻈﺎﺭﮯ ﻣﻴﮟ ﻛﻞ ﺁﺋﮣﻢ :</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>

@@ -42,6 +42,14 @@ package openwebmail::pt_BR;
    'non-urgent'=> 'Baixa'
    );
 
+%lang_msgformatlabels =
+   (
+   auto => 'Automático',
+   text	=> 'Texto',
+   html => 'HTML',
+   both => 'HTML e Texto'
+   );
+
 %lang_withoriglabels =
    (
    at_beginning => 'No início',
@@ -54,6 +62,13 @@ package openwebmail::pt_BR;
    ask => 'Pergunte-me',
    yes => 'Sim',
    no  => 'Não'
+   );
+
+%lang_disableemblinklabels =
+   (
+   none    => 'None',
+   cgionly => 'CGI only',
+   all     => 'All embedded URLs'
    );
 
 %lang_ctrlpositionlabels =
@@ -180,9 +195,9 @@ package openwebmail::pt_BR;
    delete   => 'Apagar',
    copy     => 'Copiar',
    move     => 'Mover',
-   gzip     => 'Compactar (gz)',
-   mkzip    => 'Compactar (Zip)',
-   mktgz    => 'Compactar (Tgz)',
+   gzip     => 'GZip',
+   mkzip    => 'Zip',
+   mktgz    => 'Targzip',
    mkthumbnail  => 'Criar Miniatura',
    download => 'Download',
    upload   => 'Upload',
@@ -190,6 +205,7 @@ package openwebmail::pt_BR;
 
 %lang_text =
    (
+   loading    => 'Carregando, aguarde',
    help       => 'Ajuda',
    login      => 'Entrar',
    clear      => 'Limpar',
@@ -234,6 +250,7 @@ package openwebmail::pt_BR;
    forwardasatt=>'Encaminhar como Anexo',
    forwardasorig=>'Encaminhar como original',
    printfriendly=> 'Impressão Amigável',
+   msgformat  => 'Formato da Mensagem',
    from       => 'De',
    replyto    => 'Responder a',
    to         => 'Para',
@@ -346,6 +363,7 @@ package openwebmail::pt_BR;
    calfmt_yearmonthday  => '@@@DAY@@@ de @@@MONTH_STR@@@ de @@@YEAR@@@',
    calfmt_yearmonthdaywday => '@@@WEEKDAY_STR@@@, @@@DAY@@@ de @@@MONTH_STR@@@ de @@@YEAR@@@',
    calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
+   autosel    => 'Automático',
    none       => 'Nenhum',
    moreitems  => 'mais itens',
    multieditconf => 'Este item foi adicionado em multiplas datas.\\nEditá-lo irá alterar o item em todas as datas.\\nContinua a Edição?',
@@ -390,8 +408,9 @@ package openwebmail::pt_BR;
    vdomain_createuser => 'Criar Usuário',
    vdomain_changeuser => 'Alterar Usuário',
    vdomain_deleteuser => 'Apagar Usuário',
-   vdomain_usertype_localmbox  => 'Caixa Postal Local',
-   vdomain_usertype_redirected => 'Redirecionar para e-mail externo'
+   set_passwd         => 'Setar Senha',
+   reset_passwd       => 'Resetar Senha',
+   email_alias        => ' Apelido de E-MAIL'
    );
 
 %lang_err =
@@ -454,7 +473,9 @@ package openwebmail::pt_BR;
    quotahit_delmail  => 'Atenção, o limite de espaço (@@@QUOTALIMIT@@@) foi excedido, mensagens antigas nas pastas foram removidas automaticamente',
    quotahit_delfile  => 'Atenção, o limite de espaço (@@@QUOTALIMIT@@@) foi excedido, alguns arquivos no Disco Web foram removidos automaticamente',
    spool_overlimit   => 'Desculpe, sua pasta ENTRADA teve o limite (@@@SPOOLLIMIT@@@) excedido. Favor mover algumas mensagens para outras pastas.',
-   vdomain_toomanyuser=> 'Desculpe, o número de usuários neste domínio atingiu o limite máximo'
+   vdomain_toomanyuser  => 'Desculpe, o número de usuários neste domínio atingiu o limite máximo',
+   vdomain_toomanyalias => 'Desculpe, o número de apelidos de E-MAIL deste usuário atingiu o limite máximo',
+   vdomain_userrequired => 'Um nome de usuário é requerido'
    );
 
 1;

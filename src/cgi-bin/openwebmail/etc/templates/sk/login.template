@@ -25,7 +25,7 @@
 <table><tr><td>@@@LOGINBUTTON@@@</td></tr></table>
 </td>
 <td align=center>
-<table><tr><td><font size=1>zapamäta»<br>môj login</font></td><td>@@@REMEMBERMECHECKBOX@@@</td></tr></table>
+<table><tr><td><font size=1>pou¾i» HTTP<br>kompresiu</font></td><td>@@@HTTPCOMPRESSIONCHECKBOX@@@</td></tr></table>
 </td>
 </tr>
 </table>
@@ -55,6 +55,24 @@
    {
       document.login.loginbutton.focus();
       return (true);
+   }
+
+   function httpcompresshelp()
+   {
+      if (document.login.httpcompress.checked) {
+         alert(
+"HTTP kompresia zní¾i nároky na ¹írku spojenia medzi Va¹im poèítaèom a webmail serverom, "+
+"ale mô¾u nasta» urèité problémy:\n\n"+
+"1. niektoré proxy servery podporujú HTTP kompresiu iba cez HTTP verzia 1.1, "+
+"musíte aktivova» HTTP1.1 podporu pre proxy vo Va¹om prehliadaèi\n"+
+"2. niektoré proxy servery nepodporujú HTTP kompresiu vôbec, "+
+"musíte uvies» webmail server ako priamo pripojený v konfigurácii proxy Vá¹ho prehliadaèa.\n"+
+"3. niektoré prehliadaèe majú problémy ak je aktivovaná HTTP kompresia s SSL spojením...\n"+
+"4. niektoré prehliadaèe síce tvrdia, ¾e HTTP kompresiu podporujú ale v skuoènosti to tak nie je...\n\n"+
+"Ak zaznamenáte akýkoµvek problém, skuste sa prosím prihlási» s vypnutou HTTP kompresiou.\n"
+         );
+      }
+      return(true);
    }
 
 //-->

@@ -40,6 +40,14 @@ package openwebmail::fr;
    'non-urgent'=> 'Non-Urgent'
    );
 
+%lang_msgformatlabels =
+   (
+   auto => 'Auto selected',
+   text	=> 'Text',
+   html => 'HTML',
+   both => 'HTML and Text'
+   );
+
 %lang_withoriglabels =
    (
    at_beginning => 'Au début',
@@ -52,6 +60,13 @@ package openwebmail::fr;
    ask => 'Demander confirmation',
    yes => 'Oui',
    no  => 'Non'
+   );
+
+%lang_disableemblinklabels =
+   (
+   none    => 'None',
+   cgionly => 'CGI only',
+   all     => 'All embedded URLs'
    );
 
 %lang_ctrlpositionlabels =
@@ -188,6 +203,7 @@ package openwebmail::fr;
 
 %lang_text =
    (
+   loading    => 'Loading, please wait',
    help       => 'Aide ',
    login      => 'Entrer',
    clear      => 'Effacer',
@@ -232,6 +248,7 @@ package openwebmail::fr;
    forwardasatt=>'Faire suivre en tant qu\'attachement',
    forwardasorig=>'Forward as original',
    printfriendly=> 'Impression amicale',
+   msgformat  => 'MsgFormat',
    from       => 'Expéditeur',
    replyto    => 'Répondre à',
    to         => 'Destinataire',
@@ -344,6 +361,7 @@ package openwebmail::fr;
    calfmt_yearmonthday  => '@@@DAY@@@ @@@MONTH_STR@@@ @@@YEAR@@@',
    calfmt_yearmonthdaywday => '@@@WEEKDAY_STR@@@ @@@DAY@@@ @@@MONTH_STR@@@ @@@YEAR@@@',
    calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
+   autosel    => 'Auto selected',
    none       => 'Aucun',
    moreitems  => 'plus d\'éléments',
    multieditconf => 'Cet élément a été ajouté pour des dates multiples.\\nSi vous le modifiez l\'élément sera modifié pour toutes les autres dates.\\nContinuer?',
@@ -388,8 +406,9 @@ package openwebmail::fr;
    vdomain_createuser => 'Create User',
    vdomain_changeuser => 'Change User',
    vdomain_deleteuser => 'Delete User',
-   vdomain_usertype_localmbox  => 'Local Mailbox',
-   vdomain_usertype_redirected => 'Redirect to external mail address'
+   set_passwd         => 'Set Password',
+   reset_passwd       => 'Reset Password',
+   email_alias        => 'E-MAIL Alias'
    );
 
 %lang_err =
@@ -452,7 +471,9 @@ package openwebmail::fr;
    quotahit_delmail  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, oldest messages in folders have been removed automatcially',
    quotahit_delfile  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, some files in the webdisk have been removed automatcially',
    spool_overlimit   => 'Sorry, your INBOX has exceeded the spool limit(@@@SPOOLLIMIT@@@). Please move some messages from INBOX to other folders.',
-   vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
+   vdomain_toomanyuser  => 'Sorry, the user count of this domain has reached its maximum limit',
+   vdomain_toomanyalias => 'Sorry, the E-MAIL alias count of this user has reached its maximum limit',
+   vdomain_userrequired => 'A user name is required'
    );
 
 1;

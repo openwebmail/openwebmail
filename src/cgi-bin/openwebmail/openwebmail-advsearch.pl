@@ -43,18 +43,20 @@ use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE $_STATUS $_SIZE
 use vars qw(%lang_folders %lang_advsearchlabels %lang_text %lang_err);	# defined in lang/xy
 
 ########################## MAIN ##############################
-clearvars();
-openwebmail_init();
+openwebmail_requestbegin();
+$SIG{PIPE}=\&openwebmail_exit;	# for user stop
+$SIG{TERM}=\&openwebmail_exit;	# for user stop
+
+userenv_init();
 
 my $action = param("action");
 if ($action eq "advsearch") {
    advsearch();
 } else {
-   openwebmailerror("Action $lang_err{'has_illegal_chars'}");
+   openwebmailerror(__FILE__, __LINE__, "Action $lang_err{'has_illegal_chars'}");
 }
 
-# back to root if possible, required for setuid under persistent perl
-$<=0; $>=0;
+openwebmail_requestend();
 ###################### END MAIN ##############################
 
 #################### ADVSEARCH ###########################
@@ -73,8 +75,7 @@ sub advsearch {
    }
 
    my ($html, $temphtml);
-   $html = readtemplate("advsearch.template");
-   $html = applystyle($html);
+   $html = applystyle(readtemplate("advsearch.template"));
 
    ## replace @@@MENUBARLINKS@@@ ##
    $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $printfolder", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;sessionid=$thissession&amp;folder=$escapedfolder"|). qq| \n|;
@@ -208,7 +209,7 @@ sub advsearch {
       $html =~ s/\@\@\@SEARCHRESULT\@\@\@/$temphtml/g;
    }
 
-   print htmlheader(), $html, htmlfooter(2);
+   httpprint([], [htmlheader(), $html, htmlfooter(2)]);
 }
 ################### END ADVSEARCH ########################
 
@@ -226,10 +227,10 @@ sub search_folders {
 
    ($cachefile =~ /^(.+)$/) && ($cachefile = $1);		# untaint ...
    filelock($cachefile, LOCK_EX) or
-      openwebmailerror("$lang_err{'couldnt_lock'} $cachefile");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $cachefile");
    if ( -e $cachefile ) {
       open(CACHE, "$cachefile") or
-         openwebmailerror("$lang_err{'couldnt_open'} $cachefile! ($!)");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $cachefile! ($!)");
       $cache_metainfo=<CACHE>; chomp($cache_metainfo);
       close(CACHE);
    }
@@ -276,7 +277,7 @@ sub search_folders2 {
 
       if (!$config{'dbmopen_haslock'}) {
          filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) or
-            openwebmailerror("$lang_err{'couldnt_locksh'} $headerdb$config{'dbm_ext'}");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $headerdb$config{'dbm_ext'}");
       }
       open (FOLDER, "$folderfile"); # used in TEXTCONTENT search
       dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
@@ -526,7 +527,7 @@ sub genline {
    my $datestr=dateserial2str($dateserial, $prefs{'timeoffset'}, $prefs{'dateformat'});
    $temphtml = qq|<tr>|.
                qq|<td nowrap bgcolor=$bgcolor>$folderstr&nbsp;</td>\n|.
-               qq|<td bgcolor=$bgcolor><font size=-1>$datestr</font></td>\n|.
+               qq|<td bgcolor=$bgcolor>$datestr</td>\n|.
                qq|<td bgcolor=$bgcolor>$from</td>\n|.
                qq|<td bgcolor=$bgcolor>|.
                qq|<a href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&amp;|.

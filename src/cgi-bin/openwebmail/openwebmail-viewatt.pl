@@ -47,8 +47,11 @@ use vars qw($sort $page);
 use vars qw($searchtype $keyword $escapedkeyword);
 
 ########################## MAIN ##############################
-clearvars();
-openwebmail_init();
+openwebmail_requestbegin();
+$SIG{PIPE}=\&openwebmail_exit;	# for user stop
+$SIG{TERM}=\&openwebmail_exit;	# for user stop
+
+userenv_init();
 
 $page = param("page") || 1;
 $sort = param("sort") || $prefs{'sort'} || 'date';
@@ -66,11 +69,10 @@ if ($action eq "viewattachment") {
 } elsif ($action eq "saveattfile" && $config{'enable_webdisk'}) {
    saveattfile();
 } else {
-   openwebmailerror("Action $lang_err{'has_illegal_chars'}");
+   openwebmailerror(__FILE__, __LINE__, "Action $lang_err{'has_illegal_chars'}");
 }
 
-# back to root if possible, required for setuid under persistent perl
-$<=0; $>=0;
+openwebmail_requestend();
 ###################### END MAIN ##############################
 
 ################ VIEWATTACHMENT/SAVEATTACHMENT ##################
@@ -79,7 +81,22 @@ sub viewattachment {	# view attachments inside a message
    my $nodeid = param("attachment_nodeid");
 
    my ($attfilename, $length, $r_attheader, $r_attbody)=getattachment($folder, $messageid, $nodeid);
-   print "${$r_attheader}\n${$r_attbody}";
+
+   if (${$r_attheader}=~m!Content-Type: text/!i && $length>512 &&
+       cookie("openwebmail-httpcompress") &&
+       $ENV{'HTTP_ACCEPT_ENCODING'}=~/\bgzip\b/ &&
+       has_zlib()) {
+      my $zattbody=Compress::Zlib::memGzip($r_attbody);
+      my $zlen=length($zattbody);
+      my $zattheader=qq|Content-Encoding: gzip\n|.
+                     qq|Vary: Accept-Encoding\n|.
+                     ${$r_attheader};
+      $zattheader=~s!Content\-Length: .*?\n!Content-Length: $zlen\n!ims;
+      print $zattheader, "\n", $zattbody;
+   } else {
+      print ${$r_attheader}, "\n", ${$r_attbody};
+   }
+   return;
 }
 
 sub saveattachment {	# save attachments inside a message to webdisk
@@ -97,10 +114,10 @@ sub getattachment {
    my $folderhandle=do { local *FH };
 
    filelock($folderfile, LOCK_SH|LOCK_NB) or
-      openwebmailerror("$lang_err{'couldnt_locksh'} $folderfile!");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $folderfile!");
    if (update_headerdb($headerdb, $folderfile)<0) {
       filelock($folderfile, LOCK_UN);
-      openwebmailerror("$lang_err{'couldnt_updatedb'} $headerdb$config{'dbm_ext'}");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_updatedb'} $headerdb$config{'dbm_ext'}");
    }
    open($folderhandle, "$folderfile");
    my $r_block= get_message_block($messageid, $headerdb, $folderhandle);
@@ -108,7 +125,7 @@ sub getattachment {
    filelock($folderfile, LOCK_UN);
 
    if ( !defined(${$r_block}) ) {
-      openwebmailerror("What the heck? Message ".str2html($messageid)." seems to be gone!");
+      openwebmailerror(__FILE__, __LINE__, "What the heck? Message ".str2html($messageid)." seems to be gone!");
    }
 
    my @attr=get_message_attributes($messageid, $headerdb);
@@ -130,16 +147,23 @@ sub getattachment {
       $subject =~ s/\s+/_/g;
 
       my $length = length(${$r_block});
-      # disposition:attachment default to save
       my $attheader=qq|Content-Length: $length\n|.
-                    qq|Content-Transfer-Coding: binary\n|.
                     qq|Connection: close\n|.
                     qq|Content-Type: message/rfc822; name="$subject.msg"\n|;
+
+      # disposition:attachment default to save
       if ( $ENV{'HTTP_USER_AGENT'}=~/MSIE 5.5/ ) {	# ie5.5 is broken with content-disposition: attachment
          $attheader.=qq|Content-Disposition: filename="$subject.msg"\n|;
       } else {
          $attheader.=qq|Content-Disposition: attachment; filename="$subject.msg"\n|;
       }
+
+      # allow cache for msg in folder other than saved-drafts
+      if ($folder ne 'saved-drafts') {
+         $attheader.=qq|Expires: |.CGI::expires('+900s').qq|\n|.
+                     qq|Cache-Control: private,max-age=900\n|;
+      }
+
       return("$subject.msg", $length, \$attheader, $r_block);
 
    } else {
@@ -178,8 +202,8 @@ sub getattachment {
             my $escapedmessageid = escapeURL($messageid);
             $content = html4nobase($content);
 #            $content = html4link($content);
-            $content = html4disablejs($content) if ($prefs{'disablejs'}==1);
-            $content = html4disableembcgi($content) if ($prefs{'disableembcgi'}==1);
+            $content = html4disablejs($content) if ($prefs{'disablejs'});
+            $content = html4disableemblink($content, $prefs{'disableemblink'}) if ($prefs{'disableemblink'} ne 'none');
             $content = html4attachments($content, $r_attachments, "$config{'ow_cgiurl'}/openwebmail-viewatt.pl", "action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder");
 #            $content = html4mailto($content, "$config{'ow_cgiurl'}/openwebmail-send.pl", "action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page&amp;sessionid=$thissession&amp;composetype=sendto");
          }
@@ -208,7 +232,7 @@ sub getattachment {
          # from *.exe, *.com *.bat, *.pif, *.lnk, *.scr to *.file
          # if its contenttype is not application/octet-stream
          # to avoid this attachment is referenced by html and executed directly ie
-         if ( $filename =~ /\.(exe|com|bat|pif|lnk|scr)$/i &&
+         if ( $filename =~ /\.(?:exe|com|bat|pif|lnk|scr)$/i &&
               $contenttype !~ /application\/octet\-stream/i &&
               $contenttype !~ /application\/x\-msdownload/i ) {
             $filename="$filename.file";
@@ -220,14 +244,13 @@ sub getattachment {
             $contenttype="image/".lc($1);
          }
 
-         # disposition:attachment default to save
          my $attheader=qq|Content-Length: $length\n|.
-                       qq|Content-Transfer-Coding: binary\n|.
                        qq|Connection: close\n|.
                        qq|Content-Type: $contenttype; name="$filename"\n|;
          if ($contenttype =~ /^text/i) {
             $attheader.=qq|Content-Disposition: inline; filename="$filename"\n|;
          } else {
+            # disposition:attachment default to save
             if ( $ENV{'HTTP_USER_AGENT'}=~/MSIE 5.5/ ) { # ie5.5 is broken with content-disposition: attachment
                $attheader.=qq|Content-Disposition: filename="$filename"\n|;
             } else {
@@ -235,14 +258,21 @@ sub getattachment {
             }
          }
 
+         # allow cache for msg attachment in folder other than saved-drafts
+         if ($folder ne 'saved-drafts') {
+            $attheader.=qq|Expires: |.CGI::expires('+900s').qq|\n|.
+                        qq|Cache-Control: private,max-age=900\n|;
+         }
+
          # use undef to free memory before attachment transfer
          undef %{$r_attachment};
          undef $r_attachment;
          undef @{$r_attachments};
          undef $r_attachments;
+
          return($filename, $length, \$attheader, \$content);
       } else {
-         openwebmailerror("What the heck? Message ".str2html($messageid)." $nodeid seems to be gone!");
+         openwebmailerror(__FILE__, __LINE__, "What the heck? Message ".str2html($messageid)." $nodeid seems to be gone!");
       }
    }
    # never reach
@@ -251,11 +281,24 @@ sub getattachment {
 
 ################ VIEWATTFILE/SAVEATTFILE ##################
 sub viewattfile {	# view attachments uploaded to $config{'ow_sessionsdir'}
-   my $attfile=param("attfile");
-   $attfile =~ s/\///g;  # just in case someone gets tricky ...
-
+   my $attfile=param("attfile"); $attfile =~ s/\///g;  # just in case someone gets tricky ...
    my ($attfilename, $length, $r_attheader, $r_attbody)=getattfile($attfile);
-   print "${$r_attheader}\n${$r_attbody}";
+
+   if (${$r_attheader}=~m!Content-Type: text/!i && $length>512 &&
+       cookie("openwebmail-httpcompress") &&
+       $ENV{'HTTP_ACCEPT_ENCODING'}=~/\bgzip\b/ &&
+       has_zlib()) {
+      my $zattbody=Compress::Zlib::memGzip($r_attbody);
+      my $zlen=length($zattbody);
+      my $zattheader=qq|Content-Encoding: gzip\n|.
+                     qq|Vary: Accept-Encoding\n|.
+                     ${$r_attheader};
+      $zattheader=~s!Content\-Length: .*?\n!Content-Length: $zlen\n!ims;
+      print $zattheader, "\n", $zattbody;
+   } else {
+      print ${$r_attheader}, "\n", ${$r_attbody};
+   }
+   return;
 }
 
 sub saveattfile {	# save attachments uploaded to $config{'pw_sessiondir'} to webdisk
@@ -270,7 +313,7 @@ sub getattfile {
    my $attfile=$_[0];
    # only allow to view attfiles belongs the $thissession
    if ($attfile!~/^\Q$thissession\E/  || !-f "$config{'ow_sessionsdir'}/$attfile") {
-      openwebmailerror("What the heck? Attfile $config{'ow_sessionsdir'}/$attfile seems to be gone!");
+      openwebmailerror(__FILE__, __LINE__, "What the heck? Attfile $config{'ow_sessionsdir'}/$attfile seems to be gone!");
    }
 
    my ($attsize, $attheader, $attheaderlen, $attcontent);
@@ -280,7 +323,7 @@ sub getattfile {
    $attsize=(-s("$config{'ow_sessionsdir'}/$attfile"));
 
    open(ATTFILE, "$config{'ow_sessionsdir'}/$attfile") or
-      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}/$attfile! ($!)");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}/$attfile! ($!)");
    read(ATTFILE, $attheader, 512);
    $attheaderlen=index($attheader,  "\n\n", 0);
    $attheader=substr($attheader, 0, $attheaderlen);
@@ -346,10 +389,13 @@ sub getattfile {
    # rebuild attheader for download
    # disposition:inline default to open
    $attheader= qq|Content-Length: $length\n|.
-               qq|Content-Transfer-Coding: binary\n|.
                qq|Connection: close\n|.
                qq|Content-Type: $attcontenttype; name="$attfilename"\n|.
                qq|Content-Disposition: inline; filename="$attfilename"\n|;
+
+   # allow cache for attfile since its filename is based on times()
+   $attheader.=qq|Expires: |.CGI::expires('+900s').qq|\n|.
+               qq|Cache-Control: private,max-age=900\n|;
 
    return($attfilename, $length, \$attheader, \$attcontent);
 }
@@ -370,12 +416,12 @@ sub savefile2webdisk {
    ($webdiskrootdir =~ m!^(.+)/?$!) && ($webdiskrootdir = $1);  # untaint ...
    my $vpath=absolute_vpath('/', $webdisksel);
    my $err=verify_vpath($webdiskrootdir, $vpath);
-   openwebmailerror($err) if ($err);
+   openwebmailerror(__FILE__, __LINE__, $err) if ($err);
 
    if (-d "$webdiskrootdir/$vpath") {			# use choose a dirname, save att with its original name
       $vpath=absolute_vpath($vpath, $filename);
       $err=verify_vpath($webdiskrootdir, $vpath);
-      openwebmailerror($err) if ($err);
+      openwebmailerror(__FILE__, __LINE__, $err) if ($err);
    }
    ($vpath =~ /^(.+)$/) && ($vpath = $1);  # untaint ...
 

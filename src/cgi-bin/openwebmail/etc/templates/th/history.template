@@ -1,7 +1,7 @@
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>User History</B></font>
+<B>ประวัติการใช้งาน</B></font>
 </td></tr>
 <tr><td bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
@@ -11,15 +11,15 @@
 <table border="0" align="center" width="90%" cellspacing="0" cellpadding="0">
 <tr>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Time</B></td>
+<B>เวลา</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Client Address</B></td>
+<B>ใช้งานจาก</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>User</B></td>
+<B>ผู้ใช้</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Event</B></td>
+<B>คำสั่ง</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Description</B></td>
+<B>รายละเอียด</B></td>
 </tr>
 @@@LOGINHISTORY@@@
 </table>

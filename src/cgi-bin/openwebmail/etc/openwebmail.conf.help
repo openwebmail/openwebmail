@@ -38,7 +38,7 @@ authentication on SMTP server
 virtusertable
 -----------------------------------------------------------------------
 the location of sendmail virtusertable.
-It is used maps a virtualuser to the real userid in system.
+It is used to map a virtualuser to the real userid in system.
 A virtualuser can be in the form a pure username or username@somedomain
 Pls Refer to http://www.sendmail.org/virtual-hosting.html for more detail
 
@@ -477,6 +477,13 @@ domainnam_equiv table to find the possible alias entry to use.
 ps: please refer to doc/loginprocess.txt for more information
 
 
+error_with_debuginfo
+-----------------------------------------------------------------------
+If this option is set to yes, detailed debug info (including scriptname,
+line number, real uid, effective uid, real uid, mailgid) will be put into 
+the error message.
+
+
 allowed_serverdomain
 -----------------------------------------------------------------------
 This limits the virtualdomain that openwebmail will serve.
@@ -558,11 +565,19 @@ more than one domainnames defined.
 domainselmenu_list
 -----------------------------------------------------------------------
 This is the domainnames that will be listed in the above selection menu
-If set this option to 'auto', the entries will be derived from option
+If this option is set to 'auto', the entries will be derived from option
 domainnames
 
 Example:
 domainselmenu_list	server1.domain1.com, server2.domain2.com
+
+
+enable_strictvirtuser
+-----------------------------------------------------------------------
+When an account has been mapped by a virtuser in virtusertable, both the
+account and the virtuser can be used as the login name in Open WebMail.
+If this option is set to 'yes',  then only the virtuser can be used for 
+login. 
 
 
 enable_changepwd
@@ -693,9 +708,17 @@ Set this option to 'no' if you don't want the userid to be displayed
 in the X-OriginatingIP header for the outgoing messages
 
 
+enable_setfrom
+-----------------------------------------------------------------------
+This option would allow user to edit their 'from book' for different 
+name and emails
+
+
 enable_setfromemail
 -----------------------------------------------------------------------
-This option would allow user to set their from email address in a message
+This option would allow user to set their from email address
+ps: if option enable_setfrom is set to yes but this option is set to no,
+    then user would be allowed to set their realname but not email address
 
 
 enable_autoreply
@@ -815,6 +838,13 @@ fetchpop3interval
 If user enables autopop3 in user preference, openwebmail will fetch
 pop3mail automatically after he login. And this option determines how
 long openwebmail should check mail on pop3 servers for the user.
+
+
+default_calendar_holidaydef
+-----------------------------------------------------------------------
+The default holiday file to use in calendar. If this option is set to 
+'auto', then the moliday file will be choosed based on the user language.
+If this option is set to 'none', no holiday file will be used.
 
 
 calendar_email_notifyinterval
@@ -1018,6 +1048,15 @@ If set this option to 0, the there will be no limit at all.
 Default: 100.
 
 
+vdomain_maxalias
+-----------------------------------------------------------------------
+The max number of E-Mail aliases that are allowed for each
+the virtual domain user.
+If this option is set to 0, the there will be no aliases allowed.
+
+Default: 100.
+
+
 vdomain_vmpop3_pwdpath
 -----------------------------------------------------------------------
 The first part (or prefix) of the path to the sub-directories containing 
@@ -1117,6 +1156,26 @@ with the options '-Y -m /etc/procmailrcs/virtualrc bar.com foo'
 Default: none - vdomain_mailbox_command isn't used by default
 
 
+localusers
+-----------------------------------------------------------------------
+Users in this list will not use the per site conf files.  
+Normally this is only needed if you mix virtual and real users in your 
+local domain.  
+
+For example, you may set auth_unix.pl as the authentication module in 
+openwebmail.conf and auth_vdomain.pl as the authentication module in 
+the per site in openwebmail.conf. 
+Users listed here won't use per site conf and thus are authenticated 
+as a real user by the auth_unix.pl module in openwebmail.conf.
+User not listed here will be authenticated as a vdomain user by the 
+auth_vdomain.pl module in per site conf.
+
+Example:
+localusers			user1@mydomain.com, user2@mydomain2.com
+
+Default: none - per site conf will be used for all users if it exists
+
+
 mailfooter
 -----------------------------------------------------------------------
 This block of text will be appended at the tail of each outgoing mail,
@@ -1135,6 +1194,15 @@ openwebmail
 ##############################################################################
 # default setting for new user's preference
 ##############################################################################
+
+#
+# The following options with leading default_ prefix will set the default 
+# values for options in the preference for the firsttime login user, 
+# and the user may override these values in their user preference.
+#
+# If you want to have some default not being overridden by user,
+# Please change the prefix default_ to DEFAULT_ in the openwebmail.conf.
+#
 
 default_language
 -----------------------------------------------------------------------
@@ -1394,11 +1462,17 @@ be disabled. This prevents user being hijacked to some web site
 by eval javascript
 
 
-default_disableembcgi
+default_disableemblink
 -----------------------------------------------------------------------
-if set this option to 'yes', the embedded CGI in in html message will
-be disabled. This prevents user email addresses being confirmed by
-spammer through the embedded CGIs.
+This is used to disable the embedded links in a message.
+This prevents user email addresses being confirmed by
+spammer through the embedded links.
+
+If this option is set to 'cgionly', only embedded CGIs will be disabled,
+if this option is set to 'all',  all embedded links will be disabled,
+if this option is set to 'none', all embedded links will be kept untouched.
+
+Default: cgionly
 
 
 default_showimgaslink
@@ -1412,6 +1486,12 @@ default_sendreceipt
 -----------------------------------------------------------------------
 whether to sent the receipt for a message with the 'confirm reading'
 request, available value: ask, yes, no
+
+
+default_msgformat
+-----------------------------------------------------------------------
+default format for message
+Available value: auto, text, html, both
 
 
 default_editcolumns
@@ -1572,7 +1652,7 @@ default position of continue and cancel buttons in addresbook popup window
 values: before, after, both
 
 
-default_abook_usedefaultfilter
+default_abook_defaultfilter
 -----------------------------------------------------------------------
 enable or disable default filter in addressbook popup window.
 values: yes, no

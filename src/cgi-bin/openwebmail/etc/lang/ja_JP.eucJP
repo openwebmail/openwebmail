@@ -40,6 +40,14 @@ package openwebmail::ja_JP_Shift_JIS;
    'non-urgent'=> '緊急でない'
    );
 
+%lang_msgformatlabels =
+   (
+   auto => 'Auto selected',
+   text	=> 'Text',
+   html => 'HTML',
+   both => 'HTML and Text'
+   );
+
 %lang_withoriglabels =
    (
    at_beginning => '最初に',
@@ -52,6 +60,13 @@ package openwebmail::ja_JP_Shift_JIS;
    ask => '確認してください',
    yes => 'はい',
    no  => 'いいえ'
+   );
+
+%lang_disableemblinklabels =
+   (
+   none    => 'None',
+   cgionly => 'CGI only',
+   all     => 'All embedded URLs'
    );
 
 %lang_ctrlpositionlabels =
@@ -188,6 +203,7 @@ package openwebmail::ja_JP_Shift_JIS;
 
 %lang_text =
    (
+   loading    => 'Loading, please wait',
    help       => 'ヘルプ',
    login      => 'ログイン',
    clear      => '消去',
@@ -232,6 +248,7 @@ package openwebmail::ja_JP_Shift_JIS;
    forwardasatt=>'添付ファイルとして転送',
    forwardasorig=>'オリジナルファイルとして転送',
    printfriendly=> '印刷',
+   msgformat  => 'MsgFormat',
    from       => 'から',
    replyto    => '返信',
    to         => '宛先',
@@ -344,6 +361,7 @@ package openwebmail::ja_JP_Shift_JIS;
    calfmt_yearmonthday  => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@',
    calfmt_yearmonthdaywday => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@ @@@WEEKDAY_STR@@@',
    calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
+   autosel    => 'Auto selected',
    none       => 'なし',
    moreitems  => 'ほかの項目',
    multieditconf => 'このアイテムが多くの日付に追加されました。\\nそれを編集するとすべての日付におけるアイテムが変更されます。\\n編集を続行しますか？',
@@ -388,8 +406,9 @@ package openwebmail::ja_JP_Shift_JIS;
    vdomain_createuser => 'ユーザーの作成',
    vdomain_changeuser => 'ユーザーの変更',
    vdomain_deleteuser => 'ユーザーの削除',
-   vdomain_usertype_localmbox  => 'ローカルメールボックス',
-   vdomain_usertype_redirected => '外部メールアドレスへのリダイレクト'
+   set_passwd         => 'Set Password',
+   reset_passwd       => 'Reset Password',
+   email_alias        => 'E-MAIL Alias'
    );
 
 %lang_err =
@@ -452,7 +471,9 @@ package openwebmail::ja_JP_Shift_JIS;
    quotahit_delmail  => '警告：割り当て制限(@@@QUOTALIMIT@@@)に達しましたので、フォルダーの一番古いファイルは自動的に削除されます。',
    quotahit_delfile  => '警告：割り当て制限(@@@QUOTALIMIT@@@)に達しましたので、ウェブデスクのいくつかのファイルは自動的に削除されました。',
    spool_overlimit   => '受信箱がスプールリミット(@@@SPOOLLIMIT@@@)を超えました。メッセージをいくつか受信箱から他のファイルへ移してください。',
-   vdomain_toomanyuser=> 'このドメインのユーザーカウントが最大制限に達しました。'
+   vdomain_toomanyuser  => 'このドメインのユーザーカウントが最大制限に達しました。',
+   vdomain_toomanyalias => 'Sorry, the E-MAIL alias count of this user has reached its maximum limit',
+   vdomain_userrequired => 'A user name is required'
    );
 
 1;

@@ -37,6 +37,7 @@ use CGI::Carp qw(fatalsToBrowser carpout);
 
 require "ow-shared.pl";
 require "filelock.pl";
+require "mime.pl";
 
 # common globals
 use vars qw(%config %config_raw %default_config %default_config_raw);
@@ -51,7 +52,9 @@ use vars qw(@openwebmailrcitem);	# defined in ow-shared.pl
 use vars qw(%lang_text %lang_err);	# defined in lang/xy
 
 ####################### MAIN ##########################
-clearvars();
+openwebmail_requestbegin();
+$SIG{PIPE}=\&openwebmail_exit;	# for user stop
+$SIG{TERM}=\&openwebmail_exit;	# for user stop
 
 if (!defined(%default_config_raw)) {	# read default only once if persistent mode
    readconf(\%default_config, \%default_config_raw, "$SCRIPT_DIR/etc/openwebmail.conf.default");
@@ -66,7 +69,7 @@ foreach my $table ('b2g', 'g2b', 'lunar') {
         ! -f "$config{'ow_etcdir'}/$table$config{'dbm_ext'}") {
       print qq|Content-type: text/html\n\n|.
             qq|Please execute '$config{'ow_cgidir'}/openwebmail-tool.pl --init' on server first!|; 
-      exit 0;
+      openwebmail_exit(0);
    }
 }
 
@@ -75,7 +78,7 @@ if ( ($config{'logfile'} ne 'no') ) {
    my ($fmode, $fuid, $fgid) = (stat($config{'logfile'}))[2,4,5];
    if ( !($fmode & 0100000) ) {
       open (LOGFILE,">>$config{'logfile'}") or
-         openwebmailerror("$lang_err{'couldnt_open'} $lang_text{'file'} $config{'logfile'}! ($!)");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $lang_text{'file'} $config{'logfile'}! ($!)");
       close(LOGFILE);
    }
    chmod(0660, $config{'logfile'}) if (($fmode&0660)!=0660);
@@ -93,7 +96,7 @@ if ( $config{'forced_ssl_login'} &&	# check the forced use of SSL
    } else {
       # reload page with java script if MSIE on Mac
       $js=qq|<script language="JavaScript">\n<!--\n|.
-          qq|setTimeout("window.open('$start_url','_self')", 1*5000);\n|.
+          qq|setTimeout("window.location.href='$start_url'", 5000);\n|.
           qq|//-->\n</script>|;
    }
    print qq|Content-type: text/html\n\n|.
@@ -102,7 +105,7 @@ if ( $config{'forced_ssl_login'} &&	# check the forced use of SSL
          qq|you will be redirected to <a href="$start_url">SSL login</a> page in 5 seconds...\n|.
          qq|$js\n|.
          qq|</body></html>\n|; 
-   exit 0;
+   openwebmail_exit(0);
 }
 
 if ( param('loginname') && param('password') ) {
@@ -111,8 +114,7 @@ if ( param('loginname') && param('password') ) {
    loginmenu();
 }
 
-# back to root if possible, required for setuid under persistent perl
-$<=0; $>=0;
+openwebmail_requestend();
 ##################### END MAIN ########################
 
 ##################### LOGINMENU ######################
@@ -122,14 +124,14 @@ sub loginmenu {
    $logindomain=lc(safedomainname($logindomain));
    $logindomain=$config{'domainname_equiv'}{'map'}{$logindomain} if (defined($config{'domainname_equiv'}{'map'}{$logindomain}));
    if (!is_serverdomain_allowed($logindomain)) {
-      openwebmailerror("Service is not available for domain  ' $logindomain '");
+      openwebmailerror(__FILE__, __LINE__, "Service is not available for domain  '$logindomain'");
    }
 
    readconf(\%config, \%config_raw, "$config{'ow_sitesconfdir'}/$logindomain") if ( -f "$config{'ow_sitesconfdir'}/$logindomain");
    if ( $>!=0 &&	# setuid is required if spool is located in system dir
        ($config{'mailspooldir'} eq "/var/mail" || 
         $config{'mailspooldir'} eq "/var/spool/mail")) {
-      print "Content-type: text/html\n\n'$0' must setuid to root"; exit 0;
+      print "Content-type: text/html\n\n'$0' must setuid to root"; openwebmail_exit(0);
    }
 
    %prefs = readprefs();
@@ -137,8 +139,7 @@ sub loginmenu {
    readlang($prefs{'language'});
 
    my ($html, $temphtml);
-   $html = readtemplate("login.template");
-   $html = applystyle($html);
+   $html = applystyle(readtemplate("login.template"));
 
    $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail.pl",
                          -name=>'login');
@@ -149,19 +150,11 @@ sub loginmenu {
    }
    $html =~ s/\@\@\@STARTFORM\@\@\@/$temphtml/;
 
-   if (cookie("openwebmail-rememberme")) {
-      $temphtml = textfield(-name=>'loginname',
-                            -default=>cookie("openwebmail-loginname"),
-                            -size=>'12',
-                            -onChange=>'focuspwd()',
-                            -override=>'1');
-   } else {
-      $temphtml = textfield(-name=>'loginname',
-                            -default=>'' ,
-                            -size=>'12',
-                            -onChange=>'focuspwd()',
-                            -override=>'1');
-   }
+   $temphtml = textfield(-name=>'loginname',
+                         -default=>'' ,
+                         -size=>'12',
+                         -onChange=>'focuspwd()',
+                         -override=>'1');
    $html =~ s/\@\@\@LOGINNAMEFIELD\@\@\@/$temphtml/;
 
    $temphtml = password_field(-name=>'password',
@@ -171,11 +164,20 @@ sub loginmenu {
                               -override=>'1');
    $html =~ s/\@\@\@PASSWORDFIELD\@\@\@/$temphtml/;
 
-   $temphtml = checkbox(-name=>'rememberme',
-                        -value=>'1',
-                        -checked=>cookie("openwebmail-rememberme")||0,
-                        -label=>'');
-   $html =~ s/\@\@\@REMEMBERMECHECKBOX\@\@\@/$temphtml/;
+   if ( $ENV{'HTTP_ACCEPT_ENCODING'}=~/\bgzip\b/ && has_zlib() ) {
+      $temphtml = checkbox(-name=>'httpcompress',
+                           -value=>'1',
+                           -checked=>cookie("openwebmail-httpcompress")||0,
+                           -onClick=>'httpcompresshelp()',
+                           -label=>'');
+   } else {
+      $temphtml = checkbox(-name=>'httpcompress',
+                           -value=>'1',
+                           -checked=>0,
+                           -disabled=>1,
+                           -label=>'');
+   }
+   $html =~ s/\@\@\@HTTPCOMPRESSIONCHECKBOX\@\@\@/$temphtml/;
 
    if ( $#{$config{'domainnames'}} >0 && $config{'enable_domainselectmenu'} ) {
       $temphtml = popup_menu(-name=>'logindomain',
@@ -198,7 +200,9 @@ sub loginmenu {
    $temphtml = end_form();
    $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/;
 
-   print htmlheader(), $html, htmlfooter(1);
+   # undef env to prevent httpprint() doing compression on login page
+   undef $ENV{'HTTP_ACCEPT_ENCODING'};
+   httpprint([], [htmlheader(), $html, htmlfooter(1)]);
 }
 ################### END LOGINMENU ####################
 
@@ -209,14 +213,16 @@ sub login {
 
    ($logindomain, $loginuser)=login_name2domainuser($loginname, $default_logindomain);
    if (!is_serverdomain_allowed($logindomain)) {
-      openwebmailerror("Service is not available for domain  ' $logindomain '");
+      openwebmailerror(__FILE__, __LINE__, "Service is not available for domain  '$logindomain'");
    }
 
-   readconf(\%config, \%config_raw, "$config{'ow_sitesconfdir'}/$logindomain") if ( -f "$config{'ow_sitesconfdir'}/$logindomain");
+   if (!is_localuser("$loginuser\@$logindomain") && -f "$config{'ow_sitesconfdir'}/$logindomain") {
+      readconf(\%config, \%config_raw, "$config{'ow_sitesconfdir'}/$logindomain");
+   }
    if ( $>!=0 &&	# setuid is required if spool is located in system dir
        ($config{'mailspooldir'} eq "/var/mail" || 
         $config{'mailspooldir'} eq "/var/spool/mail")) {
-      print "Content-type: text/html\n\n'$0' must setuid to root"; exit 0;
+      print "Content-type: text/html\n\n'$0' must setuid to root"; openwebmail_exit(0);
    }
    loadauth($config{'auth_module'});
 
@@ -226,7 +232,7 @@ sub login {
       my ($fmode, $fuid, $fgid) = (stat($config{'logfile'}))[2,4,5];
       if ( !($fmode & 0100000) ) {
          open (LOGFILE,">>$config{'logfile'}") or
-            openwebmailerror("$lang_err{'couldnt_open'} $lang_text{'file'} $config{'logfile'}! ($!)");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $lang_text{'file'} $config{'logfile'}! ($!)");
          close(LOGFILE);
       }
       chmod(0660, $config{'logfile'}) if (($fmode&0660)!=0660);
@@ -245,26 +251,31 @@ sub login {
 				=get_domain_user_userinfo($logindomain, $loginuser);
    if ($user eq "") {
       sleep $config{'loginerrordelay'};	# delayed response
-      writelog("login error - no such user - loginname=$loginname ");
-
+      writelog("login error - no such user - loginname=$loginname");
       # show 'pwd incorrect' instead of 'user not exist' for better security
-      my $html = readtemplate("loginfailed.template");
-      $html = applystyle($html);
+      my $html = applystyle(readtemplate("loginfailed.template"));
       $html =~ s/\@\@\@ERRORMSG\@\@\@/$lang_err{'pwd_incorrect'}/;
-      print htmlheader(), $html, htmlfooter(1);
+      httpprint([], [htmlheader(), $html, htmlfooter(1)]);
       return;
    }
    if (! $config{'enable_rootlogin'}) {
       if ($user eq 'root' || $uuid==0) {
          sleep $config{'loginerrordelay'};	# delayed response
          writelog("login error - root login attempt");
-         openwebmailerror ("$lang_err{'norootlogin'}");
+         my $html = applystyle(readtemplate("loginfailed.template"));
+         $html =~ s/\@\@\@ERRORMSG\@\@\@/$lang_err{'norootlogin'}/;
+         httpprint([], [htmlheader(), $html, htmlfooter(1)]);
+         return;
       }
    }
 
    my $userconf="$config{'ow_usersconfdir'}/$user";
    $userconf="$config{'ow_usersconfdir'}/$domain/$user" if ($config{'auth_withdomain'});
    readconf(\%config, \%config_raw, "$userconf") if ( -f "$userconf");
+
+   if (!is_serverdomain_allowed($logindomain)) {
+      openwebmailerror(__FILE__, __LINE__, "Service is not available for $loginuser at '$logindomain'");
+   }
 
    if ( !$config{'use_syshomedir'} ) {
       $homedir="$config{'ow_usersdir'}/$user";
@@ -275,7 +286,7 @@ sub login {
             my $mailgid=getgrnam('mail');
             ($domainhome =~ /^(.+)$/) && ($domainhome = $1);	# untaint...
             mkdir($domainhome, 0750);
-            openwebmailerror("Couldn't create domain homedir $domainhome") if (! -d $domainhome);
+            openwebmailerror(__FILE__, __LINE__, "Couldn't create domain homedir $domainhome") if (! -d $domainhome);
             chown($uuid, $mailgid, $domainhome);
          }
          $homedir = "$domainhome/$user";
@@ -302,7 +313,7 @@ sub login {
          }
       }
       if (!$allowed) {
-         openwebmailerror($lang_err{'disallowed_client'}." ( ip:$clientip )");
+         openwebmailerror(__FILE__, __LINE__, $lang_err{'disallowed_client'}." ( ip:$clientip )");
       }
    }
    # validate client domain
@@ -322,7 +333,7 @@ sub login {
          }
       }
       if (!$allowed) {
-         openwebmailerror($lang_err{'disallowed_client'}." ( hotname:$clientdomain )");
+         openwebmailerror(__FILE__, __LINE__, $lang_err{'disallowed_client'}." ( hotname:$clientdomain )");
       }
    }
 
@@ -343,7 +354,7 @@ sub login {
       if ($thissession =~ /^([\w\.\-\%\@]+\*[\w\.\-]*\-session\-0\.\d+)$/) {
          $thissession = $1; # untaint
       } else {
-         openwebmailerror("Session ID $thissession $lang_err{'has_illegal_chars'}");
+         openwebmailerror(__FILE__, __LINE__, "Session ID $thissession $lang_err{'has_illegal_chars'}");
       }
       writelog("login - $thissession");
 
@@ -353,7 +364,7 @@ sub login {
          my $olddir="$config{'ow_usersdir'}/$user\@$domain";
          ($olddir =~ /^(.+)$/) && ($olddir = $1);
          rename($olddir, $homedir) or
-            openwebmailerror("$lang_text{'rename'} $olddir to $homedir $lang_text{'failed'} ($!)");
+            openwebmailerror(__FILE__, __LINE__, "$lang_text{'rename'} $olddir to $homedir $lang_text{'failed'} ($!)");
          writelog("release upgrade - rename $olddir to $homedir by 20030323");
       }
 
@@ -381,19 +392,19 @@ sub login {
       # this must be done before changing to the user's uid.
       if (($config{'create_syshomedir'} || !$config{'use_syshomedir'}) 
           && !-d $homedir ) {
-         if (mkdir ("$homedir", oct(700)) && chown($uuid, $ugid, $homedir)) {
-            writelog("create homedir - $homedir, uid=$uuid, gid=$ugid");
+         if (mkdir ("$homedir", oct(700)) && chown($uuid, (split(/\s+/,$ugid))[0], $homedir)) {
+            writelog("create homedir - $homedir, uid=$uuid, gid=".(split(/\s+/,$ugid))[0]);
          } else {
-            openwebmailerror("$lang_err{'cant_create_dir'} $homedir ($!)");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'cant_create_dir'} $homedir ($!)");
          }
       }
 
       umask(0077);
       if ( $>==0 ) {			# switch to uuid:mailgid if script is setuid root.
          my $mailgid=getgrnam('mail');	# for better compatibility with other mail progs
-         set_euid_egids($uuid, $mailgid, $ugid); 
-         if ( $) != $mailgid) {	# group mail doesn't exist?
-            openwebmailerror("Set effective gid to mail($mailgid) failed!");
+         set_euid_egids($uuid, $mailgid, split(/\s+/,$ugid)); 
+         if ( $)!~/\b$mailgid\b/) {	# group mail doesn't exist?
+            openwebmailerror(__FILE__, __LINE__, "Set effective gid to mail($mailgid) failed!");
          }
       }
 
@@ -402,7 +413,7 @@ sub login {
          if (mkdir ("$folderdir", oct(700))) {
             writelog("create folderdir - $folderdir, euid=$>, egid=$)");
          } else {
-            openwebmailerror("$lang_err{'cant_create_dir'} $folderdir ($!)");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'cant_create_dir'} $folderdir ($!)");
          }
 
          # mv folders from $homedir to $folderdir($homedir/mail/) for old ow_usersdir
@@ -427,7 +438,7 @@ sub login {
       if ( ! -f "$spoolfile" ) {
          ($spoolfile =~ /^(.+)$/) && ($spoolfile = $1); # untaint ...
          open (F, ">>$spoolfile"); close(F);
-         chown($uuid, $ugid, $spoolfile);
+         chown($uuid, (split(/\s+/,$ugid))[0], $spoolfile);
       }
 
       # create session file
@@ -438,7 +449,7 @@ sub login {
          $sessioncookie_value = crypt(rand(),'OW');
       }
       open (SESSION, "> $config{'ow_sessionsdir'}/$thissession") or # create sessionid
-         openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}/$thissession! ($!)");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}/$thissession! ($!)");
       print SESSION $sessioncookie_value, "\n";
       print SESSION get_clientip(), "\n";
       print SESSION join("\@\@\@", $domain, $user, $userrealname, $uuid, $ugid, $homedir), "\n";
@@ -479,28 +490,29 @@ sub login {
          ($authpop3book =~ /^(.+)$/) && ($authpop3book = $1);  # untaint ...
 
          if ($config{'getmail_from_pop3_authserver'}) {
-            my ($pop3host, $pop3user, $pop3pass, $pop3lastid, $pop3del, $enable);
-            my $login=$user;
-            $login .= "\@$domain" if ($config{'auth_withdomain'});
-
+            my ($pop3host,$pop3port, $pop3user,$pop3passwd, $pop3del,$enable);
+            my $login=$user; $login .= "\@$domain" if ($config{'auth_withdomain'});
             if ( -f "$authpop3book") {
-               open(F, "$authpop3book");
-               $_=<F>; chomp;
-               ($pop3host,$pop3user,$pop3pass,$pop3lastid,$pop3del,$enable)=split(/\@\@\@/, $_);
-               close(F);
+                my %accounts;
+                readpop3book("$authpop3book", \%accounts);
+                ($pop3host,$pop3port, $pop3user,$pop3passwd, ,$pop3del,$enable)
+                   =split(/\@\@\@/, $accounts{"$config{'pop3_authserver'}:$config{'pop3_authport'}\@\@\@$login"});
             }
 
             if ($pop3host ne $config{'pop3_authserver'} ||
+                $pop3port ne $config{'pop3_authport'} ||
                 $pop3user ne $login ||
-                $pop3pass ne $password) {
-               if ($pop3host ne $config{'pop3_authserver'} || $pop3user ne $login) {
-                  $pop3lastid="none";
-                  $pop3del=$config{'delpop3mail_by_default'};
+                $pop3passwd ne $password ||
+                $pop3del ne $config{'delpop3mail_by_default'} ) {
+               if ($pop3host ne $config{'pop3_authserver'} || 
+                   $pop3port ne $config{'pop3_authport'} || 
+                   $pop3user ne $login ) {
                   $enable=1;
                }
-               open(F, ">$authpop3book");
-               print F "$config{'pop3_authserver'}\@\@\@$login\@\@\@$password\@\@\@$pop3lastid\@\@\@$pop3del\@\@\@$enable";
-               close(F);
+               my %accounts;
+               $accounts{"$config{'pop3_authserver'}:$config{'pop3_authport'}\@\@\@$login"}
+                  ="$config{'pop3_authserver'}\@\@\@$config{'pop3_authport'}\@\@\@$login\@\@\@$password\@\@\@$config{'delpop3mail_by_default'}\@\@\@$enable";
+               writepop3book("$authpop3book", \%accounts);
             }
          } else {
             unlink("$authpop3book");
@@ -509,30 +521,29 @@ sub login {
 
       # set cookie in header and redirect page to openwebmail-main
       my $action=param('action');
-      my $url;
+      my $refreshurl;
       if ( ! -f "$folderdir/.openwebmailrc" ) {
-         $url="$config{'ow_cgiurl'}/openwebmail-prefs.pl?sessionid=$thissession&action=userfirsttime";
+         $refreshurl="$config{'ow_cgiurl'}/openwebmail-prefs.pl?sessionid=$thissession&action=userfirsttime";
       } elsif ( $action eq 'composemessage' ) {
          my $to=param('to'); 
          $to =~ s!^mailto\:!!; # IE passes mailto: with mailaddr to mail client
          my $subject=param('subject');
-         $url="$config{'ow_cgiurl'}/openwebmail-send.pl?sessionid=$thissession&action=composemessage&to=$to&subject=$subject";
+         $refreshurl="$config{'ow_cgiurl'}/openwebmail-send.pl?sessionid=$thissession&action=composemessage&to=$to&subject=$subject";
       } elsif ( $action eq 'calyear' || $action eq 'calmonth' ||
                 $action eq 'calweek' || $action eq 'calday' ) {
-         $url="$config{'ow_cgiurl'}/openwebmail-cal.pl?sessionid=$thissession&action=$action";
+         $refreshurl="$config{'ow_cgiurl'}/openwebmail-cal.pl?sessionid=$thissession&action=$action";
       } elsif ( $action eq 'showdir' ) {
-         $url="$config{'ow_cgiurl'}/openwebmail-webdisk.pl?sessionid=$thissession&action=$action";
+         $refreshurl="$config{'ow_cgiurl'}/openwebmail-webdisk.pl?sessionid=$thissession&action=$action";
+      } elsif ( $action eq 'editfolders' ) {
+         $refreshurl="$config{'ow_cgiurl'}/openwebmail-folder.pl?sessionid=$thissession&action=$action";
       } else {
-         $url="$config{'ow_cgiurl'}/openwebmail-main.pl?sessionid=$thissession&action=listmessages_afterlogin";
+         $refreshurl="$config{'ow_cgiurl'}/openwebmail-main.pl?sessionid=$thissession&action=listmessages_afterlogin";
       }
 
       if ( !$config{'stay_ssl_afterlogin'} &&	# leave SSL
            ($ENV{'HTTPS'}=~/on/i || $ENV{'SERVER_PORT'}==443) ) {
-         $url="http://$ENV{'HTTP_HOST'}$url" if ($url!~s!^https?://!http://!i);
+         $refreshurl="http://$ENV{'HTTP_HOST'}$refreshurl" if ($refreshurl!~s!^https?://!http://!i);
       }
-
-      my @headers=();
-      push(@headers, -pragma=>'no-cache');
 
       # cookie for openwebmail to verify session, expired if browser closed
       my $cookie1 = cookie( -name  => "$user-sessionid",
@@ -543,9 +554,9 @@ sub login {
                             -value => "$loginname",
                             -path  => '/',
                             -expires => "+1M" );
-      # cookie for remember loginname switch, expired until 1 month later
-      my $cookie3 = cookie( -name  => "openwebmail-rememberme",
-                            -value => param('rememberme')||'',
+      # cookie for httpcompress switch, expired until 1 month later
+      my $cookie3 = cookie( -name  => "openwebmail-httpcompress",
+                            -value => param('httpcompress')||'',
                             -path  => '/',
                             -expires => "+1M" );
       # cookie for ssl session, expired if not same session
@@ -555,72 +566,76 @@ sub login {
                                        0),
                             -path  => '/');
 
-      push(@headers, -cookie=>[$cookie1, $cookie2, $cookie3, $cookie4]);
-      push(@headers, -charset=>$prefs{'charset'}) if ($CGI::VERSION>=2.57);
-      print header(@headers);
-
-      my ($refresh, $js)=('','');;
+      my ($js, $repeatstr)=('', 'no-repeat');
+      my @header=(-cookie=>[$cookie1, $cookie2, $cookie3, $cookie4]);
       if ($ENV{'HTTP_USER_AGENT'}!~/MSIE.+Mac/) {
          # reload page with Refresh header only if not MSIE on Mac
-         $refresh=qq|<meta http-equiv="refresh" content="0;URL=$url">|;
+         push(@header, -refresh=>"0.1;URL=$refreshurl");
       } else {
-         # reload page with java script if MSIE on Mac
+         # reload page with java script in 0.1 sec
          $js=qq|<script language="JavaScript">\n<!--\n|.
-             qq|setTimeout("window.open('$url','_self')", 1*1000);\n|.
+             qq|setTimeout("window.location.href='$refreshurl'", 100);\n|.
              qq|//-->\n</script>|;
       }
+      $repeatstr='repeat' if ($prefs{'bgrepeat'});
+
       # display copyright. Don't touch it, please.
-      my $repeatstr=($prefs{'bgrepeat'})?'repeat':'no-repeat';
-      print	qq|<html>\n|,
-		qq|<head><title>Copyright</title>$refresh</head>\n|,
-		qq|<body bgcolor="#ffffff" background="$prefs{'bgurl'}">\n|,
-		qq|<style type="text/css"><!--\n|,
-		qq|body { background-image: url($prefs{'bgurl'}); background-repeat: $repeatstr; }\n|,
-		qq|--></style>\n|,
-                qq|<center><br><br><br>\n|,
-                qq|<a href="$url" title="click to next page..." style="text-decoration: none">|,
-		qq|<font color="#888888"> &nbsp; Loading . . .</font></a>\n|,
-		qq|<br><br><br>\n\n|.
-                qq|<a href="http://openwebmail.org/" title="click to home of $config{'name'}" style="text-decoration: none">\n|,
-		qq|<font color="#cccccc" face="arial,helvetica,sans-serif" size=-1>\n|,
-                qq|$config{'name'} $config{'version'} $config{'releasedate'}<br><br>\n|,
-		qq|Copyright (C) 2001-2003<br>\n|,
-		qq|Chung-Kie Tung, Nai-Jung Kuo, Chao-Chiu Wang, Emir Litric, Thomas Chung, Dattola Filippo, Bernd Bass<br><br>\n|,
-		qq|Copyright (C) 2000<br>\n|,
-		qq|Ernie Miller  (original GPL project: Neomail)<br><br>\n|,
-		qq|</font></a>\n\n|,
-                qq|<a href="http://openwebmail.org/openwebmail/download/doc/copyright.txt" title="click to see GPL version 2 licence" style="text-decoration: none">\n|,
-		qq|<font color="#cccccc" face="arial,helvetica,sans-serif" size=-1>\n|,
-		qq|This program is free software; you can redistribute it and/or modify<br>\n|,
-		qq|it under the terms of the version 2 of GNU General Public License<br>\n|,
-		qq|as published by the Free Software Foundation<br><br>\n|,
-		qq|This program is distributed in the hope that it will be useful,<br>\n|,
-		qq|but WITHOUT ANY WARRANTY; without even the implied warranty of<br>\n|,
-		qq|MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.<br>\n|,
-		qq|See the GNU General Public License for more details.<br><br>\n|,
-		qq|Removal or change of this copyright is prohibited.\n|,
-		qq|</font></a>\n|,
-                qq|$js\n|,
-                qq|</center></body></html>\n|;
+      httpprint(\@header,
+      		[qq|<html>\n|.
+		 qq|<head><title>Copyright</title></head>\n|.
+		 qq|<body bgcolor="#ffffff" background="$prefs{'bgurl'}">\n|.
+		 qq|<style type="text/css"><!--\n|.
+		 qq|body {\n|.
+                 qq|background-image: url($prefs{'bgurl'});\n|.
+                 qq|background-repeat: $repeatstr;\n|.
+                 qq|font-family: Arial,Helvetica,sans-serif; font-size: 10pt; font-color: #cccccc\n|.
+                 qq|}\n|.
+                 qq|A:link    { color: #cccccc; text-decoration: none }\n|.
+                 qq|A:visited { color: #cccccc; text-decoration: none }\n|.
+                 qq|A:hover   { color: #666666; text-decoration: none }\n|.
+		 qq|--></style>\n|.
+		 qq|<center><br><br><br>\n|.
+		 qq|<a href="$refreshurl" title="click to next page" style="text-decoration: none">|.
+		 qq|<font color="#666666"> &nbsp; $lang_text{'loading'} ...</font></a>\n|.
+		 qq|<br><br><br>\n\n|.
+		 qq|<a href="http://openwebmail.org/" title="click to home of $config{'name'}" target="_blank" style="text-decoration: none">\n|.
+		 qq|$config{'name'} $config{'version'} $config{'releasedate'}<br><br>\n|.
+		 qq|Copyright (C) 2001-2003<br>\n|.
+		 qq|Chung-Kie Tung, Nai-Jung Kuo, Chao-Chiu Wang, Emir Litric,<br>|.
+                 qq|Thomas Chung, Dattola Filippo, Bernd Bass, Scott Mazur<br><br>\n|.
+		 qq|Copyright (C) 2000<br>\n|.
+		 qq|Ernie Miller  (original GPL project: Neomail)<br><br>\n|.
+		 qq|</a>\n\n|.
+		 qq|<a href="$config{'ow_htmlurl'}/doc/copyright.txt" title="click to see GPL version 2 licence" target="_blank" style="text-decoration: none">\n|.
+		 qq|This program is free software; you can redistribute it and/or modify<br>\n|.
+		 qq|it under the terms of the version 2 of GNU General Public License<br>\n|.
+		 qq|as published by the Free Software Foundation<br><br>\n|.
+		 qq|This program is distributed in the hope that it will be useful,<br>\n|.
+		 qq|but WITHOUT ANY WARRANTY; without even the implied warranty of<br>\n|.
+		 qq|MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.<br>\n|.
+		 qq|See the GNU General Public License for more details.<br><br>\n|.
+		 qq|Removal or change of this copyright is prohibited.\n|.
+		 qq|</a>\n|.
+		 qq|$js\n|.
+		 qq|</center></body></html>\n|] );
 
    } else { # Password is INCORRECT
       writelog("login error - $config{'auth_module'}, ret $errorcode, $errormsg");
       umask(0077);
       if ( $>==0 ) {	# switch to uuid:mailgid if script is setuid root.
          my $mailgid=getgrnam('mail');
-         set_euid_egids($uuid, $mailgid, $ugid);
+         set_euid_egids($uuid, $mailgid, split(/\s+/,$ugid));
       }
       if ( -d $folderdir) {
          if ( ! -f "$folderdir/.history.log" ) {
             open(HISTORYLOG, ">>$folderdir/.history.log");
             close(HISTORYLOG);
-            chown($uuid, $ugid, "$folderdir/.history.log");
+            chown($uuid, (split(/\s+/,$ugid))[0], "$folderdir/.history.log");
          }
          writehistory("login error - $config{'auth_module'}, ret $errorcode, $errormsg");
       }
 
-      my $html = readtemplate("loginfailed.template");
-      $html = applystyle($html);
+      my $html = applystyle(readtemplate("loginfailed.template"));
 
       my $webmsg;
       if ($errorcode==-1) {
@@ -637,7 +652,7 @@ sub login {
       $html =~ s/\@\@\@ERRORMSG\@\@\@/$webmsg/;
 
       sleep $config{'loginerrordelay'};	# delayed response
-      print htmlheader(), $html, htmlfooter(1);
+      httpprint([], [htmlheader(), $html, htmlfooter(1)]);
    }
 }
 
@@ -683,7 +698,7 @@ sub search_and_cleanoldsessions {
    my @delfiles;
 
    opendir (SESSIONSDIR, "$config{'ow_sessionsdir'}") or
-      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}! ($!)");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}! ($!)");
    my $t=time();
    while (defined($sessionid = readdir(SESSIONSDIR))) {
       if ($sessionid =~ /^(.+\-session\-0.*)$/) {
@@ -736,7 +751,7 @@ sub releaseupgrade {
       if ( -f "$folderdir/.filter.book" ) {
          $content="";
          filelock("$folderdir/.filter.book", LOCK_EX) or
-            openwebmailerror("$lang_err{'couldnt_lock'} $folderdir/.filter.book");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $folderdir/.filter.book");
          open(F, "$folderdir/.filter.book");
          while (<F>) {
             chomp;
@@ -762,7 +777,7 @@ sub releaseupgrade {
       if ( -f "$folderdir/.pop3.book" ) {
          $content="";
          filelock("$folderdir/.pop3.book", LOCK_EX) or
-            openwebmailerror("$lang_err{'couldnt_lock'} $folderdir/.pop3.book");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $folderdir/.pop3.book");
          open(F, "$folderdir/.pop3.book");
          while (<F>) {
             chomp;
@@ -778,7 +793,7 @@ sub releaseupgrade {
             } else {
                ($pop3host, $pop3user, $pop3passwd, $pop3lastid, $pop3del, $enable) =@a;
             }
-            $content.="$pop3host\@\@\@$pop3user\@\@\@$pop3passwd\@\@\@$pop3lastid\@\@\@$pop3del\@\@\@$enable\n";
+            $content.="$pop3host\@\@\@$pop3user\@\@\@$pop3passwd\@\@\@RESERVED\@\@\@$pop3del\@\@\@$enable\n";
          }
          close(F);
          if ($content ne "") {
@@ -797,7 +812,7 @@ sub releaseupgrade {
          if ( -f "$folderdir/$book" ) {
             $content="";
             filelock("$folderdir/$book", LOCK_EX) or
-               openwebmailerror("$lang_err{'couldnt_lock'} $folderdir/$book");
+               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $folderdir/$book");
             open(F, "$folderdir/$book");
             while (<F>) {
                last if (/\@\@\@/);
@@ -821,7 +836,7 @@ sub releaseupgrade {
       my @cachefiles;
       my $file;
       opendir (FOLDERDIR, "$folderdir") or
-         openwebmailerror("$lang_err{'couldnt_open'} $folderdir ($!)");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir ($!)");
       while (defined($file = readdir(FOLDERDIR))) {
          if ($file=~/^(\..+\.cache)$/) {
             $file="$folderdir/$1";
@@ -847,11 +862,11 @@ sub releaseupgrade {
          next if ( ! -f "$headerdb$config{'dbm_ext'}" || -z "$headerdb$config{'dbm_ext'}" );
 
          filelock($folderfile, LOCK_SH) or
-            openwebmailerror("$lang_err{'couldnt_locksh'} $folderfile");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $folderfile");
          open (FOLDER, $folderfile);
          if (!$config{'dbmopen_haslock'}) {
             filelock("$headerdb$config{'dbm_ext'}", LOCK_EX) or
-               openwebmailerror("$lang_err{'couldnt_lock'} $headerdb$config{'dbm_ext'}");
+               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $headerdb$config{'dbm_ext'}");
          }
          dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", 0600);
 
@@ -917,10 +932,9 @@ sub releaseupgrade {
 
          if (!$config{'dbmopen_haslock'}) {
             filelock("$headerdb$config{'dbm_ext'}", LOCK_EX) or
-               openwebmailerror("$lang_err{'couldnt_lock'} $headerdb$config{'dbm_ext'}");
+               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $headerdb$config{'dbm_ext'}");
          }
          dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", 0600);
-
          @messageids=keys %HDB;
          foreach my $id (@messageids) {
             next if ( $id eq 'METAINFO'
@@ -963,11 +977,11 @@ sub releaseupgrade {
          next if ( ! -f "$headerdb$config{'dbm_ext'}" || -z "$headerdb$config{'dbm_ext'}" );
 
          filelock($folderfile, LOCK_SH) or
-            openwebmailerror("$lang_err{'couldnt_locksh'} $folderfile");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $folderfile");
          open (FOLDER, $folderfile);
          if (!$config{'dbmopen_haslock'}) {
             filelock("$headerdb$config{'dbm_ext'}", LOCK_EX) or
-               openwebmailerror("$lang_err{'couldnt_lock'} $headerdb$config{'dbm_ext'}");
+               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $headerdb$config{'dbm_ext'}");
          }
          dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", 0600);
 
@@ -1030,10 +1044,9 @@ sub releaseupgrade {
 
          if (!$config{'dbmopen_haslock'}) {
             filelock("$headerdb$config{'dbm_ext'}", LOCK_EX) or
-               openwebmailerror("$lang_err{'couldnt_lock'} $headerdb$config{'dbm_ext'}");
+               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $headerdb$config{'dbm_ext'}");
          }
          dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", 0600);
-
          @messageids=keys %HDB;
          foreach my $id (@messageids) {
             next if ( $id eq 'METAINFO'
@@ -1059,7 +1072,7 @@ sub releaseupgrade {
       if ( -f "$folderdir/.calendar.book" ) {
          my $content='';
          filelock("$folderdir/.calendar.book", LOCK_EX) or
-            openwebmailerror("$lang_err{'couldnt_lock'} $folderdir/.calendar.book");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $folderdir/.calendar.book");
          open(F, "$folderdir/.calendar.book");
          while (<F>) {
             next if (/^#/);
@@ -1089,20 +1102,51 @@ sub releaseupgrade {
       }
    }
 
+   if ( $user_releasedate lt "20030528" ) {
+      if ( -f "$folderdir/.pop3.book" ) {
+         $content="";
+         filelock("$folderdir/.pop3.book", LOCK_EX) or
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $folderdir/.pop3.book");
+         open(F, "$folderdir/.pop3.book");
+         while (<F>) {
+            chomp;
+            my @a=split(/\@\@\@/);
+            my ($pop3host, $pop3port, $pop3user, $pop3passwd, $pop3del, $enable)=@a;
+            if ($pop3port!~/^\d+$/||$pop3port>65535) {	# not port number? old format!
+               ($pop3host, $pop3user, $pop3passwd, $pop3del, $enable)=@a[0,1,2,4,5];
+               $pop3port=110;
+               # not secure, but better than plaintext
+               $pop3passwd=$pop3passwd ^ substr($pop3host,5,length($pop3passwd));
+               $pop3passwd=encode_base64($pop3passwd, '');
+            }
+            $content.="$pop3host\@\@\@$pop3port\@\@\@$pop3user\@\@\@$pop3passwd\@\@\@$pop3del\@\@\@$enable\n";
+         }
+         close(F);
+         if ($content ne "") {
+            writehistory("release upgrade - $folderdir/.pop3.book by 20030528");
+            writelog("release upgrade - $folderdir/.pop3.book by 20030528");
+            open(F, ">$folderdir/.pop3.book");
+            print F $content;
+            close(F);
+         }
+         filelock("$folderdir/.pop3.book", LOCK_UN);
+      }
+   }
+
    my $saverc=0;
    if (-f "$folderdir/.openwebmailrc") {
-      %prefs = readprefs();				# load user old prefs + sys defaults
-      $saverc=1 if ( $user_releasedate lt "20030408" );	# rc upgrade
+      $saverc=1 if ( $user_releasedate lt "20030609" );	# rc upgrade
+      %prefs = readprefs() if ($saverc);		# load user old prefs + sys defaults
    } else {
       $saverc=1 if ($config{'auto_createrc'});		# rc auto create
    }
    if ($saverc) {
       open (RC, ">$folderdir/.openwebmailrc") or 
-         openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.openwebmailrc! ($!)");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir/.openwebmailrc! ($!)");
       foreach my $key (@openwebmailrcitem) {
          print RC "$key=$prefs{$key}\n";
       }
-      close (RC) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.openwebmailrc!");
+      close (RC) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $folderdir/.openwebmailrc!");
    }
 
    return;

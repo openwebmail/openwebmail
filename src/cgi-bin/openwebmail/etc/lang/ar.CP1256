@@ -40,6 +40,14 @@ package openwebmail::ar_CP1256;
    'non-urgent'=> 'ÛíÑ ÚÇÌá'
    );
 
+%lang_msgformatlabels =
+   (
+   auto => 'Auto selected',
+   text	=> 'Text',
+   html => 'HTML',
+   both => 'HTML and Text'
+   );
+
 %lang_withoriglabels =
    (
    at_beginning => 'İí ÇáÈÏÇíÉ',
@@ -52,6 +60,13 @@ package openwebmail::ar_CP1256;
    ask => 'ÇØáÈ ááÊøÃßíÏ',
    yes => 'äÚã',
    no  => 'áÇ'
+   );
+
+%lang_disableemblinklabels =
+   (
+   none    => 'None',
+   cgionly => 'CGI only',
+   all     => 'All embedded URLs'
    );
 
 %lang_ctrlpositionlabels =
@@ -188,6 +203,7 @@ package openwebmail::ar_CP1256;
 
 %lang_text =
    (
+   loading    => 'Loading, please wait',
    help       => 'ÊÚáíãÇÊ¿',
    login      => 'ÊÓÌíá ÇáÏøÎæá',
    clear      => 'Clear',
@@ -232,6 +248,7 @@ package openwebmail::ar_CP1256;
    forwardasatt=>'ãÑÑ ßãáÍŞ',
    forwardasorig=>'Forward as original',
    printfriendly=> 'ãáÇÆã ááØÈÇÚÉ',
+   msgformat  => 'MsgFormat',
    from       => 'ãä',
    replyto    => 'ÃÌÈ Åáì',
    to         => 'Åáì',
@@ -344,6 +361,7 @@ package openwebmail::ar_CP1256;
    calfmt_yearmonthday  => '@@@DAY@@@ @@@MONTH_STR@@@ @@@YEAR@@@',
    calfmt_yearmonthdaywday => '@@@WEEKDAY_STR@@@ @@@DAY@@@ @@@MONTH_STR@@@ @@@YEAR@@@',
    calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
+   autosel    => 'Auto selected',
    none       => 'ÈáÇ',
    moreitems  => 'ÚäÇÕÑ ÃßËÑ',
    multieditconf => 'ÊãÊ ÅÖÇİÉ åĞÇ ÇáÚäÕÑ áÚÏÉ ÊæÇÑíÎ. \\n ÊÚÏíá åĞÇ ÇáÚäÕÑ íÊã ÊØÈíŞå Úáì ßá åĞå ÇáÊæÇÑíÎ\\nÇáÇÓÊãÑÇÑ ÈÇáÊÍÑíÑ¿',
@@ -388,8 +406,9 @@ package openwebmail::ar_CP1256;
    vdomain_createuser => 'Create User',
    vdomain_changeuser => 'Change User',
    vdomain_deleteuser => 'Delete User',
-   vdomain_usertype_localmbox  => 'Local Mailbox',
-   vdomain_usertype_redirected => 'Redirect to external mail address'
+   set_passwd         => 'Set Password',
+   reset_passwd       => 'Reset Password',
+   email_alias        => 'E-MAIL Alias'
    );
 
 %lang_err =
@@ -452,7 +471,9 @@ package openwebmail::ar_CP1256;
    quotahit_delmail  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, oldest messages in folders have been removed automatcially',
    quotahit_delfile  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, some files in the webdisk have been removed automatcially',
    spool_overlimit   => 'Sorry, your INBOX has exceeded the spool limit(@@@SPOOLLIMIT@@@). Please move some messages from INBOX to other folders.',
-   vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
+   vdomain_toomanyuser  => 'Sorry, the user count of this domain has reached its maximum limit',
+   vdomain_toomanyalias => 'Sorry, the E-MAIL alias count of this user has reached its maximum limit',
+   vdomain_userrequired => 'A user name is required'
    );
 
 1;

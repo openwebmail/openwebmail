@@ -806,6 +806,7 @@ sub _recursively_thread {
 	 $r_message_ids, $r_message_depths, $r_thread_children, $r_dateserial);
       }
    }
+   return;
 }
 
 sub get_info_messageids_sorted_by_size {
@@ -1009,11 +1010,14 @@ sub update_message_status {
 
          # update status, flags from rfc2076
          my $status_update = "";
-         $status_update .= "R" if ($status =~ m/r/i); # Read
-         $status_update .= "U" if ($status =~ m/u/i); # undownloaded & not deleted
-         $status_update .= "N" if ($status =~ m/n/i); # New
-         $status_update .= "D" if ($status =~ m/d/i); # to be Deleted
-         $status_update .= "O" if ($status =~ m/o/i); # Old
+         if ($status=~/[ro]/i) {
+            $status_update .= "R" if ($status=~/r/i); # Read
+            $status_update .= "O" if ($status=~/o/i); # Old
+         } else {
+            $status_update .= "N" if ($status=~/n/i); # New
+            $status_update .= "U" if ($status=~/u/i); # still Undownloaded & Undeleted
+         }
+         $status_update .= "D" if ($status=~/d/i); # to be Deleted
          if ($status_update ne "") {
             if (!($header =~ s/^status:.*\n/Status: $status_update\n/im)) {
                $header .= "Status: $status_update\n";
@@ -1287,7 +1291,7 @@ sub delete_message_by_age {
       filelock("$headerdb$config{'dbm_ext'}", LOCK_EX) or return -1;
    }
    dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", 0600);
-   my $agestarttime=gmtime()-$dayage*86400;
+   my $agestarttime=time()-$dayage*86400;
    foreach (@allmessageids) {
       my @attr = split(/@@@/, $HDB{$_});
       push(@agedids, $_) if (dateserial2gmtime($attr[$_DATE])<=$agestarttime); # too old
@@ -1596,7 +1600,7 @@ sub parse_rfc822block {
       if ( $searchid eq "" || $searchid eq "all" || $searchid=~/^$nodeid-0/ ) {
          # Handle uuencode blocks inside a text/plain mail
          if ( $contenttype =~ /^text\/plain/i || $contenttype eq 'N/A' ) {
-            if ( $body =~ /(\nbegin|^begin) ([0-7][0-7][0-7][0-7]?) ([^\n\r]+)\n(.+?)\nend\n/ims ) {
+            if ( $body =~ /(?:\nbegin|^begin) [0-7][0-7][0-7][0-7]? [^\n\r]+\n.+?\nend\n/ims ) {
                my $r_attachments2;
                ($body, $r_attachments2)=parse_uuencode_body($body, "$nodeid-0", $searchid);
                push(@attachments, @{$r_attachments2});
@@ -1844,7 +1848,7 @@ sub parse_uuencode_body {
       $i++;
    }
 
-   $body =~ s/(\nbegin|^begin) ([0-7][0-7][0-7][0-7]?) ([^\n\r]+)\n(.+?)\nend\n//igms;
+   $body =~ s/(?:\nbegin|^begin) [0-7][0-7][0-7][0-7]? [^\n\r]+\n.+?\nend\n//igms;
    return ($body, \@attachments);
 }
 
@@ -1885,39 +1889,13 @@ sub make_attachment {
    my ($subtype,$boundary, $attheader,$r_attcontent,$attcontentlength,
 	$attencoding,$attcontenttype,
         $attdisposition,$attid,$attlocation,$attdescription, $nodeid)=@_;
+
    my ($attcharset, $attfilename, $attfilenamecharset);
-   my %temphash;
-
-   if ($attcontenttype=~/charset="?([^\s"';]*)"?\s?/i) {
-      $attcharset=$1;
-   }
-   $attfilename = $attcontenttype;
-   if ($attfilename =~ s/^.+name\s?\*?[:=]\s?"?[\w\d\-]+''([^"]+)"?.*$/$1/ig) {
-      $attfilename = unescapeURL($attfilename);
-   } elsif ($attfilename =~ s/^.+name\s?\*?[:=]\s?"?([^"]+)"?.*$/$1/ig) {
-      $attfilenamecharset = $1 if ($attfilename =~ m{=\?([^?]*)\?[bq]\?[^?]+\?=}xi);
-      $attfilename = decode_mimewords($attfilename);
-   } else {
-      $attfilename = $attdisposition || '';
-      if ($attfilename =~ s/^.+filename\s?\*?=\s?"?[\w\d\-]+''([^"]+)"?.*$/$1/ig) {
-         $attfilename = unescapeURL($attfilename);
-      } elsif ($attfilename =~ s/^.+filename\s?\*?=\s?"?([^"]+)"?.*$/$1/ig) {
-         $attfilenamecharset = $1 if ($attfilename =~ m{=\?([^?]*)\?[bq]\?[^?]+\?=}xi);
-         $attfilename = decode_mimewords($attfilename);
-      } else {
-         $attfilename = "Unknown.".contenttype2ext($attcontenttype);
-      }
-   }
-   # the filename of attachments should not contain path delimiter,
-   # eg:/,\,: We replace it with !
-   $attfilename = zh_dospath2fname($attfilename, '!');	# dos path
-   $attfilename =~ s|/|!|g;	# unix path
-   $attfilename =~ s|:|!|g;	# mac path and dos drive
-
-   $attdisposition =~ s/^(.+);.*/$1/g;
+   $attcharset=$1 if ($attcontenttype=~/charset="?([^\s"';]*)"?\s?/i);
+   ($attfilename, $attfilenamecharset)=get_filename_charset($attcontenttype, $attdisposition);
 
    # guess a better contenttype
-#   $attcontenttype =~ s/^(.+);.*/$1/g;
+   # $attcontenttype =~ s/^(.+);.*/$1/g;
    if ( $attcontenttype =~ m!(\Qapplication/octet-stream\E)!i ||
         $attcontenttype =~ m!(\Qvideo/mpg\E)!i ) {
       my $oldtype=$1;
@@ -1925,26 +1903,57 @@ sub make_attachment {
       my $newtype=ext2contenttype($1);
       $attcontenttype=~ s!$oldtype!$newtype!i;
    }
+   # remove file=... from disipotion
+   $attdisposition =~ s/^(.+);.*/$1/g;
 
-   # the 2 attr are coming from parent block
-   $temphash{subtype} = $subtype;
-   $temphash{boundary} = $boundary;
+   return({	# return reference of hash
+	subtype		=> $subtype,	# from parent block
+	boundary	=> $boundary,	# from parent block
+	header		=> $attheader,	# attheader is not decoded yet
+	r_content 	=> $r_attcontent,
+	contentlength	=> $attcontentlength,
+	contenttype 	=> $attcontenttype || 'text/plain',
+	charset		=> $attcharset || '',
+	encoding 	=> $attencoding,
+	disposition 	=> $attdisposition,
+	filename 	=> $attfilename,
+	filenamecharset => $attfilenamecharset||$attcharset,
+	id 		=> $attid,
+	location 	=> $attlocation,
+	nodeid		=> $nodeid,
+	description 	=> $attdescription,
+	referencecount	=> 0
+   });
+}
 
-   $temphash{header} = $attheader;	# It's intended to not decode attheader
-   $temphash{r_content} = $r_attcontent;
-   $temphash{contentlength} = $attcontentlength;
-   $temphash{contenttype} = $attcontenttype || 'text/plain';
-   $temphash{charset}= $attcharset || '';
-   $temphash{encoding} = $attencoding;
-   $temphash{disposition} = $attdisposition;
-   $temphash{filename} = $attfilename;
-   $temphash{filenamecharset}= $attfilenamecharset||$attcharset;
-   $temphash{id} = $attid;
-   $temphash{location} = $attlocation;
-   $temphash{nodeid} = $nodeid;
-   $temphash{description} = $attdescription;
-   $temphash{referencecount} = 0;
-   return(\%temphash);
+sub get_filename_charset {
+   my ($contenttype, $disposition)=@_;
+   my ($filename, $filenamecharset);
+
+   $filename = $contenttype;
+   if ($filename =~ s/^.+name\s?\*?[:=]\s?"?[\w\d\-]+''([^"]+)"?.*$/$1/ig) {
+      $filename = unescapeURL($filename);
+   } elsif ($filename =~ s/^.+name\s?\*?[:=]\s?"?([^"]+)"?.*$/$1/ig) {
+      $filenamecharset = $1 if ($filename =~ m{=\?([^?]*)\?[bq]\?[^?]+\?=}xi);
+      $filename = decode_mimewords($filename);
+   } else {
+      $filename = $disposition || '';
+      if ($filename =~ s/^.+filename\s?\*?=\s?"?[\w\d\-]+''([^"]+)"?.*$/$1/ig) {
+         $filename = unescapeURL($filename);
+      } elsif ($filename =~ s/^.+filename\s?\*?=\s?"?([^"]+)"?.*$/$1/ig) {
+         $filenamecharset = $1 if ($filename =~ m{=\?([^?]*)\?[bq]\?[^?]+\?=}xi);
+         $filename = decode_mimewords($filename);
+      } else {
+         $filename = "Unknown.".contenttype2ext($contenttype);
+      }
+   }
+   # the filename of achments should not contain path delimiter,
+   # eg:/,\,: We replace it with !
+   $filename = zh_dospath2fname($filename, '!');	# dos path
+   $filename =~ s|/|!|g;	# unix path
+   $filename =~ s|:|!|g;	# mac path and dos drive
+
+   return($filename, $filenamecharset);
 }
 
 # sub contenttype2ext & ext2contenttype is moved to ow-shared.pl

@@ -101,7 +101,7 @@ use strict;
 
 # Configure Open WebMail
 # ----------------------
-# For each virtual domain,creat per domain conf file 
+# For each virtual domain, creat per domain conf file 
 # ($config{ow_siteconfdir}/VIRTUALDOMAIN) with the following options
 #
 # auth_module		auth_vdomain.pl
@@ -184,8 +184,28 @@ sub get_userinfo {
    return(-2, 'Not valid user@domain format') if ($user_domain !~ /(.+)[\@:!](.+)/);
    my ($user, $domain)=($1, $2);
 
-   my ($uid, $gid, $realname, $homedir) = (getpwuid($local_uid))[2,3,6,7];
-   return(-4, "User $user_domain doesn't exist") if ($uid eq "");
+   my ($localuser, $uid, $gid, $realname, $homedir) = (getpwuid($local_uid))[0,2,3,6,7];
+   return(-3, "Uid $local_uid doesn't exist") if ($uid eq "");
+
+   my $pwdfile="${$r_config}{'vdomain_vmpop3_pwdpath'}/$domain/${$r_config}{'vdomain_vmpop3_pwdname'}";
+   return(-2, "Passwd file for domain $domain doesn't exist ") if (!-f $pwdfile);
+
+   # check if virtual user exists in vdomain passwd file
+   filelock($pwdfile, LOCK_SH) or
+      return (-3, "Couldn't get read lock on $pwdfile");
+   if (!open(PASSWD, $pwdfile)) {
+      filelock($pwdfile, LOCK_UN);
+      return (-3, "Couldn't get open $pwdfile");
+   }
+   my $found=0;
+   while (<PASSWD>) {
+      if (/^$user:/) {
+         $found=1; last;
+      }
+   }
+   close(PASSWD);
+   filelock($pwdfile, LOCK_UN);
+   return(-4, "User $user_domain doesn't exist") if (!$found);
 
    my $domainhome="$homedir/$domain";
    if ( ${$r_config}{'use_syshomedir'} && -d $homedir) {	
@@ -198,6 +218,12 @@ sub get_userinfo {
          chown($uid, $mailgid, $domainhome);
       }
    }
+
+   # get other gid for the localuser in /etc/group
+   while (my @gr=getgrent()) {
+      $gid.=' '.$gr[2] if ($gr[3]=~/\b$localuser\b/ && $gid!~/\b$gr[2]\b/);
+   }
+
    return(0, '', $user, $uid, $gid, "$domainhome/$user");
 }
 
@@ -357,6 +383,7 @@ sub vdomainlist {
       }
    }
    closedir(D);
+   return(@domainlist);
 }
 
 1;

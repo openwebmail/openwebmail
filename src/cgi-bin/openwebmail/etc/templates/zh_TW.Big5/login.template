@@ -25,7 +25,7 @@
 <table><tr><td>@@@LOGINBUTTON@@@</td></tr></table>
 </td>
 <td align=center>
-<table><tr><td><font size=1>記住我的<br>登入帳號</font></td><td>@@@REMEMBERMECHECKBOX@@@</td></tr></table>
+<table><tr><td><font size=1>HTTP資料<br>壓縮傳送</font></td><td>@@@HTTPCOMPRESSIONCHECKBOX@@@</td></tr></table>
 </td>
 </tr>
 </table>
@@ -55,6 +55,24 @@
    {
       document.login.loginbutton.focus();
       return (true);
+   }
+
+   function httpcompresshelp()
+   {
+      if (document.login.httpcompress.checked) {
+         alert(
+"HTTP資料壓縮傳送 能夠有效地降低您的電腦與 WebMail 伺服器 間的網路頻寬用量, "+
+"不過使用這項功能時, 有一些相容性上的問題要注意:\n\n"+
+"1. 部分的 Proxy 伺服器 只能在 HTTP1.1 上作資料壓縮傳輸, "+
+"所以您可能需要在瀏覽器中設定 '使用 HTTP1.1 透過 Proxy 連線'\n"+
+"2. 部分的 Proxy 伺服器 完全不支援 HTTP資料壓縮傳輸功能, "+
+"所以您可能需要在瀏覽器中設定 '不透過 Proxy 連線到這部 WebMail 伺服器'.\n"+
+"3. 某些瀏覽器在同時使用 HTTP 資料壓縮傳輸 與 SSL 安全連線 時會有問題...\n"+
+"4. 某些瀏覽器宣稱支援 HTTP 資料壓縮傳輸, 但是會有問題...\n\n"+
+"所以如果您遇到問題的話, 請在重新登入時不要選擇此方塊即可.\n"
+         );
+      }
+      return(true);
    }
 
 //-->

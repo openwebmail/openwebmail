@@ -435,7 +435,7 @@ sub mailfilter {
             }
             # check executable attachment and contenttype
             foreach my $r_attachment (@{$r_attachments}) {
-               if ( ${$r_attachment}{filename} =~ /\.(exe|com|bat|pif|lnk|scr)$/i &&
+               if ( ${$r_attachment}{filename} =~ /\.(?:exe|com|bat|pif|lnk|scr)$/i &&
                     ${$r_attachment}{contenttype} !~ /application\/octet\-stream/i &&
                     ${$r_attachment}{contenttype} !~ /application\/x\-msdownload/i ) {
                   my ($matchcount, $matchdate)=split(":", $FTDB{"filter_fakedexecontenttype"});

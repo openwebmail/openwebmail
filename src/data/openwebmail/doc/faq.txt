@@ -1,3 +1,26 @@
+Open WebMail Frequently Asked Questions
+
+1.  INSTALLATION & STARTUP PROBLEMS
+2.  LOGIN PROBLEMS
+3.  RUNTIME ERRORS
+4.  CONFIGURATION OPTIONS
+5.  CHANGE PASSWORD
+6.  READ MESSAGE
+7.  COMPOSE MESSAGE
+8.  MAIL FILTERING
+9.  SEND MESSAGE
+10. AUTOREPLY
+11. SPELLCHECK
+12. CALENDAR 
+13. SSL RELATED
+14. MISC PROBLEMS
+15. SPEED TUNING
+16. SOME CONCEPT
+17. HOW CAN I...
+
+========================================================================
+INSTALLATION & STARTUP PROBLEMS
+========================================================================
 
 Q: I got "SCRIPT_DIR not set in /etc/openwebmail_path.conf !" error?
 A: On systems not passing perl script name as $0, openwebmail relies 
@@ -8,11 +31,11 @@ A: On systems not passing perl script name as $0, openwebmail relies
 
    For example, if the script is located at 
 
-   /usr/local/www/cgi-bin/openwebmail/openwebmail.pl,
+   /usr/local/apache/share/cgi-bin/openwebmail/openwebmail.pl,
    
    then the content of /etc/openwebmail_path.conf should be:
 
-   /usr/local/www/cgi-bin/openwebmail/
+   /usr/local/apache/share/cgi-bin/openwebmail
 
 Q: I got the script content instead of the openwebmail login screen?
    I got "You don't have permission to access openwebmail.pl on this
@@ -102,11 +125,6 @@ A: There are many possible answers...
 ps: In most cases, you can run the './openwebmail.pl' in text terminal
     to get more information about the error.
 
-Q: Can I install openwebmail without iconv() support?
-A: Yes, you may copy the uty/iconv.pl.fake over the iconv.pl,
-   which doesn't use iconv() at all but still support charset conversion for
-   Chinese and Japanese.
-
 Q: I got "Can't check filesystem of script ./openwebmail.pl for nosuid"?
 A: Your openwebmail may be installed on a filesystem mounted nosuid.
    Please remove the nosuid parameter from /etc/fstab or install openwebmail
@@ -180,6 +198,10 @@ A: you can enforce the new one to use the same dbm package as the old one by
   
    where XXX_File.pm is the value you get by running dbmtest.pl on old machine.
 
+========================================================================
+LOGIN PROBLEMS
+========================================================================
+
 Q: The login menu showed okay, but I always got login failure?
 A: Check auth_module option in openwebmail.conf:
 
@@ -191,7 +213,7 @@ A: Check auth_module option in openwebmail.conf:
    make sure you have followed the instructions of 'PAM SUPPORT' in readme.txt.
    If you still got login failure, you can debug the pam module by:
    1. modify auth_pam.pl
-      uncomment all the lines of log_time(...)
+      uncomment all the lines of main::log_time(...)
    2. login to openwebmail
    3. check the /tmp/openwebmail.debug for more information.
 
@@ -217,57 +239,6 @@ Q: Openwebmail hangs at every login after I saved the preference in the first
 A: You probably have wrong settings for option dbmopen_haslock in the 
    openwebmail.conf, please execute uty/dbmtest.pl to find correct settings.
 
-Q: Will it speedup the login if the GNU copyright page is removed?
-A: The GNU copyright page should be displayed for less than 1 second.
-   if you see it for a very long time after you login, then openwebmail 
-   is busy in processing your INBOX folder (eg: mail indexing, filtering, 
-   trash cleaning..)
-
-Q: My openwebmail is slow, how can I make it faster?
-A: You may try to use Open WebMail with the SpeedyCGI package, you will
-   get about 5x-10 speedup. Please refer to the readme.txt with keyword 
-   SpeedyCGI for more detail.
-
-Q: How SpeedyCGI speeds up Open WebMail?
-A: SpeedyCGI makes Open WebMail resident in memory at the first request,
-   then the following requests will be served immediately without the 
-   overhead of starting perl CGI.
-
-   This resident copy will terminate if it is idle for a certain time,
-   the default is 3600 seconds (1 hour)
-   You can set this with -t option in the Open WebMail scripts.
-
-   eg: #!/usr/bin/speedy -T -- -t7200
-
-Q: Will the resident Open Webmail become larger and larger and finally 
-   a memory hog?
-A: No. We have tried our best to remove any memory leak from Open WebMail.
-   And a resident CGI will be restarted after it has serverd certain 
-   number of requests. The default maxrun number is 500.
-   You can set this with -r option in the Open WebMail scripts.
-
-   eg: #!/usr/bin/speedy -T -- -t7200 -r250
-
-Q: Some files of name like 'speedy.10.0.50.S' appear in my system /tmp?
-A: They are the temporary files used by speedy and its backend program.
-   Please don't remove them. If you hope to put them in other location,
-   You can set the prefix of temporary files with -T option
-
-   eg: #!/usr/bin/speedy -T -- -t7200 -r250 -T/var/tmp/.speedy
-
-Q: Open WebMail is fast when it is resident in memory, but the firsttime startup
-   delay is still long, is it possible to hide that delay from user?
-A: You can use the script preload.pl to preload openwebmail scripts,
-   so the webmail user won't see the startup delay.
-
-1. through web interface
-   http://your_server/cgi-bin/openwebmail/preload.pl
-   Please refer to preload.pl for default password and how to change it.
-
-2. through command line or you can put the following line in crontab
-
-   0 * * * *	/usr/local/www/cgi-bin/openwebmail/preload.pl -q
-
 Q: Some of my users login okay, but others don't, why?
 A: It is possible that you are upgrading from version prior to 1.41 
    to the newer version. The virtual user support is totally reimplemented.
@@ -282,26 +253,9 @@ A: A new variable $check_shell has been added to the auth_unix.pl and
    It is set to 1 by default, which means only users with valid shell can 
    login. Please set it to 0 to skip the valid shell check.
 
-Q: The login is okay, but I can't change by my password with openwebmail?
-A: There are 2 possible answers for this:
-   1. Your passwdfile is not local accessible.
-      If you use auth_unix.pl for authentication and your 
-      $unix_passwdfile_encrypted is not a local accessible file 
-      (ex: examples in auth_unix.pl that are terminated with |), 
-      the changepassword feature won't be available.
-      In these cases, you have to use auth_pam.pl to get the changepassword
-      to work.
-   2. Your system doesn't support saved set-user-ID, so openwebmail won't get
-      enough privilege to change the passwd file.
-      Try to set savedsuid_support to 'no' in openwebmail.conf to solve 
-      this problem.
-   3. The authentication module which you used doesn't support password 
-      changing, ex: auth_pop3.pl
-
-Q: I use openwebmail with NIS/YP system, the user can login but can not 
-   change their password?
-A: The NIS/YP password can not be changed with auth_unix.pl, you need to 
-   use the auth_pam.pl as the authentication module.
+========================================================================
+RUNTIME ERRORS
+========================================================================
 
 Q: I got "Couldn't open XXX-session-0.370606494136155!" error after login?
 A: You openwebmail-1.xx.tgz was uncompressed with improper parameter.
@@ -317,6 +271,17 @@ Q: I got "Software error: Can't locate Text/Iconv.pm in @INC"?
 A: Please install the Text-Iconv-1.2.tar.gz, this is required since 
    openwebmail-1.80
 
+Q: First login was okay and openwebmail told me to setup preference,
+   then I got "Internal Server Error" ?
+A: You may forget to install Text-Iconv-1.2.tar.gz,
+   or you may compile Text-Iconv with wrong parameter in Makefile.PL.
+   Please check readme.txt with keyword Text-Iconv to see 
+   if any special modification is required for your platform
+
+Q: First login was okay and I can setup preference without problem,
+   then I got "Couldn't get write lock on INBOX!" immediately ?
+A: You may have wrong setting for option mailspooldir in openwebmail.conf
+
 Q: I got "Use of uninitialized value in subroutine entry at /xxx/DB_File.pm 
    line yyy" error ?
 A: The line you got error should be inside the sub routine tie_hash_or_array.
@@ -331,22 +296,6 @@ A: The line you got error should be inside the sub routine tie_hash_or_array.
    (thanks to Paul Marquess, Paul.Marquess.AT.btinternet.com 
           and mainely_linux.AT.users.sourceforge.net)
 
-Q: Everything works fine, but I got timeout when clicking the calendar button?
-A: Please check your apache error log if it has lines like below:
-
-   [...] openwebmail-cal.pl: Use of uninitialized value in subroutine entry 
-   at /usr/lib/perl5/5.8.0/i386-linux-thread-multi/DB_File.pm line xxx.
-
-   If yes, please refer to the solution in previous question.
-
-Q: Everything seems be fine at the beginning, but if I tried to open a 
-   message after a period of time, the content of other message was showed 
-   instead of the one I clicked?
-A: This is due to a bug of tell() in perl 5.8. And RedHat 8.0 bundles Perl 
-   5.8 by default. Please upgrade your openwebmail to 1.81 or higher.
-   And you should try to find a bug fix for your perl since other applications 
-   written by perl may operate improperly due to this bug
-
 Q: I got "can't open /var/log/openwebmail.log" error?
 A: Please check the openwebmail.log permission, it should be
    owner=root, group=mail, mode=660
@@ -357,49 +306,120 @@ ps: If you get this error periodicly and your are using Mandrake Linux,
     /var/log directory and changes ownerships/permissions.  
     (thanks to Karl Schricker, karl_schricker.AT.gmx.net)
 
-Q: Most functions work fine, but I could not send message.
-   I got "Can't locate Net/SMTP.pm in @INC ..." error?
-   I got "Internal server error"?
-A: Please install the libnet-1.0901.tar.gz, this is required since 
-   openwebmail 1.60.
+Q: I got "Software error: ndbm store returned -1, errno 49, ..."?
+A: The user may exceed his quota limit on the file system.
+   Please remove unwanted files or increase the quota for user.
 
-Q: I am sure the sendmail was running up on my mail server, but I got 
-   "Couldn't open SMTP server 127.0.0.1" error when sending messages?
-A: Your sendmail may be configured to listen on the server_ip:25 only,
-   it didn't listen on 127.0.0.1:25
-   You can either
+Q: My SENT folder shows -1 or other negative message size rather then
+   regular message size?
+A: This problem occurs if you installed Open WebMail on the same partition 
+   where quota is enabled. Open WebMail uses temp files in 
+   cgi-bin/openwebmail/etc/sessions folders.
+   Solution is to move sessions folder to another partition with no Quota.
 
-   a. override the option smtpserver in openwebmail.conf and 
-      set it to your server_ip
+   Please read RedHat-README.txt for detailed explanation on setting up
+   this, since this problem mostly occurs on RedHat Linux 6.2 and bellow. 
+   (thanks to Emir Litric, elitric.AT.yahoo.com)
 
-   b. modify the sendmail.cf and find the following line
+Q: I got "db warning - msg xxx index missing in INBOX" in log?
+   What does this mean?
+A: It may have two possible meanings.
 
-   O DaemonPortOptions=Port=smtp,Addr=x.x.x.x, Name=MTA
-   (where x.x.x.x is the server_ip)
+   1. Your message is moved to other folder by the openwebmail filter module 
 
-   Please change the x.x.x.x to 0.0.0.0 to make sendmail 
-   listen on all IPs binding on the server network interfaces.
+      While openwebmail always maintains the index consistent with the folder 
+      content, openwebmail only calls the mailfilter in the following two 
+      condition: 
+      a. before browsing the message list of a folder 
+      b. before reading a message of the INBOX 
 
-Q: I still got the "Couldn't open SMTP server 127.0.0.1" error?
-A: Please check the permission of your /etc/protocols and /etc/services,
-   it should be 0644. (-rw-r--r--)
+      If a message(aaa) matching the filter rule comes to INBOX folder, this 
+      message will become the neighbor of one of the existing messages(bbb) 
+      in the index db. If the user is reading message bbb, then aaa will 
+      become the target linked by the right or left arrows in the bottom of 
+      the readmessage webpage. Now if user clicks the arrow for next page, 
+      you will get the db index missing error since the message(aaa) is 
+      moved to other folder by the filter before being accessed.. 
 
-Q: I got 'Sorry, there was a problem sending your message' error?
-A: a. Please check if smtpserver option in openwebmail.conf points to valid
-      SMTP server, its default is '127.0.0.1'. If you set it to name of some
-      other SMTP server, please be sure the SMTP server allows mails relayed 
-      from your host.
-   b. When SMTP server is set to 127.0.0.1, please be sure the hosts.allow
-      has the following entry
+   2. Your message is removed by other pop3/imap client.
+      Do you use outlook and openwebmail at the same time?
 
-      sendmail : localhost 127.0.0.1 : allow
+Q: I got "db warning - msg yyy index inconsistence in INBOX" in the log?
+   Does it mean my message were lost?
+A: No, you message were not lost, it just means the index db was not 
+   reflecting the newest state of your mail folder, openwebmail did the 
+   reindex automatically after logging this message.
 
-Q: Does openwebmail support SASL authentication on SMTP?
-A: Yes, but only the PLAIN type authentication is supported.
-   The username/password will be encoded with base64, so it is not very secure.
-   To enable the SASL authentication:
-   1. set option smtpauth to yes in openwebmail.conf
-   2. set the smtpauth_username, smtpauth_password in smtpauth.conf
+Q: I got "Your request didn't contain the proper session ID cookie -- 
+   access denied!" error?
+A: Please enable the cookie function of your browser.
+   Or you can set the option session_checkcookie to 'no' to disable 
+   the check of cookie in openwebmail, but this may put the user 
+   session in danger that it could be hijacked by others.
+
+Q: I got "Your request didn't come from the same ip of this session -- 
+   access denied!" error?
+A: The client may access the webmail server through a gateway which may 
+   dynamicly change it IP address, please set the option 
+   session_checksameip to 'no' to disable the IP check.
+
+Q: My openwebmail was okay, but I got "Your request didn't contain the 
+   proper session ID cookie -- access denied!" in these days?
+A: Openwebmail puts user uploaded attachments in 
+   cgi-bin/openwebmail/etc/sessions/ temporarily. 
+   User will get error if there is no space left on the partition where
+   cgi-bin/openwebmail/etc/sessions/ lives or user has exceeded his disk quota.
+
+   Please move cgi-bin/openwebmail/etc/sessions to a larger partition with
+   diskquota disabled, then create a symbolic link to that new directory
+
+   cd /new_place
+
+   mkdir sessions
+   chmod 770 sessions
+   chown 0 sessions
+   chgrp mail sessions
+
+   cd yourweb_cgi-bin/openwebmail/etc/
+   rm -Rf sessions
+   ln -s /new_place/sessions .
+
+Q: I got 'Couldn't get read lock on ....' error?
+         'Couldn't get write lock on ....' error?
+A: If the error message appears immediately after you submit the CGI request,
+   then it may be due to the user doesn't has enough prvivledge to lock the 
+   file or the directory for the file even doesn't exist.
+
+   If the error message appears after the cgi request submittion for more 
+   than 30 seconds, then the folder openwebmail want to access may be locked
+   by other process. 
+
+   Most of the time, it is due to the concurrent accesses to the folder by 
+   other mail client through the pop3/imap daemons.
+   This is okay, just back to previous page and try again.
+
+   To know where the error happend exactly, you may try to set option
+   error_with_debuginfo to yes in openwebmail.conf. This would give you 
+   more detailed information in case openwebmailerror() happens.
+
+   If you always got the lock error and be sure it's not caused by pop3/imap,
+   you may try to debug the filelock in the following steps:
+
+   1. install the 'lsof' utility on your system
+      (lsof is available at http://freshmeat.net/projects/lsof/)
+   2. cd  your_web/cgi-bin/openwebmail
+      patch < uty/ow-shared.pl.filelock.diff
+   3. step 2 will turn the filelock routine in ow-shared.pl to a version 
+      special for debugging, the debug output will be written to 
+      /tmp/openwebmail.debug
+   4. login into openwebmail and do some operation that will cause lock error,
+      then check /tmp/openwebmail.debug for further information
+   5. Finally, don't forget to do 'patch < uty/filelock.pl.diff' again to 
+      reverse ow-shared.pl back to the original state.
+
+========================================================================
+CONFIGURATION OPTIONS
+========================================================================
 
 Q: The 'From' field of my message contained only 'username@'?
 A: You may has wrong setting for option domainnames in openwebmail.conf
@@ -519,17 +539,6 @@ A: First, you have to decide whether to use real virtual hosting or
    "How to setup virtual users on Open WebMail using Postfix & vm-pop3d"
    http://www.bluelavalamp.net/owmvirtual/
 
-Q: How is the domain of a login user determined?
-A: It is determined in the following order(the earlier one has higher precedence)
-   1. from the login name
-      eg: the user logined with username@virtualdomain
-   2. from the parameter 'logindomain' specified in login page url
-      eg: the login page was linked with 
-          http://server/cgi-bin/openwebmail/openwebmail.pl?logindomain=virtualdomain
-   3. from the servername specified in the login page url
-      eg: the login page was linked with
-          http://virtualdomain/cgi-bin/openwebmail/openwebmail.pl
-
 Q: The default mail domain for my user is always wrong, how can I set it?
 A: To have openwebmail find the correct mail domain for the user, 
    you'd give it some hint.
@@ -570,6 +579,118 @@ A: You can use the virtusertable or the per user config file
 Q: How can I disallow the user to set their from email address?
 A: set option enable_setfromemail to 'no' in either openwebmal.conf or per 
    user config.
+
+Q: Can I install openwebmail without iconv() support?
+A: Yes, you may copy the uty/iconv.pl.fake over the iconv.pl,
+   which doesn't use iconv() at all but still support charset conversion for
+   Chinese and Japanese.
+
+Q: Can I setup mail account for user without creating the unix account?
+A: Yes, you need postfix + vm-pop3d + openwebmail.
+   Kevin Ellis(kevin.AT.bluelavalamp.net) has made a webpage for this,
+   it is available at http://www.bluelavalamp.net/owmvirtual/
+
+Q: I have set openwebmail for virtual user with vm-pop3d, but I got
+   "Sorry, root login is disabled for security's sake" at login?
+A: Please check the descriptions in auth_vm-pop3d.pl/auth_pop3.pl and 
+   find which case you are using. If you are using case b, don't forget 
+   to set the $local_uid to the uid used by your vm-pop3d for all virtual 
+   users.
+ps: We suggest you use the auth_vdomain.pl for system running vm-pop3d+postfix
+    Please refer to descriptions in auth_vdomain.pl for more detail.
+
+========================================================================
+CHANGE PASSWORD
+========================================================================
+
+Q: The login is okay, but I can't change by my password with openwebmail?
+A: There are 2 possible answers for this:
+   1. Your passwdfile is not local accessible.
+      If you use auth_unix.pl for authentication and your 
+      $unix_passwdfile_encrypted is not a local accessible file 
+      (ex: examples in auth_unix.pl that are terminated with |), 
+      the changepassword feature won't be available.
+      In these cases, you have to use auth_pam.pl to get the changepassword
+      to work.
+   2. Your system doesn't support saved set-user-ID, so openwebmail won't get
+      enough privilege to change the passwd file.
+      Try to set savedsuid_support to 'no' in openwebmail.conf to solve 
+      this problem.
+   3. The authentication module which you used doesn't support password 
+      changing, ex: auth_pop3.pl
+
+Q: I use openwebmail with NIS/YP system, the user can login but can not 
+   change their password?
+A: The NIS/YP password can not be changed with auth_unix.pl, you need to 
+   use the auth_pam.pl as the authentication module.
+
+========================================================================
+READ MESSAGE
+========================================================================
+
+Q: Everything seems be fine at the beginning, but if I tried to open a 
+   message after a period of time, the content of other message was showed 
+   instead of the one I clicked?
+A: This is due to a bug of tell() in perl 5.8. And RedHat 8.0 bundles Perl 
+   5.8 by default. Please upgrade your openwebmail to 1.81 or higher.
+   And you should try to find a bug fix for your perl since other applications 
+   written by perl may operate improperly due to this bug
+
+Q: Some mails were not displayed right....
+A: please check 
+   http://openwebmail.com/openwebmail/download/doc/changes.txt
+   to see if any update fixes your problem and download the 
+   openwebmail-current.tgz
+
+========================================================================
+COMPOSE MESSAGE
+========================================================================
+
+Q: I could not add attachments?
+   Open WebMail was hanged when I pressed the 'add' button to add attachments?
+A: 1. Your CGI or MIME-Base64 module may be too old,
+      Please download CGI.pm-2.74.tar.gz and MIME-Base64-2.12.tar.gz in
+      http://openwebmail.com/openwebmail/download/packages/ 
+      and install them to your system.
+   2. Your proxy may limit the size of a POST request.
+      Try to add attachments with no proxy setting in your browser.
+      If you are the administrator of the squid proxy server,
+      please set the request_body_max_size option to a larger value.
+
+Q: Attachments disappeared when I forwarded a message?
+A: Check permission of the following directories
+   cgi-bin/openwebmail/etc          - owner=root, group=mail, mode=755
+   cgi-bin/openwebmail/etc/sessions - owner=root, group=mail, mode=770
+   cgi-bin/openwebmail/etc/users    - owner=root, group=mail, mode=770
+
+Q: The permission of cgi-bin/openwebmail/etc is correct but attachments 
+   still disappeared in message forwarding?
+A: Hmmm, please upgrade to the latest version. 
+   Some very old version(1.03,1.04) has little problem in attachment handling.
+
+Q: I can not choose to compose HTML messages?
+A: The HTML editor requires 
+   1. IE5.5+ on windows platform, or 
+   2. Mozilla 1.3b+ on all platforms
+
+Q: The InserImage, InsertTable popup window don't show with correct charset?
+A: This mostly happens with apache web server 2.0 or later.
+   Please edit your Apache Configuration file, replace
+   
+   AddDefaultCharset ISO-8859-1
+
+   with
+
+   AddDefaultCharset off
+
+Q: The InserImage, InsertTable popup window still show with correct charset
+   after I set AddDefaultCharset to off?
+A: This is due to the web page cache of your browser.
+   Please clean the cache of your browser and try again.
+
+========================================================================
+MAIL FILTERING
+========================================================================
 
 Q: Some of my messages were moved to trash folder automatically?
 A: Your messages were either filtered by 'global filter rule',
@@ -645,102 +766,74 @@ ps:The messages in INBOX and user defined folders will be removed only if
 
    Please refer to routine cutfolders in ow-shared.pl for detail
 
-Q: How does the delfile_ifquotahit option work?
-   Which file will be removed first?
-A: It will remove the oldest files or direcotries under the webdiskrootdir
-   (webdiskrootdir is default to / of user homedir, but you can change it).
-   The removal will stop if the quota size is download to the 90% of user quota limit.
+Q: There were strange characters in the mail filter menu and those rules could
+   not be deleted?
+A: This is due to the dbmopen() of your perl didn't add the ".db" extension 
+   automatically, so the ~/.filter.book and its index were written to the same
+   file. This problem can be fixed by properly setting option dbm_ext and 
+   dbmopen_ext. To find the correct setting for the two options: 
 
-Q: I could not add attachments?
-   Open WebMail was hanged when I pressed the 'add' button to add attachments?
-A: 1. Your CGI or MIME-Base64 module may be too old,
-      Please download CGI.pm-2.74.tar.gz and MIME-Base64-2.12.tar.gz in
-      http://turtle.ee.ncku.edu.tw/openwebmail/download/packages/ 
-      and install them to your system.
-   2. Your proxy may limit the size of a POST request.
-      Try to add attachments with no proxy setting in your browser.
-      If you are the administrator of the squid proxy server,
-      please set the request_body_max_size option to a larger value.
+   perl cgi-bin/openwebmail/uty/dbmtest.pl [enter]
 
-Q: Attachments disappeared when I forwarded a message?
-A: Check permission of the following directories
-   cgi-bin/openwebmail/etc          - owner=root, group=mail, mode=755
-   cgi-bin/openwebmail/etc/sessions - owner=root, group=mail, mode=770
-   cgi-bin/openwebmail/etc/users    - owner=root, group=mail, mode=770
+   and you will get output like this:
 
-Q: The permission of cgi-bin/openwebmail/etc is correct but attachments 
-   still disappeared in message forwarding?
-A: Hmmm, please upgrade to the latest version. 
-   Some very old version(1.03,1.04) has little problem in attachment handling.
+   dbm_ext              .db
+   dbmopen_ext          none
+   dbmopen_haslock      no
 
-Q: What is the difference between 'Forward', 'ForwardAsAtt', 'ForwardAsOrig'
-A: If A send msg1 to B, 
-   and B forward this msg as msg2 to B 
+   Then put the three lines into your openwebmail.conf.
 
-   forward:
-   the subject of msg2 will be the subject of msg1 with a prefix "Fw:".
-   msg2 will have all attachments and content of msg1, 
-   and headers of msg1 will be put into the body msg2 as content
+========================================================================
+SEND MESSAGE
+========================================================================
 
-   forwardasatt:
-   the subject of msg2 will be the subject of msg1 with a prefix "Fw:".
-   msg2 body will be empty
-   and the raw format of msg1 will be become an attachment of msg2.
+Q: Most functions work fine, but I could not send message.
+   I got "Can't locate Net/SMTP.pm in @INC ..." error?
+   I got "Internal server error"?
+A: Please install the libnet-1.0901.tar.gz, this is required since 
+   openwebmail 1.60.
 
-   forwardasorig:
-   the subject, body and attachments of msg2 will exactly the same as msg1.
-   the replyto header of msg2 will be set to A.
-   So in case C replies the msg2, the reply will go back to A
+Q: I am sure the sendmail was running up on my mail server, but I got 
+   "Couldn't open SMTP server 127.0.0.1" error when sending messages?
+A: Your sendmail may be configured to listen on the server_ip:25 only,
+   it didn't listen on 127.0.0.1:25
+   You can either
 
-Q: When I checked 'edit folder menu', I found some folders were empty but 
-   took disk space?
-A: The disk space occupied by a folder shown in 'edit folder menu' includes
-   the size of a folder and its index. Though folder is empty, the folder 
-   index still has some data structure to maintain.
+   a. override the option smtpserver in openwebmail.conf and 
+      set it to your server_ip
 
-Q: When I clicked 'spell check' button, I got "Internal Server error" in new
-   window?
-A: 1. Please be sure that you have installed ispell-3.1.20.tar.gz
-   2. If you are using C wrappers for suid scripts on Solaris,
-      please recompile you perl with suid enabled instaed of using 
-      the C wrappers.
-      (thanks to Isam Ishaq, isam.AT.planet.edu)
+   b. modify the sendmail.cf and find the following line
 
-Q: Ispell has been correctly installed, but spellcheck still doesn't work?
-A: The spellcheck in old version of openwebmail doesn't work on RedHat 7.x,
-   please upgrade your openwebmail to the latest version.
+   O DaemonPortOptions=Port=smtp,Addr=x.x.x.x, Name=MTA
+   (where x.x.x.x is the server_ip)
 
-Q: Why is openwebmail-spell.pl a suid root program?
-A: Because it needs to read the preference file, ~/mail/.openwebmailrc, 
-   of different users to get their language and dictionary setting.
+   Please change the x.x.x.x to 0.0.0.0 to make sendmail 
+   listen on all IPs binding on the server network interfaces.
 
-Q: I got 'Couldn't get read lock on ....' error?
-         'Couldn't get write lock on ....' error?
-A: This may happen if the folder openwebmail want to access is locked by
-   other process. Most of the time, it is due to the concurrent accesses 
-   to the folder by other mail client through the pop3/imap daemons.
-   This is okay, just back to previous page and try again.
+Q: I still got the "Couldn't open SMTP server 127.0.0.1" error?
+A: Please check the permission of your /etc/protocols and /etc/services,
+   it should be 0644. (-rw-r--r--)
 
-   If you always got this error and be sure it is not caused by pop3/imap,
-   you may try to debug the filelock in the following steps:
+Q: I got 'Sorry, there was a problem sending your message' error?
+A: a. Please check if smtpserver option in openwebmail.conf points to valid
+      SMTP server, its default is '127.0.0.1'. If you set it to name of some
+      other SMTP server, please be sure the SMTP server allows mails relayed 
+      from your host.
+   b. When SMTP server is set to 127.0.0.1, please be sure the hosts.allow
+      has the following entry
 
-   1. install the 'lsof' utility on your system
-      (lsof is available at http://freshmeat.net/projects/lsof/)
-   2. cd  your_web/cgi-bin/openwebmail
-      patch < uty/ow-shared.pl.filelock.diff
-   3. step 2 will turn the filelock routine in ow-shared.pl to a version 
-      special for debugging, the debug output will be written to 
-      /tmp/openwebmail.debug
-   4. login into openwebmail and do some operation that will cause lock error,
-      then check /tmp/openwebmail.debug for further information
-   5. Finally, don't forget to do 'patch < uty/filelock.pl.diff' again to 
-      reverse ow-shared.pl back to the original state.
+      sendmail : localhost 127.0.0.1 : allow
 
-Q: I have problems in reading some mail....
-A: please check 
-   http://turtle.ee.ncku.edu.tw/openwebmail/download/doc/changes.txt
-   to see if any update fixes your problem and download the 
-   openwebmail-current.tgz
+Q: Does openwebmail support SASL authentication on SMTP?
+A: Yes, but only the PLAIN type authentication is supported.
+   The username/password will be encoded with base64, so it is not very secure.
+   To enable the SASL authentication:
+   1. set option smtpauth to yes in openwebmail.conf
+   2. set the smtpauth_username, smtpauth_password in smtpauth.conf
+
+========================================================================
+AUTOREPLY
+========================================================================
 
 Q: The autoreply function doesn't work?
 A: An incoming message won't be replied by vacation.pl if
@@ -777,6 +870,38 @@ A: Your sendmail may be configured with Sendmail Restricted SHell or smrsh.
    ln -s /var/www/cgi-bin/openwebmail/vacation.pl /etc/smrsh/vacation.pl
    (thanks to Emir Litric, elitric.AT.yahoo.com)
 
+========================================================================
+SPELLCHECK
+========================================================================
+
+Q: When I clicked 'spell check' button, I got "Internal Server error" in new
+   window?
+A: 1. Please be sure that you have installed ispell-3.1.20.tar.gz
+   2. If you are using C wrappers for suid scripts on Solaris,
+      please recompile you perl with suid enabled instaed of using 
+      the C wrappers.
+      (thanks to Isam Ishaq, isam.AT.planet.edu)
+
+Q: Ispell has been correctly installed, but spellcheck still doesn't work?
+A: The spellcheck in old version of openwebmail doesn't work on RedHat 7.x,
+   please upgrade your openwebmail to the latest version.
+
+Q: Why is openwebmail-spell.pl a suid root program?
+A: Because it needs to read the preference file, ~/mail/.openwebmailrc, 
+   of different users to get their language and dictionary setting.
+
+========================================================================
+CALENDAR 
+========================================================================
+
+Q: Everything works fine, but I got timeout when clicking the calendar button?
+A: Please check your apache error log if it has lines like below:
+
+   [...] openwebmail-cal.pl: Use of uninitialized value in subroutine entry 
+   at /usr/lib/perl5/5.8.0/i386-linux-thread-multi/DB_File.pm line xxx.
+
+   If yes, please search the RUNTIME ERROR section with keyword DB_File.pm
+
 Q: The email notification for calendar event doesn't work?
 A: You need to use openwebmail-tool.pl in crontab to check the calendar 
    events for sending the notification emails. For example:
@@ -789,8 +914,14 @@ A: You need to use openwebmail-tool.pl in crontab to check the calendar
    is 120 (minute). You have to set the crontab according to your 
    calendar_email_notifyinterval.
 
+========================================================================
+SSL RELATED
+========================================================================
+
 Q: Can I use openwebmail with SSL?
-   I got "site not found" or "could not connect to the server" error?
+A: yes. just https:// instead of http:// for the URL of webmail
+
+Q: I got "site not found" or "could not connect to the server" error?
 A: Yes, openwebmail can work with SSL.
    The error is due to IE doesn't do keepalives correctly when using SSL.
 
@@ -808,100 +939,21 @@ A: Since apache only allow SSL for one virtual domain, you can have only one
    https://sample.com/openwebmail/openwebmail.pl?logindomain=vdomain1.com
    (thanks to scott.AT.littlefish.ca for his code)
 
-Q: I got "Software error: ndbm store returned -1, errno 49, ..."?
-A: The user may exceed his quota limit on the file system.
-   Please remove unwanted files or increase the quota for user.
+========================================================================
+MISC PROBLEMS
+========================================================================
 
-Q: My SENT folder shows -1 or other negative message size rather then
-   regular message size?
-A: This problem occurs if you installed Open WebMail on the same partition 
-   where quota is enabled. Open WebMail uses temp files in 
-   cgi-bin/openwebmail/etc/sessions folders.
-   Solution is to move sessions folder to another partition with no Quota.
+Q: The DayLight Saving option in user preference doesn't work,
+   messages in folders still have wrong date in folderlist view?
+A: This is due to those messages were parsed at the time that DST option
+   was set to wrong value, the problem could be solved by
 
-   Please read RedHat-README.txt for detailed explanation on setting up
-   this, since this problem mostly occurs on RedHat Linux 6.2 and bellow. 
-   (thanks to Emir Litric, elitric.AT.yahoo.com)
+   1. set DST to auto 
+   2. goto folder management 
+   3. choose 'recreate index' for your folders. 
 
-Q: I got "db warning - msg xxx index missing in INBOX" in log?
-   What does this mean?
-A: It may have two possible meanings.
-
-   1. Your message is moved to other folder by the openwebmail filter module 
-
-      While openwebmail always maintains the index consistent with the folder 
-      content, openwebmail only calls the mailfilter in the following two 
-      condition: 
-      a. before browsing the message list of a folder 
-      b. before reading a message of the INBOX 
-
-      If a message(aaa) matching the filter rule comes to INBOX folder, this 
-      message will become the neighbor of one of the existing messages(bbb) 
-      in the index db. If the user is reading message bbb, then aaa will 
-      become the target linked by the right or left arrows in the bottom of 
-      the readmessage webpage. Now if user clicks the arrow for next page, 
-      you will get the db index missing error since the message(aaa) is 
-      moved to other folder by the filter before being accessed.. 
-
-   2. Your message is removed by other pop3/imap client.
-      Do you use outlook and openwebmail at the same time?
-
-Q: I got "db warning - msg yyy index inconsistence in INBOX" in the log?
-   Does it mean my message were lost?
-A: No, you message were not lost, it just means the index db was not 
-   reflecting the newest state of your mail folder, openwebmail did the 
-   reindex automatically after logging this message.
-
-Q: There were strange characters in the mail filter menu and those rules could
-   not be deleted?
-A: This is due to the dbmopen() of your perl didn't add the ".db" extension 
-   automatically, so the ~/.filter.book and its index were written to the same
-   file. This problem can be fixed by properly setting option dbm_ext and 
-   dbmopen_ext. To find the correct setting for the two options: 
-
-   perl cgi-bin/openwebmail/uty/dbmtest.pl [enter]
-
-   and you will get output like this:
-
-   dbm_ext              .db
-   dbmopen_ext          none
-   dbmopen_haslock      no
-
-   Then put the three lines into your openwebmail.conf.
-
-Q: I got "Your request didn't contain the proper session ID cookie -- 
-   access denied!" error?
-A: Please enable the cookie function of your browser.
-   Or you can set the option session_checkcookie to 'no' to disable 
-   the check of cookie in openwebmail, but this may put the user 
-   session in danger that it could be hijacked by others.
-
-Q: I got "Your request didn't come from the same ip of this session -- 
-   access denied!" error?
-A: The client may access the webmail server through a gateway which may 
-   dynamicly change it IP address, please set the option 
-   session_checksameip to 'no' to disable the IP check.
-
-Q: My openwebmail was okay, but I got "Your request didn't contain the 
-   proper session ID cookie -- access denied!" in these days?
-A: Openwebmail puts user uploaded attachments in 
-   cgi-bin/openwebmail/etc/sessions/ temporarily. 
-   User will get error if there is no space left on the partition where
-   cgi-bin/openwebmail/etc/sessions/ lives or user has exceeded his disk quota.
-
-   Please move cgi-bin/openwebmail/etc/sessions to a larger partition with
-   diskquota disabled, then create a symbolic link to that new directory
-
-   cd /new_place
-
-   mkdir sessions
-   chmod 770 sessions
-   chown 0 sessions
-   chgrp mail sessions
-
-   cd yourweb_cgi-bin/openwebmail/etc/
-   rm -Rf sessions
-   ln -s /new_place/sessions .
+ps:This could be quite time-consuming if you have large folder, 
+   you may do it with openwebmail-tools.pl in background. 
 
 Q: Is the 'filename search' in webdisk case sensitive or case insensitive?
 A: If the 'find' command in your unix supports -iname, the search will be 
@@ -914,13 +966,245 @@ A: The file content search is done with the unix command 'grep'.
    directory and all its sub directories recursively. Or it will search files 
    in current directory only.
 
-Q: How can I upgrade from old version of Open Webmail?
-A: Each version of openwebmail is made to be backward compatible with
-   old ones, no user setting or mail message will be lost after upgrade.
-   The upgrade steps:
-   1. make a copy of your old openwebmail.conf
-   2. install new openwebmail in the same location as old version
-   3. update the new openwebmail.conf with the setting in old one.
+Q: The ssh terminal in openwebmail supports SSH1 only?
+A: Yes. The ssh terminal support in openwebmail is actually done with the
+   MindTerm package from www.appgate.com. The bundled MindTerm is 1.21, 
+   which is the latest GPLed release but quite old.
+
+   You may install MindTerm version 2.3.1 from www.appgate.com, which 
+   supports both SSH1 and SSH2. Please refer to
+   data/openwebmail/applet/mindterm2/INSTALL.MINDTERM2 for more detail.
+
+========================================================================
+SPEED TUNING
+========================================================================
+
+Q: Will it speedup the login if the GNU copyright page is removed?
+A: The GNU copyright page should be displayed for less than 1 second.
+   if you see it for a very long time after you login, then openwebmail 
+   is busy in processing your INBOX folder (eg: mail indexing, filtering, 
+   trash cleaning..)
+
+Q: My openwebmail is slow, how can I make it faster?
+A: You may try to use Open WebMail with the SpeedyCGI package, you will
+   get about 5x-10 speedup. Please refer to the readme.txt with keyword 
+   SpeedyCGI for more detail.
+
+Q: How SpeedyCGI speeds up Open WebMail?
+A: SpeedyCGI makes Open WebMail resident in memory at the first request,
+   then the following requests will be served immediately without the 
+   overhead of starting perl CGI.
+
+   This resident copy will terminate if it is idle for a certain time,
+   the default is 3600 seconds (1 hour)
+   You can set this with -t option in the Open WebMail scripts.
+
+   eg: #!/usr/bin/speedy -T -- -t7200
+
+Q: Will the resident Open Webmail become larger and larger and finally 
+   a memory hog?
+A: No. We have tried our best to remove any memory leak from Open WebMail.
+   And a resident CGI will be restarted after it has serverd certain 
+   number of requests. The default maxrun number is 500.
+   You can set this with -r option in the Open WebMail scripts.
+
+   eg: #!/usr/bin/speedy -T -- -t7200 -r250
+
+Q: Some files of name like 'speedy.10.0.50.S' appear in my system /tmp?
+A: They are the temporary files used by speedy and its backend program.
+   Please don't remove them. If you hope to put them in other location,
+   You can set the prefix of temporary files with -T option
+
+   eg: #!/usr/bin/speedy -T -- -t7200 -r250 -T/var/tmp/.speedy
+
+Q: Open WebMail is fast when it is resident in memory, but the firsttime 
+   startup delay is still long, is it possible to hide that delay from user?
+A: You can use the script preload.pl to preload openwebmail scripts,
+   so the webmail user won't see the startup delay.
+
+1. through web interface
+   http://your_server/cgi-bin/openwebmail/preload.pl
+   Please refer to preload.pl for default password and how to change it.
+
+2. through command line or you can put the following line in crontab
+   to preload the most frequently used scripts into mempry
+
+   0 * * * *	/usr/local/www/cgi-bin/openwebmail/preload.pl -q openwebmail.pl openwebmail-main.pl openwebmail-read.pl
+
+   If your machine has a lot of memory, you may choose to preload all 
+   openwebmail scripts
+
+   0 * * * *	/usr/local/www/cgi-bin/openwebmail/preload.pl -q --all
+
+Q: I got "connect error" when using preload.pl?
+A: The preload.pl tries to connect the webmail server on localhost.
+   Please check if your webserver is binding on localhost or
+   change the variable $httphost in preload.pl
+
+Q: How do I know if my Open WebMail is running under SpeedyCGI?
+A: 1. Goto the user preference and click the 'about' button,
+      if you see word 'Persistence' appear in the line of webmail,
+      then your openwebmail is running under SpeedyCGI
+   2. Check the top of webmail page window border,
+      if you see a '+' appear after  the 'Open WebMail' string, 
+      then the page is generated under SpeedyCGI.
+
+Q: I saw a HTTP compression checkbox in login screen, what is it used for?
+A: When it is checked, web pages generated by Open WebMail will be 
+   transmitted in gzip compressed format, this greatly reduces the time
+   required for page download. 
+
+   This is very useful for users with slow connection. An rough experiment
+   showed that the compressed format is about only 10% in size compared with
+   he original web page.
+
+Q: I could not check the HTTP compression checkbox, it is always disabled?
+A: The HTTP compression feature won't be available if any one of the three 
+   components (web server, web proxy, web browser) doesn't support HTTP 
+   compression.
+
+   To enable the HTTP compression support:
+
+   1. Please install the Compress-Zlib-1.21.tar.gz on openwebmail server
+   2. Please enable "HTTP 1.1 support for direct connection" in your browser
+   3. If your connect to openwebmail server through proxy server,
+      please enable "HTTP 1.1 support over proxy" in your browser.
+   4. If the proxy server doesn't support HTTP 1.1, 
+      please list your openwebmail server in exclusion table of proxy setting
+      in your browser.
+
+Q: How do I know if my Open WebMail is running with HTTP compression enabled?
+A: 1. Goto the user preference and click the 'about' button,
+      if you see word 'HTTP Compression' appear in the line of webmail,
+      then your openwebmail is running with HTTP compression enabled
+   2. Check the top of webmail page window border,
+      if you see a 'z' appear after  the 'Open WebMail' string, 
+      then the page is generated with HTTP compression enabled.
+
+Q: Openwebmail uses lot of static images.
+   How can I avoid them being loaded frequently?
+   How can I entend the cache expire time for the static images?
+A: Most web servers will set expire time in http header for static objects 
+   based on their file date and the time the files are accessed. 
+
+   If you would like to set the expire time explicitly:
+
+   Please add the following line to the end of your Apache configuration 
+
+   <Directory "/usr/local/www/data/openwebmail">
+      ExpiresActive On
+      ExpiresByType image/gif A86400
+      ExpiresByType image/png A86400
+      ExpiresByType image/jpg A86400
+      ExpiresByType application/x-javascript A86400
+   </Directory>
+
+   The above lines set an expire time to one day for jpg, gif, png and 
+   javascript files under openwebmail from the time they are accessed.
+
+   ps: Don't forget to change the above /usr/local/www/data/openwebmail
+       to where your openwebmail data locates.
+
+Q: Any other way to get more speedup?
+A: You may try the thttpd at http://www.acme.com/software/thttpd/,
+   here are some words from their web site :)
+
+   "thttpd is a simple, small, portable, fast, and secure HTTP server"
+
+   "It also has a very small run-time size, since it does not fork and 
+    is very careful about memory allocation. "
+
+   "In typical use it's about as fast as the best full-featured servers
+    (Apache, NCSA, Netscape). Under extreme load it's much faster."
+
+   Please refer to doc/thttpd.txt for some installation tips.
+
+
+========================================================================
+SOME CONCEPT
+========================================================================
+
+Q: What will happen at webmail server if I click the stop key in browser?
+A: When the stop key is pressed, the browser will close its connection to 
+   the httpd on webmail server. While httpd detects this immediately, 
+   what will httpd do to the CGI process is implementation dependent.
+   Basiclly, httpd will close the pipes to CGI process and terminate the 
+   CGI process.
+
+   Below is our observation on apache 1.3.26 on FreeBSD.
+
+   The apache httpd won't terminate nor close the connection to the CGI 
+   process until the CGI process sends output to its stdout. This gives 
+   the chance to CGI process to finish its job in a more graceful way.
+
+   When httpd receives some data from CGI process stdout (which actually 
+   pipes to stdin of httpd), the httpd will send a 'TERM' signal to CGI
+   process, close the pipes to CGI process, then kill the CGI process.
+
+   The situation is a little bit different if the CGI program is running
+   with SpeedyCGI. From the point of view of httpd, the speedycgi frontend
+   is the CGI process, so the frontend will be terminated it as the above
+   when speedy front tries to pass the data coming from the real CGI process 
+   forked by speedy_backend.
+
+   When the speedy_backend detects the termination of the speedy frontend,
+   it will close the pipes to the real CGI process, but won't send TERM 
+   signal to it nor kill it.
+
+   In both case (without or with speedycgi), the CGI process will get a 
+   signal PIPE if it tries to output data to stdout after the related 
+   pipe has been closed.
+
+   Now, what openwebmail do with this?
+   Since version 2.00, all stdout output code has been move to the end of the 
+   request processing in openwebmail, this the data being processed will be 
+   always in a complete state.
+
+Q: How is the domain of a login user determined?
+A: It is determined in the following order(the earlier one has higher precedence)
+   1. from the login name
+      eg: the user logined with username@virtualdomain
+   2. from the parameter 'logindomain' specified in login page url
+      eg: the login page was linked with 
+          http://server/cgi-bin/openwebmail/openwebmail.pl?logindomain=virtualdomain
+   3. from the servername specified in the login page url
+      eg: the login page was linked with
+          http://virtualdomain/cgi-bin/openwebmail/openwebmail.pl
+
+Q: How does the delfile_ifquotahit option work?
+   Which file will be removed first?
+A: It will remove the oldest files or direcotries under the webdiskrootdir
+   (webdiskrootdir is default to / of user homedir, but you can change it).
+   The removal will stop if the quota size is download to the 90% of user quota limit.
+
+Q: What is the difference between 'Forward', 'ForwardAsAtt', 'ForwardAsOrig'
+A: If A send msg1 to B, 
+   and B forward this msg as msg2 to B 
+
+   forward:
+   the subject of msg2 will be the subject of msg1 with a prefix "Fw:".
+   msg2 will have all attachments and content of msg1, 
+   and headers of msg1 will be put into the body msg2 as content
+
+   forwardasatt:
+   the subject of msg2 will be the subject of msg1 with a prefix "Fw:".
+   msg2 body will be empty
+   and the raw format of msg1 will be become an attachment of msg2.
+
+   forwardasorig:
+   the subject, body and attachments of msg2 will exactly the same as msg1.
+   the replyto header of msg2 will be set to A.
+   So in case C replies the msg2, the reply will go back to A
+
+Q: When I checked 'edit folder menu', I found some folders were empty but 
+   took disk space?
+A: The disk space occupied by a folder shown in 'edit folder menu' includes
+   the size of a folder and its index. Though folder is empty, the folder 
+   index still has some data structure to maintain.
+
+========================================================================
+HOW CAN I...
+========================================================================
 
 Q: How can I move old messages in my mail client into openwebmail folders?
 A: a. If your mail client program supports IMAP and your mail server has 
@@ -937,6 +1221,14 @@ A: a. If your mail client program supports IMAP and your mail server has
 
        perl -pi -e "s/\r\n/\n/" folderfile
 
+Q: How can I upgrade from old version of Open Webmail?
+A: Each version of openwebmail is made to be backward compatible with
+   old ones, no user setting or mail message will be lost after upgrade.
+   The upgrade steps:
+   1. make a copy of your old openwebmail.conf
+   2. install new openwebmail in the same location as old version
+   3. update the new openwebmail.conf with the setting in old one.
+
 Q: How can I report problem?
 A: If your Open WebMail doesn't work, please post your problem on
    openwebmail forum http://sourceforge.net/forum/forum.php?forum_id=108433
@@ -949,6 +1241,10 @@ A: If your Open WebMail doesn't work, please post your problem on
    the ls -l of your cgi-bin/openwebmail and cgi-bin/openwebmail/etc
    the ls -la of the ~user/mail/
    the error message in your browser
+   the error message in your http server error log
+   you browser name & version
+   do you enable speedycgi?
+   do you set any proxy server in browser?
 
    If your Open WebMail works but it shows strange output for some messages,
    please forward the message as an attachment to us
@@ -956,7 +1252,14 @@ A: If your Open WebMail doesn't work, please post your problem on
    ps: clicking the 'forward as attachment' icon in message reading menu
 
 Q: How can I debug the Open WebMail by myself?
-A: You may use uty/debugadd.pl to add debugging code to openwebmailscripts
+A: First, you can try to set option error_with_debuginfo to yes in 
+   openwebmail.conf. This would give you more detailed information in case
+   openwebmailerror() happens.
+
+   Second, if you want to have a stack trace of how openwebmail is running,
+   you may use the uty/debugadd.pl to add debugging code to openwebmail 
+   scripts
+
    1. cd cgi-bin/openwebmail/
    2. perl uty/debugadd.pl *pl
 
@@ -982,7 +1285,7 @@ A: You can call the openwebmail with url
 
 Q: Can I specify the webdisk as the openwebmail default?
 A: You can call the openwebmail with url
-   http://server/openwebmail.pl?action=webdisk
+   http://server/openwebmail.pl?action=showdir
 
 Q: Can I call openwebmail from my programs with username/password specified?
 A: this is a little dangerous since the loginname and password will
@@ -1069,20 +1372,6 @@ A: Please create a file, index.html, like below. Either a or b is okay.
 Q: Can I install openwebmail without root privilege?
 A: Yes, try the auth_pop3.pl. Some information is available in it.
 
-Q: Can I setup mail account for user without creating the unix account?
-A: Yes, you need postfix + vm-pop3d + openwebmail.
-   Kevin Ellis(kevin.AT.bluelavalamp.net) has made a webpage for this,
-   it is available at http://www.bluelavalamp.net/owmvirtual/
-
-Q: I have set openwebmail for virtual user with vm-pop3d, but I got
-   "Sorry, root login is disabled for security's sake" at login?
-A: Please check the descriptions in auth_vm-pop3d.pl/auth_pop3.pl and 
-   find which case you are using. If you are using case b, don't forget 
-   to set the $local_uid to the uid used by your vm-pop3d for all virtual 
-   users.
-ps: We suggest you use the auth_vdomain.pl for system running vm-pop3d+postfix
-    Please refer to descriptions in auth_vdomain.pl for more detail.
-
 Q: Can Open WebMail be used with mod_perl?
 A: No, the most reason is mod_perl can't be used for setuid program.
    But Open Webmail works great in persistent mode with SpeedyCGI.
@@ -1111,6 +1400,6 @@ A: Yes. Open WebMail is GPLed software (please see copyright.txt for
    c. Products based on Open Webmail must be also distributed under GPL.
 
 
-03/23/2003
+05/21/2003
 
 openwebmail.AT.turtle.ee.ncku.edu.tw

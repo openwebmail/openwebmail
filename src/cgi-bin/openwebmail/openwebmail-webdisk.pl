@@ -56,10 +56,13 @@ use vars qw($messageid $escapedmessageid);
 use vars qw($webdiskrootdir);
 
 ########################## MAIN ##############################
-clearvars();
-openwebmail_init();
+openwebmail_requestbegin();
+$SIG{PIPE}=\&openwebmail_exit;	# for user stop
+$SIG{TERM}=\&openwebmail_exit;	# for user stop
 
-# openwebmail_init() will set umask to 0077 to protect mail folder data.
+userenv_init();
+
+# userenv_init() will set umask to 0077 to protect mail folder data.
 # set umask back to 0022 here dir & files are created as world readable
 umask(0022);
 
@@ -70,7 +73,7 @@ $webdiskrootdir=$homedir.absolute_vpath("/", $config{'webdisk_rootpath'});
 ($webdiskrootdir =~ m!^(.+)/?$!) && ($webdiskrootdir = $1);  # untaint ...
 if (! -d $webdiskrootdir) {
    mkdir($webdiskrootdir, 0755) or
-      openwebmailerror("lang_text{'cant_create_dir'} $webdiskrootdir ($!)");
+      openwebmailerror(__FILE__, __LINE__, "lang_text{'cant_create_dir'} $webdiskrootdir ($!)");
 }
 
 my $action = param("action");
@@ -91,11 +94,11 @@ $currentdir = absolute_vpath("/", $currentdir);
 $gotodir = absolute_vpath($currentdir, $gotodir);
 
 my $msg=verify_vpath($webdiskrootdir, $currentdir);
-openwebmailerror($msg) if ($msg);
+openwebmailerror(__FILE__, __LINE__, $msg) if ($msg);
 ($currentdir =~ /^(.+)$/) && ($currentdir = $1);  # untaint ...
 
 if (!$config{'enable_webdisk'}) {
-   openwebmailerror("Action $lang_err{'has_illegal_chars'}");
+   openwebmailerror(__FILE__, __LINE__, "Action $lang_err{'has_illegal_chars'}");
 }
 
 if ($action eq "mkdir" || defined(param('mkdirbutton')) ) {
@@ -243,7 +246,7 @@ if ($action eq "mkdir" || defined(param('mkdirbutton')) ) {
    } else {
       $msg=$lang_err{'no_file_todownload'};
    }
-   openwebmailerror($msg) if ($msg);
+   openwebmailerror(__FILE__, __LINE__, $msg) if ($msg);
 
 } elsif ($action eq "download" || defined(param('downloadbutton'))) {
    if ($#selitems>0) {
@@ -300,11 +303,10 @@ if ($action eq "mkdir" || defined(param('mkdirbutton')) ) {
    }
 
 } else {
-   openwebmailerror("Action $lang_err{'has_illegal_chars'}");
+   openwebmailerror(__FILE__, __LINE__, "Action $lang_err{'has_illegal_chars'}");
 }
 
-# back to root if possible, required for setuid under persistent perl
-$<=0; $>=0;
+openwebmail_requestend();
 ########################## END MAIN ##########################
 
 ######################## CREATEDIR ##############################
@@ -370,10 +372,10 @@ sub deletedirfiles {
       if ($err) {
          $msg.="$err\n"; next;
       }
-      if (!-e "$webdiskrootdir/$vpath") {
+      if (!-l "$webdiskrootdir/$vpath" && !-e "$webdiskrootdir/$vpath") {
          $msg.="$vpath $lang_err{'doesnt_exist'}\n"; next;
       }
-      if (-f _ && $vpath=~/\.(jpe?g|gif|png|bmp|tif)$/i) {
+      if (-f _ && $vpath=~/\.(?:jpe?g|gif|png|bmp|tif)$/i) {
          my $thumbnail=path2thumbnail("$webdiskrootdir/$vpath");
          push(@filelist, $thumbnail) if (-f $thumbnail);
       }
@@ -469,8 +471,7 @@ sub editfile {
    my $content;
 
    my ($html, $temphtml);
-   $html = readtemplate("editfile.template");
-   $html = applystyle($html);
+   $html = applystyle(readtemplate("editfile.template"));
 
    if ( -d "$webdiskrootdir/$vpath") {
       autoclosewindow($lang_wdbutton{'edit'}, $lang_err{'edit_notfordir'});
@@ -560,7 +561,7 @@ sub editfile {
                         -override=>'1');
    $html =~ s/\@\@\@FILECONTENT\@\@\@/$temphtml/;
 
-   print htmlheader(), $html, htmlfooter(2);
+   httpprint([], [htmlheader(), $html, htmlfooter(2)]);
 }
 ######################## END EDITFILE ##############################
 
@@ -734,7 +735,7 @@ sub decompressfile {	# unpack zip, tar.gz, tgz, gz
       return("$lang_err{'couldnt_chdirto'} $currentdir\n");
 
    my $opstr;
-   if ($vpath=~/\.(zip|rar|arj|lhz|t[bg]z|tar\.g?z|tar\.bz2?)$/i) {
+   if ($vpath=~/\.(?:zip|rar|arj|lhz|t[bg]z|tar\.g?z|tar\.bz2?)$/i) {
       $opstr=$lang_wdbutton{'extract'};
    } else {
       $opstr=$lang_wdbutton{'decompress'};
@@ -749,8 +750,7 @@ sub listarchive {
    my $vpath=absolute_vpath($currentdir, $selitem);
 
    my ($html, $temphtml);
-   $html = readtemplate("listarchive.template");
-   $html = applystyle($html);
+   $html = applystyle(readtemplate("listarchive.template"));
 
    if (! -f "$webdiskrootdir/$vpath") {
       autoclosewindow($lang_wdbutton{'listarchive'}, "$lang_text{'file'} $vpath $lang_err{'doesnt_exist'}");
@@ -803,8 +803,8 @@ sub listarchive {
 
    my ($stdout, $stderr, $exit, $sig)=openwebmail::execute::execute(@cmd, "$webdiskrootdir/$vpath");
    # try to conv realpath in stdout/stderr back to vpath
-   $stdout=~s!($webdiskrootdir//|\s$webdiskrootdir/)! /!g; $stdout=~s!/+!/!g;
-   $stderr=~s!($webdiskrootdir//|\s$webdiskrootdir/)! /!g; $stderr=~s!/+!/!g;
+   $stdout=~s!(?:$webdiskrootdir//|\s$webdiskrootdir/)! /!g; $stdout=~s!/+!/!g;
+   $stderr=~s!(?:$webdiskrootdir//|\s$webdiskrootdir/)! /!g; $stderr=~s!/+!/!g;
 
    if ($exit||$sig) {
       my $err="$lang_text{'program'} $cmd[0]  $lang_text{'failed'} (exit status $exit";
@@ -837,7 +837,7 @@ sub listarchive {
    $temphtml = end_form();
    $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/;
 
-   print htmlheader(), $html, htmlfooter(2);
+   httpprint([], [htmlheader(), $html, htmlfooter(2)]);
 }
 ######################## END LISTARCHIVE ##############################
 
@@ -962,8 +962,7 @@ sub downloadfiles {	# through zip or tgz
    my $contenttype=ext2contenttype($dlname);
 
    local $|=1;
-   print qq|Content-Transfer-Coding: binary\n|,
-         qq|Connection: close\n|,
+   print qq|Connection: close\n|,
          qq|Content-Type: $contenttype; name="$dlname"\n|;
    if ( $ENV{'HTTP_USER_AGENT'}=~/MSIE 5.5/ ) {	# ie5.5 is broken with content-disposition: attachment
       print qq|Content-Disposition: filename="$dlname"\n|;
@@ -999,9 +998,7 @@ sub downloadfile {
    my $length = ( -s "$webdiskrootdir/$vpath");
 
    # disposition:inline default to open
-   print qq|Content-Length: $length\n|,
-         qq|Content-Transfer-Coding: binary\n|,
-         qq|Connection: close\n|,
+   print qq|Connection: close\n|,
          qq|Content-Type: $contenttype; name="$dlname"\n|;
    if ($contenttype=~/^text/ || $dlname=~/\.(jpe?g|gif|png|bmp)$/i) {
       print qq|Content-Disposition: inline; filename="$dlname"\n|;
@@ -1012,16 +1009,30 @@ sub downloadfile {
          print qq|Content-Disposition: attachment; filename="$dlname"\n|;
       }
    }
-   print qq|\n|;
 
-   my $buff;
-   while (read(F, $buff, 16384)) {
-      print $buff;
+   if ($contenttype=~/^text/ && $length>512 &&
+       cookie("openwebmail-httpcompress") &&
+       $ENV{'HTTP_ACCEPT_ENCODING'}=~/\bgzip\b/ &&
+       has_zlib()) {
+      my $content;
+      local $/; undef $/; $content=<F>; # no seperator, read whole file at once
+      close (F); 
+      $content=Compress::Zlib::memGzip($content);
+      $length=length($content);
+      print qq|Content-Encoding: gzip\n|,
+            qq|Vary: Accept-Encoding\n|,
+            qq|Content-Length: $length\n\n|, $content;
+   } else {
+      print qq|Content-Length: $length\n\n|;
+      my $buff;
+      while (read(F, $buff, 16384)) {
+         print $buff;
+      }
+      close(F);
    }
-   close(F);
-
    writelog("webdisk download - $vpath");
    writehistory("webdisk download - $vpath ");
+   return;
 }
 ########################## END DOWNLOADFILE ##########################
 
@@ -1035,16 +1046,15 @@ sub previewfile {
    return($err) if ($err);
 
    if ($filecontent eq "") {
-      my $buff;
       open(F, "$webdiskrootdir/$vpath") or return("$lang_err{'couldnt_open'} $vpath\n");
-      while (read(F, $buff, 16384)) { $filecontent.=$buff; }
+      local $/; undef $/; $filecontent=<F>; # no seperator, read whole file at once
       close(F);
    }
 
    # remove path from filename
    my $dlname=safedlname($vpath);
    my $contenttype=ext2contenttype($vpath);
-   if ($vpath=~/\.(html?|js)$/i) {
+   if ($vpath=~/\.(?:html?|js)$/i) {
       # use the dir where this html is as new currentdir
       my @p=path2array($vpath); pop @p;
       my $newdir='/'.join('/', @p);
@@ -1056,14 +1066,24 @@ sub previewfile {
       $filecontent=linkconv($filecontent, $preview_url);
    }
 
-   # calc length here since linkconv may change data length
-   my $length = length($filecontent);
-   print qq|Content-Length: $length\n|,
-         qq|Content-Transfer-Coding: binary\n|,
-         qq|Connection: close\n|,
+   print qq|Connection: close\n|,
          qq|Content-Type: $contenttype; name="$dlname"\n|,
-         qq|Content-Disposition: inline; filename="$dlname"\n\n|,
-         $filecontent;
+         qq|Content-Disposition: inline; filename="$dlname"\n|;
+
+   my $length = length($filecontent);	# calc length since linkconv may change data length
+   if ($contenttype=~/^text/ && $length>512 &&
+       cookie("openwebmail-httpcompress") &&
+       $ENV{'HTTP_ACCEPT_ENCODING'}=~/\bgzip\b/ &&
+       has_zlib()) {
+      $filecontent=Compress::Zlib::memGzip($filecontent);
+      $length=length($filecontent);
+      print qq|Content-Encoding: gzip\n|,
+            qq|Vary: Accept-Encoding\n|,
+            qq|Content-Length: $length\n\n|;
+   } else {
+      print qq|Content-Length: $length\n\n|;
+   }
+   print $filecontent;
    return;
 }
 
@@ -1076,7 +1096,7 @@ sub linkconv {
 
 sub _linkconv {
    my ($prefix, $link, $postfix, $preview_url)=@_;
-   if ($link=~m!^(mailto:|javascript:|#)!i) {
+   if ($link=~m!^(?:mailto:|javascript:|#)!i) {
       return($prefix.$link.$postfix);
    }
    if ($link !~ m!^http://!i && $link!~m!^/!) {
@@ -1086,7 +1106,7 @@ sub _linkconv {
 }
 sub _linkconv2 {
    my ($prefix, $link, $postfix, $preview_url)=@_;
-   if ($link=~m!^'?(http://|/)!i) {
+   if ($link=~m!^'?(?:http://|/)!i) {
       return($prefix.$link.$postfix);
    }
    $link=qq|'$preview_url'.$link|;	
@@ -1171,7 +1191,7 @@ sub dirfilesel {
       }
       $currentdir=$dir; last;
    }
-   openwebmailerror($msg) if (!$currentdir);
+   openwebmailerror(__FILE__, __LINE__, $msg) if (!$currentdir);
    $escapedcurrentdir=escapeURL($currentdir);
 
    my (%fsize, %fdate, %ftype, %flink);
@@ -1208,7 +1228,7 @@ sub dirfilesel {
       $fsize{$fname}=$st_size;
       $fdate{$fname}=$st_mtime;
    }
-   close(D);
+   closedir(D);
 
    my @sortedlist;
    if ($filesort eq "name_rev") {
@@ -1235,8 +1255,7 @@ sub dirfilesel {
    }
 
    my ($html, $temphtml);
-   $html = readtemplate("dirfilesel.template");
-   $html = applystyle($html);
+   $html = applystyle(readtemplate("dirfilesel.template"));
 
    my $wd_url=qq|$config{ow_cgiurl}/openwebmail-webdisk.pl?sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;currentdir=$escapedcurrentdir|;
    if ($action eq "sel_saveattfile") {
@@ -1280,7 +1299,7 @@ sub dirfilesel {
       $temphtml=checkbox(-name=>'showhidden',
                          -value=>'1',
                          -checked=>$showhidden,
-                         -OnClick=>qq|window.open('$wd_url&amp;action=$action&amp;filesort=$filesort&amp;page=$page&amp;singlepage=$singlepage&amp;showhidden=$newval', '_self'); return false;|,
+                         -OnClick=>qq|window.location.href='$wd_url&amp;action=$action&amp;filesort=$filesort&amp;page=$page&amp;singlepage=$singlepage&amp;showhidden=$newval'; return false;|,
                          -override=>'1',
                          -label=>'');
       $html =~ s/\@\@\@SHOWHIDDENCHECKBOX\@\@\@/$temphtml/g;
@@ -1292,7 +1311,7 @@ sub dirfilesel {
    $temphtml=checkbox(-name=>'singlepage',
                       -value=>'1',
                       -checked=>$singlepage,
-                      -OnClick=>qq|window.open('$wd_url&amp;action=$action&amp;filesort=$filesort&amp;page=$page&amp;showhidden=$showhidden&amp;singlepage=$newval', '_self'); return false;|,
+                      -OnClick=>qq|window.location.href='$wd_url&amp;action=$action&amp;filesort=$filesort&amp;page=$page&amp;showhidden=$showhidden&amp;singlepage=$newval'; return false;|,
                       -override=>'1',
                       -label=>'');
    $html =~ s/\@\@\@SINGLEPAGECHECKBOX\@\@\@/$temphtml/g;
@@ -1540,7 +1559,7 @@ sub dirfilesel {
    my $cookie = cookie( -name  => "$user-currentdir",
                         -value => $currentdir,
                         -path  => '/');
-   print htmlheader(-cookie=>[$cookie]), $html, htmlfooter(2);
+   httpprint([-cookie=>[$cookie]], [htmlheader(), $html, htmlfooter(2)]);
 }
 ######################## END FILESELECT ##########################
 
@@ -1585,11 +1604,11 @@ sub showdir {
             $msg .= "$lang_err{'couldnt_open'} $dir ($!)\n"; next;
          }
          @list=readdir(D);
-         close(D);
+         closedir(D);
          $currentdir=$dir;
          last;
       }
-      openwebmailerror($msg) if (!$currentdir);
+      openwebmailerror(__FILE__, __LINE__, $msg) if (!$currentdir);
    }
    $escapedcurrentdir=escapeURL($currentdir);
 
@@ -1666,8 +1685,7 @@ sub showdir {
    }
 
    my ($html, $temphtml);
-   $html = readtemplate("dir.template");
-   $html = applystyle($html);
+   $html = applystyle(readtemplate("dir.template"));
 
    my $wd_url=qq|$config{'ow_cgiurl'}/openwebmail-webdisk.pl?sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;currentdir=$escapedcurrentdir&amp;showthumbnail=$showthumbnail&amp;showhidden=$showhidden&amp;singlepage=$singlepage|;
    my $wd_url_sort_page=qq|$wd_url&amp;filesort=$filesort&amp;page=$page|;
@@ -1675,7 +1693,7 @@ sub showdir {
    $temphtml .= iconlink("home.gif" ,"$lang_text{'backto'} $lang_text{'homedir'}", qq|accesskey="G" href="$wd_url_sort_page&amp;action=showdir&amp;gotodir=|.escapeURL('/').qq|"|);
    $temphtml .= iconlink("refresh.gif" ,"$lang_wdbutton{'refresh'} ", qq|accesskey="R" href="$wd_url_sort_page&amp;action=userrefresh&amp;gotodir=$escapedcurrentdir"|);
 
-   $temphtml .= "&nbsp\n";
+   $temphtml .= "&nbsp;\n";
 
    if ($messageid eq "") {
       $temphtml .= iconlink("owm.gif", "$lang_text{'backto'} $printfolder", qq|accesskey="M" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;sessionid=$thissession&amp;folder=$escapedfolder"|);
@@ -1685,8 +1703,12 @@ sub showdir {
    if ($config{'enable_calendar'}) {
       $temphtml .= iconlink("calendar.gif", $lang_text{'calendar'}, qq|accesskey="K" href="$config{'ow_cgiurl'}/openwebmail-cal.pl?action=calmonth&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid"|);
    }
-   if ( $config{'enable_sshterm'} && -r "$config{'ow_htmldir'}/applet/mindterm/mindtermfull.jar" ) {
-      $temphtml .= iconlink("sshterm.gif" ,"$lang_text{'sshterm'} ", qq|accesskey="T" href="#" onClick="window.open('$config{ow_htmlurl}/applet/mindterm/ssh.html', '_applet', 'width=400,height=100,top=2000,left=2000,resizable=no,menubar=no,scrollbars=no');"|);
+   if ( $config{'enable_sshterm'}) {
+      if ( -r "$config{'ow_htmldir'}/applet/mindterm2/mindterm.jar" ) {
+         $temphtml .= iconlink("sshterm.gif" ,"$lang_text{'sshterm'} ", qq|accesskey="T" href="#" onClick="window.open('$config{ow_htmlurl}/applet/mindterm2/ssh2.html', '_applet', 'width=400,height=100,top=2000,left=2000,resizable=no,menubar=no,scrollbars=no');"|);
+      } elsif ( -r "$config{'ow_htmldir'}/applet/mindterm/mindtermfull.jar" ) {
+         $temphtml .= iconlink("sshterm.gif" ,"$lang_text{'sshterm'} ", qq|accesskey="T" href="#" onClick="window.open('$config{ow_htmlurl}/applet/mindterm/ssh.html', '_applet', 'width=400,height=100,top=2000,left=2000,resizable=no,menubar=no,scrollbars=no');"|);
+      }
    }
    $temphtml .= iconlink("prefs.gif", $lang_text{'userprefs'}, qq|accesskey="O" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;prefs_caller=webdisk"|);
    $temphtml .= iconlink("logout.gif", "$lang_text{'logout'} $prefs{'email'}", qq|accesskey="X" href="$config{'ow_cgiurl'}/openwebmail-main.pl?sessionid=$thissession&amp;action=logout"|);
@@ -1877,10 +1899,12 @@ sub showdir {
                        findicon($p, $ftype{$p}, $is_txt, $os).
                        qq|" align="absmiddle" border="0">|;
             }
-            my $blank="";
-            $blank="target=_blank" if ($is_txt || $p=~/\.(jpe?g|gif|png|bmp)$/i);
-            $namestr=qq|<a href="$wd_url_sort_page&amp;action=download&amp;selitems=|.
-                     escapeURL($p).qq|" $accesskeystr $blank>$imgstr $namestr</a>|;
+            my $blank=""; $blank="target=_blank" if ($is_txt || $p=~/\.(jpe?g|gif|png|bmp)$/i);
+            my $fname=$p; $fname=~s|.*/||g; $fname=escapeURL($fname);
+            $namestr=qq|<a href="$config{'ow_cgiurl'}/openwebmail-webdisk.pl/$fname?|.
+                     qq|sessionid=$thissession&amp;currentdir=$escapedcurrentdir&amp;|.
+                     qq|action=download&amp;selitems=|.escapeURL($p).
+                     qq|" $accesskeystr $blank>$imgstr $namestr</a>|;
 
             if ($is_txt) {
                if ($p=~/\.html?/i) {
@@ -1896,7 +1920,7 @@ sub showdir {
                           qq|','_editfile','width=720,height=550,scrollbars=yes,resizable=yes,location=no');|.
                           qq|">[$lang_wdbutton{'edit'}]</a>|;
                }
-            } elsif ($p=~/\.(zip|rar|arj|lzh|t[bg]z|tar\.g?z|tar\.bz2?)$/i ) {
+            } elsif ($p=~/\.(?:zip|rar|arj|lzh|t[bg]z|tar\.g?z|tar\.bz2?)$/i ) {
                $opstr=qq|<a href=# onClick="window.open('|.
                       qq|$wd_url&amp;action=listarchive&amp;selitems=|.escapeURL($p).
                       qq|','_editfile','width=780,height=550,scrollbars=yes,resizable=yes,location=no');|.
@@ -1911,7 +1935,7 @@ sub showdir {
                   $opstr.=qq| <a href="$wd_url_sort_page&amp;action=decompress&amp;selitems=|.
                           escapeURL($p).qq|" $onclickstr>[$lang_wdbutton{'extract'}]</a>|;
                }
-            } elsif ($p=~/\.(g?z|bz2?)$/i ) {
+            } elsif ($p=~/\.(?:g?z|bz2?)$/i ) {
                if (!$config{'webdisk_readonly'} &&
                    (!$quotalimit||$quotausage<$quotalimit) ) {
                   my $onclickstr;
@@ -1922,12 +1946,14 @@ sub showdir {
                   $opstr=qq|<a href="$wd_url_sort_page&amp;action=decompress&amp;selitems=|.
                          escapeURL($p).qq|" $onclickstr>[$lang_wdbutton{'decompress'}]</a>|;
                }
-            } elsif ($p=~/\.(jpe?g|gif|png|bmp|tif)$/i ) {
+            } elsif ($p=~/\.(?:jpe?g|gif|png|bmp|tif)$/i ) {
                if ($showthumbnail) {
                   my $thumbnail=path2thumbnail($p);
                   if ( -f "$webdiskrootdir/$currentdir/$thumbnail") {
-                     $opstr=qq|<a href="$wd_url_sort_page&amp;action=download&amp;selitems=|.
-                            escapeURL($p).qq|" $blank>|.
+                     my $fname=$p; $fname=~s|.*/||g; $fname=escapeURL($fname);
+                     $opstr=qq|<a href="$config{'ow_cgiurl'}/openwebmail-webdisk.pl/$fname?|.
+                            qq|sessionid=$thissession&amp;currentdir=$escapedcurrentdir&amp;|.
+                            qq|action=download&amp;selitems=|.escapeURL($p).qq|" $blank>|.
                             qq|<IMG SRC="$wd_url_sort_page&amp;action=download&amp;selitems=|.
                             escapeURL($thumbnail).qq|" align="absmiddle" border="0"></a>|;
                   }
@@ -2157,10 +2183,10 @@ sub showdir {
 
    # show quotahit del warning
    if ($quotahit_deltype) {
-      $html.=qq|<script language="JavaScript" src="$config{'ow_htmlurl'}/javascript/showmsg.js"></script>\n|;
       my $msg=qq|<font size="-1" color="#cc0000">$lang_err{$quotahit_deltype}</font>|;
       $msg=~s/\@\@\@QUOTALIMIT\@\@\@/$config{'quota_limit'}$lang_sizes{'kb'}/;
-      $html.=qq|<script language="JavaScript">\n<!--\n|.
+      $html.=readtemplate('showmsg.js').
+             qq|<script language="JavaScript">\n<!--\n|.
              qq|showmsg('$prefs{"charset"}', '$lang_text{"quotahit"}', '$msg', '$lang_text{"close"}', '_quotahit_del', 400, 100, 60);\n|.
              qq|//-->\n</script>\n|;
    }
@@ -2173,12 +2199,11 @@ sub showdir {
    my $cookie = cookie( -name  => "$user-currentdir",
                         -value => $currentdir,
                         -path  => '/');
-   print htmlheader(-cookie=>[$cookie],
-                    -Refresh=>"$refreshinterval;URL=$relative_url?sessionid=$thissession&folder=escapedfolder&message_id=$escapedmessageid&action=showdir&currentdir=$escapedcurrentdir&gotodir=$escapedcurrentdir&showthumbnail=$showthumbnail&showhidden=$showhidden&singlepage=$singlepage&filesort=$filesort&page=$page&searchtype=$searchtype&keyword=$escapedkeyword&session_noupdate=1"),
-         htmlplugin($config{'header_pluginfile'}),
-         $html,
-         htmlplugin($config{'footer_pluginfile'}),
-         htmlfooter(2);
+   httpprint([-cookie=>[$cookie],
+              -Refresh=>"$refreshinterval;URL=$relative_url?sessionid=$thissession&folder=escapedfolder&message_id=$escapedmessageid&action=showdir&currentdir=$escapedcurrentdir&gotodir=$escapedcurrentdir&showthumbnail=$showthumbnail&showhidden=$showhidden&singlepage=$singlepage&filesort=$filesort&page=$page&searchtype=$searchtype&keyword=$escapedkeyword&session_noupdate=1"],
+             [htmlheader(), htmlplugin($config{'header_pluginfile'}), 
+              $html, 
+              htmlplugin($config{'footer_pluginfile'}), htmlfooter(2)] );
 }
 
 sub filelist_of_search {
@@ -2223,7 +2248,7 @@ sub filelist_of_search {
                return("$lang_err{'couldnt_open'} $vpath ($!)\n");
             }
             my @f=readdir(D);
-            close(D);
+            closedir(D);
             @cmd=($grepbin, "-ils", '--', $keyword, @f);
             ($stdout, $stderr, $exit, $sig)=openwebmail::execute::execute(@cmd);
          }
@@ -2267,8 +2292,8 @@ sub webdisk_execute {
    my ($stdout, $stderr, $exit, $sig)=openwebmail::execute::execute(@cmd);
 
    # try to conv realpath in stdout/stderr back to vpath
-   $stdout=~s!($webdiskrootdir//|\s$webdiskrootdir/)! /!g; $stdout=~s!/+!/!g;
-   $stderr=~s!($webdiskrootdir//|\s$webdiskrootdir/)! /!g; $stderr=~s!/+!/!g;
+   $stdout=~s!(?:$webdiskrootdir//|\s$webdiskrootdir/)! /!g; $stdout=~s!/+!/!g;
+   $stderr=~s!(?:$webdiskrootdir//|\s$webdiskrootdir/)! /!g; $stderr=~s!/+!/!g;
 
    my $opresult;
    if ($exit||$sig) {
@@ -2305,38 +2330,36 @@ sub findicon {
 
    $_=lc($fname);
 
-   return("cert.gif") if ( /\.ce?rt$/ || /\.cer$/ || /\.ssl$/ );
-   return("help.gif") if ( /\.hlp$/ || /\.man$/ || /\.cat$/ || /\.info$/);
-   return("pdf.gif") if ( /\.[fp]df$/ );
-   return("html.gif") if ( /\.s?html?$/ || /\.xml$/ || /\.sgml$/ );
-   return("txt.gif") if ( /\.text$/ || /\.txt$/ );
+   return("cert.gif") if ( /\.(ce?rt|cer|ssl)$/ );
+   return("help.gif") if ( /\.(hlp|man|cat|info)$/ );
+   return("pdf.gif")  if ( /\.(fdf|pdf)$/ );
+   return("html.gif") if ( /\.(shtml|html?|xml|sgml|wmls?)$/ );
+   return("txt.gif")  if ( /\.te?xt$/ );
 
    if ($is_txt) {
-      return("css.gif") if ( /\.css$/ || /\.jsp?$/ || /\.aspx?$/ || /\.php[34]?$/ || /\.xslt?$/ || /\.vb[se]$/ || /\.ws[cf]$/ );
-      return("ini.gif") if ( /\.ini$/ || /\.inf$/ || /\.conf$/ || /\.cf$/ || /\.config$/ || /^\..*rc$/ );
-      return("mail.gif") if ( /\.msg$/ || /\.elm$/ );
-      return("ps.gif") if ( /\.ps$/ || /\.eps$/ );
+      return("css.gif")  if ( /\.(css|jsp?|aspx?|php[34]?|xslt?|vb[se]|ws[cf]|wrl|vrml)$/ );
+      return("ini.gif")  if ( /\.(ini|inf|conf|cf|config)$/ || /^\..*rc$/ );
+      return("mail.gif") if ( /\.(msg|elm)$/ );
+      return("ps.gif")   if ( /\.(ps|eps)$/ );
       return("txt.gif");
    } else {
-      return("audio.gif") if (/\.mid[is]?$/ || /\.mod$/ || /\.au$/ || /\.cda$/ || /\.aif$/ || /\.voc$/ );
-      return("chm.gif") if ( /\.chm$/ );
-      return("doc.gif") if ( /\.do[ct]$/ || /\.rtf$/ || /\.wri$/ );
-      return("exe.gif") if ( /\.exe$/ || /\.com$/);
-      return("font.gif") if ( /\.fon$/ );
-      return("graph.gif") if ( /\.jpe?g$/ || /\.gif$/ || /\.png$/ || /\.bmp$/ || /\.pbm$/ || /\.pc[xt]$/ || /\.pi[cx]$/ || /\.psp$/ || /\.dcx$/ || /\.kdc$/ || /\.tiff?$/ || /\.ico$/ || /\.img$/);
-      return("mdb.gif") if ( /\.md[bentz]$/ || /\.ma[fmq]$/ );
-      return("mp3.gif") if ( /\.m3u$/ || /\.mp[32]$/ );
-      return("ppt.gif") if ( /\.pp[at]$/ || /\.pot$/ );
-      return("rm.gif") if ( /\.r[fampv]$/ || /\.ram$/);
-      return("stream.gif") if ( /\.wmv$/ || /\.wvx$/ || /\.as[fx]$/ );
-      return("ttf.gif") if ( /\.tt[cf]$/ );
-      return("video.gif") if ( /\.mov$/ || /\.dat$/ || /\.mpg$/ || /\.mpeg$/ );
-      return("xls.gif") if ( /\.xl[abcdmst]$/ );
-      return("zip.gif") if ( /\.(zip|tar|t?g?z|tbz|bz2?|rar|lzh|arj|bhx|hqx)$/ );
+      return("audio.gif")  if (/\.(mid[is]?|mod|au|cda|aif[fc]?|voc|wav|snd)$/ );
+      return("chm.gif")    if ( /\.chm$/ );
+      return("doc.gif")    if ( /\.(do[ct]|rtf|wri)$/ );
+      return("exe.gif")    if ( /\.(exe|com|dll)$/ );
+      return("font.gif")   if ( /\.fon$/ );
+      return("graph.gif")  if ( /\.(jpe?g|gif|png|bmp|p[nbgp]m|pc[xt]|pi[cx]|psp|dcx|kdc|tiff?|ico|x[bp]m|img)$/);
+      return("mdb.gif")    if ( /\.(md[bentz]|ma[fmq])$/ );
+      return("mp3.gif")    if ( /\.(m3u|mp[32]|mpga)$/ );
+      return("ppt.gif")    if ( /\.(pp[at]|pot)$/ );
+      return("rm.gif")     if ( /\.(r[fampv]|ram)$/ );
+      return("stream.gif") if ( /\.(wmv|wvx|as[fx])$/ );
+      return("ttf.gif")    if ( /\.tt[cf]$/ );
+      return("video.gif")  if ( /\.(avi|mov|dat|mpe?g)$/ );
+      return("xls.gif")    if ( /\.xl[abcdmst]$/ );
+      return("zip.gif")    if ( /\.(zip|tar|t?g?z|tbz|bz2?|rar|lzh|arj|bhx|hqx|jar)$/ );
 
-      return("filebsd.gif") if ( $os =~ /bsd/i );
-      return("filelinux.gif") if ( $os =~ /linux/i );
-      return("filesolaris.gif") if ( $os =~ /solaris/i );
+      return("file".lc($1).".gif") if ( $os =~ /(bsd|linux|solaris)/i );
       return("file.gif");
    }
 }

@@ -40,6 +40,14 @@ package openwebmail::no;
    'non-urgent'=> 'Lav'
    );
 
+%lang_msgformatlabels =
+   (
+   auto => 'Auto selected',
+   text	=> 'Text',
+   html => 'HTML',
+   both => 'HTML and Text'
+   );
+
 %lang_withoriglabels =
    (
    at_beginning => 'øverst',
@@ -52,6 +60,13 @@ package openwebmail::no;
    ask => 'Be om bekreftelse',
    yes => 'Ja',
    no  => 'Nei'
+   );
+
+%lang_disableemblinklabels =
+   (
+   none    => 'None',
+   cgionly => 'CGI only',
+   all     => 'All embedded URLs'
    );
 
 %lang_ctrlpositionlabels =
@@ -188,6 +203,7 @@ package openwebmail::no;
 
 %lang_text =
    (
+   loading    => 'Loading, please wait',
    help       => 'Hjelp',
    login      => 'Logg inn',
    clear      => 'Slett',
@@ -232,6 +248,7 @@ package openwebmail::no;
    forwardasatt=>'Videresend som vedlegg',
    forwardasorig=>'Forward as original',
    printfriendly=> 'Utskriftsvennlig',
+   msgformat  => 'MsgFormat',
    from       => 'Fra',
    replyto    => 'Svar til',
    to         => 'Til',
@@ -344,6 +361,7 @@ package openwebmail::no;
    calfmt_yearmonthday  => '@@@YEAR@@@-@@@MONTH_STR@@@-@@@DAY@@@',
    calfmt_yearmonthdaywday => '@@@WEEKDAY_STR@@@, @@@YEAR@@@-@@@MONTH_STR@@@-@@@DAY@@@',
    calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
+   autosel    => 'Auto selected',
    none       => 'Ingen',
    moreitems  => 'flere elementer',
    multieditconf => 'Dette elementet er lagt inn for flere datoer.\\nEndringer vil gjelde alle datoene.\\nFortsette å endre?',
@@ -388,8 +406,9 @@ package openwebmail::no;
    vdomain_createuser => 'Opprett bruker',
    vdomain_changeuser => 'Endre bruker',
    vdomain_deleteuser => 'Slett bruker',
-   vdomain_usertype_localmbox  => 'Lokal postkasse',
-   vdomain_usertype_redirected => 'Redirigér til ekstern epostadresse'
+   set_passwd         => 'Set Password',
+   reset_passwd       => 'Reset Password',
+   email_alias        => 'E-MAIL Alias'
    );
 
 %lang_err =
@@ -452,7 +471,9 @@ package openwebmail::no;
    quotahit_delmail  => 'Advarsel, siden din kvote (@@@QUOTALIMIT@@@) er oppbrukt, er de eldste meldingene i mappene automatisk slettet.',
    quotahit_delfile  => 'Advarsel, siden din kvote (@@@QUOTALIMIT@@@) er oppbrukt, er noen filer på din webdisk automatisk slettet.',
    spool_overlimit   => 'Beklager, din innboks har oversteget grensen (@@@SPOOLLIMIT@@@). Vennligst flytt noen meldinger fra innboks til andre mapper.',
-   vdomain_toomanyuser=> 'Beklager, brukerantallet på dette domene er nådd maksimum'
+   vdomain_toomanyuser  => 'Beklager, brukerantallet på dette domene er nådd maksimum',
+   vdomain_toomanyalias => 'Sorry, the E-MAIL alias count of this user has reached its maximum limit',
+   vdomain_userrequired => 'A user name is required'
    );
 
 1;

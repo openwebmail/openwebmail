@@ -40,8 +40,11 @@ use vars qw($sort $page);
 use vars qw($messageid $escapedmessageid);
 
 ########################## MAIN ##############################
-clearvars();
-openwebmail_init();
+openwebmail_requestbegin();
+$SIG{PIPE}=\&openwebmail_exit;	# for user stop
+$SIG{TERM}=\&openwebmail_exit;	# for user stop
+
+userenv_init();
 
 $page = param("page") || 1;
 $sort = param("sort") || $prefs{'sort'} || 'date';
@@ -66,11 +69,10 @@ if ($action eq "addressbook") {
 } elsif ($action eq "exportabook") {
    exportabook();
 } else {
-   openwebmailerror("Action $lang_err{'has_illegal_chars'}");
+   openwebmailerror(__FILE__, __LINE__, "Action $lang_err{'has_illegal_chars'}");
 }
 
-# back to root if possible, required for setuid under persistent perl
-$<=0; $>=0;
+openwebmail_requestend();
 ###################### END MAIN ##############################
 
 #################### ADDRESSBOOK #######################
@@ -93,8 +95,7 @@ sub addressbook {
    my $results_flag = 0;
 
    my ($html, $temphtml);
-   $html = readtemplate("addressbook.template");
-   $html = applystyle($html);
+   $html = applystyle(readtemplate("addressbook.template"));
 
    if (defined($lang_text{$field})) {
       $temphtml=$lang_text{$field}.": $lang_text{'abook'}";
@@ -343,7 +344,7 @@ sub addressbook {
    $html =~ s/\@\@\@FORMNAME\@\@\@/$form/g;
    $html =~ s/\@\@\@FIELDNAME\@\@\@/$field/g;
 
-   print htmlheader(), $html, htmlfooter();
+   httpprint([], [htmlheader(), $html, htmlfooter(0)]);
 }
 ################## END ADDRESSBOOK #####################
 
@@ -362,7 +363,7 @@ sub importabook {
       close($abookupload);
 #      if ($mua eq 'outlookexp5') {
 #         unless ($abookcontents =~ /^Name,E-mail Address/) {
-#            openwebmailerror(qq|$lang_err{'abook_invalid'} <a href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=importabook&amp;sessionid=$thissession&amp;sort=$sort&amp;folder=$escapedfolder&amp;page=$page&amp;message_id=$escapedmessageid">$lang_err{'back'}</a> $lang_err{'tryagain'}|);
+#            openwebmailerror(__FILE__, __LINE__, qq|$lang_err{'abook_invalid'} <a href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=importabook&amp;sessionid=$thissession&amp;sort=$sort&amp;folder=$escapedfolder&amp;page=$page&amp;message_id=$escapedmessageid">$lang_err{'back'}</a> $lang_err{'tryagain'}|);
 #         }
 #      }
       if (! -f "$folderdir/.address.book" ) {
@@ -370,9 +371,9 @@ sub importabook {
          close(ABOOK);
       }
       filelock("$folderdir/.address.book", LOCK_EX|LOCK_NB) or
-         openwebmailerror("$lang_err{'couldnt_lock'} $folderdir/.address.book!");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $folderdir/.address.book!");
       open (ABOOK,"+<$folderdir/.address.book") or
-         openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.address.book! ($!)");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir/.address.book! ($!)");
       while (<ABOOK>) {
          ($name, $email, $note) = split(/\@\@\@/, $_, 3);
          chomp($email); chomp($note);
@@ -411,7 +412,7 @@ sub importabook {
       }
 
       seek (ABOOK, 0, 0) or
-         openwebmailerror("$lang_err{'couldnt_seek'} $folderdir/.address.book! ($!)");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_seek'} $folderdir/.address.book! ($!)");
 
       foreach (sort keys %addresses) {
          ($name,$email,$note)=($_, $addresses{$_}, $notes{$_});
@@ -421,20 +422,19 @@ sub importabook {
       }
 
       if (length($abooktowrite) > ($config{'maxbooksize'} * 1024)) {
-         openwebmailerror(qq|$lang_err{'abook_toobig'}|.
+         openwebmailerror(__FILE__, __LINE__, qq|$lang_err{'abook_toobig'}|.
                           qq|<a href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=importabook&amp;sessionid=$thissession&amp;sort=$sort&amp;folder=$escapedfolder&amp;page=$page&amp;message_id=$escapedmessageid">$lang_err{'back'}</a>|.
                           qq|$lang_err{'tryagain'}|);
       }
       print ABOOK $abooktowrite;
       truncate(ABOOK, tell(ABOOK));
 
-      close (ABOOK) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.address.book! ($!)");
+      close (ABOOK) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $folderdir/.address.book! ($!)");
       filelock("$folderdir/.address.book", LOCK_UN);
 
       writelog("import addressbook");
       writehistory("import addressbook");
 
-#      print "Location: $config{'ow_cgiurl'}/openwebmail-abook.pl?action=editaddresses&sessionid=$thissession&sort=$sort&folder=$escapedfolder&page=$page&message_id=$escapedmessageid\n\n";
       editaddresses();
 
    } else {
@@ -443,8 +443,7 @@ sub importabook {
       my $freespace = int($config{'maxbooksize'} - ($abooksize/1024) + .5);
 
       my ($html, $temphtml);
-      $html = readtemplate("importabook.template");
-      $html = applystyle($html);
+      $html = applystyle(readtemplate("importabook.template"));
 
       $html =~ s/\@\@\@FREESPACE\@\@\@/$freespace $lang_sizes{'kb'}/g;
 
@@ -514,7 +513,7 @@ sub importabook {
       $temphtml = submit("$lang_text{'cancel'}");
       $html =~ s/\@\@\@CANCELBUTTON\@\@\@/$temphtml/;
 
-      print htmlheader(), $html, htmlfooter(2);
+      httpprint([], [htmlheader(), $html, htmlfooter(2)]);
    }
 }
 
@@ -530,9 +529,9 @@ sub importabook_pine {
       my $abooktowrite='';
 
       filelock("$folderdir/.address.book", LOCK_EX|LOCK_NB) or
-         openwebmailerror("$lang_err{'couldnt_lock'} $folderdir/.address.book!");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $folderdir/.address.book!");
       open (ABOOK,"+<$folderdir/.address.book") or
-         openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.address.book! ($!)");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir/.address.book! ($!)");
 
       while (<ABOOK>) {
          ($name, $email, $note) = split(/\@\@\@/, $_, 3);
@@ -552,7 +551,7 @@ sub importabook_pine {
       close (PINEBOOK);
 
       seek (ABOOK, 0, 0) or
-         openwebmailerror("$lang_err{'couldnt_seek'} $folderdir/.address.book! ($!)");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_seek'} $folderdir/.address.book! ($!)");
 
       foreach (sort keys %addresses) {
          ($name,$email,$note)=($_, $addresses{$_}, $notes{$_});
@@ -562,14 +561,14 @@ sub importabook_pine {
       }
 
       if (length($abooktowrite) > ($config{'maxbooksize'} * 1024)) {
-         openwebmailerror(qq|$lang_err{'abook_toobig'}|.
+         openwebmailerror(__FILE__, __LINE__, qq|$lang_err{'abook_toobig'}|.
                           qq|<a href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=importabook&amp;sessionid=$thissession&amp;sort=$sort&amp;folder=$escapedfolder&amp;page=$page&amp;message_id=$escapedmessageid">$lang_err{'back'}</a>|.
                           qq|$lang_err{'tryagain'}|);
       }
       print ABOOK $abooktowrite;
       truncate(ABOOK, tell(ABOOK));
 
-      close (ABOOK) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.address.book! ($!)");
+      close (ABOOK) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $folderdir/.address.book! ($!)");
       filelock("$folderdir/.address.book", LOCK_UN);
 
       writelog("import addressbook");
@@ -582,13 +581,12 @@ sub importabook_pine {
 ##################### EXPORTABOOK ############################
 sub exportabook {
    filelock("$folderdir/.address.book", LOCK_EX|LOCK_NB) or
-      openwebmailerror("$lang_err{'couldnt_lock'} $folderdir/.address.book!");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $folderdir/.address.book!");
    open (ABOOK,"$folderdir/.address.book") or
-      openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.address.book! ($!)");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir/.address.book! ($!)");
 
    # disposition:attachment default to save
-   print qq|Content-Transfer-Coding: binary\n|,
-         qq|Connection: close\n|,
+   print qq|Connection: close\n|,
          qq|Content-Type: text/plain; name="adbook.csv"\n|;
    if ( $ENV{'HTTP_USER_AGENT'}=~/MSIE 5.5/ ) {	# ie5.5 is broken with content-disposition: attachment
       print qq|Content-Disposition: filename="adbook.csv"\n|;
@@ -623,19 +621,18 @@ sub editaddresses {
    my $abook_searchtype = param("abook_searchtype") || 'name';
 
    my ($html, $temphtml);
-   $html = readtemplate("editaddresses.template");
-   $html = applystyle($html);
+   $html = applystyle(readtemplate("editaddresses.template"));
 
    if ( -f "$folderdir/.address.book" ) {
       open (ABOOK,"$folderdir/.address.book") or
-         openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.address.book! ($!)");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir/.address.book! ($!)");
       while (<ABOOK>) {
          ($name, $email, $note) = split(/\@\@\@/, $_, 3);
          chomp($email); chomp($note);
          $addresses{"$name"} = $email;
          $notes{"$name"}=$note;
       }
-      close (ABOOK) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.address.book! ($!)");
+      close (ABOOK) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $folderdir/.address.book! ($!)");
    }
    my $abooksize = ( -s "$folderdir/.address.book" ) || 0;
    my $freespace = int($config{'maxbooksize'} - ($abooksize/1024) + .5);
@@ -884,7 +881,7 @@ sub editaddresses {
    }
    $html =~ s/\@\@\@ADDRESSES\@\@\@/$temphtml/;
 
-   print htmlheader(), $html, htmlfooter(2);
+   httpprint([], [htmlheader(), $html, htmlfooter(2)]);
 }
 ################### END EDITADDRESSES ########################
 
@@ -908,13 +905,13 @@ sub modaddress {
       if ( -f "$folderdir/.address.book" ) {
          if ($mode ne 'delete') {
             if ( (-s "$folderdir/.address.book") >= ($config{'maxbooksize'} * 1024) ) {
-               openwebmailerror(qq|$lang_err{'abook_toobig'} <a href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=editaddresses&amp;sessionid=$thissession&amp;sort=$sort&amp;folder=$escapedfolder&amp;page=$page&amp;message_id=$escapedmessageid">$lang_err{'back'}</a>$lang_err{'tryagain'}|);
+               openwebmailerror(__FILE__, __LINE__, qq|$lang_err{'abook_toobig'} <a href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=editaddresses&amp;sessionid=$thissession&amp;sort=$sort&amp;folder=$escapedfolder&amp;page=$page&amp;message_id=$escapedmessageid">$lang_err{'back'}</a>$lang_err{'tryagain'}|);
             }
          }
          filelock("$folderdir/.address.book", LOCK_EX|LOCK_NB) or
-            openwebmailerror("$lang_err{'couldnt_lock'} $folderdir/.address.book!");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $folderdir/.address.book!");
          open (ABOOK,"+<$folderdir/.address.book") or
-            openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.address.book! ($!)");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir/.address.book! ($!)");
          while (<ABOOK>) {
             ($name, $email, $note) = split(/\@\@\@/, $_, 3);
             chomp($email); chomp($note);
@@ -932,7 +929,7 @@ sub modaddress {
             }
          }
          seek (ABOOK, 0, 0) or
-            openwebmailerror("$lang_err{'couldnt_seek'} $folderdir/.address.book! ($!)");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_seek'} $folderdir/.address.book! ($!)");
 
          foreach (sort keys %addresses) {
             ($name,$email,$note)=($_, $addresses{$_}, $notes{$_});
@@ -941,15 +938,15 @@ sub modaddress {
             print ABOOK "$name\@\@\@$email\@\@\@$note\n";
          }
          truncate(ABOOK, tell(ABOOK));
-         close (ABOOK) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.address.book! ($!)");
+         close (ABOOK) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $folderdir/.address.book! ($!)");
          filelock("$folderdir/.address.book", LOCK_UN);
       } else {
          open (ABOOK, ">$folderdir/.address.book" ) or
-            openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.address.book! ($!)");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir/.address.book! ($!)");
          $realname=~s/\@\@/\@\@ /g; $realname=~s/\@$/\@ /;
          $address=~s/\@\@/\@\@ /g; $address=~s/\@$/\@ /;
          print ABOOK "$realname\@\@\@$address\@\@\@$usernote\n";
-         close (ABOOK) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.address.book! ($!)");
+         close (ABOOK) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $folderdir/.address.book! ($!)");
       }
    }
 
@@ -957,7 +954,7 @@ sub modaddress {
       my $searchtype = param("searchtype") || 'subject';
       my $keyword = param("keyword") || '';
       my $escapedkeyword = escapeURL($keyword);
-      print "Location: $config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&sessionid=$thissession&page=$page&sort=$sort&keyword=$escapedkeyword&searchtype=$searchtype&folder=$escapedfolder&message_id=$escapedmessageid\n\n";
+      print redirect(-location=>"$config{'ow_cgiurl'}/openwebmail-read.pl?sessionid=$thissession&folder=$escapedfolder&page=$page&sort=$sort&keyword=$escapedkeyword&searchtype=$searchtype&message_id=$escapedmessageid&action=readmessage&headers=$prefs{'headers'}&attmode=simple");
    } else {
       editaddresses();
    }
@@ -968,14 +965,13 @@ sub modaddress {
 sub clearaddress {
    if ( -f "$folderdir/.address.book" ) {
       open (ABOOK, ">$folderdir/.address.book") or
-         openwebmailerror ("$lang_err{'couldnt_open'} $folderdir/.address.book! ($!)");
-      close (ABOOK) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.address.book! ($!)");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir/.address.book! ($!)");
+      close (ABOOK) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $folderdir/.address.book! ($!)");
    }
 
    writelog("clear addressbook");
    writehistory("clear addressbook");
 
-#   print "Location: $config{'ow_cgiurl'}/openwebmail-abook.pl?action=editaddresses&sessionid=$thissession&sort=$sort&folder=$escapedfolder&page=$page&message_id=$escapedmessageid\n\n";
    editaddresses();
 }
 ################## END CLEARADDRESS ###########################

@@ -49,10 +49,13 @@ use vars qw($sort $page);
 use vars qw($searchtype $keyword $escapedkeyword);
 
 ########################## MAIN ##############################
-clearvars();
-openwebmail_init();
+openwebmail_requestbegin();
+$SIG{PIPE}=\&openwebmail_exit;	# for user stop
+$SIG{TERM}=\&openwebmail_exit;	# for user stop
+$SIG{CHLD}=sub { wait }; 	# prevent zombie
 
-$SIG{CHLD}=sub { wait }; # whole process scope to prevent zombie
+userenv_init();
+
 $page = param("page") || 1;
 $sort = param("sort") || $prefs{'sort'} || 'date';
 $searchtype = param("searchtype") || 'subject';
@@ -65,11 +68,10 @@ if ($action eq "readmessage") {
 } elsif ($action eq "rebuildmessage") {
    rebuildmessage(param("partialid"));
 } else {
-   openwebmailerror("Action $lang_err{'has_illegal_chars'}");
+   openwebmailerror(__FILE__, __LINE__, "Action $lang_err{'has_illegal_chars'}");
 }
 
-# back to root if possible, required for setuid under persistent perl
-$<=0; $>=0;
+openwebmail_requestend();
 ###################### END MAIN ##############################
 
 ################# READMESSAGE ####################
@@ -142,7 +144,7 @@ sub readmessage {
 
    my %message = %{&getmessage($messageid)};
    if (! defined($message{number}) ) {
-      print "Location: $config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&page=$page&sessionid=$thissession&sort=$sort&keyword=$escapedkeyword&searchtype=$searchtype&folder=$escapedfolder\n\n";
+      print redirect(-location=>"$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&page=$page&sessionid=$thissession&sort=$sort&keyword=$escapedkeyword&searchtype=$searchtype&folder=$escapedfolder");
       return;
    }
 
@@ -180,11 +182,10 @@ sub readmessage {
       readlang($prefs{'language'});
       $printfolder = $lang_folders{$folder} || $folder || '';
    }
-   $html=readtemplate($templatefile);
+   $html=applystyle(readtemplate($templatefile));
    if ($convfrom eq 'none.msgcharset') {
       ($prefs{'language'}, $prefs{'charset'})=@tmp;
    }
-   $html = applystyle($html);
 
    if ( $lang_folders{$folder} ) {
       $html =~ s/\@\@\@FOLDER\@\@\@/$lang_folders{$folder}/;
@@ -238,8 +239,8 @@ sub readmessage {
       $body = html4nobase($body);
       $body = html4noframe($body);
       $body = html4link($body);
-      $body = html4disablejs($body) if ($prefs{'disablejs'}==1);
-      $body = html4disableembcgi($body) if ($prefs{'disableembcgi'}==1);
+      $body = html4disablejs($body) if ($prefs{'disablejs'});
+      $body = html4disableemblink($body, $prefs{'disableemblink'}) if ($prefs{'disableemblink'} ne 'none');
       $body = html4mailto($body, "$config{'ow_cgiurl'}/openwebmail-send.pl", "$urlparm&amp;action=composemessage&amp;message_id=$escapedmessageid&amp;compose_caller=read");
       $body = html2table($body);
    } else { 					     # body must be html or text
@@ -319,8 +320,12 @@ sub readmessage {
    if ($config{'enable_webdisk'}) {
       $temphtml .= iconlink("webdisk.gif", $lang_text{'webdisk'}, qq|accesskey="E" href="$config{'ow_cgiurl'}/openwebmail-webdisk.pl?action=showdir&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid"|);
    }
-   if ( $config{'enable_sshterm'} && -r "$config{'ow_htmldir'}/applet/mindterm/mindtermfull.jar" ) {
-      $temphtml .= iconlink("sshterm.gif" ,"$lang_text{'sshterm'} ", qq|accesskey="T" href="#" onClick="window.open('$config{ow_htmlurl}/applet/mindterm/ssh.html', '_applet', 'width=400,height=100,top=2000,left=2000,resizable=no,menubar=no,scrollbars=no');"|);
+   if ( $config{'enable_sshterm'}) {
+      if ( -r "$config{'ow_htmldir'}/applet/mindterm2/mindterm.jar" ) {
+         $temphtml .= iconlink("sshterm.gif" ,"$lang_text{'sshterm'} ", qq|accesskey="T" href="#" onClick="window.open('$config{ow_htmlurl}/applet/mindterm2/ssh2.html', '_applet', 'width=400,height=100,top=2000,left=2000,resizable=no,menubar=no,scrollbars=no');"|);
+      } elsif ( -r "$config{'ow_htmldir'}/applet/mindterm/mindtermfull.jar" ) {
+         $temphtml .= iconlink("sshterm.gif" ,"$lang_text{'sshterm'} ", qq|accesskey="T" href="#" onClick="window.open('$config{ow_htmlurl}/applet/mindterm/ssh.html', '_applet', 'width=400,height=100,top=2000,left=2000,resizable=no,menubar=no,scrollbars=no');"|);
+      }
    }
    $temphtml .= iconlink("prefs.gif", $lang_text{'userprefs'}, qq|accesskey="O" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;sort=$sort&amp;page=$page&amp;prefs_caller=read"|);
    $temphtml .= iconlink("logout.gif","$lang_text{'logout'} $prefs{'email'}", qq|accesskey="Q" href="$main_url&amp;action=logout"|) . qq| \n|;
@@ -342,14 +347,14 @@ sub readmessage {
 
    if (defined($message{"prev"})) {
       my $gif="left.s.gif"; $gif="right.gif" if (is_RTLmode($prefs{'language'}));
-      $temphtml1 = iconlink($gif, "&lt;", qq|accesskey="U" href="$read_url&amp;action=readmessage&amp;message_id=|.escapeURL($message{'prev'}).qq|&amp;headers=$headers&amp;attmode=$attmode"|) . qq|\n|;
+      $temphtml1 = iconlink($gif, "&lt;", qq|accesskey="U" href="$read_url&amp;message_id=|.escapeURL($message{'prev'}).qq|&amp;action=readmessage&amp;headers=$headers&amp;attmode=$attmode"|) . qq|\n|;
    } else {
       my $gif="left-grey.s.gif"; $gif="right-grey.gif" if (is_RTLmode($prefs{'language'}));
       $temphtml1 = iconlink($gif, "-", ""). qq|\n|;
    }
    if (defined($message{"next"})) {
       my $gif="right.s.gif"; $gif="left.gif" if (is_RTLmode($prefs{'language'}));
-      $temphtml2 = iconlink($gif, "&gt;", qq|accesskey="D" href="$read_url&amp;action=readmessage&amp;message_id=|.escapeURL($message{'next'}).qq|&amp;headers=$headers&amp;attmode=$attmode"|). qq|\n|;
+      $temphtml2 = iconlink($gif, "&gt;", qq|accesskey="D" href="$read_url&amp;message_id=|.escapeURL($message{'next'}).qq|&amp;action=readmessage&amp;headers=$headers&amp;attmode=$attmode"|). qq|\n|;
    } else {
       my $gif="right-grey.s.gif"; $gif="left-grey.gif" if (is_RTLmode($prefs{'language'}));
       $temphtml2 = iconlink($gif, "-", ""). qq|\n|;
@@ -434,7 +439,7 @@ sub readmessage {
 
       if ( -f "$folderdir/.stationery.book" ) {
          open (STATBOOK,"$folderdir/.stationery.book") or
-            openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.stationery.book! ($!)");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir/.stationery.book! ($!)");
          while (<STATBOOK>) {
             my ($name, $content) = split(/\@\@\@/, $_, 2);
             chomp($name); chomp($content);
@@ -442,7 +447,7 @@ sub readmessage {
             $escstat{escapeURL($name)} = $name;
          }
          close (STATBOOK) or
-            openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.stationery.book! ($!)");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $folderdir/.stationery.book! ($!)");
       }
 
       $htmlstat = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-send.pl",
@@ -684,7 +689,7 @@ sub readmessage {
          $temphtml = qq|<a href="$read_url_with_id&amp;action=readmessage&amp;headers=$headers&amp;attmode=all&amp;convfrom=$convfrom">$lang_text{'allattmode'}</a>|;
       }
    } else {
-      $temphtml="&nbsp";
+      $temphtml="&nbsp;";
    }
    $html =~ s/\@\@\@ATTMODETOGGLE\@\@\@/$temphtml/;
 
@@ -716,7 +721,7 @@ sub readmessage {
          }
       }
       if ( $attmode eq 'all' ) {
-         if ( ${$message{attachment}[$attnumber]}{filename}=~/\.(jpg|jpeg|gif|png|bmp)$/i
+         if ( ${$message{attachment}[$attnumber]}{filename}=~/\.(?:jpg|jpeg|gif|png|bmp)$/i
             && !$prefs{'showimgaslink'} ) {
             $temphtml .= image_att2table($message{attachment}, $attnumber, $escapedmessageid, "&amp;convfrom=$convfrom");
          } else {
@@ -801,7 +806,7 @@ sub readmessage {
          } elsif ( ${$message{attachment}[$attnumber]}{contenttype}=~ /^message/i ) {
             # always show message/... attachment
             $temphtml .= message_att2table($message{attachment}, $attnumber, $style{"window_dark"});
-         } elsif ( ${$message{attachment}[$attnumber]}{filename}=~ /\.(jpg|jpeg|gif|png|bmp)$/i ) {
+         } elsif ( ${$message{attachment}[$attnumber]}{filename}=~ /\.(?:jpg|jpeg|gif|png|bmp)$/i ) {
             # show image only if it is not referenced by other html
             if ( ${$message{attachment}[$attnumber]}{referencecount} ==0 ) {
                if (!$prefs{'showimgaslink'}) {
@@ -809,6 +814,11 @@ sub readmessage {
                } else {
                   $temphtml .= misc_att2table($message{attachment}, $attnumber, $escapedmessageid, "&amp;convfrom=$convfrom");
                }
+            }
+         } elsif ( ${$message{attachment}[$attnumber]}{filename}=~ /\.(?:midi?|wav|mp3|ra|au|snd)$/i ) {
+            # show sound only if it is not referenced by other html
+            if ( ${$message{attachment}[$attnumber]}{referencecount} ==0 ) {
+               $temphtml .= misc_att2table($message{attachment}, $attnumber, $escapedmessageid, "&amp;convfrom=$convfrom");
             }
          } else {
             $temphtml .= misc_att2table($message{attachment}, $attnumber, $escapedmessageid, "&amp;convfrom=$convfrom");
@@ -849,7 +859,7 @@ sub readmessage {
       my $msg=qq|<font size="-1" color="#cc0000">$lang_err{'quotahit_alert'}</font>|;
       $msg =~ s!\\!\\\\!g; $msg =~ s!'!\\'!g;	# escape ' for javascript
       $temphtml.=qq|<script language="JavaScript">\n<!--\n|.
-                 qq|showmsg('$charset"', '$lang_text{"quotahit"}', '$msg', '$lang_text{"close"}', '_quotahit_alert', 400, 100, 60);\n|.
+                 qq|showmsg('$charset', '$lang_text{"quotahit"}', '$msg', '$lang_text{"close"}', '_quotahit_alert', 400, 100, 60);\n|.
                  qq|//-->\n</script>\n|;
    # show spool overlimit alert
    } elsif ($config{'spool_limit'}>0 && $inboxsize_k>$config{'spool_limit'}) {
@@ -881,15 +891,28 @@ sub readmessage {
          $msg .= qq|$f &nbsp; ${$r_filtered}{$f}<br>|;
          $line++;
       }
-      $msg = qq|<font size=-1>$msg</font>|;
+      $msg = qq|<font size="-1">$msg</font>|;
       $msg =~ s!\\!\\\\!g; $msg =~ s!'!\\'!g;	# escape ' for javascript
       $temphtml.=qq|<script language="JavaScript">\n<!--\n|.
                  qq|showmsg('$charset', '$lang_text{"inmessages"}', '$msg', '$lang_text{"close"}', '_incoming', 160, |.($line*16+70).qq|, $prefs{'newmailwindowtime'});\n|.
                  qq|//-->\n</script>\n|;
    }
-   if ($temphtml) {
-      $html.=qq|<script language="JavaScript" src="$config{'ow_htmlurl'}/javascript/showmsg.js"></script>\n|.
-             $temphtml;
+   $html.=readtemplate('showmsg.js').$temphtml if ($temphtml);
+
+   my @headers=();
+   # if no temphtml(wanring js) used in the message,
+   # then allow web cache for this msg on folder other than saved-drafts
+   if ($temphtml eq '' && $folder ne 'saved-drafts') {	
+      push(@headers, '-Expires' => CGI::expires('+900s'),
+                     '-Cache-Control' => 'private,max-age=900');
+   }
+
+   my $footermode=2;
+   if ($printfriendly eq "yes") {
+      $html.=qq|<script language="JavaScript">\n<!--\n|.
+             qq|setTimeout("window.print()", 1*1000);\n|.
+             qq|//-->\n</script>\n|;
+      $footermode=0;
    }
 
    my @tmp;
@@ -897,14 +920,8 @@ sub readmessage {
       @tmp=($prefs{'language'}, $prefs{'charset'});
       ($prefs{'language'}, $prefs{'charset'})=('en', lc($message{'charset'}));
    }
-   if ($printfriendly eq "yes") {
-      $html.=qq|<script language="JavaScript">\n<!--\n|.
-             qq|setTimeout("window.print()", 1*1000);\n|.
-             qq|//-->\n</script>\n|;
-      print htmlheader(), $html, htmlfooter(0);
-   } else {
-      print htmlheader(), $html, htmlfooter(2);
-   }
+   httpprint(\@headers,
+             [htmlheader(), $html, htmlfooter($footermode)]);
    if ($convfrom eq 'none.msgcharset') {
       ($prefs{'language'}, $prefs{'charset'})=@tmp;
    }
@@ -918,7 +935,7 @@ sub readmessage {
          close(STDIN); close(STDOUT); close(STDERR);
 
          my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
-         filelock($folderfile, LOCK_EX|LOCK_NB) or exit 1;
+         filelock($folderfile, LOCK_EX|LOCK_NB) or openwebmail_exit(1);
 
          # since status in headerdb may has flags not found in msg header
          # we must read the status from headerdb and then update it back
@@ -926,14 +943,14 @@ sub readmessage {
          update_message_status($messageid, $status."R", $headerdb, $folderfile);
 
          filelock("$folderfile", LOCK_UN);
-         exit 0;
+         openwebmail_exit(0);
       }
-   } elsif (param("status") !~ /r/i) { # msg index doesn't has R flag
+   } elsif (param("db_chkstatus")) { # check and set msg status R flag 
       my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
       my (%HDB, @attr);
       if (!$config{'dbmopen_haslock'}) {
          filelock("$headerdb$config{'dbm_ext'}", LOCK_EX) or
-            openwebmailerror("$lang_err{'couldnt_lock'} $headerdb$config{'dbm_ext'}");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $headerdb$config{'dbm_ext'}");
       }
       dbmopen(%HDB, "$headerdb$config{'dbmopen_ext'}", 0600);
       @attr=split(/@@@/, $HDB{$messageid});
@@ -944,6 +961,7 @@ sub readmessage {
       dbmclose(%HDB);
       filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
    }
+   return;
 }
 
 
@@ -966,8 +984,8 @@ sub html_att2table {
    $temphtml = html4nobase($temphtml);
    $temphtml = html4noframe($temphtml);
    $temphtml = html4link($temphtml);
-   $temphtml = html4disablejs($temphtml) if ($prefs{'disablejs'}==1);
-   $temphtml = html4disableembcgi($temphtml) if ($prefs{'disableembcgi'}==1);
+   $temphtml = html4disablejs($temphtml) if ($prefs{'disablejs'});
+   $temphtml = html4disableemblink($temphtml, $prefs{'disableemblink'}) if ($prefs{'disableemblink'} ne 'none');
    $temphtml = html4attachments($temphtml, $r_attachments, "$config{'ow_cgiurl'}/openwebmail-viewatt.pl", "action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder");
    $temphtml = html4mailto($temphtml, "$config{'ow_cgiurl'}/openwebmail-send.pl",
                   "sessionid=$thissession&amp;folder=$escapedfolder&amp;page=$page&amp;".
@@ -1044,8 +1062,8 @@ sub message_att2table {
    }
    if ($contenttype =~ m#^text/html#i) { # convert into html table
       $body = html4nobase($body);
-      $body = html4disablejs($body) if ($prefs{'disablejs'}==1);
-      $body = html4disableembcgi($body) if ($prefs{'disableembcgi'}==1);
+      $body = html4disablejs($body) if ($prefs{'disablejs'});
+      $body = html4disableemblink($body, $prefs{'disableemblink'}) if ($prefs{'disableemblink'} ne 'none');
       $body = html2table($body);
    } else {
       $body = text2html($body);
@@ -1055,13 +1073,11 @@ sub message_att2table {
    # be aware the message header are keep untouched here
    # in order to make it easy for further parsing
    my $temphtml=qq|<table width="100%" border=0 cellpadding=2 cellspacing=0>\n|.
-                qq|<tr bgcolor=$headercolor><td>\n|.
-                qq|<font size=-1>\n|.
+                qq|<tr bgcolor=$headercolor><td class="msgbody">\n|.
                 qq|$header\n|.
-                qq|</font>\n|.
                 qq|</td></tr>\n|.
                 qq|\n\n|.
-                qq|<tr><td class=msgbody>\n|.
+                qq|<tr><td class="msgbody">\n|.
                 qq|$body\n|.
                 qq|</td></tr></table>|;
    return($temphtml);
@@ -1084,7 +1100,7 @@ sub image_att2table {
       $temphtml .= qq|<a href=# title="$lang_text{'saveatt_towd'}" onClick="window.open('$config{'ow_cgiurl'}/openwebmail-webdisk.pl?action=sel_saveattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder&amp;attachment_nodeid=$nodeid$extraparm&amp;attname=|.
                    escapeURL(${$r_attachment}{filename}).qq|', '_blank','width=500,height=330,scrollbars=yes,resizable=yes,location=no');">$lang_text{'webdisk'}</a>|;
    }
-   $temphtml .=    qq|<font color=$style{"attachment_dark"}  size=-2>$nodeid $disposition</font>|.
+   $temphtml .=    qq|<font color=$style{"attachment_dark"} class="smalltext">$nodeid $disposition</font>|.
                    qq|</td></tr><td bgcolor=$style{"attachment_light"} align="center">|.
                    qq|<a href="$config{'ow_cgiurl'}/openwebmail-viewatt.pl/$escapedfilename?action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder&amp;attachment_nodeid=$nodeid$extraparm" title="$lang_text{'download'}">|.
                    qq|<img border="0" |;
@@ -1116,7 +1132,7 @@ sub misc_att2table {
       $temphtml .= qq|<a href=# title="$lang_text{'saveatt_towd'}" onClick="window.open('$config{'ow_cgiurl'}/openwebmail-webdisk.pl?action=sel_saveattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder&amp;attachment_nodeid=$nodeid$extraparm&amp;attname=|.
                    escapeURL(${$r_attachment}{filename}).qq|', '_blank','width=500,height=330,scrollbars=yes,resizable=yes,location=no');">$lang_text{'webdisk'}</a>|;
    }
-   $temphtml .=    qq|<font color=$style{"attachment_dark"}  size=-2>$nodeid $disposition|.
+   $temphtml .=    qq|<font color=$style{"attachment_dark"} class="smalltext">$nodeid $disposition|.
                    qq|</td></tr>|.
                    qq|<tr><td nowrap bgcolor= $style{"attachment_light"} align="center">|.
                    qq|$lang_text{'type'}: $contenttype<br>|.
@@ -1126,7 +1142,7 @@ sub misc_att2table {
    }
    my $blank="";
    if ($contenttype=~/^text/ ||
-       ${$r_attachment}{filename}=~/\.(jpg|jpeg|gif|png|bmp)$/i) {
+       ${$r_attachment}{filename}=~/\.(?:jpg|jpeg|gif|png|bmp)$/i) {
       $blank="target=_blank";
    }
    $temphtml .=    qq|</td><td nowrap width="10%" bgcolor= $style{"attachment_light"} align="center">|.
@@ -1145,7 +1161,7 @@ sub rebuildmessage {
    ($headerdb =~ /^(.+)$/) && ($headerdb = $1);
 
    filelock($folderfile, LOCK_EX|LOCK_NB) or
-      openwebmailerror("$lang_err{'couldnt_lock'} $folderfile!");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $folderfile!");
 
    my ($errorcode, $rebuildmsgid, @partialmsgids)=
 	rebuild_message_with_partialid($folderfile, $headerdb, $partialid);
@@ -1159,7 +1175,7 @@ sub rebuildmessage {
       ($trashdb =~ /^(.+)$/) && ($trashdb = $1);
       if ($folderfile ne $trashfile) {
          filelock("$trashfile", LOCK_EX) or
-            openwebmailerror("$lang_err{'couldnt_lock'} $trashfile");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $trashfile");
          my $moved=operate_message_with_ids("move", \@partialmsgids,
 				$folderfile, $headerdb, $trashfile, $trashdb);
          filelock("$trashfile", LOCK_UN);
@@ -1170,8 +1186,7 @@ sub rebuildmessage {
       writehistory("rebuild message - rebuild $rebuildmsgid from $folder");
    } else {
       my ($html, $temphtml);
-      $html = readtemplate("rebuildfailed.template");
-      $html = applystyle($html);
+      $html = applystyle(readtemplate("rebuildfailed.template"));
 
       my $errormsg;
       if ($errorcode==-1) {
@@ -1220,7 +1235,7 @@ sub rebuildmessage {
                    end_form();
       $html =~ s/\@\@\@CONTINUEBUTTON\@\@\@/$temphtml/;
 
-      print htmlheader(), $html, htmlfooter(2);
+      httpprint([], [htmlheader(), $html, htmlfooter(2)]);
    }
 }
 ################# END REBUILDMESSGAE ####################

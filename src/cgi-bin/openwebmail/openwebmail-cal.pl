@@ -56,8 +56,11 @@ use vars qw($miscbuttonsstr);
 use vars qw(@slottime);
 
 ########################## MAIN ##############################
-clearvars();
-openwebmail_init();
+openwebmail_requestbegin();
+$SIG{PIPE}=\&openwebmail_exit;	# for user stop
+$SIG{TERM}=\&openwebmail_exit;	# for user stop
+
+userenv_init();
 
 $messageid = param("message_id");
 $escapedmessageid = escapeURL($messageid);
@@ -79,8 +82,12 @@ if ($messageid eq "") {
 if ($config{'enable_webdisk'}) {
    $miscbuttonsstr .= iconlink("webdisk.gif", $lang_text{'webdisk'}, qq|accesskey="E" href="$config{'ow_cgiurl'}/openwebmail-webdisk.pl?action=showdir&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid"|);
 }
-if ( $config{'enable_sshterm'} && -r "$config{'ow_htmldir'}/applet/mindterm/mindtermfull.jar" ) {
-   $miscbuttonsstr .= iconlink("sshterm.gif" ,"$lang_text{'sshterm'} ", qq|accesskey="T" href="#" onClick="window.open('$config{ow_htmlurl}/applet/mindterm/ssh.html', '_applet', 'width=400,height=100,top=2000,left=2000,resizable=no,menubar=no,scrollbars=no');"|);
+if ( $config{'enable_sshterm'}) {
+   if ( -r "$config{'ow_htmldir'}/applet/mindterm2/mindterm.jar" ) {
+      $miscbuttonsstr .= iconlink("sshterm.gif" ,"$lang_text{'sshterm'} ", qq|accesskey="T" href="#" onClick="window.open('$config{ow_htmlurl}/applet/mindterm2/ssh2.html', '_applet', 'width=400,height=100,top=2000,left=2000,resizable=no,menubar=no,scrollbars=no');"|);
+   } elsif ( -r "$config{'ow_htmldir'}/applet/mindterm/mindtermfull.jar" ) {
+      $miscbuttonsstr .= iconlink("sshterm.gif" ,"$lang_text{'sshterm'} ", qq|accesskey="T" href="#" onClick="window.open('$config{ow_htmlurl}/applet/mindterm/ssh.html', '_applet', 'width=400,height=100,top=2000,left=2000,resizable=no,menubar=no,scrollbars=no');"|);
+   }
 }
 $miscbuttonsstr .= iconlink("prefs.gif", $lang_text{'userprefs'}, qq|accesskey="O" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;prefs_caller=cal"|);
 $miscbuttonsstr .= iconlink("logout.gif", "$lang_text{'logout'} $prefs{'email'}", qq|accesskey="X" href="$config{'ow_cgiurl'}/openwebmail-main.pl?sessionid=$thissession&amp;action=logout"|);
@@ -117,7 +124,7 @@ my $monthfreq=param('monthfreq')||0;
 my $everyyear=param('everyyear')||0;
 
 if (!$config{'enable_calendar'}) {
-   openwebmailerror("Action $lang_err{'has_illegal_chars'}");
+   openwebmailerror(__FILE__, __LINE__, "Action $lang_err{'has_illegal_chars'}");
 }
 
 if ($action eq "calyear") {
@@ -159,16 +166,20 @@ if ($action eq "calyear") {
       dayview($year, $month, $day);
    }
 } else {
-   openwebmailerror("Action $lang_err{'has_illegal_chars'}");
+   openwebmailerror(__FILE__, __LINE__, "Action $lang_err{'has_illegal_chars'}");
 }
 
-# back to root if possible, required for setuid under persistent perl
-$<=0; $>=0;
+openwebmail_requestend();
 ########################## END MAIN ##########################
 
 ########################## YEARVIEW ##########################
 sub yearview {
    my $year=$_[0];
+   my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
+   if ((($year % 4) == 0) && ((($year % 100) != 0) || (($year % 400) == 0))) {
+      $days_in_month[2]++;
+   }
+
    my $g2l=time();
    if ($prefs{'daylightsaving'} eq "on" ||
        ($prefs{'daylightsaving'} eq "auto" && is_dst($g2l,$prefs{'timeoffset'})) ) {
@@ -180,12 +191,10 @@ sub yearview {
 
    my $day;
    $year = $current_year if (!$year);
-   $year=2037 if ($year>2037);
-   $year=1970 if ($year<1970);
+   $year=2037 if ($year>2037); $year=1970 if ($year<1970);
 
    my ($html, $temphtml);
-   $html = readtemplate("yearview.template");
-   $html = applystyle($html);
+   $html = applystyle(readtemplate("yearview.template"));
 
    $temphtml = startform(-name=>"yearform",
 			 -action=>"$config{'ow_cgiurl'}/openwebmail-cal.pl") .
@@ -203,12 +212,14 @@ sub yearview {
                       -override=>'1');
    $html =~ s/\@\@\@STARTFORM\@\@\@/$temphtml/g;
 
-   $temphtml = textfield(-name=>'year',
-                         -default=>$year,
-                         -size=>'4',
-                         -accesskey=>'G',
-                         -override=>'1');
-   $html =~ s/\@\@\@YEARFIELD\@\@\@/$lang_text{'calfmt_year'}/g;
+   $html =~ s/\@\@\@DATESELMENU\@\@\@/$lang_text{'calfmt_year'}/g;
+
+   $temphtml = popup_menu(-name=>'year',
+                          -values=>[1970..2037],
+                          -default=>$year,
+                          -onChange=>"submit()",
+                          -accesskey=>'G',
+                          -override=>'1');
    $html =~ s/\@\@\@YEAR\@\@\@/ $temphtml /;
 
    $temphtml = end_form();
@@ -217,42 +228,50 @@ sub yearview {
    $temphtml = formatted_date($year);
    $html =~ s/\@\@\@CALTITLE\@\@\@/$temphtml/g;
 
-   my $cal_url=qq|$config{'ow_cgiurl'}/openwebmail-cal.pl?sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;|;
+   # put the calbook timestamp in request url so cache directive can be used
+   # for the two most time-consuming operstion --- yearview and listview
+   my $stamp=(stat("$folderdir/.calendar.book"))[9];
+   my $cal_url=qq|$config{'ow_cgiurl'}/openwebmail-cal.pl?sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;stamp=$stamp|;
 
-   $temphtml  = iconlink("yearview.gif" ,"$lang_calendar{'yearview'} ".formatted_date($year), qq|accesskey="Y" href="|.$cal_url.qq|action=calyear&year=$year"|);
-   $temphtml .= iconlink("monthview.gif", "$lang_calendar{'monthview'} ".formatted_date($year, $current_month), qq|accesskey="M" href="|.$cal_url.qq|action=calmonth&year=$year&month=$current_month"|);
-   $temphtml .= iconlink("weekview.gif", "$lang_calendar{'weekview'} ".formatted_date($year, $current_month, $current_day), qq|accesskey="W" href="|.$cal_url.qq|action=calweek&year=$year&month=$current_month&day=$current_day"|);
-   $temphtml .= iconlink("dayview.gif", "$lang_calendar{'dayview'} ".formatted_date($year, $current_month, $current_day), qq|accesskey="T" href="|.$cal_url.qq|action=calday&year=$year&month=$current_month&day=$current_day"|);
-   $temphtml .= iconlink("listview.gif", "$lang_calendar{'listview'} ".formatted_date($year), qq|accesskey="L" href="|.$cal_url.qq|action=callist&year=$year"|);
+   $temphtml  = iconlink("yearview.gif" ,"$lang_calendar{'yearview'} ".formatted_date($year), qq|accesskey="Y" href="$cal_url&amp;action=calyear&amp;year=$year"|);
+   $temphtml .= iconlink("monthview.gif", "$lang_calendar{'monthview'} ".formatted_date($year, $current_month), qq|accesskey="M" href="$cal_url&amp;action=calmonth&amp;year=$year&amp;month=$current_month"|);
+   $temphtml .= iconlink("weekview.gif", "$lang_calendar{'weekview'} ".formatted_date($year, $current_month, $current_day), qq|accesskey="W" href="$cal_url&amp;action=calweek&amp;year=$year&amp;month=$current_month&amp;day=$current_day"|);
+   $temphtml .= iconlink("dayview.gif", "$lang_calendar{'dayview'} ".formatted_date($year, $current_month, $current_day), qq|accesskey="T" href="$cal_url&amp;action=calday&amp;year=$year&amp;month=$current_month&amp;day=$current_day"|);
+   $temphtml .= iconlink("listview.gif", "$lang_calendar{'listview'} ".formatted_date($year), qq|accesskey="L" href="$cal_url&amp;action=callist&amp;year=$year"|);
    if ($year != $current_year) {
-      $temphtml .= iconlink("refresh.gif", "$lang_text{'backto'} ".formatted_date($current_year), qq|accesskey="R" href="|.$cal_url.qq|action=calyear&year=$current_year"|);
+      $temphtml .= iconlink("refresh.gif", "$lang_text{'backto'} ".formatted_date($current_year), qq|accesskey="R" href="$cal_url&amp;action=calyear&amp;year=$current_year"|);
    }
    $temphtml .= "&nbsp;\n$miscbuttonsstr";
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
 
    my $prev_year = $year - 1;
    my $gif="left.gif"; $gif="right.gif" if (is_RTLmode($prefs{'language'}));
-   $temphtml=iconlink($gif, formatted_date($prev_year), qq|accesskey="U" href="|.$cal_url.qq|action=calyear&year=$prev_year"|). qq| \n|;
+   $temphtml=iconlink($gif, formatted_date($prev_year), qq|accesskey="U" href="$cal_url&amp;action=calyear&amp;year=$prev_year"|). qq| \n|;
    $html =~ s/\@\@\@PREV_LINK\@\@\@/$temphtml/g;
 
    my $next_year = $year + 1;
    $gif="right.gif"; $gif="left.gif" if (is_RTLmode($prefs{'language'}));
-   $temphtml=iconlink($gif, formatted_date($next_year), qq|accesskey="D" href="|.$cal_url.qq|action=calyear&year=$next_year"|). qq| \n|;
+   $temphtml=iconlink($gif, formatted_date($next_year), qq|accesskey="D" href="$cal_url&amp;action=calyear&amp;year=$next_year"|). qq| \n|;
    $html =~ s/\@\@\@NEXT_LINK\@\@\@/$temphtml/g;
 
    my (%items, %indexes);
    if ( readcalbook("$folderdir/.calendar.book", \%items, \%indexes, 0)<0 ) {
-      openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.calendar.book");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir/.calendar.book");
    }
    if ($prefs{'calendar_reminderforglobal'}) {
       readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6);
-      readcalbook("$config{'ow_holidaysdir'}/$prefs{'language'}", \%items, \%indexes, 1E6);
+      if ($prefs{'calendar_holidaydef'} eq 'auto') {
+         readcalbook("$config{'ow_holidaysdir'}/$prefs{'language'}", \%items, \%indexes, 1E7);
+      } elsif ($prefs{'calendar_holidaydef'} ne 'none') {
+         readcalbook("$config{'ow_holidaysdir'}/$prefs{'calendar_holidaydef'}", \%items, \%indexes, 1E7);
+      }
    }
 
+   my @accesskey=qw(0 1 2 3 4 5 6 7 8 9 0 J Q);
    my ($easter_month, $easter_day) = gregorian_easter($year); # compute once
    my $week=1;
    for my $month (1..12) {
-      my @days = set_days_in_month($year, $month);
+      my @days = set_days_in_month($year, $month, $days_in_month[$month]);
       my $bgcolor;
 
       if ($month==$current_month && $year == $current_year) {
@@ -262,13 +281,10 @@ sub yearview {
       }
 
       $temphtml  = qq|<td valign=top align=center $bgcolor>\n|;
-
-      my @accesskey=qw(0 1 2 3 4 5 6 7 8 9 0 J Q);
       $temphtml .= qq|<table border="0" width="100%"><tr><td align="center">|.
-                   qq|<a accesskey="$accesskey[$month]" href="|.$cal_url.qq|action=calmonth&year=$year&month=$month">|.
+                   qq|<a accesskey="$accesskey[$month]" href="$cal_url&amp;action=calmonth&amp;year=$year&amp;month=$month">|.
                    qq|<B>$lang_month{$month}</B></a>|.
                    qq|</td></tr></table>\n|;
-
       $temphtml .= qq|<table border="0" cellpadding="1" cellspacing="0" width="100%">\n|;
       $temphtml .= qq|<tr align=center><td>$lang_wday_abbrev{'week'}</td>|;
       for (my $i=0; $i<7; $i++) {
@@ -281,12 +297,8 @@ sub yearview {
       for my $x (0..5) {
          $temphtml .= qq|<tr align=center>|;
          if (($days[$x][0]) || ($days[$x][6])) {
-            if ($days[$x][0]) {
-               $day = $days[$x][0];
-            } else {
-               $day = $days[$x][6];
-            }
-            $temphtml .= qq|<td><a href="|.$cal_url.qq|action=calweek&year=$year&month=$month&day=$day">|.
+            $day = $days[$x][0]||$days[$x][6];
+            $temphtml .= qq|<td><a href="$cal_url&amp;action=calweek&amp;year=$year&amp;month=$month&amp;day=$day">|.
                          qq|<font color=#c00000>$week</font></a></td>\n|;
          }
          for my $y (0..6) {
@@ -331,7 +343,7 @@ sub yearview {
                   $bgcolor="";
                }
 
-               $temphtml .= qq|<td $bgcolor><a href="|.$cal_url.qq|action=calday&year=$year&month=$month&day=$day" $eventstr>|;
+               $temphtml .= qq|<td $bgcolor><a href="$cal_url&amp;action=calday&amp;year=$year&amp;month=$month&amp;day=$day" $eventstr>|;
                if ($eventstr) {
                   $temphtml .= qq|<b>$days[$x][$y]</b>|;
                } else {
@@ -350,17 +362,22 @@ sub yearview {
       $html =~ s/\@\@\@MONTH$month\@\@\@/$temphtml/;
    }
 
-   print htmlheader(), 
-         htmlplugin($config{'header_pluginfile'}), 
-         $html, 
-         htmlplugin($config{'footer_pluginfile'}), 
-         htmlfooter(2);
+   httpprint(['-Expires' => CGI::expires('+900s'),
+              '-Cache-Control' => 'private,max-age=900'], 
+             [htmlheader(), htmlplugin($config{'header_pluginfile'}), 
+              $html, 
+              htmlplugin($config{'footer_pluginfile'}), htmlfooter(2)] );
 }
 ######################## END YEARVIEW ########################
 
 ########################## MONTHVIEW ##########################
 sub monthview {
    my ($year, $month)=@_;
+   my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
+   if ((($year % 4) == 0) && ((($year % 100) != 0) || (($year % 400) == 0))) {
+      $days_in_month[2]++;
+   }
+
    my $g2l=time();
    if ($prefs{'daylightsaving'} eq "on" ||
        ($prefs{'daylightsaving'} eq "auto" && is_dst($g2l,$prefs{'timeoffset'})) ) {
@@ -372,20 +389,16 @@ sub monthview {
 
    $year = $current_year if (!$year);
    $month = $current_month if (!$month);
-   $year=2037 if ($year>2037);
-   $year=1970 if ($year<1970);
+   $year=2037 if ($year>2037); $year=1970 if ($year<1970);
+   $month=12 if ($month>12); $month=1 if ($month<1);
 
    my ($html, $temphtml);
-   $html = readtemplate("monthview.template");
-   $html = applystyle($html);
+   $html = applystyle(readtemplate("monthview.template"));
 
    $temphtml = startform(-name=>"yearform",
 			 -action=>"$config{'ow_cgiurl'}/openwebmail-cal.pl") .
                hidden(-name=>'action',
                       -default=>'calmonth',
-                      -override=>'1').
-               hidden(-name=>'month',
-                      -default=>$month,
                       -override=>'1').
                hidden(-name=>'sessionid',
                       -default=>$thissession,
@@ -398,13 +411,24 @@ sub monthview {
                       -override=>'1');
    $html =~ s/\@\@\@STARTFORM\@\@\@/$temphtml/g;
 
-   $temphtml = textfield(-name=>'year',
-                         -default=>$year,
-                         -size=>'4',
-                         -accesskey=>'G',
-                         -override=>'1');
-   $html =~ s/\@\@\@YEARFIELD\@\@\@/$lang_text{'calfmt_year'}/g;
+   $html =~ s/\@\@\@DATESELMENU\@\@\@/$lang_text{'calfmt_yearmonth'}/g;
+
+   $temphtml = popup_menu(-name=>'year',
+                          -values=>[1970..2037],
+                          -default=>$year,
+                          -onChange=>"submit()",
+                          -accesskey=>'G',
+                          -override=>'1');
    $html =~ s/\@\@\@YEAR\@\@\@/ $temphtml /;
+
+   $temphtml = popup_menu(-name=>'month',
+                          -values=>[1..12],
+                          -labels=>\%lang_month,
+                          -default=>$month,
+                          -onChange=>"submit()",
+                          -accesskey=>'G',
+                          -override=>'1');
+   $html =~ s/\@\@\@MONTH_STR\@\@\@/ $temphtml /;
 
    $temphtml = end_form();
    $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/g;
@@ -412,15 +436,18 @@ sub monthview {
    $temphtml = formatted_date($year, $month);
    $html =~ s/\@\@\@CALTITLE\@\@\@/$temphtml/g;
 
-   my $cal_url=qq|$config{'ow_cgiurl'}/openwebmail-cal.pl?sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;|;
+   # put the calbook timestamp in request url so cache directive can be used
+   # for the two most time-consuming operstion --- yearview and listview
+   my $stamp=(stat("$folderdir/.calendar.book"))[9];
+   my $cal_url=qq|$config{'ow_cgiurl'}/openwebmail-cal.pl?sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;stamp=$stamp|;
 
-   $temphtml  = iconlink("yearview.gif", "$lang_calendar{'yearview'} ".formatted_date($year), qq|accesskey="Y" href="|.$cal_url.qq|action=calyear&year=$year"|);
-   $temphtml .= iconlink("monthview.gif", "$lang_calendar{'monthview'} ".formatted_date($year,$month), qq|accesskey="M" href="|.$cal_url.qq|action=calmonth&year=$year&month=$month"|);
-   $temphtml .= iconlink("weekview.gif", "$lang_calendar{'weekview'} ".formatted_date($year,$month,$current_day), qq|accesskey="W" href="|.$cal_url.qq|action=calweek&year=$year&month=$month&day=$current_day"|);
-   $temphtml .= iconlink("dayview.gif", "$lang_calendar{'dayview'} ".formatted_date($year,$month,$current_day), qq|accesskey="T" href="|.$cal_url.qq|action=calday&year=$year&month=$month&day=$current_day"|);
-   $temphtml .= iconlink("listview.gif", "$lang_calendar{'listview'} ".formatted_date($year), qq|accesskey="L" href="|.$cal_url.qq|action=callist&year=$year"|);
+   $temphtml  = iconlink("yearview.gif", "$lang_calendar{'yearview'} ".formatted_date($year), qq|accesskey="Y" href="$cal_url&amp;action=calyear&amp;year=$year"|);
+   $temphtml .= iconlink("monthview.gif", "$lang_calendar{'monthview'} ".formatted_date($year,$month), qq|accesskey="M" href="$cal_url&amp;action=calmonth&amp;year=$year&amp;month=$month"|);
+   $temphtml .= iconlink("weekview.gif", "$lang_calendar{'weekview'} ".formatted_date($year,$month,$current_day), qq|accesskey="W" href="$cal_url&amp;action=calweek&amp;year=$year&amp;month=$month&amp;day=$current_day"|);
+   $temphtml .= iconlink("dayview.gif", "$lang_calendar{'dayview'} ".formatted_date($year,$month,$current_day), qq|accesskey="T" href="$cal_url&amp;action=calday&amp;year=$year&amp;month=$month&amp;day=$current_day"|);
+   $temphtml .= iconlink("listview.gif", "$lang_calendar{'listview'} ".formatted_date($year), qq|accesskey="L" href="$cal_url&amp;action=callist&amp;year=$year"|);
    if ($year!=$current_year || $month!=$current_month) {
-      $temphtml .= iconlink("refresh.gif", "$lang_text{'backto'} ".formatted_date($current_year,$current_month), qq|accesskey="R" href="|.$cal_url.qq|action=calmonth&year=$current_year&month=$current_month"|);
+      $temphtml .= iconlink("refresh.gif", "$lang_text{'backto'} ".formatted_date($current_year,$current_month), qq|accesskey="R" href="$cal_url&amp;action=calmonth&amp;year=$current_year&amp;month=$current_month"|);
    }
    $temphtml .= "&nbsp;\n$miscbuttonsstr";
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
@@ -430,7 +457,7 @@ sub monthview {
       ($prev_year, $prev_month) = ($year-1, 12);
    }
    my $gif="left.gif"; $gif="right.gif" if (is_RTLmode($prefs{'language'}));
-   $temphtml=iconlink($gif, formatted_date($prev_year,$prev_month), qq|accesskey="U" href="|.$cal_url.qq|action=calmonth&year=$prev_year&month=$prev_month"|). qq| \n|;
+   $temphtml=iconlink($gif, formatted_date($prev_year,$prev_month), qq|accesskey="U" href="$cal_url&amp;action=calmonth&amp;year=$prev_year&amp;month=$prev_month"|). qq| \n|;
    $html =~ s/\@\@\@PREV_LINK\@\@\@/$temphtml/g;
 
    my ($next_year, $next_month)= ($year, $month+1);
@@ -438,7 +465,7 @@ sub monthview {
       ($next_year, $next_month) = ($year+1, 1);
    }
    $gif="right.gif"; $gif="left.gif" if (is_RTLmode($prefs{'language'}));
-   $temphtml=iconlink($gif, formatted_date($next_year,$next_month), qq|accesskey="D" href="|.$cal_url.qq|action=calmonth&year=$next_year&month=$next_month"|). qq| \n|;
+   $temphtml=iconlink($gif, formatted_date($next_year,$next_month), qq|accesskey="D" href="$cal_url&amp;action=calmonth&amp;year=$next_year&amp;month=$next_month"|). qq| \n|;
    $html =~ s/\@\@\@NEXT_LINK\@\@\@/$temphtml/g;
 
    for (my $i=0; $i<7; $i++) {
@@ -454,11 +481,15 @@ sub monthview {
 
    my (%items, %indexes);
    if ( readcalbook("$folderdir/.calendar.book", \%items, \%indexes, 0)<0 ) {
-      openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.calendar.book");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir/.calendar.book");
    }
    if ($prefs{'calendar_reminderforglobal'}) {
       readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6);
-      readcalbook("$config{'ow_holidaysdir'}/$prefs{'language'}", \%items, \%indexes, 1E6);
+      if ($prefs{'calendar_holidaydef'} eq 'auto') {
+         readcalbook("$config{'ow_holidaysdir'}/$prefs{'language'}", \%items, \%indexes, 1E7);
+      } elsif ($prefs{'calendar_holidaydef'} ne 'none') {
+         readcalbook("$config{'ow_holidaysdir'}/$prefs{'calendar_holidaydef'}", \%items, \%indexes, 1E7);
+      }
    }
 
    $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-cal.pl");
@@ -483,7 +514,7 @@ sub monthview {
    $html =~ s/\@\@\@STARTDAYFORM\@\@\@/$temphtml/;
 
    my ($easter_month, $easter_day) = gregorian_easter($year); # compute once
-   my @days = set_days_in_month($year, $month);
+   my @days = set_days_in_month($year, $month, $days_in_month[$month]);
    for my $x ( 0..5 ) {
       for my $y ( 0..6 ) {
          my $bgcolor;
@@ -537,14 +568,14 @@ sub monthview {
             $temphtml .= qq|<tr><td>|;
             for my $index (@indexlist) {
                if ($i<$prefs{'calendar_monthviewnumitems'}) {
-                  $temphtml .= month_week_item($items{$index}, $cal_url.qq|action=calday&year=$year&month=$month&day=$day|, ($index>=1E6))
+                  $temphtml .= month_week_item($items{$index}, qq|$cal_url&amp;action=calday&amp;year=$year&amp;month=$month&amp;day=$day|, ($index>=1E6))
                }
                $i++;
             }
             if ($i>$prefs{'calendar_monthviewnumitems'}) {
-               $temphtml .= qq|<br><br><font size=-1><a href="|.$cal_url.
-                            qq|action=calday&year=$year&month=$month&day=$day">|.
-                            qq|$lang_text{'moreitems'}</a></font>\n|;
+               $temphtml .= qq|<br><br><a href="$cal_url&amp;|.
+                            qq|action=calday&amp;year=$year&amp;month=$month&amp;day=$day">|.
+                            qq|$lang_text{'moreitems'}</a>\n|;
             }
             $temphtml .= qq|&nbsp;<br>\n| if ($i==0);
             $temphtml .= qq|</td></tr></table></td>\n|;
@@ -558,17 +589,21 @@ sub monthview {
       }
    }
 
-   print htmlheader(), 
-         htmlplugin($config{'header_pluginfile'}), 
-         $html, 
-         htmlplugin($config{'footer_pluginfile'}), 
-         htmlfooter(2);
+   httpprint([], 
+             [htmlheader(), htmlplugin($config{'header_pluginfile'}), 
+              $html, 
+              htmlplugin($config{'footer_pluginfile'}), htmlfooter(2)] );
 }
 ######################## END MONTHVIEW ########################
 
 ########################## WEEKVIEW ##########################
 sub weekview {
    my ($year, $month, $day)=@_;
+   my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
+   if ((($year % 4) == 0) && ((($year % 100) != 0) || (($year % 400) == 0))) {
+      $days_in_month[2]++;
+   }
+
    my $g2l=time();
    if ($prefs{'daylightsaving'} eq "on" ||
        ($prefs{'daylightsaving'} eq "auto" && is_dst($g2l,$prefs{'timeoffset'})) ) {
@@ -581,23 +616,17 @@ sub weekview {
    $year = $current_year if (!$year);
    $month = $current_month if (!$month);
    $day = $current_day if (!$day);
-   $year=2037 if ($year>2037);
-   $year=1970 if ($year<1970);
+   $year=2037 if ($year>2037); $year=1970 if ($year<1970);
+   $month=12 if ($month>12); $month=1 if ($month<1);
+   $day=$days_in_month[$month] if ($day>$days_in_month[$month]); $day=1 if ($day<1);
 
    my ($html, $temphtml);
-   $html = readtemplate("weekview.template");
-   $html = applystyle($html);
+   $html = applystyle(readtemplate("weekview.template"));
 
    $temphtml = startform(-name=>"yearform",
 			 -action=>"$config{'ow_cgiurl'}/openwebmail-cal.pl") .
                hidden(-name=>'action',
                       -default=>'calweek',
-                      -override=>'1').
-               hidden(-name=>'month',
-                      -default=>$month,
-                      -override=>'1').
-               hidden(-name=>'day',
-                      -default=>$day,
                       -override=>'1').
                hidden(-name=>'sessionid',
                       -default=>$thissession,
@@ -610,12 +639,32 @@ sub weekview {
                       -override=>'1');
    $html =~ s/\@\@\@STARTFORM\@\@\@/$temphtml/g;
 
-   $temphtml = textfield(-name=>'year',
-                         -default=>$year,
-                         -size=>'4',
-                         -override=>'1');
-   $html =~ s/\@\@\@YEARFIELD\@\@\@/$lang_text{'calfmt_year'}/g;
+   $html =~ s/\@\@\@DATESELMENU\@\@\@/$lang_text{'calfmt_yearmonthday'}/g;
+
+   $temphtml = popup_menu(-name=>'year',
+                          -values=>[1970..2037],
+                          -default=>$year,
+                          -onChange=>"submit()",
+                          -accesskey=>'G',
+                          -override=>'1');
    $html =~ s/\@\@\@YEAR\@\@\@/ $temphtml /;
+
+   $temphtml = popup_menu(-name=>'month',
+                          -values=>[1..12],
+                          -labels=>\%lang_month,
+                          -default=>$month,
+                          -onChange=>"submit()",
+                          -accesskey=>'G',
+                          -override=>'1');
+   $html =~ s/\@\@\@MONTH_STR\@\@\@/ $temphtml /;
+
+   $temphtml = popup_menu(-name=>'day',
+                          -values=>[1..$days_in_month[$month]],
+                          -default=>$day,
+                          -onChange=>"submit()",
+                          -accesskey=>'G',
+                          -override=>'1');
+   $html =~ s/\@\@\@DAY\@\@\@/ $temphtml /;
 
    $temphtml = end_form();
    $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/g;
@@ -623,15 +672,18 @@ sub weekview {
    $temphtml = formatted_date($year, $month, $day);
    $html =~ s/\@\@\@CALTITLE\@\@\@/$temphtml/g;
 
-   my $cal_url=qq|$config{'ow_cgiurl'}/openwebmail-cal.pl?sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;|;
+   # put the calbook timestamp in request url so cache directive can be used
+   # for the two most time-consuming operstion --- yearview and listview
+   my $stamp=(stat("$folderdir/.calendar.book"))[9];
+   my $cal_url=qq|$config{'ow_cgiurl'}/openwebmail-cal.pl?sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;stamp=$stamp|;
 
-   $temphtml  = iconlink("yearview.gif", "$lang_calendar{'yearview'} ".formatted_date($year), qq|href="|.$cal_url.qq|action=calyear&year=$year"|). qq| \n|;
-   $temphtml .= iconlink("monthview.gif", "$lang_calendar{'monthview'} ".formatted_date($year,$month), qq|href="|.$cal_url.qq|action=calmonth&year=$year&month=$month"|). qq| \n|;
-   $temphtml .= iconlink("weekview.gif", "$lang_calendar{'weekview'} ".formatted_date($year,$month,$day), qq|href="|.$cal_url.qq|action=calweek&year=$year&month=$month&day=$day"|). qq| \n|;
-   $temphtml .= iconlink("dayview.gif", "$lang_calendar{'dayview'} ".formatted_date($year,$month,$day), qq|href="|.$cal_url.qq|action=calday&year=$year&month=$month&day=$day"|). qq| \n|;
-   $temphtml .= iconlink("listview.gif", "$lang_calendar{'listview'} ".formatted_date($year), qq|href="|.$cal_url.qq|action=callist&year=$year"|). qq| \n|;
+   $temphtml  = iconlink("yearview.gif", "$lang_calendar{'yearview'} ".formatted_date($year), qq|href="$cal_url&amp;action=calyear&amp;year=$year"|). qq| \n|;
+   $temphtml .= iconlink("monthview.gif", "$lang_calendar{'monthview'} ".formatted_date($year,$month), qq|href="$cal_url&amp;action=calmonth&amp;year=$year&amp;month=$month"|). qq| \n|;
+   $temphtml .= iconlink("weekview.gif", "$lang_calendar{'weekview'} ".formatted_date($year,$month,$day), qq|href="$cal_url&amp;action=calweek&amp;year=$year&amp;month=$month&amp;day=$day"|). qq| \n|;
+   $temphtml .= iconlink("dayview.gif", "$lang_calendar{'dayview'} ".formatted_date($year,$month,$day), qq|href="$cal_url&amp;action=calday&amp;year=$year&amp;month=$month&amp;day=$day"|). qq| \n|;
+   $temphtml .= iconlink("listview.gif", "$lang_calendar{'listview'} ".formatted_date($year), qq|href="$cal_url&amp;action=callist&amp;year=$year"|). qq| \n|;
    if ($year!=$current_year || $month!=$current_month || $day!=$current_day) {
-      $temphtml .= iconlink("refresh.gif", "$lang_text{'backto'} $lang_calendar{'weekview'} ".formatted_date($current_year,$current_month,$current_day), qq|href="|.$cal_url.qq|action=calweek&year=$current_year&month=$current_month&day=$current_day"|). qq| \n|;
+      $temphtml .= iconlink("refresh.gif", "$lang_text{'backto'} $lang_calendar{'weekview'} ".formatted_date($current_year,$current_month,$current_day), qq|href="$cal_url&amp;action=calweek&amp;year=$current_year&amp;month=$current_month&amp;day=$current_day"|). qq| \n|;
    }
    $temphtml .= "&nbsp;\n$miscbuttonsstr";
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
@@ -641,13 +693,13 @@ sub weekview {
    my ($prev_year, $prev_month, $prev_day)=(gmtime($time-86400*7))[5,4,3];
    $prev_year+=1900; $prev_month++;
    my $gif="left.gif"; $gif="right.gif" if (is_RTLmode($prefs{'language'}));
-   $temphtml=iconlink($gif, "$lang_calendar{'weekview'} ".formatted_date($prev_year,$prev_month,$prev_day), qq|href="|.$cal_url.qq|action=calweek&year=$prev_year&month=$prev_month&day=$prev_day"|). qq| \n|;
+   $temphtml=iconlink($gif, "$lang_calendar{'weekview'} ".formatted_date($prev_year,$prev_month,$prev_day), qq|href="$cal_url&amp;action=calweek&amp;year=$prev_year&amp;month=$prev_month&amp;day=$prev_day"|). qq| \n|;
    $html =~ s/\@\@\@PREV_LINK\@\@\@/$temphtml/g;
 
    my ($next_year, $next_month, $next_day)=(gmtime($time+86400*7))[5,4,3];
    $next_year+=1900; $next_month++;
    $gif="right.gif"; $gif="left.gif" if (is_RTLmode($prefs{'language'}));
-   $temphtml=iconlink($gif, "$lang_calendar{'weekview'} ".formatted_date($next_year,$next_month,$next_day), qq|href="|.$cal_url.qq|action=calweek&year=$next_year&month=$next_month&day=$next_day"|). qq| \n|;
+   $temphtml=iconlink($gif, "$lang_calendar{'weekview'} ".formatted_date($next_year,$next_month,$next_day), qq|href="$cal_url&amp;action=calweek&amp;year=$next_year&amp;month=$next_month&amp;day=$next_day"|). qq| \n|;
    $html =~ s/\@\@\@NEXT_LINK\@\@\@/$temphtml/g;
 
    my $wdaynum = (gmtime($time))[6];
@@ -667,11 +719,15 @@ sub weekview {
 
    my (%items, %indexes);
    if ( readcalbook("$folderdir/.calendar.book", \%items, \%indexes, 0)<0 ) {
-      openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.calendar.book");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir/.calendar.book");
    }
    if ($prefs{'calendar_reminderforglobal'}) {
       readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6);
-      readcalbook("$config{'ow_holidaysdir'}/$prefs{'language'}", \%items, \%indexes, 1E6);
+      if ($prefs{'calendar_holidaydef'} eq 'auto') {
+         readcalbook("$config{'ow_holidaysdir'}/$prefs{'language'}", \%items, \%indexes, 1E7);
+      } elsif ($prefs{'calendar_holidaydef'} ne 'none') {
+         readcalbook("$config{'ow_holidaysdir'}/$prefs{'calendar_holidaydef'}", \%items, \%indexes, 1E7);
+      }
    }
 
    for my $x (0..6) {
@@ -746,7 +802,7 @@ sub weekview {
 
       $temphtml .= qq|<tr><td valign=bottom>|;
       for my $index (@indexlist) {
-         $temphtml .= month_week_item($items{$index}, $cal_url.qq|action=calday&year=$year&month=$month&day=$day|, ($index>=1E6));
+         $temphtml .= month_week_item($items{$index}, qq|$cal_url&amp;action=calday&amp;year=$year&amp;month=$month&amp;day=$day|, ($index>=1E6));
          $i++;
       }
       $temphtml .= qq|&nbsp;<br>\n| if ($i==0);
@@ -755,11 +811,10 @@ sub weekview {
       $html =~ s/\@\@\@DAY$x\@\@\@/$temphtml/;
    }
 
-   print htmlheader(), 
-         htmlplugin($config{'header_pluginfile'}), 
-         $html, 
-         htmlplugin($config{'footer_pluginfile'}), 
-         htmlfooter(2);
+   httpprint([], 
+             [htmlheader(), htmlplugin($config{'header_pluginfile'}), 
+              $html, 
+              htmlplugin($config{'footer_pluginfile'}), htmlfooter(2)] );
 }
 
 # print an item in the month or week view
@@ -806,6 +861,11 @@ sub month_week_item {
 ########################## DAYVIEW ###########################
 sub dayview {
    my ($year, $month, $day)=@_;
+   my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
+   if ((($year % 4) == 0) && ((($year % 100) != 0) || (($year % 400) == 0))) {
+      $days_in_month[2]++;
+   }
+
    my $g2l=time();
    if ($prefs{'daylightsaving'} eq "on" ||
        ($prefs{'daylightsaving'} eq "auto" && is_dst($g2l,$prefs{'timeoffset'})) ) {
@@ -818,23 +878,17 @@ sub dayview {
    $year = $current_year if (!$year);
    $month = $current_month if (!$month);
    $day = $current_day if (!$day);
-   $year=2037 if ($year>2037);
-   $year=1970 if ($year<1970);
+   $year=2037 if ($year>2037); $year=1970 if ($year<1970);
+   $month=12 if ($month>12); $month=1 if ($month<1);
+   $day=$days_in_month[$month] if ($day>$days_in_month[$month]); $day=1 if ($day<1);
 
    my ($html, $temphtml);
-   $html = readtemplate("dayview.template");
-   $html = applystyle($html);
+   $html = applystyle(readtemplate("dayview.template"));
 
    $temphtml = startform(-name=>"yearform",
 			 -action=>"$config{'ow_cgiurl'}/openwebmail-cal.pl") .
                hidden(-name=>'action',
                       -default=>'calday',
-                      -override=>'1').
-               hidden(-name=>'month',
-                      -default=>$month,
-                      -override=>'1').
-               hidden(-name=>'day',
-                      -default=>$day,
                       -override=>'1').
                hidden(-name=>'sessionid',
                       -default=>$thissession,
@@ -847,52 +901,83 @@ sub dayview {
                       -override=>'1');
    $html =~ s/\@\@\@STARTFORM\@\@\@/$temphtml/g;
 
-   $temphtml = textfield(-name=>'year',
-                         -default=>$year,
-                         -size=>'4',
-                         -accesskey=>'G',
-                         -override=>'1');
-   $html =~ s/\@\@\@YEARFIELD\@\@\@/$lang_text{'calfmt_year'}/g;
+   $html =~ s/\@\@\@DATESELMENU\@\@\@/$lang_text{'calfmt_yearmonthday'}/g;
+
+   $temphtml = popup_menu(-name=>'year',
+                          -values=>[1970..2037],
+                          -default=>$year,
+                          -onChange=>"submit()",
+                          -accesskey=>'G',
+                          -override=>'1');
    $html =~ s/\@\@\@YEAR\@\@\@/ $temphtml /;
+
+   $temphtml = popup_menu(-name=>'month',
+                          -values=>[1..12],
+                          -labels=>\%lang_month,
+                          -default=>$month,
+                          -onChange=>"submit()",
+                          -accesskey=>'G',
+                          -override=>'1');
+   $html =~ s/\@\@\@MONTH_STR\@\@\@/ $temphtml /;
+
+   $temphtml = popup_menu(-name=>'day',
+                          -values=>[1..$days_in_month[$month]],
+                          -default=>$day,
+                          -onChange=>"submit()",
+                          -accesskey=>'G',
+                          -override=>'1');
+   $html =~ s/\@\@\@DAY\@\@\@/ $temphtml /;
 
    $temphtml = end_form();
    $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/g;
 
-   my $cal_url=qq|$config{'ow_cgiurl'}/openwebmail-cal.pl?sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;|;
+   # put the calbook timestamp in request url so cache directive can be used
+   # for the two most time-consuming operstion --- yearview and listview
+   my $stamp=(stat("$folderdir/.calendar.book"))[9];
+   my $cal_url=qq|$config{'ow_cgiurl'}/openwebmail-cal.pl?sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;stamp=$stamp|;
 
-   $temphtml  = iconlink("yearview.gif", "$lang_calendar{'yearview'} ".formatted_date($year), qq|accesskey="Y" href="|.$cal_url.qq|action=calyear&year=$year"|);
-   $temphtml .= iconlink("monthview.gif", "$lang_calendar{'monthview'} ".formatted_date($year,$month), qq|accesskey="M" href="|.$cal_url.qq|action=calmonth&year=$year&month=$month"|);
-   $temphtml .= iconlink("weekview.gif", "$lang_calendar{'weekview'} ".formatted_date($year,$month,$day), qq|accesskey="W" href="|.$cal_url.qq|action=calweek&year=$year&month=$month&day=$day"|);
-   $temphtml .= iconlink("dayview.gif", "$lang_calendar{'dayview'} ".formatted_date($year,$month,$day), qq|accesskey="T" href="|.$cal_url.qq|action=calday&year=$year&month=$month&day=$day"|);
-   $temphtml .= iconlink("listview.gif", "$lang_calendar{'listview'} ".formatted_date($year), qq|accesskey="L" href="|.$cal_url.qq|action=callist&year=$year"|);
+   $temphtml  = iconlink("yearview.gif", "$lang_calendar{'yearview'} ".formatted_date($year), qq|accesskey="Y" href="$cal_url&amp;action=calyear&amp;year=$year"|);
+   $temphtml .= iconlink("monthview.gif", "$lang_calendar{'monthview'} ".formatted_date($year,$month), qq|accesskey="M" href="$cal_url&amp;action=calmonth&amp;year=$year&amp;month=$month"|);
+   $temphtml .= iconlink("weekview.gif", "$lang_calendar{'weekview'} ".formatted_date($year,$month,$day), qq|accesskey="W" href="$cal_url&amp;action=calweek&amp;year=$year&amp;month=$month&amp;day=$day"|);
+   $temphtml .= iconlink("dayview.gif", "$lang_calendar{'dayview'} ".formatted_date($year,$month,$day), qq|accesskey="T" href="$cal_url&amp;action=calday&amp;year=$year&amp;month=$month&amp;day=$day"|);
+   $temphtml .= iconlink("listview.gif", "$lang_calendar{'listview'} ".formatted_date($year), qq|accesskey="L" href="$cal_url&amp;action=callist&amp;year=$year"|);
    if ($year!=$current_year || $month!=$current_month || $day!=$current_day) {
-      $temphtml .= iconlink("refresh.gif", "$lang_text{'backto'} ".formatted_date($current_year,$current_month,$current_day), qq|accesskey="R" href="|.$cal_url.qq|action=calday&year=$current_year&month=$current_month&day=$current_day"|);
+      $temphtml .= iconlink("refresh.gif", "$lang_text{'backto'} ".formatted_date($current_year,$current_month,$current_day), qq|accesskey="R" href="$cal_url&amp;action=calday&amp;year=$current_year&amp;month=$current_month&amp;day=$current_day"|);
    }
    $temphtml .= "&nbsp;\n$miscbuttonsstr";
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
 
-   my $time = timegm("0","0","12", $day, $month-1, $year-1900);
+   my $time = timegm(0, 0, 12, $day, $month-1, $year-1900);
+
+   my $today = timegm(0, 0, 12, $current_day, $current_month-1, $current_year-1900);
+   $temphtml=int(($time-$today)/86400); 
+   $temphtml="+$temphtml" if ($temphtml>=0);
+   $html =~ s/\@\@\@DAYDIFF\@\@\@/$temphtml/g;
 
    my ($prev_year, $prev_month, $prev_day)=(gmtime($time-86400))[5,4,3];
    $prev_year+=1900; $prev_month++;
    my $gif="left.gif"; $gif="right.gif" if (is_RTLmode($prefs{'language'}));
-   $temphtml=iconlink($gif, formatted_date($prev_year,$prev_month,$prev_day), qq|accesskey="U" href="|.$cal_url.qq|action=calday&year=$prev_year&month=$prev_month&day=$prev_day"|). qq| \n|;
+   $temphtml=iconlink($gif, formatted_date($prev_year,$prev_month,$prev_day), qq|accesskey="U" href="$cal_url&amp;action=calday&amp;year=$prev_year&amp;month=$prev_month&amp;day=$prev_day"|). qq| \n|;
    $html =~ s/\@\@\@PREV_LINK\@\@\@/$temphtml/g;
 
    my ($next_year, $next_month, $next_day)=(gmtime($time+86400))[5,4,3];
    $next_year+=1900; $next_month++;
    $gif="right.gif"; $gif="left.gif" if (is_RTLmode($prefs{'language'}));
-   $temphtml=iconlink($gif, formatted_date($next_year,$next_month,$next_day), qq|accesskey="D" href="|.$cal_url.qq|action=calday&year=$next_year&month=$next_month&day=$next_day"|). qq| \n|;
+   $temphtml=iconlink($gif, formatted_date($next_year,$next_month,$next_day), qq|accesskey="D" href="$cal_url&amp;action=calday&amp;year=$next_year&amp;month=$next_month&amp;day=$next_day"|). qq| \n|;
    $html =~ s/\@\@\@NEXT_LINK\@\@\@/$temphtml/g;
 
 
    my (%items, %indexes);
    if ( readcalbook("$folderdir/.calendar.book", \%items, \%indexes, 0)<0 ) {
-      openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.calendar.book");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir/.calendar.book");
    }
    if ($prefs{'calendar_reminderforglobal'}) {
       readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6);
-      readcalbook("$config{'ow_holidaysdir'}/$prefs{'language'}", \%items, \%indexes, 1E6);
+      if ($prefs{'calendar_holidaydef'} eq 'auto') {
+         readcalbook("$config{'ow_holidaysdir'}/$prefs{'language'}", \%items, \%indexes, 1E7);
+      } elsif ($prefs{'calendar_holidaydef'} ne 'none') {
+         readcalbook("$config{'ow_holidaysdir'}/$prefs{'calendar_holidaydef'}", \%items, \%indexes, 1E7);
+      }
    }
 
    my $t=timegm(1, 1, 1, $day, $month-1, $year-1900);
@@ -991,11 +1076,11 @@ sub dayview {
          $temphtml .= qq|$eventtime${$r_event}{'string'} *|.
                       $eventlink.$eventemail;
       } else {
-         $temphtml .= qq|<a accesskey="E" title="$lang_text{'edit'}" href="$cal_url|.
-                      qq|action=caledit&year=$year&month=$month&day=$day&index=$index" $jsedit>|.
+         $temphtml .= qq|<a accesskey="E" title="$lang_text{'edit'}" href="$cal_url&amp;|.
+                      qq|action=caledit&amp;year=$year&amp;month=$month&amp;day=$day&amp;index=$index" $jsedit>|.
                       qq|$eventtime${$r_event}{'string'}</a>|.
                       $eventlink.$eventemail.
-                      qq|&nbsp;&nbsp;|. iconlink("cal-delete.gif", "$lang_text{'delete'}", qq|href="${cal_url}action=caldel&year=$year&month=$month&day=$day&index=$index" $jsdel|);
+                      qq|&nbsp;&nbsp;|. iconlink("cal-delete.gif", "$lang_text{'delete'}", qq|href="$cal_url&amp;action=caldel&amp;year=$year&amp;month=$month&amp;day=$day&amp;index=$index" $jsdel|);
       }
       $temphtml .= qq|</td></tr></table>|.
                    qq|</td>|.
@@ -1130,11 +1215,11 @@ sub dayview {
                   $temphtml .=qq|$eventtime ${$r_event}{'string'} *|.
                               $eventlink.$eventemail;
                } else {
-                  $temphtml .= qq|<a accesskey="E" title="$lang_text{'edit'}" href="$cal_url|.
-                               qq|action=caledit&year=$year&month=$month&day=$day&index=$index" $jsedit>|.
+                  $temphtml .= qq|<a accesskey="E" title="$lang_text{'edit'}" href="$cal_url&amp;|.
+                               qq|action=caledit&amp;year=$year&amp;month=$month&amp;day=$day&amp;index=$index" $jsedit>|.
                                qq|$eventtime ${$r_event}{'string'}</a>|.
                                $eventlink.$eventemail.
-                               qq|&nbsp;&nbsp;|. iconlink("cal-delete.gif", "$lang_text{'delete'}", qq|href="${cal_url}action=caldel&year=$year&month=$month&day=$day&index=$index" $jsdel|);
+                               qq|&nbsp;&nbsp;|. iconlink("cal-delete.gif", "$lang_text{'delete'}", qq|href="$cal_url&amp;action=caldel&amp;year=$year&amp;month=$month&amp;day=$day&amp;index=$index" $jsdel|);
                }
                $temphtml .= qq|</td>|;
             } else {
@@ -1343,11 +1428,10 @@ sub dayview {
    $temphtml = end_form();
    $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/g;
 
-   print htmlheader(), 
-         htmlplugin($config{'header_pluginfile'}), 
-         $html, 
-         htmlplugin($config{'footer_pluginfile'}), 
-         htmlfooter(2);
+   httpprint([], 
+             [htmlheader(), htmlplugin($config{'header_pluginfile'}), 
+              $html, 
+              htmlplugin($config{'footer_pluginfile'}), htmlfooter(2)] );
 }
 
 sub build_event_matrix {
@@ -1427,6 +1511,7 @@ sub build_event_matrix {
          }
       }
    }         
+   return;
 }
  
 sub bordercolor {
@@ -1510,6 +1595,11 @@ sub hsv2rgb {
 ######################## LISTVIEW #########################
 sub listview {
    my $year=$_[0];
+   my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
+   if ((($year % 4) == 0) && ((($year % 100) != 0) || (($year % 400) == 0))) {
+      $days_in_month[2]++;
+   }
+
    my $g2l=time();
    if ($prefs{'daylightsaving'} eq "on" ||
        ($prefs{'daylightsaving'} eq "auto" && is_dst($g2l,$prefs{'timeoffset'})) ) {
@@ -1520,12 +1610,10 @@ sub listview {
    $current_year+=1900; $current_month++;
 
    $year = $current_year if (!$year);
-   $year=2037 if ($year>2037);
-   $year=1970 if ($year<1970);
+   $year=2037 if ($year>2037); $year=1970 if ($year<1970);
 
    my ($html, $temphtml);
-   $html = readtemplate("listview.template");
-   $html = applystyle($html);
+   $html = applystyle(readtemplate("listview.template"));
 
    $temphtml = startform(-name=>"yearform",
 			 -action=>"$config{'ow_cgiurl'}/openwebmail-cal.pl") .
@@ -1543,12 +1631,13 @@ sub listview {
                       -override=>'1');
    $html =~ s/\@\@\@STARTFORM\@\@\@/$temphtml/g;
 
-   $temphtml = textfield(-name=>'year',
-                         -default=>$year,
-                         -size=>'4',
-                         -accesskey=>'G',
-                         -override=>'1');
-   $html =~ s/\@\@\@YEARFIELD\@\@\@/$lang_text{'calfmt_year'}/g;
+   $html =~ s/\@\@\@DATESELMENU\@\@\@/$lang_text{'calfmt_year'}/g;
+   $temphtml = popup_menu(-name=>'year',
+                          -values=>[1970..2037],
+                          -default=>$year,
+                          -onChange=>"submit()",
+                          -accesskey=>'G',
+                          -override=>'1');
    $html =~ s/\@\@\@YEAR\@\@\@/ $temphtml /;
 
    $temphtml = end_form();
@@ -1557,43 +1646,46 @@ sub listview {
    $temphtml = formatted_date($year);
    $html =~ s/\@\@\@CALTITLE\@\@\@/$temphtml/g;
 
-   my $cal_url=qq|$config{'ow_cgiurl'}/openwebmail-cal.pl?sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;|;
+   # put the calbook timestamp in request url so cache directive can be used
+   # for the two most time-consuming operstion --- yearview and listview
+   my $stamp=(stat("$folderdir/.calendar.book"))[9];
+   my $cal_url=qq|$config{'ow_cgiurl'}/openwebmail-cal.pl?sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;stamp=$stamp|;
 
-   $temphtml  = iconlink("yearview.gif" ,"$lang_calendar{'yearview'} ".formatted_date($year), qq|accesskey="Y" href="|.$cal_url.qq|action=calyear&year=$year"|);
-   $temphtml .= iconlink("monthview.gif", "$lang_calendar{'monthview'} ".formatted_date($year, $current_month), qq|accesskey="M" href="|.$cal_url.qq|action=calmonth&year=$year&month=$current_month"|);
-   $temphtml .= iconlink("weekview.gif", "$lang_calendar{'weekview'} ".formatted_date($year, $current_month, $current_day), qq|accesskey="W" href="|.$cal_url.qq|action=calweek&year=$year&month=$current_month&day=$current_day"|);
-   $temphtml .= iconlink("dayview.gif", "$lang_calendar{'dayview'} ".formatted_date($year, $current_month, $current_day), qq|accesskey="T" href="|.$cal_url.qq|action=calday&year=$year&month=$current_month&day=$current_day"|);
-   $temphtml .= iconlink("listview.gif", "$lang_calendar{'listview'} ".formatted_date($year), qq|accesskey="L" href="|.$cal_url.qq|action=callist&year=$year"|);
+   $temphtml  = iconlink("yearview.gif" ,"$lang_calendar{'yearview'} ".formatted_date($year), qq|accesskey="Y" href="$cal_url&amp;action=calyear&amp;year=$year"|);
+   $temphtml .= iconlink("monthview.gif", "$lang_calendar{'monthview'} ".formatted_date($year, $current_month), qq|accesskey="M" href="$cal_url&amp;action=calmonth&amp;year=$year&amp;month=$current_month"|);
+   $temphtml .= iconlink("weekview.gif", "$lang_calendar{'weekview'} ".formatted_date($year, $current_month, $current_day), qq|accesskey="W" href="$cal_url&amp;action=calweek&amp;year=$year&amp;month=$current_month&amp;day=$current_day"|);
+   $temphtml .= iconlink("dayview.gif", "$lang_calendar{'dayview'} ".formatted_date($year, $current_month, $current_day), qq|accesskey="T" href="$cal_url&amp;action=calday&amp;year=$year&amp;month=$current_month&amp;day=$current_day"|);
+   $temphtml .= iconlink("listview.gif", "$lang_calendar{'listview'} ".formatted_date($year), qq|accesskey="L" href="$cal_url&amp;action=callist&amp;year=$year"|);
    if ($year != $current_year) {
-      $temphtml .= iconlink("refresh.gif", "$lang_text{'backto'} ".formatted_date($current_year), qq|accesskey="R" href="|.$cal_url.qq|action=callist&year=$current_year"|);
+      $temphtml .= iconlink("refresh.gif", "$lang_text{'backto'} ".formatted_date($current_year), qq|accesskey="R" href="$cal_url&amp;action=callist&amp;year=$current_year"|);
    }
    $temphtml .= "&nbsp;\n$miscbuttonsstr";
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
 
    my $prev_year = $year - 1;
    my $gif="left.gif"; $gif="right.gif" if (is_RTLmode($prefs{'language'}));
-   $temphtml=iconlink($gif, formatted_date($prev_year), qq|accesskey="U" href="|.$cal_url.qq|action=callist&year=$prev_year"|). qq| \n|;
+   $temphtml=iconlink($gif, formatted_date($prev_year), qq|accesskey="U" href="$cal_url&amp;action=callist&amp;year=$prev_year"|). qq| \n|;
    $html =~ s/\@\@\@PREV_LINK\@\@\@/$temphtml/g;
 
    my $next_year = $year + 1;
    $gif="right.gif"; $gif="left.gif" if (is_RTLmode($prefs{'language'}));
-   $temphtml=iconlink($gif, formatted_date($next_year), qq|accesskey="D" href="|.$cal_url.qq|action=callist&year=$next_year"|). qq| \n|;
+   $temphtml=iconlink($gif, formatted_date($next_year), qq|accesskey="D" href="$cal_url&amp;action=callist&amp;year=$next_year"|). qq| \n|;
    $html =~ s/\@\@\@NEXT_LINK\@\@\@/$temphtml/g;
 
    my (%items, %indexes);
    if ( readcalbook("$folderdir/.calendar.book", \%items, \%indexes, 0)<0 ) {
-      openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.calendar.book");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir/.calendar.book");
    }
    if ($prefs{'calendar_reminderforglobal'}) {
       readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6);
-      readcalbook("$config{'ow_holidaysdir'}/$prefs{'language'}", \%items, \%indexes, 1E6);
+      if ($prefs{'calendar_holidaydef'} eq 'auto') {
+         readcalbook("$config{'ow_holidaysdir'}/$prefs{'language'}", \%items, \%indexes, 1E7);
+      } elsif ($prefs{'calendar_holidaydef'} ne 'none') {
+         readcalbook("$config{'ow_holidaysdir'}/$prefs{'calendar_holidaydef'}", \%items, \%indexes, 1E7);
+      }
    }
 
    my $t0 = timegm(1,1,1, $current_day, $current_month-1, $current_year-1900);
-   my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
-   if ((($year % 4) == 0) && ((($year % 100) != 0) || (($year % 400) == 0))) {
-      $days_in_month[2]++;
-   }
    my @accesskey=qw(0 1 2 3 4 5 6 7 8 9 0 J Q);
 
    my ($easter_month, $easter_day) = gregorian_easter($year); # compute once
@@ -1624,7 +1716,7 @@ sub listview {
 
          my $dayhtml="";
          for my $index (@indexlist) {
-            $dayhtml .= listview_item($index, \%items, $cal_url, "&year=$year&month=$month&day=$day&index=$index&callist=1", ($index>=1E6))
+            $dayhtml .= listview_item($index, \%items, $cal_url, "year=$year&amp;month=$month&amp;day=$day&amp;index=$index&amp;callist=1", ($index>=1E6))
          }
 
          my $bgcolor;
@@ -1640,14 +1732,14 @@ sub listview {
             $dayhtml = qq|<tr><td>&nbsp;</td></tr>| if ($dayhtml eq "");
             $temphtml .= qq|<tr>|.
                          qq|<td $bgcolor nowrap>|.
-                         qq|<a accesskey="$accesskey[$month]" href="|.$cal_url.qq|action=calday&year=$year&month=$month&day=$day"><b>|.
+                         qq|<a accesskey="$accesskey[$month]" href="$cal_url&amp;action=calday&amp;year=$year&amp;month=$month&amp;day=$day"><b>|.
                             sprintf("%02d/%02d",$month,$day).qq|</b></a>|;
             if ($prefs{'charset'} eq "big5" || $prefs{'charset'} eq "gb2312") {
-               $temphtml .= qq| &nbsp |.lunar_str($year, $month, $day, $prefs{'charset'});
+               $temphtml .= qq| &nbsp; |.lunar_str($year, $month, $day, $prefs{'charset'});
             }
             $temphtml .= qq|</td>|.
                          qq|<td $bgcolor>|.
-                         qq|<a href="|.$cal_url.qq|action=calweek&year=$year&month=$month">|.
+                         qq|<a href="$cal_url&amp;action=calweek&amp;year=$year&amp;month=$month">|.
                          qq|$lang_wday{$wdaynum}</a>|.
                          qq|</td>|.
                          qq|<td $bgcolor align="right" nowrap>$daydiffstr &nbsp;</td>|.
@@ -1658,11 +1750,11 @@ sub listview {
    } # month loop end
    $html=~s/\@\@\@ITEMLIST\@\@\@/$temphtml/;
 
-   print htmlheader(), 
-         htmlplugin($config{'header_pluginfile'}), 
-         $html, 
-         htmlplugin($config{'footer_pluginfile'}), 
-         htmlfooter(2);
+   httpprint(['-Expires' => CGI::expires('+900s'),
+              '-Cache-Control' => 'private,max-age=900'], 
+             [htmlheader(), htmlplugin($config{'header_pluginfile'}), 
+              $html, 
+              htmlplugin($config{'footer_pluginfile'}), htmlfooter(2)] );
 }
 
 # print an item in the listview
@@ -1712,9 +1804,9 @@ sub listview_item {
                  qq|</td>\n|;
    } else {
       $temphtml.=qq|<td $colorstr width="120" nowrap>$eventtime</td>\n|.
-                 qq|<td $colorstr><a title="$lang_text{'edit'}" href="$cal_url|.qq|action=caledit$cgi_parm" $jsedit>$s</a>|.
+                 qq|<td $colorstr><a title="$lang_text{'edit'}" href="$cal_url&amp;action=caledit&amp;$cgi_parm" $jsedit>$s</a>|.
                  $eventlink.$eventemail.
-                 qq|&nbsp;&nbsp;|. iconlink("cal-delete.gif", "$lang_text{'delete'}", qq|href="${cal_url}action=caldel&index=$index$cgi_parm" $jsdel|).
+                 qq|&nbsp;&nbsp;|. iconlink("cal-delete.gif", "$lang_text{'delete'}", qq|href="$cal_url&amp;action=caldel&amp;index=$index&amp;$cgi_parm" $jsdel|).
                  qq|</td>\n|;
    }
    $temphtml=qq|<tr $colorstr>$temphtml</tr>|;
@@ -1728,15 +1820,14 @@ sub edit_item {
    my ($year, $month, $day, $index)=@_;
 
    my ($html, $temphtml);
-   $html = readtemplate("editcalendar.template");
-   $html = applystyle($html);
+   $html = applystyle(readtemplate("editcalendar.template"));
 
    my (%items, %indexes);
    if ( readcalbook("$folderdir/.calendar.book", \%items, \%indexes, 0)<0 ) {
-      openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.calendar.book");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir/.calendar.book");
    }
    if (! defined($items{$index}) ) {
-      openwebmailerror("$lang_text{'calendar'} $index $lang_err{'doesnt_exist'}");
+      openwebmailerror(__FILE__, __LINE__, "$lang_text{'calendar'} $index $lang_err{'doesnt_exist'}");
       writelog("edit calitem error - item missing, index=$index");
       writehistory("edit calitem error - item missing, index=$index");
    }
@@ -1932,7 +2023,7 @@ sub edit_item {
    $temphtml = end_form();
    $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/g;
 
-   print htmlheader(), $html, htmlfooter(2);
+   httpprint([], [htmlheader(), $html, htmlfooter(2)]);
 }
 ######################## END EDIT_ITEM #########################
 
@@ -1953,10 +2044,10 @@ sub add_item {
 
    # check for bad input that would kill our database format
    if ($string =~ /\@\@\@/) {
-      openwebmailerror("$lang_err{'pipe_char_not_allowed'}");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'pipe_char_not_allowed'}");
    }
    if ($link =~ /\@\@\@/) {
-      openwebmailerror("$lang_err{'pipe_char_not_allowed'}");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'pipe_char_not_allowed'}");
    }
    # check for bad input that would confuse our database format
    if ($string =~ /\@$/) {
@@ -1993,7 +2084,7 @@ sub add_item {
 
    my ($item_count, %items, %indexes);
    if ( ($item_count=readcalbook("$folderdir/.calendar.book", \%items, \%indexes, 0)) <0 ) {
-      openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.calendar.book");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir/.calendar.book");
    }
 
    my $index = $item_count+19690404;	# avoid collision with old records
@@ -2005,7 +2096,7 @@ sub add_item {
    if ($dayfreq eq 'thisdayonly' && $monthfreq eq 'thismonthonly' && !$everyyear) {
       if ($thisandnextndays && $ndays) {
          if ($ndays !~ /\d+/) {
-            openwebmailerror("$lang_err{'badnum_in_days'}: $ndays");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'badnum_in_days'}: $ndays");
          }
          my $date_wild='(';
          for (my $i=0; $i<=$ndays; $i++) {
@@ -2071,7 +2162,7 @@ sub add_item {
    $items{$index}{'eventcolor'}=$eventcolor;
 
    if ( writecalbook("$folderdir/.calendar.book", \%items) <0 ) {
-      openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.calendar.book");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir/.calendar.book");
    }
 
    reset_notifycheck_for_newitem($items{$index});
@@ -2089,14 +2180,14 @@ sub del_item {
 
    my (%items, %indexes);
    if ( readcalbook("$folderdir/.calendar.book", \%items, \%indexes, 0)<0 ) {
-      openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.calendar.book");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir/.calendar.book");
    }
    return if (! defined($items{$index}) );
 
    my $msg="delete calitem - index=$index, t=$items{$index}{'starthourmin'}, str=$items{$index}{'string'}";
    delete $items{$index};
    if ( writecalbook("$folderdir/.calendar.book", \%items) <0 ) {
-      openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.calendar.book");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir/.calendar.book");
    }
    writelog($msg);
    writehistory($msg);
@@ -2116,10 +2207,10 @@ sub update_item {
 
    # check for valid input
    if ($string =~ /\@{3}/) {
-      openwebmailerror("$lang_err{'at_char_not_allowed'}");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'at_char_not_allowed'}");
    }
    if ($link =~ /\@{3}/) {
-      openwebmailerror("$lang_err{'at_char_not_allowed'}");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'at_char_not_allowed'}");
    }
    # check for bad input that would confuse our database format
    if ($string =~ /\@$/) {
@@ -2156,10 +2247,10 @@ sub update_item {
 
    my (%items, %indexes);
    if ( readcalbook("$folderdir/.calendar.book", \%items, \%indexes, 0)<0 ) {
-      openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.calendar.book");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir/.calendar.book");
    }
    if (! defined($items{$index}) ) {
-      openwebmailerror("$lang_text{'calendar'} $index $lang_err{'doesnt_exist'}");
+      openwebmailerror(__FILE__, __LINE__, "$lang_text{'calendar'} $index $lang_err{'doesnt_exist'}");
       writelog("update calitem error - item missing, index=$index");
       writehistory("update calitem error - item missing, index=$index");
    }
@@ -2172,7 +2263,7 @@ sub update_item {
    $items{$index}{'eventcolor'}=$eventcolor;
 
    if ( writecalbook("$folderdir/.calendar.book", \%items) <0 ) {
-      openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.calendar.book");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir/.calendar.book");
    }
 
    reset_notifycheck_for_newitem($items{$index});
@@ -2186,12 +2277,7 @@ sub update_item {
 ######################## SET_DAYS_IN_MONTH #########################
 # set the day number of each cell in the month calendar
 sub set_days_in_month {
-   my ($year, $month) = @_;
-
-   my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
-   if ((($year % 4) == 0) && ((($year % 100) != 0) || (($year % 400) == 0))) {
-      $days_in_month[2]++;
-   }
+   my ($year, $month, $days_in_month) = @_;
 
    my %wdaynum=qw(Sun 0 Mon 1 Tue 2 Wed 3 Thu 4 Fri 5 Sat 6);
    foreach (keys %wdaynum) {
@@ -2205,7 +2291,7 @@ sub set_days_in_month {
    for my $x (0..5) {
       for my $y (0..6) {
          if ( ($x>0 || $y>=$wdaynum{$weekday}) &&
-              $day_counter<=$days_in_month[$month] ) {
+              $day_counter<=$days_in_month ) {
             $days[$x][$y] = $day_counter;
             $day_counter++;
          }
@@ -2281,7 +2367,7 @@ sub lunar_str {
          my $color="";
          $color=qq|color="#aaaaaa"| if ($str!~/ªì¤@/ && $str!~/¤Q¤­/);
          $str=b2g($str) if ($charset eq "gb2312");
-         $str=qq|<font size=1 $color>$str</font>|;
+         $str=qq|<font class="smalltext" $color>$str</font>|;
       }
    }
    return($str);

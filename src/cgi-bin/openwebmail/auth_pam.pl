@@ -52,12 +52,15 @@ sub get_userinfo {
    }
    return(-4, "User $user doesn't exist") if ($uid eq "");
 
+   # get other gid for this user in /etc/group
+   while (my @gr=getgrent()) {
+      $gid.=' '.$gr[2] if ($gr[3]=~/\b$user\b/ && $gid!~/\b$gr[2]\b/);
+   }
    # use first field only
    $realname=(split(/,/, $realname))[0];
    # guess real homedir under sun's automounter
-   if ($uid) {
-      $homedir="/export$homedir" if (-d "/export$homedir");
-   }
+   $homedir="/export$homedir" if (-d "/export$homedir");
+
    return(0, "", $realname, $uid, $gid, $homedir);
 }
 
@@ -113,11 +116,14 @@ sub check_userpassword {
             $ans = $pam_password;
          }
          push @res, (PAM_SUCCESS(),$ans);
-#         log_time("code:$code, msg:$msg, ans:$ans\n");	# debug
+#main::log_time("code:$code, msg:$msg, ans:$ans\n");	# debug
       }
       push @res, PAM_SUCCESS();
       return @res;
    }
+
+   # disable SIG CHLD since authsys in PAM may fork process
+   local $SIG{CHLD}; undef $SIG{CHLD};
 
    my ($pamh, $ret, $errmsg);
    if ( ref($pamh = new Authen::PAM($pam_servicename, $pam_user, \&checkpwd_conv_func)) ) {
@@ -125,7 +131,7 @@ sub check_userpassword {
       if ($error==0) {
          ($ret, $errmsg)= (0, "");
       } else {
-         ($ret, $errmsg)= (-4, "pam_authticate() err $error");
+         ($ret, $errmsg)= (-4, "pam_authticate() err $error, ".pam_strerror($pamh, $error));
       }
    } else {
       ($ret, $errmsg)= (-3, "PAM init error $pamh");
@@ -192,19 +198,22 @@ sub change_userpassword {
             $pam_convstate++;
          }
          push @res, (PAM_SUCCESS(),$ans);
-#         log_time("code:$code, msg:$msg, ans:$ans\n");	# debug
+#main::log_time("code:$code, msg:$msg, ans:$ans\n");	# debug
       }
       push @res, PAM_SUCCESS();
       return @res;
    }
 
+   # disable SIG CHLD since authsys in PAM may fork process
+   local $SIG{CHLD}; undef $SIG{CHLD};
+
    my ($pamh, $ret, $errmsg);
    if (ref($pamh = new Authen::PAM($pam_servicename, $pam_user, \&changepwd_conv_func)) ) {
       my $error=$pamh->pam_chauthtok();
       if ( $error==0 ) {
-         $ret=0;
+         ($ret, $errmsg)= (0, "");
       } else {
-         ($ret, $errmsg)= (-4, "pam_authtok err $error");
+         ($ret, $errmsg)= (-4, "pam_authtok() err $error, ".pam_strerror($pamh, $error));
       }
    } else {
       ($ret, $errmsg)= (-3, "PAM init error $pamh");

@@ -8,7 +8,7 @@
 <tr><td bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
 </td><td bgcolor=@@@MENUBAR@@@ align="right">
-@@@YEARFIELD@@@&nbsp;
+@@@DATESELMENU@@@&nbsp;
 </td></tr>
 @@@ENDFORM@@@
 <tr><td colspan="2">&nbsp;</td></tr>

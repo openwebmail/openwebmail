@@ -44,16 +44,20 @@ use vars qw($folder $printfolder $escapedfolder);
 use vars qw(%lang_folders %lang_sizes %lang_text %lang_err %lang_sortlabels
             %lang_calendar %lang_wday @wdaystr); # defined in lang/xy
 use vars qw($_STATUS);		# defined in maildb.pl
+use vars qw(%pop3error);	# defined in ow-shared.pl
 
 # local globals
 use vars qw($sort $page);
 use vars qw($searchtype $keyword $escapedkeyword);
 
 ########################## MAIN ##############################
-clearvars();
-openwebmail_init();
+openwebmail_requestbegin();
+$SIG{PIPE}=\&openwebmail_exit;	# for user stop
+$SIG{TERM}=\&openwebmail_exit;	# for user stop
+$SIG{CHLD}=sub { wait }; 	# prevent zombie
 
-$SIG{CHLD}=sub { wait }; # whole process scope to prevent zombie
+userenv_init();
+
 $page = param("page") || 1;
 $sort = param("sort") || $prefs{'sort'} || 'date';
 $searchtype = param("searchtype") || 'subject';
@@ -75,45 +79,28 @@ if ($action eq "movemessage" ||
       moveoldmsg2saved();
    }
    update_pop3check();
-   if ($config{'auth_module'} eq 'auth_pop3.pl' && 
-       $config{'getmail_from_pop3_authserver'}) {
-      my $login=$user; $login .= "\@$domain" if ($config{'auth_withdomain'});
-      _retrpop3($config{'pop3_authserver'}, $login, "$folderdir/.authpop3.book");
-   }
+   _retrauthpop3() if ($config{'auth_module'} eq 'auth_pop3.pl');
    listmessages();
-   if ($config{'enable_pop3'} && $prefs{'autopop3'}) {
-      _retrpop3s(0, "$folderdir/.pop3.book");
-   }
+   _retrpop3s(0) if ($config{'enable_pop3'} && $prefs{'autopop3'});
 } elsif ($action eq "userrefresh") {
-   if ($config{'auth_module'} eq 'auth_pop3.pl' && 
-       $config{'getmail_from_pop3_authserver'} && 
-       $folder eq "INBOX" ) {
-      my $login=$user; $login .= "\@$domain" if ($config{'auth_withdomain'});
-      _retrpop3($config{'pop3_authserver'}, $login, "$folderdir/.authpop3.book");
+   if ($config{'auth_module'} eq 'auth_pop3.pl' && $folder eq "INBOX" ) {
+      _retrauthpop3();
    }
    if ($config{'quota_module'} ne 'none') {
       $quotausage=(quota_get_usage_limit(\%config, $user, $homedir, 1))[2];
    }
    listmessages();
    if (update_pop3check()) {
-      if ($config{'enable_pop3'} && $prefs{'autopop3'}==1 ) {
-         _retrpop3s(0, "$folderdir/.pop3.book");
-      }
+      _retrpop3s(0) if ($config{'enable_pop3'} && $prefs{'autopop3'});
    }
 } elsif ($action eq "listmessages") {
    my $update=0; $update=1 if (update_pop3check());
    if ($update) {	# get mail from auth pop3 server
-      if ($config{'auth_module'} eq 'auth_pop3.pl' && 
-          $config{'getmail_from_pop3_authserver'}) {
-         my $login=$user; $login .= "\@$domain" if ($config{'auth_withdomain'});
-         _retrpop3($config{'pop3_authserver'}, $login, "$folderdir/.authpop3.book");
-      }
+      _retrauthpop3() if ($config{'auth_module'} eq 'auth_pop3.pl');
    }
    listmessages();
    if ($update) {	# get mail from misc pop3 servers
-      if ($config{'enable_pop3'} && $prefs{'autopop3'}==1 ) {
-         _retrpop3s(0, "$folderdir/.pop3.book");
-      }
+      _retrpop3s(0) if ($config{'enable_pop3'} && $prefs{'autopop3'});
    }
 } elsif ($action eq "markasread") {
    markasread();
@@ -138,11 +125,10 @@ if ($action eq "movemessage" ||
    }
    logout();
 } else {
-   openwebmailerror("Action $lang_err{'has_illegal_chars'}");
+   openwebmailerror(__FILE__, __LINE__, "Action $lang_err{'has_illegal_chars'}");
 }
 
-# back to root if possible, required for setuid under persistent perl
-$<=0; $>=0;
+openwebmail_requestend();
 ###################### END MAIN ##############################
 
 ################ LISTMESSGAES #####################
@@ -157,7 +143,7 @@ sub listmessages {
    if (-f "$folderdir/.$user$config{'dbm_ext'}" && !-z "$folderdir/.$user$config{'dbm_ext'}" ) {
       if (!$config{'dbmopen_haslock'}) {
          filelock("$folderdir/.$user$config{'dbm_ext'}", LOCK_SH) or
-            openwebmailerror("$lang_err{'couldnt_locksh'} $folderdir/.$user$config{'dbm_ext'}");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $folderdir/.$user$config{'dbm_ext'}");
       }
       dbmopen (%HDB, "$folderdir/.$user$config{'dbmopen_ext'}", undef);	# dbm for INBOX
       $orig_inbox_newmessages=$HDB{'NEWMESSAGES'};	# new msg in INBOX
@@ -203,8 +189,7 @@ sub listmessages {
    my $main_url_with_keyword = "$main_url&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype";
 
    my ($html, $temphtml);
-   $html = readtemplate("viewfolder.template");
-   $html = applystyle($html);
+   $html = applystyle(readtemplate("viewfolder.template"));
 
    $temphtml = end_form();
    $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/g;
@@ -241,7 +226,7 @@ sub listmessages {
 
          if (!$config{'dbmopen_haslock'}) {
             filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) or
-               openwebmailerror("$lang_err{'couldnt_locksh'} $headerdb$config{'dbm_ext'}");
+               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $headerdb$config{'dbm_ext'}");
          }
          dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
          $allmessages=$HDB{'ALLMESSAGES'};
@@ -330,8 +315,12 @@ sub listmessages {
    if ($config{'enable_webdisk'}) {
       $temphtml .= iconlink("webdisk.gif", $lang_text{'webdisk'}, qq|accesskey="E" href="$config{'ow_cgiurl'}/openwebmail-webdisk.pl?action=showdir&amp;sessionid=$thissession&amp;folder=$escapedfolder"|);
    }
-   if ( $config{'enable_sshterm'} && -r "$config{'ow_htmldir'}/applet/mindterm/mindtermfull.jar" ) {
-      $temphtml .= iconlink("sshterm.gif" ,"$lang_text{'sshterm'} ", qq|accesskey="T" href="#" onClick="window.open('$config{ow_htmlurl}/applet/mindterm/ssh.html', '_applet', 'width=400,height=100,top=2000,left=2000,resizable=no,menubar=no,scrollbars=no');"|);
+   if ( $config{'enable_sshterm'}) {
+      if ( -r "$config{'ow_htmldir'}/applet/mindterm2/mindterm.jar" ) {
+         $temphtml .= iconlink("sshterm.gif" ,"$lang_text{'sshterm'} ", qq|accesskey="T" href="#" onClick="window.open('$config{ow_htmlurl}/applet/mindterm2/ssh2.html', '_applet', 'width=400,height=100,top=2000,left=2000,resizable=no,menubar=no,scrollbars=no');"|);
+      } elsif ( -r "$config{'ow_htmldir'}/applet/mindterm/mindtermfull.jar" ) {
+         $temphtml .= iconlink("sshterm.gif" ,"$lang_text{'sshterm'} ", qq|accesskey="T" href="#" onClick="window.open('$config{ow_htmlurl}/applet/mindterm/ssh.html', '_applet', 'width=400,height=100,top=2000,left=2000,resizable=no,menubar=no,scrollbars=no');"|);
+      }
    }
    $temphtml .= iconlink("prefs.gif", $lang_text{'userprefs'}, qq|accesskey="O" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;sort=$sort&amp;page=$page&amp;prefs_caller=main"|);
    $temphtml .= iconlink("logout.gif", "$lang_text{'logout'} $prefs{'email'}", qq|accesskey="X" href="$main_url&amp;action=logout"|);
@@ -464,7 +453,7 @@ sub listmessages {
 
    if (!$config{'dbmopen_haslock'}) {
       filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) or
-         openwebmailerror("$lang_err{'couldnt_locksh'} $headerdb$config{'dbm_ext'}");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $headerdb$config{'dbm_ext'}");
    }
    dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
 
@@ -507,7 +496,7 @@ sub listmessages {
       
       # DATE, convert dateserial(GMT) to localtime
       $temphtml=dateserial2str($dateserial, $prefs{'timeoffset'}, $prefs{'dateformat'});
-      $temphtml = qq|<td bgcolor=$bgcolor>$boldon<font size=-1>$temphtml</font>$boldoff</td>\n|;
+      $temphtml = qq|<td bgcolor=$bgcolor>$boldon$temphtml$boldoff</td>\n|;
       $linehtml =~ s/\@\@\@DATE\@\@\@/$temphtml/;
 
       # FROM, we aren't interested in the sender of SENT/DRAFT folder,
@@ -556,12 +545,17 @@ sub listmessages {
       } elsif ($accesskeystr < 10) {
          $accesskeystr=qq|accesskey="$accesskeystr"|;
       }
-      $temphtml = qq|<a href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&amp;|.
-                  qq|page=$page&amp;sessionid=$thissession&amp;|.
-                  qq|status=$status&amp;folder=$escapedfolder&amp;sort=$sort&amp;|.
+
+      # param order is purposely same as prev/next links in readmessage, 
+      # so the resulted webpage could be cached with same url in both cases
+      $temphtml = qq|<a href="$config{'ow_cgiurl'}/openwebmail-read.pl?|.
+                  qq|sessionid=$thissession&amp;|.
+                  qq|folder=$escapedfolder&amp;page=$page&amp;sort=$sort&amp;|.
                   qq|keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;|.
-                  qq|headers=$prefs{'headers'}&amp;|.
-                  qq|message_id=$escapedmessageid" $accesskeystr title="Charset: $charset ">\n|.
+                  qq|message_id=$escapedmessageid&amp;action=readmessage&amp;|.
+                  qq|headers=$prefs{'headers'}&amp;attmode=simple|;
+      $temphtml.= qq|&amp;db_chkstatus=1| if ($status!~/r/i);
+      $temphtml.= qq|" $accesskeystr title="Charset: $charset ">\n|.
                   $subject.
                   qq|</a>\n|;
 
@@ -803,27 +797,24 @@ sub listmessages {
          $msg .= qq|$f &nbsp; ${$r_filtered}{$f}<br>|;
          $line++;
       }
-      $msg = qq|<font size=-1>$msg</font>|;
+      $msg = qq|<font size="-1">$msg</font>|;
       $msg =~ s!\\!\\\\!g; $msg =~ s!'!\\'!g;	# escape ' for javascript
       $temphtml.=qq|<script language="JavaScript">\n<!--\n|.
                  qq|showmsg('$prefs{"charset"}', '$lang_text{"inmessages"}', '$msg', '$lang_text{"close"}', '_incoming', 160, |.($line*16+70).qq|, $prefs{'newmailwindowtime'});\n|.
                  qq|//-->\n</script>\n|;
    }
-   if ($temphtml) {
-      $html.=qq|<script language="JavaScript" src="$config{'ow_htmlurl'}/javascript/showmsg.js"></script>\n|.
-             $temphtml;
-   }
+   $html.=readtemplate('showmsg.js').$temphtml if ($temphtml);
 
    # since some browser always treat refresh directive as realtive url.
    # we use relative path for refresh
    my $refreshinterval=$prefs{'refreshinterval'}*60;
    my $relative_url="$config{'ow_cgiurl'}/openwebmail-main.pl";
    $relative_url=~s!/.*/!!g;
-   print htmlheader(-Refresh=>"$refreshinterval;URL=$relative_url?sessionid=$thissession&sort=$sort&keyword=$escapedkeyword&searchtype=$searchtype&folder=INBOX&action=listmessages&page=1&session_noupdate=1"),
-         htmlplugin($config{'header_pluginfile'}),
-         $html,
-         htmlplugin($config{'footer_pluginfile'}),
-         htmlfooter(2);
+
+   httpprint([-Refresh=>"$refreshinterval;URL=$relative_url?sessionid=$thissession&sort=$sort&keyword=$escapedkeyword&searchtype=$searchtype&folder=INBOX&action=listmessages&page=1&session_noupdate=1"],
+             [htmlheader(), htmlplugin($config{'header_pluginfile'}),
+              $html,
+              htmlplugin($config{'footer_pluginfile'}), htmlfooter(2)] );
 }
 
 # reminder for events within 7 days
@@ -841,11 +832,15 @@ sub eventreminder_html {
 
    my (%items, %indexes);
    if ( readcalbook("$folderdir/.calendar.book", \%items, \%indexes, 0)<0 ) {
-      openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.calendar.book");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir/.calendar.book");
    }
    if ($prefs{'calendar_reminderforglobal'}) {
       readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6);
-      readcalbook("$config{'ow_holidaysdir'}/$prefs{'language'}", \%items, \%indexes, 1E6);
+      if ($prefs{'calendar_holidaydef'} eq 'auto') {
+         readcalbook("$config{'ow_holidaysdir'}/$prefs{'language'}", \%items, \%indexes, 1E7);
+      } elsif ($prefs{'calendar_holidaydef'} ne 'none') {
+         readcalbook("$config{'ow_holidaysdir'}/$prefs{'calendar_holidaydef'}", \%items, \%indexes, 1E7);
+      }
    }
 
    my ($easter_month, $easter_day) = gregorian_easter($year); # compute once
@@ -902,7 +897,7 @@ sub eventreminder_html {
                $s=substr($s,0,20).".." if (length($s)>=21);
                $s.='*' if ($index>=1E6);
                $dayhtml.=qq|&nbsp; | if $dayhtml ne "";
-               $dayhtml.=qq|<font size=-2 color=#c00000>$t </font><font size=-2 color=#000000>$s</font>|;
+               $dayhtml.=qq|<font color=#c00000 class="smalltext">$t </font><font color=#000000 class="smalltext">$s</font>|;
             }
          }
       }
@@ -916,15 +911,16 @@ sub eventreminder_html {
             $title="$title $lang_wday{$wdaynum}";
          }
          $temphtml.=qq| &nbsp; | if ($temphtml ne"");
-         $temphtml.=qq|<font size=-2>[+$x] </font>| if ($x>0);
+         $temphtml.=qq|<font class="smalltext">[+$x] </font>| if ($x>0);
          $temphtml.=qq|<a href="$config{'ow_cgiurl'}/openwebmail-cal.pl?sessionid=$thissession&amp;folder=$escapedfolder&amp;|.
-                    qq|action=calday&year=$year&month=$month&day=$day" title="$title">$dayhtml</a>\n|;
+                    qq|action=calday&amp;year=$year&amp;month=$month&amp;day=$day" title="$title">$dayhtml</a>\n|;
       }
    }
    $temphtml .= " &nbsp; ..." if ($event_count>5);
 
    if ($temphtml ne "") {
-      $temphtml=qq|<table width=95% border=0 cellspacing=1 cellpadding=0 align=center><tr><td align="right" nowrap>|.
+      $temphtml=qq|<table width=95% border=0 cellspacing=1 cellpadding=0 align=center>\n|.
+                qq|<tr><td align="right" nowrap>|.
                 qq|&nbsp;$temphtml|.
                 qq|</td><tr></table>|;
    }
@@ -941,7 +937,7 @@ sub markasread {
 
    if ($attr[$_STATUS] !~ /R/i) {
       filelock($folderfile, LOCK_EX|LOCK_NB) or
-         openwebmailerror("$lang_err{'couldnt_lock'} $folderfile!");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $folderfile!");
       update_message_status($messageid, $attr[$_STATUS]."R", $headerdb, $folderfile);
       filelock("$folderfile", LOCK_UN);
    }
@@ -963,7 +959,7 @@ sub markasunread {
       $newstatus=~s/[RV]//ig;
 
       filelock($folderfile, LOCK_EX|LOCK_NB) or
-         openwebmailerror("$lang_err{'couldnt_lock'} $folderfile!");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $folderfile!");
       update_message_status($messageid, $newstatus, $headerdb, $folderfile);
       filelock("$folderfile", LOCK_UN);
    }
@@ -981,7 +977,7 @@ sub movemessage {
          my $headers = param("headers") || $prefs{'headers'} || 'simple';
          my $attmode = param("attmode") || 'simple';
          my $escapedmessageid=escapeURL(param("message_id"));
-         print "Location: $config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&sessionid=$thissession&page=$page&sort=$sort&keyword=$escapedkeyword&searchtype=$searchtype&folder=$escapedfolder&message_id=$escapedmessageid&headers=$headers&attmode=$attmode\n\n";
+         print redirect(-location=>"$config{'ow_cgiurl'}/openwebmail-read.pl?sessionid=$thissession&folder=$escapedfolder&page=$page&sort=$sort&keyword=$escapedkeyword&searchtype=$searchtype&message_id=$escapedmessageid&action=readmessage&headers=$headers&attmode=$attmode");
       } else {
          listmessages();
       }
@@ -992,7 +988,7 @@ sub movemessage {
    ($destination =~ /^(.+)$/) && ($destination = $1);	# untaint ...
 #   if ($destination eq $folder || $destination eq 'INBOX')
    if ($destination eq $folder) {
-      openwebmailerror ("$lang_err{'shouldnt_move_here'}")
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'shouldnt_move_here'}")
    }
 
    my $op;
@@ -1003,7 +999,7 @@ sub movemessage {
             my $attmode = param("attmode") || 'simple';
             my $messageid = param("message_id");
             my $escapedmessageid=escapeURL($messageid);
-            print "Location: $config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&sessionid=$thissession&page=$page&sort=$sort&keyword=$escapedkeyword&searchtype=$searchtype&folder=$escapedfolder&message_id=$escapedmessageid&headers=$headers&attmode=$attmode\n\n";
+            print redirect(-location=>"$config{'ow_cgiurl'}/openwebmail-read.pl?sessionid=$thissession&folder=$escapedfolder&page=$page&sort=$sort&keyword=$escapedkeyword&searchtype=$searchtype&message_id=$escapedmessageid&action=readmessage&headers=$headers&attmode=$attmode");
          } else {
             listmessages();
          }
@@ -1019,25 +1015,25 @@ sub movemessage {
       }
    }
    if ($quotalimit>0 && $quotausage>$quotalimit && $op ne "delete") {
-      openwebmailerror("$lang_err{'quotahit_alert'}");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'quotahit_alert'}");
    }
 
    my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
    if (! -f "$folderfile" ) {
-      openwebmailerror("$folderfile $lang_err{'doesnt_exist'}");
+      openwebmailerror(__FILE__, __LINE__, "$folderfile $lang_err{'doesnt_exist'}");
    }
    my ($dstfile, $dstdb)=get_folderfile_headerdb($user, $destination);
    if ($destination ne 'DELETE' && ! -f "$dstfile" ) {
       open (F,">>$dstfile") or 
-         openwebmailerror("$lang_err{'couldnt_open'} $lang_err{'destination_folder'} $dstfile! ($!)");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $lang_err{'destination_folder'} $dstfile! ($!)");
       close(F);
    }
 
    filelock("$folderfile", LOCK_EX|LOCK_NB) or
-      openwebmailerror("$lang_err{'couldnt_lock'} $folderfile!");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $folderfile!");
    if ($destination ne 'DELETE') {
       filelock($dstfile, LOCK_EX|LOCK_NB) or
-         openwebmailerror("$lang_err{'couldnt_lock'} $dstfile!");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $dstfile!");
    }
 
    my $counted=0;
@@ -1067,11 +1063,11 @@ sub movemessage {
       writelog($msg);
       writehistory($msg);
    } elsif ($counted==-1) {
-      openwebmailerror("$lang_err{'inv_msg_op'}");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'inv_msg_op'}");
    } elsif ($counted==-2) {
-      openwebmailerror("$lang_err{'couldnt_open'} $folderfile");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderfile");
    } elsif ($counted==-3) {
-      openwebmailerror("$lang_err{'couldnt_open'} $dstfile!");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $dstfile!");
    }
 
    if (param("messageaftermove")) {
@@ -1080,7 +1076,7 @@ sub movemessage {
       my $escapedmessageid=escapeURL(param("message_id"));
       $escapedmessageid=escapeURL($messageids[0]) if (defined(param('copybutton'))); # copy button pressed, msg not moved
       my $escapeddestination=escapeURL($destination);
-      print "Location: $config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&sessionid=$thissession&page=$page&sort=$sort&keyword=$escapedkeyword&searchtype=$searchtype&folder=$escapedfolder&message_id=$escapedmessageid&headers=$headers&attmode=$attmode&destination=$escapeddestination\n\n";
+      print redirect(-location=>"$config{'ow_cgiurl'}/openwebmail-read.pl?sessionid=$thissession&folder=$escapedfolder&page=$page&sort=$sort&keyword=$escapedkeyword&searchtype=$searchtype&message_id=$escapedmessageid&action=readmessage&headers=$headers&attmode=$attmode");
       return;
    } else {
       listmessages();
@@ -1092,10 +1088,10 @@ sub movemessage {
 sub emptytrash {
    my ($trashfile, $trashdb)=get_folderfile_headerdb($user, 'mail-trash');
    open (TRASH, ">$trashfile") or
-      openwebmailerror ("$lang_err{'couldnt_open'} $trashfile! ($!)");
-   close (TRASH) or openwebmailerror("$lang_err{'couldnt_close'} $trashfile! ($!)");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $trashfile! ($!)");
+   close (TRASH) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $trashfile! ($!)");
    if (update_headerdb($trashdb, $trashfile)<0) {
-      openwebmailerror("$lang_err{'couldnt_updatedb'} $trashdb$config{'dbm_ext'}");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_updatedb'} $trashdb$config{'dbm_ext'}");
    }
    writelog("empty trash");
    writehistory("empty trash");
@@ -1103,119 +1099,119 @@ sub emptytrash {
 #################### END EMPTYTRASH #######################
 
 ################## RETRIVEPOP3/RETRPOP3S ###########################
-use vars qw(%pop3error);
-%pop3error=( -1=>"pop3book read error",
-             -2=>"connect error",
-             -3=>"server not ready",
-             -4=>"'user' error",
-             -5=>"'pass' error",
-             -6=>"'stat' error",
-             -7=>"'retr' error",
-             -8=>"spoolfile write error",
-             -9=>"pop3book write error"
-           );
-
 sub retrpop3 {
    my $pop3host = param("pop3host") || '';
+   my $pop3port = param("pop3port") || '110';
    my $pop3user = param("pop3user") || '';
-
-   if ( ! -f "$folderdir/.pop3.book" ) {
-      listmessages();
-      return;
-   }
+   my $pop3book = "$folderdir/.pop3.book";
+   return listmessages() if (!$pop3host || !$pop3user || !-f $pop3book);
 
    foreach ( @{$config{'disallowed_pop3servers'}} ) {
       if ($pop3host eq $_) {
-         openwebmailerror("$lang_err{'disallowed_pop3'} $pop3host");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'disallowed_pop3'} $pop3host");
       }
    }
 
-   _retrpop3($pop3host, $pop3user, "$folderdir/.pop3.book");
+   my %accounts;
+   if (readpop3book("$pop3book", \%accounts) <0) {
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $pop3book!");
+   }
+
+   # don't care enable flag since this is triggered by user clicking
+   my ($pop3passwd, $pop3del)
+	=(split(/\@\@\@/, $accounts{"$pop3host:$pop3port\@\@\@$pop3user"}))[3,4];
+
+   my $response=_retrpop3($pop3host,$pop3port, $pop3user,$pop3passwd, $pop3del);
+   if ($response == -1 || $response==-2) {
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} uidldb");
+   } elsif ($response == -3) {
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} spoolfile");
+   } elsif ($response == -11 || $response == -12) {
+      openwebmailerror(__FILE__, __LINE__, "$pop3user\@$pop3host:$pop3port $lang_err{'couldnt_open'}");
+   } elsif ($response == -13) {
+      openwebmailerror(__FILE__, __LINE__, "$pop3user\@$pop3host:$pop3port $lang_err{'user_not_exist'}");
+   } elsif ($response == -14) {
+      openwebmailerror(__FILE__, __LINE__, "$pop3user\@$pop3host:$pop3port $lang_err{'pwd_incorrect'}");
+   } elsif ($response == -15 || $response == -16 || $response == -17) {
+      openwebmailerror(__FILE__, __LINE__, "$pop3user\@$pop3host:$pop3port $lang_err{'network_server_error'}");
+   }
 
    $folder="INBOX";
-   print "Location: $config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&sessionid=$thissession&sort=$sort&page=$page&folder=$escapedfolder\n\n";
+   print redirect(-location=>"$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&sessionid=$thissession&sort=$sort&page=$page&folder=$escapedfolder");
    return;
 }
 
-sub _retrpop3 {
-   my ($pop3host, $pop3user, $pop3book)=@_;
-   my ($spoolfile, $headerdb)=get_folderfile_headerdb($user, 'INBOX');
-   my (%accounts, $response);
+sub retrpop3s {
+   return listmessages() if (! -f "$folderdir/.pop3.book");
 
-   if (readpop3book("$pop3book", \%accounts) <0) {
-      openwebmailerror("$lang_err{'couldnt_open'} $pop3book!");
+   if (update_pop3check()) {
+      _retrauthpop3() if ($config{'auth_module'} eq 'auth_pop3.pl');
    }
+   _retrpop3s(10);	# wait background fetching for no more 10 second
+   listmessages();
+}
+
+sub _retrpop3 {
+   my ($pop3host, $pop3port, $pop3user, $pop3passwd, $pop3del)=@_;
+   my ($spoolfile, $headerdb)=get_folderfile_headerdb($user, 'INBOX');
 
    # since pop3 fetch may be slow, the spoolfile lock is done inside routine.
    # the spoolfile is locked when each one complete msg is retrieved
-   $response = retrpop3mail($pop3host, $pop3user, "$pop3book", $spoolfile);
-
+   my $response=retrpop3mail($pop3host, $pop3port, $pop3user, $pop3passwd, $pop3del, 
+			"$folderdir/.uidl.$pop3user\@$pop3host", $spoolfile);
    if ($response< 0) {
-      writelog("pop3 error - $pop3error{$response} at $pop3user\@$pop3host");
-      writehistory("pop3 error - $pop3error{$response} at $pop3user\@$pop3host");
-      if ($response == -1 || $response==-9) {
-   	  openwebmailerror("$lang_err{'couldnt_open'} $pop3book!");
-      } elsif ($response == -8) {
-   	  openwebmailerror("$lang_err{'couldnt_open'} $spoolfile");
-      } elsif ($response == -2 || $response == -3) {
-   	  openwebmailerror("$pop3user\@$pop3host $lang_err{'couldnt_open'}");
-      } elsif ($response == -4) {
-    	  openwebmailerror("$pop3user\@$pop3host $lang_err{'user_not_exist'}");
-      } elsif ($response == -5) {
-      	  openwebmailerror("$pop3user\@$pop3host $lang_err{'pwd_incorrect'}");
-      } elsif ($response == -6 || $response == -7) {
-   	  openwebmailerror("$pop3user\@$pop3host $lang_err{'network_server_error'}");
-      }
+      writelog("pop3 error - $pop3error{$response} at $pop3user\@$pop3host:$pop3port");
+      writehistory("pop3 error - $pop3error{$response} at $pop3user\@$pop3host:pop3port");
    }
+   return($response);
 }
 
-sub retrpop3s {
-   if ( ! -f "$folderdir/.pop3.book" ) {
-      listmessages();
-      return;
-   }
+sub _retrauthpop3 {
+   return 0 if (!$config{'getmail_from_pop3_authserver'});
 
-   if (update_pop3check()) {
-      if ($config{'auth_module'} eq 'auth_pop3.pl' &&
-          $config{'getmail_from_pop3_authserver'}) {
-         my $login=$user; $login .= "\@$domain" if ($config{'auth_withdomain'});
-         _retrpop3($config{'pop3_authserver'}, $login, "$folderdir/.authpop3.book");
+   my $authpop3book="$folderdir/.authpop3.book";
+   my %accounts;
+   if ( -f "$authpop3book") {
+      if (readpop3book("$authpop3book", \%accounts)>0) {
+         my $login=$user;  $login.="\@$domain" if ($config{'auth_withdomain'});
+         my ($pop3passwd, $pop3del)
+		=(split(/\@\@\@/, $accounts{"$config{'pop3_authserver'}:$config{'pop3_authport'}\@\@\@$login"}))[3,4];
+         # don't case enable flag since noreason to stop fetch from auth server
+         return _retrpop3($config{'pop3_authserver'}, $config{'pop3_authport'}, $login, $pop3passwd, $pop3del);
+      } else {
+         writelog("pop3 error - couldn't open $authpop3book");
+         writehistory("pop3 error - couldn't open $authpop3book");
       }
    }
-   _retrpop3s(10, "$folderdir/.pop3.book");
-
-   listmessages();
+   return 0;
 }
 
 use vars qw($_retrpop3s_fetch_complete);
 sub _retrpop3s {
-   my ($timeout, $pop3book)=@_;
+   my $timeout=$_[0];
    my ($spoolfile, $headerdb)=get_folderfile_headerdb($user, 'INBOX');
-   my (%accounts, $response);
+   my $pop3book="$folderdir/.pop3.book";
+   my %accounts;
 
-   return if ( ! -f "$pop3book" );
-
-   if (readpop3book("$pop3book", \%accounts) <0) {
-      openwebmailerror("$lang_err{'couldnt_open'} $pop3book!");
+   return 0 if ( ! -f "$pop3book" );
+   if (readpop3book("$pop3book", \%accounts)<0) {
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $pop3book!");
    }
 
    # fork a child to do fetch pop3 mails and return immediately
-   if (%accounts >0) {
+   if (%accounts>0) {
       local $|=1; # flush all output
-      local $SIG{CHLD} = sub { wait; $_retrpop3s_fetch_complete=1; };	# handle zombie
       local $_retrpop3s_fetch_complete=0;	# localize for reentry safe
+      local $SIG{CHLD} = sub { wait; $_retrpop3s_fetch_complete=1; };	# handle zombie
 
       if ( fork() == 0 ) {		# child
          close(STDIN); close(STDOUT); close(STDERR);
 
          foreach (values %accounts) {
-            my ($pop3host, $pop3user, $enable);
-            my ($response, $dummy);
-            my $disallowed=0;
-
-            ($pop3host, $pop3user, $dummy, $dummy, $dummy, $enable) = split(/\@\@\@/,$_);
+            my ($pop3host,$pop3port, $pop3user,$pop3passwd, $pop3del, $enable)=split(/\@\@\@/,$_);
             next if (!$enable);
 
+            my $disallowed=0;
             foreach ( @{$config{'disallowed_pop3servers'}} ) {
                if ($pop3host eq $_) {
                   $disallowed=1; last;
@@ -1223,14 +1219,15 @@ sub _retrpop3s {
             }
             next if ($disallowed);
 
-            $response = retrpop3mail($pop3host, $pop3user,
-         				"$pop3book",  $spoolfile);
+            my $response = retrpop3mail($pop3host,$pop3port, $pop3user,$pop3passwd, $pop3del,
+					"$folderdir/.uidl.$pop3user\@$pop3host", 
+					$spoolfile);
             if ( $response<0) {
-               writelog("pop3 error - $pop3error{$response} at $pop3user\@$pop3host");
-               writehistory("pop3 error - $pop3error{$response} at $pop3user\@$pop3host");
+               writelog("pop3 error - $pop3error{$response} at $pop3user\@$pop3host:$pop3port");
+               writehistory("pop3 error - $pop3error{$response} at $pop3user\@$pop3host:$pop3port");
             }
          }
-         exit;
+         openwebmail_exit(0);
       }
 
       for (my $i=0; $i<$timeout; $i++) {	# wait fetch to complete for $timeout seconds
@@ -1239,7 +1236,7 @@ sub _retrpop3s {
       }
    }
 
-   return;
+   return 0;
 }
 
 sub update_pop3check {
@@ -1248,7 +1245,7 @@ sub update_pop3check {
 
    if (!$ftime) {	# create if not exist
       open (F, "> $folderdir/.pop3.check") or
-         openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.pop3.check! ($!)");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir/.pop3.check! ($!)");
       print F "pop3check timestamp file";
       close (F);
    }
@@ -1268,9 +1265,9 @@ sub moveoldmsg2saved {
    my $counted;
 
    filelock($srcfile, LOCK_EX|LOCK_NB) or
-      openwebmailerror("$lang_err{'couldnt_lock'} $srcfile!");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $srcfile!");
    filelock($dstfile, LOCK_EX|LOCK_NB) or
-      openwebmailerror("$lang_err{'couldnt_lock'} $dstfile!");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $dstfile!");
 
    $counted=move_oldmsg_from_folder($srcfile, $srcdb, $dstfile, $dstdb);
 
@@ -1282,11 +1279,11 @@ sub moveoldmsg2saved {
       writelog($msg);
       writehistory($msg);
    } elsif ($counted==-1) {
-      openwebmailerror("$lang_err{'inv_msg_op'}");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'inv_msg_op'}");
    } elsif ($counted==-2) {
-      openwebmailerror("$lang_err{'couldnt_open'} $srcfile");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $srcfile");
    } elsif ($counted==-3) {
-      openwebmailerror("$lang_err{'couldnt_open'} $dstfile!");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $dstfile!");
    }
 }
 ################ END MOVEOLDMSG2SAVED ########################
@@ -1306,7 +1303,7 @@ sub cleantrash {
 
    if (!$ftime) {	# create if not exist
       open (TRASHCHECK, ">$folderdir/.trash.check" ) or
-         openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.trash.check! ($!)");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir/.trash.check! ($!)");
       print TRASHCHECK "trashcheck timestamp file";
       close (TRASHCHECK);
    }
@@ -1314,7 +1311,7 @@ sub cleantrash {
       my ($trashfile, $trashdb)=get_folderfile_headerdb($user, 'mail-trash');
 
       filelock($trashfile, LOCK_EX|LOCK_NB) or
-         openwebmailerror("$lang_err{'couldnt_lock'} $trashfile!");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $trashfile!");
       my $deleted=delete_message_by_age($days, $trashdb, $trashfile);
       if ($deleted >0) {
          writelog("clean trash - delete $deleted msgs from mail-trash");
@@ -1335,8 +1332,7 @@ sub logout {
    writehistory("logout - $thissession");
 
    my ($html, $temphtml);
-   $html = readtemplate("logout.template");
-   $html = applystyle($html);
+   $html = applystyle(readtemplate("logout.template"));
 
    my $start_url=$config{'start_url'};
  
@@ -1358,6 +1354,6 @@ sub logout {
                 end_form();
    $html =~ s/\@\@\@BUTTONS\@\@\@/$temphtml/;
 
-   print htmlheader(), $html, htmlfooter(2);
+   httpprint([], [htmlheader(), $html, htmlfooter(2)]);
 }
 ################## END LOGOUT ######################

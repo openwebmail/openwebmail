@@ -39,7 +39,7 @@ uk=lvm@mystery.lviv.net
 ur=umair@khi.wol.net.pk
 
 # port/package/service maintainer email
-cobalt=webmaster@pkgmaster.com
+cobalt=taco@scargo.nl
 freebsd=leeym@leeym.com
 openbsd=kevlo@openbsd.org
 debian=srua@debian.org

@@ -42,6 +42,14 @@ package openwebmail::cs;
    'non-urgent'=> 'Nízká'
    );
 
+%lang_msgformatlabels =
+   (
+   auto => 'Auto selected',
+   text	=> 'Text',
+   html => 'HTML',
+   both => 'HTML and Text'
+   );
+
 %lang_withoriglabels =
    (
    at_beginning => 'Na zaèátek',
@@ -54,6 +62,13 @@ package openwebmail::cs;
    ask => 'Zeptat se',
    yes => 'Ano',
    no  => 'Ne'
+   );
+
+%lang_disableemblinklabels =
+   (
+   none    => 'None',
+   cgionly => 'CGI only',
+   all     => 'All embedded URLs'
    );
 
 %lang_ctrlpositionlabels =
@@ -190,6 +205,7 @@ package openwebmail::cs;
 
 %lang_text =
    (
+   loading    => 'Loading, please wait',
    help       => 'Nápovìda',
    login      => 'Pøihlásit',
    clear      => 'Smazat',
@@ -234,6 +250,7 @@ package openwebmail::cs;
    forwardasatt=>'Poslat jako pøílohu',
    forwardasorig=>'Forward as original',
    printfriendly=> 'Formát pro tisk',
+   msgformat  => 'MsgFormat',
    from       => 'Od',
    replyto    => 'Kam odpovídat (pokud má bıt pro odpovìï pou¾ita jiná adresa) ',
    to         => 'Komu',
@@ -346,6 +363,7 @@ package openwebmail::cs;
    calfmt_yearmonthday  => '@@@DAY@@@. @@@MONTH_STR@@@ @@@YEAR@@@',
    calfmt_yearmonthdaywday => '@@@DAY@@@. @@@MONTH_STR@@@ @@@YEAR@@@, @@@WEEKDAY_STR@@@',
    calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
+   autosel    => 'Auto selected',
    none       => '¾ádnı',
    moreitems  => 'více polo¾ek',
    multieditconf => 'Tato polo¾ka byla vlo¾ena pro více datumù.\\nÚprava zmìní hodnoty pro v¹echny datumy.\\nPokraèovat s úpravou datumu?',
@@ -390,8 +408,9 @@ package openwebmail::cs;
    vdomain_createuser => 'Create User',
    vdomain_changeuser => 'Change User',
    vdomain_deleteuser => 'Delete User',
-   vdomain_usertype_localmbox  => 'Local Mailbox',
-   vdomain_usertype_redirected => 'Redirect to external mail address'
+   set_passwd         => 'Set Password',
+   reset_passwd       => 'Reset Password',
+   email_alias        => 'E-MAIL Alias'
    );
 
 %lang_err =
@@ -454,7 +473,9 @@ package openwebmail::cs;
    quotahit_delmail  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, oldest messages in folders have been removed automatcially',
    quotahit_delfile  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, some files in the webdisk have been removed automatcially',
    spool_overlimit   => 'Sorry, your INBOX has exceeded the spool limit(@@@SPOOLLIMIT@@@). Please move some messages from INBOX to other folders.',
-   vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
+   vdomain_toomanyuser  => 'Sorry, the user count of this domain has reached its maximum limit',
+   vdomain_toomanyalias => 'Sorry, the E-MAIL alias count of this user has reached its maximum limit',
+   vdomain_userrequired => 'A user name is required'
    );
 
 1;

@@ -40,6 +40,14 @@ package openwebmail::bg;
    'non-urgent'=> 'не е спешно'
    );
 
+%lang_msgformatlabels =
+   (
+   auto => 'авотматично',
+   text => 'текст',
+   html => 'HTML',
+   both => 'HTML и текст'
+   );
+
 %lang_withoriglabels =
    (
    at_beginning => 'в началото',
@@ -52,6 +60,13 @@ package openwebmail::bg;
    ask => 'Питай за потвърждение',
    yes => 'Да',
    no  => 'Не'
+   );
+
+%lang_disableemblinklabels =
+   (
+   none    => 'None',
+   cgionly => 'CGI only',
+   all     => 'All embedded URLs'
    );
 
 %lang_ctrlpositionlabels =
@@ -188,6 +203,7 @@ package openwebmail::bg;
 
 %lang_text =
    (
+   loading    => 'Зареждане, моля изчакайте',
    help       => 'Помощ',
    login      => 'Вход',
    clear      => 'Изчисти',
@@ -232,6 +248,7 @@ package openwebmail::bg;
    forwardasatt=>'Препрати като прикачен',
    forwardasorig=>'Препрати като оригинала',
    printfriendly=> 'Приготви за печат',
+   msgformat  => 'Формат',
    from       => 'От',
    replyto    => 'Отговори на',
    to         => 'До',
@@ -344,6 +361,7 @@ package openwebmail::bg;
    calfmt_yearmonthday  => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@',
    calfmt_yearmonthdaywday => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@ @@@WEEKDAY_STR@@@',
    calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
+   autosel    => 'авотматично',
    none       => 'няма',
    moreitems  => 'повече полета',
    multieditconf => 'Тази дефиниция съществува в повече от една дата.\\nРедакцията и ще се отрази на всичките записи.\\nПродължение с редакция?',
@@ -388,8 +406,9 @@ package openwebmail::bg;
    vdomain_createuser => 'Добавяне на потребител',
    vdomain_changeuser => 'Промяна на потребител',
    vdomain_deleteuser => 'Изтриване на потребител',
-   vdomain_usertype_localmbox  => 'Локална пощенска кутия',
-   vdomain_usertype_redirected => 'Препращане към външен пощенски  адрес'
+   set_passwd         => 'Избери парола', 
+   reset_passwd       => 'Ресет на паролата',
+   email_alias        => 'E-MAIL синоним'
    );
 
 %lang_err =
@@ -452,7 +471,9 @@ package openwebmail::bg;
    quotahit_delmail  => 'Внимание, достигане на лимита - (@@@QUOTALIMIT@@@), старите съобщения ще бъдат изтрити автоматично',
    quotahit_delfile  => 'Внимание, достигане на лимита - (@@@QUOTALIMIT@@@), някои файлове от web диска ще бъдат изтрити автоматично',
    spool_overlimit   => 'За съжаление е достигнат лимита за папка Входящи(@@@SPOOLLIMIT@@@). Моля преместете някои съобщения от Входящи в друга папка.',
-   vdomain_toomanyuser=> 'За съжаление лимитираният брой потребители за този домейн е достигнат'
+   vdomain_toomanyuser  => 'За съжаление лимитираният брой потребители за този домейн е достигнат',
+   vdomain_toomanyalias => 'За съжаление лимитираният брой E-MAIL синоними за този потребител е достигнат',
+   vdomain_userrequired => 'Изисква се потребителско име'
    );
 
 1;

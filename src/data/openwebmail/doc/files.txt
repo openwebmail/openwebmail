@@ -11,12 +11,17 @@ data/openwebmail/               mapping to url http://your_site/openwebmail/
 doc/                            text document for openwebmail
 help/				openwebmail tutorial of various languages
 images/                         runtime image/background/icons
+javascript/			runtime javascripts
 sounds/                         various YouHaveMail sound files
 applet/                         directory for runtime javaapplet
-javascript/			directory for runtime javascript
 openwebmail.html
 redirect.html
-index.html@
+index.html -> openwebmail.html
+
+javascript/htmlarea			HTMLArea editor 3.0
+javascript/htmlarea.openwebmail		HTMLArea editor 3.0 customized for oepnwebmail
+javascript/htmlarea.openwebmail/popups	lang and html file of popup windows in 
+					htmlarea editor for different languages
 
 
 cgi-bin/openwebmail/            mapping to url http://your_site/cgi-bin/openwebmail
@@ -142,4 +147,3 @@ other files accessed by openwebmail
 /etc/mail/virtusertable         virtual user mapping file
 /var/mail/USER                  INBOX for the USER
 /var/log/openwebmail.log        openwebmail system log file
-

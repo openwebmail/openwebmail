@@ -5,6 +5,7 @@
 # Larry Wall <lwall@jpl-devvax.jpl.nasa.gov>
 # updates by Tom Christiansen <tchrist@convex.com>
 # updates by Chung-Kie Tung <tung@turtle.ee.ncku.edu.tw>
+# updates by Scott Mazur <scott@littlefish.ca> - added -p path option
 #
 
 #
@@ -13,59 +14,61 @@
 #   vacation.pl [ -I|-i ]
 #      init vacation db
 #
-#   vacation.pl [ -j ] [ -a alias ] [-f ifile] [ -tN ] [-d] username
+#   vacation.pl [ -j ] [ -a alias ] [-f ifile] [ -tN ] [-d] [-p homepath] username
 #      used in ~/.forward file to auto-generate reply message
 #
-#    username  A message will be replied only if the username
-#            appears as an recipient in To: or Cc:
+#    username     A message will be replied only if the username
+#                 appears as an recipient in To: or Cc:
 #
-#    -j      Do not check whether the username appears as an
-#            recipient in the To: or the Cc: line.
+#    -j           Do not check whether the username appears as an
+#                 recipient in the To: or the Cc: line.
 #
-#    -a alias  Indicate that alias is one of the valid names of the
-#            username, so the reply will be generated if the alias
-#            appears in To: or Cc:
+#    -a alias     Indicate that alias is one of the valid names of the
+#                 username, so the reply will be generated if the alias
+#                 appears in To: or Cc:
 #
-#    -f ifile  Specify a file containing ignored users. Mails sent
-#            from the ignored users won't be auto-replied
+#    -f ifile     Specify a file containing ignored users. Mails sent
+#                 from the ignored users won't be auto-replied
 #
+#    -tN          Change the interval between repeat replies to  the
+#                 same  sender.   The default is 1 week.  A trailing
+#                 s, m, h, d, or w scales  N  to  seconds,  minutes,
+#                 hours, days, or weeks respectively.
 #
-#    -tN      Change the interval between repeat replies to  the
-#            same  sender.   The default is 1 week.  A trailing
-#            s, m, h, d, or w scales  N  to  seconds,  minutes,
-#            hours, days, or weeks respectively.
+#    -p homepath  Specify a directory for the user home.
+#                 (mostly for virtual user with no real unix home)
 #
-#    -d      log debug information to /tmp/vacation.debug
+#    -d           log debug information to /tmp/vacation.debug
 #
 #   The options -a and -f can be specified for more than one times.
 #
 #
 #   .forward file will contain a line of the form:
 #
-#            \username, "|/usr/local/bin/vacation.pl -t1d username"
+#      \username, "|/usr/local/bin/vacation.pl -t1d username"
 #
 #   .vacation.msg should include a header with at least Subject: line
 #
 #   For example:
 #
-#            Subject: I am on vacation
+#      Subject: I am on vacation
 #
-#            I am on vacation until July 22.
-#            If you have something urgent,
-#            please contact cilen (cilen@somehost).
-#            --tung
+#      I am on vacation until July 22.
+#      If you have something urgent,
+#      please contact cilen (cilen@somehost).
+#      --tung
 #
 #   If the string $SUBJECT appears in the .vacation.msg file, it
 #   is  replaced  with  the subject of the original message when
 #   the reply is sent; thus, a .vacation.msg file such as
 #
-#            Subject: I am on vacation
+#      Subject: I am on vacation
 #
-#            I am on vacation until July 22.
-#            Your mail regarding "$SUBJECT" will be read when I return.
-#            If you have something urgent,
-#            please contact cilen (cilen@somehost).
-#            --tung
+#      I am on vacation until July 22.
+#      Your mail regarding "$SUBJECT" will be read when I return.
+#      If you have something urgent,
+#      please contact cilen (cilen@somehost).
+#      --tung
 #
 #   will include the subject of the message in the reply.
 #
@@ -79,15 +82,12 @@ if ($myname !~ m!^/! || ! -x $myname) {
    exit 1;
 }
 
-my $sendmail="";
-if ( $sendmail eq "" ) {
-   if ( -x '/usr/sbin/sendmail') {
-      $sendmail='/usr/sbin/sendmail';
-   } elsif ( -x '/usr/lib/sendmail') {
-      $sendmail='/usr/lib/sendmail';
-   }
-}
-if (! -x $sendmail) {
+my $sendmail;
+if ( -x '/usr/sbin/sendmail') {
+   $sendmail='/usr/sbin/sendmail';
+} elsif ( -x '/usr/lib/sendmail') {
+   $sendmail='/usr/lib/sendmail';
+} else {
    die "Sendmail binary not found";
 }
 
@@ -113,7 +113,7 @@ my @ignores = (
            );
 my @aliases = ();
 
-my ($opt_i, $opt_d, $opt_j)=(0,0,0);
+my ($opt_i, $opt_d, $opt_j, $home_path)=(0,0,0,0);
 
 
 #############################################################################
@@ -125,7 +125,7 @@ sub init_mode {
       $>=$uid;
       log_debug("change to $user euid: ruid=$<, euid=$>") if ($opt_d);
    }
-   my $home = $ENV{'HOME'} || (getpwnam($user))[7] || die "No home directory for user $user\n";
+   my $home = $home_path || $ENV{'HOME'} || (getpwnam($user))[7] || die "No home directory for user $user\n";
 
    # guess real homedir under automounter
    $home="/export$home" if ( -d "/export$home" );
@@ -151,7 +151,7 @@ sub interactive_mode {
       $>=$uid;
       log_debug("change to $user euid: ruid=$<, euid=$>") if ($opt_d);
    }
-   my $home = $ENV{'HOME'} || (getpwnam($user))[7] || die "No home directory for user $user\n";
+   my $home = $home_path || $ENV{'HOME'} || (getpwnam($user))[7] || die "No home directory for user $user\n";
    my $editor = $ENV{'VISUAL'} || $ENV{'EDITOR'} || 'vi';
    my $pager = $ENV{'PAGER'} || 'more';
 
@@ -235,6 +235,7 @@ sub create_dot_forward {
    open(FOR, ">.forward") || die "Can't create .forward: $!\n";
    print FOR qq!\\$user, "|$vacation $user"\n!;
    close FOR;
+   return;
 }
 
 sub create_default_vacation_msg {
@@ -244,6 +245,7 @@ sub create_default_vacation_msg {
              qq|I will not be reading my mail for a while.\n|,
              qq|Your mail regarding '\$SUBJECT' will be read when I return.\n|;
    close MSG;
+   return;
 }
 
 sub yorn {
@@ -265,6 +267,7 @@ sub pipe_mode {
       $>=$uid;
       log_debug("change to $user euid: ruid=$<, euid=$>") if ($opt_d);
    }
+   $home = $home_path if ($home_path);
    if (!$home) {
       log_debug("Error! No home directory for user $user\n") if ($opt_d);
       die "No home directory for user $user\n";
@@ -346,8 +349,7 @@ sub pipe_mode {
    create_default_vacation_msg() if (! -f ".vacation.msg");
    my $msg;
    if (open(MSG,'.vacation.msg')) {
-      undef $/;
-      $msg = <MSG>;
+      local $/; undef $/; $msg = <MSG>;	# read whole file at once
       close MSG;
    }
    $msg=adjust_replymsg($msg, $from, $subject);
@@ -486,8 +488,7 @@ sub decode_mimewords {
    return (wantarray ? @tokens : join('',map {$_->[0]} @tokens));
 }
 
-sub decode_base64
-{
+sub decode_base64 {
    local($^W) = 0; # unpack("u",...) gives bogus warning in 5.00[123]
 
    my $str = shift;
@@ -549,6 +550,8 @@ while (defined($ARGV[0]) && $ARGV[0] =~ /^-/) {
    } elsif (/^-t([\d.]*)([smhdw])/) {   # specify reply once interval
       $timeout = $1;
       $timeout *= $scale{$2} if $2;
+   } elsif (/^-p(.*)/) {      # use an alternate home path
+      $home_path=$1;
    } else {
       die $usage;
    }

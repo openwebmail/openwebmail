@@ -1,29 +1,37 @@
 #
-# htmltext.pl - html/text transform routine
+# htmltext.pl - html/text transformation routine
 #
 # 2001/12/21 tung@turtle.ee.ncku.edu.tw
 #
+use strict;
 
 sub html2text {
    my $t=$_[0];
 
-   $t=~s!\s+! !g;
+   $t=~s![ \t]+! !g;
+   $t=~s![\r\n]+!!g;
    $t=~s|<style>.*?</style>||isg;
    $t=~s|<script>.*?</script>||isg;
 
    $t=~s!<title[^\<\>]*?>!\n\n!ig;
    $t=~s!</title>!\n\n!ig;
-   $t=~s!<br>!\n!ig;
+   $t=~s!<(?:br|br /)>!\n!ig;
    $t=~s!<hr[^\<\>]*?>!\n-----------------------------------------------------------------------\n!ig;
 
-   $t=~s!<p>\s?</p>!\n\n!ig;
-   $t=~s!<p>!\n\n!ig;
+   $t=~s!<(?:p|p .*?)>\s?</p>!\n\n!ig;
+   $t=~s!<(?:p|p .*?)>!\n\n!ig;
    $t=~s!</p>!\n\n!ig;
 
-   $t=~s!<th[^\<\>]*?>!\n!ig;
-   $t=~s!</th>! !ig;
-   $t=~s!<tr[^\<\>]*?>!\n!ig;
-   $t=~s!</tr>! !ig;
+   $t=~s!<(?:div|div .*?)>\s?</div>!\n\n!ig;
+   $t=~s!<(?:div|div .*?)>!\n\n!ig;
+   $t=~s!</div>!\n\n!ig;
+
+   $t=~s!<(?:ol|ul)[^\<\>]*?>!\n!ig;
+   $t=~s!</(?:ol|ul)>!\n!ig;
+   $t=~s!<li>!\n* !ig;
+
+   $t=~s!<(?:th|tr)[^\<\>]*?>!\n!ig;
+   $t=~s!</(?:th|tr)>! !ig;
    $t=~s!<td[^\<\>]*?>! !ig;
    $t=~s!</td>! !ig;
 
@@ -36,9 +44,9 @@ sub html2text {
    $t=~s!&gt;!>!g;
    $t=~s!&amp;!&!g;
    $t=~s!&quot;!\"!g;
-#   $t=~s!&#8364;!€!g;	# Euro symbo
 
-   $t=~s!\n\n\s+!\n\n!g;
+   $t=~s!^\s+!!;
+   $t=~s! *\n *\n\s+!\n\n!g;
 
    return($t);
 }

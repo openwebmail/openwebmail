@@ -25,7 +25,7 @@
 <table><tr><td>@@@LOGINBUTTON@@@</td></tr></table>
 </td>
 <td align=center>
-<table><tr><td><font size=1>记住我的<br>登录账号</font></td><td>@@@REMEMBERMECHECKBOX@@@</td></tr></table>
+<table><tr><td><font size=1>HTTP资料<br>压缩传送</font></td><td>@@@HTTPCOMPRESSIONCHECKBOX@@@</td></tr></table>
 </td>
 </tr>
 </table>
@@ -55,6 +55,24 @@
    {
       document.login.loginbutton.focus();
       return (true);
+   }
+
+   function httpcompresshelp()
+   {
+      if (document.login.httpcompress.checked) {
+         alert(
+"HTTP资料压缩传送 能够有效地降低您的电脑与 WebMail 服务器 间的网络带宽用量, "+
+"不过使用这项功能时, 有一些相容性上的问题要注意:\n\n"+
+"1. 部分的 Proxy 服务器 只能在 HTTP1.1 上作资料压缩传输, "+
+"所以您可能需要在浏览器中设定 '使用 HTTP1.1 透过 Proxy 连线'\n"+
+"2. 部分的 Proxy 服务器 完全不支援 HTTP资料压缩传输功能, "+
+"所以您可能需要在浏览器中设定 '不透过 Proxy 连线到这部 WebMail 服务器'.\n"+
+"3. 某些浏览器在同时使用 HTTP 资料压缩传输 与 SSL 安全连线 时会有问题...\n"+
+"4. 某些浏览器宣称支援 HTTP 资料压缩传输, 但是会有问题...\n\n"+
+"所以如果您遇到问题的话, 请在重新登入时不要选择此方块即可.\n"
+         );
+      }
+      return(true);
    }
 
 //-->

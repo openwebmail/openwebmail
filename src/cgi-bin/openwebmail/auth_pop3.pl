@@ -50,7 +50,7 @@ use strict;
 #    mailspooldir		any directory that the runtime user could write
 #    use_syshomedir		no
 #    use_homedirspools		no
-#    log_file			any file that runtime user could write
+#    logfile			any file that runtime user could write
 #    enable_changepwd		no
 #    enable_autoreply		no
 #    enable_setforward		no
@@ -72,13 +72,14 @@ use strict;
 #
 
 # global vars, the uid used for all pop3 users mails
+# you may set it to uid of specific user, eg: $local_uid=getpwnam('nobody');
 use vars qw($local_uid);
 $local_uid=$>;
 
 ################### No configuration required from here ###################
 
 use IO::Socket;
-require "mime.pl";
+use MIME::Base64;
 
 # routines get_userinfo() and get_userlist still depend on /etc/passwd
 # you may have to write your own routines if your user are not form /etc/passwd
@@ -91,15 +92,18 @@ sub get_userinfo {
    my ($r_config, $user)=@_;
    return(-2, 'User is null') if (!$user);
 
-   my ($uid, $gid, $realname, $homedir) = (getpwuid($local_uid))[2,3,6,7];
+   my ($localuser, $uid, $gid, $realname, $homedir) = (getpwuid($local_uid))[0,2,3,6,7];
    return(-4, "User $user doesn't exist") if ($uid eq "");
 
+   # get other gid for this localuser in /etc/group
+   while (my @gr=getgrent()) {
+      $gid.=' '.$gr[2] if ($gr[3]=~/\b$localuser\b/ && $gid!~/\b$gr[2]\b/);
+   }
    # use first field only
    $realname=(split(/,/, $realname))[0];
    # guess real homedir under sun's automounter
-   if ($uid) {
-      $homedir="/export$homedir" if (-d "/export$homedir");
-   }
+   $homedir="/export$homedir" if (-d "/export$homedir");
+
    return(0, '', $realname, $uid, $gid, $homedir);
 }
 
@@ -124,24 +128,24 @@ sub check_userpassword {
    my $remote_sock;
    eval {
       local $SIG{ALRM} = sub { die "alarm\n" }; # NB: \n required
-      alarm 10;
+      alarm 30;
       $remote_sock=new IO::Socket::INET(   Proto=>'tcp',
                                            PeerAddr=>${$r_config}{'pop3_authserver'},
                                            PeerPort=>${$r_config}{'pop3_authport'});
       alarm 0;
    };
    if ($@){ 			# eval error, it means timeout
-      return (-3, "pop3 server ${$r_config}{'pop3_authserver'} timeout");
+      return (-3, "pop3 server ${$r_config}{'pop3_authserver'}:${$r_config}{'pop3_authport'} timeout");
    }
    if (!$remote_sock) { 	# connect error
-      return (-3, "pop3 server ${$r_config}{'pop3_authserver'} connection refused");
+      return (-3, "pop3 server ${$r_config}{'pop3_authserver'}:${$r_config}{'pop3_authport'} connection refused");
    }
 
    $remote_sock->autoflush(1);
    $_=<$remote_sock>;
    if (/^\-/) {
       close($remote_sock);
-      return(-3, "pop3 server ${$r_config}{'pop3_authserver'} not ready");
+      return(-3, "pop3 server ${$r_config}{'pop3_authserver'}:${$r_config}{'pop3_authport'} not ready");
    }
 
    # try if server supports auth login(base64 encoding) first
@@ -152,7 +156,7 @@ sub check_userpassword {
       $_=<$remote_sock>;
       if (/^\-/) {
          close($remote_sock);
-         return(-2, "pop3 server ${$r_config}{'pop3_authserver'} username error");
+         return(-2, "pop3 server ${$r_config}{'pop3_authserver'}:${$r_config}{'pop3_authport'} username error");
       }
       print $remote_sock &encode_base64($password);
       $_=<$remote_sock>;
@@ -162,13 +166,13 @@ sub check_userpassword {
       $_=<$remote_sock>;
       if (/^\-/) {		# username error
          close($remote_sock);
-         return(-2, "pop3 server ${$r_config}{'pop3_authserver'} username error");
+         return(-2, "pop3 server ${$r_config}{'pop3_authserver'}:${$r_config}{'pop3_authport'} username error");
       }
       print $remote_sock "pass $password\r\n";
       $_=<$remote_sock>;
       if (/^\-/) {		# passwd error
          close($remote_sock);
-         return(-4, "pop3 server ${$r_config}{'pop3_authserver'} password error");
+         return(-4, "pop3 server ${$r_config}{'pop3_authserver'}:${$r_config}{'pop3_authport'} password error");
       }
    }
 

@@ -1,7 +1,7 @@
 package openwebmail::it;
 
 # Italian translation, charset: iso-8859-1
-# by Benedet Marvi, i3100579.AT.ingstud.univ.trieste.it 
+# by Benedet Marvi, marvi@menhir.biz 
 
 %lang_folders =
    (
@@ -40,6 +40,14 @@ package openwebmail::it;
    'non-urgent'=> 'Non-Urgente'
    );
 
+%lang_msgformatlabels =
+   (
+   auto => 'Selezione automatica',
+   text	=> 'Testo',
+   html => 'HTML',
+   both => 'HTML e Testo'
+   );
+
 %lang_withoriglabels =
    (
    at_beginning => 'all\'inizio',
@@ -52,6 +60,13 @@ package openwebmail::it;
    ask => 'Richiedi conferma',
    yes => 'Si',
    no  => 'No'
+   );
+
+%lang_disableemblinklabels =
+   (
+   none    => 'None',
+   cgionly => 'CGI only',
+   all     => 'All embedded URLs'
    );
 
 %lang_ctrlpositionlabels =
@@ -188,6 +203,7 @@ package openwebmail::it;
 
 %lang_text =
    (
+   loading    => 'Caricamento in corso, prego attendere',
    help       => 'Aiuto',
    login      => 'Login',
    clear      => 'Cancella',
@@ -230,8 +246,9 @@ package openwebmail::it;
    replyall   => 'Rispondi a tutti',
    forward    => 'Inoltra',
    forwardasatt=>'Inoltra come allegato',
-   forwardasorig=>'Forward as original',
+   forwardasorig=>'Inoltra come originale',
    printfriendly=> 'Versione stampabile',
+   msgformat  => 'FormatoMsg',
    from       => 'Da',
    replyto    => 'Rispondi a',
    to         => 'A',
@@ -344,6 +361,7 @@ package openwebmail::it;
    calfmt_yearmonthday  => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@',
    calfmt_yearmonthdaywday => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@ @@@WEEKDAY_STR@@@',
    calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
+   autosel    => 'Selezione automatica',
    none       => 'Nessuno',
    moreitems  => 'più voci',
    multieditconf => 'Questa voce è stata aggiunta per più date.\\nModificandola verrà cabiata per tutte le date.\\nContinuare?',
@@ -388,8 +406,9 @@ package openwebmail::it;
    vdomain_createuser => 'Crea Utente',
    vdomain_changeuser => 'Cambia Utente',
    vdomain_deleteuser => 'Cancella Utente',
-   vdomain_usertype_localmbox  => 'Mailbox Locale',
-   vdomain_usertype_redirected => 'Reindirizza verso indirizzo posta esterno'
+   set_passwd         => 'Imposta Password',
+   reset_passwd       => 'Azzera Password',
+   email_alias        => 'Alias E-MAIL'
    );
 
 %lang_err =
@@ -428,7 +447,7 @@ package openwebmail::it;
    rebuild_sizeerr   => 'Dimensione nuovo messaggio sbagliata',
    user_not_exist    => 'non esiste l\'utente',
    func_notsupported => 'funzione non supportata',
-   auth_syserr       => 'Password sbagliata!',
+   auth_syserr       => 'Errore nell\'autentificazione',
    param_fmterr      => 'errore formato parametri',
    pwd_incorrect     => 'Password sbagliata',
    pwd_confirmmismatch=>'La nuova password non corrisponde',
@@ -442,17 +461,19 @@ package openwebmail::it;
    couldnt_chdirto   => 'Impossibile aprire cartella',
    isnt_a_dir        => 'non è una cartella',
    edit_notfordir    => 'Non puoi editare una cartella',
-   onefileonly       => 'Solo un file è possibile per questa opearzione',
+   onefileonly       => 'Solo un file è possibile per questa opearazione',
    no_file_todownload=> 'Non è stato specificato nessun file da scaricare',
    upload_overlimit  => 'Dimensione file da caricare superiori al consentito',
    decomp_notsupported=>'Il formato di decompressione non è supportato per questo file.',
    webdisk_readonly  => 'Impossibile continuare, il tuo webdisk è a sola lettura.',
-   quota_syserr      => 'Quota system error',
-   quotahit_alert    => 'Sorry, you\'ve hit your quota limit. Please delete some messages from mail folders or some files from the webdisk to free disk space.',
-   quotahit_delmail  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, oldest messages in folders have been removed automatcially',
-   quotahit_delfile  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, some files in the webdisk have been removed automatcially',
-   spool_overlimit   => 'Sorry, your INBOX has exceeded the spool limit(@@@SPOOLLIMIT@@@). Please move some messages from INBOX to other folders.',
-   vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
+   quota_syserr      => 'Errore di sistema sulla Quota',
+   quotahit_alert    => 'Spiacente, è stato raggiunto il limite di spazio su disco. Per favore cancellare alcuni messaggi nelle cartelle della posta o alcuni files nel webdisk per liberare spazio su disco',
+   quotahit_delmail  => 'Attenzione, dal momento che il limite di spazio su disco (@@@QUOTALIMIT@@@) è stato raggiunto, sono stati rimossi automaticamente alcuni vecchi messaggi',
+   quotahit_delfile  => 'Attenzione, dal momento che il limite di spazio su disco (@@@QUOTALIMIT@@@) è stato raggiunto, sono stati rimossi automaticamente alcuni files dal webdisk',
+   spool_overlimit   => 'Spiacente, la ua INBOX ha superato il limite di spazio (@@@SPOOLLIMIT@@@). Per favore eliminare alcuni messaggi da INBOX o qualche altra cartella.',
+   vdomain_toomanyuser  => 'Spiacente, il numero di unteni per questo dominio ha raggiunto il limite massimo',
+   vdomain_toomanyalias => 'Spiacente, il numeor di E-MAIL alias per questo utente ha raggiunto il limite massimo',
+   vdomain_userrequired => 'E\' richiesto un username'
    );
 
 1;

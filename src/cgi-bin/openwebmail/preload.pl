@@ -4,14 +4,11 @@
 #
 # 2003/03/24 tung@turtle.ee.ncku.edu.tw
 #
-# This script can be used to preload openwebmail in persistent mode,
+# This script can work in both CGI mode or command mode.
+# It is used to preload openwebmail scripts in persistent mode,
 # so the user won't encounter the script startup delay.
 #
 use strict;
-use Socket;
-use IO::Socket;
-use CGI qw(-private_tempfiles :standard);
-use CGI::Carp qw(fatalsToBrowser carpout);
 
 # encrypted password for cgi access
 #
@@ -30,9 +27,13 @@ my $httpport="80";
 # it should be the same as option ow_cgiurl in openwebmail.conf
 my $cgiurl="/cgi-bin/openwebmail";
 
-# scripts to preload
-# you may comment out infrequently used scripts to save some memory
-# by putting a leading # in the first character of a line
+################### No configuration required from here ###################
+
+use Socket;
+use IO::Socket;
+
+# all openwebmail scripts to preload, 
+# used in cgi mode or if --all is specified in command mode
 my @scripts=(
    'openwebmail.pl',
    'openwebmail-main.pl',
@@ -52,46 +53,57 @@ my @scripts=(
 my $quiet=0;
 
 ############################# MAIN ############################
+my %param=ReadParse();
+
 if (defined($ENV{'GATEWAY_INTERFACE'})) {	# CGI mode
-   print "Content-type: text/html\n\n",
-         "<html><body>\n",
-         "<h2>Open WebMail Preload Page</h2>\n";
-   if (defined(param('password')) &&
-       crypt(param('password'),$cgipwd) eq $cgipwd){
-      print " "x256, "\n"; # fill buffer so following output will show immediately
-      print "<pre>\n";
+   local $|=1;
+   print qq|Content-type: text/html\n\n|.
+         qq|<html><body>\n|.
+         qq|<h2>Open WebMail Preload Page</h2>\n|;
+   if (defined($param{'password'}) &&
+       crypt($param{'password'},$cgipwd) eq $cgipwd){
+      print qq|<pre>\n|;
       preload($quiet, $httphost, $httpport, $cgiurl, @scripts);
-      print "</pre>\n";
-      print startform(),
-            submit(-name=>' Clear '),
-            end_form();
+      print qq|</pre>\n|;
+      print qq|<form method="post" action="/cgi-bin/openwebmail/preload.pl" enctype="application/x-www-form-urlencoded">\n|.
+            qq|<input type="submit" name=" Clear " value=" Clear " />\n|.
+            qq|</form>\n|;
    } else {
-      sleep 8 if (defined(param('password')));
-      print startform(),
-            "Access Password : ",
-            password_field(-name=>'password',
-                           -default=>'',
-                           -size=>'16',
-                           -override=>'1'), 
-            "\n<br><br>\n",
-            submit(-name=>' Submit '),
-            end_form();
+      sleep 8 if (defined($param{'password'}));
+      print qq|<form method="post" action="/cgi-bin/openwebmail/preload.pl" enctype="application/x-www-form-urlencoded">\n|.
+            qq|Access Password : \n|.
+            qq|<input type="password" name="password"  size="16" />\n|.
+            qq|<br><br>\n|.
+            qq|<input type="submit" name=" Submit " value=" Submit " />\n|.
+            qq|</form>\n|;
    }
-   print "\n<a href='/cgi-bin/openwebmail/openwebmail.pl'>Login Open WebMail</a>\n";
-   print "</body></html>\n";
+   print qq|<a href='/cgi-bin/openwebmail/openwebmail.pl'>Login Open WebMail</a>\n|.
+         qq|</body></html>\n|;
 
 } else {					# cmd mode
+   my @preloadscripts;
    foreach (@ARGV) {
-      $quiet=1 if (/-q/ || /--quiet/);
+      if (/^\-q/ || /^\-\-quiet/) {
+         $quiet=1;
+      } elsif (/^--all/) {
+         @preloadscripts=@scripts;
+      } elsif (/^openwebmail.+pl$/) {
+         push(@preloadscripts, $_); 
+      }
    }
-   exit preload($quiet, $httphost, $httpport, $cgiurl, @scripts);
+   if ($#preloadscripts>=0) {
+      exit preload($quiet, $httphost, $httpport, $cgiurl, @preloadscripts);
+   } else {
+      print "Syntax: preload.pl [-q] [--all]\n",
+            "        preload.pl [-q] openwebmail_scriptnames...\n";
+      exit 1;
+   }
 }
 
 ########################### ROUTINES ##########################
 sub preload {
    my ($quiet, $httphost, $httpport, $cgiurl, @scripts)=@_;
 
-   local $|=1;
    foreach my $script (@scripts) {
       my $result='';
       print "Loading $script..." if (!$quiet);
@@ -115,4 +127,28 @@ sub preload {
       print "done.\n" if (!$quiet);
    }
    return 0;
+}
+
+# routine from netjack.pm at http://www.the42.net/jack
+# by PJ Goodwin <pj_at_the42.net>
+sub ReadParse {
+   my (%param, $string);
+
+   if ($ENV{'REQUEST_METHOD'} eq "GET") {
+      $string = $ENV{'QUERY_STRING'};
+   } elsif ($ENV{'REQUEST_METHOD'} eq "POST") {
+      read(STDIN, $string, $ENV{'CONTENT_LENGTH'});
+   } else {
+      $string = $ARGV[0];
+   }
+   $string =~ s/\+/ /g;		# conv + to spaces
+   $string =~ s/%(..)/pack("c", hex($1))/ge;
+
+   foreach (split(/&/, $string)) {
+      s|[^\-a-zA-Z0-9_\.@=/+\/\,\(\)!\s]|_|g;		# rm bad char
+      my ($key, $val)=split(/=/, $_, 2);		# split into key and value.
+      $param{$key} .= '\0' if (defined($param{$key}));	# \0 is multiple separator
+      $param{$key} .= $val;
+   }
+   return %param;
 }

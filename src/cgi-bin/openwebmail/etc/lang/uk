@@ -40,6 +40,14 @@ package openwebmail::uk;
    'non-urgent'=> 'Не терм╕нове'
    );
 
+%lang_msgformatlabels =
+   (
+   auto => 'Автовизначене',
+   text	=> 'Текст',
+   html => 'HTML',
+   both => 'HTML ╕ текст'
+   );
+
 %lang_withoriglabels =
    (
    at_beginning => 'на початку',
@@ -52,6 +60,13 @@ package openwebmail::uk;
    ask => 'Питати п╕дтвердження',
    yes => 'Так',
    no  => 'Н╕'
+   );
+
+%lang_disableemblinklabels =
+   (
+   none    => 'None',
+   cgionly => 'CGI only',
+   all     => 'All embedded URLs'
    );
 
 %lang_ctrlpositionlabels =
@@ -188,6 +203,7 @@ package openwebmail::uk;
 
 %lang_text =
    (
+   loading    => 'Loading, please wait',
    help       => 'Дов╕дка',
    login      => 'Вх╕д',
    clear      => 'В╕дм╕на',
@@ -232,6 +248,7 @@ package openwebmail::uk;
    forwardasatt=>'Переслати як долучення',
    forwardasorig=>'Переслати як ориг╕нал',
    printfriendly=> 'Для друку',
+   msgformat  => 'MsgFormat',
    from       => 'В╕д',
    replyto    => 'Зворотна адреса',
    to         => 'До кого',
@@ -331,24 +348,25 @@ package openwebmail::uk;
    editpdict  => 'Редагувати персональний словник',
    addtodict  => 'Додати до словника',
    manuallyfix=> 'Виправити вручну',
-   editstat   => 'Edit Stationery',
-   savestat   => 'Save Stationery',
-   clearstat  => 'Clear All Stationery',
-   statreply  => '-- Stationery for Reply --',
+   editstat   => 'Редагувати поштовий наб╕р',
+   savestat   => 'Зберегти поштовий наб╕р',
+   clearstat  => 'Очистити вс╕ поштов╕ набори',
+   statreply  => '-- Поштовий наб╕р для в╕дпов╕д╕ --',
    calendar   => 'Календар',
    allday     => 'Весь день',
    am         => 'до',
    pm         => 'по',
    calfmt_year          => '@@@YEAR@@@-ий р╕к',
-   calfmt_yearmonth     => '@@@MONTH_STR@@@ @@@YEAR@@@-ього',
+   calfmt_yearmonth     => '@@@MONTH_STR@@@ @@@YEAR@@@-го',
    calfmt_yearmonthday  => '@@@DAY@@@ @@@MONTH_STR@@@ @@@YEAR@@@',
    calfmt_yearmonthdaywday => '@@@WEEKDAY_STR@@@, @@@DAY@@@ @@@MONTH_STR@@@ @@@YEAR@@@',
    calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
+   autosel    => 'Автовизначене',
    none       => 'н╕чого',
    moreitems  => 'б╕льше елемент╕в',
    multieditconf => 'Цей елемент був доданий для к╕лькох дат.\\nЙого редагування приведе до зм╕н у вс╕х датах.\\nРедагувати?',
    multidelconf  => 'Цей елемент був доданий для к╕лькох дат.\\nЙого видалення приведе до видалення у вс╕х датах.\\nВидалити?',
-   caldelconf => 'Are you sure you want to delete this item?',
+   caldelconf => 'Чи ви д╕йсно впевнен╕, що бажа╓те видалити цей елемент?',
    noitemforthisday => 'Нема╓ н╕чого на сьогодн╕.',
    thisday_only          => 'Лише цього дня',
    the_wday_of_thismonth => 'У @@@ORDER@@@ @@@WDAY@@@ м╕сяця',
@@ -388,8 +406,9 @@ package openwebmail::uk;
    vdomain_createuser => 'Створити користувача',
    vdomain_changeuser => 'Зм╕нити користувача',
    vdomain_deleteuser => 'Видалити користувача',
-   vdomain_usertype_localmbox  => 'Локальна скринька',
-   vdomain_usertype_redirected => 'Пересилати на зовн╕шню адресу'
+   set_passwd         => 'Встановити пароль',
+   reset_passwd       => 'Перевстановити пароль',
+   email_alias        => 'Псевдон╕м електронно╖ пошти'
    );
 
 %lang_err =
@@ -452,7 +471,9 @@ package openwebmail::uk;
    quotahit_delmail  => 'Попередження, так як меж╕ вашо╖ квоти(@@@QUOTALIMIT@@@) перевищено, найстар╕ш╕ пов╕домлення у теках були видален╕',
    quotahit_delfile  => 'Попередження, так як меж╕ вашо╖ квоти(@@@QUOTALIMIT@@@) перевищено, деяк╕ файли у вашому домашньому каталоз╕ були видален╕ автоматично',
    spool_overlimit   => 'Вибачте, ваша скринька з вх╕дними пов╕домленнями перевищила обмеження черги (@@@SPOOLLIMIT@@@). Будь ласка, перенес╕ть деяк╕ пов╕домлення з теки ВХ╤ДН╤ у ╕нш╕ теки.',
-   vdomain_toomanyuser=> 'Вибачте, к╕льк╕сть в╕ртуальних користувач╕в перевищила можливост╕ цього в╕ртуального домена.'
+   vdomain_toomanyuser  => 'Вибачте, к╕льк╕сть в╕ртуальних користувач╕в перевищила можливост╕ цього в╕ртуального домена.',
+   vdomain_toomanyalias => 'Вибачте, але к╕льк╕сть псевдон╕м╕в електронно╖ пошти перевищела максимальну допустиму межу для цього користувача.',
+   vdomain_userrequired => 'Вимага╓ться ╕м\'я користувача'
    );
 
 1;
