@@ -580,8 +580,8 @@ sub exportabook_pine {
       close (PINEBOOK);
       ow::filelock::lock("$homedir/.addressbook", LOCK_UN);
 
-      writelog("emport addressbook to pine, $homedir/.addressbook");
-      writehistory("emport addressbook to pine, $homedir/.addressbook");
+      writelog("export addressbook to pine, $homedir/.addressbook");
+      writehistory("export addressbook to pine, $homedir/.addressbook");
    }
    editaddresses();
 }

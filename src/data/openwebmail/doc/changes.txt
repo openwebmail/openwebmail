@@ -1,3 +1,13 @@
+10/14/2004
+----------
+1. new mirror site at Moscow, Russia
+   http://openwebmail.nigilist.ru 
+   (thanks to Petya Kohts, nit.AT.nigilist.ru)
+2. fix a spelling mistake in the log file status names:
+   "emport addressbook to pine" should be: "export addressbook to pine"
+   (thanks to Dimitrios Michelinakis, dimitrios.AT.michelinakis.gr)
+
+
 10/06/2004
 ----------
 1. Austria holiday file
