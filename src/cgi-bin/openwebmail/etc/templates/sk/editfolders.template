@@ -9,7 +9,7 @@
 
 @@@USERFOLDERSSTART@@@
 <tr><td colspan="5">&nbsp;</td></tr>
-<tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<tr><td bgcolor=@@@COLUMNHEADER@@@>&nbsp;
 <B>Názov katalógu (@@@FOLDERNAME_MAXLEN@@@ znakov)</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Nových</B></td>
@@ -21,7 +21,7 @@
 <B>Akcia</B>
 </td></tr>
 @@@STARTFOLDERFORM@@@
-<tr><td align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
+<tr><td bgcolor=@@@TABLEROW_LIGHT@@@>&nbsp;
 @@@FOLDERNAMEFIELD@@@
 </td><td align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
 &nbsp;
@@ -38,7 +38,7 @@
 @@@USERFOLDERSEND@@@
 
 <tr><td colspan="5">&nbsp;</td></tr>
-<tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<tr><td bgcolor=@@@COLUMNHEADER@@@>&nbsp;
 <B>Predvolené katalógy (nedajú sa odstráni»)</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Nových</B></td>

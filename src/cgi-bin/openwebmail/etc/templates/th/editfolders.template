@@ -9,7 +9,7 @@
 
 @@@USERFOLDERSSTART@@@
 <tr><td colspan="5">&nbsp;</td></tr>
-<tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<tr><td bgcolor=@@@COLUMNHEADER@@@>&nbsp;
 <B>ชื่อโฟลเดอร์ (@@@FOLDERNAME_MAXLEN@@@ ตัวอักษร)</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>ใหม่</B></td>
@@ -21,7 +21,7 @@
 <B>คำสั่ง</B>
 </td></tr>
 @@@STARTFOLDERFORM@@@
-<tr><td align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
+<tr><td bgcolor=@@@TABLEROW_LIGHT@@@>&nbsp;
 @@@FOLDERNAMEFIELD@@@
 </td><td align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
 &nbsp;
@@ -38,7 +38,7 @@
 @@@USERFOLDERSEND@@@
 
 <tr><td colspan="5">&nbsp;</td></tr>
-<tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<tr><td bgcolor=@@@COLUMNHEADER@@@>&nbsp;
 <B>โฟลเดอร์มาตรฐาน</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>ใหม่</B></td>

@@ -510,6 +510,11 @@ Largeur @@@FILEEDITCOLUMNSMENU@@@ Hauteur @@@FILEEDITROWSMENU@@@
 @@@HIDEINTERNAL@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Categorized Folders list:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CATEGORIZEDFOLDERS@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Notification sonore de nouveau(x) message(s) :</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@NEWMAILSOUNDMENU@@@

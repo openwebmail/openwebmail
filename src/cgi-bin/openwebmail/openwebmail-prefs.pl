@@ -1446,6 +1446,13 @@ sub editprefs {
                               defined($config_raw{'DEFAULT_hideinternal'})?('-disabled'=>'1'):());
          $html =~ s/\@\@\@HIDEINTERNAL\@\@\@/$temphtml/;
 
+         $temphtml = checkbox(-name=>'categorizedfolders',
+                              -value=>'1',
+                              -checked=>$prefs{'categorizedfolders'},
+                              -label=>'',
+                              defined($config_raw{'DEFAULT_categorizedfolders'})?('-disabled'=>'1'):());
+         $html =~ s/\@\@\@CATEGORIZEDFOLDERS\@\@\@/$temphtml/;
+
          # Get a list of new mail sound
          my @sounds;
          opendir(SOUNDDIR, "$config{'ow_htmldir'}/sounds") or

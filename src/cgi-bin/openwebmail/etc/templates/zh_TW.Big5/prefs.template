@@ -510,6 +510,11 @@
 @@@HIDEINTERNAL@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>信件匣管理分類顯示:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CATEGORIZEDFOLDERS@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>新信通知音效:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@NEWMAILSOUNDMENU@@@

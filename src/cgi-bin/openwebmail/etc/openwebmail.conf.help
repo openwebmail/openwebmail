@@ -1984,6 +1984,12 @@ If this option is enabled, internal messages used by POP3 or IMAP
 server will be hidden from users
 
 
+default_categorizedfolders
+-----------------------------------------------------------------------
+If this option is enabled, the foldernames listed in folders menu
+will be categroized by their prefix (the string before -)
+
+
 default_refreshinterval
 -----------------------------------------------------------------------
 This is the default interval in minutes that openwebmail will refresh

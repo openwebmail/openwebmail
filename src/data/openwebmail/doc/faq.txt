@@ -1712,6 +1712,6 @@ A: Yes. Open WebMail is GPLed software (please see copyright.txt for
    c. Products based on Open Webmail must be also distributed under GPL.
 
 
-05/21/2003
+Jan/06/2005
 
 openwebmail.AT.turtle.ee.ncku.edu.tw

@@ -66,7 +66,7 @@ foreach (qw(
    default_abook_defaultfilter default_abook_collapse
    default_calendar_showemptyhours default_calendar_reminderforglobal
    default_webdisk_confirmmovecopy default_webdisk_confirmdel default_webdisk_confirmcompress
-   default_uselightbar default_regexmatch default_hideinternal
+   default_uselightbar default_regexmatch default_hideinternal default_categorizedfolders
 )) { $is_config_option{'yesno'}{$_}=1}
 
 # none type config options
@@ -159,7 +159,7 @@ foreach (qw(
    calendar_reminderdays calendar_reminderforglobal
    webdisk_dirnumitems webdisk_confirmmovecopy webdisk_confirmdel
    webdisk_confirmcompress webdisk_fileeditcolumns  webdisk_fileeditrows
-   fscharset uselightbar regexmatch hideinternal refreshinterval
+   fscharset uselightbar regexmatch hideinternal categorizedfolders refreshinterval
    newmailsound newmailwindowtime mailsentwindowtime
    dictionary trashreserveddays spamvirusreserveddays sessiontimeout
 );

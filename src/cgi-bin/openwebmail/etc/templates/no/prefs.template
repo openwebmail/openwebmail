@@ -510,6 +510,11 @@ Bredde @@@FILEEDITCOLUMNSMENU@@@ Høyde @@@FILEEDITROWSMENU@@@
 @@@HIDEINTERNAL@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Categorized Folders list:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CATEGORIZEDFOLDERS@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Varsellyd for innkommende melding:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@NEWMAILSOUNDMENU@@@

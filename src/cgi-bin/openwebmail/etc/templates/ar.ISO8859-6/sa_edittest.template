@@ -34,7 +34,7 @@
 <tr><td><B>Expression:</B></td>
 <td colspan="2">@@@PATTERNFIELD@@@ &nbsp; Ignore Case@@@IGNORECASECHECKBOX@@@ &nbsp; SingleLine Match@@@SINGLELINECHECKBOX@@@</td></tr>
 <tr><td><B>Score:</B></td>
-<td>@@@SCOREMENU@@@  (set score>0 for Spam, score <0 for Ham)</td><td align="right">@@@ADDBUTTON@@@ &nbsp; </td></tr>
+<td>@@@SCOREMENU@@@  (set score>0 for Spam, score <0 for Ham)</td><td align="left">@@@ADDBUTTON@@@ &nbsp; </td></tr>
 @@@ENDFORM@@@
 </table>
 

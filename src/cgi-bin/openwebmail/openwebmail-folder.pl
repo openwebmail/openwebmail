@@ -145,7 +145,23 @@ sub editfolders {
       $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/;
 
       $temphtml='';
+      my ($thisfolderprefix, $lastfolderprefix);
       foreach $currfolder (@userfolders) {
+         if ($prefs{'categorizedfolders'} &&
+             !is_defaultfolder($currfolder) &&
+             !is_lang_defaultfolder($currfolder)) {
+            my $folderstr=$lang_folders{$currfolder}||(iconv($prefs{'fscharset'}, $prefs{'charset'}, $currfolder))[0];
+            if ($folderstr=~/^(.+?)\-/) {
+               $thisfolderprefix=$1;
+               if ($thisfolderprefix ne $lastfolderprefix) {
+                  $temphtml .= qq|<tr>|.
+                               qq|<td bgcolor=$style{"columnheader"} colspan="5">&nbsp; &nbsp;<b>|.
+                               ow::htmltext::str2html($thisfolderprefix).qq|</td>|.
+                               qq|</tr>|;
+               }
+            }
+         }
+
          $temphtml .= _folderline($currfolder, $form_i, $bgcolor,
                                   \$total_newmessages, \$total_allmessages, \$total_foldersize);
          if ($bgcolor eq $style{"tablerow_dark"}) {
@@ -154,6 +170,8 @@ sub editfolders {
             $bgcolor = $style{"tablerow_dark"};
          }
          $form_i++;
+
+         $lastfolderprefix=$thisfolderprefix;
       }
       $html =~ s/\@\@\@FOLDERS\@\@\@/$temphtml/;
 
@@ -195,7 +213,7 @@ sub editfolders {
    $total_foldersize=lenstr($total_foldersize,0);
 
    $temphtml = qq|<tr>|.
-               qq|<td align="center" bgcolor=$bgcolor><B>$lang_text{'total'}</B></td>|.
+               qq|<td bgcolor=$bgcolor>&nbsp;<B>$lang_text{'total'}</B></td>|.
                qq|<td align="center" bgcolor=$bgcolor><B>$total_newmessages</B></td>|.
                qq|<td align="center" bgcolor=$bgcolor><B>&nbsp;$total_allmessages</B></td>|.
                qq|<td align="center" bgcolor=$bgcolor><B>&nbsp;$total_foldersize</B></td>|.
@@ -253,10 +271,19 @@ sub _folderline {
       $accesskeystr=qq|accesskey="$accesskeystr"|;
    }
 
+   my ($gifstr, $folderbasename)=('', $folderstr);
+   if ($prefs{'categorizedfolders'} &&
+       !is_defaultfolder($currfolder) &&
+       !is_lang_defaultfolder($currfolder)) {
+      if ($folderstr=~/^.+?\-(.+)$/) {
+         $gifstr=qq| &nbsp; - &nbsp; |;
+         $folderbasename=$1;
+      }
+   }
    $temphtml .= qq|<tr>|.
-                qq|<td align="center" bgcolor=$bgcolor>|.
+                qq|<td bgcolor=$bgcolor> &nbsp; &nbsp; $gifstr|.
                 qq|<a href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;sessionid=$thissession&amp;sort=$sort&amp;page=$page&amp;folder=$escapedcurrfolder">|.
-                ow::htmltext::str2html($folderstr).qq| </a>&nbsp;\n|.
+                ow::htmltext::str2html($folderbasename).qq| </a>&nbsp;\n|.
                 iconlink("download.gif", "$lang_text{'download'} $folderstr ", qq|$accesskeystr href="$url"|).
                 qq|</td>\n|.
                 qq|<td align="center" bgcolor=$bgcolor>$newmessages</td>|.

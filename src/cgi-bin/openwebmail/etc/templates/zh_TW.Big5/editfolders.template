@@ -9,7 +9,7 @@
 
 @@@USERFOLDERSSTART@@@
 <tr><td colspan="5">&nbsp;</td></tr>
-<tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<tr><td bgcolor=@@@COLUMNHEADER@@@>&nbsp;
 <B>信件匣名稱 (最多@@@FOLDERNAME_MAXLEN@@@字元)</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>新信</B></td>
@@ -21,7 +21,7 @@
 <B>按鈕</B>
 </td></tr>
 @@@STARTFOLDERFORM@@@
-<tr><td align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
+<tr><td bgcolor=@@@TABLEROW_LIGHT@@@>&nbsp;
 @@@FOLDERNAMEFIELD@@@
 </td><td align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
 &nbsp;
@@ -38,7 +38,7 @@
 @@@USERFOLDERSEND@@@
 
 <tr><td colspan="5">&nbsp;</td></tr>
-<tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<tr><td bgcolor=@@@COLUMNHEADER@@@>&nbsp;
 <B>預設信件匣</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>新信</B></td>

@@ -3,7 +3,7 @@
 #                                                               #
 # Open WebMail - Provides a web interface to user mailboxes     #
 #                                                               #
-# Copyright (C) 2001-2004                                       #
+# Copyright (C) 2001-2005                                       #
 # The Open Webmail Team                                         #
 #                                                               #
 # Copyright (C) 2000                                            #
@@ -600,7 +600,7 @@ sub login {
 		 qq|<br><br><br>\n\n|.
 		 qq|<a href="http://openwebmail.org/" title="click to home of $config{'name'}" target="_blank" style="text-decoration: none">\n|.
 		 qq|$softwarestr<br><br>\n|.
-		 qq|Copyright (C) 2001-2004<br>\n|.
+		 qq|Copyright (C) 2001-2005<br>\n|.
 		 qq|Chung-Kie Tung, Nai-Jung Kuo, Chao-Chiu Wang, Emir Litric,<br>|.
                  qq|Thomas Chung, Dattola Filippo, Bernd Bass, Scott Mazur, Alex Teslik<br><br>\n|.
 		 qq|Copyright (C) 2000<br>\n|.

@@ -9,7 +9,7 @@
 
 @@@USERFOLDERSSTART@@@
 <tr><td colspan="5">&nbsp;</td></tr>
-<tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<tr><td bgcolor=@@@COLUMNHEADER@@@>&nbsp;
 <B>邮件夹名称（最多@@@FOLDERNAME_MAXLEN@@@个字符或8个汉字）</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>新邮件</B></td>
@@ -21,7 +21,7 @@
 <B>按钮</B>
 </td></tr>
 @@@STARTFOLDERFORM@@@
-<tr><td align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
+<tr><td bgcolor=@@@TABLEROW_LIGHT@@@>&nbsp;
 @@@FOLDERNAMEFIELD@@@
 </td><td align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
 &nbsp;
@@ -38,7 +38,7 @@
 @@@USERFOLDERSEND@@@
 
 <tr><td colspan="5">&nbsp;</td></tr>
-<tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<tr><td bgcolor=@@@COLUMNHEADER@@@>&nbsp;
 <B>默认邮件夹</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>新邮件</B></td>
