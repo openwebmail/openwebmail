@@ -1,3 +1,43 @@
+06/13/2001
+----------
+1. spanish language and template translation
+   (thanks to Pakito Asinkecualo, pakito@asinkecualo.org)
+2. german language translation
+   (thanks to Andreas Roedl, flood@flood-net.de)
+3. fix .pop3.book open error when pop3book size=0
+   (thanks to kwang@mail.cgjh.tcc.edu.tw)
+
+
+06/12/2001
+----------
+1. fix .pop3.book open error when editing pop3book at first time
+   (thanks to Emir Litric, danguba@usa.net)
+2. change session control from 'per host' to 'per user'.
+   This means a user can login openwebmail with different ids at the 
+   same time from same client.
+3. the from address used in replying to a receipt rquest will depend
+   on the receiver whom the message was deliver to
+
+
+
+06/11/2001 (version 1.21)
+----------
+1. add support for multiple from address.
+   Each pop3 account can set a from address now and these from addresses 
+   can be used as from address when composing message
+2. count INBOX size for mail quota now
+3. prompt a confirm window beofre doing emptytrash
+
+
+06/09/2001
+----------
+1. composemessage checks to, cc and bcc when the user press 'send' button,
+   if none of them is specified, the message won't be sent.
+   A confirm window will also appears if no subject is specified.
+2. [spell check] button has the same shape as others in netscape on 
+   unix platform
+
+
 06/07/2001 (version 1.20)
 ----------
 1. add support for spelling check in message composing.
@@ -19,7 +59,7 @@
 
 06/01/2001 (version 1.15)
 ----------
-1. improve the search function. Messages inside a folder can be searhed 
+1. improve the search function. Messages inside a folder can be searched 
    by sender, receiver, subject, date, filename of attachments, 
    message header, text content or all of the above.
 2. temporarily fix download problem in IE5.5 by not sending 
@@ -84,7 +124,7 @@ ps: you may remove .saved-drafts.db and .sent-mail.db from all ~user/mail/
    that belongs to the same domain as the destination mail server
 2. add option to user preference that controls the size of text area 
    in mail editing
-3. Saving an existing draft backto draft folder will put it into a new draft 
+3. Saving an existing draft back to draft folder will put it into a new draft 
    if it is saved with a different subject
 
 
@@ -147,7 +187,7 @@ ps: you may remove .saved-drafts.db and .sent-mail.db from all ~user/mail/
 04/27/2001
 ----------
 1. support filtering of repeated messages. It is useful to filter repeated 
-   virus mail from those imfected machines.
+   virus mail from those infected machines.
 
    An option $repeatlimit is added to user preference and openwebmail.conf.
    Messages at INBOX folder with same subject and from same sender will be 
@@ -166,7 +206,7 @@ ps: you may remove .saved-drafts.db and .sent-mail.db from all ~user/mail/
 3. fix a bug that shows 'Can't call method "att" without a package....'
    when adding attachment
 4. change the character check of filename and preference to eliminate
-   incompatibility with som chinese characters
+   incompatibility with some chinese characters
 5. change '$numberofheaders' to '$headersperpage' in openwebmail.conf
 6. change the method in finding the smtprelay
 

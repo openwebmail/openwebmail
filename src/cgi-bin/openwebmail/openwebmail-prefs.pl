@@ -1352,9 +1352,6 @@ sub clearaddress {
 sub editpop3 {
    verifysession();
 
-   my %account;
-   my ($name, $pass, $host, $del);
-
    my $html = '';
    my $temphtml;
 
@@ -1367,18 +1364,13 @@ sub editpop3 {
 
    $html = applystyle($html);
 
-   if ( -f "$folderdir/.pop3.book" ) {
-      open (POP3BOOK,"$folderdir/.pop3.book") or
-         openwebmailerror("$lang_err{'couldnt_open'} .pop3.book!");
-      while (<POP3BOOK>) {
-      	 chomp($_);
-         ($host, $name, $pass, $del) = split(/:/, $_);
-         $account{"$host:$name"} = "$host:$name:$pass:$del";
-      }
-      close (POP3BOOK) or openwebmailerror("$lang_err{'couldnt_close'} .pop3.book!");
-   }
+   my %accounts;
    my $abooksize = ( -s "$folderdir/.pop3.book" ) || 0;
    my $freespace = int($maxabooksize - ($abooksize/1024) + .5);
+
+   if (getpop3book("$folderdir/.pop3.book", \%accounts) <0) {
+      openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.pop3.book!");
+   }
 
    printheader();
 
@@ -1416,28 +1408,35 @@ sub editpop3 {
 
    $html =~ s/\@\@\@STARTADDRESSFORM\@\@\@/$temphtml/;
 
-   $temphtml = textfield(-name=>'host',
+   $temphtml = textfield(-name=>'pop3host',
                          -default=>'',
-                         -size=>'32',
+                         -size=>'22',
                          -override=>'1');
 
    $html =~ s/\@\@\@HOSTFIELD\@\@\@/$temphtml/;
 
-   $temphtml = textfield(-name=>'name',
+   $temphtml = textfield(-name=>'pop3user',
                          -default=>'',
-                         -size=>'16',
+                         -size=>'10',
                          -override=>'1');
 
    $html =~ s/\@\@\@REALNAMEFIELD\@\@\@/$temphtml/;
 
-   $temphtml = password_field(-name=>'pass',
+   $temphtml = password_field(-name=>'pop3pass',
                          -default=>'',
-                         -size=>'12',
+                         -size=>'8',
                          -override=>'1');
 
    $html =~ s/\@\@\@PASSFIELD\@\@\@/$temphtml/;
 
-   $temphtml = checkbox(-name=>'del',
+   $temphtml = textfield(-name=>'pop3email',
+                         -default=>'',
+                         -size=>'30',
+                         -override=>'1');
+
+   $html =~ s/\@\@\@EMAIL\@\@\@/$temphtml/;
+
+   $temphtml = checkbox(-name=>'pop3del',
                   -value=>'1',
                   -label=>'');
 
@@ -1451,15 +1450,15 @@ sub editpop3 {
 
    $temphtml = '';
    my $bgcolor = $style{"tablerow_dark"};
-   #foreach my $key (sort { uc($a) cmp uc($b) } (keys %account)) 
-   foreach (sort values %account) {
-      ($host, $name, $pass, $del) = split(/:/, $_);
+   foreach (sort values %accounts) {
+      my ($pop3host, $pop3user, $pop3pass, $pop3email, $pop3del, $lastid) = split(/:/, $_);
       $temphtml .= "<tr>
-                    <td bgcolor=$bgcolor><a href=\"$scripturl?action=retrpop3&name=$name&host=$host&amp;firstmessage=$firstmessage&amp;sort=$sort&amp;folder=$escapedfolder&amp;sessionid=$thissession&\">$host</a></td>
-      		    <td align=\"center\" bgcolor=$bgcolor><a href=\"Javascript:Update('$name','$pass','$host','$del')\">$name</a></td>
+      		    <td bgcolor=$bgcolor><a href=\"Javascript:Update('$pop3host','$pop3user','$pop3pass','$pop3email','$pop3del')\">$pop3host</a></td>
+      		    <td align=\"center\" bgcolor=$bgcolor>$pop3user</td>
                     <td align=\"center\" bgcolor=$bgcolor>\*\*\*\*\*\*</td>
+                    <td align=\"center\" bgcolor=$bgcolor><a href=\"$scripturl?action=retrpop3&pop3user=$pop3user&pop3host=$pop3host&amp;firstmessage=$firstmessage&amp;sort=$sort&amp;folder=$escapedfolder&amp;sessionid=$thissession&\">$pop3email</a></td>
                     <td align=\"center\" bgcolor=$bgcolor>";
-      if ( $del == 1) {
+      if ( $pop3del == 1) {
       	 $temphtml .= $lang_text{'delete'};
       }
       else {
@@ -1486,11 +1485,11 @@ sub editpop3 {
       $temphtml .= hidden(-name=>'message_id',
                           -default=>$messageid,
                           -override=>'1');
-      $temphtml .= hidden(-name=>'name',
-                          -value=>$name,
+      $temphtml .= hidden(-name=>'pop3user',
+                          -value=>$pop3user,
                           -override=>'1');
-      $temphtml .= hidden(-name=>'host',
-                          -value=>$host,
+      $temphtml .= hidden(-name=>'pop3host',
+                          -value=>$pop3host,
                           -override=>'1');
       $temphtml .= "<td bgcolor=$bgcolor align=\"center\" width=\"100\">";
       $temphtml .= submit("$lang_text{'delete'}");
@@ -1515,65 +1514,58 @@ sub modpop3 {
    verifysession();
 
    my $mode = shift;
-   my ($host, $name, $pass, $del, $lastid);
-   $host = param("host") || '';
-   $name = param("name") || '';
-   $pass = param("pass") || '';
-   $del = param("del") || 0;
+   my ($pop3host, $pop3user, $pop3pass, $pop3email, $pop3del, $lastid);
+   $pop3host = param("pop3host") || '';
+   $pop3user = param("pop3user") || '';
+   $pop3pass = param("pop3pass") || '';
+   $pop3email = param("pop3email") || '';
+   $pop3del = param("pop3del") || 0;
    $lastid = "none";
    
    # strip beginning and trailing spaces from hash key
-   $host =~ s/://;
-   $host =~ s/^\s*//; 
-   $host =~ s/\s*$//;
-   $host =~ s/[#&=\?]//g;
+   $pop3host =~ s/://;
+   $pop3host =~ s/^\s*//; 
+   $pop3host =~ s/\s*$//;
+   $pop3host =~ s/[#&=\?]//g;
    
-   $name =~ s/://;
-   $name =~ s/^\s*//; 
-   $name =~ s/\s*$//;
-   $name =~ s/[#&=\?]//g;
+   $pop3user =~ s/://;
+   $pop3user =~ s/^\s*//; 
+   $pop3user =~ s/\s*$//;
+   $pop3user =~ s/[#&=\?]//g;
    
-   $pass =~ s/://;
-   $pass =~ s/^\s*//; 
-   $pass =~ s/\s*$//;
+   $pop3email =~ s/://;
+   $pop3email =~ s/^\s*//; 
+   $pop3email =~ s/\s*$//;
+   $pop3email =~ s/[#&=\?]//g;
+   
+   $pop3pass =~ s/://;
+   $pop3pass =~ s/^\s*//; 
+   $pop3pass =~ s/\s*$//;
 
-   if (($host && $name && $pass) || (($mode eq 'delete') && $host && $name) ) {
-      my %account;
+   if ( ($pop3host && $pop3user && $pop3pass) 
+     || (($mode eq 'delete') && $pop3host && $pop3user) ) {
+      my %accounts;
       
       if ( -f "$folderdir/.pop3.book" ) {
          my $pop3booksize = ( -s "$folderdir/.pop3.book" );
-         if ( (($pop3booksize + length($host) + length($name)+ length($pass)+ 3) >= ($maxabooksize * 1024) ) && ($mode ne "delete") ) {
-            openwebmailerror("$lang_err{'abook_toobig'} <a href=\"$prefsurl?action=editpop3&amp;sessionid=$thissession&amp;sort=$sort&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;message_id=$escapedmessageid\">$lang_err{'back'}</a>
-                          $lang_err{'tryagain'}");
+         if ( (($pop3booksize + length("$pop3host:$pop3user:$pop3pass:$pop3email:$pop3del:$lastid")) >= ($maxabooksize * 1024) ) && ($mode ne "delete") ) {
+            openwebmailerror("$lang_err{'abook_toobig'} <a href=\"$prefsurl?action=editpop3&amp;sessionid=$thissession&amp;sort=$sort&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;message_id=$escapedmessageid\">$lang_err{'back'}</a> $lang_err{'tryagain'}");
          }
-         filelock("$folderdir/.pop3.book", LOCK_EX|LOCK_NB) or
-            openwebmailerror("$lang_err{'couldnt_lock'} .pop3.book!");
-         open (POP3BOOK,"+<$folderdir/.pop3.book") or
-            openwebmailerror("$lang_err{'couldnt_open'} .pop3.book!");
-         while (<POP3BOOK>) {
-         	my ($ehost,$ename,$epass,$edel,$elastid);
-         	chomp($_);
-            ($ehost, $ename, $epass, $edel, $elastid) = split(/:/, $_);
-            $account{"$ehost:$ename"}="$ehost:$ename:$epass:$edel:$elastid";
+         if (getpop3book("$folderdir/.pop3.book", \%accounts) <0) {
+            openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.pop3.book!");
          }
          if ($mode eq 'delete') {
-            delete $account{"$host:$name"};
+            delete $accounts{"$pop3host:$pop3user"};
          } else {
-            $account{"$host:$name"}="$host:$name:$pass:$del:$lastid";
+            $accounts{"$pop3host:$pop3user"}="$pop3host:$pop3user:$pop3pass:$pop3email:$pop3del:$lastid";
          }
-         seek (POP3BOOK, 0, 0) or
-            openwebmailerror("$lang_err{'couldnt_seek'} .pop3.book!");
-         	
-         foreach (values %account) {
-            print POP3BOOK "$_\n";
-         }
-         truncate(POP3BOOK, tell(POP3BOOK));
-         close (POP3BOOK) or openwebmailerror("$lang_err{'couldnt_close'} .pop3.book!");
-         filelock("$folderdir/.pop3.book", LOCK_UN);
+
+         writebackpop3book("$folderdir/.pop3.book", \%accounts);
+
       } else {
          open (POP3BOOK, ">$folderdir/.pop3.book" ) or
             openwebmailerror("$lang_err{'couldnt_open'} .pop3.book!");
-         print POP3BOOK "$host:$name:$pass:$del:$lastid\n";
+         print POP3BOOK "$pop3host:$pop3user:$pop3pass:$pop3email:$pop3del:$lastid\n";
          close (POP3BOOK) or openwebmailerror("$lang_err{'couldnt_close'} .pop3.book!");
       }
    }

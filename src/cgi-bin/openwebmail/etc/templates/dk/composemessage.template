@@ -9,7 +9,7 @@
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ width="75">
 <B>Fra:</B>
 </td><td valign="middle" align="left" colspan="2" bgcolor=@@@WINDOW_DARK@@@>
-@@@ESCAPEDFROM@@@
+@@@FROMMENU@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ width="75">
 <a href="Javascript:GoAddressWindow('to')" tabindex="-1"><B>Til:</B></a>
@@ -114,8 +114,21 @@
       document.spellcheckform.field.value = "body";
       document.spellcheckform.string.value = document.composeform.body.value;
       window.open('','SpellChecker','width=600,height=400,top=40,left=80,scrollbars=yes,resizable=yes,location=no');
-      document.spellcheckform.submit();
+      return ture;
    }
 
+   function sendcheck()
+   {
+      if (document.composeform.to.value == "" 
+       && document.composeform.cc.value == "" 
+       && document.composeform.bcc.value == "" ) {
+         alert("Please specify the receiver before sending.");
+         return false;
+      }
+      if (document.composeform.subject.value == "" ) {
+         return(confirm("This message has no subject, do you still want to send it?"));
+      }
+      return true;
+   }
    //-->
 </script>

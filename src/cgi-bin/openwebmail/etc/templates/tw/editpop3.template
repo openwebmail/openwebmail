@@ -2,21 +2,23 @@
 <tr><td colspan="1" bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <b>編輯外部郵件</b></font>
-</td><td nowrap colspan="5" bgcolor=@@@TITLEBAR@@@ align="right">
+</td><td nowrap colspan="6" bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <b>尚有 @@@FREESPACE@@@ KB 空間</b></font>
-</td></tr><tr><td colspan="5" bgcolor=@@@MENUBAR@@@ align="left">
+</td></tr><tr><td colspan="6" bgcolor=@@@MENUBAR@@@ align="left">
 @@@MENUBARLINKS@@@
-</td></tr><tr><td colspan="5">&nbsp;</td></tr>
+</td></tr><tr><td colspan="6">&nbsp;</td></tr>
 <tr>
 <td nowrap bgcolor=@@@COLUMNHEADER@@@>
-<B>外部郵件主機</B>(按一下收信)</td>
+<B>POP3主機</B> (按一下修改)</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>帳號</B> (按一下修改)</td>
+<B>帳號</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>密碼</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>刪除伺服器端郵件</B></td>
+<B>郵件地址</B> (按一下收信)</td>
+<td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>刪除遠端郵件</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>按鈕</B>
 </td></tr>
@@ -30,6 +32,9 @@
 </td>
 <td nowrap align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
 @@@PASSFIELD@@@
+</td>
+<td nowrap align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
+@@@EMAIL@@@
 </td>
 <td nowrap align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
 @@@DELFIELD@@@
@@ -46,15 +51,16 @@
 
 <script language="JavaScript">
 <!--
-   function Update(name,pass,host,del)
+   function Update(pop3host,pop3user,pop3pass,pop3email,pop3del)
    {
-      document.newpop3.name.value = name;
-      document.newpop3.pass.value = pass;
-      document.newpop3.host.value = host;
+      document.newpop3.pop3host.value = pop3host;
+      document.newpop3.pop3user.value = pop3user;
+      document.newpop3.pop3pass.value = pop3pass;
+      document.newpop3.pop3email.value = pop3email;
       if (del == 1)
-      	document.newpop3.del.checked = true;
+      	document.newpop3.pop3del.checked = true;
       else
-        document.newpop3.del.checked = false;
+        document.newpop3.pop3del.checked = false;
    }
 //-->
 </script>

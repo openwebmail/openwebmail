@@ -10,58 +10,71 @@ use FileHandle;
 use IO::Socket;
 
 sub getpop3book {
-   my $pop3book = $_[0];
-   my %account;
+   my ($pop3book, $r_accounts) = @_;
+   my $i=0;
+
+   %{$r_accounts}=();
 
    if ( -f "$pop3book" ) {
       filelock($pop3book, LOCK_SH);
-      open (POP3BOOK,"$pop3book") or
-         return();
+      open (POP3BOOK,"$pop3book") or return(-1);
       while (<POP3BOOK>) {
       	 chomp($_);
-      	 my ($pop3host, $pop3user, $pop3passwd, $pop3del, $lastid) = split(/:/, $_);
-         $account{"$pop3host:$pop3user"} = "$pop3host:$pop3user:$pop3passwd:$pop3del:$lastid";
+      	 my ($pop3host, $pop3user, $pop3passwd, $pop3email, $pop3del, $lastid) = split(/:/, $_);
+         if ($lastid eq '') {	# compatible with old version
+      	    ($pop3host, $pop3user, $pop3passwd, $pop3del, $lastid) = split(/:/, $_);
+            $pop3email="$pop3user\@$pop3host";
+         }
+         ${$r_accounts}{"$pop3host:$pop3user"} = "$pop3host:$pop3user:$pop3passwd:$pop3email:$pop3del:$lastid";
+         $i++;
       }
       close (POP3BOOK);
       filelock($pop3book, LOCK_UN);
    }
-   return %account;
+   return($i);
 }
 
 sub writebackpop3book {
-   my ($pop3book, %accounts) = @_;
+   my ($pop3book, $r_accounts) = @_;
 
    if ( -f "$pop3book" ) {
       filelock($pop3book, LOCK_EX);
       open (POP3BOOK,">$pop3book") or
          return (-1);
-      foreach (values %accounts) {
+      foreach (values %{$r_accounts}) {
       	 chomp($_);
       	 print POP3BOOK $_ . "\n";
       }
       close (POP3BOOK);
       filelock($pop3book, LOCK_UN);
    }
+   return(0);
 }
 
 
 # return < 0 means error
-# -1 connect error
-# -2 server not ready
-# -3 user name error
-# -4 password error
-# -5 stat error
-# -6 retr error
+# -1 pop3book read error
+# -2 connect error
+# -3 server not ready
+# -4 user name error
+# -5 password error
+# -6 stat error
+# -7 retr error
+# -8 spool write error
+# -9 pop3book write error
 
 sub retrpop3mail {
    my ($pop3host, $pop3user, $pop3book, $spoolfile)=@_;
-   my (%accounts, $pop3passwd, $pop3del, $lastid);
+   my (%accounts, $pop3passwd, $pop3email, $pop3del, $lastid);
    my ($ServerPort, $remote_sock);
    my ($last, $nMailCount, $support_uidl, $retr_total);
    my ($dummy, $i);
 
-   %accounts = getpop3book($pop3book);
-   ($dummy, $dummy, $pop3passwd, $pop3del, $lastid)=
+   if ( getpop3book($pop3book, \%accounts)<0 ) {
+      return(-1);
+   }
+
+   ($dummy, $dummy, $pop3passwd, $pop3email, $pop3del, $lastid)=
 			split(/:/, $accounts{"$pop3host:$pop3user"});
 
    # bypass taint check for file create
@@ -77,24 +90,24 @@ sub retrpop3mail {
                                            PeerPort=>$ServerPort,);
       alarm 0;
    };
-   return(-1) if ($@);			# eval error, it means timeout
-   return(-1) if (!$remote_sock);	# connect error
+   return(-2) if ($@);			# eval error, it means timeout
+   return(-2) if (!$remote_sock);	# connect error
 
    $remote_sock->autoflush(1);
    $_=<$remote_sock>;
-   return(-2) if (/^\-/);		# server not ready
+   return(-3) if (/^\-/);		# server not ready
 
    print $remote_sock "user $pop3user\n";
    $_=<$remote_sock>;
-   return(-3) if (/^\-/);		# username error
+   return(-4) if (/^\-/);		# username error
 
    print $remote_sock "pass $pop3passwd\n";
    $_=<$remote_sock>;
-   return (-4) if (/^\-/);		# passwd error
+   return (-5) if (/^\-/);		# passwd error
 
    print $remote_sock "stat\n";
    $_=<$remote_sock>;
-   return(-5) if (/^\-/);		# stat error
+   return(-6) if (/^\-/);		# stat error
 
    $nMailCount=(split(/\s/))[1];
    if ($nMailCount == 0) {		# no message
@@ -114,13 +127,17 @@ sub retrpop3mail {
          print $remote_sock "quit\n";
          return 0;
       }
-      for ($i=1; $i<$nMailCount; $i++) {
-         print $remote_sock "uidl ".$i."\n";
-         $_ = <$remote_sock>;
-         if ($lastid eq (split(/\s/))[2]) {
-            $last = $i;
-            last;
+      if ($lastid ne "none") {
+         for ($i=1; $i<$nMailCount; $i++) {
+            print $remote_sock "uidl ".$i."\n";
+            $_ = <$remote_sock>;
+            if ($lastid eq (split(/\s/))[2]) {
+               $last = $i;
+               last;
+            }
          }
+      } else {
+         $last = 1;
       }
 
    # use 'last' to find the msg being retrieved last time
@@ -149,7 +166,7 @@ sub retrpop3mail {
          if ( /^\+/ ) {
             next;
          } elsif (/^\-/) {
-            return(-6);
+            return(-7);
          } else {
             last;
          }
@@ -207,7 +224,7 @@ sub retrpop3mail {
 
       # append message to mail folder
       filelock($spoolfile, LOCK_EX);
-      open(IN,">>$spoolfile") or return(-2);
+      open(IN,">>$spoolfile") or return(-8);
       print IN "From $stAddress $stDate\n";
       print IN $FileContent;
       print IN "\n";		# mark mail end 
@@ -218,10 +235,14 @@ sub retrpop3mail {
          print $remote_sock "dele " . $i . "\n";
          $_=<$remote_sock>;
       }
+
+      $lastid="none";
       if ($support_uidl) {
          print $remote_sock "uidl " . $i . "\n";
          $_=<$remote_sock>;
-         $lastid=(split(/\s/))[2];
+         if (/^\+/) {
+            $lastid=(split(/\s/))[2];
+         }
       }
 
       $retr_total++;
@@ -230,8 +251,10 @@ sub retrpop3mail {
    close($remote_sock);
 
    ###  write back to pop3book
-   $accounts{"$pop3host:$pop3user"} = "$pop3host:$pop3user:$pop3passwd:$pop3del:$lastid";
-   writebackpop3book($pop3book, %accounts);
+   $accounts{"$pop3host:$pop3user"} = "$pop3host:$pop3user:$pop3passwd:$pop3email:$pop3del:$lastid";
+   if (writebackpop3book($pop3book, \%accounts)<0) {
+      return(-9);
+   }
 
    # return number of fetched mail
    return($retr_total);		

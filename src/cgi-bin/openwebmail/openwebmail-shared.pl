@@ -73,7 +73,7 @@ sub verifysession {
       my $cookie = <SESSION>;
       close (SESSION);
       chomp $cookie;
-      if ( cookie("sessionid") ne $cookie) {
+      if ( cookie("$user-sessionid") ne $cookie) {
          writelog("attempt to hijack session $thissession!");
          openwebmailerror("$lang_err{'inv_sessid'}");
       }
@@ -86,7 +86,7 @@ sub verifysession {
       # extend the session lifetime only if this is not a auto-refresh
       open (SESSION, "> $openwebmaildir/sessions/$thissession") or
          openwebmailerror("$lang_err{'couldnt_open'} $thissession!");
-      print SESSION cookie("sessionid");
+      print SESSION cookie("$user-sessionid");
       close (SESSION);
    }
    $validsession = 1;
@@ -146,6 +146,11 @@ sub getfolders {
 
    @folders = qw(INBOX saved-messages sent-mail saved-drafts mail-trash);
    push (@folders, sort(@userfolders));
+
+   # add INBOX size to totalsize
+   my ($spoolfile,$headerdb)=get_folderfile_headerdb($user, 'INBOX');
+   $totalsize += ( -s "$spoolfile" ) || 0;
+
    if ($folderquota) {
       ($hitquota = 1) if ($totalsize >= ($folderquota*1024));
    }
@@ -260,7 +265,7 @@ sub printheader {
 
       push(@headers, -pragma=>'no-cache');
       if ($setcookie) {
-         $cookie = cookie( -name    => 'sessionid',
+         $cookie = cookie( -name    => "$user-sessionid",
                            -"value" => $setcookie,
                            -path    => '/' );
          push(@headers, -cookie=>$cookie);

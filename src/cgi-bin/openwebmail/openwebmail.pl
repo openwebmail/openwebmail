@@ -428,7 +428,9 @@ sub cleantrash {
 sub displayheaders {
    verifysession() unless $setcookie;
 
-   my ($orig_inbox_newmessages, $now_inbox_newmessages, $now_inbox_allmessages);
+   my $orig_inbox_newmessages;
+   my ($now_inbox_newmessages, $now_inbox_allmessages);
+   my $trash_allmessages;
    my %HDB;
    filelock("$folderdir/.$user.$dbm_ext", LOCK_SH);
    dbmopen (%HDB, "$folderdir/.$user", undef);		# dbm for INBOX
@@ -545,7 +547,10 @@ sub displayheaders {
       if ($foldername eq 'INBOX') {
          $now_inbox_allmessages=$allmessages;
          $now_inbox_newmessages=$newmessages;
+      } elsif ($foldername eq 'mail-trash')  {
+         $trash_allmessages=$allmessages;
       }
+
       dbmclose(%HDB);
       filelock("$headerdb.$dbm_ext", LOCK_UN);
 
@@ -588,7 +593,7 @@ sub displayheaders {
       $temphtml .= "<a href=\"$prefsurl?action=editpop3&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/pop3setup.gif\" border=\"0\" ALT=\"$lang_text{'pop3book'}\"></a> ";
       $temphtml .= "<a href=\"$scripturl?action=retrpop3s&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid\"><IMG SRC=\"$imagedir_url/pop3.gif\" border=\"0\" ALT=\"$lang_text{'retr_pop3s'}\"></a> &nbsp; &nbsp; ";
    }
-   $temphtml .= "<a href=\"$base_url&amp;action=emptytrash&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/trash.gif\" border=\"0\" ALT=\"$lang_text{'emptytrash'}\"></a> ";
+   $temphtml .= "<a href=\"$base_url&amp;action=emptytrash&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/trash.gif\" border=\"0\" ALT=\"$lang_text{'emptytrash'}\" onclick=\"return confirm('$lang_text{emptytrash} ($trash_allmessages $lang_text{messages}) ?');\"></a> ";
    $temphtml .= "<a href=\"$base_url&amp;action=logout&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/logout.gif\" border=\"0\" ALT=\"$lang_text{'logout'} $useremail\"></a>";
 
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
@@ -812,11 +817,12 @@ sub displayheaders {
       ($from =~ s/<?(.*@.*)>?\s+\((.+?)\)/<a href="$scripturl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$1">$2<\/a>/) ||
       ($from =~ s/<(.+)>/<a href="$scripturl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$1">$1<\/a>/) ||
       ($from =~ s/(.+)/<a href="$scripturl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$1">$1<\/a>/);
+      if ($from !~ /[^\s]/) {
+         $from="&nbsp;";
+      }
 
       $subject = str2html($subject);
-
-      # Make sure there's SOMETHING clickable for subject line
-      unless ($subject =~ /[^\s]/) {
+      if ($subject !~ /[^\s]/) {	# Make sure there's SOMETHING clickable 
          $subject = "N/A";
       }
 
@@ -1510,8 +1516,27 @@ sub replyreceipt {
       # get notification-to 
       if ($header=~/^Disposition-Notification-To:\s?(.*?)$/im ) {
          my $to=$1;
+
          my $from = $useremail;
          my $realname = $prefs{"realname"} || '';
+         my %accounts;
+         if (getpop3book("$folderdir/.pop3.book", \%accounts) <0) {
+            openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.pop3.book!");
+         }
+         foreach (sort values %accounts) {
+            my ($addr, $name);
+            my $pop3email = (split(/:/, $_))[3];
+            if  ($pop3email=~/^"?(.+?)"?\s*<(.*)>$/ ) {
+               $name=$1; $addr=$2; 
+            } elsif ($pop3email=~/<?(.*@.*)>?\s+\((.+?)\)/ ) {
+               $addr=$1; $name=$2;
+            } elsif ($pop3email=~/\s*(.+)@(.+)\s*/ ) {
+               $name=$1; $addr="$1\@$2"; 
+            }
+            if ($header=~/$addr/) {
+               $from=$addr; $realname=$name; last;
+            }
+         }
 
          my $date = localtime();
          my @datearray = split(/ +/, $date);
@@ -1640,19 +1665,20 @@ sub composemessage {
          push (@{$r_attnamelist}, "$attname");
          push (@{$r_attfilelist}, "$thissession-att$attserial");
       }
-   } elsif ( !(defined(param($lang_text{'add'}))) ) {
+
+   # usr press 'send' button but no receiver, keep editing
+   } elsif ( defined(param($lang_text{'send'})) &&
+             param("to") eq '' && param("cc") eq '' && param("bcc") eq '' ) {
+      ($savedattsize, $r_attnamelist, $r_attfilelist) = getattlistinfo();
+
+   } else {	# this is new message, remove previous aged attachments
       deleteattachments();
    }
 
    my $messageid = param("message_id");
    my %message;
    my $attnumber;
-   my $from = $useremail;
-   if ($prefs{"realname"}) {
-      my $realname = $prefs{"realname"};
-      $from =~ s/^(.+)$/$realname <$1>/;
-   }
-   my $escapedfrom = str2html($from);
+   my $from ='';
    my $to = '';
    my $cc = '';
    my $bcc = '';
@@ -1660,6 +1686,24 @@ sub composemessage {
    my $subject = '';
    my $body = '';
    my $composetype = param("composetype");
+
+   if ($prefs{"realname"}) {
+      $from="\"$prefs{'realname'}\" <$useremail>";
+   } else {
+      $from=$useremail;
+   }
+   my @fromlist=();
+   push (@fromlist, $from);
+   my %accounts;
+   if (getpop3book("$folderdir/.pop3.book", \%accounts) <0) {
+      openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.pop3.book!");
+   }
+   foreach (sort values %accounts) {
+      my ($pop3host, $pop3user, $pop3pass, $pop3email, $pop3del, $lastid) = split(/:/, $_);
+      if ($pop3email=~/.+\@.+/) {
+         push(@fromlist, $pop3email);
+      }
+   }
 
    if ($composetype) {
       $to = param("to") || '';
@@ -1676,6 +1720,27 @@ sub composemessage {
             %message = %{&getmessage($messageid, "all")};
          } else {
             %message = %{&getmessage($messageid, "")};
+         }
+
+         my $s;
+         foreach $s (@fromlist) {
+            my $email;
+            if  ($s=~/^"?(.+?)"?\s*<(.*)>$/ ) {
+               $email=$2;
+            } elsif ($s=~/<?(.*@.*)>?\s+\((.+?)\)/ ) {
+               $email=$1;
+            } elsif ($s=~/\s*(.+@.+)\s*/ ) {
+               $email=$1;
+            }
+            if ($composetype eq "editdraft") {
+               if ($message{'from'}=~/$email/) {
+                  $from=$s; last;
+               }
+            } else {	# reply/replyall/forward
+               if ($message{'to'}=~/$email/ || $message{'cc'}=~/$email/ ) {
+                  $from=$s; last;
+               }
+            }
          }
 
          # make the body for new mesage from original mesage for different contenttype
@@ -1790,6 +1855,21 @@ sub composemessage {
 
          my @attr=get_message_attributes($messageid, $headerdb);
 
+         my $s;
+         foreach $s (@fromlist) {
+            my $email;
+            if  ($s=~/^"?(.+?)"?\s*<(.*)>$/ ) {
+               $email=$2;
+            } elsif ($s=~/<?(.*@.*)>?\s+\((.+?)\)/ ) {
+               $email=$1;
+            } elsif ($s=~/\s*(.+@.+)\s*/ ) {
+               $email=$1;
+            }
+            if ($attr{$_TO}=~/$email/) {
+               $from=$s; last;
+            }
+         }
+
          open($folderhandle, "$folderfile");
          my $attserial=time();
          ($attserial =~ /^(.+)$/) && ($attserial = $1);   # bypass taint check
@@ -1857,7 +1937,11 @@ sub composemessage {
    }
    $html =~ s/\@\@\@STARTCOMPOSEFORM\@\@\@/$temphtml/g;
 
-   $html =~ s/\@\@\@ESCAPEDFROM\@\@\@/$escapedfrom/g;
+   $temphtml = popup_menu(-name=>'from',
+                          -"values"=>\@fromlist,
+                          -default=>$from,
+                          -override=>'1');
+   $html =~ s/\@\@\@FROMMENU\@\@\@/$temphtml/;
 
    $temphtml = textfield(-name=>'to',
                          -default=>$to,
@@ -1935,7 +2019,10 @@ sub composemessage {
                         -override=>'1');
    $html =~ s/\@\@\@BODYAREA\@\@\@/$temphtml/g;
 
-   $temphtml = submit("$lang_text{'send'}");
+   $temphtml = submit(-name=>"$lang_text{'send'}",
+                      -value=>"$lang_text{'send'}",
+                      -onClick=>'return sendcheck();',
+                      -override=>'1');
    $html =~ s/\@\@\@SENDBUTTON\@\@\@/$temphtml/g;
 
    $temphtml = submit("$lang_text{'savedraft'}");
@@ -1961,9 +2048,9 @@ sub composemessage {
                       -override=>'1');
    $html =~ s/\@\@\@STARTSPELLCHECKFORM\@\@\@/$temphtml/g;
 
-   $temphtml = button(-name=>'spellcheckbutton', 
+   $temphtml = submit(-name=>'spellcheckbutton', 
                       -value=> $lang_text{'spellcheck'},
-                      -onclick=>'spellcheck();',
+                      -onClick=>'spellcheck();',
                       -override=>'1');
    $html =~ s/\@\@\@SPELLCHECKBUTTON\@\@\@/$temphtml/g;
 
@@ -2036,7 +2123,12 @@ sub sendmessage {
    verifysession();
 
    # user press 'add' button or click 'delete' link
-   if (defined(param($lang_text{'add'})) || param("deleteattfile") ne '' ) {
+   if (defined(param($lang_text{'add'})) 
+    || param("deleteattfile") ne '' 
+    || ( defined(param($lang_text{'send'}))
+         && param("to") eq '' 
+         && param("cc") eq '' 
+         && param("bcc") eq '') ) {
       composemessage();
 
    } else {
@@ -2045,8 +2137,17 @@ sub sendmessage {
       my @datearray = split(/ +/, $date);
       $date = "$datearray[0], $datearray[2] $datearray[1] $datearray[4] $datearray[3] $timeoffset";
 
-      my $from = $useremail;
+      my $from=param('from') || $useremail;
       my $realname = $prefs{"realname"} || '';
+
+      if  ( $from =~ /^"?(.+?)"?\s*<(.*)>$/ ) {
+         ($realname, $from)=($1, $2);
+      } elsif ( $from =~ /<?(.*@.*)>?\s+\((.+?)\)/ ) {
+         ($realname, $from)=($2, $1);
+      } elsif ( $from =~ /\s*(.+)@(.+)\s*/ ) {
+         $realname="$1";
+         $from="$1\@$2";
+      }
       $from =~ s/[\||'|"|`]/ /g;  # Get rid of shell escape attempts
       $realname =~ s/[\||'|"|`]/ /g;  # Get rid of shell escape attempts
       ($realname =~ /^(.+)$/) && ($realname = '"'.$1.'"');
@@ -2829,12 +2930,7 @@ sub movemessage {
 #################### EMPTYTRASH ########################
 sub emptytrash {
    verifysession();
-   _emptytrash();
-   displayheaders();
-}
 
-# called by emptytrash or logout
-sub _emptytrash {
    my ($trashfile, $trashdb)=get_folderfile_headerdb($user, 'mail-trash');
    open (TRASH, ">$trashfile") or
       openwebmailerror ("$lang_err{'couldnt_open'} $trashfile!");
@@ -2842,8 +2938,10 @@ sub _emptytrash {
    update_headerdb($trashdb, $trashfile);
 
    writelog("trash emptied");
-   return;
+
+   displayheaders();
 }
+
 #################### END EMPTYTRASH #######################
 
 ##################### GETATTLISTINFO ###############################
@@ -2962,13 +3060,16 @@ sub retrpop3 {
 
    my ($spoolfile, $header)=get_folderfile_headerdb($user, 'INBOX');
    my ($pop3host, $pop3user);
-   my (%account, $response);
-   my %pop3error=( -1=>"connect error",
-                   -2=>"server not ready",
-                   -3=>"'user' error",
-                   -4=>"'pass' error",
-                   -5=>"'stat' error",
-                   -6=>"'retr' error" );
+   my (%accounts, $response);
+   my %pop3error=( -1=>"pop3book read error",
+                   -2=>"connect error",
+                   -3=>"server not ready",
+                   -4=>"'user' error",
+                   -5=>"'pass' error",
+                   -6=>"'stat' error",
+                   -7=>"'retr' error",
+                   -8=>"spoolfile write error",
+                   -9=>"pop3book write error");
 
    # create system spool file /var/mail/xxxx
    if ( ! -f "$spoolfile" ) {
@@ -2976,15 +3077,13 @@ sub retrpop3 {
       close(F);
    }
 
-   $pop3host = param("host") || '';
-   $pop3user = param("name") || '';
+   $pop3host = param("pop3host") || '';
+   $pop3user = param("pop3user") || '';
 
    if ( ! -f "$folderdir/.pop3.book" ) {
       print "Location:  $prefsurl?action=editpop3&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage";
    }
-
-   %account = getpop3book("$folderdir/.pop3.book");
-   if (%account == 0) {
+   if (getpop3book("$folderdir/.pop3.book", \%accounts) <0) {
       openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.pop3.book!");
    }
 
@@ -2997,13 +3096,17 @@ sub retrpop3 {
       print "Location: $scripturl?action=displayheaders&sessionid=$thissession&sort=$sort&firstmessage=$firstmessage&folder=$folder\n\n";
    } else {
       writelog("pop3 $pop3error{$response} at $pop3user\@$pop3host");
-      if ($response == -1 || $response == -2) {
+      if ($response == -1 || $response==-9) {
+   	  openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.pop3.book!");
+      } elsif ($response == -8) {
+   	  openwebmailerror("$lang_err{'couldnt_open'} $spoolfile");
+      } elsif ($response == -2 || $response == -3) {
    	  openwebmailerror("$pop3user\@$pop3host $lang_err{'couldnt_open'}");
-      } elsif ($response == -3) {
-    	  openwebmailerror("$pop3user\@$pop3host $lang_err{'user_not_exist'}");
       } elsif ($response == -4) {
+    	  openwebmailerror("$pop3user\@$pop3host $lang_err{'user_not_exist'}");
+      } elsif ($response == -5) {
       	  openwebmailerror("$pop3user\@$pop3host $lang_err{'password_error'}");
-      } elsif ($response == -5 || $sreponse == -6) {
+      } elsif ($response == -6 || $sreponse == -7) {
    	  openwebmailerror("$pop3user\@$pop3host $lang_err{'network_server_error'}");
       }
    }
@@ -3027,15 +3130,18 @@ sub retrpop3s {
 sub _retrpop3s {
    my $timeout=$_[0];
    my ($spoolfile, $header)=get_folderfile_headerdb($user, 'INBOX');
-   my (%account, $response);
+   my (%accounts, $response);
    my $fetch_complete=0;
    my $i;
-   my %pop3error=( -1=>"connect error",
-                   -2=>"server not ready",
-                   -3=>"'user' error",
-                   -4=>"'pass' error",
-                   -5=>"'stat' error",
-                   -6=>"'retr' error" );
+   my %pop3error=( -1=>"pop3book read error",
+                   -2=>"connect error",
+                   -3=>"server not ready",
+                   -4=>"'user' error",
+                   -5=>"'pass' error",
+                   -6=>"'stat' error",
+                   -7=>"'retr' error",
+                   -8=>"spoolfile write error",
+                   -9=>"pop3book write error");
 
    if ( ! -f "$folderdir/.pop3.book" ) {
       return;
@@ -3047,10 +3153,12 @@ sub _retrpop3s {
       close(F);
    }
 
-   %account = getpop3book("$folderdir/.pop3.book");
+   if (getpop3book("$folderdir/.pop3.book", \%accounts) <0) {
+      openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.pop3.book!");
+   }
 
    # fork a child to do fetch pop3 mails and return immediately
-   if (%account >0) {
+   if (%accounts >0) {
       $|=1; 				# flush all output
       $SIG{CHLD} = sub { wait; $fetch_complete=1; };	# handle zombie
 
@@ -3058,7 +3166,7 @@ sub _retrpop3s {
          close(STDOUT);
          close(STDIN);
 
-         foreach (values %account) {
+         foreach (values %accounts) {
             my ($pop3host, $pop3user, $mbox);
             my ($response, $dummy);
 

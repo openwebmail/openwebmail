@@ -31,5 +31,5 @@ cp /dev/null cgi-bin/openwebmail/etc/address.book
 
 tar -zcBpf /tmp/openwebmail-current.tgz *
 
-cp /usr/local/www/cgi-bin/openwebmail/doc/*.txt /usr/local/www/data/openwebmail/download/
+cp /usr/local/www/cgi-bin/openwebmail/doc/*.txt /usr/local/www/data/openwebmail/download/doc/
 mv /tmp/openwebmail-current.tgz /usr/local/www/data/openwebmail/download/

@@ -73,6 +73,9 @@ If you are using Redhat 6.2/CLE 0.9p1(or most Linux) with apache
    }  
    to /etc/logrotate.d/syslog to enable logrotate on openwebmail.log
 
+ps: if you are using RedHat 7.1, please use /var/www instead of /home/httpd
+    (by danguba@usa.net)
+
 If you are upgrading from old openwebmail on Redhat 6.2/CLE 0.9p1
 
 1. move original openwebmail dir (cgi-bin/openwebmail and html/openwebmail) 
@@ -132,7 +135,7 @@ program and a perl module that interfaces with the program.
 
 ps: if you are compiling ispell from source, you may enhance your ispell 
     by using a better dictionary source.
-    a. download http://turtle.ee.ncku.edu.tw/openwebmail/download/words.gz
+    a. download http://turtle.ee.ncku.edu.tw/openwebmail/download/contrib/words.gz
     b. gzip -d words.gz
     c. mkdir /usr/dict; cp words /usr/dict/words
     d. start to make your ispell by reading README
@@ -179,17 +182,45 @@ MIGRATE FROM NEOMAIL
    folder sent_mail      is changed to sent-mail
    folder neomail_trash  is changed to mail-trash
 
-ps. a script 'migrate.pl' is provided in uty/ for administer 
+ps: a script 'migrate.pl' is provided in uty/ for administer 
     to migrate user folders from neomail easily
+
+
+ADD SUPPORT FOR NEW LANGUEAGE
+-----------------------------
+It is very simple to add support for your language into openwebmail
+
+1. chooes an 2 character abbreviation for your language, eg: xy
+2. cd cgi-bin/openwebmail/etc. 
+   cp lang/en lang/xy
+   cp -R templates/en templates/xy
+3. translate file lang/xy and templates/xy/* from english to your language
+4. add a line to %languagenames to openwebmail.conf
+
+ps: If you wish the translation is put into the next release of openwebmail,
+    please submit it to me.
 
 
 TEST
 -----      
-Test your webmail with http://your_server/cgi-bin/openwebmail/openwebmail.pl
+1. chdir to openwebmail cgi dir (eg: /usr/local/www/cgi-bin/openwebmail)
+   and check the owner, group and permission of the following files
+
+   ~/openwebmail.pl		- owner=root, group=mail, mode=4755
+   ~/openwebmail-prefs.pl	- owner=root, group=mail, mode=4755
+   ~/spellcheck.pl		- owner=root, group=mail, mode=4755
+   ~/check.pl			- owner=root, group=mail, mode=4755
+   ~/etc            	 	- owner=root, group=mail, mode=750
+   ~/etc/sessions   	 	- owner=root, group=mail, mode=770
+   ~etc/users      	 	- owner=root, group=mail, mode=770
+
+   /var/log/openwebmail.conf	- owner=root, group=mail, mode=660
+
+2. test your webmail with http://your_server/cgi-bin/openwebmail/openwebmail.pl
 
 If there are any problem, please check the faq.txt.
 The latest version of FAQ will be available at
-http://turtle.ee.ncku.edu.tw/openwebmail/download/faq.txt
+http://turtle.ee.ncku.edu.tw/openwebmail/download/doc/faq.txt
 
 
 TODO
@@ -201,11 +232,11 @@ but we are not sure if they will happen or not...:)
 2. web disk
 3. shared folder
 4. LDAP support
+5. vacation reply
 
 
-06/07/2001
+06/11/2001
 
 Ebola@turtle.ee.ncku.edu.tw
 eddie@turtle.ee.ncku.edu.tw
 tung@turtle.ee.ncku.edu.tw
-

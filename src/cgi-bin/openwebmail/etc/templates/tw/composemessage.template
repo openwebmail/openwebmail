@@ -9,7 +9,7 @@
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ width="75">
 <B>寄信人：</B>
 </td><td valign="middle" align="left" colspan="2" bgcolor=@@@WINDOW_DARK@@@>
-@@@ESCAPEDFROM@@@
+@@@FROMMENU@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ width="75">
 <a href="Javascript:GoAddressWindow('to')" tabindex="-1"><B>收信人：</B></a>
@@ -114,8 +114,21 @@
       document.spellcheckform.field.value = "body";
       document.spellcheckform.string.value = document.composeform.body.value;
       window.open('','SpellChecker','width=600,height=400,top=40,left=80,scrollbars=yes,resizable=yes,location=no');
-      document.spellcheckform.submit();
+      return true;
    }
 
+   function sendcheck()
+   {
+      if (document.composeform.to.value == "" 
+       && document.composeform.cc.value == "" 
+       && document.composeform.bcc.value == "" ) {
+         alert("請填妥收信人, 再開始寄信.");
+         return false;
+      }
+      if (document.composeform.subject.value == "" ) {
+         return(confirm("這封信件沒有主旨, 請問仍然要寄出嗎?"));
+      }
+      return true;
+   }
    //-->
 </script>

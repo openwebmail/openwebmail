@@ -26,7 +26,7 @@ A: There are many possible answers...
       b. install CGI.pm-2.74.tar.gz
 
 Q: I got "Couldn't open XXX-session-0.370606494136155!" error after login?
-A: You openwebmail-1.xx.tgz was uncompressed with inproper parameter.
+A: You openwebmail-1.xx.tgz was uncompressed with improper parameter.
    It should be "tar -zxvBpf openwebmail-1.xx.tgz"
 
 Q: I got "Software error: Can't locate MIME/Base64.pm in @INC"?
@@ -48,13 +48,13 @@ A: you may has wrong setting of domainname in openwebmail.conf
    Please be sure to use '' for a text string of hostname or
    use `` for the program /bin/hostname
 
-Q: I can not add attachments?
+Q: I could not add attachments?
 A: Your proxy may limit the size of a POST request.
    Try to add attachments with no proxy setting in your browser.
    If you are the administrator of the proxy server and if you are using squid,
    please set the request_body_max_size option to a larger value.
 
-Q: Attachments disappeared when I forward a message?
+Q: Attachments disappeared when I forwarded a message?
 A: check the permission of the following directories
    cgi-bin/openwebmail/etc          - owner=root, group=mail, mode=750
    cgi-bin/openwebmail/etc/sessions - owner=root, group=mail, mode=770
@@ -65,14 +65,19 @@ Q: The permission of cgi-bin/openwebmail/etc is correct but attachments
 A: mmm, please upgrade the latest version. 
    Some old version(1.03,1.04) has little problem in attachment handling.
 
-Q: When I check 'edit folder menu', I found some folders are empty but take 
+Q: When I checked 'edit folder menu', I found some folders are empty but take 
    diskspace?
 A: The diskspace occupied by a folder shown in 'edit folder menu' includes
    the size of folder and folder index. Though folder is empty, the folder 
    index still has some data structure to maintain.
 
+Q: When I clicked 'spell check' button, I got "Internal Server error" in new
+   window?
+A: Please be sure that you have installed Lingua-Ispell-0.07.tar.gz and
+   ispell-3.1.20.tar.gz
+
 Q: I have problems in reading some mail....
-A: please check http://turtle.ee.ncku.edu.tw/openwebmail/download/update.txt
+A: please check http://turtle.ee.ncku.edu.tw/openwebmail/download/doc/update.txt
    to see if any update fixes your problem and download the openwebmail-current.tgz
 
 Q: The OpenWebMail is very slow on my system.
@@ -91,7 +96,7 @@ ps: Some operations would take more time than normal operation, for example:
    machine only if you have enough ram installed.
 
    There is an analysis of memory usage of Open WebMail available at
-   http://turtle.ee.ncku.edu.tw/openwebmail/download/memory.usage
+   http://turtle.ee.ncku.edu.tw/openwebmail/download/doc/memory.usage
 
 Q: How can I report problem?
 A: If your Open WebMail doesn't work, please describe your problem
