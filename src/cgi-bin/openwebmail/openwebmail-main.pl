@@ -915,21 +915,6 @@ sub listmessages {
       $html =~ s/\@\@\@MOVECONTROLS2\@\@\@/$htmlmove/;
    }
 
-   # show 'you have new messages' at status line
-   if ($folder ne 'INBOX' ) {
-      my $msg;
-      if ($now_inbox_newmessages>0) {
-         $msg="$now_inbox_newmessages $lang_text{'messages'} $lang_text{'unread'}";
-      } elsif ($now_inbox_allmessages>0) {
-         $msg="$now_inbox_allmessages $lang_text{'messages'}";
-      } else {
-         $msg=$lang_text{'nomessages'};
-      }
-      $html.=qq|<script language="JavaScript">\n<!--\n|.
-             qq|window.defaultStatus = "$lang_folders{'INBOX'} : $msg";\n|.
-             qq|//-->\n</script>\n|;
-   }
-
    # play sound if number of new msg increases in INBOX
    if ( $now_inbox_newmessages>$orig_inbox_newmessages ) {
       if (-f "$config{'ow_htmldir'}/sounds/$prefs{'newmailsound'}" ) {
@@ -1004,14 +989,6 @@ sub listmessages {
    }
    $html.=readtemplate('showmsg.js').$temphtml if ($temphtml);
 
-   # show unread inbox messages count in titlebar
-   my $unread_messages_msg;
-   if ($prefs{'unreadmsgintitlebar'}) {
-      if ($now_inbox_newmessages>0) {
-         $unread_messages_msg = "$lang_folders{INBOX}: $now_inbox_newmessages $lang_text{'messages'} $lang_text{'unread'}";
-      }
-   }
-
    # since $headershtml may be large, we put it into $html as late as possible
    $html =~ s/\@\@\@HEADERS\@\@\@/$headershtml/; undef($headershtml);
 
@@ -1021,8 +998,14 @@ sub listmessages {
    my $relative_url="$config{'ow_cgiurl'}/openwebmail-main.pl";
    $relative_url=~s!/.*/!!g;
 
+   # show unread inbox messages count in titlebar
+   my $unread_messages_info;
+   if ($now_inbox_newmessages>0) {
+      $unread_messages_info = "$lang_folders{INBOX}: $now_inbox_newmessages $lang_text{'messages'} $lang_text{'unread'}";
+   }
+
    httpprint([-Refresh=>"$refreshinterval;URL=$relative_url?sessionid=$thissession&sort=$sort&keyword=$escapedkeyword&searchtype=$searchtype&folder=INBOX&action=listmessages&page=1&session_noupdate=1"],
-             [htmlheader($unread_messages_msg),
+             [htmlheader($unread_messages_info),
               htmlplugin($config{'header_pluginfile'}, $config{'header_pluginfile_charset'}, $prefs{'charset'}),
               $html,
               htmlplugin($config{'footer_pluginfile'}, $config{'footer_pluginfile_charset'}, $prefs{'charset'}),

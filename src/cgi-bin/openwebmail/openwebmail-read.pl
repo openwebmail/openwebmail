@@ -995,21 +995,6 @@ sub readmessage {
       }
    }
 
-   # show 'you have new messages' at status line
-   if ($folder ne 'INBOX' ) {
-      my $msg;
-      if ($now_inbox_newmessages>0) {
-         $msg="$now_inbox_newmessages $lang_text{'messages'} $lang_text{'unread'}";
-      } elsif ($now_inbox_allmessages>0) {
-         $msg="$now_inbox_allmessages $lang_text{'messages'}";
-      } else {
-         $msg=$lang_text{'nomessages'};
-      }
-      $html.=qq|<script language="JavaScript">\n<!--\n|.
-             qq|window.defaultStatus = "$lang_folders{'INBOX'} : $msg";\n|.
-             qq|//-->\n</script>\n|;
-   }
-
    # play sound if number of new msg increases in INBOX
    if ( $now_inbox_newmessages>$orig_inbox_newmessages ) {
       if (-f "$config{'ow_htmldir'}/sounds/$prefs{'newmailsound'}" ) {
@@ -1082,7 +1067,14 @@ sub readmessage {
       @tmp=($prefs{'language'}, $prefs{'charset'});
       ($prefs{'language'}, $prefs{'charset'})=('en', $readcharset);
    }
-   httpprint([], [htmlheader(), $html, htmlfooter($footermode)]);
+
+   # show unread inbox messages count in titlebar
+   my $unread_messages_info;
+   if ($now_inbox_newmessages>0) {
+      $unread_messages_info = "$lang_folders{INBOX}: $now_inbox_newmessages $lang_text{'messages'} $lang_text{'unread'}";
+   }
+   httpprint([], [htmlheader($unread_messages_info), $html, htmlfooter($footermode)]);
+
    if ($#tmp>=1) {
       ($prefs{'language'}, $prefs{'charset'})=@tmp;
    }

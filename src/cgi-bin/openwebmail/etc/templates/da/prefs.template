@@ -529,11 +529,6 @@ Bredde @@@FILEEDITCOLUMNSMENU@@@ H&oslash;jde @@@FILEEDITROWSMENU@@@
 @@@CATEGORIZEDFOLDERS@@@ &nbsp;( Adskillelse af kategorimapper @@@CATEGORIZEDFOLDERS_FS@@@ )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Show inbox unread count in titlebar:</B>
-</td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@UNREADMSGINTITLEBAR@@@
-</td></tr>
-<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Afspil f&oslash;lgende lyd n&aring;r der kommer en ny besked:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@NEWMAILSOUNDMENU@@@

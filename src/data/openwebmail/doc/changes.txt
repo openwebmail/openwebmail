@@ -1,3 +1,9 @@
+03/20/2005
+----------
+1. remove 'show inbox unread message count' option from prefs
+   as it is enabled by default now :)
+
+
 03/19/2005
 ----------
 1. add 'show inbox unread message count' option to prefs

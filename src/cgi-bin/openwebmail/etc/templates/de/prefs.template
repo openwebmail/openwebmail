@@ -529,11 +529,6 @@ Breite @@@FILEEDITCOLUMNSMENU@@@ H&ouml;he @@@FILEEDITROWSMENU@@@
 @@@CATEGORIZEDFOLDERS@@@ &nbsp;( Trennzeichen f&uuml;r Kategorie-Ordner @@@CATEGORIZEDFOLDERS_FS@@@ )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Show inbox unread count in titlebar:</B>
-</td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@UNREADMSGINTITLEBAR@@@
-</td></tr>
-<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Akkustische Benachrichtigung:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@NEWMAILSOUNDMENU@@@

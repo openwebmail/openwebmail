@@ -529,11 +529,6 @@ Geniþlik @@@FILEEDITCOLUMNSMENU@@@ Yükseklik @@@FILEEDITROWSMENU@@@
 @@@CATEGORIZEDFOLDERS@@@ &nbsp;( Category-Folder Separator @@@CATEGORIZEDFOLDERS_FS@@@ )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Show inbox unread count in titlebar:</B>
-</td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@UNREADMSGINTITLEBAR@@@
-</td></tr>
-<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>YeniÝleti Sesli Bildirim:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@NEWMAILSOUNDMENU@@@

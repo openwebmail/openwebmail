@@ -66,7 +66,6 @@ foreach (qw(
    default_calendar_showemptyhours default_calendar_reminderforglobal
    default_webdisk_confirmmovecopy default_webdisk_confirmdel default_webdisk_confirmcompress
    default_uselightbar default_regexmatch default_hideinternal default_categorizedfolders
-   default_unreadmsgintitlebar
 )) { $is_config_option{'yesno'}{$_}=1}
 
 # none type config options
@@ -155,7 +154,7 @@ foreach my $opttype ('yesno', 'none', 'list') {
    webdisk_dirnumitems webdisk_confirmmovecopy webdisk_confirmdel
    webdisk_confirmcompress webdisk_fileeditcolumns  webdisk_fileeditrows
    fscharset uselightbar regexmatch hideinternal
-   categorizedfolders categorizedfolders_fs unreadmsgintitlebar
+   categorizedfolders categorizedfolders_fs
    refreshinterval newmailsound newmailwindowtime mailsentwindowtime
    dictionary trashreserveddays spamvirusreserveddays sessiontimeout
 );

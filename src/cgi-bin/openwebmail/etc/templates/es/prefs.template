@@ -529,11 +529,6 @@ Ancho @@@FILEEDITCOLUMNSMENU@@@ Altura @@@FILEEDITROWSMENU@@@
 @@@CATEGORIZEDFOLDERS@@@ &nbsp;(Separador de categorías @@@CATEGORIZEDFOLDERS_FS@@@)
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Show inbox unread count in titlebar:</B>
-</td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@UNREADMSGINTITLEBAR@@@
-</td></tr>
-<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Notificación sonora de nuevos mensajes:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@NEWMAILSOUNDMENU@@@
