@@ -1538,6 +1538,9 @@ sub addrlistview {
                   # escape chars for javascript
                   $displaynote =~ s!\\!\\\\!g;	# \ -> \\
                   $displaynote =~ s!'!\\'!g;	# ' -> \'
+                  $displaynote =~ s!"!&quot;!g; # " -> &quot;
+                  $displaynote =~ s!\)!\\\)!g;  # ) -> \)
+                  $displaynote =~ s!\(!\\\(!g;  # ( -> \(
 
                   my $noteoffset = ($headingpos{'note'} > int(((@headings-3)/2)+1) ? -350 : 150);
                   $newrow[$headingpos{'note'}] .= qq|<td $td_bgcolorstr nowrap><a href="javascript:{;}" onClick="displayNote(this,'notepopup',$noteoffset,-25,'|.

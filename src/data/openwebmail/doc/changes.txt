@@ -1,3 +1,10 @@
+12/21/2004
+----------
+1. fix a bug in addressbook that note field wtih ' or " won't be displayed
+   correctly
+   (thanks to Alex Teslik, alex.AT.acatysmoof.com for his fix)
+
+
 12/20/2004
 ----------
 1. explcitly check old password in change_userpassword(0 in auth_pam.pl,
