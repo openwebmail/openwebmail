@@ -20,6 +20,7 @@ For Users:
 * Draft Folder Support
 * Confirm Reading Support
 * Spelling Check Support
+* vCard compliant Addressbook
 * POP3 Support
 * Mail Filter Support
 * AntiSpam Support through SpamAssassin (http://www.spamassassin.org)

@@ -1,3 +1,45 @@
+10/30/2004
+----------
+1. replace the openwebmail-abook.pl with the whole new vCard compliant 
+   implementation by Alex Teslik, it is much better than the old one :)
+   (thanks to Alex Teslik, alex.AT.acatysmoof.com for his great implementation)
+
+ps: BETA! NOT PRODUCTION READY!
+
+    The new addressbook code has NOT been tested worldwide. 
+    Although every effort has been made to eliminate any possible errors, 
+    it is STRONGLY recommended that this code should NOT be run in a 
+    production environment until it can be tested by a larger user base.
+
+ps: It is okay to install the new version over the old one.
+    but don't forget to remove import.gif, export.gif 
+    from data/images/iconsets/*/ (which are not used any more)
+
+ps: If you are upgrading from older openwebmail, don't forget to convert 
+    the global addressbook to new vard format by
+    
+	openwebmail-tool.pl -c
+
+    The user addressbook will be auto converted at the first access.
+    However, the sysadm may also choose to convert the addressbook for all 
+    users manually by
+
+	openwebmail-tool.pl -c -a
+
+2. Welcome Alex Teslik to the openwebmail develope team :)
+3. Portuguese Brazil language and template files translation ipdate
+   (thanks to Joao S Veiga, openwebmail.AT.rf.com.br)
+4. remove stale iconsets from data/images/iconsets/
+5. move javascript in templates/*/addreditform_BDAY.template
+   to templates/COMMON/, so the js cached in memory could be shared 
+   among different languages
+6. change the default value for viruscheck_pipe 
+   from /usr/local/bin/clamdscan --mbox --disable-summary --stdout -
+   to   /usr/local/bin/clamdscan --disable-summary --stdout -
+   to avoid the warning on clamav 0.8+
+7. Traditional Chinese language and templates translation update
+
+
 10/22/2004
 ----------
 1. fix the problem that openwebmail didn't recognize messages properly

@@ -1,0 +1,46 @@
+<tr>
+  <td>
+    <table cellpadding="0" cellspacing="0" border="0">
+    <tr>
+      <td colspan="6"><b>姓名相關屬性<font color="#ff0000"><super>*</super></font></b></td>
+    </tr>
+    <tr>
+      <td>@@@GROUP@@@</td>
+      <td><input class="mono" type="text" name="@@@NAMEPREFIX.NAME@@@" value="@@@NAMEPREFIX.VALUE@@@" size="4" onBlur="makeFullName('editForm');">&nbsp;&nbsp;</td>
+      <td><input class="mono" type="text" name="@@@GIVENNAME.NAME@@@" value="@@@GIVENNAME.VALUE@@@" size="10" onBlur="makeFullName('editForm');">&nbsp;&nbsp;</td>
+      <td><input class="mono" type="text" name="@@@ADDITIONALNAMES.NAME@@@" value="@@@ADDITIONALNAMES.VALUE@@@" size="10" onBlur="makeFullName('editForm');">&nbsp;&nbsp;</td>
+      <td><input class="mono" type="text" name="@@@FAMILYNAME.NAME@@@" value="@@@FAMILYNAME.VALUE@@@" size="10" onBlur="makeFullName('editForm');">&nbsp;&nbsp;</td>
+      <td><input class="mono" type="text" name="@@@NAMESUFFIX.NAME@@@" value="@@@NAMESUFFIX.VALUE@@@" size="4" onBlur="makeFullName('editForm');">&nbsp;&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="smalltext">@@@GROUPLABEL@@@</td>
+      <td class="smalltext">前綴</td>
+      <td class="smalltext">名字</td>
+      <td class="smalltext">別名</td>
+      <td class="smalltext">姓</td>
+      <td class="smalltext">後綴</td>
+    </tr>
+    <tr>
+      <td colspan="6">@@@TYPES@@@&nbsp;</td>
+    </tr>
+    </table>
+  <td>
+<tr>
+
+<script type="text/javascript" language="javascript">
+<!--
+function makeFullName(formName) {
+   var fullName = document.forms[formName].elements['@@@NAMEPREFIX.NAME@@@'].value;
+   fullName += document.forms[formName].elements['@@@NAMEPREFIX.NAME@@@'].value == ''?'':' ';
+   fullName += document.forms[formName].elements['@@@GIVENNAME.NAME@@@'].value;
+   fullName += document.forms[formName].elements['@@@GIVENNAME.NAME@@@'].value == ''?'':' ';
+   fullName += document.forms[formName].elements['@@@ADDITIONALNAMES.NAME@@@'].value;
+   fullName += document.forms[formName].elements['@@@ADDITIONALNAMES.NAME@@@'].value == ''?'':' ';
+   fullName += document.forms[formName].elements['@@@FAMILYNAME.NAME@@@'].value;
+   fullName += document.forms[formName].elements['@@@FAMILYNAME.NAME@@@'].value == ''?'':' ';
+   fullName += document.forms[formName].elements['@@@NAMESUFFIX.NAME@@@'].value;
+   document.forms[formName].elements['@@@FN.NAME@@@'].value = fullName;
+}
+//-->
+</script>
+

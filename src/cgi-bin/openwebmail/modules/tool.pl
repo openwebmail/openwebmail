@@ -212,11 +212,12 @@ sub ext2contenttype {
    return("text/sgml")			if ($ext =~ /^sgml?$/);
    return("text/vnd.wap.wml")		if ($ext eq "wml");
    return("text/vnd.wap.wmlscript")	if ($ext eq "wmls");
+   return("text/x-vcard")		if ($ext =~ /^(?:vcf|vcard)$/);
    return("text/$1")			if ($ext =~ /^(?:css|rtf)$/);
 
    return("model/vrml")			if ($ext =~ /^(?:wrl|vrml)$/);
 
-   return("image/jpeg")			if ($ext =~ /^(?:jpg|jpe|jpeg)$/);
+   return("image/jpeg")			if ($ext =~ /^(?:jpe?g?)$/);
    return("image/$1")			if ($ext =~ /^(bmp|gif|ief|png|psp)$/);
    return("image/tiff")			if ($ext =~ /^tiff?$/);
    return("image/x-xbitmap")		if ($ext eq "xbm");
@@ -236,7 +237,7 @@ sub ext2contenttype {
    return("audio/mpeg")			if ($ext =~ /^(?:mp[23]|mpga)$/);
    return("audio/midi")			if ($ext =~ /^(?:midi?|kar)$/);
    return("audio/x-realaudio")		if ($ext eq "ra");
-   return("audio/basic")		if ($ext =~ /^(?:au|snd)$/);
+   return("audio/basic")		if ($ext =~ /^(?:au|snd|pcm)$/);
    return("audio/x-mpegurl")		if ($ext eq "m3u");
    return("audio/x-aiff")		if ($ext =~ /^aif[fc]?$/);
    return("audio/x-pn-realaudio")	if ($ext =~ /^ra?m$/);
@@ -251,26 +252,29 @@ sub ext2contenttype {
    return("application/xhtml+xml")	if ($ext =~ /^(?:xhtml|xht)$/);
    return("application/x-javascript")	if ($ext eq "js");
    return("application/x-httpd-php")	if ($ext =~ /^php[34]?$/);
-   return("application/x-vcard")	if ($ext eq "vcf");
    return("application/x-shockwave-flash") if ($ext eq "swf");
    return("application/x-texinfo")	if ($ext =~ /^(?:texinfo|texi)$/);
    return("application/x-troff")	if ($ext =~ /^(?:tr|roff)$/);
    return("application/x-troff-$1")     if ($ext =~ /^(man|me|ms)$/);
    return("application/x-$1")		if ($ext =~ /^(dvi|latex|shar|tar|tcl|tex)$/);
-   return("application/ms-tnef")        if ($ext =~ /^tne?f$/ || $_[0] eq 'winmail.dat');
-   return("application/$1")		if ($ext =~ /^(pdf|zip)$/);
+   return("application/ms-tnef")        if ($ext =~ /^tnef$/);
+   return("application/$1")		if ($ext =~ /^(pdf|zip|pgp|gpg)$/);
+
+   return("application/x-x509-user-cert")	if ($ext =~ /^(?:x509)$/);
 
    return("application/octet-stream");
 }
 
 sub contenttype2ext {
    my $contenttype=$_[0];
-   my ($class, $ext, $dummy)=split(/[\/\s;,]+/, $contenttype);
 
    return("txt")  if ($contenttype eq "N/A");
-   return("mp3")  if ($contenttype=~m!audio/mpeg!i);
-   return("au")   if ($contenttype=~m!audio/x\-sun!i);
-   return("ra")   if ($contenttype=~m!audio/x\-realaudio!i);
+   return("au")   if ($contenttype =~ m!audio/x\-sun!i);
+   return("mp3")  if ($contenttype =~ m!audio/mpeg!i);
+   return("vcf")  if ($contenttype =~ m!(?:text|application)/x?\-?vcard!i);
+   return("x509") if ($contenttype =~ m!application/x?\-?x509-(?:ca|user)-cert!i);
+
+   my ($class, $ext, $dummy)=split(/[\/\s;,]+/, $contenttype);
 
    $ext=~s/^x-//i;
    return(lc($ext))  if length($ext) <=4;
@@ -278,11 +282,17 @@ sub contenttype2ext {
    return("txt")  if ($class =~ /text/i);
    return("msg")  if ($class =~ /message/i);
 
+   # image/????
+   return("jpg")  if ($ext =~ /p?jpe?g/i);
+
+   # audio/????
+   return("au")   if ($ext =~ /basic/i);
+   return("ra")   if ($ext =~ /realaudio/i);
+
    return("doc")  if ($ext =~ /msword/i);
    return("ppt")  if ($ext =~ /powerpoint/i);
    return("xls")  if ($ext =~ /excel/i);
    return("vsd")  if ($ext =~ /visio/i);
-   return("vcf")  if ($ext =~ /vcard/i);
    return("tar")  if ($ext =~ /tar/i);
    return("zip")  if ($ext =~ /zip/i);
    return("avi")  if ($ext =~ /msvideo/i);

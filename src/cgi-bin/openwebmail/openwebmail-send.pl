@@ -264,9 +264,6 @@ sub composemessage {
    my %message;
    my $attnumber;
    my $from ='';
-   my $to = param('to') || '';
-   my $cc = param('cc') || '';
-   my $bcc = param('bcc') || '';
    my $replyto = param('replyto') || '';
    my $subject = param('subject') || '';
    my $body = param('body') || '';
@@ -275,6 +272,15 @@ sub composemessage {
    my $priority = param('priority') || 'normal';	# normal/urgent/non-urgent
    my $statname = param('statname') || '';
    my $composetype = param('composetype')||'';
+
+   # hashify to,cc,bcc to eliminate duplicates and strip off xowmuid tracker stuff after %@#
+   my (%tohash, %cchash, %bcchash) = ();
+   for (ow::tool::str2list(param('to').",".param('checkedto'))) { if ($_ ne '') { $_ =~ s/%@#(?:.*)$//; $tohash{$_} = 1 } };
+   for (ow::tool::str2list(param('cc').",".param('checkedcc'))) { if ($_ ne '') { $_ =~ s/%@#(?:.*)$//; $cchash{$_} = 1 } };
+   for (ow::tool::str2list(param('bcc').",".param('checkedbcc'))) { if ($_ ne '') { $_ =~ s/%@#(?:.*)$//; $bcchash{$_} = 1 } };
+   my $to = join(", ", sort { lc($a) cmp lc($b) } keys %tohash);
+   my $cc = join(", ", sort { lc($a) cmp lc($b) } keys %cchash);
+   my $bcc = join(", ", sort { lc($a) cmp lc($b) } keys %bcchash);
 
    my @forwardids=();
    if ($composetype eq 'forwardids' || $composetype eq 'forwardids_delete') {
@@ -1006,9 +1012,15 @@ sub composemessage {
    if ($compose_caller eq "read") {
       $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} ".($lang_folders{$folder}||$folder),
                            qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-read.pl?$urlparm&amp;action=readmessage&amp;message_id=$escapedmessageid&amp;headers=$prefs{'headers'}&amp;attmode=simple"|);
-   } elsif ($compose_caller eq "abook") {
+   } elsif ($compose_caller eq "addrlistview") {
+      my $abookfolder = ow::tool::escapeURL(param('abookfolder'));
+      my $abookpage = param('abookpage');
+      my $abooksort = param('abooksort');
+      my $abookkeyword = ow::tool::escapeURL(param('abookkeyword'));
+      my $abooksearchtype = param('abooksearchtype');
+      my $abookcollapse = param('abookcollapse');
       $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $lang_text{'addressbook'}",
-                           qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=editaddresses&amp;$urlparm"|). qq|\n|;
+                           qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrlistview&amp;$urlparm&amp;abookfolder=$abookfolder&amp;abookpage=$abookpage&amp;abooksort=$abooksort&amp;abookkeyword=$abookkeyword&amp;abooksearchtype=$abooksearchtype&amp;abookcollapse=$abookcollapse"|). qq|\n|;
    } else { # main
       $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} ".($lang_folders{$folder}||$folder),
                            qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;$urlparm"|). qq|\n|;
@@ -1101,7 +1113,7 @@ sub composemessage {
                          -size=>'70',
                          -accesskey=>'T',
                          -override=>'1').
-               qq|\n |.iconlink("addrbook.s.gif", $lang_text{'addressbook'}, qq|href="javascript:GoAddressWindow('to')"|);
+               qq|\n |.iconlink("addrbook.s.gif", $lang_text{'addressbook'}, qq|href="javascript:GoAddressWindow()"|);
    $html =~ s/\@\@\@TOFIELD\@\@\@/$temphtml/;
 
    $temphtml = textfield(-name=>'cc',
@@ -1109,14 +1121,14 @@ sub composemessage {
                          -size=>'70',
                          -accesskey=>'C',
                          -override=>'1').
-               qq|\n |.iconlink("addrbook.s.gif", $lang_text{'addressbook'}, qq|href="javascript:GoAddressWindow('cc')"|);
+               qq|\n |.iconlink("addrbook.s.gif", $lang_text{'addressbook'}, qq|href="javascript:GoAddressWindow()"|);
    $html =~ s/\@\@\@CCFIELD\@\@\@/$temphtml/;
 
    $temphtml = textfield(-name=>'bcc',
                          -default=>$bcc,
                          -size=>'70',
                          -override=>'1').
-               qq|\n |.iconlink("addrbook.s.gif", $lang_text{'addressbook'}, qq|href="javascript:GoAddressWindow('bcc')"|);
+               qq|\n |.iconlink("addrbook.s.gif", $lang_text{'addressbook'}, qq|href="javascript:GoAddressWindow()"|);
    $html =~ s/\@\@\@BCCFIELD\@\@\@/$temphtml/;
 
    $temphtml = textfield(-name=>'replyto',

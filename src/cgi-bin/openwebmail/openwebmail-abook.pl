@@ -18,6 +18,7 @@ use strict;
 use Fcntl qw(:DEFAULT :flock);
 use CGI qw(-private_tempfiles :standard);
 use CGI::Carp qw(fatalsToBrowser carpout);
+use Data::Dumper; $Data::Dumper::Sortkeys=1; $Data::Dumper::Deepcopy=1; $Data::Dumper::Purity=1;
 
 require "modules/dbm.pl";
 require "modules/suid.pl";
@@ -25,10 +26,12 @@ require "modules/filelock.pl";
 require "modules/tool.pl";
 require "modules/datetime.pl";
 require "modules/lang.pl";
-require "modules/mime.pl";
+require "modules/htmltext.pl";
 require "auth/auth.pl";
 require "quota/quota.pl";
 require "shares/ow-shared.pl";
+require "shares/adrbook.pl";
+require "shares/iconv.pl";
 
 # common globals
 use vars qw(%config %config_raw);
@@ -37,12 +40,28 @@ use vars qw($domain $user $userrealname $uuid $ugid $homedir);
 use vars qw(%prefs %style %icontext);
 
 # extern vars
-use vars qw(%lang_folders %lang_sizes %lang_text %lang_err);	# defined in lang/xy
+use vars qw(%lang_folders %lang_sizes %lang_text %lang_err %lang_wday
+            %lang_order %lang_wday_abbrev %lang_month); # defined in lang/xy
+use vars qw(%lang_abookselectionlabels %lang_abookclasslabels
+            %lang_timezonelabels %lang_wdbutton);
+use vars qw(%charset_convlist);	# defined in iconv.pl
 
 # local globals
-use vars qw($folder $messageid);
-use vars qw($sort $page);
-use vars qw($escapedmessageid $escapedfolder);
+use vars qw($folder $messageid $sort $page $searchtype $keyword);
+use vars qw($escapedmessageid $escapedfolder $escapedkeyword);
+use vars qw($quotausage $quotalimit);
+use vars qw($webaddrdir);
+use vars qw($abookfolder $abookpage $abooklongpage $abooksort $abooksearchtype $abookkeyword $abookcollapse);
+use vars qw(%supportedimportexportformat);
+use vars qw($escapedabookfolder $escapedabookkeyword);
+
+use vars qw($webmail_urlparm $webmail_formparm);
+use vars qw($abook_urlparm $abook_urlparm_with_abookfolder $abook_formparm $abook_formparm_with_abookfolder);
+use vars qw($urlparm $formparm);
+
+# DEBUGGING
+use vars qw($addrdebug);
+$addrdebug = 0;
 
 ########## MAIN ##################################################
 openwebmail_requestbegin();
@@ -51,37 +70,129 @@ $SIG{TERM}=\&openwebmail_exit;	# for user stop
 
 userenv_init();
 
-if (!$config{'enable_webmail'}) {
-   openwebmailerror(__FILE__, __LINE__, "$lang_text{'webmail'} $lang_err{'access_denied'}");
+if (!$config{'enable_addressbook'}) {
+   openwebmailerror(__FILE__, __LINE__, "$lang_text{'addressbook'} $lang_err{'access_denied'}");
 }
 
+# supported import and export formats
+my %supportedimportexportformat = (
+                                   'vcard3.0' => [\&importvcard,\&exportvcard,'vCard v3.0 (vFile)'],
+                                   'vcard2.1' => [\&importvcard,\&exportvcard,'vCard v2.1 (vFile)'],
+                                   # NOT SUPPORTED...YET
+                                   # 'csv'   => [\&importcsv,'\&exportcsv','CSV (Comma Separated Value)'],
+                                   # 'tab'   => [\&importtab,'\&exporttab','Tab Delimited File'],
+                                   # 'pine'  => [\&importpine,'\&exportpine','Pine Addressbook Format'],
+                                   # 'ldif'  => [\&importldif,'\&exportldif','LDIF (LDAP Directory Interchange Format)'],
+                                  );
+
+# convert old proprietary addressbooks to the new vcard format
+convert_addressbook();
+
+# mail globals
 $folder = param('folder') || 'INBOX';
 $page = param('page') || 1;
-$sort = param('sort') || $prefs{'sort'} || 'date';
-$messageid=param('message_id') || '';
 
-$escapedfolder=ow::tool::escapeURL($folder);
-$escapedmessageid=ow::tool::escapeURL($messageid);
+$sort = param('sort') || $prefs{'sort'} || 'date';
+$messageid = param('message_id') || '';
+$searchtype = param('searchtype') || '';
+$keyword = param('keyword') || '';
+
+# escaped mail globals
+$escapedfolder = ow::tool::escapeURL($folder);
+$escapedmessageid = ow::tool::escapeURL($messageid);
+$escapedkeyword = ow::tool::escapeURL($keyword);
+
+# addressbook globals
+$webaddrdir = dotpath('webaddr');
+$abookfolder = param('abookfolder') || 'ALL';
+$abookpage = param('abookpage') || 1;
+$abooklongpage = param('abooklongpage') || 0;
+$abooksort = param('abooksort') || $prefs{'abook_sort'} || 'fullname';
+$abooksearchtype = $prefs{'abook_defaultfilter'}?$prefs{'abook_defaultsearchtype'}:undef;
+$abooksearchtype = param('abooksearchtype') if defined(param('abooksearchtype'));
+$abookkeyword = $prefs{'abook_defaultfilter'}?$prefs{'abook_defaultkeyword'}:undef;
+$abookkeyword = param('abookkeyword') if defined(param('abookkeyword'));
+$abookcollapse = param('abookcollapse');
+$abookcollapse = $prefs{'abook_collapse'} if (!defined $abookcollapse);
+
+# escaped addressbook globals
+$escapedabookfolder = ow::tool::escapeURL($abookfolder);
+$escapedabookkeyword = ow::tool::escapeURL($abookkeyword);
+
+# does the requested book exist (mabye it was deleted)
+if ($abookfolder !~ m/^(?:ALL|GLOBAL)$/) {
+   if (!-e "$webaddrdir/$abookfolder") {
+      $abookfolder = $escapedabookfolder = 'ALL';
+   }
+}
+
+# all webmail related settings to remember
+$webmail_urlparm = qq|folder=$escapedfolder&amp;|.
+                   qq|page=$page&amp;|.
+                   qq|sort=$sort&amp;|.
+                   qq|searchtype=$searchtype&amp;|.
+                   qq|keyword=$escapedkeyword&amp;|.
+                   qq|message_id=$escapedmessageid|;
+$webmail_formparm=ow::tool::hiddens(folder=>ow::htmltext::str2html($folder),
+                                    page=>$page,
+                                    sort=>$sort,
+                                    searchtype=>$searchtype,
+                                    keyword=>ow::htmltext::str2html($keyword),
+                                    message_id=>$messageid);
+# all addressbook settings to remember
+$abook_urlparm = qq|abookpage=$abookpage&amp;|.
+                 qq|abooklongpage=$abooklongpage&amp;|.
+                 qq|abooksort=$abooksort&amp;|.
+                 qq|abooksearchtype=$abooksearchtype&amp;|.
+                 qq|abookkeyword=$escapedabookkeyword&amp;|.
+                 qq|abookcollapse=$abookcollapse|;
+$abook_urlparm_with_abookfolder = $abook_urlparm.
+                                  qq|&amp;abookfolder=$escapedabookfolder|;
+$abook_formparm=ow::tool::hiddens(abookpage=>$abookpage,
+                                  abooklongpage=>$abooklongpage,
+                                  abooksort=>$abooksort,
+                                  abooksearchtype=>$abooksearchtype,
+                                  abookkeyword=>ow::htmltext::str2html($abookkeyword),
+                                  abookcollapse=>$abookcollapse);
+$abook_formparm_with_abookfolder = $abook_formparm.
+                                   ow::tool::hiddens(abookfolder=>ow::htmltext::str2html($abookfolder));
+# common settings to remember
+$urlparm=qq|$webmail_urlparm&amp;|.
+         qq|$abook_urlparm_with_abookfolder&amp;|.
+         qq|sessionid=$thissession|;
+$formparm=$webmail_formparm.
+          $abook_formparm_with_abookfolder.
+          ow::tool::hiddens(sessionid=>$thissession);
 
 my $action = param('action')||'';
-if ($action eq "addressbook") {
-   addressbook();
-} elsif ($action eq "editaddresses") {
-   editaddresses();
-} elsif ($action eq "addaddress") {
-   modaddress("add");
-} elsif ($action eq "deleteaddress") {
-   modaddress("delete");
-} elsif ($action eq "clearaddress") {
-   clearaddress();
-} elsif ($action eq "importabook") {
-   importabook();
-} elsif ($action eq "exportabook") {
-   exportabook();
-} elsif ($action eq "importabook_pine") {
-   importabook_pine();
-} elsif ($action eq "exportabook_pine") {
-   exportabook_pine();
+if ($action eq "addrlistview") {
+   addrlistview();
+} elsif ($action eq "addrshowchecked") {
+   addrshowchecked();
+} elsif ($action eq "addrbookedit") {
+   addrbookedit();
+} elsif ($action eq "addrbookadd") {
+   addrbookadd();
+} elsif ($action eq "addrbookdelete") {
+   addrbookdelete();
+} elsif ($action eq "addrbookrename") {
+   addrbookrename();
+} elsif ($action eq "addrbookdownload") {
+   addrbookdownload();
+} elsif ($action eq "addreditform") {
+   addreditform();
+} elsif ($action eq "addredit") {
+   addredit();
+} elsif ($action eq "addrmovecopydelete") {
+   addrmovecopydelete();
+} elsif ($action eq "addrimportform") {
+   addrimportform();
+} elsif ($action eq "addrimport") {
+   addrimport();
+} elsif ($action eq "addrexport") {
+   addrexport();
+} elsif ($action eq "addrviewatt") {
+   addrviewatt();
 } else {
    openwebmailerror(__FILE__, __LINE__, "Action $lang_err{'has_illegal_chars'}");
 }
@@ -89,862 +200,4389 @@ if ($action eq "addressbook") {
 openwebmail_requestend();
 ########## END MAIN ##############################################
 
-########## ADDRESSBOOK ###########################################
-sub addressbook {
-   my $elist = param('elist') || '';	# emails not checked or not convered by addressbook
-   $elist=ow::tool::unescapeURL($elist); # unescape elist becuase it is passed in escaped format (see line 276)
 
-   my $tolist = join(",", param('to')) || '';	# emails checked in addressbook window
-   my $form=param('form')||'';
-   my $field=param('field')||'';
+########## ADDRBOOKADD ###########################################
+sub addrbookadd {
+   $abookfolder = param('abookfoldernew') || '';
+   $abookfolder = safefoldername($abookfolder);
+   $abookfolder = ow::tool::untaint($abookfolder);
 
-   my %emailhash=();	# store all entries in emailhash
-   foreach my $u (ow::tool::str2list($elist,0), ow::tool::str2list($tolist,0)) {
-      if ($u ne '') {
-         my $email=(ow::tool::email2nameaddr($u))[1];
-         $emailhash{$email}=$u;
-      }
-   }
+   # prepare error messages in case we need them
+   $lang_err{'abook_already_exists'} =~ s/\@\@\@ADDRESSBOOK\@\@\@/$abookfolder/;
+   $lang_err{'abook_name_too_long'} =~ s/\@\@\@ADDRESSBOOK\@\@\@/$abookfolder/;
+   $lang_err{'abook_name_too_long'} =~ s/\@\@\@FOLDERNAME_MAX\@\@\@/$config{'foldername_maxlen'}/;
 
-   my $abook_keyword = param('abook_keyword') || '';
-   my $abook_searchtype = param('abook_searchtype') || 'name';
-   my $results_flag = 0;
-
-   my ($html, $temphtml);
-   $html = applystyle(readtemplate("addressbook.template"));
-
-   if (defined($lang_text{$field})) {
-      $temphtml=$lang_text{$field}.": $lang_text{'abook'}";
+   if ($abookfolder eq '') {
+      addrbookedit();
+   } elsif (-e "$webaddrdir/$abookfolder" || $abookfolder =~ m/^(?:ALL|GLOBAL|DELETE)$/) {
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_already_exists'}");
    } else {
-      $temphtml=uc($field).": $lang_text{'abook'}";
-   }
-   $html =~ s/\@\@\@ADDRESSBOOKFOR\@\@\@/$temphtml/g;
+      if (length($abookfolder) > $config{'foldername_maxlen'}) {
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_name_too_long'}");
+      } else {
+         open(NEWBOOK,">$webaddrdir/$abookfolder") or
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'cant_create_folder'}! ($!)");
+         close(NEWBOOK);
 
-   $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl",
-                   	 -name=>'addressbook');
-   $html =~ s/\@\@\@STARTADDRESSFORM\@\@\@/$temphtml/g;
-
-   my %searchtypelabels = ('name'=>$lang_text{'name'},
-                           'email'=>$lang_text{'email'},
-                           'note'=>$lang_text{'note'},
-                           'all'=>$lang_text{'all'});
-   $temphtml = popup_menu(-name=>'abook_searchtype',
-                           -default=>$abook_searchtype || 'name',
-                           -values=>['name', 'email', 'note', 'all'],
-                           -labels=>\%searchtypelabels);
-   $temphtml .= textfield(-name=>'abook_keyword',
-                          -default=>$abook_keyword,
-                          -size=>'16',
-                          -override=>'1');
-   $temphtml .= "&nbsp;";
-   $temphtml .= submit(-name=>$lang_text{'search'},
-	               -class=>'medtext');
-   $html =~ s/\@\@\@SEARCH\@\@\@/$temphtml/g;
-
-   $temphtml="";
-   $temphtml .= qq|<tr><td colspan="4">&nbsp;</td></tr>|;
-
-   my $addrbookfile=dotpath('address.book');
-
-   my $count=0;
-   my $bgcolor = $style{"tablerow_dark"};
-   if ( -f $addrbookfile ) {
-      my %addresses=();
-      my %notes=();
-
-      my ($stat,$err,@namelist)=read_abook($addrbookfile,\%addresses,\%notes);
-      openwebmailerror(__FILE__, __LINE__, $err) if ($stat<0);
-
-      foreach (@namelist) {
-         delete $addresses{$_} if (!is_entry_matched($abook_keyword,$abook_searchtype,
-                                                     $_, $notes{$_}, $addresses{$_}));
+         writelog("add addressbook - $abookfolder");
+         writehistory("add addressbook - $abookfolder");
       }
-      foreach my $name (sort { lc($a) cmp lc($b) } keys %addresses) {
-         my $email=$addresses{$name};
-         my $emailstr;
-
-         if ( $form eq "newaddress" && $field eq "email" ) { # if addr popup window is used to define group email
-            $emailstr="$email";	                             # then only pure addr is required
-         } else {
-            if ( $email =~ /[,"]/ ) {	# expand multiple addr to multiple "name" <addr>
-               foreach my $e (ow::tool::str2list($email,0)) {
-                  foreach my $n (keys %addresses) {
-                     if ( $e eq $addresses{$n} ) {
-                        $e="\&quot;$n\&quot; &lt;$e&gt;";
-                        last;
-                     }
-                  }
-                  $emailstr .= "," if ($emailstr ne "");
-                  $emailstr .= $e;
-               }
-            } else {
-               $emailstr="\&quot;$name\&quot; &lt;$email&gt;";
-            }
-         }
-
-         my $accesskeystr=$count%10+1;
-         if ($accesskeystr == 10) {
-            $accesskeystr=qq|accesskey="0"|;
-         } elsif ($accesskeystr < 10) {
-            $accesskeystr=qq|accesskey="$accesskeystr"|;
-         }
-         $temphtml .= qq|<tr>| if ($count %2 == 0);
-         $temphtml .= qq|<td width="20" bgcolor=$bgcolor><input type="checkbox" name="to" value="$emailstr"|;
-
-         if (defined($emailhash{$email})) {
-            $temphtml .= " checked";
-            delete $emailhash{$email};
-         }
-
-         $emailstr=~s/\\/\\\\/g; $emailstr=~s/'/\\'/g;	# escape \ and ' for javascript
-         $temphtml .= qq|></td><td width="45%" bgcolor=$bgcolor nowrap>|.
-                      qq|<a $accesskeystr href="javascript:Update('$emailstr')" title="$email $notes{$name}">$name</a></td>\n|;
-         $temphtml .= qq|</tr>| if ($count %2 == 1);
-
-         if ($bgcolor eq $style{"tablerow_dark"}) {
-            $bgcolor = $style{"tablerow_light"} if ($count %2 == 0);
-         } else {
-            $bgcolor = $style{"tablerow_dark"} if ($count %2 == 0);
-         }
-         $results_flag = 1;
-         $count++
-      }
-
-   }
-   $temphtml .= qq|<tr><td colspan="4">&nbsp;</td></tr>| if ($count>0);
-
-   $count = 0;
-   if ( $config{'global_addressbook'} ne "" && -f "$config{'global_addressbook'}" ) {
-      my %globaladdresses=();
-      my %globalnotes=();
-
-      my ($stat,$err,@namelist)=read_abook($config{'global_addressbook'},\%globaladdresses,\%globalnotes);
-      openwebmailerror(__FILE__, __LINE__, $err) if ($stat<0);
-
-      foreach my $name (@namelist) {
-         next if (!is_entry_matched($abook_keyword,$abook_searchtype,
-                                    $name, $globalnotes{$name}, $globaladdresses{$name}));
-         my $email=$globaladdresses{$name};
-         my $emailstr;
-
-         if ( $form eq "newaddress" && $field eq "email" ) { # if addr popup window is used to define group email
-            $emailstr="$email";	                             # then only pure addr is required
-         } else {
-            if ( $email =~ /[,"]/ ) {	# expamd multiple addr to "name" <addr>
-               foreach my $e (ow::tool::str2list($email,0)) {
-                  foreach my $n (keys %globaladdresses) {
-                     if ( $e eq $globaladdresses{$n} ) {
-                        $e="\&quot;$n\&quot; &lt;$e&gt;";
-                        last;
-                     }
-                  }
-                  $emailstr .= "," if ($emailstr ne "");
-                  $emailstr .= $e;
-               }
-            } else {
-               $emailstr="\&quot;$name\&quot; &lt;$email&gt;";
-            }
-         }
-
-         $temphtml .= qq|<tr>| if ($count %2 == 0);
-         $temphtml .= qq|<td width="20" bgcolor=$bgcolor><input type="checkbox" name="to" value="$emailstr"|;
-
-         if (defined($emailhash{$email})) {
-            $temphtml .= " checked";
-            delete $emailhash{$email};
-         }
-
-         $emailstr=~s/\\/\\\\/g; $emailstr=~s/'/\\'/g;	# escape \ and ' for javascript
-         $temphtml .= qq|></td><td width="45%" bgcolor=$bgcolor nowrap>|.
-                      qq|<a href="javascript:Update('$emailstr')" title="$email $globalnotes{$name}">$name</a></td>\n|;
-         $temphtml .= qq|</tr>| if ($count %2 == 1);
-
-         if ($bgcolor eq $style{"tablerow_dark"}) {
-            $bgcolor = $style{"tablerow_light"} if ($count %2 == 0);
-         } else {
-            $bgcolor = $style{"tablerow_dark"} if ($count %2 == 0);
-         }
-         $results_flag = 1;
-         $count++
-      }
-      $temphtml .= qq|<tr><td colspan="4">&nbsp;</td></tr>| if ($count>0);
    }
 
-   $html =~ s/\@\@\@ADDRESSES\@\@\@/$temphtml/g;
+   addrbookedit();
+}
+########## END ADDRBOOKADD #######################################
 
-   # rebuild entries not checked on address popup window backto elist
-   my @u=sort values(%emailhash);
 
-   $elist=join(",", @u);
-   $elist=ow::tool::escapeURL($elist);	# escape elist to make it a safe string in HTML
+########## ADDRBOOKDELETE ########################################
+sub addrbookdelete {
+   $abookfolder = safefoldername($abookfolder);
+   $abookfolder = ow::tool::untaint($abookfolder);
 
-   $temphtml = ow::tool::hiddens(elist=>$elist,
-                                 action=>'addressbook',
+   # prepare error messages in case we need them
+   $lang_err{'abook_delete_book'} =~ s/\@\@\@ADDRESSBOOK\@\@\@/$abookfolder/;
+   $lang_err{'abook_no_exist'} =~ s/\@\@\@ADDRESSBOOK\@\@\@/$abookfolder/;
+
+   # do the delete
+   if (-e "$webaddrdir/$abookfolder") {
+      unlink("$webaddrdir/$abookfolder") or
+        openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_delete_book'}! ($!)");
+      writelog("delete addressbook - $abookfolder");
+      writehistory("delete addressbook - $abookfolder");
+   } else {
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_no_exist'}! ($!)");
+   }
+
+   addrbookedit();
+}
+########## END ADDRBOOKDELETE ####################################
+
+
+########## ADDRBOOKEDIT ##########################################
+sub addrbookedit {
+   # keep totals
+   my %total = ();
+
+   # load the addresses - only the required information
+   my %addresses=();
+   my %searchterms = ();
+   my %only_return = ('N' => 1);
+
+   my @alladdressbooks = getaddrbooks_readable($webaddrdir);
+   foreach my $addressbook (@alladdressbooks) {
+      my $bookfile="$webaddrdir/$addressbook"; 
+      $bookfile=$config{'global_addressbook'} if ($addressbook eq 'GLOBAL');
+
+      my $thisbook = readadrbook($bookfile, (keys %searchterms?\%searchterms:undef), (keys %only_return?\%only_return:undef));
+      $total{$addressbook}{'entries'} = keys %{$thisbook};
+      $total{$addressbook}{'size'} = (-s $bookfile);
+   }
+
+   # get the html cooking
+   my ($html, $temphtml) = ();
+   $html = applystyle(readtemplate("addrbookedit.template"));
+
+   # menubar links
+   $temphtml = iconlink("backtofolder.gif", ("$lang_text{'backto'} ".ow::htmltext::str2html($abookfolder)),
+                        qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrlistview&amp;$urlparm"|);
+   $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
+
+   $html =~ s/\@\@\@FOLDERNAME_MAXLEN\@\@\@/$config{'foldername_maxlen'}/g;
+
+   # add addressbooks form
+   $temphtml = start_form(-name=>"addBookForm",
+                          -action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl").
+               ow::tool::hiddens(
+                                 action=>'addrbookadd',
                                  sessionid=>$thissession,
-                                 form=>$form,
-                                 field=>$field);
-   $html =~ s/\@\@\@HIDDENFIELDS\@\@\@/$temphtml/g;
+                                );
+   $html =~ s/\@\@\@STARTFOLDERFORM\@\@\@/$temphtml/;
 
-   $temphtml = button(-name=>'update',
-                      -value=>$lang_text{'continue'},
-                      -accesskey=>'C',		# continue
-	              -class=>'medtext',
-                      -onclick=>'Update(); return false;').
-               "&nbsp;&nbsp;".
-               button(-name=>'cancel',
-                      -value=>$lang_text{'cancel'},
-                      -onclick=>'window.close();',
-	              -class=>'medtext',
-                      -accesskey=>'Q',		# quit
-                      -override=>'1');
+   $temphtml = textfield(-name=>'abookfoldernew',
+                         -default=>'',
+                         -size=> 24,
+                         -maxlength=>$config{'foldername_maxlen'},
+                         -accesskey=>'I',
+                         -override=>'1');
+   $html =~ s/\@\@\@FOLDERNAMEFIELD\@\@\@/$temphtml/;
 
-   my $temphtml_before = '&nbsp;</td></tr><tr><td align="center" colspan=4>'.$temphtml;
-   if ($prefs{'abook_buttonposition'} eq 'after') {
-      $html =~ s/\@\@\@BUTTONSBEFORE\@\@\@//g;
-      $html =~ s/\@\@\@BUTTONSAFTER\@\@\@/$temphtml/g;
-   } elsif (($prefs{'abook_buttonposition'} eq 'both') && $results_flag) {
-      $html =~ s/\@\@\@BUTTONSBEFORE\@\@\@/$temphtml_before/g;
-      $html =~ s/\@\@\@BUTTONSAFTER\@\@\@/$temphtml/g;
-   } else {
-      $html =~ s/\@\@\@BUTTONSBEFORE\@\@\@/$temphtml_before/g;
-      $html =~ s/\@\@\@BUTTONSAFTER\@\@\@//g;
-   }
+   $temphtml = submit(-name=>$lang_text{'add'},
+                      -accesskey=>'A',
+                      -class=>"medtext");
+   $html =~ s/\@\@\@ADDBUTTON\@\@\@/$temphtml/;
 
    $temphtml = end_form();
-   $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/g;
+   $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/;
 
-   $html =~ s/\@\@\@FORMNAME\@\@\@/$form/g;
-   $html =~ s/\@\@\@FIELDNAME\@\@\@/$field/g;
+   my @bgcolor = ($style{"tablerow_dark"}, $style{"tablerow_light"});
+   my $colornum = 0;
 
-   httpprint([], [htmlheader(), $html, htmlfooter(0)]);
-}
-########## END ADDRESSBOOK #######################################
+   # the personal abook folder data
+   my $i = 1;
+   $temphtml = '';
+   foreach my $abook (@alladdressbooks) {
+      next if ($abook eq 'GLOBAL');
+      my $escapedabook = ow::tool::escapeURL($abook);
+      my $jsfolderstr = $abook;
+      $jsfolderstr =~ s/'/\\'/g;
+      $temphtml .= qq|<tr>\n|.
+                   qq|<td width="10" bgcolor=$bgcolor[$colornum]>&nbsp;</td>|.
+                   qq|<td bgcolor=$bgcolor[$colornum]>|.
+                   iconlink("download.gif", $lang_text{'download'},
+                             qq|accesskey="W" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrbookdownload&amp;sessionid=$thissession&amp;abookfolder=$escapedabook"|).
+                   qq|<a href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrlistview&amp;sessionid=$thissession&amp;abookfolder=$escapedabook">|.ow::htmltext::str2html($abook).qq|</a></td>\n|.
+                   qq|<td align="center" bgcolor=$bgcolor[$colornum]>$total{$abook}{'entries'}</td>\n|.
+                   qq|<td align="center" bgcolor=$bgcolor[$colornum]>|.lenstr($total{$abook}{'size'},0).qq|</td>\n|.
+                   qq|<td bgcolor=$bgcolor[$colornum] align="center" nowrap>\n|.
+                   qq|   <table cellpadding="0" cellspacing="0" border="0">\n|.
+                   qq|   <tr>\n|.
+                   qq|      <td>\n|.
+                   start_form(-name=>"abookDeleteForm$i",
+                              -action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl").
+                   ow::tool::hiddens(
+                                     action=>'addrbookdelete',
+                                     sessionid=>$thissession,
+                                     abookfolder=>ow::htmltext::str2html($abook),
+                                    ).
+                   submit(-name=>$lang_text{'delete'}, -class=>"medtext",
+                          -onClick=>"return OpConfirm('deletebook', 'abookDeleteForm$i', $lang_text{'folderdelconf'}+'\\n($jsfolderstr)');").
+                   end_form().
+                   qq|      </td>\n|.
+                   qq|      <td>\n|.
+                   start_form(-name=>"abookRenameForm$i",
+                              -action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl").
+                   ow::tool::hiddens(
+                                     action=>'addrbookrename',
+                                     sessionid=>$thissession,
+                                     abookfolder=>ow::htmltext::str2html($abook),
+                                     abookfoldernew=>'',
+                                    ).
+                   submit(-name=>$lang_text{'rename'}, -class=>"medtext",
+                          -onClick=>"return OpConfirm('renamebook', 'abookRenameForm$i', $lang_text{'folderrenprop'})").
+                   end_form().
+                   qq|      </td>\n|.
+                   qq|   </tr>\n|.
+                   qq|   </table>\n|.
+                   qq|</td>\n|.
+                   qq|</tr>\n|;
 
-########## IMPORT/EXPORTABOOK ####################################
-sub importabook {
-   my ($name, $email, $note);
-   my (%addresses, %notes);
-   my $abookupload = param('abook') || '';
-   my $abooktowrite='';
-   my $mua = param('mua') || '';
-
-   my $addrbookfile=dotpath('address.book');
-
-   if ($abookupload) {
-      my $abookcontents = '';
-      while (<$abookupload>) {
-         $abookcontents .= $_;
-      }
-      close($abookupload);
-#      if ($mua eq 'outlookexp5') {
-#         unless ($abookcontents =~ /^Name,E-mail Address/) {
-#            openwebmailerror(__FILE__, __LINE__, qq|$lang_err{'abook_invalid'} <a href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=importabook&amp;sessionid=$thissession&amp;sort=$sort&amp;folder=$escapedfolder&amp;page=$page&amp;message_id=$escapedmessageid">$lang_err{'back'}</a> $lang_err{'tryagain'}|);
-#         }
-#      }
-
-      if (! -f $addrbookfile) {
-         open (ABOOK, ">>$addrbookfile"); # Create if nonexistent
-         close(ABOOK);
-      }
-      ow::filelock::lock($addrbookfile, LOCK_EX) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $addrbookfile!");
-
-      my ($stat,$err,@namelist)=read_abook($addrbookfile,\%addresses,\%notes);
-      openwebmailerror(__FILE__, __LINE__, $err) if ($stat<0);
-
-      foreach my $line (split(/\r*\n/, $abookcontents)) {
- #        next if ( ($mua eq 'outlookexp5') && (/^Name,E-mail Address/) );
-         next if ( $line !~ /\@/ );
-         my @t = ow::tool::str2list($line,1);
-         if ( $mua eq 'outlookexp5' && $t[0] && $t[1] ) {
-            $name=shift(@t);
-            $name =~ s/</&lt;/g; $name =~ s/>/&gt;/g;
-            $email=shift(@t);
-            while ($t[0]=~/^[\w\d\.-_]+\@[\w\d-_]+(\.[\w\d-_]+)+$/) {
-               $email.=",".shift(@t);	# for owm group addr import
-            }
-            $email =~ s/</&lt;/g; $email =~ s/>/&gt;/g;
-            $note = join(",", @t);
-            $note =~ s/,\s*,//g; $note =~ s/^\s*,\s*//g; $note =~ s/\s*,\s*$//g;
-
-            $addresses{$name} = $email;
-            $notes{$name} = $note;
-
-         } elsif ( $mua eq 'nsmail' && $t[0] && $t[6] ) {
-            $name=$t[0];
-            $name =~ s/</&lt;/g; $name =~ s/>/&gt;/g;
-            $email=$t[6];
-            $email =~ s/</&lt;/g; $email =~ s/>/&gt;/g;
-            $note = join(",", @t[1..5,7..9]);
-            $note =~ s/,\s*,//g; $note =~ s/^\s*,\s*//g; $note =~ s/\s*,\s*$//g;
-
-            $addresses{$name} = $email;
-            $notes{$name} = $note;
-         }
-      }
-
-      ($stat,$err)=write_abook($addrbookfile,$config{'maxbooksize'},\%addresses,\%notes);
-      openwebmailerror(__FILE__, __LINE__, $err) if ($stat<0);
-
-      ow::filelock::lock($addrbookfile, LOCK_UN);
-
-      writelog("import addressbook");
-      writehistory("import addressbook");
-
-      editaddresses();
-
-   } else {
-
-      my $abooksize = ( -s $addrbookfile ) || 0;
-      my $freespace = int($config{'maxbooksize'} - ($abooksize/1024) + .5);
-
-      my ($html, $temphtml);
-      $html = applystyle(readtemplate("importabook.template"));
-
-      $html =~ s/\@\@\@FREESPACE\@\@\@/$freespace $lang_sizes{'kb'}/g;
-
-      $temphtml = start_multipart_form().
-                  ow::tool::hiddens(action=>'importabook',
-                                    sessionid=>$thissession,
-                                    sort=>$sort,
-                                    page=>$page,
-                                    folder=>$folder,
-                                    message_id=>$messageid);
-      $html =~ s/\@\@\@STARTIMPORTFORM\@\@\@/$temphtml/;
-
-
-      my %mualabels =(outlookexp5 => 'Outlook Express 5',
-                      nsmail      => 'Netscape Mail 4.x');
-      $temphtml = radio_group(-name=>'mua',
-                              -values=>['outlookexp5','nsmail'],
-                              -default=>'outlookexp5',
-                              -labels=>\%mualabels);
-      $html =~ s/\@\@\@MUARADIOGROUP\@\@\@/$temphtml/;
-
-      $temphtml = filefield(-name=>'abook',
-                            -default=>'',
-                            -size=>'30',
-                            -override=>'1');
-      $html =~ s/\@\@\@IMPORTFILEFIELD\@\@\@/$temphtml/;
-
-      $temphtml = submit("$lang_text{'import'}");
-      $html =~ s/\@\@\@IMPORTBUTTON\@\@\@/$temphtml/;
-
-      $temphtml = end_form();
-      $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/g;
-
-      $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl").
-                  ow::tool::hiddens(action=>'editaddresses',
-                                    sessionid=>$thissession,
-                                    sort=>$sort,
-                                    folder=>$folder,
-                                    page=>$page,
-                                    message_id=>$messageid);
-      $html =~ s/\@\@\@STARTCANCELFORM\@\@\@/$temphtml/;
-
-      $temphtml = submit("$lang_text{'cancel'}");
-      $html =~ s/\@\@\@CANCELBUTTON\@\@\@/$temphtml/;
-
-      httpprint([], [htmlheader(), $html, htmlfooter(2)]);
+      $colornum=($colornum+1)%2; # alternate the bgcolor
+      $i++;
    }
+   $html =~ s/\@\@\@FOLDERS\@\@\@/$temphtml/;
+
+   # the default abook folder data
+   $colornum = 1;
+   $temphtml = '';
+   foreach my $abook (qw(GLOBAL)) {
+      $temphtml .= qq|<tr>\n|.
+                   qq|<td width="10" bgcolor=$bgcolor[$colornum]>&nbsp;</td>|.
+                   qq|<td bgcolor=$bgcolor[$colornum]>|.
+                   iconlink("download.gif", $lang_text{'download'},
+                             qq|accesskey="W" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrbookdownload&amp;sessionid=$thissession&amp;abookfolder=$abook"|).
+                   qq|<a href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrlistview&amp;sessionid=$thissession&amp;abookfolder=|.ow::tool::escapeURL($abook).qq|">|.ow::htmltext::str2html($lang_abookselectionlabels{$abook}).qq|</a></td>\n|.
+                   qq|<td align="center" bgcolor=$bgcolor[$colornum]>$total{$abook}{'entries'}</td>\n|.
+                   qq|<td align="center" bgcolor=$bgcolor[$colornum]>|.lenstr($total{$abook}{'size'},0).qq|</td>\n|.
+                   qq|<td bgcolor=$bgcolor[$colornum] align="center">&nbsp;</td>\n|.
+                   qq|</tr>\n|;
+      $colornum=($colornum+1)%2; # alternate the bgcolor
+   }
+   $html =~ s/\@\@\@DEFAULTFOLDERS\@\@\@/$temphtml/;
+
+   # totals
+   my $totalsize = 0;
+   my $totalentries = 0;
+   for (keys %total) {
+      $totalsize += $total{$_}{'size'};
+      $totalentries += $total{$_}{'entries'};
+   }
+   $temphtml = qq|<tr>|.
+               qq|<td width="10" bgcolor=$bgcolor[$colornum]>&nbsp;</td>|.
+               qq|<td bgcolor=$bgcolor[$colornum]><b>$lang_text{'total'}</b></td>|.
+               qq|<td bgcolor=$bgcolor[$colornum] align="center"><b>$totalentries</b></td>|.
+               qq|<td bgcolor=$bgcolor[$colornum] align="center"><b>|.lenstr($totalsize,0).qq|</b></td>|.
+               qq|<td bgcolor=$bgcolor[$colornum] align="center">&nbsp;</td>\n|.
+               qq|</tr>\n|;
+   $html =~ s/\@\@\@TOTAL\@\@\@/$temphtml/;
+
+   httpprint([], [htmlheader(), $html, htmlfooter(2)]);
 }
+########## END ADDRBOOKEDIT ######################################
 
-sub exportabook {
-   my $addrbookfile=dotpath('address.book');
 
-   ow::filelock::lock($addrbookfile, LOCK_EX) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $addrbookfile!");
+########## ADDRBOOKRENAME ########################################
+sub addrbookrename {
+   my $newname = param('abookfoldernew') || '';
+   $newname = safefoldername($newname);
+   $newname = ow::tool::untaint($newname);
 
-   my %addresses=();
-   my %notes=();
-   my ($stat,$err,@namelist)=read_abook($addrbookfile, \%addresses, \%notes);
-   openwebmailerror(__FILE__, __LINE__, $err) if ($stat<0);
+   $abookfolder = safefoldername($abookfolder);
+   $abookfolder = ow::tool::untaint($abookfolder);
 
-   ow::filelock::lock($addrbookfile, LOCK_UN);
+   # prepare error messages in case we need them
+   $lang_err{'abook_already_exists'} =~ s/\@\@\@ADDRESSBOOK\@\@\@/$newname/;
+   $lang_err{'abook_name_too_long'} =~ s/\@\@\@ADDRESSBOOK\@\@\@/$newname/;
+   $lang_err{'abook_name_too_long'} =~ s/\@\@\@FOLDERNAME_MAX\@\@\@/$config{'foldername_maxlen'}/;
+
+   if ($newname eq '') {
+      addrbookedit();
+   } elsif (-e "$webaddrdir/$newname" || $newname =~ m/^(?:ALL|GLOBAL)$/) {
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_already_exists'}");
+   } else {
+      if (length($newname) > $config{'foldername_maxlen'}) {
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_name_too_long'}");
+      } else {
+         rename("$webaddrdir/$abookfolder","$webaddrdir/$newname") or
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_cant_rename'}! ($!)");
+         writelog("rename addressbook - $abookfolder to $newname");
+         writehistory("rename addressbook - $abookfolder to $newname");
+      }
+   }
+
+   addrbookedit();
+}
+########## END ADDRBOOKRENAME ####################################
+
+
+########## ADDRBOOKDOWNLOAD ######################################
+sub addrbookdownload {
+   $abookfolder = safefoldername($abookfolder);
+   $abookfolder = ow::tool::untaint($abookfolder);
+   my $folderfile="$webaddrdir/$abookfolder";
+
+   my ($cmd, $contenttype, $filename);
+   if ( ($cmd=ow::tool::findbin("zip")) ne "" ) {
+      $cmd.=" -qj - $folderfile |";
+      $contenttype='application/x-zip-compressed';
+      $filename="$abookfolder.vcf.zip";
+   } elsif ( ($cmd=ow::tool::findbin("gzip")) ne "" ) {
+      $cmd.=" -c $folderfile |";
+      $contenttype='application/x-gzip-compressed';
+      $filename="$abookfolder.vcf.gz";
+   } else {
+      $cmd="$folderfile";
+      $contenttype='application/x-vcard';
+      $filename="$abookfolder.vcf";
+   }
+
+   $filename=~s/\s+/_/g;
+
+   ow::filelock::lock($folderfile, LOCK_EX|LOCK_NB) or
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $folderfile");
 
    # disposition:attachment default to save
    print qq|Connection: close\n|,
-         qq|Content-Type: text/plain; name="adbook.csv"\n|;
-   if ( $ENV{'HTTP_USER_AGENT'}=~/MSIE 5.5/ ) {	# ie5.5 is broken with content-disposition: attachment
-      print qq|Content-Disposition: filename="adbook.csv"\n|;
+         qq|Content-Type: $contenttype; name="$filename"\n|;
+   if ( $ENV{'HTTP_USER_AGENT'}=~/MSIE 5.5/ ) { # ie5.5 is broken with content-disposition: attachment
+      print qq|Content-Disposition: filename="$filename"\n|;
    } else {
-      print qq|Content-Disposition: attachment; filename="adbook.csv"\n|;
+      print qq|Content-Disposition: attachment; filename="$filename"\n|;
    }
    print qq|\n|;
-   print qq|Name,E-mail Address,Note\n|;
-   foreach (@namelist) {
-      my @line = ($_, $addresses{$_}, $notes{$_}); 
-      map { $_ = qq|"$_"| if /,/; } @line; # quote str if contains comma
-      print join(",", @line)."\n"; 
-   }
 
-   writelog("export addressbook");
-   writehistory("export addressbook");
+   my $buff;
+   $cmd=ow::tool::untaint($cmd);
+   open (T, $cmd);
+   while ( read(T, $buff,32768) ) {
+     print $buff;
+   }
+   close(T);
+
+   ow::filelock::lock($folderfile, LOCK_UN);
+
+   writelog("download addressbook - $abookfolder");
+   writehistory("download addressbook - $abookfolder");
 
    return;
 }
+########## END ADDRBOOKDOWNLOAD ##################################
 
-########## END IMPORT/EXPORTABOOK ################################
 
-########## IMPORT/EXPORTABOOK PINE ###############################
-sub importabook_pine {
-   my $addrbookfile=dotpath('address.book');
-
-   if ( ! -f $addrbookfile ) {
-      open (ABOOK, ">>$addrbookfile"); # Create if nonexistent
-      close(ABOOK);
+########## ADDRLISTVIEW ##########################################
+# addrlistview can run in 3 modes, so know what mode you are
+# running in before you start hacking here. The 3 modes are
+# '','composeselect', and 'export'.
+sub addrlistview {
+   # show the book we left from
+   my $editformcaller = safefoldername(param('editformcaller'));
+   if ($editformcaller ne '') {
+      $abookfolder = $editformcaller;
+      $escapedabookfolder = ow::tool::escapeURL($abookfolder);
    }
 
-   if (open (PINEBOOK,"$homedir/.addressbook") ) {
-      my @lines=();
-      my ($name, $email, $note);
-      my (%addresses, %notes);
-      my $abooktowrite='';
-
-      ow::filelock::lock($addrbookfile, LOCK_EX) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $addrbookfile!");
-
-      my ($stat,$err,@namelist)=read_abook($addrbookfile, \%addresses, \%notes);
-      openwebmailerror(__FILE__, __LINE__, $err) if ($stat<0);
-
-      while (<PINEBOOK>) {
-         chomp;
-         if (/^ / && $#lines>=0) {
-            s/^ //;
-            $lines[$#lines].=$_;
-         } else {
-            push(@lines, $_);
+   # are we coming from the compose page?
+   my $listviewmode = param('listviewmode');
+   if ($listviewmode eq 'composeselect') {
+      # use only the name type and email type headers
+      # we don't want to see phone or note in this mode
+      my $emailexists = 0;
+      for (my $i=0; $i <= $#{$prefs{'abook_listviewfieldorder'}}; $i++) {
+         if (${$prefs{'abook_listviewfieldorder'}}[$i] eq 'email') {
+            $emailexists = 1;
+         }
+         if (${$prefs{'abook_listviewfieldorder'}}[$i] !~ m/^(fullname|prefix|first|middle|last|suffix|email)$/) {
+            splice(@{$prefs{'abook_listviewfieldorder'}},$i,1); # take this one out
+            $i--; # do this index over since the array got shorter
          }
       }
-      close (PINEBOOK);
-      foreach (@lines) {
-         my ($name, $email, $note) = (split(/\t/, $_,5))[1,2,4];
-         next if ($email=~/^\s*$/);  # skip if email is null
-         $name=decode_mimewords($name);
-         $addresses{"$name"} = decode_mimewords($email);
-         $notes{"$name"}=decode_mimewords($note);
+      if ($emailexists == 0) {
+         # email must be a header in the compose mode
+         push(@{$prefs{'abook_listviewfieldorder'}},'email');
       }
-
-      # replace the address book
-      ($stat,$err)=write_abook($addrbookfile,$config{'maxbooksize'},\%addresses,\%notes);
-      openwebmailerror(__FILE__, __LINE__, $err) if ($stat<0);
-
-      ow::filelock::lock($addrbookfile, LOCK_UN);
-
-      writelog("import pine addressbook - $homedir/.addressbook");
-      writehistory("import pine addressbook - $homedir/.addressbook");
    }
-   editaddresses();
-}
 
-sub exportabook_pine {
-   my $addrbookfile=dotpath('address.book');
-
-   if (-f $addrbookfile) {
-      ow::filelock::lock($addrbookfile, LOCK_SH|LOCK_NB) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $addrbookfile!");
-
-      my (%nicknames, %emails, %fccs, %notes);
-      my ($nickname, $name, $email, $fcc, $note);
-      my $abooktowrite='';
-
-      my ($stat,$err,@namelist)=read_abook($addrbookfile, \%emails, \%notes);
-      openwebmailerror(__FILE__, __LINE__, $err) if ($stat<0);
-
-      ow::filelock::lock($addrbookfile, LOCK_UN);
-
-      ow::filelock::lock("$homedir/.addressbook", LOCK_EX) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $homedir/.addressbook!");
-
-      if (open (PINEBOOK, "$homedir/.addressbook")) {
-         while (<PINEBOOK>) {
-            my ($nickname, $name, $email, $fcc, $note) = (split(/\t/, $_,5))[1,2,4];
-            foreach ($nickname, $name, $email, $fcc, $note) { chomp; }
-            next if ($email=~/^\s*$/);  # skip if email is null
-            $nicknames{$name}=$nickname;
-            $emails{$name} = $email;
-            $fccs{$name}=$fcc;
-            $notes{$name}=$note;
-         }
-         close(PINEBOOK);
+   # what do users want to see?
+   my @headings = @{$prefs{'abook_listviewfieldorder'}};
+   for(my $index=0; $index <= $#headings; $index++) {
+      if ($headings[$index] =~ m/^none$/i) {
+         splice(@headings,$index,1); # take out the nones
+         $index--;                   # do this index over since the array got shorter
       }
-
-      open (PINEBOOK,">$homedir/.addressbook") or
-         openwebmailerror(__FILE__, __LINE__, "couldnt_open $homedir/.address.book! ($!)");
-
-      foreach (sort keys %emails) {
-         $abooktowrite .= join("\t", $nicknames{$_}, $_,
-                                     $emails{$_}, $fccs{$_}, $notes{$_})."\n";
-      }
-      print PINEBOOK $abooktowrite;
-      close (PINEBOOK);
-      ow::filelock::lock("$homedir/.addressbook", LOCK_UN);
-
-      writelog("export addressbook to pine, $homedir/.addressbook");
-      writehistory("export addressbook to pine, $homedir/.addressbook");
    }
-   editaddresses();
-}
-########## END IMPORT/EXPORTABOOK PINE ###########################
 
-########## EDITADDRESSES #########################################
-sub editaddresses {
-   my %addresses=();
-   my %notes=();
-   my %globaladdresses=();
-   my %globalnotes=();
-   my @globalnamelist=();
-   my ($name, $email, $note);
-   my $abook_keyword = param('abook_keyword') || '';
-   my $abook_searchtype = param('abook_searchtype') || 'name';
-   my ($stat,$err)=(0);
-
+   # prep for html
    my ($html, $temphtml);
-   $html = applystyle(readtemplate("editaddresses.template"));
 
-   my $addrbookfile=dotpath('address.book');
+   # store the column position of each heading
+   my %headingpos = ();
+   for (0..$#headings) { $headingpos{$headings[$_]} = $_+1 }; # The +1 is for the num column
 
-   if ( -f $addrbookfile ) {
-      ($stat,$err,@globalnamelist)=read_abook($addrbookfile, \%addresses, \%notes);
-      openwebmailerror(__FILE__, __LINE__, $err) if ($stat<0);
+   # load up the list of available books
+   my @alladdressbooks = getaddrbooks_readable($webaddrdir);
+
+   # calculate the available free space
+   my $availfreespace = '';
+   for (@alladdressbooks) { 
+      next if ($_ eq 'GLOBAL');
+      $availfreespace += (-s "$webaddrdir/$_") || 0;
    }
-   my $abooksize = ( -s $addrbookfile ) || 0;
-   my $freespace = int($config{'maxbooksize'} - ($abooksize/1024) + .5);
+   $availfreespace = int($config{'abook_maxsizeallbooks'} - ($availfreespace/1024) + .5);
 
-   if ( $config{'global_addressbook'} ne "" && -f "$config{'global_addressbook'}" ) {
-      ($stat,$err,@globalnamelist)=read_abook($config{'global_addressbook'}, \%globaladdresses, \%globalnotes);
-      openwebmailerror(__FILE__, __LINE__, $err) if ($stat<0);
+
+   # load the addresses - only the required information
+   my %addresses=();
+   my %searchterms = ();
+
+   my %vcardmapping = (
+                       'fullname' => 'FN',
+                       'prefix'   => 'N',
+                       'first'    => 'N',
+                       'middle'   => 'N',
+                       'last'     => 'N',
+                       'suffix'   => 'N',
+                       'email'    => 'EMAIL',
+                       'phone'    => 'TEL',
+                       'note'     => 'NOTE',
+                       'categories' => 'CATEGORIES',
+                      );
+
+   my %only_return = (                     # Always load these ones because:
+                       'CATEGORIES' => 1,  # Categories is always a searchable parameter
+                       'SORT-STRING' => 1, # We need to be able to do sort overrides
+                       'X-OWM-GROUP' => 1, # There is special handling for group entries, so we must always know
+                     );
+   $only_return{$vcardmapping{$_}}=1 for (@headings); # populate %only_return with what else we want
+
+   my %Nmap = (
+               'prefix' => 'NAMEPREFIX',
+               'first'  => 'GIVENNAME',
+               'middle' => 'ADDITIONALNAMES',
+               'last'   => 'FAMILYNAME',
+               'suffix' => 'NAMESUFFIX',
+              );
+
+   # setup the search terms
+   if ($abooksearchtype ne '' && defined($abookkeyword) && $abookkeyword ne '' && $abookkeyword !~ m/^\s+$/) {
+      if ($vcardmapping{$abooksearchtype} eq 'N') {
+         $searchterms{$vcardmapping{$abooksearchtype}}[0]{VALUE}{$Nmap{$abooksearchtype}} = $abookkeyword;
+      } elsif ($vcardmapping{$abooksearchtype} eq 'CATEGORIES') {
+         $searchterms{$vcardmapping{$abooksearchtype}}[0]{VALUE}{CATEGORIES}[0] = $abookkeyword;
+      } else {
+         $searchterms{$vcardmapping{$abooksearchtype}}[0]{VALUE} = $abookkeyword;
+      }
    }
 
-   $html =~ s/\@\@\@FREESPACE\@\@\@/$freespace $lang_sizes{'kb'}/g;
+   my @viewbooks=();
+   foreach (@alladdressbooks) {
+      if ($abookfolder eq $_) {		#  current book is one of the readable books
+         push(@viewbooks, $_); last;
+      }
+   }
+   @viewbooks=@alladdressbooks if ($#viewbooks<0);
+   foreach my $addressbook (@viewbooks) {
+      my $bookfile="$webaddrdir/$addressbook"; 
+      $bookfile=$config{'global_addressbook'} if ($addressbook eq 'GLOBAL');
 
-   if ( param('message_id') ) {
-      $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} ".($lang_folders{$folder}||$folder),
-                           qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&amp;sessionid=$thissession&amp;sort=$sort&amp;page=$page&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid"|);
+      my $thisbook = readadrbook($bookfile, (keys %searchterms?\%searchterms:undef), \%only_return);
+      # remember what book this address came from
+      foreach my $xowmuid (keys %{$thisbook}) {
+         ${$thisbook}{$xowmuid}{'X-OWM-BOOK'}[0]{VALUE} = $addressbook;
+         # add it to addresses
+         $addresses{$xowmuid} = ${$thisbook}{$xowmuid};
+      }
+   }
+
+
+   # sort the addresses
+   my %TELsort = (
+                  'PREF'  => '0',
+                  'HOME'  => '1',
+                  'WORK'  => '2',
+                  'CELL'  => '3',
+                  'CAR'   => '4',
+                  'FAX'   => '5',
+                  'PAGER' => '6',
+                  'VOICE' => '7',
+                  'VIDEO' => '8',
+                  'MSG'   => '9',
+                  'BBS'   => '10',
+                  'ISDN'  => '11',
+                  'MODEM' => '12',
+                 );
+
+   foreach my $xowmuid (keys %addresses) {
+      # first sub-sort the EMAIL and TEL fields if they exist in each record
+      # so that the main sort uses the correct 'top' email or tel value
+      if (exists($addresses{$xowmuid}{TEL})) {
+         # sort the numbers by the TELsort custom sorting hash
+         @{$addresses{$xowmuid}{TEL}} = sort { # figure out the highest priority number
+                                               my $aPri = 13; # assign lowest priority by default
+                                               my $bPri = 13; # assign lowest priority by default
+                                               for (keys %TELsort) {
+                                                  if (exists($a->{TYPES})) {
+                                                     if (exists($a->{TYPES}{$_})) {
+                                                        $aPri = $TELsort{$_} if $TELsort{$_} < $aPri;
+                                                     }
+                                                  }
+                                                  if (exists($b->{TYPES})) {
+                                                     if (exists($b->{TYPES}{$_})) {
+                                                        $bPri = $TELsort{$_} if $TELsort{$_} < $bPri;
+                                                     }
+                                                  }
+                                               }
+
+                                               # Now compare based on priority then value
+                                               ($aPri == $bPri ? $a->{VALUE} cmp $b->{VALUE} : $aPri <=> $bPri);
+                                             } @{$addresses{$xowmuid}{TEL}};
+      }
+      if (exists($addresses{$xowmuid}{EMAIL})) {
+         # sort the emails alphabetically - pop the prefs (exists=0) to the top - Schwartzian transform
+         @{$addresses{$xowmuid}{EMAIL}} = map { $_->[2] }
+                                          sort { $a->[0] <=> $b->[0] || $a->[1] cmp $b->[1] }
+                                          map { [ exists($_->{TYPES})?(exists($_->{TYPES}{PREF})?0:1):1, lc($_->{VALUE}), $_] }
+                                          @{$addresses{$xowmuid}{EMAIL}};
+      }
+      if (exists($addresses{$xowmuid}{NOTE})) {
+         # sort the notes alphabetically
+         @{$addresses{$xowmuid}{NOTE}} = sort { $a->{VALUE} cmp $b->{VALUE} } @{$addresses{$xowmuid}{NOTE}};
+      }
+   }
+
+   my $abooksort_short = $abooksort;
+   $abooksort_short =~ s/_rev$//;
+   $abooksort = $abooksort_short = $headings[0] if (!exists $headingpos{$abooksort_short});
+
+   my @sorted_addresses = ();
+   if ($abooksort =~ m/^(?:fullname|email|phone|note)$/) {
+      @sorted_addresses = sort { (exists($addresses{$a}{$vcardmapping{$abooksort_short}})?lc($addresses{$a}{$vcardmapping{$abooksort_short}}[0]{VALUE}):undef) cmp
+                                 (exists($addresses{$b}{$vcardmapping{$abooksort_short}})?lc($addresses{$b}{$vcardmapping{$abooksort_short}}[0]{VALUE}):undef)
+                               } keys %addresses;
+
+   } elsif ($abooksort =~ m/^(?:fullname_rev|email_rev|phone_rev|note_rev)$/) {
+      @sorted_addresses = sort { (exists($addresses{$b}{$vcardmapping{$abooksort_short}})?lc($addresses{$b}{$vcardmapping{$abooksort_short}}[0]{VALUE}):undef) cmp
+                                 (exists($addresses{$a}{$vcardmapping{$abooksort_short}})?lc($addresses{$a}{$vcardmapping{$abooksort_short}}[0]{VALUE}):undef)
+                               } keys %addresses;
+   } elsif ($abooksort =~ m/_rev$/) {
+      @sorted_addresses = sort { (exists($addresses{$b}{N})?
+                                   (exists($addresses{$b}{N}[0]{VALUE}{$Nmap{$abooksort_short}})?
+                                     ($abooksort_short eq 'last' && exists($addresses{$b}{'SORT-STRING'}))?
+                                     lc($addresses{$b}{'SORT-STRING'}[0]{VALUE}):lc($addresses{$b}{N}[0]{VALUE}{$Nmap{$abooksort_short}})
+                                     :undef)
+                                 :undef)
+                                 cmp
+                                 (exists($addresses{$a}{N})?
+                                   (exists($addresses{$a}{N}[0]{VALUE}{$Nmap{$abooksort_short}})?
+                                     ($abooksort_short eq 'last' && exists($addresses{$a}{'SORT-STRING'}))?
+                                     lc($addresses{$a}{'SORT-STRING'}[0]{VALUE}):lc($addresses{$a}{N}[0]{VALUE}{$Nmap{$abooksort_short}})
+                                     :undef)
+                                 :undef)
+                               } keys %addresses;
    } else {
-      $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} ".($lang_folders{$folder}||$folder),
-                           qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;sessionid=$thissession&amp;sort=$sort&amp;page=$page&amp;folder=$escapedfolder"|);
+      @sorted_addresses = sort { (exists($addresses{$a}{N})?
+                                   (exists($addresses{$a}{N}[0]{VALUE}{$Nmap{$abooksort_short}})?
+                                     ($abooksort_short eq 'last' && exists($addresses{$a}{'SORT-STRING'}))?
+                                     lc($addresses{$a}{'SORT-STRING'}[0]{VALUE}):lc($addresses{$a}{N}[0]{VALUE}{$Nmap{$abooksort_short}})
+                                     :undef)
+                                 :undef)
+                                 cmp
+                                 (exists($addresses{$b}{N})?
+                                   (exists($addresses{$b}{N}[0]{VALUE}{$Nmap{$abooksort_short}})?
+                                     ($abooksort_short eq 'last' && exists($addresses{$b}{'SORT-STRING'}))?
+                                     lc($addresses{$b}{'SORT-STRING'}[0]{VALUE}):lc($addresses{$b}{N}[0]{VALUE}{$Nmap{$abooksort_short}})
+                                     :undef)
+                                 :undef)
+                               } keys %addresses;
    }
 
-   $temphtml .= "&nbsp;\n";
 
-   $temphtml .= iconlink("import.gif", $lang_text{'importadd'}, qq|accesskey="I" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=importabook&amp;sessionid=$thissession&amp;sort=$sort&amp;page=$page&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid"|);
-   if ( -f "$homedir/.addressbook" ) {
-      $temphtml .= iconlink("import.gif", "$lang_text{'importadd'} (Pine)", qq|href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=importabook_pine&amp;sessionid=$thissession&amp;sort=$sort&amp;page=$page&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid"|);
+   # calculate how many pages we have and which addresses are on this page
+   my $addrperpage=$prefs{'abook_addrperpage'}||10;
+   $addrperpage = 5 if ($listviewmode eq 'export');
+   $addrperpage=1000 if ($abooklongpage);
+
+   my $totaladdrs=keys %addresses;
+   my $totalpage=int($totaladdrs/$addrperpage+0.999999); $totalpage=1 if ($totalpage==0);
+   $abookpage = 1 if ($abookpage < 1); $abookpage = $totalpage if ($abookpage>$totalpage);
+
+   my $firstaddr = ($abookpage-1)*$addrperpage + 1;
+   my $lastaddr = $firstaddr + $addrperpage - 1;
+   $lastaddr = $totaladdrs if ($lastaddr>$totaladdrs);
+
+   $firstaddr--; $lastaddr--; # to make it pull the correct entry from the sortedaddresses array
+
+   # remember all of the email addresses user checked with %waschecked hash
+   my %waschecked = ();
+   for (ow::tool::str2list(join(",",param('to'))), ow::tool::str2list(param('checkedto')) ) { $waschecked{TO}{$_} = 1 if ($_ ne '') };
+   for (ow::tool::str2list(join(",",param('cc'))), ow::tool::str2list(param('checkedcc')) ) { $waschecked{CC}{$_} = 1 if ($_ ne '') };
+   for (ow::tool::str2list(join(",",param('bcc'))), ow::tool::str2list(param('checkedbcc')) ) { $waschecked{BCC}{$_} = 1 if ($_ ne '') };
+
+   # addresses arrive from editgroupform as '\n' delimited.
+   # separate them into each individual addresses and put them
+   # in %waschecked.
+   foreach my $key (qw(TO CC BCC)) {
+      foreach my $email (keys %{$waschecked{$key}}) {
+         delete $waschecked{$key}{$email};
+         foreach my $line (split(/\n/,$email)) {
+            $line =~ s/^\s+//; $line =~ s/\s+$//;
+            $waschecked{$key}{$line} = 1 if ($line ne '');
+         }
+      }
    }
-   $temphtml .= iconlink("export.gif", $lang_text{'exportadd'}, qq|accesskey="E" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=exportabook&amp;sessionid=$thissession&amp;sort=$sort&amp;page=$page&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid"|).
-                iconlink("export.gif", "$lang_text{'exportadd'} (Pine)", qq|href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=exportabook_pine&amp;sessionid=$thissession&amp;sort=$sort&amp;page=$page&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid"|).
-                iconlink("clearaddress.gif", $lang_text{'clearadd'}, qq|accesskey="Z" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=clearaddress&amp;sessionid=$thissession&amp;sort=$sort&amp;page=$page&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid" onclick="return confirm('$lang_text{'clearadd'}?')"|). qq| &nbsp; \n|;
-   if ($abook_keyword ne ''){
-      $temphtml .= iconlink("refresh.gif", $lang_text{'refresh'}, qq|accesskey="R" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=editaddresses&amp;sessionid=$thissession&amp;sort=$sort&amp;page=$page&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;abook_keyword="|);
+
+   # move the ones that appear on the current page being viewed from %waschecked to %ischecked
+   my %ischecked = ();
+   foreach my $addrindex ($firstaddr..$lastaddr) {
+      my $xowmuid = $sorted_addresses[$addrindex];
+
+      # when we are in normal listview mode we add the xowmuid
+      # to the check fields so that move/copy/delete applies to
+      # the correct contact.
+      my $xowmuidtrack = ($listviewmode?'':"%@#$xowmuid");
+
+      # all group cards should have an all members entry
+      if (exists($addresses{$xowmuid}{'X-OWM-GROUP'})) {
+         unshift(@{$addresses{$xowmuid}{'EMAIL'}}, {'VALUE'=>$lang_text{'abook_group_allmembers'}, 'TYPES'=>{ 'PREF' => 'TYPE' }});
+      }
+
+      # how many rows for this $xowmuid
+      my $rows = (# build a list of how many entries this xowmuid has for each heading, sort largest to the top
+                  sort { $b <=> $a }
+                   map { exists($addresses{$xowmuid}{$vcardmapping{$_}})?$#{$addresses{$xowmuid}{$vcardmapping{$_}}}:0 }
+                  grep { !m/^(to|cc|bcc)$/ } @headings
+                 )[0]; # but only return the largest one
+
+      if ($rows >= 0) {
+         for(my $index=0; $index <= $rows; $index++) {
+            next if ($index > 0 && $abookcollapse == 1);
+            if (exists $addresses{$xowmuid}{EMAIL}) {
+               if (defined $addresses{$xowmuid}{EMAIL}[$index]) {
+                  my $email = '';
+                  if ($listviewmode eq 'export') {
+                     # keep track of xowmuids, not email addresses
+                     $email = $xowmuid;
+                  } else {
+                     if (exists($addresses{$xowmuid}{'X-OWM-GROUP'}) && $index == 0) {
+                        $email = join (", ", grep { !m/^$lang_text{'abook_group_allmembers'}$/ }
+                                              map { $_->{'VALUE'} }
+                                             sort { lc($a->{'VALUE'}) cmp lc($b->{'VALUE'}) } @{$addresses{$xowmuid}{EMAIL}}
+                                      );
+                     } else {
+                        if (!exists($addresses{$xowmuid}{'X-OWM-GROUP'}) && exists $addresses{$xowmuid}{FN}) {
+                           $email = "\"$addresses{$xowmuid}{FN}[0]{VALUE}\" <$addresses{$xowmuid}{EMAIL}[$index]{VALUE}>";
+                        } elsif (!exists($addresses{$xowmuid}{'X-OWM-GROUP'}) && exists $addresses{$xowmuid}{N}) {
+                           $email = join (" ", map { exists $addresses{$xowmuid}{N}[0]{VALUE}{$_}?
+                                                     defined $addresses{$xowmuid}{N}[0]{VALUE}{$_}?$addresses{$xowmuid}{N}[0]{VALUE}{$_}:''
+                                                     :''
+                                                   } qw(NAMEPREFIX GIVENNAME ADDITIONALNAMES FAMILYNAME NAMESUFFIX)
+                                         );
+                           $email =~ s/^\s+(\S)/$1/;
+                           $email =~ s/(\S)\s+$/$1/;
+                           $email = "\"$email\" <$addresses{$xowmuid}{EMAIL}[$index]{VALUE}>";
+                        } else {
+                           $email = "$addresses{$xowmuid}{EMAIL}[$index]{VALUE}";
+                        }
+                     }
+                  }
+                  foreach my $key (qw(TO CC BCC)) {
+                     if (exists $addresses{$xowmuid}{'X-OWM-GROUP'} && $abookcollapse == 1) {
+                        # move all or none to %ischecked
+                        my $allarechecked = 1;
+                        foreach my $member (ow::tool::str2list($email)) {
+                           $member .= $xowmuidtrack; # add the xowmuid to match the checked string
+                           $allarechecked = exists $waschecked{$key}{$member}?1:undef;
+                           last unless defined $allarechecked;
+                        }
+                        if ($allarechecked) {
+                           foreach my $member (ow::tool::str2list($email)) {
+                              $member .= $xowmuidtrack; # add the xowmuid to match the checked string
+                              delete $waschecked{$key}{$member};
+                              $ischecked{$key}{$member} = 1;
+                           }
+                        }
+                     } else {
+                        foreach my $member (ow::tool::str2list($email)) {
+                           $member .= $xowmuidtrack; # add the xowmuid to match the checked string
+                           if (exists $waschecked{$key}{$member}) {
+                              delete $waschecked{$key}{$member};
+                              $ischecked{$key}{$member} = 1;
+                           }
+                        }
+                     }
+                  }
+               }
+            } elsif ($listviewmode eq 'export') {
+               my $email = $xowmuid;
+               foreach my $key (qw(TO CC BCC)) {
+                  if (exists $addresses{$xowmuid}{'X-OWM-GROUP'} && $abookcollapse == 1) {
+                     # move all or none to %ischecked
+                     my $allarechecked = 1;
+                     foreach my $member (ow::tool::str2list($email)) {
+                        $allarechecked = exists $waschecked{$key}{$member}?1:undef;
+                        last unless defined $allarechecked;
+                     }
+                     if ($allarechecked) {
+                        foreach my $member (ow::tool::str2list($email)) {
+                           delete $waschecked{$key}{$member};
+                           $ischecked{$key}{$member} = 1;
+                        }
+                     }
+                  } else {
+                     foreach my $member (ow::tool::str2list($email)) {
+                        if (exists $waschecked{$key}{$member}) {
+                           delete $waschecked{$key}{$member};
+                           $ischecked{$key}{$member} = 1;
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
    }
 
-   $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
+   # remember what was checked so we can put these values into our form.
+   # if we are in an editgroupform scenario the remembered addresses will be
+   # '\n' delimited instead of ', ' delimited.
+   my $checkedto = join((param('editgroupform')?"\n":", "), sort { lc($a) cmp lc($b) } keys %{$waschecked{TO}});
+   my $checkedcc = join((param('editgroupform')?"\n":", "), sort { lc($a) cmp lc($b) } keys %{$waschecked{CC}});
+   my $checkedbcc = join((param('editgroupform')?"\n":", "), sort { lc($a) cmp lc($b) } keys %{$waschecked{BCC}});
+   my $escapedcheckedto = ow::tool::escapeURL($checkedto);
+   my $escapedcheckedcc = ow::tool::escapeURL($checkedcc);
+   my $escapedcheckedbcc =  ow::tool::escapeURL($checkedbcc);
 
-   $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl").
-               ow::tool::hiddens(action=>'editaddresses',
-                                 sessionid=>$thissession,
-                                 sort=>$sort,
-                                 page=>$page,
-                                 folder=>$folder,
-                                 message_id=>$messageid);
-   $html =~ s/\@\@\@STARTSEARCHFORM\@\@\@/$temphtml/g;
+   # check if quota is overlimit
+   my $limited=(($quotalimit>0 && $quotausage>$quotalimit));
 
-   my %searchtypelabels = ('name'=>$lang_text{'name'},
-                           'email'=>$lang_text{'email'},
-                           'note'=>$lang_text{'note'},
-                           'all'=>$lang_text{'all'});
-   $temphtml = popup_menu(-name=>'abook_searchtype',
-                           -default=>$abook_searchtype || 'name',
-                           -values=>['name', 'email', 'note', 'all'],
+   # setup the table specs and row color toggle
+   my $tabletotalspan = '';
+   if ($listviewmode eq 'export') {
+      $tabletotalspan = @headings + 2; # number,export
+   } else {
+      $tabletotalspan = @headings + 4; # number,to,cc,bcc
+   }
+   my @bgcolor = ($style{"tablerow_dark"}, $style{"tablerow_light"});
+   my $colornum = 1;
+
+   # Now we can start making the html
+   $html = applystyle(readtemplate("addrlistview.template"));
+   $html .= applystyle(readtemplate("displaynote.js")) if (exists $only_return{NOTE});
+
+   # apply the extra html to the template for this mode
+   if ($listviewmode eq 'export') {
+      applytemplatemode(\$html,"addrexportbook.template");
+   } elsif ($listviewmode eq 'composeselect') {
+      $html=~s/90%/95%/g;	# use more space in popup window, ticky... tung
+      applytemplatemode(\$html,"addrcomposeselect.template");
+   } else {
+      $html =~ s/\@\@\@BEFORELISTVIEWEXTRAHTML\@\@\@//;
+      $html =~ s/\@\@\@AFTERLISTVIEWEXTRAHTML\@\@\@//;
+      $html =~ s/\@\@\@EXTRAJAVASCRIPT\@\@\@//;
+   }
+
+   $html =~ s/\@\@\@TOTALSPAN\@\@\@/$tabletotalspan/g;
+
+   # the addressbook selection
+   $temphtml = startform(-name=>'abookFolderForm',
+                         -action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl");
+
+   $temphtml .= popup_menu(-name=>'abookfolder',
+                           -default=>$abookfolder,
+                           -values=>['ALL', @alladdressbooks],
+                           -override=>1,
+                           -onChange=>"javascript:document.forms['contactsForm'].elements['abookfolder'].value=document.forms['abookFolderForm'].elements['abookfolder'].options[document.forms['abookFolderForm'].elements['abookfolder'].selectedIndex].value; document.contactsForm.submit();",
+                           -labels=>\%lang_abookselectionlabels);
+
+   $temphtml .= end_form();
+   if ($listviewmode eq '') {
+      $html =~ s/\@\@\@ABOOKSELECTIONFORM\@\@\@/$temphtml/g;
+   } elsif ($listviewmode eq 'export') {
+      $html =~ s#\@\@\@ABOOKSELECTIONFORM\@\@\@#<font color=$style{'titlebar_text'} face=$style{'fontface'} size="3"><b>$lang_text{'abook_export'}</b></font>#g;
+   } elsif ($listviewmode eq 'composeselect') {
+#      $html =~ s#\@\@\@ABOOKSELECTIONFORM\@\@\@#<font color=$style{'titlebar_text'} face=$style{'fontface'} size="3"><b>$lang_text{'abook_listview_composemode'}</b></font>#g;
+      $html =~ s/\@\@\@ABOOKSELECTIONFORM\@\@\@/$temphtml/g;	# menu could be helpful in composeselect mode, tung
+   }
+
+   $html =~ s/\@\@\@FREESPACE\@\@\@/$availfreespace $lang_sizes{'kb'}/g;
+
+
+   # left side navigation buttons
+   $temphtml = '';
+   if ($listviewmode eq '') {
+      if ( ($abookfolder !~ m/^ALL|GLOBAL$/ && -w "$webaddrdir/$abookfolder") || 
+           ($abookfolder eq 'GLOBAL' && $config{'abook_globaleditable'} && -w $config{'global_addressbook'})) {
+         $temphtml .= iconlink("abooknewcontact.gif", $lang_text{'abook_newcontact'},
+                               qq|accesskey="O" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addreditform&amp;$urlparm"|);
+         $temphtml .= iconlink("abooknewgroup.gif", $lang_text{'abook_newgroup'},
+                               qq|accesskey="O" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addreditform&amp;editgroupform=1&amp;$urlparm"|);
+      }
+      $temphtml .= iconlink("abooks.gif", $lang_text{'abooks'},
+                            qq|accesskey="O" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrbookedit&amp;$urlparm"|);
+      $temphtml .= iconlink("abookimport.gif", $lang_text{'abook_import'}, qq|accesskey="I" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrimportform&amp;$urlparm"|);
+      $temphtml .= iconlink("abookexport.gif", $lang_text{'abook_export'}, qq|accesskey="E" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrlistview&amp;sessionid=$thissession&amp;listviewmode=export"|);
+      if ($abookkeyword ne ''){
+         $temphtml .= "&nbsp;\n";
+         $temphtml .= iconlink("refresh.gif", $lang_text{'refresh'},
+                                qq|accesskey="R" href="javascript:document.contactsForm.abookkeyword.value=''; document.contactsForm.submit();"|
+                              );
+      }
+
+      $temphtml .= "&nbsp;\n";
+      if ($config{'enable_webmail'}) {
+         if ($messageid eq "") {
+            $temphtml .= iconlink("owm.gif", "$lang_text{'backto'} ".($lang_folders{$folder}||$folder),
+                                  qq|accesskey="M" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;sessionid=$thissession&amp;folder=$escapedfolder"|);
+         } else {
+            $temphtml .= iconlink("owm.gif", "$lang_text{'backto'} ".($lang_folders{$folder}||$folder),
+                                  qq|accesskey="M" href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid"|);
+         }
+      }
+      if ($config{'enable_calendar'}) {
+         $temphtml .= iconlink("calendar.gif", $lang_text{'calendar'},
+                               qq|accesskey="K" href="$config{'ow_cgiurl'}/openwebmail-cal.pl?action=$prefs{'calendar_defaultview'}&amp;$urlparm"|);
+      }
+      if ($config{'enable_webdisk'}) {
+         $temphtml .= iconlink("webdisk.gif", $lang_text{'webdisk'},
+                               qq|accesskey="E" href="$config{'ow_cgiurl'}/openwebmail-webdisk.pl?action=showdir&amp;$urlparm"|);
+      }
+      if ( $config{'enable_sshterm'}) {
+         if ( -r "$config{'ow_htmldir'}/applet/mindterm2/mindterm.jar" ) {
+            $temphtml .= iconlink("sshterm.gif" ,"$lang_text{'sshterm'} ",
+                                  qq|accesskey="T" href="#" onClick="window.open('$config{ow_htmlurl}/applet/mindterm2/ssh2.html', '_applet', 'width=400,height=100,top=2000,left=2000,resizable=no,menubar=no,scrollbars=no');"|);
+         } elsif ( -r "$config{'ow_htmldir'}/applet/mindterm/mindtermfull.jar" ) {
+            $temphtml .= iconlink("sshterm.gif" ,"$lang_text{'sshterm'} ",
+                                  qq|accesskey="T" href="#" onClick="window.open('$config{ow_htmlurl}/applet/mindterm/ssh.html', '_applet', 'width=400,height=100,top=2000,left=2000,resizable=no,menubar=no,scrollbars=no');"|);
+         }
+      }
+      if ( $config{'enable_preference'}) {
+         $temphtml .= iconlink("prefs.gif", $lang_text{'userprefs'},
+                               qq|accesskey="O" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;$urlparm&amp;prefs_caller=addrlistview"|);
+      }
+      $temphtml .= iconlink("logout.gif", "$lang_text{'logout'} $prefs{'email'}",
+                            qq|accesskey="X" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=logout&amp;sessionid=$thissession"|);
+
+   } elsif ($listviewmode eq 'export') {
+      $temphtml .= iconlink("backtofolder.gif", ("$lang_text{'backto'} ".ow::htmltext::str2html($abookfolder)),
+                               qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrlistview&amp;$urlparm"|);
+      $temphtml .= "&nbsp;\n";
+      $temphtml .= iconlink("abooks.gif", $lang_text{'abooks'},
+                            qq|accesskey="O" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrbookedit&amp;$urlparm"|);
+   }
+   # in any defined listviewmode the temphtml here will be the addressbook dropdown form
+   $html =~ s/\@\@\@MENUBARLINKSLEFT\@\@\@/$temphtml/g;
+
+
+   # right side navigation and action buttons
+   $temphtml='';
+   if ($listviewmode eq '') {
+      if (!$limited) {
+         $temphtml .= iconlink("compose.gif", $lang_text{'composenew'},
+                               qq|accesskey="C" href="javascript:addToForm('composeForm','contactsForm','to','cc','bcc'); document.composeForm.submit();"|);
+         $temphtml .= "&nbsp;&nbsp;";
+         $temphtml .= iconlink("abookviewselected.gif", $lang_text{'abook_listview_viewselected'},
+                               qq|accesskey="Q" href="#" onClick="javascript:window.open('$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrshowchecked&amp;sessionid=$thissession&amp;listviewmode=grabopenerdata','_checkedlist','width=550,height=500,resizable=yes,scrollbars=yes');"|);
+         $temphtml .= iconlink("abookunselectall.gif", $lang_text{'abook_listview_unselectall'},
+                               qq|accesskey="P" href="javascript:clearAll('contactsForm','to','cc','bcc','checkedto','checkedcc','checkedbcc'); document.contactsForm.submit();"|);
+      }
+   } else {	# export or composeselect
+      $temphtml .= iconlink("abookviewselected.gif", $lang_text{'abook_listview_viewselected'},
+                           qq|accesskey="Q" href="#" onClick="javascript:window.open('$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrshowchecked&amp;sessionid=$thissession&amp;listviewmode=grabopenerdata&amp;aftergrabmode=$listviewmode','_checkedlist','width=550,height=500,resizable=yes,scrollbars=yes');"|);
+      $temphtml .= iconlink("abookunselectall.gif", $lang_text{'abook_listview_unselectall'},
+                            qq|accesskey="P" href="javascript:clearAll('contactsForm','to','cc','bcc','checkedto','checkedcc','checkedbcc'); document.contactsForm.submit();"|);
+   }
+   $html =~ s/\@\@\@MENUBARLINKSRIGHT\@\@\@/$temphtml/g;
+
+
+   # page selection arrows
+   if ($abookpage > 1) {
+      $temphtml = iconlink(($ow::lang::RTL{$prefs{'language'}}?"right.gif":"left.gif"), "&lt;",
+                           qq|accesskey="B" href="javascript:document.contactsForm.abookpage.value=|.($abookpage-1).qq|; document.contactsForm.submit();"|
+                          );
+   } else {
+      $temphtml = iconlink(($ow::lang::RTL{$prefs{'language'}}?"right-grey.gif":"left-grey.gif"), "-", "");
+   }
+   $temphtml.=qq|$abookpage/$totalpage|;
+   if ($abookpage < $totalpage) {
+      $temphtml .= iconlink(($ow::lang::RTL{$prefs{'language'}}?"left.gif":"right.gif"), "&gt;",
+                            qq|accesskey="F" href="javascript:document.contactsForm.abookpage.value=|.($abookpage+1).qq|; document.contactsForm.submit();"|
+                           );
+   } else {
+      $temphtml .= iconlink(($ow::lang::RTL{$prefs{'language'}}?"left-grey.gif":"right-grey.gif"), "-", "");
+   }
+   $html =~ s/\@\@\@PAGECONTROL\@\@\@/$temphtml/g;
+
+
+   # move/copy/delete menu
+   $temphtml = '';
+   my %movecopydeletelabels = %lang_abookselectionlabels;
+   $movecopydeletelabels{'DELETE'} = $lang_folders{'DELETE'};
+   if ($listviewmode eq '') {
+      $temphtml = start_form(-name=>"moveCopyForm",
+                             -action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl").
+                  ow::tool::hiddens(action=>'addrmovecopydelete',
+                                    # remembering which ones we're deleting
+                                    checkedto=>ow::htmltext::str2html($checkedto),
+                                    checkedcc=>ow::htmltext::str2html($checkedcc),
+                                    checkedbcc=>ow::htmltext::str2html($checkedbcc),
+                                    # javascript will populate these before submit
+                                    # from values in the contactsForm
+                                    to=>'',
+                                    cc=>'',
+                                    bcc=>'',
+                                    ).
+                  $formparm;
+
+      # addressbooks that are writable for user
+      my @destbooks = getaddrbooks_writable($webaddrdir);
+      $temphtml .=popup_menu(-name=>'destinationabook',
+                             -default=>$destbooks[0],
+                             -override=>1,
+                             -values=>[@destbooks, 'DELETE'],
+                             -labels=>\%movecopydeletelabels,
+                            ).
+                  submit(-name=>'addrmoveaddresses',
+                         -value=>$lang_text{'abook_listview_move'},
+                         -onClick=>"javascript:addToForm('moveCopyForm','contactsForm','to','cc','bcc'); document.moveCopyForm.submit();",
+                         -class=>"medtext").
+                  submit(-name=>'addrcopyaddresses',
+                         -value=>$lang_text{'abook_listview_copy'},
+                         -onClick=>"javascript:addToForm('moveCopyForm','contactsForm','to','cc','bcc'); document.moveCopyForm.submit();",
+                         -class=>"medtext").
+                  endform();
+      $html =~ s/\@\@\@MOVECOPYFORMWIDTH\@\@\@/width="33%"/g unless ($abookfolder eq 'GLOBAL' && !$config{'abook_globaleditable'});
+   }
+   $temphtml = '' if ($abookfolder eq 'GLOBAL' && !$config{'abook_globaleditable'});
+   $html =~ s/\@\@\@MOVECOPYFORM\@\@\@/$temphtml/g;
+   $html =~ s/\@\@\@MOVECOPYFORMWIDTH\@\@\@//g;
+
+
+   # search form
+   $temphtml = start_form(-name=>"searchForm",
+                          -action=>"javascript:document.forms['contactsForm'].elements['abooksearchtype'].value=document.forms['searchForm'].elements['abooksearchtype'].options[document.forms['searchForm'].elements['abooksearchtype'].selectedIndex].value; document.forms['contactsForm'].elements['abookkeyword'].value=document.forms['searchForm'].elements['abookkeyword'].value; document.contactsForm.submit();");
+
+   my %searchtypelabels = ();
+   for (@headings) { $searchtypelabels{$_} = $lang_text{"abook_listview_$_"} };
+   $searchtypelabels{'categories'} = $lang_text{"abook_listview_categories"};
+
+   $temphtml .= popup_menu(-name=>'abooksearchtype',
+                           -default=>$abooksearchtype || $headings[0],
+                           -values=>[@headings, 'categories'],
                            -labels=>\%searchtypelabels);
-   $temphtml .= textfield(-name=>'abook_keyword',
-                          -default=>$abook_keyword,
-                          -size=>'25',
+
+   $temphtml .= textfield(-name=>'abookkeyword',
+                          -default=>$abookkeyword,
+                          -size=>'15',
                           -accesskey=>'S',
                           -override=>'1');
    $temphtml .= "&nbsp;";
    $temphtml .= submit(-name=>$lang_text{'search'},
 	               -class=>'medtext');
-   $html =~ s/\@\@\@SEARCH\@\@\@/$temphtml/g;
+   $temphtml .= end_form();
+   $html =~ s/\@\@\@SEARCHBARFORM\@\@\@/$temphtml/g;
 
-   $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl",
-                         -name=>'newaddress').
-               ow::tool::hiddens(action=>'addaddress',
-                                 sessionid=>$thissession,
-                                 sort=>$sort,
-                                 page=>$page,
-                                 folder=>$folder,
-                                 message_id=>$messageid);
-   $html =~ s/\@\@\@STARTADDRESSFORM\@\@\@/$temphtml/;
 
-   $temphtml = textfield(-name=>'realname',
-                         -default=>'',
-                         -size=>'20',
-                         -accesskey=>'I',
-                         -override=>'1');
-   $html =~ s/\@\@\@REALNAMEFIELD\@\@\@/$temphtml/;
+   # the page selection dropdown
+   my @pagevalues;
+   for (my $p=1; $p<=$totalpage; $p++) {
+      my $pdiff=abs($p-$page);
+      if ( $pdiff<10 || $p==1 || $p==$totalpage || ($pdiff<100 && $p%10==0) || ($pdiff<1000 && $p%100==0) || $p%1000==0) {
+         push(@pagevalues, $p);
+      }
+   }
 
-   $temphtml = qq|<table cellspacing="0" cellpadding="0"><tr><td>|.
-               textfield(-name=>'email',
-                         -default=>'',
-                         -size=>'30',
-                         -override=>'1').
-               qq|</td><td>|.
-               iconlink("group.gif", $lang_text{'group'}, qq|accesskey="G" href="Javascript:GoAddressWindow('email')"|).
-               qq|</td></tr></table>|;
-   $html =~ s/\@\@\@EMAILFIELD\@\@\@/$temphtml/;
+   $temphtml = start_form(-name=>"abookPageForm",
+                          -action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl").
+               qq|$lang_text{'page'}&nbsp;|.
+               popup_menu(-name=>'abookpage',
+                          -values=>\@pagevalues,
+                          -default=>$abookpage,
+                          -onChange=>"javascript:document.forms['contactsForm'].elements['abookpage'].value=document.forms['abookPageForm'].elements['abookpage'].options[document.forms['abookPageForm'].elements['abookpage'].selectedIndex].value; document.forms['contactsForm'].submit();",
+                          -override=>'1');
+   if ($abooklongpage) {
+      my $str=$lang_text{'abook_listview_addrperpage'}; $str=~s/\@\@\@ADDRCOUNT\@\@\@/$prefs{'abook_addrperpage'}/;
+      $temphtml.=qq|<a href="javascript:document.forms['contactsForm'].elements['abooklongpage'].value=0; document.forms['contactsForm'].submit();" title="$str">&nbsp;-&nbsp;</a>|;
+   } else {
+      my $str=$lang_text{'abook_listview_addrperpage'}; $str=~s/\@\@\@ADDRCOUNT\@\@\@/1000/;
+      $temphtml.=qq|<a href="javascript:document.forms['contactsForm'].elements['abooklongpage'].value=1; document.forms['contactsForm'].submit();" title="$str">&nbsp;+&nbsp;</a>|;
+   }
+   $temphtml.= end_form();
+   $html =~ s/\@\@\@PAGESELECTIONFORM\@\@\@/$temphtml/g;
 
-   $temphtml = textfield(-name=>'note',
-                         -default=>'',
-                         -size=>'25',
-                         -override=>'1');
-   $html =~ s/\@\@\@NOTEFIELD\@\@\@/$temphtml/;
 
-   $temphtml = submit(-name=>$lang_text{'addmod'},
-                      -accesskey=>'A',
-                      -onClick=>'return addcheck();',
-                      -class=>"medtext");
-   $html =~ s/\@\@\@ADDBUTTON\@\@\@/$temphtml/;
+   # expand/collapse all
+   $temphtml = qq|&nbsp;|.
+               iconlink(($abookcollapse?"left.gif":"down.gif"), ($abookcollapse?$lang_text{'abook_listview_expandall'}:$lang_text{'abook_listview_collapseall'}),
+                        qq|accesskey="Z" href="javascript:document.contactsForm.abookcollapse.value=|.($abookcollapse?0:1).qq|; document.contactsForm.submit();"|
+                       ).
+               qq|&nbsp;|;
+   $html =~ s/\@\@\@EXPANDCOLLAPSE\@\@\@/$temphtml/g;
 
-   $temphtml = end_form();
-   $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/g;
+   $colornum=($colornum+1)%2; # alternate the bgcolor
 
+
+   # the quick-add toolbar
+   if ($listviewmode eq '') {
+      if ( ($abookfolder !~ m/^ALL|GLOBAL$/ && -w "$webaddrdir/$abookfolder") || 
+           ($abookfolder eq 'GLOBAL' && $config{'abook_globaleditable'} && -w $config{'global_addressbook'})) {
+         my %addaddressmap = (
+                              'first' => 'N.0.VALUE.GIVENNAME',
+                              'last' => 'N.0.VALUE.FAMILYNAME',
+                              'phone' => 'TEL.0.VALUE',
+                              'email' => 'EMAIL.0.VALUE',
+                             );
+
+         my %accesskeymap = (
+                             'fullname' => 'N',
+                             'first'    => 'F',
+                             'last'     => 'L',
+                             'middle'   => 'M',
+                             'suffix'   => 'U',
+                             'prefix'   => 'P',
+                             'email'    => 'E',
+                             'phone'    => 'T',
+                            );
+
+         $temphtml = qq|<tr><td colspan="$tabletotalspan">&nbsp;</td></tr>\n|.
+                     qq|<tr>\n|.
+                     qq|<td colspan="$tabletotalspan" bgcolor=$bgcolor[$colornum]>\n|.
+                     qq|<table cellpadding="0" cellspacing="4" border="0" align="center">\n|.
+                     startform(-name=>'quickAddForm',
+                               -action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl").
+                     ow::tool::hiddens(action=>'addredit',
+                                       sessionid=>$thissession,
+                                       abookfolder=>ow::htmltext::str2html($abookfolder),
+                                       abookcollapse=>$abookcollapse,
+                                       sort=>$sort,
+                                       page=>$page,
+                                       folder=>ow::htmltext::str2html($folder),
+                                       message_id=>$messageid).
+                     #qq|<tr><td class="smalltext">&nbsp;</td></tr>\n|.
+                     qq|<tr>\n|;
+
+         foreach my $field (qw(first last phone email)) {
+            $temphtml .= qq|<td align="left"><b>$lang_text{"abook_listview_$field"}</b></td>\n|;
+         }
+
+         $temphtml .= qq|<td rowspan="2" align="center" valign="center">&nbsp;&nbsp;|.
+                      submit(-name=>$lang_text{'abook_listview_quickadd'},
+                             -accesskey=>'A',
+                             -class=>"medtext").
+                      qq|&nbsp;&nbsp;</td>\n|.
+                      qq|</tr>\n|.
+                      qq|<tr>\n|;
+
+         foreach my $field (qw(first last phone email)) {
+            $temphtml .= qq|<td align="left">|.
+                         textfield(-name=>$addaddressmap{$field},
+                                   -default=>'',
+                                   -class=>'mono',
+                                   -size=>'20',
+                                   -accesskey=>$accesskeymap{$field},
+                                   -override=>'1').
+                         qq|&nbsp;&nbsp;</td>\n|;
+         }
+
+         $temphtml .= qq|</tr>\n|.
+                      end_form().
+                      qq|</table></td></tr>\n|.
+                      qq|<tr><td colspan="$tabletotalspan">&nbsp;</td></tr>\n|;
+      } else {
+         $temphtml = qq|<tr><td colspan="$tabletotalspan">&nbsp;</td></tr>\n|;
+      }
+   } else {
+      $temphtml = qq|<tr><td colspan="$tabletotalspan">&nbsp;</td></tr>\n|;
+   }
+   $html =~ s/\@\@\@QUICKADDFORM\@\@\@/$temphtml/g;
+
+
+   if ($listviewmode eq '') {
+      if (!$limited) {
+         $temphtml = startform(-name=>'composeForm',
+                               -action=>"$config{'ow_cgiurl'}/openwebmail-send.pl").
+                     ow::tool::hiddens(action=>'composemessage',
+                                       sessionid=>$thissession,
+                                       checkedto=>ow::htmltext::str2html($checkedto),
+                                       checkedcc=>ow::htmltext::str2html($checkedcc),
+                                       checkedbcc=>ow::htmltext::str2html($checkedbcc),
+                                       compose_caller=>'addrlistview',
+                                       listviewmode=>$listviewmode,
+                                       # javascript will populate these before submit
+                                       # from values in the contactsForm
+                                       to=>'',
+                                       cc=>'',
+                                       bcc=>'',
+                                      ).
+                     $abook_formparm_with_abookfolder.
+                     end_form();
+      }
+   } elsif ($listviewmode eq 'export') {
+      $temphtml = startform(-name=>'exportForm',
+                            -action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl").
+                  ow::tool::hiddens(action=>'addrexport',
+                                    sessionid=>$thissession,
+                                    checkedto=>ow::htmltext::str2html($checkedto),
+                                    checkedcc=>ow::htmltext::str2html($checkedcc),
+                                    checkedbcc=>ow::htmltext::str2html($checkedbcc),
+                                    exportformat=>'',
+                                    # javascript will populate these before submit
+                                    # from values in the contactsForm
+                                    to=>'',
+                                    cc=>'',
+                                    bcc=>'',
+                                   ).
+                  end_form();
+   } elsif ($listviewmode eq 'composeselect') {
+      $temphtml = startform(-name=>'composeselectForm',
+                            -action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl").
+                  ow::tool::hiddens(
+                                    checkedto=>$escapedcheckedto,
+                                    checkedcc=>$escapedcheckedcc,
+                                    checkedbcc=>$escapedcheckedbcc,
+                                   ).
+                  endform();
+   }
+
+   # start the overall contacts area form (to capture to,cc,bcc input checkboxes)
+   $temphtml .= startform(-name=>'contactsForm',
+                          -action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl").
+                ow::tool::hiddens(action=>'addrlistview',
+                                  checkedto=>ow::htmltext::str2html($checkedto),
+                                  checkedcc=>ow::htmltext::str2html($checkedcc),
+                                  checkedbcc=>ow::htmltext::str2html($checkedbcc),
+                                  listviewmode=>$listviewmode,
+                                  defined(param('editgroupform'))?('editgroupform'=>1):()
+                                 ).
+                $formparm;
+
+   # the column headings
+   if ($listviewmode eq 'export') {
+      push(@headings, 'to'); # only one checkbox for exporting
+   } else {
+      push(@headings, qw(to cc bcc));
+   }
+   $temphtml .= qq|<tr>\n|;
+   $temphtml .= qq|<td bgcolor=$bgcolor[$colornum]>&nbsp;</td>|; # the number cell
+   for (@headings) {
+      if (m/^(?:to|cc|bcc)$/) {
+         if ($listviewmode eq 'export') {
+            $temphtml .= qq|<td bgcolor=$bgcolor[$colornum] align="center"><a href="javascript:CheckAll(this,'contactsForm','|.$_.qq|');"><b>$lang_text{'export'}</b></a></td>\n|;
+         } else {
+            $temphtml .= qq|<td bgcolor=$bgcolor[$colornum] align="center"><a href="javascript:CheckAll(this,'contactsForm','|.$_.qq|');"><b>$lang_text{$_}</b></a></td>\n|;
+         }
+      } else {
+         if (m/$abooksort_short/) { # this heading is the sort column
+            if ($abooksort =~ m/_rev$/) {
+               $temphtml .= qq|<td bgcolor=$bgcolor[$colornum]><a href="javascript:document.contactsForm.abooksort.value='$_'; document.contactsForm.submit();"><b>$lang_text{"abook_listview_$_"}&nbsp;|.
+                            iconlink("down.gif", "v", "").
+                            qq|</b></a></td>\n|;
+            } else {
+               $temphtml .= qq|<td bgcolor=$bgcolor[$colornum]><a href="javascript:document.contactsForm.abooksort.value='$_\_rev'; document.contactsForm.submit();"><b>$lang_text{"abook_listview_$_"}&nbsp;|.
+                            iconlink("up.gif", "^", "").
+                            qq|</b></a></td>\n|;
+            }
+         } else {
+               $temphtml .= qq|<td bgcolor=$bgcolor[$colornum]><a href="javascript:document.contactsForm.abooksort.value='$_'; document.contactsForm.submit();"><b>$lang_text{"abook_listview_$_"}</b></a></td>\n|;
+         }
+      }
+   }
+
+   $temphtml .= qq|</tr>\n|;
+   $html =~ s/\@\@\@COLUMNHEADINGS\@\@\@/$temphtml/g;
+
+
+   $colornum=($colornum+1)%2; # alternate the bgcolor
+
+
+   # write out the html of the addresses
    $temphtml = '';
-   my $bgcolor = $style{"tablerow_dark"};
-   my $i=0;
-   foreach my $key (sort { lc($a) cmp lc($b) } keys %addresses) {
-      my ($namestr, $emailstr, $notestr)=($key, $addresses{$key}, $notes{$key});
-      next if (!is_entry_matched($abook_keyword,$abook_searchtype, $namestr,$notestr,$emailstr));
-      $namestr=substr($namestr, 0, 25)."..." if (length($namestr)>30);
-      $emailstr=substr($emailstr, 0, 35)."..." if (length($emailstr)>40);
+   foreach my $addrindex ($firstaddr..$lastaddr) {
+      my $xowmuid = $sorted_addresses[$addrindex];
 
-      my $accesskeystr=$i%10+1;
-      if ($accesskeystr == 10) {
-         $accesskeystr=qq|accesskey="0"|;
-      } elsif ($accesskeystr < 10) {
-         $accesskeystr=qq|accesskey="$accesskeystr"|;
+      my $escapedaddrbook = ow::tool::escapeURL($addresses{$xowmuid}{'X-OWM-BOOK'}[0]{VALUE});
+
+      my $editurl = qq|$config{'ow_cgiurl'}/openwebmail-abook.pl?action=|.
+                    (exists($addresses{$xowmuid}{'X-OWM-GROUP'})?'addreditform&amp;editgroupform=1':'addreditform').qq|&amp;|.
+                    qq|sessionid=$thissession&amp;|.
+                    qq|rootxowmuid=$xowmuid&amp;|.
+                    qq|abookfolder=$escapedaddrbook&amp;|.
+                    qq|editformcaller=$escapedabookfolder&amp;|.
+                    $webmail_urlparm.
+                    $abook_urlparm;
+      my $composeurl = qq|$config{'ow_cgiurl'}/openwebmail-send.pl?action=composemessage&amp;|.
+                       qq|composetype=sendto&amp;|.
+                       qq|compose_caller=addrlistview&amp;|.
+                       $urlparm;
+
+      my $hreftitle = $abookfolder eq 'ALL'?qq|title="$lang_text{'abook_title'}:|.ow::htmltext::str2html($addresses{$xowmuid}{'X-OWM-BOOK'}[0]{VALUE}).qq|"|:'';
+      $hreftitle = "title=\"$lang_abookselectionlabels{'GLOBAL'}\"" if $escapedaddrbook eq 'GLOBAL';
+
+
+      # how many rows for this $xowmuid
+      my $rows = (# build a list of how many entries this xowmuid has for each heading, sort largest to the top
+                  sort { $b <=> $a }
+                   map { exists($addresses{$xowmuid}{$vcardmapping{$_}})?$#{$addresses{$xowmuid}{$vcardmapping{$_}}}:0 }
+                  grep { !m/^(to|cc|bcc)$/ } @headings
+                 )[0]; # but only return the largest one
+
+      if ($rows >= 0) {
+         for(my $index=0; $index <= $rows; $index++) {
+            next if ($index > 0 && $abookcollapse == 1);
+
+            my @newrow = ();
+            $newrow[$tabletotalspan-1] = undef; # set the length of the newrow
+
+            # the number cell
+            if ($index == 0) {
+               $newrow[0] .= qq|<td bgcolor=$bgcolor[$colornum] align="left" nowrap><b>|.($addrindex+1);
+               if ($listviewmode eq '') {
+                  $newrow[0] .= qq|&nbsp;|;
+                  if ($addresses{$xowmuid}{'X-OWM-BOOK'}[0]{VALUE} eq 'GLOBAL') {
+                     $newrow[0] .= qq|&nbsp;<img src="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/abookglobalicon.gif" border="0" title="$lang_abookselectionlabels{'GLOBAL'}">|;
+                  }
+               }
+               $newrow[0] .= qq|&nbsp;&nbsp;&nbsp;</b></td>\n|;
+            }
+
+            # the name stuff
+            if (exists $addresses{$xowmuid}{N}) {
+               if (defined $addresses{$xowmuid}{N}[$index]) {
+                  foreach my $heading (grep(!m/^(to|cc|bcc)$/, @headings)) {
+                     if (exists $addresses{$xowmuid}{N}[$index]{VALUE}{$Nmap{$heading}}) {
+                        if ($listviewmode eq '') {
+                           if (($addresses{$xowmuid}{'X-OWM-BOOK'}[0]{VALUE} eq 'GLOBAL' && $config{'abook_globaleditable'}) ||
+                                $addresses{$xowmuid}{'X-OWM-BOOK'}[0]{VALUE} ne 'GLOBAL') {
+                              $newrow[$headingpos{$heading}] .= qq|<td bgcolor=$bgcolor[$colornum]><a href="$editurl" $hreftitle>|.ow::htmltext::str2html($addresses{$xowmuid}{N}[$index]{VALUE}{$Nmap{$heading}}).qq|</a></td>\n|;
+                           } else {
+                              $newrow[$headingpos{$heading}] .= qq|<td bgcolor=$bgcolor[$colornum]>|.ow::htmltext::str2html($addresses{$xowmuid}{N}[$index]{VALUE}{$Nmap{$heading}}).qq|</td>\n|;
+                           }
+                        } else {
+                           $newrow[$headingpos{$heading}] .= qq|<td bgcolor=$bgcolor[$colornum]>|.ow::htmltext::str2html($addresses{$xowmuid}{N}[$index]{VALUE}{$Nmap{$heading}}).qq|</td>\n|;
+                        }
+                     }
+                  }
+               }
+            }
+
+            # the fullname stuff
+            if (exists $addresses{$xowmuid}{FN}) {
+               if (defined $addresses{$xowmuid}{FN}[$index]) {
+                  if ($listviewmode eq '') {
+                     if (($addresses{$xowmuid}{'X-OWM-BOOK'}[0]{VALUE} eq 'GLOBAL' && $config{'abook_globaleditable'}) ||
+                          $addresses{$xowmuid}{'X-OWM-BOOK'}[0]{VALUE} ne 'GLOBAL') {
+                        $newrow[$headingpos{'fullname'}] .= qq|<td bgcolor=$bgcolor[$colornum]><a href="$editurl" $hreftitle>|.ow::htmltext::str2html($addresses{$xowmuid}{FN}[$index]{VALUE}).qq|</a></td>\n|;
+                     } else {
+                        $newrow[$headingpos{'fullname'}] .= qq|<td bgcolor=$bgcolor[$colornum]>|.ow::htmltext::str2html($addresses{$xowmuid}{FN}[$index]{VALUE}).qq|</td>\n|;
+                     }
+                  } else {
+                     $newrow[$headingpos{'fullname'}] .= qq|<td bgcolor=$bgcolor[$colornum]>|.ow::htmltext::str2html($addresses{$xowmuid}{FN}[$index]{VALUE}).qq|</td>\n|;
+                  }
+               }
+            }
+
+            # the email stuff
+            my ($allemails, $escapedallemails, $email, $escapedemail) = ();
+            my $disabled = 'disabled="1"';
+            if (exists $addresses{$xowmuid}{EMAIL}) {
+               if (defined $addresses{$xowmuid}{EMAIL}[$index]) {
+                  $disabled = '';
+                  if (exists($addresses{$xowmuid}{'X-OWM-GROUP'}) && $index == 0) {
+                     # if we're in editgroupform mode we want the addresses delimited by '\n',
+                     # instead of the normal ', '.
+                     $allemails = join ((param('editgroupform')?"\n":", "), grep { !m/^$lang_text{'abook_group_allmembers'}$/ }
+                                               map { $_->{'VALUE'} }
+                                              sort { lc($a->{'VALUE'}) cmp lc($b->{'VALUE'}) } @{$addresses{$xowmuid}{EMAIL}}
+                                       );
+
+                     $escapedallemails = ow::tool::escapeURL($allemails);
+                     if ($listviewmode eq '') {
+                        $newrow[$headingpos{'email'}] .= qq|<td bgcolor=$bgcolor[$colornum] nowrap>|.
+                                                         iconlink("group.gif", "$lang_text{'abook_group_allmembers'}", qq|accesskey="G" href="$composeurl&amp;to=$escapedallemails"|).
+                                                         qq|&nbsp;<a href="$composeurl&amp;to=$escapedallemails">|.ow::htmltext::str2html($addresses{$xowmuid}{EMAIL}[$index]{VALUE}).qq|</a>|.
+                                                         qq|</td>\n|;
+                     } else {
+                        $newrow[$headingpos{'email'}] .= qq|<td bgcolor=$bgcolor[$colornum] nowrap><img src="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/group.gif" border="0" align="absmiddle">&nbsp;|.ow::htmltext::str2html($addresses{$xowmuid}{EMAIL}[$index]{VALUE}).qq|</td>\n|;
+                     }
+                  } else {
+                     if (!exists($addresses{$xowmuid}{'X-OWM-GROUP'}) && exists $addresses{$xowmuid}{FN}) {
+                        $email = "\"$addresses{$xowmuid}{FN}[0]{VALUE}\" <$addresses{$xowmuid}{EMAIL}[$index]{VALUE}>";
+                     } elsif (!exists($addresses{$xowmuid}{'X-OWM-GROUP'}) && exists $addresses{$xowmuid}{N}) {
+                        $email = join (" ", map { exists $addresses{$xowmuid}{N}[0]{VALUE}{$_}?
+                                                  defined $addresses{$xowmuid}{N}[0]{VALUE}{$_}?$addresses{$xowmuid}{N}[0]{VALUE}{$_}:''
+                                                  :''
+                                                } qw(NAMEPREFIX GIVENNAME ADDITIONALNAMES FAMILYNAME NAMESUFFIX)
+                                      );
+                        $email =~ s/^\s+(\S)/$1/;
+                        $email =~ s/(\S)\s+$/$1/;
+                        $email = "\"$email\" <$addresses{$xowmuid}{EMAIL}[$index]{VALUE}>";
+                     } else {
+                        $email = "$addresses{$xowmuid}{EMAIL}[$index]{VALUE}";
+                     }
+
+                     $escapedemail = ow::tool::escapeURL($email);
+                     if ($listviewmode eq '') {
+                        $newrow[$headingpos{'email'}] .= qq|<td bgcolor=$bgcolor[$colornum] nowrap><a href="$composeurl&amp;to=$escapedemail" title="|.ow::htmltext::str2html($email).qq|">|.ow::htmltext::str2html($addresses{$xowmuid}{EMAIL}[$index]{VALUE}).qq|</a></td>\n|;
+                     } else {
+                        $newrow[$headingpos{'email'}] .= qq|<td bgcolor=$bgcolor[$colornum] nowrap>|.ow::htmltext::str2html($addresses{$xowmuid}{EMAIL}[$index]{VALUE}).qq|</td>\n|;
+                     }
+                  }
+               }
+            }
+
+            # the telephone stuff
+            if (exists $addresses{$xowmuid}{TEL}) {
+               if (defined $addresses{$xowmuid}{TEL}[$index]) {
+                  my $typestag = join(', ', map { defined($lang_text{"abook_listview_tel$_->[1]"})?$lang_text{"abook_listview_tel$_->[1]"}:undef }
+                                           sort { $a->[0] <=> $b->[0] }
+                                            map { [(defined($TELsort{$_})?$TELsort{$_}:100), lc($_)] }
+                                           grep { !m/VOICE/ } keys %{$addresses{$xowmuid}{TEL}[$index]{TYPES}}
+                                     );
+                  if ($listviewmode eq '') {
+                     if (($addresses{$xowmuid}{'X-OWM-BOOK'}[0]{VALUE} eq 'GLOBAL' && $config{'abook_globaleditable'}) ||
+                          $addresses{$xowmuid}{'X-OWM-BOOK'}[0]{VALUE} ne 'GLOBAL') {
+                        $newrow[$headingpos{'phone'}] .= qq|<td bgcolor=$bgcolor[$colornum] nowrap><a href="$editurl">|.ow::htmltext::str2html("$addresses{$xowmuid}{TEL}[$index]{VALUE} $typestag").qq|</a></td>\n|;
+                     } else {
+                        $newrow[$headingpos{'phone'}] .= qq|<td bgcolor=$bgcolor[$colornum] nowrap>|.ow::htmltext::str2html("$addresses{$xowmuid}{TEL}[$index]{VALUE} $typestag").qq|</td>\n|;
+                     }
+                  } else {
+                     $newrow[$headingpos{'phone'}] .= qq|<td bgcolor=$bgcolor[$colornum] nowrap>|.ow::htmltext::str2html("$addresses{$xowmuid}{TEL}[$index]{VALUE} $typestag").qq|</td>\n|;
+                  }
+               }
+            }
+
+            # the note stuff
+            if (exists $addresses{$xowmuid}{NOTE}) {
+               if (defined $addresses{$xowmuid}{NOTE}[$index]) {
+                  my $shortnote = $addresses{$xowmuid}{NOTE}[$index]{VALUE};
+                  $shortnote = substr($shortnote,0,20) . "...";
+                  $shortnote =~ s/</&lt;/g;
+                  $shortnote =~ s/>/&gt;/g;
+                  $shortnote =~ s/\n/ /g;
+                  my $displaynote = $addresses{$xowmuid}{NOTE}[$index]{VALUE};
+                  $displaynote =~ s/\n/<br>/g;
+                  $displaynote =~ s!(https?|ftp|mms|nntp|news|gopher|telnet)://([\w\d\-\.]+?/?[^\s\(\)\<\>\x80-\xFF]*[\w/])([\b|\n| ]*)!<a href="$1://$2" target="_blank"+>$1://$2</a>$3!gs;
+                  $displaynote =~ s!([\b|\n| ]+)(www\.[\w\d\-\.]+\.[\w\d\-]{2,4})([\b|\n| ]*)!$1<a href="http://$2" target="_blank">$2</a>$3!igs;
+                  $displaynote =~ s!([\b|\n| ]+)(ftp\.[\w\d\-\.]+\.[\w\d\-]{2,4})([\b|\n| ]*)!$1<a href="ftp://$2" target="_blank">$2</a>$3!igs;
+                  my $noteoffset = ($headingpos{'note'} > int(((@headings-3)/2)+1) ? -350 : 150);
+                  $newrow[$headingpos{'note'}] .= qq|<td bgcolor=$bgcolor[$colornum] nowrap><a href="javascript:{;}" onClick="displayNote(this,'notepopup',$noteoffset,-25,'|.
+                                                  ow::tool::escapeURL($displaynote).
+                                                  qq|');">|.ow::htmltext::str2html($shortnote).qq|</a></td>\n|;
+               }
+            }
+
+            # the to,cc,bcc,export
+            if ($listviewmode eq 'export') {
+               # keep track of xowmuids, not email addresses
+               $email = $allemails = $xowmuid;
+               $newrow[$tabletotalspan-1] = qq|<td bgcolor=$bgcolor[$colornum] align="center"><input type="checkbox" name="to" value="|.ow::htmltext::str2html($email).qq|" |.(exists $ischecked{TO}{$email}?'checked':'').qq|></td>\n|;
+            } else {
+               my $xowmuidtrack = ($listviewmode eq "composeselect"?'':"%@#$xowmuid"); # allows move/copy to work
+               if (exists $addresses{$xowmuid}{'X-OWM-GROUP'}) {
+                  my $escapedxowmgroup = ow::htmltext::str2html($addresses{$xowmuid}{'X-OWM-GROUP'}[0]{'VALUE'});
+                  if ($index == 0) { # the first line of a group
+                     if ($abookcollapse == 1) {
+                        $newrow[$tabletotalspan-3] = qq|<td bgcolor=$bgcolor[$colornum] align="center"><input type="checkbox" name="to" value="|.ow::htmltext::str2html("$allemails$xowmuidtrack").qq|" $disabled|.is_groupbox_checked('TO',\%ischecked,\$allemails,$xowmuidtrack).qq|></td>\n|;
+                        $newrow[$tabletotalspan-2] = qq|<td bgcolor=$bgcolor[$colornum] align="center"><input type="checkbox" name="cc" value="|.ow::htmltext::str2html("$allemails$xowmuidtrack").qq|" $disabled|.is_groupbox_checked('CC',\%ischecked,\$allemails,$xowmuidtrack).qq|></td>\n|;
+                        $newrow[$tabletotalspan-1] = qq|<td bgcolor=$bgcolor[$colornum] align="center"><input type="checkbox" name="bcc" value="|.ow::htmltext::str2html("$allemails$xowmuidtrack").qq|" $disabled|.is_groupbox_checked('BCC',\%ischecked,\$allemails,$xowmuidtrack).qq|></td>\n|;
+                     } else {
+                        $newrow[$tabletotalspan-3] = qq|<td bgcolor=$bgcolor[$colornum] align="center"><input type="checkbox" onClick=CheckAll(this,'contactsForm','to','$escapedxowmgroup'); name="to" value="" $disabled|.is_groupbox_checked('TO',\%ischecked,\$allemails,$xowmuidtrack).qq|></td>\n|;
+                        $newrow[$tabletotalspan-2] = qq|<td bgcolor=$bgcolor[$colornum] align="center"><input type="checkbox" onClick=CheckAll(this,'contactsForm','cc','$escapedxowmgroup'); name="cc" value="" $disabled|.is_groupbox_checked('CC',\%ischecked,\$allemails,$xowmuidtrack).qq|></td>\n|;
+                        $newrow[$tabletotalspan-1] = qq|<td bgcolor=$bgcolor[$colornum] align="center"><input type="checkbox" onClick=CheckAll(this,'contactsForm','bcc','$escapedxowmgroup'); name="bcc" value="" $disabled|.is_groupbox_checked('BCC',\%ischecked,\$allemails,$xowmuidtrack).qq|></td>\n|;
+                     }
+                  } elsif ($index > 0) { # not the first line of a group
+                     $newrow[$tabletotalspan-3] = qq|<td bgcolor=$bgcolor[$colornum] align="center"><input type="checkbox" name="to" value="|.ow::htmltext::str2html("$email$xowmuidtrack").qq|" $disabled|.(exists $ischecked{TO}{"$email$xowmuidtrack"}?'checked':'').qq|><input type="hidden" name="$escapedxowmgroup" value="1"></td>\n|;
+                     $newrow[$tabletotalspan-2] = qq|<td bgcolor=$bgcolor[$colornum] align="center"><input type="checkbox" name="cc" value="|.ow::htmltext::str2html("$email$xowmuidtrack").qq|" $disabled|.(exists $ischecked{CC}{"$email$xowmuidtrack"}?'checked':'').qq|><input type="hidden" name="$escapedxowmgroup" value="1"></td>\n|;
+                     $newrow[$tabletotalspan-1] = qq|<td bgcolor=$bgcolor[$colornum] align="center"><input type="checkbox" name="bcc" value="|.ow::htmltext::str2html("$email$xowmuidtrack").qq|" $disabled|.(exists $ischecked{BCC}{"$email$xowmuidtrack"}?'checked':'').qq|><input type="hidden" name="$escapedxowmgroup" value="1"></td>\n|;
+                  }
+               } else {
+                  $newrow[$tabletotalspan-3] = qq|<td bgcolor=$bgcolor[$colornum] align="center"><input type="checkbox" name="to" value="|.ow::htmltext::str2html("$email$xowmuidtrack").qq|" $disabled|.(exists $ischecked{TO}{"$email$xowmuidtrack"}?'checked':'').qq|></td>\n|;
+                  $newrow[$tabletotalspan-2] = qq|<td bgcolor=$bgcolor[$colornum] align="center"><input type="checkbox" name="cc" value="|.ow::htmltext::str2html("$email$xowmuidtrack").qq|" $disabled|.(exists $ischecked{CC}{"$email$xowmuidtrack"}?'checked':'').qq|></td>\n|;
+                  $newrow[$tabletotalspan-1] = qq|<td bgcolor=$bgcolor[$colornum] align="center"><input type="checkbox" name="bcc" value="|.ow::htmltext::str2html("$email$xowmuidtrack").qq|" $disabled|.(exists $ischecked{BCC}{"$email$xowmuidtrack"}?'checked':'').qq|></td>\n|;
+               }
+            }
+
+            # add it on to the html
+            $temphtml .= qq|<tr>\n|;
+            foreach my $slot (@newrow) {
+               if (defined $slot) {
+                  # the cell contents
+                  $temphtml .= $slot;
+               } else {
+                  # a blank cell
+                  $temphtml .= qq|<td bgcolor=$bgcolor[$colornum]>&nbsp;</td>\n|;
+               }
+            }
+            $temphtml .= qq|</tr>\n|;
+         }
       }
 
-      my ($k, $a, $n)=($key, $addresses{$key}, $notes{$key});
-      $k=~s/\\/\\\\/; $k=~s/'/\\'/;
-      $a=~s/\\/\\\\/; $a=~s/'/\\'/;
-      $n=~s/\\/\\\\/; $n=~s/'/\\'/; # escape \ and ' for javascript
-      $temphtml .= qq|<tr>|.
-                   qq|<td bgcolor=$bgcolor><a $accesskeystr href="Javascript:Update('$k','$a','$n')">$namestr</a></td>|.
-                   qq|<td bgcolor=$bgcolor><a href="$config{'ow_cgiurl'}/openwebmail-send.pl?action=composemessage&amp;page=$page&amp;sort=$sort&amp;folder=$escapedfolder&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=|.
-                   ow::tool::escapeURL($addresses{$key}).qq|&amp;compose_caller=abook">$emailstr</a></td>|.
-                   qq|<td bgcolor=$bgcolor>$notestr</td>|;
+      $colornum=($colornum+1)%2; # alternate the bgcolor
+   }
 
-      $temphtml .= qq|<td bgcolor=$bgcolor align="center">|;
-
-      $temphtml .= start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl").
-                   ow::tool::hiddens(action=>'deleteaddress',
-                                     sessionid=>$thissession,
-                                     sort=>$sort,
-                                     page=>$page,
-                                     folder=>$folder,
-                                     message_id=>$messageid,
-                                     realname=>$key).
-                   submit(-name=>$lang_text{'delete'},
-                          -class=>"medtext").
-                   qq|</td></tr>|.
-                   end_form();
-
-      if ($bgcolor eq $style{"tablerow_dark"}) {
-         $bgcolor = $style{"tablerow_light"};
+   if ($lastaddr == -1) {
+      $temphtml .= qq|<tr><td bgcolor=$bgcolor[$colornum] colspan="$tabletotalspan" align="center"><br><b>|;
+      if (@alladdressbooks == 0) {
+         $temphtml .= $lang_text{'abook_listview_noaddrbooks'};
+      } elsif ($abookkeyword eq '') {
+         $temphtml .= $lang_text{'abook_listview_noaddresses'};
       } else {
-         $bgcolor = $style{"tablerow_dark"};
+         $temphtml .= $lang_text{'abook_listview_nomatch'};
       }
-      $i++;
+      $temphtml.=qq|</b><br>&nbsp;</td></tr>\n|;
    }
 
-   if ($#globalnamelist >= 0) {
-      $temphtml .= qq|<tr><td colspan="4">&nbsp;</td></tr>\n|.
-                   qq|<tr><td colspan="4" bgcolor=$style{columnheader}><B>$lang_text{globaladdressbook}</B> ($lang_text{readonly})</td></tr>\n|;
-   }
-   $bgcolor = $style{"tablerow_dark"};
-   $i=0;
-   foreach my $key (@globalnamelist) {
-      my ($namestr, $emailstr, $notestr)=($key, $globaladdresses{$key}, $globalnotes{$key});
-      next if (!is_entry_matched($abook_keyword,$abook_searchtype, $namestr,$notestr,$emailstr));
-      $namestr=substr($namestr, 0, 25)."..." if (length($namestr)>30);
-      $emailstr=substr($emailstr, 0, 35)."..." if (length($emailstr)>40);
+   $temphtml .= end_form(); # end the contactsForm
+   $html =~ s/\@\@\@ADDRESSES\@\@\@/$temphtml/g;
 
-      my ($k, $a, $n)=($key, $globaladdresses{$key}, $globalnotes{$key});
-      $k=~s/\\/\\\\/; $k=~s/'/\\'/;
-      $a=~s/\\/\\\\/; $a=~s/'/\\'/;
-      $n=~s/\\/\\\\/; $n=~s/'/\\'/; # escape \ and ' for javascript
-      $temphtml .= qq|<tr>|.
-                   qq|<td bgcolor=$bgcolor><a href="Javascript:Update('$k','$a','$n')">$namestr</a></td>|.
-                   qq|<td bgcolor=$bgcolor><a href="$config{'ow_cgiurl'}/openwebmail-send.pl?action=composemessage&amp;page=$page&amp;sort=$sort&amp;folder=$escapedfolder&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=|.
-                   ow::tool::escapeURL($globaladdresses{$key}).qq|&amp;compose_caller=abook">$emailstr</a></td>|.
-                   qq|<td bgcolor=$bgcolor>$notestr</td>|.
-                   qq|<td bgcolor=$bgcolor align="center">-----</td></tr>|;
 
-      if ($bgcolor eq $style{"tablerow_dark"}) {
-         $bgcolor = $style{"tablerow_light"};
+   # add the buttons at the bottom if this is a listview mode
+   $temphtml = '';
+   if ($listviewmode eq 'composeselect') {
+      my $jsfunction = '';
+      if (param('editgroupform')) {
+         $jsfunction = 'updateEditForm(\'composeselectForm\', \'contactsForm\');';
       } else {
-         $bgcolor = $style{"tablerow_dark"};
+         $jsfunction = 'updateComposeForm(\'composeselectForm\', \'contactsForm\');';
       }
-      $i++;
+
+      my $buttons = qq|<tr>|.
+                    qq|<td colspan="$tabletotalspan" align="center" nowrap>|.
+                    startform(-name=>'dummyButtons',
+                              -action=>"#").
+                    button(-name=>$lang_text{'abook_listview_done'},
+                           -accesskey=>'J',
+                           -onClick=>$jsfunction,
+                           -class=>"medtext").
+                    "&nbsp;".
+                    button(-name=>$lang_text{'cancel'},
+                           -accesskey=>'X',
+                           -onClick=>'javascript:window.close();',
+                           -class=>"medtext").
+                    endform().
+                    qq|</td>|.
+                    qq|</tr>|;
+      my $spacer = qq|<tr><td colspan="$tabletotalspan">&nbsp;</td></tr>|;
+      if ($prefs{'abook_buttonposition'} eq 'before') {
+         $html =~ s/\@\@\@BUTTONSBEFORE\@\@\@/$buttons$spacer/g;
+         $html =~ s/\@\@\@BUTTONSAFTER\@\@\@//g;
+      } elsif ($prefs{'abook_buttonposition'} eq 'after') {
+         $html =~ s/\@\@\@BUTTONSBEFORE\@\@\@//g;
+         $html =~ s/\@\@\@BUTTONSAFTER\@\@\@/$buttons/g;
+      } else { # both
+         $html =~ s/\@\@\@BUTTONSBEFORE\@\@\@/$buttons$spacer/g;
+         $html =~ s/\@\@\@BUTTONSAFTER\@\@\@/$buttons/g;
+      }
+   } elsif ($listviewmode eq 'export') {
+      my %supportedlabels = ();
+      for (keys %supportedimportexportformat) { $supportedlabels{$_} = $supportedimportexportformat{$_}[2] };
+      $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl",
+                             -name=>'exportformatForm');
+      $temphtml .= popup_menu(-name=>'exportformat',
+                             -values=>[sort keys %supportedimportexportformat],
+                             -default=>'vcard3.0',
+                             -labels=>\%supportedlabels,
+                             -onChange=>"javascript:document.forms['exportForm'].elements['exportformat'].value=document.forms['exportformatForm'].elements['exportformat'].options[document.forms['exportformatForm'].elements['exportformat'].selectedIndex].value",
+                             -override=>1);
+      $temphtml .= end_form();
+      $html =~ s/\@\@\@EXPORTMODEFORMFORMATSMENU\@\@\@/$temphtml/;
+
+      $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl",
+                             -name=>'exportnowForm');
+      $temphtml .= button(-name=>$lang_text{'abook_exportnow'},
+                          -accesskey=>'J',
+                          -onClick=>"javascript:addToForm('exportForm','contactsForm','to','cc','bcc'); document.exportForm.submit();",
+                          -class=>"medtext");
+      $temphtml .= end_form();
+      $html =~ s/\@\@\@EXPORTMODEFORMEXPORTNOW\@\@\@/$temphtml/;
+
+      $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl",
+                              -name=>'cancelExportForm').
+                  ow::tool::hiddens(action=>'addrlistview').
+                  $formparm;
+      $temphtml .= submit(-name=>"$lang_text{'cancel'}",
+                          -class=>"medtext");
+      $temphtml .= endform();
+      $html =~ s/\@\@\@EXPORTMODECANCELFORM\@\@\@/$temphtml/g;
+      $html =~ s/\@\@\@BUTTONSAFTER\@\@\@//g;
+      $html =~ s/\@\@\@BUTTONSBEFORE\@\@\@//g;
+   } else {
+      # compose button
+      my $buttons = qq|<tr>|.
+                    qq|<td colspan="$tabletotalspan" align="right">|.
+                    start_form(-name=>"composeButtonForm", -action=>"#").
+                    button(-name=>$lang_text{'abook_listview_compose'},
+                           -accesskey=>'J',
+                           -onClick=>'addToForm(\'composeForm\',\'contactsForm\',\'to\',\'cc\',\'bcc\'); document.composeForm.submit();',
+                           -class=>"medtext").
+                    endform().
+                    qq|</td>|.
+                    qq|</tr>|;
+      $html =~ s/\@\@\@BUTTONSAFTER\@\@\@/$buttons/g;
+      $html =~ s/\@\@\@BUTTONSBEFORE\@\@\@//g;
    }
-   $html =~ s/\@\@\@ADDRESSES\@\@\@/$temphtml/;
+
+   if ($listviewmode eq 'composeselect') {	# don't show footer in popup
+      httpprint([], [htmlheader(), $html, htmlfooter(0)]);
+   } else {
+      httpprint([], [htmlheader(), $html, htmlfooter(2)]);
+   }
+}
+########## END ADDRLISTVIEW ######################################
+
+
+########## ADDREDITFORM ##########################################
+sub addreditform {
+
+   print header() if $addrdebug;
+
+   # first time called?
+   if (param('action') eq 'addreditform') {
+      deleteattachments(); # delete previous attachments
+   }
+
+   # where are we coming from?
+   my $editformcaller = safefoldername(param('editformcaller')) || safefoldername($abookfolder);
+   my $escapededitformcaller = ow::tool::escapeURL($editformcaller);
+
+   # what do we want?
+   my $xowmuid = param('rootxowmuid');
+
+   $abookfolder = safefoldername($abookfolder);
+   $abookfolder = ow::tool::untaint($abookfolder);
+
+   my @destbooks = getaddrbooks_writable($webaddrdir);
+   openwebmailerror(__FILE__, __LINE__, "$lang_text{'abook_listview_noaddrbooks'}") if ($#destbooks<0);
+
+   my $is_abookfolder_writable=0;
+   foreach (@destbooks) {
+      if ($abookfolder eq $_) {
+         $is_abookfolder_writable=1; last;
+      }
+   }
+   $abookfolder=$destbooks[0] if (!$is_abookfolder_writable);
+
+   my $abookfile = "$webaddrdir/$abookfolder";
+   $abookfile = $config{'global_addressbook'} if ($abookfolder eq 'GLOBAL');
+
+   # These data structures control which class each propertyname belongs to (100 class,
+   # 200 class, etc) and how the propertyname is processed.
+
+   # CLASSES:
+   # Each propertyname is assigned a class value number. The number controls
+   # in which class the value appears and in what order it appears in that class.
+   # The main template defines the overall order of all the classes. The number of
+   # classes defined in the main template should match the number of classes defined
+   # here. If you are assigning a 700 class number to a bunch of propertynames here, make
+   # sure your main template contains a @@@700@@@ class area for those propertynames
+   # to go. Always make sure you have one more class than you need in order to catch
+   # all the custom propertynames in your main template (@@@800@@@).
+   # -1's do not get added to $contact. It is assumed that the data is either meant to be
+   # discarded, or that it is merged into another non-negative propertyname in order to
+   # be processed and displayed there.
+
+   # PROCESSING:
+   # Named values are processed with the special htmloutput handler specified.
+   # If you define a htmloutput handler for a propertyname, then you need to
+   # also write the htmloutput function to do the work.
+   # Undefined values are automatically processed using the GENERIC processor.
+
+   my %htmloutput = ();
+   if (!param('editgroupform')) {
+      # We are editing a normal contact.
+      %htmloutput = (
+         # These propertynames are defined in the RFC and vCard specification
+         'BEGIN'       => [-1],                          # vCard 2.1 (required) and 3.0 (required)
+         'END'         => [-1],                          # vCard 2.1 (required) and 3.0 (required)
+         'REV'         => [-1],                          # vCard 2.1 and 3.0
+         'VERSION'     => [-1],                          # vCard 2.1 (required) and 3.0 (required)
+         'PROFILE'     => [-1],                          # vCard 3.0
+         'CATEGORIES'  => [-1],                          # vCard 3.0
+         'PHOTO'       => [100,\&addreditform_PHOTO],    # vCard 2.1 and 3.0
+         'N'           => [110,\&addreditform_N],        # vCard 2.1 (required) and 3.0 (required)
+         'FN'          => [120],                         # vCard 2.1 and 3.0 (required)
+         'SOUND'       => [130,\&addreditform_SOUND],    # vCard 2.1 and 3.0
+         'NICKNAME'    => [140],                         # vCard 3.0
+         'SORT-STRING' => [150],                         # vCard 3.0
+         'BDAY'        => [160,\&addreditform_BDAY],     # vCard 2.1 and 3.0
+         'EMAIL'       => [200,\&addreditform_EMAIL],    # vCard 2.1 and 3.0
+         'TEL'         => [300,\&addreditform_TEL],      # vCard 2.1 and 3.0
+         'ADR'         => [400,\&addreditform_ADR],      # vCard 2.1 and 3.0
+         'LABEL'       => [-1],                          # vCard 2.1 and 3.0 - OWM Bundles into ADR
+         'LOGO'        => [500,\&addreditform_PHOTO],    # vCard 2.1 and 3.0
+         'TITLE'       => [-1],                          # vCard 2.1 and 3.0 - OWM Bundles into ORG
+         'ROLE'        => [-1],                          # vCard 2.1 and 3.0 - OWM Bundles into ORG
+         'ORG'         => [510,\&addreditform_ORG],      # vCard 2.1 and 3.0
+         'URL'         => [600],                         # vCard 2.1 and 3.0
+         'TZ'          => [610,\&addreditform_TZ],       # vCard 2.1 and 3.0
+         'GEO'         => [620,\&addreditform_GEO],      # vCard 2.1 and 3.0
+         'MAILER'      => [630],                         # vCard 2.1 and 3.0
+         'NOTE'        => [640,\&addreditform_NOTE],     # vCard 2.1 and 3.0
+         'KEY'         => [650,\&addreditform_KEYAGENT], # vCard 2.1 and 3.0
+         'AGENT'       => [660,\&addreditform_KEYAGENT], # vCard 2.1 and 3.0
+         'CLASS'       => [700,\&addreditform_CLASS],    # vCard 3.0
+         'SOURCE'      => [710],                         # vCard 3.0
+         'NAME'        => [720],                         # vCard 3.0
+         'UID'         => [730],                         # vCard 2.1 and 3.0
+         'PRODID'      => [740],                         # vCard 3.0
+
+         # These are X- extension propertynames
+         'X-OWM-UID'     => [750,\&addreditform_HIDDEN],       # Openwebmail: our system unique id
+         'X-OWM-BOOK'    => [-1],                              # Openwebmail: remember addressbook name
+         'X-OWM-GROUP'   => [-1],                              # Openwebmail: vcard is a group if defined
+         'X-OWM-CHARSET' => [-1],                              # Openwebmail: vcard character set support
+         'X-OWM-CUSTOM'  => [799,\&addreditform_X_OWM_CUSTOM], # Openwebmail: support user-defined custom fields
+      );
+   } else {
+      # We are editing a GLOBAL contact. Allow much less input and output.
+      %htmloutput = (
+         # These propertynames are defined in the RFC and vCard specification
+         'BEGIN'       => [-1],                            # vCard 2.1 (required) and 3.0 (required)
+         'END'         => [-1],                            # vCard 2.1 (required) and 3.0 (required)
+         'REV'         => [-1],                            # vCard 2.1 and 3.0
+         'VERSION'     => [-1],                            # vCard 2.1 (required) and 3.0 (required)
+         'PROFILE'     => [-1],                            # vCard 3.0
+         'CATEGORIES'  => [-1],                            # vCard 3.0
+         'PHOTO'       => [100,\&addreditform_PHOTO],      # vCard 2.1 and 3.0
+         'N'           => [-1],                            # *** added later for group ***
+         'FN'          => [120,\&addreditform_FNGROUP],    # vCard 2.1 and 3.0 (required)
+         'SOUND'       => [130,\&addreditform_SOUND],      # vCard 2.1 and 3.0
+         'NICKNAME'    => [-1],                            # vCard 3.0
+         'SORT-STRING' => [-1],                            # vCard 3.0
+         'BDAY'        => [-1],                            # vCard 2.1 and 3.0
+         'EMAIL'       => [140,\&addreditform_EMAILGROUP], # vCard 2.1 and 3.0
+         'TEL'         => [-1],                            # vCard 2.1 and 3.0
+         'ADR'         => [-1],                            # vCard 2.1 and 3.0
+         'LABEL'       => [-1],                            # vCard 2.1 and 3.0 - OWM Bundles into ADR
+         'LOGO'        => [-1],                            # vCard 2.1 and 3.0
+         'TITLE'       => [-1],                            # vCard 2.1 and 3.0 - OWM Bundles into ORG
+         'ROLE'        => [-1],                            # vCard 2.1 and 3.0 - OWM Bundles into ORG
+         'ORG'         => [-1],                            # vCard 2.1 and 3.0
+         'URL'         => [-1],                            # vCard 2.1 and 3.0
+         'TZ'          => [-1],                            # vCard 2.1 and 3.0
+         'GEO'         => [-1],                            # vCard 2.1 and 3.0
+         'MAILER'      => [-1],                            # vCard 2.1 and 3.0
+         'NOTE'        => [150,\&addreditform_NOTE],       # vCard 2.1 and 3.0
+         'KEY'         => [-1],                            # vCard 2.1 and 3.0
+         'AGENT'       => [-1],                            # vCard 2.1 and 3.0
+         'CLASS'       => [-1],                            # vCard 3.0
+         'SOURCE'      => [-1],                            # vCard 3.0
+         'NAME'        => [-1],                            # vCard 3.0
+         'UID'         => [-1],                            # vCard 2.1 and 3.0
+         'PRODID'      => [-1],                            # vCard 3.0
+
+         # These are X- extension propertynames
+         'X-OWM-UID'     => [160,\&addreditform_HIDDEN], # Openwebmail: our system unique id
+         'X-OWM-BOOK'    => [-1],                        # Openwebmail: remember addressbook name
+         'X-OWM-GROUP'   => [170,\&addreditform_HIDDEN], # Openwebmail: vcard is a group if defined
+         'X-OWM-CHARSET' => [-1],                        # Openwebmail: vcard character set support
+         'X-OWM-CUSTOM'  => [-1],                        # Openwebmail: support user-defined custom fields
+      );
+   }
+
+   my $completevcard;  # will contain all of the data for this card
+   my $contact;        # will be a pointer to a level of data in $completevcard
+
+   if ($xowmuid ne '') {
+      # load up the requested book
+      my %searchterms = ( 'X-OWM-UID' => [ { 'VALUE' => $xowmuid } ] ); # only pull this card
+      my %only_return = ();
+
+      $completevcard = readadrbook($abookfile, (keys %searchterms?\%searchterms:undef), (keys %only_return?\%only_return:undef));
+
+      print "<pre>addreditform COMPLETEVCARD as loaded:\n" . Dumper(\%{$completevcard}) . "</pre>" if $addrdebug;
+   }
+
+   # Tag as a GROUP
+   $completevcard->{$xowmuid}{'X-OWM-GROUP'}[0]{VALUE} = 1 if (param('editgroupform'));
+
+   # To access AGENT nested data we will need to know what the targetagent is.
+   # Targetagent looks like: <traversedirection>,<agent position(s)>,[<last position accessed>]
+   # Traverse direction can be 'access agent'(1) or 'access parent'(-1).
+   # Last should only be used if traversedirection is -1 (so we know what card to save the form
+   # data to before we traverse to the parent).
+   my @targetagent = split(/,/,param('targetagent'));
+   my $traversedirection = shift(@targetagent); # we need to pop off the first value to get the targetdepth correctly
+   pop(@targetagent) if ($traversedirection == -1); # we need to pop off the last value if we're traversing up
+   my $targetdepth = @targetagent || 0;
+
+   print "<pre>\n\naddreditform TARGETDEPTH: $targetdepth\nTRAVERSEDIRECTION: $traversedirection\nTARGETAGENT:\n".Dumper(\@targetagent)."\n\n</pre>" if $addrdebug;
+
+   # Align $contact so it is pointing to the completevcard data we want to modify.
+   my $path_to_agent_string = $completevcard->{$xowmuid}{FN}[0]{VALUE};
+   my $target = \%{$completevcard->{$xowmuid}};
+   for(my $depth=1;$depth<=$targetdepth;$depth++) { # 0,0
+   print "<pre>Digging: targetagent position ".($depth-1)." is ".$targetagent[$depth-1]."</pre>\n" if $addrdebug;
+      if (exists $target->{AGENT}[$targetagent[$depth-1]]{VALUE}) {
+         foreach my $agentxowmuid (keys %{$target->{AGENT}[$targetagent[$depth-1]]{VALUE}}) {
+            print "<pre>The AGENTXOWMUID at this position is $agentxowmuid</pre>\n" if $addrdebug;
+            $target = \%{$target->{AGENT}[$targetagent[$depth-1]]{VALUE}{$agentxowmuid}};
+            $path_to_agent_string .= "&nbsp;-&gt;&nbsp;" . $target->{FN}[0]{VALUE};
+         }
+      } else {
+         # we're creating a new agent from scratch
+         $target->{AGENT}[$targetagent[$depth-1]]{TYPES}{VCARD} = 'TYPE';
+         $target = \%{$target->{AGENT}[$targetagent[$depth-1]]{VALUE}{''}};
+         $path_to_agent_string .= "&nbsp;-&gt; $lang_text{'abook_editform_new_agent'}";
+      }
+   }
+   $contact->{$xowmuid} = $target;
+
+   print "<pre>addreditform CONTACT has been aligned to:\n" . Dumper(\%{$contact}) . "</pre>" if $addrdebug;
+
+   #################################################################################################################
+   #          $contact gets modified after this point so be careful when you analize your Data::Dump's             #
+   #################################################################################################################
+
+   # bundle information from one property into another property so they display together
+   # (of course to display together you need to write the code for the target property)
+   my %bundlemap = ( 'LABEL' => 'ADR', 'TITLE' => 'ORG', 'ROLE' => 'ORG' );
+   for (keys %bundlemap) {
+      if (exists $contact->{$xowmuid}{$_}) {
+         for(my $index=0;$index<@{$contact->{$xowmuid}{$_}};$index++) {
+            $contact->{$xowmuid}{$bundlemap{$_}}[$index]{VALUE}{$_} = $contact->{$xowmuid}{$_}[$index]{VALUE};
+         }
+         delete $contact->{$xowmuid}{$_};
+      }
+   }
+
+   print "<pre>FORM DUMP:\n".Dump()."\n</pre>\n\n\n" if $addrdebug;
+
+   # convert embedded base64 file data to a file in sessions dir
+   # replace the value in %contact with this $fileserial
+   foreach my $propertyname (qw(PHOTO LOGO SOUND KEY AGENT)) {
+      if (exists $contact->{$xowmuid}{$propertyname}) {
+         print "<pre>Working on propertyname $propertyname\n</pre>" if $addrdebug;
+         for(my $index=0;$index<@{$contact->{$xowmuid}{$propertyname}};$index++) {
+            print "<pre>working on index $index\n</pre>" if $addrdebug;
+            if (exists $contact->{$xowmuid}{$propertyname}[$index]{TYPES}) {
+               print "<pre>this contact has defined types\n</pre>" if $addrdebug;
+               if ((exists $contact->{$xowmuid}{$propertyname}[$index]{TYPES}{BASE64} ||
+                    exists $contact->{$xowmuid}{$propertyname}[$index]{TYPES}{VCARD})) {
+                  print "<pre>this contact has a type of either VCARD or of BASE64\n</pre>" if $addrdebug;
+                  if (param('EDITFORMUPLOAD') eq '' && param('webdisksel') eq '' && param('formchange') eq '') {
+                     my $fileserial = time() . join("",map { int(rand(10)) }(1..9));
+                     print "<pre>saving out the $propertyname index $index to fileserial $fileserial\n</pre>" if $addrdebug;
+                     open (FILE, ">$config{'ow_sessionsdir'}/$thissession-vcard$fileserial") || openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}/$thissession-vcard$fileserial ($!)\n");
+                     binmode FILE; # to ensure images don't corrupt
+                     if (exists $contact->{$xowmuid}{$propertyname}[$index]{TYPES}{VCARD}) {
+                        print FILE outputvfile('vcard',$contact->{$xowmuid}{$propertyname}[$index]{VALUE});
+                     } elsif (exists $contact->{$xowmuid}{$propertyname}[$index]{TYPES}{BASE64}) {
+                        print FILE $contact->{$xowmuid}{$propertyname}[$index]{VALUE}; # it's already been decoded in %contact
+                     }
+                     close FILE || openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $config{'ow_sessionsdir'}/$thissession-vcard$fileserial ($!)\n");
+                     $contact->{$xowmuid}{$propertyname}[$index]{VALUE} = "$fileserial";
+                  }
+               }
+            }
+         }
+      }
+   }
+
+   # are we modifying the contact (formchanging or uploading something)?
+   if (param('formchange') ne '' || param('EDITFORMUPLOAD') || param('webdisksel')) {
+      # clear out $contact so we can populate it with the form data
+      foreach my $propertyname (keys %{$contact->{$xowmuid}}) {
+         delete $contact->{$xowmuid}{$propertyname};
+      }
+
+      # populate $contact with the form data
+      my $formdata = addreditform_to_vcard();
+      foreach my $propertyname (keys %{$formdata->{$xowmuid}}) {
+         next if ($propertyname eq 'X-OWM-UID');
+         $contact->{$xowmuid}{$propertyname} = $formdata->{$xowmuid}{$propertyname};
+      }
+   }
+
+   # each supported propertyname should be represented so that
+   # users can add values for that propertyname if they want
+   foreach my $propertyname (keys %htmloutput) {
+      $contact->{$xowmuid}{$propertyname}=[{VALUE=>''}] unless ($htmloutput{$propertyname}[0] < 0 || exists $contact->{$xowmuid}{$propertyname}[0]{VALUE});
+   }
+
+   ###########################################################################################################
+   #                                $contact is not modified after this point                                #
+   ###########################################################################################################
+
+   print "<pre>addreditform CONTACT after all modifications now looks like:\n" . Dumper(\%{$contact}) . "</pre>" if $addrdebug;
+
+   # convert the contact vcard data structure to html
+   # this conversion happens in the order defined in %htmloutput, undef last, -1's skipped
+   my %vcardhtml = ();
+   foreach my $propertyname ( sort { (exists $htmloutput{$a}?$htmloutput{$a}[0]:9999) <=> (exists $htmloutput{$b}?$htmloutput{$b}[0]:9999) }
+                               map { exists $htmloutput{$_}?$htmloutput{$_}[0]>0?$_:():$_ } # skip -1's
+                              keys %{$contact->{$xowmuid}} ) {
+      if (exists $htmloutput{$propertyname} && defined $htmloutput{$propertyname}[1]) {
+         # pass to special defined handler
+         $vcardhtml{$propertyname} = $htmloutput{$propertyname}[1]->($propertyname, $contact->{$xowmuid}{$propertyname}, \%vcardhtml, $xowmuid, $abookfolder, \@targetagent);
+      } else {
+         # no special handler defined. Handle GENERIC.
+         $vcardhtml{$propertyname} = addreditform_GENERIC($propertyname, $contact->{$xowmuid}{$propertyname});
+      }
+   }
+
+   # build up the template
+   my ($html, $temphtml);
+   $html = applystyle(readtemplate((param('editgroupform')?'addreditgroupform.template':'addreditform.template')));
+
+   if (param('editgroupform')) {
+     # for the GoAddressWindow popup
+     $temphtml = $prefs{'abook_width'} eq 'max'?'screen.availWidth':$prefs{'abook_width'};
+     $html =~ s/\@\@\@ABOOKWIDTH\@\@\@/$temphtml/;
+
+     $temphtml = $prefs{'abook_height'} eq 'max'?'screen.availHeight':$prefs{'abook_height'};
+     $html =~ s/\@\@\@ABOOKHEIGHT\@\@\@/$temphtml/;
+
+     $temphtml = $prefs{'abook_defaultfilter'}?ow::tool::escapeURL($prefs{'abook_defaultsearchtype'}):'';
+     $html =~ s/\@\@\@ABOOKSEARCHTYPE\@\@\@/$temphtml/;
+
+     $temphtml = $prefs{'abook_defaultfilter'}?ow::tool::escapeURL($prefs{'abook_defaultkeyword'}):'';
+     $html =~ s/\@\@\@ABOOKKEYWORD\@\@\@/$temphtml/;
+   }
+
+   # menubar links
+   $temphtml = iconlink("backtofolder.gif", ("$lang_text{'backto'} ".ow::htmltext::str2html($abookfolder)),
+                        qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrlistview&amp;sessionid=$thissession&amp;abookfolder=$escapededitformcaller&amp;$abook_urlparm"|);
+   $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
+
+   # start the form
+   $temphtml = start_multipart_form(-name=>'editForm',
+                                    -action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl").
+               $abook_formparm.
+               ow::tool::hiddens(
+                          action=>'addredit',
+                          sessionid=>$thissession,
+                          formchange=>'',
+                          targetagent=>join(",",(0,@targetagent)),
+                          rootxowmuid=>($targetdepth>0?param('rootxowmuid'):$xowmuid),
+                          editformcaller=>ow::htmltext::str2html($editformcaller),
+                          defined(param('editgroupform'))?('editgroupform'=>1):()
+                         );
+   $html =~ s/\@\@\@EDITFORMSTART\@\@\@/$temphtml/;
+
+   # destination pulldown
+   if ($abookfolder eq 'ALL') {
+      $temphtml = qq|$lang_text{'abook_editform_destination'}:&nbsp;&nbsp;|.
+                  popup_menu(-name=>'abookfolder',
+                             -override=>1,
+                             -values=>\@destbooks,
+                             -labels=>\%lang_abookselectionlabels,
+                            );
+      $html =~ s/\@\@\@AGENTPATH\@\@\@/$temphtml/;
+   } else {
+      $temphtml = hidden(-name=>"abookfolder", -default=>$abookfolder, -override=>1).$path_to_agent_string;
+      $html =~ s/\@\@\@AGENTPATH\@\@\@/$temphtml/;
+   }
+
+   # charset conversion menu
+   my $composecharset = $contact->{$xowmuid}{'X-OWM-CHARSET'}[0]{VALUE} || $prefs{'charset'};
+   $prefs{'charset'} = $composecharset if ($composecharset ne $prefs{'charset'}); # change the page charset
+   my %ctlabels=( $composecharset => "$composecharset *" );
+   my @ctlist=($composecharset);
+   my %allsets;
+   foreach (values %ow::lang::languagecharsets, keys %charset_convlist) {
+      $allsets{$_}=1 if (!defined($allsets{$_}));
+   }
+   delete $allsets{$composecharset};
+
+   if (defined($charset_convlist{$composecharset})) {
+      foreach my $ct (sort @{$charset_convlist{$composecharset}}) {
+         if (is_convertable($composecharset, $ct)) {
+            $ctlabels{$ct}="$composecharset > $ct";
+            push(@ctlist, $ct);
+            delete $allsets{$ct};
+         }
+      }
+   }
+   push(@ctlist, sort keys %allsets);
+
+   $temphtml = popup_menu(-name=>'X-OWM-CHARSET.0.VALUE',
+                          -values=>\@ctlist,
+                          -labels=>\%ctlabels,
+                          -default=>$composecharset,
+                          -accesskey=>'I',
+                          -onChange=>"javascript:document.editForm.formchange.value='X-OWM-CHARSET,0,0'; document.editForm.submit();",
+                          -override=>'1').
+               hidden(-name=>'convfrom', -default=>$composecharset, -override=>1);
+   $html =~ s/\@\@\@CONVTOMENU\@\@\@/$temphtml/;
+
+
+   # put each html block contained in vcardhtml in its proper class
+   my @classhtml = ();
+   my $classes = int((sort {$b <=> $a} map {$htmloutput{$_}[0]} keys %htmloutput)[0] / 100)+1; # how many classes?
+   $htmloutput{'X-OWM-CUSTOM'}[0] = $classes*100; # push customs into the end of the custom class (always the last one)
+   foreach my $propertyname (sort { (exists $htmloutput{$a}?$htmloutput{$a}[0]:9999) <=> (exists $htmloutput{$b}?$htmloutput{$b}[0]:9999) } keys %vcardhtml) {
+      my $class = (exists $htmloutput{$propertyname} && $htmloutput{$propertyname}[0]>99)?int($htmloutput{$propertyname}[0]/100)-1:$classes-1;
+      $classhtml[$class] .= $vcardhtml{$propertyname};
+   }
+   for(my $i=0;$i<=@classhtml;$i++) {
+      my $class = ($i+1)*100;
+      $html =~ s/\@\@\@$class\@\@\@/$classhtml[$i]/;
+   }
+
+   # file upload area
+   my ($attfiles_totalsize, $r_attfiles) = getattfilesinfo();
+   my $availattspace = int($config{'abook_attlimit'} - ($attfiles_totalsize/1024) + .5);
+   $html =~ s/\@\@\@AVAILABLEATTSPACE\@\@\@/$availattspace $lang_sizes{'kb'}/;
+
+   my $webdisklink = '';
+#   TO DO LATER!
+#   if ($config{'enable_webdisk'}) {
+#      $webdisklink = ow::tool::hiddens(webdisksel=>'').
+#                     iconlink("webdisk.s.gif", $lang_text{'webdisk'}, qq|href="#" onClick="window.open('$config{ow_cgiurl}/openwebmail-webdisk.pl?sessionid=$thissession&amp;action=sel_addattachment', '_addatt','width=500,height=330,scrollbars=yes,resizable=yes,location=no'); return false;"|);
+#   }
+   $html =~ s/\@\@\@UPLOADWEBDISKLINK\@\@\@/$webdisklink/;
+
+   # save and save and return to parents forms
+   $temphtml = '';
+   if ($targetdepth > 0) {
+      my $agenttarget = join(",",(-1,@targetagent));
+      $temphtml .= submit(-name=>$lang_text{'abook_editform_save_and_return'},
+                          -class=>"medtext",
+                          -onClick=>"document.editForm.targetagent.value='$agenttarget'; return popupNotice('agentmustsave');");
+      $temphtml .= "&nbsp;";
+   }
+   $temphtml .= submit(-name=>$lang_text{'save'}, -class=>"medtext");
+   $html =~ s/\@\@\@EDITFORMSUBMIT\@\@\@/$temphtml/;
+
+   $temphtml = endform();
+   $html =~ s/\@\@\@EDITFORMEND\@\@\@/$temphtml/;
+
+   # cancel and return form
+   $temphtml = '';
+   if ($targetdepth > 0) {
+      $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl",
+                             -name=>'cancelReturnToParent').
+                  ow::tool::hiddens(action=>'addreditform',
+                                    sessionid=>$thissession,
+                                    abookfolder=>ow::htmltext::str2html($abookfolder),
+                                    targetagent=>join(",",(-1,@targetagent)),
+                                    rootxowmuid=>param('rootxowmuid'),
+                                    abooksort=>$abooksort,
+                                    abooksearchtype=>$abooksearchtype,
+                                    abookkeyword=>ow::htmltext::str2html($abookkeyword),
+                                    abookcollapse=>$abookcollapse,
+                                   ).
+                  submit(-name=>"$lang_text{'abook_editform_cancel_and_return'}",
+                         -class=>"medtext",
+                         -onClick=>"return popupNotice('cancelchanges');",
+                        ).
+                  end_form();
+      $html =~ s/\@\@\@CANCELANDRETURNFORM\@\@\@/$temphtml/;
+   } else {
+      $temphtml = "&nbsp;";
+      $html =~ s/\@\@\@CANCELANDRETURNFORM\@\@\@/$temphtml/;
+   }
+
+   # cancel form
+   $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl",
+                          -name=>'cancelEditForm').
+               ow::tool::hiddens(action=>'addrlistview',
+                                 sessionid=>$thissession,
+                                 abookfolder=>ow::htmltext::str2html($editformcaller),
+                                ).
+               $abook_formparm.
+               submit(-name=>"$lang_text{'cancel'}",
+                      -class=>"medtext").
+               end_form();
+   $html =~ s/\@\@\@CANCELEDITFORM\@\@\@/$temphtml/;
 
    httpprint([], [htmlheader(), $html, htmlfooter(2)]);
 }
-########## END EDITADDRESSES #####################################
 
-########## MODADDRESS ############################################
-sub modaddress {
-   my $mode = shift;
-   my $realname = param('realname') || '';
-   my $address = param('email') || '';
-   my $usernote = param('note') || '';
-   $realname =~ s/^\s*//; $realname =~ s/^\s*//;
-   $address =~ s/[\<\>\[\]\\:\`\"\s]//g;
-   $address =~ s/^\s*mailto:\s*//;
-   $usernote =~ s/^\s*//; $usernote =~ s/\s*$//;
+########## END ADDREDITFORM ######################################
 
-   if (($realname && $address) || (($mode eq 'delete') && $realname) ) {
 
-      my $addrbookfile=dotpath('address.book');
-      my ($stat,$err,@namelist);
-      my (%addresses, %notes, $name, $email, $note);
+########## ADDREDITFORM_GENERIC ##################################
+sub addreditform_GENERIC {
+   my ($name, $r_data) = @_;
+   my $htmlout;
+   @{$r_data} = map { $_->[3] }
+                sort { $a->[0] <=> $b->[0] || $a->[1] cmp $b->[1] || $a->[2] cmp $b->[2]}
+                map { [ exists($_->{TYPES})?(exists($_->{TYPES}{PREF})?0:1):1, exists($_->{GROUP})?lc($_->{GROUP}):'~~~', $_->{VALUE}?lc($_->{VALUE}):'~~~', $_] }
+                @{$r_data};
+   for(my $index=0;$index<@{$r_data};$index++) {
+      my $template = applystyle(readtemplate("addreditform_GENERIC.template"));
+      my $namelabel = $lang_text{"abook_editform_namelabel_$name"} || $name;
+      $namelabel = '' if $index > 0;
+      $template =~ s/\@\@\@NAMELABEL\@\@\@/$namelabel/;
+      addreditform_GENERIC_VALUE($name, $r_data, $index, \$template);
+      addreditform_GENERIC_TYPES($name, $r_data, $index, \$template);
+      addreditform_GENERIC_GROUP($name, $r_data, $index, \$template);
+      $htmlout .= $template;
+   }
+   return $htmlout;
+}
+########## END ADDREDITFORM_GENERIC ##############################
 
-      ow::filelock::lock($addrbookfile, LOCK_EX) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $addrbookfile!");
 
-      if (! -z $addrbookfile ) {
-         ($stat,$err,@namelist)=read_abook($addrbookfile, \%addresses, \%notes);
-         if ($stat<0) {
-            ow::filelock::lock($addrbookfile, LOCK_UN);
-            openwebmailerror(__FILE__, __LINE__, $err);
+########## ADDREDITFORM_GENERIC_VALUE ############################
+sub addreditform_GENERIC_VALUE {
+   my ($name, $r_data, $index, $r_html) = @_;
+   my $valuelabel = $lang_text{"abook_editform_valuelabel_$name"} || $lang_text{'abook_editform_valuelabel'};
+   my $valuehtml = textfield(-name=>"$name.$index.VALUE", -default=>$r_data->[$index]{VALUE}, -size=>"35", -override=>"1", -class=>"mono");
+   if (@{$r_data} > 1) {
+      $valuehtml .= qq|&nbsp;&nbsp;|.iconlink("cal-delete.gif", "$lang_text{'delete'}", qq|href="javascript:document.editForm.formchange.value='$name,$index,-1'; document.editForm.submit();"|);
+   }
+   my $addmorelink = qq|<a href="javascript:document.editForm.formchange.value='$name,0,1'; document.editForm.submit();">+</a>|;
+   ${$r_html} =~ s/\@\@\@ADDMORELINK\@\@\@/$addmorelink/;
+   ${$r_html} =~ s/\@\@\@VALUE\@\@\@/$valuehtml/;
+   ${$r_html} =~ s/\@\@\@VALUELABEL\@\@\@/$valuelabel/;
+}
+########## END ADDREDITFORM_GENERIC_VALUE ########################
+
+
+########## ADDREDITFORM_GENERIC_TYPES ############################
+sub addreditform_GENERIC_TYPES {
+   my ($name, $r_data, $index, $r_html) = @_;
+   my $typehtml = hidden(-name=>"$name.$index.TYPE", -default=>[map {$_} keys %{$r_data->[$index]{TYPES}}], -override=>1);
+   $typehtml = '' if keys %{$r_data->[$index]{TYPES}} < 1;
+   ${$r_html} =~ s/\@\@\@TYPES\@\@\@/$typehtml/;
+}
+########## END ADDREDITFORM_GENERIC_TYPES ########################
+
+
+########## ADDREDITFORM_GENERIC_GROUP ############################
+sub addreditform_GENERIC_GROUP {
+   my ($name, $r_data, $index, $r_html) = @_;
+   my ($grouphtml,$grouplabel) = ();
+   if ($r_data->[$index]{GROUP} ne '') {
+      $grouphtml = textfield(-name=>"$name.$index.GROUP", -default=>ow::htmltext::str2html($r_data->[$index]{GROUP}), -size=>"12", -override=>"1", -class=>"mono")."&nbsp;&nbsp;";
+      $grouplabel = $lang_text{'abook_editform_grouplabel'};
+   }
+   ${$r_html} =~ s/\@\@\@GROUP\@\@\@/$grouphtml/;
+   ${$r_html} =~ s/\@\@\@GROUPLABEL\@\@\@/$grouplabel/;
+}
+########## END ADDREDITFORM_GENERIC_GROUP ########################
+
+
+########## ADDREDITFORM_HIDDEN ###################################
+sub addreditform_HIDDEN {
+   my ($name, $r_data) = @_;
+   my $htmlout = qq|<tr><td>|.
+                 hidden(-name=>"$name.0.VALUE", -default=>$r_data->[0]{VALUE}, -override=>1).
+                 qq|</td></tr>\n|;
+   return $htmlout;
+}
+########## END ADDREDITFORM_HIDDEN ###############################
+
+
+########## ADDREDITFORM_N ########################################
+sub addreditform_N {
+   my ($name, $r_data) = @_;
+   my $htmlout;
+   for(my $index=0;$index<@{$r_data};$index++) {
+      my $template = applystyle(readtemplate("addreditform_N.template"));
+      # SPECIAL
+      $template =~ s/\@\@\@FN.NAME\@\@\@/FN.$index.VALUE/;
+      # VALUE
+      if (ref $r_data->[$index]{VALUE} ne 'HASH') {
+         # N is blank (a new contact)
+         $r_data->[$index]{VALUE} = { NAMEPREFIX => '',
+                                      GIVENNAME => '',
+                                      ADDITIONALNAMES => '',
+                                      FAMILYNAME => '',
+                                      NAMESUFFIX => '' }
+      }
+      foreach my $fieldname (qw(NAMEPREFIX GIVENNAME ADDITIONALNAMES FAMILYNAME NAMESUFFIX)) {
+         $template =~ s/\@\@\@$fieldname.NAME\@\@\@/$name.$index.VALUE.$fieldname/g;
+         my $escapedvalue = ow::htmltext::str2html($r_data->[$index]{VALUE}{$fieldname});
+         $template =~ s/\@\@\@$fieldname.VALUE\@\@\@/$escapedvalue/;
+      }
+      addreditform_GENERIC_TYPES($name, $r_data, $index, \$template);
+      addreditform_GENERIC_GROUP($name, $r_data, $index, \$template);
+      $htmlout .= $template;
+   }
+   return $htmlout;
+}
+########## END ADDREDITFORM_N ####################################
+
+
+########## ADDREDITFORM_FNGROUP ##################################
+sub addreditform_FNGROUP {
+   my ($name, $r_data) = @_;
+   my $htmlout;
+   @{$r_data} = map { $_->[3] }
+                sort { $a->[0] <=> $b->[0] || $a->[1] cmp $b->[1] || $a->[2] cmp $b->[2]}
+                map { [ exists($_->{TYPES})?(exists($_->{TYPES}{PREF})?0:1):1, exists($_->{GROUP})?lc($_->{GROUP}):'~~~', $_->{VALUE}?lc($_->{VALUE}):'~~~', $_] }
+                @{$r_data};
+   for(my $index=0;$index<@{$r_data};$index++) {
+      my $template = applystyle(readtemplate("addreditform_GENERIC.template"));
+      my $namelabel = $lang_text{"abook_editform_namelabel_GROUPNAME"};
+      $namelabel = '' if $index > 0;
+      $template =~ s/\@\@\@NAMELABEL\@\@\@/$namelabel/;
+      addreditform_GENERIC_VALUE($name, $r_data, $index, \$template);
+      addreditform_GENERIC_TYPES($name, $r_data, $index, \$template);
+      addreditform_GENERIC_GROUP($name, $r_data, $index, \$template);
+      $htmlout .= $template;
+   }
+   return $htmlout;
+}
+########## END ADDREDITFORM_FNGROUP ##############################
+
+
+########## ADDREDITFORM_ORG ######################################
+sub addreditform_ORG {
+   my ($name, $r_data) = @_;
+   my $htmlout;
+   my $ORGtemplate = applystyle(readtemplate("addreditform_ORG.template"));
+   for(my $index=0;$index<@{$r_data};$index++) {
+      my $template = $ORGtemplate;
+      if (ref $r_data->[$index]{VALUE} ne 'HASH') { # ORG is blank (a new contact)
+         $r_data->[$index]{VALUE} = { ORGANIZATIONNAME => '',
+                                      TITLE => '',
+                                      ROLE => '' }
+      }
+      foreach my $field (qw(ORGANIZATIONNAME TITLE ROLE)) {
+         # VALUE
+         my $valuelabel = $lang_text{"abook_editform_valuelabel_$field"} || $lang_text{'abook_editform_valuelabel'};
+         $template =~ s/\@\@\@$field.VALUELABEL\@\@\@/$valuelabel/;
+         my $valuehtml = textfield(-name=>"ORG.$index.VALUE.$field", -default=>$r_data->[$index]{VALUE}{$field}, -size=>"30", -override=>"1", -class=>"mono");
+         $template =~ s/\@\@\@$field.VALUE\@\@\@/$valuehtml/;
+      }
+      my $delete;
+      if (@{$r_data} > 1) {
+         $delete = iconlink("cal-delete.gif", "$lang_text{'delete'}", qq|href="javascript:document.editForm.formchange.value='$name,$index,-1'; document.editForm.submit();"|);
+      }
+      $template =~ s/\@\@\@DELETE\@\@\@/$delete/;
+      addreditform_GENERIC_TYPES($name, $r_data, $index, \$template);
+      addreditform_GENERIC_GROUP($name, $r_data, $index, \$template);
+
+      # ORGANIZATIONALUNITS.VALUE
+      my $valuehtml = '';
+      my $valuelabel = $lang_text{"abook_editform_valuelabel_ORGANIZATIONALUNITS"} || $lang_text{'abook_editform_valuelabel'};
+      $r_data->[$index]{VALUE}{ORGANIZATIONALUNITS} = [''] if (ref($r_data->[$index]{VALUE}{ORGANIZATIONALUNITS}) ne 'ARRAY');
+      for(my $pos=0;$pos<@{$r_data->[$index]{VALUE}{ORGANIZATIONALUNITS}};$pos++) {
+         $template =~ s/\@\@\@ADDORGANIZATIONALUNITS\@\@\@/ORG.$index.VALUE.ORGANIZATIONALUNITS/;
+         if (ref($r_data->[$index]{VALUE}{ORGANIZATIONALUNITS}[$pos]) eq 'HASH') {
+            # a new field was added (adds as {VALUE => ''} by default, which in this case we don't want)
+            $r_data->[$index]{VALUE}{ORGANIZATIONALUNITS}[$pos] = '';
+         }
+         $valuehtml .= qq|<tr><td>|.
+                       textfield(-name=>"ORG.$index.VALUE.ORGANIZATIONALUNITS.$pos", -default=>$r_data->[$index]{VALUE}{ORGANIZATIONALUNITS}[$pos], -size=>"30", -override=>"1", -class=>"mono");
+         if (@{$r_data->[$index]{VALUE}{ORGANIZATIONALUNITS}} > 1) {
+            $valuehtml .= qq|&nbsp;&nbsp;|.
+                          iconlink("cal-delete.gif", "$lang_text{'delete'}", qq|href="javascript:document.editForm.formchange.value='ORG.$index.VALUE.ORGANIZATIONALUNITS,$pos,-1'; document.editForm.submit();"|);
+         }
+         $valuehtml .= qq|</td></tr>\n|;
+         $valuehtml .= $pos==$#{$r_data->[$index]{VALUE}{ORGANIZATIONALUNITS}}?qq|<tr><td class="smalltext">$valuelabel</td></tr>\n|:qq|<tr><td></td></tr>\n|;
+      }
+      $template =~ s/\@\@\@ORGANIZATIONALUNITS.VALUE\@\@\@/$valuehtml/;
+
+      $htmlout .= $template;
+   }
+
+   return $htmlout;
+}
+########## END ADDREDITFORM_ORG ##################################
+
+
+########## ADDREDITFORM_TZ #######################################
+sub addreditform_TZ {
+   my ($name, $r_data) = @_;
+   my $htmlout;
+   my $TZtemplate = applystyle(readtemplate("addreditform_GENERIC.template"));
+   my @tzoffsets = qw( -1200 -1100 -1000 -0900 -0800 -0700 -0600 -0500 -0400 -0330 -0300 -0230 -0200 -0100
+                       +0000 +0100 +0200 +0300 +0330 +0400 +0500 +0530 +0600 +0630 +0700 +0800 +0900 +0930
+                       +1000 +1030 +1100 +1200 +1300 );
+   my %tzoffsetlabels = map { $_ => "$_ -  $lang_timezonelabels{$_}"} keys %lang_timezonelabels;
+   for(my $index=0;$index<@{$r_data};$index++) {
+      my $template = $TZtemplate;
+      # VALUE
+      my $valuehtml = popup_menu(
+                                 -name=>"$name.$index.VALUE",
+                                 -default=>$r_data->[$index]{VALUE} || $prefs{'timeoffset'},
+                                 -values=>\@tzoffsets,
+                                 -labels=>\%tzoffsetlabels,
+                                 -class=>'mono',
+                                 -override=>1,
+                                ).
+                      qq|&nbsp;|.
+                      iconlink("earth.gif", $lang_text{'tzmap'}, qq|href="$config{'ow_htmlurl'}/images/timezone.jpg" target="_timezonemap"|);
+      $template =~ s/\@\@\@VALUE\@\@\@/$valuehtml/;
+      $template =~ s/\@\@\@VALUELABEL\@\@\@//;
+      my $namelabel = $lang_text{"abook_editform_namelabel_$name"} || $name;
+      $namelabel = '' if $index > 0;
+      $template =~ s/\@\@\@NAMELABEL\@\@\@/$namelabel/;
+
+      addreditform_GENERIC_TYPES($name, $r_data, $index, \$template);
+      addreditform_GENERIC_GROUP($name, $r_data, $index, \$template);
+
+      $htmlout .= $template;
+   }
+   return $htmlout;
+}
+########## END ADDREDITFORM_TZ ###################################
+
+
+########## ADDREDITFORM_CLASS ####################################
+sub addreditform_CLASS {
+   my ($name, $r_data) = @_;
+   my $htmlout;
+   my $CLASStemplate = applystyle(readtemplate("addreditform_GENERIC.template"));
+   for(my $index=0;$index<@{$r_data};$index++) {
+      my $template = $CLASStemplate;
+      # VALUE
+      my %classvalues = (
+                          'PUBLIC' => 1,
+                          'PRIVATE' => 1,
+                          uc($r_data->[$index]{VALUE}) => 1,
+                        );
+      my $valuehtml = popup_menu(
+                                 -name=>"$name.$index.VALUE",
+                                 -default=>uc($r_data->[$index]{VALUE}) || 'PUBLIC',
+                                 -values=>[sort keys %classvalues],
+                                 -labels=>\%lang_abookclasslabels,
+                                 -class=>'mono',
+                                 -override=>1,
+                                );
+      $template =~ s/\@\@\@VALUE\@\@\@/$valuehtml/;
+      $template =~ s/\@\@\@VALUELABEL\@\@\@//;
+      my $namelabel = $lang_text{"abook_editform_namelabel_$name"} || $name;
+      $namelabel = '' if $index > 0;
+      $template =~ s/\@\@\@NAMELABEL\@\@\@/$namelabel/;
+
+      addreditform_GENERIC_TYPES($name, $r_data, $index, \$template);
+      addreditform_GENERIC_GROUP($name, $r_data, $index, \$template);
+
+      $htmlout .= $template;
+   }
+   return $htmlout;
+}
+########## END ADDREDITFORM_CLASS ################################
+
+
+########## ADDREDITFORM_GEO ######################################
+sub addreditform_GEO {
+   my ($name, $r_data) = @_;
+   my $htmlout;
+   my $GEOtemplate = applystyle(readtemplate("addreditform_GEO.template"));
+   for(my $index=0;$index<@{$r_data};$index++) {
+      my $template = $GEOtemplate;
+      $template =~ s/\@\@\@INDEX\@\@\@/$index/g;
+      # VALUE
+      if (ref $r_data->[$index]{VALUE} ne 'HASH') {
+         # GEO is blank (a new contact)
+         $r_data->[$index]{VALUE} = { LONGITUDE => '',
+                                      LATITUDE => '' }
+      }
+      foreach my $fieldname (qw(LONGITUDE LATITUDE)) {
+         $template =~ s/\@\@\@$fieldname.NAME\@\@\@/$name.$index.VALUE.$fieldname/g;
+         my $escapedvalue = ow::htmltext::str2html($r_data->[$index]{VALUE}{$fieldname});
+         $template =~ s/\@\@\@$fieldname.VALUE\@\@\@/$escapedvalue/g;
+      }
+      addreditform_GENERIC_TYPES($name, $r_data, $index, \$template);
+      addreditform_GENERIC_GROUP($name, $r_data, $index, \$template);
+
+      my $findlink = iconlink("abookgeofind.gif", "$lang_text{'abook_editform_GEO_find'}", qq|href="$lang_text{'abook_editform_GEO_findurl'}" target="_new"|);
+      $template =~ s/\@\@\@FINDLINK\@\@\@/$findlink/;
+      my $maplink = iconlink("abookglobalicon.gif", "$lang_text{'abook_editform_GEO_map'}", qq|href="javascript:showGeo('editForm',$index,'map');"|);
+      $template =~ s/\@\@\@MAPLINK\@\@\@/$maplink/;
+      my $photolink = iconlink("abookgeocamera.gif", "$lang_text{'abook_editform_GEO_photo'}", qq|href="javascript:showGeo('editForm',$index,'photo');"|);
+      $template =~ s/\@\@\@PHOTOLINK\@\@\@/$photolink/;
+
+      $htmlout .= $template;
+   }
+   return $htmlout;
+}
+########## END ADDREDITFORM_GEO ##################################
+
+
+########## ADDREDITFORM_NOTE #####################################
+sub addreditform_NOTE {
+   my ($name, $r_data) = @_;
+   my $htmlout;
+   my $NOTEtemplate = applystyle(readtemplate("addreditform_GENERIC.template"));
+   for(my $index=0;$index<@{$r_data};$index++) {
+      my $template = $NOTEtemplate;
+      # VALUE
+      my $valuehtml = textarea(
+                               -name=>"$name.$index.VALUE",
+                               -rows=>8,
+                               -columns=>60,
+                               -default=>$r_data->[$index]{VALUE},
+                               -override=>1,
+                              );
+      $template =~ s/\@\@\@VALUE\@\@\@/$valuehtml/;
+      $template =~ s/\@\@\@VALUELABEL\@\@\@//;
+      my $namelabel = $lang_text{"abook_editform_namelabel_$name"} || $name;
+      $namelabel = '' if $index > 0;
+      $template =~ s/\@\@\@NAMELABEL\@\@\@/$namelabel/;
+      addreditform_GENERIC_TYPES($name, $r_data, $index, \$template);
+      addreditform_GENERIC_GROUP($name, $r_data, $index, \$template);
+
+      $htmlout .= $template;
+   }
+   return $htmlout;
+}
+########## END ADDREDITFORM_NOTE #################################
+
+
+########## ADDREDITFORM_KEYAGENT #################################
+sub addreditform_KEYAGENT {
+   my ($name, $r_data, $r_vcardhtml, $xowmuid, $abookfolder, $r_targetagent) = @_;
+   my $htmlout;
+   my @bgcolor = ($style{"tablerow_dark"}, $style{"tablerow_light"});
+   my $colornum = 1;
+   for(my $index=0;$index<@{$r_data};$index++) {
+      # take the first type as the filetype (this has a chance of being wrong, but 99.9% will be right)
+      my $type = lc((grep {!m/(?:BASE64|URI)/} keys %{$r_data->[$index]{TYPES}})[0]);
+
+      # VALUE
+      my $tablehtml = qq|<tr>\n<td bgcolor=$bgcolor[$colornum]>|;
+      if ($r_data->[$index]{VALUE}) {
+         my $valuestring = "&nbsp;&nbsp;" . (exists($lang_text{"abook_editform_$type\_$name"})?$lang_text{"abook_editform_$type\_$name"}:$lang_text{"abook_editform_unknown_$name"});
+
+         if (exists $r_data->[$index]{TYPES}{URI}) {
+            my $escapedvalue = ow::htmltext::str2html($r_data->[$index]{VALUE});
+            $tablehtml .= iconlink(lc($name).".gif", $lang_text{"abook_editform_view_$name"}, qq|href="$escapedvalue" target="_new"|).qq|\n|.
+                          qq|<a href="$escapedvalue" target="_new">$valuestring</a>\n|;
+         } elsif (exists $r_data->[$index]{TYPES}{VCARD}) {
+            # AGENT card got pulled off into a file in the sessions dir. Retrieve it so that we can get its full name.
+            my $targetfile = ow::tool::untaint("$config{'ow_sessionsdir'}/$thissession-vcard$r_data->[$index]{VALUE}");
+            my $agentvcard = readadrbook($targetfile, undef, undef);
+            my $escapedabookfolder = ow::tool::escapeURL($abookfolder);
+            foreach my $agentowmuid (keys %{$agentvcard}) {
+               $valuestring = "&nbsp;&nbsp;" . $agentvcard->{$agentowmuid}{FN}[0]{VALUE};
+            }
+            my $agenttarget = join(",",(1,(@{$r_targetagent}?@{$r_targetagent}:()),$index)); # the leading 1 sets 'access agent' mode
+            $tablehtml .= iconlink("abook".lc($name).".gif", $lang_text{"abook_editform_download_$name"}, qq|href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrviewatt&amp;sessionid=$thissession&amp;file=$r_data->[$index]{VALUE}&amp;type=$type" target="_new"|).qq|\n|.
+                          qq|<a href="javascript:document.editForm.targetagent.value='$agenttarget'; document.editForm.submit();" onClick="return popupNotice('agentmustsave');">$valuestring</a>\n|;
+         } else { # binary data
+            $tablehtml .= iconlink("abook".lc($name).".gif", $lang_text{"abook_editform_view_$name"}, qq|href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrviewatt&amp;sessionid=$thissession&amp;file=$r_data->[$index]{VALUE}&amp;type=$type" target="_new"|).qq|\n|.
+                          qq|<a href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrviewatt&amp;sessionid=$thissession&amp;file=$r_data->[$index]{VALUE}&amp;type=$type" target="_new">$valuestring</a>\n|;
+         }
+         $tablehtml .= hidden(-name=>"$name.$index.GROUP", -default=>$r_data->[$index]{GROUP}, -override=>1).qq|\n|.
+                       hidden(-name=>"$name.$index.VALUE", -default=>$r_data->[$index]{VALUE}, -override=>1).qq|\n|.
+                       hidden(-name=>"$name.$index.TYPE", -default=>[map {$_ eq 'PREF'?():$_} keys %{$r_data->[$index]{TYPES}}], -override=>1).qq|\n|.
+                       ($r_data->[$index]{VALUE}?qq|&nbsp;&nbsp;|.iconlink("cal-delete.gif", "$lang_text{'delete'}", qq|href="javascript:document.editForm.formchange.value='$name,$index,-1'; document.editForm.submit();"|):'');
+      } else {
+         $tablehtml .= "&nbsp;".$lang_text{"abook_editform_undef_$name"};
+         splice(@{$r_data},$index,1); # so that the nextagentposition number is correct
+      }
+      $tablehtml .= qq|</td>\n</tr>\n|;
+      $colornum=($colornum+1)%2; # alternate the bgcolor
+      $htmlout .= $tablehtml;
+   }
+   my $template = applystyle(readtemplate("addreditform_KEYAGENT.template"));
+   $template =~ s/\@\@\@TABLE\@\@\@/$htmlout/;
+   my $namelabel = $lang_text{"abook_editform_namelabel_$name"} || $name;
+   $template =~ s/\@\@\@NAMELABEL\@\@\@/$namelabel/;
+   if ($name eq 'AGENT') {
+      my $nextagentposition = @{$r_data};
+      my $agenttarget = join(",",(1,(@{$r_targetagent}?@{$r_targetagent}:()),$nextagentposition));
+      my $newagentlink = qq|<a href="javascript:document.editForm.targetagent.value='$agenttarget'; document.editForm.submit();" onClick="return popupNotice('agentmustsave');">$lang_text{'abook_editform_new_agent_link'}</a>|;
+      $template =~ s/\@\@\@NEWAGENTLINK\@\@\@/$newagentlink/;
+   } else {
+      $template =~ s/\@\@\@NEWAGENTLINK\@\@\@/&nbsp;/;
+   }
+   return $template;
+}
+########## END ADDREDITFORM_KEYAGENT #############################
+
+
+########## ADDREDITFORM_EMAIL ####################################
+sub addreditform_EMAIL {
+   my ($name, $r_data) = @_;
+   my $htmlout;
+   @{$r_data} = map { $_->[3] }
+                sort { $a->[0] <=> $b->[0] || $a->[1] cmp $b->[1] || $a->[2] cmp $b->[2]}
+                map { [ exists($_->{TYPES})?(exists($_->{TYPES}{PREF})?0:1):1, exists($_->{GROUP})?lc($_->{GROUP}):'~~~', $_->{VALUE}?lc($_->{VALUE}):'~~~', $_] }
+                @{$r_data};
+   my $EMAILtemplate = applystyle(readtemplate("addreditform_GENERIC.template"));
+   for(my $index=0;$index<@{$r_data};$index++) {
+      my $template = $EMAILtemplate;
+      # VALUE
+      my $valuehtml = textfield(-name=>"$name.$index.VALUE", -default=>$r_data->[$index]{VALUE}, -size=>"35", -override=>"1", -class=>"mono").
+                      qq|&nbsp;<input type="radio" name="$name.PREF" value="$index" |.(exists($r_data->[$index]{TYPES})?exists($r_data->[$index]{TYPES}{PREF})?'checked':():());
+      if (@{$r_data} > 1) {
+         $valuehtml .= qq|>&nbsp;&nbsp;| . iconlink("cal-delete.gif", "$lang_text{'delete'}", qq|href="javascript:document.editForm.formchange.value='$name,$index,-1'; document.editForm.submit();"|);
+      }
+      $template =~ s/\@\@\@VALUE\@\@\@/$valuehtml/;
+      $template =~ s/\@\@\@VALUELABEL\@\@\@//;
+      $template =~ s/\@\@\@NAMELABEL\@\@\@//;
+      # TYPES
+      my $typehtml = hidden(-name=>"$name.$index.TYPE", -default=>[map {$_ eq 'PREF'?():$_} keys %{$r_data->[$index]{TYPES}}], -override=>1);
+      $typehtml = '' if keys %{$r_data->[$index]{TYPES}} < 1;
+      $template =~ s/\@\@\@TYPES\@\@\@/$typehtml/;
+      # GROUP
+      addreditform_GENERIC_GROUP($name, $r_data, $index, \$template);
+
+      $htmlout .= $template;
+   }
+   return $htmlout;
+}
+########## END ADDREDITFORM_EMAIL ################################
+
+
+########## ADDREDITFORM_EMAILGROUP ###############################
+sub addreditform_EMAILGROUP {
+   my ($name, $r_data) = @_;
+   my $htmlout;
+   my $template = applystyle(readtemplate("addreditform_GENERIC.template"));
+   # VALUE - a textarea with each email address on its own line
+   my $emailaddresses = '';
+   for(my $index=0;$index<@{$r_data};$index++) {
+      next if ($r_data->[$index]{VALUE} eq 'All Members');
+      $emailaddresses .= "\n$r_data->[$index]{VALUE}";
+   }
+   my $valuehtml = textarea(
+                            -name=>"$name.0.VALUE",
+                            -rows=>8,
+                            -columns=>60,
+                            -default=>$emailaddresses,
+                            -override=>1,
+                           );
+   $template =~ s/\@\@\@VALUE\@\@\@/$valuehtml/;
+   $template =~ s/\@\@\@VALUELABEL\@\@\@//;
+   my $namelabel = $lang_text{"abook_editform_namelabel_$name"} || $name;
+   $namelabel .= "&nbsp;&nbsp;&nbsp;&nbsp;" . iconlink('addrbook.s.gif', $lang_text{'addressbook'}, qq|href="javascript:GoAddressWindow()"|);
+   $template =~ s/\@\@\@NAMELABEL\@\@\@/$namelabel/;
+   addreditform_GENERIC_TYPES($name, $r_data, 0, \$template);
+   addreditform_GENERIC_GROUP($name, $r_data, 0, \$template);
+
+   $htmlout .= $template;
+   return $htmlout;
+}
+########## END ADDREDITFORM_EMAILGROUP ###########################
+
+
+########## ADDREDITFORM_TEL ######################################
+sub addreditform_TEL {
+   my ($name, $r_data) = @_;
+   my $htmlout;
+
+   my %typemap = ( 'PREF' => 0,
+                   'HOME' => 1,
+                   'WORK' => 2,
+                   'CELL' => 3,
+                    'CAR' => 4,
+                  'VIDEO' => 5,
+                  'PAGER' => 6,
+                  'VOICE' => 7,
+                    'FAX' => 8,
+                   'ISDN' => 9,
+                    'BBS' => 10,
+                  'MODEM' => 11,
+                    'MSG' => 12 );
+
+   @{$r_data} = map { $_->[4] }
+                sort { $a->[0] <=> $b->[0] || $a->[1] <=> $b->[1] || $a->[2] cmp $b->[2] || $a->[3] cmp $b->[3]}
+                map { [ exists($_->{TYPES})?$typemap{(sort {$typemap{$a} <=> $typemap{$b}} keys %{$_->{TYPES}})[0]}:100,
+                        exists($_->{TYPES})?$typemap{(sort {$typemap{$a} <=> $typemap{$b}} keys %{$_->{TYPES}})[1]}:100,
+                        exists($_->{GROUP})?lc($_->{GROUP}):'~~~', $_->{VALUE}?lc($_->{VALUE}):'~~~', $_ ] }
+                @{$r_data};
+   for(my $index=0;$index<@{$r_data};$index++) {
+      my $template = applystyle(readtemplate("addreditform_TEL.template"));
+      # VALUE
+      my $valuehtml = textfield(-name=>"$name.$index.VALUE", -default=>$r_data->[$index]{VALUE}, -size=>"25", -override=>"1", -class=>"mono").
+                      qq|&nbsp;<input type="radio" name="$name.PREF" value="$index" |.(exists($r_data->[$index]{TYPES})?exists($r_data->[$index]{TYPES}{PREF})?'checked':():()).qq|>|;
+      $template =~ s/\@\@\@VALUE\@\@\@/$valuehtml/;
+      my $delete;
+      if (@{$r_data} > 1) {
+         $delete = iconlink("cal-delete.gif", "$lang_text{'delete'}", qq|href="javascript:document.editForm.formchange.value='$name,$index,-1'; document.editForm.submit();"|);
+      }
+      $template =~ s/\@\@\@DELETE\@\@\@/$delete/;
+      # TYPES
+      foreach my $type (keys %typemap) {
+         $template =~ s/\@\@\@$type.NAME\@\@\@/$name.$index.TYPE.$type/g;
+         my $checked = exists($r_data->[$index]{TYPES})?exists($r_data->[$index]{TYPES}{$type})?'checked':'':'';
+         $template =~ s/\@\@\@$type.VALUE\@\@\@/$checked/g;
+      }
+      # GROUP
+      addreditform_GENERIC_GROUP($name, $r_data, $index, \$template);
+
+      $htmlout .= $template;
+   }
+   return $htmlout;
+}
+########## END ADDREDITFORM_TEL ##################################
+
+
+########## ADDREDITFORM_ADR ######################################
+sub addreditform_ADR {
+   my ($name, $r_data) = @_;
+   my $htmlout;
+
+   my %typemap = ( 'PREF' => 0,
+                   'HOME' => 1,
+                   'WORK' => 2,
+                    'DOM' => 3,
+                   'INTL' => 4,
+                 'POSTAL' => 5,
+                 'PARCEL' => 6 );
+
+   for (@{$r_data}) { $_->{VALUE} = {} if (ref $_->{VALUE} ne 'HASH') };
+
+   # sort - the ~~~ sorts last in perl
+   @{$r_data} = map { $_->[4] }
+                sort { $a->[0] <=> $b->[0] || $a->[1] <=> $b->[1] || $a->[2] cmp $b->[2] || $a->[3] cmp $b->[3]}
+                map { [ exists($_->{TYPES})?$typemap{(sort {$typemap{$a} <=> $typemap{$b}} keys %{$_->{TYPES}})[0]}:100,
+                        exists($_->{TYPES})?$typemap{(sort {$typemap{$a} <=> $typemap{$b}} keys %{$_->{TYPES}})[1]}:100,
+                        exists($_->{GROUP})?lc($_->{GROUP}):'~~~', exists($_->{VALUE}{STREET})?lc($_->{VALUE}{STREET}):'~~~', $_ ] }
+                @{$r_data};
+   for(my $index=0;$index<@{$r_data};$index++) {
+      my $template = applystyle(readtemplate("addreditform_ADR.template"));
+      # VALUE
+      $r_data->[$index]{VALUE} = {} if (ref $r_data->[$index]{VALUE} ne 'HASH');
+      foreach my $field (qw(STREET EXTENDEDADDRESS POSTOFFICEADDRESS LOCALITY REGION POSTALCODE COUNTRY LABEL)) {
+         $template =~ s/\@\@\@$field.NAME\@\@\@/$name.$index.VALUE.$field/g;
+         my $value = exists($r_data->[$index]{VALUE}{$field})?ow::htmltext::str2html($r_data->[$index]{VALUE}{$field}):'';
+         $template =~ s/\@\@\@$field.VALUE\@\@\@/$value/;
+      }
+      my $pref = qq|<input type="radio" name="$name.PREF" value="$index" |.(exists($r_data->[$index]{TYPES})?exists($r_data->[$index]{TYPES}{PREF})?'checked':():());
+      $template =~ s/\@\@\@PREF\@\@\@/$pref/;
+      my $delete;
+      if (@{$r_data} > 1) {
+         $delete = iconlink("cal-delete.gif", "$lang_text{'delete'}", qq|href="javascript:document.editForm.formchange.value='$name,$index,-1'; document.editForm.submit();"|);
+      }
+      $template =~ s/\@\@\@DELETE\@\@\@/$delete/;
+      $template =~ s/\@\@\@LABEL.INDEX\@\@\@/$index/g;
+      # TYPES
+      foreach my $type (keys %typemap) {
+         $template =~ s/\@\@\@$type.NAME\@\@\@/$name.$index.TYPE.$type/g;
+         my $checked = exists($r_data->[$index]{TYPES})?exists($r_data->[$index]{TYPES}{$type})?'checked':'':'';
+         $template =~ s/\@\@\@$type.VALUE\@\@\@/$checked/g;
+      }
+      # GROUP
+      addreditform_GENERIC_GROUP($name, $r_data, $index, \$template);
+
+      $htmlout .= $template;
+   }
+   return $htmlout;
+}
+########## END ADDREDITFORM_ADR ##################################
+
+
+########## ADDREDITFORM_BDAY #####################################
+sub addreditform_BDAY {
+   my ($name, $r_data) = @_;
+   my $htmlout;
+   for(my $index=0;$index<@{$r_data};$index++) {
+      my $template = applystyle(readtemplate("addreditform_BDAY.template").
+                                readtemplate("bdaypopup.js"));
+      # SPECIAL
+      my $calpopup = iconlink("cal-popup.gif", $lang_text{'calendar'}, qq|href="javascript:{;}" onClick="calPopup(this,'bdaycalpopupDiv',50,0,'editForm',null);"|);
+      $template =~ s/\@\@\@BDAYCALPOPUP\@\@\@/$calpopup/;
+
+      # replace @@@ labels with $lang vars in bdaycalpopup javascript
+      my $langlabel = qq|'$lang_wday{0}','$lang_wday{1}','$lang_wday{2}','$lang_wday{3}','$lang_wday{4}','$lang_wday{5}','$lang_wday{6}'|;
+      $template =~ s/\@\@\@WDAY_ARRAY\@\@\@/$langlabel/;
+      $langlabel = qq|'$lang_order{1}','$lang_order{2}','$lang_order{3}','$lang_order{4}','$lang_order{5}'|;
+      $template =~ s/\@\@\@WORDER_ARRAY\@\@\@/$langlabel/;
+      $langlabel = qq|'$lang_wday_abbrev{0}','$lang_wday_abbrev{1}','$lang_wday_abbrev{2}','$lang_wday_abbrev{3}','$lang_wday_abbrev{4}','$lang_wday_abbrev{5}','$lang_wday_abbrev{6}'|;
+      $template =~ s/\@\@\@WDAYABBREV_ARRAY\@\@\@/$langlabel/;
+      $langlabel = qq|'$lang_month{1}','$lang_month{2}','$lang_month{3}','$lang_month{4}','$lang_month{5}','$lang_month{6}','$lang_month{7}','$lang_month{8}','$lang_month{9}','$lang_month{10}','$lang_month{11}','$lang_month{12}'|;
+      $template =~ s/\@\@\@WMONTH_ARRAY\@\@\@/$langlabel/;
+      $template =~ s/\@\@\@WSTART\@\@\@/$prefs{'calendar_weekstart'}/g;
+      $template =~ s/\@\@\@TODAY\@\@\@/$lang_text{'today'}/g;
+
+      # VALUE
+      if (ref $r_data->[$index]{VALUE} ne 'HASH') {
+         # BDAY is blank (a new contact)
+         $r_data->[$index]{VALUE} = { DAY => '',
+                                      MONTH => '',
+                                      YEAR => '' }
+      }
+      $r_data->[$index]{VALUE}{AGE} = addreditform_BDAY2AGE($r_data->[$index]{VALUE}{YEAR}, $r_data->[$index]{VALUE}{MONTH}, $r_data->[$index]{VALUE}{DAY});
+      foreach my $fieldname (qw(DAY MONTH YEAR AGE)) {
+         $template =~ s/\@\@\@$fieldname.NAME\@\@\@/$name.$index.VALUE.$fieldname/g;
+         my $escapedvalue = ow::htmltext::str2html($r_data->[$index]{VALUE}{$fieldname});
+         $template =~ s/\@\@\@$fieldname.VALUE\@\@\@/$escapedvalue/;
+      }
+      addreditform_GENERIC_TYPES($name, $r_data, $index, \$template);
+      addreditform_GENERIC_GROUP($name, $r_data, $index, \$template);
+      $htmlout .= $template;
+   }
+   return $htmlout;
+}
+########## END ADDREDITFORM_BDAY #################################
+
+
+########## ADDREDITFORM_BDAY2AGE #################################
+sub addreditform_BDAY2AGE() {
+   my ($bdayyear,$bdaymonth,$bdayday) = @_;
+
+   my $localtime=ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'});
+   my ($currentyear, $currentmonth, $currentday)=(ow::datetime::seconds2array($localtime))[5,4,3];
+   $currentyear+=1900; $currentmonth++;
+
+   my $age = 0;
+   if ($bdayyear ne '') {
+      $age = $currentyear - $bdayyear;
+      if ($bdaymonth ne '') {
+         if ($currentmonth < $bdaymonth) {
+            $age--; # birthday hasn't happened yet
+         } elsif ($bdaymonth == $currentmonth && $bdayday ne '' && $currentday < $bdayday) {
+            $age--; # birthday hasn't happened yet
+         }
+      }
+   }
+   if ($age < 0) {
+      $age = 0;
+   }
+   return $age?$age:'';
+}
+########## END ADDREDITFORM_BDAY2AGE #############################
+
+
+########## ADDREDITFORM_SOUND ####################################
+sub addreditform_SOUND {
+   # SOUND is always processed after FN because of the order defined in
+   # %htmloutput. FN contains @@@SOUND@@@, which will be replaced with
+   # links to the actual sound files. FN is always defined.
+   my ($name, $r_data, $r_vcardhtml) = @_;
+   my $soundhtml;
+   for(my $index=0;$index<@{$r_data};$index++) {
+      my $inputfields = hidden(-name=>"$name.$index.TYPE", -default=>[map {$_} keys %{$r_data->[$index]{TYPES}}], -override=>1).
+                        hidden(-name=>"$name.$index.VALUE", -default=>$r_data->[$index]{VALUE}, -override=>1).
+                        hidden(-name=>"$name.$index.GROUP", -default=>$r_data->[$index]{GROUP}, -override=>1);
+      # take the first type as the filetype (this has a chance of being wrong, but 99.9% will be right)
+      my $type = (grep {!m/(?:BASE64|URI)/} keys %{$r_data->[$index]{TYPES}})[0];
+      if (exists $r_data->[$index]{TYPES}{URI}) {
+         my $escapedvalue = ow::htmltext::str2html($r_data->[$index]{VALUE});
+         if ($escapedvalue =~ m#^(?:https?|ftp|mms|nntp|news|gopher|telnet|file)://#i) {
+            $soundhtml .= iconlink("abooksound.gif", "$lang_text{'abook_editform_playsound'}", qq|href="$escapedvalue" target="_new"|)."&nbsp;".
+                          iconlink("cal-delete.gif", "$lang_text{'abook_editform_deletesound'}", qq|href="javascript:document.editForm.formchange.value='$name,$index,-1'; document.editForm.submit();"|).
+                          "$inputfields&nbsp;&nbsp;&nbsp;&nbsp;";
+         } else {
+            $soundhtml .= qq|<span class="smalltext">$escapedvalue$inputfields&nbsp;&nbsp;&nbsp;&nbsp;</span>|; # phonetic pronunciation
+         }
+      } elsif (exists $r_data->[$index]{TYPES}{BASE64}) {
+         $soundhtml .= iconlink("abooksound.gif", "$lang_text{'abook_editform_playsound'}", qq|href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrviewatt&amp;sessionid=$thissession&amp;file=$r_data->[$index]{VALUE}&amp;type=$type" target="_new"|)."&nbsp;".
+                       iconlink("cal-delete.gif", "$lang_text{'abook_editform_deletesound'}", qq|href="javascript:document.editForm.formchange.value='$name,$index,-1'; document.editForm.submit();"|).
+                       "$inputfields&nbsp;&nbsp;&nbsp;&nbsp;";
+      }
+   }
+   $r_vcardhtml->{FN} =~ s/\@\@\@SOUND\@\@\@/$soundhtml/;
+   return undef;
+}
+########## END ADDREDITFORM_SOUND ################################
+
+
+########## ADDREDITFORM_PHOTO ####################################
+sub addreditform_PHOTO {
+   my ($name, $r_data, $r_vcardhtml) = @_;
+   my $htmlout;
+   for(my $index=0;$index<@{$r_data};$index++) {
+      my $template = applystyle(readtemplate("addreditform_PHOTO.template"));
+
+      # take the first type as the filetype (this has a chance of being wrong, but 99.9% will be right)
+      my $type = (grep {!m/(?:BASE64|URI)/} keys %{$r_data->[$index]{TYPES}})[0];
+
+      my $photo;
+      if (exists $r_data->[$index]{TYPES}{URI}) {
+         my $escapedvalue = ow::htmltext::str2html($r_data->[$index]{VALUE});
+         if ($type =~ m/^(?:GIF|JPE?G|PNG)$/) {
+            $photo = qq|<td><a href="$escapedvalue" target="_new"><img src="$escapedvalue" border="1"></a></td>|; # display inline and as a link
+         } else {
+            $photo = qq|<td width="52" height="52" bgcolor="#000000" align="center">|.
+                     qq|<table cellspacing="0" cellpadding="0" border="0"><tr><td align="center" width="50" height="50" bgcolor=$style{'tablerow_light'}>|.
+                     iconlink("cal-link.gif", "$lang_text{'link'}", qq|href="$escapedvalue" target="_new"|). # just a link
+                     qq|</td></tr></table></td>|;
+         }
+      } elsif (exists $r_data->[$index]{TYPES}{BASE64}) {
+         $photo = qq|<td><a href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrviewatt&amp;sessionid=$thissession&amp;file=$r_data->[$index]{VALUE}&amp;type=$type" target="_new">|.
+                  qq|<img src="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrviewatt&amp;sessionid=$thissession&amp;file=$r_data->[$index]{VALUE}&amp;type=$type" border="1"></a></td>|;
+      } else {
+         $template = '';
+      }
+      $template =~ s/\@\@\@PHOTO\@\@\@/$photo/;
+      my $delete = qq|&nbsp;&nbsp;|.iconlink("cal-delete.gif", "$lang_text{'delete'}", qq|href="javascript:document.editForm.formchange.value='$name,$index,-1'; document.editForm.submit();"|);
+      $template =~ s/\@\@\@PHOTO.DELETE\@\@\@/$delete/;
+
+      my $photovalue = hidden(-name=>"$name.$index.VALUE", -default=>$r_data->[$index]{VALUE}, -override=>1);
+      $template =~ s/\@\@\@PHOTO.VALUE\@\@\@/$photovalue/;
+      my $phototypes = hidden(-name=>"$name.$index.TYPE", -default=>[map {$_} keys %{$r_data->[$index]{TYPES}}], -override=>1);
+      $template =~ s/\@\@\@PHOTO.TYPES\@\@\@/$phototypes/;
+      my $photogroup = hidden(-name=>"$name.$index.GROUP", -default=>$r_data->[$index]{GROUP}, -override=>1);
+      $template =~ s/\@\@\@PHOTO.GROUP\@\@\@/$photogroup/;
+
+      $htmlout .= $template;
+   }
+
+   return $htmlout;
+}
+########## END ADDREDITFORM_PHOTO ################################
+
+
+########## ADDREDITFORM_X-OWM-CUSTOM #############################
+sub addreditform_X_OWM_CUSTOM {
+   my ($name, $r_data) = @_;
+   my $htmlout;
+   my $X_OWM_CUSTOMtemplate = applystyle(readtemplate('addreditform_X-OWM-CUSTOM.template'));
+   for(my $index=0;$index<@{$r_data};$index++) {
+      my $template = $X_OWM_CUSTOMtemplate;
+      if (ref $r_data->[$index]{VALUE} ne 'HASH') { # X_OWM_CUSTOM is blank (a new contact)
+         $r_data->[$index]{VALUE} = { CUSTOMNAME => '' }
+      }
+      foreach my $field (qw(CUSTOMNAME)) {
+         # VALUE
+         my $valuelabel = $lang_text{"abook_editform_valuelabel_$field"} || $lang_text{'abook_editform_valuelabel'};
+         $template =~ s/\@\@\@$field.VALUELABEL\@\@\@/$valuelabel/;
+         my $valuehtml = textfield(-name=>"X-OWM-CUSTOM.$index.VALUE.$field", -default=>$r_data->[$index]{VALUE}{$field}, -size=>"30", -override=>"1", -class=>"mono");
+         $template =~ s/\@\@\@$field.VALUE\@\@\@/$valuehtml/;
+      }
+      my $delete;
+      if (@{$r_data} > 1) {
+         $delete = iconlink("cal-delete.gif", "$lang_text{'delete'}", qq|href="javascript:document.editForm.formchange.value='$name,$index,-1'; document.editForm.submit();"|);
+      }
+      $template =~ s/\@\@\@DELETE\@\@\@/$delete/;
+      addreditform_GENERIC_TYPES($name, $r_data, $index, \$template);
+      addreditform_GENERIC_GROUP($name, $r_data, $index, \$template);
+
+      # CUSTOMVALUES.VALUE
+      my $valuehtml = '';
+      my $valuelabel = $lang_text{"abook_editform_valuelabel_CUSTOMVALUES"} || $lang_text{'abook_editform_valuelabel'};
+      $r_data->[$index]{VALUE}{CUSTOMVALUES} = [''] if (ref($r_data->[$index]{VALUE}{CUSTOMVALUES}) ne 'ARRAY');
+      for(my $pos=0;$pos<@{$r_data->[$index]{VALUE}{CUSTOMVALUES}};$pos++) {
+         $template =~ s/\@\@\@ADDCUSTOMVALUES\@\@\@/X-OWM-CUSTOM.$index.VALUE.CUSTOMVALUES/;
+         if (ref($r_data->[$index]{VALUE}{CUSTOMVALUES}[$pos]) eq 'HASH') {
+            # a new field was added (adds as {VALUE => ''} by default, which in this case we don't want)
+            $r_data->[$index]{VALUE}{CUSTOMVALUES}[$pos] = '';
+         }
+         $valuehtml .= qq|<tr><td>|.
+                       textfield(-name=>"X-OWM-CUSTOM.$index.VALUE.CUSTOMVALUES.$pos", -default=>$r_data->[$index]{VALUE}{CUSTOMVALUES}[$pos], -size=>"30", -override=>"1", -class=>"mono");
+         if (@{$r_data->[$index]{VALUE}{CUSTOMVALUES}} > 1) {
+            $valuehtml .= qq|&nbsp;&nbsp;|.
+                          iconlink("cal-delete.gif", "$lang_text{'delete'}", qq|href="javascript:document.editForm.formchange.value='X-OWM-CUSTOM.$index.VALUE.CUSTOMVALUES,$pos,-1'; document.editForm.submit();"|);
+         }
+         $valuehtml .= qq|</td></tr>\n|;
+         $valuehtml .= $pos==$#{$r_data->[$index]{VALUE}{CUSTOMVALUES}}?qq|<tr><td class="smalltext">$valuelabel</td></tr>\n|:qq|<tr><td></td></tr>\n|;
+      }
+      $template =~ s/\@\@\@CUSTOMVALUES.VALUE\@\@\@/$valuehtml/;
+
+      $htmlout .= $template;
+   }
+
+   return $htmlout;
+}
+########## END ADDREDITFORM_X-OWM-CUSTOM #########################
+
+
+########## ADDREDITFORM_MERGE_NESTED #############################
+sub addreditform_merge_nested {
+   my ($r_target, $r_source) = @_;
+   # merges source data structure into target. Allows multiple nests to
+   # be processed onto the same target - filling the array slots instead
+   # of overwriting them with undef values.
+   # Needed mostly for the ORG and X-OWM-CUSTOM datatypes that have
+   # nested arrays in their data structure.
+   # Be careful if you're changing this, its recursive and infinite!
+
+#   print "<pre>SOURCE DUMP PRE:\n".Dumper($r_source)."</pre>\n";
+#   print "<pre>TARGET DUMP PRE:\n".Dumper($r_target)."</pre>\n";
+
+   if (ref($r_source) eq 'HASH') {
+      foreach my $key (keys %{$r_source}) {
+         if (!exists $r_target->{$key}) {
+            $r_target->{$key} = $r_source->{$key};
+         }
+         if (ref($r_source->{$key}) eq 'HASH') {
+            addreditform_merge_nested(\%{$r_target->{$key}}, \%{$r_source->{$key}});
+         } elsif (ref($r_source->{$key}) eq 'ARRAY') {
+            addreditform_merge_nested(\@{$r_target->{$key}}, \@{$r_source->{$key}});
+         } elsif (ref($r_source->{$key}) eq 'SCALAR') {
+            addreditform_merge_nested(\${$r_target->{$key}}, \${$r_source->{$key}});
+         } else {
+            $r_target->{$key} = $r_source->{$key};
+         }
+      }
+   } elsif (ref($r_source) eq 'ARRAY') {
+      for(my $pos=0;$pos<@{$r_source};$pos++) {
+         if (defined($r_source->[$pos])) {
+            if (!defined($r_target->[$pos])) { # no danger of array overwrite
+               $r_target->[$pos] = $r_source->[$pos];
+            }
+         } else {
+            if (defined($r_target->[$pos])) {
+               next; # preserve the value in the target
+            } else {
+               $r_target->[$pos] = $r_source->[$pos];
+            }
+         }
+         if (ref($r_source->[$pos]) eq 'HASH') {
+            addreditform_merge_nested(\%{$r_target->[$pos]}, \%{$r_source->[$pos]});
+         } elsif (ref($r_source->[$pos]) eq 'ARRAY') {
+            addreditform_merge_nested(\@{$r_target->[$pos]}, \@{$r_source->[$pos]});
+         } elsif (ref($r_source->[$pos]) eq 'SCALAR') {
+            addreditform_merge_nested(\${$r_target->[$pos]}, \${$r_source->[$pos]});
+         } else {
+            $r_target->[$pos] = $r_source->[$pos];
+         }
+      }
+   } elsif (ref($r_source) eq 'SCALAR') {
+      if (defined ${$r_source}) {
+         ${$r_target} = ${$r_source};
+      }
+   } else {
+#      print "<pre>SOURCE NOT H.A.S:\n".Dumper($r_source)."</pre>\n";
+#      print "<pre>TARGET NOT H.A.S:\n".Dumper($r_target)."</pre>\n";
+      $r_target = $r_source;
+   }
+
+#   print "<pre>SOURCE DUMP POST:\n".Dumper($r_source)."</pre>\n";
+#   print "<pre>TARGET DUMP POST:\n".Dumper($r_target)."</pre>\n";
+}
+########## END ADDREDITFORM_MERGE_NESTED #########################
+
+
+########## ADDREDITFORM_TO_VCARD #################################
+sub addreditform_to_vcard {
+   # prepare to convert the character set if needed
+   my $convfrom = param('convfrom');
+   my $convto = param('X-OWM-CHARSET.0.VALUE');
+   my $convertchars = '';
+   if ($convfrom ne $convto && is_convertable($convfrom, $convto) ) {
+      $convertchars = sub { ($_[2]) = iconv($_[0], $_[1], $_[2]); return $_[2] };
+   } else {
+      $convertchars = sub { return $_[2] }; # do no conversion on the value
+   }
+
+   print "<pre>INSIDE addreditform_to_vcard:\n</pre>" if $addrdebug;
+
+   # we need to force the FN value into N to make the card valid if its a group.
+   if (param('editgroupform')) {
+      param(-name=>'N.0.VALUE.GIVENNAME', -value=>ucfirst($lang_text{'group'}));
+      param(-name=>'N.0.VALUE.FAMILYNAME', -value=>param('FN.0.VALUE'));
+   }
+
+   # load the information coming from the html form
+   # and return it as a vcard hash structure.
+   my $formdata = ();
+   my $xowmuid = param('rootxowmuid');
+   my @form = param(); # list of form values
+   foreach my $field (sort @form) {
+      my ($propertyname,$index,$datatype,$nested) = $field =~ m/^(\S+?)\.(\d+)\.(VALUE|GROUP|TYPE)\.?(\S+)?$/;
+
+      # catch PREF values - they are the only exception to the
+      # PROPERTYNAME.INDEX.DATATYPE.NESTED1.NESTED2 rule since
+      # PREFs are like EMAIL.PREF or TEL.PREF
+      if ($propertyname eq '') {
+         ($propertyname, $index) = $field =~ m/^(\S+?)\.(PREF)$/;
+         if ($index eq 'PREF') {
+            $index = param("$propertyname.PREF");
+            $formdata->{$xowmuid}{$propertyname}[$index]{TYPES}{'PREF'} = 'TYPE';
+         }
+         next;
+      }
+
+      # a non-vcard form element (like action)?
+      next unless defined $datatype;
+
+      my $value = param($field);
+
+      if ($datatype eq 'VALUE') {
+         if (defined $nested) {
+            # create the nested data structure
+            my %nest;
+            my @nestkeys = split(/\./,$nested); # ORG.0.VALUE.ORGANIZATIONALUNITS.0
+            for(my $pos=$#nestkeys;$pos>=0;$pos--) { # start from the end of nestkeys
+               if ($nestkeys[$pos] =~ m/^\d+$/) { # this is an array nest
+                  if (defined $nestkeys[$pos+1]) { # there is a next one
+                     # this one should ref to the next one
+                     $nest{$nestkeys[$pos]}[$nestkeys[$pos]] = $nest{$nestkeys[$pos+1]};
+                     delete $nest{$nestkeys[$pos+1]};
+                  } else { # there is no next one - assign value
+                     $nest{$nestkeys[$pos]}[$nestkeys[$pos]] = $convertchars->($convfrom, $convto, $value);
+                  }
+               } else { # this is a hash nest
+                  if (defined $nestkeys[$pos+1]) { # there is a next one
+                     $nest{$nestkeys[$pos]}{$nestkeys[$pos]} = $nest{$nestkeys[$pos+1]};
+                     delete $nest{$nestkeys[$pos+1]};
+                  } else { # there is no next one - assign value
+                     $nest{$nestkeys[$pos]}{$nestkeys[$pos]} = $convertchars->($convfrom, $convto, $value);
+                  }
+               }
+               if ($pos == 0) {
+                  %nest = %{$nest{$nestkeys[0]}};
+                  #print "<pre>addreditform NESTKEYS:\n" . Dumper(\@nestkeys) . "</pre>";
+                  #print "<pre>addreditform NEST:\n" . Dumper(\%nest) . "</pre>";
+                  addreditform_merge_nested(\%{$formdata->{$xowmuid}{$propertyname}[$index]{VALUE}}, \%nest);
+               }
+            }
+         } else {
+            $formdata->{$xowmuid}{$propertyname}[$index]{VALUE} = $convertchars->($convfrom, $convto, $value);
+         }
+         #print "<pre>$field VALUE IS: " . Dumper($value) . "</pre>";
+      } elsif ($datatype eq 'GROUP') {
+         #print "<pre>$field GROUP IS: " . Dumper($value) . "</pre>";
+         $formdata->{$xowmuid}{$propertyname}[$index]{GROUP} = $convertchars->($convfrom, $convto, $value);
+      } elsif ($datatype eq 'TYPE') {
+         my @types = param($field);
+         foreach my $type (@types) {
+            #print "<pre>$field TYPE: $type</pre>";
+            $formdata->{$xowmuid}{$propertyname}[$index]{TYPES}{$convertchars->($convfrom, $convto, $type)} = 'TYPE';
+         }
+      } else {
+         openwebmailerror(__FILE__, __LINE__, "datatype $datatype is not supported");
+      }
+   }
+
+   # process form changes
+   if (param('formchange')) {
+      my ($formchange,$formchangeindex,$formchangeamount) = split(/,/,param('formchange')); # add (EMAIL,0,1) or remove (EMAIL,5,-1)
+      print "<pre>FORMCHANGE REQUEST: $formchange,$formchangeindex,$formchangeamount</pre>\n" if $addrdebug;
+      if ($formchangeamount>0 || $formchangeamount<0) {
+         # figure out the form target
+         my $formchangetarget = \%{$formdata->{$xowmuid}};
+         my @target = split(/\./,$formchange);
+
+         for(my $pos=0;$pos<@target;$pos++) {
+            if ($target[$pos] =~ m/^\d+$/) { # this one is an array
+               if ($pos eq $#target) { # this is the last one - must always be array
+                  $formchangetarget = \@{$formchangetarget->[$target[$pos]]};
+               } else {
+                  if (ref($formchangetarget->[$target[$pos]]) eq 'ARRAY') {
+                     $formchangetarget = \@{$formchangetarget->[$target[$pos]]};
+                  } else {
+                     $formchangetarget = \%{$formchangetarget->[$target[$pos]]};
+                  }
+               }
+            } else { # (assume) this one is a hash
+               if ($pos eq $#target) { # this is the last one - must always be array
+                  $formchangetarget = \@{$formchangetarget->{$target[$pos]}};
+               } else {
+                  if (ref($formchangetarget->{$target[$pos]}) eq 'ARRAY') {
+                     $formchangetarget = \@{$formchangetarget->{$target[$pos]}};
+                  } else {
+                     $formchangetarget = \%{$formchangetarget->{$target[$pos]}};
+                  }
+               }
+            }
+         }
+
+         if ($formchangeamount>0) {
+            push(@{$formchangetarget},{VALUE => ''}); # add an item
+         } else {
+            splice(@{$formchangetarget},$formchangeindex,1); # remove an item
+         }
+      }
+   }
+
+   print "EXITING addreditform_to_vcard:\n" if $addrdebug;
+   return($formdata);
+}
+########## END ADDREDITFORM_TO_VCARD #############################
+
+
+########## ADDREDIT ##############################################
+sub addredit {
+   my $composecharset = param('X-OWM-CHARSET.0.VALUE');
+
+   my $formchange = param('formchange');
+
+   print header() if $addrdebug;
+   if ($formchange ne '') {
+      #################################################
+      # not ready to process yet, just modifying form #
+      #################################################
+      print "<pre>GOING TO THE ADDREDITFORM via FORMCHANGE\n</pre>" if $addrdebug;
+      addreditform();
+   } elsif (defined(param('EDITFORMUPLOAD')) ||      # user press 'add' button
+                    param('webdisksel') ) {          # file selected from webdisk
+
+      #################################################
+      # not ready to process yet, uploading something #
+      #################################################
+
+      my $uploadtype = param('UPLOAD.FILE.TYPE');
+      if ($uploadtype !~ m/(?:PHOTO|SOUND|LOGO|KEY|AGENT)/) { # someone is playing around
+         openwebmailerror(__FILE__, __LINE__, "$uploadtype $lang_err{'func_notsupported'}!");
+      }
+
+      # list of extensions we will accept
+      my %approvedext = ( 'PHOTO' => { # according to vCard RFC
+                                       'GIF' => 'Graphics Interchange Format',
+                                       'CGM' => 'ISO Computer Graphics Metafile',
+                                       'WMF' => 'Microsoft Windows Metafile',
+                                       'BMP' => 'Microsoft Windows Bitmap',
+                                       'MET' => 'IBM PM Metafile',
+                                       'PMB' => 'IBM PM Bitmap',
+                                       'DIB' => 'MS Windows DIB',
+                                       'PICT' => 'Apple Picture Format',
+                                       'TIFF' => 'Tagged Image File Format',
+                                       'PS' => 'Adobe Postscript Format',
+                                       'PDF' => 'Adobe Page Description Format',
+                                       'JPEG' => 'ISO JPEG Format',
+                                       'MPEG' => 'ISO MPEG Format',
+                                       'MPEG2' => 'ISO MPEG Version 2 Format',
+                                       'AVI' => 'Intel AVI Format',
+                                       'QTIME' => 'Apple Quicktime Format',
+                                       # approved by OWM (movies for pictures are fun!)
+                                       'PIC' => 'Apple Picture Format',
+                                       'TIF' => 'Tagged Image File Format',
+                                       'JPG' => 'ISO JPEG Format',
+                                       'MPG' => 'ISO MPEG Format',
+                                       'MPG2' => 'ISO MPEG Version 2 Format',
+                                       'MOV' => 'Apple Quicktime Format',
+                                       'SWF' => 'Macromedia Shockwave Flash',
+                                       'PNG' => 'Portable Network Graphics',
+                                     },
+                          'SOUND' => { # according to vCard RFC
+                                       'WAVE' => 'Microsoft WAVE Format',
+                                       'PCM' => 'MIME basic audio type',
+                                       'AIFF' => 'AIFF Format',
+                                       # approved by OWM
+                                       'WAV' => 'Microsoft WAVE Format',
+                                       'AIFC' => 'AIFF Format',
+                                       'AIF' => 'AIFF Format',
+                                       'AU' => 'Sun Audio Format',
+                                     },
+                            'KEY' => { # according to vCard RFC
+                                       'X509' => 'X.509 Public Key Certificate',
+                                       'PGP' => 'IETF Pretty Good Privacy Key',
+                                       # approved by OWM
+                                       'GPG' => 'GNU Privacy Guard',
+                                     },
+                           'LOGO' => { # according to vCard RFC
+                                       'GIF' => 'Graphics Interchange Format',
+                                       'CGM' => 'ISO Computer Graphics Metafile',
+                                       'WMF' => 'Microsoft Windows Metafile',
+                                       'BMP' => 'Microsoft Windows Bitmap',
+                                       'MET' => 'IBM PM Metafile',
+                                       'PMB' => 'IBM PM Bitmap',
+                                       'DIB' => 'MS Windows DIB',
+                                       'PICT' => 'Apple Picture Format',
+                                       'TIFF' => 'Tagged Image File Format',
+                                       'PS' => 'Adobe Postscript Format',
+                                       'PDF' => 'Adobe Page Description Format',
+                                       'JPEG' => 'ISO JPEG Format',
+                                       'MPEG' => 'ISO MPEG Format',
+                                       'MPEG2' => 'ISO MPEG Version 2 Format',
+                                       'AVI' => 'Intel AVI Format',
+                                       'QTIME' => 'Apple Quicktime Format',
+                                       # approved by OWM
+                                       'PIC' => 'Apple Picture Format',
+                                       'TIF' => 'Tagged Image File Format',
+                                       'JPG' => 'ISO JPEG Format',
+                                       'MPG' => 'ISO MPEG Format',
+                                       'MPG2' => 'ISO MPEG Version 2 Format',
+                                       'MOV' => 'Apple Quicktime Format',
+                                       'SWF' => 'Macromedia Shockwave Flash',
+                                       'PNG' => 'Portable Network Graphics',
+                                     },
+                          'AGENT' => { 'VCF' => 'Versit Card Format' },
+                        );
+
+      my ($attfiles_totalsize, $r_attfiles) = getattfilesinfo();
+
+      my $uri = param('UPLOAD.URI') || '';
+      my $attachment = param('UPLOAD.FILE') || '';
+      my $webdisksel = param('webdisksel') || '';
+
+      my ($attname, $attcontenttype);
+
+      if ($webdisksel || $attachment) {
+         if ($attachment) {
+            # Convert :: back to the ' like it should be.
+            $attname = $attachment;
+            $attname =~ s/::/'/g;
+            # Trim the path info from the filename
+            if ($composecharset eq 'big5' || $composecharset eq 'gb2312') {
+               $attname = ow::tool::zh_dospath2fname($attname); # dos path
+            } else {
+               $attname =~ s|^.*\\||;   # dos path
+            }
+            $attname =~ s|^.*/||;       # unix path
+            $attname =~ s|^.*:||;       # mac path and dos drive
+
+            if (defined(uploadInfo($attachment))) {
+               $attcontenttype = ${uploadInfo($attachment)}{'Content-Type'} || 'application/octet-stream';
+            } else {
+               $attcontenttype = 'application/octet-stream';
+            }
+
+            if ($attcontenttype eq 'application/octet-stream') {
+               # browser didn't tell us. Can we figure it out?
+               my $ext = uc(ow::tool::contenttype2ext(ow::tool::ext2contenttype($attname)));
+               if (exists $approvedext{$uploadtype}{$ext}) {
+                  $attcontenttype = ow::tool::ext2contenttype($attname);
+               }
+            }
+         } elsif ($webdisksel && $config{'enable_webdisk'}) {
+            my $webdiskrootdir=ow::tool::untaint($homedir.absolute_vpath("/", $config{'webdisk_rootpath'}));
+            my $vpath=absolute_vpath('/', $webdisksel);
+            my $err=verify_vpath($webdiskrootdir, $vpath);
+            openwebmailerror(__FILE__, __LINE__, $err) if ($err);
+            openwebmailerror(__FILE__, __LINE__, "$lang_text{'file'} $vpath $lang_err{'doesnt_exist'}") if (!-f "$webdiskrootdir/$vpath");
+
+            $attachment=do { local *FH };
+            open($attachment, "$webdiskrootdir/$vpath") or
+               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $lang_text{'webdisk'} $vpath! ($!)");
+            $attname=$vpath; $attname=~s|/$||; $attname=~s|^.*/||;
+            $attcontenttype=ow::tool::ext2contenttype($vpath);
+         }
+
+         if ($attachment) {
+            if ( ($config{'abook_attlimit'}>0) && ( ($attfiles_totalsize + (-s $attachment)) > ($config{'abook_attlimit'}*1024) ) ) {
+               close($attachment);
+               openwebmailerror(__FILE__, __LINE__, "$lang_err{'att_overlimit'} $config{'abook_attlimit'} $lang_sizes{'kb'}!");
+            }
+            my $attserial = time() . join("",map { int(rand(10)) }(1..9));
+            open (ATTFILE, ">$config{'ow_sessionsdir'}/$thissession-vcard$attserial");
+            binmode ATTFILE; # to ensure images don't corrupt
+            my ($buff, $attsize);
+            while (read($attachment, $buff, 400*57)) {
+               $attsize += length($buff);
+               print ATTFILE $buff;
+            }
+            close ATTFILE;
+            close($attachment); # close tmpfile created by CGI.pm
+
+            # Check that agents only contain a single contact and are valid file
+            if ($uploadtype eq 'AGENT') {
+               my $test = readadrbook("$config{'ow_sessionsdir'}/$thissession-vcard$attserial", undef, undef);
+               if (keys %{$test} > 1) {
+                  openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_agent_one_contact'}");
+               }
+            }
+
+            $attfiles_totalsize+=$attsize;
+
+            my $uploadextension = uc(ow::tool::contenttype2ext($attcontenttype));
+
+            if (exists $approvedext{$uploadtype}{$uploadextension}) {
+               # what is the index number for this new upload?
+               my @form = param();
+               my $newindex = 0;
+               foreach my $field ( sort @form ) {
+                  my ($propertyname,$index,$datatype,$nestedhashes) = $field =~ m/^(\S+?)\.(\d+)\.(VALUE|GROUP|TYPE)\.?(\S+)?$/;
+                  $newindex++ if $index == $newindex && $propertyname eq $uploadtype;
+               }
+               # add this value to the param list for later processing
+               param(-name=>"$uploadtype.$newindex.VALUE", -value=>$attserial);
+               if ($uploadtype eq 'AGENT') {
+                  param(-name=>"$uploadtype.$newindex.TYPE", -value =>[$uploadextension, 'VCARD']);
+               } else {
+                  param(-name=>"$uploadtype.$newindex.TYPE", -value =>[$uploadextension, 'BASE64']);
+               }
+            } else {
+               unlink("$config{'ow_sessionsdir'}/$thissession-vcard$attserial");
+               openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_ext_notsupported'} $uploadtype ($attcontenttype $uploadextension)!");
+            }
+         }
+      } elsif ($uri) {
+         # what is the index number for this new upload?
+         my @form = param();
+         my $newindex = 0;
+         # which index is this upload going to be of this type? i.e. - is this picture #2,#3,etc?
+         foreach my $field ( sort @form ) {
+            my ($propertyname,$index,$datatype,$nestedhashes) = $field =~ m/^(\S+?)\.(\d+)\.(VALUE|GROUP|TYPE)\.?(\S+)?$/;
+            $newindex++ if $index == $newindex && $propertyname eq $uploadtype;
+         }
+         # url may be something like http://www.site.com/pic.pl?number=5
+         # in which case we will have no idea what the extension is - so just blindly accept the value
+         param(-name=>"$uploadtype.$newindex.VALUE", -value=>$uri);
+         # can we figure out the extension?
+         my $uploadextension = uc(ow::tool::contenttype2ext(ow::tool::ext2contenttype(lc($uri))));
+         if (exists $approvedext{$uploadtype}{$uploadextension}) {
+            param(-name=>"$uploadtype.$newindex.TYPE", -value =>[$uploadextension, 'URI']);
+         } else {
+            param(-name=>"$uploadtype.$newindex.TYPE", -value =>['URI']);
+         }
+      }
+      print "GOING TO THE ADDREDITFORM via EDITFORMUPLOAD\n" if $addrdebug;
+      addreditform();
+   } else {
+      ######################################################################
+      # Finally, ready to process form data.                               #
+      # We're here for one of two possible reasons:                        #
+      #  - we want to save the form data to a card. Simple. In this case   #
+      #    we are here from addreditform or we are here from quickadd.     #
+      #  - we want to access an agent. Before we do so we need to save the #
+      #    the data of the card we're currently on.                        #
+      ######################################################################
+      print header() if $addrdebug;
+      my $xowmuid = param('rootxowmuid');
+
+      $abookfolder = safefoldername($abookfolder);
+      $abookfolder = ow::tool::untaint($abookfolder);
+
+      my $completevcard;  # will contain all of the data for this card
+      my $contact;        # will be a pointer to a level of data in $completevcard
+
+      my $abookfile = undef;
+      if ($abookfolder eq 'GLOBAL') {
+         if ($config{'global_addressbook'} ne "" && -f "$config{'global_addressbook'}") {
+            $abookfile = $config{'global_addressbook'};
+         } else {
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_global_denied'}");
+         }
+      } else {
+         $abookfile = "$webaddrdir/$abookfolder";
+      }
+
+      if ($xowmuid ne '') {
+         # read in the completecard
+         my %searchterms = ( 'X-OWM-UID' => [ { 'VALUE' => $xowmuid } ] ); # only pull this card
+         my %only_return = ();
+
+         print "<pre>addredit XOWMUID is $xowmuid, reading completevcard:\n" if $addrdebug;
+         $completevcard = readadrbook($abookfile, (keys %searchterms?\%searchterms:undef), (keys %only_return?\%only_return:undef));
+         print "</pre>\n" if $addrdebug;
+      }
+
+      if ($addrdebug) { # DEBUG DUMP
+         my $outfile = "$config{'ow_sessionsdir'}/DUMP_BEFORE";
+         open (FILE, ">$outfile") || openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $outfile ($!)\n");
+         print FILE Dumper(\%{$completevcard});
+         close FILE || openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $outfile ($!)\n");
+      }
+
+      # To access AGENT nested data we will need to know what the targetagent is.
+      # Targetagent looks like: <traversedirection>,<agent position(s)>,[<last position accessed>]
+      # Traverse direction can be 'access agent'(1) or 'access parent'(-1).
+      # Last should only be used if traversedirection is -1 (so we know what card to save the form
+      # data to before we traverse to the parent).
+      my @targetagent = split(/,/,param('targetagent')); # a map to the target: 1,0,2,0,1
+      print "<pre>\n\nTARGETAGENT:\n".Dumper(\@targetagent)."</pre>\n" if $addrdebug;
+      my $traversedirection = shift(@targetagent);
+      if ($traversedirection == 1) {
+         # if we're going into an agent we want to save the level above it
+         pop(@targetagent); # so remove the last entry in the targetagent
+      }
+
+      my $targetdepth = @targetagent || 0;
+      print "<pre>addredit TARGETDEPTH: $targetdepth\nTRAVERSEDIRECTION: $traversedirection\nTARGETAGENT:\n".Dumper(\@targetagent)."</pre>\n" if $addrdebug;
+
+      # Align $contact so it is pointing to the completevcard data we want to modify.
+      my $target = \%{$completevcard->{$xowmuid}};
+      for(my $depth=1;$depth<=$targetdepth;$depth++) {
+         if (exists $target->{AGENT}[$targetagent[$depth-1]]{VALUE}) {
+            foreach my $agentxowmuid (keys %{$target->{AGENT}[$targetagent[$depth-1]]{VALUE}}) {
+               $target = \%{$target->{AGENT}[$targetagent[$depth-1]]{VALUE}{$agentxowmuid}};
+            }
+         } else {
+            # we're creating a new agent from scratch
+            $target->{AGENT}[$targetagent[$depth-1]]{TYPES}{VCARD} = 'TYPE';
+            $target = \%{$target->{AGENT}[$targetagent[$depth-1]]{VALUE}{''}};
+         }
+      }
+      $contact->{$xowmuid} = $target;
+
+      print "<pre>addredit CONTACT has been aligned to:\n".Dumper(\%{$contact})."</pre>\n" if $addrdebug;
+
+      # clear out $contact so we can populate it with the form data - keep 'X-OWM-UID'
+      foreach my $propertyname (keys %{$contact->{$xowmuid}}) {
+         delete $contact->{$xowmuid}{$propertyname} unless ($propertyname eq 'X-OWM-UID');
+      }
+
+      print "<pre>addredit CONTACT has been cleaned out to make way for the form data:\n".Dumper(\%{$contact})."</pre>\n" if $addrdebug;
+
+      print "<pre>FORM DUMP:\n".Dump()."\n</pre>\n\n\n" if $addrdebug;
+
+      # populate $contact with the form data
+      my $formdata = addreditform_to_vcard();
+      foreach my $propertyname (keys %{$formdata->{$xowmuid}}) {
+         next if ($propertyname eq 'X-OWM-UID');
+         $contact->{$xowmuid}{$propertyname} = $formdata->{$xowmuid}{$propertyname};
+      }
+
+      # if we are coming from an editgroupform we need to break EMAIL.0.VALUE
+      # into each individual email entry before we write out the card.
+      if (param('editgroupform')) {
+         my $index = 0;
+         foreach my $email (split(/\n/,$contact->{$xowmuid}{EMAIL}[0]{VALUE})) {
+            $contact->{$xowmuid}{EMAIL}[$index]{VALUE} = $email;
+            $index++;
          }
       }
 
-      if ($mode eq 'delete') {
-         delete $addresses{"$realname"};
-      } else {
-         if ( (-s $addrbookfile) >= ($config{'maxbooksize'} * 1024) ) {
-            ow::filelock::lock($addrbookfile, LOCK_UN);
-            openwebmailerror(__FILE__, __LINE__, qq|$lang_err{'abook_toobig'} <a href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=editaddresses&amp;sessionid=$thissession&amp;sort=$sort&amp;folder=$escapedfolder&amp;page=$page&amp;message_id=$escapedmessageid">$lang_err{'back'}</a>$lang_err{'tryagain'}|);
+      print "<pre>addredit CONTACT has been made from the form data:\n".Dumper(\%{$contact})."</pre>\n" if $addrdebug;
+
+      # Convert all BASE64 and VCARD files in the sessions directories to be included in the vcard.
+      foreach my $propertyname (qw(PHOTO LOGO SOUND KEY AGENT)) {
+         if (exists $contact->{$xowmuid}{$propertyname}) {
+            for(my $index=0;$index<@{$contact->{$xowmuid}{$propertyname}};$index++) {
+               if (exists $contact->{$xowmuid}{$propertyname}[$index]{TYPES}) {
+                  if (exists $contact->{$xowmuid}{$propertyname}[$index]{TYPES}{BASE64} ||
+                      exists $contact->{$xowmuid}{$propertyname}[$index]{TYPES}{VCARD}) {
+                     my $fileserial = $contact->{$xowmuid}{$propertyname}[$index]{VALUE};
+                     # make fileserial safe in case someone is getting tricky
+                     $fileserial = safefoldername($fileserial);
+                     $fileserial = ow::tool::untaint($fileserial);
+                     my $targetfile = "$config{'ow_sessionsdir'}/$thissession-vcard$fileserial";
+                     if (exists $contact->{$xowmuid}{$propertyname}[$index]{TYPES}{VCARD}) {
+                        $contact->{$xowmuid}{$propertyname}[$index]{VALUE} = readadrbook("$targetfile",undef,undef); # attach vcard file
+                     } else {
+                        open (FILE, "<$targetfile") || openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $targetfile ($!)\n");
+                        $contact->{$xowmuid}{$propertyname}[$index]{VALUE} = do { local $/; <FILE> }; # attach binary file
+                        close FILE || openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $targetfile ($!)\n");
+                     }
+                     unlink($targetfile);
+                  }
+               }
+            }
          }
-         $addresses{"$realname"} = $address;
-         # overwrite old note only if new one is not _reserved_
-         # check addaddress in openwebmail-read.pl
-         $notes{"$realname"} = $usernote if ($usernote ne '_reserved_');
       }
 
-      # replace the address book
-      ($stat,$err)=write_abook($addrbookfile,$config{'maxbooksize'},\%addresses,\%notes);
-      if ($stat<0) {
-         ow::filelock::lock($addrbookfile, LOCK_UN) or
-         openwebmailerror(__FILE__, __LINE__, $err);
+      # unbundle the propertynames we bundled previously
+      my %unbundlemap = ( 'ADR' => ['LABEL'], 'ORG' => ['TITLE','ROLE'] );
+      foreach my $key (keys %unbundlemap) {
+         if (exists $contact->{$xowmuid}{$key}) {
+            for(my $index=0;$index<@{$contact->{$xowmuid}{$key}};$index++) {
+               foreach my $target (@{$unbundlemap{$key}}) {
+                  if (exists $contact->{$xowmuid}{$key}[$index]{VALUE}{$target}) {
+                     $contact->{$xowmuid}{$target}[$index]{VALUE} = $contact->{$xowmuid}{$key}[$index]{VALUE}{$target};
+                     delete $contact->{$xowmuid}{$key}[$index]{VALUE}{$target};
+                  }
+                  if (exists $contact->{$xowmuid}{$key}[$index]{GROUP}) {
+                     $contact->{$xowmuid}{$target}[$index]{GROUP} = $contact->{$xowmuid}{$key}[$index]{GROUP};
+                  }
+                  if (exists $contact->{$xowmuid}{$key}[$index]{TYPES}) {
+                     $contact->{$xowmuid}{$target}[$index]{TYPES} = $contact->{$xowmuid}{$key}[$index]{TYPES};
+                  }
+                  # special cases
+                  if ($target eq 'LABEL') {
+                     $contact->{$xowmuid}{$target}[$index]{TYPES}{BASE64} = 'ENCODING';
+                  }
+               }
+            }
+         }
       }
 
-      ow::filelock::lock($addrbookfile, LOCK_UN);
-   }
+      ################################################################################
+      # The form has been laid into $contact (and by reference into $completevcard). #
+      # Time to output the completecard.                                             #
+      ################################################################################
 
-   if ( param('message_id') ) {
-      my $searchtype = param('searchtype') || 'subject';
-      my $keyword = param('keyword') || '';
-      my $escapedkeyword = ow::tool::escapeURL($keyword);
-      print redirect(-location=>"$config{'ow_cgiurl'}/openwebmail-read.pl?sessionid=$thissession&folder=$escapedfolder&page=$page&sort=$sort&keyword=$escapedkeyword&searchtype=$searchtype&message_id=$escapedmessageid&action=readmessage&headers=$prefs{'headers'}&attmode=simple");
-   } else {
-      editaddresses();
-   }
-}
-########## END MODADDRESS ########################################
+      print "<pre>addredit COMPLETEVCARD after form merged into it:\n".Dumper(\%{$completevcard})."</pre>\n" if $addrdebug;
 
-########## CLEARADDRESS ##########################################
-sub clearaddress {
-   my $addrbookfile=dotpath('address.book');
+      # outputvfile will check values and add X-OWM-UID if needed.
+      # readvfilesfromstring will make it a hash, double check values,
+      # and add any missing propertynames.
+      print "<pre>USING OUTPUTVFILE TO VALIDATE THE DATA:\n" if $addrdebug;
+      $completevcard = readvfilesfromstring(outputvfile('vcard',$completevcard));
+      print "</pre>\n" if $addrdebug;
 
-   if ( -f $addrbookfile ) {
-      open (ABOOK, ">$addrbookfile") or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $addrbookfile! ($!)");
-      close (ABOOK) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $addrbookfile! ($!)");
-   }
-
-   writelog("clear addressbook");
-   writehistory("clear addressbook");
-
-   editaddresses();
-}
-########## END CLEARADDRESS ######################################
-
-########## IS_ENTRY_MATCHED ######################################
-sub is_entry_matched {
-  my ($keyword,$searchtype, $name,$note,$email)=@_;
-
-  $keyword=~s/^\s*//; $keyword=~s/\s*$//;
-  return 1 if ($keyword eq '');
-
-  my %string= (
-     name => $name,
-     email => $email,
-     note => $note,
-     all => "$name $email $note"
-  );
-  if ($string{$searchtype}=~/\Q$keyword\E/i ||
-      (ow::tool::is_regex($keyword) && $string{$searchtype}=~/$keyword/i) ) {
-     return 1;
-  }
-  return 0;
-}
-########## END IS_ENTRY_MATCHED ##################################
-
-########## READ_ABOOK ######################################
-# Read the address book file (assumes locking has been done elsewhere)
-sub read_abook {
-   my ($file, $r_addr, $r_notes)=@_;
-   my ($stat,$err,@namelist)=(0);
-
-   # read openwebmail addressbook
-   if ( open(ABOOK, $file) ) {
-      while (<ABOOK>) {
-         my ($name, $email, $note) = split(/\@\@\@/, $_, 3);
-         chomp($email); chomp($note);
-         $$r_addr{$name} = $email;
-         $$r_notes{$name} = $note;
-         push(@namelist, $name);
+      print "<pre>XOWMUID before reset is: $xowmuid\n</pre>" if $addrdebug;
+      # reset $xowmuid in case outputvfile assigned one because it was blank before.
+      # $xowmuid would be blank if we were coming from a new card.
+      my $oldxowmuid = $xowmuid;
+      foreach my $key (keys %{$completevcard}) {
+         $xowmuid = $key;
       }
-      close (ABOOK) or  ($stat,$err)=(-1, "$lang_err{'couldnt_close'} $file! ($!)");
-   } else {
-      ($stat,$err)=(-1, "$lang_err{'couldnt_open'} $file! ($!)");
-   }
+      if ($oldxowmuid eq '' && param('rootxowmuid') eq '') {
+         # we were blank before everywhere - must be our first card.
+         # set param to remember in case we are traversing into an agent.
+         param(-name=>'rootxowmuid', -value=>$xowmuid, -override=>1);
+      }
+      print "<pre>XOWMUID reset is now: $xowmuid\n</pre>" if $addrdebug;
 
-   return ($stat,$err,@namelist);
-}
-########## END READ_ABOOK ######################################
+      # update the revision time of this card
+      update_revision_time(\%{$completevcard->{$xowmuid}{REV}[0]});
 
-########## WRITE_ABOOK ######################################
-# Write the address book file (assumes locking has been done elsewhere)
-sub write_abook {
-   my ($file, $maxsize, $r_addr, $r_notes)=@_;
-   my ($stat,$err,$abooktowrite)=(0);
+      if ($addrdebug) { # DEBUG DUMP
+         my $outfile = "$config{'ow_sessionsdir'}/DUMP_AFTER";
+         open (FILE, ">$outfile") || openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $outfile ($!)\n");
+         print FILE Dumper(\%{$completevcard});
+         close FILE || openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $outfile ($!)\n");
+         print "<pre>addredit COMPLETEVCARD has been validated and is about to writeout:\n".Dumper(\%{$completevcard})."</pre>\n";
+      }
 
-   foreach (sort keys %$r_addr) {
-      my ($name,$email,$note)=($_, $$r_addr{$_}, $$r_notes{$_});
-      $name=~s/\@\@/\@\@ /g; $name=~s/\@$/\@ /;
-      $email=~s/\@\@/\@\@ /g; $email=~s/\@$/\@ /;
-      $abooktowrite .= "$name\@\@\@$email\@\@\@$note\n";
-   }
-   if (length($abooktowrite) <= ($maxsize * 1024)) {
-      if ( open(ABOOK, ">$file") ) {
-         print ABOOK $abooktowrite;
-         close (ABOOK) or  ($stat,$err)=(-1, "$lang_err{'couldnt_close'} $file! ($!)");
+      # load up the entire addressbook...
+      my (%searchterms, %only_return) = ();
+      print "<pre>LOADING THE COMPLETE BOOK IN ORDER TO SAVE OUT CARD $xowmuid\n" if $addrdebug;
+      my $completebook = readadrbook($abookfile, (keys %searchterms?\%searchterms:undef), (keys %only_return?\%only_return:undef));
+      print "</pre>\n" if $addrdebug;
+
+      # and overwrite the target card with the new data...
+      $completebook->{$xowmuid} = $completevcard->{$xowmuid};
+
+      # and write it out!
+      my $writeoutput = outputvfile('vcard',$completebook);
+      ow::filelock::lock($abookfile, LOCK_EX|LOCK_NB) or
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $abookfile");
+      open(TARGET, ">$abookfile") or
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $abookfile ($!)\n");
+      print TARGET $writeoutput;
+      close(TARGET) or
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $abookfile ($!)\n");
+      ow::filelock::lock($abookfile, LOCK_UN);
+
+      writelog("edit contact - $xowmuid from $abookfolder");
+      writehistory("edit contact - $xowmuid from $abookfolder");
+
+      # display
+      if ($traversedirection == 1 || $traversedirection == -1) {
+         print "<pre>WE'RE TRAVERSING AGENTS - GOING TO THE ADDREDITFORM...\n</pre>" if $addrdebug;
+         addreditform(); # continue on to display that targetagent now that this level is saved.
       } else {
-         ($stat,$err)=(-1, "$lang_err{'couldnt_open'} $file! ($!)");
+         print "<pre>GOING TO THE ADDR LIST VIEW\n</pre>" if $addrdebug;
+         addrlistview();
+      }
+   }
+}
+########## END ADDREDIT ##########################################
+
+
+########## ADDRMOVECOPYDELETE ####################################
+sub addrmovecopydelete {
+   my $targetbook = param('destinationabook');
+
+   return addrlistview() if (param('addrcopyaddresses') && $targetbook eq 'DELETE');
+
+   # Build a hash of the email addresses user checked and just take the xowmuids
+   my %waschecked = ();
+   for (ow::tool::str2list(join(",",param('to'))), ow::tool::str2list(param('checkedto')) ) { if ($_ ne '') { $_ =~ s/^(?:.*)%@#//; $waschecked{LIST}{$_} = 1 } };
+   for (ow::tool::str2list(join(",",param('cc'))), ow::tool::str2list(param('checkedcc')) ) { if ($_ ne '') { $_ =~ s/^(?:.*)%@#//; $waschecked{LIST}{$_} = 1 } };
+   for (ow::tool::str2list(join(",",param('bcc'))), ow::tool::str2list(param('checkedbcc')) ) { if ($_ ne '') { $_ =~ s/^(?:.*)%@#//; $waschecked{LIST}{$_} = 1 } };
+
+   # clear the form so nothing is checked anymore
+   param(-name=>"to", -value=>'');
+   param(-name=>"cc", -value=>'');
+   param(-name=>"bcc", -value=>'');
+   param(-name=>"checkedto", -value=>'');
+   param(-name=>"checkedcc", -value=>'');
+   param(-name=>"checkedbcc", -value=>'');
+
+   # load up the needed source books
+   my %alladdressbooks;
+   if ($abookfolder eq 'ALL') {
+      opendir(WEBADDR, $webaddrdir) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $webaddrdir directory for reading! ($!)");
+      %alladdressbooks = map { (-f "$webaddrdir/$_")?("$_", "$webaddrdir/$_"):() }
+                         sort { $a cmp $b }
+                         grep { /^[^.]/ && !/^categories\.cache$/ }
+                         readdir(WEBADDR);
+      closedir(WEBADDR) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $webaddrdir! ($!)");
+
+      if ($config{'global_addressbook'} ne "" && -f "$config{'global_addressbook'}") {
+         $alladdressbooks{GLOBAL} = $config{'global_addressbook'}; # add the GLOBAL book
+      }
+   } elsif ($abookfolder eq 'GLOBAL') {
+      if ($config{'global_addressbook'} ne "" && -f "$config{'global_addressbook'}") {
+         $alladdressbooks{GLOBAL} = $config{'global_addressbook'}; # add the GLOBAL book
+      } else {
+         $lang_err{'abook_doesnt_exist'} =~ s/\@\@\@ADDRESSBOOK\@\@\@/GLOBAL/;
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_doesnt_exist'}");
       }
    } else {
-      ($stat,$err)=(-2, qq|$lang_err{'abook_toobig'}|.
-                          qq|<a href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=importabook&amp;sessionid=$thissession&amp;sort=$sort&amp;folder=$escapedfolder&amp;page=$page&amp;message_id=$escapedmessageid">$lang_err{'back'}</a>|.
-                          qq|$lang_err{'tryagain'}|);
+      $alladdressbooks{$abookfolder} = "$webaddrdir/$abookfolder";
    }
 
-   return ($stat,$err);
+   if ($targetbook eq 'GLOBAL') {
+      if ($config{'global_addressbook'} ne "" && -f "$config{'global_addressbook'}") {
+         $targetbook = $config{'global_addressbook'};
+      } else {
+         $lang_err{'abook_doesnt_exist'} =~ s/\@\@\@ADDRESSBOOK\@\@\@/GLOBAL/;
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_doesnt_exist'}");
+      }
+   }
+
+   # calculate the available free space
+   my $availfreespace = '';
+   for (keys %alladdressbooks) { $availfreespace += (-s "$webaddrdir/$_") || 0 };
+   $availfreespace = int($config{'abook_maxsizeallbooks'} - ($availfreespace/1024) + .5);
+
+   # load the destination book
+   my ($targetfile, $changedtarget);
+   if ($targetbook ne 'DELETE') {
+      $targetfile = $targetbook eq $config{'global_addressbook'}?$targetbook:ow::tool::untaint(safefoldername("$webaddrdir/$targetbook"));
+      $targetbook = readadrbook($targetfile, undef, undef);
+      $changedtarget = 0;
+   }
+
+   # load the addressbooks and perform the move/copy/delete
+   foreach my $abookfolder (keys %alladdressbooks) {
+      my $sourcefile = ow::tool::untaint(safefoldername($alladdressbooks{$abookfolder}));
+      my $sourcebook = readadrbook($sourcefile, undef, undef);
+      my $changedsource = 0;
+      foreach my $xowmuid (keys %{$waschecked{LIST}}) {
+         if (exists $sourcebook->{$xowmuid}) {
+            if (param('addrmoveaddresses')) {
+               next if ($sourcefile eq $targetfile); # nothing to do
+               if (($sourcefile eq $config{'global_addressbook'} || $targetfile eq $config{'global_addressbook'}) && !$config{'abook_globaleditable'}) {
+                  openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_global_denied'}");
+               }
+               if ($targetbook ne 'DELETE') {
+                  $targetbook->{$xowmuid} = $sourcebook->{$xowmuid}; # copy ref
+               }
+               delete $sourcebook->{$xowmuid};
+               writelog("move contact - $xowmuid from $abookfolder to ".param('destinationabook'));
+               writehistory("move contact - $xowmuid from $abookfolder to ".param('destinationabook'));
+               $changedsource++; $changedtarget++;
+            } elsif (param('addrcopyaddresses')) {
+               # generate a new xowmuid foreach one being copied
+               my ($uid_sec,$uid_min,$uid_hour,$uid_mday,$uid_mon,$uid_year) = gmtime(time);
+               my @chars = ( 'A' .. 'Z', 0 .. 9 );
+               my $longrandomstring = join '', map { $chars[rand @chars] } 1..12;
+               my $shortrandomstring = join '', map { $chars[rand @chars] } 1..4;
+               my $newxowmuid = ($uid_year+1900).sprintf("%02d",($uid_mon+1)).sprintf("%02d",$uid_mday)."-".
+                                 sprintf("%02d",$uid_hour).sprintf("%02d",$uid_min).sprintf("%02d",$uid_sec)."-".
+                                 $longrandomstring."-".$shortrandomstring;
+
+               if ($sourcefile eq $targetfile) {
+                  $sourcebook->{$newxowmuid} = deepcopy($sourcebook->{$xowmuid}); # de-reference and copy
+                  $sourcebook->{$newxowmuid}{'X-OWM-UID'}[0]{VALUE} = $newxowmuid;
+                  $changedsource++;
+               } else {
+                  $targetbook->{$newxowmuid} = deepcopy($sourcebook->{$xowmuid}); # de-reference and copy
+                  $targetbook->{$newxowmuid}{'X-OWM-UID'}[0]{VALUE} = $newxowmuid;
+                  $changedtarget++;
+               }
+               writelog("copy contact - $xowmuid from $abookfolder to ".param('destinationbook'));
+               writehistory("copy contact - $xowmuid from $abookfolder to ".param('destinationbook'));
+            }
+         }
+      }
+
+      # save out the source book IF it was changed
+      if ($changedsource) {
+         my $writeoutput = outputvfile('vcard',$sourcebook);
+
+         ow::filelock::lock($sourcefile, LOCK_EX|LOCK_NB) or
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $sourcefile");
+         open(TARGET, ">$sourcefile") or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $sourcefile ($!)\n");
+         print TARGET $writeoutput;
+         close(TARGET) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $sourcefile ($!)\n");
+         ow::filelock::lock($sourcefile, LOCK_UN);
+      }
+   }
+
+   if ($changedtarget && $targetbook ne 'DELETE') {
+      # save out the targetbook
+      my $writeoutput = outputvfile('vcard',$targetbook);
+
+      # check for space
+      # during a move the size will be exactly the same overall
+      # during a copy this may croak - but no information will be lost
+      my $writesizekb = length($writeoutput)/1024;
+      if (($writesizekb > $availfreespace) || !is_quota_available($writesizekb)) {
+         openwebmailerror(__FILE__, __LINE__,"$lang_err{'abook_toobig'} $lang_err{'back'}\n");
+      }
+
+      ow::filelock::lock($targetfile, LOCK_EX|LOCK_NB) or
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $targetfile");
+      open(TARGET, ">$targetfile") or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $targetfile ($!)\n");
+      print TARGET $writeoutput;
+      close(TARGET) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $targetfile ($!)\n");
+      ow::filelock::lock($targetfile, LOCK_UN);
+   }
+
+   addrlistview();
 }
-########## END WRITE_ABOOK ######################################
+########## END ADDRMOVECOPYDELETE ################################
+
+
+########## ADDRSHOWCHECKED #######################################
+sub addrshowchecked {
+   my $listviewmode = param('listviewmode');
+   my ($html, $temphtml);
+
+   if ($listviewmode eq 'grabopenerdata') {
+      # This is a hack boys and girls. We do this because the list of checked addresses may be very large,
+      # and so we need to force submit that list through a POST since it is too long for a GET. It takes
+      # about 45 addresses or xowmuids before GET fails. POST has no limit at all. So we pop open this window
+      # and grab all of the address information from the window.opener, then resubmit this form so that all
+      # the data shows up in our popup window. Don't cry, IT WORKS.
+      my $aftergrabmode = param('aftergrabmode');
+      print header();
+      $html = qq|<html>\n|.
+              qq|<head>\n|.
+              qq|<title></title>\n|.
+              qq|<script language="javascript">\n|.
+              qq|<!--\n|.
+              qq|function getOpenerData(sourceForm) {\n|.
+              qq|   document.grabForm.checkedto.value = window.opener.document.forms[sourceForm].checkedto.value;\n|.
+              qq|   document.grabForm.checkedcc.value = window.opener.document.forms[sourceForm].checkedcc.value;\n|.
+              qq|   document.grabForm.checkedbcc.value = window.opener.document.forms[sourceForm].checkedbcc.value;\n|.
+              qq|   for (var a=1; a<arguments.length; a++) {\n|.
+              qq|      var elementName = arguments[a];\n|.
+              qq|      for (var i=0;i<window.opener.document.forms[sourceForm].elements.length;i++) {\n|.
+              qq|         var e = window.opener.document.forms[sourceForm].elements[i];\n|.
+              qq|         if (e.type == 'checkbox') {\n|.
+              qq|            if (e.name == elementName && e.checked == 1 && e.value != '') {\n|.
+              qq|               document.forms['grabForm'].elements[elementName].value += e.value+',';\n|.
+              qq|            }\n|.
+              qq|         }\n|.
+              qq|      }\n|.
+              qq|   }\n|.
+              qq|   self.focus();\n|.
+              qq|   document.grabForm.submit();\n|.
+              qq|}\n|.
+              qq|//-->\n|.
+              qq|</script>\n|.
+              qq|</head>\n|.
+              qq|<body onLoad=getOpenerData('contactsForm','to','cc','bcc');>\n|.
+              startform(-name=>'grabForm',
+                        -action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl").
+              ow::tool::hiddens(action=>'addrshowchecked',
+                                sessionid=>$thissession,
+                                listviewmode=>$aftergrabmode,
+                                # javascript will populate these before submit
+                                # from values in the contactsForm
+                                checkedto=>'',
+                                checkedcc=>'',
+                                checkedbcc=>'',
+                                to=>'',
+                                cc=>'',
+                                bcc=>'',
+                                ).
+              end_form().
+              qq|\n</body>\n</html>|;
+      print $html;
+      return 1;
+   } else {
+      my %waschecked = ();
+
+      # commence with the html
+      $html = applystyle(readtemplate("addrshowchecked.template"));
+
+      my @bgcolor = ($style{"tablerow_dark"}, $style{"tablerow_light"});
+      my $colornum = 0;
+
+      if ($listviewmode eq 'export') {
+         # Our list of checked addresses is actually a list of checked xowmuids
+         # Merge them into one big hash
+         for (ow::tool::str2list(join(",",param('to'))), ow::tool::str2list(param('checkedto')) ) { $waschecked{$_} = 1 if ($_ ne '') };
+         for (ow::tool::str2list(join(",",param('cc'))), ow::tool::str2list(param('checkedcc')) ) { $waschecked{$_} = 1 if ($_ ne '') };
+         for (ow::tool::str2list(join(",",param('bcc'))), ow::tool::str2list(param('checkedbcc')) ) { $waschecked{$_} = 1 if ($_ ne '') };
+
+         # load the addresses - only the required information
+         my %addresses=();
+         my %searchterms = ();
+         my %only_return = ( 'FN' => 1 );
+
+         my @alladdressbooks = getaddrbooks_readable($webaddrdir);
+         foreach my $addressbook (@alladdressbooks) {
+            my $bookfile="$webaddrdir/$addressbook"; 
+            $bookfile=$config{'global_addressbook'} if ($addressbook eq 'GLOBAL');
+
+            my $thisbook = readadrbook($bookfile, (keys %searchterms?\%searchterms:undef), \%only_return);
+            # remember what book this address came from
+            foreach my $xowmuid (keys %{$thisbook}) {
+               ${$thisbook}{$xowmuid}{'X-OWM-BOOK'}[0]{VALUE} = $addressbook;
+               # add it to addresses
+               $addresses{$xowmuid} = ${$thisbook}{$xowmuid};
+            }
+         }
+
+         $temphtml .= qq|<tr><td bgcolor=$bgcolor[$colornum] colspan="2"><b>$lang_text{'abook_showchecked_export'}</b></td></tr>|;
+         $colornum=($colornum+1)%2; # alternate the bgcolor
+         if (keys %waschecked < 1) {
+            $temphtml .= qq|<tr><td bgcolor=$bgcolor[$colornum] colspan="2">&nbsp;</td></tr>|;
+         } else {
+            my $num = 1;
+            foreach my $fullname ( sort { lc($a) cmp lc($b) }
+                                    map { $addresses{$_}{FN}[0]{VALUE} } keys %waschecked) {
+               $temphtml .= qq|<tr><td bgcolor=$bgcolor[$colornum]><b>$num&nbsp;&nbsp;</b></td><td bgcolor=$bgcolor[$colornum] nowrap>|.ow::htmltext::str2html($fullname).qq|</td></tr>|;
+               $colornum=($colornum+1)%2; # alternate the bgcolor
+               $num++;
+            }
+         }
+      } else {
+         # our waschecked is a bunch of email addresses with %@#xowmuid after it
+         for (ow::tool::str2list(join(",",param('to'))), ow::tool::str2list(param('checkedto')) ) { $waschecked{TO}{$_} = 1 if ($_ ne '') };
+         for (ow::tool::str2list(join(",",param('cc'))), ow::tool::str2list(param('checkedcc')) ) { $waschecked{CC}{$_} = 1 if ($_ ne '') };
+         for (ow::tool::str2list(join(",",param('bcc'))), ow::tool::str2list(param('checkedbcc')) ) { $waschecked{BCC}{$_} = 1 if ($_ ne '') };
+
+         # addresses arrive from editgroupform as '\n' delimited.
+         # separate them into each individual addresses and put them
+         # in %waschecked.
+         foreach my $key (qw(TO CC BCC)) {
+            foreach my $email (keys %{$waschecked{$key}}) {
+               delete $waschecked{$key}{$email};
+               foreach my $line (split(/\n/,$email)) {
+                  $line =~ s/^\s+//; $line =~ s/\s+$//;
+                  $waschecked{$key}{$line} = 1 if ($line ne '');
+               }
+            }
+         }
+
+         foreach my $key (qw(TO CC BCC)) {
+            $temphtml .= qq|<tr><td bgcolor=$bgcolor[$colornum] colspan="2"><b>$lang_text{lc($key)}</b></td></tr>|;
+            $colornum=($colornum+1)%2; # alternate the bgcolor
+            if (keys %{$waschecked{$key}} < 1) {
+               $temphtml .= qq|<tr><td bgcolor=$bgcolor[$colornum] colspan="2">&nbsp;</td></tr>|;
+            } else {
+               my $num = 1;
+               foreach my $email (sort { lc($a) cmp lc($b) } keys %{$waschecked{$key}}) {
+                  ($email) = split(/%@#/,$email);
+                  $temphtml .= qq|<tr><td bgcolor=$bgcolor[$colornum]><b>$num&nbsp;&nbsp;</b></td><td bgcolor=$bgcolor[$colornum] nowrap>|.ow::htmltext::str2html($email).qq|</td></tr>|;
+                  $colornum=($colornum+1)%2; # alternate the bgcolor
+                  $num++;
+               }
+            }
+            $temphtml .= qq|<tr><td height="10" colspan="2">&nbsp;</td></tr>|;
+            $colornum = 0;
+         }
+      }
+
+      $temphtml .= qq|<tr><td align="center" colspan="2">|.
+                   start_form(-action=>"#", -name=>'closeShowWindow').
+                   button(-name=>$lang_text{'close'},
+                          -accesskey=>'X',
+                          -onClick=>'javascript:window.close();',
+                          -class=>"medtext").
+                   endform().
+                   qq|</td></tr>|;
+      $temphtml .= qq|<tr><td height="10" colspan="2">&nbsp;</td></tr>|;
+
+      $html =~ s/\@\@\@LISTOFCHECKED\@\@\@/$temphtml/;
+   }
+
+   httpprint([], [htmlheader(), $html, htmlfooter(1)]);
+}
+########## END ADDRSHOWCHECKED ###################################
+
+
+########## ADDRVIEWATT ###########################################
+sub addrviewatt {
+   my $file = param('file');
+   openwebmailerror(__FILE__, __LINE__, "No named file to view") if (!defined $file);
+   my $type = lc(param('type')) || ''; # undef makes application/octet-stream
+
+   my $contenttype = ow::tool::ext2contenttype($type);
+   my $ext = ow::tool::contenttype2ext($contenttype);
+   $ext = 'unknown' if ($ext eq 'bin');
+
+   my $target = ow::tool::untaint("$config{'ow_sessionsdir'}/$thissession-vcard$file");
+   open (FILE, "$target") || openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $target! ($!)");
+   my $attbody = do {local $/; <FILE> }; # slurp
+   close FILE || openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $target! ($!)");
+   my $length = length($attbody);
+   if ($length>512 && is_http_compression_enabled()) {
+      my $zattbody=Compress::Zlib::memGzip($attbody);
+      my $zlen=length($zattbody);
+      my $zattheader=qq|Content-Encoding: gzip\n|.
+                     qq|Vary: Accept-Encoding\n|.
+                     qq|Content-Length: $zlen\n|.
+                     qq|Connection: close\n|.
+                     qq|Content-Type: $contenttype; name="inline.$ext"\n|.
+                     qq|Content-Disposition: inline; filename="$file.$ext"\n|;
+      print $zattheader, "\n", $zattbody;
+   } else {
+      my $attheader=qq|Content-Length: $length\n|.
+                    qq|Connection: close\n|.
+                    qq|Content-Type: $contenttype; name="inline.$ext"\n|.
+                    qq|Content-Disposition: inline; filename="$file.$ext"\n|;
+      print $attheader, "\n", $attbody;
+   }
+
+   return;
+}
+########## END ADDRVIEWATT #######################################
+
+
+########## UPDATE_REVISION_TIME ##################################
+sub update_revision_time {
+   my ($r_rev) = @_;
+   my ($rev_sec,$rev_min,$rev_hour,$rev_mday,$rev_mon,$rev_year,$rev_wday,$rev_yday,$rev_isdst) = gmtime(time);
+   $rev_mon++; $rev_year+=1900;
+   $r_rev->{VALUE}{SECOND} = $rev_sec;
+   $r_rev->{VALUE}{MINUTE} = $rev_min;
+   $r_rev->{VALUE}{HOUR} = $rev_hour;
+   $r_rev->{VALUE}{DAY} = $rev_mday;
+   $r_rev->{VALUE}{MONTH} = $rev_mon;
+   $r_rev->{VALUE}{YEAR} = $rev_year;
+}
+########## END UPDATE_REVISION_TIME ##############################
+
+
+########## DELETEATTACHMENTS #####################################
+sub deleteattachments {
+   my (@delfiles, @sessfiles);
+
+   opendir(SESSIONSDIR, "$config{'ow_sessionsdir'}") or
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}! ($!)");
+      @sessfiles=readdir(SESSIONSDIR);
+   closedir(SESSIONSDIR);
+
+   foreach my $attfile (@sessfiles) {
+      if ($attfile =~ /^(\Q$thissession\E\-vcard\d+)$/) {
+         $attfile = $1;
+         push(@delfiles, "$config{'ow_sessionsdir'}/$attfile");
+      }
+   }
+   unlink(@delfiles) if ($#delfiles>=0);
+}
+########## END DELETEATTACHMENTS #################################
+
+
+########## GETATTFILESINFO #######################################
+sub getattfilesinfo {
+   my (@attfiles, @sessfiles);
+   my $totalsize = 0;
+
+   print "<pre>Getting attachments info\n</pre>" if $addrdebug;
+
+   opendir(SESSIONSDIR, "$config{'ow_sessionsdir'}") or
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}! ($!)");
+      @sessfiles=readdir(SESSIONSDIR);
+   closedir(SESSIONSDIR);
+
+   foreach my $currentfile (@sessfiles) {
+      if ($currentfile =~ /^(\Q$thissession\E\-vcard\d+)$/) {
+         my (%att, $attheader);
+
+         push(@attfiles, \%att);
+         $att{file}=$1;
+         $att{size}=(-s "$config{'ow_sessionsdir'}/$currentfile");
+
+         $totalsize += $att{size};
+      }
+   }
+
+   print "<pre>Dumping attachments info:\n".Dumper(\@attfiles)."</pre>\n\n" if $addrdebug;
+
+   return ($totalsize, \@attfiles);
+}
+########## END GETATTFILESINFO ###################################
+
+
+########## MAKE_X_OWM_UID ########################################
+# This is required to generate the keys for hashes when importing multiple
+# vCard objects.
+sub make_x_owm_uid {
+   my ($uid_sec,$uid_min,$uid_hour,$uid_mday,$uid_mon,$uid_year) = gmtime(time);
+   my @chars = ( 'A' .. 'Z', 0 .. 9 );
+   my $longrandomstring = join '', map { $chars[rand @chars] } 1..12;
+   my $shortrandomstring = join '', map { $chars[rand @chars] } 1..4;
+   my $uid = ($uid_year+1900).sprintf("%02d",($uid_mon+1)).sprintf("%02d",$uid_mday)."-".
+              sprintf("%02d",$uid_hour).sprintf("%02d",$uid_min).sprintf("%02d",$uid_sec)."-".
+              $longrandomstring."-".$shortrandomstring;
+   return $uid;
+}
+########## END MAKE_X_OWM_UID ####################################
+
+
+########## APPLYTEMPLATEMODE #####################################
+sub applytemplatemode {
+   my ($r_html, $modetemplate) = @_;
+   my $thistemplate = applystyle(readtemplate($modetemplate));
+   my ($beforelistview) = $thistemplate =~ m/\@\@\@BEFORELISTVIEWSTART\@\@\@(.*)\@\@\@BEFORELISTVIEWEND\@\@\@/s;
+   my ($afterlistview) = $thistemplate =~ m/\@\@\@AFTERLISTVIEWSTART\@\@\@(.*)\@\@\@AFTERLISTVIEWEND\@\@\@/s;
+   my ($extrajavascript) = $thistemplate =~ m/\@\@\@JAVASCRIPTSTART\@\@\@(.*)\@\@\@JAVASCRIPTEND\@\@\@/s;
+   ${$r_html} =~ s/\@\@\@BEFORELISTVIEWEXTRAHTML\@\@\@/$beforelistview/;
+   ${$r_html} =~ s/\@\@\@AFTERLISTVIEWEXTRAHTML\@\@\@/$afterlistview/;
+   ${$r_html} =~ s/\@\@\@EXTRAJAVASCRIPT\@\@\@/$extrajavascript/;
+}
+########## END APPLYTEMPLATEMODE #################################
+
+
+########## IS_GROUPBOX_CHECKED ###################################
+sub is_groupbox_checked {
+   my ($key,$r_is_checked,$r_allemails,$xowmuidtrack) = @_;
+   my $checked = 'checked';
+   # if we're in editgroupform mode $r_allemails will be delimited by a '\n',
+   # instead of the normal ', '. To make it easy to test if the box should be
+   # checked lets put the $r_allmails back to a ', ' delimited list just for
+   # this sub.
+   ${$r_allemails} =~ s/\n/, /g if (param('editgroupform'));
+
+   # test if this box should be checked or not
+   foreach my $email (ow::tool::str2list(${$r_allemails})) {
+      $checked = exists $r_is_checked->{$key}{"$email$xowmuidtrack"}?'checked':undef;
+      last unless defined $checked;
+   }
+
+   # now we know if this box is checked or not, so lets return $r_allemails back
+   # to the '\n' delimited list it was if we are in editgroupform mode.
+   ${$r_allemails} = join("\n",(ow::tool::str2list(${$r_allemails}))) if (param('editgroupform'));
+
+   return $checked;
+}
+########## END IS_GROUPBOX_CHECKED ###############################
+
+########## GETADDRBOOKS_.... #####################################
+sub getaddrbooks_readable {
+   my ($dir)=@_;
+   opendir(WEBADDR, $dir) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $dir directory for reading! ($!)");
+   my @books = map { (-f "$webaddrdir/$_")?$_:() }
+               sort { $a cmp $b }
+               grep { /^[^.]/ && !/^categories\.cache$/ }
+               readdir(WEBADDR);
+   closedir(WEBADDR) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $dir! ($!)");
+   if ($config{'global_addressbook'} ne "" && -f $config{'global_addressbook'}) {
+      push(@books, 'GLOBAL');
+   }
+   return(@books);
+}
+
+sub getaddrbooks_writable {
+   my ($dir)=@_;
+   opendir(WEBADDR, $dir) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $dir directory for reading! ($!)");
+   my @books = map { (-w "$webaddrdir/$_")?$_:() }
+               sort { $a cmp $b }
+               grep { /^[^.]/ && !/^categories\.cache$/ }
+               readdir(WEBADDR);
+   closedir(WEBADDR) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $dir! ($!)");
+   if ($config{'abook_globaleditable'} && $config{'global_addressbook'} ne "") { 
+      push(@books, 'GLOBAL') if (-w $config{'global_addressbook'});
+   }
+   return(@books);
+}
+########## END GETADDRBOOKS_.... #################################
+
+########## IS_QUOTA_AVAILABLE ####################################
+sub is_quota_available {
+   my $writesize=$_[0];
+   if ($quotalimit>0 && $quotausage+$writesize>$quotalimit) {
+      $quotausage=(ow::quota::get_usage_limit(\%config, $user, $homedir, 1))[2];
+      return 0 if ($quotausage+$writesize>$quotalimit);
+   }
+   return 1;
+}
+########## END IS_QUOTA_AVAILABLE ################################
+
+
+########## DEEPCOPY ##############################################
+sub deepcopy {
+    # a shameless rip from http://www.stonehenge.com/merlyn/UnixReview/col30.html
+    # this should probably be moved to the ow::tool at some point.
+    my $this = shift;
+    if (not ref $this) {
+       $this;
+    } elsif (ref $this eq "ARRAY") {
+       [map deepcopy($_), @$this];
+    } elsif (ref $this eq "HASH") {
+       scalar { map { $_ => deepcopy($this->{$_}) } keys %$this };
+    } else {
+       croak("what type is $_?");
+    }
+}
+########## END DEEPCOPY ##########################################
+
+
+
+#========================== IMPORTANT =============================
+# Developers should familiarize themselves with the vCard hash
+# data structure format before writing an import or export module.
+# Set vcarddebug=1 in shares/vcard.pl or addrdebug=1 in this file.
+#========================== IMPORTANT =============================
+
+
+
+########## ADDRIMPORTFORM ########################################
+sub addrimportform {
+   my @alladdressbooks = getaddrbooks_readable($webaddrdir);
+   # calculate the available free space
+   my $availfreespace = '';
+   for (@alladdressbooks) { 
+      next if ($_ eq 'GLOBAL');
+      $availfreespace += (-s "$webaddrdir/$_") || 0;
+   }
+   $availfreespace = int($config{'abook_maxsizeallbooks'} - ($availfreespace/1024) + .5);
+
+   # start the html
+   my ($html, $temphtml);
+   $html = applystyle(readtemplate("addrimportbook.template"));
+   $html =~ s/\@\@\@AVAILFREESPACE\@\@\@/$availfreespace $lang_sizes{'kb'}/g;
+   $html =~ s/\@\@\@ABOOKIMPORTLIMIT\@\@\@/$config{'abook_importlimit'} $lang_sizes{'kb'}/g;
+
+   # menubar links
+   $temphtml = iconlink("backtofolder.gif", ("$lang_text{'backto'} ".ow::htmltext::str2html($abookfolder)),
+                        qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrlistview&amp;$urlparm"|);
+   $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
+
+   $temphtml = start_multipart_form(-action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl",
+                                    -name=>'importForm').
+               ow::tool::hiddens(action=>'addrimport',
+                                 sessionid=>$thissession,
+                                 # mail settings to remember
+                                 folder=>ow::htmltext::str2html($folder),
+                                 page=>$page,
+                                 sort=>$sort,
+                                 searchtype=>$searchtype,
+                                 keyword=>ow::htmltext::str2html($keyword),
+                                 message_id=>$messageid,
+                                 # addressbook settings to remember
+                                 abookcollapse=>$abookcollapse,
+                                );
+   $html =~ s/\@\@\@STARTIMPORTFORM\@\@\@/$temphtml/;
+
+   $temphtml = filefield(-name=>'importfile',
+                         -default=>'',
+                         -size=>'30',
+                         -override=>'1');
+   $html =~ s/\@\@\@IMPORTFILEFIELD\@\@\@/$temphtml/;
+
+   my %supportedlabels = ();
+   for (keys %supportedimportexportformat) { $supportedlabels{$_} = $supportedimportexportformat{$_}[2] };
+   $temphtml = popup_menu(-name=>'importformat',
+                          -values=>[sort keys %supportedimportexportformat],
+                          -default=>'vcard3.0',
+                          -labels=>\%supportedlabels,
+                          -onChange=>"javascript:fieldChoicesToggle(document.forms['importForm'].elements['importformat'].options[document.forms['importForm'].elements['importformat'].selectedIndex].value,'importForm');",
+                          -override=>1);
+   $html =~ s/\@\@\@FORMATSMENU\@\@\@/$temphtml/;
+
+   my @choices = qw(fullname prefix first middle last suffix email phone note none);
+
+   # build the labels from the choices
+   my %addrfieldorderlabels = ();
+   $addrfieldorderlabels{"$_"} = $lang_text{"abook_listview_$_"} for @choices;
+
+   $temphtml = popup_menu(-name=>'importfieldorder',
+                          -default=>'none',
+                          -values=>\@choices,
+                          -labels=>\%addrfieldorderlabels,
+                          -override=>'1',
+                          -disabled=>'1');
+   $html =~ s/\@\@\@FIELDCHOICESMENU\@\@\@/$temphtml/g;
+
+   my @destbooks = getaddrbooks_writable($webaddrdir);	# export destination must be writable 
+   $temphtml = popup_menu(-name=>'importdest',
+                          -values=>[$lang_text{'abook_importdest'}, @destbooks],
+                          -override=>1,
+                         );
+   $html =~ s/\@\@\@ADDRBOOKSMENU\@\@\@/$temphtml/;
+
+
+   $temphtml = submit(-name=>"$lang_text{'import'}",
+                      -class=>"medtext");
+   $html =~ s/\@\@\@IMPORTBUTTON\@\@\@/$temphtml/;
+
+   $temphtml = end_form();
+   $html =~ s/\@\@\@ENDIMPORTFORM\@\@\@/$temphtml/g;
+
+   $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl",
+                          -name=>'cancelForm').
+               ow::tool::hiddens(action=>'addrlistview').
+               $formparm;
+   $html =~ s/\@\@\@STARTCANCELFORM\@\@\@/$temphtml/;
+
+   $temphtml = submit(-name=>"$lang_text{'cancel'}",
+                      -class=>"medtext");
+   $html =~ s/\@\@\@CANCELBUTTON\@\@\@/$temphtml/;
+
+   $temphtml = end_form();
+   $html =~ s/\@\@\@ENDCANCELFORM\@\@\@/$temphtml/g;
+
+   httpprint([], [htmlheader(), $html, htmlfooter(2)]);
+}
+########## END ADDRIMPORTFORM ####################################
+
+
+########## ADDRIMPORT ############################################
+sub addrimport {
+   my $importfile = param('importfile') ||
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_import_nofile'}! ($!)");
+   my $importfilesize = (-s $importfile);
+   my $importformat = param('importformat') ||
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_import_noformat'}! ($!)");
+   my $importdest = param('importdest') ||
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_import_nodest'}! ($!)");
+
+   my $importfilesizekb = sprintf("%0.2f",$importfilesize/1024);
+   if (!is_quota_available($importfilesizekb)) {
+      openwebmailerror(__FILE__, __LINE__,"$lang_err{'quotahit_alert'}\n");
+   }
+   if ($config{'abook_importlimit'}>0 &&
+       $importfilesizekb>$config{'abook_importlimit'} ) {
+      openwebmailerror(__FILE__, __LINE__,"$importfilesizekb $lang_sizes{'kb'} $lang_err{'upload_overlimit'} $config{'abook_importlimit'} $lang_sizes{'kb'}\n");
+   }
+   if ($config{'abook_maxsizeallbooks'}>0) {
+      # load up the list of all books
+      my @alladdressbooks = getaddrbooks_readable($webaddrdir);
+      # calculate the available free space
+      my $availfreespace = '';
+      for (@alladdressbooks) {
+         next if ($_ eq 'GLOBAL');
+         $availfreespace += (-s "$webaddrdir/$_") || 0;
+      }
+      $availfreespace = int($config{'abook_maxsizeallbooks'} - ($availfreespace/1024) + .5);
+
+      if ($importfilesizekb > $availfreespace) {
+          openwebmailerror(__FILE__, __LINE__,"$importfilesizekb $lang_sizes{'kb'} > $availfreespace $lang_sizes{'kb'}. $lang_err{'abook_toobig'} $lang_err{'back'}\n");
+      }
+   }
+   if ($importfilesize == 0) {
+      openwebmailerror(__FILE__, __LINE__,"$lang_wdbutton{'upload'} $lang_text{'failed'} ($!)\n");
+   }
+
+
+   my $newaddrinfo = '';
+   if (!exists $supportedimportexportformat{$importformat}) {
+      $lang_err{'abook_import_unsupfmt'} =~ s/\@\@\@FORMAT\@\@\@/$importformat/;
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_import_unsupfmt'}! ($!)");
+   } else {
+      # get the imported data into a string. This slurps the whole upload file into memory :(
+      my $importfilecontents = '';
+      while (<$importfile>) {
+         $importfilecontents .= $_;
+      }
+      # translate the uploaded data into our preferred data structure
+      $newaddrinfo = $supportedimportexportformat{$importformat}[0]->($importfilecontents);
+   }
+
+   # remember old settings so we can change them
+   my $oldabookfolder = $abookfolder;
+   my $oldescapedabookfolder = $escapedabookfolder;
+
+   # write the import to the destination
+   if ($importdest eq $lang_text{'abook_importdest'}) { # To a new book
+      my $fname = $importfile;
+
+      # Convert :: back to the ' like it should be.
+      $fname =~ s/::/'/g;
+
+      # Trim the path info from the filename
+      if ($prefs{'charset'} eq 'big5' || $prefs{'charset'} eq 'gb2312') {
+         $fname=ow::tool::zh_dospath2fname($fname);	# dos path
+      } else {
+         $fname =~ s|^.*\\||;		# dos path
+      }
+      $fname =~ s|^.*/||;	# unix path
+      $fname =~ s|^.*:||;	# mac path and dos drive
+
+      my $newbook = ow::tool::untaint("$webaddrdir/$fname");
+
+      if (-e "$newbook" || $fname =~ m/^(?:ALL|GLOBAL|DELETE)$/) {
+         openwebmailerror(__FILE__, __LINE__, "\"$fname\" $lang_err{'already_exists'}\n");
+      }
+
+      my $writeoutput = outputvfile('vcard',$newaddrinfo);
+
+      if (open(IMPORT, ">$newbook")) {
+         print IMPORT $writeoutput;
+         close(IMPORT);
+         writelog("import addressbook - upload new book $fname");
+         writehistory("import addressbook - upload new book $fname");
+         $abookfolder = $fname;
+         $escapedabookfolder = ow::tool::escapeURL($fname);
+      } else {
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $fname ($!)\n");
+      }
+   } else { # append it to a selected book
+      # load the existing book
+      my $target = ow::tool::untaint("$webaddrdir/$importdest");
+      my $targetbook = readadrbook($target, undef, undef);
+
+      # merge the new data
+      foreach my $xowmuid (keys %{$newaddrinfo}) {
+         ${$targetbook}{$xowmuid} = ${$newaddrinfo}{$xowmuid};
+      }
+
+      # stringify it
+      my $writeoutput = outputvfile('vcard',$targetbook);
+
+      # overwrite the target with the new data
+      ow::filelock::lock($target, LOCK_EX|LOCK_NB) or
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $target");
+      open(TARGET, ">$target") or
+        openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $target ($!)\n");
+      print TARGET $writeoutput;
+      close(TARGET) or
+        openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $target ($!)\n");
+      ow::filelock::lock($target, LOCK_UN);
+
+      writelog("import addressbook - ".keys(%{$newaddrinfo})." contacts to $importdest");
+      writehistory("import addressbook - ".keys(%{$newaddrinfo})." contacts to $importdest");
+
+      # done
+      $abookfolder = $importdest;
+      $escapedabookfolder = ow::tool::escapeURL($importdest);
+   }
+
+   # import done - go back to the listing 
+   # (maybe a http redirect is more clean here? tung)
+   foreach ($abook_urlparm_with_abookfolder, $urlparm) {
+      s/abookfolder=$oldescapedabookfolder&amp;/abookfolder=$escapedabookfolder&amp;/g;
+   }
+   foreach ($abook_formparm_with_abookfolder, $formparm) {
+      s/NAME="abookfolder" VALUE="$oldabookfolder"/NAME="abookfolder" VALUE="$abookfolder"/gi;
+   }
+   addrlistview();
+}
+########## END ADDRIMPORT ########################################
+
+
+########## IMPORTVCARD ###########################################
+sub importvcard {
+   # accepts a vCard string and returns a vCard hash data structure
+
+   # shares/adrbook.pl already loads shares/vfile.pl which contains
+   # the routine we need for parsing vcard data. So this import is
+   # the easiest one to do.
+   my $importdata = $_[0];
+   return readvfilesfromstring($importdata);
+}
+########## END IMPORTVCARD #######################################
+
+
+########## IMPORTCSV #############################################
+sub importcsv {
+   # TO BE DONE
+   # accepts a csv string and returns a vCard hash data structure
+   my $importdata = $_[0];
+}
+########## END IMPORTCSV #########################################
+
+
+########## IMPORTTAB #############################################
+sub importtab {
+   # TO BE DONE
+   # accepts a tab delimited string and returns a vCard hash data structure
+   my $importdata = $_[0];
+}
+########## END IMPORTTAB #########################################
+
+
+########## IMPORTPINE ############################################
+sub importpine {
+   # TO BE DONE
+   # accepts a pine addressbook string and returns a vCard hash data structure
+   my $importdata = $_[0];
+}
+########## END IMPORTPINE ########################################
+
+
+########## IMPORTLDIF ############################################
+sub importldif {
+   # TO BE DONE
+   # accepts a ldif addressbook string and returns a vCard hash data structure
+   my $importdata = $_[0];
+}
+########## END IMPORTLDIF ########################################
+
+
+########## ADDREXPORT ############################################
+sub addrexport {
+   # This sub does the actual exporting. The export form is actually
+   # the 'export' mode of the listview subroutine.
+   my $exportformat = param('exportformat') || 'vcard3.0';
+
+   my ($exportbody, $exportcontenttype, $exportfilename) = ();
+   if (!exists $supportedimportexportformat{$exportformat}) {
+      $lang_err{'abook_export_unsupfmt'} =~ s/\@\@\@FORMAT\@\@\@/$exportformat/;
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_import_unsupfmt'}! ($!)");
+   } else {
+      # the param lists received here are xowmuids, not email addresses!
+      my %waschecked = ();
+      for (ow::tool::str2list(join(",",param('to'))), ow::tool::str2list(param('checkedto')) ) { $waschecked{$_} = 1 if ($_ ne '') };
+      for (ow::tool::str2list(join(",",param('cc'))), ow::tool::str2list(param('checkedcc')) ) { $waschecked{$_} = 1 if ($_ ne '') };
+      for (ow::tool::str2list(join(",",param('bcc'))), ow::tool::str2list(param('checkedbcc')) ) { $waschecked{$_} = 1 if ($_ ne '') };
+
+      if (keys %waschecked == 0) {
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_export_undef'}!");
+      }
+
+      # load up the list of available books
+      my @alladdressbooks = getaddrbooks_readable($webaddrdir);
+      # The exports should have Product ID of the version of OWM they were exported from
+      my $prodid_string = "$config{'name'} $config{'version'} $config{'releasedate'}";
+
+      # load the addresses - only the required information
+      my %addresses=();
+      my %searchterms = ();
+      $searchterms{'X-OWM-UID'}[0]{'VALUE'} = join("|", keys %waschecked);
+
+      foreach my $addressbook (@alladdressbooks) {
+         my $bookfile="$webaddrdir/$addressbook"; 
+         $bookfile=$config{'global_addressbook'} if ($addressbook eq 'GLOBAL');
+         my $thisbook = readadrbook($bookfile, (keys %searchterms?\%searchterms:undef), undef);
+         # remember what book this address came from
+         foreach my $xowmuid (keys %{$thisbook}) {
+            $addresses{$xowmuid} = ${$thisbook}{$xowmuid};
+            # stamp the PRODID as OpenWebmail
+            $addresses{$xowmuid}{PRODID}[0]{VALUE} = $prodid_string;
+         }
+      }
+
+      # figure the version request
+      my ($version) = $exportformat =~ m/^vcard(.*)/;
+
+      # now send the vCard hash structure to the exporter
+      ($exportbody, $exportcontenttype, $exportfilename) = $supportedimportexportformat{$exportformat}[1]->(\%addresses, $version);
+   }
+
+   # send it to the browser
+   my $exportlength = length($exportbody);
+   my $exportheader .= qq|Connection: close\n|.
+                       qq|Content-Type: $exportcontenttype; name="$exportfilename"\n|;
+
+   # ie5.5 is broken with content-disposition: attachment
+   if ( $ENV{'HTTP_USER_AGENT'}=~/MSIE 5.5/ ) {
+      $exportheader .= qq|Content-Disposition: filename="$exportfilename"\n|;
+   } else {
+      $exportheader .= qq|Content-Disposition: attachment; filename="$exportfilename"\n|;
+   }
+
+   # should we gzip it?
+   if ($exportlength>512 && is_http_compression_enabled()) {
+      $exportbody = Compress::Zlib::memGzip($exportbody);
+      $exportlength = length($exportbody);
+      $exportheader .= qq|Content-Encoding: gzip\n|.
+                       qq|Vary: Accept-Encoding\n|;
+   }
+
+   $exportheader .= qq|Content-Length: $exportlength\n|;
+   print $exportheader, "\n", $exportbody;
+}
+########## END ADDREXPORT ########################################
+
+
+########## EXPORTVCARD ###########################################
+sub exportvcard {
+   # accepts a vCard hash data structure and returns a vCard format string.
+   # shares/adrbook.pl autoloads /shares/vfile.pl which contains outputvfile
+   my ($r_addresses, $version) = @_;
+   my ($exportcontenttype, $exportfilename) = ('application/x-vcard', "$lang_text{'export'}.vcf");
+   my %exclude_propertynames = ('X-OWM-UID'=>1);
+   return (outputvfile('vcard',$r_addresses,$version,\%exclude_propertynames),$exportcontenttype, $exportfilename);
+}
+########## END EXPORTVCARD #######################################
+
+
+########## EXPORTCSV #############################################
+sub exportcsv {
+   # TO BE DONE
+   # accepts a vCard hash data structure and returns a csv format string
+   my ($r_addresses, $version) = @_;
+   my ($exportcontenttype, $exportfilename) = ('application/', "$lang_text{'export'}.csv");
+}
+########## END EXPORTCSV #########################################
+
+
+########## EXPORTTAB #############################################
+sub exporttab {
+   # TO BE DONE
+   # accepts a vCard hash data structure and returns a tab delimited format string
+   my ($r_addresses, $version) = @_;
+   my ($exportcontenttype, $exportfilename) = ('application/', "$lang_text{'export'}.tab");
+}
+########## END EXPORTTAB #########################################
+
+
+########## EXPORTPINE ############################################
+sub exportpine {
+   # TO BE DONE
+   # accepts a vCard hash data structure and returns a pine addressbook format string
+   my ($r_addresses, $version) = @_;
+   my ($exportcontenttype, $exportfilename) = ('application/', "$lang_text{'export'}.pine");
+}
+########## END EXPORTPINE ########################################
+
+
+########## EXPORTLDIF ############################################
+sub exportldif {
+   # TO BE DONE
+   # accepts a vCard hash data structure and an ldif format string
+   my ($r_addresses, $version) = @_;
+   my ($exportcontenttype, $exportfilename) = ('application/', "$lang_text{'export'}.ldif");
+}
+########## END EXPORTLDIF ########################################
+
+
+# The old pine routines for the developer who writes the new import/export routines for pine
+########## IMPORT/EXPORTABOOK PINE ###############################
+#sub importabook_pine {
+#   my $addrbookfile=dotpath('address.book');
+#
+#   if ( ! -f $addrbookfile ) {
+#      open (ABOOK, ">>$addrbookfile"); # Create if nonexistent
+#      close(ABOOK);
+#   }
+#
+#   if (open (PINEBOOK,"$homedir/.addressbook") ) {
+#      my ($name, $email, $note);
+#      my (%addresses, %notes);
+#      my $abooktowrite='';
+#
+#      ow::filelock::lock($addrbookfile, LOCK_EX|LOCK_NB) or
+#         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $addrbookfile!");
+#
+#      my ($stat,$err,@namelist)=read_abook($addrbookfile, \%addresses, \%notes);
+#      openwebmailerror(__FILE__, __LINE__, $err) if ($stat<0);
+#
+#      while (<PINEBOOK>) {
+#         my ($name, $email, $note) = (split(/\t/, $_,5))[1,2,4];
+#         chomp($email);
+#         chomp($note);
+#         next if ($email=~/^\s*$/);  # skip if email is null
+#         $addresses{"$name"} = $email;
+#         $notes{"$name"}=$note;
+#      }
+#      close (PINEBOOK);
+#
+#      # replace the address book
+#      ($stat,$err)=write_abook($addrbookfile,$config{'maxbooksize'},\%addresses,\%notes);
+#      openwebmailerror(__FILE__, __LINE__, $err) if ($stat<0);
+#
+#      ow::filelock::lock($addrbookfile, LOCK_UN);
+#
+#      writelog("import pine addressbook - $homedir/.addressbook");
+#      writehistory("import pine addressbook - $homedir/.addressbook");
+#   }
+#   editaddresses();
+#}
+#
+#sub exportabook_pine {
+#   my $addrbookfile=dotpath('address.book');
+#
+#   if (-f $addrbookfile) {
+#      ow::filelock::lock($addrbookfile, LOCK_SH) or
+#         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $addrbookfile!");
+#
+#      my (%nicknames, %emails, %fccs, %notes);
+#      my ($nickname, $name, $email, $fcc, $note);
+#      my $abooktowrite='';
+#
+#      my ($stat,$err,@namelist)=read_abook($addrbookfile, \%emails, \%notes);
+#      openwebmailerror(__FILE__, __LINE__, $err) if ($stat<0);
+#
+#      ow::filelock::lock($addrbookfile, LOCK_UN);
+#
+#      ow::filelock::lock("$homedir/.addressbook", LOCK_EX) or
+#         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $homedir/.addressbook!");
+#
+#      if (open (PINEBOOK, "$homedir/.addressbook")) {
+#         while (<PINEBOOK>) {
+#            my ($nickname, $name, $email, $fcc, $note) = (split(/\t/, $_,5))[1,2,4];
+#            foreach ($nickname, $name, $email, $fcc, $note) { chomp; }
+#            next if ($email=~/^\s*$/);  # skip if email is null
+#            $nicknames{$name}=$nickname;
+#            $emails{$name} = $email;
+#            $fccs{$name}=$fcc;
+#            $notes{$name}=$note;
+#         }
+#         close(PINEBOOK);
+#      }
+#
+#      open (PINEBOOK,">$homedir/.addressbook") or
+#         openwebmailerror(__FILE__, __LINE__, "couldnt_open $homedir/.address.book! ($!)");
+#
+#      foreach (sort keys %emails) {
+#         $abooktowrite .= join("\t", $nicknames{$_}, $_,
+#                                     $emails{$_}, $fccs{$_}, $notes{$_})."\n";
+#      }
+#      print PINEBOOK $abooktowrite;
+#      close (PINEBOOK);
+#      ow::filelock::lock("$homedir/.addressbook", LOCK_UN);
+#
+#      writelog("emport addressbook to pine, $homedir/.addressbook");
+#      writehistory("emport addressbook to pine, $homedir/.addressbook");
+#   }
+#   editaddresses();
+#}
+########## END IMPORT/EXPORTABOOK PINE ###########################
 

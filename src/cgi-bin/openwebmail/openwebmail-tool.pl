@@ -53,12 +53,14 @@ require "shares/calbook.pl";
 require "shares/lunar.pl";
 require "shares/iconv-chinese.pl";
 require "shares/upgrade.pl";
+require "shares/adrbook.pl";
 
 # common globals
 use vars qw(%config %config_raw);
 use vars qw($default_logindomain $loginname $logindomain $loginuser);
 use vars qw($domain $user $userrealname $uuid $ugid $homedir);
 use vars qw(%prefs);
+use vars qw(%lang_text);
 
 # extern vars
 use vars qw(%is_config_option);		# from ow-shared.pl
@@ -149,6 +151,8 @@ if ($ARGV[0] eq "--") {		# called by inetd
          $opt{'size'}=1; $opt{'null'}=0;
       } elsif ($ARGV[$i] eq "--zaptrash" || $ARGV[$i] eq "-z") {
          $opt{'zap'}=1; $opt{'null'}=0;
+      } elsif ($ARGV[$i] eq "--convert_addressbooks" || $ARGV[$i] eq "-c") {
+         $opt{'convert_addressbooks'}=1; $opt{'null'}=0;
 
       } else {
          push(@list, $ARGV[$i]);
@@ -166,12 +170,29 @@ if ($opt{'init'}) {
 } elsif ($opt{'thumbnail'}) {
    $retval=makethumbnail(\@list);
 } else {
+   if ($opt{'convert_addressbooks'}) {
+      load_owconf(\%config_raw, "$SCRIPT_DIR/etc/defaults/openwebmail.conf");
+      if ( -f "$SCRIPT_DIR/etc/openwebmail.conf") {
+         read_owconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf");
+         print "D readconf $SCRIPT_DIR/etc/openwebmail.conf\n" if ($opt{'debug'});
+      }
+      loadlang($config{'default_language'}); # for 'converted' word support
+      print "converting GLOBAL addressbook..." if (!$opt{'quiet'});
+      $retval=convert_addressbook('global');
+      if ($retval<0) {
+         print "error:$@. EXITING\n";
+         openwebmail_exit($retval);
+      }
+      print "done.\n" if (!$opt{'quiet'});
+   }
    if ($opt{'allusers'}) {
       $retval=allusers(\@list);
       openwebmail_exit($retval) if ($retval<0);
    }
    if ($#list>=0 && !$opt{'null'}) {
       $retval=usertool($euid_to_use, \@list);
+   } elsif ($opt{'convert_addressbooks'}) {
+      # don't show help after converting just GLOBAL book
    } else {
       $retval=showhelp();
    }
@@ -215,6 +236,7 @@ mail/calendar options:
  -p, --pop3   \t fetch pop3 mail for user
  -s, --size   \t check user quota and cut mails/files if over quotalimit
  -z, --zaptrash\t remove stale messages from trash folder
+ -c, --convert_addressbooks\t convert global (and all users with -a) addressbooks to vcard format
 
 ps: <folder> can be INBOX, ALL or folder filename
 
@@ -861,6 +883,11 @@ sub usertool {
       if ($opt{'notify'}) {
          my $ret=checknotify();
          print "checknotify() return $ret\n" if (!$opt{'quiet'} && $ret!=0);
+      }
+      if ($opt{'convert_addressbooks'}) {
+         print "converting user $user addressbook..." if (!$opt{'quiet'});
+         my $ret=convert_addressbook('user');
+         print "done.\n" if (!$opt{'quiet'} && $ret!=0);
       }
 
       $usercount++;

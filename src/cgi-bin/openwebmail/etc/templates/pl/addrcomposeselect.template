@@ -1,0 +1,61 @@
+@@@BEFORELISTVIEWSTART@@@
+@@@BEFORELISTVIEWEND@@@
+@@@AFTERLISTVIEWSTART@@@
+@@@AFTERLISTVIEWEND@@@
+@@@JAVASCRIPTSTART@@@
+<script language="javascript">
+<!--
+function updateComposeForm(sourceForm, toccbccForm) {
+   // decode elist escaped in openwebmail-abook.pl
+   var tolist=unescape(document.forms[sourceForm].checkedto.value);
+   var cclist=unescape(document.forms[sourceForm].checkedcc.value);
+   var bcclist=unescape(document.forms[sourceForm].checkedbcc.value);
+
+   for (var i = 0; i < document.forms[toccbccForm].elements.length; i++) {
+      var e = document.forms[toccbccForm].elements[i];
+      if (e.name=="to" && e.checked && e.value != '') {
+         if (tolist != '') { tolist += ', ' };
+         tolist += e.value;
+      }
+      if (e.name=="cc" && e.checked && e.value != '') {
+         if (cclist != '') { cclist += ', ' };
+         cclist += e.value;
+      }
+      if (e.name=="bcc" && e.checked && e.value != '') {
+         if (bcclist != '') { bcclist += ', ' };
+         bcclist += e.value;
+      }
+   }
+
+   window.opener.document.composeform.to.value = tolist;
+   window.opener.document.composeform.cc.value = cclist;
+   window.opener.document.composeform.bcc.value = bcclist;
+   window.close();
+}
+
+function updateEditForm(sourceForm, toccbccForm) {
+   // decode elist escaped in openwebmail-abook.pl
+   var list=unescape(document.forms[sourceForm].checkedto.value);
+
+   for (var i = 0; i < document.forms[toccbccForm].elements.length; i++) {
+      var e = document.forms[toccbccForm].elements[i];
+      if (e.name=="to" && e.checked && e.value != '') {
+         if (list != '') { list += '\n' };
+         list += e.value;
+      }
+      if (e.name=="cc" && e.checked && e.value != '') {
+         if (list != '') { list += '\n' };
+         list += e.value;
+      }
+      if (e.name=="bcc" && e.checked && e.value != '') {
+         if (list != '') { list += '\n' };
+         list += e.value;
+      }
+   }
+
+   window.opener.document.editForm.elements['EMAIL.0.VALUE'].value = list;
+   window.close();
+}
+//-->
+</script>
+@@@JAVASCRIPTEND@@@

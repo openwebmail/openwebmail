@@ -2,6 +2,19 @@
 
 %icontext =
    (
+   'abookagent.gif'        => ' [Agent] ',
+   'abookunselectall.gif'  => ' [UnselectAll] ',
+   'abookexport.gif'       => ' [Export] ',
+   'abookgeocamera.gif'    => ' [GeoPicture] ',
+   'abookgeofind.gif'      => ' [GeoFind] ',
+   'abookglobalicon.gif'   => ' [GlobalBook] ',
+   'abookimport.gif'       => ' [Import] ',
+   'abookkey.gif'          => ' [PgpKey] ',
+   'abooknewcontact.gif'   => ' [NewContact] ',
+   'abooknewgroup.gif'     => ' [NewGroup] ',
+   'abooks.gif'            => ' [AddressBooks] ',
+   'abooksound.gif'        => ' [PlaySound] ',
+   'abookviewselected.gif' => ' [ViewSelected] ',
    'addrbook.gif'      => ' [通訊錄] ', 
    'addrbook.s.gif'    => ' [通訊錄] ',
    'adduser.gif'       => ' [新增使用者] ',

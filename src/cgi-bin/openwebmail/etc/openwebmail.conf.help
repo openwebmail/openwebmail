@@ -709,6 +709,11 @@ enable_webmail
 set this option to 'no' if you want to disable webmail related functions
 
 
+enable_addressbook
+-----------------------------------------------------------------------
+set this option to 'no' if you want to disable addressbook related functions
+
+
 enable_userfolders
 -----------------------------------------------------------------------
 set this option to 'no' if you want to disable user created folders
@@ -1221,6 +1226,42 @@ ps: These programs can do decompression recursively.
     And we suggest sysadm should at least disable webdisk_allow_untar 
     if the users are running in same uid, since the the user may untar 
     files containing symbolic links to files other than his own.
+
+
+abook_maxsizeallbooks
+-----------------------------------------------------------------------
+This is the maximum size, in kilobytes, that all user's addressbooks can
+grow to. This avoids a user filling up your server's hard drive space
+by spamming garbage addressbook entries.
+
+Set this to 0 to disable the limit (not recommended).
+
+
+abook_globaleditable
+-----------------------------------------------------------------------
+If this option is set to 'yes', then all users will be allowed to edit
+the global addressbook. If this option is set to 'no', then users will
+only be allowed read-access to the global addressbook if it is defined.
+If it is undefined there will be no global addressbook.
+
+
+abook_importlimit
+-----------------------------------------------------------------------
+This limits the size of addressbooks that can be imported (in KB).
+
+Set this to 0 to disable the limit (not recommended).
+
+
+abook_attlimit
+-----------------------------------------------------------------------
+This is the limit on the size of addressbook attachment uploads (in KB).
+This limits the size of photos, sounds, logos, keys, and agents that can be
+added to contacts.
+
+Set this to 0 to disable the limit (not recommended).
+
+Some proxy server also has size limit on POST operation, the size of
+your upload will also be limited by that.
 
 
 spool_limit
@@ -2045,6 +2086,53 @@ values: none, name, email, note, all
 default_abook_defaultkeyword
 -----------------------------------------------------------------------
 text for the default filter in addressbook popup window.
+
+
+default_abook_addrperpage
+-----------------------------------------------------------------------
+default number of addresses to display per page when displaying
+addressbooks.
+
+
+default_abook_collapse
+-----------------------------------------------------------------------
+display addresses in collapsed mode (one line of information per contact)
+or in expanded mode (all lines of information per contact). Some
+contacts will have many phone numbers or many email addresses for example.
+
+
+default_abook_listviewfieldorder
+-----------------------------------------------------------------------
+default field order (the columns) in the addressbook listview. This is a
+COMMA SEPARATED list. Only 5 columns are currently supported, so any values
+after the 5th value are ignored. Values can be any of:
+
+fullname
+prefix
+first
+middle
+last
+suffix
+email
+phone
+note
+none
+
+For example: first,last,email,none,none
+
+
+default_abook_sort
+-----------------------------------------------------------------------
+default addressbook sorting. Available values:
+
+fullname fullname_rev
+prefix   prefix_rev
+first    first_rev
+middle   middle_rev
+last     last_rev
+suffix   suffix_rev
+email    email_rev
+phone    phone_rev
 
 
 default_calendar_defaultview

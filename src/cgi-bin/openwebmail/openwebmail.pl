@@ -574,7 +574,7 @@ sub login {
 		 qq|$softwarestr<br><br>\n|.
 		 qq|Copyright (C) 2001-2004<br>\n|.
 		 qq|Chung-Kie Tung, Nai-Jung Kuo, Chao-Chiu Wang, Emir Litric,<br>|.
-                 qq|Thomas Chung, Dattola Filippo, Bernd Bass, Scott Mazur<br><br>\n|.
+                 qq|Thomas Chung, Dattola Filippo, Bernd Bass, Scott Mazur, Alex Teslik<br><br>\n|.
 		 qq|Copyright (C) 2000<br>\n|.
 		 qq|Ernie Miller  (original GPL project: Neomail)<br><br>\n|.
 		 qq|</a>\n\n|.

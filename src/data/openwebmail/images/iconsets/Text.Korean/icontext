@@ -4,6 +4,19 @@
 
 %icontext =
    (
+   'abookagent.gif'        => ' [Agent] ',
+   'abookunselectall.gif'  => ' [UnselectAll] ',
+   'abookexport.gif'       => ' [Export] ',
+   'abookgeocamera.gif'    => ' [GeoPicture] ',
+   'abookgeofind.gif'      => ' [GeoFind] ',
+   'abookglobalicon.gif'   => ' [GlobalBook] ',
+   'abookimport.gif'       => ' [Import] ',
+   'abookkey.gif'          => ' [PgpKey] ',
+   'abooknewcontact.gif'   => ' [NewContact] ',
+   'abooknewgroup.gif'     => ' [NewGroup] ',
+   'abooks.gif'            => ' [AddressBooks] ',
+   'abooksound.gif'        => ' [PlaySound] ',
+   'abookviewselected.gif' => ' [ViewSelected] ',
    'addrbook.gif'      => ' [林家废] ', 
    'addrbook.s.gif'    => ' [林家废] ',
    'adduser.gif',      => ' [眠啊] ',

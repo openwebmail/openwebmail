@@ -27,7 +27,9 @@ body
 th   {  font-family: Geneva, Arial, Helvetica, sans-serif; font-size: @@@FONTSIZE@@@; font-weight: bold; background-color: #D3DCE3;}
 td   {  font-family: Geneva, Arial, Helvetica, sans-serif; font-size: @@@FONTSIZE@@@;}
 td.msgbody   {  font-family: @@@FIXEDFONT@@@ Geneva, Arial, Helvetica, sans-serif; font-size: @@@FONTSIZE@@@;}
-form   {  font-family: Geneva, Arial, Helvetica, sans-serif; font-size: @@@FONTSIZE@@@}
+form   {  font-family: Geneva, Arial, Helvetica, sans-serif; font-size: @@@FONTSIZE@@@; margin-bottom: 0;}
+input.mono { font-family: monospace; font-size: @@@MEDFONTSIZE@@@;}
+select.mono { font-family: monospace; font-size: @@@MEDFONTSIZE@@@;}
 h1   {  font-family: Geneva, Arial, Helvetica, sans-serif; font-size: 16pt; font-weight: bold}
 A:link    {  font-family: Geneva, Arial, Helvetica, sans-serif; font-size: @@@FONTSIZE@@@; text-decoration: none; color: blue}
 A:visited {  font-family: Geneva, Arial, Helvetica, sans-serif; font-size: @@@FONTSIZE@@@; text-decoration: none; color: black}

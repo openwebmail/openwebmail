@@ -1,0 +1,138 @@
+<tr>
+  <td>
+    <table cellpadding="0" cellspacing="0" border="0">
+    <tr>
+      <td>
+        <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td rowspan="12" valign="top">
+            <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+              <td nowrap>@@@GROUP@@@</td>
+            </tr>
+            <tr>
+              <td class="smalltext">@@@GROUPLABEL@@@</td>
+            </tr>
+            </table>
+          </td>
+          <td><input class="mono" type="text" name="@@@STREET.NAME@@@" value="@@@STREET.VALUE@@@" size="30"></td>
+        </tr>
+        <tr>
+          <td class="smalltext">street address</td>
+        </tr>
+        <tr>
+          <td class="smalltext">&nbsp;</td>
+        </tr>
+        <tr>
+          <td><input class="mono" type="text" name="@@@EXTENDEDADDRESS.NAME@@@" value="@@@EXTENDEDADDRESS.VALUE@@@" size="30"></td>
+        </tr>
+        <tr>
+          <td class="smalltext">suite, apartment, etc.</td>
+        </tr>
+        <tr>
+          <td class="smalltext">&nbsp;</td>
+        </tr>
+        <tr>
+          <td><input class="mono" type="text" name="@@@POSTOFFICEADDRESS.NAME@@@" value="@@@POSTOFFICEADDRESS.VALUE@@@" size="30"></td>
+        </tr>
+        <tr>
+          <td class="smalltext">postoffice box</td>
+        </tr>
+        <tr>
+          <td class="smalltext">&nbsp;</td>
+        </tr>
+        <tr>
+          <td align="right">
+            <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+              <td><input class="mono" type="text" name="@@@LOCALITY.NAME@@@" value="@@@LOCALITY.VALUE@@@" size="12"></td>
+              <td>&nbsp;</td>
+              <td><input class="mono" type="text" name="@@@REGION.NAME@@@" value="@@@REGION.VALUE@@@" size="15"></td>
+            </tr>
+            <tr>
+              <td class="smalltext">city</td>
+              <td>&nbsp;</td>
+              <td class="smalltext">state/province</td>
+            </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td class="smalltext">&nbsp;</td>
+        </tr>
+        <tr>
+          <td align="right">
+            <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+              <td><input class="mono" type="text" name="@@@POSTALCODE.NAME@@@" value="@@@POSTALCODE.VALUE@@@" size="13"></td>
+              <td>&nbsp;</td>
+              <td><input class="mono" type="text" name="@@@COUNTRY.NAME@@@" value="@@@COUNTRY.VALUE@@@" size="12" onBlur="javascript:if (document.forms['editForm'].elements['@@@LABEL.NAME@@@'].value == '') { makeLabel('editForm','@@@LABEL.INDEX@@@'); }"></td>
+            </tr>
+            <tr>
+              <td class="smalltext">zip/postcode</td>
+              <td>&nbsp;</td>
+              <td class="smalltext">country</td>
+            </tr>
+            <tr>
+              <td colspan="3" height="40">&nbsp;</td>
+            </tr>
+            </table>
+          </td>
+        </tr>
+        </table>
+      </td>
+      <td width="15">&nbsp;</td>
+      <td valign="top">
+        <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><input class="mono" type="checkbox" name="@@@HOME.NAME@@@" value="HOME" @@@HOME.VALUE@@@></td>
+          <td rowspan="6" width="5">&nbsp;</td>
+          <td nowrap><a href="javascript:check_toggle('@@@HOME.NAME@@@');"><span class="smalltext">home address</span></a></td>
+        </tr>
+        <tr>
+          <td><input class="mono" type="checkbox" name="@@@WORK.NAME@@@" value="WORK" @@@WORK.VALUE@@@></td>
+          <td nowrap><a href="javascript:check_toggle('@@@WORK.NAME@@@');"><span class="smalltext">work address</span></a></td>
+        </tr>
+        <tr>
+          <td><input class="mono" type="checkbox" name="@@@DOM.NAME@@@" value="DOM" @@@DOM.VALUE@@@></td>
+          <td nowrap><a href="javascript:check_toggle('@@@DOM.NAME@@@');"><span class="smalltext">domestic address</span></a></td>
+        </tr>
+        <tr>
+          <td><input class="mono" type="checkbox" name="@@@INTL.NAME@@@" value="INTL" @@@INTL.VALUE@@@></td>
+          <td nowrap><a href="javascript:check_toggle('@@@INTL.NAME@@@');"><span class="smalltext">international address</span></a></td>
+        </tr>
+        <tr>
+          <td><input class="mono" type="checkbox" name="@@@POSTAL.NAME@@@" value="POSTAL" @@@POSTAL.VALUE@@@></td>
+          <td nowrap><a href="javascript:check_toggle('@@@POSTAL.NAME@@@');"><span class="smalltext">postal delivery address</span></a></td>
+        </tr>
+        <tr>
+          <td><input class="mono" type="checkbox" name="@@@PARCEL.NAME@@@" value="PARCEL" @@@PARCEL.VALUE@@@></td>
+          <td nowrap><a href="javascript:check_toggle('@@@PARCEL.NAME@@@');"><span class="smalltext">parcel delivery address</span></a></td>
+        </tr>
+        </table>
+      </td>
+      <td width="15">&nbsp;</td>
+      <td valign="top">
+        <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><textarea rows="10" cols="25" wrap="hard" name="@@@LABEL.NAME@@@">@@@LABEL.VALUE@@@</textarea></td>
+          <td valign="top" height="100%">
+            <table cellpadding="0" cellspacing="0" border="0" height="100%">
+            <tr>
+              <td valign="top" height="50%">@@@PREF@@@</td>
+            </tr>
+            <tr>
+              <td valign="bottom" align="center" height="50%">&nbsp;@@@DELETE@@@</td>
+            </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2"><a href="javascript:makeLabel('editForm','@@@LABEL.INDEX@@@');"><span class="smalltext"><b>automake label</b></span></a></td>
+        </tr>
+        </table>
+      </td>
+    </tr>
+    </table>
+  </td>
+</tr>

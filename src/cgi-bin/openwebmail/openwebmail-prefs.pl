@@ -50,10 +50,10 @@ use vars qw(%lang_folders %lang_sizes %lang_text %lang_err
             %lang_withoriglabels %lang_receiptlabels
             %lang_ctrlpositionlabels %lang_sendpositionlabels
             %lang_checksourcelabels
-            %lang_abookbuttonpositionlabels
+            %lang_abookbuttonpositionlabels %lang_abooksortlabels
 	    %lang_timelabels %lang_wday);	# defined in lang/xy
 use vars qw(%charset_convlist);			# defined in iconv.pl
-use vars qw(%fontsize);				# defined in ow-shared.pl
+use vars qw(%fontsize %is_config_option);	# defined in ow-shared.pl
 
 # local globals
 use vars qw($folder $messageid);
@@ -346,6 +346,8 @@ sub editprefs {
          $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} $lang_text{'webdisk'}", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-webdisk.pl?action=showdir&amp;$urlparmstr"|);
       } elsif ($prefs_caller eq "read") {
          $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} ".($lang_folders{$folder}||$folder), qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&amp;$urlparmstr"|);
+      } elsif ($prefs_caller eq "addrlistview") {
+         $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} $lang_text{'addressbook'}", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrlistview&amp;$urlparmstr"|);
       } else {
          $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} ".($lang_folders{$folder}||$folder), qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;$urlparmstr"|);
       }
@@ -1087,8 +1089,12 @@ sub editprefs {
          } else {
             templateblock_disable($html, 'FILTER');
          }
+      }
 
-         my @pvalues=(300,320,340,360,380,400,420,440,460,480,500,600,700,800,900,1000);
+      if ($config{'enable_addressbook'}) {
+         templateblock_enable($html, 'WEBADDR');
+
+         my @pvalues=(300,320,340,360,380,400,420,440,460,480,500,520,540,560,580,600,700,800,900,1000);
          my %plabels;
          foreach (@pvalues) {
             $plabels{$_}="$_ $lang_text{'pixel'}";
@@ -1127,14 +1133,19 @@ sub editprefs {
                                -label=>'',
                                defined($config_raw{'DEFAULT_abook_defaultfilter'})?('-disabled'=>'1'):());
          $temphtml .= "&nbsp;";
-         my %searchtypelabels = ('name'=>$lang_text{'name'},
-                                 'email'=>$lang_text{'email'},
-                                 'note'=>$lang_text{'note'},
-                                 'all'=>$lang_text{'all'});
+
+
+         my @searchchoices = qw(fullname email phone note categories);
+
+         # build the labels from the choices
+         my %searchtypelabels = ();
+         $searchtypelabels{"$_"} = $lang_text{"abook_listview_$_"} for @searchchoices;
+
          $temphtml .= popup_menu(-name=>'abook_defaultsearchtype',
-                                 -default=>$prefs{'abook_defaultsearchtype'} || 'name',
-                                 -values=>['name', 'email', 'note', 'all'],
+                                 -default=>$prefs{'abook_defaultsearchtype'} || 'fullname',
+                                 -values=>\@searchchoices,
                                  -labels=>\%searchtypelabels,
+                                 -override=>'1',
                                  defined($config_raw{'DEFAULT_abook_defaultsearchtype'})?('-disabled'=>'1'):());
          $temphtml .= textfield(-name=>'abook_defaultkeyword',
                                 -default=>$prefs{'abook_defaultkeyword'},
@@ -1142,6 +1153,80 @@ sub editprefs {
                                 -override=>'1',
                                 defined($config_raw{'DEFAULT_abook_defaultkeyword'})?('-disabled'=>'1'):());
          $html =~ s/\@\@\@ABOOKDEFAULTFILTER\@\@\@/$temphtml/;
+
+         $temphtml = popup_menu(-name=>'abook_addrperpage',
+                                -values=>[8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,50,100,500,1000],
+                                -default=>$prefs{'abook_addrperpage'},
+                                -override=>'1',
+                                defined($config_raw{'DEFAULT_abook_addrperpage'})?('-disabled'=>'1'):());
+         $html =~ s/\@\@\@ABOOKADDRSPERPAGE\@\@\@/$temphtml/;
+
+         $temphtml = checkbox(-name=>'abook_collapse',
+                              -value=>'1',
+                              -checked=>$prefs{'abook_collapse'},
+                              -label=>'',
+                              defined($config_raw{'DEFAULT_abook_collapse'})?('-disabled'=>'1'):());
+         $html =~ s/\@\@\@ABOOKADDRCOLLAPSE\@\@\@/$temphtml/;
+
+         $temphtml = popup_menu(-name=>'abook_sort',
+                                -values=>[qw(fullname fullname_rev
+                                             prefix   prefix_rev
+                                             first    first_rev
+                                             middle   middle_rev
+                                             last     last_rev
+                                             suffix   suffix_rev
+                                             email    email_rev
+                                             phone    phone_rev)],
+                                -default=>$prefs{'abook_sort'},
+                                -labels=>\%lang_abooksortlabels,
+                                -override=>'1',
+                                defined($config_raw{'DEFAULT_abook_sort'})?('-disabled'=>'1'):());
+         $html =~ s/\@\@\@ABOOKADDRSORTORDER\@\@\@/$temphtml/;
+
+
+         my @choices = qw(fullname prefix first middle last suffix email phone note none);
+
+         # build the labels from the choices
+         my %addrfieldorderlabels = ();
+         $addrfieldorderlabels{"$_"} = $lang_text{"abook_listview_$_"} for @choices;
+
+         $temphtml = popup_menu(-name=>'abook_listviewfieldorder',
+                                -default=>$prefs{'abook_listviewfieldorder'}[0] || 'none',
+                                -values=>\@choices,
+                                -labels=>\%addrfieldorderlabels,
+                                -override=>'1',
+                                defined($config_raw{'DEFAULT_abook_listviewfieldorder'})?('-disabled'=>'1'):());
+
+         $temphtml .= popup_menu(-name=>'abook_listviewfieldorder',
+                                 -default=>$prefs{'abook_listviewfieldorder'}[1] || 'none',
+                                 -values=>\@choices,
+                                 -labels=>\%addrfieldorderlabels,
+                                 -override=>'1',
+                                 defined($config_raw{'DEFAULT_abook_listviewfieldorder'})?('-disabled'=>'1'):());
+
+         $temphtml .= popup_menu(-name=>'abook_listviewfieldorder',
+                                 -default=>$prefs{'abook_listviewfieldorder'}[2] || 'none',
+                                 -values=>\@choices,
+                                 -labels=>\%addrfieldorderlabels,
+                                 -override=>'1',
+                                 defined($config_raw{'DEFAULT_abook_listviewfieldorder'})?('-disabled'=>'1'):());
+
+         $temphtml .= popup_menu(-name=>'abook_listviewfieldorder',
+                                 -default=>$prefs{'abook_listviewfieldorder'}[3] || 'none',
+                                 -values=>\@choices,
+                                 -labels=>\%addrfieldorderlabels,
+                                 -override=>'1',
+                                 defined($config_raw{'DEFAULT_abook_listviewfieldorder'})?('-disabled'=>'1'):());
+
+         $temphtml .= popup_menu(-name=>'abook_listviewfieldorder',
+                                 -default=>$prefs{'abook_listviewfieldorder'}[4] || 'none',
+                                 -values=>\@choices,
+                                 -labels=>\%addrfieldorderlabels,
+                                 -override=>'1',
+                                 defined($config_raw{'DEFAULT_abook_listviewfieldorder'})?('-disabled'=>'1'):());
+         $html =~ s/\@\@\@ABOOKLISTVIEWFIELDORDERMENU\@\@\@/$temphtml/;
+      } else {
+         templateblock_disable($html, 'WEBADDR');
       }
 
       if ($config{'enable_calendar'}) {
@@ -1429,6 +1514,9 @@ sub editprefs {
       } elsif ($prefs_caller eq "read") {
          $temphtml  = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-read.pl").
                       ow::tool::hiddens(action=>'readmessage');
+      } elsif ($prefs_caller eq "addrlistview") {
+         $temphtml  = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl").
+                      ow::tool::hiddens(action=>'addrlistview');
       } else {
          $temphtml  = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-main.pl").
                       ow::tool::hiddens(action=>'listmessages');
@@ -1466,39 +1554,20 @@ sub saveprefs {
       openwebmailerror(__FILE__, __LINE__, "$lang_text{'forward'} $lang_text{'email'} $lang_err{'has_illegal_chars'}");
    }
 
-   my %rcitem_yn=qw(
-      bgrepeat 1
-      useminisearchicon 1
-      confirmmsgmovecopy 1
-      smartdestination 1
-      viewnextaftermsgmovecopy 1
-      autopop3 1
-      moveoldmsgfrominbox 1
-      usefixedfont 1
-      usesmileicon 1
-      disablejs 1
-      disableembcode 1
-      showhtmlastext 1
-      showimgaslink 1
-      reparagraphorigmsg 1
-      backupsentmsg 1
-      filter_fakedsmtp 1
-      filter_fakedfrom 1
-      filter_fakedexecontenttype 1
-      abook_defaultfilter 1
-      calendar_showemptyhours 1
-      calendar_reminderforglobal 1
-      webdisk_confirmmovecopy 1
-      webdisk_confirmdel 1
-      webdisk_confirmcompress 1
-      uselightbar 1
-      regexmatch 1
-      hideinternal 1
-   );
+   my (%newprefs, $key, $value, @value);
 
-   my (%newprefs, $key, $value);
    foreach $key (@openwebmailrcitem) {
-      $value = param($key);
+      if ( defined($is_config_option{'list'}{"default_$key"}) ) {
+         @value = param($key);
+         foreach my $index (0..$#value) {
+            $value[$index] =~ s/\.\.+//g;
+            $value[$index] =~ s/[=\n\/\`\|\<\>;]//g; # remove dangerous char
+         }
+         $newprefs{$key} = join(",",@value);
+         next;
+      } else {
+         $value = param($key);
+      }
 
       if ($key eq 'bgurl') {
          my $background=param('background');
@@ -1537,7 +1606,7 @@ sub saveprefs {
             unlink(dotpath('filter.check'));
          }
          $newprefs{$key}=$value;
-      } elsif ( defined($rcitem_yn{$key}) ) {
+      } elsif (defined($is_config_option{'yesno'}{"default_$key"}) ) {
          $value=0 if ($value eq '');
          $newprefs{$key}=$value;
       } else {
@@ -1615,6 +1684,9 @@ sub saveprefs {
    } elsif ($prefs_caller eq "read") {
       $temphtml .= startform(-action=>"$config{'ow_cgiurl'}/openwebmail-read.pl").
                    ow::tool::hiddens(action=>'readmessage');
+   } elsif ($prefs_caller eq "addrlistview") {
+      $temphtml .= startform(-action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl").
+                   ow::tool::hiddens(action=>'addrlistview');
    } else {
       $temphtml .= startform(-action=>"$config{'ow_cgiurl'}/openwebmail-main.pl").
                    ow::tool::hiddens(action=>'listmessages');

@@ -345,7 +345,9 @@ Leveys @@@EDITCOLUMNSMENU@@@ Korkeus @@@EDITROWSMENU@@@
 @@@FILTERFAKEDEXECONTENTTYPE@@@
 </td></tr>
 @@@FILTEREND@@@
+@@@WEBMAILEND@@@
 
+@@@WEBADDRSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>AddressBook Options</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
@@ -363,7 +365,28 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKDEFAULTFILTER@@@
 </td></tr>
-@@@WEBMAILEND@@@
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Addresses displayed per page:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@ABOOKADDRSPERPAGE@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Display only one line per contact:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@ABOOKADDRCOLLAPSE@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Default addressbook sort order:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@ABOOKADDRSORTORDER@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Listview field order:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@ nowrap>
+@@@ABOOKLISTVIEWFIELDORDERMENU@@@
+</td></tr>
+@@@WEBADDREND@@@
+
 
 @@@CALENDARSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>

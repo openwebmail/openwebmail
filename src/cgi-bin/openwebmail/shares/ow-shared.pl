@@ -35,7 +35,7 @@ foreach (qw(
    session_multilogin session_checksameip session_checkcookie session_count_display
    cache_userinfo
    auto_createrc domainnames_override symboliclink_mbox
-   enable_webmail enable_userfolders enable_spellcheck enable_advsearch
+   enable_webmail enable_userfolders enable_addressbook enable_spellcheck enable_advsearch
    enable_calendar enable_webdisk enable_sshterm enable_vdomain
    enable_history enable_about about_info_software about_info_protocol
    about_info_server about_info_client about_info_scriptfilename
@@ -51,6 +51,7 @@ foreach (qw(
    webdisk_allow_symlinkcreate webdisk_allow_symlinkout webdisk_allow_thumbnail
    webdisk_allow_untar webdisk_allow_unzip webdisk_allow_unrar
    webdisk_allow_unarj webdisk_allow_unlzh
+   abook_globaleditable
    delmail_ifquotahit delfile_ifquotahit
    default_bgrepeat default_useminisearchicon
    default_confirmmsgmovecopy default_smartdestination
@@ -62,7 +63,7 @@ foreach (qw(
    default_reparagraphorigmsg default_backupsentmsg
    default_filter_badaddrformat default_filter_fakedsmtp
    default_filter_fakedfrom default_filter_fakedexecontenttype
-   default_abook_defaultfilter
+   default_abook_defaultfilter default_abook_collapse
    default_calendar_showemptyhours default_calendar_reminderforglobal
    default_webdisk_confirmmovecopy default_webdisk_confirmdel default_webdisk_confirmcompress
    default_uselightbar default_regexmatch default_hideinternal
@@ -94,7 +95,7 @@ foreach (qw(
    allowed_receiverdomain allowed_autologinip allowed_rootloginip
    pop3_disallowed_servers localusers
    vdomain_admlist vdomain_postfix_aliases vdomain_postfix_virtual
-   default_fromemails
+   default_fromemails default_abook_listviewfieldorder
 )) { $is_config_option{'list'}{$_}=1}
 
 # untaint path config options
@@ -118,14 +119,21 @@ foreach (qw(
    default_language auth_module
 )) { $is_config_option{'require'}{$_}=1}
 
+
+# Why was this done? Consider what happens to 'list' types at line
+# 402. They get assigned a DEFAULT_ empty array, which forces all
+# 'list' type properties that are user customizable to get disabled
+# in openwebmail-pref.pl because now DEFAULT_whatever exists in
+# config_raw. This is wrong and should not be in here.
+
 # set type for DEFAULT_ options (the forced defaults for default_ options)
-foreach my $opttype ('yesno', 'none', 'list') {
-   foreach my $optname (keys %{$is_config_option{$opttype}}) {
-      if ($optname=~s/^default_/DEFAULT_/) {
-         $is_config_option{$opttype}{$optname}=1;
-      }
-   }
-}
+#foreach my $opttype ('yesno', 'none', 'list') {
+#   foreach my $optname (keys %{$is_config_option{$opttype}}) {
+#      if ($optname=~s/^default_/DEFAULT_/) {
+#         $is_config_option{$opttype}{$optname}=1;
+#      }
+#   }
+#}
 
 @openwebmailrcitem=qw(
    language charset timeoffset daylightsaving email replyto
@@ -143,6 +151,7 @@ foreach my $opttype ('yesno', 'none', 'list') {
    filter_fakedsmtp filter_fakedfrom filter_fakedexecontenttype
    abook_width abook_height abook_buttonposition
    abook_defaultfilter abook_defaultsearchtype abook_defaultkeyword
+   abook_addrperpage abook_collapse abook_sort abook_listviewfieldorder
    calendar_defaultview calendar_holidaydef
    calendar_monthviewnumitems calendar_weekstart
    calendar_starthour calendar_endhour calendar_interval calendar_showemptyhours
@@ -491,16 +500,20 @@ sub _load_owconf {
 
    # data stru/value formatting
    foreach $key (keys %conf) {
+      # the option lookup key should be all lowercase so that DEFAULT_
+      # options get handled the same as default_ options without having
+      # to specify DEFAULT_option_name in the is_config_option hash
+      my $lckey = lc($key);
       # turn ow_htmlurl from / to null to avoid // in url
       $conf{$key}='' if ($key eq 'ow_htmlurl' and $conf{$key} eq '/');
       # set exact 'auto'
       $conf{$key}='auto' if ($is_config_option{'auto'}{$key} && $conf{$key}=~/^auto$/i);
       # clean up yes/no params
-      $conf{$key}=fmt_yesno($conf{$key}) if ($is_config_option{'yesno'}{$key});
+      $conf{$key}=fmt_yesno($conf{$key}) if ($is_config_option{'yesno'}{$lckey});
       # remove / and .. from variables that will be used in require statement for security
-      $conf{$key}=fmt_require($conf{$key}) if ($is_config_option{'require'}{$key});
+      $conf{$key}=fmt_require($conf{$key}) if ($is_config_option{'require'}{$lckey});
       # clean up none
-      $conf{$key}=fmt_none($conf{$key}) if ($is_config_option{'none'}{$key});
+      $conf{$key}=fmt_none($conf{$key}) if ($is_config_option{'none'}{$lckey});
 
       # format hash or list data stru
       if ($key eq 'domainname_equiv') {
@@ -516,7 +529,7 @@ sub _load_owconf {
          }
          $conf{$key}= { map => \%equiv,		# src -> dst
                         list=> \%equivlist };	# dst <= srclist
-      } elsif ($is_config_option{'list'}{$key}){
+      } elsif ($is_config_option{'list'}{$lckey}){
          $value=$conf{$key}; $value=~s/\s//g;
          my @list=split(/,+/, $value);
          $conf{$key}=\@list;
@@ -621,7 +634,14 @@ sub readprefs {
          if ($key eq 'style') {
             $value =~ s/^\.//g;  ## In case someone gets a bright idea...
          }
-         $prefshash{"$key"} = $value;
+         if ($is_config_option{'list'}{"default_$key"}) {
+            # list type options should be saved in prefshash as a list
+            $value=~s/\s//g;
+            my @list=split(/,+/, $value);
+            $prefshash{$key} = \@list;
+         } else {
+            $prefshash{"$key"} = $value;
+         }
       }
       close (RC);
    }
@@ -707,16 +727,23 @@ sub readprefs {
 ########## READTEMPLATE ##########################################
 use vars qw(%_templatecache);
 sub readtemplate {
-   my $templatename=$_[0];
+   my $templatename=$_[0]; 
    my $lang=$prefs{'language'}||'en'; $lang='en' if ($lang eq 'en.utf8');
-   if (!defined($_templatecache{"$config{'ow_templatesdir'}/$lang/$templatename"})) {
-      open (T, "$config{'ow_templatesdir'}/$lang/$templatename") or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_templatesdir'}/$lang/$templatename! ($!)");
-      local $/; undef $/; $_templatecache{"$config{'ow_templatesdir'}/$lang/$templatename"}=<T>; # read whole file in once
-      close (T);
-   }
 
-   return($_templatecache{"$config{'ow_templatesdir'}/$lang/$templatename"});
+   my $langfile="$config{'ow_templatesdir'}/$lang/$templatename";
+   my $commonfile="$config{'ow_templatesdir'}/COMMON/$templatename";
+
+   foreach my $file ($langfile, $commonfile) {
+      return $_templatecache{$file} if (defined $_templatecache{$file});
+   }
+   foreach my $file ($langfile, $commonfile) {
+      if (open (T, $file)) {
+         local $/; undef $/; $_templatecache{$file}=<T>; # read whole file in once
+         close (T);
+         return $_templatecache{$file};
+      } 
+   }
+   openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_templatesdir'}/$lang/$templatename! ($!)");
 }
 ########## END READTEMPLATE ######################################
 
@@ -872,7 +899,7 @@ sub sessioninfo {
    my $sessionid=$_[0];
    my ($cookie, $ip, $userinfo);
 
-   openwebmailerror(__FILE__, __LINE__, "Session ID $sessionid $lang_err{'doesnt_exist'}") unless
+   openwebmailerror(__FILE__, __LINE__, "Session ID $sessionid $lang_err{'doesnt_exist'}. <a href=\"$config{'ow_cgiurl'}/openwebmail.pl\">$lang_text{'loginagain'}?</a>") unless
       (-e "$config{'ow_sessionsdir'}/$sessionid");
 
    if ( !open(F, "$config{'ow_sessionsdir'}/$sessionid") ) {
@@ -1668,6 +1695,9 @@ foreach (qw(
    trash.check search.cache signature
 )) { $_is_dotpath{'webmail'}{$_}=1; }
 foreach (qw(
+   catagories.cache
+)) { $_is_dotpath{'webaddr'}{$_}=1; }
+foreach (qw(
    calendar.book notify.check
 )) { $_is_dotpath{'webcal'}{$_}=1; }
 foreach (qw(
@@ -1701,6 +1731,7 @@ sub _dotpath {
 
    return(ow::tool::untaint("$dotdir/$name"))         if ($_is_dotpath{'root'}{$name});
    return(ow::tool::untaint("$dotdir/webmail/$name")) if ($_is_dotpath{'webmail'}{$name} || $name=~/^filter\.book/);
+   return(ow::tool::untaint("$dotdir/webaddr/$name")) if ($_is_dotpath{'webaddr'}{$name});
    return(ow::tool::untaint("$dotdir/webcal/$name"))  if ($_is_dotpath{'webcal'}{$name});
    return(ow::tool::untaint("$dotdir/webdisk/$name")) if ($_is_dotpath{'webdisk'}{$name});
    return(ow::tool::untaint("$dotdir/pop3/$name"))    if ($_is_dotpath{'pop3'}{$name} || $name=~/^uidl\./);

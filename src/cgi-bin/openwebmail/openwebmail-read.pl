@@ -367,6 +367,9 @@ sub readmessage {
    $temphtml .= iconlink("print.gif", $lang_text{'printfriendly'}, qq|href=#here onClick="javascript:window.open('$read_url_with_id&amp;action=readmessage&amp;headers=$headers&amp;attmode=simple&amp;convfrom=$convfrom&amp;printfriendly=yes','_print', 'width=720,height=360,resizable=yes,menubar=yes,scrollbars=yes')"|);
    $temphtml .= "&nbsp;\n";
 
+   if ($config{'enable_addressbook'}) {
+      $temphtml .= iconlink("addrbook.gif", $lang_text{'addressbook'}, qq|accesskey="A" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrlistview&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid"|);
+   }
    if ($config{'enable_calendar'}) {
       $temphtml .= iconlink("calendar.gif", $lang_text{'calendar'}, qq|accesskey="K" href="$config{'ow_cgiurl'}/openwebmail-cal.pl?action=$prefs{'calendar_defaultview'}&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid"|);
    }
@@ -649,7 +652,26 @@ sub readmessage {
       my ($ename, $eaddr)=ow::tool::email2nameaddr($message{from});
       $temphtml .= qq|<B>$lang_text{'from'}:</B> <a href="http://www.google.com/search?q=$eaddr" title="google $lang_text{'search'}..." target="_blank">$from</a>&nbsp; \n|;
       if ($printfriendly ne "yes") {
-         $temphtml .= qq|&nbsp;|. iconlink("import.s.gif",   "$lang_text{'importadd'} $eaddr",  qq|href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addaddress&amp;sessionid=$thissession&amp;sort=$sort&amp;page=$page&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;realname=|.ow::tool::escapeURL($ename).qq|&amp;email=|.ow::tool::escapeURL($eaddr).qq|&amp;usernote=_reserved_" onclick="return confirm('$lang_text{importadd} $eaddr ?');"|) . qq|\n|;
+         # load up the list of available books
+         my $webaddrdir = dotpath('webaddr');
+         opendir(WEBADDR, $webaddrdir) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $webaddrdir directory for reading! ($!)");
+         my @alladdressbooks = map { (-w "$webaddrdir/$_")?$_:() }
+                               sort { $a cmp $b }
+                               grep { /^[^.]/ && !/^categories\.cache$/ }
+                               readdir(WEBADDR);
+         closedir(WEBADDR) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $webaddrdir! ($!)");
+
+         if ($config{'abook_globaleditable'} && $config{'global_addressbook'} ne "") { 
+            push(@alladdressbooks, 'GLOBAL') if (-w $config{'global_addressbook'});
+         }
+
+         if (@alladdressbooks > 0) {
+            my ($firstname, @lastname) = split(/ /,$ename);
+            my $lastname = join(" ",@lastname);
+            $temphtml .= qq|&nbsp;|. iconlink("import.s.gif",  "$lang_text{'importadd'} $eaddr", qq|href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addreditform&amp;sessionid=$thissession&amp;sort=$sort&amp;page=$page&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;N.0.VALUE.GIVENNAME=|.ow::tool::escapeURL($firstname).qq|&amp;N.0.VALUE.FAMILYNAME=|.ow::tool::escapeURL($lastname).qq|&amp;FN.0.VALUE=|.ow::tool::escapeURL($ename).qq|&amp;EMAIL.0.VALUE=|.ow::tool::escapeURL($eaddr).qq|&amp;formchange=1" onclick="return confirm('$lang_text{importadd} $eaddr ?');"|) . qq|\n|;
+         } else {
+            $temphtml .= qq|&nbsp;|. iconlink("import.s.gif",  "$lang_text{'importadd'} $eaddr", qq|href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrbookedit&amp;sessionid=$thissession&amp;sort=$sort&amp;page=$page&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid" onclick="return confirm('$lang_text{abook_listview_noaddrbooks}');"|) . qq|\n|;
+         }
          if ($config{'enable_userfilter'}) {
             $temphtml .= qq|&nbsp;|. iconlink("blockemail.gif", "$lang_text{'blockemail'} $eaddr", qq|href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=addfilter&amp;sessionid=$thissession&amp;sort=$sort&amp;page=$page&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;priority=20&amp;ruletype=from&amp;include=include&amp;text=$eaddr&amp;destination=mail-trash&amp;enable=1" onclick="return confirm('$lang_text{blockemail} $eaddr ?');"|) . qq|\n|;
             if ($message{smtprelay} !~ /^\s*$/) {

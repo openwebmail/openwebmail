@@ -345,25 +345,48 @@ Colunas @@@EDITCOLUMNSMENU@@@ Linhas @@@EDITROWSMENU@@@
 @@@FILTERFAKEDEXECONTENTTYPE@@@
 </td></tr>
 @@@FILTEREND@@@
+@@@WEBMAILEND@@@
 
+@@@WEBADDRSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Opções do Livro de Endereços</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Opções de Lista de Contatos</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Tamanho da janela do livro de endereços:</B>
+<B>Tamanho para janela de lista de contatos:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-Colunas @@@ABOOKWIDTHMENU@@@ Linhas @@@ABOOKHEIGHTMENU@@@
+Width @@@ABOOKWIDTHMENU@@@ Linhas @@@ABOOKHEIGHTMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Posição do botão livro de endereços:</B>
+<B>Posição do botão lista de contatos:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKBUTTONPOSITIONMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Filtro padrão para livro de endereços:</B>
+<B>Filtro padrão para lista de contatos:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKDEFAULTFILTER@@@
 </td></tr>
-@@@WEBMAILEND@@@
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Número de contatos mostrados por página:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@ABOOKADDRSPERPAGE@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Mostrar apenas uma linha por contato:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@ABOOKADDRCOLLAPSE@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Ordenar inicialmente por:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@ABOOKADDRSORTORDER@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Ordem dos campos na visualização em lista:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@ nowrap>
+@@@ABOOKLISTVIEWFIELDORDERMENU@@@
+</td></tr>
+@@@WEBADDREND@@@
+
 
 @@@CALENDARSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
