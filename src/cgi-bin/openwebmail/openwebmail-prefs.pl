@@ -326,6 +326,7 @@ sub editfolders {
       if ($homedirfolders eq 'yes') {
          unless ( ($filename eq 'saved-messages') ||
                   ($filename eq 'sent-mail') ||
+                  ($filename eq 'saved-drafts') ||
                   ($filename eq 'mail-trash') ||
                   ($filename eq '.') ||
                   ($filename eq '..')
@@ -396,7 +397,23 @@ sub editfolders {
    my $bgcolor = $style{"tablerow_dark"};
    my $currfolder;
    foreach $currfolder (sort (@folders)) {
-      $temphtml .= "<tr><td align=\"center\" bgcolor=$bgcolor>$currfolder</td>";
+
+      my ($newmessages, $allmessages);
+
+      my $headerdb="$folderdir/.$currfolder";
+
+#      filelock("$headerdb.$dbm_ext", LOCK_SH);
+      dbmopen (%HDB, $headerdb, undef);
+      $allmessages=$HDB{'ALLMESSAGES'};
+      $newmessages=$HDB{'NEWMESSAGES'};
+      dbmclose(%HDB);
+#      filelock("$headerdb.$dbm_ext", LOCK_UN);
+
+      my $escapedcurrfolder = CGI::escape($currfolder);
+      my $url = "$scripturl?sessionid=$thissession&amp;folder=$escapedcurrfolder&amp;action=downloadfolder";
+      $temphtml .= "<tr><td align=\"center\" bgcolor=$bgcolor><a href=\"$url\">$currfolder</a></td>".
+                   "<td align=\"center\" bgcolor=$bgcolor>$newmessages</td>".
+                   "<td align=\"center\" bgcolor=$bgcolor>$allmessages</td>";
 
       $temphtml .= start_form(-action=>$prefsurl,
                               -onSubmit=>"return confirm($lang_text{'folderconf'}+' ( $currfolder )')");
@@ -1876,9 +1893,9 @@ sub getfolders {
    my $filename;
 
    if ( $homedirfolders eq 'yes' ) {
-      @folders = ('saved-messages', 'sent-mail', 'mail-trash');
+      @folders = ('saved-messages', 'sent-mail', 'saved-drafts', 'mail-trash');
    } else {
-      @folders = ('SAVED', 'TRASH', 'SENT');
+      @folders = ('SAVED', 'SENT', 'DRAFT', 'TRASH');
    }
 
    opendir (FOLDERDIR, "$folderdir") or 
@@ -1904,6 +1921,7 @@ sub getfolders {
       if ( $homedirfolders eq 'yes' ) {
          unless ( ($filename eq 'saved-messages') ||
                   ($filename eq 'sent-mail') ||
+                  ($filename eq 'saved-drafts') ||
                   ($filename eq 'mail-trash') ||
                   ($filename eq '.') || ($filename eq '..')
                 ) {

@@ -7,10 +7,13 @@ $lang_charset = 'big5';
    INBOX => '新信件',
    SAVED => '收件匣',
    SENT  => '寄件備分',
+   DRAFT => '草稿',
    TRASH => '垃圾桶',
    'saved-messages' => '收件匣',
    'sent-mail'  => '寄件備分',
-   'mail-trash' => '垃圾桶'
+   'mail-trash' => '垃圾桶',
+   'saved-drafts' => '草稿',
+   DELETE => '--直接刪除--'
    );
 
 %lang_sortlabels =
@@ -73,6 +76,8 @@ $lang_charset = 'big5';
    filename   => '檔名',
    encoding   => '編碼',
    download   => '下載',
+   editdraft  => '編輯草稿',
+   savedraft  => '暫存草稿',
    send       => '寄信',
    cancel     => '取消',
    continue   => '繼續',
@@ -109,6 +114,7 @@ $lang_charset = 'big5';
    globaladdressbook => '共用通訊錄',
    globalfilterrule => '共用郵件規則',
    readonly   => '唯讀',
+   content    => '內容',
    search     => '搜尋'
    );
 
@@ -132,12 +138,13 @@ $lang_charset = 'big5';
             tryagain          => '再試一次.',
             abook_toobig      => '通訊錄超過容量限制. 請',
             cant_create_dir   => '無法建立使用者目錄!',
-            folder_hitquota   => '抱歉！您的容量已經超過限制，請先將不要的信件刪除在清空垃圾匣，否則您將收不到新信.',
+            folder_hitquota   => '抱歉！您的容量已經超過限制，請先將不要的信件刪除和清空垃圾匣，否則您將收不到新信.',
             att_overlimit     => '附件大小超過限制',
             inv_sessid        => '使用他人的 session id 或是重複登入 -- 拒絕存取!',
             user_not_exist    => '使用者不存在',
             password_error    => '密碼錯誤',
-            network_server_error => '網路伺服器錯誤'
+            network_server_error => '網路伺服器錯誤',
+            sendmail_error    => '抱歉！無法寄出您的信件，請回到上一頁檢查是否輸入錯誤後, 再重寄一次。'
             );
 
 1;

@@ -600,6 +600,123 @@ sub get_message_block {
 
 ###################### END GET_MESSAGE_.... ########################
 
+###################### MOVE_MESSAGE_WITH_IDS #########################
+
+# move messages with @messageids from srcfolder to dstfolder
+# fi dstfolder eq "", then remove messages from src folder
+sub move_message_with_ids {
+   my ($srcfolder, $srcdb, $dstfolder, $dstdb, $r_messageids)=@_;
+   my $spoolhandle=FileHandle->new();
+   my (%HDB, %HDB2);
+   my $messageids = join("\n", @{$r_messageids});
+
+   if ($srcfolder eq $dstfolder || $#{$r_messageids}<0) {
+      return(0);
+   }
+
+   # open source folder, since spool must exist => lock before open
+   update_headerdb($srcdb, $srcfolder);
+   open ($spoolhandle, "+<$srcfolder") or 
+      return(-1);	# $lang_err{'couldnt_open'} $srcfolder!
+
+   if ($dstfolder ne "") {
+      # open destination folder, since dest may not exist => open before lock
+      open (DEST, ">>$dstfolder") or
+         return(-2);	# $lang_err{'couldnt_open'} $destination!
+      update_headerdb("$dstdb", $dstfolder);
+   }
+
+   my @allmessageids=get_messageids_sorted_by_offset($srcdb);
+   my ($blockstart, $blockend, $writepointer);
+   my ($currmessage, $messagestart, $messagesize, @attr);
+   my $moved=0;
+   
+   filelock("$srcdb.$dbm_ext", LOCK_EX);
+   dbmopen (%HDB, $srcdb, 600);
+
+   if ($dstfolder ne "") {
+      filelock("$dstdb.$dbm_ext", LOCK_EX);
+      dbmopen (%HDB2, "$dstdb", 600);
+   }
+
+   $blockstart=$blockend=$writepointer=0;
+
+   for (my $i=0; $i<=$#allmessageids; $i++) {
+      @attr=split(/@@@/, $HDB{$allmessageids[$i]});
+
+      if ($messageids =~ /^\Q$allmessageids[$i]\E$/m) {	# msg to be moved
+         $moved++;
+
+         $messagestart=$attr[$_OFFSET];
+         $messagesize=$attr[$_SIZE];
+
+         shiftblock($spoolhandle, $blockstart, $blockend-$blockstart, $writepointer-$blockstart);
+
+         $writepointer=$writepointer+($blockend-$blockstart);
+         $blockstart=$blockend=$messagestart+$messagesize;
+
+         seek($spoolhandle, $attr[$_OFFSET], 0);
+         read($spoolhandle, $currmessage, $attr[$_SIZE]);
+
+         # messages will be DROPED directly 
+         # if detfolder eq "" or already exist in dstfolder
+         if ( $dstfolder ne "" && !defined($HDB2{$allmessageids[$i]}) ) { 
+            $attr[$_OFFSET]=tell(DEST);
+            if ($currmessage =~ /^From /) {
+               $attr[$_SIZE]=length($currmessage);
+               print DEST $currmessage;
+            } else {
+               $attr[$_SIZE]=length("From ")+length($currmessage);
+               print DEST "From ", $currmessage;
+            }
+            if ( $attr[$_STATUS]!~/r/i ) {
+               $HDB2{'NEWMESSAGES'}++;
+            }
+            $HDB2{'ALLMESSAGES'}++;
+            $HDB2{$allmessageids[$i]}=join('@@@', @attr);
+         } 
+         
+         if ( $attr[$_STATUS]!~/r/i ) {
+            $HDB{'NEWMESSAGES'}--;
+         }
+         $HDB{'ALLMESSAGES'}--;
+         delete $HDB{$allmessageids[$i]};
+
+      } else {						# msg to be kept in same folder
+         $messagestart=$attr[$_OFFSET];
+         $messagesize=$attr[$_SIZE];
+         $blockend=$messagestart+$messagesize;
+
+         my $movement=$writepointer-$blockstart;
+         if ($movement<0) {
+            $attr[$_OFFSET]+=$movement;
+            $HDB{$allmessageids[$i]}=join('@@@', @attr);
+         }
+      }
+   }
+
+   if ($moved>0) {
+      shiftblock($spoolhandle, $blockstart, $blockend-$blockstart, $writepointer-$blockstart);
+      seek($spoolhandle, $writepointer+($blockend-$blockstart), 0);
+      truncate($spoolhandle, tell($spoolhandle));
+   }
+
+   if ($dstfolder ne "") { 
+      close (DEST);
+      $HDB2{'METAINFO'}=metainfo($dstfolder);
+      dbmclose(%HDB2);
+      filelock("$dstdb.$dbm_ext", LOCK_UN);
+   }
+
+   close ($spoolhandle);
+   $HDB{'METAINFO'}=metainfo($srcfolder);
+   dbmclose(%HDB);
+   filelock("$srcdb.$dbm_ext", LOCK_UN);
+
+   return($moved);
+}
+#################### END MOVE_MESSAGE_WITH_IDS #######################
+
 ####################### PARSE_.... related ###########################
 # Handle "message/rfc822,multipart,uuencode inside message/rfc822" encapsulatio 
 #
@@ -653,7 +770,11 @@ sub parse_rfc822block {
             $attblockstart++;
          }
 
-         $nextboundarystart=index(${$r_block}, $boundary, $attblockstart);
+         $nextboundarystart=index(${$r_block}, "$boundary\n", $attblockstart);
+         if ($nextboundarystart <= $attblockstart) {
+            $nextboundarystart=index(${$r_block}, "$boundary--", $attblockstart);
+         }
+
          if ($nextboundarystart > $attblockstart) {
             # normal attblock handling
             if ( $searchid eq "" || $searchid eq "all") {
@@ -788,7 +909,11 @@ sub parse_attblock {
             $subattblockstart++;
          }
 
-         $nextboundarystart=index(${$r_buff}, $boundary, $subattblockstart);
+         $nextboundarystart=index(${$r_buff}, "$boundary\n", $subattblockstart);
+         if ($nextboundarystart <= $subattblockstart) {
+            $nextboundarystart=index(${$r_buff}, "$boundary--", $subattblockstart);
+         }
+
          if ($nextboundarystart > $subattblockstart) {
             # normal attblock
             if ( $searchid eq "" || $searchid eq "all" ) {
@@ -1013,11 +1138,12 @@ sub contenttype2ext {
 #################### SEARCH_MESSAGES_FOR_KEYWORD ###########################
 
 sub search_messages_for_keyword {
-   my ($keyword, $headerdb, $spoolhandle, $cachefile)=@_;
+   my ($keyword, $searchcontent, $headerdb, $spoolhandle, $cachefile)=@_;
    my %found;
    my (%HDB, @messageids);
-   my ($metainfo, $cache_metainfo, $cache_headerdb, $cache_keyword);
+   my ($metainfo, $cache_metainfo, $cache_headerdb, $cache_keyword, $cache_searchcontent);
    my ($messageid, $readsize, $buff);
+
 
    filelock($cachefile, LOCK_EX);
    filelock("$headerdb.$dbm_ext", LOCK_SH);
@@ -1030,33 +1156,45 @@ sub search_messages_for_keyword {
       $cache_metainfo=<CACHE>; chomp($cache_metainfo);
       $cache_headerdb=<CACHE>; chomp($cache_headerdb);
       $cache_keyword=<CACHE>; chomp($cache_keyword);
+      $cache_searchcontent=<CACHE>; chomp($cache_searchcontent);
       close(CACHE);
    }
+
    if ( $cache_metainfo ne $metainfo || $cache_headerdb ne $headerdb ||
-        $cache_keyword ne $keyword ) {
+        $cache_keyword ne $keyword || $cache_searchcontent ne $searchcontent) {
       ($cachefile =~ /^(.+)$/) && ($cachefile = $1);		# bypass taint check
       open(CACHE, ">$cachefile");
-      print CACHE $metainfo, "\n", $headerdb, "\n", $keyword, "\n";
+      print CACHE $metainfo, "\n";
+      print CACHE $headerdb, "\n";
+      print CACHE $keyword, "\n";
+      print CACHE $searchcontent, "\n";
 
       @messageids=get_messageids_sorted_by_offset($headerdb, $spoolhandle);
 
       foreach $messageid (@messageids) {
          my (@attr, $block, $header, $body, $r_attachments) ;
+         @attr=split(/@@@/, $HDB{$messageid});
 
 # check de-mimed header first since header in mail folder is raw format.
-         $header=$HDB{$messageid};
+         $header=join("@@@", $attr[$_FROM], $attr[$_TO], $attr[$_DATE], $attr[$_SUBJECT]);
          if ( $header =~ /$keyword/i ) {
             print CACHE $messageid, "\n";			
             $found{$messageid}=1;
             next;
          }
 
-# check body
-         @attr=split(/@@@/, $header);
+         next unless ($searchcontent);
+
+# check raw header and body
          seek($spoolhandle, $attr[$_OFFSET], 0);
          read($spoolhandle, $block, $attr[$_SIZE]);
 
          ($header, $body, $r_attachments)=parse_rfc822block(\$block);
+         if ( $header =~ /$keyword/i ) {
+            print CACHE $messageid, "\n";			
+            $found{$messageid}=1;
+            next;
+         }
          if ( $attr[$_CONTENT_TYPE] =~ /^text/i ) {	# read all for text/plain. text/html
             if ( $header =~ /content-transfer-encoding:\s+quoted-printable/i) {
                $body = decode_qp($body);
@@ -1091,6 +1229,7 @@ sub search_messages_for_keyword {
    } else {
       open(CACHE, $cachefile);
       $_=<CACHE>; 
+      $_=<CACHE>;
       $_=<CACHE>;
       $_=<CACHE>;
       while (<CACHE>) {
@@ -1243,14 +1382,40 @@ sub html2table {
    return($html);
 }
 
-sub str2html {
-   my $s=$_[0];
+sub html2txt {
+   my $t=$_[0];
 
-   $s=~s/&/&amp;/g;
-   $s=~s/\"/&quot;/g;
-   $s=~s/</&lt;/g;
-   $s=~s/>/&gt;/g;
-   return($s);
+   $t=~s!\n! !g;
+
+   $t=~s!<title.*?>!\n\n!ig;
+   $t=~s!</title>!\n\n!ig;
+   $t=~s!<br>!\n!ig;
+   $t=~s!<hr.*?>!\n------------------------------------------------------------\n!ig;
+
+   $t=~s!<p>\s?</p>!\n\n!ig; 
+   $t=~s!<p>!\n\n!ig; 
+   $t=~s!</p>!\n\n!ig;
+
+   $t=~s!<th.*?>!\n!ig;
+   $t=~s!</th>! !ig;
+   $t=~s!<tr.*?>!\n!ig;
+   $t=~s!</tr>! !ig;
+   $t=~s!<td.*?>! !ig;
+   $t=~s!</td>! !ig;
+
+   $t=~s!<--.*?-->!!ig;
+
+   $t=~s!<.*?>!!gsm;
+
+   $t=~s!&nbsp;! !g;
+   $t=~s!&lt;!<!g;
+   $t=~s!&gt;!>!g;
+   $t=~s!&amp;!&!g;
+   $t=~s!&quot;!\"!g;
+
+   $t=~s!\n\n\s+!\n\n!g;
+
+   return($t);
 }
 
 sub text2html {
@@ -1272,9 +1437,20 @@ sub text2html {
    return($t);
 }
 
+sub str2html {
+   my $s=$_[0];
+
+   $s=~s/&/&amp;/g;
+   $s=~s/\"/&quot;/g;
+   $s=~s/</&lt;/g;
+   $s=~s/>/&gt;/g;
+   return($s);
+}
+
 ######################## END HTML related ##############################
 
 ################### FILELOCK ###########################
+
 sub filelock {
    if ($use_dotlockfile eq "yes") {
       return filelock_dotlockfile(@_);
@@ -1309,7 +1485,7 @@ sub filelock_flock {
 
    # Since nonblocking lock may return errors 
    # even the target is locked by others for just a few seconds,
-   # we turn nonblocking lock into a blocking lock with timeout limit=10sec
+   # we turn nonblocking lock into a blocking lock with timeout limit=30sec
    # thus the lock will have more chance to success.
 
    if ( $lockflag & LOCK_NB ) {	# nonblocking lock
@@ -1331,16 +1507,22 @@ sub filelock_flock {
 }
 
 
-# this routine use file.lock for the lock of filename
+# this routine use filename.lock for the lock of filename
 # it is only recommended if the files are located on remote nfs server
-# and the lockd on your nfs server and client has problems
+# and the lockd on your nfs server or client has problems
 # since it is slower than flock
 sub filelock_dotlockfile {
    my ($filename, $lockflag)=@_;
    my ($mode, $count);
-   my $endtime=time()+30;
 
    return 1 unless ($lockflag & (LOCK_SH|LOCK_EX|LOCK_UN));
+
+   my $endtime;
+   if ($lockflag & LOCK_NB) {	# turn nonblock lock to 30sec blocking lock
+      $endtime=time()+30;
+   } else {
+      $endtime=time()+86400;
+   }
 
    my $oldumask=umask(0111);
    ($filename =~ /^(.+)$/) && ($filename = $1);		# bypass taint check
@@ -1354,13 +1536,8 @@ sub filelock_dotlockfile {
       }
 
       if (_lock("$filename.lock")==0) {
-         if ( $lockflag & LOCK_NB ) {
-            umask($oldumask);
-            return(0);
-         } else {
-            sleep 1;
-            next;
-         }
+         sleep 1;
+         next;
       }
 
       if ( $lockflag & LOCK_UN ) {
@@ -1425,15 +1602,9 @@ sub filelock_dotlockfile {
          umask($oldumask);
          return(1);
       } else {
-         if ( $lockflag & LOCK_NB ) {
-            _unlock("$filename.lock");
-            umask($oldumask);
-            return(0);
-         } else {
-            _unlock("$filename.lock");
-            sleep 1;
-            next;
-         }
+         _unlock("$filename.lock");
+         sleep 1;
+         next;
       }
    }   
 
@@ -1445,13 +1616,13 @@ sub filelock_dotlockfile {
 
 # _lock and _unlock are used to lock/unlock xxx.lock
 sub _lock {
-   my ($filename, $timeout)=@_;
+   my ($filename, $staletimeout)=@_;
    ($filename =~ /^(.+)$/) && ($filename = $1);		# bypass taint check
 
-   $timeout=30 if $timeout eq 0;
+   $staletimeout=30 if $staletimeout eq 0;
    if ( -f "$filename.lock" ) {
       my $t=(stat("$filename.lock"))[9];
-      unlink("$filename.lock") if (time()-$t > $timeout);
+      unlink("$filename.lock") if (time()-$t > $staletimeout);
    }
    if ( sysopen(LL, "$filename.lock", O_RDWR|O_CREAT|O_EXCL) ) {
       close(LL);
@@ -1468,12 +1639,10 @@ sub _unlock {
    return(1);
 }
 
-
-
-
 #################### END LOCKFILE ####################
 
 #################### SHIFTBLOCK ####################
+
 sub shiftblock {
    my ($fh, $start, $size, $movement)=@_;
    my ($oldoffset, $movestart, $left, $buff);

@@ -1,19 +1,27 @@
 <table border="0" align="center" width="50%" cellpadding="0" cellspacing="0">
-<tr><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="left">
+<tr><td colspan="4" bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <b>ENDRE/OPPRETTE MAPPER</b></font>
 </td></tr>
-<tr><td colspan="2" bgcolor=@@@MENUBAR@@@ align="left">
+<tr><td colspan="4" bgcolor=@@@MENUBAR@@@ align="left">
 @@@MENUBARLINKS@@@
-</td></tr><tr><td colspan="2">&nbsp;</td></tr>
+</td></tr><tr><td colspan="4">&nbsp;</td></tr>
 <tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Mappenavn (max 16 tegn)</B></td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>New</B></td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>Total</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Handling</B>
 </td></tr>
 @@@STARTFOLDERFORM@@@
 <tr><td align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
 @@@FOLDERNAMEFIELD@@@
+</td><td align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
+&nbsp;
+</td><td align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
+&nbsp;
 </td><td align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
 @@@ADDBUTTON@@@
 </td></tr>

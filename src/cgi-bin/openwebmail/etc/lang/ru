@@ -7,7 +7,9 @@ $lang_charset = 'koi8-r';
    INBOX => '÷èïäñýéå',
    SAVED => 'áòèé÷',
    SENT  => 'ïôðòá÷ìåîîùå',
-   TRASH => 'ëïòúéîá'
+   DRAFT => 'DRAFT',
+   TRASH => 'ëïòúéîá',
+   DELETE => '--DELETE--'
    );
 
 %lang_sortlabels =
@@ -70,6 +72,8 @@ $lang_charset = 'koi8-r';
    filename   => 'éÍÑ ÆÁÊÌÁ',
    encoding   => 'ëÏÄÉÒÏ×ËÁ',
    download   => 'úÁÇÒÕÚÉÔØ',
+   editdraft  => 'Edit Draft',
+   savedraft  => 'Save Draft',
    send       => 'ïÔÐÒÁ×ÉÔØ',
    cancel     => 'ïÔÍÅÎÁ',
    continue   => 'ðÒÏÄÏÌÖÉÔØ',
@@ -105,6 +109,7 @@ $lang_charset = 'koi8-r';
    globaladdressbook => 'Global AddressBook',
    globalfilterrule => 'Global FilterRule',
    readonly   => 'ReadOnly',
+   content    => 'content',
    search     => 'Search'
    );
 
@@ -133,7 +138,8 @@ $lang_charset = 'koi8-r';
             inv_sessid        => 'Your request didn\'t contain the proper session ID cookie -- access denied!',
             user_not_exist    => 'user does not exist',
             password_error    => 'wrong password',
-            network_server_error => 'network server error'
+            network_server_error => 'network server error',
+            sendmail_error    => 'Sorry, there was a problem sending your message.  Please click your browser\'s Back button, check your message, and try again.'
             );
 
 1;

@@ -13,7 +13,7 @@
 <td bgcolor=@@@COLUMNHEADER@@@>
 <B>E-mail 信箱</B> (按一下寄信給他)</td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Action</B>
+<B>按鈕</B>
 </td></tr>
 @@@STARTADDRESSFORM@@@
 <tr><td bgcolor=@@@TABLEROW_LIGHT@@@ width="200">

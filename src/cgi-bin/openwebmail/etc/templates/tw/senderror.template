@@ -1,8 +1,0 @@
-<BR><BR><BR><BR><BR><BR>
-<table border="0" align="center" width="25%" cellpadding="0" cellspacing="0">
-<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
-<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>無法寄出信件</B></FONT>
-</td></tr><tr><td valign="middle" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-抱歉！無法寄出您的信件，請回到上一頁檢查是否輸入錯誤再重寄一次。
-</td></tr></table>

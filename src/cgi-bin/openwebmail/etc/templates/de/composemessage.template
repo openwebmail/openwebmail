@@ -1,54 +1,57 @@
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="1">
-<tr><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="left">
+<tr><td colspan="3" bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>EMAIL SCHREIBEN</B></font>
-</td></tr><tr><td colspan="2" bgcolor=@@@MENUBAR@@@ align="left">
+</td></tr><tr><td colspan="3" bgcolor=@@@MENUBAR@@@ align="left">
 @@@BACKTOFOLDER@@@
-</td></tr><tr><td colspan="2">&nbsp;</td></tr>
+</td></tr><tr><td colspan="3">&nbsp;</td></tr>
 @@@STARTCOMPOSEFORM@@@
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ width="75">
 <B>Von:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td valign="middle" align="left" colspan="2" bgcolor=@@@WINDOW_DARK@@@>
 @@@ESCAPEDFROM@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ width="75">
 <a href="Javascript:GoAddressWindow('to')" tabindex="-1"><B>An:</B></a>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td valign="middle" align="left" colspan="2" bgcolor=@@@WINDOW_DARK@@@>
 @@@TOFIELD@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ width="75">
 <a href="Javascript:GoAddressWindow('cc')" tabindex="-1"><B>CC:</B></a>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td valign="middle" align="left" colspan="2" bgcolor=@@@WINDOW_DARK@@@>
 @@@CCFIELD@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ width="75">
 <a href="Javascript:GoAddressWindow('bcc')" tabindex="-1"><B>BCC:</B></a>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td valign="middle" align="left" colspan="2" bgcolor=@@@WINDOW_DARK@@@>
 @@@BCCFIELD@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ width="75">
 <B>Antwort-An:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td valign="middle" align="left" colspan="2" bgcolor=@@@WINDOW_DARK@@@>
 @@@REPLYTOFIELD@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ width="75">
 <B>Anhang:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td valign="middle" align="left" colspan="2" bgcolor=@@@WINDOW_DARK@@@>
 @@@ATTACHMENTFIELD@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ width="75">
 <B>Betreff:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td valign="middle" align="left" colspan="2" bgcolor=@@@WINDOW_DARK@@@>
 @@@SUBJECTFIELD@@@
 &nbsp;
 <B>Confirm Reading</B>
 @@@CONFIRMREADINGFIELD@@@
 </td></tr>
-<tr><td colspan="2" bgcolor=@@@WINDOW_LIGHT@@@>
+<tr><td colspan="3" bgcolor=@@@WINDOW_LIGHT@@@>
 @@@BODYAREA@@@
 </td></tr>
 <td align="left" valign="top">
 @@@SENDBUTTON@@@
+</td>
+<td align="left" valign="top">
+@@@SAVEDRAFTBUTTON@@@
 </td>
 @@@ENDFORM@@@ <!-- End of message composition form -->
 @@@STARTCANCELFORM@@@

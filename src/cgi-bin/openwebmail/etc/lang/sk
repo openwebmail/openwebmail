@@ -10,7 +10,9 @@ $lang_charset = 'iso-8859-2';
    INBOX => 'PRIJATÉ',
    SAVED => 'ULO®ENÉ',
    SENT  => 'POSLANÉ',
-   TRASH => 'KÔ©'
+   DRAFT => 'DRAFT',
+   TRASH => 'KÔ©',
+   DELETE => '--DELETE--'
    );
 
 %lang_sortlabels =
@@ -73,6 +75,8 @@ $lang_charset = 'iso-8859-2';
    filename   => 'Meno súboru',
    encoding   => 'Kódovanie',
    download   => 'Ulo¾i» do súboru',
+   editdraft  => 'Edit Draft',
+   savedraft  => 'Save Draft',
    send       => 'Posla»',
    cancel     => 'Zru¹i»',
    continue   => 'Pokraèova»',
@@ -108,6 +112,7 @@ $lang_charset = 'iso-8859-2';
    globaladdressbook => 'Global AddressBook',
    globalfilterrule => 'Global FilterRule',
    readonly   => 'ReadOnly',
+   content    => 'content',
    search     => 'Search'
    );
 
@@ -136,7 +141,8 @@ $lang_charset = 'iso-8859-2';
             inv_sessid        => 'Your request didn\'t contain the proper session ID cookie -- access denied!',
             user_not_exist    => 'user does not exist',
             password_error    => 'wrong password',
-            network_server_error => 'network server error'
+            network_server_error => 'network server error',
+            sendmail_error    => 'Sorry, there was a problem sending your message.  Please click your browser\'s Back button, check your message, and try again.'
             );
 
 1;

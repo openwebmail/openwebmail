@@ -18,7 +18,7 @@
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>刪除伺服器端郵件</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Action</B>
+<B>按鈕</B>
 </td></tr>
 @@@STARTADDRESSFORM@@@
 <tr>

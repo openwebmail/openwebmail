@@ -1,19 +1,27 @@
 <table border="0" align="center" width="50%" cellpadding="0" cellspacing="0">
-<tr><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="left">
+<tr><td colspan="4" bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>編輯信件匣</b></font>
+<b>信件匣管理</b></font>
 </td></tr>
-<tr><td colspan="2" bgcolor=@@@MENUBAR@@@ align="left">
+<tr><td colspan="4" bgcolor=@@@MENUBAR@@@ align="left">
 @@@MENUBARLINKS@@@
-</td></tr><tr><td colspan="2">&nbsp;</td></tr>
+</td></tr><tr><td colspan="4">&nbsp;</td></tr>
 <tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>信件匣名稱(最多16個字元或8個中文字)</B></td>
+<B>信件匣名稱 (最多16字元)</B></td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>新信</B></td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>全部</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>按鈕</B>
 </td></tr>
 @@@STARTFOLDERFORM@@@
 <tr><td align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
 @@@FOLDERNAMEFIELD@@@
+</td><td align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
+&nbsp;
+</td><td align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
+&nbsp;
 </td><td align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
 @@@ADDBUTTON@@@
 </td></tr>
@@ -22,12 +30,3 @@
 @@@FOLDERS@@@
 
 </table>
-<script language="JavaScript">
-   <!--
-   function FolderConfirm(foldername)
-   {   
-      var msg=@@@FOLDERCONFIRM_TEXT@@@.'('.foldername.')';
-      return confirm(msg);
-   }
-   //-->
-</script>

@@ -104,6 +104,10 @@ if (param("keyword")) {
 } else {
    $keyword = $escapedkeyword = '';
 }
+my $searchcontent=0;
+if (param("searchcontent")) {
+   $searchcontent = param("searchcontent");
+}
 
 my $hitquota = 0;
 
@@ -169,6 +173,8 @@ if (param()) {      # an action has been chosen
          sendmessage();
       } elsif ($action eq "movemessage") {
          movemessage();
+      } elsif ($action eq "downloadfolder") {
+         downloadfolder();
       } elsif ($action eq "retrpop3s") {
       	 retrpop3s();
       } elsif ($action eq "retrpop3") {
@@ -334,15 +340,17 @@ sub getfolders {
    my $filename;
 
    if ( $homedirfolders eq 'yes' ) {
-      @folders = qw(INBOX saved-messages sent-mail mail-trash);
-      $totalfoldersize += ( -s "$folderdir/sent-mail" ) || 0;
+      @folders = qw(INBOX saved-messages sent-mail saved-drafts mail-trash);
       $totalfoldersize += ( -s "$folderdir/saved-messages" ) || 0;
+      $totalfoldersize += ( -s "$folderdir/sent-mail" ) || 0;
+      $totalfoldersize += ( -s "$folderdir/saved-drafts" ) || 0;
       $totalfoldersize += ( -s "$folderdir/mail-trash" ) || 0;
    } else {
-      @folders = qw(INBOX SAVED TRASH SENT);
+      @folders = qw(INBOX SAVED SENT DRAFT TRASH);
       $totalfoldersize += ( -s "$folderdir/SAVED" ) || 0;
-      $totalfoldersize += ( -s "$folderdir/TRASH" ) || 0;
       $totalfoldersize += ( -s "$folderdir/SENT" ) || 0;
+      $totalfoldersize += ( -s "$folderdir/DRAFT" ) || 0;
+      $totalfoldersize += ( -s "$folderdir/TRASH" ) || 0;
    }
 
    opendir (FOLDERDIR, "$folderdir") or 
@@ -371,6 +379,7 @@ sub getfolders {
       if ( $homedirfolders eq 'yes' ) {
          unless ( ($filename eq 'saved-messages') ||
                   ($filename eq 'sent-mail') ||
+                  ($filename eq 'saved-drafts') ||
                   ($filename eq 'mail-trash') ||
                   ($filename eq '.') || ($filename eq '..') ||
                   ($filename =~ /\.lock$/) 
@@ -484,8 +493,9 @@ sub get_spoolfile_headerdb_and_set_uid_gid {
          $spoolfile = "$mailspooldir/$username";
       }
       $headerdb="$folderdir/.$username";
-   } elsif ( ($folder eq 'SAVED') || ($folder eq 'SENT') || 
-      ($folder eq 'TRASH') || ( $homedirfolders eq 'yes' ) ) {
+   } elsif ( ( $homedirfolders eq 'yes' ) || 
+      ($folder eq 'SAVED') || ($folder eq 'SENT') || 
+      ($folder eq 'DRAFT') || ($folder eq 'TRASH') ) {
       $spoolfile = "$folderdir/$folder";
       $headerdb="$folderdir/.$folder";
    } else {
@@ -543,16 +553,11 @@ sub displayheaders {
       }
    }
 
-   my $base_url = "$scripturl?sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;folder=$escapedfolder";
+   my $base_url = "$scripturl?sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder";
    my $base_url_nokeyword = "$scripturl?sessionid=$thissession&amp;sort=$sort&amp;folder=$escapedfolder";
 
-   my $refresh=param("refresh");
-   if ($folder eq "INBOX") {
-      my $i=$refresh+1;
-      printheader(-Refresh=>"900;URL='$scripturl?sessionid=$thissession&sort=$sort&keyword=$escapedkeyword&folder=$escapedfolder&action=displayheaders&firstmessage=$firstmessage&refresh=$i'");
-   } else {
-      printheader();
-   }
+   my $refresh=param("refresh")+1;
+   printheader(-Refresh=>"900;URL='$scripturl?sessionid=$thissession&sort=$sort&keyword=$escapedkeyword&searchcontent=$searchcontent&folder=INBOX&action=displayheaders&firstmessage=1&refresh=$refresh'");
 
    my $page_nb;
    if ($#headers > 0) {
@@ -659,11 +664,11 @@ sub displayheaders {
 
    $temphtml = "<a href=\"$base_url&amp;action=composemessage&amp;firstmessage=$firstmessage\"><IMG SRC=\"$image_url/compose.gif\" border=\"0\" ALT=\"$lang_text{'composenew'}\"></a> ";
    $temphtml .= "<a href=\"$base_url_nokeyword&amp;action=displayheaders&amp;firstmessage=$firstmessage\"><IMG SRC=\"$image_url/refresh.gif\" border=\"0\" ALT=\"$lang_text{'refresh'}\"></a> ";
-   $temphtml .= "<a href=\"$prefsurl?sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$image_url/prefs.gif\" border=\"0\" ALT=\"$lang_text{'userprefs'}\"></a> ";
-   $temphtml .= "<a href=\"$prefsurl?action=editaddresses&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$image_url/addresses.gif\" border=\"0\" ALT=\"$lang_text{'addressbook'}\"></a> ";
-   $temphtml .= "<a href=\"$prefsurl?action=editfolders&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$image_url/folder.gif\" border=\"0\" ALT=\"$lang_text{'folders'}\"></a> ";
-   $temphtml .= "<a href=\"$prefsurl?action=editfilter&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$image_url/filtersetup.gif\" border=\"0\" ALT=\"$lang_text{'filterbook'}\"></a> &nbsp; &nbsp; ";
-   $temphtml .= "<a href=\"$prefsurl?action=editpop3&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$image_url/pop3setup.gif\" border=\"0\" ALT=\"$lang_text{'pop3book'}\"></a> ";
+   $temphtml .= "<a href=\"$prefsurl?sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$image_url/prefs.gif\" border=\"0\" ALT=\"$lang_text{'userprefs'}\"></a> ";
+   $temphtml .= "<a href=\"$prefsurl?action=editfolders&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$image_url/folder.gif\" border=\"0\" ALT=\"$lang_text{'folders'}\"></a> ";
+   $temphtml .= "<a href=\"$prefsurl?action=editaddresses&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$image_url/addresses.gif\" border=\"0\" ALT=\"$lang_text{'addressbook'}\"></a> ";
+   $temphtml .= "<a href=\"$prefsurl?action=editfilter&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$image_url/filtersetup.gif\" border=\"0\" ALT=\"$lang_text{'filterbook'}\"></a> &nbsp; &nbsp; ";
+   $temphtml .= "<a href=\"$prefsurl?action=editpop3&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$image_url/pop3setup.gif\" border=\"0\" ALT=\"$lang_text{'pop3book'}\"></a> ";
    $temphtml .= "<a href=\"$scripturl?action=retrpop3s&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid\"><IMG SRC=\"$image_url/pop3.gif\" border=\"0\" ALT=\"$lang_text{'retr_pop3s'}\"></a> &nbsp; &nbsp; ";
 
    $temphtml .= "<a href=\"$base_url&amp;action=emptytrash&amp;firstmessage=$firstmessage\"><IMG SRC=\"$image_url/trash.gif\" border=\"0\" ALT=\"$lang_text{'emptytrash'}\"></a> ";
@@ -743,6 +748,9 @@ sub displayheaders {
          push (@movefolders, $checkfolder);
       }
    }
+   # option to del message directly from folder
+   push(@movefolders, 'DELETE');   
+
    $temphtml .= hidden(-name=>'action',
                        -default=>'movemessage',
                        -override=>'1');
@@ -763,31 +771,38 @@ sub displayheaders {
                        -override=>'1');
    $html =~ s/\@\@\@STARTMOVEFORM\@\@\@/$temphtml/g;
    
+   my $trashfolder;
    if ( $homedirfolders eq 'yes' ) {
+      $trashfolder='mail-trash';
+   } else {
+      $trashfolder='TRASH';
+   }
+   if ($folder eq $trashfolder) {
       $temphtml = popup_menu(-name=>'destination',
                              -"values"=>\@movefolders,
-                             -default=>'mail-trash',
+                             -default=>'DELETE',
                              -labels=>\%lang_folders,
                              -override=>'1');
    } else {
       $temphtml = popup_menu(-name=>'destination',
                              -"values"=>\@movefolders,
-                             -default=>'TRASH',
+                             -default=>$trashfolder,
                              -labels=>\%lang_folders,
                              -override=>'1');
    }
+
    $temphtml .= submit("$lang_text{'move'}");
 
    $html =~ s/\@\@\@MOVECONTROLS\@\@\@/$temphtml/g;
 
    $temphtml = "<a href=\"$scripturl?action=displayheaders&amp;firstmessage=".
-               ($firstmessage)."&amp;sessionid=$thissession&amp;keyword=$escapedkeyword&amp;folder=$escapedfolder&amp;sort=";
+               ($firstmessage)."&amp;sessionid=$thissession&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;sort=";
    $temphtml .= "status\"><IMG SRC=\"$image_url/new.gif\" border=\"0\" alt=\"$lang_sortlabels{'status'}\"></a>";
 
    $html =~ s/\@\@\@STATUS\@\@\@/$temphtml/g;
    
    $temphtml = "<a href=\"$scripturl?action=displayheaders&amp;firstmessage=".
-               ($firstmessage)."&amp;sessionid=$thissession&amp;keyword=$escapedkeyword&amp;folder=$escapedfolder&amp;sort=";
+               ($firstmessage)."&amp;sessionid=$thissession&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;sort=";
    if ($sort eq "date") {
       $temphtml .= "date_rev\">$lang_text{'date'} <IMG SRC=\"$image_url/up.gif\" border=\"0\" alt=\"^\"></a>";
    } elsif ($sort eq "date_rev") {
@@ -799,9 +814,10 @@ sub displayheaders {
    $html =~ s/\@\@\@DATE\@\@\@/$temphtml/g;
    
    $temphtml = "<a href=\"$scripturl?action=displayheaders&amp;firstmessage=".
-                ($firstmessage)."&amp;sessionid=$thissession&amp;keyword=$escapedkeyword&amp;folder=$escapedfolder&amp;sort=";
+                ($firstmessage)."&amp;sessionid=$thissession&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;sort=";
 
-   if ( ($folder eq 'SENT') || ($folder eq 'sent-mail') ) {
+   if ( ($folder eq 'SENT') || ($folder eq 'sent-mail') ||
+        ($folder eq 'DRAFT') || ($folder eq 'saved-drafts') ) {
       if ($sort eq "sender") {
          $temphtml .= "sender_rev\">$lang_text{'recipient'} <IMG SRC=\"$image_url/down.gif\" border=\"0\" alt=\"v\"></a></B></td>";
       } elsif ($sort eq "sender_rev") {
@@ -822,7 +838,7 @@ sub displayheaders {
    $html =~ s/\@\@\@SENDER\@\@\@/$temphtml/g;
 
    $temphtml = "<a href=\"$scripturl?action=displayheaders&amp;firstmessage=".
-                ($firstmessage)."&amp;sessionid=$thissession&amp;keyword=$escapedkeyword&amp;folder=$escapedfolder&amp;sort=";
+                ($firstmessage)."&amp;sessionid=$thissession&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;sort=";
 
    if ($sort eq "subject") {
       $temphtml .= "subject_rev\">$lang_text{'subject'} <IMG SRC=\"$image_url/down.gif\" border=\"0\" alt=\"v\"></a>";
@@ -835,7 +851,7 @@ sub displayheaders {
    $html =~ s/\@\@\@SUBJECT\@\@\@/$temphtml/g;
 
    $temphtml = "<a href=\"$scripturl?action=displayheaders&amp;firstmessage=".
-                ($firstmessage)."&amp;sessionid=$thissession&amp;keyword=$escapedkeyword&amp;folder=$escapedfolder&amp;sort=";
+                ($firstmessage)."&amp;sessionid=$thissession&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;sort=";
 
    if ($sort eq "size") {
       $temphtml .= "size_rev\">$lang_text{'size'} <IMG SRC=\"$image_url/up.gif\" border=\"0\" alt=\"^\"></a>";
@@ -853,10 +869,10 @@ sub displayheaders {
 ### Stop when we're out of messages!
       last if !(defined($headers[$messnum]));
 
-      (${$headers[$messnum]}{from} =~ s/^"?(.+?)"?\s*<(.*)>$/<a href="$scripturl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$2">$1<\/a>/) ||
-      (${$headers[$messnum]}{from} =~ s/<?(.*@.*)>?\s+\((.+?)\)/<a href="$scripturl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$1">$2<\/a>/) ||
-      (${$headers[$messnum]}{from} =~ s/<(.+)>/<a href="$scripturl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$1">$1<\/a>/) ||
-      (${$headers[$messnum]}{from} =~ s/(.+)/<a href="$scripturl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$1">$1<\/a>/);
+      (${$headers[$messnum]}{from} =~ s/^"?(.+?)"?\s*<(.*)>$/<a href="$scripturl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$2">$1<\/a>/) ||
+      (${$headers[$messnum]}{from} =~ s/<?(.*@.*)>?\s+\((.+?)\)/<a href="$scripturl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$1">$2<\/a>/) ||
+      (${$headers[$messnum]}{from} =~ s/<(.+)>/<a href="$scripturl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$1">$1<\/a>/) ||
+      (${$headers[$messnum]}{from} =~ s/(.+)/<a href="$scripturl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$1">$1<\/a>/);
 
       ${$headers[$messnum]}{subject} = str2html(${$headers[$messnum]}{subject});
 
@@ -904,7 +920,7 @@ sub displayheaders {
          "<td valign=\"middle\" width=\"350\" bgcolor=$bgcolor>".
          "<a href=\"$scripturl?action=readmessage&amp;firstmessage=".
          ($firstmessage)."&amp;sessionid=$thissession&amp;status=".
-         ${$headers[$messnum]}{status}."&amp;folder=$escapedfolder&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;headers=".
+         ${$headers[$messnum]}{status}."&amp;folder=$escapedfolder&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;headers=".
          ($prefs{"headers"} || 'simple'). "&amp;message_id=".
          $escapedmessageid ."\">$boldon".
          ${$headers[$messnum]}{subject}."</a>$boldoff</td>".
@@ -935,17 +951,23 @@ sub displayheaders {
 
    $html =~ s/\@\@\@STARTSEARCHFORM\@\@\@/$temphtml/g;
 
-   $temphtml = "<b>$lang_text{search}&nbsp;&nbsp;</b>" .
-                textfield(-name=>'keyword',
+   $temphtml = "<b>$lang_text{search}&nbsp;&nbsp;</b>";
+   $temphtml .= textfield(-name=>'keyword',
                           -default=>$keyword,
-                          -size=>'30',
+                          -size=>'25',
                           -override=>'1');
+   $temphtml .= "&nbsp;";
+   $temphtml .= checkbox(-name=>'searchcontent',
+                  -value=>'1',
+                  -label=>$lang_text{content});
+
+
    $html =~ s/\@\@\@SEARCH\@\@\@/$temphtml/g;
 
    print $html;
 
-   if ($refresh && $hasnewmail && $sound_url ne "" ) {
-      # only enable sound in win platform
+   if (defined(param("refresh")) && $hasnewmail && $sound_url ne "" ) {
+      # only enable sound on Windows platform
       if ( $ENV{'HTTP_USER_AGENT'} =~ /Win/ ) {
          print "<embed src=\"$sound_url\" autostart=true hidden=true>";
       }
@@ -1003,7 +1025,7 @@ sub readmessage {
       }
       if ($message{contenttype} =~ m#^text/html#i) { # convert into html table
          $body = html4nobase($body); 
-         $body = html4mailto($body, $scripturl, "action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto");
+         $body = html4mailto($body, $scripturl, "action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto");
          $body = html2table($body); 
       } else { 					     # body must be html or text
       # remove odds space or blank lines
@@ -1014,9 +1036,9 @@ sub readmessage {
       }
 
       my $base_url = "$scripturl?sessionid=$thissession&amp;firstmessage=" . ($firstmessage) .
-                     "&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid";
+                     "&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid";
       my $base_url_noid = "$scripturl?sessionid=$thissession&amp;firstmessage=" . ($firstmessage) .
-                          "&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;folder=$escapedfolder";
+                          "&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder";
 
 ##### Set up the message to go to after move.
       my $messageaftermove;
@@ -1031,10 +1053,19 @@ sub readmessage {
       $temphtml = "<a href=\"$base_url&amp;action=displayheaders\"><IMG SRC=\"$image_url/backtofolder.gif\" border=\"0\" ALT=\"$lang_text{'backto'} $printfolder\"></a> &nbsp; &nbsp; ";
       $html =~ s/\@\@\@BACKTOLINK\@\@\@/$temphtml/g;
 
-      $temphtml .= "<a href=\"$base_url&amp;action=composemessage&amp;composetype=reply\"><IMG SRC=\"$image_url/reply.gif\" border=\"0\" ALT=\"$lang_text{'reply'}\"></a> " .
-      "<a href=\"$base_url&amp;action=composemessage&amp;composetype=replyall\"><IMG SRC=\"$image_url/replyall.gif\" border=\"0\" ALT=\"$lang_text{'replyall'}\"></a> " .
-      "<a href=\"$base_url&amp;action=composemessage&amp;composetype=forward\"><IMG SRC=\"$image_url/forward.gif\" border=\"0\" ALT=\"$lang_text{'forward'}\"></a> &nbsp; &nbsp; " .
-      "<a href=\"$base_url&amp;action=logout\"><IMG SRC=\"$image_url/logout.gif\" border=\"0\" ALT=\"$lang_text{'logout'}\"></a>";
+      if ($folder eq 'DRAFT' || $folder eq 'saved-drafts') {
+         $temphtml .= "<a href=\"$base_url&amp;action=composemessage&amp;composetype=editdraft\"><IMG SRC=\"$image_url/compose.gif\" border=\"0\" ALT=\"$lang_text{'editdraft'}\"></a> &nbsp; &nbsp; ";
+      } elsif ($folder eq 'SENT' || $folder eq 'sent-mail') {
+         $temphtml .= "<a href=\"$base_url&amp;action=composemessage&amp;composetype=editdraft\"><IMG SRC=\"$image_url/compose.gif\" border=\"0\" ALT=\"$lang_text{'editdraft'}\"></a> " .
+         "<a href=\"$base_url&amp;action=composemessage&amp;composetype=reply\"><IMG SRC=\"$image_url/reply.gif\" border=\"0\" ALT=\"$lang_text{'reply'}\"></a> " .
+         "<a href=\"$base_url&amp;action=composemessage&amp;composetype=replyall\"><IMG SRC=\"$image_url/replyall.gif\" border=\"0\" ALT=\"$lang_text{'replyall'}\"></a> " .
+         "<a href=\"$base_url&amp;action=composemessage&amp;composetype=forward\"><IMG SRC=\"$image_url/forward.gif\" border=\"0\" ALT=\"$lang_text{'forward'}\"></a> &nbsp; &nbsp; ";
+      } else {
+         $temphtml .= "<a href=\"$base_url&amp;action=composemessage&amp;composetype=reply\"><IMG SRC=\"$image_url/reply.gif\" border=\"0\" ALT=\"$lang_text{'reply'}\"></a> " .
+         "<a href=\"$base_url&amp;action=composemessage&amp;composetype=replyall\"><IMG SRC=\"$image_url/replyall.gif\" border=\"0\" ALT=\"$lang_text{'replyall'}\"></a> " .
+         "<a href=\"$base_url&amp;action=composemessage&amp;composetype=forward\"><IMG SRC=\"$image_url/forward.gif\" border=\"0\" ALT=\"$lang_text{'forward'}\"></a> &nbsp; &nbsp; ";
+      }
+      $temphtmp .= "<a href=\"$base_url&amp;action=logout\"><IMG SRC=\"$image_url/logout.gif\" border=\"0\" ALT=\"$lang_text{'logout'}\"></a>";
    
       $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
 
@@ -1064,6 +1095,9 @@ sub readmessage {
             push (@movefolders, $checkfolder);
          }
       }
+      # add option to delete message from folder directly
+      push(@movefolders, 'DELETE');
+
       $temphtml .= hidden(-name=>'action',
                           -default=>'movemessage',
                           -override=>'1');
@@ -1095,17 +1129,23 @@ sub readmessage {
       }
       $html =~ s/\@\@\@STARTMOVEFORM\@\@\@/$temphtml/g;
    
+      my $trashfolder;
       if ( $homedirfolders eq 'yes' ) {
+         $trashfolder='mail-trash';
+      } else {
+         $trashfolder='TRASH';
+      }
+      if ($folder eq $trashfolder) {
          $temphtml = popup_menu(-name=>'destination',
                                 -"values"=>\@movefolders,
                                 -labels=>\%lang_folders,
-                                -default=>'mail-trash',
+                                -default=>'DELETE',
                                 -override=>'1');
       } else {
          $temphtml = popup_menu(-name=>'destination',
                                 -"values"=>\@movefolders,
                                 -labels=>\%lang_folders,
-                                -default=>'TRASH',
+                                -default=>$trashfolder,
                                 -override=>'1');
       }
       $temphtml .= submit("$lang_text{'move'}");
@@ -1320,7 +1360,7 @@ sub html_att2table {
 
    $temphtml = html4nobase($temphtml);
    $temphtml = html4attachments($temphtml, $r_attachments, $scripturl, "action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder");
-   $temphtml = html4mailto($temphtml, $scripturl, "action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto");
+   $temphtml = html4mailto($temphtml, $scripturl, "action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto");
    $temphtml = html2table($temphtml);
 
    return($temphtml);
@@ -1401,6 +1441,8 @@ sub lenstr {
 ############### END READMESSAGE ##################
 
 ############### COMPOSEMESSAGE ###################
+# 6 composetype: continue(used after adding attachment), 
+#                reply, replyall, forward, editdraft or none(newmail)
 sub composemessage {
    no strict 'refs';
    verifysession();
@@ -1488,61 +1530,77 @@ sub composemessage {
       $subject = param("subject") || '';
       $body = param("body") || '';
 
-      if (($composetype eq "reply") || ($composetype eq "replyall") ||
-          ($composetype eq "forward") ) {
-         if ($composetype eq "forward") {
+      if ($composetype eq "reply" || $composetype eq "replyall" ||
+          $composetype eq "forward" || $composetype eq "editdraft" ) {
+
+         if ($composetype eq "forward" || $composetype eq "editdraft") {
             %message = %{&getmessage($messageid, "all")};
          } else {
             %message = %{&getmessage($messageid, "")};
          }
 
-### Handle mail programs that send the body of a message quoted-printable
-         if ( ($message{contenttype} =~ /^text/i) &&
-            ($message{encoding} =~ /^quoted-printable/i) ) {
-            $message{"body"} = decode_qp($message{"body"});
-         }
          $body = $message{"body"} || '';
+         ### Handle mail programs that send the body encoded
+         if ($message{contenttype} =~ /^text/i) {
+            if ($message{encoding} =~ /^quoted-printable/i) {
+               $body= decode_qp($body);
+            } elsif ($message{encoding} =~ /^base64/i) {
+               $body= decode_base64($body);
+            }
+         }
+         ### convert to pure text since user is going to edit it
+         if ($message{contenttype} =~ /^text\/html/i) {
+            $body= html2txt($body);
+         }
 
-### If the first attachment is text, assume it's the body of a message
-### in multi-part format
+         ### If the first attachment is text, assume it's the body of a message
+         ### in multi-part format
          if (($message{contenttype} =~ /^multipart/i) &&
             (defined(${$message{attachment}[0]}{contenttype})) &&
             (${$message{attachment}[0]}{contenttype} =~ /^text\/plain/i)) {
             if (${$message{attachment}[0]}{encoding} =~ /^quoted-printable/i) {
                ${${$message{attachment}[0]}{r_content}} =
-               decode_qp(${${$message{attachment}[0]}{r_content}});
+               		decode_qp(${${$message{attachment}[0]}{r_content}});
             } elsif (${$message{attachment}[$attnumber]}{encoding} =~ /^base64/i) {
-               	 ${${$message{attachment}[$attnumber]}{r_content}} = decode_base64(${${$message{attachment}[$attnumber]}{r_content}});
+               ${${$message{attachment}[$attnumber]}{r_content}} = 
+			decode_base64(${${$message{attachment}[$attnumber]}{r_content}});
             }
             $body = ${${$message{attachment}[0]}{r_content}};
 
-# remove text and html version of the body message from attachments
-            if ( defined(%{$message{attachment}[1]}) &&
-                 (${$message{attachment}[1]}{boundary} eq 
-		  ${$message{attachment}[0]}{boundary}) ) {
+            # remove text and html of attachemnts that the body now represents
+#           if ( defined(%{$message{attachment}[1]}) &&
+#                (${$message{attachment}[1]}{boundary} eq 
+#	 	 ${$message{attachment}[0]}{boundary}) ) {
 
-               # remove 1st(text) and 2nd(html) attachments in the same alternative group
-               if ( (${$message{attachment}[0]}{subtype} =~ /alternative/i) &&
-                 (${$message{attachment}[1]}{subtype} =~ /alternative/i) &&
-                 (${$message{attachment}[1]}{contenttype} =~ /^text/i) ) {
-                  shift @{$message{attachment}};
-                  shift @{$message{attachment}};
-               # remove 1st and 2nd attachments if this=unknow.txt and next=unknow.html
-               } elsif ( (${$message{attachment}[0]}{contenttype}=~ /^text\/plain/i ) &&
-                    (${$message{attachment}[0]}{filename}=~ /^Unknown\./ ) &&
-                    (${$message{attachment}[1]}{contenttype} =~ /^text\/html/i)  &&
-                    (${$message{attachment}[1]}{filename}=~ /^Unknown\./ ) ) {
-                  shift @{$message{attachment}};
-                  shift @{$message{attachment}};
-               # remove 1st(text) attachment only
-               } else {
-                  shift @{$message{attachment}};
-               }
+#              # 1st(text) and 2nd(html) attachments in the same alternative group
+#              if ( (${$message{attachment}[0]}{subtype} =~ /alternative/i) &&
+#                (${$message{attachment}[1]}{subtype} =~ /alternative/i) &&
+#                (${$message{attachment}[1]}{contenttype} =~ /^text/i) ) {
+#
+#                 # keep html version, clear body and remove text version
+#                 ${$message{attachment}[1]}{filename}="Forward.html";
+#                 $body=" ";
+#                 shift @{$message{attachment}};
+#
+#              # 1st=unknow.txt and 2nd=unknow.html
+#              } elsif ( (${$message{attachment}[0]}{contenttype}=~ /^text\/plain/i ) &&
+#                   (${$message{attachment}[0]}{filename}=~ /^Unknown\./ ) &&
+#                   (${$message{attachment}[1]}{contenttype} =~ /^text\/html/i)  &&
+#                   (${$message{attachment}[1]}{filename}=~ /^Unknown\./ ) ) {
+#
+#                 # keep html version, clear body and remove text version
+#                 ${$message{attachment}[1]}{filename}=~ s/^Unknow\./Forward\./;
+#                 $body=" ";
+#                 shift @{$message{attachment}};
+#
+#              # remove 1st(text) attachment only
+#              } else {
+#                 shift @{$message{attachment}};
+#              }
 
-            } else {
+#           } else {
                shift @{$message{attachment}};
-            }
-
+#           }
          }
 
 # Handle the messages generated if sendmail is set up to send MIME error reports
@@ -1578,7 +1636,7 @@ sub composemessage {
          $body = "> " . $body . "\n\n";
       }
 
-      if ($composetype eq "forward") {
+      if ($composetype eq "forward" || $composetype eq "editdraft") {
          if (defined(${$message{attachment}[0]}{header})) {
             foreach my $attnumber (0 .. $#{$message{attachment}}) {
 	       ($attnumber =~ /^(.+)$/) && ($attnumber = $1);   # bypass taint check
@@ -1589,17 +1647,26 @@ sub composemessage {
             @attlist = @{&getattlist()};
          }
          $subject = $message{"subject"} || '';
-         $subject = "Fw: " . $subject unless ($subject =~ /^fw:/i);
-         $body = "\n\n------------- Forwarded message follows -------------\n$body";
+
+         if ($composetype eq "editdraft") {
+            $to = $message{"to"} if (defined($message{"to"}));
+            $cc = $message{"cc"} if (defined($message{"cc"}));
+            $bcc = $message{"bcc"} if (defined($message{"bcc"}));
+         } elsif ($composetype eq "forward") {
+            $subject = "Fw: " . $subject unless ($subject =~ /^fw:/i);
+            $body = "\n\n------------- Forwarded message follows -------------\n$body";
+         }
       }
 
    }
-   if ( (defined($prefs{"signature"})) && ($composetype ne 'continue') ) {
+   if ( (defined($prefs{"signature"})) && 
+        ($composetype ne 'continue') &&
+        ($composetype ne 'editdraft') ) {
       $body .= "\n\n".$prefs{"signature"};
    }
    printheader();
    
-   $temphtml = "<a href=\"$scripturl?action=displayheaders&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;firstmessage=$firstmessage\"><IMG SRC=\"$image_url/backtofolder.gif\" border=\"0\" ALT=\"$lang_text{'backto'} $printfolder\"></a>";
+   $temphtml = "<a href=\"$scripturl?action=displayheaders&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;firstmessage=$firstmessage\"><IMG SRC=\"$image_url/backtofolder.gif\" border=\"0\" ALT=\"$lang_text{'backto'} $printfolder\"></a>";
    $html =~ s/\@\@\@BACKTOFOLDER\@\@\@/$temphtml/g;
 
    $temphtml = start_multipart_form(-name=>'composeform');
@@ -1624,6 +1691,11 @@ sub composemessage {
    $temphtml .= hidden(-name=>'folder',
                        -default=>$folder,
                        -override=>'1');
+   if (param("message_id")) {
+      $temphtml .= hidden(-name=>'message_id',
+                          -default=>param("message_id"),
+                          -override=>'1');
+   }
    $html =~ s/\@\@\@STARTCOMPOSEFORM\@\@\@/$temphtml/g;
 
    $html =~ s/\@\@\@ESCAPEDFROM\@\@\@/$escapedfrom/g;
@@ -1698,6 +1770,9 @@ sub composemessage {
    $temphtml = submit("$lang_text{'send'}");
    $html =~ s/\@\@\@SENDBUTTON\@\@\@/$temphtml/g;
 
+   $temphtml = submit("$lang_text{'savedraft'}");
+   $html =~ s/\@\@\@SAVEDRAFTBUTTON\@\@\@/$temphtml/g;
+
    $temphtml = end_form();
    $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/g;
 
@@ -1766,14 +1841,16 @@ sub sendmessage {
    no strict 'refs';
 
    verifysession();
+
    if (defined(param($lang_text{'add'}))) {
       composemessage();
    } else {
-### Add a header that will allow SENT folder to function correctly
+### Add a header that will allow SENT/DRAFT folder to function correctly
       my $localtime = scalar(localtime);
       my $date = localtime();
       my @datearray = split(/ +/, $date);
       $date = "$datearray[0], $datearray[2] $datearray[1] $datearray[4] $datearray[3] $timeoffset";
+
       my $from;
       my $realname = $prefs{"realname"} || '';
       if($prefs{"fromname"}) {
@@ -1797,6 +1874,7 @@ sub sendmessage {
       my $confirmreading = param("confirmreading");
       my $body = param("body");
       $body =~ s/\r//g;  # strip ^M characters from message. How annoying!
+
       my $attachment = param("attachment");
       if ( $attachment ) {
          getattlist();
@@ -1805,13 +1883,12 @@ sub sendmessage {
          }
       }
       my $attname = $attachment;
-### Convert :: back to the ' like it should be.
+      ### Convert :: back to the ' like it should be.
       $attname =~ s/::/'/g;
-### Trim the path info from the filename
+      ### Trim the path info from the filename
       $attname =~ s/^.*\\//;
       $attname =~ s/^.*\///;
       $attname =~ s/^.*://;
-
 
       my @attfilelist=();
       opendir (OPENWEBMAILDIR, "$openwebmaildir") or
@@ -1823,49 +1900,95 @@ sub sendmessage {
       }
       closedir (OPENWEBMAILDIR);
 
-      open (SENDMAIL, "|" . $sendmail . " -oem -oi -F '$realname' -f '$from' -t 1>&2") or
-         openwebmailerror("$lang_err{'couldnt_open'} $sendmail!");
-      my $sendmailok=1;
+      my $do_savefolder=1;
+      my $savefolder_errorstr="";
+      my $do_sendmail=1;
+      my $sendmail_errorstr="";
 
-      my $sentfoldererror="";
-      my $sentfolderok=1;
+      my $savefolder;
+
+      if (defined(param($lang_text{'savedraft'}))) { # save message to draft folder
+         if ( $homedirfolders eq 'yes' ) {
+            $savefolder = 'saved-drafts';
+         } else {
+            $savefolder = 'DRAFT';
+         }
+         $do_sendmail=0;
+      } else {				# sent message and save it to sent folder
+         open (SENDMAIL, "|" . $sendmail . " -oem -oi -F '$realname' -f '$from' -t 1>&2") or
+            openwebmailerror("$lang_err{'couldnt_open'} $sendmail!");
+         if ( $homedirfolders eq 'yes' ) {
+            $savefolder = 'sent-mail';
+         } else {
+            $savefolder = 'SENT';
+         }
+         $do_sendmail=1;
+      }
+
+      if ( ! -f "$folderdir/$savefolder") {
+         if (open (FOLDER, ">$folderdir/$savefolder")) {
+            close (FOLDER);
+            chmod (0600, "$folderdir/$savefolder");
+            chown ($uid, $gid, "$folderdir/$savefolder");
+            $do_savefolder=1;
+         } else {
+            $savefolder_errorstr="$lang_err{'couldnt_open'} $savefolder!";
+            $do_savefolder=0;
+            if ($do_savefolder==0 && $do_sendmail==0) {
+               openwebmailerror($savefolder_errorstr);
+            }
+         }
+      }
+
       my $messagestart=0;
       my $messagesize=0;
-      my $sentfolder;
 
-      if ( $homedirfolders eq 'yes' ) {
-         $sentfolder = 'sent-mail';
-      } else {
-         $sentfolder = 'SENT';
-      }
-      if ( ! -f "$folderdir/$sentfolder") {
-         if (open (SENT, ">$folderdir/$sentfolder")) {
-            close (SENT);
-            chmod (0600, "$folderdir/$sentfolder");
-            chown ($uid, $gid, "$folderdir/$sentfolder");
-         } else {
-            $sentfolderok=0;
-            $sentfoldererror="$lang_err{'couldnt_open'} $sentfolder!";
-         }
-      }
       if  ($hitquota) {
-         $sentfolderok=0;
+         $do_savefolder=0;
       } else {
-         if (filelock("$folderdir/$sentfolder", LOCK_EX|LOCK_NB)) {
-            update_headerdb("$folderdir/.$sentfolder", "$folderdir/$sentfolder");
-            if (open (SENT, ">>$folderdir/$sentfolder") ) {
-               $messagestart=tell(SENT);
+         if (filelock("$folderdir/$savefolder", LOCK_EX|LOCK_NB)) {
+            update_headerdb("$folderdir/.$savefolder", "$folderdir/$savefolder");
+
+            if (($savefolder eq 'DRAFT' || $savefolder eq 'saved-drafts') &&
+                defined(param("message_id")) ) {
+               my $alreadyexist=0;
+               my $messageid=param("message_id");
+
+               filelock("$folderdir/.$savefolder.$dbm_ext", LOCK_EX);
+               dbmopen(%HDB, "$folderdir/.$savefolder", 0600);
+               if (defined($HDB{$messageid})) {
+                  $alreadyexist=1;
+               }
+               dbmclose(%HDB);
+               filelock("$folderdir/.$savefolder.$dbm_ext", LOCK_UN);
+
+               if ($alreadyexist) {
+                  my @a;
+                  push (@a, $messageid);
+                  move_message_with_ids(
+			"$folderdir/$savefolder", "$folderdir/.$savefolder", "", "", 
+			\@a);
+               }
+            }
+
+            if (open (FOLDER, ">>$folderdir/$savefolder") ) {
+               $messagestart=tell(FOLDER);
             } else {
-               $sentfoldererror="$lang_err{'couldnt_open'} $sentfolder!";
-               $sentfolderok=0;
+               $savefolder_errorstr="$lang_err{'couldnt_open'} $savefolder!";
+               $do_savefolder=0;
             }
          } else {
-            $sentfoldererror="$lang_err{'couldnt_lock'} $sentfolder!";
-            $sentfolderok=0;
+            $savefolder_errorstr="$lang_err{'couldnt_lock'} $savefolder!";
+            $do_savefolder=0;
          }
       }
 
-      print SENT "From $user $localtime\n" if ($sentfolderok);
+      # nothing to do, return error msg immediately
+      if ($do_savefolder==0 && $do_sendmail==0) {
+         openwebmailerror($savefolder_errorstr);
+      }
+
+      print FOLDER "From $user $localtime\n" if ($do_savefolder);
 
       my $tempcontent="";
       $tempcontent .= "From: $realname <$from>\n";
@@ -1885,15 +2008,15 @@ sub sendmessage {
             $tempcontent .= "Disposition-Notification-To: $from\n";
          }
       }
-      print SENDMAIL $tempcontent;
-      print SENT     $tempcontent if ($sentfolderok);
+      print SENDMAIL $tempcontent if ($do_sendmail);
+      print FOLDER     $tempcontent if ($do_savefolder);
 
       # fake a messageid for the local copy in sent folder
       my $messageid="<OpenWebMail-saved-".rand().">";
-      print SENT     "Message-Id: $messageid\nDate: $date\nStatus: R\n" if ($sentfolderok);
+      print FOLDER     "Message-Id: $messageid\nDate: $date\nStatus: R\n" if ($do_savefolder);
 
-      print SENDMAIL "MIME-Version: 1.0\n";
-      print SENT     "MIME-Version: 1.0\n" if ($sentfolderok);
+      print SENDMAIL "MIME-Version: 1.0\n" if ($do_sendmail);
+      print FOLDER     "MIME-Version: 1.0\n" if ($do_savefolder);
 
       my $contenttype="";
       if ($attachment || $#attfilelist>=0 ) {
@@ -1908,27 +2031,27 @@ sub sendmessage {
          $tempcontent .= "--$boundary\n";
          $tempcontent .= "Content-Type: text/plain; charset=$lang_charset\n\n";
 
-         print SENDMAIL $tempcontent;
-         print SENT     $tempcontent if ($sentfolderok);
+         print SENDMAIL $tempcontent if ($do_sendmail);
+         print FOLDER     $tempcontent if ($do_savefolder);
 
-         print SENDMAIL "$body\n";
+         print SENDMAIL "$body\n" if ($do_sendmail);
          $body =~ s/^From />From /gm;
-         print SENT     "$body\n" if ($sentfolderok);
+         print FOLDER     "$body\n" if ($do_savefolder);
 
          foreach (@attfilelist) {
-            print SENDMAIL "\n--$boundary\n";
-            print SENT     "\n--$boundary\n" if ($sentfolderok);
+            print SENDMAIL "\n--$boundary\n" if ($do_sendmail);
+            print FOLDER     "\n--$boundary\n" if ($do_savefolder);
             open(ATTFILE, $_);
 
             while (read(ATTFILE, $buff, 32768)) {
-               print SENDMAIL $buff;
-               print SENT     $buff if ($sentfolderok);
+               print SENDMAIL $buff if ($do_sendmail);
+               print FOLDER     $buff if ($do_savefolder);
             }
             close(ATTFILE);
          }
 
-         print SENDMAIL "\n";
-         print SENT     "\n" if ($sentfolderok);
+         print SENDMAIL "\n" if ($do_sendmail);
+         print FOLDER     "\n" if ($do_savefolder);
 
          if ($attachment) {
             my $content_type;
@@ -1941,37 +2064,39 @@ sub sendmessage {
             $tempcontent .= "--$boundary\nContent-Type: $content_type;\n";
             $tempcontent .= "\tname=\"$attname\"\nContent-Transfer-Encoding: base64\n\n";
 
-            print SENDMAIL $tempcontent;
-            print SENT     $tempcontent if ($sentfolderok);
+            print SENDMAIL $tempcontent if ($do_sendmail);
+            print FOLDER     $tempcontent if ($do_savefolder);
             
             while (read($attachment, $buff, 600*57)) {
                $tempcontent=encode_base64($buff);
-               print SENDMAIL $tempcontent;
-               print SENT     $tempcontent if ($sentfolderok);
+               print SENDMAIL $tempcontent if ($do_sendmail);
+               print FOLDER     $tempcontent if ($do_savefolder);
             }
 
-            print SENDMAIL "\n";
-            print SENT     "\n" if ($sentfolderok);
+            print SENDMAIL "\n" if ($do_sendmail);
+            print FOLDER     "\n" if ($do_savefolder);
          }
-         print SENDMAIL "--$boundary--";
-         print SENT     "--$boundary--" if ($sentfolderok);
+         print SENDMAIL "--$boundary--" if ($do_sendmail);
+         print FOLDER     "--$boundary--" if ($do_savefolder);
 
-         print SENDMAIL "\n";
-         print SENT     "\n\n" if ($sentfolderok);
+         print SENDMAIL "\n" if ($do_sendmail);
+         print FOLDER     "\n\n" if ($do_savefolder);
 
       } else {
-         print SENDMAIL "Content-Type: text/plain; charset=$lang_charset\n\n", $body, "\n";
+         print SENDMAIL "Content-Type: text/plain; charset=$lang_charset\n\n", $body, "\n" if ($do_sendmail);
          $body =~ s/^From />From /gm;
-         print SENT     "Content-Type: text/plain; charset=$lang_charset\n\n", $body, "\n\n" if ($sentfolderok);
+         print FOLDER     "Content-Type: text/plain; charset=$lang_charset\n\n", $body, "\n\n" if ($do_savefolder);
       }
 
-      $messagesize=tell(SENT)-$messagestart if ($sentfolderok);
-      close(SENT);
-      close(SENDMAIL) or $sendmailok=0;
+      $messagesize=tell(FOLDER)-$messagestart if ($do_savefolder);
+      close(FOLDER);
+      if ($do_sendmail) {
+         close(SENDMAIL) or $sendmail_errorstr=$lang_err{'sendmail_error'};
+      }
       
       deleteattachments();
       
-      if ($sentfolderok) {
+      if ($do_savefolder) {
          my @attr;
          my @datearray = split(/\s+/, $date);
          if ($datearray[0] =~ /[A-Za-z,]/) {
@@ -1989,46 +2114,31 @@ sub sendmessage {
          $attr[$_SIZE]=$messagesize;
 
          my %HDB;
-         filelock("$folderdir/.$sentfolder.$dbm_ext", LOCK_EX);
-         dbmopen(%HDB, "$folderdir/.$sentfolder", 0600);
+         filelock("$folderdir/.$savefolder.$dbm_ext", LOCK_EX);
+         dbmopen(%HDB, "$folderdir/.$savefolder", 0600);
          $HDB{$messageid}=join('@@@', @attr);
          $HDB{'ALLMESSAGES'}++;
-         $HDB{'METAINFO'}=metainfo("$folderdir/$sentfolder");
+         $HDB{'METAINFO'}=metainfo("$folderdir/$savefolder");
          dbmclose(%HDB);
-         filelock("$folderdir/.$sentfolder.$dbm_ext", LOCK_UN);
+         filelock("$folderdir/.$savefolder.$dbm_ext", LOCK_UN);
 
-         filelock("$folderdir/$sentfolder", LOCK_UN);
+         filelock("$folderdir/$savefolder", LOCK_UN);
       }
 
-      if ($sendmailok==0) {
-         senderror();
-      } elsif ($sentfoldererror) {
-         openwebmailerror($sentfoldererror);
-      } else {
-         displayheaders();
+      if ($sendmail_errorstr) {
+         openwebmailerror($sendmail_errorstr);
+      } elsif ($savefolder_errorstr) {
+         openwebmailerror($savefolder_errorstr);
+      } else {	# tung
+#         if ( defined(param("message_id")) ) {
+#            readmessage();
+#         } else {
+            displayheaders();
+#         }
       }
    }
 }
 
-sub senderror {
-   my $html = '';
-   my $temphtml;
-   open (SENDERROR, "$openwebmaildir/templates/$lang/senderror.template") or
-      openwebmailerror("$lang_err{'couldnt_open'} senderror.template!");
-   while (<SENDERROR>) {
-      $html .= $_;
-   }
-   close (SENDERROR);
-
-   $html = applystyle($html);
-
-   printheader();
-
-   print $html;
-
-   printfooter();
-   exit 0;
-}
 ############## END SENDMESSAGE ###################
 
 ################ VIEWATTACHMENT ##################
@@ -2102,7 +2212,7 @@ sub viewattachment {
             my $escapedmessageid = CGI::escape($messageid);
             $content = html4nobase($content);
             $content = html4attachments($content, $r_attachments, $scripturl, "action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder");
-            $content = html4mailto($content, $scripturl, "action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto");
+            $content = html4mailto($content, $scripturl, "action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto");
          }
 
          my $length = length($content);
@@ -2146,7 +2256,7 @@ sub getheaders {
 
    if ( $keyword ne '' ) {
       open($spoolhandle, "$spoolfile");
-      my %haskeyword=search_messages_for_keyword($keyword, $headerdb, $spoolhandle, "$folderdir/.search.cache");
+      my %haskeyword=search_messages_for_keyword($keyword, $searchcontent, $headerdb, $spoolhandle, "$folderdir/.search.cache");
       close($spoolhandle);
       foreach ( get_messageids_sorted($headerdb, $sort, "$headerdb.cache") ) {
          push (@messageids, $_) if ( $haskeyword{$_} == 1 ); 
@@ -2215,7 +2325,7 @@ sub getmessage {
    open($spoolhandle, "$spoolfile");
 
    if ( $keyword ne '' ) {
-      my %haskeyword=search_messages_for_keyword($keyword, $headerdb, $spoolhandle, "$folderdir/.search.cache");
+      my %haskeyword=search_messages_for_keyword($keyword, $searchcontent, $headerdb, $spoolhandle, "$folderdir/.search.cache");
       foreach ( get_messageids_sorted($headerdb, $sort, "$headerdb.cache") ) {
          push (@messageids, $_) if ( $haskeyword{$_} == 1 ); 
       }
@@ -2514,10 +2624,7 @@ sub movemessage {
    my $destination = param("destination");
    ($destination =~ /(.+)/) && ($destination = $1);
    my @messageids = param("message_ids");
-   my $messageids = join("\n", @messageids);
-   my $spoolfile;
-   my $headerdb;
-   my $spoolhandle=FileHandle->new();
+   my ($spoolfile, $headerdb);
 
    if ( $#messageids<0 ) {	# no message ids to delete, return immediately
       if (param("messageaftermove")) {
@@ -2531,135 +2638,116 @@ sub movemessage {
    openwebmailerror ("$lang_err{'shouldnt_move_here'}") if 
       (($folder eq $destination) || ($destination eq 'INBOX'));
 
-   unless ( ($destination eq 'TRASH') || ($destination eq 'SAVED') ||
-        ($destination eq 'SENT') || ($destination eq 'sent-mail') ||
-        ($destination eq 'saved-messages') ||
-        ($destination eq 'mail-trash') ) {
+   unless ( ($destination eq 'SAVED') || ($destination eq 'saved-messages') ||
+            ($destination eq 'SENT') || ($destination eq 'sent-mail') ||
+            ($destination eq 'DRAFT') || ($destination eq 'saved-drafts') ||
+            ($destination eq 'TRASH') || ($destination eq 'mail-trash') ||
+            ($destination eq 'DELETE') ) {
       $destination .= ".folder" unless ( $homedirfolders eq 'yes' );
       openwebmailerror("$lang_err{'destination_folder'} $destination $lang_err{'doesnt_exist'}") unless 
          ( -f "$folderdir/$destination" );
    }
 
-   if ($hitquota) {
-      unless ( ($destination eq 'TRASH') || ($destination eq 'mail-trash') ){
+   my ($spoolfile, $headerdb)=get_spoolfile_headerdb_and_set_uid_gid();
+
+   filelock("$spoolfile", LOCK_EX|LOCK_NB) or
+      openwebmailerror("$lang_err{'couldnt_lock'} $spoolfile!");
+   if ($destination ne 'DELETE') {
+      filelock("$folderdir/$destination", LOCK_EX|LOCK_NB) or
+         openwebmailerror("$lang_err{'couldnt_lock'} $folderdir/$destination!");
+   }
+
+   my $moved=0;
+   if ($destination eq 'DELETE') {
+      $moved=move_message_with_ids($spoolfile, $headerdb, "", "", \@messageids);
+   } elsif ($hitquota) { 	# if hitquota and dest is trash, drop directly
+      if ( ($destination eq 'TRASH') || ($destination eq 'mail-trash') ){
+         $moved=move_message_with_ids($spoolfile, $headerdb, "", "", \@messageids);
+      } else {
          openwebmailerror("$lang_err{'folder_hitquota'}");
       }
+   } else {
+      $moved=move_message_with_ids($spoolfile, $headerdb, 
+	"$folderdir/$destination", "$folderdir/.$destination", \@messageids);
    }
-
-   ($spoolfile, $headerdb)=get_spoolfile_headerdb_and_set_uid_gid();
-
-# open source folder, since spool must exist => lock before open
-   unless (filelock($spoolfile, LOCK_EX|LOCK_NB)) {
-      openwebmailerror("$lang_err{'couldnt_lock'} $spoolfile!");
-   }
-   update_headerdb($headerdb, $spoolfile);
-   open ($spoolhandle, "+<$spoolfile") or 
-	openwebmailerror("$lang_err{'couldnt_open'} $spoolfile!");
-
-# open destination folder, since dest may not exist => open before lock
-   open (DEST, ">>$folderdir/$destination") or
-      openwebmailerror ("$lang_err{'couldnt_open'} $destination!");
-   unless (filelock("$folderdir/$destination", LOCK_EX|LOCK_NB)) {
-      openwebmailerror("$lang_err{'couldnt_lock'} $destination!");
-   }
-   update_headerdb("$folderdir/.$destination", "$folderdir/$destination");
-
-   my @allmessageids=get_messageids_sorted_by_offset($headerdb);
-   my ($blockstart, $blockend, $writepointer);
-   my ($currmessage, $messagestart, $messagesize, @a);
-   my $moved=0;
-   
-   filelock("$headerdb.$dbm_ext", LOCK_EX);
-   dbmopen (%HDB, $headerdb, 600);
-   filelock("$folderdir/.$destination.$dbm_ext", LOCK_EX);
-   dbmopen (%HDB2, "$folderdir/.$destination", 600);
-
-   $blockstart=$blockend=$writepointer=0;
-
-   for (my $i=0; $i<=$#allmessageids; $i++) {
-      @attr=split(/@@@/, $HDB{$allmessageids[$i]});
-
-      if ($messageids =~ /^\Q$allmessageids[$i]\E$/m) {	# msg to be moved
-         $moved++;
-
-         $messagestart=$attr[$_OFFSET];
-         $messagesize=$attr[$_SIZE];
-
-         shiftblock($spoolhandle, $blockstart, $blockend-$blockstart, $writepointer-$blockstart);
-
-         $writepointer=$writepointer+($blockend-$blockstart);
-         $blockstart=$blockend=$messagestart+$messagesize;
-
-         seek($spoolhandle, $attr[$_OFFSET], 0);
-         read($spoolhandle, $currmessage, $attr[$_SIZE]);
-         
-         unless ($hitquota) {	# messages to neo_trash are DROPED directly if hitquota!!!
-            $attr[$_OFFSET]=tell(DEST);
-            if ($currmessage =~ /^From /) {
-               $attr[$_SIZE]=length($currmessage);
-               print DEST $currmessage;
-            } else {
-               $attr[$_SIZE]=length("From ")+length($currmessage);
-               print DEST "From ", $currmessage;
-            }
-            if ( $attr[$_STATUS]!~/r/i ) {
-               $HDB2{'NEWMESSAGES'}++;
-            }
-            $HDB2{'ALLMESSAGES'}++;
-            $HDB2{$allmessageids[$i]}=join('@@@', @attr);
-         } 
-         
-         if ( $attr[$_STATUS]!~/r/i ) {
-            $HDB{'NEWMESSAGES'}--;
-         }
-         $HDB{'ALLMESSAGES'}--;
-         delete $HDB{$allmessageids[$i]};
-
-      } else {						# msg to be kept in same folder
-         $messagestart=$attr[$_OFFSET];
-         $messagesize=$attr[$_SIZE];
-         $blockend=$messagestart+$messagesize;
-
-         my $movement=$writepointer-$blockstart;
-         if ($movement<0) {
-            $attr[$_OFFSET]+=$movement;
-            $HDB{$allmessageids[$i]}=join('@@@', @attr);
-         }
-      }
-   }
-
-   if ($moved>0) {
-      shiftblock($spoolhandle, $blockstart, $blockend-$blockstart, $writepointer-$blockstart);
-      seek($spoolhandle, $writepointer+($blockend-$blockstart), 0);
-      truncate($spoolhandle, tell($spoolhandle));
-   }
-
-   close (DEST) or openwebmailerror("$lang_err{'couldnt_close'} $destination!");
-   close ($spoolhandle) or openwebmailerror("$lang_err{'couldnt_close'} $spoolfile!");
-
-   $HDB2{'METAINFO'}=metainfo("$folderdir/$destination");
-   dbmclose(%HDB2);
-   filelock("$folderdir/.$destination.$dbm_ext", LOCK_UN);
-
-   $HDB{'METAINFO'}=metainfo($spoolfile);
-   dbmclose(%HDB);
-   filelock("$headerdb.$dbm_ext", LOCK_UN);
 
    filelock("$folderdir/$destination", LOCK_UN);
    filelock($spoolfile, LOCK_UN);
 
-   if ($moved>0) {
-      $messageids =~ s/\n/, /g;
-      writelog("moved messages to $destination - ids=$messageids");
+   if ($moved>0){
+      writelog("moved messages to $destination - ids=".join(", ", @messageids) );
+   } elsif ($moved==-1) {
+      openwebmailerror("$lang_err{'couldnt_open'} $spoolfile");
+   } elsif ($moved==-2) {
+      openwebmailerror("$lang_err{'couldnt_open'} $folderdir/$destination!");
    }
-
+    
    if (param("messageaftermove")) {
       readmessage();
    } else {
       displayheaders();
    }
 }
+
+
 #################### END MOVEMESSAGE #######################
+
+#################### DOWNLOAD FOLDER #######################
+
+sub downloadfolder {
+   verifysession();
+   my ($spoolfile, $headerdb)=get_spoolfile_headerdb_and_set_uid_gid();
+   my ($cmd, $contenttype, $filename);
+   my $buff;
+
+   if ( -x '/usr/local/bin/zip' ) {
+      $cmd="/usr/local/bin/zip -r - $spoolfile |";
+      $contenttype='application/x-zip-compressed';
+      $filename="$folder.zip";
+
+   } elsif ( -x '/usr/bin/zip' ) {
+      $cmd="/usr/bin/zip -r - $spoolfile |";
+      $contenttype='application/x-zip-compressed';
+      $filename="$folder.zip";
+
+   } elsif ( -x '/usr/bin/gzip' ) {
+      $cmd="/usr/bin/gzip -c $spoolfile |";
+      $contenttype='application/x-gzip-compressed';
+      $filename="$folder.gz";
+
+   } elsif ( -x '/usr/local/bin/gzip' ) {
+      $cmd="/usr/local/bin/gzip -c $spoolfile |";
+      $contenttype='application/x-gzip-compressed';
+      $filename="$folder.gz";
+
+   } else {
+      $cmd="$spoolfile";
+      $contenttype='text/plain';
+      $filename="$folder";
+   }
+
+   filelock($spoolfile, LOCK_EX|LOCK_NB) or
+      openwebmailerror("$lang_err{'couldnt_lock'} $spoolfile");
+
+   print qq|Content-Transfer-Coding: binary\n|,
+         qq|Connection: close\n|,
+         qq|Content-Type: $contenttype; name="$filename"\n|,
+         qq|Content-Disposition: attachment; filename="$filename"\n|,
+         qq|\n|;
+
+   ($cmd =~ /^(.+)$/) && ($cmd = $1);		# bypass taint check
+   open (T, $cmd);
+   while ( read(T, $buff,16384) ) {
+     print $buff;
+   }
+   close(T);
+
+   filelock($spoolfile, LOCK_UN);
+
+   return;
+}
+
+################## END DOWNLOADFOLDER #####################
 
 #################### EMPTYTRASH ########################
 sub emptytrash {
@@ -2807,7 +2895,7 @@ sub retrpop3 {
    $pop3user = param("name") || '';
 
    if ( ! -f "$folderdir/.pop3.book" ) {
-      print "Location:  $prefsurl?action=editpop3&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage";
+      print "Location:  $prefsurl?action=editpop3&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage";
    }
 
    %account = getpop3book("$folderdir/.pop3.book");
@@ -2869,7 +2957,7 @@ sub retrpop3s {
    }
 
    if ( ! -f "$folderdir/.pop3.book" ) {
-      print "Location: $prefsurl?action=editpop3&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage";
+      print "Location: $prefsurl?action=editpop3&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage";
    }
 
    %account = getpop3book("$folderdir/.pop3.book");

@@ -7,7 +7,9 @@ $lang_charset = 'iso-8859-1';
    INBOX => 'EINGANG',
    SAVED => 'GESICHERT',
    SENT  => 'GESENDET',
-   TRASH => 'PAPIERKORB'
+   DRAFT => 'DRAFT',
+   TRASH => 'PAPIERKORB',
+   DELETE => '--DELETE--'
    );
 
 %lang_sortlabels =
@@ -70,6 +72,8 @@ $lang_charset = 'iso-8859-1';
    filename   => 'Dateiname',
    encoding   => 'Format',
    download   => 'Download',
+   editdraft  => 'Edit Draft',
+   savedraft  => 'Save Draft',
    send       => 'Senden',
    cancel     => 'Abbrechen',
    continue   => 'Weiter',
@@ -103,6 +107,7 @@ $lang_charset = 'iso-8859-1';
    globaladdressbook => 'Global AddressBook',
    globalfilterrule => 'Global FilterRule',
    readonly   => 'ReadOnly',
+   content    => 'content',
    search     => 'Search'
    );
 
@@ -131,7 +136,8 @@ $lang_charset = 'iso-8859-1';
             inv_sessid        => 'Your request didn\'t contain the proper session ID cookie -- access denied!',
             user_not_exist    => 'user does not exist',
             password_error    => 'wrong password',
-            network_server_error => 'network server error'
+            network_server_error => 'network server error',
+            sendmail_error    => 'Sorry, there was a problem sending your message.  Please click your browser\'s Back button, check your message, and try again.'
             );
 
 1;

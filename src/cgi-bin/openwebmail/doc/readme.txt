@@ -78,7 +78,7 @@ If you are using other UNIX with apache, that is okay
 4. add 'Tnobody' to the 'Trusted users' session in your sendmail.cf
 
 
-Filter support
+FILTER SUPPORT
 --------------
 Mail filtering is activated only in Open WebMail. It means messages 
 will stay in the INBOX until user reads their mail with Open WebMail. 
@@ -93,7 +93,7 @@ Some fingerd allow you specify the name of finger program by -p option
 /etc/inetd.conf, users can get their mail status from remote host.
 
 
-Global AddressBook/FilterRule
+GLOBAL ADDRESSBOOK and FILTERRULE
 ---------------------------------
 Current support for global addressbook/filterrule is very limited.
 The administrator has to make a copy of addressbook/filterbook to
@@ -109,7 +109,7 @@ ps: an account may be created for the maintainance of global
     and readable by others
 
 
-Speedup encoding/decoding of MIME attachments
+SPEEDUP ENCODING/DECODING OF MIME ATTACHMENTS
 ---------------------------------------------
 The encoding/decoding speed would be much faster if you install thr 
 MIME-Base64 module from CPAN with XS support
@@ -118,7 +118,7 @@ MIME-Base64 module from CPAN with XS support
 2. install the tar file by reading MIME-Base64-2.12.readme
 
 
-Migrate from Neomail
+MIGRATE FROM NEOMAIL
 --------------------
 1. For get better compatiability with pine(an unix email reader)
    user folderdir is changed from ~/neomail to ~/mail
@@ -135,8 +135,9 @@ TEST
 test your webmail with http://your_server/cgi-bin/openwebmail/openwebmail.pl
 
 
+04/12/2001
+
 Ebola@turtle.ee.ncku.edu.tw
 eddie@turtle.ee.ncku.edu.tw
 tung@turtle.ee.ncku.edu.tw
 
-04/02/2001

@@ -1,3 +1,24 @@
+04/14/2001 
+----------
+1. provide folder download in folder management menu
+2. fix a bug that always create DELETE folder when user kills messages
+
+
+04/13/2001 (version 1.06)
+----------
+1. add support for saved-drafts folder. the user can save the unfinished
+   letters into the saved-drafts folder and continue editing at any 
+   time they want.
+
+
+04/12/2001
+----------
+1. there are 2 types of search now, 'header only'(default) and 'full content'.
+2. show new/total message counts of each folder in folderedit menu.
+3. support delete messages from folder directly
+4. better forwarding support for html message and message with encoded body
+
+
 04/11/2001 (version 1.05)
 ----------
 1. fix a bug in sendmessage. When making backup of a sent message to 
@@ -6,7 +27,7 @@
 2. reduce the memory usage when updating the R status to a message
 3. fix the bug introduced by the optimization of version 1.04.
    The message forwarding carries the attachments in the original message
-   to the new message and the header of those attachments is correct now.
+   to the new message and the headers of these attachments are correct now.
 
 
 04/10/2001
