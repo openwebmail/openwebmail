@@ -1,3 +1,12 @@
+10/04/2004
+----------
+1. Hellenic/Greek language file minor update
+   Cool3D.Hellenic iconse update
+   (thanks to Dimitris Michelinakis, dimitris.AT.michelinakis.gr)
+2. misc/tools/mkcool3d/mkcool3d.sh update
+   (thanks to Dimitris Michelinakis, dimitris.AT.michelinakis.gr)
+
+
 09/26/2004 (version 2.41)
 ----------
 1. French language and templates translation update

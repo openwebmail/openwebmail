@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Dimitris Michelinakis - v0.2 - 9/5/2004
+# Dimitris Michelinakis - v0.3 - 2/10/2004
 #
 # This script generates Cool3D icons with multi language text
 # based on mkcool3d_en.sh by Andrea Partinico
@@ -12,6 +12,8 @@
 #
 #               2) Optional custom font in BDF or PBM format to support
 #               extra language characters/charsets.
+#
+#               3) OWM version 2.41 or newer
 #
 # usage:
 #        1) If you need to generate characters for a language which
@@ -207,6 +209,7 @@ DAYVIEW=`awk -F "=>" '{ print $1 "@" $2 }' $SOURCE/$LANGSHORT |grep -w "dayview"
 EDITDRAFT=`awk -F "=>" '{ print $1 "@" $2 }' $SOURCE/$LANGSHORT |grep -w "editdraft" | awk -F "'" '{ print $2 }'`
 EDITFROMS=`awk -F "=>" '{ print $1 "@" $2 }' $SOURCE/$LANGSHORT |grep -w "editfroms" | awk -F "'" '{ print $2 }'`
 EDITST=`awk -F "=>" '{ print $1 "@" $2 }' $SOURCE/$LANGSHORT |grep -w "editstat" | awk -F "'" '{ print $2 }'`
+EMPTYFOLDER=`awk -F "=>" '{ print $1 "@" $2 }' $SOURCE/$LANGSHORT |grep -w "emptyfolder" | awk -F "'" '{ print $2 }'`
 EXPORT=`awk -F "=>" '{ print $1 "@" $2 }' $SOURCE/$LANGSHORT |grep -w "exportadd" | awk -F "'" '{ print $2 }'`
 FILTERSETUP=`awk -F "=>" '{ print $1 "@" $2 }' $SOURCE/$LANGSHORT |grep -w "filterbook" | awk -F "'" '{ print $2 }'`
 FOLDER=`awk -F "=>" '{ print $1 "@" $2 }' $SOURCE/$LANGSHORT |grep -w "folders " | awk -F "'" '{ print $2 }'`
@@ -217,7 +220,8 @@ HISTORY=`awk -F "=>" '{ print $1 "@" $2 }' $SOURCE/$LANGSHORT |grep -w "viewhist
 HOME=`awk -F "=>" '{ print $1 "@" $2 }' $SOURCE/$LANGSHORT |grep -w "homedir" | awk -F "'" '{ print $2 }'`
 IMPORT=`awk -F "=>" '{ print $1 "@" $2 }' $SOURCE/$LANGSHORT |grep -w "import" | awk -F "'" '{ print $2 }'`
 # no defined text for info button yet
-INFO="I"
+INFO="i"
+LEARNSPAM=`awk -F "=>" '{ print $1 "@" $2 }' $SOURCE/$LANGSHORT |grep -w "learnspam" | awk -F "'" '{ print $2 }'`
 LISTVIEW=`awk -F "=>" '{ print $1 "@" $2 }' $SOURCE/$LANGSHORT |grep -w "listview" | awk -F "'" '{ print $2 }'`
 LOGOUT=`awk -F "=>" '{ print $1 "@" $2 }' $SOURCE/$LANGSHORT |grep -w "logout" | awk -F "'" '{ print $2 }'`
 MONTHVIEW=`awk -F "=>" '{ print $1 "@" $2 }' $SOURCE/$LANGSHORT |grep -w "monthview" | awk -F "'" '{ print $2 }'`
@@ -252,6 +256,7 @@ cool3dicon "$DAYVIEW" $BASE/dayview.gif > $DEST/dayview.gif
 cool3dicon "$EDITDRAFT" $BASE/editdraft.gif > $DEST/editdraft.gif
 cool3dicon "$EDITFROMS" $BASE/editfroms.gif > $DEST/editfroms.gif
 cool3dicon "$EDITST" $BASE/editst.gif > $DEST/editst.gif
+cool3dicon "$EMPTYFOLDER" $BASE/emptyfolder.gif > $DEST/emptyfolder.gif
 cool3dicon "$EXPORT" $BASE/export.gif > $DEST/export.gif
 cool3dicon "$FILTERSETUP" $BASE/filtersetup.gif > $DEST/filtersetup.gif
 cool3dicon "$FOLDER" $BASE/folder.gif > $DEST/folder.gif
@@ -262,6 +267,7 @@ cool3dicon "$HISTORY" $BASE/history.gif > $DEST/history.gif
 cool3dicon "$HOME" $BASE/home.gif > $DEST/home.gif
 cool3dicon "$IMPORT" $BASE/import.gif > $DEST/import.gif
 cool3dicon "$INFO" $BASE/info.gif > $DEST/info.gif
+cool3dicon "$LEARNSPAM" $BASE/learnspam.gif > $DEST/learnspam.gif
 cool3dicon "$LISTVIEW" $BASE/listview.gif > $DEST/listview.gif
 cool3dicon "$LOGOUT" $BASE/logout.gif > $DEST/logout.gif
 cool3dicon "$MONTHVIEW" $BASE/monthview.gif > $DEST/monthview.gif
