@@ -13,12 +13,12 @@
 <BR>
 <table align=center border=0 cellspacing=2 cellpadding=0>
 <tr>
-<td align=right nowrap>帳號： </td><td align=left>@@@USERIDFIELD@@@</td>
+<td align=right nowrap>帳號: </td><td align=left>@@@LOGINNAMEFIELD@@@</td>
 </tr><tr>
-<td align=right nowrap>密碼： </td><td align=left>@@@PASSWORDFIELD@@@</td>
+<td align=right nowrap>密碼: </td><td align=left>@@@PASSWORDFIELD@@@</td>
 @@@DOMAINSTART@@@
 </tr><tr>
-<td align=right nowrap>網域： </td><td align=left>@@@DOMAINMENU@@@</td>
+<td align=right nowrap>網域: </td><td align=left>@@@DOMAINMENU@@@</td>
 @@@DOMAINEND@@@
 </tr><tr>
 <td align=center>
@@ -37,13 +37,19 @@
 </td></tr></table>
 <p align="center">
 <BR>
-@@@PAGE_FOOTER@@@<BR>
+@@@PAGE_FOOTER@@@ &nbsp;
+<a href="@@@HELP_LINK@@@" target="_help">說明?</a>
+<BR>
 </p>
 
 <script language="JavaScript">
 <!--
 
-   document.login.loginname.focus()
+   if (document.login.loginname.value == "") {
+      document.login.loginname.focus()
+   } else {
+      document.login.password.focus()
+   }
 
    function focuspwd()
    {
@@ -51,9 +57,9 @@
       return(true);
    }
 
-   function focuslogin()
+   function focusloginbutton()
    {
-      document.login.login.focus();
+      document.login.loginbutton.focus();
       return (true);
    }
 

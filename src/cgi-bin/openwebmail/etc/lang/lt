@@ -1,4 +1,4 @@
-#!/usr/bin/perl -T
+#!/usr/bin/perl
 
 # Lithuanian translation by Alvydas Sinkunas, dvm382.AT.takas.lt
 # charset: windows-1257
@@ -47,9 +47,19 @@
    no  => 'Ne'
    );
 
+%lang_positionlabels =
+   (
+   before => 'Before mail edit area',
+   after => 'After mail edit area',
+   both  => 'Before and after mail edit area'
+   );
+
 %lang_timelabels =
    (
+      3 => '3 min.',
+      5 => '5 min.',
      10 => '10 min.',
+     20 => '20 min.',
      30 => '30 min.',
      60 => '60 min.',
     120 => '2 val.',
@@ -75,7 +85,8 @@
    yearview  => 'Metai',
    monthview => 'Mënuo',
    weekview  => 'Savaitë',
-   dayview   => 'Diena'
+   dayview   => 'Diena',
+   listview   => 'Listview'
    );
 
 %lang_month =
@@ -138,6 +149,7 @@
    messages   => ' ',
    unread     => 'neskaityti',
    nomessages => 'Laiğkø nëra',
+   inmessages => 'Incoming msgs',
    composenew => 'Rağyti laiğkà',
    refresh    => 'Atnaujinti',
    userprefs  => 'Vartotojo nustatymai',
@@ -146,6 +158,7 @@
    emptytrash => 'Ar iğtrinti ğiukğledëşæ',
    totrash    => 'Move to Trash',
    forever    => 'Visam laikui',
+   delatlogout=> 'Delete at Logout',
    userdef    => 'Vartotojo nustatyti',
    logout     => 'Baigti darbà',
    page       => 'Lapas',
@@ -183,6 +196,8 @@
    encoding   => 'Kodavimas',
    description=> 'Aprağymas',
    download   => 'Parsisiøsti',
+   charset    => 'Charset',
+   samecharset=> 'The same as composing charset',
    thisispartialmsg => 'Èia yra nepilnas laiğkas.',
    msgrebuild => 'Laiğko atstatymas',
    editdraft  => 'Redaguoti rağomà laiğkà',
@@ -225,6 +240,7 @@
    quota_hit  => 'JÛSØ DISKO VIETA IĞNAUDOTA',
    usage      => 'Iğnaudota disko vietos',
    tzmap      => 'Pasaulio laiko juostø şemëlapis',
+   testsound  => 'Test sound',
    editfroms  => 'Redaguoti personaliná el. pağto adresà',
    pop3book   => 'POP3 nustatymai',
    retr_pop3s => 'Tikrinti POP3 pağto dëşutæ',
@@ -259,6 +275,10 @@
    checkagain => 'Tikrinti vël',
    finishchecking => 'Patikrinta',
    manuallyfix=> 'Fiksuoti',
+   editstat   => 'Edit Stationery',
+   savestat   => 'Save Stationery',
+   clearstat  => 'Clear All Stationery',
+   selectstat => '-- Select Stationery for Reply --',
    calendar   => 'Kalendorius',
    am         => 'iki.p',
    pm         => 'po.p',
@@ -287,6 +307,7 @@
    couldnt_lock      => 'Rağymo klaida',
    couldnt_seek      => 'Nëra pradşios',
    couldnt_close     => 'Nepavyko uşdaryti',
+   couldnt_updatedb  => 'Couldn\'t update index db ',
    disallowed_pop3   => 'Nepriëmë  POP3 serveris',
    disallowed_client => 'Ğiam vardui nëra teisës prisijungti',
    disallowed_receiverdomain => 'You are not allowed to send message to this email address',
@@ -305,6 +326,7 @@
    abook_toobig      => 'Gaila, bet Jûs iğnaudojote adresø knygelei skirtà disko vietà.',
    cant_create_dir   => 'Nepavyko sukurti segtuvo Jûsø darbui!',
    folder_hitquota   => 'Gaila, bet iğnaudota Jums skirta disko vieta. Perşiûrëkit ir iğtrinkit senus, gal bût nebereikalingus laiğkus.',
+   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
    att_overlimit     => 'Gaila, bet Jûsø prikabinta byla didesnë uş leistinà',
    inv_msg_op        => 'Neteisingi veiksmai su laiğku',
    inv_sessid        => 'Sesijos ID nesutampa su esamu "sausainiu" - Jûsø veiksmai neleistini!',
@@ -317,6 +339,8 @@
    auth_syserr       => 'slaptaşodşio tikrinimo klaida',
    param_fmterr      => 'parametro formato klaida',
    pwd_incorrect     => 'slaptaşodis neteisingas',
+   pwd_tooshort      => 'Password too short (minimum length @@@PASSWDMINLEN@@@)',
+   pwd_toosimple     => 'Password too simple (both alphabet and digit are required)',
    network_server_error => 'tinklo klaida',
    sendmail_error    => 'Gaila, bet iğkilo bëdø siunèiant laiğkà. Gráşkite atgal ir bandykite dar kartà.',
    at_char_not_allowed => 'Simbolis @ negalimas ğiame lauke.  Gráşkite atgal ir bandykite dar kartà',

@@ -1,14 +1,7 @@
-#!/usr/bin/perl -T
-#############################################################################
-# Open WebMail - Provides a web interface to user mailboxes                 #
-#                                                                           #
-# Copyright (C) 2001-2002                                                   #
-# Chung-Kie Tung, Nai-Jung Kuo, Chao-Chiu Wang, Emir Litric, Thomas Chung   #
-# Copyright (C) 2000                                                        #
-# Ernie Miller  (original GPL project: Neomail)                             #
-#                                                                           #
-# This program is distributed under GNU General Public License              #
-#############################################################################
+#!/usr/bin/suidperl -T
+#
+# openwebmail-folder.pl - mail folder management program
+#
 
 use vars qw($SCRIPT_DIR);
 if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-\.]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
@@ -26,7 +19,7 @@ use CGI qw(-private_tempfiles :standard);
 use CGI::Carp qw(fatalsToBrowser);
 CGI::nph();   # Treat script as a non-parsed-header script
 
-require "openwebmail-shared.pl";
+require "ow-shared.pl";
 require "filelock.pl";
 require "mime.pl";
 require "maildb.pl";
@@ -34,7 +27,7 @@ require "maildb.pl";
 use vars qw(%config %config_raw);
 use vars qw($thissession);
 use vars qw($loginname $domain $user $userrealname $uuid $ugid $homedir);
-use vars qw(%prefs %style);
+use vars qw(%prefs %style %icontext);
 use vars qw($folderdir @validfolders $folderusage);
 use vars qw($folder $printfolder $escapedfolder);
 
@@ -104,21 +97,14 @@ sub editfolders {
    my $html = '';
    my $temphtml;
 
-   open (EDITFOLDERSTEMPLATE, "$config{'ow_etcdir'}/templates/$prefs{'language'}/editfolders.template") or
-      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/templates/$prefs{'language'}/editfolders.template!");
-   while (<EDITFOLDERSTEMPLATE>) {
-      $html .= $_;
-   }
-   close (EDITFOLDERSTEMPLATE);
-
+   $html=readtemplate("editfolders.template");
    $html = applystyle($html);
 
    $html =~ s/\@\@\@FOLDERNAME_MAXLEN\@\@\@/$config{'foldername_maxlen'}/g;
 
    printheader();
 
-   $temphtml = qq|<a href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=displayheaders&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$escapedfolder" title="$lang_text{'backto'} $printfolder"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/backtofolder.gif" border="0" ALT="$lang_text{'backto'} $printfolder"></a>|;
-
+   $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $printfolder", qq|href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=displayheaders&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$escapedfolder"|). qq|\n|;
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
 
    $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-folder.pl") .
@@ -255,8 +241,8 @@ sub _folderline {
                 qq|<td align="center" bgcolor=$bgcolor>|.
                 qq|<a href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=displayheaders&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$escapedcurrfolder">|.
                 qq|$folderstr</a>&nbsp;\n|.
-                qq|<a href="$url" title="$lang_text{'download'} $folderstr"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/download.gif" align="absmiddle" border="0" ALT="$lang_text{'download'} $folderstr">|.
-                qq|</a></td>\n|.
+                iconlink("download.gif", "$lang_text{'download'} $folderstr", qq|href="$url"|).
+                qq|</td>\n|.
                 qq|<td align="center" bgcolor=$bgcolor>$newmessages</td>|.
                 qq|<td align="center" bgcolor=$bgcolor>&nbsp;$allmessages</td>|.
                 qq|<td align="center" bgcolor=$bgcolor>&nbsp;$foldersize</td>\n|;
@@ -288,7 +274,7 @@ sub _folderline {
                        -override=>'1');
    $temphtml .= "\n";
 
-   my $jsfolderstr=$lang_folders{$currfolder}||$currfolder; 
+   my $jsfolderstr=$lang_folders{$currfolder}||$currfolder;
    $jsfolderstr=~ s/'/\\'/g;	# escaep ' with \'
    $temphtml .= submit(-name=>"$lang_text{'markread'}",
                        -class=>"medtext",
@@ -326,7 +312,10 @@ sub markreadfolder {
 
    filelock($folderfile, LOCK_EX|LOCK_NB) or openwebmailerror("$lang_err{'couldnt_lock'} $folderfile!");
 
-   update_headerdb($headerdb, $folderfile);
+   if (update_headerdb($headerdb, $folderfile)<0) {
+      filelock($folderfile, LOCK_UN);
+      openwebmailerror("$lang_err{'couldnt_updatedb'} $headerdb$config{'dbm_ext'}");
+   }
 
    my (%HDB, %offset, %status);
    filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) if (!$config{'dbmopen_haslock'});
@@ -354,7 +343,10 @@ sub markreadfolder {
 
    filelock("$tmpfile", LOCK_EX);
 
-   update_headerdb($tmpdb, $tmpfile);
+   if (update_headerdb($tmpdb, $tmpfile)<0) {
+      filelock($tmpfile, LOCK_UN);
+      openwebmailerror("$lang_err{'couldnt_updatedb'} $tmpdb$config{'dbm_ext'}");
+   }
 
    foreach my $messageid (sort { $offset{$a}<=>$offset{$b} } keys %offset) {
       my @copyid;
@@ -376,7 +368,7 @@ sub markreadfolder {
    operate_message_with_ids("delete", \@markids, $folderfile, $headerdb);
    operate_message_with_ids("move", \@markids,
    					$tmpfile, $tmpdb, $folderfile, $headerdb);
-      
+
    filelock("$tmpfile", LOCK_UN);
    filelock($folderfile, LOCK_UN);
    unlink("$tmpdb$config{'dbm_ext'}", $tmpfile);
@@ -408,12 +400,15 @@ sub reindexfolder {
    if ( -f "$headerdb$config{'dbm_ext'}" ) {
       my %HDB;
       filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) if (!$config{'dbmopen_haslock'});
-      dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
+      dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", 0600);
       $HDB{'METAINFO'}={'RENEW'};
       dbmclose(%HDB);
       filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
    }
-   update_headerdb($headerdb, $folderfile);
+   if (update_headerdb($headerdb, $folderfile)<0) {
+      filelock($folderfile, LOCK_UN);
+      openwebmailerror("$lang_err{'couldnt_updatedb'} $headerdb$config{'dbm_ext'}");
+   }
 
    if ($recreate) {
       writelog("reindex folder - $foldertoindex");
@@ -580,12 +575,12 @@ sub downloadfolder {
    my $buff;
 
    if ( -x '/usr/local/bin/zip' ) {
-      $cmd="/usr/local/bin/zip -r - $folderfile |";
+      $cmd="/usr/local/bin/zip -rq - $folderfile |";
       $contenttype='application/x-zip-compressed';
       $filename="$folder.zip";
 
    } elsif ( -x '/usr/bin/zip' ) {
-      $cmd="/usr/bin/zip -r - $folderfile |";
+      $cmd="/usr/bin/zip -rq - $folderfile |";
       $contenttype='application/x-zip-compressed';
       $filename="$folder.zip";
 

@@ -2,7 +2,7 @@
 # auth_pam_cobalt.pl - authenticate user with PAM and check
 #		       if user is valid under the HOST specified in the URL
 #
-# 2002/08/01 webmaster@pkgmaster.com, 
+# 2002/08/01 webmaster@pkgmaster.com,
 #            based on parts auth_cobalt.pl by Trevor.Paquette@TeraGo.ca
 # 2001/10/05 tung@turtle.ee.ncku.edu.tw (orig: auth_pam.pl)
 #
@@ -61,7 +61,7 @@ sub get_userinfo {
 }
 
 
-sub get_userlist {	# only used by checkmail.pl -a
+sub get_userlist {	# only used by openwebmail-tool.pl -a
    my @userlist=();
    my $line;
 

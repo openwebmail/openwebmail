@@ -37,14 +37,18 @@
 @@@STARTADDITEMFORM@@@
 <tr><td colspan=2 align=center><B>Kalendereintrag erstellen</B></td></tr>
 <tr><td colspan=2 nowrap>@@@STRINGFIELD@@@</td></tr>
-<tr><td width=25% nowrap>Start time</td><td nowrap>@@@STARTHOURMINMENU@@@</td></tr>
-<tr><td width=25% nowrap>End time</td><td nowrap>@@@ENDHOURMINMENU@@@</td></tr>
+<tr><td width=25% nowrap>Startzeit</td><td nowrap>@@@STARTHOURMINMENU@@@</td></tr>
+<tr><td width=25% nowrap>Endzeit</td><td nowrap>@@@ENDHOURMINMENU@@@</td></tr>
 <tr><td colspan=2 nowrap>@@@FREQMENU@@@</td></tr>
 <tr><td colspan=2 nowrap>@@@TODAYANDNEXTNDAYSCHECKBOX@@@ Für diesen und für die nächsten @@@NDAYSFIELD@@@ Tage</td></tr>
 <tr><td colspan=2 nowrap>@@@EVERYMONTHCHECKBOX@@@ Für jeden Monat in diesem Jahr</td></tr>
 <tr><td colspan=2 nowrap>@@@EVERYYEARCHECKBOX@@@ Jedes Jahr</td></tr>
 <tr><td colspan=2 nowrap>Einen Link für diesen Eintrag hinterlegen</td></tr>
 <tr><td colspan=2 nowrap>@@@LINKFIELD@@@</td></tr>
+@@@EMAILSTART@@@
+<tr><td colspan=2 nowrap>Send notification email to</td></tr>
+<tr><td colspan=2 nowrap>@@@EMAILFIELD@@@</td></tr>
+@@@EMAILEND@@@
 <tr><td colspan=2 align=center>@@@SUBMITBUTTON@@@</td></tr>
 @@@ENDFORM@@@
 </table>

@@ -1,4 +1,4 @@
-#!/usr/bin/perl -T
+#!/usr/bin/perl
 
 # Swedish translation by Goran Jartin, tryfan.AT.telia.com
 # charset: iso-8859-1
@@ -47,9 +47,19 @@
    no  => 'No'
    );
 
+%lang_positionlabels =
+   (
+   before => 'Before mail edit area',
+   after => 'After mail edit area',
+   both  => 'Before and after mail edit area'
+   );
+
 %lang_timelabels =
    (
+      3 => '3 minutes',
+      5 => '5 minutes',
      10 => '10 minutes',
+     20 => '20 minutes',
      30 => '30 minutes',
      60 => '60 minutes',
     120 => '2 hours',
@@ -75,7 +85,8 @@
    yearview  => 'Yearview',
    monthview => 'Monthview',
    weekview  => 'Weekview',
-   dayview   => 'Dayview'
+   dayview   => 'Dayview',
+   listview   => 'Listview'
    );
 
 %lang_month =
@@ -138,6 +149,7 @@
    messages   => 'meddelanden',
    unread     => 'oläst',
    nomessages => 'Inga meddelanden',
+   inmessages => 'Incoming msgs',
    composenew => 'Skriv nytt meddelande',
    refresh    => 'Uppdatera',
    userprefs  => 'Användarinställningar',
@@ -146,7 +158,8 @@
    emptytrash => 'Töm papperskorgen',
    totrash    => 'Move to Trash',
    forever    => 'Tills vidare',
-   userdef    => 'User Define',
+   delatlogout=> 'Delete at Logout',
+   userdef    => 'User Defined',
    logout     => 'Logga ut',
    page       => 'Sida',
    msgcopyconf=> '\'Är du säker på att du vill kopiera de markerade meddelandena?\'',
@@ -183,6 +196,8 @@
    encoding   => 'Kodning',
    description=> 'Description',
    download   => 'Lagra',
+   charset    => 'Charset',
+   samecharset=> 'The same as composing charset',
    thisispartialmsg => 'This is a partial message.',
    msgrebuild => 'Message Rebuild',
    editdraft  => 'Redigera utkast',
@@ -225,6 +240,7 @@
    quota_hit  => 'Ditt lagringsutrymme är slut!',
    usage      => 'Använt',
    tzmap      => 'World timezone map',
+   testsound  => 'Test sound',
    editfroms  => 'Edit personal email addresses',
    pop3book   => 'POP3 Inställningar',
    retr_pop3s => 'Hämta post från POP3-konto',
@@ -259,6 +275,10 @@
    checkagain => 'Kontrollera igen',
    finishchecking => 'Avsluta kontroll',
    manuallyfix=> 'Fixa manuellt',
+   editstat   => 'Edit Stationery',
+   savestat   => 'Save Stationery',
+   clearstat  => 'Clear All Stationery',
+   selectstat => '-- Select Stationery for Reply --',
    calendar   => 'Calendar',
    am         => 'am',
    pm         => 'pm',
@@ -287,6 +307,7 @@
    couldnt_lock      => 'Kunde inte skriva till',
    couldnt_seek      => 'Kunde inte hitta början på',
    couldnt_close     => 'Kunde inte stänga',
+   couldnt_updatedb  => 'Couldn\'t update index db ',
    disallowed_pop3   => 'Disallowed POP3 server',
    disallowed_client => 'You are not allowed to connect from this client',
    disallowed_receiverdomain => 'You are not allowed to send message to this email address',
@@ -305,6 +326,7 @@
    abook_toobig      => 'Beklagar, du överstiger den tillåtna storleken på din adressbok. Gå',
    cant_create_dir   => 'Kunde inte skapa din användarkatalog!',
    folder_hitquota   => 'Beklagar, du har överskridit det tillåtna lagringsutrymmet för dina mappar. Du kan nu bara flytta meddelanden till papperskorgen, där de kommer att raderas automatiskt. Gå tillbaka och radera några meddelanden eller töm papperskorgen, och försök igen.',
+   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
    att_overlimit     => 'Beklagar, du har överskridit den tillåtna storleken för bilagor. Bilagorna får inte omfatta mer än',
    inv_msg_op        => 'Otillåten operation',
    inv_sessid        => 'Din begäran saknade rätt cookie. Operationen medges inte!',
@@ -316,7 +338,9 @@
    func_notsupported => 'function not supported',
    auth_syserr       => 'authentication system error',
    param_fmterr      => 'parameter format error',
-   pwd_incorrect     => 'password incorrect',
+   pwd_incorrect     => 'Password incorrect',
+   pwd_tooshort      => 'Password too short (minimum length @@@PASSWDMINLEN@@@)',
+   pwd_toosimple     => 'Password too simple (both alphabet and digit are required)',
    network_server_error => 'Nätverksfel',
    sendmail_error    => 'Beklagar, det uppstod ett problem med att skicka ditt meddelande.  Klicka på Back i din webbläsare, kontrollera meddelandet och försök igen.',
    at_char_not_allowed => 'The @ character is not allowed in this field.  Press browser back button and try again',

@@ -30,8 +30,8 @@
    {
       var s;
       s=document.passwordform.newpassword.value;
-      if (s.length < 6) {
-         alert("패스워드는 최소 6문자 이상이어야 합니다.");
+      if (s.length < @@@PASSWDMINLEN@@@) {
+         alert("패스워드는 최소 @@@PASSWDMINLEN@@@문자 이상이어야 합니다.");
          return false;
       }
       if (document.passwordform.newpassword.value !=

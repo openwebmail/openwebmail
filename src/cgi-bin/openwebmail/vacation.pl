@@ -1,12 +1,13 @@
 #!/usr/bin/perl
 #
-# vacation program
+# vacation.pl - vacation program
 #
 # Larry Wall <lwall@jpl-devvax.jpl.nasa.gov>
 # updates by Tom Christiansen <tchrist@convex.com>
 # updates by Chung-Kie Tung <tung@turtle.ee.ncku.edu.tw>
 #
 
+#
 # syntax:
 #
 #   vacation.pl [ -I|-i ]
@@ -67,6 +68,7 @@
 #            --tung
 #
 #   will include the subject of the message in the reply.
+#
 
 use strict;
 $ENV{PATH} = "/bin:/usr/bin"; # only little PATH should be needed

@@ -7,13 +7,13 @@
 <BR>
 <table align=center border=0 cellspacing=2 cellpadding=0>
 <tr>
-<td align=right>账号：</td><td align=left>@@@USERIDFIELD@@@</td>
+<td align=right>账号:</td><td align=left>@@@USERIDFIELD@@@</td>
 </tr><tr>
-<td align=right>旧密码：</td><td align=left>@@@OLDPASSWORDFIELD@@@</td>
+<td align=right>旧密码:</td><td align=left>@@@OLDPASSWORDFIELD@@@</td>
 </tr><tr>
-<td align=right>新密码：</td><td align=left>@@@NEWPASSWORDFIELD@@@</td>
+<td align=right>新密码:</td><td align=left>@@@NEWPASSWORDFIELD@@@</td>
 </tr><tr>
-<td align=right>确认新密码：</td><td align=left>@@@CONFIRMNEWPASSWORDFIELD@@@</td>
+<td align=right>确认新密码:</td><td align=left>@@@CONFIRMNEWPASSWORDFIELD@@@</td>
 </tr><tr>
 <td colspan=2>
 <table width="100%"><tr>
@@ -30,8 +30,8 @@
    {
       var s;
       s=document.passwordform.newpassword.value;
-      if (s.length < 4) {
-         alert("Password must has at least 4 characters.");
+      if (s.length < @@@PASSWDMINLEN@@@) {
+         alert("Password must has at least @@@PASSWDMINLEN@@@ characters.");
          return false;
       }
       if (document.passwordform.newpassword.value !=

@@ -1,14 +1,7 @@
-#!/usr/bin/perl -T
-#############################################################################
-# Open WebMail - Provides a web interface to user mailboxes                 #
-#                                                                           #
-# Copyright (C) 2001-2002                                                   #
-# Chung-Kie Tung, Nai-Jung Kuo, Chao-Chiu Wang, Emir Litric, Thomas Chung   #
-# Copyright (C) 2000                                                        #
-# Ernie Miller  (original GPL project: Neomail)                             #
-#                                                                           #
-# This program is distributed under GNU General Public License              #
-#############################################################################
+#!/usr/bin/suidperl -T
+#
+# openwebmail-viewatt.pl - attachment reading program
+#
 
 use vars qw($SCRIPT_DIR);
 if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-\.]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
@@ -26,9 +19,10 @@ use CGI qw(-private_tempfiles :standard);
 use CGI::Carp qw(fatalsToBrowser);
 CGI::nph();   # Treat script as a non-parsed-header script
 
-require "openwebmail-shared.pl";
+require "ow-shared.pl";
 require "filelock.pl";
 require "mime.pl";
+require "iconv.pl";
 require "maildb.pl";
 
 use vars qw(%config %config_raw);
@@ -52,8 +46,8 @@ $escapedkeyword = escapeURL($keyword);
 $searchtype = param("searchtype") || 'subject';
 
 # extern vars
-use vars qw(%lang_err);		# defined in lang/xy
-use vars qw($_SUBJECT);		# defined in maildb.pl
+use vars qw(%lang_err);			# defined in lang/xy
+use vars qw($_SUBJECT $_CHARSET);	# defined in maildb.pl
 
 ########################## MAIN ##############################
 
@@ -77,7 +71,10 @@ sub viewattachment {	# view attachments inside a message
 
    filelock($folderfile, LOCK_SH|LOCK_NB) or
       openwebmailerror("$lang_err{'couldnt_locksh'} $folderfile!");
-   update_headerdb($headerdb, $folderfile);
+   if (update_headerdb($headerdb, $folderfile)<0) {
+      filelock($folderfile, LOCK_UN);
+      openwebmailerror("$lang_err{'couldnt_updatedb'} $headerdb$config{'dbm_ext'}");
+   }
    open($folderhandle, "$folderfile");
    my $r_block= get_message_block($messageid, $headerdb, $folderhandle);
    close($folderhandle);
@@ -91,15 +88,23 @@ sub viewattachment {	# view attachments inside a message
       return;
    }
 
+   my @attr=get_message_attributes($messageid, $headerdb);
+   my $convfrom=param('convfrom');
+   if ($convfrom eq "") {
+      if ( is_convertable($attr[$_CHARSET], $prefs{'charset'}) ) {
+         $convfrom=lc($attr[$_CHARSET]);
+      } else {
+         $convfrom='none.prefscharset';
+      }
+   }
+
    if ( $nodeid eq 'all' ) {
       # return whole msg as an message/rfc822 object
-      my $subject = (get_message_attributes($messageid, $headerdb))[$_SUBJECT];
-      $subject =~ s/\s+/_/g;
-      if ( param('zhconvert') eq 'b2g' ) {
-         $subject= b2g($subject);
-      } elsif ( param('zhconvert') eq 'g2b' ) {
-         $subject= g2b($subject);
+      my $subject = $attr[$_SUBJECT];
+      if (is_convertable($convfrom, $prefs{'charset'}) ) {
+         ($subject)=iconv($convfrom, $prefs{'charset'}, $subject);
       }
+      $subject =~ s/\s+/_/g;
 
       my $length = length(${$r_block});
       # disposition:attachment default to save
@@ -128,10 +133,13 @@ sub viewattachment {	# view attachments inside a message
       }
 
       if (defined($r_attachment)) {
-         if ( param('zhconvert') eq 'b2g' ) {
-            ${$r_attachment}{filename}=b2g(${$r_attachment}{filename});
-         } elsif ( param('zhconvert') eq 'g2b' ) {
-            ${$r_attachment}{filename}=g2b(${$r_attachment}{filename});
+         my $charset=${$r_attachment}{filenamecharset}||
+                     ${$r_attachment}{charset}||
+                     $convfrom||
+                     $attr[$_CHARSET];
+         if (is_convertable($charset, $prefs{'charset'})) {
+            (${$r_attachment}{filename})=iconv($charset, $prefs{'charset'},
+                                                ${$r_attachment}{filename});
          }
 
          my $content;
@@ -157,10 +165,20 @@ sub viewattachment {	# view attachments inside a message
 
          my $length = length($content);
          my $contenttype = ${$r_attachment}{contenttype};
-         my $filename = ${$r_attachment}{filename};
+         my $filename = ${$r_attachment}{filename}; 
+         $filename=~s/\s$//;
 
          # remove char disallowed in some fs
-         $filename=~s/[\s\\\/:]/_/g;	
+         if ($prefs{'charset'} eq 'big5') {
+            $filename =~ s|([^\xA1-\xF9])\\|$1_|;	# dos path
+         } elsif ($prefs{'charset'} eq 'gb2312') {
+            $filename =~ s|([^\x81-\xFE])\\|$1_|;	# dos path
+         } else {
+            $filename =~ s|\\|_|;			# dos path
+         }
+         $filename =~ s|^.*/||;	# unix path
+         $filename =~ s|^.*:||;	# mac path and dos drive
+
          # IE6 will crash if filename longer than 45, tricky!
          if (length($filename)>45) {
             $filename=~/^(.*)(\.[^\.]*)$/;
@@ -287,7 +305,16 @@ sub viewattfile {	# view attachments uploaded to openwebmail/etc/sessions/
    $attdisposition =~ s/^(.+);.*/$1/g;
 
    # remove char disallowed in some fs
-   $attfilename=~s/[\s\\\/:]/_/g;	
+   if ($prefs{'charset'} eq 'big5') {
+      $attfilename =~ s|([^\xA1-\xF9])\\|$1_|;	# dos path
+   } elsif ($prefs{'charset'} eq 'gb2312') {
+      $attfilename =~ s|([^\x81-\xFE])\\|$1_|;	# dos path
+   } else {
+      $attfilename =~ s|\\|_|;			# dos path
+   }
+   $attfilename =~ s|^.*/||;	# unix path
+   $attfilename =~ s|^.*:||;	# mac path and dos drive
+
    # IE6 will crash if filename longer than 45, tricky!
    if (length($attfilename)>45) {
       $attfilename=~/^(.*)(\.[^\.]*)$/;

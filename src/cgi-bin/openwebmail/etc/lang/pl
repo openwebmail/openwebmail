@@ -1,4 +1,4 @@
-#!/usr/bin/perl -T
+#!/usr/bin/perl
 
 # Polish translation by Pawel Jablonski, jablonski.AT.dialogok.pl 
 #                       michal talecki, mik.AT.orka.ibz.pl
@@ -50,9 +50,19 @@
    no  => 'Nie'
    );
 
+%lang_positionlabels =
+   (
+   before => 'Before mail edit area',
+   after => 'After mail edit area',
+   both  => 'Before and after mail edit area'
+   );
+
 %lang_timelabels =
    (
+      3 => '3 minut',
+      5 => '5 minut',
      10 => '10 minut',
+     20 => '20 minut',
      30 => '30 minut',
      60 => '60 minut',
     120 => '2 godziny',
@@ -78,7 +88,8 @@
    yearview  => '',
    monthview => 'Miesi±c:',
    weekview  => 'Tydzieñ:',
-   dayview   => ''
+   dayview   => '',
+   listview   => 'Listview'
    );
 
 %lang_month =
@@ -141,6 +152,7 @@
    messages   => 'wiadomo¶ci',
    unread     => 'nieprzeczytane',
    nomessages => 'Brak wiadomo¶ci',
+   inmessages => 'Incoming msgs',
    composenew => 'Utwórz now± wiadomo¶æ',
    refresh    => 'Od¶wie¿',
    userprefs  => 'Preferencje u¿ytkownika',
@@ -149,6 +161,7 @@
    emptytrash => 'Opró¿nij kosz',
    totrash    => 'Przenie¶ do kosza',
    forever    => 'Zawsze',
+   delatlogout=> 'Delete at Logout',
    userdef    => 'Zdefiniowane przez u¿ytkownika',
    logout     => 'Wyloguj',
    page       => 'Strona',
@@ -186,6 +199,8 @@
    encoding   => 'Kodowanie',
    description=> 'Opis',
    download   => 'Pobierz',
+   charset    => 'Charset',
+   samecharset=> 'The same as composing charset',
    thisispartialmsg => 'To jest czê¶æ wiadomo¶ci.',
    msgrebuild => 'Od¶wie¿anie',
    editdraft  => 'Edytuj brudnopis',
@@ -228,6 +243,7 @@
    quota_hit  => 'OSI¡GNIÊTO LIMIT DOSTÊPNEJ PRZESTRZENI NA DYSKU',
    usage      => 'U¿ycie',
    tzmap      => 'Mapa stref czasowych',
+   testsound  => 'Test sound',
    editfroms  => 'Edytuj w³asne adresy e-mail',
    pop3book   => 'Konfiguracja POP3',
    retr_pop3s => 'Odbierz pocztê POP3',
@@ -262,6 +278,10 @@
    checkagain => 'Sprawd¼ powtórnie',
    finishchecking => 'Zakoñcz sprawdzanie ',
    manuallyfix=> 'Popraw rêcznie',
+   editstat   => 'Edit Stationery',
+   savestat   => 'Save Stationery',
+   clearstat  => 'Clear All Stationery',
+   selectstat => '-- Select Stationery for Reply --',
    calendar   => 'Kalendarz',
    am         => 'am',
    pm         => 'pm',
@@ -290,6 +310,7 @@
    couldnt_lock      => 'Nie mo¿na zablokowaæ pliku',
    couldnt_seek      => 'Nie mo¿na odnale¼æ pocz±tku',
    couldnt_close     => 'Nie mo¿na zamkn±æ',
+   couldnt_updatedb  => 'Couldn\'t update index db ',
    disallowed_pop3   => 'Niedozwolony serwer POP3',
    disallowed_client => 'Nie mo¿esz siê po³±czyæ za pomoc± tego klienta',
    disallowed_receiverdomain => 'Nie mo¿esz wys³aæ poczty e-mail na ten adres',
@@ -308,6 +329,7 @@
    abook_toobig      => 'Przykro mi ale przekraczasz dopuszczalny rozmiar swojej Ksi±¿ki Adresowej.  Przejd¼',
    cant_create_dir   => 'Nie mogê utworzyæ twojego osobistego katalogu!',
    folder_hitquota   => 'Przykro mi, ale przekroczy³e¶ dopuszczalny rozmiar skrzynki pocztowej. Nie bêdziesz teraz móg³ przenie¶æ wiadomo¶ci gdziekolwiek poza Kosze, z którego zostan± natychmiast usuniête.  Wróæ, usuñ czê¶æ wiadomo¶ci, opró¿nij kosz i spróbuj jeszcze raz.',
+   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
    att_overlimit     => 'Przykro mi ale rozmiar za³±cznika przekracza limit, który wynosi',
    inv_msg_op        => 'Nieprawid³owa operacja dla tej wiadomo¶ci',
    inv_sessid        => 'Twoje zapytanie nie zawiera w³asciwego identyfikatora sesji - dostêp zabroniony!',
@@ -320,6 +342,8 @@
    auth_syserr       => 'b³±d autentyfikacji',
    param_fmterr      => 'nieprawid³owy format parametru',
    pwd_incorrect     => 'nieprawid³owe has³o',
+   pwd_tooshort      => 'Password too short (minimum length @@@PASSWDMINLEN@@@)',
+   pwd_toosimple     => 'Password too simple (both alphabet and digit are required)',
    network_server_error => 'b³±d sieci',
    sendmail_error    => 'Niestety wyst±pi³ problem podczas wysy³ania Twojej wiadomo¶ci. Naci¶nij przycisk wstecz w przegl±darce, sprawd¼ wiadomo¶æ i spróbuj ponownie.',
    at_char_not_allowed => 'The @ character is not allowed in this field.  Press browser back button and try again',

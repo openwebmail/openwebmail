@@ -1,20 +1,21 @@
 #
-# mailfilter.pl - function for mail filter
+# mailfilter.pl - mail filter routines
 #
 # 2001/11/13 Ebola@turtle.ee.ncku.edu.tw
 #            tung@turtle.ee.ncku.edu.tw
 #
+
 use strict;
 use Fcntl qw(:DEFAULT :flock);
 
 # extern vars
-use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE $_STATUS $_SIZE $_REFERENCES);
-use vars qw(%config %prefs);
+use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE $_STATUS $_SIZE $_REFERENCES $_CHARSET);
+use vars qw(%config);
 
 # return: 0=nothing, <0=error, n=filted count
 # there are 4 op for a msg: 'copy', 'move', 'delete' and 'keep'
 sub mailfilter {
-   my ($user, $folder, $folderdir, $r_validfolders,
+   my ($user, $folder, $folderdir, $r_validfolders, $prefs_regexmatch,
 	$filter_repeatlimit, $filter_fakedsmtp,
 	$filter_fakedfrom, $filter_fakedexecontenttype)=@_;
    my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
@@ -23,6 +24,7 @@ sub mailfilter {
    my (%HDB, %FTDB, %IS_GLOBAL);
    my (@allmessageids, $i);
    my $newfilterrule=0;
+   my $ioerr=0;
 
    ## check existence of folderfile
    if ( ! -f $folderfile ) {
@@ -74,9 +76,14 @@ sub mailfilter {
    unless (filelock($folderfile, LOCK_EX|LOCK_NB)) {
       return -3; # $lang_err{'couldnt_lock'} $folder!
    }
-   update_headerdb($headerdb, $folderfile);
+   if (update_headerdb($headerdb, $folderfile)<0) {
+      filelock($folderfile, LOCK_UN);
+      writelog("db error - Couldn't update index db $headerdb$config{'dbm_ext'}");
+      writehistory("db error - Couldn't update index db $headerdb$config{'dbm_ext'}");
+      return(-4);
+   }
    open ($folderhandle, "+<$folderfile") or
-      return -4; # $lang_err{'couldnt_open'} $folder!;
+      return -5; # $lang_err{'couldnt_open'} $folder!;
 
    @allmessageids=get_messageids_sorted_by_offset($headerdb);
 
@@ -84,8 +91,8 @@ sub mailfilter {
    dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", 0600);
 
    my ($blockstart, $blockend, $writepointer)=(0,0,0);
-   my $filtered=0;
-   my %repeatlists=();	
+   my %filtered=();
+   my %repeatlists=();
 
    for ($i=0; $i<=$#allmessageids; $i++) {
       my @attr = split(/@@@/, $HDB{$allmessageids[$i]});
@@ -95,6 +102,7 @@ sub mailfilter {
       my $matched=0;
       my $reserved_in_inbox=0;
       my ($priority, $rules, $include, $text, $op, $destination, $enable);
+      my $regexmatch=1;
 
       if ($filter_repeatlimit>0) {
          # store msgid with same '$from:$subject' to same array
@@ -121,7 +129,7 @@ sub mailfilter {
             $destination =~ s/\.\.+//g;
             $destination =~ s/[\s\/\`\|\<\>;]//g; # remove dangerous char
 
-            ## check if current rule is enabled ##
+            # check if current rule is enabled
             next unless ($enable == 1);
             next if ( $op ne 'copy' && $op ne 'move' && $op ne 'delete');
 
@@ -133,11 +141,17 @@ sub mailfilter {
                }
             }
 
+            if ( ($prefs_regexmatch||$IS_GLOBAL{$line}) && is_regex($text) ) { # do regex compare?
+              $regexmatch=1;
+            } else {
+              $regexmatch=0;
+            }
+
             if ( $rules eq 'from' || $rules eq 'to' || $rules eq 'subject' ) {
                my %index=(from=>$_FROM, to=>$_TO, subject=>$_SUBJECT);
-               if (   ($include eq 'include' && ($prefs{'regexmatch'}||$IS_GLOBAL{$line}) && $attr[$index{$rules}] =~ /$text/i)
+               if (   ($include eq 'include' && $regexmatch && $attr[$index{$rules}] =~ /$text/i)
                    || ($include eq 'include' && $attr[$index{$rules}] =~ /\Q$text\E/i)
-                   || ($include eq 'exclude' && ($prefs{'regexmatch'}||$IS_GLOBAL{$line}) && $attr[$index{$rules}] !~ /$text/i)
+                   || ($include eq 'exclude' && $regexmatch && $attr[$index{$rules}] !~ /$text/i)
                    || ($include eq 'exclude' && $attr[$index{$rules}] !~ /\Q$text\E/i)  ) {
                   my ($matchcount, $matchdate)=split(":", $FTDB{"$rules\@\@\@$include\@\@\@$text\@\@\@$destination"});
                   $matchcount++; $matchdate=localtime2dateserial();
@@ -183,9 +197,9 @@ sub mailfilter {
                }
 
                $header=~s/\n / /g;	# handle folding roughly
-               if (  ( $include eq 'include' && ($prefs{'regexmatch'}||$IS_GLOBAL{$line}) && $header =~ /$text/im )
+               if (  ( $include eq 'include' && $regexmatch && $header =~ /$text/im )
                    ||( $include eq 'include' && $header =~ /\Q$text\E/im )
-                   ||( $include eq 'exclude' && ($prefs{'regexmatch'}||$IS_GLOBAL{$line}) && $header !~ /$text/im )
+                   ||( $include eq 'exclude' && $regexmatch && $header !~ /$text/im )
                    ||( $include eq 'exclude' && $header !~ /\Q$text\E/im ) ) {
                   my ($matchcount, $matchdate)=split(":", $FTDB{"$rules\@\@\@$include\@\@\@$text\@\@\@$destination"});
                   $matchcount++; $matchdate=localtime2dateserial();
@@ -228,9 +242,9 @@ sub mailfilter {
                foreach my $relay (@{$r_smtprelays}) {
                   $smtprelays.="$relay, ${$r_connectfrom}{$relay}, ${$r_byas}{$relay}, ";
                }
-               if (  ( $include eq 'include' && ($prefs{'regexmatch'}||$IS_GLOBAL{$line}) && $smtprelays =~ /$text/im )
+               if (  ( $include eq 'include' && $regexmatch && $smtprelays =~ /$text/im )
                    ||( $include eq 'include' && $smtprelays =~ /\Q$text\E/im )
-                   ||( $include eq 'exclude' && ($prefs{'regexmatch'}||$IS_GLOBAL{$line}) && $smtprelays !~ /$text/im )
+                   ||( $include eq 'exclude' && $regexmatch && $smtprelays !~ /$text/im )
                    ||( $include eq 'exclude' && $smtprelays !~ /\Q$text\E/im ) ) {
                   my ($matchcount, $matchdate)=split(":", $FTDB{"$rules\@\@\@$include\@\@\@$text\@\@\@$destination"});
                   $matchcount++; $matchdate=localtime2dateserial();
@@ -281,9 +295,9 @@ sub mailfilter {
                   $is_body_decoded=1;
                }
 
-               if (  ( $include eq 'include' && ($prefs{'regexmatch'}||$IS_GLOBAL{$line}) && $body =~ /$text/im )
+               if (  ( $include eq 'include' && $regexmatch && $body =~ /$text/im )
                    ||( $include eq 'exclude' && $body !~ /\Q$text\E/im )
-                   ||( $include eq 'include' && ($prefs{'regexmatch'}||$IS_GLOBAL{$line}) && $body =~ /$text/im )
+                   ||( $include eq 'include' && $regexmatch && $body =~ /$text/im )
                    ||( $include eq 'exclude' && $body !~ /\Q$text\E/im ) ) {
                   my ($matchcount, $matchdate)=split(":", $FTDB{"$rules\@\@\@$include\@\@\@$text\@\@\@$destination"});
                   $matchcount++; $matchdate=localtime2dateserial();
@@ -330,9 +344,9 @@ sub mailfilter {
                foreach my $r_attachment (@{$r_attachments}) {
                   if ( ${$r_attachment}{contenttype} =~ /^text/i ||
                        ${$r_attachment}{contenttype} eq "N/A" ) { # read all for text/plain. text/html
-                     if (  ( $include eq 'include' && ($prefs{'regexmatch'}||$IS_GLOBAL{$line}) && ${${$r_attachment}{r_content}} =~ /$text/im )
+                     if (  ( $include eq 'include' && $regexmatch && ${${$r_attachment}{r_content}} =~ /$text/im )
                          ||( $include eq 'include' && ${${$r_attachment}{r_content}} =~ /\Q$text\E/im )
-                         ||( $include eq 'exclude' && ($prefs{'regexmatch'}||$IS_GLOBAL{$line}) && ${${$r_attachment}{r_content}} !~ /$text/im )
+                         ||( $include eq 'exclude' && $regexmatch && ${${$r_attachment}{r_content}} !~ /$text/im )
                          ||( $include eq 'exclude' && ${${$r_attachment}{r_content}} !~ /\Q$text\E/im )  ) {
                         my ($matchcount, $matchdate)=split(":", $FTDB{"$rules\@\@\@$include\@\@\@$text\@\@\@$destination"});
                         $matchcount++; $matchdate=localtime2dateserial();
@@ -375,9 +389,9 @@ sub mailfilter {
                }
                # check attachments
                foreach my $r_attachment (@{$r_attachments}) {
-                  if (   ( $include eq 'include' && ($prefs{'regexmatch'}||$IS_GLOBAL{$line}) && ${$r_attachment}{filename} =~ /$text/i )
+                  if (   ( $include eq 'include' && $regexmatch && ${$r_attachment}{filename} =~ /$text/i )
                        ||( $include eq 'include' && ${$r_attachment}{filename} =~ /\Q$text\E/i )
-                       ||( $include eq 'exclude' && ($prefs{'regexmatch'}||$IS_GLOBAL{$line}) && ${$r_attachment}{filename} !~ /$text/i )
+                       ||( $include eq 'exclude' && $regexmatch && ${$r_attachment}{filename} !~ /$text/i )
                        ||( $include eq 'exclude' && ${$r_attachment}{filename} !~ /\Q$text\E/i )  ) {
                      my ($matchcount, $matchdate)=split(":", $FTDB{"$rules\@\@\@$include\@\@\@$text\@\@\@$destination"});
                      $matchcount++; $matchdate=localtime2dateserial();
@@ -462,34 +476,42 @@ sub mailfilter {
                $is_message_parsed=1;
             }
 
-            my $envelopefrom="";
-            foreach (split(/\n/, $header)) {
-               if (/\(envelope\-from ([^\s]+).*\)/) {
-                  $envelopefrom=$1; last;
+            my $is_tmda=0;	# skip faked from check if TMDA msg
+            if ($header=~/^\QX-Delivery-Agent: TMDA\E/m &&
+                $header=~/^\QPrecedence: bulk\E/m &&
+                $allmessageids[$i]=~/\Q.TMDA@\E/ ) {
+               $is_tmda=1;
+            }
+            if (! $is_tmda) {
+               my $envelopefrom="";
+               foreach (split(/\n/, $header)) {
+                  if (/\(envelope\-from ([^\s]+).*\)/) {
+                     $envelopefrom=$1; last;
+                  }
                }
-            }
-            if ($envelopefrom eq "") {
-               $envelopefrom=$1 if ($header=~/^From ([^\s]+)/);
-            }
+               if ($envelopefrom eq "") {
+                  $envelopefrom=$1 if ($header=~/^From ([^\s]+)/);
+               }
 
-            # compare user and domain independently
-            my ($hdr_user, $hdr_domain)=split(/\@/, (email2nameaddr($attr[$_FROM]))[1]);
-            my ($env_user, $env_domain)=split(/\@/, $envelopefrom);
-            if ( $hdr_user ne $env_user ||
-                ($hdr_domain ne "" &&
-                 $env_domain ne "" &&
-                 $hdr_domain!~/\Q$env_domain\E/i &&
-                 $env_domain!~/\Q$hdr_domain\E/i) ) {
-               my ($matchcount, $matchdate)=split(":", $FTDB{"filter_fakedfrom"});
-               $matchcount++; $matchdate=localtime2dateserial();
-               $FTDB{"filter_fakedfrom"}="$matchcount:$matchdate";
+               # compare user and domain independently
+               my ($hdr_user, $hdr_domain)=split(/\@/, (email2nameaddr($attr[$_FROM]))[1]);
+               my ($env_user, $env_domain)=split(/\@/, $envelopefrom);
+               if ( $hdr_user ne $env_user ||
+                   ($hdr_domain ne "" &&
+                    $env_domain ne "" &&
+                    $hdr_domain!~/\Q$env_domain\E/i &&
+                    $env_domain!~/\Q$hdr_domain\E/i) ) {
+                  my ($matchcount, $matchdate)=split(":", $FTDB{"filter_fakedfrom"});
+                  $matchcount++; $matchdate=localtime2dateserial();
+                  $FTDB{"filter_fakedfrom"}="$matchcount:$matchdate";
 
-               my $append=append_message_to_folder($allmessageids[$i],
-   					\@attr, \$currmessage, 'mail-trash',
-   					$r_validfolders, $user);
-               if ($append>=0) {
-                  $op='move';
-                  $matched=1;
+                  my $append=append_message_to_folder($allmessageids[$i],
+      					\@attr, \$currmessage, 'mail-trash',
+      					$r_validfolders, $user);
+                  if ($append>=0) {
+                     $op='move';
+                     $matched=1;
+                  }
                }
             }
          } # end of checking faked from
@@ -568,21 +590,26 @@ sub mailfilter {
            ($op eq 'move' || $op eq 'delete') &&
            !$reserved_in_inbox ) {
          ## remove message ##
-         $filtered++;
+         $filtered{'_ALL'}++;
+         $filtered{$destination}++;
 
          my $messagestart=$attr[$_OFFSET];
          my $messagesize=$attr[$_SIZE];
 
-         shiftblock($folderhandle, $blockstart, $blockend-$blockstart, $writepointer-$blockstart);
+         if (shiftblock($folderhandle, $blockstart, $blockend-$blockstart, $writepointer-$blockstart)<0) {
+            writelog("data error - msg $allmessageids[$i] in $folderfile shiftblock failed");
+            writehistory("data error - msg $allmessageids[$i] in $folderfile shiftblock failed");
+            $ioerr++;
+         } else {
+            $writepointer=$writepointer+($blockend-$blockstart);
+            $blockstart=$blockend=$messagestart+$messagesize;
 
-         $writepointer=$writepointer+($blockend-$blockstart);
-         $blockstart=$blockend=$messagestart+$messagesize;
+            delete $HDB{$allmessageids[$i]};
 
-         delete $HDB{$allmessageids[$i]};
-
-         $HDB{'NEWMESSAGES'}-- if ($attr[$_STATUS]!~/r/i);
-         $HDB{'INTERNALMESSAGES'}-- if (is_internal_subject($attr[$_SUBJECT]));
-         $HDB{'ALLMESSAGES'}--;
+            $HDB{'NEWMESSAGES'}-- if ($attr[$_STATUS]!~/r/i);
+            $HDB{'INTERNALMESSAGES'}-- if (is_internal_subject($attr[$_SUBJECT]));
+            $HDB{'ALLMESSAGES'}--;
+         }
 
       } else { # message not to move or destination can not write
          my $messagestart=$attr[$_OFFSET];
@@ -596,40 +623,49 @@ sub mailfilter {
          }
       }
 
+     last if ($ioerr);
+
    } ## end of allmessages ##
 
-   if ($filtered>0) {
-      shiftblock($folderhandle, $blockstart, $blockend-$blockstart, $writepointer-$blockstart);
-      seek($folderhandle, $writepointer+($blockend-$blockstart), 0);
-      truncate($folderhandle, tell($folderhandle));
+   if ($filtered{'_ALL'}>0 && !$ioerr) {
+      if (shiftblock($folderhandle, $blockstart, $blockend-$blockstart, $writepointer-$blockstart)<0) {
+         writelog("data error - msgs in $folderfile shiftblock failed");
+         writehistory("data error - msgs in $folderfile shiftblock failed");
+         $ioerr++;
+      } else {
+         seek($folderhandle, $writepointer+($blockend-$blockstart), 0);
+         truncate($folderhandle, tell($folderhandle));
+      }
    }
    close ($folderhandle);
 
-   $HDB{'METAINFO'}=metainfo($folderfile);
+   $HDB{'METAINFO'}=metainfo($folderfile) if (!$ioerr);
    dbmclose(%HDB);
    filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
 
-   # remove repeated msgs with repeated count > $filter_repeatlimit
-   my (@repeatedids, $fromsubject, $r_ids);
-   while ( ($fromsubject,$r_ids) = each %repeatlists) {
-      push(@repeatedids, @{$r_ids}) if ($#{$r_ids}>=$filter_repeatlimit);
-   }
-   if ($#repeatedids>=0) {
-      my $repeated;
-      my ($trashfile, $trashdb)=get_folderfile_headerdb($user, 'mail-trash');
-
-      unless (filelock($trashfile, LOCK_EX|LOCK_NB)) {
-         return -5; # $lang_err{'couldnt_lock'} mail-trash!
+   if (!$ioerr) {
+      # remove repeated msgs with repeated count > $filter_repeatlimit
+      my (@repeatedids, $fromsubject, $r_ids);
+      while ( ($fromsubject,$r_ids) = each %repeatlists) {
+         push(@repeatedids, @{$r_ids}) if ($#{$r_ids}>=$filter_repeatlimit);
       }
-      $repeated=operate_message_with_ids('move', \@repeatedids, $folderfile, $headerdb,
-							$trashfile, $trashdb);
-      filelock($trashfile, LOCK_UN);
+      if ($#repeatedids>=0) {
+         my $repeated;
+         my ($trashfile, $trashdb)=get_folderfile_headerdb($user, 'mail-trash');
 
-      $filtered+=$repeated;
+         unless (filelock($trashfile, LOCK_EX|LOCK_NB)) {
+            return -5; # $lang_err{'couldnt_lock'} mail-trash!
+         }
+         $repeated=operate_message_with_ids('move', \@repeatedids, $folderfile, $headerdb,
+   							$trashfile, $trashdb);
+         filelock($trashfile, LOCK_UN);
 
-      my ($matchcount, $matchdate)=split(":", $FTDB{"filter_repeatlimit"});
-      $matchcount+=$repeated; $matchdate=localtime2dateserial();
-      $FTDB{"filter_repeatlimit"}="$matchcount:$matchdate";
+         $filtered{'_ALL'}=$repeated;
+
+         my ($matchcount, $matchdate)=split(":", $FTDB{"filter_repeatlimit"});
+         $matchcount+=$repeated; $matchdate=localtime2dateserial();
+         $FTDB{"filter_repeatlimit"}="$matchcount:$matchdate";
+      }
    }
 
    dbmclose(%FTDB);
@@ -637,21 +673,25 @@ sub mailfilter {
 
    filelock($folderfile, LOCK_UN);
 
-   ## update .filter.check ##
-   if (-f "$folderdir/.filter.check" ) {
-      open (FILTERCHECK, ">$folderdir/.filter.check" ) or
-         return -6; # $lang_err{'couldnt_open'} .filter.check!
-      print FILTERCHECK metainfo($folderfile);
-      truncate(FILTERCHECK, tell(FILTERCHECK));
-      close (FILTERCHECK);
-   } else {
-      open (FILTERCHECK, ">$folderdir/.filter.check" ) or
-         return -6; # $lang_err{'couldnt_open'} .filter.check!
-      print FILTERCHECK metainfo($folderfile);
-      close (FILTERCHECK);
-   }
+   if (!$ioerr) {
+      ## update .filter.check ##
+      if (-f "$folderdir/.filter.check" ) {
+         open (FILTERCHECK, ">$folderdir/.filter.check" ) or
+            return -6; # $lang_err{'couldnt_open'} .filter.check!
+         print FILTERCHECK metainfo($folderfile);
+         truncate(FILTERCHECK, tell(FILTERCHECK));
+         close (FILTERCHECK);
+      } else {
+         open (FILTERCHECK, ">$folderdir/.filter.check" ) or
+            return -6; # $lang_err{'couldnt_open'} .filter.check!
+         print FILTERCHECK metainfo($folderfile);
+         close (FILTERCHECK);
+      }
 
-   return($filtered);
+      return($filtered{'_ALL'}, \%filtered);
+   } else {
+      return(-6);
+   }
 }
 
 
@@ -660,6 +700,8 @@ sub append_message_to_folder {
 	$r_validfolders, $user)=@_;
    my %HDB2;
    my ($dstfile, $dstdb)=get_folderfile_headerdb($user, $destination);
+   my $ioerr=0;
+
    ($dstfile =~ /^(.+)$/) && ($dstfile = $1);  # untaint $dstfile
    ($dstdb =~ /^(.+)$/) && ($dstdb = $1);  # untaint $dstdb
 
@@ -678,7 +720,12 @@ sub append_message_to_folder {
 
    filelock($dstfile, LOCK_EX|LOCK_NB) || return(-3);
 
-   update_headerdb($dstdb, $dstfile);
+   if (update_headerdb($dstdb, $dstfile)<0) {
+      filelock($dstfile, LOCK_UN);
+      writelog("db error - Couldn't update index db $dstdb$config{'dbm_ext'}");
+      writehistory("db error - Couldn't update index db $dstdb$config{'dbm_ext'}");
+      return -4;
+   }
 
    filelock("$dstdb$config{'dbm_ext'}", LOCK_EX) if (!$config{'dbmopen_haslock'});
 
@@ -688,19 +735,21 @@ sub append_message_to_folder {
          dbmclose(%HDB2);
          filelock("$dstdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
          filelock($dstfile, LOCK_UN);
-         return(-4);
+         return(-5);
       }
       my @attr2=@{$r_attr};
       $attr2[$_OFFSET]=tell(DEST);
       $attr2[$_SIZE]=length(${$r_currmessage});
-      print DEST ${$r_currmessage};
+      print DEST ${$r_currmessage} || $ioerr++;
       close (DEST);
 
-      $HDB2{$messageid}=join('@@@', @attr2);
-      $HDB2{'NEWMESSAGES'}++ if ($attr2[$_STATUS]!~/r/i);
-      $HDB2{'INTERNALMESSAGES'}++ if (is_internal_subject($attr2[$_SUBJECT]));
-      $HDB2{'ALLMESSAGES'}++;
-      $HDB2{'METAINFO'}=metainfo($dstfile);
+      if (!$ioerr) {
+         $HDB2{$messageid}=join('@@@', @attr2);
+         $HDB2{'NEWMESSAGES'}++ if ($attr2[$_STATUS]!~/r/i);
+         $HDB2{'INTERNALMESSAGES'}++ if (is_internal_subject($attr2[$_SUBJECT]));
+         $HDB2{'ALLMESSAGES'}++;
+         $HDB2{'METAINFO'}=metainfo($dstfile);
+      }
    }
    dbmclose(%HDB2);
 
@@ -725,7 +774,7 @@ sub get_smtprelays_connectfrom_byas {
          $tmp=$1;
          # skip Received: line for MTA internal usage, eg:
          # Received: (qmail 16577 invoked from network); 19 Apr 2002 18:09:43 +0200
-         if ($tmp=~/^\s*\(.+?\);/) {	
+         if ($tmp=~/^\s*\(.+?\);/) {
             $lastline = 'NONE';
             next;
          }
@@ -784,7 +833,7 @@ sub namecompare {
    return  0 if ($a =~/^\s*$/ || $b =~/^\s*$/ );
 
    # chk if both names are invalid
-   if ($a =~ /[\d\w\-_]+[\.\@][\d\w\-_]+/) {	
+   if ($a =~ /[\d\w\-_]+[\.\@][\d\w\-_]+/) {
       if ($b =~ /[\d\w\-_]+[\.\@][\d\w\-_]+/ ) {	# a,b are long
          # chk if any names conatains another
          return 1 if ($a=~/\Q$b\E/i || $b=~/\Q$a\E/i);

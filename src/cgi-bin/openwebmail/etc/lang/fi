@@ -1,4 +1,4 @@
-#!/usr/bin/perl -T
+#!/usr/bin/perl
 
 # Finnish translation by Jouni Kivilahti and Helja Laitinen
 # charset: iso-8859-1
@@ -10,7 +10,7 @@
    'sent-mail'      => 'LÄHETETYT',
    'saved-drafts'   => 'LUONNOKSET',
    'mail-trash'     => 'ROSKAKORI',
-   DELETE => '--TYHJENNÄ--'
+   DELETE => '--POISTA--'
    );
 
 %lang_sortlabels =
@@ -35,9 +35,9 @@
 
 %lang_withoriglabels =
    (
-   at_beginning => 'alussa',
-   at_end      => 'lopussa',
-   none        => 'ei mitään'
+   at_beginning => 'alkuun',
+   at_end      => 'loppuun',
+   none        => 'elä lainkaan'
    );
 
 %lang_receiptlabels =
@@ -47,107 +47,120 @@
    no  => 'Ei'
    );
 
+%lang_positionlabels =
+   (
+   before => 'Before mail edit area',
+   after => 'After mail edit area',
+   both  => 'Before and after mail edit area'
+   );
+
 %lang_timelabels =
    (
-     10 => '10 minutes',
-     30 => '30 minutes',
-     60 => '60 minutes',
-    120 => '2 hours',
-    180 => '3 hours',
-    360 => '6 hours',
-    720 => '12 hours',
-   1440 => '24 hours'
+      3 => '3 minuuttia',
+      5 => '5 minuuttia',
+     10 => '10 minuuttia',
+     20 => '20 minuuttia',
+     30 => '30 minuuttia',
+     60 => '60 minuuttia',
+    120 => '2 tuntia',
+    180 => '3 tuntia',
+    360 => '6 tuntia',
+    720 => '12 tuntia',
+   1440 => '24 tuntia'
    );
 
 %lang_advsearchlabels =
    (
-   contains    => 'contains',
-   notcontains => 'does not contain',
-   is          => 'is',
-   isnot       => 'is not',
-   startswith  => 'starts with',
-   endswith    => 'ends with',
-   regexp      => 'matches regexp',
+   contains    => 'sisältää',
+   notcontains => 'ei sisällä',
+   is          => 'on',
+   isnot       => 'ei ole',
+   startswith  => 'alkaa',
+   endswith    => 'loppuu',
+   regexp      => 'täsmää regexp',
    );
 
 %lang_calendar = 
    (
-   yearview  => 'Yearview',
-   monthview => 'Monthview',
-   weekview  => 'Weekview',
-   dayview   => 'Dayview'
+   yearview  => 'Vuosinäkymä',
+   monthview => 'Kuukausinäkymä',
+   weekview  => 'Viikkonäkymä',
+   dayview   => 'Päivänäkymä',
+   listview   => 'Listview'
    );
 
 %lang_month =
    (
-   1  => 'January',
-   2  => 'February',
-   3  => 'March',
-   4  => 'April',
-   5  => 'May',
-   6  => 'June',
-   7  => 'July',
-   8  => 'August',
-   9  => 'September',
-   10 => 'October',
-   11 => 'November',
-   12 => 'December'
+   1  => 'Tammikuu',
+   2  => 'Helmikuu',
+   3  => 'Maaliskuu',
+   4  => 'Huhtikuu',
+   5  => 'Toukokuu',
+   6  => 'Kesäkuu',
+   7  => 'Heinäkuu',
+   8  => 'Elokuu',
+   9  => 'Syyskuu',
+   10 => 'Lokakuu',
+   11 => 'Marraskuu',
+   12 => 'Joulukuu'
    );
 
 %lang_wday =
    (
-   0 => 'Sunday',
-   1 => 'Monday',
-   2 => 'Tuesday',
-   3 => 'Wednesday',
-   4 => 'Thursday',
-   5 => 'Friday',
-   6 => 'Saturday'
+   0 => 'Sunnuntai',
+   1 => 'Maanantai',
+   2 => 'Tiistai',
+   3 => 'Keskiviikko',
+   4 => 'Torstai',
+   5 => 'Perjantai',
+   6 => 'Lauantai'
    );
 
 %lang_wday_abbrev =
    (
-   week => 'WK',
-   0 => 'S',
-   1 => 'M',
-   2 => 'T',
-   3 => 'W',
-   4 => 'T',
-   5 => 'F',
-   6 => 'S'
+   week => 'vko',
+   0 => 'Su',
+   1 => 'Ma',
+   2 => 'Ti',
+   3 => 'Ke',
+   4 => 'To',
+   5 => 'Pe',
+   6 => 'La'
    );
 
 %lang_order =
    (
-   1 => '1st',
-   2 => '2nd',
-   3 => '3rd',
-   4 => '4th',
-   5 => 'last'
+   1 => 'ensimmäinen',
+   2 => 'toinen',
+   3 => 'kolmas',
+   4 => 'neljäs',
+   5 => 'viimeinen'
    );
 
 %lang_text =
    (
    login      => 'Kirjaudu',
    clear      => 'Tyhjennä',
-   point      => 'Point',
-   pixel      => 'Pixel',
+   point      => 'Piste',
+   pixel      => 'Pikseli',
    changepwd  => 'Vaihda salasana',
-   viewhistory=> 'Näytä lokikirja',
+   viewhistory=> 'Näytä käyttöhistoria',
    of         => ' ',
    messages   => 'Viestiä',
    unread     => 'Lukematta',
    nomessages => 'Ei Viestejä',
+   inmessages => 'Tulevat viestit',
    composenew => 'Uusi Viesti',
    refresh    => 'Lataa uudelleen',
    userprefs  => 'Asetukset',
    addressbook=> 'Osoitekirja',
    folders    => 'Kansiot',
    emptytrash => 'Tyhjennä roskakori',
-   totrash    => 'Move to Trash',
+   totrash    => 'Siirrä roskakoriin',
    forever    => 'Aina',
+   delatlogout=> 'Tuhoa uloskirjautuessa',
    userdef    => 'Määritä käyttäjä',
-   logout     => 'Kirjaudu Ulos',
+   logout     => 'Kirjaudu ulos',
    page       => 'Sivu',
    msgcopyconf=> '\'Haluatko VARMASTI kopioida valitut viestit?\'',
    copy       => 'Kopioi',
@@ -167,7 +180,7 @@
    replyall   => 'Vastaa kaikille',
    forward    => 'Lähetä eteenpäin',
    forwardasatt=>'Lähetä liitetiedostona',
-   printfriendly=> 'Print friendly',
+   printfriendly=> 'Tulostettava versio',
    from       => 'Keneltä',
    replyto    => 'Vastaa osoitteeseen',
    to         => 'Kenelle',
@@ -181,18 +194,20 @@
    type       => 'Tyyppi',
    filename   => 'Tiedostonimi',
    encoding   => 'Koodaus',
-   description=> 'Description',
+   description=> 'Kuvaus',
    download   => 'Lataa',
+   charset    => 'Charset',
+   samecharset=> 'The same as composing charset',
    thisispartialmsg => 'Tämä on osittainen viesti.',
    msgrebuild => 'Viestin uudelleenluominen',
-   editdraft  => 'Muuta luonnosta',
+   editdraft  => 'Muokkaa luonnosta',
    savedraft  => 'Talleta luonnos',
    send       => 'Lähetä',
-   about      => 'About',
-   close      => 'Close',
+   about      => 'Lisätietoja',
+   close      => 'Sulje',
    cancel     => 'Peruuta',
    continue   => 'Jatka',
-   loginagain => 'Login again',
+   loginagain => 'Kirjaudu uudestaan',
    exit       => 'Poistu',
    for        => ' ',
    yourname   => 'Nimesi',
@@ -201,12 +216,12 @@
    folderrenprop => '\'Lisää uusi nimi tähän kansioon\'',
    rename     => 'Nimeä uudelleen',
    folderdelconf => '\'Haluatko poistaa kansion sisältöineen?\'',
-   markread   => 'MarkRead',
-   foldermarkreadconf => '\'Are you going to mark read on all messages in this folder?\'',
-   chkindex   => 'CheckIndex',
-   folderchkindexconf => '\'Are you going to check the index of this folder?\'',
-   reindex    => 'ReIndex',
-   folderreindexconf => '\'Are you sure you want to reindex this folder?\'',
+   markread   => 'Merkkaa luetuiksi',
+   foldermarkreadconf => '\'Merkataanko kansion kaikki viestit luetuiksi?\'',
+   chkindex   => 'Indeksoi',
+   folderchkindexconf => '\'Indeksoidaanko kansio?\'',
+   reindex    => 'Päivitä indeksi',
+   folderreindexconf => '\'Indeksoidaanko kansio uudelleen?\'',
    total      => 'Yhteensä',
    delete     => 'Poista',
    reserve    => 'Varaa',
@@ -220,11 +235,12 @@
    abook      => 'Osoitekirja',
    name       => 'Nimi',
    email      => 'Sähköposti',
-   note       => 'Huomioi',
+   note       => 'Lisätiedot',
    group      => 'Ryhmä',
-   quota_hit  => 'Levytila Täynnä',
-   usage      => 'Käyttöohje',
-   tzmap      => 'World timezone map',
+   quota_hit  => 'Sinulle varattu levytila täynnä',
+   usage      => 'Käyttöaste',
+   tzmap      => 'Aikavyöhykekartta',
+   testsound  => 'Testaa ääntä',
    editfroms  => 'Muokkaa henkilökohtaisia sähköpostiosoitteita',
    pop3book   => 'POP3 Asetukset',
    retr_pop3s => 'Nouda POP3 posteja',
@@ -248,45 +264,50 @@
    wasreadon2 => '.',
    globaladdressbook => 'Yhteinen osoitekirja',
    globalfilterrule => 'Yhteinen suodatinsääntö',
-   readonly   => 'VainLuku',
-   textcontent=> 'TekstiSisältö',
+   readonly   => 'Ei muokkausoikeutta',
+   textcontent=> 'Tekstisisältö',
    search     => 'Etsi',
-   advsearch  => 'Advanced search',
-   folder     => 'Folder',
-   nofoldersel=> 'No Folder selected',
-   showall    => 'Show All',
+   advsearch  => 'Tarkennettu haku',
+   folder     => 'Kansio',
+   nofoldersel=> 'Kansiota ei valittu',
+   showall    => 'Näytä kaikki',
    spellcheck => 'Oikeinkirjoitus',
-   checkagain => 'Tarkista Uudelleen',
-   finishchecking => 'Lopeta Tarkistus',
+   checkagain => 'Tarkista uudelleen',
+   finishchecking => 'Lopeta tarkistus',
    manuallyfix=> 'Muuta käsin',
-   calendar   => 'Calendar',
-   am         => 'am',
-   pm         => 'pm',
-   calfmt_year          => 'Year @@@YEAR@@@',
+   editstat   => 'Edit Stationery',
+   savestat   => 'Save Stationery',
+   clearstat  => 'Clear All Stationery',
+   selectstat => '-- Select Stationery for Reply --',
+   calendar   => 'Kalenteri',
+   am         => 'ap',
+   pm         => 'ip',
+   calfmt_year          => 'Vuosi @@@YEAR@@@',
    calfmt_yearmonth     => '@@@MONTH_STR@@@ @@@YEAR@@@',
-   calfmt_yearmonthday  => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@',
-   calfmt_yearmonthdaywday => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@ @@@WEEKDAY_STR@@@',
+   calfmt_yearmonthday  => '@@@DAY@@@ @@@MONTH_STR@@@ @@@YEAR@@@',
+   calfmt_yearmonthdaywday => '@@@WEEKDAY_STR@@@, @@@DAY@@@ @@@MONTH_STR@@@ta @@@YEAR@@@',
    calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
-   none       => 'None',
-   moreitems  => 'more items',
-   multieditconf => 'This item was added for multiple dates.\\nEditing it will change the item for all dates.\\nContinue with Edit?',
-   multidelconf  => 'This item was added for multiple dates.\\nDeleting it will delete the item for all dates.\\nContinue with Delete?',
-   ed         => 'Ed',
-   del        => 'Del',
-   noitemforthisday => 'No items for this day',
-   today_only               => 'Today\'s date only',
-   the_wday_of_thismonth    => 'The @@@ORDER@@@ @@@WDAY@@@ of the month',
-   every_wday_of_thismonth  => 'Every @@@WDAY@@@ this month'
+   none       => 'Ei mitään',
+   moreitems  => 'Lisää tapahtumia',
+   multieditconf => 'Tämä tapahtuma on merkitty useammalle päiville.\\nTämän muokkaaminen muokkaa kaikkien lisättyjen päivien tapahtumia.\\nHaluatko jatkaa?',
+   multidelconf  => 'Tämä tapahtuma on merkitty useammalle päivälle.\\nTämän poistaminen poistaa myös muille päiville merkityt tapahtumat.\\nHaluatko jatkaa?',
+   ed         => 'Muokkaa',
+   del        => 'Poista',
+   noitemforthisday => 'Ei tapahtumia tänään',
+   today_only               => 'Vain tämä päivä',
+   the_wday_of_thismonth    => 'Joka kuukauden @@@ORDER@@@ @@@WDAY@@@',
+   every_wday_of_thismonth  => 'Kuukauden jokaisena @@@WDAY@@@na'
    );
 
 %lang_err =
    (
    has_illegal_chars => 'laittomia merkkejä!',
    couldnt_open      => 'Ei voitu avata',
-   couldnt_locksh    => 'Couldn\'t get read lock on',
+   couldnt_locksh    => 'Ei voitu lukita luettavaksi',
    couldnt_lock      => 'Ei saatu kirjoituslukkoa',
    couldnt_seek      => 'Ei voitu hakea',
    couldnt_close     => 'Ei voitu sulkea',
+   couldnt_updatedb  => 'Indeksoinnin päivitys epäonnistui',
    disallowed_pop3   => 'Disallowed POP3 server',
    disallowed_client => 'You are not allowed to connect from this client',
    disallowed_receiverdomain => 'You are not allowed to send message to this email address',
@@ -294,7 +315,7 @@
    shouldnt_move_here=> 'Sinun ei pitäisi yrittää siirtää viestejä tänne!',
    destination_folder=> 'Kohdekansio',
    doesnt_exist      => 'Ei löydy!',
-   foldername_long   => 'Kansion nimi ei voi ylittää 16 merkkiä!',
+   foldername_long   => 'Kansion nimi ei voi ylittää 32 merkkiä!',
    folder_with_name  => 'kansio jonka nimi on',
    already_exists    => 'on jo olemassa!',
    cant_create_folder=> 'Ei voi luoda kansiota!',
@@ -305,6 +326,7 @@
    abook_toobig      => 'Osoitekirjasi koko ei riitä',
    cant_create_dir   => 'Ei voi luoda käyttäjäkansiota!',
    folder_hitquota   => 'Kansiosi on täynnä. Siirrä viestejä roskakoriin ja yritä uudelleen.',
+   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
    att_overlimit     => 'Liitetiedostosi koko ylittää sallitun rajan joka on',
    inv_msg_op        => 'Viestin virheellinen operaatio',
    inv_sessid        => 'Palvelupyyntösi ei sisältänyt oikeanlaista COOKIE- tiedostoa -- pääsy kielletty!',
@@ -317,9 +339,11 @@
    auth_syserr       => 'käyttäjätunnistusjärjestelmän virhe',
    param_fmterr      => 'Virheellinen parametri',
    pwd_incorrect     => 'Virheellinen salasana',
+   pwd_tooshort      => 'Salasana liian lyhyt (minimipituus @@@PASSWDMINLEN@@@ merkkiä)',
+   pwd_toosimple     => 'Salasana liian helppo (salasanassa tulee olla sekä kirjaimia että numeroita)',
    network_server_error => 'verkkopalvelin virhe',
    sendmail_error    => 'Viestin lähettämisessä ilmeni ongelmia. Paina nettiselaimesi TAKAISIN painiketta, tarkista viestisi ja yritä uudelleen.',
-   at_char_not_allowed => 'The @ character is not allowed in this field.  Press browser back button and try again',
+   at_char_not_allowed => '@ -merkki ei ole sallittu tässä kentässä. Palaa takaisin ja yritä uudestaan',
    badnum_in_days => 'bad number in consecutive days field'
    );
 

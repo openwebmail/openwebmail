@@ -1,4 +1,4 @@
-#!/usr/bin/perl -T
+#!/usr/bin/perl
 
 # Catalan translation by Jordi Vidal, st.AT.e-puntcom.com
 # charset: iso-8859-1
@@ -47,9 +47,19 @@
    no  => 'No'
    );
 
+%lang_positionlabels =
+   (
+   before => 'Before mail edit area',
+   after => 'After mail edit area',
+   both  => 'Before and after mail edit area'
+   );
+
 %lang_timelabels =
    (
+      3 => '3 minuts',
+      5 => '5 minuts',
      10 => '10 minuts',
+     20 => '20 minuts',
      30 => '30 minuts',
      60 => '60 minuts',
     120 => '2 hores',
@@ -75,7 +85,8 @@
    yearview  => 'Yearview',
    monthview => 'Monthview',
    weekview  => 'Weekview',
-   dayview   => 'Dayview'
+   dayview   => 'Dayview',
+   listview   => 'Listview'
    );
 
 %lang_month =
@@ -138,6 +149,7 @@
    messages   => 'missatges',
    unread     => 'no llegit',
    nomessages => 'Carpeta buida',
+   inmessages => 'Incoming msgs',
    composenew => 'Enviar un nou missatge',
    refresh    => 'Actualitzar',
    userprefs  => 'Preferències personals',
@@ -146,6 +158,7 @@
    emptytrash => 'Paperera buida',
    totrash    => 'Envia a la paperera',
    forever    => 'Per sempre',
+   delatlogout=> 'Delete at Logout',
    userdef    => 'Definit per l`usuari',
    logout     => 'Sortir',
    page       => 'Pàgina',
@@ -183,6 +196,8 @@
    encoding   => 'Codificant',
    description=> 'Descripció',
    download   => 'Descarregar',
+   charset    => 'Charset',
+   samecharset=> 'The same as composing charset',
    thisispartialmsg => 'Això es una part del missatge.',
    msgrebuild => 'Reconstrucció del missatge',
    editdraft  => 'Editar l´esborrany',
@@ -225,6 +240,7 @@
    quota_hit  => 'MÀXIMA MIDA PERMESA',
    usage      => 'Ús',
    tzmap      => 'World timezone map',
+   testsound  => 'Test sound',
    editfroms  => 'Editar les adreces personals',
    pop3book   => 'Configuració POP3',
    retr_pop3s => 'Obtindre correu POP3',
@@ -259,6 +275,10 @@
    checkagain => 'Tornar-ho a revisar',
    finishchecking => 'Acabar la correcció',
    manuallyfix=> 'Arreglar-ho a mà',
+   editstat   => 'Edit Stationery',
+   savestat   => 'Save Stationery',
+   clearstat  => 'Clear All Stationery',
+   selectstat => '-- Select Stationery for Reply --',
    calendar   => 'Calendar',
    am         => 'am',
    pm         => 'pm',
@@ -287,6 +307,7 @@
    couldnt_lock      => 'No puc bloquejar-ho d´escriptura',
    couldnt_seek      => 'No puc trobar l´inici de',
    couldnt_close     => 'No ho puc tancar',
+   couldnt_updatedb  => 'Couldn\'t update index db ',
    disallowed_pop3   => 'Rebutjat pel servidor POP3 ',
    disallowed_client => 'No es pot connectar des d´aquest client',
    disallowed_receiverdomain => 'No pot enviar un correu a aquesta adreça',
@@ -305,6 +326,7 @@
    abook_toobig      => 'Ho sento, ha excedit la mida límit per la seva llibreta d´adreces. ',
    cant_create_dir   => 'No puc crear el seu directori d´usuari!',
    folder_hitquota   => 'Ho sento, ha arribat al límit de quota i no puc guardar més missatges en cap carpeta. Només pot moure els missatges a la carpeta PAPERERA, i esborrar-los.',
+   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
    att_overlimit     => 'Ho sento, la mida del seu arxiu supera el límit permès, el qual és de',
    inv_msg_op        => 'Operació no vàlida pel missatge',
    inv_sessid        => 'La seva petició no inclou la corresponent GALETA Identificativa -- accés denegat!',
@@ -317,6 +339,8 @@
    auth_syserr       => 'Error d´autenticació',
    param_fmterr      => 'Error en el format dels paràmetres',
    pwd_incorrect     => 'Clau incorrecta',
+   pwd_tooshort      => 'Password too short (minimum length @@@PASSWDMINLEN@@@)',
+   pwd_toosimple     => 'Password too simple (both alphabet and digit are required)',
    network_server_error => 'error de xarxa del servidor',
    sendmail_error    => 'Hi ha hagut un problema enviant el seu missatge. Vagi enrera, comprovi el missatge, i intenti-ho un altre cop.',
    at_char_not_allowed => 'The @ character is not allowed in this field.  Press browser back button and try again',

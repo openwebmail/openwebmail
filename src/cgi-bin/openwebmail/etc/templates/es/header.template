@@ -1,8 +1,8 @@
 <HTML>
 <HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=@@@CHARSET@@@">
 <TITLE>@@@USERINFO@@@ @@@NAME@@@</TITLE>
 <LINK rel="shortcut icon" href="@@@ICO_LINK@@@">
-<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=@@@CHARSET@@@">
 </HEAD><BODY BACKGROUND="@@@BG_URL@@@" BGCOLOR=@@@BACKGROUND@@@>
 <style type="text/css">
 @@@CSS@@@

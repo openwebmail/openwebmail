@@ -1,4 +1,4 @@
-#!/usr/bin/perl -T
+#!/usr/bin/perl
 
 # Norwegian translation by Are Tysland
 # charset: iso-8859-1
@@ -47,9 +47,19 @@
    no  => 'Nei'
    );
 
+%lang_positionlabels =
+   (
+   before => 'Before mail edit area',
+   after => 'After mail edit area',
+   both  => 'Before and after mail edit area'
+   );
+
 %lang_timelabels =
    (
+      3 => '3 minutter',
+      5 => '5 minutter',
      10 => '10 minutter',
+     20 => '20 minutter',
      30 => '30 minutter',
      60 => '1 time',
     120 => '2 timer',
@@ -75,7 +85,8 @@
    yearview  => 'Yearview',
    monthview => 'Monthview',
    weekview  => 'Weekview',
-   dayview   => 'Dayview'
+   dayview   => 'Dayview',
+   listview   => 'Listview'
    );
 
 %lang_month =
@@ -138,6 +149,7 @@
    messages   => 'meldinger',
    unread     => 'ulest',
    nomessages => 'Ingen meldinger',
+   inmessages => 'Incoming msgs',
    composenew => 'Skriv ny melding',
    refresh    => 'Oppdatér',
    userprefs  => 'Brukerinnstillinger',
@@ -146,6 +158,7 @@
    emptytrash => 'Tøm papirkurven',
    totrash    => 'Flytt til papirkurven',
    forever    => 'Alltid',
+   delatlogout=> 'Delete at Logout',
    userdef    => 'Brukerdefinert',
    logout     => 'Logg ut',
    page       => 'Side',
@@ -183,6 +196,8 @@
    encoding   => 'Koding',
    description=> 'Beskrivelse',
    download   => 'Lagre',
+   charset    => 'Charset',
+   samecharset=> 'The same as composing charset',
    thisispartialmsg => 'Dette er en delt melding.',
    msgrebuild => 'Sett sammen melding',
    editdraft  => 'Editér kladd',
@@ -225,6 +240,7 @@
    quota_hit  => 'IKKE MER LAGRINGSPLASS',
    usage      => 'Forbruk',
    tzmap      => 'Tidssonekart',
+   testsound  => 'Test sound',
    editfroms  => 'Endre personlige epostadresser',
    pop3book   => 'POP3-oppsett',
    retr_pop3s => 'Hent POP3-epost',
@@ -259,6 +275,10 @@
    checkagain => 'Kontrollér igjen',
    finishchecking => 'Kontroll ferdig',
    manuallyfix=> 'Rett manuellt',
+   editstat   => 'Edit Stationery',
+   savestat   => 'Save Stationery',
+   clearstat  => 'Clear All Stationery',
+   selectstat => '-- Select Stationery for Reply --',
    calendar   => 'Calendar',
    am         => 'am',
    pm         => 'pm',
@@ -287,6 +307,7 @@
    couldnt_lock      => 'Fikk ikke skrivetilgang til',
    couldnt_seek      => 'Kunne ikke finne starten på',
    couldnt_close     => 'Kunne ikke lukke',
+   couldnt_updatedb  => 'Couldn\'t update index db ',
    disallowed_pop3   => 'Ulovelig POP3-tjener',
    disallowed_client => 'Du får ikke koble opp fra denne klienten',
    disallowed_receiverdomain => 'Du får ikke sende til denne epost-adressen',
@@ -305,6 +326,7 @@
    abook_toobig      => 'Beklager, du overstiger tillatt størrelse på adresseboken din. Gå',
    cant_create_dir   => 'Brukerkatalogen din kunne ikke opprettes!',
    folder_hitquota   => 'Beklager, du har oversteget tillatt lagringsplass for mappene dine. Du har ikke adgang til å flytte meldinger til andre mapper enn papirkurven, hvor de vil bli slettet automatisk. Gå tilbake og slett noen meldinger eller tømme papirkurven, og prøv på nytt.',
+   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
    att_overlimit     => 'Beklager, du har oversteget tillatt størrelse for vedlegg. Vedlegg må ikke overstige',
    inv_msg_op        => 'Ugyldig operasjon for melding',
    inv_sessid        => 'Din forespørsel inneholdt ikke rett sesjons-id-kjeks -- Ingen adgang!',
@@ -317,6 +339,8 @@
    auth_syserr       => 'autentiseringssystemet feilet',
    param_fmterr      => 'feil format i paramerterene',
    pwd_incorrect     => 'feil passord',
+   pwd_tooshort      => 'Password too short (minimum length @@@PASSWDMINLEN@@@)',
+   pwd_toosimple     => 'Password too simple (both alphabet and digit are required)',
    network_server_error => 'feil i nettverkstjeneren',
    sendmail_error    => 'Beklager, det oppstod et problem ved sending av din melding. Gå tilbake med nettleserens tilbake-knapp, kontrollér meldingen og prøv igjen.',
    at_char_not_allowed => 'The @ character is not allowed in this field.  Press browser back button and try again',

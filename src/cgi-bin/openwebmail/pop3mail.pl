@@ -1,5 +1,5 @@
 #
-# pop3mail.pl - functions for pop3 mail retrieval
+# pop3mail.pl - pop3 mail retrieval routines
 #
 # 2002/03/19 eddie@turtle.ee.ncku.edu.tw
 #            tung@turtle.ee.ncku.edu.tw
@@ -40,9 +40,9 @@ sub retrpop3mail {
 			split(/\@\@\@/, $accounts{"$pop3host:$pop3user"});
 
    # untaint for file creation
-   ($spoolfile =~ /^(.+)$/) && ($spoolfile = $1); 	
+   ($spoolfile =~ /^(.+)$/) && ($spoolfile = $1);
    # untaint for connection creation
-   ($pop3host =~ /^(.+)$/) && ($pop3host = $1); 	
+   ($pop3host =~ /^(.+)$/) && ($pop3host = $1);
 
    $ServerPort='110';
    eval {
@@ -69,8 +69,8 @@ sub retrpop3mail {
       (close($remote_sock) && return(-4)) if (/^\-/);		# username error
       print $remote_sock &encode_base64($pop3passwd);
       $_=<$remote_sock>;
-      (close($remote_sock) && return(-5)) if (/^\-/);		# passwd error
-   } else {
+   }
+   if (! /^\+/) {	# not supporting auth login or auth login failed
       print $remote_sock "user $pop3user\r\n";
       $_=<$remote_sock>;
       (close($remote_sock) && return(-4)) if (/^\-/);		# username error
@@ -78,7 +78,6 @@ sub retrpop3mail {
       $_=<$remote_sock>;
       (close($remote_sock) && return(-5)) if (/^\-/);		# passwd error
    }
-
    print $remote_sock "stat\r\n";
    $_=<$remote_sock>;
    (close($remote_sock) && return(-6)) if (/^\-/);		# stat error
@@ -243,7 +242,7 @@ sub retrpop3mail {
    }
 
    # return number of fetched mail
-   return($retr_total);		
+   return($retr_total);
 }
 
 1;

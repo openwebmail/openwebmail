@@ -1,4 +1,4 @@
-#!/usr/bin/perl -T
+#!/usr/bin/perl
 
 # Turkish translation by Erdinc Guler, eguler.AT.aegee.metu.edu.tr
 # charset: iso-8859-9
@@ -47,9 +47,19 @@
    no  => 'Hayýr'
    );
 
+%lang_positionlabels =
+   (
+   before => 'Before mail edit area',
+   after => 'After mail edit area',
+   both  => 'Before and after mail edit area'
+   );
+
 %lang_timelabels =
    (
+      3 => '3 minutes',
+      5 => '5 minutes',
      10 => '10 minutes',
+     20 => '20 minutes',
      30 => '30 minutes',
      60 => '60 minutes',
     120 => '2 hours',
@@ -75,7 +85,8 @@
    yearview  => 'Yearview',
    monthview => 'Monthview',
    weekview  => 'Weekview',
-   dayview   => 'Dayview'
+   dayview   => 'Dayview',
+   listview   => 'Listview'
    );
 
 %lang_month =
@@ -138,6 +149,7 @@
    messages   => 'ileti',
    unread     => 'Okunmamýþ',
    nomessages => 'Ýleti Yok',
+   inmessages => 'Incoming msgs',
    composenew => 'Yeni Ýleti Oluþtur',
    refresh    => 'Yenile',
    userprefs  => 'Kullanýcý Tercihleri',
@@ -146,6 +158,7 @@
    emptytrash => 'Çöpü Boþalt',
    totrash    => 'Move to Trash',
    forever    => 'Herzaman',
+   delatlogout=> 'Delete at Logout',
    userdef    => 'Kullancý Tanýmlý',
    logout     => 'Çýkýþ',
    page       => 'Sayfa',
@@ -183,6 +196,8 @@
    encoding   => 'Kodlama',
    description=> 'Taným',
    download   => 'Ýndir',
+   charset    => 'Charset',
+   samecharset=> 'The same as composing charset',
    thisispartialmsg => 'Bu kýsmi bir ileti',
    msgrebuild => 'Ýletiyi yeniden yapýlandýr',
    editdraft  => 'Taslaðý Düzenle',
@@ -225,6 +240,7 @@
    quota_hit  => 'KOTA SINIRINA ULAÞILDI',
    usage      => 'Kullaným',
    tzmap      => 'World timezone map',
+   testsound  => 'Test sound',
    editfroms  => 'Kiþisel eposta adreslerini düzenle',
    pop3book   => 'POP3 Kurulum',
    retr_pop3s => 'POP3 epostalarýný al',
@@ -259,6 +275,10 @@
    checkagain => 'Tekrar Kontrol Edin',
    finishchecking => 'Kontrolü Bitir',
    manuallyfix=> 'Manuel Düzelt',
+   editstat   => 'Edit Stationery',
+   savestat   => 'Save Stationery',
+   clearstat  => 'Clear All Stationery',
+   selectstat => '-- Select Stationery for Reply --',
    calendar   => 'Calendar',
    am         => 'am',
    pm         => 'pm',
@@ -287,6 +307,7 @@
    couldnt_lock      => 'Yazma kilidi açýlamadý',
    couldnt_seek      => 'Baþlangýca kadar aranamadý',
    couldnt_close     => 'Kapatamadý',
+   couldnt_updatedb  => 'Couldn\'t update index db ',
    disallowed_pop3   => 'Engellenmiþ POP3 sunucusu',
    disallowed_client => 'Buradan baðlantýnýz engellendi',
    disallowed_receiverdomain => 'Bu eposta adresine ileti göndermeniz engellenmiþtir',
@@ -305,6 +326,7 @@
    abook_toobig      => 'Adres defterinizin sýnýrda olduðu için bu deðer girilemiyor',
    cant_create_dir   => 'Kullanýcý klasörünüz oluþturulamýyor!',
    folder_hitquota   => 'Kota sýnýrýný doldurnuz ve bu yüzden yeni iletiler kaydedilemiyor.Lütfen "Çöp Kutusu"nu boþaltýn veya iletilerinizin bir kýsmýný siliniz.',
+   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
    att_overlimit     => 'Ek dosyasý sýnýrýný aþtýnýz,dosyanýzýn boyutu',
    inv_msg_op        => 'Ýleti için geçersiz iþlem',
    inv_sessid        => 'Ýsteðiniz geçerli bir sezon numrasý veya çerez içermemektedir.--erþim engellendi!',
@@ -317,6 +339,8 @@
    auth_syserr       => 'onaylama sistem hatasý',
    param_fmterr      => 'parametre biçem hatasý',
    pwd_incorrect     => 'hatalý parola',
+   pwd_tooshort      => 'Password too short (minimum length @@@PASSWDMINLEN@@@)',
+   pwd_toosimple     => 'Password too simple (both alphabet and digit are required)',
    network_server_error => 'að sunucu hatasý',
    sendmail_error    => 'Ýleti gönderimi sýrasýnda hata oluþtu. Tarayýcýnýzýn Geri tuþuna basýn,iletinizi kontrol edip tekrar deneyiniz.',
    at_char_not_allowed => 'The @ character is not allowed in this field.  Press browser back button and try again',

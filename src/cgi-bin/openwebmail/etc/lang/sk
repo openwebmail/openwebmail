@@ -1,4 +1,4 @@
-#!/usr/bin/perl -T
+#!/usr/bin/perl
 
 # Slovak translation by lubos klokner, lubos@klokner.sk, 2002-JUL-11
 # charset: iso-8859-2
@@ -47,9 +47,19 @@
    no  => 'Nie'
    );
 
+%lang_positionlabels =
+   (
+   before => 'Before mail edit area',
+   after => 'After mail edit area',
+   both  => 'Before and after mail edit area'
+   );
+
 %lang_timelabels =
    (
+      3 => '3 minút',
+      5 => '5 minút',
      10 => '10 minút',
+     20 => '20 minút',
      30 => '30 minút',
      60 => '60 minút',
     120 => '2 hodiny',
@@ -75,7 +85,8 @@
    yearview  => 'Roènı prehµad',
    monthview => 'Mesaènı prehµad',
    weekview  => 'Tı¾dennı prehµad',
-   dayview   => 'Dennı prehµad'
+   dayview   => 'Dennı prehµad',
+   listview   => 'Listview'
    );
 
 %lang_month =
@@ -138,6 +149,7 @@
    messages   => 'správ',
    unread     => 'nepreèítanıch',
    nomessages => '®iadne správy',
+   inmessages => 'Incoming msgs',
    composenew => 'Napísa» novú správu',
    refresh    => 'Obnovi»',
    userprefs  => 'U¾ívateµské nastavenia',
@@ -146,6 +158,7 @@
    emptytrash => 'Vysypa» kô¹',
    totrash    => 'Presunú» do ko¹a',
    forever    => 'Nav¾dy',
+   delatlogout=> 'Delete at Logout',
    userdef    => 'Vlastné',
    logout     => 'Odhlási»',
    page       => 'Stránka',
@@ -183,6 +196,8 @@
    encoding   => 'Kódovanie',
    description=> 'Description',
    download   => 'Ulo¾i» do súboru',
+   charset    => 'Charset',
+   samecharset=> 'The same as composing charset',
    thisispartialmsg => 'Toto je èiastková správa.',
    msgrebuild => 'Správa bola prestavaná',
    editdraft  => 'Upravi» koncept',
@@ -225,6 +240,7 @@
    quota_hit  => 'Dosiahnutı limit (quota)',
    usage      => 'Vyu¾itie',
    tzmap      => 'Svetová mapa èasovıch zón',
+   testsound  => 'Test sound',
    editfroms  => 'Upravi» osobné e-mail adresy',
    pop3book   => 'POP3 nastavenia',
    retr_pop3s => 'Prija» POP3 po¹tu',
@@ -259,6 +275,10 @@
    checkagain => 'Skontrolova» znovu',
    finishchecking => 'Ukonèi» kontrolu',
    manuallyfix=> 'Ruène upravi»',
+   editstat   => 'Edit Stationery',
+   savestat   => 'Save Stationery',
+   clearstat  => 'Clear All Stationery',
+   selectstat => '-- Select Stationery for Reply --',
    calendar   => 'Kalendár',
    am         => 'doobeda',
    pm         => 'poobede',
@@ -287,6 +307,7 @@
    couldnt_lock      => 'Nedá sa uzamknú»',
    couldnt_seek      => 'Nedá sa presunú» na zaèiatok',
    couldnt_close     => 'Nedá sa zavrie»',
+   couldnt_updatedb  => 'Couldn\'t update index db ',
    disallowed_pop3   => 'Zakázanı POP3 server',
    disallowed_client => 'Nemáte povolenie pripája» sa z tohto poèítaèa',
    disallowed_receiverdomain => 'Nemáte povolenie odosiela» po¹tu na túto adresu',
@@ -305,6 +326,7 @@
    abook_toobig      => 'Prepáète, toto by presiahlo veµkostnı limit pre Vá¹ adresár. Prosím pokraèujte.',
    cant_create_dir   => 'Nadá sa vytvori» Vá¹ pou¾ívateµskı adresár!',
    folder_hitquota   => 'Prepáète, dosiahli ste Vá¹ limit (quotu) a u¾ ¾iadna z Va¹ích správ nemô¾e by» ulo¾ená do ¾iadneho katalógu. Nebudete môc» presunú» správu do iného katalógu okrem KO©A, kde mô¾e by» zmazaná. Vrá»te sa a zma¾te niektoré správy alebo vysypte KÔ© a skúste znovu.',
+   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
    att_overlimit     => 'Prepáète, Va¹a príloha presiahla veµkostnı limit, ktorı je',
    inv_msg_op        => 'Neplatná operácia pre správu',
    inv_sessid        => 'Va¹a po¾iadavka neobsahuje korektné ID sedenia -- prístup zamietnutı!',
@@ -317,6 +339,8 @@
    auth_syserr       => 'systémová chyba pri overovaní',
    param_fmterr      => 'chybnı formát parametra',
    pwd_incorrect     => 'nesprávne heslo',
+   pwd_tooshort      => 'Password too short (minimum length @@@PASSWDMINLEN@@@)',
+   pwd_toosimple     => 'Password too simple (both alphabet and digit are required)',
    network_server_error => 'chyba sie»ového servera',
    sendmail_error    => 'Prepáète, nastal problém pri posielaní Va¹ej správy. Kliknite prosím vo Va¹om prehliadaèi na tlaèidlo Spä», skontrolujte Va¹u správu a skúste to znovu.',
    at_char_not_allowed => 'Znak @ nie je povolenı v tomto políèku. Kliknite prosím na tlaèítko Spä» vo Va¹om prehliadaèi a skúste to znovu.',

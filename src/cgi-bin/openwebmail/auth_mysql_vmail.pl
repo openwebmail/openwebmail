@@ -1,5 +1,5 @@
 #
-# auth_mysql_vmail.pl - authenticate user with MySQL, where required fields 
+# auth_mysql_vmail.pl - authenticate user with MySQL, where required fields
 #                       are in more tables (like in vmail-sql).
 # v1.5
 # 2002/04/23 Zoltan Kovacs - werdy@freemail.hu
@@ -92,7 +92,7 @@ sub get_userinfo {
     return ("",$uid,$gid,$home);
 }
 
-sub get_userlist { # only used by checkmail.pl -a
+sub get_userlist { # only used by openwebmail-tool.pl -a
     my @userlist;
 
     if ( !&mysql_command("USE $mysql_auth{mysql_database}") ) {
@@ -128,7 +128,7 @@ sub check_userpassword {
 	$passwd_hash =~ s/^\{.*\}(.*)$/$1/;
 	return 0 if ( $passwd_hash eq Digest::MD5::md5_hex($passwd) );
     }
-    	
+
     return -4;
 }
 

@@ -394,6 +394,13 @@ then user loginname will be converted into lower case before passing
 to authentication system.
 
 
+stay_ssl_afterlogin
+-----------------------------------------------------------------------
+While SSL can be used to protect data transfered on the network, it 
+requires more server power. If set this option to 'no', only login and 
+change password page will use SSL.
+
+
 enable_rootlogin
 -----------------------------------------------------------------------
 Set this to 'yes' if you want to allow root login
@@ -410,6 +417,18 @@ enable_changepwd
 -----------------------------------------------------------------------
 Set this to 'yes' if you want to let user set their password through
 the web mail interface
+
+
+enable_strictpwd
+-----------------------------------------------------------------------
+Set this to 'yes' if you want openwebmail to do strict checking on the
+new password in chamging passowrd. It will deny password containing 
+only alphabets or digits.
+
+
+passwd_minlen
+-----------------------------------------------------------------------
+The minimum length for the new password in changing password
 
 
 enable_about
@@ -470,10 +489,35 @@ This option would allow user to set their ~/.forward
 which will forward their mail to other server automatically
 
 
+enable_stationery
+-----------------------------------------------------------------------
+This option enable the stationery support
+
+
 enable_calendar
 -----------------------------------------------------------------------
 Open WebMail has built-in clendar support.
 Set this option to 'no' if you want to disable it.
+
+
+calendar_email_notifyinterval
+-----------------------------------------------------------------------
+The interval(unit:minute, default 120min) that calendar event will be 
+checked for sending email notification. Set this option to '0' will 
+disable the email notification feature.
+
+The notification emails are actually sent by external program openwebmail-tool.pl,
+sysadm has to put 'openwebmail-tool.pl -n -a -q' in crontab.
+The frequency specified in crontab must be high enough so that the
+interval between two execution will be smaller than calendar_email_notifyinterval
+
+Example:
+
+openwebmail.conf:
+calendar_email_notifyinterval  120
+
+crontab:
+0 */2 * * * /usr/local/www/cgi-bin/openwebmail/openwebmail-tool.pl -n -a -q
 
 
 enable_pop3
@@ -538,15 +582,6 @@ The delay in seconds for the response of a failed login.
 This is used to protect the system from the password hacking attempt.
 
 
-refreshinterval
------------------------------------------------------------------------
-This is the interval in minutes that openwebmail will refresh the
-screen when the user is listing a folder or reading a message.
-It gives the openwebmail a chance to check the new mail status.
-Setting value too small for this option will make your server busy in
-serving client's request
-
-
 fetchpop3interval
 -----------------------------------------------------------------------
 If user enables autopop3 in user preference, openwebmail will fetch
@@ -568,12 +603,32 @@ until space is freed. This does not prevent the operation taking the user
 over this limit from completing, it simply inhibits further saving of
 messages until the folder size is brought down again.
 
+ps: please also check option cutfolders_ifoverquota 
+
 
 folderusage_threshold
 ----------------------------------------------------------------------
 If the percentage of the used folder quota is over this threshold, 
 a '[Usage N%]' will be displayed in the title bar in the folder view.
 Set this to 0 will make the '[UsageN%]' always appear.
+
+
+cutfolders_ifoverquota
+-----------------------------------------------------------------------
+If the total size of user folders exceeds the option folderquota, setting 
+this option to 'yes' will make openwebmail cut the folders automatically.
+
+The following steps are used when cutting the folders:
+
+1. empty mail-trash
+2. empty saved-drafts
+3. cut other folders
+
+   cutlist=(sentmail, saved-messages);
+   put userfolders to cutlist if they use  more than 33% folderquota
+   put INBOX       to cutlist if it   uses more than 33% folderquota
+
+   remove oldest msgs from folders in cutlist until total size < 90% folderquota
 
 
 maxbooksize
@@ -725,6 +780,11 @@ available value: mm/dd/yyyy, dd/mm/yyyy, yyyy/mm/dd,
                  mm.dd.yyyy, dd.mm.yyyy, yyyy.mm.dd
 
 
+default_hourformat
+-----------------------------------------------------------------------
+24 or 12
+
+
 default_editcolumns
 -----------------------------------------------------------------------
 default columns for message composing windows
@@ -733,6 +793,11 @@ default columns for message composing windows
 default_editrows
 -----------------------------------------------------------------------
 default rows for message composing windows
+
+
+default_sendbuttonposition
+-----------------------------------------------------------------------
+default position of send button in message composing windows
 
 
 default_dictionary
@@ -745,6 +810,13 @@ default_newmailsound
 this is the sound file played if new mail is found.
 Openwebmail checks new mail for user every 15 min if user is in INBOX
 folderview. Set to 'NONE' will disable this feature
+
+
+default_newmailwindowtime
+-----------------------------------------------------------------------
+this is the remaining time of the new mail notification window.
+If it is set to value larger than 0, openwebmail will popup a window to 
+notify the user about the newly incoming messages
 
 
 hideinternal
@@ -827,6 +899,15 @@ whether to sent the receipt for a message with the 'confirm reading'
 request, available value: ask, yes, no
 
 
+default_sendcharset
+-----------------------------------------------------------------------
+whether to convert the message charset to another before sending
+If this option is set to sameascomposing, then the charset choosed by 
+user in composing widnow will be used for outgoing message
+
+available value: sameascomposing or charset listed in iconv.pl
+
+
 default_autopop3
 -----------------------------------------------------------------------
 if this option is set to yes, openwebmail will fetch pop3 mail for
@@ -887,6 +968,22 @@ Messages with such attachments are normally virus mail. When this option is
 set to 'yes', these messages will be moved to mail-trash.
 
 
+default_refreshinterval
+-----------------------------------------------------------------------
+This is the default interval in minutes that openwebmail will refresh 
+the screen when the user is listing a folder or reading a message.
+It gives the openwebmail a chance to check the new mail status.
+Setting value too small for this option will make your server busy in
+serving client's request
+
+
+min_refreshinterval
+-----------------------------------------------------------------------
+the minimun value for option refreshinterval
+This is used to protect your server from being too busy due to a very 
+small refreshinterval setting
+
+
 default_trashreserveddays
 -----------------------------------------------------------------------
 message in trash will be deleted if its day age is more than this value,
@@ -914,11 +1011,6 @@ default text for auto reply message
 default_singature
 -----------------------------------------------------------------------
 default signature for all users
-
-
-default_calendar_hourformat
------------------------------------------------------------------------
-24 or 12
 
 
 default_calendar_monthviewnumitems

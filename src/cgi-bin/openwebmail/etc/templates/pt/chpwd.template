@@ -30,8 +30,8 @@
    {
       var s;
       s=document.passwordform.newpassword.value;
-      if (s.length < 4) {
-         alert("A Senha tem que ter pelo menos 4 caracteres.");
+      if (s.length < @@@PASSWDMINLEN@@@) {
+         alert("A Senha tem que ter pelo menos @@@PASSWDMINLEN@@@ caracteres.");
          return false;
       }
       if (document.passwordform.newpassword.value !=

@@ -1,14 +1,7 @@
-#!/usr/bin/perl -T
-#############################################################################
-# Open WebMail - Provides a web interface to user mailboxes                 #
-#                                                                           #
-# Copyright (C) 2001-2002                                                   #
-# Chung-Kie Tung, Nai-Jung Kuo, Chao-Chiu Wang, Emir Litric, Thomas Chung   #
-# Copyright (C) 2000                                                        #
-# Ernie Miller  (original GPL project: Neomail)                             #
-#                                                                           #
-# This program is distributed under GNU General Public License              #
-#############################################################################
+#!/usr/bin/suidperl -T
+#
+# openwebmail-abook.pl - address book program
+#
 
 use vars qw($SCRIPT_DIR);
 if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-\.]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
@@ -26,13 +19,13 @@ use CGI qw(-private_tempfiles :standard);
 use CGI::Carp qw(fatalsToBrowser);
 CGI::nph();   # Treat script as a non-parsed-header script
 
-require "openwebmail-shared.pl";
+require "ow-shared.pl";
 require "filelock.pl";
 
 use vars qw(%config %config_raw);
 use vars qw($thissession);
 use vars qw($loginname $domain $user $userrealname $uuid $ugid $homedir);
-use vars qw(%prefs %style);
+use vars qw(%prefs %style %icontext);
 use vars qw($folderdir @validfolders $folderusage);
 use vars qw($folder $printfolder $escapedfolder);
 
@@ -88,13 +81,7 @@ sub addressbook {
    my $html = '';
    my $temphtml;
 
-   open (ABOOKTEMPLATE, "$config{'ow_etcdir'}/templates/$prefs{'language'}/addressbook.template") or
-      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/templates/$prefs{'language'}/addressbook.template");
-   while (<ABOOKTEMPLATE>) {
-      $html .= $_;
-   }
-   close (ABOOKTEMPLATE);
-
+   $html=readtemplate("addressbook.template");
    $html = applystyle($html);
 
    if (defined($lang_text{$field})) {
@@ -153,7 +140,7 @@ sub addressbook {
    # split $preexisting in to a hash
    my %preexistinghash=();
    foreach my $u (str2list($preexisting,0)) {
-      my ($name, $email)=email2nameaddr($u);
+      my $email=(email2nameaddr($u))[1];
       $preexistinghash{$email}=$u;
    }
 
@@ -443,13 +430,7 @@ sub importabook {
       my $html = '';
       my $temphtml;
 
-      open (IMPORTTEMPLATE, "$config{'ow_etcdir'}/templates/$prefs{'language'}/importabook.template") or
-         openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/templates/$prefs{'language'}/importabook.template");
-      while (<IMPORTTEMPLATE>) {
-         $html .= $_;
-      }
-      close (IMPORTTEMPLATE);
-
+      $html=readtemplate("importabook.template");
       $html = applystyle($html);
 
       printheader();
@@ -638,13 +619,7 @@ sub editaddresses {
    my $html = '';
    my $temphtml;
 
-   open (EDITABOOKTEMPLATE, "$config{'ow_etcdir'}/templates/$prefs{'language'}/editaddresses.template") or
-      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/templates/$prefs{'language'}/editaddresses.template");
-   while (<EDITABOOKTEMPLATE>) {
-      $html .= $_;
-   }
-   close (EDITABOOKTEMPLATE);
-
+   $html=readtemplate("editaddresses.template");
    $html = applystyle($html);
 
    if ( -f "$folderdir/.address.book" ) {
@@ -679,18 +654,18 @@ sub editaddresses {
    $html =~ s/\@\@\@FREESPACE\@\@\@/$freespace/g;
 
    if ( param("message_id") ) {
-      $temphtml = qq|<a href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid" title="$lang_text{'backto'} $printfolder"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/backtofolder.gif" border="0" ALT="$lang_text{'backto'} $printfolder"></a> &nbsp; |;
+      $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $printfolder", qq|href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid"|). qq| &nbsp; \n|;
    } else {
-      $temphtml = qq|<a href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=displayheaders&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder" title="$lang_text{'backto'} $printfolder"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/backtofolder.gif" border="0" ALT="$lang_text{'backto'} $printfolder"></a> &nbsp; |;
+      $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $printfolder", qq|href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=displayheaders&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$escapedfolder"|). qq| &nbsp; \n|;
    }
-   $temphtml .= qq|<a href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=importabook&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid" title="$lang_text{'importadd'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/import.gif" border="0" ALT="$lang_text{'importadd'}"></a> |;
+   $temphtml .= iconlink("import.gif", $lang_text{'importadd'}, qq|href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=importabook&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid"|) . qq| \n|;
    if ( -f "$homedir/.addressbook" ) {
-      $temphtml .= qq|<a href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=importabook_pine&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid" title="$lang_text{'importadd'} (Pine)"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/import.gif" border="0" ALT="$lang_text{'importadd'} (Pine)"></a> |;
+      $temphtml .= iconlink("import.gif", "$lang_text{'importadd'} (Pine)", qq|href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=importabook_pine&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid"|). qq| \n|;
    }
-   $temphtml .= qq|<a href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=exportabook&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid" title="$lang_text{'exportadd'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/export.gif" border="0" ALT="$lang_text{'exportadd'}"></a> |.
-                qq|<a href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=clearaddress&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid" onclick="return confirm('$lang_text{'clearadd'}?')" title="$lang_text{'clearadd'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/clearaddress.gif" border="0" ALT="$lang_text{'clearadd'}"></a> &nbsp; |;
+   $temphtml .= iconlink("export.gif", $lang_text{'exportadd'}, qq|href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=exportabook&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid"|). qq| \n|.
+                iconlink("clearaddress.gif", $lang_text{'clearadd'}, qq|href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=clearaddress&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid" onclick="return confirm('$lang_text{'clearadd'}?')"|). qq| &nbsp; \n|;
    if ($abook_keyword ne ''){
-      $temphtml .= qq|<a href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=editaddresses&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid&amp;abook_keyword=" title="$lang_text{'refresh'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/refresh.gif" border="0" ALT="$lang_text{'refresh'}"></a>|;
+      $temphtml .= iconlink("refresh.gif", $lang_text{'refresh'}, qq|href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=editaddresses&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;abook_keyword="|). qq|\n|;
    }
 
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
@@ -767,7 +742,8 @@ sub editaddresses {
                          -default=>'',
                          -size=>'30',
                          -override=>'1');
-   $temphtml .= qq|<a href="Javascript:GoAddressWindow('email')" title="$lang_text{'group'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/group.gif" border="0" ALT="$lang_text{'group'}"></a>|;
+
+   $temphtml .= iconlink("group.gif", $lang_text{'group'}, qq|href="Javascript:GoAddressWindow('email')"|);
 
    $html =~ s/\@\@\@EMAILFIELD\@\@\@/$temphtml/;
 

@@ -1,0 +1,131 @@
+There are mainly 4 groups of files used in openwebmail.
+
+1. cgi-bin/openwebmail/         cgi scripts/configurations/languages/templates
+2. data/openwebmail/            background/icons/image/sounds
+3. ~user/mail/                  user folder files/indexes
+4. /etc/mail/virtusertable      virtual user mapping table
+
+
+data/openwebmail/               mapping to url http://your_site/openwebmail/
+------------------------------
+doc/                            text document for openwebmail
+images/                         runtime image/background/icons
+sounds/                         various YouHaveMail sound files
+openwebmail.html
+index.html@
+
+
+cgi-bin/openwebmail/            mapping to url http://your_site/cgi-bin/openwebmail
+------------------------------
+etc/                            configuraation, template, language, temporary files
+uty/                            debug uty or tool used by sysadm
+
+auth_ldap.pl                    various authentication modules
+auth_mysql.pl
+auth_mysql_vmail.pl
+auth_pam.pl
+auth_pam_cobalt.pl
+auth_pg.pl
+auth_pgsql.pl
+auth_pop3.pl
+auth_unix.pl
+auth_unix_cobalt.pl
+
+filelock.pl                     modules containing routines used by openwebmail
+iconv.pl
+iconv-chinese.pl
+iconv-japan.pl
+lunar.pl
+maildb.pl
+mailfilter.pl
+mime.pl
+ow-shared.pl
+pop3mail.pl
+
+openwebmail-abook.pl            CGI programs of openwebmail
+openwebmail-advsearch.pl
+openwebmail-cal.pl
+openwebmail-folder.pl
+openwebmail-main.pl
+openwebmail-prefs.pl
+openwebmail-read.pl
+openwebmail-send.pl
+openwebmail-spell.pl
+openwebmail-viewatt.pl
+openwebmail.pl                        
+
+openwebmail-tool.pl             command tool of openwebmail
+vacation.pl                     vacation utility for auto reply
+
+
+/usr/local/www/cgi-bin/etc/        
+------------------------------
+openwebmail.conf                customized configuration file
+openwebmail.conf.default        default configuration file
+openwebmail.conf.help           help for default configuration file
+smtpauth.conf                   file to store username/passwd for SMTP auth
+
+styles/                         various CSS files
+lang/                           translation files for various languages
+templates/                      template files for various languages
+sites.conf/                     configuration file for different virtual domain
+users.conf/                     configuration file for different user
+users/                          user directories (used only if use_homedirfolders disabled)
+sessions/                       directory to store temporary session files
+
+address.book                    global address book
+calendar.book                   global calendar book
+filter.book                     global filter book
+
+b2g.map                         Chinese Big5 to GB charset mapping file
+g2b.map                         Chinese GB to Big5 charset mapping file
+lunar.map                       Chinese lunar calendar mapping file
+
+b2g.db                          index db of b2g.map
+g2b.db                          index db of g2b.map
+lunar.db                        index db of lunar.map
+
+etc.mail.virtusertable.db       index db of /etc/mail/virtusertable
+etc.mail.virtusertable.rev.db   reverse index db of /etc/mail/virtusertable
+
+
+for each USER
+------------------------------
+~USER/.forward                  mail forwarding file
+~USER/.vacation.msg             text for auto reply
+~USER/.vacation.db              db for autoreply history log
+~USER/.signature                signature file
+~USER/mail/.signature           signature file if ~USER/.signature doesn't exist
+~USER/mail/.openwebmailrc       openwebmail user preference 
+~USER/mail/.release.date        the release date of openwebmail which user used
+~USER/mail/.history.log         openwebmail user log file
+
+~USER/mail/.from.book           from address book
+~USER/mail/.address.book        address book
+~USER/mail/.pop3.book           pop3 book
+~USER/mail/.filter.book         filter book
+~USER/mail/.stationery.book     stationery book
+~USER/mail/.calendar.book       calendar book
+
+~USER/mail/.trash.check         file that marked the last trash-cleaning date
+~USER/mail/.pop3.check          file that marked the last pop3 retrieval date
+~USER/mail/.filter.check        file that marked the last INBOX filting date
+~USER/mail/.notify.check        file that marked the last calendar email notification check date
+
+~USER/mail/.filter.book.db      db to store filtering count/date of filter rules
+~USER/mail/.search.cache        cache file to store last search result
+
+
+for each FOLDER in the ~USER/mail/
+----------------------------------
+~USER/mail/FOLDER               the folder file in mbox format
+~USER/mail/FOLDER.db            the index db of the folder file
+~USER/mail/FOLDER.cache         cache file to store last folder list result
+
+
+other files accessed by openwebmail
+-----------------------------------
+/etc/mail/virtusertable         virtual user mapping file
+/var/mail/USER                  INBOX for the USER
+/var/log/openwebmail.log        openwebmail system log file
+

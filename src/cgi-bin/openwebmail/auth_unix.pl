@@ -5,7 +5,7 @@
 #
 
 #
-# $unix_passwdfile_plaintext : the plaintext file containing all usernames 
+# $unix_passwdfile_plaintext : the plaintext file containing all usernames
 #                              and related uid, gid, homedir, shell info.
 #                              The deault is /etc/passwd on most unix systems.
 #
@@ -32,10 +32,13 @@
 # else...                          none
 # ------------------------------   --------------------------------
 #
+# $check_shell : whether to check if the user's shell is listed in /etc/shells. 
+#
 
 my $unix_passwdfile_plaintext="/etc/passwd";
 my $unix_passwdfile_encrypted="/etc/master.passwd";
 my $unix_passwdmkdb="/usr/sbin/pwd_mkdb";
+my $check_shell=1;
 
 ################### No configuration required from here ###################
 
@@ -62,7 +65,7 @@ sub get_userinfo {
 }
 
 
-sub get_userlist {	# only used by checkmail.pl -a
+sub get_userlist {	# only used by openwebmail-tool.pl -a
    my @userlist=();
    my $line;
 
@@ -101,11 +104,29 @@ sub check_userpassword {
    close (PASSWD);
    filelock("$unix_passwdfile_encrypted", LOCK_UN) if ( -f $unix_passwdfile_encrypted);
 
-   if ($u eq $user && crypt($password,$p) eq $p) {
-      return 0;
-   } else {
-      return -4;
+   return -4 if ($u ne $user || crypt($password,$p) ne $p);
+   return 0 if (!$check_shell);
+
+   # validate user shell if /etc/shells exists
+   if (open(ES, "/etc/shells")) {
+      my $shell;
+      if ($unix_passwdfile_plaintext eq "/etc/passwd") {
+         $shell = (getpwnam($user))[8];
+      } else {
+         $shell = (getpwnam_file($user, $unix_passwdfile_plaintext))[8];
+      }
+      my $validshell = 0;   # assume an invalid shell until we get a match
+      while(<ES>) {
+         chop;
+         if( $shell eq $_ ) {
+            $validshell = 1; last;
+         }
+      }
+      close(ES);
+      return -4 if (!$validshell);
    }
+
+   return 0;
 }
 
 
@@ -186,7 +207,7 @@ authsys_error:
 }
 
 
-# this routie is slower than system getpwnam() but can work with file 
+# this routie is slower than system getpwnam() but can work with file
 # other than /etc/passwd. ps: it always return '*' for passwd field.
 sub getpwnam_file {
    my ($user, $passwdfile_plaintext)=@_;

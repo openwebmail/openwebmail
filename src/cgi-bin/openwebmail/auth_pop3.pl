@@ -100,7 +100,7 @@ sub get_userinfo {
 }
 
 
-sub get_userlist {	# only used by checkmail.pl -a
+sub get_userlist {	# only used by openwebmail-tool.pl -a
    return();		# not supported, return empty
 }
 
@@ -139,8 +139,8 @@ sub check_userpassword {
       (close($remote_sock) && return(-2)) if (/^\-/);		# username error
       print $remote_sock &encode_base64($password);
       $_=<$remote_sock>;
-      (close($remote_sock) && return(-4)) if (/^\-/);		# passwd error
-   } else {
+   }
+   if (! /^\+/) {	# not supporting auth login or auth login failed
       print $remote_sock "user $user\r\n";
       $_=<$remote_sock>;
       (close($remote_sock) && return(-2)) if (/^\-/);		# username error

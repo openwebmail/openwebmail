@@ -4,6 +4,6 @@
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B> FIN DE SESI&Oacute;N</B></FONT></TD></TR>
 <tr><td valign="middle" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>Ha finalizado su sesi&oacute;n, muchas gracias.
+<BR>Ha finalizado su sesi&oacute;n. Muchas gracias.
 <BR><BR>@@@BUTTONS@@@
 </td></tr></table>

@@ -23,6 +23,7 @@
 
 <script language="JavaScript">
 <!--
+   self.focus();
    function CheckAll()
    {
       for (var i=0;i<document.addressbook.elements.length;i++)

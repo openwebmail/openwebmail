@@ -30,8 +30,8 @@
    {
       var s;
       s=document.passwordform.newpassword.value;
-      if (s.length < 4) {
-         alert("Lungimea parolei trebue sa fie minim 4 simboluri.");
+      if (s.length < @@@PASSWDMINLEN@@@) {
+         alert("Lungimea parolei trebue sa fie minim @@@PASSWDMINLEN@@@ simboluri.");
          return false;
       }
       if (document.passwordform.newpassword.value !=

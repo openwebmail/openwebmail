@@ -30,8 +30,8 @@
    {
       var s;
       s=document.passwordform.newpassword.value;
-      if (s.length < 4) {
-         alert("La Clau ha de tenir 4 caracters, com a poc.");
+      if (s.length < @@@PASSWDMINLEN@@@) {
+         alert("La Clau ha de tenir @@@PASSWDMINLEN@@@ caracters, com a poc.");
          return false;
       }
       if (document.passwordform.newpassword.value !=

@@ -1,4 +1,4 @@
-#!/usr/bin/perl -T
+#!/usr/bin/perl
 
 # Danish translation by Frank, frank.AT.post12.tele.dk
 # charset: iso-8859-1
@@ -47,9 +47,19 @@
    no  => 'Nej'
    );
 
+%lang_positionlabels =
+   (
+   before => 'Before mail edit area',
+   after => 'After mail edit area',
+   both  => 'Before and after mail edit area'
+   );
+
 %lang_timelabels =
    (
+      3 => '3 minutter',
+      5 => '5 minutter',
      10 => '10 minutter',
+     20 => '20 minutter',
      30 => '30 minutter',
      60 => '60 minutter',
     120 => '2 timer',
@@ -75,7 +85,8 @@
    yearview  => 'Års oversigt',
    monthview => 'Måneds oversigt',
    weekview  => 'Uge oversigt',
-   dayview   => 'Dags oversigt'
+   dayview   => 'Dags oversigt',
+   listview   => 'Listview'
    );
 
 %lang_month =
@@ -138,6 +149,7 @@
    messages   => 'mails',
    unread     => 'ulæste',
    nomessages => 'Ingen mails',
+   inmessages => 'Incoming msgs',
    composenew => 'Skriv ny mail',
    refresh    => 'Opdater',
    userprefs  => 'Standard indstillinger',
@@ -146,6 +158,7 @@
    emptytrash => 'Tøm papirkurven',
    totrash    => 'Flyt til papirkurv',
    forever    => 'Aldrig',
+   delatlogout=> 'Delete at Logout',
    userdef    => 'Bruger defineret',
    logout     => 'Afslut webmail',
    page       => 'Side',
@@ -183,6 +196,8 @@
    encoding   => 'Encoding',
    description=> 'Beskrivelse',
    download   => 'Gem',
+   charset    => 'Charset',
+   samecharset=> 'The same as composing charset',
    thisispartialmsg => 'Dette er en del af en mail.',
    msgrebuild => 'Besked genopbygget',
    editdraft  => 'Rediger kladde',
@@ -225,6 +240,7 @@
    quota_hit  => 'ADVARSEL, din postkasse er fuld',
    usage      => 'ADVARSEL, din postkasse er snart fuld, du benytter nu:',
    tzmap      => 'Verdenskort med tidszoner',
+   testsound  => 'Test sound',
    editfroms  => 'Rediger personlige mailadresser',
    pop3book   => 'Opsæt mail afhentning fra ekstern POP3 server',
    retr_pop3s => 'Hent mail fra ekstern POP3 server',
@@ -259,6 +275,10 @@
    checkagain => 'Check igen',
    finishchecking => 'Afslut stavekontrol',
    manuallyfix=> 'Manual rettelse',
+   editstat   => 'Edit Stationery',
+   savestat   => 'Save Stationery',
+   clearstat  => 'Clear All Stationery',
+   selectstat => '-- Select Stationery for Reply --',
    calendar   => 'Kalender',
    am         => 'am',
    pm         => 'pm',
@@ -287,6 +307,7 @@
    couldnt_lock      => 'Kunne ikke låse',
    couldnt_seek      => 'Kunne ikke søge til starten af',
    couldnt_close     => 'Kunne ikke lukke',
+   couldnt_updatedb  => 'Couldn\'t update index db ',
    disallowed_pop3   => 'Ugyldig POP3 server',
    disallowed_client => 'Du har ikke tilladelse til at forbinde fra denne pc',
    disallowed_receiverdomain => 'Du har ikke tilladelse til at sende mail til denne mailadresse',
@@ -305,6 +326,7 @@
    abook_toobig      => 'Dette vil gøre din adressebog større end tilladt. Gå',
    cant_create_dir   => 'Kan ikke oprette mappen!',
    folder_hitquota   => 'Beklager, du har brugt mere plads end tilladt, og der kan ikke gemmes flere mails. Du er nødt til at rydde op. Det er kun muligt at flyttet til papirkurven, hvor de vil blive slettet. Gå tilbage, slet nogle mails eller tøm papirkurven, og forsøg igen.',
+   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
    att_overlimit     => 'Dine vedhæftede filer er større end tilladt',
    inv_msg_op        => 'Ugyldig handling for besked',
    inv_sessid        => 'Din forespørgsel indeholdt ikke et gyldigt sessions ID - Ingen adgang!',
@@ -317,6 +339,8 @@
    auth_syserr       => 'godkendelse af systemet fejlede',
    param_fmterr      => 'parameter format fejlede',
    pwd_incorrect     => 'Ugyldig brugernavn eller adgangskode',
+   pwd_tooshort      => 'Password too short (minimum length @@@PASSWDMINLEN@@@)',
+   pwd_toosimple     => 'Password too simple (both alphabet and digit are required)',
    network_server_error => 'server netværks fejl',
    sendmail_error    => 'Beklager, der skete en fejl ved afsendelse af din mail. Tryk Tilbage i din browser og prøv igen.',
    at_char_not_allowed => 'Du kan ikke benyttet @ i dette felt. Tryk på tilbage i din browser og prøv igen.',

@@ -30,8 +30,8 @@
    {
       var s;
       s=document.passwordform.newpassword.value;
-      if (s.length < 5) {
-	 alert("Heslo musí mít min.5 znakù.");
+      if (s.length < @@@PASSWDMINLEN@@@y) {
+	 alert("Heslo musí mít min.4 znakù.");
 	 return false;
       }
       if (document.passwordform.newpassword.value !=

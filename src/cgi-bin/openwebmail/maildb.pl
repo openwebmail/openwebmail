@@ -1,7 +1,13 @@
 #
-# maildb.pl are functions for mail folderfile.
+# maildb.pl - mail indexing/parsing routines
 #
-# 1. it speeds up the message access on folder file by hashing important
+# 2001/12/21 tung@turtle.ee.ncku.edu.tw
+#
+
+#
+# description
+#
+# 1. it speeds up the message access on folder file by caching important
 #    information with perl dbm.
 # 2. it parse mail recursively.
 # 3. it converts uuencoded blocks into baed64-encoded attachments
@@ -15,29 +21,27 @@
 # Functions with folderfile/folderhandle in argument must be inside
 # a folderfile lock session
 #
-# The global variable $config{'dbm_ext'} needs to be defined to represent the
-# dbm filename extension on your system.
-# ex: use 'db' for FreeBSD and 'dir' for Solaris
-#
-# The global variable $config{'use_dotlockfile'} needs to be defined to use
-# dotlockfile style locking
-# This is recommended only if the lockd on your nfs server or client is broken
+# The following global variables needs to be defined
+# $config{'dbm_ext'} - the ext name of db 
+# $config{'dbmopen_ext'} - the ext name passed when doing dbmopen
+# $config{'dbmopen_haslock'} - whether dbmopen() will do filelock by itself
+# $config{'use_dotlockfile'} - whether to use dotlockfile style locking,
+#                              recommended only if the lockd on your nfs 
+#                              server or client is broken
 # ps: FrreBSD/Linux nfs server/client may need this. Solaris doesn't.
-#
-# 2001/12/21 tung@turtle.ee.ncku.edu.tw
 #
 use strict;
 use Fcntl qw(:DEFAULT :flock);
 use FileHandle;
 
-use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE $_STATUS $_SIZE $_REFERENCES);
+use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE $_STATUS $_SIZE $_REFERENCES $_CHARSET);
 
 # extern vars
 use vars qw(%config);	# defined in caller openwebmail-xxx.pl
 
 # message attribute number, CONST
-($_OFFSET, $_FROM, $_TO, $_DATE, $_SUBJECT, $_CONTENT_TYPE, $_STATUS, $_SIZE, $_REFERENCES)
- =(0,1,2,3,4,5,6,7,8);
+($_OFFSET, $_FROM, $_TO, $_DATE, $_SUBJECT, $_CONTENT_TYPE, $_STATUS, $_SIZE, $_REFERENCES, $_CHARSET)
+ =(0,1,2,3,4,5,6,7,8,9);
 
 if ( $config{'dbm_ext'} eq "" ) {
    $config{'dbm_ext'}=".db";
@@ -50,6 +54,7 @@ sub update_headerdb {
    my ($headerdb, $folderfile) = @_;
    my (%HDB, %OLDHDB);
    my @oldmessageids=();
+   my $dberr=0;
 
    ($headerdb =~ /^(.+)$/) && ($headerdb = $1);		# untaint ...
    if ( -e "$headerdb$config{'dbm_ext'}" ) {
@@ -82,20 +87,14 @@ sub update_headerdb {
       dbmopen(%OLDHDB, "$headerdb.old$config{'dbmopen_ext'}", undef);
    }
 
-   my $messagenumber = -1;
-   my $newmessages = 0;
-   my $internalmessages = 0;
-
-   my $inheader = 0;
-   my $offset=0;
-   my $totalsize=0;
-
+   my ($messagenumber, $newmessages, $internalmessages) = (-1, 0, 0);
+   my ($inheader, $offset, $totalsize)=(0, 0, 0);
    my @duplicateids=();
 
-   my ($line, $lastheader, $delimiter, $namedatt_count, $zhtype, $verified);
+   my ($line, $lastheader, $delimiter, $namedatt_count, $verified);
    my ($_message_id, $_offset);
    my ($_from, $_to, $_date, $_subject);
-   my ($_content_type, $_status, $_messagesize, $_references, $_inreplyto);
+   my ($_content_type, $_status, $_messagesize, $_references, $_inreplyto, $_charset);
 
    dbmopen(%HDB, "$headerdb$config{'dbmopen_ext'}", 0600);
    filelock("$headerdb$config{'dbm_ext'}", LOCK_EX) if (!$config{'dbmopen_haslock'});
@@ -120,7 +119,15 @@ sub update_headerdb {
       }
 
       if ( $buff=~/^From /) { # ya, msg end is found!
-         $HDB{$id}=join('@@@', @attr);
+         $HDB{$id}=join('@@@', @attr) || $dberr++;
+         if ($dberr) {
+            dbmclose(%OLDHDB);
+            filelock("$headerdb.old$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+            unlink("$headerdb.old$config{'dbm_ext'}", "$headerdb.old.dir", "$headerdb.old.pag");
+            $dberr=0;
+            $totalsize-=$attr[$_SIZE];
+            last;
+         }
          $internalmessages++ if ( is_internal_subject($attr[$_SUBJECT]) );
          $newmessages++ if ($attr[$_STATUS] !~ /r/i);
          $messagenumber++;
@@ -131,15 +138,19 @@ sub update_headerdb {
    }
    seek(FOLDER, $totalsize, 0);		# set file ptr back to totalsize
 
-   while (defined($line = <FOLDER>)) {
-
-      $offset=$totalsize;
-      $totalsize += length($line);
+   my $eof=0;
+   while ( !$dberr ) {
+      if (defined($line = <FOLDER>)) {
+         $offset=$totalsize;
+         $totalsize += length($line);
+      } else {
+         $eof=1;
+      }
 
       # ex: From tung@turtle.ee.ncku.edu.tw Fri Jun 22 14:15:33 2001
       # ex: From tung@turtle.ee.ncku.edu.tw Mon Aug 20 18:24 CST 2001
       # ex: From nsb@thumper.bellcore.com Wed Mar 11 16:27:37 EST 1992
-      if ( $line =~ /^From .*(\w\w\w)\s+(\w\w\w)\s+(\d+)\s+(\d+):(\d+):?(\d*)\s+([A-Z]{3,4}\d?\s+)?(\d\d+)/ ) {
+      if ( $eof || $line =~ /^From .*(\w\w\w)\s+(\w\w\w)\s+(\d+)\s+(\d+):(\d+):?(\d*)\s+([A-Z]{3,4}\d?\s+)?(\d\d+)/ ) {
          if ($_messagesize >0) {	# save previous msg
 
             $_from=~s/\@\@/\@\@ /g;         $_from=~s/\@$/\@ /;
@@ -149,6 +160,12 @@ sub update_headerdb {
             $_status=~s/\@\@/\@\@ /g;       $_status=~s/\@$/\@ /;
             $_references=~s/\@\@/\@\@ /g;   $_references=~s/\@$/\@ /;
             $_inreplyto=~s/\@\@/\@\@ /g;    $_inreplyto=~s/\@$/\@ /;
+
+            # try ti get charset from contenttype header
+            if ($_charset eq "" && 		
+                $_content_type=~/charset="?([^\s"';]*)"?\s?/i) {
+               $_charset=$1;
+            }
 
             # in most case, a msg references field should already contain
             # ids in in-reply-to: field, but do check it again here
@@ -167,34 +184,50 @@ sub update_headerdb {
 
             # flags used by openwebmail internally
             $_status .= "T" if ($namedatt_count>0);
-            $_status .= "B" if ($zhtype eq 'big5');
-            $_status .= "G" if ($zhtype eq 'gb');
             $_status .= "V" if ($verified);
 
             if (! defined($HDB{$_message_id}) ) {
                $HDB{$_message_id}=make_msgrecord($_message_id, $_offset, $_from, $_to,
-			$_date, $_subject, $_content_type, $_status, $_messagesize, $_references);
+                  $_date, $_subject, $_content_type, $_status, $_messagesize, $_references, $_charset)
+                  or $dberr++;
+               if ($dberr && defined(%OLDHDB)) {
+                  dbmclose(%OLDHDB);
+                  filelock("$headerdb.old$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+                  unlink("$headerdb.old$config{'dbm_ext'}", "$headerdb.old.dir", "$headerdb.old.pag");
+                  $dberr=0;
+                  $HDB{$_message_id}=make_msgrecord($_message_id, $_offset, $_from, $_to,
+                     $_date, $_subject, $_content_type, $_status, $_messagesize, $_references, $_charset)
+                     or $dberr++;
+               }
             } else {
                my $dup=$#duplicateids+1;
                $HDB{"dup$dup-$_message_id"}=make_msgrecord("dup$dup-$_message_id", $_offset, $_from, $_to,
-			$_date, $_subject, $_content_type, $_status, $_messagesize, $_references);
-               push(@duplicateids, "dup$dup-$_message_id");
+		  $_date, $_subject, $_content_type, $_status, $_messagesize, $_references, $_charset)
+                  or $dberr++;
+               if ($dberr && defined(%OLDHDB)) {
+                  dbmclose(%OLDHDB);
+                  filelock("$headerdb.old$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+                  unlink("$headerdb.old$config{'dbm_ext'}", "$headerdb.old.dir", "$headerdb.old.pag");
+                  $dberr=0;
+                  $HDB{"dup$dup-$_message_id"}=make_msgrecord("dup$dup-$_message_id", $_offset, $_from, $_to,
+                     $_date, $_subject, $_content_type, $_status, $_messagesize, $_references, $_charset)
+                     or $dberr++;
+               }
+               push(@duplicateids, "dup$dup-$_message_id") if (!$dberr);
             }
          }
+
+         last if ($eof||$dberr);
 
          $messagenumber++;
          $delimiter=$line;
          $_offset=$offset;
          $_from = $_to = $_date = $_subject = $_content_type ='N/A';
-         $_message_id='';
-         $_inreplyto = '';
-         $_references = '';
-         $_status = '';
+         $_charset = $_message_id = $_inreplyto = $_references = $_status = '';
          $_messagesize = length($line);
          $inheader = 1;
          $lastheader = 'NONE';
          $namedatt_count=0;
-         $zhtype='';
          $verified=0;
 
       } else {
@@ -206,6 +239,7 @@ sub update_headerdb {
 
                # Convert to readable text from MIME-encoded
                $_from = decode_mimewords($_from);
+               $_to = decode_mimewords($_to);
                $_subject = decode_mimewords($_subject);
 
                # some dbm(ex:ndbm on solaris) can only has value shorter than 1024 byte,
@@ -238,8 +272,6 @@ sub update_headerdb {
                      $totalsize=$_offset+$_messagesize;
                      # copy vars related to content
                      $namedatt_count++   if ($oldstatus=~/T/);
-                     $zhtype="big5"      if ($oldstatus=~/B/);
-                     $zhtype="gb"        if ($oldstatus=~/G/);
                      $verified=1         if ($oldstatus=~/V/);
                   }
 
@@ -297,77 +329,32 @@ sub update_headerdb {
             }
 
          } else {
-            if ( $line =~ /^content\-type:.*;\s+name\s*=/i ||
+            if ( $line =~ /^content\-type:.*;\s+name\s*\*?=/i ||
                  $line =~ /^\s+name\s*=/i ||
-                 $line =~ /^content\-disposition:.*;\s+filename\s*=/i ||
+                 $line =~ /^content\-disposition:.*;\s+filename\s*\*?=/i ||
                  $line =~ /^\s+filename\s*=/i ||
                  $line =~ /^begin [0-7][0-7][0-7][0-7]? [^\n\r]+/ ) {
                if ($line !~ /[\<\>]/ && $line !~ /type=/i) {
                   $namedatt_count++;
                }
             }
-            if ( $line =~ /^content\-type:.*;\s?charset="?big5"?/i ||
-                 $line =~ /^\s+charset="?big5"?/i ) {
-               $zhtype="big5";
-            } elsif ( $line =~ /^content\-type:.*;\s?charset="?gb2312"?/i ||
-                      $line =~ /^\s+charset="?gb2312"?/i ) {
-               $zhtype="gb";
+            if ( $line =~ /^content\-type:.*;\s?charset="?([^\s"';]*)"?/i ||
+                 $line =~ /^\s+charset="?([^\s"';]*)"?/i ) {
+               $_charset=$1 if ($_charset eq '');
             }
          }
       }
 
-   }
-
-   # Catch the last message, since there won't be a From: to trigger the capture
-   if ($_messagesize >0) {
-
-      $_from=~s/\@\@/\@\@ /g;         $_from=~s/\@$/\@ /;
-      $_to=~s/\@\@/\@\@ /g;           $_to=~s/\@$/\@ /;
-      $_subject=~s/\@\@/\@\@ /g;      $_subject=~s/\@$/\@ /;
-      $_content_type=~s/\@\@/\@\@ /g; $_content_type=~s/\@$/\@ /;
-      $_status=~s/\@\@/\@\@ /g;       $_status=~s/\@$/\@ /;
-      $_references=~s/\@\@/\@\@ /g;   $_references=~s/\@$/\@ /;
-      $_inreplyto=~s/\@\@/\@\@ /g;    $_inreplyto=~s/\@$/\@ /;
-
-      # in most case, a msg references field should already contain
-      # ids in in-reply-to: field, but do check it again here
-      if ($_inreplyto =~ m/^\s*(\<\S+\>)\s*$/) {
-	 $_references .= " " . $1 if ($_references!~/\Q$1\E/);
-      }
-      $_references =~ s/\s{2,}/ /g;
-
-      if ($_message_id eq '') {	# fake messageid with date and from
-         $_message_id="$_date.".(email2nameaddr($_from))[1];
-         $_message_id=~s![\<\>\(\)\s\/"':]!!g;
-         $_message_id="<$_message_id>";
-      }
-      # dbm record should not longer than 1024? cut here to make dbm happy
-      $_message_id='<'.substr($_message_id, 1, 250).'>' if (length($_message_id)>256);
-
-
-      # flags used by openwebmail internally
-      $_status .= "T" if ($namedatt_count>0);
-      $_status .= "B" if ($zhtype eq 'big5');
-      $_status .= "G" if ($zhtype eq 'gb');
-      $_status .= "V" if ($verified);
-
-      if (! defined($HDB{$_message_id}) ) {
-         $HDB{$_message_id}=make_msgrecord($_message_id, $_offset, $_from, $_to,
-		$_date, $_subject, $_content_type, $_status, $_messagesize, $_references);
-      } else {
-         my $dup=$#duplicateids+1;
-         $HDB{"dup$dup-$_message_id"}=make_msgrecord("dup$dup-$_message_id", $_offset, $_from, $_to,
-		$_date, $_subject, $_content_type, $_status, $_messagesize, $_references);
-         push(@duplicateids, "dup$dup-$_message_id");
-      }
-   }
+   } # end while( !$dberr )
 
    close (FOLDER);
 
-   $HDB{'METAINFO'}=metainfo($folderfile);
-   $HDB{'ALLMESSAGES'}=$messagenumber+1;
-   $HDB{'INTERNALMESSAGES'}=$internalmessages;
-   $HDB{'NEWMESSAGES'}=$newmessages;
+   if ( !$dberr ) {
+      $HDB{'ALLMESSAGES'}=$messagenumber+1;
+      $HDB{'INTERNALMESSAGES'}=$internalmessages;
+      $HDB{'NEWMESSAGES'}=$newmessages;
+      $HDB{'METAINFO'}=metainfo($folderfile) || $dberr++;
+   }
 
    filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
    dbmclose(%HDB);
@@ -379,12 +366,13 @@ sub update_headerdb {
       unlink("$headerdb.old$config{'dbm_ext'}", "$headerdb.old.dir", "$headerdb.old.pag");
    }
 
-   # remove if any duplicates
-   if ($#duplicateids>=0) {
-      operate_message_with_ids("delete", \@duplicateids, $folderfile, $headerdb);
+   if ($dberr) {
+      return -1;
+   } else {
+      # remove if any duplicates
+      operate_message_with_ids("delete", \@duplicateids, $folderfile, $headerdb) if ($#duplicateids>=0);
+      return 1;
    }
-
-   return 1;
 }
 
 sub make_msgrecord {
@@ -523,10 +511,7 @@ sub get_info_messageids_sorted {
 
    } else {
       open(CACHE, $cachefile);
-      $_=<CACHE>;
-      $_=<CACHE>;
-      $_=<CACHE>;
-      $_=<CACHE>;
+      $_=<CACHE>; $_=<CACHE>; $_=<CACHE>; $_=<CACHE>;	# skip 4 lines
       $totalsize=<CACHE>; chomp($totalsize);
       $new=<CACHE>;       chomp($new);
       $messageids_size=<CACHE>; chomp($messageids_size);
@@ -717,9 +702,9 @@ sub get_info_messageids_sorted_by_subject {
          $dateserial{$key}=$attr[$_DATE];
 	 $references{$key}=$attr[$_REFERENCES];
          $subject{$key}=$attr[$_SUBJECT];
-         $subject{$key}=~s/Res?:\s*//ig;	
-         $subject{$key}=~s/\[\d+\]//g;	
-         $subject{$key}=~s/[\[\]]//g;	
+         $subject{$key}=~s/Res?:\s*//ig;
+         $subject{$key}=~s/\[\d+\]//g;
+         $subject{$key}=~s/[\[\]]//g;
       }
    }
    dbmclose(%HDB);
@@ -798,7 +783,6 @@ sub _recursively_thread {
       }
    }
 }
-
 
 sub get_info_messageids_sorted_by_size {
    my ($headerdb, $ignore_internal)=@_;
@@ -938,8 +922,14 @@ sub update_message_status {
    my $messageoldstatus='';
    my $folderhandle=FileHandle->new();
    my %HDB;
+   my $ioerr=0;
 
-   update_headerdb($headerdb, $folderfile);
+   if (update_headerdb($headerdb, $folderfile)<0) {
+      filelock($folderfile, LOCK_UN);
+      writelog("db error - Couldn't update index db $headerdb$config{'dbm_ext'}");
+      writehistory("db error - Couldn't update index db $headerdb$config{'dbm_ext'}");
+      return -1;
+   }
 
    my @messageids=get_messageids_sorted_by_offset($headerdb);
    my $movement=0;
@@ -972,7 +962,9 @@ sub update_message_status {
             close ($folderhandle);
             dbmclose(%HDB);
             filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
-            return(-1);
+            writelog("db warning - msg $messageid in $folderfile index inconsistence");
+            writehistory("db warning - msg $messageid in $folderfile index inconsistence");
+            return(-2);
          }
          $headerlen=length($header);
          $headerend=$messagestart+$headerlen;
@@ -1009,25 +1001,34 @@ sub update_message_status {
          $movement=$newheaderlen-$headerlen;
 
          my $foldersize=(stat($folderhandle))[7];
-         shiftblock($folderhandle, $headerend, $foldersize-$headerend, $movement);
+         if (shiftblock($folderhandle, $headerend, $foldersize-$headerend, $movement)<0) {
+            writelog("data error - msg $messageids[$i] in $folderfile shiftblock failed");
+            writehistory("data error - msg $messageids[$i] in $folderfile shiftblock failed");
+            $ioerr++;
+         }
 
-         seek($folderhandle, $messagestart, 0);
-         print $folderhandle $header;
-
-         seek($folderhandle, $foldersize+$movement, 0);
-         truncate($folderhandle, tell($folderhandle));
+         if (!$ioerr) {
+            seek($folderhandle, $messagestart, 0);
+            print $folderhandle $header || $ioerr++;
+         }
+         if (!$ioerr) {
+            seek($folderhandle, $foldersize+$movement, 0);
+            truncate($folderhandle, tell($folderhandle));
+         }
          close ($folderhandle);
 
-         # set attributes in headerdb for this status changed message
-         if ($messageoldstatus!~/r/i && $status=~/r/i) {
-            $HDB{'NEWMESSAGES'}--;
-            $HDB{'NEWMESSAGES'}=0 if ($HDB{'NEWMESSAGES'}<0); # should not happen
-         } elsif ($messageoldstatus=~/r/i && $status!~/r/i) {
-            $HDB{'NEWMESSAGES'}++;
+         if (!$ioerr) {
+            # set attributes in headerdb for this status changed message
+            if ($messageoldstatus!~/r/i && $status=~/r/i) {
+               $HDB{'NEWMESSAGES'}--;
+               $HDB{'NEWMESSAGES'}=0 if ($HDB{'NEWMESSAGES'}<0); # should not happen
+            } elsif ($messageoldstatus=~/r/i && $status!~/r/i) {
+               $HDB{'NEWMESSAGES'}++;
+            }
+            $attr[$_SIZE]=$messagesize+$movement;
+            $attr[$_STATUS]=$status;
+            $HDB{$messageid}=join('@@@', @attr);
          }
-         $attr[$_SIZE]=$messagesize+$movement;
-         $attr[$_STATUS]=$status;
-         $HDB{$messageid}=join('@@@', @attr);
 
          last;
       }
@@ -1035,7 +1036,7 @@ sub update_message_status {
    $i++;
 
    # if size of this message is changed
-   if ($movement!=0) {
+   if ($movement!=0 && !$ioerr) {
       #  change offset attr for messages after the above one
       for (;$i<=$#messageids; $i++) {
          @attr=split(/@@@/, $HDB{$messageids[$i]});
@@ -1045,12 +1046,16 @@ sub update_message_status {
    }
 
    # update folder metainfo
-   $HDB{'METAINFO'}=metainfo($folderfile);
+   $HDB{'METAINFO'}=metainfo($folderfile) if (!$ioerr);
 
    dbmclose(%HDB);
    filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
 
-   return(0);
+   if (!$ioerr) {
+      return(0);
+   } else {
+      return(-3);
+   }
 }
 
 #################### END UPDATE_MESSAGE_STATUS ######################
@@ -1063,19 +1068,31 @@ sub operate_message_with_ids {
    my $folderhandle=FileHandle->new();
    my (%HDB, %HDB2);
    my $messageids = join("\n", @{$r_messageids});
+   my $ioerr=0;
 
    # $lang_err{'inv_msg_op'}
    return(-1) if ($op ne "move" && $op ne "copy" && $op ne "delete");
    return(0) if ($srcfile eq $dstfile || $#{$r_messageids} < 0);
 
-   update_headerdb($srcdb, $srcfile);
+   if (update_headerdb($srcdb, $srcfile)<0) {
+      filelock($srcfile, LOCK_UN);
+      writelog("db error - Couldn't update index db $srcdb$config{'dbm_ext'}");
+      writehistory("db error - Couldn't update index db $srcdb$config{'dbm_ext'}");
+      return -2;
+   }
+
    open ($folderhandle, "+<$srcfile") or
-      return(-2);	# $lang_err{'couldnt_open'} $srcfile!
+      return(-3);	# $lang_err{'couldnt_open'} $srcfile!
 
    if ($op eq "move" || $op eq "copy") {
       open (DEST, ">>$dstfile") or
-         return(-3);	# $lang_err{'couldnt_open'} $destination!
-      update_headerdb("$dstdb", $dstfile);
+         return(-5);	# $lang_err{'couldnt_open'} $destination!
+      if (update_headerdb("$dstdb", $dstfile)<0) {
+         filelock($dstfile, LOCK_UN);
+         writelog("db error - Couldn't update index db $dstdb$config{'dbm_ext'}");
+         writehistory("db error - Couldn't update index db $dstdb$config{'dbm_ext'}");
+         return(-4);
+      }
    }
 
    my @allmessageids=get_messageids_sorted_by_offset($srcdb);
@@ -1113,9 +1130,14 @@ sub operate_message_with_ids {
          $counted++;
 
          if ($op eq 'move' || $op eq 'delete') {
-            shiftblock($folderhandle, $blockstart, $blockend-$blockstart, $writepointer-$blockstart);
-            $writepointer=$writepointer+($blockend-$blockstart);
-            $blockstart=$blockend=$messagestart+$messagesize;
+            if (shiftblock($folderhandle, $blockstart, $blockend-$blockstart, $writepointer-$blockstart)<0) {
+               writelog("data error - msg $allmessageids[$i] in $srcfile shiftblock failed");
+               writehistory("data error - msg $allmessageids[$i] in $srcfile shiftblock failed");
+               $ioerr++;
+            } else {
+               $writepointer=$writepointer+($blockend-$blockstart);
+               $blockstart=$blockend=$messagestart+$messagesize;
+            }
          } else {
             $blockend=$messagestart+$messagesize;
          }
@@ -1123,7 +1145,7 @@ sub operate_message_with_ids {
          # append msg to dst folder only if
          # op=move/copy and msg doesn't exist in dstfile
          if (($op eq "move" || $op eq "copy") &&
-             !defined($HDB2{$allmessageids[$i]}) ) {
+             !defined($HDB2{$allmessageids[$i]}) && !$ioerr ) {
 
             seek($folderhandle, $attr[$_OFFSET], 0);
             $attr[$_OFFSET]=tell(DEST);
@@ -1133,22 +1155,24 @@ sub operate_message_with_ids {
             while ($left>0) {
                if ($left>=32768) {
                    read($folderhandle, $buff, 32768);
-                   print DEST $buff;
+                   print DEST $buff || $ioerr++;
                    $left=$left-32768;
                } else {
                    read($folderhandle, $buff, $left);
-                   print DEST $buff;
+                   print DEST $buff || $ioerr++;
                    $left=0;
                }
             }
 
-            $HDB2{'NEWMESSAGES'}++ if ($attr[$_STATUS]!~/r/i);
-            $HDB2{'INTERNALMESSAGES'}++ if (is_internal_subject($attr[$_SUBJECT]));
-            $HDB2{'ALLMESSAGES'}++;
-            $HDB2{$allmessageids[$i]}=join('@@@', @attr);
+            if (!$ioerr) {
+               $HDB2{'NEWMESSAGES'}++ if ($attr[$_STATUS]!~/r/i);
+               $HDB2{'INTERNALMESSAGES'}++ if (is_internal_subject($attr[$_SUBJECT]));
+               $HDB2{'ALLMESSAGES'}++;
+               $HDB2{$allmessageids[$i]}=join('@@@', @attr);
+            }
          }
 
-         if ($op eq 'move' || $op eq 'delete') {
+         if (($op eq 'move' || $op eq 'delete') && !$ioerr) {
             $HDB{'NEWMESSAGES'}-- if ($attr[$_STATUS]!~/r/i);
             $HDB{'NEWMESSAGES'}=0 if ($HDB{'NEWMESSAGES'}<0); # should not happen
             $HDB{'INTERNALMESSAGES'}-- if (is_internal_subject($attr[$_SUBJECT]));
@@ -1167,27 +1191,38 @@ sub operate_message_with_ids {
             }
          }
       }
+
+      last if ($ioerr);
    }
 
-   if ( ($op eq 'move' || $op eq 'delete') && $counted>0 ) {
-      shiftblock($folderhandle, $blockstart, $blockend-$blockstart, $writepointer-$blockstart);
-      seek($folderhandle, $writepointer+($blockend-$blockstart), 0);
-      truncate($folderhandle, tell($folderhandle));
+   if ( ($op eq 'move' || $op eq 'delete') && $counted>0 && !$ioerr) {
+      if (shiftblock($folderhandle, $blockstart, $blockend-$blockstart, $writepointer-$blockstart)<0) {
+         writelog("data error - msgs in $srcfile shiftblock failed");
+         writehistory("data error - msgs in $srcfile shiftblock failed");
+         $ioerr++;
+      } else {
+         seek($folderhandle, $writepointer+($blockend-$blockstart), 0);
+         truncate($folderhandle, tell($folderhandle));
+      }
    }
 
    if ($op eq "move" || $op eq "copy") {
       close (DEST);
-      $HDB2{'METAINFO'}=metainfo($dstfile);
+      $HDB2{'METAINFO'}=metainfo($dstfile) if (!$ioerr);
       dbmclose(%HDB2);
       filelock("$dstdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
    }
 
    close ($folderhandle);
-   $HDB{'METAINFO'}=metainfo($srcfile);
+   $HDB{'METAINFO'}=metainfo($srcfile) if (!$ioerr);
    dbmclose(%HDB);
    filelock("$srcdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
 
-   return($counted);
+   if (!$ioerr) {
+      return($counted);
+   } else {
+      return(-6);
+   }
 }
 #################### END OP_MESSAGE_WITH_IDS #######################
 
@@ -1202,7 +1237,12 @@ sub delete_message_by_age {
 
    my $nowdaydiff=dateserial2daydiff(gmtime2dateserial());
 
-   update_headerdb($headerdb, $folderfile);
+   if (update_headerdb($headerdb, $folderfile)<0) {
+      filelock($folderfile, LOCK_UN);
+      writelog("db error - Couldn't update index db $headerdb$config{'dbm_ext'}");
+      writehistory("db error - Couldn't update index db $headerdb$config{'dbm_ext'}");
+      return 0;
+   }
    @allmessageids=get_messageids_sorted_by_offset($headerdb);
 
    filelock("$headerdb$config{'dbm_ext'}", LOCK_EX) if (!$config{'dbmopen_haslock'});
@@ -1263,7 +1303,12 @@ sub rebuild_message_with_partialid {
    my (%HDB, @messageids);
    my ($partialtotal, @partialmsgids, @offset, @size);
 
-   update_headerdb($headerdb, $folderfile);
+   if (update_headerdb($headerdb, $folderfile)<0) {
+      filelock($folderfile, LOCK_UN);
+      writelog("db error - Couldn't update index db $headerdb$config{'dbm_ext'}");
+      writehistory("db error - Couldn't update index db $headerdb$config{'dbm_ext'}");
+      return(-1);
+   }
 
    # find all partial msgids
    filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) if (!$config{'dbmopen_haslock'});
@@ -1295,11 +1340,11 @@ sub rebuild_message_with_partialid {
 
    # check completeness
    if ($partialtotal<1) {	# last part not found
-      return(-1);
+      return(-2);
    }
    for (my $i=1; $i<=$partialtotal; $i++) {
       if ($partialmsgids[$i] eq "") {	# some part missing
-         return(-2);
+         return(-3);
       }
    }
 
@@ -1341,18 +1386,23 @@ sub rebuild_message_with_partialid {
    filelock("$tmpfile", LOCK_EX);
 
    # index tmpfile, get the msgid
-   update_headerdb($tmpdb, $tmpfile);
+   if (update_headerdb($tmpdb, $tmpfile)<0) {
+      filelock($tmpfile, LOCK_UN);
+      writelog("db error - Couldn't update index db $tmpdb$config{'dbm_ext'}");
+      writehistory("db error - Couldn't update index db $tmpdb$config{'dbm_ext'}");
+      return -4;
+   }
 
    # check the rebuild integrity
    my @rebuildmsgids=get_messageids_sorted_by_offset($tmpdb);
    if ($#rebuildmsgids!=0) {
       unlink("$tmpdb$config{'dbm_ext'}", $tmpfile);
-      return(-3);
+      return(-5);
    }
    my $rebuildsize=(get_message_attributes($rebuildmsgids[0], $tmpdb))[$_SIZE];
    if ($writtensize!=$rebuildsize) {
       unlink("$tmpdb$config{'dbm_ext'}", $tmpfile);
-      return(-4);
+      return(-6);
    }
 
    my $moved=operate_message_with_ids("move", \@rebuildmsgids,
@@ -1792,30 +1842,39 @@ sub make_attachment {
    my ($subtype,$boundary, $attheader,$r_attcontent,$attcontentlength,
 	$attencoding,$attcontenttype,
         $attdisposition,$attid,$attlocation,$attdescription, $nodeid)=@_;
-   my $attfilename;
+   my ($attcharset, $attfilename, $attfilenamecharset);
    my %temphash;
 
+   if ($attcontenttype=~/charset="?([^\s"';]*)"?\s?/i) {
+      $attcharset=$1;
+   }
    $attfilename = $attcontenttype;
-#   $attcontenttype =~ s/^(.+);.*/$1/g;
-   if ($attfilename =~ s/^.+name\s?[:=]\s?"?([^"]+)"?.*$/$1/ig) {
-      $attfilename = decode_mimewords($attfilename);
-   } elsif ($attfilename =~ s/^.+name\s?[:=]\s?"?[\w]+''([^"]+)"?.*$/$1/ig) {
+   if ($attfilename =~ s/^.+name\s?\*?[:=]\s?"?[\w\d\-]+''([^"]+)"?.*$/$1/ig) {
       $attfilename = unescapeURL($attfilename);
+   } elsif ($attfilename =~ s/^.+name\s?\*?[:=]\s?"?([^"]+)"?.*$/$1/ig) {
+      $attfilenamecharset = $1 if ($attfilename =~ m{=\?([^?]*)\?[bq]\?[^?]+\?=}xi);
+      $attfilename = decode_mimewords($attfilename);
    } else {
       $attfilename = $attdisposition || '';
-      if ($attfilename =~ s/^.+filename\s?=\s?"?([^"]+)"?.*$/$1/ig) {
-         $attfilename = decode_mimewords($attfilename);
-      } elsif ($attfilename =~ s/^.+filename\s?=\s?"?[\w]+''([^"]+)"?.*$/$1/ig) {
+      if ($attfilename =~ s/^.+filename\s?\*?=\s?"?[\w\d\-]+''([^"]+)"?.*$/$1/ig) {
          $attfilename = unescapeURL($attfilename);
+      } elsif ($attfilename =~ s/^.+filename\s?\*?=\s?"?([^"]+)"?.*$/$1/ig) {
+         $attfilenamecharset = $1 if ($attfilename =~ m{=\?([^?]*)\?[bq]\?[^?]+\?=}xi);
+         $attfilename = decode_mimewords($attfilename);
       } else {
          $attfilename = "Unknown.".contenttype2ext($attcontenttype);
       }
    }
-   $attfilename=~s|[\\/]|!|g;	# the filename of attachments should not contain / or \
+   # the filename of attachments should not contain path delimiter,
+   # eg:/,\,: We replace it with !
+   $attfilename =~ s|([^\x81-\xFE\xA1-\xF9])\\|$1!|g;	# dos path
+   $attfilename =~ s|/|!|g;	# unix path
+   $attfilename =~ s|:|!|g;	# mac path and dos drive
 
    $attdisposition =~ s/^(.+);.*/$1/g;
 
    # guess a better contenttype
+#   $attcontenttype =~ s/^(.+);.*/$1/g;
    if ( $attcontenttype =~ m!(\Qapplication/octet-stream\E)!i ||
         $attcontenttype =~ m!(\Qvideo/mpg\E)!i ) {
       my $oldtype=$1;
@@ -1832,9 +1891,11 @@ sub make_attachment {
    $temphash{r_content} = $r_attcontent;
    $temphash{contentlength} = $attcontentlength;
    $temphash{contenttype} = $attcontenttype || 'text/plain';
+   $temphash{charset}= $attcharset || '';
    $temphash{encoding} = $attencoding;
    $temphash{disposition} = $attdisposition;
    $temphash{filename} = $attfilename;
+   $temphash{filenamecharset}= $attfilenamecharset||$attcharset;
    $temphash{id} = $attid;
    $temphash{location} = $attlocation;
    $temphash{nodeid} = $nodeid;
@@ -1942,6 +2003,8 @@ sub search_info_messages_for_keyword {
 
       filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) if (!$config{'dbmopen_haslock'});
       dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
+
+      $regexmatch = $regexmatch && is_regex($keyword);	# check if keyword a valid regex
 
       foreach $messageid (@messageids) {
          my (@attr, $block, $header, $body, $r_attachments) ;
@@ -2134,6 +2197,23 @@ sub _link_target_blank {
    return($link);
 }
 
+# this routine is used to resolve frameset in html by
+# converting <frame ...> into <iframe width="100%"..></iframe>
+# so html with frameset can be displayed correctly inside the message body
+sub html4noframe {
+   my $html=$_[0];
+   $html=~s/(<frame\s+[^\<\>]*?>)/_frame2iframe($1)/igems;
+   return($html);
+}
+
+sub _frame2iframe {
+   my $frame=$_[0];
+   return "" if ( $frame!~/src=/i );
+   $frame=~s/<frame /<iframe width="100%" height="250" /is;
+   $frame.=qq|</iframe>|;
+   return($frame);
+}
+
 # this routine disables the javascript in a html message
 # to avoid user being hijacked by some eval programs
 sub html4disablejs {
@@ -2258,7 +2338,7 @@ sub html2text {
    $t=~s!&gt;!>!g;
    $t=~s!&amp;!&!g;
    $t=~s!&quot;!\"!g;
-   $t=~s!&#8364;!€!g;	# Euro symbo
+#   $t=~s!&#8364;!€!g;	# Euro symbo
 
    $t=~s!\n\n\s+!\n\n!g;
 
@@ -2270,7 +2350,7 @@ sub text2html {
 
    $t=~s/&/ESCAPE_AMP/g;
 
-   $t=~s!€!&#8364;!g;	# Euro symbo
+#   $t=~s!€!&#8364;!g;	# Euro symbo
    $t=~s/\"/ &quot;/g;
    $t=~s/</ &lt;/g;
    $t=~s/>/ &gt;/g;
@@ -2279,10 +2359,9 @@ sub text2html {
    $t=~s/\t/ &nbsp;&nbsp;&nbsp;&nbsp;/g;
    $t=~s/\n/<BR>\n/g;
 
-   foreach (qw(http https ftp mms nntp news gopher telnet)) {
-      $t=~s!($_://[\w\d\-\.]+?/?[^\s<>]*[\w/])([\b|\n| ]*)!<a href="$1" target="_blank">$1</A>$2!gs;
-   }
-   $t=~s!([\b|\n| ]+)(www\.[\w\d\-\.]+\.[\w\d\-]{2,3})([\b|\n| ]*)!$1<a href="http://$2" target="_blank">$2</a>$3!gs;
+   $t=~s!(https?|ftp|mms|nntp|news|gopher|telnet)://([\w\d\-\.]+?/?[^\s<>]*[\w/])([\b|\n| ]*)!<a href="$1://$2" target="_blank">$1://$2</a>$3!gs;
+   $t=~s!([\b|\n| ]+)(www\.[\w\d\-\.]+\.[\w\d\-]{2,4})([\b|\n| ]*)!$1<a href="http://$2" target="_blank">$2</a>$3!igs;
+   $t=~s!([\b|\n| ]+)(ftp\.[\w\d\-\.]+\.[\w\d\-]{2,4})([\b|\n| ]*)!$1<a href="ftp://$2" target="_blank">$2</a>$3!igs;
 
    # remove the blank inserted just now
    $t=~s/ (&quot;|&lt;|&gt;)/$1/g;
@@ -2307,50 +2386,57 @@ sub str2html {
 sub shiftblock {
    my ($fh, $start, $size, $movement)=@_;
    my ($oldoffset, $movestart, $left, $buff);
+   my $ioerr=0;
 
-   return if ($movement == 0 );
+   return 0 if ($movement == 0 );
 
    $oldoffset=tell($fh);
    $left=$size;
    if ( $movement >0 ) {
-      while ($left>0) {
+      while ($left>0 && !$ioerr) {
          if ($left>=32768) {
              $movestart=$start+$left-32768;
              seek($fh, $movestart, 0);
              read($fh, $buff, 32768);
              seek($fh, $movestart+$movement, 0);
-             print $fh $buff;
+             print $fh $buff || $ioerr++;
              $left=$left-32768;
          } else {
              $movestart=$start;
              seek($fh, $movestart, 0);
              read($fh, $buff, $left);
              seek($fh, $movestart+$movement, 0);
-             print $fh $buff;
+             print $fh $buff || $ioerr++;
              $left=0;
          }
       }
 
    } elsif ( $movement <0 ) {
-      while ($left>0) {
+      while ($left>0 && !$ioerr) {
          if ($left>=32768) {
              $movestart=$start+$size-$left;
              seek($fh, $movestart, 0);
              read($fh, $buff, 32768);
              seek($fh, $movestart+$movement, 0);
-             print $fh $buff;
+             print $fh $buff || $ioerr++;
              $left=$left-32768;
          } else {
              $movestart=$start+$size-$left;
              seek($fh, $movestart, 0);
              read($fh, $buff, $left);
              seek($fh, $movestart+$movement, 0);
-             print $fh $buff;
+             print $fh $buff || $ioerr++;
              $left=0;
          }
       }
    }
    seek($fh, $oldoffset, 0);
+
+   if ($ioerr) {
+      return -1;
+   } else {
+      return 1;
+   }
 }
 
 #################### END SHIFTBLOCK ####################

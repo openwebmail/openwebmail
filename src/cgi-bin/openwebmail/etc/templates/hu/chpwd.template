@@ -30,8 +30,8 @@
    {
       var s;
       s=document.passwordform.newpassword.value;
-      if (s.length < 4) {
-         alert("A jelszónak legalább 4 betûsnek kell lennie!");
+      if (s.length < @@@PASSWDMINLEN@@@) {
+         alert("A jelszónak legalább @@@PASSWDMINLEN@@@ betûsnek kell lennie!");
          return false;
       }
       if (document.passwordform.newpassword.value !=

@@ -13,7 +13,7 @@
 <BR>
 <table align=center border=0 cellspacing=2 cellpadding=0>
 <tr>
-<td align=right nowrap>UserID: </td><td align=left>@@@USERIDFIELD@@@</td>
+<td align=right nowrap>UserID: </td><td align=left>@@@LOGINNAMEFIELD@@@</td>
 </tr><tr>
 <td align=right nowrap>Password: </td><td align=left>@@@PASSWORDFIELD@@@</td>
 @@@DOMAINSTART@@@
@@ -25,7 +25,7 @@
 <table><tr><td>@@@LOGINBUTTON@@@</td></tr></table>
 </td>
 <td align=center>
-<table><tr><td><font size=1>remember<br>my userid</font></td><td>@@@REMEMBERMECHECKBOX@@@</td></tr></table>
+<table><tr><td><font size=1>memorizza<br>la mia userid</font></td><td>@@@REMEMBERMECHECKBOX@@@</td></tr></table>
 </td>
 </tr>
 </table>
@@ -37,13 +37,19 @@
 </td></tr></table>
 <p align="center">
 <BR>
-@@@PAGE_FOOTER@@@<BR>
+@@@PAGE_FOOTER@@@ &nbsp;
+<a href="@@@HELP_LINK@@@" target="_help">Aiuto?</a>
+<BR>
 </p>
 
 <script language="JavaScript">
 <!--
 
-   document.login.loginname.focus()
+   if (document.login.loginname.value == "") {
+      document.login.loginname.focus()
+   } else {
+      document.login.password.focus()
+   }
 
    function focuspwd()
    {
@@ -51,9 +57,9 @@
       return(true);
    }
 
-   function focuslogin()
+   function focusloginbutton()
    {
-      document.login.login.focus();
+      document.login.loginbutton.focus();
       return (true);
    }
 

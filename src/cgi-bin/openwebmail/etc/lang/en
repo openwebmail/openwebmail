@@ -1,4 +1,4 @@
-#!/usr/bin/perl -T
+#!/usr/bin/perl
 
 # English translation by openwebmail team
 # charset: iso-8859-1
@@ -47,9 +47,19 @@
    no  => 'No'
    );
 
+%lang_positionlabels =
+   (
+   before => 'Before mail edit area',
+   after => 'After mail edit area',
+   both  => 'Before and after mail edit area'
+   );
+
 %lang_timelabels =
    (
+      3 => '3 minutes',
+      5 => '5 minutes',
      10 => '10 minutes',
+     20 => '20 minutes',
      30 => '30 minutes',
      60 => '60 minutes',
     120 => '2 hours',
@@ -75,7 +85,8 @@
    yearview  => 'Yearview',
    monthview => 'Monthview',
    weekview  => 'Weekview',
-   dayview   => 'Dayview'
+   dayview   => 'Dayview',
+   listview   => 'Listview'
    );
 
 %lang_month =
@@ -138,6 +149,7 @@
    messages   => 'messages',
    unread     => 'unread',
    nomessages => 'No messages',
+   inmessages => 'Incoming msgs',
    composenew => 'Compose new message',
    refresh    => 'Refresh',
    userprefs  => 'User preferences',
@@ -146,7 +158,8 @@
    emptytrash => 'Empty trash',
    totrash    => 'Move to Trash',
    forever    => 'Forever',
-   userdef    => 'User Define',
+   delatlogout=> 'Delete at Logout',
+   userdef    => 'User Defined',
    logout     => 'Logout',
    page       => 'Page',
    msgcopyconf=> '\'Are you sure you want to copy the selected message(s)?\'',
@@ -183,6 +196,8 @@
    encoding   => 'Encoding',
    description=> 'Description',
    download   => 'Download',
+   charset    => 'Charset',
+   samecharset=> 'The same as composing charset',
    thisispartialmsg => 'This is a partial message',
    msgrebuild => 'Message Rebuild',
    editdraft  => 'Edit Draft',
@@ -225,6 +240,7 @@
    quota_hit  => 'QUOTA HIT',
    usage      => 'Usage',
    tzmap      => 'World timezone map',
+   testsound  => 'Test sound',
    editfroms  => 'Edit personal email addresses',
    pop3book   => 'POP3 Setup',
    retr_pop3s => 'Retrieve POP3 Mail',
@@ -259,6 +275,10 @@
    checkagain => 'Check Again',
    finishchecking => 'Finish Checking',
    manuallyfix=> 'Manually Fix',
+   editstat   => 'Edit Stationery',
+   savestat   => 'Save Stationery',
+   clearstat  => 'Clear All Stationery',
+   selectstat => '-- Select Stationery for Reply --',
    calendar   => 'Calendar',
    am         => 'am',
    pm         => 'pm',
@@ -287,6 +307,7 @@
    couldnt_lock      => 'Couldn\'t get write lock on',
    couldnt_seek      => 'Couldn\'t seek to the beginning of',
    couldnt_close     => 'Couldn\'t close',
+   couldnt_updatedb  => 'Couldn\'t update index db ',
    disallowed_pop3   => 'Disallowed POP3 server',
    disallowed_client => 'You are not allowed to connect from this client',
    disallowed_receiverdomain => 'You are not allowed to send message to this email address',
@@ -305,6 +326,7 @@
    abook_toobig      => 'Sorry, this would exceed the size limit for your address book.  Please go',
    cant_create_dir   => 'Can\'t create your user directory!',
    folder_hitquota   => 'Sorry, you\'ve hit your quota, and no more mail can be stored in your mail folders.  You will be unable to move messages anywhere but to the TRASH, where they will be deleted.  Go back, delete some messages or empty your trash, and try again.',
+   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
    att_overlimit     => 'Sorry, your attachments exceed the attachment size limit, which is',
    inv_msg_op        => 'Invalid operation for message',
    inv_sessid        => 'Your request didn\'t contain the proper session ID cookie -- access denied!',
@@ -316,7 +338,9 @@
    func_notsupported => 'function not supported',
    auth_syserr       => 'authentication system error',
    param_fmterr      => 'parameter format error',
-   pwd_incorrect     => 'password incorrect',
+   pwd_incorrect     => 'Password incorrect',
+   pwd_tooshort      => 'Password too short (minimum length @@@PASSWDMINLEN@@@)',
+   pwd_toosimple     => 'Password too simple (both alphabet and digit are required)',
    network_server_error => 'network server error',
    sendmail_error    => 'Sorry, there was a problem sending your message.  Please click your browser\'s Back button, check your message, and try again.',
    at_char_not_allowed => 'The @ character is not allowed in this field.  Press browser back button and try again',

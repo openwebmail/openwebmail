@@ -30,8 +30,8 @@
    {
       var s;
       s=document.passwordform.newpassword.value;
-      if (s.length < 4) {
-         alert("密碼長度至少要有 4 個字元.");
+      if (s.length < @@@PASSWDMINLEN@@@) {
+         alert("密碼長度至少要有 @@@PASSWDMINLEN@@@ 個字元.");
          return false;
       }
       if (document.passwordform.newpassword.value !=

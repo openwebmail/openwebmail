@@ -1,4 +1,4 @@
-#!/usr/bin/perl -T
+#!/usr/bin/perl
 
 # Hungarian translation by Nagy Endre, gumo.AT.lucifer.kgt.bme.hu 
 #                          Posz Marton, ful_s.AT.fazekas.hu
@@ -48,9 +48,19 @@
    no  => 'Nem'
    );
 
+%lang_positionlabels =
+   (
+   before => 'Before mail edit area',
+   after => 'After mail edit area',
+   both  => 'Before and after mail edit area'
+   );
+
 %lang_timelabels =
    (
+      3 => '3 minutes',
+      5 => '5 minutes',
      10 => '10 minutes',
+     20 => '20 minutes',
      30 => '30 minutes',
      60 => '60 minutes',
     120 => '2 hours',
@@ -76,7 +86,8 @@
    yearview  => 'Yearview',
    monthview => 'Monthview',
    weekview  => 'Weekview',
-   dayview   => 'Dayview'
+   dayview   => 'Dayview',
+   listview   => 'Listview'
    );
 
 %lang_month =
@@ -139,6 +150,7 @@
    messages   => 'üzenet',
    unread     => 'olvasatlan',
    nomessages => 'Nincs üzenet',
+   inmessages => 'Incoming msgs',
    composenew => 'Új üzenet',
    refresh    => 'Frissít',
    userprefs  => 'Beállítások',
@@ -147,6 +159,7 @@
    emptytrash => 'Szemetes ürítése',
    totrash    => 'Move to Trash',
    forever    => 'örökre',
+   delatlogout=> 'Delete at Logout',
    userdef    => 'Felhasználó definiálja',
    logout     => 'Kijelentkezés',
    page       => 'oldal',
@@ -184,6 +197,8 @@
    encoding   => 'Kódolás',
    description=> 'Leírás',
    download   => 'Letöltés:',
+   charset    => 'Charset',
+   samecharset=> 'The same as composing charset',
    thisispartialmsg => 'Ez egy üzenetrész.',
    msgrebuild => 'Üzenet újraépítése',
    editdraft  => 'Félretett üzenet folytatása',
@@ -226,6 +241,7 @@
    quota_hit  => 'KVÓTA',
    usage      => 'kihasználtság',
    tzmap      => 'World timezone map',
+   testsound  => 'Test sound',
    editfroms  => 'Címlista szerkesztése',
    pop3book   => 'POP3 beállítások',
    retr_pop3s => 'POP3 levelek letöltése',
@@ -260,6 +276,10 @@
    checkagain => 'Újra ellenõriz',
    finishchecking => 'Befejezi az ellenõrzést',
    manuallyfix=> 'Manuálisan javít',
+   editstat   => 'Edit Stationery',
+   savestat   => 'Save Stationery',
+   clearstat  => 'Clear All Stationery',
+   selectstat => '-- Select Stationery for Reply --',
    calendar   => 'Calendar',
    am         => 'am',
    pm         => 'pm',
@@ -288,6 +308,7 @@
    couldnt_lock      => 'Nem zárolható',
    couldnt_seek      => 'Nem található az eleje',
    couldnt_close     => 'Nem sikerült bezárni',
+   couldnt_updatedb  => 'Couldn\'t update index db ',
    disallowed_pop3   => 'Tiltott POP3 szerver',
    disallowed_client => 'Nem léphet be errõl a géprõl',
    disallowed_receiverdomain => 'Nem küldhet levelet erre az email címre',
@@ -306,6 +327,7 @@
    abook_toobig      => 'Ezzel túllépné a mérethatárt. Kérem, lépjen vissza ',
    cant_create_dir   => 'Nem sikerült létrehozni a mappát!',
    folder_hitquota   => 'Ön elérted a kvótát, így több levelet nem tud elmenteni. Töröljön néhányat és próbálja újra.',
+   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
    att_overlimit     => 'A csatolás túllépte a mengedett mérethatárt, ami ',
    inv_msg_op        => 'Érvénytelen mûvelet üzenetre!',
    inv_sessid        => 'Az Ön üzenete nem a helyes cookie-t tartalmazza -- a hozzáférés letiltva!',
@@ -318,6 +340,8 @@
    auth_syserr       => 'azonosítási rendszerhiba',
    param_fmterr      => 'hibás paraméter-formátum',
    pwd_incorrect     => 'hibás jelszó',
+   pwd_tooshort      => 'Password too short (minimum length @@@PASSWDMINLEN@@@)',
+   pwd_toosimple     => 'Password too simple (both alphabet and digit are required)',
    network_server_error => 'szerverhiba',
    sendmail_error    => 'Nem sikerült elküldeni az üzenetét. Kérem, hogy lépjen vissza egy oldalt a böngészõben, ellenõrizze az üzenetet, és próbálja újra.',
    at_char_not_allowed => 'The @ character is not allowed in this field.  Press browser back button and try again',

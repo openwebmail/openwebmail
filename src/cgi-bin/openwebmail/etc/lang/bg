@@ -1,4 +1,4 @@
-#!/usr/bin/perl -T
+#!/usr/bin/perl
 
 # Bulgarian translation by Veselin Slavov, vess@btc.net, 2002/04/02
 # charset: windows-1251
@@ -47,9 +47,19 @@
    no  => 'Не'
    );
 
+%lang_positionlabels =
+   (
+   before => 'Before mail edit area',
+   after => 'After mail edit area',
+   both  => 'Before and after mail edit area'
+   );
+
 %lang_timelabels =
    (
+      3 => '3 минути',
+      5 => '5 минути',
      10 => '10 минути',
+     20 => '20 минути',
      30 => '30 минути',
      60 => '60 минути',
     120 => '2 часа',
@@ -75,7 +85,8 @@
    yearview  => 'Yearview',
    monthview => 'Monthview',
    weekview  => 'Weekview',
-   dayview   => 'Dayview'
+   dayview   => 'Dayview',
+   listview   => 'Listview'
    );
 
 %lang_month =
@@ -138,6 +149,7 @@
    messages   => 'съобщения',
    unread     => 'непрочетени',
    nomessages => 'Няма съобщения',
+   inmessages => 'Incoming msgs',
    composenew => 'Създаване на ново съобщение',
    refresh    => 'Опресняване',
    userprefs  => 'Потребителски настройки',
@@ -146,6 +158,7 @@
    emptytrash => 'Изпразни кошчето',
    totrash    => 'Move to Trash',
    forever    => 'Завинаги',
+   delatlogout=> 'Delete at Logout',
    userdef    => 'Дефинирано от потребителя',
    logout     => 'Изход',
    page       => 'Страница',
@@ -183,6 +196,8 @@
    encoding   => 'Кодиране',
    description=> 'Описание',
    download   => 'Дръпни',
+   charset    => 'Charset',
+   samecharset=> 'The same as composing charset',
    thisispartialmsg => 'Това е част от съобщение',
    msgrebuild => 'Преподреждане на съобщението',
    editdraft  => 'Редакция чернова',
@@ -225,6 +240,7 @@
    quota_hit  => 'ОГРАНИЧЕНИЕ',
    usage      => 'Използване',
    tzmap      => 'World timezone map',
+   testsound  => 'Test sound',
    editfroms  => 'Редакция на собствения адрес',
    pop3book   => 'POP3 Настройки',
    retr_pop3s => 'Прочитане на POP3 поща',
@@ -259,6 +275,10 @@
    checkagain => 'Провери отново',
    finishchecking => 'Край на проверката',
    manuallyfix=> 'Ръчна поправка',
+   editstat   => 'Edit Stationery',
+   savestat   => 'Save Stationery',
+   clearstat  => 'Clear All Stationery',
+   selectstat => '-- Select Stationery for Reply --',
    calendar   => 'Calendar',
    am         => 'am',
    pm         => 'pm',
@@ -287,6 +307,7 @@
    couldnt_lock      => 'Невъзможно маркиране за писане на',
    couldnt_seek      => 'Не е намерено началото на',
    couldnt_close     => 'Невъзможно затваряне',
+   couldnt_updatedb  => 'Couldn\'t update index db ',
    disallowed_pop3   => 'Отхвърлен POP3 сървър',
    disallowed_client => 'Проблем при свързването от',
    disallowed_receiverdomain => 'Невъзможно изпращането на поща до този адрес',
@@ -305,6 +326,7 @@
    abook_toobig      => 'За съжаление сте достигнали лимита си за адресна книга. Моля върнете се',
    cant_create_dir   => 'Невъзможно е създаването на личната Ви папка!',
    folder_hitquota   => 'Достигнахте лимита си, поради което пристигналите съобщения няма да бъдат обслужвани.  Невъзможно е местенето на съобщения никъде, освен в Кошчето, откъдето ще бъдат изтрити.  Върнете се изтрийте, ненужните съобщения или изпразнете кошчето и опитайте пак.',
+   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
    att_overlimit     => 'За съжаление превишавате лимита за прикачени файлове, който е',
    inv_msg_op        => 'Непозволена операция за съобщението',
    inv_sessid        => 'Достъпът отказан - проблем с БИСКВИТКИТЕ!',
@@ -317,6 +339,8 @@
    auth_syserr       => 'системна гришка при регистрация',
    param_fmterr      => 'грешен форматиращ параметър',
    pwd_incorrect     => 'грешна парола',
+   pwd_tooshort      => 'Password too short (minimum length @@@PASSWDMINLEN@@@)',
+   pwd_toosimple     => 'Password too simple (both alphabet and digit are required)',
    network_server_error => 'грешка при свързване със сървъра',
    sendmail_error    => 'Проблем при изпращане на съобщението.  Моля проверете за грешки и опитайте пак.',
    at_char_not_allowed => 'The @ character is not allowed in this field.  Press browser back button and try again',

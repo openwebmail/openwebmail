@@ -30,8 +30,8 @@
    {
       var s;
       s=document.passwordform.newpassword.value;
-      if (s.length < 4) {
-         alert("La contrase&ntilde;a debe tener al menos 4 caracteres.");
+      if (s.length < @@@PASSWDMINLEN@@@) {
+         alert("La contrase&ntilde;a debe tener al menos @@@PASSWDMINLEN@@@ caracteres.");
          return false;
       }
       if (document.passwordform.newpassword.value !=

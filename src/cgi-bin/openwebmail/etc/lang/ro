@@ -1,4 +1,4 @@
-#!/usr/bin/perl -T
+#!/usr/bin/perl
 
 # Romanian translation by Vladimir Hrusca, vladimir.AT.bitsoft.ro
 # charset: iso-8859-2
@@ -47,9 +47,19 @@
    no  => 'Nu'
    );
 
+%lang_positionlabels =
+   (
+   before => 'Before mail edit area',
+   after => 'After mail edit area',
+   both  => 'Before and after mail edit area'
+   );
+
 %lang_timelabels =
    (
+      3 => '3 minute',
+      5 => '5 minute',
      10 => '10 minute',
+     20 => '20 minute',
      30 => '30 minute',
      60 => '60 minute',
     120 => '2 ore',
@@ -75,7 +85,8 @@
    yearview  => 'Yearview',
    monthview => 'Monthview',
    weekview  => 'Weekview',
-   dayview   => 'Dayview'
+   dayview   => 'Dayview',
+   listview   => 'Listview'
    );
 
 %lang_month =
@@ -138,6 +149,7 @@
    messages   => 'mesaje',
    unread     => 'necitite',
    nomessages => 'Nici un mesaj',
+   inmessages => 'Incoming msgs',
    composenew => 'Compune un mesaj',
    refresh    => 'Reincarca',
    userprefs  => 'Preferinte',
@@ -146,6 +158,7 @@
    emptytrash => 'Curata mesajele sterse',
    totrash    => 'Move to Trash',
    forever    => 'Intotdeauna',
+   delatlogout=> 'Delete at Logout',
    userdef    => 'User defineste',
    logout     => 'Iesire',
    page       => 'Pagina',
@@ -183,6 +196,8 @@
    encoding   => 'Codare',
    description=> 'Descriptia',
    download   => 'Downloadeaza',
+   charset    => 'Charset',
+   samecharset=> 'The same as composing charset',
    thisispartialmsg => 'Acesta este un mesaj partial.',
    msgrebuild => 'Refacere Messajul',
    editdraft  => 'Redactare Draft',
@@ -225,6 +240,7 @@
    quota_hit  => 'DEP&Atilde;SIRE SPATIU ALOCAT',
    usage      => 'Folosit',
    tzmap      => 'World timezone map',
+   testsound  => 'Test sound',
    editfroms  => 'Redactarea email-urilor personale',
    pop3book   => 'POP3 Setup',
    retr_pop3s => 'Citeste POP3 Mail',
@@ -259,6 +275,10 @@
    checkagain => 'Verifica iar',
    finishchecking => 'Termina verificare',
    manuallyfix=> 'Fixeaza manual',
+   editstat   => 'Edit Stationery',
+   savestat   => 'Save Stationery',
+   clearstat  => 'Clear All Stationery',
+   selectstat => '-- Select Stationery for Reply --',
    calendar   => 'Calendar',
    am         => 'am',
    pm         => 'pm',
@@ -287,6 +307,7 @@
    couldnt_lock      => 'Nu pot bloca',
    couldnt_seek      => 'Nu pot ajunge la inceput',
    couldnt_close     => 'Nu pot inchide',
+   couldnt_updatedb  => 'Couldn\'t update index db ',
    disallowed_pop3   => 'Server POP3 inaccesibil',
    disallowed_client => 'Nu aveti voie sa va conectati de la acest client',
    disallowed_receiverdomain => 'Nu aveti voie sa trimiteti mesaje la aceasta adresa',
@@ -305,6 +326,7 @@
    abook_toobig      => 'Imi pare rau dar aceasta ar depasi limita agendei tale. Te rog du-te',
    cant_create_dir   => 'Nu pot creea directorul tau!',
    folder_hitquota   => 'Imi pare rau dar ti-ai depasit spatiul alocat si nu mai poti salva scrisori.  Nu vei putea muta decat mesaje spre STERSE.  Du-te inapoi sterge ceva mesaje, distruge mesajele sterse si incearca din nou.',
+   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
    att_overlimit     => 'Imi pare rau, atachmentul dvs. depaseste marimea acceptata, adica',
    inv_msg_op        => 'Operatia incorecta pentru mesaj',
    inv_sessid        => 'Request-ul Dv. nu contine cooky-ul potrivit pentru sessiunea aceasta - acces inchis!',
@@ -317,6 +339,8 @@
    auth_syserr       => 'erroarea sistemului de autotenficare',
    param_fmterr      => 'parameter incorect',
    pwd_incorrect     => 'parola incorecta',
+   pwd_tooshort      => 'Password too short (minimum length @@@PASSWDMINLEN@@@)',
+   pwd_toosimple     => 'Password too simple (both alphabet and digit are required)',
    network_server_error => 'greseala serverului',
    sendmail_error    => 'Este o problema in trimiterea mesajului Dv. Va rugam sa apasati inapoi si sa verificati mesajul.',
    at_char_not_allowed => 'The @ character is not allowed in this field.  Press browser back button and try again',

@@ -1,7 +1,9 @@
-#!/usr/bin/perl -T
+#!/usr/bin/suidperl -T
 #
-# spell check program by tung@turtle.ee.ncku.edu.tw
-# modified from WBOSS Version 1.50a
+# openwebmail-spell.pl - spell check program
+#
+# 2001/09/27 tung@turtle.ee.ncku.edu.tw
+#            modified from WBOSS Version 1.50a
 #
 # WBOSS is available at http://www.dontpokebadgers.com/spellchecker/
 # and is copyrighted by 2001, Joshua Cantara
@@ -41,7 +43,7 @@ use CGI qw(-private_tempfiles :standard);
 use CGI::Carp qw(fatalsToBrowser);
 CGI::nph();   # Treat script as a non-parsed-header script
 
-require "openwebmail-shared.pl";
+require "ow-shared.pl";
 require "filelock.pl";
 
 use vars qw(%config %config_raw);
@@ -113,13 +115,7 @@ sub docheck {
    my $escapedwordframe;
    local $_;
 
-   open (SPELLCHECKTEMPLATE, "$config{'ow_etcdir'}/templates/$prefs{'language'}/spellcheck.template") or
-      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/templates/$prefs{'language'}/spellcheck.template");
-   while (<SPELLCHECKTEMPLATE>) {
-      $html .= $_;
-   }
-   close (IMPORTTEMPLATE);
-
+   $html=readtemplate("spellcheck.template");
    $html = applystyle($html);
 
    $html =~ s/\@\@\@FORMNAME\@\@\@/$formname/;
@@ -131,7 +127,7 @@ sub docheck {
 
    # escapedwordframe must be done after words2html()
    # since $wordframe may changed in words2html()
-   $escapedwordframe=escapeURL($wordframe);	
+   $escapedwordframe=escapeURL($wordframe);
 
    $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-spell.pl",
                          -name=>'spellcheck') .
@@ -247,10 +243,16 @@ sub text2words {
    local $_;
 
    # init don't care term
-   $wordignore="http https ftp nntp smtp nfs html xml sgml mailto freebsd linux solaris gnu gpl bsd openwebmail";
+   $wordignore  = "they'll we'll you'll she'll he'll i'll ".
+                  "they've we've you've I've ".
+                  "can't couldn't won't wouldn't shouldn't ".
+                  "don't doesn't didn't hasn't hadn't ".
+                  "isn't wasn't aren't weren't ".
+                  "http https ftp nntp smtp nfs html xml sgml mailto ".
+                  "freebsd linux solaris gnu gpl bsd openwebmail";
 
    # put url to ignore
-   foreach ($text=~m![A-Za-z]+tp://[A-Za-z\d\.]+!ig) {	
+   foreach ($text=~m![A-Za-z]+tp://[A-Za-z\d\.]+!ig) {
       $wordignore.=" $_";
    }
    # put email to ignore

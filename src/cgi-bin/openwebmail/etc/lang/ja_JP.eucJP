@@ -1,0 +1,352 @@
+#!/usr/bin/perl
+
+# Japanese translation by
+# Captain James and Interactive Artists, LLC, james.AT.ActionMessage.com
+# charset : Shift_JIS
+
+%lang_folders =
+   (
+   INBOX => 'Inbox',
+   'saved-messages' => '保存済み',
+   'sent-mail'      => '送信済み',
+   'saved-drafts'   => '下書き',
+   'mail-trash'     => 'ごみ箱',
+   DELETE => '--削除--'
+   );
+
+%lang_sortlabels =
+   (
+   status      => 'ステータス (未読が最初)',
+   date        => '日付 (最新が最初)',
+   date_rev    => '日付 (最古が最初)',
+   sender      => '送信者 (最新が最初)',
+   sender_rev  => '送信者 (最古が最初)',
+   subject     => '件名 (最新が最初)',
+   subject_rev => '件名 (最古が最初)',
+   size        => 'サイズ (最大が最初)',
+   size_rev    => 'サイズ (最小が最初)'
+   );
+
+%lang_prioritylabels =
+   (
+   normal      => '普通',
+   urgent      => '緊急',
+   'non-urgent'=> '緊急でない'
+   );
+
+%lang_withoriglabels =
+   (
+   at_beginning => '最初に',
+   at_end      => '終わりに',
+   none        => 'なし'
+   );
+
+%lang_receiptlabels =
+   (
+   ask => '確認してください',
+   yes => 'はい',
+   no  => 'いいえ'
+   );
+
+%lang_positionlabels =
+   (
+   before => 'Before mail edit area',
+   after => 'After mail edit area',
+   both  => 'Before and after mail edit area'
+   );
+
+%lang_timelabels =
+   (
+      3 => '3 分',
+      5 => '5 分',
+     10 => '10 分',
+     20 => '20 分',
+     30 => '30 分',
+     60 => '60 分',
+    120 => '2 時間',
+    180 => '3 時間',
+    360 => '6 時間',
+    720 => '12 時間',
+   1440 => '24 時間'
+   );
+
+%lang_advsearchlabels =
+   (
+   contains    => '含む',
+   notcontains => '含まない',
+   is          => 'である',
+   isnot       => 'でない',
+   startswith  => '始める',
+   endswith    => '終わる',
+   regexp      => 'regexp　に合う',
+   );
+
+%lang_calendar = 
+   (
+   yearview  => '年表示',
+   monthview => '月表示',
+   weekview  => '週表示',
+   dayview   => '日表示'
+   );
+
+%lang_month =
+   (
+   1  => '一月',
+   2  => '二月',
+   3  => '三月',
+   4  => '四月',
+   5  => '五月',
+   6  => '六月',
+   7  => '七月',
+   8  => '八月',
+   9  => '九月',
+   10 => '十月',
+   11 => '十一月',
+   12 => '十二月'
+   );
+
+%lang_wday =
+   (
+   0 => '日曜日',
+   1 => '月曜日',
+   2 => '火曜日',
+   3 => '水曜日',
+   4 => '木曜日',
+   5 => '金曜日',
+   6 => '土曜日'
+   );
+
+%lang_wday_abbrev =
+   (
+   week => '週',
+   0 => '日',
+   1 => '月',
+   2 => '火',
+   3 => '水',
+   4 => '木',
+   5 => '金',
+   6 => '土'
+   );
+
+%lang_order =
+   (
+   1 => '一番目',
+   2 => '二番目',
+   3 => '三番目',
+   4 => '四番目',
+   5 => '最後'
+   );
+
+%lang_text =
+   (
+   login      => 'ログイン',
+   clear      => '消去',
+   point      => 'ポイント',
+   pixel      => 'ピクセル',
+   changepwd  => 'パスワードの変更',
+   viewhistory=> 'ヒストリーを見る',
+   of         => 'の',
+   messages   => 'メッセージ',
+   unread     => '未読',
+   nomessages => 'メッセージなし',
+   inmessages => 'Incoming msgs',
+   composenew => '新規メッセージの作成',
+   refresh    => '更新',
+   userprefs  => 'ユーザーのお気に入り',
+   addressbook=> 'アドレス帳',
+   folders    => 'フォルダー',
+   emptytrash => 'ごみ箱を空にする',
+   totrash    => 'ごみ箱に移動する',
+   forever    => '永久に',
+   delatlogout=> 'Delete at Logout',
+   userdef    => 'ユーザー定義',
+   logout     => 'ログアウト',
+   page       => 'ページ',
+   msgcopyconf=> '\'選択されたメッセージをコピーしてもよろしいですか?\'',
+   copy       => 'コピー',
+   msgmoveconf=> '\'選択されたメッセージを移動してもよろしいですか?\'',
+   move       => '移動',
+   markasread => '開封済み',
+   markasunread => '未読',
+   dateformat => '日付フォーマット',
+   date       => '日付',
+   recipient  => '受信者',
+   sender     => '送信者',
+   subject    => '件名',
+   thread     => 'スレッド',
+   size       => 'サイズ',
+   backto     => '戻る',
+   reply      => '返信',
+   replyall   => '全員へ返信',
+   forward    => '転送',
+   forwardasatt=>'添付ファイルとして転送',
+   printfriendly=> '印刷',
+   from       => 'から',
+   replyto    => '返信',
+   to         => '宛先',
+   cc         => 'CC',
+   bcc        => 'BCC',
+   simplehead => 'シンプルヘッダー',
+   allhead    => 'すべてのヘッダー',
+   simpleattmode => 'シンプル添付ファイル',
+   allattmode    => 'すべての添付ファイル',
+   attachment => '添付ファイル',
+   type       => 'タイプ',
+   filename   => 'ファイル名',
+   encoding   => 'エンコーディング',
+   description=> '詳細',
+   download   => 'ダウンロード',
+   charset    => 'Charset',
+   samecharset=> 'The same as composing charset',
+   thisispartialmsg => 'これは部分的なメッセージです',
+   msgrebuild => 'メッセージを作り直します',
+   editdraft  => '下書きの編集',
+   savedraft  => '下書きの保存',
+   send       => '送信',
+   about      => '情報',
+   close      => '閉じる',
+   cancel     => 'キャンセル',
+   continue   => '続行',
+   loginagain => '再ログイン',
+   exit       => '終了',
+   for        => 'に',
+   yourname   => 'あなたの名前',
+   save       => '保存',
+   add        => '追加',
+   folderrenprop => '\'このフォルダーに新しい名前を入力してください',
+   rename     => '名前を付け替える',
+   folderdelconf => '\'このフォルダーとこのフォルダーに含まれるすべての内容を消去してもよろしいですか?',
+   markread   => '開封',
+   foldermarkreadconf => '\'このフォルダーのすべてのメッセージを開封済みにしてもよろしいですか?',
+   chkindex   => '受信箱をチェックする',
+   folderchkindexconf => '\'このフォルダーの受信箱を見ますか?',
+   reindex    => 'インデックスを再編成する',
+   folderreindexconf => '\'このフォルダーの受信箱を再作成してもよろしいですか?',
+   total      => '合計',
+   delete     => '削除',
+   reserve    => '予約',
+   clearadd   => 'すべてのアドレスを削除',
+   importadd  => 'アドレスのインポート',
+   exportadd  => 'アドレスのエクスポート',
+   import     => 'インポート',
+   addmod     => '追加/修正',
+   modify     => '修正',
+   abooktitle => 'アドレス帳',
+   abook      => 'アドレス帳',
+   name       => '名前',
+   email      => 'Eメール',
+   note       => '注釈',
+   group      => 'グループ',
+   quota_hit  => 'クォータヒット',
+   usage      => '使用',
+   tzmap      => '世界タイムゾーン地図',
+   testsound  => 'Test sound',
+   editfroms  => '個人Eメールのアドレスの編集',
+   pop3book   => 'POP3 セットアップ',
+   retr_pop3s => 'POP3メールを検索する',
+   filterbook => 'メールフィルターセットアップ',
+   include    => '含む',
+   exclude    => '含まない',
+   smtprelay  => 'SMTP リレー',
+   header     => 'ヘッダー',
+   body       => 'ボディー',
+   attfilename=> '添付ファイル名',
+   all        => 'すべて',
+   enable     => '有効',
+   disable    => '無効',
+   filtered   => 'フィルターを介す',
+   blockrelay => 'SMTPリレーをブロックする',
+   blockemail => 'Eメールをブロックする',
+   read       => '読む',
+   yourmsg    => 'あなたのメッセージ',
+   delivered  => '受信しました',
+   wasreadon1 => 'で読みます',
+   wasreadon2 => '。',
+   globaladdressbook => 'グローバルアドレス帳',
+   globalfilterrule => 'グローバルフィルター規則',
+   readonly   => '読み専用',
+   textcontent=> 'テキストコンテンツ',
+   search     => '検索',
+   advsearch  => '絞込検索',
+   folder     => 'フォルダー',
+   nofoldersel=> 'フォルダーが選択されていません',
+   showall    => 'すべて表示',
+   spellcheck => 'スペルチェック',
+   checkagain => '再度チェック',
+   finishchecking => 'チェックが完了しました',
+   manuallyfix=> '手動で修正',
+   editstat   => 'Edit Stationery',
+   savestat   => 'Save Stationery',
+   clearstat  => 'Clear All Stationery',
+   selectstat => '-- Select Stationery for Reply --',
+   calendar   => 'カレンダー',
+   am         => '午前',
+   pm         => '午後',
+   calfmt_year          => '@@@YEAR@@@年',
+   calfmt_yearmonth     => '@@@MONTH_STR@@@ @@@YEAR@@@',
+   calfmt_yearmonthday  => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@',
+   calfmt_yearmonthdaywday => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@ @@@WEEKDAY_STR@@@',
+   calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
+   none       => 'なし',
+   moreitems  => 'ほかの項目',
+   multieditconf => 'このアイテムが多くの日付に追加されました。\\nそれを編集するとすべての日付におけるアイテムが変更されます。\\n編集を続行しますか？',
+   multidelconf  => 'このアイテムが多くの日付に追加されました。\\nそれを削除するとすべての日付におけるアイテムが削除されます。\\n削除を続行しますか？',
+   ed         => '編集',
+   del        => '削除',
+   noitemforthisday => 'この日のアイテムはありません',
+   today_only               => '今日\'の日付けのみ',
+   the_wday_of_thismonth    => 'その月の@@@ORDER@@@ @@@WDAY@@@ ',
+   every_wday_of_thismonth  => 'この月の毎@@@WDAY@@@ '
+   );
+
+%lang_err =
+   (
+   has_illegal_chars => '不法な文字を含んでいます!',
+   couldnt_open      => '開くことができませんでした',
+   couldnt_locksh    => '開封済みをロックできませんでした',
+   couldnt_lock      => '下書きをロックできませんでした',
+   couldnt_seek      => '始まりを見つけることができませんでした',
+   couldnt_close     => '閉じることができません',
+   couldnt_updatedb  => 'Couldn\'t update index db ',
+   disallowed_pop3   => 'POP3サーバーが使えませんでした',
+   disallowed_client => 'このクライアントから接続することはできません',
+   disallowed_receiverdomain => 'このEメールアドレスに送信することができません',
+   norootlogin       => '申しあけありませんが、セキュリティーのためルートログインができません。',
+   shouldnt_move_here=> 'ここではメッセージを移動させないでください!',
+   destination_folder=> '送り先フォルダー',
+   doesnt_exist      => '存在しています!',
+   foldername_long   => 'フォルダー名は16文字以内にしてください',
+   folder_with_name  => '名前があるフォルダー',
+   already_exists    => 'すでに存在しています!',
+   cant_create_folder=> 'フォルダーが作れません!',
+   under_indexing    => 'まだインデックスの最中です、後でもう一度試してください',
+   abook_invalid     => '申し訳ありませんが、このファイルはCSVフォーマットでマイクロソフトアウトルックからエクスポートされたアドレス帳ではありません。テキストエディターで、最初の行が"名前、Eメールアドレス"で始まっているかどうか確認してください',
+   back              => '戻る',
+   tryagain          => '再度試してください。',
+   abook_toobig      => '申し訳ありませんが、これはあなたのアドレス帳のサイズ制限を越えてしまいますので、次へ進んでください。',
+   cant_create_dir   => 'あなたのユーザーディレクトリーが作成できません!',
+   folder_hitquota   => '申し訳ありませんが、あなたはクォータをヒットしたので、これ以上のメールはメールフォルダーには保存されません。メッセージを削除するためのごみ箱以外メッセーを移動することができません。  戻ってメッセージをいくつか削除するか、ごみ箱を空にしてからやり直してください。',
+   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
+   att_overlimit     => '申し訳ありませんが、添付ファイルが制限サイズを超えています。制限サイズは次のようになっています',
+   inv_msg_op        => 'メッセージに無効な操作です',
+   inv_sessid        => 'あなたのリクエストは正確なセッションIDクッキーが含まれていませんでした -- アクセスは拒否されました!',
+   no_endpart        => '最後の部分が見つかりません',
+   part_missing      => 'いくつかの部分が見つかりません',
+   rebuild_fmterr    => '新しいメッセージのフォーマットエラーです',
+   rebuild_sizeerr   => '新しいメッセージサイズが合っていません',
+   user_not_exist    => 'ユーザーは存在していません',
+   func_notsupported => '昨日がサポートされていません',
+   auth_syserr       => '認証システムのエラーです',
+   param_fmterr      => 'パラメーターのフォーマットエラーです',
+   pwd_incorrect     => 'パスワードが間違っています',
+   pwd_tooshort      => 'Password too short (minimum length @@@PASSWDMINLEN@@@)',
+   pwd_toosimple     => 'Password too simple (both alphabet and digit are required)',
+   network_server_error => 'ネットワークサーバーエラーです',
+   sendmail_error    => '申し訳ありませんが、あなたのメッセージの送信時に問題が生じました。ブラウザーの戻るボタンをクリックし、メッセージをチェックしてからもう一度試してみてください。',
+   at_char_not_allowed => 'その@文字はこのフィールドでは使えません。  ブラウザーの戻るボタンをクリックしてからもう一度試してみてください。',
+   badnum_in_days => '連続した日フィールドでの良くない数'
+   );
+
+1;
+
+

@@ -45,6 +45,10 @@
 <tr><td colspan=2 nowrap>@@@EVERYYEARCHECKBOX@@@ ทุกปี</td></tr>
 <tr><td colspan=2 nowrap>สร้างรายการนี้เป็นตัวเชื่อมไปยัง</td></tr>
 <tr><td colspan=2 nowrap>@@@LINKFIELD@@@</td></tr>
+@@@EMAILSTART@@@
+<tr><td colspan=2 nowrap>Send notification email to</td></tr>
+<tr><td colspan=2 nowrap>@@@EMAILFIELD@@@</td></tr>
+@@@EMAILEND@@@
 <tr><td colspan=2 align=center>@@@SUBMITBUTTON@@@</td></tr>
 @@@ENDFORM@@@
 </table>

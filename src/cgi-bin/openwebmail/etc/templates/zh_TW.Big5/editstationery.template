@@ -1,0 +1,32 @@
+<table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
+<tr><td colspan="3" bgcolor=@@@TITLEBAR@@@ align="left">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<b>Edit Stationery</b></font>
+</td></tr><tr><td colspan="3" bgcolor=@@@MENUBAR@@@ align="left">
+@@@MENUBARLINKS@@@
+</td>
+</tr><tr><td colspan="3">&nbsp;</td></tr>
+<tr><td bgcolor=@@@COLUMNHEADER@@@ width="20%">
+<B>標題</B></td>
+<td bgcolor=@@@COLUMNHEADER@@@ width="70%">
+<B>信紙底稿內容</B></td>
+</td>
+<td bgcolor=@@@COLUMNHEADER@@@ width="10%">&nbsp;</td>
+</tr>
+@@@STATIONERY@@@
+
+<tr><td colspan="3">&nbsp;</td></tr>
+
+@@@STARTSTATFORM@@@
+<tr><td colspan="3" bgcolor=@@@COLUMNHEADER@@@><B>建立新信紙底稿</B></td></tr>
+</td><td colspan="3" align="center" valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>標題:</B>&nbsp; &nbsp; 
+@@@STATNAME@@@
+<tr><td colspan="3" align="center" bgcolor=@@@WINDOW_DARK@@@ class=msgbody>
+<B>信紙底稿內容</B><BR>
+@@@STATBODY@@@
+</td></tr>
+<tr><td colspan="3" align="center" bgcolor=@@@WINDOW_DARK@@@>
+@@@SAVESTAT@@@</td></tr>
+</table>
+@@@ENDSTATFORM@@@

@@ -25,13 +25,14 @@ Open WebMail has the following enhanced features:
 12. full content search
 13. strong MIME message capability
 14. draft folder support
-15. spelling check support
-16. calendar support
-17. POP3 mail support
-18. mail filter support
-19. message count preview
-20. confirm reading support
-21. BIG5/GB conversion (for Chinese only)
+15. reply with stationery support
+16. spelling check support
+17. calendar with reminder/notification support
+18. POP3 mail support
+19. mail filter support
+20. message count preview
+21. confirm reading support
+22. charset auto conversion
 
 
 REQUIREMENT
@@ -42,6 +43,9 @@ Perl 5.005 or above
 CGI.pm-2.74.tar.gz       (required)
 MIME-Base64-2.12.tar.gz  (required)
 libnet-1.0901.tar.gz     (required)
+Text-Iconv-1.2.tar.gz    (required)
+libiconv-1.8.tar.gz      (required if system doesn't support iconv)
+
 Authen-PAM-0.12.tar.gz   (optional)
 ispell-3.1.20.tar.gz     (optional)
 
@@ -95,6 +99,50 @@ For libnet do the following:
    make install
 
 
+For Text-Iconv-1.2 do the following:
+
+   Since Text-Iconv-1.2 is actually a perl interface to the underlying iconv()
+   support, you have to check if iconv() support is available in your system.
+   Please type the following command
+
+   man iconv
+
+   If there is no manual page for iconv, your system may not support iconv().
+   Don't worry, you can have the iconv() support by installing libiconv package.
+
+   cd /tmp
+   tar -zxvf libiconv-1.8.tar.gz
+   cd libiconv-1.8
+   ./configure
+   make
+   make install
+
+   Type 'man iconv' again to make sure the libiconv is successfully installed.
+   Then we start to install the Text-Iconv package
+
+   cd /tmp
+   tar -zxvf Text-Iconv-1.2.tar.gz
+   cd Text-Iconv-1.2
+   perl Makefile.PL
+
+   ps: if your system is FreeBSD, or you just installed libiconv manually,
+       please edit the Makefile.PL and change the LIBS and INC lines 
+       to the following before doing 'perl Makefile.PL'
+
+       'LIBS'         => ['-L/usr/local/lib -liconv'], # e.g., '-lm'
+       'INC'          => '-I /usr/local/include',      # e.g., '-I/usr/include/other' 
+
+   make
+   make test
+
+   ps: If the 'make test' failed, it means you set wrong value for LIBS and 
+       INC in Makefile.PL or your iconv support is not complete.
+       You may copy the uty/iconv.pl.fake to iconv.pl to make openwebmail work 
+       without iconv support.
+
+   make install
+
+
 INSTALL OPENWEBMAIL
 -------------------
 The latest released or current version is available at
@@ -103,39 +151,32 @@ http://turtle.ee.ncku.edu.tw/openwebmail/
 If you are using FreeBSD and install apache with pkg_add,
 then just
 
-1. cd /usr/local/www
+1. chmod 4555 /usr/bin/suidperl
+
+2. cd /usr/local/www
    tar -zxvBpf openwebmail-X.XX.tgz
 
-2. modify /usr/local/www/cgi-bin/openwebmail/etc/openwebmail.conf for your need.
+3. modify /usr/local/www/cgi-bin/openwebmail/etc/openwebmail.conf for your need.
 
-3. If your FreeBSD is 4.2 or later
-   a. chmod 4555 /usr/bin/suidperl
-   b. change #!/usr/bin/perl to #!/usr/bin/suidperl in
+4. execute /usr/local/www/cgi-bin/openwebmail/openwebmail-init.pl
 
-      openwebmail.pl, openwebmail-main.pl, 
-      openwebmail-read.pl, openwebmail-viewatt.pl, 
-      openwebmail-send.pl, openwebmail-spell.pl,
-      openwebmail-prefs.pl, openwebmail-folder.pl, 
-      openwebmail-abook.pl, openwebmail-advsearch.pl,
-      openwebmail-cal.pl and checkmail.pl
 
-If you are using RedHat 6.2/CLE 0.9p1(or most Linux) with apache
-(by clarinet.AT.totoro.cs.nthu.edu.tw)
+ps: If you are using RedHat 7.x (or most Linux) with Apache
 
-1. cd /home/httpd
+1. cd /var/www
    tar -zxvBpf openwebmail-X.XX.tgz
    mv data/openwebmail html/
    rmdir data
 
-2. cd /home/httpd/cgi-bin/openwebmail
+2. cd /var/www/cgi-bin/openwebmail
    modify auth_unix.pl
    a. set variable $unix_passwdfile_encrypted to '/etc/shadow'
    b  set variable $unix_passwdmkdb to 'none'
 
-3. modify /home/httpd/cgi-bin/openwebmail/etc/openwebmail.conf
+3. modify /var/www/cgi-bin/openwebmail/etc/openwebmail.conf
    a. set mailspooldir to '/var/spool/mail'
-   b. set ow_htmldir to '/home/httpd/html/openwebmail'
-      set ow_cgidir  to '/home/httpd/cgi-bin/openwebmail'
+   b. set ow_htmldir to '/var/www/html/openwebmail'
+      set ow_cgidir  to '/var/www/cgi-bin/openwebmail'
    c. set spellcheck to '/usr/bin/ispell'
    d. change default_signature for your need
    e. other changes you want
@@ -148,14 +189,16 @@ If you are using RedHat 6.2/CLE 0.9p1(or most Linux) with apache
    }  
    to /etc/logrotate.d/syslog to enable logrotate on openwebmail.log
 
-ps: If you are using RedHat 7.1, please use /var/www instead of /home/httpd
-    It is highly recommended to read the doc/RedHat-README.txt(contributed by 
+5. execute /usr/local/www/cgi-bin/openwebmail/openwebmail-init.pl
+
+If you are using RedHat 6.2, please use /home/httpd instead of /var/www
+ps: It is highly recommended to read the doc/RedHat-README.txt(contributed by 
     elitric.AT.yahoo.com) if you are installing Open WebMail on RedHat Linux.
 
-ps: Thomas Chung (tchung.AT.pasadena.oao.com) maintains a tarbal packed 
-    with an install script special for RedHat 7.x. It is available at
+ps: Thomas Chung (tchung.AT.pasadena.oao.com) maintains the rpm for all 
+    released and curent version of openwebmail, It is available at 
     http://openwebmail.org/openwebmail/download/redhat-7x-installer/.
-    You can get openwebmail to work in 5 minutes with this :)
+    You can get openwebmail working in 5 minutes with this :)
 
 If you are using other UNIX with apache, that is okay
 
@@ -176,20 +219,15 @@ eg: /usr/local/apache/share, then
    e. other changes you want
 
 3. cd /usr/local/apache/share/cgi-bin/openwebmail
-   modify 
 
-      openwebmail.pl, openwebmail-main.pl, 
-      openwebmail-read.pl, openwebmail-viewatt.pl, 
-      openwebmail-send.pl, openwebmail-spell.pl,
-      openwebmail-prefs.pl, openwebmail-folder.pl, 
-      openwebmail-abook.pl, openwebmail-advsearch.pl,
-      openwebmail-cal.pl and checkmail.pl
-
-   change the #!/usr/bin/perl to the location where your suidperl is.
+   modify openwebmail*.pl
+   change the #!/usr/bin/suidperl to the location where your suidperl is.
 
    modify auth_unix.pl
    a. set variable $unix_passwdfile_encrypted to '/etc/shadow'
    b  set variable $unix_passwdmkdb to 'none'
+
+4. execute /usr/local/www/cgi-bin/openwebmail/openwebmail-init.pl
 
 
 CHECK YOUR DBM SYSTEM
@@ -231,27 +269,68 @@ any message matching this rule will be kept in the INBOX folder and
 other rules will be ignored.
 
 
-COMMAND TOOL checkmail.pl
--------------------------
+FOLDER QUOTA
+------------
+There are three options related to folder quota in openwebmail.conf.default.
+You may override the defaults by setting them in openwebmail.conf
+
+1. folderquota
+
+This option sets folderquota limit (in kb) for user and the message operation 
+is limited to 'delete' if folderquota is hit. This option does not prevent the 
+operation taking the user over this limit from completing, it simply inhibits 
+further saving of messages until the folder size is brought down again.
+
+ps: If you have enabled the unix filesystem quota for user, please be sure that
+    the diskquota is larger than folderquota for about 20%(or 5 mb).
+
+    eg: folderquota 20000
+        filesystem quota softlimit=25000, hardlimit=26000
+
+2. cutfolders_ifoverquota 
+
+Set this option to yes to make openwebmail remove oldest messages from user 
+mail folders automatically in case his folderquota is hit. the new total 
+size will be cut down to apporximately 90% of option folderquota
+
+3. folderusage_threshold
+
+A warning message will be shown if folder usage is more the threshold set by
+ this option
+
+
+COMMAND TOOL openwebmail-tool.pl
+--------------------------------
 Since mail filtering is activated only in Open WebMail, it means messages 
 will stay in the INBOX until user reads their mail with Open WebMail. 
 So 'finger' or other mail status check utility may give you wrong 
 information since they don't know about the filter.
 
-A command tool 'checkmail.pl' can be used as finger replacement.
+A command tool 'openwebmail-tool.pl' can be used as finger replacement.
 It does mail filtering before report mail status. 
 
 Some fingerd allow you to specify the name of finger program by -p option
 (eg: fingerd on FreeBSD). By changing the parameter to fingerd in 
 /etc/inetd.conf, users can get their mail status from remote host.
 
-checkmail.pl can be also used in crontab to prefetch pop3mail or do folder 
+openwebmail-tool.pl can be also used in crontab to prefetch pop3mail or do folder 
 index verification for users. For example:
 
-59 23 * * *      /usr/local/www/cgi-bin/openwebmail/checkmail.pl -a -p -i -q
+59 23 * * *      /usr/local/www/cgi-bin/openwebmail/openwebmail-tool.pl -a -p -i -q
 
 The above line in crontab will do pop3mail prefetching, mail filtering and
 folder index verification quietly for all users at 23:59 every day .
+
+If you have enabled the calendar_email_notifyinterval in openwebmail.conf,
+you will also need to use openwebmail-tool.pl in crontab to check the calendar 
+events for sending the notification emails. For example:
+
+0 */2 * * *      /usr/local/www/cgi-bin/openwebmail/openwebmail-tool.pl -a -n -q
+
+The above line will use openwebmail-tool.pl to check the calendar events for all
+users every two hours. Please note we use this frequency because the default
+value of option calendar_email_notifyinterval is 120 (minute). 
+You have to set the crontab according to  your calendar_email_notifyinterval.
 
 
 GLOBAL ADDRESSBOOK, FILTERRULE and CALENDAR
@@ -588,14 +667,33 @@ ps: You may choose the abbreviation by referencing the following url
    cp -R templates/en templates/xy
 3. translate file lang/xy and templates/xy/* from English to your language
 4. add the name and charset of your language to %languagenames, %languagecharsets 
-   in openwebmail-shared.pl, then set default_language to 'xy' in openwebmail.conf
+   in ow-shared.pl, then set default_language to 'xy' in openwebmail.conf
+5. check iconv.pl, if the charset is not listed, add a line for this charset in both
+   %charset_localname and %charset_convlist.
 
 ps: If you wish your translation to be included in the next release of 
     openwebmail, please submit it to openwebmail.AT.turtle.ee.ncku.edu.tw.
 
 
+ADD NEW CHARSET TO AUTO CONVERSION LIST
+---------------------------------------
+Openwebmail can do charset conversion automatically if a message is written 
+with charset other than the one you are using. Openwebmail does this by calling 
+the iconv() charset conversion function, as defined by the Single UNIX Specification.
+
+To make openwebmail do auto-convert a new charset for your language:
+1. find the charset used by your language in %charset_convlist in charset_iconv.pl
+2. put this new charset to the convlist of the charset of your language
+3. define the localname of the new charset on your OS to the %charset_localname. 
+   (It is always the same as the name of charset but in capitals.)
+
+Note: The possible conversions and the quality of the conversions depend on the 
+      available iconv conversion tables and algorithms, which are in most cases 
+      supplied by the operating system vendor.
+
+
 ADD MORE BACKGROUNDS TO OPENWEBMAIL
---------------------------------------------
+-----------------------------------
 If you would like to add some background images into openwebmail for your 
 user, you can copy them into %ow_htmldir%/images/backgrounds.
 Then the user can choose these backgrounds from user preference menu.
@@ -606,7 +704,7 @@ ps: If you wish to share your wonderful backgrounds with others,
 
 DESIGN YOUR OWN ICONSET IN OPENWEBMAIL
 ---------------------------------------
-If you are interested in designing your own image set in the openwebmail,
+If you are interested in designing your own image iconset in the openwebmail,
 you have to
 
 1. create a new sub directory in the %ow_htmldir%/images/iconsets/, 
@@ -617,6 +715,19 @@ you have to
 3. modify the image files in the %ow_htmldir%/images/iconsets/MyIconSet 
    for your need
 
+ps:In case you want to design iconsets with text inside, the default font used
+   in Default.English and Cool3D.English is 'Arial Narrow'.
+
+If you are interested in designing your own text iconset in the openwebmail,
+you have to
+
+1. create a new sub directory started with Text. in the %ow_htmldir%/images/iconsets/, 
+   eg: Text.MyLang
+   ps: %ow_htmldir% is the dir where openwebmail could find its html objects,
+       it is defined in openwebmail.conf
+2. copy %ow_htmldir%/images/iconsets/Text.English/icontext to Text.MyLnag/icontext
+3. modify the Text.MyLang/icontext for your language
+
 ps: If you wish the your new iconset to be included in the next release of 
    openwebmail, please submit it to openwebmail.AT.turtle.ee.ncku.edu.tw
 
@@ -626,18 +737,7 @@ TEST
 1. chdir to openwebmail cgi dir (eg: /usr/local/www/cgi-bin/openwebmail)
    and check the owner, group and permission of the following files
 
-   ~/openwebmail.pl             - owner=root, group=mail, mode=4755
-   ~/openwebmail-main.pl        - owner=root, group=mail, mode=4755
-   ~/openwebmail-read.pl        - owner=root, group=mail, mode=4755
-   ~/openwebmail-viewatt.pl     - owner=root, group=mail, mode=4755
-   ~/openwebmail-send.pl        - owner=root, group=mail, mode=4755
-   ~/openwebmail-spell.pl       - owner=root, group=mail, mode=4755
-   ~/openwebmail-prefs.pl       - owner=root, group=mail, mode=4755
-   ~/openwebmail-folder.pl      - owner=root, group=mail, mode=4755
-   ~/openwebmail-abook.pl       - owner=root, group=mail, mode=4755
-   ~/openwebmail-advsearch.pl   - owner=root, group=mail, mode=4755
-   ~/openwebmail-cal.pl         - owner=root, group=mail, mode=4755
-   ~/checkmail.pl               - owner=root, group=mail, mode=4755
+   ~/openwebmail*.pl            - owner=root, group=mail, mode=4755
    ~/vacation.pl                - owner=root, group=mail, mode=0755
    ~/etc                        - owner=root, group=mail, mode=755
    ~/etc/sessions               - owner=root, group=mail, mode=770
@@ -667,7 +767,7 @@ Features that people may also be interested
 3. log analyzer
 
 
-07/28/2002
+11/11/2002
 
 openwebmail.AT.turtle.ee.ncku.edu.tw
 

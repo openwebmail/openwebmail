@@ -1,4 +1,4 @@
-#!/usr/bin/perl -T
+#!/usr/bin/perl
 
 # Czech translation by Michal Drapak, michal@stavlib.hiedu.cz, 2001-NOV-8
 #           changes by Jan Bilik, jan@bilik.org, 2002-JUN-6
@@ -48,9 +48,19 @@
    no  => 'Ne'
    );
 
+%lang_positionlabels =
+   (
+   before => 'Before mail edit area',
+   after => 'After mail edit area',
+   both  => 'Before and after mail edit area'
+   );
+
 %lang_timelabels =
    (
+      3 => '3 minut',
+      5 => '5 minut',
      10 => '10 minut',
+     20 => '20 minut',
      30 => '30 minut',
      60 => '60 minut',
     120 => '2 hodiny',
@@ -76,7 +86,8 @@
    yearview  => 'Yearview',
    monthview => 'Monthview',
    weekview  => 'Weekview',
-   dayview   => 'Dayview'
+   dayview   => 'Dayview',
+   listview   => 'Listview'
    );
 
 %lang_month =
@@ -139,6 +150,7 @@
    messages   => 'zpráv',
    unread     => 'nepøeètených',
    nomessages => '®ádné zprávy',
+   inmessages => 'Incoming msgs',
    composenew => 'Napsat novou zprávu',
    refresh    => 'Obnovit',
    userprefs  => 'U¾ivatelské nastavení',
@@ -147,6 +159,7 @@
    emptytrash => 'Vysypat Ko¹',
    totrash    => 'Pøesunout do Ko¹e',
    forever    => 'Napoøád',
+   delatlogout=> 'Delete at Logout',
    userdef    => 'U¾iv.def.',
    logout     => 'Odhlásit',
    page       => 'Strana',
@@ -184,6 +197,8 @@
    encoding   => 'Kódování',
    description=> 'Popis',
    download   => 'Ulo¾it do souboru',
+   charset    => 'Charset',
+   samecharset=> 'The same as composing charset',
    thisispartialmsg => 'Tato zpráva se skládá z více èástí.',
    msgrebuild => 'Zrekonstruovat zprávu',
    editdraft  => 'Edituj rozepsané',
@@ -226,6 +241,7 @@
    quota_hit  => 'Vrchol kvóty',
    usage      => 'Vyu¾ití',
    tzmap      => 'World timezone map',
+   testsound  => 'Test sound',
    editfroms  => 'Správa vlastních e-mailových adres',
    pop3book   => 'Správa POP3 úètù',
    retr_pop3s => 'Stáhnout po¹tu z POP3 úètù',
@@ -260,6 +276,10 @@
    checkagain => 'Pokraèovat v kontrole',
    finishchecking => 'Ukonèit kontrolu',
    manuallyfix=> 'Opravit ruènì',
+   editstat   => 'Edit Stationery',
+   savestat   => 'Save Stationery',
+   clearstat  => 'Clear All Stationery',
+   selectstat => '-- Select Stationery for Reply --',
    calendar   => 'Calendar',
    am         => 'am',
    pm         => 'pm',
@@ -288,6 +308,7 @@
    couldnt_lock      => 'Nepodaøilo se otevøít pro zápis',
    couldnt_seek      => 'Nepodaøilo se pøejít na zaèátek',
    couldnt_close     => 'Nelze zavøít',
+   couldnt_updatedb  => 'Couldn\'t update index db ',
    disallowed_pop3   => 'Nepovolený POP3 server',
    disallowed_client => 'Nemáte oprávnìní pøipojit se z tohoto klienta',
    disallowed_receiverdomain => 'Nemáte oprávnìní poslat zprávu na tuto adresu',
@@ -306,6 +327,7 @@
    abook_toobig      => 'Touto operací by do¹lo k pøekroèení kapacitního limitu Va¹eho adresáøe.',
    cant_create_dir   => 'Nelze vytvoøit Va¹i u¾ivatelskou slo¾ku!',
    folder_hitquota   => 'Dosáhli jste vrcholu kvóty a ¾ádná dal¹í zpráva ji¾ nemù¾e být do ¾ádné ze slo¾ek ulo¾ena. Nebudete moci pøesunout zprávu do jiné slo¾ky kromì Ko¹e, kde je mo¾no ji smazat. Sma¾te nìkteré zprávy nebo vyprázdnìte Ko¹ a zk uste operaci opakovat.',
+   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
    att_overlimit     => 'Velikost pøílohy pøekroèila kapacitní limit, který je',
    inv_msg_op        => 'Neplatná operace pro zprávu',
    inv_sessid        => 'Vá¹ po¾adavek neobsahoval odpovídající session ID cookie - pøístup odepøen!',
@@ -318,6 +340,8 @@
    auth_syserr       => 'Chyba ovìøovacího systému',
    param_fmterr      => 'Chybný formát parametru',
    pwd_incorrect     => 'Chybné heslo',
+   pwd_tooshort      => 'Password too short (minimum length @@@PASSWDMINLEN@@@)',
+   pwd_toosimple     => 'Password too simple (both alphabet and digit are required)',
    network_server_error => 'Sí»ová chyba serveru',
    sendmail_error    => 'Do¹lo k chybì pøi odesílání Va¹í zprávy. Stisknìte ve Va¹em prohlí¾eèi\'tlaèítko zpìt, zkontrolujte zprávu, a zkuste ji odeslat znovu.',
    at_char_not_allowed => 'The @ character is not allowed in this field.  Press browser back button and try again',

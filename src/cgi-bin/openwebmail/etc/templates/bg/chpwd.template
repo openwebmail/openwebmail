@@ -30,8 +30,8 @@
    {
       var s;
       s=document.passwordform.newpassword.value;
-      if (s.length < 4) {
-         alert("Паролата трябва да е с повече от 4 символа.");
+      if (s.length < @@@PASSWDMINLEN@@@) {
+         alert("Паролата трябва да е с повече от @@@PASSWDMINLEN@@@ символа.");
          return false;
       }
       if (document.passwordform.newpassword.value !=

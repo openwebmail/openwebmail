@@ -11,15 +11,15 @@
 #	"uname"		char(64),  -- username
 #	"upass"		char(32),  -- password (cleartxt, MD5 or crypt)
 #	"rname"		char(), -- realname
-#	"MailDir"	char(64) -- Home Dir	
+#	"MailDir"	char(64) -- Home Dir
 #	);
 #
 
-my $PgHost	= "localhost";	
+my $PgHost	= "localhost";
 my $PgPort	= "5432";
 my $PgBase 	= "DATABASE_NAME";
-my $PgUser	= "USERNAME";		
-my $PgPass 	= "PASSWORD";		
+my $PgUser	= "USERNAME";
+my $PgPass 	= "PASSWORD";
 my $PgPassType	= "crypt"; 		# crypt, md5, cleartxt
 
 ################### No configuration required from here ###################
@@ -51,7 +51,7 @@ sub get_userinfo {
 }
 
 
-sub get_userlist {      # only used by checkmail.pl -a
+sub get_userlist {      # only used by openwebmail-tool.pl -a
    my @userlist=();
    my $q="select uname from users";
    Pg::doQuery($DB,$q,\@userlist);
@@ -94,7 +94,7 @@ sub check_userpassword {
 			return -4;
 		}
 	     last};
-						
+
 	/md5/ && do {			#if  md5 kode password
 		my($m5) = new MD5;
 		$m5->reset;
@@ -106,9 +106,9 @@ sub check_userpassword {
 		 } else {
 			   return -4;
 		 }
-	     last};		
+	     last};
 	  }
-   }	
+   }
 }
 
 
@@ -128,8 +128,8 @@ sub change_userpassword {
 
    my $test = &check_userpassword ($user, $oldpassword);
    return -4 unless $test eq 0;
-	
-	
+
+
 	CASE: for ($PgPassType){
 	/cleartxt/ && do {		#if  cleartext password
 		$passwd=$newpassword;
@@ -143,14 +143,14 @@ sub change_userpassword {
             	substr($table, int(rand(length($table))), 1);
    		$passwd = crypt($newpassword, $salt);
 		last};
-						
+
 	/md5/ && do {		#if  md5 kode password
 		my($m5) = new MD5;
 		$m5->reset;
 		$m5->add($newpassword);
 		my($mm)= $m5->digest();
 		$passwd= unpack("H*",$mm);
-		last};		
+		last};
 	  }
 	$DB->exec("update users set upass='$passwd' where uname='$user'");
    return 0;

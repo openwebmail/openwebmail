@@ -45,6 +45,10 @@
 <tr><td colspan=2 nowrap>@@@EVERYYEARCHECKBOX@@@ Kiekvienais metais</td></tr>
 <tr><td colspan=2 nowrap>@@@MAKELINKCHECKBOX@@@ Interneto nuoroda ðiam áraðui</td></tr>
 <tr><td colspan=2 nowrap>@@@LINKFIELD@@@</td></tr>
+@@@EMAILSTART@@@
+<tr><td colspan=2 nowrap>Send notification email to</td></tr>
+<tr><td colspan=2 nowrap>@@@EMAILFIELD@@@</td></tr>
+@@@EMAILEND@@@
 <tr><td colspan=2 align=center>@@@SUBMITBUTTON@@@</td></tr>
 @@@ENDFORM@@@
 </table>

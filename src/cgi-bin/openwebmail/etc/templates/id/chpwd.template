@@ -30,8 +30,8 @@
    {
       var s;
       s=document.passwordform.newpassword.value;
-      if (s.length < 4) {
-         alert("nomor Kode minimal 4 angka atau huruf.");
+      if (s.length < @@@PASSWDMINLEN@@@) {
+         alert("nomor Kode minimal @@@PASSWDMINLEN@@@ angka atau huruf.");
          return false;
       }
       if (document.passwordform.newpassword.value !=

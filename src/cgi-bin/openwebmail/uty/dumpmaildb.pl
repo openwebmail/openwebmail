@@ -41,12 +41,12 @@ sub dump_headerdb {
       if ( ${$r_buff}!~/^From / ) {
          $error++;
 #         printf ("buf=${$r_buff}\n");
-         printf ("!!! %3d offset:%8d size:%8d date:%s msgid:$id stat:%s\n",
-		$i, $attr[$_OFFSET], $attr[$_SIZE], $attr[$_DATE], $attr[$_STATUS]);
+         printf ("!!! %3d offset:%8d size:%8d date:%s msgid:$id charset:%s stat:%s\n",
+		$i, $attr[$_OFFSET], $attr[$_SIZE], $attr[$_DATE], $attr[$_CHARSET], $attr[$_STATUS]);
       } else {
 #         printf ("buf=${$r_buff}\n");
-         printf ("+++ %3d offset:%8d size:%8d date:%s msgid:$id stat:%s\n",
-		$i, $attr[$_OFFSET], $attr[$_SIZE], $attr[$_DATE], $attr[$_STATUS]);
+         printf ("+++ %3d offset:%8d size:%8d date:%s msgid:$id charset:%s stat:%s\n",
+		$i, $attr[$_OFFSET], $attr[$_SIZE], $attr[$_DATE], $attr[$_CHARSET], $attr[$_STATUS]);
       }
    }
 

@@ -1,3 +1,344 @@
+11/22/2002 (version 1.80)
+----------
+1. fix a bug that real name won't be null even it is set to none in 
+   openwebmail.conf or user preference
+   (reported by Rob Mangiafico, rmang.AT.lexiconn.com)
+2. fix minor typo error in openwebmail-tool.pl
+   add option --yes to openwebmail-tool.pl
+
+
+11/21/2002
+----------
+1. fix a bug introduced by patch in 2002/11/07 that spelling check won't
+   work if dictionary is changed through dropdown menu
+2. French language and templates translation update
+   (thanks to Nabil SEFRIOUI, admin.AT.osmium-work.com)
+
+
+11/20/2002
+----------
+1. fix a bug in openwebmail-tool.pl which didn't filter message correctly.
+2. minor fix to openwebmail-read.pl to handle a message with wrong charset in 
+   its mail header
+3. Finnish language file translation update
+   new iconset: Cool3D.Soumi
+   (thanks to Kari Paivarinta, kari.paivarinta.AT.viivatieto.fi
+          and Ville Alatalo, ville.alatalo.AT.viivatieto.fi     )
+4. Polish templates translation minor update
+   and set default focus to 'To:' field when composing new message
+   (thanks to Andrzej Cuber REA JK THI, rea.AT.supermedia.pl)
+
+
+11/19/2002
+----------
+1. fix a bug in openwebmail-read.pl which didn't escapeURL the messageid
+   of prev/next message
+   (thanks to Rob Mangiafico, rmang.AT.lexiconn.com for his fix)
+2. send charset directive in showmsg javascript
+
+
+11/18/2002
+----------
+1. fix a minor bug in openwebmail-tool.pl which prevented itself from 
+   executing on platforms that run suid script through /dev/fd/ 
+2. show more info of events in yearview
+    (suggested by Jukka Liukkonen, murrmurr.AT.users.sourceforge.net)
+
+
+11/16/2002
+----------
+1. rename openwebmail-shared.pl to ow-shared.pl
+   rename checkmail.pl          to openwebmail-tool.pl
+2. move db init routine from openwebmail.pl to openwebmail-tool.pl
+3. slightly modify the strings related to charset setting
+
+
+11/15/2002
+----------
+1. add option "always send message wint same charset" to user preference.
+   This will do charset conversion before sending out the message.
+   It is useful in case the charset used by web is not the same charset used 
+   in mail message.(eg:Japanese)
+2. fix a minor bug in calendar which would set year to 1970
+
+
+11/14/2002
+----------
+1. switch language to english, charset to new charset
+   if convert a message to charset different than the one set in user preference
+2. adopt code from jcode.pl to iconv-japan.pl for japanese conversion.
+   (suggested by James Briggs, james.AT.ActionMessage.com)
+3. correct the window_id parameter in all window.open
+
+
+11/13/2002
+----------
+1. add more charset to iconv.pl
+2. correct a bug introduced by patch at 11/11/2002 which would disable the 
+   function of send button in compose window
+3. switch language to english, charset to message charset 
+   if reading a convertable message in its original charset
+
+
+11/11/2002
+----------
+1. add charset auto-onversion support for all languages.
+   This feature needs the Text::Iconv module to be installed on the system.
+
+
+11/08/2002
+----------
+1. Italian language and templates translation update
+   (thanks to Marvi Benedet, marvi.AT.menhir.biz)
+2. Default.Slovak and Cool3D.Slovak iconset update
+   (thanks to lubos klokner, lubos.AT.klokner.sk)
+
+
+11/07/2002
+----------
+1. fix a bug in ToTrash button which was introduced by the patch at 10/18/2002
+2. add option in user preference to control the position of send button in
+   composing form
+   (suggested by Jonathan Hirshon, jh.AT.horizonpr.com)
+
+
+11/06/2002
+----------
+1. add listview mode(aka todolist) to the web calendar module
+2. fix a bug introduced by patch of 11/02/2002 item 3, 
+   which prevented owm to parse out the filename of uploaded attachments
+3. better handling for attfilename containing \ character
+   (eg: ³\, ¥\, »\ in attachment filename under big5 encoding)
+4. fix minor error in japanese language file which stop move/copy msg in 
+   folderview from working
+   (thanks to Pen, ppenpraz.AT.gaba.co.jp)
+
+
+11/05/2002
+----------
+1. add ignorewords to openwebmail-spell.pl
+
+
+11/04/2002
+----------
+1. new mail notification by popup window
+   (thanks to Matt Roberts, matt.AT.dworkin.org for his code & suggestion)
+2. fix typo error in openwebmail-share.pl
+   getmail_from_pop3_authserve should be getmail_from_pop3_authserver
+   (thanks to Igor D'Astolfo, dusty_it.AT.users.sourceforge.net)
+
+
+11/01/2002
+----------
+1. add a great help tutorial to the openwebmail package
+   (contributed by Brent Epp, brent.AT.pdcweb.net
+                   William Brillinger, billy.AT.pdcweb.net) 
+2. replace mime.pl with the routines in Words.pm in the latest MIME-tools 
+   package (MIME-tools-5.411a.tar.gz)
+3. all 8 bit words in sending message/attachment headers are encoded with 
+   quoted-printable encoding
+4. allow % character in session id
+
+
+10/28/2002
+----------
+1 imporve the cut folders feature
+  show alert message if cutfolders has been issued.
+
+
+10/27/2002
+----------
+1. add option cutfolders_ifoverquota to openwebmail.conf.default
+   This can be used to cut user folders automatically if the total size of 
+   his folders is over the folderquota limit
+
+
+10/25/2002
+----------
+1. add lot of sound files 
+2. test sound support when choosing the sound file for new mail notification
+
+
+10/24/2002
+----------
+1. add option stay_ssl_afterlogin to openwebmail.conf.default
+   if set to no, only login and change_passwd page will use SSL
+   (suggested by Martin Gignac, lmcgign.AT.mobilitylab.net)
+
+
+10/23/2002
+----------
+1. change color for quoted lined (those lines started with >) for better readability
+   (suggested by Martin Gignac, lmcgign.AT.mobilitylab.net)
+
+
+10/22/2002
+----------
+1. clean the code for better i/o error handling
+
+
+10/19/2002
+----------
+1. new icon set: Cool3D.Chinese.Simplified
+   (thanks to Compass Studio WebMail System, compass.AT.compass.9966.org)
+2. fix a bug that dot directories were not skipped in generating the 
+   foldering listing
+   (reported by John M. Ostrowick, jon.AT.cs.wits.ac.za)
+3. fix a bug that the confirm of emptytrash is not actived
+
+
+10/18/2002
+----------
+1. support using text for icons, this enables openwebmail to run in pure
+   text mode. It may be useful for some mobile device.
+   (suggested by Daniel Pentecost, daniel.AT.davoice.net)
+2. replacestr.pl -  a uty to replace string in all ~/mail/.openwebmailrc under 
+   specific directories
+   Deutsch language and templates trnaslation update
+   (thanks to Michael 'Mike' Loth, root.AT.loth.de for his patch)
+3. rename option calendar_hourformat to hourformat
+   it controls the hourformat for both webmail and webcalendar
+   move option refreshinterval from openwebmail.conf.default to user preference,
+   each user can has his own refresh interval
+   (thanks to Matt Roberts, matt.AT.dworkin.org for hist patch)
+ps a new option min_refreshinterval is used to set the minimun for refreshinterval
+
+
+10/16/2002
+----------
+1. fix a serious bug in pop3mail.pl and auth_pop3.pl introduced by the fix 
+   at 10/14/2002
+   (reported by Michael Papish, papish.AT.fas.harvard.edu)
+2. minor change to maildb.pl for base64 encoded message/rfc822 attachment
+
+
+10/14/2002
+----------
+1. French prefs.template update
+   (thanks to Martin Gignac, lmcgign.AT.mobilitylab.net)
+2. minor change to auth_pop3.pl and pop3mail.pl for better compatibility with
+   pop3d that doesn't support auth login well
+   (reported by Michael Papish, papish.AT.fas.harvard.edu)
+3. check if TMDA confirm msg in faked_from filter
+
+
+10/11/2002
+----------
+1. Dutch language and templates update
+   (thanks to Jeroen Visser, zaphod.AT.zeephod.dyndns.org)
+2. check if a keyword is a valid regex in mailfilter/search/advsearch to 
+   avoid runtime regexp error
+
+
+10/10/2002
+----------
+1. fix a minor bug in auth_unix.pl(getpwnam_file() routine missed the 2nd parm)
+   (thanks to Stefan Beck, stefanbeck.AT.users.sourceforge.net)
+
+
+10/09/2002
+----------
+1. add option enable_strictpwd and passwd_minlen to openwebmail.conf.default
+2. preliminary support for displaying html messages with frameset
+
+
+10/08/2002
+----------
+1. calendar event notification by email
+   (suggested by Andrew Gruen, agg123456789.AT.users.sourceforge.net)
+2. minor change to checkmail.pl syntax, adding options -e and -m
+3. use q option with zip in openwebmail-folder.pl to avoid ouput to stderr
+   (thanks to James P. Dugal, jpd2.AT.users.sourceforge.net for his fix)
+4. fix a bug that happens if background is USERDEFINE and bgurl is null
+   (thanks to James P. Dugal, jpd2.AT.users.sourceforge.net for his fix)
+
+
+10/06/2002
+----------
+1. fix a minor layout problem in editing the stationery and 
+   put the 'edit stationery' button to readmessage.template
+
+
+10/05/2002
+----------
+1. add reply iwth ststionery support when reading a message
+   (code by Dattola Filippo, filippo.AT.sms.it)
+
+
+10/04/2002
+----------
+1. use /usr/bin/suidperl instead of /usr/bin/perl for suid perl script
+2. Spanish language and template files update
+   (thanks to Javier Smaldone, jsmaldone.AT.yahoo.com)
+3. Japanese (ShiftJIS) language and templates translation update
+   (thanks to Captain James and Interactive Artists, LLC, james.AT.ActionMessage.com)
+4. new iconsetL: Cool3D.Hellenic
+   Hellenic/Greek language and templates translation
+   (thanks to Dimitris sehh Michelinakis, dimitris.AT.michelinakis.gr)
+5. correct the permission of images/iconset/Cool3D.Dutch from 700 to 755
+6. valid shell checking in auth_unix.pl
+   (suggested by Vitor de Matos Carvalho, vitor.AT.softinfo.com.br)
+
+
+09/17/2002
+----------
+1. fix a bug that 'Use regex in search ...' option in preference couldn't be 
+   unchecked
+   (reported by William J.A. Brillinger, billy.AT.pdcweb.net)
+
+
+09/16/2002
+----------
+1. fix a bug that message won't be marked as read automatically after reading
+   This happened if a message was accessed and changed by other mail client 
+   but its size was kept the same as before.
+   (reported by chipmunk, chip.AT.turtle.ee.ncku.edu.tw)
+
+
+09/14/2002
+----------
+1. fix openwebmail-send,pl to work with new libnet module
+   (thanks to Andrej Hosna, Andrej.Hosna.AT.iblsoft.com for his patch)
+2. fix a typo in openwebmail-main.pl line 854
+   (thanks to Trevor Paquette, Trevor.Paquette.AT.TeraGo.ca for his fix)
+3. minor fix to email2nameaddr to be compatible with more email address format
+   (thanks to mazolli, mazolli.AT.taquion.myip.org for his fix)
+
+
+09/02/2002
+----------
+1. fix minor typing error in prefs.template of zh_TW.Big5 and zh_CN.GN2312
+   (reported by Alex Chen, dhchen.AT.elearning.nsysu.edu.tw)
+2. add check for empty string when adopting replyto header as the value 
+   for to field in replying
+   (reported by chipmunk, chip.AT.turtle.ee.ncku.edu.tw)
+
+
+08/31/2002
+----------
+1. dynamic set the focus in login.template
+   (suggested by Daniel Henninger, daniel.AT.unity.ncsu.edu)
+2. Italian language file translation minor update
+   (thanks to Marvi Benedet, marvi.AT.menhir.biz)
+3. fix the bug that openwebmail mistakenly assumed the length all top 
+   domains is shorter or equal to 3.
+   (reported by Kevin Gingerich, kevin.AT.haycommunications.coop)
+
+
+08/29/2002
+----------
+1. add new entry 'delete at logout' to the 'trash reserved days' option
+   in user preference.
+
+
+08/28/2002
+----------
+1. Portuguese Brazil language and templates translation minor update
+   (thanks to Rui - iG, ruisb.AT.ig.com.br)
+2. Italian templates translation minor update
+   (thanks to Marvi Benedet, marvi.AT.menhir.biz)
+
+
 08/24/2002 (version 1.71)
 ----------
 1. Japanese (ShiftJIS) language and templates translation
@@ -45,7 +386,7 @@
 1. new iconset Default.Norwegian and updated iconset Default.Norwegian
    (thanks to Are Tysland, are.AT.valinor.dolphinics.no)
 2. Italian templates translation minor update
-   (thanks to Marvi Benedet, i3100579.AT.ingstud.units.it)
+   (thanks to Marvi Benedet, marvi.AT.menhir.biz)
 
 
 08/13/2002
@@ -275,7 +616,7 @@
 4. fix a bug in calendar for continusous days events
 5. support calendar event checking in checkmail.pl
 6. Italian language and templates translation update
-   (thanks to Marvi Benedet, i3100579.AT.ingstud.units.it)
+   (thanks to Marvi Benedet, marvi.AT.menhir.biz)
 7. support reminder in folder view for events within 7 days
 
 
@@ -547,7 +888,7 @@
 1. add 'move to trash' button in folderview menu and messageread menu.
    (suggested by travisau.AT.users.sourceforge.net)
 2. Italian language and templates translation update
-   (thanks to Marvi Benedet, i3100579.AT.ingstud.units.it)
+   (thanks to Marvi Benedet, marvi.AT.menhir.biz)
 3. Catalan language and templates translation update
    (thanks Jordi Vidal, st.AT.e-puntcom.com)
 
@@ -572,7 +913,7 @@
 05/11/2002
 ----------
 1. minor fix to Italian language file
-   (thanks to Marvi Benedet, i3100579.AT.ingstud.units.it)
+   (thanks to Marvi Benedet, marvi.AT.menhir.biz)
 
 
 05/10/2002
@@ -619,7 +960,7 @@
    (code from Encode::HanConvert by Autrijus Tang, autrijus.AT.autrijus.org,
     suggested by Yen-Ming Lee, leeym.AT.leeym.com)
 2. Italian language and templates translation update
-   (thanks to Marvi Benedet, i3100579.AT.ingstud.units.it)
+   (thanks to Marvi Benedet, marvi.AT.menhir.biz)
 3. Deutsch language and template trnaslation minor update
    (thanks to Christian Schoepplein, mail.AT.schoeppi.net)
 
@@ -1343,7 +1684,7 @@
 01/21/2002
 ----------
 1. Italian language and templates translation update
-   (thanks to Marvi Benedet, i3100579.AT.ingstud.units.it)
+   (thanks to Marvi Benedet, marvi.AT.menhir.biz)
 
 
 01/19/2002

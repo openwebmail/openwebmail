@@ -1,4 +1,4 @@
-#!/usr/bin/perl -T
+#!/usr/bin/perl
 
 # Spanish translation by Javier Smaldone, jsmaldone.AT.yahoo.com
 # charset: iso-8859-1
@@ -47,9 +47,19 @@
    no  => 'No'
    );
 
+%lang_positionlabels =
+   (
+   before => 'Before mail edit area',
+   after => 'After mail edit area',
+   both  => 'Before and after mail edit area'
+   );
+
 %lang_timelabels =
    (
+      3 => '3 minutos',
+      5 => '5 minutos',
      10 => '10 minutos',
+     20 => '20 minutos',
      30 => '30 minutos',
      60 => '60 minutos',
     120 => '2 horas',
@@ -75,7 +85,8 @@
    yearview  => 'Vista anual',
    monthview => 'Vista mensual',
    weekview  => 'Vista semanal',
-   dayview   => 'Vista diaria'
+   dayview   => 'Vista diaria',
+   listview   => 'Listview'
    );
 
 %lang_month =
@@ -138,6 +149,7 @@
    messages   => 'mensajes',
    unread     => 'no leído',
    nomessages => 'Carpeta vacía',
+   inmessages => 'Incoming msgs',
    composenew => 'Enviar nuevo mensaje',
    refresh    => 'Actualizar',
    userprefs  => 'Preferencias personales',
@@ -146,6 +158,7 @@
    emptytrash => 'Vaciar Papelera',
    totrash    => 'Enviar a la Papelera',
    forever    => 'Para siempre',
+   delatlogout=> 'Delete at Logout',
    userdef    => 'Definido por el usuario',
    logout     => 'Salir',
    page       => 'Página',
@@ -183,6 +196,8 @@
    encoding   => 'Codificación',
    description=> 'Descripción',
    download   => 'Descargar',
+   charset    => 'Charset',
+   samecharset=> 'The same as composing charset',
    thisispartialmsg => 'Este es un mensaje parcial.',
    msgrebuild => 'Reconstruir Mensaje',
    editdraft  => 'Editar borrador',
@@ -205,7 +220,7 @@
    foldermarkreadconf => '\'¿Desea marcar como leídos todos los mensajes de esta carpeta?\'',
    chkindex   => 'Verificar índice',
    folderchkindexconf => '\'¿Desea verificar el índice de esta carpeta?\'',
-   reindex    => 'ReIndex',
+   reindex    => 'Re-indexar',
    folderreindexconf => '\'¿Desea reindexar esta carpeta?\'',
    total      => 'Total',
    delete     => 'Borrar',
@@ -222,9 +237,10 @@
    email      => 'Dirección',
    note       => 'Nota',
    group      => 'Grupo',
-   quota_hit  => 'TAMAÑO MAXIMO PERMITIDO',
+   quota_hit  => 'TAMAÑO MÁXIMO PERMITIDO',
    usage      => 'Uso',
    tzmap      => 'Mapa de zonas horarias',
+   testsound  => 'Test sound',
    editfroms  => 'Editar direcciones de correo personales',
    pop3book   => 'Configuración POP3',
    retr_pop3s => 'Descargar correo POP3',
@@ -257,8 +273,12 @@
    showall    => 'Mostrar todos',
    spellcheck => 'Corregir ortografía',
    checkagain => 'Comprobar de nuevo',
-   finishchecking => 'Acabar corrección',
+   finishchecking => 'Finalizar corrección',
    manuallyfix=> 'Arreglar manualmente',
+   editstat   => 'Edit Stationery',
+   savestat   => 'Save Stationery',
+   clearstat  => 'Clear All Stationery',
+   selectstat => '-- Select Stationery for Reply --',
    calendar   => 'Calendar',
    am         => 'am',
    pm         => 'pm',
@@ -287,6 +307,7 @@
    couldnt_lock      => 'No pude bloquear para escritura',
    couldnt_seek      => 'No pude encontrar el comienzo de',
    couldnt_close     => 'No pude cerrar',
+   couldnt_updatedb  => 'Couldn\'t update index db ',
    disallowed_pop3   => 'Servidor POP3 no permitido',
    disallowed_client => 'No esta permitido conectarse desde este cliente',
    disallowed_receiverdomain => 'No tiene permiso para enviar un mensaje a esa dirección de correo',
@@ -305,6 +326,7 @@
    abook_toobig      => 'Lo siento, se ha excedido del tamaño límite para su libreta de direcciones.  Por favor, regrese',
    cant_create_dir   => '¡No puedo crear su directorio de usuario!',
    folder_hitquota   => 'Lo siento, usted llegó a su límite de espacio y no puedo guardar más mensajes en ninguna carpeta. Sólo podrá mover los mensajes a la carpeta PAPELERA, donde serán borrados.  Regrese atrás, borre algunos mensajes o vacíe la Papelera y trate de nuevo.',
+   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
    att_overlimit     => 'Lo siento, el tamaño de su archivo excede el tamaño límite permitido, el cual es de',
    inv_msg_op        => 'Operación no válida para el mensaje',
    inv_sessid        => 'Su petición no contiene la correspondiente Cookie de Identificación -- acceso denegado!',
@@ -317,6 +339,8 @@
    auth_syserr       => 'error del sistema de autenticación',
    param_fmterr      => 'error en el formato de un parámetro',
    pwd_incorrect     => 'contraseña incorrecta',
+   pwd_tooshort      => 'Password too short (minimum length @@@PASSWDMINLEN@@@)',
+   pwd_toosimple     => 'Password too simple (both alphabet and digit are required)',
    network_server_error => 'error de red del servidor',
    sendmail_error    => 'Disculpe, hubo un problema enviando su mensaje. Por favor presione el botón Anterior de su navegador, compruebe su mensaje, e intente nuevamente.',
    at_char_not_allowed => 'El caracter @ no está permitido en este campo. Presione el botón Atrás de su navegador e intente nuevamente',

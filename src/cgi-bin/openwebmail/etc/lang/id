@@ -1,4 +1,4 @@
-#!/usr/bin/perl -T
+#!/usr/bin/perl
 
 # Indonesian translation by Hu-Wei Liang, liangs.AT.kunchang.com.tw
 # charset: iso-8859-1
@@ -47,9 +47,19 @@
    no  => 'Tidak'
    );
 
+%lang_positionlabels =
+   (
+   before => 'Before mail edit area',
+   after => 'After mail edit area',
+   both  => 'Before and after mail edit area'
+   );
+
 %lang_timelabels =
    (
+      3 => '3 Menit',
+      5 => '5 Menit',
      10 => '10 Menit',
+     20 => '20 Menit',
      30 => '30 Menit',
      60 => '60 Menit',
     120 => '2 Jam',
@@ -75,7 +85,8 @@
    yearview  => 'Yearview',
    monthview => 'Monthview',
    weekview  => 'Weekview',
-   dayview   => 'Dayview'
+   dayview   => 'Dayview',
+   listview   => 'Listview'
    );
 
 %lang_month =
@@ -138,6 +149,7 @@
    messages   => 'lembar Surat',
    unread     => 'Belum Baca',
    nomessages => 'Tidak ada surat',
+   inmessages => 'Incoming msgs',
    composenew => 'Tulis Surat Baru',
    refresh    => 'Periksa Ulang',
    userprefs  => 'Konfigurasi',
@@ -146,6 +158,7 @@
    emptytrash => 'Bersihkan Kotak Sampah',
    totrash    => 'Move to Trash',
    forever    => 'Tinggal Selamanya',
+   delatlogout=> 'Delete at Logout',
    userdef    => 'Definisi Pengguna',
    logout     => 'Keluar',
    page       => 'Halaman',
@@ -183,6 +196,8 @@
    encoding   => 'Kode',
    description=> 'Keterangan',
    download   => 'Download',
+   charset    => 'Charset',
+   samecharset=> 'The same as composing charset',
    thisispartialmsg => 'Ini sebagian dari salah satu surat.',
    msgrebuild => 'Konfigurasi kembali Surat',
    editdraft  => 'Tulis Catatan',
@@ -225,6 +240,7 @@
    quota_hit  => 'Kapasitas sudah penuh',
    usage      => 'Kapasitas Penggunaan',
    tzmap      => 'World timezone map',
+   testsound  => 'Test sound',
    editfroms  => 'Mengganti Alamat Email',
    pop3book   => 'Konfigurasi surat dari luar',
    retr_pop3s => 'Simpan Surat Luar',
@@ -259,6 +275,10 @@
    checkagain => 'Periksa Kembali',
    finishchecking => 'Pemeriksaan Selesai',
    manuallyfix=> 'Pemeriksaan manual',
+   editstat   => 'Edit Stationery',
+   savestat   => 'Save Stationery',
+   clearstat  => 'Clear All Stationery',
+   selectstat => '-- Select Stationery for Reply --',
    calendar   => 'Calendar',
    am         => 'am',
    pm         => 'pm',
@@ -287,6 +307,7 @@
    couldnt_lock      => 'Tidak dapat mengunci waktu menulis',
    couldnt_seek      => 'Tidak dapat Mencari',
    couldnt_close     => 'Tidak dapat menutup',
+   couldnt_updatedb  => 'Couldn\'t update index db ',
    disallowed_pop3   => 'Tidak dapat berhubungan dengan server POP3',
    disallowed_client => 'Tidak diizinkan masuk WebMail dgn alamat ini',
    disallowed_receiverdomain => 'Anda tidak diizikan mengirim surat ke alamat ini',
@@ -305,6 +326,7 @@
    abook_toobig      => 'Buku Alamat Melebihi kapasitas. silahkan',
    cant_create_dir   => 'Tidak dapat membuat Folder user',
    folder_hitquota   => 'Maaf,Sudah melebihi kapasitas,hapuslah surat yg tidak berguna,jikalah tidak anda tidak dapat menerima Surat.',
+   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
    att_overlimit     => 'Lampiran melebihi kapasitas',
    inv_msg_op        => 'Pengaturan tak dikenal',
    inv_sessid        => 'Session ID tidak benar,periksa apakah ada yg masuk kembali.',
@@ -317,6 +339,8 @@
    auth_syserr       => 'Sistem pemeriksaan ada yg tidak benar',
    param_fmterr      => 'Format yg salah',
    pwd_incorrect     => 'Kode Rahasia salah',
+   pwd_tooshort      => 'Password too short (minimum length @@@PASSWDMINLEN@@@)',
+   pwd_toosimple     => 'Password too simple (both alphabet and digit are required)',
    network_server_error => 'Internet server ada yg salah',
    sendmail_error    => 'Maaf,tidak dapat mengirim surat,kembalilah dan cobalah lagi',
    at_char_not_allowed => 'The @ character is not allowed in this field.  Press browser back button and try again',

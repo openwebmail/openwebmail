@@ -1,4 +1,4 @@
-#!/usr/bin/perl -T
+#!/usr/bin/perl
 
 # Portuguese Brazil translation by Edison Figueira Junior, edison.AT.brc.com.br
 #                       updated by Rui - iG, ruisb.AT.ig.com.br
@@ -48,9 +48,19 @@
    no  => 'Não'
    );
 
+%lang_positionlabels =
+   (
+   before => 'Before mail edit area',
+   after => 'After mail edit area',
+   both  => 'Before and after mail edit area'
+   );
+
 %lang_timelabels =
    (
+      3 => '3 minutos',
+      5 => '5 minutos',
      10 => '10 minutos',
+     20 => '20 minutos',
      30 => '30 minutos',
      60 => '60 minutos',
     120 => '2 horas',
@@ -76,7 +86,8 @@
    yearview  => 'Visualizar o',
    monthview => 'Visualizar o Mês de',
    weekview  => 'Visualizar a Semana do dia',
-   dayview   => 'Visualizar o Dia'
+   dayview   => 'Visualizar o Dia',
+   listview   => 'Listview'
    );
 
 %lang_month =
@@ -139,6 +150,7 @@
    messages   => 'mensagens',
    unread     => 'não lidas',
    nomessages => 'Não há mensagens',
+   inmessages => 'Incoming msgs',
    composenew => 'Compor Mensagem',
    refresh    => 'Atualizar',
    userprefs  => 'Preferências do Usuário',
@@ -147,12 +159,13 @@
    emptytrash => 'Esvaziar Pasta Lixo',
    totrash    => 'Mover para o Lixo',
    forever    => 'Para sempre',
-   userdef    => 'Usuário Define',
+   delatlogout=> 'Delete at Logout',
+   userdef    => 'Usuário Defined',
    logout     => 'Sair',
    page       => 'Página',
-   msgcopyconf=> '\'Tem a certeza que quer copiar a(s) mensagem(s) selecionada(s)?\'',
+   msgcopyconf=> '\'Tem certeza que quer copiar a(s) mensagem(s) selecionada(s)?\'',
    copy       => 'Copiar',
-   msgmoveconf=> '\'Tem a certeza que quer mover as mensagens selecionadas?\'',
+   msgmoveconf=> '\'Tem certeza que quer mover as mensagens selecionadas?\'',
    move       => 'Mover',
    markasread => 'Marcar como lida',
    markasunread => 'Marcar como não lida',
@@ -184,6 +197,8 @@
    encoding   => 'Codificação',
    description=> 'Descrição',
    download   => 'Baixar',
+   charset    => 'Charset',
+   samecharset=> 'The same as composing charset',
    thisispartialmsg => 'Esta é uma mensagem parcial.',
    msgrebuild => 'Reconstroi mensagem',
    editdraft  => 'Editar Rascunho',
@@ -226,6 +241,7 @@
    quota_hit  => 'LIMITE DE TAMANHO PERMITIDO',
    usage      => 'Uso',
    tzmap      => 'Fuso horário',
+   testsound  => 'Test sound',
    editfroms  => 'Editar Endereços de E-mail Pessoal',
    pop3book   => 'Contas POP3',
    retr_pop3s => 'Buscar Mensagens POP3',
@@ -260,6 +276,10 @@
    checkagain => 'Verificar Novamente',
    finishchecking => 'Terminar a Verificação',
    manuallyfix=> 'Corrigir Manualmente',
+   editstat   => 'Edit Stationery',
+   savestat   => 'Save Stationery',
+   clearstat  => 'Clear All Stationery',
+   selectstat => '-- Select Stationery for Reply --',
    calendar   => 'Agenda de Compromissos',
    am         => 'am',
    pm         => 'pm',
@@ -288,6 +308,7 @@
    couldnt_lock      => 'Não foi possível gravar, esta',
    couldnt_seek      => 'Não foi possível procurar no início de',
    couldnt_close     => 'Não foi possível fechar',
+   couldnt_updatedb  => 'Couldn\'t update index db ',
    disallowed_pop3   => 'Erro no Servidor POP3',
    disallowed_client => 'Você não tem permissão para se conectar a partir deste endereço IP',
    disallowed_receiverdomain => 'Você não tem permissão para enviar mensagens para este endereço de e-mail',
@@ -306,6 +327,7 @@
    abook_toobig      => 'Lamento, foi excedido o limite permitido para o livro de endereços.',
    cant_create_dir   => 'Não foi possível criar o diretório do usuário!',
    folder_hitquota   => 'Lamento, chegou ao limite de espaço da sua pasta, mais nenhum e-mail será guardado. Por favor envie as mensagens antigas para o LIXO e depois apague-as definitivamente.',
+   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
    att_overlimit     => 'Lamento, o tamanho do arquivo anexado ultrapassou o limite permitido.',
    inv_msg_op        => 'Operação inválida para a mensagem',
    inv_sessid        => 'O pedido não tem o ID correto -- acesso negado!',
@@ -318,6 +340,8 @@
    auth_syserr       => 'Erro na autenticação',
    param_fmterr      => 'Erro no formato do parâmetro',
    pwd_incorrect     => 'Senha incorreta',
+   pwd_tooshort      => 'Password too short (minimum length @@@PASSWDMINLEN@@@)',
+   pwd_toosimple     => 'Password too simple (both alphabet and digit are required)',
    network_server_error => 'erro no servidor de rede',
    sendmail_error    => 'Lamento, houve um problema no envio da mensagem. Favor clicar no botão de voltar do navegador (browser), verifique a sua mensagem e tente novamente.',
    at_char_not_allowed => 'O caracter @ não é permitido neste campo. Pressione o botão retornar do navegador e tente novamente',

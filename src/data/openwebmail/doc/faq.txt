@@ -37,16 +37,7 @@ A: There are many possible answers...
       It should be "tar -zxvBpf openwebmail-1.xx.tgz"
 
    2. Your openwebmail scripts may have wrong owner or mode.
-      The permission of 
-
-      openwebmail.pl, openwebmail-main.pl, 
-      openwebmail-read.pl, openwebmail-viewatt.pl, 
-      openwebmail-send.pl, openwebmail-spell.pl,
-      openwebmail-prefs.pl, openwebmail-folder.pl, 
-      openwebmail-abook.pl, openwebmail-advsearch.pl
-      openwebmail-cal.pl and checkmail.pl
-
-      should be
+      The permission of all openwebmail*.pl should be
 
       mode=4555
       owner=root
@@ -55,7 +46,6 @@ A: There are many possible answers...
    3. Your perl may be compiled with suid ability disabled.
       a. check if you have a executable of suidperl, 
          then 'chmod 4555 suidperl'
-         and change #!/usr/bin/perl to the path of this suidperl
 
       b. Or recompile your perl with suid enabled
          Here are the steps: 
@@ -65,12 +55,15 @@ A: There are many possible answers...
             d_dosuid='define' 
             d_suidsafe='undef'
          4. then make, make install (make suidperl if needed) 
+         5. if you have compiled suidperl, then chmod 4555 suidperl
+            if you don't have suidperl, change #!/usr/bin/suidperl to the path of your perl
          (thanks to Nemo Kaiser, nemoo.AT.users.sourceforge.net)
 
       c. Or use uty/suidwrap.pl to generate C wrappers for all suid scripts.
          Here are the steps:
          1. cd cgi-bin/openwebmail
          2. perl uty/wrapsuid.pl /fullpath/cgi-bin/openwebmail
+         3. change #!/usr/bin/suidperl to the path of your perl
 
          All suid scripts will be renamed to .scriptname.pl and
          the C wrapper will be generated and named as script.pl
@@ -86,13 +79,41 @@ A: There are many possible answers...
 ps: In most cases, you can run the './openwebmail.pl' in text terminal
     to get more information about the error.
 
-Q: I got "Can't check filesystem of script "./openwebmail.pl" for nosuid"?
+Q: Can I install openwebmail without iconv() support?
+A: Yes, you may copy the uty/iconv.pl.fake over the iconv.pl,
+   which doesn't use iconv() at all but still support charset conversion for
+   Chinese and Japanese.
+
+Q: I got "Can't check filesystem of script ./openwebmail.pl for nosuid"?
 A: Your openwebmail may be installed on a filesystem mounted nosuid.
    Please remove the nosuid parameter from /etc/fstab or install openwebmail
    to other filesystem.
 
 ps: 'man mount' for more information about nosuid
 
+Q: I got "Please execute  '.../cgi-bin/openwebmail-tool.pl --init' on 
+   server first!"?
+A: This is to init the mapping tables used by openwebmail, you need to
+
+   telnet to your server
+   su root 
+   cd the_cgi_bin_dir_for_openwebmail
+   ./openwebmail-tool.pl --init
+
+Q: I got "Please execute script openwebmail-tool.pl with full path!" 
+   in executing 'openwebmail-tool.pl --init' with full path?
+A: This may happens on platforms that run suid scripts through /dev/fd/.
+   Please run the script from where it is located.
+
+   cd the_dir_of_your_openwebmail_cgi
+   ./openwebmail-tool.pl --init
+
+Q: I got "Please change the 3 options in openwebmail.conf...."
+   in executing 'openwebmail-tool.pl --init' ?
+A: You may has wrong settings in your openwebmail.conf.
+   Please modify youropenwebmail.conf as openwebmail suggested and 
+   don't forget to redo 'openwebmail-tool.pl --init' again.
+   
 Q: The login menu showed okay, but I always got login failure?
 A: Check auth_module option in openwebmail.conf:
 
@@ -112,6 +133,11 @@ Q: It took a long time in the first login?
 A: Openwebmail has to initialize some mapping tables for future use,
    it creates these tables in the first successful login, this guarentees 
    that openwebmail creates files only if it is correctly installed.
+
+ps:This automatic table initialization has been removed since openwebmail-1.80.
+   The sysadm have to initialize the db by himself explicitly with the command
+
+   './openwebmail-tool.pl --init'
 
 Q: It took a long time in every login?
 A: You probably have wrong settings for option dbm_ext and dbmopen_ext in the 
@@ -164,18 +190,15 @@ ps: you may check the permission cgi-bin/openwebmail/etc/sessions first,
     it should be owner=root, group=mail, mode=770
 
 Q: I got "Software error: Can't locate MIME/Base64.pm in @INC"?
-A: Please download MIME-Base64-2.12.tar.gz and install
+A: Please install the  MIME-Base64-2.12.tar.gz.
 
-   cd /tmp
-   tar -zxvf MIME-Base64-2.12.tar.gz
-   cd MIME-Base64-2.12
-   perl Makefile.PL
-   make
-   make install
+Q: I got "Software error: Can't locate Text/Iconv.pm in @INC"?
+A: Please install the Text-Iconv-1.2.tar.gz, this is required since 
+   openwebmail-1.80
 
 Q: I got "Use of uninitialized value in subroutine entry at /xxx/DB_File.pm 
    line yyy" error ?
-A: The line you got error should be inside the sub routine tie_hash_or_aeeay.
+A: The line you got error should be inside the sub routine tie_hash_or_array.
    Please find the following comment line in DB_File.pm:
 
    # make recno in Berkeley DB version 2 work like recno in version 1
@@ -186,6 +209,14 @@ A: The line you got error should be inside the sub routine tie_hash_or_aeeay.
 
    (thanks to Paul Marquess, Paul.Marquess.AT.btinternet.com 
           and mainely_linux.AT.users.sourceforge.net)
+
+Q: Everything works fine, but I got timeout when clicking the calendar button?
+A: Please check your apache error log if it has lines like below:
+
+   [...] openwebmail-cal.pl: Use of uninitialized value in subroutine entry 
+   at /usr/lib/perl5/5.8.0/i386-linux-thread-multi/DB_File.pm line xxx.
+
+   If yes, please refer to the solution in previous question.
 
 Q: I got "can't open /var/log/openwebmail.log" error?
 A: Please check the openwebmail.log permission, it should be
@@ -493,7 +524,7 @@ A: Because it needs to read the preference file, ~/mail/.openwebmailrc,
 
 Q: I got 'Couldn't get read lock on ....' error?
          'Couldn't get write lock on ....' error?
-A: This may hapeen if the folder openwebmail want to access is locked by
+A: This may happen if the folder openwebmail want to access is locked by
    other process. Most of the time, it is due to the concurrent accesses 
    to the folder by other mail client through the pop3/imap daemons.
    This is okay, just back to previous page and try again.
@@ -579,6 +610,35 @@ A: This problem occurs if you installed Open WebMail on the same partition
    this, since this problem mostly occurs on RedHat Linux 6.2 and bellow. 
    (thanks to Emir Litric, elitric.AT.yahoo.com)
 
+Q: I got "db warning - msg xxx index missing in INBOX" in log?
+   What does this mean?
+A: It may have two possible meanings.
+
+   1. Your message is moved to other folder by the openwebmail filter module 
+
+      While openwebmail always maintains the index consistenct with the folder 
+      content, openwebmail only calls the mailfilter in the following two 
+      condition: 
+      a. before browing the message list of a folder 
+      b. before reading a message of the INBOX 
+
+      If a message(aaa) matching the filter rule comes to INBOX folder, this 
+      message will become the neighbor of one of the existing messages(bbb) 
+      in the index db. If the user is reading message bbb, then aaa will 
+      become the target linked by the right or left arrors in the buttom of 
+      the readmessage webpage. Now if user clicks the arror for next page, 
+      you will get the db index missing error since the message(aaa) is 
+      moved to other folder by the filter before being accessed.. 
+
+   2. Your message is removed by other pop3/imap client.
+      Do you use outlook and openwebmail at the same time?
+
+Q: I got "db warning - msg yyy index inconsistence in INBOX" in the log?
+   Does it mean my message were lost?
+A: No, you message were not lost, it just means the index db was not reflecting 
+   the newest state of your mail folder, openwebmail did the reindex 
+   automatcially after logging this message.
+
 Q: There were strange characters in the mail filter menu and those rules could
    not be deleted?
 A: This is due to the dbmopen() of your perl didn't add the ".db" extension 
@@ -621,9 +681,10 @@ Q: The Open WebMail is very slow on my machine?
 A: It depends on how you define the "slow". 
 
    The response time of Open WebMail in normal operation would be:
-   6 second on a p133 machine.
-   3 second on a p200mmx machine.
-   1 second on a celeron300 machine.
+   7 second on a p133 machine.
+   4 second on a p200mmx machine.
+   2 second on a celeron300 machine.
+   less than 1 second on a P4-1.6G machine
 
 ps: Some operations would take more time than normal operation, for example:
     indexing on a large folder, adding large attachment to a message.
@@ -709,7 +770,7 @@ print "Content-type: text/html\n\n";
 my $info;
 my $loginname = cookie("openwebmail-loginname");
 if ($loginname ne "") {
-   $info=`/usr/local/www/cgi-bin/openwebmail/checkmail.pl $loginname`;
+   $info=`/usr/local/www/cgi-bin/openwebmail/openwebmail-tool.pl -m -e $loginname`;
 }
 print $info;
 ------------------------------------------

@@ -4,7 +4,10 @@
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>COMPUNE MESAJ</B></font>
 </td></tr><tr><td colspan="2" bgcolor=@@@MENUBAR@@@ align="left">
-@@@BACKTOFOLDER@@@
+<table width="100%" cellspacing="0" cellpadding="0"><tr>
+<td>@@@BACKTOFOLDER@@@</td>
+<td align="right">Charset for composing @@@CONVTOMENU@@@&nbsp;</td>
+</tr></table>
 </td></tr><tr><td colspan="2">&nbsp;</td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
 <B>De la:</B>
@@ -50,42 +53,27 @@
 <B>Backup mesaje trimise</B>
 @@@BACKUPSENTMSGCHECKBOX@@@
 </td></tr>
-<tr><td colspan="2" bgcolor=@@@WINDOW_LIGHT@@@ class=msgbody>
-@@@BODYAREA@@@
-</td></tr>
-<tr><td colspan="2" align="left" valign="top">
 
-<table cellspacing="0" cellpadding="0" border="0"><tr>
-<td align="center" valign="top">
-@@@SENDBUTTON@@@
-&nbsp;&nbsp;
-</td>
-<td align="center" valign="top">
-@@@SAVEDRAFTBUTTON@@@
-&nbsp;&nbsp;
-</td>
+<tr><td colspan="2" bgcolor=@@@WINDOW_LIGHT@@@ class=msgbody>
+@@@BUTTONSBEFORE@@@
+@@@BODYAREA@@@
+@@@BUTTONSAFTER@@@
+</td></tr>
+
 @@@ENDFORM@@@<!-- End of message composition form -->
 @@@STARTSPELLCHECKFORM@@@
-<td align="center" valign="top">
-@@@DICTIONARYMENU@@@
-@@@SPELLCHECKBUTTON@@@
-&nbsp;&nbsp;
-</td>
 @@@ENDFORM@@@
 @@@STARTCANCELFORM@@@
-<td align="center" valign="top">
-@@@CANCELBUTTON@@@
-&nbsp;&nbsp;
-</td>
 @@@ENDFORM@@@
-</tr></table>
-
-</td></tr></table>
+</table>
 
 <script language="JavaScript">
 <!--
-   if (self.focus != null)
-      self.focus();
+   if (self.document.composeform.to.value == "") {
+      self.document.composeform.to.focus();
+   } else {
+      self.document.composeform.body.focus();
+   }
 
    function OnLoadHandler()
    {
@@ -103,7 +91,7 @@
       else if (toccbcc == "bcc")
          url += "&preexisting=" + escape (document.composeform.bcc.value);
 
-      var hWnd = window.open(url,"HelpWindow","width=380,height=360,resizable=yes,scrollbars=yes");
+      var hWnd = window.open(url,"_addressbook","width=380,height=360,resizable=yes,scrollbars=yes");
       if ((document.window != null) && (!hWnd.opener))
          hWnd.opener = document.window;
    }
@@ -120,7 +108,7 @@
       document.spellcheckform.form.value = "composeform";
       document.spellcheckform.field.value = "body";
       document.spellcheckform.string.value = document.composeform.body.value;
-      window.open('','SpellChecker','width=600,height=400,top=40,left=80,scrollbars=yes,resizable=yes,location=no');
+      window.open('','_spellcheck','width=600,height=400,top=40,left=80,scrollbars=yes,resizable=yes,location=no');
       return true;
    }
 

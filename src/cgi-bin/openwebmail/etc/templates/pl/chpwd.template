@@ -30,8 +30,8 @@
    {
       var s;
       s=document.passwordform.newpassword.value;
-      if (s.length < 4) {
-         alert("Has³o musi sk³adaæ siê z co najmniej 4 znaków.");
+      if (s.length < @@@PASSWDMINLEN@@@) {
+         alert("Has³o musi sk³adaæ siê z co najmniej @@@PASSWDMINLEN@@@ znaków.");
          return false;
       }
       if (document.passwordform.newpassword.value !=

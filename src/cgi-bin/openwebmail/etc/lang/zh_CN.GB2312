@@ -1,4 +1,4 @@
-#!/usr/bin/perl -T
+#!/usr/bin/perl
 
 # Simplified Chinese Translation by Wang Jun, wjun.AT.mail.iap.ac.cn
 # charset: gb2312
@@ -47,9 +47,19 @@
    no  => '否'
    );
 
+%lang_positionlabels =
+   (
+   before => '在信件编辑区之前',
+   after => '在信件编辑区之后',
+   both  => '在信件编辑区前后'
+   );
+
 %lang_timelabels =
    (
+      3 => '3 分钟',
+      5 => '5 分钟',
      10 => '10 分钟',
+     20 => '20 分钟',
      30 => '30 分钟',
      60 => '60 分钟',
     120 => '2 小时',
@@ -76,7 +86,8 @@
    yearview  => '年行事历',
    monthview => '月行事历',
    weekview  => '周行事历',
-   dayview   => '日行事历'
+   dayview   => '日行事历',
+   listview   => '项目列表'
    );
 
 %lang_month =
@@ -139,6 +150,7 @@
    messages   => '封信',
    unread     => '未读',
    nomessages => '无邮件',
+   inmessages => '新进信件',
    composenew => '写新邮件',
    refresh    => '刷新',
    userprefs  => '设定个人模版',
@@ -147,6 +159,7 @@
    emptytrash => '清空垃圾箱',
    totrash    => '搬到垃圾箱',
    forever    => '永久保留',
+   delatlogout=> '登出时删除',
    userdef    => '使用者自订',
    logout     => '退出',
    page       => '页',
@@ -184,6 +197,8 @@
    encoding   => '编码',
    description=> '描述',
    download   => '下载',
+   charset    => '字集',
+   samecharset=> '与写信时字集相同',
    thisispartialmsg => '这是某封邮件的一部分.',
    msgrebuild => '邮件重组',
    editdraft  => '编辑草稿',
@@ -226,6 +241,7 @@
    quota_hit  => '存储空间已满',
    usage      => '使用空间',
    tzmap      => '世界时区地图',
+   testsound  => '试听',
    editfroms  => '编辑个人邮件地址',
    pop3book   => '设定POP3邮件',
    retr_pop3s => '收取POP3邮件',
@@ -260,9 +276,13 @@
    checkagain => '重新检查',
    finishchecking => '检查完毕',
    manuallyfix=> '手动修正',
+   editstat   => '编辑信纸底稿',
+   savestat   => '储存信纸底稿',
+   clearstat  => '清除所有信纸底稿',
+   selectstat => '-- 选择信纸底稿并回信 --',
    calendar   => '行事历',
-   am         => 'am',
-   pm         => 'pm',
+   am         => '上午',
+   pm         => '下午',
    calfmt_year          => '@@@YEAR@@@年',
    calfmt_yearmonth     => '@@@YEAR@@@年 @@@MONTH_STR@@@',
    calfmt_yearmonthday  => '@@@YEAR@@@年 @@@MONTH_STR@@@ @@@DAY@@@日',
@@ -288,6 +308,7 @@
    couldnt_lock      => '写入无法锁定',
    couldnt_seek      => '无法寻找',
    couldnt_close     => '无法关闭',
+   couldnt_updatedb  => 'Couldn\'t update index db ',
    disallowed_pop3   => '禁止连线至POP3服务器',
    disallowed_client => '您不被允许由目前的位址连线使用 WebMail',
    disallowed_receiverdomain => '您不被允许寄信到这个邮件地址',
@@ -306,6 +327,7 @@
    abook_toobig      => '地址簿超过容量限制。请',
    cant_create_dir   => '无法建立使用者目录！',
    folder_hitquota   => '抱歉！您的容量已经超过限制，请先将不要的信件删除并清空垃圾箱，否则，您将收不到新邮件！',
+   folder_cutdone    => '注意！由于信件匣容量超出限制(@@@FOLDERQUOTA@@@), 各信件匣中过旧的讯息已经被自动移除.',
    att_overlimit     => '附件大小超过限制',
    inv_msg_op        => '无效的邮件操作',
    inv_sessid        => 'Session ID cookie 不正确，拒绝存取. 请检查是否浏览器 cookie 功能未开或是重复登入.',
@@ -318,9 +340,11 @@
    auth_syserr       => '认证系统内部错误',
    param_fmterr      => '参数格式错误',
    pwd_incorrect     => '密码错误',
+   pwd_tooshort      => '密码太短 (最小长度 @@@PASSWDMINLEN@@@)',
+   pwd_toosimple     => '密码太简单 (同时要有字母与数字)',
    network_server_error => '网络服务器错误',
    sendmail_error    => '抱歉！无法发出您的邮件，请回到上一页检查是否输入错误后，再重发一次。',
-   at_char_not_allowed => 'The @ character is not allowed in this field.  Press browser back button and try again',
+   at_char_not_allowed => '栏位中不能有 @ 字元.  请回到上一页再试一次',
    badnum_in_days => '代表天数栏位的数值发生错误'
    );
 

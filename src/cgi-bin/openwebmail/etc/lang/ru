@@ -1,4 +1,4 @@
-#!/usr/bin/perl -T
+#!/usr/bin/perl
 
 # Russian translation by Denis Mysenko, duster.AT.tpu.ru
 # charset: koi8-r
@@ -47,9 +47,19 @@
    no  => 'Нет'
    );
 
+%lang_positionlabels =
+   (
+   before => 'Before mail edit area',
+   after => 'After mail edit area',
+   both  => 'Before and after mail edit area'
+   );
+
 %lang_timelabels =
    (
+      3 => '3 minutes',
+      5 => '5 minutes',
      10 => '10 minutes',
+     20 => '20 minutes',
      30 => '30 minutes',
      60 => '60 minutes',
     120 => '2 hours',
@@ -75,7 +85,8 @@
    yearview  => 'Yearview',
    monthview => 'Monthview',
    weekview  => 'Weekview',
-   dayview   => 'Dayview'
+   dayview   => 'Dayview',
+   listview   => 'Listview'
    );
 
 %lang_month =
@@ -138,6 +149,7 @@
    messages   => 'сообщений',
    unread     => 'новых',
    nomessages => 'нет сообщений',
+   inmessages => 'Incoming msgs',
    composenew => 'Создать сообщение',
    refresh    => 'Обновить',
    userprefs  => 'Настройки',
@@ -146,6 +158,7 @@
    emptytrash => 'Очистить корзину',
    totrash    => 'Move to Trash',
    forever    => 'Всегда',
+   delatlogout=> 'Delete at Logout',
    userdef    => 'Указано пользователем',
    logout     => 'Выход',
    page       => 'Страница',
@@ -183,6 +196,8 @@
    encoding   => 'Кодировка',
    description=> 'Описание',
    download   => 'Загрузить',
+   charset    => 'Charset',
+   samecharset=> 'The same as composing charset',
    thisispartialmsg => 'Это разбитое на части письмо.',
    msgrebuild => 'Перекомпоновка письма',
    editdraft  => 'Редактировать черновик',
@@ -225,6 +240,7 @@
    quota_hit  => 'Превышение Квоты',
    usage      => 'Использование',
    tzmap      => 'World timezone map',
+   testsound  => 'Test sound',
    editfroms  => 'Редактировать почтовые адреса',
    pop3book   => 'Установка POP3',
    retr_pop3s => 'Получить почту по POP3',
@@ -259,6 +275,10 @@
    checkagain => 'Проверить снова',
    finishchecking => 'Хватит проверять',
    manuallyfix=> 'Исправить вручную',
+   editstat   => 'Edit Stationery',
+   savestat   => 'Save Stationery',
+   clearstat  => 'Clear All Stationery',
+   selectstat => '-- Select Stationery for Reply --',
    calendar   => 'Calendar',
    am         => 'am',
    pm         => 'pm',
@@ -287,6 +307,7 @@
    couldnt_lock      => 'Не могу создать лок файл в ',
    couldnt_seek      => 'Не могу просмотреть начало ',
    couldnt_close     => 'Не могу закрыть',
+   couldnt_updatedb  => 'Couldn\'t update index db ',
    disallowed_pop3   => 'Запрещенный POP3 сервер',
    disallowed_client => 'Вам запрещено заходить с этого клиента',
    disallowed_receiverdomain => 'Вам запрещено слать письма на этот домен',
@@ -305,6 +326,7 @@
    abook_toobig      => 'Извините, превышение размера адресной книги.',
    cant_create_dir   => 'Не могу создать вашу пользовательскую директорию!',
    folder_hitquota   => 'Извините, вы израсходовали доступный вам объем, и больше письма не смогут сохраняться в ваших папках. Вы не можете переместить сообщения в папку ,кроме как в КОРЗИНУ, где их можно удалить.  Вернитесь назад, удалите некоторые сообщения или очистите вашу КОРЗИНУ, и попробуйте еще раз.',
+   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
    att_overlimit     => 'Извините, ваше вложение превышает разрешенный размер, в',
    inv_msg_op        => 'Некорректная операция',
    inv_sessid        => 'Ваш запрос не содержит верного идентификатора -- вход запрещен!',
@@ -317,6 +339,8 @@
    auth_syserr       => 'Ошибка аутентификации',
    param_fmterr      => 'Неправильный формат параметров',
    pwd_incorrect     => 'Неправильный пароль',
+   pwd_tooshort      => 'Password too short (minimum length @@@PASSWDMINLEN@@@)',
+   pwd_toosimple     => 'Password too simple (both alphabet and digit are required)',
    network_server_error => 'Сетевая ошибка',
    sendmail_error    => 'Извините, сообщение не может быть отослано. Попробуйте вернуться назад (кнопкой Back) и попробовать снова.',
    at_char_not_allowed => 'The @ character is not allowed in this field.  Press browser back button and try again',

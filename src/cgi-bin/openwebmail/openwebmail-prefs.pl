@@ -1,14 +1,7 @@
-#!/usr/bin/perl -T
-#############################################################################
-# Open WebMail - Provides a web interface to user mailboxes                 #
-#                                                                           #
-# Copyright (C) 2001-2002                                                   #
-# Chung-Kie Tung, Nai-Jung Kuo, Chao-Chiu Wang, Emir Litric, Thomas Chung   #
-# Copyright (C) 2000                                                        #
-# Ernie Miller  (original GPL project: Neomail)                             #
-#                                                                           #
-# This program is distributed under GNU General Public License              #
-#############################################################################
+#!/usr/bin/suidperl -T
+#
+# openwebmail-prefs.pl - preference configuration, book editing program
+#
 
 use vars qw($SCRIPT_DIR);
 if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-\.]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
@@ -26,15 +19,16 @@ use CGI qw(-private_tempfiles :standard);
 use CGI::Carp qw(fatalsToBrowser);
 CGI::nph();   # Treat script as a non-parsed-header script
 
-require "openwebmail-shared.pl";
+require "ow-shared.pl";
 require "filelock.pl";
 require "pop3mail.pl";
 require "mime.pl";
+require "iconv.pl";
 
 use vars qw(%config %config_raw);
 use vars qw($thissession);
 use vars qw($loginname $domain $user $userrealname $uuid $ugid $homedir);
-use vars qw(%prefs %style);
+use vars qw(%prefs %style %icontext);
 use vars qw($folderdir @validfolders $folderusage);
 use vars qw($folder $printfolder $escapedfolder);
 
@@ -51,11 +45,12 @@ $messageid=param("message_id") || '';
 $escapedmessageid=escapeURL($messageid);
 
 # extern vars
-use vars qw(%languagenames %languagecharsets);	# defined in openwebmail-shared.pl
+use vars qw(%languagenames %languagecharsets);	# defined in ow-shared.pl
 use vars qw(%lang_folders %lang_text %lang_err
-	    %lang_sortlabels %lang_withoriglabels %lang_receiptlabels
+	    %lang_sortlabels %lang_withoriglabels %lang_receiptlabels %lang_positionlabels
 	    %lang_timelabels %lang_wday);	# defined in lang/xy
-use vars qw(%medfontsize);			# defined in openwebmail-shared.pl
+use vars qw(%charset_convlist);			# defined in iconv.pl
+use vars qw(%medfontsize);			# defined in ow-shared.pl
 
 ########################## MAIN ##############################
 
@@ -92,6 +87,14 @@ if ($action eq "firsttimeuser") {
    modfilter("add");
 } elsif ($action eq "deletefilter") {
    modfilter("delete");
+} elsif ($action eq "editstat") {
+   editstat();
+} elsif ($action eq "delstat") {
+   delstat();
+} elsif ($action eq "clearstat") {
+   clearstat();
+} elsif ($action eq "addstat") {
+   addstat();
 } elsif ($action eq "timeoutwarning") {
    timeoutwarning();
 } else {
@@ -101,14 +104,8 @@ if ($action eq "firsttimeuser") {
 
 ##################### FIRSTTIMEUSER ################################
 sub firsttimeuser {
-   my $html = '';
+   my $html = readtemplate("firsttimeuser.template");
    my $temphtml;
-   open (FTUSER, "$config{'ow_etcdir'}/templates/$prefs{'language'}/firsttimeuser.template") or
-      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/templates/$prefs{'language'}/firsttimeuser.template!");
-   while (<FTUSER>) {
-      $html .= $_;
-   }
-   close (FTUSER);
 
    $html = applystyle($html);
 
@@ -140,15 +137,8 @@ sub firsttimeuser {
 
 ########################### ABOUT ##############################
 sub about {
-   my $html = '';
+   my $html = readtemplate("about.template");
    my $temphtml;
-
-   open (ABOUT, "$config{'ow_etcdir'}/templates/$prefs{'language'}/about.template") or
-      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/templates/$prefs{'language'}/about.template");
-   while (<ABOUT>) {
-      $html .= $_;
-   }
-   close (ABOUT);
 
    $html = applystyle($html);
 
@@ -236,13 +226,7 @@ sub editprefs {
       }
    }
 
-   open (PREFSTEMPLATE, "$config{'ow_etcdir'}/templates/$prefs{'language'}/prefs.template") or
-      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/templates/$prefs{'language'}/prefs.template");
-   while (<PREFSTEMPLATE>) {
-      $html .= $_;
-   }
-   close (PREFSTEMPLATE);
-
+   $html=readtemplate("prefs.template");
    $html = applystyle($html);
 
    printheader();
@@ -273,53 +257,53 @@ sub editprefs {
    }
    $html =~ s/\@\@\@REALNAME\@\@\@/$temphtml/;
 
-   $temphtml  = qq|<a href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=displayheaders&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$escapedfolder" title="$lang_text{'backto'} $printfolder"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/backtofolder.gif" border="0" ALT="$lang_text{'backto'} $printfolder"></a> &nbsp; \n|;
+   $temphtml  = iconlink("backtofolder.gif", "$lang_text{'backto'} $printfolder", qq|href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=displayheaders&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$escapedfolder"|). qq| \n|;
    $temphtml .= qq|&nbsp; \n|;
-   $temphtml .= qq|<a href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editfroms&amp;sessionid=$thissession&amp;sort=$sort&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage" title="$lang_text{'editfroms'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/editfroms.gif" border="0" ALT="$lang_text{'editfroms'}"></a> |;
+   $temphtml .= iconlink("editfroms.gif", $lang_text{'editfroms'}, qq|href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editfroms&amp;sessionid=$thissession&amp;sort=$sort&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage"|). qq| \n|;
+   if ($config{'enable_stationery'}) {
+      $temphtml .= iconlink("editst.gif", $lang_text{'editstat'}, qq|href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editstat&amp;sessionid=$thissession&amp;sort=$sort&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage"|). qq| \n|;
+   }
    if ($config{'enable_pop3'}) {
-      $temphtml .= qq|<a href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editpop3&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$escapedfolder" title="$lang_text{'pop3book'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/pop3setup.gif" border="0" ALT="$lang_text{'pop3book'}"></a> \n|;
+      $temphtml .= iconlink("pop3setup.gif", $lang_text{'pop3book'}, qq|href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editpop3&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$escapedfolder"|). qq| \n|;
    }
    if ( $config{'enable_changepwd'}) {
-      $temphtml .= qq|<a href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editpassword&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$escapedfolder" title="$lang_text{'changepwd'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/chpwd.gif" border="0" ALT="$lang_text{'changepwd'}"></a> \n|;
+      $temphtml .= iconlink("chpwd.gif", $lang_text{'changepwd'}, qq|href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editpassword&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$escapedfolder"|). qq| \n|;
    }
-   $temphtml .= qq|<a href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=viewhistory&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$escapedfolder" title="$lang_text{'viewhistory'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/history.gif" border="0" ALT="$lang_text{'viewhistory'}"></a> \n|;
+   $temphtml .= iconlink("history.gif", $lang_text{'viewhistory'}, qq|href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=viewhistory&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$escapedfolder"|). qq| \n|;
    if ($config{'enable_about'}) {
-      $temphtml .= qq|<a onclick="window.open('$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=about&amp;sessionid=$thissession','AboutWindow', 'width=600,height=400,resizable=yes,menubar=no,scrollbars=yes');" title="$lang_text{'about'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/info.gif" border="0" ALT="$lang_text{'about'}"></a> \n|;
+      $temphtml .= iconlink("info.gif", $lang_text{'about'}, qq|onclick="window.open('$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=about&amp;sessionid=$thissession','AboutWindow', 'width=600,height=400,resizable=yes,menubar=no,scrollbars=yes');"|). qq| \n|;
    }
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
+
+   my $defaultlanguage=$prefs{'language'};
+   my $defaultcharset=$prefs{'charset'}||$languagecharsets{$prefs{'language'}};
+   my $defaultsendcharset=$prefs{'sendcharset'}||'sameascomposing';
+   if (param('language') =~ /^([\d\w\._]+)$/ ) {
+      $defaultlanguage=$1;
+      $defaultcharset=$languagecharsets{$1};
+      $defaultsendcharset='sameascomposing';
+   }
 
    my @availablelanguages = sort {
                                  $languagenames{$a} cmp $languagenames{$b}
                                  } keys(%languagenames);
-
    $temphtml = popup_menu(-name=>'language',
                           -"values"=>\@availablelanguages,
-                          -default=>$prefs{'language'},
+                          -default=>$defaultlanguage,
                           -labels=>\%languagenames,
                           -onChange=>"javascript:if (this.value != null) { window.open('$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;sessionid=$thissession&amp;sort=$sort&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;language='+this.value, '_self'); }",
                           -override=>'1');
-
    $html =~ s/\@\@\@LANGUAGEMENU\@\@\@/$temphtml/;
 
    my (%tmpset, @charset);
    foreach (values %languagecharsets) {
       $tmpset{$_}=1;
    }
-   @charset=sort (keys %tmpset);
-
-   if (param('language') =~ /^([\d\w\._]+)$/ ) {
-      my $language=$1;
-      $temphtml = popup_menu(-name=>'charset',
-                             -"values"=>\@charset,
-                             -default=>$languagecharsets{$language},
-                             -override=>'1');
-   } else {
-      $temphtml = popup_menu(-name=>'charset',
-                             -"values"=>\@charset,
-                             -default=>$prefs{'charset'}||$languagecharsets{$prefs{'language'}},
-                             -override=>'1');
-   }
-
+   @charset=sort (keys %tmpset); push(@charset, 'utf-8');
+   $temphtml = popup_menu(-name=>'charset',
+                          -"values"=>\@charset,
+                          -default=>$defaultcharset,
+                          -override=>'1');
    $html =~ s/\@\@\@CHARSETMENU\@\@\@/$temphtml/;
 
    my @timeoffsets=qw( -1200 -1100 -1000 -0900 -0800 -0700
@@ -330,9 +314,7 @@ sub editprefs {
                           -"values"=>\@timeoffsets,
                           -default=>$prefs{'timeoffset'},
                           -override=>'1').
-               qq|&nbsp;|.
-               qq|<a href="$config{'ow_htmlurl'}/images/timezone.jpg" target="timezonemap" title="$lang_text{'tzmap'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/earth.gif" border="0" ALT="$lang_text{'tzmap'}"></a>\n|;
-
+               qq|&nbsp;|. iconlink("earth.gif", $lang_text{'tzmap'}, qq|href="$config{'ow_htmlurl'}/images/timezone.jpg" target="_timezonemap"|). qq|\n|;
    $html =~ s/\@\@\@TIMEOFFSETMENU\@\@\@/$temphtml/;
 
    my @fromemails=sort keys %userfrom;
@@ -349,390 +331,13 @@ sub editprefs {
                                 -labels=>\%fromlabels,
                                 -default=>$prefs{'email'},
                                 -override=>'1');
-
    $html =~ s/\@\@\@FROMEMAILMENU\@\@\@/$temphtml/;
 
    $temphtml = textfield(-name=>'replyto',
                          -default=>$prefs{'replyto'} || '',
                          -size=>'40',
                          -override=>'1');
-
    $html =~ s/\@\@\@REPLYTOFIELD\@\@\@/$temphtml/;
-
-   # Get a list of valid style files
-   my @styles;
-   opendir (STYLESDIR, "$config{'ow_etcdir'}/styles") or
-      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/styles directory for reading!");
-   while (defined(my $currstyle = readdir(STYLESDIR))) {
-      if ($currstyle =~ /^([^\.].*)$/) {
-         push (@styles, $1);
-      }
-   }
-   @styles = sort(@styles);
-   closedir(STYLESDIR) or
-      openwebmailerror("$lang_err{'couldnt_close'} $config{'ow_etcdir'}/styles!");
-
-   $temphtml = popup_menu(-name=>'style',
-                          -"values"=>\@styles,
-                          -default=>$prefs{'style'},
-                          -override=>'1');
-
-   $html =~ s/\@\@\@STYLEMENU\@\@\@/$temphtml/;
-
-   # Get a list of valid iconset
-   my @iconsets;
-   opendir (ICONSETSDIR, "$config{'ow_htmldir'}/images/iconsets") or
-      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_htmldir'}/images/iconsets directory for reading!");
-   while (defined(my $currset = readdir(ICONSETSDIR))) {
-      if (-d "$config{'ow_htmldir'}/images/iconsets/$currset" && $currset =~ /^([^\.].*)$/) {
-         push (@iconsets, $1);
-      }
-   }
-   @iconsets = sort(@iconsets);
-   closedir(ICONSETSDIR) or
-      openwebmailerror("$lang_err{'couldnt_close'} $config{'ow_htmldir'}/images/iconsets!");
-
-   $temphtml = popup_menu(-name=>'iconset',
-                          -"values"=>\@iconsets,
-                          -default=>$prefs{'iconset'},
-                          -override=>'1');
-
-   $html =~ s/\@\@\@ICONSETMENU\@\@\@/$temphtml/;
-
-
-   # Get a list of valid background images
-   my @backgrounds;
-   opendir (BACKGROUNDSDIR, "$config{'ow_htmldir'}/images/backgrounds") or
-      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_htmldir'}/images/backgrounds directory for reading!");
-   while (defined(my $currbackground = readdir(BACKGROUNDSDIR))) {
-      if ($currbackground =~ /^([^\.].*)$/) {
-         push (@backgrounds, $1);
-      }
-   }
-   closedir(BACKGROUNDSDIR) or
-      openwebmailerror("$lang_err{'couldnt_close'} $config{'ow_htmldir'}/images/backgrounds!");
-   @backgrounds = sort(@backgrounds);
-   push(@backgrounds, "USERDEFINE");
-
-   my ($background, $bgurl);
-   if ( $prefs{'bgurl'}=~m!$config{'ow_htmlurl'}/images/backgrounds/([\w\d\._\-]+)! ) {
-      $background=$1; $bgurl="";
-   } else {
-      $background="USERDEFINE"; $bgurl=$prefs{'bgurl'};
-   }
-
-   $temphtml = popup_menu(-name=>'background',
-                          -"values"=>\@backgrounds,
-                          -labels=>{ 'USERDEFINE'=>"--$lang_text{'userdef'}--" },
-                          -default=>$background,
-                          -onChange=>"JavaScript:document.prefsform.bgurl.value='';",
-                          -override=>'1');
-
-   $html =~ s/\@\@\@BACKGROUNDMENU\@\@\@/$temphtml/;
-
-   $temphtml = textfield(-name=>'bgurl',
-                         -default=>$bgurl,
-                         -size=>'35',
-                         -override=>'1');
-
-   $html =~ s/\@\@\@BGURLFIELD\@\@\@/$temphtml/;
-
-   my @fontsize=sort { ($a=~/px$/ - $b=~/px$/) || $a <=> $b } keys %medfontsize;
-   my %fontsizelabels;
-   foreach (@fontsize) {
-      $fontsizelabels{$_}=$_;
-      $fontsizelabels{$_}=~s/pt/ $lang_text{'point'}/;
-      $fontsizelabels{$_}=~s/px/ $lang_text{'pixel'}/;
-   }
-   $temphtml = popup_menu(-name=>'fontsize',
-                          -"values"=>\@fontsize,
-                          -default=>$prefs{'fontsize'},
-                          -labels=>\%fontsizelabels,
-                          -override=>'1');
-
-   $html =~ s/\@\@\@FONTSIZEMENU\@\@\@/$temphtml/;
-
-   $temphtml = popup_menu(-name=>'headersperpage',
-                          -"values"=>[8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,50,100,500,1000],
-                          -default=>$prefs{'headersperpage'},
-                          -override=>'1');
-
-   $html =~ s/\@\@\@HEADERSPERPAGE\@\@\@/$temphtml/;
-
-   $temphtml = popup_menu(-name=>'sort',
-                          -"values"=>['date','date_rev','sender','sender_rev',
-                                      'size','size_rev','subject','subject_rev',
-                                      'status'],
-                          -default=>$prefs{'sort'},
-                          -labels=>\%lang_sortlabels,
-                          -override=>'1');
-
-   $html =~ s/\@\@\@SORTMENU\@\@\@/$temphtml/;
-
-   $temphtml = popup_menu(-name=>'dateformat',
-                          -"values"=>['mm/dd/yyyy', 'dd/mm/yyyy', 'yyyy/mm/dd',
-                                      'mm-dd-yyyy', 'dd-mm-yyyy', 'yyyy-mm-dd',
-                                      'mm.dd.yyyy', 'dd.mm.yyyy', 'yyyy.mm.dd'],
-                          -default=>$prefs{'dateformat'},
-                          -override=>'1');
-
-   $html =~ s/\@\@\@DATEFORMATMENU\@\@\@/$temphtml/;
-
-   $temphtml = popup_menu(-name=>'defaultdestination',
-                          -"values"=>['saved-messages','mail-trash', 'DELETE'],
-                          -default=>$prefs{'defaultdestination'} || 'mail-trash',
-                          -labels=>\%lang_folders,
-                          -override=>'1');
-
-   $html =~ s/\@\@\@DEFAULTDESTINATIONMENU\@\@\@/$temphtml/;
-
-   my %headerlabels = ('simple'=>$lang_text{'simplehead'},
-                       'all'=>$lang_text{'allhead'}
-                      );
-   $temphtml = popup_menu(-name=>'headers',
-                          -"values"=>['simple','all'],
-                          -default=>$prefs{'headers'} || 'simple',
-                          -labels=>\%headerlabels,
-                          -override=>'1');
-
-   $html =~ s/\@\@\@HEADERSMENU\@\@\@/$temphtml/;
-
-   $temphtml = popup_menu(-name=>'editcolumns',
-                          -"values"=>[60,62,64,66,68,70,72,74,76,78,80,82,84,86,88,90,100,110,120],
-                          -default=>$prefs{'editcolumns'},
-                          -override=>'1');
-
-   $html =~ s/\@\@\@EDITCOLUMNSMENU\@\@\@/$temphtml/;
-
-   $temphtml = popup_menu(-name=>'editrows',
-                          -"values"=>[10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,50,60,70,80],
-                          -default=>$prefs{'editrows'},
-                          -override=>'1');
-
-   $html =~ s/\@\@\@EDITROWSMENU\@\@\@/$temphtml/;
-
-   $temphtml = popup_menu(-name=>'dictionary',
-                          -"values"=>$config{'spellcheck_dictionaries'},
-                          -default=>$prefs{'dictionary'},
-                          -override=>'1');
-
-   $html =~ s/\@\@\@DICTIONARYMENU\@\@\@/$temphtml/;
-
-   # Get a list of new mail sound
-   my @sounds;
-   opendir (SOUNDDIR, "$config{'ow_htmldir'}/sounds") or
-      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_htmldir'}/sounds directory for reading!");
-   while (defined(my $currsnd = readdir(SOUNDDIR))) {
-      if (-f "$config{'ow_htmldir'}/sounds/$currsnd" && $currsnd =~ /^([^\.].*)$/) {
-         push (@sounds, $1);
-      }
-   }
-   closedir(SOUNDDIR) or
-      openwebmailerror("$lang_err{'couldnt_close'} $config{'ow_htmldir'}/sounds!");
-
-   @sounds = sort(@sounds);
-   unshift(@sounds, 'NONE');
-
-   $temphtml = popup_menu(-name=>'newmailsound',
-                          -labels=>{ 'NONE'=>$lang_text{'none'} },
-                          -"values"=>\@sounds,
-                          -default=>$prefs{'newmailsound'},
-                          -override=>'1');
-
-   $html =~ s/\@\@\@NEWMAILSOUNDMENU\@\@\@/$temphtml/g;
-
-   $temphtml = checkbox(-name=>'hideinternal',
-                  -value=>'1',
-                  -checked=>$prefs{'hideinternal'},
-                  -label=>'');
-
-   $html =~ s/\@\@\@HIDEINTERNAL\@\@\@/$temphtml/g;
-
-   $temphtml = checkbox(-name=>'usefixedfont',
-                  -value=>'1',
-                  -checked=>$prefs{'usefixedfont'},
-                  -label=>'');
-
-   $html =~ s/\@\@\@USEFIXEDFONT\@\@\@/$temphtml/g;
-
-   $temphtml = checkbox(-name=>'usesmileicon',
-                  -value=>'1',
-                  -checked=>$prefs{'usesmileicon'},
-                  -label=>'');
-
-   $html =~ s/\@\@\@USESMILEICON\@\@\@/$temphtml/g;
-
-   $temphtml = checkbox(-name=>'disablejs',
-                  -value=>'1',
-                  -checked=>$prefs{'disablejs'},
-                  -label=>'');
-
-   $html =~ s/\@\@\@DISABLEJS\@\@\@/$temphtml/g;
-
-   $temphtml = checkbox(-name=>'disableembcgi',
-                  -value=>'1',
-                  -checked=>$prefs{'disableembcgi'},
-                  -label=>'');
-
-   $html =~ s/\@\@\@DISABLEEMBCGI\@\@\@/$temphtml/g;
-
-   $temphtml = checkbox(-name=>'showimgaslink',
-                  -value=>'1',
-                  -checked=>$prefs{'showimgaslink'},
-                  -label=>'');
-
-   $html =~ s/\@\@\@SHOWIMGASLINK\@\@\@/$temphtml/g;
-
-   $temphtml = checkbox(-name=>'regexmatch',
-                  -value=>'1',
-                  -checked=>$prefs{'regexmatch'},
-                  -label=>'');
-
-   $html =~ s/\@\@\@REGEXMATCH\@\@\@/$temphtml/g;
-
-   $temphtml = checkbox(-name=>'confirmmsgmovecopy',
-                        -value=>'1',
-                        -checked=>$prefs{'confirmmsgmovecopy'},
-                        -label=>'');
-
-   $html =~ s/\@\@\@CONFIRMMSGMOVECOPY\@\@\@/$temphtml/;
-
-   $temphtml = checkbox(-name=>'viewnextaftermsgmovecopy',
-                        -value=>'1',
-                        -checked=>$prefs{'viewnextaftermsgmovecopy'},
-                        -label=>'');
-
-   $html =~ s/\@\@\@VIEWNEXTAFTERMSGMOVECOPY\@\@\@/$temphtml/;
-
-   $temphtml = checkbox(-name=>'backupsentmsg',
-                        -value=>'1',
-                        -checked=>$prefs{'backupsentmsg'},
-                        -label=>'');
-
-   $html =~ s/\@\@\@BACKUPSENTMSG\@\@\@/$temphtml/;
-
-   $temphtml = checkbox(-name=>'reparagraphorigmsg',
-                        -value=>'1',
-                        -checked=>$prefs{'reparagraphorigmsg'},
-                        -label=>'');
-
-   $html =~ s/\@\@\@REPARAGRAPHORIGMSG\@\@\@/$temphtml/;
-
-   $temphtml = popup_menu(-name=>'replywithorigmsg',
-                          -"values"=>['at_beginning', 'at_end', 'none'],
-                          -default=>$prefs{'replywithorigmsg'} || 'at_beginning',
-                          -labels=>\%lang_withoriglabels,
-                          -override=>'1');
-
-   $html =~ s/\@\@\@REPLYWITHORIGMSGMENU\@\@\@/$temphtml/;
-
-   $temphtml = popup_menu(-name=>'sendreceipt',
-                          -"values"=>['ask', 'yes', 'no'],
-                          -default=>$prefs{'sendreceipt'} || 'ask',
-                          -labels=>\%lang_receiptlabels,
-                          -override=>'1');
-
-   $html =~ s/\@\@\@SENDRECEIPTMENU\@\@\@/$temphtml/;
-
-   if ($config{'enable_pop3'}) {
-      $temphtml = checkbox(-name=>'autopop3',
-                           -value=>'1',
-                           -checked=>$prefs{'autopop3'},
-                           -label=>'');
-      $html =~ s/\@\@\@AUTOPOP3CHECKBOX\@\@\@/$temphtml/g;
-      $html =~ s/\@\@\@AUTOPOP3START\@\@\@//g;
-      $html =~ s/\@\@\@AUTOPOP3END\@\@\@//g;
-   } else {
-      $html =~ s/\@\@\@AUTOPOP3CHECKBOX\@\@\@/not available/g;
-      $html =~ s/\@\@\@AUTOPOP3START\@\@\@/<!--/g;
-      $html =~ s/\@\@\@AUTOPOP3END\@\@\@/-->/g;
-   }
-
-   if ($config{'forced_moveoldmsgfrominbox'}) {
-      $html =~ s/\@\@\@MOVEOLDCHECKBOX\@\@\@/not available/g;
-      $html =~ s/\@\@\@MOVEOLDSTART\@\@\@/<!--/g;
-      $html =~ s/\@\@\@MOVEOLDEND\@\@\@/-->/g;
-   } else {
-      $temphtml = checkbox(-name=>'moveoldmsgfrominbox',
-                           -value=>'1',
-                           -checked=>$prefs{'moveoldmsgfrominbox'},
-                           -label=>'');
-      $html =~ s/\@\@\@MOVEOLDMSGFROMINBOX\@\@\@/$temphtml/;
-      $html =~ s/\@\@\@MOVEOLDSTART\@\@\@//g;
-      $html =~ s/\@\@\@MOVEOLDEND\@\@\@//g;
-   }
-
-   my (%FTDB, $matchcount, $matchdate);
-   filelock("$folderdir/.filter.book$config{'dbm_ext'}", LOCK_SH) if (!$config{'dbmopen_haslock'});
-   dbmopen (%FTDB, "$folderdir/.filter.book$config{'dbmopen_ext'}", 0600);
-
-   $temphtml = popup_menu(-name=>'filter_repeatlimit',
-                          -"values"=>['0','5','10','20','30','40','50','100'],
-                          -default=>$prefs{'filter_repeatlimit'},
-                          -override=>'1');
-   ($matchcount, $matchdate)=split(":", $FTDB{"filter_repeatlimit"});
-   if ($matchdate) {
-      $matchdate=dateserial2str($matchdate);
-      $temphtml .= "&nbsp;(<a title='$matchdate'>$lang_text{'filtered'}: $matchcount</a>)";
-   }
-
-   $html =~ s/\@\@\@FILTERREPEATLIMIT\@\@\@/$temphtml/;
-
-   $temphtml = checkbox(-name=>'filter_fakedsmtp',
-                        -value=>'1',
-                        -checked=>$prefs{'filter_fakedsmtp'},
-                        -label=>'');
-   ($matchcount, $matchdate)=split(":", $FTDB{"filter_fakedsmtp"});
-   if ($matchdate) {
-      $matchdate=dateserial2str($matchdate);
-      $temphtml .= "&nbsp;(<a title='$matchdate'>$lang_text{'filtered'}: $matchcount</a>)";
-   }
-
-   $html =~ s/\@\@\@FILTERFAKEDSMTP\@\@\@/$temphtml/g;
-
-   $temphtml = checkbox(-name=>'filter_fakedfrom',
-                        -value=>'1',
-                        -checked=>$prefs{'filter_fakedfrom'},
-                        -label=>'');
-   ($matchcount, $matchdate)=split(":", $FTDB{"filter_fakedfrom"});
-   if ($matchdate) {
-      $matchdate=dateserial2str($matchdate);
-      $temphtml .= "&nbsp;(<a title='$matchdate'>$lang_text{'filtered'}: $matchcount</a>)";
-   }
-
-   $html =~ s/\@\@\@FILTERFAKEDFROM\@\@\@/$temphtml/g;
-
-   $temphtml = checkbox(-name=>'filter_fakedexecontenttype',
-                        -value=>'1',
-                        -checked=>$prefs{'filter_fakedexecontenttype'},
-                        -label=>'');
-   ($matchcount, $matchdate)=split(":", $FTDB{"filter_fakedexecontenttype"});
-   if ($matchdate) {
-      $matchdate=dateserial2str($matchdate);
-      $temphtml .= "&nbsp;(<a title='$matchdate'>$lang_text{'filtered'}: $matchcount</a>)";
-   }
-
-   $html =~ s/\@\@\@FILTERFAKEDEXECONTENTTYPE\@\@\@/$temphtml/g;
-
-   dbmclose(%FTDB);
-   filelock("$folderdir/.filter.book$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
-
-   my %dayslabels = ('0'=>$lang_text{'forever'});
-   $temphtml = popup_menu(-name=>'trashreserveddays',
-                          -"values"=>[0,1,2,3,4,5,6,7,14,21,30,60,90,180],
-                          -default=>$prefs{'trashreserveddays'},
-                          -labels=>\%dayslabels,
-                          -override=>'1');
-
-   $html =~ s/\@\@\@RESERVEDDAYSMENU\@\@\@/$temphtml/;
-
-   $temphtml = popup_menu(-name=>'sessiontimeout',
-                          -"values"=>[10,30,60,120,180,360,720,1440],
-                          -default=>$prefs{'sessiontimeout'},
-                          -labels=>\%lang_timelabels,
-                          -override=>'1');
-
-   $html =~ s/\@\@\@SESSIONTIMEOUTMENU\@\@\@/$temphtml/;
 
    # read .forward, also see if autoforwarding is on
    my ($autoreply, $selfforward, @forwards)=readdotforward();
@@ -814,19 +419,328 @@ sub editprefs {
                         -columns=>'72',
                         -wrap=>'hard',
                         -override=>'1');
-
    $html =~ s/\@\@\@SIGAREA\@\@\@/$temphtml/;
+
+
+   # Get a list of valid style files
+   my @styles;
+   opendir (STYLESDIR, "$config{'ow_etcdir'}/styles") or
+      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/styles directory for reading!");
+   while (defined(my $currstyle = readdir(STYLESDIR))) {
+      if ($currstyle =~ /^([^\.].*)$/) {
+         push (@styles, $1);
+      }
+   }
+   @styles = sort(@styles);
+   closedir(STYLESDIR) or
+      openwebmailerror("$lang_err{'couldnt_close'} $config{'ow_etcdir'}/styles!");
+
+   $temphtml = popup_menu(-name=>'style',
+                          -"values"=>\@styles,
+                          -default=>$prefs{'style'},
+                          -override=>'1');
+   $html =~ s/\@\@\@STYLEMENU\@\@\@/$temphtml/;
+
+   # Get a list of valid iconset
+   my @iconsets;
+   opendir (ICONSETSDIR, "$config{'ow_htmldir'}/images/iconsets") or
+      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_htmldir'}/images/iconsets directory for reading!");
+   while (defined(my $currset = readdir(ICONSETSDIR))) {
+      if (-d "$config{'ow_htmldir'}/images/iconsets/$currset" && $currset =~ /^([^\.].*)$/) {
+         push (@iconsets, $1);
+      }
+   }
+   @iconsets = sort(@iconsets);
+   closedir(ICONSETSDIR) or
+      openwebmailerror("$lang_err{'couldnt_close'} $config{'ow_htmldir'}/images/iconsets!");
+
+   $temphtml = popup_menu(-name=>'iconset',
+                          -"values"=>\@iconsets,
+                          -default=>$prefs{'iconset'},
+                          -override=>'1');
+   $html =~ s/\@\@\@ICONSETMENU\@\@\@/$temphtml/;
+
+   # Get a list of valid background images
+   my @backgrounds;
+   opendir (BACKGROUNDSDIR, "$config{'ow_htmldir'}/images/backgrounds") or
+      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_htmldir'}/images/backgrounds directory for reading!");
+   while (defined(my $currbackground = readdir(BACKGROUNDSDIR))) {
+      if ($currbackground =~ /^([^\.].*)$/) {
+         push (@backgrounds, $1);
+      }
+   }
+   closedir(BACKGROUNDSDIR) or
+      openwebmailerror("$lang_err{'couldnt_close'} $config{'ow_htmldir'}/images/backgrounds!");
+   @backgrounds = sort(@backgrounds);
+   push(@backgrounds, "USERDEFINE");
+
+   my ($background, $bgurl);
+   if ( $prefs{'bgurl'}=~m!$config{'ow_htmlurl'}/images/backgrounds/([\w\d\._\-]+)! ) {
+      $background=$1; $bgurl="";
+   } else {
+      $background="USERDEFINE"; $bgurl=$prefs{'bgurl'};
+   }
+
+   $temphtml = popup_menu(-name=>'background',
+                          -"values"=>\@backgrounds,
+                          -labels=>{ 'USERDEFINE'=>"--$lang_text{'userdef'}--" },
+                          -default=>$background,
+                          -onChange=>"JavaScript:document.prefsform.bgurl.value='';",
+                          -override=>'1');
+   $html =~ s/\@\@\@BACKGROUNDMENU\@\@\@/$temphtml/;
+
+   $temphtml = textfield(-name=>'bgurl',
+                         -default=>$bgurl,
+                         -size=>'35',
+                         -override=>'1');
+   $html =~ s/\@\@\@BGURLFIELD\@\@\@/$temphtml/;
+
+   my @fontsize=sort { ($a=~/px$/ - $b=~/px$/) || $a <=> $b } keys %medfontsize;
+   my %fontsizelabels;
+   foreach (@fontsize) {
+      $fontsizelabels{$_}=$_;
+      $fontsizelabels{$_}=~s/pt/ $lang_text{'point'}/;
+      $fontsizelabels{$_}=~s/px/ $lang_text{'pixel'}/;
+   }
+   $temphtml = popup_menu(-name=>'fontsize',
+                          -"values"=>\@fontsize,
+                          -default=>$prefs{'fontsize'},
+                          -labels=>\%fontsizelabels,
+                          -override=>'1');
+   $html =~ s/\@\@\@FONTSIZEMENU\@\@\@/$temphtml/;
+
+   $temphtml = popup_menu(-name=>'headersperpage',
+                          -"values"=>[8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,50,100,500,1000],
+                          -default=>$prefs{'headersperpage'},
+                          -override=>'1');
+   $html =~ s/\@\@\@HEADERSPERPAGE\@\@\@/$temphtml/;
+
+   $temphtml = popup_menu(-name=>'sort',
+                          -"values"=>['date','date_rev','sender','sender_rev',
+                                      'size','size_rev','subject','subject_rev',
+                                      'status'],
+                          -default=>$prefs{'sort'},
+                          -labels=>\%lang_sortlabels,
+                          -override=>'1');
+   $html =~ s/\@\@\@SORTMENU\@\@\@/$temphtml/;
+
+   $temphtml = popup_menu(-name=>'dateformat',
+                          -"values"=>['mm/dd/yyyy', 'dd/mm/yyyy', 'yyyy/mm/dd',
+                                      'mm-dd-yyyy', 'dd-mm-yyyy', 'yyyy-mm-dd',
+                                      'mm.dd.yyyy', 'dd.mm.yyyy', 'yyyy.mm.dd'],
+                          -default=>$prefs{'dateformat'},
+                          -override=>'1');
+   $html =~ s/\@\@\@DATEFORMATMENU\@\@\@/$temphtml/;
+
+   $temphtml = popup_menu(-name=>'hourformat',
+                          -"values"=>[12, 24],
+                          -default=>$prefs{'hourformat'},
+                          -override=>'1');
+   $html =~ s/\@\@\@HOURFORMATMENU\@\@\@/$temphtml/;
+
+   my %headerlabels = ('simple'=>$lang_text{'simplehead'},
+                       'all'=>$lang_text{'allhead'}
+                      );
+   $temphtml = popup_menu(-name=>'headers',
+                          -"values"=>['simple','all'],
+                          -default=>$prefs{'headers'} || 'simple',
+                          -labels=>\%headerlabels,
+                          -override=>'1');
+   $html =~ s/\@\@\@HEADERSMENU\@\@\@/$temphtml/;
+
+   $temphtml = popup_menu(-name=>'editcolumns',
+                          -"values"=>[60,62,64,66,68,70,72,74,76,78,80,82,84,86,88,90,100,110,120],
+                          -default=>$prefs{'editcolumns'},
+                          -override=>'1');
+   $html =~ s/\@\@\@EDITCOLUMNSMENU\@\@\@/$temphtml/;
+
+   $temphtml = popup_menu(-name=>'editrows',
+                          -"values"=>[10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,50,60,70,80],
+                          -default=>$prefs{'editrows'},
+                          -override=>'1');
+   $html =~ s/\@\@\@EDITROWSMENU\@\@\@/$temphtml/;
+
+   $temphtml = popup_menu(-name=>'sendbuttonposition',
+                          -"values"=>['before', 'after', 'both'],
+                          -default=>$prefs{'sendbuttonposition'} || 'before',
+                          -labels=>\%lang_positionlabels,
+                          -override=>'1');
+   $html =~ s/\@\@\@SENDBUTTONPOSITIONMENU\@\@\@/$temphtml/;
+
+
+   $temphtml = checkbox(-name=>'usefixedfont',
+                  -value=>'1',
+                  -checked=>$prefs{'usefixedfont'},
+                  -label=>'');
+   $html =~ s/\@\@\@USEFIXEDFONT\@\@\@/$temphtml/g;
+
+   $temphtml = checkbox(-name=>'usesmileicon',
+                  -value=>'1',
+                  -checked=>$prefs{'usesmileicon'},
+                  -label=>'');
+   $html =~ s/\@\@\@USESMILEICON\@\@\@/$temphtml/g;
+
+   $temphtml = checkbox(-name=>'disablejs',
+                  -value=>'1',
+                  -checked=>$prefs{'disablejs'},
+                  -label=>'');
+   $html =~ s/\@\@\@DISABLEJS\@\@\@/$temphtml/g;
+
+   $temphtml = checkbox(-name=>'disableembcgi',
+                  -value=>'1',
+                  -checked=>$prefs{'disableembcgi'},
+                  -label=>'');
+   $html =~ s/\@\@\@DISABLEEMBCGI\@\@\@/$temphtml/g;
+
+   $temphtml = checkbox(-name=>'showimgaslink',
+                  -value=>'1',
+                  -checked=>$prefs{'showimgaslink'},
+                  -label=>'');
+   $html =~ s/\@\@\@SHOWIMGASLINK\@\@\@/$temphtml/g;
+
+
+   $temphtml = popup_menu(-name=>'defaultdestination',
+                          -"values"=>['saved-messages','mail-trash', 'DELETE'],
+                          -default=>$prefs{'defaultdestination'} || 'mail-trash',
+                          -labels=>\%lang_folders,
+                          -override=>'1');
+   $html =~ s/\@\@\@DEFAULTDESTINATIONMENU\@\@\@/$temphtml/;
+
+   $temphtml = checkbox(-name=>'confirmmsgmovecopy',
+                        -value=>'1',
+                        -checked=>$prefs{'confirmmsgmovecopy'},
+                        -label=>'');
+   $html =~ s/\@\@\@CONFIRMMSGMOVECOPY\@\@\@/$temphtml/;
+
+   $temphtml = checkbox(-name=>'viewnextaftermsgmovecopy',
+                        -value=>'1',
+                        -checked=>$prefs{'viewnextaftermsgmovecopy'},
+                        -label=>'');
+   $html =~ s/\@\@\@VIEWNEXTAFTERMSGMOVECOPY\@\@\@/$temphtml/;
+
+   if ($config{'enable_pop3'}) {
+      $temphtml = checkbox(-name=>'autopop3',
+                           -value=>'1',
+                           -checked=>$prefs{'autopop3'},
+                           -label=>'');
+      $html =~ s/\@\@\@AUTOPOP3CHECKBOX\@\@\@/$temphtml/g;
+      $html =~ s/\@\@\@AUTOPOP3START\@\@\@//g;
+      $html =~ s/\@\@\@AUTOPOP3END\@\@\@//g;
+   } else {
+      $html =~ s/\@\@\@AUTOPOP3CHECKBOX\@\@\@/not available/g;
+      $html =~ s/\@\@\@AUTOPOP3START\@\@\@/<!--/g;
+      $html =~ s/\@\@\@AUTOPOP3END\@\@\@/-->/g;
+   }
+
+   if ($config{'forced_moveoldmsgfrominbox'}) {
+      $html =~ s/\@\@\@MOVEOLDCHECKBOX\@\@\@/not available/g;
+      $html =~ s/\@\@\@MOVEOLDSTART\@\@\@/<!--/g;
+      $html =~ s/\@\@\@MOVEOLDEND\@\@\@/-->/g;
+   } else {
+      $temphtml = checkbox(-name=>'moveoldmsgfrominbox',
+                           -value=>'1',
+                           -checked=>$prefs{'moveoldmsgfrominbox'},
+                           -label=>'');
+      $html =~ s/\@\@\@MOVEOLDMSGFROMINBOX\@\@\@/$temphtml/;
+      $html =~ s/\@\@\@MOVEOLDSTART\@\@\@//g;
+      $html =~ s/\@\@\@MOVEOLDEND\@\@\@//g;
+   }
+
+
+   $temphtml = popup_menu(-name=>'sendreceipt',
+                          -"values"=>['ask', 'yes', 'no'],
+                          -default=>$prefs{'sendreceipt'} || 'ask',
+                          -labels=>\%lang_receiptlabels,
+                          -override=>'1');
+   $html =~ s/\@\@\@SENDRECEIPTMENU\@\@\@/$temphtml/;
+
+   $temphtml = checkbox(-name=>'reparagraphorigmsg',
+                        -value=>'1',
+                        -checked=>$prefs{'reparagraphorigmsg'},
+                        -label=>'');
+   $html =~ s/\@\@\@REPARAGRAPHORIGMSG\@\@\@/$temphtml/;
+
+   $temphtml = popup_menu(-name=>'replywithorigmsg',
+                          -"values"=>['at_beginning', 'at_end', 'none'],
+                          -default=>$prefs{'replywithorigmsg'} || 'at_beginning',
+                          -labels=>\%lang_withoriglabels,
+                          -override=>'1');
+   $html =~ s/\@\@\@REPLYWITHORIGMSGMENU\@\@\@/$temphtml/;
+
+   $temphtml = checkbox(-name=>'backupsentmsg',
+                        -value=>'1',
+                        -checked=>$prefs{'backupsentmsg'},
+                        -label=>'');
+   $html =~ s/\@\@\@BACKUPSENTMSG\@\@\@/$temphtml/;
+
+   my %ctlabels=( 'sameascomposing' => $lang_text{'samecharset'} );
+   my @ctlist=('sameascomposing', $prefs{charset});
+   foreach my $ct (@{$charset_convlist{$prefs{charset}}}) {
+      push(@ctlist, $ct) if (is_convertable($prefs{charset}, $ct));
+   }
+   $temphtml = popup_menu(-name=>'sendcharset',
+                          -"values"=>\@ctlist,
+                          -labels=>\%ctlabels,
+                          -default=>$defaultsendcharset,
+                          -override=>'1');
+   $html =~ s/\@\@\@SENDCHARSETMENU\@\@\@/$temphtml/g;
+
+
+   my (%FTDB, $matchcount, $matchdate);
+   filelock("$folderdir/.filter.book$config{'dbm_ext'}", LOCK_SH) if (!$config{'dbmopen_haslock'});
+   dbmopen (%FTDB, "$folderdir/.filter.book$config{'dbmopen_ext'}", 0600);
+
+   $temphtml = popup_menu(-name=>'filter_repeatlimit',
+                          -"values"=>['0','5','10','20','30','40','50','100'],
+                          -default=>$prefs{'filter_repeatlimit'},
+                          -override=>'1');
+   ($matchcount, $matchdate)=split(":", $FTDB{"filter_repeatlimit"});
+   if ($matchdate) {
+      $matchdate=dateserial2str($matchdate);
+      $temphtml .= "&nbsp;(<a title='$matchdate'>$lang_text{'filtered'}: $matchcount</a>)";
+   }
+   $html =~ s/\@\@\@FILTERREPEATLIMIT\@\@\@/$temphtml/;
+
+   $temphtml = checkbox(-name=>'filter_fakedsmtp',
+                        -value=>'1',
+                        -checked=>$prefs{'filter_fakedsmtp'},
+                        -label=>'');
+   ($matchcount, $matchdate)=split(":", $FTDB{"filter_fakedsmtp"});
+   if ($matchdate) {
+      $matchdate=dateserial2str($matchdate);
+      $temphtml .= "&nbsp;(<a title='$matchdate'>$lang_text{'filtered'}: $matchcount</a>)";
+   }
+   $html =~ s/\@\@\@FILTERFAKEDSMTP\@\@\@/$temphtml/g;
+
+   $temphtml = checkbox(-name=>'filter_fakedfrom',
+                        -value=>'1',
+                        -checked=>$prefs{'filter_fakedfrom'},
+                        -label=>'');
+   ($matchcount, $matchdate)=split(":", $FTDB{"filter_fakedfrom"});
+   if ($matchdate) {
+      $matchdate=dateserial2str($matchdate);
+      $temphtml .= "&nbsp;(<a title='$matchdate'>$lang_text{'filtered'}: $matchcount</a>)";
+   }
+   $html =~ s/\@\@\@FILTERFAKEDFROM\@\@\@/$temphtml/g;
+
+   $temphtml = checkbox(-name=>'filter_fakedexecontenttype',
+                        -value=>'1',
+                        -checked=>$prefs{'filter_fakedexecontenttype'},
+                        -label=>'');
+   ($matchcount, $matchdate)=split(":", $FTDB{"filter_fakedexecontenttype"});
+   if ($matchdate) {
+      $matchdate=dateserial2str($matchdate);
+      $temphtml .= "&nbsp;(<a title='$matchdate'>$lang_text{'filtered'}: $matchcount</a>)";
+   }
+   $html =~ s/\@\@\@FILTERFAKEDEXECONTENTTYPE\@\@\@/$temphtml/g;
+
+   dbmclose(%FTDB);
+   filelock("$folderdir/.filter.book$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+
 
    if ($config{'enable_calendar'}) {
       $html =~ s/\@\@\@CALENDARSTART\@\@\@//g;
       $html =~ s/\@\@\@CALENDAREND\@\@\@//g;
-
-      $temphtml = popup_menu(-name=>'calendar_hourformat',
-                             -"values"=>[12, 24],
-                             -default=>$prefs{'calendar_hourformat'},
-                             -override=>'1');
-
-      $html =~ s/\@\@\@HOURFORMATMENU\@\@\@/$temphtml/;
 
       $temphtml = popup_menu(-name=>'calendar_monthviewnumitems',
                              -"values"=>[3, 4, 5, 6, 7, 8, 9, 10],
@@ -886,6 +800,82 @@ sub editprefs {
       $html =~ s/\@\@\@CALENDAREND\@\@\@/-->/g;
    }
 
+
+   $temphtml = checkbox(-name=>'regexmatch',
+                  -value=>'1',
+                  -checked=>$prefs{'regexmatch'},
+                  -label=>'');
+   $html =~ s/\@\@\@REGEXMATCH\@\@\@/$temphtml/g;
+
+   $temphtml = checkbox(-name=>'hideinternal',
+                  -value=>'1',
+                  -checked=>$prefs{'hideinternal'},
+                  -label=>'');
+   $html =~ s/\@\@\@HIDEINTERNAL\@\@\@/$temphtml/g;
+
+   my @intervals;
+   foreach my $value (3, 5, 10, 20, 30, 60, 120, 180) {
+      push(@intervals, $value) if ($value>=$config{'min_refreshinterval'});
+   }
+   $temphtml = popup_menu(-name=>'refreshinterval',
+                          -"values"=>\@intervals,
+                          -default=>$prefs{'refreshinterval'},
+                          -labels=>\%lang_timelabels,
+                          -override=>'1');
+   $html =~ s/\@\@\@REFRESHINTERVALMENU\@\@\@/$temphtml/;
+
+   # Get a list of new mail sound
+   my @sounds;
+   opendir (SOUNDDIR, "$config{'ow_htmldir'}/sounds") or
+      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_htmldir'}/sounds directory for reading!");
+   while (defined(my $currsnd = readdir(SOUNDDIR))) {
+      if (-f "$config{'ow_htmldir'}/sounds/$currsnd" && $currsnd =~ /^([^\.].*)$/) {
+         push (@sounds, $1);
+      }
+   }
+   closedir(SOUNDDIR) or
+      openwebmailerror("$lang_err{'couldnt_close'} $config{'ow_htmldir'}/sounds!");
+
+   @sounds = sort(@sounds);
+   unshift(@sounds, 'NONE');
+
+   $temphtml = popup_menu(-name=>'newmailsound',
+                          -labels=>{ 'NONE'=>$lang_text{'none'} },
+                          -"values"=>\@sounds,
+                          -default=>$prefs{'newmailsound'},
+                          -override=>'1');
+   my $soundurl="$config{'ow_htmlurl'}/sounds/";
+   $temphtml .= "&nbsp;". iconlink("sound.gif", $lang_text{'testsound'}, "onclick=window.open('$soundurl'+document.prefsform.newmailsound[document.prefsform.newmailsound.selectedIndex].value);");
+   $html =~ s/\@\@\@NEWMAILSOUNDMENU\@\@\@/$temphtml/g;
+
+   $temphtml = popup_menu(-name=>'newmailwindowtime',
+                          -"values"=>[0, 3, 5, 7, 10, 20, 30, 60, 120, 300, 600],
+                          -default=>$prefs{'newmailwindowtime'},
+                          -override=>'1');
+   $html =~ s/\@\@\@NEWMAILWINDOWTIMEMENU\@\@\@/$temphtml/g;
+
+   $temphtml = popup_menu(-name=>'dictionary',
+                          -"values"=>$config{'spellcheck_dictionaries'},
+                          -default=>$prefs{'dictionary'},
+                          -override=>'1');
+   $html =~ s/\@\@\@DICTIONARYMENU\@\@\@/$temphtml/;
+
+   my %dayslabels = ('0'=>$lang_text{'delatlogout'},'999999'=>$lang_text{'forever'} );
+   $temphtml = popup_menu(-name=>'trashreserveddays',
+                          -"values"=>[0,1,2,3,4,5,6,7,14,21,30,60,90,180,999999],
+                          -default=>$prefs{'trashreserveddays'},
+                          -labels=>\%dayslabels,
+                          -override=>'1');
+   $html =~ s/\@\@\@RESERVEDDAYSMENU\@\@\@/$temphtml/;
+
+   $temphtml = popup_menu(-name=>'sessiontimeout',
+                          -"values"=>[10,30,60,120,180,360,720,1440],
+                          -default=>$prefs{'sessiontimeout'},
+                          -labels=>\%lang_timelabels,
+                          -override=>'1');
+   $html =~ s/\@\@\@SESSIONTIMEOUTMENU\@\@\@/$temphtml/;
+
+
    $temphtml = submit("$lang_text{'save'}") . end_form();
 
    # show cancel button if firsttimeuser not 'yes'
@@ -937,27 +927,27 @@ sub saveprefs {
       openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.openwebmailrc!");
    foreach my $key ( qw(language charset timeoffset email replyto
                         style iconset bgurl fontsize
-                        sort dateformat headers headersperpage
-                        editcolumns editrows dictionary
+                        sort dateformat hourformat headers headersperpage
+                        editcolumns editrows sendbuttonposition dictionary
                         defaultdestination
                         disablejs disableembcgi showimgaslink hideinternal
-                        newmailsound usefixedfont usesmileicon
+                        newmailsound newmailwindowtime usefixedfont usesmileicon
                         confirmmsgmovecopy viewnextaftermsgmovecopy
                         reparagraphorigmsg backupsentmsg
-                        replywithorigmsg sendreceipt
-                        autopop3 moveoldmsgfrominbox
+                        replywithorigmsg sendreceipt sendcharset
+                        autopop3 moveoldmsgfrominbox regexmatch
                         filter_repeatlimit filter_fakedsmtp filter_fakedfrom
                         filter_fakedexecontenttype
-                        trashreserveddays sessiontimeout
-                        calendar_hourformat calendar_monthviewnumitems
+                        trashreserveddays refreshinterval sessiontimeout
+                        calendar_monthviewnumitems
                         calendar_weekstart calendar_starthour calendar_endhour
                         calendar_showemptyhours calendar_reminderdays
                         calendar_reminderforglobal) ) {
       my $value = param("$key");
       if ($key eq 'bgurl') {
          my $background=param("background");
-         if ($value ne "" &&  $background eq "USERDEFINE") {
-            print CONFIG "$key=$value\n";
+         if ($background eq "USERDEFINE") {
+            print CONFIG "$key=$value\n" if ($value ne "");
          } else {
             print CONFIG "$key=$config{'ow_htmlurl'}/images/backgrounds/$background\n";
          }
@@ -1003,6 +993,7 @@ sub saveprefs {
                 $key eq 'hideinternal' ||
                 $key eq 'usefixedfont' ||
                 $key eq 'usesmileicon' ||
+                $key eq 'regexmatch' ||
                 $key eq 'autopop3'     ||
                 $key eq 'calendar_showemptyhours' ||
                 $key eq 'calendar_reminderforglobal') {
@@ -1097,15 +1088,8 @@ sub saveprefs {
 
    printheader();
 
-   my $html = '';
+   my $html = readtemplate("prefssaved.template");
    my $temphtml;
-
-   open (PREFSSAVEDTEMPLATE, "$config{'ow_etcdir'}/templates/$prefs{'language'}/prefssaved.template") or
-      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/templates/$prefs{'language'}/prefssaved.template!");
-   while (<PREFSSAVEDTEMPLATE>) {
-      $html .= $_;
-   }
-   close (PREFSSAVEDTEMPLATE);
 
    $html = applystyle($html);
 
@@ -1209,7 +1193,7 @@ sub writedotforward {
    }
 
    open(FOR, ">$homedir/.forward") || return -1;
-   print FOR join("\n", @forwards);
+   print FOR join("\n", @forwards), "\n";
    close FOR;
    chown($uuid, $ugid, "$homedir/.forward");
    chmod(0600, "$homedir/.forward");
@@ -1305,22 +1289,19 @@ sub writedotvacationmsg {
 
 ##################### EDITPASSWORD #######################
 sub editpassword {
-   my $html = '';
+   my $html = readtemplate("chpwd.template");
    my $temphtml;
-
-   open (CHANGEPASSWORDTEMPLATE, "$config{'ow_etcdir'}/templates/$prefs{'language'}/chpwd.template") or
-      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/templates/$prefs{'language'}/chpwd.template!");
-   while (<CHANGEPASSWORDTEMPLATE>) {
-      $html .= $_;
-   }
-   close (CHANGEPASSWORDTEMPLATE);
 
    $html = applystyle($html);
 
    printheader();
 
+   my $chpwd_url="$config{'ow_cgiurl'}/openwebmail-prefs.pl";
+   if (cookie("openwebmail-ssl")) {
+      $chpwd_url="https://$ENV{'HTTP_HOST'}$chpwd_url" if ($chpwd_url!~m!^https?://!i);
+   }
    $temphtml = startform(-name=>"passwordform",
-			 -action=>"$config{'ow_cgiurl'}/openwebmail-prefs.pl") .
+			 -action=>$chpwd_url) .
                hidden(-name=>'action',
                       -default=>'changepassword',
                       -override=>'1') .
@@ -1394,6 +1375,8 @@ sub editpassword {
 
    $html =~ s/\@\@\@CANCELBUTTON\@\@\@/$temphtml/;
 
+   $html =~ s/\@\@\@PASSWDMINLEN\@\@\@/$config{'passwd_minlen'}/g;
+
    print $html;
 
    printfooter(2);
@@ -1409,14 +1392,17 @@ sub changepassword {
    my $html = '';
    my $temphtml;
 
-   if ( $newpassword ne $confirmnewpassword ) {
-      open (MISMATCH, "$config{'ow_etcdir'}/templates/$prefs{'language'}/chpwdconfirmmismatch.template") or
-         openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/templates/$prefs{'language'}/chpwdconfirmmismatch.template!");
-      while (<MISMATCH>) {
-         $html .= $_;
-      }
-      close (MISMATCH);
+   if ( length($newpassword) < $config{'passwd_minlen'} ) {
+      $html=readtemplate("chpwdfailed.template");
+      $html =~ s/\@\@\@ERRORMSG\@\@\@/$lang_err{'pwd_tooshort'}/;
+      $html =~ s/\@\@\@PASSWDMINLEN\@\@\@/$config{'passwd_minlen'}/;
 
+   } elsif ( $newpassword!~/\d/ || $newpassword!~/\w/ ) {
+      $html=readtemplate("chpwdfailed.template");
+      $html =~ s/\@\@\@ERRORMSG\@\@\@/$lang_err{'pwd_toosimple'}/;
+
+   } elsif ( $newpassword ne $confirmnewpassword ) {
+      $html=readtemplate("chpwdconfirmmismatch.template");
    } else {
       my ($origruid, $origeuid)=($<, $>);
       my $errorcode;
@@ -1427,20 +1413,14 @@ sub changepassword {
       } else {
          $errorcode=change_userpassword($user, $oldpassword, $newpassword);
       }
-      $<=$origruid; $>=$origeuid;	# fall back to original ruid/euid	
+      $<=$origruid; $>=$origeuid;	# fall back to original ruid/euid
 
       if ($errorcode==0) {
          writelog("change passwd");
          writehistory("change passwd");
-         open (CHANGED, "$config{'ow_etcdir'}/templates/$prefs{'language'}/chpwdok.template") or
-            openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/templates/$prefs{'language'}/chpwdok.template!");
-         while (<CHANGED>) {
-            $html .= $_;
-         }
-         close (CHANGED);
-
+         $html=readtemplate("chpwdok.template");
       } else {
-         my $errormsg;
+         my $errormsg='';
          if ($errorcode==-1) {
             $errormsg=$lang_err{'func_notsupported'};
          } elsif ($errorcode==-2) {
@@ -1454,23 +1434,20 @@ sub changepassword {
          }
          writelog("change passwd error - $errorcode");
          writehistory("change passwd error - $errorcode");
-
-         open (INCORRECT, "$config{'ow_etcdir'}/templates/$prefs{'language'}/chpwdfailed.template") or
-            openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/templates/$prefs{'language'}/chpwdfailed.template!");
-         while (<INCORRECT>) {
-            $html .= $_;
-         }
-         close (INCORRECT);
+         $html=readtemplate("chpwdfailed.template");
          $html =~ s/\@\@\@ERRORMSG\@\@\@/$errormsg/;
       }
-
    }
 
    $html = applystyle($html);
 
    printheader();
 
-   $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-prefs.pl") .
+   my $url="$config{'ow_cgiurl'}/openwebmail-prefs.pl";
+   if ( ($ENV{'HTTPS'}=~/on/i || $ENV{'SERVER_PORT'}==443) && !$config{'stay_ssl_afterlogin'}) {
+      $url="http://$ENV{'HTTP_HOST'}$url" if ($url !~ m!https?://! );
+   }
+   $temphtml = startform(-action=>"$url") .
                hidden(-name=>'action',
                       -default=>'editprefs',
                       -override=>'1') .
@@ -1502,13 +1479,7 @@ sub viewhistory {
    my $html = '';
    my $temphtml;
 
-   open (HISTORY, "$config{'ow_etcdir'}/templates/$prefs{'language'}/history.template") or
-      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/templates/$prefs{'language'}/history.template!");
-   while (<HISTORY>) {
-      $html .= $_;
-   }
-   close (HISTORY);
-
+   $html=readtemplate("history.template");
    $html = applystyle($html);
 
    printheader();
@@ -1525,24 +1496,16 @@ sub viewhistory {
       my $record;
       my ($timestamp, $pid, $ip, $misc)=($1, $2, $3, $4);
       my ($u, $event, $desc, $desc2)=split(/ \- /, $misc, 4);
-      if ($event !~ /error/i) {
-         $record = qq|<tr>|.
-                   qq|<td bgcolor=$bgcolor align="center">$timestamp</font></td>|.
-                   qq|<td bgcolor=$bgcolor align="center">$ip</td>|.
-                   qq|<td bgcolor=$bgcolor align="center">$u</td>|.
-                   qq|<td bgcolor=$bgcolor align="center">$event</td>|.
-                   qq|<td bgcolor=$bgcolor align="center">$desc</td>|.
-                   qq|</tr>\n|;
-      } else {
-         $record = qq|<tr>|.
-                   qq|<td bgcolor=$bgcolor align="center"><font color="#cc0000"><b>$timestamp</font></td>|.
-                   qq|<td bgcolor=$bgcolor align="center"><font color="#cc0000"><b>$ip</font></td>|.
-                   qq|<td bgcolor=$bgcolor align="center"><font color="#cc0000"><b>$u</font></td>|.
-                   qq|<td bgcolor=$bgcolor align="center"><font color="#cc0000"><b>$event</b></font></td>|.
-                   qq|<td bgcolor=$bgcolor align="center"><font color="#cc0000"><b>$desc</font></td>|.
-                   qq|</tr>\n|;
+      foreach my $field ($timestamp, $ip, $u, $event, $desc) {
+         if ($event=~/error/i) {
+            $record.=qq|<td bgcolor=$bgcolor align="center"><font color="#cc0000"><b>$field</font></b></td>\n|;
+         } elsif ($event=~/warning/i) {
+            $record.=qq|<td bgcolor=$bgcolor align="center"><font color="#0000cc"><b>$field</font></b></td>\n|;
+         } else {
+            $record.=qq|<td bgcolor=$bgcolor align="center">$field</td>\n|;
+         }
       }
-      $temphtml = $record . $temphtml;
+      $temphtml = '<tr>' . $record . '</tr>' . $temphtml;
 
       if ($bgcolor eq $style{"tablerow_dark"}) {
          $bgcolor = $style{"tablerow_light"};
@@ -1587,13 +1550,7 @@ sub editfroms {
    my $html = '';
    my $temphtml;
 
-   open (EDITFROMBOOKTEMPLATE, "$config{'ow_etcdir'}/templates/$prefs{'language'}/editfroms.template") or
-      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/templates/$prefs{'language'}/editfroms.template");
-   while (<EDITFROMBOOKTEMPLATE>) {
-      $html .= $_;
-   }
-   close (EDITFROMBOOKTEMPLATE);
-
+   $html=readtemplate("editfroms.template");
    $html = applystyle($html);
 
    my $frombooksize = ( -s "$folderdir/.from.book" ) || 0;
@@ -1740,7 +1697,7 @@ sub modfrom {
    $realname =~ s/\s*$//;
    $email =~ s/[#&=\?]//g;
 
-   if (($realname && $email) || (($mode eq 'delete') && $email) ) {
+   if ($email) {
       my %from=get_userfrom($loginname, $user, $userrealname, "$folderdir/.from.book");
 
       if ($mode eq 'delete') {
@@ -1772,13 +1729,7 @@ sub editpop3 {
    my $html = '';
    my $temphtml;
 
-   open (EDITPOP3BOOKTEMPLATE, "$config{'ow_etcdir'}/templates/$prefs{'language'}/editpop3.template") or
-      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/templates/$prefs{'language'}/editpop3.template");
-   while (<EDITPOP3BOOKTEMPLATE>) {
-      $html .= $_;
-   }
-   close (EDITPOP3BOOKTEMPLATE);
-
+   $html=readtemplate("editpop3.template");
    $html = applystyle($html);
 
    my %accounts;
@@ -1793,7 +1744,7 @@ sub editpop3 {
 
    $html =~ s/\@\@\@FREESPACE\@\@\@/$freespace/g;
 
-   $temphtml .= qq|<a href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=retrpop3s&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid" title="$lang_text{'retr_pop3s'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/pop3.gif" border="0" ALT="$lang_text{'retr_pop3s'}"></a>|;
+   $temphtml .= iconlink("pop3.gif", $lang_text{'retr_pop3s'}, qq|href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=retrpop3s&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid"|). qq| \n|;
 
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
 
@@ -2042,13 +1993,7 @@ sub editfilter {
 
    printheader();
 
-   open (EDITFILTERTEMPLATE, "$config{'ow_etcdir'}/templates/$prefs{'language'}/editfilter.template") or
-       openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/templates/$prefs{'language'}/editfilter.template");
-   while (<EDITFILTERTEMPLATE>) {
-       $html .= $_;
-   }
-   close (EDITFILTERTEMPLATE);
-
+   $html=readtemplate("editfilter.template");
    $html = applystyle($html);
 
    ## replace @@@FREESPACE@@@ ##
@@ -2058,9 +2003,9 @@ sub editfilter {
 
    ## replace @@@MENUBARLINKS@@@ ##
    if ( param("message_id") ) {
-      $temphtml = qq|<a href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid" title="$lang_text{'backto'} $printfolder"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/backtofolder.gif" border="0" ALT="$lang_text{'backto'} $printfolder"></a>|;
+      $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $printfolder", qq|href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid"|). qq| \n|;
    } else {
-      $temphtml = qq|<a href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=displayheaders&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder" title="$lang_text{'backto'} $printfolder"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/backtofolder.gif" border="0" ALT="$lang_text{'backto'} $printfolder"></a>|;
+      $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $printfolder", qq|href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=displayheaders&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$escapedfolder"|). qq| \n|;
    }
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
 
@@ -2420,6 +2365,230 @@ sub modfilter {
 }
 ################## END MODFILTER ###########################
 
+#################### EDITSTAT ###########################
+sub editstat {
+   my ($name, $content,%stationery);
+
+   my $html = '';
+   my $temphtml;
+
+   $html=readtemplate("editstationery.template");
+   $html = applystyle($html);
+
+   if ( -f "$folderdir/.stationery.book" ) {
+      open (STATBOOK,"$folderdir/.stationery.book") or
+         openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.stationery.book!");
+      while (<STATBOOK>) {
+         ($name, $content) = split(/\@\@\@/, $_, 2);
+         chomp($name); chomp($content);
+         $stationery{"$name"} = unescapeURL($content);
+      }
+      close (STATBOOK) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.stationery.book!");
+   }
+
+   printheader();
+
+   if ($messageid eq "") {
+      $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} $lang_text{'userprefs'}", qq|href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;message_id=$escapedmessageid"|). qq| \n|;
+   } else {
+      $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} $printfolder", qq|href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid"|). qq| \n|;
+   }
+   $temphtml .= iconlink("clearst.gif", "return confirm('$lang_text{'clearstat'}?')", qq|href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=clearstat&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid"|). qq| \n|;
+
+   $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
+
+   $temphtml = '';
+   my $bgcolor = $style{"tablerow_dark"};
+   foreach my $key (sort keys %stationery) {
+      my ($name2, $content2)=($key, $stationery{$key});
+      $content2=substr($content2, 0, 100)."..." if (length($content2)>105);
+      $temphtml .= qq|<tr>|.
+                   qq|<td bgcolor=$bgcolor width="150">$name2</a></td>|.
+                   qq|<td bgcolor=$bgcolor width="250">$content2</td>|.
+                   qq|<td bgcolor=$bgcolor width="100">|;
+      $temphtml .= startform(-action=>"$config{'ow_cgiurl'}/openwebmail-prefs.pl",
+                             -name=>'stationery') .
+                   hidden(-name=>'action',
+                          -value=>'delstat',
+                          -override=>'1') .
+                   hidden(-name=>'sessionid',
+                          -value=>$thissession,
+                          -override=>'1') .
+                   hidden(-name=>'folder',
+                          -value=>$folder,
+                          -override=>'1') .
+                   hidden(-name=>'sort',
+                          -value=>$sort,
+                          -override=>'1') .
+                   hidden(-name=>'firstmessage',
+                          -value=>$firstmessage,
+                          -override=>'1') .
+                   hidden(-name=>'message_id',
+                          -value=>$messageid,
+                          -override=>'1') .
+                   hidden(-name=>'statname',
+                          -value=>escapeURL($name2),
+                          -override=>'1').
+                   submit(-name=>$lang_text{'delete'});
+      $temphtml .= '</td>'.end_form().'</tr>';
+
+      if ($bgcolor eq $style{"tablerow_dark"}) {
+         $bgcolor = $style{"tablerow_light"};
+      } else {
+         $bgcolor = $style{"tablerow_dark"};
+      }
+   }
+
+   $html =~ s/\@\@\@STATIONERY\@\@\@/$temphtml/;
+
+   # compose new stationery form
+   $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-prefs.pl",
+                         -name=>'stationery') .
+               hidden(-name=>'action',
+                      -value=>'addstat',
+                      -override=>'1').
+               hidden(-name=>'sessionid',
+                      -value=>$thissession,
+                      -override=>'1').
+               hidden(-name=>'folder',
+                      -value=>$folder,
+                      -override=>'1').
+               hidden(-name=>'sort',
+                      -value=>$sort,
+                      -override=>'1') .
+               hidden(-name=>'firstmessage',
+                      -value=>$firstmessage,
+                      -override=>'1') .
+               hidden(-name=>'message_id',
+                      -value=>$messageid,
+                      -override=>'1');
+   $html =~ s/\@\@\@STARTSTATFORM\@\@\@/$temphtml/;
+
+   $temphtml = '';
+   $temphtml = textfield(-name=>'statname',
+                         -default=>"",
+                         -size=>'66',
+                         -override=>'1');
+   $html =~ s/\@\@\@STATNAME\@\@\@/$temphtml/;
+
+   $temphtml = textarea(-name=>'statbody',
+                        -default=>"",
+                        -rows=>'5',
+                        -columns=>'72',
+                        -wrap=>'hard',
+                        -override=>'1');
+   $html =~ s/\@\@\@STATBODY\@\@\@/$temphtml/;
+
+   $temphtml = submit(-name=>$lang_text{'savestat'});
+   $html =~ s/\@\@\@SAVESTAT\@\@\@/$temphtml/;
+
+   $temphtml = end_form();
+   $html =~ s/\@\@\@ENDSTATFORM\@\@\@/$temphtml/;
+
+   print $html;
+
+   printfooter(2);
+}
+################### END EDITSTAT ########################
+
+################### DELSTAT ##############################
+sub delstat {
+   my $statname = param('statname') || '';
+   $statname = unescapeURL($statname);
+
+   if ($statname) {
+      my %stationery;
+      my ($name,$content);
+      if ( -f "$folderdir/.stationery.book" ) {
+         filelock("$folderdir/.stationery.book", LOCK_EX|LOCK_NB) or
+            openwebmailerror("$lang_err{'couldnt_lock'} $folderdir/.stationery.book!");
+         open (STATBOOK,"+<$folderdir/.stationery.book") or
+            openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.stationery.book!");
+         while (<STATBOOK>) {
+            ($name, $content) = split(/\@\@\@/, $_, 2);
+            chomp($name); chomp($content);
+            $stationery{"$name"} = $content;
+         }
+         delete $stationery{"$statname"};
+
+         seek (STATBOOK, 0, 0) or
+            openwebmailerror("$lang_err{'couldnt_seek'} $folderdir/.stationery.book!");
+
+         foreach (sort keys %stationery) {
+            ($name,$content)=($_, $stationery{$_});
+            $name=~s/\@\@/\@\@ /g; $name=~s/\@$/\@ /;
+            print STATBOOK "$name\@\@\@$content\n";
+         }
+         truncate(STATBOOK, tell(STATBOOK));
+         close (STATBOOK) or
+            openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.stationery.book!");
+         filelock("$folderdir/.stationery.book", LOCK_UN);
+      }
+   }
+
+   editstat();
+}
+################## END DELSTAT ###########################
+
+################## CLEARSTAT ###########################
+sub clearstat {
+   if ( -f "$folderdir/.stationery.book" ) {
+      unlink("$folderdir/.stationery.book") or
+         openwebmailerror ("$lang_err{'couldnt_open'} $folderdir/.stationery.book!");
+   }
+   writelog("clear stationery");
+   writehistory("clear stationery");
+
+   editstat();
+}
+################## END CLEARSTAT ###########################
+
+################## ADDSTAT ###########################
+sub addstat {
+   my $newname = param('statname') || '';
+   my $newcontent = param('statbody') || '';
+   my ($name,$content,%stationery);
+
+   if($newname ne '' && $newcontent ne '') {
+      # save msg to file stationery
+      # load the stationery first and save after, if exist overwrite
+      if ( -f "$folderdir/.stationery.book" ) {
+         filelock("$folderdir/.stationery.book", LOCK_EX|LOCK_NB) or
+            openwebmailerror("$lang_err{'couldnt_lock'} $folderdir/.stationery.book!");
+         open (STATBOOK,"+<$folderdir/.stationery.book") or
+            openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.stationery.book!");
+         while (<STATBOOK>) {
+            ($name, $content) = split(/\@\@\@/, $_, 2);
+            chomp($name); chomp($content);
+            $stationery{"$name"} = $content;
+         }
+         $stationery{"$newname"} = escapeURL($newcontent);
+
+         seek (STATBOOK, 0, 0) or
+            openwebmailerror("$lang_err{'couldnt_seek'} $folderdir/.stationery.book!");
+
+         foreach (sort keys %stationery) {
+            ($name,$content)=($_, $stationery{$_});
+            $name=~s/\@\@/\@\@ /g; $name=~s/\@$/\@ /;
+            print STATBOOK "$name\@\@\@$content\n";
+         }
+         truncate(STATBOOK, tell(STATBOOK));
+         close (STATBOOK) or
+            openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.stationery.book!");
+         filelock("$folderdir/.stationery.book", LOCK_UN);
+      } else {
+         open (STATBOOK,">$folderdir/.stationery.book") or
+            openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.stationery.book!");
+         print STATBOOK "$newname\@\@\@".escapeURL($newcontent)."\n";
+         close (STATBOOK) or
+            openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.stationery.book!");
+      }
+   }
+
+   editstat();
+}
+################## END ADDSTAT ###########################
+
 #################### TIMEOUTWARNING ########################
 sub timeoutwarning {
    my $html = '';
@@ -2427,13 +2596,7 @@ sub timeoutwarning {
 
    printheader();
 
-   open (TIMEOUTTEMPLATE, "$config{'ow_etcdir'}/templates/$prefs{'language'}/timeoutwarning.template") or
-      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/templates/$prefs{'language'}/timeoutwarning.template!");
-   while (<TIMEOUTTEMPLATE>) {
-      $html .= $_;
-   }
-   close (TIMEOUTTEMPLATE);
-
+   $html=readtemplate("timeoutwarning.template");
    $html = applystyle($html);
    $html =~ s/\@\@\@USEREMAIL\@\@\@/$prefs{'email'}/g;
 
@@ -2442,4 +2605,3 @@ sub timeoutwarning {
    printfooter(0);
 }
 #################### END TIMEOUTWARNING ########################
-

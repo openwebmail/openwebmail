@@ -1,14 +1,9 @@
-#!/usr/bin/perl -T
-#############################################################################
-# Open WebMail - Provides a web interface to advanced search                #
-#                                                                           #
-# Copyright (C) 2002                                                        #
-# Dattola  Filippo                                                          #
-# Copyright (C) 2000                                                        #
-# Ernie Miller  (original GPL project: Neomail)                             #
-#                                                                           #
-# This program is distributed under GNU General Public License              #
-#############################################################################
+#!/usr/bin/suidperl -T
+#
+# openwebmail-adsearch.pl - advanced search program
+#
+# 2002/06/29 filippo@sms.it
+#
 
 use vars qw($SCRIPT_DIR);
 if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-\.]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
@@ -26,15 +21,16 @@ use CGI qw(-private_tempfiles :standard);
 use CGI::Carp qw(fatalsToBrowser);
 CGI::nph();   # Treat script as a non-parsed-header script
 
-require "openwebmail-shared.pl";
+require "ow-shared.pl";
 require "filelock.pl";
 require "mime.pl";
+require "iconv.pl";
 require "maildb.pl";
 
 use vars qw(%config %config_raw);
 use vars qw($thissession);
 use vars qw($loginname $domain $user $userrealname $uuid $ugid $homedir);
-use vars qw(%prefs %style);
+use vars qw(%prefs %style %icontext);
 use vars qw($folderdir @validfolders $folderusage);
 use vars qw($folder $printfolder $escapedfolder);
 
@@ -42,7 +38,7 @@ openwebmail_init();
 verifysession();
 
 # extern vars
-use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE $_STATUS $_SIZE $_REFERENCES); # defined in maildb.pl
+use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE $_STATUS $_SIZE $_REFERENCES $_CHARSET); # defined in maildb.pl
 use vars qw(%lang_folders %lang_advsearchlabels %lang_text %lang_err);	# defined in lang/xy
 
 ########################## MAIN ##############################
@@ -72,17 +68,11 @@ sub advsearch {
 
    printheader();
 
-   open (ADVSEARCHTEMPLATE, "$config{'ow_etcdir'}/templates/$prefs{'language'}/advsearch.template") or
-      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/templates/$prefs{'language'}/advsearch.template");
-   while (<ADVSEARCHTEMPLATE>) {
-      $html .= $_;
-   }
-   close (ADVSEARCHTEMPLATE);
-
+   $html=readtemplate("advsearch.template");
    $html = applystyle($html);
 
    ## replace @@@MENUBARLINKS@@@ ##
-   $temphtml = qq|<a href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=displayheaders&amp;sessionid=$thissession&amp;folder=$folder" title="$lang_text{'backto'} $printfolder"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/backtofolder.gif" border="0" ALT="$lang_text{'backto'} $printfolder"></a>|;
+   $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $printfolder", qq|href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=displayheaders&amp;sessionid=$thissession&amp;folder=$escapedfolder"|). qq| \n|;
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
 
    ## replace @@@STARTADVSEARCHFORM@@@ ##
@@ -291,6 +281,7 @@ sub search_folders2 {
 
          foreach my $search (@validsearch) {
             my ($where, $type, $keyword) = (${$search}{'where'}, ${$search}{'type'}, ${$search}{'text'});
+            my $regexvalid=is_regex($keyword);
             my @placetosearch;
             if ($where eq 'all') {
                @placetosearch=('subject', 'from', 'to', 'date', 'header', 'attfilename', 'textcontent');
@@ -313,7 +304,7 @@ sub search_folders2 {
                        ($type eq 'isnot' && $attr[$index{$where}]!~/^\Q$keyword\E$/i) ||
                        ($type eq 'startswith' && $attr[$index{$where}]=~/^\Q$keyword\E/i) ||
                        ($type eq 'endswith' && $attr[$index{$where}]=~/\Q$keyword\E$/i) ||
-                       ($type eq 'regexp' && $attr[$index{$where}]=~/$keyword/i) ) {
+                       ($type eq 'regexp' && $regexvalid && $attr[$index{$where}]=~/$keyword/i) ) {
                      if($state == $#validsearch) {
                         $found{$messageid}=1; $state = 0;
                      } else {
@@ -340,7 +331,7 @@ sub search_folders2 {
                       ($type eq 'isnot' && $header!~/^\Q$keyword\E$/im) ||
                       ($type eq 'startswith' && $header=~/^\Q$keyword\E/im) ||
                       ($type eq 'endswith' && $header=~/\Q$keyword\E$/im) ||
-                      ($type eq 'regexp' && $header=~/$keyword/im)) {
+                      ($type eq 'regexp' && $regexvalid && $header=~/$keyword/im)) {
                      if($state == $#validsearch) {
                         $found{$messageid}=1; $state = 0;
                      } else {
@@ -374,7 +365,7 @@ sub search_folders2 {
                             ($type eq 'isnot' && $body!~/^\Q$keyword\E$/im) ||
                             ($type eq 'startswith' && $body=~/^\Q$keyword\E/im) ||
                             ($type eq 'endswith' && $body=~/\Q$keyword\E$/im) ||
-                            ($type eq 'regexp' && $body=~/$keyword/im)) {
+                            ($type eq 'regexp' && $regexvalid && $body=~/$keyword/im)) {
                            if($state == $#validsearch) {
                               $found{$messageid}=1; $state = 0;
                            } else {
@@ -402,7 +393,7 @@ sub search_folders2 {
                                ($type eq 'isnot' && ${${$r_attachment}{r_content}}!~/^\Q$keyword\E$/im) ||
                                ($type eq 'startswith' && ${${$r_attachment}{r_content}}=~/^\Q$keyword\E/im) ||
                                ($type eq 'endswith' && ${${$r_attachment}{r_content}}=~/\Q$keyword\E$/im) ||
-                               ($type eq 'regexp' && ${${$r_attachment}{r_content}}=~/$keyword/im)) {
+                               ($type eq 'regexp' && $regexvalid && ${${$r_attachment}{r_content}}=~/$keyword/im)) {
                               if($state == $#validsearch) {
                                  $found{$messageid}=1; $state = 0;
                               } else {
@@ -425,7 +416,7 @@ sub search_folders2 {
                             ($type eq 'isnot' && ${$r_attachment}{filename}!~/^\Q$keyword\E$/im) ||
                             ($type eq 'startswith' && ${$r_attachment}{filename}=~/^\Q$keyword\E/im) ||
                             ($type eq 'endswith' && ${$r_attachment}{filename}=~/\Q$keyword\E$/im) ||
-                            ($type eq 'regexp' && ${$r_attachment}{filename}=~/$keyword/im)) {
+                            ($type eq 'regexp' && $regexvalid && ${$r_attachment}{filename}=~/$keyword/im)) {
                            if($state == $#validsearch) {
                               $found{$messageid}=1; $state = 0;
                            } else {
@@ -464,7 +455,7 @@ sub search_folders2 {
 sub genline {
    my ($colornum, $folder, $messageid, @attr) = @_;
    my ($escapedmessageid);
-   my ($offset, $from, $to, $dateserial, $subject, $content_type, $status, $messagesize);
+   my ($offset, $from, $to, $dateserial, $subject, $content_type, $status, $messagesize, $references, $charset);
    my ($bgcolor, $message_status,$temphtml,$folderstr,$escapedfolder);
 
    if ( defined($lang_folders{$folder}) ) {
@@ -481,19 +472,11 @@ sub genline {
 
    $escapedfolder = escapeURL($folder);
    $escapedmessageid = escapeURL($messageid);
-   ($offset, $from, $to, $dateserial, $subject, $content_type, $status, $messagesize) = @attr;
+   ($offset, $from, $to, $dateserial, $subject, $content_type, $status, $messagesize, $references, $charset) = @attr;
 
-   # convert between gb and big5
-   if ( ($content_type=~/charset="?gb2312"?/i || $status=~/G/i)
-        && $prefs{'charset'} eq "big5" ) {
-      $from= g2b($from);
-      $to= g2b($to);
-      $subject= g2b($subject);
-   } elsif ( ($content_type=~/charset="?big5"?/i || $status=~/B/i)
-             && $prefs{'charset'} eq "gb2312" ) {
-      $from= b2g($from);
-      $to= b2g($to);
-      $subject= b2g($subject);
+   # convert from mesage charset to current user charset
+   if (is_convertable($charset, $prefs{'charset'})) {
+      ($from, $to, $subject)=iconv($charset, $prefs{'charset'}, $from, $to, $subject);
    }
 
    my ($from_name, $from_address)=email2nameaddr($from);

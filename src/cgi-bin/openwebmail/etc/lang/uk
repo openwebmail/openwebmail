@@ -1,4 +1,4 @@
-#!/usr/bin/perl -T
+#!/usr/bin/perl
 
 # Ukrainian translation by Volodymyr M. Lisivka, lvm.AT.mystery.lviv.net
 # charset: koi8-u
@@ -47,9 +47,19 @@
    no  => 'Н╕'
    );
 
+%lang_positionlabels =
+   (
+   before => 'Before mail edit area',
+   after => 'After mail edit area',
+   both  => 'Before and after mail edit area'
+   );
+
 %lang_timelabels =
    (
+      3 => '3 minutes',
+      5 => '5 minutes',
      10 => '10 minutes',
+     20 => '20 minutes',
      30 => '30 minutes',
      60 => '60 minutes',
     120 => '2 hours',
@@ -75,7 +85,8 @@
    yearview  => 'Yearview',
    monthview => 'Monthview',
    weekview  => 'Weekview',
-   dayview   => 'Dayview'
+   dayview   => 'Dayview',
+   listview   => 'Listview'
    );
 
 %lang_month =
@@ -138,6 +149,7 @@
    messages   => 'пов╕домлень',
    unread     => 'нових',
    nomessages => 'нема пов╕домлень',
+   inmessages => 'Incoming msgs',
    composenew => 'Створити пов╕домлення',
    refresh    => 'Оновити',
    userprefs  => 'Налаштування',
@@ -146,6 +158,7 @@
    emptytrash => 'Очистити см╕тник',
    totrash    => 'Move to Trash',
    forever    => 'Завжди',
+   delatlogout=> 'Delete at Logout',
    userdef    => 'Визначений користувачем',
    logout     => 'Вих╕д',
    page       => 'Стор╕нка',
@@ -183,6 +196,8 @@
    encoding   => 'Кодування',
    description=> 'Description',
    download   => 'Завантажити',
+   charset    => 'Charset',
+   samecharset=> 'The same as composing charset',
    thisispartialmsg => 'This is a partial message.',
    msgrebuild => 'Перебудувати пов╕домлення',
    editdraft  => 'Редагувати чернетку',
@@ -225,6 +240,7 @@
    quota_hit  => 'Перевищеня Квоти',
    usage      => 'Використання',
    tzmap      => 'World timezone map',
+   testsound  => 'Test sound',
    editfroms  => 'Реадагувати персональну адресу електронно╖ пошти',
    pop3book   => 'Налаштування POP3',
    retr_pop3s => 'Отримати POP3-пошту',
@@ -259,6 +275,10 @@
    checkagain => 'Перев╕рити знову',
    finishchecking => 'Завершити перев╕рку',
    manuallyfix=> 'Виправити вручну',
+   editstat   => 'Edit Stationery',
+   savestat   => 'Save Stationery',
+   clearstat  => 'Clear All Stationery',
+   selectstat => '-- Select Stationery for Reply --',
    calendar   => 'Calendar',
    am         => 'am',
    pm         => 'pm',
@@ -287,6 +307,7 @@
    couldnt_lock      => 'Неможу отримати блокуування на запис на',
    couldnt_seek      => 'Неможу знайти початок',
    couldnt_close     => 'Неможу закрити',
+   couldnt_updatedb  => 'Couldn\'t update index db ',
    disallowed_pop3   => 'Недопустимий POP3 сервер',
    disallowed_client => 'You are not allowed to connect from this client',
    disallowed_receiverdomain => 'You are not allowed to send message to this email address',
@@ -305,6 +326,7 @@
    abook_toobig      => 'Вибачте, але це перевищу╓ л╕м╕т на розм╕р адресно╖ книги.  Б╕дь ласка, ╕д╕ть',
    cant_create_dir   => 'Неможу створити домаш╕й каталог для вашого користувача!',
    folder_hitquota   => 'Sorry, you\'ve hit your quota, and no more mail can be stored in your mail folders.  You will be unable to move messages anywhere but to the TRASH, where they will be deleted.  Go back, delete some messages or empty your trash, and try again.',
+   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
    att_overlimit     => 'Вибачте, ваше долученя перевищу╓ допустимий л╕м╕т в ',
    inv_msg_op        => 'Недопустима операц╕я для пов╕домленя',
    inv_sessid        => 'Your request didn\'t contain the proper session ID cookie -- access denied!',
@@ -317,6 +339,8 @@
    auth_syserr       => 'помилка в систем╕ аутентиф╕кац╕╖',
    param_fmterr      => 'помилка у формат╕ параметра',
    pwd_incorrect     => 'нев╕рний пароль',
+   pwd_tooshort      => 'Password too short (minimum length @@@PASSWDMINLEN@@@)',
+   pwd_toosimple     => 'Password too simple (both alphabet and digit are required)',
    network_server_error => 'network server error',
    sendmail_error    => 'Вибачте - сталася проблема з в╕дправкою вашо╖ пошти. Натисн╕ть кнопку <Назад> у вашому переглядач╕, перев╕рте ваш лист ╕ спробуйте знову.',
    at_char_not_allowed => 'The @ character is not allowed in this field.  Press browser back button and try again',

@@ -51,7 +51,7 @@ sub get_userinfo {
 }
 
 
-sub get_userlist {      # only used by checkmail.pl -a
+sub get_userlist {      # only used by openwebmail-tool.pl -a
    my @userlist=();
 
    my $dbh = DBI->connect("dbi:Pg:dbname=$auth_db;host=$SQLHost", $sqlusr,$sqlpwd)

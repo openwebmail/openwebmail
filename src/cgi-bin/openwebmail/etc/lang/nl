@@ -1,4 +1,4 @@
-#!/usr/bin/perl -T
+#!/usr/bin/perl
 
 # Dutch translation by Michiel van Slobbe, m.m.vanslobbe.AT.connectux.com
 #                      Christian Boer, chris.AT.connectux.com
@@ -29,102 +29,113 @@
 
 %lang_prioritylabels =
    (
-   normal      => 'Normal',
+   normal      => 'Normaal',
    urgent      => 'Urgent',
-   'non-urgent'=> 'Non-Urgent'
+   'non-urgent'=> 'Niet-Urgent'
    );
 
 %lang_withoriglabels =
    (
-   at_beginning => 'at Beginning',
-   at_end      => 'at End',
-   none        => 'None'
+   at_beginning => 'aan het Begin',
+   at_end      => 'aanhet Eind',
+   none        => 'Geen'
    );
 
 %lang_receiptlabels =
    (
-   ask => 'Ask to confirm',
-   yes => 'Yes',
-   no  => 'No'
+   ask => 'Vraag Bevestiging',
+   yes => 'Ja',
+   no  => 'Nee'
+   );
+
+%lang_positionlabels =
+   (
+   before => 'Before mail edit area',
+   after => 'After mail edit area',
+   both  => 'Before and after mail edit area'
    );
 
 %lang_timelabels =
    (
-     10 => '10 minutes',
-     30 => '30 minutes',
-     60 => '60 minutes',
-    120 => '2 hours',
-    180 => '3 hours',
-    360 => '6 hours',
-    720 => '12 hours',
-   1440 => '24 hours'
+      3 => '3 minuten',
+      5 => '5 minuten',
+     10 => '10 minuten',
+     20 => '20 minuten',
+     30 => '30 minuten',
+     60 => '60 minuten',
+    120 => '2 uur',
+    180 => '3 uur',
+    360 => '6 uur',
+    720 => '12 uur',
+   1440 => '24 uur'
    );
 
 %lang_advsearchlabels =
    (
-   contains    => 'contains',
-   notcontains => 'does not contain',
-   is          => 'is',
-   isnot       => 'is not',
-   startswith  => 'starts with',
-   endswith    => 'ends with',
-   regexp      => 'matches regexp',
+   contains    => 'bevat',
+   notcontains => 'bevat niet',
+   is          => 'is gelijk aan',
+   isnot       => 'is niet gelijk aan',
+   startswith  => 'begint met',
+   endswith    => 'eindigt met',
+   regexp      => 'reguliere expressie',
    );
 
 %lang_calendar = 
    (
-   yearview  => 'Yearview',
-   monthview => 'Monthview',
-   weekview  => 'Weekview',
-   dayview   => 'Dayview'
+   yearview  => 'Jaaroverzicht',
+   monthview => 'Maandoverzicht',
+   weekview  => 'Weekoverzicht',
+   dayview   => 'Dagoverzicht',
+   listview   => 'Listview'
    );
 
 %lang_month =
    (
-   1  => 'January',
-   2  => 'February',
-   3  => 'March',
+   1  => 'Januari',
+   2  => 'Februari',
+   3  => 'Maart',
    4  => 'April',
-   5  => 'May',
-   6  => 'June',
-   7  => 'July',
-   8  => 'August',
+   5  => 'Mei',
+   6  => 'Juni',
+   7  => 'Juli',
+   8  => 'Augustus',
    9  => 'September',
-   10 => 'October',
+   10 => 'Oktober',
    11 => 'November',
    12 => 'December'
    );
 
 %lang_wday =
    (
-   0 => 'Sunday',
-   1 => 'Monday',
-   2 => 'Tuesday',
-   3 => 'Wednesday',
-   4 => 'Thursday',
-   5 => 'Friday',
-   6 => 'Saturday'
+   0 => 'Zondag',
+   1 => 'Maandag',
+   2 => 'Dinsdag',
+   3 => 'Woensdag',
+   4 => 'Donderdag',
+   5 => 'Vrijdag',
+   6 => 'Zaterdag'
    );
 
 %lang_wday_abbrev =
    (
    week => 'WK',
-   0 => 'S',
-   1 => 'M',
-   2 => 'T',
-   3 => 'W',
-   4 => 'T',
-   5 => 'F',
-   6 => 'S'
+   0 => 'Zo',
+   1 => 'Ma',
+   2 => 'Di',
+   3 => 'Wo',
+   4 => 'Do',
+   5 => 'Vr',
+   6 => 'Za'
    );
 
 %lang_order =
    (
-   1 => '1st',
-   2 => '2nd',
-   3 => '3rd',
-   4 => '4th',
-   5 => 'last'
+   1 => 'Eerste',
+   2 => 'Tweede',
+   3 => 'Derde',
+   4 => 'Vierde',
+   5 => 'Laatste'
    );
 
 %lang_text =
@@ -139,6 +150,7 @@
    messages   => 'berichten',
    unread     => 'ongelezen',
    nomessages => 'Geen berichten',
+   inmessages => 'Incoming msgs',
    composenew => 'Maak nieuw bericht',
    refresh    => 'Verversen',
    userprefs  => 'Gebruikersinstellingen',
@@ -147,6 +159,7 @@
    emptytrash => 'Prullenbak legen',
    totrash    => 'Move to Trash',
    forever    => 'Altijd',
+   delatlogout=> 'Delete at Logout',
    userdef    => 'Gebruiker Bepaald',
    logout     => 'Uitloggen',
    page       => 'Pagina',
@@ -154,9 +167,9 @@
    copy       => 'Kopieer',
    msgmoveconf=> '\'Weet u zeker dat u de geselecteerde berichten wilt verplaatsen?\'',
    move       => 'Verplaats',
-   markasread => 'Mark as read',
-   markasunread => 'Mark as unread',
-   dateformat => 'Datum format',
+   markasread => 'Markeren als gelezen',
+   markasunread => 'Markeren als ongelezen',
+   dateformat => 'Datum formaat',
    date       => 'Datum',
    recipient  => 'Geadresseerde',
    sender     => 'Afzender',
@@ -168,7 +181,7 @@
    replyall   => 'Antwoord iedereen',
    forward    => 'Doorsturen',
    forwardasatt=>'Doorsturen als bijlage',
-   printfriendly=> 'Print friendly',
+   printfriendly=> 'Printvriendelijke versie',
    from       => 'Van',
    replyto    => 'Antwoord naar',
    to         => 'Naar',
@@ -182,19 +195,21 @@
    type       => 'Type',
    filename   => 'Bestandsnaam',
    encoding   => 'Codering',
-   description=> 'Description',
+   description=> 'Omschrijving',
    download   => 'Ophalen',
-   thisispartialmsg => 'This is a partial message.',
-   msgrebuild => 'Message Rebuild',
+   charset    => 'Charset',
+   samecharset=> 'The same as composing charset',
+   thisispartialmsg => 'Dit is een gedeeld bericht.',
+   msgrebuild => 'Bericht samenstellen',
    editdraft  => 'Wijzig Concept',
    savedraft  => 'Bewaar Concept',
    send       => 'Verstuur',
-   about      => 'About',
-   close      => 'Close',
+   about      => 'Over',
+   close      => 'Sluiten',
    cancel     => 'Onderbreken',
    continue   => 'Doorgaan',
-   loginagain => 'Login again',
-   exit       => 'Exit',
+   loginagain => 'Opnieuw Inloggen',
+   exit       => 'Afsluiten',
    for        => 'VOOR',
    yourname   => 'Uw naam',
    save       => 'Bewaar',
@@ -202,12 +217,12 @@
    folderrenprop => '\'Geef de nieuwe naam voor deze folder\'',
    rename     => 'Hernoemen',
    folderdelconf => '\'Weet u zeker dat u deze map inclusief zijn inhoud wilt verwijderen?\'',
-   markread   => 'MarkRead',
-   foldermarkreadconf => '\'Are you going to mark read on all messages in this folder?\'',
-   chkindex   => 'CheckIndex',
-   folderchkindexconf => '\'Are you going to check the index of this folder?\'',
-   reindex    => 'ReIndex',
-   folderreindexconf => '\'Are you sure you want to reindex this folder?\'',
+   markread   => 'Markeren als Gelezen',
+   foldermarkreadconf => '\'Weet u zeker dat u alle berichten in deze map wilt markeren als gelezen?\'',
+   chkindex   => 'Indexcontrole',
+   folderchkindexconf => '\'Weet u zeker dat u de index op deze folder wilt laten controleren?\'',
+   reindex    => 'Herindexeren',
+   folderreindexconf => '\'Weet u zeker dat u deze folder wilt herindexeren?\'',
    total      => 'Totaal',
    delete     => 'Verwijder',
    reserve    => 'Bewaar',
@@ -219,14 +234,15 @@
    modify     => 'Wijzigen',
    abooktitle => 'Adresboek',
    abook      => 'ADRESBOEK',
-   name       => 'Name',
-   email      => 'Email',
-   note       => 'Note',
+   name       => 'Naam',
+   email      => 'E-mail',
+   note       => 'Notitie',
    group      => 'Groep',
    quota_hit  => 'QUOTUM OVERSCHREDEN',
    usage      => 'Gebruik',
-   tzmap      => 'World timezone map',
-   editfroms  => 'Edit personal email addresses',
+   tzmap      => 'Wereldtijdenkaart',
+   testsound  => 'Test sound',
+   editfroms  => 'Bewerk persoonlijke e-mail adressen',
    pop3book   => 'POP3 Configuratie',
    retr_pop3s => 'Ontvang POP3 Mail',
    filterbook => 'Mail Filter Configuratie',
@@ -239,9 +255,9 @@
    all        => 'Alle',
    enable     => 'Activeer',
    disable    => 'De-activeer',
-   filtered   => 'Filtered',
+   filtered   => 'Gefilterd',
    blockrelay => 'Blokkeer SMTP Relay',
-   blockemail => 'Blokkeer email',
+   blockemail => 'Blokkeer e-mail',
    read       => 'Gelezen',
    yourmsg    => 'Uw bericht',
    delivered  => 'Bezorgd',
@@ -252,32 +268,36 @@
    readonly   => 'Alleen lezen',
    textcontent=> 'Tekst Inhoud',
    search     => 'Zoek',
-   advsearch  => 'Advanced search',
-   folder     => 'Folder',
-   nofoldersel=> 'No Folder selected',
-   showall    => 'Show All',
+   advsearch  => 'Geavanceerd zoeken',
+   folder     => 'Map',
+   nofoldersel=> 'Geen map geselecteerd',
+   showall    => 'Alles laten zien',
    spellcheck => 'Spellingscontrole',
    checkagain => 'Controleer opnieuw',
    finishchecking => 'Controle voltooid',
-   manuallyfix=> 'Handmatig herstellen',,
-   calendar   => 'Calendar',
+   manuallyfix=> 'Handmatig herstellen',
+   editstat   => 'Wijzig Sjabloon',
+   savestat   => 'Bewaar Sjabloon',
+   clearstat  => 'Verwijder alle Sjablonen',
+   selectstat => '-- Selecteer Sjabloon voor Antwoord --',
+   calendar   => 'Kalender',
    am         => 'am',
    pm         => 'pm',
-   calfmt_year          => 'Year @@@YEAR@@@',
+   calfmt_year          => 'Jaar @@@YEAR@@@',
    calfmt_yearmonth     => '@@@MONTH_STR@@@ @@@YEAR@@@',
    calfmt_yearmonthday  => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@',
    calfmt_yearmonthdaywday => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@ @@@WEEKDAY_STR@@@',
    calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
-   none       => 'None',
-   moreitems  => 'more items',
-   multieditconf => 'This item was added for multiple dates.\\nEditing it will change the item for all dates.\\nContinue with Edit?',
-   multidelconf  => 'This item was added for multiple dates.\\nDeleting it will delete the item for all dates.\\nContinue with Delete?',
+   none       => 'Geen',
+   moreitems  => 'meer items',
+   multieditconf => 'Dit item is verspreid over meerdere datums.\\nWijzigingen in dit item zullen op al deze datums worden doorgevoerd.\\nDoorgaan?',
+   multidelconf  => 'Dit item is verspreid over meerdere datums.\\nVerwijdering van dit items zal op al deze datums worden doorgevoerd.\\nDoorgaan met verwijderen?',
    ed         => 'Ed',
    del        => 'Del',
-   noitemforthisday => 'No items for this day',
-   today_only               => 'Today\'s date only',
-   the_wday_of_thismonth    => 'The @@@ORDER@@@ @@@WDAY@@@ of the month',
-   every_wday_of_thismonth  => 'Every @@@WDAY@@@ this month'
+   noitemforthisday => 'Geen items op de datum van vandaag.',
+   today_only               => 'Alleen vandaag',
+   the_wday_of_thismonth    => 'De @@@ORDER@@@ @@@WDAY@@@ van de maand',
+   every_wday_of_thismonth  => 'Elke @@@WDAY@@@ van deze maand'
    );
 
 %lang_err =
@@ -288,9 +308,10 @@
    couldnt_lock      => 'Kon niet openen om te schrijven',
    couldnt_seek      => 'Kan niet naar begin van',
    couldnt_close     => 'Kan niet gesloten worden',
-   disallowed_pop3   => 'Disallowed POP3 server',
-   disallowed_client => 'You are not allowed to connect from this client',
-   disallowed_receiverdomain => 'You are not allowed to send message to this email address',
+   couldnt_updatedb  => 'Couldn\'t update index db ',
+   disallowed_pop3   => 'POP3 server niet toegestaan',
+   disallowed_client => 'U bent niet gemachtigd om vanaf uw machine in te loggen.',
+   disallowed_receiverdomain => 'U bent niet gemachtigd om een bericht naar dit e-mailadres te sturen.',
    norootlogin       => 'Sorry, root login is niet mogelijk ivm veiligheid.',
    shouldnt_move_here=> 'Kan hier geen berichten verplaatsen!',
    destination_folder=> 'Bestemmingsmap',
@@ -306,22 +327,25 @@
    abook_toobig      => 'Sorry, uw adresboek is vol, er is geen plaats meer. Ga',
    cant_create_dir   => 'Kan uw eigen directory niet maken!',
    folder_hitquota   => 'Sorry, uw mail quotum is overschreden, er kan niet meer mail opgeslagen worden. Uw kunt nog wel berichten verplaatsen naar de PRULLENBAK, waar ze zullen worden verwijderd.  Ga terug, verwijder oude berichten of leeg uw PRULLENBAK, probeer dan opnieuw.',
+   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
    att_overlimit     => 'Sorry, uw bijlage overschrijdt de maximale lengte, deze is',
    inv_msg_op        => 'Onjuiste handeling op het bericht',
    inv_sessid        => 'Uw verzoek bevatte geen juist cookie -- toegang gewijgerd!',
-   no_endpart        => 'End part not found',
-   part_missing      => 'Some part was missing',
-   rebuild_fmterr    => 'New message format error',
-   rebuild_sizeerr   => 'New message size mismatch',
+   no_endpart        => 'Einde berichtgedeelte gevonden',
+   part_missing      => 'Een berichtgedeelte mist',
+   rebuild_fmterr    => 'Nieuw berichtformaat fout opgetreden',
+   rebuild_sizeerr   => 'Grotte van nieuw bericht is niet correct',
    user_not_exist    => 'gebruiker bestaat niet',
    func_notsupported => 'functie wordt niet ondersteund',
    auth_syserr       => 'inlogsysteem fout',
    param_fmterr      => 'parameter formaat fout',
    pwd_incorrect     => 'wachtwoord verkeerd',
+   pwd_tooshort      => 'Password too short (minimum length @@@PASSWDMINLEN@@@)',
+   pwd_toosimple     => 'Password too simple (both alphabet and digit are required)',
    network_server_error => 'netwerkserver fout',
    sendmail_error    => 'Sorry, er is een fout opgetreden bij het verzenden van uw bericht.  Klik op de \'Terug\' knop van uw browser, controleer het bericht, en probeer het opnieuw.',
-   at_char_not_allowed => 'The @ character is not allowed in this field.  Press browser back button and try again',
-   badnum_in_days => 'bad number in consecutive days field'
+   at_char_not_allowed => 'Het @ karakter is niet toegestaan in dit invulveld. Klik op de \'Terug\' knop van uw browser, corrigeer het invulveld en probeer opnieuw',
+   badnum_in_days => 'incorrect getal in dagveld'
    );
 
 1;

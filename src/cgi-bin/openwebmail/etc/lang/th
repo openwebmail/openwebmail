@@ -1,4 +1,4 @@
-#!/usr/bin/perl -T
+#!/usr/bin/perl
 
 # Thai translation by Atsawin Chaowanakritsanakul, joke.AT.nakhon.net
 # charset: tis-620
@@ -47,9 +47,19 @@
    no  => 'ไม่'
    );
 
+%lang_positionlabels =
+   (
+   before => 'Before mail edit area',
+   after => 'After mail edit area',
+   both  => 'Before and after mail edit area'
+   );
+
 %lang_timelabels =
    (
+      3 => '3 นาที',
+      5 => '5 นาที',
      10 => '10 นาที',
+     20 => '20 นาที',
      30 => '30 นาที',
      60 => '60 นาที',
     120 => '2 ชั่วโมง',
@@ -75,7 +85,8 @@
    yearview  => 'แสดงรายปี',
    monthview => 'แสดงรายเดือน',
    weekview  => 'แสดงรายสัปดาห์',
-   dayview   => 'แสดงรายวัน'
+   dayview   => 'แสดงรายวัน',
+   listview   => 'Listview'
    );
 
 %lang_month =
@@ -138,6 +149,7 @@
    messages   => 'จดหมาย',
    unread     => 'ยังไม่อ่าน',
    nomessages => 'ไม่มีจดหมาย',
+   inmessages => 'Incoming msgs',
    composenew => 'เขียนจดหมาย',
    refresh    => 'อ่านข้อมูลใหม่',
    userprefs  => 'ตัวเลือก',
@@ -146,6 +158,7 @@
    emptytrash => 'ล้างถังขยะ',
    totrash    => 'ทิ้งถังขยะ',
    forever    => 'ตลอดไป',
+   delatlogout=> 'Delete at Logout',
    userdef    => 'ผู้ใช้กำหนด',
    logout     => 'ออกจากระบบ',
    page       => 'หน้า',
@@ -183,6 +196,8 @@
    encoding   => 'รูปแบบการบันทึก',
    description=> 'รายละเอียด',
    download   => 'ดาวน์โหลด',
+   charset    => 'Charset',
+   samecharset=> 'The same as composing charset',
    thisispartialmsg => 'นี่เป็นบางส่วนของจดหมาย',
    msgrebuild => 'จดหมายถูกสร้างใหม่',
    editdraft  => 'แก้ไขร่าง',
@@ -225,6 +240,7 @@
    quota_hit  => 'จดหมายเต็ม',
    usage      => 'ใช้งาน',
    tzmap      => 'แผนที่แสดงเวลามาตรฐานโลก',
+   testsound  => 'Test sound',
    editfroms  => 'แก้ไขสมุดรายชื่อ',
    pop3book   => 'กำหนดค่า POP3',
    retr_pop3s => 'รับจดหมายแบบ POP3',
@@ -259,6 +275,10 @@
    checkagain => 'ตรวจอีกครั้ง',
    finishchecking => 'ตรวจเสร็จแล้ว',
    manuallyfix=> 'แก้ไขเอง',
+   editstat   => 'Edit Stationery',
+   savestat   => 'Save Stationery',
+   clearstat  => 'Clear All Stationery',
+   selectstat => '-- Select Stationery for Reply --',
    calendar   => 'ปฏิทิน',
    am         => 'am',
    pm         => 'pm',
@@ -287,6 +307,7 @@
    couldnt_lock      => 'ไม่สามารถล็อกเพื่อเขียนกับ',
    couldnt_seek      => 'ไม่สามารถอ่านจุดเริ่มต้นของ',
    couldnt_close     => 'ไม่สามารถปิด',
+   couldnt_updatedb  => 'Couldn\'t update index db ',
    disallowed_pop3   => 'ไม่อนุญาตให้ใช้ POP3 เซิร์ฟเวอร์',
    disallowed_client => 'คุณไม่ได้รับอนุญาตให้ใช้งานจากเครื่องนี้ได้',
    disallowed_receiverdomain => 'คุณไม่ได้รับอนุญาตให้ส่งจดหมายไปยังที่อยู่อีเมลนี้',
@@ -305,6 +326,7 @@
    abook_toobig      => 'การกระทำนี้จะทำให้สมุดรายชื่อของคุณใหญ่กว่าที่กำหนดไว้',
    cant_create_dir   => 'ไม่สามารถสร้างไดเรกทอรีส่วนตัวของคุณได้!',
    folder_hitquota   => 'จดหมายของคุณเต็มพื้นที่แล้ว คุณไม่สามารถย้ายจดหมายเข้าโฟลเดอร์ได้ คุณสามารถย้ายจดหมายไปยังถังขยะเพื่อลบได้เท่านั้น กรุณากลับไปลบจดหมาย หรือล้างถังขยะ แล้วลองใหม่อีกครั้ง',
+   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
    att_overlimit     => 'แฟ้มที่แนบของคุณใหญ่กว่าขนาดที่กำหนดไว้',
    inv_msg_op        => 'คำสั่งผิดพลาดในจดหมาย',
    inv_sessid        => 'การใช้งานของคุณไม่มีรายละเอียด cookie ที่ถูกต้อง คุณไม่สามารถใช้งานได้!',
@@ -317,6 +339,8 @@
    auth_syserr       => 'การตรวจสอบผู้ใช้ผิดพลาด',
    param_fmterr      => 'รูปแบบผิดพลาด',
    pwd_incorrect     => 'รหัสผ่านผิดพลาด',
+   pwd_tooshort      => 'Password too short (minimum length @@@PASSWDMINLEN@@@)',
+   pwd_toosimple     => 'Password too simple (both alphabet and digit are required)',
    network_server_error => 'เซิร์ฟเวอร์เครือข่ายผิดพลาด',
    sendmail_error    => 'มีความผิดพลาดในการส่งจดหมายของคุณ กรุณากดปุ่ม Back ในบราวเซอร์, ตรวจสอบจดหมาย แล้วลองใหม่อีกครั้ง',
    at_char_not_allowed => 'ไม่สามารถใช้เครื่องหมาย @ ในช่องนี้ได้ กรุณากดปุ่ม back แล้วลองใหม่',

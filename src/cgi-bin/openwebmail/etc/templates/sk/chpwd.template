@@ -30,8 +30,8 @@
    {
       var s;
       s=document.passwordform.newpassword.value;
-      if (s.length < 4) {
-         alert("Heslo musí ma» aspoò 4 znaky.");
+      if (s.length < @@@PASSWDMINLEN@@@) {
+         alert("Heslo musí ma» aspoò @@@PASSWDMINLEN@@@ znaky.");
          return false;
       }
       if (document.passwordform.newpassword.value !=

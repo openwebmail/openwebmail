@@ -11,8 +11,8 @@
 #
 
 name			Open WebMail
-version			1.71
-releasedate		20020827
+version			1.80
+releasedate		20021122
 
 ##############################################################################
 # host dependent configuration
@@ -67,9 +67,12 @@ allowed_clientdomain	all
 allowed_clientip	all
 allowed_receiverdomain	all
 case_insensitive_login	no
+stay_ssl_afterlogin	yes
 enable_rootlogin	no
 enable_domainselectmenu yes
 enable_changepwd	yes
+enable_strictpwd 	yes
+passwd_minlen		6
 enable_about		yes
 about_info_software		yes
 about_info_scriptfilename	no
@@ -81,7 +84,9 @@ xoriginatingip_has_userid	yes
 enable_setfromemail	yes
 enable_autoreply	yes
 enable_setforward	yes
+enable_stationery	yes
 enable_calendar		yes
+calendar_email_notifyinterval	120
 enable_pop3		yes
 disallowed_pop3servers	your_server, your_server.domain
 getmail_from_pop3_authserver	no
@@ -94,7 +99,8 @@ refreshinterval		15
 fetchpop3interval	15
 foldername_maxlen	32
 folderquota		0
-folderusage_threshold	85
+folderusage_threshold	75
+cutfolders_ifoverquota	no
 maxbooksize		32
 attlimit		50
 
@@ -120,10 +126,13 @@ default_fontsize	10pt
 default_headersperpage	10
 default_sort		date		
 default_dateformat	mm/dd/yyyy
+default_hourformat	12
 default_editcolumns	78
-default_editrows	20
+default_editrows	24
+default_sendbuttonposition	before
 default_dictionary	english
 default_newmailsound	YouGotMail.English.wav
+default_newmailwindowtime	7
 default_hideinternal	yes
 default_usefixedfont	no
 default_usesmileicon	yes
@@ -137,6 +146,7 @@ default_backupsentmsg		yes
 default_reparagraphorigmsg	yes
 default_replywithorigmsg	at_beginning
 default_sendreceipt		ask
+default_sendcharset		sameascomposing
 default_autopop3		yes
 default_moveoldmsgfrominbox	yes
 forced_moveoldmsgfrominbox	no
@@ -145,6 +155,8 @@ default_filter_fakedsmtp	no
 default_filter_fakedfrom	no
 default_filter_fakedexecontenttype	no
 default_trashreserveddays	7
+default_refreshinterval		20
+min_refreshinterval		3
 default_sessiontimeout		60
 default_autoreplysubject	This is an autoreply...[Re: $SUBJECT]
 
@@ -160,7 +172,6 @@ Your mail regarding '$SUBJECT' will be read when I return.
 Open WebMail Project (http://openwebmail.org)
 </default_signature>
 
-default_calendar_hourformat		12
 default_calendar_monthviewnumitems	5
 default_calendar_weekstart		S
 default_calendar_starthour		0800

@@ -45,6 +45,10 @@
 <tr><td colspan=2 nowrap>@@@EVERYYEARCHECKBOX@@@ 每年</td></tr>
 <tr><td colspan=2 nowrap>將本項目連結到下列網址</td></tr>
 <tr><td colspan=2 nowrap>@@@LINKFIELD@@@</td></tr>
+@@@EMAILSTART@@@
+<tr><td colspan=2 nowrap>寄送通知 Email 到下列地址</td></tr>
+<tr><td colspan=2 nowrap>@@@EMAILFIELD@@@</td></tr>
+@@@EMAILEND@@@
 <tr><td colspan=2 align=center>@@@SUBMITBUTTON@@@</td></tr>
 @@@ENDFORM@@@
 </table>

@@ -30,7 +30,7 @@
    {
       var s;
       s=document.passwordform.newpassword.value;
-      if (s.length < 6) {
+      if (s.length < @@@PASSWDMINLEN@@@y) {
          alert("Salasanan täytyy olla vähintään kuusi merkkiä pitkä.");
          return false;
       }

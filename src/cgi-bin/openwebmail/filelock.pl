@@ -1,8 +1,9 @@
 #
-# filelock.pl - functions for filelock on local or nfs server
+# filelock.pl - filelock routines for local or nfs server
 #
 # 2001/04/25 tung@turtle.ee.ncku.edu.tw
 #
+
 use strict;
 use Fcntl qw(:DEFAULT :flock);
 use FileHandle;
@@ -37,7 +38,7 @@ sub filelock_flock {
       return(0);
    }
 
-   if (defined($opentable{"$dev-$inode"}) ) {	
+   if (defined($opentable{"$dev-$inode"}) ) {
       $fh=$opentable{"$dev-$inode"};
    } else { # handle not found, open it!
       $fh=FileHandle->new();
@@ -58,7 +59,7 @@ sub filelock_flock {
       eval {
          local $SIG{ALRM} = sub { die "alarm\n" }; # NB: \n required
          alarm 60;
-         $retval=flock($fh, $lockflag & (~LOCK_NB) );	
+         $retval=flock($fh, $lockflag & (~LOCK_NB) );
          alarm 0;
       };
       if ($@) {	# eval error, it means timeout
@@ -66,7 +67,7 @@ sub filelock_flock {
       }
       return($retval);
 
-   } else {			# blocking lock				
+   } else {			# blocking lock
       return(flock($fh, $lockflag));
    }
 }
@@ -77,9 +78,9 @@ sub filelock_flock {
 # and the lockd on your nfs server or client has problems
 # since it is slower than flock
 #
-# This routine stores the shared lock counter in filename.lock and 
+# This routine stores the shared lock counter in filename.lock and
 # uses filename.lock.lock to guarentee unique access to filename.lock.
-# If the filename is locates in a readonly directory, since the 
+# If the filename is locates in a readonly directory, since the
 # filename.lock and filename.lock.lock could not be created, this routine will
 # grant all shared lock and deny all exclusive lock.
 sub filelock_dotlockfile {

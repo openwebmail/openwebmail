@@ -1,4 +1,4 @@
-#!/usr/bin/perl -T
+#!/usr/bin/perl
 
 # Italian translation by Benedet Marvi, i3100579.AT.ingstud.univ.trieste.it
 # charset: iso-8859-1
@@ -47,9 +47,19 @@
    no  => 'No'
    );
 
+%lang_positionlabels =
+   (
+   before => 'Prima area messaggio',
+   after => 'Dopo area messaggio',
+   both  => 'Prima e dopo area messaggio'
+   );
+
 %lang_timelabels =
    (
+      3 => '3 minuti',
+      5 => '5 minuti',
      10 => '10 minuti',
+     20 => '20 minuti',
      30 => '30 minuti',
      60 => '60 minuti',
     120 => '2 ore',
@@ -63,8 +73,8 @@
    (
    contains    => 'contiene',
    notcontains => 'non contiene',
-   is          => 'e\'',
-   isnot       => 'non e\'',
+   is          => 'è',
+   isnot       => 'non è',
    startswith  => 'inizia per',
    endswith    => 'finisce per',
    regexp      => 'soddisfa regexp',
@@ -75,7 +85,8 @@
    yearview  => 'Annuale',
    monthview => 'Mensile',
    weekview  => 'Settimanale',
-   dayview   => 'Giornaliero'
+   dayview   => 'Giornaliero',
+   listview   => 'Listview'
    );
 
 %lang_month =
@@ -97,11 +108,11 @@
 %lang_wday =
    (
    0 => 'Domenica',
-   1 => 'Lunedi\'',
-   2 => 'Martedi\'',
-   3 => 'Mercoledi\'',
-   4 => 'Giovedi\'',
-   5 => 'Venerdi\'',
+   1 => 'Lunedì',
+   2 => 'Martedì',
+   3 => 'Mercoledì',
+   4 => 'Giovedì',
+   5 => 'Venerdì',
    6 => 'Sabato'
    );
 
@@ -138,6 +149,7 @@
    messages   => 'messaggi',
    unread     => 'non letti',
    nomessages => 'Nessun messaggio',
+   inmessages => 'Messaggi in arrivo',
    composenew => 'Componi nuovo messaggio',
    refresh    => 'Aggiorna',
    userprefs  => 'Preferenze utente',
@@ -146,6 +158,7 @@
    emptytrash => 'Svuota cestino',
    totrash    => 'Sposta in cestino',
    forever    => 'Per Sempre',
+   delatlogout=> 'Cancella all\'uscita',
    userdef    => 'Personalizzato',
    logout     => 'Esci',
    page       => 'Pagina',
@@ -183,7 +196,9 @@
    encoding   => 'Codifica',
    description=> 'Descrizione',
    download   => 'Scarica',
-   thisispartialmsg => 'Questo e\' un messaggio parziale.',
+   charset    => 'Charset',
+   samecharset=> 'The same as composing charset',
+   thisispartialmsg => 'Questo è un messaggio parziale.',
    msgrebuild => 'Messaggio ricostruito',
    editdraft  => 'Edita bozze',
    savedraft  => 'Salva bozza',
@@ -225,6 +240,7 @@
    quota_hit  => 'LIMITE RAGGIUNTO',
    usage      => 'Uso',
    tzmap      => 'Mappa fusi orari',
+   testsound  => 'Test suono',
    editfroms  => 'Modifica indirizzi e-mail personali',
    pop3book   => 'Impostazioni POP3',
    retr_pop3s => 'Scarica posta POP3',
@@ -244,7 +260,7 @@
    read       => 'Leggi',
    yourmsg    => 'Il tuo messaggio',
    delivered  => 'Consegnato',
-   wasreadon1 => 'e\' stato letto',
+   wasreadon1 => 'è stato letto',
    wasreadon2 => '.',
    globaladdressbook => 'Rubrica Globale',
    globalfilterrule => 'Regola Filtro Globale',
@@ -259,6 +275,10 @@
    checkagain => 'Controlla Ancora',
    finishchecking => 'Ferma controllo',
    manuallyfix=> 'Correggi a mano',
+   editstat   => 'Modifica Stationery',
+   savestat   => 'Salva Stationery',
+   clearstat  => 'Cancella tutti i Stationery',
+   selectstat => '-- Seleziona  Stationery per la Risposta --',
    calendar   => 'Calendario',
    am         => 'am',
    pm         => 'pm',
@@ -268,9 +288,9 @@
    calfmt_yearmonthdaywday => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@ @@@WEEKDAY_STR@@@',
    calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
    none       => 'Nessuno',
-   moreitems  => 'piu\' voci',
-   multieditconf => 'Questa voce e\' stata aggiunta per piu\' date.\\nModificandola verra\' cabiata per tutte le date.\\nContinuare?',
-   multidelconf  => 'Qeusto voce e\' stata aggiunta per piu\' date.\\nCancellandola verra\' eliminata per ogni data.\\nContinuare?',
+   moreitems  => 'più voci',
+   multieditconf => 'Questa voce  stata aggiunta per più date.\\nModificandola verrà cabiata per tutte le date.\\nContinuare?',
+   multidelconf  => 'Qeusto voce  stata aggiunta per più date.\\nCancellandola verrà eliminata per ogni data.\\nContinuare?',
    ed         => 'Ed',
    del        => 'Del',
    noitemforthisday => 'Nessuna voce per questo giorno',
@@ -287,10 +307,11 @@
    couldnt_lock      => 'Non posso scrivere',
    couldnt_seek      => 'Non posso raggiungere l\'inizio di',
    couldnt_close     => 'Non posso chiudere',
+   couldnt_updatedb  => 'Impossibile aggiornare l\'indice db ',
    disallowed_pop3   => 'Server POP3 diabilitato',
    disallowed_client => 'Non sei abilitato a connetterti da questo client',
    disallowed_receiverdomain => 'Non sei abilitato a spedire mail a questo indirizzo',
-   norootlogin       => 'Spiacente, ma root non puo\' usare questo sistema per motivi di sicurezza',
+   norootlogin       => 'Spiacente, ma root non può usare questo sistema per motivi di sicurezza',
    shouldnt_move_here=> 'Non dovresti tentare di spostare i tuoi messaggi qui!',
    destination_folder=> 'Cartella destinazione',
    doesnt_exist      => 'non esiste!',
@@ -299,12 +320,13 @@
    already_exists    => 'esiste già!',
    cant_create_folder=> 'Non posso creare la cartella',
    under_indexing    => 'fase di indicizzazione, riprova dopo',
-   abook_invalid     => 'Questo file non è una rubrica esportata da Outlook Express 5 in formato CSV. Assicurati che la prima riga inizi con "Nome ,E-mail", quindi torna',
+   abook_invalid     => 'Questo file non è una rubrica esportata da Outlook Express 5 in formato CSV. Assicurati che la prima riga inizi con "Nome, E-mail", quindi riprova',
    back              => 'indietro',
    tryagain          => 'e riprova.',
    abook_toobig      => 'Spiacente, questo eccederebbe il limite per la tua rubrica. Torna',
    cant_create_dir   => 'Non posso creare la tua directory utente!',
    folder_hitquota   => 'Spiacente, hai raggiunto il limite di spazio a te concesso e non puoi più salvare posta. Puoi solo spostare i tuoi messaggi nel cestino dove verranno cancellati. Torna indietro, cancella qualche messaggio, svuota il cestino e riprova.',
+   folder_cutdone    => 'Attenzione, dal momento che è stato raggiunto il limite di spazio su disco (@@@FOLDERQUOTA@@@), sono stati rimmossi automaticamente i vecchi messaggi',
    att_overlimit     => 'L\'allegato è troppo grande. Il limite è',
    inv_msg_op        => 'Operazione invalida per il messaggio',
    inv_sessid        => 'La tua richiesta non contiene un session ID cookie valido -- accesso negato!',
@@ -316,10 +338,12 @@
    func_notsupported => 'funzione non supportata',
    auth_syserr       => 'Password sbagliata!',
    param_fmterr      => 'errore formato parametri',
-   pwd_incorrect     => 'password sbagliata',
+   pwd_incorrect     => 'Password sbagliata',
+   pwd_tooshort      => 'Password troppo corta (lunghezza minima @@@PASSWDMINLEN@@@)',
+   pwd_toosimple     => 'Password troppo semplice (sono richiesti sia caratteri che numeri)',
    network_server_error => 'errore del server di rete',
-   sendmail_error    => 'Spiacente, si e\' verificato  un errore nella spedizione del tuo messaggio. Prova a cliccare su bottone  indietro del tuo browser, controlla il messaggio e riprova',
-   at_char_not_allowed => 'Il carattere @ non e\' permesso in questo campo. Premi Indietro sul browser e riprova',
+   sendmail_error    => 'Spiacente, si è verificato  un errore nella spedizione del tuo messaggio. Prova a cliccare su bottone  indietro del tuo browser, controlla il messaggio e riprova',
+   at_char_not_allowed => 'Il carattere @ non è permesso in questo campo. Premi Indietro sul browser e riprova',
    badnum_in_days => 'numero errato nel campo giorni consecutivi'
    );
 

@@ -1,14 +1,21 @@
-#!/usr/bin/perl -T
-#############################################################################
-# Open WebMail - Provides a web interface to user mailboxes                 #
-#                                                                           #
-# Copyright (C) 2001-2002                                                   #
-# Chung-Kie Tung, Nai-Jung Kuo, Chao-Chiu Wang, Emir Litric, Thomas Chung   #
-# Copyright (C) 2000                                                        #
-# Ernie Miller  (original GPL project: Neomail)                             #
-#                                                                           #
-# This program is distributed under GNU General Public License              #
-#############################################################################
+#!/usr/bin/suidperl -T
+#################################################################
+#                                                               #
+# Open WebMail - Provides a web interface to user mailboxes     #
+#                                                               #
+# Copyright (C) 2001-2002                                       #
+# The Open Webmail Team                                         #
+#                                                               #
+# Copyright (C) 2000                                            #
+# Ernie Miller  (original GPL project: Neomail)                 #
+#                                                               #
+# This program is distributed under GNU General Public License  #
+#                                                               #
+#################################################################
+
+#
+# openwebmail.pl - entry point of openwebmail
+#
 
 use vars qw($SCRIPT_DIR);
 if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-\.]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
@@ -27,7 +34,7 @@ use CGI qw(-private_tempfiles :standard);
 use CGI::Carp qw(fatalsToBrowser);
 CGI::nph();   # Treat script as a non-parsed-header script
 
-require "openwebmail-shared.pl";
+require "ow-shared.pl";
 require "filelock.pl";
 
 use vars qw(%config %config_raw);
@@ -46,6 +53,13 @@ readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf") if (-f "$SC
 # setuid is required if mails is located in user's dir
 if ( $>!=0 && ($config{'use_homedirspools'}||$config{'use_homedirfolders'}) ) {
    print "Content-type: text/html\n\n'$0' must setuid to root"; exit 0;
+}
+
+# check & create mapping table for solar/lunar, b2g, g2b convertion
+if ( ! -f "$config{'ow_etcdir'}/lunar$config{'dbm_ext'}" ||
+     ! -f "$config{'ow_etcdir'}/g2b$config{'dbm_ext'}" ||
+     ! -f "$config{'ow_etcdir'}/b2g$config{'dbm_ext'}" ) {
+   print "Content-type: text/html\n\nPlease execute  '$config{'ow_cgidir'}/openwebmail-tool.pl --init' on server first!"; exit 0;
 }
 
 # validate allowed_serverdomain
@@ -110,11 +124,6 @@ if ( param("loginname") && param("password") ) {
    $virtname=~s!/!.!g; $virtname=~s/^\.+//;
    update_virtusertable("$config{'ow_etcdir'}/$virtname", $config{'virtusertable'});
 
-   # check & create mapping table for chinese BIG5/GB, solar/lunar convertion
-   mkdb_b2g();
-   mkdb_g2b();
-   mkdb_lunar();
-
    %prefs = %{&readprefs};
    %style = %{&readstyle};
    ($prefs{'language'} =~ /^([\w\d\._]+)$/) && ($prefs{'language'} = $1);
@@ -140,17 +149,13 @@ exit 0;
 
 ##################### LOGINMENU ######################
 sub loginmenu {
-   printheader(),
    my $html='';
    my $temphtml;
-   open (LOGIN, "$config{'ow_etcdir'}/templates/$prefs{'language'}/login.template") or
-      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/templates/$prefs{'language'}/login.template!");
-   while (<LOGIN>) {
-      $html .= $_;
-   }
-   close (LOGIN);
 
+   $html=readtemplate("login.template");
    $html = applystyle($html);
+
+   printheader(),
 
    $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail.pl",
                          -name=>'login');
@@ -174,12 +179,12 @@ sub loginmenu {
                             -onChange=>'focuspwd()',
                             -override=>'1');
    }
-   $html =~ s/\@\@\@USERIDFIELD\@\@\@/$temphtml/;
+   $html =~ s/\@\@\@LOGINNAMEFIELD\@\@\@/$temphtml/;
 
    $temphtml = password_field(-name=>'password',
                               -default=>'',
                               -size=>'12',
-                              -onChange=>'focuslogin()',
+                              -onChange=>'focusloginbutton()',
                               -override=>'1');
    $html =~ s/\@\@\@PASSWORDFIELD\@\@\@/$temphtml/;
 
@@ -200,7 +205,7 @@ sub loginmenu {
       $html =~ s/\@\@\@DOMAINEND\@\@\@/-->/;
    }
 
-   $temphtml = submit(-name =>"login",
+   $temphtml = submit(-name =>"loginbutton",
 		      -value=>"$lang_text{'login'}" );
 
    $html =~ s/\@\@\@LOGINBUTTON\@\@\@/$temphtml/;
@@ -308,7 +313,7 @@ sub login {
 
       if ( $config{'use_homedirspools'} || $config{'use_homedirfolders'} ) {
          my $mailgid=getgrnam('mail');
-         set_euid_egid_umask($uuid, $mailgid, 0077);	
+         set_euid_egid_umask($uuid, $mailgid, 0077);
          if ( $) != $mailgid) {	# egid must be mail since this is a mail program...
             openwebmailerror("Set effective gid to mail($mailgid) failed!");
          }
@@ -442,6 +447,10 @@ sub login {
          $url="$config{'ow_cgiurl'}/openwebmail-main.pl?sessionid=$thissession&action=displayheaders_afterlogin";
       }
 
+      if ( ($ENV{'HTTPS'}=~/on/i || $ENV{'SERVER_PORT'}==443) && !$config{'stay_ssl_afterlogin'}) {
+         $url="http://$ENV{'HTTP_HOST'}$url" if ($url !~ m!https?://! );
+      }
+
       my @headers=();
       push(@headers, -pragma=>'no-cache');
 
@@ -459,8 +468,14 @@ sub login {
                             -value => param("rememberme")||'',
                             -path  => '/',
                             -expires => "+1M" );
+      # cookie for ssl session, expired if not same session
+      my $cookie4 = cookie( -name  => "openwebmail-ssl",
+                            -value => ($ENV{'HTTPS'}=~/on/i ||
+                                       $ENV{'SERVER_PORT'}==443 ||
+                                       0),
+                            -path  => '/');
 
-      push(@headers, -cookie=>[$cookie1, $cookie2, $cookie3]);
+      push(@headers, -cookie=>[$cookie1, $cookie2, $cookie3, $cookie4]);
       push(@headers, -charset=>$prefs{'charset'}) if ($CGI::VERSION>=2.57);
 
       # load page with Refresh header only if not MSIE on Mac
@@ -487,7 +502,7 @@ sub login {
 		qq|<font color="#cccccc" face="arial,helvetica,sans-serif" size=-1>\n|,
                 qq|$config{'name'} $config{'version'} $config{'releasedate'}<br><br>\n|,
 		qq|Copyright (C) 2001-2002<br>\n|,
-		qq|Chung-Kie Tung, Nai-Jung Kuo, Chao-Chiu Wang, Emir Litric, Thomas Chung<br><br>\n|,
+		qq|Chung-Kie Tung, Nai-Jung Kuo, Chao-Chiu Wang, Emir Litric, Thomas Chung, Dattola Filippo<br><br>\n|,
 		qq|Copyright (C) 2000<br>\n|,
 		qq|Ernie Miller  (original GPL project: Neomail)<br><br>\n|,
 		qq|</font></a>\n\n|,
@@ -531,7 +546,7 @@ sub login {
 
       if ( $config{'use_homedirspools'} || $config{'use_homedirfolders'} ) {
          my $mailgid=getgrnam('mail');
-         set_euid_egid_umask($uuid, $mailgid, 0077);	
+         set_euid_egid_umask($uuid, $mailgid, 0077);
       }
 
       if ( $config{'use_homedirfolders'} ) {
@@ -552,18 +567,11 @@ sub login {
 
       sleep $config{'loginerrordelay'};	# delayed response
 
-      my $html = '';
-      printheader();
-      open (LOGINFAILED, "$config{'ow_etcdir'}/templates/$prefs{'language'}/loginfailed.template") or
-         openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/templates/$prefs{'language'}/loginfailed.template!");
-      while (<LOGINFAILED>) {
-         $html .= $_;
-      }
-      close (LOGINFAILED);
+      my $html=readtemplate("loginfailed.template");
+      $html = applystyle($html);
       $html =~ s/\@\@\@ERRORMSG\@\@\@/$errormsg/;
 
-      $html = applystyle($html);
-
+      printheader();
       print $html;
       printfooter(1);
       exit 0;
@@ -654,8 +662,8 @@ sub releaseupgrade {
    my ($folderdir, $user_releasedate)=@_;
    my $content;
    my $rc_upgrade=0;
-   my ($_OFFSET, $_FROM, $_TO, $_DATE, $_SUBJECT, $_CONTENT_TYPE, $_STATUS, $_SIZE, $_REFERENCES)
-       =(0,1,2,3,4,5,6,7,8);
+   my ($_OFFSET, $_FROM, $_TO, $_DATE, $_SUBJECT, $_CONTENT_TYPE, $_STATUS, $_SIZE, $_REFERENCES, $_CHARSET)
+       =(0,1,2,3,4,5,6,7,8,9);
 
    if ( $user_releasedate lt "20011101" ) {
       if ( -f "$folderdir/.filter.book" ) {
@@ -923,7 +931,40 @@ sub releaseupgrade {
       writelog("release upgrade - $folderdir/* by 20020601");
    }
 
-   if ( $user_releasedate lt "20020728" ) {
+   if ( $user_releasedate lt "20021111" ) {
+      my (@validfolders, $folderusage);
+      getfolders(\@validfolders, \$folderusage);
+
+      foreach my $foldername (@validfolders) {
+         my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $foldername);
+         my (%HDB, @messageids, @attr);
+         next if ( ! -f "$headerdb$config{'dbm_ext'}" || -z "$headerdb$config{'dbm_ext'}" );
+
+         filelock("$headerdb$config{'dbm_ext'}", LOCK_EX) if (!$config{'dbmopen_haslock'});
+         dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
+
+         @messageids=keys %HDB;
+         foreach my $id (@messageids) {
+            next if ( $id eq 'METAINFO'
+             || $id eq 'NEWMESSAGES'
+             || $id eq 'INTERNALMESSAGES'
+             || $id eq 'ALLMESSAGES'
+             || $id eq "" );
+            @attr=split( /@@@/, $HDB{$id} );
+            if ( $attr[$_CHARSET] eq "" &&
+                 $attr[$_CONTENT_TYPE]=~/charset="?([^\s"';]*)"?\s?/i) {
+               $attr[$_CHARSET]=$1;
+               $HDB{$id}=join('@@@', @attr);
+            }
+         }
+         dbmclose(%HDB);
+         filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+      }
+      writehistory("release upgrade - $folderdir/.*$config{'dbm_ext'} by 20021111.02");
+      writelog("release upgrade - $folderdir/.*$config{'dbm_ext'} by 20021111.02");
+   }
+
+   if ( $user_releasedate lt "20021116" ) {
       $rc_upgrade=1;	# .openwebmailrc upgrade will be requested
    }
 

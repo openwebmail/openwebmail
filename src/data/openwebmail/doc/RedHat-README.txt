@@ -57,6 +57,7 @@ You will need:
 CGI.pm-2.74.tar.gz
 MIME-Base64-2.12.tar.gz
 libnet-1.0901.tar.gz
+Text-Iconv-1.2.tar.gz
 
 ------------------------------------------------------------------------------
 IMPORTANT NOTE:
@@ -97,6 +98,32 @@ For libnet do the following:
    perl Makefile.PL
    make
    make install
+
+For Text-Iconv-1.2 do the following:
+
+   Since Text-Iconv-1.2 is actually a perl interface to the underlying iconv()
+   support, you have to check if iconv() support is available in your system.
+   Please type the following command
+
+   man iconv
+
+   If there is no manual page for iconv, your system may not support iconv().
+   Don't worry, you can have the iconv() support by installing libiconv package.
+
+   cd /tmp
+   tar -zxvf Text-Iconv-1.2.tar.gz
+   cd Text-Iconv-1.2
+   perl Makefile.PL
+   make
+   make test
+
+   ps: If the 'make test' failed, it means you set wrong value for LIBS and 
+       INC in Makefile.PL or your iconv support is not complete.
+       You may copy the uty/iconv.pl.fake to iconv.pl to make openwebmail work 
+       without iconv support.
+
+   make install
+
 
 Now download and install your openwebmail software.
 
@@ -200,6 +227,8 @@ for details" error message.
 ------------------------------------------------------------------------------
  Redirect sessions to directory other then /home (IMPORTANT SETUP FOR QUOTA)
 ------------------------------------------------------------------------------
+
+  This is for RedHat 6.2 only since 7.x httpd dir is already /var/www
 
   mkdir /var/openwebmail
   mkdir /var/openwebmail/etc

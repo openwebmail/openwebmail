@@ -30,8 +30,8 @@
    {
       var s;
       s=document.passwordform.newpassword.value;
-      if (s.length < 4) {
-         alert("Passordet må ha minst 4 tegn.");
+      if (s.length < @@@PASSWDMINLEN@@@) {
+         alert("Passordet må ha minst @@@PASSWDMINLEN@@@ tegn.");
          return false;
       }
       if (document.passwordform.newpassword.value !=

@@ -45,6 +45,10 @@
 <tr><td colspan=2 nowrap>@@@EVERYYEARCHECKBOX@@@ Ogni anno</td></tr>
 <tr><td colspan=2 nowrap>Rendi questa voce un link a</td></tr>
 <tr><td colspan=2 nowrap>@@@LINKFIELD@@@</td></tr>
+@@@EMAILSTART@@@
+<tr><td colspan=2 nowrap>Manda notifica email a</td></tr>
+<tr><td colspan=2 nowrap>@@@EMAILFIELD@@@</td></tr>
+@@@EMAILEND@@@
 <tr><td colspan=2 align=center>@@@SUBMITBUTTON@@@</td></tr>
 @@@ENDFORM@@@
 </table>

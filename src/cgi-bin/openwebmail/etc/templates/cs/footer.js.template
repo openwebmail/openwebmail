@@ -5,7 +5,7 @@
    var url = "@@@PREFSURL@@@?action=timeoutwarning&sessionid=@@@SESSIONID@@@";
 
    function timeoutwarning () {
-      var hWnd = window.open(url,"timeoutwarning","width=400,height=140,resizable=no,scrollbars=no");
+      var hWnd = window.open(url,"_timeoutwarning","width=400,height=140,resizable=no,scrollbars=no");
       hWnd.focus();
    }
    function timeoutcheck () {

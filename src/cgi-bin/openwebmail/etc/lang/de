@@ -1,4 +1,4 @@
-#!/usr/bin/perl -T
+#!/usr/bin/perl
 
 # German translation by Andreas Roedl, flood.AT.flood-net.de
 #                       Christian Schoepplein, mail.AT.schoeppi.net
@@ -48,9 +48,19 @@
    no  => 'Nein'
    );
 
+%lang_positionlabels =
+   (
+   before => 'Before mail edit area',
+   after => 'After mail edit area',
+   both  => 'Before and after mail edit area'
+   );
+
 %lang_timelabels =
    (
+      3 => '3 Minuten',
+      5 => '5 Minuten',
      10 => '10 Minuten',
+     20 => '20 Minuten',
      30 => '30 Minuten',
      60 => '60 Minuten',
     120 => '2 Stunden',
@@ -76,7 +86,8 @@
    yearview  => 'Jahresübersicht',
    monthview => 'Monatsübersicht',
    weekview  => 'Wochenübersicht',
-   dayview   => 'Tagesübersicht'
+   dayview   => 'Tagesübersicht',
+   listview   => 'Listview'
    );
 
 %lang_month =
@@ -139,6 +150,7 @@
    messages   => 'Nachrichten',
    unread     => 'ungelesen',
    nomessages => 'Keine Nachrichten',
+   inmessages => 'Incoming msgs',
    composenew => 'Neue Nachricht',
    refresh    => 'Aktualisieren',
    userprefs  => 'Benutzer Einstellungen',
@@ -147,6 +159,7 @@
    emptytrash => 'Papierkorb leeren',
    totrash    => 'In Papierkorb verschieben',
    forever    => 'für immer',
+   delatlogout=> 'Delete at Logout',
    userdef    => 'Benutzerdefiniert',
    logout     => 'Abmelden',
    page       => 'Seite',
@@ -184,6 +197,8 @@
    encoding   => 'Format',
    description=> 'Beschreibung',
    download   => 'Herunterladen',
+   charset    => 'Charset',
+   samecharset=> 'The same as composing charset',
    thisispartialmsg => 'Dies ist eine unvollständige Nachricht.',
    msgrebuild => 'Nachricht reformatieren',
    editdraft  => 'Entwurf bearbeiten',
@@ -226,6 +241,7 @@
    quota_hit  => 'SPEICHERPLATZLIMIT ÜBERSCHRITTEN',
    usage      => 'Verwendung',
    tzmap      => 'Zeitzonenkarte',
+   testsound  => 'Test sound',
    editfroms  => 'Persönliche Email-Adressen bearbeiten',
    pop3book   => 'Postfächer bearbeiten',
    retr_pop3s => 'Nachrichten abholen',
@@ -260,6 +276,10 @@
    checkagain => 'Erneut prüfen',
    finishchecking => 'Prüfung beenden',
    manuallyfix=> 'Manuell ändern',
+   editstat   => 'Edit Stationery',
+   savestat   => 'Save Stationery',
+   clearstat  => 'Clear All Stationery',
+   selectstat => '-- Select Stationery for Reply --',
    calendar   => 'Kalender',
    am         => 'am',
    pm         => 'pm',
@@ -268,14 +288,14 @@
    calfmt_yearmonthday  => '@@@DAY@@@ @@@MONTH_STR@@@ @@@YEAR@@@',
    calfmt_yearmonthdaywday => '@@@DAY@@@ @@@MONTH_STR@@@ @@@YEAR@@@ @@@WEEKDAY_STR@@@',
    calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
-   none       => 'Nichts',
+   none       => 'Keine',
    moreitems  => 'Weitere Einträge',
    multieditconf => 'Dieser Eintrag wurde für mehr als nur einen Tag angelegt.\\nDie erneute Bearbeitung wird sich auf alle diesen Eintrag zugeordneten Tage auswirken.\\nBearbeitung fortsetzen?',
    multidelconf  => 'Dieser Eintrag wurde für mehr als nur einen Tag angelegt.\\nDas Löschen dieses Eintrags wird sich auf alle diesen Eintrag zugeordneten Tage auswirken.\\nLöschen fortsetzen?',
    ed         => 'Edit',
    del        => 'Löschen',
    noitemforthisday => 'Kein Eintrag für diesen Tag',
-   today_only               => 'Nur für diesen tag',
+   today_only               => 'Nur für diesen Tag',
    the_wday_of_thismonth    => 'Für den @@@ORDER@@@ @@@WDAY@@@ dieses Monats',
    every_wday_of_thismonth  => 'Für jeden @@@WDAY@@@ dieses Monats'
    );
@@ -288,6 +308,7 @@
    couldnt_lock      => 'Fehler beim Schreiben der Datei',
    couldnt_seek      => 'Fehler beim Lesen der Datei',
    couldnt_close     => 'Fehler beim Schließen der Datei',
+   couldnt_updatedb  => 'Couldn\'t update index db ',
    disallowed_pop3   => 'Gesperrter POP3 Server',
    disallowed_clientip => 'Von dieser IP-Adresse aus ist der Zugriff nicht erlaubt',
    disallowed_receiverdomain => 'Emails an diese Domain sind nicht erlaubt',
@@ -306,6 +327,7 @@
    abook_toobig      => 'Diese Aktion würde die maximale Größe Ihres Adressbuches überschreiten. Versuchen Sie Speicherplatz frei zu machen. Gehen Sie dann',
    cant_create_dir   => 'Fehler beim Erstellen Ihres Benutzerverzeichnisses!',
    folder_hitquota   => 'Sie haben Ihr Speicherplatzlimit überschritten. Sie können keine weiteren Nachrichten mehr in Ihren Ordnern speichern. Nachrichten die in den Papierkorb verschoben werden, werden jetzt direkt gelöscht! Versuchen Sie ein paar Nachrichten zu löschen oder Ihren Papierkorb zu leeren um wieder mehr Speicherplatz zu Verfügung zu haben.',
+   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
    att_overlimit     => 'Der Dateianhang überschreitet die zugelassene Maximalgröße von',
    inv_msg_op        => 'Aktion für diese Nachricht nicht möglich',
    inv_sessid        => 'Ihre Anfrage enthält keine gültige Sitzungskennung -- Zugriff verweigert!',
@@ -318,6 +340,8 @@
    auth_syserr       => 'Fehler im Authentikationsystem',
    param_fmterr      => 'Fehler beim Parameterformat',
    pwd_incorrect     => 'Ungültiges Kennwort',
+   pwd_tooshort      => 'Password too short (minimum length @@@PASSWDMINLEN@@@)',
+   pwd_toosimple     => 'Password too simple (both alphabet and digit are required)',
    network_server_error => 'Netzwerk Fehler',
    sendmail_error    => 'Das Absenden der Nachricht war leider nicht möglich. Drücken Sie auf den Zurück-Knopf Ihres Browsers, überprüfen Sie Ihre Nachricht und versuchen Sie es erneut.',
    at_char_not_allowed => 'Das @-Zeichen ist in diesem Eingabefeld nicht erlaubt. Klicken sie auf zurück und versuchen sie es erneut!',

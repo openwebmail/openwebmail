@@ -15,7 +15,9 @@
    @@@MESSAGECONTROL@@@
    </td><td valign="middle" align="right" nowrap>@@@STARTMOVEFORM@@@
    @@@MOVECONTROLS@@@&nbsp;
-   </td></tr></table>
+   </td>
+   @@@ENDFORM@@@
+   </tr></table>
 </td></tr><tr><td colspan="2" width="100%">&nbsp;</td></tr>
 <tr><td rowspan=2 width="90%" valign="middle" bgcolor=@@@WINDOW_DARK@@@>
 @@@HEADERS@@@
@@ -29,20 +31,27 @@
 <tr><td colspan="2" width="100%">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@MENUBAR@@@>
    <table border="0" width="100%" cellpadding="0" cellspacing="0">
-   <font face=@@@FONTFACE@@@ size="2">
-   <tr valign=bottom><td valign="middle" align="left">
+   <tr valign=bottom><td valign="middle" align="left" width="10%">
    @@@BACKTOLINK@@@
-   @@@LEFTMESSAGECONTROL@@@
-   </td><td valign="middle" align="right">
-   @@@RIGHTMESSAGECONTROL@@@
+   </td><td valign="middle" width="30%">
+   @@@STARTCONVFROMFORM@@@
+   @@@CONVFROMMENU@@@
+   </td>@@@ENDCONVFROMFORM@@@<td valign="middle" align="center">
+   @@@MESSAGECONTROL@@@
+   </td><td valign="middle" align="right" width="35%">
+   @@@STARTSTATIONERYFORM@@@
+   @@@STATIONERYMENU@@@
+   </td>@@@ENDFORM@@@<td valign="middle" align="right">
+   @@@STATIONERYBUTTON@@@
+   &nbsp;
    </td></tr></table>
 </td></tr></table>
 <script language="JavaScript">
 <!--
    function replyreceiptconfirm(url, yes)
    {
-      if (yes==1 || confirm('This message requests a read receipt, do you want to transmit?')) {
-         var hWnd = window.open("","ReplyReceipt","width=100,height=50,resizable=no,scrollbars=no");
+      if (yes==1 || confirm('ce message requière un accusé de reception, voulez-vous en envoyer un ?')) {
+         var hWnd = window.open("","_replyreceipt","width=100,height=50,resizable=no,scrollbars=no");
          hWnd.document.write('Transmitting...');
          hWnd.location.href=url;
 //         hWnd.close();

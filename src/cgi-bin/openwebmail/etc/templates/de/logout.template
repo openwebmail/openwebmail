@@ -4,6 +4,6 @@
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>Abmeldung</B></FONT></TD></TR>
 <tr><td valign="middle" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>Die Abmeldung vom system war erfolgreich, vielen Dank!
+<BR>Die Abmeldung vom System war erfolgreich, vielen Dank!
 <BR><BR>@@@BUTTONS@@@
 </td></tr></table>

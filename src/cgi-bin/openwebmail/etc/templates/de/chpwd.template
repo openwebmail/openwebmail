@@ -30,8 +30,8 @@
    {
       var s;
       s=document.passwordform.newpassword.value;
-      if (s.length < 4) {
-         alert("Kennwort muß mindestens 4 Zeichen lang sein!");
+      if (s.length < @@@PASSWDMINLEN@@@) {
+         alert("Kennwort muß mindestens @@@PASSWDMINLEN@@@ Zeichen lang sein!");
          return false;
       }
       if (document.passwordform.newpassword.value !=

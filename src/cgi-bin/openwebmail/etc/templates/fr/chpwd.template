@@ -30,8 +30,8 @@
    {
       var s;
       s=document.passwordform.newpassword.value;
-      if (s.length < 4) {
-         alert("Le Mot de Passe doit avoir au moins 4 caractères.");
+      if (s.length < @@@PASSWDMINLEN@@@) {
+         alert("Le Mot de Passe doit avoir au moins @@@PASSWDMINLEN@@@ caractères.");
          return false;
       }
       if (document.passwordform.newpassword.value !=

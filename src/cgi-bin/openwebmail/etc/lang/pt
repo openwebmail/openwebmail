@@ -1,4 +1,4 @@
-#!/usr/bin/perl -T
+#!/usr/bin/perl
 
 # Portuguese translation by Jos Ferradeira, jferra.AT.sfconsultores.pt
 # charset: iso-8859-1
@@ -47,9 +47,19 @@
    no  => 'Não'
    );
 
+%lang_positionlabels =
+   (
+   before => 'Before mail edit area',
+   after => 'After mail edit area',
+   both  => 'Before and after mail edit area'
+   );
+
 %lang_timelabels =
    (
+      3 => '3 minutes',
+      5 => '5 minutes',
      10 => '10 minutes',
+     20 => '20 minutes',
      30 => '30 minutes',
      60 => '60 minutes',
     120 => '2 hours',
@@ -75,7 +85,8 @@
    yearview  => 'Yearview',
    monthview => 'Monthview',
    weekview  => 'Weekview',
-   dayview   => 'Dayview'
+   dayview   => 'Dayview',
+   listview   => 'Listview'
    );
 
 %lang_month =
@@ -138,6 +149,7 @@
    messages   => 'mensagens',
    unread     => 'não lidas',
    nomessages => 'N&atilde;o h&aacute; mensagens',
+   inmessages => 'Incoming msgs',
    composenew => 'Enviar mensagem',
    refresh    => 'Actualizar',
    userprefs  => 'Prefer&ecirc;ncias do Utilizador',
@@ -146,6 +158,7 @@
    emptytrash => 'Apagar lixo',
    totrash    => 'Move to Trash',
    forever    => 'Para sempre',
+   delatlogout=> 'Delete at Logout',
    userdef    => 'Defenido pelo Utilizador',
    logout     => 'Sair',
    page       => 'P&aacute;gina',
@@ -183,6 +196,8 @@
    encoding   => 'Codificação',
    description=> 'Descrição',
    download   => 'Abrir',
+   charset    => 'Charset',
+   samecharset=> 'The same as composing charset',
    thisispartialmsg => 'Esta é uma mensagem parcial.',
    msgrebuild => 'Reconstruir mensagem',
    editdraft  => 'Editar rascunho',
@@ -225,6 +240,7 @@
    quota_hit  => 'QUOTA HIT',
    usage      => 'Uso',
    tzmap      => 'World timezone map',
+   testsound  => 'Test sound',
    editfroms  => 'Editar endereços pessoais',
    pop3book   => 'Configurar POP3',
    retr_pop3s => 'Recuperar Correio POP3',
@@ -259,6 +275,10 @@
    checkagain => 'Verificar outra vez',
    finishchecking => 'Terminar a verificação',
    manuallyfix=> 'Corrigir manualmente',
+   editstat   => 'Edit Stationery',
+   savestat   => 'Save Stationery',
+   clearstat  => 'Clear All Stationery',
+   selectstat => '-- Select Stationery for Reply --',
    calendar   => 'Calendar',
    am         => 'am',
    pm         => 'pm',
@@ -287,6 +307,7 @@
    couldnt_lock      => 'N&atilde;o foi poss&iacute;vel gravar, est&aacute;',
    couldnt_seek      => 'N&atilde;o foi poss&iacute;vel procurar no come&ccedil;o de',
    couldnt_close     => 'N&atilde;o foi poss&iacute;vel fechar',
+   couldnt_updatedb  => 'Couldn\'t update index db ',
    disallowed_pop3   => 'Erro no servidor POP3',
    disallowed_client => 'Não tem permissão para se ligar deste cliente ',
    disallowed_receiverdomain => 'Não tem permissão para enviar mensagens para este endereço',
@@ -305,6 +326,7 @@
    abook_toobig      => 'Lamento, excedeu o limite permitido para o livro de endereços.',
    cant_create_dir   => 'N&atilde;o foi poss&iacute;vel criar a diret&oacute;ria do utilizador!',
    folder_hitquota   => 'Lamento, chegou ao limite de espa&ccedil;o da sua pasta, mais nenhum e-mail será guardado. Por favor envie as mensagens antigas para o LIXO e depois apague as mesmas definitivamente.',
+   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
    att_overlimit     => 'Lamento, o tamanho do ficheiro anexado ultrapassou o limite permitido.',
    inv_msg_op        => 'Operação inválida para a mensagem',
    inv_sessid        => 'O pedido não tem o ID correcto -- acesso negado!',
@@ -317,6 +339,8 @@
    auth_syserr       => 'erro de autenticação',
    param_fmterr      => 'erro a formatar parâmetro',
    pwd_incorrect     => 'senha incorrecta',
+   pwd_tooshort      => 'Password too short (minimum length @@@PASSWDMINLEN@@@)',
+   pwd_toosimple     => 'Password too simple (both alphabet and digit are required)',
    network_server_error => 'erro no servidor de rede',
    sendmail_error    => 'Lamento, houve um problema no envio da mensagem.  É favor clicar no botão de retroceder do navegador (browser), verifique a sua mensagem, e tente novamente.',
    at_char_not_allowed => 'The @ character is not allowed in this field.  Press browser back button and try again',

@@ -1,13 +1,15 @@
-# 
+#
 # auth_unix_cobalt.pl - authenticate user with unix password and check
 #                       if user is valid under the HOST specified in the URL
 #
 # Version 1.15 Aug 6, 2002
 #
 # 2002/08/06 Trevor.Paquette@TeraGo.ca
-#            Fix comments 
+#            Fix comments
 # 2002/07/16 Trevor.Paquette@TeraGo.ca (add check for cobalt security)
 # 2001/12/20 tung@turtle.ee.ncku.edu.tw (orig: auth_unix.pl)
+#
+
 #
 # ***** IMPORTANT *****
 #
@@ -35,13 +37,15 @@
 #                              and related uid, gid, homedir, shell info.
 #                              The deault is /etc/passwd on most unix systems.
 # $unix_passwdfile_encrypted : the file containing all usernames and
-#                              their corresponding encrypted passwords. 
-# $unix_passwdmkdb : The command executed after any password modification 
+#                              their corresponding encrypted passwords.
+# $unix_passwdmkdb : The command executed after any password modification
 #                    to update the changes of passwdfile to passwd database.
+# $check_shell : whether to check if the user's shell is listed in /etc/shells. 
 
 my $unix_passwdfile_plaintext="/etc/passwd";
 my $unix_passwdfile_encrypted="/etc/shadow";
 my $unix_passwdmkdb="none";
+my $check_shell=1;
 
 ################### No configuration required from here ###################
 
@@ -68,9 +72,9 @@ sub get_userinfo {
 }
 
 
-sub get_userlist {	# only used by checkmail.pl -a
+sub get_userlist {	# only used by openwebmail-tool.pl -a
    my @userlist=();
-   my $line;   
+   my $line;
 
    # a file should be locked only if it is local accessable
    filelock("$unix_passwdfile_encrypted", LOCK_SH) if ( -f $unix_passwdfile_encrypted);
@@ -107,9 +111,8 @@ sub check_userpassword {
    close (PASSWD);
    filelock("$unix_passwdfile_encrypted", LOCK_UN) if ( -f $unix_passwdfile_encrypted);
 
-   if ($u eq $user && crypt($password,$p) ne $p) {
-       return -4;
-   }
+   return -4 if ($u ne $user || crypt($password,$p) ne $p);
+
 
    ##############################################
    # Cobalt security check
@@ -124,7 +127,7 @@ sub check_userpassword {
    my $cbhomedir="/home/sites/$cbhttphost/users/$user";
    if ( ! -d $cbhomedir ) {
       writelog("auth_cobalt - invalid access, user: $user, site: $cbhttphost");
-      return -4;          
+      return -4;
    }
 
    # ----------------------------------------
@@ -134,13 +137,20 @@ sub check_userpassword {
       writelog("auth_cobalt - /etc/nologin found, all pop logins suspended");
       return -4;
    }
- 
+
    # ----------------------------------------
    # emulate pam_shells.so
    # Make sure that the user has not been 'suspended'
 
+   return 0 if (!$check_shell);
+
    # get the current shell
-   my $shell = (getpwnam($user))[8];
+   my $shell;
+   if ($unix_passwdfile_plaintext eq "/etc/passwd") {
+      $shell = (getpwnam($user))[8];
+   } else {
+      $shell = (getpwnam_file($user, $unix_passwdfile_plaintext))[8];
+   }
 
    # assume an invalid shell until we get a match
    my $validshell = 0;
@@ -165,7 +175,7 @@ sub check_userpassword {
       return 0;
    }
 
-   # the user has been suspended.. return bad password 
+   # the user has been suspended.. return bad password
    writelog("auth_cobalt - user suspended, user: $user, site: $cbhttphost");
    return -4;
 }
@@ -247,7 +257,7 @@ authsys_error:
    return(-3);
 }
 
-# this routie is slower than system getpwnam() but can work with file 
+# this routie is slower than system getpwnam() but can work with file
 # other than /etc/passwd. ps: it always return '*' for passwd field.
 sub getpwnam_file {
    my ($user, $passwdfile_plaintext)=@_;

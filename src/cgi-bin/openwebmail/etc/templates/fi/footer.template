@@ -1,3 +1,7 @@
-<p align="center"><font size="-1"><BR>
-@@@PAGE_FOOTER@@@<BR>
-</FONT></P></BODY></HTML>
+<p align="center">
+<br>
+@@@PAGE_FOOTER@@@ &nbsp;
+<a href="@@@HELP_LINK@@@" target="_help">Help?</a>
+<br>
+</p>
+</BODY></HTML>

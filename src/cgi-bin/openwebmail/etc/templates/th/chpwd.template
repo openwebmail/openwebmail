@@ -30,8 +30,8 @@
    {
       var s;
       s=document.passwordform.newpassword.value;
-      if (s.length < 4) {
-         alert("รหัสผ่านต้องยาวอย่างน้อย 4 ตัวอักษร");
+      if (s.length < @@@PASSWDMINLEN@@@) {
+         alert("รหัสผ่านต้องยาวอย่างน้อย @@@PASSWDMINLEN@@@ ตัวอักษร");
          return false;
       }
       if (document.passwordform.newpassword.value !=
