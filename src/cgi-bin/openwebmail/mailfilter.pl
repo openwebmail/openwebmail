@@ -2,19 +2,17 @@
 # mailfilter.pl - function for mail filter
 #
 # 2001/03/15 Ebola@turtle.ee.ncku.edu.tw
-#
 
 # return: 0=nothing, <0=error, n=filted count
+# there are 4 op for a msg: 'copy', 'move', 'delete' and 'keep'
 sub mailfilter {
-   my ($spoolfile, $headerdb, $folderdir, $r_validfolders, $uid, $gid)=@_;
-
-   ## variables ##
+   my ($spoolfile, $headerdb, $folderdir, $r_validfolders, $user, $uid, $gid)=@_;
    my @filterrules;
    my $spoolhandle=FileHandle->new();
-   my (%HDB, %HDB2);
+   my %HDB;
    my ($blockstart, $blockend, $writepointer);
    my (@allmessageids, $i);
-   my $moved=0;
+   my $removed=0;
    
    ## check existence of spoolfile
    if ( ! -f $spoolfile ) {
@@ -68,41 +66,89 @@ sub mailfilter {
    $blockstart=$blockend=$writepointer=0;
 
    for ($i=0; $i<=$#allmessageids; $i++) {
-      my ($priority, $rules, $include, $text, $destination, $enable);
+      my ($priority, $rules, $include, $text, $op, $destination, $enable);
       my ($messagestart, $messagesize);
       my @attr = split(/@@@/, $HDB{$allmessageids[$i]});
       my ($currmessage, $header, $body, $r_attachments)=("", "", "", "");
-      my $is_message_to_move = 0;
-      my $is_destination_ok = 0;
+      my $matched=0;
       
-      ## if match filterrules => move message ##
-      foreach (sort @filterrules) {
-         ($priority, $rules, $include, $text, $destination, $enable) = split(/\@\@\@/, $_);
-         
-         ## check is currentrule enable ##
-         unless ($enable == 1) {
-            next;
+      ## if match filterrules => do $op (copy, move or delete)
+      foreach my $line (sort @filterrules) {
+         $matched=0;
+
+         ($priority, $rules, $include, $text, $op, $destination, $enable) = split(/\@\@\@/, $line);
+         if ( $enable eq '') {	# compatible with old format
+            ($priority, $rules, $include, $text, $destination, $enable) = split(/\@\@\@/, $line);
+            $op='move';
+         }
+
+         ## check if current rule is enabled ##
+         next unless ($enable == 1);
+         next if ( $op ne 'copy' && $op ne 'move' && $op ne 'delete');
+
+         if ($destination eq 'DELETE') {
+            if ( $op eq 'copy' ) {
+                next;			# copy to DELETE is meaningless
+            } elsif ($op eq 'move') {
+                $op='delete';		# move to DELETE is 'delete'
+            }
+         } elsif ($destination eq 'INBOX') { 
+            $op='keep';		# keep this msg in INBOX and skip all other rules.
+            last;
          }
          
          if ( $rules eq 'from' ) {
             if (   ($include eq 'include' && $attr[$_FROM] =~ /$text/i)
                 || ($include eq 'exclude' && $attr[$_FROM] !~ /$text/i)  ) {
-               $is_message_to_move = 1;
-               last;
+               $matched=1;
+               if ( $op eq 'move' || $op eq 'copy') {
+                  if ($currmessage eq "") {
+                     seek($spoolhandle, $attr[$_OFFSET], 0);
+                     read($spoolhandle, $currmessage, $attr[$_SIZE]);
+                  }
+                  my $append=append_message_to_folder($allmessageids[$i],
+					\@attr, \$currmessage, $destination, 
+					$r_validfolders, $user, $uid, $gid);
+                  last if ($op eq 'move' && $append>=0);
+               } elsif ($op eq 'delete') {
+                  last;
+               }
             }
 
          } elsif ( $rules eq 'to' ) {
             if (   ($include eq 'include' && $attr[$_TO] =~ /$text/i)
                 || ($include eq 'exclude' && $attr[$_TO] !~ /$text/i)  ) {
-               $is_message_to_move = 1;
-               last;
+               $matched=1;
+               if ( $op eq 'move' || $op eq 'copy') {
+                  if ($currmessage eq "") {
+                     seek($spoolhandle, $attr[$_OFFSET], 0);
+                     read($spoolhandle, $currmessage, $attr[$_SIZE]);
+                  }
+                  my $append=append_message_to_folder($allmessageids[$i],
+					\@attr, \$currmessage, $destination, 
+					$r_validfolders, $user, $uid, $gid);
+                  last if ($op eq 'move' && $append>=0);
+               } elsif ($op eq 'delete') {
+                  last;
+               }
             }
 
          } elsif ( $rules eq 'subject' ) {
             if (   ($include eq 'include' && $attr[$_SUBJECT] =~ /$text/i)
                 || ($include eq 'exclude' && $attr[$_SUBJECT] !~ /$text/i)  ) {
-               $is_message_to_move = 1;
-               last;
+               $matched=1;
+               if ( $op eq 'move' || $op eq 'copy') {
+                  if ($currmessage eq "") {
+                     seek($spoolhandle, $attr[$_OFFSET], 0);
+                     read($spoolhandle, $currmessage, $attr[$_SIZE]);
+                  }
+                  my $append=append_message_to_folder($allmessageids[$i],
+					\@attr, \$currmessage, $destination, 
+					$r_validfolders, $user, $uid, $gid);
+                  last if ($op eq 'move' && $append>=0);
+               } elsif ($op eq 'delete') {
+                  last;
+               }
             }
 
          } elsif ( $rules eq 'header' ) {
@@ -117,8 +163,15 @@ sub mailfilter {
             $header=decode_mimewords($header);
             if (  ( $include eq 'include' && $header =~ /$text/im )
                 ||( $include eq 'exclude' && $header !~ /$text/im ) ) {
-               $is_message_to_move = 1;
-               last;
+               $matched=1;
+               if ( $op eq 'move' || $op eq 'copy') {
+                  my $append=append_message_to_folder($allmessageids[$i],
+					\@attr, \$currmessage, $destination, 
+					$r_validfolders, $user, $uid, $gid);
+                  last if ($op eq 'move' && $append>=0);
+               } elsif ($op eq 'delete') {
+                  last;
+               }
             }
 
          } elsif ( $rules eq 'smtprelay' ) {
@@ -143,8 +196,15 @@ sub mailfilter {
             }
             if (  ( $include eq 'include' && $smtprelays =~ /$text/im )
                 ||( $include eq 'exclude' && $smtprelays !~ /$text/im ) ) {
-               $is_message_to_move = 1;
-               last;
+               $matched=1;
+               if ( $op eq 'move' || $op eq 'copy') {
+                  my $append=append_message_to_folder($allmessageids[$i],
+					\@attr, \$currmessage, $destination, 
+					$r_validfolders, $user, $uid, $gid);
+                  last if ($op eq 'move' && $append>=0);
+               } elsif ($op eq 'delete') {
+                  last;
+               }
             }
 
          } elsif ( $rules eq 'body' ) {
@@ -165,9 +225,17 @@ sub mailfilter {
             }
             if (  ( $include eq 'include' && $body =~ /$text/im )
                 ||( $include eq 'exclude' && $body !~ /$text/im ) ) {
-               $is_message_to_move = 1;
-               last;
+               $matched=1;
+               if ( $op eq 'move' || $op eq 'copy') {
+                  my $append=append_message_to_folder($allmessageids[$i],
+					\@attr, \$currmessage, $destination, 
+					$r_validfolders, $user, $uid, $gid);
+                  last if ($op eq 'move' && $append>=0);
+               } elsif ($op eq 'delete') {
+                  last;
+               }
             }
+            next if ($matched);
 
             # check attachments body
             foreach my $r_attachment (@{$r_attachments}) {
@@ -179,13 +247,20 @@ sub mailfilter {
                   }
                   if (  ( $include eq 'include' && ${${$r_attachment}{r_content}} =~ /$text/im )
                       ||( $include eq 'exclude' && ${${$r_attachment}{r_content}} !~ /$text/im )  ) {
-                     $is_message_to_move = 1;
+                     $matched = 1;
                      last;	# leave attachments check in one message
                   }
                }
             }
-            if ( $is_message_to_move == 1 ) {
-               last;
+            if ($matched) {
+               if ( $op eq 'move' || $op eq 'copy') {
+                  my $append=append_message_to_folder($allmessageids[$i],
+					\@attr, \$currmessage, $destination, 
+					$r_validfolders, $user, $uid, $gid);
+                  last if ($op eq 'move' && $append>=0);
+               } elsif ($op eq 'delete') {
+                  last;
+               }
             }
                         
          } elsif ($rules eq 'attfilename') {
@@ -201,46 +276,27 @@ sub mailfilter {
             foreach my $r_attachment (@{$r_attachments}) {
                if (   ( $include eq 'include' && ${$r_attachment}{filename} =~ /$text/i )
                     ||( $include eq 'exclude' && ${$r_attachment}{filename} !~ /$text/i )  ) {
-                  $is_message_to_move = 1;
+                  $matched = 1;
                   last;	# leave attachments check in one message
                }
             }
-            if ( $is_message_to_move == 1 ) {
-               last;
+            if ($matched) {
+               if ( $op eq 'move' || $op eq 'copy') {
+                  my $append=append_message_to_folder($allmessageids[$i],
+					\@attr, \$currmessage, $destination, 
+					$r_validfolders, $user, $uid, $gid);
+                  last if ($op eq 'move' && $append>=0);
+               } elsif ($op eq 'delete') {
+                  last;
+               }
             }
          }
          
       } # end @filterrules
          
-      if ($is_message_to_move) {
-         ## open destination folder, since dest may not exist => open before lock ##
-         ($destination =~ /^(.+)$/) && ($destination = $1);  # untaint $destination
-
-         if(! -f "$folderdir/$destination") {
-            if (open (DEST, ">$folderdir/$destination")) {
-               close (DEST);
-               chmod (0600, "$folderdir/$destination");
-               chown ($uid, $gid, "$folderdir/$destination");
-               push (@{$r_validfolders}, $destination);
-            }
-         }
-         if ( open(DEST, ">>$folderdir/$destination") &&
-              filelock("$folderdir/$destination", LOCK_EX|LOCK_NB)) {
-            $is_destination_ok=1;
-         } else {
-            $is_destination_ok=0;
-         }
-      }
-
-      if ( $is_message_to_move && $is_destination_ok ) {
-
-         update_headerdb("$folderdir/.$destination", "$folderdir/$destination");
-             
-         filelock("$folderdir/.$destination.$dbm_ext", LOCK_EX);
-         dbmopen (%HDB2, "$folderdir/.$destination", 600);
-
-         ## move message ##
-         $moved++;
+      if ( $matched && ($op eq 'move' || $op eq 'delete') ) {
+         ## remove message ##
+         $removed++;
 
          $messagestart=$attr[$_OFFSET];
          $messagesize=$attr[$_SIZE];
@@ -250,38 +306,12 @@ sub mailfilter {
          $writepointer=$writepointer+($blockend-$blockstart);
          $blockstart=$blockend=$messagestart+$messagesize;
 
-         if ($currmessage eq "") {
-            seek($spoolhandle, $attr[$_OFFSET], 0);
-            read($spoolhandle, $currmessage, $attr[$_SIZE]);
-         }
-            
-         $attr[$_OFFSET]=tell(DEST);
-         if ($currmessage =~ /^From /) {
-            $attr[$_SIZE]=length($currmessage);
-            print DEST $currmessage;
-         } else {
-            $attr[$_SIZE]=length("From ")+length($currmessage);
-            print DEST "From ", $currmessage;
-         }
-
-         $HDB2{$allmessageids[$i]}=join('@@@', @attr);
          delete $HDB{$allmessageids[$i]};
-         if ( $attr[$_STATUS]!~/r/i ) {
-            $HDB2{'NEWMESSAGES'}++;
-            $HDB{'NEWMESSAGES'}--;
-         }
-         $HDB2{'ALLMESSAGES'}++;
+         
+         $HDB{'NEWMESSAGES'}-- if ($attr[$_STATUS]!~/r/i);
+         $HDB{'INTERNALMESSAGES'}-- if ($attr[$_SUBJECT]=~/DON'T DELETE THIS MESSAGE/);
          $HDB{'ALLMESSAGES'}--;
          
-         ## close destination file and dbm ##
-         close (DEST);
-            
-         $HDB2{'METAINFO'}=metainfo("$folderdir/$destination");
-         dbmclose(%HDB2);
-         filelock("$folderdir/.$destination.$dbm_ext", LOCK_UN);
-
-         filelock("$folderdir/$destination", LOCK_UN);
-
       } else { # message not to move or destination can not write
          $messagestart=$attr[$_OFFSET];
          $messagesize=$attr[$_SIZE];
@@ -296,7 +326,7 @@ sub mailfilter {
 
    } ## end of allmessages ##
 
-   if ($moved>0) {
+   if ($removed>0) {
       shiftblock($spoolhandle, $blockstart, $blockend-$blockstart, $writepointer-$blockstart);
       seek($spoolhandle, $writepointer+($blockend-$blockstart), 0);
       truncate($spoolhandle, tell($spoolhandle));
@@ -325,7 +355,59 @@ sub mailfilter {
       chown ($uid, $gid, "$folderdir/.filter.check");
    }
 
-   return($moved);
+   return($removed);
+}
+
+
+sub append_message_to_folder {
+   my ($messageid, $r_attr, $r_currmessage, $destination, 
+	$r_validfolders, $user, $uid, $gid)=@_;
+   my %HDB2;
+   my ($dstfile, $dstdb)=get_spoolfile_headerdb($user, $destination);
+   ($dstfile =~ /^(.+)$/) && ($dstfile = $1);  # untaint $dstfile
+   ($dstdb =~ /^(.+)$/) && ($dstdb = $1);  # untaint $dstdb
+
+   if(! -f $dstfile) {
+      if (open (DEST, ">$dstfile")) {
+         close (DEST);
+         chmod (0600, $dstfile);
+         chown ($uid, $gid, $dstfile);
+         push (@{$r_validfolders}, $destination);
+      }
+   }
+   
+   filelock($dstfile, LOCK_EX|LOCK_NB) || return(-2);
+
+   update_headerdb($dstdb, $dstfile);
+             
+   filelock("$dstdb.$dbm_ext", LOCK_EX);
+
+   dbmopen (%HDB2, $dstdb, 600);
+   if (! defined($HDB2{$messageid}) ) {	# append only if not found in dstfile
+      my @attr2=@{$r_attr};
+
+      open(DEST, ">>$dstfile") || return(-1);
+      $attr2[$_OFFSET]=tell(DEST);
+      if (${$r_currmessage} =~ /^From /) {
+         $attr2[$_SIZE]=length(${$r_currmessage});
+         print DEST ${$r_currmessage};
+      } else {
+         $attr2[$_SIZE]=length("From ")+length(${$r_currmessage});
+         print DEST "From ", ${$r_currmessage};
+      }
+      close (DEST);
+
+      $HDB2{$messageid}=join('@@@', @attr2);
+      $HDB2{'NEWMESSAGES'}++ if ($attr2[$_STATUS]!~/r/i);
+      $HDB2{'INTERNALMESSAGES'}++ if ($attr2[$_SUBJECT]=~/DON'T DELETE THIS MESSAGE/);
+      $HDB2{'ALLMESSAGES'}++;
+      $HDB2{'METAINFO'}=metainfo($dstfile);
+   }
+   dbmclose(%HDB2);
+
+   filelock("$dstdb.$dbm_ext", LOCK_UN);
+   filelock($dstfile, LOCK_UN);
+   return(0);
 }
 
 1;

@@ -1,3 +1,28 @@
+04/18/2001
+----------
+1. slightly reduce the memory usage in message move/copy/delete
+
+
+04/17/2001 (version 1.07)
+----------
+1. DELETE folder can be used as destination in mailfilter
+2. support copy operation in mailfilter
+3. better sound reminding method for new messages
+
+
+04/16/2001
+----------
+1. code clean, put common routine into openwebmail-shared.pl
+
+
+04/15/2001
+----------
+1. support copy messages between folders
+2. the indexing (update_headerdb) now deletes the duplicated messages 
+   in same folder
+3. INBOX folder can be used as a destination in message copy/move.
+
+
 04/14/2001 
 ----------
 1. provide folder download in folder management menu

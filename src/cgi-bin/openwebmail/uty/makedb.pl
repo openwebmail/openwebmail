@@ -1,11 +1,12 @@
 #!/usr/local/bin/perl
 use strict;
 no strict 'vars';
-push (@INC, '/usr/local/www/cgi-bin/neomail', ".");
+push (@INC, '/usr/local/www/cgi-bin/openwebmail', ".");
 use Fcntl qw(:DEFAULT :flock);
 
-require "neomail.conf";
-require "demime.pl";
+require "openwebmail.conf";
+require "openwebmail-shared.pl";
+require "mime.pl";
 require "maildb.pl";
 
 if ( $#ARGV ==1 ) {

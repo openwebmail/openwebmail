@@ -16,8 +16,13 @@ $ENV{PATH} = ""; # no PATH should be needed
 
 push (@INC, '/usr/local/www/cgi-bin/openwebmail', ".");
 require "etc/openwebmail.conf";
+require "openwebmail-shared.pl";
 
-my $user = $ARGV[0];
+local $user;
+local ($uid, $gid, $homedir);
+local $folderdir;
+
+$user = $ARGV[0];
 if ($user eq "--") {	# may be called by fingerd?
    $user = $ARGV[1];
 }
@@ -27,22 +32,18 @@ if ($user !~ /^[A-Za-z0-9_]+$/) {
 }
 ($user =~ /^(.+)$/) && ($user = $1);  # untaint $user...
 
-my ($login, $pass, $uid, $gid, $homedir);
 if (($homedirspools eq 'yes') || ($homedirfolders eq 'yes')) {
-   ($login, $pass, $uid, $gid, $homedir) = (getpwnam($user))[0,1,2,3,7];
-   if ($login ne $user) {
+   ($uid, $gid, $homedir) = (getpwnam($user))[2,3,7];
+   if ($uid eq '') {
       print ("no such user\n");
       exit 2;
    }
    $gid = getgrnam('mail');
-   $) = $gid;
-   $> = $uid;
-   umask(0077); # make sure only owner can read/write
 } else {
    $uid=0; $gid=0;
 }
+set_euid_egid_umask($uid, $gid, 0077);
 
-my $folderdir;
 if ( $homedirfolders eq 'yes') {
    $folderdir = "$homedir/$homedirfolderdirname";
 } else {
@@ -54,42 +55,33 @@ if ( ! -d $folderdir ) {
 }
 
 
-my $spoolfile;
-if ($homedirspools eq "yes") {
-   $spoolfile = "$homedir/$homedirspoolname";
-} elsif ($hashedmailspools eq "yes") {
-   $user =~ /^(.)(.)/;
-   my $firstchar = $1;
-   my $secondchar = $2;
-   $spoolfile = "$mailspooldir/$firstchar/$secondchar/$user";
-} else {
-   $spoolfile = "$mailspooldir/$user";
-}
+my ($spoolfile, $headerdb)=get_spoolfile_headerdb($user, 'INBOX');
 if ( ! -f $spoolfile || (stat($spoolfile))[7]==0 ) {
    print ("$user has no mail\n");
    exit 0;
 }
-my $headerdb="$folderdir/.$user";
-
 
 require "mime.pl";
 require "maildb.pl";
 require "mailfilter.pl";
 
 my @folderlist=();
-mailfilter($spoolfile, $headerdb, $folderdir, \@folderlist, $uid, $gid);
+my $removed=mailfilter($spoolfile, $headerdb, 
+			$folderdir, \@folderlist, $user, $uid, $gid);
+writelog("filter $removed msgs from $spoolfile");
 
-my (%HDB, $allmessages, $newmessages);
+my (%HDB, $allmessages, $internalmessages, $newmessages);
 filelock("$headerdb.$dbm_ext", LOCK_SH);
 dbmopen (%HDB, $headerdb, undef);
 $allmessages=$HDB{'ALLMESSAGES'};
+$internalmessages=$HDB{'INTERNALMESSAGES'};
 $newmessages=$HDB{'NEWMESSAGES'};
 dbmclose(%HDB);
 filelock("$headerdb.$dbm_ext", LOCK_UN);
 
 if ($newmessages > 0 ) {
    print ("$user has new mail\n");
-} elsif ($allmessages > 0 ) {
+} elsif ($allmessages-$internalmessages > 0 ) {
    print ("$user has mail\n");
 } else {
    print ("$user has no mail\n");

@@ -64,13 +64,13 @@
             e.checked = document.moveform.allbox.checked;
       }
    }
-   function MoveConfirm()
+   function OpConfirm(text)
    {   
       for (var i=0;i<document.moveform.elements.length;i++)
       {
          var e = document.moveform.elements[i];
          if (e.name != "allbox" && e.checked == 1 ) {
-            return confirm(@@@MOVECONFIRM_TEXT@@@);
+            return confirm(text);
          }
       }
       return false;

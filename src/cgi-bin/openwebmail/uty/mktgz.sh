@@ -1,4 +1,5 @@
 #!/bin/sh
+# this is used by author to create the tarball of openwebmail
 
 rm -f /tmp/openwebmail-current.tgz 2>/dev/null
 

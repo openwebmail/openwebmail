@@ -80,6 +80,12 @@ If you are using other UNIX with apache, that is okay
 
 FILTER SUPPORT
 --------------
+The mailfilter checks if messages in INBOX folder matches the filters rules 
+defined by user. If matches, move/copy the message to the specific folder.
+If you move a message to the DELETE folder, which means delete messages 
+from a folder. If you use INBOX as the destination in a filter rule, 
+the message will be kept in the INBOX folder and skip other rule.
+
 Mail filtering is activated only in Open WebMail. It means messages 
 will stay in the INBOX until user reads their mail with Open WebMail. 
 So 'finger' or other mail status check utility may give you wrong 
@@ -99,7 +105,7 @@ Current support for global addressbook/filterrule is very limited.
 The administrator has to make a copy of addressbook/filterbook to
 the file specified by $global_addressbook/$global_filterbook by himself.
 
-ps: an account may be created for the maintainance of global 
+ps: an account may be created to the maintain the global 
     addressbook/filterbook, for example: 'global'
 
     ln -s your_global_addressbook ~global/mail/.address.book
@@ -135,7 +141,7 @@ TEST
 test your webmail with http://your_server/cgi-bin/openwebmail/openwebmail.pl
 
 
-04/12/2001
+04/17/2001
 
 Ebola@turtle.ee.ncku.edu.tw
 eddie@turtle.ee.ncku.edu.tw

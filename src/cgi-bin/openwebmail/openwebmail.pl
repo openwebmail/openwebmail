@@ -32,17 +32,42 @@ $ENV{PATH} = ""; # no PATH should be needed
 umask(0002); # make sure the openwebmail group can write
 
 require "etc/openwebmail.conf";
+require "openwebmail-shared.pl";
 require "mime.pl";
 require "maildb.pl";
 require "pop3mail.pl";
 require "mailfilter.pl";
 
-my $thissession = param("sessionid") || '';
-my $user = $thissession || '';
+local $thissession;
+local $user;
+local $userip;
+local $setcookie;
+local ($uid, $gid, $homedir);
+local %prefs;
+local %style;
+local $lang;
+local $numberofheaders;
+local $firstmessage;
+local $sort;
+local $keyword;
+local $escapedkeyword;
+local $searchcontent=0;
+local $hitquota;
+local $folderdir;
+local $folder;
+local @validfolders;
+local $printfolder;
+local $escapedfolder;
+local $total_size;
+local $savedattsize;
+local $decodedhtml;
+
+
+$thissession = param("sessionid") || '';
+$user = $thissession || '';
 $user =~ s/\-session\-0.*$//; # Grab userid from sessionid
 ($user =~ /^(.+)$/) && ($user = $1);  # untaint $user...
 
-my $userip;
 if (defined $ENV{'HTTP_X_FORWARDED_FOR'} &&
    $ENV{'HTTP_X_FORWARDED_FOR'} !~ /^10\./ &&
    $ENV{'HTTP_X_FORWARDED_FOR'} !~ /^172\.[1-2][6-9]\./ &&
@@ -53,73 +78,61 @@ if (defined $ENV{'HTTP_X_FORWARDED_FOR'} &&
    $userip=$ENV{REMOTE_ADDR};
 }
 
-my $setcookie = undef;
-
-my ($login, $pass, $uid, $gid, $homedir);
 if ($user) {
    if (($homedirspools eq 'yes') || ($homedirfolders eq 'yes')) {
-      ($login, $pass, $uid, $gid, $homedir) = (getpwnam($user))[0,1,2,3,7] or
+      ($uid, $gid, $homedir) = (getpwnam($user))[2,3,7] or
          openwebmailerror("User $user doesn't exist!");
       $gid = getgrnam('mail');
    }
 }
 
 if ( ($logfile ne 'no') && (! -f $logfile)  ) {
-   my $gid=getgrnam('mail');
    open (LOGFILE,">>$logfile") or openwebmailerror("$lang_err{'couldnt_open'} $logfile!");
    close(LOGFILE);
    chmod(0660, $logfile);
-   chown(0, $gid, $logfile);
+   chown(0, getgrnam('mail'), $logfile);
 }
 
-my %prefs = %{&readprefs};
-my %style = %{&readstyle};
+%prefs = %{&readprefs};
+%style = %{&readstyle};
 
-my $lang = $prefs{'language'} || $defaultlanguage;
+$lang = $prefs{'language'} || $defaultlanguage;
 ($lang =~ /^(..)$/) && ($lang = $1);
 require "etc/lang/$lang";
 $lang_charset ||= 'iso-8859-1';
 
-my $numberofheaders = $prefs{'numberofmessages'} || $numberofheaders;
+$numberofheaders = $prefs{'numberofmessages'} || $numberofheaders;
 
-my $firstmessage;
 if (param("firstmessage")) {
    $firstmessage = param("firstmessage");
 } else {
    $firstmessage = 1;
 }
 
-my $sort;
 if (param("sort")) {
    $sort = param("sort");
 } else {
    $sort = $prefs{"sort"} || 'date';
 }
 
-my $keyword;
-my $escapedkeyword;
 if (param("keyword")) {
    $keyword = param("keyword");
    $escapedkeyword=CGI::escape($keyword);
 } else {
    $keyword = $escapedkeyword = '';
 }
-my $searchcontent=0;
 if (param("searchcontent")) {
    $searchcontent = param("searchcontent");
 }
 
-my $hitquota = 0;
+$hitquota = 0;
 
-my $folderdir;
 if ( $homedirfolders eq 'yes') {
    $folderdir = "$homedir/$homedirfolderdirname";
 } else {
    $folderdir = "$userprefsdir/$user";
 }
 
-my $folder;
-my @validfolders;
 if ($user) {
    my $isvalid = 0;
    @validfolders = @{&getfolders()};
@@ -137,20 +150,17 @@ if ($user) {
    }
 }
 
-my $printfolder = $lang_folders{$folder} || $folder || '';
-my $escapedfolder = CGI::escape($folder);
+$printfolder = $lang_folders{$folder} || $folder || '';
+$escapedfolder = CGI::escape($folder);
 
 $sessiontimeout = $sessiontimeout/60/24; # convert to format expected by -M
 
-# once we print the header, we don't want to do it again if there's an error
-my $headerprinted = 0;
-my $total_size = 0;
-my $savedattsize;
-my $validsession = 0;
+$total_size = 0;
 
 # last html read within a message,
 # used to check if an attachment is linked by this html
-my $decodedhtml="";
+$decodedhtml="";
+
 
 ########################## MAIN ##############################
 if (param()) {      # an action has been chosen
@@ -242,15 +252,8 @@ sub login {
    }
 
    if ( checklogin($passwdfile, $userid, $password) ) {
-#   if ( ( -x "$openwebmaildir/checklogin.pl" ) && 
-#        (eval { open (CHECKLOGIN,"| $openwebmaildir/checklogin.pl");
-#                print CHECKLOGIN "$passwdfile\n";
-#                print CHECKLOGIN "$userid\n";
-#                print CHECKLOGIN "$password\n";
-#                close (CHECKLOGIN);
-#              }
-#        )
-#      ) {
+      my $ugid;
+
       $thissession = $userid . "-session-" . rand(); # name the sessionid
       $user = $userid;
       writelog("login - $thissession");
@@ -264,9 +267,8 @@ sub login {
       close (SESSION);
 
       if (($homedirspools eq 'yes') || ($homedirfolders eq 'yes')) {
-         ($login, $pass, $uid, $gid, $homedir) = (getpwnam($user))[0,1,2,3,7] or
+         ($uid, $ugid, $homedir) = (getpwnam($user))[2,3,7] or
             openwebmailerror("User $user doesn't exist!");
-         $ugid = "$gid";
          $gid = getgrnam('mail');
       }
 
@@ -332,192 +334,18 @@ sub logout {
 }
 ################## END LOGOUT ######################
 
-################## GETFOLDERS ####################
-sub getfolders {
-   my (@folders, @userfolders);
-   my @delfiles=();
-   my $totalfoldersize = 0;
-   my $filename;
-
-   if ( $homedirfolders eq 'yes' ) {
-      @folders = qw(INBOX saved-messages sent-mail saved-drafts mail-trash);
-      $totalfoldersize += ( -s "$folderdir/saved-messages" ) || 0;
-      $totalfoldersize += ( -s "$folderdir/sent-mail" ) || 0;
-      $totalfoldersize += ( -s "$folderdir/saved-drafts" ) || 0;
-      $totalfoldersize += ( -s "$folderdir/mail-trash" ) || 0;
-   } else {
-      @folders = qw(INBOX SAVED SENT DRAFT TRASH);
-      $totalfoldersize += ( -s "$folderdir/SAVED" ) || 0;
-      $totalfoldersize += ( -s "$folderdir/SENT" ) || 0;
-      $totalfoldersize += ( -s "$folderdir/DRAFT" ) || 0;
-      $totalfoldersize += ( -s "$folderdir/TRASH" ) || 0;
-   }
-
-   opendir (FOLDERDIR, "$folderdir") or 
-      openwebmailerror("$lang_err{'couldnt_open'} $folderdir!");
-
-   while (defined($filename = readdir(FOLDERDIR))) {
-
-      ### files started with . are not folders
-      ### they are openwebmail internal files (., .., dbm, search caches)
-      if ( $filename=~/^\./ ) {
-         if ( $filename=~/^\.(.*)\.db$/ ||
-              $filename=~/^\.(.*)\.dir$/ ||
-              $filename=~/^\.(.*)\.pag$/ ||
-              $filename=~/^(.*)\.lock$/ ||
-              ($filename=~/^\.(.*)\.cache$/ && $filename ne ".search.cache") ) {
-            if ( ($1 ne $user) && (! -f "$folderdir/$1") ){
-               # dbm or cache whose folder doesn't exist
-               ($filename =~ /^(.+)$/) && ($filename = $1); # bypass taint check
-               push (@delfiles, "$folderdir/$filename");	
-            }
-         }
-         next;
-      }
-
-      ### find all user folders
-      if ( $homedirfolders eq 'yes' ) {
-         unless ( ($filename eq 'saved-messages') ||
-                  ($filename eq 'sent-mail') ||
-                  ($filename eq 'saved-drafts') ||
-                  ($filename eq 'mail-trash') ||
-                  ($filename eq '.') || ($filename eq '..') ||
-                  ($filename =~ /\.lock$/) 
-                ) {
-            push (@userfolders, $filename);
-            $totalfoldersize += ( -s "$folderdir/$filename" );
-         }
-      } else {
-         if ($filename =~ /^(.+)\.folder$/) {
-            push (@userfolders, $1);
-            $totalfoldersize += ( -s "$folderdir/$filename" );
-         }
-      }
-   }
-
-   closedir (FOLDERDIR) or
-      openwebmailerror("$lang_err{'couldnt_close'} $folderdir!");
-
-   push (@folders, sort(@userfolders));
-
-   if ($#delfiles >= 0) {
-      unlink(@delfiles);
-   }
-
-   if ($folderquota) {
-      ($hitquota = 1) if ($totalfoldersize >= ($folderquota * 1024));
-   }
-
-   return \@folders;
-}
-################ END GETFOLDERS ##################
-
-################ CLEANUPOLDSESSIONS ##################
-sub cleanupoldsessions {
-   my $sessionid;
-   opendir (OPENWEBMAILDIR, "$openwebmaildir") or
-      openwebmailerror("$lang_err{'couldnt_open'} $openwebmaildir!");
-   while (defined($sessionid = readdir(OPENWEBMAILDIR))) {
-      if ($sessionid =~ /^(\w+\-session\-0\.\d*.*)$/) {
-         $sessionid = $1;
-         if ( -M "$openwebmaildir/$sessionid" > $sessiontimeout ) {
-            writelog("session cleanup - $sessionid");
-            unlink "$openwebmaildir/$sessionid";
-         }
-      }
-   }
-   closedir (OPENWEBMAILDIR);
-}
-############## END CLEANUPOLDSESSIONS ################
-
-############## VERIFYSESSION ########################
-sub verifysession {
-   if ($validsession == 1) {
-      return 1;
-   }
-   if ( -M "$openwebmaildir/$thissession" > $sessiontimeout || !(-e "$openwebmaildir/$thissession")) {
-      my $html = '';
-      printheader();
-      open (TIMEOUT, "$openwebmaildir/templates/$lang/sessiontimeout.template") or
-         openwebmailerror("$lang_err{'couldnt_open'} sessiontimeout.template!");
-      while (<TIMEOUT>) {
-         $html .= $_;
-      }
-      close (TIMEOUT);
-
-      $html = applystyle($html);
-
-      print $html;
-
-      printfooter();
-      writelog("timed-out session access attempt - $thissession");
-      exit 0;
-   }
-   if ( -e "$openwebmaildir/$thissession" ) {
-      open (SESSION, "$openwebmaildir/$thissession");
-      my $cookie = <SESSION>;
-      close (SESSION);
-      chomp $cookie;
-      unless ( cookie("sessionid") eq $cookie) {
-         writelog("attempt to hijack session $thissession!");
-         openwebmailerror("$lang_err{'inv_sessid'}");
-      }
-   }
-
-   openwebmailerror("Session ID $lang_err{'has_illegal_chars'}") unless
-      (($thissession =~ /^([\w\.\-]+)$/) && ($thissession = $1));
-   open (SESSION, '>' . $openwebmaildir . $thissession) or
-      openwebmailerror("$lang_err{'couldnt_open'} $thissession!");
-   print SESSION cookie("sessionid");
-   close (SESSION);
-   $validsession = 1;
-   return 1;
-}
-############# END VERIFYSESSION #####################
-
-############### GET_SPOOLFILE_FOLDERDB ################
-# this routine use lots of globals vars, ugly...
-sub get_spoolfile_headerdb_and_set_uid_gid {
-   my ($spoolfile, $headerdb, $username);
-
-   $username=$user;
-   if ($folder eq 'INBOX') {
-      if ($homedirspools eq "yes") {
-         $spoolfile = "$homedir/$homedirspoolname";
-      } elsif ($hashedmailspools eq "yes") {
-         $username =~ /^(.)(.)/;
-         my $firstchar = $1;
-         my $secondchar = $2;
-         $spoolfile = "$mailspooldir/$firstchar/$secondchar/$username";
-      } else {
-         $spoolfile = "$mailspooldir/$username";
-      }
-      $headerdb="$folderdir/.$username";
-   } elsif ( ( $homedirfolders eq 'yes' ) || 
-      ($folder eq 'SAVED') || ($folder eq 'SENT') || 
-      ($folder eq 'DRAFT') || ($folder eq 'TRASH') ) {
-      $spoolfile = "$folderdir/$folder";
-      $headerdb="$folderdir/.$folder";
-   } else {
-      $spoolfile = "$folderdir/$folder.folder";
-      $headerdb= "$folderdir/.$folder.folder";
-   }
-   
-   # chnage egid and euid if data is located in user dir
-   if ( ( ($homedirfolders eq 'yes') || ($homedirspools eq 'yes') ) && ($> == 0) ) {
-      $) = $gid;
-      $> = $uid;
-      umask(0077); # make sure only owner can read/write
-   }
-
-   return($spoolfile, $headerdb);
-}
-
-############### GET_SPOOLFILE_FOLDERDB ################
-
 ################ DISPLAYHEADERS #####################
 sub displayheaders {
    verifysession() unless $setcookie;
+
+   my ($orig_inbox_newmessages, $now_inbox_newmessages);
+   my %HDB;
+   filelock("$folderdir/.$user.$dbm_ext", LOCK_SH);
+   dbmopen (%HDB, "$folderdir/.$user", undef);		# dbm for INBOX
+   $orig_inbox_newmessages=$HDB{'NEWMESSAGES'};		# new msg in INBOX
+   dbmclose(%HDB);
+   filelock("$folderdir/.$user.$dbm_ext", LOCK_UN);
+
    filtermessage();
 
    my ($bgcolor, $status, $message_size);
@@ -607,7 +435,6 @@ sub displayheaders {
                        -override=>'1');
    $html =~ s/\@\@\@STARTFOLDERFORM\@\@\@/$temphtml/;
 
-   my $hasnewmail=0;
    my %folderlabels;
    foreach my $foldername (@validfolders) {
       my ($headerdb, $newmessages, $allmessages);
@@ -625,14 +452,17 @@ sub displayheaders {
       }
       filelock("$headerdb.$dbm_ext", LOCK_SH);
       dbmopen (%HDB, $headerdb, undef);
-      $allmessages=$HDB{'ALLMESSAGES'};
-      $newmessages=$HDB{'NEWMESSAGES'};
+      if ($foldername eq 'INBOX') {	# don't count msg of 'DON'T DELETE THIS MAIL'
+         $allmessages=$HDB{'ALLMESSAGES'}-$HDB{'INTERNALMESSAGES'};
+         $newmessages=$HDB{'NEWMESSAGES'};
+         $now_inbox_newmessages=$newmessages;
+      } else {
+         $allmessages=$HDB{'ALLMESSAGES'};
+         $newmessages=$HDB{'NEWMESSAGES'};
+      }
       dbmclose(%HDB);
       filelock("$headerdb.$dbm_ext", LOCK_UN);
 
-      if ($foldername eq 'INBOX' && $newmessages > 0 ) {
-         $hasnewmail=1;
-      }
       if ( $newmessages ne "" && $allmessages ne "" ) {
          $folderlabels{$foldername}.= " ($newmessages/$allmessages)";
       }
@@ -738,13 +568,12 @@ sub displayheaders {
 
    $html =~ s/\@\@\@PAGECONTROL\@\@\@/$temphtml/g;
 
-   $html =~ s/\@\@\@MOVECONFIRM_TEXT\@\@\@/$lang_text{'moveconfirm'}/;
    $temphtml = start_form(-action=>$scripturl,
-                          -onSubmit=>"return MoveConfirm()",
                           -name=>'moveform');
    my @movefolders;
    foreach my $checkfolder (@validfolders) {
-      unless ( ($checkfolder eq 'INBOX') || ($checkfolder eq $folder) ) {
+#      unless ( ($checkfolder eq 'INBOX') || ($checkfolder eq $folder) )
+      unless ( $checkfolder eq $folder ) {
          push (@movefolders, $checkfolder);
       }
    }
@@ -791,7 +620,10 @@ sub displayheaders {
                              -override=>'1');
    }
 
-   $temphtml .= submit("$lang_text{'move'}");
+   $temphtml .= submit(-name=>"$lang_text{'move'}",
+                       -onClick=>"return OpConfirm($lang_text{'moveconfirm'})");
+   $temphtml .= submit(-name=>"$lang_text{'copy'}",
+                       -onClick=>"return OpConfirm($lang_text{'copyconfirm'})");
 
    $html =~ s/\@\@\@MOVECONTROLS\@\@\@/$temphtml/g;
 
@@ -966,10 +798,16 @@ sub displayheaders {
 
    print $html;
 
-   if (defined(param("refresh")) && $hasnewmail && $sound_url ne "" ) {
-      # only enable sound on Windows platform
-      if ( $ENV{'HTTP_USER_AGENT'} =~ /Win/ ) {
-         print "<embed src=\"$sound_url\" autostart=true hidden=true>";
+   # play sound if 
+   # a. INBOX has new msg and in refresh mode
+   # b. user is viewing other folder and new msg increases in INBOX
+   if ( (defined(param("refresh")) && $now_inbox_newmessages>0) ||
+        ($folder ne 'INBOX' && $now_inbox_newmessages>$orig_inbox_newmessages) ) {
+      if ($sound_url ne "" ) {
+         # only enable sound on Windows platform
+         if ( $ENV{'HTTP_USER_AGENT'} =~ /Win/ ) {
+            print "<embed src=\"$sound_url\" autostart=true hidden=true>";
+         }
       }
    }
 
@@ -1065,7 +903,7 @@ sub readmessage {
          "<a href=\"$base_url&amp;action=composemessage&amp;composetype=replyall\"><IMG SRC=\"$image_url/replyall.gif\" border=\"0\" ALT=\"$lang_text{'replyall'}\"></a> " .
          "<a href=\"$base_url&amp;action=composemessage&amp;composetype=forward\"><IMG SRC=\"$image_url/forward.gif\" border=\"0\" ALT=\"$lang_text{'forward'}\"></a> &nbsp; &nbsp; ";
       }
-      $temphtmp .= "<a href=\"$base_url&amp;action=logout\"><IMG SRC=\"$image_url/logout.gif\" border=\"0\" ALT=\"$lang_text{'logout'}\"></a>";
+      $temphtml .= "<a href=\"$base_url&amp;action=logout\"><IMG SRC=\"$image_url/logout.gif\" border=\"0\" ALT=\"$lang_text{'logout'}\"></a>";
    
       $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
 
@@ -1087,11 +925,11 @@ sub readmessage {
       $html =~ s/\@\@\@MESSAGECONTROL\@\@\@/$temphtml/g;
 
       $temphtml = start_form(-action=>$scripturl,
-                             -onSubmit=>"return confirm($lang_text{'moveconfirm'})",
                              -name=>'moveform');
       my @movefolders;
       foreach my $checkfolder (@validfolders) {
-         unless ( ($checkfolder eq 'INBOX') || ($checkfolder eq $folder) ) {
+#         unless ( ($checkfolder eq 'INBOX') || ($checkfolder eq $folder) ) 
+         unless ($checkfolder eq $folder) {
             push (@movefolders, $checkfolder);
          }
       }
@@ -1148,7 +986,10 @@ sub readmessage {
                                 -default=>$trashfolder,
                                 -override=>'1');
       }
-      $temphtml .= submit("$lang_text{'move'}");
+      $temphtml .= submit(-name=>"$lang_text{'move'}",
+                       -onClick=>"return confirm($lang_text{'moveconfirm'})");
+      $temphtml .= submit(-name=>"$lang_text{'copy'}",
+                       -onClick=>"return confirm($lang_text{'copyconfirm'})");
 
       $html =~ s/\@\@\@MOVECONTROLS\@\@\@/$temphtml/g;
 
@@ -1161,7 +1002,7 @@ sub readmessage {
          $temphtml = "<B>$lang_text{'date'}:</B> $message{date}<BR>\n";
 
          $temphtml .= "<B>$lang_text{'from'}:</B> $from &nbsp;";
-         my ($readname, $email, $escapedemail);
+         my ($realname, $email, $escapedemail);
          if  ( $message{from} =~ /^"?(.+?)"?\s*<(.*)>$/ ) {
             ($realname, $email)=($1, $2);
          } elsif ( $message{from} =~ /<?(.*@.*)>?\s+\((.+?)\)/ ) {
@@ -1965,9 +1806,8 @@ sub sendmessage {
                if ($alreadyexist) {
                   my @a;
                   push (@a, $messageid);
-                  move_message_with_ids(
-			"$folderdir/$savefolder", "$folderdir/.$savefolder", "", "", 
-			\@a);
+                  op_message_with_ids("delete", \@a, 
+			"$folderdir/$savefolder", "$folderdir/.$savefolder");
                }
             }
 
@@ -2143,16 +1983,13 @@ sub sendmessage {
 
 ################ VIEWATTACHMENT ##################
 sub viewattachment {
-   my $spoolfile;
-   my $headerdb;
-   my $spoolhandle=FileHandle->new();
-
    verifysession();
-
    my $messageid = param("message_id");
    my $nodeid = param("attachment_nodeid");
+   my ($spoolfile, $headerdb)=get_spoolfile_headerdb($user, $folder);
+   my $spoolhandle=FileHandle->new();
 
-   ($spoolfile, $headerdb)=get_spoolfile_headerdb_and_set_uid_gid();
+   set_euid_egid_umask($uid, $gid, 0077);
 
    unless(filelock($spoolfile, LOCK_SH|LOCK_NB)) {
       openwebmailerror("$lang_err{'couldnt_locksh'} $spoolfile!");
@@ -2239,14 +2076,13 @@ sub viewattachment {
 
 ################## GETHEADERS #######################
 sub getheaders {
-   my @message = ();
-   my $spoolfile;
-   my $headerdb;
+   my ($spoolfile, $headerdb)=get_spoolfile_headerdb($user, $folder);
    my $spoolhandle=FileHandle->new();
+   my @message = ();
    my @messageids;
    my $messageid;
 
-   ($spoolfile, $headerdb)=get_spoolfile_headerdb_and_set_uid_gid();
+   set_euid_egid_umask($uid, $gid, 0077);
 
    unless ( filelock($spoolfile, LOCK_SH|LOCK_NB) ) {
       openwebmailerror("$lang_err{'couldnt_locksh'} $spoolfile!");
@@ -2305,18 +2141,16 @@ sub getheaders {
 #################### GETMESSAGE ###########################
 sub getmessage {
    my ($messageid, $mode) = @_;
-   my $spoolfile;
-   my $headerdb;
+   my ($spoolfile, $headerdb)=get_spoolfile_headerdb($user, $folder);
    my $spoolhandle=FileHandle->new();
    my @messageids;
-
    my %message = ();
 
    my ($currentheader, $currentbody, $r_currentattachments, $currentfrom, $currentdate,
        $currentsubject, $currentid, $currenttype, $currentto, $currentcc,
        $currentreplyto, $currentencoding, $currentstatus, $currentreceived);
 
-   ($spoolfile, $headerdb)=get_spoolfile_headerdb_and_set_uid_gid();
+   set_euid_egid_umask($uid, $gid, 0077);
 
    unless(filelock($spoolfile, LOCK_SH|LOCK_NB)) {
       openwebmailerror("$lang_err{'couldnt_locksh'} $spoolfile!");
@@ -2456,11 +2290,10 @@ sub getmessage {
 #################### UPDATESTATUS #########################
 sub updatestatus {
    my ($messageid, $status) = @_;
-   my $spoolfile;
-   my $headerdb;
+   my ($spoolfile, $headerdb)=get_spoolfile_headerdb($user, $folder);
    my $spoolhandle=FileHandle->new();
 
-   ($spoolfile, $headerdb)=get_spoolfile_headerdb_and_set_uid_gid();
+   set_euid_egid_umask($uid, $gid, 0077);
 
 # since spool must exists here, we do lock before open
    unless (filelock($spoolfile, LOCK_EX|LOCK_NB)) {
@@ -2621,11 +2454,7 @@ sub updatestatus {
 #################### MOVEMESSAGE ########################
 sub movemessage {
    verifysession();
-   my $destination = param("destination");
-   ($destination =~ /(.+)/) && ($destination = $1);
    my @messageids = param("message_ids");
-   my ($spoolfile, $headerdb);
-
    if ( $#messageids<0 ) {	# no message ids to delete, return immediately
       if (param("messageaftermove")) {
          readmessage();
@@ -2635,51 +2464,69 @@ sub movemessage {
       return;
    }
 
-   openwebmailerror ("$lang_err{'shouldnt_move_here'}") if 
-      (($folder eq $destination) || ($destination eq 'INBOX'));
+   my $destination = param("destination");
+#   if ($destination eq $folder || $destination eq 'INBOX') 
+   if ($destination eq $folder) {
+      openwebmailerror ("$lang_err{'shouldnt_move_here'}") 
+   }
+   ($destination =~ /(.+)/) && ($destination = $1);	# bypass taint check
 
-   unless ( ($destination eq 'SAVED') || ($destination eq 'saved-messages') ||
-            ($destination eq 'SENT') || ($destination eq 'sent-mail') ||
-            ($destination eq 'DRAFT') || ($destination eq 'saved-drafts') ||
-            ($destination eq 'TRASH') || ($destination eq 'mail-trash') ||
-            ($destination eq 'DELETE') ) {
-      $destination .= ".folder" unless ( $homedirfolders eq 'yes' );
-      openwebmailerror("$lang_err{'destination_folder'} $destination $lang_err{'doesnt_exist'}") unless 
-         ( -f "$folderdir/$destination" );
+   my $op;
+   if ( defined(param($lang_text{copy})) ) {	# copy button pressed
+      if ($destination eq 'DELETE') {
+         return(0);	# copy to DELETE is meaningless, so return
+      } else {
+         $op='copy';
+      }
+   } else {					# move button pressed
+      if ($destination eq 'DELETE') {
+         $op='delete';
+      } else {
+         $op='move';
+      }
+   }
+   if ($hitquota && $op ne "delete") {
+      openwebmailerror("$lang_err{'folder_hitquota'}");
    }
 
-   my ($spoolfile, $headerdb)=get_spoolfile_headerdb_and_set_uid_gid();
+   set_euid_egid_umask($uid, $gid, 0077);
+
+   my ($spoolfile, $headerdb)=get_spoolfile_headerdb($user, $folder);
+   my ($dstfile, $dstdb)=get_spoolfile_headerdb($user, $destination);
+   if ($destination ne 'DELETE' && ! -f "$dstfile" ) {
+      openwebmailerror("$lang_err{'destination_folder'} $dstfile $lang_err{'doesnt_exist'}");
+   }
 
    filelock("$spoolfile", LOCK_EX|LOCK_NB) or
       openwebmailerror("$lang_err{'couldnt_lock'} $spoolfile!");
    if ($destination ne 'DELETE') {
-      filelock("$folderdir/$destination", LOCK_EX|LOCK_NB) or
-         openwebmailerror("$lang_err{'couldnt_lock'} $folderdir/$destination!");
+      filelock($dstfile, LOCK_EX|LOCK_NB) or
+         openwebmailerror("$lang_err{'couldnt_lock'} $dstfile!");
    }
 
-   my $moved=0;
-   if ($destination eq 'DELETE') {
-      $moved=move_message_with_ids($spoolfile, $headerdb, "", "", \@messageids);
-   } elsif ($hitquota) { 	# if hitquota and dest is trash, drop directly
-      if ( ($destination eq 'TRASH') || ($destination eq 'mail-trash') ){
-         $moved=move_message_with_ids($spoolfile, $headerdb, "", "", \@messageids);
-      } else {
-         openwebmailerror("$lang_err{'folder_hitquota'}");
-      }
+   my $counted=0;
+   if ($op eq "delete") {
+      $counted=op_message_with_ids($op, \@messageids, $spoolfile, $headerdb);
    } else {
-      $moved=move_message_with_ids($spoolfile, $headerdb, 
-	"$folderdir/$destination", "$folderdir/.$destination", \@messageids);
+      $counted=op_message_with_ids($op, \@messageids, $spoolfile, $headerdb, 
+							$dstfile, $dstdb);
    }
 
-   filelock("$folderdir/$destination", LOCK_UN);
+   filelock($dstfile, LOCK_UN);
    filelock($spoolfile, LOCK_UN);
 
-   if ($moved>0){
-      writelog("moved messages to $destination - ids=".join(", ", @messageids) );
-   } elsif ($moved==-1) {
+   if ($counted>0){
+      if ( $op eq 'move' || $op eq 'copy' ) {
+         writelog("$op msgs from $folder to $destination - ids=".join(", ", @messageids) );
+      } else {
+         writelog("$op msgs from $folder - ids=".join(", ", @messageids) );
+      }
+   } elsif ($counted==-1) {
+      openwebmailerror("$lang_err{'inv_msg_op'}");
+   } elsif ($counted==-2) {
       openwebmailerror("$lang_err{'couldnt_open'} $spoolfile");
-   } elsif ($moved==-2) {
-      openwebmailerror("$lang_err{'couldnt_open'} $folderdir/$destination!");
+   } elsif ($counted==-3) {
+      openwebmailerror("$lang_err{'couldnt_open'} $dstfile!");
    }
     
    if (param("messageaftermove")) {
@@ -2696,9 +2543,11 @@ sub movemessage {
 
 sub downloadfolder {
    verifysession();
-   my ($spoolfile, $headerdb)=get_spoolfile_headerdb_and_set_uid_gid();
+   my ($spoolfile, $headerdb)=get_spoolfile_headerdb($user, $folder);
    my ($cmd, $contenttype, $filename);
    my $buff;
+
+   set_euid_egid_umask($uid, $gid, 0077);
 
    if ( -x '/usr/local/bin/zip' ) {
       $cmd="/usr/local/bin/zip -r - $spoolfile |";
@@ -2737,7 +2586,7 @@ sub downloadfolder {
 
    ($cmd =~ /^(.+)$/) && ($cmd = $1);		# bypass taint check
    open (T, $cmd);
-   while ( read(T, $buff,16384) ) {
+   while ( read(T, $buff,32768) ) {
      print $buff;
    }
    close(T);
@@ -2752,8 +2601,8 @@ sub downloadfolder {
 #################### EMPTYTRASH ########################
 sub emptytrash {
    verifysession();
-
    my ($trashfile, $trashdb);
+
    if ( $homedirfolders eq 'yes' ) {
       $trashfile = "$folderdir/mail-trash";
       $trashdb = "$folderdir/.mail-trash";
@@ -2761,11 +2610,8 @@ sub emptytrash {
       $trashfile = "$folderdir/TRASH";
       $trashdb = "$folderdir/.TRASH";
    }
-   if ( ($homedirfolders eq 'yes') && ($> == 0) ) {
-      $) = $gid;
-      $> = $uid;
-      umask(0077); # make sure only owner can read/write
-   }
+
+   set_euid_egid_umask($uid, $gid, 0077);
 
    open (TRASH, ">$trashfile") or
       openwebmailerror ("$lang_err{'couldnt_open'} $trashfile!");
@@ -2829,6 +2675,24 @@ sub deleteattachments {
 }
 #################### END DELETEATTACHMENTS #########################
 
+################ CLEANUPOLDSESSIONS ##################
+sub cleanupoldsessions {
+   my $sessionid;
+   opendir (OPENWEBMAILDIR, "$openwebmaildir") or
+      openwebmailerror("$lang_err{'couldnt_open'} $openwebmaildir!");
+   while (defined($sessionid = readdir(OPENWEBMAILDIR))) {
+      if ($sessionid =~ /^(\w+\-session\-0\.\d*.*)$/) {
+         $sessionid = $1;
+         if ( -M "$openwebmaildir/$sessionid" > $sessiontimeout ) {
+            writelog("session cleanup - $sessionid");
+            unlink "$openwebmaildir/$sessionid";
+         }
+      }
+   }
+   closedir (OPENWEBMAILDIR);
+}
+############## END CLEANUPOLDSESSIONS ################
+
 ##################### FIRSTTIMEUSER ################################
 sub firsttimeuser {
    my $html = '';
@@ -2868,20 +2732,9 @@ sub firsttimeuser {
 ################## RETRIVE POP3 ###########################
 sub retrpop3 {
    verifysession();
-   my ($spoolfile, $pop3host, $pop3user);
+   my ($spoolfile, $header)=get_spoolfile_headerdb($user, 'INBOX');
+   my ($pop3host, $pop3user);
    my (%account, $response);
-
-   # get $spoolfile from globals
-   if ($homedirspools eq "yes") {
-      $spoolfile = "$homedir/$homedirspoolname";
-   } elsif ($hashedmailspools eq "yes") {
-      $user =~ /^(.)(.)/;
-      my $firstchar = $1;
-      my $secondchar = $2;
-      $spoolfile = "$mailspooldir/$firstchar/$secondchar/$user";
-   } else {
-      $spoolfile = "$mailspooldir/$user";
-   }
 
    # create system spool file /var/mail/xxxx
    if ( ! -f "$spoolfile" ) {
@@ -2931,22 +2784,10 @@ sub retrpop3 {
 ################## RETRIVE ALL POP3 ###########################
 sub retrpop3s {
    verifysession();
+   my ($spoolfile, $header)=get_spoolfile_headerdb($user, 'INBOX');
    my (%account, $response);
-   my $spoolfile;
    my $fetch_complete=0;
    my $i;
-
-   # get $spoolfile from globals
-   if ($homedirspools eq "yes") {
-      $spoolfile = "$homedir/$homedirspoolname";
-   } elsif ($hashedmailspools eq "yes") {
-      $user =~ /^(.)(.)/;
-      my $firstchar = $1;
-      my $secondchar = $2;
-      $spoolfile = "$mailspooldir/$firstchar/$secondchar/$user";
-   } else {
-      $spoolfile = "$mailspooldir/$user";
-   }
 
    # create system spool file /var/mail/xxxx
    if ( ! -f "$spoolfile" ) {
@@ -3000,214 +2841,27 @@ sub retrpop3s {
 
 ################# FILTERMESSAGE ###########################
 sub filtermessage {
-   my ($spoolfile, $headerdb);
-   my $result;
+   my ($spoolfile, $headerdb)=get_spoolfile_headerdb($user, 'INBOX');
 
-   if ($folder ne "INBOX") {
-      return;
-   }
+   set_euid_egid_umask($uid, $gid, 0077);
    
-   ($spoolfile, $headerdb)=get_spoolfile_headerdb_and_set_uid_gid();
-   
-   $result=mailfilter($spoolfile, $headerdb, $folderdir, \@validfolders, $uid, $gid);
+   my $removed=mailfilter($spoolfile, $headerdb, 
+			$folderdir, \@validfolders, $user, $uid, $gid);
+   writelog("filter $removed msgs from $spoolfile");
 
-   if ($result == -1 ) {
+   if ($removed == -1 ) {
       openwebmailerror("$lang_err{'couldnt_open'} .filter.check!");
-   } elsif ($result == -2 ) {
+   } elsif ($removed == -2 ) {
       openwebmailerror("$lang_err{'couldnt_open'} .filter.book!");
-   } elsif ($result == -3 ) {
+   } elsif ($removed == -3 ) {
       openwebmailerror("$lang_err{'couldnt_lock'} $spoolfile!");
-   } elsif ($result == -4 ) {
+   } elsif ($removed == -4 ) {
       openwebmailerror("$lang_err{'couldnt_open'} $spoolfile!;");
-   } elsif ($result == -5 ) {
+   } elsif ($removed == -5 ) {
       openwebmailerror("$lang_err{'couldnt_open'} .filter.check!");
    }
 }
 ################# END FILTERMESSAGE #######################
-
-
-###################### READPREFS #########################
-sub readprefs {
-   my ($key,$value);
-   my %prefshash;
-   if ( -f "$userprefsdir$user/config" ) {
-      open (CONFIG,"$userprefsdir$user/config") or
-         openwebmailerror("$lang_err{'couldnt_open'} config!");
-      while (<CONFIG>) {
-         ($key, $value) = split(/=/, $_);
-         chomp($value);
-         if ($key eq 'style') {
-            $value =~ s/\.//g;  ## In case someone gets a bright idea...
-         }
-         $prefshash{"$key"} = $value;
-      }
-      close (CONFIG) or openwebmailerror("$lang_err{'couldnt_close'} config!");
-   }
-   if ( -f "$userprefsdir$user/signature" ) {
-      $prefshash{"signature"} = '';
-      open (SIGNATURE, "$userprefsdir$user/signature") or
-         openwebmailerror("$lang_err{'couldnt_open'} signature!");
-      while (<SIGNATURE>) {
-         $prefshash{"signature"} .= $_;
-      }
-      close (SIGNATURE) or openwebmailerror("$lang_err{'couldnt_close'} signature!");
-   }
-   return \%prefshash;
-}
-##################### END READPREFS ######################
-
-###################### READSTYLE #########################
-sub readstyle {
-   my ($key,$value);
-   my $stylefile = $prefs{"style"} || 'Default';
-   my %stylehash;
-   unless ( -f "$stylesdir$stylefile") {
-      $stylefile = 'Default';
-   }
-   open (STYLE,"$stylesdir$stylefile") or
-      openwebmailerror("$lang_err{'couldnt_open'} $stylefile!");
-   while (<STYLE>) {
-      if (/###STARTSTYLESHEET###/) {
-         $stylehash{"css"} = '';
-         while (<STYLE>) {
-            $stylehash{"css"} .= $_;
-         }
-      } else {
-         ($key, $value) = split(/=/, $_);
-         chomp($value);
-         $stylehash{"$key"} = $value;
-      }
-   }
-   close (STYLE) or openwebmailerror("$lang_err{'couldnt_close'} $stylefile!");
-   return \%stylehash;
-}
-##################### END READSTYLE ######################
-
-##################### WRITELOG ############################
-sub writelog {
-   unless ( ($logfile eq 'no') || ( -l "$logfile" ) ) {
-      open (LOGFILE,">>$logfile") or openwebmailerror("$lang_err{'couldnt_open'} $logfile!");
-      my $timestamp = localtime();
-      my $logaction = shift;
-      my $loggeduser = $user || 'UNKNOWNUSER';
-      print LOGFILE "$timestamp - [$$] ($userip) $loggeduser - $logaction\n";
-      close (LOGFILE);
-   }
-}
-#################### END WRITELOG #########################
-
-##################### OPENWEBMAILERROR ##########################
-sub openwebmailerror {
-   unless ($headerprinted) {
-      $headerprinted = 1;
-      my $background = $style{"background"};
-      $background =~ s/"//g;
-
-      if ( $CGI::VERSION>=2.57) {
-         print header(-pragma=>'no-cache',
-                      -charset=>$lang_charset);
-      } else {
-         print header(-pragma=>'no-cache');
-      }
-      print start_html(-"title"=>"Open WebMail version $version",
-                       -BGCOLOR=>$background,
-                       -BACKGROUND=>$bg_url);
-      print '<style type="text/css">';
-      print $style{"css"};
-      print '</style>';
-      print "<FONT FACE=",$style{"fontface"},">\n";
-   }
-   print '<BR><BR><BR><BR><BR><BR>';
-   print '<table border="0" align="center" width="40%" cellpadding="1" cellspacing="1">';
-
-   print '<tr><td bgcolor=',$style{"titlebar"},' align="left">',
-   '<font color=',$style{"titlebar_text"},' face=',$style{"fontface"},' size="3"><b>OPENWEBMAIL ERROR</b></font>',
-   '</td></tr><tr><td align="center" bgcolor=',$style{"window_light"},'><BR>';
-   print shift;
-   print '<BR><BR></td></tr></table>';
-   print '<p align="center"><font size="1"><BR>
-          <a href="http://turtle.ee.ncku.edu.tw/openwebmail/">
-          Open WebMail</a> version ', $version,'<BR>
-          </FONT></FONT></P></BODY></HTML>';
-   exit 0;
-}
-################### END OPENWEBMAILERROR #######################
-
-##################### PRINTHEADER #########################
-sub printheader {
-   my $cookie;
-   my @headers=();
-
-   unless ($headerprinted) {
-      if ($setcookie) {
-         $cookie = cookie( -name    => 'sessionid',
-                           -"value" => $setcookie,
-                           -path    => '/' );
-      }
-      my $html = '';
-      $headerprinted = 1;
-      open (HEADER, "$openwebmaildir/templates/$lang/header.template") or
-         openwebmailerror("$lang_err{'couldnt_open'} header.template!");
-      while (<HEADER>) {
-         $html .= $_;
-      }
-      close (HEADER);
-
-      $html = applystyle($html);
-      $html =~ s/\@\@\@BG_URL\@\@\@/$bg_url/g;
-      $html =~ s/\@\@\@CHARSET\@\@\@/$lang_charset/g;
-
-      push(@headers, -pragma=>'no-cache');
-      push(@headers, -cookie=>$cookie) if ($setcookie);
-      push(@headers, -charset=>$lang_charset) if ($CGI::VERSION>=2.57);
-      push(@headers, @_);
-      print header(@headers);
-      print $html;
-   }
-}
-################### END PRINTHEADER #######################
-
-################### PRINTFOOTER ###########################
-sub printfooter {
-   my $html = '';
-   open (FOOTER, "$openwebmaildir/templates/$lang/footer.template") or
-      openwebmailerror("$lang_err{'couldnt_open'} footer.template!");
-   while (<FOOTER>) {
-      $html .= $_;
-   }
-   close (FOOTER);
-   
-   $html = applystyle($html);
-   
-   $html =~ s/\@\@\@VERSION\@\@\@/$version/g;
-   print $html;
-}
-################# END PRINTFOOTER #########################
-
-################# APPLYSTYLE ##############################
-sub applystyle {
-   my $template = shift;
-   $template =~ s/\@\@\@LOGO_URL\@\@\@/$logo_url/g;
-   $template =~ s/\@\@\@BACKGROUND\@\@\@/$style{"background"}/g;
-   $template =~ s/\@\@\@TITLEBAR\@\@\@/$style{"titlebar"}/g;
-   $template =~ s/\@\@\@TITLEBAR_TEXT\@\@\@/$style{"titlebar_text"}/g;
-   $template =~ s/\@\@\@MENUBAR\@\@\@/$style{"menubar"}/g;
-   $template =~ s/\@\@\@WINDOW_DARK\@\@\@/$style{"window_dark"}/g;
-   $template =~ s/\@\@\@WINDOW_LIGHT\@\@\@/$style{"window_light"}/g;
-   $template =~ s/\@\@\@ATTACHMENT_DARK\@\@\@/$style{"attachment_dark"}/g;
-   $template =~ s/\@\@\@ATTACHMENT_LIGHT\@\@\@/$style{"attachment_light"}/g;
-   $template =~ s/\@\@\@COLUMNHEADER\@\@\@/$style{"columnheader"}/g;
-   $template =~ s/\@\@\@TABLEROW_LIGHT\@\@\@/$style{"tablerow_light"}/g;
-   $template =~ s/\@\@\@TABLEROW_DARK\@\@\@/$style{"tablerow_dark"}/g;
-   $template =~ s/\@\@\@FONTFACE\@\@\@/$style{"fontface"}/g;
-   $template =~ s/\@\@\@SCRIPTURL\@\@\@/$scripturl/g;
-   $template =~ s/\@\@\@PREFSURL\@\@\@/$prefsurl/g;
-   $template =~ s/\@\@\@CSS\@\@\@/$style{"css"}/g;
-   $template =~ s/\@\@\@VERSION\@\@\@/$version/g;
-
-   return $template;
-}
-################ END APPLYSTYLE ###########################
 
 ################ CHECKLOGIN ###############################
 

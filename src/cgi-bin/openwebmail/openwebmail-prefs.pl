@@ -32,73 +32,85 @@ $ENV{PATH} = ""; # no PATH should be needed
 umask(0002); # make sure the openwebmail group can write
 
 require "etc/openwebmail.conf";
+require "openwebmail-shared.pl";
 require "pop3mail.pl";
 
-my $thissession = param("sessionid") || '';
-my $user = $thissession || '';
+
+local $thissession;
+local $user;
+local ($uid, $gid, $homedir);
+local %prefs;
+local %style;
+local $lang;
+local $firstmessage;
+local $sort;
+local $hitquota;
+local $folderdir;
+local $folder;
+local $printfolder;
+local $escapedfolder;
+local $messageid;
+local $escapedmessageid;
+local $firsttimeuser;
+
+
+$thissession = param("sessionid") || '';
+$user = $thissession || '';
 $user =~ s/\-session\-0.*$//; # Grab userid from sessionid
 ($user =~ /^(.+)$/) && ($user = $1);  # untaint $user...
 
-my ($login, $pass, $uid, $gid, $homedir);
 if ($user) {
    if (($homedirspools eq 'yes') || ($homedirfolders eq 'yes')) {
-      ($login, $pass, $uid, $gid, $homedir) = (getpwnam($user))[0,1,2,3,7] or
+      ($uid, $gid, $homedir) = (getpwnam($user))[2,3,7] or
          openwebmailerror("User $user doesn't exist!");
       $gid = getgrnam('mail');
    }
 }
 
-my %prefs = %{&readprefs};
-my %style = %{&readstyle};
+%prefs = %{&readprefs};
+%style = %{&readstyle};
 
-my $lang = $prefs{'language'} || $defaultlanguage;
+$lang = $prefs{'language'} || $defaultlanguage;
 ($lang =~ /^(..)$/) && ($lang = $1);
 require "etc/lang/$lang";
 $lang_charset ||= 'iso-8859-1';
 
-my $firstmessage;
 if (param("firstmessage")) {
    $firstmessage = param("firstmessage");
 } else {
    $firstmessage = 1;
 }
 
-my $sort;
 if (param("sort")) {
    $sort = param("sort");
 } else {
    $sort = 'date';
 }
 
-my $folderdir;
+$hitquota=0;
+
 if ( $homedirfolders eq 'yes') {
    $folderdir = "$homedir/$homedirfolderdirname";
 } else {
    $folderdir = "$userprefsdir/$user";
 }
 
-my $folder;
 if (param("folder")) {
    $folder = param("folder");
 } else {
    $folder = "INBOX";
 }
-my $printfolder = $lang_folders{$folder} || $folder;
-my $escapedfolder = CGI::escape($folder);
+$printfolder = $lang_folders{$folder} || $folder;
+$escapedfolder = CGI::escape($folder);
 
-my $messageid;
 if (param("message_id")) {
    $messageid=param("message_id");
 }
-my $escapedmessageid=CGI::escape($messageid);
+$escapedmessageid=CGI::escape($messageid);
 
-my $firsttimeuser = param("firsttimeuser") || ''; # Don't allow cancel if 'yes'
+$firsttimeuser = param("firsttimeuser") || ''; # Don't allow cancel if 'yes'
 
 $sessiontimeout = $sessiontimeout/60/24; # convert to format expected by -M
-
-# once we print the header, we don't want to do it again if there's an error
-my $headerprinted = 0;
-my $validsession = 0;
 
 ########################## MAIN ##############################
 if (defined(param("action"))) {      # an action has been chosen
@@ -398,7 +410,7 @@ sub editfolders {
    my $currfolder;
    foreach $currfolder (sort (@folders)) {
 
-      my ($newmessages, $allmessages);
+      my (%HDB, $newmessages, $allmessages, $foldersize);
 
       my $headerdb="$folderdir/.$currfolder";
 
@@ -409,11 +421,20 @@ sub editfolders {
       dbmclose(%HDB);
 #      filelock("$headerdb.$dbm_ext", LOCK_UN);
 
+      $foldersize = (-s "$folderdir/$currfolder");
+      # round foldersize and change to an appropriate unit for display
+      if ($foldersize > 1048575){
+         $foldersize = int(($foldersize/1048576)+0.5) . "MB";
+      } elsif ($foldersize > 1023) {
+         $foldersize =  int(($foldersize/1024)+0.5) . "KB";
+      }
+
       my $escapedcurrfolder = CGI::escape($currfolder);
       my $url = "$scripturl?sessionid=$thissession&amp;folder=$escapedcurrfolder&amp;action=downloadfolder";
       $temphtml .= "<tr><td align=\"center\" bgcolor=$bgcolor><a href=\"$url\">$currfolder</a></td>".
                    "<td align=\"center\" bgcolor=$bgcolor>$newmessages</td>".
-                   "<td align=\"center\" bgcolor=$bgcolor>$allmessages</td>";
+                   "<td align=\"center\" bgcolor=$bgcolor>$allmessages</td>".
+                   "<td align=\"center\" bgcolor=$bgcolor>$foldersize</td>";
 
       $temphtml .= start_form(-action=>$prefsurl,
                               -onSubmit=>"return confirm($lang_text{'folderconf'}+' ( $currfolder )')");
@@ -464,26 +485,31 @@ sub addfolder {
       openwebmailerror("$lang_err{'foldername_long'}");
    }
    ($foldertoadd =~ /^(.+)$/) && ($foldertoadd = $1);
-   unless ($homedirfolders eq 'yes') {
-      $foldertoadd .= '.folder';
-   }
 
    if ($foldertoadd eq "$user") {
       openwebmailerror("$lang_err{'cant_create_folder'}");
    }
-   if ( -f "$folderdir/$foldertoadd" ) {
+   if ($foldertoadd eq 'INBOX' ||
+       $foldertoadd eq 'SAVED' || $foldertoadd eq 'saved-messages' ||
+       $foldertoadd eq 'SENT' ||  $foldertoadd eq 'sent-mail' ||
+       $foldertoadd eq 'DRAFT' || $foldertoadd eq 'saved-drafts' ||
+       $foldertoadd eq 'TRASH' || $foldertoadd eq 'trash-mail' ) {
+      openwebmailerror("$lang_err{'cant_create_folder'}");
+   }
+
+   my ($spoolfile, $headerdb)=get_spoolfile_headerdb($user, $foldertoadd);
+   if ( -f $spoolfile ) {
       openwebmailerror ("$lang_err{'folder_with_name'} $foldertoadd $lang_err{'already_exists'}");
    }
 
-   if ( ($homedirfolders eq 'yes') && ($> == 0) ) {
-      $) = $gid;
-      $> = $uid;
-      umask(0077); # make sure only owner can read/write
-   }
-   open (FOLDERTOADD, ">$folderdir/$foldertoadd") or
-      openwebmailerror("$lang_err{'cant_create_folder'}");
+   set_euid_egid_umask($uid, $gid, 0077);
+
+   open (FOLDERTOADD, ">$spoolfile") or
+      openwebmailerror("$lang_err{'cant_create_folder'} $foldertoadd!");
    close (FOLDERTOADD) or openwebmailerror("$lang_err{'couldnt_close'} $foldertoadd!");
-   print "Location: $prefsurl?action=editfolders&sessionid=$thissession&sort=$sort&folder=$escapedfolder&firstmessage=$firstmessage\n\n";
+
+#   print "Location: $prefsurl?action=editfolders&sessionid=$thissession&sort=$sort&folder=$escapedfolder&firstmessage=$firstmessage\n\n";
+   editfolders();
 }
 ################### END ADDFOLDER ##########################
 
@@ -504,7 +530,9 @@ sub deletefolder {
               "$folderdir/.$foldertodel.pag",
               "$folderdir/.$foldertodel.cache");              
    }
-   print "Location: $prefsurl?action=editfolders&sessionid=$thissession&sort=$sort&folder=$escapedfolder&firstmessage=$firstmessage\n\n";
+
+#   print "Location: $prefsurl?action=editfolders&sessionid=$thissession&sort=$sort&folder=$escapedfolder&firstmessage=$firstmessage\n\n";
+   editfolders();
 }
 ################### END DELETEFOLDER ##########################
 
@@ -607,7 +635,8 @@ sub importabook {
       truncate(ABOOK, tell(ABOOK));
       close (ABOOK) or openwebmailerror("$lang_err{'couldnt_close'} .address.book!");
 
-      print "Location: $prefsurl?action=editaddresses&sessionid=$thissession&sort=$sort&folder=$escapedfolder&firstmessage=$firstmessage&message_id=$escapedmessageid\n\n";
+#      print "Location: $prefsurl?action=editaddresses&sessionid=$thissession&sort=$sort&folder=$escapedfolder&firstmessage=$firstmessage&message_id=$escapedmessageid\n\n";
+      editaddresses();
 
    } else {
 
@@ -923,7 +952,8 @@ sub modaddress {
       }
    }
 
-   print "Location: $prefsurl?action=editaddresses&sessionid=$thissession&sort=$sort&folder=$escapedfolder&firstmessage=$firstmessage&amp;message_id=$escapedmessageid\n\n";
+#   print "Location: $prefsurl?action=editaddresses&sessionid=$thissession&sort=$sort&folder=$escapedfolder&firstmessage=$firstmessage&amp;message_id=$escapedmessageid\n\n";
+   editaddresses();
 }
 ################## END MODADDRESS ###########################
 
@@ -1158,7 +1188,8 @@ sub modpop3 {
       }
    }
 
-   print "Location: $prefsurl?action=editpop3&sessionid=$thissession&sort=$sort&folder=$escapedfolder&firstmessage=$firstmessage&amp;message_id=$escapedmessageid\n\n";
+#   print "Location: $prefsurl?action=editpop3&sessionid=$thissession&sort=$sort&folder=$escapedfolder&firstmessage=$firstmessage&amp;message_id=$escapedmessageid\n\n";
+   editpop3();
 }
 ################## END MODPOP3 ###########################
 
@@ -1261,8 +1292,17 @@ sub editfilter {
                          -override=>'1');
    $html =~ s/\@\@\@TEXTFIELD\@\@\@/$temphtml/;
 
+   ## replace @@@OPMENU@@@ ##
+   my %labels = ('move'=>$lang_text{'move'},
+                 'copy'=>$lang_text{'copy'});
+   $temphtml = popup_menu(-name=>'op',
+                          -values=>['move', 'copy'],
+                          -labels=>\%labels);
+   $html =~ s/\@\@\@OPMENU\@\@\@/$temphtml/;
+
    ## replace @@@FOLDERMENU@@@ ##
    @validfolders = @{&getfolders()};
+   push(@validfolders, 'DELETE');
    foreach (@validfolders) {
       if ( defined($lang_folders{$_}) ) {
           $labels{$_} = $lang_folders{$_};
@@ -1270,8 +1310,15 @@ sub editfilter {
          $labels{$_} = $_; 
       }
    }
+   my $trashfolder;
+   if ( $homedirfolders eq 'yes' ) {
+      $trashfolder='mail-trash';
+   } else {
+      $trashfolder='TRASH';
+   }
    $temphtml = popup_menu(-name=>'destination',
                           -values=>[@validfolders],
+                          -default=>$trashfolder,
                           -labels=>\%labels);
    $html =~ s/\@\@\@FOLDERMENU\@\@\@/$temphtml/;
    
@@ -1309,23 +1356,32 @@ sub editfilter {
 
    $temphtml = '';
    my $bgcolor = $style{"tablerow_dark"};
-   foreach (@filterrules) {
-      my ($priority, $rules, $include, $text, $destination, $enable) = split(/\@\@\@/, $_);
+   foreach my $line (@filterrules) {
+      my ($priority, $rules, $include, $text, $op, $destination, $enable) = split(/\@\@\@/, $line);
+      if ( $enable eq '') {	# compatible with old format
+         ($priority, $rules, $include, $text, $destination, $enable) = split(/\@\@\@/, $line);
+         $op='move';
+      }
             
-      $temphtml .= "<tr>
-               <td bgcolor=$bgcolor align=center>$priority</td>
-               <td bgcolor=$bgcolor align=center>$lang_text{$rules}</td>
-               <td bgcolor=$bgcolor align=center>$lang_text{$include}</td>
-               <td bgcolor=$bgcolor align=center><a href=\"Javascript:Update('$priority','$rules','$include','$text','$destination','$enable')\">$text</a></td>";
-      if (defined($lang_folders{$destination})) {
-         $temphtml .= "<td bgcolor=$bgcolor align=center>$lang_folders{$destination}</td>";
+      $temphtml .= "<tr>\n".
+                   "<td bgcolor=$bgcolor align=center>$priority</td>\n".
+                   "<td bgcolor=$bgcolor align=center>$lang_text{$rules}</td>\n".
+                   "<td bgcolor=$bgcolor align=center>$lang_text{$include}</td>\n".
+                   "<td bgcolor=$bgcolor align=center><a href=\"Javascript:Update('$priority','$rules','$include','$text','$op','$destination','$enable')\">$text</a></td>\n";
+      if ($destination eq 'INBOX') {
+         $temphtml .= "<td bgcolor=$bgcolor align=center>-----</td>\n";
       } else {
-         $temphtml .= "<td bgcolor=$bgcolor align=center>$destination</td>";
+         $temphtml .= "<td bgcolor=$bgcolor align=center>$lang_text{$op}</td>\n";
+      }
+      if (defined($lang_folders{$destination})) {
+         $temphtml .= "<td bgcolor=$bgcolor align=center>$lang_folders{$destination}</td>\n";
+      } else {
+         $temphtml .= "<td bgcolor=$bgcolor align=center>$destination</td>\n";
       }
       if ($enable == 1) {
-         $temphtml .= "<td bgcolor=$bgcolor align=center>$lang_text{'enable'}</td>";
+         $temphtml .= "<td bgcolor=$bgcolor align=center>$lang_text{'enable'}</td>\n";
       } else {
-         $temphtml .= "<td bgcolor=$bgcolor align=center>$lang_text{'disable'}</td>";
+         $temphtml .= "<td bgcolor=$bgcolor align=center>$lang_text{'disable'}</td>\n";
       }
       $temphtml .= start_form(-action=>$prefsurl);
       $temphtml .= "<td bgcolor=$bgcolor align=center>";
@@ -1371,26 +1427,31 @@ sub editfilter {
    }
 
    if ($#globalfilterrules >= 0) {
-      $temphtml .= "<tr><td colspan=\"7\">&nbsp;</td></tr>\n";
-      $temphtml .= "<tr><td colspan=\"7\" bgcolor=$style{columnheader}><B>$lang_text{globalfilterrule}</B> ($lang_text{readonly})</td></tr>\n";
+      $temphtml .= "<tr><td colspan=\"8\">&nbsp;</td></tr>\n";
+      $temphtml .= "<tr><td colspan=\"8\" bgcolor=$style{columnheader}><B>$lang_text{globalfilterrule}</B> ($lang_text{readonly})</td></tr>\n";
    }
-   foreach (@globalfilterrules) {
-      my ($priority, $rules, $include, $text, $destination, $enable) = split(/\@\@\@/, $_);
+   foreach $line (@globalfilterrules) {
+      my ($priority, $rules, $include, $text, $op, $destination, $enable) = split(/\@\@\@/, $line);
+      if ( $enable eq '') {	# compatible with old format
+         ($priority, $rules, $include, $text, $destination, $enable) = split(/\@\@\@/, $line);
+         $op='move';
+      }
             
-      $temphtml .= "<tr>
-               <td bgcolor=$bgcolor align=center>$priority</td>
-               <td bgcolor=$bgcolor align=center>$lang_text{$rules}</td>
-               <td bgcolor=$bgcolor align=center>$lang_text{$include}</td>
-               <td bgcolor=$bgcolor align=center><a href=\"Javascript:Update('$priority','$rules','$include','$text','$destination','$enable')\">$text</a></td>";
+      $temphtml .= "<tr>\n".
+                   "<td bgcolor=$bgcolor align=center>$priority</td>\n".
+                   "<td bgcolor=$bgcolor align=center>$lang_text{$rules}</td>\n".
+                   "<td bgcolor=$bgcolor align=center>$lang_text{$include}</td>\n".
+                   "<td bgcolor=$bgcolor align=center><a href=\"Javascript:Update('$priority','$rules','$include','$text','$op','$destination','$enable')\">$text</a></td>\n".
+                   "<td bgcolor=$bgcolor align=center>$lang_text{$op}</td>\n";
       if (defined($lang_folders{$destination})) {
-         $temphtml .= "<td bgcolor=$bgcolor align=center>$lang_folders{$destination}</td>";
+         $temphtml .= "<td bgcolor=$bgcolor align=center>$lang_folders{$destination}</td>\n";
       } else {
-         $temphtml .= "<td bgcolor=$bgcolor align=center>$destination</td>";
+         $temphtml .= "<td bgcolor=$bgcolor align=center>$destination</td>\n";
       }
       if ($enable == 1) {
-         $temphtml .= "<td bgcolor=$bgcolor align=center>$lang_text{'enable'}</td>";
+         $temphtml .= "<td bgcolor=$bgcolor align=center>$lang_text{'enable'}</td>\n";
       } else {
-         $temphtml .= "<td bgcolor=$bgcolor align=center>$lang_text{'disable'}</td>";
+         $temphtml .= "<td bgcolor=$bgcolor align=center>$lang_text{'disable'}</td>\n";
       }
       $temphtml .= "<td bgcolor=$bgcolor align=center>";
       $temphtml .= "-----";
@@ -1418,7 +1479,7 @@ sub modfilter {
     
    ## get parameters ##
    my $mode = shift;
-   my ($priority, $rules, $include, $text, $destination, $enable);
+   my ($priority, $rules, $include, $text, $op, $destination, $enable);
    $priority = param("priority") || '';
    $rules = param("rules") || '';
    $include = param("include") || '';
@@ -1426,12 +1487,14 @@ sub modfilter {
    $text =~ s/^[\s\@]+//;
    $text =~ s/[\@\s]+$//;
    $text =~ s/\@\@\@//g;
+   $op = param("op") || 'move';
    $destination = param("destination") || '';
    $enable = param("enable") || 0;
    
    ## add mode -> can't have null $rules, null $text, null $destination ##
    ## delete mode -> can't have null $filter ##
-   if(($rules && $include && $text && $destination && $priority) || (($mode eq 'delete') && ($rules && $include && $text && $destination))) {
+   if( ($rules && $include && $text && $destination && $priority) || 
+       (($mode eq 'delete') && ($rules && $include && $text && $destination)) ) {
       my %filterrules;
       if ( -f "$folderdir/.filter.book" ) {
          open (FILTER,"+<$folderdir/.filter.book") or
@@ -1440,15 +1503,19 @@ sub modfilter {
             openwebmailerror("$lang_err{'couldnt_lock'} .filter.book!");
          }
          while(<FILTER>) {
-            my ($epriority,$erules,$einclude,$etext,$edestination,$eenable);
-            chomp($_);
-            ($epriority,$erules,$einclude,$etext,$edestination,$eenable) = split(/\@\@\@/, $_);
-            $filterrules{"$erules\@\@\@$einclude\@\@\@$etext\@\@\@$edestination"}="$epriority\@\@\@$erules\@\@\@$einclude\@\@\@$etext\@\@\@$edestination\@\@\@$eenable";
+            my ($epriority,$erules,$einclude,$etext,$eop,$edestination,$eenable);
+            my $line=$_; chomp($line);
+            ($epriority,$erules,$einclude,$etext,$eop,$edestination,$eenable) = split(/\@\@\@/, $line);
+            if ($eenable eq '') {	# compatible with old format
+               ($epriority,$erules,$einclude,$etext,$edestination,$eenable) = split(/\@\@\@/, $line);
+               $eop='move';
+            }
+            $filterrules{"$erules\@\@\@$einclude\@\@\@$etext\@\@\@$edestination"}="$epriority\@\@\@$erules\@\@\@$einclude\@\@\@$etext\@\@\@$eop\@\@\@$edestination\@\@\@$eenable";
          }
          if ($mode eq 'delete') {
             delete $filterrules{"$rules\@\@\@$include\@\@\@$text\@\@\@$destination"};
          } else {
-            $filterrules{"$rules\@\@\@$include\@\@\@$text\@\@\@$destination"}="$priority\@\@\@$rules\@\@\@$include\@\@\@$text\@\@\@$destination\@\@\@$enable";
+            $filterrules{"$rules\@\@\@$include\@\@\@$text\@\@\@$destination"}="$priority\@\@\@$rules\@\@\@$include\@\@\@$text\@\@\@$op\@\@\@$destination\@\@\@$enable";
          }
          seek (FILTER, 0, 0) or
             openwebmailerror("$lang_err{'couldnt_seek'} .filter.book!");
@@ -1461,7 +1528,7 @@ sub modfilter {
       } else {
          open (FILTER, ">$folderdir/.filter.book" ) or
                   openwebmailerror("$lang_err{'couldnt_open'} .filter.book!");
-         print FILTER "$priority\@\@\@$rules\@\@\@$include\@\@\@$text\@\@\@$destination\@\@\@$enable\n";
+         print FILTER "$priority\@\@\@$rules\@\@\@$include\@\@\@$text\@\@\@$op\@\@\@$destination\@\@\@$enable\n";
          close (FILTER) or openwebmailerror("$lang_err{'couldnt_close'} .filter.book!");
          chmod (0600, "$folderdir/.filter.book");
          chown ($uid, $gid, "$folderdir/.filter.book");
@@ -1470,67 +1537,10 @@ sub modfilter {
       ## remove .filter.check ##
       unlink("$folderdir/.filter.check");
    }
-   print "Location: $prefsurl?action=editfilter&sessionid=$thissession&sort=$sort&folder=$escapedfolder&firstmessage=$firstmessage&amp;message_id=$escapedmessageid\n\n";
+#   print "Location: $prefsurl?action=editfilter&sessionid=$thissession&sort=$sort&folder=$escapedfolder&firstmessage=$firstmessage&amp;message_id=$escapedmessageid\n\n";
+    editfilter();
 }
 ################## END MODFILTER ###########################
-
-
-###################### READPREFS #########################
-sub readprefs {
-   my ($key,$value);
-   my %prefshash;
-   if ( -f "$userprefsdir$user/config" ) {
-      open (CONFIG,"$userprefsdir$user/config") or
-         openwebmailerror("$lang_err{'couldnt_open'} config!");
-      while (<CONFIG>) {
-         ($key, $value) = split(/=/, $_);
-         chomp($value);
-         if ($key eq 'style') {
-            $value =~ s/\.//g;  ## In case someone gets a bright idea...
-         }
-         $prefshash{"$key"} = $value;
-      }
-      close (CONFIG) or openwebmailerror("$lang_err{'couldnt_close'} config!");
-   }
-   if ( -f "$userprefsdir$user/signature" ) {
-      $prefshash{"signature"} = '';
-      open (SIGNATURE, "$userprefsdir$user/signature") or
-         openwebmailerror("$lang_err{'couldnt_open'} signature!");
-      while (<SIGNATURE>) {
-         $prefshash{"signature"} .= $_;
-      }
-      close (SIGNATURE) or openwebmailerror("$lang_err{'couldnt_close'} signature!");
-   }
-   return \%prefshash;
-}
-##################### END READPREFS ######################
-
-###################### READSTYLE #########################
-sub readstyle {
-   my ($key,$value);
-   my $stylefile = $prefs{"style"} || 'Default';
-   my %stylehash;
-   unless ( -f "$stylesdir$stylefile") {
-      $stylefile = 'Default';
-   }
-   open (STYLE,"$stylesdir$stylefile") or
-      openwebmailerror("$lang_err{'couldnt_open'} $stylefile!");
-   while (<STYLE>) {
-      if (/###STARTSTYLESHEET###/) {
-         $stylehash{"css"} = '';
-         while (<STYLE>) {
-            $stylehash{"css"} .= $_;
-         }
-      } else {
-         ($key, $value) = split(/=/, $_);
-         chomp($value);
-         $stylehash{"$key"} = $value;
-      }
-   }
-   close (STYLE) or openwebmailerror("$lang_err{'couldnt_close'} $stylefile!");
-   return \%stylehash;
-}
-##################### END READSTYLE ######################
 
 ###################### SAVEPREFS #########################
 sub saveprefs {
@@ -1720,230 +1730,3 @@ sub addressbook {
    print end_html();
 }
 ################## END ADDRESSBOOK #####################
-
-############## VERIFYSESSION ########################
-sub verifysession {
-   if ($validsession == 1) {
-      return 1;
-   }
-   if ( -M "$openwebmaildir/$thissession" > $sessiontimeout || !(-e "$openwebmaildir/$thissession")) {
-      my $html = '';
-      printheader();
-      open (TIMEOUT, "$openwebmaildir/templates/$lang/sessiontimeout.template") or
-         openwebmailerror("$lang_err{'couldnt_open'} sessiontimeout.template!");
-      while (<TIMEOUT>) {
-         $html .= $_;
-      }
-      close (TIMEOUT);
-
-      $html = applystyle($html);
-
-      print $html;
-
-      printfooter();
-      writelog("timed-out session access attempt - $thissession");
-      exit 0;
-   }
-   if ( -e "$openwebmaildir/$thissession" ) {
-      open (SESSION, "$openwebmaildir/$thissession");
-      my $cookie = <SESSION>;
-      close (SESSION);
-      chomp $cookie;
-      unless ( cookie("sessionid") eq $cookie) {
-         writelog("attempt to hijack session $thissession!");
-         openwebmailerror("$lang_err{'inv_sessid'}");
-      }
-   }
-
-   openwebmailerror("Session ID $lang_err{'has_illegal_chars'}") unless
-      (($thissession =~ /^([\w\.\-]+)$/) && ($thissession = $1));
-   open (SESSION, '>' . "$openwebmaildir/$thissession" ) or
-      openwebmailerror("$lang_err{'couldnt_open'} $thissession!");
-   print SESSION cookie("sessionid");
-   close (SESSION);
-   $validsession = 1;
-   return 1;
-}
-############# END VERIFYSESSION #####################
-
-##################### WRITELOG ############################
-sub writelog {
-   unless ( ($logfile eq 'no') || ( -l "$logfile" ) ) {
-      open (LOGFILE,">>$logfile") or openwebmailerror("$lang_err{'couldnt_open'} $logfile!");
-      my $timestamp = localtime();
-      my $logaction = shift;
-      my $loggeduser = $user || 'UNKNOWNUSER';
-      print LOGFILE "$timestamp - [$$] ($ENV{REMOTE_ADDR}) $loggeduser - $logaction\n";
-      close (LOGFILE);
-   }
-}
-#################### END WRITELOG #########################
-
-##################### OPENWEBMAILERROR ##########################
-sub openwebmailerror {
-   unless ($headerprinted) {
-      $headerprinted = 1;
-      my $background = $style{"background"};
-      $background =~ s/"//g;
-      if ( $CGI::VERSION>=2.57) {
-         print header(-pragma=>'no-cache',
-                      -charset=>$lang_charset);
-      } else {
-         print header(-pragma=>'no-cache');
-      }
-      print start_html(-"title"=>"Open WebMail version $version",
-                       -BGCOLOR=>$background,
-                       -BACKGROUND=>$bg_url);
-      print '<style type="text/css">';
-      print $style{"css"};
-      print '</style>';
-      print "<FONT FACE=",$style{"fontface"},">\n";
-   }
-   print '<BR><BR><BR><BR><BR><BR>';
-   print '<table border="0" align="center" width="40%" cellpadding="1" cellspacing="1">';
-
-   print '<tr><td bgcolor=',$style{"titlebar"},' align="left">',
-   '<font color=',$style{"titlebar_text"},' face=',$style{"fontface"},' size="3"><b>OPENWEBMAIL ERROR</b></font>',
-   '</td></tr><tr><td align="center" bgcolor=',$style{"window_light"},'><BR>';
-   print shift;
-   print '<BR><BR></td></tr></table>';
-   print '<p align="center"><font size="1"><BR>
-          <a href="http://turtle.ee.ncku.edu.tw/openwebmail/">
-          Open WebMail</a> version ', $version,'<BR>
-          </FONT></FONT></P></BODY></HTML>';
-   exit 0;
-}
-################### END OPENWEBMAILERROR #######################
-
-##################### PRINTHEADER #########################
-sub printheader {
-   unless ($headerprinted) {
-      my $html = '';
-      $headerprinted = 1;
-      open (HEADER, "$openwebmaildir/templates/$lang/header.template") or
-         openwebmailerror("$lang_err{'couldnt_open'} header.template!");
-      while (<HEADER>) {
-         $html .= $_;
-      }
-      close (HEADER);
-
-      $html = applystyle($html);
-
-      $html =~ s/\@\@\@BG_URL\@\@\@/$bg_url/g;
-
-      $html =~ s/\@\@\@CHARSET\@\@\@/$lang_charset/g;
-
-      if ( $CGI::VERSION>=2.57) {
-         print header(-pragma=>'no-cache',
-                      -charset=>$lang_charset);
-      } else {
-         print header(-pragma=>'no-cache');
-      }
-      print $html;
-   }
-}
-################### END PRINTHEADER #######################
-
-################### PRINTFOOTER ###########################
-sub printfooter {
-   my $html = '';
-   open (FOOTER, "$openwebmaildir/templates/$lang/footer.template") or
-      openwebmailerror("$lang_err{'couldnt_open'} footer.template!");
-   while (<FOOTER>) {
-      $html .= $_;
-   }
-   close (FOOTER);
-
-   $html = applystyle($html);
-
-   $html =~ s/\@\@\@VERSION\@\@\@/$version/g;
-   print $html;
-}
-################# END PRINTFOOTER #########################
-
-################# APPLYSTYLE ##############################
-sub applystyle {
-   my $template = shift;
-   $template =~ s/\@\@\@LOGO_URL\@\@\@/$logo_url/g;
-   $template =~ s/\@\@\@BACKGROUND\@\@\@/$style{"background"}/g;
-   $template =~ s/\@\@\@TITLEBAR\@\@\@/$style{"titlebar"}/g;
-   $template =~ s/\@\@\@TITLEBAR_TEXT\@\@\@/$style{"titlebar_text"}/g;
-   $template =~ s/\@\@\@MENUBAR\@\@\@/$style{"menubar"}/g;
-   $template =~ s/\@\@\@WINDOW_DARK\@\@\@/$style{"window_dark"}/g;
-   $template =~ s/\@\@\@WINDOW_LIGHT\@\@\@/$style{"window_light"}/g;
-   $template =~ s/\@\@\@ATTACHMENT_DARK\@\@\@/$style{"attachment_dark"}/g;
-   $template =~ s/\@\@\@ATTACHMENT_LIGHT\@\@\@/$style{"attachment_light"}/g;
-   $template =~ s/\@\@\@COLUMNHEADER\@\@\@/$style{"columnheader"}/g;
-   $template =~ s/\@\@\@TABLEROW_LIGHT\@\@\@/$style{"tablerow_light"}/g;
-   $template =~ s/\@\@\@TABLEROW_DARK\@\@\@/$style{"tablerow_dark"}/g;
-   $template =~ s/\@\@\@FONTFACE\@\@\@/$style{"fontface"}/g;
-   $template =~ s/\@\@\@SCRIPTURL\@\@\@/$scripturl/g;
-   $template =~ s/\@\@\@PREFSURL\@\@\@/$prefsurl/g;
-   $template =~ s/\@\@\@CSS\@\@\@/$style{"css"}/g;
-   $template =~ s/\@\@\@VERSION\@\@\@/$version/g;
-
-   return $template;
-}
-################ END APPLYSTYLE ###########################
-
-################## GETFOLDERS ####################
-sub getfolders {
-   my (@folders, @userfolders);
-   my @delfiles=();
-   my $filename;
-
-   if ( $homedirfolders eq 'yes' ) {
-      @folders = ('saved-messages', 'sent-mail', 'saved-drafts', 'mail-trash');
-   } else {
-      @folders = ('SAVED', 'SENT', 'DRAFT', 'TRASH');
-   }
-
-   opendir (FOLDERDIR, "$folderdir") or 
-      openwebmailerror("$lang_err{'couldnt_open'} $folderdir!");
-
-   while (defined($filename = readdir(FOLDERDIR))) {
-
-      ### files started with . are not folders
-      ### they are openwebmail internal files (., .., dbm, search caches)
-      if ( $filename=~/^\./ ) {
-         if ( $filename=~/^\.(.*)\.$dbm_ext$/ ||
-              ($filename=~/^\.(.*)\.cache$/ && $filename ne ".search.cache") ) {
-            if ( ($1 ne $user) && (! -f "$folderdir/$1") ){
-               # dbm or cache whose folder doesn't exist
-               ($filename =~ /^(.+)$/) && ($filename = $1); # bypass taint check
-               push (@delfiles, "$folderdir/$filename");	
-            }
-         }
-         next;
-      }
-
-      ### find all user folders
-      if ( $homedirfolders eq 'yes' ) {
-         unless ( ($filename eq 'saved-messages') ||
-                  ($filename eq 'sent-mail') ||
-                  ($filename eq 'saved-drafts') ||
-                  ($filename eq 'mail-trash') ||
-                  ($filename eq '.') || ($filename eq '..')
-                ) {
-            push (@userfolders, $filename);
-         }
-      } else {
-         if ($filename =~ /^(.+)\.folder$/) {
-            push (@userfolders, $1);
-         }
-      }
-   }
-
-   closedir (FOLDERDIR) or
-      openwebmailerror("$lang_err{'couldnt_close'} $folderdir!");
-
-   push (@folders, sort(@userfolders));
-
-   if ($#delfiles >= 0) {
-      unlink(@delfiles);
-   }
-
-   return \@folders;
-}
-################ END GETFOLDERS ##################
-

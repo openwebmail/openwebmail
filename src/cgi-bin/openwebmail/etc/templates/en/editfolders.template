@@ -1,23 +1,27 @@
-<table border="0" align="center" width="50%" cellpadding="0" cellspacing="0">
-<tr><td colspan="4" bgcolor=@@@TITLEBAR@@@ align="left">
+<table border="0" align="center" width="55%" cellpadding="0" cellspacing="0">
+<tr><td colspan="5" bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <b>EDIT FOLDERS</b></font>
 </td></tr>
-<tr><td colspan="4" bgcolor=@@@MENUBAR@@@ align="left">
+<tr><td colspan="5" bgcolor=@@@MENUBAR@@@ align="left">
 @@@MENUBARLINKS@@@
-</td></tr><tr><td colspan="4">&nbsp;</td></tr>
+</td></tr><tr><td colspan="5">&nbsp;</td></tr>
 <tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Folder Name (16 characters)</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>New</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Total</B></td>
+<B>Mesg</B></td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>Size</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Action</B>
 </td></tr>
 @@@STARTFOLDERFORM@@@
 <tr><td align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
 @@@FOLDERNAMEFIELD@@@
+</td><td align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
+&nbsp;
 </td><td align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
 &nbsp;
 </td><td align="center" bgcolor=@@@TABLEROW_LIGHT@@@>

@@ -1,16 +1,16 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
-<tr><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="left">
+<tr><td colspan="3" bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <b>編輯郵件規則</b></font>
 </td><td nowrap colspan="5" bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <b>尚有 @@@FREESPACE@@@ KB 空間</b></font>
-</td></tr><tr><td colspan="7" bgcolor=@@@MENUBAR@@@ align="left">
+</td></tr><tr><td colspan="8" bgcolor=@@@MENUBAR@@@ align="left">
 @@@MENUBARLINKS@@@
-</td></tr><tr><td colspan="7">&nbsp;</td></tr>
+</td></tr><tr><td colspan="8">&nbsp;</td></tr>
 <tr>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>優先順序</B></td>
+<B>順序</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>過濾條件</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
@@ -18,7 +18,9 @@
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>文字</B> (按一下修改)</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>移至信匣</B></td>
+<B>動作</B></td>
+<td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>目的信匣</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>啟動</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
@@ -39,6 +41,9 @@
 @@@TEXTFIELD@@@
 </td>
 <td nowrap bgcolor=@@@TABLEROW_LIGHT@@@ align=center>
+@@@OPMENU@@@
+</td>
+<td nowrap bgcolor=@@@TABLEROW_LIGHT@@@ align=center>
 @@@FOLDERMENU@@@
 </td>
 <td nowrap bgcolor=@@@TABLEROW_LIGHT@@@ align=center>
@@ -54,11 +59,10 @@
 </table>
 <script language="JavaScript">
 <!--
-   function Update(priority,rules,include,text,destination,enable)
+   function Update(priority,rules,include,text,op,destination,enable)
    {
       var i
 
-      document.newfilter.text.value = text;
       for (i=0; i<document.newfilter.priority.length; i++) {
          if (document.newfilter.priority.options[i].value==priority) {
             document.newfilter.priority.options[i].selected=true;
@@ -81,6 +85,13 @@
       }
 
       document.newfilter.text.value = text;
+
+      for (i=0; i<document.newfilter.op.length; i++) {
+         if (document.newfilter.op.options[i].value==op) {
+            document.newfilter.op.options[i].selected=true;
+            break;
+         }
+      }
 
       for (i=0; i<document.newfilter.destination.length; i++) {
          if (document.newfilter.destination.options[i].value==destination) {

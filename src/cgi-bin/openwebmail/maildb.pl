@@ -138,23 +138,27 @@ if ( $dbm_ext eq "" ) {
 
 ######################### UPDATE_HEADERDB ############################
 
+# this routine indexes the messages in a mailfolder
+# and remove those with duplicated messageids
 sub update_headerdb {
    my ($headerdb, $spoolfile) = @_;
    my (%HDB, @datearray);
 
    if ( -e "$headerdb.$dbm_ext" ) {
-      my ($metainfo, $allmessages, $newmessages);
+      my ($metainfo, $allmessages, $internalmessages, $newmessages);
 
       filelock("$headerdb.$dbm_ext", LOCK_SH);
       dbmopen (%HDB, $headerdb, undef);
       $metainfo=$HDB{'METAINFO'};
       $allmessages=$HDB{'ALLMESSAGES'};
+      $internalmessages=$HDB{'INTERNALMESSAGES'};
       $newmessages=$HDB{'NEWMESSAGES'};
       dbmclose(%HDB);
       filelock("$headerdb.$dbm_ext", LOCK_UN);
 
       if ( $metainfo ne metainfo($spoolfile) 
         || $allmessages eq "" 
+        || $internalmessages eq "" 
         || $newmessages eq "" ) {
          ($headerdb =~ /^(.+)$/) && ($headerdb = $1);		# bypass taint check
          unlink ("$headerdb.db", "$headerdb.dir","$headerdb.pag");
@@ -169,17 +173,19 @@ sub update_headerdb {
       my $messagenumber = -1;
       my $newmessages = 0;
       my $internalmessages = 0;
-      my $lastline;
-      my $line;
+
       my $inheader = 1;
       my $offset=0;
       my $total_size=0;
 
+      my @duplicateids=();
+
+      my ($line, $lastline);
       my ($_message_id, $_offset);
       my ($_from, $_to, $_date, $_subject);
       my ($_content_type, $_status, $_messagesize);
 
-      %HDB=();	# ensure the header is empty
+      %HDB=();	# ensure the headerdb is empty
 
       while (defined($line = <SPOOL>)) {
 
@@ -217,8 +223,15 @@ sub update_headerdb {
                   $_to=substr($_to, 0, 252)."...";
                }
 
-               $HDB{$_message_id}=join('@@@', $_offset, $_from, $_to, 
+               if (! defined($HDB{$_message_id}) ) {
+                  $HDB{$_message_id}=join('@@@', $_offset, $_from, $_to, 
 			$_date, $_subject, $_content_type, $_status, $_messagesize);
+               } else {
+                  my $dup=$#duplicateids+1;
+                  $HDB{"dup$dup-$_message_id"}=join('@@@', $_offset, $_from, $_to, 
+			$_date, $_subject, $_content_type, $_status, $_messagesize);
+                  push(@duplicateids, "dup$dup-$_message_id");
+               }
             }
 
             $messagenumber++;
@@ -300,16 +313,29 @@ sub update_headerdb {
             $_to=substr($_to, 0, 252)."...";
          }
 
-         $HDB{$_message_id}=join('@@@', $_offset, $_from, $_to, 
+         if (! defined($HDB{$_message_id}) ) {
+            $HDB{$_message_id}=join('@@@', $_offset, $_from, $_to, 
 		$_date, $_subject, $_content_type, $_status, $_messagesize);
+         } else {
+            my $dup=$#duplicateids+1;
+            $HDB{"dup$dup-$_message_id"}=join('@@@', $_offset, $_from, $_to, 
+		$_date, $_subject, $_content_type, $_status, $_messagesize);
+            push(@duplicateids, "dup$dup-$_message_id");
+         }
       }
 
       $HDB{'METAINFO'}=metainfo($spoolfile);
-      $HDB{'ALLMESSAGES'}=$messagenumber+1-$internalmessages;
+      $HDB{'ALLMESSAGES'}=$messagenumber+1;
+      $HDB{'INTERNALMESSAGES'}=$internalmessages;
       $HDB{'NEWMESSAGES'}=$newmessages;
       filelock("$headerdb.$dbm_ext", LOCK_UN);
       dbmclose(%HDB);
       close (SPOOL);
+
+      # remove if any duplicates
+      if ($#duplicateids>=0) {
+         op_message_with_ids("delete", \@duplicateids, $spoolfile, $headerdb);
+      }
    }
 }
 
@@ -340,6 +366,7 @@ sub get_messageids_sorted_by_offset {
    while ( ($key, $data)=each(%HDB) ) {
       next if ( $key eq 'METAINFO' 
              || $key eq 'NEWMESSAGES' 
+             || $key eq 'INTERNALMESSAGES' 
              || $key eq 'ALLMESSAGES' 
              || $key eq "" );
 
@@ -443,6 +470,7 @@ sub get_messageids_sorted_by_date {
    while ( ($key, $data)=each(%HDB) ) {
       next if ( $key eq 'METAINFO' 
              || $key eq 'NEWMESSAGES' 
+             || $key eq 'INTERNALMESSAGES' 
              || $key eq 'ALLMESSAGES' 
              || $key eq "" );
 
@@ -466,6 +494,7 @@ sub get_messageids_sorted_by_from {
    while ( ($key, $data)=each(%HDB) ) {
       next if ( $key eq 'METAINFO' 
              || $key eq 'NEWMESSAGES' 
+             || $key eq 'INTERNALMESSAGES' 
              || $key eq 'ALLMESSAGES' 
              || $key eq "" );
 
@@ -492,6 +521,7 @@ sub get_messageids_sorted_by_subject {
    while ( ($key, $data)=each(%HDB) ) {
       next if ( $key eq 'METAINFO' 
              || $key eq 'NEWMESSAGES' 
+             || $key eq 'INTERNALMESSAGES' 
              || $key eq 'ALLMESSAGES' 
              || $key eq "" );
 
@@ -518,6 +548,7 @@ sub get_messageids_sorted_by_size {
    while ( ($key, $data)=each(%HDB) ) {
       next if ( $key eq 'METAINFO' 
              || $key eq 'NEWMESSAGES' 
+             || $key eq 'INTERNALMESSAGES' 
              || $key eq 'ALLMESSAGES' 
              || $key eq "" );
 
@@ -544,6 +575,7 @@ sub get_messageids_sorted_by_status {
    while ( ($key, $data)=each(%HDB) ) {
       next if ( $key eq 'METAINFO' 
              || $key eq 'NEWMESSAGES' 
+             || $key eq 'INTERNALMESSAGES' 
              || $key eq 'ALLMESSAGES' 
              || $key eq "" );
 
@@ -602,39 +634,39 @@ sub get_message_block {
 
 ###################### MOVE_MESSAGE_WITH_IDS #########################
 
-# move messages with @messageids from srcfolder to dstfolder
-# fi dstfolder eq "", then remove messages from src folder
-sub move_message_with_ids {
-   my ($srcfolder, $srcdb, $dstfolder, $dstdb, $r_messageids)=@_;
+# operate messages with @messageids from srcfolder to dstfolder
+# available $op: "move", "copy", "delete"
+sub op_message_with_ids {
+   my ($op, $r_messageids, $srcfolder, $srcdb, $dstfolder, $dstdb)=@_;
    my $spoolhandle=FileHandle->new();
    my (%HDB, %HDB2);
    my $messageids = join("\n", @{$r_messageids});
 
-   if ($srcfolder eq $dstfolder || $#{$r_messageids}<0) {
-      return(0);
-   }
+   # $lang_err{'inv_msg_op'}
+   return(-1) if ($op ne "move" && $op ne "copy" && $op ne "delete"); 
+   return(0) if ($srcfolder eq $dstfolder || $#{$r_messageids} < 0);
 
    # open source folder, since spool must exist => lock before open
    update_headerdb($srcdb, $srcfolder);
    open ($spoolhandle, "+<$srcfolder") or 
-      return(-1);	# $lang_err{'couldnt_open'} $srcfolder!
+      return(-2);	# $lang_err{'couldnt_open'} $srcfolder!
 
-   if ($dstfolder ne "") {
+   if ($op eq "move" || $op eq "copy") {
       # open destination folder, since dest may not exist => open before lock
       open (DEST, ">>$dstfolder") or
-         return(-2);	# $lang_err{'couldnt_open'} $destination!
+         return(-3);	# $lang_err{'couldnt_open'} $destination!
       update_headerdb("$dstdb", $dstfolder);
    }
 
    my @allmessageids=get_messageids_sorted_by_offset($srcdb);
    my ($blockstart, $blockend, $writepointer);
-   my ($currmessage, $messagestart, $messagesize, @attr);
-   my $moved=0;
+   my ($messagestart, $messagesize, @attr);
+   my $counted=0;
    
    filelock("$srcdb.$dbm_ext", LOCK_EX);
    dbmopen (%HDB, $srcdb, 600);
 
-   if ($dstfolder ne "") {
+   if ($op eq "move" || $op eq "copy") {
       filelock("$dstdb.$dbm_ext", LOCK_EX);
       dbmopen (%HDB2, "$dstdb", 600);
    }
@@ -643,65 +675,88 @@ sub move_message_with_ids {
 
    for (my $i=0; $i<=$#allmessageids; $i++) {
       @attr=split(/@@@/, $HDB{$allmessageids[$i]});
+      $messagestart=$attr[$_OFFSET];
+      $messagesize=$attr[$_SIZE];
 
       if ($messageids =~ /^\Q$allmessageids[$i]\E$/m) {	# msg to be moved
-         $moved++;
+         $counted++;
 
-         $messagestart=$attr[$_OFFSET];
-         $messagesize=$attr[$_SIZE];
+         if ($op eq 'move' || $op eq 'delete') {
+            shiftblock($spoolhandle, $blockstart, $blockend-$blockstart, $writepointer-$blockstart);
+            $writepointer=$writepointer+($blockend-$blockstart);
+            $blockstart=$blockend=$messagestart+$messagesize;
+         } else {
+            $blockend=$messagestart+$messagesize;
+         }
 
-         shiftblock($spoolhandle, $blockstart, $blockend-$blockstart, $writepointer-$blockstart);
 
-         $writepointer=$writepointer+($blockend-$blockstart);
-         $blockstart=$blockend=$messagestart+$messagesize;
+         # only append msg to dst folder only if 
+         # op=move/copy and msg doesn't exist in dstfolder
+         if (($op eq "move" || $op eq "copy") && 
+             !defined($HDB2{$allmessageids[$i]}) ) {
+            my ($left, $buff);
 
-         seek($spoolhandle, $attr[$_OFFSET], 0);
-         read($spoolhandle, $currmessage, $attr[$_SIZE]);
+            seek($spoolhandle, $attr[$_OFFSET], 0);
 
-         # messages will be DROPED directly 
-         # if detfolder eq "" or already exist in dstfolder
-         if ( $dstfolder ne "" && !defined($HDB2{$allmessageids[$i]}) ) { 
             $attr[$_OFFSET]=tell(DEST);
-            if ($currmessage =~ /^From /) {
-               $attr[$_SIZE]=length($currmessage);
-               print DEST $currmessage;
-            } else {
-               $attr[$_SIZE]=length("From ")+length($currmessage);
-               print DEST "From ", $currmessage;
+
+            # copy message from $spoolhandle to DEST and append "From " if needed
+            $left=$attr[$_SIZE];
+            while ($left>0) {
+               if ($left>=32768) {
+                   read($spoolhandle, $buff, 32768);
+                   # append 'From ' if 1st buff is not started with 'From '
+                   if ($left==$attr[$_SIZE]  && $buff!~/^From /) {
+                      print DEST "From ";
+                      $attr[$_SIZE]+=length("From ");
+                   }
+                   print DEST $buff;
+                   $left=$left-32768;
+               } else {
+                   read($spoolhandle, $buff, $left);
+                   # append 'From ' if 1st buff is not started with 'From '
+                   if ($left==$attr[$_SIZE]  && $buff!~/^From /) {
+                      print DEST "From ";
+                      $attr[$_SIZE]+=length("From ");
+                   }
+                   print DEST $buff;
+                   $left=0;
+               }
             }
-            if ( $attr[$_STATUS]!~/r/i ) {
-               $HDB2{'NEWMESSAGES'}++;
-            }
+
+            $HDB2{'NEWMESSAGES'}++ if ($attr[$_STATUS]!~/r/i);
+            $HDB2{'INTERNALMESSAGES'}++ if ($attr[$_SUBJECT]=~/DON'T DELETE THIS MESSAGE/);
             $HDB2{'ALLMESSAGES'}++;
             $HDB2{$allmessageids[$i]}=join('@@@', @attr);
          } 
          
-         if ( $attr[$_STATUS]!~/r/i ) {
-            $HDB{'NEWMESSAGES'}--;
+         if ($op eq 'move' || $op eq 'delete') {
+            $HDB{'NEWMESSAGES'}-- if ($attr[$_STATUS]!~/r/i);
+            $HDB{'INTERNALMESSAGES'}-- if ($attr[$_SUBJECT]=~/DON'T DELETE THIS MESSAGE/);
+            $HDB{'ALLMESSAGES'}--;
+            delete $HDB{$allmessageids[$i]};
          }
-         $HDB{'ALLMESSAGES'}--;
-         delete $HDB{$allmessageids[$i]};
 
       } else {						# msg to be kept in same folder
-         $messagestart=$attr[$_OFFSET];
-         $messagesize=$attr[$_SIZE];
          $blockend=$messagestart+$messagesize;
 
-         my $movement=$writepointer-$blockstart;
-         if ($movement<0) {
-            $attr[$_OFFSET]+=$movement;
-            $HDB{$allmessageids[$i]}=join('@@@', @attr);
+         if ($op eq 'move' || $op eq 'delete') {
+            my $movement=$writepointer-$blockstart;
+            if ($movement<0) {
+               $attr[$_OFFSET]+=$movement;
+               $HDB{$allmessageids[$i]}=join('@@@', @attr);
+            }
          }
       }
    }
 
-   if ($moved>0) {
+   if ( ($counted>0) && ($op eq 'move' || $op eq 'delete') ) {
       shiftblock($spoolhandle, $blockstart, $blockend-$blockstart, $writepointer-$blockstart);
       seek($spoolhandle, $writepointer+($blockend-$blockstart), 0);
       truncate($spoolhandle, tell($spoolhandle));
    }
 
-   if ($dstfolder ne "") { 
+   if ($op eq "move" || $op eq "copy") { 
       close (DEST);
       $HDB2{'METAINFO'}=metainfo($dstfolder);
       dbmclose(%HDB2);
@@ -713,7 +768,7 @@ sub move_message_with_ids {
    dbmclose(%HDB);
    filelock("$srcdb.$dbm_ext", LOCK_UN);
 
-   return($moved);
+   return($counted);
 }
 #################### END MOVE_MESSAGE_WITH_IDS #######################
 
@@ -1641,11 +1696,48 @@ sub _unlock {
 
 #################### END LOCKFILE ####################
 
+#################### COPYBLOCK ####################
+
+sub copyblock {
+   my ($srchandle, $srcstart, $dsthandle, $dststart, $size)=@_;
+   my ($srcoffset, $dstoffset);
+   my ($left, $buff);
+
+   return if ($size == 0 );
+
+   $srcoffset=tell($srchandle);
+   $dstoffset=tell($dsthandle);
+
+   seek($srchandle, $srcstart, 0);
+   seek($dsthandle, $dststart, 0);
+
+   $left=$size;
+   while ($left>0) {
+      if ($left>=32768) {
+          read($srchandle, $buff, 32768);
+          print $dsthandle $buff;
+          $left=$left-32768;
+      } else {
+          read($srchandle, $buff, $left);
+          print $dsthandle $buff;
+          $left=0;
+      }
+   }
+
+   seek($srchandle, $srcoffset, 0);
+   seek($dsthandle, $dstoffset, 0);
+   return;
+}
+
+################## END COPYBLOCK ##################
+
 #################### SHIFTBLOCK ####################
 
 sub shiftblock {
    my ($fh, $start, $size, $movement)=@_;
    my ($oldoffset, $movestart, $left, $buff);
+
+   return if ($movement == 0 );
 
    $oldoffset=tell($fh);
    $left=$size;
@@ -1668,7 +1760,7 @@ sub shiftblock {
          }
       }
 
-   } else {	# $movement <0
+   } elsif ( $movement <0 ) {
       while ($left>0) {
          if ($left>=32768) {
              $movestart=$start+$size-$left;
@@ -1687,7 +1779,7 @@ sub shiftblock {
          }
       }
    }
-  seek($fh, $oldoffset, 0);
+   seek($fh, $oldoffset, 0);
 }
 
 #################### END SHIFTBLOCK ####################
