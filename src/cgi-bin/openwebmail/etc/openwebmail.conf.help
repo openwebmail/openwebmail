@@ -373,7 +373,8 @@ ps: g2b_map, b2g_map and lunar_map are used only if lang is 'zh_TW.Big5'
 header_pluginfile
 footer_pluginfile
 -----------------------------------------------------------------------
-the files to be plugined at the header or footer of most pages
+the files to be plugined at the header or footer of main pages of 
+webmail/abook/calendar/webdisk.
 If this option is set to 'none', the plugin will be disabled
 
 ps: To plugin the output of a program into openwebmail,
@@ -382,6 +383,13 @@ ps: To plugin the output of a program into openwebmail,
 2. execute the command in crontab,
    then use the output file of command as the pluginfile
 While method 1 is more realtime, moethod 2 would have samller overhead.
+
+
+webmail_middle_pluginfile
+-----------------------------------------------------------------------
+this option is similar as above, but the content of the pluginfile 
+will embedded between the menu bar and the messagelist in webmail 
+folderlist.
 
 
 spellcheck

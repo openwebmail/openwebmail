@@ -517,6 +517,7 @@ package ow::zh_TW_Big5;
    abook_exportnow => '開始匯出',
    abook_newcontact => '建立新個人資料',
    abook_newgroup => '建立新群組',
+   abook_noconversion => '不轉換',
    abook_listview_addrperpage => '每頁顯示 @@@ADDRCOUNT@@@ 筆資料',
    abook_listview_writemailto => '寫信給',
    abook_listview_edit => '編輯',

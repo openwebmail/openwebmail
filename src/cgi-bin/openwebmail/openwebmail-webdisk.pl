@@ -558,7 +558,7 @@ sub editfile {
    $html =~ s/\@\@\@STARTEDITFORM\@\@\@/$temphtml/;
 
    $temphtml = textfield(-name=>'destname',
-                         -default=>$vpath,
+                         -default=>(iconv($prefs{fscharset}, $prefs{charset}, $vpath))[0],
                          -size=>'66',
                          -override=>'1');
    $html =~ s/\@\@\@FILENAME\@\@\@/$temphtml/;
@@ -597,7 +597,7 @@ sub editfile {
 
    # put this at last to avoid @@@pattern@@@ replacement happens on $content
    $temphtml = textarea(-name=>'filecontent',
-                        -default=>$content,
+                        -default=>(iconv($prefs{fscharset}, $prefs{charset}, $content))[0],
                         -rows=>$prefs{'webdisk_fileeditrows'},
                         -columns=>$prefs{'webdisk_fileeditcolumns'},
                         -wrap=>'soft',
@@ -611,6 +611,8 @@ sub editfile {
 ########## SAVEFILE ##############################################
 sub savefile {
    my ($currentdir, $destname, $content)=@_;
+   ($destname, $content)=iconv($prefs{charset}, $prefs{fscharset}, $destname, $content);
+
    my $vpath=ow::tool::untaint(absolute_vpath($currentdir, $destname));
    my $err=verify_vpath($webdiskrootdir, $vpath);
    autoclosewindow($lang_text{'savefile'}, $err, 60) if ($err ne '');
@@ -624,7 +626,7 @@ sub savefile {
    }
    ow::filelock::lock("$webdiskrootdir/$vpath", LOCK_EX) or
       autoclosewindow($lang_text{'savefile'}, "$lang_err{'couldnt_lock'} $webdiskrootdir/$vpath!", 60);
-   print F "$content";
+   print F $content;
    close(F);
    ow::filelock::lock("$webdiskrootdir/$vpath", LOCK_UN);
 
@@ -632,7 +634,7 @@ sub savefile {
    writehistory("webdisk savefile - $vpath");
 
    my $jscode=qq|window.opener.document.dirform.submit();|;
-   autoclosewindow($lang_text{'savefile'}, "$lang_text{'savefile'} $lang_text{'succeeded'} ($vpath)", 5, $jscode);
+   autoclosewindow($lang_text{'savefile'}, "$lang_text{'savefile'} $lang_text{'succeeded'} (".(iconv($prefs{fscharset},$prefs{charset},$vpath))[0].")", 5, $jscode);
 }
 ########## END SAVEFILE ##########################################
 
@@ -1482,7 +1484,7 @@ sub dirfilesel {
       next if ($_ eq "");
       $p.="$_/";
       $temphtml.=qq|<a href="$wd_url_sort_page&amp;action=$action&amp;gotodir=|.ow::tool::escapeURL($p).qq|">|.
-                 ow::htmltext::str2html("$_/").qq|</a>\n|;
+                 ow::htmltext::str2html((iconv($prefs{fscharset}, $prefs{charset}, "$_/"))[0]).qq|</a>\n|;
    }
    $html =~ s/\@\@\@CURRENTDIR\@\@\@/$temphtml/g;
 
@@ -1568,8 +1570,8 @@ sub dirfilesel {
          }
 
          my ($imgstr, $namestr, $opstr, $onclickstr);
-         $namestr=ow::htmltext::str2html($fname);
-         $namestr.=ow::htmltext::str2html($flink{$fname}) if (defined($flink{$fname}));
+         $namestr=ow::htmltext::str2html((iconv($prefs{fscharset}, $prefs{charset}, $fname))[0]);
+         $namestr.=ow::htmltext::str2html((iconv($prefs{fscharset}, $prefs{charset}, $flink{$fname}))[0]) if (defined($flink{$fname}));
          if ($ftype{$fname} eq "d") {
             if ($prefs{'iconset'}!~/^Text\./) {
                $imgstr=qq|<IMG SRC="$config{'ow_htmlurl'}/images/file/|.
@@ -1963,7 +1965,7 @@ sub showdir {
       next if ($_ eq "");
       $p.="$_/";
       $temphtml.=qq|<a href="$wd_url_sort_page&amp;action=showdir&amp;gotodir=|.ow::tool::escapeURL($p).qq|">|.
-                 ow::htmltext::str2html("$_/").qq|</a>\n|;
+                 ow::htmltext::str2html((iconv($prefs{fscharset}, $prefs{charset}, "$_/"))[0]).qq|</a>\n|;
    }
    $html =~ s/\@\@\@CURRENTDIR\@\@\@/$temphtml/g;
 
@@ -2088,8 +2090,9 @@ sub showdir {
                        qq|" align="absmiddle" border="0">|;
             }
             $namestr=qq|<a href="$wd_url_sort_page&amp;action=showdir&amp;gotodir=|.
-                     ow::tool::escapeURL($p).qq|" $accesskeystr>$imgstr <b>|.ow::htmltext::str2html($p);
-            $namestr.=ow::htmltext::str2html($flink{$p}) if (defined($flink{$p}));
+                     ow::tool::escapeURL($p).qq|" $accesskeystr>$imgstr <b>|.
+                     ow::htmltext::str2html((iconv($prefs{fscharset}, $prefs{charset}, $p))[0]);
+            $namestr.=ow::htmltext::str2html((iconv($prefs{fscharset}, $prefs{charset}, $flink{$p}))[0]) if (defined($flink{$p}));
             $namestr.=qq|</b></a>|;
             $opstr=qq|<a href="$wd_url_sort_page&amp;action=showdir&amp;gotodir=|.
                    ow::tool::escapeURL($p).qq|"><b>&lt;$lang_text{'dir'}&gt;</b></a>|;
@@ -2118,10 +2121,11 @@ sub showdir {
             $namestr="$a$imgstr</a> ";
             if ($dname ne '') {
                $namestr.=qq|<a href="$wd_url_sort_page&amp;action=showdir&amp;gotodir=|.
-                         ow::tool::escapeURL($dname).qq|" $accesskeystr><b>|.ow::htmltext::str2html($dname).qq|</b> </a>|;
+                         ow::tool::escapeURL($dname).qq|" $accesskeystr><b>|.
+                         ow::htmltext::str2html((iconv($prefs{fscharset}, $prefs{charset}, $dname))[0]).qq|</b> </a>|;
             }
-            $namestr.=$a.ow::htmltext::str2html($fname);
-            $namestr.=ow::htmltext::str2html($flink{$p}) if (defined($flink{$p}));
+            $namestr.=$a.ow::htmltext::str2html((iconv($prefs{fscharset}, $prefs{charset}, $fname))[0]);
+            $namestr.=ow::htmltext::str2html((iconv($prefs{fscharset}, $prefs{charset}, $flink{$p}))[0]) if (defined($flink{$p}));
             $namestr.=qq|</a>|;
 
             if ($p=~/\.(?:pdf|ps)$/i ) {

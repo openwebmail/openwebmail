@@ -72,7 +72,7 @@ foreach (qw(
 # none type config options
 foreach (qw(
    logfile b2g_map g2b_map lunar_map
-   header_pluginfile footer_pluginfile
+   header_pluginfile footer_pluginfile webmail_middle_pluginfile
    allowed_serverdomain allowed_clientdomain allowed_clientip
    allowed_receiverdomain allowed_autologinip allowed_rootloginip
    localusers vdomain_mailbox_command

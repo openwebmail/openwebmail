@@ -423,6 +423,12 @@ sub listmessages {
       $html =~ s/\@\@\@EVENTREMINDER\@\@\@/&nbsp;/;
    }
 
+   $temphtml=htmlplugin($config{'webmail_middle_pluginfile'});
+   if ($temphtml ne "") {
+      $html =~ s/\@\@\@MIDDLEPLUGIN\@\@\@/$temphtml/;
+   } else {
+      $html =~ s/\@\@\@MIDDLEPLUGIN\@\@\@/<br>/;
+   }
 
    my $sort_url="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;page=$page&amp;longpage=$longpage&amp;longpage=$longpage&amp;sessionid=$thissession&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;sort";
    my $linetemplate=$prefs{'fieldorder'};

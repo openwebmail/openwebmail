@@ -517,6 +517,7 @@ package ow::fi;
    abook_exportnow => 'Vie heti',
    abook_newcontact => 'Uusi kontakti',
    abook_newgroup => 'Uusi ryhmä',
+   abook_noconversion => 'No Conversion',
    abook_listview_addrperpage => '@@@ADDRCOUNT@@@ osoitteita per sivu',
    abook_listview_writemailto => 'Kirjoita postia',
    abook_listview_edit => 'Muokkaa',

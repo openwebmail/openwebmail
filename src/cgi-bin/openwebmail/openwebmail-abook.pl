@@ -56,7 +56,7 @@ use vars qw($escapedabookfolder $escapedabookkeyword);
 
 use vars qw($webmail_urlparm $webmail_formparm);
 use vars qw($abook_urlparm $abook_urlparm_with_abookfolder $abook_formparm $abook_formparm_with_abookfolder);
-use vars qw($urlparm $formparm);
+use vars qw($urlparm $formparm $importfieldcount);
 
 # DEBUGGING
 use vars qw($addrdebug);
@@ -77,12 +77,17 @@ if (!$config{'enable_addressbook'}) {
 my %supportedimportexportformat = (
                                    'vcard3.0' => [\&importvcard,\&exportvcard,'vCard v3.0 (vFile)'],
                                    'vcard2.1' => [\&importvcard,\&exportvcard,'vCard v2.1 (vFile)'],
+                                   'csv'      => [\&importcsv,\&exportcsv,'CSV (Comma Separated Value)'],
+                                   'csv auto' => [\&importcsv,\&exportcsv,'CSV (first line contains field names)'],
+                                   'tab'      => [\&importtab,\&exporttab,'Tab Delimited File'],
+                                   'tab auto' => [\&importtab,\&exporttab,'Tab Delimited File (first line contains field names)'],
                                    # NOT SUPPORTED...YET
-                                   # 'csv'   => [\&importcsv,'\&exportcsv','CSV (Comma Separated Value)'],
-                                   # 'tab'   => [\&importtab,'\&exporttab','Tab Delimited File'],
-                                   # 'pine'  => [\&importpine,'\&exportpine','Pine Addressbook Format'],
-                                   # 'ldif'  => [\&importldif,'\&exportldif','LDIF (LDAP Directory Interchange Format)'],
+                                   # 'pine'   => [\&importpine,'\&exportpine','Pine Addressbook Format'],
+                                   # 'ldif'   => [\&importldif,'\&exportldif','LDIF (LDAP Directory Interchange Format)'],
                                   );
+
+# Number of selectable fields when importing TAB/CSV files
+$importfieldcount = 5;
 
 # convert old proprietary addressbooks to the new vcard format
 convert_addressbook('user', $prefs{'charset'});
@@ -905,7 +910,6 @@ sub addrlistview {
    if ($listviewmode eq 'export') {
       applytemplatemode(\$html,"addrexportbook.template");
    } elsif ($listviewmode eq 'composeselect') {
-      $html=~s/90%/95%/g;	# use more space in popup window, ticky... tung
       applytemplatemode(\$html,"addrcomposeselect.template");
    } else {
       $html =~ s/\@\@\@BEFORELISTVIEWEXTRAHTML\@\@\@//;
@@ -1067,7 +1071,7 @@ sub addrlistview {
    }
 
    $temphtml = '';
-   if ($listviewmode eq '' &&			# not in export or compose popup
+   if ($listviewmode eq '' &&				# not in export or compose popup
        ($is_src_editable || $#destabookfolders>=0) ) {	# either src or dst is writable, then cp/mv make sence
       $temphtml = start_form(-name=>"moveCopyForm",
                              -action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl").
@@ -1082,7 +1086,7 @@ sub addrlistview {
                                     cc=>'',
                                     bcc=>'',
                                     ). $formparm;
-      if ($is_src_editable) {	
+      if ($is_src_editable) {
          $temphtml .=popup_menu(-name=>'destinationabook',
                                 -default=>$writableabookfolders[0],
                                 -override=>1,
@@ -1137,7 +1141,7 @@ sub addrlistview {
                          -override=>'1').
                qq|</td><td>|. 
                submit(-name=>$lang_text{'search'},
-	              -class=>'medtext').
+                      -class=>'medtext').
                qq|</td></tr>|. 
                end_form().
                qq|</table>\n|;
@@ -1286,6 +1290,7 @@ sub addrlistview {
                                     checkedcc=>ow::htmltext::str2html($checkedcc),
                                     checkedbcc=>ow::htmltext::str2html($checkedbcc),
                                     exportformat=>'',
+                                    exportcharset=>'',
                                     # javascript will populate these before submit
                                     # from values in the contactsForm
                                     to=>'',
@@ -1649,19 +1654,37 @@ sub addrlistview {
          $html =~ s/\@\@\@BUTTONSBEFORE\@\@\@/$buttons$spacer/g;
          $html =~ s/\@\@\@BUTTONSAFTER\@\@\@/$buttons/g;
       }
+
    } elsif ($listviewmode eq 'export') {
       my %supportedlabels = ();
-      for (keys %supportedimportexportformat) { $supportedlabels{$_} = $supportedimportexportformat{$_}[2] };
+      my %supportedexportformat = %supportedimportexportformat;
+      delete($supportedexportformat{'csv auto'});
+      delete($supportedexportformat{'tab auto'});
+      for (keys %supportedexportformat) { $supportedlabels{$_} = $supportedexportformat{$_}[2] };
       $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl",
-                             -name=>'exportformatForm');
+                             -name=>'exportformatForm',
+                          );
       $temphtml .= popup_menu(-name=>'exportformat',
-                             -values=>[sort keys %supportedimportexportformat],
+                             -values=>[sort keys %supportedexportformat],
                              -default=>'vcard3.0',
                              -labels=>\%supportedlabels,
-                             -onChange=>"javascript:document.forms['exportForm'].elements['exportformat'].value=document.forms['exportformatForm'].elements['exportformat'].options[document.forms['exportformatForm'].elements['exportformat'].selectedIndex].value",
+                             -onChange=>"javascript:document.forms['exportForm'].elements['exportformat'].value=document.forms['exportformatForm'].elements['exportformat'].options[document.forms['exportformatForm'].elements['exportformat'].selectedIndex].value; exportOptionsToggle(document.forms['exportformatForm'].elements['exportformat'].options[document.forms['exportformatForm'].elements['exportformat'].selectedIndex].value, 'exportformatForm');",
                              -override=>1);
-      $temphtml .= end_form();
       $html =~ s/\@\@\@EXPORTMODEFORMFORMATSMENU\@\@\@/$temphtml/;
+
+      my %tmpset = reverse %ow::lang::languagecharsets;
+      my @charset = ($lang_text{'abook_noconversion'}); 
+      push @charset, sort keys %tmpset;
+      my $defaultcharset = $prefs{'charset'};
+      $temphtml = "$lang_text{'charset'}:";
+      $temphtml .= popup_menu(-name=>'exportcharset',
+                              -values=>\@charset,
+                              -default=>$defaultcharset,
+                              -onChange=>"javascript:document.forms['exportForm'].elements['exportcharset'].value=document.forms['exportformatForm'].elements['exportcharset'].options[document.forms['exportformatForm'].elements['exportcharset'].selectedIndex].value;",
+                              -override=>1,
+                              -disabled=>'1');
+      $temphtml .= end_form();
+      $html =~ s/\@\@\@EXPORTCHARSETMENU\@\@\@/$temphtml/;
 
       $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl",
                              -name=>'exportnowForm');
@@ -1681,6 +1704,7 @@ sub addrlistview {
       $html =~ s/\@\@\@EXPORTMODECANCELFORM\@\@\@/$temphtml/g;
       $html =~ s/\@\@\@BUTTONSAFTER\@\@\@//g;
       $html =~ s/\@\@\@BUTTONSBEFORE\@\@\@//g;
+
    } else {
       # compose button
       my $buttons = qq|<tr>|.
@@ -1700,7 +1724,14 @@ sub addrlistview {
    my $cookie = cookie( -name  => "$user-abookfolder",
                         -value => $abookfolder,
                         -path  => '/');
-   httpprint([-cookie=>[$cookie]], [htmlheader(), $html, htmlfooter(2)]);
+   if ($listviewmode eq '') {
+      httpprint([-cookie=>[$cookie]], 
+                [htmlheader(), htmlplugin($config{'header_pluginfile'}),
+                 $html, 
+                 htmlplugin($config{'footer_pluginfile'}), htmlfooter(2)]);
+   } else {
+      httpprint([-cookie=>[$cookie]], [htmlheader(), $html, htmlfooter(2)]);
+   }
 }
 ########## END ADDRLISTVIEW ######################################
 
@@ -1979,7 +2010,7 @@ sub addreditform {
    # switch lang/charset from user prefs to en/composecharset temporarily
    # so we can load proper language and template file for the current contact
    my @tmp;
-   if ($composecharset ne $prefs{'charset'}) {	
+   if ($composecharset ne $prefs{'charset'}) {   
       @tmp=($prefs{'language'}, $prefs{'charset'});
       ($prefs{'language'}, $prefs{'charset'})=('en', $composecharset);
       loadlang($prefs{'language'});
@@ -4216,9 +4247,20 @@ sub addrimportform {
                           -values=>[sort keys %supportedimportexportformat],
                           -default=>'vcard3.0',
                           -labels=>\%supportedlabels,
-                          -onChange=>"javascript:fieldChoicesToggle(document.forms['importForm'].elements['importformat'].options[document.forms['importForm'].elements['importformat'].selectedIndex].value,'importForm');",
+                          -onChange=>"javascript:importOptionsToggle(document.forms['importForm'].elements['importformat'].options[document.forms['importForm'].elements['importformat'].selectedIndex].value,'importForm');",
                           -override=>1);
    $html =~ s/\@\@\@FORMATSMENU\@\@\@/$temphtml/;
+
+   my %tmpset=reverse %ow::lang::languagecharsets;
+   my @charset=sort keys %tmpset;
+   my $defaultcharset = $prefs{'charset'};
+   $temphtml = "$lang_text{'charset'}:";
+   $temphtml .= popup_menu(-name=>'importcharset',
+                          -values=>\@charset,
+                          -default=>$defaultcharset,
+                          -override=>'1',
+                          -disabled=>'1');
+   $html =~ s/\@\@\@IMPORTCHARSETMENU\@\@\@/$temphtml/;
 
    my @choices = qw(fullname prefix first middle last suffix email phone note none);
 
@@ -4226,12 +4268,17 @@ sub addrimportform {
    my %addrfieldorderlabels = ();
    $addrfieldorderlabels{"$_"} = $lang_text{"abook_listview_$_"} for @choices;
 
-   $temphtml = popup_menu(-name=>'importfieldorder',
-                          -default=>'none',
-                          -values=>\@choices,
-                          -labels=>\%addrfieldorderlabels,
-                          -override=>'1',
-                          -disabled=>'1');
+   $temphtml = '';
+   for (my $i = 1; $i <= $importfieldcount; $i++) {
+      $temphtml.= '<td>'.
+                  popup_menu(-name=>"importfieldorder$i",
+                             -default=>'none',
+                             -values=>\@choices,
+                             -labels=>\%addrfieldorderlabels,
+                             -override=>'1',
+                             -disabled=>'1').
+                  '</td>';
+   }
    $html =~ s/\@\@\@FIELDCHOICESMENU\@\@\@/$temphtml/g;
 
    my @writableabookfolders = get_writable_abookfolders();	# export destination must be writable 
@@ -4328,7 +4375,7 @@ sub addrimport {
       if ($prefs{'charset'} eq 'big5' || $prefs{'charset'} eq 'gb2312') {
          $fname=ow::tool::zh_dospath2fname($fname);	# dos path
       } else {
-         $fname =~ s|^.*\\||;		# dos path
+         $fname =~ s|^.*\\||;   # dos path
       }
       $fname =~ s|^.*/||;	# unix path
       $fname =~ s|^.*:||;	# mac path and dos drive
@@ -4406,24 +4453,77 @@ sub importvcard {
 }
 ########## END IMPORTVCARD #######################################
 
+######################### IMPORTTXT #################################
 
-########## IMPORTCSV #############################################
+sub importtxt {
+   # accepts a csv or tab string and returns a vCard hash data structure
+
+   my $importdata = $_[0]; 
+   my $fs = $_[1];
+
+   # NOTE: There may be fields which have double-quotes,
+   # linebreaks, commas, and tabs inside them, inside double-quotes!
+   # We can try to sanitize that:
+
+   $importdata =~ s/\r?\n|\r/::safe_newline::/g;			# DOS/UNIX independent line breaks
+   $importdata =~ s/"($fs|::safe_newline::)/::safe_qfend::$1/g;	# end of a quoted field
+   $importdata =~ s/(^|$fs|::safe_newline::)"/$1::safe_qfstart::/g;	# start of a quoted field
+   $importdata =~ s/""/::safe_quote::/g;				# quotes inside a field
+
+   while ($importdata =~ s/(::safe_qfstart::(?:(?!::safe_qfend::).)*?)$fs(.+?::safe_qfend::)/$1::safe_infs::$2/g) {}
+   while ($importdata =~ s/(::safe_qfstart::(?:(?!::safe_qfend::).)*?)::safe_newline::(.+?::safe_qfend::)/$1\n$2/gs) {}
+
+   $importdata =~ s/$fs/::safe_fs::/g;			# unique field separator
+   $importdata =~ s/::safe_infs::/$fs/g;		# restore tab/quote inside fields
+   $importdata =~ s/::safe_quote::/"/g;			# restore quotes inside fields
+   $importdata =~ s/::safe_(?:qfstart|qfend):://g;	# rm field-delimiting quotes (not needed anymore)
+
+   my @recs = split (/::safe_newline::/, $importdata);
+
+   my @import_order;
+   if (param('importformat') =~ / auto/) {
+      @import_order = split (/::safe_fs::/, lc(shift(@recs))); # First line has the field names 
+      map { s/^ +| +$|'//g } @import_order
+   } else {
+      for (my $i = 1; $i <= $importfieldcount; $i++) {
+         # user specified from a form up to $importfieldorder fields for now.
+         push @import_order, param("importfieldorder$i"); 
+      }
+   }
+
+   # Iterate records from txt file
+   my %vcardhash = ();
+   foreach my $rec (@recs) {
+      my @values = split (/::safe_fs::/, $rec); 
+      map { s/^ +| +$//g } @values;
+      my %txt = ();
+      map { 
+         $txt{$_} = shift (@values);
+         chomp ($txt{$_});
+      } @import_order;
+
+      my $x_owm_uid=make_x_owm_uid();
+      $vcardhash{$x_owm_uid} = make_vcard(\%txt, $x_owm_uid); 
+   }
+
+   return \%vcardhash;
+}
+########################## END IMPORTTXT ###########################
+
+########################## IMPORTCSV ################################
+
 sub importcsv {
-   # TO BE DONE
    # accepts a csv string and returns a vCard hash data structure
-   my $importdata = $_[0];
+   return importtxt($_[0], ",");
 }
-########## END IMPORTCSV #########################################
+######################### END IMPORTCSV #############################
 
-
-########## IMPORTTAB #############################################
+########################## IMPORTTAB ################################
 sub importtab {
-   # TO BE DONE
    # accepts a tab delimited string and returns a vCard hash data structure
-   my $importdata = $_[0];
+   return importtxt($_[0], "\t");
 }
-########## END IMPORTTAB #########################################
-
+######################### END IMPORTTAB #############################
 
 ########## IMPORTPINE ############################################
 sub importpine {
@@ -4432,7 +4532,6 @@ sub importpine {
    my $importdata = $_[0];
 }
 ########## END IMPORTPINE ########################################
-
 
 ########## IMPORTLDIF ############################################
 sub importldif {
@@ -4529,23 +4628,407 @@ sub exportvcard {
 }
 ########## END EXPORTVCARD #######################################
 
+####################### MAKE VCARD ############################
+# This sub gets a hash ref with the fields for each record of the imported file
+# (csv/tab, or others), and returns one vcard hash.
+sub make_vcard { 
+   my ($ref, $x_owm_uid) = @_;
+   my %data = %{$ref};  #just for easier typing on the structure...
+   my ($rev_sec,$rev_min,$rev_hour,$rev_mday,$rev_mon,$rev_year) = 
+            gmtime(ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'})); 
+
+   # Field mapping: Key is the 'foreign' field name, value is the local, used on the $vcard assignment below.
+   # If new csv/tab sources are to be supported, and there are foreign field names to be associated to ones
+   # already here, just add it there will be two elements on the hash with different keys, same values, no problem.
+   my %fieldmap = (
+      'e-mail address' => 'email',
+      'middle name' => 'middle',
+      'last name' => 'last',
+      'first name' => 'first',
+      'title' => 'prefix',
+      'notes' => 'note',
+      'primary phone' => 'phone'
+   );
+
+   map { 
+       unless ($data{$fieldmap{$_}}) { 
+          $data{$fieldmap{$_}} = $data{$_};
+          delete $data{$_};
+       }
+   } keys(%fieldmap);
+
+   $data{'first'} = $lang_text{'none'} if ($data{'prefix'}.$data{'title'}.$data{'first'}.$data{'middle'}.$data{'last'}.$data{'suffix'} eq '');
+
+   if ($data{'birthday'} && !($data{'birthday'} =~ /0.0.00/) && ($data{'birthday'} =~ /(\d{1,2})\D(\d{1,2})\D(\d{2,4})/)) {
+      my ($m, $d, $y) = ($1, $2, $3);
+      if ($m >= 1 && $m <= 12 && $d >=1 && $d <= 31) {
+         ($data{'bmonth'}, $data{'bday'}, $data{'byear'}) = ($m, $d, $y);
+         $data{'byear'} += ($y > 10)?1900:2000 if ($y < 1900);
+      }
+   }
+   $data{'private'} = (exists($data{'private'}) && (lc($data{'private'}) eq 'false'))?"Public":"Private";
+
+   my $vcard; 
+
+   # ADR - Left here for future reference
+   #
+   # ${$vcard}{ADR}[x]{TYPES} = {
+   #                             'BASE64' => 'ENCODING',
+   #                             'DOM' => 'TYPE',
+   #                             'HOME' => 'TYPE',
+   #                             'INTL' => 'TYPE',
+   #                             'PARCEL' => 'TYPE',
+   #                             'POSTAL' => 'TYPE',
+   #                             'WORK' => 'TYPE'
+   #                            };
+   # ${$vcard}{ADR}[x]{VALUE} = {
+   #                             'COUNTRY' => '',
+   #                             'EXTENDEDADDRESS' => '',
+   #                             'LOCALITY' => '',
+   #                             'POSTALCODE' => '',
+   #                             'POSTOFFICEADDRESS' => '',
+   #                             'REGION' => '',
+   #                             'STREET' => ''
+   #                            };
+
+   # OL2k's exported po box is not associated to business/home/other, we'll have to arbitrarily
+   # assign it:
+   if ($data{'po box'}) {
+      if ($data{'business country'}) {
+         $data{'business po box'} = $data{'po box'};
+      } elsif ($data{'home country'}) {
+         $data{'home po box'} = $data{'po box'};
+      } else {
+         $data{'other po box'} = $data{'po box'};
+      }
+   }
+
+   my %eaddr;
+   map {
+       if ($data{"$_ street 2"} || $data{"$_ street 3"}) {
+          $eaddr{$_} = $data{"$_ street 2"}.", ".$data{"$_ street 3"};
+          $eaddr{$_} =~ s/^, |, $//;
+          delete @data{("$_ street 2", "$_ street 3")};
+       }
+      my %adr;
+      $adr{TYPES} = {
+                     'BASE64' => 'ENCODING',
+                     'WORK' => 'TYPE'
+                    };
+      $adr{VALUE} = {
+                     'COUNTRY' => $data{"$_ country"},
+                     'EXTENDEDADDRESS' => $eaddr{"$_"},
+                     'LOCALITY' => $data{"$_ city"},
+                     'POSTALCODE' => $data{"$_ postal code"},
+                     'POSTOFFICEADDRESS' => $data{"$_ po box"},
+                     'REGION' => $data{"$_ state"},
+                     'STREET' => $data{"$_ street"}
+                    };
+      push @{${$vcard}{ADR}}, \%adr;
+      delete @data{("$_ country", "$_ city", "$_ postal code", "$_ po box", "$_ state", "$_ street")};
+   } qw(business home other);
+
+   ${$vcard}{BDAY}[0]{VALUE} = {
+                                'DAY' => $data{'bday'},
+                                'MONTH' => $data{'bmonth'},
+                                'YEAR' => $data{'byear'}
+                               };
+   @{${$vcard}{CATEGORIES}[0]{VALUE}{CATEGORIES}} = split(/;/, $data{'categories'});
+   ${$vcard}{CLASS}[0]{VALUE} = $data{'private'};
+   ${$vcard}{EMAIL}[0]{TYPES} = {
+                                 'PREF' => 'TYPE'
+                                };
+   ${$vcard}{EMAIL}[0]{VALUE} = $data{'email'};
+   ${$vcard}{EMAIL}[1]{VALUE} = $data{'email 2 address'};
+   ${$vcard}{EMAIL}[2]{VALUE} = $data{'email 3 address'};
+   ${$vcard}{EMAIL}[3]{TYPES} = {
+                                 'TLX' => 'TYPE'
+                                };
+   ${$vcard}{EMAIL}[3]{VALUE} = $data{'telex'};
+
+#   ${$vcard}{FN}[0]{VALUE} = '';
+#   ${$vcard}{GEO}[0]{VALUE} = {
+#                               'LATITUDE' => '',
+#                               'LONGITUDE' => ''
+#                              };
+#   ${$vcard}{LABEL}[0]{TYPES} = {
+#                                 'BASE64' => 'ENCODING',
+#                                 'DOM' => 'TYPE',
+#                                 'HOME' => 'TYPE',
+#                                 'INTL' => 'TYPE',
+#                                 'PARCEL' => 'TYPE',
+#                                 'POSTAL' => 'TYPE',
+#                                 'WORK' => 'TYPE'
+#                                };
+#   ${$vcard}{LABEL}[0]{VALUE} = '';
+
+   ${$vcard}{MAILER}[0]{VALUE} = 'OpenWebmail';
+   ${$vcard}{N}[0]{VALUE} = {
+                             'ADDITIONALNAMES' => $data{'middle'},
+                             'FAMILYNAME' => $data{'last'},
+                             'GIVENNAME' => $data{'first'},
+                             'NAMEPREFIX' => $data{'prefix'},
+                             'NAMESUFFIX' => $data{'suffix'}
+                            };
+   ${$vcard}{NAME}[0]{VALUE} =  "vCard for $data{'first'} $data{'last'}" if ($data{'first'} || $data{'last'});
+   ${$vcard}{NICKNAME}[0]{VALUE} = $data{'nickname'};
+   ${$vcard}{NOTE}[0]{VALUE} = $data{'note'};
+   ${$vcard}{ORG}[0]{VALUE} = {
+                               'ORGANIZATIONALUNITS' => [ $data{'department'} ],
+                               'ORGANIZATIONNAME' => $data{'company'}
+                              };
+   ${$vcard}{PRODID}[0]{VALUE} = "OpenWebmail $config{'version'} $config{'releasedate'}";
+   ${$vcard}{REV}[0]{VALUE} = {
+                               'DAY' => $rev_mday,
+                               'HOUR' => $rev_hour,
+                               'MINUTE' => $rev_min,
+                               'MONTH' => $rev_mon,
+                               'SECOND' => $rev_sec,
+                               'YEAR' => $rev_year
+                              };
+   ${$vcard}{ROLE}[0]{VALUE} = $data{'job title'};
+   ${$vcard}{'SORT-STRING'}[0]{VALUE} = $data{'last'};
+#   ${$vcard}{SOURCE}[0]{VALUE} = '';
+   ${$vcard}{TEL}[0]{TYPES} = {
+                               'PREF' => 'TYPE',
+                               'VOICE' => 'TYPE'
+                              };
+   ${$vcard}{TEL}[0]{VALUE} = $data{'phone'};
+   ${$vcard}{TEL}[1]{TYPES} = {
+                               'HOME' => 'TYPE',
+                               'VOICE' => 'TYPE'
+                              };
+   ${$vcard}{TEL}[1]{VALUE} = $data{'home phone'};
+   ${$vcard}{TEL}[2]{TYPES} = {
+                               'HOME' => 'TYPE',
+                               'VOICE' => 'TYPE'
+                              };
+   ${$vcard}{TEL}[2]{VALUE} = $data{'home phone 2'};
+   ${$vcard}{TEL}[3]{TYPES} = {
+                               'VOICE' => 'TYPE'
+                              };
+   ${$vcard}{TEL}[3]{VALUE} = $data{'radio phone'};
+   ${$vcard}{TEL}[4]{TYPES} = {
+                               'VOICE' => 'TYPE'
+                              };
+   ${$vcard}{TEL}[4]{VALUE} = $data{'other phone'};
+   ${$vcard}{TEL}[5]{TYPES} = {
+                               'HOME' => 'TYPE',
+                               'FAX' => 'TYPE'
+                              };
+   ${$vcard}{TEL}[5]{VALUE} = $data{'home fax'};
+   ${$vcard}{TEL}[6]{TYPES} = {
+                               'FAX' => 'TYPE'
+                              };
+   ${$vcard}{TEL}[6]{VALUE} = $data{'other fax'};
+   ${$vcard}{TEL}[7]{TYPES} = {
+                               'CELL' => 'TYPE',
+                               'VOICE' => 'TYPE'
+                              };
+   ${$vcard}{TEL}[7]{VALUE} = $data{'mobile phone'};
+   ${$vcard}{TEL}[8]{TYPES} = {
+                               'WORK' => 'TYPE',
+                               'VOICE' => 'TYPE'
+                              };
+   ${$vcard}{TEL}[8]{VALUE} = $data{'company main phone'};
+   ${$vcard}{TEL}[9]{TYPES} = {
+                               'WORK' => 'TYPE',
+                               'VOICE' => 'TYPE'
+                              };
+   ${$vcard}{TEL}[9]{VALUE} = $data{'business phone'};
+   ${$vcard}{TEL}[10]{TYPES} = {
+                                'WORK' => 'TYPE',
+                                'VOICE' => 'TYPE'
+                               };
+   ${$vcard}{TEL}[10]{VALUE} = $data{'business phone 2'};
+   ${$vcard}{TEL}[11]{TYPES} = {
+                                'CAR' => 'TYPE',
+                                'VOICE' => 'TYPE'
+                               };
+   ${$vcard}{TEL}[11]{VALUE} = $data{'car phone'};
+   ${$vcard}{TEL}[12]{TYPES} = {
+                                'PAGER' => 'TYPE'
+                               };
+   ${$vcard}{TEL}[12]{VALUE} = $data{'pager'};
+   ${$vcard}{TEL}[13]{TYPES} = {
+                                'MODEM' => 'TYPE'
+                               };
+   ${$vcard}{TEL}[13]{VALUE} = $data{'tty/tdd phone'};
+   ${$vcard}{TEL}[14]{TYPES} = {
+                                'MSG' => 'TYPE',
+                                'WORK' => 'TYPE',
+                                'VOICE' => 'TYPE'
+                               };
+   ${$vcard}{TEL}[14]{VALUE} = $data{'assistants phone'};
+   ${$vcard}{TEL}[15]{TYPES} = {
+                                'MSG' => 'TYPE',
+                                'VOICE' => 'TYPE'
+                               };
+   ${$vcard}{TEL}[15]{VALUE} = $data{'callback'};
+   ${$vcard}{TEL}[16]{TYPES} = {
+                                'FAX' => 'TYPE',
+                                'WORK' => 'TYPE'
+                               };
+   ${$vcard}{TEL}[16]{VALUE} = $data{'business fax'};
+   ${$vcard}{TEL}[17]{TYPES} = {
+                                'ISDN' => 'TYPE'
+                               };
+   ${$vcard}{TEL}[17]{VALUE} = $data{'isdn'};
+#   ${$vcard}{TITLE}[0]{VALUE} = ''; #Don't use $data{'title'} here; OL2k uses 'title' as the name prefix
+   ${$vcard}{TZ}[0]{VALUE} = $prefs{'timeoffset'};
+#   ${$vcard}{UID}[0]{VALUE} = '';
+   ${$vcard}{URL}[0]{VALUE} = $data{'web page'};
+   ${$vcard}{VERSION}[0]{VALUE} = '3.0';
+   ${$vcard}{'X-OWM-UID'}[0]{VALUE} = $x_owm_uid;
+   ${$vcard}{'X-OWM-CHARSET'}[0]{VALUE} = param('importcharset');
+   ${$vcard}{'X-MICROSOFT-FBURL'}[0]{VALUE} = $data{'internet free busy'};
+
+   # Delete imported elements (note: some were deleted above on map{} cases).
+   delete @data{(
+      'assistants phone', 'bday', 'birthday', 'bmonth', 'business fax', 'business phone',
+      'business phone 2', 'byear', 'callback', 'car phone', 'categories', 'company',
+      'company main phone', 'department', 'email', 'email 2 address', 'email 3 address',
+      'first', 'home fax', 'home phone', 'home phone 2', 'internet free busy', 'isdn',
+      'job title', 'last', 'middle', 'mobile phone', 'nickname', 'note', 'other fax',
+      'other phone', 'pager', 'phone', 'po box', 'prefix', 'private', 'radio phone', 
+      'suffix', 'telex', 'tty/tdd phone', 'web page'
+   )};
+
+   # These ones (from OL2k) we don't want:
+   delete @data{(
+      'e-mail type', 'e-mail 2 type', 'e-mail 3 type', 'priority', 'sensitivity'
+   )};
+
+   # Custom fields: Whatever is in the imported file, not mapped to an OWM field.
+   foreach (sort(keys(%data))) {
+      next unless ($data{$_});
+      next if (($data{$_} =~ /^0{1,2}\D0{1,2}\D0{2,4}$/) || ($data{$_} eq 'Unspecified'));
+      my %custom;
+      $custom{VALUE}{CUSTOMNAME} = uc($_);
+      ${$custom{VALUE}{CUSTOMVALUES}}[0] = $data{$_}; 
+      push @{${$vcard}{'X-OWM-CUSTOM'}}, \%custom;
+   }
+
+   return $vcard;
+}
+########################### END MAKE VCARD ##########################
+
+########################### MAKE FLATHASH ##########################
+
+# This sub will get one vcard structure and make a "flat" hash (i.e., one key per scalar
+# value), which is then used to export to the other formats.
+#
+sub make_flathash {
+   my %flathash = ();
+   my $vcard = $_[0];
+
+   foreach my $propertyname (keys %{ $vcard }) {
+      my @instances = @{ ${ $vcard }{$propertyname} };
+      for (my $i = 0; $i <= $#instances; $i++) {
+         my $index = ($#instances > 0)?'_'.sprintf("%02d", $i):'';
+         my %instance = %{ $instances[$i] };
+         my $hasvalue = 0;
+         if (ref($instance{VALUE})) {
+            foreach (sort keys %{ $instance{VALUE} }) {
+               if (${ $instance{VALUE} }{$_}) {
+                  if (ref(${ $instance{VALUE} }{$_})) {
+                     my @values = @{ ${ $instance{VALUE} }{$_} };
+                     for (my $j = 0; $j <= $#values; $j++) {
+                        my $vindex = ($#values > 0)?'_'.sprintf("%02d", $j):'';
+                        $flathash{$propertyname.$index."_$_".$vindex} = ${ ${ $instance{VALUE} }{$_} }[$j];
+                     }
+                  } else {
+                     $flathash{$propertyname.$index."_$_"} = ${ $instance{VALUE} }{$_};
+                  }
+                  $hasvalue++;
+               }
+            }
+         } elsif ($instance{VALUE}) {
+            $flathash{$propertyname.$index} = $instance{VALUE};
+            $hasvalue++;
+         }
+         if ($hasvalue) {
+            if (exists($instance{TYPES}) && scalar(%{ $instance{TYPES} })) {
+               $flathash{$propertyname.$index.'_TYPE'} = join("; ", sort(keys(%{ $instance{TYPES} })));
+            }
+            if (exists($instance{GROUP})) {
+               $flathash{$propertyname.$index.'_GROUP'} = $instance{GROUP};
+            }
+         }
+      }
+   }
+   $flathash{'X-OWM-CHARSET'} = $prefs{'charset'} unless (exists $flathash{'X-OWM-CHARSET'});
+
+   if ((param('exportcharset') ne $lang_text{'abook_noconversion'}) &&
+       ($flathash{'X-OWM-CHARSET'} ne param('exportcharset')) &&
+       is_convertible($flathash{'X-OWM-CHARSET'}, param('exportcharset'))) {
+
+      my %convertedflathash= ();
+      my ($convfrom, $convto) = ($flathash{'X-OWM-CHARSET'}, param('exportcharset'));
+      $flathash{'X-OWM-CHARSET'} = param('exportcharset');
+      foreach (keys(%flathash)) {
+         ($convertedflathash{$_}) = iconv($convfrom, $convto, $flathash{$_});
+      }
+      return \%convertedflathash;
+
+   }
+   return \%flathash;
+}
+########################## END MAKE FLATHASH #######################
+
+########################## EXPORTTXT ################################
+sub exporttxt {
+   # accepts a vCard hash data structure passed in and returns a csv format string.
+   # The export order is up to you. User can't pick export order for now.
+   my ($r_addresses, $version, $fs) = @_; # r_addresses is a ref to a vcard_hash_structure
+                                          # version is blank for this export type
+   my $ext = ($fs eq ',')?"csv":"tab";
+   my ($exportcontenttype, $exportfilename) = ('application/', "$lang_text{'export'}.$ext"); 
+
+   #### iterate through the vcard hash converting data ####
+   my %fields = ();
+   my @records = ();
+
+   foreach my $x_owm_uid (keys %{ $r_addresses }) {
+      my $vcard = ${ $r_addresses }{$x_owm_uid};
+      my $flathash = make_flathash($vcard);
+      map { $fields{$_} = 1 } keys(%{ $flathash });   # It is possible that not all vcards have all properties/values
+      push @records, $flathash;                       # so we need to see them all before knowing which columns exist
+   }                                                  # or export a LOT of empty csv columns, exporting them all.
+
+   my @columns = sort(keys(%fields));
+   undef(%fields);
+   my $exportdata = join($fs, @columns)."\n";
+   foreach my $record (@records) {
+      my @values = ();
+      foreach my $key (@columns) {
+         $_ = ${ $record }{$key} || '';
+         s/"/""/g;     
+         if (/$fs|\n/) {
+            $_ = qq|"$_"|;
+         }
+         push @values, $_;
+      }
+      $exportdata .= join($fs, @values)."\n";
+   }
+   return ($exportdata, $exportcontenttype, $exportfilename);
+}
+######################### END EXPORTTXT #############################
 
 ########## EXPORTCSV #############################################
 sub exportcsv {
-   # TO BE DONE
    # accepts a vCard hash data structure and returns a csv format string
    my ($r_addresses, $version) = @_;
-   my ($exportcontenttype, $exportfilename) = ('application/', "$lang_text{'export'}.csv");
+   return exporttxt($r_addresses, $version, ",");
 }
 ########## END EXPORTCSV #########################################
 
 
 ########## EXPORTTAB #############################################
 sub exporttab {
-   # TO BE DONE
    # accepts a vCard hash data structure and returns a tab delimited format string
    my ($r_addresses, $version) = @_;
-   my ($exportcontenttype, $exportfilename) = ('application/', "$lang_text{'export'}.tab");
+   return exporttxt($r_addresses, $version, "\t");
 }
 ########## END EXPORTTAB #########################################
 
@@ -4662,4 +5145,3 @@ sub exportldif {
 #   editaddresses();
 #}
 ########## END IMPORT/EXPORTABOOK PINE ###########################
-

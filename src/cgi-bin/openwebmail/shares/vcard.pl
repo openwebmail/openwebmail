@@ -347,8 +347,8 @@ sub parsevcard {
 
          if (defined $parsedvcard{'N'}[0]{'VALUE'}{'GIVENNAME'} && 
              defined $parsedvcard{'N'}[0]{'VALUE'}{'FAMILYNAME'} &&
-            $parsedvcard{'N'}[0]{'VALUE'}{'GIVENNAME'}=~/^[\xA1-\xF9][\x40-\x7E\xA1-\xFE]/) {	# chinese name
-            $parsedvcard{'FN'}[0]{'VALUE'} .= " " . $parsedvcard{'N'}[0]{'VALUE'}{'FAMILYNAME'}
+            $parsedvcard{'N'}[0]{'VALUE'}{'GIVENNAME'}=~/^[\xA1-\xF9][\x40-\x7E\xA1-\xFE]/) {		# chinese name
+            $parsedvcard{'FN'}[0]{'VALUE'} .= " " . $parsedvcard{'N'}[0]{'VALUE'}{'FAMILYNAME'}		# big5:[A1-F9][40-7E,A1-FE], gb2312:[A1-F9][A1-FE]
                                                   . $parsedvcard{'N'}[0]{'VALUE'}{'GIVENNAME'};
             $parsedvcard{'FN'}[0]{'VALUE'} .= " " . $parsedvcard{'N'}[0]{'VALUE'}{'ADDITIONALNAMES'} if defined $parsedvcard{'N'}[0]{'VALUE'}{'ADDITIONALNAMES'};
          } else {

@@ -517,6 +517,7 @@ package ow::de;
    abook_import => 'Import Addressbook Information',
    abook_importdest => 'Import to new addressbook...',
    abook_export => 'Export Addressbook Information',
+   abook_noconversion => 'No Conversion',
    abook_exportnow => 'Export Now',
    abook_newcontact => 'New Contact',
    abook_newgroup => 'New Group',

@@ -517,6 +517,7 @@ package ow::zh_CN_GB2312;
    abook_exportnow => '开始汇出',
    abook_newcontact => '建立新个人资料',
    abook_newgroup => '建立新群组',
+   abook_noconversion => '不转换',
    abook_listview_addrperpage => '每页显示 @@@ADDRCOUNT@@@ 笔资料',
    abook_listview_writemailto => '写信给',
    abook_listview_edit => '编辑',

@@ -517,6 +517,7 @@ package ow::th;
    abook_exportnow => 'Export Now',
    abook_newcontact => 'New Contact',
    abook_newgroup => 'New Group',
+   abook_noconversion => 'No Conversion',
    abook_listview_addrperpage => '@@@ADDRCOUNT@@@ addresses per page',
    abook_listview_writemailto => 'Write mail to',
    abook_listview_edit => 'Edit',

@@ -34,7 +34,7 @@
       <td><br><b>2. 选择所要汇入档案的档案格式:</b></td>
     </tr>
     <tr>
-      <td>@@@FORMATSMENU@@@</td>
+      <td>@@@FORMATSMENU@@@&nbsp;@@@IMPORTCHARSETMENU@@@</td>
     </tr>
     <tr>
       <td><br><b>3. 选择各个栏位在汇入的档案中的顺序 (只适用于部分档案格式):</b></td>
@@ -43,11 +43,7 @@
       <td>
         <table border="0" cellpadding="0" cellspacing="0">
         <tr>
-          <td>@@@FIELDCHOICESMENU@@@</td>
-          <td>@@@FIELDCHOICESMENU@@@</td>
-          <td>@@@FIELDCHOICESMENU@@@</td>
-          <td>@@@FIELDCHOICESMENU@@@</td>
-          <td>@@@FIELDCHOICESMENU@@@</td>
+          @@@FIELDCHOICESMENU@@@
         </tr>
         </table>
       </td>
@@ -85,18 +81,33 @@
 
 <script type="text/javascript" language="javascript">
 <!--
-function fieldChoicesToggle(fileFormat, sourceForm) {
+function importOptionsToggle(fileFormat, sourceForm) {
    if (fileFormat == 'csv' || fileFormat == 'tab') {
      for(i=0; i<document.forms[sourceForm].elements.length; i++) {
         var e = document.forms[sourceForm].elements[i];
-        if (e.name == 'importfieldorder') {
+        if (e.name.substring(0, 16) == 'importfieldorder') {
            e.disabled = 0;
         }
      }
    } else {
      for(i=0; i<document.forms[sourceForm].elements.length; i++) {
         var e = document.forms[sourceForm].elements[i];
-        if (e.name == 'importfieldorder') {
+        if (e.name.substring(0, 16) == 'importfieldorder') {
+           e.disabled = 1;
+        }
+     }
+   }
+   if (fileFormat.substring(0,3) == 'csv' || fileFormat.substring(0,3) == 'tab') {
+     for(i=0; i<document.forms[sourceForm].elements.length; i++) {
+        var e = document.forms[sourceForm].elements[i];
+        if (e.name == 'importcharset') {
+           e.disabled = 0;
+        }
+     }
+   } else {
+     for(i=0; i<document.forms[sourceForm].elements.length; i++) {
+        var e = document.forms[sourceForm].elements[i];
+        if (e.name == 'importcharset') {
            e.disabled = 1;
         }
      }

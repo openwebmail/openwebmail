@@ -37,8 +37,8 @@
 <td align="center" bgcolor=@@@MENUBAR@@@ nowrap>@@@PAGEMENU1@@@</td>
 <td width="35%" align="right" bgcolor=@@@MENUBAR@@@ nowrap>@@@MOVECONTROLS1@@@</td>
 </tr></table>
-<br>
 @@@CONTROLBAR1END@@@
+@@@MIDDLEPLUGIN@@@
 
 <table border="0" align="center" width="95%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
 @@@HEADERS@@@

@@ -43,6 +43,7 @@ rm -Rf cgi-bin/openwebmail/etc/*.db
 rm -Rf cgi-bin/openwebmail/etc/maps/*.db
 rm -Rf cgi-bin/openwebmail/etc/sessions/* cgi-bin/openwebmail/etc/sessions/.[A-z]*
 rm -Rf cgi-bin/openwebmail/etc/users/*
+rm -Rf cgi-bin/openwebmail/etc/users.conf/[a-z]*
 rm -Rf data/openwebmail/screenshots
 rm -Rf data/openwebmail/download
 rm -Rf data/openwebmail/applet/mindterm2/*.jar data/openwebmail/applet/mindterm2/*.txt
