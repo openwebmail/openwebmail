@@ -1,0 +1,435 @@
+#!/usr/bin/perl
+
+# Arabic translation by Isam Ishaq
+# charset: windows-1256
+
+%lang_folders =
+   (
+   INBOX => 'ÚáÈÉ ÇáæÇÑÏ',
+   'saved-messages' => 'ÇáãÍÝæÙÇÊ',
+   'sent-mail'      => 'ÚáÈÉ ÇáÕÇÏÑ',
+   'saved-drafts'   => 'ÇáãÓæøÏÇÊ',
+   'mail-trash'     => 'ÓáÉ ÇáãåãáÇÊ',
+   DELETE => '--ÇÍÐÝ--'
+   );
+
+%lang_sortlabels =
+   (
+   status      => 'ÇáæÖÚ - ÛíÑ ãÞÑæÁ ÃæøáÇð',
+   date        => 'ÇáÊøÇÑíÎ - ÇáÃÍÏË ÃæøáÇð',
+   date_rev    => 'ÇáÊøÇÑíÎ - ÇáÃÞÏã ÃæøáÇð',
+   sender      => 'ÇáãÑÓá - ÇáÃÍÏË ÃæøáÇð',
+   sender_rev  => 'ÇáãÑÓá - ÇáÃÞÏã ÃæøáÇð',
+   subject     => 'ÇáãæÖæÚ - ÇáÃÍÏË ÃæøáÇð',
+   subject_rev => 'ÇáãæÖæÚ - ÇáÃÞÏã ÃæøáÇð',
+   size        => 'ÇáÍÌã - ÇáÃßÈÑ ÃæøáÇð',
+   size_rev    => 'ÇáÍÌã - ÇáÃÕÛÑ ÃæøáÇ'
+   );
+
+%lang_prioritylabels =
+   (
+   normal      => 'ÚÇÏíø',
+   urgent      => 'ÚÇÌá',
+   'non-urgent'=> 'ÛíÑ ÚÇÌá'
+   );
+
+%lang_withoriglabels =
+   (
+   at_beginning => 'Ýí ÇáÈÏÇíÉ',
+   at_end      => 'Ýí ÇáäåÇíÉ',
+   none        => 'ÈÏæä'
+   );
+
+%lang_receiptlabels =
+   (
+   ask => 'ÇØáÈ ááÊøÃßíÏ',
+   yes => 'äÚã',
+   no  => 'áÇ'
+   );
+
+%lang_ctrlpositionlabels =
+   (
+   top => 'Ýí ÇáÃÚáì',
+   bottom => 'Ýí ÇáÃÓÝá'
+   );
+
+%lang_sendpositionlabels =
+   (
+   before => 'ÞÈá ãÑÈÚ ÊÍÑíÑ ÇáÈÑíÏ',
+   after => 'ÈÚÏ ãÑÈÚ ÊÍÑíÑ ÇáÈÑíÏ',
+   both  => 'ÞÈá æÈÚÏ ãÑÈÚ ÊÍÑíÑ ÇáÈÑíÏ'
+   );
+
+%lang_abookbuttonpositionlabels = 
+   (
+   before => 'Before addressbook entries',
+   after  => 'After addressbook entries',
+   both   => 'Before and after addressbook entries'
+   );
+
+%lang_timelabels =
+   (
+      3 => '3 ÏÞÇÆÞ',
+      5 => '5 ÏÞÇÆÞ',
+     10 => '10 ÏÞÇÆÞ',
+     20 => '20 ÏÞíÞÉ',
+     30 => '30 ÏÞíÞÉ',
+     60 => '60 ÏÞíÞÉ',
+    120 => 'ÓÇÚÊÇä',
+    180 => '3 ÓÇÚÇÊ',
+    360 => '6 ÓÇÚÇÊ',
+    720 => '12 ÓÇÚÉ',
+   1440 => '24 ÓÇÚÉ'
+   );
+
+%lang_advsearchlabels =
+   (
+   contains    => 'íÍÊæí Úáì',
+   notcontains => 'áÇ íÍÊæí Úáì',
+   is          => 'íÓÇæí',
+   isnot       => 'áÇ íÓÇæí',
+   startswith  => 'íÈÏÃ ÈÜö',
+   endswith    => 'íäÊåí ÈÜö',
+   regexp      => 'íØÇÈÞ regexp',
+   );
+
+%lang_sizes =
+   (
+   mb   => ' ã.È.',        # mega bytes
+   kb   => ' ß.È.',        # kilo bytes
+   byte => ' ÈÇíÊ'
+   );
+
+%lang_calendar = 
+   (
+   yearview  => 'ÚÑÖ',
+   monthview => 'ÚÑÖ ÔåÑ',
+   weekview  => 'ÚÑÖ ÃÓÈæÚ',
+   dayview   => 'ÚÑÖ íæã',
+   listview  => 'ÚÑÖ ÇáÞÇÆãÉ'
+   );
+
+%lang_month =
+   (
+   1  => 'ßÇäæä ËÇäí',
+   2  => 'ÔÈÇØ',
+   3  => 'ÂÐÇÑ',
+   4  => 'äíÓÇä',
+   5  => 'ÃíÇÑ',
+   6  => 'ÍÒíÑÇä',
+   7  => 'ÊãæÒ',
+   8  => 'ÂÈ',
+   9  => 'Ãíáæá',
+   10 => 'ÊÔÑíä Ãæá',
+   11 => 'ÊÔÑÈä ËÇäí',
+   12 => 'ßÇäæä Ãæá'
+   );
+
+%lang_wday =
+   (
+   0 => 'ÇáÃÍÏ',
+   1 => 'ÇáÇËäíä',
+   2 => 'ÇáËáÇËÇÁ',
+   3 => 'ÇáÃÑÈÚÇÁ',
+   4 => 'ÇáÎãíÓ',
+   5 => 'ÇáÌãÚÉ',
+   6 => 'ÇáÓÈÊ'
+   );
+
+%lang_wday_abbrev =
+   (
+   week => 'ÃÓÈæÚ',
+   0 => 'ÃÍÏ',
+   1 => 'ÃËäíä',
+   2 => 'ËáÇËÇÁ',
+   3 => 'ÃÑÈÚÇÁ',
+   4 => 'ÎãíÓ',
+   5 => 'ÌãÚÉ',
+   6 => 'ÓÈÊ'
+   );
+
+%lang_order =
+   (
+   1 => 'ÇáÃæá',
+   2 => 'ÇáËÇäí',
+   3 => 'ÇáËÇáË',
+   4 => 'ÇáÑÇÈÚ',
+   5 => 'ÇáÃÎíÑ'
+   );
+
+%lang_wdbutton =
+   (
+   refresh  => 'ÊÍÏíË',
+   preview  => 'ãÚÇíäÉ',
+   edit     => 'ÊÍÑíÑ',
+   listarchive=> 'List',
+   decompress=>'Ýß ÇáÖÛØ',
+   extract  => 'Extract',
+   chdir    => 'ÊÛííÑ ãÌáÏ',
+   mkdir    => 'ÅäÔÇÁ ãÌáÏ',
+   newfile  => 'ãáÝ ÌÏíÏ',
+   delete   => 'ÍÐÝ',
+   copy     => 'äÓÎ',
+   move     => 'äÞá',
+   gzip     => 'gzCompress',
+   mkzip    => 'MkZip',
+   mktgz    => 'MkTgz',
+   mkthumbnail  => 'MkThumb',
+   download => 'ÊÍãíá ãä ÇáÎÇÏã',
+   upload   => 'ÊÍãíá Çáì ÇáÎÇÏã',
+   );   
+
+%lang_text =
+   (
+   login      => 'ÊÓÌíá ÇáÏøÎæá',
+   clear      => 'Clear',
+   point      => 'äøÞØÉ',
+   pixel      => 'ÈíßÓá',
+   changepwd  => 'ÊÛííÑ ßáãÉ ÇáãÑæÑ',
+   viewhistory=> 'ÚÑÖ ÇáÃÍÏÇË',
+   of         => 'ãä',
+   messages   => 'ÑÓÇáÉ (ÑÓÇÆá)',
+   unread     => 'ÛíÑ ãÞÑæÁÉ',
+   nomessages => 'áÇ ÊæÌÏ ÑÓÇÆá',
+   inmessages => 'ÑÓÇÆá æÇÑÏÉ',
+   composenew => 'ÅäÔÇÁ ÑÓÇáÉ ÌÏíÏÉ',
+   refresh    => 'ÊÍÏíË',
+   userprefs  => 'ÊÝÖíáÇÊ ÇáãÓÊÎÏã',
+   addressbook=> 'ÏÝÊÑ ÇáÚäÇæíä',
+   folders    => 'ãÌáÏÇÊ',
+   emptytrash => 'ÊÝÑíÛ ÓáÉ ÇáãåãáÇÊ',
+   totrash    => 'ÇäÞá Åáì ÓáÉ ÇáãåãáÇÊ',
+   forever    => 'Åáì ÇáÃÈÏ',
+   delatlogout=> 'ÍÐÝ ÚäÏ ÊÓÌíá ÇáÎÑæÌ',
+   userdef    => 'ãÍÏÏ ãä ÇáãÓÊÎÏã',
+   logout     => 'ÊÓÌíá ÇáÎÑæÌ',
+   page       => 'ÕÝÍÉ',
+   msgcopyconf=> '\'åá ÃäÊ ãÊÃßøÏ Ãäøß ÊÑíÏ äÓÎ ÇáÑÓÇáÉ (ÇáÑÓÇÆá) ÇáãÎÊÇÑÉ¿\'',
+   copy       => 'äÓÎ Åáì',
+   msgmoveconf=> '\' åá ÃäÊ ãÊÃßøÏ Ãäøß ÊÑíÏ äÞá ÇáÑÓÇáÉ (ÇáÑÓÇÆá) ÇáãÎÊÇÑÉ¿\'',
+   move       => 'äÞá Åáì',
+   markasread => 'Úáøã ßãÞÑæÁ',
+   markasunread => 'Úáøã ßÛíÑ ãÞÑæÁ',
+   dateformat => 'Ôßá ÇáÊøÇÑíÎ',
+   date       => 'ÇáÊÇÑíÎ',
+   recipient  => 'ÇáãÓÊáã',
+   sender     => 'ÇáãÑÓá',
+   subject    => 'ÇáãæÖæÚ',
+   thread     => 'ãæÖæÚ ÇáãÍÇÏËÉ',
+   size       => 'ÇáÍÌã',
+   backto     => 'ÚæÏÉ Åáì',
+   reply      => 'ÇáÑÏ',
+   replyall   => 'ÇáÑÏ Úáì Çáßá',
+   forward    => 'ãÑÑ',
+   forwardasatt=>'ãÑÑ ßãáÍÞ',
+   printfriendly=> 'ãáÇÆã ááØÈÇÚÉ',
+   from       => 'ãä',
+   replyto    => 'ÃÌÈ Åáì',
+   to         => 'Åáì',
+   cc         => 'äÓÎÉ',
+   bcc        => 'äÓÎÉ ÓÑíÉ',
+   simplehead => 'ÑÄæÓ ÇáÑÓÇáÉ ãÈÓØÉ',
+   allhead    => 'ßÇÝÉ ÑÄæÓ ÇáÑÓÇáÉ',
+   simpleattmode => 'ÇáãáÝÇÊ ÇáãáÍÞÉ ãÈÓØÉ',
+   allattmode    => 'ßÇÝÉ ÇáãáÝÇÊ ÇáãáÍÞÉ',
+   attachment => 'ãáÍÞ',
+   type       => 'äæÚ',
+   filename   => 'ÇÓã ÇáãáÝ',
+   encoding   => 'ÇáÊÑãíÒ',
+   description=> 'ÇáæÕÝ',
+   download   => 'ÊÍãíá',
+   charset    => 'ÇáÊÑãíÒ',
+   samecharset=> 'äÝÓ äæÚ ÇáÊÑãíÒ ÇáãÓÊÎÏã Ýí ÅÚÏÇÏ ÇáÑÓÇáÉ',
+   thisispartialmsg => 'åÐå ÑÓÇáÉ ÌÒÆíÉ',
+   msgrebuild => 'ÅÚÇÏÉ ÈäÇÁ ÇáÑÓÇáÉ',
+   editdraft  => 'ÊÍÑíÑ ÇáãÓæøÏÉ',
+   savedraft  => 'ÇÍÝÙ ßãÓæøÏÉ',
+   send       => 'ÅÑÓÇá',
+   about      => 'Íæá',
+   close      => 'ÅÛáÇÞ',
+   cancel     => 'ÅáÛÇÁ',
+   ok         => 'ãæÇÝÞ',
+   continue   => 'ÅÓÊãÑø',
+   loginagain => 'ÅÚÇÏÉ ÊÓÌíá ÇáÏÎæá',
+   exit       => 'ÎÑæÌ',
+   for        => '',
+   yourname   => 'ÅÓãß',
+   save       => 'ÍÝÙ',
+   add        => 'ÅÖÇÝÉ',
+   folderrenprop => '\'ÇáÑÌÇÁ ÅÏÎÇá ÇÓã ÌÏíÏ áåÐÇ ÇáãÌáÏ\'',
+   rename     => 'ÅÚÇÏÉ ÊÓãíÉ',
+   folderdelconf => '\'åá ÊÑíÏ ÈÇáÊÃßíÏ ÍÐÝ åÐÇ ÇáãÌáÏ ãÚ ÌãíÚ ãÍÊæíÇÊå¿\'',
+   markread   => 'Úáøã ßãÞÑæÁ',
+   foldermarkreadconf => '\åá ÊÑíÏ ÊÚáíã ÌãíÚ ãÍÊæíÇÊ åÐÇ ÇáãÌáÏ ßãÞÑæÁÉ¿\'',
+   chkindex   => 'ÝÍÕ ÇáÝåÑÓ',
+   folderchkindexconf => '\'åá ÊÑíÏ ÝÍÕ ÇáÝåÑÓÉ áåÐÇ ÇáãÌáÏ¿\'',
+   reindex    => 'ÅÚÇÏÉ ÝåÑÓÉ',
+   folderreindexconf => '\' åá ÊÑíÏ ÅÚÇÏÉ ÇáÝåÑÓÉ áåÐÇ ÇáãÌáÏ¿\'',
+   total      => 'ÇáãÌãæÚ',
+   edit       => 'ÊÍÑíÑ',
+   delete     => 'ÍÐÝ',
+   reserve    => 'ÍÌÒ',
+   clearadd   => 'ÍÐÝ ÌãíÚ ÇáÚäÇæíä',
+   importadd  => 'ÇÓÊíÑÇÏ ÚäæÇä',
+   exportadd  => 'ÊÕÏíÑ ÚäÇæíä',
+   import     => 'ÇÓÊíÑÇÏ',
+   addmod     => 'ÅÖÇÝÉ/ÊÚÏíá',
+   modify     => 'ÊÚÏíá',
+   abooktitle => 'ÏÝÊÑ ÇáÚäÇæíä',
+   abook      => 'ÏÝÊÑ ÇáÚäÇæíä',
+   name       => 'ÇáÇÓã',
+   email      => 'ÈÑíÏ ÇáßÊÑæäí',
+   note       => 'ãáÇÍÙÉ',
+   max        => 'Maximum',
+   group      => 'ÇáãÌãæÚÉ',
+   quota_hit  => 'Êã ÊÌÇæÒ ÇáÍÕÉ ÇáãÓãæÍ ÈåÇ',
+   usage      => 'ãÓÊÎÏã',
+   tzmap      => 'ÎÇÑØÉ ÇáãäÇØÞ ÇáÒãäíÉ',
+   testsound  => 'ÝÍÕ ÇáÕæÊ',
+   editfroms  => 'ÊÍÑíÑ ÚäÇæíä ÇáÈÑíÏ ÇáÇáßÊÑæäí ÇáÔÎÕíÉ',
+   pop3book   => 'ÊÍÑíÑ ÏÝÊÑ POP3',
+   retr_pop3s => 'ÅÓÊáÇã ÈÑíÏ POP3',
+   filterbook => 'ÊÍÑíÑ ÞæÇÚÏ ÝáÊÑ ÇáÈÑíÏ',
+   include    => 'íÍÊæí Úáì',
+   exclude    => 'áÇ íÍÊæí Úáì',
+   smtprelay  => 'SMTP Relay',
+   header     => 'ÑÄæÓ ÇáÑÓÇáÉ',
+   body       => 'ÌÓã ÇáÑÓÇáÉ',
+   attfilename=> 'ÅÓã ÇáãáÝ ÇáãáÍÞ',
+   all        => 'Çáßá',
+   enable     => 'ããßä',
+   disable    => 'ãÚØá',
+   filtered   => 'ÊãÊ ÝáÊÑÊåÇ',
+   blockrelay => 'ãäÚ ÇáÈÑíÏ ãä ãáÞã SMTP',
+   blockemail => 'ãäÚ ÇáÈÑíÏ ãä ÇáÚäæÇä',
+   read       => 'ÞÑÇÁå',
+   yourmsg    => 'ÑÓÇáÊß',
+   delivered  => 'Êã ÊæÕíáåÇ',
+   wasreadon1 => 'Êã ÞÑÇÁÊåÇ Ýí',
+   wasreadon2 => '.',
+   globaladdressbook => 'ÏÝÊÑ ÇáÈÑíÏ ÇáÚÇã',
+   globalfilterrule => 'ÞæÇÚÏ ÇáÝáÊÑ ÇáÚÇãÉ',
+   readonly   => 'ááÞÑÇÆÉ ÝÞØ',
+   textcontent=> 'ãÍÊæíÇÊ ÇáäÕ',
+   search     => 'ÈÍË',
+   advsearch  => 'ÈÍË ãÊÞÏã',
+   folder     => 'ãÌáÏ',
+   nofoldersel=> 'áã íÊã ÅÎÊíÇÑ ãÌáÏ',
+   showall    => 'ÅÙåÇÑ Çáßá',
+   spellcheck => 'ÊÏÞíÞ ÇáÅãáÇÁ',
+   checkagain => 'ÊÏÞíÞ ãÌÏÏ',
+   finishchecking => 'ÅäåÇÁ ÇáÊÏÞíÞ',
+   manuallyfix=> 'ÊÕÍíÍ íÏæí',
+   editstat   => 'ÊÍÑíÑ ÇáäÕæÕ ÇáËÇÈÊå',
+   savestat   => 'ÍÝÙ ÇáäÕ ÇáËÇÈÊ',
+   clearstat  => 'ÍÐÝ ÌãíÚ ÇáäÕæÕ ÇáËÇÈÊå',
+   statreply  => '-- ÅÎÊÇÑ ÇáäÕ ÇáËÇÈÊ ááÅÌÇÈå --',
+   calendar   => 'ÇáÊÞæíã',
+   am         => 'Õ.',
+   pm         => 'ã.',
+   calfmt_year          => 'ÓäÉ @@@YEAR@@@',
+   calfmt_yearmonth     => '@@@MONTH_STR@@@ @@@YEAR@@@',
+   calfmt_yearmonthday  => '@@@DAY@@@ @@@MONTH_STR@@@ @@@YEAR@@@',
+   calfmt_yearmonthdaywday => '@@@WEEKDAY_STR@@@ @@@DAY@@@ @@@MONTH_STR@@@ @@@YEAR@@@',
+   calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
+   none       => 'ÈáÇ',
+   moreitems  => 'ÚäÇÕÑ ÃßËÑ',
+   multieditconf => 'ÊãÊ ÅÖÇÝÉ åÐÇ ÇáÚäÕÑ áÚÏÉ ÊæÇÑíÎ. \\n ÊÚÏíá åÐÇ ÇáÚäÕÑ íÊã ÊØÈíÞå Úáì ßá åÐå ÇáÊæÇÑíÎ\\nÇáÇÓÊãÑÇÑ ÈÇáÊÍÑíÑ¿',
+   multidelconf  => 'ÊãÊ ÅÖÇÝÉ åÐÇ ÇáÚäÕÑ áÚÏÉ ÊæÇÑíÎ. \\n ÍÐÝ åÐÇ ÇáÚäÕÑ íÊã ÊØÈíÞå Úáì ßá åÐå ÇáÊæÇÑíÎ\\nÇáÇÓÊãÑÇÑ ÈÇáÍÐÝ¿',
+   noitemforthisday => 'áÇ ÊæÌÏ ÚäÇÕÑ áåÐÇ Çáíæã',
+   thisday_only          => 'Çáíæã ÇáÍÇáí ÝÞØ',
+   the_wday_of_thismonth => 'íæã @@@WDAY@@@ @@@ORDER@@@ ãä ßá ÔåÑ',
+   every_wday_thismonth  => 'ßá ÃíÇã @@@WDAY@@@ Ýí åÐÇ ÇáÔåÑ',
+   thismonth_only           => 'åÐÇ ÇáÔåÑ ÝÞØ',
+   every_oddmonth_thisyear  => 'ßá ÇáÃÔåÑ ÇáÝÑÏíå Ýí åÐå ÇáÓäå',
+   every_evenmonth_thisyear => 'ßá ÇáÃÔåÑ ÇáÒæÌíå Ýí åÐå ÇáÓäå',
+   every_month_thisyear     => 'ßá ÇáÃÔåÑ Ýí åÐå ÇáÓäå',
+   webdisk      => 'æíÈ-ÏÓß',
+   sshterm      => 'SSH Terminal',
+   dir          => 'ãÌáÏ',
+   dirs         => 'ãÌáÏÇÊ',
+   file         => 'ãáÝ',
+   files        => 'ãáÝÇÊ',
+   program      => 'ÈÑäÇãÌ',
+   dest_of_chdir  => 'ÇáãÌáÏ ÇáãÞÕæÏ',
+   name_of_newdir => 'ÇÓã ÇáãÌáÏ ÇáÌÏíÏ ÇáÐí ÊÑíÏ ÅäÔÇÆå',
+   name_of_newfile=> 'ÇÓã ÇáãáÝ ÇáÌÏíÏ ÇáÐí ÊÑíÏ ÅäÔÇÆå',
+   dest_of_thecopy=> 'ÇáãÌáÏ Ãæ ÇáãáÝ ÇáãÑÇÏ ÇáäÓÎ Çáíå',
+   dest_of_themove=> 'ÇáãÌáÏ Ãæ ÇáãáÝ ÇáãÑÇÏ ÇáäÞá Çáíå',
+   dest_of_thezip=> 'ÇáãáÝ ÇáÌÏíÏ ÇáäÇÊÌ ãä ÚãáíÉ zip',
+   dest_of_thetgz=> 'ÇáãáÝ ÇáÌÏíÏ ÇáäÇÊÌ ãä ÚãáíÉ tgz',
+   homedir      => 'Homedir',
+   showthumbnail    => 'ãÕÛøÑÇÊ',
+   showhidden   => 'ÅÙåÇÑ ÇáãáÝÇÊ ÇáãÎÛíÉ',
+   lastmodified => 'æÞÊ ÃÎÑ ÊÚÏíá',
+   perm         => 'ÕáÇÍíÇÊ',
+   permission   => 'Access Permission',
+   noitemfound  => 'áÇ ÊæÌÏ ÚäÇÕÑ',
+   savefile     => 'ÍÝÙ ãáÝ',
+   succeeded    => 'Êã ÈäÌÇÍ',
+   failed       => 'ÝÔá',
+   savefile_towd=> 'ÅÍÝÙ ÇáãáÝ Ýí ÇáæíÈ-ÏÓß',
+   saveatt_towd => 'ÅÍÝÙ ÇáãáÍÞ Ýí ÇáæíÈ-ÏÓß',
+   addatt_fromwd=> 'ÃÖÝ ãáÍÞ ãä ÇáæíÈ-ÏÓß'
+   );
+
+%lang_err =
+   (
+   has_illegal_chars => 'has illegal characters!',
+   couldnt_open      => 'Couldn\'t open',
+   couldnt_locksh    => 'Couldn\'t get read lock on',
+   couldnt_lock      => 'Couldn\'t get write lock on',
+   couldnt_seek      => 'Couldn\'t seek to the beginning of',
+   couldnt_close     => 'Couldn\'t close',
+   couldnt_updatedb  => 'Couldn\'t update index db ',
+   disallowed_pop3   => 'Disallowed POP3 server',
+   disallowed_client => 'You are not allowed to connect from this client',
+   disallowed_receiverdomain => 'You are not allowed to send message to this email address',
+   norootlogin       => 'Sorry, root login is disabled for security\'s sake.',
+   shouldnt_move_here=> 'You shouldn\'t be trying to move messages here!',
+   destination_folder=> 'Destination folder',
+   doesnt_exist      => 'doesn\'t exist!',
+   foldername_long   => 'Folder name cannot be more than 16 characters!',
+   folder_with_name  => 'A folder with the name',
+   already_exists    => 'already exists!',
+   cant_create_folder=> 'Can\'t create folder!',
+   under_indexing    => 'is still under indexing, please try later',
+   abook_invalid     => 'Sorry, this file doesn\'t appear to be an address book exported from Microsoft Outlook Express 5 in CSV format.  Make sure that when viewing it in a text editor, the first line starts out "Name,E-mail Address", then go',
+   back              => 'back',
+   tryagain          => 'and try again.',
+   abook_toobig      => 'Sorry, this would exceed the size limit for your address book.  Please go',
+   cant_create_dir   => 'Can\'t create your user directory!',
+   folder_hitquota   => 'Sorry, you\'ve hit your quota, and no more mail can be stored in your mail folders.  You will be unable to move messages anywhere but to the TRASH, where they will be deleted.  Go back, delete some messages or empty your trash, and try again.',
+   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
+   att_overlimit     => 'Sorry, your attachments exceed the attachment size limit, which is',
+   inv_msg_op        => 'Invalid operation for message',
+   sess_cookieerr    => 'Your request didn\'t contain the proper sessionid cookie -- access denied!',
+   sess_iperr        => 'Your request didn\'t come from the same ip of this session -- access denied!',
+   no_endpart        => 'End part not found',
+   part_missing      => 'Some part was missing',
+   rebuild_fmterr    => 'New message format error',
+   rebuild_sizeerr   => 'New message size mismatch',
+   user_not_exist    => 'user does not exist',
+   func_notsupported => 'function not supported',
+   auth_syserr       => 'authentication system error',
+   param_fmterr      => 'parameter format error',
+   pwd_incorrect     => 'Password incorrect',
+   pwd_tooshort      => 'Password too short (minimum length @@@PASSWDMINLEN@@@)',
+   pwd_toosimple     => 'Password too simple (both alphabet and digit are required)',
+   network_server_error => 'network server error',
+   sendmail_error    => 'Sorry, there was a problem sending your message.  Please click your browser\'s Back button, check your message, and try again.',
+   at_char_not_allowed => 'The @ character is not allowed in this field.  Press browser back button and try again',
+   badnum_in_days => 'bad number in consecutive days field',
+   access_denied     => 'Access denied',
+   couldnt_chdirto   => 'Couldn\'t chdir to',
+   isnt_a_dir        => 'is not a directory',
+   edit_notfordir    => 'You can\'t edit a directory',
+   onefileonly       => 'Only one file is allowed for this operation',
+   no_file_todownload=> 'No file is specified for download',
+   upload_overlimit  => 'Upload file size is over the limit',
+   decomp_notsupported=>'Decompression support is not available for this file.',
+   webdisk_hitquota   => 'Sorry, you\'ve hit your webdisk quota, please delete some files first.',
+   webdisk_readonly   => 'Sorry, your webdisk is read only.'
+   );
+
+1;

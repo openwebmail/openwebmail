@@ -47,11 +47,24 @@
    no  => 'ไม่'
    );
 
-%lang_positionlabels =
+%lang_ctrlpositionlabels =
    (
-   before => 'Before mail edit area',
-   after => 'After mail edit area',
-   both  => 'Before and after mail edit area'
+   top => 'At top',
+   bottom => 'At bottom'
+   );
+
+%lang_sendpositionlabels =
+   (
+   before => 'บนที่เขียนข้อความ',
+   after => 'ล่างที่เขียนข้อความ',
+   both  => 'ทั้งบนและล่างที่เขียนข้อความ'
+   );
+
+%lang_abookbuttonpositionlabels = 
+   (
+   before => 'Before addressbook entries',
+   after  => 'After addressbook entries',
+   both   => 'Before and after addressbook entries'
    );
 
 %lang_timelabels =
@@ -80,13 +93,20 @@
    regexp      => 'ตรงกับ regexp',
    );
 
+%lang_sizes =
+   (
+   mb   => 'MB',	# mega bytes
+   kb   => 'KB',	# kilo bytes
+   byte => 'Byte'
+   );
+
 %lang_calendar = 
    (
    yearview  => 'แสดงรายปี',
    monthview => 'แสดงรายเดือน',
    weekview  => 'แสดงรายสัปดาห์',
    dayview   => 'แสดงรายวัน',
-   listview   => 'Listview'
+   listview  => 'แสดงรายการ'
    );
 
 %lang_month =
@@ -137,6 +157,28 @@
    5 => 'สุดท้าย'
    );
 
+%lang_wdbutton =
+   (
+   refresh  => 'Refresh',
+   preview  => 'Preview',
+   edit     => 'แก้ไข',
+   listarchive=> 'List',
+   decompress=>'Decompress',
+   extract  => 'Extract',
+   chdir    => 'ChDir',
+   mkdir    => 'MkDir',
+   newfile  => 'NewFile',
+   delete   => 'Delete',
+   copy     => 'Copy',
+   move     => 'Move',
+   gzip     => 'gzCompress',
+   mkzip    => 'MkZip',
+   mktgz    => 'MkTgz',
+   mkthumbnail  => 'MkThumb',
+   download => 'Download',
+   upload   => 'Upload',
+   );   
+
 %lang_text =
    (
    login      => 'เข้าระบบ',
@@ -158,7 +200,7 @@
    emptytrash => 'ล้างถังขยะ',
    totrash    => 'ทิ้งถังขยะ',
    forever    => 'ตลอดไป',
-   delatlogout=> 'Delete at Logout',
+   delatlogout=> 'ลบเมื่อออกจากระบบ',
    userdef    => 'ผู้ใช้กำหนด',
    logout     => 'ออกจากระบบ',
    page       => 'หน้า',
@@ -196,8 +238,8 @@
    encoding   => 'รูปแบบการบันทึก',
    description=> 'รายละเอียด',
    download   => 'ดาวน์โหลด',
-   charset    => 'Charset',
-   samecharset=> 'The same as composing charset',
+   charset    => 'รหัสตัวอักษร',
+   samecharset=> 'เหมือนกับรหัสตอนเขียนจดหมาย',
    thisispartialmsg => 'นี่เป็นบางส่วนของจดหมาย',
    msgrebuild => 'จดหมายถูกสร้างใหม่',
    editdraft  => 'แก้ไขร่าง',
@@ -206,6 +248,7 @@
    about      => 'ข้อมูลระบบ',
    close      => 'ปิด',
    cancel     => 'ยกเลิก',
+   ok         => 'Ok',
    continue   => 'ทำต่อ',
    loginagain => 'เข้าระบบอีกครั้ง',
    exit       => 'ออก',
@@ -223,6 +266,7 @@
    reindex    => 'สร้างดัชนีใหม่',
    folderreindexconf => '\'กรุณายืนยันการสร้างดัชนีใหม่ของโฟลเดอร์นี้?\'',
    total      => 'รวม',
+   edit       => 'แก้ไข',
    delete     => 'ลบ',
    reserve    => 'สำรอง',
    clearadd   => 'ลบรายชื่อทั้งหมด',
@@ -236,11 +280,12 @@
    name       => 'ชื่อ',
    email      => 'ที่อยู่อีเมล',
    note       => 'หมายเหตุ',
+   max        => 'Maximum',
    group      => 'กลุ่ม',
    quota_hit  => 'จดหมายเต็ม',
    usage      => 'ใช้งาน',
    tzmap      => 'แผนที่แสดงเวลามาตรฐานโลก',
-   testsound  => 'Test sound',
+   testsound  => 'ทดสอบเสียง',
    editfroms  => 'แก้ไขสมุดรายชื่อ',
    pop3book   => 'กำหนดค่า POP3',
    retr_pop3s => 'รับจดหมายแบบ POP3',
@@ -275,10 +320,10 @@
    checkagain => 'ตรวจอีกครั้ง',
    finishchecking => 'ตรวจเสร็จแล้ว',
    manuallyfix=> 'แก้ไขเอง',
-   editstat   => 'Edit Stationery',
-   savestat   => 'Save Stationery',
-   clearstat  => 'Clear All Stationery',
-   selectstat => '-- Select Stationery for Reply --',
+   editstat   => 'แก้ไขแบบข้อความ',
+   savestat   => 'บันทึกแบบข้อความ',
+   clearstat  => 'ลบแบบข้อความทั้งหมด',
+   statreply  => '-- Stationery for Reply --',
    calendar   => 'ปฏิทิน',
    am         => 'am',
    pm         => 'pm',
@@ -291,12 +336,41 @@
    moreitems  => 'รายการเพิ่มเติม',
    multieditconf => 'รายการนี้ถูกใส่ไว้ในหลายวัน\\nการแก้ไขจะมีผลต่อทุกรายการ\\nกรุณายืนยันการแก้ไข?',
    multidelconf  => 'รายการนี้ถูกใส่ไว้ในหลายวัน\\nการลบจะมีผลต่อทุกรายการ\\nกรุณายืนยันการลบ?',
-   ed         => 'แก้ไข',
-   del        => 'ลบ',
    noitemforthisday => 'ไม่มีรายการในวันนี้',
-   today_only               => 'วันนี้เท่านั้น',
-   the_wday_of_thismonth    => 'ใน @@@WDAY@@@ @@@ORDER@@@ ของเดือน',
-   every_wday_of_thismonth  => 'ทุกๆ @@@WDAY@@@ ในเดือนนี้'
+   thisday_only          => 'วันนี้เท่านั้น',
+   the_wday_of_thismonth => 'ใน @@@WDAY@@@ @@@ORDER@@@ ของเดือน',
+   every_wday_thismonth  => 'ทุกๆ @@@WDAY@@@ ในเดือนนี้',
+   thismonth_only           => 'This month only',
+   every_oddmonth_thisyear  => 'Every odd month this year',
+   every_evenmonth_thisyear => 'Every even month this year',
+   every_month_thisyear     => 'Every month this year',
+   webdisk      => 'WebDisk',
+   sshterm      => 'SSH Terminal',
+   dir          => 'Dir',
+   dirs         => 'Dirs',
+   file         => 'File',
+   files        => 'Files',
+   program      => 'Program',
+   dest_of_chdir  => 'the destined directory',
+   name_of_newdir => 'the directory name to create',
+   name_of_newfile=> 'the filename to create',
+   dest_of_thecopy=> 'the destined directory or file of the copy',
+   dest_of_themove=> 'the destined directory or file of the move',
+   dest_of_thezip=> 'the destined filename of the new zip',
+   dest_of_thetgz=> 'the destined filename of the new tgz',
+   homedir      => 'Homedir',
+   showthumbnail    => 'Thumbnails',
+   showhidden   => 'Show hidden files',
+   lastmodified => 'Last modified time',
+   perm         => 'Perm',
+   permission   => 'Access Permission',
+   noitemfound  => 'No item found',
+   savefile     => 'Savefile',
+   succeeded    => 'succeeded',
+   failed       => 'failed',
+   savefile_towd=> 'Save file to WebDisk',
+   saveatt_towd => 'Save attachment to WebDisk',
+   addatt_fromwd=> 'Add attachment from WebDisk'
    );
 
 %lang_err =
@@ -307,7 +381,7 @@
    couldnt_lock      => 'ไม่สามารถล็อกเพื่อเขียนกับ',
    couldnt_seek      => 'ไม่สามารถอ่านจุดเริ่มต้นของ',
    couldnt_close     => 'ไม่สามารถปิด',
-   couldnt_updatedb  => 'Couldn\'t update index db ',
+   couldnt_updatedb  => 'ไม่สามารถปรับปรุงดัชนีข้อมูล',
    disallowed_pop3   => 'ไม่อนุญาตให้ใช้ POP3 เซิร์ฟเวอร์',
    disallowed_client => 'คุณไม่ได้รับอนุญาตให้ใช้งานจากเครื่องนี้ได้',
    disallowed_receiverdomain => 'คุณไม่ได้รับอนุญาตให้ส่งจดหมายไปยังที่อยู่อีเมลนี้',
@@ -326,10 +400,11 @@
    abook_toobig      => 'การกระทำนี้จะทำให้สมุดรายชื่อของคุณใหญ่กว่าที่กำหนดไว้',
    cant_create_dir   => 'ไม่สามารถสร้างไดเรกทอรีส่วนตัวของคุณได้!',
    folder_hitquota   => 'จดหมายของคุณเต็มพื้นที่แล้ว คุณไม่สามารถย้ายจดหมายเข้าโฟลเดอร์ได้ คุณสามารถย้ายจดหมายไปยังถังขยะเพื่อลบได้เท่านั้น กรุณากลับไปลบจดหมาย หรือล้างถังขยะ แล้วลองใหม่อีกครั้ง',
-   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
+   folder_cutdone    => 'คำเตือน ปริมาณของจดหมายถึงโควต้าแล้ว (@@@FOLDERQUOTA@@@) จดหมายฉบับที่เก่าที่สุดในโฟลเดอร์ จะถูกลบโดยอัตโนมัติ',
    att_overlimit     => 'แฟ้มที่แนบของคุณใหญ่กว่าขนาดที่กำหนดไว้',
    inv_msg_op        => 'คำสั่งผิดพลาดในจดหมาย',
-   inv_sessid        => 'การใช้งานของคุณไม่มีรายละเอียด cookie ที่ถูกต้อง คุณไม่สามารถใช้งานได้!',
+   sess_cookieerr    => 'การใช้งานของคุณไม่มีรายละเอียด cookie ที่ถูกต้อง คุณไม่สามารถใช้งานได้!',
+   sess_iperr        => 'Your request didn\'t come from the same ip of this session -- access denied!',
    no_endpart        => 'ไม่พบส่วนสิ้นสุด',
    part_missing      => 'ไม่พบบางส่วน',
    rebuild_fmterr    => 'มีข้อผิดพลาดในจดหมายใหม่',
@@ -339,12 +414,22 @@
    auth_syserr       => 'การตรวจสอบผู้ใช้ผิดพลาด',
    param_fmterr      => 'รูปแบบผิดพลาด',
    pwd_incorrect     => 'รหัสผ่านผิดพลาด',
-   pwd_tooshort      => 'Password too short (minimum length @@@PASSWDMINLEN@@@)',
-   pwd_toosimple     => 'Password too simple (both alphabet and digit are required)',
+   pwd_tooshort      => 'รหัสผ่านสั้นเกินไป (ขั้นต่ำ @@@PASSWDMINLEN@@@ ตัวอักษร)',
+   pwd_toosimple     => 'รหัสผ่านง่ายเกินไป (ต้องมีทั้งตัวอักษร และตัวเลข)',
    network_server_error => 'เซิร์ฟเวอร์เครือข่ายผิดพลาด',
    sendmail_error    => 'มีความผิดพลาดในการส่งจดหมายของคุณ กรุณากดปุ่ม Back ในบราวเซอร์, ตรวจสอบจดหมาย แล้วลองใหม่อีกครั้ง',
    at_char_not_allowed => 'ไม่สามารถใช้เครื่องหมาย @ ในช่องนี้ได้ กรุณากดปุ่ม back แล้วลองใหม่',
-   badnum_in_days => 'จำนวนในช่องวันติดต่อกันผิดพลาด'
+   badnum_in_days => 'จำนวนในช่องวันติดต่อกันผิดพลาด',
+   access_denied     => 'Access denied',
+   couldnt_chdirto   => 'Couldn\'t chdir to',
+   isnt_a_dir        => 'is not a directory',
+   edit_notfordir    => 'You can\'t edit a directory',
+   onefileonly       => 'Only one file is allowed for this operation',
+   no_file_todownload=> 'No file is specified for download',
+   upload_overlimit  => 'Upload file size is over the limit',
+   decomp_notsupported=>'Decompression support is not available for this file.',
+   webdisk_hitquota   => 'Sorry, you\'ve hit your webdisk quota, please delete some files first.',
+   webdisk_readonly   => 'Sorry, your webdisk is read only.'
    );
 
 1;

@@ -1,12 +1,12 @@
 <table border="0" align="center" width="95%" cellpadding="0" cellspacing="0">
-<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>Stavekontroll for @@@DICTIONARY@@@</B></font>
 </td></tr>
 <tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
-<tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
+<tr><td bgcolor=@@@WINDOW_LIGHT@@@>
 <BR>Noen erstattningsforslag vil bli gitt for hvert feil-stavet ord.
 Brukeren kan velge en av dem for å bytte ut det originale ordet.
 Dersom ingen forslag blir funnet eller brukeren velger "-Rett selv-"
@@ -32,7 +32,9 @@ manuellt.
 &nbsp;&nbsp;&nbsp;
 @@@CANCELBUTTON@@@
 <br><br>
-</td></tr></table>
+</td></tr>
+@@@ENDFORM@@@
+</table>
 
 <script language="JavaScript">
 <!--

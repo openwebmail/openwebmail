@@ -6,7 +6,7 @@
 
 %lang_folders =
    (
-   INBOX => 'Inbox',
+   INBOX => '受信トレイ',
    'saved-messages' => '保存済み',
    'sent-mail'      => '送信済み',
    'saved-drafts'   => '下書き',
@@ -48,11 +48,24 @@
    no  => 'いいえ'
    );
 
-%lang_positionlabels =
+%lang_ctrlpositionlabels =
    (
-   before => 'Before mail edit area',
-   after => 'After mail edit area',
-   both  => 'Before and after mail edit area'
+   top => 'At top',
+   bottom => 'At bottom'
+   );
+
+%lang_sendpositionlabels =
+   (
+   before => '編集エリアの上',
+   after => '編集エリアの下',
+   both  => '編集エリアの上下'
+   );
+
+%lang_abookbuttonpositionlabels = 
+   (
+   before => 'Before addressbook entries',
+   after  => 'After addressbook entries',
+   both   => 'Before and after addressbook entries'
    );
 
 %lang_timelabels =
@@ -81,12 +94,20 @@
    regexp      => 'regexp　に合う',
    );
 
+%lang_sizes =
+   (
+   mb   => 'MB',	# mega bytes
+   kb   => 'KB',	# kilo bytes
+   byte => 'バイト'
+   );
+
 %lang_calendar = 
    (
    yearview  => '年表示',
    monthview => '月表示',
    weekview  => '週表示',
-   dayview   => '日表示'
+   dayview   => '日表示',
+   listview  => 'Listview'
    );
 
 %lang_month =
@@ -137,6 +158,28 @@
    5 => '最後'
    );
 
+%lang_wdbutton =
+   (
+   refresh  => 'Refresh',
+   preview  => 'Preview',
+   edit     => '編集',
+   listarchive=> 'List',
+   decompress=>'Decompress',
+   extract  => 'Extract',
+   chdir    => 'ChDir',
+   mkdir    => 'MkDir',
+   newfile  => 'NewFile',
+   delete   => 'Delete',
+   copy     => 'Copy',
+   move     => 'Move',
+   gzip     => 'gzCompress',
+   mkzip    => 'MkZip',
+   mktgz    => 'MkTgz',
+   mkthumbnail  => 'MkThumb',
+   download => 'Download',
+   upload   => 'Upload',
+   );   
+
 %lang_text =
    (
    login      => 'ログイン',
@@ -149,7 +192,7 @@
    messages   => 'メッセージ',
    unread     => '未読',
    nomessages => 'メッセージなし',
-   inmessages => 'Incoming msgs',
+   inmessages => '受信メッセージ',
    composenew => '新規メッセージの作成',
    refresh    => '更新',
    userprefs  => 'ユーザーのお気に入り',
@@ -158,7 +201,7 @@
    emptytrash => 'ごみ箱を空にする',
    totrash    => 'ごみ箱に移動する',
    forever    => '永久に',
-   delatlogout=> 'Delete at Logout',
+   delatlogout=> 'ログアウト時に削除',
    userdef    => 'ユーザー定義',
    logout     => 'ログアウト',
    page       => 'ページ',
@@ -196,8 +239,8 @@
    encoding   => 'エンコーディング',
    description=> '詳細',
    download   => 'ダウンロード',
-   charset    => 'Charset',
-   samecharset=> 'The same as composing charset',
+   charset    => '文字セット',
+   samecharset=> '文章中の文字セットと同じ',
    thisispartialmsg => 'これは部分的なメッセージです',
    msgrebuild => 'メッセージを作り直します',
    editdraft  => '下書きの編集',
@@ -206,6 +249,7 @@
    about      => '情報',
    close      => '閉じる',
    cancel     => 'キャンセル',
+   ok         => 'Ok',
    continue   => '続行',
    loginagain => '再ログイン',
    exit       => '終了',
@@ -223,6 +267,7 @@
    reindex    => 'インデックスを再編成する',
    folderreindexconf => '\'このフォルダーの受信箱を再作成してもよろしいですか?',
    total      => '合計',
+   edit       => '編集',
    delete     => '削除',
    reserve    => '予約',
    clearadd   => 'すべてのアドレスを削除',
@@ -236,11 +281,12 @@
    name       => '名前',
    email      => 'Eメール',
    note       => '注釈',
+   max        => 'Maximum',
    group      => 'グループ',
    quota_hit  => 'クォータヒット',
    usage      => '使用',
    tzmap      => '世界タイムゾーン地図',
-   testsound  => 'Test sound',
+   testsound  => '音のテスト',
    editfroms  => '個人Eメールのアドレスの編集',
    pop3book   => 'POP3 セットアップ',
    retr_pop3s => 'POP3メールを検索する',
@@ -275,10 +321,10 @@
    checkagain => '再度チェック',
    finishchecking => 'チェックが完了しました',
    manuallyfix=> '手動で修正',
-   editstat   => 'Edit Stationery',
-   savestat   => 'Save Stationery',
-   clearstat  => 'Clear All Stationery',
-   selectstat => '-- Select Stationery for Reply --',
+   editstat   => '背景を編集',
+   savestat   => '背景を保存',
+   clearstat  => '選択した背景をクリア',
+   statreply  => '-- Stationery for Reply --',
    calendar   => 'カレンダー',
    am         => '午前',
    pm         => '午後',
@@ -291,12 +337,41 @@
    moreitems  => 'ほかの項目',
    multieditconf => 'このアイテムが多くの日付に追加されました。\\nそれを編集するとすべての日付におけるアイテムが変更されます。\\n編集を続行しますか？',
    multidelconf  => 'このアイテムが多くの日付に追加されました。\\nそれを削除するとすべての日付におけるアイテムが削除されます。\\n削除を続行しますか？',
-   ed         => '編集',
-   del        => '削除',
    noitemforthisday => 'この日のアイテムはありません',
-   today_only               => '今日\'の日付けのみ',
-   the_wday_of_thismonth    => 'その月の@@@ORDER@@@ @@@WDAY@@@ ',
-   every_wday_of_thismonth  => 'この月の毎@@@WDAY@@@ '
+   thisday_only          => '今日\'の日付けのみ',
+   the_wday_of_thismonth => 'その月の@@@ORDER@@@ @@@WDAY@@@ ',
+   every_wday_thismonth  => 'この月の毎@@@WDAY@@@ ',
+   thismonth_only           => 'This month only',
+   every_oddmonth_thisyear  => 'Every odd month this year',
+   every_evenmonth_thisyear => 'Every even month this year',
+   every_month_thisyear     => 'Every month this year',
+   webdisk      => 'WebDisk',
+   sshterm      => 'SSH Terminal',
+   dir          => 'Dir',
+   dirs         => 'Dirs',
+   file         => 'File',
+   files        => 'Files',
+   program      => 'Program',
+   dest_of_chdir  => 'the destined directory',
+   name_of_newdir => 'the directory name to create',
+   name_of_newfile=> 'the filename to create',
+   dest_of_thecopy=> 'the destined directory or file of the copy',
+   dest_of_themove=> 'the destined directory or file of the move',
+   dest_of_thezip=> 'the destined filename of the new zip',
+   dest_of_thetgz=> 'the destined filename of the new tgz',
+   homedir      => 'Homedir',
+   showthumbnail    => 'Thumbnails',
+   showhidden   => 'Show hidden files',
+   lastmodified => 'Last modified time',
+   perm         => 'Perm',
+   permission   => 'Access Permission',
+   noitemfound  => 'No item found',
+   savefile     => 'Savefile',
+   succeeded    => 'succeeded',
+   failed       => 'failed',
+   savefile_towd=> 'Save file to WebDisk',
+   saveatt_towd => 'Save attachment to WebDisk',
+   addatt_fromwd=> 'Add attachment from WebDisk'
    );
 
 %lang_err =
@@ -307,7 +382,7 @@
    couldnt_lock      => '下書きをロックできませんでした',
    couldnt_seek      => '始まりを見つけることができませんでした',
    couldnt_close     => '閉じることができません',
-   couldnt_updatedb  => 'Couldn\'t update index db ',
+   couldnt_updatedb  => 'インデックスデータベースをアップデートできませんでした ',
    disallowed_pop3   => 'POP3サーバーが使えませんでした',
    disallowed_client => 'このクライアントから接続することはできません',
    disallowed_receiverdomain => 'このEメールアドレスに送信することができません',
@@ -326,10 +401,11 @@
    abook_toobig      => '申し訳ありませんが、これはあなたのアドレス帳のサイズ制限を越えてしまいますので、次へ進んでください。',
    cant_create_dir   => 'あなたのユーザーディレクトリーが作成できません!',
    folder_hitquota   => '申し訳ありませんが、あなたはクォータをヒットしたので、これ以上のメールはメールフォルダーには保存されません。メッセージを削除するためのごみ箱以外メッセーを移動することができません。  戻ってメッセージをいくつか削除するか、ごみ箱を空にしてからやり直してください。',
-   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
+   folder_cutdone    => '警告です。フォルダーの制限サイズ(@@@FOLDERQUOTA@@@)を超えたので、自動的に古いメッセージ順に削除していきます。',
    att_overlimit     => '申し訳ありませんが、添付ファイルが制限サイズを超えています。制限サイズは次のようになっています',
    inv_msg_op        => 'メッセージに無効な操作です',
-   inv_sessid        => 'あなたのリクエストは正確なセッションIDクッキーが含まれていませんでした -- アクセスは拒否されました!',
+   sess_cookieerr    => 'あなたのリクエストは正確なセッションIDクッキーが含まれていませんでした -- アクセスは拒否されました!',
+   sess_iperr        => 'Your request didn\'t come from the same ip of this session -- access denied!',
    no_endpart        => '最後の部分が見つかりません',
    part_missing      => 'いくつかの部分が見つかりません',
    rebuild_fmterr    => '新しいメッセージのフォーマットエラーです',
@@ -339,14 +415,22 @@
    auth_syserr       => '認証システムのエラーです',
    param_fmterr      => 'パラメーターのフォーマットエラーです',
    pwd_incorrect     => 'パスワードが間違っています',
-   pwd_tooshort      => 'Password too short (minimum length @@@PASSWDMINLEN@@@)',
-   pwd_toosimple     => 'Password too simple (both alphabet and digit are required)',
+   pwd_tooshort      => 'パスワードが短すぎます (最小の長さは @@@PASSWDMINLEN@@@です)',
+   pwd_toosimple     => 'パスワードが簡単すぎます (アルファベットと数字両方を使うようにしてください。)',
    network_server_error => 'ネットワークサーバーエラーです',
    sendmail_error    => '申し訳ありませんが、あなたのメッセージの送信時に問題が生じました。ブラウザーの戻るボタンをクリックし、メッセージをチェックしてからもう一度試してみてください。',
    at_char_not_allowed => 'その@文字はこのフィールドでは使えません。  ブラウザーの戻るボタンをクリックしてからもう一度試してみてください。',
-   badnum_in_days => '連続した日フィールドでの良くない数'
+   badnum_in_days => '連続した日フィールドでの良くない数',
+   access_denied     => 'Access denied',
+   couldnt_chdirto   => 'Couldn\'t chdir to',
+   isnt_a_dir        => 'is not a directory',
+   edit_notfordir    => 'You can\'t edit a directory',
+   onefileonly       => 'Only one file is allowed for this operation',
+   no_file_todownload=> 'No file is specified for download',
+   upload_overlimit  => 'Upload file size is over the limit',
+   decomp_notsupported=>'Decompression support is not available for this file.',
+   webdisk_hitquota   => 'Sorry, you\'ve hit your webdisk quota, please delete some files first.',
+   webdisk_readonly   => 'Sorry, your webdisk is read only.'
    );
 
 1;
-
-

@@ -1,12 +1,12 @@
 <table border="0" align="center" width="95%" cellpadding="0" cellspacing="0">
-<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>Kontrola pravopisu pro @@@DICTIONARY@@@</B></font>
 </td></tr>
 <tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
-<tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
+<tr><td bgcolor=@@@WINDOW_LIGHT@@@>
 <BR>Ke ka¾dému ¹patnì napsanému slovu bude zobrazen seznam mo¾ných tvarù.
 U¾ivatel nìkterý z nich mù¾e vybrat a nahradit jím pùvodní slovo.
 Pokud není ¾ádný alternativní tvar nalezen, mù¾e u¾ivatel vybrat  "--Opravit ruènì--",
@@ -32,7 +32,9 @@ tvar slova.
 &nbsp;&nbsp;&nbsp;
 @@@CANCELBUTTON@@@
 <br><br>
-</td></tr></table>
+</td></tr>
+@@@ENDFORM@@@
+</table>
 
 <script language="JavaScript">
 <!--

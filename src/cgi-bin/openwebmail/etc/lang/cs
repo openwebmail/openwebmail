@@ -1,7 +1,8 @@
 #!/usr/bin/perl
 
 # Czech translation by Michal Drapak, michal@stavlib.hiedu.cz, 2001-NOV-8
-#           changes by Jan Bilik, jan@bilik.org, 2002-JUN-6
+#           changes by Jan Bilik, jan@bilik.org, 2002-JUN-6, 2003-JAN-5
+#           changes by Pavel Schauer, schauer@dp.fce.vutbr.cz, 2002-DEC-3
 # charset: iso-8859-2
 
 %lang_folders =
@@ -48,11 +49,24 @@
    no  => 'Ne'
    );
 
-%lang_positionlabels =
+%lang_ctrlpositionlabels =
    (
-   before => 'Before mail edit area',
-   after => 'After mail edit area',
-   both  => 'Before and after mail edit area'
+   top => 'Nahoøe',
+   bottom => 'Dole'
+   );
+
+%lang_sendpositionlabels =
+   (
+   before => 'Pøed oblastí úpravy zprávy',
+   after => 'Za oblastí úpravy zprávy',
+   both  => 'Pøed a za oblastí úpravy zprávy'
+   );
+
+%lang_abookbuttonpositionlabels = 
+   (
+   before => 'Pøed adresáøovými vstupy',
+   after  => 'Za adresáøovými vstupy',
+   both   => 'Pøed a za adresáøovými vstupy'
    );
 
 %lang_timelabels =
@@ -72,71 +86,100 @@
 
 %lang_advsearchlabels =
    (
-   contains    => 'contains',
-   notcontains => 'does not contain',
-   is          => 'is',
-   isnot       => 'is not',
-   startswith  => 'starts with',
-   endswith    => 'ends with',
-   regexp      => 'matches regexp',
+   contains    => 'obsahuje',
+   notcontains => 'neobsahuje',
+   is          => 'je',
+   isnot       => 'není',
+   startswith  => 'zaèíná',
+   endswith    => 'konèí',
+   regexp      => 'splòuje regulární výraz'
+   );
+
+%lang_sizes =
+   (
+   mb   => 'MB',        # mega bytes
+   kb   => 'KB',        # kilo bytes
+   byte => 'Byte'
    );
 
 %lang_calendar = 
    (
-   yearview  => 'Yearview',
-   monthview => 'Monthview',
-   weekview  => 'Weekview',
-   dayview   => 'Dayview',
-   listview   => 'Listview'
+   yearview  => 'Roèní pøehled',
+   monthview => 'Mìsíèní pøehled',
+   weekview  => 'Týdenní pøehled',
+   dayview   => 'Denní pøehled',
+   listview  => 'Zobrazení seznamu'
    );
 
 %lang_month =
    (
-   1  => 'January',
-   2  => 'February',
-   3  => 'March',
-   4  => 'April',
-   5  => 'May',
-   6  => 'June',
-   7  => 'July',
-   8  => 'August',
-   9  => 'September',
-   10 => 'October',
-   11 => 'November',
-   12 => 'December'
+   1  => 'leden',
+   2  => 'únor',
+   3  => 'bøezen',
+   4  => 'duben',
+   5  => 'kvìten',
+   6  => 'èerven',
+   7  => 'èervenec',
+   8  => 'srpen',
+   9  => 'záøí',
+   10 => 'øijen',
+   11 => 'listopad',
+   12 => 'prosinec'
    );
 
 %lang_wday =
    (
-   0 => 'Sunday',
-   1 => 'Monday',
-   2 => 'Tuesday',
-   3 => 'Wednesday',
-   4 => 'Thursday',
-   5 => 'Friday',
-   6 => 'Saturday'
+   0 => 'nedìle',
+   1 => 'pondìlí',
+   2 => 'úterý',
+   3 => 'støeda',
+   4 => 'ètvrtek',
+   5 => 'pátek',
+   6 => 'sobota'
    );
 
 %lang_wday_abbrev =
    (
-   week => 'WK',
-   0 => 'S',
-   1 => 'M',
-   2 => 'T',
-   3 => 'W',
-   4 => 'T',
-   5 => 'F',
-   6 => 'S'
+   week => 'týd',
+   0 => 'ne',
+   1 => 'po',
+   2 => 'út',
+   3 => 'st',
+   4 => 'èt',
+   5 => 'pá',
+   6 => 'so'
    );
 
 %lang_order =
    (
-   1 => '1st',
-   2 => '2nd',
-   3 => '3rd',
-   4 => '4th',
-   5 => 'last'
+   1 => 'první',
+   2 => 'druhý',
+   3 => 'tøetí',
+   4 => 'ètvrtý',
+   5 => 'poslední'
    );
+
+%lang_wdbutton =
+   (
+   refresh  => 'Obnovit',
+   preview  => 'Náhled',
+   edit     => 'Upravit',
+   listarchive=> 'Obsah',
+   decompress=>'Dekomprimovat',
+   extract  => 'Rozbalit',
+   chdir    => 'ZmìnaSlo¾ky',
+   mkdir    => 'NováSlo¾ka',
+   newfile  => 'NovýSoubor',
+   delete   => 'Smazat',
+   copy     => 'Kopírovat',
+   move     => 'Pøesunout',
+   gzip     => 'GZip',
+   mkzip    => 'Zip',
+   mktgz    => 'TAR+GZip',
+   mkthumbnail  => 'MkThumb',
+   download => 'Stáhnout',
+   upload   => 'Poslat',
+   );   
 
 %lang_text =
    (
@@ -150,7 +193,7 @@
    messages   => 'zpráv',
    unread     => 'nepøeètených',
    nomessages => '®ádné zprávy',
-   inmessages => 'Incoming msgs',
+   inmessages => 'Nových zpráv',
    composenew => 'Napsat novou zprávu',
    refresh    => 'Obnovit',
    userprefs  => 'U¾ivatelské nastavení',
@@ -159,7 +202,7 @@
    emptytrash => 'Vysypat Ko¹',
    totrash    => 'Pøesunout do Ko¹e',
    forever    => 'Napoøád',
-   delatlogout=> 'Delete at Logout',
+   delatlogout=> 'Smazat pøi odhlá¹ení',
    userdef    => 'U¾iv.def.',
    logout     => 'Odhlásit',
    page       => 'Strana',
@@ -186,7 +229,7 @@
    replyto    => 'Kam odpovídat (pokud má být pro odpovìï pou¾ita jiná adresa) ',
    to         => 'Komu',
    cc         => 'Kopie',
-   bcc        => 'Slepá kopie',
+   bcc        => 'Neviditelná kopie',
    simplehead => 'Zkrácené záhlaví',
    allhead    => 'Celé záhlaví',
    simpleattmode => 'Jednoduchá pøíloha',
@@ -197,16 +240,17 @@
    encoding   => 'Kódování',
    description=> 'Popis',
    download   => 'Ulo¾it do souboru',
-   charset    => 'Charset',
-   samecharset=> 'The same as composing charset',
+   charset    => 'Znaková sada',
+   samecharset=> 'Stejná jako pro psaní zprávy',
    thisispartialmsg => 'Tato zpráva se skládá z více èástí.',
    msgrebuild => 'Zrekonstruovat zprávu',
-   editdraft  => 'Edituj rozepsané',
-   savedraft  => 'Ulo¾ rozepsané',
+   editdraft  => 'Editovat rozepsané',
+   savedraft  => 'Ulo¾it rozepsané',
    send       => 'Poslat',
    about      => 'O systému',
    close      => 'Zavøít',
    cancel     => 'Zru¹it',
+   ok         => 'Ok',
    continue   => 'Pokraèovat',
    loginagain => 'Nové pøihlá¹ení',
    exit       => 'Konec',
@@ -224,6 +268,7 @@
    reindex    => 'Novì indexovat',
    folderreindexconf => '\'Jste si jist, ¾e chcete reindexovat tuto slo¾ku?\'',
    total      => 'Celkovì',
+   edit       => 'Upravit',
    delete     => 'Smazat',
    reserve    => 'Ponechat na serveru',
    clearadd   => 'Vymazat celý adresáø',
@@ -237,11 +282,12 @@
    name       => 'Jméno',
    email      => 'E-mail',
    note       => 'Poznámka',
+   max        => 'Maximum',
    group      => 'Skupina',
    quota_hit  => 'Vrchol kvóty',
    usage      => 'Vyu¾ití',
-   tzmap      => 'World timezone map',
-   testsound  => 'Test sound',
+   tzmap      => 'Svìtová mapa èasových zón',
+   testsound  => 'Otestovat zvuk',
    editfroms  => 'Správa vlastních e-mailových adres',
    pop3book   => 'Správa POP3 úètù',
    retr_pop3s => 'Stáhnout po¹tu z POP3 úètù',
@@ -268,36 +314,65 @@
    readonly   => 'Jen pro ètení',
    textcontent=> 'Obsah textu',
    search     => 'Hledání',
-   advsearch  => 'Advanced search',
-   folder     => 'Folder',
-   nofoldersel=> 'No Folder selected',
-   showall    => 'Show All',
-   spellcheck => 'Pravopis',
-   checkagain => 'Pokraèovat v kontrole',
-   finishchecking => 'Ukonèit kontrolu',
+   advsearch  => 'Roz¹íøené vyhledávání',
+   folder     => 'Katalog',
+   nofoldersel=> 'Nebyl vybrán ¾ádný katalog',
+   showall    => 'Zobrazit v¹e',
+   spellcheck => 'Zkontrolovat pravopis',
+   checkagain => 'Pokraèovat v kontrole pravopisu',
+   finishchecking => 'Ukonèit kontrolu pravopisu',
    manuallyfix=> 'Opravit ruènì',
-   editstat   => 'Edit Stationery',
-   savestat   => 'Save Stationery',
-   clearstat  => 'Clear All Stationery',
-   selectstat => '-- Select Stationery for Reply --',
-   calendar   => 'Calendar',
-   am         => 'am',
-   pm         => 'pm',
-   calfmt_year          => 'Year @@@YEAR@@@',
+   editstat   => 'Upravit komentáø',
+   savestat   => 'Ulo¾it komentáø',
+   clearstat  => 'Vymazat v¹echny komentáøe',
+   statreply  => '-- Stationery for Reply --',
+   calendar   => 'Kalendáø',
+   am         => 'dop.',
+   pm         => 'odp.',
+   calfmt_year          => 'Rok @@@YEAR@@@',
    calfmt_yearmonth     => '@@@MONTH_STR@@@ @@@YEAR@@@',
-   calfmt_yearmonthday  => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@',
-   calfmt_yearmonthdaywday => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@ @@@WEEKDAY_STR@@@',
+   calfmt_yearmonthday  => '@@@DAY@@@. @@@MONTH_STR@@@ @@@YEAR@@@',
+   calfmt_yearmonthdaywday => '@@@DAY@@@. @@@MONTH_STR@@@ @@@YEAR@@@, @@@WEEKDAY_STR@@@',
    calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
-   none       => 'None',
-   moreitems  => 'more items',
-   multieditconf => 'This item was added for multiple dates.\\nEditing it will change the item for all dates.\\nContinue with Edit?',
-   multidelconf  => 'This item was added for multiple dates.\\nDeleting it will delete the item for all dates.\\nContinue with Delete?',
-   ed         => 'Ed',
-   del        => 'Del',
-   noitemforthisday => 'No items for this day',
-   today_only               => 'Today\'s date only',
-   the_wday_of_thismonth    => 'The @@@ORDER@@@ @@@WDAY@@@ of the month',
-   every_wday_of_thismonth  => 'Every @@@WDAY@@@ this month'
+   none       => '¾ádný',
+   moreitems  => 'více polo¾ek',
+   multieditconf => 'Tato polo¾ka byla vlo¾ena pro více datumù.\\nÚprava zmìní hodnoty pro v¹echny datumy.\\nPokraèovat s úpravou datumu?',
+   multidelconf  => 'Tato polo¾ka byla vlo¾ena pro více datumù.\\nVymazání sma¾e hodnoty pro v¹echny datumy.\\nPokraèovat s mazáním?',
+   noitemforthisday => '®ádné polo¾ky pro tento den',
+   thisday_only          => 'Jen dne¹ní datum',
+   the_wday_of_thismonth => ' @@@ORDER@@@ @@@WDAY@@@ v mìsíci',
+   every_wday_thismonth  => 'ka¾dý @@@WDAY@@@ tento mìsíc',
+   thismonth_only           => 'Pouze tento mìsíc',
+   every_oddmonth_thisyear  => 'Ka¾dý lichý mìsíc tento rok',
+   every_evenmonth_thisyear => 'Ka¾dý sudý mìsíc tento rok',
+   every_month_thisyear     => 'Ka¾dý mìsíc tento rok',
+   webdisk      => 'WebDisk',
+   sshterm      => 'SSH Terminal',
+   dir          => 'Slo¾ka',
+   dirs         => 'Slo¾ek',
+   file         => 'Soubor',
+   files        => 'Souborù',
+   program      => 'Program',
+   dest_of_chdir  => 'cílová slo¾ka',
+   name_of_newdir => 'jméno nové slo¾ky',
+   name_of_newfile=> 'jméno nového souboru',
+   dest_of_thecopy=> 'cílová slo¾ka kopírovaného souboru',
+   dest_of_themove=> 'cílová slo¾ka pøesovaného souboru èi slo¾ky',
+   dest_of_thezip=> 'jméno nového .ZIP souboru',
+   dest_of_thetgz=> 'jméno nového .TGZ souboru',
+   homedir      => 'Domovská slo¾ka',
+   showthumbnail    => 'Ikonky',
+   showhidden   => 'Zobrazit skryté soubory',
+   lastmodified => 'Èas poslední zmìny',
+   perm         => 'Práva',
+   permission   => 'Pøístup povolen',
+   noitemfound  => 'Nebyla nalezena ¾ádáná polo¾ka',
+   savefile     => 'Ulo¾ení',
+   succeeded    => 'se podaøilo',
+   failed       => 'selhalo',
+   savefile_towd=> 'Ulo¾it soubor na WebDisk',
+   saveatt_towd => 'Ulo¾it pøílohu na WebDisk',
+   addatt_fromwd=> 'Vlo¾it pøílohu z WebDisku'
    );
 
 %lang_err =
@@ -308,7 +383,7 @@
    couldnt_lock      => 'Nepodaøilo se otevøít pro zápis',
    couldnt_seek      => 'Nepodaøilo se pøejít na zaèátek',
    couldnt_close     => 'Nelze zavøít',
-   couldnt_updatedb  => 'Couldn\'t update index db ',
+   couldnt_updatedb  => 'Nedá se aktualizovat index databáze',
    disallowed_pop3   => 'Nepovolený POP3 server',
    disallowed_client => 'Nemáte oprávnìní pøipojit se z tohoto klienta',
    disallowed_receiverdomain => 'Nemáte oprávnìní poslat zprávu na tuto adresu',
@@ -327,10 +402,11 @@
    abook_toobig      => 'Touto operací by do¹lo k pøekroèení kapacitního limitu Va¹eho adresáøe.',
    cant_create_dir   => 'Nelze vytvoøit Va¹i u¾ivatelskou slo¾ku!',
    folder_hitquota   => 'Dosáhli jste vrcholu kvóty a ¾ádná dal¹í zpráva ji¾ nemù¾e být do ¾ádné ze slo¾ek ulo¾ena. Nebudete moci pøesunout zprávu do jiné slo¾ky kromì Ko¹e, kde je mo¾no ji smazat. Sma¾te nìkteré zprávy nebo vyprázdnìte Ko¹ a zk uste operaci opakovat.',
-   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
+   folder_cutdone    => 'Varování, vzhledem k tomu, ¾e jste vyèerpal(a) diskovou kvotu (@@@FOLDERQUOTA@@@), staré zprávy ve Va¹ich slo¾kách byly automaticky smazány',
    att_overlimit     => 'Velikost pøílohy pøekroèila kapacitní limit, který je',
    inv_msg_op        => 'Neplatná operace pro zprávu',
-   inv_sessid        => 'Vá¹ po¾adavek neobsahoval odpovídající session ID cookie - pøístup odepøen!',
+   sess_cookieerr    => 'Vá¹ po¾adavek neobsahoval odpovídající SessionID cookie - pøístup odepøen!',
+   sess_iperr        => 'Vá¹ po¾adavek nepøi¹el ze stejné IP adresy tohoto Session - pøístup odepøen!',
    no_endpart        => 'Závìreèná èást nenalezena',
    part_missing      => 'Nìkterá z èástí chybìla',
    rebuild_fmterr    => 'Nesprávný formát nové zprávy',
@@ -340,12 +416,22 @@
    auth_syserr       => 'Chyba ovìøovacího systému',
    param_fmterr      => 'Chybný formát parametru',
    pwd_incorrect     => 'Chybné heslo',
-   pwd_tooshort      => 'Password too short (minimum length @@@PASSWDMINLEN@@@)',
-   pwd_toosimple     => 'Password too simple (both alphabet and digit are required)',
+   pwd_tooshort      => 'Heslo je pøíli¹ krátké (minimální délka je @@@PASSWDMINLEN@@@)',
+   pwd_toosimple     => 'Heslo je pøíli¹ jednoduché (jsou vy¾adovány jak písmena, tak èíslice)',
    network_server_error => 'Sí»ová chyba serveru',
-   sendmail_error    => 'Do¹lo k chybì pøi odesílání Va¹í zprávy. Stisknìte ve Va¹em prohlí¾eèi\'tlaèítko zpìt, zkontrolujte zprávu, a zkuste ji odeslat znovu.',
-   at_char_not_allowed => 'The @ character is not allowed in this field.  Press browser back button and try again',
-   badnum_in_days => 'bad number in consecutive days field'
+   sendmail_error    => 'Do¹lo k chybì pøi odesílání Va¹í zprávy. Stisknìte ve Va¹em prohlí¾eèi tlaèítko \'Zpìt\', zkontrolujte zprávu, a zkuste ji odeslat znovu.',
+   at_char_not_allowed => 'Znak @ není v tomto políèku dovolen.  Kliknìte na tlaèítko prohlí¾eèe \'Zpìt\' a zkuste to znovu',
+   badnum_in_days => '¹patné èíslo v políèku následujících dní',
+   access_denied     => 'Pøístup odepøen',
+   couldnt_chdirto   => 'Nelze pøejít do slo¾ky',
+   isnt_a_dir        => 'není slo¾kou',
+   edit_notfordir    => 'Nelze editovat slo¾ku',
+   onefileonly       => 'Pro tuto operaci je povoleno zvolit pouze jeden soubor.',
+   no_file_todownload=> 'Nebyl zvolen soubor ke sta¾ení',
+   upload_overlimit  => 'Velikost posílaného souboru je vìt¹í ne¾ povolená',
+   decomp_notsupported=>'Dekomprimace tohoto souboru není podporována.',
+   webdisk_hitquota   => 'Dosáhl jste bohu¾el maximální kvótu va¹eho webdisku, sma¾te prosím nejdøíve nìjaké soubory.',
+   webdisk_readonly   => 'Promiòte, Vá¹ WebDisk je urèen jen ke ètení.'
    );
 
 1;

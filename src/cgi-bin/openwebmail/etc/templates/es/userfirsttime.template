@@ -1,0 +1,14 @@
+<BR><BR><BR><BR><BR><BR><BR>
+<table border="0" align="center" width="60%" cellpadding="1" cellspacing="1">
+<tr><td bgcolor=@@@TITLEBAR@@@>
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>BIENVENIDO A @@@NAME@@@!</B></font>
+</td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
+<table width=85%><tr><td align="center">
+<BR>¡Bienvenido a @@@NAME@@@! Parece que esta es su primera vez usando @@@NAME@@@.
+Necesitamos reunir alguna información suya para poder
+configurar @@@NAME@@@ adecuadamente y que se ajuste a sus necesidades.
+Por favor, haga clic en "Continuar" para proceder con la configuración.
+@@@CONTINUEBUTTON@@@
+</td></tr></table>
+</td></tr></table>

@@ -1,25 +1,25 @@
+@@@STARTADDRESSFORM@@@
 <table border="0" align="center" width="95%" cellpadding="0" cellspacing="0">
-<tr><td colspan="4" bgcolor=@@@TITLEBAR@@@ align="left">
+<tr><td colspan="4" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>@@@ADDRESSBOOKFOR@@@</B></font>
 </td></tr><tr>
 <td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-@@@STARTSEARCHFORM@@@
 <input name="allbox" type="checkbox" value="1" onClick="CheckAll();">
 </td><td colspan="3" align="center" bgcolor=@@@WINDOW_LIGHT@@@ nowrap>
 @@@SEARCH@@@
 </td>
-@@@ENDFORM@@@
 </tr>
-
-@@@STARTADDRESSFORM@@@
+<tr><td colspan="4" align="center">
+@@@BUTTONSBEFORE@@@
+</td></tr>
 @@@ADDRESSES@@@
 <tr><td colspan="4" align="center">
-&nbsp;<br>
-@@@BUTTONS@@@
-</td>
+@@@BUTTONSAFTER@@@
+</td></tr>
+</table>
+@@@HIDDENFIELDS@@@
 @@@ENDFORM@@@
-</tr></table>
 
 <script language="JavaScript">
 <!--
@@ -28,14 +28,19 @@
    {
       for (var i=0;i<document.addressbook.elements.length;i++)
       {
-	 var e = document.addressbook.elements[i];
-	 if (e.type == 'checkbox')
-	    e.checked = document.search.allbox.checked;
+         var e = document.addressbook.elements[i];
+         if (e.type == 'checkbox')
+            e.checked = document.addressbook.allbox.checked;
       }
    }
    function Update(email)
    {
-      var e2 = unescape(document.addressbook.remainingstr.value);
+      var e2 = unescape(document.addressbook.others.value);
+      var e3 = unescape(document.addressbook.notlisted.value);
+      if (e2 && e3)
+         e2 += ",";
+      e2 += e3;
+
       for (var i = 0; i < document.addressbook.elements.length; i++)
       {
          var e = document.addressbook.elements[i];
@@ -49,5 +54,6 @@
       window.opener.document.@@@FORMNAME@@@.@@@FIELDNAME@@@.value = e2;
       window.close();
    }
+
 //-->
 </script>

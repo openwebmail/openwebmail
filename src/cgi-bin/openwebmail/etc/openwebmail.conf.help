@@ -273,7 +273,7 @@ ow_usersdir
 the directory for openwebmail users to store their messages, 
 personal preferences, signatures, and addressbooks in.
 
-ps: This option is used ONLY if option use_homedirfolders is set to 'yes'
+ps: This option is used ONLY if option use_homedirfolders is set to 'no'
 ps: This direcotry would become very large if you have many webmail users,
     so please put it in a partition with enough space.
 
@@ -384,6 +384,14 @@ from sendmail. 60s means mails from same user within 60 seconds will
 be replied only once
 
 
+auto_createrc
+-----------------------------------------------------------------------
+If this option set set to 'yes', the default preference settings will 
+be saved to .openwebmairc automatically for the firsttime login user.
+And the user will be lead to folderview directly instead of the 
+preference setting menu.
+
+
 allowed_serverdomain
 -----------------------------------------------------------------------
 This limits the virtualdomain that openwebmail will serve.
@@ -475,6 +483,27 @@ passwd_minlen
 The minimum length for the new password in changing password
 
 
+session_multilogin
+-----------------------------------------------------------------------
+Set this option to 'no' would disable multi-login for same user
+
+
+session_checkcookie
+-----------------------------------------------------------------------
+Set this option to 'no' would allow client to connect even it doesn't 
+support cookie, this gives better compatibility with some browser.
+
+session_checksameip
+-----------------------------------------------------------------------
+Set this option to 'no' would allow client ip change in same session
+This could be useful for dial up user who may want to continue the same 
+session after his has been off line for a while
+
+ps: We suggest you at least set one of the two options: session_checkcookie 
+    or session_checksameip to yes, or the user session may be hijacked 
+    by others.
+
+
 enable_about
 -----------------------------------------------------------------------
 Set this to 'no' if you want to disable the 'About' button in the user
@@ -533,6 +562,12 @@ This option would allow user to set their ~/.forward
 which will forward their mail to other server automatically
 
 
+enable_strictforward
+-----------------------------------------------------------------------
+If this option is to yes, any shell escaped character in ~/.forward 
+will be treated as invalid.
+
+
 enable_stationery
 -----------------------------------------------------------------------
 This option enable the stationery support
@@ -542,6 +577,21 @@ enable_calendar
 -----------------------------------------------------------------------
 Open WebMail has built-in clendar support.
 Set this option to 'no' if you want to disable it.
+
+
+enable_webdisk
+-----------------------------------------------------------------------
+Open WebMail has built-in web disk support,
+Set this option to 'no' if you want to disable it.
+
+
+enable_sshterm
+-----------------------------------------------------------------------
+If this option is set to 'no', then the SSH terminal button won't be 
+available to the user.
+
+ps: To completely disable the SSH terminal support, you have to remove 
+    the file data/openwebmail/applet/mindterm/mindtermfull.jar
 
 
 calendar_email_notifyinterval
@@ -633,6 +683,12 @@ pop3mail automatically after he login. And this option determines how
 long openwebmail should check mail on pop3 servers for the user.
 
 
+enable_strictfoldername
+-----------------------------------------------------------------------
+If this option is to yes, any shell escaped character in foldername
+will be treated as invalid.
+
+
 foldername_maxlen
 -----------------------------------------------------------------------
 This is the maximum length for the name of a folder
@@ -646,6 +702,8 @@ folder other than TRASH, where they will be immediately deleted,
 until space is freed. This does not prevent the operation taking the user
 over this limit from completing, it simply inhibits further saving of
 messages until the folder size is brought down again.
+
+Set this to 0 to disable the limit
 
 ps: please also check option cutfolders_ifoverquota 
 
@@ -685,7 +743,7 @@ entries.
 
 attlimit
 -----------------------------------------------------------------------
-This is the limit on the size of attachments (in MB).
+This is the limit on the size of attachments (in KB).
 Large attachments can significantly drain a server's resources during
 the encoding process.  Note that this affects outgoing attachment size only,
 and will not prevent users from receiving messages with large attachments.
@@ -696,6 +754,75 @@ Set this to 0 to disable the limit (not recommended).
 Some proxy server also has size limit on POST operation, the size of your
 attachment will also be limited by that
 
+
+webdisk_readonly
+-----------------------------------------------------------------------
+If set this option to yes, the webdisk will become read only.
+
+
+webdisk_quota
+-----------------------------------------------------------------------
+Once the total size of user's webdisk meets or exceeds this limit (in KB), 
+most functions in webdisk will be disabled except the delete function.
+
+Set this to 0 to disable the limit
+
+This is designed for situations that system disk quota can not be used
+with the openwebmail user. (eg: the user is virtual user)
+
+ps: Since the disk usage is gathered by executing 'du -s', it may be 
+    time-consuming if the user has lot of files in the webdisk. 
+    We suggest that you use the OS quota support if possible.
+
+
+webdisk_uploadlimit
+-----------------------------------------------------------------------
+This is the limit on the size of upload in web disk (in KB).
+Set this to 0 to disable the limit (not recommended).
+
+Some proxy server also has size limit on POST operation, the size of your
+upload will also be limited by that
+
+
+webdisk_lsmailfolder
+-----------------------------------------------------------------------
+If this option is set to 'no', the webdisk won't list and won't allow
+access to the webmail folder directory
+
+
+webdisk_lshidden
+-----------------------------------------------------------------------
+If this option is set to 'no', the webdisk won't list and won't allow
+access to those directories or files starting with . (dot)
+
+
+webdisk_lsunixspec
+-----------------------------------------------------------------------
+If this option is set to 'no', the webdisk won't list and won't allow
+access to those directories or files which have specific meaning in unix.
+eg: FIFO, socket, block device, charact device
+
+
+webdisk_lssymlink
+-----------------------------------------------------------------------
+If this option is set to 'no', the webdisk won't list and won't allow
+access to symbolic linked directories or files.
+
+
+webdisk_allow_symlinkouthome
+-----------------------------------------------------------------------
+If this option is set to 'no', then access to symbolic links that points
+to files outside the user home directory will be prohibited.
+
+
+webdisk_allow_thumbnail
+-----------------------------------------------------------------------
+If this option is set to 'no', then all thumbnail related function in webdisk
+will not be available to user
+
+ps: This thumbnail is created by the 'convert' utility in the ImageMagick 
+    package. The conversion could take times to process on a slow machine.
+    
 
 mailfooter
 -----------------------------------------------------------------------
@@ -721,35 +848,49 @@ default_language
 This is the language defaulted to if a user hasn't saved their own
 language preference yet.
 
-supported language including: (defined in openwebmail-shared.pl)
+supported language including: (defined in ow-shared.pl)
 
+ar.CP1256    => Arabic - Windows
+ar.ISO8859-6 => Arabic - ISO 8859-6
 bg           => Bulgarian
 ca           => Catalan
 cs           => Czech
 da           => Danish
-de           => German		# Deutsch
+de           => Deutsch			# German
 en           => English
-es           => Spanish		# Espanol
+el           => Hellenic		# Hellenic/Greek
+es           => Spanish			# Espanol
 fi           => Finnish
-fr           => French	
+fr           => French
 hu           => Hungarian
 id           => Indonesian
-it           => Italian
+it           => Italiano
+ja_JP.eucJP     => Japanese - eucJP
+ja_JP.Shift_JIS => Japanese - ShiftJIS
 kr           => Korean
 lt           => Lithuanian
-nl           => Dutch	# Nederlands
-no_NY        => Norwegian Nynorsk
+nl           => Nederlands
+no           => Norwegian
 pl           => Polish
 pt           => Portuguese
 pt_BR        => Portuguese Brazil
 ro           => Romanian
 ru           => Russian
 sk           => Slovak
-sv           => Swedish		# Svenska
-tr           => Turkish,
+sv           => Swedish			# Svenska
+th           => Thai
+tr           => Turkish
 uk           => Ukrainian
-zh_CN.GB2312 => Chinese ( Simplified )
-zh_TW.Big5   => Chinese ( Traditional )
+zh_CN.GB2312 => Chinese - Simplified
+zh_TW.Big5   => Chinese - Traditional 
+
+
+default_charset
+-----------------------------------------------------------------------
+The charset used by the above language. 
+Please refer to ow-shared.pl for supported charsets.
+If this option is set to 'auto', openwebmail will choose the charset 
+based on the language automatcially.
 
 
 default_timeoffset
@@ -782,11 +923,19 @@ Example:
 default_fromemails	name1@domain1.com, name2@domain2.com
 
 
-default_bgurl
+default_autoreplysubject
 -----------------------------------------------------------------------
-the default background image used for new user
+default subject for auto reply message
 
-ps: if set this to 'none', a transparent blank background will be used
+
+defaultautoreplytext
+-----------------------------------------------------------------------
+default text for auto reply message
+
+
+default_singature
+-----------------------------------------------------------------------
+default signature for all users
 
 
 default_style
@@ -799,21 +948,17 @@ default_iconset
 the default iconset used for new user
 
 
+default_bgurl
+-----------------------------------------------------------------------
+the default background image used for new user
+
+ps: if set this to 'none', a transparent blank background will be used
+
+
 default_fontsize
 -----------------------------------------------------------------------
 the default fontsize used for new user,
 available value: 9pt, 10pt, 11pt, 12px, 13px, 14px
-
-
-default_headersperpage
------------------------------------------------------------------------
-This indicates the maximum number of headers to display at a time.
-Keep this reasonable to ensure fast load time for slow connection users.
-
-
-default_sort
------------------------------------------------------------------------
-default message sorting, available value: date, sender, subject, size
 
 
 default_dateformat
@@ -829,44 +974,75 @@ default_hourformat
 24 or 12
 
 
-default_editcolumns
+default_ctrlposition_folderview
 -----------------------------------------------------------------------
-default columns for message composing windows
+control bar position in the folder list view
+values: top, bottom
 
 
-default_editrows
+default_msgsperpage
 -----------------------------------------------------------------------
-default rows for message composing windows
+This indicates the maximum number of messages to list at a time.
+Keep this reasonable to ensure fast load time for slow connection users.
 
 
-default_sendbuttonposition
+default_sort
 -----------------------------------------------------------------------
-default position of send button in message composing windows
+default message sorting, available value: date, sender, subject, size
 
 
-default_dictionary
+default_confirmmsgmovecopy
 -----------------------------------------------------------------------
-the default dictionary used in spellcheck for new user
+display confirm window before message move/copy
 
 
-default_newmailsound
+default_defaultdestination
 -----------------------------------------------------------------------
-this is the sound file played if new mail is found.
-Openwebmail checks new mail for user every 15 min if user is in INBOX
-folderview. Set to 'NONE' will disable this feature
+The defualt destination folder for the move/copy dropdown menu in 
+folder view and message read
+values: saved-messages, mail-trash
 
 
-default_newmailwindowtime
+default_viewnextaftermsgmovecopy
 -----------------------------------------------------------------------
-this is the remaining time of the new mail notification window.
-If it is set to value larger than 0, openwebmail will popup a window to 
-notify the user about the newly incoming messages
+goto next message after a message move/copy/deletion in the message
+view window
 
 
-hideinternal
+default_autopop3
 -----------------------------------------------------------------------
-If this option is enabled, internal messages used by POP3 or IMAP
-server will be hidden from users
+if this option is set to yes, openwebmail will fetch pop3 mail for
+user automatically after the user login
+
+
+default_moveoldmsgfrominbox
+-----------------------------------------------------------------------
+if this option is set to yes, old messages in INBOX will be moved
+into saved-messages at login/logout automatically
+
+
+forced_moveoldmsgfrominbox
+-----------------------------------------------------------------------
+When forced, old msg will be forced to move to SAVED folder at
+login/logout and the option moveoldmsgfrominbox won't be visible in
+user preference
+
+This is useful for servers with small mail spools.
+Openwebmail also gets better performance with this option set to yes
+since this prevents the need of rescanning a large INBOX folder
+
+
+default_ctrlposition_msgread
+-----------------------------------------------------------------------
+control bar position in per message reading
+values: top, bottom
+
+
+default_headers
+-----------------------------------------------------------------------
+This option controls whether to display all entyies in the message header 
+when user is reading a message
+values: simple, all
 
 
 default_usefixedfont
@@ -903,26 +1079,26 @@ link instead of the image picutre. This is useful for users with slow
 link of network.
 
 
-default_regexmatch
+default_sendreceipt
 -----------------------------------------------------------------------
-if set this option to 'yes', the regular expression is assumed when
-doing keyword match in search and filterrule.
+whether to sent the receipt for a message with the 'confirm reading'
+request, available value: ask, yes, no
 
 
-default_confirmmsgmovecopy
+default_editcolumns
 -----------------------------------------------------------------------
-display confirm window before message move/copy
+default columns for message composing windows
 
 
-default_viewnextaftermsgmovecopy
+default_editrows
 -----------------------------------------------------------------------
-goto next message after a message move/copy/deletion in the message
-view window
+default rows for message composing windows
 
 
-default_backupsentmsg
+default_sendbuttonposition
 -----------------------------------------------------------------------
-backup outgoing messages to SENT folder
+default position of send button in message composing windows
+values: before, after, both
 
 
 default_reparagraphorigmsg
@@ -937,10 +1113,9 @@ whether to append original message into the body of the reply message,
 available value: at_beginning, at_end, none
 
 
-default_sendreceipt
+default_backupsentmsg
 -----------------------------------------------------------------------
-whether to sent the receipt for a message with the 'confirm reading'
-request, available value: ask, yes, no
+backup outgoing messages to SENT folder
 
 
 default_sendcharset
@@ -952,27 +1127,65 @@ user in composing widnow will be used for outgoing message
 available value: sameascomposing or charset listed in iconv.pl
 
 
-default_autopop3
+default_regexmatch
 -----------------------------------------------------------------------
-if this option is set to yes, openwebmail will fetch pop3 mail for
-user automatically after the user login
+if set this option to 'yes', the regular expression is assumed when
+doing keyword match in search and filterrule.
 
 
-default_moveoldmsgfrominbox
+hideinternal
 -----------------------------------------------------------------------
-if this option is set to yes, old messages in INBOX will be moved
-into saved-messages at login/logout automatically
+If this option is enabled, internal messages used by POP3 or IMAP
+server will be hidden from users
 
 
-forced_moveoldmsgfrominbox
+default_refreshinterval
 -----------------------------------------------------------------------
-When forced, old msg will be forced to move to SAVED folder at
-login/logout and the option moveoldmsgfrominbox won't be visible in
-user preference
+This is the default interval in minutes that openwebmail will refresh 
+the screen when the user is listing a folder or reading a message.
+It gives the openwebmail a chance to check the new mail status.
+Setting value too small for this option will make your server busy in
+serving client's request
 
-This is useful for servers with small mail spools.
-Openwebmail also gets better performance with this option set to yes
-since this prevents the need of rescanning a large INBOX folder
+
+min_refreshinterval
+-----------------------------------------------------------------------
+the minimun value for option refreshinterval
+This is used to protect your server from being too busy due to a very 
+small refreshinterval setting
+
+
+default_newmailsound
+-----------------------------------------------------------------------
+this is the sound file played if new mail is found.
+Openwebmail checks new mail for user every 15 min if user is in INBOX
+folderview. Set to 'NONE' will disable this feature
+
+
+default_newmailwindowtime
+-----------------------------------------------------------------------
+this is the remaining time of the new mail notification window.
+If it is set to value larger than 0, openwebmail will popup a window to 
+notify the user about the newly incoming messages
+
+
+default_dictionary
+-----------------------------------------------------------------------
+the default dictionary used in spellcheck for new user
+
+
+default_trashreserveddays
+-----------------------------------------------------------------------
+message in trash will be deleted if its day age is more than this value,
+0 means forever
+
+
+default_sessiontimeout
+-----------------------------------------------------------------------
+This indicates how many minutes of inactivity pass before the user
+session is considered timed out, and the user needs to log in again.
+Make sure this is big enough that a user typing a long message won't
+get timeouted while typing!
 
 
 default_filter_repeatlimit
@@ -1012,49 +1225,39 @@ Messages with such attachments are normally virus mail. When this option is
 set to 'yes', these messages will be moved to mail-trash.
 
 
-default_refreshinterval
+default_abook_width
 -----------------------------------------------------------------------
-This is the default interval in minutes that openwebmail will refresh 
-the screen when the user is listing a folder or reading a message.
-It gives the openwebmail a chance to check the new mail status.
-Setting value too small for this option will make your server busy in
-serving client's request
+default width (in pixels) of the addressbook popup window.
+The value "max" let the browser use the max width available on screen
 
 
-min_refreshinterval
+default_abook_height
 -----------------------------------------------------------------------
-the minimun value for option refreshinterval
-This is used to protect your server from being too busy due to a very 
-small refreshinterval setting
+default height (in pixels) of the addressbook popup window.
+The value "max" let the browser use the max width available on screen
 
 
-default_trashreserveddays
+default_abook_buttonposition
 -----------------------------------------------------------------------
-message in trash will be deleted if its day age is more than this value,
-0 means forever
+default position of continue and cancel buttons in addresbook popup window
+values: before, after, both
 
 
-default_sessiontimeout
+default_abook_usedefaultfilter
 -----------------------------------------------------------------------
-This indicates how many minutes of inactivity pass before the user
-session is considered timed out, and the user needs to log in again.
-Make sure this is big enough that a user typing a long message won't
-get timeouted while typing!
+enable or disable default filter in addressbook popup window.
+values: yes, no
 
 
-default_autoreplysubject
+default_abook_defaultsearchtype
 -----------------------------------------------------------------------
-default subject for auto reply message
+field for default filter in addressbook popup window.
+values: none, name, email, note, all
 
 
-defaultautoreplytext
+default_abook_defaultkeyword
 -----------------------------------------------------------------------
-default text for auto reply message
-
-
-default_singature
------------------------------------------------------------------------
-default signature for all users
+text for the default filter in addressbook popup window.
 
 
 default_calendar_monthviewnumitems
@@ -1066,7 +1269,7 @@ This should probably be between 3 and 6
 default_calendar_weekstart
 -----------------------------------------------------------------------
 The start day of a week.
-M for Monday, S for Sunday
+0 for Sunday, 1 for Monday, ..., 6 for Saturday
 
 
 default_calendar_starthour
@@ -1092,3 +1295,35 @@ default_calendar_reminderforglobal
 -----------------------------------------------------------------------
 set this to 'yes' if you want the reminder to checks for events 
 in global calendar
+
+
+default_webdisk_dirnumitems
+-----------------------------------------------------------------------
+the number of items will be showed for dir list in webdisk
+
+
+default_webdisk_confirmmovecopy
+-----------------------------------------------------------------------
+display confirm window before directory/file move/copy in webdisk
+
+
+default_webdisk_confirmdel
+-----------------------------------------------------------------------
+display confirm window before directory/file deletion in webdisk
+
+
+default_webdisk_confirmcompress
+-----------------------------------------------------------------------
+display confirm window before directory/file compression 
+(zip, tgz, gzip) in webdisk
+
+
+default_webdisk_fileeditcolumns
+-----------------------------------------------------------------------
+default columns for file edit windows in webdisk
+
+
+default_webdisk_fileeditrows
+-----------------------------------------------------------------------
+default rows for file edit windows in webdisk
+

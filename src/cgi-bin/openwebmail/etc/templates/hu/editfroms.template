@@ -2,19 +2,19 @@
 <br>
 <br>
 <table border="0" align="center" width="70%" cellpadding="1" cellspacing="1">
-<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>Edit Personal Email Addresses</B></font>
+<B>Személyes email címek szerkesztése</B></font>
 </td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 &nbsp;
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr>
 <td nowrap bgcolor=@@@COLUMNHEADER@@@>
-<B>Real Name</B></td>
+<B>Valódi név</B></td>
 <td nowrap bgcolor=@@@COLUMNHEADER@@@>
-<B>Email Address</B> (click to edit)</td>
+<B>Email cím</B> (klikkeljen a szerkesztéshez)</td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Action</B>
+<B>Teendõ</B>
 </td></tr>
 @@@STARTFROMFORM@@@
 <tr>

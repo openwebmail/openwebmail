@@ -1,25 +1,33 @@
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="0">
 <tr><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="center">
    <table border="0" width="100%" cellpadding="0" cellspacing="0">
-   <tr><td align="left" width="33%"><font color=@@@TITLEBAR_TEXT@@@
+   <tr><td width="33%"><font color=@@@TITLEBAR_TEXT@@@
    face=@@@FONTFACE@@@ size="3"><B>觀看信件</B></font></td>
-   <td align="center"><font color=@@@TITLEBAR_TEXT@@@
-   face=@@@FONTFACE@@@ size="3"><B>@@@FOLDER@@@</B></font></td>
    <td align="right" width="33%"><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@
-   size="3"><B>@@@MESSAGETOTAL@@@ 封</B></font></td></tr></table>
+   size="3"><B>@@@FOLDER@@@ : @@@MESSAGETOTAL@@@ 封</B></font></td></tr></table>
 </td></tr><tr><td colspan="2" bgcolor=@@@MENUBAR@@@>
    <table border="0" width="100%" cellpadding="0" cellspacing="0">
-   <tr><td valign="middle" align="left" nowrap>
-   @@@MENUBARLINKS@@@
-   </td><td valign="middle" align="center" nowrap>
-   @@@MESSAGECONTROL@@@
-   </td><td valign="middle" align="right" nowrap>@@@STARTMOVEFORM@@@
-   @@@MOVECONTROLS@@@&nbsp;
+   <tr><td nowrap>
+   @@@LEFTMENUBARLINKS@@@
+   </td><td align="right" nowrap>
+   @@@RIGHTMENUBARLINKS@@@
    </td>
-   @@@ENDFORM@@@
    </tr></table>
-</td></tr><tr><td colspan="2" width="100%">&nbsp;</td></tr>
-<tr><td rowspan=2 width="90%" valign="middle" bgcolor=@@@WINDOW_DARK@@@>
+</td></tr>
+<tr><td colspan=2>@@@MESSAGECONTROL@@@</td></tr>
+
+@@@CONTROLBAR1START@@@
+<tr><td colspan="2" bgcolor=@@@MENUBAR@@@>
+   <table border="0" width="100%" cellpadding="0" cellspacing="0"><tr valign=bottom>
+   <td nowrap width="35%">@@@CONVFROMMENU1@@@</td>
+   <td nowrap width="30%" align="center">@@@STATIONERYMENU1@@@</td>
+   <td nowrap width="35%" align="right">@@@MOVECONTROLS1@@@</td>
+   </tr></table>
+</td></tr>
+<tr><td colspan="2">&nbsp;</td></tr>
+@@@CONTROLBAR1END@@@
+
+<tr><td rowspan=2 width="90%" bgcolor=@@@WINDOW_DARK@@@>
 @@@HEADERS@@@
 </td><td width="10%" nowrap valign="top" align="right" bgcolor=@@@WINDOW_DARK@@@>
 @@@HEADERSTOGGLE@@@
@@ -28,24 +36,19 @@
 </td></tr><tr><td colspan="2" width="100%" bgcolor=@@@WINDOW_LIGHT@@@ class=msgbody>
 @@@BODY@@@
 </td></tr>
-<tr><td colspan="2" width="100%">&nbsp;</td></tr>
+<tr><td colspan="2">@@@MESSAGECONTROL@@@</td></tr>
+
+@@@CONTROLBAR2START@@@
 <tr><td colspan="2" bgcolor=@@@MENUBAR@@@>
-   <table border="0" width="100%" cellpadding="0" cellspacing="0">
-   <tr valign=bottom><td valign="middle" align="left" width="10%">
-   @@@BACKTOLINK@@@
-   </td><td valign="middle" width="30%">
-   @@@STARTCONVFROMFORM@@@
-   @@@CONVFROMMENU@@@
-   </td>@@@ENDCONVFROMFORM@@@<td valign="middle" align="center">
-   @@@MESSAGECONTROL@@@
-   </td><td valign="middle" align="right" width="35%">
-   @@@STARTSTATIONERYFORM@@@
-   @@@STATIONERYMENU@@@
-   </td>@@@ENDFORM@@@<td valign="middle" align="right">
-   @@@STATIONERYBUTTON@@@
-   &nbsp;
-   </td></tr></table>
-</td></tr></table>
+   <table border="0" width="100%" cellpadding="0" cellspacing="0"><tr valign=bottom>
+   <td nowrap width="35%">@@@CONVFROMMENU2@@@</td>
+   <td nowrap width="30%" align="center">@@@STATIONERYMENU2@@@</td>
+   <td nowrap width="35%" align="right">@@@MOVECONTROLS2@@@</td>
+   </tr></table>
+</td></tr>
+@@@CONTROLBAR2END@@@
+
+</table>
 <script language="JavaScript">
 <!--
    function replyreceiptconfirm(url, yes)

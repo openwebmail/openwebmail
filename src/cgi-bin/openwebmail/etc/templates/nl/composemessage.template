@@ -1,53 +1,53 @@
 @@@STARTCOMPOSEFORM@@@
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="1">
-<tr><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="left">
+<tr><td colspan="2" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>NIEUW BERICHT AANMAKEN</B></font>
-</td></tr><tr><td colspan="2" bgcolor=@@@MENUBAR@@@ align="left">
+</td></tr><tr><td colspan="2" bgcolor=@@@MENUBAR@@@>
 <table width="100%" cellspacing="0" cellpadding="0"><tr>
 <td>@@@BACKTOFOLDER@@@</td>
 <td align="right">Charset for composing @@@CONVTOMENU@@@&nbsp;</td>
 </tr></table>
 </td></tr><tr><td colspan="2">&nbsp;</td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
 <B>Van:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FROMMENU@@@
 &nbsp;&nbsp;
 <B>Priority:</B>
 @@@PRIORITYMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
 <B>Naar:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@TOFIELD@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
 <B>CC:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CCFIELD@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
 <B>BCC:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BCCFIELD@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
 <B>Antwoordadres:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REPLYTOFIELD@@@
 &nbsp;
 <B>Leesbevestiging vragen</B>
 @@@CONFIRMREADINGCHECKBOX@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
 <B>Bijlage:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ATTACHMENTFIELD@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
 <B>Onderwerp:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SUBJECTFIELD@@@
 &nbsp;
 <B>Sla verzonden bericht op</B>
@@ -82,7 +82,7 @@
 
    function GoAddressWindow(toccbcc)
    {
-      var url = "@@@ABOOKURL@@@?action=addressbook&sessionid=@@@SESSIONID@@@&form=composeform&field=" + toccbcc;
+      var url = "@@@ABOOKURL@@@?action=addressbook&sessionid=@@@SESSIONID@@@&form=composeform&field=" + toccbcc+"&abook_keyword=@@@ABOOKKEYWORD@@@&abook_searchtype=@@@ABOOKSEARCHTYPE@@@";
 
       if (toccbcc == "to")
          url += "&preexisting=" + escape (document.composeform.to.value);
@@ -91,7 +91,7 @@
       else if (toccbcc == "bcc")
          url += "&preexisting=" + escape (document.composeform.bcc.value);
 
-      var hWnd = window.open(url,"_addressbook","width=380,height=360,resizable=yes,scrollbars=yes");
+      var hWnd = window.open(url,"_addressbook","width=@@@ABOOKWIDTH@@@,height=@@@ABOOKHEIGHT@@@,resizable=yes,scrollbars=yes");
       if ((document.window != null) && (!hWnd.opener))
          hWnd.opener = document.window;
    }

@@ -1,0 +1,79 @@
+Platforms that MindTerm is believed to work with
+------------------------------------------------
+Here we list all platforms that should be able to run MindTerm. At the end is a
+list with the platforms we have tested ourselves. All platforms that have a
+'(?)' is not confirmed to work with the latest version of MindTerm. Please give
+us feedback about your platform so we can enhance this list.
+
+Standalone:
+-----------
+Linux (Blackdown's port): jdk1.1.6, jdk1.1.7v1a+v3, jdk1.2pre1+2
+Linux (IBM's port): jdk1.1.6
+Epoc32: jdk1.1.4 on Psion5mx
+Sun Solaris: jdk1.1.7, jdk1.2 (1.2_01 seems to have a jit-bug, disable jit)
+Apple: (MacOS8.1+8.6) MRJ 2.1.4
+Win95/98/NT IBM jdk1.1.8
+Win95/98/NT Sun jdk: jdk1.1.x, jdk1.2, jdk1.3rc1
+Win95/98/NT MS-jview: (all versions supporting jdk1.1.x, see below for failure)
+Win2000 Sun jdk: jdk1.1.x (?), jdk1.2 (?)
+Win2000 MS-jview: same as Win95/98/NT
+Aix: jdk (?)
+HP/UX: jdk (?)
+IRIX: jdk (?)
+OS/2: IBM's jdk 1.1.8
+SCO: jdk (?)
+FreeBSD: jdk jdk 1.1.8
+NetBSD: jdk (?)
+VxWorks: jdk (?)
+Others: (?)
+
+(NOTE: Please see http://java.sun.com/cgi-bin/java-ports.cgi for details about
+java-availability for different platforms)
+
+
+Applet:
+-------
+Linux: Netscape >= 4.06, HotJava3.0, appletviewer (same as stand-alone JDKs)
+Solaris: Netscape >= 4.06, appletviewer (same as stand-alone JDKs)
+FreeBSD: Netscape >= 4.51
+Win95/98/NT: IE4, IE5, HotJava3.0, Netscape >= 4.06, java2-plugin in Netscape/IE,
+             Opera (3.61) with Sun's java-plugin v1.1.3
+Win2000: Netscape 4.7, IE5
+Apple: IE4.0+4.5 with MRJ 2.1.4, Netscape using MRJ as plugin (?), MRJ appletviewer
+Irix: Netscape >= 4.06
+HP/UX: Netscape >= 4.06 (?)
+Aix: Netscape >= 4.06 (?)
+Others: (?)
+
+(NOTE: When used as an applet the browser imposes restrictions on MindTerm.
+These restrictions can, depending on the browser used, be removed either
+manually in the browser's settings or by using a signed binary, see README for
+details)
+
+
+Confirmed NOT to work:
+----------------------
+Linux(+others): Kaffe v1.0b4 doesn't work (e.g. BigInteger.toByteArray is not
+       implemented, GridBagLayout also needs work it seems, though that is not
+       fatal)
+
+Any Netscape < 4.06: Lacks crucial jdk1.1.x functionality
+
+Netscape/Macintosh (any version): Without plugin, lacks crucial jdk1.1.x
+functionality
+
+
+Platforms on which WE have tested:
+----------------------------------
+Linux blackdown's: jdk1.1.6/7v1a+v3, jdk1.2pre1
+Linux IBM's: jdk1.1.6
+Epoc32: jdk1.1.4 on Psion5mx
+Win95/98/NT: jdk1.1.8, jdk1.2.2, jdk1.3(beta), MS-jview 5.0.0.3167
+--
+Linux: HotJava3.0, Netscape 4.07+4.08+4.61+4.7
+Win95/98/NT: HotJava3.0, Netscape 4.51+4.61, IE4/5 (many jview versions),
+             Opera 3.61/java-plugin-1.1.3
+
+(NOTE: If you have run MindTerm on another platform than the ones that we have
+tested, please drop us a line about it so we can confirm more platforms in this
+list)

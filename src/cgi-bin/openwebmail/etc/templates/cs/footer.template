@@ -1,7 +1,7 @@
 <p align="center">
 <br>
 @@@PAGE_FOOTER@@@ &nbsp;
-<a href="@@@HELP_LINK@@@" target="_help">Help?</a>
+<a accesskey="H" href="@@@HELP_LINK@@@" target="_help">Nápovìda?</a>
 <br>
 </p>
 </BODY></HTML>

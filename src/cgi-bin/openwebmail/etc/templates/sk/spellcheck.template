@@ -1,12 +1,12 @@
 <table border="0" align="center" width="95%" cellpadding="0" cellspacing="0">
-<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>Kontrola pravopisu pre slovník @@@DICTIONARY@@@</B></font>
 </td></tr>
 <tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
-<tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
+<tr><td bgcolor=@@@WINDOW_LIGHT@@@>
 <BR>Súbor navrhovaných zmien je poskytnutý pri ka¾dom zle napísanom slove.
 Mô¾ete vybra» jeden z návrhov na nahradenie originálneho slova.
 Ak nieje nájdený ¾iadny návrh alebo si vyberiete "-Ruène upravi»-"
@@ -32,7 +32,9 @@ správneho slova.
 &nbsp;&nbsp;&nbsp;
 @@@CANCELBUTTON@@@
 <br><br>
-</td></tr></table>
+</td></tr>
+@@@ENDFORM@@@
+</table>
 
 <script language="JavaScript">
 <!--

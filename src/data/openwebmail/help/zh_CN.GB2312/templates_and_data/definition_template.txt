@@ -1,0 +1,16 @@
+<html>
+<head>
+<title>Open Webmail Definition</title>
+</head>
+<body>
+
+<font face="arial" size=2><center></center>
+
+<p>
+
+</p>
+
+</font>
+
+</body>
+</html>

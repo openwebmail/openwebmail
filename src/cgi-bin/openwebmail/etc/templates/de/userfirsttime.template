@@ -1,0 +1,15 @@
+<BR><BR><BR><BR><BR><BR><BR>
+<table border="0" align="center" width="60%" cellpadding="1" cellspacing="1">
+<tr><td bgcolor=@@@TITLEBAR@@@>
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>HERZLICH WILLKOMMEN BEI @@@NAME@@@!</B></font>
+</td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
+<table width=85%><tr><td align="center">
+<BR>Dies ist Ihre erste Anmeldung am System. Aus diesem Grund 
+sollten Sie zunächst Ihre persönlichen Einstellungen festlegen. Klicken Sie 
+auf Weiter, um mit der @@@NAME@@@
+Konfiguration fortzufahren. Zu Ihren persönlichen Einstellungen gelangen Sie 
+später jeder Zeit über den Eintrag "Benutzereinstellungen" im Systemmenü.
+@@@CONTINUEBUTTON@@@
+</td></tr></table>
+</td></tr></table>

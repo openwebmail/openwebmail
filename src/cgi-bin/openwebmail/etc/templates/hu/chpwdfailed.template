@@ -1,9 +1,9 @@
 <BR><BR><BR><BR><BR><BR><BR>
 <table border="0" align="center" width="40%" cellpadding="1" cellspacing="1">
-<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>Password Change Failed</B></font>
+<B>A jelszóváltoztatás nem sikerült</B></font>
 </td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>@@@ERRORMSG@@@, no change is made.<BR>
+<BR>@@@ERRORMSG@@@, nem történt változás.<BR>
 @@@CONTINUEBUTTON@@@
 </td></tr></table>

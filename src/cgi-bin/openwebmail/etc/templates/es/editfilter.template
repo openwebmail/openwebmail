@@ -1,24 +1,24 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
-<tr><td colspan="4" bgcolor=@@@TITLEBAR@@@ align="left">
+<tr><td colspan="4" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>Configurar filtros de correo</b></font>
+<b>Configurar filtros de mensajes</b></font>
 </td><td nowrap colspan="6" bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b> @@@FREESPACE@@@ KB disponibles</b></font>
-</td></tr><tr><td colspan="9" bgcolor=@@@MENUBAR@@@ align="left">
+<b> @@@FREESPACE@@@ disponibles</b></font>
+</td></tr><tr><td colspan="9" bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
 </td></tr><tr><td colspan="9">&nbsp;</td></tr>
 <tr>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Cantidad</B>&nbsp;</td>
+<B>Número</B>&nbsp;</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Prioridad</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Reglas</B></td>
+<B>Campo</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Con/Sin</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Cadena</B> (click para editar)</td>
+<B>Texto</B> (clic para editar)</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Acci&oacute;n</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>

@@ -1,11 +1,11 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
-<tr><td colspan="1" bgcolor=@@@TITLEBAR@@@ align="left">
+<tr><td colspan="1" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <b>編輯外部郵件</b></font>
 </td><td nowrap colspan="6" bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>尚有 @@@FREESPACE@@@ KB 空間</b></font>
-</td></tr><tr><td colspan="6" bgcolor=@@@MENUBAR@@@ align="left">
+<b>尚有 @@@FREESPACE@@@ 空間</b></font>
+</td></tr><tr><td colspan="6" bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
 </td></tr><tr><td colspan="6">&nbsp;</td></tr>
 <tr>

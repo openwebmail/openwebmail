@@ -48,11 +48,24 @@
    no  => 'Nee'
    );
 
-%lang_positionlabels =
+%lang_ctrlpositionlabels =
+   (
+   top => 'At top',
+   bottom => 'At bottom'
+   );
+
+%lang_sendpositionlabels =
    (
    before => 'Before mail edit area',
    after => 'After mail edit area',
    both  => 'Before and after mail edit area'
+   );
+
+%lang_abookbuttonpositionlabels = 
+   (
+   before => 'Before addressbook entries',
+   after  => 'After addressbook entries',
+   both   => 'Before and after addressbook entries'
    );
 
 %lang_timelabels =
@@ -81,13 +94,20 @@
    regexp      => 'reguliere expressie',
    );
 
+%lang_sizes =
+   (
+   mb   => 'MB',	# mega bytes
+   kb   => 'KB',	# kilo bytes
+   byte => 'Byte'
+   );
+
 %lang_calendar = 
    (
    yearview  => 'Jaaroverzicht',
    monthview => 'Maandoverzicht',
    weekview  => 'Weekoverzicht',
    dayview   => 'Dagoverzicht',
-   listview   => 'Listview'
+   listview  => 'Listview'
    );
 
 %lang_month =
@@ -137,6 +157,28 @@
    4 => 'Vierde',
    5 => 'Laatste'
    );
+
+%lang_wdbutton =
+   (
+   refresh  => 'Refresh',
+   preview  => 'Preview',
+   edit     => 'Edit',
+   listarchive=> 'List',
+   decompress=>'Decompress',
+   extract  => 'Extract',
+   chdir    => 'ChDir',
+   mkdir    => 'MkDir',
+   newfile  => 'NewFile',
+   delete   => 'Delete',
+   copy     => 'Copy',
+   move     => 'Move',
+   gzip     => 'gzCompress',
+   mkzip    => 'MkZip',
+   mktgz    => 'MkTgz',
+   mkthumbnail  => 'MkThumb',
+   download => 'Download',
+   upload   => 'Upload',
+   );   
 
 %lang_text =
    (
@@ -207,6 +249,7 @@
    about      => 'Over',
    close      => 'Sluiten',
    cancel     => 'Onderbreken',
+   ok         => 'Ok',
    continue   => 'Doorgaan',
    loginagain => 'Opnieuw Inloggen',
    exit       => 'Afsluiten',
@@ -224,6 +267,7 @@
    reindex    => 'Herindexeren',
    folderreindexconf => '\'Weet u zeker dat u deze folder wilt herindexeren?\'',
    total      => 'Totaal',
+   edit       => 'Edit',
    delete     => 'Verwijder',
    reserve    => 'Bewaar',
    clearadd   => 'Verwijder alle adressen',
@@ -237,6 +281,7 @@
    name       => 'Naam',
    email      => 'E-mail',
    note       => 'Notitie',
+   max        => 'Maximum',
    group      => 'Groep',
    quota_hit  => 'QUOTUM OVERSCHREDEN',
    usage      => 'Gebruik',
@@ -279,7 +324,7 @@
    editstat   => 'Wijzig Sjabloon',
    savestat   => 'Bewaar Sjabloon',
    clearstat  => 'Verwijder alle Sjablonen',
-   selectstat => '-- Selecteer Sjabloon voor Antwoord --',
+   statreply  => '-- Stationery for Reply --',
    calendar   => 'Kalender',
    am         => 'am',
    pm         => 'pm',
@@ -292,12 +337,41 @@
    moreitems  => 'meer items',
    multieditconf => 'Dit item is verspreid over meerdere datums.\\nWijzigingen in dit item zullen op al deze datums worden doorgevoerd.\\nDoorgaan?',
    multidelconf  => 'Dit item is verspreid over meerdere datums.\\nVerwijdering van dit items zal op al deze datums worden doorgevoerd.\\nDoorgaan met verwijderen?',
-   ed         => 'Ed',
-   del        => 'Del',
    noitemforthisday => 'Geen items op de datum van vandaag.',
-   today_only               => 'Alleen vandaag',
-   the_wday_of_thismonth    => 'De @@@ORDER@@@ @@@WDAY@@@ van de maand',
-   every_wday_of_thismonth  => 'Elke @@@WDAY@@@ van deze maand'
+   thisday_only          => 'Alleen vandaag',
+   the_wday_of_thismonth => 'De @@@ORDER@@@ @@@WDAY@@@ van de maand',
+   every_wday_thismonth  => 'Elke @@@WDAY@@@ van deze maand',
+   thismonth_only           => 'This month only',
+   every_oddmonth_thisyear  => 'Every odd month this year',
+   every_evenmonth_thisyear => 'Every even month this year',
+   every_month_thisyear     => 'Every month this year',
+   webdisk      => 'WebDisk',
+   sshterm      => 'SSH Terminal',
+   dir          => 'Dir',
+   dirs         => 'Dirs',
+   file         => 'File',
+   files        => 'Files',
+   program      => 'Program',
+   dest_of_chdir  => 'the destined directory',
+   name_of_newdir => 'the directory name to create',
+   name_of_newfile=> 'the filename to create',
+   dest_of_thecopy=> 'the destined directory or file of the copy',
+   dest_of_themove=> 'the destined directory or file of the move',
+   dest_of_thezip=> 'the destined filename of the new zip',
+   dest_of_thetgz=> 'the destined filename of the new tgz',
+   homedir      => 'Homedir',
+   showthumbnail    => 'Thumbnails',
+   showhidden   => 'Show hidden files',
+   lastmodified => 'Last modified time',
+   perm         => 'Perm',
+   permission   => 'Access Permission',
+   noitemfound  => 'No item found',
+   savefile     => 'Savefile',
+   succeeded    => 'succeeded',
+   failed       => 'failed',
+   savefile_towd=> 'Save file to WebDisk',
+   saveatt_towd => 'Save attachment to WebDisk',
+   addatt_fromwd=> 'Add attachment from WebDisk'
    );
 
 %lang_err =
@@ -330,7 +404,8 @@
    folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
    att_overlimit     => 'Sorry, uw bijlage overschrijdt de maximale lengte, deze is',
    inv_msg_op        => 'Onjuiste handeling op het bericht',
-   inv_sessid        => 'Uw verzoek bevatte geen juist cookie -- toegang gewijgerd!',
+   sess_cookieerr    => 'Uw verzoek bevatte geen juist cookie -- toegang gewijgerd!',
+   sess_iperr        => 'Your request didn\'t come from the same ip of this session -- access denied!',
    no_endpart        => 'Einde berichtgedeelte gevonden',
    part_missing      => 'Een berichtgedeelte mist',
    rebuild_fmterr    => 'Nieuw berichtformaat fout opgetreden',
@@ -345,7 +420,17 @@
    network_server_error => 'netwerkserver fout',
    sendmail_error    => 'Sorry, er is een fout opgetreden bij het verzenden van uw bericht.  Klik op de \'Terug\' knop van uw browser, controleer het bericht, en probeer het opnieuw.',
    at_char_not_allowed => 'Het @ karakter is niet toegestaan in dit invulveld. Klik op de \'Terug\' knop van uw browser, corrigeer het invulveld en probeer opnieuw',
-   badnum_in_days => 'incorrect getal in dagveld'
+   badnum_in_days => 'incorrect getal in dagveld',
+   access_denied     => 'Access denied',
+   couldnt_chdirto   => 'Couldn\'t chdir to',
+   isnt_a_dir        => 'is not a directory',
+   edit_notfordir    => 'You can\'t edit a directory',
+   onefileonly       => 'Only one file is allowed for this operation',
+   no_file_todownload=> 'No file is specified for download',
+   upload_overlimit  => 'Upload file size is over the limit',
+   decomp_notsupported=>'Decompression support is not available for this file.',
+   webdisk_hitquota   => 'Sorry, you\'ve hit your webdisk quota, please delete some files first.',
+   webdisk_readonly   => 'Sorry, your webdisk is read only.'
    );
 
 1;

@@ -11,7 +11,7 @@
    'sent-mail'      => 'KÜLDÖTT',
    'saved-drafts'   => 'FÉLRETETT',
    'mail-trash'     => 'SZEMETES',
-   DELETE => '--DELETE--'
+   DELETE => '--TÖRÖL--'
    );
 
 %lang_sortlabels =
@@ -38,7 +38,7 @@
    (
    at_beginning => 'az elején',
    at_end      => 'a végén',
-   none        => 'Semmi'
+   none        => 'sehol'
    );
 
 %lang_receiptlabels =
@@ -48,101 +48,143 @@
    no  => 'Nem'
    );
 
-%lang_positionlabels =
+%lang_ctrlpositionlabels =
    (
-   before => 'Before mail edit area',
-   after => 'After mail edit area',
-   both  => 'Before and after mail edit area'
+   top => 'Felül',
+   bottom => 'Alul'
+   );
+
+%lang_sendpositionlabels =
+   (
+   before => 'Szövegterület elõtt',
+   after => 'Szövegterület után',
+   both  => 'Szövegterület elõtt és után'
+   );
+
+%lang_abookbuttonpositionlabels = 
+   (
+   before => 'Before addressbook entries',
+   after  => 'After addressbook entries',
+   both   => 'Before and after addressbook entries'
    );
 
 %lang_timelabels =
    (
-      3 => '3 minutes',
-      5 => '5 minutes',
-     10 => '10 minutes',
-     20 => '20 minutes',
-     30 => '30 minutes',
-     60 => '60 minutes',
-    120 => '2 hours',
-    180 => '3 hours',
-    360 => '6 hours',
-    720 => '12 hours',
-   1440 => '24 hours'
+      3 => '3 perc',
+      5 => '5 perc',
+     10 => '10 perc',
+     20 => '20 perc',
+     30 => '30 perc',
+     60 => '60 perc',
+    120 => '2 óra',
+    180 => '3 óra',
+    360 => '6 óra',
+    720 => '12 óra',
+   1440 => '24 óra'
    );
 
 %lang_advsearchlabels =
    (
-   contains    => 'contains',
-   notcontains => 'does not contain',
-   is          => 'is',
-   isnot       => 'is not',
-   startswith  => 'starts with',
-   endswith    => 'ends with',
-   regexp      => 'matches regexp',
+   contains    => 'tartalmaz',
+   notcontains => 'nem tartalmaz',
+   is          => 'ami',
+   isnot       => 'ami nem',
+   startswith  => 'kezdõdik',
+   endswith    => 'végzõdik',
+   regexp      => 'regexp',
+   );
+
+%lang_sizes =
+   (
+   mb   => 'MB',	# mega bytes
+   kb   => 'KB',	# kilo bytes
+   byte => 'Byte'
    );
 
 %lang_calendar = 
    (
-   yearview  => 'Yearview',
-   monthview => 'Monthview',
-   weekview  => 'Weekview',
-   dayview   => 'Dayview',
-   listview   => 'Listview'
+   yearview  => 'Éves nézet',
+   monthview => 'Havi nézet',
+   weekview  => 'Heti nézet',
+   dayview   => 'Napi nézet',
+   listview  => 'Lista nézet'
    );
 
 %lang_month =
    (
-   1  => 'January',
-   2  => 'February',
-   3  => 'March',
-   4  => 'April',
-   5  => 'May',
-   6  => 'June',
-   7  => 'July',
-   8  => 'August',
-   9  => 'September',
-   10 => 'October',
+   1  => 'Január',
+   2  => 'Február',
+   3  => 'Marcius',
+   4  => 'Április',
+   5  => 'Május',
+   6  => 'Június',
+   7  => 'Július',
+   8  => 'Augusztus',
+   9  => 'Szeptember',
+   10 => 'Október',
    11 => 'November',
    12 => 'December'
    );
 
 %lang_wday =
    (
-   0 => 'Sunday',
-   1 => 'Monday',
-   2 => 'Tuesday',
-   3 => 'Wednesday',
-   4 => 'Thursday',
-   5 => 'Friday',
-   6 => 'Saturday'
+   0 => 'Vasárnap',
+   1 => 'Hétfõ',
+   2 => 'Kedd',
+   3 => 'Szerda',
+   4 => 'Csütörtök',
+   5 => 'Péntek',
+   6 => 'Szombat'
    );
 
 %lang_wday_abbrev =
    (
-   week => 'WK',
-   0 => 'S',
-   1 => 'M',
-   2 => 'T',
-   3 => 'W',
-   4 => 'T',
-   5 => 'F',
-   6 => 'S'
+   week => 'HÉT',
+   0 => 'V',
+   1 => 'H',
+   2 => 'K',
+   3 => 'Sze',
+   4 => 'Cs',
+   5 => 'P',
+   6 => 'Szo'
    );
 
 %lang_order =
    (
-   1 => '1st',
-   2 => '2nd',
-   3 => '3rd',
-   4 => '4th',
-   5 => 'last'
+   1 => '1.',
+   2 => '2.',
+   3 => '3.',
+   4 => '4.',
+   5 => 'utolsó'
    );
+
+%lang_wdbutton =
+   (
+   refresh  => 'Frissít',
+   preview  => 'Elõnézet',
+   edit     => 'Szerkeszt',
+   listarchive=> 'Listáz',
+   decompress=>'Kitömörít',
+   extract  => 'Kivon',
+   chdir    => 'Könyvtárváltás',
+   mkdir    => 'Új könyvtár',
+   newfile  => 'Új file',
+   delete   => 'Töröl',
+   copy     => 'Másol',
+   move     => 'Áthelyez',
+   gzip     => 'gzip',
+   mkzip    => 'zip',
+   mktgz    => 'tgz',
+   mkthumbnail  => 'Ikonkészítés',
+   download => 'Letöltés',
+   upload   => 'Feltöltés',
+   );   
 
 %lang_text =
    (
    login      => 'Belépés',
    clear      => 'Töröl',
-   point      => 'Point',
+   point      => 'Pont',
    pixel      => 'Pixel',
    changepwd  => 'Jelszócsere',
    viewhistory=> 'Történet',
@@ -150,16 +192,16 @@
    messages   => 'üzenet',
    unread     => 'olvasatlan',
    nomessages => 'Nincs üzenet',
-   inmessages => 'Incoming msgs',
+   inmessages => 'Bejövõ üzenetek',
    composenew => 'Új üzenet',
    refresh    => 'Frissít',
    userprefs  => 'Beállítások',
    addressbook=> 'Címjegyzék',
    folders    => 'Mappák',
    emptytrash => 'Szemetes ürítése',
-   totrash    => 'Move to Trash',
+   totrash    => 'Szemetesbe',
    forever    => 'örökre',
-   delatlogout=> 'Delete at Logout',
+   delatlogout=> 'Kilépéskor töröl',
    userdef    => 'Felhasználó definiálja',
    logout     => 'Kijelentkezés',
    page       => 'oldal',
@@ -197,16 +239,17 @@
    encoding   => 'Kódolás',
    description=> 'Leírás',
    download   => 'Letöltés:',
-   charset    => 'Charset',
-   samecharset=> 'The same as composing charset',
+   charset    => 'Karakterkészlet',
+   samecharset=> 'Azonos a levélíráséval',
    thisispartialmsg => 'Ez egy üzenetrész.',
    msgrebuild => 'Üzenet újraépítése',
    editdraft  => 'Félretett üzenet folytatása',
    savedraft  => 'Félretesz',
    send       => 'Küld',
-   about      => 'About',
-   close      => 'Close',
+   about      => '',
+   close      => 'Bezár',
    cancel     => 'Mégsem',
+   ok         => 'Ok',
    continue   => 'Tovább',
    loginagain => 'Ismételt belépés',
    exit       => 'Kilépés',
@@ -217,13 +260,14 @@
    folderrenprop => '\'Kérem adja meg a mappa új nevét!\'',
    rename     => 'Átnevez',
    folderdelconf => '\'Biztosan törli a mappát és annak tartalmát?\'',
-   markread   => 'MarkRead',
-   foldermarkreadconf => '\'Are you going to mark read on all messages in this folder?\'',
+   markread   => 'Olvasottként megjelöl',
+   foldermarkreadconf => '\'A mappa összes üzenetét olvasottnak jelöli?\'',
    chkindex   => 'Index ellenõrzés',
    folderchkindexconf => '\'Ellenõrzi a mappa indexét?\'',
    reindex    => 'Újraindexel',
    folderreindexconf => '\'Biztosan újraindexeli a mappát?\'',
    total      => 'Összesen',
+   edit       => 'Szerkeszt',
    delete     => 'Töröl',
    reserve    => 'Megõriz',
    clearadd   => 'Összes címet törli',
@@ -237,11 +281,12 @@
    name       => 'Név',
    email      => 'Email',
    note       => 'Megjegyzés',
+   max        => 'Maximum',
    group      => 'Csoport',
    quota_hit  => 'KVÓTA',
    usage      => 'kihasználtság',
-   tzmap      => 'World timezone map',
-   testsound  => 'Test sound',
+   tzmap      => 'Idõzóna térkép',
+   testsound  => 'Hangpróba',
    editfroms  => 'Címlista szerkesztése',
    pop3book   => 'POP3 beállítások',
    retr_pop3s => 'POP3 levelek letöltése',
@@ -268,36 +313,65 @@
    readonly   => 'Csak olvasásra',
    textcontent=> 'Szöveg',
    search     => 'Keresés',
-   advsearch  => 'Advanced search',
-   folder     => 'Folder',
-   nofoldersel=> 'No Folder selected',
-   showall    => 'Show All',
+   advsearch  => 'Emelt szintû keresés',
+   folder     => 'Mappa',
+   nofoldersel=> 'Nem választott mappát',
+   showall    => 'Mindent mutat',
    spellcheck => 'Helyesírás',
    checkagain => 'Újra ellenõriz',
    finishchecking => 'Befejezi az ellenõrzést',
    manuallyfix=> 'Manuálisan javít',
-   editstat   => 'Edit Stationery',
-   savestat   => 'Save Stationery',
-   clearstat  => 'Clear All Stationery',
-   selectstat => '-- Select Stationery for Reply --',
-   calendar   => 'Calendar',
-   am         => 'am',
-   pm         => 'pm',
-   calfmt_year          => 'Year @@@YEAR@@@',
-   calfmt_yearmonth     => '@@@MONTH_STR@@@ @@@YEAR@@@',
-   calfmt_yearmonthday  => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@',
-   calfmt_yearmonthdaywday => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@ @@@WEEKDAY_STR@@@',
-   calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
-   none       => 'None',
-   moreitems  => 'more items',
-   multieditconf => 'This item was added for multiple dates.\\nEditing it will change the item for all dates.\\nContinue with Edit?',
-   multidelconf  => 'This item was added for multiple dates.\\nDeleting it will delete the item for all dates.\\nContinue with Delete?',
-   ed         => 'Ed',
-   del        => 'Del',
-   noitemforthisday => 'No items for this day',
-   today_only               => 'Today\'s date only',
-   the_wday_of_thismonth    => 'The @@@ORDER@@@ @@@WDAY@@@ of the month',
-   every_wday_of_thismonth  => 'Every @@@WDAY@@@ this month'
+   editstat   => 'Mintalevél szerkesztés',
+   savestat   => 'Mintalevél mentése',
+   clearstat  => 'Törli az összes Mintalevelet',
+   statreply  => '-- Mintalevél a válaszhoz --',
+   calendar   => 'Naptár',
+   am         => 'de.',
+   pm         => 'du.',
+   calfmt_year          => '@@@YEAR@@@.',
+   calfmt_yearmonth     => '@@@YEAR@@@.@@@MONTH_STR@@@.',
+   calfmt_yearmonthday  => '@@@YEAR@@@.@@@MONTH_STR@@@.@@@DAY@@@.',
+   calfmt_yearmonthdaywday => '@@@YEAR@@@.@@@MONTH_STR@@@.@@@DAY@@@. @@@WEEKDAY_STR@@@',
+   calfmt_hourminampm => '@@@AMPM@@@ @@@HOURMIN@@@',
+   none       => '-',
+   moreitems  => 'Továbbiak',
+   multieditconf => 'Ezt több idõpontra is rögzítette.\\nA módosítás a többi idõpontot is érinti.\\nKívánja folytatni a szerkesztéssel?',
+   multidelconf  => 'Ezt több idõpontra is rögzítette.\\nA törlés a többi idõpontot is érinti.\\nValóban törölni szeretné?',
+   noitemforthisday => 'Erre a napra nem szerepel bejegyzés',
+   thisday_only          => 'Csak a mai nap',
+   the_wday_of_thismonth => 'E hónap @@@ORDER@@@ @@@WDAY@@@',
+   every_wday_thismonth  => 'Minden @@@WDAY@@@ ebben a hónapban',
+   thismonth_only           => 'Csak ez a hónap',
+   every_oddmonth_thisyear  => 'Minden páratlan hónap ebben az évben',
+   every_evenmonth_thisyear => 'Minden páros hónap ebben az évben',
+   every_month_thisyear     => 'Minden hónap ebben az évben',
+   webdisk      => 'WebDisk',
+   sshterm      => 'SSH Terminál',
+   dir          => 'Könyvtár',
+   dirs         => 'Könyvtárak',
+   file         => 'File',
+   files        => 'File-ok',
+   program      => 'Program',
+   dest_of_chdir  => 'a célkönyvtár',
+   name_of_newdir => 'a létrehozandó könyvtár',
+   name_of_newfile=> 'a létrehozandó file',
+   dest_of_thecopy=> 'a másolás célja (könyvtár vagy file)',
+   dest_of_themove=> 'az áthelyezés célja (könyvtár vagy file)',
+   dest_of_thezip=> 'az új zip file neve',
+   dest_of_thetgz=> 'az új tgz file neve',
+   homedir      => 'Home könyvtár',
+   showthumbnail    => 'Ikonok',
+   showhidden   => 'Rejtett file-ok megjelenítése',
+   lastmodified => 'Utolsó módosítás ideje',
+   perm         => 'Engedélyek',
+   permission   => 'Hozzáférési engedély',
+   noitemfound  => 'Nincs találat',
+   savefile     => 'Mentett file',
+   succeeded    => 'sikerült',
+   failed       => 'nem sikerült',
+   savefile_towd=> 'File mentése WebDiskre',
+   saveatt_towd => 'Csatolás mentése WebDiskre',
+   addatt_fromwd=> 'Csatolás WebDiskrõl'
    );
 
 %lang_err =
@@ -308,29 +382,30 @@
    couldnt_lock      => 'Nem zárolható',
    couldnt_seek      => 'Nem található az eleje',
    couldnt_close     => 'Nem sikerült bezárni',
-   couldnt_updatedb  => 'Couldn\'t update index db ',
+   couldnt_updatedb  => 'Nem sikerült az index db frissítése ',
    disallowed_pop3   => 'Tiltott POP3 szerver',
    disallowed_client => 'Nem léphet be errõl a géprõl',
    disallowed_receiverdomain => 'Nem küldhet levelet erre az email címre',
    norootlogin       => 'Biztonsági okokból a root nem jelentkezhet be.',
-   shouldnt_move_here=> 'Ide nem szabad üzenetet mozgatni!',
+   shouldnt_move_here=> 'Ide nem szabad üzenetet áthelyezni!',
    destination_folder=> 'Célmappa',
    doesnt_exist      => 'nem létezik!',
    foldername_long   => 'A mappa neve nem lehet 16 karakternél hosszabb!',
    folder_with_name  => 'A következõ mappa:',
    already_exists    => 'már létezik!',
    cant_create_folder=> 'A mappa nem hozható létre!',
-   under_indexing    => 'indexelése folyamatban, kérem, próbálkozzon késõbb!',
+   under_indexing    => 'indexelése folyamatban. Kérem, próbálkozzon késõbb!',
    abook_invalid     => 'Ez az állomány nem szabályosan exportált Outlook vagy Communicator címjegyzék. Kérem, lépjen vissza ',
    back              => 'vissza',
    tryagain          => 'és próbálja újra.',
    abook_toobig      => 'Ezzel túllépné a mérethatárt. Kérem, lépjen vissza ',
    cant_create_dir   => 'Nem sikerült létrehozni a mappát!',
-   folder_hitquota   => 'Ön elérted a kvótát, így több levelet nem tud elmenteni. Töröljön néhányat és próbálja újra.',
-   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
+   folder_hitquota   => 'Ön elérte a kvótát, így több levelet nem tud elmenteni. Töröljön néhányat és próbálja újra.',
+   folder_cutdone    => 'Figyelem, mivel elérte a mappa mérethatárát (@@@FOLDERQUOTA@@@), a mappa legrégibb üzenetei automatikusan törlõdtek',
    att_overlimit     => 'A csatolás túllépte a mengedett mérethatárt, ami ',
    inv_msg_op        => 'Érvénytelen mûvelet üzenetre!',
-   inv_sessid        => 'Az Ön üzenete nem a helyes cookie-t tartalmazza -- a hozzáférés letiltva!',
+   sess_cookieerr    => 'Az Ön kérése nem a helyes cookie-t tartalmazza -- a hozzáférés letiltva!',
+   sess_iperr        => 'Jelen kérése nem az eddigi IP címérõl érkezett -- a hozzáférés letiltva!',
    no_endpart        => 'Nem található a befejezõ rész',
    part_missing      => 'Néhány rész hiányzik',
    rebuild_fmterr    => 'Az új üzenet formailag hibás',
@@ -340,12 +415,22 @@
    auth_syserr       => 'azonosítási rendszerhiba',
    param_fmterr      => 'hibás paraméter-formátum',
    pwd_incorrect     => 'hibás jelszó',
-   pwd_tooshort      => 'Password too short (minimum length @@@PASSWDMINLEN@@@)',
-   pwd_toosimple     => 'Password too simple (both alphabet and digit are required)',
+   pwd_tooshort      => 'A jelszó túl rövid (minimum @@@PASSWDMINLEN@@@ karakter)',
+   pwd_toosimple     => 'A jelszó túl egyszerû (betûk és számok is kellenek bele)',
    network_server_error => 'szerverhiba',
    sendmail_error    => 'Nem sikerült elküldeni az üzenetét. Kérem, hogy lépjen vissza egy oldalt a böngészõben, ellenõrizze az üzenetet, és próbálja újra.',
-   at_char_not_allowed => 'The @ character is not allowed in this field.  Press browser back button and try again',
-   badnum_in_days => 'bad number in consecutive days field'
+   at_char_not_allowed => 'A @ karakter nem engedélyezett ebben a mezõben. Kérem, hogy lépjen vissza egy oldalt a böngészõben, ellenõrizze az üzenetet, és próbálja újra.',
+   badnum_in_days => 'hibás szám az egymást követõ napok mezõben',
+   access_denied     => 'Hozzáférés megtagadva',
+   couldnt_chdirto   => 'Nem lehet belépni a könyvtárba: ',
+   isnt_a_dir        => 'nem könyvtár',
+   edit_notfordir    => 'Könyvtár nem szerkeszthetõ',
+   onefileonly       => 'Ez a mûvelet csak egy file-ra vonatkozhat',
+   no_file_todownload=> 'Nincs megadva letöltendõ file',
+   upload_overlimit  => 'A feltöltendõ file mérete túl nagy',
+   decomp_notsupported=>'Ehhez a file-hoz nem áll rendelkezésre kitömörítõ.',
+   webdisk_hitquota   => 'Ön elérte a WebDisk kvótáját, kérem, töröljön róla néhány file-t.',
+   webdisk_readonly   => 'Az ön WebDiskje nem írható.'
    );
 
 1;

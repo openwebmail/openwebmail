@@ -1,17 +1,17 @@
 <BR>
 <BR>
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
-<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>Importér adressebok</B></font>
 </td><td bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>@@@FREESPACE@@@ KB tilgjengelig</B></font>
+<B>@@@FREESPACE@@@ tilgjengelig</B></font>
 </td></tr>
 <tr><td colspan="2" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 
 <table border="0" align="center" width="85%" cellpadding="0" cellspacing="0">
-<tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
+<tr><td bgcolor=@@@WINDOW_LIGHT@@@>
 <BR>Outlook Express 5 og Netscape Mail kan eksportere adresseboken i et
 format kjent som CSV (Komma-Separerte Verdier).  @@@NAME@@@ kan importere disse filene
 til din personlige adressebok, slik at du slipper å taste dem inn manuelt.
@@ -35,7 +35,7 @@ deg om at feltene "Name" og "E-mail" kommer først. Dette er standardinnstillinge
 </td>
 @@@ENDFORM@@@
 @@@STARTCANCELFORM@@@
-<td width="50%" align="left" bgcolor=@@@WINDOW_LIGHT@@@>
+<td width="50%" bgcolor=@@@WINDOW_LIGHT@@@>
 &nbsp;&nbsp;@@@CANCELBUTTON@@@
 </td></tr>
 <tr><td colspan=2 bgcolor=@@@WINDOW_LIGHT@@@>&nbsp;</td></tr>

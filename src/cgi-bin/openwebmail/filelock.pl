@@ -35,7 +35,7 @@ sub filelock_flock {
 
    ($dev, $inode)=(stat($filename))[0,1];
    if ($dev eq '' || $inode eq '') {
-      return(0);
+      return 0;
    }
 
    if (defined($opentable{"$dev-$inode"}) ) {
@@ -45,31 +45,29 @@ sub filelock_flock {
       if (sysopen($fh, $filename, O_RDWR)) {
          $opentable{"$dev-$inode"}=$fh;
       } else {
-         return(0);
+         return 0;
       }
    }
 
-   # Since nonblocking lock may return errors
-   # even the target is locked by others for just a few seconds,
-   # we turn nonblocking lock into a blocking lock with timeout limit=60sec
-   # thus the lock will have more chance to success.
-
-   if ( $lockflag & LOCK_NB ) {	# nonblocking lock
-      my $retval;
-      eval {
-         local $SIG{ALRM} = sub { die "alarm\n" }; # NB: \n required
-         alarm 60;
-         $retval=flock($fh, $lockflag & (~LOCK_NB) );
-         alarm 0;
-      };
-      if ($@) {	# eval error, it means timeout
-         $retval=0;
+   # turn nonblocking lock to  30 secs timeouted lock 
+   # so owm gets higher chance to success in case other ap locks same file for only few secs
+   # turn blocking    lock to 120 secs timeouted lock 
+   # so openwebmaill won't hang because of file locking
+   my $retval;
+   eval {
+      local $SIG{ALRM} = sub { die "alarm\n" }; # NB: \n required
+      if ( $lockflag & LOCK_NB ) {	# nonblocking lock
+         alarm 30;
+      } else {
+         alarm 120;
       }
-      return($retval);
-
-   } else {			# blocking lock
-      return(flock($fh, $lockflag));
+      $retval=flock($fh, $lockflag & (~LOCK_NB) );
+      alarm 0;
+   };
+   if ($@) {	# eval error, it means timeout
+      $retval=0;
    }
+   return($retval);
 }
 
 
@@ -90,10 +88,10 @@ sub filelock_dotlockfile {
    return 1 unless ($lockflag & (LOCK_SH|LOCK_EX|LOCK_UN));
 
    my $endtime;
-   if ($lockflag & LOCK_NB) {	# turn nonblock lock to 60sec blocking lock
-      $endtime=time()+60;
-   } else {
-      $endtime=time()+86400;
+   if ($lockflag & LOCK_NB) {	# turn nonblock lock to 30sec blocking lock
+      $endtime=time()+30;
+   } else {			# turn blocking lock to 120sec blocking lock
+      $endtime=time()+120;
    }
 
    my $oldumask=umask(0111);
@@ -120,9 +118,9 @@ sub filelock_dotlockfile {
          next;
       } elsif ($locklock==-1) {	# rdonly dir, no further processing
          if ($lockflag & LOCK_EX) {
-            return(0);
+            return 0;
          } else {
-            return(1);
+            return 1;
          }
       }
 
@@ -186,7 +184,7 @@ sub filelock_dotlockfile {
       if ($status==1) {
          _unlock("$filename.lock");
          umask($oldumask);
-         return(1);
+         return 1;
       } else {
          _unlock("$filename.lock");
          sleep 1;
@@ -196,7 +194,7 @@ sub filelock_dotlockfile {
 
    _unlock("$filename.lock");
    umask($oldumask);
-   return(0);
+   return 0;
 }
 
 
@@ -212,12 +210,12 @@ sub _lock {
    }
    if ( sysopen(LL, "$filename.lock", O_RDWR|O_CREAT|O_EXCL) ) {
       close(LL);
-      return(1)
+      return 1
    } else {
       if ($!=~/permission/i) {	# .lock file in readonly dir?
-         return(-1);
+         return -1;
       } else {			# .lock file already exist
-         return(0);
+         return 0;
       }
    }
 }
@@ -226,12 +224,12 @@ sub _unlock {
    ($filename =~ /^(.+)$/) && ($filename = $1);		# untaint ...
 
    if ( unlink("$filename.lock") ) {
-      return(1);
+      return 1;
    } else {
       if ($!=~/permission/i) {	# .lock file in readonly dir?
-         return(-1);
+         return -1;
       } else {
-         return(0);
+         return 0;
       }
    }
 }

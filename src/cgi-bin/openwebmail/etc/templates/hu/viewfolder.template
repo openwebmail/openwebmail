@@ -1,7 +1,7 @@
 <table border="0" align="center" width="95%" cellpadding="0" cellspacing="0"><tr><td bgcolor=@@@TITLEBAR@@@ >
 
 <table border="0" width="100%" cellpadding="0" cellspacing="0"><tr>
-<td nowrap bgcolor=@@@TITLEBAR@@@ align="left">
+<td nowrap bgcolor=@@@TITLEBAR@@@>
 @@@STARTFOLDERFORM@@@
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@>
 <B>@@@FOLDERPOPUP@@@</B></FONT></td>
@@ -15,67 +15,72 @@
 </td></tr><tr><td bgcolor=@@@MENUBAR@@@>
 
 <table border="0" width="100%" cellpadding="0" cellspacing="0"><tr>
-<td nowrap bgcolor=@@@MENUBAR@@@ align="left">
-@@@MENUBARLINKS@@@</td>
+@@@STARTPAGEFORM@@@
+<td nowrap bgcolor=@@@MENUBAR@@@>
+@@@LEFTMENUBARLINKS@@@</td>
 <td nowrap bgcolor=@@@MENUBAR@@@ align="right">
-@@@STARTMOVEFORM@@@
-@@@MOVECONTROLS@@@&nbsp;</td>
+@@@RIGHTMENUBARLINKS@@@</td>
+</td>
 </tr></table>
 
 </td></tr></table>
 
 @@@EVENTREMINDER@@@
 
+@@@CONTROLBAR1START@@@
+<table border="0" align="center" width="95%" cellpadding="1" cellspacing="0"><tr>
+<td width="35%" bgcolor=@@@MENUBAR@@@ nowrap>@@@SEARCH1@@@</td>
+<td align="center" bgcolor=@@@MENUBAR@@@ nowrap>@@@PAGECONTROL1@@@</td>
+<td width="35%" align="right" bgcolor=@@@MENUBAR@@@ nowrap>@@@MOVECONTROLS1@@@&nbsp;</td>
+</tr></table>
+<br>
+@@@CONTROLBAR1END@@@
+
 <table border="0" align="center" width="95%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
-<tr><td valign="middle" width="6%" bgcolor=@@@COLUMNHEADER@@@>
+<tr><td width="6%" bgcolor=@@@COLUMNHEADER@@@>
 <CENTER>@@@STATUS@@@</CENTER></td>
-<td valign="middle" width="18%" bgcolor=@@@COLUMNHEADER@@@>
+<td width="22%" bgcolor=@@@COLUMNHEADER@@@>
 <B>@@@DATE@@@</B></td>
-<td valign="middle" width="25%" bgcolor=@@@COLUMNHEADER@@@>
+<td width="25%" bgcolor=@@@COLUMNHEADER@@@>
 <B>@@@SENDER@@@</B></td>
-<td valign="middle" bgcolor=@@@COLUMNHEADER@@@>
+<td bgcolor=@@@COLUMNHEADER@@@>
 <B>@@@SUBJECT@@@</B></td>
-<td valign="middle" align="right" width="5%" bgcolor=@@@COLUMNHEADER@@@>
+<td align="right" width="5%" bgcolor=@@@COLUMNHEADER@@@>
 <B>@@@SIZE@@@</B></td>
-<td align ="center" valign="middle" width="3%" bgcolor=@@@COLUMNHEADER@@@>
+<td align ="center" width="3%" bgcolor=@@@COLUMNHEADER@@@>
 <input name="allbox" type="checkbox" value="1"
    onClick="CheckAll();"></td>
 </tr>
 @@@HEADERS@@@
-@@@ENDFORM@@@
 </table>
+
+@@@CONTROLBAR2START@@@
 <br>
-<table border="0" align="center" width="95%" cellpadding="1" cellspacing="0">
-<tr>
-<td width="33%" align="center" bgcolor=@@@MENUBAR@@@ nowrap>
-@@@STARTPAGEFORM@@@
-@@@PAGECONTROL@@@
-</td>
+<table border="0" align="center" width="95%" cellpadding="1" cellspacing="0"><tr>
+<td width="35%" bgcolor=@@@MENUBAR@@@ nowrap>@@@SEARCH2@@@</td>
+<td align="center" bgcolor=@@@MENUBAR@@@ nowrap>@@@PAGECONTROL2@@@</td>
+<td width="35%" align="right" bgcolor=@@@MENUBAR@@@ nowrap>@@@MOVECONTROLS2@@@&nbsp;</td>
+</tr></table>
+@@@CONTROLBAR2END@@@
+
 @@@ENDFORM@@@
-<td align="center" bgcolor=@@@MENUBAR@@@ nowrap>
-@@@STARTSEARCHFORM@@@
-@@@SEARCH@@@
-</td>
-@@@ENDFORM@@@
-</tr>
-</table>
 
 <script language="JavaScript">
 <!--
    function CheckAll()
    {
-      for (var i=0;i<document.moveform.elements.length;i++)
+      for (var i=0;i<document.pageform.elements.length;i++)
       {
-         var e = document.moveform.elements[i];
+         var e = document.pageform.elements[i];
          if (e.type == 'checkbox' && e.name != 'allbox')
-            e.checked = document.moveform.allbox.checked;
+            e.checked = document.pageform.allbox.checked;
       }
    }
    function OpConfirm(text, conf)
    {
-      for (var i=0;i<document.moveform.elements.length;i++)
+      for (var i=0;i<document.pageform.elements.length;i++)
       {
-         var e = document.moveform.elements[i];
+         var e = document.pageform.elements[i];
          if (e.type == 'checkbox' && e.name != 'allbox' && e.checked == 1 ) {
             if (conf) {
                return confirm(text);

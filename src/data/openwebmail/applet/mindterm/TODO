@@ -1,0 +1,78 @@
+==============================================================================
+= Somewhat prioritized lists of problems to solve and things TODO in general =
+==============================================================================
+
+LATEST KNOWN BUGS:
+    o Bug can't drag-select only one character (one character hilighted but two
+      copied, annoying but I'm too lazy right now...)
+    o Bug in win32, clipboard seems to stop working sometimes? Seems like when
+      it stops working it helps if you copy something in a win32 program and
+      THEN go back to MindTerm to do the copy(?)
+    o Bug in linux with blackdown jdk1.1.7v1a&v3, exit takes several seconds?
+    o Bug in win32 with jdk1.2.2, confirm-dialog has buttons above message?!
+    o Bug with "Select all", flaky/sloow
+    o Bug with several jdk's on Linux, Caps Lock doesn't work(!)
+
+
+=================
+TODO NEXT:
+    o SSH2 support (we're getting there... :-)
+    o Shape up MindTunnel (make a package with a service for winDOS)
+    o Shape up MindVNC (especially use new SSHPropertyHandler and it should be
+      more usable)
+    o Have aliases in the jar-file (i.e. several "standard" settings included in
+      the jar.
+    o Disconnected usage, i.e. wait for connect on tunnel then reconnect to sshd
+      (timeouts etc.)
+    o Make-procedure better, it's non-existent right now :-)
+    o Check standard java signing (for java-plugin)
+    o Build httpd into MindTunnel for setup (and serving MindTerm-applet :-)
+    o Option to detach the applet so that the browser can change page, how is
+      this done??
+    o Make line-draw characters real images to improve performance (quite ugly
+      now... :-)
+    o Better key-mapping support (we want something like xmodmap)
+    o Check all terminal modes to work correctly, chech against 'terminfo'
+      entries
+    o Clean up logs
+    o Some more error-handling and general clean-up
+    o Rewrite (mostly GUI-parts) in java2 (i.e. use swing)
+    o Example code on usage of terminal-package by itself
+    o Example code on usage of ssh-package's drop-in socket-replacements
+    o Code-documentation + online javadoc
+    o Other fun stuff...
+
+
+=================
+TODO SOMETIME:
+    o Easy to install stand-alone packages for win32, mac, epoc32, linux
+    o MindTunnel/MindTerm, could do some funny extensions if used together...
+    o Do customized "small-screen" version for Psion5mx
+    o Telnet support
+    o Check if we can extend Dialog to do a decent handling of requestFocus
+    o Statistics per tunnel shown in 'Current Connections...' dialog
+    o Make a simple script-engine to be able to do fun things upon login
+      (SSHAutomatedConsole)
+    o Write better doc's for both install and usage
+    o Load applet-properties, known_hosts through URLs (encrypted files, or use
+      HTTPS?)
+    o Persistent applet in Netscape and IE4
+    o Make jump-scroll/non-jump-scroll (right now we do longjmp-scroll :-)
+    o Application keypad not supported
+    o Priority/mtu on a per tunnel basis (i.e. make some tunnels "more
+      responsive" than others)
+    o Make a RMI-plugin (RMI over SSH :-)
+    o Fix the sloppy exceptions (e.g. make a new exception-type...)
+    o Scaling font in terminal instead of changing rows/cols when resizing
+      terminal
+    o Extend Component instead of Canvas in TerminalWin
+    o Implement X-protocol to allow (simple?) x-clients to run directly (without
+      x-server! :-)
+    o Support rlogin
+    o Make the protocol-plugins more usable (clean/effective), maybe add some
+      other proxy-service? (suggestions welcome!)
+    o Compression (can't get deflate/inflate to use Z_PARTIAL_FLUSH, feature
+      request sent to javasoft). Might wrap the native code ourselves...
+    o Double width and double height characters in terminal (is this useful?
+      xterm doesn't do it for real anyway :-)
+    o resourceBundle.getString for translations of all text!

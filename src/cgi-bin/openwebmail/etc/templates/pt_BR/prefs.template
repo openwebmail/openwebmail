@@ -1,38 +1,38 @@
 @@@STARTPREFSFORM@@@
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
-<tr><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="left">
+<tr><td colspan="2" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>Preferências @@@REALNAME@@@</B></font>
-<tr><td colspan="2" bgcolor=@@@MENUBAR@@@ align="left">
+<tr><td colspan="2" bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
 </td></tr>
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Informações Pessoais</B></td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Idioma:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@LANGUAGEMENU@@@&nbsp;Codificação @@@CHARSETMENU@@@
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@LANGUAGEMENU@@@&nbsp;Codificação de caracteres @@@CHARSETMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Fuso Horário:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@TIMEOFFSETMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>De:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FROMEMAILMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Encaminhar para:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REPLYTOFIELD@@@
 </td></tr>
 @@@FORWARDSTART@@@
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Encaminhar e-mail para:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FORWARDADDRESS@@@
 &nbsp;
 @@@KEEPLOCALCOPY@@@
@@ -40,9 +40,9 @@ Manter uma cópia
 </td></tr>
 @@@FORWARDEND@@@
 @@@AUTOREPLYSTART@@@
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Resposta automática:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@AUTOREPLYCHECKBOX@@@
 &nbsp;
 Assunto:
@@ -61,260 +61,333 @@ Assunto:
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Preferências de Visualização</B></td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Estilo (cores):</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@STYLEMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Ícones:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ICONSETMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Imagem de fundo:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+</td><td bgcolor=@@@WINDOW_DARK@@@ nowrap>
 @@@BACKGROUNDMENU@@@
 &nbsp;URL
 @@@BGURLFIELD@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Tamanho da Fonte:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FONTSIZEMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Mensagens por p&aacute;gina:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@HEADERSPERPAGE@@@
-</td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Ordena&ccedil;&atilde;o padr&atilde;o:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@SORTMENU@@@
-</td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Formato da data:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DATEFORMATMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Formato das horas:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@HOURFORMATMENU@@@ horas
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Cabe&ccedil;alho padr&atilde;o:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@HEADERSMENU@@@
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Posição da barra de controle em mensagens:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CTRLPOSITIONFOLDERVIEWMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Área para edição de mensagens:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-Colunas @@@EDITCOLUMNSMENU@@@ Linhas @@@EDITROWSMENU@@@
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Mensagens por p&aacute;gina:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@HEADERSPERPAGE@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Compose button position:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@SENDBUTTONPOSITIONMENU@@@
-</td></tr>
-
-<tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Opções na Leitura de Mensagens</B></td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Usar fonte de tamanho fixo na leitura de mensagens:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@USEFIXEDFONT@@@
-</td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Usar imagem do smiley na leitura das mensagens:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@USESMILEICON@@@
-</td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Desativar JavaScript dentro da mensagem:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@DISABLEJS@@@
-</td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Desativar CGI embutido em mensagens:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@DISABLEEMBCGI@@@
-</td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Mostrar imagens anexadas a mensagens como link:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@SHOWIMGASLINK@@@
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Ordena&ccedil;&atilde;o padr&atilde;o:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SORTMENU@@@
 </td></tr>
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Operações com Mensagens</B></td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Destino padrão:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@DEFAULTDESTINATIONMENU@@@
-</td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Confirmar antes de mover/copiar uma mensagem:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CONFIRMMSGMOVECOPY@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Destino padrão:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DEFAULTDESTINATIONMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Mostrar a próxima mensagem após mover/copiar:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@VIEWNEXTAFTERMSGMOVECOPY@@@
 </td></tr>
 @@@AUTOPOP3START@@@
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Buscar mensagens automaticamente na entrada:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@AUTOPOP3CHECKBOX@@@
 </td></tr>
 @@@AUTOPOP3END@@@
 @@@MOVEOLDSTART@@@
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Mover mensagens antigas para GUARDADAS ao sair:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@MOVEOLDMSGFROMINBOX@@@
 </td></tr>
 @@@MOVEOLDEND@@@
 
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Opções Respondendo Mensagens</B></td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Opções na Leitura de Mensagens</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Posição da barra de controle na leitura de mensagens:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CTRLPOSITIONMSGREADMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Cabe&ccedil;alho padr&atilde;o:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@HEADERSMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Usar fonte de tamanho fixo na leitura de mensagens:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@USEFIXEDFONT@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Usar imagem do smiley na leitura das mensagens:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@USESMILEICON@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Desativar JavaScript dentro da mensagem:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DISABLEJS@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Desativar CGI embutido em mensagens:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DISABLEEMBCGI@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Mostrar imagens anexadas a mensagens como link:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SHOWIMGASLINK@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Enviar confirmação de leitura solicitada:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SENDRECEIPTMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Opções Respondendo Mensagens</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Área para edição de mensagens:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+Colunas @@@EDITCOLUMNSMENU@@@ Linhas @@@EDITROWSMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Posição do botão "enviar":</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SENDBUTTONPOSITIONMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Voltar para a mensagem após encaminhar:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REPARAGRAPHORIGMSG@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Encaminhar com a mensagem original:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REPLYWITHORIGMSGMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Salva cópia das mensagens em ENVIADAS:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BACKUPSENTMSG@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Charset for outgoing message:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Codificação de caracteres para mensagens de saída:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SENDCHARSETMENU@@@
 </td></tr>
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Opções Filtrando Mensagens</B></td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Limite para mensagens repetidas:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERREPEATLIMIT@@@ &nbsp;( ZERO significa a não verificação de repetições )
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Filtrar mensagens com falso SMTP:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDSMTP@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Filtrar mensagens com falso Remetente:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDFROM@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Filtrar mensagens com falso conte&uacute;do EXE:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDEXECONTENTTYPE@@@
+</td></tr>
+
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>AddressBook Options</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Size for addressbook window:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Addressbook button position:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@ABOOKBUTTONPOSITIONMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Addressbook default filter:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@ABOOKDEFAULTFILTER@@@
 </td></tr>
 
 @@@CALENDARSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Opções do Calendário</B></td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Número de itens na visão do mês:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@MONTHVIEWNUMITEMSMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Semana inicia em:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@WEEKSTARTMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Horário inicial:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@STARTHOURMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Horário final:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ENDHOURMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Mostrar horários vazios:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SHOWEMPTYHOURSCHECKBOX@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Dias de antecipação para verificar os lembretes:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REMINDERDAYSMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Lembretes globais para os eventos do calendário:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REMINDERFORGLOBALCHECKBOX@@@
 </td></tr>
 @@@CALENDAREND@@@
 
+@@@WEBDISKSTART@@@
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Opções do Disco Web</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Número de itens na listagem de diretórios:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DIRNUMITEMSMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Confirmar antes de mover/copiar diretórios e arquivos:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CONFIRMFILEMOVECOPY@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Confirmar antes de remover diretórios e arquivos:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CONFIRMFILEDEL@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Confirmar antes de compactar diretórios e arquivos:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CONFIRMFILECOMPRESS@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Área para edição de arquivos:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+Colunas @@@FILEEDITCOLUMNSMENU@@@ Linhas @@@FILEEDITROWSMENU@@@
+</td></tr>
+@@@WEBDISKEND@@@
+
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Opções Diversas</B></td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Usar expressão regular na pesquisa e nos filtros:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REGEXMATCH@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Esconder pasta de dados internos:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@HIDEINTERNAL@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Refresh Interval:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Intervalo de atualização:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REFRESHINTERVALMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Som para notificação de nova mensagem:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@NEWMAILSOUNDMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>NewMail window notification:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-remaining @@@NEWMAILWINDOWTIMEMENU@@@ seconds &nbsp;( 0 means No window notification )
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Janela para notificação de nova mensagem:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+Durante @@@NEWMAILWINDOWTIMEMENU@@@ segundos &nbsp;( ZERO desativa a janela de notificação )
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Dicionário para verificar ortografia:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DICTIONARYMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Temporização para o lixo:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@RESERVEDDAYSMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Tempo limite da Sessão:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SESSIONTIMEOUTMENU@@@
 </td></tr>
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>
-<table><tr><td>
-@@@BUTTONS@@@
-</td></tr></table></td></tr></table>
+<table><tr>
+<td>@@@SAVEBUTTON@@@</td>
+@@@ENDFORM@@@
+@@@STARTCANCELFORM@@@
+<td>@@@CANCELBUTTON@@@</td>
+@@@ENDFORM@@@
+</tr></table></td></tr></table>
+
+<script language="JavaScript">
+<!--
+   function playsound(url, soundname) 
+   {
+      if (soundname != "NONE" ) {
+         window.open(url+soundname);
+      } 
+   }
+//-->
+</script>

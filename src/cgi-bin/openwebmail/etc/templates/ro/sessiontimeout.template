@@ -1,8 +1,8 @@
 <BR><BR><BR><BR><BR><BR><BR>
 <table border="0" align="center" width="250" cellpadding="0" cellspacing="0">
-<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>SESIUNE EXPIRATA</B></FONT></TD></TR>
-<tr><td valign="middle" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>Sesiunea ta a expitat. Trebuie sa <a href="@@@SCRIPTURL@@@">intri</a> din nou.<BR><BR>
+<tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
+<BR>Sesiunea ta a expitat. Trebuie sa <a href="@@@STARTURL@@@">intri</a> din nou.<BR><BR>
 </td></tr></table>

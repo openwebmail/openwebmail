@@ -50,11 +50,24 @@
    no  => 'Nie'
    );
 
-%lang_positionlabels =
+%lang_ctrlpositionlabels =
+   (
+   top => 'At top',
+   bottom => 'At bottom'
+   );
+
+%lang_sendpositionlabels =
    (
    before => 'Before mail edit area',
    after => 'After mail edit area',
    both  => 'Before and after mail edit area'
+   );
+
+%lang_abookbuttonpositionlabels = 
+   (
+   before => 'Before addressbook entries',
+   after  => 'After addressbook entries',
+   both   => 'Before and after addressbook entries'
    );
 
 %lang_timelabels =
@@ -83,13 +96,20 @@
    regexp      => 'matches regexp',
    );
 
+%lang_sizes =
+   (
+   mb   => 'MB',	# mega bytes
+   kb   => 'KB',	# kilo bytes
+   byte => 'Byte'
+   );
+
 %lang_calendar = 
    (
    yearview  => '',
    monthview => 'Miesi±c:',
    weekview  => 'Tydzieñ:',
    dayview   => '',
-   listview   => 'Listview'
+   listview  => 'Listview'
    );
 
 %lang_month =
@@ -139,6 +159,28 @@
    4 => 'czwarty(±)',
    5 => 'ostatni(±)'
    );
+
+%lang_wdbutton =
+   (
+   refresh  => 'Refresh',
+   preview  => 'Preview',
+   edit     => 'Edit',
+   listarchive=> 'List',
+   decompress=>'Decompress',
+   extract  => 'Extract',
+   chdir    => 'ChDir',
+   mkdir    => 'MkDir',
+   newfile  => 'NewFile',
+   delete   => 'Delete',
+   copy     => 'Copy',
+   move     => 'Move',
+   gzip     => 'gzCompress',
+   mkzip    => 'MkZip',
+   mktgz    => 'MkTgz',
+   mkthumbnail  => 'MkThumb',
+   download => 'Download',
+   upload   => 'Upload',
+   );   
 
 %lang_text =
    (
@@ -209,6 +251,7 @@
    about      => 'Informacje o po³±czeniu',
    close      => 'Zamknij',
    cancel     => 'Anuluj',
+   ok         => 'Ok',
    continue   => 'Kontynuuj',
    loginagain => 'Zaloguj ponownie',
    exit       => 'Wyjd¼',
@@ -226,6 +269,7 @@
    reindex    => 'Przeindeksuj',
    folderreindexconf => '\'Czy chcesz przeindeksowaæ ten folder?\'',
    total      => 'Ca³kowity',
+   edit       => 'Edit',
    delete     => 'Usuñ',
    reserve    => 'Zarezerwuj',
    clearadd   => 'Usuñ wszystkie adresy',
@@ -239,6 +283,7 @@
    name       => 'Nazwa',
    email      => 'Email',
    note       => 'Opis',
+   max        => 'Maximum',
    group      => 'Grupa',
    quota_hit  => 'OSI¡GNIÊTO LIMIT DOSTÊPNEJ PRZESTRZENI NA DYSKU',
    usage      => 'U¿ycie',
@@ -281,7 +326,7 @@
    editstat   => 'Edit Stationery',
    savestat   => 'Save Stationery',
    clearstat  => 'Clear All Stationery',
-   selectstat => '-- Select Stationery for Reply --',
+   statreply  => '-- Stationery for Reply --',
    calendar   => 'Kalendarz',
    am         => 'am',
    pm         => 'pm',
@@ -294,12 +339,41 @@
    moreitems  => 'wiêcej',
    multieditconf => 'This item was added for multiple dates.\\nEditing it will change the item for all dates.\\nContinue with Edit?',
    multidelconf  => 'This item was added for multiple dates.\\nDeleting it will delete the item for all dates.\\nContinue with Delete?',
-   ed         => 'Zmieñ',
-   del        => 'Usuñ',
    noitemforthisday => 'Koniec wpisów',
-   today_only               => 'Tylko w dniu dzisiejszym',
-   the_wday_of_thismonth    => 'W  @@@ORDER@@@ @@@WDAY@@@ miesi±ca',
-   every_wday_of_thismonth  => 'Ka¿dy(±) @@@WDAY@@@ bie¿±cego miesi±ca'
+   thisday_only          => 'Tylko w dniu dzisiejszym',
+   the_wday_of_thismonth => 'W  @@@ORDER@@@ @@@WDAY@@@ miesi±ca',
+   every_wday_thismonth  => 'Ka¿dy(±) @@@WDAY@@@ bie¿±cego miesi±ca',
+   thismonth_only           => 'This month only',
+   every_oddmonth_thisyear  => 'Every odd month this year',
+   every_evenmonth_thisyear => 'Every even month this year',
+   every_month_thisyear     => 'Every month this year',
+   webdisk      => 'WebDisk',
+   sshterm      => 'SSH Terminal',
+   dir          => 'Dir',
+   dirs         => 'Dirs',
+   file         => 'File',
+   files        => 'Files',
+   program      => 'Program',
+   dest_of_chdir  => 'the destined directory',
+   name_of_newdir => 'the directory name to create',
+   name_of_newfile=> 'the filename to create',
+   dest_of_thecopy=> 'the destined directory or file of the copy',
+   dest_of_themove=> 'the destined directory or file of the move',
+   dest_of_thezip=> 'the destined filename of the new zip',
+   dest_of_thetgz=> 'the destined filename of the new tgz',
+   homedir      => 'Homedir',
+   showthumbnail    => 'Thumbnails',
+   showhidden   => 'Show hidden files',
+   lastmodified => 'Last modified time',
+   perm         => 'Perm',
+   permission   => 'Access Permission',
+   noitemfound  => 'No item found',
+   savefile     => 'Savefile',
+   succeeded    => 'succeeded',
+   failed       => 'failed',
+   savefile_towd=> 'Save file to WebDisk',
+   saveatt_towd => 'Save attachment to WebDisk',
+   addatt_fromwd=> 'Add attachment from WebDisk'
    );
 
 %lang_err =
@@ -332,7 +406,8 @@
    folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
    att_overlimit     => 'Przykro mi ale rozmiar za³±cznika przekracza limit, który wynosi',
    inv_msg_op        => 'Nieprawid³owa operacja dla tej wiadomo¶ci',
-   inv_sessid        => 'Twoje zapytanie nie zawiera w³asciwego identyfikatora sesji - dostêp zabroniony!',
+   sess_cookieerr    => 'Twoje zapytanie nie zawiera w³asciwego identyfikatora sesji - dostêp zabroniony!',
+   sess_iperr        => 'Your request didn\'t come from the same ip of this session -- access denied!',
    no_endpart        => 'Czê¶æ koñcowa nieznaleziona',
    part_missing      => 'Czê¶æ zosta³a zagubiona',
    rebuild_fmterr    => 'Z³y format wiadomo¶ci',
@@ -347,7 +422,17 @@
    network_server_error => 'b³±d sieci',
    sendmail_error    => 'Niestety wyst±pi³ problem podczas wysy³ania Twojej wiadomo¶ci. Naci¶nij przycisk wstecz w przegl±darce, sprawd¼ wiadomo¶æ i spróbuj ponownie.',
    at_char_not_allowed => 'The @ character is not allowed in this field.  Press browser back button and try again',
-   badnum_in_days => 'bad number in consecutive days field'
+   badnum_in_days => 'bad number in consecutive days field',
+   access_denied     => 'Access denied',
+   couldnt_chdirto   => 'Couldn\'t chdir to',
+   isnt_a_dir        => 'is not a directory',
+   edit_notfordir    => 'You can\'t edit a directory',
+   onefileonly       => 'Only one file is allowed for this operation',
+   no_file_todownload=> 'No file is specified for download',
+   upload_overlimit  => 'Upload file size is over the limit',
+   decomp_notsupported=>'Decompression support is not available for this file.',
+   webdisk_hitquota   => 'Sorry, you\'ve hit your webdisk quota, please delete some files first.',
+   webdisk_readonly   => 'Sorry, your webdisk is read only.'
    );
 
 1;

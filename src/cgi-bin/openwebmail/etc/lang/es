@@ -2,6 +2,7 @@
 
 # Spanish translation by Javier Smaldone, jsmaldone.AT.yahoo.com
 # charset: iso-8859-1
+# last update 02-08-2003
 
 %lang_folders =
    (
@@ -35,9 +36,9 @@
 
 %lang_withoriglabels =
    (
-   at_beginning => 'al principio',
-   at_end      => 'al final',
-   none        => 'ninguno'
+   at_beginning => 'Al principio',
+   at_end      => 'Al final',
+   none        => 'Ninguno'
    );
 
 %lang_receiptlabels =
@@ -47,11 +48,24 @@
    no  => 'No'
    );
 
-%lang_positionlabels =
+%lang_ctrlpositionlabels =
    (
-   before => 'Before mail edit area',
-   after => 'After mail edit area',
-   both  => 'Before and after mail edit area'
+   top => 'Al principio',
+   bottom => 'Al final'
+   );
+
+%lang_sendpositionlabels =
+   (
+   before => 'Antes del área de edición del mensaje',
+   after => 'Después del área de edición del mensaje',
+   both  => 'Antes y después del área de edición del mensaje'
+   );
+
+%lang_abookbuttonpositionlabels = 
+   (
+   before => 'Antes de las entradas',
+   after  => 'Después de las entradas',
+   both   => 'Antes y después de las entradas'
    );
 
 %lang_timelabels =
@@ -80,13 +94,20 @@
    regexp      => 'coincide con la expresión regular',
    );
 
+%lang_sizes =
+   (
+   mb   => ' MB',	# mega bytes
+   kb   => ' KB',	# kilo bytes
+   byte => ' bytes'
+   );
+
 %lang_calendar = 
    (
    yearview  => 'Vista anual',
    monthview => 'Vista mensual',
    weekview  => 'Vista semanal',
    dayview   => 'Vista diaria',
-   listview   => 'Listview'
+   listview  => 'Vista de lista'
    );
 
 %lang_month =
@@ -137,28 +158,50 @@
    5 => 'último'
    );
 
+%lang_wdbutton =
+   (
+   refresh  => 'Actualizar',
+   preview  => 'Previsualizar',
+   edit     => 'Editar',
+   listarchive=> 'Listar',
+   decompress=>'Descomprimir',
+   extract  => 'Extraer',
+   chdir    => 'Cambiar Dir',
+   mkdir    => 'Crear Dir',
+   newfile  => 'Nuevo Archivo',
+   delete   => 'Eliminar',
+   copy     => 'Copiar',
+   move     => 'Mover',
+   gzip     => 'Crear gzip',
+   mkzip    => 'Crear zip',
+   mktgz    => 'Crear tgz',
+   mkthumbnail  => 'Crear Imagen',
+   download => 'Descargar',
+   upload   => 'Subir',
+   );   
+
 %lang_text =
    (
-   login      => 'Entrar',
+   login      => 'Ingresar',
    clear      => 'Restablecer',
    point      => 'Punto',
-   pixel      => 'Pixel',
+   pixel      => 'Píxel',
    changepwd  => 'Cambiar contraseña',
    viewhistory=> 'Ver Historial',
    of         => 'de',
    messages   => 'mensajes',
-   unread     => 'no leído',
-   nomessages => 'Carpeta vacía',
-   inmessages => 'Incoming msgs',
-   composenew => 'Enviar nuevo mensaje',
+   unread     => 'no leído(s)',
+   nomessages => 'Bandeja vacía',
+   inmessages => 'Mensajes entrantes',
+   composenew => 'Componer Mensaje',
    refresh    => 'Actualizar',
    userprefs  => 'Preferencias personales',
-   addressbook=> 'Libreta de direcciones',
-   folders    => 'Carpetas',
+   addressbook=> 'Libreta de Direcciones',
+   folders    => 'Bandejas',
    emptytrash => 'Vaciar Papelera',
    totrash    => 'Enviar a la Papelera',
    forever    => 'Para siempre',
-   delatlogout=> 'Delete at Logout',
+   delatlogout=> 'Eliminar al salir',
    userdef    => 'Definido por el usuario',
    logout     => 'Salir',
    page       => 'Página',
@@ -170,7 +213,7 @@
    markasunread => 'Marcar como no leído',
    dateformat => 'Formato de fecha',
    date       => 'Fecha',
-   recipient  => 'Para',
+   recipient  => 'Destinatario',
    sender     => 'Remitente',
    subject    => 'Asunto',
    thread     => 'Conversación',
@@ -181,9 +224,9 @@
    forward    => 'Reenviar',
    forwardasatt=>'Reenviar como archivo adjunto',
    printfriendly=> 'Versión imprimible',
-   from       => 'De',
+   from       => 'Remitente',
    replyto    => 'Responder a',
-   to         => 'Para',
+   to         => 'Destinatario',
    cc         => 'CC (copia)',
    bcc        => 'CCO (copia oculta)',
    simplehead => 'Encabezado simple',
@@ -196,8 +239,8 @@
    encoding   => 'Codificación',
    description=> 'Descripción',
    download   => 'Descargar',
-   charset    => 'Charset',
-   samecharset=> 'The same as composing charset',
+   charset    => 'Mapa de caracteres',
+   samecharset=> 'El mismo mapa de caracteres que en la composición',
    thisispartialmsg => 'Este es un mensaje parcial.',
    msgrebuild => 'Reconstruir Mensaje',
    editdraft  => 'Editar borrador',
@@ -206,23 +249,25 @@
    about      => 'Acerca de',
    close      => 'Cerrar',
    cancel     => 'Cancelar',
+   ok         => 'Aceptar',
    continue   => 'Continuar',
-   loginagain => 'Volver a conectar',
+   loginagain => 'Volver a ingresar',
    exit       => 'Salir',
    for        => 'para',
    yourname   => 'Su Nombre y Apellido',
    save       => 'Guardar',
    add        => 'Agregar',
-   folderrenprop => '\'Por favor introduzca el nuevo nombre de esta carpeta\'',
+   folderrenprop => '\'Por favor introduzca el nuevo nombre de esta bandeja\'',
    rename     => 'Renombrar',
-   folderdelconf => '\'¿Está seguro de querer borrar esta carpeta y todo su contenido?\'',
-   markread   => 'Marcar leído',
-   foldermarkreadconf => '\'¿Desea marcar como leídos todos los mensajes de esta carpeta?\'',
+   folderdelconf => '\'¿Está seguro de querer borrar esta bandeja y todo su contenido?\'',
+   markread   => 'Marcar leídos',
+   foldermarkreadconf => '\'¿Desea marcar como leídos todos los mensajes de esta bandeja?\'',
    chkindex   => 'Verificar índice',
-   folderchkindexconf => '\'¿Desea verificar el índice de esta carpeta?\'',
+   folderchkindexconf => '\'¿Desea verificar el índice de esta bandeja?\'',
    reindex    => 'Re-indexar',
-   folderreindexconf => '\'¿Desea reindexar esta carpeta?\'',
+   folderreindexconf => '\'¿Desea reindexar esta bandeja?\'',
    total      => 'Total',
+   edit       => 'Editar',
    delete     => 'Borrar',
    reserve    => 'Reservar',
    clearadd   => 'Borrar todas las direcciones',
@@ -236,24 +281,25 @@
    name       => 'Nombre',
    email      => 'Dirección',
    note       => 'Nota',
+   max        => 'Máximo',
    group      => 'Grupo',
    quota_hit  => 'TAMAÑO MÁXIMO PERMITIDO',
    usage      => 'Uso',
    tzmap      => 'Mapa de zonas horarias',
-   testsound  => 'Test sound',
-   editfroms  => 'Editar direcciones de correo personales',
+   testsound  => 'Probar sonido',
+   editfroms  => 'Editar direcciones de correo',
    pop3book   => 'Configuración POP3',
    retr_pop3s => 'Descargar correo POP3',
-   filterbook => 'Configuración de los filtros de correo',
-   include    => 'contenga',
-   exclude    => 'no contenga',
+   filterbook => 'Filtros de mensajes',
+   include    => 'contiene',
+   exclude    => 'no contiene',
    smtprelay  => 'SMTP Relay',
-   header     => 'Cabecera',
+   header     => 'Encabezado',
    body       => 'Cuerpo',
-   attfilename=> 'Nombe del archivo adjunto',
+   attfilename=> 'Archivo adjunto',
    all        => 'Todo',
-   enable     => 'Activar',
-   disable    => 'Desactivar',
+   enable     => 'Activo',
+   disable    => 'Inactivo',
    filtered   => 'Filtrado',
    blockrelay => 'Bloquear SMTP Relay',
    blockemail => 'Bloquear dirección',
@@ -268,35 +314,64 @@
    textcontent=> 'Contenido del texto',
    search     => 'Buscar',
    advsearch  => 'Búsqueda avanzada',
-   folder     => 'Carpeta',
-   nofoldersel=> 'No hay carpeta seleccionada',
+   folder     => 'Bandeja',
+   nofoldersel=> 'No hay bandeja seleccionada',
    showall    => 'Mostrar todos',
    spellcheck => 'Corregir ortografía',
-   checkagain => 'Comprobar de nuevo',
+   checkagain => 'Comprobar nuevamente',
    finishchecking => 'Finalizar corrección',
-   manuallyfix=> 'Arreglar manualmente',
-   editstat   => 'Edit Stationery',
-   savestat   => 'Save Stationery',
-   clearstat  => 'Clear All Stationery',
-   selectstat => '-- Select Stationery for Reply --',
-   calendar   => 'Calendar',
+   manuallyfix=> 'Corregir manualmente',
+   editstat   => 'Editar membretes',
+   savestat   => 'Guardar membrete',
+   clearstat  => 'Borrar membrete',
+   statreply  => '-- Membrete de respuesta --',
+   calendar   => 'Calendario',
    am         => 'am',
    pm         => 'pm',
    calfmt_year          => 'Año @@@YEAR@@@',
-   calfmt_yearmonth     => '@@@MONTH_STR@@@ @@@YEAR@@@',
-   calfmt_yearmonthday  => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@',
-   calfmt_yearmonthdaywday => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@ @@@WEEKDAY_STR@@@',
+   calfmt_yearmonth     => '@@@MONTH_STR@@@ de @@@YEAR@@@',
+   calfmt_yearmonthday  => '@@@DAY@@@ de @@@MONTH_STR@@@ de @@@YEAR@@@',
+   calfmt_yearmonthdaywday => '@@@WEEKDAY_STR@@@ @@@DAY@@@ de @@@MONTH_STR@@@ de @@@YEAR@@@',
    calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
    none       => 'Ninguno',
    moreitems  => 'más items',
-   multieditconf => 'Este item fue agregado a múltiples fechas.\\nAl editarlo cambiará para todas las fechas\\n¿Desea continuar con la edición?',
-   multidelconf	 => 'Este item fue agregado a múltiples fechas.\\nAl eliminarlo se quitará de todas las fechas\\n¿Desea eliminarlo?',
-   ed         => 'Ed',
-   del        => 'Borr',
+   multieditconf => 'Este ítem fue agregado a múltiples fechas.\\nAl editarlo cambiará para todas las fechas\\n¿Desea continuar con la edición?',
+   multidelconf	 => 'Este ítem fue agregado a múltiples fechas.\\nAl eliminarlo se quitará de todas las fechas\\n¿Desea eliminarlo?',
    noitemforthisday => 'No hay items para este día',
-   today_only               => 'Sólo de hoy',
-   the_wday_of_thismonth    => 'El @@@ORDER@@@ @@@WDAY@@@ del mes',
-   every_wday_of_thismonth  => 'Cada @@@WDAY@@@ este mes'
+   thisday_only          => 'Solamente hoy',
+   the_wday_of_thismonth => 'El @@@ORDER@@@ @@@WDAY@@@ de cada mes',
+   every_wday_thismonth  => 'Cada @@@WDAY@@@ de este mes',
+   thismonth_only           => 'Sólo este mes',
+   every_oddmonth_thisyear  => 'Cada mes impar este año',
+   every_evenmonth_thisyear => 'Cada mes par este año',
+   every_month_thisyear     => 'Cada mes este año',
+   webdisk      => 'Disco Web',
+   sshterm      => 'Terminal SSH',
+   dir          => 'Dir',
+   dirs         => 'Directorios',
+   file         => 'Archivo',
+   files        => 'Archivos',
+   program      => 'Programa',
+   dest_of_chdir  => 'el directorio de destino',
+   name_of_newdir => 'el nombre del directorio a crear',
+   name_of_newfile=> 'el nombre del archivo a crear',
+   dest_of_thecopy=> 'el directorio o archivo de destino de la copia',
+   dest_of_themove=> 'el directorio o archivo de destino donde mover',
+   dest_of_thezip=> 'el nombre del nuevo archivo Zip',
+   dest_of_thetgz=> 'el nombre del nuevo archivo Tgz',
+   homedir      => 'directorio raíz',
+   showthumbnail    => 'Imágenes', 
+   showhidden   => 'Mostrar archivos ocultos',
+   lastmodified => 'Fecha de última modificación',
+   perm         => 'Permisos',
+   permission   => 'Access Permission',
+   noitemfound  => 'No hay ítems',
+   savefile     => 'Guardado del archivo',
+   succeeded    => 'exitoso',
+   failed       => 'fallido',
+   savefile_towd=> 'Guardar archivo en el Disco Web',
+   saveatt_towd => 'Guardar adjunto en el Disco Web',
+   addatt_fromwd=> 'Adjuntar archivo desde el Disco Web'
    );
 
 %lang_err =
@@ -307,29 +382,30 @@
    couldnt_lock      => 'No pude bloquear para escritura',
    couldnt_seek      => 'No pude encontrar el comienzo de',
    couldnt_close     => 'No pude cerrar',
-   couldnt_updatedb  => 'Couldn\'t update index db ',
+   couldnt_updatedb  => 'No pude actualizar el índice',
    disallowed_pop3   => 'Servidor POP3 no permitido',
    disallowed_client => 'No esta permitido conectarse desde este cliente',
    disallowed_receiverdomain => 'No tiene permiso para enviar un mensaje a esa dirección de correo',
    norootlogin       => 'Lo siento, acceso a cuenta de root está inhabilitada por razones de seguridad.',
    shouldnt_move_here=> 'No debería de tratar de mover mensajes hasta aquí!',
-   destination_folder=> 'Carpeta de destino',
+   destination_folder=> 'Bandeja de destino',
    doesnt_exist      => '¡no existe!',
-   foldername_long   => '¡El nombre de la carpeta no puede ser mayor a 32 caracteres!',
-   folder_with_name  => 'La carpeta con el nombre',
+   foldername_long   => '¡El nombre de la bandeja no puede ser mayor a 32 caracteres!',
+   folder_with_name  => 'La bandeja con el nombre',
    already_exists    => '¡ya existe!',
-   cant_create_folder=> '¡No puedo crear la carpeta!',
+   cant_create_folder=> '¡No puedo crear la bandeja!',
    under_indexing    => 'está aún indexándose, por favor intente después',
    abook_invalid     => 'Lo siento, este archivo no parece ser una libreta de direcciones exportada desde Microsoft Outlook Express 5 en formato CSV.  Asegurese de ver este archivo en un editor de textos y que la primera línea comience con "Nombre,Dirección E-mail", entonces regrese',
    back              => 'atrás',
    tryagain          => 'y trate nuevamente.',
    abook_toobig      => 'Lo siento, se ha excedido del tamaño límite para su libreta de direcciones.  Por favor, regrese',
    cant_create_dir   => '¡No puedo crear su directorio de usuario!',
-   folder_hitquota   => 'Lo siento, usted llegó a su límite de espacio y no puedo guardar más mensajes en ninguna carpeta. Sólo podrá mover los mensajes a la carpeta PAPELERA, donde serán borrados.  Regrese atrás, borre algunos mensajes o vacíe la Papelera y trate de nuevo.',
-   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
+   folder_hitquota   => 'Lo siento, usted llegó a su límite de espacio y no puedo guardar más mensajes en ninguna bandeja. Sólo podrá mover los mensajes a la bandeja PAPELERA, donde serán borrados.  Regrese atrás, borre algunos mensajes o vacíe la Papelera y trate de nuevo.',
+   folder_cutdone    => 'Advertencia, debido a que se alcanzó el límite del tamaño de las bandejas (@@@FOLDERQUOTA@@@), los mensajes más antiguoshan sido eliminados automáticamente de las mismas.',
    att_overlimit     => 'Lo siento, el tamaño de su archivo excede el tamaño límite permitido, el cual es de',
    inv_msg_op        => 'Operación no válida para el mensaje',
-   inv_sessid        => 'Su petición no contiene la correspondiente Cookie de Identificación -- acceso denegado!',
+   sess_cookieerr    => 'Su petición no contiene la correspondiente Cookie de Identificación -- acceso denegado!',
+   sess_iperr        => 'Su requerimiento no vino de la misma dirección IP de esta sesión. Acceso denegado.',
    no_endpart        => 'Parte final no encontrada',
    part_missing      => 'Alguna parte se ha perdido',
    rebuild_fmterr    => 'Error en el formato del nuevo mensaje',
@@ -339,12 +415,22 @@
    auth_syserr       => 'error del sistema de autenticación',
    param_fmterr      => 'error en el formato de un parámetro',
    pwd_incorrect     => 'contraseña incorrecta',
-   pwd_tooshort      => 'Password too short (minimum length @@@PASSWDMINLEN@@@)',
-   pwd_toosimple     => 'Password too simple (both alphabet and digit are required)',
+   pwd_tooshort      => 'Contraseña demasiado corta (logitud mínima @@@PASSWDMINLEN@@@)',
+   pwd_toosimple     => 'Contraseña demasidao simple (debe contener letras y números)',
    network_server_error => 'error de red del servidor',
    sendmail_error    => 'Disculpe, hubo un problema enviando su mensaje. Por favor presione el botón Anterior de su navegador, compruebe su mensaje, e intente nuevamente.',
    at_char_not_allowed => 'El caracter @ no está permitido en este campo. Presione el botón Atrás de su navegador e intente nuevamente',
-   badnum_in_days => 'número erróneo en el campo de días consecutivos'
+   badnum_in_days => 'número erróneo en el campo de días consecutivos',
+   access_denied     => 'Acceso denegado',
+   couldnt_chdirto   => 'No se pudo ingresar al directorio',
+   isnt_a_dir        => 'no es un directorio',
+   edit_notfordir    => 'No puede editar un directorio',
+   onefileonly       => 'Sólo se permite un archivo para esta operación',
+   no_file_todownload=> 'No se especificó ningún archivo a descargar',
+   upload_overlimit  => 'El tamaño del archivo a subir supera el límite',
+   decomp_notsupported=>'No se soporta la descompresión de este archivo.',
+   webdisk_hitquota   => 'Lo lamento, ha alcanzado el límite de su Disco Web, por favor elimine algunos archivos primero.',
+   webdisk_readonly   => 'Lo lamento, su Disco Web es de sólo-lectura.'
    );
 
 1;

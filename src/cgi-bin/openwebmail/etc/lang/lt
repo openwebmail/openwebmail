@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Lithuanian translation by Alvydas Sinkunas, dvm382.AT.takas.lt
+# Lithuanian translation by Alvydas Sinkunas, dvm382.AT.takas.lt, 2003-01-15
 # charset: windows-1257
 
 %lang_folders =
@@ -47,11 +47,24 @@
    no  => 'Ne'
    );
 
-%lang_positionlabels =
+%lang_ctrlpositionlabels =
+   (
+   top => 'Virðuje',
+   bottom => 'Apaèioje'
+   );
+
+%lang_sendpositionlabels =
    (
    before => 'Before mail edit area',
    after => 'After mail edit area',
-   both  => 'Before and after mail edit area'
+   both  => 'Prieð ir po laiðko langu'
+   );
+
+%lang_abookbuttonpositionlabels = 
+   (
+   before => 'Before addressbook entries',
+   after  => 'After addressbook entries',
+   both   => 'Before and after addressbook entries'
    );
 
 %lang_timelabels =
@@ -77,7 +90,14 @@
    isnot       => 'nëra tikslios frazës',
    startswith  => 'prasideda su',
    endswith    => 'baigiasi su',
-   regexp      => 'matches regexp',
+   regexp      => 'ðablonai',
+   );
+
+%lang_sizes =
+   (
+   mb   => 'MB',	# mega bytes
+   kb   => 'KB',	# kilo bytes
+   byte => 'Byte'
    );
 
 %lang_calendar = 
@@ -86,7 +106,7 @@
    monthview => 'Mënuo',
    weekview  => 'Savaitë',
    dayview   => 'Diena',
-   listview   => 'Listview'
+   listview   => 'Sàraðas'
    );
 
 %lang_month =
@@ -137,28 +157,50 @@
    5 => '5-as'
    );
 
+%lang_wdbutton =
+   (
+   refresh  => 'Atnaujinti',
+   preview  => 'Preview',
+   edit     => 'Redaguoti',
+   listarchive=> 'Sàraðas',
+   decompress=>'Iðskleisti',
+   extract  => 'Iðtraukti',
+   chdir    => 'Keisti katalogà',
+   mkdir    => 'Sukurti katalogà',
+   newfile  => 'Nauja byla',
+   delete   => 'Trinti',
+   copy     => 'Kopijuoti',
+   move     => 'Perkelti',
+   gzip     => 'gzCompress',
+   mkzip    => 'Zip',
+   mktgz    => 'Tgz',
+   mkthumbnail  => 'MkThumb',
+   download => 'Atsiøsti',
+   upload   => 'Nusiøsti',
+   );   
+
 %lang_text =
    (
    login      => 'Jungtis',
    clear      => 'Iðvalyti',
-   point      => 'Point',
-   pixel      => 'Pixel',
+   point      => 'Taðkas',
+   pixel      => 'Vaizdo elementas',
    changepwd  => 'Keisti slaptaþodá',
    viewhistory=> 'Perþiûrëti þurnalà',
    of         => 'ið viso laiðkø:',
    messages   => ' ',
    unread     => 'neskaityti',
    nomessages => 'Laiðkø nëra',
-   inmessages => 'Incoming msgs',
+   inmessages => 'Atëjæ laiðkai',
    composenew => 'Raðyti laiðkà',
    refresh    => 'Atnaujinti',
    userprefs  => 'Vartotojo nustatymai',
    addressbook=> 'Adresø sàraðas',
    folders    => 'Segtuvai',
    emptytrash => 'Ar iðtrinti ðiukðledëþæ',
-   totrash    => 'Move to Trash',
+   totrash    => 'Perkelti á ðiukðledëþæ',
    forever    => 'Visam laikui',
-   delatlogout=> 'Delete at Logout',
+   delatlogout=> 'Iðtrinti atsijungiant',
    userdef    => 'Vartotojo nustatyti',
    logout     => 'Baigti darbà',
    page       => 'Lapas',
@@ -196,16 +238,17 @@
    encoding   => 'Kodavimas',
    description=> 'Apraðymas',
    download   => 'Parsisiøsti',
-   charset    => 'Charset',
-   samecharset=> 'The same as composing charset',
+   charset    => 'Kodø lentelë',
+   samecharset=> 'Kodø lentelë',
    thisispartialmsg => 'Èia yra nepilnas laiðkas.',
    msgrebuild => 'Laiðko atstatymas',
    editdraft  => 'Redaguoti raðomà laiðkà',
    savedraft  => 'Áraðyti neiðsiunèiant',
    send       => 'Siøsti',
    about      => 'Apie',
-   close      => 'U=daryti',
+   close      => 'Uþdaryti',
    cancel     => 'Anuliuoti',
+   ok         => 'Ok',
    continue   => 'Tæsti',
    loginagain => 'Prisijungti vël',
    exit       => 'Iðeiti',
@@ -216,13 +259,14 @@
    folderrenprop => '\'Áraðykite naujà segtuvo pavadinimà\'',
    rename     => 'Pervardinti',
    folderdelconf => '\'Ar tikrai norite iðtrinti ðá segtuvà ir visà jo turiná?\'',
-   markread   => 'MarkRead',
+   markread   => 'Perskaitytas',
    foldermarkreadconf => '\'Are you going to mark read on all messages in this folder?\'',
    chkindex   => 'CheckIndex',
    folderchkindexconf => '\'Ar norite patikrinti katalogo indeksà?\'',
-   reindex    => 'ReIndex',
+   reindex    => 'Perindeksuoti',
    folderreindexconf => '\'Ar tikrai norite perindeksuoti ðá katalogà?\'',
    total      => 'Ið viso',
+   edit       => 'Redaguoti',
    delete     => 'Iðtrinti',
    reserve    => 'Rezervuoti',
    clearadd   => 'Iðtrinti visus adresus',
@@ -236,11 +280,12 @@
    name       => 'Vardas',
    email      => 'El.paðtas',
    note       => 'Pastaba',
+   max        => 'Maximum',
    group      => 'Grupë',
-   quota_hit  => 'JÛSØ DISKO VIETA IÐNAUDOTA',
+   quota_hit  => 'JÛMS SKIRTA VIETA DISKE IÐNAUDOTA!',
    usage      => 'Iðnaudota disko vietos',
    tzmap      => 'Pasaulio laiko juostø þemëlapis',
-   testsound  => 'Test sound',
+   testsound  => 'Pabandyti garsà',
    editfroms  => 'Redaguoti personaliná el. paðto adresà',
    pop3book   => 'POP3 nustatymai',
    retr_pop3s => 'Tikrinti POP3 paðto dëþutæ',
@@ -275,10 +320,10 @@
    checkagain => 'Tikrinti vël',
    finishchecking => 'Patikrinta',
    manuallyfix=> 'Fiksuoti',
-   editstat   => 'Edit Stationery',
-   savestat   => 'Save Stationery',
-   clearstat  => 'Clear All Stationery',
-   selectstat => '-- Select Stationery for Reply --',
+   editstat   => 'Redaguoti atsakymus',
+   savestat   => 'Áraðyti atsakymà',
+   clearstat  => 'Iðtrinti visus atsakymus',
+   statreply  => '-- Standartiniai atsakymai --',
    calendar   => 'Kalendorius',
    am         => 'iki.p',
    pm         => 'po.p',
@@ -291,12 +336,41 @@
    moreitems  => 'daugiau áraðø',
    multieditconf => 'Ðis áraðas su keliomis datomis.\\nRedaguodami pakeisite áraðà visoms datoms.\\nAr testi redagavimà?',
    multidelconf  => 'Ðis áraðas su keliomis datomis.\\nIðtrinti galima tik visas datas ið karto.\\nAr tæsti trynimà?',
-   ed         => 'Red',
-   del        => 'Iðtr.',
    noitemforthisday => 'Ðiai dienai áraðø nëra',
-   today_only               => 'Tik ðiai datai',
-   the_wday_of_thismonth    => ' @@@ORDER@@@ @@@WDAY@@@ per mënesá',
-   every_wday_of_thismonth  => 'Kiekvienas @@@WDAY@@@ ðá mënesá'
+   thisday_only          => 'Tik ðiai datai',
+   the_wday_of_thismonth => ' @@@ORDER@@@ @@@WDAY@@@ per mënesá',
+   every_wday_thismonth  => 'Kiekvienas @@@WDAY@@@ ðá mënesá',
+   thismonth_only           => 'This month only',
+   every_oddmonth_thisyear  => 'Every odd month this year',
+   every_evenmonth_thisyear => 'Every even month this year',
+   every_month_thisyear     => 'Every month this year',
+   webdisk      => 'WWW Diskas',
+   sshterm      => 'SSH Terminalas',
+   dir          => 'Katalogas',
+   dirs         => 'Katalogai',
+   file         => 'Byla',
+   files        => 'Bylos',
+   program      => 'Programa',
+   dest_of_chdir  => 'kelias iki katalogo',
+   name_of_newdir => 'katalogo vardas',
+   name_of_newfile=> 'bylos vardas',
+   dest_of_thecopy=> 'naujas kopijuojamos bylos/katalogo vardas',
+   dest_of_themove=> 'naujas perkeliamos bylos/katalogo vardas',
+   dest_of_thezip=> 'naujos archyvuotos bylos vardas',
+   dest_of_thetgz=> 'naujos archyvuotos bylos vardas',
+   homedir      => 'Pradinis katalogas',
+   showthumbnail    => 'Thumbnails',
+   showhidden   => 'Rodyti paslëptas bylas',
+   lastmodified => 'Redagavimo laikas',
+   perm         => 'Leidimai',
+   permission   => 'Access Permission',
+   noitemfound  => 'Áraðo nëra',
+   savefile     => 'Áraðyti bylà',
+   succeeded    => 'sëkmingai',
+   failed       => 'klaidingai',
+   savefile_towd=> 'Áraðyti bylà á WWW Diskà',
+   saveatt_towd => 'Áraðyti priedà á WWW Diskà',
+   addatt_fromwd=> 'Prikabinti priedà ið WWW Disko'
    );
 
 %lang_err =
@@ -307,10 +381,10 @@
    couldnt_lock      => 'Raðymo klaida',
    couldnt_seek      => 'Nëra pradþios',
    couldnt_close     => 'Nepavyko uþdaryti',
-   couldnt_updatedb  => 'Couldn\'t update index db ',
+   couldnt_updatedb  => 'Nepavyko atnaujinti "index db" ',
    disallowed_pop3   => 'Nepriëmë  POP3 serveris',
    disallowed_client => 'Ðiam vardui nëra teisës prisijungti',
-   disallowed_receiverdomain => 'You are not allowed to send message to this email address',
+   disallowed_receiverdomain => 'Jums neleista siøsti ðiuo adresu',
    norootlogin       => 'Prisijungti nepavyks! Gudrutis... :-)',
    shouldnt_move_here=> 'Pabandykite perkelti laiðkà èia!',
    destination_folder=> 'Tikslo katalogas',
@@ -319,17 +393,18 @@
    folder_with_name  => 'Segtuvas',
    already_exists    => 'jau yra!',
    cant_create_folder=> 'Nepavyko sukurti segtuvo!',
-   under_indexing    => 'is still under indexing, please try later',
+   under_indexing    => 'pabandykite vëliau ...',
    abook_invalid     => 'Atrodo, kad norite importuoti bylà, kuri neatitinka Microsoft Outlook Express 5 CSV formato. Pasiþiûrëkit ar pirmoje eilutë tokia: "Name,E-mail Address", jei taip, bandykite importuoti',
    back              => 'atgal',
    tryagain          => 'bandykit dar kartà.',
    abook_toobig      => 'Gaila, bet Jûs iðnaudojote adresø knygelei skirtà disko vietà.',
    cant_create_dir   => 'Nepavyko sukurti segtuvo Jûsø darbui!',
    folder_hitquota   => 'Gaila, bet iðnaudota Jums skirta disko vieta. Perþiûrëkit ir iðtrinkit senus, gal bût nebereikalingus laiðkus.',
-   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
+   folder_cutdone    => 'Iðnaudotas disko vietos limitas (@@@FOLDERQUOTA@@@) , seniausi laiðkai bus iðmesti automatiðkai',
    att_overlimit     => 'Gaila, bet Jûsø prikabinta byla didesnë uþ leistinà',
    inv_msg_op        => 'Neteisingi veiksmai su laiðku',
-   inv_sessid        => 'Sesijos ID nesutampa su esamu "sausainiu" - Jûsø veiksmai neleistini!',
+   sess_cookieerr    => 'Sesijos ID nesutampa su esamu "sausainiu" - Jûsø veiksmai neleistini!',
+   sess_iperr        => 'Your request didn\'t come from the same ip of this session -- access denied!',
    no_endpart        => 'Nëra pabaigos',
    part_missing      => 'Kaþkas blogai',
    rebuild_fmterr    => 'Blogas naujo laiðko formatas',
@@ -339,12 +414,22 @@
    auth_syserr       => 'slaptaþodþio tikrinimo klaida',
    param_fmterr      => 'parametro formato klaida',
    pwd_incorrect     => 'slaptaþodis neteisingas',
-   pwd_tooshort      => 'Password too short (minimum length @@@PASSWDMINLEN@@@)',
-   pwd_toosimple     => 'Password too simple (both alphabet and digit are required)',
+   pwd_tooshort      => 'Slaptaþodis per trumpas (minimumas - @@@PASSWDMINLEN@@@)',
+   pwd_toosimple     => 'Slaptaþodis per daug paprastas',
    network_server_error => 'tinklo klaida',
    sendmail_error    => 'Gaila, bet iðkilo bëdø siunèiant laiðkà. Gráþkite atgal ir bandykite dar kartà.',
    at_char_not_allowed => 'Simbolis @ negalimas ðiame lauke.  Gráþkite atgal ir bandykite dar kartà',
-   badnum_in_days => 'blogas skaièius , nenuoseklus'
+   badnum_in_days => 'blogas skaièius , nenuoseklus',
+   access_denied     => 'Uþdrausta',
+   couldnt_chdirto   => 'Negalima perðokti á katalogà',
+   isnt_a_dir        => 'tai ne katalogas',
+   edit_notfordir    => 'Jûs negalite redaguoti katalogo',
+   onefileonly       => 'Tik vienà bylà leidþiama tvarkyti',
+   no_file_todownload=> 'Neaiðku kà atsiøsti',
+   upload_overlimit  => 'Per didelë byla. Nusiuntimo limitas - ',
+   decomp_notsupported=>'Negalimaa iðarchyvuoti ðios bylos',
+   webdisk_hitquota   => 'Virðijote Jums skirtos disko vietos limità. Gal ka nors iðtrinkite...',
+   webdisk_readonly   => 'Sorry, your webdisk is read only.'
    );
 
 1;

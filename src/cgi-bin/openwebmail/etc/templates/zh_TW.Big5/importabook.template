@@ -1,17 +1,17 @@
 <BR>
 <BR>
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
-<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>匯入通訊錄</B></font>
 </td><td bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>尚有 @@@FREESPACE@@@ KB 空間</B></font>
+<B>尚有 @@@FREESPACE@@@ 空間</B></font>
 </td></tr>
 <tr><td colspan="2" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 
 <table border="0" align="center" width="85%" cellpadding="0" cellspacing="0">
-<tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
+<tr><td bgcolor=@@@WINDOW_LIGHT@@@>
 <BR>Outlook Express 5 和 Netscape Mail 都具有匯出一種檔案格式為 CSV (Comma Seperated Values,
 用逗號分開的文字檔) 的通訊錄的功能, @@@NAME@@@ 可以匯入這類的檔案並且將其內容存到您的個人通訊錄裡,
 這樣可節省用手鍵入這些資料的時間。這項功能並不會覆蓋您原先的通訊錄內容, 除非原本有相同的名字在上面;
@@ -37,7 +37,7 @@
 </td>
 @@@ENDFORM@@@
 @@@STARTCANCELFORM@@@
-<td width="50%" align="left" bgcolor=@@@WINDOW_LIGHT@@@>
+<td width="50%" bgcolor=@@@WINDOW_LIGHT@@@>
 &nbsp;&nbsp;@@@CANCELBUTTON@@@
 </td></tr>
 <tr><td colspan=2 bgcolor=@@@WINDOW_LIGHT@@@>&nbsp;</td></tr>

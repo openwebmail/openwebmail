@@ -1,17 +1,17 @@
 <BR>
 <BR>
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
-<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>Adresø importas</B></font>
 </td><td bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>yra @@@FREESPACE@@@ KB </B></font>
+<B>yra @@@FREESPACE@@@ </B></font>
 </td></tr>
 <tr><td colspan="2" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 
 <table border="0" align="center" width="85%" cellpadding="0" cellspacing="0">
-<tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
+<tr><td bgcolor=@@@WINDOW_LIGHT@@@>
 <BR><i>Outlook Express 5</i> ir <i>Netscape Mai</i>l gali exportuoti adresø knygeles taip vadinamu CSV formatu
 (kableliu atskirtø reikðmiø formatas).  <i>@@@NAME@@@</i> gali importuoti ðias bylas (failus) á jûsø adresø
 knygelæ ir taip padëti jums sutaupyti laiko, nes nereikës ið naujo suvedinëti.
@@ -35,7 +35,7 @@ kad vardas ir el. paðto adrersas sukurtoje byloje áraðyti pirmiausia.
 </td>
 @@@ENDFORM@@@
 @@@STARTCANCELFORM@@@
-<td width="50%" align="left" bgcolor=@@@WINDOW_LIGHT@@@>
+<td width="50%" bgcolor=@@@WINDOW_LIGHT@@@>
 &nbsp;&nbsp;@@@CANCELBUTTON@@@
 </td></tr>
 <tr><td colspan=2 bgcolor=@@@WINDOW_LIGHT@@@>&nbsp;</td></tr>

@@ -2,7 +2,7 @@
 <br>
 <br>
 <table border="0" align="center" width="70%" cellpadding="1" cellspacing="1">
-<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>Editar direcciones de correo personales</B></font>
 </td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
@@ -12,7 +12,7 @@
 <td nowrap bgcolor=@@@COLUMNHEADER@@@>
 <B>Nombre</B></td>
 <td nowrap bgcolor=@@@COLUMNHEADER@@@>
-<B>Direcciones de correo</B> (click para editar)</td>
+<B>Direcciones de correo</B> (clic para editar)</td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Acci&oacute;n</B>
 </td></tr>

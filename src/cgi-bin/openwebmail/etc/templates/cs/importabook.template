@@ -1,19 +1,18 @@
 <BR>
 <BR>
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
-<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>Import adresáøe</B></font>
 </td><td bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>@@@FREESPACE@@@ kB k dispozici</B></font>
+<B>@@@FREESPACE@@@ k dispozici</B></font>
 </td></tr>
 <tr><td colspan="2" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 
 <table border="0" align="center" width="85%" cellpadding="0" cellspacing="0">
-<tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
-<BR>Outlook Express 5 a Netscape Mail umo¾òují exportovat své adresáøe do souboru .CSV (zkratka Comma Separated Values). @@@NAME@@@ doká¾e tyto soubory importovat do Va¹eho osobního adresáøe. Tak je mo¾né vyhnout se pøepisování adres z jednoho adresáøe d
-o druhého.
+<tr><td bgcolor=@@@WINDOW_LIGHT@@@>
+<BR>Outlook Express 5 a Netscape Mail umo¾òují exportovat své adresáøe do souboru .CSV (zkratka Comma Separated Values - èárkou oddìlené hodnoty). @@@NAME@@@ doká¾e tyto soubory importovat do Va¹eho osobního adresáøe. Tak je mo¾né vyhnout se pøepisování adres z jednoho adresáøe do druhého.
 <ul>
 <li> Netscape - otevøete Vá¹ adresáø a zvolte Soubor-&gt;Exportovat, potom zvolte "Ulo¾it jako:" a vyberte "Comma Separated (*.csv)." <BR><BR>
 <li> Outlook Express - v hlavním oknì Outlook Express zvolte Soubor-&gt;Exportovat-&gt;Adresáø, a vyberte typ souboru "textpvý soubor." Ujistìte se, ¾e v seznamu exportovaných údajù jsou vybrána pole Jméno a E-mail.
@@ -31,7 +30,7 @@ o druhého.
 </td>
 @@@ENDFORM@@@
 @@@STARTCANCELFORM@@@
-<td width="50%" align="left" bgcolor=@@@WINDOW_LIGHT@@@>
+<td width="50%" bgcolor=@@@WINDOW_LIGHT@@@>
 &nbsp;&nbsp;@@@CANCELBUTTON@@@
 </td></tr>
 <tr><td colspan=2 bgcolor=@@@WINDOW_LIGHT@@@>&nbsp;</td></tr>

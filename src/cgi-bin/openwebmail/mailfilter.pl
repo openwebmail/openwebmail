@@ -33,8 +33,7 @@ sub mailfilter {
    ## check .filter_check ##
    if ( -f "$folderdir/.filter.check" ) {
       my $checkinfo;
-      open (FILTERCHECK, "$folderdir/.filter.check" ) or
-         return -1; # $lang_err{'couldnt_open'} .filter.check!
+      open (FILTERCHECK, "$folderdir/.filter.check" ) or return -1; 
       $checkinfo=<FILTERCHECK>;
       close (FILTERCHECK);
       if ($checkinfo eq metainfo($folderfile)) {
@@ -46,8 +45,7 @@ sub mailfilter {
 
    ## get @filterrules ##
    if ( -f "$folderdir/.filter.book" ) {
-      open (FILTER,"$folderdir/.filter.book") or
-         return -2; # $lang_err{'couldnt_open'} .filter.book!
+      open (FILTER,"$folderdir/.filter.book") or return -2;
       while (<FILTER>) {
          chomp($_);
          push (@filterrules, $_) if(/^\d+\@\@\@/); # add valid rule only
@@ -70,24 +68,23 @@ sub mailfilter {
       dbmopen (%FTDB, "$folderdir/.filter.book$config{'dbmopen_ext'}", 0600);
       dbmclose(%FTDB);
    }
-   filelock("$folderdir/.filter.book$config{'dbm_ext'}", LOCK_EX) if (!$config{'dbmopen_haslock'});
+   if (!$config{'dbmopen_haslock'}) {
+      filelock("$folderdir/.filter.book$config{'dbm_ext'}", LOCK_EX) or return -3;
+   }
    dbmopen (%FTDB, "$folderdir/.filter.book$config{'dbmopen_ext'}", 0600);
 
-   unless (filelock($folderfile, LOCK_EX|LOCK_NB)) {
-      return -3; # $lang_err{'couldnt_lock'} $folder!
-   }
+   filelock($folderfile, LOCK_EX|LOCK_NB) or return -4;
    if (update_headerdb($headerdb, $folderfile)<0) {
       filelock($folderfile, LOCK_UN);
       writelog("db error - Couldn't update index db $headerdb$config{'dbm_ext'}");
       writehistory("db error - Couldn't update index db $headerdb$config{'dbm_ext'}");
-      return(-4);
+      return -4;
    }
-   open ($folderhandle, "+<$folderfile") or
-      return -5; # $lang_err{'couldnt_open'} $folder!;
-
+   open ($folderhandle, "+<$folderfile") or return -5;
    @allmessageids=get_messageids_sorted_by_offset($headerdb);
-
-   filelock("$headerdb$config{'dbm_ext'}", LOCK_EX) if (!$config{'dbmopen_haslock'});
+   if (!$config{'dbmopen_haslock'}) {
+      filelock("$headerdb$config{'dbm_ext'}", LOCK_EX) or return -6;
+   }
    dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", 0600);
 
    my ($blockstart, $blockend, $writepointer)=(0,0,0);
@@ -126,8 +123,7 @@ sub mailfilter {
             $matched=0;
 
             ($priority, $rules, $include, $text, $op, $destination, $enable) = split(/\@\@\@/, $line);
-            $destination =~ s/\.\.+//g;
-            $destination =~ s/[\s\/\`\|\<\>;]//g; # remove dangerous char
+            $destination = safefoldername($destination);
 
             # check if current rule is enabled
             next unless ($enable == 1);
@@ -653,9 +649,7 @@ sub mailfilter {
          my $repeated;
          my ($trashfile, $trashdb)=get_folderfile_headerdb($user, 'mail-trash');
 
-         unless (filelock($trashfile, LOCK_EX|LOCK_NB)) {
-            return -5; # $lang_err{'couldnt_lock'} mail-trash!
-         }
+         filelock($trashfile, LOCK_EX|LOCK_NB) or return -7; 
          $repeated=operate_message_with_ids('move', \@repeatedids, $folderfile, $headerdb,
    							$trashfile, $trashdb);
          filelock($trashfile, LOCK_UN);
@@ -676,21 +670,19 @@ sub mailfilter {
    if (!$ioerr) {
       ## update .filter.check ##
       if (-f "$folderdir/.filter.check" ) {
-         open (FILTERCHECK, ">$folderdir/.filter.check" ) or
-            return -6; # $lang_err{'couldnt_open'} .filter.check!
+         open (FILTERCHECK, ">$folderdir/.filter.check" ) or  return -8; 
          print FILTERCHECK metainfo($folderfile);
          truncate(FILTERCHECK, tell(FILTERCHECK));
          close (FILTERCHECK);
       } else {
-         open (FILTERCHECK, ">$folderdir/.filter.check" ) or
-            return -6; # $lang_err{'couldnt_open'} .filter.check!
+         open (FILTERCHECK, ">$folderdir/.filter.check" ) or return -8;
          print FILTERCHECK metainfo($folderfile);
          close (FILTERCHECK);
       }
 
       return($filtered{'_ALL'}, \%filtered);
    } else {
-      return(-6);
+      return -9;
    }
 }
 
@@ -706,19 +698,16 @@ sub append_message_to_folder {
    ($dstdb =~ /^(.+)$/) && ($dstdb = $1);  # untaint $dstdb
 
    if (${$r_currmessage} !~ /^From /) { # msg format error
-      return(-1);
+      return -1;
    }
 
    if (! -f $dstfile) {
-      if (open (DEST, ">$dstfile")) {
-         close (DEST);
-         push (@{$r_validfolders}, $destination);
-      } else {
-         return(-2);
-      }
+      open (DEST, ">$dstfile") or return -2;
+      close (DEST);
+      push (@{$r_validfolders}, $destination);
    }
 
-   filelock($dstfile, LOCK_EX|LOCK_NB) || return(-3);
+   filelock($dstfile, LOCK_EX|LOCK_NB) or return -3;
 
    if (update_headerdb($dstdb, $dstfile)<0) {
       filelock($dstfile, LOCK_UN);
@@ -727,15 +716,16 @@ sub append_message_to_folder {
       return -4;
    }
 
-   filelock("$dstdb$config{'dbm_ext'}", LOCK_EX) if (!$config{'dbmopen_haslock'});
-
+   if (!$config{'dbmopen_haslock'}) {
+      filelock("$dstdb$config{'dbm_ext'}", LOCK_EX) or return -5;
+   }
    dbmopen (%HDB2, "$dstdb$config{'dbmopen_ext'}", 0600);
-   if (! defined($HDB2{$messageid}) ) {	# append only if not found in dstfile
+   if (!defined($HDB2{$messageid}) ) {	# append only if not found in dstfile
       if (! open(DEST, ">>$dstfile")) {
          dbmclose(%HDB2);
          filelock("$dstdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
          filelock($dstfile, LOCK_UN);
-         return(-5);
+         return -6;
       }
       seek(DEST, 0, 2);	# seek end explicitly to cover tell() bug in perl 5.8
       my @attr2=@{$r_attr};
@@ -756,7 +746,7 @@ sub append_message_to_folder {
 
    filelock("$dstdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
    filelock($dstfile, LOCK_UN);
-   return(0);
+   return 0;
 }
 
 

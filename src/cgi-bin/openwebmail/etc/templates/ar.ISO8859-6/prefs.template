@@ -1,0 +1,393 @@
+@@@STARTPREFSFORM@@@
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
+<tr><td colspan="2" bgcolor=@@@TITLEBAR@@@>
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>ÊבײךהַÊ ַהו׃Ê־ֿו @@@REALNAME@@@</B></font>
+<tr><td colspan="2" bgcolor=@@@MENUBAR@@@>
+@@@MENUBARLINKS@@@
+</td></tr>
+
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>ַהוÙהטוַÊ ַהװ־ױךֹ</B></td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ַההÚֹ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@LANGUAGEMENU@@@&nbsp;ַהÊׁוךׂ @@@CHARSETMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ַהוז׳גֹ ַהׂוזךֹ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@TIMEOFFSETMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>וז:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@FROMEMAILMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ַהֿׁ ֵהי:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@REPLYTOFIELD@@@
+</td></tr>
+@@@FORWARDSTART@@@
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>וׁׁ ַהָׁךֿ ֵהי:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@FORWARDADDRESS@@@
+&nbsp;
+@@@KEEPLOCALCOPY@@@
+ֵֽÊב״ ָז׃־ֹ וֽהךֹ
+</td></tr>
+@@@FORWARDEND@@@
+@@@AUTOREPLYSTART@@@
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ֵַָֹּ Êהגֶַךֹ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@AUTOREPLYCHECKBOX@@@
+&nbsp;
+ַהוטײטÙ:
+@@@AUTOREPLYSUBJECT@@@
+</td></tr>
+<tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@ class=msgbody>
+<B>זױ ַהַַָֹּ ַהÊהגֶַךֹ (500 ֽׁב ֳט ֳגה)</B><BR>
+@@@AUTOREPLYTEXT@@@
+</td></tr>
+@@@AUTOREPLYEND@@@
+<tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@ class=msgbody>
+<B>ַהÊטגךÙ (500 ֽׁב ֳט ֳגה)</B><BR>
+@@@SIGAREA@@@
+<br>&nbsp;
+</td></tr>
+
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>ÊבײךהַÊ ַהÙׁײ</B></td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ַהַ׃הטָ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@STYLEMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>וּוטÙֹ ַהֳךגטזַÊ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@ICONSETMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ױטֹׁ ַה־הבךסֹ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@ nowrap>
+@@@BACKGROUNDMENU@@@
+&nbsp;URL
+@@@BGURLFIELD@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>וגַ׃ ַה־׳ס:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@FONTSIZEMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>װדה ַהÊסַׁך־:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DATEFORMATMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>װדה ַה׃ַÙֹ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@HOURFORMATMENU@@@ ׃ַÙֹ
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>וטגÙ װׁך׳ ַהÊֽדו Ùזֿ Ùׁײ ַהוּהֿ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CTRLPOSITIONFOLDERVIEWMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>Ùֿֿ ַהׁס׃ֶַה הדהס ױבֹֽ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@HEADERSPERPAGE@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ַהÊׁÊךָ ַהַבÊַׁײך:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SORTMENU@@@
+</td></tr>
+
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>ַהÙוהךַÊ Ùהי ַהׁ׃ֶַה</B></td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ַהÊֳדךֿ גָה זגה/ז׃־ ַהׁ׃ֶַה:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CONFIRMMSGMOVECOPY@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ַהטּחֹ ַהַבÊַׁײךֹ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DEFAULTDESTINATIONMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>Ùׁײ ַהׁ׃ַהֹ ַהÊַהךֹ ָÙֿ ַהזגה/ַהז׃־:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@VIEWNEXTAFTERMSGMOVECOPY@@@
+</td></tr>
+@@@AUTOPOP3START@@@
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ַ׃Êהַו Êהגֶַך הָׁךֿ POP3 Ùזֿ Ê׃ּךה ַהֿ־טה:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@AUTOPOP3CHECKBOX@@@
+</td></tr>
+@@@AUTOPOP3END@@@
+@@@MOVEOLDSTART@@@
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>זגה ַהׁ׃ֶַה ַהגֿךוֹ ַהי ַהוֽבט״ַÊ Ùזֿ Ê׃ּךה ַה־ׁטּ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@MOVEOLDMSGFROMINBOX@@@
+</td></tr>
+@@@MOVEOLDEND@@@
+
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>־ךַַׁÊ גֱַֹׁ ַהׁס׃ֶַה</B></td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>וטגÙ װׁך׳ ַהÊֽדו Ùזֿ גֱַֹׁ ַהׁ׃ַהֹ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CTRLPOSITIONMSGREADMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ִׁט׃ ַהׁ׃ֶַה ַהַבÊַׁײךֹ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@HEADERSMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ֵ׃Ê־ַֿו ־׳ וÊ׃ַטך ַהÙׁײ Ùזֿ גֱַֹׁ ַהׁ׃ֶַה:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@USEFIXEDFONT@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ַײחַׁ ַהׁוטׂ (ַהׁ׃טוַÊ) Ùזֿ Ùׁײ ַהׁ׃ֶַה:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@USESMILEICON@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ÊÙ׳ךה JavaScript ַֿ־ה ַהׁ׃ֶַה:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DISABLEJS@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ÊÙ׳ךה embedded CGI ַֿ־ה ַהׁ׃ֶַה:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DISABLEEMBCGI@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ֵ״חַׁ ַהױטׁ ַהוהֽגֹ דַׁÊַָ׳:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SHOWIMGASLINK@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ֵׁ׃ַה ַךױַה 'Êֳדךֿ ַהגֱַֹׁ':</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SENDRECEIPTMENU@@@
+</td></tr>
+
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>־ךַַׁÊ ַהֵַָֹּ Ùהי ַהׁ׃ֶַה</B></td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ו׃ַֹֽ וז׳גֹ Êֽׁךׁ ַהָׁךֿ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+ַהÙׁײ @@@EDITCOLUMNSMENU@@@ ַהַׁÊבַÙ @@@EDITROWSMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>וטגÙ ׁׂ ַהַׁ׃ַה:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SENDBUTTONPOSITIONMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ֵÙַֹֿ Êז׃ךג ַהׁ׃ַהֹ גָה ַהֵַָֹּ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@REPARAGRAPHORIGMSG@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ַהֵַָֹּ וÙ ַהׁ׃ַהֹ ַהַױהךֹ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@REPLYWITHORIGMSGMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ֵֽב״ ז׃־ֹ וז ַהׁ׃ֶַה ַהױַֹֿׁ בך וּהֿ ַהָׁךֿ ַהױַֿׁ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@BACKUPSENTMSG@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>Êׁוךׂ ַהׁ׃ֶַה ַהױַֹֿׁ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SENDCHARSETMENU@@@
+</td></tr>
+
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>־ךַַׁÊ בהÊֹׁ ַהׁ׃ֶַה</B></td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ֽֿסֿ ַהׁס׃ֶַה ַהודׁסֹׁ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@FILTERREPEATLIMIT@@@ &nbsp;( 0 ÊÙזך Ùֿו בֽױ Êדַׁׁ ַהׁ׃ֶַה )
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>בהÊֹׁ ַהׁ׃ֶַה ַהÊך ÊֽÊטך Ùהי SMTP וׂטׁ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@FILTERFAKEDSMTP@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>בהÊֹׁ ַהׁ׃ֶַה ַהÊך ÊֽÊטך Ùהי ֽגה וׁ׃ה וׂטׁ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@FILTERFAKEDFROM@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>בהÊֹׁ ַהׁ׃ֶַה ַהÊך ÊֽÊטך Ùהי exe content-type וׂטׁ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@FILTERFAKEDEXECONTENTTYPE@@@
+</td></tr>
+
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>AddressBook Options</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Size for addressbook window:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Addressbook button position:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@ABOOKBUTTONPOSITIONMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Addressbook default filter:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@ABOOKDEFAULTFILTER@@@
+</td></tr>
+
+@@@CALENDARSTART@@@
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>־ךַַׁÊ ַהÊגטךו</B></td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>Ùֿֿ ַהÙזַױׁ בך Ùׁײ ַהװחׁ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@MONTHVIEWNUMITEMSMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ַָֿךֹ ַהַ׃ָטÙ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@WEEKSTARTMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>׃ַÙֹ ַהַָֿךֹ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@STARTHOURMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>׃ַÙֹ ַהזחַךֹ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@ENDHOURMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ֵ״חַׁ ַה׃ַÙַÊ ַהבַׁÚֹ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SHOWEMPTYHOURSCHECKBOX@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>Ùֿֿ ֳךַו בֽױ ַהÊ׀דךׁ ַָהֻֽֿ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@REMINDERDAYSMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ַהÊ׀דךׁ ַָהַַֻֽֿ ַהÙַוֹ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@REMINDERFORGLOBALCHECKBOX@@@
+</td></tr>
+@@@CALENDAREND@@@
+
+@@@WEBDISKSTART@@@
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>־ךַַׁÊ ַהטךָ-ֿ׃ד</B></td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>Ùֿֿ ַהÙזַױׁ בך גֶַוֹ Ùׁײ ַהוּהֿ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DIRNUMITEMSMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ַהÊֳדךֿ גָה ז׃־/זגה ַהוהבַÊ ֳט ַהוּהַֿÊ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CONFIRMFILEMOVECOPY@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ַהÊֳדךֿ גָה ֽ׀ב ַהוהבַÊ ֳט ַהוּהַֿÊ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CONFIRMFILEDEL@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ַהÊֳדךֿ גָה ײÚ׳ ַהוהבַÊ ֳט ַהוּהַֿÊ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CONFIRMFILECOMPRESS@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ו׃ַֹֽ ֵ׳ַׁ Êֽׁךׁ ַהוהבַÊ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+Width @@@FILEEDITCOLUMNSMENU@@@ Height @@@FILEEDITROWSMENU@@@
+</td></tr>
+@@@WEBDISKEND@@@
+
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>ַה־ךַַׁÊ ַהוÊזטסÙֹ</B></td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ַ׃Ê־ַֿו Regex  בך גטַÙֿ ַהָֻֽ טַהבהÊֹׁ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@REGEXMATCH@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ֵ־בֱַ ָךַזַÊ ַהוּהֿ ַהַֿ־הךסֹ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@HIDEINTERNAL@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>בÊֹׁ ַהÊֽֿךֻ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@REFRESHINTERVALMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ױטÊ ַהֵ־׳ַׁ ההָׁךֿ ַהּֿךֿ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@NEWMAILSOUNDMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>זַב׀ֹ ַהֵ־׳ַׁ ההָׁךֿ ַהּֿךֿ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+Ùֿֿ ֻטַזך ַה״חטׁ  @@@NEWMAILWINDOWTIMEMENU@@@  &nbsp;( 0 ÊÙזך Ùֿו ֵ״חַׁ ַהזַב׀ֹ )
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ַהגַוט׃ הÊֿגךג ַהֵוהֱַ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DICTIONARYMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>Ùֿֿ ֳךַו ַהֵֽÊבַ״ ַָהׁ׃ֶַה בך ׃הֹ ַהוחוהַÊ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@RESERVEDDAYSMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>בÊֹׁ ֵזÊחֱַ ַהּה׃ֹ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SESSIONTIMEOUTMENU@@@
+</td></tr>
+
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>
+<table><tr>
+<td>@@@SAVEBUTTON@@@</td>
+@@@ENDFORM@@@
+@@@STARTCANCELFORM@@@
+<td>@@@CANCELBUTTON@@@</td>
+@@@ENDFORM@@@
+</tr></table></td></tr></table>
+
+<script language="JavaScript">
+<!--
+   function playsound(url, soundname)
+   {
+      if (soundname != "NONE" ) {
+         window.open(url+soundname);
+      }
+   }
+//-->
+</script>

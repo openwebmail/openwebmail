@@ -1,38 +1,38 @@
 @@@STARTPREFSFORM@@@
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
-<tr><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="left">
+<tr><td colspan="2" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>ASETUKSET @@@REALNAME@@@</B></font>
-<tr><td colspan="2" bgcolor=@@@MENUBAR@@@ align="left">
+<tr><td colspan="2" bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
 </td></tr>
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Personal Information</B></td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Kieli:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@LANGUAGEMENU@@@&nbsp;Charset @@@CHARSETMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>TimeZone offset:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@TIMEOFFSETMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Keneltä:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FROMEMAILMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Vastaa osoitteeseen:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REPLYTOFIELD@@@
 </td></tr>-
 @@@FORWARDSTART@@@
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Uudelleenohjaa posti osoitteeseen:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FORWARDADDRESS@@@
 &nbsp;
 @@@KEEPLOCALCOPY@@@
@@ -40,9 +40,9 @@ Pidä paikallinen kopio
 </td></tr>
 @@@FORWARDEND@@@
 @@@AUTOREPLYSTART@@@
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Automaattivastaus:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@AUTOREPLYCHECKBOX@@@
 &nbsp;
 Subject:
@@ -60,265 +60,334 @@ Subject:
 </td></tr>
 
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Display Preference</B>
-
-</td></tr>
-<tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Display Preference</B></td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Ulkoasu:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@STYLEMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Ikonit:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ICONSETMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Taustakuva:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+</td><td bgcolor=@@@WINDOW_DARK@@@ nowrap>
 @@@BACKGROUNDMENU@@@
 &nbsp;URL
 @@@BGURLFIELD@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Font size:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FONTSIZEMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Viestiä sivulle:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@HEADERSPERPAGE@@@
-</td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Vakio järjestys:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@SORTMENU@@@
-</td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Ajan muoto:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DATEFORMATMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Hour format:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@HOURFORMATMENU@@@ hour
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Vakio otsikot:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@HEADERSMENU@@@
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Controlbar position in folder view:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CTRLPOSITIONFOLDERVIEWMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Postinkirjoitusruudun koko:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-Leveys @@@EDITCOLUMNSMENU@@@ Korkeus @@@EDITROWSMENU@@@
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Viestiä sivulle:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@HEADERSPERPAGE@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Compose button position:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@SENDBUTTONPOSITIONMENU@@@
-</td></tr>
-
-<tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Message Reading Options</B></td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Use fixed-width font when reading messages:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@USEFIXEDFONT@@@
-</td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Käytä vastaavia kuvia hymiöiden tilalta luettaessa viestejä:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@USESMILEICON@@@
-</td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Poista JavaScript käytöstä viestin sisällä(tietoturva):</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@DISABLEJS@@@
-</td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Disable embedded CGI inside message:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@DISABLEEMBCGI@@@
-</td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Show image attachment as link:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@SHOWIMGASLINK@@@
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Vakio järjestys:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SORTMENU@@@
 </td></tr>
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Message Operation</B></td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Oletus kohdekansio:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@DEFAULTDESTINATIONMENU@@@
-</td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Kysy vahvistus siirrettäessä/kopioitaessa viestiä:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CONFIRMMSGMOVECOPY@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Oletus kohdekansio:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DEFAULTDESTINATIONMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Tuo esiin seuraava viesti kun nykyinen on siirretty/kopioitu:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@VIEWNEXTAFTERMSGMOVECOPY@@@
 </td></tr>
 @@@AUTOPOP3START@@@
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Hae viestit POP3- palvelimilta sisäänkirjauduttaessa:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@AUTOPOP3CHECKBOX@@@
 </td></tr>
 @@@AUTOPOP3END@@@
 @@@MOVEOLDSTART@@@
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Siirrä vanhat viestit TALLETETUT- kansioon uloskirjauduttaessa:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@MOVEOLDMSGFROMINBOX@@@
 </td></tr>
 @@@MOVEOLDEND@@@
 
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Message Replying Options</B></td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Message Reading Options</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Controlbar position in message reading:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CTRLPOSITIONMSGREADMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Vakio otsikot:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@HEADERSMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Use fixed-width font when reading messages:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@USEFIXEDFONT@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Käytä vastaavia kuvia hymiöiden tilalta luettaessa viestejä:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@USESMILEICON@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Poista JavaScript käytöstä viestin sisällä(tietoturva):</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DISABLEJS@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Disable embedded CGI inside message:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DISABLEEMBCGI@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Show image attachment as link:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SHOWIMGASLINK@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Lähetä pyyntö lukemisen kuittaukseen:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SENDRECEIPTMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Message Replying Options</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Postinkirjoitusruudun koko:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+Leveys @@@EDITCOLUMNSMENU@@@ Korkeus @@@EDITROWSMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Compose button position:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SENDBUTTONPOSITIONMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Uudelleenpalstoita viesti ennen vastaamista:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REPARAGRAPHORIGMSG@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Liitä alkuperäinen viesti vastattessa:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REPLYWITHORIGMSGMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Backup outgoing message to SENT folder:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BACKUPSENTMSG@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Charset for outgoing message:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SENDCHARSETMENU@@@
 </td></tr>
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Message Filtering Options</B></td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Raja viestien toistoille:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERREPEATLIMIT@@@ &nbsp;( 0 = ei toistoja )
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Suodata pois viestit, joissa SMTP- palvelin ei ole todellinen:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDSMTP@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Filter messages with faked From field:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDFROM@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Suodata pois joitain vaarallisia viestejä (faked exe content-type):</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDEXECONTENTTYPE@@@
+</td></tr>
+
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>AddressBook Options</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Size for addressbook window:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Addressbook button position:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@ABOOKBUTTONPOSITIONMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Addressbook default filter:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@ABOOKDEFAULTFILTER@@@
 </td></tr>
 
 @@@CALENDARSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Calendar Options</B></td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Number of items in month view:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@MONTHVIEWNUMITEMSMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Week start:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@WEEKSTARTMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Start hour:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@STARTHOURMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>End hour:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ENDHOURMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Show empty hours:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SHOWEMPTYHOURSCHECKBOX@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Event reminder check days:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REMINDERDAYSMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Reminder for global calendar events:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REMINDERFORGLOBALCHECKBOX@@@
 </td></tr>
 @@@CALENDAREND@@@
 
+@@@WEBDISKSTART@@@
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>WebDisk Options</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Number of items in directory list:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DIRNUMITEMSMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Confirm before directory/file move/copy:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CONFIRMFILEMOVECOPY@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Confirm before directory/file deletion:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CONFIRMFILEDEL@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Confirm before directory/file compress:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CONFIRMFILECOMPRESS@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Size for file edit window:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+Width @@@FILEEDITCOLUMNSMENU@@@ Height @@@FILEEDITROWSMENU@@@
+</td></tr>
+@@@WEBDISKEND@@@
+
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Misc Options</B></td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Use Regex in search and filterrule:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REGEXMATCH@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Piilota kansion sisäinen tieto:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@HIDEINTERNAL@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Refresh Interval:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REFRESHINTERVALMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Ilmoitus saapuneesta postista äänellä:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@NEWMAILSOUNDMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>NewMail window notification:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 remaining @@@NEWMAILWINDOWTIMEMENU@@@ seconds &nbsp;( 0 means No window notification )
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Oikeinkirjoituksen kieli:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DICTIONARYMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Roskakorin tiedostot säilytetään(päivää):</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@RESERVEDDAYSMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Session timeout:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SESSIONTIMEOUTMENU@@@
 </td></tr>
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>
-<table><tr><td>
-@@@BUTTONS@@@
-</td></tr></table></td></tr></table>
+<table><tr>
+<td>@@@SAVEBUTTON@@@</td>
+@@@ENDFORM@@@
+@@@STARTCANCELFORM@@@
+<td>@@@CANCELBUTTON@@@</td>
+@@@ENDFORM@@@
+</tr></table></td></tr></table>
+
+<script language="JavaScript">
+<!--
+   function playsound(url, soundname) 
+   {
+      if (soundname != "NONE" ) {
+         window.open(url+soundname);
+      } 
+   }
+//-->
+</script>

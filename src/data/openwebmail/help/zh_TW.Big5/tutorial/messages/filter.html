@@ -1,0 +1,140 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=big5">
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<meta name="Author" content="Brent Epp &amp; William Brillinger, Precision Design Co. http://www.pdcweb.net">
+<meta name="Version" content="OWM Help v1.3">
+<title>郵件規則設定</title>
+<link href="../../templates_and_data/style.css" rel="stylesheet">
+<script src="../../templates_and_data/makewin.js"></script>
+<meta name="Microsoft Border" content="tb"></head>
+
+<body stylesrc="../../templates_and_data/borders-template.html" background="../../images/globe.gif">
+<!--msnavigation-->
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr><td>
+<div align="center"><center>
+
+<table cellspacing="0" cellpadding="0" width="550" border="0">
+<tr><td><a href="../../index.html">
+<img border="0" src="../../images/logo_small.gif" width="150" height="78"></a></td></tr>
+<tr><td bgcolor="#000000" height="1">
+<img height="1" src="../../images/space.gif" width="10"></td></tr>
+<tr><td bgcolor="#eeeeee" height="1">
+<img height="1" src="../../images/space.gif" width="10"></td></tr>
+<tr><td bgcolor="#eeeeee" height="1">
+<img height="1" src="../../images/space.gif" width="10"></td></tr>
+</table>
+
+</center></div>
+</td></tr>
+<!--msnavigation--></table>
+
+<!--msnavigation-->
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<!--msnavigation--><td valign="top"><div align="center"><center>
+
+<table cellspacing="0" cellpadding="0" width="550" border="0">
+<tbody>
+<tr><td><a href="../../index.html">Open Webmail 說明指南</a> &gt;&gt; 郵件規則設定
+<br>
+<br></td></tr>
+</tbody>
+</table>
+
+</center></div>
+<div align="center"><center>
+
+<table cellspacing="0" cellpadding="0" width="550" border="0" style="line-height: 150%;">
+<tbody>
+<tr><td>對郵件過濾而言，郵件規則就是一組特定的條件，能夠用來將某些信件從一堆信件中分離出來，
+並且設定對這些被過濾出的信件後續的處理動作。 
+<p>要設定郵件規則，首先點選"郵件規則設定"( 
+<img src="../../images/buttons/filter.gif" width="23" height="22"> )的按鈕，你將會進入郵件規則設定的畫面。</p>
+<p>不管怎樣，你可能想要一些更詳細的郵件規則設定。透過 "郵件規則設定"，你可以編輯、建立、和刪除郵件規則的設定。</p>
+<p>使用這個圖表來參考郵件過濾的設定:</p>
+
+<table cellspacing="1" cellpadding="1" width="540" align="center" border="0">
+<tbody>
+<tr bgcolor="#6699bb">
+<th width="100">項目</th>
+<th width="140">Action or Meaning</th>
+</tr>
+<tr bgcolor="#cdcdcd"><td valign="top">順序</td><td valign="top">此條郵件規則的優先順序，越小者越先執行</td></tr>
+<tr bgcolor="#efefef"><td valign="top">過濾條件</td><td valign="top">選擇過濾的條件種類</td></tr>
+<tr bgcolor="#cdcdcd"><td valign="top">包括/不含</td><td valign="top">包括或不含</td></tr>
+<tr bgcolor="#efefef"><td valign="top">文字</td><td valign="top">過濾條件的關鍵字</td></tr>
+<tr bgcolor="#cdcdcd"><td valign="top">動作</td><td valign="top">當郵件符合規則時要採取的處理，分為搬移或是複製</td></tr>
+<tr bgcolor="#efefef"><td valign="top">目的信匣</td><td valign="top">前述動作的目的地信件匣</td></tr>
+<tr bgcolor="#cdcdcd"><td valign="top">啟動</td><td valign="top">是否啟動此郵件規則</td></tr>
+</tbody>
+</table>
+
+ &nbsp; 
+<p>底下有一個例子:</p>
+
+<table cellspacing="0" cellpadding="3" border="0">
+<tbody>
+<tr bgcolor="#d3dce3">
+<th><b>過濾條件</b></th>
+<th><b>包含/不含</b></th>
+<th>文字</th>
+<th>動作</th>
+<th><b>目的信匣</b></th>
+<th><b>啟動</b></th>
+</tr>
+<tr bgcolor="#eeeeee"><td>寄件人</td><td>包含</td><td>bad-website.com</td><td>搬移</td><td>垃圾筒</td><td>啟動</td></tr>
+</tbody>
+</table>
+
+<p>解釋這些郵件規則的條件:
+<br> 任何人從<b>bad-website.com </b>寄來的所有郵件都搬移到垃圾筒去。這個郵件規則的設定是啟動。因此，假如有人的郵件地址是 <i>bob@bad-website.com</i> 試著寄到你的帳號去，都將被自動地搬到垃圾筒去。</p>
+<p>你也可以用 不含 來設定郵件規則，例如:假設你將 包含 改變成 不含，你將只允許那些從 <b>bad-website.com</b>所寄來的郵件才會被收取。</p>
+<p>編輯郵件規則，點選郵件規則中的字串，開始編輯。</p>
+<p>如果你想要暫時地關閉郵件規則功能，先清除<b>啟動</b>方塊，然後點選 <b>增加/修改</b>，然後郵件規則將不再生效。讓郵件規則再生效的話，就點選<b>啟動 </b>，然後點選 <b>增加/修改</b>。另外也可以點選<b>刪除</b>來刪除郵件規則的設定。</p>
+</td></tr>
+</tbody>
+</table>
+
+</center></div>
+<div align="center"><center>
+
+<table cellspacing="0" cellpadding="0" width="550" border="0">
+<tbody>
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td><a href="folders.html"><b>&lt;&lt; 資料夾管理 </b></a></td><td align="right"><a href="../address_book/editing.html"><b>編輯通訊錄&gt;&gt;</b></a></td></tr>
+</tbody>
+</table>
+
+</center></div>
+&nbsp;
+<!--msnavigation--></td></tr>
+<!--msnavigation--></table>
+
+<!--msnavigation-->
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr><td>
+<div align="center"><center> 
+
+<table cellspacing="0" cellpadding="0" width="550" border="0"> 
+<tr><td bgcolor="#000000" height="1">
+<img height="1" src="../../images/space.gif" width="10"></td></tr>
+<tr><td bgcolor="#eeeeee" height="1">
+<img height="1" src="../../images/space.gif" width="10"></td></tr>
+<tr><td bgcolor="#eeeeee" height="1">
+<img height="1" src="../../images/space.gif" width="10"></td></tr>
+<tr><td bgcolor="#FFFFFF" height="1"><a href="../notes/using_owm_help.html"><font size="1">About Open Webmail Help</font></a></td></tr>
+</table>
+
+</center></div>
+</td></tr>
+<!--msnavigation--></table>
+
+</body>
+</html>

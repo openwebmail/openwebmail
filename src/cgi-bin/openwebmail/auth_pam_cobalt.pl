@@ -153,7 +153,7 @@ if ($ret == 0) {
    # if we can't open /etc/shells; assume password is invalid
    if (!open(ES,  "/etc/shells")) {
       writelog("auth_cobalt - /etc/shells not found, all logins suspended");
-      return(-4);
+      return -4;
    }
 
    while(<ES>) {

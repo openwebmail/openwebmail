@@ -2,9 +2,9 @@
 <a href="@@@LOGO_LINK@@@">
 <img border="0" src="@@@LOGO_URL@@@"></a></p>
 <table border="0" align="center" width="260" cellpadding="0" cellspacing="0">
-<tr><td bgcolor=@@@TITLEBAR@@@ background="@@@IMAGEDIR_URL@@@/bg-titleblue.gif" align="left">
+<tr><td bgcolor=@@@TITLEBAR@@@ background="@@@IMAGEDIR_URL@@@/bg-titleblue.gif">
 &nbsp;<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><B>IDENTIFICATION</B></FONT>
-</td></tr><tr><td align="center" valign="middle" bgcolor=#3161bd>
+</td></tr><tr><td align="center" bgcolor=#3161bd>
 
 <table width="100%" cellpadding="0" cellspacing="1" border="0">
 <tr>
@@ -13,12 +13,12 @@
 <BR>
 <table align=center border=0 cellspacing=2 cellpadding=0>
 <tr>
-<td align=right nowrap>Identifiant : </td><td align=left>@@@LOGINNAMEFIELD@@@</td>
+<td align="right" nowrap>Identifiant : </td><td>@@@LOGINNAMEFIELD@@@</td>
 </tr><tr>
-<td align=right nowrap>Mot de Passe : </td><td align=left>@@@PASSWORDFIELD@@@</td>
+<td align="right" nowrap>Mot de passe : </td><td>@@@PASSWORDFIELD@@@</td>
 @@@DOMAINSTART@@@
 </tr><tr>
-<td align=right nowrap>Domain: </td><td align=left>@@@DOMAINMENU@@@</td>
+<td align="right" nowrap>Domaine : </td><td>@@@DOMAINMENU@@@</td>
 @@@DOMAINEND@@@
 </tr><tr>
 <td align=center>
@@ -38,7 +38,7 @@
 <p align="center">
 <BR>
 @@@PAGE_FOOTER@@@ &nbsp;
-<a href="@@@HELP_LINK@@@" target="_help">Help?</a>
+<a href="@@@HELP_LINK@@@" target="_help">Aide ?</a>
 <BR>
 </p>
 

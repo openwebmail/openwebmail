@@ -1,13 +1,16 @@
+50@@@subject@@@include@@@sampledesktopdesktopsampledesktopsamplesample@@@move@@@DELETE@@@1
 50@@@subject@@@include@@@\s{40,}\[[a-z0-9]{5}\]$@@@move@@@mail-trash@@@1
 50@@@subject@@@include@@@new photos from my party@@@move@@@mail-trash@@@1
 50@@@subject@@@include@@@bill caricature@@@move@@@mail-trash@@@1
 50@@@subject@@@include@@@A.*powful tool@@@move@@@mail-trash@@@1
 50@@@subject@@@include@@@A.*humour game@@@move@@@mail-trash@@@1
+50@@@subject@@@include@@@Attachments Deleted by MailScan@@@move@@@mail-trash@@@1
 50@@@subject@@@include@@@Worm Klez.E immunity@@@move@@@mail-trash@@@1
 50@@@textcontent@@@include@@@Welcome to Yahoo! Mail@@@move@@@mail-trash@@@1
 50@@@textcontent@@@include@@@I want a good job,I must support my parents.@@@move@@@mail-trash@@@1
 50@@@textcontent@@@include@@@I send you this file in order to have your advice@@@move@@@mail-trash@@@1
 50@@@textcontent@@@include@@@Te mando este archivo para que me des tu punto de vista@@@move@@@mail-trash@@@1
+50@@@attfilename@@@include@@@sample.exe@@@move@@@DELETE@@@1
 50@@@attfilename@@@include@@@patch.exe|sulfnbk.exe|Mmsn_offline.htm@@@move@@@mail-trash@@@1
 50@@@attfilename@@@include@@@GuessGame.html|GuessGame.vbe@@@move@@@mail-trash@@@1
 50@@@attfilename@@@include@@@readme.eml|readme.exe|readme.com|readme.wav@@@move@@@mail-trash@@@1

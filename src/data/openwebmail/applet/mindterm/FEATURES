@@ -1,0 +1,77 @@
+MindTerm v1.2 Features:
+-----------------------
+
+o Full xterm/vt102 terminal emulation including colors, line-draw graphics,
+  mouse-support, and function keys. The following terminal-types are supported:
+  xterm, linux, aixterm, scoansi, att6368, sun, vt220, vt100, ansi, vt52,
+  xterm-color, linux-lat, at386, vt102.
+
+o Authentication with: password, rsa, rsa+rhosts, tis, rhosts, or
+  sdi-token (server needs patch from ftp://ftp.parc.xerox.com/pub/jean/sshsdi/).
+  Authentication can either be done using one single method, or it can be set to
+  try a customized list of methods in a given order
+
+o Supports the following blockciphers: Blowfish, DES, 3DES, IDEA, RC4 (or no
+  encryption)
+
+o Supports connection through proxytypes: HTTP, SOCKSv4, and SOCKSv5
+
+o Full support for ssh-tunneling including X11 forward.
+
+o Built in SCP client (with GUI) for simple file-transfer. The file-transfer
+  continues independently from the logged in shell where it was started (can
+  also be used stand-alone in command-line mode without GUI for use in scripts
+  et.c.)
+
+o Can proxy ftp-connections fully, i.e. if an ftp-server is unreachable from
+  outside a firewall and the only means of entering the firewall is through SSH,
+  then MindTerm let's you access the ftp-server through SSH as easy as if it
+  would be world-accessible.
+
+o Tunnels can listen on explicit local addresses, e.g. on a multi-homed
+  host or if one wants to distinguish between 127.0.0.1 and the real host-
+  address.
+
+o Handles arbitrary simultaneous sessions in different windows to different
+  ssh-servers. Also lets user "clone" a terminal-window, automatically logging
+  in if allready logged in from original window.
+
+o Can be set to keep ssh-connection alive would it be subject to timeout (either
+  by a firewall or through the use of idle-timeout in the ssh-server)
+
+o Can automatically store settings on a per-host basis, user can also customize
+  several sessions for a single host or make short-names for hosts.
+
+o Can save passwords along with settings in encrypted format with same strength
+  as RSA private key protection (including possibility to use "empty" password).
+  Using same password on all settings files gives very convenient way of working
+  with multiple hosts.
+
+o Can share RSA-keys and 'known_hosts' file with the standard unix ssh-client.
+
+o Can capture console output to file and send file to console.
+
+o Lists all currently open connections through the tunnels, for example, giving
+  the user the opportunity to close a tunnel for a program that have hung.
+
+o Can be used without a GUI from the command-line (much like the standard unix
+  ssh-client), also able to run just a single command on the ssh-server and exit
+  (optionally allocating a PTY)
+
+o Can work either as a "normal" ssh-client, i.e. as a stand-alone java
+  application, OR as an applet from within a browser (see below).
+
+o Cryptographically signed binaries works with Netscape and MSIE browsers giving
+  a full ssh-client with tunneling et.c. Unsigned applet can only connect back
+  to same address as web-server and cannot do tunneling giving a simple telnet-
+  replacement.
+
+o Signed applet can contain known_hosts file to prevent man-in-the-middle
+  attacks without the need to store host's key on local disk.
+
+o Same binary runs on multiple platforms, e.g. x86/Linux, Sparc/Solaris, x86/
+  Windows95/98/NT, ?/JavaStation, Arm/Epoc32. Additionally MindTerm works with
+  Netscape, HotJava, Opera, and MS-IE browsers on most platforms.
+
+o The SSH-package can be used to easily ssh-enable ANY (java) application or
+  applet using tcp-based communications (see MindVNC for an example).

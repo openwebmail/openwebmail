@@ -16,7 +16,7 @@ umask(0002); # make sure the openwebmail group can write
 use strict;
 use Fcntl qw(:DEFAULT :flock);
 use CGI qw(-private_tempfiles :standard);
-use CGI::Carp qw(fatalsToBrowser);
+use CGI::Carp qw(fatalsToBrowser carpout);
 CGI::nph();   # Treat script as a non-parsed-header script
 
 require "ow-shared.pl";
@@ -34,10 +34,9 @@ use vars qw($folder $printfolder $escapedfolder);
 openwebmail_init();
 verifysession();
 
-use vars qw($firstmessage);
-use vars qw($sort);
+use vars qw($sort $page);
 
-$firstmessage = param("firstmessage") || 1;
+$page = param("page") || 1;
 $sort = param("sort") || $prefs{'sort'} || 'date';
 
 # extern vars
@@ -49,6 +48,8 @@ use vars qw($_OFFSET $_STATUS);				# defined in maildb.pl
 my $action = param("action");
 if ($action eq "editfolders") {
    editfolders();
+} elsif ($action eq "refreshfolders") {
+   refreshfolders();
 } elsif ($action eq "markreadfolder") {
    markreadfolder();
 } elsif ($action eq "chkindexfolder") {
@@ -104,7 +105,9 @@ sub editfolders {
 
    printheader();
 
-   $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $printfolder", qq|href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=displayheaders&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$escapedfolder"|). qq|\n|;
+   $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $printfolder", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;sessionid=$thissession&amp;sort=$sort&amp;page=$page&amp;folder=$escapedfolder"|). qq|&nbsp; \n|;
+   $temphtml .= iconlink("refresh.gif", $lang_text{'refresh'}, qq|accesskey="R" href="$config{'ow_cgiurl'}/openwebmail-folder.pl?action=refreshfolders&amp;sessionid=$thissession&amp;sort=$sort&amp;folder=$escapedfolder&amp;page=$page"|). qq| \n|;
+
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
 
    $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-folder.pl") .
@@ -117,13 +120,12 @@ sub editfolders {
                hidden(-name=>'sort',
                       -default=>$sort,
                       -override=>'1') .
-               hidden(-name=>'firstmessage',
-                      -default=>$firstmessage,
+               hidden(-name=>'page',
+                      -default=>$page,
                       -override=>'1') .
                hidden(-name=>'folder',
                       -default=>$folder,
                       -override=>'1');
-
    $html =~ s/\@\@\@STARTFOLDERFORM\@\@\@/$temphtml/;
 
    $temphtml = textfield(-name=>'foldername',
@@ -131,10 +133,11 @@ sub editfolders {
                          -size=> 24,
                          -maxlength=>$config{'foldername_maxlen'},
                          -override=>'1');
-
+#                         -accesskey=>'I',
    $html =~ s/\@\@\@FOLDERNAMEFIELD\@\@\@/$temphtml/;
 
    $temphtml = submit(-name=>"$lang_text{'add'}",
+                      -accesskey=>'A',
                       -class=>"medtext");
    $html =~ s/\@\@\@ADDBUTTON\@\@\@/$temphtml/;
 
@@ -143,29 +146,29 @@ sub editfolders {
 
    my $bgcolor = $style{"tablerow_dark"};
    my $currfolder;
-   my $i=0;
+   my $form_i=0;
    $temphtml='';
    foreach $currfolder (@userfolders) {
-      $temphtml .= _folderline($currfolder, $i, $bgcolor);
+      $temphtml .= _folderline($currfolder, $form_i, $bgcolor);
       if ($bgcolor eq $style{"tablerow_dark"}) {
          $bgcolor = $style{"tablerow_light"};
       } else {
          $bgcolor = $style{"tablerow_dark"};
       }
-      $i++;
+      $form_i++;
    }
    $html =~ s/\@\@\@FOLDERS\@\@\@/$temphtml/;
 
    $bgcolor = $style{"tablerow_dark"};
    $temphtml='';
    foreach $currfolder (@defaultfolders) {
-      $temphtml .= _folderline($currfolder, $i, $bgcolor);
+      $temphtml .= _folderline($currfolder, $form_i, $bgcolor);
       if ($bgcolor eq $style{"tablerow_dark"}) {
          $bgcolor = $style{"tablerow_light"};
       } else {
          $bgcolor = $style{"tablerow_dark"};
       }
-      $i++;
+      $form_i++;
    }
    $html =~ s/\@\@\@DEFAULTFOLDERS\@\@\@/$temphtml/;
 
@@ -205,7 +208,10 @@ sub _folderline {
    my ($folderfile,$headerdb)=get_folderfile_headerdb($user, $currfolder);
 
    if ( -f "$headerdb$config{'dbm_ext'}" && !-z "$headerdb$config{'dbm_ext'}" ) {
-      filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) if (!$config{'dbmopen_haslock'});
+      if (!$config{'dbmopen_haslock'}) {
+         filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) or
+            openwebmailerror("$lang_err{'couldnt_locksh'} $headerdb$config{'dbm_ext'}");
+      }
       dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
       if ( defined($HDB{'ALLMESSAGES'}) ) {
          $allmessages=$HDB{'ALLMESSAGES'};
@@ -237,11 +243,18 @@ sub _folderline {
    my $folderstr=$currfolder;
    $folderstr=$lang_folders{$currfolder} if defined($lang_folders{$currfolder});
 
+   my $accesskeystr=$i%10+1;
+   if ($accesskeystr == 10) {
+      $accesskeystr=qq|accesskey="0"|;
+   } elsif ($accesskeystr < 10) {
+      $accesskeystr=qq|accesskey="$accesskeystr"|;
+   }
+
    $temphtml .= qq|<tr>|.
                 qq|<td align="center" bgcolor=$bgcolor>|.
-                qq|<a href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=displayheaders&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$escapedcurrfolder">|.
-                qq|$folderstr</a>&nbsp;\n|.
-                iconlink("download.gif", "$lang_text{'download'} $folderstr", qq|href="$url"|).
+                qq|<a href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;sessionid=$thissession&amp;sort=$sort&amp;page=$page&amp;folder=$escapedcurrfolder">|.
+                qq|$folderstr </a>&nbsp;\n|.
+                iconlink("download.gif", "$lang_text{'download'} $folderstr ", qq|$accesskeystr href="$url"|).
                 qq|</td>\n|.
                 qq|<td align="center" bgcolor=$bgcolor>$newmessages</td>|.
                 qq|<td align="center" bgcolor=$bgcolor>&nbsp;$allmessages</td>|.
@@ -252,7 +265,7 @@ sub _folderline {
    $temphtml .= start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-folder.pl",
                            -name=>"folderform$i");
    $temphtml .= hidden(-name=>'action',
-                       -value=>'deletefolder',
+                       -value=>'chkindexfolder',
                        -override=>'1');
    $temphtml .= hidden(-name=>'sessionid',
                        -value=>$thissession,
@@ -260,8 +273,8 @@ sub _folderline {
    $temphtml .= hidden(-name=>'sort',
                        -default=>$sort,
                        -override=>'1');
-   $temphtml .= hidden(-name=>'firstmessage',
-                       -default=>$firstmessage,
+   $temphtml .= hidden(-name=>'page',
+                       -default=>$page,
                        -override=>'1');
    $temphtml .= hidden(-name=>'folder',
                        -default=>$folder,
@@ -301,16 +314,40 @@ sub _folderline {
 }
 ################### END EDITFOLDERS ########################
 
+################### REFRESHFOLDERS ##############################
+sub refreshfolders {
+   my $errcount=0;
+
+   foreach my $currfolder (@validfolders) {
+      my ($folderfile,$headerdb)=get_folderfile_headerdb($user, $currfolder);
+
+      filelock($folderfile, LOCK_EX|LOCK_NB) or 
+         openwebmailerror("$lang_err{'couldnt_lock'} $folderfile!");
+      if (update_headerdb($headerdb, $folderfile)<0) {
+         $errcount++;
+         writelog("db error - Couldn't update index db $headerdb$config{'dbm_ext'}");
+         writehistory("db error - Couldn't update index db $headerdb$config{'dbm_ext'}");
+      }
+      filelock($folderfile, LOCK_UN);
+   }
+
+   writelog("refresh folders - $errcount errors");
+   writehistory("refresh folders - $errcount errors");
+
+   getfolders(\@validfolders, \$folderusage);
+   editfolders();
+}
+
+################### END REFRESHFOLDERS ##########################
+
 ################### MARKREADFOLDER ##############################
 sub markreadfolder {
-   my $foldertomark = param('foldername') || '';
-   $foldertomark =~ s!\.\.+/!!g;
-   $foldertomark =~ s!^\s*/!!g;
-   $foldertomark =~ s/[\s\`\|\<\>;]//g; # remove dangerous char
+   my $foldertomark = safefoldername(param('foldername')) || '';
    ($foldertomark =~ /^(.+)$/) && ($foldertomark = $1);
    my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $foldertomark);
 
-   filelock($folderfile, LOCK_EX|LOCK_NB) or openwebmailerror("$lang_err{'couldnt_lock'} $folderfile!");
+   filelock($folderfile, LOCK_EX|LOCK_NB) or 
+      openwebmailerror("$lang_err{'couldnt_lock'} $folderfile!");
 
    if (update_headerdb($headerdb, $folderfile)<0) {
       filelock($folderfile, LOCK_UN);
@@ -318,7 +355,10 @@ sub markreadfolder {
    }
 
    my (%HDB, %offset, %status);
-   filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) if (!$config{'dbmopen_haslock'});
+   if (!$config{'dbmopen_haslock'}) {
+      filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) or
+         openwebmailerror("$lang_err{'couldnt_locksh'} $headerdb$config{'dbm_ext'}");
+   }
    dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
    foreach my $messageid (keys %HDB) {
       next if ( $messageid eq 'METAINFO'
@@ -341,7 +381,8 @@ sub markreadfolder {
    ($tmpfile =~ /^(.+)$/) && ($tmpfile = $1);
    ($tmpdb =~ /^(.+)$/) && ($tmpdb = $1);
 
-   filelock("$tmpfile", LOCK_EX);
+   filelock("$tmpfile", LOCK_EX) or
+      openwebmailerror("$lang_err{'couldnt_lock'} $tmpfile");
 
    if (update_headerdb($tmpdb, $tmpfile)<0) {
       filelock($tmpfile, LOCK_UN);
@@ -384,10 +425,7 @@ sub markreadfolder {
 ################### REINDEXFOLDER ##############################
 sub reindexfolder {
    my $recreate=$_[0];
-   my $foldertoindex = param('foldername') || '';
-   $foldertoindex =~ s!\.\.+/!!g;
-   $foldertoindex =~ s!^\s*/!!g;
-   $foldertoindex =~ s/[\s\`\|\<\>;]//g; # remove dangerous char
+   my $foldertoindex = safefoldername(param('foldername')) || '';
    ($foldertoindex =~ /^(.+)$/) && ($foldertoindex = $1);
    my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $foldertoindex);
 
@@ -399,7 +437,10 @@ sub reindexfolder {
 
    if ( -f "$headerdb$config{'dbm_ext'}" ) {
       my %HDB;
-      filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) if (!$config{'dbmopen_haslock'});
+      if (!$config{'dbmopen_haslock'}) {
+         filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) or
+            openwebmailerror("$lang_err{'couldnt_locksh'} $headerdb$config{'dbm_ext'}");
+      }
       dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", 0600);
       $HDB{'METAINFO'}={'RENEW'};
       dbmclose(%HDB);
@@ -418,7 +459,7 @@ sub reindexfolder {
       writehistory("chkindex folder - $foldertoindex");
    }
 
-#   print "Location: $config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editfolders&sessionid=$thissession&sort=$sort&folder=$escapedfolder&firstmessage=$firstmessage\n\n";
+#   print "Location: $config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editfolders&sessionid=$thissession&sort=$sort&folder=$escapedfolder&page=$page\n\n";
    getfolders(\@validfolders, \$folderusage);
    editfolders();
 }
@@ -426,10 +467,7 @@ sub reindexfolder {
 
 ################### ADDFOLDER ##############################
 sub addfolder {
-   my $foldertoadd = param('foldername') || '';
-   $foldertoadd =~ s!\.\.+/!!g;
-   $foldertoadd =~ s!^\s*/!!g;
-   $foldertoadd =~ s/[\s\`\|\<\>;]//g; # remove dangerous char
+   my $foldertoadd = safefoldername(param('foldername')) || '';
    ($foldertoadd =~ /^(.+)$/) && ($foldertoadd = $1);
 
    if (length($foldertoadd) > $config{'foldername_maxlen'}) {
@@ -473,19 +511,16 @@ sub is_defaultfolder {
        $foldername eq $lang_folders{'sent-mail'} ||
        $foldername eq $lang_folders{'saved-drafts'} ||
        $foldername eq $lang_folders{'mail-trash'} ) {
-      return(1);
+      return 1;
    } else {
-      return(0);
+      return 0;
    }
 }
 ################### END ADDFOLDER ##########################
 
 ################### DELETEFOLDER ##############################
 sub deletefolder {
-   my $foldertodel = param('foldername') || '';
-   $foldertodel =~ s!\.\.+/!!g;
-   $foldertodel =~ s!^\s*/!!g;
-   $foldertodel =~ s/[\s\`\|\<\>;]//g; # remove dangerous char
+   my $foldertodel = safefoldername(param('foldername')) || '';
    ($foldertodel =~ /^(.+)$/) && ($foldertodel = $1);
 
    # if is INBOX, return to editfolder immediately
@@ -517,21 +552,14 @@ sub deletefolder {
 
 ################### RENAMEFOLDER ##############################
 sub renamefolder {
-   my $oldname = param('foldername') || '';
-   $oldname =~ s!\.\.+/!!g;
-   $oldname =~ s!^\s*/!!g;
-   $oldname =~ s/[\s\`\|\<\>;]//g; # remove dangerous char
+   my $oldname = safefoldername(param('foldername')) || '';
    ($oldname =~ /^(.+)$/) && ($oldname = $1);
-
    if ($oldname eq 'INBOX') {
       editfolders();
       return;
    }
 
-   my $newname = param('foldernewname');
-   $newname =~ s!\.\.+/!!g;
-   $newname =~ s!^\s*/!!g;
-   $newname =~ s/[\s\`\|\<\>;]//g; # remove dangerous char
+   my $newname = safefoldername(param('foldernewname'));
    ($newname =~ /^(.+)$/) && ($newname = $1);
 
    if (length($newname) > $config{'foldername_maxlen'}) {
@@ -562,7 +590,7 @@ sub renamefolder {
       writehistory("rename folder - rename $oldname to $newname");
    }
 
-#   print "Location: $config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editfolders&sessionid=$thissession&sort=$sort&folder=$escapedfolder&firstmessage=$firstmessage\n\n";
+#   print "Location: $config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editfolders&sessionid=$thissession&sort=$sort&folder=$escapedfolder&page=$page\n\n";
    getfolders(\@validfolders, \$folderusage);
    editfolders();
 }

@@ -1,17 +1,17 @@
 <BR>
 <BR>
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
-<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>アドレスブックのインポート</B></font>
 </td><td bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>@@@FREESPACE@@@ KB Available</B></font>
+<B>@@@FREESPACE@@@ Available</B></font>
 </td></tr>
 <tr><td colspan="2" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 
 <table border="0" align="center" width="85%" cellpadding="0" cellspacing="0">
-<tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
+<tr><td bgcolor=@@@WINDOW_LIGHT@@@>
 <BR>アウトルックエクスプレス５とネットスケープメールはアドレス帳を
 CSV、または区切られたバリューのコマのフォーマットでエクスポートすることができます。@@@NAME@@@ はそれらのファイルを個人アドレス帳にインポートして、
 手動で何時間もかかって入力する手間を省きます。
@@ -35,7 +35,7 @@ File-&gt;Export-&gt;アドレス帳を選択し、エクスポートファイル "テキストファイル" 
 </td>
 @@@ENDFORM@@@
 @@@STARTCANCELFORM@@@
-<td width="50%" align="left" bgcolor=@@@WINDOW_LIGHT@@@>
+<td width="50%" bgcolor=@@@WINDOW_LIGHT@@@>
 &nbsp;&nbsp;@@@CANCELBUTTON@@@
 </td></tr>
 <tr><td colspan=2 bgcolor=@@@WINDOW_LIGHT@@@>&nbsp;</td></tr>

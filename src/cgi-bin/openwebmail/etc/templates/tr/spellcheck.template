@@ -1,12 +1,12 @@
 <table border="0" align="center" width="95%" cellpadding="0" cellspacing="0">
-<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>Yazým Denetimi  @@@DICTIONARY@@@</B></font>
 </td></tr>
 <tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
-<tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
+<tr><td bgcolor=@@@WINDOW_LIGHT@@@>
 <BR>Her hatalý yazýlan kelime için bir takým öneriler sunulacaktýr.
 Kullanýcý bu önerilerden birini seçip hatalý yazýlan kelimeyle
 deðiþtirebilir.Eðer hiçbir öneri yoksa veya kullanýcý "-manuel düzelt-"
@@ -32,7 +32,9 @@ alaný giriþ için açýlýr.
 &nbsp;&nbsp;&nbsp;
 @@@CANCELBUTTON@@@
 <br><br>
-</td></tr></table>
+</td></tr>
+@@@ENDFORM@@@
+</table>
 
 <script language="JavaScript">
 <!--

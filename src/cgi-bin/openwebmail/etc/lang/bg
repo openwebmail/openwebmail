@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Bulgarian translation by Veselin Slavov, vess@btc.net, 2002/04/02
+# Bulgarian translation by Veselin Slavov, vess@vess.bnc.bg, 2002/11/25
 # charset: windows-1251
 
 %lang_folders =
@@ -47,11 +47,24 @@
    no  => 'Не'
    );
 
-%lang_positionlabels =
+%lang_ctrlpositionlabels =
    (
-   before => 'Before mail edit area',
-   after => 'After mail edit area',
-   both  => 'Before and after mail edit area'
+   top => 'най-отгоре',
+   bottom => 'най-отдолу'
+   );
+
+%lang_sendpositionlabels =
+   (
+   before => 'над полето за редакция',
+   after => 'под полето за редакция',
+   both  => 'над и под полето за редакция'
+   );
+
+%lang_abookbuttonpositionlabels = 
+   (
+   before => 'Before addressbook entries',
+   after  => 'After addressbook entries',
+   both   => 'Before and after addressbook entries'
    );
 
 %lang_timelabels =
@@ -71,94 +84,123 @@
 
 %lang_advsearchlabels =
    (
-   contains    => 'contains',
-   notcontains => 'does not contain',
-   is          => 'is',
-   isnot       => 'is not',
-   startswith  => 'starts with',
-   endswith    => 'ends with',
-   regexp      => 'matches regexp',
+   contains    => 'съдържа',
+   notcontains => 'не съдържа',
+   is          => 'е',
+   isnot       => 'не е',
+   startswith  => 'започва с',
+   endswith    => 'завършва с',
+   regexp      => 'съвпада с',
    );
 
-%lang_calendar = 
+%lang_sizes =
    (
-   yearview  => 'Yearview',
-   monthview => 'Monthview',
-   weekview  => 'Weekview',
-   dayview   => 'Dayview',
-   listview   => 'Listview'
+   mb   => 'MB',	# mega bytes
+   kb   => 'KB',	# kilo bytes
+   byte => 'Байт'
+   );
+
+%lang_calendar =
+   (
+   yearview  => 'Годишен изглед за',
+   monthview => 'Месечен изглед за',
+   weekview  => 'Седмичен изглед за',
+   dayview   => 'Дневен изглед за',
+   listview  => 'Списък за '
    );
 
 %lang_month =
    (
-   1  => 'January',
-   2  => 'February',
-   3  => 'March',
-   4  => 'April',
-   5  => 'May',
-   6  => 'June',
-   7  => 'July',
-   8  => 'August',
-   9  => 'September',
-   10 => 'October',
-   11 => 'November',
-   12 => 'December'
+   1  => 'Януари',
+   2  => 'Февруари',
+   3  => 'Март',
+   4  => 'Април',
+   5  => 'Май',
+   6  => 'Юни',
+   7  => 'Юли',
+   8  => 'Август',
+   9  => 'Септември',
+   10 => 'Октомври',
+   11 => 'Ноември',
+   12 => 'Декември'
    );
 
 %lang_wday =
    (
-   0 => 'Sunday',
-   1 => 'Monday',
-   2 => 'Tuesday',
-   3 => 'Wednesday',
-   4 => 'Thursday',
-   5 => 'Friday',
-   6 => 'Saturday'
+   0 => 'Неделя',
+   1 => 'Понеделник',
+   2 => 'Вторник',
+   3 => 'Сряда',
+   4 => 'Четвъртък',
+   5 => 'Петък',
+   6 => 'Събота'
    );
 
 %lang_wday_abbrev =
    (
-   week => 'WK',
-   0 => 'S',
-   1 => 'M',
-   2 => 'T',
-   3 => 'W',
-   4 => 'T',
-   5 => 'F',
-   6 => 'S'
+   week => 'СЕДМ',
+   0 => 'Н',
+   1 => 'П',
+   2 => 'В',
+   3 => 'С',
+   4 => 'Ч',
+   5 => 'П',
+   6 => 'С'
    );
 
 %lang_order =
    (
-   1 => '1st',
-   2 => '2nd',
-   3 => '3rd',
-   4 => '4th',
-   5 => 'last'
+   1 => '1-ят',
+   2 => '2-ят',
+   3 => '3-ят',
+   4 => '4-ят',
+   5 => 'последният'
    );
+
+%lang_wdbutton =
+   (
+   refresh  => 'Опресни',
+   preview  => 'Преглед',
+   edit     => 'Редакция',
+   listarchive=> 'Списък',
+   decompress=>'Декопресиране',
+   extract  => 'Изваждане',
+   chdir    => 'Смяна дир.',
+   mkdir    => 'Създаване дир.',
+   newfile  => 'Нов файл',
+   delete   => 'Изтриване',
+   copy     => 'Копиране',
+   move     => 'Преместване',
+   gzip     => 'gz-компресия',
+   mkzip    => 'Създаване Zip',
+   mktgz    => 'Създаване Tgz',
+   mkthumbnail  => 'Създаване Thumb',
+   download => 'Даунлоуд',
+   upload   => 'Ъполуд',
+   );   
 
 %lang_text =
    (
    login      => 'Вход',
    clear      => 'Изчисти',
-   point      => 'Point',
-   pixel      => 'Pixel',
+   point      => 'поинта',
+   pixel      => 'пиксела',
    changepwd  => 'Смяна на парола',
    viewhistory=> 'Хронология',
    of         => 'от',
    messages   => 'съобщения',
    unread     => 'непрочетени',
    nomessages => 'Няма съобщения',
-   inmessages => 'Incoming msgs',
+   inmessages => 'Входящи',
    composenew => 'Създаване на ново съобщение',
    refresh    => 'Опресняване',
    userprefs  => 'Потребителски настройки',
    addressbook=> 'Книга с адреси',
    folders    => 'Папки',
    emptytrash => 'Изпразни кошчето',
-   totrash    => 'Move to Trash',
+   totrash    => 'Премести в коша',
    forever    => 'Завинаги',
-   delatlogout=> 'Delete at Logout',
+   delatlogout=> 'Изтрий при влизане',
    userdef    => 'Дефинирано от потребителя',
    logout     => 'Изход',
    page       => 'Страница',
@@ -196,16 +238,17 @@
    encoding   => 'Кодиране',
    description=> 'Описание',
    download   => 'Дръпни',
-   charset    => 'Charset',
-   samecharset=> 'The same as composing charset',
+   charset    => 'Кодова таблица',
+   samecharset=> 'Същата кодова таблица, както при създаване',
    thisispartialmsg => 'Това е част от съобщение',
    msgrebuild => 'Преподреждане на съобщението',
    editdraft  => 'Редакция чернова',
    savedraft  => 'Запис чернова',
    send       => 'Изпращане',
-   about      => 'About',
-   close      => 'Close',
+   about      => 'Информация',
+   close      => 'Затвори',
    cancel     => 'Откажи',
+   ok         => 'Да',
    continue   => 'Продължи',
    loginagain => 'Влез отново',
    exit       => 'Изход',
@@ -216,13 +259,14 @@
    folderrenprop => '\'Моля въведете ново име за тази папка\'',
    rename     => 'Смени името',
    folderdelconf => '\'Потвърди за изтриването на папката заедно със съдържанието й!\'',
-   markread   => 'MarkRead',
-   foldermarkreadconf => '\'Are you going to mark read on all messages in this folder?\'',
+   markread   => 'Маркирай като прочетено',
+   foldermarkreadconf => '\'Искате ли да маркирате съдържанието като прочетено?\'',
    chkindex   => 'Проверка на индекса',
    folderchkindexconf => '\'Искате ли да проверите индекса на тази папка?\'',
    reindex    => 'Нов индекс',
    folderreindexconf => '\'Сигурни ли сте, че искате да реиндексирате тази папка?\'',
    total      => 'Общо',
+   edit       => 'Редакция',
    delete     => 'Изтрий',
    reserve    => 'Запази',
    clearadd   => 'Да изтрия ли всички адреси',
@@ -236,11 +280,12 @@
    name       => 'Име',
    email      => 'Адрес',
    note       => 'Забележка',
+   max        => 'Maximum',
    group      => 'Група',
    quota_hit  => 'ОГРАНИЧЕНИЕ',
    usage      => 'Използване',
-   tzmap      => 'World timezone map',
-   testsound  => 'Test sound',
+   tzmap      => 'Карта с часовите почси',
+   testsound  => 'Звук за тест',
    editfroms  => 'Редакция на собствения адрес',
    pop3book   => 'POP3 Настройки',
    retr_pop3s => 'Прочитане на POP3 поща',
@@ -267,36 +312,65 @@
    readonly   => 'Само за четене',
    textcontent=> 'Съдържание',
    search     => 'Търсене',
-   advsearch  => 'Advanced search',
-   folder     => 'Folder',
-   nofoldersel=> 'No Folder selected',
-   showall    => 'Show All',
+   advsearch  => 'Разширено търсене',
+   folder     => 'Папка',
+   nofoldersel=> 'Няма избрана папка',
+   showall    => 'Покажи всички',
    spellcheck => 'Проверка правописа',
    checkagain => 'Провери отново',
    finishchecking => 'Край на проверката',
    manuallyfix=> 'Ръчна поправка',
-   editstat   => 'Edit Stationery',
-   savestat   => 'Save Stationery',
-   clearstat  => 'Clear All Stationery',
-   selectstat => '-- Select Stationery for Reply --',
-   calendar   => 'Calendar',
+   editstat   => 'Редакция на шаблони',
+   savestat   => 'Запис на шаблон',
+   clearstat  => 'Изтрий всички шаблони',
+   statreply  => '-- Шаблон за отговор --',
+   calendar   => 'Календар',
    am         => 'am',
    pm         => 'pm',
-   calfmt_year          => 'Year @@@YEAR@@@',
+   calfmt_year          => 'година @@@YEAR@@@',
    calfmt_yearmonth     => '@@@MONTH_STR@@@ @@@YEAR@@@',
    calfmt_yearmonthday  => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@',
    calfmt_yearmonthdaywday => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@ @@@WEEKDAY_STR@@@',
    calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
-   none       => 'None',
-   moreitems  => 'more items',
-   multieditconf => 'This item was added for multiple dates.\\nEditing it will change the item for all dates.\\nContinue with Edit?',
-   multidelconf  => 'This item was added for multiple dates.\\nDeleting it will delete the item for all dates.\\nContinue with Delete?',
-   ed         => 'Ed',
-   del        => 'Del',
-   noitemforthisday => 'No items for this day',
-   today_only               => 'Today\'s date only',
-   the_wday_of_thismonth    => 'The @@@ORDER@@@ @@@WDAY@@@ of the month',
-   every_wday_of_thismonth  => 'Every @@@WDAY@@@ this month'
+   none       => 'няма',
+   moreitems  => 'повече полета',
+   multieditconf => 'Тази дефиниция съществува в повече от една дата.\\nРедакцията и ще се отрази на всичките записи.\\nПродължение с редакция?',
+   multidelconf  => 'Тази дефиниция съществува в повече от една дата.\\nЩе бъдат изтрити всички дефиниции за всички дати.\\nПродължение с изтриване?',
+   noitemforthisday => 'Няма дефиниции за този ден',
+   thisday_only          => 'Само за днес',
+   the_wday_of_thismonth => '@@@ORDER@@@ @@@WDAY@@@ от месеца',
+   every_wday_thismonth  => 'Всеки @@@WDAY@@@ от месеца',
+   thismonth_only           => 'Само този месец',
+   every_oddmonth_thisyear  => 'Всеки нечетен месец от тази година',
+   every_evenmonth_thisyear => 'Всеки четен месец от тази година',
+   every_month_thisyear     => 'Всеки месец от тази година',
+   webdisk      => 'Web Диск',
+   sshterm      => 'SSH Терминал',
+   dir          => 'Директория',
+   dirs         => 'Директории',
+   file         => 'Файл',
+   files        => 'Файлове',
+   program      => 'Програма',
+   dest_of_chdir  => 'директория цел',
+   name_of_newdir => 'име на директорията за създаване',
+   name_of_newfile=> 'име на файла за създаване',
+   dest_of_thecopy=> 'директория или файл цел за копиране',
+   dest_of_themove=> 'директория или файл цел за местене',
+   dest_of_thezip=> 'име за нов zip файл',
+   dest_of_thetgz=> 'име за нов tgz файл',
+   homedir      => 'Домашна директория',
+   showthumbnail    => 'Миниатурни',
+   showhidden   => 'Покажи скритите файлове',
+   lastmodified => 'Посредна промяна на',
+   perm         => 'позволение',
+   permission   => 'Access Permission',
+   noitemfound  => 'Нищо не е намерено',
+   savefile     => 'Запис на файл',
+   succeeded    => 'успешно',
+   failed       => 'неуспешно',
+   savefile_towd=> 'Запиши файла във Web-Диска',
+   saveatt_towd => 'Запиши прикачените във Web-Диска',
+   addatt_fromwd=> 'Прикачи от Web-Диск'
    );
 
 %lang_err =
@@ -307,7 +381,7 @@
    couldnt_lock      => 'Невъзможно маркиране за писане на',
    couldnt_seek      => 'Не е намерено началото на',
    couldnt_close     => 'Невъзможно затваряне',
-   couldnt_updatedb  => 'Couldn\'t update index db ',
+   couldnt_updatedb  => 'Невъзможно опресняване на индексите ',
    disallowed_pop3   => 'Отхвърлен POP3 сървър',
    disallowed_client => 'Проблем при свързването от',
    disallowed_receiverdomain => 'Невъзможно изпращането на поща до този адрес',
@@ -326,10 +400,11 @@
    abook_toobig      => 'За съжаление сте достигнали лимита си за адресна книга. Моля върнете се',
    cant_create_dir   => 'Невъзможно е създаването на личната Ви папка!',
    folder_hitquota   => 'Достигнахте лимита си, поради което пристигналите съобщения няма да бъдат обслужвани.  Невъзможно е местенето на съобщения никъде, освен в Кошчето, откъдето ще бъдат изтрити.  Върнете се изтрийте, ненужните съобщения или изпразнете кошчето и опитайте пак.',
-   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
+   folder_cutdone    => 'Внимание, откакто е достигнат лимита (@@@FOLDERQUOTA@@@) , старите съобщения бяха изтрити автоматично',
    att_overlimit     => 'За съжаление превишавате лимита за прикачени файлове, който е',
    inv_msg_op        => 'Непозволена операция за съобщението',
-   inv_sessid        => 'Достъпът отказан - проблем с БИСКВИТКИТЕ!',
+   sess_cookieerr    => 'Достъпът отказан - проблем с БИСКВИТКИТЕ!',
+   sess_iperr        => 'Your request didn\'t come from the same ip of this session -- access denied!',
    no_endpart        => 'Липсващ край',
    part_missing      => 'Липсващи части',
    rebuild_fmterr    => 'Грешка при форматиране',
@@ -339,12 +414,22 @@
    auth_syserr       => 'системна гришка при регистрация',
    param_fmterr      => 'грешен форматиращ параметър',
    pwd_incorrect     => 'грешна парола',
-   pwd_tooshort      => 'Password too short (minimum length @@@PASSWDMINLEN@@@)',
-   pwd_toosimple     => 'Password too simple (both alphabet and digit are required)',
+   pwd_tooshort      => 'Паролата е много кратка (минимална дължина @@@PASSWDMINLEN@@@)',
+   pwd_toosimple     => 'Паролата е много лесна (изисква се използването на букви и цифри)',
    network_server_error => 'грешка при свързване със сървъра',
    sendmail_error    => 'Проблем при изпращане на съобщението.  Моля проверете за грешки и опитайте пак.',
-   at_char_not_allowed => 'The @ character is not allowed in this field.  Press browser back button and try again',
-   badnum_in_days => 'bad number in consecutive days field'
+   at_char_not_allowed => 'Символът @ е недопустим за това поле.  Натисни back бутона на браузера и опитай пак',
+   badnum_in_days => 'грешка в броя на дните',
+   access_denied     => 'Достъпът отказан',
+   couldnt_chdirto   => 'Невъзможност за прехвърляне в',
+   isnt_a_dir        => 'не е директория',
+   edit_notfordir    => 'Не можете да редактирате директорията',
+   onefileonly       => 'Тази операция се допуска само върху един файл',
+   no_file_todownload=> 'Не е избран файл за даунлоуд',
+   upload_overlimit  => 'Големината на файла надвишава лимита',
+   decomp_notsupported=>'Decompression support is not available for this file.',
+   webdisk_hitquota   => 'За съжаление достигнахте лимита, първо трябва да изтриете някои файлове.',
+   webdisk_readonly   => 'За съжаление вашия web-диск е само за четене.'
    );
 
 1;

@@ -1,8 +1,8 @@
 <BR><BR><BR><BR><BR><BR><BR>
 <table border="0" align="center" width="25%" cellpadding="0" cellspacing="0">
-<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>B£¡D LOGOWANIA</B></FONT></TD></TR>
-<tr><td valign="middle" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>@@@ERRORMSG@@@! Wróæ i <a href="@@@SCRIPTURL@@@">spróbuj ponownie</a>.<BR><BR>
+<tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
+<BR>@@@ERRORMSG@@@! Wróæ i <a href="@@@STARTURL@@@">spróbuj ponownie</a>.<BR><BR>
 </td></tr></table>

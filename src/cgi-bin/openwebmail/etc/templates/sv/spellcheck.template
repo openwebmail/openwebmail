@@ -1,12 +1,12 @@
 <table border="0" align="center" width="95%" cellpadding="0" cellspacing="0">
-<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>STAVNINGSKONTROLL for @@@DICTIONARY@@@</B></font>
 </td></tr>
 <tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
-<tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
+<tr><td bgcolor=@@@WINDOW_LIGHT@@@>
 <BR>Ett antal förslag kommer att ges för varje felstavat ord.
 Du kan välja ett av dessa för att ersätta det felstavade ordet.
 Om inga förslag dyker upp, eller om du väljer "fixa manuellt"
@@ -32,7 +32,9 @@ skriva in ett nytt ord.
 &nbsp;&nbsp;&nbsp;
 @@@CANCELBUTTON@@@
 <br><br>
-</td></tr></table>
+</td></tr>
+@@@ENDFORM@@@
+</table>
 
 <script language="JavaScript">
 <!--

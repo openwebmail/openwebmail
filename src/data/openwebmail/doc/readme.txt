@@ -27,12 +27,14 @@ Open WebMail has the following enhanced features:
 14. draft folder support
 15. reply with stationery support
 16. spelling check support
-17. calendar with reminder/notification support
-18. POP3 mail support
-19. mail filter support
-20. message count preview
-21. confirm reading support
-22. charset auto conversion
+17. POP3 mail support
+18. mail filter support
+19. message count preview
+20. confirm reading support
+21. charset auto conversion
+22. calendar with reminder/notification support
+23. web disk support
+
 
 
 REQUIREMENT
@@ -48,6 +50,7 @@ libiconv-1.8.tar.gz      (required if system doesn't support iconv)
 
 Authen-PAM-0.12.tar.gz   (optional)
 ispell-3.1.20.tar.gz     (optional)
+ImageMagick-5.5.3.tar.gz (optional)
 
 
 INSTALL REQUIRED PACKAGES
@@ -158,7 +161,7 @@ then just
 
 3. modify /usr/local/www/cgi-bin/openwebmail/etc/openwebmail.conf for your need.
 
-4. execute /usr/local/www/cgi-bin/openwebmail/openwebmail-init.pl
+4. execute /usr/local/www/cgi-bin/openwebmail/openwebmail-tool.pl --init
 
 
 ps: If you are using RedHat 7.x (or most Linux) with Apache
@@ -189,14 +192,14 @@ ps: If you are using RedHat 7.x (or most Linux) with Apache
    }  
    to /etc/logrotate.d/syslog to enable logrotate on openwebmail.log
 
-5. execute /usr/local/www/cgi-bin/openwebmail/openwebmail-init.pl
+5. execute /usr/local/www/cgi-bin/openwebmail/openwebmail-tool.pl --init
 
 If you are using RedHat 6.2, please use /home/httpd instead of /var/www
 ps: It is highly recommended to read the doc/RedHat-README.txt(contributed by 
     elitric.AT.yahoo.com) if you are installing Open WebMail on RedHat Linux.
 
-ps: Thomas Chung (tchung.AT.pasadena.oao.com) maintains the rpm for all 
-    released and curent version of openwebmail, It is available at 
+ps: Thomas Chung (tchung.AT.openwebmail.org) maintains the rpm for all 
+    released and current version of openwebmail, It is available at 
     http://openwebmail.org/openwebmail/download/redhat-7x-installer/.
     You can get openwebmail working in 5 minutes with this :)
 
@@ -227,27 +230,52 @@ eg: /usr/local/apache/share, then
    a. set variable $unix_passwdfile_encrypted to '/etc/shadow'
    b  set variable $unix_passwdmkdb to 'none'
 
-4. execute /usr/local/www/cgi-bin/openwebmail/openwebmail-init.pl
+4. execute /usr/local/www/cgi-bin/openwebmail/openwebmail-tool.pl --init
 
 
-CHECK YOUR DBM SYSTEM
----------------------
-Some unix has different dbm system than others does, so you may have to 
-change the dbm_ext, dbmopen_ext and dbmopen_haslock options in openwebmail.conf 
-to make openwebmail work on your server. 
-(eg: Cobalt, Solaris, Linux/Slackware, Linux.Suse)
+INITIALIZE OPENWEBMAIL
+----------------------
+In the last step of installing openwebmail, you have done:
 
-To find the correct setting for the three options: 
+cd the_directory_of_openwebmail_cgi_scripts
+./openwebmail-tool.pl --init
 
-perl cgi-bin/openwebmail/uty/dbmtest.pl [enter]
+This init will create the mapping tables used by openwebmail in the future.
+If you skip this step, you will not be able to access the openwebmail through 
+web interface.
 
-and you will get output like this:
+And since perl on various platforms may use different underlying dbm system, 
+the init routine will test them and try to give you some useful suggestions.
 
-dbm_ext              .db
-dbmopen_ext          none
-dbmopen_haslock      no
+1. it checks dbm_ext, dbmopen_ext and dbmopen_haslock options in 
+   openwebmail.conf, if they are set to wrong value, you may see output like
+-------------------------------------------------------------
+Please change the following 3 options in openwebmail.conf
+from
+	dbm_ext           .db
+	dbmopen_ext       none
+	dbmopen_haslock   no
+to
+	dbm_ext           .db
+	dbmopen_ext       %dbm_ext%
+	dbmopen_haslock   yes
+-------------------------------------------------------------
 
-Then put the three lines into your openwebmail.conf.
+2. it checks if the dbm system uses DB_File.pm by default and 
+   will suggest a necessary patch to DN_File.pm, you may see output like
+-------------------------------------------------------------
+Please modify /usr/libdata/perl/5.00503/mach/DB_File.pm by adding
+
+        $arg[3] = 0666 unless defined $arg[3];
+
+before the following text (about line 247)
+
+        # make recno in Berkeley DB version 2 work like recno in version 1
+-------------------------------------------------------------
+
+Please follow the suggestion or the openwebmail may not work properly.
+And don't forget to redo './openwebmail-tool.pl --init' after you complete 
+the modification.
 
 
 USING OPENWEBMAIL WITH OTHER SMTP SERVER
@@ -372,14 +400,14 @@ ps: if you are compiling ispell from source, you may enhance your ispell
 
 3. If you have installed multiple dictionaries for your ispell/aspell,
    you may put them in option spellcheck_dictionaries in openwebmail.conf
-   and these dictionary names should be seperated with comma.
+   and these dictionary names should be separated with comma.
 
 ps: To know if a specific dictionary is successfully installed on
     your system, you can do a test with following command
 
     ispell -d dictionaryname -a
 
-4. If the language used by a dictionary has a differnet character set than
+4. If the language used by a dictionary has a different character set than
    English, you have to define the characters in %dictionary_letters in
    the openwebmail-spell.pl for that dictionary.
 
@@ -399,6 +427,56 @@ you can do debug with the -d option
    add the '-d' option after vacation.pl
 3. send a message to this user to test the autoreply
 4. check the /tmp/vacation.debug for possible error information
+
+
+WEBDISK SUPPORT
+---------------
+The webdisk module provides a web interface for user to use his home 
+directory as a virtual disk on the web. It is also designed as a 
+storage of the mail attachments, you can freely copy attachments 
+between mail messages and the webdisk.
+
+The / of the virtual disk is mapped to the user's home directory,
+any item displayed in the virtual disk is actually located under the
+user home directory.
+
+Webdisk supports basic file operation (mkdir, rmdir, copy, move, rm),
+file upload and download (multiple files or directories download is supported,
+webdisk compresses them into a zip stream on the fly when transmitting). 
+It can also handle many types of archives, including zip, arj, rar, tar.gz, 
+tar.bz, tar.bz2, tgz, tbz, gz, z...
+
+Obviously, WebDisk have to call external program to provide all the above
+features, it finds the external programs in /usr/local/bin, /usr/bin 
+and /bin respectively.
+
+the external programs used by webdisk are:
+
+basic file uty                 - cp, mv, rm, 
+file compression/decompression - gzip, bzip2,
+archiive uty                   - tar, zip, unzip, unrar, unarj, lha
+image thumbnail uty            - convert (in ImageMagick package)
+
+ps: You don't have to install all external programs to use WebDisk,
+    a feature will be disabled if related external program is not available.
+
+External commands are invoked with exec() and parameters are passed by 
+array, which prevents using /bin/sh for shell escaped character 
+interpretation and thus is quite secure.
+
+To limit the WebDisk space used by the user, you can
+
+1. enable the UNIX quota system, or
+2. set option webdisk_quota in openwebmail.conf.
+
+While using UNIX quota system to limit the disk usage is more efficient,
+it can be only used with normal unix account. So if your openwebmail user is 
+virtual user or your platform doesn't support quota, you may use the option 
+webdisk_quota. Set it to a value larger than 0 will enable it.
+
+Since option webdisk_quota uses 'du -sk' to gather the disk usage, it could be 
+time-consuming if the system is busy or the user has a big tree in his homedir.
+We suggest using UNIX quota system for disk space control if possible.
 
 
 VIRTUAL HOSTING
@@ -671,6 +749,10 @@ ps: You may choose the abbreviation by referencing the following url
 5. check iconv.pl, if the charset is not listed, add a line for this charset in both
    %charset_localname and %charset_convlist.
 
+ps: if your language is Right-To-Left oriented and you can read arabic,
+    you can use the arabic template instead of english as the start templates.
+    And don't forget to mention itt when you submit the templates 
+    to the openwebmail team.
 ps: If you wish your translation to be included in the next release of 
     openwebmail, please submit it to openwebmail.AT.turtle.ee.ncku.edu.tw.
 
@@ -728,6 +810,11 @@ you have to
 2. copy %ow_htmldir%/images/iconsets/Text.English/icontext to Text.MyLnag/icontext
 3. modify the Text.MyLang/icontext for your language
 
+ps: If your are going to make Cool3D iconset for your language with Photoshop,
+    you may start with the psd file created by Jan Bilik <jan@bilik.org>,
+    it could save some of your time. The psd file is available at
+    http://turtle.ee.ncku.edu.tw/openwebmail/contrib/Cool3D.iconset.Photoshop.template.zip
+
 ps: If you wish the your new iconset to be included in the next release of 
    openwebmail, please submit it to openwebmail.AT.turtle.ee.ncku.edu.tw
 
@@ -756,9 +843,10 @@ TODO
 ----
 Features that we would like to implement first...
 
-1. web disk
-2. shared folder
-3. mod_perl compatibility
+1. web bookmark
+2. PGP/GNUPG integration
+3. shared folder
+4. mod_perl or authload compatible implementation for speedup
 
 Features that people may also be interested
 
@@ -767,7 +855,7 @@ Features that people may also be interested
 3. log analyzer
 
 
-11/11/2002
+01/19/2003
 
 openwebmail.AT.turtle.ee.ncku.edu.tw
 

@@ -3,7 +3,21 @@
 # this is used by author to create the tarball of openwebmail
 #
 
+q /usr/local/www/cgi-bin/openwebmail/etc/openwebmail.conf.default
+q /usr/local/www/data/openwebmail/doc/changes.txt \
+  /usr/local/www/data/openwebmail/index.html \
+  /usr/local/www/cgi-bin/openwebmail/uty/notify.sh
+
 ##########################################################
+
+echo "make new openwebmail-current.tgz? (y/N)"
+read ans
+if [ "$ans" = "y" -o "$ans" = "Y" ]; then
+   # nothing
+else
+   su webmail -c '/bin/sh /usr/local/www/cgi-bin/openwebmail/uty/notify.sh'
+   exit
+fi
 
 echo make openwebmail-current.tgz
 
@@ -13,7 +27,7 @@ tar --exclude data/openwebmail/download \
     -zcBpf /tmp/openwebmail-current.tgz cgi-bin/openwebmail data/openwebmail
 
 cd /tmp
-rm -Rf openwebmail-current www.orig www 2>/dev/null
+rm -Rf www www.orig etc etc.orig openwebmail.conf.default.orig openwebmail.conf.default 2>/dev/null
 mkdir openwebmail-current
 cd    openwebmail-current
 
@@ -71,22 +85,33 @@ if [ ! -z "$oldtgz" ]; then
    www/data/openwebmail/index.html
 
    diff -ruN www.orig www|grep -v '^Binary files '|gzip -9>openwebmail-current-$oldrelease.diff.gz
-   cp www.orig/cgi-bin/openwebmail/etc/openwebmail.conf.default openwebmail.conf.default.orig
-   cp www/cgi-bin/openwebmail/etc/openwebmail.conf.default      openwebmail.conf.default
-   diff -ruN openwebmail.conf.default.orig openwebmail.conf.default >openwebmail.conf.default-current-$oldrelease.diff
 
-   rm -Rf www.orig openwebmail.conf.default.orig openwebmail.conf.default
-   mv www openwebmail-current
+   mv www.orig/cgi-bin/openwebmail/etc/openwebmail.conf.default openwebmail.conf.default.orig
+   mv www/cgi-bin/openwebmail/etc/openwebmail.conf.default      openwebmail.conf.default
+   diff -ruN openwebmail.conf.default.orig openwebmail.conf.default > openwebmail.conf.default-current-$oldrelease.diff
+
+   mkdir -p etc.orig/template etc.orig/lang etc/template etc/lang 
+   mv www.orig/cgi-bin/openwebmail/etc/lang/en      etc.orig/lang/
+   mv www.orig/cgi-bin/openwebmail/etc/templates/en etc.orig/templates/
+   mv www/cgi-bin/openwebmail/etc/lang/en           etc/lang/
+   mv www/cgi-bin/openwebmail/etc/templates/en      etc/templates/
+   diff -ruN etc.orig etc > lang-templates-current-$oldrelease.diff
+
+   rm -Rf www www.orig etc etc.orig openwebmail.conf.default.orig openwebmail.conf.default 2>/dev/null
 fi
 
 ##########################################################
 
 echo cp new stuff to download
 
+if [ ! -d "/usr/local/www/data/openwebmail/download" ]; then
+   mkdir /usr/local/www/data/openwebmail/download
+fi
+
 cp /usr/local/www/data/openwebmail/doc/*.txt /usr/local/www/data/openwebmail/download/doc/
 
 rm /usr/local/www/data/openwebmail/download/openwebmail*current*gz 
-for f in openwebmail-current.tgz openwebmail-current-$oldrelease.diff.gz openwebmail.conf.default-current-$oldrelease.diff; do
+for f in openwebmail-current.tgz openwebmail-current-$oldrelease.diff.gz openwebmail.conf.default-current-$oldrelease.diff lang-templates-current-$oldrelease.diff; do
    mv /tmp/$f /usr/local/www/data/openwebmail/download/
    chmod 644 /usr/local/www/data/openwebmail/download/$f
 done

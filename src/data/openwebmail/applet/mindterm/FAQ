@@ -1,0 +1,249 @@
+MindTerm FAQ
+------------
+Q1) I can't get the tunnels to work in the applet, what's wrong?
+A1) Only if you are running a signed applet, or otherwise have disabled the
+security restrictions the browser/appletviewer puts on applets can you use
+tunnels.
+
+Q2) I can't connect to the host 'hostname1' from the applet (though I can
+connect to 'hostname2' which incidentally is the same host as the web-server
+serving the applet).
+A2) Only if you are running a signed applet, or otherwise have disabled the
+security restrictions the browser/appletviewer puts on applets can you connect
+to arbirtrary hosts from it.
+
+Q3) I can't run the applet in Netscape on my Macintosh, what's wrong?
+A3) The Netscape on Macintosh does not contain a complete java 1.1.x runtime,
+you will have to use the MRJ runtime (found here: http://www.apple.com/java/)
+and use it as a plugin (see README).  Or you can use Internet Explorer for the
+Macintosh.
+
+Q4) I just get "Applet mindbright.application.MindTerm class
+mindbright.application.MindTerm could not be loaded", what am I doing wrong?
+A4) This can depend on many things, for example:
+    o You are running from an outdated browser which does not contain a complete
+      java 1.1.x runtime (e.g. Netscape v4.05 or less)
+    o See "A3"
+    o You have installed a html-page containing an APPLET tag referring a
+      jar-file that does not exist (tag: "<applet archive="mindtermfull.jar"
+      ..." should thus have a file mindtermfull.jar in the doc-root of the
+      web-server)
+    o There is some class missing in the jar-file that have been accidentally
+      removed, check the java-console in the browser to see which class it tries
+      to load. If it says it can't load a class that is apparently allready in
+      the jar-file, try enabling more output in the java-console of the browser
+      to see if it gives more hints.
+    o You are running the signed binary which is specifically compiled for
+      Netscape browsers
+
+Q5) When I start the applet in Netscape under Linux the terminal-window get's
+displaced off the screen so I can't see the window-title.
+A5) This seems to be a bug in the Netscape java-runtime in Linux. Workaround:
+don't enable "Window position" in dialog "Terminal Settings" in menu Settings,
+also don't give a window-position in the 'gm' parameter either.
+
+Q6) I would like the tunnels I define to be used when reconnecting to the same
+ssh-server again.
+A6) This is done automatically by default. If you disable "Auto Save Settings"
+and/or "Auto Load Settings", you must save and/or load settings manually though.
+
+Q7) When I load the signed applet it can still not connect to any host and I'm
+not able to use tunnels in it.
+A7) When a signed applet is loaded that was previously loaded as a non-signed
+applet in the same instance of the browser, the browser seems to "remember" that
+it was previously unsigned and don't give it the right permissions. Workaround:
+close the browser and restart it.
+
+Q8) I can't get the ftp-tunneling to work, what's wrong?
+A8) Have you created the tunnel with an ftp-plugin? In the "Basic Tunnels
+Setup", select protocol "ftp" when creating it, the tunnel should show up in the
+text-area with the label "Current local tunnels" and should have the string
+"(plugin: ftp)" in the end of the description-string in this text-area. Other
+things to check for is of course that the given server really has a ftpd
+running.
+
+Q9) I am trying to use a ftp-client through a ftp-tunnel with "ftp PORT
+commands" enabled but it does not seem to work.
+A9) First of all, proxying ftp PORT-commands is not recomended, if at all
+possible use a client which supports "passive mode" ftp, most do. If that is not
+possible, check that the "Real sshd address" in the "SSH Settings" dialog is the
+ip-address (not hostname) of the machine running the sshd, this will not
+necessarily be the case if the sshd is running behind a firewall which is doing
+address-translations.
+
+Q10) After I have disconnected from the ssh-server and reconnect the last
+session seems not to have closed properly, i.e. a file seems locked or some
+such.
+A10) The preferred way to disconnect from the ssh-server is to simply logout
+from the shell or exit the application running as a single-command, otherwise
+the ssh-server might keep the session open causing this behaviour. The logout
+procedure can not be done automatically by MindTerm since the way to do it
+varies between situations/platforms.
+     
+Q11) What does the "Send keep-alive" option do? Are ssh-connections timed-out?
+A11) It just sends a message (which is ignored by the ssh-server) on the given
+interval (in seconds).  This will keep the connection alive both if there is an
+idle-timeout set on the ssh-server and if "something" inbetween the client and
+the server is timing out (such as a address-translating firewall).
+
+Q12) I'm trying to tunnel X-connections but it does not seem to work, what's
+wrong?
+A12) By default X-tunneling is turned off in MindTerm (unlike e.g. the
+"standard" unix-ssh-client).  Enable it in the "SSH Settings" dialog, also
+assure that the X-server on the MindTerm side answers on the given DISPLAY
+(e.g. if "Local X11-display" is set to localhost:0 then the X-server should
+listen on port 6000 on the same machine as MindTerm is running on).
+
+Q13) Why is there a "Basic.." and an "Advanced..." tunnels dialog? And what are
+remote tunnels anyway?
+A13) Normally one would only want to set up simple local tunnels, such as to use
+imap, smtp etc. on the ssh-server or another server behind it. An advanced user
+though might need to set up tunnels going back to the machine running MindTerm,
+those are referred to as remote tunnels.
+
+Q14) I created my RSA-identity but I still can't log in to the ssh-server with
+it, it says "Server refused our key", why would he want to do that?
+A14) Did you read all the instructions in the text-box in the "Create RSA
+Identity" dialog?  (hint: put the contents of the identity.pub file into the
+file ~/.ssh/authorized_keys on the ssh-server).
+
+Q15) I don't seem to get a menu-bar in the applet eventhough I wanted to, what's
+wrong?
+A15) When running inside the browser-window (i.e. as opposed to in a separate
+frame), it is not possible to have a menu-bar. This is a limitation of java and
+can not (easily) be fixed.
+
+Q16) The terminal seems to have quirks, such as giving reverse video, strange
+looking output or wrong settings in general, what's causing this?
+A16) There could be a mismatch between the terminal setting in the shell on the
+server and in MindTerm, the ssh-server should e.g. set the TERM environment
+variable to the right string upon login, but sometimes it gets set to something
+else by login-scripts etc. Check that the TERM environment variable is really
+set to the same as the "Terminal type" in the "Terminal Settings" dialog in
+MindTerm. Another possibility is of course that MindTerm has a bug, in which
+case I would be glad if you gave an as detailed report as possible of
+what/when/how/where this happened. A third possibility is that the
+terminal-libraries on the server is either buggy or does not think the same
+about the terminal mode used as MindTerm try with different terminal modes to
+see what happens.
+
+Q17) Backspace/Delete does not seem to work, what's wrong?
+A17) Backspace (and Delete) can be sent using different ascii-codes, try
+changing what is sent with the "Backspace sends Delete" and vice versa in the
+"Terminal Misc..." dialog.  (see also Q16)
+
+Q18) I get strange terminal behaviour with a ssh-server running Digital Unix,
+what's wrong? (e.g. scrolling does not seem to work within VI)
+A18) There seems to be something wrong with using terminal mode vt100 on Digital
+Unix, if possible use another terminal mode. Also see Q17.
+
+Q19) When MindTerm is started in Netscape on Linux the window resizes and then
+it seems to hang?
+A19) It has not hung, it just lost keyboard focus, there seems to be something
+strange with the focus-handling here, click terminal to get focus back.
+
+Q20) When adding tunnels, what's the deal, it functions the same whether I'm
+connected or not?
+A20) When not connected, adding a tunnel just adds it to the current
+settings. If you add it while connected it is also opened and fully operational
+as soon as you have added it.
+
+Q21) I have a tunnel configured, it shows up in Basic/Advanced tunnel-dialogs
+but the current connections dialog is empty, where did it go?
+A21) The current connections dialog just shows open connections through the
+tunnels, not the tunnels themselves.
+
+Q22) The clipboard does not seem to work, I can only copy/paste within
+MindTerm, what's wrong?
+A22) There are two explanations here:
+     o When running as an unsigned applet MindTerm do not have access
+       to the system-clipboard but instead uses its own "local"
+       clipboard instead
+     o The java runtime does not support copy/paste to/from the system-
+       clipboard. This is the case in Netscape on Linux for example.
+
+Q23) I configure a tunnel when running MindTerm in Netscape, the tunnel is added
+without errors yet it is not there, why is this?
+A23) There seems to be a bug in the java-runtime in Netscape that makes the
+socket call successful eventhough it should have thrown an exception.
+
+Q24) When I do a really long directory-listing or 'cat' a large file MindTerm
+hangs for a while and then it only shows the end of the listing/file, huh?
+A24) With some java-runtimes there is a thread-scheduling lag that starves the
+updating thread while sending lot's of text to the terminal having the
+effect that the window don't get updated until all of the text is sent to
+the terminal. The whole text has been written to the terminal though most
+of it has scrolled off the screen without showing. Look in the scrollback
+buffer for it.
+
+Q25) When I do "select all" MindTerm hangs, what sort of a feature is that!?
+A25) It does not hang, it just takes a very long time, be patient. Actually what
+really takes time is to copy the selected area, if you disable the "VT Option"
+"Copy On Select" it is much quicker.
+
+Q26) I try to run a single command but MindTerm just exits, why?
+A26) When running a single command with MindTerm (as with the unix ssh-client),
+you have to allocate a PTY if you are going to run a command that uses other
+than a dumb tty (this is done with command-line option '-forcpty true' or as an
+applet parameter as: '<param name=forcpty value="true">'. Note, when running a
+single command Mindterm will typically exit immediately if the command is not
+found.
+
+Q27) I try to run MindTerm as an applet in Opera, is Opera not supported?
+A27) I have now tried Opera version 3.61 (on win32) with Sun java-plugin v1.1.3
+(go to http://www.opera.com/support/instplug.htm#java to get it) and it can run
+MindTerm without problems. This is only tested with win32 (Linux version of
+Opera does not support plugins yet). (NOTE: with Opera you don't need to use a
+plugin-specific html-page it uses the normal APPLET tags for launching the
+plugin).
+
+Q28) I don't see a -C flag equivalent for doing compression, is it not
+supported?
+A28) The java.util.zip package contains the code to do this, however the right
+(native) interface is not exposed so it can't be used with ssh right now (hence
+it is not supported in MindTerm). Doing it in pure java is too painful IMHO. A
+feature-request (id: 4255743) is submitted to Javasoft so maybe in the (far?)
+future this can be implemented.
+
+Q29) When I use MindTerm in Netscape on Linux with black background the popup-menu
+can't be used since it's black-on-black, how can I fix this?
+A29) There is a bug in Netscape on Linux making the popup inherit the black
+background from the main-window while keeping the text black . I don't know how
+to fix this.
+
+    Workaround (from D Roland Walker <walker@pobox.com>):
+netscape -xrm "netscape*drawingArea*canvas.canvas.XmMenuShell*XmRowColumn*foreground:lightgray"
+    OR
+Make it permanent by adding the following to your ~/.Xdefaults file:
+netscape*drawingArea*canvas.canvas.XmMenuShell*XmRowColumn*foreground:lightgray"
+Note that you may have to substitute "netscape" with one of the following:
+    Netscape
+    netscape-communicator
+    netscape-navigator
+
+Q30) When I use MindTerm on Internet Explorer or standalone with Microsoft's
+jview JVM (e.g. version 4.79.2435) I get a tiny/unusable window and the message
+in the console: BorderLayout: cannot add to layout: unknown constraint: null
+A30) Ok, this seems to be a bug (I can't think of anything else) in the jview of
+certain versions. Try upgrading to a newever jview (found at
+http://www.microsoft.com/java/)
+
+Q31) I'm trying to transfer to/from a (local) file which have spaces in it's
+name with the SCP File Transfer but it fails!
+A31) README 4.1.9: ...if a name contains a space enclose it in quotes like: "a
+file with spaces"...
+
+Q32) When starting MindTerm as an applet in Internet Explorer all I get is a
+minimal window which is empty when I enlarge it, and nothing seems to work.
+A32) This was due to a bug in the Microsoft JVM (jview), it was fixed in
+MindTerm v1.2pre1 and later. It occurred in version "4.0 Release 4.79.0.2424" of
+jview.
+
+Q33) On linux when using ibm-jdk1.1.8 or jdk117v3 I can't get a tilde on swedish
+(international) keyboard!
+A33) This seems to be a bug in the keyhandling code of these jdk's
+
+Q34) I get an error when connecting saying "Address already in use", why's that?
+
+A34) This occurs because the same tunnels Due to how sockets behave it might be needed to exit the JVM to
+release sockets properly.

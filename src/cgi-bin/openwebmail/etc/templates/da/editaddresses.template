@@ -1,11 +1,11 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
-<tr><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="left">
+<tr><td colspan="2" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <b>ADRESSEBOG</b></font>
 </td><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>@@@FREESPACE@@@ KB tilg&aelig;ngelig</b></font>
-</td></tr><tr><td colspan="2" bgcolor=@@@MENUBAR@@@ align="left">
+<b>@@@FREESPACE@@@ tilg&aelig;ngelig</b></font>
+</td></tr><tr><td colspan="2" bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
 </td><td colspan="2" bgcolor=@@@MENUBAR@@@ align="right" nowrap>
 @@@STARTSEARCHFORM@@@

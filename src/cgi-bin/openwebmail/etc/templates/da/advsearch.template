@@ -1,8 +1,8 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
-<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <b>AVANCERET S&Oslash;GNING</b></font>
-</td></tr><tr><td bgcolor=@@@MENUBAR@@@ align="left">
+</td></tr><tr><td bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
 </td></tr><tr><td>&nbsp;</td></tr>
 @@@STARTADVSEARCHFORM@@@
@@ -22,27 +22,27 @@
 
 <table border="0" width="100%" cellpadding="0" cellspacing="0">
 <tr>
-<td bgcolor=@@@COLUMNHEADER@@@ align=left><B>Filtrer p&aring;</B></td>
-<td bgcolor=@@@COLUMNHEADER@@@ align=left><B>Som indeholder</B></td>
-<td bgcolor=@@@COLUMNHEADER@@@ align=left><B>Tekst</B></td>
+<td bgcolor=@@@COLUMNHEADER@@@><B>Filtrer p&aring;</B></td>
+<td bgcolor=@@@COLUMNHEADER@@@><B>Som indeholder</B></td>
+<td bgcolor=@@@COLUMNHEADER@@@><B>Tekst</B></td>
 <td bgcolor=@@@COLUMNHEADER@@@ align=center><B>Antal linier</B></td>
 </tr>
 <tr>
-<td bgcolor=@@@TABLEROW_LIGHT@@@ align=left>@@@WHEREMENU0@@@</td>
-<td bgcolor=@@@TABLEROW_LIGHT@@@ align=left>@@@TYPEMENU0@@@</td>
-<td bgcolor=@@@TABLEROW_LIGHT@@@ align=left>@@@SEARCHTEXT0@@@</td>
+<td bgcolor=@@@TABLEROW_LIGHT@@@>@@@WHEREMENU0@@@</td>
+<td bgcolor=@@@TABLEROW_LIGHT@@@>@@@TYPEMENU0@@@</td>
+<td bgcolor=@@@TABLEROW_LIGHT@@@>@@@SEARCHTEXT0@@@ and</td>
 <td bgcolor=@@@TABLEROW_LIGHT@@@ align=center>@@@RESLINE@@@</td>
 </tr>
 <tr>
-<td bgcolor=@@@TABLEROW_LIGHT@@@ align=left>@@@WHEREMENU1@@@</td>
-<td bgcolor=@@@TABLEROW_LIGHT@@@ align=left>@@@TYPEMENU1@@@</td>
-<td bgcolor=@@@TABLEROW_LIGHT@@@ align=left>@@@SEARCHTEXT1@@@</td>
+<td bgcolor=@@@TABLEROW_LIGHT@@@>@@@WHEREMENU1@@@</td>
+<td bgcolor=@@@TABLEROW_LIGHT@@@>@@@TYPEMENU1@@@</td>
+<td bgcolor=@@@TABLEROW_LIGHT@@@>@@@SEARCHTEXT1@@@ and</td>
 <td bgcolor=@@@TABLEROW_LIGHT@@@ align=center>&nbsp;</td>
 </tr>
 <tr>
-<td bgcolor=@@@TABLEROW_LIGHT@@@ align=left>@@@WHEREMENU2@@@</td>
-<td bgcolor=@@@TABLEROW_LIGHT@@@ align=left>@@@TYPEMENU2@@@</td>
-<td bgcolor=@@@TABLEROW_LIGHT@@@ align=left>@@@SEARCHTEXT2@@@</td>
+<td bgcolor=@@@TABLEROW_LIGHT@@@>@@@WHEREMENU2@@@</td>
+<td bgcolor=@@@TABLEROW_LIGHT@@@>@@@TYPEMENU2@@@</td>
+<td bgcolor=@@@TABLEROW_LIGHT@@@>@@@SEARCHTEXT2@@@</td>
 <td bgcolor=@@@TABLEROW_LIGHT@@@ align=center>@@@BUTTONSEARCH@@@</td>
 </tr>
 </table>
@@ -51,13 +51,13 @@
 
 <table border="0" width="100%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
 <tr><td colspan="4"><B>Resultat: @@@TOTALFOUND@@@</B></td></tr>
-<tr><td valign="middle" width="10%" bgcolor=@@@COLUMNHEADER@@@>
+<tr><td width="10%" bgcolor=@@@COLUMNHEADER@@@>
 <B>@@@FOLDER@@@</B></td>
-<td valign="middle" width="18%" bgcolor=@@@COLUMNHEADER@@@>
+<td width="18%" bgcolor=@@@COLUMNHEADER@@@>
 <B>@@@DATE@@@</B></td>
-<td valign="middle" width="25%" bgcolor=@@@COLUMNHEADER@@@>
+<td width="25%" bgcolor=@@@COLUMNHEADER@@@>
 <B>@@@SENDER@@@</B></td>
-<td valign="middle" bgcolor=@@@COLUMNHEADER@@@>
+<td bgcolor=@@@COLUMNHEADER@@@>
 <B>@@@SUBJECT@@@</B></td>
 </tr>
 @@@SEARCHRESULT@@@

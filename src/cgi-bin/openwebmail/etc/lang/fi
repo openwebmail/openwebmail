@@ -47,11 +47,24 @@
    no  => 'Ei'
    );
 
-%lang_positionlabels =
+%lang_ctrlpositionlabels =
+   (
+   top => 'At top',
+   bottom => 'At bottom'
+   );
+
+%lang_sendpositionlabels =
    (
    before => 'Before mail edit area',
    after => 'After mail edit area',
    both  => 'Before and after mail edit area'
+   );
+
+%lang_abookbuttonpositionlabels = 
+   (
+   before => 'Before addressbook entries',
+   after  => 'After addressbook entries',
+   both   => 'Before and after addressbook entries'
    );
 
 %lang_timelabels =
@@ -80,13 +93,20 @@
    regexp      => 'täsmää regexp',
    );
 
+%lang_sizes =
+   (
+   mb   => 'MB',	# mega bytes
+   kb   => 'KB',	# kilo bytes
+   byte => 'Byte'
+   );
+
 %lang_calendar = 
    (
    yearview  => 'Vuosinäkymä',
    monthview => 'Kuukausinäkymä',
    weekview  => 'Viikkonäkymä',
    dayview   => 'Päivänäkymä',
-   listview   => 'Listview'
+   listview  => 'Listview'
    );
 
 %lang_month =
@@ -136,6 +156,28 @@
    4 => 'neljäs',
    5 => 'viimeinen'
    );
+
+%lang_wdbutton =
+   (
+   refresh  => 'Refresh',
+   preview  => 'Preview',
+   edit     => 'Edit',
+   listarchive=> 'List',
+   decompress=>'Decompress',
+   extract  => 'Extract',
+   chdir    => 'ChDir',
+   mkdir    => 'MkDir',
+   newfile  => 'NewFile',
+   delete   => 'Delete',
+   copy     => 'Copy',
+   move     => 'Move',
+   gzip     => 'gzCompress',
+   mkzip    => 'MkZip',
+   mktgz    => 'MkTgz',
+   mkthumbnail  => 'MkThumb',
+   download => 'Download',
+   upload   => 'Upload',
+   );   
 
 %lang_text =
    (
@@ -206,6 +248,7 @@
    about      => 'Lisätietoja',
    close      => 'Sulje',
    cancel     => 'Peruuta',
+   ok         => 'Ok',
    continue   => 'Jatka',
    loginagain => 'Kirjaudu uudestaan',
    exit       => 'Poistu',
@@ -223,6 +266,7 @@
    reindex    => 'Päivitä indeksi',
    folderreindexconf => '\'Indeksoidaanko kansio uudelleen?\'',
    total      => 'Yhteensä',
+   edit       => 'Edit',
    delete     => 'Poista',
    reserve    => 'Varaa',
    clearadd   => 'Tyhjennä osoitteet',
@@ -236,6 +280,7 @@
    name       => 'Nimi',
    email      => 'Sähköposti',
    note       => 'Lisätiedot',
+   max        => 'Maximum',
    group      => 'Ryhmä',
    quota_hit  => 'Sinulle varattu levytila täynnä',
    usage      => 'Käyttöaste',
@@ -278,7 +323,7 @@
    editstat   => 'Edit Stationery',
    savestat   => 'Save Stationery',
    clearstat  => 'Clear All Stationery',
-   selectstat => '-- Select Stationery for Reply --',
+   statreply  => '-- Stationery for Reply --',
    calendar   => 'Kalenteri',
    am         => 'ap',
    pm         => 'ip',
@@ -291,12 +336,41 @@
    moreitems  => 'Lisää tapahtumia',
    multieditconf => 'Tämä tapahtuma on merkitty useammalle päiville.\\nTämän muokkaaminen muokkaa kaikkien lisättyjen päivien tapahtumia.\\nHaluatko jatkaa?',
    multidelconf  => 'Tämä tapahtuma on merkitty useammalle päivälle.\\nTämän poistaminen poistaa myös muille päiville merkityt tapahtumat.\\nHaluatko jatkaa?',
-   ed         => 'Muokkaa',
-   del        => 'Poista',
    noitemforthisday => 'Ei tapahtumia tänään',
-   today_only               => 'Vain tämä päivä',
-   the_wday_of_thismonth    => 'Joka kuukauden @@@ORDER@@@ @@@WDAY@@@',
-   every_wday_of_thismonth  => 'Kuukauden jokaisena @@@WDAY@@@na'
+   thisday_only          => 'Vain tämä päivä',
+   the_wday_of_thismonth => 'Joka kuukauden @@@ORDER@@@ @@@WDAY@@@',
+   every_wday_thismonth  => 'Kuukauden jokaisena @@@WDAY@@@na',
+   thismonth_only           => 'This month only',
+   every_oddmonth_thisyear  => 'Every odd month this year',
+   every_evenmonth_thisyear => 'Every even month this year',
+   every_month_thisyear     => 'Every month this year',
+   webdisk      => 'WebDisk',
+   sshterm      => 'SSH Terminal',
+   dir          => 'Dir',
+   dirs         => 'Dirs',
+   file         => 'File',
+   files        => 'Files',
+   program      => 'Program',
+   dest_of_chdir  => 'the destined directory',
+   name_of_newdir => 'the directory name to create',
+   name_of_newfile=> 'the filename to create',
+   dest_of_thecopy=> 'the destined directory or file of the copy',
+   dest_of_themove=> 'the destined directory or file of the move',
+   dest_of_thezip=> 'the destined filename of the new zip',
+   dest_of_thetgz=> 'the destined filename of the new tgz',
+   homedir      => 'Homedir',
+   showthumbnail    => 'Thumbnails',
+   showhidden   => 'Show hidden files',
+   lastmodified => 'Last modified time',
+   perm         => 'Perm',
+   permission   => 'Access Permission',
+   noitemfound  => 'No item found',
+   savefile     => 'Savefile',
+   succeeded    => 'succeeded',
+   failed       => 'failed',
+   savefile_towd=> 'Save file to WebDisk',
+   saveatt_towd => 'Save attachment to WebDisk',
+   addatt_fromwd=> 'Add attachment from WebDisk'
    );
 
 %lang_err =
@@ -329,7 +403,8 @@
    folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
    att_overlimit     => 'Liitetiedostosi koko ylittää sallitun rajan joka on',
    inv_msg_op        => 'Viestin virheellinen operaatio',
-   inv_sessid        => 'Palvelupyyntösi ei sisältänyt oikeanlaista COOKIE- tiedostoa -- pääsy kielletty!',
+   sess_cookieerr    => 'Palvelupyyntösi ei sisältänyt oikeanlaista COOKIE- tiedostoa -- pääsy kielletty!',
+   sess_iperr        => 'Your request didn\'t come from the same ip of this session -- access denied!',
    no_endpart        => 'Loppuosaa ei löytynyt',
    part_missing      => 'Jokin osa puuttui',
    rebuild_fmterr    => 'Uuden viestin muotovirhe',
@@ -344,7 +419,17 @@
    network_server_error => 'verkkopalvelin virhe',
    sendmail_error    => 'Viestin lähettämisessä ilmeni ongelmia. Paina nettiselaimesi TAKAISIN painiketta, tarkista viestisi ja yritä uudelleen.',
    at_char_not_allowed => '@ -merkki ei ole sallittu tässä kentässä. Palaa takaisin ja yritä uudestaan',
-   badnum_in_days => 'bad number in consecutive days field'
+   badnum_in_days => 'bad number in consecutive days field',
+   access_denied     => 'Access denied',
+   couldnt_chdirto   => 'Couldn\'t chdir to',
+   isnt_a_dir        => 'is not a directory',
+   edit_notfordir    => 'You can\'t edit a directory',
+   onefileonly       => 'Only one file is allowed for this operation',
+   no_file_todownload=> 'No file is specified for download',
+   upload_overlimit  => 'Upload file size is over the limit',
+   decomp_notsupported=>'Decompression support is not available for this file.',
+   webdisk_hitquota   => 'Sorry, you\'ve hit your webdisk quota, please delete some files first.',
+   webdisk_readonly   => 'Sorry, your webdisk is read only.'
    );
 
 1;

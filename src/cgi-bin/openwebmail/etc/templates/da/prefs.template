@@ -1,38 +1,38 @@
 @@@STARTPREFSFORM@@@
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
-<tr><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="left">
+<tr><td colspan="2" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>STANDARD INDSTILLINGER @@@REALNAME@@@</B></font>
-<tr><td colspan="2" bgcolor=@@@MENUBAR@@@ align="left">
+<tr><td colspan="2" bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
 </td></tr>
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Personlig information</B></td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Sprog:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@LANGUAGEMENU@@@&nbsp;Charset @@@CHARSETMENU@@@
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@LANGUAGEMENU@@@&nbsp;Karakters&aelig;t @@@CHARSETMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Tidszone:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@TIMEOFFSETMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>V&aelig;lg din standard afsender adresse:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FROMEMAILMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Mailadresse hvortil svar ønskes sendt:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REPLYTOFIELD@@@ (blank = afsender adressen)
 </td></tr>
 @@@FORWARDSTART@@@
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Videresend mail til:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FORWARDADDRESS@@@
 &nbsp;
 @@@KEEPLOCALCOPY@@@
@@ -40,9 +40,9 @@ Behold lokal kopi
 </td></tr>
 @@@FORWARDEND@@@
 @@@AUTOREPLYSTART@@@
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Aktiver autosvar:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@AUTOREPLYCHECKBOX@@@
 &nbsp;
 Subject:
@@ -61,260 +61,333 @@ Subject:
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Standard indstillinger af udseende</B></td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Udseende:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@STYLEMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Ikoner:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ICONSETMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Baggrunds billede:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+</td><td bgcolor=@@@WINDOW_DARK@@@ nowrap>
 @@@BACKGROUNDMENU@@@
 &nbsp;URL
 @@@BGURLFIELD@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>St&oslash;rrelse p&aring; skrifttype:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FONTSIZEMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Meddelelser pr. side:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@HEADERSPERPAGE@@@
-</td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Vis mail sorteret efter:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@SORTMENU@@@
-</td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Dato format:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DATEFORMATMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>&Oslash;nsker du at benytte 12 eller 24 timers ur:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@HOURFORMATMENU@@@ timer
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Brev hoved:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@HEADERSMENU@@@
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Controlbar position in folder view:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CTRLPOSITIONFOLDERVIEWMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Synlig omr&aring;de ved afsendelse af mail:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@EDITCOLUMNSMENU@@@ karakterer bred, og @@@EDITROWSMENU@@@ linier i høj.
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Meddelelser pr. side:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@HEADERSPERPAGE@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Compose button position:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@SENDBUTTONPOSITIONMENU@@@
-</td></tr>
-
-<tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Standard indstillinger ved l&aelig;sning af mail</B></td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Benyt skrifttype med fast bredde ved l&aelig;sning af mail:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@USEFIXEDFONT@@@
-</td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Brug 'ansigter' ved l&aelig;sning af mail:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@USESMILEICON@@@
-</td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Forbyd JavaScript i mails (virus beskyttelse):</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@DISABLEJS@@@
-</td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Forbyd CGI-scripts i mails:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@DISABLEEMBCGI@@@
-</td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Vis vedh&aelig;ftede billeder som links:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@SHOWIMGASLINK@@@
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Vis mail sorteret efter:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SORTMENU@@@
 </td></tr>
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Standard indstillinger for handlinger</B></td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Ved flytning af mail, flyt som standard til:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@DEFAULTDESTINATIONMENU@@@
-</td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Bekr&aelig;ft n&aring;r mail flyttes/kopieres:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CONFIRMMSGMOVECOPY@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Ved flytning af mail, flyt som standard til:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DEFAULTDESTINATIONMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Vis n&aelig;ste mail efter flytning/kopiering:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@VIEWNEXTAFTERMSGMOVECOPY@@@
 </td></tr>
 @@@AUTOPOP3START@@@
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Hent automatisk POP3 mail n&aring;r du logger p&aring;:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@AUTOPOP3CHECKBOX@@@
 </td></tr>
 @@@AUTOPOP3END@@@
 @@@MOVEOLDSTART@@@
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Flyt gammel mail til 'Gemt mail' n&aring;r du logger af:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@MOVEOLDMSGFROMINBOX@@@
 </td></tr>
 @@@MOVEOLDEND@@@
 
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Standard indstillinger ved besvarelse</B></td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Standard indstillinger ved l&aelig;sning af mail</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Controlbar position in message reading:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CTRLPOSITIONMSGREADMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Brev hoved:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@HEADERSMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Benyt skrifttype med fast bredde ved l&aelig;sning af mail:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@USEFIXEDFONT@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Brug 'ansigter' ved l&aelig;sning af mail:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@USESMILEICON@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Forbyd JavaScript i mails (virus beskyttelse):</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DISABLEJS@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Forbyd CGI-scripts i mails:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DISABLEEMBCGI@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Vis vedh&aelig;ftede billeder som links:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SHOWIMGASLINK@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Bekr&aelig;ft til afsender n&aring;r din mail er l&aelig;st:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SENDRECEIPTMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Standard indstillinger ved besvarelse</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Synlig omr&aring;de ved afsendelse af mail:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@EDITCOLUMNSMENU@@@ karakterer bred, og @@@EDITROWSMENU@@@ linier i høj.
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Placering af knapper ved afsendelse af ny mail:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SENDBUTTONPOSITIONMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Omstrukturer mail ved besvarelse:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REPARAGRAPHORIGMSG@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Ved besvarelse, placer da original mailen:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REPLYWITHORIGMSGMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Gem kopi i 'Sendt mail':</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BACKUPSENTMSG@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Charset for outgoing message:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Benyt følgende karaktersæt ved afsendelse af mail:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SENDCHARSETMENU@@@
 </td></tr>
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Standard indstillinger af filter</B></td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Begr&aelig;ns enslydende mails til:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@FILTERREPEATLIMIT@@@ ( 0 deaktiverer )
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@FILTERREPEATLIMIT@@@ ( 0 = deaktiverer )
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Flyt mail til papirkurven, som er afsendt via falsk SMTP-server:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDSMTP@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Flyt mail til papirkurven, som har en falsk FRA adresse:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDFROM@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Flyt mail til papirkurven, som indeholder falsk .exe content-type:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDEXECONTENTTYPE@@@ (typisk virus)
+</td></tr>
+
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>AddressBook Options</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Size for addressbook window:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Addressbook button position:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@ABOOKBUTTONPOSITIONMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Addressbook default filter:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@ABOOKDEFAULTFILTER@@@
 </td></tr>
 
 @@@CALENDARSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Standard indstillinger af kalender</B></td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Number of items in month view:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@MONTHVIEWNUMITEMSMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Ugen starter:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@WEEKSTARTMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Dagen starter klokken:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@STARTHOURMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Dagen slutter klokken:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ENDHOURMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Vis også de timer hvor der ikke er lavet aftaler:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SHOWEMPTYHOURSCHECKBOX@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>P&aring;mindelse:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REMINDERDAYSMENU@@@ dage i forvejen
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>&Oslash;nsker du påmindelser fra den globale kalender:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REMINDERFORGLOBALCHECKBOX@@@ (administrators kalender)
 </td></tr>
 @@@CALENDAREND@@@
 
+@@@WEBDISKSTART@@@
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>WebDisk Options</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Number of items in directory list:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DIRNUMITEMSMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Confirm before directory/file move/copy:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CONFIRMFILEMOVECOPY@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Confirm before directory/file deletion:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CONFIRMFILEDEL@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Confirm before directory/file compress:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CONFIRMFILECOMPRESS@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Size for file edit window:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+Width @@@FILEEDITCOLUMNSMENU@@@ Height @@@FILEEDITROWSMENU@@@
+</td></tr>
+@@@WEBDISKEND@@@
+
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Diverse standard indstillinger</B></td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Tillad advancerede (RegEx) filter regler:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Tillad avancerede (RegEx) filter regler:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REGEXMATCH@@@ (deaktiver hvis du er tvivl)
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Skjul system foldere:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@HIDEINTERNAL@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Refresh Interval:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Opdaterings interval:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REFRESHINTERVALMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Afspil en lyd n&aring;r der ankommer ny mail:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Afspil f&oslash;lgende lyd n&aring;r der ankommer ny mail:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@NEWMAILSOUNDMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>NewMail window notification:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-remaining @@@NEWMAILWINDOWTIMEMENU@@@ seconds &nbsp;( 0 means No window notification )
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Popup besked om ny mail. Vis beskeden i:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@NEWMAILWINDOWTIMEMENU@@@ sekunder &nbsp;( 0 = deaktiveret )
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Standard ordbog:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DICTIONARYMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Slet mail i papirkurven permanent efter:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@RESERVEDDAYSMENU@@@ dag(e)
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Afslut automatisk webmail efter:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@SESSIONTIMEOUTMENU@@@ af sikkerheds hensyn
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SESSIONTIMEOUTMENU@@@
 </td></tr>
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>
-<table><tr><td>
-@@@BUTTONS@@@
-</td></tr></table></td></tr></table>
+<table><tr>
+<td>@@@SAVEBUTTON@@@</td>
+@@@ENDFORM@@@
+@@@STARTCANCELFORM@@@
+<td>@@@CANCELBUTTON@@@</td>
+@@@ENDFORM@@@
+</tr></table></td></tr></table>
+
+<script language="JavaScript">
+<!--
+   function playsound(url, soundname) 
+   {
+      if (soundname != "NONE" ) {
+         window.open(url+soundname);
+      } 
+   }
+//-->
+</script>

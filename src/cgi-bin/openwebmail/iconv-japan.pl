@@ -1,6 +1,6 @@
 #
 # iconv-japan.pl - charset coversion for sjis<->jis, sjis<->euc,
-#                  adopted from jcode.pl 2.13 written by 
+#                  adopted from jcode.pl 2.13 written by
 #                  Kazumasa Utashiro. <utashiro@iij.ad.jp>
 #
 # Since japan conversion in iconv() is incomplete, we use this instead

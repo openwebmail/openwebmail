@@ -1,9 +1,13 @@
 <BR><BR><BR><BR><BR><BR><BR>
 <table border="0" align="center" width="40%" cellpadding="1" cellspacing="1">
-<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+@@@STARTSAVEDFORM@@@
+<tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>‚¨‹C‚É“ü‚è‚ð•Û‘¶</B></font>
 </td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>‚¨‹C‚É“ü‚è‚ª•Û‘¶‚³‚ê‚Ü‚µ‚½<BR>
+<BR>‚¨‹C‚É“ü‚è‚ª•Û‘¶‚³‚ê‚Ü‚µ‚½<BR>&nbsp;<BR>
 @@@CONTINUEBUTTON@@@
-</td></tr></table>
+<BR>&nbsp;
+</td></tr>
+@@@ENDFORM@@@
+</table>

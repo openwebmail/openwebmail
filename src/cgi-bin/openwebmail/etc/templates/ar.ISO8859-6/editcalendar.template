@@ -1,0 +1,45 @@
+<BR><BR><BR><BR><BR>
+@@@STARTFORM@@@
+<table border="0" align="center" width="60%" cellpadding="3" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
+<tr><td colspan="2" bgcolor=@@@TITLEBAR@@@>
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>ÊÍÑךÑ ÅÏÎÇה בך ÇהÊגטךו</B></FONT>
+</td></tr><tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ÇהÊÇÑךÎ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DATE@@@
+</td></tr><tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ÅÏÎÇה ÌÏךÏ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@STRINGFIELD@@@
+</td></tr><tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>טגÊ ÇהÈÏÇךÉ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@STARTHOURMINMENU@@@
+</td></tr><tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>טגÊ ÇהזחÇךÉ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@ENDHOURMINMENU@@@
+</td></tr><tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ÅÑÊÈÇ× ÊÔÙÈך ÌÏךÏ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@LINKFIELD@@@
+@@@EMAILSTART@@@
+</td></tr><tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ÊÈהךÚ ÈÇהÈÑךÏ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@EMAILFIELD@@@
+@@@EMAILEND@@@
+</td></tr><tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>הטז ÇהÙזÕÑ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@EVENTCOLORMENU@@@
+</td></tr><tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>
+<table border=0 cellpading=5 align=center width="40%"><tr>
+<td align=center>@@@SUBMITBUTTON@@@</td>
+@@@ENDFORM@@@
+@@@STARTCANCELFORM@@@
+<td align=center>@@@CANCELBUTTON@@@</td>
+@@@ENDFORM@@@
+</tr></table>
+</td></tr></table>

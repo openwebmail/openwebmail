@@ -123,12 +123,12 @@ sub check_userpassword {
                                            PeerPort=>$pop3_authport,);
       alarm 0;
    };
-   return(-3) if ($@);			# eval error, it means timeout
-   return(-3) if (!$remote_sock);	# connect error
+   return -3 if ($@);			# eval error, it means timeout
+   return -3 if (!$remote_sock);	# connect error
 
    $remote_sock->autoflush(1);
    $_=<$remote_sock>;
-   (close($remote_sock) && return(-3)) if (/^\-/);	# server not ready
+   (close($remote_sock) && return -3) if (/^\-/);	# server not ready
 
    # try if server supports auth login(base64 encoding) first
    print $remote_sock "auth login\r\n";
@@ -136,23 +136,23 @@ sub check_userpassword {
    if (/^\+/) {
       print $remote_sock &encode_base64($user);
       $_=<$remote_sock>;
-      (close($remote_sock) && return(-2)) if (/^\-/);		# username error
+      (close($remote_sock) && return -2) if (/^\-/);		# username error
       print $remote_sock &encode_base64($password);
       $_=<$remote_sock>;
    }
    if (! /^\+/) {	# not supporting auth login or auth login failed
       print $remote_sock "user $user\r\n";
       $_=<$remote_sock>;
-      (close($remote_sock) && return(-2)) if (/^\-/);		# username error
+      (close($remote_sock) && return -2) if (/^\-/);		# username error
       print $remote_sock "pass $password\r\n";
       $_=<$remote_sock>;
-      (close($remote_sock) && return(-4)) if (/^\-/);		# passwd error
+      (close($remote_sock) && return -4) if (/^\-/);		# passwd error
    }
 
    print $remote_sock "quit\r\n";
    close($remote_sock);
 
-   return(0);
+   return 0;
 }
 
 

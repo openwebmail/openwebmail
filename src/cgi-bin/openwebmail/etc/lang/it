@@ -47,11 +47,24 @@
    no  => 'No'
    );
 
-%lang_positionlabels =
+%lang_ctrlpositionlabels =
+   (
+   top => 'In alto',
+   bottom => 'In fondo'
+   );
+
+%lang_sendpositionlabels =
    (
    before => 'Prima area messaggio',
    after => 'Dopo area messaggio',
    both  => 'Prima e dopo area messaggio'
+   );
+
+%lang_abookbuttonpositionlabels = 
+   (
+   before => 'Before addressbook entries',
+   after  => 'After addressbook entries',
+   both   => 'Before and after addressbook entries'
    );
 
 %lang_timelabels =
@@ -80,13 +93,20 @@
    regexp      => 'soddisfa regexp',
    );
 
+%lang_sizes =
+   (
+   mb   => 'MB',	# mega bytes
+   kb   => 'KB',	# kilo bytes
+   byte => 'Byte'
+   );
+
 %lang_calendar = 
    (
    yearview  => 'Annuale',
    monthview => 'Mensile',
    weekview  => 'Settimanale',
    dayview   => 'Giornaliero',
-   listview   => 'Listview'
+   listview  => 'Elenco'
    );
 
 %lang_month =
@@ -136,6 +156,28 @@
    4 => '4.',
    5 => 'ultimo'
    );
+
+%lang_wdbutton =
+   (
+   refresh  => 'Aggiorna',
+   preview  => 'Anteprima',
+   edit     => 'Ed',
+   listarchive=> 'Elenca',
+   decompress=>'Scomprimi',
+   extract  => 'Estrai',
+   chdir    => 'CambiaCartella',
+   mkdir    => 'CreaCartella',
+   newfile  => 'NuovoFile',
+   delete   => 'Canc',
+   copy     => 'Copia',
+   move     => 'Sposta',
+   gzip     => 'Comprimi_gz',
+   mkzip    => 'Crea_Zip',
+   mktgz    => 'Crea_Tgz',
+   mkthumbnail  => 'Crea_Thumb',
+   download => 'Scarica',
+   upload   => 'Carica',
+   );   
 
 %lang_text =
    (
@@ -196,8 +238,8 @@
    encoding   => 'Codifica',
    description=> 'Descrizione',
    download   => 'Scarica',
-   charset    => 'Charset',
-   samecharset=> 'The same as composing charset',
+   charset    => 'Set caratteri',
+   samecharset=> 'Stesso set carattere scrittura messaggio',
    thisispartialmsg => 'Questo è un messaggio parziale.',
    msgrebuild => 'Messaggio ricostruito',
    editdraft  => 'Edita bozze',
@@ -206,6 +248,7 @@
    about      => 'Informazioni',
    close      => 'Chiudi',
    cancel     => 'Annulla',
+   ok         => 'Ok',
    continue   => 'Continua',
    loginagain => 'Login di nuovo',
    exit       => 'Uscita',
@@ -223,6 +266,7 @@
    reindex    => 'ReIndex',
    folderreindexconf => '\'Vuoi ricreare l\\\'indice di questa cartella?\'',
    total      => 'Totale',
+   edit       => 'Ed',
    delete     => 'Cancella',
    reserve    => 'Conserva',
    clearadd   => 'Cancella tutti gli indirizzi',
@@ -236,6 +280,7 @@
    name       => 'Nome',
    email      => 'Email',
    note       => 'Note',
+   max        => 'Maximum',
    group      => 'Gruppo',
    quota_hit  => 'LIMITE RAGGIUNTO',
    usage      => 'Uso',
@@ -278,7 +323,7 @@
    editstat   => 'Modifica Stationery',
    savestat   => 'Salva Stationery',
    clearstat  => 'Cancella tutti i Stationery',
-   selectstat => '-- Seleziona  Stationery per la Risposta --',
+   statreply  => '-- Stationery per Risposta --',
    calendar   => 'Calendario',
    am         => 'am',
    pm         => 'pm',
@@ -289,14 +334,43 @@
    calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
    none       => 'Nessuno',
    moreitems  => 'più voci',
-   multieditconf => 'Questa voce  stata aggiunta per più date.\\nModificandola verrà cabiata per tutte le date.\\nContinuare?',
-   multidelconf  => 'Qeusto voce  stata aggiunta per più date.\\nCancellandola verrà eliminata per ogni data.\\nContinuare?',
-   ed         => 'Ed',
-   del        => 'Del',
+   multieditconf => 'Questa voce è stata aggiunta per più date.\\nModificandola verrà cabiata per tutte le date.\\nContinuare?',
+   multidelconf  => 'Qeusto voce è stata aggiunta per più date.\\nCancellandola verrà eliminata per ogni data.\\nContinuare?',
    noitemforthisday => 'Nessuna voce per questo giorno',
-   today_only               => 'Solo Oggi',
-   the_wday_of_thismonth    => 'Il @@@ORDER@@@ @@@WDAY@@@ del mese',
-   every_wday_of_thismonth  => 'Ogni @@@WDAY@@@ questo mese'
+   thisday_only          => 'Solo Oggi',
+   the_wday_of_thismonth => 'Il @@@ORDER@@@ @@@WDAY@@@ del mese',
+   every_wday_thismonth  => 'Ogni @@@WDAY@@@ questo mese',
+   thismonth_only           => 'Solo questo mese',
+   every_oddmonth_thisyear  => 'Ogni mese dispari di questo anno',
+   every_evenmonth_thisyear => 'Ogni mese pari di questo anno',
+   every_month_thisyear     => 'Ogni mese di questo anno',
+   webdisk      => 'WebDisk',
+   sshterm      => 'Terminale SSH',
+   dir          => 'Cartella',
+   dirs         => 'Cartelle',
+   file         => 'File',
+   files        => 'Files',
+   program      => 'Programma',
+   dest_of_chdir  => 'la cartella destinazione',
+   name_of_newdir => 'il nome della cartella da creare',
+   name_of_newfile=> 'il nome del file da creare',
+   dest_of_thecopy=> 'la cartella o file da copiare',
+   dest_of_themove=> 'la cartella o file da spostare',
+   dest_of_thezip=> 'il nome del nuovo file zip',
+   dest_of_thetgz=> 'il nome del nuovo file tgz',
+   homedir      => 'Homedir',
+   showthumbnail    => 'Thumbnails',
+   showhidden   => 'Mostra file nascosti',
+   lastmodified => 'Ora ultima modifica',
+   perm         => 'Perm',
+   permission   => 'Permesso di accesso',
+   noitemfound  => 'Nessun elemento trovato',
+   savefile     => 'Salvafile',
+   succeeded    => 'ok',
+   failed       => 'fallito',
+   savefile_towd=> 'Salva file nel WebDisk',
+   saveatt_towd => 'Salva allegato nel WebDisk',
+   addatt_fromwd=> 'Aggiungi allegato da WebDisk'
    );
 
 %lang_err =
@@ -329,7 +403,8 @@
    folder_cutdone    => 'Attenzione, dal momento che è stato raggiunto il limite di spazio su disco (@@@FOLDERQUOTA@@@), sono stati rimmossi automaticamente i vecchi messaggi',
    att_overlimit     => 'L\'allegato è troppo grande. Il limite è',
    inv_msg_op        => 'Operazione invalida per il messaggio',
-   inv_sessid        => 'La tua richiesta non contiene un session ID cookie valido -- accesso negato!',
+   sess_cookieerr    => 'La tua richiesta non contiene un sessionid cookie valido -- accesso negato!',
+   sess_iperr        => 'La tua richiesta non proviene dallos stesso IP di questa sessione -- accesso negato!',
    no_endpart        => 'Parte finale non trovata',
    part_missing      => 'Mancano alcune parti',
    rebuild_fmterr    => 'Formato nuovo messaggio errato',
@@ -344,7 +419,17 @@
    network_server_error => 'errore del server di rete',
    sendmail_error    => 'Spiacente, si è verificato  un errore nella spedizione del tuo messaggio. Prova a cliccare su bottone  indietro del tuo browser, controlla il messaggio e riprova',
    at_char_not_allowed => 'Il carattere @ non è permesso in questo campo. Premi Indietro sul browser e riprova',
-   badnum_in_days => 'numero errato nel campo giorni consecutivi'
+   badnum_in_days => 'numero errato nel campo giorni consecutivi',
+   access_denied     => 'Accesso negato',
+   couldnt_chdirto   => 'Impossibile aprire cartella',
+   isnt_a_dir        => 'non è una cartella',
+   edit_notfordir    => 'Non puoi editare una cartella',
+   onefileonly       => 'Solo un file è possibile per questa opearzione',
+   no_file_todownload=> 'Non è stato specificato nessun file da scaricare',
+   upload_overlimit  => 'Dimensione file da caricare superiori al consentito',
+   decomp_notsupported=>'Il formato di decompressione non è supportato per questo file.',
+   webdisk_hitquota   => 'Purtroppo hai superato lo spazio limite per il tuo webdisk quota, cancella prima qualche file.',
+   webdisk_readonly   => 'Impossibile continuare, il tuo webdisk è a sola lettura.'
    );
 
 1;

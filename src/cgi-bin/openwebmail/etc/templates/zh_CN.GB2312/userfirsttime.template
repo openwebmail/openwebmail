@@ -1,0 +1,12 @@
+<BR><BR><BR><BR><BR><BR><BR>
+<table border="0" align="center" width="60%" cellpadding="1" cellspacing="1">
+<tr><td bgcolor=@@@TITLEBAR@@@>
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>欢迎使用 @@@NAME@@@ 邮箱</B></font>
+</td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
+<table width=85%><tr><td align="center">
+<BR>这是您第一次使用 @@@NAME@@@ 邮箱，必须先设定一些个人资料，
+请按“继续”进入个人模版设定页面。
+@@@CONTINUEBUTTON@@@
+</td></tr></table>
+</td></tr></table>

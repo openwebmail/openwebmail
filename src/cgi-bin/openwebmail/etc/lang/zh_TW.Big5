@@ -28,8 +28,8 @@
 
 %lang_prioritylabels =
    (
-   urgent      => '急件',
    normal      => '普通',
+   urgent      => '急件',
    'non-urgent'=> '非緊急'
    );
 
@@ -47,11 +47,24 @@
    no  => '否'
    );
 
-%lang_positionlabels =
+%lang_ctrlpositionlabels =
+   (
+   top => '在上面',
+   bottom => '在下面'
+   );
+
+%lang_sendpositionlabels =
    (
    before => '在信件編輯區之前',
    after => '在信件編輯區之後',
    both  => '在信件編輯區前後'
+   );
+
+%lang_abookbuttonpositionlabels = 
+   (
+   before => '在通訊錄項目之前',
+   after  => '在通訊錄項目之後',
+   both   => '在通訊錄項目前後'
    );
 
 %lang_timelabels =
@@ -80,13 +93,20 @@
    regexp      => '正規表示式',
    );
 
+%lang_sizes =
+   (
+   mb   => 'MB',	# mega bytes
+   kb   => 'KB',	# kilo bytes
+   byte => 'Byte'
+   );
+
 %lang_calendar = 
    (
    yearview  => '年行事曆',
    monthview => '月行事曆',
    weekview  => '週行事曆',
    dayview   => '日行事曆',
-   listview   => '項目列表'
+   listview  => '項目列表'
    );
 
 %lang_month =
@@ -136,6 +156,28 @@
    4 => '第四個',
    5 => '最後一個'
    );
+
+%lang_wdbutton =
+   (
+   refresh  => '重整',
+   preview  => '預覽',
+   edit     => '編輯',
+   listarchive=> '列表',
+   decompress=>'解壓縮',
+   extract  => '解出檔案',
+   chdir    => '換目錄',
+   mkdir    => '建目錄',
+   newfile  => '開新檔',
+   delete   => '刪除',
+   copy     => '拷貝',
+   move     => '搬移',
+   gzip     => 'gz 壓縮',
+   mkzip    => '建 zip 檔',
+   mktgz    => '建 tgz 檔',
+   mkthumbnail  => '建縮圖',
+   download => '下載',
+   upload   => '上傳',
+   );   
 
 %lang_text =
    (
@@ -206,6 +248,7 @@
    about      => '關於',
    close      => '關閉',
    cancel     => '取消',
+   ok         => '確定',
    continue   => '繼續',
    loginagain => '重新登入',
    exit       => '離開',
@@ -223,6 +266,7 @@
    reindex    => '重建索引',
    folderreindexconf => '\'您確定要重建這個信件匣的索引嗎?\'',
    total      => '共計',
+   edit       => '編輯',
    delete     => '刪除',
    reserve    => '保留',
    clearadd   => '清除所有地址',
@@ -236,6 +280,7 @@
    name       => '姓名',
    email      => 'Email 地址',
    note       => '附註',
+   max        => '最大值',
    group      => '群組',
    quota_hit  => '儲存空間已滿',
    usage      => '使用空間',
@@ -278,7 +323,7 @@
    editstat   => '編輯信紙底稿',
    savestat   => '儲存信紙底稿',
    clearstat  => '清除所有信紙底稿',
-   selectstat => '-- 選擇信紙底稿並回信 --',
+   statreply  => '-- 選擇回信底稿 --',
    calendar   => '行事曆',
    am         => '上午',
    pm         => '下午',
@@ -291,12 +336,41 @@
    moreitems  => '更多項目...',
    multieditconf => '這個項目已經被放到多份的行程中.\\n如果修改會更動所有相關行程.\\n繼續修改?',
    multidelconf  => '這個項目已經被放到多份的行程中..\\n如果刪除會全部刪掉.\\n進行刪除?',
-   ed         => '修改',
-   del        => '刪除',
    noitemforthisday => '本日沒有安排事情',
-   today_only               => '今天',
-   the_wday_of_thismonth    => '這個月 @@@ORDER@@@ @@@WDAY@@@ ',
-   every_wday_of_thismonth  => '這個月 每個 @@@WDAY@@@ '
+   thisday_only          => '本日',
+   the_wday_of_thismonth => '本月 @@@ORDER@@@ @@@WDAY@@@ ',
+   every_wday_thismonth  => '本月 每個 @@@WDAY@@@ ',
+   thismonth_only           => '本月',
+   every_oddmonth_thisyear  => '本年所有單數月份',
+   every_evenmonth_thisyear => '本年所有偶數月份',
+   every_month_thisyear     => '本年所有月份',
+   webdisk      => '網路硬碟',
+   sshterm      => 'SSH Terminal',
+   dir          => '目錄',
+   dirs         => '目錄',
+   file         => '檔案',
+   files        => '檔案',
+   program      => '程式',
+   dest_of_chdir  => '目的地目錄',
+   name_of_newdir => '要建立的目錄名稱',
+   name_of_newfile=> '要開啟的新檔名稱',
+   dest_of_thecopy=> '此次拷貝的預設目的目錄或檔名',
+   dest_of_themove=> '此次搬移的預設目的目錄或檔名',
+   dest_of_thezip=> '要建立的 zip 壓縮檔檔案名稱',
+   dest_of_thetgz=> '要建立的 tgz 壓縮檔檔案名稱',
+   homedir      => '家目錄',
+   showthumbnail    => '顯示縮圖',
+   showhidden   => '顯示隱藏檔',
+   lastmodified => '最後修改時間',
+   perm         => '權限',
+   permission   => '檔案存取權限',
+   noitemfound  => '未找到任何項目',
+   savefile     => '檔案儲存',
+   succeeded    => '成功\',
+   failed       => '失敗',
+   savefile_towd=> '儲存檔案 到 網路硬碟',
+   saveatt_towd => '儲存附件 到 網路硬碟',
+   addatt_fromwd=> '從 網路硬碟 新增附件'
    );
 
 %lang_err =
@@ -307,7 +381,7 @@
    couldnt_lock      => '寫入無法鎖定',
    couldnt_seek      => '無法尋找',
    couldnt_close     => '無法關閉',
-   couldnt_updatedb  => 'Couldn\'t update index db ',
+   couldnt_updatedb  => '無法更新信件索引 ',
    disallowed_pop3   => '禁止連線到 POP3 伺服器',
    disallowed_client => '您不被允許由目前的位址連線使用 WebMail',
    disallowed_receiverdomain => '您不被允許寄信到這個郵件地址',
@@ -329,7 +403,8 @@
    folder_cutdone    => '注意！由於信件匣容量超出限制(@@@FOLDERQUOTA@@@), 各信件匣中過舊的訊息已經被自動移除.',
    att_overlimit     => '附件大小超過限制',
    inv_msg_op        => '不認得的信件操作',
-   inv_sessid        => 'Session ID cookie 不正確，拒絕存取. 請檢查是否瀏覽器 cookie 功能未開或是重複登入.',
+   sess_cookieerr    => 'Sessionid cookie 不正確，拒絕存取. 請檢查是否瀏覽器 cookie 功能未開或是重複登入.',
+   sess_iperr        => '連線來自不同的 IP 位址, 拒絕存取',
    no_endpart        => '找不到結尾部分',
    part_missing      => '某些部分找不到',
    rebuild_fmterr    => '組出的信件格式有誤',
@@ -344,7 +419,17 @@
    network_server_error => '網路伺服器錯誤',
    sendmail_error    => '抱歉！無法寄出您的信件，請回到上一頁檢查是否輸入錯誤後, 再重寄一次。',
    at_char_not_allowed => '欄位中不能有 @ 字元.  請回到上一頁再試一次',
-   badnum_in_days => '代表天數欄位的數值發生錯誤'
+   badnum_in_days => '代表天數欄位的數值發生錯誤',
+   access_denied     => '拒絕存取',
+   couldnt_chdirto   => '無法切換目錄到',
+   isnt_a_dir        => '不是一個目錄',
+   edit_notfordir    => '你不能對目錄進行編輯動作',
+   onefileonly       => '這個操作只允許一個檔案',
+   no_file_todownload=> '尚未選擇要下載的目錄或檔案',
+   upload_overlimit  => '上傳檔案的大小超出限制',
+   decomp_notsupported=>'系統不支援這種檔案的解壓縮.',
+   webdisk_hitquota   => '抱歉, 你的網路硬碟大小已經超出限制, 請先試著刪除一些檔案.',
+   webdisk_readonly   => '抱歉, 你的網路硬碟是唯讀的.'
    );
 
 1;

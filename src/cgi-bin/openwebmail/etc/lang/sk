@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 
 # Slovak translation by lubos klokner, lubos@klokner.sk, 2002-JUL-11
+# Ripped by PeSe, pese@svf.stuba.sk, 2003-01-15
 # charset: iso-8859-2
 
 %lang_folders =
@@ -47,11 +48,24 @@
    no  => 'Nie'
    );
 
-%lang_positionlabels =
+%lang_ctrlpositionlabels =
+   (
+   top => 'Hore',
+   bottom => 'Dolu'
+   );
+
+%lang_sendpositionlabels =
    (
    before => 'Pred oblas»ou úpravy e-mailu',
    after => 'Za oblas»ou úpravy e-mailu',
    both  => 'Pred aj za oblas»ou úpravy e-mailu'
+   );
+
+%lang_abookbuttonpositionlabels = 
+   (
+   before => 'Before addressbook entries',
+   after  => 'After addressbook entries',
+   both   => 'Before and after addressbook entries'
    );
 
 %lang_timelabels =
@@ -80,13 +94,20 @@
    regexp      => 'spåòa regulárny výraz',
    );
 
+%lang_sizes =
+   (
+   mb   => 'MB',	# mega bytes
+   kb   => 'KB',	# kilo bytes
+   byte => 'Bajt(y/ov)'
+   );
+
 %lang_calendar = 
    (
    yearview  => 'Roèný prehµad',
    monthview => 'Mesaèný prehµad',
    weekview  => 'Tý¾denný prehµad',
    dayview   => 'Denný prehµad',
-   listview   => 'Zobrazenie zoznamu'
+   listview  => 'Zobrazenie zoznamu'
    );
 
 %lang_month =
@@ -137,6 +158,28 @@
    5 => 'posledný'
    );
 
+%lang_wdbutton =
+   (
+   refresh  => 'Obnovi»',
+   preview  => 'Preview',
+   edit     => 'Upravi»',
+   listarchive=> 'Zobrazi»',
+   decompress=>'Dekomprimova»',
+   extract  => 'Rozbali»',
+   chdir    => 'ZmeòAdr',
+   mkdir    => 'VytvorAdr',
+   newfile  => 'NovýSúbor',
+   delete   => 'Vymaza»',
+   copy     => 'Kopírova»',
+   move     => 'Presunú»',
+   gzip     => 'gzKomprimova»',
+   mkzip    => 'VytvorZip',
+   mktgz    => 'VytvorTgz',
+   mkthumbnail  => 'MkThumb',
+   download => 'Stiahnu»',
+   upload   => 'Nahra»',
+   );   
+
 %lang_text =
    (
    login      => 'Prihlási»',
@@ -152,7 +195,7 @@
    inmessages => 'Prichádzajúce správy',
    composenew => 'Napísa» novú správu',
    refresh    => 'Obnovi»',
-   userprefs  => 'U¾ívateµské nastavenia',
+   userprefs  => 'Pou¾ívateµské nastavenia',
    addressbook=> 'Adresár',
    folders    => 'Katalógy',
    emptytrash => 'Vysypa» kô¹',
@@ -206,6 +249,7 @@
    about      => 'O aplikácii',
    close      => 'Zatvori»',
    cancel     => 'Zru¹i»',
+   ok         => 'Ok',
    continue   => 'Pokraèova»',
    loginagain => 'Znovu prihlási»',
    exit       => 'Koniec',
@@ -223,6 +267,7 @@
    reindex    => 'Reindexova»',
    folderreindexconf => '\'Chcete naozaj reindexova» tento katalóg?\'',
    total      => 'Celkovo',
+   edit       => 'Upravi»',
    delete     => 'Zmaza»',
    reserve    => 'Rezervova»',
    clearadd   => 'Zmaza» v¹etky adresy',
@@ -236,6 +281,7 @@
    name       => 'Meno',
    email      => 'E-mail',
    note       => 'Poznámka',
+   max        => 'Maximum',
    group      => 'Skupina',
    quota_hit  => 'Dosiahnutý limit (quota)',
    usage      => 'Vyu¾itie',
@@ -278,7 +324,7 @@
    editstat   => 'Upravi» komentár',
    savestat   => 'Ulo¾i» komentár',
    clearstat  => 'Zmaza» v¹etky komentáre',
-   selectstat => '-- Vybra» komentár ako odpoveï --',
+   statreply  => '-- Vybra» komentár ako odpoveï --',
    calendar   => 'Kalendár',
    am         => 'doobeda',
    pm         => 'poobede',
@@ -291,12 +337,41 @@
    moreitems  => 'viac polo¾iek',
    multieditconf => 'Táto polo¾ka bola pridaná pre viac dátumov.\\nÚprava zmení hodnoty pre v¹etky dátumi.\\nPokraèova» s úpravou?',
    multidelconf  => 'Táto polo¾ka bola pridaná pre viac dátumov.\\nVymazanie zma¾e hodnoty pre v¹etky dátumi.\\nPokraèova» s mazaním?',
-   ed         => 'Upravi»',
-   del        => 'Zmaza»',
    noitemforthisday => '®iadne polo¾ky pre tento deò',
-   today_only               => 'Iba dne¹ný dátum',
-   the_wday_of_thismonth    => ' @@@ORDER@@@ @@@WDAY@@@ v mesiaci',
-   every_wday_of_thismonth  => 'ka¾dý @@@WDAY@@@ tento mesiac'
+   thisday_only          => 'Iba dne¹ný dátum',
+   the_wday_of_thismonth => ' @@@ORDER@@@ @@@WDAY@@@ v mesiaci',
+   every_wday_thismonth  => 'ka¾dý @@@WDAY@@@ tento mesiac',
+   thismonth_only           => 'This month only',
+   every_oddmonth_thisyear  => 'Every odd month this year',
+   every_evenmonth_thisyear => 'Every even month this year',
+   every_month_thisyear     => 'Every month this year',
+   webdisk      => 'WebDisk',
+   sshterm      => 'SSH Terminál',
+   dir          => 'Adresár',
+   dirs         => 'Adresáre(ov)',
+   file         => 'Súbor',
+   files        => 'Súbory(ov)',
+   program      => 'Program',
+   dest_of_chdir  => 'cieµový adresár',
+   name_of_newdir => 'meno adresára pre vytvorenie',
+   name_of_newfile=> 'meno súboru pre vytvorenie',
+   dest_of_thecopy=> 'cieµový adresár alebo súbor pre kopírovanie',
+   dest_of_themove=> 'cieµový adresár alebo súbor pre presunitie',
+   dest_of_thezip=> 'názov súboru nového zip archívu',
+   dest_of_thetgz=> 'názov súboru novího tgz archívu',
+   homedir      => 'Domovský adresár',
+   showthumbnail    => 'Thumbnails',
+   showhidden   => 'Zobrazi» skryté súbory',
+   lastmodified => 'Naposledy modifikovaný',
+   perm         => 'Práva',
+   permission   => 'Access Permission',
+   noitemfound  => '®iadne polo¾ky nenájdené',
+   savefile     => 'Ulo¾i»Súbor',
+   succeeded    => 'prebehlo úspe¹ne',
+   failed       => 'zlyhalo',
+   savefile_towd=> 'Ulo¾i» súbor na WebDisk',
+   saveatt_towd => 'Ulo¾i» prílohu na WebDisk',
+   addatt_fromwd=> 'Prida» prílohu z WebDisk-u'
    );
 
 %lang_err =
@@ -329,7 +404,8 @@
    folder_cutdone    => 'Varovanie! Nakoµko ste dosiahli diskovú kvótu (@@@FOLDERQUOTA@@@), staré správy vo Va¹ich katalógoch boli automaticky zmazané',
    att_overlimit     => 'Prepáète, Va¹a príloha presiahla veµkostný limit, ktorý je',
    inv_msg_op        => 'Neplatná operácia pre správu',
-   inv_sessid        => 'Va¹a po¾iadavka neobsahuje korektné ID sedenia -- prístup zamietnutý!',
+   sess_cookieerr    => 'Va¹a po¾iadavka neobsahuje korektné ID sedenia -- prístup zamietnutý!',
+   sess_iperr        => 'Your request didn\'t come from the same ip of this session -- access denied!',
    no_endpart        => 'Koncová èas» chýba',
    part_missing      => 'Niektoré èasti chýbajú',
    rebuild_fmterr    => 'Chybný formát novej správy',
@@ -340,11 +416,21 @@
    param_fmterr      => 'chybný formát parametra',
    pwd_incorrect     => 'nesprávne heslo',
    pwd_tooshort      => 'Heslo je príli¹ krátke (minimálna då¾ka @@@PASSWDMINLEN@@@)',
-   pwd_toosimple     => 'Password too simple (both alphabet and digit are required)',
+   pwd_toosimple     => 'Heslo je príli¹ jednoduché (po¾adované sú aj èísla aj písmená)',
    network_server_error => 'chyba sie»ového servera',
    sendmail_error    => 'Prepáète, nastal problém pri posielaní Va¹ej správy. Kliknite prosím vo Va¹om prehliadaèi na tlaèidlo Spä», skontrolujte Va¹u správu a skúste to znovu.',
    at_char_not_allowed => 'Znak @ nie je povolený v tomto políèku. Kliknite prosím na tlaèítko Spä» vo Va¹om prehliadaèi a skúste to znovu.',
-   badnum_in_days => 'zlé èíslo v políèku nasledujúcich dní'
+   badnum_in_days => 'zlé èíslo v políèku nasledujúcich dní',
+   access_denied     => 'Prístup zamietnutý',
+   couldnt_chdirto   => 'Nemô¾em zmeni» adresár na ',
+   isnt_a_dir        => 'nie je adresár',
+   edit_notfordir    => 'Nie je mo¾né editova» adresár.',
+   onefileonly       => 'Pre túto operáciu je povolený len jeden súbor.',
+   no_file_todownload=> 'Nebol ¹pecifikovaný súbor na prebranie.',
+   upload_overlimit  => 'Upload file size is over the limit',
+   decomp_notsupported=>'Decompression support is not available for this file.',
+   webdisk_hitquota   => 'Prepáète, ale prekroèili ste Vá¹ limit diskového priestoru. Skúste si najskôr vymaza» nepotrebné súbory.',
+   webdisk_readonly   => 'Sorry, your webdisk is read only.'
    );
 
 1;

@@ -1,10 +1,10 @@
 <BR><BR><BR><BR><BR><BR><BR>
 <table border="0" align="center" width="25%" cellpadding="0" cellspacing="0">
-<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>FIN DE SESSION</B></FONT></TD></TR>
-<tr><td valign="middle" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
+<tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 <BR>Désolé votre session semble avoir dépassé le temps limite d'inactivité.
 Revenez à la fenêtre d'identification et identifiez vous de nouveau.
-<a href="@@@SCRIPTURL@@@">login</a>.<BR><BR>
+<a href="@@@STARTURL@@@">login</a>.<BR><BR>
 </td></tr></table>

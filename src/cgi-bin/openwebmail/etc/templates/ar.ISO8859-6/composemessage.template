@@ -1,0 +1,129 @@
+@@@STARTCOMPOSEFORM@@@
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="1">
+<tr><td colspan="2" bgcolor=@@@TITLEBAR@@@>
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>≈Ê‘«¡ —”«‰…</B></font>
+</td></tr><tr><td colspan="2" bgcolor=@@@MENUBAR@@@>
+<table width="100%" cellspacing="0" cellpadding="0"><tr>
+<td>@@@BACKTOFOLDER@@@</td>
+<td align="left">«‰ —ÂÍ“ «‰Â” ŒœÂ ‰‰ „ËÍÊ @@@CONVTOMENU@@@&nbsp;</td>
+</tr></table>
+</td></tr><tr><td colspan="2">&nbsp;</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+<B>ÂÊ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@FROMMENU@@@
+&nbsp;&nbsp;
+<B>«‰√·÷‰Í…:</B>
+@@@PRIORITYMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+<B>≈‰È:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@TOFIELD@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+<B>Ê”Œ…:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CCFIELD@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+<B>Ê”Œ… ”—ÍÒ…:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@BCCFIELD@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+<B>√Ã» ≈‰È:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@REPLYTOFIELD@@@
+&nbsp;
+<B> √„Íœ «‰‚—«¡…</B>
+@@@CONFIRMREADINGCHECKBOX@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+<B>Â‰Õ‚:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@ATTACHMENTFIELD@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+<B>«‰ÂË÷ËŸ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SUBJECTFIELD@@@
+&nbsp;
+<B>«‰«Õ ·«ÿ »Ê”Œ… ÂÊ «‰—”«‰…</B>
+@@@BACKUPSENTMSGCHECKBOX@@@
+</td></tr>
+
+<tr><td colspan="2" bgcolor=@@@WINDOW_LIGHT@@@ class=msgbody>
+@@@BUTTONSBEFORE@@@
+@@@BODYAREA@@@
+@@@BUTTONSAFTER@@@
+</td></tr>
+
+@@@ENDFORM@@@<!-- End of message composition form -->
+@@@STARTSPELLCHECKFORM@@@
+@@@ENDFORM@@@
+@@@STARTCANCELFORM@@@
+@@@ENDFORM@@@
+</table>
+
+<script language="JavaScript">
+<!--
+   if (self.document.composeform.to.value == "") {
+      self.document.composeform.to.focus();
+   } else {
+      self.document.composeform.body.focus();
+   }
+
+   function OnLoadHandler()
+   {
+      document.composeform.to.focus();
+   }
+
+   function GoAddressWindow(toccbcc)
+   {
+      var url = "@@@ABOOKURL@@@?action=addressbook&sessionid=@@@SESSIONID@@@&form=composeform&field=" + toccbcc+"&abook_keyword=@@@ABOOKKEYWORD@@@&abook_searchtype=@@@ABOOKSEARCHTYPE@@@";
+
+      if (toccbcc == "to")
+         url += "&preexisting=" + escape (document.composeform.to.value);
+      else if (toccbcc == "cc")
+         url += "&preexisting=" + escape (document.composeform.cc.value);
+      else if (toccbcc == "bcc")
+         url += "&preexisting=" + escape (document.composeform.bcc.value);
+
+      var hWnd = window.open(url,"_addressbook","width=@@@ABOOKWIDTH@@@,height=@@@ABOOKHEIGHT@@@,resizable=yes,scrollbars=yes");
+      if ((document.window != null) && (!hWnd.opener))
+         hWnd.opener = document.window;
+   }
+
+   function DeleteAttFile(deleteattfile)
+   {
+      document.composeform.deleteattfile.value=deleteattfile;
+      document.composeform.submit();
+   }
+
+   function spellcheck()
+   {
+      document.spellcheckform.sessionid.value = document.composeform.sessionid.value;
+      document.spellcheckform.form.value = "composeform";
+      document.spellcheckform.field.value = "body";
+      document.spellcheckform.string.value = document.composeform.body.value;
+      window.open('','_spellcheck','width=600,height=400,top=40,left=80,scrollbars=yes,resizable=yes,location=no');
+      return true;
+   }
+
+   function sendcheck()
+   {
+      if (document.composeform.to.value == ""
+       && document.composeform.cc.value == ""
+       && document.composeform.bcc.value == "" ) {
+         alert("«‰—Ã«¡  ÕœÍœ Â” ‰Â ‰‰—”‰… ‚»‰ ≈—”«‰Á«.");
+         return false;
+      }
+      if (document.composeform.subject.value == "" ) {
+         return(confirm("Á–Á «‰—”«‰… »œËÊ ÂË÷ËŸ¨ Á‰  —Íœ ≈—”«‰Á«ø"));
+      }
+      return true;
+   }
+//-->
+</script>

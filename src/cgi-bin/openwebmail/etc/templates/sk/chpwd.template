@@ -1,19 +1,19 @@
 <BR><BR><BR><BR><BR>
 <table border="0" align="center" width="60%" cellpadding="0" cellspacing="0">
-<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><B>Zmena hesla</B></FONT>
-</td></tr><tr><td align="center" valign="middle" bgcolor=@@@WINDOW_LIGHT@@@>
+</td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 @@@STARTFORM@@@
 <BR>
 <table align=center border=0 cellspacing=2 cellpadding=0>
 <tr>
-<td align=right>Login: </td><td align=left>@@@USERIDFIELD@@@</td>
+<td align="right">Login: </td><td>@@@USERIDFIELD@@@</td>
 </tr><tr>
-<td align=right>Staré heslo: </td><td align=left>@@@OLDPASSWORDFIELD@@@</td>
+<td align="right">Staré heslo: </td><td>@@@OLDPASSWORDFIELD@@@</td>
 </tr><tr>
-<td align=right>Nové heslo: </td><td align=left>@@@NEWPASSWORDFIELD@@@</td>
+<td align="right">Nové heslo: </td><td>@@@NEWPASSWORDFIELD@@@</td>
 </tr><tr>
-<td align=right>Potvrdi» nové heslo: </td><td align=left>@@@CONFIRMNEWPASSWORDFIELD@@@</td>
+<td align="right">Potvrdi» nové heslo: </td><td>@@@CONFIRMNEWPASSWORDFIELD@@@</td>
 </tr><tr>
 <td colspan=2>
 <table width="100%"><tr>

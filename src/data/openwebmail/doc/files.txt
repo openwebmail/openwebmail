@@ -11,6 +11,8 @@ data/openwebmail/               mapping to url http://your_site/openwebmail/
 doc/                            text document for openwebmail
 images/                         runtime image/background/icons
 sounds/                         various YouHaveMail sound files
+applet/                         directory for runtime javaapplet
+javascript/			directory for runtime javascript
 openwebmail.html
 index.html@
 
@@ -52,6 +54,7 @@ openwebmail-read.pl
 openwebmail-send.pl
 openwebmail-spell.pl
 openwebmail-viewatt.pl
+openwebmail-webdisk.pl
 openwebmail.pl                        
 
 openwebmail-tool.pl             command tool of openwebmail

@@ -2,7 +2,7 @@
 <br>
 <br>
 <table border="0" align="center" width="70%" cellpadding="1" cellspacing="1">
-<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>Správa osobních e-mailových adres</B></font>
 </td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
@@ -14,7 +14,7 @@
 <td nowrap bgcolor=@@@COLUMNHEADER@@@>
 <B>E-mail adresa</B> (kliknout pro editaci)</td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Action</B>
+<B>Akce</B>
 </td></tr>
 @@@STARTFROMFORM@@@
 <tr>

@@ -61,14 +61,14 @@ use vars qw(%lang_text %lang_err);	# defined in lang/xy
 
 ################################ MAIN #################################
 
-use vars qw(*spellREAD *spellWRITE *spellERROR);
+use vars qw(*spellIN *spellOUT *spellERR);
 
 my $form = param('form');
 my $field = param('field');
 my $dictionary = param('dictionary') || $prefs{'dictionary'};
 my $dicletters = $dictionary_letters{$dictionary} || $dictionary_letters{'english'};
 
-($dictionary =~ /^([\w\d\._]+)$/) && ($dictionary = $1);
+($dictionary =~ /^([\w\d\.\-_]+)$/) && ($dictionary = $1);
 
 $|=1;	# fix the duplicate output problem caused by fork in spellcheck
 
@@ -76,19 +76,20 @@ if (! -x $config{'spellcheck'}) {
    openwebmailerror("Spellcheck is not available.<br>( $config{'spellcheck'} not found )");
 }
 
+my @cmd=($config{'spellcheck'}, '-a', '-S', '-d', $dictionary);
 if (defined(param('string'))) {
-   my $pid = open3(\*spellWRITE, \*spellREAD, \*spellERROR, "$config{'spellcheck'} -a -S -d $dictionary");
+   my $pid = open3(\*spellIN, \*spellOUT, \*spellERR, @cmd);
    text2words(param('string'));
    docheck($form,$field);
-   close spellREAD;
-   close spellWRITE;
+   close spellIN;
+   close spellOUT;
    wait;
 } elsif (defined(param($lang_text{'checkagain'}))) {
-   my $pid = open3(\*spellWRITE, \*spellREAD, \*spellERROR,"$config{'spellcheck'} -a -S -d $dictionary");
+   my $pid = open3(\*spellIN, \*spellOUT, \*spellERR, @cmd);
    cgiparam2words();
    docheck($form,$field);
-   close spellREAD;
-   close spellWRITE;
+   close spellIN;
+   close spellOUT;
    wait;
 } elsif (defined(param($lang_text{'finishchecking'}))) {
    cgiparam2words();
@@ -170,7 +171,7 @@ sub docheck {
    $temphtml = submit("$lang_text{'finishchecking'}");
    $html =~ s/\@\@\@FINISHCHECKINGBUTTON\@\@\@/$temphtml/;
 
-   $temphtml = button(-name=>"can11celbutton",
+   $temphtml = button(-name=>"cancelbutton",
                       -value=>$lang_text{'cancel'},
                       -onclick=>'window.close();',
                       -override=>'1');
@@ -388,10 +389,10 @@ sub spellcheck {
    $word =~ s/\r//g;
    $word =~ /\n/ and warn "newlines not allowed";
 
-   print spellWRITE "!\n";
-   print spellWRITE "^$word\n";
+   print spellIN "!\n";
+   print spellIN "^$word\n";
 
-   while (<spellREAD>) {
+   while (<spellOUT>) {
       chomp;
       last unless $_ gt '';
       push (@commentary, $_) if substr($_,0,1) =~ /([*|-|+|#|&|?| ||])/;

@@ -42,16 +42,29 @@
 
 %lang_receiptlabels =
    (
-   ask => 'Bekræft',
+   ask => 'Spørg',
    yes => 'Ja',
    no  => 'Nej'
    );
 
-%lang_positionlabels =
+%lang_ctrlpositionlabels =
    (
-   before => 'Before mail edit area',
-   after => 'After mail edit area',
-   both  => 'Before and after mail edit area'
+   top => 'At top',
+   bottom => 'At bottom'
+   );
+
+%lang_sendpositionlabels =
+   (
+   before => 'over mailen',
+   after => 'under mailen',
+   both  => 'både over og under mailen'
+   );
+
+%lang_abookbuttonpositionlabels = 
+   (
+   before => 'Before addressbook entries',
+   after  => 'After addressbook entries',
+   both   => 'Before and after addressbook entries'
    );
 
 %lang_timelabels =
@@ -80,13 +93,20 @@
    regexp      => 'matcher regexp.',
    );
 
+%lang_sizes =
+   (
+   mb   => 'MB',	# mega bytes
+   kb   => 'KB',	# kilo bytes
+   byte => 'Byte'
+   );
+
 %lang_calendar = 
    (
    yearview  => 'Års oversigt',
    monthview => 'Måneds oversigt',
    weekview  => 'Uge oversigt',
    dayview   => 'Dags oversigt',
-   listview   => 'Listview'
+   listview  => 'Aftale oversigt'
    );
 
 %lang_month =
@@ -137,6 +157,28 @@
    5 => 'sidste'
    );
 
+%lang_wdbutton =
+   (
+   refresh  => 'Refresh',
+   preview  => 'Preview',
+   edit     => 'Rediger',
+   listarchive=> 'List',
+   decompress=>'Decompress',
+   extract  => 'Extract',
+   chdir    => 'ChDir',
+   mkdir    => 'MkDir',
+   newfile  => 'NewFile',
+   delete   => 'Delete',
+   copy     => 'Copy',
+   move     => 'Move',
+   gzip     => 'gzCompress',
+   mkzip    => 'MkZip',
+   mktgz    => 'MkTgz',
+   mkthumbnail  => 'MkThumb',
+   download => 'Download',
+   upload   => 'Upload',
+   );   
+
 %lang_text =
    (
    login      => 'Log ind',
@@ -149,7 +191,7 @@
    messages   => 'mails',
    unread     => 'ulæste',
    nomessages => 'Ingen mails',
-   inmessages => 'Incoming msgs',
+   inmessages => 'Indkommende besked',
    composenew => 'Skriv ny mail',
    refresh    => 'Opdater',
    userprefs  => 'Standard indstillinger',
@@ -158,7 +200,7 @@
    emptytrash => 'Tøm papirkurven',
    totrash    => 'Flyt til papirkurv',
    forever    => 'Aldrig',
-   delatlogout=> 'Delete at Logout',
+   delatlogout=> 'Når webmail afsluttes',
    userdef    => 'Bruger defineret',
    logout     => 'Afslut webmail',
    page       => 'Side',
@@ -197,7 +239,7 @@
    description=> 'Beskrivelse',
    download   => 'Gem',
    charset    => 'Charset',
-   samecharset=> 'The same as composing charset',
+   samecharset=> 'samme tegnsæt som da mailen blev skrevet',
    thisispartialmsg => 'Dette er en del af en mail.',
    msgrebuild => 'Besked genopbygget',
    editdraft  => 'Rediger kladde',
@@ -206,6 +248,7 @@
    about      => 'Om',
    close      => 'Luk',
    cancel     => 'Fortryd',
+   ok         => 'Ok',
    continue   => 'Fortsæt',
    loginagain => 'Log ind igen',
    exit       => 'Luk browser',
@@ -217,12 +260,13 @@
    rename     => 'Omdøb',
    folderdelconf => '\'Er du sikker på, at du vil slette denne mappe og hele dens indhold?\'',
    markread   => 'Marker som læst',
-   foldermarkreadconf => '\'Are you going to mark read on all messages in this folder?\'',
+   foldermarkreadconf => '\'Vil du markere alle mails læst i denne folder?\'',
    chkindex   => 'Kontroller indeks',
    folderchkindexconf => '\'Vil du have indeks i denne folder kontrolleret?\'',
    reindex    => 'Genindekser',
    folderreindexconf => '\'Er du sikker på du vil genindeksere denne folder?\'',
    total      => 'Total',
+   edit       => 'Rediger',
    delete     => 'Slet',
    reserve    => 'Efterlad',
    clearadd   => 'Slet alle mailadresser',
@@ -236,11 +280,12 @@
    name       => 'Navn',
    email      => 'Email',
    note       => 'Notat',
+   max        => 'Maximum',
    group      => 'Gruppe',
    quota_hit  => 'ADVARSEL, din postkasse er fuld',
    usage      => 'ADVARSEL, din postkasse er snart fuld, du benytter nu:',
    tzmap      => 'Verdenskort med tidszoner',
-   testsound  => 'Test sound',
+   testsound  => 'Afspil denne lyd',
    editfroms  => 'Rediger personlige mailadresser',
    pop3book   => 'Opsæt mail afhentning fra ekstern POP3 server',
    retr_pop3s => 'Hent mail fra ekstern POP3 server',
@@ -270,15 +315,15 @@
    advsearch  => 'Avanceret søgning',
    folder     => 'Folder',
    nofoldersel=> 'Du skal vælge mindst én folder at søge i',
-   showall    => 'Show All',
+   showall    => 'Vis alle',
    spellcheck => 'Stavekontrol',
    checkagain => 'Check igen',
    finishchecking => 'Afslut stavekontrol',
    manuallyfix=> 'Manual rettelse',
-   editstat   => 'Edit Stationery',
-   savestat   => 'Save Stationery',
-   clearstat  => 'Clear All Stationery',
-   selectstat => '-- Select Stationery for Reply --',
+   editstat   => 'Ret signatur',
+   savestat   => 'Gem signatur',
+   clearstat  => 'Slet alle signaturer',
+   statreply  => '-- Stationery for Reply --',
    calendar   => 'Kalender',
    am         => 'am',
    pm         => 'pm',
@@ -291,12 +336,41 @@
    moreitems  => 'more items',
    multieditconf => 'Dette er en tilbagevendende aftale. Ændringer af denne\\naftale, vil også ændre alle de tilbagevendende aftaler.\\nØnsker du at fortsætte?',
    multidelconf  => 'Dette er en tilbagevendende aftale. Hvis du sletter denne\\naftale, sletter du også de tilbagevendende aftaler.\\nØnsker du at fortsætte?',
-   ed         => 'Rediger',
-   del        => 'Slet',
    noitemforthisday => 'Ingen aftaler i dag',
-   today_only               => 'Kun dags dato',
-   the_wday_of_thismonth    => 'Den @@@ORDER@@@ @@@WDAY@@@ i hver måned',
-   every_wday_of_thismonth  => 'Hver @@@WDAY@@@ i denne måned'
+   thisday_only          => 'Kun dags dato',
+   the_wday_of_thismonth => 'Den @@@ORDER@@@ @@@WDAY@@@ i hver måned',
+   every_wday_thismonth  => 'Hver @@@WDAY@@@ i denne måned',
+   thismonth_only           => 'This month only',
+   every_oddmonth_thisyear  => 'Every odd month this year',
+   every_evenmonth_thisyear => 'Every even month this year',
+   every_month_thisyear     => 'Every month this year',
+   webdisk      => 'WebDisk',
+   sshterm      => 'SSH Terminal',
+   dir          => 'Dir',
+   dirs         => 'Dirs',
+   file         => 'File',
+   files        => 'Files',
+   program      => 'Program',
+   dest_of_chdir  => 'the destined directory',
+   name_of_newdir => 'the directory name to create',
+   name_of_newfile=> 'the filename to create',
+   dest_of_thecopy=> 'the destined directory or file of the copy',
+   dest_of_themove=> 'the destined directory or file of the move',
+   dest_of_thezip=> 'the destined filename of the new zip',
+   dest_of_thetgz=> 'the destined filename of the new tgz',
+   homedir      => 'Homedir',
+   showthumbnail    => 'Thumbnails',
+   showhidden   => 'Show hidden files',
+   lastmodified => 'Last modified time',
+   perm         => 'Perm',
+   permission   => 'Access Permission',
+   noitemfound  => 'No item found',
+   savefile     => 'Savefile',
+   succeeded    => 'succeeded',
+   failed       => 'failed',
+   savefile_towd=> 'Save file to WebDisk',
+   saveatt_towd => 'Save attachment to WebDisk',
+   addatt_fromwd=> 'Add attachment from WebDisk'
    );
 
 %lang_err =
@@ -307,7 +381,7 @@
    couldnt_lock      => 'Kunne ikke låse',
    couldnt_seek      => 'Kunne ikke søge til starten af',
    couldnt_close     => 'Kunne ikke lukke',
-   couldnt_updatedb  => 'Couldn\'t update index db ',
+   couldnt_updatedb  => 'Det var ikke muligt at opdatere indeks db ',
    disallowed_pop3   => 'Ugyldig POP3 server',
    disallowed_client => 'Du har ikke tilladelse til at forbinde fra denne pc',
    disallowed_receiverdomain => 'Du har ikke tilladelse til at sende mail til denne mailadresse',
@@ -326,10 +400,11 @@
    abook_toobig      => 'Dette vil gøre din adressebog større end tilladt. Gå',
    cant_create_dir   => 'Kan ikke oprette mappen!',
    folder_hitquota   => 'Beklager, du har brugt mere plads end tilladt, og der kan ikke gemmes flere mails. Du er nødt til at rydde op. Det er kun muligt at flyttet til papirkurven, hvor de vil blive slettet. Gå tilbage, slet nogle mails eller tøm papirkurven, og forsøg igen.',
-   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
+   folder_cutdone    => 'Advarsel, da max. plads forbrug (@@@FOLDERQUOTA@@@) pr. folder var overskredet, er de ældste meddelelser automatisk blevet slettet',
    att_overlimit     => 'Dine vedhæftede filer er større end tilladt',
    inv_msg_op        => 'Ugyldig handling for besked',
-   inv_sessid        => 'Din forespørgsel indeholdt ikke et gyldigt sessions ID - Ingen adgang!',
+   sess_cookieerr    => 'Din forespørgsel indeholdt ikke et gyldigt sessions ID - Ingen adgang!',
+   sess_iperr        => 'Your request didn\'t come from the same ip of this session -- access denied!',
    no_endpart        => 'Slut besked ikke fundet',
    part_missing      => 'Flere dele blev ikke fundet',
    rebuild_fmterr    => 'Ny besked formatteret forkert',
@@ -339,12 +414,22 @@
    auth_syserr       => 'godkendelse af systemet fejlede',
    param_fmterr      => 'parameter format fejlede',
    pwd_incorrect     => 'Ugyldig brugernavn eller adgangskode',
-   pwd_tooshort      => 'Password too short (minimum length @@@PASSWDMINLEN@@@)',
-   pwd_toosimple     => 'Password too simple (both alphabet and digit are required)',
+   pwd_tooshort      => 'Adgangskoden er for kort (minimum længde @@@PASSWDMINLEN@@@)',
+   pwd_toosimple     => 'Adgangskoden er for simplel (der skal benyttes både bogstaver og tal)',
    network_server_error => 'server netværks fejl',
    sendmail_error    => 'Beklager, der skete en fejl ved afsendelse af din mail. Tryk Tilbage i din browser og prøv igen.',
    at_char_not_allowed => 'Du kan ikke benyttet @ i dette felt. Tryk på tilbage i din browser og prøv igen.',
-   badnum_in_days => 'ugyldigt antal dage, for tilbagevendende aftale'
+   badnum_in_days => 'ugyldigt antal dage, for tilbagevendende aftale',
+   access_denied     => 'Access denied',
+   couldnt_chdirto   => 'Couldn\'t chdir to',
+   isnt_a_dir        => 'is not a directory',
+   edit_notfordir    => 'You can\'t edit a directory',
+   onefileonly       => 'Only one file is allowed for this operation',
+   no_file_todownload=> 'No file is specified for download',
+   upload_overlimit  => 'Upload file size is over the limit',
+   decomp_notsupported=>'Decompression support is not available for this file.',
+   webdisk_hitquota   => 'Sorry, you\'ve hit your webdisk quota, please delete some files first.',
+   webdisk_readonly   => 'Sorry, your webdisk is read only.'
    );
 
 1;

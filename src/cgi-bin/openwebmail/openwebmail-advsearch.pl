@@ -18,7 +18,7 @@ umask(0002); # make sure the openwebmail group can write
 use strict;
 use Fcntl qw(:DEFAULT :flock);
 use CGI qw(-private_tempfiles :standard);
-use CGI::Carp qw(fatalsToBrowser);
+use CGI::Carp qw(fatalsToBrowser carpout);
 CGI::nph();   # Treat script as a non-parsed-header script
 
 require "ow-shared.pl";
@@ -53,15 +53,16 @@ if ($action eq "advsearch") {
 #################### ADVSEARCH ###########################
 sub advsearch {
    my @search;
-   push(@search, {where=>param("where0")||'', type=>param("type0")||'', text=>param("searchtext0")||''} );
-   push(@search, {where=>param("where1")||'', type=>param("type1")||'', text=>param("searchtext1")||''} );
-   push(@search, {where=>param("where2")||'', type=>param("type2")||'', text=>param("searchtext2")||''} );
 
-   my $resline = param("resline") || $prefs{'headersperpage'};
+   for (my $i=0; $i<3; $i++) {
+      my $text=param("searchtext$i"); $text=~s/^\s*//; $text=~s/\s*$//;
+      push(@search, {where=>param("where$i")||'', type=>param("type$i")||'', text=>$text||''} );
+   }
+
+   my $resline = param("resline") || $prefs{'msgsperpage'};
    my @folders = param("folders");
    for (my $i=0; $i<=$#folders; $i++) {
-      $folders[$i]=~s/\.\.+//g;
-      $folders[$i]=~s/[\s\/\`\|\<\>;]//g; # remove dangerous char
+      $folders[$i]=safefoldername($folders[$i]);
    }
 
    my ($html, $temphtml);
@@ -72,7 +73,7 @@ sub advsearch {
    $html = applystyle($html);
 
    ## replace @@@MENUBARLINKS@@@ ##
-   $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $printfolder", qq|href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=displayheaders&amp;sessionid=$thissession&amp;folder=$escapedfolder"|). qq| \n|;
+   $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $printfolder", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;sessionid=$thissession&amp;folder=$escapedfolder"|). qq| \n|;
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
 
    ## replace @@@STARTADVSEARCHFORM@@@ ##
@@ -110,24 +111,27 @@ sub advsearch {
       $temphtml = textfield(-name=>"searchtext$i",
                             -default=>${$search[$i]}{'text'},
                             -size=>'40',
+                            -accesskey=>$i+1,
                             -override=>'1');
       $html =~ s/\@\@\@SEARCHTEXT$i\@\@\@/$temphtml/;
    }
 
    $temphtml = submit(-name=>"$lang_text{'search'}",
+                      -accesskey=>'S',
                       -class=>"medtext");
    $html =~ s/\@\@\@BUTTONSEARCH\@\@\@/$temphtml/;
 
    $temphtml = textfield(-name=>"resline",
                          -default=>"$resline",
                          -size=>'5',
+                         -accesskey=>'L',
                          -override=>'1');
    $html =~ s/\@\@\@RESLINE\@\@\@/$temphtml/;
 
-   $temphtml = qq|<table width="100%">\n|;
+   $temphtml = qq|<table cols=4 width="100%">\n|;
    for(my $i=0; $i<=$#validfolders; $i++) {
       $temphtml.=qq|<tr>| if ($i%4==0);
-      $temphtml.=qq|<td width="25%">|;
+      $temphtml.=qq|<td>|;
       if($validfolders[$i] eq 'INBOX') {
          $temphtml .= checkbox(-name=>'folders',
                                -value=>$validfolders[$i],
@@ -219,8 +223,8 @@ sub search_folders {
    $metainfo.="@@@".join("@@@", @{$r_folders});
 
    ($cachefile =~ /^(.+)$/) && ($cachefile = $1);		# untaint ...
-   filelock($cachefile, LOCK_EX);
-
+   filelock($cachefile, LOCK_EX) or
+      openwebmailerror("$lang_err{'couldnt_lock'} $cachefile");
    if ( -e $cachefile ) {
       open(CACHE, "$cachefile") ||  openwebmailerror("$lang_err{'couldnt_open'} $cachefile!");
       $cache_metainfo=<CACHE>; chomp($cache_metainfo);
@@ -267,7 +271,10 @@ sub search_folders2 {
       my ($totalsize, $new, $r_messageids)=get_info_messageids_sorted_by_date($headerdb, 1);
       my (%HDB, %status);
 
-      filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) if (!$config{'dbmopen_haslock'});
+      if (!$config{'dbmopen_haslock'}) {
+         filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) or
+            openwebmailerror("$lang_err{'couldnt_locksh'} $headerdb$config{'dbm_ext'}");
+      }
       dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
 
       foreach my $messageid (@{$r_messageids}) {
@@ -495,10 +502,10 @@ sub genline {
    # convert dateserial(GMT) to localtime
    my $datestr=dateserial2str(add_dateserial_timeoffset($dateserial, $prefs{'timeoffset'}), $prefs{'dateformat'});
    $temphtml = qq|<tr>|.
-               qq|<td valign="middle" width="10%" nowrap bgcolor=$bgcolor>$folderstr&nbsp;</td>\n|.
-               qq|<td valign="middle" width="18%" bgcolor=$bgcolor><font size=-1>$datestr</font></td>\n|.
-               qq|<td valign="middle" width="25%" bgcolor=$bgcolor>$from</td>\n|.
-               qq|<td valign="middle" bgcolor=$bgcolor>|.
+               qq|<td nowrap bgcolor=$bgcolor>$folderstr&nbsp;</td>\n|.
+               qq|<td bgcolor=$bgcolor><font size=-1>$datestr</font></td>\n|.
+               qq|<td bgcolor=$bgcolor>$from</td>\n|.
+               qq|<td bgcolor=$bgcolor>|.
                qq|<a href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&amp;|.
                qq|sessionid=$thissession&amp;folder=$escapedfolder&amp;|.
                qq|headers=|.($prefs{'headers'} || 'simple').qq|&amp;|.

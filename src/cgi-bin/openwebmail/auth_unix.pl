@@ -32,7 +32,7 @@
 # else...                          none
 # ------------------------------   --------------------------------
 #
-# $check_shell : whether to check if the user's shell is listed in /etc/shells. 
+# $check_shell : whether to check if the user's shell is listed in /etc/shells.
 #
 
 my $unix_passwdfile_plaintext="/etc/passwd";
@@ -70,7 +70,9 @@ sub get_userlist {	# only used by openwebmail-tool.pl -a
    my $line;
 
    # a file should be locked only if it is local accessable
-   filelock("$unix_passwdfile_encrypted", LOCK_SH) if ( -f $unix_passwdfile_encrypted);
+   if ( -f $unix_passwdfile_encrypted) {
+      filelock("$unix_passwdfile_encrypted", LOCK_SH) or return @userlist;
+   }
    open(PASSWD, $unix_passwdfile_encrypted);
    while (defined($line=<PASSWD>)) {
       push(@userlist, (split(/:/, $line))[0]);
@@ -92,7 +94,9 @@ sub check_userpassword {
    return -2 unless ( $user ne "" && $password ne "");
 
    # a file should be locked only if it is local accessable
-   filelock("$unix_passwdfile_encrypted", LOCK_SH) if ( -f $unix_passwdfile_encrypted);
+   if ( -f $unix_passwdfile_encrypted) {
+      filelock("$unix_passwdfile_encrypted", LOCK_SH) or return -3;
+   }
    if ( ! open (PASSWD, "$unix_passwdfile_encrypted") ) {
       filelock("$unix_passwdfile_encrypted", LOCK_UN) if ( -f $unix_passwdfile_encrypted);
       return -3;
@@ -107,14 +111,13 @@ sub check_userpassword {
    return -4 if ($u ne $user || crypt($password,$p) ne $p);
    return 0 if (!$check_shell);
 
-   # validate user shell if /etc/shells exists
-   if (open(ES, "/etc/shells")) {
-      my $shell;
-      if ($unix_passwdfile_plaintext eq "/etc/passwd") {
-         $shell = (getpwnam($user))[8];
-      } else {
-         $shell = (getpwnam_file($user, $unix_passwdfile_plaintext))[8];
-      }
+   my $shell;
+   if ($unix_passwdfile_plaintext eq "/etc/passwd") {
+      $shell = (getpwnam($user))[8];
+   } else {
+      $shell = (getpwnam_file($user, $unix_passwdfile_plaintext))[8];
+   }
+   if ($shell && open(ES, "/etc/shells")) {
       my $validshell = 0;   # assume an invalid shell until we get a match
       while(<ES>) {
          chop;
@@ -147,7 +150,7 @@ sub change_userpassword {
    # a passwdfile could be modified only if it is local accessable
    return -1 if (! -f $unix_passwdfile_encrypted);
 
-   filelock("$unix_passwdfile_encrypted", LOCK_EX);
+   filelock("$unix_passwdfile_encrypted", LOCK_EX) or return -3;
    open (PASSWD, $unix_passwdfile_encrypted) or return -3;
    while (defined($line=<PASSWD>)) {
       $content .= $line;
@@ -198,12 +201,12 @@ sub change_userpassword {
       rename("$unix_passwdfile_encrypted.tmp.$$", $unix_passwdfile_encrypted) || goto authsys_error;
    }
    filelock("$unix_passwdfile_encrypted", LOCK_UN);
-   return(0);
+   return 0;
 
 authsys_error:
    unlink("$unix_passwdfile_encrypted.tmp.$$");
    filelock("$unix_passwdfile_encrypted", LOCK_UN);
-   return(-3);
+   return -3;
 }
 
 

@@ -16,7 +16,7 @@ umask(0002); # make sure the openwebmail group can write
 use strict;
 use Fcntl qw(:DEFAULT :flock);
 use CGI qw(-private_tempfiles :standard);
-use CGI::Carp qw(fatalsToBrowser);
+use CGI::Carp qw(fatalsToBrowser carpout);
 CGI::nph();   # Treat script as a non-parsed-header script
 use Net::SMTP;
 
@@ -36,18 +36,20 @@ use vars qw($folder $printfolder $escapedfolder);
 openwebmail_init();
 verifysession();
 
-use vars qw($firstmessage);
-use vars qw($sort);
+use vars qw($mymessageid);
+use vars qw($sort $page);
 use vars qw($searchtype $keyword $escapedkeyword);
 
-$firstmessage = param("firstmessage") || 1;
+$mymessageid = param("mymessageid");
+$page = param("page") || 1;
 $sort = param("sort") || $prefs{'sort'} || 'date';
 $searchtype = param("searchtype") || 'subject';
 $keyword = param("keyword") || '';
 $escapedkeyword = escapeURL($keyword);
 
 # extern vars
-use vars qw(%lang_folders %lang_text %lang_err %lang_prioritylabels);	# defined in lang/xy
+use vars qw(%languagecharsets);	# defined in ow-shared.pl
+use vars qw(%lang_folders %lang_sizes %lang_text %lang_err %lang_prioritylabels);	# defined in lang/xy
 use vars qw(%charset_convlist);	# defined in iconv.pl
 use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE $_STATUS $_SIZE $_REFERENCES $_CHARSET);	# defined in maildb.pl
 
@@ -75,7 +77,10 @@ sub replyreceipt {
    my @attr;
    my %HDB;
 
-   filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) if (!$config{'dbmopen_haslock'});
+   if (!$config{'dbmopen_haslock'}) {
+      filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) or
+         openwebmailerror("$lang_err{'couldnt_locksh'} $headerdb$config{'dbm_ext'}");
+   }
    dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
    @attr=split(/@@@/, $HDB{$messageid});
    dbmclose(%HDB);
@@ -110,14 +115,6 @@ sub replyreceipt {
          my $realname=$userfrom{$from};
          $realname =~ s/['"]/ /g;  # Get rid of shell escape attempts
          $from =~ s/['"]/ /g;  # Get rid of shell escape attempts
-
-         # fake a messageid for this message
-         my $fakedid = gmtime2dateserial().'.M'.int(rand()*100000);
-         if ($from =~ /@(.*)$/) {
-            $fakedid="<$fakedid".'@'."$1>";
-         } else {
-            $fakedid="<$fakedid".'@'."$from>";
-         }
 
          my $smtp;
          $smtp=Net::SMTP->new($config{'smtpserver'},
@@ -156,6 +153,7 @@ sub replyreceipt {
          $smtp->datasend("To: ".encode_mimewords($to, ('Charset'=>$prefs{'charset'}))."\n");
          $smtp->datasend("Reply-To: ".encode_mimewords($prefs{'replyto'}, ('Charset'=>$prefs{'charset'}))."\n") if ($prefs{'replyto'});
 
+         $mymessageid=fakemessageid($from) if (!$mymessageid);
          my $xmailer = $config{'name'};
          $xmailer .= " $config{'version'} $config{'releasedate'}" if ($config{'xmailer_has_version'});
          my $xoriginatingip = get_clientip();
@@ -165,7 +163,7 @@ sub replyreceipt {
          if ( $attr[$_CONTENT_TYPE]=~/charset="?\Q$prefs{'charset'}\E"?/i) {
             $smtp->datasend("Subject: ".encode_mimewords("$lang_text{'read'} - $attr[$_SUBJECT]",('Charset'=>$prefs{'charset'}))."\n",
                             "Date: $date\n",
-                            "Message-Id: $fakedid\n",
+                            "Message-Id: $mymessageid\n",
                             "X-Mailer: $xmailer\n",
                             "X-OriginatingIP: $xoriginatingip\n",
                             "MIME-Version: 1.0\n",
@@ -178,7 +176,7 @@ sub replyreceipt {
          } else {
             $smtp->datasend("Subject: ".encode_mimewords("Read - $attr[$_SUBJECT]", ('Charset'=>$prefs{'charset'}))."\n",
                             "Date: $date\n",
-                            "Message-Id: $fakedid\n",
+                            "Message-Id: $mymessageid\n",
                             "X-Mailer: $xmailer\n",
                             "X-OriginatingIP: $xoriginatingip\n",
                             "MIME-Version: 1.0\n",
@@ -221,8 +219,14 @@ sub replyreceipt {
 #                sendto(newmail with dest user),
 #                none(newmail)
 sub composemessage {
-#   no strict 'refs';
-   my $charset= param("charset") || $prefs{'charset'};
+   no strict 'refs';	# for $attchment, which is fname and fhandle of the upload
+
+   # charset is the charset choosed by user for current composing
+   my $charset= $prefs{'charset'};
+   foreach (values %languagecharsets) {
+      $charset=$_ if ($_ eq param("charset"));
+   }
+
    my ($savedattsize, $r_attlist);
 
    if ( param("deleteattfile") ne '' ) { # user click 'del' link
@@ -236,57 +240,76 @@ sub composemessage {
       }
       ($savedattsize, $r_attlist) = getattlistinfo();
 
-   } elsif (defined(param('addbutton'))) { # user press 'add' button
+   } elsif (defined(param('addbutton')) ||	# user press 'add' button
+            param("webdisksel") ) { 		# file selected from webdisk
       ($savedattsize, $r_attlist) = getattlistinfo();
+
       my $attachment = param("attachment");
-      my $attname = $attachment;
-      my $attcontents = '';
+      my $webdisksel = param("webdisksel");
+      my ($attname, $attcontenttype);
+      if ($webdisksel || $attachment) {
+         if ($attachment) {
+            # Convert :: back to the ' like it should be.
+            $attname = $attachment; 
+            $attname =~ s/::/'/g;
+            # Trim the path info from the filename
+            if ($charset eq 'big5' || $charset eq 'gb2312') {
+               $attname = zh_dospath2fname($attname);	# dos path
+            } else {
+               $attname =~ s|^.*\\||;		# dos path
+            }
+            $attname =~ s|^.*/||;	# unix path
+            $attname =~ s|^.*:||;	# mac path and dos drive
 
-      if ($attachment) {
-         if ( ($config{'attlimit'}) && ( ( $savedattsize + (-s $attachment) ) > ($config{'attlimit'} * 1048576) ) ) {
-            openwebmailerror ("$lang_err{'att_overlimit'} $config{'attlimit'} MB!");
+            if (defined(uploadInfo($attachment))) {
+#               my %info=%{uploadInfo($attachment)};
+#               foreach my $k (keys %info) { log_time("$k -> $info{$k}"); }
+               $attcontenttype = ${uploadInfo($attachment)}{'Content-Type'} || 'application/octet-stream';
+            } else {
+               $attcontenttype = 'application/octet-stream';
+            }
+
+         } elsif ($webdisksel && $config{'enable_webdisk'}) {
+            my $vpath=absolute_vpath('/', $webdisksel);
+            my $err=verify_vpath($homedir, $vpath);
+            openwebmailerror($err) if ($err);
+            openwebmailerror("$lang_text{'file'} $vpath $lang_err{'doesnt_exist'}") if (!-f "$homedir/$vpath");
+
+            $attachment=FileHandle->new();
+            open($attachment, "$homedir/$vpath") or
+               openwebmailerror ("$lang_err{'couldnt_open'} $lang_text{'webdisk'} $vpath!");
+            $attname=$vpath; $attname=~s|/$||; $attname=~s|^.*/||;
+            $attcontenttype=ext2contenttype($vpath);
          }
-         my $content_type;
-         # Convert :: back to the ' like it should be.
-         $attname =~ s/::/'/g;
-         # Trim the path info from the filename
-         if ($charset eq 'big5') {
-            $attname =~ s|^.*[^\xA1-\xF9]\\||;	# dos path
-         } elsif ($charset eq 'gb2312') {
-            $attname =~ s|^.*[^\x81-\xFE]\\||;	# dos path
-         } else {
-            $attname =~ s|^.*\\||;		# dos path
+
+         if ($attachment) {
+            if ( ($config{'attlimit'}) && 
+                 ( ($savedattsize + (-s $attachment)) > ($config{'attlimit'}*1024) ) ) {
+               close($attachment);
+               openwebmailerror ("$lang_err{'att_overlimit'} $config{'attlimit'} $lang_sizes{'kb'}!");
+            }
+            my $attserial = time();
+            open (ATTFILE, ">$config{'ow_sessionsdir'}/$thissession-att$attserial");
+            print ATTFILE qq|Content-Type: $attcontenttype;\n|.
+                          qq|\tname="|.encode_mimewords($attname, ('Charset'=>$charset)).qq|"\n|.
+                          qq|Content-Disposition: attachment; filename="|.encode_mimewords($attname, ('Charset'=>$charset)).qq|"\n|.
+                          qq|Content-Transfer-Encoding: base64\n\n|;
+            my $buff;
+            while (read($attachment, $buff, 600*57)) {
+               $buff=encode_base64($buff);
+               $savedattsize += length($buff);
+               print ATTFILE $buff;
+            }
+            close ATTFILE;
+            close($attachment);	# close tmpfile created by CGI.pm
+
+            $attname = str2html($attname);
+
+            my $attnum=$#{$r_attlist}+1;
+            ${${$r_attlist}[$attnum]}{name}=$attname;
+            ${${$r_attlist}[$attnum]}{namecharset}=$charset;
+            ${${$r_attlist}[$attnum]}{file}="$thissession-att$attserial";
          }
-         $attname =~ s|^.*/||;	# unix path
-         $attname =~ s|^.*:||;	# mac path and dos drive
-
-         if (defined(uploadInfo($attachment))) {
-#            my %info=%{uploadInfo($attachment)};
-#            foreach my $k (keys %info) { log_time("$k -> $info{$k}"); }
-            $content_type = ${uploadInfo($attachment)}{'Content-Type'} || 'application/octet-stream';
-         } else {
-            $content_type = 'application/octet-stream';
-         }
-
-         my $attserial = time();
-         open (ATTFILE, ">$config{'ow_sessionsdir'}/$thissession-att$attserial");
-         print ATTFILE qq|Content-Type: $content_type;\n|,
-                       qq|Content-Disposition: attachment; filename="|.encode_mimewords($attname, ('Charset'=>$charset)).qq|"\n|,
-                       qq|Content-Transfer-Encoding: base64\n\n|;
-         while (read($attachment, $attcontents, 600*57)) {
-            $attcontents=encode_base64($attcontents);
-            $savedattsize += length($attcontents);
-            print ATTFILE $attcontents;
-         }
-         close ATTFILE;
-         close($attachment);	# close tmpfile created by CGI.pm
-
-         $attname = str2html($attname);
-
-         my $attnum=$#{$r_attlist}+1;
-         ${${$r_attlist}[$attnum]}{name}=$attname;
-         ${${$r_attlist}[$attnum]}{namecharset}=$charset;
-         ${${$r_attlist}[$attnum]}{file}="$thissession-att$attserial";
       }
 
    # usr press 'send' button but no receiver, keep editing
@@ -301,7 +324,6 @@ sub composemessage {
       deleteattachments();
    }
 
-   my $messageid = param("message_id");
    my %message;
    my $attnumber;
    my $from ='';
@@ -329,15 +351,20 @@ sub composemessage {
    my $composetype = param("composetype");
    if ($composetype eq "reply" || $composetype eq "replyall" ||
        $composetype eq "forward" || $composetype eq "editdraft" ) {
-
+      my $messageid = param("message_id");
       if ($composetype eq "forward" || $composetype eq "editdraft") {
          %message = %{&getmessage($messageid, "all")};
       } else {
          %message = %{&getmessage($messageid, "")};
       }
 
+      # convfrom is the charset choosed by user in last reading message
       my $convfrom=param('convfrom');
-      $convfrom=$message{'charset'} if ($convfrom eq 'none.msgcharset');
+      if ($convfrom eq 'none.msgcharset') {
+         foreach (values %languagecharsets) {
+            $charset=$_ if ($_ eq lc($message{'charset'}));
+         }
+      }
 
       my $fromemail=$prefs{'email'};
       foreach (keys %userfrom) {
@@ -448,12 +475,13 @@ sub composemessage {
             $to = $message{'from'} || '';
          }
          if ($composetype eq "replyall") {
-            $to .= "," . $message{'to'} if (defined($message{'to'}) && $message{'to'}=~/[^\s]/);
+            my $t=$message{'to'}; $t=~s/undisclosed\-recipients:\s?;?//gi;
+            $to .= "," . $t if ($t && $t=~/[^\s]/);
             $cc = $message{'cc'} if (defined($message{'cc'}) && $message{'cc'}=~/[^\s]/);
          }
 
          if (is_convertable($convfrom, $prefs{'charset'}) ) {
-            ($body, $subject, $to, $cc)=iconv($convfrom, $body,$subject,$to,$cc);
+            ($body, $subject, $to, $cc)=iconv($convfrom, $prefs{'charset'}, $body,$subject,$to,$cc);
          }
 
          $subject = "Re: " . $subject unless ($subject =~ /^re:/i);
@@ -554,6 +582,8 @@ sub composemessage {
             $inreplyto = $message{'inreplyto'};
             $references = $message{'references'};
             $priority = $message{'priority'} if (defined($message{'priority'}));
+            # we prefer to use the messageid in a draft message if available
+            $mymessageid = $messageid if ($messageid);
 
          } elsif ($composetype eq "forward") {
             if (is_convertable($convfrom, $prefs{'charset'}) ) {
@@ -584,7 +614,6 @@ sub composemessage {
       }
 
    } elsif ($composetype eq 'forwardasatt') {
-      my $messageid = param("message_id");
       my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
       my $folderhandle=FileHandle->new();
       my $atthandle=FileHandle->new();
@@ -596,6 +625,7 @@ sub composemessage {
          openwebmailerror("$lang_err{'couldnt_updatedb'} $headerdb$config{'dbm_ext'}");
       }
 
+      my $messageid = param("message_id");
       my @attr=get_message_attributes($messageid, $headerdb);
 
       my $fromemail=$prefs{'email'};
@@ -692,7 +722,7 @@ sub composemessage {
    }
    $html = applystyle($html);
 
-   $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $printfolder", qq|href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=displayheaders&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;firstmessage=$firstmessage"|). qq| \n|;
+   $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $printfolder", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;page=$page"|). qq|\n|;
    $html =~ s/\@\@\@BACKTOFOLDER\@\@\@/$temphtml/g;
 
    $temphtml = start_multipart_form(-name=>'composeform');
@@ -704,21 +734,6 @@ sub composemessage {
                        -override=>'1');
    $temphtml .= hidden(-name=>'composetype',
                        -default=>'continue',
-                       -override=>'1');
-   $temphtml .= hidden(-name=>'sort',
-                       -default=>$sort,
-                       -override=>'1');
-   $temphtml .= hidden(-name=>'keyword',
-                       -default=>$keyword,
-                       -override=>'1');
-   $temphtml .= hidden(-name=>'searchtype',
-                       -default=>$searchtype,
-                       -override=>'1');
-   $temphtml .= hidden(-name=>'firstmessage',
-                       -default=>$firstmessage,
-                       -override=>'1');
-   $temphtml .= hidden(-name=>'folder',
-                       -default=>$folder,
                        -override=>'1');
    $temphtml .= hidden(-name=>'deleteattfile',
                        -default=>'',
@@ -732,11 +747,35 @@ sub composemessage {
    $temphtml .= hidden(-name=>'charset',
                        -default=>$charset,
                        -override=>'1');
+
+   $mymessageid=fakemessageid((email2nameaddr($from))[1]) if (!$mymessageid);
+   $temphtml .= hidden(-name=>'mymessageid',
+                       -default=>$mymessageid,
+                       -override=>'1');
+
+   $temphtml .= hidden(-name=>'folder',
+                       -default=>$folder,
+                       -override=>'1');
    if (param("message_id")) {
       $temphtml .= hidden(-name=>'message_id',
                           -default=>param("message_id"),
                           -override=>'1');
    }
+   $temphtml .= hidden(-name=>'sort',
+                       -default=>$sort,
+                       -override=>'1');
+   $temphtml .= hidden(-name=>'page',
+                       -default=>$page,
+                       -override=>'1');
+   $temphtml .= hidden(-name=>'searchtype',
+                       -default=>$searchtype,
+                       -override=>'1');
+   $temphtml .= hidden(-name=>'keyword',
+                       -default=>$keyword,
+                       -override=>'1');
+   $temphtml .= hidden(-name=>'session_noupdate',
+                       -default=>0,
+                       -override=>'1');
    $html =~ s/\@\@\@STARTCOMPOSEFORM\@\@\@/$temphtml/g;
 
    my @fromlist=();
@@ -748,15 +787,15 @@ sub composemessage {
       }
    }
    $temphtml = popup_menu(-name=>'from',
-                          -"values"=>\@fromlist,
+                          -values=>\@fromlist,
                           -default=>$from,
+                          -accesskey=>'F',
                           -override=>'1');
-
    $html =~ s/\@\@\@FROMMENU\@\@\@/$temphtml/;
 
    my @prioritylist=("urgent", "normal", "non-urgent");
    $temphtml = popup_menu(-name=>'priority',
-                          -"values"=>\@prioritylist,
+                          -values=>\@prioritylist,
                           -default=>$priority || 'normal',
                           -labels=>\%lang_prioritylabels,
                           -override=>'1');
@@ -774,16 +813,18 @@ sub composemessage {
       }
    }
    $temphtml = popup_menu(-name=>'convto',
-                          -"values"=>\@ctlist,
+                          -values=>\@ctlist,
                           -labels=>\%ctlabels,
                           -default=>'none',
                           -onChange=>'javascript:submit();',
+                          -accesskey=>'I',
                           -override=>'1');
    $html =~ s/\@\@\@CONVTOMENU\@\@\@/$temphtml/g;
 
    $temphtml = textfield(-name=>'to',
                          -default=>$to,
                          -size=>'70',
+                         -accesskey=>'T',
                          -override=>'1').
                qq|\n |.iconlink("addrbook.s.gif", $lang_text{'addressbook'}, qq|href="javascript:GoAddressWindow('to')"|);
    $html =~ s/\@\@\@TOFIELD\@\@\@/$temphtml/g;
@@ -791,6 +832,7 @@ sub composemessage {
    $temphtml = textfield(-name=>'cc',
                          -default=>$cc,
                          -size=>'70',
+                         -accesskey=>'C',
                          -override=>'1').
                qq|\n |.iconlink("addrbook.s.gif", $lang_text{'addressbook'}, qq|href="javascript:GoAddressWindow('cc')"|);
    $html =~ s/\@\@\@CCFIELD\@\@\@/$temphtml/g;
@@ -804,14 +846,14 @@ sub composemessage {
 
    $temphtml = textfield(-name=>'replyto',
                          -default=>$replyto,
-                         -size=>'55',
+                         -size=>'45',
+                         -accesskey=>'R',
                          -override=>'1');
    $html =~ s/\@\@\@REPLYTOFIELD\@\@\@/$temphtml/g;
 
    $temphtml = checkbox(-name=>'confirmreading',
                         -value=>'1',
                         -label=>'');
-
    $html =~ s/\@\@\@CONFIRMREADINGCHECKBOX\@\@\@/$temphtml/;
 
    # table of attachment list
@@ -820,28 +862,38 @@ sub composemessage {
 
       $temphtml .= "<td><table cellspacing='0' cellpadding='0'>\n";
       for (my $i=0; $i<=$#{$r_attlist}; $i++) {
-         my $attsize=int((-s "$config{'ow_sessionsdir'}/${${$r_attlist}[$i]}{file}")/1024);
          my $blank="";
          if (${${$r_attlist}[$i]}{name}=~/\.(txt|jpg|jpeg|gif|png|bmp)$/i) {
             $blank="target=_blank";
          }
          if (${${$r_attlist}[$i]}{namecharset} &&
              is_convertable(${${$r_attlist}[$i]}{namecharset}, $charset) ) {
-            (${${$r_attlist}[$i]}{name})=iconv(${${$r_attlist}[$i]}{namecharset}, $charset, 
+            (${${$r_attlist}[$i]}{name})=iconv(${${$r_attlist}[$i]}{namecharset}, $charset,
                                              ${${$r_attlist}[$i]}{name});
+         }
+         my $attsize=(-s "$config{'ow_sessionsdir'}/${${$r_attlist}[$i]}{file}");
+         if ($attsize > 1024) {
+            $attsize=int($attsize/1024)."$lang_sizes{'kb'}";
+         } else {
+            $attsize= $attsize."$lang_sizes{'byte'}";
          }
          $temphtml .= qq|<tr valign=top>|.
                       qq|<td><a href="$config{'ow_cgiurl'}/openwebmail-viewatt.pl?sessionid=$thissession&amp;action=viewattfile&amp;attfile=${${$r_attlist}[$i]}{file}" $blank><em>${${$r_attlist}[$i]}{name}</em></a></td>|.
-                      qq|<td nowrap align='right'>&nbsp;$attsize KB &nbsp;</td>|.
-                      qq|<td nowrap><a href="javascript:DeleteAttFile('${${$r_attlist}[$i]}{file}')">[$lang_text{'delete'}]</a></td>|.
-                      qq|</tr>\n|;
+                      qq|<td nowrap align='right'>&nbsp; $attsize &nbsp;</td>|.
+                      qq|<td nowrap>|.
+                      qq|<a href="javascript:DeleteAttFile('${${$r_attlist}[$i]}{file}')">[$lang_text{'delete'}]</a>|;
+         if ($config{'enable_webdisk'} && !$config{'webdisk_readonly'}) {
+            $temphtml .= qq|<a href=# title="$lang_text{'savefile_towd'}" onClick="window.open('$config{'ow_cgiurl'}/openwebmail-webdisk.pl?action=sel_saveattfile&amp;sessionid=$thissession&amp;attfile=${${$r_attlist}[$i]}{file}&amp;attname=|.
+                         escapeURL(${${$r_attlist}[$i]}{name}).qq|', '_blank','width=500,height=330,scrollbars=yes,resizable=yes,location=no'); return false;">[$lang_text{'webdisk'}]</a>|;
+         }
+         $temphtml .= qq|</td></tr>\n|;
       }
       $temphtml .= "</table></td>\n";
 
-      $temphtml .= "<td align='right'>\n";
+      $temphtml .= "<td align='right' nowrap>\n";
       if ( $savedattsize ) {
-         $temphtml .= "<em>" . int($savedattsize/1024) . "KB";
-         $temphtml .= " $lang_text{'of'} $config{'attlimit'} MB" if ( $config{'attlimit'} );
+         $temphtml .= "<em>" . int($savedattsize/1024) . $lang_sizes{'kb'};
+         $temphtml .= " $lang_text{'of'} $config{'attlimit'} $lang_sizes{'kb'}" if ( $config{'attlimit'} );
          $temphtml .= "</em>";
       }
       $temphtml .= "</td>";
@@ -853,15 +905,26 @@ sub composemessage {
 
    $temphtml .= filefield(-name=>'attachment',
                          -default=>'',
-                         -size=>'55',
+                         -size=>'45',
+                         -accesskey=>'A',
                          -override=>'1');
    $temphtml .= submit(-name=>"addbutton",
                        -value=>"$lang_text{'add'}");
+   $temphtml .= "&nbsp;";
+   if ($config{'enable_webdisk'}) {
+      $temphtml .= hidden(-name=>'webdisksel',
+                          -value=>'',
+                          -override=>'1');
+      $temphtml .= submit(-name=>"webdisk",
+                          -value=>"$lang_text{'webdisk'}",
+                          -onClick=>qq|window.open('$config{ow_cgiurl}/openwebmail-webdisk.pl?sessionid=$thissession&amp;action=sel_addattachment', '_addatt','width=500,height=330,scrollbars=yes,resizable=yes,location=no'); return false;| );
+   }
    $html =~ s/\@\@\@ATTACHMENTFIELD\@\@\@/$temphtml/g;
 
    $temphtml = textfield(-name=>'subject',
                          -default=>$subject,
-                         -size=>'55',
+                         -size=>'45',
+                         -accesskey=>'S',
                          -override=>'1');
    $html =~ s/\@\@\@SUBJECTFIELD\@\@\@/$temphtml/g;
 
@@ -873,7 +936,6 @@ sub composemessage {
                         -value=>'1',
                         -checked=>$backupsent,
                         -label=>'');
-
    $html =~ s/\@\@\@BACKUPSENTMSGCHECKBOX\@\@\@/$temphtml/;
 
    $temphtml = textarea(-name=>'body',
@@ -881,6 +943,7 @@ sub composemessage {
                         -rows=>$prefs{'editrows'}||'20',
                         -columns=>$prefs{'editcolumns'}||'78',
                         -wrap=>'hard',
+                        -accesskey=>'M',	# msg area
                         -override=>'1');
    $html =~ s/\@\@\@BODYAREA\@\@\@/$temphtml/g;
 
@@ -892,21 +955,23 @@ sub composemessage {
               submit(-name=>"sendbutton",
                      -value=>"$lang_text{'send'}",
                      -onClick=>'return sendcheck();',
+                     -accesskey=>'G',	# send, outGoing
                      -override=>'1').
               qq|&nbsp;&nbsp;</td>\n|;
 
    $temphtml.=qq|<td align="center">|.
               submit(-name=>"savedraftbutton",
                      -value=>"$lang_text{'savedraft'}",
+                     -accesskey=>'W',	# savedraft, Write
                      -override=>'1').
               qq|&nbsp;&nbsp;</td>\n|;
 
    $temphtml.=qq|<td align="center">|.
               popup_menu(-name=>'dictionary2',
-                         -"values"=>$config{'spellcheck_dictionaries'},
+                         -values=>$config{'spellcheck_dictionaries'},
                          -default=>$prefs{'dictionary'},
                          -onChange=>"JavaScript:document.spellcheckform.dictionary.value=this.value;",
-                         -override=>'1')." ".
+                         -override=>'1').
               button(-name=>'spellcheckbutton',
                      -value=> $lang_text{'spellcheck'},
                      -onClick=>'spellcheck(); document.spellcheckform.submit();',
@@ -960,76 +1025,97 @@ sub composemessage {
       $temphtml .= hidden(-name=>'action',
                           -default=>'readmessage',
                           -override=>'1');
-      $temphtml .= hidden(-name=>'firstmessage',
-                          -default=>$firstmessage,
-                          -override=>'1');
-      $temphtml .= hidden(-name=>'sort',
-                          -default=>$sort,
-                          -override=>'1');
-      $temphtml .= hidden(-name=>'keyword',
-                          -default=>$keyword,
-                          -override=>'1');
-      $temphtml .= hidden(-name=>'searchtype',
-                          -default=>$searchtype,
-                          -override=>'1');
-      $temphtml .= hidden(-name=>'folder',
-                          -default=>$folder,
+      $temphtml .= hidden(-name=>'message_id',
+                          -default=>param("message_id"),
                           -override=>'1');
       $temphtml .= hidden(-name=>'headers',
                           -default=>$prefs{'headers'} || 'simple',
-                          -override=>'1');
-      $temphtml .= hidden(-name=>'sessionid',
-                          -default=>$thissession,
-                          -override=>'1');
-      $temphtml .= hidden(-name=>'message_id',
-                          -default=>param("message_id"),
                           -override=>'1');
    } else {
       $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-main.pl",
                              -name=>'cancelform');
       $temphtml .= hidden(-name=>'action',
-                          -default=>'displayheaders',
-                          -override=>'1');
-      $temphtml .= hidden(-name=>'firstmessage',
-                          -default=>$firstmessage,
-                          -override=>'1');
-      $temphtml .= hidden(-name=>'sort',
-                          -default=>$sort,
-                          -override=>'1');
-      $temphtml .= hidden(-name=>'keyword',
-                          -default=>$keyword,
-                          -override=>'1');
-      $temphtml .= hidden(-name=>'searchtype',
-                          -default=>$searchtype,
-                          -override=>'1');
-      $temphtml .= hidden(-name=>'folder',
-                          -default=>$folder,
-                          -override=>'1');
-      $temphtml .= hidden(-name=>'sessionid',
-                          -default=>$thissession,
+                          -default=>'listmessages',
                           -override=>'1');
    }
+   $temphtml .= hidden(-name=>'sessionid',
+                       -default=>$thissession,
+                       -override=>'1');
+   $temphtml .= hidden(-name=>'folder',
+                       -default=>$folder,
+                       -override=>'1');
+   $temphtml .= hidden(-name=>'sort',
+                       -default=>$sort,
+                       -override=>'1');
+   $temphtml .= hidden(-name=>'page',
+                       -default=>$page,
+                       -override=>'1');
+   $temphtml .= hidden(-name=>'searchtype',
+                       -default=>$searchtype,
+                       -override=>'1');
+   $temphtml .= hidden(-name=>'keyword',
+                       -default=>$keyword,
+                       -override=>'1');
    $html =~ s/\@\@\@STARTCANCELFORM\@\@\@/$temphtml/g;
 
    $temphtml = end_form();
    $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/g;
 
+   my $abook_width = $prefs{'abook_width'};
+   $abook_width = 'screen.availWidth' if ($abook_width eq 'max');
+   $html =~ s/\@\@\@ABOOKWIDTH\@\@\@/$abook_width/g;
+
+   my $abook_height = $prefs{'abook_height'};
+   $abook_height = 'screen.availHeight' if ($abook_height eq 'max');
+   $html =~ s/\@\@\@ABOOKHEIGHT\@\@\@/$abook_height/g;
+
+   my $abook_searchtype = $prefs{'abook_defualtfilter'}?escapeURL($prefs{'abook_defaultsearchtype'}):'';
+   $html =~ s/\@\@\@ABOOKSEARCHTYPE\@\@\@/$abook_searchtype/g;
+
+   my $abook_keyword = $prefs{'abook_defualtfilter'}?escapeURL($prefs{'abook_defaultkeyword'}):'';
+   $html =~ s/\@\@\@ABOOKKEYWORD\@\@\@/$abook_keyword/g;
+
    print $html;
 
+   my @tmp=($prefs{'language'}, $prefs{'charset'});
    if ($charset ne $prefs{'charset'}) {
-      my @tmp=($prefs{'language'}, $prefs{'charset'});
       ($prefs{'language'}, $prefs{'charset'})=('en', $charset);
-      printfooter(2);
-      ($prefs{'language'}, $prefs{'charset'})=@tmp;
+   }
+
+   my $session_noupdate=param('session_noupdate');
+   if (defined(param('savedraftbutton')) && !$session_noupdate) {
+      # savedraft from user clicking, show show some msg for notifitcaiton
+      my $msg=qq|<font size=-1>$lang_text{savedraft} |;
+      $msg.= qq|($subject) | if ($subject);
+      $msg.= qq|$lang_text{succeeded}</font>|;
+      print qq|<script language="JavaScript" src="$config{'ow_htmlurl'}/javascript/showmsg.js"></script>\n|;
+      print qq|<script language="JavaScript">\n<!--\n|.
+            qq|showmsg('$prefs{charset}', '$lang_text{savedraft}', '$msg', '$lang_text{"close"}', '_savedraft', 300, 100, 5);\n|.
+            qq|//-->\n</script>\n|;
+   }
+   if (defined(param('savedraftbutton')) && $session_noupdate) {
+      # this is auto savedraft triggered by timeoutwarning, 
+      # timeoutwarning js code is not required any more
+      printfooter(1);
    } else {
-      printfooter(2);
+      # load printfooter.js.template and plugin jscode
+      # which will be triggered when timeoutwarning shows up.
+      my $jscode=qq|window.composeform.session_noupdate.value=1;|.
+                 qq|window.composeform.savedraftbutton.click();|;
+      printfooter(2, $jscode);
+   }
+
+   if ($charset ne $prefs{'charset'}) {
+      ($prefs{'language'}, $prefs{'charset'})=@tmp;
    }
 }
 ############# END COMPOSEMESSAGE #################
 
+############# END COMPOSEMESSAGE #################
+
 ############### SENDMESSAGE ######################
 sub sendmessage {
-   no strict 'refs';
+   no strict 'refs';	# for $attchment, which is fname and fhandle of the upload
    # goto composemessage if !savedraft && !send
    if ( !defined(param('savedraftbutton')) &&
         !(defined(param('sendbutton')) && (param("to")||param("cc")||param("bcc")))  ) {
@@ -1049,36 +1135,27 @@ sub sendmessage {
    my $dateserial=gmtime2dateserial();
    my $date = dateserial2datefield($dateserial, $prefs{'timeoffset'});
 
+   my $folder = param("folder");
    my $boundary = "----=OPENWEBMAIL_ATT_" . rand();
    my $to = param("to");
    my $cc = param("cc");
    my $bcc = param("bcc");
    my $replyto = param("replyto") || $prefs{'replyto'};
    my $subject = param("subject") || 'N/A';
-#   $subject =~ s/&#8364;/€/g;	# Euro symbo
-
-   # fake a messageid for this message
-   my $fakedid = $dateserial.'.M'.int(rand()*100000);
-   if ($from =~ /@(.*)$/) {
-      $fakedid="<$fakedid".'@'."$1>";
-   } else {
-      $fakedid="<$fakedid".'@'."$from>";
-   }
-
-   my $folder = param("folder");
    my $inreplyto = param("inreplyto");
    my $references = param("references");
    my $charset = param("charset") || $prefs{'charset'};
    my $priority = param("priority");
    my $confirmreading = param("confirmreading");
    my $body = param("body");
+   $mymessageid= fakemessageid($from) if (!$mymessageid);
 
    my $attachment = param("attachment");
    my $attheader;
    if ( $attachment ) {
       my $savedattsize=(getattlistinfo())[0];
-      if ( ($config{'attlimit'}) && ( ( $savedattsize + (-s $attachment) ) > ($config{'attlimit'} * 1048576) ) ) {
-         openwebmailerror ("$lang_err{'att_overlimit'} $config{'attlimit'} MB!");
+      if ( ($config{'attlimit'}) && ( ( $savedattsize + (-s $attachment) ) > ($config{'attlimit'} * 1024) ) ) {
+         openwebmailerror ("$lang_err{'att_overlimit'} $config{'attlimit'} $lang_sizes{'kb'}!");
       }
       my $attcontenttype;
       if (defined(uploadInfo($attachment))) {
@@ -1090,10 +1167,8 @@ sub sendmessage {
       # Convert :: back to the ' like it should be.
       $attname =~ s/::/'/g;
       # Trim the path info from the filename
-      if ($charset eq 'big5') {
-         $attname =~ s|^.*[^\xA1-\xF9]\\||;	# dos path
-      } elsif ($charset eq 'gb2312') {
-         $attname =~ s|^.*[^\x81-\xFE]\\||;	# dos path
+      if ($charset eq 'big5' || $charset eq 'gb2312') {
+         $attname = zh_dospath2fname($attname);	# dos path
       } else {
          $attname =~ s|^.*\\||;		# dos path
       }
@@ -1102,6 +1177,7 @@ sub sendmessage {
 
       $attheader = qq|Content-Type: $attcontenttype;\n|.
                    qq|\tname="|.encode_mimewords($attname, ('Charset'=>$charset)).qq|"\n|.
+                   qq|Content-Disposition: attachment; filename="|.encode_mimewords($attname, ('Charset'=>$charset)).qq|"\n|.
                    qq|Content-Transfer-Encoding: base64\n|;
    }
    my @attfilelist=();
@@ -1122,7 +1198,6 @@ sub sendmessage {
       $charset=$prefs{'sendcharset'};
    }
    $body =~ s/\r//g;		# strip ^M characters from message. How annoying!
-#   $body =~ s/&#8364;/€/g;	# Euro symbo
 
    my $do_sendmsg=1;
    my $send_errstr="";
@@ -1230,17 +1305,24 @@ sub sendmessage {
             openwebmailerror("$lang_err{'couldnt_updatedb'} $savedb$config{'dbm_ext'}");
          }
          # remove message with same id from draft folder
-         if ( $savefolder eq 'saved-drafts' && defined(param("message_id")) ) {
+         if ( $savefolder eq 'saved-drafts' ) {
             my $removeoldone=0;
-            my $messageid=param("message_id");
             my %HDB;
 
-            filelock("$savedb$config{'dbm_ext'}", LOCK_EX) if (!$config{'dbmopen_haslock'});
+            if (!$config{'dbmopen_haslock'}) {
+               filelock("$savedb$config{'dbm_ext'}", LOCK_EX) or
+                  openwebmailerror("$lang_err{'couldnt_lock'} $savedb$config{'dbm_ext'}");
+            }
             dbmopen(%HDB, "$savedb$config{'dbmopen_ext'}", undef);
-            if (defined($HDB{$messageid})) {
-               my @oldheaders=split(/@@@/, $HDB{$messageid});
-               if ($oldheaders[$_SUBJECT] eq $subject) {
+            if (defined($HDB{$mymessageid})) {
+               my @oldheaders=split(/@@@/, $HDB{$mymessageid});
+               if ($subject eq $oldheaders[$_SUBJECT]) {
                   $removeoldone=1;
+               } else {
+                  # change mymessageid if old is not removed 
+                  # since messageid should be unique in one folder
+                  # note: this new mymessageid will be used by composemessage later
+                  $mymessageid=fakemessageid($from);
                }
             }
             dbmclose(%HDB);
@@ -1248,7 +1330,7 @@ sub sendmessage {
 
             if ($removeoldone) {
                my @ids;
-               push (@ids, $messageid);
+               push (@ids, $mymessageid);
                operate_message_with_ids("delete", \@ids, $savefile, $savedb);
             }
          }
@@ -1274,7 +1356,7 @@ sub sendmessage {
       if ($save_errcount>0) {
          openwebmailerror($save_errstr);
       } else {
-         print "Location: $config{'ow_cgiurl'}/openwebmail-main.pl?action=displayheaders&sessionid=$thissession&sort=$sort&folder=$escapedfolder&firstmessage=$firstmessage\n\n";
+         print "Location: $config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&sessionid=$thissession&sort=$sort&folder=$escapedfolder&page=$page\n\n";
       }
    }
 
@@ -1294,12 +1376,22 @@ sub sendmessage {
    } else {
       $tempcontent .= "From: ".encode_mimewords(qq|$from|, ('Charset'=>$charset))."\n";
    }
-   $tempcontent .= "To: ".encode_mimewords(folding($to), ('Charset'=>$charset))."\n";
-   $tempcontent .= "CC: ".encode_mimewords(folding($cc), ('Charset'=>$charset))."\n" if ($cc);
    $smtp->datasend($tempcontent) || $send_errcount++ if ($do_sendmsg && $send_errcount==0);
    print FOLDER    $tempcontent  || $save_errcount++ if ($do_savemsg && $save_errcount==0);
 
-   if ($bcc) {	# put bcc header in folderfile only, not in SMTP session
+   if ($to) {
+      $tempcontent = "To: ".encode_mimewords(folding($to), ('Charset'=>$charset))."\n";
+      $smtp->datasend($tempcontent) || $send_errcount++ if ($do_sendmsg && $send_errcount==0);
+      print FOLDER    $tempcontent  || $save_errcount++ if ($do_savemsg && $save_errcount==0);
+   } elsif ($bcc && !$cc) { # recipients in Bcc only, To and Cc are null
+      $smtp->datasend("To: undisclosed-recipients: ;\n") || $send_errcount++ if ($do_sendmsg && $send_errcount==0);
+   }
+   if ($cc) {
+      $tempcontent = "Cc: ".encode_mimewords(folding($cc), ('Charset'=>$charset))."\n";
+      $smtp->datasend($tempcontent) || $send_errcount++ if ($do_sendmsg && $send_errcount==0);
+      print FOLDER    $tempcontent  || $save_errcount++ if ($do_savemsg && $save_errcount==0);
+   }
+   if ($bcc) {	# put bcc header in folderfile only, not in outgoing msg
       $tempcontent = "Bcc: ".encode_mimewords(folding($bcc), ('Charset'=>$charset))."\n";
       print FOLDER    $tempcontent  || $save_errcount++ if ($do_savemsg && $save_errcount==0);
    }
@@ -1309,7 +1401,7 @@ sub sendmessage {
    $tempcontent .= "Subject: ".encode_mimewords($subject, ('Charset'=>$charset))."\n";
    $tempcontent .= "Date: $date\n";
 
-   $tempcontent .= "Message-Id: $fakedid\n";
+   $tempcontent .= "Message-Id: $mymessageid\n";
 
    $tempcontent .= "In-Reply-To: $inreplyto\n" if ($inreplyto);
    $tempcontent .= "References: $references\n" if ($references);
@@ -1357,15 +1449,25 @@ sub sendmessage {
       print FOLDER    $body, "\n"  || $save_errcount++ if ($do_savemsg && $save_errcount==0);
 
       my $buff='';
-      foreach (@attfilelist) {
+      foreach my $attfile (@attfilelist) {
          $smtp->datasend("\n--$boundary\n") || $send_errcount++ if ($do_sendmsg && $send_errcount==0);
          print FOLDER    "\n--$boundary\n"  || $save_errcount++ if ($do_savemsg && $save_errcount==0);
-         open(ATTFILE, $_);
 
+         open(ATTFILE, $attfile);
+
+         # print attheader line by line
+         while (defined($buff = <ATTFILE>)) {
+            $buff =~ s/^(.+name="?)([^"]+)("?.*)$/_convert_attfilename($1, $2, $3, $charset)/ige;
+            $smtp->datasend($buff) || $send_errcount++ if ($do_sendmsg && $send_errcount==0);
+            print FOLDER    $buff  || $save_errcount++ if ($do_savemsg && $save_errcount==0);
+            last if ($buff =~ /^\s+$/ );
+         }
+         # print attbody block by block
          while (read(ATTFILE, $buff, 32768)) {
             $smtp->datasend($buff) || $send_errcount++ if ($do_sendmsg && $send_errcount==0);
             print FOLDER    $buff  || $save_errcount++ if ($do_savemsg && $save_errcount==0);
          }
+
          close(ATTFILE);
       }
 
@@ -1419,7 +1521,6 @@ sub sendmessage {
       unlink($smtperrfile);
    }
 
-
    if ($do_savemsg) {
       if ($save_errcount==0) {
          $messagesize=tell(FOLDER)-$messagestart if ($do_savemsg && $save_errcount==0);
@@ -1455,10 +1556,18 @@ sub sendmessage {
          $attr[$_REFERENCES]=$references;
          $attr[$_CHARSET]=$charset;
 
+         # escape @@@
+         foreach ($_FROM, $_TO, $_SUBJECT, $_CONTENT_TYPE, $_REFERENCES) {
+            $attr[$_]=~s/\@\@/\@\@ /g; $attr[$_]=~s/\@$/\@ /;
+         }
+
          my %HDB;
-         filelock("$savedb$config{'dbm_ext'}", LOCK_EX) if (!$config{'dbmopen_haslock'});
+         if (!$config{'dbmopen_haslock'}) {
+            filelock("$savedb$config{'dbm_ext'}", LOCK_EX) or
+               openwebmailerror("$lang_err{'couldnt_lock'} $savedb$config{'dbm_ext'}");
+         }
          dbmopen(%HDB, "$savedb$config{'dbmopen_ext'}", 0600);
-         $HDB{$fakedid}=join('@@@', @attr);
+         $HDB{$mymessageid}=join('@@@', @attr);
          $HDB{'ALLMESSAGES'}++;
          $HDB{'METAINFO'}=metainfo($savefile);
          dbmclose(%HDB);
@@ -1471,7 +1580,10 @@ sub sendmessage {
          close(FOLDER);
 
          my %HDB;
-         filelock("$savedb$config{'dbm_ext'}", LOCK_EX) if (!$config{'dbmopen_haslock'});
+         if (!$config{'dbmopen_haslock'}) {
+            filelock("$savedb$config{'dbm_ext'}", LOCK_EX) or
+               openwebmailerror("$lang_err{'couldnt_lock'} $savedb$config{'dbm_ext'}");
+         }
          dbmopen(%HDB, "$savedb$config{'dbmopen_ext'}", 0600);
          $HDB{'METAINFO'}=metainfo($savefile);
          dbmclose(%HDB);
@@ -1508,7 +1620,10 @@ sub sendmessage {
          my (%HDB, $oldstatus, $found);
 
          dbmopen(%HDB, "$headerdb$config{'dbmopen_ext'}", 0600);
-         filelock("$headerdb$config{'dbm_ext'}", LOCK_EX) if (!$config{'dbmopen_haslock'});
+         if (!$config{'dbmopen_haslock'}) {
+            filelock("$headerdb$config{'dbm_ext'}", LOCK_EX) or
+               openwebmailerror("$lang_err{'couldnt_lock'} $headerdb$config{'dbm_ext'}");
+         }
          if (defined($HDB{$inreplyto})) {
             $oldstatus = (split(/@@@/, $HDB{$inreplyto}))[$_STATUS];
             $found=1;
@@ -1534,15 +1649,32 @@ sub sendmessage {
    } elsif ($save_errcount>0) {
       openwebmailerror($save_errstr);
    } else {
-      # delete attachments only if no error,
-      # in case user trys resend, attachments could be available
-      deleteattachments();
-
-      # call getfolders to recalc used quota
-      #getfolders(\@validfolders, \$folderusage);
-      #displayheaders();
-      print "Location: $config{'ow_cgiurl'}/openwebmail-main.pl?action=displayheaders&sessionid=$thissession&sort=$sort&folder=$escapedfolder&firstmessage=$firstmessage\n\n";
+      if (defined(param('sendbutton'))) {
+         # delete attachments only if no error,
+         # in case user trys resend, attachments could be available
+         deleteattachments();
+         print "Location: $config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&sessionid=$thissession&sort=$sort&folder=$escapedfolder&page=$page\n\n";
+      } else {
+         # call getfolders to recalc used quota
+         getfolders(\@validfolders, \$folderusage);
+         return(composemessage());
+      }
    }
+}
+
+# convert filename in attheader to same charset as message itself when sending
+sub _convert_attfilename {
+   my ($prefix, $name, $postfix, $targetcharset)=@_;
+   my $origcharset;
+   $origcharset=$1 if ($name =~ m{=\?([^?]*)\?[bq]\?[^?]+\?=}xi);
+   return($prefix.$name.$postfix)   if (!$origcharset || $origcharset eq $targetcharset);
+
+   if (is_convertable($origcharset, $targetcharset)) {
+      $name=decode_mimewords($name);
+      ($name)=iconv($origcharset, $targetcharset, $name);
+      $name=encode_mimewords($name, ('Charset'=>$targetcharset));
+   }
+   return($prefix.$name.$postfix);
 }
 ############## END SENDMESSAGE ###################
 
@@ -1702,6 +1834,18 @@ sub reparagraph {
    return($text);
 }
 ################### END REPARAGRAPH #########################
+
+################## FAKEMESSGAEID ###########################
+sub fakemessageid {
+   my $postfix=$_[0];
+   my $fakedid = gmtime2dateserial().'.M'.int(rand()*100000);
+   if ($postfix =~ /@(.*)$/) {
+      return("<$fakedid".'@'."$1>");
+   } else {
+      return("<$fakedid".'@'."$postfix>");
+   }
+}
+################## END FAKEMESSGAEID ########################
 
 ################### READSMTPERR ##########################
 sub readsmtperr {

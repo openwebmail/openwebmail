@@ -742,7 +742,7 @@ my $ocode=shift(@ARGV);
 my $icode=shift(@ARGV);
 my $outputdir=shift(@ARGV);
 
-if ($#ARGV<3) {
+if ($#ARGV<0) {
    print "jcode  <ocode> <icode> <outputdir> files...\n".
          "icode/ocode can be one of jis, sjis, euc, uft8, ucs2\n";
    exit;

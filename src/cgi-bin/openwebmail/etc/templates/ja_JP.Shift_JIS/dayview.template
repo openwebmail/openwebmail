@@ -1,11 +1,11 @@
 <center> 
 <table border="0" align="center" width="95%" cellpadding="0" cellspacing="0">
-<tr><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="left">
+<tr><td colspan="2" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <b>日ビュー</b></font>
 </td></tr>
 @@@STARTFORM@@@
-<tr><td bgcolor=@@@MENUBAR@@@ align="left">
+<tr><td bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
 </td><td bgcolor=@@@MENUBAR@@@ align="right">
 @@@YEARFIELD@@@&nbsp;
@@ -15,13 +15,11 @@
 </table>
 
 <table width=95% cellpadding=1 cellspacing=0><tr bgcolor=@@@TABLEROW_DARK@@@>
-<td align=right>@@@PREV_LINK@@@</td>
-<td width=90% nowrap align=center><font color=black><b>@@@CALTITLE@@@</b></td>
-<td align=left>@@@NEXT_LINK@@@</td>
+<td nowrap align=center>@@@PREV_LINK@@@ <b>@@@CALTITLE@@@</b> @@@NEXT_LINK@@@</td>
 </tr></table>
 &nbsp;
 
-<table border=0 width=95%><tr><td align=right valign=top width=85%>
+<table border=0 width=95%><tr><td align="right" valign=top width=85%>
 
 <table border=0 cellspacing=1 width=100% bgcolor=@@@BACKGROUND@@@>
 <tr align=center>
@@ -40,8 +38,8 @@
 <tr><td width=25% nowrap>開始時間</td><td nowrap>@@@STARTHOURMINMENU@@@</td></tr>
 <tr><td width=25% nowrap>終了時間</td><td nowrap>@@@ENDHOURMINMENU@@@</td></tr>
 <tr><td colspan=2 nowrap>@@@FREQMENU@@@</td></tr>
-<tr><td colspan=2 nowrap>@@@TODAYANDNEXTNDAYSCHECKBOX@@@ 今日と次の @@@NDAYSFIELD@@@ 日</td></tr>
-<tr><td colspan=2 nowrap>@@@EVERYMONTHCHECKBOX@@@ この年の毎月</td></tr>
+<tr><td colspan=2 nowrap>@@@THISANDNEXTNDAYSCHECKBOX@@@ 今日と次の @@@NDAYSFIELD@@@ 日</td></tr>
+<tr><td colspan=2 nowrap>@@@MONTHFREQMENU@@@</td></tr>
 <tr><td colspan=2 nowrap>@@@EVERYYEARCHECKBOX@@@ 毎年</td></tr>
 <tr><td colspan=2 nowrap>このアイテムをハイパーリンクにする</td></tr>
 <tr><td colspan=2 nowrap>@@@LINKFIELD@@@</td></tr>
@@ -49,6 +47,8 @@
 <tr><td colspan=2 nowrap>Send notification email to</td></tr>
 <tr><td colspan=2 nowrap>@@@EMAILFIELD@@@</td></tr>
 @@@EMAILEND@@@
+<tr><td nowrap>Event Color</td><td nowrap>@@@EVENTCOLORMENU@@@</td></tr>
+<tr><td colspan=2>@@@COLORTABLE@@@</td></tr>
 <tr><td colspan=2 align=center>@@@SUBMITBUTTON@@@</td></tr>
 @@@ENDFORM@@@
 </table>

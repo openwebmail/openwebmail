@@ -33,7 +33,7 @@ sub retrpop3mail {
    my ($dummy, $i);
 
    if ( readpop3book($pop3book, \%accounts)<0 ) {
-      return(-1);
+      return -1;
    }
 
    ($dummy, $dummy, $pop3passwd, $pop3lastid, $pop3del, $enable)=
@@ -53,12 +53,12 @@ sub retrpop3mail {
                                            PeerPort=>$ServerPort,);
       alarm 0;
    };
-   return(-2) if ($@);			# eval error, it means timeout
-   return(-2) if (!$remote_sock);	# connect error
+   return -2 if ($@);			# eval error, it means timeout
+   return -2 if (!$remote_sock);	# connect error
 
    $remote_sock->autoflush(1);
    $_=<$remote_sock>;
-   return(-3) if (/^\-/);		# server not ready
+   return -3 if (/^\-/);		# server not ready
 
    # try if server supports auth login(base64 encoding) first
    print $remote_sock "auth login\r\n";
@@ -66,21 +66,21 @@ sub retrpop3mail {
    if (/^\+/) {
       print $remote_sock &encode_base64($pop3user);
       $_=<$remote_sock>;
-      (close($remote_sock) && return(-4)) if (/^\-/);		# username error
+      (close($remote_sock) && return -4) if (/^\-/);		# username error
       print $remote_sock &encode_base64($pop3passwd);
       $_=<$remote_sock>;
    }
    if (! /^\+/) {	# not supporting auth login or auth login failed
       print $remote_sock "user $pop3user\r\n";
       $_=<$remote_sock>;
-      (close($remote_sock) && return(-4)) if (/^\-/);		# username error
+      (close($remote_sock) && return -4) if (/^\-/);		# username error
       print $remote_sock "pass $pop3passwd\r\n";
       $_=<$remote_sock>;
-      (close($remote_sock) && return(-5)) if (/^\-/);		# passwd error
+      (close($remote_sock) && return -5) if (/^\-/);		# passwd error
    }
    print $remote_sock "stat\r\n";
    $_=<$remote_sock>;
-   (close($remote_sock) && return(-6)) if (/^\-/);		# stat error
+   (close($remote_sock) && return -6) if (/^\-/);		# stat error
 
    $nMailCount=(split(/\s/))[1];
    if ($nMailCount == 0) {		# no message
@@ -154,7 +154,7 @@ sub retrpop3mail {
             next;
          } elsif (/^\-/) {
             close($remote_sock);
-            return(-7);
+            return -7;
          } else {
             last;
          }
@@ -209,8 +209,8 @@ sub retrpop3mail {
       }
 
       # append message to mail folder
-      filelock($spoolfile, LOCK_EX);
-      open(IN,">>$spoolfile") or return(-8);
+      filelock($spoolfile, LOCK_EX) or return -8;
+      open(IN,">>$spoolfile") or return -8;
       print IN "From $stAddress $stDate\n";
       print IN $FileContent;
       print IN "\n";		# mark mail end
@@ -236,9 +236,9 @@ sub retrpop3mail {
    close($remote_sock);
 
    ###  write back to pop3book
-   $accounts{"$pop3host:$pop3user"} = "$pop3host\@\@\@$pop3user\@\@\@$pop3passwd\@\@\@$pop3lastid\@\@\@$pop3del\@\@\@$enable";
+   $accounts{"$pop3host\@\@\@$pop3user"} = "$pop3host\@\@\@$pop3user\@\@\@$pop3passwd\@\@\@$pop3lastid\@\@\@$pop3del\@\@\@$enable";
    if (writepop3book($pop3book, \%accounts)<0) {
-      return(-9);
+      return -9;
    }
 
    # return number of fetched mail

@@ -304,7 +304,7 @@ If your apache root is setup somewhere else (e.g. /var/www) you will be fine.
 
 ------------------------------------------------------------------------------
 Some issues of the sendmail on RedHat 7.1 
-(thanks to Thomas Chung, tchung.AT.pasadena.oao.com) 
+(thanks to Thomas Chung, tchung.AT.openwebmail.org) 
 ------------------------------------------------------------------------------
 
 For security reasons, the default configuration of sendmail allows sending,

@@ -1,0 +1,12 @@
+<BR><BR><BR><BR><BR><BR><BR>
+<table border="0" align="center" width="60%" cellpadding="1" cellspacing="1">
+<tr><td bgcolor=@@@TITLEBAR@@@>
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>歡迎使用 @@@NAME@@@ 網路郵局</B></font>
+</td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
+<table width=85%><tr><td align="center">
+<BR>您是第一次使用 @@@NAME@@@ 網路郵局，必須先設定一些個人資料，請按繼續鈕
+進入個人偏好設定畫面。
+@@@CONTINUEBUTTON@@@
+</td></tr></table>
+</td></tr></table>

@@ -2,9 +2,9 @@
 <a href="@@@LOGO_LINK@@@">
 <img border="0" src="@@@LOGO_URL@@@"></a></p>
 <table border="0" align="center" width="260" cellpadding="0" cellspacing="0">
-<tr><td bgcolor=@@@TITLEBAR@@@ background="@@@IMAGEDIR_URL@@@/bg-titleblue.gif" align="left">
+<tr><td bgcolor=@@@TITLEBAR@@@ background="@@@IMAGEDIR_URL@@@/bg-titleblue.gif">
 &nbsp;<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><B>Giriþ</B></FONT>
-</td></tr><tr><td align="center" valign="middle" bgcolor=#3161bd>
+</td></tr><tr><td align="center" bgcolor=#3161bd>
 
 <table width="100%" cellpadding="0" cellspacing="1" border="0">
 <tr>
@@ -13,19 +13,19 @@
 <BR>
 <table align=center border=0 cellspacing=2 cellpadding=0>
 <tr>
-<td align=right nowrap>Kullanýcý Adý: </td><td align=left>@@@LOGINNAMEFIELD@@@</td>
+<td align="right" nowrap>Kullanýcý Adý: </td><td>@@@LOGINNAMEFIELD@@@</td>
 </tr><tr>
-<td align=right nowrap>Parola: </td><td align=left>@@@PASSWORDFIELD@@@</td>
+<td align="right" nowrap>Parola: </td><td>@@@PASSWORDFIELD@@@</td>
 @@@DOMAINSTART@@@
 </tr><tr>
-<td align=right nowrap>Domain: </td><td align=left>@@@DOMAINMENU@@@</td>
+<td align="right" nowrap>Alan Adý: </td><td>@@@DOMAINMENU@@@</td>
 @@@DOMAINEND@@@
 </tr><tr>
 <td align=center>
 <table><tr><td>@@@LOGINBUTTON@@@</td></tr></table>
 </td>
 <td align=center>
-<table><tr><td><font size=1>remember<br>my userid</font></td><td>@@@REMEMBERMECHECKBOX@@@</td></tr></table>
+<table><tr><td><font size=1>kullanýcý adýmý hatýrla</font></td><td>@@@REMEMBERMECHECKBOX@@@</td></tr></table>
 </td>
 </tr>
 </table>

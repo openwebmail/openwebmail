@@ -1,0 +1,701 @@
+=================
+= RELEASE NOTES =
+=================
+
+MindTerm, release 1.2.1 - Aug 1, 2000
+    o Fixed bug when file access not permitted or no home-directory exists
+      autosave/load should be disabled (causing totally confusing "Connection
+      refused" due to attempt to connect to localhost).
+    o Fixed bug when no autoload of settings the username/password was stuck (if
+      not changed in dialog)
+    o Fixed bug that made AWT load (native libs) regardless of running as a dumb
+      terminal
+    o Fixed bug with "Save Passwords" (several oddities)
+    o Fixed bug in "Clone Terminal" (broken!)
+    o Fixed bug in "Save Settings As" (broken!) (thanks to Paul Rouse
+      <par@netcraft.com> and Cesar Mendoza <mendoza@kitiara.org> for fix)
+    o Changed behaviour for remembering password, now only when using "Save
+      Passwords" option
+
+
+=================
+=    HISTORY    =
+=================
+
+MindTerm, release 1.2 (finally) - Apr 7, 2000
+    o Added authentication type 'sdi-token' which can be used with the patch
+      from Jean Chouanard <chouanar@parc.xerox.com> (patch found at:
+      ftp://ftp.parc.xerox.com/pub/jean/sshsdi/)
+    o Added ability to redirect browser frame/page or launch given external
+      (native) program when connection is established with tunneling only client
+      (I know this might easily be added to MindTerm too, for now it's not)
+    o Added ability to include logo in tunneling only client
+    o Added function keys > F12 (i.e. shift/ctrl/shift+ctrl) to terminal for
+      types xterm/linux/aixterm. This code will be cleaned out later on to do
+      better key-remap support (thanks to Eddy Lai <eddylai@i.am>)
+    o Changed SOCKS5 proxy type into socks5-proxy-dns and socks5-local-dns to
+      enable connection through a SOCKS5 proxy which don't do name lookups
+      (i.e. do the lookup locally or give ip-address instead of hostname)
+    o Changed window title to be more concise (thanks to Sean Boran
+      sean.boran@swisscom.com for suggestion)
+    o Fixed bug with file-transfer when quiet mode was disabled caused funny
+      behaviour (end result file-transfer didn't work)
+    o Fixed bug in listener and controller which could cause sockets listened on
+      not to be closed properly (in local port forwards)
+    o Fixed bug in terminal, khome/kend in xterm was wrong (previously took them
+      from termcap, now follows terminfo which seems more consistent)
+    o Fixed bug in terminal, insert-key was lost somewhere (also, VK_NUMPAD0
+      shouldn't be mapped to insert in the first place, besides
+      causing a bug :-)
+    o Fixed bug in terminal, ctrl-keys ctrl+^, ctrl+_, et.c. didn't work,
+      though this still has problems will be fixed fully later, seems to work on
+      Linux at least (thanks to Robert Simms <rsimms@math.clemson.edu> for
+      pointing this out)
+    o Fixed bug passwords cleared while connected (when saving settings) causing
+      clone and SCP not to work (thanks to Robert Simms)
+    o Fixed bug, shouldn't try to auto-save if connection could not be
+      established
+    o Fixed bug with file password for settings, password automatically empty
+      if enabling save passwords after connected
+    o Fixed bug with xterm-color, got wrong identity (should have xterm), made
+      among other things arrow-keys give exception (thanks to Robert Simms)
+    o Fixed bug with authenticating web-proxy, wrong password didn't give chance
+      to correct on retried connect
+    o Fixed bug in web-proxy connect, stopped working in 1.2pre4
+    o Fixed bug with SCP, shouldn't start tunnels
+    o Fixed bug in SSHPropertyHandler signed for Netscape, didn't enable
+      fileaccess when checking for preexisting settings file (causing security
+      exception)
+    o Fixed bug with tunneling client, forgot to enable net-access in
+      main-thread (having effect that one could only connect back to same host)
+    o Fixed bug with property server not set when not using autoload of settings
+    o Fixed bug with hollow cursor leaving trail
+    o Fixed bug with command shell, (ugly copy/paste bug)
+    o Fixed bug when configuring SOCKS4 proxy in dialog, a username should be
+      given (before username could only be given at prompt when connecting)
+    o Fixed bug with tunneling only client, cancel login gave exception
+    o Fixed bug with find dialog, find on empty string caused exception
+    o Fixed bug with scp dialog, WM close button tied to "Change Direction"
+    o Fixed bug with tunneling only client, list-mode can only be used if home
+      directory containing aliases is given
+    o Fixed bug that quiet mode was not default in applet
+    o Fixed some minor other bugs in tunneling only client
+    o Fixed annoyance, long paths/filenames caused SCP copy progress window to
+      be very wide (thanks to Robert Simms for suggestion)
+    o Fixed annoyance, long host names caused alias-prompt to wrap (not really
+      fixed but shouldn't be a problem now) (thanks to Robert Simms
+      for pointing this out)
+    o Fixed annoyance, "Address already in use" error message clearer now
+      (thanks to sean.boran@swisscom.com for suggestion)
+    o Added "convenience" hitting enter in filetransfer progress indicator when
+      done removes dialog (i.e. equal to pressing "Done" button)
+    o Changed all dialogs to be resizable, not beeing resizable caused strange
+      behaviour on e.g. Solaris JDK (thanks to Jade Cravy <jade@gdatech.com>)
+
+
+=================
+MindTerm, release 1.2pre5 - Mar 09, 2000
+
+    o Added mindbright.application.MindTunnelCli which is a client for doing
+      tunneling only (check the example html-page or command line --? for now,
+      docs will come later on)
+    o Added ability to include 'known_hosts' file in jar-file as resource
+      (in /defaults/known_hosts.txt), pretty handy for a signed applet (or
+      applet served over https)
+    o Added "Save Passwords" (i.e. same as --x and 'savepasswords') as menu
+      option (menu Settings)
+    o Added "Configure Proxy" button to Settings -> SSH Connection dialog (for
+      clarity)
+    o Changed behaviour to only allow configuring tunnels when connected
+    o Fixed bug with file transfer "Pipe Broken" (appeared in 1.2pre4)
+    o Fixed bug with file transfer to local file/dir with space(s) in name
+      (thanks to Robert Simms <rsimms@math.clemson.edu> for pointing this out)
+    o Fixed bug with transfer of file with zero bytes (wasn't fixed before!)
+
+
+=================
+MindTerm, release 1.2pre4 - Mar 02, 2000
+
+    o Separated (and cleaned out) the handling of settings from the interactive
+      client (new class SSHPropertyHandler) should now be more intuitive
+    o Added ability to have password (all types) as applet parameter (only for
+      https of course :-) or property (i.e. given on command-line or
+      saved/loaded from settings file), enabled with command-line option --x or
+      with applet parameter 'savepasswords' set to 'true' (default is NOT to
+      save any passwords)
+    o When passwords are saved a password is used to protect the whole settings
+      file (much like the protection of the RSA private key). The password can
+      be empty (hit enter when prompted to set password).
+    o When encrypted settings are loaded (i.e. with saved passwords in them)
+      they are automatically decrypted if the password was the same as for the
+      last file visited (i.e. if you have the same password on all files OR have
+      no password protection on them you will be able to connect to different
+      sites without entering anything but the alias, pretty convenient)
+    o Changed behaviour to query for name of alias (filename minus extension)
+      where to save settings. The name of the file is used as an alias of the
+      session with which it can be referred directly at the prompt.
+    o Changed behaviour of settings, new (as in no settings previously saved)
+      connections don't inherit tunnels from previously open connection
+    o Changed behaviour to have option 'quiet' on by default
+    o Fixed the sloppy cleanup when server-connection is closed down (release of
+      sockets et.c.)
+    o Fixed bug accepted X11-forward eventhough didn't request it(!)
+    o Fixed bug with Caps and Shift on jdk1.2 (rather a workaround for bug in
+      jdk1.2)
+    o Fixed bug in TerminalWin key-handler, some things had broken with new code
+    o Fixed subtle bug in TerminalWin.update where character-position not drawn
+      but contained attributes
+    o Fixed some minor bugs (can't remember...)
+
+
+=================
+MindTerm, release 1.2pre3 - Feb 12, 2000
+
+    o Added terminal type aixterm (does it work?)
+    o Added terminal sequences ECH, CHT, SU, SD, CBT
+    o Added keys shift+page-up/dn => scroll in savelines buffer
+    o Added insert-key to send proper esc. (e.g. in xterm <ESC>[2~)
+    o Fixed bug with linedraw mode in terminal (only worked with SI/SO)
+    o Fixed bug with inverse attribute along with fg/bg colors (showed with
+      mutt) (thanks to Roy-Magne Mo <romo@interpost.no> for pointing
+      this out)
+    o Fixed bug with ED/EL/DCH/DL/ICH/IL didn't fill in fg/bg
+      colors (e.g. some also showed in mutt)
+    o Fixed bug with DEC-SC/RC in terminal (didn't save gsets/curgl)
+    o Fixed bug with CPL/CNL in terminal (didn't do CR)
+    o Fixed bug with tabstops in terminal (didn't stop before window-edge)
+    o Fixed bug in scp file transfer where local directory was given with
+      ending directory separator (didn't work in Mac and win32)
+    o Fixed colors in terminal (before intensity-on didn't change color :-)
+    o Fixed bug with jview v4.79.0.2424 ("BorderLayout: ... null" resulting in
+      tiny unusable window)
+
+    The following is thanks to Nicholas Riley <njriley@uiuc.edu>
+    --
+    (Nicholas has done some more Mac-specific changes which are not included right now
+    but will be in a later release)
+    o Added close-listeners on window-close icon in all Dialogs
+    o Added return/escape keys to act as Ok and Cancel in some dialogs
+    o Added simple color-preview in terminal-settings
+    o Fixed KeyEvent handling in terminal, now uses keyPressed (^H ^M now works ok)
+    o Fixed home-directory ending with File.separator don't work with mkdir on Mac
+    o Fixed wordings in the RSA keygeneration dialog
+    o Fixed wordings in the SCP file transfer dialog
+    o Fixed scrollbar to prevent double border on the Mac
+    o Changed background of TextFields/Lists to System.text (better on Mac)
+    o Fixed resizing of some dialogs
+
+
+=================
+MindTerm, release 1.2pre2 - Jan 30, 2000
+
+    o Added support for SOCKS v4 and v5 (v5 supports only non-auth and cleartext
+      username/password)
+    o Removed ability to save proxy-password in config, will be added again along
+      with rewrite of property-handling
+    o Changed behaviour of http-proxy, listens for authenticating proxy's
+      challenge (i.e. can't decide if proxy wants authentication in advance since
+      when 'Digest' mode is used the challenge MUST be read first)
+    o Fixed bug tried to do lookup on ssh-server eventhough behind web-proxy
+    o Fixed bug in proxy-dialog
+    o Fixed bug in SCP, didn't work with openSSH, hard-coded name of binary
+      was scp1 (thanks to Dale Anson <danson@aa.net> for pointing this out)
+    o Fixed bug clipboard not shared between instances when system-clipboard
+      unavailable
+    o Added DEC_ID (<ESC>Z) query in terminal (e.g. used by qterm)
+
+
+=================
+MindTerm, (internal) release 1.2pre1 - Jan 17, 2000
+    o Added ability to connect through a web-proxy-tunnel (e.g. squid and FWTK's
+      http-gw)
+      six new properties are used for this (proxyhost, proxyport,
+      proxyuser, proxypasswd, proxyproto, proxysavepwd) see README for details.
+      Properties can also be set in Proxy-dialog ("Settings" -> "Proxy...")
+      (thanks to John Pallister <john@synchromesh.com> and
+      Jim McGrath <jim@synchromesh.com>)
+
+
+=================
+MindTerm, release 1.1.5 - Dec 19, 1999
+
+    o Fixed bug with signed applet (Netscape), could not use SCP to other site
+      than originator (forgot to request permissions in copy thread)
+      (thanks to Atro.Tossavainen@helsinki.fi for pointing this out)
+    o Fixed bug div/zero in SCP when sending file with 0 bytes
+      (thanks to David Brinegar <davidb@lmi.net> for pointing this out)
+    o Fixed bug when trying to copy (ctrl+INS) when no selection, a null crashed
+      jdk1.2.2 on win32! (thanks to Kurt Werle <Kurt.Werle@pobox.com>
+      for pointing this out)
+    o Fixed bug when changing fg/bg-color screen not updated correctly
+    o Fixed bug causing end-less update-loop in pathological case trying
+      to redraw partially hidden cursor (showed as flickering hung terminal).
+    o Changed so that generated RSA-key does not have to contain a comment
+
+
+=================
+MindTerm, (internal) release 1.1.4 - Dec 12, 1999
+
+    o Minor changes
+
+
+=================
+MindTerm, release 1.1.3 - Nov 26, 1999
+
+    o Fixed bug with server-key beeing longer than host-key (why would one want
+      that?)
+    o Fixed bug with scp-filedialog when file chosen contained spaces
+    o Now using JAX (from IBM alphaworks) for slimming down binaries. Now also
+      have a separate terminal-only client (100k in size).
+
+
+=================
+MindTerm, release 1.1.2 - Oct 31, 1999
+
+    o Fixed bug with not handling Graphics.getClipBounds sometims returning NULL
+      (thanks to Shane Hathaway <hathawsh@slcc.edu> for report+fix)
+    o Fixed some minor things in MindTunnel (ssh server)
+
+
+=================
+MindTerm, release 1.1.1 (codename seven...) - Oct 27, 1999
+
+    o Now the screen-update is flicker- AND bug-free :-)
+    o Oh, on popular demand I also added a main-class manifest-entry :-)
+      (file mainclass.mf)
+
+
+=================
+MindTerm, release 1.1 - Oct 25, 1999
+
+    o Added built in SCP file-transfer, can also be used from command-line.
+      (menu: "File" -> "SCP File Transfer...", see README 4.1.9 and 6.2)
+    o Added IDEA cipher for completeness and also because it's compact (note
+      that IDEA may be subject to licensing for commercial use)
+    o Added applet-parameter 'appletbg' to set background of Applet's Panel
+      syntax is same as params 'bg', 'fg', 'cc' (suggested by Michael Ransburg
+      <daneel@tux.org>)
+    o Changed behaviour, reverse-video (DECSCNM) is now like in xterm
+    o Changed behaviour, cursor is hollow when lost focus, just like yer olde
+      xterm :-) (suggested by Dale Anson <danson@aa.net>)
+    o Fixed bug total braindamage in TerminalWin.update(), double
+      buffering effect was somewhat canceled with a line left from
+      "pre-double-buffering" code!?! Now flicker is non-existent :-)
+    o Fixed bug printed ^@ (nul) in vt220 (et.al) instead of ignoring it (when
+      used for padding)
+    o Fixed bug tried to show cursor when at end-of-line
+    o Fixed bug background color of combo-boxes in terminal-menus were wrong
+    o Fixed bug with tab in terminal (thanks to Eric Youngblut
+      <yngblut@cs.washington.edu>)
+
+
+=================
+MindTerm, release 1.0.1 - Sep 26, 1999
+
+    o Added requestFocus when window changes size (lost focus before when
+      resized)
+    o Added set/clear tabs in terminal (<ESC>H HTS and <ESC>[g TBC)
+    o Now checks for availability of Monospaced font (seems that MicroLost
+      hasn't got it sometimes...), now choose Monospaced and fallback to Courier
+      or DialogInput if not found
+    o Fixed bug with cursor-index (<ESC>D) when used for scrolling area, did not
+      scroll, e.g. pine linked with termlib2.1 on FreeBSD, though pico linked
+      with termcap2.1 did not show bug since it did not use cursor-index to
+      scroll. (thanks to Stefan Powell <spowell@moi.org> for pointing this out
+      AND letting me test it on his system)
+    o Fixed bug when connection lost (e.g. timed out by NAT or server killed)
+      made MindTerm hang since keyboard input was never restored to "local"
+      mode. (causing NULLPointerException when key pressed after disconnect)
+      (thanks to Barry W Anderson <bwa@shori.com> for pointing this out)
+    o Fixed bug now clears title-string when disconnected (if set with
+      XTERM-Change title)
+    o Fixed bug when set local-host ('localhst'), address did not show in
+      settings-dialog after settings loaded (thanks to Sebastian Åkerman
+      <sak@parallelconsulting.com> for pointing this out)
+    o Fixed bug when window resized and cursor was drawn so cursor was not
+      visible, an ArrayIndexOutOfBoundsException was thrown in update
+
+
+=================
+MindTerm, release 1.0 (codename anniversary) - Sep 14, 1999
+
+    o Changed behaviour when connecting to known (settings-file exists) host,
+      quiet mode is always selected if used option --q or in applet quiet=true
+    o Fixed bug when "Save as..." could not have other name on file
+      than host(!), also did not save if properties hadn't changed(!)
+    o Fixed bug with autosave, didn't save when it should(!)
+    o Fixed bug created settings-file eventhough unknown-host
+    o Shaped up documentation a bit, needs more work still though
+    o Made a small tested-platforms list (file PLATFORMS), please report
+      success/failure so I can confirm/extend it
+
+
+=================
+MindTerm, (minor) release 0.99-3 - Sep 10, 1999
+
+    o Fixed (finally!) the initial geometry problems, componetResized and
+      friends in TerminalWin is cleaned out a bit more. It seems that there is
+      no other way than to force the size with setSize of the Canvas, otherwise
+      it will get componentResized calls where getSize reports component has
+      shrunk/grown etc. when Menubar is added (behaving different on each
+      platform/jvm/version of course...).
+    o Fixed bug, mistakenly the click for focus was on button3... (copy/paste
+      programming, what can I say...)
+    o Fixed bug, when opening clone-windows in applet, when closing last window
+      tried to do System.exit()
+    o Changed (silly) default value of keep-alive in settings dialog to 10 seconds
+
+
+=================
+MindTerm, (minor) release 0.99-2 - Sep 06, 1999
+
+    o Added parameter 'localhost' to set address to bind to for local tunnels
+      (if not explicitly given), default value is 0.0.0.0 (i.e. all local
+      addresses)
+    o Added ability to give localhost as described above per tunnel when using
+      parameter 'localN' or when set with dialog "Advanced Tunnels Setup"
+      (e.g. /ftp/127.0.0.1:4711:foobar:21 gives a tunnel listening ONLY on
+      127.0.0.1)
+    o Changed behaviour when using "SSH Connection..." in menu "Settings"
+      now always acts as "New Server" when not connected.
+    o Changed layout of "SSH Settings"/"New Server" dialog for easier use
+    o Fixed stupid behaviour in componentResized, got called several times with
+      same size when realizing window, generating lot's of (unnecessary)
+      garbage/work
+    o Fixed oddity, when connected but not logged in could not disconnect
+    o Fixed bug exception in componentResized in some versions of jview and
+      when running in hotjava/jdk1.2-plugin in separate frame
+    o Fixed bug in SSH Settings Dialog, field 'Server' incorrectly disabled
+      if "New Server" was used twice
+    o Fixed bug in "Advanced Tunnels Setup" dialog, invalid string-descriptions
+    o Fixed (old) bug with space-key lock with popup menus (seems that we don't
+      get a focusLost eventhough the keyReleased does not get sent to us, thus
+      we can't rely on focusLost entirely it seems?!?)
+    o Fixed double-click-select time now raised, seems smoother
+    o Added string "(CLONE)" to end of title-bar of cloned windows (to identify
+      the clones which can be closed without losing the ssh-connection in the
+      original window that contains the tunnels)
+
+
+=================
+MindTerm, (minor) release 0.99-1 - Aug 29, 1999
+
+    o Fixed subtle bug in terminal when scrolling an area (defined with DECSTBM)
+      smaller than screen but starting at top. (e.g. showed in VI using termcap
+      when deleting a line when status-line show, having effect that status-line
+      scrolled up)
+    o Fixed ansi-colors again! (was still broken, I admit it, I "forgot" to test
+      it, I was so sure I got it right but copy/paste can be so hazardous
+      sometimes... :-) (thanks to Bernhard Reiter <bernhard@uwm.edu> for
+      pointing this out)
+    o Added option 'cc' to terminal to set colour of cursor, default in xterm
+      is blue so now our cursor is too :-) (thanks to Jeff Foster
+      <jfoste@woodward.com>)
+
+
+=================
+MindTerm, release 0.99 - Aug 24, 1999
+
+    o Now supports a comma-separated list of auth-types to try, in order as
+      given, (suggested by Brian Wellington <bwelling@tislabs.com>)
+    o Fixed the broken ansi-colours (broke in the TerminalWin "clean-up" in
+      0.99pre3...), also small fixed small odditiy when typing colored text
+    o Fixed oddities when doing "File -> Clone Terminal" (e.g. should not open
+      tunnels, nor load settings)
+    o Authtype 'rhosts' added, was not implemented (do anybody use it?)
+    o Added confirmation-dialog if exiting while connected (Do we need it?
+      I don't see one in xterm... :-)
+    o Added dialog showing that a tunnel was successfully opened when adding
+      tunnels while connected.
+    o Ctrl-characters now printed if not interpreted (e.g. '^@' for NUL, '^A'
+      for SOH etc.)
+    o Changed behaviour of setting of window-mgr cursor; when terminal has focus
+      a text-cursor is set, otherwise system-default (e.g. arrow) cursor is set.
+    o Fixed oddity with jdk1.2/hotjava, having effect; change of
+      terminal-settings automatically gave font Dialog, cause default font was
+      Courier, changed to Monospaced instead (Courier is not in the default
+      set of fonts in java2)
+    o Fixed kludge in TerminalWin that caused unnecessary flicker in some updates
+    o Fixed jdk1.2 initial terminal-size bug (note, this is a fix, not a
+      "solution" :-)
+    o Fixed bug with space-key, sometimes "hangs", it was the ctrl-key-kludge
+      that was broken...
+    o Fixed bug with java-plugin2/hotjava never got focus when 'sepframe'=false
+    o Compiled a (limited) FAQ
+    o Update of README started, will be useful in 1.0 :-)
+
+
+=================
+MindTerm, more-shape-up release 0.99pre3 (codename premania...) - Aug 17, 1999
+
+    o  Now supports netscape-code-signing (SSH.NETSCAPE_SECURITY_MODEL = true, else include
+       mindbright/dummies/ in classpath just to keep compiler happy)
+    o  Fixed stupidity in TerminalWin that gave bad performance and ate unnecessary memory
+    o  Scrolling large portions of text (e.g. long ls) was a pain in win32 (and others?) (due
+       to "thread-scheduler-lag" it was not seen on all platforms), fix makes it more endurable now
+       (real problem is of course that screen-update of TerminalWin is a bit slow :-)
+    o  Added some menu shortcuts, maybe not very intuitive but it's not very flexible in java
+    o  Changed order of OK/Cancel buttons in dialogs (I'm no GUI-guru obviously...)
+    o  Changed behaviour, when server-key not added to 'known_hosts' it still connects though
+       it notifies the user that "server verification" is turned off in this session
+    o  Added option 'forcpty' (allocate a PTY) to the SSH Settings Dialog
+    o  TerminalWin eats less memory now but if outofmemory should occur when setting size
+       of scroll-back buffer it is reported
+    o  When home-directory/known_hosts-file not found, now dialog-box asks if it should be
+       created if we are running with a GUI
+    o  Fixed colour of border of window to be same as terminal
+    o  Default directory changed to $HOME/mindterm (confusing in winDOS with .ssh)
+    o  Added label with MindTerm home-directory in 'Connect...' dialog
+    o  File.isDirectory in Netscape seems broken?! removed it, no big deal...
+    o  Added option --D (applet 'debug') to dump some debug-info if needed
+    o  Now sets window-mgr cursor to text-cursor when above TerminalWin component
+    o  Fixed intermittent bug when exit in Netscape, resize would be sent after disconnect
+    o  Fixed bug with jdk1.2, background color of widgets in dialogs
+    o  Fixed bug, if a cipher-class-file was missing, gave "Error connecting to .. reason: -> null"
+       (thanks to Frank Behrens <frank@pinky.sax.de>)
+    o  Other small fixes/cleanup
+
+
+=================
+MindTerm, shape-up release 0.99pre2 (codename Eclipse :-) - Aug 11, 1999
+
+    o  Applet now supports running a single command (parameter 'commandline')
+       (NOTE: if 'forcpty' is not 'true', a dumb terminal is used)
+    o  Fixed ftp PORT-command proxying to be more useful (can't be better without making more connections)
+       (NOTE: if the sshd is "behind" a NAT/FW parameter 'realsrv' must be set to sshd's real ip-address)
+    o  Added notification when trying to use ftp PORT-commands on a ftp-tunnel,
+       when PORT-proxying is not enabled for easier diagnostics/usage
+    o  Last shape-up of menus/dialogs before 0.99
+    o  Ok, now popup-menu mouse-button can be set, --m or (applet parameter 'menus') is as before
+       but can also be "pop1", "pop2", "pop3" for mouse buttons 1,2,3 respectively
+    o  Alert dialogs appears when "fatal" errors occurs here and there
+    o  When creating RSA-identity, public key is also stored on clipboard for convenience
+    o  Fixed bugs in Tunnel-dialogs (they were a mess...)
+    o  Fixed some other minor bugs introduced with 0.99pre1 (rather hasty release :-)
+
+
+=================
+MindTerm, release 0.99pre1 - Jul 30, 1999
+
+    o  Removed package applet, confusing, now applet and application are the same
+       (in class mindbright.application.MindTerm)
+    o  Changed handling of properties some, properties can be automatically saved and/or loaded
+       option --p <none|both|save|load> (applet parameter 'autoprops') sets these flags.
+    o  Added option --f <file> (applet parameter 'propsfile') to directly load settings from file
+    o  Added a menubar with pulldown-menus (menus have been rearranged and (hopefully :-) improved)
+    o  Now supports simple RSA-key-generation from dialog ('create..' in file menu)
+    o  Now supports multiple open terminals ('clone...' or 'new..' in file menu)
+    o  Now supports capture/send output/input to/from file ('capture...' and 'send...' in file menu)
+    o  Now supports searching in scrollback-buffer ('find...' in edit menu)
+    o  Now supports click-selection (i.e. double-click = select 'word' and tripple-click =
+       select line, option 'sd' sets string of word-delimeter characters, default is only space)
+    o  Added option 'alive' to set an interval in seconds at which to send MSG_IGNORE packets
+       to keep the ssh-connection up if it is subject to timeouts (e.g. timeouting NAT/FW or proxy)
+    o  Added option 'cs' which indicates whether to do copy on select or not (ctrl+insert = copy)
+    o  Added option 'de' to set if delete-key sends <BS> or <DEL>
+    o  Added option --m ('menus' in applet) values can be 'pop' for popup-menu or 'no' for no menus
+    o  Fixed SSHPduQueue to be flow-controlled (fixed starvation problems)
+    o  Some minor performance tweaks, for example:
+       +  SSHPduQueue is now its own fast FIFO instead of using Vector
+       +  All Cipher's now by default writes back to same buffer (3des was memory-intensive :-)
+       +  SSHPduOutputStream.writeTo was a very lazy (stupid :-) implementation, better now
+       +  Relaxed entropy of random pad-bytes some, now a low pri thread "stirs" them every 10 secs
+    o  Applet requests focus when started (the reason for this not beeing there before was that I
+       assumed it was something more browserspecific so I didn't test it :-)
+    o  Fixed bug SSHSocketTunnel stupid synchronization could cause dead-locks
+    o  Fixed bug SSHSocket et.al could not be used in (unprivileged) applets
+    o  Fixed bug SSHSocket when 'MSG_CHANNEL_OPEN_FAILURE' locked caller of connect
+    o  Added package mindbright.vnc which is an ssh-enabled and somewhat modified version of
+       the java-version of VNC from 'http://www.uk.research.att.com/vnc/'
+
+
+=================
+MindTerm, (minor) release 0.98-4 - Jul 12, 1999
+
+    o  Added option --q ('quiet' in applet), don't prompt for server/username if given
+       (note: in applet, servername is always considered given)
+    o  Local clip-board added when not able to use system-clipboard (unpriv. applet)
+    o  Shift+insert => paste (as before: mouse2 => paste), silly could not paste
+       in winDOS or other non-3-button-mouse-environments :-)
+    o  Size and position of terminal can be set in property 'gm', which is an x-geometry string
+       (only size is stored when changed dynamically, not position)
+    o  DEC 80/132 column switching implemented
+    o  Added TIS authentication-server support (by Rich Johnson, rjohnson@ncar.UCAR.EDU)
+    o  Ability to enable local command-shell with option --c ('cmdsh' applet), default is disabled.
+    o  Split SSHStdIO into SSHStdio and SSHCommandShell (can save space if not used)
+    o  Visual bell automatically enabled if not authorized to do toolkit.beep() (as in IE4)
+    o  MindTerm homedir settable in applet with 'sshhome' (same as option --h)
+    o  Fixed bug with keyrepeat (cursor-keys etc. did not repeat)
+    o  Fixed bug lost focus when minimized in Win32
+    o  Fixed bug tunnel dies "Open failure on nonexistent channel: 0"
+       (silly bug, MSG_CHANNEL_OPEN_FAILURE was never handled correctly!)
+    o  Fixed bug when fg-color-esc used (made selection hide text if fg-color set was same
+       as original fg-color)
+    o  Fixed bug option --d (stopped working some time back, didn't test it sorry)
+    o  Fixed bug in SSHFtpPlugin when doing PORT (the random ports could wrap :-)
+    o  Fixed bug 'verbose' in applet (had forgotten to use it eventhough it was there... :-)
+    o  Fixed cast bug in MindTerm.java (in applet, now does getParent until find a Frame)
+    o  Separate frame in applet tested, works (again?), was it really broken at some stage?
+
+
+=================
+MindTerm, (minor) release 0.98-3 - Feb 23, 1999
+
+    o  Ansi IRM (insert mode) in terminal (param 'im')
+    o  Lots of new terminal esc-seq. are recognized (some are still unimplemented though)
+    o  terminal 'linux' now works ok(?) (as a result from above :-)
+    o  Fixed so that the MindTerm homedir is (optionally) created if it does not exist
+    o  SSHPduQueue final
+    o  Updated the README to be a bit more helpful...
+    o  Visual bell implemented (param 'vb')
+
+
+=================
+MindTerm, release 0.98 - Feb 1, 1999
+
+    o  DEC-REVWR (reverse wrap-around)
+    o  LNM (auto-linefeed)
+    o  mouse1 + mouse2 for copy/paste (instead of INS-key paste)
+    o  allow localhost only, to tunnels (param 'remfwd')
+    o  'known_hosts' file used as with standard (unix) ssh client (can
+       be turned off with 'idhost')
+    o  ctrl+mouse3 in TerminalWin => pop-up menu with terminal-options
+       plus "insertable" other options
+    o  Options to set background/foreground colors (not only rev.vid.)
+       (xiterm-sequence is recognized but not implemented)
+    o  Xterm-sequences for setting the terminal title and iconname
+       (xterm-sequences are recognized, no distinction made for title/iconname)
+    o  Added option to let backspace send <BS> or <DEL> (param 'bs')
+    o  Params 'local0', 'local1', ..., 'localN' and 'remote0', ..., 'remoteN' =>
+       properties/applet-parms for tunnels.
+    o  All parameters settable in applet (e.g. terminal type 'te')
+    o  ditto with stand-alone version
+    o  Save/load all settings in property-files
+    o  FTP PORT, disabled by default (i.e. no remote-forwards allocated by default)
+    o  seed-generation was quite slow, now parmeter 'secrand' gives
+       option of relaxing entropy in initial seed
+    o  Removed file terminal/TerminalKeyModMap.java from cvs-repository
+    o  Fixed bug: deleteChars array-index-out-of-bounds (bug in TerminalXTerm.java DCH)
+    o  Fixed bug: interpretChar array-index-out-of-bounds (e.g. polish characters (iso-8859-2))
+    o  Fixed bug: deleteLines (e.g. emacs scroll forward half-page when moving off bottom)
+    o  Fixed bug: BS was flaky
+    o  Fixed bug: applet stealing focus
+
+
+=================
+MindTerm, release 0.97 - Jan 10, 1999
+
+New in this release (applet now more usable otherwise mainly terminal-enhancemnents):
+    o  New copyright-policy (again :-). Now the code is GPL.
+    o  Now uses random generator and MD5 hash from Logi Ragnarsson's (GPL'd) cryptonite
+       (<http://www.hi.is/~logir/cryptonite/>, it's excelent check it out!) which
+       makes the applet runnable from 'most' (at last :-) browsers
+       (e.g. <many-OS's>/Netscape4.x, <many-OS's>/java-plugin, win32/IE4)
+    o  Added support for selecting terminal-emulation (with 'set term
+       <term-type>' in local command-shell, NOTE: the TERM env. variable is only
+       set at initial login)
+    o  Added several terminal-types (xterm-color/xterm/linux/scoansi etc.), only
+       xterm/xterm-color tested more thoroughly, the rest is tested very briefly
+    o  Colors work (in terminals supporting colors)
+    o  Line-draw characters work (in terminals supporting it)
+    o  Mouse works (only xterm/xterm-color)
+    o  Function keys now work, sending respective terminal's esc-seq.
+    o  PgUP, PgDN, Home and End keys can be used either "locally" for controlling the
+       scroll-back buffer OR they can be set to send proper escape-sequences
+       (use 'set lp <true|false>' in local command-shell)
+    o  Fixed bug: Keyboard focus is lost when iconified in WinDOS (95/98/NT)
+       (NOTE: this bugfix is quite strange, I don't understand this fully)
+    o  Fixed bug: Keyboard focus never acquired when run as applet with plugin when
+       NOT run in a separate frame
+
+
+=================
+MindTerm, release 0.96 - Nov 29, 1998
+
+New in this release (mainly for java-developers):
+    o  Exit to command-shell without disconnecting (finally :-)
+    o  Dynamic handling of port-forwards from the command-shell, local ports
+       can be added/deleted "on the fly" (remote ports can only be deleted).
+       ('list', lists open tunnels).
+    o  Can now run single command-line without shell.
+    o  New interfaces SSHAuthenticator/SSHClientUser/SSHConsole makes
+       it very easy to use the SSHClient class separately.
+    o  New method in SSHClient (doSingleCommand) to be able to do a
+       single command on the sshd-machine.
+    o  SSHSocket/SSHServerSocket/SSHSocketFactory for fully transparent
+       usage of SSH in an arbitrary application/applet (see sample code for
+       usage).
+    o  Documentation started (a lot to do here... :-).
+    o  Code cleaned out and reorganized a bit (more on the way)
+
+
+=================
+MindTerm, release 0.95 - Nov 13, 1998
+
+New in this release:
+    o  RSA/rhosts-RSA authentication method added
+    o  DES/3DES and RC4 cryptos added (RC4 is for speed, I know
+       it's weak...)
+    o  New copyright-policy, now MindTerm is totally FREEWARE, only limitation
+       is that you may not derive commercial work from it without our
+       written permission
+    o  I have given up(*) on the built-in seed-generator of SecureRandom and implemented my own
+       (which might be a bit naive but it's random enough for me, improvements are welcome!).
+    o  Now "applet-enabled", the class mindbright.applet.MindTerm can be used to run MindTerm
+       as an applet(***) (both in a separate Frame or in the Applet-Panel itself)
+    o  Fixed some minor stuff also (thanks to among others: <perrot@lal.in2p3.fr>)
+    o  Fixed bug in TerminalWin which caused an ArrayIndexOutOfBoundsException on occasion
+
+(*) There seems to be problems with running the built-in seed-generator of the class
+    java.security.SecureRandom. In some situations it never returns and in others it
+    seems to take several minutes to complete. I implemented my own seed-generator
+    which is in the file mindbright/security/BogusSeed.java, it has quite some
+    non-determinism(**) about it, it might not be the most random seed you
+    will ever see but it sure is random enough for me... However you can still use
+    the built-in seed-generator with command-line option '-r' if it works for you.
+
+(**) It runs for a non-fixed time under which it randomly samples the milliseconds-clock
+     (least significant 2 bytes), it also samples free memory (also 2 lsb), and also it
+     samples the hashcode (2 lsb) of newly created Objects. The time spent generating the
+     seed is dependant on the time spent before connecting, the time for name-lookup on
+     the ssh-server, the time of the TCP-connect, and the time for transmission of the
+     initial "handshake" (i.e. id-string and SMSG_PUBLIC_KEY).
+
+(***) Currently works only with IE4, Netscape does not ship the whole java.* classes in their
+      browsers (at least to my knowledge). It should work with the java-plugin but I have not
+      tried this. See <http://www.mindbright.se/sshlogin.html> for example of usage.
+
+
+=================
+MindTerm, release 0.9BETA2 - Oct 08, 1998
+
+New stuff:
+    o  X11-forwarding
+    o  Selection now works (kludge: use insert-key to paste in wait for menus...)
+    o  Now does cursor-keys (with DECCKM toggle)
+    o  PgUP and PgDN keys scrolls by a page in save-buffer (if there is one)
+    o  Home and End keys scrolls to top and bottom in save-buffer (if there is one)
+    o  Bug in win95/nt (could not print tilde, Hazeltine?! :-)
+    o  Bug in ftp (only showed with lynx as I know of, since it disconnects)
+    o  MTU option
+    o  MSG_DEBUG from server is now logged to console (thanks Zhiqiang Shi <zhiqiang@asianet.co.th>=
+    o  other minor bug-fixes...
+
+
+=================
+MindTerm, release 0.9BETA - Sep 14, 1998 (first public release)
+
+Features:
+    o  Password authentication
+    o  Blowfish block-cipher
+    o  Standard SSH port-forwarding
+    o  Special FTP port-forwarding (see FTP-NOTE below)
+    o  Plugin-architecture for adding other (than FTP)
+       protocol-specific "proxies"
+    o  Full (almost :-) vt100 support (i.e. emacs, pine etc. works :-)
+    o  NonGUI mode, i.e. run at command-line without opening a
+       terminal-window
+    o  The SSH package can be used quite easily by itself to "SSH-enable"
+       an arbitrary java-application
+    o  The terminal package can (of course) also be used by itself
+    o  Cross-platform (it's java :-)

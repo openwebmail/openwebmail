@@ -3,7 +3,7 @@
 <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=@@@CHARSET@@@">
 <TITLE>@@@USERINFO@@@ @@@NAME@@@</TITLE>
 <LINK rel="shortcut icon" href="@@@ICO_LINK@@@">
-</HEAD><BODY BACKGROUND="@@@BG_URL@@@" BGCOLOR=@@@BACKGROUND@@@>
+</HEAD><BODY ONHELP="window.open('@@@HELP_LINK@@@', '_help'); return false;" BACKGROUND="@@@BG_URL@@@" BGCOLOR=@@@BACKGROUND@@@>
 <style type="text/css">
 @@@CSS@@@
 </style>

@@ -5,8 +5,8 @@
 use strict;
 use Fcntl qw(:DEFAULT :flock);
 
-use vars qw(%languagenames %languagecharsets);
-use vars qw(%months @monthstr @wdaystr %medfontsize);
+use vars qw(%languagenames %languagecharsets @openwebmailrcitem);
+use vars qw(%months @monthstr @wdaystr %tzoffset %medfontsize);
 
 # extern vars
 # defined in caller openwebmail-xxx.pl
@@ -18,109 +18,144 @@ use vars qw(%prefs %style %icontext);
 use vars qw($folderdir @validfolders $folderusage);
 use vars qw($folder $printfolder $escapedfolder);
 use vars qw($sort $searchtype $keyword);
-use vars qw(%lang_folders %lang_text %lang_err);	# defined in lang/xy
+use vars qw(%lang_folders %lang_sizes %lang_text %lang_err);	# defined in lang/xy
 use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE $_STATUS $_SIZE $_REFERENCES $_CHARSET);	# defined in maildb.pl
 
 # The language name for each language abbreviation
 %languagenames = (
-                 'bg'           => 'Bulgarian',
-                 'ca'           => 'Catalan',
-                 'cs'           => 'Czech',
-                 'da'           => 'Danish',
-                 'de'           => 'Deutsch',			# German
-                 'en'           => 'English',
-                 'el'           => 'Hellenic',			# Hellenic/Greek
-                 'es'           => 'Spanish',			# Espanol
-                 'fi'           => 'Finnish',
-                 'fr'           => 'French',
-                 'hu'           => 'Hungarian',
-                 'id'           => 'Indonesian',
-                 'it'           => 'Italiano',
-                 'ja_JP.eucJP'     => 'Japanese ( eucJP )',
-                 'ja_JP.Shift_JIS' => 'Japanese ( ShiftJIS )',
-                 'kr'           => 'Korean',
-                 'lt'           => 'Lithuanian',
-                 'nl'           => 'Nederlands',
-                 'no'           => 'Norwegian',
-                 'pl'           => 'Polish',
-                 'pt'           => 'Portuguese',
-                 'pt_BR'        => 'Portuguese Brazil',
-                 'ro'           => 'Romanian',
-                 'ru'           => 'Russian',
-                 'sk'           => 'Slovak',
-                 'sv'           => 'Swedish',			# Svenska
-                 'th'           => 'Thai',
-                 'tr'           => 'Turkish',
-                 'uk'           => 'Ukrainian',
-                 'zh_CN.GB2312' => 'Chinese ( Simplified )',
-                 'zh_TW.Big5'   => 'Chinese ( Traditional )'
-                 );
+   'ar.CP1256'    => 'Arabic - Windows',
+   'ar.ISO8859-6' => 'Arabic - ISO 8859-6',
+   'bg'           => 'Bulgarian',
+   'ca'           => 'Catalan',
+   'cs'           => 'Czech',
+   'da'           => 'Danish',
+   'de'           => 'Deutsch',			# German
+   'en'           => 'English',
+   'el'           => 'Hellenic',			# Hellenic/Greek
+   'es'           => 'Spanish',			# Espanol
+   'fi'           => 'Finnish',
+   'fr'           => 'French',
+   'hu'           => 'Hungarian',
+   'id'           => 'Indonesian',
+   'it'           => 'Italiano',
+   'ja_JP.eucJP'     => 'Japanese - eucJP',
+   'ja_JP.Shift_JIS' => 'Japanese - ShiftJIS',
+   'kr'           => 'Korean',
+   'lt'           => 'Lithuanian',
+   'nl'           => 'Nederlands',
+   'no'           => 'Norwegian',
+   'pl'           => 'Polish',
+   'pt'           => 'Portuguese',
+   'pt_BR'        => 'Portuguese Brazil',
+   'ro'           => 'Romanian',
+   'ru'           => 'Russian',
+   'sk'           => 'Slovak',
+   'sv'           => 'Swedish',			# Svenska
+   'th'           => 'Thai',
+   'tr'           => 'Turkish',
+   'uk'           => 'Ukrainian',
+   'zh_CN.GB2312' => 'Chinese - Simplified',
+   'zh_TW.Big5'   => 'Chinese - Traditional '
+);
 
 # the language charset for each language abbreviation
 %languagecharsets =(
-                   'ar'           => 'windows-1256',	# charset only, lang/template not translated
-                   'bg'           => 'windows-1251',
-                   'ca'           => 'iso-8859-1',
-                   'cs'           => 'iso-8859-2',
-                   'da'           => 'iso-8859-1',
-                   'de'           => 'iso-8859-1',
-                   'en'           => 'iso-8859-1',
-                   'el'           => 'iso-8859-7',
-                   'es'           => 'iso-8859-1',
-                   'fi'           => 'iso-8859-1',
-                   'fr'           => 'iso-8859-1',
-                   'hebrew'       => 'windows-1255',	# charset only, lang/template not translated
-                   'hu'           => 'iso-8859-2',
-                   'id'           => 'iso-8859-1',
-                   'it'           => 'iso-8859-1',
-                   'ja_JP.eucJP'     => 'euc-jp',
-                   'ja_JP.Shift_JIS' => 'shift_jis',
-                   'kr'           => 'euc-kr',
-                   'lt'           => 'windows-1257',
-                   'nl'           => 'iso-8859-1',
-                   'no'           => 'iso-8859-1',
-                   'pl'           => 'iso-8859-2',
-                   'pt'           => 'iso-8859-1',
-                   'pt_BR'        => 'iso-8859-1',
-                   'ro'           => 'iso-8859-2',
-                   'ru'           => 'koi8-r',
-                   'sk'           => 'iso-8859-2',
-                   'sv'           => 'iso-8859-1',
-                   'th'           => 'tis-620',
-                   'tr'           => 'iso-8859-9',
-                   'uk'           => 'koi8-u',
-                   'zh_CN.GB2312' => 'gb2312',
-                   'zh_TW.Big5'   => 'big5'
-                   );
+   'ar.CP1256'    => 'windows-1256',	
+   'ar.ISO8859-6' => 'iso-8859-6',
+   'bg'           => 'windows-1251',
+   'ca'           => 'iso-8859-1',
+   'cs'           => 'iso-8859-2',
+   'da'           => 'iso-8859-1',
+   'de'           => 'iso-8859-1',
+   'en'           => 'iso-8859-1',
+   'el'           => 'iso-8859-7',
+   'es'           => 'iso-8859-1',
+   'fi'           => 'iso-8859-1',
+   'fr'           => 'iso-8859-1',
+   'he.CP1255'    => 'windows-1255',	# charset only, lang/template not translated
+   'he.ISO8859-8' => 'iso-8859-8',	# charset only, lang/template not translated
+   'hu'           => 'iso-8859-2',
+   'id'           => 'iso-8859-1',
+   'it'           => 'iso-8859-1',
+   'ja_JP.eucJP'     => 'euc-jp',
+   'ja_JP.Shift_JIS' => 'shift_jis',
+   'kr'           => 'euc-kr',
+   'lt'           => 'windows-1257',
+   'nl'           => 'iso-8859-1',
+   'no'           => 'iso-8859-1',
+   'pl'           => 'iso-8859-2',
+   'pt'           => 'iso-8859-1',
+   'pt_BR'        => 'iso-8859-1',
+   'ro'           => 'iso-8859-2',
+   'ru'           => 'koi8-r',
+   'sk'           => 'iso-8859-2',
+   'sv'           => 'iso-8859-1',
+   'th'           => 'tis-620',
+   'tr'           => 'iso-8859-9',
+   'uk'           => 'koi8-u',
+   'zh_CN.GB2312' => 'gb2312',
+   'zh_TW.Big5'   => 'big5'
+);
 
-%months = qw(Jan  1
-             Feb  2
-             Mar  3
-             Apr  4
-             May  5
-             Jun  6
-             Jul  7
-             Aug  8
-             Sep  9
-             Oct  10
-             Nov  11
-             Dec  12);
+@openwebmailrcitem=qw(
+   language charset timeoffset email replyto
+   style iconset bgurl fontsize dateformat hourformat
+   ctrlposition_folderview  msgsperpage sort 
+   ctrlposition_msgread headers usefixedfont usesmileicon 
+   disablejs disableembcgi showimgaslink sendreceipt 
+   confirmmsgmovecopy defaultdestination 
+   viewnextaftermsgmovecopy autopop3 moveoldmsgfrominbox
+   editcolumns editrows sendbuttonposition
+   reparagraphorigmsg replywithorigmsg backupsentmsg sendcharset
+   filter_repeatlimit filter_fakedsmtp
+   filter_fakedfrom filter_fakedexecontenttype
+   abook_width abook_height abookbuttonposition
+   abook_defualtfilter abook_defaultsearchtype abook_defaultkeyword
+   calendar_monthviewnumitems calendar_weekstart
+   calendar_starthour calendar_endhour calendar_showemptyhours
+   calendar_reminderdays calendar_reminderforglobal
+   webdisk_dirnumitems webdisk_confirmmovecopy webdisk_confirmdel
+   webdisk_confirmcompress webdisk_fileeditcolumns  webdisk_fileeditrows
+   regexmatch hideinternal refreshinterval newmailsound newmailwindowtime
+   dictionary trashreserveddays sessiontimeout
+);
+
+%months = qw(Jan 1 Feb 2 Mar 3 Apr 4  May 5  Jun 6
+             Jul 7 Aug 8 Sep 9 Oct 10 Nov 11 Dec 12);
 
 @monthstr=qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec);
 @wdaystr=qw(Sun Mon Tue Wed Thu Fri Sat);
 
-%medfontsize= ( '9pt' => '9pt',
-                '10pt'=> '9pt',
-                '11pt'=> '10pt',
-                '12pt'=> '11pt',
-                '13pt'=> '12pt',
-                '14pt'=> '13pt',
-                '12px'=> '12px',
-                '13px'=> '12px',
-                '14px'=> '13px',
-                '15px'=> '14px',
-                '16px'=> '15px',
-                '17px'=> '16px');
+%tzoffset = qw(
+    ACDT +1030  ACST +0930  ADT  -0300  AEDT +1100  AEST +1000  AHDT -0900
+    AHST -1000  AST  -0400  AT   -0200  AWDT +0900  AWST +0800  AZST +0400
+    BAT  +0300  BDST +0200  BET  -1100  BST  -0300  BT   +0300  BZT2 -0300
+    CADT +1030  CAST +0930  CAT  -1000  CCT  +0800  CDT  -0500  CED  +0200
+    CET  +0100  CST  -0600  EAST +1000  EDT  -0400  EED  +0300  EET  +0200
+    EEST +0300  EST  -0500  FST  +0200  FWT  +0100  GMT  +0000  GST  +1000
+    HDT  -0900  HST  -1000  IDLE +1200  IDLW -1200  IST  +0530  IT   +0330
+    JST  +0900  JT   +0700  MDT  -0600  MED  +0200  MET  +0100  MEST +0200
+    MEWT +0100  MST  -0700  MT   +0800  NDT  -0230  NFT  -0330  NT   -1100
+    NST  +0630  NZ   +1100  NZST +1200  NZDT +1300  NZT  +1200  PDT  -0700
+    PST  -0800  ROK  +0900  SAD  +1000  SAST +0900  SAT  +0900  SDT  +1000
+    SST  +0200  SWT  +0100  USZ3 +0400  USZ4 +0500  USZ5 +0600  USZ6 +0700
+    UT   +0000  UTC  +0000  UZ10 +1100  WAT  -0100  WET  +0000  WST  +0800
+    YDT  -0800  YST  -0900  ZP4  +0400  ZP5  +0500  ZP6  +0600);
+
+%medfontsize= (
+   '9pt' => '9pt',
+   '10pt'=> '9pt',
+   '11pt'=> '10pt',
+   '12pt'=> '11pt',
+   '13pt'=> '12pt',
+   '14pt'=> '13pt',
+   '12px'=> '12px',
+   '13px'=> '12px',
+   '14px'=> '13px',
+   '15px'=> '14px',
+   '16px'=> '15px',
+   '17px'=> '16px'
+);
 
 ###################### OPENWEBMAIL_INIT ###################
 # init routine to set globals, switch euid
@@ -142,9 +177,12 @@ sub openwebmail_init {
 
    my $siteconf;
    if ($loginname=~/\@(.+)$/) {
-       $siteconf="$config{'ow_sitesconfdir'}/$1";
+       my $domain=safedomainname($1);
+       $siteconf="$config{'ow_sitesconfdir'}/$domain";
    } else {
-       my $httphost=$ENV{'HTTP_HOST'}; $httphost=~s/:\d+$//;	# remove port number
+       my $httphost=$ENV{'HTTP_HOST'};
+       $httphost=~s/:\d+$//;	# remove port number
+       $httphost=safedomainname($httphost);
        $siteconf="$config{'ow_sitesconfdir'}/$httphost";
    }
    readconf(\%config, \%config_raw, "$siteconf") if ( -f "$siteconf");
@@ -175,20 +213,11 @@ sub openwebmail_init {
       $config{'domainnames'}=[ $1 ];
    }
 
-   if ( $config{'use_homedirspools'} || $config{'use_homedirfolders'} ) {
-      my $mailgid=getgrnam('mail');
-      set_euid_egid_umask($uuid, $mailgid, 0077);
-      if ( $) != $mailgid) {	# egid must be mail since this is a mail program...
-         openwebmailerror("Set effective gid to mail($mailgid) failed!");
-      }
+   if ( !$config{'use_homedirfolders'} ) {
+      $homedir = "$config{'ow_usersdir'}/$user";
+      $homedir .= "\@$domain" if ($config{'auth_withdomain'});
    }
-
-   if ( $config{'use_homedirfolders'} ) {
-      $folderdir = "$homedir/$config{'homedirfolderdirname'}";
-   } else {
-      $folderdir = "$config{'ow_usersdir'}/$user";
-      $folderdir .= "\@$domain" if ($config{'auth_withdomain'});
-   }
+   $folderdir = "$homedir/$config{'homedirfolderdirname'}";
 
    ($user =~ /^(.+)$/) && ($user = $1);  # untaint ...
    ($uuid =~ /^(.+)$/) && ($uuid = $1);
@@ -196,12 +225,21 @@ sub openwebmail_init {
    ($homedir =~ /^(.+)$/) && ($homedir = $1);
    ($folderdir =~ /^(.+)$/) && ($folderdir = $1);
 
+   umask(0077);
+   if ( $config{'use_homedirspools'} || $config{'use_homedirfolders'} ) {
+      my $mailgid=getgrnam('mail');
+      set_euid_egids($uuid, $mailgid, $ugid);
+      if ( $) != $mailgid) {	# egid must be mail since this is a mail program...
+         openwebmailerror("Set effective gid to mail($mailgid) failed!");
+      }
+   }
+
    %prefs = %{&readprefs};
    %style = %{&readstyle};
-   ($prefs{'language'} =~ /^([\w\d\._]+)$/) && ($prefs{'language'} = $1);
+   ($prefs{'language'} =~ /^([\w\d\.\-_]+)$/) && ($prefs{'language'} = $1);
    require "$config{'ow_langdir'}/$prefs{'language'}";
    if ($prefs{'iconset'}=~ /^Text\./) {
-      ($prefs{'iconset'} =~ /^([\w\d\._]+)$/) && ($prefs{'iconset'} = $1);
+      ($prefs{'iconset'} =~ /^([\w\d\.\-_]+)$/) && ($prefs{'iconset'} = $1);
       require "$config{'ow_htmldir'}/images/iconsets/$prefs{'iconset'}/icontext";
    }
 
@@ -209,17 +247,15 @@ sub openwebmail_init {
    if (param("folder")) {
       my $isvalid = 0;
       $folder = param("folder");
-      foreach my $checkfolder (@validfolders) {
-         if ($folder eq $checkfolder) {
-            $isvalid = 1;
-            last;
+      foreach (@validfolders) {
+         if ($folder eq $_) {
+            $isvalid = 1; last;
          }
       }
       ($folder = 'INBOX') if (!$isvalid );
    } else {
       $folder = "INBOX";
    }
-
    $printfolder = $lang_folders{$folder} || $folder || '';
    $escapedfolder = escapeURL($folder);
 }
@@ -231,7 +267,9 @@ sub openwebmail_init {
 sub readconf {
    my ($r_config, $r_config_raw, $configfile)=@_;
 
-   # read config
+   if ($configfile=~/\.\./) {	# .. in path is not allowed for higher security
+      openwebmailerror("Invalid config file path $configfile");
+   }
    open(CONFIG, $configfile) or
       openwebmailerror("Couldn't open config file $configfile");
    my ($key, $value)=("", "");
@@ -273,30 +311,41 @@ sub readconf {
    }
 
    # processing yes/no
-   foreach $key ( qw(smtpauth use_hashedmailspools use_dotlockfile dbmopen_haslock
-                     create_homedir use_homedirspools use_homedirfolders
-                     auth_withdomain deliver_use_GMT savedsuid_support
-                     case_insensitive_login stay_ssl_afterlogin
-                     enable_rootlogin enable_domainselectmenu
-                     enable_changepwd enable_strictpwd enable_setfromemail
-                     enable_about about_info_software about_info_protocol
-                     about_info_server about_info_client about_info_scriptfilename
-                     xmailer_has_version xoriginatingip_has_userid
-                     enable_autoreply enable_setforward enable_stationery enable_calendar
-                     enable_pop3 delpop3mail_by_default delpop3mail_hidden
-                     getmail_from_pop3_authserver domainnames_override cutfolders_ifoverquota
-                     default_autopop3
-                     default_reparagraphorigmsg default_backupsentmsg
-                     default_confirmmsgmovecopy default_viewnextaftermsgmovecopy
-                     default_moveoldmsgfrominbox forced_moveoldmsgfrominbox
-                     default_hideinternal symboliclink_mbox
-                     default_filter_fakedsmtp default_filter_fakedfrom
-                     default_filter_fakedexecontenttype
-                     default_disablejs default_disableembcgi
-                     default_showimgaslink default_regexmatch
-                     default_usefixedfont default_usesmileicon
-                     default_calendar_showemptyhours
-                     default_calendar_reminderforglobal) ) {
+   foreach $key (qw(
+      smtpauth use_hashedmailspools use_dotlockfile dbmopen_haslock
+      create_homedir use_homedirspools use_homedirfolders
+      auth_withdomain deliver_use_GMT savedsuid_support
+      case_insensitive_login stay_ssl_afterlogin
+      enable_rootlogin enable_domainselectmenu
+      enable_changepwd enable_strictpwd enable_setfromemail
+      session_multilogin session_checksameip session_checkcookie
+      auto_createrc
+      enable_about about_info_software about_info_protocol
+      about_info_server about_info_client about_info_scriptfilename
+      xmailer_has_version xoriginatingip_has_userid
+      enable_setforward enable_strictforward
+      enable_autoreply enable_strictfoldername enable_stationery
+      enable_calendar enable_webdisk enable_sshterm
+      enable_pop3 delpop3mail_by_default delpop3mail_hidden
+      getmail_from_pop3_authserver domainnames_override cutfolders_ifoverquota
+      webdisk_readonly webdisk_lsmailfolder webdisk_lshidden webdisk_lsunixspec
+      webdisk_lssymlink webdisk_allow_symlinkouthome webdisk_allow_thumbnail
+      default_autopop3
+      default_reparagraphorigmsg default_backupsentmsg
+      default_confirmmsgmovecopy default_viewnextaftermsgmovecopy
+      default_moveoldmsgfrominbox forced_moveoldmsgfrominbox
+      default_hideinternal symboliclink_mbox
+      default_filter_fakedsmtp default_filter_fakedfrom
+      default_filter_fakedexecontenttype
+      default_disablejs default_disableembcgi
+      default_showimgaslink default_regexmatch
+      default_usefixedfont default_usesmileicon
+      default_abook_usedefaultfilter
+      default_calendar_showemptyhours
+      default_calendar_reminderforglobal
+      default_webdisk_confirmmovecopy
+      default_webdisk_confirmdel default_webdisk_confirmcompress
+   )) {
       if (${$r_config}{$key} =~ /yes/i || ${$r_config}{$key} == 1) {
          ${$r_config}{$key}=1;
       } else {
@@ -319,11 +368,13 @@ sub readconf {
    }
 
    # processing list
-   foreach $key ( qw(domainnames spellcheck_dictionaries
-                     allowed_serverdomain
-                     allowed_clientdomain allowed_clientip
-                     allowed_receiverdomain disallowed_pop3servers
-                     default_fromemails) ) {
+   foreach $key (qw(
+      domainnames spellcheck_dictionaries
+      allowed_serverdomain
+      allowed_clientdomain allowed_clientip
+      allowed_receiverdomain disallowed_pop3servers
+      default_fromemails
+   )) {
       my $liststr=${$r_config}{$key}; $liststr=~s/\s//g;
       my @list=split(/,/, $liststr);
       ${$r_config}{$key}=\@list;
@@ -334,29 +385,41 @@ sub readconf {
       $value="${$r_config}{'ow_htmlurl'}/images/backgrounds/Transparent.gif";
       ${$r_config}{'default_bgurl'}=$value;
    }
-   foreach $key ( qw(dbmopen_ext default_realname) ){
+
+   if ( ${$r_config}{'default_abook_defaultsearchtype'} eq 'none'|| ${$r_config}{'default_abook_defaultsearchtype'} eq '""' ) {
+      ${$r_config}{'default_abook_defaultsearchtype'}="name";
+   }
+
+   foreach $key ( qw(dbmopen_ext default_realname default_abook_defaultkeyword) ){
       if ( ${$r_config}{$key} eq 'none' || ${$r_config}{$key} eq '""' ) {
          ${$r_config}{$key}="";
       }
    }
 
+   # remove / and .. from variables that will be used in require statement for security
+   foreach $key ( 'default_language', 'auth_module') {
+      ${$r_config}{$key} =~ s|/||g;
+      ${$r_config}{$key} =~ s|\.\.||g;
+   }
    # untaint pathname variable defined in openwebmail.conf
-   foreach $key ( 'smtpserver', 'auth_module', 'virtusertable',
-                  'mailspooldir', 'homedirspoolname', 'homedirfolderdirname',
-                  'dbm_ext', 'dbmopen_ext',
-                  'ow_cgidir', 'ow_htmldir','ow_etcdir', 'logfile',
-                  'ow_stylesdir', 'ow_langdir', 'ow_templatesdir',
-                  'ow_sitesconfdir', 'ow_usersconfdir',
-                  'ow_usersdir', 'ow_sessionsdir',
-                  'vacationinit', 'vacationpipe', 'spellcheck',
-                  'global_addressbook', 'global_filterbook', 'global_calendarbook') {
+   foreach $key (
+      'smtpserver', 'auth_module', 'virtusertable',
+      'mailspooldir', 'homedirspoolname', 'homedirfolderdirname',
+      'dbm_ext', 'dbmopen_ext',
+      'ow_cgidir', 'ow_htmldir','ow_etcdir', 'logfile',
+      'ow_stylesdir', 'ow_langdir', 'ow_templatesdir',
+      'ow_sitesconfdir', 'ow_usersconfdir',
+      'ow_usersdir', 'ow_sessionsdir',
+      'vacationinit', 'vacationpipe', 'spellcheck',
+      'global_addressbook', 'global_filterbook', 'global_calendarbook'
+   ) {
       (${$r_config}{$key} =~ /^(.+)$/) && (${$r_config}{$key}=$1);
    }
    foreach my $domain ( @{${$r_config}{'domainnames'}} ) {
       ($domain =~ /^(.+)$/) && ($domain=$1);
    }
 
-   return(0);
+   return 0;
 }
 ##################### END READCONF #######################
 
@@ -376,7 +439,9 @@ sub update_virtusertable {
    if ( -e "$virdb$config{'dbm_ext'}" ) {
       my ($metainfo);
 
-      filelock("$virdb$config{'dbm_ext'}", LOCK_SH) if (!$config{'dbmopen_haslock'});
+      if (!$config{'dbmopen_haslock'}) {
+         filelock("$virdb$config{'dbm_ext'}", LOCK_SH) or return;
+      }
       dbmopen (%DB, "$virdb$config{'dbmopen_ext'}", undef);
       $metainfo=$DB{'METAINFO'};
       dbmclose(%DB);
@@ -391,11 +456,18 @@ sub update_virtusertable {
           "$virdb.rev$config{'dbm_ext'}",);
 
    dbmopen(%DB, "$virdb$config{'dbmopen_ext'}", 0644);
-   filelock("$virdb$config{'dbm_ext'}", LOCK_EX) if (!$config{'dbmopen_haslock'});
-   %DB=();	# ensure the virdb is empty
-
    dbmopen(%DBR, "$virdb.rev$config{'dbmopen_ext'}", 0644);
-   filelock("$virdb.rev$config{'dbm_ext'}", LOCK_EX) if (!$config{'dbmopen_haslock'});
+   if (!$config{'dbmopen_haslock'}) {
+      if (!filelock("$virdb$config{'dbm_ext'}", LOCK_EX) ||
+          !filelock("$virdb.rev$config{'dbm_ext'}", LOCK_EX) ) {
+         filelock("$virdb$config{'dbm_ext'}", LOCK_UN);
+         filelock("$virdb.rev$config{'dbm_ext'}", LOCK_UN);
+         dbmclose(%DB);
+         dbmclose(%DBR);
+      }
+   }
+
+   %DB=();	# ensure the virdb is empty
    %DBR=();
 
    open (VIRT, $virfile);
@@ -431,7 +503,9 @@ sub get_user_by_virtualuser {
    my $u='';
 
    if ( -f "$virdb$config{'dbm_ext'}" && !-z "$virdb$config{'dbm_ext'}" ) {
-      filelock("$virdb$config{'dbm_ext'}", LOCK_SH) if (!$config{'dbmopen_haslock'});
+      if (!$config{'dbmopen_haslock'}) {
+         filelock("$virdb$config{'dbm_ext'}", LOCK_SH) or return($u);
+      }
       dbmopen (%DB, "$virdb$config{'dbmopen_ext'}", undef);
       $u=$DB{$vu};
       dbmclose(%DB);
@@ -446,7 +520,9 @@ sub get_virtualuser_by_user {
    my $vu='';
 
    if ( -f "$virdbr$config{'dbm_ext'}" && !-z "$virdbr$config{'dbm_ext'}" ) {
-      filelock("$virdbr$config{'dbm_ext'}", LOCK_SH) if (!$config{'dbmopen_haslock'});
+      if (!$config{'dbmopen_haslock'}) {
+         filelock("$virdbr$config{'dbm_ext'}", LOCK_SH) or return($vu);
+      }
       dbmopen (%DBR, "$virdbr$config{'dbmopen_ext'}", undef);
       $vu=$DBR{$user};
       dbmclose(%DBR);
@@ -516,7 +592,7 @@ sub get_domain_user_userinfo {
    if ($uid ne "") {
       return($loginname, $domain, $user, $realname, $uid, $gid, $homedir);
    } else {
-      return("", "", "", "", "", "", "");
+      return($loginname, "", "", "", "", "", "");
    }
 }
 ##################### END VIRTUALUSER related ################
@@ -591,13 +667,13 @@ sub get_userfrom {
 # error message is hardcoded with english
 # since $prefs{'language'} has not been initialized before this routine
 sub readprefs {
-   my ($key,$value);
-   my %prefshash;
+   my (%prefshash, $key, $value);
 
+   # read .openwebmailrc
    if ( -f "$folderdir/.openwebmailrc" ) {
-      open (CONFIG,"$folderdir/.openwebmailrc") or
+      open (RC, "$folderdir/.openwebmailrc") or
          openwebmailerror("Couldn't open $folderdir/.openwebmailrc!");
-      while (<CONFIG>) {
+      while (<RC>) {
          ($key, $value) = split(/=/, $_);
          chomp($value);
          if ($key eq 'style') {
@@ -605,9 +681,10 @@ sub readprefs {
          }
          $prefshash{"$key"} = $value;
       }
-      close (CONFIG);
+      close (RC);
    }
 
+   # read .signature
    my $signaturefile="";
    if ( -f "$folderdir/.signature" ) {
       $signaturefile="$folderdir/.signature";
@@ -624,6 +701,8 @@ sub readprefs {
       close (SIGNATURE);
    }
 
+   # get default value from config for err/undefined/empty prefs entries
+
    # validate email with defaultemails if setfromemail is not allowed
    if (!$config{'enable_setfromemail'} || $prefshash{'email'} eq "") {
       my @defaultemails=get_defaultemails($loginname, $user);
@@ -638,44 +717,29 @@ sub readprefs {
       }
    }
 
-   # get default value from config for err/undefined/empty prefs entries
-
-   # entries disallowed to be empty
-   foreach $key ( qw(language timeoffset dictionary
-                     style iconset bgurl fontsize
-                     sort dateformat hourformat headersperpage
-                     editcolumns editrows sendbuttonposition
-                     confirmmsgmovecopy viewnextaftermsgmovecopy
-                     reparagraphorigmsg backupsentmsg 
-                     replywithorigmsg sendcharset
-                     sendreceipt moveoldmsgfrominbox
-                     filter_repeatlimit filter_fakedsmtp filter_fakedfrom
-                     filter_fakedexecontenttype
-                     disablejs disableembcgi
-                     showimgaslink regexmatch hideinternal
-                     newmailsound newmailwindowtime usefixedfont usesmileicon autopop3
-                     trashreserveddays refreshinterval sessiontimeout
-                     calendar_monthviewnumitems
-                     calendar_weekstart calendar_starthour calendar_endhour
-                     calendar_showemptyhours calendar_reminderdays
-                     calendar_reminderforglobal) ) {
+   # all rc entries are disallowed to be empty
+   foreach $key (@openwebmailrcitem) {
       if ( !defined($prefshash{$key}) || $prefshash{$key} eq "" ) {
-          $prefshash{$key}=$config{'default_'.$key};
+          $prefshash{$key}=$config{'default_'.$key} if (defined($config{'default_'.$key}));
       }
    }
 
-   # entries allowed to be empty
+   # signature allowed to be empty but not undefined
    foreach $key ( 'signature') {
       $prefshash{$key}=$config{'default_'.$key} if (!defined($prefshash{$key}));
    }
 
+   # remove / and .. from variables that will be used in require statement for security
+   $prefshash{'language'}=~s|/||g;
+   $prefshash{'language'}=~s|\.\.||g;
+
    # entries related to ondisk dir or file
-   $prefshash{'language'}=$config{'default_language'} if (!-f "$config{'ow_langdir'}/$prefshash{'language'}");
+   $prefshash{'language'}=$config{'default_language'} if (!defined($languagenames{$prefshash{'language'}}));
    $prefshash{'style'}=$config{'default_style'} if (!-f "$config{'ow_stylesdir'}/$prefshash{'style'}");
    $prefshash{'iconset'}=$config{'default_iconset'} if (!-d "$config{'ow_htmldir'}/images/iconsets/$prefshash{'iconset'}");
 
    $prefshash{'refreshinterval'}=$config{'min_refreshinterval'} if ($prefshash{'refreshinterval'} < $config{'min_refreshinterval'});
-   $prefshash{'charset'}=$languagecharsets{$prefshash{'language'}} if (!defined($prefshash{'charset'}) || $prefshash{'charset'} eq "");
+   $prefshash{'charset'}=$languagecharsets{$prefshash{'language'}} if ($prefshash{'charset'} eq "auto");
 
    return \%prefshash;
 }
@@ -741,12 +805,18 @@ sub applystyle {
    }
    $template =~ s/\@\@\@HELP_LINK\@\@\@/$url/g;
 
-   $url="$config{'ow_cgiurl'}/openwebmail.pl";
-   $template =~ s/\@\@\@SCRIPTURL\@\@\@/$url/g;
+   $url=$config{'start_url'};
+   if (cookie("openwebmail-ssl")) {
+      $url="https://$ENV{'HTTP_HOST'}$url" if ($url!~m!^https?://!i);
+   }
+   $template =~ s/\@\@\@STARTURL\@\@\@/$url/g;
+
    $url="$config{'ow_cgiurl'}/openwebmail-prefs.pl";
    $template =~ s/\@\@\@PREFSURL\@\@\@/$url/g;
    $url="$config{'ow_cgiurl'}/openwebmail-abook.pl";
    $template =~ s/\@\@\@ABOOKURL\@\@\@/$url/g;
+   $url="$config{'ow_cgiurl'}/openwebmail-viewatt.pl";
+   $template =~ s/\@\@\@VIEWATTURL\@\@\@/$url/g;
    $url="$config{'ow_htmlurl'}/images";
    $template =~ s/\@\@\@IMAGEDIR_URL\@\@\@/$url/g;
 
@@ -789,8 +859,8 @@ sub readpop3book {
    %{$r_accounts}=();
 
    if ( -f "$pop3book" ) {
-      filelock($pop3book, LOCK_SH);
-      open (POP3BOOK,"$pop3book") or return(-1);
+      filelock($pop3book, LOCK_SH) or return -1;
+      open (POP3BOOK,"$pop3book") or return -1;
       while (<POP3BOOK>) {
       	 chomp($_);
          my ($pop3host, $pop3user, $pop3passwd, $pop3lastid, $pop3del, $enable)
@@ -809,12 +879,12 @@ sub writepop3book {
 
    ($pop3book =~ /^(.+)$/) && ($pop3book = $1); # untaint ...
    if (! -f "$pop3book" ) {
-      open (POP3BOOK,">$pop3book") or return (-1);
+      open (POP3BOOK,">$pop3book") or return -1;
       close(POP3BOOK);
    }
 
-   filelock($pop3book, LOCK_EX);
-   open (POP3BOOK,">$pop3book") or return (-1);
+   filelock($pop3book, LOCK_EX) or return -1;
+   open (POP3BOOK,">$pop3book") or return -1;
    foreach (values %{$r_accounts}) {
      chomp($_);
      print POP3BOOK $_ . "\n";
@@ -822,7 +892,7 @@ sub writepop3book {
    close (POP3BOOK);
    filelock($pop3book, LOCK_UN);
 
-   return(0);
+   return 0;
 }
 
 ################ END GET/WRITEBACK POP3BOOK ##############
@@ -839,8 +909,7 @@ sub readcalbook {
 
    return 0 if (! -f $calbook);
 
-   filelock($calbook, LOCK_SH);
-   open(CALBOOK, "$calbook") or return(-1);
+   open(CALBOOK, "$calbook") or return -1;
 
    while (<CALBOOK>) {
       next if (/^#/);
@@ -848,28 +917,13 @@ sub readcalbook {
       my @a=split(/\@{3}/, $_);
       my $index=$a[0]+$indexshift;
 
-      if ($#a==6) {
-         ${$r_items}{$index}={ idate     => $a[1],
-                               starthourmin => $a[2],
-                               endhourmin   => $a[3],
-                               string    => $a[4],
-                               link      => $a[5],
-                               email      => $a[6] };
-      } elsif ($#a==5) {
-         ${$r_items}{$index}={ idate     => $a[1],
-                               starthourmin => $a[2],
-                               endhourmin   => $a[3],
-                               string    => $a[4],
-                               link      => $a[5],
-                               email      => 0 };
-      } else {
-         ${$r_items}{$index}={ idate     => $a[1],
-                               starthourmin => $a[2],
-                               endhourmin   => 0,
-                               string    => $a[3],
-                               link      => $a[4],
-                               email      => 0 };
-      }
+      ${$r_items}{$index}={ idate        => $a[1],
+                            starthourmin => $a[2],
+                            endhourmin   => $a[3],
+                            string       => $a[4],
+                            link         => $a[5],
+                            email        => $a[6],
+                            eventcolor   => $a[7]||'none' };
 
       my $idate=$a[1]; $idate= '*' if ($idate=~/[^\d]/); # use '*' for regex date
       if ( !defined(${$r_indexes}{$idate}) ) {
@@ -881,7 +935,6 @@ sub readcalbook {
    }
 
    close(CALBOOK);
-   filelock($calbook, LOCK_UN);
 
    return($item_count);
 }
@@ -893,19 +946,20 @@ sub writecalbook {
 
    ($calbook =~ /^(.+)$/) && ($calbook = $1);	# untaint ...
    if (! -f "$calbook" ) {
-      open (CALBOOK,">$calbook") or return (-1);
+      open (CALBOOK,">$calbook") or return -1;
       close(CALBOOK);
    }
 
-   filelock($calbook, LOCK_EX);
-   open (CALBOOK, ">$calbook") or return(-1);
+   filelock($calbook, LOCK_EX) or return -1;
+   open (CALBOOK, ">$calbook") or return -1;
    my $newindex=1;
    foreach (@indexlist) {
       print CALBOOK join('@@@', $newindex, ${$r_items}{$_}{'idate'},
                        ${$r_items}{$_}{'starthourmin'}, ${$r_items}{$_}{'endhourmin'},
                        ${$r_items}{$_}{'string'},
                        ${$r_items}{$_}{'link'},
-                       ${$r_items}{$_}{'email'})."\n";
+                       ${$r_items}{$_}{'email'},
+                       ${$r_items}{$_}{'eventcolor'})."\n";
       $newindex++;
    }
    close(CALBOOK);
@@ -917,6 +971,9 @@ sub writecalbook {
 
 ############## VERIFYSESSION ########################
 sub verifysession {
+   openwebmailerror("Session ID $lang_err{'has_illegal_chars'}") unless
+      (($thissession =~ /^([\w\.\-\%\@]+)$/) && ($thissession = $1));
+
    if ( (-M "$config{'ow_sessionsdir'}/$thissession") > $prefs{'sessiontimeout'}/60/24
      || !(-e "$config{'ow_sessionsdir'}/$thissession")) {
 
@@ -935,28 +992,35 @@ sub verifysession {
       writehistory("session error - session $thissession timeout access attempt");
       exit 0;
    }
+
+   my $clientip=get_clientip();
+   my $clientcookie=cookie("$user-sessionid");
    if ( -e "$config{'ow_sessionsdir'}/$thissession" ) {
       open (SESSION, "$config{'ow_sessionsdir'}/$thissession");
       my $cookie = <SESSION>; chomp $cookie;
       my $ip = <SESSION>; chomp $ip;
       close (SESSION);
 
-      if ( cookie("$user-sessionid") ne $cookie ) { # not check ip here due to dialup user
-         writelog("session error - session $thissession hijack attempt!");
-         writehistory("session error - session $thissession hijack attempt!");
-         openwebmailerror("$lang_err{'inv_sessid'}");
+      if ( $config{'session_checkcookie'} &&
+           $clientcookie ne $cookie ) { 
+         writelog("session error - request doesn't have proper cookie, access denied!");
+         writehistory("session error - request doesn't have proper cookie, access denied !");
+         openwebmailerror("$lang_err{'sess_cookieerr'}");
+      }
+      if ( $config{'session_checksameip'} &&
+           $clientip ne $ip) { 
+         writelog("session error - request doesn't come from the same ip, access denied!");
+         writehistory("session error - request doesn't com from the same ip, access denied !");
+         openwebmailerror("$lang_err{'sess_iperr'}");
       }
    }
 
-   openwebmailerror("Session ID $lang_err{'has_illegal_chars'}") unless
-      (($thissession =~ /^([\w\.\-\%\@]+)$/) && ($thissession = $1));
-
-   if ( !defined(param("refresh")) && param("action") ne "timeoutwarning" ) {
+   my $session_noupdate=param('session_noupdate');
+   if (!$session_noupdate) {
       # extend the session lifetime only if not auto-refresh/timeoutwarning
       open (SESSION, "> $config{'ow_sessionsdir'}/$thissession") or
          openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}/$thissession!");
-      print SESSION cookie("$user-sessionid"), "\n";
-      print SESSION get_clientip(), "\n";
+      print SESSION "$clientcookie\n$clientip\n";
       close (SESSION);
    }
    return 1;
@@ -1025,7 +1089,10 @@ sub getfolders {
               $filename=~/^\.(.*)\.dir$/ ||
               $filename=~/^\.(.*)\.pag$/ ||
               $filename=~/^(.*)\.lock$/ ||
-              ($filename=~/^\.(.*)\.cache$/ && $filename ne ".search.cache") ) {
+              ($filename=~/^\.(.*)\.cache$/ &&
+               $filename ne ".search.cache" &&
+               $filename ne ".webdisk.cache")
+            ) {
             if ($1 ne $user &&
                 $1 ne 'address.book' &&
                 $1 ne 'filter.book' &&
@@ -1113,7 +1180,10 @@ sub getmessage {
       filelock($folderfile, LOCK_SH|LOCK_NB) or
          openwebmailerror("$lang_err{'couldnt_locksh'} $folderfile!");
 
-      filelock("$headerdb$config{'dbm_ext'}", LOCK_EX) if (!$config{'dbmopen_haslock'});
+      if (!$config{'dbmopen_haslock'}) {
+         filelock("$headerdb$config{'dbm_ext'}", LOCK_EX) or
+            openwebmailerror("$lang_err{'couldnt_lock'} $headerdb$config{'dbm_ext'}");
+      }
       my %HDB;
       dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", 0600);
       $HDB{'METAINFO'}="ERR";
@@ -1492,7 +1562,9 @@ sub cutfolder {				# reduce folder size by $cutpercent
 
    my ($totalsize, $new, $r_messageids)=get_info_messageids_sorted_by_date($headerdb, 0);
 
-   filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) if (!$config{'dbmopen_haslock'});
+   if (!$config{'dbmopen_haslock'}) {
+      filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) or return -3;
+   }
    dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
    foreach my $id  (reverse @{$r_messageids}) {
       push(@delids, $id);
@@ -1530,13 +1602,19 @@ sub filtermessage {
    } elsif ($filtered == -2 ) {
       openwebmailerror("$lang_err{'couldnt_open'} .filter.book!");
    } elsif ($filtered == -3 ) {
-      openwebmailerror("$lang_err{'couldnt_lock'} INBOX!");
+      openwebmailerror("$lang_err{'couldnt_lock'} .filter.book$config{'dbm_ext'}!");
    } elsif ($filtered == -4 ) {
-      openwebmailerror("$lang_err{'couldnt_open'} INBOX!");
+      openwebmailerror("$lang_err{'couldnt_lock'} INBOX!");
    } elsif ($filtered == -5 ) {
-      openwebmailerror("$lang_err{'couldnt_lock'} mail-trash!");
+      openwebmailerror("$lang_err{'couldnt_open'} INBOX!");
    } elsif ($filtered == -6 ) {
+      openwebmailerror("$lang_err{'couldnt_lock'} INBOX folder index!");
+   } elsif ($filtered == -7 ) {
+      openwebmailerror("$lang_err{'couldnt_lock'} mail-trash!");
+   } elsif ($filtered == -8 ) {
       openwebmailerror("$lang_err{'couldnt_open'} .filter.check!");
+   } elsif ($filtered == -9 ) {
+      openwebmailerror("mailfilter I/O error!");
    }
    return($filtered, $r_filtered);
 }
@@ -1570,7 +1648,8 @@ sub writehistory {
    if ( -f "$folderdir/.history.log" ) {
       my ($start, $end, $buff);
 
-      filelock("$folderdir/.history.log", LOCK_EX);
+      filelock("$folderdir/.history.log", LOCK_EX) or
+         openwebmailerror("$lang_err{'couldnt_lock'} $folderdir/.history.log");
       open (HISTORYLOG,"+< $folderdir/.history.log") or
          openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.history.log");
       seek(HISTORYLOG, 0, 2);	# seek to tail
@@ -1601,7 +1680,7 @@ sub writehistory {
       close(HISTORYLOG);
    }
 
-   return(0);
+   return 0;
 }
 
 ################ END WRITEHISTORY ##################
@@ -1625,15 +1704,13 @@ sub printheader {
       $html =~ s/\@\@\@BG_URL\@\@\@/$prefs{'bgurl'}/g;
       $html =~ s/\@\@\@CHARSET\@\@\@/$prefs{'charset'}/g;
 
+      my $info;
       if ($user) {
-         if ($config{'folderquota'}) {
-            $html =~ s/\@\@\@USERINFO\@\@\@/$prefs{'email'} \($folderusage%\) \-/g;
-         } else {
-            $html =~ s/\@\@\@USERINFO\@\@\@/$prefs{'email'} \-/g;
-         }
-      } else {
-         $html =~ s/\@\@\@USERINFO\@\@\@//g;
+         $info=qq|$prefs{'email'} -|;
+         $info=qq|$prefs{'email'} ($folderusage%) -| if ($config{'folderquota'});
       }
+      $info .= " ". dateserial2str(add_dateserial_timeoffset(gmtime2dateserial(),$prefs{'timeoffset'}), $prefs{'dateformat'}). " -";
+      $html =~ s/\@\@\@USERINFO\@\@\@/$info/g;
 
       push(@headers, -charset=>$prefs{'charset'}) if ($CGI::VERSION>=2.57);
       push(@headers, -pragma=>'no-cache');
@@ -1644,7 +1721,7 @@ sub printheader {
 }
 
 sub printfooter {
-   my $mode=$_[0];
+   my ($mode, $jscode)=@_;
    my $html = '';
 
    $headerprinted = 0;
@@ -1660,6 +1737,7 @@ sub printfooter {
          }
       }
       $html =~ s/\@\@\@REMAININGSECONDS\@\@\@/$remainingseconds/g;
+      $html =~ s/\@\@\@JSCODE\@\@\@/$jscode/g;
    }
 
    if ($mode>=1) {	# print footer
@@ -1709,7 +1787,7 @@ sub openwebmailerror {
       }
       print qq|<br><br><br><br><br><br><br>|,
             qq|<table border="0" align="center" width="40%" cellpadding="1" cellspacing="1">|,
-            qq|<tr><td bgcolor=$titlebar align="left">\n|,
+            qq|<tr><td bgcolor=$titlebar>\n|,
             qq|<font color=$titlebar_text face=$fontface size="3"><b>$config{'name'} ERROR</b></font>\n|,
             qq|</td></tr>|,
             qq|<tr><td align="center" bgcolor=$window_light><br>\n|;
@@ -1732,6 +1810,37 @@ sub openwebmailerror {
    }
 }
 ################### END OPENWEBMAILERROR #######################
+
+###################### AUTOCLOSEWINDOW ##########################
+sub autoclosewindow {
+   my ($title, $msg, $time, $jscode)=@_;
+   $time=8 if ($time<3);
+
+   if (defined($ENV{'HTTP_HOST'})) {	# in CGI mode
+      printheader();
+      my $html=readtemplate("autoclose.template");
+      $html = applystyle($html);
+
+      $html =~ s/\@\@\@MSGTITLE\@\@\@/$title/g;
+      $html =~ s/\@\@\@MSG\@\@\@/$msg/g;
+      $html =~ s/\@\@\@TIME\@\@\@/$time/g;
+      $html =~ s/\@\@\@JSCODE\@\@\@/$jscode/g;
+
+      my $temphtml = button(-name=>"okbutton",
+                            -value=>$lang_text{'ok'},
+                            -onclick=>'autoclose();',
+                            -override=>'1');
+      $html =~ s/\@\@\@OKBUTTON\@\@\@/$temphtml/g;
+
+      print $html;
+      printfooter(2);
+      exit 0;
+   } else {
+      print "$title - $msg\n";
+      exit 0;
+   }
+}
+###################### END AUTOCLOSEWINDOW #######################
 
 ######################### ICONLINK ###############################
 sub iconlink {
@@ -1790,16 +1899,16 @@ sub escapeURL {
 # so we can give up euid root temporarily and get it back later.
 # Saved-euid means the euid will be saved to a variable saved-euid(prepared by OS)
 # before it is changed, thus the process can switch back to previous euid if required
-sub set_euid_egid_umask {
-   my ($uid, $gid, $umask)=@_;
+sub set_euid_egids {
+   my ($uid, @gids)=@_;
    # note! egid must be set before set euid to normal user,
    #       since a normal user can not set egid to others
-   $) = $gid;
+   # trick: 2nd parm will be ignore, so we repeat parm 1 twice
+   $) = join(" ", $gids[0], @gids);	
    if ($> != $uid) {
       $<=$> if (!$config{'savedsuid_support'} && $>==0);
       $> = $uid
    }
-   umask($umask);
 }
 ################### END SET_EUID_EGID_UMASK ###############
 
@@ -1936,6 +2045,26 @@ sub gmtime2dateserial {
 }
 #################### END LOCALTIME2DATESERIAL #########################
 
+##################### WEEKDAY_OF_DATESERIAL ####################
+# we use 0001/01/01 as start base, it is monday
+sub dateserial2daydiff {
+   my $dateserial=$_[0];
+   $dateserial=~/(\d\d\d\d)(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)/;
+   my ($year, $mon, $mday, $hour, $min, $sec)=($1, $2, $3, $4, $5, $6);
+   my @mdaybase=(0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334);
+
+   my $daydiff=($year-1)*365+int(($year-1)/4)-int(($year-1)/100)+int(($year-1)/400);
+   $daydiff+=$mdaybase[$mon-1]+$mday -1;
+   $daydiff++ if ( $mon>2 && ($year%400==0 || ($year%100!=0 && $year%4==0)) ); # leap year
+   return($daydiff);
+}
+
+sub wdaynum_of_dateserial {
+   my $daydiff=dateserial2daydiff($_[0]);
+   return(($daydiff+1) % 7);
+}
+################### END WEEKDAY_OF_DATESERIAL ####################
+
 ################## DELIMITER2DATESERIAL #######################
 sub delimiter2dateserial {	# return dateserial of GMT
    my ($delimiter, $deliver_use_GMT)=@_;
@@ -1973,55 +2102,38 @@ sub delimiter2dateserial {	# return dateserial of GMT
 #################### DATEFIELD2DATESERIAL #####################
 sub datefield2dateserial {	# return dateserial of GMT
    my $datefield=$_[0];
-   my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst,$timeoffset);
+   my ($sec,$min,$hour, $mday,$mon,$year, $timeoffset,$timezone, $ampm);
 
-   if ($datefield =~ /(\w+),\s+(\d+)\s+(\w+)\s+(\d\d+)\s+(\d+):(\d+)(:\d+)?(\s\([A-Z]{3,4}\d?\))?(\s[\+\-]\d\d\d\d)?/i ) {
-      #Date: Wed, 9 Sep 1998 19:30:17 +0800 (CST)
-      #Date: Wed, 9 Sep 1998 19:30:17 (CST) +0800
-      #Date: Thu, 25 Oct 2001 11:06 +0800
-      $wday=$1; $mday=$2; $mon=$3; $year=$4; $hour=$5; $min=$6; $sec=$7; $timeoffset=$9;
-      $sec=~s/://;
-      $timeoffset=~s/\s//;
-   } elsif ($datefield =~ /(\w+),\s+(\d+)\s+(\w+)\s+(\d+):(\d+)(:\d+)?\s+(\d\d+)(\s\([A-Z]{3,4}\d?\))?(\s[\+\-]\d\d\d\d)?/i ) {
-      #Date: Tue, 16 Oct 16:56:27 2001 +0800 (CST)
-      $wday=$1; $mday=$2; $mon=$3; $hour=$4; $min=$5; $sec=$6; $year=$7; $timeoffset=$9;
-      $sec=~s/://;
-      $timeoffset=~s/\s//;
-   } elsif ($datefield =~ /(\d+)\s+(\w+)\s+(\d\d+)\s+(\d+):(\d+)(:\d+)?(\s\([A-Z]{3,4}\d?\))?(\s[\+\-]\d\d\d\d)?/i ) {
-      #Date: 07 Sep 2000 23:01:36 +0200
-      $mday=$1; $mon=$2; $year=$3; $hour=$4; $min=$5; $sec=$6; $timeoffset=$8;
-      $sec=~s/://;
-      $timeoffset=~s/\s//;
-   } elsif ($datefield =~ /(\w+),\s+(\w+)\s+(\d+),\s+(\d\d+)\s+(\d+):(\d+)(:\d+)?\s/i) {
-      #Date: Wednesday, February 10, 1999 3:39 PM
-      $wday=$1; $mon=$2; $mday=$3; $year=$4; $hour=$5; $min=$6; $sec=$7; $timeoffset="";
-      $wday=~s/^(...).*/$1/;
-      $mon=~s/^(...).*/$1/;
-      $sec=~s/://;
-   } elsif ($datefield =~ /(\w+)\s+(\w+)\s+(\d+)\s+(\d+):(\d+)(:\d+)?\s[A-Z]{3,4}\d?([\+\-]\d\d:\d\d)\s(\d\d+)/i ) {
-      #Date: Mon Dec 11 16:57:16 GMT+08:00 2000
-      $wday=$1; $mon=$2; $mday=$3; $hour=$4; $min=$5; $sec=$6; $timeoffset=$7; $year=$8;
-      $sec=~s/://;
-      $timeoffset=~s/://g;
-   } else {
-      return("");
-   }
-
-   if ($year<50) {	# 2 digit year
-      $year+=2000;
-   } elsif ($year<=1900) {
-      $year+=1900;
-   }
-
-   # some machines has reverse order for month and mday
-   if ( $mday=~/[A-Za-z]+/ ) {
-      my $tmp=$mday; $mday=$mon; $mon=$tmp;
-   }
-   for (my $i=0; $i<12; $i++) {
-      if ($mon=~/$monthstr[$i]/i) {
-         $mon=$i+1; last;
+   $datefield=~s/GMT//;
+   foreach my $s (split(/[\s,]+/, $datefield)) {
+      if ($s=~/^\d\d?$/) {
+         if ($s<=31 && $mday eq "") {
+            $mday=$s;
+         } else {
+            $year=$s+1900;
+            $year+=100 if ($year<1970);
+         }
+      } elsif ($s=~/^[A-Z][a-z][a-z]/ ) {
+         for my $i (0..11) {
+            if ($s=~/^$monthstr[$i]/i) {
+               $mon=$i+1; last;
+            }
+         }
+      } elsif ($s=~/^\d\d\d\d$/) {
+         $year=$s;
+      } elsif ($s=~/^(\d+):(\d+):?(\d+)?$/) {
+         $hour=$1; $min=$2; $sec=$3;
+      } elsif ($s=~/^\(?([A-Z]{3,4}\d?)\)?$/) {
+         $timezone=$1;
+      } elsif ($s=~/^([\+\-]\d\d:?\d\d)$/) {
+         $timeoffset=$1;
+         $timeoffset=~s/://;
+      } elsif ($s=~/^pm$/i) {
+         $ampm='pm';
       }
    }
+   $hour+=12 if ($hour<12 && $ampm eq 'pm');
+   $timeoffset=$tzoffset{$timezone} if ($timeoffset eq "");
 
    my $dateserial=sprintf("%04d%02d%02d%02d%02d%02d", $year,$mon,$mday, $hour,$min,$sec);
    if ($timeoffset ne "" && $timeoffset ne "+0000") {
@@ -2031,26 +2143,6 @@ sub datefield2dateserial {	# return dateserial of GMT
    return($dateserial);
 }
 #################### END DATEFIELD2DATESERIAL #####################
-
-##################### WEEKDAY_OF_DATESERIAL ####################
-# we use 0001/01/01 as start base, it is monday
-sub dateserial2daydiff {
-   my $dateserial=$_[0];
-   $dateserial=~/(\d\d\d\d)(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)/;
-   my ($year, $mon, $mday, $hour, $min, $sec)=($1, $2, $3, $4, $5, $6);
-   my @mdaybase=(0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334);
-
-   my $daydiff=($year-1)*365+int(($year-1)/4)-int(($year-1)/100)+int(($year-1)/400);
-   $daydiff+=$mdaybase[$mon-1]+$mday -1;
-   $daydiff++ if ( $mon>2 && ($year%400==0 || ($year%100!=0 && $year%4==0)) ); # leap year
-   return($daydiff);
-}
-
-sub wdaynum_of_dateserial {
-   my $daydiff=dateserial2daydiff($_[0]);
-   return(($daydiff+1) % 7);
-}
-################### END WEEKDAY_OF_DATESERIAL ####################
 
 #################### DATESERIAL2DELIMITER #####################
 sub dateserial2delimiter {
@@ -2116,11 +2208,8 @@ sub dateserial2str {
 
    if ($6 ne "") {
       if ( $prefs{'hourformat'} eq "12") {
-         my $ampm = "am";
-         my $hour = $4;
-         $ampm = "pm" if ($hour gt "11");
-         $hour = sprintf("%02d", $hour - 12) if ($hour gt "12");
-         $str.=" $hour:$5:$6 $ampm";
+         my ($hour, $ampm)=hour24to12($4);
+         $str.=sprintf(" %02d:$5:$6 $ampm", $hour);
       } else {
          $str.=" $4:$5:$6";
       }
@@ -2128,6 +2217,24 @@ sub dateserial2str {
    return($str);
 }
 ################### END DATESERIAL2STR #####################
+
+####################### HOUR24TO12 ###########################
+sub hour24to12 {
+   my $hour=$_[0];
+   my $ampm="am";
+
+   $hour =~ s/^0(.+)/$1/;
+   if ($hour==24||$hour==0) {
+      $hour = 12;
+   } elsif ($hour > 12) {
+      $hour = $hour - 12;
+      $ampm = "pm";
+   } elsif ($hour == 12) {
+      $ampm = "pm";
+   }
+   return($hour, $ampm);
+}
+##################### END HOUR24TO12 ###########################
 
 #################### EMAIL2NAMEADDR ######################
 sub email2nameaddr {	# name, addr are guarentee to not null
@@ -2217,15 +2324,300 @@ sub lenstr {
    my ($len, $bytestr)=@_;
 
    if ($len >= 1048576){
-      $len = int($len/1048576*10+0.5)/10 . "MB";
+      $len = int($len/1048576*10+0.5)/10 . $lang_sizes{'mb'};
    } elsif ($len >= 2048) {
-      $len =  int(($len/1024)+0.5) . "KB";
+      $len =  int(($len/1024)+0.5) . $lang_sizes{'kb'};
    } else {
-      $len = $len . "byte" if ($bytestr);
+      $len = $len .$lang_sizes{'byte'} if ($bytestr);
    }
    return ($len);
 }
 ####################### END LENSTR ########################
+
+######################## ZH_DOSPATH2FNAME ####################
+# big5: hi 81-FE, lo 40-7E A1-FE, range a440-C67E C940-F9D5 F9D6-F9FE
+# gbk : hi 81-FE, lo 40-7E 80-FE, range hi*lo
+sub zh_dospath2fname {
+   my ($dospath, $newdelim)=@_;
+   my $buff='';
+   while ( 1 ) {
+      # this line can't be put inside while or will go wrong in perl 5.8.0
+      if ($dospath=~m!([\x81-\xFE][\x40-\x7E\x80-\xFE]|.)!g) {
+         if ($1 eq '\\') {
+            if ($newdelim) {
+               $buff.=$newdelim;
+            } else {
+               $buff='';
+            }
+         } else {
+            $buff.=$1;
+         }
+      } else {
+         last;
+      }
+   }
+   return $buff;
+}
+##################### END ZH_DOSPATH2FNAME ###################
+
+##################### SAFEFOLDERNAME ########################
+sub safefoldername {
+   my $foldername=$_[0];
+
+   # dangerous char for path interpretation
+   $foldername =~ s!\.\.+!!g;
+   # $foldername =~ s!/!!g;	# comment out because of sub folder
+
+   # dangerous char for perl file open
+   $foldername =~ s!^\s*[\|\<\>]+!!g;
+   $foldername =~ s![\|\<\>]+\s*$!!g;
+
+   # all dangerous char within foldername
+   if ($config{'enable_strictfoldername'}) {
+      $foldername =~ s![\s\`\|\<\>/;&]+!_!g;
+   }
+   return $foldername;
+}
+##################### END SAFEFOLDERNAME ########################
+
+##################### SAFEDOMAINNAME ########################
+sub safedomainname {
+   my $domainname=$_[0];
+   $domainname=~s!\.\.+!!g;
+   $domainname=~s![^A-Za-z\d\_\-\.]!!g;	# reserve safe char only
+   return($domainname);
+}
+##################### END SAFEDOMAINNAME ########################
+
+######################## SAFEDLNAME ############################
+sub safedlname {
+   my $dlname=$_[0];
+   $dlname=~s|/$||; $dlname=~s|^.*/||;	# unix path
+   if (length($dlname)>45) {   # IE6 go crazy if fname longer than 45, tricky!
+      $dlname=~/^(.*)(\.[^\.]*)$/;
+      $dlname=substr($1, 0, 45-length($2)).$2;
+   }
+   $dlname=~s|_*\._*|\.|g; 
+   $dlname=~s|__+|_|g;
+   return($dlname);
+}
+######################## END SAFEDLNAME ########################
+
+########################## EXT <-> CONTENTTYPE ##################
+sub ext2contenttype {
+   my $ext=lc($_[0]);
+
+   return("text/plain")			if ($ext =~ /(asc|te?xt|cc?|h|cpp|asm|pas|f77|lst|sh|pl)$/);
+   return("text/xml")			if ($ext =~ /(xml|xsl)$/);
+   return("text/html")			if ($ext =~ /html?$/);
+   return("text/richtext")		if ($ext =~ /rtx$/);
+   return("text/sgml")			if ($ext =~ /sgml?$/);
+   return("text/vnd.wap.wml")		if ($ext =~ /wml$/);
+   return("text/vnd.wap.wmlscript")	if ($ext =~ /wmls$/);
+   return("text/$1")			if ($ext =~ /(css|rtf)$/);
+
+   return("model/vrml")			if ($ext =~ /(wrl|vrml)$/);
+
+   return("image/jpeg")			if ($ext =~ /(jpg|jpe|jpeg)$/);
+   return("image/tiff")			if ($ext =~ /tiff?$/);
+   return("image/x-cmu-raster")		if ($ext =~ /ras$/);
+   return("image/x-portable-anymap")	if ($ext =~ /pnm$/);
+   return("image/x-portable-bitmap")	if ($ext =~ /pbm$/);
+   return("image/x-portable-grayma")	if ($ext =~ /pgm$/);
+   return("image/x-portable-pixmap")	if ($ext =~ /ppm$/);
+   return("image/x-rgb")		if ($ext =~ /rgb$/);
+   return("image/x-xbitmap")		if ($ext =~ /xbm$/);
+   return("image/x-xpixmap")		if ($ext =~ /xpm$/);
+   return("image/$1")			if ($ext =~ /(bmp|gif|ief|png|psp)$/);
+
+   return("video/mpeg")			if ($ext =~ /(mpeg?|mpg|mp2)$/);
+   return("video/quicktime")		if ($ext =~ /(mov|qt)$/);
+   return("video/x-msvideo")		if ($ext =~ /(avi|wav|dl|fli)$/);
+
+   return("audio/basic")		if ($ext =~ /(au|snd)$/);
+   return("audio/midi")			if ($ext =~ /(midi?|kar)$/);
+   return("audio/mpeg")			if ($ext =~ /(mp[23]|mpga)$/);
+   return("audio/x-mpegurl")		if ($ext =~ /m3u$/);
+   return("audio/x-aiff")		if ($ext =~ /aif[fc]?$/);
+   return("audio/x-pn-realaudio")	if ($ext =~ /ra?m$/);
+   return("audio/x-realaudio")		if ($ext =~ /ra$/);
+   return("audio/x-wav")		if ($ext =~ /wav$/);
+
+   return("application/msword") 	if ($ext =~ /doc$/);
+   return("application/x-mspowerpoint") if ($ext =~ /ppt$/);
+   return("application/x-msexcel") 	if ($ext =~ /xls$/);
+   return("application/x-msvisio")	if ($ext =~ /visio$/);
+
+   return("application/postscript")	if ($ext =~ /(ps|eps|ai)$/);
+   return("application/mac-binhex40")	if ($ext =~ /hqx$/);
+   return("application/xhtml+xml")	if ($ext =~ /(xhtml|xht)$/);
+   return("application/x-javascript")	if ($ext =~ /js$/);
+   return("application/x-vcard")	if ($ext =~ /vcf$/);
+   return("application/x-shockwave-flash") if ($ext =~ /swf$/);
+   return("application/x-texinfo")	if ($ext =~ /(texinfo|texi)$/);
+   return("application/x-troff")	if ($ext =~ /(tr|roff)$/);
+   return("application/x-troff-$1")     if ($ext =~ /(man|me|ms)$/);
+   return("application/x-$1")		if ($ext=~ /(dvi|latex|shar|tar|tcl|tex)$/);
+   return("application/$1")		if ($ext =~ /(pdf|zip)$/);
+
+   return("application/octet-stream");
+}
+
+sub contenttype2ext {
+   my $contenttype=$_[0];
+   my ($class, $ext, $dummy)=split(/[\/\s;,]+/, $contenttype);
+
+   return("txt") if ($contenttype eq "N/A");
+   return("mp3") if ($contenttype=~m!audio/mpeg!i);
+   return("au")  if ($contenttype=~m!audio/x\-sun!i);
+   return("ra")  if ($contenttype=~m!audio/x\-realaudio!i);
+
+   $ext=~s/^x-//i;
+   return(lc($ext))  if length($ext) <=4;
+
+   return("txt") if ($class =~ /text/i);
+   return("msg") if ($class =~ /message/i);
+
+   return("doc") if ($ext =~ /msword/i);
+   return("ppt") if ($ext =~ /powerpoint/i);
+   return("xls") if ($ext =~ /excel/i);
+   return("vsd") if ($ext =~ /visio/i);
+   return("vcf") if ($ext =~ /vcard/i);
+   return("tar") if ($ext =~ /tar/i);
+   return("zip") if ($ext =~ /zip/i);
+   return("avi") if ($ext =~ /msvideo/i);
+   return("mov") if ($ext =~ /quicktime/i);
+   return("swf") if ($ext =~ /shockwave-flash/i);
+   return("hqx") if ($ext =~ /mac-binhex40/i);
+   return("ps")  if ($ext =~ /postscript/i);
+   return("js")  if ($ext =~ /javascript/i);
+   return("bin");
+}
+########################## END EXT <-> CONTENTTYPE ########################
+
+########################## ABSOLUTE_VPATH ########################
+sub absolute_vpath {
+   my ($base, $vpath)=@_;
+   $vpath="$base/$vpath" if ($vpath!~m|^/|);
+   return('/'.join('/', path2array($vpath)));
+}
+####################### END ABSOLUTE_VPATH ########################
+
+########################## PATH2ARRAY #############################
+sub path2array {
+   my $path=$_[0];
+
+   my @p=();
+   foreach (split(/\//, $path)) {
+      if ($_ eq "." || $_ eq "") {	# remove . and //
+         next;
+      } elsif ($_ eq "..") {		# remove ..
+         pop(@p);
+      } else {
+         push(@p, $_);
+      }
+   }
+   return(@p);
+}
+########################## END PATH2ARRAY #############################
+
+########################## FULLPATH2VPATH ##############################
+sub fullpath2vpath {
+   my ($realpath, $rootpath)=@_;
+
+   my @p=path2array($realpath);
+   my @r=path2array($rootpath);
+   foreach my $r (@r) {
+      return if ($r ne shift(@p));
+   }
+   return('/'.join('/', @p));
+}
+######################### END FULLPATH2VPATH ##########################
+
+########################## VERIFYVPATH ##############################
+# check hidden, symboliclink, outhome symboliclink, unix specific files
+sub verify_vpath {
+   my ($rootpath, $vpath)=@_;
+
+   my $realpath="$rootpath/$vpath";
+   my $filename=$vpath; $filename=~s|.*/||;
+
+   if (!$config{'webdisk_lsmailfolder'}) {
+      my $vpath2=fullpath2vpath($realpath, $folderdir);
+      if ($vpath2) {
+         return "$lang_err{'access_denied'} ($vpath is a mailfolder file)\n";
+      }
+   }
+   if (!$config{'webdisk_lshidden'} && $filename=~/^\./) {
+      return "$lang_err{'access_denied'} ($vpath is a hidden file)\n";
+   }
+   if (-l $realpath) {
+      if (!$config{'webdisk_lssymlink'}) {
+         return "$lang_err{'access_denied'} ($vpath is a symbolic link)\n";
+      }
+      if (!$config{'webdisk_allow_symlinkouthome'}) {
+         my $vpath2=fullpath2vpath(readlink($realpath), $homedir);
+         if (!$vpath2) {
+            return "$lang_err{'access_denied'} ($vpath is symbolic linked to dir/file outside homedir)\n";
+         }
+      }
+   }
+   if (!$config{'webdisk_lsunixspec'} && (-e $realpath && !-d _ && !-f _)) {
+      return "$lang_err{'access_denied'} ($vpath is a unix specific file)\n";
+   }
+   return;
+}
+########################## END VERIFYVPATH ##########################
+
+########################## EXECUTE ##############################
+# Since we call open3 with @cmd array,
+# perl will call execvp() directly without shell interpretation.
+# this is much secure than system()
+use vars qw(*cmdOUT *cmdIN *cmdERR);
+sub execute {
+   my @cmd=@_;
+   my ($childpid, $stdout, $stderr);
+   my $mypid=$$;
+   $|=1;			# flush CGI related output in parent
+
+   eval {
+      $childpid = open3(\*cmdIN, \*cmdOUT, \*cmdERR, @cmd);
+   };
+   if ($@) {			# open3 return err only in child
+      if ($$!=$mypid){ 		# child
+         print STDERR $@;	# pass $@ to parent through stderr pipe
+         exit 9;		# terminated
+      }
+   }
+
+   while (1) {
+      my ($rin, $rout, $ein, $eout, $buf)=('','','','','');
+      my ($n, $o, $e)=(0,1,1);
+
+      vec($rin, fileno(\*cmdOUT), 1) = 1;
+      vec($rin, fileno(\*cmdERR), 1) = 1;
+      $ein=$rin;
+
+      $n=select($rout=$rin, undef, $eout=$ein, 30);
+      last if ($n<0);	# read err => child dead?
+      last if ($n==0);	# timeout
+
+      if (vec($rout,fileno(\*cmdOUT),1)) {
+         $o=sysread(\*cmdOUT, $buf, 16384);
+         $stdout.=$buf if ($o>0);
+      }
+      if (vec($rout,fileno(\*cmdERR),1)) {
+         $e=sysread(\*cmdERR, $buf, 16384);
+         $stderr.=$buf if ($e>0);
+      }
+      last if ($n>0 && $o==0 && $e==0);
+   }
+   $childpid=wait();
+
+   $|=0;
+   return($stdout, $stderr, $?>>8, $?&255);
+}
+########################## END EXECUTE ##########################
 
 ################# IS_REGEX, IS_TAINTED ##########
 sub is_regex {
@@ -2237,6 +2629,18 @@ sub is_tainted {
 }
 
 ############### END IS_REGEX, IS_TAINTED ########
+
+#################### IS_R2LMODE ####################
+# used to siwtch direct of arrow for Right-to-Left language
+# eg: arabic, hebrew
+sub is_RTLmode {
+   if ($_[0] eq "ar.CP1256" || $_[0] eq "ar.ISO8859-6" ||  # arabic
+       $_[0] eq "he.CP1255" || $_[0] eq "he.ISO8859-8" ) { # hebrew
+      return 1;
+   }
+   return 0;
+}
+################## END IS_R2LMODE ####################
 
 #################### LOG_TIME (for profiling) ####################
 sub log_time {

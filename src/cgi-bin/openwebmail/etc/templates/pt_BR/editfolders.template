@@ -1,9 +1,9 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
-<tr><td colspan="5" bgcolor=@@@TITLEBAR@@@ align="left">
+<tr><td colspan="5" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <b>Editar Pastas</b></font>
 </td></tr>
-<tr><td colspan="5" bgcolor=@@@MENUBAR@@@ align="left">
+<tr><td colspan="5" bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
 </td></tr><tr><td colspan="5">&nbsp;</td></tr>
 <tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>

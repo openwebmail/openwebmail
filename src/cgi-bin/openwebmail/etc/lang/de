@@ -48,11 +48,24 @@
    no  => 'Nein'
    );
 
-%lang_positionlabels =
+%lang_ctrlpositionlabels =
    (
-   before => 'Before mail edit area',
-   after => 'After mail edit area',
-   both  => 'Before and after mail edit area'
+   top => 'Am oberen Rand',
+   bottom => 'Am unteren Rand'
+   );
+
+%lang_sendpositionlabels =
+   (
+   before => 'Vor dem Nachrichteneingabefeld',
+   after => 'Nach dem Nachrichteneingabefeld',
+   both  => 'Vor und nach dem Nachrichteneingabefeld'
+   );
+
+%lang_abookbuttonpositionlabels = 
+   (
+   before => 'Before addressbook entries',
+   after  => 'After addressbook entries',
+   both   => 'Before and after addressbook entries'
    );
 
 %lang_timelabels =
@@ -81,13 +94,20 @@
    regexp      => 'gleicht Regexp',
    );
 
+%lang_sizes =
+   (
+   mb   => 'MB',	# mega bytes
+   kb   => 'KB',	# kilo bytes
+   byte => 'Byte'
+   );
+
 %lang_calendar = 
    (
    yearview  => 'Jahresübersicht',
    monthview => 'Monatsübersicht',
    weekview  => 'Wochenübersicht',
    dayview   => 'Tagesübersicht',
-   listview   => 'Listview'
+   listview  => 'Listenansicht'
    );
 
 %lang_month =
@@ -119,7 +139,7 @@
 
 %lang_wday_abbrev =
    (
-   week => 'WK',
+   week => 'Woche',
    0 => 'So',
    1 => 'Mo',
    2 => 'Di',
@@ -138,6 +158,28 @@
    5 => 'letzte'
    );
 
+%lang_wdbutton =
+   (
+   refresh  => 'Aktualisieren',
+   preview  => 'Vorschau',
+   edit     => 'Bearbeiten',
+   listarchive=> 'Auflisten',
+   decompress=>'Entpacken',
+   extract  => 'Extrahieren',
+   chdir    => 'Ordner wechseln',
+   mkdir    => 'Neuer Ordner',
+   newfile  => 'Neue Datei',
+   delete   => 'Löschen',
+   copy     => 'Kopieren',
+   move     => 'Verschieben',
+   gzip     => 'Packen mit gzip',
+   mkzip    => 'Packen mit zip',
+   mktgz    => 'tgz-Archiv erstellen',
+   mkthumbnail  => 'MkThumb',
+   download => 'Download',
+   upload   => 'Upload',
+   );   
+
 %lang_text =
    (
    login      => 'Anmelden',
@@ -150,7 +192,7 @@
    messages   => 'Nachrichten',
    unread     => 'ungelesen',
    nomessages => 'Keine Nachrichten',
-   inmessages => 'Incoming msgs',
+   inmessages => 'Eingegangene Nachrichten',
    composenew => 'Neue Nachricht',
    refresh    => 'Aktualisieren',
    userprefs  => 'Benutzer Einstellungen',
@@ -159,7 +201,7 @@
    emptytrash => 'Papierkorb leeren',
    totrash    => 'In Papierkorb verschieben',
    forever    => 'für immer',
-   delatlogout=> 'Delete at Logout',
+   delatlogout=> 'Bei der abmeldung löschen',
    userdef    => 'Benutzerdefiniert',
    logout     => 'Abmelden',
    page       => 'Seite',
@@ -197,8 +239,8 @@
    encoding   => 'Format',
    description=> 'Beschreibung',
    download   => 'Herunterladen',
-   charset    => 'Charset',
-   samecharset=> 'The same as composing charset',
+   charset    => 'Zeichensatz',
+   samecharset=> 'Der gleiche Zeichensatz',
    thisispartialmsg => 'Dies ist eine unvollständige Nachricht.',
    msgrebuild => 'Nachricht reformatieren',
    editdraft  => 'Entwurf bearbeiten',
@@ -207,6 +249,7 @@
    about      => 'Info',
    close      => 'Schließen',
    cancel     => 'Abbrechen',
+   ok         => 'Ok',
    continue   => 'Weiter',
    loginagain => 'Erneut anmelden',
    exit       => 'Schließen',
@@ -224,6 +267,7 @@
    reindex    => 'Reindizieren',
    folderreindexconf => '\'Sollen die Nachrichten dieses Ordners reindiziert werden?\'',
    total      => 'Gesamt',
+   edit       => 'Bearbeiten',
    delete     => 'Löschen',
    reserve    => 'Reservieren',
    clearadd   => 'Alle Einträge löschen',
@@ -237,11 +281,12 @@
    name       => 'Name',
    email      => 'Email',
    note       => 'Anmerkung',
+   max        => 'Maximum',
    group      => 'Gruppe',
    quota_hit  => 'SPEICHERPLATZLIMIT ÜBERSCHRITTEN',
    usage      => 'Verwendung',
    tzmap      => 'Zeitzonenkarte',
-   testsound  => 'Test sound',
+   testsound  => 'Sound testen',
    editfroms  => 'Persönliche Email-Adressen bearbeiten',
    pop3book   => 'Postfächer bearbeiten',
    retr_pop3s => 'Nachrichten abholen',
@@ -276,10 +321,10 @@
    checkagain => 'Erneut prüfen',
    finishchecking => 'Prüfung beenden',
    manuallyfix=> 'Manuell ändern',
-   editstat   => 'Edit Stationery',
-   savestat   => 'Save Stationery',
-   clearstat  => 'Clear All Stationery',
-   selectstat => '-- Select Stationery for Reply --',
+   editstat   => 'Vorlagen bearbeiten',
+   savestat   => 'Vorlage speichern',
+   clearstat  => 'Alle Vorlagen entfernen',
+   statreply  => '-- Antwortvorlage  --',
    calendar   => 'Kalender',
    am         => 'am',
    pm         => 'pm',
@@ -292,12 +337,41 @@
    moreitems  => 'Weitere Einträge',
    multieditconf => 'Dieser Eintrag wurde für mehr als nur einen Tag angelegt.\\nDie erneute Bearbeitung wird sich auf alle diesen Eintrag zugeordneten Tage auswirken.\\nBearbeitung fortsetzen?',
    multidelconf  => 'Dieser Eintrag wurde für mehr als nur einen Tag angelegt.\\nDas Löschen dieses Eintrags wird sich auf alle diesen Eintrag zugeordneten Tage auswirken.\\nLöschen fortsetzen?',
-   ed         => 'Edit',
-   del        => 'Löschen',
    noitemforthisday => 'Kein Eintrag für diesen Tag',
-   today_only               => 'Nur für diesen Tag',
-   the_wday_of_thismonth    => 'Für den @@@ORDER@@@ @@@WDAY@@@ dieses Monats',
-   every_wday_of_thismonth  => 'Für jeden @@@WDAY@@@ dieses Monats'
+   thisday_only          => 'Nur für den Tag',
+   the_wday_of_thismonth => 'Für den @@@ORDER@@@ @@@WDAY@@@ dieses Monats',
+   every_wday_thismonth  => 'Für jeden @@@WDAY@@@ dieses Monats',
+   thismonth_only           => 'Nur für den Monat',
+   every_oddmonth_thisyear  => 'Für jeden ungeraden Monat in diesem Jahr',
+   every_evenmonth_thisyear => 'Für jeden geraden Monat in diesem Jahr',
+   every_month_thisyear     => 'Für jeden Monat in diesem Jahr',
+   webdisk      => 'WebDisk',
+   sshterm      => 'SSH-Terminal',
+   dir          => 'Ordner',
+   dirs         => 'Ordner',
+   file         => 'Datei',
+   files        => 'Dateien',
+   program      => 'Programm',
+   dest_of_chdir  => 'Zielordner',
+   name_of_newdir => 'Name des Neuen Ordners',
+   name_of_newfile=> 'Name der neuen Datei',
+   dest_of_thecopy=> 'Name des/der Zielordners/Zieldatei beim Kopieren',
+   dest_of_themove=> 'Name des/der Zielordners/Zieldatei beim Verschieben',
+   dest_of_thezip=> 'Name des neuen zip-Archives',
+   dest_of_thetgz=> 'Name des neuen tgz-Archives',
+   homedir      => 'Heimatverzeichnis',
+   showthumbnail    => 'Thumbnails',
+   showhidden   => 'Versteckte Dateien anzeigen',
+   lastmodified => 'Zuletzt geändert am',
+   perm         => 'Zugriffsrechte',
+   permission   => 'Zugriffsrechte',
+   noitemfound  => 'Kein Eintrag gefunden',
+   savefile     => 'Datei speichern',
+   succeeded    => 'erfolgreich',
+   failed       => 'fehlgeschlagen',
+   savefile_towd=> 'Datei in WebDisk speichern',
+   saveatt_towd => 'Anhang in WebDisk speichern',
+   addatt_fromwd=> 'Anhang aus WebDisk laden'
    );
 
 %lang_err =
@@ -308,13 +382,13 @@
    couldnt_lock      => 'Fehler beim Schreiben der Datei',
    couldnt_seek      => 'Fehler beim Lesen der Datei',
    couldnt_close     => 'Fehler beim Schließen der Datei',
-   couldnt_updatedb  => 'Couldn\'t update index db ',
+   couldnt_updatedb  => 'Kann Index-DB nicht aktualisieren ',
    disallowed_pop3   => 'Gesperrter POP3 Server',
-   disallowed_clientip => 'Von dieser IP-Adresse aus ist der Zugriff nicht erlaubt',
+   disallowed_client => 'Zugriff über diesem Client nicht erlaubt',
    disallowed_receiverdomain => 'Emails an diese Domain sind nicht erlaubt',
    norootlogin       => 'Der Zugang für root ist aus Sicherheitsgründen deaktiviert!',
    shouldnt_move_here=> 'Sie können keine Nachrichten in diesen Ordner verschieben!',
-   destination_folder=> 'Ziel Ordner',
+   destination_folder=> 'Zielordner',
    doesnt_exist      => 'existiert nicht!',
    foldername_long   => 'Der Ordnername darf maximal 16 Zeichen lang sein!',
    folder_with_name  => 'Ein Ordner mit dem Namen',
@@ -327,11 +401,12 @@
    abook_toobig      => 'Diese Aktion würde die maximale Größe Ihres Adressbuches überschreiten. Versuchen Sie Speicherplatz frei zu machen. Gehen Sie dann',
    cant_create_dir   => 'Fehler beim Erstellen Ihres Benutzerverzeichnisses!',
    folder_hitquota   => 'Sie haben Ihr Speicherplatzlimit überschritten. Sie können keine weiteren Nachrichten mehr in Ihren Ordnern speichern. Nachrichten die in den Papierkorb verschoben werden, werden jetzt direkt gelöscht! Versuchen Sie ein paar Nachrichten zu löschen oder Ihren Papierkorb zu leeren um wieder mehr Speicherplatz zu Verfügung zu haben.',
-   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
+   folder_cutdone    => 'Warnung: Alte Nachrichten wurden automatisch entfernt, da das Ordnerspeicherlimit limit(@@@FOLDERQUOTA@@@) überschritten wurde',
    att_overlimit     => 'Der Dateianhang überschreitet die zugelassene Maximalgröße von',
    inv_msg_op        => 'Aktion für diese Nachricht nicht möglich',
-   inv_sessid        => 'Ihre Anfrage enthält keine gültige Sitzungskennung -- Zugriff verweigert!',
-   no_endpart        => 'End part nicht gefunden',
+   sess_cookieerr    => 'Ihre Anfrage enthält keine gültige Sitzungskennung -- Zugriff verweigert!',
+   sess_iperr        => 'Ihre Anfrage kam nicht von derselben IP unter der dieses Sitzung läuft -- Zugriff zurückgewiesen',
+   no_endpart        => 'Schlussteil nicht gefunden',
    part_missing      => 'Einige Teile wurden nicht gefunden',
    rebuild_fmterr    => 'Fehler mit neuem Nachrichtenformat',
    rebuild_sizeerr   => 'Neue Nachrichtengröße stimmt nicht',
@@ -345,7 +420,17 @@
    network_server_error => 'Netzwerk Fehler',
    sendmail_error    => 'Das Absenden der Nachricht war leider nicht möglich. Drücken Sie auf den Zurück-Knopf Ihres Browsers, überprüfen Sie Ihre Nachricht und versuchen Sie es erneut.',
    at_char_not_allowed => 'Das @-Zeichen ist in diesem Eingabefeld nicht erlaubt. Klicken sie auf zurück und versuchen sie es erneut!',
-   badnum_in_days => 'Falsche Zahl im Feld für die Tage'
+   badnum_in_days => 'Falsche Zahl im Feld für die Tage',
+   access_denied     => 'Zugriff verweigert',
+   couldnt_chdirto   => 'Ordnerwechsel nicht möglich',
+   isnt_a_dir        => 'ist kein Ordner',
+   edit_notfordir    => 'Bearbeitung von Ordnern nicht möglich',
+   onefileonly       => 'Diese Operation kann nur für eine Datei ausgeführt werden',
+   no_file_todownload=> 'Keine Datei für den Download ausgewählt',
+   upload_overlimit  => 'Die für den Upload ausgewählte Datei überschreitet das Größenlimit',
+   decomp_notsupported=>'Eine Decompression ist bei dieser Datei nicht möglich.',
+   webdisk_hitquota   => 'Sorry, das WebDisk-Speicherlimit wurde überschritten. bitte löschen sie erst einige Datein oder Ordner um freien Speicherplatz zu schaffen.',
+   webdisk_readonly   => 'Sorry, auf die WebDisk kann nur lesend zugegriffen werden'
    );
 
 1;

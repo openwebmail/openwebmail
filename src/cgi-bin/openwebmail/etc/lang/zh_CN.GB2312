@@ -28,8 +28,8 @@
 
 %lang_prioritylabels =
    (
-   urgent      => '急件',
    normal      => '普通',
+   urgent      => '急件',
    'non-urgent'=> '非紧急'
    );
 
@@ -47,11 +47,24 @@
    no  => '否'
    );
 
-%lang_positionlabels =
+%lang_ctrlpositionlabels =
+   (
+   top => '在上面',
+   bottom => '在下面'
+   );
+
+%lang_sendpositionlabels =
    (
    before => '在信件编辑区之前',
    after => '在信件编辑区之后',
    both  => '在信件编辑区前后'
+   );
+
+%lang_abookbuttonpositionlabels = 
+   (
+   before => '在通讯录项目之前',
+   after  => '在通讯录项目之后',
+   both   => '在通讯录项目前后'
    );
 
 %lang_timelabels =
@@ -80,6 +93,12 @@
    regexp      => '正规表示式',
    );
 
+%lang_sizes =
+   (
+   mb   => 'MB',	# mega bytes
+   kb   => 'KB',	# kilo bytes
+   byte => 'Byte'
+   );
 
 %lang_calendar = 
    (
@@ -87,7 +106,7 @@
    monthview => '月行事历',
    weekview  => '周行事历',
    dayview   => '日行事历',
-   listview   => '项目列表'
+   listview  => '项目列表'
    );
 
 %lang_month =
@@ -137,6 +156,28 @@
    4 => '第四个',
    5 => '最后一个'
    );
+
+%lang_wdbutton =
+   (
+   refresh  => '重整',
+   preview  => '预览',
+   edit     => '编辑',
+   listarchive=> '列表',
+   decompress=>'解压缩',
+   extract  => '解出档案',
+   chdir    => '换目录',
+   mkdir    => '建目录',
+   newfile  => '开新档',
+   delete   => '删除',
+   copy     => '拷贝',
+   move     => '搬移',
+   gzip     => 'gz 压缩',
+   mkzip    => '建 zip 档',
+   mktgz    => '建 tgz 档',
+   mkthumbnail  => '建缩图',
+   download => '下载',
+   upload   => '上传',
+   );   
 
 %lang_text =
    (
@@ -207,6 +248,7 @@
    about      => '关于',
    close      => '关闭',
    cancel     => '取消',
+   ok         => '确定',
    continue   => '继续',
    loginagain => '重新登录',
    exit       => '离开',
@@ -224,6 +266,7 @@
    reindex    => '重建索引',
    folderreindexconf => '\'您确定要重建这个信件箱的索引吗?\'',
    total      => '总计',
+   edit       => '编辑',
    delete     => '删除',
    reserve    => '保留',
    clearadd   => '清除所有地址',
@@ -237,6 +280,7 @@
    name       => '姓名',
    email      => 'Email地址',
    note       => '备注',
+   max        => '最大值',
    group      => '邮件组',
    quota_hit  => '存储空间已满',
    usage      => '使用空间',
@@ -279,7 +323,7 @@
    editstat   => '编辑信纸底稿',
    savestat   => '储存信纸底稿',
    clearstat  => '清除所有信纸底稿',
-   selectstat => '-- 选择信纸底稿并回信 --',
+   statreply  => '-- 选择回信底稿 --',
    calendar   => '行事历',
    am         => '上午',
    pm         => '下午',
@@ -292,12 +336,41 @@
    moreitems  => '更多项目...',
    multieditconf => '这个项目已经被放到多份的行程中.\\n如果修改会更动所有相关行程.\\n继续修改?',
    multidelconf  => '这个项目已经被放到多份的行程中..\\n如果删除会全部删掉.\\n进行删除?',
-   ed         => '修改',
-   del        => '删除',
    noitemforthisday => '本日没有安排事情',
-   today_only               => '今天',
-   the_wday_of_thismonth    => '这个月 @@@ORDER@@@ @@@WDAY@@@ ',
-   every_wday_of_thismonth  => '这个月 每个 @@@WDAY@@@ '
+   thisday_only          => '本日',
+   the_wday_of_thismonth => '本月 @@@ORDER@@@ @@@WDAY@@@ ',
+   every_wday_thismonth  => '本月 每个 @@@WDAY@@@ ',
+   thismonth_only           => '本月',
+   every_oddmonth_thisyear  => '本年所有单数月份',
+   every_evenmonth_thisyear => '本年所有偶数月份',
+   every_month_thisyear     => '本年所有月份',
+   webdisk      => '网路硬碟',
+   sshterm      => 'SSH Terminal',
+   dir          => '目录',
+   dirs         => '目录',
+   file         => '档案',
+   files        => '档案',
+   program      => '程式',
+   dest_of_chdir  => '目的地目录',
+   name_of_newdir => '要建立的目录名称',
+   name_of_newfile=> '要开启的新档名称',
+   dest_of_thecopy=> '此次拷贝的预设目的目录或档名',
+   dest_of_themove=> '此次搬移的预设目的目录或档名',
+   dest_of_thezip=> '要建立的 zip 压缩档档案名称',
+   dest_of_thetgz=> '要建立的 tgz 压缩档档案名称',
+   homedir      => '家目录',
+   showthumbnail    => '显示缩图',
+   showhidden   => '显示隐藏档',
+   lastmodified => '最后修改时间',
+   perm         => '权限',
+   permission   => '档案存取权限',
+   noitemfound  => '未找到任何项目',
+   savefile     => '档案储存',
+   succeeded    => '成功',
+   failed       => '失败',
+   savefile_towd=> '储存档案 到 网路硬碟',
+   saveatt_towd => '储存附件 到 网路硬碟',
+   addatt_fromwd=> '从 网路硬碟 新增附件'
    );
 
 %lang_err =
@@ -308,7 +381,7 @@
    couldnt_lock      => '写入无法锁定',
    couldnt_seek      => '无法寻找',
    couldnt_close     => '无法关闭',
-   couldnt_updatedb  => 'Couldn\'t update index db ',
+   couldnt_updatedb  => '无法更新信件索引 ',
    disallowed_pop3   => '禁止连线至POP3服务器',
    disallowed_client => '您不被允许由目前的位址连线使用 WebMail',
    disallowed_receiverdomain => '您不被允许寄信到这个邮件地址',
@@ -330,7 +403,8 @@
    folder_cutdone    => '注意！由于信件匣容量超出限制(@@@FOLDERQUOTA@@@), 各信件匣中过旧的讯息已经被自动移除.',
    att_overlimit     => '附件大小超过限制',
    inv_msg_op        => '无效的邮件操作',
-   inv_sessid        => 'Session ID cookie 不正确，拒绝存取. 请检查是否浏览器 cookie 功能未开或是重复登入.',
+   sess_cookieerr    => 'Sessionid cookie 不正确，拒绝存取. 请检查是否浏览器 cookie 功能未开或是重复登入.',
+   sess_iperr        => '连线来自不同的 IP 位址, 拒绝存取',
    no_endpart        => '找不到结尾部分',
    part_missing      => '某些部分找不到',
    rebuild_fmterr    => '组出的邮件格式有误',
@@ -345,7 +419,17 @@
    network_server_error => '网络服务器错误',
    sendmail_error    => '抱歉！无法发出您的邮件，请回到上一页检查是否输入错误后，再重发一次。',
    at_char_not_allowed => '栏位中不能有 @ 字元.  请回到上一页再试一次',
-   badnum_in_days => '代表天数栏位的数值发生错误'
+   badnum_in_days => '代表天数栏位的数值发生错误',
+   access_denied     => '拒绝存取',
+   couldnt_chdirto   => '无法切换目录到',
+   isnt_a_dir        => '不是一个目录',
+   edit_notfordir    => '你不能对目录进行编辑动作',
+   onefileonly       => '这个操作只允许一个档案',
+   no_file_todownload=> '尚未选择要下载的目录或档案',
+   upload_overlimit  => '上传档案的大小超出限制',
+   decomp_notsupported=>'系统不支援这种档案的解压缩.',
+   webdisk_hitquota   => '抱歉, 你的网路硬碟大小已经超出限制, 请先试著删除一些档案.',
+   webdisk_readonly   => '抱歉, 你的网路硬碟是唯读的.'
    );
 
 1;

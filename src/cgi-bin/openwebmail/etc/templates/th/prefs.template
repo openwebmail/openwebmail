@@ -1,38 +1,38 @@
 @@@STARTPREFSFORM@@@
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
-<tr><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="left">
+<tr><td colspan="2" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>กำหนดค่าตัวเลือก @@@REALNAME@@@</B></font>
-<tr><td colspan="2" bgcolor=@@@MENUBAR@@@ align="left">
+<tr><td colspan="2" bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
 </td></tr>
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>ข้อมูลส่วนตัว</B></td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>ภาษา:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@LANGUAGEMENU@@@&nbsp;รหัสตัวอักษร @@@CHARSETMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>เวลามาตรฐาน:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@TIMEOFFSETMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>ผู้ส่ง:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FROMEMAILMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>ตอบกลับที่:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REPLYTOFIELD@@@
 </td></tr>
 @@@FORWARDSTART@@@
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>ส่งต่อจดหมายไปที่:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FORWARDADDRESS@@@
 &nbsp;
 @@@KEEPLOCALCOPY@@@
@@ -40,9 +40,9 @@
 </td></tr>
 @@@FORWARDEND@@@
 @@@AUTOREPLYSTART@@@
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>ตอบกลับอัตโนมัติ:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@AUTOREPLYCHECKBOX@@@
 &nbsp;
 เรื่อง:
@@ -61,260 +61,333 @@
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>ตัวเลือกการแสดงผล</B></td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>สไตล์:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@STYLEMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>ไอคอน:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ICONSETMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>รูปพื้นหลัง:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+</td><td bgcolor=@@@WINDOW_DARK@@@ nowrap>
 @@@BACKGROUNDMENU@@@
 &nbsp;URL
 @@@BGURLFIELD@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Font size:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>ขนาดตัวอักษร:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FONTSIZEMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>จำนวนจดหมายต่อหน้า:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@HEADERSPERPAGE@@@
-</td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>การเรียงจดหมาย:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@SORTMENU@@@
-</td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>รูปแบบวันที่:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DATEFORMATMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>รูปแบบเวลา:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@HOURFORMATMENU@@@ ชั่วโมง
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>ค่าเริ่มต้นของหัวจดหมาย:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@HEADERSMENU@@@
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Controlbar position in folder view:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CTRLPOSITIONFOLDERVIEWMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>ขนาดของเนื้อที่เขียนจดหมาย:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-กว้าง @@@EDITCOLUMNSMENU@@@ สูง @@@EDITROWSMENU@@@
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>จำนวนจดหมายต่อหน้า:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@HEADERSPERPAGE@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Compose button position:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@SENDBUTTONPOSITIONMENU@@@
-</td></tr>
-
-<tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>ตัวเลือกการอ่านจดหมาย</B></td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>ใช้ฟอนต์ความกว้างคงที่เมื่ออ่านจดหมาย:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@USEFIXEDFONT@@@
-</td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>ใช้รูปภาพจริงแทนสัญลักษณ์อักษร:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@USESMILEICON@@@
-</td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>ปิดการใช้งาน JavaScript ในเนื้อจดหมาย:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@DISABLEJS@@@
-</td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>ปิดการใช้งาน CGI ในเนื้อจดหมาย:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@DISABLEEMBCGI@@@
-</td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>แสดงรูปที่แนบมาเป็นตัวเชื่อม:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@SHOWIMGASLINK@@@
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>การเรียงจดหมาย:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SORTMENU@@@
 </td></tr>
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>การจัดการจดหมาย</B></td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>ค่าเริ่มต้นของปลายทาง:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@DEFAULTDESTINATIONMENU@@@
-</td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>ยืนยัน การย้าย/คัดลอก จดหมาย:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CONFIRMMSGMOVECOPY@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>ค่าเริ่มต้นของปลายทาง:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DEFAULTDESTINATIONMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>แสดงจดหมายฉบับถัดไปหลังจาก ย้าย/คัดลอก จดหมาย:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@VIEWNEXTAFTERMSGMOVECOPY@@@
 </td></tr>
 @@@AUTOPOP3START@@@
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>ดึงจดหมายแบบ POP3 โดยอัตโนมัติเมื่อเข้าสู่ระบบ:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@AUTOPOP3CHECKBOX@@@
 </td></tr>
 @@@AUTOPOP3END@@@
 @@@MOVEOLDSTART@@@
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>ย้ายจดหมายเก่าไปโฟลเดอร์บันทึกเมื่อออกจากระบบ:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@MOVEOLDMSGFROMINBOX@@@
 </td></tr>
 @@@MOVEOLDEND@@@
 
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>การตอบจดหมาย</B></td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>ตัวเลือกการอ่านจดหมาย</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Controlbar position in message reading:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CTRLPOSITIONMSGREADMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>ค่าเริ่มต้นของหัวจดหมาย:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@HEADERSMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>ใช้ฟอนต์ความกว้างคงที่เมื่ออ่านจดหมาย:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@USEFIXEDFONT@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>ใช้รูปภาพจริงแทนสัญลักษณ์อักษร:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@USESMILEICON@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>ปิดการใช้งาน JavaScript ในเนื้อจดหมาย:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DISABLEJS@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>ปิดการใช้งาน CGI ในเนื้อจดหมาย:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DISABLEEMBCGI@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>แสดงรูปที่แนบมาเป็นตัวเชื่อม:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SHOWIMGASLINK@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>ตอบกลับการยืนยันการอ่าน:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SENDRECEIPTMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>การตอบจดหมาย</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>ขนาดของเนื้อที่เขียนจดหมาย:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+กว้าง @@@EDITCOLUMNSMENU@@@ สูง @@@EDITROWSMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>ตำแหน่งปุ่มคำสั่งขณะเขียนจดหมาย:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SENDBUTTONPOSITIONMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>จัดย่อหน้าจดหมายใหม่ก่อนตอบกลับ:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REPARAGRAPHORIGMSG@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>ตอบจดหมายโดยวางเนื้อจดหมายเดิม:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REPLYWITHORIGMSGMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>สำเนาจดหมายที่ส่งไว้ในโฟลเดอร์ ส่งแล้ว ด้วย:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BACKUPSENTMSG@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Charset for outgoing message:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>รหัสตัวอักษรสำหรับจดหมายที่ส่ง:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SENDCHARSETMENU@@@
 </td></tr>
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>การกลั่นกรองจดหมาย</B></td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>จำกัดจดหมายซ้ำ:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERREPEATLIMIT@@@ &nbsp;(0 หมายถึงไม่มีการตรวจสอบจดหมายซ้ำ)
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>ไม่รับจดหมายจาก SMTP เซิร์ฟเวอร์ปลอม:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDSMTP@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>ไม่รับจดหมายที่ใช้ชื่อผู้ส่งปลอม:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDFROM@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>ไม่รับจดหมายที่มีการปลอมชนิดของข้อมูล:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDEXECONTENTTYPE@@@
+</td></tr>
+
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>AddressBook Options</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Size for addressbook window:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Addressbook button position:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@ABOOKBUTTONPOSITIONMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Addressbook default filter:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@ABOOKDEFAULTFILTER@@@
 </td></tr>
 
 @@@CALENDARSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>ตัวเลือกปฏิทิน</B></td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>จำนวนของรายการในการแสดงแบบรายเดือน:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@MONTHVIEWNUMITEMSMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>สัปดาห์เริ่มด้วยวัน:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@WEEKSTARTMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>ชั่วโมงเริ่มต้น:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@STARTHOURMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>ชั่วโมงสุดท้าย:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ENDHOURMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>แสดงชั่วโมงที่ไม่มีรายการ:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SHOWEMPTYHOURSCHECKBOX@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>จำนวนวันที่ตรวจสอบการเตือนเหตุการณ์:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REMINDERDAYSMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>เตือนเหตุการณ์ในปฏิทินส่วนรวม:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REMINDERFORGLOBALCHECKBOX@@@
 </td></tr>
 @@@CALENDAREND@@@
 
+@@@WEBDISKSTART@@@
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>WebDisk Options</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Number of items in directory list:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DIRNUMITEMSMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Confirm before directory/file move/copy:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CONFIRMFILEMOVECOPY@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Confirm before directory/file deletion:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CONFIRMFILEDEL@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Confirm before directory/file compress:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CONFIRMFILECOMPRESS@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Size for file edit window:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+Width @@@FILEEDITCOLUMNSMENU@@@ Height @@@FILEEDITROWSMENU@@@
+</td></tr>
+@@@WEBDISKEND@@@
+
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>ตัวเลือกอื่นๆ</B></td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>ใช้ Regex ในการค้นหา และการกลั่นกรองจดหมาย:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REGEXMATCH@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>ซ่อนข้อมูลภายในของโฟลเดอร์:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@HIDEINTERNAL@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Refresh Interval:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>อ่านข้อมูลใหม่ทุกๆ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REFRESHINTERVALMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>เสียงเตือนเมื่อมีจดหมายใหม่:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@NEWMAILSOUNDMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>NewMail window notification:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-remaining @@@NEWMAILWINDOWTIMEMENU@@@ seconds &nbsp;( 0 means No window notification )
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>แสดงหน้าต่างเตือนมีจดหมายใหม่:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@NEWMAILWINDOWTIMEMENU@@@ วินาที &nbsp;( 0 หมายถึงไม่ต้องมีหน้าต่าง )
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>พจนานุกรมสำหรับการตรวจคำผิด:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DICTIONARYMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>เก็บจดหมายในถังขยะไว้:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@RESERVEDDAYSMENU@@@ วัน
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>ออกจากระบบอัตโนมัติถ้าไม่ใช้งาน:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SESSIONTIMEOUTMENU@@@
 </td></tr>
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>
-<table><tr><td>
-@@@BUTTONS@@@
-</td></tr></table></td></tr></table>
+<table><tr>
+<td>@@@SAVEBUTTON@@@</td>
+@@@ENDFORM@@@
+@@@STARTCANCELFORM@@@
+<td>@@@CANCELBUTTON@@@</td>
+@@@ENDFORM@@@
+</tr></table></td></tr></table>
+
+<script language="JavaScript">
+<!--
+   function playsound(url, soundname) 
+   {
+      if (soundname != "NONE" ) {
+         window.open(url+soundname);
+      } 
+   }
+//-->
+</script>

@@ -10,7 +10,7 @@
    'sent-mail'      => 'Gönderilmiþ',
    'saved-drafts'   => 'Taslak',
    'mail-trash'     => 'Çöp Kutusu',
-   DELETE => '--SÝLÝN--'
+   DELETE => '--ÇÖPE AT--'
    );
 
 %lang_sortlabels =
@@ -20,7 +20,7 @@
    date_rev    => 'Tarih (En Eski Önce)',
    sender      => 'Gönderen (En Yeni Önce)',
    sender_rev  => 'Gönderen (En Eski Önce)',
-   subject     => 'Konu (En YEni Önce)',
+   subject     => 'Konu (En Yeni Önce)',
    subject_rev => 'Konu (En Eski Önce)',
    size        => 'Boyut (En Büyük Önce)',
    size_rev    => 'Boyut (En Küçük Önce)'
@@ -47,118 +47,160 @@
    no  => 'Hayýr'
    );
 
-%lang_positionlabels =
+%lang_ctrlpositionlabels =
    (
-   before => 'Before mail edit area',
-   after => 'After mail edit area',
-   both  => 'Before and after mail edit area'
+   top => 'En Üstte',
+   bottom => 'En Altta'
+   );
+
+%lang_sendpositionlabels =
+   (
+   before => 'Ýleti yazma alanýndan önce',
+   after => 'Ýleti yazma alanýndan sonra',
+   both  => 'Ýleti yazma alanýndan önce ve sonra'
+   );
+
+%lang_abookbuttonpositionlabels = 
+   (
+   before => 'Before addressbook entries',
+   after  => 'After addressbook entries',
+   both   => 'Before and after addressbook entries'
    );
 
 %lang_timelabels =
    (
-      3 => '3 minutes',
-      5 => '5 minutes',
-     10 => '10 minutes',
-     20 => '20 minutes',
-     30 => '30 minutes',
-     60 => '60 minutes',
-    120 => '2 hours',
-    180 => '3 hours',
-    360 => '6 hours',
-    720 => '12 hours',
-   1440 => '24 hours'
+      3 => '3 dakika',
+      5 => '5 dakika',
+     10 => '10 dakika',
+     20 => '20 dakika',
+     30 => '30 dakika',
+     60 => '60 dakika',
+    120 => '2 saat',
+    180 => '3 saat',
+    360 => '6 saat',
+    720 => '12 saat',
+   1440 => '24 saat'
    );
 
 %lang_advsearchlabels =
    (
-   contains    => 'contains',
-   notcontains => 'does not contain',
-   is          => 'is',
-   isnot       => 'is not',
-   startswith  => 'starts with',
-   endswith    => 'ends with',
-   regexp      => 'matches regexp',
+   contains    => 'içeren',
+   notcontains => 'içermeyen',
+   is          => 'dir',
+   isnot       => 'deðildir',
+   startswith  => 'ile baþlayan',
+   endswith    => 'ile biten',
+   regexp      => 'aranan ifadeyle örtüþen',
+   );
+
+%lang_sizes =
+   (
+   mb   => 'MB',	# mega bytes
+   kb   => 'KB',	# kilo bytes
+   byte => 'Byte'
    );
 
 %lang_calendar = 
    (
-   yearview  => 'Yearview',
-   monthview => 'Monthview',
-   weekview  => 'Weekview',
-   dayview   => 'Dayview',
-   listview   => 'Listview'
+   yearview  => 'YýllýkGörünüm',
+   monthview => 'AylýkGörünüm',
+   weekview  => 'HaftalýkGörünüm',
+   dayview   => 'GünlükGörünüm',
+   listview  => 'ListeGörünüm'
    );
 
 %lang_month =
    (
-   1  => 'January',
-   2  => 'February',
-   3  => 'March',
-   4  => 'April',
-   5  => 'May',
-   6  => 'June',
-   7  => 'July',
-   8  => 'August',
-   9  => 'September',
-   10 => 'October',
-   11 => 'November',
-   12 => 'December'
+   1  => 'Ocak',
+   2  => 'Þubat',
+   3  => 'Mart',
+   4  => 'Nisan',
+   5  => 'Mayýs',
+   6  => 'Haziran',
+   7  => 'Temmuz',
+   8  => 'Aðustos',
+   9  => 'Eylül',
+   10 => 'Ekim',
+   11 => 'Kasým',
+   12 => 'Aralýk'
    );
 
 %lang_wday =
    (
-   0 => 'Sunday',
-   1 => 'Monday',
-   2 => 'Tuesday',
-   3 => 'Wednesday',
-   4 => 'Thursday',
-   5 => 'Friday',
-   6 => 'Saturday'
+   0 => 'Pazar',
+   1 => 'Pazartesi',
+   2 => 'Salý',
+   3 => 'Çarþamba',
+   4 => 'Perþembe',
+   5 => 'Cuma',
+   6 => 'Cumartesi'
    );
 
 %lang_wday_abbrev =
    (
-   week => 'WK',
-   0 => 'S',
-   1 => 'M',
-   2 => 'T',
-   3 => 'W',
-   4 => 'T',
-   5 => 'F',
-   6 => 'S'
+   week => 'Hafta',
+   0 => 'Pz',
+   1 => 'Pzt',
+   2 => 'Sl',
+   3 => 'Çrþ',
+   4 => 'Prþ',
+   5 => 'Cm',
+   6 => 'Cmt'
    );
 
 %lang_order =
    (
-   1 => '1st',
-   2 => '2nd',
-   3 => '3rd',
-   4 => '4th',
-   5 => 'last'
+   1 => '1inci',
+   2 => '2nci',
+   3 => '3üncü',
+   4 => '4üncü',
+   5 => 'son'
    );
+
+%lang_wdbutton =
+   (
+   refresh  => 'Yenile',
+   preview  => 'Önizleme',
+   edit     => 'Düzen',
+   listarchive=> 'Liste',
+   decompress=>'Sýkýþtýrmayý Aç',
+   extract  => 'Aç',
+   chdir    => 'KlasörDeðiþtir',
+   mkdir    => 'KlasörOluþtur',
+   newfile  => 'YeniDosya',
+   delete   => 'Sil',
+   copy     => 'Kopyla',
+   move     => 'Kaydýr',
+   gzip     => 'gzSýkýþtýr',
+   mkzip    => 'Ziple',
+   mktgz    => 'TgzYap',
+   mkthumbnail  => 'KüçükresimYap',
+   download => 'Ýndir',
+   upload   => 'Yükle',
+   );   
 
 %lang_text =
    (
    login      => 'Gir',
    clear      => 'Temizle',
-   point      => 'Point',
-   pixel      => 'Pixel',
+   point      => 'Nokta',
+   pixel      => 'Piksel',
    changepwd  => 'Parolayý Deðiþtir',
    viewhistory=> 'Geçmiþi Görüntüle',
    of         => '',
    messages   => 'ileti',
    unread     => 'Okunmamýþ',
    nomessages => 'Ýleti Yok',
-   inmessages => 'Incoming msgs',
+   inmessages => 'Gelen Ýletiler',
    composenew => 'Yeni Ýleti Oluþtur',
    refresh    => 'Yenile',
    userprefs  => 'Kullanýcý Tercihleri',
    addressbook=> 'Adres Defteri',
    folders    => 'Klasörler',
    emptytrash => 'Çöpü Boþalt',
-   totrash    => 'Move to Trash',
+   totrash    => 'Çöpe At',
    forever    => 'Herzaman',
-   delatlogout=> 'Delete at Logout',
+   delatlogout=> 'Çýkýþta Sil',
    userdef    => 'Kullancý Tanýmlý',
    logout     => 'Çýkýþ',
    page       => 'Sayfa',
@@ -196,16 +238,17 @@
    encoding   => 'Kodlama',
    description=> 'Taným',
    download   => 'Ýndir',
-   charset    => 'Charset',
-   samecharset=> 'The same as composing charset',
+   charset    => 'Karakterseti',
+   samecharset=> 'Ýleti ile ayný karakter seti',
    thisispartialmsg => 'Bu kýsmi bir ileti',
    msgrebuild => 'Ýletiyi yeniden yapýlandýr',
    editdraft  => 'Taslaðý Düzenle',
    savedraft  => 'Taslaðý Kaydet',
    send       => 'Gönder',
-   about      => 'About',
-   close      => 'Close',
+   about      => 'Hakkýnda',
+   close      => 'Kapat',
    cancel     => 'Ýptal',
+   ok         => 'Tamam',
    continue   => 'Devam',
    loginagain => 'Yeniden Gir',
    exit       => 'Çýkýþ',
@@ -216,13 +259,14 @@
    folderrenprop => '\'Bu klasör için lütfen yeni bir isim giriniz\'',
    rename     => 'Yeniden Ýsimlendir',
    folderdelconf => '\'Bu klasörü içindekilerle beraber silmek istediðinize emin misiniz?\'',
-   markread   => 'MarkRead',
-   foldermarkreadconf => '\'Are you going to mark read on all messages in this folder?\'',
+   markread   => 'Okunmuþ iþaretle',
+   foldermarkreadconf => '\'Bu klasördeki tüm iletileri okunmuþ iþaretleycek misiniz?\'',
    chkindex   => 'ÝndeksKontrol',
    folderchkindexconf => '\'Bu klasörün indeksine bakmak istediðinize emin misiniz?\'',
    reindex    => 'YenidenÝndeksle',
    folderreindexconf => '\'Bu klasörü yeniden indekslemek istediðinize emin misiniz?\'',
    total      => 'Toplam',
+   edit       => 'Düzen',
    delete     => 'Sil',
    reserve    => 'Rezerve',
    clearadd   => 'Tüm adresleri sil',
@@ -236,15 +280,16 @@
    name       => 'Ýsim',
    email      => 'Eposta',
    note       => 'Not',
+   max        => 'Maximum',
    group      => 'Grup',
    quota_hit  => 'KOTA SINIRINA ULAÞILDI',
    usage      => 'Kullaným',
-   tzmap      => 'World timezone map',
-   testsound  => 'Test sound',
+   tzmap      => 'Dünya zaman dilimleri haritasý',
+   testsound  => 'Test sesi',
    editfroms  => 'Kiþisel eposta adreslerini düzenle',
    pop3book   => 'POP3 Kurulum',
    retr_pop3s => 'POP3 epostalarýný al',
-   filterbook => 'Eposta filitre defteri',
+   filterbook => 'Eposta filtre defteri',
    include    => 'Dahil Et',
    exclude    => 'Hariç Tut',
    smtprelay  => 'SMTP Relay',
@@ -254,7 +299,7 @@
    all        => 'Hepsi',
    enable     => 'Etkinleþtir',
    disable    => 'Engelle',
-   filtered   => 'Filitrelenmiþ',
+   filtered   => 'Filtrelenmiþ',
    blockrelay => 'SMTP Relay Engelle',
    blockemail => 'eposta engelle',
    read       => 'Oku',
@@ -263,40 +308,69 @@
    wasreadon1 => 'okundu',
    wasreadon2 => '.',
    globaladdressbook => 'Genel Adres Defteri',
-   globalfilterrule => 'Genel Filitre Kuralý',
+   globalfilterrule => 'Genel Filtre Kuralý',
    readonly   => 'SaltOkunur',
    textcontent=> 'MetinÝçeriði',
    search     => 'Ara',
-   advsearch  => 'Advanced search',
-   folder     => 'Folder',
-   nofoldersel=> 'No Folder selected',
-   showall    => 'Show All',
+   advsearch  => 'Geliþmis Arama',
+   folder     => 'Klasör',
+   nofoldersel=> 'Hiç Klasör seçilmedi',
+   showall    => 'Hepsini göster',
    spellcheck => 'Yazým Kontrolü',
    checkagain => 'Tekrar Kontrol Edin',
    finishchecking => 'Kontrolü Bitir',
-   manuallyfix=> 'Manuel Düzelt',
-   editstat   => 'Edit Stationery',
-   savestat   => 'Save Stationery',
-   clearstat  => 'Clear All Stationery',
-   selectstat => '-- Select Stationery for Reply --',
-   calendar   => 'Calendar',
+   manuallyfix=> 'Elinle Düzelt',
+   editstat   => 'Taslak Düzenle',
+   savestat   => 'Taslaðý Kaydet',
+   clearstat  => 'Tüm Taslaklarý Sil',
+   statreply  => '-- Cevap Ýçin Taslak Seç --',
+   calendar   => 'Takvim',
    am         => 'am',
    pm         => 'pm',
-   calfmt_year          => 'Year @@@YEAR@@@',
+   calfmt_year          => 'Yýl @@@YEAR@@@',
    calfmt_yearmonth     => '@@@MONTH_STR@@@ @@@YEAR@@@',
    calfmt_yearmonthday  => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@',
    calfmt_yearmonthdaywday => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@ @@@WEEKDAY_STR@@@',
    calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
-   none       => 'None',
-   moreitems  => 'more items',
-   multieditconf => 'This item was added for multiple dates.\\nEditing it will change the item for all dates.\\nContinue with Edit?',
-   multidelconf  => 'This item was added for multiple dates.\\nDeleting it will delete the item for all dates.\\nContinue with Delete?',
-   ed         => 'Ed',
-   del        => 'Del',
-   noitemforthisday => 'No items for this day',
-   today_only               => 'Today\'s date only',
-   the_wday_of_thismonth    => 'The @@@ORDER@@@ @@@WDAY@@@ of the month',
-   every_wday_of_thismonth  => 'Every @@@WDAY@@@ this month'
+   none       => 'hiçbiri',
+   moreitems  => 'daha fazla girdi',
+   multieditconf => 'Bu girdi birden çok tarih için geçerlidir.\\nDeðiþiklikler diðer tarihleri de etkileyecektir.\\nDeva edilsin mi?',
+   multidelconf  => 'Bu girdi birden çok tarih için geçerlidir.\\nBu girdiyi sildiðiniz takdirde tüm tarihlerden de silinecektir.\\nSilmek istediðinize emin misiniz?',
+   noitemforthisday => 'Bu gün için girdi yok',
+   thisday_only          => 'Sadece bu günün tarihi',
+   the_wday_of_thismonth => 'ayýn @@@ORDER@@@ @@@WDAY@@@ ',
+   every_wday_thismonth  => 'Bu ay her @@@WDAY@@@ ',
+   thismonth_only           => 'Sadece bu ay',
+   every_oddmonth_thisyear  => 'Bu yýlýn sýra nosu tek olan aylar',
+   every_evenmonth_thisyear => 'Bu yýlýn sýra nosu çift olan aylar',
+   every_month_thisyear     => 'Bu yýl her ay',
+   webdisk      => 'SanalDisk',
+   sshterm      => 'SSH Terminali',
+   dir          => 'Klasör',
+   dirs         => 'Klasörler',
+   file         => 'Dosya',
+   files        => 'Dosyalar',
+   program      => 'Program',
+   dest_of_chdir  => 'hedef klasör',
+   name_of_newdir => 'yaratýlacak klasör adý',
+   name_of_newfile=> 'yaratýlacak dosya adý',
+   dest_of_thecopy=> 'kopyalancak hedef klasör veya dosya adý',
+   dest_of_themove=> 'gönderilecek hedef klasör veya dosya adý',
+   dest_of_thezip=> 'yeni zip dosyasýnýn hedef dosya adý',
+   dest_of_thetgz=> 'yeni tgz dosyasýnýn hedef dosya adý',
+   homedir      => 'AnaKlasör',
+   showthumbnail    => 'Küçükresim',
+   showhidden   => 'Gizli Dosyalarý Göster',
+   lastmodified => 'Son Deðiþiklik Tarihi',
+   perm         => 'Ýzin',
+   permission   => 'Ýzin',
+   noitemfound  => 'Girdi Bulunamadý',
+   savefile     => 'DosyaKaydet',
+   succeeded    => 'baþarýldý',
+   failed       => 'baþarýsýz oldu',
+   savefile_towd=> 'Dosyayý SanalDiske kaydet',
+   saveatt_towd => 'Ek dosyasýný SanalDiske kaydet',
+   addatt_fromwd=> 'SanalDiskten ek dosyasý al'
    );
 
 %lang_err =
@@ -307,7 +381,7 @@
    couldnt_lock      => 'Yazma kilidi açýlamadý',
    couldnt_seek      => 'Baþlangýca kadar aranamadý',
    couldnt_close     => 'Kapatamadý',
-   couldnt_updatedb  => 'Couldn\'t update index db ',
+   couldnt_updatedb  => 'Ýndeks vt güncelleyemedi ',
    disallowed_pop3   => 'Engellenmiþ POP3 sunucusu',
    disallowed_client => 'Buradan baðlantýnýz engellendi',
    disallowed_receiverdomain => 'Bu eposta adresine ileti göndermeniz engellenmiþtir',
@@ -326,10 +400,11 @@
    abook_toobig      => 'Adres defterinizin sýnýrda olduðu için bu deðer girilemiyor',
    cant_create_dir   => 'Kullanýcý klasörünüz oluþturulamýyor!',
    folder_hitquota   => 'Kota sýnýrýný doldurnuz ve bu yüzden yeni iletiler kaydedilemiyor.Lütfen "Çöp Kutusu"nu boþaltýn veya iletilerinizin bir kýsmýný siliniz.',
-   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
+   folder_cutdone    => 'Uyarý, kota limitine ulaþtýðýnýz için (@@@KLASORKOTA@@@) , eski mesajlarýnýz otomatik olarak silinecektir.',
    att_overlimit     => 'Ek dosyasý sýnýrýný aþtýnýz,dosyanýzýn boyutu',
    inv_msg_op        => 'Ýleti için geçersiz iþlem',
-   inv_sessid        => 'Ýsteðiniz geçerli bir sezon numrasý veya çerez içermemektedir.--erþim engellendi!',
+   sess_cookieerr    => 'Ýsteðiniz geçerli bir sezon numrasý veya tanýmlama bilgisi içermemektedir.--erþim engellendi!',
+   sess_iperr        => 'Ýsteðiniz bu sezonun kayýtlý IP nosundan gelmemektedir ? eriþim engellendi!',
    no_endpart        => 'Son kýsým bulunamadý',
    part_missing      => 'Bazý kýsýmlar eksik',
    rebuild_fmterr    => 'Yeni ileti biçem hatasý',
@@ -339,12 +414,22 @@
    auth_syserr       => 'onaylama sistem hatasý',
    param_fmterr      => 'parametre biçem hatasý',
    pwd_incorrect     => 'hatalý parola',
-   pwd_tooshort      => 'Password too short (minimum length @@@PASSWDMINLEN@@@)',
-   pwd_toosimple     => 'Password too simple (both alphabet and digit are required)',
+   pwd_tooshort      => 'Parola çok kýsa (en az @@@PWDMINLIMIT@@@)',
+   pwd_toosimple     => 'Parola çok kolay (hem harf hem rakam içermeli)',
    network_server_error => 'að sunucu hatasý',
    sendmail_error    => 'Ýleti gönderimi sýrasýnda hata oluþtu. Tarayýcýnýzýn Geri tuþuna basýn,iletinizi kontrol edip tekrar deneyiniz.',
-   at_char_not_allowed => 'The @ character is not allowed in this field.  Press browser back button and try again',
-   badnum_in_days => 'bad number in consecutive days field'
+   at_char_not_allowed => '@ karakterini bu alanda kullanamazsýnýz.  Geri tuþuna basýp tekrar deneyiniz',
+   badnum_in_days => 'takip eden günler alanýnda hatalý giriþ',
+   access_denied     => 'Eriþim engellendi',
+   couldnt_chdirto   => 'Girilemeyen klasör',
+   isnt_a_dir        => 'bir klasör deðil',
+   edit_notfordir    => 'Klasörü düzenleyemezsiniz',
+   onefileonly       => 'Bu iþlem için sadece bir dosyaya izin verilmektedir',
+   no_file_todownload=> 'Ýndirilecek dosya seçilmedi',
+   upload_overlimit  => 'Yüklenecek dosya boyutu limiti aþýyor',
+   decomp_notsupported=>'Bu dosya için sýkýþtýrmayý açma desteði yoktur',
+   webdisk_hitquota   => 'Malesef, SanalDisk kotasýný doldurdunuz,önce dosya silmeniz gerekiyor.',
+   webdisk_readonly   => 'Malesef, SanalDiskiniz saltokunur.'
    );
 
 1;

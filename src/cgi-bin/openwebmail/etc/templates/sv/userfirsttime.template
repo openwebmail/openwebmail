@@ -1,0 +1,13 @@
+<BR><BR><BR><BR><BR><BR><BR>
+<table border="0" align="center" width="60%" cellpadding="1" cellspacing="1">
+<tr><td bgcolor=@@@TITLEBAR@@@>
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>VÄLKOMMEN TILL @@@NAME@@@!</B></font>
+</td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
+<table width=85%><tr><td align="center">
+<BR>Välkommen till @@@NAME@@@! Det verkar vara första gången du använder tjänsten.
+Du bör lägga in lite information om dig själv, så att alla dina personliga inställningar blir korrekta.
+Tryck "fortsätt" för att gå vidare till användarinställningarna.
+@@@CONTINUEBUTTON@@@
+</td></tr></table>
+</td></tr></table>
