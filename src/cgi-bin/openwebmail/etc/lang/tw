@@ -104,6 +104,9 @@ $lang_charset = 'big5';
    delivered  => '傳送',
    wasreadon1 => '已於',
    wasreadon2 => '被讀取',
+   globaladdressbook => '共用通訊錄',
+   globalfilterrule => '共用郵件規則',
+   readonly   => '唯讀',
    search     => '搜尋'
    );
 

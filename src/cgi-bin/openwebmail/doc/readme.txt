@@ -93,6 +93,31 @@ Some fingerd allow you specify the name of finger program by -p option
 /etc/inetd.conf, users can get their mail status from remote host.
 
 
+Global AddressBook/FilterRule
+---------------------------------
+Current support for global addressbook/filterrule is very limited.
+The administrator has to make a copy of addressbook/filterbook to
+the file specified by $global_addressbook/$global_filterbook by himself.
+
+ps: an account may be created for the maintainance of global 
+    addressbook/filterbook, for example: 'global'
+
+    ln -s your_global_addressbook ~global/mail/.address.book
+    ln -s your_global_filterbook  ~global/mail/.filter.book
+
+    Please be sure that the global files are writeable by user 'global'
+    and readable by others
+
+
+Speedup encoding/decoding of MIME attachments
+---------------------------------------------
+The encoding/decoding speed would be much faster if you install thr 
+MIME-Base64 module from CPAN with XS support
+
+1. download MIME-Base64-2.12.tar.gz from CPAN 
+2. install the tar file by reading MIME-Base64-2.12.readme
+
+
 Migrate from Neomail
 --------------------
 1. For get better compatiability with pine(an unix email reader)
@@ -103,15 +128,6 @@ Migrate from Neomail
 
 ps. a script 'migrate.pl' is provided in uty/ for administor 
     to migrate user folders from neomail easily
-
-
-Speedup encoding/decoding of MIME attachments
----------------------------------------------
-The encoding/decoding speed would be much faster if you install thr 
-MIME-Base64 module from CPAN with XS support
-
-1. download MIME-Base64-2.12.tar.gz from CPAN 
-2. install the tar file by reading MIME-Base64-2.12.readme
 
 
 TEST

@@ -41,6 +41,16 @@ sub mailfilter {
       close (FILTER);
    }
 
+   if ( $global_filterbook ne "" && -f "$global_filterbook" ) {
+      if (open (FILTER,"$global_filterbook")) {
+         while (<FILTER>) {
+            chomp($_);
+            push (@filterrules, $_);
+         }
+         close (FILTER);
+      }
+   }
+
    ## open INBOX, since spool must exist => lock before open ##
    unless (filelock($spoolfile, LOCK_EX|LOCK_NB)) {
       return -3; # $lang_err{'couldnt_lock'} $spoolfile!

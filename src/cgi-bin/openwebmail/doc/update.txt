@@ -1,3 +1,25 @@
+04/09/2001
+----------
+1. add $global_addressbook and $global_filterbook to openwebmail.conf 
+   to support global addressbook/filterrule
+
+
+04/07/2001
+----------
+1. message move in folderview will check if any message is selected 
+   before showing up the confirm window
+2. the prompt of folder delete confirmation will contain the foldername now.
+3. fix a bug in adding attachment without pressing add buttom
+
+
+04/06/2001 (version 1.04)
+----------
+1. The message parser is heavily reconstructed.
+   The memory footprint of readmessage is much smaller than before.
+2. The memory usage of sendmessage is greatly reduced.
+3. fix minor bug related to "searchid" 
+
+
 04/05/2001
 ----------
 1. fix "the message is gone" problem introduced by the patch

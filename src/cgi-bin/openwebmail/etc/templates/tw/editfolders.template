@@ -22,3 +22,12 @@
 @@@FOLDERS@@@
 
 </table>
+<script language="JavaScript">
+   <!--
+   function FolderConfirm(foldername)
+   {   
+      var msg=@@@FOLDERCONFIRM_TEXT@@@.'('.foldername.')';
+      return confirm(msg);
+   }
+   //-->
+</script>

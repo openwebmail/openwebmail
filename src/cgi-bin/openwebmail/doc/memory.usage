@@ -2,7 +2,7 @@
 	an rough estimation of the memory usage of Open WebMail
 	=======================================================
 
-No matter in what case, the program itself takes at least 5.5 MB first..:(
+At first, the program itself takes at least 5.5 MB...:(
 
 
 folder view
@@ -15,12 +15,14 @@ in the mail folder. It is about
 
 read a message
 ==============
+There are 2 stages here:
+
 a. To get the message showed on your browser, Open WebMail CGI needs
    to parse the whole message to determine how to display the message
    header, body and all attachments. Then it returns the html page and 
    the CGI process terminates. Memory usage at this stage is 
 
-   	5.5MB(main) + 3 * message_size
+   	5.5MB(main) + message_size
 
 b. When the browser gets the html page, it will request all inline 
    images embeded in this page. Each images will cause one CGI process.
@@ -37,7 +39,7 @@ We have a message with 5 attachments and each attachment is 1MB in size,
 
 At stage (a), the memory usage is 
 
-	5.5(main) + 3*5 = 20.5 MB 
+	5.5(main) + 5 = 10.5 MB 
 
 At stage (b), each image takes
 
@@ -49,15 +51,24 @@ so the total memory usage for stage (b) will be
 	12.5 * 3 = 37.5 MB
 
 If we consider the shared library and code page sharing support on
-most unix, most of the 5.5MB part of each CGI process may shared with 
-others. So the total memory usage for stage (b) will be
+most unix, some of the 5.5MB part of each CGI process may shared with 
+others. So the total memory usage will be somewhat less than the above.
 
-	5.5 + ( 5 + 2*1 ) * 3 = 26.5 MB
-    
 And if user clicks the link of word docs for download, 
 the memory usage will be
 
 	12.5 MB
+
+
+send a message
+==============
+There are also 2 stages in the sending of message
+
+a. the user attaches an attachment to the message
+b. the user presses the [send] buttom to send the whole message.
+
+The memory usage for these 2 stage has no relation with the 
+message or attachment size. It is about 5.5 MB.
 
 
 Conclusion
@@ -65,5 +76,4 @@ Conclusion
 Amazing? Yes, This program is a memory hog.....
 You'd better install more ram on your webmail server to make it faster...
 
-
-04/04/2001  tung@turtle.ee.ncku.edu.tw
+04/06/2001  tung@turtle.ee.ncku.edu.tw

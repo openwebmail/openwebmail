@@ -720,8 +720,9 @@ sub displayheaders {
 
    $html =~ s/\@\@\@PAGECONTROL\@\@\@/$temphtml/g;
 
+   $html =~ s/\@\@\@MOVECONFIRM_TEXT\@\@\@/$lang_text{'moveconfirm'}/;
    $temphtml = start_form(-action=>$scripturl,
-                          -onSubmit=>"return confirm($lang_text{'moveconfirm'})",
+                          -onSubmit=>"return MoveConfirm()",
                           -name=>'moveform');
    my @movefolders;
    foreach my $checkfolder (@validfolders) {
@@ -1317,7 +1318,7 @@ sub image_att2table {
 
    my $r_attachment=${$r_attachments}[$attnumber];
    my $escapedfilename = CGI::escape(${$r_attachment}{filename});
-   my $attlen=lenstr(length(${${$r_attachment}{r_content}}));
+   my $attlen=lenstr(${$r_attachment}{contentlength});
    my $nodeid=${$r_attachment}{nodeid};
 
    my $temphtml .= qq|<table border="0" align="center" cellpadding="2">|.
@@ -1334,7 +1335,7 @@ sub misc_att2table {
 
    my $r_attachment=${$r_attachments}[$attnumber];
    my $escapedfilename = CGI::escape(${$r_attachment}{filename});
-   my $attlen=lenstr(length(${${$r_attachment}{r_content}}));
+   my $attlen=lenstr(${$r_attachment}{contentlength});
    my $nodeid=${$r_attachment}{nodeid};
 
    my $temphtml .= qq|<table border="0" width="40%" align="center" cellpadding="2">|.
@@ -1739,7 +1740,6 @@ sub sendmessage {
    } else {
 ### Add a header that will allow SENT folder to function correctly
       my $localtime = scalar(localtime);
-      my $messagecontents = "From $user $localtime\n";
       my $date = localtime();
       my @datearray = split(/ +/, $date);
       $date = "$datearray[0], $datearray[2] $datearray[1] $datearray[4] $datearray[3] $timeoffset";
@@ -1758,7 +1758,6 @@ sub sendmessage {
       ($realname =~ /^(.+)$/) && ($realname = '"'.$1.'"');
       ($from =~ /^(.+)$/) && ($from = $1);
 
-      my $savedatts = ''; # Will buffer saved attachments
       my $boundary = "----=OPENWEBMAIL_ATT_" . rand();
       my $to = param("to");
       my $cc = param("cc");
@@ -1782,157 +1781,180 @@ sub sendmessage {
       $attname =~ s/^.*\///;
       $attname =~ s/^.*://;
 
-      open (SENDMAIL, "|" . $sendmail . " -oem -oi -F '$realname' -f '$from' -t 1>&2") or
-         openwebmailerror("$lang_err{'couldnt_open'} $sendmail!");
-      print SENDMAIL "From: $realname <$from>\n";
-      $messagecontents .= "From: $realname <$from>\n";
-      print SENDMAIL "To: $to\n";
-      $messagecontents .= "To: $to\n";
-      if ($cc) {
-         print SENDMAIL "CC: $cc\n";
-         $messagecontents .= "CC: $cc\n";
-      }
-      if ($bcc) {
-         print SENDMAIL "Bcc: $bcc\n";
-         $messagecontents .= "Bcc: $bcc\n";
-      }
-      if ($prefs{"replyto"}) {
-         print SENDMAIL "Reply-To: ",$prefs{"replyto"},"\n";
-         $messagecontents .= "Reply-To: ".$prefs{"replyto"}."\n";
-      }
-      print SENDMAIL "Subject: $subject\n";
-      $messagecontents .= "Subject: $subject\n";
-      print SENDMAIL "X-Mailer: Open WebMail $version\n";
-      $messagecontents .= "X-Mailer: Open WebMail $version\n";
-      print SENDMAIL "X-IPAddress: $userip ($user)\n";
-      $messagecontents .= "X-IPAddress: $userip ($user)\n";
 
-      if ($confirmreading) {
-         if ($prefs{"replyto"}) {
-            print SENDMAIL "X-Confirm-Reading-To: $prefs{'replyto'}\n";
-            $messagecontents .= "X-Confirm-Reading-To: $prefs{'replyto'}\n";
-            print SENDMAIL "Disposition-Notification-To: $prefs{'replyto'}\n";
-            $messagecontents .= "Disposition-Notification-To: $prefs{'replyto'}\n";
-         } else {
-            print SENDMAIL "X-Confirm-Reading-To: $from\n";
-            $messagecontents .= "X-Confirm-Reading-To: $from\n";
-            print SENDMAIL "Disposition-Notification-To: $from\n";
-            $messagecontents .= "Disposition-Notification-To: $from\n";
-         }
-      }
-
-      my $messageid="<OpenWebMail-saved-".rand().">";
-      $messagecontents .= "Message-Id: $messageid\nDate: $date\nStatus: R\n";
-
-      print SENDMAIL "MIME-Version: 1.0\n";
-      $messagecontents .= "MIME-Version: 1.0\n";
-
+      my @attfilelist=();
       opendir (OPENWEBMAILDIR, "$openwebmaildir") or
          openwebmailerror("$lang_err{'couldnt_open'} $openwebmaildir!");
       while (defined(my $currentfile = readdir(OPENWEBMAILDIR))) {
          if ($currentfile =~ /^($thissession-att\d+)$/) {
-            $currentfile = $1;
-            open (ATTFILE, "$openwebmaildir$currentfile");
-            $/ = undef; # Force a single input to grab the whole spool
-            $savedatts .= "\n--$boundary\n" . <ATTFILE>;
-            $/ = "\n";
-            close (ATTFILE);
+            push (@attfilelist, "$openwebmaildir$1");
          }
       }
       closedir (OPENWEBMAILDIR);
 
-      my $contenttype="";
-      if ($attachment || $savedatts) {
-         $contenttype="multipart/mixed;";
-         print SENDMAIL "Content-Type: multipart/mixed;\n";
-         print SENDMAIL "\tboundary=\"$boundary\"\n\n";
-         print SENDMAIL "This is a multi-part message in MIME format.\n\n";
-         print SENDMAIL "--$boundary\n";
-         print SENDMAIL "Content-Type: text/plain; charset=$lang_charset\n\n";
-         print SENDMAIL $body;
-         $body =~ s/^From />From /gm;
-         print SENDMAIL "\n$savedatts\n";
+      open (SENDMAIL, "|" . $sendmail . " -oem -oi -F '$realname' -f '$from' -t 1>&2") or
+         openwebmailerror("$lang_err{'couldnt_open'} $sendmail!");
+      my $sendmailok=1;
 
-         $messagecontents .= "Content-Type: multipart/mixed;\n".
-                             "\tboundary=\"$boundary\"\n\nThis is a multi-part message in MIME format.\n\n".
-                             "--$boundary\nContent-Type: text/plain; charset=$lang_charset\n\n$body\n$savedatts\n";
-         if ($attachment) {
-            my $attcontents = '';
-            my $buff='';
+      my $sentfoldererror="";
+      my $sentfolderok=1;
+      my $messagestart=0;
+      my $messagesize=0;
+      my $sentfolder;
 
-#            $/ = undef; # Force a single input to grab the whole spool
-#            $attcontents = <$attachment>;
-#            $/ = "\n";
-#            $attcontents = encode_base64($attcontents);
-
-            while (read($attachment, $buff, 600*57)) {
-               $attcontents.=encode_base64($buff);
+      if ( $homedirfolders eq 'yes' ) {
+         $sentfolder = 'sent-mail';
+      } else {
+         $sentfolder = 'SENT';
+      }
+      if ( ! -f "$folderdir/$sentfolder") {
+         if (open (SENT, ">$folderdir/$sentfolder")) {
+            close (SENT);
+            chmod (0600, "$folderdir/$sentfolder");
+            chown ($uid, $gid, "$folderdir/$sentfolder");
+         } else {
+            $sentfolderok=0;
+            $sentfoldererror="$lang_err{'couldnt_open'} $sentfolder!";
+         }
+      }
+      if  ($hitquota) {
+         $sentfolderok=0;
+      } else {
+         if (filelock("$folderdir/$sentfolder", LOCK_EX|LOCK_NB)) {
+            update_headerdb("$folderdir/.$sentfolder", "$folderdir/$sentfolder");
+            if (open (SENT, ">>$folderdir/$sentfolder") ) {
+               $messagestart=tell(SENT);
+            } else {
+               $sentfoldererror="$lang_err{'couldnt_open'} $sentfolder!";
+               $sentfolderok=0;
             }
+         } else {
+            $sentfoldererror="$lang_err{'couldnt_lock'} $sentfolder!";
+            $sentfolderok=0;
+         }
+      }
 
+      print SENT "From $user $localtime\n" if ($sentfolderok);
+
+      my $tempcontent="";
+      $tempcontent .= "From: $realname <$from>\n";
+      $tempcontent .= "To: $to\n";
+      $tempcontent .= "CC: $cc\n" if ($cc);
+      $tempcontent .= "Bcc: $bcc\n" if ($bcc);
+      $tempcontent .= "Reply-To: ".$prefs{"replyto"}."\n" if ($prefs{"replyto"}); 
+      $tempcontent .= "Subject: $subject\n";
+      $tempcontent .= "X-Mailer: Open WebMail $version\n";
+      $tempcontent .= "X-OriginatingIP: $userip ($user)\n";
+      if ($confirmreading) {
+         if ($prefs{"replyto"}) {
+            $tempcontent .= "X-Confirm-Reading-To: $prefs{'replyto'}\n";
+            $tempcontent .= "Disposition-Notification-To: $prefs{'replyto'}\n";
+         } else {
+            $tempcontent .= "X-Confirm-Reading-To: $from\n";
+            $tempcontent .= "Disposition-Notification-To: $from\n";
+         }
+      }
+      print SENDMAIL $tempcontent;
+      print SENT     $tempcontent if ($sentfolderok);
+
+      # fake a messageid for the local copy in sent folder
+      my $messageid="<OpenWebMail-saved-".rand().">";
+      print SENT     "Message-Id: $messageid\nDate: $date\nStatus: R\n" if ($sentfolderok);
+
+      print SENDMAIL "MIME-Version: 1.0\n";
+      print SENT     "MIME-Version: 1.0\n" if ($sentfolderok);
+
+      my $contenttype="";
+      if ($attachment || $#attfilelist>=0 ) {
+         my $buff='';
+
+         $contenttype="multipart/mixed;";
+
+         $tempcontent = "";
+         $tempcontent .= "Content-Type: multipart/mixed;\n";
+         $tempcontent .= "\tboundary=\"$boundary\"\n\n";
+         $tempcontent .= "This is a multi-part message in MIME format.\n\n";
+         $tempcontent .= "--$boundary\n";
+         $tempcontent .= "Content-Type: text/plain; charset=$lang_charset\n\n";
+
+         print SENDMAIL $tempcontent;
+         print SENT     $tempcontent if ($sentfolderok);
+
+         print SENDMAIL "$body\n";
+         $body =~ s/^From />From /gm;
+         print SENT     "$body\n" if ($sentfolderok);
+
+         foreach (@attfilelist) {
+            print SENDMAIL "\n--$boundary\n";
+            print SENT     "\n--$boundary\n" if ($sentfolderok);
+            open(ATTFILE, $_);
+
+            while (read(ATTFILE, $buff, 32768)) {
+               print SENDMAIL $buff;
+               print SENT     $buff if ($sentfolderok);
+            }
+            close(ATTFILE);
+         }
+
+         print SENDMAIL "\n";
+         print SENT     "\n" if ($sentfolderok);
+
+         if ($attachment) {
             my $content_type;
             if (defined(uploadInfo($attachment))) {
                $content_type = ${uploadInfo($attachment)}{'Content-Type'} || 'application/octet-stream';
             } else {
                $content_type = 'application/octet-stream';
             }
-            print SENDMAIL "--$boundary\nContent-Type: ", $content_type,";\n";
-            print SENDMAIL "\tname=\"$attname\"\nContent-Transfer-Encoding: base64\n\n";
-            print SENDMAIL $attcontents, "\n";
-            $messagecontents .= "--$boundary\nContent-Type: $content_type;\n".
-                             "\tname=\"$attname\"\nContent-Transfer-Encoding: base64\n\n".
-                             $attcontents."\n";
+            $tempcontent ="";
+            $tempcontent .= "--$boundary\nContent-Type: $content_type;\n";
+            $tempcontent .= "\tname=\"$attname\"\nContent-Transfer-Encoding: base64\n\n";
+
+            print SENDMAIL $tempcontent;
+            print SENT     $tempcontent if ($sentfolderok);
+            
+            while (read($attachment, $buff, 600*57)) {
+               $tempcontent=encode_base64($buff);
+               print SENDMAIL $tempcontent;
+               print SENT     $tempcontent if ($sentfolderok);
+            }
+
+            print SENDMAIL "\n";
+            print SENT     "\n" if ($sentfolderok);
          }
          print SENDMAIL "--$boundary--";
-         $messagecontents .= "--$boundary--\n\n";
+         print SENT     "--$boundary--" if ($sentfolderok);
+
+         print SENT     "\n\n" if ($sentfolderok);
+
       } else {
          print SENDMAIL "Content-Type: text/plain; charset=$lang_charset\n\n", $body, "\n";
          $body =~ s/^From />From /gm;
-         $messagecontents .= "Content-Type: text/plain; charset=$lang_charset\n\n".$body."\n\n";
+         print SENT     "Content-Type: text/plain; charset=$lang_charset\n\n", $body, "\n" if ($sentfolderok);
       }
 
-      close(SENDMAIL) or senderror();
+      $messagesize=tell(SENT)-$messagestart if ($sentfolderok);
+      close(SENT);
+      close(SENDMAIL) or $sendmailok=0;
       
       deleteattachments();
       
-      my $sentfolder;
-      if ( $homedirfolders eq 'yes' ) {
-         $sentfolder = 'sent-mail';
-      } else {
-         $sentfolder = 'SENT';
-      }
-
-      if ( ( ($homedirfolders eq 'yes') || ($homedirspools eq 'yes') ) && ($> == 0) ) {
-         $) = $gid;
-         $> = $uid;
-         umask(0077); # make sure only owner can read/write
-      }
-
-      unless ($hitquota) {
-         unless (filelock("$folderdir/$sentfolder", LOCK_EX|LOCK_NB)) {
-            openwebmailerror("$lang_err{'couldnt_lock'} $sentfolder!");
-         }
-         update_headerdb("$folderdir/.$sentfolder", "$folderdir/$sentfolder");
-         open (SENT, ">>$folderdir/$sentfolder") or
-            openwebmailerror ("$lang_err{'couldnt_open'} $sentfolder!");
-
+      if ($sentfolderok) {
          my @attr;
          my @datearray = split(/\s+/, $date);
          if ($datearray[0] =~ /[A-Za-z,]/) {
             shift @datearray; # Get rid of the day of the week
          }
 
-         $attr[$_OFFSET]=tell(SENT);
+         $attr[$_OFFSET]=$messagestart;
          $attr[$_TO]=$to;
          $attr[$_FROM]=(split(/,/, $to))[0];	# since this is sent folder
-### we store localtime on dbm, so day offset is not needed
+         ### we store localtime on dbm, so day offset is not needed
          $attr[$_DATE]="$month{$datearray[1]}/$datearray[0]/$datearray[2] $datearray[3]";
          $attr[$_SUBJECT]=$subject;
          $attr[$_CONTENT_TYPE]=$contenttype;
          $attr[$_STATUS]="R";
-         $attr[$_SIZE]=length($messagecontents)+length("\n");
-
-         print SENT $messagecontents, "\n";
-         close (SENT) or openwebmailerror("$lang_err{'couldnt_close'} $sentfolder!");
+         $attr[$_SIZE]=$messagesize;
 
          my %HDB;
          filelock("$folderdir/.$sentfolder.$dbm_ext", LOCK_EX);
@@ -1945,7 +1967,14 @@ sub sendmessage {
 
          filelock("$folderdir/$sentfolder", LOCK_UN);
       }
-      displayheaders();
+
+      if ($sendmailok==0) {
+         senderror();
+      } elsif ($sentfoldererror) {
+         openwebmailerror($sentfoldererror);
+      } else {
+         displayheaders();
+      }
    }
 }
 
@@ -2015,6 +2044,8 @@ sub viewattachment {
       my ($header, $body, $r_attachments)=parse_rfc822block($r_block, "0", $nodeid);
       my $r_attachment;
 
+      undef(${$r_block});
+      undef($r_block);
       for (my $i=0; $i<=$#{$r_attachments}; $i++) {
          if ( ${${$r_attachments}[$i]}{nodeid} eq $nodeid ) {
             $r_attachment=${$r_attachments}[$i];
@@ -2333,7 +2364,7 @@ sub updatestatus {
                }
                print SENDMAIL "Subject: $lang_text{'read'} - $attr[$_SUBJECT]\n";
                print SENDMAIL "X-Mailer: Open WebMail $version\n";
-               print SENDMAIL "X-IPAddress: $userip ($user)\n";
+               print SENDMAIL "X-OriginatingIP: $userip ($user)\n";
 
                print SENDMAIL "MIME-Version: 1.0\n";
                print SENDMAIL "Content-Type: text/plain; charset=$lang_charset\n\n";

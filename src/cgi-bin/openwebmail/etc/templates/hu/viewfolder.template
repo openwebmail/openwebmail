@@ -28,9 +28,9 @@
 <b>@@@SUBJECT@@@</b></td>
 <td valign="middle" width="50" bgcolor=@@@COLUMNHEADER@@@>
 <b>@@@SIZE@@@</b></td>
-<td valign="middle" width="50" bgcolor=@@@COLUMNHEADER@@@>
-<b>Mind:<input name="allbox" type="checkbox" value="1"
-   onClick="CheckAll();"></b></td>
+<td align ="center" valign="middle" width="50" bgcolor=@@@COLUMNHEADER@@@>
+<input name="allbox" type="checkbox" value="1"
+   onClick="CheckAll();"></td>
 </tr>
 @@@HEADERS@@@
 @@@ENDFORM@@@
@@ -63,6 +63,16 @@
          if (e.name != "allbox")
             e.checked = document.moveform.allbox.checked;
       }
+   }
+   function MoveConfirm()
+   {   
+      for (var i=0;i<document.moveform.elements.length;i++)
+      {
+         var e = document.moveform.elements[i];
+         if (e.name != "allbox" && e.checked == 1 )
+            return confirm(@@@MOVECONFIRM_TEXT@@@);
+      }
+      return false;
    }
    //-->
 </script>

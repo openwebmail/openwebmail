@@ -399,7 +399,7 @@ sub editfolders {
       $temphtml .= "<tr><td align=\"center\" bgcolor=$bgcolor>$currfolder</td>";
 
       $temphtml .= start_form(-action=>$prefsurl,
-                              -onSubmit=>"return confirm($lang_text{'folderconf'})");
+                              -onSubmit=>"return confirm($lang_text{'folderconf'}+' ( $currfolder )')");
       $temphtml .= hidden(-name=>'action',
                           -value=>'deletefolder',
                           -override=>'1');
@@ -686,7 +686,8 @@ sub importabook {
 #################### EDITADDRESSES ###########################
 sub editaddresses {
    verifysession();
-   my %addresses;
+   my %addresses=();
+   my %globaladdresses=();
    my ($name, $email);
 
    my $html = '';
@@ -713,6 +714,17 @@ sub editaddresses {
    }
    my $abooksize = ( -s "$folderdir/.address.book" ) || 0;
    my $freespace = int($maxabooksize - ($abooksize/1024) + .5);
+
+   if ( $global_addressbook ne "" && -f "$global_addressbook" ) {
+      if (open (ABOOK,"$global_addressbook") ) {
+         while (<ABOOK>) {
+            ($name, $email) = split(/:/, $_);
+            chomp($email);
+            $globaladdresses{"$name"} = $email;
+         }
+         close (ABOOK);
+      }
+   }
 
    printheader();
 
@@ -772,10 +784,11 @@ sub editaddresses {
 
    $temphtml = '';
    my $bgcolor = $style{"tablerow_dark"};
+
    foreach my $key (sort { uc($a) cmp uc($b) } (keys %addresses)) {
       $temphtml .= "<tr><td bgcolor=$bgcolor width=\"200\">
                     <a href=\"Javascript:Update('$key','$addresses{$key}')\">
-                    $key</a></td><td bgcolor=$bgcolor width=\"200\">
+                    $key</a></td><td bgcolor=$bgcolor width=\"300\">
                     <a href=\"$scripturl?action=composemessage&amp;firstmessage=$firstmessage&amp;sort=$sort&amp;folder=$escapedfolder&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$addresses{$key}\">$addresses{$key}</a></td>";
 
       $temphtml .= start_form(-action=>$prefsurl);
@@ -804,6 +817,27 @@ sub editaddresses {
       $temphtml .= submit("$lang_text{'delete'}");
       $temphtml .= '</td></tr>';
       $temphtml .= end_form();
+      if ($bgcolor eq $style{"tablerow_dark"}) {
+         $bgcolor = $style{"tablerow_light"};
+      } else {
+         $bgcolor = $style{"tablerow_dark"};
+      }
+   }
+
+   my @sortkeys=sort { uc($a) cmp uc($b) } (keys %globaladdresses);
+   if ($#sortkeys >= 0) {
+      $temphtml .= "<tr><td colspan=\"3\">&nbsp;</td></tr>\n";
+      $temphtml .= "<tr><td colspan=\"3\" bgcolor=$style{columnheader}><B>$lang_text{globaladdressbook}</B> ($lang_text{readonly})</td></tr>\n";
+   }
+   foreach my $key (@sortkeys) {
+      $temphtml .= "<tr><td bgcolor=$bgcolor width=\"200\">
+                    <a href=\"Javascript:Update('$key','$globaladdresses{$key}')\">
+                    $key</a></td><td bgcolor=$bgcolor width=\"300\">
+                    <a href=\"$scripturl?action=composemessage&amp;firstmessage=$firstmessage&amp;sort=$sort&amp;folder=$escapedfolder&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$globaladdresses{$key}\">$globaladdresses{$key}</a></td>";
+      $temphtml .= "<td bgcolor=$bgcolor align=\"center\" width=\"100\">";
+      $temphtml .= "-----";
+      $temphtml .= '</td></tr>';
+
       if ($bgcolor eq $style{"tablerow_dark"}) {
          $bgcolor = $style{"tablerow_light"};
       } else {
@@ -1118,7 +1152,8 @@ sub editfilter {
    my $html = '';
    my $temphtml;
    my @validfolders;
-   my @filterrules;
+   my @filterrules=();
+   my @globalfilterrules=();
 
    #### UI: header ####
    printheader();
@@ -1238,11 +1273,21 @@ sub editfilter {
       open (FILTER,"$folderdir/.filter.book") or
          openwebmailerror("$lang_err{'couldnt_open'} .filter.book!");
       while (<FILTER>) {
-          chomp($_);
-          push (@filterrules, $_);
+         chomp($_);
+         push (@filterrules, $_);
       }
       close (FILTER) or openwebmailerror("$lang_err{'couldnt_close'} .filter.book!");
    }
+   if ( $global_filterbook ne "" && -f "$global_filterbook" ) {
+      if ( open (FILTER, "$global_filterbook") ) { 
+         while (<FILTER>) {
+            chomp($_);
+            push (@globalfilterrules, $_);
+         }
+         close (FILTER);
+      }
+   }
+
    $temphtml = '';
    my $bgcolor = $style{"tablerow_dark"};
    foreach (@filterrules) {
@@ -1305,6 +1350,40 @@ sub editfilter {
          $bgcolor = $style{"tablerow_dark"};
       }
    }
+
+   if ($#globalfilterrules >= 0) {
+      $temphtml .= "<tr><td colspan=\"7\">&nbsp;</td></tr>\n";
+      $temphtml .= "<tr><td colspan=\"7\" bgcolor=$style{columnheader}><B>$lang_text{globalfilterrule}</B> ($lang_text{readonly})</td></tr>\n";
+   }
+   foreach (@globalfilterrules) {
+      my ($priority, $rules, $include, $text, $destination, $enable) = split(/\@\@\@/, $_);
+            
+      $temphtml .= "<tr>
+               <td bgcolor=$bgcolor align=center>$priority</td>
+               <td bgcolor=$bgcolor align=center>$lang_text{$rules}</td>
+               <td bgcolor=$bgcolor align=center>$lang_text{$include}</td>
+               <td bgcolor=$bgcolor align=center><a href=\"Javascript:Update('$priority','$rules','$include','$text','$destination','$enable')\">$text</a></td>";
+      if (defined($lang_folders{$destination})) {
+         $temphtml .= "<td bgcolor=$bgcolor align=center>$lang_folders{$destination}</td>";
+      } else {
+         $temphtml .= "<td bgcolor=$bgcolor align=center>$destination</td>";
+      }
+      if ($enable == 1) {
+         $temphtml .= "<td bgcolor=$bgcolor align=center>$lang_text{'enable'}</td>";
+      } else {
+         $temphtml .= "<td bgcolor=$bgcolor align=center>$lang_text{'disable'}</td>";
+      }
+      $temphtml .= "<td bgcolor=$bgcolor align=center>";
+      $temphtml .= "-----";
+      $temphtml .= "</td>";
+      $temphtml .= "</tr>";
+      if ($bgcolor eq $style{"tablerow_dark"}) {
+         $bgcolor = $style{"tablerow_light"};
+      } else {
+         $bgcolor = $style{"tablerow_dark"};
+      }
+   }
+
    $html =~ s/\@\@\@FILTERRULES\@\@\@/$temphtml/;
 
    print $html;
@@ -1523,7 +1602,8 @@ sub addressbook {
    print start_html(-"title"=>"$lang_text{'abooktitle'}",
                     -BGCOLOR=>'#FFFFFF',
                     -BACKGROUND=>$bg_url);
-   my %addresses;
+   my %addresses=();
+   my %globaladdresses=();
    my ($name, $email);
    my $field=param("field");
    my $preexisting = param("preexisting") || '';
@@ -1537,6 +1617,7 @@ sub addressbook {
    '<font color=',$style{"titlebar_text"},' face=',$style{"fontface"},' size="3"><b>',uc($lang_text{$field}),": $lang_text{'abook'}</b></font>",
    '</td></tr>';
 
+   my $bgcolor = $style{"tablerow_dark"};
    if ( -f "$folderdir/.address.book" ) {
       open (ABOOK,"$folderdir/.address.book") or
          openwebmailerror("$lang_err{'couldnt_open'} .address.book!");
@@ -1547,7 +1628,6 @@ sub addressbook {
       }
       close (ABOOK) or openwebmailerror("$lang_err{'couldnt_close'} .address.book!");
 
-      my $bgcolor = $style{"tablerow_dark"};
       foreach my $key (sort(keys %addresses)) {
          print "<tr><td bgcolor=$bgcolor width=\"20\"><input type=\"checkbox\" name=\"to\" value=\"",
          $addresses{"$key"}, '"';
@@ -1562,6 +1642,31 @@ sub addressbook {
          }
       }
    }
+
+   if ( $global_addressbook ne "" && -f "$global_addressbook" ) {
+      if (open (ABOOK,"$global_addressbook")) {
+         while (<ABOOK>) {
+            ($name, $email) = split(/:/, $_);
+            chomp($email);
+            $globaladdresses{"$name"} = $email;
+         }
+         close (ABOOK);
+      }
+      foreach my $key (sort(keys %globaladdresses)) {
+         print "<tr><td bgcolor=$bgcolor width=\"20\"><input type=\"checkbox\" name=\"to\" value=\"",
+         $globaladdresses{"$key"}, '"';
+         if ($preexisting =~ s/\Q$globaladdresses{"$key"}\E,?//g) {
+            print " checked";
+         }
+         print "></td><td width=\"100%\" bgcolor=$bgcolor>$key</td></tr>\n";
+         if ($bgcolor eq $style{"tablerow_dark"}) {
+            $bgcolor = $style{"tablerow_light"};
+         } else {
+            $bgcolor = $style{"tablerow_dark"};
+         }
+      }
+   }
+
    print '</td></tr><tr><td align="center" colspan="2" bgcolor=',$style{"tablerow_dark"},'>';
    print '<input type="hidden" name="remainingstr" value="', $preexisting, '">';
    print '<input type="submit" name="mailto.x" value="OK"> &nbsp;&nbsp;';
