@@ -948,7 +948,7 @@ sub readmessage {
    # thus the result of readmessage can be returned as soon as possible
    if ($message{status} !~ /R/i) {	# msg file doesn't has R flag
       local $|=1; 			# flush all output
-      # local $SIG{CHLD}=\&zombie_cleaner;	# not necessary as this is default
+      #local $SIG{CHLD}=\&sigchld_handler;	# not necessary as this is default
       if ( fork() == 0 ) {		# child
          close(STDIN); close(STDOUT); close(STDERR);
 

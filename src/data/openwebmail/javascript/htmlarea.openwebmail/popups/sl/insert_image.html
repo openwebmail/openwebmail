@@ -1,8 +1,8 @@
 <html style="width: 398; height: 243">
 
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-  <title>Insert Image</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1250">
+  <title>Vstavi sliko</title>
 
 <script type="text/javascript" src="popup.js"></script>
 
@@ -16,8 +16,8 @@ function Init() {
 
 function onOK() {
   var required = {
-    "f_url": "You must enter the URL",
-    "f_alt": "Please enter the alternate text"
+    "f_url": "Vnesti morate URL",
+    "f_alt": "Prosim, vnesite alternativno besedilo"
   };
   for (var i in required) {
     var el = document.getElementById(i);
@@ -55,7 +55,7 @@ function onPreview() {
   var f_url = document.getElementById("f_url");
   var url = f_url.value;
   if (!url) {
-    alert("You have to enter an URL first");
+    alert("Najprej morate vnesti spletni naslov (URL)");
     f_url.focus();
     return false;
   }
@@ -126,32 +126,32 @@ form { padding: 0px; margin: 0px; }
 
 <body onload="Init()">
 
-<div class="title">Insert Image</div>
+<div class="title">Vstavi sliko</div>
 
 <form action="" method="get">
 <table border="0" width="100%" style="padding: 0px; margin: 0px">
   <tbody>
 
   <tr>
-    <td style="width: 7em; text-align: right">Attachments:</td>
+    <td style="width: 7em; text-align: right">Priloge:</td>
     <td><select name="attlist" id="f_attlist" 
          onchange="return onChange();" style="witdth:100%">
-        <option selected value="">-- Not selected --
+        <option selected value="">-- Ni izbrano --
         </select>
     </td>
   </tr>
   <tr>
-    <td style="width: 7em; text-align: right">Image URL:</td>
+    <td style="width: 7em; text-align: right">Spletni naslov slike:</td>
     <td><input type="text" name="url" id="f_url" style="width:75%"
-      title="Enter the image URL here" />
+      title="Tukaj vpišite spletni naslov slike" />
       <button name="preview" onclick="return onPreview();"
-      title="Preview the image in a new window">Preview</button>
+      title="Predogled slike v novem oknu">Predogled</button>
     </td>
   </tr>
   <tr>
-    <td style="width: 7em; text-align: right">Alternate text:</td>
+    <td style="width: 7em; text-align: right">Alternativno besedilo:</td>
     <td><input type="text" name="alt" id="f_alt" style="width:100%"
-      title="For browsers that don't support images" /></td>
+      title="Za pregledovalnike, ki ne podpirajo slik" /></td>
   </tr>
 
   </tbody>
@@ -160,49 +160,49 @@ form { padding: 0px; margin: 0px; }
 <p />
 
 <fieldset style="float: left; margin-left: 5px;">
-<legend>Layout</legend>
+<legend>Ureditev</legend>
 
 <div class="space"></div>
 
-<div class="fl">Alignment:</div>
+<div class="fl">Poravnava:</div>
 <select size="1" name="align" id="f_align"
-  title="Positioning of this image">
-  <option value=""                             >Not set</option>
-  <option value="left"                         >Left</option>
-  <option value="right"                        >Right</option>
-  <option value="texttop"                      >Texttop</option>
-  <option value="absmiddle"                    >Absmiddle</option>
-  <option value="baseline" selected="1"        >Baseline</option>
-  <option value="absbottom"                    >Absbottom</option>
-  <option value="bottom"                       >Bottom</option>
-  <option value="middle"                       >Middle</option>
-  <option value="top"                          >Top</option>
+  title="Lega te slike">
+  <option value=""                             >Ni doloèeno</option>
+  <option value="left"                         >Levo</option>
+  <option value="right"                        >Desno</option>
+  <option value="texttop"                      >Besedilo na vrhu</option>
+  <option value="absmiddle"                    >Absolutna sredina</option>
+  <option value="baseline selected="1"         >Osnovna linija</option>
+  <option value="absbottom"                    >Absolutno spodaj</option>
+  <option value="bottom"                       >Spodaj</option>
+  <option value="middle"                       >Na sredini</option>
+  <option value="top"                          >Na vrhu</option>
 </select>
 
 <p />
 
-<div class="fl">Border thickness:</div>
+<div class="fl">Debelina obrobe:</div>
 <input type="text" name="border" id="f_border" size="5"
-title="Leave empty for no border" />
+title="Pustite prazno, èe ne želite obrobe" />
 
 <div class="space"></div>
 
 </fieldset>
 
 <fieldset style="float:right; margin-right: 5px;">
-<legend>Spacing</legend>
+<legend>Razmik</legend>
 
 <div class="space"></div>
 
-<div class="fr">Horizontal:</div>
+<div class="fr">Vodoravno:</div>
 <input type="text" name="horiz" id="f_horiz" size="5"
-title="Horizontal padding" />
+title="Vodoravno polnjenje" />
 
 <p />
 
-<div class="fr">Vertical:</div>
+<div class="fr">Navpièno:</div>
 <input type="text" name="vert" id="f_vert" size="5"
-title="Vertical padding" />
+title="Navpièno polnjenje" />
 
 <div class="space"></div>
 
@@ -210,8 +210,8 @@ title="Vertical padding" />
 
 <div style="margin-top: 85px; text-align: right;">
 <hr />
-<button type="button" name="ok" onclick="return onOK();">OK</button>
-<button type="button" name="cancel" onclick="return onCancel();">Cancel</button>
+<button type="button" name="ok" onclick="return onOK();">Potrdi</button>
+<button type="button" name="cancel" onclick="return onCancel();">Preklièi</button>
 </div>
 
 </form>

@@ -1156,7 +1156,7 @@ sub movemessage {
    # fork a child to do learn the msg in background
    # thus the resulted msglist can be returned as soon as possible
    if ($learntype ne 'none') {
-      # local $SIG{CHLD}=\&zombie_cleaner;	# not necessary as this is default
+      #local $SIG{CHLD}=\&sigchld_handler;	# not necessary as this is default
       local $|=1; 			# flush all output
       if ( fork() == 0 ) {		# child
          close(STDIN); close(STDOUT); close(STDERR);

@@ -147,9 +147,10 @@ set up this way, you'll know if you need it.
 use_syshomedir
 -----------------------------------------------------------------------
 If set this option to 'yes', openwebmail will use the user homedir
-returned by authentication system. (eg: the homedir assigned in /etc/paswd)
+returned by authentication system. (eg: the homedir assigned in /etc/passwd)
 
-If set this option to 'no', openwebmail will provide homedir for the user.
+If set this option to 'no', openwebmail will provide homedir for the user
+in the directory specified by option ow_usersdir.
 (default location: %ow_usersdir%/username/ or
                    %ow_usersdir%/domain/username/ if option auth_withdomain is yes)
 

@@ -182,6 +182,20 @@ foreach (qw(
 );
 
 ########## CLEARVAR/ENDREQUEST/EXIT ##############################
+# default handler for signal CHLD
+use vars qw($_zombie_pending);
+sub sigchld_handler {
+   $_zombie_pending++;
+}
+
+# routine to clean all zombie child processes
+sub zombie_cleaner {
+   return if (!$_zombie_pending);
+   $_zombie_pending=0;
+   while (waitpid(-1,WNOHANG)>0) {}
+}
+
+
 use vars qw($_vars_used);
 sub openwebmail_clearall {
    # clear opentable in filelock.pl
@@ -219,36 +233,31 @@ sub openwebmail_clearall {
 
 # routine used at CGI request begin
 sub openwebmail_requestbegin {
+   zombie_cleaner();				# clear pending zombies
    openwebmail_clearall() if ($_vars_used);	# clear global
    $_vars_used=1;
 
    $SIG{PIPE}=\&openwebmail_exit;		# for user stop
    $SIG{TERM}=\&openwebmail_exit;		# for user stop
-   $SIG{CHLD}=\&zombie_cleaner;			# catch signal CHLD by default
+   $SIG{CHLD}=\&sigchld_handler;		# catch signal CHLD by default
 						# so in case we need return status of wait()/system()
                                                 # we have to 'loca $SIG{CHLD}; undef $SIG{CHLD};'
 }
 
 # routine used at CGI request end
 sub openwebmail_requestend {
+   zombie_cleaner();				# clear pending zombies
    openwebmail_clearall() if ($_vars_used);	# clear global
    $_vars_used=0;
    $persistence_count++;
 
-   zombie_cleaner();				# in case any zombie exists
-   $SIG{CHLD}=\&zombie_cleaner;			# we hope this catches sig child inside speedycgi
+   $SIG{CHLD}=\&sigchld_handler;		# we hope this catches sig child inside speedycgi
 }
 
 # routine used at exit
 sub openwebmail_exit {
    openwebmail_requestend();
    exit $_[0];
-}
-
-# routine to clean all zombie child processes,
-# it is also used as the default handler for signal CHLD
-sub zombie_cleaner {
-   while (waitpid(-1,WNOHANG)>0) {}
 }
 ########## END CLEARVAR/ENDREQUEST/EXIT ##########################
 

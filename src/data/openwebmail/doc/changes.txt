@@ -1,3 +1,9 @@
+11/21/2004
+----------
+1. rewrite the chkd signal handler to eliminate the 
+   "recursive call...,out of memory!" error
+
+
 11/18/2004
 ----------
 1. Slovenian html editor files translation update
