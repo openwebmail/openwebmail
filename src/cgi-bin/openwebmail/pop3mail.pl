@@ -1,10 +1,11 @@
-use strict;
 #
 # pop3mail.pl - functions for pop3 mail retrieval
 #
-# 2001/06/01 eddie@turtle.ee.ncku.edu.tw
+# 2001/03/02 eddie@turtle.ee.ncku.edu.tw
+#            tung@turtle.ee.ncku.edu.tw
 #
 
+use strict;
 use Fcntl qw(:DEFAULT :flock);
 use FileHandle;
 use IO::Socket;
@@ -20,12 +21,21 @@ sub getpop3book {
       open (POP3BOOK,"$pop3book") or return(-1);
       while (<POP3BOOK>) {
       	 chomp($_);
-      	 my ($pop3host, $pop3user, $pop3passwd, $pop3email, $pop3del, $lastid) = split(/:/, $_);
-         if ($lastid eq '') {	# compatible with old version
-      	    ($pop3host, $pop3user, $pop3passwd, $pop3del, $lastid) = split(/:/, $_);
-            $pop3email="$pop3user\@$pop3host";
+         my @a=split(/:/, $_);
+         my ($pop3host, $pop3user, $pop3passwd, $pop3lastid, $pop3del, $enable);
+
+         if ($#a==4) {			# backward compatibility
+            ($pop3host, $pop3user, $pop3passwd, $pop3del, $pop3lastid) = @a;
+            $enable=1;
+         } elsif ($a[3]=~/\@/) {	# backward compatibility
+            my $pop3email;
+            ($pop3host, $pop3user, $pop3passwd, $pop3email, $pop3del, $pop3lastid) = @a;
+            $enable=1;
+         } else {			# current version
+            ($pop3host, $pop3user, $pop3passwd, $pop3lastid, $pop3del, $enable) =@a;
          }
-         ${$r_accounts}{"$pop3host:$pop3user"} = "$pop3host:$pop3user:$pop3passwd:$pop3email:$pop3del:$lastid";
+
+         ${$r_accounts}{"$pop3host:$pop3user"} = "$pop3host:$pop3user:$pop3passwd:$pop3lastid:$pop3del:$enable";
          $i++;
       }
       close (POP3BOOK);
@@ -65,7 +75,7 @@ sub writebackpop3book {
 
 sub retrpop3mail {
    my ($pop3host, $pop3user, $pop3book, $spoolfile)=@_;
-   my (%accounts, $pop3passwd, $pop3email, $pop3del, $lastid);
+   my (%accounts, $pop3passwd, $pop3lastid, $pop3del, $enable);
    my ($ServerPort, $remote_sock);
    my ($uidl_support, $uidl_field);
    my ($last, $nMailCount, $retr_total);
@@ -75,7 +85,7 @@ sub retrpop3mail {
       return(-1);
    }
 
-   ($dummy, $dummy, $pop3passwd, $pop3email, $pop3del, $lastid)=
+   ($dummy, $dummy, $pop3passwd, $pop3lastid, $pop3del, $enable)=
 			split(/:/, $accounts{"$pop3host:$pop3user"});
 
    # bypass taint check for file create
@@ -144,15 +154,15 @@ sub retrpop3mail {
          $uidl_field=1;	# some broken pop3d return uidl without leading +
       }
 
-      if ($lastid eq (split(/\s/))[$uidl_field]) {	# +OK N ID
+      if ($pop3lastid eq (split(/\s/))[$uidl_field]) {	# +OK N ID
          print $remote_sock "quit\r\n";
          return 0;
       }
-      if ($lastid ne "none") {
+      if ($pop3lastid ne "none") {
          for ($i=1; $i<$nMailCount; $i++) {
             print $remote_sock "uidl ".$i."\r\n";
             $_ = <$remote_sock>; s/^\s+//;
-            if ($lastid eq (split(/\s/))[$uidl_field]) {
+            if ($pop3lastid eq (split(/\s/))[$uidl_field]) {
                $last = $i;
                last;
             }
@@ -166,7 +176,7 @@ sub retrpop3mail {
    # if last retrieved msg not found, fetech from the beginning
    $last=0 if ($last==-1);
    # set lastid to none if fetech from the beginning
-   $lastid="none" if ($last==0);
+   $pop3lastid="none" if ($last==0);
 
    # retr messages
    $retr_total=0;
@@ -194,8 +204,12 @@ sub retrpop3mail {
 
 
       # first line of message
-      s/\s+$//;
-      $FileContent = "$_\n";
+      if ( /^From / ) {
+         $FileContent = "";	#drop 1st line if containing msg delimiter
+      } else {
+         s/\s+$//;
+         $FileContent = "$_\n";
+      }
 
       #####  read else lines of message
       while ( <$remote_sock>) {
@@ -218,19 +232,25 @@ sub retrpop3mail {
             $stAddress = $_;
 
          } elsif ( /^Date:/i && $stDate eq "" ) {
-             if (/^Date:\s+(\w+),\s+(\d+)\s+(\w+)\s+(\d+)\s+(\d+):(\d+):(\d+)\s/i) { 
-                 #Date: Wed, 9 Sep 1998 19:30:16 +0800 (CST)
-                 $wday=$1; $mday=$2; $mon=$3; $year=$4; $hour=$5; $min=$6; $sec=$7;
-             } elsif (/^Date:\s+(\d+)\s+(\w+)\s+(\d+)\s+(\d+):(\d+):(\d+)\s/i) { 
-                 #Date: 07 Sep 2000 23:01:36 +0200
-                 $mday=$1; $mon=$2; $year=$3; $hour=$4; $min=$5; $sec=$6;
-             } elsif (/^Date:\s+(\w+),\s+(\w+)\s+(\d+),\s+(\d+)\s+(\d+):(\d+):(\d+)\s/i) { 
-                 #Date: Wednesday, February 10, 1999 3:39 PM
-                 $wday=$1; $mon=$2; $mday=$3; $year=$4; $hour=$5; $min=$6; $sec=$7;
-                 $wday=~s/^(...).*/$1/;
-                 $mon=~s/^(...).*/$1/;
-             }
-             $stDate=sprintf("%3s %3s %2d %02d:%02d:%02d %4d",
+            if (/^Date:\s+(\w+),\s+(\d+)\s+(\w+)\s+(\d+)\s+(\d+):(\d+):(\d+)\s/i) { 
+               #Date: Wed, 9 Sep 1998 19:30:17 +0800 (CST)
+               $wday=$1; $mday=$2; $mon=$3; $year=$4; $hour=$5; $min=$6; $sec=$7;
+            } elsif (/^Date:\s+(\d+)\s+(\w+)\s+(\d+)\s+(\d+):(\d+):(\d+)\s/i) { 
+               #Date: 07 Sep 2000 23:01:36 +0200
+               $mday=$1; $mon=$2; $year=$3; $hour=$4; $min=$5; $sec=$6;
+            } elsif (/^Date:\s+(\w+),\s+(\w+)\s+(\d+),\s+(\d+)\s+(\d+):(\d+):(\d+)\s/i) { 
+               #Date: Wednesday, February 10, 1999 3:39 PM
+               $wday=$1; $mon=$2; $mday=$3; $year=$4; $hour=$5; $min=$6; $sec=$7;
+               $wday=~s/^(...).*/$1/;
+               $mon=~s/^(...).*/$1/;
+            }
+
+            # some machines has reverse order for month and mday
+            if ( $mday=~/[A-Za-z]+/ ) {
+               my $tmp=$mday; $mday=$mon; $mon=$tmp;
+            }
+
+            $stDate=sprintf("%3s %3s %2d %02d:%02d:%02d %4d",
                              $wday, $mon, $mday, $hour,$min,$sec, $year);
          }
       }
@@ -248,7 +268,7 @@ sub retrpop3mail {
          print $remote_sock "uidl " . $i . "\r\n";
          $_=<$remote_sock>; s/^\s+//;
          if ($_ !~ /^\-/) {
-            $lastid=(split(/\s/))[$uidl_field];
+            $pop3lastid=(split(/\s/))[$uidl_field];
          }
       }
 
@@ -263,7 +283,7 @@ sub retrpop3mail {
    close($remote_sock);
 
    ###  write back to pop3book
-   $accounts{"$pop3host:$pop3user"} = "$pop3host:$pop3user:$pop3passwd:$pop3email:$pop3del:$lastid";
+   $accounts{"$pop3host:$pop3user"} = "$pop3host:$pop3user:$pop3passwd:$pop3lastid:$pop3del:$enable";
    if (writebackpop3book($pop3book, \%accounts)<0) {
       return(-9);
    }

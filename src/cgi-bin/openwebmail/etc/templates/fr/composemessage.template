@@ -61,6 +61,7 @@
 @@@ENDFORM@@@ <!-- End of message composition form -->
 @@@STARTSPELLCHECKFORM@@@
 <td align="center" valign="top">
+@@@DICTIONARYMENU@@@
 @@@SPELLCHECKBUTTON@@@
 &nbsp;&nbsp;
 </td>

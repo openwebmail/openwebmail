@@ -4,6 +4,6 @@
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>B£¡D LOGOWANIA</B></FONT></TD></TR>
 <tr><td valign="middle" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>Niestety wprowadzony identyfikator lub has³o jest niepoprawne. Proszê spróbowaæ
-<a href="@@@SCRIPTURL@@@">jeszcze raz</a>.<BR><BR>
+<BR>@@@ERRORMSG@@@! Please go back and
+<a href="@@@SCRIPTURL@@@">try again</a>.<BR><BR>
 </td></tr></table>

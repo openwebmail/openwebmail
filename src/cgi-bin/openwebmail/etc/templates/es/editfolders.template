@@ -7,7 +7,7 @@
 @@@MENUBARLINKS@@@
 </td></tr><tr><td colspan="5">&nbsp;</td></tr>
 <tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Nombre de Carpeta (16 caracteres)</B></td>
+<B>Nombre de Carpeta (@@@FOLDERNAME_MAXLEN@@@ caracteres)</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Nuevos</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>

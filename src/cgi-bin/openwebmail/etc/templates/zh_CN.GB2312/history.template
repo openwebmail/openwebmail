@@ -1,0 +1,24 @@
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="1">
+<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>使用者历史记录</B></font>
+</td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
+&nbsp;
+<table border="0" align="center" width="90%" cellspacing="0" cellpadding="0">
+<tr>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>时间</B></td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>连线来源</B></td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>帐号</B></td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>事件</B></td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>描述</B></td>
+</tr>
+@@@LOGINHISTORY@@@
+</table>
+
+@@@CONTINUEBUTTON@@@
+</td></tr></table>

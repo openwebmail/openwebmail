@@ -12,17 +12,17 @@
 <td nowrap bgcolor=@@@COLUMNHEADER@@@>
 <B>POP3 Server</B> (click to edit)</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Id</B></td>
+<B>Id</B> (click to receive)</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Passwd</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Email</B> (click to receive)</td>
-<td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Del remote mail</B></td>
+<td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>Enable</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Action</B>
 </td></tr>
-@@@STARTADDRESSFORM@@@
+@@@STARTPOP3FORM@@@
 <tr>
 <td nowrap bgcolor=@@@TABLEROW_LIGHT@@@>
 @@@HOSTFIELD@@@
@@ -34,10 +34,10 @@
 @@@PASSFIELD@@@
 </td>
 <td nowrap align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
-@@@EMAIL@@@
+@@@DELCHECKBOX@@@
 </td>
 <td nowrap align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
-@@@DELFIELD@@@
+@@@ENABLECHECKBOX@@@
 </td>
 <td nowrap align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
 @@@ADDBUTTON@@@
@@ -51,19 +51,19 @@
 
 <script language="JavaScript">
 <!--
-   function Update(pop3host,pop3user,pop3pass,pop3realname,pop3email,pop3del)
+   function Update(pop3host,pop3user,pop3pass,pop3del,enable)
    {
       document.newpop3.pop3host.value = pop3host;
       document.newpop3.pop3user.value = pop3user;
       document.newpop3.pop3pass.value = pop3pass;
-      if (pop3realname == "")
-        document.newpop3.pop3email.value = pop3email;
-      else
-        document.newpop3.pop3email.value = '"'+pop3realname+'"'+' <'+pop3email+'>';
       if (pop3del == 1)
       	document.newpop3.pop3del.checked = true;
       else
         document.newpop3.pop3del.checked = false;
+      if (enable == 1)
+      	document.newpop3.enable.checked = true;
+      else
+        document.newpop3.enable.checked = false;
    }
 //-->
 </script>

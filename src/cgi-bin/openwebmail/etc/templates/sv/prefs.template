@@ -8,13 +8,9 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@LANGUAGEFIELD@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>För- och efternamn:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@REALNAMEFIELD@@@
-</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Från:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@USERNAME@@@ @ @@@DOMAINFIELD@@@
+@@@FROMEMAILMENU@@@ @@@EDITFROMSBUTTON@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Svar till:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
@@ -24,12 +20,14 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@STYLEMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Image set:</B>
+<B>Icon set:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@IMAGESETMENU@@@
+@@@ICONSETMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Background image url:</B>
+<B>Background image:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@BACKGROUNDMENU@@@
+&nbsp;URL
 @@@BGURLFIELD@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Välj sortering:</B>
@@ -50,7 +48,11 @@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Ange storlek för skrivyta:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-Bredd @@@EDITWIDTHMENU@@@ Höjd @@@EDITHEIGHTMENU@@@
+Bredd @@@EDITCOLUMNSMENU@@@ Höjd @@@EDITROWSMENU@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Dictionary for spellcheck :</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@DICTIONARYMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Gräns för antal repeterade meddelanden:</B> <br> (Kan begränsa skadorna av vissa virus)
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>

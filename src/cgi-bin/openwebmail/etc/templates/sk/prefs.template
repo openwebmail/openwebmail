@@ -8,13 +8,9 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@LANGUAGEFIELD@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Plné Meno:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@REALNAMEFIELD@@@
-</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Od:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@USERNAME@@@ @ @@@DOMAINFIELD@@@
+@@@FROMEMAILMENU@@@ @@@EDITFROMSBUTTON@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Odpoveda»-na:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
@@ -24,12 +20,14 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@STYLEMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Image set:</B>
+<B>Icon set:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@IMAGESETMENU@@@
+@@@ICONSETMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Background image url:</B>
+<B>Background image:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@BACKGROUNDMENU@@@
+&nbsp;URL
 @@@BGURLFIELD@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Zoradenie správ:</B>
@@ -50,7 +48,11 @@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Size for mail edit area:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-Width @@@EDITWIDTHMENU@@@ Height @@@EDITHEIGHTMENU@@@
+Width @@@EDITCOLUMNSMENU@@@ Height @@@EDITROWSMENU@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Dictionary for spellcheck :</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@DICTIONARYMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Limit for repeated messages:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>

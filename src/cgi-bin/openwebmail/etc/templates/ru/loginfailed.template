@@ -4,6 +4,6 @@
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>ОШИБКА ДОСТУПА К ПОЧТЕ</B></FONT></TD></TR>
 <tr><td valign="middle" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>Извините, введенный Вами пароль неверен! Проверьте правильность набора и
-<a href="@@@SCRIPTURL@@@">повторите ввод</a>.<BR><BR>
+<BR>@@@ERRORMSG@@@! Please go back and
+<a href="@@@SCRIPTURL@@@">try again</a>.<BR><BR>
 </td></tr></table>

@@ -61,6 +61,7 @@
 @@@ENDFORM@@@ <!-- End of message composition form -->
 @@@STARTSPELLCHECKFORM@@@
 <td align="center" valign="top">
+@@@DICTIONARYMENU@@@
 @@@SPELLCHECKBUTTON@@@
 &nbsp;&nbsp;
 </td>
@@ -113,7 +114,7 @@
       document.spellcheckform.form.value = "composeform";
       document.spellcheckform.field.value = "body";
       document.spellcheckform.string.value = document.composeform.body.value;
-      window.open('','SpellChecker','width=600,height=400,top=40,left=80,scrollbars=yes,resizable=yes,location=no');
+      window.open('','Spellingscontrole','width=600,height=400,top=40,left=80,scrollbars=yes,resizable=yes,location=no');
       return true;
    }
 
@@ -122,11 +123,11 @@
       if (document.composeform.to.value == "" 
        && document.composeform.cc.value == "" 
        && document.composeform.bcc.value == "" ) {
-         alert("Please specify the receiver before sending.");
+         alert("Kies een ontvanger voordat u het bericht verstuurd.");
          return false;
       }
       if (document.composeform.subject.value == "" ) {
-         return(confirm("This message has no subject, do you still want to send it?"));
+         return(confirm("Dit bericht heeft geen onderwerp, wilt u het toch verzenden?"));
       }
       return true;
    }

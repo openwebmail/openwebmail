@@ -8,13 +8,9 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@LANGUAGEFIELD@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Nombre y Apellido:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@REALNAMEFIELD@@@
-</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>De:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@USERNAME@@@ @ @@@DOMAINFIELD@@@
+@@@FROMEMAILMENU@@@ @@@EDITFROMSBUTTON@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Contesta a:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
@@ -24,12 +20,14 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@STYLEMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Image set:</B>
+<B>Set de imagenes:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@IMAGESETMENU@@@
+@@@ICONSETMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Background image url:</B>
+<B>imagen de fondo:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@BACKGROUNDMENU@@@
+&nbsp;URL
 @@@BGURLFIELD@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Ordenar por:</B>
@@ -50,13 +48,17 @@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Tama&ntilde;o del &aacute;rea de edici&oacute;n:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-Width @@@EDITWIDTHMENU@@@ Height @@@EDITHEIGHTMENU@@@
+Ancho @@@EDITCOLUMNSMENU@@@ Alto @@@EDITROWSMENU@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Diccionario para chequear ortografia:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@DICTIONARYMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>L&iacute;mite de mensajes repetidos:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERREPEATLIMIT@@@ &nbsp( 0 significa No comprobar repeticiones )
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Filtrar menasajes cun un SMTP falso:</B>
+<B>Filtrar menasajes con un SMTP falso:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDSMTP@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>

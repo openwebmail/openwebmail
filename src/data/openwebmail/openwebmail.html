@@ -22,49 +22,50 @@
   </p>
 </blockquote>
 
-<h3>LINKS </h3>
+<h3>SITES </h3>
 <blockquote> 
   <p> 
   <table>
+
   <tr>
-  <td><font color=#cc0000>Documents &nbsp; </font></td>
+  <td><font color=#cc0000>Links &nbsp; </font></td>
   <td>
-    <a href="http://turtle.ee.ncku.edu.tw/openwebmail/download/doc/changes.txt">CHANGES</a>,
-    <a href="http://turtle.ee.ncku.edu.tw/openwebmail/download/doc/readme.txt">README</a> and
-    <a href="http://turtle.ee.ncku.edu.tw/openwebmail/download/doc/faq.txt">FAQ</a>.
+    <a href="download/doc/readme.txt">README</a> |
+    <a href="download/doc/changes.txt">CHANGES</a> |
+    <a href="download/doc/faq.txt">FAQ</a> |
+    <a href="screenshots/">Screenshots</a> |
+    <a href="download/">Download</a>
   </td>
   </tr>
 
-  <tr>
-  <td><font color=#cc0000>Screenshots &nbsp; </font></td>
+  <tr valign="top">
+  <td><font color=#cc0000>Official Site &nbsp; </font></td>
   <td>
-    <a href="http://turtle.ee.ncku.edu.tw/openwebmail/screenshots/"> 
-    http://turtle.ee.ncku.edu.tw/openwebmail/screenshots/</a> 
-  </td>
-  </tr>
-
-  <tr>
-  <td><font color=#cc0000>Download &nbsp; </font></td>
-  <td>
-    <a href="http://turtle.ee.ncku.edu.tw/openwebmail/download/"> 
-    http://turtle.ee.ncku.edu.tw/openwebmail/download/</a> 
+    <a href="http://turtle.ee.ncku.edu.tw/openwebmail/"> 
+    http://turtle.ee.ncku.edu.tw/openwebmail/</a><br>
   </td>
   </tr>
 
   <tr valign="top">
   <td><font color=#cc0000>Mirror Site &nbsp; </font></td>
   <td>
-    <a href="ftp://ftp.ee.ncku.edu.tw/pub/openwebmail/"> 
-    ftp://ftp.ee.ncku.edu.tw/pub/openwebmail/</a><br>
+    <a href="http://ftp.ee.ncku.edu.tw/pub/openwebmail/index.html"> 
+    http://ftp.ee.ncku.edu.tw/pub/openwebmail/</a>
+  </td>
+  </tr>
+
+  <tr valign="top">
+  <td><font color=#cc0000>&nbsp;</font></td>
+  <td>
     <a href="http://www.geocities.com/openwebmail/">
     http://www.geocities.com/openwebmail/</a>
   </td>
   </tr>
 
   <tr valign="top">
-  <td><font color=#cc0000>Forums at SourceForge &nbsp; </font></td>
+  <td><font color=#cc0000>SourceForge Forums&nbsp;</font></td>
   <td>
-    <a href="http://sourceforge.net/forum/?group_id=34552"> 
+    <a href="http://sourceforge.net/forum/?group_id=34552">
     http://sourceforge.net/forum/?group_id=34552</a>
   </td>
   </tr>
@@ -130,9 +131,13 @@
   <h4>Virtual Hosting and Login Alias</h4>
   <p>
   Open Webmail can use the <a href="http://www.sendmail.org/virtual-hosting.html">
-  sendmail genericstable</a> to map a local user account to virtualuser@virtualhost.
-  The user can login to the webmail system with the aliased name 'virtualuser'. 
-  All mails from this user will be sent with email address 'virtualuser@virtualhost'. 
+  sendmail virtusertable</a> to map a virtualuser to the real userid in a system. 
+  A virtualuser can be either in the form of a pure 'virtualusername' or 
+  'virtualusername@somedomain'. 
+  When a user logins, the loginname will be checked in the following order:<br>
+  1. Is this loginname a virtualuser defined in virtusertable?<br>
+  2. Is this loginname a real userid in system?<br>
+  3. Does this loginname match the username part of a specific virtualuser?
   </p>
 
   <h4>PAM support</h4>
@@ -231,9 +236,12 @@
     His great work <A href="http://neomail.sourceforge.net/">Neomail</A> provided 
     the solid foundation upon which Open WebMail was built. Without Neomail, there 
     would be no Open WebMail.<BR>
-  Thanks to <A href="mailto:%20jcantara@grappone.com">Joshua Cantara</A>, 
+  Thanks to <A href="mailto:jcantara@grappone.com">Joshua Cantara</A>, 
     the web based spelling check is based on his code in 
-    <A href="http://www.dontpokebadgers.com/spellchecker/">WBOSS</A> 1.1.1d.<BR>
+    <A href="http://www.dontpokebadgers.com/spellchecker/">WBOSS</A> 1.5a.<BR>
+  Thanks to <A href="mailto:nikip@iname.com">Nikolay Pelov</A>, 
+    the PAM support in openwebmail is mostly from the example code in his perl
+    <A href="http://www.cs.kuleuven.ac.be/~pelov/pam/">Authen::PAM</A> module.<BR>
   Thanks to <A href="mailto:elitric@yahoo.com">Emir Litric</A> for his great works 
     of art. He made all the great 3D icons and the many fancy styles in Open 
     WebMail, and contributed the doc/RedHat-README.txt. He is also the best 
@@ -270,6 +278,12 @@
     who translated the language and template files into Polish.<BR>
   Thanks to <A href="mailto:gumo@lucifer.kgt.bme.hu">Nagy Endre</A>, 
     who translated the language and template files into Hungarian.<BR>
+  Thanks to <A href="mailto:raul@est.ct.upc.es">Raul Monferrer</A>, 
+    who submitted the patch for multiple dictionaries support in spellcheck.<BR>
+  Thanks to <A href="mailto:edison@brc.com.br">Edison Figueira Junior</A>, 
+    who translated the language and template files into Portuguese Brazil.<BR>
+  Thanks to <A href="mailto:st@e-puntcom.com">Jordi Vidal</A>, 
+    who translated the language, template files and Cool3D icon into Catalan.<BR>
   </p>
 </blockquote>
 <h3>CONTACT</h3>
@@ -304,7 +318,7 @@
     Chao-Chiu Wang</a> &nbsp ¤ý¶@¥C<br>
     <a href="mailto: tung@turtle.ee.ncku.edu.tw">
     Chung-Kie Tung</a> &nbsp ¸³¥ò·_<br>
-    <a href="mailto: elitric@hotmail.com">
+    <a href="mailto: elitric@yahoo.com">
     Emir Litric</a><br>
     <br>
     <a href="http://dslab.ee.ncku.edu.tw/" target=_blank style="text-decoration: none">
@@ -315,12 +329,13 @@
     <font color=#000000>National Chung-Kung University</font></a>, 
     Tainan, Taiwan, R.O.C. </p>
 </blockquote>
-<p>09/02/2001 </p>
+<p>11/06/2001 </p>
 
 <br>
 <center>
 <a href="http://sourceforge.net/projects/openwebmail/">
-<img SRC="images/sourceforge.png" border="0" ALT="Source Forge Logo"></a>
+<IMG src="http://sourceforge.net/sflogo.php?group_id=34552&type=1" width="88" height="31" border="0" alt="SourceForge Logo"> 
+</a> 
 </center>
 
 </body>

@@ -18,11 +18,11 @@
 <B>Aktion</B>
 </td></tr>
 @@@STARTADDRESSFORM@@@
-<tr><td bgcolor=@@@TABLEROW_LIGHT@@@ width="150">
+<tr><td bgcolor=@@@TABLEROW_LIGHT@@@>
 @@@REALNAMEFIELD@@@
-</td><td bgcolor=@@@TABLEROW_LIGHT@@@ width="250" nowrap>
+</td><td bgcolor=@@@TABLEROW_LIGHT@@@ nowrap>
 @@@EMAILFIELD@@@
-</td><td bgcolor=@@@TABLEROW_LIGHT@@@ width="150">
+</td><td bgcolor=@@@TABLEROW_LIGHT@@@>
 @@@NOTEFIELD@@@
 </td><td align="center" bgcolor=@@@TABLEROW_LIGHT@@@ width="80">
 @@@ADDBUTTON@@@

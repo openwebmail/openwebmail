@@ -4,7 +4,7 @@
 <b>MAILFILTER INSTELLINGEN</b></font>
 </td><td nowrap colspan="5" bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b> @@@FREESPACE@@@ KB Available</b></font>
+<b> @@@FREESPACE@@@ KB Beschikbaar</b></font>
 </td></tr><tr><td colspan="8" bgcolor=@@@MENUBAR@@@ align="left">
 @@@MENUBARLINKS@@@
 </td></tr><tr><td colspan="8">&nbsp;</td></tr>
@@ -16,7 +16,7 @@
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Inc/Exc</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>String</B> (klik om te bewerken)</td>
+<B>Tekst</B> (klik om te bewerken)</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Actie</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>

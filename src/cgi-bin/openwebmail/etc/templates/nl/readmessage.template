@@ -9,11 +9,11 @@
    size="3"><B>@@@MESSAGETOTAL@@@ BERICHTEN</B></font></td></tr></table>
 </td></tr><tr><td colspan="2" bgcolor=@@@MENUBAR@@@>
    <table border="0" width="100%" cellpadding="0" cellspacing="0">
-   <tr><td valign="middle" align="left">
+   <tr><td valign="middle" align="left" nowrap>
    @@@MENUBARLINKS@@@
-   </td><td valign="middle" align="center">
+   </td><td valign="middle" align="center" nowrap>
    @@@MESSAGECONTROL@@@
-   </td>@@@STARTMOVEFORM@@@<td valign="middle" align="right">
+   </td>@@@STARTMOVEFORM@@@<td valign="middle" align="right" nowrap>
    @@@MOVECONTROLS@@@&nbsp;
    </td></tr></table>
 </td></tr><tr><td colspan="2" width="100%">&nbsp;</td></tr>
@@ -41,11 +41,11 @@
    <!--
    function replyreceiptconfirm(url)
    {
-      if (confirm('This message requests a read receipt, do you want to transmit?')) {
-         var hWnd = window.open("","ReplyReceipt","width=100,height=50,resizable=no,scrollbars=no");
-         hWnd.document.write('Transmitting...');
+      if (confirm('De schrijver van dit bericht wil een leesbevestiging ontvangen, wilt u die verzenden?')) {
+         var hWnd = window.open("","Ontvangstbevestiging","width=100,height=50,resizable=no,scrollbars=no");
+         hWnd.document.write('Versturen...');
          hWnd.location.href=url;
-         hWnd.close();
+//         hWnd.close();
       }
    }
    //-->

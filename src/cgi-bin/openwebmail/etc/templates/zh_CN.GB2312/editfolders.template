@@ -7,7 +7,7 @@
 @@@MENUBARLINKS@@@
 </td></tr><tr><td colspan="5">&nbsp;</td></tr>
 <tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>邮件夹名称（最多16个字符或8个汉字）</B></td>
+<B>邮件夹名称（最多@@@FOLDERNAME_MAXLEN@@@个字符或8个汉字）</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>新邮件</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>

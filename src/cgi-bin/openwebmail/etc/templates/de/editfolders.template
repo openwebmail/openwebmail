@@ -7,7 +7,7 @@
 @@@MENUBARLINKS@@@
 </td></tr><tr><td colspan="5">&nbsp;</td></tr>
 <tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Ordnername (max. 16 Zeichen)</B></td>
+<B>Ordnername (max. @@@FOLDERNAME_MAXLEN@@@ Zeichen)</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Neu</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>

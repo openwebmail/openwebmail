@@ -7,11 +7,11 @@
 @@@MENUBARLINKS@@@
 </td></tr><tr><td colspan="5">&nbsp;</td></tr>
 <tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Nome da Pasta (Maximo 16 caracteres)</B></td>
+<B>Nome da Pasta (Maximo @@@FOLDERNAME_MAXLEN@@@ caracteres)</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Nova</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Mesg</B></td>
+<B>Mensg</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Tam.</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
@@ -35,11 +35,11 @@
 
 <tr><td colspan="5">&nbsp;</td></tr>
 <tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Pastas por defeito </B></td>
+<B>Pastas Padrão </B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Nova</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Mesg</B></td>
+<B>Mensg</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Tam.</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>

@@ -7,7 +7,7 @@
 @@@MENUBARLINKS@@@
 </td></tr><tr><td colspan="5">&nbsp;</td></tr>
 <tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Название папки (16 символов)</B></td>
+<B>Название папки (@@@FOLDERNAME_MAXLEN@@@ символов)</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>New</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>

@@ -1,7 +1,10 @@
+#
 # encode_base64, decode_base64 and decode_qp are blatantly snatched 
 # from parts of the MIME-Base64 Perl modules. 
+#
 # the encoding/decoding speed would be much faster if you install 
 # MIME-Base64 perl module (MIME-Base64-2.12.tar.gz) with XS support
+#
 
 if (eval "require MIME::Base64") {
    import MIME::Base64;

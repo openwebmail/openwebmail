@@ -8,13 +8,9 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@LANGUAGEFIELD@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Nazwisko:</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@REALNAMEFIELD@@@
-</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Adres:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@USERNAME@@@ @ @@@DOMAINFIELD@@@
+@@@FROMEMAILMENU@@@ @@@EDITFROMSBUTTON@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Adres zwrotny:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
@@ -26,10 +22,12 @@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Zestaw ikon:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@IMAGESETMENU@@@
+@@@ICONSETMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Adres obrazu t³a:</B>
+<B>Background image:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@BACKGROUNDMENU@@@
+&nbsp;URL
 @@@BGURLFIELD@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Sortowanie:</B>
@@ -50,7 +48,11 @@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Rozmiar obszaru edycji wiadomo¶ci:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-Szeroko¶æ @@@EDITWIDTHMENU@@@ Wysoko¶æ @@@EDITHEIGHTMENU@@@
+Szeroko¶æ @@@EDITCOLUMNSMENU@@@ Wysoko¶æ @@@EDITROWSMENU@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Dictionary for spellcheck :</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@DICTIONARYMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Ograniczenie liczby powtarzanych wiadomo¶ci do:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>

@@ -36,5 +36,5 @@
 </script>
 
 <p align="center"><font size="-1"><BR>
-<a href="/openwebmail/openwebmail.html" target="_blank">Open WebMail</a> @@@VERSION@@@-es verzió<BR>
+<a href="@@@HTML_URL@@@/openwebmail.html" target="_blank">Open WebMail</a> @@@VERSION@@@-es verzió<BR>
 </FONT></P></BODY></HTML>

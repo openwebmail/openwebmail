@@ -8,13 +8,9 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@LANGUAGEFIELD@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<b>Teljes név:</b>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@REALNAMEFIELD@@@
-</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <b>Email cím:</b>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@USERNAME@@@ @ @@@DOMAINFIELD@@@
+@@@FROMEMAILMENU@@@ @@@EDITFROMSBUTTON@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <b>Válaszcím:</b>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
@@ -26,10 +22,12 @@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Képek:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@IMAGESETMENU@@@
+@@@ICONSETMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Háttérkép URL:</B>
+<B>Háttérkép:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@BACKGROUNDMENU@@@
+&nbsp;URL
 @@@BGURLFIELD@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <b>Rendezés:</b>
@@ -50,7 +48,11 @@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Szerkesztõmezõ mérete:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-Width @@@EDITWIDTHMENU@@@ Height @@@EDITHEIGHTMENU@@@
+Width @@@EDITCOLUMNSMENU@@@ Height @@@EDITROWSMENU@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Dictionary for spellcheck :</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@DICTIONARYMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Ismétlõdõ üzenetek száma:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>

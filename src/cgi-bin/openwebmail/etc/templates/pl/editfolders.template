@@ -7,7 +7,7 @@
 @@@MENUBARLINKS@@@
 </td></tr><tr><td colspan="5">&nbsp;</td></tr>
 <tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Nazwa katalogu (max. 16 znaków)</B></td>
+<B>Nazwa katalogu (max. @@@FOLDERNAME_MAXLEN@@@ znaków)</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Nowych</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>

@@ -1,7 +1,7 @@
 <table border="0" align="center" width="95%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>SPELL CHECK</B></font>
+<B>SPELL CHECK for @@@DICTIONARY@@@</B></font>
 </td></tr>
 <tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 
@@ -10,7 +10,7 @@
 <BR>Um conjunto de sugestões serão fornecidas para cada palavra ortograficamente incorrecta.
 O utilizadoe pode escolher uma para substituir a palavra original.
 Se não encontrar nenhuma sugestão o utilizador pode substituir manualmente, 
-e fazer a verificação ortigráfica novamente. Um campo de texto ficará disponivel para o utilizador.
+e fazer a verificação ortigráfica novamente. Um campo de texto ficará disponivel para o usuário.
 
 </td></tr>
 </table>

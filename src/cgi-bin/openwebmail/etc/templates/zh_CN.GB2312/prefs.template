@@ -8,13 +8,9 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@LANGUAGEFIELD@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>姓名：</B>
-</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@REALNAMEFIELD@@@
-</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>发件人：</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@USERNAME@@@ @ @@@DOMAINFIELD@@@
+@@@FROMEMAILMENU@@@ @@@EDITFROMSBUTTON@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>回复给：</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
@@ -26,10 +22,12 @@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>图标种类：</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@IMAGESETMENU@@@
+@@@ICONSETMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>背景图案URL：</B>
+<B>背景图案：</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@BACKGROUNDMENU@@@
+&nbsp;URL
 @@@BGURLFIELD@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>邮件排列顺序：</B>
@@ -50,7 +48,11 @@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>信件编辑区大小：</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-宽 @@@EDITWIDTHMENU@@@ 高 @@@EDITHEIGHTMENU@@@
+宽 @@@EDITCOLUMNSMENU@@@ 高 @@@EDITROWSMENU@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>拼写检查字典：</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@DICTIONARYMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>重复邮件上限：</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
@@ -86,7 +88,7 @@
 </td></tr>
 @@@AUTOREPLYSTART@@@
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>自动回复:</B>
+<B>自动回复：</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@AUTOREPLYCHECKBOX@@@
 &nbsp;

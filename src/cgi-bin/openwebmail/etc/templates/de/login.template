@@ -1,10 +1,10 @@
 <p align="center">
-<a href="http://turtle.ee.ncku.edu.tw/openwebmail/">
+<a href="@@@LOGO_LINK@@@">
 <img border="0" src="@@@LOGO_URL@@@"></a></p>
 <table border="0" align="center" width="250" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@ background="@@@IMAGEDIR_URL@@@/bg-titleblue.gif" align="left">
 &nbsp;<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><B>ANMELDUNG</B></FONT>
-</td></tr><tr><td align="center" valign="middle" bgcolor=#0000d0>
+</td></tr><tr><td align="center" valign="middle" bgcolor=#3161bd>
 
 <table width="100%" cellpadding="0" cellspacing="1" border="0">
 <tr>
@@ -33,9 +33,21 @@
 </td></tr></table>
 <p align="center">
 <BR>
-<a href="/openwebmail/openwebmail.html">Open WebMail</a> version @@@VERSION@@@<BR>
+<a href="@@@HTML_URL@@@/openwebmail.html">Open WebMail</a> version @@@VERSION@@@<BR>
 </p>
 <script language="JavaScript">
-   document.login.userid.focus()
+   document.login.loginname.focus()
+
+   function focuspwd() 
+   { 
+      document.login.password.focus(); 
+      return(true); 
+   } 
+
+   function submitlogin() 
+   { 
+      document.login.submit(); 
+      return (true); 
+   } 
 </script>
 </BODY></HTML>

@@ -7,7 +7,7 @@
 @@@MENUBARLINKS@@@
 </td></tr><tr><td colspan="5">&nbsp;</td></tr>
 <tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Mappenavn (max 16 tegn)</B></td>
+<B>Mappenavn (max @@@FOLDERNAME_MAXLEN@@@ tegn)</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>New</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>

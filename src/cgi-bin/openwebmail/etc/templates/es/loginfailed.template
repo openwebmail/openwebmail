@@ -4,6 +4,6 @@
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>ENTRADA INVALIDA</B></FONT></TD></TR>
 <tr><td valign="middle" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>Lo siento, la Clave que introdujo es incorrecta! Por favor, regrese atrás y 
-<a href="@@@SCRIPTURL@@@">pruebe de nuevo</a>.<BR><BR>
+<BR>@@@ERRORMSG@@@! Please go back and
+<a href="@@@SCRIPTURL@@@">try again</a>.<BR><BR>
 </td></tr></table>

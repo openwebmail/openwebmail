@@ -1,13 +1,15 @@
 #!/usr/bin/perl -T
+#
 # spell check program by tung@turtle.ee.ncku.edu.tw
-# modified from WBOSS Version 1.1.1d 
+# modified from WBOSS Version 1.50a 
 #
 # WBOSS is available at http://www.dontpokebadgers.com/spellchecker/ 
 # and is copyrighted by 2001, Joshua Cantara
 #
+
 use strict;
 no strict 'vars';
-use Lingua::Ispell qw(:all);
+use IPC::Open3;
 use CGI qw(:standard);
 use CGI::Carp qw(fatalsToBrowser);
 CGI::nph();   # Treat script as a non-parsed-header script
@@ -16,76 +18,100 @@ $ENV{PATH} = ""; # no PATH should be needed
 umask(0007); # make sure the openwebmail group can write
 
 push (@INC, '/usr/local/www/cgi-bin/openwebmail', ".");
-require "etc/openwebmail.conf";
-require "auth.pl";
+require "filelock.pl";
 require "openwebmail-shared.pl";
 
+local %config;
+readconf(\%config, "/usr/local/www/cgi-bin/openwebmail/etc/openwebmail.conf");
+require $config{'auth_module'} or
+   openwebmailerror("Can't open authentication module $config{'auth_module'}");
+
 local $thissession;
-local $user;
-local ($uid, $gid, $homedir);
+local ($virtualuser, $user, $userrealname, $uuid, $ugid, $mailgid, $homedir);
+
 local %prefs;
 local %style;
-local $lang;
+local ($lang_charset, %lang_folders, %lang_sortlabels, %lang_text, %lang_err);
+
 local $folderdir;
 
-$thissession = param("sessionid") || '';
-$user = $thissession || '';
-$user =~ s/\-session\-0.*$//; # Grab userid from sessionid
-($user =~ /^(.+)$/) && ($user = $1);  # untaint $user...
+$mailgid=getgrnam('mail');
 
-if ($user) {
-   if (($homedirspools eq 'yes') || ($homedirfolders eq 'yes')) {
-      ($uid, $homedir) = (get_userinfo($user))[1,3] or 
-         openwebmailerror("User $user doesn't exist!");
-   } else {
-      $uid=$>; 
-      $homedir = (get_userinfo($user))[3] or 
-         openwebmailerror("User $user doesn't exist!");
+if ( defined(param("sessionid")) ) {
+   $thissession = param("sessionid");
+
+   my $loginname = $thissession || '';
+   $loginname =~ s/\-session\-0.*$//; # Grab loginname from sessionid
+
+   ($virtualuser, $user, $userrealname, $uuid, $ugid, $homedir)=get_virtualuser_user_userinfo($loginname);
+   if ($user eq "") {
+      openwebmailerror("User $loginname doesn't exist!");
    }
-   $gid=getgrnam('mail');
 
-} else { # if no user specified
-   openwebmailerror("No user specified!");
-}
+   if ( $config{'use_homedirspools'} || $config{'use_homedirfolders'} ) {
+      set_euid_egid_umask($uuid, $mailgid, 0077);	
+   } else {
+      set_euid_egid_umask($>, $mailgid, 0077);	
+   }
+   # egid must be mail since this is a mail program...
+   if ( $) != $mailgid) { 
+      openwebmailerror("Set effective gid to mail($mailgid) failed!");
+   }
 
-set_euid_egid_umask($uid, $gid, 0077);	
+   if ( $config{'use_homedirfolders'} ) {
+      $folderdir = "$homedir/$config{'homedirfolderdirname'}";
+   } else {
+      $folderdir = "$config{'ow_etcdir'}/users/$user";
+   }
 
-if ( $homedirfolders eq 'yes') {
-   $folderdir = "$homedir/$homedirfolderdirname";
+   ($user =~ /^(.+)$/) && ($user = $1);  # untaint $user
+   ($uuid =~ /^(.+)$/) && ($uuid = $1);
+   ($ugid =~ /^(.+)$/) && ($ugid = $1);
+   ($homedir =~ /^(.+)$/) && ($homedir = $1);  # untaint $homedir
+   ($folderdir =~ /^(.+)$/) && ($folderdir = $1);  # untaint $folderdir
+
 } else {
-   $folderdir = "$openwebmaildir/users/$user";
+   sleep 10;	# delayed response
+   openwebmailerror("No user specified!");
 }
 
 %prefs = %{&readprefs};
 %style = %{&readstyle};
 
-$lang = $prefs{'language'} || $defaultlanguage;
-($lang =~ /^(..)$/) && ($lang = $1);
-require "etc/lang/$lang";
+($prefs{'language'} =~ /^([\w\d\._]+)$/) && ($prefs{'language'} = $1);
+require "etc/lang/$prefs{'language'}";
 $lang_charset ||= 'iso-8859-1';
 
-########################## MAIN ##############################
-$Lingua::Ispell::path = "$spellcheck";
-if (! -x $spellcheck) {
-   printheader();
-   print "<center>Spellcheck is not available. ( $spellcheck not found )";
-   printfooter();
-   exit;
+
+################################ MAIN #################################
+
+verifysession();
+
+if (! -x $config{'spellcheck'}) {
+   openwebmailerror("Spellcheck is not available.<br>( $config{'spellcheck'} not found )");
 }
 
 $|=1;	# fix the duplicate output problem caused by fork in spellcheck
-
-#print "Content-type: text/html\n\n";
-
+local (*spellREAD, *spellWRITE, *spellERROR);
 my $form = param('form');
 my $field = param('field');
+my $dictionary = param('dictionary') || $prefs{'dictionary'};
+($dictionary =~ /^([\w\d\._]+)$/) && ($dictionary = $1);
 
 if (defined(param('string'))) {
+   my $pid = open3(\*spellWRITE, \*spellREAD, \*spellERROR, "$config{'spellcheck'} -a -S -d $dictionary");
    text2words(param('string'));
    docheck($form,$field);
+   close spellREAD;
+   close spellWRITE;
+   wait;
 } elsif (defined(param($lang_text{'checkagain'}))) {
+   my $pid = open3(\*spellWRITE, \*spellREAD, \*spellERROR,"$config{'spellcheck'} -a -S -d $dictionary");
    cgiparam2words();
    docheck($form,$field);
+   close spellREAD;
+   close spellWRITE;
+   wait;
 } elsif (defined(param($lang_text{'finishchecking'}))) {
    cgiparam2words();
    final($form,$field);
@@ -97,14 +123,17 @@ if (defined(param('string'))) {
 
 exit;
 
+############################### ROUTINES ##############################
+
 sub docheck {
    my ($formname, $fieldname) = @_;
    my $html = '';
    my $temphtml;
    my $escapedwordframe;
+   local $_;
 
-   open (SPELLCHECKTEMPLATE, "$openwebmaildir/templates/$lang/spellcheck.template") or
-      openwebmailerror("$lang_err{'couldnt_open'} $openwebmaildir/templates/$lang/spellcheck.template");
+   open (SPELLCHECKTEMPLATE, "$config{'ow_etcdir'}/templates/$prefs{'language'}/spellcheck.template") or
+      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/templates/$prefs{'language'}/spellcheck.template");
    while (<SPELLCHECKTEMPLATE>) {
       $html .= $_;
    }
@@ -114,6 +143,7 @@ sub docheck {
 
    $html =~ s/\@\@\@FORMNAME\@\@\@/$formname/;
    $html =~ s/\@\@\@FIELDNAME\@\@\@/$fieldname/;
+   $html =~ s/\@\@\@DICTIONARY\@\@\@/$dictionary/;
 
    $temphtml=words2html();
    $html =~ s/\@\@\@WORDSHTML\@\@\@/$temphtml/;
@@ -122,7 +152,7 @@ sub docheck {
    # since $wordframe may changed in words2html()
    $escapedwordframe=escapeURL($wordframe);	
 
-   $temphtml = startform(-action=>$spellcheckurl,
+   $temphtml = startform(-action=>"$config{'ow_cgiurl'}/spellcheck.pl",
                          -name=>'spellcheck') .
                hidden(-name=>'sessionid',
                       -default=>$thissession,
@@ -132,6 +162,9 @@ sub docheck {
                       -override=>'1') .
                hidden(-name=>'field',
                       -default=>$fieldname,
+                      -override=>'1') .
+               hidden(-name=>'dictionary',
+                      -default=>$dictionary,
                       -override=>'1') .
                hidden(-name=>'wordframe',
                       -default=>$escapedwordframe,
@@ -213,7 +246,8 @@ sub final {
 }
 
 
-###################### article split/join ######################
+########################## article split/join #########################
+
 local @words=();	# global
 local $wordframe="";	# global
 local $wordcount=0;	# global 
@@ -235,9 +269,10 @@ sub _word2label {
 # fill $wordframe and @words by spliting an article
 sub text2words {
    my $text=$_[0];
+   local $_;
 
    # init don't care term
-   $wordignore="http ftp nntp smtp nfs html xml mailto bsd linux gnu gpl openwebmail";
+   $wordignore="http https ftp nntp smtp nfs html xml mailto bsd linux gnu gpl openwebmail";
 
    # put url to ignore
    foreach ($text=~m![A-Za-z]+tp://[A-Za-z\d\.]+!ig) {	
@@ -332,4 +367,75 @@ sub words2html {
       $html=~s/%%WORD$i%%/$wordhtml/;
    }
    return($html);
+}
+
+########################## spellcheck #########################
+
+sub spellcheck {
+   my $word = shift(@_);
+   my @commentary;
+   my @results;
+   my %types = (
+	# correct words:
+	'*' => 'ok',
+	'-' => 'compound',
+	'+' => 'root',
+	# misspelled words:
+	'#' => 'none',
+	'&' => 'miss',
+	'?' => 'guess',
+   );
+   my %modisp = (
+	'root' => sub {
+		my $h = shift;
+		$h->{'root'} = shift;
+		},
+	'none' => sub {
+		my $h = shift;
+		$h->{'original'} = shift;
+		$h->{'offset'} = shift;
+		},
+	'miss' => sub { # also used for 'guess'
+		my $h = shift;
+		$h->{'original'} = shift;
+		$h->{'count'} = shift; # count will always be 0, when $c eq '?'.
+		$h->{'offset'} = shift;
+		my @misses  = splice @_, 0, $h->{'count'};
+		my @guesses = @_;
+		$h->{'misses'}  = \@misses;
+		$h->{'guesses'} = \@guesses;
+		},
+   );
+   $modisp{'guess'} = $modisp{'miss'}; # same handler.
+   chomp $word;
+   $word =~ s/\r//g;
+   $word =~ /\n/ and warn "newlines not allowed";
+
+   print spellWRITE "!\n";
+   print spellWRITE "^$word\n";
+
+   while (<spellREAD>) {
+      chomp;
+      last unless $_ gt '';
+      push (@commentary, $_) if substr($_,0,1) =~ /([*|-|+|#|&|?| ||])/;
+   }
+
+   for my $i (0 .. $#commentary) {
+      my %h = ('commentary' => $commentary[$i]);
+      my @tail; # will get stuff after a colon, if any.
+
+      if ($h{'commentary'} =~ s/:\s+(.*)//) {
+         my $tail = $1;
+	 @tail = split /, /, $tail;
+      }
+
+      my($c,@args) = split ' ', $h{'commentary'};
+      my $type = $types{$c} || 'unknown';
+      $modisp{$type} and $modisp{$type}->( \%h, @args, @tail );
+      $h{'type'} = $type;
+      $h{'term'} = $h{'original'};
+      push @results, \%h;
+   }
+
+   return $results[0];
 }

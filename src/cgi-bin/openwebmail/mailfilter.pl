@@ -2,6 +2,7 @@
 # mailfilter.pl - function for mail filter
 #
 # 2001/03/15 Ebola@turtle.ee.ncku.edu.tw
+#            tung@turtle.ee.ncku.edu.tw
 #
 
 # return: 0=nothing, <0=error, n=filted count
@@ -14,7 +15,7 @@ sub mailfilter {
    my $folderhandle=FileHandle->new();
    my %HDB;
    my (@allmessageids, $i);
-   
+
    ## check existence of folderfile
    if ( ! -f $folderfile ) {
       return 0;
@@ -41,8 +42,8 @@ sub mailfilter {
       close (FILTER);
    }
 
-   if ( $global_filterbook ne "" && -f "$global_filterbook" ) {
-      if (open (FILTER,"$global_filterbook")) {
+   if ( $config{'global_filterbook'} ne "" && -f "$config{'global_filterbook'}" ) {
+      if (open (FILTER,"$config{'global_filterbook'}")) {
          while (<FILTER>) {
             chomp($_);
             push (@filterrules, $_);
@@ -62,7 +63,7 @@ sub mailfilter {
    @allmessageids=get_messageids_sorted_by_offset($headerdb);
 
    ## open INBOX dbm => lock before open ##
-   filelock("$headerdb$dbm_ext", LOCK_EX);
+   filelock("$headerdb$config{'dbm_ext'}", LOCK_EX);
    dbmopen (%HDB, $headerdb, 600);
 
    my ($blockstart, $blockend, $writepointer)=(0,0,0);
@@ -420,7 +421,7 @@ sub mailfilter {
 
    $HDB{'METAINFO'}=metainfo($folderfile);
    dbmclose(%HDB);
-   filelock("$headerdb$dbm_ext", LOCK_UN);
+   filelock("$headerdb$config{'dbm_ext'}", LOCK_UN);
 
    # remove repeated msgs with repeated count > $filter_repeatlimit
    my (@repeatedids, $fromsubject, $r_ids);
@@ -479,7 +480,7 @@ sub append_message_to_folder {
 
    update_headerdb($dstdb, $dstfile);
              
-   filelock("$dstdb$dbm_ext", LOCK_EX);
+   filelock("$dstdb$config{'dbm_ext'}", LOCK_EX);
 
    dbmopen (%HDB2, $dstdb, 600);
    if (! defined($HDB2{$messageid}) ) {	# append only if not found in dstfile
@@ -504,7 +505,7 @@ sub append_message_to_folder {
    }
    dbmclose(%HDB2);
 
-   filelock("$dstdb$dbm_ext", LOCK_UN);
+   filelock("$dstdb$config{'dbm_ext'}", LOCK_UN);
    filelock($dstfile, LOCK_UN);
    return(0);
 }

@@ -1,6 +1,6 @@
 @@@STARTCOMPOSEFORM@@@
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="1">
-<tr><td colspan="3" bgcolor=@@@TITLEBAR@@@ align="left">
+<tr><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>COMPONER MENSAJE</B></font>
 </td></tr><tr><td colspan="3" bgcolor=@@@MENUBAR@@@ align="left">
@@ -8,37 +8,37 @@
 </td></tr><tr><td colspan="3">&nbsp;</td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
 <B>De:</B>
-</td><td valign="middle" align="left" colspan="2" bgcolor=@@@WINDOW_DARK@@@>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@FROMMENU@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
 <a href="Javascript:GoAddressWindow('to')" tabindex="-1"><B>Para:</B></a>
-</td><td valign="middle" align="left" colspan="2" bgcolor=@@@WINDOW_DARK@@@>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@TOFIELD@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
 <a href="Javascript:GoAddressWindow('cc')" tabindex="-1"><B>CC:</B></a>
-</td><td valign="middle" align="left" colspan="2" bgcolor=@@@WINDOW_DARK@@@>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@CCFIELD@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
 <a href="Javascript:GoAddressWindow('bcc')" tabindex="-1"><B>CCO:</B></a>
-</td><td valign="middle" align="left" colspan="2" bgcolor=@@@WINDOW_DARK@@@>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@BCCFIELD@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
 <B>Contestar a:</B>
-</td><td valign="middle" align="left" colspan="2" bgcolor=@@@WINDOW_DARK@@@>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@REPLYTOFIELD@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
 <B>Archivo adjunto:</B>
-</td><td valign="middle" align="left" colspan="2" bgcolor=@@@WINDOW_DARK@@@>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@ATTACHMENTFIELD@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
 <B>Asunto:</B>
-</td><td valign="middle" align="left" colspan="2" bgcolor=@@@WINDOW_DARK@@@>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@SUBJECTFIELD@@@
 &nbsp;
 <B>Confirmar Lectura</B>
@@ -61,6 +61,7 @@
 @@@ENDFORM@@@ <!-- End of message composition form -->
 @@@STARTSPELLCHECKFORM@@@
 <td align="center" valign="top">
+@@@DICTIONARYMENU@@@
 @@@SPELLCHECKBUTTON@@@
 &nbsp;&nbsp;
 </td>
@@ -113,7 +114,7 @@
       document.spellcheckform.form.value = "composeform";
       document.spellcheckform.field.value = "body";
       document.spellcheckform.string.value = document.composeform.body.value;
-      window.open('','SpellChecker','width=600,height=400,top=40,left=80,scrollbars=yes,resizable=yes,location=no');
+      window.open('','Verificar Ortograf&iacute;a','width=600,height=400,top=40,left=80,scrollbars=yes,resizable=yes,location=no');
       return true;
    }
 
@@ -122,11 +123,11 @@
       if (document.composeform.to.value == "" 
        && document.composeform.cc.value == "" 
        && document.composeform.bcc.value == "" ) {
-         alert("Please specify the receiver before sending.");
+         alert("Por favor, especifique el receptor antes de enviar.");
          return false;
       }
       if (document.composeform.subject.value == "" ) {
-         return(confirm("This message has no subject, do you still want to send it?"));
+         return(confirm("Este mensaje no tiene Asunto, ¿desea enviarlo de todos modos?"));
       }
       return true;
    }

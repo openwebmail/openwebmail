@@ -25,7 +25,7 @@ rm -Rf data/openwebmail/download
 #rm     cgi-bin/openwebmail/uty/mktgz.sh
 
 chmod 755 data cgi-bin
-chmod 750 cgi-bin/openwebmail/etc
+chmod 755 cgi-bin/openwebmail/etc
 chmod 770 cgi-bin/openwebmail/etc/users
 chmod 770 cgi-bin/openwebmail/etc/sessions
 

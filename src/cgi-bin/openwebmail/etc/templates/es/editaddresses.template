@@ -18,11 +18,11 @@
 <B>Acci&oacute;n</B>
 </td></tr>
 @@@STARTADDRESSFORM@@@
-<tr><td bgcolor=@@@TABLEROW_LIGHT@@@ width="150">
+<tr><td bgcolor=@@@TABLEROW_LIGHT@@@>
 @@@REALNAMEFIELD@@@
-</td><td bgcolor=@@@TABLEROW_LIGHT@@@ width="250" nowrap>
+</td><td bgcolor=@@@TABLEROW_LIGHT@@@ nowrap>
 @@@EMAILFIELD@@@
-</td><td bgcolor=@@@TABLEROW_LIGHT@@@ width="150">
+</td><td bgcolor=@@@TABLEROW_LIGHT@@@>
 @@@NOTEFIELD@@@
 </td><td align="center" bgcolor=@@@TABLEROW_LIGHT@@@ width="80">
 @@@ADDBUTTON@@@
@@ -42,7 +42,7 @@
       if (field == "email")
          url += "&preexisting=" + escape (document.newaddress.email.value);
    
-      var hWnd = window.open(url,"HelpWindow","width=300,height=360,resizable=yes,scrollbars=yes");
+      var hWnd = window.open(url,"Ventana de ayuda","width=300,height=360,resizable=yes,scrollbars=yes");
       if ((document.window != null) && (!hWnd.opener))
          hWnd.opener = document.window;
    }

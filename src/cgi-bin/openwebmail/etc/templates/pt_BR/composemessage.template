@@ -2,7 +2,7 @@
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="1">
 <tr><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>Enviar nova Mensagem</B></font>
+<B>Compor nova Mensagem</B></font>
 </td></tr><tr><td colspan="2" bgcolor=@@@MENUBAR@@@ align="left">
 @@@BACKTOFOLDER@@@
 </td></tr><tr><td colspan="2">&nbsp;</td></tr>
@@ -41,7 +41,7 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@SUBJECTFIELD@@@
 &nbsp;
-<B>Confirmação de Leitura</B>
+<B>Confirma Leitura</B>
 @@@CONFIRMREADINGCHECKBOX@@@
 </td></tr>
 <tr><td colspan="2" bgcolor=@@@WINDOW_LIGHT@@@>
@@ -61,6 +61,7 @@
 @@@ENDFORM@@@ <!-- End of message composition form -->
 @@@STARTSPELLCHECKFORM@@@
 <td align="center" valign="top">
+@@@DICTIONARYMENU@@@
 @@@SPELLCHECKBUTTON@@@
 &nbsp;&nbsp;
 </td>
@@ -126,7 +127,7 @@
          return false;
       }
       if (document.composeform.subject.value == "" ) {
-         return(confirm("This message has no subject, do you still want to send it?"));
+         return(confirm("Esta mensagem não tem assunto, envia assim mesmo?"));
       }
       return true;
    }

@@ -4,8 +4,10 @@
 # 2001/04/25 tung@turtle.ee.ncku.edu.tw
 #
 
+use FileHandle;
+
 sub filelock {
-   if ($use_dotlockfile eq "yes") {
+   if ( $config{'use_dotlockfile'} ) {
       return filelock_dotlockfile(@_);
    } else {
       return filelock_flock(@_);

@@ -3,9 +3,9 @@
 # vacation program
 #
 # Larry Wall <lwall@jpl-devvax.jpl.nasa.gov>
-#
 # updates by Tom Christiansen <tchrist@convex.com>
 # updates by Chung-Kie Tung <tung@turtle.ee.ncku.edu.tw>
+#
 
 # change below 3 lines to meet your configuration
 $myname = '/usr/local/www/cgi-bin/openwebmail/vacation.pl';
@@ -140,6 +140,7 @@ if (!@ARGV) {
 # handle pipe mode, used in .forward ################################
 
 log_debug($0, " is executed in piped mode with arg: ", @ARGV) if ($opt_d);
+log_debug("ruid=$<, euid=$>, rgid=$(, egid=$)") if ($opt_d);
 
 $user = shift;
 push(@ignores, $user);

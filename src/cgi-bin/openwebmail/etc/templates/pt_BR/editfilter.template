@@ -16,15 +16,15 @@
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Inc/Exc</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Concatenação</B> (clique para editar)</td>
+<B>String</B> (clique para editar)</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Acção</B></td>
+<B>Ação</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Destino</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Permitir</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Acção</B>
+<B>Ação</B>
 </td></tr>
 @@@STARTFILTERFORM@@@
 <tr>
