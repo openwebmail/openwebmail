@@ -4,9 +4,9 @@
 #
 
 use vars qw($SCRIPT_DIR);
-if ( $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
+if ( $0 =~ m!^(\S*)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
 if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
-   $_=<F>; close(F); if ( $_=~/^([^\s]*)/) { $SCRIPT_DIR=$1; }
+   $_=<F>; close(F); if ( $_=~/^(\S*)/) { $SCRIPT_DIR=$1; }
 }
 if (!$SCRIPT_DIR) { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
 push (@INC, $SCRIPT_DIR);
@@ -49,6 +49,10 @@ $SIG{PIPE}=\&openwebmail_exit;	# for user stop
 $SIG{TERM}=\&openwebmail_exit;	# for user stop
 
 userenv_init();
+
+if (!$config{'enable_webmail'}) {
+   openwebmailerror(__FILE__, __LINE__, "$lang_text{'webmail'} $lang_err{'access_denied'}");
+}
 
 $page = param("page") || 1;
 $sort = param("sort") || $prefs{'sort'} || 'date';
@@ -217,11 +221,8 @@ sub _folderline {
    my ($folderfile,$headerdb)=get_folderfile_headerdb($user, $currfolder);
 
    if ( -f "$headerdb$config{'dbm_ext'}" && !-z "$headerdb$config{'dbm_ext'}" ) {
-      if (!$config{'dbmopen_haslock'}) {
-         filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) or
+      open_dbm(\%HDB, $headerdb, LOCK_SH) or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $headerdb$config{'dbm_ext'}");
-      }
-      dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
       if ( defined($HDB{'ALLMESSAGES'}) ) {
          $allmessages=$HDB{'ALLMESSAGES'};
          ${$r_total_allmessages}+=$allmessages;
@@ -234,8 +235,7 @@ sub _folderline {
       } else {
          $newmessages='&nbsp;';
       }
-      dbmclose(%HDB);
-      filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+      close_dbm(\%HDB, $headerdb);
    } else {
       $allmessages='&nbsp;';
       $newmessages='&nbsp;';
@@ -366,11 +366,8 @@ sub markreadfolder {
    }
 
    my (%HDB, %offset, %status);
-   if (!$config{'dbmopen_haslock'}) {
-      filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) or
+   open_dbm(\%HDB, $headerdb, LOCK_SH) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $headerdb$config{'dbm_ext'}");
-   }
-   dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
    foreach my $messageid (keys %HDB) {
       next if ( $messageid eq 'METAINFO'
              || $messageid eq 'NEWMESSAGES'
@@ -383,8 +380,7 @@ sub markreadfolder {
          $status{$messageid}=$attr[$_STATUS];
       }
    }
-   dbmclose(%HDB);
-   filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+   close_dbm(\%HDB, $headerdb);
 
    my @markids;
    my $tmpfile="/tmp/markread_tmp_$$";
@@ -398,7 +394,7 @@ sub markreadfolder {
 
    if (update_headerdb($tmpdb, $tmpfile)<0) {
       filelock($tmpfile, LOCK_UN);
-      unlink("$tmpdb$config{'dbm_ext'}", $tmpfile);
+      unlink("$tmpdb$config{'dbm_ext'}", "$tmpdb.dir", "$tmpdb.pag", $tmpfile);
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_updatedb'} $tmpdb$config{'dbm_ext'}");
    }
 
@@ -425,7 +421,7 @@ sub markreadfolder {
 
    filelock("$tmpfile", LOCK_UN);
    filelock($folderfile, LOCK_UN);
-   unlink("$tmpdb$config{'dbm_ext'}", $tmpfile);
+   unlink("$tmpdb$config{'dbm_ext'}", "$tmpdb.dir", "$tmpdb.pag", $tmpfile);
 
    writelog("markread folder - $foldertomark");
    writehistory("markread folder - $foldertomark");
@@ -450,14 +446,11 @@ sub reindexfolder {
 
    if ( -f "$headerdb$config{'dbm_ext'}" ) {
       my %HDB;
-      if (!$config{'dbmopen_haslock'}) {
-         filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) or
+      open_dbm(\%HDB, $headerdb, LOCK_SH) or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $headerdb$config{'dbm_ext'}");
-      }
-      dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", 0600);
+
       $HDB{'METAINFO'}={'RENEW'};
-      dbmclose(%HDB);
-      filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+      close_dbm(\%HDB, $headerdb);
    }
    if (update_headerdb($headerdb, $folderfile)<0) {
       filelock($folderfile, LOCK_UN);
@@ -509,8 +502,9 @@ sub addfolder {
 
    # create empty index dbm with mode 0600
    my %HDB;
-   dbmopen(%HDB, "$headerdb$config{'dbmopen_ext'}", 0600);
-   dbmclose(%HDB);
+   open_dbm(\%HDB, $headerdb, LOCK_EX) or
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $headerdb$config{'dbm_ext'}");
+   close_dbm(\%HDB, $headerdb);
 
    writelog("create folder - $foldertoadd");
    writehistory("create folder - $foldertoadd");

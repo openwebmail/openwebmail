@@ -2,10 +2,10 @@
 #
 # openwebmail-spell.pl - spell check program
 #
-# 2003/02/19 Scott E. Campbell, scampbel@gvpl.ca
+# 2003/02/19 Scott E. Campbell, scampbel.AT.gvpl.ca
 #            add personal dictionary support
 #
-# 2001/09/27 tung@turtle.ee.ncku.edu.tw
+# 2001/09/27 tung.AT.turtle.ee.ncku.edu.tw
 #            modified from WBOSS Version 1.50a
 #
 # WBOSS is available at http://www.dontpokebadgers.com/spellchecker/
@@ -32,9 +32,9 @@ use vars qw (%dictionary_letters);
 
 
 use vars qw($SCRIPT_DIR);
-if ( $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
+if ( $0 =~ m!^(\S*)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
 if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
-   $_=<F>; close(F); if ( $_=~/^([^\s]*)/) { $SCRIPT_DIR=$1; }
+   $_=<F>; close(F); if ( $_=~/^(\S*)/) { $SCRIPT_DIR=$1; }
 }
 if (!$SCRIPT_DIR) { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
 push (@INC, $SCRIPT_DIR);
@@ -75,48 +75,41 @@ $SIG{TERM}=\&openwebmail_exit;	# for user stop
 
 userenv_init();
 
+if (!$config{'enable_webmail'}) {
+   openwebmailerror(__FILE__, __LINE__, "$lang_text{'webmail'} $lang_err{'access_denied'}");
+}
+
 # whether we are checking a html
 my $htmlmode = param('htmlmode');
 
 my $form = param('form');
 my $field = param('field');
 my $dictionary = param('dictionary') || $prefs{'dictionary'};
-($dictionary =~ /^([\w\d\.\-_]+)$/) && ($dictionary = $1);
 my $dicletters=$dictionary_letters{'english'};
 $dicletters=$dictionary_letters{$dictionary} if (defined($dictionary_letters{$dictionary}));
-
-local $|=1;	# fix the duplicate output problem caused by fork in spellcheck
 
 if (! -x $config{'spellcheck'}) {
    openwebmailerror(__FILE__, __LINE__, "Spellcheck is not available.<br>( $config{'spellcheck'} not found )");
 }
 
-my @cmd=($config{'spellcheck'}, '-a', '-S', '-d', $dictionary, '-p', "$homedir/.ispell_words");
 if (defined(param('string'))) {
-   my $pid = open3(\*spellIN, \*spellOUT, \*spellERR, @cmd);
    my ($wordcount, $wordframe, @words)=text2words($htmlmode, param('string'), $dicletters);
-   my ($wordshtml, $error)=spellcheck_words2html($htmlmode, $wordcount, \$wordframe, \@words);
+   my ($wordshtml, $error)=spellcheck_words2html($htmlmode, $wordcount, \$wordframe, \@words, $dictionary);
    docheckform($htmlmode, $form, $field, $dictionary, $wordshtml, $error, $wordcount, $wordframe);
-   close spellIN;
-   close spellOUT;
-   wait;
 
 } elsif (defined(param('checkagainbutton'))) {
-   my $pid = open3(\*spellIN, \*spellOUT, \*spellERR, @cmd);
    my ($wordcount, $wordframe, @words)=cgiparam2words();
-   my ($wordshtml, $error)=spellcheck_words2html($htmlmode, $wordcount, \$wordframe, \@words);
+   my ($wordshtml, $error)=spellcheck_words2html($htmlmode, $wordcount, \$wordframe, \@words, $dictionary);
    docheckform($htmlmode, $form, $field, $dictionary, $wordshtml, $error, $wordcount, $wordframe);
-   close spellIN;
-   close spellOUT;
-   wait;
-
-} elsif (defined(param('editpdictbutton'))) {
-   editpdict(param('dictword2delete'), $dictionary);
 
 } elsif (defined(param('finishcheckingbutton'))) {
    my ($wordcount, $wordframe, @words)=cgiparam2words();
+   spellcheck_words2html($htmlmode, $wordcount, \$wordframe, \@words, $dictionary);	# for updating pdict
    my $finalstring=words2text(\$wordframe, \@words, $dicletters);
    finalform($form, $field, $finalstring);
+
+} elsif (defined(param('editpdictbutton'))) {
+   editpdict(param('dictword2delete'), $dictionary);
 
 } else {
    httpprint([], [htmlheader(), "What the heck? Invalid input for Spellcheck!", htmlfooter(1)]);
@@ -125,7 +118,7 @@ if (defined(param('string'))) {
 openwebmail_requestend();
 ############################### END MAIN #################################
 
-############################### ROUTINES ##############################
+############################### CGI FORM ROUTINES ##############################
 sub docheckform {
    my ($htmlmode, $formname, $fieldname, $dictionary, 
        $wordshtml, $error, $wordcount, $wordframe) = @_;
@@ -255,16 +248,21 @@ sub editpdict {
    $html= applystyle(readtemplate("editdictionary.template"));
 
    if ($dictword2delete) {
+      my ($pdicwordcount, $pdicwordstr)=(0, "");
       open(PERSDICT,"<$homedir/.ispell_words");
-      open(NEWPERSDICT,">$homedir/.ispell_words.new");
       while (<PERSDICT>) {
-         chop($_);
-         if ($_ ne $dictword2delete) {
-            print NEWPERSDICT "$_\n";
-         }
+         chomp($_);
+         next if (/^personal_ws/);  # to get past aspell's first line
+         next if ($_ eq $dictword2delete);
+         $pdicwordcount++; $pdicwordstr.="$_\n";
       }
       close(PERSDICT);
+
+      open(NEWPERSDICT,">$homedir/.ispell_words.new");
+      print NEWPERSDICT "personal_ws-1.1 en $pdicwordcount\n" if ($config{'spellcheck'}=~/aspell/);
+      print NEWPERSDICT $pdicwordstr;
       close(NEWPERSDICT);
+
       rename("$homedir/.ispell_words",     "$homedir/.ispell_words.bak");
       rename("$homedir/.ispell_words.new", "$homedir/.ispell_words");
    }
@@ -274,8 +272,7 @@ sub editpdict {
 
    while (<PERSDICT>) {
       my $dictword = $_;
-      chop($dictword);
-
+      chomp($dictword);
       next if ($dictword=~m/personal_ws/);  # to get past aspell's first line
 
       $bgcolor=($style{"tablerow_dark"},$style{"tablerow_light"})[$count%2];
@@ -317,7 +314,7 @@ sub editpdict {
 }
 
 
-########################## article split/join #########################
+########################## TEXT SPLIT/JOIN #########################
 # $wordframe is a rough structure of the original text, containing no word in it.
 # words of the orgignal text are put into @words.
 
@@ -351,7 +348,7 @@ sub text2words {
    if ($htmlmode) {	# escape html tag so they won't be spellchecked
       my $tagcount=0;
       my @tags=();
-      $wordframe=~s/(<.*?>)/_tag2label($1, \$tagcount, \@tags)/ge;
+      $wordframe=~s/(<[^\<\>]*?>|&nbsp;|&amp;|&quot;|&gt;|&lt;|&#\d\d+;)/_tag2label($1, \$tagcount, \@tags)/ige;
       $wordframe=~s/([$dicletters][$dicletters\-]*[$dicletters])|(~~[$dicletters][$dicletters\-]*[$dicletters])/_word2label($1, $ignore, \$wordcount, \@words)/ge;
       $wordframe=~s/%%TAG(\d+)%%/$tags[$1]/g;
    } else {
@@ -404,10 +401,35 @@ sub words2text {
 # put correct word back to word frame, 
 # and generate query html for incorrect word
 sub spellcheck_words2html {
-   my ($htmlmode, $wordcount, $r_wordframe, $r_words)=@_;
+   my ($htmlmode, $wordcount, $r_wordframe, $r_words, $dictionary)=@_;
+   my @cmd=($config{'spellcheck'}, '-a', '-S', '-d', $dictionary, '-p', "$homedir/.ispell_words", '-w', '"-"');
+
+   # check personal dic for aspell compatibility, or aspell will quit
+   if ($config{'spellcheck'}=~/aspell/) {
+      my $aspell_compatible=0;
+      my ($pdicwordcount, $pdicwordstr)=(0, "");
+      open(PERSDICT,"<$homedir/.ispell_words");
+      while (<PERSDICT>) {
+         if (/^personal_ws/) {
+            $aspell_compatible=1; last;
+         }
+         chomp($_);
+         $pdicwordcount++; $pdicwordstr.="$_\n"; 
+      }
+      close(PERSDICT);
+      if (!$aspell_compatible) {
+         open(PERSDICT,">$homedir/.ispell_words");
+         print PERSDICT "personal_ws-1.1 en $pdicwordcount\n$pdicwordstr";
+         close(PERSDICT);
+      }
+   }
+
+   foreach (@cmd) { (/^(.*)$/) && ($_=$1) }	# untaint all argument
+   local $SIG{CHLD}; undef $SIG{CHLD};	# disable outside $SIG{CHLD} handler temporarily for wait()
+   local $|=1;				# flush CGI related output in parent
+   my $pid = open3(\*spellIN, \*spellOUT, \*spellERR, @cmd);
 
    my $html=${$r_wordframe};
-
    if ($htmlmode) {	
       # remove html tage from wordframe 
       # so they won't be displayed during spellchecking
@@ -471,10 +493,14 @@ sub spellcheck_words2html {
       }
       $html=~s/%%WORD$i%%/$wordhtml/;
    }
+
+   close spellIN; close spellOUT; close spellERR;
+   $pid=wait();
+
    return($html, $error);
 }
 
-########################## spellcheck #########################
+########################## SPELLCHECK PIPE #########################
 sub spellcheck {
    my $word = $_[0];;
    my @commentary;
@@ -521,7 +547,7 @@ sub spellcheck {
    while (<spellOUT>) {
       chomp;
       last unless $_ gt '';
-      push (@commentary, $_) if substr($_,0,1) =~ /([*|-|+|#|&|?| ||])/;
+      push (@commentary, $_) if ( /^[\+\-\*\?\s\|#&]/ );
    }
 
    for my $i (0 .. $#commentary) {

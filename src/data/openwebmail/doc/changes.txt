@@ -1,3 +1,468 @@
+10/14/2003 (version 2.20)
+----------
+1. fix a minor bug in openwebmail-tool.pl that unexisting routine
+   dbm_close() is called, it should be close_dbm().
+2. fix a bug in routine gettimeoffset() that always returns 0 
+   when is_dst() is false
+
+
+10/12/2003
+----------
+1. fix two day-light-saving time bugs in dst auto mode
+   a. messages sent from other mail client to openwebmail would have
+      an arrival time one hour earily than the real one.
+   b. messages sent from openwebmail would have a wrong date field 
+      one hour late than the real sending time
+2. cache style files in memory for faster response
+
+
+10/11/2003
+----------
+1. recreate b2g, g2b and lunar db in openwebmail-tool.pl --init
+   in case the existing db could not be recognized.
+2. fix the problem that when reading message with lots of pictures 
+   attachments, few of them may be displayed as broken graph ("X").
+   (thanks to Dominic Lu, dominiclu.AT.users.sourceforge.net 
+    who reported this problem and provided his machine for testing)
+3. pass filenames to /use/bin/file though listfile to avoid dnagerous 
+   shell escape chars
+
+
+10/10/2003
+----------
+1. fix a small bug in userstat.pl
+   (thanks to Luis Fernando Manesco, lmanesco.AT.cena.usp.br for his fix)
+2. reply html message as text if replyformat==auto and the html message is 
+   showed as text
+3. rewrite open_dbm() in a conservative way for better dbm compatibility
+
+
+10/08/2003
+----------
+1. fix a bug in open_dbm() which caused an error when trying to read 
+   an unexist dbm
+   (reported by robmorin.AT.users.sourceforge.net)
+2. a small cgi userstat.pl has been added.
+   Static html pages can display user mail/calendar status dynamically 
+   by including this cgi as javascript. 
+   Please refer to readme.txt for more detail
+
+
+10/07/2003
+----------
+1. enable html editor for Firebird 0.6.1 or above
+2. fix a bug in openwebmail_clearall()
+   which tried to reset ruid back to 0 at end of each request.
+   This is not required, only euid to 0 is enough
+   (reported by James Briggs, james.AT.ActionMessage.com)
+
+
+10/05/2003
+----------
+1. fix "Couldn't update index db" bug for linux with 
+   GNU dbm 1.x or ndbm (.pag)
+   (thanks to Dominic Lu, dominiclu.AT.users.sourceforge.net 
+    who reported this problem and provided his machine for testing)
+
+
+10/03/2003
+----------
+1. New mirror site at Austria
+   http://openwebmail.typoheads.com
+   (thanks to Typoheads.Com, openwebmail.AT.typoheads.com)
+
+
+10/02/2003
+----------
+1. fix the "Couldn't update index db" problem
+2. fix the ".vacation dbm could not be read" problem
+3. fix the ".filter.book.db and .uidl.pop3.site.db couldn't be read" problem
+
+ps: All the above problems would happen when the default dbm format used 
+    in perl has been changed, which is always introduced by the upgrade of 
+    system or perl related package
+    (thanks to Chip Lee, chip.AT.turtle.ee.ncku.edu.tw 
+     for his help in solving this problem)
+
+4. The -i and -iv options in openwebmail-tool.pl will reindex a folder
+   if the format of index db could not be recognized.
+   So sysadms could use /path/openwebmail-tool.pl -i -a to fix db index 
+   for all users
+5. the undo/redo in htmlarea editor works under IE6 now
+   by turning off the htmlarea status bar
+   (solution from htmlarea forum :))
+
+
+09/30/2003
+----------
+1. do more check on password type in auth_mysql.pl, auth_pg.pl 
+   and auth_pgsql.pl
+   (suggested by Sergio Rua, srua.AT.debian.org)
+2. add return-path email to cc: field in replyall mode
+   This could be useful in replying messages from mailinglist
+   (suggested by Scott A. Mazur, scott.AT.littlefish.ca)
+
+
+09/29/2003
+----------
+1. Portuguese Brazil language, template, htmlarea translation update
+   (thanks to Julio Cesar Cunha, julio.AT.cnm.org.br)
+2. fix the "Insecure dependency at ow-shared.pl line 1119..." problem
+   when calling editprefs() in openwebmail-prefs.pl
+ps:The problem is fixed by simplely using different syntax,
+   there seems buffer overflow somewhere in new perl 5.8.0 or speedycgi?
+   Tricky!
+3. add symlink support in webdisk
+   
+
+09/27/2003
+----------
+1. Hebrew(he.CP1255) language and templates translation
+   (thanks to Yehuda Drori, yehuda.AT.whatsup.org.il,
+              Shay Sevet,shay.AT.sevet.com)
+2. new iconset: Cool3D.Hebrew   
+   (thanks to Yehuda Drori, yehuda.AT.whatsup.org.il)
+
+
+09/26/2003
+----------
+1. New mirror site at Hamburg, Germany
+   http://www.openwebmail.de
+   (thanks to Torsten Brumm, torsten.brumm.AT.kuehne-nagel.com)
+2. minor adjustment of buttons in webdisk
+
+
+09/23/2003
+----------
+1. French htmlarea files translation  update
+   (thanks to Frederic GLISE, fred.AT.forceinfo.net)
+
+
+09/18/2003
+----------
+1. fix a bug in calendar update that caused error like below
+   "Month '-1' out of range 0..11 at /dev/fd/3 line 2474"
+   (reported by Martin Gignac, lmcgign.AT.mpbn.ericsson.ca)
+2. Dutch language, templates and htmlarea files translation update
+   Dutch help tutorial translation
+   (thanks to Jeroen Visser & Robert den Ouden, openwebmail.AT.forty-two.nl)
+3. Bulgarian language, template, htmlarea translation update
+   (thanks to Veselin Slavov, vess.AT.vess.bnc.bg)
+
+
+09/17/2003
+----------
+1. add install-owm-suse.sh to cgi-bin/openwebmail/uty/
+   (thanks to Ham MI-IH, Torsten Brumm, torsten.brumm.AT.kuehne-nagel.com)
+2. add zh_HK.Big5 holiday file
+   (thanks to faifai.AT.users.sourceforge.net)
+3. Polish htmlarea files translation update
+   (thanks to Pawel Foremski, pavcio.AT.4lo.bytom.pl)
+4. Italian language and templates translation update
+   (thanks to Marvi Benedet, marvi.AT.menhir.biz)
+
+
+09/16/2003
+----------
+1. Polish language translation update
+   (thanks to Pawel Foremski, pavcio.AT.4lo.bytom.pl)
+2. Slovak prefs.template, logout.template and holiday file update
+   (thanks to Peter Sedivy, root.AT.us.svf.stuba.sk)
+3. Spanish language and template files translation update
+   (thanks to Javier Smaldone, jsmaldone.AT.yahoo.com)
+4. Serbian language and template files translation update
+   (thanks to Aleksandar Pejic, alexa.AT.yunord.net)
+5. fix a minor bug in htmlarea.js that set the wrong URL for blank.html
+   in html editor initialization
+6. fix a bug that user can't logout if webmail is disabled
+   (reported by Edwin Lee, edwinlee2000.AT.users.soureforge.net) 
+
+
+09/13/2003
+----------
+1. Deutsch language, templates and htmlarea files translation update
+   (thanks to Markus Zander, zander.AT.datacontrol-online.de)
+2. add SuSE-README.txt to data/openwebmail/doc/
+   (thanks to Torsten Brumm, tob.AT.brummi.dyn.ee)
+3. Slovak language, templates translation update
+   (thanks to lubos klokner, lubos.AT.klokner.sk)
+
+
+09/12/2003
+----------
+1. display the "Message ... has been sent" for confirmation 
+   when mesage has been sent successfully
+
+
+09/11/2003
+----------
+1. upgrade the html composer from htmlarea 3.0 alpha to 3.0 beta
+   The respose speed is greatly improved.
+ps:The redo/undo function in this 3.0 beta doesn't work under IE.
+   We will fix it ASAP when the interactive.com releases the patch.
+
+
+09/08/2003
+----------
+1. Polish language, templates translation update
+   (thanks to Pawel Foremski, pavcio.AT.4lo.bytom.pl)
+2. fix a bug in mailfilter.pl that exclusion comparision always matches
+   in case the expression contains special regex chars
+   So user can uses filte rule like below to filter mails not for 
+   his email addresses :)
+
+   10, To, exclude, email1|email2|email3, move, mail-trash
+
+
+09/04/2003
+----------
+1. fix the safegmtime() Day 31 bug in ow-shared.pl
+   (reported by Oswald Luck, luckio.AT.userssourceforge.net
+                Abraham Hung, abrahamhung.AT.userssourceforge.net
+                Corey Hauer, coreyhauer.AT.userssourceforge.net)
+
+
+09/02/2003
+----------
+1. rewrite calendar item add/edit routines
+   All properties of a existing calendar item could be edited now
+   (thanks to Alex Teslik, ateslik.AT.users.sourceforge.net for his patch)
+2. fix a bug that spellcheck can not work with aspell if personal dictionary is used
+   (reported by Thomas Chung, tchung.AT.openwebmail.org)
+
+
+08/26/2003
+----------
+1. add new option 'show html message as text' to user preference
+   This is very useful in defending against the HTML virus/spamming mail.
+   (suggested by Thomas Chung, tchung.AT.openwebmail.org)
+2. fix a bug in html2text which ate non-tag data sometimes
+3. fix the safetimegm() that the eval could not capture the exception of
+   timegm() routine.
+4. fix a bug in openwebmail*.pl that the $SCRIPT_DIR  may be set to
+   wrong value if the string '.pl' appears in the middle of script path
+   (reported by Pawel Foremski, pavcio.AT.4lo.bytom.pl)
+
+
+08/25/2003
+----------
+1. add option enable_webmail to openwbemail.conf.default
+   This option will disable webmail related stuff in the whole packge
+   (suggested by Kevin, kevin.AT.bluelavalamp.net)
+2. add option enable_userfilter to openwebmail.conf.default
+   This option will disallow users to write their own mail filters
+3. add option enable_preference to openwebmail.conf.default
+   This option will disable preference setup menu from user
+4. fix the bug that some checkbox options can not be cleard in preference
+   (reported by Dominic Lu, dominiclu.AT.users.sourceforge.net)
+
+
+08/24/2003
+----------
+1. add option autopop3wait to user preference to control 
+   how long openwebmail should wait before putting pop3 fetch process 
+   into background
+2. Deutsch language, prefs.template, de holiday file update
+   add de_CH holiday file
+   (thanks to Marco Steinacher, msteinacher.AT.websource.ch)
+3. disable a web control if it is set with DEFAULT_ directive in 
+   openwebmail.conf
+   (suggested by Florian Effenberger, florian.AT.effenberger.org)
+4. fix a bug in openwebmail-vdomain.pl that $vhomedir in delete_vuser()
+   should be untained
+   (thanks to Scott A. Mazur, scott.AT.littlefish.ca for his fix)
+
+
+08/23/2003
+----------
+1. Deutsch language file update
+   (thanks to Markus Zander, zander.AT.datacontrol-online.de)
+
+
+07/31/2003
+----------
+1. fix a bug in openwebmail-prefs.pl that enable_setfrom was mis-typed 
+   as enable_editfrom
+   (thanks to Chris Heegard, heegard.AT.nativei.com for his fix)
+2. listarchive and extraxction support for ms tnef file in webdisk
+
+
+07/29/2003
+----------
+1. Deutsch language file update
+   (thanks to Markus Zander, zander.AT.datacontrol-online.de)
+
+
+07/20/2003
+----------
+1. fix the smiley face bug again in openwebmail-read.pl
+   (reported by Matt Roberts, matt.AT.dworkin.org)
+
+
+07/19/2003
+----------
+1. fix the smiley face bug in openwebmail-read.pl
+   (reported by Matt Roberts, matt.AT.dworkin.org)
+
+
+07/18/2003
+----------
+1. fix an "Insecurity dependence" bug in openwebmail-vdomain.pl
+   (reported by Jarrod Hardy, matrix-sx.AT.users.sourceforge.net ) 
+
+
+07/17/2003
+----------
+1. fix to openwebmail-spell.pl so personal dict gets updates when user 
+   clicks 'finish checking'
+   (thanks to Scott A. Mazur, scott.AT.littlefish.ca for his fix)
+2. fix a bug in maildb.pl which caused lock error in moving message
+   (thanks to Scott A. Mazur, scott.AT.littlefish.ca for his fix)
+3. Spanish language, templates translation update
+   (thanks to Javier Smaldone, jsmaldone.AT.yahoo.com)
+4. Italian holiday file
+   (thanks to Davide Sacchetti, davide.sacchetti.AT.arpal.org)
+5. Polish language, templates translation update
+   (thanks to Pawel Foremski, pavcio.AT.4lo.bytom.pl)
+6. fix bugs in auth_ldap.pl that made change_userpassword() always fail
+   (thanks to Ignacio Lagomarsino, ilagomarsino.AT.preu.edu.uy)
+7. support multiple postfix alias/virtual files
+   (thanks to Scott A. Mazur, scott.AT.littlefish.ca for his code)
+
+
+07/12/2003
+----------
+1. enhanced virtual/local user mixture handling in openwebmail-vdomain.pl
+   (thanks to Scott A. Mazur, scott.AT.littlefish.ca for his code)
+
+
+07/10/2003
+----------
+1. refined dbm lock code
+   the dbmtest.pl now reports proper values on most platforms
+   (thanks to Scott A. Mazur, scott.AT.littlefish.ca for his code)
+
+
+07/08/2003
+----------
+1. fix a bug in spellcheck that personal dict could be properly updated
+   (thanks to Scott A. Mazur, scott.AT.littlefish.ca for his fix)
+
+
+07/04/2003
+----------
+1. fix a bug in openwebmail-vdomain.pl that vuser in delete_vuser should be 
+   untained
+   (thanks to Scott A. Mazur, scott.AT.littlefish.ca for his fix)
+2. Romanian language and templates translation major update
+   (thanks to Zeno Popovici, zeno.popovici.AT.ulbsibiu.ro)
+3. disable web cache of message content to avoid the message number inconsistence
+   after message removal
+   (reported by Martin Gignac, lmcgign.AT.mobilitylab.net)
+
+
+07/02/2003
+----------
+1. fix a bug in ow-share.pl that wrong parameter could be passed to timegm 
+   without check
+   (reported by Ron E., ree.AT.thunderstar.net)
+
+
+07/01/2003
+----------
+1. fix a bug that calendar event with same starttime and endtime won't be
+   displayed in dayview
+   (reported by Ignacio Lagomarsino, ilagomarsino.AT.preu.edu.uy)
+
+
+06/30/2003
+----------
+1. add zh-hk and zh-sg to %httpaccept2language
+   (thanks to Paul T.C.Fung, paulfung.AT.users.sourceforge.net)
+
+
+06/29/2003
+----------
+1. Serbian htmlarea files translation
+   (thanks to Aleksandar Pejic, alexa.AT.yunord.net)
+2. lot of improvements to openwebmail-vdomain.pl
+   a. support suspend login
+   b. add/del from.book entries for vuser
+   c. multiple view of vuser list
+   d. fix a bug that homedir of vuser could not be found 
+      if option use_syshomedir is set to no
+   (thanks to Scott A. Mazur, scott.AT.littlefish.ca for his code)
+  
+
+06/26/2003
+----------
+1. fix a bug that the charset in html body will be wrong 
+   when sendcharset is not set to "the same as composecharset" in preference
+   (reported by INYAKU Tomoya, tomo.AT.jca.apc.org)
+
+
+06/25/2003
+----------
+1. Dutch htmlarea files translation update
+   (thanks to Jeroen Visser, openwebmail.AT.forty-two.nl)
+2. Dutch holiday file
+   (thanks to Gertjan Koetsier, gertjan.koetsier.AT.networksforyou.com)
+3. fix a bug that lang/ja_JP.eucJP was set with wring package name
+   fix a bug in iconv.pl that an additional "\n" will be added to the end 
+   of converted string
+   (reported by INYAKU Tomoya, tomo.AT.jca.apc.org)
+
+
+06/24/2003
+----------
+1. Polish language, template and htmlarea files translation update
+   (thanks to Pawel Foremski, pavcio.AT.4lo.bytom.pl)
+2. Koeran language translation update and a bug fixed
+   new iconset: Text.Korean
+   (thanks to Thomas Chung, tchung.AT.openwebmail.org)
+3. Traditional chinese help tutorial update
+   (thanks to Alex Huang, admin.AT.laiwell.com.tw)
+4. Dutch language and template translation update
+   (thanks to Jeroen Visser, openwebmail.AT.forty-two.nl)
+5. Serbian language and templates translation update 
+   (thanks to Aleksandar Pejic, alexa.AT.yunord.net)
+
+
+06/20/2003
+----------
+1. Hungarian language file translation update
+   (thanks to Posz Marton, ful_s.AT.fazekas.hu)
+2. Polish language, template and htmlarea files translation update
+   (thanks to Pawel Foremski, pavcio.AT.4lo.bytom.pl)
+3. fix a bug that operator 'or' should be used instead of operator '||'
+   in several places because of the lower precedence of 'or'
+   (reported by Massimo Gravino, sfgmax.AT.users.sourceforge.net)
+4. fix a bug that HTML presentation for special characters (<, >, &, " ...)
+   would be displayed as mis-spelled words in spelling check.
+   (reported by Moke Tsing - AMC, moke.AT.amcpl.net)
+5. fix a bug that timeout warning doesn't work because @@@PREFSURL@@@
+   and @@@SESSIONID@@@ were not expandedcorrectly
+   (thanks to Carlos Pina Soares, cps.AT.fcsh.unl.pt for his fix)
+6. add data/openwebmail/sound/YouGotMail.Spanish_Male.wav
+   (thanks to Eduardo Percossi, Eduardo.AT.Argentina.com)
+
+
+06/19/2003
+----------
+1. Portuguese htmlarea files translation 
+   (thanks to Jose Ferradeira, jferra.AT.sfconsultores.pt)
+2. add "bad format from" filter to mailfilter.pl
+
+
+06/18/2003
+----------
+1. Portuguese language, template and holiday files update
+   (thanks to Jose Ferradeira, jferra.AT.sfconsultores.pt)
+2. add routine timeofday_init to gettimeofday.pl for profadd.pl and profdel.pl
+   in uty/
+3. add default calendar view option in user preference
+
+
 06/17/2003 (version 2.10)
 ----------
 1. fix a bug that vuser gid may go wrong if it is larger than 9.
@@ -225,7 +690,7 @@
    (thanks to Javier Smaldone, jsmaldone.AT.yahoo.com)
 3. fix ht bug that attachment list won't appear in InsertImage when 
    used with Mozilla
-   (reported by Thomas Chung, tchung.AT.openwebmail.com)
+   (reported by Thomas Chung, tchung.AT.openwebmail.org)
 
 
 05/21/2003
@@ -453,7 +918,7 @@ ps: Since no matter what cache directive(eg: no-cache, no-store, private)
    (reported by Gertjan Koetsier, gertjan.koetsier.AT.networksforyou.com)
 2. fix a bug that inbox size was not devided by 1024 for unit k 
    when compared with spool_limit
-   (reported by Thomas Chung, tchung.AT.openwebmail.com)
+   (reported by Thomas Chung, tchung.AT.openwebmail.org)
 3. cut INBOX in cutfoldermails() only if option use_homedirspools is 
    set to yes
 
@@ -486,7 +951,7 @@ ps: Since no matter what cache directive(eg: no-cache, no-store, private)
    escaped when displayed in showdir
    (reported by tchuang.AT.turtle.ee.ncku.edu.tw)
 3. fix a bug that quota_module specifed in user conf won't work.
-   (reported by Thomas Chung, tchung.AT.openwebmail.com)
+   (reported by Thomas Chung, tchung.AT.openwebmail.org)
 
 
 04/19/2003

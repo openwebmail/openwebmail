@@ -6,11 +6,11 @@ package openwebmail::nl;
 
 %lang_folders =
    (
-   INBOX => 'POSTVAK IN',
-   'saved-messages' => 'OPGESLAGEN',
-   'sent-mail'      => 'VERZONDEN',
-   'saved-drafts'   => 'CONCEPTEN',
-   'mail-trash'     => 'PRULLENBAK',
+   INBOX => 'Postvak IN',
+   'saved-messages' => 'Opgeslagen',
+   'sent-mail'      => 'Verzonden',
+   'saved-drafts'   => 'Concepten',
+   'mail-trash'     => 'Prullenbak',
    DELETE => '--VERWIJDER--'
    );
 
@@ -29,9 +29,9 @@ package openwebmail::nl;
 
 %lang_onofflabels =
    (
-   auto => 'Auto switched',
-   on   => 'On',
-   off  => 'Off',
+   auto => 'Automatisch',
+   on   => 'Aan',
+   off  => 'Uit',
    );
 
 %lang_prioritylabels =
@@ -43,10 +43,10 @@ package openwebmail::nl;
 
 %lang_msgformatlabels =
    (
-   auto => 'Auto selected',
-   text	=> 'Text',
+   auto => 'Automatisch',
+   text	=> 'Tekst',
    html => 'HTML',
-   both => 'HTML and Text'
+   both => 'HTML en Tekst'
    );
 
 %lang_withoriglabels =
@@ -65,9 +65,9 @@ package openwebmail::nl;
 
 %lang_disableemblinklabels =
    (
-   none    => 'None',
-   cgionly => 'CGI only',
-   all     => 'All embedded URLs'
+   none    => 'Geen',
+   cgionly => 'Alleen CGI',
+   all     => 'Alle ingesloten Links'
    );
 
 %lang_ctrlpositionlabels =
@@ -187,13 +187,14 @@ package openwebmail::nl;
    edit     => 'Bewerken',
    listarchive=> 'Lijst',
    decompress=>'Uitpakken',
-   extract  => 'Inpakken',
+   extract  => 'Uitpakken',
    chdir    => 'ChDir',
    mkdir    => 'MkDir',
    newfile  => 'Nieuw bestand',
-   delete   => 'Verwijder',
    copy     => 'Kopiëren',
    move     => 'Verplaatsen',
+   symlink  => 'Symlink',
+   delete   => 'Verwijder',
    gzip     => 'gz Inpakken',
    mkzip    => 'Maak Zip',
    mktgz    => 'Maak TGZ',
@@ -204,11 +205,12 @@ package openwebmail::nl;
 
 %lang_text =
    (
-   loading    => 'Loading, please wait',
+   loading    => 'Laden.... Ogenblik a.u.b.',
    help       => 'Help',
    login      => 'Inloggen',
    clear      => 'Wissen',
-   point      => 'Point',
+   webmail    => 'WebMail',
+   point      => 'Punt',
    pixel      => 'Pixel',
    changepwd  => 'Wachtwoord wijzigen',
    viewhistory=> 'Bekijk Geschiedenis',
@@ -271,7 +273,9 @@ package openwebmail::nl;
    msgrebuild => 'Bericht samenstellen',
    editdraft  => 'Wijzig Concept',
    savedraft  => 'Bewaar Concept',
+   draftsaved => 'Concept @@@SUBJECT@@@ is succesvol opgeslagen',
    send       => 'Verstuur',
+   msgsent    => 'Bericht aangaande @@@SUBJECT@@@ is succesvol verstuurd',
    about      => 'Over',
    close      => 'Sluiten',
    cancel     => 'Onderbreken',
@@ -309,7 +313,7 @@ package openwebmail::nl;
    max        => 'Maximum',
    group      => 'Groep',
    quotausage => 'Quota usage',
-   quotalimit => 'Quota limit',
+   quotalimit => 'Quota limiet',
    quotahit   => 'QUOTUM OVERSCHREDEN',
    tzmap      => 'Wereldtijdenkaart',
    testsound  => 'Test geluid',
@@ -325,7 +329,7 @@ package openwebmail::nl;
    attfilename=> 'Bestandsnaam Bijlage',
    all        => 'Alle',
    enable     => 'Activeer',
-   disable    => 'De-activeer',
+   disable    => 'Login Geblokkeerd',
    filtered   => 'Gefilterd',
    blockrelay => 'Blokkeer SMTP Relay',
    blockemail => 'Blokkeer e-mail',
@@ -362,7 +366,7 @@ package openwebmail::nl;
    calfmt_yearmonthday  => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@',
    calfmt_yearmonthdaywday => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@ @@@WEEKDAY_STR@@@',
    calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
-   autosel    => 'Auto selected',
+   autosel    => 'Automatisch',
    none       => 'Geen',
    moreitems  => 'meer items',
    multieditconf => 'Dit item is verspreid over meerdere datums.\\nWijzigingen in dit item zullen op al deze datums worden doorgevoerd.\\nDoorgaan?',
@@ -403,12 +407,18 @@ package openwebmail::nl;
    savefile_towd=> 'Sla bestand op de WebDisk op',
    saveatt_towd => 'Sla bijlage op de WebDisk op',
    addatt_fromwd=> 'Voeg bijlage van WebDisk toe',
-   vdomain_usermgr    => 'Virtual Domain User Management',
-   vdomain_createuser => 'Create User',
-   vdomain_changeuser => 'Change User',
-   vdomain_deleteuser => 'Delete User',
-   set_passwd         => 'Set Password',
-   reset_passwd       => 'Reset Password',
+   vdomain_usermgr    => 'Virtueel Domein Gebruikersbeheer',
+   vdomain_createuser => 'Maak gebruiker aan',
+   vdomain_changeuser => 'Wijzig gebruiker',
+   vdomain_deleteuser => 'Verwijder gebruiker',
+   vdomain_changeview => 'Wijzig weergave naar',
+   vdomain_usersonly  => 'alleen gebruikers',
+   vdomain_useralias  => 'gebruikers en aliassen',
+   vdomain_fmtuseralias => 'gebruikers en aliassen tabelformaat',
+   vdomain_admin      => 'Beheerder',
+   vdomain_localuser  => 'Lokale gebruiker',
+   set_passwd         => 'Maak wachtwoord',
+   reset_passwd       => 'Wachtwoord',
    email_alias        => 'E-MAIL Alias'
    );
 
@@ -467,14 +477,16 @@ package openwebmail::nl;
    upload_overlimit  => 'Dit bestand is te groot om te uploaden',
    decomp_notsupported=>'Het uitpakken van dit bestandsformaat wordt niet ondersteund.',
    webdisk_readonly  => 'Sorry, uw webdisk staat op Alleen Lezen.',
-   quota_syserr      => 'Quota system error',
-   quotahit_alert    => 'Sorry, you\'ve hit your quota limit. Please delete some messages from mail folders or some files from the webdisk to free disk space.',
-   quotahit_delmail  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, oldest messages in folders have been removed automatcially',
-   quotahit_delfile  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, some files in the webdisk have been removed automatcially',
-   spool_overlimit   => 'Sorry, your INBOX has exceeded the spool limit(@@@SPOOLLIMIT@@@). Please move some messages from INBOX to other folders.',
-   vdomain_toomanyuser  => 'Sorry, the user count of this domain has reached its maximum limit',
-   vdomain_toomanyalias => 'Sorry, the E-MAIL alias count of this user has reached its maximum limit',
-   vdomain_userrequired => 'A user name is required'
+   quota_syserr      => 'Quota systeemfout',
+   quotahit_alert    => 'Sorry, u heeft uw opslaglimiet bereikt. Verwijder a.u.b. een aantal berichten uit uw e-mail mappen of verwijder een aantal bestanden uit uw webdisk om ruimte te maken.',
+   quotahit_delmail  => 'Waarschuwing, omdat uw quota-limiet (@@@QUOTALIMIT@@@) is bereikt, zijn de oudste berichten in uw mappen automatisch verwijderd',
+   quotahit_delfile  => 'Waarschwuing, omdat uw quota-limiet (@@@QUOTALIMIT@@@) is bereikt, zijn een aantal bestanden in uw webdisk automatisch verwijderd',
+   spool_overlimit   => 'Sorry, uw Postvak In heeft zijn maximale aantal berichten bereikt van (@@@SPOOLLIMIT@@@). Verplaats a.u.b. een aantal berichten naar andere mappen.',
+   vdomain_toomanyuser  => 'Sorry, het aantal gebruikers van dit domein heeft zijn limiet bereikt.',
+   vdomain_toomanyalias => 'Sorry, het aantal e-mail aliassen voor deze gebruiker heeft zijn limiet bereikt.',
+   vdomain_userrequired => 'Vult u a.u.b. een gebruikersnaam in',
+   vdomain_fwdrequired => 'Een gelding doorstuur E-MAIL adres is benodigd',
+   all_module_disabled => 'Alle modules zijn uitgeschakeld'
    );
 
 1;

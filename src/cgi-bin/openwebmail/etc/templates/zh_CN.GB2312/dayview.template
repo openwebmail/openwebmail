@@ -2,7 +2,7 @@
 <table border="0" align="center" width="95%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>日历</b></font>
+<b>日行事历</b></font>
 </td><td align="right" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <b>@@@DAYDIFF@@@&nbsp;</b></font>
@@ -32,21 +32,22 @@
 
 <table border=0 cellspacing=2 width=100%>
 @@@STARTADDITEMFORM@@@
-<tr><td colspan=2 align=center><B>新增日程表项目</B></td></tr>
+<tr><td colspan=2 align=center><B>新增行事历项目</B></td></tr>
+<tr><td colspan=2 nowrap>@@@ITEMDATEMENU@@@</td></tr>
 <tr><td colspan=2 nowrap>@@@STRINGFIELD@@@</td></tr>
-<tr><td width=25% nowrap>Start time</td><td nowrap>@@@STARTHOURMINMENU@@@</td></tr>
-<tr><td width=25% nowrap>End time</td><td nowrap>@@@ENDHOURMINMENU@@@</td></tr>
+<tr><td width=25% nowrap>开始时间</td><td nowrap>@@@STARTHOURMINMENU@@@</td></tr>
+<tr><td width=25% nowrap>结束时间</td><td nowrap>@@@ENDHOURMINMENU@@@</td></tr>
 <tr><td colspan=2 nowrap>@@@FREQMENU@@@</td></tr>
 <tr><td colspan=2 nowrap>@@@THISANDNEXTNDAYSCHECKBOX@@@ 本日与之后连续 @@@NDAYSFIELD@@@ 日</td></tr>
 <tr><td colspan=2 nowrap>@@@MONTHFREQMENU@@@</td></tr>
 <tr><td colspan=2 nowrap>@@@EVERYYEARCHECKBOX@@@ 每年</td></tr>
-<tr><td colspan=2 nowrap>将本项目连接到下列网址</td></tr>
+<tr><td colspan=2 nowrap>将本项目连结到下列网址</td></tr>
 <tr><td colspan=2 nowrap>@@@LINKFIELD@@@</td></tr>
 @@@EMAILSTART@@@
 <tr><td colspan=2 nowrap>寄送通知 Email 到下列地址</td></tr>
 <tr><td colspan=2 nowrap>@@@EMAILFIELD@@@</td></tr>
 @@@EMAILEND@@@
-<tr><td nowrap>Event Color</td><td nowrap>@@@EVENTCOLORMENU@@@</td></tr>
+<tr><td nowrap>事件颜色</td><td nowrap>@@@EVENTCOLORMENU@@@</td></tr>
 <tr><td colspan=2>@@@COLORTABLE@@@</td></tr>
 <tr><td colspan=2 align=center>@@@SUBMITBUTTON@@@</td></tr>
 @@@ENDFORM@@@
@@ -54,3 +55,67 @@
 
 </td></tr></table>
 </center>
+
+<script type="text/javascript" language="javascript">
+<!--
+function valiDate() {
+   var formYear = document.AddItemForm.year.options[document.AddItemForm.year.selectedIndex].value;
+   var formMonth = document.AddItemForm.month.options[document.AddItemForm.month.selectedIndex].value;
+   var formDay = document.AddItemForm.day.options[document.AddItemForm.day.selectedIndex].value;
+   var dayfreqSelection = document.AddItemForm.dayfreq.selectedIndex;
+   var monthfreqSelection = document.AddItemForm.monthfreq.selectedIndex;
+   var checkDate = new Date(formYear,formMonth-1,formDay);
+
+   wDay = new Array(@@@WDAY_ARRAY@@@);
+   wOrder = new Array(@@@WORDER_ARRAY@@@);
+
+   if (formMonth < checkDate.getMonth()+1) {
+     var selectedmonth=document.AddItemForm.month.options[document.AddItemForm.month.selectedIndex].text;
+     var daysinmonth=formDay-checkDate.getDate();
+     alert("很抱歉, "+selectedmonth+" 在 "+formYear+" 年只有 "+daysinmonth+" 日.\n"+
+           "日数将被改回 "+daysinmonth+".");
+     document.AddItemForm.day.selectedIndex = formDay-checkDate.getDate()-1;
+     // reset our vars
+     formDay = formDay-checkDate.getDate();
+     checkDate = new Date(formYear,formMonth-1,formDay);
+   }
+
+   var weekOrder = parseInt((parseInt(formDay)+6)/7);
+
+   // update the day recurrance
+   if (weekOrder<=4) {
+      if (! document.AddItemForm.dayfreq[2]) {  // coming from 2 choice menu
+         if (dayfreqSelection==1) {
+            dayfreqSelection++;
+         }
+      }
+      document.AddItemForm.dayfreq.options.length =0; // clear popup
+      document.AddItemForm.dayfreq[0] = new Option("@@@THISDAY_ONLY@@@","thisdayonly");
+      document.AddItemForm.dayfreq[1] = new Option("@@@THE_WDAY_OF_THISMONTH@@@","thewdayofthismonth");
+      document.AddItemForm.dayfreq[2] = new Option("@@@EVERY_WDAY_THISMONTH@@@","everywdaythismonth");
+   } else {
+      if (document.AddItemForm.dayfreq[2]) {  // coming from 3 choice menu
+         dayfreqSelection--;
+         if (dayfreqSelection < 0) {
+            dayfreqSelection = 0;
+         }
+      }
+      document.AddItemForm.dayfreq.options.length =0; // clear popup
+      document.AddItemForm.dayfreq[0] = new Option("@@@THISDAY_ONLY@@@","thisdayonly");
+      document.AddItemForm.dayfreq[1] = new Option("@@@EVERY_WDAY_THISMONTH@@@","everywdaythismonth");
+   }
+
+   // update the month recurrance
+   if (formMonth%2) {
+      document.AddItemForm.monthfreq[1] = new Option("@@@EVERY_ODDMONTH_THISYEAR@@@","everyoddmonththisyear");
+   } else {
+      document.AddItemForm.monthfreq[1] = new Option("@@@EVERY_EVENMONTH_THISYEAR@@@","everyevenmonththisyear");
+   }
+
+   document.AddItemForm.dayfreq.selectedIndex = dayfreqSelection;
+   document.AddItemForm.monthfreq.selectedIndex = monthfreqSelection;
+}
+
+function nothing() { ; } // for the colorpicker to work properly
+// -->
+</script>

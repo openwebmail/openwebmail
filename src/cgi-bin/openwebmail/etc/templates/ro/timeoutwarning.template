@@ -3,8 +3,8 @@
 <tr><td><font size="-1" color="#dd0000"><b>
 
 Stimate @@@USEREMAIL@@@,<br><br>
-Nu ati lucrat mult timp.
-Daca nu mai actionati, sessiunea Dv. va fi finalizata in 60 secunde.
+Nu ati avut activitate de mult timp.
+Daca nu actionati, sesiunea dvs. va fi inchisa in 60 de secunde.
 
 </b></font></td></tr></table>
 <br>
@@ -15,3 +15,4 @@ Daca nu mai actionati, sessiunea Dv. va fi finalizata in 60 secunde.
 <script language="JavaScript">
 setTimeout("close()", 60*1000);
 </script>
+</center>

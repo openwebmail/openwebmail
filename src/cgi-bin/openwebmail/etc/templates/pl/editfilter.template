@@ -10,7 +10,7 @@
 </td></tr><tr><td colspan="9">&nbsp;</td></tr>
 <tr>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Count</B>&nbsp;</td>
+<B>Numer</B>&nbsp;</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Priorytet</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
@@ -54,7 +54,7 @@
 <td nowrap bgcolor=@@@TABLEROW_LIGHT@@@ align=center>
 @@@ENABLECHECKBOX@@@
 </td>
-<td nowrap align="center" bgcolor=@@@TABLEROW_LIGHT@@@ align=center>
+<td nowrap bgcolor=@@@TABLEROW_LIGHT@@@ align=center>
 @@@ADDBUTTON@@@
 </td>
 </tr>
@@ -114,3 +114,4 @@
    }
 //-->
 </script>
+

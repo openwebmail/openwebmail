@@ -12,8 +12,8 @@ Usted puede elegir una de ellas para reemplazar la palabra original.
 Si no se encuentran reemplazos para sugerir o el usuario elige "-corregir manualmente-"
 y entonces haga un clic en [Comprobar nuevamente], un campo de texto estar&aacute; disponible para
 que introduzca la corecci&oacute;n manualmente.
-Si selecciona "--Agregar al Diccionario--" y luego hace un clic en [Comprobar nuevamente], 
-la palabra original será agregada a su diccionario personal.
+Si selecciona "--Añadir al Diccionario--" y luego hace un clic en [Comprobar nuevamente], 
+la palabra original será añadida a su diccionario personal.
 </td></tr>
 </table>
 <br>
@@ -24,7 +24,7 @@ la palabra original será agregada a su diccionario personal.
 <table width="100%" bgcolor=#FFFFFF border="0" cellpadding="2" cellspacing="1">
 <tr><td valign="top"><font size=-1>
 @@@WORDSHTML@@@
-</td></tr></table>
+</font></td></tr></table>
 </td></tr></table>
 
 <br>

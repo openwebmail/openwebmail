@@ -29,10 +29,11 @@
 @@@TIMEOFFSETMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Daylight Saving Time:</B>
+<B>Sommerzeit:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DAYLIGHTSAVINGMENU@@@
 </td></tr>
+@@@WEBMAILSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Von:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -72,6 +73,7 @@ Betreff:
 @@@SIGAREA@@@
 <br>&nbsp;
 </td></tr>
+@@@WEBMAILEND@@@
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Anzeige</B></td></tr>
@@ -101,7 +103,7 @@ Betreff:
 @@@FONTSIZEMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Datumsformat:</B>
+<B>Datumformat:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DATEFORMATMENU@@@
 </td></tr>
@@ -111,6 +113,7 @@ Betreff:
 @@@HOURFORMATMENU@@@ Stunden
 </td></tr>
 
+@@@WEBMAILSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Ordneransicht</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
@@ -160,7 +163,7 @@ Betreff:
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Beim Anmelden automatisch Nachrichten abholen:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@AUTOPOP3CHECKBOX@@@
+@@@AUTOPOP3CHECKBOX@@@ (wait @@@AUTOPOP3WAITMENU@@@ seconds)
 </td></tr>
 @@@AUTOPOP3END@@@
 @@@MOVEOLDSTART@@@
@@ -194,6 +197,11 @@ Betreff:
 @@@USESMILEICON@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Show HTML message as plain text:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SHOWHTMLASTEXT@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Angeh&auml;ngte Grafikdateien als Link anzeigen:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SHOWIMGASLINK@@@
@@ -217,7 +225,7 @@ Betreff:
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Antworten</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Message format:</B>
+<B>Nachrichten Formatierung:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@MSGFORMATMENU@@@
 </td></tr>
@@ -261,6 +269,11 @@ Breite @@@EDITCOLUMNSMENU@@@ H&ouml;he @@@EDITROWSMENU@@@
 @@@FILTERREPEATLIMIT@@@ &nbsp;( 0 f&uuml;hrt keine Pr&uuml;fung auf Wiederholung durch )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Nachrichten mit ungültigem Format der Form-Adresse filtern:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@FILTERBADFORMATFROM@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Nachrichten mit gef&auml;lschtem SMTP filtern:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDSMTP@@@
@@ -294,12 +307,18 @@ Breite @@@ABOOKWIDTHMENU@@@ H&ouml;he @@@ABOOKHEIGHTMENU@@@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKDEFAULTFILTER@@@
 </td></tr>
+@@@WEBMAILEND@@@
 
 @@@CALENDARSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Kalender</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Holiday definition:</B>
+<B>Standard Kalenderansicht:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DEFAULTVIEWMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Feiertag-Definitionen:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@HOLIDAYDEFMENU@@@
 </td></tr>
@@ -333,6 +352,7 @@ Breite @@@ABOOKWIDTHMENU@@@ H&ouml;he @@@ABOOKHEIGHTMENU@@@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SHOWEMPTYHOURSCHECKBOX@@@
 </td></tr>
+@@@REMINDERSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Nach wie viel Tagen auf Eintr&auml;ge &uuml;berpr&uuml;fen und erinnern:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -343,6 +363,7 @@ Breite @@@ABOOKWIDTHMENU@@@ H&ouml;he @@@ABOOKHEIGHTMENU@@@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REMINDERFORGLOBALCHECKBOX@@@
 </td></tr>
+@@@REMINDEREND@@@
 @@@CALENDAREND@@@
 
 @@@WEBDISKSTART@@@
@@ -377,6 +398,7 @@ Width @@@FILEEDITCOLUMNSMENU@@@ Height @@@FILEEDITROWSMENU@@@
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Verschiedenes</B></td></tr>
+@@@WEBMAILSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Regex beim Suchen und f&uuml;r Filterregeln verwenden:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -386,11 +408,6 @@ Width @@@FILEEDITCOLUMNSMENU@@@ Height @@@FILEEDITROWSMENU@@@
 <B>Interne Ordnerdaten verbergen:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@HIDEINTERNAL@@@
-</td></tr>
-<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Interval zur Aktualisierung:</B>
-</td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@REFRESHINTERVALMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Akkustische Benachrichtigung:</B>
@@ -411,6 +428,12 @@ Anzeigedauer in Sekunden: @@@NEWMAILWINDOWTIMEMENU@@@ &nbsp;( 0 schaltet die Ben
 <B>Gel&ouml;schte Nachrichten maximal halten (Tage):</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@RESERVEDDAYSMENU@@@
+</td></tr>
+@@@WEBMAILEND@@@
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Interval zur Aktualisierung:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@REFRESHINTERVALMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Ablauf der Sitzung nach:</B>

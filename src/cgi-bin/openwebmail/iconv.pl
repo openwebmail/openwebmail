@@ -24,6 +24,7 @@ use vars qw(%charset_convlist %charset_localname %localname_cache);
    'iso-8859-5'    => [ 'ISO-8859-5', '8859-5', 'ISO8859-5', 'ISO_8859-5' ],
    'iso-8859-6'    => [ 'ISO-8859-6', '8859-6', 'ISO8859-6', 'ISO_8859-6' ],
    'iso-8859-7'    => [ 'ISO-8859-7', '8859-7', 'ISO8859-7', 'ISO_8859-7' ],
+   'iso-8859-8'    => [ 'ISO-8859-9', '8559-8', 'ISO8859-8', 'ISO_8859-8' ],
    'iso-8859-9'    => [ 'ISO-8859-9', '8859-9', 'ISO8859-9', 'ISO_8859-9' ],
    'iso-8859-13'   => [ 'ISO-8859-13', '8859-13', 'ISO8859-13', 'ISO_8859-13' ],
    'koi8-r'        => [ 'KOI8-R' ],
@@ -156,21 +157,20 @@ sub iconv {
          $result[$i]=$text[$i]; euc2sjis(\$result[$i]); next;
       }
       if ($converter) {
-         foreach my $line (split(/\n/, $text[$i])) {
-            if ($line=~/[^\s]/) {
-               my $converted=$converter->convert($line);
-               if ($converted ne "") {
-                  $result[$i] .= "$converted\n";
-               } else {
-                  # add [charset?] at the beginning if covert failed
-                  $result[$i] .= "[".uc($from)."?]$line\n";
-                  $converter='';	# free mem?
-                  $converter = iconv_open($from, $to);
-               }
+         my @line=split(/\n/, $text[$i]);
+         for (my $j=0; $j<=$#line; $j++) {
+            next if ($line[$j]=~/^\s*$/);
+            my $converted=$converter->convert($line[$j]);
+            if ($converted ne '') {
+               $line[$j]=$converted;
             } else {
-               $result[$i] .= "$line\n";
+               # add [charset?] at the beginning if covert failed
+               $line[$j]="[".uc($from)."?]".$line[$j];
+               $converter='';	# free mem?
+               $converter = iconv_open($from, $to);
             }
          }
+         $result[$i]=join("\n", @line);
       } else {
          $result[$i]=$text[$i];
       }

@@ -29,10 +29,11 @@
 @@@TIMEOFFSETMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Daylight Saving Time:</B>
+<B>Лятно часово време:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DAYLIGHTSAVINGMENU@@@
 </td></tr>
+@@@WEBMAILSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Подател:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -72,6 +73,7 @@
 @@@SIGAREA@@@
 <br>&nbsp;
 </td></tr>
+@@@WEBMAILEND@@@
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Насройки на страницата</B></td></tr>
@@ -91,7 +93,7 @@
 @@@BACKGROUNDMENU@@@ <font size=-2>URL </font>@@@BGURLFIELD@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Background image repeated:</B>
+<B>Повторение на картинката за фон:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BGREPEATCHECKBOX@@@<br>
 </td></tr>
@@ -111,6 +113,7 @@
 @@@HOURFORMATMENU@@@ час
 </td></tr>
 
+@@@WEBMAILSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Преглед на папка</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
@@ -160,7 +163,7 @@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Автоматично четене от POP3 след вход:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@AUTOPOP3CHECKBOX@@@
+@@@AUTOPOP3CHECKBOX@@@ (чакай @@@AUTOPOP3WAITMENU@@@ секунди)
 </td></tr>
 @@@AUTOPOP3END@@@
 @@@MOVEOLDSTART@@@
@@ -194,7 +197,12 @@
 @@@USESMILEICON@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Покажи прикачените картинки като линк:</B>
+<B>Показвай HTML съобщения кaто текст:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SHOWHTMLASTEXT@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Показвай прикачените картинки като линк:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SHOWIMGASLINK@@@
 </td></tr>
@@ -261,6 +269,11 @@
 @@@FILTERREPEATLIMIT@@@ &nbsp;( 0 изключва тази проверка )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Филтрирай съобщения с фалшиф 'От' формат:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@FILTERBADFORMATFROM@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Филтрирай за 'досадни' SMTP:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDSMTP@@@
@@ -294,10 +307,16 @@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKDEFAULTFILTER@@@
 </td></tr>
+@@@WEBMAILEND@@@
 
 @@@CALENDARSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Опции за календара</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Изглед на календара по подразбиране:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DEFAULTVIEWMENU@@@
+</td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Holiday definition:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -333,6 +352,7 @@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SHOWEMPTYHOURSCHECKBOX@@@
 </td></tr>
+@@@REMINDERSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Дни за проверка на събития:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -343,6 +363,7 @@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REMINDERFORGLOBALCHECKBOX@@@
 </td></tr>
+@@@REMINDEREND@@@
 @@@CALENDAREND@@@
 
 @@@WEBDISKSTART@@@
@@ -377,6 +398,7 @@
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Други опции</B></td></tr>
+@@@WEBMAILSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Използване на съвпадение при търсене и филтриране:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -386,11 +408,6 @@
 <B>Скриване на служебната информация:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@HIDEINTERNAL@@@
-</td></tr>
-<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Интервал на опресняване:</B>
-</td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@REFRESHINTERVALMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Сигнал при ново съобщение:</B>
@@ -411,6 +428,12 @@
 <B>Изпразни кошчетo след (дни):</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@RESERVEDDAYSMENU@@@
+</td></tr>
+@@@WEBMAILEND@@@
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Интервал на опресняване:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@REFRESHINTERVALMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>"Timeout" на сесията:</B>

@@ -33,6 +33,7 @@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DAYLIGHTSAVINGMENU@@@
 </td></tr>
+@@@WEBMAILSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Indirizzo:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -72,6 +73,7 @@ Soggetto:
 @@@SIGAREA@@@
 <br>&nbsp;
 </td></tr>
+@@@WEBMAILEND@@@
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Preferenze Visualizzazione</B></td></tr>
@@ -91,7 +93,7 @@ Soggetto:
 @@@BACKGROUNDMENU@@@ <font size=-2>URL </font>@@@BGURLFIELD@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Background image repeated:</B>
+<B>Immagine di sfondo ripetuta:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BGREPEATCHECKBOX@@@<br>
 </td></tr>
@@ -111,6 +113,7 @@ Soggetto:
 @@@HOURFORMATMENU@@@ ore
 </td></tr>
 
+@@@WEBMAILSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Visualizzazione Cartelle</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
@@ -160,7 +163,7 @@ Soggetto:
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Scarica automaticamente posta pop3 al login:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@AUTOPOP3CHECKBOX@@@
+@@@AUTOPOP3CHECKBOX@@@ (attendi @@@AUTOPOP3WAITMENU@@@ secondi)
 </td></tr>
 @@@AUTOPOP3END@@@
 @@@MOVEOLDSTART@@@
@@ -194,6 +197,11 @@ Soggetto:
 @@@USESMILEICON@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Mostra messaggi HTML come testo semplice:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SHOWHTMLASTEXT@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Mostra Immagini in allegato come link:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SHOWIMGASLINK@@@
@@ -217,7 +225,7 @@ Soggetto:
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Opzioni Risposte Messaggi</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Message format:</B>
+<B>Formato Messaggio:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@MSGFORMATMENU@@@
 </td></tr>
@@ -261,6 +269,11 @@ Larghezza @@@EDITCOLUMNSMENU@@@ Altezza @@@EDITROWSMENU@@@
 @@@FILTERREPEATLIMIT@@@ &nbsp;( 0 significa nessun controllo sulle ripetizioni )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Filtra messaggi con campo FROM errato:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@FILTERBADFORMATFROM@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Filtra messaggi con intestazioni SMTP alterate:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDSMTP@@@
@@ -294,12 +307,18 @@ Larghezza @@@ABOOKWIDTHMENU@@@ Altezza @@@ABOOKHEIGHTMENU@@@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKDEFAULTFILTER@@@
 </td></tr>
+@@@WEBMAILEND@@@
 
 @@@CALENDARSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Opzioni Calendario</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Holiday definition:</B>
+<B>Vista standard calendario:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DEFAULTVIEWMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Calendario giornate festive:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@HOLIDAYDEFMENU@@@
 </td></tr>
@@ -333,6 +352,7 @@ Larghezza @@@ABOOKWIDTHMENU@@@ Altezza @@@ABOOKHEIGHTMENU@@@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SHOWEMPTYHOURSCHECKBOX@@@
 </td></tr>
+@@@REMINDERSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Giorni per avviso evento:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -343,6 +363,7 @@ Larghezza @@@ABOOKWIDTHMENU@@@ Altezza @@@ABOOKHEIGHTMENU@@@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REMINDERFORGLOBALCHECKBOX@@@
 </td></tr>
+@@@REMINDEREND@@@
 @@@CALENDAREND@@@
 
 @@@WEBDISKSTART@@@
@@ -377,6 +398,7 @@ Larghezza @@@FILEEDITCOLUMNSMENU@@@ Altezza @@@FILEEDITROWSMENU@@@
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Opzioni Varie</B></td></tr>
+@@@WEBMAILSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Usa Espressioni Regolari nelle regole di ricerca e filtraggio:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -386,11 +408,6 @@ Larghezza @@@FILEEDITCOLUMNSMENU@@@ Altezza @@@FILEEDITROWSMENU@@@
 <B>Nascondi dati interni delle cartelle:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@HIDEINTERNAL@@@
-</td></tr>
-<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Tempo Aggiornamento:</B>
-</td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@REFRESHINTERVALMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Notifica sonora nuovo mail:</B>
@@ -411,6 +428,12 @@ durata @@@NEWMAILWINDOWTIMEMENU@@@ secondi &nbsp;( 0 significa Nessuna Finestra 
 <B>Mantieni posta nel cestino per giorni:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@RESERVEDDAYSMENU@@@
+</td></tr>
+@@@WEBMAILEND@@@
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Tempo Aggiornamento:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@REFRESHINTERVALMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Tempo prima di sessione scaduta:</B>

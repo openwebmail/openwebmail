@@ -13,8 +13,8 @@ Liste kann ausgew&auml;hlt werden um das fehlerhafte Wort zu ersetzen. Soll kein
 Werden keine Vorschl&auml;ge gefunden kann "manuell &auml;ndern" ausgew&auml;hlt werden. Durch klicken auf "Erneut pr&uuml;fen"
 erscheint eine Textbox, in der die Korrektur manuell
 eingetragen werden kann.
-If the user chooses "--Add to Dictionary--" and then clicks [Check Again], 
-the original word will be added to the user's personal dictionary.
+Wenn Sie "zu pers&ouml;nlichem W&ouml;rterbuch hinzuf&uuml;gen" w&auml;hlen und dann auf "Erneut pr&uuml;fen" klicken, 
+wird das Wort unver&auml;ndert zu Ihrem pers&ouml;nlichen Wörterbuch hinzugef&uuml;gt.
 </td></tr>
 </table>
 <br>
@@ -25,7 +25,7 @@ the original word will be added to the user's personal dictionary.
 <table width="100%" bgcolor=#FFFFFF border="0" cellpadding="2" cellspacing="1">
 <tr><td valign="top"><font size=-1>
 @@@WORDSHTML@@@
-</td></tr></table>
+</font></td></tr></table>
 </td></tr></table>
 
 <br>

@@ -64,9 +64,9 @@ package openwebmail::it;
 
 %lang_disableemblinklabels =
    (
-   none    => 'None',
-   cgionly => 'CGI only',
-   all     => 'All embedded URLs'
+   none    => 'Nessuno',
+   cgionly => 'Solo CGI',
+   all     => 'Tuttti gli URLs incorporati'
    );
 
 %lang_ctrlpositionlabels =
@@ -190,9 +190,10 @@ package openwebmail::it;
    chdir    => 'CambiaCartella',
    mkdir    => 'CreaCartella',
    newfile  => 'NuovoFile',
-   delete   => 'Canc',
    copy     => 'Copia',
    move     => 'Sposta',
+   symlink  => 'Symlink',
+   delete   => 'Canc',
    gzip     => 'Comprimi_gz',
    mkzip    => 'Crea_Zip',
    mktgz    => 'Crea_Tgz',
@@ -207,6 +208,7 @@ package openwebmail::it;
    help       => 'Aiuto',
    login      => 'Login',
    clear      => 'Cancella',
+   webmail    => 'WebMail',
    point      => 'Punti',
    pixel      => 'Pixel',
    changepwd  => 'Cambia Password',
@@ -270,7 +272,9 @@ package openwebmail::it;
    msgrebuild => 'Messaggio ricostruito',
    editdraft  => 'Edita bozze',
    savedraft  => 'Salva bozza',
+   draftsaved => 'La bozza @@@SUBJECT@@@ è stata salvata',
    send       => 'Invia',
+   msgsent    => 'Il messaggio @@@SUBJECT@@@ è stato spedito',
    about      => 'Informazioni',
    close      => 'Chiudi',
    cancel     => 'Annulla',
@@ -406,6 +410,12 @@ package openwebmail::it;
    vdomain_createuser => 'Crea Utente',
    vdomain_changeuser => 'Cambia Utente',
    vdomain_deleteuser => 'Cancella Utente',
+   vdomain_changeview => 'Modifica vista a',
+   vdomain_usersonly  => 'solo utenti',
+   vdomain_useralias  => 'utenti/aliases',
+   vdomain_fmtuseralias => 'formattato utenti/aliases',
+   vdomain_admin      => 'Admin',
+   vdomain_localuser  => 'Utente Locale',
    set_passwd         => 'Imposta Password',
    reset_passwd       => 'Azzera Password',
    email_alias        => 'Alias E-MAIL'
@@ -473,7 +483,9 @@ package openwebmail::it;
    spool_overlimit   => 'Spiacente, la ua INBOX ha superato il limite di spazio (@@@SPOOLLIMIT@@@). Per favore eliminare alcuni messaggi da INBOX o qualche altra cartella.',
    vdomain_toomanyuser  => 'Spiacente, il numero di unteni per questo dominio ha raggiunto il limite massimo',
    vdomain_toomanyalias => 'Spiacente, il numeor di E-MAIL alias per questo utente ha raggiunto il limite massimo',
-   vdomain_userrequired => 'E\' richiesto un username'
+   vdomain_userrequired => 'E\' richiesto un username',
+   vdomain_fwdrequired => 'E\' richiesto un E-MAIL di forward valido',
+   all_module_disabled => 'Tutti i moduli sono disabilitati'
    );
 
 1;

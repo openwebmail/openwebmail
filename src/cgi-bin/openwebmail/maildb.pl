@@ -1,7 +1,7 @@
 #
 # maildb.pl - mail indexing/parsing routines
 #
-# 2001/12/21 tung@turtle.ee.ncku.edu.tw
+# 2001/12/21 tung.AT.turtle.ee.ncku.edu.tw
 #
 # Description
 #
@@ -55,35 +55,28 @@ sub update_headerdb {
    if ( -e "$headerdb$config{'dbm_ext'}" ) {
       my ($metainfo, $allmessages, $internalmessages, $newmessages);
 
-      if (!$config{'dbmopen_haslock'}) {
-         filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) or return -1;
-      }
-      dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
+      open_dbm(\%HDB, $headerdb, LOCK_SH) or return -1;
+
       $metainfo=$HDB{'METAINFO'};
       $allmessages=$HDB{'ALLMESSAGES'};
       $internalmessages=$HDB{'INTERNALMESSAGES'};
       $newmessages=$HDB{'NEWMESSAGES'};
-      dbmclose(%HDB);
-      filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+
+      close_dbm(\%HDB, $headerdb);
 
       if ( $metainfo eq metainfo($folderfile) && $allmessages >=0
            && $internalmessages >=0 && $newmessages >=0 ) {
          return 0;
       }
 
-      if ($config{'dbm_ext'} eq 'dir') {
-         rename("$headerdb.dir", "$headerdb.old.dir");
-         rename("$headerdb.pag", "$headerdb.old.pag");
-      } else {
-         rename("$headerdb$config{'dbm_ext'}", "$headerdb.old$config{'dbm_ext'}");
-      }
+      rename("$headerdb.dir", "$headerdb.old.dir");
+      rename("$headerdb.pag", "$headerdb.old.pag");
+      rename("$headerdb$config{'dbm_ext'}", "$headerdb.old$config{'dbm_ext'}") if ($config{'dbm_ext'} ne '.dir' and $config{'dbm_ext'} ne '.pag') ;
 
       # we will try to reference records in old headerdb if possible
       @oldmessageids=get_messageids_sorted_by_offset("$headerdb.old");
-      if (!$config{'dbmopen_haslock'}) {
-         filelock("$headerdb.old$config{'dbm_ext'}", LOCK_SH) or return -1;
-      }
-      dbmopen(%OLDHDB, "$headerdb.old$config{'dbmopen_ext'}", undef);
+
+      open_dbm(\%OLDHDB, "$headerdb.old", LOCK_SH) or return -1;
    }
 
    my ($messagenumber, $newmessages, $internalmessages) = (-1, 0, 0);
@@ -95,10 +88,12 @@ sub update_headerdb {
    my ($_from, $_to, $_date, $_subject);
    my ($_content_type, $_status, $_messagesize, $_references, $_inreplyto, $_charset);
 
-   dbmopen(%HDB, "$headerdb$config{'dbmopen_ext'}", 0600);
-   if (!$config{'dbmopen_haslock'}) {
-      filelock("$headerdb$config{'dbm_ext'}", LOCK_EX) or return -1;
+   my $ret=open_dbm(\%HDB, $headerdb, LOCK_EX);
+   if (!$ret) {
+      close_dbm(\%OLDHDB, "$headerdb.old") if (defined(%OLDHDB));
+      return -1;
    }
+
    %HDB=();	# ensure the headerdb is empty
 
    open (FOLDER, $folderfile);
@@ -120,12 +115,7 @@ sub update_headerdb {
       }
 
       if ( $buff=~/^From /) { # ya, msg end is found!
-         $HDB{$id}=join('@@@', @attr) || $dberr++;
-         if ($dberr) {
-            dbmclose(%OLDHDB);
-            filelock("$headerdb.old$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
-            unlink("$headerdb.old$config{'dbm_ext'}", "$headerdb.old.dir", "$headerdb.old.pag");
-            $dberr=0;
+         if ( ! ($HDB{$id}=join('@@@', @attr)) ) {
             $totalsize-=$attr[$_SIZE];
             last;
          }
@@ -148,9 +138,9 @@ sub update_headerdb {
          $eof=1;
       }
 
-      # ex: From tung@turtle.ee.ncku.edu.tw Fri Jun 22 14:15:33 2001
-      # ex: From tung@turtle.ee.ncku.edu.tw Mon Aug 20 18:24 CST 2001
-      # ex: From nsb@thumper.bellcore.com Wed Mar 11 16:27:37 EST 1992
+      # ex: From Tung@turtle.ee.ncku.edu.tw Fri Jun 22 14:15:33 2001
+      # ex: From Tung@turtle.ee.ncku.edu.tw Mon Aug 20 18:24 CST 2001
+      # ex: From Nssb@thumper.bellcore.com Wed Mar 11 16:27:37 EST 1992
       if ( $eof || $line =~ /^From .*(\w\w\w)\s+(\w\w\w)\s+(\d+)\s+(\d+):(\d+):?(\d*)\s+([A-Z]{3,4}\d?\s+)?(\d\d+)/ ) {
          if ($_messagesize >0) {	# save previous msg
 
@@ -162,18 +152,15 @@ sub update_headerdb {
             $_references=~s/\@\@/\@\@ /g;   $_references=~s/\@$/\@ /;
             $_inreplyto=~s/\@\@/\@\@ /g;    $_inreplyto=~s/\@$/\@ /;
 
-            # try ti get charset from contenttype header
-            if ($_charset eq "" && 		
-                $_content_type=~/charset="?([^\s"';]*)"?\s?/i) {
-               $_charset=$1;
-            }
+            # try to get charset from contenttype header
+            $_charset=$1 if ($_charset eq "" && $_content_type=~/charset\s*=\s*"?([^\s"';]*)"?\s?/i);
 
             # in most case, a msg references field should already contain
             # ids in in-reply-to: field, but do check it again here
-	    if ($_inreplyto =~ m/^\s*(\<\S+\>)\s*$/) {
-	       $_references .= " " . $1 if ($_references!~/\Q$1\E/);
-	    }
-	    $_references =~ s/\s{2,}/ /g;
+            if ($_inreplyto =~ m/^\s*(\<\S+\>)\s*$/) {
+               $_references .= " " . $1 if ($_references!~/\Q$1\E/);
+            }
+            $_references =~ s/\s{2,}/ /g;
 
             if ($_message_id eq '') {	# fake messageid with date and from
                $_message_id="$_date.".(email2nameaddr($_from))[1];
@@ -187,33 +174,15 @@ sub update_headerdb {
             $_status .= "T" if ($has_att);
             $_status .= "V" if ($verified);
 
-            if (! defined($HDB{$_message_id}) ) {
+            	if (! defined($HDB{$_message_id}) ) {
                $HDB{$_message_id}=make_msgrecord($_message_id, $_offset, $_from, $_to,
                   $_date, $_subject, $_content_type, $_status, $_messagesize, $_references, $_charset)
                   or $dberr++;
-               if ($dberr && defined(%OLDHDB)) {
-                  dbmclose(%OLDHDB);
-                  filelock("$headerdb.old$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
-                  unlink("$headerdb.old$config{'dbm_ext'}", "$headerdb.old.dir", "$headerdb.old.pag");
-                  $dberr=0;
-                  $HDB{$_message_id}=make_msgrecord($_message_id, $_offset, $_from, $_to,
-                     $_date, $_subject, $_content_type, $_status, $_messagesize, $_references, $_charset)
-                     or $dberr++;
-               }
             } else {
                my $dup=$#duplicateids+1;
                $HDB{"dup$dup-$_message_id"}=make_msgrecord("dup$dup-$_message_id", $_offset, $_from, $_to,
 		  $_date, $_subject, $_content_type, $_status, $_messagesize, $_references, $_charset)
                   or $dberr++;
-               if ($dberr && defined(%OLDHDB)) {
-                  dbmclose(%OLDHDB);
-                  filelock("$headerdb.old$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
-                  unlink("$headerdb.old$config{'dbm_ext'}", "$headerdb.old.dir", "$headerdb.old.pag");
-                  $dberr=0;
-                  $HDB{"dup$dup-$_message_id"}=make_msgrecord("dup$dup-$_message_id", $_offset, $_from, $_to,
-                     $_date, $_subject, $_content_type, $_status, $_messagesize, $_references, $_charset)
-                     or $dberr++;
-               }
                push(@duplicateids, "dup$dup-$_message_id") if (!$dberr);
             }
          }
@@ -360,16 +329,14 @@ sub update_headerdb {
       $HDB{'ALLMESSAGES'}=$messagenumber+1;
       $HDB{'INTERNALMESSAGES'}=$internalmessages;
       $HDB{'NEWMESSAGES'}=$newmessages;
-      $HDB{'METAINFO'}=metainfo($folderfile) || $dberr++;
+      $HDB{'METAINFO'}=metainfo($folderfile) or $dberr++;
    }
 
-   filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
-   dbmclose(%HDB);
+   close_dbm(\%HDB, $headerdb);
 
    # remove old headerdb
    if (defined(%OLDHDB)) {
-      dbmclose(%OLDHDB);
-      filelock("$headerdb.old$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+      close_dbm(\%OLDHDB, "$headerdb.old");
       unlink("$headerdb.old$config{'dbm_ext'}", "$headerdb.old.dir", "$headerdb.old.pag");
    }
 
@@ -405,10 +372,7 @@ sub get_messageids_sorted_by_offset {
    my $headerdb=$_[0];
    my (%HDB, @attr, %offset, $key, $data);
 
-   if (!$config{'dbmopen_haslock'}) {
-      filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) or return keys(%offset);
-   }
-   dbmopen(%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
+   open_dbm(\%HDB, $headerdb, LOCK_SH) or return keys(%offset);
 
    while ( ($key, $data)=each(%HDB) ) {
       next if ( $key eq 'METAINFO'
@@ -421,8 +385,7 @@ sub get_messageids_sorted_by_offset {
       $offset{$key}=$attr[$_OFFSET];
    }
 
-   dbmclose(%HDB);
-   filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+   close_dbm(\%HDB, $headerdb);
 
    return( sort { $offset{$a}<=>$offset{$b} } keys(%offset) );
 }
@@ -464,14 +427,10 @@ sub get_info_messageids_sorted {
       $sort='status'; $rev=0;
    }
 
-   if (!$config{'dbmopen_haslock'}) {
-      filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) or
-         return($totalsize, $new, \@messageids, \@messagedepths);
-   }
-   dbmopen(%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
+   open_dbm(\%HDB, $headerdb, LOCK_SH) or return ($totalsize, $new, \@messageids, \@messagedepths);
+
    $metainfo=$HDB{'METAINFO'};
-   dbmclose(%HDB);
-   filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+   close_dbm(\%HDB, $headerdb);
 
    filelock($cachefile, LOCK_EX) or
       return($totalsize, $new, \@messageids, \@messagedepths);
@@ -554,11 +513,8 @@ sub get_info_messageids_sorted_by_date {
    my ($totalsize, $new)=(0,0);
    my @messageids;
 
-   if (!$config{'dbmopen_haslock'}) {
-      filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) or
-         return($totalsize, $new, \@messageids);
-   }
-   dbmopen(%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
+   open_dbm(\%HDB, $headerdb, LOCK_SH) or return ($totalsize, $new, \@messageids);
+
    while ( ($key, $data)=each(%HDB) ) {
       if ( $key eq 'METAINFO' ||
            $key eq 'ALLMESSAGES' ||
@@ -575,8 +531,7 @@ sub get_info_messageids_sorted_by_date {
          $dateserial{$key}=$attr[$_DATE];
       }
    }
-   dbmclose(%HDB);
-   filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+   close_dbm(\%HDB, $headerdb);
 
    @messageids=sort { $dateserial{$b}<=>$dateserial{$a} } keys(%dateserial);
    return($totalsize, $new, \@messageids);
@@ -588,11 +543,8 @@ sub get_info_messageids_sorted_by_from {
    my ($totalsize, $new)=(0,0);
    my @messageids;
 
-   if (!$config{'dbmopen_haslock'}) {
-      filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) or
-         return($totalsize, $new, \@messageids);
-   }
-   dbmopen(%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
+   open_dbm(\%HDB, $headerdb, LOCK_SH) or return ($totalsize, $new, \@messageids);
+
    while ( ($key, $data)=each(%HDB) ) {
       if ( $key eq 'METAINFO' ||
            $key eq 'ALLMESSAGES' ||
@@ -610,8 +562,7 @@ sub get_info_messageids_sorted_by_from {
          $dateserial{$key}=$attr[$_DATE];
       }
    }
-   dbmclose(%HDB);
-   filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+   close_dbm(\%HDB, $headerdb);
 
    @messageids=sort { $dateserial{$b} <=> $dateserial{$a}; } keys(%dateserial);
 
@@ -645,11 +596,8 @@ sub get_info_messageids_sorted_by_to {
    my ($totalsize, $new)=(0,0);
    my @messageids;
 
-   if (!$config{'dbmopen_haslock'}) {
-      filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) or
-         return($totalsize, $new, \@messageids);
-   }
-   dbmopen(%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
+   open_dbm(\%HDB, $headerdb, LOCK_SH) or return ($totalsize, $new, \@messageids);
+
    while ( ($key, $data)=each(%HDB) ) {
       if ( $key eq 'METAINFO' ||
            $key eq 'ALLMESSAGES' ||
@@ -667,8 +615,7 @@ sub get_info_messageids_sorted_by_to {
          $dateserial{$key}=$attr[$_DATE];
       }
    }
-   dbmclose(%HDB);
-   filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+   close_dbm(\%HDB, $headerdb);
 
    @messageids=sort { $dateserial{$b} <=> $dateserial{$a}; } keys(%dateserial);
 
@@ -705,11 +652,8 @@ sub get_info_messageids_sorted_by_subject {
    my (%thread_parent, @thread_pre_roots, @thread_roots, %thread_children);
    my (@message_ids, @message_depths);
 
-   if (!$config{'dbmopen_haslock'}) {
-      filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) or
-         return($totalsize, $new, \@message_ids, \@message_depths);
-   }
-   dbmopen(%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
+   open_dbm(\%HDB, $headerdb, LOCK_SH) or return ($totalsize, $new, \@message_ids, \@message_depths);
+
    while ( ($key, $data)=each(%HDB) ) {
       if ( $key eq 'METAINFO' ||
            $key eq 'ALLMESSAGES' ||
@@ -731,8 +675,7 @@ sub get_info_messageids_sorted_by_subject {
          $subject{$key}=~s/[\[\]]//g;
       }
    }
-   dbmclose(%HDB);
-   filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+   close_dbm(\%HDB, $headerdb);
 
    # In the first pass we need to make sure each message has a valid
    # parent message.  We also track which messages won't have parent
@@ -815,11 +758,8 @@ sub get_info_messageids_sorted_by_size {
    my ($totalsize, $new)=(0,0);
    my @messageids;
 
-   if (!$config{'dbmopen_haslock'}) {
-      filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) or
-         return($totalsize, $new, \@messageids);
-   }
-   dbmopen(%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
+   open_dbm(\%HDB, $headerdb, LOCK_SH) or return ($totalsize, $new, \@messageids);
+
    while ( ($key, $data)=each(%HDB) ) {
       if ( $key eq 'METAINFO' ||
            $key eq 'ALLMESSAGES' ||
@@ -837,8 +777,7 @@ sub get_info_messageids_sorted_by_size {
          $dateserial{$key}=$attr[$_DATE];
       }
    }
-   dbmclose(%HDB);
-   filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+   close_dbm(\%HDB, $headerdb);
 
    @messageids=sort {
                     $size{$b} <=> $size{$a} or $dateserial{$b} <=> $dateserial{$a};
@@ -852,11 +791,8 @@ sub get_info_messageids_sorted_by_status {
    my ($totalsize, $new)=(0,0);
    my @messageids;
 
-   if (!$config{'dbmopen_haslock'}) {
-      filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) or
-         return($totalsize, $new, \@messageids);
-   }
-   dbmopen(%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
+   open_dbm(\%HDB, $headerdb, LOCK_SH) or return ($totalsize, $new, \@messageids);
+
    while ( ($key, $data)=each(%HDB) ) {
       if ( $key eq 'METAINFO' ||
            $key eq 'ALLMESSAGES' ||
@@ -886,8 +822,7 @@ sub get_info_messageids_sorted_by_status {
          $dateserial{$key}=$attr[$_DATE];
       }
    }
-   dbmclose(%HDB);
-   filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+   close_dbm(\%HDB, $headerdb);
 
    @messageids=sort {
                     $status{$b} <=> $status{$a} or $dateserial{$b} <=> $dateserial{$a};
@@ -901,13 +836,10 @@ sub get_message_attributes {
    my ($messageid, $headerdb)=@_;
    my (%HDB, @attr);
 
-   if (!$config{'dbmopen_haslock'}) {
-      filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) or return @attr;
-   }
-   dbmopen(%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
+   open_dbm(\%HDB, $headerdb, LOCK_SH) or return @attr;
+
    @attr=split(/@@@/, $HDB{$messageid} );
-   dbmclose(%HDB);
-   filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+   close_dbm(\%HDB, $headerdb);
    return(@attr);
 }
 
@@ -968,10 +900,7 @@ sub update_message_status {
    my @attr;
    my $i;
 
-   if (!$config{'dbmopen_haslock'}) {
-      filelock("$headerdb$config{'dbm_ext'}", LOCK_EX) or return -1;
-   }
-   dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", 0600);
+   open_dbm(\%HDB, $headerdb, LOCK_EX) or return -1;
 
    for ($i=0; $i<=$#messageids; $i++) {
       if ($messageids[$i] eq $messageid) {
@@ -999,8 +928,8 @@ sub update_message_status {
             writehistory("db warning - msg $messageid in $folderfile index inconsistence");
 
             $HDB{'METAINFO'}="ERR";
-            dbmclose(%HDB);
-            filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+            close_dbm(\%HDB, $headerdb);
+
             # forced reindex since metainfo = ERR
             return -3 if (update_headerdb($headerdb, $folderfile)<0);
             return -2;
@@ -1051,7 +980,7 @@ sub update_message_status {
 
          if (!$ioerr) {
             seek($folderhandle, $messagestart, 0);
-            print $folderhandle $header || $ioerr++;
+            print $folderhandle $header or $ioerr++;
          }
          if (!$ioerr) {
             seek($folderhandle, $foldersize+$movement, 0);
@@ -1090,8 +1019,7 @@ sub update_message_status {
    # update folder metainfo
    $HDB{'METAINFO'}=metainfo($folderfile) if (!$ioerr);
 
-   dbmclose(%HDB);
-   filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+   close_dbm(\%HDB, $headerdb);
 
    if (!$ioerr) {
       return 0;
@@ -1116,7 +1044,6 @@ sub operate_message_with_ids {
    return 0 if ($srcfile eq $dstfile || $#{$r_messageids} < 0);
 
    if (update_headerdb($srcdb, $srcfile)<0) {
-      filelock($srcfile, LOCK_UN);
       writelog("db error - Couldn't update index db $srcdb$config{'dbm_ext'}");
       writehistory("db error - Couldn't update index db $srcdb$config{'dbm_ext'}");
       return -2;
@@ -1129,30 +1056,37 @@ sub operate_message_with_ids {
       open (DEST, ">>$dstfile") or
          return -5;	# $lang_err{'couldnt_open'} $destination!
       seek(DEST, 0, 2);	# seek end explicitly to cover tell() bug in perl 5.8
+
       if (update_headerdb("$dstdb", $dstfile)<0) {
-         filelock($dstfile, LOCK_UN);
+         close ($folderhandle);
+         close (DEST);
          writelog("db error - Couldn't update index db $dstdb$config{'dbm_ext'}");
          writehistory("db error - Couldn't update index db $dstdb$config{'dbm_ext'}");
          return -4;
       }
+
+      if ( !open_dbm(\%HDB2,$dstdb, LOCK_EX) ) {
+         close ($folderhandle);
+         close (DEST);
+         writelog("db error - Couldn't open index db $dstdb$config{'dbm_ext'}");
+         writehistory("db error - Couldn't open index db $dstdb$config{'dbm_ext'}");
+         return -1;
+      }
    }
 
    my @allmessageids=get_messageids_sorted_by_offset($srcdb);
+
+   if ( !open_dbm(\%HDB, $srcdb, LOCK_EX) ) {
+      if ($op eq "move" || $op eq "copy") {
+         close (DEST);
+         close_dbm(\%HDB2,$dstdb);
+      }
+      return -1;
+   }
+
    my ($blockstart, $blockend, $writepointer);
    my ($messagestart, $messagesize, $messagevalid, @attr, $buff);
    my $counted=0;
-
-   if (!$config{'dbmopen_haslock'}) {
-      filelock("$srcdb$config{'dbm_ext'}", LOCK_EX) or return -6;
-   }
-   dbmopen (%HDB, "$srcdb$config{'dbmopen_ext'}", 0600);
-
-   if ($op eq "move" || $op eq "copy") {
-      if (!$config{'dbmopen_haslock'}) {
-         filelock("$dstdb$config{'dbm_ext'}", LOCK_EX) or return -7;
-      }
-      dbmopen (%HDB2, "$dstdb$config{'dbmopen_ext'}", 0600);
-   }
 
    $blockstart=$blockend=$writepointer=0;
 
@@ -1201,11 +1135,11 @@ sub operate_message_with_ids {
             while ($left>0) {
                if ($left>=32768) {
                    read($folderhandle, $buff, 32768);
-                   print DEST $buff || $ioerr++;
+                   print DEST $buff or $ioerr++;
                    $left=$left-32768;
                } else {
                    read($folderhandle, $buff, $left);
-                   print DEST $buff || $ioerr++;
+                   print DEST $buff or $ioerr++;
                    $left=0;
                }
             }
@@ -1252,16 +1186,14 @@ sub operate_message_with_ids {
    }
 
    if ($op eq "move" || $op eq "copy") {
-      close (DEST);
       $HDB2{'METAINFO'}=metainfo($dstfile) if (!$ioerr);
-      dbmclose(%HDB2);
-      filelock("$dstdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+      close (DEST);
+      close_dbm(\%HDB2,$dstdb);
    }
 
    close ($folderhandle);
    $HDB{'METAINFO'}=metainfo($srcfile) if (!$ioerr);
-   dbmclose(%HDB);
-   filelock("$srcdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+   close_dbm(\%HDB, $srcdb);
 
    if (!$ioerr) {
       return($counted);
@@ -1287,17 +1219,14 @@ sub delete_message_by_age {
    }
    @allmessageids=get_messageids_sorted_by_offset($headerdb);
 
-   if (!$config{'dbmopen_haslock'}) {
-      filelock("$headerdb$config{'dbm_ext'}", LOCK_EX) or return -1;
-   }
-   dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", 0600);
+   open_dbm(\%HDB, $headerdb, LOCK_EX) or return -1;
+
    my $agestarttime=time()-$dayage*86400;
    foreach (@allmessageids) {
       my @attr = split(/@@@/, $HDB{$_});
       push(@agedids, $_) if (dateserial2gmtime($attr[$_DATE])<=$agestarttime); # too old
    }
-   dbmclose(%HDB);
-   filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+   close_dbm(\%HDB, $headerdb);
 
    return 0 if ($#agedids==-1);
    return(operate_message_with_ids('delete', \@agedids, $folderfile, $headerdb));
@@ -1310,10 +1239,7 @@ sub move_oldmsg_from_folder {
    my (%HDB, $key, $data, @attr);
    my @messageids=();
 
-   if (!$config{'dbmopen_haslock'}) {
-      filelock("$srcdb$config{'dbm_ext'}", LOCK_SH) or return -1;
-   }
-   dbmopen (%HDB, "$srcdb$config{'dbmopen_ext'}", undef);
+   open_dbm(\%HDB, $srcdb, LOCK_SH) or return -1;
 
    # if oldmsg == internal msg or 0, then do not read ids
    if ( $HDB{'ALLMESSAGES'}-$HDB{'NEWMESSAGES'} > $HDB{'INTERNALMESSAGES'} ) {
@@ -1331,8 +1257,7 @@ sub move_oldmsg_from_folder {
       }
    }
 
-   dbmclose(%HDB);
-   filelock("$srcdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+   close_dbm(\%HDB, $srcdb);
 
    # no old msg found
    return 0 if ($#messageids==-1);
@@ -1357,10 +1282,8 @@ sub rebuild_message_with_partialid {
    }
 
    # find all partial msgids
-   if (!$config{'dbmopen_haslock'}) {
-      filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) or return -2;
-   }
-   dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
+   open_dbm(\%HDB, $headerdb, LOCK_SH) or return -2;
+
    @messageids=keys %HDB;
    foreach my $id (@messageids) {
       next if ( $id eq 'METAINFO'
@@ -1383,8 +1306,7 @@ sub rebuild_message_with_partialid {
          $partialtotal=$1 if ($attr[$_CONTENT_TYPE] =~ /;\s*total="?(.+?)"?;?/i);
       }
    }
-   dbmclose(%HDB);
-   filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+   close_dbm(\%HDB, $headerdb);
 
    # check completeness
    if ($partialtotal<1) {	# last part not found
@@ -1453,8 +1375,7 @@ sub rebuild_message_with_partialid {
       return -9;
    }
 
-   my $moved=operate_message_with_ids("move", \@rebuildmsgids,
-				$tmpfile, $tmpdb, $folderfile, $headerdb);
+   operate_message_with_ids("move", \@rebuildmsgids, $tmpfile, $tmpdb, $folderfile, $headerdb);
 
    unlink("$tmpdb$config{'dbm_ext'}", $tmpfile);
 
@@ -1971,14 +1892,10 @@ sub search_info_messages_for_keyword {
    my ($totalsize, $new)=(0,0);
    my %found=();
 
-   if (!$config{'dbmopen_haslock'}) {
-      filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) or
-         return($totalsize, $new, \%found);
-   }
-   dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
+   open_dbm(\%HDB, $headerdb, LOCK_SH) or return($totalsize, $new, \%found);
+
    $metainfo=$HDB{'METAINFO'};
-   dbmclose(%HDB);
-   filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+   close_dbm(\%HDB, $headerdb);
 
    filelock($cachefile, LOCK_EX) or return($totalsize, $new, \%found);
 
@@ -1998,11 +1915,7 @@ sub search_info_messages_for_keyword {
       ($cachefile =~ /^(.+)$/) && ($cachefile = $1);		# untaint ...
       @messageids=get_messageids_sorted_by_offset($headerdb, $folderhandle);
 
-      if (!$config{'dbmopen_haslock'}) {
-         filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) or
-            return($totalsize, $new, \%found);
-      }
-      dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
+      open_dbm(\%HDB, $headerdb, LOCK_SH) or return($totalsize, $new, \%found);
 
       $regexmatch = $regexmatch && is_regex($keyword);	# check if keyword a valid regex
 
@@ -2140,8 +2053,7 @@ sub search_info_messages_for_keyword {
          }
       }
 
-      dbmclose(%HDB);
-      filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+      close_dbm(\%HDB, $headerdb);
 
       open(CACHE, ">$cachefile");
       print CACHE $metainfo, "\n";
@@ -2190,14 +2102,14 @@ sub shiftblock {
              seek($fh, $movestart, 0);
              read($fh, $buff, 32768);
              seek($fh, $movestart+$movement, 0);
-             print $fh $buff || $ioerr++;
+             print $fh $buff or $ioerr++;
              $left=$left-32768;
          } else {
              $movestart=$start;
              seek($fh, $movestart, 0);
              read($fh, $buff, $left);
              seek($fh, $movestart+$movement, 0);
-             print $fh $buff || $ioerr++;
+             print $fh $buff or $ioerr++;
              $left=0;
          }
       }
@@ -2209,14 +2121,14 @@ sub shiftblock {
              seek($fh, $movestart, 0);
              read($fh, $buff, 32768);
              seek($fh, $movestart+$movement, 0);
-             print $fh $buff || $ioerr++;
+             print $fh $buff or $ioerr++;
              $left=$left-32768;
          } else {
              $movestart=$start+$size-$left;
              seek($fh, $movestart, 0);
              read($fh, $buff, $left);
              seek($fh, $movestart+$movement, 0);
-             print $fh $buff || $ioerr++;
+             print $fh $buff or $ioerr++;
              $left=0;
          }
       }

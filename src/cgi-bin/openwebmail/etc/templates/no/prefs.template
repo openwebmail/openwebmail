@@ -33,6 +33,7 @@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DAYLIGHTSAVINGMENU@@@
 </td></tr>
+@@@WEBMAILSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Fra:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -72,6 +73,7 @@ Emne:
 @@@SIGAREA@@@
 <br>&nbsp;
 </td></tr>
+@@@WEBMAILEND@@@
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Visningsoppsett</B></td></tr>
@@ -111,6 +113,7 @@ Emne:
 @@@HOURFORMATMENU@@@-timers klokke
 </td></tr>
 
+@@@WEBMAILSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Folder browsing</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
@@ -160,7 +163,7 @@ Emne:
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Hent POP3-meldinger automatisk ved innlogging:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@AUTOPOP3CHECKBOX@@@
+@@@AUTOPOP3CHECKBOX@@@ (wait @@@AUTOPOP3WAITMENU@@@ seconds)
 </td></tr>
 @@@AUTOPOP3END@@@
 @@@MOVEOLDSTART@@@
@@ -192,6 +195,11 @@ Emne:
 <B>Bruk grafiske fjesinger når du leser meldinger:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USESMILEICON@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Show HTML message as plain text:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SHOWHTMLASTEXT@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Vis bilde-vedlegg som lenker:</B>
@@ -261,6 +269,11 @@ Bredde @@@EDITCOLUMNSMENU@@@ Høyde @@@EDITROWSMENU@@@
 @@@FILTERREPEATLIMIT@@@ &nbsp;( 0 betyr ingen repitisjonssjekk )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Filter messages with bad From email format:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@FILTERBADFORMATFROM@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Filtrér meldinger med falsk SMTP:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDSMTP@@@
@@ -294,10 +307,16 @@ Bredde @@@ABOOKWIDTHMENU@@@ Høyde @@@ABOOKHEIGHTMENU@@@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKDEFAULTFILTER@@@
 </td></tr>
+@@@WEBMAILEND@@@
 
 @@@CALENDARSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Kalender-oppsett</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Default calendar view:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DEFAULTVIEWMENU@@@
+</td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Holiday definition:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -333,6 +352,7 @@ Bredde @@@ABOOKWIDTHMENU@@@ Høyde @@@ABOOKHEIGHTMENU@@@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SHOWEMPTYHOURSCHECKBOX@@@
 </td></tr>
+@@@REMINDERSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Kalendervarsel:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -343,6 +363,7 @@ Sjekk @@@REMINDERDAYSMENU@@@ dager fremover
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REMINDERFORGLOBALCHECKBOX@@@
 </td></tr>
+@@@REMINDEREND@@@
 @@@CALENDAREND@@@
 
 @@@WEBDISKSTART@@@
@@ -377,6 +398,7 @@ Bredde @@@FILEEDITCOLUMNSMENU@@@ Høyde @@@FILEEDITROWSMENU@@@
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Diverse oppsett</B></td></tr>
+@@@WEBMAILSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Bruk regulære uttrykk i søk og filterregler:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -386,11 +408,6 @@ Bredde @@@FILEEDITCOLUMNSMENU@@@ Høyde @@@FILEEDITROWSMENU@@@
 <B>Skjul intern mappeinformasjon:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@HIDEINTERNAL@@@
-</td></tr>
-<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Oppdateringsintervall:</B>
-</td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@REFRESHINTERVALMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Varsellyd for innkommende melding:</B>
@@ -411,6 +428,12 @@ gjenstående @@@NEWMAILWINDOWTIMEMENU@@@ sekunder &nbsp;( 0 betyr ingen varsel )
 <B>Antall dager meldinger blr liggende i papirkurven:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@RESERVEDDAYSMENU@@@
+</td></tr>
+@@@WEBMAILEND@@@
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Oppdateringsintervall:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@REFRESHINTERVALMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Automatisk utlogging etter:</B>

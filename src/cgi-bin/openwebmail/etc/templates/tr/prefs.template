@@ -33,6 +33,7 @@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DAYLIGHTSAVINGMENU@@@
 </td></tr>
+@@@WEBMAILSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Kimden:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -72,6 +73,7 @@ Konu:
 @@@SIGAREA@@@
 <br>&nbsp;
 </td></tr>
+@@@WEBMAILEND@@@
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Görünüm Tercihleri</B></td></tr>
@@ -111,6 +113,7 @@ Konu:
 @@@HOURFORMATMENU@@@ hour
 </td></tr>
 
+@@@WEBMAILSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Folder browsing</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
@@ -160,7 +163,7 @@ Konu:
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Giriþte POP3 iletilerini otomatik al:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@AUTOPOP3CHECKBOX@@@
+@@@AUTOPOP3CHECKBOX@@@ (wait @@@AUTOPOP3WAITMENU@@@ seconds)
 </td></tr>
 @@@AUTOPOP3END@@@
 @@@MOVEOLDSTART@@@
@@ -192,6 +195,11 @@ Konu:
 <B>Ýleti okurken gülenadam kullan:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USESMILEICON@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Show HTML message as plain text:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SHOWHTMLASTEXT@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Ek resim dosyalarýný link olarak göster :</B>
@@ -261,6 +269,11 @@ Geniþlik @@@EDITCOLUMNSMENU@@@ Yükseklik @@@EDITROWSMENU@@@
 @@@FILTERREPEATLIMIT@@@ &nbsp;( 0, ileti tekrar kontrolü yapmaz )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Filter messages with bad From email format:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@FILTERBADFORMATFROM@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Sahte SMTP iletilerini filitrele:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDSMTP@@@
@@ -294,10 +307,16 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKDEFAULTFILTER@@@
 </td></tr>
+@@@WEBMAILEND@@@
 
 @@@CALENDARSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Takvim Seçenekleri</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Default calendar view:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DEFAULTVIEWMENU@@@
+</td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Holiday definition:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -333,6 +352,7 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SHOWEMPTYHOURSCHECKBOX@@@
 </td></tr>
+@@@REMINDERSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Eylem hatýrlatýcýsý kontrol günü:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -343,6 +363,7 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REMINDERFORGLOBALCHECKBOX@@@
 </td></tr>
+@@@REMINDEREND@@@
 @@@CALENDAREND@@@
 
 @@@WEBDISKSTART@@@
@@ -377,6 +398,7 @@ Geniþlik @@@FILEEDITCOLUMNSMENU@@@ Yükseklik @@@FILEEDITROWSMENU@@@
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Baþlýksýz Seçenekler</B></td></tr>
+@@@WEBMAILSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Arama ve filtre kurallarýnda düzenli ifade kullan:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -386,11 +408,6 @@ Geniþlik @@@FILEEDITCOLUMNSMENU@@@ Yükseklik @@@FILEEDITROWSMENU@@@
 <B>Klasör içi bilgileri düzenle:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@HIDEINTERNAL@@@
-</td></tr>
-<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Yenileme Aralýðý:</B>
-</td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@REFRESHINTERVALMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>YeniÝleti Sesli Bildirim:</B>
@@ -411,6 +428,12 @@ kalan @@@NEWMAILWINDOWTIMEMENU@@@ saniye &nbsp;( 0 bu pencereyi kullanma demek)
 <B>Silinmiþ iletilerin Çöp Kutusu ömrü:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@RESERVEDDAYSMENU@@@
+</td></tr>
+@@@WEBMAILEND@@@
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Yenileme Aralýðý:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@REFRESHINTERVALMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Sezon zamanaþýmý:</B>

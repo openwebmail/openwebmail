@@ -3,6 +3,7 @@ use strict;
 
 use vars qw(%lasttimeofday);
 %lasttimeofday=();
+
 sub gettimeofday {
    my ($SYS_gettimeofday, $timeval, $timezone, $sec, $usec);
 
@@ -12,6 +13,10 @@ sub gettimeofday {
 	     && die "gettimeofday failed: $!";
    ($sec, $usec) = unpack("L2", $timeval);
    return $sec +  $usec/1e6;
+}
+
+sub timeofday_init {
+   %lasttimeofday=();
 }
 
 sub timeofday_diff {

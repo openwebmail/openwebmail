@@ -66,9 +66,9 @@ package openwebmail::pt_BR;
 
 %lang_disableemblinklabels =
    (
-   none    => 'None',
-   cgionly => 'CGI only',
-   all     => 'All embedded URLs'
+   none    => 'Nenhum',
+   cgionly => 'Apenas CGI',
+   all     => 'Todas URLs encaixadas'
    );
 
 %lang_ctrlpositionlabels =
@@ -192,10 +192,11 @@ package openwebmail::pt_BR;
    chdir    => 'Mudar Dir',
    mkdir    => 'Criar Dir',
    newfile  => 'Novo Arquivo',
-   delete   => 'Apagar',
    copy     => 'Copiar',
    move     => 'Mover',
-   gzip     => 'GZip',
+   symlink  => 'Symlink',
+   delete   => 'Apagar',
+   gzip     => 'Gzip',
    mkzip    => 'Zip',
    mktgz    => 'Targzip',
    mkthumbnail  => 'Criar Miniatura',
@@ -209,6 +210,7 @@ package openwebmail::pt_BR;
    help       => 'Ajuda',
    login      => 'Entrar',
    clear      => 'Limpar',
+   webmail    => 'WebMail',
    point      => 'Pontos',
    pixel      => 'Pixels',
    changepwd  => 'Trocar Senha',
@@ -241,7 +243,7 @@ package openwebmail::pt_BR;
    recipient  => 'Destinatário',
    sender     => 'Remetente',
    subject    => 'Assunto',
-   thread     => 'Thread',
+   thread     => 'Conversação',
    size       => 'Tamanho',
    backto     => 'Voltar para',
    reply      => 'Responder',
@@ -272,7 +274,9 @@ package openwebmail::pt_BR;
    msgrebuild => 'Reconstrói mensagem',
    editdraft  => 'Editar Rascunho',
    savedraft  => 'Salvar Rascunho',
+   draftsaved => 'Rascunho @@@SUBJECT@@@ salvo com sucesso',
    send       => 'Enviar',
+   msgsent    => 'Mensagem, @@@SUBJECT@@@ enviada com sucesso',
    about      => 'Sobre...',
    close      => 'Fechar',
    cancel     => 'Cancelar',
@@ -408,6 +412,12 @@ package openwebmail::pt_BR;
    vdomain_createuser => 'Criar Usuário',
    vdomain_changeuser => 'Alterar Usuário',
    vdomain_deleteuser => 'Apagar Usuário',
+   vdomain_changeview => 'Mudar visão para',
+   vdomain_usersonly  => 'Só usuários',
+   vdomain_useralias  => 'usuários/apelidos',
+   vdomain_fmtuseralias => 'usuários/apelidos formatado',
+   vdomain_admin      => 'Administrador',
+   vdomain_localuser  => 'Usuário Local',
    set_passwd         => 'Setar Senha',
    reset_passwd       => 'Resetar Senha',
    email_alias        => ' Apelido de E-MAIL'
@@ -475,7 +485,9 @@ package openwebmail::pt_BR;
    spool_overlimit   => 'Desculpe, sua pasta ENTRADA teve o limite (@@@SPOOLLIMIT@@@) excedido. Favor mover algumas mensagens para outras pastas.',
    vdomain_toomanyuser  => 'Desculpe, o número de usuários neste domínio atingiu o limite máximo',
    vdomain_toomanyalias => 'Desculpe, o número de apelidos de E-MAIL deste usuário atingiu o limite máximo',
-   vdomain_userrequired => 'Um nome de usuário é requerido'
+   vdomain_userrequired => 'Um nome de usuário é requerido',
+   vdomain_fwdrequired => 'Um E-MAIL válido é requerido',
+   all_module_disabled => 'Todos módulos estão desabilitados'
    );
 
 1;

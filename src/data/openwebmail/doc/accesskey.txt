@@ -148,7 +148,7 @@ R: refresh to today
 M: webmail
 E: webdisk
 
-G: year field (goto year)
+G: year/month/day dropdown menu(goto ...)
 
 
 Calendar - Year view
@@ -225,7 +225,7 @@ P: change passwd button
 V: view history log
 A: about button
 
-1..7: the first options in block 1..7
+1-9,0: the first options in block 1..10
 
 W: save preference button
 Q: quit button

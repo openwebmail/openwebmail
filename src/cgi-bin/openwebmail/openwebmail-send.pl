@@ -4,9 +4,9 @@
 #
 
 use vars qw($SCRIPT_DIR);
-if ( $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
+if ( $0 =~ m!^(\S*)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
 if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
-   $_=<F>; close(F); if ( $_=~/^([^\s]*)/) { $SCRIPT_DIR=$1; }
+   $_=<F>; close(F); if ( $_=~/^(\S*)/) { $SCRIPT_DIR=$1; }
 }
 if (!$SCRIPT_DIR) { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
 push (@INC, $SCRIPT_DIR);
@@ -60,6 +60,10 @@ $SIG{TERM}=\&openwebmail_exit;	# for user stop
 
 userenv_init();
 
+if (!$config{'enable_webmail'}) {
+   openwebmailerror(__FILE__, __LINE__, "$lang_text{'webmail'} $lang_err{'access_denied'}");
+}
+
 $messageid = param("message_id");		# the orig message to reply/forward
 $escapedmessageid = escapeURL($messageid);
 $mymessageid = param("mymessageid");		# msg we are editing
@@ -90,14 +94,10 @@ sub replyreceipt {
    my @attr;
    my %HDB;
 
-   if (!$config{'dbmopen_haslock'}) {
-      filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $headerdb$config{'dbm_ext'}");
-   }
-   dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
+   open_dbm(\%HDB, $headerdb, LOCK_SH) or
+               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $headerdb$config{'dbm_ext'}");
    @attr=split(/@@@/, $HDB{$messageid});
-   dbmclose(%HDB);
-   filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+   close_dbm(\%HDB, $headerdb);
 
    if ($attr[$_SIZE]>0) {
       my $header;
@@ -520,6 +520,10 @@ sub composemessage {
       if ($msgformat eq 'auto') {
          $msgformat=$bodyformat;
          $msgformat='both' if ($msgformat eq 'html');
+
+         my $showhtmlastext=$prefs{'showhtmlastext'};
+         $showhtmlastext=param('showhtmlastext') if (defined(param('showhtmlastext')));
+         $msgformat='text' if ($showhtmlastext);
       }
 
       if ($bodyformat eq 'text' && $msgformat ne 'text')  {
@@ -568,20 +572,23 @@ sub composemessage {
 
          if ($composetype eq "replyall") {
             my $toaddr=(email2nameaddr($to))[1];
+            my $returnpath=(email2nameaddr($message{'returnpath'}))[1];
+
             my @recv=();
             foreach my $email (str2list($message{'to'},0)) {
                my $addr=(email2nameaddr($email))[1];
-               next if ($addr eq $fromemail || $addr eq $toaddr ||
-                        $addr=~/undisclosed\-recipients:\s?;?/i );
+               next if ($addr eq $fromemail || $addr eq $toaddr || $addr eq $returnpath ||
+                        $addr=~/^\s*$/ || $addr=~/undisclosed\-recipients:\s?;?/i );
                push(@recv, $email);
             }
             $to .= "," . join(',', @recv) if ($#recv>=0);
 
             @recv=();
+            push (@recv, $returnpath) if ($returnpath && $returnpath ne $toaddr);
             foreach my $email (str2list($message{'cc'},0)) {
                my $addr=(email2nameaddr($email))[1];
-               next if ($addr eq $fromemail || $addr eq $toaddr ||
-                        $addr=~/undisclosed\-recipients:\s?;?/i );
+               next if ($addr eq $fromemail || $addr eq $toaddr || $addr eq $returnpath ||
+                        $addr=~/^\s*$/ || $addr=~/undisclosed\-recipients:\s?;?/i );
                push(@recv, $email);
             }
             $cc = join(',', @recv) if ($#recv>=0);
@@ -600,14 +607,14 @@ sub composemessage {
             $body=~s/<[^\<\>]*?(?:background|src)\s*=[^\<\>]*?cid:[^\<\>]*?>//sig;
 
             # replace <p> with <br> to strip blank lines
-            $body =~ s!<(?:p|p .*?)>!<br>!gi; $body =~ s!</p>!!gi;
+            $body =~ s!<(?:p|p [^\<\>]*?)>!<br>!gi; $body =~ s!</p>!!gi;
 
             # replace <div> with <br> to strip layer and add blank lines
-            $body =~ s!<(?:div|div .*?)>!<br>!gi; $body =~ s!</div>!!gi;
+            $body =~ s!<(?:div|div [^\<\>]*?)>!<br>!gi; $body =~ s!</div>!!gi;
 
             $body =~ s!<br ?/?>(?:\s*<br ?/?>)+!<br><br>!gis;
             $body =~ s!^(?:\s*<br ?/?>)*!!gi; $body =~ s!(?:<br ?/?>\s*)*$!!gi;
-            $body =~ s!(<br ?/?>|<div>|<div .*?>)!$1&gt; !gis; $body = '&gt; '.$body;
+            $body =~ s!(<br ?/?>|<div>|<div [^\<\>]*?>)!$1&gt; !gis; $body = '&gt; '.$body;
          }
 
          if ($prefs{replywithorigmsg} eq 'at_beginning') {
@@ -1357,9 +1364,11 @@ sub composemessage {
              qq|<style type="text/css">\n$css\n</style>\n|.
              qq|<script language="JavaScript">\n<!--\n|.
              qq|   var editor=new HTMLArea("body");\n|.
-             qq|   editor.config.imgURL = "$config{'ow_htmlurl'}/javascript/htmlarea.openwebmail/images/";\n|.
-             qq|   editor.config.popupURL = "$config{'ow_htmlurl'}/javascript/htmlarea.openwebmail/popups/$lang/";\n|.
+             qq|   editor.config.editorURL = "$config{'ow_htmlurl'}/javascript/htmlarea.openwebmail/";\n|.
+             qq|   editor.config.imgURL = "images/";\n|.
+             qq|   editor.config.popupURL = "popups/$lang/";\n|.
              qq|   editor.config.bodyDirection = "$direction";\n|.
+             qq|   editor.config.attlist = {\n$htmlarea_attlist_js};\n|.
              qq|   editor.config.attlist = {\n$htmlarea_attlist_js};\n|.
              qq|   editor.generate();\n|.
              qq|//-->\n</script>\n|;
@@ -1373,9 +1382,8 @@ sub composemessage {
    my $session_noupdate=param('session_noupdate');
    if (defined(param('savedraftbutton')) && !$session_noupdate) {
       # savedraft from user clicking, show show some msg for notifitcaiton
-      my $msg=qq|<font size="-1">$lang_text{savedraft} |;
-      $msg.= qq|($subject) | if ($subject);
-      $msg.= qq|$lang_text{succeeded}</font>|;
+      my $msg=qq|<font size="-1">$lang_text{'draftsaved'}</font>|;
+      $msg=~s/\@\@\@SUBJECT\@\@\@/$subject/;
       $html.= readtemplate('showmsg.js').
               qq|<script language="JavaScript">\n<!--\n|.
               qq|showmsg('$prefs{charset}', '$lang_text{savedraft}', '$msg', '$lang_text{"close"}', '_savedraft', 300, 100, 5);\n|.
@@ -1432,8 +1440,8 @@ sub sendmessage {
    my $composecharset = param("composecharset") || $prefs{'charset'};
    my $priority = param("priority");
    my $confirmreading = param("confirmreading");
-   my $body = param("body");
    my $msgformat = param("msgformat");
+   my $body = param("body");
 
    my $xmailer = $config{'name'};
    if ($config{'xmailer_has_version'}) {
@@ -1451,14 +1459,7 @@ sub sendmessage {
    my ($attfiles_totalsize, $r_attfiles)=getattfilesinfo();
 
    $body =~ s/\r//g;		# strip ^M characters from message. How annoying!
-   if ($msgformat ne 'text') {	# form html body to a complete html;
-      $body=qq|<HTML>\n<HEAD>\n|.
-            qq|<META content="text/html; charset=$composecharset" http-equiv=Content-Type>\n|.
-            qq|<META content="$xmailer" name=GENERATOR>\n|.
-            qq|</HEAD>\n<BODY bgColor=#ffffff>\n|.
-            $body.
-            qq|\n</BODY>\n</HTML>\n|;
-      # replace links to attfiles with their cid
+   if ($msgformat ne 'text') {	# replace links to attfiles with their cid
       $body = html4attfiles_link2cid($body, $r_attfiles, "$config{'ow_cgiurl'}/openwebmail-viewatt.pl");
    }
 
@@ -1491,12 +1492,23 @@ sub sendmessage {
                    qq|Content-Disposition: attachment; filename="|.encode_mimewords($attname, ('Charset'=>$composecharset)).qq|"\n|.
                    qq|Content-Transfer-Encoding: base64\n|;
    }
+
    # convert message to prefs{'sendcharset'}
    if ($prefs{'sendcharset'} ne 'sameascomposing' &&
        is_convertable($composecharset, $prefs{'sendcharset'}) ) {
       ($from,$replyto,$to,$cc,$subject,$body)=iconv($composecharset, $prefs{'sendcharset'},
    						$from,$replyto,$to,$cc,$subject,$body);
       $composecharset=$prefs{'sendcharset'};
+   }
+
+   # form html body to a complete html;
+   if ($msgformat ne 'text') {	
+      $body=qq|<HTML>\n<HEAD>\n|.
+            qq|<META content="text/html; charset=$composecharset" http-equiv=Content-Type>\n|.
+            qq|<META content="$xmailer" name=GENERATOR>\n|.
+            qq|</HEAD>\n<BODY bgColor=#ffffff>\n|.
+            $body.
+            qq|\n</BODY>\n</HTML>\n|;
    }
 
    my $do_send=1;
@@ -1617,17 +1629,13 @@ sub sendmessage {
          my $oldmsgfound=0;
          my $oldsubject='';
          my %HDB;
-         if (!$config{'dbmopen_haslock'}) {
-            filelock("$savedb$config{'dbm_ext'}", LOCK_SH) or
+         open_dbm(\%HDB, $savedb, LOCK_SH) or
                openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $savedb$config{'dbm_ext'}");
-         }
-         dbmopen(%HDB, "$savedb$config{'dbmopen_ext'}", undef);
          if (defined($HDB{$mymessageid})) {
             $oldmsgfound=1;
             $oldsubject=(split(/@@@/, $HDB{$mymessageid}))[$_SUBJECT];
          }
-         dbmclose(%HDB);
-         filelock("$savedb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+         close_dbm(\%HDB, $savedb);
 
          if ($oldmsgfound) {
             if ($savefolder eq 'saved-drafts' && $subject eq $oldsubject) {
@@ -2014,31 +2022,22 @@ sub sendmessage {
          }
 
          my %HDB;
-         if (!$config{'dbmopen_haslock'}) {
-            filelock("$savedb$config{'dbm_ext'}", LOCK_EX) or
+         open_dbm(\%HDB, $savedb, LOCK_EX) or
                openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $savedb$config{'dbm_ext'}");
-         }
-         dbmopen(%HDB, "$savedb$config{'dbmopen_ext'}", 0600);
          $HDB{$mymessageid}=join('@@@', @attr);
          $HDB{'ALLMESSAGES'}++;
          $HDB{'METAINFO'}=metainfo($savefile);
-         dbmclose(%HDB);
-         filelock("$savedb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
-
+         close_dbm(\%HDB, $savedb);
       } else {
          seek($folderhandle, $messagestart, 0);
          truncate($folderhandle, tell($folderhandle));
          close($folderhandle);
 
          my %HDB;
-         if (!$config{'dbmopen_haslock'}) {
-            filelock("$savedb$config{'dbm_ext'}", LOCK_EX) or
+         open_dbm(\%HDB, $savedb, LOCK_EX) or
                openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $savedb$config{'dbm_ext'}");
-         }
-         dbmopen(%HDB, "$savedb$config{'dbmopen_ext'}", 0600);
          $HDB{'METAINFO'}=metainfo($savefile);
-         dbmclose(%HDB);
-         filelock("$savedb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+         close_dbm(\%HDB, $savedb);
       }
 
       filelock($savefile, LOCK_UN);
@@ -2070,17 +2069,13 @@ sub sendmessage {
          my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $foldername);
          my (%HDB, $oldstatus, $found);
 
-         dbmopen(%HDB, "$headerdb$config{'dbmopen_ext'}", 0600);
-         if (!$config{'dbmopen_haslock'}) {
-            filelock("$headerdb$config{'dbm_ext'}", LOCK_EX) or
+         open_dbm(\%HDB, $headerdb, LOCK_EX) or
                openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $headerdb$config{'dbm_ext'}");
-         }
          if (defined($HDB{$inreplyto})) {
             $oldstatus = (split(/@@@/, $HDB{$inreplyto}))[$_STATUS];
             $found=1;
          }
-         filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
-         dbmclose(%HDB);
+         close_dbm(\%HDB, $headerdb);
 
          if ( $found ) {
             if ($oldstatus !~ /a/i) {
@@ -2104,7 +2099,13 @@ sub sendmessage {
          # delete attachments only if no error,
          # in case user trys resend, attachments could be available
          deleteattachments();
-         print redirect(-location=>"$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&sessionid=$thissession&sort=$sort&folder=$escapedfolder&page=$page");
+
+         my $sentsubject=$subject||'N/A';
+         if (is_convertable($composecharset, $prefs{'charset'}) ) {
+            ($sentsubject)=iconv($composecharset, $prefs{'charset'}, $sentsubject);
+         }
+         $sentsubject=escapeURL($sentsubject);
+         print redirect(-location=>"$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&sessionid=$thissession&sort=$sort&folder=$escapedfolder&page=$page&sentsubject=$sentsubject");
       } else {
          # save draft, call getfolders to recalc used quota
          getfolders(\@validfolders, \$folderusage);
@@ -2422,14 +2423,18 @@ sub htmlarea_compatible {
         $u=~m!compatible;! &&
         $u=~m!Windows! &&
         $u=~m!MSIE ([\d\.]+)! ) {
-      return 1 if ($1>=5.5);	# MSIE>=5.5 on windows platform
+      return 1 if ($1>=5.5);		# MSIE>=5.5 on windows platform
    }
    if ( $u=~m!Mozilla/5.0! &&
-        $u!~m!compatible;! &&
-        $u!~m!(?:Phoenix|Galeon|Firebird)/! &&
-        $u=~m!rv:([\d\.]+)! ) {
-      return 1 if ($1>=1.3);	# full Mozilla>=1.3 on all plaform
-   }
+        $u!~m!compatible;!) {
+      if ($u!~m!(?:Phoenix|Galeon|Firebird)/! &&
+          $u=~m!rv:([\d\.]+)! ) {
+         return 1 if ($1 ge "1.3");	# full Mozilla>=1.3 on all plaform
+      }
+      if ($u=~m!Firebird/([\d\.]+)!) {         
+         return 1 if ($1 ge "0.6.1");	# Firebird>=0.6.1 on all plaform
+      }
+   }      
    return 0;
 }
 ################### END HTMLAREA_COMPATIBLE ######################

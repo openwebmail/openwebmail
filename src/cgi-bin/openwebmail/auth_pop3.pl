@@ -3,7 +3,7 @@ use strict;
 #
 # auth_pop3.pl - authenticate user with POP3 server
 #
-# 2002/03/08 tung@turtle.ee.ncku.edu.tw
+# 2002/03/08 tung.AT.turtle.ee.ncku.edu.tw
 #
 
 #

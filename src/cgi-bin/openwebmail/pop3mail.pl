@@ -1,8 +1,8 @@
 #
 # pop3mail.pl - pop3 mail retrieval routines
 #
-# 2003/05/25 tung@turtle.ee.ncku.edu.tw
-# 2002/03/19 eddie@turtle.ee.ncku.edu.tw
+# 2003/05/25 tung.AT.turtle.ee.ncku.edu.tw
+# 2002/03/19 eddie.AT.turtle.ee.ncku.edu.tw
 #
 
 use strict;
@@ -14,7 +14,7 @@ use vars qw(%config);
 
 # return < 0 means error
 # -1 uidldb lock error
-# -2 uidldb open error
+# -2 uidldb open error (unused)
 # -3 spool write error
 # -11 connect error
 # -12 server not ready
@@ -111,16 +111,9 @@ sub retrpop3mail {
       } else {
          $uidl_field=1;	# some broken pop3d return uidl without leading +
       }
-      if (!$config{'dbmopen_haslock'}) {
-         if (!filelock("$uidldb$config{'dbm_ext'}", LOCK_EX|LOCK_NB)) {
-            close($remote_sock);
-            return -1;
-         }
-      }
-      if (!dbmopen(%UIDLDB, "$uidldb$config{'dbmopen_ext'}", 0600)) {
-         filelock("$uidldb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+      if (!open_dbm(\%UIDLDB, $uidldb, LOCK_EX|LOCK_NB)) {
          close($remote_sock);
-         return -2;
+         return -1;
       }
    }
 
@@ -144,8 +137,7 @@ sub retrpop3mail {
          } elsif (/^\-/) {
             if ($uidl_support) {
                @UIDLDB{keys %uidldb}=values %uidldb if ($retr_total>0);
-               dbmclose(%UIDLDB);
-               filelock("$uidldb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+               close_dbm(\%UIDLDB, $uidldb);
             }
             close($remote_sock);
             return -17;
@@ -216,8 +208,7 @@ sub retrpop3mail {
       if (!$append) {
          if ($uidl_support) {
             @UIDLDB{keys %uidldb}=values %uidldb if ($retr_total>0);
-            dbmclose(%UIDLDB);
-            filelock("$uidldb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+            close_dbm(\%UIDLDB, $uidldb);
          }
          close($remote_sock);
          return -3;
@@ -238,8 +229,7 @@ sub retrpop3mail {
 
    if ($uidl_support) {
       %UIDLDB=%uidldb if ($retr_total>0);
-      dbmclose(%UIDLDB);
-      filelock("$uidldb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+      close_dbm(\%UIDLDB, $uidldb);
    }
 
    # return number of fetched mail

@@ -1,0 +1,14 @@
+<BR><BR><BR><BR><BR><BR><BR>
+<table border="0" align="center" width="60%" cellpadding="1" cellspacing="1">
+<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>ברוך הבא @@@NAME@@@!</B></font>
+</td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
+<table width=85%><tr><td align="center">
+<BR>ברוך הבא ל- @@@NAME@@@!<span lang="en-us">, מתברר שזו הפעם הראשונה 
+שהנך משתמש ב- @@@NAME@@@,. על מנת להתאים את
+@@@NAME@@@ באופן המיטבי לצרכיך&nbsp;&nbsp; על 
+המערכת לאסוף מספר נתונים, בכדי להמשיך למסך ההגדרות של @@@NAME@@@  נא לחץ:
+@@@CONTINUEBUTTON@@@
+</td></tr></table>
+</td></tr></table>

@@ -1,7 +1,7 @@
 <BR><BR><BR><BR><BR>
 <table border="0" align="center" width="60%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@>
-<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><B>WACHTWOORD WIJZIGEN</B></FONT>
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><B>Wachtwoord wijzigen</B></FONT>
 </td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 @@@STARTFORM@@@
 <BR>

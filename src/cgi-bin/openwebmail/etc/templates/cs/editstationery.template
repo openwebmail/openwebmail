@@ -10,7 +10,6 @@
 <B>Titulek</B></td>
 <td bgcolor=@@@COLUMNHEADER@@@ width="70%">
 <B>Text komentáøe</B></td>
-</td>
 <td bgcolor=@@@COLUMNHEADER@@@ width="10%">&nbsp;</td>
 </tr>
 @@@STATIONERY@@@
@@ -19,9 +18,10 @@
 
 @@@STARTSTATFORM@@@
 <tr><td colspan="3" bgcolor=@@@COLUMNHEADER@@@><B>Vytvoøení nového komentáøe</B></td></tr>
-</td><td colspan="3" align="center" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td colspan="3" align="center" bgcolor=@@@WINDOW_DARK@@@>
 <B>Titulek:</B>&nbsp; &nbsp; 
 @@@STATNAME@@@
+</td></tr>
 <tr><td colspan="3" align="center" bgcolor=@@@WINDOW_DARK@@@ class=msgbody>
 <B>Text komentáøe</B><BR>
 @@@STATBODY@@@

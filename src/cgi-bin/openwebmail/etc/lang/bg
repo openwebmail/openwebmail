@@ -190,9 +190,10 @@ package openwebmail::bg;
    chdir    => 'Смяна дир.',
    mkdir    => 'Нова дир.',
    newfile  => 'Нов файл',
-   delete   => 'Изтриване',
    copy     => 'Копиране',
    move     => 'Преместване',
+   symlink  => 'Symlink',
+   delete   => 'Изтриване',
    gzip     => 'gz-компресия',
    mkzip    => 'Създаване Zip',
    mktgz    => 'Създаване Tgz',
@@ -207,6 +208,7 @@ package openwebmail::bg;
    help       => 'Помощ',
    login      => 'Вход',
    clear      => 'Изчисти',
+   webmail    => 'Web-поща',
    point      => 'поинта',
    pixel      => 'пиксела',
    changepwd  => 'Смяна на парола',
@@ -270,7 +272,9 @@ package openwebmail::bg;
    msgrebuild => 'Преподреждане на съобщението',
    editdraft  => 'Редакция чернова',
    savedraft  => 'Запис чернова',
+   draftsaved => 'Draft @@@SUBJECT@@@ has been saved successfully',
    send       => 'Изпращане',
+   msgsent    => 'Message @@@SUBJECT@@@ has been sent successfully',
    about      => 'Информация',
    close      => 'Затвори',
    cancel     => 'Откажи',
@@ -406,6 +410,12 @@ package openwebmail::bg;
    vdomain_createuser => 'Добавяне на потребител',
    vdomain_changeuser => 'Промяна на потребител',
    vdomain_deleteuser => 'Изтриване на потребител',
+   vdomain_changeview => 'Промени изгледа на',
+   vdomain_usersonly  => 'потребители само',
+   vdomain_useralias  => 'потребители/синоними',
+   vdomain_fmtuseralias => 'форматирани потрбители/синоними',
+   vdomain_admin      => 'Администратор',
+   vdomain_localuser  => 'Локален пoтребител',
    set_passwd         => 'Избери парола', 
    reset_passwd       => 'Ресет на паролата',
    email_alias        => 'E-MAIL синоним'
@@ -473,7 +483,9 @@ package openwebmail::bg;
    spool_overlimit   => 'За съжаление е достигнат лимита за папка Входящи(@@@SPOOLLIMIT@@@). Моля преместете някои съобщения от Входящи в друга папка.',
    vdomain_toomanyuser  => 'За съжаление лимитираният брой потребители за този домейн е достигнат',
    vdomain_toomanyalias => 'За съжаление лимитираният брой E-MAIL синоними за този потребител е достигнат',
-   vdomain_userrequired => 'Изисква се потребителско име'
+   vdomain_userrequired => 'Изисква се потребителско име',
+   vdomain_fwdrequired => 'Изисква се валиден E-MAIL за препращане',
+   all_module_disabled => 'Всички модули са деактивирани'
    );
 
 1;

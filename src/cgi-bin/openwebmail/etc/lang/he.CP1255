@@ -1,0 +1,493 @@
+package openwebmail::he_CP1255;
+  
+# Hebrew translation, charset: windows-1255
+# by Yehuda Drori
+# Fixed for Visual by Shay Sevet
+  
+%lang_folders =
+   (   
+   INBOX => 'דואר נכנס',
+   'saved-messages' => 'הודעות שמורות',
+   'sent-mail'      => 'דואר שנשלח',
+   'saved-drafts'   => 'טיוטה',
+   'mail-trash'     => 'סל מיחזור',
+   DELETE => '--מחיקה--'
+   );   
+  
+%lang_sortlabels =
+   (   
+   status      => 'סטטוס (שלא נפתחו קודם)',
+   date        => 'תאריך (חדשים קודם)',
+   date_rev    => 'תאריך (ישנים קודם)',
+   sender      => 'שולח (חדשים קודם)',
+   sender_rev  => 'שולח (ישנים קודם)',
+   subject     => 'נושא (חדשים קודם)',
+   subject_rev => 'נושא (ישנים קודם)',
+   size        => 'גודל (גדולים קודם)',
+   size_rev    => 'גודל (קטנים קודם)'
+   );   
+  
+%lang_onofflabels =
+   (   
+   auto => 'מופעל אוטומטית',
+   on   => 'פעיל',
+   off  => 'מבוטל'   
+   );
+  
+%lang_prioritylabels =
+   (   
+   normal      => 'רגיל',
+   urgent      => 'דחוף',
+   'non-urgent'=> 'לא דחוף'
+   );   
+  
+%lang_msgformatlabels =
+   (   
+   auto => 'בחירה אוטומטית',
+   text => 'טקסט',	   
+   html => 'HTML',   
+   both => 'טקסט ו-HTML'
+   );   
+  
+%lang_withoriglabels =
+   (   
+   at_beginning => 'בתחילה',
+   at_end      => 'בסוף',
+   none        => 'ללא'
+   );   
+  
+%lang_receiptlabels =
+   (   
+   ask => 'שאל לוודא',
+   yes => 'כן',
+   no  => 'לא'
+   );
+
+%lang_disableemblinklabels =
+   (   
+   none    => 'ללא ביטול',
+   cgionly => 'CGI בלבד',   
+   all     => 'כל ה"היפר קישורים"'
+   );   
+
+%lang_ctrlpositionlabels =
+   (  
+   top => 'בראש',
+   bottom => 'בתחתית'
+   );
+  
+%lang_sendpositionlabels =
+   (   
+   before => 'לפני אזור עריכת דואר',
+   after => 'לאחר אזור עריכת דואר',   
+   both  => 'ערוך איזור לפני ואחרי משלוח'
+   );   
+
+%lang_abookbuttonpositionlabels =
+   (   
+   before => 'לפני הרשומות בספר הכתובות',
+   after  => 'אחרי הרשומות בספר הכתובות',   
+   both   => 'לפני ואחרי הרשומות בספר הכתובות'
+   );   
+  
+%lang_timelabels =
+   (   
+      3 => '3 דקות',
+      5 => '5 דקות',
+     10 => '10 דקות',
+     20 => '20 דקות',
+     30 => '30 דקות',
+     60 => '60 דקות',
+    120 => 'שעתיים',
+    180 => '3 שעות',
+    360 => '6 שעות',
+    720 => '12 שעות',
+   1440 => '24 שעות'
+   );   
+  
+%lang_advsearchlabels =
+   (   
+   contains    => 'מכיל',
+   notcontains => 'אינו מכיל',
+   is          => 'הינו',
+   isnot       => 'איננו',
+   startswith  => '-מתחיל ב',
+   endswith    => '-מסתיים ב',
+   regexp      => 'תואם'
+   );   
+  
+%lang_sizes =
+   (   
+   mb   => 'MB',	# mega bytes
+   kb   => 'KB',	# kilo bytes	   
+   byte => 'Byte'
+   );   
+
+%lang_calendar =
+   (   
+   yearview  => 'שנתי',
+   monthview => 'חודשי',
+   weekview  => 'שבועי',
+   dayview   => 'יומי',
+   listview  => 'אחרון'
+   );   
+  
+%lang_month =
+   (   
+   1  => 'ינואר',
+   2  => 'פברואר',
+   3  => 'מרץ',
+   4  => 'אפריל',
+   5  => 'מאי',
+   6  => 'יוני',
+   7  => 'יולי',
+   8  => 'אוגוסט',
+   9  => 'ספטמבר',
+   10 => 'אוקטובר',
+   11 => 'נובמבר',
+   12 => 'דצמבר'
+   );   
+
+%lang_wday =
+   (   
+   0 => 'ראשון',
+   1 => 'שני',
+   2 => 'שלישי',
+   3 => 'רביעי',
+   4 => 'חמישי',
+   5 => 'שישי',
+   6 => 'שבת'
+   );   
+
+%lang_wday_abbrev =
+   (
+   week => 'WK',   
+   0 => 'א',
+   1 => 'ב',
+   2 => 'ג',
+   3 => 'ד',
+   4 => 'ה',
+   5 => 'ו',
+   6 => 'ש'
+   );
+
+%lang_order =
+   (   
+   1 => 'ראשון',
+   2 => 'שני',
+   3 => 'שלישי',
+   4 => 'רביעי',
+   5 => 'אחרון'
+   );   
+  
+%lang_wdbutton =
+   (   
+   refresh  => 'רענן',
+   preview  => 'תצוגה מקדימה',
+   edit     => 'ערוך',
+   listarchive=> 'רשימה',
+   decompress=> 'דחס',
+   extract  => 'חלץ',
+   chdir    => 'שנה סיפריה',
+   mkdir    => 'צור סיפריה',
+   newfile  => 'קובץ חדש',
+   copy     => 'העתק',
+   move     => 'הזז',
+   symlink  => 'Symlink',
+   delete   => 'מחק',
+   gzip     => 'gzCompress',
+   mkzip    => 'MkZip',
+   mktgz    => 'MkTgz',
+   mkthumbnail  => 'MkThumb',
+   download => 'הורד',
+   upload   => 'העלה',
+   );   
+  
+%lang_text =
+   (   
+   loading    => 'מעלה, נא לחכות...',
+   help       => 'עזרה',
+   login      => 'כניסה',
+   clear      => 'נקה',
+   webmail    => 'WebMail',
+   point      => 'נקודה',
+   pixel      => 'פיקסל',
+   changepwd  => 'שנה סיסמא',
+   viewhistory=> 'הצג היסטוריה',
+   of         => 'מתוך',
+   messages   => 'הודעות',
+   unread     => 'לא נקראו',
+   nomessages => 'אין הודעות',
+   inmessages => 'הודעות נכנסות',
+   composenew => 'חבר הודעה חדשה',
+   refresh    => 'רענן',
+   userprefs  => 'הגדרות משתמש',
+   addressbook=> 'ספר כתובות',
+   folders    => 'מחיצות',
+   emptytrash => 'נקה סל מיחזור',
+   totrash    => 'העבר לסל מיחזור',
+   forever    => 'תמיד',
+   delatlogout=> 'מחק ביציאה',
+   userdef    => 'הגדרת משתמש',
+   logout     => 'יציאה',
+   page       => 'עמוד',
+   msgcopyconf=> '\'האם הינך בטוח לגבי העתקת ההודעות שנבחרו\'',
+   copy       => 'העתק',
+   msgmoveconf=> '\'?האם הינך בטוח לגבי העברת ההודעות שנבחרו\'',
+   move       => 'העבר',
+   markasread => 'סמן כנקרא',
+   markasunread => 'סמן כלא נקרא',
+   dateformat => 'תבנית תאריך',
+   date       => 'תאריך',
+   recipient  => 'נמען',
+   sender     => 'שולח',
+   subject    => 'נושא',
+   thread     => 'פתיל',
+   size       => 'גודל',
+   backto     => 'חזור ל',
+   reply      => 'השב',
+   replyall   => 'השב לכולם',
+   forward    => 'העבר',
+   forwardasatt=> 'העבר כנספח',
+   forwardasorig=> 'העבר כמקורי',
+   printfriendly=> 'ידידותי למדפסת',
+   msgformat  => 'פורמט הודעה',
+   from       => 'מאת',
+   replyto    => 'השב ל',
+   to         => 'אל',
+   cc         => 'לידיעה',
+   bcc        => 'נסתר',
+   simplehead => 'כותרות פשוטות',
+   allhead    => 'כל הכותרות',
+   simpleattmode => 'נספחים פשוטים',
+   allattmode    => 'כל הנספחים',
+   attachment => 'נספח',
+   type       => 'סוג',
+   filename   => 'שם קובץ',
+   encoding   => 'קידוד',
+   description=> 'תאור',
+   download   => 'הורדה',
+   charset    => 'סט אותיות',
+   samecharset=> 'זהה לסוג האותיות בהודעה',
+   thisispartialmsg => 'זוהי הודעה חלקית',
+   msgrebuild => 'בנית הודעה מחדש',
+   editdraft  => 'ערוך טיוטה',
+   savedraft  => 'שמור טיוטה',
+   draftsaved => 'Draft @@@SUBJECT@@@ has been saved successfully',
+   send       => 'שלח',
+   msgsent    => 'Message @@@SUBJECT@@@ has been sent successfully',
+   about      => 'על',
+   close      => 'סגור',
+   cancel     => 'ביטול',
+   ok         => 'אישור',   
+   continue   => 'המשך',
+   loginagain => 'כניסה חוזרת',
+   exit       => 'יציאה',
+   yourname   => 'שמך',
+   save       => 'שמור',
+   add        => 'הוסף',
+   folderrenprop => '\'הכנס שם חדש למחיצה זו\'',
+   rename     => 'שנה שם',
+   folderdelconf => '\'?האם הינך משוכנע שברצונך למחוק מחיצה זו על תכולתה\'',
+   markread   => 'סמן כנקרא',
+   foldermarkreadconf => '\'?האם הינך רוצה לסמן את כל ההודעות במחיצה זו כנקראו\'',
+   chkindex   => 'בדוק אינדקס',
+   folderchkindexconf => '\'?האם הינך בטוח שברצונך לבדוק אינדקס לספריה זו\'',
+   reindex    => 'ReIndex',
+   folderreindexconf => '\'?האם הינך בטוח שברצונך לבצע אידקס חוזר לסיפריה זו\'',
+   total      => 'סך-הכל',
+   edit       => 'ערוך',
+   delete     => 'מחק',
+   reserve    => 'שחרר',
+   clearadd   => 'מחק את כל הכתובות',
+   importadd  => 'ייבא כתובות',
+   exportadd  => 'ייצא כתובות',
+   import     => 'ייבא',
+   addmod     => 'ערוך/שנה',
+   modify     => 'שנה',
+   abooktitle => 'ספר כתובות',
+   abook      => 'ספר כתובות',
+   name       => 'שם',
+   email      => 'דוא"ל',
+   note       => 'הודעה',
+   max        => 'מקסימום',
+   group      => 'קבוצה',
+   quotausage => 'שימוש מההגבלה',
+   quotalimit => 'הגבלת גודל',   
+   quotahit   => 'מגבלת מקום',
+   tzmap      => 'מפת שמן עולמית',
+   testsound  => 'בדוק צליל',
+   editfroms  => 'ערוך כתובת דוא"ל אישית',
+   pop3book   => 'POP3 הגדר',
+   retr_pop3s => 'משוך דואר POP3',
+   filterbook => 'הגדרת מסנני דואר',
+   include    => 'כלול',
+   exclude    => 'הוצא',
+   smtprelay  => 'SMTP Relay',
+   header     => 'כותרת',
+   body       => 'גוף',
+   attfilename=> 'קובץ מצורף',
+   all        => 'הכל',
+   enable     => 'אפשר',
+   disable    => 'בטל',
+   filtered   => 'מסונן',
+   blockrelay => 'חסום שרת דואר',
+   blockemail => 'חסום כתובת דואר',
+   read       => 'קרא',
+   yourmsg    => 'ההודעה שלך',
+   delivered  => '-נשלח ב',
+   wasreadon1 => '-נקרא ב',
+   wasreadon2 => '.',   
+   globaladdressbook => 'ספר כתובות כללי',
+   globalfilterrule => 'חוקי סינון כללים',
+   readonly   => 'קריאה בלבד',
+   textcontent=> 'תכולת טקסט',
+   search     => 'חיפוש',
+   advsearch  => 'חיפוש מתקדם',
+   folder     => 'מחיצה',
+   nofoldersel=> 'לא נבחרה מחיצה',
+   showall    => 'הראה הכול',
+   spellcheck => 'בדוק איות',
+   checkagain => 'בדוק שוב',
+   finishchecking => 'סיים בדיקה',
+   editpdict  => 'עריכת מילון אישי',   
+   addtodict  => 'הוסף למילון',   
+   manuallyfix=> 'תיקון ידני',
+   editstat   => 'ערוך "נייר מכתבים"', 
+   savestat   => 'שמור "נייר מכתבים"',   
+   clearstat  => 'נקה את כל "ניירות המכתבים"',  
+   statreply  => '-- נייר מכתבים למענה על הודעה --',   
+   calendar   => 'לוח שנה',
+   allday     => 'כל היום',   
+   am         => 'am',   
+   pm         => 'pm',  
+   calfmt_year          => '@@@YEAR@@@ שנה',   
+   calfmt_yearmonth     => '@@@MONTH_STR@@@ @@@YEAR@@@',
+   calfmt_yearmonthday  => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@',
+   calfmt_yearmonthdaywday => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@ @@@WEEKDAY_STR@@@',
+   calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
+   autosel    => 'בחירה אוטומטית',
+   none       => 'ללא',
+   moreitems  => 'פרטים נוספים',
+   multieditconf => 'פריט זה מוגדר למספר מועדים. שינוי בו ישפיע על כל המועדים. להמשיך בשינויn\\n\\?',
+   multidelconf  => 'פריט זה מוגדר למספר מועדים. מחיקתו יסיר את הופעתו בכל המועדים. להמשיך במחיקהn\\n\\?',
+   caldelconf => 'האם הנכך בטוח שברצונך למחוק קובץ זה?',
+   noitemforthisday => 'אין פריטים ליום זה',
+   thisday_only          => 'יום זה בלבד',
+   the_wday_of_thismonth => 'יום @@@WDAY@@@ ה@@@ORDER@@@ בחודש',
+   every_wday_thismonth  => 'כל יום @@@WDAY@@@ בחודש זה',
+   thismonth_only           => 'חודש זה בלבד',
+   every_oddmonth_thisyear  => 'כל חודש אי-זוגי השנה',
+   every_evenmonth_thisyear => 'כל חודש זוגי השנה',   
+   every_month_thisyear     => 'כל חודש השנה',   
+   webdisk      => 'דיסק רשת',
+   sshterm      => 'טרמינל מאובטח',
+   dir          => 'סיפריה',
+   dirs         => 'סיפריות',
+   file         => 'קובץ',
+   files        => 'קבצים',
+   program      => 'תוכנית',
+   dest_of_chdir  => 'סיפרית היעד',
+   name_of_newdir => 'שם ליצירת סיפריה',
+   name_of_newfile=> 'שם ליצירת קובץ',
+   dest_of_thecopy=> 'הקובץ או הספריה המיועדת להעתקה',
+   dest_of_themove=> 'הקובץ או הספריה להעברה',
+   dest_of_thezip=> '(zip) שם הקובץ המיועד לדחיסה',
+   dest_of_thetgz=> '(tgz) שם הקובץ המיועד לדחיסה',
+   homedir      => 'סיפרית הבית',
+   showthumbnail    => 'הראה תמונה מוקטנת',
+   showhidden   => 'הראה קבצים נסתרים',
+   lastmodified => 'תאריך שינוי אחרון',
+   perm         => 'הרשאה',
+   permission   => 'הרשאות גישה',
+   noitemfound  => 'לא נמצא פריט',
+   savefile     => 'שמור קובץ',
+   succeeded    => 'הפעולה הצליחה',
+   failed       => 'הפעולה נכשלה',
+   savefile_towd=> 'שמור קובץ לסיפרית רשת',
+   saveatt_towd => 'שמור נספח לסיפרית רשת',
+   addatt_fromwd=> 'הוסף נספח מספרית רשת',
+   vdomain_usermgr    => 'ניהול משתמשי דומיין ורטואלי',
+   vdomain_createuser => 'צור חשבון משתמש',
+   vdomain_changeuser => 'שנה חשבון משתמש',
+   vdomain_deleteuser => 'מחק חשבון משתמש',
+   vdomain_changeview => 'שנה תצוגה ל',
+   vdomain_usersonly  => 'משתמשים בלבד',
+   vdomain_useralias  => 'משתמשים/כינויים',
+   vdomain_fmtuseralias => 'משתמשים/כינויים מעוצבים',
+   vdomain_admin      => 'מנהל',
+   vdomain_localuser  => 'משתמש מקומי',
+   set_passwd         => 'קבע סיסמא',
+   reset_passwd       => 'אפס סיסמא',
+   email_alias        => 'כינוי E-mail'
+   );   
+  
+%lang_err =
+   (   
+   has_illegal_chars => '!תווים חוקיים',
+   couldnt_open      => 'לא נפתח',
+   couldnt_locksh    => 'לא ננעל לקריאה',
+   couldnt_lock      => 'לא ננעל לכתיבה',
+   couldnt_seek      => 'לא נתן לסרוק לתחילה',
+   couldnt_close     => 'לא נסגר',
+   couldnt_updatedb  => 'לא עודכן אינדקס',
+   disallowed_pop3   => 'לא מורשה POP3  שרת',
+   disallowed_client => 'אינך מורשה להתחבר מתחנה זו',
+   disallowed_receiverdomain => 'אינך מורשה לשלוח דואר לכתובת זו',
+   norootlogin       => 'מצטערים, חשבון ה-root לא מאופשר מטעמי אבטחה.',   
+   shouldnt_move_here=> '!אינך אמור להעביר הודעות לכאן',
+   destination_folder=> 'מחיצת יעד',
+   doesnt_exist      => '!לא קיים',
+   foldername_long   => '!שם מחיצה אינו יכול לעלות על 16 תווים',
+   folder_with_name  => 'מחיצה בעלת השם',
+   already_exists    => '!כבר קיים',
+   cant_create_folder=> '!לא מצליח ליצור מחיצה',
+   under_indexing    => 'עדיין בתהליך אינדקס נסה מאוחר יותר',
+   abook_invalid     => 'מצטער, הקובץ כנראה איננו ייצוא של ספר הכתובות של  Microsoft Outlook 5 Express במבנה CVS. אנא וודא שכאשר מציגים את תכולתו בעורך טקסט השורה הראשונה מתחליה ב "Name,E-mail Address", נא המשך לאחר מכן',
+   back              => 'חזור',
+   tryagain          => '.ונסה שנית',
+   abook_toobig      => 'מצטער, דבר זה יגרום לחריגה מקצבת המקום של ספר הכתובות',
+   cant_create_dir   => 'לא מצליח ליצור את סיפרית המשתמש שלך!',
+   att_overlimit     => 'מצטער, הינך חורג ממגבלת גודל ה"סיפוח" המורשה',
+   inv_msg_op        => 'פעולה חריגה להודעה',
+   sess_cookieerr    => 'בקשתך לא מכילה "עוגית" זיהוי מתאימה. הגישה נחסמה !!!',
+   sess_iperr        => 'בקשתך לא התקבלה מכתובת ה IP של התקשרות המקורית. הגישה נחסמה !!!',
+   no_endpart        => 'החלק האחרון לא נמצא',
+   part_missing      => 'מספר חלקים חסרים',
+   rebuild_fmterr    => 'שגיאת עיצוב בהודעה החדשה',
+   rebuild_sizeerr   => 'גודל ההודעה החדשה איננו מתאים',
+   user_not_exist    => 'משתמש לא קיים',
+   func_notsupported => 'תכונה לא נתמכת',
+   auth_syserr       => 'שגיאה במערכת האישרור',
+   param_fmterr      => 'פרמטר עיצוב שגוי',
+   pwd_incorrect     => 'סיסמא שגויה',
+   pwd_confirmmismatch=>'סיסמא לווידוא לא תואמת לסיסמא החדשה',
+   pwd_tooshort      => 'סיסמא קצרה מדיי (אורך סיסמא מינימלי הוא @@@PASSWDMINLEN@@@ תווים)',
+   pwd_toosimple     => 'סיסמא פשוטה מדיי (דרושים אותיות ומספרים בסיסמה)',
+   network_server_error => 'שגיאה בשירותי הרשת',
+   sendmail_error    => '.בשל תקלה הודעתך לא נשלך. נא לחץ ע חזור בדפדפן, בדוק את הודעתך ונסה שנית',
+   at_char_not_allowed => 'התו @ איננו מורשה בשדה זה. נא לחץ על "חזור" בדפדפן שלך ונסה שנית',
+   badnum_in_days => 'bad number in consecutive days field',
+   access_denied     => 'גישה לא אושרה',
+   couldnt_chdirto   => 'לא הצליח לשנות סיפריה ל',
+   isnt_a_dir        => 'הוא לא סיפרייה',
+   edit_notfordir    => 'אינך יכול ךערוך ספריה זו',
+   onefileonly       => 'רק קובץ אחד מורשה לפעולה זו',
+   no_file_todownload=> 'אף קובץ לא מסומן להורדה',
+   upload_overlimit  => 'קובץ להעלאה גדול מהגודל המותר',
+   decomp_notsupported=>'פעולת "חילוץ" לא נתמכת עבור קובץ זה',
+   webdisk_readonly  => 'מצטער, גישתך לדיסק הרשת הינה לקריאה בלבד',
+   quota_syserr      => 'שגיאה במערכת הקצבאות',
+   quotahit_alert    => 'מצטער, הגעת לגבול הקיבולת המוקצבת לך. נא פנה הודעות מספריות הדואר שלך או מחק קבצים מדיסק הרשת שלך',
+   quotahit_delmail  => 'אזהרה! בשל הגעה למגבלת ההקצבה(@@@QUOTALIMIT@@@), ההודעות הישנות שלך הוסרו באופן אוטומטי',
+   quotahit_delfile  => 'אזהרה! בשל הגעה למגבלת ההקצבה(@@@QUOTALIMIT@@@), מספר קבצים מדיסק הרשת שלך נמחקו אוטומטית',
+   spool_overlimit   => 'מצטער, ה INBOX שלך עבר את מכסת ה spool (@@@SPOOLLIMIT@@@). נא העבר הודעות לספריות דואר אחרות.',
+   vdomain_toomanyuser  => 'מצטער, מספר המשתמשים הרשומים הגיע לגבול המכסה',
+   vdomain_toomanyalias => 'Sorry, the E-MAIL alias count of this user has reached its maximum limit',
+   vdomain_userrequired => 'דרוש שם משתמש',
+   vdomain_fwdrequired => 'כתובת E-mail חוקית להעברה נדרשת',
+   all_module_disabled => 'כל המודולים בוטלו'
+   );
+  
+1;
+  

@@ -10,7 +10,6 @@
 <B>ชื่อ</B></td>
 <td bgcolor=@@@COLUMNHEADER@@@ width="70%">
 <B>ข้อความ</B></td>
-</td>
 <td bgcolor=@@@COLUMNHEADER@@@ width="10%">&nbsp;</td>
 </tr>
 @@@STATIONERY@@@
@@ -19,9 +18,10 @@
 
 @@@STARTSTATFORM@@@
 <tr><td colspan="3" bgcolor=@@@COLUMNHEADER@@@><B>สร้างแบบข้อความใหม่</B></td></tr>
-</td><td colspan="3" align="center" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td colspan="3" align="center" bgcolor=@@@WINDOW_DARK@@@>
 <B>ชื่อ:</B>&nbsp; &nbsp; 
 @@@STATNAME@@@
+</td></tr>
 <tr><td colspan="3" align="center" bgcolor=@@@WINDOW_DARK@@@ class=msgbody>
 <B>ข้อความ</B><BR>
 @@@STATBODY@@@

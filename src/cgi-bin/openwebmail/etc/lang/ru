@@ -190,9 +190,10 @@ package openwebmail::ru;
    chdir    => 'ChDir',
    mkdir    => 'MkDir',
    newfile  => 'NewFile',
-   delete   => 'Delete',
    copy     => 'Copy',
    move     => 'Move',
+   symlink  => 'Symlink',
+   delete   => 'Delete',
    gzip     => 'gzCompress',
    mkzip    => 'MkZip',
    mktgz    => 'MkTgz',
@@ -207,6 +208,7 @@ package openwebmail::ru;
    help       => 'Help',
    login      => 'Вход',
    clear      => 'Сброс',
+   webmail    => 'WebMail',
    point      => 'Point',
    pixel      => 'Pixel',
    changepwd  => 'Сменить пароль',
@@ -270,7 +272,9 @@ package openwebmail::ru;
    msgrebuild => 'Перекомпоновка письма',
    editdraft  => 'Редактировать черновик',
    savedraft  => 'Сохранить черновик',
+   draftsaved => 'Draft @@@SUBJECT@@@ has been saved successfully',
    send       => 'Отправить',
+   msgsent    => 'Message @@@SUBJECT@@@ has been sent successfully',
    about      => 'About',
    close      => 'Close',
    cancel     => 'Отмена',
@@ -406,6 +410,12 @@ package openwebmail::ru;
    vdomain_createuser => 'Create User',
    vdomain_changeuser => 'Change User',
    vdomain_deleteuser => 'Delete User',
+   vdomain_changeview => 'Change view to',
+   vdomain_usersonly  => 'users only',
+   vdomain_useralias  => 'users/aliases',
+   vdomain_fmtuseralias => 'formatted users/aliases',
+   vdomain_admin      => 'Admin',
+   vdomain_localuser  => 'Local User',
    set_passwd         => 'Set Password',
    reset_passwd       => 'Reset Password',
    email_alias        => 'E-MAIL Alias'
@@ -473,7 +483,9 @@ package openwebmail::ru;
    spool_overlimit   => 'Sorry, your INBOX has exceeded the spool limit(@@@SPOOLLIMIT@@@). Please move some messages from INBOX to other folders.',
    vdomain_toomanyuser  => 'Sorry, the user count of this domain has reached its maximum limit',
    vdomain_toomanyalias => 'Sorry, the E-MAIL alias count of this user has reached its maximum limit',
-   vdomain_userrequired => 'A user name is required'
+   vdomain_userrequired => 'A user name is required',
+   vdomain_fwdrequired => 'A valid forwarding E-MAIL is required',
+   all_module_disabled => 'All modules are disabled'
    );
 
 1;

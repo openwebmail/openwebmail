@@ -56,8 +56,8 @@
 <B>Operación</B>
 </td></tr><tr><td bgcolor=@@@MENUBAR@@@>
 <table border="0" cellpadding="1" cellspacing="1">
-<tr><td width="10%">Nombre de destino:</td><td width=90%>@@@DESTNAMEFIELD@@@</td></tr>
-<tr><td nowrap colspan="2">@@@BUTTONS@@@</td></tr>
+<tr><td width="10%">Nombre de destino:</td><td width=90%>@@@DESTNAMEFIELD@@@ @@@BUTTONS@@@</td></tr>
+<tr><td nowrap colspan="2">@@@BUTTONS2@@@</td></tr>
 </table>
 </td></tr>
 </table>
@@ -76,7 +76,7 @@
 
 @@@UPLOADSTART@@@
 <table border="0" width="100%" cellpadding="1" cellspacing="1"><tr>
-<td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Subir archivos</B></td>
+<td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Almacenar archivos</B></td>
 </tr><tr>
 <td nowrap bgcolor=@@@MENUBAR@@@>@@@UPLOADFILEFIELD@@@</td>
 </tr></table>
@@ -158,7 +158,7 @@
    }
    function uploadfilled() {
       if (document.dirform.upload.value == '') {
-         alert("Por favor, primero seleccione el archivo a subir.");
+         alert("Por favor, primero seleccione el archivo a almacenar.");
          return false;
       } else {
          document.dirform.msg.value = 'Uploading file '+document.dirform.upload.value+', please wait...';

@@ -8,7 +8,7 @@
 @@@STARTDIRFORM@@@
 <td>
 <table border="0" cellpadding="0" cellspacing="0"><tr>
-<td nowrap>@@@DIRUPLINK@@@ &nbsp;</td><td><B>Dir&nbsp;@@@CURRENTDIR@@@</B></td>
+<td nowrap>@@@DIRUPLINK@@@ &nbsp;</td><td><B>Folder&nbsp;@@@CURRENTDIR@@@</B></td>
 </tr></table>
 </td>
 <td align="right">
@@ -37,7 +37,7 @@
 </tr></table>
 
 <table border="0" align="center" width="95%" cellpadding="2" cellspacing="0"><tr>
-<td bgcolor=@@@MENUBAR@@@ nowrap width="5%">Filename&nbsp;</td>
+<td bgcolor=@@@MENUBAR@@@ nowrap width="5%">Nazwa pliku&nbsp;</td>
 <td bgcolor=@@@MENUBAR@@@ nowrap width="40%">@@@DESTNAMEFIELD@@@&nbsp;</td>
 <td bgcolor=@@@MENUBAR@@@ nowrap>@@@BUTTONS@@@</td>
 @@@ENDFORM@@@

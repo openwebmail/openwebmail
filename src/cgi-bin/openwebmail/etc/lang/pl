@@ -5,6 +5,7 @@ package openwebmail::pl;
 #    michal talecki, mik.AT.orka.ibz.pl
 #    Grzegorz Nosek, blackfire.AT.virtual.net.pl
 #    Andrzej Cuber, rea.AT.supermedia.pl
+#    Pawel Foremski, pavcio.AT.4lo.bytom.pl 
 
 %lang_folders =
    (
@@ -31,9 +32,9 @@ package openwebmail::pl;
 
 %lang_onofflabels =
    (
-   auto => 'Auto switched',
-   on   => 'On',
-   off  => 'Off',
+   auto => 'Automatycznie',
+   on   => 'W³±czone',
+   off  => 'Wy³±czone',
    );
 
 %lang_prioritylabels =
@@ -45,10 +46,10 @@ package openwebmail::pl;
 
 %lang_msgformatlabels =
    (
-   auto => 'Auto selected',
-   text	=> 'Text',
+   auto => 'Automatycznie',
+   text	=> 'Tekst',
    html => 'HTML',
-   both => 'HTML and Text'
+   both => 'HTML i tekst'
    );
 
 %lang_withoriglabels =
@@ -67,9 +68,9 @@ package openwebmail::pl;
 
 %lang_disableemblinklabels =
    (
-   none    => 'None',
-   cgionly => 'CGI only',
-   all     => 'All embedded URLs'
+   none    => '¯adne',
+   cgionly => 'Tylko CGI',
+   all     => 'Wszystkie zawarte adresy URL'
    );
 
 %lang_ctrlpositionlabels =
@@ -193,12 +194,13 @@ package openwebmail::pl;
    chdir    => 'ZmFold',
    mkdir    => 'UtwFold',
    newfile  => 'NowyPlik',
-   delete   => 'Usuñ',
    copy     => 'Kopiuj',
    move     => 'Przenie¶',
-   gzip     => 'Kompresujgz',
-   mkzip    => 'MkZip',
-   mktgz    => 'MkTgz',
+   symlink  => 'Symlink',
+   delete   => 'Usuñ',
+   gzip     => 'KompresujGz',
+   mkzip    => 'UtwZip',
+   mktgz    => 'UtwTgz',
    mkthumbnail  => 'UtwMin',
    download => 'Pobierz',
    upload   => 'Wy¶lij',
@@ -206,12 +208,13 @@ package openwebmail::pl;
 
 %lang_text =
    (
-   loading    => 'Loading, please wait',
+   loading    => 'Proszê czekaæ, trwa ³adowanie',
    help       => 'Pomoc',
    login      => 'Wejd¼',
    clear      => 'Wyczy¶æ',
+   webmail    => 'WebMail',
    point      => 'Pkt.',
-   pixel      => 'Pixel',
+   pixel      => 'Pikseli',
    changepwd  => 'Zmiana has³a',
    viewhistory=> 'Obejrzyj historiê',
    of         => 'z',
@@ -249,9 +252,9 @@ package openwebmail::pl;
    replyall   => 'Odpowiedz wszystkim',
    forward    => 'Przeka¿',
    forwardasatt=>'Przeka¿ jako za³±cznik',
-   forwardasorig=>'Forward as original',
+   forwardasorig=>'Przeka¿ jako orygina³',
    printfriendly=> 'Do wydruku',
-   msgformat  => 'MsgFormat',
+   msgformat  => 'Format wiadomo¶ci',
    from       => 'Od',
    replyto    => 'Odpowiedz',
    to         => 'Do',
@@ -273,11 +276,13 @@ package openwebmail::pl;
    msgrebuild => 'Od¶wie¿anie',
    editdraft  => 'Edytuj brudnopis',
    savedraft  => 'Zapisz brudnopis',
+   draftsaved => 'Kopia robocza @@@SUBJECT@@@ zosta³a pomy¶lnie zapisana',
    send       => 'Wy¶lij',
+   msgsent    => 'Wiadomo¶æ @@@SUBJECT@@@ zosta³a pomy¶lnie wys³ana',
    about      => 'Informacje o po³±czeniu',
    close      => 'Zamknij',
    cancel     => 'Anuluj',
-   ok         => 'Ok',
+   ok         => 'OK',
    continue   => 'Kontynuuj',
    loginagain => 'Zaloguj ponownie',
    exit       => 'Wyjd¼',
@@ -294,7 +299,7 @@ package openwebmail::pl;
    reindex    => 'Przeindeksuj',
    folderreindexconf => '\'Czy chcesz przeindeksowaæ ten folder?\'',
    total      => 'Ca³kowity',
-   edit       => 'Edit',
+   edit       => 'Edytuj',
    delete     => 'Usuñ',
    reserve    => 'Zarezerwuj',
    clearadd   => 'Usuñ wszystkie adresy',
@@ -310,8 +315,8 @@ package openwebmail::pl;
    note       => 'Opis',
    max        => 'Maksimum',
    group      => 'Grupa',
-   quotausage => 'Quota usage',
-   quotalimit => 'Quota limit',
+   quotausage => 'U¿ycie przydzielonej przestrzeni',
+   quotalimit => 'Limit',
    quotahit   => 'OSI¡GNIÊTO LIMIT DOSTÊPNEJ PRZESTRZENI NA DYSKU',
    tzmap      => 'Mapa stref czasowych',
    testsound  => 'Sprawd¼ d¼wiêk',
@@ -364,11 +369,11 @@ package openwebmail::pl;
    calfmt_yearmonthday  => '@@@DAY@@@ @@@MONTH_STR@@@ @@@YEAR@@@',
    calfmt_yearmonthdaywday => '@@@DAY@@@ @@@MONTH_STR@@@ @@@YEAR@@@ @@@WEEKDAY_STR@@@',
    calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
-   autosel    => 'Auto selected',
+   autosel    => 'Automatycznie',
    none       => 'brak',
    moreitems  => 'wiêcej',
-   multieditconf => 'This item was added for multiple dates.\\nEditing it will change the item for all dates.\\nContinue with Edit?',
-   multidelconf  => 'This item was added for multiple dates.\\nDeleting it will delete the item for all dates.\\nContinue with Delete?',
+   multieditconf => 'Ten element zosta³ przypisany do wiêcej ni¿ jednej daty.\\nEdytowanie go wp³ynie na wszystkie daty.\\nKontynuowaæ edycjê?',
+   multidelconf => 'Ten element zosta³ przypisany do wiêcej ni¿ jednej daty.\\nUsuniêcie go wp³ynie na wszystkie daty.\\nKontynuowaæ usuwanie?',
    caldelconf => 'Na pewno chcesz usun±æ t± pozycjê?',
    noitemforthisday => 'Koniec wpisów',
    thisday_only          => 'Tylko w dniu dzisiejszym',
@@ -409,9 +414,15 @@ package openwebmail::pl;
    vdomain_createuser => 'Utwórz u¿ytkownika',
    vdomain_changeuser => 'Edytuj u¿ytkownika',
    vdomain_deleteuser => 'Usuñ u¿ytkownika',
-   set_passwd         => 'Set Password',
-   reset_passwd       => 'Reset Password',
-   email_alias        => 'E-MAIL Alias'
+   vdomain_changeview => 'Zmieñ widok na',
+   vdomain_usersonly  => 'tylko u¿ytkownicy',
+   vdomain_useralias  => 'u¿ytkownicy/aliasy',
+   vdomain_fmtuseralias => 'sformatowani u¿ytkownicy/aliasy',
+   vdomain_admin      => 'Admin',
+   vdomain_localuser  => 'Lokalny U¿ytkownik',
+   set_passwd         => 'Zmieñ has³o',
+   reset_passwd       => 'Resetuj has³o',
+   email_alias        => 'Alias e-mail'
    );
 
 %lang_err =
@@ -434,7 +445,7 @@ package openwebmail::pl;
    folder_with_name  => 'Folder ',
    already_exists    => 'ju¿ istnieje!',
    cant_create_folder=> 'Nie mo¿na utworzyæ foldera!',
-   under_indexing    => 'jest ci±gle w trakcie indeksowania, proszê czekac',
+   under_indexing    => 'jest ci±gle w trakcie indeksowania, proszê czekaæ',
    abook_invalid     => 'Niestety, ale ten plik nie wygl±da na wyeksportowany z Outlook Express 5 w formacie CSV.  Upewnij siê przy pomocy edytora tekstu, czy pierwsza linia rozpoczyna siê od "Name,E-mail", przejd¼',
    back              => 'wstecz',
    tryagain          => 'i spróbuj jeszcze raz.',
@@ -450,9 +461,9 @@ package openwebmail::pl;
    rebuild_sizeerr   => 'Niezgodno¶æ rozmiaru wiadomo¶ci',
    user_not_exist    => 'u¿ytkownik nie istnieje',
    func_notsupported => 'funkcja nie obs³ugiwana',
-   auth_syserr       => 'b³±d autentyfikacji',
+   auth_syserr       => 'b³±d autoryzacji',
    param_fmterr      => 'nieprawid³owy format parametru',
-   pwd_incorrect     => 'nieprawid³owe has³o',
+   pwd_incorrect     => 'Nieprawid³owe has³o',
    pwd_confirmmismatch=>'Nowe has³o nie zgadza siê z potwierdzeniem',
    pwd_tooshort      => 'Has³o za krótkie (minimalna d³ugo¶æ @@@PASSWDMINLEN@@@)',
    pwd_toosimple     => 'Has³o za proste (wymagane litery i cyfry)',
@@ -469,14 +480,18 @@ package openwebmail::pl;
    upload_overlimit  => 'Rozmiar wysy³anego pliku przekracza limit',
    decomp_notsupported=>'Rozpakowanie tego typu pliku nie jest mo¿liwe',
    webdisk_readonly  => 'Niestety, dysk sieciowy jest tylko do odczytu',
-   quota_syserr      => 'Quota system error',
-   quotahit_alert    => 'Sorry, you\'ve hit your quota limit. Please delete some messages from mail folders or some files from the webdisk to free disk space.',
-   quotahit_delmail  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, oldest messages in folders have been removed automatcially',
-   quotahit_delfile  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, some files in the webdisk have been removed automatcially',
-   spool_overlimit   => 'Sorry, your INBOX has exceeded the spool limit(@@@SPOOLLIMIT@@@). Please move some messages from INBOX to other folders.',
-   vdomain_toomanyuser  => 'Sorry, the user count of this domain has reached its maximum limit',
-   vdomain_toomanyalias => 'Sorry, the E-MAIL alias count of this user has reached its maximum limit',
-   vdomain_userrequired => 'A user name is required'
+   quota_syserr      => 'B³±d systemowy limitu przestrzeni dyskowej',
+   quotahit_alert    => 'Niestety, osi±gna³e¶ limit przydzielonej Ci przestrzeni dyskowej. Proszê usun±æ niepotrzebne wiadomo¶ci lub pliki z dysku sieciowego aby opró¿niæ Twoj± przestrzeñ dyskow±.',
+   quotahit_delmail  => 'Uwaga, od czasu osi±gniêcia limitu przestrzeni dyskowej(@@@QUOTALIMIT@@@), najstarsze wiadomo¶ci zosta³y usuniête automatycznie.',
+   quotahit_delfile  => 'Uwaga, od czasu osi±gniêcia limitu przestrzeni dyskowej(@@@QUOTALIMIT@@@), niektóre pliki na dysku sieciowym zosta³y usuniête automatycznie.',
+   spool_overlimit   => 'Przykro nam, ale Twój folder poczty przychodz±cej osi±gn±³ limit(@@@SPOOLLIMIT@@@). Proszê przesun±æ parê wiadomo¶ci z folderu poczty przychodz±cej do innych folderów.',
+   vdomain_toomanyuser  => 'Przykro nam, ale ilo¶æ u¿ytkowników dla tej domeny osi±gnê³a swój limit',
+   vdomain_toomanyalias => 'Przykro nam, ale ilo¶æ aliasów dla tego u¿ytkownika osi±gnê³a swój limit',
+   vdomain_userrequired => 'Nazwa u¿ytkownika jest wymagana',
+   vdomain_fwdrequired => 'Prawid³owy adres E-MAIL dla przekierowania jest wymagany.',
+   all_module_disabled => 'Wszystkie modu³y s± wy³±czone'
    );
 
 1;
+
+

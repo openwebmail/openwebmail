@@ -7,13 +7,13 @@
 <BR>
 <table align=center border=0 cellspacing=2 cellpadding=0>
 <tr>
-<td align="right">ID-ul utilizatorului: </td><td>@@@USERIDFIELD@@@</td>
+<td align="right">Nume cont: </td><td>@@@USERIDFIELD@@@</td>
 </tr><tr>
 <td align="right">Parola veche: </td><td>@@@OLDPASSWORDFIELD@@@</td>
 </tr><tr>
 <td align="right">Parola noua: </td><td>@@@NEWPASSWORDFIELD@@@</td>
 </tr><tr>
-<td align="right">Confirmare Parola noua: </td><td>@@@CONFIRMNEWPASSWORDFIELD@@@</td>
+<td align="right">Confirmare parola noua: </td><td>@@@CONFIRMNEWPASSWORDFIELD@@@</td>
 </tr><tr>
 <td colspan=2>
 <table width="100%"><tr>
@@ -31,17 +31,17 @@
       var s;
       s=document.passwordform.newpassword.value;
       if (s.length < @@@PASSWDMINLEN@@@) {
-         alert("Lungimea parolei trebue sa fie minim @@@PASSWDMINLEN@@@ simboluri.");
+         alert("Lungimea parolei trebue sa fie de minim @@@PASSWDMINLEN@@@ caractere.");
          return false;
       }
       if (document.passwordform.newpassword.value !=
 	  document.passwordform.confirmnewpassword.value) {
-         alert("Confirmarea parolei nu e corecta.");
+         alert("Confirmarea parolei nu este corecta.");
          return false;
       }
       if (document.passwordform.newpassword.value ==
 	  document.passwordform.oldpassword.value) {
-         alert("Parola noua e aceeasi ca si veche.");
+         alert("Parola noua este aceeasi cu cea veche.");
          return false;
       }
       return true;

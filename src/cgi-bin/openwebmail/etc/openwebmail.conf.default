@@ -15,8 +15,8 @@
 #
 
 name			Open WebMail
-version			2.10
-releasedate		20030617
+version			2.20
+releasedate		20031014
 
 ##############################################################################
 # host dependent configuration
@@ -120,6 +120,7 @@ about_info_client		yes
 xmailer_has_version		yes
 xoriginatingip_has_userid	yes
 
+enable_preference	yes
 enable_setfrom		yes
 enable_setfromemail	yes
 enable_autoreply	yes
@@ -127,6 +128,8 @@ enable_setforward	yes
 enable_strictforward	no
 enable_stationery	yes
 enable_smartfilters	yes
+enable_userfilter	yes
+enable_webmail		yes
 enable_calendar		yes
 enable_webdisk		yes
 enable_sshterm		yes
@@ -142,7 +145,6 @@ pop3_authport		110
 getmail_from_pop3_authserver	no
 
 loginerrordelay		10
-refreshinterval		15
 fetchpop3interval	15
 calendar_email_notifyinterval	120
 
@@ -158,6 +160,7 @@ webdisk_lsmailfolder	yes
 webdisk_lshidden	yes
 webdisk_lsunixspec	yes
 webdisk_lssymlink	yes
+webdisk_allow_symlinkcreate	yes
 webdisk_allow_symlinkout	yes
 webdisk_allow_thumbnail	yes
 
@@ -196,7 +199,7 @@ version %version%
 default_language		auto
 default_charset			auto
 default_timeoffset		auto
-default_daylightsaving		off
+default_daylightsaving		auto
 default_realname		auto
 default_fromemails		auto
 default_autoreplysubject	This is an autoreply...[Re: $SUBJECT]
@@ -230,16 +233,18 @@ default_defaultdestination	saved-messages
 default_smartdestination	yes
 default_viewnextaftermsgmovecopy	yes
 default_autopop3		yes
+default_autopop3wait		0
 default_moveoldmsgfrominbox	no
 forced_moveoldmsgfrominbox	no
 
 default_ctrlposition_msgread	top
 default_headers			simple
+default_showhtmlastext		no
+default_showimgaslink		no
 default_usefixedfont		no
 default_usesmileicon		yes
 default_disablejs		no
 default_disableemblink		none
-default_showimgaslink		no
 default_sendreceipt		ask
 
 default_msgformat		auto
@@ -262,6 +267,7 @@ default_trashreserveddays	7
 default_sessiontimeout		60
 
 default_filter_repeatlimit	10
+default_filter_badformatfrom	no
 default_filter_fakedsmtp	no
 default_filter_fakedfrom	no
 default_filter_fakedexecontenttype	no
@@ -273,6 +279,7 @@ default_abook_defaultfilter	no
 default_abook_defaultsearchtype	none
 default_abook_defaultkeyword	none
 
+default_calendar_defaultview		calmonth
 default_calendar_holidaydef		auto
 default_calendar_monthviewnumitems	5
 default_calendar_weekstart		0

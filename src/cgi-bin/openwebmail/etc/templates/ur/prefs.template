@@ -33,6 +33,7 @@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DAYLIGHTSAVINGMENU@@@
 </td></tr>
+@@@WEBMAILSTART@@@
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B> ﺍﺭﺳﺎﻝ ﻛﺮﻧﮯ ﻭﺍﻻ :</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -72,6 +73,7 @@
 @@@SIGAREA@@@
 <br>&nbsp;
 </td></tr>
+@@@WEBMAILEND@@@
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B> ﺩﻳﻛﻬﻨﮯ ﻛﻰ ﺗﺮﺟﻴﺤﺎﺕ </B></td></tr>
@@ -111,6 +113,7 @@
 @@@HOURFORMATMENU@@@ hour
 </td></tr>
 
+@@@WEBMAILSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B> ﻓﻮﻟﮉﺭ ﺩﻳﻜﻬﻨﺎ </B></td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
@@ -160,7 +163,7 @@
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B> ﻟﻮﮒ ﺍﻥ ﭘﺮﺧﻮﺩ ﺑﺎ ﺧﻮﺩ POP3 ﺳﮯ ﭘﻴﻐﺎﻡ ﺣﺎﺻﻞﻛﺮﻳﮟ :</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@AUTOPOP3CHECKBOX@@@
+@@@AUTOPOP3CHECKBOX@@@ (wait @@@AUTOPOP3WAITMENU@@@ seconds)
 </td></tr>
 @@@AUTOPOP3END@@@
 @@@MOVEOLDSTART@@@
@@ -192,6 +195,11 @@
 <B> ﭘﻴﻐﺎﻡ ﭘﮍﻫﻨﮯ ﻣﻴﮟ ﻣﺴﻛﺮﺍﺗﻰ ﺗﺼﻮﻳﺮﻳﮟ ﺍﺳﺘﻌﻤﺎﻝ ﻛﺮﻳﮟ :</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USESMILEICON@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>Show HTML message as plain text:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SHOWHTMLASTEXT@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>ﭘﻴﻐﺎﻡ ﻣﻴﮟ ﻣﻨﺴﻠﮏ ﺗﺼﻮﻳﺮﻭﮞ ﻛﻭ ﻟﻴﻨﮏ ﺩﻛﻬﺎﻳﮟ :</B>
@@ -261,6 +269,11 @@
 @@@FILTERREPEATLIMIT@@@ &nbsp;( 0  ﺻﻔﺮ ﻛﮯ ﻣﻌﻨﮯ ﺩﻭﮨﺮﮮ ﭘﻴﻐﺎﻡ ﻛﻮ ﻧﺎ ﺩﻳﻛﻬﻮ )
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>Filter messages with bad From email format:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@FILTERBADFORMATFROM@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>ﺟﻌﻠﻰ SMTP ﻛﮯ ﭘﻴﻐﺎﻡ ﻓﻠﭩﺮ ﻛﺮﻳﮟ :</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDSMTP@@@
@@ -294,10 +307,16 @@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKDEFAULTFILTER@@@
 </td></tr>
+@@@WEBMAILEND@@@
 
 @@@CALENDARSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B> ﻛﻠﻴﻨﮉﺭ ﻛﮯ ﺁﭘﺸﻦ </B></td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>Default calendar view:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DEFAULTVIEWMENU@@@
+</td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>Holiday definition:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -333,6 +352,7 @@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SHOWEMPTYHOURSCHECKBOX@@@
 </td></tr>
+@@@REMINDERSTART@@@
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>ﺍﻳﻮﻳﻨﭧ ﻛﻰ ﺁﮔﺎﮨﻰ ﻛﮯ ﺩﻥ:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -343,6 +363,7 @@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REMINDERFORGLOBALCHECKBOX@@@
 </td></tr>
+@@@REMINDEREND@@@
 @@@CALENDAREND@@@
 
 @@@WEBDISKSTART@@@
@@ -377,6 +398,7 @@
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B> ﻣﺘﻔﺮﻕ ﺁﭘﺸﻦ </B></td></tr>
+@@@WEBMAILSTART@@@
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B> ﺗﻼﺵ ﺍﻭﺭ ﻓﻠﮍﺭ ﻣﻴﮟ Regex ﺍﺳﺘﻌﻤﺎﻝ ﻛﺮﻳﮟ :</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -386,11 +408,6 @@
 <B>ﻓﻮﻟﮉﺭ ﻛﮯ ﺍﻧﺪﺭﻭﻧﻰ ﺟﺰ ﭼﻬﭙﺎﺋﮟ :</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@HIDEINTERNAL@@@
-</td></tr>
-<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>ﺗﺎﺯﻩ ﺩﻡ ﻛﺮﻧﮯ ﻛﺎ ﺩﻭﺭﺍﻧﻴﮧ :</B>
-</td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@REFRESHINTERVALMENU@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>ﻧﮱ ﭘﻴﻐﺎﻡ ﻛﻰ ﺁﮔﺎﮨﻰ ﻛﻰ ﺁﻭﺁﺯ :</B>
@@ -411,6 +428,12 @@
 <B>ﺭﺩﻯ ﻛﮯ ﻟﻴﮱ ﺩﻥ :</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@RESERVEDDAYSMENU@@@
+</td></tr>
+@@@WEBMAILEND@@@
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﺗﺎﺯﻩ ﺩﻡ ﻛﺮﻧﮯ ﻛﺎ ﺩﻭﺭﺍﻧﻴﮧ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@REFRESHINTERVALMENU@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>ﺑﮯ ﺩﺧﻠﻰ ﻛﮯ ﻟﻴﮱ ﻭﻗﺖ :</B>

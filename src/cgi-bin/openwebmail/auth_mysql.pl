@@ -120,6 +120,8 @@ sub check_userpassword {
 	    } else {
                return (-4, 'Password incorrect');
 	    }
+         } else {
+            return(-3, "Unknown password type: $pass_type");
          }
       } else {
          return(-3, "Can't fetch SQL result: ".$sth->errstr());
@@ -138,7 +140,7 @@ sub change_userpassword {
    return (-2, "User or password is null") if (!$user||!$oldpassword||!$newpassword);
    return (-2, "Password too short") if (length($newpassword)<${$r_config}{'passwd_minlen'});
 
-   my ($ret, $errmsg)=check_userpassword($user, $oldpassword);
+   my ($ret, $errmsg)=check_userpassword($r_config, $user, $oldpassword);
    return($ret, $errmsg) if ($ret!=0);
 
    if ($pass_type eq "crypt") { # encrypt the passwd

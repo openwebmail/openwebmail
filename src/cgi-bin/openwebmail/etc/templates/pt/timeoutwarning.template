@@ -16,3 +16,4 @@ nos próximos 60 segundos terminarei esta sessão.
 <script language="JavaScript">
 setTimeout("close()", 60*1000);
 </script>
+</center>

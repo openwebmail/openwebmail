@@ -42,6 +42,7 @@ use vars qw(%pop3error);
    'fi'           => 'Finnish',
    'fr'           => 'French',
    'he.ISO8859-8' => 'Hebrew - ISO 8859-8',
+   'he.CP1255'    => 'Hebrew - Windows',
    'hu'           => 'Hungarian',
    'id'           => 'Indonesian',
    'it'           => 'Italiano',
@@ -81,8 +82,8 @@ use vars qw(%pop3error);
    'es'           => 'iso-8859-1',
    'fi'           => 'iso-8859-1',
    'fr'           => 'iso-8859-1',
-   'he.CP1255'    => 'windows-1255',	# charset only, lang/template not translated
-   'he.ISO8859-8' => 'iso-8859-8',	# charset only, lang/template not translated
+   'he.CP1255'    => 'windows-1255',
+   'he.ISO8859-8' => 'iso-8859-8',
    'hu'           => 'iso-8859-2',
    'id'           => 'iso-8859-1',
    'it'           => 'iso-8859-1',
@@ -109,10 +110,10 @@ use vars qw(%pop3error);
    'utf-8'        => 'utf-8'		# charset only, use en lang/template
 );
 
-# HTTP_ACCEPT_LANGUAGE to owm lang 
+# HTTP_ACCEPT_LANGUAGE to owm lang
 %httpaccept2language =(
-   'ar'    => 'ar.CP1256', 
-   'he'    => 'he.ISO8859-8',
+   'ar'    => 'ar.CP1256',
+   'he'    => 'he.CP1255',
    'iw'    => 'he.ISO8859-8',
    'in'    => 'id',
    'ja'    => 'ja_JP.Shift_JIS',
@@ -120,7 +121,9 @@ use vars qw(%pop3error);
    'pt-br' => 'pt_BR',
    'zh'    => 'zh_CN.GB2312',
    'zh-cn' => 'zh_CN.GB2312',
+   'zh-sg' => 'zh_CN.GB2312',
    'zh-tw' => 'zh_TW.Big5',
+   'zh-hk' => 'zh_TW.Big5'
 );
 
 @openwebmailrcitem=qw(
@@ -128,16 +131,17 @@ use vars qw(%pop3error);
    style iconset bgurl bgrepeat fontsize dateformat hourformat
    ctrlposition_folderview msgsperpage fieldorder sort
    ctrlposition_msgread headers usefixedfont usesmileicon
-   disablejs disableemblink showimgaslink sendreceipt
+   disablejs disableemblink showhtmlastext showimgaslink sendreceipt
    confirmmsgmovecopy defaultdestination smartdestination
-   viewnextaftermsgmovecopy autopop3 moveoldmsgfrominbox
+   viewnextaftermsgmovecopy autopop3 autopop3wait moveoldmsgfrominbox
    msgformat editcolumns editrows sendbuttonposition
    reparagraphorigmsg replywithorigmsg backupsentmsg sendcharset
-   filter_repeatlimit filter_fakedsmtp
-   filter_fakedfrom filter_fakedexecontenttype
+   filter_repeatlimit filter_badformatfrom
+   filter_fakedsmtp filter_fakedfrom filter_fakedexecontenttype
    abook_width abook_height abook_buttonposition
    abook_defaultfilter abook_defaultsearchtype abook_defaultkeyword
-   calendar_holidaydef calendar_monthviewnumitems calendar_weekstart
+   calendar_defaultview calendar_holidaydef
+   calendar_monthviewnumitems calendar_weekstart
    calendar_starthour calendar_endhour calendar_interval calendar_showemptyhours
    calendar_reminderdays calendar_reminderforglobal
    webdisk_dirnumitems webdisk_confirmmovecopy webdisk_confirmdel
@@ -157,16 +161,25 @@ use vars qw(%pop3error);
     AHST -1000  AST  -0400  AT   -0200  AWDT +0900  AWST +0800  AZST +0400
     BAT  +0300  BDST +0200  BET  -1100  BST  -0300  BT   +0300  BZT2 -0300
     CADT +1030  CAST +0930  CAT  -1000  CCT  +0800  CDT  -0500  CED  +0200
-    CET  +0100  CST  -0600  EAST +1000  EDT  -0400  EED  +0300  EET  +0200
-    EEST +0300  EST  -0500  FST  +0200  FWT  +0100  GMT  +0000  GST  +1000
-    HDT  -0900  HST  -1000  IDLE +1200  IDLW -1200  IST  +0530  IT   +0330
-    JST  +0900  JT   +0700  MDT  -0600  MED  +0200  MET  +0100  MEST +0200
-    MEWT +0100  MST  -0700  MT   +0800  NDT  -0230  NFT  -0330  NT   -1100
-    NST  +0630  NZ   +1100  NZST +1200  NZDT +1300  NZT  +1200  PDT  -0700
-    PST  -0800  ROK  +0900  SAD  +1000  SAST +0900  SAT  +0900  SDT  +1000
-    SST  +0200  SWT  +0100  USZ3 +0400  USZ4 +0500  USZ5 +0600  USZ6 +0700
-    UT   +0000  UTC  +0000  UZ10 +1100  WAT  -0100  WET  +0000  WST  +0800
-    YDT  -0800  YST  -0900  ZP4  +0400  ZP5  +0500  ZP6  +0600);
+    CEST +0200  CET  +0100  CST  -0600
+    EAST +1000  EDT  -0400  EED  +0300  EET  +0200  EEST +0300  EST  -0500
+    FST  +0200  FWT  +0100
+    GMT  +0000  GST  +1000
+    HDT  -0900  HST  -1000
+    IDLE +1200  IDLW -1200  IST  +0530  IT   +0330
+    JST  +0900  JT   +0700
+    MDT  -0600  MED  +0200  MET  +0100  MEST +0200  MEWT +0100  MST  -0700
+    MT   +0800
+    NDT  -0230  NFT  -0330  NT   -1100  NST  +0630  NZ   +1100  NZST +1200
+    NZDT +1300  NZT  +1200
+    PDT  -0700  PST  -0800
+    ROK  +0900
+    SAD  +1000  SAST +0900  SAT  +0900  SDT  +1000  SST  +0200  SWT  +0100
+    USZ3 +0400  USZ4 +0500  USZ5 +0600  USZ6 +0700  UT   +0000  UTC  +0000
+    UZ10 +1100
+    WAT  -0100  WET  +0000  WST  +0800
+    YDT  -0800  YST  -0900
+    ZP4  +0400  ZP5  +0500  ZP6  +0600);
 
 %fontsize= (
    '8pt' => ['8pt',  '7pt'],
@@ -198,6 +211,97 @@ use vars qw(%pop3error);
    -17 => "pop3 'retr' error"
 );
 
+####################### OPEN/CLOSE_DBM ############################
+sub open_dbm {
+   my ($r_hash, $db, $flag, $perm)=@_;
+   $perm=0600 if (!$perm);
+
+   my ($openerror, $dbtype)=('', '');
+   for (my $retry=0; $retry<3; $retry++) {
+      if (!$config{'dbmopen_haslock'}) {
+         if (! -f "$db$config{'dbm_ext'}") { # ensure dbm existance before lock
+            my (%t, $createerror);
+            dbmopen(%t, "$db$config{'dbmopen_ext'}", $perm) or $createerror=$!;
+            dbmclose(%t);
+            if ($createerror ne '') {
+               writelog("db error - Unable to create $db$config{'dbm_ext'}, $createerror");
+               return 0;
+            } elsif (! -f "$db$config{'dbm_ext'}") {	# dbmopen ok but dbm file not found
+               writelog("db error - Wrong dbm_ext/dbmopen_ext value in openwebmamil.conf?");
+               return 0;
+            }
+         }
+         if (! filelock("$db$config{'dbm_ext'}", $flag, $perm) ) {
+            writelog("db error - Couldn't lock $db$config{'dbm_ext'}");
+            return 0;
+         }
+      }
+
+      return 1 if (dbmopen(%{$r_hash}, "$db$config{'dbmopen_ext'}", $perm));
+      $openerror=$!;
+
+      filelock("$db$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+
+      # db may be temporarily unavailable because of too many concurrent accesses,
+      # eg: reading a message with lots of attachments
+      if ($openerror=~/Resource temporarily unavailable/) {
+         writelog("db warning - $db$config{'dbm_ext'} temporarily unavailable, retry ".($retry+1));
+         sleep 1;
+         next;
+      }
+
+      # if existing db is in wrong format, then unlink it and create a new one
+      if ( -f "$db$config{'dbm_ext'}" && -r _ && $dbtype eq '') {
+         $dbtype=get_dbtype("$db$config{'dbm_ext'}");
+         if ($dbtype ne default_dbtype()) {	# db is in wrong format
+            if (unlink("$db$config{'dbm_ext'}") ) {
+               writelog("db warning - unlink $db$config{'dbm_ext'} to change db format, $dbtype -> ".default_dbtype());
+               writehistory("db warning - unlink $db$config{'dbm_ext'} to change db format, $dbtype -> ".default_dbtype());
+               next;
+            } else {
+               writelog("db error - wrong db format, default:".default_dbtype().", $db$config{'dbm_ext'}:$dbtype");
+            }
+         }
+      }
+
+      last;	# default to exit the loop
+   }
+   writelog("db error - Couldn't open db $db$config{'dbm_ext'}, $openerror");
+   return 0;
+}
+
+sub close_dbm {
+   my ($r_hash, $db)=@_;
+
+   dbmclose(%{$r_hash});
+   filelock("$db$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+   return 1;
+}
+
+use vars qw($_default_dbtype);
+sub default_dbtype {
+   if ($_default_dbtype eq '') {
+      my $t="/tmp/.dbmtest.$$";  ($t =~ /^(.+)$/) && ($t = $1);
+      my %t; dbmopen(%t, "$t$config{'dbmopen_ext'}", 0600); dbmclose(%t);
+
+      $_default_dbtype=get_dbtype("$t$config{'dbm_ext'}");
+
+      unlink ("$t$config{'dbm_ext'}", "$t.dir", "$t.pag");
+    }
+    return($_default_dbtype);
+}
+
+sub get_dbtype {
+   my $f="/tmp/.flist.$$";  ($f =~ /^(.+)$/) && ($f = $1);
+   open(F, ">$f"); print F "$_[0]\n"; close(F);	# pass arg through file for safety
+
+   my $dbtype=`/usr/bin/file -f $f`; unlink($f);
+   $dbtype=~s/^.*?:\s*//; $dbtype=~s/\s*$//;
+
+   return($dbtype);
+}
+####################### END OPEN/CLOSE_DBM ############################
+
 ###################### CLEARVAR/ENDREQUEST/EXIT ###################
 use vars qw($_vars_used);
 sub openwebmail_clearall {
@@ -227,7 +331,7 @@ sub openwebmail_clearall {
    undef(@validfolders);
    undef($folderusage);
    undef($folder);
-   undef($printfolder); 
+   undef($printfolder);
    undef($escapedfolder);
 
    # clear opentable in filelock.pl
@@ -236,8 +340,8 @@ sub openwebmail_clearall {
    # chdir back to openwebmail cgidir
    chdir($config{'ow_cgidir'}) if ($config{'ow_cgidir'});
 
-   # back to root if possible, required for setuid under persistent perl
-   $<=0; $>=0;
+   # back euid to root if possible, required for setuid under persistent perl
+   $>=0;
 }
 
 # routine used at CGI request begin
@@ -282,7 +386,7 @@ sub userenv_init {
       sleep $config{'loginerrordelay'} if ($clientip ne "127.0.0.1");	# delayed response for non localhost
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'param_fmterr'}, $lang_err{'access_denied'}");
    }
-   $thissession = param("sessionid"); 
+   $thissession = param("sessionid");
    $thissession =~ s!\.\.+!!g;  # remove ..
 
    # sessionid format: loginname+domain-session-0.xxxxxxxxxx
@@ -299,7 +403,7 @@ sub userenv_init {
       readconf(\%config, \%config_raw, "$config{'ow_sitesconfdir'}/$logindomain");
    }
    if ( $>!=0 &&	# setuid is required if spool is located in system dir
-       ($config{'mailspooldir'} eq "/var/mail" || 
+       ($config{'mailspooldir'} eq "/var/mail" ||
         $config{'mailspooldir'} eq "/var/spool/mail")) {
       print "Content-type: text/html\n\n'$0' must setuid to root"; openwebmail_exit(0);
    }
@@ -429,7 +533,7 @@ sub login_name2domainuser {
 ######### END LOGINNAME 2 LOGINDOMAIN LOGINUSER ###########
 
 ############ IS_LOCALUSER ##############
-sub is_localuser { 
+sub is_localuser {
    my $localuser=$_[0];
    foreach  ( @{$config{'localusers'}} ) {
       return 1 if ( /^$localuser$/ );
@@ -510,25 +614,26 @@ sub readconf {
       enable_history enable_about about_info_software about_info_protocol
       about_info_server about_info_client about_info_scriptfilename
       xmailer_has_version xoriginatingip_has_userid
-      enable_setforward enable_strictforward
+      enable_preference enable_setforward enable_strictforward
       enable_autoreply enable_strictfoldername enable_stationery
-      enable_smartfilters enable_calendar enable_webdisk 
-      enable_sshterm enable_vdomain
-      enable_pop3 delpop3mail_by_default delpop3mail_hidden getmail_from_pop3_authserver 
-      webdisk_readonly webdisk_lsmailfolder webdisk_lshidden webdisk_lsunixspec
-      webdisk_lssymlink webdisk_allow_symlinkout webdisk_allow_thumbnail
+      enable_smartfilters enable_userfilter
+      enable_webmail enable_calendar enable_webdisk enable_sshterm enable_vdomain
+      enable_pop3 delpop3mail_by_default delpop3mail_hidden getmail_from_pop3_authserver
+      webdisk_readonly webdisk_lsmailfolder webdisk_lshidden webdisk_lsunixspec webdisk_lssymlink
+      webdisk_allow_symlinkcreate webdisk_allow_symlinkout webdisk_allow_thumbnail
       delmail_ifquotahit delfile_ifquotahit
       default_bgrepeat
       default_confirmmsgmovecopy default_viewnextaftermsgmovecopy
       default_moveoldmsgfrominbox forced_moveoldmsgfrominbox
       default_autopop3 default_hideinternal
       default_disablejs
-      default_showimgaslink default_regexmatch
+      default_showhtmlastext default_showimgaslink
+      default_regexmatch
       default_usefixedfont default_usesmileicon
       default_reparagraphorigmsg default_backupsentmsg
       default_abook_defaultfilter
-      default_filter_fakedsmtp default_filter_fakedfrom 
-      default_filter_fakedexecontenttype
+      default_filter_badformatfrom default_filter_fakedsmtp
+      default_filter_fakedfrom default_filter_fakedexecontenttype
       default_calendar_showemptyhours default_calendar_reminderforglobal
       default_webdisk_confirmmovecopy default_webdisk_confirmdel
       default_webdisk_confirmcompress
@@ -547,7 +652,7 @@ sub readconf {
       foreach (split(/\n/, ${$r_config}{'domainname_equiv'})) {
          s/^[:,\s]+//g; s/[:,\s]+$//g;
          my ($dst, @srclist)=split(/[:,\s]+/);
-         $equivlist{$dst}=\@srclist;  
+         $equivlist{$dst}=\@srclist;
          foreach my $src (@srclist) {
             $equiv{$src}=$dst if ($src && $dst);
          }
@@ -583,7 +688,8 @@ sub readconf {
       allowed_serverdomain
       allowed_clientdomain allowed_clientip
       allowed_receiverdomain disallowed_pop3servers
-      vdomain_admlist default_fromemails localusers
+      vdomain_admlist vdomain_postfix_aliases vdomain_postfix_virtual localusers
+      default_fromemails
    )) {
       my $liststr=${$r_config}{$key}; $liststr=~s/\s//g;
       my @list=split(/,/, $liststr);
@@ -622,15 +728,19 @@ sub readconf {
       'global_addressbook', 'global_filterbook', 'global_calendarbook',
       'pop3_authserver', 'pop3_authport',
       'vdomain_vmpop3_pwdpath', 'vdomain_vmpop3_pwdname', 'vdomain_vmpop3_mailpath',
-      'vdomain_postfix_aliases', 'vdomain_postfix_virtual',
       'vdomain_postfix_postalias', 'vdomain_postfix_postmap'
    ) {
       (${$r_config}{$key} =~ /^(.+)$/) && (${$r_config}{$key}=$1);
    }
-   foreach my $domain ( @{${$r_config}{'domainnames'}} ) {
-      ($domain =~ /^(.+)$/) && ($domain=$1);
+   foreach ( @{${$r_config}{'domainnames'}} ) {
+      (/^(.+)$/) && ($_=$1);
    }
-
+   foreach ( @{${$r_config}{'vdomain_postfix_aliases'}} ) {
+      (/^(.+)$/) && ($_=$1);
+   }
+   foreach ( @{${$r_config}{'vdomain_postfix_virtual'}} ) {
+      (/^(.+)$/) && ($_=$1);
+   }
    return 0;
 }
 ##################### END READCONF #######################
@@ -652,14 +762,14 @@ sub guess_language {
 
 ###################### LOADAUTH/LOADQUOTA #####################
 # use 'require' to load the package openwebmail::$file
-# then alias symbos of routines in package openwebmail::$file to 
+# then alias symbos of routines in package openwebmail::$file to
 # current(main::) package through Glob and 'tricky' symbolic reference feature
 sub loadmodule {
    my ($file, @symlist)=@_;
    $file=~s|/||g; $file=~s|\.\.||g; # remove / and .. to anti path hack
 
    # . - is not allowed for package name
-   my $pkg=$file; $pkg=~s/\.pl//; $pkg=~s/[\.\-]/_/g; 
+   my $pkg=$file; $pkg=~s/\.pl//; $pkg=~s/[\.\-]/_/g;
 
    $file="$config{'ow_cgidir'}/$file";
    ($file=~ /^(.*)$/) && ($file = $1);
@@ -701,7 +811,7 @@ sub has_zlib {
 ##################### QUOTA_GET_USAGE_LIMIT ###################
 sub quota_get_usage_limit {
    my ($origruid, $origeuid)=($<, $>);
-   $>=0; $<=0;				# set ruid/euid to roor before quota query
+   $>=0; $<=0;				# set ruid/euid to root before quota query
    my @ret=get_usage_limit(@_);
    $<=$origruid; $>=$origeuid;		# fall back to original ruid/euid
    return(@ret);
@@ -722,15 +832,10 @@ sub update_virtusertable {
    }
 
    if ( -e "$virdb$config{'dbm_ext'}" ) {
-      my ($metainfo);
-
-      if (!$config{'dbmopen_haslock'}) {
-         filelock("$virdb$config{'dbm_ext'}", LOCK_SH) or return;
-      }
-      dbmopen (%DB, "$virdb$config{'dbmopen_ext'}", undef);
+      my $metainfo;
+      open_dbm(\%DB, $virdb, LOCK_SH) or return;
       $metainfo=$DB{'METAINFO'};
-      dbmclose(%DB);
-      filelock("$virdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+      close_dbm(\%DB, $virdb);
 
       return if ( $metainfo eq metainfo($virfile) );
    }
@@ -740,18 +845,11 @@ sub update_virtusertable {
    unlink("$virdb$config{'dbm_ext'}",
           "$virdb.rev$config{'dbm_ext'}",);
 
-   dbmopen(%DB, "$virdb$config{'dbmopen_ext'}", 0644);
-   dbmopen(%DBR, "$virdb.rev$config{'dbmopen_ext'}", 0644);
-   if (!$config{'dbmopen_haslock'}) {
-      if (!filelock("$virdb$config{'dbm_ext'}", LOCK_EX) ||
-          !filelock("$virdb.rev$config{'dbm_ext'}", LOCK_EX) ) {
-         filelock("$virdb$config{'dbm_ext'}", LOCK_UN);
-         filelock("$virdb.rev$config{'dbm_ext'}", LOCK_UN);
-         dbmclose(%DB);
-         dbmclose(%DBR);
-      }
+   open_dbm(\%DB, $virdb, LOCK_EX, 0644) or return;
+   if (!open_dbm(\%DBR, "$virdb.rev", LOCK_EX, 0644)) {
+      close_dbm(\%DB, $virdb);
+      return;
    }
-
    %DB=();	# ensure the virdb is empty
    %DBR=();
 
@@ -775,10 +873,8 @@ sub update_virtusertable {
 
    $DB{'METAINFO'}=metainfo($virfile);
 
-   filelock("$virdb.rev$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
-   dbmclose(%DBR);
-   filelock("$virdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
-   dbmclose(%DB);
+   close_dbm(\%DBR, "$virdb.rev");
+   close_dbm(\%DB, $virdb);
    chmod(0644, "$virdb.rev$config{'dbm_ext'}", "$virdb$config{'dbm_ext'}");
    return;
 }
@@ -789,13 +885,9 @@ sub get_user_by_virtualuser {
    my $u='';
 
    if ( -f "$virdb$config{'dbm_ext'}" && !-z "$virdb$config{'dbm_ext'}" ) {
-      if (!$config{'dbmopen_haslock'}) {
-         filelock("$virdb$config{'dbm_ext'}", LOCK_SH) or return($u);
-      }
-      dbmopen (%DB, "$virdb$config{'dbmopen_ext'}", undef);
+      open_dbm(\%DB, $virdb, LOCK_SH) or return $u;;
       $u=$DB{$vu};
-      dbmclose(%DB);
-      filelock("$virdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+      close_dbm(\%DB, $virdb);
    }
    return($u);
 }
@@ -806,13 +898,9 @@ sub get_virtualuser_by_user {
    my $vu='';
 
    if ( -f "$virdbr$config{'dbm_ext'}" && !-z "$virdbr$config{'dbm_ext'}" ) {
-      if (!$config{'dbmopen_haslock'}) {
-         filelock("$virdbr$config{'dbm_ext'}", LOCK_SH) or return($vu);
-      }
-      dbmopen (%DBR, "$virdbr$config{'dbmopen_ext'}", undef);
+      open_dbm(\%DBR, $virdbr, LOCK_SH) or return $vu;
       $vu=$DBR{$user};
-      dbmclose(%DBR);
-      filelock("$virdbr$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+      close_dbm(\%DBR, $virdbr);
    }
    return($vu);
 }
@@ -1000,7 +1088,7 @@ sub readprefs {
       }
       $prefshash{'email'}=$defaultemails[0] if (!$valid);
    }
-   
+
    # all rc entries are disallowed to be empty
    foreach $key (@openwebmailrcitem) {
       if (defined($config{'DEFAULT_'.$key})) {
@@ -1046,40 +1134,46 @@ sub readprefs {
 ###################### READSTYLE #########################
 # this routine must be called after readprefs
 # since it references $prefs{'bgurl'} & prefs{'bgrepeat'}
+use vars qw(%_stylecache);
 sub readstyle {
    my $stylefile = $_[0] || 'Default';
    $stylefile = 'Default' if (!-f "$config{'ow_stylesdir'}/$stylefile");
 
-   my (%stylehash, $key, $value);
-   open (STYLE,"$config{'ow_stylesdir'}/$stylefile") or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_stylesdir'}/$stylefile! ($!)");
-   while (<STYLE>) {
-      if (/###STARTSTYLESHEET###/) {
-         $stylehash{"css"} = '';
-         while (<STYLE>) {
-            $stylehash{"css"} .= $_;
+   if (!defined($_stylecache{$stylefile})) {
+      my (%hash, $key, $value);
+      open (STYLE,"$config{'ow_stylesdir'}/$stylefile") or
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_stylesdir'}/$stylefile! ($!)");
+      while (<STYLE>) {
+         if (/###STARTSTYLESHEET###/) {
+            $hash{'css'} = '';
+            while (<STYLE>) {
+               $hash{'css'} .= $_;
+            }
+         } else {
+            ($key, $value) = split(/=/, $_);
+            chomp($value);
+            $hash{$key} = $value;
          }
-      } else {
-         ($key, $value) = split(/=/, $_);
-         chomp($value);
-         $stylehash{"$key"} = $value;
       }
+      close (STYLE);
+      $_stylecache{$stylefile}=\%hash;
    }
-   close (STYLE);
 
-   $stylehash{"css"}=~ s/\@\@\@BG_URL\@\@\@/$prefs{'bgurl'}/g;
+   my %stylehash=%{$_stylecache{$stylefile}};	# copied from style cache
+
+   $stylehash{'css'}=~ s/\@\@\@BG_URL\@\@\@/$prefs{'bgurl'}/g;
    if ($prefs{'bgrepeat'}) {
-      $stylehash{"css"}=~ s/\@\@\@BGREPEAT\@\@\@/repeat/g;
+      $stylehash{'css'}=~ s/\@\@\@BGREPEAT\@\@\@/repeat/g;
    } else {
-      $stylehash{"css"}=~ s/\@\@\@BGREPEAT\@\@\@/no-repeat/g;
+      $stylehash{'css'}=~ s/\@\@\@BGREPEAT\@\@\@/no-repeat/g;
    }
-   $stylehash{"css"}=~ s/\@\@\@FONTSIZE\@\@\@/$prefs{'fontsize'}/g;
-   $stylehash{"css"}=~ s/\@\@\@MEDFONTSIZE\@\@\@/${$fontsize{$prefs{'fontsize'}}}[0]/g;
-   $stylehash{"css"}=~ s/\@\@\@SMALLFONTSIZE\@\@\@/${$fontsize{$prefs{'fontsize'}}}[1]/g;
+   $stylehash{'css'}=~ s/\@\@\@FONTSIZE\@\@\@/$prefs{'fontsize'}/g;
+   $stylehash{'css'}=~ s/\@\@\@MEDFONTSIZE\@\@\@/${$fontsize{$prefs{'fontsize'}}}[0]/g;
+   $stylehash{'css'}=~ s/\@\@\@SMALLFONTSIZE\@\@\@/${$fontsize{$prefs{'fontsize'}}}[1]/g;
    if ($prefs{'usefixedfont'}) {
-      $stylehash{"css"}=~ s/\@\@\@FIXEDFONT\@\@\@/"Courier 10 Pitch", "Courier New", "Courier", "Lucida Console", monospace, /g;
+      $stylehash{'css'}=~ s/\@\@\@FIXEDFONT\@\@\@/"Courier 10 Pitch", "Courier New", "Courier", "Lucida Console", monospace, /g;
    } else {
-      $stylehash{"css"}=~ s/\@\@\@FIXEDFONT\@\@\@//g;
+      $stylehash{'css'}=~ s/\@\@\@FIXEDFONT\@\@\@//g;
    }
    return %stylehash;
 }
@@ -1095,7 +1189,7 @@ sub readlang {
    $langfile='en' if (!-f "$config{'ow_langdir'}/$langfile");
 
    # . - is not allowed for package name
-   my $pkg= $langfile; $pkg=~s/[\.\-]/_/g; 
+   my $pkg= $langfile; $pkg=~s/[\.\-]/_/g;
 
    $langfile="$config{'ow_langdir'}/$langfile";
    ($langfile=~ /^(.*)$/) && ($langfile = $1);
@@ -1348,7 +1442,7 @@ sub easter_match {
     }
     # days_in_month ought to be pre-computed just once per $year, externally!
     my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
-    if ((($year % 4) == 0) && ((($year % 100) != 0) || (($year % 400) == 0))) {
+    if ( ($year%4)==0 && ( ($year%100)!=0 || ($year%400)==0 ) ) {
        $days_in_month[2]++;
     }
     if ($fields[1] > 0) { # same year, so proceed
@@ -1404,7 +1498,7 @@ sub verifysession {
    # no_update is used by auto-refresh/timeoutwarning
    my $session_noupdate=param('session_noupdate');
    if (!$session_noupdate) {
-      # update the session timestamp with now-1, 
+      # update the session timestamp with now-1,
       # the -1 is for nfs, utime is actually the nfs rpc setattr()
       # since nfs server current time will be used if setattr() is issued with nfs client's current time.
       utime ($now-1, $now-1, "$config{'ow_sessionsdir'}/$thissession") or
@@ -1500,7 +1594,7 @@ sub getfolders {
                 $filename=~/^\.(?:search|webdisk)\.cache$/ ) {
                next;	# skip db used by system
             }
-            # .*(db|dir|pag|lock|cache) will be DELETED 
+            # .*(db|dir|pag|lock|cache) will be DELETED
             # if not matched in above patterns
             push (@delfiles, "$folderdir/$filename");
             next;
@@ -1575,20 +1669,15 @@ sub getmessage {
       writelog("db warning - msg $messageid in $folderfile index inconsistence");
       writehistory("db warning - msg $messageid in $folderfile index inconsistence");
 
+      my %HDB;
+      open_dbm(\%HDB, $headerdb, LOCK_EX) or
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $headerdb$config{'dbm_ext'}");
+      $HDB{'METAINFO'}="ERR";
+      close_dbm(\%HDB, $headerdb);
+
       filelock($folderfile, LOCK_SH|LOCK_NB) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $folderfile!");
 
-      if (!$config{'dbmopen_haslock'}) {
-         if (!filelock("$headerdb$config{'dbm_ext'}", LOCK_EX)) {
-            filelock($folderfile, LOCK_UN) or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $headerdb$config{'dbm_ext'}");
-         }
-      }
-      my %HDB;
-      dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", 0600);
-      $HDB{'METAINFO'}="ERR";
-      dbmclose(%HDB);
-      filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
       # forced reindex since metainfo = ERR
       if (update_headerdb($headerdb, $folderfile)<0) {
          filelock($folderfile, LOCK_UN);
@@ -1604,8 +1693,9 @@ sub getmessage {
       return \%message if (${$r_messageblock} eq "" );
    }
 
-   my ($currentheader, $currentbody, $r_currentattachments, $currentfrom, $currentdate,
-       $currentsubject, $currentid, $currenttype, $currentto, $currentcc, $currentbcc,
+   my ($currentheader, $currentbody, $r_currentattachments,
+       $currentreturnpath, $currentfrom, $currentdate, $currentsubject,
+       $currentid, $currenttype, $currentto, $currentcc, $currentbcc,
        $currentreplyto, $currentencoding, $currentstatus, $currentreceived,
        $currentpriority, $currentinreplyto, $currentreferences);
 
@@ -1621,8 +1711,7 @@ sub getmessage {
 
    $currentfrom = $currentdate = $currentsubject = $currenttype =
    $currentto = $currentcc = $currentreplyto = $currentencoding = 'N/A';
-   $currentstatus = '';
-   $currentpriority = '';
+   $currentreturnpath = $currentstatus = $currentpriority =
    $currentinreplyto = $currentreferences = '';
 
    my $lastline = 'NONE';
@@ -1630,7 +1719,8 @@ sub getmessage {
    foreach (split(/\n/, $currentheader)) {
       if (/^\s/) {
          s/^\s+/ /;
-         if    ($lastline eq 'FROM') { $currentfrom .= $_ }
+         if    ($lastline eq 'RETURNPATH') { $currentreturnpath .= $_ }
+         elsif ($lastline eq 'FROM') { $currentfrom .= $_ }
          elsif ($lastline eq 'REPLYTO') { $currentreplyto .= $_ }
          elsif ($lastline eq 'DATE') { $currentdate .= $_ }
          elsif ($lastline eq 'SUBJ') { $currentsubject .= $_ }
@@ -1643,6 +1733,9 @@ sub getmessage {
          elsif ($lastline eq 'INREPLYTO') { $currentinreplyto .= $_ }
          elsif ($lastline eq 'REFERENCES') { $currentreferences .= $_ }
          elsif ($lastline eq 'RECEIVED') { $currentreceived .= $_ }
+      } elsif (/^return-path:\s*(.*)$/ig) {
+         $currentreturnpath = $1;
+         $lastline = 'RETURNPATH';
       } elsif (/^from:\s*(.*)$/ig) {
          $currentfrom = $1;
          $lastline = 'FROM';
@@ -1744,6 +1837,7 @@ search_smtprelay:
    $message{bcc}     = decode_mimewords($currentbcc) if ($currentbcc ne "N/A");
    $message{subject} = decode_mimewords($currentsubject);
 
+   $message{returnpath} = $currentreturnpath;
    $message{date} = $currentdate;
    $message{status} = $currentstatus;
    $message{messageid} = $currentid;
@@ -1841,7 +1935,7 @@ sub getinfomessageids {
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $folderfile!");
       open($folderhandle, $folderfile);
       ($totalsize, $new, $r_haskeyword)=search_info_messages_for_keyword(
-         $keyword, $prefs{'charset'}, $searchtype, $headerdb, $folderhandle, 
+         $keyword, $prefs{'charset'}, $searchtype, $headerdb, $folderhandle,
          "$folderdir/.search.cache", $prefs{'hideinternal'}, $prefs{'regexmatch'});
       close($folderhandle);
       filelock($folderfile, LOCK_UN);
@@ -1866,11 +1960,12 @@ sub filtermessage {
    my ($filtered, $r_filtered);
    if ($config{'enable_smartfilters'}) {
       ($filtered, $r_filtered)=mailfilter($user, 'INBOX', $folderdir, \@validfolders, $prefs{'regexmatch'},
-					$prefs{'filter_repeatlimit'}, $prefs{'filter_fakedsmtp'},
-        				$prefs{'filter_fakedfrom'}, $prefs{'filter_fakedexecontenttype'});
+					$prefs{'filter_repeatlimit'}, $prefs{'filter_badformatfrom'},
+					$prefs{'filter_fakedsmtp'}, $prefs{'filter_fakedfrom'},
+					$prefs{'filter_fakedexecontenttype'});
    } else {
       ($filtered, $r_filtered)=mailfilter($user, 'INBOX', $folderdir, \@validfolders, $prefs{'regexmatch'},
-					0, 0, 0, 0);
+					0, 0, 0, 0, 0);
    }
 
    if ($filtered > 0) {
@@ -1946,7 +2041,7 @@ sub cutfoldermails {
          next;
       }
       $sizereduced -= ((-s "$folderfile{$f}") + (-s "$headerdb{$f}$config{'dbm_ext'}"));
-      
+
       $total_foldersize-=$sizereduced;
       $sizetocut-=$sizereduced;
       return ($_[0]-$sizetocut) if ($sizetocut<=0);	# return cutsize
@@ -1972,7 +2067,7 @@ sub cutfoldermails {
    for (my $i=0; $i<3; $i++) {
       return ($_[0]-$sizetocut) if ($total_foldersize==0);	# return cutsize
 
-      my $cutpercent=$sizetocut/$total_foldersize; 
+      my $cutpercent=$sizetocut/$total_foldersize;
       $cutpercent=0.1 if ($cutpercent<0.1);
 
       foreach my $f (@folders_tocut) {
@@ -2013,7 +2108,7 @@ sub emptyfolder {
    if (!open (F, ">$folderfile")) {
       filelock($folderfile, LOCK_UN);
       return -2;
-   }   
+   }
    close (F);
    $ret=update_headerdb($headerdb, $folderfile);
    filelock($folderfile, LOCK_UN);
@@ -2031,17 +2126,13 @@ sub cutfolder {				# reduce folder size by $cutpercent
 
    my ($totalsize, $new, $r_messageids)=get_info_messageids_sorted_by_date($headerdb, 0);
 
-   if (!$config{'dbmopen_haslock'}) {
-      filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) or return -3;
-   }
-   dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
+   open_dbm(\%HDB, $headerdb, LOCK_SH) or return -3;
    foreach my $id  (reverse @{$r_messageids}) {
       push(@delids, $id);
       $cutsize += (split(/@@@/, $HDB{$id}))[$_SIZE];
       last if ($cutsize > $totalsize*$cutpercent);
    }
-   dbmclose (%HDB);
-   filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+   close_dbm(\%HDB, $headerdb);
    my $counted=operate_message_with_ids("delete", \@delids, $folderfile, $headerdb);
 
    filelock($folderfile, LOCK_UN);
@@ -2074,7 +2165,7 @@ sub cutdirfiles {
          $fdate{$fname}=$st_mtime;
          $fsize{$fname}=$st_blocks*512;
       } else {	# unix specific filetype: fifo, socket, block dev, char dev..
-         next;  
+         next;
       }
    }
    closedir(D);
@@ -2110,7 +2201,7 @@ sub cutdirfiles {
 ##################### WRITELOG ############################
 sub writelog {
    my $logaction=$_[0];
-   return if ( ($config{'logfile'} eq 'no') || ( -l "$config{'logfile'}" ) );
+   return if ($config{'logfile'} eq 'no' || -l "$config{'logfile'}");
 
    my $timestamp = localtime();
    my $loggedip = get_clientip();
@@ -2118,11 +2209,15 @@ sub writelog {
    $loggeduser .= "\@$logindomain" if ($config{'auth_withdomain'});
    $loggeduser .= "($user)" if ($user && $loginuser ne $user);
 
-   open (LOGFILE,">>$config{'logfile'}") or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'logfile'}! ($!)");
-   print LOGFILE "$timestamp - [$$] ($loggedip) $loggeduser - $logaction\n";
-   close (LOGFILE);
-
+   if (open(LOGFILE,">>$config{'logfile'}")) {
+      print LOGFILE "$timestamp - [$$] ($loggedip) $loggeduser - $logaction\n";
+      close (LOGFILE);
+   } else {
+      # show log error only if CGI mode
+      if (defined($ENV{'GATEWAY_INTERFACE'})) {
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'logfile'}! ($!)");
+      }
+   }
    return;
 }
 #################### END WRITELOG #########################
@@ -2184,7 +2279,7 @@ sub httpprint {
         has_zlib() ) {
       my $zhtml=Compress::Zlib::memGzip(join('',@{$r_htmls}));
       if ($zhtml) {
-         print httpheader(@{$r_headers}, 
+         print httpheader(@{$r_headers},
                           '-Content-Encoding'=>'gzip',
                           '-Vary'=>'Accept-Encoding',
                           '-Content-Length'=>length($zhtml)), $zhtml;
@@ -2249,8 +2344,9 @@ sub htmlplugin {
 
 sub htmlfooter {
    my ($mode, $jscode)=@_;
-   my $html = '';
+   return qq|</body></html>\n| if ($mode==0);	# null footer
 
+   my $html = '';
    if ($mode==2) {	# read in timeout check jscript
       my $ftime= (stat("$config{'ow_sessionsdir'}/$thissession"))[9];
       my $remainingseconds= 365*86400;		# default timeout = 1 year
@@ -2261,17 +2357,12 @@ sub htmlfooter {
       $html =~ s/\@\@\@REMAININGSECONDS\@\@\@/$remainingseconds/g;
       $html =~ s/\@\@\@JSCODE\@\@\@/$jscode/g;
    }
-
    if ($mode>=1) {	# print footer
-      $html.=applystyle(readtemplate("footer.template"));
+      $html.=readtemplate("footer.template");
       $html =~ s/\@\@\@USEREMAIL\@\@\@/$prefs{'email'}/g;
    }
 
-   if ($mode==0) {	# null footer
-      $html=qq|</body></html>\n|;
-   }
-
-   return $html;
+   return (applystyle($html));
 }
 ################# END PRINTHEADER/PRINTFOOTER #########################
 
@@ -2447,8 +2538,10 @@ sub metainfo {
 #################### GET_CLIENTIP #############################
 sub get_clientip {
    my $clientip;
-   if ($ENV{'HTTP_X_FORWARDED_FOR'} && $ENV{'HTTP_X_FORWARDED_FOR'} !~ 
-       /^(?:10\.|172\.(?:1[6-9]|2[0-9]|3[0-1])\.|192\.168\.|127\.0\.)/ ) {
+   if (defined($ENV{'HTTP_CLIENT_IP'})) {
+      $clientip=$ENV{'HTTP_CLIENT_IP'};
+   } elsif (defined($ENV{'HTTP_X_FORWARDED_FOR'}) && 
+            $ENV{'HTTP_X_FORWARDED_FOR'} !~ /^(?:10\.|172\.(?:1[6-9]|2[0-9]|3[0-1])\.|192\.168\.|127\.0\.)/ ) {
       $clientip=(split(/,/,$ENV{'HTTP_X_FORWARDED_FOR'}))[0];
    } else {
       $clientip=$ENV{'REMOTE_ADDR'}||"127.0.0.1";
@@ -2456,28 +2549,6 @@ sub get_clientip {
    return $clientip;
 }
 #################### END GET_CLIENTIP #########################
-
-#################### GETTIMEOFFSET #########################
-sub gettimeoffset {
-   my $t=time();
-   my @g=gmtime($t);
-   my @l=localtime($t);
-
-   my $gserial=sprintf("%04d%02d%02d%02d%02d%02d", $g[5], $g[4], $g[3], $g[2], $g[1]);
-   my $lserial=sprintf("%04d%02d%02d%02d%02d%02d", $l[5], $l[4], $l[3], $l[2], $l[1]);
-   return("+0000") if ($gserial eq $lserial);
-
-   my ($sign, $hour, $min);
-   if ( $lserial gt $gserial ) {
-      ($sign, $hour, $min)=('+', $l[2]-$g[2], $l[1]-$g[1]);
-   } elsif ( $lserial lt $gserial ) {
-      ($sign, $hour, $min)=('-', $g[2]-$l[2], $g[1]-$l[1]);
-   }
-   if ($min<0) { $min+=60; $hour--; }
-   if ($hour<0) { $hour+=24; }
-   return sprintf("%s%02d%02d", $sign, $hour, $min);
-}
-#################### END GETTIMEOFFSET #########################
 
 #################### TIMEOFFSET2SECONDS ########################
 sub timeoffset2seconds {
@@ -2488,6 +2559,12 @@ sub timeoffset2seconds {
       $seconds*=-1 if ($timeoffset=~/^\-/);
    }
    return($seconds);
+}
+
+sub seconds2timeoffset {
+   my $seconds=abs($_[0]);
+   my $sign=($_[0]>=0)?"+":"-";
+   return(sprintf( "%s%02d%02d", $sign, int($seconds/3600), int(($seconds%3600)/60) ));
 }
 ################## END TIMEOFFSET2SECONDS ######################
 
@@ -2502,23 +2579,23 @@ sub is_dst {
 
    my ($gm, $lt, $dow);
    if ($seconds >= -9*3600 && $seconds <= 3*3600 ) {	# dst rule for us timezones
-      $lt=timegm(0,0,2,1,3,$year);	# localtime Apr/1 2:00
+      $lt=safetimegm(0,0,2, 1,3,$year);	# localtime Apr/1 2:00
       $dow=(gmtime($lt))[6];		# weekday of localtime Apr/1 2:00:01
       $gm=$lt+(7-$dow)*86400-$seconds;	# gmtime of localtime Apr/1st sunday
       return 0 if ($gmtime<$gm);
 
-      $lt=timegm(0,0,2,30,9,$year);	# localtime Oct/30 2:00
+      $lt=safetimegm(0,0,2, 30,9,$year);	# localtime Oct/30 2:00
       $dow=(gmtime($lt))[6];		# weekday of localtime Oct/30
       $gm=$lt-$dow*86400-$seconds;	# gmtime of localtime Oct/last Sunday
       return 0 if ($gmtime>$gm);
 
    } elsif ($seconds >= 0 && $seconds <= 6*3600 ) {	# dst rule for europe timezones
-      $gm=timegm(0,0,1,31,2,$year);     # gmtime Mar/31 1:00
+      $gm=safetimegm(0,0,1, 31,2,$year);     # gmtime Mar/31 1:00
       $dow=(gmtime($gm))[6];		# weekday of gmtime Mar/31
       $gm-=$dow*86400;			# gmtime Mar/last Sunday
       return 0 if ($gmtime<$gm);
 
-      $gm=timegm(0,0,1,30,9,$year);     # gmtime Oct/30 1:00
+      $gm=safetimegm(0,0,1, 30,9,$year);     # gmtime Oct/30 1:00
       $dow=(gmtime($gm))[6];		# weekday of gmtime Oct/30
       $gm-=$dow*86400;			# gmtime Oct/last Sunday
       return 0 if ($gmtime>$gm);
@@ -2530,23 +2607,41 @@ sub is_dst {
 }
 ######################## END IS_DST ########################
 
+#################### GETTIMEOFFSET #########################
+# notice! th difference between localtime and gmtime includes the dst shift
+# so we remove the dstshift before return timeoffset
+# since whether dst shift should be used depends on the date to be converted
+sub gettimeoffset {
+   my $t=time();			# the UTC            sec from 1970/01/01
+   my $l=timegm((localtime($t))[0..5]);	# the UTC+timeoffset sec from 1970/01/01
+   my $offset=sprintf(seconds2timeoffset($l-$t));
+
+   if (is_dst($t, $offset)) {	
+      $offset=sprintf(seconds2timeoffset($l-$t-3600));
+   }
+   return $offset;
+}
+#################### END GETTIMEOFFSET #########################
+
 ########################## SAFE_TIMEGM ########################
-# use eval to catch unexpected error from timegm
+# avoid unexpected error exception from timegm
 sub safetimegm {
    my ($sec,$min,$hour, $d,$m,$y)=@_;
-   my $gm;
-   eval { $gm=timegm($sec,$min,$hour, $d,$m,$y); };
-   if ($@) { # eval err
-      my @t=gmtime();
-      $sec= $t[0] if ($sec<0||$sec>59);
-      $min= $t[1] if ($min<0||$min>59);
-      $hour=$t[2] if ($hour<0||$hour>23);
-      $d   =$t[3] if ($d<1||$d>31);
-      $m   =$t[4] if ($m<0||$m>11);
-      $y   =$t[5] if ($y<70||$y>139);
-      $gm=timegm($sec,$min,$hour, $d,$m,$y);
+   my @t=gmtime();
+   $sec= $t[0] if ($sec<0||$sec>59);
+   $min= $t[1] if ($min<0||$min>59);
+   $hour=$t[2] if ($hour<0||$hour>23);
+   $d   =$t[3] if ($d<1||$d>31);
+   $m   =$t[4] if ($m<0||$m>11);
+   $y   =$t[5] if ($y<70||$y>139);
+
+   if ($d>28) {
+      my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
+      my $year=1900+$y;
+      $days_in_month[2]++ if ( $year%4==0 && ($year%100!=0||$year%400==0) );
+      $d=$days_in_month[$m+1] if ($d>$days_in_month[$m+1]);
    }
-   return $gm;
+   return timegm($sec,$min,$hour, $d,$m,$y);
 }
 ######################## SAFE_TIMEGM ###########################
 
@@ -2572,9 +2667,9 @@ sub delimiter2dateserial {	# return dateserial of GMT
    my ($delimiter, $deliver_use_GMT)=@_;
 
    # extract date from the 'From ' line, it must be in this form
-   # From tung@turtle.ee.ncku.edu.tw Fri Jun 22 14:15:33 2001
-   # From tung@turtle.ee.ncku.edu.tw Mon Aug 20 18:24 CST 2001
-   # From nsb@thumper.bellcore.com   Wed Mar 11 16:27:37 EST 1992
+   # From Tung@turtle.ee.ncku.edu.tw Fri Jun 22 14:15:33 2001
+   # From Tung@turtle.ee.ncku.edu.tw Mon Aug 20 18:24 CST 2001
+   # From Nssb@thumper.bellcore.com   Wed Mar 11 16:27:37 EST 1992
    return("") if ($delimiter !~ /(\w\w\w)\s+(\w\w\w)\s+(\d+)\s+(\d+):(\d+):?(\d*)\s+([A-Z]{3,4}\d?\s+)?(\d\d+)/);
 
    my ($wdaystr, $monstr, $mday, $hour, $min, $sec, $zone, $year)
@@ -2612,13 +2707,15 @@ sub dateserial2delimiter {
    $g2l+=timeoffset2seconds($timeoffset) if ($timeoffset);
    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst)=gmtime($g2l);
 
-   # From tung@turtle.ee.ncku.edu.tw Fri Jun 22 14:15:33 2001
+   # From Tung@turtle.ee.ncku.edu.tw Fri Jun 22 14:15:33 2001
    return(sprintf("%3s %3s %2d %02d:%02d:%02d %4d",
               $wdaystr[$wday], $monthstr[$mon],$mday, $hour,$min,$sec, $year+1900));
 }
 ################ END DELIMITER <-> DATESERIAL #######################
 
 #################### DATEFIELD <-> DATESERIAL #####################
+# notice: both the datetime and the timezone str in date field 
+#         include the dst shift
 sub datefield2dateserial {	# return dateserial of GMT
    my $datefield=$_[0];
    my ($sec,$min,$hour, $mday,$mon,$year, $timeoffset,$timezone, $ampm);
@@ -2656,10 +2753,6 @@ sub datefield2dateserial {	# return dateserial of GMT
 
    my $l2g=safetimegm($sec,$min,$hour, $mday,$mon-1,$year-1900);
    $l2g-=timeoffset2seconds($timeoffset);
-   if ($prefs{'daylightsaving'} eq "on" ||
-       ($prefs{'daylightsaving'} eq "auto" && is_dst($l2g,$timeoffset)) ) {
-      $l2g-=3600; # minus 1 hour if is_dst at that gmtime
-   }
    return(gmtime2dateserial($l2g));
 }
 
@@ -2669,7 +2762,7 @@ sub dateserial2datefield {
    my $g2l=dateserial2gmtime($dateserial);
    if ($prefs{'daylightsaving'} eq "on" ||
        ($prefs{'daylightsaving'} eq "auto" && is_dst($g2l,$timeoffset)) ) {
-      $g2l+=3600; # plus 1 hour if is_dst at this gmtime
+      $timeoffset=seconds2timeoffset(timeoffset2seconds($timeoffset)+3600);
    }
    $g2l+=timeoffset2seconds($timeoffset) if ($timeoffset);
    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst)=gmtime($g2l);
@@ -2966,6 +3059,7 @@ sub ext2contenttype {
    return("application/x-troff")	if ($ext =~ /^(?:tr|roff)$/);
    return("application/x-troff-$1")     if ($ext =~ /^(man|me|ms)$/);
    return("application/x-$1")		if ($ext =~ /^(dvi|latex|shar|tar|tcl|tex)$/);
+   return("application/ms-tnef")        if ($ext =~ /^tnef$/);
    return("application/$1")		if ($ext =~ /^(pdf|zip)$/);
 
    return("application/octet-stream");
@@ -2975,30 +3069,31 @@ sub contenttype2ext {
    my $contenttype=$_[0];
    my ($class, $ext, $dummy)=split(/[\/\s;,]+/, $contenttype);
 
-   return("txt") if ($contenttype eq "N/A");
-   return("mp3") if ($contenttype=~m!audio/mpeg!i);
-   return("au")  if ($contenttype=~m!audio/x\-sun!i);
-   return("ra")  if ($contenttype=~m!audio/x\-realaudio!i);
+   return("txt")  if ($contenttype eq "N/A");
+   return("mp3")  if ($contenttype=~m!audio/mpeg!i);
+   return("au")   if ($contenttype=~m!audio/x\-sun!i);
+   return("ra")   if ($contenttype=~m!audio/x\-realaudio!i);
 
    $ext=~s/^x-//i;
    return(lc($ext))  if length($ext) <=4;
 
-   return("txt") if ($class =~ /text/i);
-   return("msg") if ($class =~ /message/i);
+   return("txt")  if ($class =~ /text/i);
+   return("msg")  if ($class =~ /message/i);
 
-   return("doc") if ($ext =~ /msword/i);
-   return("ppt") if ($ext =~ /powerpoint/i);
-   return("xls") if ($ext =~ /excel/i);
-   return("vsd") if ($ext =~ /visio/i);
-   return("vcf") if ($ext =~ /vcard/i);
-   return("tar") if ($ext =~ /tar/i);
-   return("zip") if ($ext =~ /zip/i);
-   return("avi") if ($ext =~ /msvideo/i);
-   return("mov") if ($ext =~ /quicktime/i);
-   return("swf") if ($ext =~ /shockwave-flash/i);
-   return("hqx") if ($ext =~ /mac-binhex40/i);
-   return("ps")  if ($ext =~ /postscript/i);
-   return("js")  if ($ext =~ /javascript/i);
+   return("doc")  if ($ext =~ /msword/i);
+   return("ppt")  if ($ext =~ /powerpoint/i);
+   return("xls")  if ($ext =~ /excel/i);
+   return("vsd")  if ($ext =~ /visio/i);
+   return("vcf")  if ($ext =~ /vcard/i);
+   return("tar")  if ($ext =~ /tar/i);
+   return("zip")  if ($ext =~ /zip/i);
+   return("avi")  if ($ext =~ /msvideo/i);
+   return("mov")  if ($ext =~ /quicktime/i);
+   return("swf")  if ($ext =~ /shockwave\-flash/i);
+   return("hqx")  if ($ext =~ /mac\-binhex40/i);
+   return("ps")   if ($ext =~ /postscript/i);
+   return("js")   if ($ext =~ /javascript/i);
+   return("tnef") if ($ext =~ /ms\-tnef/i);
    return("bin");
 }
 ########################## END EXT <-> CONTENTTYPE ########################
@@ -3187,7 +3282,7 @@ sub is_tainted {
 sub is_RTLmode {
    if ($_[0] eq "ar.CP1256" || $_[0] eq "ar.ISO8859-6" ||  # arabic
        $_[0] eq "he.CP1255" || $_[0] eq "he.ISO8859-8" ||  # hebrew
-       $_[0] eq "ur" ) {				   # urdu 
+       $_[0] eq "ur" ) {				   # urdu
       return 1;
    }
    return 0;

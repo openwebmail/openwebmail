@@ -708,6 +708,14 @@ Set this option to 'no' if you don't want the userid to be displayed
 in the X-OriginatingIP header for the outgoing messages
 
 
+enable_preference
+-----------------------------------------------------------------------
+set this option to 'no' if you want to disable preference setup fir users
+Note: Openwebmail will try to guess the proper value for user preference
+in case this is set to no, but we don't guarentee that user will like 
+those values :)
+
+
 enable_setfrom
 -----------------------------------------------------------------------
 This option would allow user to edit their 'from book' for different 
@@ -745,9 +753,20 @@ This option enables the stationery support
 
 enable_smartfilters
 -----------------------------------------------------------------------
-Open WebMail has 4 smart filters: repeatness filter, fakedsmtp filter,
-fakedfrom filter and faked exe contenttype filter,
+Open WebMail has 5 smart filters: repeatness filter, badformat from filter,
+fakedsmtp filter, fakedfrom filter and faked exe contenttype filter,
 set this option to 'no' if you want to disable it.
+
+
+enable_userfilter
+-----------------------------------------------------------------------
+Open WebMail default allows uyser to define mail filters for their
+incoming messages, set this option to 'no' if you want to disable it.
+
+
+enable_webmail
+-----------------------------------------------------------------------
+set this option to 'no' if you want to disable webmail related functions
 
 
 enable_calendar
@@ -955,6 +974,12 @@ If this option is set to 'no', the webdisk won't list and won't allow
 access to symbolic linked directories or files.
 
 
+webdisk_allow_symlinkcreate
+-----------------------------------------------------------------------
+If this option is set to 'no', then user can not create symlink in 
+the webdisk
+
+
 webdisk_allow_symlinkout
 -----------------------------------------------------------------------
 If this option is set to 'no', then access to symbolic links that
@@ -1034,7 +1059,7 @@ Users of virtual domains defined in this option can manage their 'own'
 domain space without any direct access by ssh or telnet to the server itself. 
 
 At the current state, a user can only manage the domain accounts of his 
-current logged on e-mail account.For example, admin@foo.bar can manage 
+current logged on e-mail account. For example, admin@foo.bar can manage 
 all e-mail accounts of the domain foo.bar :)
 
 Default: sysadm
@@ -1091,14 +1116,14 @@ ps: the user mailspool fiile for USER@DOMAINANME will be
 
 vdomain_postfix_virtual
 -----------------------------------------------------------------------
-The path of the postfix virtual map file
+The path of the postfix virtual map file(s)
 
 Default: /etc/postfix/virtual
 
 
 vdomain_postfix_aliases
 -----------------------------------------------------------------------
-The path of the postfix alias file
+The path of the postfix alias file(s)
 
 Default: /etc/postfix/aliases
 
@@ -1412,6 +1437,12 @@ if this option is set to yes, openwebmail will fetch pop3 mail for
 user automatically after the user login
 
 
+default_autopop3wait
+-----------------------------------------------------------------------
+if option autopop3 is set to yes, this wait means how long openwebmail 
+should wait before putting the pop3 fetch process into background
+
+
 default_moveoldmsgfrominbox
 -----------------------------------------------------------------------
 if this option is set to yes, old messages in INBOX will be moved
@@ -1440,6 +1471,19 @@ default_headers
 This option controls whether to display all entyies in the message
 header when user is reading a message
 values: simple, all
+
+
+default_showhtmlastext
+-----------------------------------------------------------------------
+if set this option to 'yes', all tags in a HTML message will be removed
+and the message will be displayed as a plain text message.
+
+
+default_showimgaslink
+-----------------------------------------------------------------------
+if set this option to 'yes', the image attachments will be showed as
+link instead of the image picutre. This is useful for users with slow
+link of network.
 
 
 default_usefixedfont
@@ -1473,13 +1517,6 @@ if this option is set to 'all',  all embedded links will be disabled,
 if this option is set to 'none', all embedded links will be kept untouched.
 
 Default: cgionly
-
-
-default_showimgaslink
------------------------------------------------------------------------
-if set this option to 'yes', the image attachments will be showed as
-link instead of the image picutre. This is useful for users with slow
-link of network.
 
 
 default_sendreceipt
@@ -1606,6 +1643,16 @@ messages will be moved to mail-trash folder.
 Set this value to 0 will disable this feature.
 
 
+default_filter_badformatfrom
+-----------------------------------------------------------------------
+A From email will be treated as bad format if it is in one of the following cases:
+1. started with digits
+2. containing both digits and dot (.) 
+3. containing characters other than alphabat, digits dot(.), dash(-), underline(_)
+Messages with bad from email address are normally from spammers. 
+If this option is set to 'yes', these messages will be moved to mail-trash.
+
+
 default_filter_fakedsmtp
 -----------------------------------------------------------------------
 We call a message 'fakedsmtp' if
@@ -1667,6 +1714,20 @@ values: none, name, email, note, all
 default_abook_defaultkeyword
 -----------------------------------------------------------------------
 text for the default filter in addressbook popup window.
+
+
+default_calendar_defaultview
+-----------------------------------------------------------------------
+the default view to use when user clicks the calendar button
+Valid values: calyear, calmonth, calweek, calday, callist
+
+
+default_calendar_holidaydef
+-----------------------------------------------------------------------
+the default holiday definition file to use
+If this option is set to auto, then the definition file will be choosed
+based on the user language. If this option is set to none, then no
+holiday definition file will be used.
 
 
 default_calendar_monthviewnumitems

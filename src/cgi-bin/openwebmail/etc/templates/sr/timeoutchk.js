@@ -13,9 +13,9 @@
          tid=setTimeout("timeoutcheck()", 1*1000);
          if (remainingseconds<65) {
             if (remainingseconds>6) {
-               window.defaultStatus="session time : "+ (remainingseconds-5) +" seconds left";
+               window.defaultStatus="trajanje sesije : "+ (remainingseconds-5) +" sekundi preostalo";
             } else if (remainingseconds>=5) {
-               window.defaultStatus="session time : "+ (remainingseconds-5) +" second left";
+               window.defaultStatus="trajanje sesije : "+ (remainingseconds-5) +" sekundi preostalo";
             }
             if (!warn) {
                warn=1;
@@ -25,7 +25,7 @@
             }
          }
       } else {
-         window.defaultStatus="session timeout";
+         window.defaultStatus="sesija istekla";
          clearTimeout(tid);
       }
    }

@@ -16,3 +16,4 @@ den här sessionen att kopplas ner inom 60 sekunder.
 <script language="JavaScript">
 setTimeout("close()", 60*1000);
 </script>
+</center>

@@ -1,19 +1,19 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td colspan="5" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>EDITEAZA FOLDERE</b></font>
+<b>EDITEAZA DIRECTOARE</b></font>
 </td></tr>
 <tr><td colspan="5" bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
 </td></tr><tr><td colspan="5">&nbsp;</td></tr>
 <tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Numele Folderului (@@@FOLDERNAME_MAXLEN@@@ caractere)</B></td>
+<B>Numele directorului (@@@FOLDERNAME_MAXLEN@@@ caractere)</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Nou</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Mesg</B></td>
+<B>Mesaj</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Dimens</B></td>
+<B>Dimensiune</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Actiune</B>
 </td></tr>
@@ -35,13 +35,13 @@
 
 <tr><td colspan="5">&nbsp;</td></tr>
 <tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Foldere default</B></td>
+<B>Configuratii implicite</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Nou</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Mesg</B></td>
+<B>Mesaj</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Dimens</B></td>
+<B>Dimensiune</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 &nbsp;
 </td></tr>

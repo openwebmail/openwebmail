@@ -1,7 +1,7 @@
 #
 # filelock.pl - filelock routines for local or nfs server
 #
-# 2001/04/25 tung@turtle.ee.ncku.edu.tw
+# 2001/04/25 tung.AT.turtle.ee.ncku.edu.tw
 #
 package openwebmail::filelock;
 
@@ -24,11 +24,12 @@ sub closeall {
 # it opens the file to get the handle if need,
 # than do lock operation on the related filehandle
 sub flock_lock {
-   my ($filename, $lockflag)=@_;
+   my ($filename, $lockflag, $perm)=@_;
 
    ($filename =~ /^(.+)$/) && ($filename = $1);	# untaint...
    if ( (! -e $filename) && $lockflag ne LOCK_UN) {
-      sysopen(F, $filename, O_RDWR|O_CREAT, 0600) or return 0; # create file for lock
+      $perm=0600 if (!$perm);
+      sysopen(F, $filename, O_RDWR|O_CREAT, $perm) or return 0; # create file for lock
       close(F);
    }
 
@@ -81,12 +82,13 @@ sub flock_lock {
 # filename.lock and filename.lock.lock could not be created, this routine will
 # grant all shared lock and deny all exclusive lock.
 sub dotfile_lock {
-   my ($filename, $lockflag)=@_;
+   my ($filename, $lockflag, $perm)=@_;
    return 1 unless ($lockflag & (LOCK_SH|LOCK_EX|LOCK_UN));
 
    ($filename =~ /^(.+)$/) && ($filename = $1);	# untaint...
    if ( (! -e $filename) && $lockflag ne LOCK_UN) {
-      sysopen(F, $filename, O_RDWR|O_CREAT, 0600) or return 0; # create file for lock
+      $perm=0600 if (!$perm);
+      sysopen(F, $filename, O_RDWR|O_CREAT, $perm) or return 0; # create file for lock
       close(F);
    }
 

@@ -156,7 +156,7 @@ sub change_userpassword {
    return (-2, "User or password is null") if (!$user||!$oldpasswd||!$newpasswd);
    return (-2, "Password too short") if (length($newpasswd)<${$r_config}{'passwd_minlen'});
 
-   my ($ret, $errmsg)=check_userpassword($user, $oldpasswd);
+   my ($ret, $errmsg)=check_userpassword($r_config, $user, $oldpasswd);
    return($ret, $errmsg) if ($ret!=0);
 
    my $domain;
@@ -192,18 +192,19 @@ sub mysql_command {
 
    for ( 0 .. $#query ) {
       if ( $query[$_] =~ /^USE (.*)$/ ) {
-         $main::dbh = DBI->connect("DBI:mysql:database=$1:host=$mysql_auth{mysql_server}",$mysql_auth{mysql_user},$mysql_auth{mysql_passwd}) || return -1;
+         $main::dbh = DBI->connect("DBI:mysql:database=$1:host=$mysql_auth{mysql_server}",
+				$mysql_auth{mysql_user},$mysql_auth{mysql_passwd}) or return -1;
          return 0;
       } elsif ( $query[$_] eq "EXIT" ) {
-         $main::dbh->disconnect() || return -1;
+         $main::dbh->disconnect() or return -1;
          return 0;
       } elsif ( $query[$_] =~ /^SELECT/ ) {
          $sth = $main::dbh->prepare( $query[$_] );
-         $sth->execute() || return -1;
+         $sth->execute() or return -1;
          while ( @row = $sth->fetchrow_array ) { push @result,@row; }
          $sth->finish();
       } else {
-         $main::dbh->do( $query[$_] ) || return -1;
+         $main::dbh->do( $query[$_] ) or return -1;
          return 0;
       }
    }

@@ -1,7 +1,7 @@
 #
 # htmltext.pl - html/text transformation routine
 #
-# 2001/12/21 tung@turtle.ee.ncku.edu.tw
+# 2001/12/21 tung.AT.turtle.ee.ncku.edu.tw
 #
 use strict;
 
@@ -10,20 +10,20 @@ sub html2text {
 
    $t=~s![ \t]+! !g;
    $t=~s![\r\n]+!!g;
-   $t=~s|<style>.*?</style>||isg;
-   $t=~s|<script>.*?</script>||isg;
+   $t=~s!<(?:style|style [^\<\>]*?)>.*?</style>!!isg;
+   $t=~s!<(?:script|script [^\<\>]*?)>.*?</script>!!isg;
 
    $t=~s!<title[^\<\>]*?>!\n\n!ig;
    $t=~s!</title>!\n\n!ig;
    $t=~s!<(?:br|br /)>!\n!ig;
    $t=~s!<hr[^\<\>]*?>!\n-----------------------------------------------------------------------\n!ig;
 
-   $t=~s!<(?:p|p .*?)>\s?</p>!\n\n!ig;
-   $t=~s!<(?:p|p .*?)>!\n\n!ig;
+   $t=~s!<(?:p|p [^\<\>]*?)>\s?</p>!\n\n!ig;
+   $t=~s!<(?:p|p [^\<\>]*?)>!\n\n!ig;
    $t=~s!</p>!\n\n!ig;
 
-   $t=~s!<(?:div|div .*?)>\s?</div>!\n\n!ig;
-   $t=~s!<(?:div|div .*?)>!\n\n!ig;
+   $t=~s!<(?:div|div [^\<\>]*?)>\s?</div>!\n\n!ig;
+   $t=~s!<(?:div|div [^\<\>]*?)>!\n\n!ig;
    $t=~s!</div>!\n\n!ig;
 
    $t=~s!<(?:ol|ul)[^\<\>]*?>!\n!ig;
@@ -35,7 +35,7 @@ sub html2text {
    $t=~s!<td[^\<\>]*?>! !ig;
    $t=~s!</td>! !ig;
 
-   $t=~s!<--.*?-->!!isg;
+   $t=~s!<--[^\<\>]*?-->!!isg;
 
    $t=~s!<[^\<\>]*?>!!gsm;
 

@@ -1,7 +1,7 @@
 package openwebmail::es;
 
 # Spanish translation, charset: iso-8859-1
-# by Javier Smaldone, jsmaldone.AT.yahoo.com, 05-25-2003
+# by Javier Smaldone, jsmaldone.AT.yahoo.com, 09-14-2003
 
 %lang_folders =
    (
@@ -64,9 +64,9 @@ package openwebmail::es;
 
 %lang_disableemblinklabels =
    (
-   none    => 'None',
-   cgionly => 'CGI only',
-   all     => 'All embedded URLs'
+   none    => 'Ninguno',
+   cgionly => 'Sólo CGI',
+   all     => 'Todos los URLs empotrados'
    );
 
 %lang_ctrlpositionlabels =
@@ -190,15 +190,16 @@ package openwebmail::es;
    chdir    => 'Cambiar Dir',
    mkdir    => 'Crear Dir',
    newfile  => 'Nuevo Archivo',
-   delete   => 'Eliminar',
    copy     => 'Copiar',
    move     => 'Mover',
+   symlink  => 'Symlink',
+   delete   => 'Eliminar',
    gzip     => 'Crear gzip',
    mkzip    => 'Crear zip',
    mktgz    => 'Crear tgz',
    mkthumbnail  => 'Crear Imagen',
    download => 'Descargar',
-   upload   => 'Subir',
+   upload   => 'Almacenar',
    );   
 
 %lang_text =
@@ -207,6 +208,7 @@ package openwebmail::es;
    help       => '¿Ayuda',
    login      => 'Ingresar',
    clear      => 'Restablecer',
+   webmail    => 'WebMail',
    point      => 'puntos',
    pixel      => 'píxels',
    changepwd  => 'Cambiar contraseña',
@@ -270,7 +272,9 @@ package openwebmail::es;
    msgrebuild => 'Reconstruir Mensaje',
    editdraft  => 'Editar borrador',
    savedraft  => 'Guardar borrador',
+   draftsaved => 'El borrador @@@SUBJECT@@@ ha sido guardado exitosamente',
    send       => 'Enviar',
+   msgsent    => 'El mensaje @@@SUBJECT@@@ ha sido enviado exitosamente',
    about      => 'Acerca de',
    close      => 'Cerrar',
    cancel     => 'Cancelar',
@@ -280,10 +284,10 @@ package openwebmail::es;
    exit       => 'Salir',
    yourname   => 'Su Nombre y Apellido',
    save       => 'Guardar',
-   add        => 'Agregar',
+   add        => 'Añadir',
    folderrenprop => '\'Por favor introduzca el nuevo nombre de esta bandeja\'',
    rename     => 'Renombrar',
-   folderdelconf => '\'¿Está seguro de querer borrar esta bandeja y todo su contenido?\'',
+   folderdelconf => '\'¿Desea  eliminar esta bandeja y todo su contenido?\'',
    markread   => 'Marcar leídos',
    foldermarkreadconf => '\'¿Desea marcar como leídos todos los mensajes de esta bandeja?\'',
    chkindex   => 'Verificar índice',
@@ -292,13 +296,13 @@ package openwebmail::es;
    folderreindexconf => '\'¿Desea reindexar esta bandeja?\'',
    total      => 'Total',
    edit       => 'Editar',
-   delete     => 'Borrar',
+   delete     => 'Eliminar',
    reserve    => 'Reservar',
-   clearadd   => 'Borrar todas las direcciones',
+   clearadd   => 'Eliminar todas las direcciones',
    importadd  => 'Importar direcciones',
    exportadd  => 'Exportar direcciones',
    import     => 'Importar',
-   addmod     => 'Agregar/Modificar',
+   addmod     => 'Añadir/Modificar',
    modify     => 'Modificar',
    abooktitle => 'Libreta de direcciones',
    abook      => 'LIBRETA DE DIRECCIONES',
@@ -307,8 +311,8 @@ package openwebmail::es;
    note       => 'Nota',
    max        => 'Máximo',
    group      => 'Grupo',
-   quotausage => 'Uso de cupo',
-   quotalimit => 'Límite de cupo',
+   quotausage => 'Uso de espacio',
+   quotalimit => 'Límite de espacio',
    quotahit   => 'CUPO MÁXIMO PERMITIDO',
    tzmap      => 'Mapa de zonas horarias',
    testsound  => 'Probar sonido',
@@ -346,11 +350,11 @@ package openwebmail::es;
    checkagain => 'Comprobar nuevamente',
    finishchecking => 'Finalizar corrección',
    editpdict  => 'Editar Diccionario Personal',
-   addtodict  => 'Agregar al diccionario',
+   addtodict  => 'Añadir al diccionario',
    manuallyfix=> 'Corregir manualmente',
    editstat   => 'Editar membretes',
    savestat   => 'Guardar membrete',
-   clearstat  => 'Borrar membrete',
+   clearstat  => 'Eliminar membrete',
    statreply  => '-- Membrete de respuesta --',
    calendar   => 'Calendario',
    allday     => 'Todo el día',
@@ -364,9 +368,9 @@ package openwebmail::es;
    autosel    => 'Automático',
    none       => 'Ninguno',
    moreitems  => 'más items',
-   multieditconf => 'Este ítem fue agregado a múltiples fechas.\\nAl editarlo cambiará para todas las fechas\\n¿Desea continuar con la edición?',
-   multidelconf	 => 'Este ítem fue agregado a múltiples fechas.\\nAl eliminarlo se quitará de todas las fechas\\n¿Desea eliminarlo?',
-   caldelconf => '¿Está seguro de que desea borrar este ítem?',
+   multieditconf => 'Este ítem fue añadido a múltiples fechas.\\nAl editarlo cambiará para todas las fechas\\n¿Desea continuar con la edición?',
+   multidelconf	 => 'Este ítem fue añadido a múltiples fechas.\\nAl eliminarlo se quitará de todas las fechas\\n¿Desea eliminarlo?',
+   caldelconf => '¿Está seguro de que desea eliminar este ítem?',
    noitemforthisday => 'No hay items para este día',
    thisday_only          => 'Solamente hoy',
    the_wday_of_thismonth => 'El @@@ORDER@@@ @@@WDAY@@@ de cada mes',
@@ -406,9 +410,15 @@ package openwebmail::es;
    vdomain_createuser => 'Crear Usuario',
    vdomain_changeuser => 'Modificar Usuario',
    vdomain_deleteuser => 'Eliminar Usuario',
-   set_passwd         => 'Fijar Contraseña',
-   reset_passwd       => 'Restablecer Contraseña',
-   email_alias        => 'Alias de E-MAIL'
+   vdomain_changeview => 'Cambiar vista a',
+   vdomain_usersonly  => 'sólo usuarios',
+   vdomain_useralias  => 'usuarios/alias',
+   vdomain_fmtuseralias => 'usuarios/alias formateados',
+   vdomain_admin      => 'Administrador',
+   vdomain_localuser  => 'Usuario local',
+   set_passwd         => 'Establecer contraseña',
+   reset_passwd       => 'Restablecer contraseña',
+   email_alias        => 'Alias de E-mail'
    );
 
 %lang_err =
@@ -463,17 +473,19 @@ package openwebmail::es;
    edit_notfordir    => 'No puede editar un directorio',
    onefileonly       => 'Sólo se permite un archivo para esta operación',
    no_file_todownload=> 'No se especificó ningún archivo a descargar',
-   upload_overlimit  => 'El tamaño del archivo a subir supera el límite',
+   upload_overlimit  => 'El tamaño del archivo a almacenar supera el límite',
    decomp_notsupported=>'No se soporta la descompresión de este archivo.',
    webdisk_readonly  => 'Lo lamento, su Disco Web es de sólo-lectura.',
-   quota_syserr      => 'Error del sistema de cupo',
-   quotahit_alert    => 'Lo lamento, ha alcanzado su cupo límite de espacio. Por favor, elimine algunos mensajes de las bandejas o algunos archivos del disco web para liberar espacio.',
-   quotahit_delmail  => 'Atención, debido a que el cupo límite (@@@QUOTALIMIT@@@) ha sido alcanzado, los mensajes más antiguos en las bandejas han sido eliminados automaticamente.',
-   quotahit_delfile  => 'Atención, debido a que el cupo límite (@@@QUOTALIMIT@@@) ha sido alcanzado, algunos archivos en el disco web han sido eliminados automaticamente.',
+   quota_syserr      => 'Error del sistema de límite de espacio',
+   quotahit_alert    => 'Lo lamento, ha alcanzado su límite de espacio. Por favor, elimine algunos mensajes de las bandejas o algunos archivos del disco web para liberar espacio.',
+   quotahit_delmail  => 'Atención, debido a que el límite de espacio (@@@QUOTALIMIT@@@) ha sido alcanzado, los mensajes más antiguos en las bandejas han sido eliminados automaticamente.',
+   quotahit_delfile  => 'Atención, debido a que el límite de espacio (@@@QUOTALIMIT@@@) ha sido alcanzado, algunos archivos en el disco web han sido eliminados automaticamente.',
    spool_overlimit   => 'Lo lamento, su Bandeja de Entrada ha excedido el límite (@@@SPOOLLIMIT@@@). Por favor, mueva algunos mensajes de la Bandeja de Entrada a otras bandejas.',
    vdomain_toomanyuser  => 'Lo lamento, la candidad de usuarios de este dominio ha alcanzado su límite máximo.',
-   vdomain_toomanyalias => 'Lo lamento, la cantidad de alias de E-MAIL para este usuario ha alcanzado su límite máximo.',
-   vdomain_userrequired => 'Se requiere un nombre de usuario'
+   vdomain_toomanyalias => 'Lo lamento, la cantidad de alias de E-mail para este usuario ha alcanzado su límite máximo.',
+   vdomain_userrequired => 'Se requiere un nombre de usuario',
+   vdomain_fwdrequired => 'Se requiere una dirección de E-mail válida',
+   all_module_disabled => 'Todos los módulos se encuentran deshabilitados'
    );
 
 1;

@@ -2,7 +2,7 @@
 #
 # openwebmail-webdisk.pl - web disk program
 #
-# 2002/12/30 tung@turtle.ee.ncku.edu.tw
+# 2002/12/30 tung.AT.turtle.ee.ncku.edu.tw
 #
 # To prevent shell escape, all external commands are executed through exec
 # with parameters in an array, this makes perl call execvp directly instead
@@ -17,9 +17,9 @@
 #
 
 use vars qw($SCRIPT_DIR);
-if ( $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
+if ( $0 =~ m!^(\S*)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
 if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
-   $_=<F>; close(F); if ( $_=~/^([^\s]*)/) { $SCRIPT_DIR=$1; }
+   $_=<F>; close(F); if ( $_=~/^(\S*)/) { $SCRIPT_DIR=$1; }
 }
 if (!$SCRIPT_DIR) { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
 push (@INC, $SCRIPT_DIR);
@@ -62,6 +62,10 @@ $SIG{TERM}=\&openwebmail_exit;	# for user stop
 
 userenv_init();
 
+if (!$config{'enable_webdisk'}) {
+   openwebmailerror(__FILE__, __LINE__, "$lang_text{'webdisk'} $lang_err{'access_denied'}");
+}
+
 # userenv_init() will set umask to 0077 to protect mail folder data.
 # set umask back to 0022 here dir & files are created as world readable
 umask(0022);
@@ -97,10 +101,6 @@ my $msg=verify_vpath($webdiskrootdir, $currentdir);
 openwebmailerror(__FILE__, __LINE__, $msg) if ($msg);
 ($currentdir =~ /^(.+)$/) && ($currentdir = $1);  # untaint ...
 
-if (!$config{'enable_webdisk'}) {
-   openwebmailerror(__FILE__, __LINE__, "Action $lang_err{'has_illegal_chars'}");
-}
-
 if ($action eq "mkdir" || defined(param('mkdirbutton')) ) {
    if ($config{'webdisk_readonly'}) {
       $msg=$lang_err{'webdisk_readonly'};
@@ -121,19 +121,11 @@ if ($action eq "mkdir" || defined(param('mkdirbutton')) ) {
    }
    showdir($currentdir, $gotodir, $filesort, $page, $msg);
 
-} elsif ($action eq "delete" || defined(param('deletebutton'))) {
-   if ($config{'webdisk_readonly'}) {
-      $msg="$lang_err{'webdisk_readonly'}\n";
-   } else {
-      $msg=deletedirfiles($currentdir, @selitems) if  ($#selitems>=0);
-   }
-   showdir($currentdir, $gotodir, $filesort, $page, $msg);
-
 } elsif ($action eq "copy" || defined(param('copybutton'))) {
    if ($config{'webdisk_readonly'}) {
       $msg="$lang_err{'webdisk_readonly'}\n";
    } elsif (is_quota_available(0)) {
-      $msg=copymovedirfiles("copy", $currentdir, $destname, @selitems) if ($#selitems>=0);
+      $msg=copymovesymlink_dirfiles("copy", $currentdir, $destname, @selitems) if ($#selitems>=0);
    } else {
       $msg="$lang_err{'quotahit_alert'}\n";
    }
@@ -143,9 +135,28 @@ if ($action eq "mkdir" || defined(param('mkdirbutton')) ) {
    if ($config{'webdisk_readonly'}) {
       $msg="$lang_err{'webdisk_readonly'}\n";
    } elsif (is_quota_available(0)) {
-      $msg=copymovedirfiles("move", $currentdir, $destname, @selitems) if ($#selitems>=0);
+      $msg=copymovesymlink_dirfiles("move", $currentdir, $destname, @selitems) if ($#selitems>=0);
    } else {
       $msg="$lang_err{'quotahit_alert'}\n";
+   }
+   showdir($currentdir, $gotodir, $filesort, $page, $msg);
+
+} elsif ( $config{'webdisk_allow_symlinkcreate'} &&
+         ($action eq "symlink" || defined(param('symlinkbutton'))) ){
+   if ($config{'webdisk_readonly'}) {
+      $msg="$lang_err{'webdisk_readonly'}\n";
+   } elsif (is_quota_available(0)) {
+      $msg=copymovesymlink_dirfiles("symlink", $currentdir, $destname, @selitems) if ($#selitems>=0);
+   } else {
+      $msg="$lang_err{'quotahit_alert'}\n";
+   }
+   showdir($currentdir, $gotodir, $filesort, $page, $msg);
+
+} elsif ($action eq "delete" || defined(param('deletebutton'))) {
+   if ($config{'webdisk_readonly'}) {
+      $msg="$lang_err{'webdisk_readonly'}\n";
+   } else {
+      $msg=deletedirfiles($currentdir, @selitems) if  ($#selitems>=0);
    }
    showdir($currentdir, $gotodir, $filesort, $page, $msg);
 
@@ -405,7 +416,7 @@ sub deletedirfiles {
 ########################## END DELETEDIRFILES #######################
 
 ########################## COPYDIRFILES ##############################
-sub copymovedirfiles {
+sub copymovesymlink_dirfiles {
    my ($op, $currentdir, $destname, @selitems)=@_;
    my ($msg, $err);
 
@@ -434,7 +445,9 @@ sub copymovedirfiles {
          $msg.="$vpath1 $lang_err{'doesnt_exist'}\n"; next;
       }
       next if ($vpath1 eq $vpath2);
-      push(@filelist, "$webdiskrootdir/$vpath1");
+
+      my $p="$webdiskrootdir/$vpath1"; $p=~s!/+!/!g;	# eliminate duplicated /
+      push(@filelist, $p);
    }
    return($msg) if ($#filelist<0);
 
@@ -447,6 +460,10 @@ sub copymovedirfiles {
       my $mvbin=findbin('mv');
       return("$lang_text{'program'} mv $lang_err{'doesnt_exist'}\n") if (!$mvbin);
       @cmd=($mvbin, '-fv');
+   } elsif ($op eq "symlink") {
+      my $lnbin=findbin('ln');
+      return("$lang_text{'program'} ln $lang_err{'doesnt_exist'}\n") if (!$lnbin);
+      @cmd=($lnbin, '-sv');
    } else {
       return($msg);
    }
@@ -455,7 +472,7 @@ sub copymovedirfiles {
       return("$lang_err{'couldnt_chdirto'} $currentdir\n");
 
    my $msg2=webdisk_execute($lang_wdbutton{$op}, @cmd, @filelist, "$webdiskrootdir/$vpath2");
-   if ($msg2=~/cp:/ || $msg2=~/mv:/) {
+   if ($msg2=~/cp:/ || $msg2=~/mv:/ || $msg2=~/ln:/) {	# -vcmds not supported on solaris
       $cmd[1]=~s/v//;
       $msg2=webdisk_execute($lang_wdbutton{$op}, @cmd, @filelist, "$webdiskrootdir/$vpath2");
    }
@@ -727,6 +744,11 @@ sub decompressfile {	# unpack zip, tar.gz, tgz, gz
       return("$lang_text{'program'} lha $lang_err{'doesnt_exist'}\n") if (!$lhabin);
       @cmd=($lhabin, '-xfq');
 
+   } elsif ($vpath=~/\.tnef$/i) {
+      my $tnefbin=findbin('tnef');
+      return("$lang_text{'program'} tnef $lang_err{'doesnt_exist'}\n") if (!$tnefbin);
+      @cmd=($tnefbin, '--overwrite', '-v', '-f');
+
    } else {
       return("$lang_text{'decomp_notsupported'} ($vpath)\n");
    }
@@ -735,7 +757,7 @@ sub decompressfile {	# unpack zip, tar.gz, tgz, gz
       return("$lang_err{'couldnt_chdirto'} $currentdir\n");
 
    my $opstr;
-   if ($vpath=~/\.(?:zip|rar|arj|lhz|t[bg]z|tar\.g?z|tar\.bz2?)$/i) {
+   if ($vpath=~/\.(?:zip|rar|arj|lhz|t[bg]z|tar\.g?z|tar\.bz2?|tnef)$/i) {
       $opstr=$lang_wdbutton{'extract'};
    } else {
       $opstr=$lang_wdbutton{'decompress'};
@@ -796,6 +818,11 @@ sub listarchive {
       my $lhabin=findbin('lha');
       autoclosewindow($lang_wdbutton{'listarchive'}, "$lang_text{'program'} lha $lang_err{'doesnt_exist'}\n") if (!$lhabin);
       @cmd=($lhabin, '-l');
+
+   } elsif ($vpath=~/\.tnef$/i) {
+      my $tnefbin=findbin('tnef');
+      autoclosewindow($lang_wdbutton{'listarchive'}, "$lang_text{'program'} tnef $lang_err{'doesnt_exist'}\n") if (!$tnefbin);
+      @cmd=($tnefbin, '-t');
 
    } else {
       autoclosewindow($lang_wdbutton{'listarchive'}, "$lang_text{'decomp_notsupported'} ($vpath)\n");
@@ -978,7 +1005,7 @@ sub downloadfiles {	# through zip or tgz
    $ENV{'USER'}=$ENV{'LOGNAME'}=$user;
    $ENV{'HOME'}=$homedir;
    $<=$>;		# drop ruid by setting ruid = euid
-   exec(@cmd, @filelist) || print qq|Error in executing |.join(' ', @cmd, @filelist);
+   exec(@cmd, @filelist) or print qq|Error in executing |.join(' ', @cmd, @filelist);
 }
 ###################### END DOWNLOADFILES #############################
 
@@ -1477,14 +1504,14 @@ sub dirfilesel {
    if ($action eq "sel_saveattfile" || $action eq "sel_saveattachment") {
       $temphtml = textfield(-name=>'destname',
                             -default=>"",
-                            -size=>'40',
+                            -size=>'35',
                             -accesskey=>'N',
                             -value=>absolute_vpath($currentdir, $attname),
                             -override=>'1');
    } else {
       $temphtml = textfield(-name=>'destname',
                             -default=>"",
-                            -size=>'40',
+                            -size=>'35',
                             -accesskey=>'N',
                             -value=>'',
                             -disabled=>'1',
@@ -1695,13 +1722,15 @@ sub showdir {
 
    $temphtml .= "&nbsp;\n";
 
-   if ($messageid eq "") {
-      $temphtml .= iconlink("owm.gif", "$lang_text{'backto'} $printfolder", qq|accesskey="M" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;sessionid=$thissession&amp;folder=$escapedfolder"|);
-   } else {
-      $temphtml .= iconlink("owm.gif", "$lang_text{'backto'} $printfolder", qq|accesskey="M" href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid"|);
+   if ($config{'enable_webmail'}) {
+      if ($messageid eq "") {
+         $temphtml .= iconlink("owm.gif", "$lang_text{'backto'} $printfolder", qq|accesskey="M" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;sessionid=$thissession&amp;folder=$escapedfolder"|);
+      } else {
+         $temphtml .= iconlink("owm.gif", "$lang_text{'backto'} $printfolder", qq|accesskey="M" href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid"|);
+      }
    }
    if ($config{'enable_calendar'}) {
-      $temphtml .= iconlink("calendar.gif", $lang_text{'calendar'}, qq|accesskey="K" href="$config{'ow_cgiurl'}/openwebmail-cal.pl?action=calmonth&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid"|);
+      $temphtml .= iconlink("calendar.gif", $lang_text{'calendar'}, qq|accesskey="K" href="$config{'ow_cgiurl'}/openwebmail-cal.pl?action=$prefs{'calendar_defaultview'}&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid"|);
    }
    if ( $config{'enable_sshterm'}) {
       if ( -r "$config{'ow_htmldir'}/applet/mindterm2/mindterm.jar" ) {
@@ -1710,7 +1739,9 @@ sub showdir {
          $temphtml .= iconlink("sshterm.gif" ,"$lang_text{'sshterm'} ", qq|accesskey="T" href="#" onClick="window.open('$config{ow_htmlurl}/applet/mindterm/ssh.html', '_applet', 'width=400,height=100,top=2000,left=2000,resizable=no,menubar=no,scrollbars=no');"|);
       }
    }
-   $temphtml .= iconlink("prefs.gif", $lang_text{'userprefs'}, qq|accesskey="O" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;prefs_caller=webdisk"|);
+   if ( $config{'enable_preference'}) {
+      $temphtml .= iconlink("prefs.gif", $lang_text{'userprefs'}, qq|accesskey="O" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;prefs_caller=webdisk"|);
+   }
    $temphtml .= iconlink("logout.gif", "$lang_text{'logout'} $prefs{'email'}", qq|accesskey="X" href="$config{'ow_cgiurl'}/openwebmail-main.pl?sessionid=$thissession&amp;action=logout"|);
 
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
@@ -1920,7 +1951,7 @@ sub showdir {
                           qq|','_editfile','width=720,height=550,scrollbars=yes,resizable=yes,location=no');|.
                           qq|">[$lang_wdbutton{'edit'}]</a>|;
                }
-            } elsif ($p=~/\.(?:zip|rar|arj|lzh|t[bg]z|tar\.g?z|tar\.bz2?)$/i ) {
+            } elsif ($p=~/\.(?:zip|rar|arj|lzh|t[bg]z|tar\.g?z|tar\.bz2?|tnef)$/i ) {
                $opstr=qq|<a href=# onClick="window.open('|.
                       qq|$wd_url&amp;action=listarchive&amp;selitems=|.escapeURL($p).
                       qq|','_editfile','width=780,height=550,scrollbars=yes,resizable=yes,location=no');|.
@@ -2062,17 +2093,15 @@ sub showdir {
 
    $temphtml = textfield(-name=>'destname',
                          -default=>"",
-                         -size=>'60',
+                         -size=>'35',
                          -accesskey=>'N',
-                         -override=>'1');
-   $temphtml.=qq|&nbsp;\n|;
-   $temphtml.=submit(-name=>"chdirbutton",
-                     -accesskey=>"J",
-                     -onClick=>"if (document.dirform.keyword.value != '') {return true;}; return destnamefilled('$lang_text{dest_of_chdir}');",
-                     -value=>$lang_wdbutton{'chdir'}).qq|\n|;
+                         -override=>'1').qq|\n|;
    $html =~ s/\@\@\@DESTNAMEFIELD\@\@\@/$temphtml/g;
 
-   $temphtml='';
+   $temphtml=submit(-name=>"chdirbutton",
+                     -accesskey=>"J",
+                     -onClick=>"if (document.dirform.keyword.value != '') {return true;}; return destnamefilled('$lang_text{dest_of_chdir}');",
+                     -value=>$lang_wdbutton{'chdir'});
    if (!$config{'webdisk_readonly'} &&
        (!$quotalimit||$quotausage<$quotalimit) ) {
       $temphtml.=submit(-name=>"mkdirbutton",
@@ -2083,14 +2112,13 @@ sub showdir {
                         -accesskey=>"F",
                         -onClick=>"return destnamefilled('$lang_text{name_of_newfile}');",
                         -value=>$lang_wdbutton{'newfile'});
-      $temphtml.=qq|&nbsp;\n|;
-   }
+      $temphtml.=qq|\n|;
 
+   }
+   $html =~ s/\@\@\@BUTTONS\@\@\@/$temphtml/g;
+
+   $temphtml='';
    if (!$config{'webdisk_readonly'}) {
-      $temphtml.=submit(-name=>"deletebutton",
-                        -accesskey=>"Y",
-                        -onClick=>"return (anyfileselected() && opconfirm('$lang_wdbutton{delete}', $prefs{webdisk_confirmdel}));",
-                        -value=>$lang_wdbutton{'delete'});
       if (!$quotalimit||$quotausage<$quotalimit) {
          $temphtml.=submit(-name=>"copybutton",
                            -accesskey=>"C",
@@ -2100,7 +2128,18 @@ sub showdir {
                            -accesskey=>"V",
                            -onClick=>"return(anyfileselected() && destnamefilled('$lang_text{dest_of_themove}') && opconfirm('$lang_wdbutton{move}', $prefs{webdisk_confirmmovecopy}));",
                            -value=>$lang_wdbutton{'move'});
+         if ($config{'webdisk_allow_symlinkcreate'} && 
+             $config{'webdisk_lssymlink'}) {
+            $temphtml.=submit(-name=>"symlinkbutton",
+                              -accesskey=>"N",
+                              -onClick=>"return(anyfileselected() && destnamefilled('$lang_text{dest_of_themove}') && opconfirm('$lang_wdbutton{symlink}', $prefs{webdisk_confirmmovecopy}));",
+                              -value=>$lang_wdbutton{'symlink'});
+         }
       }
+      $temphtml.=submit(-name=>"deletebutton",
+                        -accesskey=>"Y",
+                        -onClick=>"return (anyfileselected() && opconfirm('$lang_wdbutton{delete}', $prefs{webdisk_confirmdel}));",
+                        -value=>$lang_wdbutton{'delete'});
       $temphtml.=qq|&nbsp;\n|;
    }
 
@@ -2131,7 +2170,7 @@ sub showdir {
                      -accesskey=>"L",
                      -onClick=>'return anyfileselected();',
                      -value=>$lang_wdbutton{'download'});
-   $html =~ s/\@\@\@BUTTONS\@\@\@/$temphtml/g;
+   $html =~ s/\@\@\@BUTTONS2\@\@\@/$temphtml/g;
 
    my %searchtypelabels = ('filename'=>$lang_text{'filename'},
                            'textcontent'=>$lang_text{'textcontent'});
@@ -2216,7 +2255,7 @@ sub filelist_of_search {
       return("$lang_err{'couldnt_lock'} $cachefile\n");
 
    if ( -e $cachefile ) {
-      open(CACHE, "$cachefile") ||  return("$lang_err{'couldnt_open'} $cachefile!");
+      open(CACHE, "$cachefile") or  return("$lang_err{'couldnt_open'} $cachefile!");
       $cache_metainfo=<CACHE>;
       chomp($cache_metainfo);
       close(CACHE);
@@ -2357,7 +2396,7 @@ sub findicon {
       return("ttf.gif")    if ( /\.tt[cf]$/ );
       return("video.gif")  if ( /\.(avi|mov|dat|mpe?g)$/ );
       return("xls.gif")    if ( /\.xl[abcdmst]$/ );
-      return("zip.gif")    if ( /\.(zip|tar|t?g?z|tbz|bz2?|rar|lzh|arj|bhx|hqx|jar)$/ );
+      return("zip.gif")    if ( /\.(zip|tar|t?g?z|tbz|bz2?|rar|lzh|arj|bhx|hqx|jar|tnef)$/ );
 
       return("file".lc($1).".gif") if ( $os =~ /(bsd|linux|solaris)/i );
       return("file.gif");

@@ -2,10 +2,10 @@
 #
 # vacation.pl - vacation program
 #
-# Larry Wall <lwall@jpl-devvax.jpl.nasa.gov>
-# updates by Tom Christiansen <tchrist@convex.com>
-# updates by Chung-Kie Tung <tung@turtle.ee.ncku.edu.tw>
-# updates by Scott Mazur <scott@littlefish.ca> - added -p path option
+# Larry Wall <lwall.AT.jpl-devvax.jpl.nasa.gov>
+# updates by Tom Christiansen <tchrist.AT.convex.com>
+# updates by Chung-Kie Tung <tung.AT.turtle.ee.ncku.edu.tw>
+# updates by Scott Mazur <scott.AT.littlefish.ca> - added -p path option
 #
 
 #
@@ -125,19 +125,20 @@ sub init_mode {
       $>=$uid;
       log_debug("change to $user euid: ruid=$<, euid=$>") if ($opt_d);
    }
-   my $home = $home_path || $ENV{'HOME'} || (getpwnam($user))[7] || die "No home directory for user $user\n";
+   my $home = $home_path || $ENV{'HOME'} || (getpwnam($user))[7] or die "No home directory for user $user\n";
 
    # guess real homedir under automounter
    $home="/export$home" if ( -d "/export$home" );
    ($home =~ /^(.+)$/) && ($home = $1);  # untaint $home...
-   chdir $home || die "Can't chdir to $home: $!\n";
+   chdir $home or die "Can't chdir to $home: $!\n";
 
    init_vacation_db();
 }
 
 sub init_vacation_db {
    my %VAC;
-   dbmopen(%VAC, ".vacation", 0600) || die "Can't open vacation dbm files: $!\n";
+   unlink(".vacation", ".vacation.db", ".vacation.pag", ".vacation.dir");
+   dbmopen(%VAC, ".vacation", 0600) or die "Can't open vacation dbm files: $!\n";
    %VAC=();
    dbmclose(%VAC);
 }
@@ -151,14 +152,14 @@ sub interactive_mode {
       $>=$uid;
       log_debug("change to $user euid: ruid=$<, euid=$>") if ($opt_d);
    }
-   my $home = $home_path || $ENV{'HOME'} || (getpwnam($user))[7] || die "No home directory for user $user\n";
+   my $home = $home_path || $ENV{'HOME'} || (getpwnam($user))[7] or die "No home directory for user $user\n";
    my $editor = $ENV{'VISUAL'} || $ENV{'EDITOR'} || 'vi';
    my $pager = $ENV{'PAGER'} || 'more';
 
    # guess real homedir under automounter
    $home="/export$home" if ( -d "/export$home" );
    ($home =~ /^(.+)$/) && ($home = $1);  # untaint $home...
-   chdir $home || die "Can't chdir to $home: $!\n";
+   chdir $home or die "Can't chdir to $home: $!\n";
 
    print qq|This program can be used to answer your mail automatically\n|,
          qq|when you go away on vacation.\n|;
@@ -170,20 +171,23 @@ sub interactive_mode {
             "------------------------------------------------------\n";
       if (yorn("Would you like to remove it and disable the vacation feature? ")) {
          my (%VAC, @keys);
-         unlink('.forward') || die "Can't unlink .forward: $!\n";
-         dbmopen(%VAC, '.vacation', undef) || die "no .vacation dbmfile\n";
-         if (@keys = sort { $VAC{$a} <=> $VAC{$b}; } keys %VAC) {
-            require 'ctime.pl';
-            print "While you were away, mail was sent to the following addresses:\n\n";
-            open (PAGER, "|$pager") || die "can't open $pager: $!";
-            foreach (@keys) {
-               my ($when) = unpack("L", $VAC{$_});
-               printf PAGER "%-20s %s", $_, ctime($when);
+         unlink('.forward') or die "Can't unlink .forward: $!\n";
+         if (dbmopen(%VAC, '.vacation', undef)) {
+            if (@keys = sort { $VAC{$a} <=> $VAC{$b}; } keys %VAC) {
+               require 'ctime.pl';
+               print "While you were away, mail was sent to the following addresses:\n\n";
+               open (PAGER, "|$pager") or die "can't open $pager: $!";
+               foreach (@keys) {
+                  my ($when) = unpack("L", $VAC{$_});
+                  printf PAGER "%-20s %s", $_, ctime($when);
+               }
+               print PAGER "\n";
+               close PAGER;
             }
-            print PAGER "\n";
-            close PAGER;
+            dbmclose(%VAC);
+         } else {
+            unlink(".vacation", ".vacation.db", ".vacation.pag", ".vacation.dir");
          }
-         dbmclose(%VAC);
          print "Back to normal reception of mail.\n";
       } else {
          print "Ok, vacation feature NOT disabled.\n";
@@ -232,14 +236,14 @@ sub interactive_mode {
 
 sub create_dot_forward {
    my ($user, $vacation)=@_;
-   open(FOR, ">.forward") || die "Can't create .forward: $!\n";
+   open(FOR, ">.forward") or die "Can't create .forward: $!\n";
    print FOR qq!\\$user, "|$vacation $user"\n!;
    close FOR;
    return;
 }
 
 sub create_default_vacation_msg {
-   open(MSG, ">.vacation.msg") || die "Can't create .vacation.msg: $!\n";
+   open(MSG, ">.vacation.msg") or die "Can't create .vacation.msg: $!\n";
    print MSG qq|Subject: This is an autoreply...[Re: \$SUBJECT]\n|,
              qq|\n|,
              qq|I will not be reading my mail for a while.\n|,
@@ -329,7 +333,10 @@ sub pipe_mode {
 
    my (%VAC, $now, $lastdate);
    $now = time;
-   dbmopen(%VAC, ".vacation", 0600) || die "Can't open vacation dbm files: $!\n";
+   if (!dbmopen(%VAC, ".vacation", 0600)) {
+      unlink(".vacation", ".vacation.db", ".vacation.pag", ".vacation.dir");
+      dbmopen(%VAC, ".vacation", 0600) or die "Can't open vacation dbm files: $!\n";
+   }
    $lastdate = $VAC{$from};
    if ($lastdate ne '') {
       ($lastdate) = unpack("L",$lastdate);
@@ -357,8 +364,8 @@ sub pipe_mode {
    # remove ' in $from to prevent shell escape
    $from=~s/'/ /g;
 
-#   open(MAIL, "|$sendmail -oi -t '$from'") || die "Can't run sendmail: $!\n";
-   open(MAIL, "|$sendmail -oi '$from'") || die "Can't run sendmail: $!\n";
+#   open(MAIL, "|$sendmail -oi -t '$from'") or die "Can't run sendmail: $!\n";
+   open(MAIL, "|$sendmail -oi '$from'") or die "Can't run sendmail: $!\n";
    print MAIL $msg;
    close MAIL;
 

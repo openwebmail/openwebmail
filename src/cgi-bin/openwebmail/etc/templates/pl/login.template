@@ -25,7 +25,7 @@
 <table><tr><td>@@@LOGINBUTTON@@@</td></tr></table>
 </td>
 <td align=center>
-<table><tr><td><font size=1>use HTTP<br>compression</font></td><td>@@@HTTPCOMPRESSIONCHECKBOX@@@</td></tr></table>
+<table><tr><td><font size=1>Kompresja HTTP</font></td><td>@@@HTTPCOMPRESSIONCHECKBOX@@@</td></tr></table>
 </td>
 </tr>
 </table>
@@ -61,15 +61,15 @@
    {
       if (document.login.httpcompress.checked) {
          alert(
-"HTTP Compression can reduce the use of network bandwidth between your computer and the webmail server effectively, "+
-"but there are some compatibility issues:\n\n"+
-"1. some proxy servers only support HTTP compression via HTTP 1.1, "+
-"you may have to enable the HTTP1.1 support for proxy in your browser\n"+
-"2. some proxy servers don't support HTTP compression at all, "+
-"you may have to list the webmail server as directly connected in the proxy configuration of your browser.\n"+
-"3. some browsers have problems when using HTTP compression with SSL...\n"+
-"4. some browsers claim to support HTTP compression but actually not...\n\n"+
-"So if you encounter any problem, please login again with this checkbox unchecked.\n"
+"Kompresja HTTP mo¿e zredukowaæ ilo¶æ przesy³anych danych miêdzy Twoim komputerem a serwerem webmaila, "+
+"ale istnieje kilka problemów z kompatybilno¶ci±:\n\n"+
+"1. Niektóre serwery proxy obs³uguj± kompresjê HTTP tylko poprzez protokó³ HTTP 1.1, "+
+"mo¿liwe, ¿e bêdziesz musia³ w³±czyæ obs³ugê HTTP 1.1 w przegl±darce dla Twojego serwera proxy.\n"+
+"2. Niektóre serwery proxy w ogóle nie obs³uguj± kompresji HTTP, "+
+"mo¿liwe, ¿e bêdziesz musia³ oznaczyæ serwer webmaila jako pod³±czony bezpo¶rednio w konfiguracji proxy Twojej przegl±darki.\n"+
+"3. Niektóre przegl±darki maj± problemy z obs³ug± kompresji HTTP z SSL.\n"+
+"4. Niektóre przegl±darki nie obs³uguj± kompresji HTTP mimo, ¿e twierdz± inaczej.\n\n"+
+"Wiêc je¶li zaistniej± jakiekolwiek problemy, proszê zalogowaæ siê jeszcze raz z odznaczonym polem kompersji HTTP.\n"
          );
       }
       return(true);

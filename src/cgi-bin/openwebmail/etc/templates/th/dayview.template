@@ -33,6 +33,7 @@
 <table border=0 cellspacing=2 width=100%>
 @@@STARTADDITEMFORM@@@
 <tr><td colspan=2 align=center><B>เพิ่มรายการ</B></td></tr>
+<tr><td colspan=2 nowrap>@@@ITEMDATEMENU@@@</td></tr>
 <tr><td colspan=2 nowrap>@@@STRINGFIELD@@@</td></tr>
 <tr><td width=25% nowrap>เวลาเริ่มต้น</td><td nowrap>@@@STARTHOURMINMENU@@@</td></tr>
 <tr><td width=25% nowrap>เวลาสิ้นสุด</td><td nowrap>@@@ENDHOURMINMENU@@@</td></tr>
@@ -54,3 +55,67 @@
 
 </td></tr></table>
 </center>
+
+<script type="text/javascript" language="javascript">
+<!--
+function valiDate() {
+   var formYear = document.AddItemForm.year.options[document.AddItemForm.year.selectedIndex].value;
+   var formMonth = document.AddItemForm.month.options[document.AddItemForm.month.selectedIndex].value;
+   var formDay = document.AddItemForm.day.options[document.AddItemForm.day.selectedIndex].value;
+   var dayfreqSelection = document.AddItemForm.dayfreq.selectedIndex;
+   var monthfreqSelection = document.AddItemForm.monthfreq.selectedIndex;
+   var checkDate = new Date(formYear,formMonth-1,formDay);
+
+   wDay = new Array(@@@WDAY_ARRAY@@@);
+   wOrder = new Array(@@@WORDER_ARRAY@@@);
+
+   if (formMonth < checkDate.getMonth()+1) {
+     var selectedmonth=document.AddItemForm.month.options[document.AddItemForm.month.selectedIndex].text;
+     var daysinmonth=formDay-checkDate.getDate();
+     alert("Sorry, "+selectedmonth+" only has "+daysinmonth+" days in "+formYear+".\n"+
+           "Changing the day to "+daysinmonth+".");
+     document.AddItemForm.day.selectedIndex = formDay-checkDate.getDate()-1;
+     // reset our vars
+     formDay = formDay-checkDate.getDate();
+     checkDate = new Date(formYear,formMonth-1,formDay);
+   }
+
+   var weekOrder = parseInt((parseInt(formDay)+6)/7);
+
+   // update the day recurrance
+   if (weekOrder<=4) {
+      if (! document.AddItemForm.dayfreq[2]) {  // coming from 2 choice menu
+         if (dayfreqSelection==1) {
+            dayfreqSelection++;
+         }
+      }
+      document.AddItemForm.dayfreq.options.length =0; // clear popup
+      document.AddItemForm.dayfreq[0] = new Option("@@@THISDAY_ONLY@@@","thisdayonly");
+      document.AddItemForm.dayfreq[1] = new Option("@@@THE_WDAY_OF_THISMONTH@@@","thewdayofthismonth");
+      document.AddItemForm.dayfreq[2] = new Option("@@@EVERY_WDAY_THISMONTH@@@","everywdaythismonth");
+   } else {
+      if (document.AddItemForm.dayfreq[2]) {  // coming from 3 choice menu
+         dayfreqSelection--;
+         if (dayfreqSelection < 0) {
+            dayfreqSelection = 0;
+         }
+      }
+      document.AddItemForm.dayfreq.options.length =0; // clear popup
+      document.AddItemForm.dayfreq[0] = new Option("@@@THISDAY_ONLY@@@","thisdayonly");
+      document.AddItemForm.dayfreq[1] = new Option("@@@EVERY_WDAY_THISMONTH@@@","everywdaythismonth");
+   }
+
+   // update the month recurrance
+   if (formMonth%2) {
+      document.AddItemForm.monthfreq[1] = new Option("@@@EVERY_ODDMONTH_THISYEAR@@@","everyoddmonththisyear");
+   } else {
+      document.AddItemForm.monthfreq[1] = new Option("@@@EVERY_EVENMONTH_THISYEAR@@@","everyevenmonththisyear");
+   }
+
+   document.AddItemForm.dayfreq.selectedIndex = dayfreqSelection;
+   document.AddItemForm.monthfreq.selectedIndex = monthfreqSelection;
+}
+
+function nothing() { ; } // for the colorpicker to work properly
+// -->
+</script>

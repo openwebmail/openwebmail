@@ -4,9 +4,9 @@
 #
 
 use vars qw($SCRIPT_DIR);
-if ( $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
+if ( $0 =~ m!^(\S*)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
 if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
-   $_=<F>; close(F); if ( $_=~/^([^\s]*)/) { $SCRIPT_DIR=$1; }
+   $_=<F>; close(F); if ( $_=~/^(\S*)/) { $SCRIPT_DIR=$1; }
 }
 if (!$SCRIPT_DIR) { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
 push (@INC, $SCRIPT_DIR);
@@ -58,13 +58,17 @@ $SIG{CHLD}=sub { wait }; 	# prevent zombie
 
 userenv_init();
 
+my $action = param("action");
+if (!$config{'enable_webmail'} && $action ne "logout") {
+   openwebmailerror(__FILE__, __LINE__, "$lang_text{'webmail'} $lang_err{'access_denied'}");
+}
+
 $page = param("page") || 1;
 $sort = param("sort") || $prefs{'sort'} || 'date';
 $searchtype = param("searchtype") || 'subject';
 $keyword = param("keyword") || ''; $keyword=~s/^\s*//; $keyword=~s/\s*$//;
 $escapedkeyword = escapeURL($keyword);
 
-my $action = param("action");
 if ($action eq "movemessage" ||
     defined(param('movebutton')) ||
     defined(param('copybutton')) ) {
@@ -80,8 +84,8 @@ if ($action eq "movemessage" ||
    }
    update_pop3check();
    _retrauthpop3() if ($config{'auth_module'} eq 'auth_pop3.pl');
+   _retrpop3s($prefs{'autopop3wait'}) if ($config{'enable_pop3'} && $prefs{'autopop3'});
    listmessages();
-   _retrpop3s(0) if ($config{'enable_pop3'} && $prefs{'autopop3'});
 } elsif ($action eq "userrefresh") {
    if ($config{'auth_module'} eq 'auth_pop3.pl' && $folder eq "INBOX" ) {
       _retrauthpop3();
@@ -140,18 +144,14 @@ sub listmessages {
    my $trash_allmessages=0;
    my %HDB;
 
-   if (-f "$folderdir/.$user$config{'dbm_ext'}" && !-z "$folderdir/.$user$config{'dbm_ext'}" ) {
-      if (!$config{'dbmopen_haslock'}) {
-         filelock("$folderdir/.$user$config{'dbm_ext'}", LOCK_SH) or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $folderdir/.$user$config{'dbm_ext'}");
-      }
-      dbmopen (%HDB, "$folderdir/.$user$config{'dbmopen_ext'}", undef);	# dbm for INBOX
-      $orig_inbox_newmessages=$HDB{'NEWMESSAGES'};	# new msg in INBOX
-      dbmclose(%HDB);
-      filelock("$folderdir/.$user$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
-   }
-
    my ($filtered, $r_filtered)=filtermessage();
+
+   if (-f "$folderdir/.$user$config{'dbm_ext'}" && !-z "$folderdir/.$user$config{'dbm_ext'}" ) {
+      open_dbm(\%HDB, "$folderdir/.$user", LOCK_SH) or
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $folderdir/.$user$config{'dbm_ext'}");
+      $orig_inbox_newmessages=$HDB{'NEWMESSAGES'};	# new msg in INBOX
+      close_dbm(\%HDB, "$folderdir/.$user");
+   }
 
    my $quotahit_deltype='';
    if ($quotalimit>0 && $quotausage>$quotalimit &&
@@ -224,11 +224,8 @@ sub listmessages {
       if ( -f "$headerdb$config{'dbm_ext'}" && !-z "$headerdb$config{'dbm_ext'}" ) {
          my ($newmessages, $allmessages);
 
-         if (!$config{'dbmopen_haslock'}) {
-            filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) or
+         open_dbm(\%HDB, $headerdb, LOCK_SH) or
                openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $headerdb$config{'dbm_ext'}");
-         }
-         dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
          $allmessages=$HDB{'ALLMESSAGES'};
          $allmessages-=$HDB{'INTERNALMESSAGES'} if ($prefs{'hideinternal'});
          $newmessages=$HDB{'NEWMESSAGES'};
@@ -239,8 +236,7 @@ sub listmessages {
          } elsif ($foldername eq 'mail-trash')  {
             $trash_allmessages=$allmessages;
          }
-         dbmclose(%HDB);
-         filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+         close_dbm(\%HDB, $headerdb);
 
          if ( $newmessages ne "" && $allmessages ne "" ) {
             $folderlabels{$foldername}.= " ($newmessages/$allmessages)";
@@ -296,8 +292,10 @@ sub listmessages {
    }
 
    $temphtml .= iconlink("folder.gif", $lang_text{'folders'}, qq|accesskey="F" href="$config{'ow_cgiurl'}/openwebmail-folder.pl?action=editfolders&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page"|).
-                iconlink("addrbook.gif", $lang_text{'addressbook'}, qq|accesskey="A" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=editaddresses&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page"|).
-                iconlink("filtersetup.gif", $lang_text{'filterbook'}, qq|accesskey="I" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editfilter&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page"|);
+                iconlink("addrbook.gif", $lang_text{'addressbook'}, qq|accesskey="A" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=editaddresses&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page"|);
+   if ($config{'enable_userfilter'}) {
+      $temphtml .= iconlink("filtersetup.gif", $lang_text{'filterbook'}, qq|accesskey="I" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editfilter&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page"|);
+   }
 
    $temphtml .= qq|&nbsp;\n|;
 
@@ -310,7 +308,7 @@ sub listmessages {
    $temphtml .= qq|&nbsp;\n|;
 
    if ($config{'enable_calendar'}) {
-      $temphtml .= iconlink("calendar.gif", $lang_text{'calendar'}, qq|accesskey="K" href="$config{'ow_cgiurl'}/openwebmail-cal.pl?action=calmonth&amp;sessionid=$thissession&amp;folder=$escapedfolder"|);
+      $temphtml .= iconlink("calendar.gif", $lang_text{'calendar'}, qq|accesskey="K" href="$config{'ow_cgiurl'}/openwebmail-cal.pl?action=$prefs{'calendar_defaultview'}&amp;sessionid=$thissession&amp;folder=$escapedfolder"|);
    }
    if ($config{'enable_webdisk'}) {
       $temphtml .= iconlink("webdisk.gif", $lang_text{'webdisk'}, qq|accesskey="E" href="$config{'ow_cgiurl'}/openwebmail-webdisk.pl?action=showdir&amp;sessionid=$thissession&amp;folder=$escapedfolder"|);
@@ -322,7 +320,9 @@ sub listmessages {
          $temphtml .= iconlink("sshterm.gif" ,"$lang_text{'sshterm'} ", qq|accesskey="T" href="#" onClick="window.open('$config{ow_htmlurl}/applet/mindterm/ssh.html', '_applet', 'width=400,height=100,top=2000,left=2000,resizable=no,menubar=no,scrollbars=no');"|);
       }
    }
-   $temphtml .= iconlink("prefs.gif", $lang_text{'userprefs'}, qq|accesskey="O" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;sort=$sort&amp;page=$page&amp;prefs_caller=main"|);
+   if ( $config{'enable_preference'}) {
+      $temphtml .= iconlink("prefs.gif", $lang_text{'userprefs'}, qq|accesskey="O" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;sort=$sort&amp;page=$page&amp;prefs_caller=main"|);
+   }
    $temphtml .= iconlink("logout.gif", "$lang_text{'logout'} $prefs{'email'}", qq|accesskey="X" href="$main_url&amp;action=logout"|);
 
    $html =~ s/\@\@\@LEFTMENUBARLINKS\@\@\@/$temphtml/;
@@ -451,11 +451,8 @@ sub listmessages {
    my ($offset, $from, $to, $dateserial, $subject, $content_type, $status, $messagesize, $references, $charset);
    my ($bgcolor, $boldon, $boldoff);
 
-   if (!$config{'dbmopen_haslock'}) {
-      filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) or
+   open_dbm(\%HDB, $headerdb, LOCK_SH) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $headerdb$config{'dbm_ext'}");
-   }
-   dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
 
    $temphtml = '';
    foreach my $messnum ($firstmessage  .. $lastmessage) {
@@ -598,8 +595,7 @@ sub listmessages {
 
       $headershtml .= qq|<tr>$linehtml</tr>\n\n|;
    }
-   dbmclose(%HDB);
-   filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+   close_dbm(\%HDB, $headerdb);
 
    $html =~ s/\@\@\@HEADERS\@\@\@/$headershtml/;
 
@@ -741,7 +737,7 @@ sub listmessages {
    if ( (defined(param("session_noupdate")) && $now_inbox_newmessages>0) ||
         ($folder ne 'INBOX' && $now_inbox_newmessages>$orig_inbox_newmessages) ) {
       if (-f "$config{'ow_htmldir'}/sounds/$prefs{'newmailsound'}" ) {
-         $html.=qq|<embed src="$config{'ow_htmlurl'}/sounds/$prefs{'newmailsound'}" autostart=true hidden=true>|;
+         $html.=qq|<embed src="$config{'ow_htmlurl'}/sounds/$prefs{'newmailsound'}" autostart="true" hidden="true">\n|;
       }
    }
 
@@ -769,6 +765,16 @@ sub listmessages {
       $msg =~ s!\\!\\\\!g; $msg =~ s!'!\\'!g;	# escape ' for javascript
       $temphtml.=qq|<script language="JavaScript">\n<!--\n|.
                  qq|showmsg('$prefs{"charset"}', '$lang_text{"quotahit"}', '$msg', '$lang_text{"close"}', '_spool_overlimit', 400, 100, 60);\n|.
+                 qq|//-->\n</script>\n|;
+   }
+   # show msgsent confirmation
+   if (defined(param('sentsubject'))) {
+      my $msg=qq|<font size="-1">$lang_text{'msgsent'}</font>|;
+      my $sentsubject=param('sentsubject');
+      $msg=~s!\@\@\@SUBJECT\@\@\@!$sentsubject!;
+      $msg =~ s!\\!\\\\!g; $msg =~ s!'!\\'!g;	# escape ' for javascript
+      $temphtml.=qq|<script language="JavaScript">\n<!--\n|.
+                 qq|showmsg('$prefs{"charset"}', '$lang_text{'send'}', '$msg', '$lang_text{"close"}', '_msgsent', 300, 100, |.($prefs{'newmailwindowtime'}||7).qq|);\n|.
                  qq|//-->\n</script>\n|;
    }
    # popup stat of incoming msgs
@@ -805,7 +811,7 @@ sub listmessages {
    }
    $html.=readtemplate('showmsg.js').$temphtml if ($temphtml);
 
-   # since some browser always treat refresh directive as realtive url.
+   # since some browsers always treat refresh directive as realtive url.
    # we use relative path for refresh
    my $refreshinterval=$prefs{'refreshinterval'}*60;
    my $relative_url="$config{'ow_cgiurl'}/openwebmail-main.pl";

@@ -66,14 +66,16 @@ sub dbm_test {
       ($dbm_ext, $dbmopen_ext)=('.db', '.db');
    }
 
+   my $result;
    flock_lock("/tmp/dbmtest.$$/test$dbm_ext", LOCK_EX);
    eval {
       local $SIG{ALRM} = sub { die "alarm\n" }; # NB: \n required
       alarm 5;	# timeout 5 sec
-      dbmopen(%DB, "/tmp/dbmtest.$$/test$dbmopen_ext", 0600); dbmclose(%DB);
+      $result = dbmopen(%DB, "/tmp/dbmtest.$$/test$dbmopen_ext", 0600);
+      dbmclose(%DB) if ($result);
       alarm 0;
    };
-   if ($@) {	# eval error, it means timeout
+   if ($@ or !$result) {	# eval error, it means timeout
       $dbmopen_haslock=1;
    } else {
       $dbmopen_haslock=0;
@@ -154,26 +156,24 @@ sub check_savedsuid_support {
 
 
 # Routine from filelock.pl ##############################################
+use vars qw(%opentable);
+%opentable=();
+
 # this routine provides flock with filename
 # it opens the file to get the handle if need,
 # than do lock operation on the related filehandle
-use vars qw(%opentable);
-%opentable=();
 sub flock_lock {
    my ($filename, $lockflag)=@_;
-   my ($dev, $inode, $fh);
 
    ($filename =~ /^(.+)$/) && ($filename = $1);	# untaint...
-
    if ( (! -e $filename) && $lockflag ne LOCK_UN) {
-      sysopen(F, $filename, O_RDWR|O_CREAT, 0600); # create file for lock
+      sysopen(F, $filename, O_RDWR|O_CREAT, 0600) or return 0; # create file for lock
       close(F);
    }
 
+   my ($dev, $inode, $fh);
    ($dev, $inode)=(stat($filename))[0,1];
-   if ($dev eq '' || $inode eq '') {
-      return 0;
-   }
+   return 0 if ($dev eq '' || $inode eq '');
 
    if (defined($opentable{"$dev-$inode"}) ) {
       $fh=$opentable{"$dev-$inode"};
@@ -207,3 +207,5 @@ sub flock_lock {
    }
    return($retval);
 }
+
+

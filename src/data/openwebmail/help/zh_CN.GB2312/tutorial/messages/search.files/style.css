@@ -1,0 +1,27 @@
+A:link {
+	COLOR: #0000ff; TEXT-DECORATION: none
+}
+A:active {
+	COLOR: #0000ff; TEXT-DECORATION: none
+}
+A:visited {
+	COLOR: #0000ff; TEXT-DECORATION: none
+}
+A:hover {
+	COLOR: #ff0000; TEXT-DECORATION: none
+}
+BODY {
+	BACKGROUND-REPEAT: no-repeat
+}
+BODY {
+	FONT-SIZE: 13px; FONT-FAMILY: arial
+}
+TABLE {
+	FONT-SIZE: 13px; FONT-FAMILY: arial
+}
+TH {
+	FONT-SIZE: 13px; FONT-FAMILY: arial
+}
+TD {
+	FONT-SIZE: 13px; FONT-FAMILY: arial
+}

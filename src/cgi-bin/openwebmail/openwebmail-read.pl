@@ -4,9 +4,9 @@
 #
 
 use vars qw($SCRIPT_DIR);
-if ( $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
+if ( $0 =~ m!^(\S*)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
 if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
-   $_=<F>; close(F); if ( $_=~/^([^\s]*)/) { $SCRIPT_DIR=$1; }
+   $_=<F>; close(F); if ( $_=~/^(\S*)/) { $SCRIPT_DIR=$1; }
 }
 if (!$SCRIPT_DIR) { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
 push (@INC, $SCRIPT_DIR);
@@ -48,6 +48,50 @@ use vars qw($_STATUS);	# defined in maildb.pl
 use vars qw($sort $page);
 use vars qw($searchtype $keyword $escapedkeyword);
 
+use vars qw(%smilies);
+%smilies = (	
+   ":)" => "FaceHappy",
+   ":>" => "FaceHappy",
+   ";)" => "FaceWinking",
+   ";>" => "FaceWinking",
+   ";(" => "FaceSad",
+   ";<" => "FaceSad",
+   ":(" => "FaceSad",
+   ":<" => "FaceSad",
+   ">:)" => "FaceDevilish",
+   ">;)" => "FaceDevilish",
+   "8)" => "FaceGrinning",
+   "8>" => "FaceGrinning",
+   ":D" => "FaceGrinning",
+   ";D" => "FaceGrinning",
+   "8D" => "FaceGrinning",
+   ":d" => "FaceTasty",
+   ";d" => "FaceTasty",
+   "8d" => "FaceTasty",
+   ":P" => "FaceNyah",
+   ";P" => "FaceNyah",
+   "8P" => "FaceNyah",
+   ":p" => "FaceNyah",
+   ";p" => "FaceNyah",
+   "8p" => "FaceNyah",
+   ":O" => "FaceStartled",
+   ";O" => "FaceStartled",
+   "8O" => "FaceStartled",
+   ":o" => "FaceStartled",
+   ";o" => "FaceStartled",
+   "8o" => "FaceStartled",
+   ":/" => "FaceIronic",
+   ";/" => "FaceIronic",
+   "8/" => "FaceIronic",
+   ":\\" => "FaceIronic",
+   ";\\" => "FaceIronic",
+   "8\\" => "FaceIronic",
+   ":|" => "FaceStraight",
+   ";|" => "FaceWry",
+   "8|" => "FaceKOed",
+   ":X" => "FaceYukky",
+   ";X" => "FaceYukky"   );
+
 ########################## MAIN ##############################
 openwebmail_requestbegin();
 $SIG{PIPE}=\&openwebmail_exit;	# for user stop
@@ -55,6 +99,10 @@ $SIG{TERM}=\&openwebmail_exit;	# for user stop
 $SIG{CHLD}=sub { wait }; 	# prevent zombie
 
 userenv_init();
+
+if (!$config{'enable_webmail'}) {
+   openwebmailerror(__FILE__, __LINE__, "$lang_text{'webmail'} $lang_err{'access_denied'}");
+}
 
 $page = param("page") || 1;
 $sort = param("sort") || $prefs{'sort'} || 'date';
@@ -77,48 +125,6 @@ openwebmail_requestend();
 ################# READMESSAGE ####################
 sub readmessage {
    my $messageid = $_[0];
-
-   my %smilies = (":)" => "FaceHappy",
-		  ":>" => "FaceHappy",
-		  ";)" => "FaceWinking",
-		  ";>" => "FaceWinking",
-		  ";(" => "FaceSad",
-		  ";<" => "FaceSad",
-		  ":(" => "FaceSad",
-		  ":<" => "FaceSad",
-		  ">:)" => "FaceDevilish",
-		  ">;)" => "FaceDevilish",
-		  "8)" => "FaceGrinning",
-		  "8>" => "FaceGrinning",
-		  ":D" => "FaceGrinning",
-		  ";D" => "FaceGrinning",
-		  "8D" => "FaceGrinning",
-		  ":d" => "FaceTasty",
-		  ";d" => "FaceTasty",
-		  "8d" => "FaceTasty",
-		  ":P" => "FaceNyah",
-		  ";P" => "FaceNyah",
-		  "8P" => "FaceNyah",
-		  ":p" => "FaceNyah",
-		  ";p" => "FaceNyah",
-		  "8p" => "FaceNyah",
-		  ":O" => "FaceStartled",
-		  ";O" => "FaceStartled",
-		  "8O" => "FaceStartled",
-		  ":o" => "FaceStartled",
-		  ";o" => "FaceStartled",
-		  "8o" => "FaceStartled",
-		  ":/" => "FaceIronic",
-		  ";/" => "FaceIronic",
-		  "8/" => "FaceIronic",
-		  ":\\" => "FaceIronic",
-		  ";\\" => "FaceIronic",
-		  "8\\" => "FaceIronic",
-		  ":|" => "FaceStraight",
-		  ";|" => "FaceWry",
-		  "8|" => "FaceKOed",
-		  ":X" => "FaceYukky",
-		  ";X" => "FaceYukky");
 
    # filter junkmail at inbox beofre display any message in inbox
    my ($filtered, $r_filtered);
@@ -161,6 +167,8 @@ sub readmessage {
          $convfrom='none.prefscharset';
       }
    }
+   my $showhtmlastext=$prefs{'showhtmlastext'};
+   $showhtmlastext=param('showhtmlastext') if (defined(param('showhtmlastext')));
 
    my $urlparm="sessionid=$thissession&amp;folder=$escapedfolder&amp;page=$page&amp;".
                "sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype";
@@ -168,7 +176,8 @@ sub readmessage {
    my $read_url = "$config{'ow_cgiurl'}/openwebmail-read.pl?$urlparm";
    my $send_url = "$config{'ow_cgiurl'}/openwebmail-send.pl?$urlparm";
    my $read_url_with_id = "$read_url&amp;message_id=$escapedmessageid";
-   my $send_url_with_id = "$send_url&amp;message_id=$escapedmessageid&amp;compose_caller=read";
+   my $send_url_with_id = "$send_url&amp;message_id=$escapedmessageid".
+                          "&amp;showhtmlastext=$showhtmlastext&amp;compose_caller=read";
 
    my ($html, $temphtml, $temphtml1, $temphtml2);
    my $templatefile="readmessage.template";
@@ -192,6 +201,8 @@ sub readmessage {
    } else {
       $html =~ s/\@\@\@FOLDER\@\@\@/$folder/;
    }
+
+   my $is_htmlmsg=0;
 
    my $from = $message{from}||'';
    my $replyto = $message{replyto}||'';
@@ -235,14 +246,23 @@ sub readmessage {
               qq|$lang_text{'thisispartialmsg'}&nbsp; |.
               qq|<a href="$read_url_with_id&amp;action=rebuildmessage&amp;partialid=$escapedpartialid&amp;attmode=$attmode&amp;headers=$headers">[$lang_text{'msgrebuild'}]</a>|.
               qq|</td></tr></table>|;
-   } elsif ($message{contenttype} =~ m#^text/html#i) { # convert into html table
-      $body = html4nobase($body);
-      $body = html4noframe($body);
-      $body = html4link($body);
-      $body = html4disablejs($body) if ($prefs{'disablejs'});
-      $body = html4disableemblink($body, $prefs{'disableemblink'}) if ($prefs{'disableemblink'} ne 'none');
-      $body = html4mailto($body, "$config{'ow_cgiurl'}/openwebmail-send.pl", "$urlparm&amp;action=composemessage&amp;message_id=$escapedmessageid&amp;compose_caller=read");
+   } elsif ($message{contenttype} =~ m#^text/html#i) { # convert html msg into table
+      if ($showhtmlastext) {	# html -> text -> html
+         $body = html2text($body);
+         $body = text2html($body);
+         # change color for quoted lines
+         $body =~ s!^(&gt;.*<br>)$!<font color=#009900>$1</font>!img;
+         $body =~ s/<a href=/<a class=msgbody href=/ig;
+      } else {			# html rendering
+         $body = html4nobase($body);
+         $body = html4noframe($body);
+         $body = html4link($body);
+         $body = html4disablejs($body) if ($prefs{'disablejs'});
+         $body = html4disableemblink($body, $prefs{'disableemblink'}) if ($prefs{'disableemblink'} ne 'none');
+         $body = html4mailto($body, "$config{'ow_cgiurl'}/openwebmail-send.pl", "$urlparm&amp;action=composemessage&amp;message_id=$escapedmessageid&amp;compose_caller=read");
+      }
       $body = html2table($body);
+      $is_htmlmsg=1;
    } else { 					     # body must be html or text
       # remove odds space or blank lines
       $body =~ s/(\r?\n){2,}/\n\n/g;
@@ -251,11 +271,16 @@ sub readmessage {
 
       # remove bbs control char
       $body =~ s/\x1b\[(\d|\d\d|\d;\d\d)?m//g if ($from=~/bbs/i || $body=~/bbs/i);
-      $body = text2html($body);
+      if ($prefs{'usesmileicon'}) {
+         $body =~ s/(^|\D)(>?)([:;8])[-^]?([\(\)\>\<\|PpDdOoX\\\/])([\s\<])/$1 SMILY_$smilies{"$2$3$4"}\.png $5/g;
+         $body = text2html($body);
+         $body =~ s/SMILY_(.+?\.png)/<img border="0" width="12" height="12" src="$config{'ow_htmlurl'}\/images\/smilies\/$1">/g;
+      } else {
+         $body = text2html($body);
+      }
       # change color for quoted lines
       $body =~ s!^(&gt;.*<br>)$!<font color=#009900>$1</font>!img;
       $body =~ s/<a href=/<a class=msgbody href=/ig;
-      $body =~ s/(^|\D)(>?)([:;8])[-^]?([\(\)\>\<\|PpDdOoX\\\/])([\s\<])/$1<img border="0" width="12" height="12" src="$config{'ow_htmlurl'}\/images\/smilies\/$smilies{"$2$3$4"}\.png" alt="$2$3$4">$5/g if $prefs{'usesmileicon'};
    }
 
    # Set up the message to go to after move.
@@ -315,7 +340,7 @@ sub readmessage {
    $temphtml .= "&nbsp;\n";
 
    if ($config{'enable_calendar'}) {
-      $temphtml .= iconlink("calendar.gif", $lang_text{'calendar'}, qq|accesskey="K" href="$config{'ow_cgiurl'}/openwebmail-cal.pl?action=calmonth&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid"|);
+      $temphtml .= iconlink("calendar.gif", $lang_text{'calendar'}, qq|accesskey="K" href="$config{'ow_cgiurl'}/openwebmail-cal.pl?action=$prefs{'calendar_defaultview'}&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid"|);
    }
    if ($config{'enable_webdisk'}) {
       $temphtml .= iconlink("webdisk.gif", $lang_text{'webdisk'}, qq|accesskey="E" href="$config{'ow_cgiurl'}/openwebmail-webdisk.pl?action=showdir&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid"|);
@@ -327,7 +352,9 @@ sub readmessage {
          $temphtml .= iconlink("sshterm.gif" ,"$lang_text{'sshterm'} ", qq|accesskey="T" href="#" onClick="window.open('$config{ow_htmlurl}/applet/mindterm/ssh.html', '_applet', 'width=400,height=100,top=2000,left=2000,resizable=no,menubar=no,scrollbars=no');"|);
       }
    }
-   $temphtml .= iconlink("prefs.gif", $lang_text{'userprefs'}, qq|accesskey="O" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;sort=$sort&amp;page=$page&amp;prefs_caller=read"|);
+   if ( $config{'enable_preference'}) {
+      $temphtml .= iconlink("prefs.gif", $lang_text{'userprefs'}, qq|accesskey="O" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;sort=$sort&amp;page=$page&amp;prefs_caller=read"|);
+   }
    $temphtml .= iconlink("logout.gif","$lang_text{'logout'} $prefs{'email'}", qq|accesskey="Q" href="$main_url&amp;action=logout"|) . qq| \n|;
 
    $html =~ s/\@\@\@LEFTMENUBARLINKS\@\@\@/$temphtml/;
@@ -757,7 +784,7 @@ sub readmessage {
          if ( ${$message{attachment}[$attnumber]}{contenttype}=~ /^text\/html/i ) {
             if ( ${$message{attachment}[$attnumber]}{filename}=~ /^Unknown\./ ||
                  $onlyone_att ) {
-               my $content=html_att2table($message{attachment}, $attnumber, $escapedmessageid);
+               my $content=html_att2table($message{attachment}, $attnumber, $escapedmessageid, $showhtmlastext);
                my $charset=${$message{attachment}[$attnumber]}{charset}||
                            ${$message{attachment}[$attnumber]}{filenamecharset}||
                            $convfrom||
@@ -772,6 +799,7 @@ sub readmessage {
                   }
                }
                $temphtml .= $content;
+               $is_htmlmsg=1;
             } else {
                $temphtml .= misc_att2table($message{attachment}, $attnumber, $escapedmessageid, "&amp;convfrom=$convfrom");
             }
@@ -779,7 +807,6 @@ sub readmessage {
             if ( ${$message{attachment}[$attnumber]}{filename}=~ /^Unknown\./ ||
                  $onlyone_att ) {
                my $content = text_att2table($message{attachment}, $attnumber);
-               $content =~ s/(^|\D)(>?)([:;8])[-^]?([\(\)\>\<\|PpDdOoX\\\/])([\s\<])/$1<img border="0" width="12" height="12" src="$config{'ow_htmlurl'}\/images\/smilies\/$smilies{"$2$3$4"}\.png" alt="$2$3$4">$5/g if $prefs{'usesmileicon'};
                my $charset=${$message{attachment}[$attnumber]}{charset}||
                            ${$message{attachment}[$attnumber]}{filenamecharset}||
                            $convfrom||
@@ -827,6 +854,18 @@ sub readmessage {
       }
    }
    $html =~ s/\@\@\@BODY\@\@\@/$temphtml/;
+
+   if ($prefs{'showhtmlastext'} && $is_htmlmsg) {
+      $temphtml=qq|<a href="$read_url_with_id&amp;action=readmessage&amp;headers=$headers&amp;attmode=simple&amp;convfrom=$convfrom&amp;showhtmlastext=|;
+      if ($showhtmlastext) {
+         $temphtml.=qq|0">+html+</a>|;
+      } else {
+         $temphtml.=qq|1">-html-</a>|;
+      }
+      $html =~ s!\@\@\@SHOWHTMLASTEXTLABEL\@\@\@!$temphtml!;
+   } else {
+      $html =~ s/\@\@\@SHOWHTMLASTEXTLABEL\@\@\@/&nbsp;/;
+   }
 
    # if this is unread message, confirm to transmit read receipt if requested
    if ($message{status} !~ /r/i && $notificationto ne '') {
@@ -899,14 +938,6 @@ sub readmessage {
    }
    $html.=readtemplate('showmsg.js').$temphtml if ($temphtml);
 
-   my @headers=();
-   # if no temphtml(wanring js) used in the message,
-   # then allow web cache for this msg on folder other than saved-drafts
-   if ($temphtml eq '' && $folder ne 'saved-drafts') {	
-      push(@headers, '-Expires' => CGI::expires('+900s'),
-                     '-Cache-Control' => 'private,max-age=900');
-   }
-
    my $footermode=2;
    if ($printfriendly eq "yes") {
       $html.=qq|<script language="JavaScript">\n<!--\n|.
@@ -920,8 +951,7 @@ sub readmessage {
       @tmp=($prefs{'language'}, $prefs{'charset'});
       ($prefs{'language'}, $prefs{'charset'})=('en', lc($message{'charset'}));
    }
-   httpprint(\@headers,
-             [htmlheader(), $html, htmlfooter($footermode)]);
+   httpprint([], [htmlheader(), $html, htmlfooter($footermode)]);
    if ($convfrom eq 'none.msgcharset') {
       ($prefs{'language'}, $prefs{'charset'})=@tmp;
    }
@@ -948,25 +978,21 @@ sub readmessage {
    } elsif (param("db_chkstatus")) { # check and set msg status R flag 
       my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
       my (%HDB, @attr);
-      if (!$config{'dbmopen_haslock'}) {
-         filelock("$headerdb$config{'dbm_ext'}", LOCK_EX) or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $headerdb$config{'dbm_ext'}");
-      }
-      dbmopen(%HDB, "$headerdb$config{'dbmopen_ext'}", 0600);
+      open_dbm(\%HDB, $headerdb, LOCK_EX) or
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $headerdb$config{'dbm_ext'}");
       @attr=split(/@@@/, $HDB{$messageid});
       if ($attr[$_STATUS] !~ /r/i) {
          $attr[$_STATUS].="R";
          $HDB{$messageid}=join('@@@', @attr);
       }
-      dbmclose(%HDB);
-      filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+      close_dbm(\%HDB, $headerdb);
    }
    return;
 }
 
 
 sub html_att2table {
-   my ($r_attachments, $attnumber, $escapedmessageid)=@_;
+   my ($r_attachments, $attnumber, $escapedmessageid, $showhtmlastext)=@_;
 
    my $r_attachment=${$r_attachments}[$attnumber];
    my $temphtml;
@@ -981,16 +1007,24 @@ sub html_att2table {
       $temphtml = ${${$r_attachment}{r_content}};
    }
 
-   $temphtml = html4nobase($temphtml);
-   $temphtml = html4noframe($temphtml);
-   $temphtml = html4link($temphtml);
-   $temphtml = html4disablejs($temphtml) if ($prefs{'disablejs'});
-   $temphtml = html4disableemblink($temphtml, $prefs{'disableemblink'}) if ($prefs{'disableemblink'} ne 'none');
-   $temphtml = html4attachments($temphtml, $r_attachments, "$config{'ow_cgiurl'}/openwebmail-viewatt.pl", "action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder");
-   $temphtml = html4mailto($temphtml, "$config{'ow_cgiurl'}/openwebmail-send.pl",
+   if ($showhtmlastext) {	# html -> text -> html
+      $temphtml = html2text($temphtml);
+      $temphtml = text2html($temphtml);
+      # change color for quoted lines
+      $temphtml =~ s!^(&gt;.*<br>)$!<font color=#009900>$1</font>!img;
+      $temphtml =~ s/<a href=/<a class=msgbody href=/ig;
+   } else {				# html rendering
+      $temphtml = html4nobase($temphtml);
+      $temphtml = html4noframe($temphtml);
+      $temphtml = html4link($temphtml);
+      $temphtml = html4disablejs($temphtml) if ($prefs{'disablejs'});
+      $temphtml = html4disableemblink($temphtml, $prefs{'disableemblink'}) if ($prefs{'disableemblink'} ne 'none');
+      $temphtml = html4attachments($temphtml, $r_attachments, "$config{'ow_cgiurl'}/openwebmail-viewatt.pl", "action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder");
+      $temphtml = html4mailto($temphtml, "$config{'ow_cgiurl'}/openwebmail-send.pl",
                   "sessionid=$thissession&amp;folder=$escapedfolder&amp;page=$page&amp;".
                   "sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;".
                   "action=composemessage&amp;message_id=$escapedmessageid&amp;compose_caller=read");
+   }
    $temphtml = html2table($temphtml);
 
    return($temphtml);
@@ -1016,7 +1050,13 @@ sub text_att2table {
    $temptext =~ s/(\r?\n){2,}/\n\n/g;
    $temptext =~ s/^\s+//;
    $temptext =~ s/\n\s*$/\n/;
-   $temptext = text2html($temptext);
+   if ($prefs{'usesmileicon'}) {
+      $temptext =~ s/(^|\D)(>?)([:;8])[-^]?([\(\)\>\<\|PpDdOoX\\\/])([\s\<])/$1 SMILY_$smilies{"$2$3$4"}\.png $5/g;
+      $temptext = text2html($temptext);
+      $temptext =~ s/SMILY_(.+?\.png)/<img border="0" width="12" height="12" src="$config{'ow_htmlurl'}\/images\/smilies\/$1">/g;
+   } else {
+      $temptext = text2html($temptext);
+   }
    $temptext =~ s/<a href=/<a class=msgbody href=/ig;
    return($temptext. "<BR>");
 }

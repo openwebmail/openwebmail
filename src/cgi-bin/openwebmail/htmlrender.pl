@@ -1,7 +1,7 @@
 #
 # htmlrender.pl - html page rendering routines
 #
-# 2001/12/21 tung@turtle.ee.ncku.edu.tw
+# 2001/12/21 tung.AT.turtle.ee.ncku.edu.tw
 #
 # it is suggested calling these following routine in the following order:
 # html4nobase, html4link, html4disablejs, html4disableemblink,
@@ -227,18 +227,18 @@ sub html2block {	# for msg composing
 sub _htmlclean {
    my $html=$_[0];
 
-   $html =~ s#<!doctype[^\<\>]*?\>##i;
-   $html =~ s#\<html[^\>]*?\>##i;
-   $html =~ s#\</html\>##i;
-   $html =~ s#\<head\>.*?\</head\>##is;
-   $html =~ s#\<head\>##i;
-   $html =~ s#\</head\>##i;
-   $html =~ s#\<meta[^\<\>]*?\>##gi;
-   $html =~ s#\<!--.*?--\>##ges;
-   $html =~ s#\<style[^\<\>]*?\>#\n\<!-- style begin\n#gi;
-   $html =~ s#\</style\>#\nstyle end --\>\n#gi;
-   $html =~ s#\<[^\<\>]*?stylesheet[^\<\>]*?\>##gi;
-   $html =~ s#(\<div[^\<\>]*?)position\s*:\s*absolute\s*;([^\<\>]*?\>)#$1$2#gi;
+   $html =~ s#<!doctype[^\<\>]*?>##i;
+   $html =~ s#<html[^\<\>]*?>##i;
+   $html =~ s#</html>##i;
+   $html =~ s#<head>.*?</head>##is;
+   $html =~ s#<head>##i;
+   $html =~ s#</head>##i;
+   $html =~ s#<meta[^\<\>]*?>##gi;
+   $html =~ s#<!--.*?-->##gis;
+   $html =~ s#<style[^\<\>]*?>#\n<!-- style begin\n#gi;
+   $html =~ s#</style>#\nstyle end -->\n#gi;
+   $html =~ s#<[^\<\>]*?stylesheet[^\<\>]*?>##gi;
+   $html =~ s#(<div[^\<\>]*?)position\s*:\s*absolute\s*;([^\<\>]*?>)#$1$2#gi;
    return($html);
 }
 

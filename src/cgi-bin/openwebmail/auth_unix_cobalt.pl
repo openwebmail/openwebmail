@@ -6,10 +6,10 @@ use strict;
 #
 # Version 1.15 Aug 6, 2002
 #
-# 2002/08/06 Trevor.Paquette@TeraGo.ca
+# 2002/08/06 Trevor.Paquette.AT.TeraGo.ca
 #            Fix comments
-# 2002/07/16 Trevor.Paquette@TeraGo.ca (add check for cobalt security)
-# 2001/12/20 tung@turtle.ee.ncku.edu.tw (orig: auth_unix.pl)
+# 2002/07/16 Trevor.Paquette.AT.TeraGo.ca (add check for cobalt security)
+# 2001/12/20 tung.AT.turtle.ee.ncku.edu.tw (orig: auth_unix.pl)
 #
 
 #
@@ -255,9 +255,9 @@ sub change_userpassword {
       return (-3, "Unable to match entry for modification");
    }
 
-   open(TMP, ">$unix_passwdfile_encrypted.tmp.$$") || goto authsys_error;
-   print TMP $content || goto authsys_error;
-   close(TMP) || goto authsys_error;
+   open(TMP, ">$unix_passwdfile_encrypted.tmp.$$") or goto authsys_error;
+   print TMP $content or goto authsys_error;
+   close(TMP) or goto authsys_error;
 
    if ($unix_passwdmkdb ne "" && $unix_passwdmkdb ne "none" ) {
       # disable outside $SIG{CHLD} handler temporarily for system() return value
@@ -271,7 +271,7 @@ sub change_userpassword {
       my ($fmode, $fuid, $fgid) = (stat($unix_passwdfile_encrypted))[2,4,5];
       chown($fuid, $fgid, "$unix_passwdfile_encrypted.tmp.$$");
       chmod($fmode, "$unix_passwdfile_encrypted.tmp.$$");
-      rename("$unix_passwdfile_encrypted.tmp.$$", $unix_passwdfile_encrypted) || goto authsys_error;
+      rename("$unix_passwdfile_encrypted.tmp.$$", $unix_passwdfile_encrypted) or goto authsys_error;
    }
    filelock("$unix_passwdfile_encrypted", LOCK_UN);
    return (0, "");

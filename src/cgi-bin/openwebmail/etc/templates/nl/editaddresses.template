@@ -63,7 +63,7 @@
    function addcheck()
    {
       if (document.newaddress.email.value  == "") {
-         alert("Please specify the email address.");
+         alert("Specificeer een e-mail adres a.u.b.");
          return false;
       }
       return true;

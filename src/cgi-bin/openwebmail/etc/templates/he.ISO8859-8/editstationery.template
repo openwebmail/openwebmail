@@ -10,7 +10,6 @@
 <B>תרתוכ</B></td>
 <td bgcolor=@@@COLUMNHEADER@@@ width="70%">
 <B>הביתכ ילכ</B></td>
-</td>
 <td bgcolor=@@@COLUMNHEADER@@@ width="10%">&nbsp;</td>
 </tr>
 @@@STATIONERY@@@
@@ -19,9 +18,10 @@
 
 @@@STARTSTATFORM@@@
 <tr><td colspan="3" bgcolor=@@@COLUMNHEADER@@@><B>שדח בתכמ רבח</B></td></tr>
-</td><td colspan="3" align="center" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td colspan="3" align="center" bgcolor=@@@WINDOW_DARK@@@>
 <B>תרתוכ:</B>&nbsp; &nbsp;
 @@@STATNAME@@@
+</td></tr>
 <tr><td colspan="3" align="center" bgcolor=@@@WINDOW_DARK@@@ class=msgbody>
 <B>עובק טסקט</B><BR>
 @@@STATBODY@@@

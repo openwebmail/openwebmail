@@ -1,7 +1,7 @@
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>Istoria Utilizatorului</B></font>
+<B>Istoria utilizatorului</B></font>
 </td></tr>
 <tr><td bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
@@ -17,9 +17,9 @@
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Utilizator</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Event</B></td>
+<B>Eveniment</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Descriptia</B></td>
+<B>Descriere</B></td>
 </tr>
 @@@LOGINHISTORY@@@
 </table>

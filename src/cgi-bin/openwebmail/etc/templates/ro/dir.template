@@ -22,7 +22,7 @@
 <table border="0" cellpadding="0" cellspacing="0"><tr>
 <td>@@@SHOWHIDDENLABEL@@@</td><td>@@@SHOWHIDDENCHECKBOX@@@</td>
 <td>@@@SHOWTHUMBLABEL@@@</td><td>@@@SHOWTHUMBCHECKBOX@@@</td>
-<td>Single page</td><td>@@@SINGLEPAGECHECKBOX@@@</td>
+<td>O singura pagina</td><td>@@@SINGLEPAGECHECKBOX@@@</td>
 </tr></table>
 </td>
 </tr></table>
@@ -48,16 +48,16 @@
 <table border="0" align="center" width="95%" cellpadding="0" cellspacing="0"><tr>
 <td width="15%" nowrap>&nbsp;@@@INFOCOUNT@@@</td>
 <td align=center nowrap>@@@LEFTPAGECONTROL@@@ @@@PAGELINKS@@@ @@@RIGHTPAGECONTROL@@@</td>
-<td width="15%" nowrap align="right">Listed file size: @@@INFOSIZE@@@&nbsp;</td>
+<td width="15%" nowrap align="right">Marime fisier: @@@INFOSIZE@@@&nbsp;</td>
 </tr></table>
 
 <table border="0" align="center" width="95%" cellpadding="1" cellspacing="1">
 <tr><td bgcolor=@@@COLUMNHEADER@@@>
-<B>Operation</B>
+<B>Operatie</B>
 </td></tr><tr><td bgcolor=@@@MENUBAR@@@>
 <table border="0" cellpadding="1" cellspacing="1">
-<tr><td width="10%">DestinedName:</td><td width=90%>@@@DESTNAMEFIELD@@@</td></tr>
-<tr><td nowrap colspan="2">@@@BUTTONS@@@</td></tr>
+<tr><td width="10%">Nume destinatie:</td><td width=90%>@@@DESTNAMEFIELD@@@ @@@BUTTONS@@@</td></tr>
+<tr><td nowrap colspan="2">@@@BUTTONS2@@@</td></tr>
 </table>
 </td></tr>
 </table>
@@ -124,7 +124,7 @@
             return true;
          }
       }
-      alert("There is no directory or file selected.");
+      alert("Nu este nici un director sau fisier selectat.");
       return false;
    }
    function selectedstr()
@@ -150,7 +150,7 @@
    }
    function destnamefilled(target) {
       if (document.dirform.destname.value == '') {
-         alert('Please fill  < '+target+' >  first.');
+         alert('Va rog completati intai < '+target+' >.');
          return false;
       } else {
          return true;
@@ -158,16 +158,16 @@
    }
    function uploadfilled() {
       if (document.dirform.upload.value == '') {
-         alert("Please choose the file to upload first.");
+         alert("Va rugam sa selectati fisierul pe care doriti sa-l incarcati.");
          return false;
       } else {
-         document.dirform.msg.value = 'Uploading file '+document.dirform.upload.value+', please wait...';
+         document.dirform.msg.value = 'Se incarca fisierul '+document.dirform.upload.value+', va rugam asteptati...';
          return true;
       }
    }
    function opconfirm(op, conf) {
       if (conf) {
-         return(confirm('Are you sure you want to '+op+' the selected items? ( '+selectedstr()+' )'));
+         return(confirm('Sunteti sigur ca doriti sa '+op+' elementele selectate? ( '+selectedstr()+' )'));
       } else {
          return true;
       }

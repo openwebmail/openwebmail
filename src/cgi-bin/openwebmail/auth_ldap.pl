@@ -117,7 +117,7 @@ sub change_userpassword {
    return (-2, "User or password is null") if (!$user||!$oldpassword||!$newpassword);
    return (-2, "Password too short") if (length($newpassword)<${$r_config}{'passwd_minlen'});
 
-   my ($ret, $errmsg)=check_userpassword($user, $oldpassword);
+   my ($ret, $errmsg)=check_userpassword($r_config, $user, $oldpassword);
    return($ret, $errmsg) if ($ret!=0);
 
    my @salt_chars = ('a'..'z','A'..'Z','0'..'9');
@@ -128,7 +128,7 @@ sub change_userpassword {
    $ldap->bind (dn=>"$cn, $dc1, $dc2", password =>$pwd) or  return(-3, "LDAP error $@");
 
    my $mesg = $ldap->modify (
-                            dn      => "uid= $user, ou=People, $dc1, $dc2",
+                            dn      => "uid=$user, ou=People, $dc1, $dc2",
                             replace => {'userPassword'=>$encrypted}
                             );
 

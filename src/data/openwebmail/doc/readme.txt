@@ -48,9 +48,9 @@ CGI.pm-2.74.tar.gz        (required)
 MIME-Base64-2.12.tar.gz   (required)
 libnet-1.0901.tar.gz      (required)
 Text-Iconv-1.2.tar.gz     (required)
-libiconv-1.8.tar.gz       (required if system doesn't support iconv)
+libiconv-1.9.1.tar.gz     (required if system doesn't support iconv)
 
-CGI-SpeedyCGI-2.21.tar.gz (optional)
+CGI-SpeedyCGI-2.22.tar.gz (optional)
 Compress-Zlib-1.21.tar.gz (optional)
 ispell-3.1.20.tar.gz      (optional)
 Quota-1.4.6.tar.gz        (optional)
@@ -119,8 +119,8 @@ For Text-Iconv-1.2 do the following:
    Don't worry, you can have the iconv() support by installing libiconv package.
 
    cd /tmp
-   tar -zxvf libiconv-1.8.tar.gz
-   cd libiconv-1.8
+   tar -zxvf libiconv-1.9.1.tar.gz
+   cd libiconv-1.9.1
    ./configure
    make
    make install
@@ -138,7 +138,7 @@ For Text-Iconv-1.2 do the following:
        to the following before doing 'perl Makefile.PL'
 
        'LIBS'         => ['-L/usr/local/lib -liconv'], # e.g., '-lm'
-       'INC'          => '-I /usr/local/include',      # e.g., '-I/usr/include/other' 
+       'INC'          => '-I/usr/local/include',      # e.g., '-I/usr/include/other' 
 
    make
    make test
@@ -1001,7 +1001,7 @@ PERSISTENT RUNNING through SpeedyCGI
 SpeedyCGI: http://www.daemoninc.com/SpeedyCGI/
 
 "SpeedyCGI is a way to run perl scripts persistently, which can make 
-them run much more quickly."
+them run much more quickly." - Sam Horrocks.
 
 Openwebmail can get almost 5x to 10x speedup when running with SpeedyCGI.
 You can get a quite reactive openwebmail systems on a very old P133 machine :)
@@ -1013,84 +1013,20 @@ Note: Don't try to fly before you can walk...
 
    get the latest SpeedyCGI source from
    http://sourceforge.net/project/showfiles.php?group_id=2208
-   http://daemoninc.com/SpeedyCGI/CGI-SpeedyCGI-2.21.tar.gz
+   http://daemoninc.com/SpeedyCGI/CGI-SpeedyCGI-2.22.tar.gz
 
    cd /tmp
-   tar -zxvf path_to_source/CGI-SpeedyCGI-2.21.tar.gz
-   cd CGI-SpeedyCGI-2.21
+   tar -zxvf path_to_source/CGI-SpeedyCGI-2.22.tar.gz
+   cd CGI-SpeedyCGI-2.22
    perl Makefile.PL (ans 'no' with the default)
 
    then edit speedy/Makefile 
    and add " -DIAMSUID" to the end of the line of "DEFINE = "
 
-   (Now, please check the end of this paragraph to see if any 
-    modification to the source is required for your platform)
-   
    make
    make install
    (If you encounter error complaining about install mod_speedy,
     that is okay, you can safely ignore it.)
-
-ps:To make SpeedyCGI works with setuid scripts on Solaris,
-   you have to apply the following temporary fix.
-   This fix is provide by Sam Horrocks, author of SpeedyCGI :)
-
-   open src/speedy_backend_main.c
-
-   goto the main() function (about line 168)
-   find the following block (about line 179-184)
-
-    /* Close off all I/O except for stderr (close it later) */
-    for (i = 32; i >= 0; --i) {
-        if (i != 2 && i != PREF_FD_LISTENER)
-            (void) close(i);
-    }
-
-   move the block down below the speedy_perl_init(); (after line 201)    
-
-ps:If you have problem to compile SpeedyCGI on RedHat9,
-   please adding the following lines to the top of src/speedy_perl.c: 
-
-   #ifndef setdefout 
-   #       define setdefout(a)     Perl_setdefout(aTHX_ a) 
-   #endif 
-
-   Thanks to Douglas, Joshua, jdouglas.AT.enterasys.com
-
-ps:Since the /usr/lib/perl5/5.8.0/i386-linux-thread-multi/CORE/libperl.so
-   on RedHat9 seems buggy, you may need to replace it with the RedHat8
-   libperl.so to make openwebmail + speedycgi work properly.
-
-   The RedHat8 libperl.so is available at 
-   http://openwebmail.com/openwebmail/download/packages/libperl.so.redhat8.gz
-
-ps:If you are compiling SpeedyCGI on FreeBSD 5.0 or above,
-   please apply the following patch or you may get 'segmentation fault'.
-
----------------------------------------------------------------
---- src/speedy_opt.c	Mon Sep 30 07:19:54 2002
-+++ /tmp/speedy_opt.c	Tue May 20 11:11:28 2003
-@@ -165,6 +165,8 @@ static void cmdline_split(
- 		    ++p;
- 	    if (*p)
- 		strlist_append(doing_speedy_opts ? speedy_opts : perl_args, *p);
-+	    else
-+		break;
- 	}
- 
- 	if (*p) {
-@@ -422,7 +424,7 @@ const char * const *speedy_opt_script_ar
- }
- 
- SPEEDY_INLINE const char *speedy_opt_script_fname(void) {
--    return exec_argv.ptrs[script_argv_loc];
-+    return exec_argv.len > script_argv_loc ? exec_argv.ptrs[script_argv_loc] : NULL;
- }
- 
- #ifdef SPEEDY_BACKEND
----------------------------------------------------------------
-
-   Thanks to Lars Thegler, lars.AT.thegler.dk
 
 2. set speedy to setuid root
 
@@ -1177,6 +1113,31 @@ The login screen has a checkbox for HTTP compression.
 So in case there is any problem, the user can relogin with checkbox unchecked.
 
 
+INTEGRATION WITH HTML PAGES
+---------------------------
+A small script has been made to let static html page display the
+user mail/calendar status dynamically.
+All you need to do is to put the following text in html source code.
+
+<table cellspacing=0 cellpadding=0><tr><td>
+<script language="JavaScript"
+src="http://you_server_domainname/cgi-bin/openwebmail/userstat.pl">
+</script>
+</td></tr></table>
+
+or
+
+<table cellspacing=0 cellpadding=0><tr><td>
+<script language="JavaScript"
+src="http://you_server_domainname/cgi-bin/openwebmail/userstat.pl?playsound=1">
+</script>
+</td></tr></table>
+
+If the user has ever logined openwebmail successfully,
+then his mail/calendar ststus would be displayed in this html page 
+as an link to the openwebmail login page.
+
+
 TODO
 ----
 Features that we would like to implement first...
@@ -1192,7 +1153,7 @@ Features that people may also be interested
 3. log analyzer
 
 
-03/23/2003
+10/13/2003
 
 openwebmail.AT.turtle.ee.ncku.edu.tw
 

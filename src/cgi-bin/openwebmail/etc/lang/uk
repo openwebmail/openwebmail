@@ -190,9 +190,10 @@ package openwebmail::uk;
    chdir    => 'Зм╕нити каталог',
    mkdir    => 'Створити каталог',
    newfile  => 'Новий файл',
-   delete   => 'Видалити',
    copy     => 'Скоп╕ювати',
    move     => 'Перенести',
+   symlink  => 'Symlink',
+   delete   => 'Видалити',
    gzip     => 'Стиснути gz',
    mkzip    => 'Створити zip',
    mktgz    => 'Створити tgz',
@@ -207,6 +208,7 @@ package openwebmail::uk;
    help       => 'Дов╕дка',
    login      => 'Вх╕д',
    clear      => 'В╕дм╕на',
+   webmail    => 'WebMail',
    point      => 'Крапка',
    pixel      => 'П╕ксель',
    changepwd  => 'Зм╕нити пароль',
@@ -270,7 +272,9 @@ package openwebmail::uk;
    msgrebuild => 'Перебудувати пов╕домлення',
    editdraft  => 'Редагувати чернетку',
    savedraft  => 'Зберегти чернетку',
+   draftsaved => 'Draft @@@SUBJECT@@@ has been saved successfully',
    send       => 'В╕дправити',
+   msgsent    => 'Message @@@SUBJECT@@@ has been sent successfully',
    about      => 'Про',
    close      => 'Закрити',
    cancel     => 'Скасувати',
@@ -406,6 +410,12 @@ package openwebmail::uk;
    vdomain_createuser => 'Створити користувача',
    vdomain_changeuser => 'Зм╕нити користувача',
    vdomain_deleteuser => 'Видалити користувача',
+   vdomain_changeview => 'Change view to',
+   vdomain_usersonly  => 'users only',
+   vdomain_useralias  => 'users/aliases',
+   vdomain_fmtuseralias => 'formatted users/aliases',
+   vdomain_admin      => 'Admin',
+   vdomain_localuser  => 'Local User',
    set_passwd         => 'Встановити пароль',
    reset_passwd       => 'Перевстановити пароль',
    email_alias        => 'Псевдон╕м електронно╖ пошти'
@@ -473,7 +483,9 @@ package openwebmail::uk;
    spool_overlimit   => 'Вибачте, ваша скринька з вх╕дними пов╕домленнями перевищила обмеження черги (@@@SPOOLLIMIT@@@). Будь ласка, перенес╕ть деяк╕ пов╕домлення з теки ВХ╤ДН╤ у ╕нш╕ теки.',
    vdomain_toomanyuser  => 'Вибачте, к╕льк╕сть в╕ртуальних користувач╕в перевищила можливост╕ цього в╕ртуального домена.',
    vdomain_toomanyalias => 'Вибачте, але к╕льк╕сть псевдон╕м╕в електронно╖ пошти перевищела максимальну допустиму межу для цього користувача.',
-   vdomain_userrequired => 'Вимага╓ться ╕м\'я користувача'
+   vdomain_userrequired => 'Вимага╓ться ╕м\'я користувача',
+   vdomain_fwdrequired => 'A valid forwarding E-MAIL is required',
+   all_module_disabled => 'All modules are disabled'
    );
 
 1;

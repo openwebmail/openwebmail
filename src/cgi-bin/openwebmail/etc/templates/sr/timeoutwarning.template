@@ -16,3 +16,4 @@ ova sesija æe isteæi za 60 sekundi.
 <script language="JavaScript">
 setTimeout("close()", 60*1000);
 </script>
+</center>

@@ -86,4 +86,6 @@
    'weekview.gif'      => ' [WeekView] ',
    'yearview.gif'      => ' [YearView] '
    );
+
+1;
    

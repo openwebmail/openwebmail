@@ -3,7 +3,7 @@ use strict;
 #
 # quota_unixfs.pl - calc user quota by unix filesystem quota
 #
-# 2003/04/06 tung@turtle.ee.ncku.edu.tw
+# 2003/04/06 tung.AT.turtle.ee.ncku.edu.tw
 #
 
 # This module gets the user quotausage and quotalimit from the quota 

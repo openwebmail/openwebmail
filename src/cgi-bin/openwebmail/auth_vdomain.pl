@@ -3,7 +3,7 @@ use strict;
 #
 # auth_vdomain.pl - authenticate virtual user on vm-pop3d+postfix system
 #
-# 2003/03/03 tung@turtle.ee.ncku.edu.tw
+# 2003/03/03 tung.AT.turtle.ee.ncku.edu.tw
 #
 
 # This module is used to authenticate users of virtual domain on system running
@@ -345,15 +345,15 @@ sub change_userpassword {
       return (-3, "Unable to match entry for modification");
    }
 
-   open(TMP, ">$pwdfile.tmp.$$") || goto authsys_error;
-   print TMP $content || goto authsys_error;
-   close(TMP) || goto authsys_error;
+   open(TMP, ">$pwdfile.tmp.$$") or goto authsys_error;
+   print TMP $content or goto authsys_error;
+   close(TMP) or goto authsys_error;
 
    # automic update passwd by rename
    my ($fmode, $fuid, $fgid) = (stat($pwdfile))[2,4,5];
    chown($fuid, $fgid, "$pwdfile.tmp.$$");
    chmod($fmode, "$pwdfile.tmp.$$");
-   rename("$pwdfile.tmp.$$", $pwdfile) || goto authsys_error;
+   rename("$pwdfile.tmp.$$", $pwdfile) or goto authsys_error;
 
    filelock("$pwdfile", LOCK_UN);
    return (0, '');

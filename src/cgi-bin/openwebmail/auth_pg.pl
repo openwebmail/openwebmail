@@ -116,6 +116,8 @@ sub check_userpassword {
          return(-4, 'Password incorrect') if ($tmp_pwd ne $md5);
          last
       };
+
+      return(-3, "Unknown password type: $PgPassType");
    }
    return (0, '');
 }
@@ -131,7 +133,7 @@ sub change_userpassword {
    return (-2, "User or password is null") if (!$user||!$oldpassword||!$newpassword);
    return (-2,"Password too short") if (length($newpassword)<${$r_config}{'passwd_minlen'});
 
-   my ($ret, $errmsg)=check_userpassword($user, $oldpassword);
+   my ($ret, $errmsg)=check_userpassword($r_config, $user, $oldpassword);
    return($ret, $errmsg) if ($ret!=0);
 
    my ($passwd);
@@ -158,6 +160,8 @@ sub change_userpassword {
          $passwd= unpack("H*",$mm);
          last
       };
+
+      return(-3, "Unknown password type: $PgPassType");
    }
 
    my $DB = Pg::connectdb("host='$PgHost' port='$PgPort' dbname='$PgBase' user='$PgUser' password='$PgPass'") or

@@ -3,7 +3,7 @@ use strict;
 #
 # quota_du.pl - calc user quota by /usr/bin/du
 #
-# 2003/04/06 tung@turtle.ee.ncku.edu.tw
+# 2003/04/06 tung.AT.turtle.ee.ncku.edu.tw
 #
 
 # This module gets the user quotausage by running the 'du' program,
@@ -51,10 +51,10 @@ sub get_usage_limit {
 
    if (!$uptodate && $duinfo_lifetime>0) {
       if (!${$r_config}{'dbmopen_haslock'}) {
-         filelock("$duinfo_db${$r_config}{'dbm_ext'}", LOCK_SH) or
+         filelock("$duinfo_db${$r_config}{'dbm_ext'}", LOCK_SH, 0664) or
             return(-2, "Quota db $duinfo_db${$r_config}{'dbm_ext'} readlock error ($@)");
       }
-      dbmopen (%Q, "$duinfo_db${$r_config}{'dbmopen_ext'}", undef);
+      dbmopen (%Q, "$duinfo_db${$r_config}{'dbmopen_ext'}", 0664);
       ($timestamp, $usage)=split(/\@\@\@/, $Q{"$user\@\@\@$homedir"}) if (defined($Q{"$user\@\@\@$homedir"}));
       dbmclose(%Q);
       filelock("$duinfo_db${$r_config}{'dbm_ext'}", LOCK_UN) if (!${$r_config}{'dbmopen_haslock'});
@@ -70,7 +70,7 @@ sub get_usage_limit {
    return(0, "", $usage, -1) if ($duinfo_lifetime==0);
 
    if (!${$r_config}{'dbmopen_haslock'}) {
-      filelock("$duinfo_db${$r_config}{'dbm_ext'}", LOCK_EX) or
+      filelock("$duinfo_db${$r_config}{'dbm_ext'}", LOCK_EX, 0664) or
          return(-2, "Quota db $duinfo_db${$r_config}{'dbm_ext'} writelock error ($@)");
    }
    dbmopen (%Q, "$duinfo_db${$r_config}{'dbmopen_ext'}", 0664);

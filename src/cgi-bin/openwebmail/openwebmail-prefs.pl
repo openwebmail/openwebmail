@@ -4,9 +4,9 @@
 #
 
 use vars qw($SCRIPT_DIR);
-if ( $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
+if ( $0 =~ m!^(\S*)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
 if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
-   $_=<F>; close(F); if ( $_=~/^([^\s]*)/) { $SCRIPT_DIR=$1; }
+   $_=<F>; close(F); if ( $_=~/^(\S*)/) { $SCRIPT_DIR=$1; }
 }
 if (!$SCRIPT_DIR) { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
 push (@INC, $SCRIPT_DIR);
@@ -41,7 +41,7 @@ use vars qw($folder $printfolder $escapedfolder);
 use vars qw($persistence_count);
 use vars qw(%languagenames %languagecharsets @openwebmailrcitem); # defined in ow-shared.pl
 use vars qw(%lang_folders %lang_sizes %lang_text %lang_err
-	    %lang_onofflabels %lang_sortlabels
+            %lang_calendar %lang_onofflabels %lang_sortlabels
             %lang_disableemblinklabels  %lang_msgformatlabels
             %lang_withoriglabels %lang_receiptlabels
             %lang_ctrlpositionlabels %lang_sendpositionlabels
@@ -100,9 +100,11 @@ if ($action eq "about" && $config{'enable_about'}) {
    about();
 } elsif ($action eq "userfirsttime") {
    userfirsttime();
-} elsif ($action eq "editprefs") {
+} elsif ($action eq "timeoutwarning") {
+   timeoutwarning();
+} elsif ($action eq "editprefs" && $config{'enable_preference'}) {
    editprefs();
-} elsif ($action eq "saveprefs") {
+} elsif ($action eq "saveprefs" && $config{'enable_preference'}) {
    saveprefs();
 } elsif ($action eq "editpassword" && $config{'enable_changepwd'}) {
    editpassword();
@@ -110,34 +112,36 @@ if ($action eq "about" && $config{'enable_about'}) {
    changepassword();
 } elsif ($action eq "viewhistory" && $config{'enable_history'}) {
    viewhistory();
-} elsif ($action eq "editfroms" && $config{'enable_setfrom'} ) {
-   editfroms();
-} elsif ($action eq "addfrom") {
-   modfrom("add");
-} elsif ($action eq "deletefrom") {
-   modfrom("delete");
-} elsif ($action eq "editpop3" && $config{'enable_pop3'}) {
-   editpop3();
-} elsif ($action eq "addpop3" && $config{'enable_pop3'}) {
-   modpop3("add");
-} elsif ($action eq "deletepop3" && $config{'enable_pop3'}) {
-   modpop3("delete");
-} elsif ($action eq "editfilter") {
-   editfilter();
-} elsif ($action eq "addfilter") {
-   modfilter("add");
-} elsif ($action eq "deletefilter") {
-   modfilter("delete");
-} elsif (param('delstatbutton') && $config{'enable_stationery'}) {
-   delstat();
-} elsif ((param('editstatbutton')||$action eq "editstat") && $config{'enable_stationery'}) {
-   editstat();
-} elsif ($action eq "clearstat" && $config{'enable_stationery'}) {
-   clearstat();
-} elsif ($action eq "addstat" && $config{'enable_stationery'}) {
-   addstat();
-} elsif ($action eq "timeoutwarning") {
-   timeoutwarning();
+} elsif ($config{'enable_webmail'}) {
+   if ($action eq "editfroms" && $config{'enable_setfrom'}) {
+      editfroms();
+   } elsif ($action eq "addfrom" && $config{'enable_setfrom'}) {
+      modfrom("add");
+   } elsif ($action eq "deletefrom" && $config{'enable_setfrom'}) {
+      modfrom("delete");
+   } elsif ($action eq "editpop3" && $config{'enable_pop3'}) {
+      editpop3();
+   } elsif ($action eq "addpop3" && $config{'enable_pop3'}) {
+      modpop3("add");
+   } elsif ($action eq "deletepop3" && $config{'enable_pop3'}) {
+      modpop3("delete");
+   } elsif ($action eq "editfilter" && $config{'enable_userfilter'}) {
+      editfilter();
+   } elsif ($action eq "addfilter" && $config{'enable_userfilter'}) {
+      modfilter("add");
+   } elsif ($action eq "deletefilter" && $config{'enable_userfilter'}) {
+      modfilter("delete");
+   } elsif (param('delstatbutton') && $config{'enable_stationery'}) {
+      delstat();
+   } elsif ((param('editstatbutton')||$action eq "editstat") && $config{'enable_stationery'}) {
+      editstat();
+   } elsif ($action eq "clearstat" && $config{'enable_stationery'}) {
+      clearstat();
+   } elsif ($action eq "addstat" && $config{'enable_stationery'}) {
+      addstat();
+   } else {
+      openwebmailerror(__FILE__, __LINE__, "Action $lang_err{'has_illegal_chars'}");
+   }
 } else {
    openwebmailerror(__FILE__, __LINE__, "Action $lang_err{'has_illegal_chars'}");
 }
@@ -159,9 +163,12 @@ sub about {
       $os=`/usr/bin/uname -srm` if ( -f "/usr/bin/uname");
       my $flag;
       $flag.='Persistence' if ($persistence_count>0);
-      $flag.=', HTTP Compression' if (cookie("openwebmail-httpcompress") &&
-                                     $ENV{'HTTP_ACCEPT_ENCODING'}=~/\bgzip\b/ &&
-                                     has_zlib());
+      if (cookie("openwebmail-httpcompress") &&
+          $ENV{'HTTP_ACCEPT_ENCODING'}=~/\bgzip\b/ &&
+          has_zlib()) {
+         $flag.=', ' if ($flag ne '');
+         $flag.='HTTP Compression';
+      }
       $flag="( $flag )" if ($flag);
 
       $temphtml.= qq|<tr><td colspan=2 bgcolor=$style{'columnheader'}><B>SOFTWARE</B></td></tr>\n|;
@@ -189,7 +196,9 @@ sub about {
    }
    if ($config{'about_info_client'}) {
       $temphtml.= qq|<tr><td colspan=2 bgcolor=$style{'columnheader'}><B>CLIENT</B></td></tr>\n|;
-      foreach my $attr ( qw(REMOTE_ADDR REMOTE_PORT HTTP_X_FORWARDED_FOR HTTP_VIA HTTP_USER_AGENT HTTP_ACCEPT_ENCODING HTTP_ACCEPT_LANGUAGE) ) {
+      foreach my $attr ( qw(REMOTE_ADDR REMOTE_PORT HTTP_CLIENT_IP 
+                            HTTP_X_FORWARDED_FOR HTTP_VIA 
+                            HTTP_USER_AGENT HTTP_ACCEPT_ENCODING HTTP_ACCEPT_LANGUAGE) ) {
          $temphtml.= attr_html($attr, $ENV{$attr}) if (defined($ENV{$attr}));
       }
    }
@@ -202,7 +211,7 @@ sub attr_html {
    my $temphtml = qq|<tr>|.
                   qq|<td bgcolor=$style{'window_dark'}>$_[0]</td>|.
                   qq|<td bgcolor=$style{'window_dark'}>$_[1]</td>|.
-                  qq|</tr>|;
+                  qq|</tr>\n|;
    return($temphtml);
 }
 ######################### END ABOUT ##########################
@@ -278,7 +287,7 @@ sub editprefs {
    $temphtml = '';
    if (!$userfirsttime) {
       if ($prefs_caller eq "cal") {
-         $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} $lang_text{'calendar'}", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-cal.pl?action=calmonth&amp;$urlparmstr"|);
+         $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} $lang_text{'calendar'}", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-cal.pl?action=$prefs{'calendar_defaultview'}&amp;$urlparmstr"|);
       } elsif ($prefs_caller eq "webdisk") {
          $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} $lang_text{'webdisk'}", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-webdisk.pl?action=showdir&amp;$urlparmstr"|);
       } elsif ($prefs_caller eq "read") {
@@ -289,14 +298,16 @@ sub editprefs {
       $temphtml .= qq|&nbsp;\n|;
    }
 
-   if ($config{'enable_setfrom'}) {
-      $temphtml .= iconlink("editfroms.gif", $lang_text{'editfroms'}, qq|accesskey="F" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editfroms&amp;$urlparmstr"|);
-   }
-   if ($config{'enable_stationery'}) {
-      $temphtml .= iconlink("editst.gif", $lang_text{'editstat'}, qq|accesskey="S" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editstat&amp;$urlparmstr"|);
-   }
-   if ($config{'enable_pop3'}) {
-      $temphtml .= iconlink("pop3setup.gif", $lang_text{'pop3book'}, qq|accesskey="G" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editpop3&amp;$urlparmstr"|);
+   if ($config{'enable_webmail'}) {
+      if ($config{'enable_setfrom'}) {
+         $temphtml .= iconlink("editfroms.gif", $lang_text{'editfroms'}, qq|accesskey="F" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editfroms&amp;$urlparmstr"|);
+      }
+      if ($config{'enable_stationery'}) {
+         $temphtml .= iconlink("editst.gif", $lang_text{'editstat'}, qq|accesskey="S" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editstat&amp;$urlparmstr"|);
+      }
+      if ($config{'enable_pop3'}) {
+         $temphtml .= iconlink("pop3setup.gif", $lang_text{'pop3book'}, qq|accesskey="G" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editpop3&amp;$urlparmstr"|);
+      }
    }
 
    $temphtml .= qq|&nbsp;\n|;
@@ -341,7 +352,8 @@ sub editprefs {
                           -labels=>\%languagenames,
                           -onChange=>"javascript:if (this.value != null) { window.location.href='$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;$urlparmstr&amp;language='+this.value; }",
                           -accesskey=>'1',
-                          -override=>'1');
+                          -override=>'1', 
+                          defined($config_raw{'DEFAULT_language'})?('-disabled'=>'1'):());
    $html =~ s/\@\@\@LANGUAGEMENU\@\@\@/$temphtml/;
 
    my %tmpset=reverse %languagecharsets;
@@ -359,112 +371,125 @@ sub editprefs {
    $temphtml = popup_menu(-name=>'timeoffset',
                           -values=>\@timeoffsets,
                           -default=>$prefs{'timeoffset'},
-                          -override=>'1').
+                          -override=>'1',
+                          defined($config_raw{'DEFAULT_timeoffset'})?('-disabled'=>'1'):()).
                qq|&nbsp;|. iconlink("earth.gif", $lang_text{'tzmap'}, qq|href="$config{'ow_htmlurl'}/images/timezone.jpg" target="_timezonemap"|). qq|\n|;
    $html =~ s/\@\@\@TIMEOFFSETMENU\@\@\@/$temphtml/;
 
    $temphtml = popup_menu(-name=>'daylightsaving',
-                          -values=>[ 'auto', 'on', 'off' ],
-                          -labels=>\%lang_onofflabels,
-                          -default=>$prefs{'daylightsaving'},
-                          -override=>'1');
+                         -values=>[ 'auto', 'on', 'off' ],
+                         -labels=>\%lang_onofflabels,
+                         -default=>$prefs{'daylightsaving'},
+                         -override=>'1',
+                         defined($config_raw{'DEFAULT_daylightsaving'})?('-disabled'=>'1'):());
    $html =~ s/\@\@\@DAYLIGHTSAVINGMENU\@\@\@/$temphtml/;
 
-   my @fromemails=sort_emails_by_domainnames($config{'domainnames'}, keys %userfrom);
-   my %fromlabels;
-   foreach (@fromemails) {
-      if ($userfrom{$_}) {
-         $fromlabels{$_}=qq|"$userfrom{$_}" <$_>|;
-      } else {
-         $fromlabels{$_}=qq|$_|;
-      }
-   }
-   $temphtml = popup_menu(-name=>'email',
-                                -values=>\@fromemails,
-                                -labels=>\%fromlabels,
-                                -default=>$prefs{'email'},
-                                -override=>'1');
-   if ($config{'enable_editfrom'}) {
-      $temphtml .= "&nbsp;".iconlink("editfroms.s.gif", $lang_text{'editfroms'}, qq|href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editfroms&amp;$urlparmstr"|). qq| \n|;
-   }
-   $html =~ s/\@\@\@FROMEMAILMENU\@\@\@/$temphtml/;
-
-   $temphtml = textfield(-name=>'replyto',
-                         -default=>$prefs{'replyto'} || '',
-                         -size=>'40',
-                         -override=>'1');
-   $html =~ s/\@\@\@REPLYTOFIELD\@\@\@/$temphtml/;
-
-   # read .forward, also see if autoforwarding is on
-   my ($autoreply, $keeplocalcopy, @forwards)=readdotforward();
-   if ($config{'enable_setforward'}) {
-      my $forwardaddress='';
-      $forwardaddress = join(",", @forwards) if ($#forwards >= 0);
-      $temphtml = textfield(-name=>'forwardaddress',
-                         -default=>$forwardaddress,
-                         -size=>'30',
-                         -override=>'1');
-      $html =~ s/\@\@\@FORWARDADDRESS\@\@\@/$temphtml/;
-
-      $temphtml = checkbox(-name=>'keeplocalcopy',
-                  -value=>'1',
-                  -checked=>$keeplocalcopy,
-                  -label=>'');
-      $html =~ s/\@\@\@KEEPLOCALCOPY\@\@\@/$temphtml/;
-
-      $html =~ s/\@\@\@FORWARDSTART\@\@\@//;
-      $html =~ s/\@\@\@FORWARDEND\@\@\@//;
+   if ($config{'enable_webmail'}) {
+      $html =~ s/\@\@\@WEBMAILSTART\@\@\@//g;
+      $html =~ s/\@\@\@WEBMAILEND\@\@\@//g;
    } else {
-      $html =~ s/\@\@\@FORWARDADDRESS\@\@\@/not available/;
-      $html =~ s/\@\@\@KEEPLOCALCOPY\@\@\@/not available/;
-      $html =~ s/\@\@\@FORWARDSTART\@\@\@/<!--/;
-      $html =~ s/\@\@\@FORWARDEND\@\@\@/-->/;
+      $html =~ s/\@\@\@WEBMAILSTART\@\@\@/<!--DISABLED WEBMAIL START/g;
+      $html =~ s/\@\@\@WEBMAILEND\@\@\@/DISABLED WEBMAIL END-->/g;
    }
 
-   if ($config{'enable_autoreply'}) {
-      # whether autoreply active or not is determined by
-      # if .forward is set to call vacation program, not in .openwebmailrc
-      my ($autoreplysubject, $autoreplytext)=readdotvacationmsg();
+   if ($config{'enable_webmail'}) {
+      my @fromemails=sort_emails_by_domainnames($config{'domainnames'}, keys %userfrom);
+      my %fromlabels;
+      foreach (@fromemails) {
+         if ($userfrom{$_}) {
+            $fromlabels{$_}=qq|"$userfrom{$_}" <$_>|;
+         } else {
+            $fromlabels{$_}=qq|$_|;
+         }
+      }
+      $temphtml = popup_menu(-name=>'email',
+                             -values=>\@fromemails,
+                             -labels=>\%fromlabels,
+                             -default=>$prefs{'email'},
+                             -override=>'1');
+      if ($config{'enable_setfrom'}) {
+         $temphtml .= "&nbsp;".iconlink("editfroms.s.gif", $lang_text{'editfroms'}, qq|href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editfroms&amp;$urlparmstr"|). qq| \n|;
+      }
+      $html =~ s/\@\@\@FROMEMAILMENU\@\@\@/$temphtml/;
 
-      $temphtml = checkbox(-name=>'autoreply',
-                           -value=>'1',
-                           -checked=>$autoreply,
-                           -label=>'');
-      $html =~ s/\@\@\@AUTOREPLYCHECKBOX\@\@\@/$temphtml/;
-
-      $temphtml = textfield(-name=>'autoreplysubject',
-                            -default=>$autoreplysubject,
+      $temphtml = textfield(-name=>'replyto',
+                            -default=>$prefs{'replyto'} || '',
                             -size=>'40',
                             -override=>'1');
-      $html =~ s/\@\@\@AUTOREPLYSUBJECT\@\@\@/$temphtml/;
+      $html =~ s/\@\@\@REPLYTOFIELD\@\@\@/$temphtml/;
 
-      $temphtml = textarea(-name=>'autoreplytext',
-                           -default=>$autoreplytext,
+      # read .forward, also see if autoforwarding is on
+      my ($autoreply, $keeplocalcopy, @forwards)=readdotforward();
+      if ($config{'enable_setforward'}) {
+         my $forwardaddress='';
+         $forwardaddress = join(",", @forwards) if ($#forwards >= 0);
+         $temphtml = textfield(-name=>'forwardaddress',
+                               -default=>$forwardaddress,
+                               -size=>'30',
+                               -override=>'1');
+         $html =~ s/\@\@\@FORWARDADDRESS\@\@\@/$temphtml/;
+
+         $temphtml = checkbox(-name=>'keeplocalcopy',
+                              -value=>'1',
+                              -checked=>$keeplocalcopy,
+                              -label=>'');
+         $html =~ s/\@\@\@KEEPLOCALCOPY\@\@\@/$temphtml/;
+
+         $html =~ s/\@\@\@FORWARDSTART\@\@\@//;
+         $html =~ s/\@\@\@FORWARDEND\@\@\@//;
+      } else {
+         $html =~ s/\@\@\@FORWARDADDRESS\@\@\@/not available/;
+         $html =~ s/\@\@\@KEEPLOCALCOPY\@\@\@/not available/;
+         $html =~ s/\@\@\@FORWARDSTART\@\@\@/<!--/;
+         $html =~ s/\@\@\@FORWARDEND\@\@\@/-->/;
+      }
+
+      if ($config{'enable_autoreply'}) {
+         # whether autoreply active or not is determined by
+         # if .forward is set to call vacation program, not in .openwebmailrc
+         my ($autoreplysubject, $autoreplytext)=readdotvacationmsg();
+
+         $temphtml = checkbox(-name=>'autoreply',
+                              -value=>'1',
+                              -checked=>$autoreply,
+                              -label=>'');
+         $html =~ s/\@\@\@AUTOREPLYCHECKBOX\@\@\@/$temphtml/;
+
+         $temphtml = textfield(-name=>'autoreplysubject',
+                               -default=>$autoreplysubject,
+                               -size=>'40',
+                               -override=>'1');
+         $html =~ s/\@\@\@AUTOREPLYSUBJECT\@\@\@/$temphtml/;
+
+         $temphtml = textarea(-name=>'autoreplytext',
+                              -default=>$autoreplytext,
+                              -rows=>'5',
+                              -columns=>$prefs{'editcolumns'}||'78',
+                              -wrap=>'hard',
+                              -override=>'1');
+         $html =~ s/\@\@\@AUTOREPLYTEXT\@\@\@/$temphtml/;
+
+         $html =~ s/\@\@\@AUTOREPLYSTART\@\@\@//;
+         $html =~ s/\@\@\@AUTOREPLYEND\@\@\@//;
+
+      } else {
+         $html =~ s/\@\@\@AUTOREPLYCHECKBOX\@\@\@/not available/;
+         $html =~ s/\@\@\@AUTOREPLYSUBJECT\@\@\@/not available/;
+         $html =~ s/\@\@\@AUTOREPLYTEXT\@\@\@/not available/;
+
+         $html =~ s/\@\@\@AUTOREPLYSTART\@\@\@/<!--/;
+         $html =~ s/\@\@\@AUTOREPLYEND\@\@\@/-->/;
+      }
+
+      $temphtml = textarea(-name=>'signature',
+                           -default=>$prefs{'signature'},
                            -rows=>'5',
                            -columns=>$prefs{'editcolumns'}||'78',
                            -wrap=>'hard',
-                           -override=>'1');
-      $html =~ s/\@\@\@AUTOREPLYTEXT\@\@\@/$temphtml/;
-
-      $html =~ s/\@\@\@AUTOREPLYSTART\@\@\@//;
-      $html =~ s/\@\@\@AUTOREPLYEND\@\@\@//;
-
-   } else {
-      $html =~ s/\@\@\@AUTOREPLYCHECKBOX\@\@\@/not available/;
-      $html =~ s/\@\@\@AUTOREPLYSUBJECT\@\@\@/not available/;
-      $html =~ s/\@\@\@AUTOREPLYTEXT\@\@\@/not available/;
-
-      $html =~ s/\@\@\@AUTOREPLYSTART\@\@\@/<!--/;
-      $html =~ s/\@\@\@AUTOREPLYEND\@\@\@/-->/;
+                           -override=>'1',
+                           defined($config_raw{'DEFAULT_signature'})?('-disabled'=>'1'):());
+      $html =~ s/\@\@\@SIGAREA\@\@\@/$temphtml/;
    }
-
-   $temphtml = textarea(-name=>'signature',
-                        -default=>$prefs{'signature'},
-                        -rows=>'5',
-                        -columns=>$prefs{'editcolumns'}||'78',
-                        -wrap=>'hard',
-                        -override=>'1');
-   $html =~ s/\@\@\@SIGAREA\@\@\@/$temphtml/;
 
 
    # Get a list of valid style files
@@ -484,7 +509,8 @@ sub editprefs {
                           -values=>\@styles,
                           -default=>$prefs{'style'},
                           -accesskey=>'2',
-                          -override=>'1');
+                          -override=>'1',
+                          defined($config_raw{'DEFAULT_style'})?('-disabled'=>'1'):());
    $html =~ s/\@\@\@STYLEMENU\@\@\@/$temphtml/;
 
    # Get a list of valid iconset
@@ -503,7 +529,8 @@ sub editprefs {
    $temphtml = popup_menu(-name=>'iconset',
                           -values=>\@iconsets,
                           -default=>$prefs{'iconset'},
-                          -override=>'1');
+                          -override=>'1',
+                          defined($config_raw{'DEFAULT_iconset'})?('-disabled'=>'1'):());
    $html =~ s/\@\@\@ICONSETMENU\@\@\@/$temphtml/;
 
    # Get a list of valid background images
@@ -520,34 +547,47 @@ sub editprefs {
    @backgrounds = sort(@backgrounds);
    push(@backgrounds, "USERDEFINE");
 
-   my ($background, $bgurl);
-   if ( $prefs{'bgurl'}=~m!$config{'ow_htmlurl'}/images/backgrounds/([\w\d\.\-_]+)! ) {
-      $background=$1; $bgurl="";
-   } else {
-      $background="USERDEFINE"; $bgurl=$prefs{'bgurl'};
+   my $background=$prefs{'bgurl'};
+   my $bgurl='';
+   if ($background !~ s!$config{'ow_htmlurl'}/images/backgrounds/!!) {
+      $background="USERDEFINE"; 
+      $bgurl=$prefs{'bgurl'};
    }
+
+# this block of code caused all prevledged access into insecure dependence 
+# even they are correctly untainted when speedycgi is used with new perl 5.8.0
+# it seems there is buffer overflow somewhere in perl or speedycgi? tricky!
+
+#   if ( $prefs{'bgurl'}=~m!$config{'ow_htmlurl'}/images/backgrounds/([\w\d\.\-_]+)! ) {
+#      $background=$1; $bgurl="";
+#   } else {
+#      $background="USERDEFINE"; $bgurl=$prefs{'bgurl'};
+#   }
 
    $temphtml = popup_menu(-name=>'background',
                           -values=>\@backgrounds,
                           -labels=>{ 'USERDEFINE'=>"--$lang_text{'userdef'}--" },
                           -default=>$background,
                           -onChange=>"JavaScript:document.prefsform.bgurl.value='';",
-                          -override=>'1');
+                          -override=>'1',
+                          defined($config_raw{'DEFAULT_bgurl'})?('-disabled'=>'1'):());
    $html =~ s/\@\@\@BACKGROUNDMENU\@\@\@/$temphtml/;
 
    $temphtml = checkbox(-name=>'bgrepeat',
                         -value=>'1',
                         -checked=>$prefs{'bgrepeat'},
-                        -label=>'');
+                        -label=>'',
+                        defined($config_raw{'DEFAULT_bgrepeat'})?('-disabled'=>'1'):());
    $html =~ s/\@\@\@BGREPEATCHECKBOX\@\@\@/$temphtml/;
 
    $temphtml = textfield(-name=>'bgurl',
                          -default=>$bgurl,
                          -size=>'35',
-                         -override=>'1');
+                         -override=>'1',
+                         defined($config_raw{'DEFAULT_bgurl'})?('-disabled'=>'1'):());
    $html =~ s/\@\@\@BGURLFIELD\@\@\@/$temphtml/;
 
-   my @fontsize=sort { ($a=~/px$/ - $b=~/px$/) || $a <=> $b } keys %fontsize;
+   my @fontsize=sort { ($a=~/px$/ - $b=~/px$/) || $a<=>$b } keys %fontsize;
    my %fontsizelabels;
    foreach (@fontsize) {
       $fontsizelabels{$_}=$_;
@@ -558,7 +598,8 @@ sub editprefs {
                           -values=>\@fontsize,
                           -default=>$prefs{'fontsize'},
                           -labels=>\%fontsizelabels,
-                          -override=>'1');
+                          -override=>'1',
+                          defined($config_raw{'DEFAULT_font'})?('-disabled'=>'1'):());
    $html =~ s/\@\@\@FONTSIZEMENU\@\@\@/$temphtml/;
 
    $temphtml = popup_menu(-name=>'dateformat',
@@ -566,345 +607,424 @@ sub editprefs {
                                       'mm-dd-yyyy', 'dd-mm-yyyy', 'yyyy-mm-dd',
                                       'mm.dd.yyyy', 'dd.mm.yyyy', 'yyyy.mm.dd'],
                           -default=>$prefs{'dateformat'},
-                          -override=>'1');
+                          -override=>'1',
+                          defined($config_raw{'DEFAULT_dateformat'})?('-disabled'=>'1'):());
    $html =~ s/\@\@\@DATEFORMATMENU\@\@\@/$temphtml/;
 
    $temphtml = popup_menu(-name=>'hourformat',
                           -values=>[12, 24],
                           -default=>$prefs{'hourformat'},
-                          -override=>'1');
+                          -override=>'1',
+                          defined($config_raw{'DEFAULT_hourformat'})?('-disabled'=>'1'):());
    $html =~ s/\@\@\@HOURFORMATMENU\@\@\@/$temphtml/;
 
 
-   $temphtml = popup_menu(-name=>'ctrlposition_folderview',
-                          -values=>['top', 'bottom'],
-                          -default=>$prefs{'ctrlposition_folderview'} || 'bottom',
-                          -labels=>\%lang_ctrlpositionlabels,
-                          -override=>'1');
-   $html =~ s/\@\@\@CTRLPOSITIONFOLDERVIEWMENU\@\@\@/$temphtml/;
+   if ($config{'enable_webmail'}) {
+      $temphtml = popup_menu(-name=>'ctrlposition_folderview',
+                             -values=>['top', 'bottom'],
+                             -default=>$prefs{'ctrlposition_folderview'} || 'bottom',
+                             -labels=>\%lang_ctrlpositionlabels,
+                             -accesskey=>'3',
+                             -override=>'1',
+                             defined($config_raw{'DEFAULT_ctrlposition_folderview'})?('-disabled'=>'1'):());
+      $html =~ s/\@\@\@CTRLPOSITIONFOLDERVIEWMENU\@\@\@/$temphtml/;
 
-   $temphtml = popup_menu(-name=>'msgsperpage',
-                          -values=>[8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,50,100,500,1000],
-                          -default=>$prefs{'msgsperpage'},
-                          -override=>'1');
-   $html =~ s/\@\@\@HEADERSPERPAGE\@\@\@/$temphtml/;
+      $temphtml = popup_menu(-name=>'msgsperpage',
+                             -values=>[8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,50,100,500,1000],
+                             -default=>$prefs{'msgsperpage'},
+                             -override=>'1',
+                             defined($config_raw{'DEFAULT_msgsperpage'})?('-disabled'=>'1'):());
+      $html =~ s/\@\@\@HEADERSPERPAGE\@\@\@/$temphtml/;
 
-   my %orderlabels = (
-      'date from subject size' =>
-      "$lang_text{'date'}, $lang_text{'from'}, $lang_text{'subject'}, $lang_text{'size'}",
-      'date subject from size' =>
-      "$lang_text{'date'}, $lang_text{'subject'}, $lang_text{'from'}, $lang_text{'size'}",
-      'subject from date size' =>
-      "$lang_text{'subject'}, $lang_text{'from'}, $lang_text{'date'}, $lang_text{'size'}",
-      'from subject date size' =>
-      "$lang_text{'from'}, $lang_text{'subject'}, $lang_text{'date'}, $lang_text{'size'}"
-      );
-   my @ordervalues=sort keys(%orderlabels);
-   $temphtml = popup_menu(-name=>'fieldorder',
-                          -default=>$prefs{'fieldorder'},
-                          -values=>\@ordervalues,
-                          -labels=>\%orderlabels,
-                          -override=>'1');
-   $html =~ s/\@\@\@FIELDORDERMENU\@\@\@/$temphtml/;
+      my %orderlabels = (
+         'date from subject size' =>
+         "$lang_text{'date'}, $lang_text{'from'}, $lang_text{'subject'}, $lang_text{'size'}",
+         'date subject from size' =>
+         "$lang_text{'date'}, $lang_text{'subject'}, $lang_text{'from'}, $lang_text{'size'}",
+         'subject from date size' =>
+         "$lang_text{'subject'}, $lang_text{'from'}, $lang_text{'date'}, $lang_text{'size'}",
+         'from subject date size' =>
+         "$lang_text{'from'}, $lang_text{'subject'}, $lang_text{'date'}, $lang_text{'size'}"
+         );
+      my @ordervalues=sort keys(%orderlabels);
+      $temphtml = popup_menu(-name=>'fieldorder',
+                             -default=>$prefs{'fieldorder'},
+                             -values=>\@ordervalues,
+                             -labels=>\%orderlabels,
+                             -override=>'1',
+                             defined($config_raw{'DEFAULT_fieldorder'})?('-disabled'=>'1'):());
+      $html =~ s/\@\@\@FIELDORDERMENU\@\@\@/$temphtml/;
 
-   # since there is already sort param inherited from outside prefs form,
-   # so the prefs form pass the sort param as msgsort
-   $temphtml = popup_menu(-name=>'msgsort',
-                          -values=>['date','date_rev','sender','sender_rev',
-                                      'size','size_rev','subject','subject_rev',
-                                      'status'],
-                          -default=>$prefs{'sort'},
-                          -labels=>\%lang_sortlabels,
-                          -override=>'1');
-   $html =~ s/\@\@\@SORTMENU\@\@\@/$temphtml/;
+      # since there is already sort param inherited from outside prefs form,
+      # so the prefs form pass the sort param as msgsort
+      $temphtml = popup_menu(-name=>'msgsort',
+                             -values=>['date','date_rev','sender','sender_rev',
+                                         'size','size_rev','subject','subject_rev',
+                                         'status'],
+                             -default=>$prefs{'sort'},
+                             -labels=>\%lang_sortlabels,
+                             -override=>'1',
+                             defined($config_raw{'DEFAULT_msgsort'})?('-disabled'=>'1'):());
+      $html =~ s/\@\@\@SORTMENU\@\@\@/$temphtml/;
 
 
-   $temphtml = checkbox(-name=>'confirmmsgmovecopy',
-                        -value=>'1',
-                        -checked=>$prefs{'confirmmsgmovecopy'},
-                        -label=>'');
-   $html =~ s/\@\@\@CONFIRMMSGMOVECOPY\@\@\@/$temphtml/;
-
-   $temphtml = popup_menu(-name=>'defaultdestination',
-                          -values=>['saved-messages','mail-trash', 'DELETE'],
-                          -default=>$prefs{'defaultdestination'} || 'mail-trash',
-                          -labels=>\%lang_folders,
-                          -accesskey=>'4',
-                          -override=>'1');
-   $html =~ s/\@\@\@DEFAULTDESTINATIONMENU\@\@\@/$temphtml/;
-
-   $temphtml = checkbox(-name=>'smartdestination',
-                        -value=>'1',
-                        -checked=>$prefs{'smartdestination'},
-                        -label=>'');
-   $html =~ s/\@\@\@SMARTDESTINATION\@\@\@/$temphtml/;
-
-   $temphtml = checkbox(-name=>'viewnextaftermsgmovecopy',
-                        -value=>'1',
-                        -checked=>$prefs{'viewnextaftermsgmovecopy'},
-                        -label=>'');
-   $html =~ s/\@\@\@VIEWNEXTAFTERMSGMOVECOPY\@\@\@/$temphtml/;
-
-   if ($config{'enable_pop3'}) {
-      $temphtml = checkbox(-name=>'autopop3',
+      $temphtml = checkbox(-name=>'confirmmsgmovecopy',
                            -value=>'1',
-                           -checked=>$prefs{'autopop3'},
-                           -label=>'');
-      $html =~ s/\@\@\@AUTOPOP3CHECKBOX\@\@\@/$temphtml/;
-      $html =~ s/\@\@\@AUTOPOP3START\@\@\@//;
-      $html =~ s/\@\@\@AUTOPOP3END\@\@\@//;
-   } else {
-      $html =~ s/\@\@\@AUTOPOP3CHECKBOX\@\@\@/not available/;
-      $html =~ s/\@\@\@AUTOPOP3START\@\@\@/<!--/;
-      $html =~ s/\@\@\@AUTOPOP3END\@\@\@/-->/;
-   }
+                           -checked=>$prefs{'confirmmsgmovecopy'},
+                           -accesskey=>'4',
+                           -label=>'',
+                           defined($config_raw{'DEFAULT_confirmmsgmovecopy'})?('-disabled'=>'1'):());
+      $html =~ s/\@\@\@CONFIRMMSGMOVECOPY\@\@\@/$temphtml/;
 
-   if ($config{'forced_moveoldmsgfrominbox'}) {
-      $html =~ s/\@\@\@MOVEOLDCHECKBOX\@\@\@/not available/;
-      $html =~ s/\@\@\@MOVEOLDSTART\@\@\@/<!--/;
-      $html =~ s/\@\@\@MOVEOLDEND\@\@\@/-->/;
-   } else {
-      $temphtml = checkbox(-name=>'moveoldmsgfrominbox',
+      $temphtml = popup_menu(-name=>'defaultdestination',
+                             -values=>['saved-messages','mail-trash', 'DELETE'],
+                             -default=>$prefs{'defaultdestination'} || 'mail-trash',
+                             -labels=>\%lang_folders,
+                             -override=>'1',
+                             defined($config_raw{'DEFAULT_defaultdestination'})?('-disabled'=>'1'):());
+      $html =~ s/\@\@\@DEFAULTDESTINATIONMENU\@\@\@/$temphtml/;
+
+      $temphtml = checkbox(-name=>'smartdestination',
                            -value=>'1',
-                           -checked=>$prefs{'moveoldmsgfrominbox'},
-                           -label=>'');
-      $html =~ s/\@\@\@MOVEOLDMSGFROMINBOX\@\@\@/$temphtml/;
-      $html =~ s/\@\@\@MOVEOLDSTART\@\@\@//;
-      $html =~ s/\@\@\@MOVEOLDEND\@\@\@//;
-   }
+                           -checked=>$prefs{'smartdestination'},
+                           -label=>'',
+                           defined($config_raw{'DEFAULT_smartdestination'})?('-disabled'=>'1'):());
+      $html =~ s/\@\@\@SMARTDESTINATION\@\@\@/$temphtml/;
 
+      $temphtml = checkbox(-name=>'viewnextaftermsgmovecopy',
+                           -value=>'1',
+                           -checked=>$prefs{'viewnextaftermsgmovecopy'},
+                           -label=>'',
+                           defined($config_raw{'DEFAULT_viewnextaftermsgmovecopy'})?('-disabled'=>'1'):());
+      $html =~ s/\@\@\@VIEWNEXTAFTERMSGMOVECOPY\@\@\@/$temphtml/;
 
-   $temphtml = popup_menu(-name=>'ctrlposition_msgread',
-                          -values=>['top', 'bottom'],
-                          -default=>$prefs{'ctrlposition_msgread'} || 'bottom',
-                          -labels=>\%lang_ctrlpositionlabels,
-                          -override=>'1');
-   $html =~ s/\@\@\@CTRLPOSITIONMSGREADMENU\@\@\@/$temphtml/;
-
-   my %headerlabels = ('simple'=>$lang_text{'simplehead'},
-                       'all'=>$lang_text{'allhead'} );
-   $temphtml = popup_menu(-name=>'headers',
-                          -values=>['simple','all'],
-                          -default=>$prefs{'headers'} || 'simple',
-                          -labels=>\%headerlabels,
-                          -override=>'1');
-   $html =~ s/\@\@\@HEADERSMENU\@\@\@/$temphtml/;
-
-   $temphtml = checkbox(-name=>'usefixedfont',
-                  -value=>'1',
-                  -checked=>$prefs{'usefixedfont'},
-                  -accesskey=>'3',
-                  -label=>'');
-   $html =~ s/\@\@\@USEFIXEDFONT\@\@\@/$temphtml/;
-
-   $temphtml = checkbox(-name=>'usesmileicon',
-                  -value=>'1',
-                  -checked=>$prefs{'usesmileicon'},
-                  -label=>'');
-   $html =~ s/\@\@\@USESMILEICON\@\@\@/$temphtml/;
-
-   $temphtml = checkbox(-name=>'disablejs',
-                  -value=>'1',
-                  -checked=>$prefs{'disablejs'},
-                  -label=>'');
-   $html =~ s/\@\@\@DISABLEJS\@\@\@/$temphtml/;
-
-   $temphtml = popup_menu(-name=>'disableemblink',
-                          -values=>['none', 'cgionly', 'all'],
-                          -default=>$prefs{'disableemblink'},
-                          -labels=>\%lang_disableemblinklabels,
-                          -override=>'1');
-   $html =~ s/\@\@\@DISABLEEMBLINKMENU\@\@\@/$temphtml/;
-
-   $temphtml = checkbox(-name=>'showimgaslink',
-                  -value=>'1',
-                  -checked=>$prefs{'showimgaslink'},
-                  -label=>'');
-   $html =~ s/\@\@\@SHOWIMGASLINK\@\@\@/$temphtml/;
-
-   $temphtml = popup_menu(-name=>'sendreceipt',
-                          -values=>['ask', 'yes', 'no'],
-                          -default=>$prefs{'sendreceipt'} || 'ask',
-                          -labels=>\%lang_receiptlabels,
-                          -accesskey=>'5',
-                          -override=>'1');
-   $html =~ s/\@\@\@SENDRECEIPTMENU\@\@\@/$temphtml/;
-
-   $temphtml = popup_menu(-name=>'msgformat',
-                          -values=>['auto', 'text', 'html', 'both'],
-                          -default=>$prefs{'msgformat'},
-                          -labels=>\%lang_msgformatlabels,
-                          -override=>'1');
-   $html =~ s/\@\@\@MSGFORMATMENU\@\@\@/$temphtml/;
-
-   $temphtml = popup_menu(-name=>'editcolumns',
-                          -values=>[60,62,64,66,68,70,72,74,76,78,80,82,84,86,88,90,100,110,120],
-                          -default=>$prefs{'editcolumns'},
-                          -override=>'1');
-   $html =~ s/\@\@\@EDITCOLUMNSMENU\@\@\@/$temphtml/;
-
-   $temphtml = popup_menu(-name=>'editrows',
-                          -values=>[10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,50,60,70,80],
-                          -default=>$prefs{'editrows'},
-                          -override=>'1');
-   $html =~ s/\@\@\@EDITROWSMENU\@\@\@/$temphtml/;
-
-   $temphtml = popup_menu(-name=>'sendbuttonposition',
-                          -values=>['before', 'after', 'both'],
-                          -default=>$prefs{'sendbuttonposition'} || 'before',
-                          -labels=>\%lang_sendpositionlabels,
-                          -override=>'1');
-   $html =~ s/\@\@\@SENDBUTTONPOSITIONMENU\@\@\@/$temphtml/;
-
-   $temphtml = checkbox(-name=>'reparagraphorigmsg',
-                        -value=>'1',
-                        -checked=>$prefs{'reparagraphorigmsg'},
-                        -label=>'');
-   $html =~ s/\@\@\@REPARAGRAPHORIGMSG\@\@\@/$temphtml/;
-
-   $temphtml = popup_menu(-name=>'replywithorigmsg',
-                          -values=>['at_beginning', 'at_end', 'none'],
-                          -default=>$prefs{'replywithorigmsg'} || 'at_beginning',
-                          -labels=>\%lang_withoriglabels,
-                          -override=>'1');
-   $html =~ s/\@\@\@REPLYWITHORIGMSGMENU\@\@\@/$temphtml/;
-
-   $temphtml = checkbox(-name=>'backupsentmsg',
-                        -value=>'1',
-                        -checked=>$prefs{'backupsentmsg'},
-                        -label=>'');
-   $html =~ s/\@\@\@BACKUPSENTMSG\@\@\@/$temphtml/;
-
-   my %ctlabels=( 'sameascomposing' => $lang_text{'samecharset'} );
-   my @ctlist=('sameascomposing', $prefs{charset});
-   foreach my $ct (@{$charset_convlist{$prefs{charset}}}) {
-      push(@ctlist, $ct) if (is_convertable($prefs{charset}, $ct));
-   }
-   $temphtml = popup_menu(-name=>'sendcharset',
-                          -values=>\@ctlist,
-                          -labels=>\%ctlabels,
-                          -default=>$defaultsendcharset,
-                          -override=>'1');
-   $html =~ s/\@\@\@SENDCHARSETMENU\@\@\@/$temphtml/;
-
-
-   if ($config{'enable_smartfilters'}) {
-      $html =~ s/\@\@\@FILTERSTART\@\@\@//;
-      $html =~ s/\@\@\@FILTEREND\@\@\@//;
-
-      my (%FTDB, $matchcount, $matchdate);
-      if (!$config{'dbmopen_haslock'}) {
-         filelock("$folderdir/.filter.book$config{'dbm_ext'}", LOCK_SH) or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $folderdir/.filter.book$config{'dbm_ext'}");
+      if ($config{'enable_pop3'}) {
+         $temphtml = checkbox(-name=>'autopop3',
+                              -value=>'1',
+                              -checked=>$prefs{'autopop3'},
+                              -label=>'',
+                              defined($config_raw{'DEFAULT_autopop3'})?('-disabled'=>'1'):());
+         $html =~ s/\@\@\@AUTOPOP3CHECKBOX\@\@\@/$temphtml/;
+         $temphtml = popup_menu(-name=>'autopop3wait',
+                                -values=>[0,1,2,3,4,5,6,7,8,9,10,15,20,25,30],
+                                -default=>$prefs{'autopop3wait'},
+                                -override=>'1',
+                                defined($config_raw{'DEFAULT_autopop3wait'})?('-disabled'=>'1'):());
+         $html =~ s/\@\@\@AUTOPOP3WAITMENU\@\@\@/$temphtml/;
+         $html =~ s/\@\@\@AUTOPOP3START\@\@\@//;
+         $html =~ s/\@\@\@AUTOPOP3END\@\@\@//;
+      } else {
+         $html =~ s/\@\@\@AUTOPOP3CHECKBOX\@\@\@/not available/;
+         $html =~ s/\@\@\@AUTOPOP3WAITMENU\@\@\@/not available/;
+         $html =~ s/\@\@\@AUTOPOP3START\@\@\@/<!--/;
+         $html =~ s/\@\@\@AUTOPOP3END\@\@\@/-->/;
       }
-      dbmopen (%FTDB, "$folderdir/.filter.book$config{'dbmopen_ext'}", 0600);
 
-      $temphtml = popup_menu(-name=>'filter_repeatlimit',
-                             -values=>['0','5','10','20','30','40','50','100'],
-                             -default=>$prefs{'filter_repeatlimit'},
+      if ($config{'forced_moveoldmsgfrominbox'}) {
+         $html =~ s/\@\@\@MOVEOLDCHECKBOX\@\@\@/not available/;
+         $html =~ s/\@\@\@MOVEOLDSTART\@\@\@/<!--/;
+         $html =~ s/\@\@\@MOVEOLDEND\@\@\@/-->/;
+      } else {
+         $temphtml = checkbox(-name=>'moveoldmsgfrominbox',
+                              -value=>'1',
+                              -checked=>$prefs{'moveoldmsgfrominbox'},
+                              -label=>'',
+                              defined($config_raw{'DEFAULT_moveoldmsgfrominbox'})?('-disabled'=>'1'):());
+         $html =~ s/\@\@\@MOVEOLDMSGFROMINBOX\@\@\@/$temphtml/;
+         $html =~ s/\@\@\@MOVEOLDSTART\@\@\@//;
+         $html =~ s/\@\@\@MOVEOLDEND\@\@\@//;
+      }
+
+
+      $temphtml = popup_menu(-name=>'ctrlposition_msgread',
+                             -values=>['top', 'bottom'],
+                             -default=>$prefs{'ctrlposition_msgread'} || 'bottom',
+                             -labels=>\%lang_ctrlpositionlabels,
+                             -accesskey=>'5',
+                             -override=>'1',
+                             defined($config_raw{'DEFAULT_ctrlposition_msgread'})?('-disabled'=>'1'):());
+      $html =~ s/\@\@\@CTRLPOSITIONMSGREADMENU\@\@\@/$temphtml/;
+
+      my %headerlabels = ('simple'=>$lang_text{'simplehead'},
+                          'all'=>$lang_text{'allhead'} );
+      $temphtml = popup_menu(-name=>'headers',
+                             -values=>['simple','all'],
+                             -default=>$prefs{'headers'} || 'simple',
+                             -labels=>\%headerlabels,
+                             -override=>'1',
+                             defined($config_raw{'DEFAULT_headers'})?('-disabled'=>'1'):());
+      $html =~ s/\@\@\@HEADERSMENU\@\@\@/$temphtml/;
+
+      $temphtml = checkbox(-name=>'usefixedfont',
+                           -value=>'1',
+                           -checked=>$prefs{'usefixedfont'},
+                           -label=>'',
+                           defined($config_raw{'DEFAULT_usefixedfont'})?('-disabled'=>'1'):());
+      $html =~ s/\@\@\@USEFIXEDFONT\@\@\@/$temphtml/;
+
+      $temphtml = checkbox(-name=>'usesmileicon',
+                           -value=>'1',
+                           -checked=>$prefs{'usesmileicon'},
+                           -label=>'',
+                           defined($config_raw{'DEFAULT_usesmileicon'})?('-disabled'=>'1'):());
+      $html =~ s/\@\@\@USESMILEICON\@\@\@/$temphtml/;
+
+      $temphtml = checkbox(-name=>'disablejs',
+                           -value=>'1',
+                           -checked=>$prefs{'disablejs'},
+                           -label=>'',
+                           defined($config_raw{'DEFAULT_disablejs'})?('-disabled'=>'1'):());
+      $html =~ s/\@\@\@DISABLEJS\@\@\@/$temphtml/;
+
+      $temphtml = popup_menu(-name=>'disableemblink',
+                             -values=>['none', 'cgionly', 'all'],
+                             -default=>$prefs{'disableemblink'},
+                             -labels=>\%lang_disableemblinklabels,
+                             -override=>'1',
+                             defined($config_raw{'DEFAULT_disableemblink'})?('-disabled'=>'1'):());
+      $html =~ s/\@\@\@DISABLEEMBLINKMENU\@\@\@/$temphtml/;
+
+      $temphtml = checkbox(-name=>'showhtmlastext',
+                           -value=>'1',
+                           -checked=>$prefs{'showhtmlastext'},
+                           -label=>'',
+                           defined($config_raw{'DEFAULT_showhtmlastext'})?('-disabled'=>'1'):());
+      $html =~ s/\@\@\@SHOWHTMLASTEXT\@\@\@/$temphtml/;
+
+      $temphtml = checkbox(-name=>'showimgaslink',
+                           -value=>'1',
+                           -checked=>$prefs{'showimgaslink'},
+                           -label=>'',
+                           defined($config_raw{'DEFAULT_showimgaslink'})?('-disabled'=>'1'):());
+      $html =~ s/\@\@\@SHOWIMGASLINK\@\@\@/$temphtml/;
+
+      $temphtml = popup_menu(-name=>'sendreceipt',
+                             -values=>['ask', 'yes', 'no'],
+                             -default=>$prefs{'sendreceipt'} || 'ask',
+                             -labels=>\%lang_receiptlabels,
+                             -override=>'1',
+                             defined($config_raw{'DEFAULT_sendreceipt'})?('-disabled'=>'1'):());
+      $html =~ s/\@\@\@SENDRECEIPTMENU\@\@\@/$temphtml/;
+
+
+      $temphtml = popup_menu(-name=>'msgformat',
+                             -values=>['auto', 'text', 'html', 'both'],
+                             -default=>$prefs{'msgformat'},
+                             -labels=>\%lang_msgformatlabels,
                              -accesskey=>'6',
-                             -override=>'1');
-      ($matchcount, $matchdate)=split(":", $FTDB{"filter_repeatlimit"});
-      if ($matchdate) {
-         $matchdate=dateserial2str($matchdate, $prefs{'timeoffset'}, $prefs{'dateformat'});
-         $temphtml .= "&nbsp;(<a title='$matchdate'>$lang_text{'filtered'}: $matchcount</a>)";
-      }
-      $html =~ s/\@\@\@FILTERREPEATLIMIT\@\@\@/$temphtml/;
+                             -override=>'1',
+                             defined($config_raw{'DEFAULT_msgformat'})?('-disabled'=>'1'):());
+      $html =~ s/\@\@\@MSGFORMATMENU\@\@\@/$temphtml/;
 
-      $temphtml = checkbox(-name=>'filter_fakedsmtp',
+      $temphtml = popup_menu(-name=>'editcolumns',
+                             -values=>[60,62,64,66,68,70,72,74,76,78,80,82,84,86,88,90,100,110,120],
+                             -default=>$prefs{'editcolumns'},
+                             -override=>'1',
+                             defined($config_raw{'DEFAULT_editcolumns'})?('-disabled'=>'1'):());
+      $html =~ s/\@\@\@EDITCOLUMNSMENU\@\@\@/$temphtml/;
+
+      $temphtml = popup_menu(-name=>'editrows',
+                             -values=>[10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,50,60,70,80],
+                             -default=>$prefs{'editrows'},
+                             -override=>'1',
+                             defined($config_raw{'DEFAULT_editrows'})?('-disabled'=>'1'):());
+      $html =~ s/\@\@\@EDITROWSMENU\@\@\@/$temphtml/;
+
+      $temphtml = popup_menu(-name=>'sendbuttonposition',
+                             -values=>['before', 'after', 'both'],
+                             -default=>$prefs{'sendbuttonposition'} || 'before',
+                             -labels=>\%lang_sendpositionlabels,
+                             -override=>'1',
+                             defined($config_raw{'DEFAULT_sendbuttonposition'})?('-disabled'=>'1'):());
+      $html =~ s/\@\@\@SENDBUTTONPOSITIONMENU\@\@\@/$temphtml/;
+
+      $temphtml = checkbox(-name=>'reparagraphorigmsg',
                            -value=>'1',
-                           -checked=>$prefs{'filter_fakedsmtp'},
-                           -label=>'');
-      ($matchcount, $matchdate)=split(":", $FTDB{"filter_fakedsmtp"});
-      if ($matchdate) {
-         $matchdate=dateserial2str($matchdate, $prefs{'timeoffset'}, $prefs{'dateformat'});
-         $temphtml .= "&nbsp;(<a title='$matchdate'>$lang_text{'filtered'}: $matchcount</a>)";
-      }
-      $html =~ s/\@\@\@FILTERFAKEDSMTP\@\@\@/$temphtml/;
+                           -checked=>$prefs{'reparagraphorigmsg'},
+                           -label=>'',
+                           defined($config_raw{'DEFAULT_reparagraphorigmsg'})?('-disabled'=>'1'):());
+      $html =~ s/\@\@\@REPARAGRAPHORIGMSG\@\@\@/$temphtml/;
 
-      $temphtml = checkbox(-name=>'filter_fakedfrom',
+      $temphtml = popup_menu(-name=>'replywithorigmsg',
+                             -values=>['at_beginning', 'at_end', 'none'],
+                             -default=>$prefs{'replywithorigmsg'} || 'at_beginning',
+                             -labels=>\%lang_withoriglabels,
+                             -override=>'1',
+                             defined($config_raw{'DEFAULT_replywithorigmsg'})?('-disabled'=>'1'):());
+      $html =~ s/\@\@\@REPLYWITHORIGMSGMENU\@\@\@/$temphtml/;
+
+      $temphtml = checkbox(-name=>'backupsentmsg',
                            -value=>'1',
-                           -checked=>$prefs{'filter_fakedfrom'},
-                           -label=>'');
-      ($matchcount, $matchdate)=split(":", $FTDB{"filter_fakedfrom"});
-      if ($matchdate) {
-         $matchdate=dateserial2str($matchdate, $prefs{'timeoffset'}, $prefs{'dateformat'});
-         $temphtml .= "&nbsp;(<a title='$matchdate'>$lang_text{'filtered'}: $matchcount</a>)";
+                           -checked=>$prefs{'backupsentmsg'},
+                           -label=>'',
+                           defined($config_raw{'DEFAULT_backupsentmsg'})?('-disabled'=>'1'):());
+      $html =~ s/\@\@\@BACKUPSENTMSG\@\@\@/$temphtml/;
+
+      my %ctlabels=( 'sameascomposing' => $lang_text{'samecharset'} );
+      my @ctlist=('sameascomposing', $prefs{charset});
+      foreach my $ct (@{$charset_convlist{$prefs{charset}}}) {
+         push(@ctlist, $ct) if (is_convertable($prefs{charset}, $ct));
       }
-      $html =~ s/\@\@\@FILTERFAKEDFROM\@\@\@/$temphtml/;
+      $temphtml = popup_menu(-name=>'sendcharset',
+                             -values=>\@ctlist,
+                             -labels=>\%ctlabels,
+                             -default=>$defaultsendcharset,
+                             -override=>'1',
+                             defined($config_raw{'DEFAULT_sendcharset'})?('-disabled'=>'1'):());
+      $html =~ s/\@\@\@SENDCHARSETMENU\@\@\@/$temphtml/;
 
-      $temphtml = checkbox(-name=>'filter_fakedexecontenttype',
-                           -value=>'1',
-                           -checked=>$prefs{'filter_fakedexecontenttype'},
-                           -label=>'');
-      ($matchcount, $matchdate)=split(":", $FTDB{"filter_fakedexecontenttype"});
-      if ($matchdate) {
-         $matchdate=dateserial2str($matchdate, $prefs{'timeoffset'}, $prefs{'dateformat'});
-         $temphtml .= "&nbsp;(<a title='$matchdate'>$lang_text{'filtered'}: $matchcount</a>)";
+
+      if ($config{'enable_smartfilters'}) {
+         $html =~ s/\@\@\@FILTERSTART\@\@\@//;
+         $html =~ s/\@\@\@FILTEREND\@\@\@//;
+
+         my (%FTDB, $matchcount, $matchdate);
+         open_dbm(\%FTDB, "$folderdir/.filter.book", LOCK_SH) or
+               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $folderdir/.filter.book$config{'dbm_ext'}");
+
+         $temphtml = popup_menu(-name=>'filter_repeatlimit',
+                                -values=>['0','5','10','20','30','40','50','100'],
+                                -default=>$prefs{'filter_repeatlimit'},
+                                -accesskey=>'7',
+                                -override=>'1',
+                                defined($config_raw{'DEFAULT_filter_repeatlimit'})?('-disabled'=>'1'):());
+         ($matchcount, $matchdate)=split(":", $FTDB{"filter_repeatlimit"});
+         if ($matchdate) {
+            $matchdate=dateserial2str($matchdate, $prefs{'timeoffset'}, $prefs{'dateformat'});
+            $temphtml .= "&nbsp;(<a title='$matchdate'>$lang_text{'filtered'}: $matchcount</a>)";
+         }
+         $html =~ s/\@\@\@FILTERREPEATLIMIT\@\@\@/$temphtml/;
+
+         $temphtml = checkbox(-name=>'filter_badformatfrom',
+                              -value=>'1',
+                              -checked=>$prefs{'filter_badformatfrom'},
+                              -label=>'',
+                              defined($config_raw{'DEFAULT_filter_badformatfrom'})?('-disabled'=>'1'):());
+         ($matchcount, $matchdate)=split(":", $FTDB{'filter_badformatfrom'});
+         if ($matchdate) {
+            $matchdate=dateserial2str($matchdate, $prefs{'timeoffset'}, $prefs{'dateformat'});
+            $temphtml .= "&nbsp;(<a title='$matchdate'>$lang_text{'filtered'}: $matchcount</a>)";
+         }
+         $html =~ s/\@\@\@FILTERBADFORMATFROM\@\@\@/$temphtml/;
+
+         $temphtml = checkbox(-name=>'filter_fakedsmtp',
+                              -value=>'1',
+                              -checked=>$prefs{'filter_fakedsmtp'},
+                              -label=>'',
+                              defined($config_raw{'DEFAULT_filter_fakedsmtp'})?('-disabled'=>'1'):());
+         ($matchcount, $matchdate)=split(":", $FTDB{'filter_fakedsmtp'});
+         if ($matchdate) {
+            $matchdate=dateserial2str($matchdate, $prefs{'timeoffset'}, $prefs{'dateformat'});
+            $temphtml .= "&nbsp;(<a title='$matchdate'>$lang_text{'filtered'}: $matchcount</a>)";
+         }
+         $html =~ s/\@\@\@FILTERFAKEDSMTP\@\@\@/$temphtml/;
+
+         $temphtml = checkbox(-name=>'filter_fakedfrom',
+                              -value=>'1',
+                              -checked=>$prefs{'filter_fakedfrom'},
+                              -label=>'',
+                              defined($config_raw{'DEFAULT_filter_fakedfrom'})?('-disabled'=>'1'):());
+         ($matchcount, $matchdate)=split(":", $FTDB{'filter_fakedfrom'});
+         if ($matchdate) {
+            $matchdate=dateserial2str($matchdate, $prefs{'timeoffset'}, $prefs{'dateformat'});
+            $temphtml .= "&nbsp;(<a title='$matchdate'>$lang_text{'filtered'}: $matchcount</a>)";
+         }
+         $html =~ s/\@\@\@FILTERFAKEDFROM\@\@\@/$temphtml/;
+
+         $temphtml = checkbox(-name=>'filter_fakedexecontenttype',
+                              -value=>'1',
+                              -checked=>$prefs{'filter_fakedexecontenttype'},
+                              -label=>'',
+                              defined($config_raw{'DEFAULT_filter_fakedexecontenttype'})?('-disabled'=>'1'):());
+         ($matchcount, $matchdate)=split(":", $FTDB{'filter_fakedexecontenttype'});
+         if ($matchdate) {
+            $matchdate=dateserial2str($matchdate, $prefs{'timeoffset'}, $prefs{'dateformat'});
+            $temphtml .= "&nbsp;(<a title='$matchdate'>$lang_text{'filtered'}: $matchcount</a>)";
+         }
+         $html =~ s/\@\@\@FILTERFAKEDEXECONTENTTYPE\@\@\@/$temphtml/;
+
+         close_dbm(\%FTDB, "$folderdir/.filter.book");
+
+      } else {
+         $html =~ s/\@\@\@FILTERSTART\@\@\@/<!--/;
+         $html =~ s/\@\@\@FILTEREND\@\@\@/-->/;
       }
-      $html =~ s/\@\@\@FILTERFAKEDEXECONTENTTYPE\@\@\@/$temphtml/;
 
-      dbmclose(%FTDB);
-      filelock("$folderdir/.filter.book$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+      my @pvalues=(300,320,340,360,380,400,420,440,460,480,500,600,700,800,900,1000);
+      my %plabels;
+      foreach (@pvalues) {
+         $plabels{$_}="$_ $lang_text{'pixel'}";
+      }
+      push (@pvalues, 'max');
+      $plabels{'max'}=$lang_text{'max'};
 
-   } else {
-      $html =~ s/\@\@\@FILTERSTART\@\@\@/<!--/;
-      $html =~ s/\@\@\@FILTEREND\@\@\@/-->/;
+      $temphtml = popup_menu(-name=>'abook_width',
+                             -values=>\@pvalues,
+                             -labels=>\%plabels,
+                             -default=>$prefs{'abook_width'},
+                             -override=>'1',
+                             defined($config_raw{'DEFAULT_abook_width'})?('-disabled'=>'1'):());
+      $html =~ s/\@\@\@ABOOKWIDTHMENU\@\@\@/$temphtml/;
+
+      $temphtml = popup_menu(-name=>'abook_height',
+                             -values=>\@pvalues,
+                             -labels=>\%plabels,
+                             -default=>$prefs{'abook_height'},
+                             -override=>'1',
+                             defined($config_raw{'DEFAULT_abook_height'})?('-disabled'=>'1'):());
+      $html =~ s/\@\@\@ABOOKHEIGHTMENU\@\@\@/$temphtml/;
+
+      $temphtml = popup_menu(-name=>'abook_buttonposition',
+                             -values=>['before', 'after', 'both'],
+                             -default=>$prefs{'abook_buttonposition'} || 'before',
+                             -labels=>\%lang_abookbuttonpositionlabels,
+                             -override=>'1',
+                             defined($config_raw{'DEFAULT_abook_buttonposition'})?('-disabled'=>'1'):());
+      $html =~ s/\@\@\@ABOOKBUTTONPOSITIONMENU\@\@\@/$temphtml/;
+
+      $temphtml = "$lang_text{'enable'}&nbsp;";
+      $temphtml .= checkbox(-name=>'abook_defaultfilter',
+                            -value=>'1',
+                            -checked=>$prefs{'abook_defaultfilter'},
+                            -label=>'',
+                            defined($config_raw{'DEFAULT_abook_defaultfilter'})?('-disabled'=>'1'):());
+      $temphtml .= "&nbsp;";
+      my %searchtypelabels = ('name'=>$lang_text{'name'},
+                              'email'=>$lang_text{'email'},
+                              'note'=>$lang_text{'note'},
+                              'all'=>$lang_text{'all'});
+      $temphtml .= popup_menu(-name=>'abook_defaultsearchtype',
+                              -default=>$prefs{'abook_defaultsearchtype'} || 'name',
+                              -values=>['name', 'email', 'note', 'all'],
+                              -labels=>\%searchtypelabels,
+                              defined($config_raw{'DEFAULT_abook_defaultsearchtype'})?('-disabled'=>'1'):());
+      $temphtml .= textfield(-name=>'abook_defaultkeyword',
+                             -default=>$prefs{'abook_defaultkeyword'},
+                             -size=>'16',
+                             -override=>'1',
+                             defined($config_raw{'DEFAULT_abook_defaultkeyword'})?('-disabled'=>'1'):());
+      $html =~ s/\@\@\@ABOOKDEFAULTFILTER\@\@\@/$temphtml/;
    }
-
-   my @pvalues=(300,320,340,360,380,400,420,440,460,480,500,600,700,800,900,1000);
-   my %plabels;
-   foreach (@pvalues) {
-      $plabels{$_}="$_ $lang_text{'pixel'}";
-   }
-   push (@pvalues, 'max');
-   $plabels{'max'}=$lang_text{'max'};
-
-   $temphtml = popup_menu(-name=>'abook_width',
-                          -values=>\@pvalues,
-                          -labels=>\%plabels,
-                          -default=>$prefs{'abook_width'},
-                          -override=>'1');
-   $html =~ s/\@\@\@ABOOKWIDTHMENU\@\@\@/$temphtml/;
-
-   $temphtml = popup_menu(-name=>'abook_height',
-                          -values=>\@pvalues,
-                          -labels=>\%plabels,
-                          -default=>$prefs{'abook_height'},
-                          -override=>'1');
-   $html =~ s/\@\@\@ABOOKHEIGHTMENU\@\@\@/$temphtml/;
-
-   $temphtml = popup_menu(-name=>'abook_buttonposition',
-                          -values=>['before', 'after', 'both'],
-                          -default=>$prefs{'abook_buttonposition'} || 'before',
-                          -labels=>\%lang_abookbuttonpositionlabels,
-                          -override=>'1');
-   $html =~ s/\@\@\@ABOOKBUTTONPOSITIONMENU\@\@\@/$temphtml/;
-
-   $temphtml = "$lang_text{'enable'}&nbsp;";
-   $temphtml .= checkbox(-name=>'abook_defaultfilter',
-                  -value=>'1',
-                  -checked=>$prefs{'abook_defaultfilter'},
-                  -label=>'');
-   $temphtml .= "&nbsp;";
-   my %searchtypelabels = ('name'=>$lang_text{'name'},
-                           'email'=>$lang_text{'email'},
-                           'note'=>$lang_text{'note'},
-                           'all'=>$lang_text{'all'});
-   $temphtml .= popup_menu(-name=>'abook_defaultsearchtype',
-                           -default=>$prefs{'abook_defaultsearchtype'} || 'name',
-                           -values=>['name', 'email', 'note', 'all'],
-                           -labels=>\%searchtypelabels);
-   $temphtml .= textfield(-name=>'abook_defaultkeyword',
-                          -default=>$prefs{'abook_defaultkeyword'},
-                          -size=>'16',
-                          -override=>'1');
-   $html =~ s/\@\@\@ABOOKDEFAULTFILTER\@\@\@/$temphtml/;
-
 
    if ($config{'enable_calendar'}) {
       $html =~ s/\@\@\@CALENDARSTART\@\@\@//;
       $html =~ s/\@\@\@CALENDAREND\@\@\@//;
+
+      my %calendarview_labels=(
+         calyear  => $lang_calendar{'yearview'},
+         calmonth => $lang_calendar{'monthview'},
+         calweek  => $lang_calendar{'weekview'},
+         calday   => $lang_calendar{'dayview'},
+         callist  => $lang_calendar{'listview'}
+      );
+      $temphtml = popup_menu(-name=>'calendar_defaultview',
+                             -values=>['calyear', 'calmonth', 'calweek', 'calday', 'callist'],
+                             -labels=>\%calendarview_labels,
+                             -default=>$prefs{'calendar_defaultview'},
+                             -accesskey=>'8',
+                             -override=>'1',
+                             defined($config_raw{'DEFAULT_calendar_defaultview'})?('-disabled'=>'1'):());
+      $html =~ s/\@\@\@DEFAULTVIEWMENU\@\@\@/$temphtml/;
 
       # Get a list of valid holiday files
       my @holidays;
@@ -924,22 +1044,23 @@ sub editprefs {
                              -labels=>{ 'auto'=>$lang_text{'autosel'},
                                         'none'=>$lang_text{'none'} },
                              -default=>$prefs{'calendar_holidaydef'},
-                             -accesskey=>'2',
-                             -override=>'1');
+                             -override=>'1',
+                             defined($config_raw{'DEFAULT_calendar_holidaydef'})?('-disabled'=>'1'):());
       $html =~ s/\@\@\@HOLIDAYDEFMENU\@\@\@/$temphtml/;
 
       $temphtml = popup_menu(-name=>'calendar_monthviewnumitems',
                              -values=>[3, 4, 5, 6, 7, 8, 9, 10],
                              -default=>$prefs{'calendar_monthviewnumitems'},
-                             -accesskey=>'7',
-                             -override=>'1');
+                             -override=>'1',
+                             defined($config_raw{'DEFAULT_calendar_monthviewnumitems'})?('-disabled'=>'1'):());
       $html =~ s/\@\@\@MONTHVIEWNUMITEMSMENU\@\@\@/$temphtml/;
 
       $temphtml = popup_menu(-name=>'calendar_weekstart',
                              -values=>[1, 2, 3, 4, 5, 6, 0],
                              -labels=>\%lang_wday,
                              -default=>$prefs{'calendar_weekstart'},
-                             -override=>'1');
+                             -override=>'1',
+                             defined($config_raw{'DEFAULT_calendar_weekstart'})?('-disabled'=>'1'):());
       $html =~ s/\@\@\@WEEKSTARTMENU\@\@\@/$temphtml/;
 
       my @militaryhours;
@@ -949,43 +1070,57 @@ sub editprefs {
       $temphtml = popup_menu(-name=>'calendar_starthour',
                              -values=>\@militaryhours,
                              -default=>$prefs{'calendar_starthour'},
-                             -override=>'1');
+                             -override=>'1',
+                             defined($config_raw{'DEFAULT_calendar_starthour'})?('-disabled'=>'1'):());
       $html =~ s/\@\@\@STARTHOURMENU\@\@\@/$temphtml/;
 
       $temphtml = popup_menu(-name=>'calendar_endhour',
                              -values=>\@militaryhours,
                              -default=>$prefs{'calendar_endhour'},
-                             -override=>'1');
+                             -override=>'1',
+                             defined($config_raw{'DEFAULT_calendar_endhour'})?('-disabled'=>'1'):());
       $html =~ s/\@\@\@ENDHOURMENU\@\@\@/$temphtml/;
 
       $temphtml = popup_menu(-name=>'calendar_interval',
                              -values=>[5, 10, 15, 20, 30, 45, 60, 90, 120],
                              -default=>$prefs{'calendar_interval'},
-                             -override=>'1');
+                             -override=>'1',
+                             defined($config_raw{'DEFAULT_calendar_interval'})?('-disabled'=>'1'):());
       $html =~ s/\@\@\@INTERVALMENU\@\@\@/$temphtml/;
 
       $temphtml = checkbox(-name=>'calendar_showemptyhours',
                            -value=>'1',
                            -checked=>$prefs{'calendar_showemptyhours'},
-                           -label=>'');
+                           -label=>'',
+                           defined($config_raw{'DEFAULT_calendar_showemptyhours'})?('-disabled'=>'1'):());
       $html =~ s/\@\@\@SHOWEMPTYHOURSCHECKBOX\@\@\@/$temphtml/;
 
-      $temphtml = popup_menu(-name=>'calendar_reminderdays',
-                             -values=>[0, 1, 2, 3, 4, 5, 6 ,7, 14, 21, 30, 60],
-                             -labels=>{ 0=>$lang_text{'none'} },
-                             -default=>$prefs{'calendar_reminderdays'},
-                             -override=>'1');
-      $html =~ s/\@\@\@REMINDERDAYSMENU\@\@\@/$temphtml/;
+      if ($config{'enable_webmail'}) {
+         $html =~ s/\@\@\@REMINDERSTART\@\@\@//;
+         $html =~ s/\@\@\@REMINDEREND\@\@\@//;
 
-      $temphtml = checkbox(-name=>'calendar_reminderforglobal',
+         $temphtml = popup_menu(-name=>'calendar_reminderdays',
+                                -values=>[0, 1, 2, 3, 4, 5, 6 ,7, 14, 21, 30, 60],
+                                -labels=>{ 0=>$lang_text{'none'} },
+                                -default=>$prefs{'calendar_reminderdays'},
+                                -override=>'1',
+                                defined($config_raw{'DEFAULT_calendar_reminderdays'})?('-disabled'=>'1'):());
+         $html =~ s/\@\@\@REMINDERDAYSMENU\@\@\@/$temphtml/;
+
+         $temphtml = checkbox(-name=>'calendar_reminderforglobal',
                               -value=>'1',
                               -checked=>$prefs{'calendar_reminderforglobal'},
-                              -label=>'');
-      $html =~ s/\@\@\@REMINDERFORGLOBALCHECKBOX\@\@\@/$temphtml/;
+                              -label=>'',
+                              defined($config_raw{'DEFAULT_calendar_reminderforglobal'})?('-disabled'=>'1'):());
+         $html =~ s/\@\@\@REMINDERFORGLOBALCHECKBOX\@\@\@/$temphtml/;
+      } else {
+         $html =~ s/\@\@\@REMINDERSTART\@\@\@/<!--/;
+         $html =~ s/\@\@\@REMINDEREND\@\@\@/-->/;
+      }
 
    } else {
-      $html =~ s/\@\@\@CALENDARSTART\@\@\@/<!--/;
-      $html =~ s/\@\@\@CALENDAREND\@\@\@/-->/;
+      $html =~ s/\@\@\@CALENDARSTART\@\@\@/<!--DISABLED WEBCAL START/;
+      $html =~ s/\@\@\@CALENDAREND\@\@\@/DISABLED WEBCAL END-->/;
    }
 
 
@@ -996,58 +1131,116 @@ sub editprefs {
       $temphtml = popup_menu(-name=>'webdisk_dirnumitems',
                              -values=>[10,12,14,16,18,20,22,24,26,28,30, 40, 50, 60, 70, 80, 90, 100, 150, 200, 500, 1000, 5000],
                              -default=>$prefs{'webdisk_dirnumitems'},
-                             -accesskey=>'8',
-                             -override=>'1');
+                             -accesskey=>'9',
+                             -override=>'1',
+                             defined($config_raw{'DEFAULT_webdisk_dirnumitems'})?('-disabled'=>'1'):());
       $html =~ s/\@\@\@DIRNUMITEMSMENU\@\@\@/$temphtml/;
 
       $temphtml = checkbox(-name=>'webdisk_confirmmovecopy',
                            -value=>'1',
                            -checked=>$prefs{'webdisk_confirmmovecopy'},
-                           -label=>'');
+                           -label=>'',
+                           defined($config_raw{'DEFAULT_webdisk_confirmmovecopy'})?('-disabled'=>'1'):());
       $html =~ s/\@\@\@CONFIRMFILEMOVECOPY\@\@\@/$temphtml/;
 
       $temphtml = checkbox(-name=>'webdisk_confirmdel',
                            -value=>'1',
                            -checked=>$prefs{'webdisk_confirmdel'},
-                           -label=>'');
+                           -label=>'',
+                           defined($config_raw{'DEFAULT_webdisk_confirmdel'})?('-disabled'=>'1'):());
       $html =~ s/\@\@\@CONFIRMFILEDEL\@\@\@/$temphtml/;
 
       $temphtml = checkbox(-name=>'webdisk_confirmcompress',
                            -value=>'1',
                            -checked=>$prefs{'webdisk_confirmcompress'},
-                           -label=>'');
+                           -label=>'',
+                           defined($config_raw{'DEFAULT_webdisk_confirmcompress'})?('-disabled'=>'1'):());
       $html =~ s/\@\@\@CONFIRMFILECOMPRESS\@\@\@/$temphtml/;
 
       $temphtml = popup_menu(-name=>'webdisk_fileeditcolumns',
                              -values=>[80,82,84,86,88,90,92,94,96,98,100,110,120,160,192,256,512,1024,2048],
                              -default=>$prefs{'webdisk_fileeditcolumns'},
-                             -override=>'1');
+                             -override=>'1',
+                             defined($config_raw{'DEFAULT_webdisk_fileeditcolumns'})?('-disabled'=>'1'):());
       $html =~ s/\@\@\@FILEEDITCOLUMNSMENU\@\@\@/$temphtml/;
 
       $temphtml = popup_menu(-name=>'webdisk_fileeditrows',
                              -values=>[10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,50,60,70,80],
                              -default=>$prefs{'webdisk_fileeditrows'},
-                             -override=>'1');
+                             -override=>'1',
+                             defined($config_raw{'DEFAULT_webdisk_fileeditrows'})?('-disabled'=>'1'):());
       $html =~ s/\@\@\@FILEEDITROWSMENU\@\@\@/$temphtml/;
 
    } else {
-      $html =~ s/\@\@\@WEBDISKSTART\@\@\@/<!--/;
-      $html =~ s/\@\@\@WEBDISKEND\@\@\@/-->/;
+      $html =~ s/\@\@\@WEBDISKSTART\@\@\@/<!--DISABLED WEBDISK START/;
+      $html =~ s/\@\@\@WEBDISKEND\@\@\@/DISABLED WEBDISK END-->/;
    }
 
 
-   $temphtml = checkbox(-name=>'regexmatch',
-                  -value=>'1',
-                  -checked=>$prefs{'regexmatch'},
-                  -accesskey=>'8',
-                  -label=>'');
-   $html =~ s/\@\@\@REGEXMATCH\@\@\@/$temphtml/;
+   if ($config{'enable_webmail'}) {
+      $temphtml = checkbox(-name=>'regexmatch',
+                           -value=>'1',
+                           -checked=>$prefs{'regexmatch'},
+                           -accesskey=>'0',
+                           -label=>'',
+                           defined($config_raw{'DEFAULT_regexmatch'})?('-disabled'=>'1'):());
+      $html =~ s/\@\@\@REGEXMATCH\@\@\@/$temphtml/;
 
-   $temphtml = checkbox(-name=>'hideinternal',
-                  -value=>'1',
-                  -checked=>$prefs{'hideinternal'},
-                  -label=>'');
-   $html =~ s/\@\@\@HIDEINTERNAL\@\@\@/$temphtml/;
+      $temphtml = checkbox(-name=>'hideinternal',
+                           -value=>'1',
+                           -checked=>$prefs{'hideinternal'},
+                           -label=>'',
+                           defined($config_raw{'DEFAULT_hideinternal'})?('-disabled'=>'1'):());
+      $html =~ s/\@\@\@HIDEINTERNAL\@\@\@/$temphtml/;
+
+      # Get a list of new mail sound
+      my @sounds;
+      opendir (SOUNDDIR, "$config{'ow_htmldir'}/sounds") or
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_htmldir'}/sounds directory for reading! ($!)");
+      while (defined(my $currsnd = readdir(SOUNDDIR))) {
+         if (-f "$config{'ow_htmldir'}/sounds/$currsnd" && $currsnd =~ /^([^\.].*)$/) {
+            push (@sounds, $1);
+         }
+      }
+      closedir(SOUNDDIR) or
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $config{'ow_htmldir'}/sounds! ($!)");
+
+      @sounds = sort(@sounds);
+      unshift(@sounds, 'NONE');
+
+      $temphtml = popup_menu(-name=>'newmailsound',
+                             -labels=>{ 'NONE'=>$lang_text{'none'} },
+                             -values=>\@sounds,
+                             -default=>$prefs{'newmailsound'},
+                             -override=>'1',
+                             defined($config_raw{'DEFAULT_newmailsound'})?('-disabled'=>'1'):());
+      my $soundurl="$config{'ow_htmlurl'}/sounds/";
+      $temphtml .= "&nbsp;". iconlink("sound.gif", $lang_text{'testsound'}, qq|onclick="playsound('$soundurl', document.prefsform.newmailsound[document.prefsform.newmailsound.selectedIndex].value);"|);
+      $html =~ s/\@\@\@NEWMAILSOUNDMENU\@\@\@/$temphtml/;
+
+      $temphtml = popup_menu(-name=>'newmailwindowtime',
+                             -values=>[0, 3, 5, 7, 10, 20, 30, 60, 120, 300, 600],
+                             -default=>$prefs{'newmailwindowtime'},
+                             -override=>'1',
+                             defined($config_raw{'DEFAULT_newmailwindowtime'})?('-disabled'=>'1'):());
+      $html =~ s/\@\@\@NEWMAILWINDOWTIMEMENU\@\@\@/$temphtml/;
+
+      $temphtml = popup_menu(-name=>'dictionary',
+                             -values=>$config{'spellcheck_dictionaries'},
+                             -default=>$prefs{'dictionary'},
+                             -override=>'1',
+                             defined($config_raw{'DEFAULT_dictionary'})?('-disabled'=>'1'):());
+      $html =~ s/\@\@\@DICTIONARYMENU\@\@\@/$temphtml/;
+
+      my %dayslabels = ('0'=>$lang_text{'delatlogout'},'999999'=>$lang_text{'forever'} );
+      $temphtml = popup_menu(-name=>'trashreserveddays',
+                             -values=>[0,1,2,3,4,5,6,7,14,21,30,60,90,180,999999],
+                             -default=>$prefs{'trashreserveddays'},
+                             -labels=>\%dayslabels,
+                             -override=>'1',
+                             defined($config_raw{'DEFAULT_trashreserveddays'})?('-disabled'=>'1'):());
+      $html =~ s/\@\@\@RESERVEDDAYSMENU\@\@\@/$temphtml/;
+   }
 
    my @intervals;
    foreach my $value (3, 5, 10, 20, 30, 60, 120, 180) {
@@ -1057,58 +1250,16 @@ sub editprefs {
                           -values=>\@intervals,
                           -default=>$prefs{'refreshinterval'},
                           -labels=>\%lang_timelabels,
-                          -override=>'1');
+                          -override=>'1',
+                          defined($config_raw{'DEFAULT_refreshinterval'})?('-disabled'=>'1'):());
    $html =~ s/\@\@\@REFRESHINTERVALMENU\@\@\@/$temphtml/;
-
-   # Get a list of new mail sound
-   my @sounds;
-   opendir (SOUNDDIR, "$config{'ow_htmldir'}/sounds") or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_htmldir'}/sounds directory for reading! ($!)");
-   while (defined(my $currsnd = readdir(SOUNDDIR))) {
-      if (-f "$config{'ow_htmldir'}/sounds/$currsnd" && $currsnd =~ /^([^\.].*)$/) {
-         push (@sounds, $1);
-      }
-   }
-   closedir(SOUNDDIR) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $config{'ow_htmldir'}/sounds! ($!)");
-
-   @sounds = sort(@sounds);
-   unshift(@sounds, 'NONE');
-
-   $temphtml = popup_menu(-name=>'newmailsound',
-                          -labels=>{ 'NONE'=>$lang_text{'none'} },
-                          -values=>\@sounds,
-                          -default=>$prefs{'newmailsound'},
-                          -override=>'1');
-   my $soundurl="$config{'ow_htmlurl'}/sounds/";
-   $temphtml .= "&nbsp;". iconlink("sound.gif", $lang_text{'testsound'}, qq|onclick="playsound('$soundurl', document.prefsform.newmailsound[document.prefsform.newmailsound.selectedIndex].value);"|);
-   $html =~ s/\@\@\@NEWMAILSOUNDMENU\@\@\@/$temphtml/;
-
-   $temphtml = popup_menu(-name=>'newmailwindowtime',
-                          -values=>[0, 3, 5, 7, 10, 20, 30, 60, 120, 300, 600],
-                          -default=>$prefs{'newmailwindowtime'},
-                          -override=>'1');
-   $html =~ s/\@\@\@NEWMAILWINDOWTIMEMENU\@\@\@/$temphtml/;
-
-   $temphtml = popup_menu(-name=>'dictionary',
-                          -values=>$config{'spellcheck_dictionaries'},
-                          -default=>$prefs{'dictionary'},
-                          -override=>'1');
-   $html =~ s/\@\@\@DICTIONARYMENU\@\@\@/$temphtml/;
-
-   my %dayslabels = ('0'=>$lang_text{'delatlogout'},'999999'=>$lang_text{'forever'} );
-   $temphtml = popup_menu(-name=>'trashreserveddays',
-                          -values=>[0,1,2,3,4,5,6,7,14,21,30,60,90,180,999999],
-                          -default=>$prefs{'trashreserveddays'},
-                          -labels=>\%dayslabels,
-                          -override=>'1');
-   $html =~ s/\@\@\@RESERVEDDAYSMENU\@\@\@/$temphtml/;
 
    $temphtml = popup_menu(-name=>'sessiontimeout',
                           -values=>[10,30,60,120,180,360,720,1440],
                           -default=>$prefs{'sessiontimeout'},
                           -labels=>\%lang_timelabels,
-                          -override=>'1');
+                          -override=>'1',
+                          defined($config_raw{'DEFAULT_sessiontimeout'})?('-disabled'=>'1'):());
    $html =~ s/\@\@\@SESSIONTIMEOUTMENU\@\@\@/$temphtml/;
 
 
@@ -1122,7 +1273,7 @@ sub editprefs {
       if ($prefs_caller eq "cal") {
          $temphtml  = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-cal.pl");
          $temphtml .= hidden(-name=>'action',
-                             -default=>'calmonth',
+                             -default=>$prefs{'calendar_defaultview'},
                              -override=>'1');
       } elsif ($prefs_caller eq "webdisk") {
          $temphtml  = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-webdisk.pl");
@@ -1180,6 +1331,7 @@ sub saveprefs {
       usefixedfont 1
       usesmileicon 1
       disablejs 1
+      showhtmlastext 1
       showimgaslink 1
       reparagraphorigmsg 1
       backupsentmsg 1
@@ -1199,7 +1351,8 @@ sub saveprefs {
    my (%newprefs, $key, $value);
 
    foreach $key (@openwebmailrcitem) {
-      $value = param("$key");
+      $value = param($key);
+
       if ($key eq 'bgurl') {
          my $background=param("background");
          if ($background eq "USERDEFINE") {
@@ -1224,7 +1377,7 @@ sub saveprefs {
       } elsif ($key eq 'sort') {
          # since there is already sort param inherited from outside prefs form,
          # so the prefs form pass the sort param as msgsort
-         $newprefs{$key}=param("msgsort");
+         $newprefs{$key}=param("msgsort")||'date';
       } elsif ($key eq 'dictionary') {
          foreach my $currdictionary (@{$config{'spellcheck_dictionaries'}}) {
             if ($value eq $currdictionary) {
@@ -1310,7 +1463,7 @@ sub saveprefs {
    if ($prefs_caller eq "cal") {
       $temphtml .= startform(-action=>"$config{'ow_cgiurl'}/openwebmail-cal.pl");
       $temphtml .= hidden(-name=>'action',
-                          -default=>'calmonth',
+                          -default=>$prefs{'calendar_defaultview'},
                           -override=>'1');
    } elsif ($prefs_caller eq "webdisk") {
       $temphtml .= startform(-action=>"$config{'ow_cgiurl'}/openwebmail-webdisk.pl");
@@ -1422,7 +1575,7 @@ sub writedotforward {
       }
    }
 
-   open(FOR, ">$homedir/.forward") || return -1;
+   open(FOR, ">$homedir/.forward") or return -1;
    print FOR join("\n", @forwards), "\n";
    close FOR;
    chown($uuid, (split(/\s+/,$ugid))[0], "$homedir/.forward");
@@ -1514,7 +1667,7 @@ sub writedotvacationmsg {
       $text = substr($text, 0, 500);
    }
 
-   open(MSG, ">$homedir/.vacation.msg") || return -2;
+   open(MSG, ">$homedir/.vacation.msg") or return -2;
    print MSG "From: $from\n".
              "Subject: $subject\n\n".
              "$text\n\n".
@@ -2092,7 +2245,7 @@ sub editfilter {
    $html =~ s/\@\@\@FREESPACE\@\@\@/$freespace $lang_sizes{'kb'}/;
 
    if ($prefs_caller eq "cal") {
-      $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} $lang_text{'calendar'}", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-cal.pl?action=calmonth&amp;$urlparmstr"|);
+      $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} $lang_text{'calendar'}", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-cal.pl?action=$prefs{'calendar_defaultview'}&amp;$urlparmstr"|);
    } elsif ($prefs_caller eq "webdisk") {
       $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} $lang_text{'webdisk'}", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-webdisk.pl?action=showdir&amp;$urlparmstr"|);
    } elsif ($prefs_caller eq "read") {
@@ -2201,11 +2354,8 @@ sub editfilter {
    $temphtml = '';
    my %FTDB;
    my $bgcolor = $style{"tablerow_dark"};
-   if (!$config{'dbmopen_haslock'}) {
-      filelock("$folderdir/.filter.book$config{'dbm_ext'}", LOCK_SH) or
+   open_dbm(\%FTDB, "$folderdir/.filter.book", LOCK_SH) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $folderdir/.filter.book$config{'dbm_ext'}");
-   }
-   dbmopen(%FTDB, "$folderdir/.filter.book$config{'dbmopen_ext'}", undef);
 
    for (my $i=0; $i<=$#filterrules; $i++) {
       my ($priority, $rules, $include, $text, $op, $destination, $enable) = split(/\@\@\@/, $filterrules[$i]);
@@ -2323,8 +2473,7 @@ sub editfilter {
       }
    }
 
-   dbmclose(%FTDB);
-   filelock("$folderdir/.filter.book$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+   close_dbm(\%FTDB, "$folderdir/.filter.book");
 
    $html =~ s/\@\@\@FILTERRULES\@\@\@/$temphtml/;
 
@@ -2394,12 +2543,9 @@ sub modfilter {
          close (FILTER) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $config{'global_filterbook'}! ($!)");
 
          # remove stale entries in filterrule db by checking %filterrules
-         if (!$config{'dbmopen_haslock'}) {
-            filelock("$folderdir/.filter.book$config{'dbm_ext'}", LOCK_EX) or
-               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $folderdir/.filter.book$config{'dbm_ext'}");
-         }
          my (%FTDB, @keys);
-         dbmopen (%FTDB, "$folderdir/.filter.book$config{'dbmopen_ext'}", 0600);
+         open_dbm(\%FTDB, "$folderdir/.filter.book", LOCK_EX) or
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $folderdir/.filter.book$config{'dbm_ext'}");
          @keys=keys %FTDB;
          foreach my $key (@keys) {
            if ( ! defined($filterrules{$key}) &&
@@ -2409,9 +2555,7 @@ sub modfilter {
               delete $FTDB{$key};
            }
          }
-         dbmclose(%FTDB);
-         filelock("$folderdir/.filter.book$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
-
+         close_dbm(\%FTDB, "$folderdir/.filter.book");
       } else {
          open (FILTER, ">$folderdir/.filter.book" ) or
                   openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir/.filter.book! ($!)");

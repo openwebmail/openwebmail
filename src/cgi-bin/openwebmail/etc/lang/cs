@@ -192,9 +192,10 @@ package openwebmail::cs;
    chdir    => 'ZmìnaSlo¾ky',
    mkdir    => 'NováSlo¾ka',
    newfile  => 'NovýSoubor',
-   delete   => 'Smazat',
    copy     => 'Kopírovat',
    move     => 'Pøesunout',
+   symlink  => 'Symlink',
+   delete   => 'Smazat',
    gzip     => 'GZip',
    mkzip    => 'Zip',
    mktgz    => 'TAR+GZip',
@@ -209,6 +210,7 @@ package openwebmail::cs;
    help       => 'Nápovìda',
    login      => 'Pøihlásit',
    clear      => 'Smazat',
+   webmail    => 'WebMail',
    point      => 'Bodù',
    pixel      => 'Pixelù',
    changepwd  => 'Zmìna hesla',
@@ -272,7 +274,9 @@ package openwebmail::cs;
    msgrebuild => 'Zrekonstruovat zprávu',
    editdraft  => 'Editovat rozepsané',
    savedraft  => 'Ulo¾it rozepsané',
+   draftsaved => 'Draft @@@SUBJECT@@@ has been saved successfully',
    send       => 'Poslat',
+   msgsent    => 'Message @@@SUBJECT@@@ has been sent successfully',
    about      => 'O systému',
    close      => 'Zavøít',
    cancel     => 'Zru¹it',
@@ -408,6 +412,12 @@ package openwebmail::cs;
    vdomain_createuser => 'Create User',
    vdomain_changeuser => 'Change User',
    vdomain_deleteuser => 'Delete User',
+   vdomain_changeview => 'Change view to',
+   vdomain_usersonly  => 'users only',
+   vdomain_useralias  => 'users/aliases',
+   vdomain_fmtuseralias => 'formatted users/aliases',
+   vdomain_admin      => 'Admin',
+   vdomain_localuser  => 'Local User',
    set_passwd         => 'Set Password',
    reset_passwd       => 'Reset Password',
    email_alias        => 'E-MAIL Alias'
@@ -475,7 +485,9 @@ package openwebmail::cs;
    spool_overlimit   => 'Sorry, your INBOX has exceeded the spool limit(@@@SPOOLLIMIT@@@). Please move some messages from INBOX to other folders.',
    vdomain_toomanyuser  => 'Sorry, the user count of this domain has reached its maximum limit',
    vdomain_toomanyalias => 'Sorry, the E-MAIL alias count of this user has reached its maximum limit',
-   vdomain_userrequired => 'A user name is required'
+   vdomain_userrequired => 'A user name is required',
+   vdomain_fwdrequired => 'A valid forwarding E-MAIL is required',
+   all_module_disabled => 'All modules are disabled'
    );
 
 1;

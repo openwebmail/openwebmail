@@ -190,9 +190,10 @@ package openwebmail::th;
    chdir    => 'เข้าโฟลเดอร์',
    mkdir    => 'สร้างโฟลเดอร์',
    newfile  => 'สร้างไฟล์',
-   delete   => 'ลบ',
    copy     => 'คัดลอก',
    move     => 'ย้าย',
+   symlink  => 'Symlink',
+   delete   => 'ลบ',
    gzip     => 'ย่อโดย gz',
    mkzip    => 'สร้าง zip',
    mktgz    => 'สร้าง tgz',
@@ -207,6 +208,7 @@ package openwebmail::th;
    help       => 'ช่วยเหลือ',
    login      => 'เข้าระบบ',
    clear      => 'ล้าง',
+   webmail    => 'WebMail',
    point      => 'พ้อยต์',
    pixel      => 'จุด',
    changepwd  => 'เปลี่ยนรหัสผ่าน',
@@ -270,7 +272,9 @@ package openwebmail::th;
    msgrebuild => 'จดหมายถูกสร้างใหม่',
    editdraft  => 'แก้ไขร่าง',
    savedraft  => 'บันทึกร่าง',
+   draftsaved => 'Draft @@@SUBJECT@@@ has been saved successfully',
    send       => 'ส่ง',
+   msgsent    => 'Message @@@SUBJECT@@@ has been sent successfully',
    about      => 'ข้อมูลระบบ',
    close      => 'ปิด',
    cancel     => 'ยกเลิก',
@@ -406,6 +410,12 @@ package openwebmail::th;
    vdomain_createuser => 'Create User',
    vdomain_changeuser => 'Change User',
    vdomain_deleteuser => 'Delete User',
+   vdomain_changeview => 'Change view to',
+   vdomain_usersonly  => 'users only',
+   vdomain_useralias  => 'users/aliases',
+   vdomain_fmtuseralias => 'formatted users/aliases',
+   vdomain_admin      => 'Admin',
+   vdomain_localuser  => 'Local User',
    set_passwd         => 'Set Password',
    reset_passwd       => 'Reset Password',
    email_alias        => 'E-MAIL Alias'
@@ -473,7 +483,9 @@ package openwebmail::th;
    spool_overlimit   => 'จดหมายในกล่อง จดหมายเข้า ของคุณเต็ม (@@@SPOOLLIMIT@@@) กรุณาย้ายจดหมายจากกล่องจดหมายเข้า ไปไว้ในกล่องอื่นบ้าง',
    vdomain_toomanyuser  => 'อีเมลสำหรับโดเมนนี้เต็มแล้ว',
    vdomain_toomanyalias => 'ชื่อแฝงของอีเมลสำหรับโดเมนนี้เต็มแล้ว',
-   vdomain_userrequired => 'กรุณาใส่ชื่อผู้ใช้ด้วย'
+   vdomain_userrequired => 'กรุณาใส่ชื่อผู้ใช้ด้วย',
+   vdomain_fwdrequired => 'A valid forwarding E-MAIL is required',
+   all_module_disabled => 'All modules are disabled'
    );
 
 1;

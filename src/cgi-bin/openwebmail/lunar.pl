@@ -1,7 +1,7 @@
 #
 # lunar.pl - convert solar calendar to chinese lunar calendar
 #
-# 2002/11/15 tung@turtle.ee.ncku.edu.tw
+# 2002/11/15 tung.AT.turtle.ee.ncku.edu.tw
 #
 use strict;
 use vars qw(%config);
@@ -10,7 +10,7 @@ sub mkdb_lunar {
    my $lunardb="$config{'ow_etcdir'}/lunar$config{'dbmopen_ext'}";
    ($lunardb =~ /^(.+)$/) && ($lunardb = $1);		# untaint ...
    my %LUNAR;
-   dbmopen (%LUNAR, $lunardb, 0644) || return -1;
+   dbmopen (%LUNAR, $lunardb, 0644) or return -1;
    open (T, "$config{'lunar_map'}");
    $_=<T>; $_=<T>;
    while (<T>) {

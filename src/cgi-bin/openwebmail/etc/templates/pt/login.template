@@ -25,7 +25,7 @@
 <table><tr><td>@@@LOGINBUTTON@@@</td></tr></table>
 </td>
 <td align=center>
-<table><tr><td><font size=1>use HTTP<br>compression</font></td><td>@@@HTTPCOMPRESSIONCHECKBOX@@@</td></tr></table>
+<table><tr><td><font size=1>usar compressão<br>  HTTP</font></td><td>@@@HTTPCOMPRESSIONCHECKBOX@@@</td></tr></table>
 </td>
 </tr>
 </table>
@@ -61,15 +61,15 @@
    {
       if (document.login.httpcompress.checked) {
          alert(
-"HTTP Compression can reduce the use of network bandwidth between your computer and the webmail server effectively, "+
-"but there are some compatibility issues:\n\n"+
-"1. some proxy servers only support HTTP compression via HTTP 1.1, "+
-"you may have to enable the HTTP1.1 support for proxy in your browser\n"+
-"2. some proxy servers don't support HTTP compression at all, "+
-"you may have to list the webmail server as directly connected in the proxy configuration of your browser.\n"+
-"3. some browsers have problems when using HTTP compression with SSL...\n"+
-"4. some browsers claim to support HTTP compression but actually not...\n\n"+
-"So if you encounter any problem, please login again with this checkbox unchecked.\n"
+"A compressão HTTP pode reduzir a largura de banda utilizada entre o computador e o servidor webmail de forma efectiva, "+
+"embora existam algumas condicionantes derivadas de problemas de compatibilidade:\n\n"+
+"1. alguns servidores proxy só suportam compressão HTTP com HTTP 1.1, "+
+"é necessário que o suporte para HTTP1.1 no proxy esteja activado no browser\n"+
+"2. alguns servidores proxy não suportam mesmo compressão HTTP, "+
+"o servidor webmail tem que estar directamente ligado sem passar pelo proxy na configuração do browser.\n"+
+"3. alguns browsers têm problemas quando utilizam compressão HTTP com SSL...\n"+
+"4. alguns browsers dizem que têm suporte para compressão HTTP mas na realidade não a suportam...\n\n"+
+"Por tudo o que atrás se disse, na eventualidade de se deparar com algum problema, volte atrás e entre com esta caixa não seleccionada.\n"
          );
       }
       return(true);

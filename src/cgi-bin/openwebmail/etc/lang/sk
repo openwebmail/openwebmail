@@ -65,9 +65,9 @@ package openwebmail::sk;
 
 %lang_disableemblinklabels =
    (
-   none    => 'None',
-   cgionly => 'CGI only',
-   all     => 'All embedded URLs'
+   none    => '®iadne',
+   cgionly => 'iba CGI',
+   all     => 'V¹etky vlo¾ené URL'
    );
 
 %lang_ctrlpositionlabels =
@@ -191,9 +191,10 @@ package openwebmail::sk;
    chdir    => 'ZmeòAdr',
    mkdir    => 'VytvorAdr',
    newfile  => 'NovýSúbor',
-   delete   => 'Vymaza»',
    copy     => 'Kopírova»',
    move     => 'Presunú»',
+   symlink  => 'Symlink',
+   delete   => 'Vymaza»',
    gzip     => 'gzKomprimova»',
    mkzip    => 'VytvorZip',
    mktgz    => 'VytvorTgz',
@@ -208,6 +209,7 @@ package openwebmail::sk;
    help       => 'Pomoc',
    login      => 'Prihlási»',
    clear      => 'Zmaza»',
+   webmail    => 'WebMail',
    point      => 'Bodov',
    pixel      => 'Pixelov',
    changepwd  => 'Zmeni» heslo',
@@ -271,7 +273,9 @@ package openwebmail::sk;
    msgrebuild => 'Správa bola prestavaná',
    editdraft  => 'Upravi» koncept',
    savedraft  => 'Ulo¾i» koncept',
+   draftsaved => 'Draft @@@SUBJECT@@@ has been saved successfully',
    send       => 'Odosla»',
+   msgsent    => 'Message @@@SUBJECT@@@ has been sent successfully',
    about      => 'O aplikácii',
    close      => 'Zatvori»',
    cancel     => 'Zru¹i»',
@@ -407,6 +411,12 @@ package openwebmail::sk;
    vdomain_createuser => 'Vytvori» pou¾ívateµa',
    vdomain_changeuser => 'Zmeni» pou¾ívateµa',
    vdomain_deleteuser => 'Zmaza» pou¾ívateµa',
+   vdomain_changeview => 'Zmeni» pohµad na',
+   vdomain_usersonly  => 'iba pou¾ívatelia',
+   vdomain_useralias  => 'pou¾ívatelia/aliasy',
+   vdomain_fmtuseralias => 'formátovane pou¾ívatelia/aliasy',
+   vdomain_admin      => 'Administrátor',
+   vdomain_localuser  => 'Lokálny pou¾ívateµ',
    set_passwd         => 'Nastavi» heslo',
    reset_passwd       => 'Znovu nastavi» heslo',
    email_alias        => 'E-mail alias'
@@ -474,7 +484,9 @@ package openwebmail::sk;
    spool_overlimit   => 'Prepáète, Vá¹e prijaté spravy (katalóg: PRIJATÉ) dostiali limit (@@@SPOOLLIMIT@@@). Prosím presuòte nejaké správy do iných katalógov.',
    vdomain_toomanyuser  => 'Prepáète, poèet pou¾ívateµov dostiahol limit pre túto doménu',
    vdomain_toomanyalias => 'Prepáète, poèet e-mailových aliasov pre tohto pou¾íveteµa dosiahol maximum',
-   vdomain_userrequired => 'Meno pou¾ívateµa je potrebné'
+   vdomain_userrequired => 'Meno pou¾ívateµa je potrebné',
+   vdomain_fwdrequired => 'Platná e-mailová adresa pre preposielanie je potrebná',
+   all_module_disabled => 'V¹etky moduly sú vypnuté'
    );
 
 1;

@@ -5,7 +5,7 @@
 Beste @@@USEREMAIL@@@,<br><br>
 U heeft @@@NAME@@@ enige tijd niet gebruikt.
 Als u nu niets doet,
-zal deze sessie over 60 seconden worden beeindigd.
+zal deze sessie over 60 seconden worden beëindigd.
 
 </b></font></td></tr></table>
 <br>
@@ -16,3 +16,4 @@ zal deze sessie over 60 seconden worden beeindigd.
 <script language="JavaScript">
 setTimeout("close()", 60*1000);
 </script>
+</center>

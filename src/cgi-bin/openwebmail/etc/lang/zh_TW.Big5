@@ -190,9 +190,10 @@ package openwebmail::zh_TW_Big5;
    chdir    => '換目錄',
    mkdir    => '建目錄',
    newfile  => '開新檔',
-   delete   => '刪除',
-   copy     => '拷貝',
+   copy     => '複製',
    move     => '搬移',
+   symlink  => '捷徑連結',
+   delete   => '刪除',
    gzip     => 'gz 壓縮',
    mkzip    => '建 zip 檔',
    mktgz    => '建 tgz 檔',
@@ -207,6 +208,7 @@ package openwebmail::zh_TW_Big5;
    help       => '說明',
    login      => '登入',
    clear      => '清除',
+   webmail    => '網路郵局',
    point      => '點',
    pixel      => '像素',
    changepwd  => '變更密碼',
@@ -270,7 +272,9 @@ package openwebmail::zh_TW_Big5;
    msgrebuild => '信件重組',
    editdraft  => '編輯草稿',
    savedraft  => '暫存草稿',
+   draftsaved => '草稿 @@@SUBJECT@@@ 暫存成功 ',
    send       => '寄信',
+   msgsent    => '信件 @@@SUBJECT@@@ 已經順利寄出',
    about      => '關於',
    close      => '關閉',
    cancel     => '取消',
@@ -406,6 +410,12 @@ package openwebmail::zh_TW_Big5;
    vdomain_createuser => '新增使用者',
    vdomain_changeuser => '修改使用者',
    vdomain_deleteuser => '刪除使用者',
+   vdomain_changeview => '改變檢視方式',
+   vdomain_usersonly  => '只列出使用者',
+   vdomain_useralias  => '列出使用者/別名',
+   vdomain_fmtuseralias => '列出格式化的使用者/別名',
+   vdomain_admin      => '管理者',
+   vdomain_localuser  => '本地帳號',
    set_passwd         => '設定密碼',
    reset_passwd       => '重設密碼',
    email_alias        => 'Email Alias'
@@ -473,7 +483,9 @@ package openwebmail::zh_TW_Big5;
    spool_overlimit   => '很抱歉, 您的新信匣已經超出其容量上限(@@@SPOOLLIMIT@@@). 請將部份信件由新信匣搬到其他信件匣.',
    vdomain_toomanyuser  => '抱歉, 這個網域的使用者數目已經到達上限',
    vdomain_toomanyalias => '抱歉, 這個使用者的 E-MAIL alias 個數已經到達上限',
-   vdomain_userrequired => '需要輸入使用者名稱'
+   vdomain_userrequired => '需要輸入使用者名稱',
+   vdomain_fwdrequired => '需要輸入合法的轉寄郵件地址',
+   all_module_disabled => '所有模組都被關閉'
    );
 
 1;

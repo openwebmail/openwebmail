@@ -2,13 +2,13 @@
 #
 # openwebmail-tool.pl - command tool for mail/event/notify/index...
 #
-# 03/27/2003 tung@turtle.ee.ncku.edu.tw
-#            Ebola@turtle.ee.ncku.edu.tw
+# 03/27/2003 tung.AT.turtle.ee.ncku.edu.tw
+#            Ebola.AT.turtle.ee.ncku.edu.tw
 #            
 use vars qw($SCRIPT_DIR);
-if ( $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
+if ( $0 =~ m!^(\S*)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
 if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
-   $_=<F>; close(F); if ( $_=~/^([^\s]*)/) { $SCRIPT_DIR=$1; }
+   $_=<F>; close(F); if ( $_=~/^(\S*)/) { $SCRIPT_DIR=$1; }
 }
 if (!$SCRIPT_DIR) { 
    print qq|\nOpen WebMail is unable to locate itself on this system,\n|.
@@ -70,29 +70,40 @@ $pop3_process_count=0;
 %complete=();
 
 my @list=();
-my $euid_to_use=$>;	# this will be set to ruid $< in critical operation
+
+# set to ruid for secure access, this will be set to euid $> 
+# if operation is from inetd or -m (query mail status ) or -e(query event status)
+my $euid_to_use=$<;	
 
 # no buffer on stdout
 local $|=1;
 
 if ($ARGV[0] eq "--") {		# called by inetd
    push(@list, $ARGV[1]);
-   $opt{'mail'}=1; $opt{'event'}=1; $opt{'null'}=0;
+   $opt{'mail'}=1; $opt{'event'}=1; $opt{'null'}=0; $euid_to_use=$>;
 } else {
    for (my $i=0; $i<=$#ARGV; $i++) {
       if ($ARGV[$i] eq "--init") {
-         $opt{'init'}=1; $euid_to_use=$<;
+         $opt{'init'}=1;
       } elsif ($ARGV[$i] eq "--test") {
-         $opt{'test'}=1; $euid_to_use=$<;
+         $opt{'test'}=1;
+
       } elsif ($ARGV[$i] eq "--yes" || $ARGV[$i] eq "-y") {
          $opt{'yes'}=1;
       } elsif ($ARGV[$i] eq "--no") {
          $opt{'no'}=1;
       } elsif ($ARGV[$i] eq "--debug") {
          $opt{'debug'}=1;
+      } elsif ($ARGV[$i] eq "--quiet" || $ARGV[$i] eq "-q") {
+         $opt{'quiet'}=1;
 
+      } elsif ($ARGV[$i] eq "--domain" || $ARGV[$i] eq "-d") {
+         $i++ if $ARGV[$i+1]!~/^\-/;
+         $default_logindomain=safedomainname($ARGV[$i]);
+      } elsif ($ARGV[$i] eq "--alluser" || $ARGV[$i] eq "-a") {
+         $opt{'allusers'}=1;
       } elsif ($ARGV[$i] eq "--file" || $ARGV[$i] eq "-f") {
-         $i++; $euid_to_use=$<;
+         $i++;
          if ( -f $ARGV[$i] ) {
             open(F, $ARGV[$i]);
             while (<F>) { chomp $_; push(@list, $_); }
@@ -100,39 +111,32 @@ if ($ARGV[0] eq "--") {		# called by inetd
          }
 
       } elsif ($ARGV[$i] eq "--thumbnail" || $ARGV[$i] eq "-t") {
-         $opt{'thumbnail'}=1; $euid_to_use=$<;
-
-      } elsif ($ARGV[$i] eq "--alluser" || $ARGV[$i] eq "-a") {
-         $opt{'allusers'}=1; $euid_to_use=$<;
-      } elsif ($ARGV[$i] eq "--domain" || $ARGV[$i] eq "-d") {
-         $i++ if $ARGV[$i+1]!~/^\-/;
-         $default_logindomain=safedomainname($ARGV[$i]);
-      } elsif ($ARGV[$i] eq "--quiet" || $ARGV[$i] eq "-q") {
-         $opt{'quiet'}=1;
-      } elsif ($ARGV[$i] eq "--event" || $ARGV[$i] eq "-e") {
-         $opt{'event'}=1; $opt{'null'}=0;
+         $opt{'thumbnail'}=1;
 
       } elsif ($ARGV[$i] eq "--index" || $ARGV[$i] eq "-i") {
-         $opt{'iv'}='ALL'; $opt{'null'}=0;
+         $opt{'iv'}='ALL'; $opt{'null'}=0; $euid_to_use=$<;
       } elsif ($ARGV[$i] eq "-id") {
-         $i++; $opt{'id'}=$ARGV[$i]; $opt{'null'}=0; $euid_to_use=$<;
+         $i++; $opt{'id'}=$ARGV[$i]; $opt{'null'}=0;
       } elsif ($ARGV[$i] eq "-iv") {
          $i++; $opt{'iv'}=$ARGV[$i]; $opt{'null'}=0;
       } elsif ($ARGV[$i] eq "-if") {
-         $i++; $opt{'if'}=$ARGV[$i]; $opt{'null'}=0; $euid_to_use=$<;
+         $i++; $opt{'if'}=$ARGV[$i]; $opt{'null'}=0;
       } elsif ($ARGV[$i] eq "-ir") {
-         $i++; $opt{'ir'}=$ARGV[$i]; $opt{'null'}=0; $euid_to_use=$<;
+         $i++; $opt{'ir'}=$ARGV[$i]; $opt{'null'}=0;
 
       } elsif ($ARGV[$i] eq "--mail" || $ARGV[$i] eq "-m") {
-         $opt{'mail'}=1; $opt{'null'}=0;
+         $opt{'mail'}=1; $opt{'null'}=0; $euid_to_use=$>;
+      } elsif ($ARGV[$i] eq "--event" || $ARGV[$i] eq "-e") {
+         $opt{'event'}=1; $opt{'null'}=0; $euid_to_use=$>;
       } elsif ($ARGV[$i] eq "--notify" || $ARGV[$i] eq "-n") {
-         $opt{'notify'}=1; $opt{'null'}=0;
+         $opt{'notify'}=1; $opt{'null'}=0; 
+
       } elsif ($ARGV[$i] eq "--pop3" || $ARGV[$i] eq "-p") {
          $opt{'pop3'}=1; $opt{'null'}=0;
       } elsif ($ARGV[$i] eq "--size" || $ARGV[$i] eq "-s") {
-         $opt{'size'}=1; $opt{'null'}=0; $euid_to_use=$<;
+         $opt{'size'}=1; $opt{'null'}=0;
       } elsif ($ARGV[$i] eq "--zaptrash" || $ARGV[$i] eq "-z") {
-         $opt{'zap'}=1; $opt{'null'}=0; $euid_to_use=$<;
+         $opt{'zap'}=1; $opt{'null'}=0;
 
       } else {
          push(@list, $ARGV[$i]);
@@ -235,13 +239,25 @@ sub init {
 
    my ($dbm_ext, $dbmopen_ext, $dbmopen_haslock)=dbm_test();
    $err++ if (check_db_file_pm()<0);
-   $err++ if (check_dbm_option($dbm_ext, $dbmopen_ext, $dbmopen_haslock, %config)<0);
+   $err++ if (check_dbm_option(0, $dbm_ext, $dbmopen_ext, $dbmopen_haslock, %config)<0);
    $err++ if (check_savedsuid_support()<0);
    if ($err>0) {
       print qq|And execute '$SCRIPT_DIR/openwebmail-tool.pl --init' again!.\n\n|;
       return -1;
    }
 
+   foreach my $table ('b2g', 'g2b', 'lunar') {
+      if ( $config{$table.'_map'} ne 'none' &&
+           -f "$config{'ow_etcdir'}/$table$config{'dbm_ext'}") {
+         my %T; $err=0;
+         dbmopen(%T, "$config{'ow_etcdir'}/$table$config{'dbmopen_ext'}", undef) or $err=1;
+         dbmclose(%T);
+         if ($err) {
+            unlink("$config{'ow_etcdir'}/$table$config{'dbm_ext'}");
+            print "delete old $config{'ow_etcdir'}/$table$config{'dbm_ext'}\n";
+         }
+      }
+   }
    if ($config{'b2g_map'} ne 'none' && !-f "$config{'ow_etcdir'}/b2g$config{'dbm_ext'}") {
       die "$config{'b2g_map'} not found" if (!-f $config{'b2g_map'});
       print "creating $config{'ow_etcdir'}/b2g$config{'dbm_ext'} ...";
@@ -285,7 +301,7 @@ sub init {
                qq|Perl: $]\n|.
                qq|WebMail: $config{'name'} $config{'version'} $config{'releasedate'}\n|;
 
-   print qq|Welcome to the Open WebMail!\n\n|.
+   print qq|\nWelcome to the Open WebMail!\n\n|.
          qq|This program is going to send a short message back to the developer,\n|.
          qq|so we could have the idea that who is installing and how many sites are\n|.
          qq|using this software, the content to be sent is:\n\n|.
@@ -335,7 +351,7 @@ sub do_test {
    my ($dbm_ext, $dbmopen_ext, $dbmopen_haslock)=dbm_test();
    print_dbm_module();
    check_db_file_pm();
-   check_dbm_option($dbm_ext, $dbmopen_ext, $dbmopen_haslock, %config);
+   check_dbm_option(1, $dbm_ext, $dbmopen_ext, $dbmopen_haslock, %config);
    check_savedsuid_support();
 }
    
@@ -387,14 +403,16 @@ sub dbm_test {
       ($dbm_ext, $dbmopen_ext)=('.db', '.db');
    }
 
+   my $result;
    filelock("/tmp/dbmtest.$$/test$dbm_ext", LOCK_EX);
    eval {
       local $SIG{ALRM} = sub { die "alarm\n" }; # NB: \n required
       alarm 5;	# timeout 5 sec
-      dbmopen(%DB, "/tmp/dbmtest.$$/test$dbmopen_ext", 0600); dbmclose(%DB);
+      $result = dbmopen(%DB, "/tmp/dbmtest.$$/test$dbmopen_ext", 0600);
+      dbmclose(%DB) if ($result);
       alarm 0;
    };
-   if ($@) {	# eval error, it means timeout
+   if ($@ or !$result) {	# eval error, it means timeout
       $dbmopen_haslock=1;
    } else {
       $dbmopen_haslock=0;
@@ -442,7 +460,7 @@ sub check_db_file_pm {
 }
 
 sub check_dbm_option {
-   my ($dbm_ext, $dbmopen_ext, $dbmopen_haslock, %config)=@_;
+   my ($showtest, $dbm_ext, $dbmopen_ext, $dbmopen_haslock, %config)=@_;
 
    if ($dbm_ext ne $config{'dbm_ext'} ||
        $dbmopen_ext ne $config{'dbmopen_ext'} ||
@@ -460,14 +478,21 @@ sub check_dbm_option {
       }
       print qq|Please change the following 3 options in openwebmail.conf\n|.
             qq|from\n|.
-            qq|\tdbm_ext           $config_raw{'dbm_ext'}\n|.
-            qq|\tdbmopen_ext       $config_raw{'dbmopen_ext'}\n|.
-            qq|\tdbmopen_haslock   $config_raw{'dbmopen_haslock'}\n|.
+            qq|\tdbm_ext         \t$config_raw{'dbm_ext'}\n|.
+            qq|\tdbmopen_ext     \t$config_raw{'dbmopen_ext'}\n|.
+            qq|\tdbmopen_haslock \t$config_raw{'dbmopen_haslock'}\n|.
             qq|to\n|.
-            qq|\tdbm_ext           $dbm_ext\n|.
-            qq|\tdbmopen_ext       $dbmopen_ext\n|.
-            qq|\tdbmopen_haslock   $dbmopen_haslock\n\n\n|;
+            qq|\tdbm_ext         \t$dbm_ext\n|.
+            qq|\tdbmopen_ext     \t$dbmopen_ext\n|.
+            qq|\tdbmopen_haslock \t$dbmopen_haslock\n\n\n|;
       return -1;
+   }
+
+   if ($showtest) {
+      print qq|The dbm options in openwebmail.conf should be set as follows:\n\n|.
+            qq|dbm_ext         \t$config_raw{'dbm_ext'}\n|.
+            qq|dbmopen_ext     \t$config_raw{'dbmopen_ext'}\n|.
+            qq|dbmopen_haslock \t$config_raw{'dbmopen_haslock'}\n\n\n|;
    }
    return 0;
 } 
@@ -592,7 +617,7 @@ sub allusers {
    if ( $>!=0 &&	# setuid is required if spool is located in system dir
        ($config{'mailspooldir'} eq "/var/mail" || 
         $config{'mailspooldir'} eq "/var/spool/mail")) {
-      print "Content-type: text/html\n\n'$0' must setuid to root"; openwebmail_exit(0);
+      print "This operation is only available to root\n"; openwebmail_exit(0);
    }
    loadauth($config{'auth_module'});
    print "D loadauth $config{'auth_module'}\n" if ($opt{'debug'});
@@ -622,7 +647,7 @@ sub usertool {
    my $usercount=0;
 
    foreach $loginname (@{$r_userlist}) {
-      # reset back to root before switch to next user
+      # reset back to init $euid before switch to next user
       #$>=0;
       $>=$euid_to_use;
 
@@ -663,11 +688,6 @@ sub usertool {
          readconf(\%config, \%config_raw, "$config{'ow_sitesconfdir'}/$logindomain");
          print "D readconf $config{'ow_sitesconfdir'}/$logindomain\n" if ($opt{'debug'});
       }
-      if ( $>!=0 &&	# setuid is required if spool is located in system dir
-          ($config{'mailspooldir'} eq "/var/mail" || 
-           $config{'mailspooldir'} eq "/var/spool/mail")) {
-         print "Content-type: text/html\n\n'$0' must setuid to root"; openwebmail_exit(0);
-      }
       loadauth($config{'auth_module'});
       print "D loadauth $config{'auth_module'}\n" if ($opt{'debug'});
 
@@ -691,6 +711,13 @@ sub usertool {
       next if ($user eq 'root' || $user eq 'toor'||
                $user eq 'daemon' || $user eq 'operator' || $user eq 'bin' ||
                $user eq 'tty' || $user eq 'kmem' || $user eq 'uucp');
+
+      if ( $>!=$uuid &&
+           $>!=0 &&	# setuid root is required if spool is located in system dir
+          ($config{'mailspooldir'} eq "/var/mail" || 
+           $config{'mailspooldir'} eq "/var/spool/mail")) {
+         print "This operation is only available to root\n"; openwebmail_exit(0);
+      }
 
       # load user config
       my $userconf="$config{'ow_usersconfdir'}/$user";
@@ -726,11 +753,11 @@ sub usertool {
       ($folderdir =~ /^(.+)$/) && ($folderdir = $1);  # untaint $folderdir
 
       umask(0077);
-      if ( $>==0 ) {			# switch to uuid:mailgid if script is setuid root.
+      if ( $>==0 ) { # switch to uuid:mailgid if process is setuid to root
          my $mailgid=getgrnam('mail');	# for better compatibility with other mail progs
          set_euid_egids($uuid, $mailgid, split(/\s+/,$ugid)); 
          if ( $)!~/\b$mailgid\b/) {	# group mail doesn't exist?
-            die "Set effective gid to mail($mailgid) failed!";
+            print "Set effective gid to mail($mailgid) failed!"; openwebmail_exit(0);            
          }
       }
       print "D ruid=$<, euid=$>, rgid=$(, eguid=$)\n" if ($opt{'debug'});
@@ -817,7 +844,7 @@ sub folderindex {
       next if (! -f $folderfile);
 
       if (!filelock($folderfile, LOCK_EX|LOCK_NB)) {
-         printf ("Couldn't get write lock on $folderfile");
+         printf ("Couldn't get write lock on $folderfile") if (!$opt{'quiet'});
          return -1;
       }
       if ($op eq "dump") {
@@ -825,30 +852,28 @@ sub folderindex {
          my $error=0;
 
          if (! -f "$headerdb$config{'dbm_ext'}") {
-            printf ("$headerdb$config{'dbm_ext'} doesn't exist");
+            printf ("$headerdb$config{'dbm_ext'} doesn't exist") if (!$opt{'quiet'});
             return -1;
          }
          @messageids=get_messageids_sorted_by_offset($headerdb);
 
          if (!filelock($folderfile, LOCK_SH)) {
-            printf ("Couldn't get read lock on $folderfile");
+            printf ("Couldn't get read lock on $folderfile") if (!$opt{'quiet'});
             return -1;
          }
-         if (!$config{'dbmopen_haslock'}) {
-            if (!filelock("$headerdb$config{'dbm_ext'}", LOCK_SH)) {
-               printf ("Couldn't get read lock on $headerdb$config{'dbm_ext'}");
-               return -1;
-            }
+         if (!open_dbm(\%HDB, $headerdb, LOCK_SH)) {
+            filelock($folderfile, LOCK_UN);
+            printf ("Couldn't get read lock on $headerdb$config{'dbm_ext'}") if (!$opt{'quiet'});
+            return -1;
          }
          open (FOLDER, $folderfile);
-         dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
 
          if (  $HDB{'METAINFO'} eq metainfo($folderfile) ) {
-            print "+++";
+            print "+++" if (!$opt{'quiet'});
          } else {
-            print "---"; $error++;
+            print "---" if (!$opt{'quiet'}); $error++;
          }
-         printf (" METAINFO db:'%s' folder:'%s'\n", $HDB{'METAINFO'}, metainfo($folderfile));
+         printf (" METAINFO db:'%s' folder:'%s'\n", $HDB{'METAINFO'}, metainfo($folderfile)) if (!$opt{'quiet'});
 
          for(my $i=0; $i<=$#messageids; $i++) {
             @attr=get_message_attributes($messageids[$i], $headerdb);
@@ -858,22 +883,21 @@ sub folderindex {
             read(FOLDER, $buff2, 6);
 
             if ( $buff=~/^From / && ($buff2=~/^From /||$buff2 eq "")) {
-               print "+++";
+               print "+++" if (!$opt{'quiet'});
             } else {
-               print "---"; $error++;
+               print "---" if (!$opt{'quiet'}); $error++;
             }
             printf (" %4d, OFFSET:%8d, SIZE:%8d, DATE:%s, CHARSET:%s, STAT:%3s, MSGID:%s, FROM:%s, TO:%s, SUB:%s\n",
 			$i, $attr[$_OFFSET], $attr[$_SIZE], $attr[$_DATE], $attr[$_CHARSET], $attr[$_STATUS],
-                            substr($messageids[$i],0,50), $attr[$_FROM], $attr[$_TO], $attr[$_SUBJECT]);
+                            substr($messageids[$i],0,50), $attr[$_FROM], $attr[$_TO], $attr[$_SUBJECT]) if (!$opt{'quiet'});
             #printf ("buf=$buff, buff2=$buff2\n");
          }
 
-         dbmclose(%HDB);
+         close_dbm(\%HDB, $headerdb);
          close(FOLDER);
-         filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
          filelock($folderfile, LOCK_UN);
 
-         print "$error errors in $headerdb$config{'dbm_ext'}\n";
+         print "$error errors in $headerdb$config{'dbm_ext'}\n" if (!$opt{'quiet'});
          return 0 if ($error==0);
          return -1;
       } else {
@@ -884,16 +908,12 @@ sub folderindex {
             unlink("$headerdb$config{'dbm_ext'}");
             $ret=update_headerdb($headerdb, $folderfile);
          } elsif ($op eq "fastrebuild") {
-            if (!$config{'dbmopen_haslock'}) {
-               if (!filelock("$headerdb$config{'dbm_ext'}", LOCK_EX)) {
-                  print "Couldn't get write lock on $headerdb$config{'dbm_ext'}\n" if (!$opt{'quiet'});
-                  return -1;
-               }
+            if (!open_dbm(\%HDB, $headerdb, LOCK_EX, 0600)) {
+               print "Couldn't get write lock on $headerdb$config{'dbm_ext'}\n" if (!$opt{'quiet'});
+               return -1;
             }
-            dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", 0600);
             $HDB{'METAINFO'}="ERR";
-            dbmclose(%HDB);
-            filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+            close_dbm(\%HDB, $headerdb);
             $ret=update_headerdb($headerdb, $folderfile);
          }
 
@@ -920,9 +940,11 @@ sub cleantrash {
       if ($deleted >0) {
          writelog("clean trash - delete $deleted msgs from mail-trash");
          writehistory("clean trash - delete $deleted msgs from mail-trash");
+         print "$deleted msgs deleted from mail-trash\n" if (!$opt{'quiet'});
       }
       filelock($trashfile, LOCK_UN);
    }
+   return 0;
 }
 
 
@@ -994,11 +1016,12 @@ sub checknewmail {
    my ($filtered, $r_filtered);
    if ($config{'enable_smartfilters'}) {
       ($filtered, $r_filtered)=mailfilter($user, 'INBOX', $folderdir, \@folderlist, $prefs{'regexmatch'},
-					$prefs{'filter_repeatlimit'}, $prefs{'filter_fakedsmtp'},
-					$prefs{'filter_fakedfrom'}, $prefs{'filter_fakedexecontenttype'});
+					$prefs{'filter_repeatlimit'}, $prefs{'filter_badformatfrom'},
+					$prefs{'filter_fakedsmtp'}, $prefs{'filter_fakedfrom'},
+					$prefs{'filter_fakedexecontenttype'});
    } else {
       ($filtered, $r_filtered)=mailfilter($user, 'INBOX', $folderdir, \@folderlist, $prefs{'regexmatch'},
-					0, 0, 0, 0);
+					0, 0, 0, 0, 0);
    }
    if ($filtered>0) {
       writelog("filter message - filter $filtered msgs from INBOX");
@@ -1007,25 +1030,21 @@ sub checknewmail {
 
    if (!$opt{'quiet'}) {
       my (%HDB, $allmessages, $internalmessages, $newmessages);
-      if (!$config{'dbmopen_haslock'}) {
-         if (!filelock("$headerdb$config{'dbm_ext'}", LOCK_SH)) {
-            print "couldn't get read lock on $headerdb$config{'dbm_ext'}\n";
-            return -1;
-         }
+      if (!open_dbm(\%HDB, $headerdb, LOCK_SH)) {
+         print "couldn't get read lock on $headerdb$config{'dbm_ext'}\n";
+         return -1;
       }
-      dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
       $allmessages=$HDB{'ALLMESSAGES'};
       $internalmessages=$HDB{'INTERNALMESSAGES'};
       $newmessages=$HDB{'NEWMESSAGES'};
-      dbmclose(%HDB);
-      filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+      close_dbm(\%HDB, $headerdb);
 
       if ($newmessages > 0 ) {
-         print "has new mail\n" if (!$opt{'quiet'});
+         print "has new mail\n";
       } elsif ($allmessages-$internalmessages > 0 ) {
-         print "has mail\n" if (!$opt{'quiet'});
+         print "has mail\n";
       } else {
-         print "has no mail\n" if (!$opt{'quiet'});
+         print "has no mail\n";
       }
    }
    return 0;
@@ -1083,12 +1102,13 @@ sub checknewevent {
       }
    }
 
-   if ($newevent > 0 ) {
-      print "$loginname has new event\n" if (!$opt{'quiet'});
-   } elsif ($oldevent > 0 ) {
-      print "$loginname has event\n" if (!$opt{'quiet'});
+   if (!$opt{'quiet'}) {
+      if ($newevent > 0 ) {
+         print "$loginname has new event\n";
+      } elsif ($oldevent > 0 ) {
+         print "$loginname has event\n";
+      }
    }
-
    return 0;
 }
 
@@ -1151,7 +1171,7 @@ sub checknotify {
    my $future_items=0;
    for my $index (@indexlist) {
       if ( $items{$index}{'email'} &&
-           ($date=~/$items{$index}{'idate'}/   || 
+           ($date=~/$items{$index}{'idate'}/  || 
             $date2=~/$items{$index}{'idate'}/ ||
             easter_match($year,$month,$day, $easter_month,$easter_day,
                                       $items{$index}{'idate'})) ) {

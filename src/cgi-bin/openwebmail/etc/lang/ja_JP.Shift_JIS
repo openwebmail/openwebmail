@@ -190,9 +190,10 @@ package openwebmail::ja_JP_Shift_JIS;
    chdir    => 'チャンネルディレクトリー',
    mkdir    => 'ディレクトリーの作成',
    newfile  => '新規ファイル',
-   delete   => '削除',
    copy     => 'コピー',
    move     => '移動',
+   symlink  => 'Symlink',
+   delete   => '削除',
    gzip     => 'gz圧縮',
    mkzip    => 'Mkジップ',
    mktgz    => 'Tgzの作成',
@@ -207,6 +208,7 @@ package openwebmail::ja_JP_Shift_JIS;
    help       => 'ヘルプ',
    login      => 'ログイン',
    clear      => '消去',
+   webmail    => 'WebMail',
    point      => 'ポイント',
    pixel      => 'ピクセル',
    changepwd  => 'パスワードの変更',
@@ -270,7 +272,9 @@ package openwebmail::ja_JP_Shift_JIS;
    msgrebuild => 'メッセージを作り直します',
    editdraft  => '下書きの編集',
    savedraft  => '下書きの保存',
+   draftsaved => 'Draft @@@SUBJECT@@@ has been saved successfully',
    send       => '送信',
+   msgsent    => 'Message @@@SUBJECT@@@ has been sent successfully',
    about      => '情報',
    close      => '閉じる',
    cancel     => 'キャンセル',
@@ -406,6 +410,12 @@ package openwebmail::ja_JP_Shift_JIS;
    vdomain_createuser => 'ユーザーの作成',
    vdomain_changeuser => 'ユーザーの変更',
    vdomain_deleteuser => 'ユーザーの削除',
+   vdomain_changeview => 'Change view to',
+   vdomain_usersonly  => 'users only',
+   vdomain_useralias  => 'users/aliases',
+   vdomain_fmtuseralias => 'formatted users/aliases',
+   vdomain_admin      => 'Admin',
+   vdomain_localuser  => 'Local User',
    set_passwd         => 'Set Password',
    reset_passwd       => 'Reset Password',
    email_alias        => 'E-MAIL Alias'
@@ -473,7 +483,9 @@ package openwebmail::ja_JP_Shift_JIS;
    spool_overlimit   => '受信箱がスプールリミット(@@@SPOOLLIMIT@@@)を超えました。メッセージをいくつか受信箱から他のファイルへ移してください。',
    vdomain_toomanyuser  => 'このドメインのユーザーカウントが最大制限に達しました。',
    vdomain_toomanyalias => 'Sorry, the E-MAIL alias count of this user has reached its maximum limit',
-   vdomain_userrequired => 'A user name is required'
+   vdomain_userrequired => 'A user name is required',
+   vdomain_fwdrequired => 'A valid forwarding E-MAIL is required',
+   all_module_disabled => 'All modules are disabled'
    );
 
 1;

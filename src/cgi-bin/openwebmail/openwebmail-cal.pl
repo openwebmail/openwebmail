@@ -2,11 +2,13 @@
 #
 # openwebmail-cal.pl - calendar program
 #
+# 2003/09/02 ateslik.AT.users.sourceforge.net
+#            rewrite the calendar item add/update stuff
 # 2003/03/29 jpd@louisiana.edu
 #            easter day support
 # 2003/02/17 ateslik.AT.users.sourceforge.net
 #            rewrite the dayview display
-# 2002/07/05 tung@turtle.ee.ncku.edu.tw
+# 2002/07/05 tung.AT.turtle.ee.ncku.edu.tw
 #            modified from WebCal version 1.12.
 #
 # WebCal is available at http://bulldog.tzo.org/webcal/webcal.html/
@@ -62,6 +64,10 @@ $SIG{TERM}=\&openwebmail_exit;	# for user stop
 
 userenv_init();
 
+if (!$config{'enable_calendar'}) {
+   openwebmailerror(__FILE__, __LINE__, "$lang_text{'calendar'} $lang_err{'access_denied'}");
+}
+
 $messageid = param("message_id");
 $escapedmessageid = escapeURL($messageid);
 
@@ -74,10 +80,13 @@ for my $h (0..23) {
 }
 push(@slottime, "2400");
 
-if ($messageid eq "") {
-   $miscbuttonsstr = iconlink("owm.gif", "$lang_text{'backto'} $printfolder", qq|accesskey="M" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;sessionid=$thissession&amp;folder=$escapedfolder"|);
-} else {
-   $miscbuttonsstr = iconlink("owm.gif", "$lang_text{'backto'} $printfolder", qq|accesskey="M" href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid"|);
+$miscbuttonsstr='';
+if ($config{'enable_webmail'}) {
+   if ($messageid eq "") {
+      $miscbuttonsstr .= iconlink("owm.gif", "$lang_text{'backto'} $printfolder", qq|accesskey="M" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;sessionid=$thissession&amp;folder=$escapedfolder"|);
+   } else {
+      $miscbuttonsstr .= iconlink("owm.gif", "$lang_text{'backto'} $printfolder", qq|accesskey="M" href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid"|);
+   }
 }
 if ($config{'enable_webdisk'}) {
    $miscbuttonsstr .= iconlink("webdisk.gif", $lang_text{'webdisk'}, qq|accesskey="E" href="$config{'ow_cgiurl'}/openwebmail-webdisk.pl?action=showdir&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid"|);
@@ -89,7 +98,9 @@ if ( $config{'enable_sshterm'}) {
       $miscbuttonsstr .= iconlink("sshterm.gif" ,"$lang_text{'sshterm'} ", qq|accesskey="T" href="#" onClick="window.open('$config{ow_htmlurl}/applet/mindterm/ssh.html', '_applet', 'width=400,height=100,top=2000,left=2000,resizable=no,menubar=no,scrollbars=no');"|);
    }
 }
-$miscbuttonsstr .= iconlink("prefs.gif", $lang_text{'userprefs'}, qq|accesskey="O" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;prefs_caller=cal"|);
+if ( $config{'enable_preference'}) {
+   $miscbuttonsstr .= iconlink("prefs.gif", $lang_text{'userprefs'}, qq|accesskey="O" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;prefs_caller=cal"|);
+}
 $miscbuttonsstr .= iconlink("logout.gif", "$lang_text{'logout'} $prefs{'email'}", qq|accesskey="X" href="$config{'ow_cgiurl'}/openwebmail-main.pl?sessionid=$thissession&amp;action=logout"|);
 
 my $action = param("action");
@@ -123,10 +134,6 @@ my $ndays=param('ndays')||0;
 my $monthfreq=param('monthfreq')||0;
 my $everyyear=param('everyyear')||0;
 
-if (!$config{'enable_calendar'}) {
-   openwebmailerror(__FILE__, __LINE__, "Action $lang_err{'has_illegal_chars'}");
-}
-
 if ($action eq "calyear") {
    yearview($year);
 } elsif ($action eq "calmonth") {
@@ -156,10 +163,15 @@ if ($action eq "calyear") {
       dayview($year, $month, $day);
    }
 } elsif ($action eq "calupdate") {
-   update_item($index, $string,
+   update_item($index, 
+               $year, $month, $day,
+               $string,
                $starthour, $startmin, $startampm,
                $endhour, $endmin, $endampm,
+               $dayfreq,
+               $thisandnextndays, $ndays, $monthfreq, $everyyear,
                $link, $email, $eventcolor);
+
    if (defined(param('callist'))) {
       listview($year);
    } else {
@@ -176,9 +188,7 @@ openwebmail_requestend();
 sub yearview {
    my $year=$_[0];
    my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
-   if ((($year % 4) == 0) && ((($year % 100) != 0) || (($year % 400) == 0))) {
-      $days_in_month[2]++;
-   }
+   $days_in_month[2]++ if ( ($year%4)==0 && (($year%100)!=0||($year%400)==0) );
 
    my $g2l=time();
    if ($prefs{'daylightsaving'} eq "on" ||
@@ -374,9 +384,7 @@ sub yearview {
 sub monthview {
    my ($year, $month)=@_;
    my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
-   if ((($year % 4) == 0) && ((($year % 100) != 0) || (($year % 400) == 0))) {
-      $days_in_month[2]++;
-   }
+   $days_in_month[2]++ if ( ($year%4)==0 && (($year%100)!=0||($year%400)==0) );
 
    my $g2l=time();
    if ($prefs{'daylightsaving'} eq "on" ||
@@ -533,7 +541,7 @@ sub monthview {
                      qq|<table width="100%" cellpadding="0" cellspacing="0">\n|;
 
          if ($days[$x][$y] =~ /\d+/) {
-            my $t=timegm 1,1,1,$day,($month-1),($year-1900);
+            my $t=timegm (1,1,1, $day,$month-1,$year-1900);
             my $dow=$wdaystr[(gmtime($t))[6]];
             my $date=sprintf("%04d%02d%02d", $year, $month, $day);
             my $date2=sprintf("%04d,%02d,%02d,%s", $year,$month,$day,$dow);
@@ -600,9 +608,7 @@ sub monthview {
 sub weekview {
    my ($year, $month, $day)=@_;
    my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
-   if ((($year % 4) == 0) && ((($year % 100) != 0) || (($year % 400) == 0))) {
-      $days_in_month[2]++;
-   }
+   $days_in_month[2]++ if ( ($year%4)==0 && (($year%100)!=0||($year%400)==0) );
 
    my $g2l=time();
    if ($prefs{'daylightsaving'} eq "on" ||
@@ -688,7 +694,7 @@ sub weekview {
    $temphtml .= "&nbsp;\n$miscbuttonsstr";
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
 
-   my $time = timegm("0","0","12", $day, $month-1, $year-1900);
+   my $time = timegm(0,0,12, $day,$month-1,$year-1900);
 
    my ($prev_year, $prev_month, $prev_day)=(gmtime($time-86400*7))[5,4,3];
    $prev_year+=1900; $prev_month++;
@@ -778,7 +784,7 @@ sub weekview {
 
       my ($easter_month, $easter_day) = gregorian_easter($year); # compute once
 
-      my $t=timegm 1,1,1,$day,($month-1),($year-1900);
+      my $t=timegm(1,1,1, $day,$month-1,$year-1900);
       my $dow=$wdaystr[(gmtime($t))[6]];
       my $date=sprintf("%04d%02d%02d", $year, $month, $day);
       my $date2=sprintf("%04d,%02d,%02d,%s", $year,$month,$day,$dow);
@@ -862,9 +868,7 @@ sub month_week_item {
 sub dayview {
    my ($year, $month, $day)=@_;
    my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
-   if ((($year % 4) == 0) && ((($year % 100) != 0) || (($year % 400) == 0))) {
-      $days_in_month[2]++;
-   }
+   $days_in_month[2]++ if ( ($year%4)==0 && (($year%100)!=0||($year%400)==0) );
 
    my $g2l=time();
    if ($prefs{'daylightsaving'} eq "on" ||
@@ -947,9 +951,9 @@ sub dayview {
    $temphtml .= "&nbsp;\n$miscbuttonsstr";
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
 
-   my $time = timegm(0, 0, 12, $day, $month-1, $year-1900);
+   my $time = timegm(0,0,12, $day,$month-1,$year-1900);
 
-   my $today = timegm(0, 0, 12, $current_day, $current_month-1, $current_year-1900);
+   my $today = timegm(0,0,12, $current_day,$current_month-1,$current_year-1900);
    $temphtml=int(($time-$today)/86400); 
    $temphtml="+$temphtml" if ($temphtml>=0);
    $html =~ s/\@\@\@DAYDIFF\@\@\@/$temphtml/g;
@@ -980,7 +984,7 @@ sub dayview {
       }
    }
 
-   my $t=timegm(1, 1, 1, $day, $month-1, $year-1900);
+   my $t=timegm(1,1,1, $day,$month-1,$year-1900);
    my $wdaynum=(gmtime($t))[6];
 
    $temphtml = formatted_date($year, $month, $day, $wdaynum);
@@ -1023,13 +1027,13 @@ sub dayview {
    $colornum=($colornum+1)%2; # alternate the bgcolor
    $temphtml .= qq|<tr>|.
                 qq|<td colspan="2">|.
-                  qq|<!-- THE OUTSIDE-MOST TABLE DECLARATION FOR OUR CALENDAR DATA -->|.
-                  qq|<table width="100%" cellpadding="0" cellspacing="1" border="0">\n|.
-                  qq|<!-- BEGIN LISTING ALL DAY EVENTS -->|.
-                  qq|<tr>|.
-                  qq|<td width="10%" bgcolor=$style{'columnheader'} align="center" nowrap>$lang_text{'allday'}</td>|.
-                  qq|<td width="90%" bgcolor=$style{'columnheader'} colspan="|.($colmax+1).qq|">|.
-                  qq|<table width="100%" cellpadding="0" cellspacing="0">\n|; 
+                qq|<!-- THE OUTSIDE-MOST TABLE DECLARATION FOR OUR CALENDAR DATA -->|.
+                qq|<table width="100%" cellpadding="0" cellspacing="1" border="0">\n|.
+                qq|<!-- BEGIN LISTING ALL DAY EVENTS -->|.
+                qq|<tr>|.
+                qq|<td width="10%" bgcolor=$style{'columnheader'} align="center" nowrap>$lang_text{'allday'}</td>|.
+                qq|<td width="90%" bgcolor=$style{'columnheader'} colspan="|.($colmax+1).qq|">|.
+                qq|<table width="100%" cellpadding="0" cellspacing="0">\n|; 
 
    my ($bgcolorstr, $bdstylestr, $eventlink, $eventemail, $eventtime);
 
@@ -1225,22 +1229,36 @@ sub dayview {
             } else {
                # event in this cell has been drawed, nothing to do
             }
-            
+
          } else {
             # no event in this cell
             $temphtml .= qq|<td bgcolor=$bgcolor[$colornum]>&nbsp;</td>|;
          }
-      }      
+      }
       $temphtml .= qq|</tr>|;
    }
 
    $temphtml .= qq|</table></td></tr>\n|;
 
-
    $html =~ s/\@\@\@CALENDARITEMS\@\@\@/$temphtml/;
 
+   # replace @@@ labels with $lang vars
+   $temphtml=qq|'$lang_wday{0}','$lang_wday{1}','$lang_wday{2}','$lang_wday{3}','$lang_wday{4}','$lang_wday{5}','$lang_wday{6}'|;
+   $html =~ s/\@\@\@WDAY_ARRAY\@\@\@/$temphtml/;
+   $temphtml=qq|'$lang_order{1}','$lang_order{2}','$lang_order{3}','$lang_order{4}','$lang_order{5}'|;
+   $html =~ s/\@\@\@WORDER_ARRAY\@\@\@/$temphtml/;
+   $html =~ s/\@\@\@THISDAY_ONLY\@\@\@/$lang_text{'thisday_only'}/g;
+   $html =~ s/\@\@\@THE_WDAY_OF_THISMONTH\@\@\@/$lang_text{'the_wday_of_thismonth'}/g;
+   $html =~ s/\@\@\@EVERY_WDAY_THISMONTH\@\@\@/$lang_text{'every_wday_thismonth'}/g;
+   $html =~ s/\@\@\@EVERY_ODDMONTH_THISYEAR\@\@\@/$lang_text{'every_oddmonth_thisyear'}/g;
+   $html =~ s/\@\@\@EVERY_EVENMONTH_THISYEAR\@\@\@/$lang_text{'every_evenmonth_thisyear'}/g;
+   # replace @@@ labels with runtime js variable
+   $html =~ s/\@\@\@ORDER\@\@\@/"+wOrder[(weekOrder-1)]+"/g;
+   $html =~ s/\@\@\@WDAY\@\@\@/"+wDay[(checkDate.getDay())]+"/g;
+
    $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-cal.pl",
-                         -name=>'AddItemForm');
+                          -name=>'AddItemForm',
+                          -override=>'1');
    $temphtml .= hidden(-name=>'sessionid',
                        -value=>$thissession,
                        -override=>'1');
@@ -1253,16 +1271,32 @@ sub dayview {
    $temphtml .= hidden(-name=>'action',
                        -value=>'caladd',
                        -override=>'1');
-   $temphtml .= hidden(-name=>'year',
-                       -value=>$year,
-                       -override=>'1');
-   $temphtml .= hidden(-name=>'month',
-                       -value=>$month,
-                       -override=>'1');
-   $temphtml .= hidden(-name=>'day',
-                       -value=>$day,
-                       -override=>'1');
    $html =~ s/\@\@\@STARTADDITEMFORM\@\@\@/$temphtml/;
+
+
+   $html =~ s/\@\@\@ITEMDATEMENU\@\@\@/$lang_text{'calfmt_yearmonthday'}/g;
+   $temphtml = popup_menu(-name=>'year',
+                          -values=>[1970..2037],
+                          -onChange=>"valiDate()",
+                          -default=>$year,
+                          -override=>'1');
+   $html =~ s/\@\@\@YEAR\@\@\@/$temphtml/g;
+
+   $temphtml = popup_menu(-name=>'month',
+                          -values=>[1..12],
+                          -default=>$month,
+                          -onChange=>"valiDate()",
+                          -labels=>\%lang_month,
+                          -override=>1);
+   $html =~ s/\@\@\@MONTH_STR\@\@\@/$temphtml/g;
+
+   $temphtml = popup_menu(-name=>'day',
+                          -values=>[1..31],
+                          -default=>$day,
+                          -onChange=>"valiDate()",
+                          -override=>'1');
+   $html =~ s/\@\@\@DAY\@\@\@/$temphtml/g;
+
 
    $temphtml = textfield(-name=>'string',
                          -default=>'',
@@ -1286,18 +1320,21 @@ sub dayview {
    $temphtml2 = popup_menu(-name=>'starthour',
                            -values=>\@hourlist,
                            -default=>'none',
-                           -labels=>\%numlabels);
+                           -labels=>\%numlabels,
+                           -override=>'1');
    $temphtml2 .= " <B>:</B> ";
    $temphtml2 .= popup_menu(-name=>'startmin',
                             -values=>[0,5,10,15,20,25,30,35,40,45,50,55],
                             -default=>0,
-                            -labels=>\%numlabels);
+                            -labels=>\%numlabels,
+                            -override=>'1');
    $temphtml =~ s/\@\@\@HOURMIN\@\@\@/$temphtml2/;
    if ($prefs{'hourformat'}==12) {
       $temphtml2 = popup_menu(-name=>'startampm',
                               -values=>['am','pm'],
                               -default=>'am',
-                              -labels=>{ am=>$lang_text{'am'}, pm=>$lang_text{'pm'} } );
+                              -labels=>{ am=>$lang_text{'am'}, pm=>$lang_text{'pm'} },
+                              -override=>'1' );
    } else {
       $temphtml2 ="";
    }
@@ -1308,26 +1345,31 @@ sub dayview {
    $temphtml2 = popup_menu(-name=>'endhour',
                            -values=>\@hourlist,
                            -default=>'none',
-                           -labels=>\%numlabels);
+                           -labels=>\%numlabels,
+                           -override=>'1');
    $temphtml2 .= " <B>:</B> ";
    $temphtml2 .= popup_menu(-name=>'endmin',
                             -values=>[0,5,10,15,20,25,30,35,40,45,50,55],
                             -default=>0,
-                            -labels=>\%numlabels);
+                            -labels=>\%numlabels,
+                            -override=>'1');
    $temphtml =~ s/\@\@\@HOURMIN\@\@\@/$temphtml2/;
    if ($prefs{'hourformat'}==12) {
       $temphtml2 = popup_menu(-name=>'endampm',
                               -values=>['am','pm'],
                               -default=>'am',
-                              -labels=>{ am=>$lang_text{'am'}, pm=>$lang_text{'pm'} } );
+                              -labels=>{ am=>$lang_text{'am'}, pm=>$lang_text{'pm'} },
+                              -override=>'1' );
    } else {
       $temphtml2 ="";
    }
    $temphtml =~ s/\@\@\@AMPM\@\@\@/$temphtml2/;
    $html =~ s/\@\@\@ENDHOURMINMENU\@\@\@/$temphtml/;
 
-   my %wdaynum = qw (Sun 0 Mon 1 Tue 2 Wed 3 Thu 4 Fri 5 Sat 6);
+
+   # recurrance event section
    my $weekorder=int(($day+6)/7);
+   my %wdaynum = qw (Sun 0 Mon 1 Tue 2 Wed 3 Thu 4 Fri 5 Sat 6);
    my %dayfreqlabels = ('thisdayonly'       =>$lang_text{'thisday_only'},
                         'thewdayofthismonth'=>$lang_text{'the_wday_of_thismonth'},
                         'everywdaythismonth'=>$lang_text{'every_wday_thismonth'});
@@ -1336,23 +1378,25 @@ sub dayview {
    $dayfreqlabels{'everywdaythismonth'}=~s/\@\@\@WDAY\@\@\@/$lang_wday{$wdaynum{$dow}}/;
 
    if ($weekorder<=4) {
-      $temphtml .= hidden(-name=>'weekorder',
-                          -value=>$weekorder,
-                          -override=>'1');
       $temphtml = popup_menu(-name=>'dayfreq',
                              -values=>['thisdayonly', 'thewdayofthismonth', 'everywdaythismonth'],
-                             -labels=>\%dayfreqlabels);
+                             -default=>'thisdayonly',
+                             -labels=>\%dayfreqlabels,
+                             -override=>'1');
    } else {
       $temphtml = popup_menu(-name=>'dayfreq',
                              -values=>['thisdayonly', 'everywdaythismonth'],
-                             -labels=>\%dayfreqlabels);
+                             -default=>'thisdayonly',
+                             -labels=>\%dayfreqlabels,
+                             -override=>'1');
    }
    $html =~ s/\@\@\@FREQMENU\@\@\@/$temphtml/;
 
    $temphtml = checkbox(-name=>'thisandnextndays',
                         -value=>'1',
                         -checked=>0,
-                        -label=>'');
+                        -label=>'',
+                        -override=>'1');
    $html =~ s/\@\@\@THISANDNEXTNDAYSCHECKBOX\@\@\@/$temphtml/g;
 
    $temphtml = textfield(-name=>'ndays',
@@ -1374,13 +1418,16 @@ sub dayview {
    push(@monthfreq, 'everymonththisyear');
    $temphtml = popup_menu(-name=>'monthfreq',
                           -values=>\@monthfreq,
-                          -labels=>\%monthfreqlabels);
+                          -default=>'thismonthonly',
+                          -labels=>\%monthfreqlabels,
+                          -override=>'1');
    $html =~ s/\@\@\@MONTHFREQMENU\@\@\@/$temphtml/g;
 
    $temphtml = checkbox(-name=>'everyyear',
                         -value=>'1',
                         -checked=>0,
-                        -label=>'');
+                        -label=>'',
+                        -override=>'1');
    $html =~ s/\@\@\@EVERYYEARCHECKBOX\@\@\@/$temphtml/g;
 
    $temphtml = textfield(-name=>'link',
@@ -1410,13 +1457,15 @@ sub dayview {
                           -override=>'1');
    $html =~ s/\@\@\@EVENTCOLORMENU\@\@\@/$temphtml/;
 
-   $temphtml = qq|<table height=25>|;
+   $temphtml = qq|<table align="center" height="25">|;
+   my $eventcolornum = 1;
    foreach (sort keys %eventcolors) {
       $temphtml .= qq|<td width=14 align=center bgcolor="#$eventcolors{$_}">|.
-                   qq|<a onclick="JavaScript:document.AddItemForm.eventcolor.value='$_'">$_</a></td>\n|;
+                   qq|<a href="javascript:nothing()" onClick='javascript:document.AddItemForm.eventcolor.selectedIndex="$eventcolornum"'>$_</a></td>\n|;
+      $eventcolornum++;
    }
    $temphtml .= qq|<td width=14 align=center">|.
-                qq|<a onclick="JavaScript:document.AddItemForm.eventcolor.value='none'">--</a></td>\n|;
+                qq|<a href="javascript:nothing()" onClick='javascript:document.AddItemForm.eventcolor.selectedIndex="0"'>--</a></td>\n|;
    $temphtml .= qq|</tr></table>|;
    $html =~ s/\@\@\@COLORTABLE\@\@\@/$temphtml/;
 
@@ -1460,7 +1509,8 @@ sub build_event_matrix {
       for (my $slot = 0; $slot < $#slottime; $slot++) {
          if ((${$r_event}{'endhourmin'}   gt $slottime[$slot] && 
               ${$r_event}{'starthourmin'} lt $slottime[$slot+1]) ||
-             (${$r_event}{'endhourmin'}   eq '0' && 
+             ((${$r_event}{'endhourmin'} eq '0' ||
+               ${$r_event}{'endhourmin'} eq ${$r_event}{'starthourmin'}) && 
               ${$r_event}{'starthourmin'} ge $slottime[$slot] &&
               ${$r_event}{'starthourmin'} lt $slottime[$slot+1]) ) {
             push(@{$slots{$index}}, $slot);
@@ -1596,9 +1646,7 @@ sub hsv2rgb {
 sub listview {
    my $year=$_[0];
    my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
-   if ((($year % 4) == 0) && ((($year % 100) != 0) || (($year % 400) == 0))) {
-      $days_in_month[2]++;
-   }
+   $days_in_month[2]++ if ( ($year%4)==0 && (($year%100)!=0||($year%400)==0) );
 
    my $g2l=time();
    if ($prefs{'daylightsaving'} eq "on" ||
@@ -1685,14 +1733,14 @@ sub listview {
       }
    }
 
-   my $t0 = timegm(1,1,1, $current_day, $current_month-1, $current_year-1900);
+   my $t0 = timegm(1,1,1, $current_day,$current_month-1,$current_year-1900);
    my @accesskey=qw(0 1 2 3 4 5 6 7 8 9 0 J Q);
 
    my ($easter_month, $easter_day) = gregorian_easter($year); # compute once
    $temphtml="";
    for my $month (1..12) {
       for my $day (1..$days_in_month[$month]) {
-         my $t=timegm 1,1,1,$day,($month-1),($year-1900);
+         my $t=timegm(1,1,1, $day,$month-1,$year-1900);
          my $wdaynum=(gmtime($t))[6];
          my $dow=$wdaystr[$wdaynum];
          my $date=sprintf("%04d%02d%02d", $year, $month, $day);
@@ -1832,11 +1880,23 @@ sub edit_item {
       writehistory("edit calitem error - item missing, index=$index");
    }
 
-   $temphtml = formatted_date($year, $month, $day);
-   $html =~ s/\@\@\@DATE\@\@\@/$temphtml/;
+   # replace @@@ labels with $lang vars
+   $temphtml=qq|'$lang_wday{0}','$lang_wday{1}','$lang_wday{2}','$lang_wday{3}','$lang_wday{4}','$lang_wday{5}','$lang_wday{6}'|;
+   $html =~ s/\@\@\@WDAY_ARRAY\@\@\@/$temphtml/;
+   $temphtml=qq|'$lang_order{1}','$lang_order{2}','$lang_order{3}','$lang_order{4}','$lang_order{5}'|;
+   $html =~ s/\@\@\@WORDER_ARRAY\@\@\@/$temphtml/;
+   $html =~ s/\@\@\@THISDAY_ONLY\@\@\@/$lang_text{'thisday_only'}/g;
+   $html =~ s/\@\@\@THE_WDAY_OF_THISMONTH\@\@\@/$lang_text{'the_wday_of_thismonth'}/g;
+   $html =~ s/\@\@\@EVERY_WDAY_THISMONTH\@\@\@/$lang_text{'every_wday_thismonth'}/g;
+   $html =~ s/\@\@\@EVERY_ODDMONTH_THISYEAR\@\@\@/$lang_text{'every_oddmonth_thisyear'}/g;
+   $html =~ s/\@\@\@EVERY_EVENMONTH_THISYEAR\@\@\@/$lang_text{'every_evenmonth_thisyear'}/g;
+   # replace @@@ labels with runtime js variable
+   $html =~ s/\@\@\@ORDER\@\@\@/"+wOrder[(weekOrder-1)]+"/g;
+   $html =~ s/\@\@\@WDAY\@\@\@/"+wDay[(checkDate.getDay())]+"/g;
 
    $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-cal.pl",
-                         -name=>'editcalendar');
+                          -name=>'editcalendar',
+                          -override=>'1');
    $temphtml .= hidden(-name=>'sessionid',
                        -value=>$thissession,
                        -override=>'1');
@@ -1849,15 +1909,6 @@ sub edit_item {
    $temphtml .= hidden(-name=>'action',
                        -value=>'calupdate',
                        -override=>'1');
-   $temphtml .= hidden(-name=>'year',
-                       -value=>$year,
-                       -override=>'1');
-   $temphtml .= hidden(-name=>'month',
-                       -value=>$month,
-                       -override=>'1');
-   $temphtml .= hidden(-name=>'day',
-                       -value=>$day,
-                       -override=>'1');
    $temphtml .= hidden(-name=>'index',
                        -value=>$index,
                        -override=>'1');
@@ -1867,6 +1918,34 @@ sub edit_item {
                           -override=>'1');
    }
    $html =~ s/\@\@\@STARTFORM\@\@\@/$temphtml/;
+
+   my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
+   $days_in_month[2]++ if ( ($year%4)==0 && (($year%100)!=0||($year%400)==0) );
+   $day=$days_in_month[$month] if ($day>$days_in_month[$month]); $day=1 if ($day<1);
+
+   $html =~ s/\@\@\@ITEMDATEMENU\@\@\@/$lang_text{'calfmt_yearmonthday'}/g;
+   $temphtml = popup_menu(-name=>'year',
+                          -values=>[1970..2037],
+                          -onChange=>"valiDate()",
+                          -default=>$year,
+                          -override=>'1');
+   $html =~ s/\@\@\@YEAR\@\@\@/$temphtml/g;
+
+   $temphtml = popup_menu(-name=>'month',
+                          -values=>[1..12],
+                          -default=>$month,
+                          -onChange=>"valiDate()",
+                          -labels=>\%lang_month,
+                          -override=>1);
+   $html =~ s/\@\@\@MONTH_STR\@\@\@/$temphtml/g;
+
+   $temphtml = popup_menu(-name=>'day',
+                          -values=>[1..31],
+                          -default=>$day,
+                          -onChange=>"valiDate()",
+                          -override=>'1');
+   $html =~ s/\@\@\@DAY\@\@\@/$temphtml/g;
+
 
    $temphtml = textfield(-name=>'string',
                          -default=>$items{$index}{'string'},
@@ -1893,20 +1972,23 @@ sub edit_item {
 
    $temphtml = $lang_text{'calfmt_hourminampm'};
    $temphtml2 = popup_menu(-name=>'starthour',
-                          -values=>\@hourlist,
-                          -default=>$starthour,
-                          -labels=>\%numlabels);
+                           -values=>\@hourlist,
+                           -default=>$starthour,
+                           -labels=>\%numlabels,
+                           -override=>'1');
    $temphtml2 .= "<B>:</B>";
    $temphtml2 .= popup_menu(-name=>'startmin',
-                           -values=>[0,5,10,15,20,25,30,35,40,45,50,55],
-                           -default=>$startmin,
-                           -labels=>\%numlabels);
+                            -values=>[0,5,10,15,20,25,30,35,40,45,50,55],
+                            -default=>$startmin,
+                            -labels=>\%numlabels,
+                            -override=>'1');
    $temphtml =~ s/\@\@\@HOURMIN\@\@\@/$temphtml2/;
    if ($prefs{'hourformat'}==12) {
       $temphtml2 = popup_menu(-name=>'startampm',
                               -values=>['am','pm'],
                               -default=>$startampm,
-                              -labels=>{ am=>$lang_text{'am'}, pm=>$lang_text{'pm'} } );
+                              -labels=>{ am=>$lang_text{'am'}, pm=>$lang_text{'pm'} },
+                              -override=>'1');
    } else {
       $temphtml2 = '';
    }
@@ -1923,46 +2005,168 @@ sub edit_item {
    $temphtml2 = popup_menu(-name=>'endhour',
                            -values=>\@hourlist,
                            -default=>$endhour,
-                           -labels=>\%numlabels);
+                           -labels=>\%numlabels,
+                           -override=>'1');
    $temphtml2 .= "<B>:</B>";
    $temphtml2 .= popup_menu(-name=>'endmin',
                             -values=>[0,5,10,15,20,25,30,35,40,45,50,55],
                             -default=>$endmin,
-                            -labels=>\%numlabels);
+                            -labels=>\%numlabels,
+                            -override=>'1');
    $temphtml =~ s/\@\@\@HOURMIN\@\@\@/$temphtml2/;
    if ($prefs{'hourformat'}==12) {
       $temphtml2 = popup_menu(-name=>'endampm',
                               -values=>['am','pm'],
                               -default=>$endampm,
-                              -labels=>{ am=>$lang_text{'am'}, pm=>$lang_text{'pm'} } );
+                              -labels=>{ am=>$lang_text{'am'}, pm=>$lang_text{'pm'} },
+                              -override=>'1');
    } else {
       $temphtml2 = '';
    }
    $temphtml =~ s/\@\@\@AMPM\@\@\@/$temphtml2/;
    $html =~ s/\@\@\@ENDHOURMINMENU\@\@\@/$temphtml/;
 
-   my $linkstr=$items{$index}{'link'};
-   $linkstr="" if ($linkstr eq "0");
+
+   # deconstruct the idate
+   # An idate has the following format: <years><months><days><dayofweek>
+   # An idate can look like:
+   #    20030808                            The event occurs on August 8, 2003, This Month, This Day only
+   #    (20030808|20030809)                 The event occurs on August 8 and 9, 2003 (or August 8 and Next 1 day)
+   #    .*,04,07,.*                         The event occurs on April 7, Every Year
+   #    .*,.*,((1[5-9])|(2[0-1])),Tue       The event occurs on the 3rd Tuesday, Every Month, Every Year
+   #    2003,.*,.*,Wed                      The event occurs Every Wednesday, Every Week of 2003
+   #    2003,.*,11,.*                       The event occurs Every 11th day, Every Month of 2003
+   my ($everyyear, $monthfreq, $dayfreq, $dow, $startdate, $enddate, $ndays) = '';
+
+   my $dayfreq_default = "thisdayonly";
+   my $thisandnextndays_default = 0;
+   my $ndays_default = "";
+   my $monthfreq_default = "thismonthonly";
+   my $everyyear_default = 0;
+   my $linkstr_default=$items{$index}{'link'};
+   my $emailstr_default=$items{$index}{'email'};
+
+   if ($items{$index}{'idate'} =~ m/,/) { #idate has recurrance in it
+       ($everyyear, $monthfreq, $dayfreq, $dow) = split(/,/, $items{$index}{'idate'});
+       my %weekorder_day_wild_reversed = ( "0[1-7]" => 1,
+                                           "((0[8-9])|(1[0-4]))" => 2,
+                                           "((1[5-9])|(2[0-1]))" => 3,
+                                           "2[2-8]" => 4);
+
+       if ($weekorder_day_wild_reversed{$dayfreq}) {
+          $dayfreq_default = "thewdayofthismonth";
+       } elsif ($dayfreq eq '.*') {
+          $dayfreq_default = "everywdaythismonth";
+       }
+       if ($monthfreq eq '(01|03|05|07|09|11)') {
+          $monthfreq_default = "everyoddmonththisyear";
+       } elsif ($monthfreq eq '(02|04|06|08|10|12)') {
+          $monthfreq_default = "everyevenmonththisyear"
+       } elsif ($monthfreq eq '.*') {
+          $monthfreq_default = "everymonththisyear";
+       }
+       if ($everyyear eq '.*') {
+          $everyyear_default = 1;
+       }
+   } elsif ($items{$index}{'idate'} =~ m/^\(?(\d+)\|?.*?\|?(\d+)?\)?$/) {
+       # That regex breaks apart idates like (20030808|20030809)
+       $startdate = $1;
+       $enddate = $2 || '';
+       if ($enddate) { # we have a next Nday recurrance here
+          $thisandnextndays_default = 1;
+          $ndays_default = $items{$index}{'idate'} =~ tr/|/|/; # count pipes - cheap and easy
+       }
+   } else {
+      openwebmailerror(__FILE__, __LINE__, "Index $index idate $lang_err{'doesnt_exist'}");
+      writelog("edit calitem error - idate wrong format, index=$index");
+      writehistory("edit calitem error - idate wrong format, index=$index");
+   }
+
+   my $t=timegm(1,1,1, $day,$month-1,$year-1900);
+   my $wdaynum=(gmtime($t))[6];
+   my $weekorder=int(($day+6)/7);
+   my %dayfreqlabels = ('thisdayonly'       =>$lang_text{'thisday_only'},
+                        'thewdayofthismonth'=>$lang_text{'the_wday_of_thismonth'},
+                        'everywdaythismonth'=>$lang_text{'every_wday_thismonth'});
+   $dayfreqlabels{'thewdayofthismonth'}=~s/\@\@\@ORDER\@\@\@/$lang_order{$weekorder}/;
+   $dayfreqlabels{'thewdayofthismonth'}=~s/\@\@\@WDAY\@\@\@/$lang_wday{$wdaynum}/;
+   $dayfreqlabels{'everywdaythismonth'}=~s/\@\@\@WDAY\@\@\@/$lang_wday{$wdaynum}/;
+
+   if ($weekorder<=4) {
+      $temphtml = popup_menu(-name=>'dayfreq',
+                             -values=>['thisdayonly', 'thewdayofthismonth', 'everywdaythismonth'],
+                             -default=>$dayfreq_default,
+                             -labels=>\%dayfreqlabels,
+                             -override=>'1');
+   } else {
+      $temphtml = popup_menu(-name=>'dayfreq',
+                             -values=>['thisdayonly', 'everywdaythismonth'],
+                             -default=>$dayfreq_default,
+                             -labels=>\%dayfreqlabels,
+                             -override=>'1');
+   }
+   $html =~ s/\@\@\@FREQMENU\@\@\@/$temphtml/;
+
+   $temphtml = checkbox(-name=>'thisandnextndays',
+                        -value=>'1',
+                        -checked=>$thisandnextndays_default,
+                        -label=>'',
+                        -override=>'1');
+   $html =~ s/\@\@\@THISANDNEXTNDAYSCHECKBOX\@\@\@/$temphtml/g;
+
+   $temphtml = textfield(-name=>'ndays',
+                         -default=>$ndays_default,
+                         -size=>'2',
+                         -override=>'1');
+   $html =~ s/\@\@\@NDAYSFIELD\@\@\@/$temphtml/;
+
+   my %monthfreqlabels = ('thismonthonly'         =>$lang_text{'thismonth_only'},
+                          'everyoddmonththisyear' =>$lang_text{'every_oddmonth_thisyear'},
+                          'everyevenmonththisyear'=>$lang_text{'every_evenmonth_thisyear'},
+                          'everymonththisyear'    =>$lang_text{'every_month_thisyear'});
+   my @monthfreq =('thismonthonly');
+   if ($month%2==1) {
+      push(@monthfreq, 'everyoddmonththisyear');
+   } else {
+      push(@monthfreq, 'everyevenmonththisyear');
+   }
+   push(@monthfreq, 'everymonththisyear');
+   $temphtml = popup_menu(-name=>'monthfreq',
+                          -values=>\@monthfreq,
+                          -default=>$monthfreq_default,
+                          -labels=>\%monthfreqlabels,
+                          -override=>'1');
+   $html =~ s/\@\@\@MONTHFREQMENU\@\@\@/$temphtml/g;
+
+
+   $temphtml = checkbox(-name=>'everyyear',
+                        -value=>'1',
+                        -checked=>$everyyear_default,
+                        -label=>'',
+                        -override=>'1');
+   $html =~ s/\@\@\@EVERYYEARCHECKBOX\@\@\@/$temphtml/g;
+
+
+   $linkstr_default="http://" if ($linkstr_default eq "0");
    $temphtml = textfield(-name=>'link',
-                         -default=>$linkstr,
+                         -default=>$linkstr_default,
                          -size=>'32',
                          -override=>'1');
    $html =~ s/\@\@\@LINKFIELD\@\@\@/$temphtml/;
 
-   my $emailstr=$items{$index}{'email'};
-   $emailstr="" if ($emailstr eq "0");
 
+   $emailstr_default="" if ($emailstr_default eq "0");
    if ($config{'calendar_email_notifyinterval'} > 0 ) {
       $html =~ s/\@\@\@EMAILSTART\@\@\@//;
       $html =~ s/\@\@\@EMAILEND\@\@\@//;
       $temphtml = textfield(-name=>'email',
-                            -default=>$emailstr,
+                            -default=>$emailstr_default,
                             -size=>'32',
                             -override=>'1');
       $html =~ s/\@\@\@EMAILFIELD\@\@\@/$temphtml/;
    } else {
       $temphtml = hidden(-name=>'email',
-                         -value=>$emailstr,
+                         -value=>$emailstr_default,
                          -override=>'1');
       $html =~ s/\@\@\@EMAILSTART\@\@\@/$temphtml<!--/;
       $html =~ s/\@\@\@EMAILEND\@\@\@/-->/;
@@ -1970,16 +2174,22 @@ sub edit_item {
    }
 
    $temphtml = qq|<table><tr>|;
-   $temphtml .= qq|<td>|.popup_menu(-name=>'eventcolor',
-                                    -values=>['none', sort keys %eventcolors],
-                                    -default=>$items{$index}{'eventcolor'},
-                                    -labels=>{ none=> $lang_text{'none'} } ).qq|</td>|;
+   $temphtml .= qq|<td>|;
+   $temphtml .= popup_menu(-name=>'eventcolor',
+                           -values=>['none', sort keys %eventcolors],
+                           -default=>$items{$index}{'eventcolor'},
+                           -labels=>{ none=> $lang_text{'none'} },
+                           -override=>'1');
+   $temphtml .= qq|</td>|;
+   my $eventcolornum = 1;
    foreach (sort keys %eventcolors) {
-      $temphtml .= qq|<td width=14 align=center bgcolor="#$eventcolors{$_}">|.
-                   qq|<a onclick="JavaScript:document.editcalendar.eventcolor.value='$_'">$_</a></td>|;
+      $temphtml .= qq|<td width="14" align="center" bgcolor="#$eventcolors{$_}">|.
+                   qq|<a href="javascript:nothing()" onClick='javascript:document.editcalendar.eventcolor.selectedIndex="$eventcolornum"'>$_</a></td>\n|;
+      $eventcolornum++;
    }
-   $temphtml .= qq|<td width=14 align=center>|.
-                qq|<a onclick="JavaScript:document.editcalendar.eventcolor.value='none'">--</a></td>|;
+   $temphtml .= qq|<td width="14" align="center">|.
+                qq|<a href="javascript:nothing()" onClick='javascript:document.editcalendar.eventcolor.selectedIndex="0"'>--</a></td>\n|;
+
    $temphtml .= qq|</tr></table>|;
    $html =~ s/\@\@\@EVENTCOLORMENU\@\@\@/$temphtml/;
 
@@ -1987,7 +2197,8 @@ sub edit_item {
    $html =~ s/\@\@\@SUBMITBUTTON\@\@\@/$temphtml/;
 
    $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-cal.pl",
-                         -name=>'cancelform');
+                         -name=>'cancelform',
+                         -override=>'1');
    $temphtml .= hidden(-name=>'sessionid',
                        -value=>$thissession,
                        -override=>'1');
@@ -2082,17 +2293,21 @@ sub add_item {
       $endhourmin = sprintf("%02d%02d", $endhour,$endmin);
    }
 
+   # fix the day if needed
+   my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
+   $days_in_month[2]++ if ( ($year%4)==0 && (($year%100)!=0||($year%400)==0) );
+   $day=$days_in_month[$month] if ($day>$days_in_month[$month]); $day=1 if ($day<1);
+
    my ($item_count, %items, %indexes);
    if ( ($item_count=readcalbook("$folderdir/.calendar.book", \%items, \%indexes, 0)) <0 ) {
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir/.calendar.book");
    }
 
    my $index = $item_count+19690404;	# avoid collision with old records
-   my $t = timegm(1,1,1,$day, $month-1, $year-1900);
+   my $t = timegm(1,1,1, $day,$month-1,$year-1900);
    my $dow = $wdaystr[(gmtime($t))[6]];
-   my $records = "";
 
-   # construct the record.
+   # construct the idate for this record.
    if ($dayfreq eq 'thisdayonly' && $monthfreq eq 'thismonthonly' && !$everyyear) {
       if ($thisandnextndays && $ndays) {
          if ($ndays !~ /\d+/) {
@@ -2167,7 +2382,7 @@ sub add_item {
 
    reset_notifycheck_for_newitem($items{$index});
 
-   my $msg="add calitem - start=$starthourmin, end=$endhourmin, str=$string";
+   my $msg="add calitem - index=$index, start=$starthourmin, end=$endhourmin, str=$string";
    writelog($msg);
    writehistory($msg);
 }
@@ -2184,11 +2399,12 @@ sub del_item {
    }
    return if (! defined($items{$index}) );
 
-   my $msg="delete calitem - index=$index, t=$items{$index}{'starthourmin'}, str=$items{$index}{'string'}";
    delete $items{$index};
    if ( writecalbook("$folderdir/.calendar.book", \%items) <0 ) {
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir/.calendar.book");
    }
+
+   my $msg="delete calitem - index=$index, t=$items{$index}{'starthourmin'}, str=$items{$index}{'string'}";
    writelog($msg);
    writehistory($msg);
 }
@@ -2197,9 +2413,13 @@ sub del_item {
 ######################## UPDATE_ITEM #########################
 # update an item in user calendar
 sub update_item {
-   my ($index, $string,
+   my ($index, 
+       $year, $month, $day,
+       $string,
        $starthour, $startmin, $startampm,
        $endhour, $endmin, $endampm,
+       $dayfreq,
+       $thisandnextndays, $ndays, $monthfreq, $everyyear,
        $link, $email, $eventcolor)=@_;
    my $line;
 
@@ -2245,6 +2465,77 @@ sub update_item {
       $endhourmin = sprintf("%02d%02d", $endhour,$endmin);
    }
 
+   # fix the day if needed
+   my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
+   $days_in_month[2]++ if ( ($year%4)==0 && (($year%100)!=0||($year%400)==0) );
+   $day=$days_in_month[$month] if ($day>$days_in_month[$month]); $day=1 if ($day<1);
+
+   my $t = timegm(1,1,1, $day,$month-1,$year-1900);
+   my $dow = $wdaystr[(gmtime($t))[6]];
+
+   # construct the idate for this record.
+   my $idate = '';
+   if ($dayfreq eq 'thisdayonly' && $monthfreq eq 'thismonthonly' && !$everyyear) {
+      if ($thisandnextndays && $ndays) {
+         if ($ndays !~ /\d+/) {
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'badnum_in_days'}: $ndays");
+         }
+         my $date_wild='(';
+         for (my $i=0; $i<=$ndays; $i++) {
+            my ($y, $m, $d)=(gmtime($t+86400*$i))[5,4,3];
+            my $date=sprintf("%04d%02d%02d", $y+1900, $m+1, $d);
+            $date_wild.='|' if ($i>0);
+            $date_wild.=sprintf("%04d%02d%02d", $y+1900, $m+1, $d);
+         }
+         $date_wild.=')';
+         $idate=$date_wild;
+      } else {
+         $idate=sprintf("%04d%02d%02d", $year, $month, $day);
+      }
+
+   } elsif ($dayfreq eq 'thewdayofthismonth') {
+      my $year_wild=sprintf("%04d", $year);
+      my $month_wild=sprintf("%02d", $month);
+      my $day_wild=sprintf("%02d", $day);
+
+      $year_wild = ".*" if ($everyyear);
+      if ($monthfreq eq 'everyoddmonththisyear') {
+         $month_wild="(01|03|05|07|09|11)";
+      } elsif ($monthfreq eq 'everyevenmonththisyear') {
+         $month_wild="(02|04|06|08|10|12)";
+      } elsif ($monthfreq eq 'everymonththisyear') {
+         $month_wild = ".*";
+      }
+      my %weekorder_day_wild= ( 1 => "0[1-7]",
+                                2 => "((0[8-9])|(1[0-4]))",
+                                3 => "((1[5-9])|(2[0-1]))",
+                                4 => "2[2-8]" );
+      my $weekorder=int(($day+6)/7);
+      $day_wild=$weekorder_day_wild{$weekorder} if ($weekorder_day_wild{$weekorder} ne "");
+
+      $idate="$year_wild,$month_wild,$day_wild,$dow";
+
+   } else { # everywdaythismonth and else...
+      my $year_wild=sprintf("%04d", $year);
+      my $month_wild=sprintf("%02d", $month);
+
+      $year_wild = ".*" if ($everyyear);
+      if ($monthfreq eq 'everyoddmonththisyear') {
+         $month_wild="(01|03|05|07|09|11)";
+      } elsif ($monthfreq eq 'everyevenmonththisyear') {
+         $month_wild="(02|04|06|08|10|12)";
+      } elsif ($monthfreq eq 'everymonththisyear') {
+         $month_wild = ".*";
+      }
+
+      if ($dayfreq eq 'everywdaythismonth') {
+         $idate="$year_wild,$month_wild,.*,$dow";
+      } else {
+         my $daystr=sprintf("%02d", $day);
+         $idate="$year_wild,$month_wild,$daystr,.*";
+      }
+   }
+
    my (%items, %indexes);
    if ( readcalbook("$folderdir/.calendar.book", \%items, \%indexes, 0)<0 ) {
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir/.calendar.book");
@@ -2257,10 +2548,11 @@ sub update_item {
 
    $items{$index}{'starthourmin'}="$starthourmin"; # " is required or "0000" will be treated as 0?
    $items{$index}{'endhourmin'}="$endhourmin";
+   $items{$index}{'idate'}="$idate";
    $items{$index}{'string'}=$string;
    $items{$index}{'link'}=$link;
    $items{$index}{'email'}=$email;
-   $items{$index}{'eventcolor'}=$eventcolor;
+   $items{$index}{'eventcolor'}="$eventcolor";
 
    if ( writecalbook("$folderdir/.calendar.book", \%items) <0 ) {
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir/.calendar.book");
@@ -2283,7 +2575,7 @@ sub set_days_in_month {
    foreach (keys %wdaynum) {
       $wdaynum{$_}=($wdaynum{$_}+7-$prefs{'calendar_weekstart'})%7;
    }
-   my $time = timegm("0","0","12","1",$month-1,$year-1900);
+   my $time = timegm(0,0,12, 1,$month-1,$year-1900);
    my $weekday = gmtime($time); $weekday =~ s/^(\w+).*$/$1/;
 
    my @days;

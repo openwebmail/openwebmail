@@ -16,3 +16,4 @@ seansas baigsis po 60 sekundþiø.
 <script language="JavaScript">
 setTimeout("close()", 60*1000);
 </script>
+</center>

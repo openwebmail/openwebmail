@@ -16,3 +16,4 @@ votre session sera fermée dans 60 sec.
 <script language="JavaScript">
 setTimeout("close()", 60*1000);
 </script>
+</center>

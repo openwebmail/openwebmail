@@ -7,8 +7,8 @@ window_light="#F0F8FF"
 attachment_dark="#99BDDF"
 attachment_light="#D3DAE3"
 columnheader="#ADD8F9"
-tablerow_dark="#F0F8FF"
-tablerow_light="#FFFFFF"
+tablerow_dark="#E8F0F8"
+tablerow_light="#F8F8F8"
 fontface="Arial"
 ###STARTSTYLESHEET###
 <!--

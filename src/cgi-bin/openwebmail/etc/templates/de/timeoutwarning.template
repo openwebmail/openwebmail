@@ -16,3 +16,4 @@ wird die Sitzung in 60 Sekunden automatisch beendet.
 <script language="JavaScript">
 setTimeout("close()", 60*1000);
 </script>
+</center>

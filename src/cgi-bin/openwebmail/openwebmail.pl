@@ -17,9 +17,9 @@
 # openwebmail.pl - entry point of openwebmail
 #
 use vars qw($SCRIPT_DIR);
-if ( $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
+if ( $0 =~ m!^(\S*)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
 if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
-   $_=<F>; close(F); if ( $_=~/^([^\s]*)/) { $SCRIPT_DIR=$1; }
+   $_=<F>; close(F); if ( $_=~/^(\S*)/) { $SCRIPT_DIR=$1; }
 }
 if (!$SCRIPT_DIR) { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
 push (@INC, $SCRIPT_DIR);
@@ -151,7 +151,7 @@ sub loginmenu {
    $html =~ s/\@\@\@STARTFORM\@\@\@/$temphtml/;
 
    $temphtml = textfield(-name=>'loginname',
-                         -default=>'' ,
+                         -default=>'',
                          -size=>'12',
                          -onChange=>'focuspwd()',
                          -override=>'1');
@@ -537,7 +537,15 @@ sub login {
       } elsif ( $action eq 'editfolders' ) {
          $refreshurl="$config{'ow_cgiurl'}/openwebmail-folder.pl?sessionid=$thissession&action=$action";
       } else {
-         $refreshurl="$config{'ow_cgiurl'}/openwebmail-main.pl?sessionid=$thissession&action=listmessages_afterlogin";
+         if ($config{'enable_webmail'}) {
+            $refreshurl="$config{'ow_cgiurl'}/openwebmail-main.pl?sessionid=$thissession&action=listmessages_afterlogin";
+         } elsif ($config{'enable_calendar'}) {
+            $refreshurl="$config{'ow_cgiurl'}/openwebmail-cal.pl?sessionid=$thissession&action=calmonth";
+         } elsif ($config{'enable_webdisk'}) {
+            $refreshurl="$config{'ow_cgiurl'}/openwebmail-webdisk.pl?sessionid=$thissession&action=showdir";
+         } else {
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'all_module_disabled'}, $lang_err{'access_denied'}");
+         }
       }
 
       if ( !$config{'stay_ssl_afterlogin'} &&	# leave SSL
@@ -864,11 +872,8 @@ sub releaseupgrade {
          filelock($folderfile, LOCK_SH) or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $folderfile");
          open (FOLDER, $folderfile);
-         if (!$config{'dbmopen_haslock'}) {
-            filelock("$headerdb$config{'dbm_ext'}", LOCK_EX) or
+         open_dbm(\%HDB, $headerdb, LOCK_EX) or
                openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $headerdb$config{'dbm_ext'}");
-         }
-         dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", 0600);
 
          if ( $HDB{'METAINFO'} eq metainfo($folderfile) ) { # upgrade only if hdb is uptodate
             @messageids=keys %HDB;
@@ -912,9 +917,8 @@ sub releaseupgrade {
                $HDB{$id}=join('@@@', @attr);
             }
          }
-         dbmclose(%HDB);
+         close_dbm(\%HDB, $headerdb);
          close(FOLDER);
-         filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
          filelock($folderfile, LOCK_UN);
       }
       writehistory("release upgrade - $folderdir/* by 20020108.02");
@@ -930,11 +934,8 @@ sub releaseupgrade {
          my (%HDB, @messageids, @attr);
          next if ( ! -f "$headerdb$config{'dbm_ext'}" || -z "$headerdb$config{'dbm_ext'}" );
 
-         if (!$config{'dbmopen_haslock'}) {
-            filelock("$headerdb$config{'dbm_ext'}", LOCK_EX) or
+         open_dbm(\%HDB, $headerdb, LOCK_EX) or
                openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $headerdb$config{'dbm_ext'}");
-         }
-         dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", 0600);
          @messageids=keys %HDB;
          foreach my $id (@messageids) {
             next if ( $id eq 'METAINFO'
@@ -955,8 +956,7 @@ sub releaseupgrade {
 					$d[2],$d[0],$d[1], $d[3],$d[4],$d[5]);
             $HDB{$id}=join('@@@', @attr);
          }
-         dbmclose(%HDB);
-         filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+         close_dbm(\%HDB, $headerdb);
 
          my $cachefile="$headerdb.cache";
          ($cachefile =~ /^(.+)$/) && ($cachefile = $1);  # untaint ...
@@ -979,11 +979,8 @@ sub releaseupgrade {
          filelock($folderfile, LOCK_SH) or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $folderfile");
          open (FOLDER, $folderfile);
-         if (!$config{'dbmopen_haslock'}) {
-            filelock("$headerdb$config{'dbm_ext'}", LOCK_EX) or
+         open_dbm(\%HDB, $headerdb, LOCK_EX) or
                openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $headerdb$config{'dbm_ext'}");
-         }
-         dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", 0600);
 
          @messageids=keys %HDB;
          foreach my $id (@messageids) {
@@ -1018,15 +1015,15 @@ sub releaseupgrade {
                    }
                }
                $attr[$_DATE]=$dateserial;
-            } else {	# local -> gm
-               $attr[$_DATE]=gmtime2dateserial(
-			dateserial2gmtime($attr[$_DATE])-timeoffset2seconds($timeoffset));
+            } else {	
+               my $t=dateserial2gmtime($attr[$_DATE])-timeoffset2seconds($timeoffset);	# local -> gm
+               $t-=3600 if (is_dst($t, $timeoffset));
+               $attr[$_DATE]=gmtime2dateserial($t);
             }
             $HDB{$id}=join('@@@', @attr);
          }
-         dbmclose(%HDB);
+         close_dbm(\%HDB, $headerdb);
          close(FOLDER);
-         filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
          filelock($folderfile, LOCK_UN);
       }
       writehistory("release upgrade - $folderdir/* by 20020601");
@@ -1042,11 +1039,8 @@ sub releaseupgrade {
          my (%HDB, @messageids, @attr);
          next if ( ! -f "$headerdb$config{'dbm_ext'}" || -z "$headerdb$config{'dbm_ext'}" );
 
-         if (!$config{'dbmopen_haslock'}) {
-            filelock("$headerdb$config{'dbm_ext'}", LOCK_EX) or
+         open_dbm(\%HDB, $headerdb, LOCK_EX) or
                openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $headerdb$config{'dbm_ext'}");
-         }
-         dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", 0600);
          @messageids=keys %HDB;
          foreach my $id (@messageids) {
             next if ( $id eq 'METAINFO'
@@ -1061,8 +1055,7 @@ sub releaseupgrade {
                $HDB{$id}=join('@@@', @attr);
             }
          }
-         dbmclose(%HDB);
-         filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+         close_dbm(\%HDB, $headerdb);
       }
       writehistory("release upgrade - $folderdir/.*$config{'dbm_ext'} by 20021111.02");
       writelog("release upgrade - $folderdir/.*$config{'dbm_ext'} by 20021111.02");
@@ -1135,7 +1128,7 @@ sub releaseupgrade {
 
    my $saverc=0;
    if (-f "$folderdir/.openwebmailrc") {
-      $saverc=1 if ( $user_releasedate lt "20030609" );	# rc upgrade
+      $saverc=1 if ( $user_releasedate lt "20030826" );	# rc upgrade
       %prefs = readprefs() if ($saverc);		# load user old prefs + sys defaults
    } else {
       $saverc=1 if ($config{'auto_createrc'});		# rc auto create

@@ -1,16 +1,16 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td colspan="4" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>EDITARE POP3 ACCOUNTURI</b></font>
+<b>EDITARE CONTURI POP3</b></font>
 </td><td nowrap colspan="3" bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b> @@@FREESPACE@@@ Availabil</b></font>
+<b> @@@FREESPACE@@@ disponibili</b></font>
 </td></tr><tr><td colspan="7" bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
 </td></tr><tr><td colspan="7">&nbsp;</td></tr>
 <tr>
 <td nowrap bgcolor=@@@COLUMNHEADER@@@>
-<B>POP3 Server</B> (click to edit)</td>
+<B>Server POP3</B> (clic pentru editare)</td>
 <td nowrap bgcolor=@@@COLUMNHEADER@@@>
 <B>Port</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
@@ -18,7 +18,7 @@
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Parola</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-@@@DELPOP3STRSTART@@@<B>Del sterge mail</B>@@@DELPOP3STREND@@@</td>
+@@@DELPOP3STRSTART@@@<B>Sterge cont</B>@@@DELPOP3STREND@@@</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Activeaza</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>

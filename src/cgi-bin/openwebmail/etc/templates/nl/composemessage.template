@@ -113,7 +113,7 @@
 
    function msgfmthelp()
    {
-      alert("Sorry, IE 5.5+(Windows) or Mozilla 1.3+(all OS) is required for HTML composing support.");
+      alert("Sorry, IE 5.5+(Windows) of Mozilla 1.3+(alle OSes) is benodigd voor het maken van HTML berichten.");
    }
 
     function msgfmtchangeconfirm()
@@ -121,7 +121,7 @@
       if ((document.composeform.msgformat.value == "html" ||
            document.composeform.msgformat.value == "both") &&
           document.composeform.newmsgformat.value == "text" ) {
-         if (confirm("The HTML data format will be lost after the conversion, are you sure to change to Text mode?")) {
+         if (confirm("De opmaak van de HTML data gaat verloren als u wilt overschakelen naar TEKST formaat, weet u zeker dat u wilt overschakelen naar TEKST formaat?")) {
             bodygethtml();
             document.composeform.submit();
             return true;

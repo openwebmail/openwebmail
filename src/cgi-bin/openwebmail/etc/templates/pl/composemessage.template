@@ -113,7 +113,7 @@
 
    function msgfmthelp()
    {
-      alert("Sorry, IE 5.5+(Windows) or Mozilla 1.3+(all OS) is required for HTML composing support.");
+      alert("Edycja HTML wymaga przegl±darek IE 5.5+(Windows) lub Mozilla 1.3+(wszystkie systemy).");
    }
 
     function msgfmtchangeconfirm()
@@ -121,7 +121,7 @@
       if ((document.composeform.msgformat.value == "html" ||
            document.composeform.msgformat.value == "both") &&
           document.composeform.newmsgformat.value == "text" ) {
-         if (confirm("The HTML data format will be lost after the conversion, are you sure to change to Text mode?")) {
+         if (confirm("Format HTML zostanie utracony po konwersji. Czy jeste¶ pewien?")) {
             bodygethtml();
             document.composeform.submit();
             return true;

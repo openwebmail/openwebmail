@@ -306,8 +306,14 @@ ps: If you get this error periodicly and your are using Mandrake Linux,
     /var/log directory and changes ownerships/permissions.  
     (thanks to Karl Schricker, karl_schricker.AT.gmx.net)
 
-Q: I got "Software error: ndbm store returned -1, errno 49, ..."?
-A: The user may exceed his quota limit on the file system.
+Q: I got "Software error: ndbm store returned -1, errno XX, ..."?
+A: The meaning of errno XX could be found in errno.h
+
+   If your OS is FreeBSD, please check /usr/include/sys/errno.h
+   If your OS is Linux,   please check /usr/include/asm/errno.h
+   If your OS is Solaris, please check /usr/include/sys/errno.h
+
+   Most of the time, the error is due to exceeded user quota.
    Please remove unwanted files or increase the quota for user.
 
 Q: My SENT folder shows -1 or other negative message size rather then
@@ -642,6 +648,23 @@ A: please check
    to see if any update fixes your problem and download the 
    openwebmail-current.tgz
 
+Q: I got some messages that have attachment with filename "Unknown.tnef" 
+   and contenttype "application/ms-tnef", 
+   how can I extract files from this attachment?
+A: Solution 1:
+
+   You need to install tnef viewer in the user computer,
+   the viewer is available at http://www.ericphelps.com/tnef/
+
+   Solution 2:
+
+   You have to install the tnef extracter on the openwebmail server,
+   it is available at http://sourceforge.net/projects/tnef/.
+
+   To extract the files inside a tnef attachment, the user can save the 
+   attachment into openwebmail webdisk, than extract files through webdisk
+   interface.
+
 ========================================================================
 COMPOSE MESSAGE
 ========================================================================
@@ -673,6 +696,15 @@ A: The HTML editor requires
    1. IE5.5+ on windows platform, or 
    2. Mozilla 1.3b+ on all platforms
 
+Q: Is it possible to use openwebmail with borwser other than IE5.5+ 
+   and Mozilla 1.3b+, e.g.: Opera or old Netscape?
+A: If you are using windows platform, then you may install neadroid 
+   Neptune plug-in, which will add support for IE DHTML to your borwer.
+   The URL is http://www.meadroid.com/neptune/download/index.htm  
+
+   Some discussion of this plug-in is available at
+   http://www.interactivetools.com/forum/gforum.cgi?post=14116;sb=post_latest_reply;so=ASC;forum_view=forum_view_collapsed 
+
 Q: The InserImage, InsertTable popup window don't show with correct charset?
 A: This mostly happens with apache web server 2.0 or later.
    Please edit your Apache Configuration file, replace
@@ -694,15 +726,26 @@ MAIL FILTERING
 
 Q: Some of my messages were moved to trash folder automatically?
 A: Your messages were either filtered by 'global filter rule',
-   'faked smtp filter', 'faked from filter' or 'faked exe contenttype filter'. 
+   'repeatness filter', 'bad format from filter', 'faked smtp filter', 
+   'faked from filter' or 'faked exe contenttype filter'. 
 
    Global filter will filter messages with know virus attachments. The global
    filter rules are defined in the file global_filterbook
    (global_filterbook is defined as %ow_etcdir%/global_filterbook in 
     openwebmail.conf.)
 
+   The 'repeatness filter' will filter messages with same from and subject for
+   more than certain times, those messages are ofterm from spammers or virus.
+
+   The 'bad format from filter' will filter messages that have bad-format from
+   email address. A from email address is in bad format if
+   1. it is started with digits
+   2. it contains both digits and dot
+   3. it caontains characters other than alphabets, digits, dot, dask, underline.
+
    The 'faked smtp filter' will filter messages that have a faked smtp
    source, those messages are often from spammers. 
+
    The 'faked from filter' will filter messages whose From: field is different
    than the email address in the SMTP envelope address, those messages are 
    often generated from virus. 
@@ -878,13 +921,20 @@ Q: When I clicked 'spell check' button, I got "Internal Server error" in new
    window?
 A: 1. Please be sure that you have installed ispell-3.1.20.tar.gz
    2. If you are using C wrappers for suid scripts on Solaris,
-      please recompile you perl with suid enabled instaed of using 
+      please recompile you perl with suid enabled instead of using 
       the C wrappers.
       (thanks to Isam Ishaq, isam.AT.planet.edu)
 
 Q: Ispell has been correctly installed, but spellcheck still doesn't work?
 A: The spellcheck in old version of openwebmail doesn't work on RedHat 7.x,
    please upgrade your openwebmail to the latest version.
+
+Q: I use aspell for spelling check, but I got "Internal Server error" 
+   once I put some words into the personal dictionary?
+A: Please check the version of your aspell program.
+   The aspell that comes with RedHat is 0.33.7 which is quite old.
+   Please upgrade your aspell to 0.50.3 by installing the 
+   aspell-0.50.3.tar.gz and aspell-en-0.51-0.tar.bz2
 
 Q: Why is openwebmail-spell.pl a suid root program?
 A: Because it needs to read the preference file, ~/mail/.openwebmailrc, 
@@ -942,6 +992,16 @@ A: Since apache only allow SSL for one virtual domain, you can have only one
 ========================================================================
 MISC PROBLEMS
 ========================================================================
+
+Q: The help turtorial doesn't show with correct charset?
+A: This mostly happens with apache web server 2.0 or later.
+   Please edit your Apache Configuration file, replace
+   
+   AddDefaultCharset ISO-8859-1
+
+   with
+
+   AddDefaultCharset off
 
 Q: The DayLight Saving option in user preference doesn't work,
    messages in folders still have wrong date in folderlist view?
@@ -1242,6 +1302,7 @@ A: If your Open WebMail doesn't work, please post your problem on
    the ls -la of the ~user/mail/
    the error message in your browser
    the error message in your http server error log
+   the error message in openwebmail.log
    you browser name & version
    do you enable speedycgi?
    do you set any proxy server in browser?
@@ -1307,6 +1368,7 @@ use CGI qw(-private_tempfiles :standard);
 print "Content-type: text/html\n\n";
 my $info;
 my $loginname = cookie("openwebmail-loginname");
+$loginname=~s/[^\w\d\.\-\%\@]//g;	# remove dangerous char
 if ($loginname ne "") {
    $info=`/usr/local/www/cgi-bin/openwebmail/openwebmail-tool.pl -m -e $loginname`;
 }

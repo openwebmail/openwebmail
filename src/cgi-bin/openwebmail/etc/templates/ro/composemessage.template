@@ -8,7 +8,7 @@
 <td>@@@BACKTOFOLDER@@@</td>
 <td align="right">
 <table border="0" cellpadding="0" cellspacing="0"><tr>
-<td>Charset for composing: </td>
+<td>Set caractere mesaj: </td>
 <td>@@@CONVTOMENU@@@&nbsp;</td>
 </tr></table>
 </td>
@@ -43,7 +43,7 @@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 <table border="0" cellpadding="0" cellspacing="0"><tr>
 <td>@@@REPLYTOFIELD@@@&nbsp;&nbsp;</td>
-<td><B>Confirmeaza citire</B></td>
+<td><B>Confirmare citire</B></td>
 <td>@@@CONFIRMREADINGCHECKBOX@@@</td>
 </tr></table>
 </td></tr>
@@ -113,7 +113,7 @@
 
    function msgfmthelp()
    {
-      alert("Sorry, IE 5.5+(Windows) or Mozilla 1.3+(all OS) is required for HTML composing support.");
+      alert("IE 5.5+(Windows) sau Mozilla 1.3+(all OS) sunt necesare pentru a putea compune mesaje HTML.");
    }
 
     function msgfmtchangeconfirm()
@@ -121,7 +121,7 @@
       if ((document.composeform.msgformat.value == "html" ||
            document.composeform.msgformat.value == "both") &&
           document.composeform.newmsgformat.value == "text" ) {
-         if (confirm("The HTML data format will be lost after the conversion, are you sure to change to Text mode?")) {
+         if (confirm("Informatiile HTML se vor pierde dupa conversie, sunteti sigur ca doriti sa treceti in mod Text?")) {
             bodygethtml();
             document.composeform.submit();
             return true;
@@ -173,11 +173,11 @@
       if (document.composeform.to.value == ""
        && document.composeform.cc.value == ""
        && document.composeform.bcc.value == "" ) {
-         alert("Please specify the receiver before sending.");
+         alert("Va rugam specificati destinatarul inainte de trimitere.");
          return false;
       }
       if (document.composeform.subject.value == "" ) {
-         return(confirm("Nu ati specificat subiectul mesajului, mai doriti sa-l trimiteti?"));
+         return(confirm("Nu ati specificat subiectul mesajului, doriti sa-l trimiteti fara subiect?"));
       }
       return true;
    }

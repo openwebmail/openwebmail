@@ -2,7 +2,7 @@
 #
 # preload.pl - simple http client to active openwebmail service on web server
 #
-# 2003/03/24 tung@turtle.ee.ncku.edu.tw
+# 2003/03/24 tung.AT.turtle.ee.ncku.edu.tw
 #
 # This script can work in both CGI mode or command mode.
 # It is used to preload openwebmail scripts in persistent mode,

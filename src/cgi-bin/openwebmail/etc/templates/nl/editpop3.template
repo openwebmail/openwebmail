@@ -4,7 +4,7 @@
 <b>POP3 instellingen</b></font>
 </td><td nowrap colspan="3" bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b> @@@FREESPACE@@@ Beschikbaar</b></font>
+<b>@@@FREESPACE@@@ Beschikbaar</b></font>
 </td></tr><tr><td colspan="7" bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
 </td></tr><tr><td colspan="7">&nbsp;</td></tr>
@@ -12,9 +12,9 @@
 <td nowrap bgcolor=@@@COLUMNHEADER@@@>
 <B>POP3 Server</B> (klik om te bewerken)</td>
 <td nowrap bgcolor=@@@COLUMNHEADER@@@>
-<B>Port</B></td>
+<B>Poort</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Login</B> (klik om te ontvangen)</td>
+<B>Gebruikersnaam</B> (klik om te ontvangen)</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Wachtwoord</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>

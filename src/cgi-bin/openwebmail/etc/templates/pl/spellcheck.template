@@ -1,7 +1,7 @@
 <table border="0" align="center" width="95%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>SPELL CHECK for @@@DICTIONARY@@@</B></font>
+<B>SPRAWD¬ PISOWNIÊ (@@@DICTIONARY@@@)</B></font>
 </td></tr>
 <tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 
@@ -11,11 +11,9 @@
 s³owa. Mo¿esz wybraæ jedn± z nich w celu zast±pienia oryginalnego wyrazu.
 Je¶li nie ma ¿adnych sugestii lub wybierzesz "Popraw rêcznie" a potem
 klikniesz "Sprawd¼ powtórnie", pojawi siê pole tekstowe, w które bêdzie
-mo¿na wpisaæ ¿±dane s³owo.
-
-Je¶li wybierzes "--Dodaj do s³ownika--", a nastêpnie klikniesz
-If the user chooses "--Add to Dictionary--" and then clicks [Sprawd¼ powtórnie], 
-oryginalne s³owo zostanie dodane do osobistego s³ownika.
+mo¿na wpisaæ ¿±dane s³owo.<br>
+Je¶li wybierzesz "--Dodaj do s³ownika--", a nastêpnie klikniesz
+"Sprawd¼ powtórnie", oryginalne s³owo zostanie dodane do osobistego s³ownika.
 </td></tr>
 </table>
 <br>
@@ -26,7 +24,7 @@ oryginalne s³owo zostanie dodane do osobistego s³ownika.
 <table width="100%" bgcolor=#FFFFFF border="0" cellpadding="2" cellspacing="1">
 <tr><td valign="top"><font size=-1>
 @@@WORDSHTML@@@
-</td></tr></table>
+</font></td></tr></table>
 </td></tr></table>
 
 <br>

@@ -6,9 +6,9 @@
 #
 
 use vars qw($SCRIPT_DIR);
-if ( $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
+if ( $0 =~ m!^(\S*)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
 if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
-   $_=<F>; close(F); if ( $_=~/^([^\s]*)/) { $SCRIPT_DIR=$1; }
+   $_=<F>; close(F); if ( $_=~/^(\S*)/) { $SCRIPT_DIR=$1; }
 }
 if (!$SCRIPT_DIR) { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
 push (@INC, $SCRIPT_DIR);
@@ -48,6 +48,10 @@ $SIG{PIPE}=\&openwebmail_exit;	# for user stop
 $SIG{TERM}=\&openwebmail_exit;	# for user stop
 
 userenv_init();
+
+if (!$config{'enable_webmail'}) {
+   openwebmailerror(__FILE__, __LINE__, "$lang_text{'webmail'} $lang_err{'access_denied'}");
+}
 
 my $action = param("action");
 if ($action eq "advsearch") {
@@ -275,12 +279,9 @@ sub search_folders2 {
       my ($totalsize, $new, $r_messageids)=get_info_messageids_sorted_by_date($headerdb, 1);
       my (%HDB, %status);
 
-      if (!$config{'dbmopen_haslock'}) {
-         filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $headerdb$config{'dbm_ext'}");
-      }
+      open_dbm(\%HDB, $headerdb, LOCK_SH) or
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $headerdb$config{'dbm_ext'}");
       open (FOLDER, "$folderfile"); # used in TEXTCONTENT search
-      dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
 
       foreach my $messageid (@{$r_messageids}) {
          # begin the search
@@ -471,9 +472,8 @@ sub search_folders2 {
 
       } # end messageid loop
 
-      dbmclose(%HDB);
+      close_dbm(\%HDB, $headerdb);
       close(FOLDER);
-      filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
       filelock($folderfile, LOCK_UN);
    } # end foldertosearch loop
 

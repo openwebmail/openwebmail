@@ -29,7 +29,7 @@ package openwebmail::hu;
 
 %lang_onofflabels =
    (
-   auto => 'Auto switched',
+   auto => 'Automatikus váltás',
    on   => 'On',
    off  => 'Off',
    );
@@ -43,10 +43,10 @@ package openwebmail::hu;
 
 %lang_msgformatlabels =
    (
-   auto => 'Auto selected',
-   text	=> 'Text',
+   auto => 'Automatikus',
+   text	=> 'Szöveg',
    html => 'HTML',
-   both => 'HTML and Text'
+   both => 'HTML és Szöveg'
    );
 
 %lang_withoriglabels =
@@ -65,9 +65,9 @@ package openwebmail::hu;
 
 %lang_disableemblinklabels =
    (
-   none    => 'None',
-   cgionly => 'CGI only',
-   all     => 'All embedded URLs'
+   none    => 'Ne',
+   cgionly => 'csak CGI esetén',
+   all     => 'Minden beágyazott URL-ben'
    );
 
 %lang_ctrlpositionlabels =
@@ -85,9 +85,9 @@ package openwebmail::hu;
 
 %lang_abookbuttonpositionlabels = 
    (
-   before => 'Before addressbook entries',
-   after  => 'After addressbook entries',
-   both   => 'Before and after addressbook entries'
+   before => 'Címjegyzék elõtt',
+   after  => 'Címjegyzék után',
+   both   => 'Címjegyzék elõtt és után'
    );
 
 %lang_timelabels =
@@ -113,7 +113,7 @@ package openwebmail::hu;
    isnot       => 'ami nem',
    startswith  => 'kezdõdik',
    endswith    => 'végzõdik',
-   regexp      => 'regexp',
+   regexp      => 'szabályos kifejezés',
    );
 
 %lang_sizes =
@@ -191,9 +191,10 @@ package openwebmail::hu;
    chdir    => 'Könyvtárváltás',
    mkdir    => 'Új könyvtár',
    newfile  => 'Új file',
-   delete   => 'Töröl',
    copy     => 'Másol',
    move     => 'Áthelyez',
+   symlink  => 'Symlink',
+   delete   => 'Töröl',
    gzip     => 'gzip',
    mkzip    => 'zip',
    mktgz    => 'tgz',
@@ -204,10 +205,11 @@ package openwebmail::hu;
 
 %lang_text =
    (
-   loading    => 'Loading, please wait',
-   help       => 'Help',
+   loading    => 'Töltõdik, kérem várjon',
+   help       => 'Segítség',
    login      => 'Belépés',
    clear      => 'Töröl',
+   webmail    => 'WebMail',
    point      => 'Pont',
    pixel      => 'Pixel',
    changepwd  => 'Jelszócsere',
@@ -249,7 +251,7 @@ package openwebmail::hu;
    forwardasatt=>'Továbbítás csatolásként',
    forwardasorig=>'Forward as original',
    printfriendly=> 'Nyomtatóbarát verzió',
-   msgformat  => 'MsgFormat',
+   msgformat  => 'Üzenetformátum',
    from       => 'Küldõ',
    replyto    => 'Válaszcím (ha más)',
    to         => 'Címzett',
@@ -271,7 +273,9 @@ package openwebmail::hu;
    msgrebuild => 'Üzenet újraépítése',
    editdraft  => 'Félretett üzenet folytatása',
    savedraft  => 'Félretesz',
+   draftsaved => 'Draft @@@SUBJECT@@@ has been saved successfully',
    send       => 'Küld',
+   msgsent    => 'Message @@@SUBJECT@@@ has been sent successfully',
    about      => '',
    close      => 'Bezár',
    cancel     => 'Mégsem',
@@ -354,7 +358,7 @@ package openwebmail::hu;
    clearstat  => 'Törli az összes Mintalevelet',
    statreply  => '-- Mintalevél a válaszhoz --',
    calendar   => 'Naptár',
-   allday     => 'All day',
+   allday     => 'Egész nap',
    am         => 'de.',
    pm         => 'du.',
    calfmt_year          => '@@@YEAR@@@.',
@@ -362,7 +366,7 @@ package openwebmail::hu;
    calfmt_yearmonthday  => '@@@YEAR@@@.@@@MONTH_STR@@@.@@@DAY@@@.',
    calfmt_yearmonthdaywday => '@@@YEAR@@@.@@@MONTH_STR@@@.@@@DAY@@@. @@@WEEKDAY_STR@@@',
    calfmt_hourminampm => '@@@AMPM@@@ @@@HOURMIN@@@',
-   autosel    => 'Auto selected',
+   autosel    => 'Automatikus',
    none       => '-',
    moreitems  => 'Továbbiak',
    multieditconf => 'Ezt több idõpontra is rögzítette.\\nA módosítás a többi idõpontot is érinti.\\nKívánja folytatni a szerkesztéssel?',
@@ -380,8 +384,8 @@ package openwebmail::hu;
    sshterm      => 'SSH Terminál',
    dir          => 'Könyvtár',
    dirs         => 'Könyvtárak',
-   file         => 'File',
-   files        => 'File-ok',
+   file         => 'Fájl',
+   files        => 'Fájlok',
    program      => 'Program',
    dest_of_chdir  => 'a célkönyvtár',
    name_of_newdir => 'a létrehozandó könyvtár',
@@ -404,11 +408,17 @@ package openwebmail::hu;
    saveatt_towd => 'Csatolás mentése WebDiskre',
    addatt_fromwd=> 'Csatolás WebDiskrõl',
    vdomain_usermgr    => 'Virtual Domain User Management',
-   vdomain_createuser => 'Create User',
-   vdomain_changeuser => 'Change User',
-   vdomain_deleteuser => 'Delete User',
-   set_passwd         => 'Set Password',
-   reset_passwd       => 'Reset Password',
+   vdomain_createuser => 'Felhasználó létrehozása',
+   vdomain_changeuser => 'Felhasználóváltás',
+   vdomain_deleteuser => 'Felhasználó törlése',
+   vdomain_changeview => 'Change view to',
+   vdomain_usersonly  => 'users only',
+   vdomain_useralias  => 'users/aliases',
+   vdomain_fmtuseralias => 'formatted users/aliases',
+   vdomain_admin      => 'Admin',
+   vdomain_localuser  => 'Local User',
+   set_passwd         => 'Jelszó megadása',
+   reset_passwd       => 'Jelszó törlése',
    email_alias        => 'E-MAIL Alias'
    );
 
@@ -467,14 +477,16 @@ package openwebmail::hu;
    upload_overlimit  => 'A feltöltendõ file mérete túl nagy',
    decomp_notsupported=>'Ehhez a file-hoz nem áll rendelkezésre kitömörítõ.',
    webdisk_readonly  => 'Az ön WebDiskje nem írható.',
-   quota_syserr      => 'Quota system error',
-   quotahit_alert    => 'Sorry, you\'ve hit your quota limit. Please delete some messages from mail folders or some files from the webdisk to free disk space.',
+   quota_syserr      => 'Kvóta rendszerhiba',
+   quotahit_alert    => 'Sajnálom, ön túllépte a kvótáját. Kérem töröljön néhány levelet vagy néhány fájlt a webdiszkrõl!',
    quotahit_delmail  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, oldest messages in folders have been removed automatcially',
    quotahit_delfile  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, some files in the webdisk have been removed automatcially',
-   spool_overlimit   => 'Sorry, your INBOX has exceeded the spool limit(@@@SPOOLLIMIT@@@). Please move some messages from INBOX to other folders.',
+   spool_overlimit   => 'Sajnálom, a BEJÖVÕ mappa elérte a felsõ határt(@@@SPOOLLIMIT@@@). Mozgasson át néhány levelet a BEJÖVÕ mappából más mappákba.',
    vdomain_toomanyuser  => 'Sorry, the user count of this domain has reached its maximum limit',
    vdomain_toomanyalias => 'Sorry, the E-MAIL alias count of this user has reached its maximum limit',
-   vdomain_userrequired => 'A user name is required'
+   vdomain_userrequired => 'Szükséges egy felhasználónév.',
+   vdomain_fwdrequired => 'A valid forwarding E-MAIL is required',
+   all_module_disabled => 'All modules are disabled'
    );
 
 1;

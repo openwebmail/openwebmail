@@ -12,7 +12,7 @@ sub mkdb_b2g {
    my $b2gdb="$config{'ow_etcdir'}/b2g$config{'dbmopen_ext'}";
    ($b2gdb =~ /^(.+)$/) && ($b2gdb = $1);	# untaint ...
    my %B2G;
-   dbmopen (%B2G, $b2gdb, 0644) || return -1;
+   dbmopen (%B2G, $b2gdb, 0644) or return -1;
    open (T, "$config{'b2g_map'}");
    $_=<T>; $_=<T>;
    while (<T>) {
@@ -28,7 +28,7 @@ sub mkdb_g2b {
    my $g2bdb="$config{'ow_etcdir'}/g2b$config{'dbmopen_ext'}";
    ($g2bdb =~ /^(.+)$/) && ($g2bdb = $1);	# untaint ...
    my %G2B;
-   dbmopen (%G2B, $g2bdb, 0644) || return -1;
+   dbmopen (%G2B, $g2bdb, 0644) or return -1;
    open (T, "$config{'g2b_map'}");
    $_=<T>; $_=<T>;
    while (<T>) {

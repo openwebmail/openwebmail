@@ -1,7 +1,7 @@
 package openwebmail::sr;
 
 # Serbian (latin) translation, charset: iso-8859-2
-# by Aleksandar Pejic, alexa.AT.yunord.net, April 20, 2003
+# by Aleksandar Pejic, alexa.AT.yunord.net, June 24, 2003
 
 %lang_folders =
    (
@@ -42,10 +42,10 @@ package openwebmail::sr;
 
 %lang_msgformatlabels =
    (
-   auto => 'Auto selected',
-   text	=> 'Text',
+   auto => 'Automatski',
+   text	=> 'Tekst',
    html => 'HTML',
-   both => 'HTML and Text'
+   both => 'HTML i tekst'
    );
 
 %lang_withoriglabels =
@@ -64,9 +64,9 @@ package openwebmail::sr;
 
 %lang_disableemblinklabels =
    (
-   none    => 'None',
-   cgionly => 'CGI only',
-   all     => 'All embedded URLs'
+   none    => 'nijedan',
+   cgionly => 'samo CGI',
+   all     => 'sve veze'
    );
 
 %lang_ctrlpositionlabels =
@@ -190,9 +190,10 @@ package openwebmail::sr;
    chdir    => 'Promeni direktorijum',
    mkdir    => 'Novi direktorijum',
    newfile  => 'Nova datoteka',
-   delete   => 'Izbri¹i',
    copy     => 'Kopiraj',
    move     => 'Pomeri',
+   symlink  => 'Symlink',
+   delete   => 'Izbri¹i',
    gzip     => 'Napravi gz',
    mkzip    => 'Napravi zip',
    mktgz    => 'Napravi tgz',
@@ -203,10 +204,11 @@ package openwebmail::sr;
 
 %lang_text =
    (
-   loading    => 'Loading, please wait',
+   loading    => 'Uèitavam, molim saèekajte',
    help       => 'Pomoæ',
    login      => 'Prijava',
    clear      => 'Oèisti',
+   webmail    => 'WebMail',
    point      => 'taèaka',
    pixel      => 'Piksel',
    changepwd  => 'Promeni lozinku',
@@ -248,7 +250,7 @@ package openwebmail::sr;
    forwardasatt=>'Prosledi kao prilog',
    forwardasorig=>'Prosledi kao original',
    printfriendly=> 'Prilagoðeno ¹tampanju',
-   msgformat  => 'MsgFormat',
+   msgformat  => 'Format poruke',
    from       => '©alje',
    replyto    => 'Odgovor-na',
    to         => 'Prima',
@@ -270,7 +272,9 @@ package openwebmail::sr;
    msgrebuild => 'Opravka poruke',
    editdraft  => 'Sredi nedovr¹enu poruku',
    savedraft  => 'Saèuvaj nedovr¹enu poruku',
+   draftsaved => 'Draft @@@SUBJECT@@@ has been saved successfully',
    send       => 'Po¹alji',
+   msgsent    => 'Message @@@SUBJECT@@@ has been sent successfully',
    about      => 'Informacije o softveru',
    close      => 'Zatvori',
    cancel     => 'Otka¾i',
@@ -361,7 +365,7 @@ package openwebmail::sr;
    calfmt_yearmonthday  => '@@@DAY@@@ @@@MONTH_STR@@@ @@@YEAR@@@',
    calfmt_yearmonthdaywday => '@@@DAY@@@ @@@MONTH_STR@@@ @@@YEAR@@@ @@@WEEKDAY_STR@@@',
    calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
-   autosel    => 'Auto selected',
+   autosel    => 'Automatski odabran',
    none       => 'Nijedan',
    moreitems  => 'jo¹ zapisa',
    multieditconf => 'Ovaj zapis je dat za vi¹e datuma.\\nNjena promena æe se odraziti na sve datume.\\nDa li ¾elite da nastavite sa ureðivanjem?',
@@ -406,9 +410,15 @@ package openwebmail::sr;
    vdomain_createuser => 'Novi korisnik',
    vdomain_changeuser => 'Izmena korisnika',
    vdomain_deleteuser => 'Brisanje korisnika',
-   set_passwd         => 'Set Password',
-   reset_passwd       => 'Reset Password',
-   email_alias        => 'E-MAIL Alias'
+   vdomain_changeview => 'Promeni pregled u',
+   vdomain_usersonly  => 'samo korisnici',
+   vdomain_useralias  => 'korisnici/aliasi',
+   vdomain_fmtuseralias => 'ureðeni korisnici/aliasi',
+   vdomain_admin      => 'Administrator',
+   vdomain_localuser  => 'Lokalni korisnik',
+   set_passwd         => 'Postavi lozinku',
+   reset_passwd       => 'Izbri¹i lozinku',
+   email_alias        => 'alias e-po¹te'
    );
 
 %lang_err =
@@ -472,8 +482,10 @@ package openwebmail::sr;
    quotahit_delfile  => 'Upozorenje, s obzirom da je dostignut limit kvote (@@@QUOTALIMIT@@@), neke datoteke sa mre¾nog diska su izbrisani automatski',
    spool_overlimit   => 'Na¾alost, Va¹e PRISTIGLE poruke su prekoraèile kvotu (@@@SPOOLLIMIT@@@). Molim da premestite neke poruke iz PRISTIGLIH  u druge omotnice.',
    vdomain_toomanyuser  => 'Na¾alost, dostignut je dozvoljen broj korisnika za ovaj domen',
-   vdomain_toomanyalias => 'Sorry, the E-MAIL alias count of this user has reached its maximum limit',
-   vdomain_userrequired => 'A user name is required'
+   vdomain_toomanyalias => 'Na¾alost, dostignut je broj dozvoljenih aliasa e-po¹te',
+   vdomain_userrequired => 'Korisnièko ime je neophodno',
+   vdomain_fwdrequired => 'Validna adresa e-po¹te je neophodna za prosleðivanje',
+   all_module_disabled => 'Svi moduli su onemoguæeni'
    );
 
 1;

@@ -1,13 +1,13 @@
-<BR><BR><BR><BR><BR>
+<BR><BR>
 @@@STARTFORM@@@
 <table border="0" align="center" width="60%" cellpadding="3" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
 <tr><td colspan="2" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>修改日程表项目</B></FONT>
+<B>修改行事历项目</B></FONT>
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>日期:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@DATE@@@
+@@@ITEMDATEMENU@@@
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>内容:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -21,7 +21,23 @@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ENDHOURMINMENU@@@
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>连接:</B>
+<B>重复发生:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@FREQMENU@@@
+</td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>&nbsp;</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@THISANDNEXTNDAYSCHECKBOX@@@ 本日与之后连续 @@@NDAYSFIELD@@@ 日
+</td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>&nbsp;</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@MONTHFREQMENU@@@
+</td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>&nbsp;</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@EVERYYEARCHECKBOX@@@ 每年
+</td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>连结:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@LINKFIELD@@@
 @@@EMAILSTART@@@
@@ -43,3 +59,67 @@
 @@@ENDFORM@@@
 </tr></table>
 </td></tr></table>
+
+<script type="text/javascript" language="javascript">
+<!--
+function valiDate() {
+   var formYear = document.editcalendar.year.options[document.editcalendar.year.selectedIndex].value;
+   var formMonth = document.editcalendar.month.options[document.editcalendar.month.selectedIndex].value;
+   var formDay = document.editcalendar.day.options[document.editcalendar.day.selectedIndex].value;
+   var dayfreqSelection = document.editcalendar.dayfreq.selectedIndex;
+   var monthfreqSelection = document.editcalendar.monthfreq.selectedIndex;
+   var checkDate = new Date(formYear,formMonth-1,formDay);
+
+   wDay = new Array(@@@WDAY_ARRAY@@@);
+   wOrder = new Array(@@@WORDER_ARRAY@@@);
+
+   if (formMonth < checkDate.getMonth()+1) {
+     var selectedmonth=document.editcalendar.month.options[document.editcalendar.month.selectedIndex].text;
+     var daysinmonth=formDay-checkDate.getDate();
+     alert("很抱歉, "+selectedmonth+" 在 "+formYear+" 年只有 "+daysinmonth+" 日.\n"+
+           "日数将被改回 "+daysinmonth+".");
+     document.editcalendar.day.selectedIndex = formDay-checkDate.getDate()-1;
+     // reset our vars
+     formDay = formDay-checkDate.getDate();
+     checkDate = new Date(formYear,formMonth-1,formDay);
+   }
+
+   var weekOrder = parseInt((parseInt(formDay)+6)/7);
+
+   // update the day recurrance
+   if (weekOrder<=4) {
+      if (! document.editcalendar.dayfreq[2]) {  // coming from 2 choice menu
+         if (dayfreqSelection==1) {
+            dayfreqSelection++;
+         }
+      }
+      document.editcalendar.dayfreq.options.length =0; // clear popup
+      document.editcalendar.dayfreq[0] = new Option("@@@THISDAY_ONLY@@@","thisdayonly");
+      document.editcalendar.dayfreq[1] = new Option("@@@THE_WDAY_OF_THISMONTH@@@","thewdayofthismonth");
+      document.editcalendar.dayfreq[2] = new Option("@@@EVERY_WDAY_THISMONTH@@@","everywdaythismonth");
+   } else {
+      if (document.editcalendar.dayfreq[2]) {  // coming from 3 choice menu
+         dayfreqSelection--;
+         if (dayfreqSelection < 0) {
+            dayfreqSelection = 0;
+         }
+      }
+      document.editcalendar.dayfreq.options.length =0; // clear popup
+      document.editcalendar.dayfreq[0] = new Option("@@@THISDAY_ONLY@@@","thisdayonly");
+      document.editcalendar.dayfreq[1] = new Option("@@@EVERY_WDAY_THISMONTH@@@","everywdaythismonth");
+   }
+
+   // update the month recurrance
+   if (formMonth%2) {
+      document.editcalendar.monthfreq[1] = new Option("@@@EVERY_ODDMONTH_THISYEAR@@@","everyoddmonththisyear");
+   } else {
+      document.editcalendar.monthfreq[1] = new Option("@@@EVERY_EVENMONTH_THISYEAR@@@","everyevenmonththisyear");
+   }
+
+   document.editcalendar.dayfreq.selectedIndex = dayfreqSelection;
+   document.editcalendar.monthfreq.selectedIndex = monthfreqSelection;
+}
+
+function nothing() { ; } // for the colorpicker to work properly
+// -->
+</script>

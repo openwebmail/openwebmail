@@ -16,3 +16,4 @@ vil denne sesjonen avsluttes innen 60 sekunder.
 <script language="JavaScript">
 setTimeout("close()", 60*1000);
 </script>
+</center>

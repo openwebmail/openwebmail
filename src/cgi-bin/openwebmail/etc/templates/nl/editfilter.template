@@ -54,7 +54,7 @@
 <td nowrap bgcolor=@@@TABLEROW_LIGHT@@@ align=center>
 @@@ENABLECHECKBOX@@@
 </td>
-<td nowrap align="center" bgcolor=@@@TABLEROW_LIGHT@@@ align=center>
+<td nowrap bgcolor=@@@TABLEROW_LIGHT@@@ align="center">
 @@@ADDBUTTON@@@
 </td>
 </tr>

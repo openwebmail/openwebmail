@@ -3,7 +3,7 @@ use strict;
 #
 # auth_pam.pl - authenticate user with PAM
 #
-# 2001/10/05 tung@turtle.ee.ncku.edu.tw
+# 2001/10/05 tung.AT.turtle.ee.ncku.edu.tw
 #
 
 #

@@ -16,3 +16,4 @@ Ak nevykonáte ¾iadnu akciu poèas,
 <script language="JavaScript">
 setTimeout("close()", 60*1000);
 </script>
+</center>

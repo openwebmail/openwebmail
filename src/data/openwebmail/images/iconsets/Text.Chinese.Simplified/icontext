@@ -86,4 +86,6 @@
    'weekview.gif'      => ' [周行事历] ',
    'yearview.gif'      => ' [年行事历]'
    );
+
+1;
    
