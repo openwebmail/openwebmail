@@ -5,10 +5,10 @@ $lang_charset = 'iso-8859-2';
 %lang_folders =
    (
    INBOX => 'INBOX',
-   SAVED => 'SALVATE',
-   SENT  => 'TRIMISE',
-   DRAFT => 'DRAFT',
-   TRASH => 'STERSE',
+   'saved-messages' => 'SALVATE',
+   'sent-mail'      => 'TRIMISE',
+   'saved-drafts'   => 'DRAFT',
+   'mail-trash'     => 'STERSE',
    DELETE => '--DELETE--'
    );
 
@@ -90,6 +90,7 @@ $lang_charset = 'iso-8859-2';
    addmod     => 'Adauga/Modifica',
    abooktitle => 'Agenda',
    abook      => 'AGENDA',
+   group      => 'Group',
    quota_hit  => 'DEP&Atilde;SIRE SPATIU ALOCAT',
    pop3book   => 'POP3 Setup',
    retr_pop3s => 'Retrieve POP3 Mail',

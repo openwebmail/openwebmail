@@ -5,14 +5,10 @@ $lang_charset = 'big5';
 %lang_folders =
    (
    INBOX => '新信件',
-   SAVED => '收件匣',
-   SENT  => '寄件備分',
-   DRAFT => '草稿',
-   TRASH => '垃圾桶',
    'saved-messages' => '收件匣',
-   'sent-mail'  => '寄件備分',
-   'mail-trash' => '垃圾桶',
-   'saved-drafts' => '草稿',
+   'sent-mail'      => '寄件備分',
+   'saved-drafts'   => '草稿',
+   'mail-trash'     => '垃圾桶',
    DELETE => '--直接刪除--'
    );
 
@@ -95,6 +91,7 @@ $lang_charset = 'big5';
    addmod     => '增加/修改',
    abooktitle => '通訊錄',
    abook      => '通訊錄',
+   group      => '群組',
    quota_hit  => '儲存空間滿了',
    pop3book   => '設定外部郵件',
    retr_pop3s => '收取所有外部郵件',

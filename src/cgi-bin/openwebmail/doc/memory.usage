@@ -25,7 +25,7 @@ a. To get the message showed on your browser, Open WebMail CGI needs
    	5.5MB(main) + message_size
 
 b. When the browser gets the html page, it will request all inline 
-   images embeded in this page. Each images will cause one CGI process.
+   images embedded in this page. Each images will cause one CGI process.
    Memory usage for each CGI process will be
 
    	5.5MB(main) + message_size + 2 * attachment_size
@@ -35,7 +35,7 @@ ps: Most browser will request at most 4 images simultaneously.
 example:
 
 We have a message with 5 attachments and each attachment is 1MB in size,
-3 of them are graphics and 2 of them are msword docs.
+3 of them are graphics and 2 of them are Ms-word docs.
 
 At stage (a), the memory usage is 
 
@@ -65,7 +65,7 @@ send a message
 There are also 2 stages in the sending of message
 
 a. the user attaches an attachment to the message
-b. the user presses the [send] buttom to send the whole message.
+b. the user presses the [send] button to send the whole message.
 
 The memory usage for these 2 stage has no relation with the 
 message or attachment size. It is about 5.5 MB.

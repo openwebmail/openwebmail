@@ -5,10 +5,10 @@ $lang_charset = 'iso-8859-1';
 %lang_folders =
    (
    INBOX => 'ARRIVATI',
-   SAVED => 'SALVATI',
-   SENT  => 'INVIATI',
-   DRAFT => 'DRAFT',
-   TRASH => 'CESTINO',
+   'saved-messages' => 'SALVATI',
+   'sent-mail'      => 'INVIATI',
+   'saved-drafts'   => 'DRAFT',
+   'mail-trash'     => 'CESTINO',
    DELETE => '--DELETE--'
    );
 
@@ -90,6 +90,7 @@ $lang_charset = 'iso-8859-1';
    addmod     => 'Aggiungi/Modifica',
    abooktitle => 'Rubrica di ',
    abook      => 'RUBRICA',
+   group      => 'Group',
    quota_hit  => 'LIMITE RAGGIUNTO',
    pop3book   => 'POP3 Setup',
    retr_pop3s => 'Retrieve POP3 Mail',

@@ -9,24 +9,24 @@ use Fcntl qw(:DEFAULT :flock);
 require "maildb.pl";
 
 sub dump_headerdb {
-   my ($headerdb, $spoolfile) = @_;
+   my ($headerdb, $folderfile) = @_;
    my (@messageids, @attr, $r_buff);
    my $spoolhandle=FileHandle->new();
    my $error=0;
    my $i=0;
 
    @messageids=get_messageids_sorted_by_offset($headerdb);
-   open($spoolhandle, $spoolfile);
+   open($spoolhandle, $folderfile);
 
    dbmopen (%HDB, $headerdb, undef);
    $metainfo=$HDB{'METAINFO'};
    dbmclose(%HDB);
 
-   if (  $metainfo eq metainfo($spoolfile) ) {
-      printf ("+++ METAINFO db:[%s] folder:[%s]\n", $metainfo, metainfo($spoolfile));
+   if (  $metainfo eq metainfo($folderfile) ) {
+      printf ("+++ METAINFO db:[%s] folder:[%s]\n", $metainfo, metainfo($folderfile));
    } else {
       $error++;
-      printf ("--- METAINFO db:[%s] folder:[%s]\n", $metainfo, metainfo($spoolfile));
+      printf ("--- METAINFO db:[%s] folder:[%s]\n", $metainfo, metainfo($folderfile));
    }
 
    foreach $id (@messageids) {
@@ -52,5 +52,5 @@ sub dump_headerdb {
 if ( $#ARGV ==1 ) {
   dump_headerdb($ARGV[0], $ARGV[1]);
 } else {
-  print "dumpdb [headerdb] [spoolfile]\n";
+  print "dumpdb [headerdb] [folderfile]\n";
 }

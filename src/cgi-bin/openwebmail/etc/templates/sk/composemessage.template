@@ -72,7 +72,7 @@
 
    function GoAddressWindow(toccbcc)
    {
-      var url = "@@@PREFSURL@@@?action=addressbook&sessionid=@@@SESSIONID@@@&field=" + toccbcc;
+      var url = "@@@PREFSURL@@@?action=addressbook&sessionid=@@@SESSIONID@@@&form=composeform&field=" + toccbcc;
       
       if (toccbcc == "cc")
          url += "&preexisting=" + escape (document.composeform.to.value);

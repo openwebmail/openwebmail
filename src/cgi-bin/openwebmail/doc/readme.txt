@@ -15,15 +15,18 @@ FEATURES
 ---------
 The enhanced feature over neomail 1.14 are
 
-1. folder access speedup with dbm
-2. efficient movement of messages
-3. more graceful filelock
-4. full content search with regular expression support
-5. much better support for mime message display
-6. POP3 mail support
-7. mail filter support
-8. message count preview
-9. 'confirm reading' support
+1.  faster folder access
+2.  efficient messages movement
+3.  smaller memory footprint
+4.  additional message operation, like copy, delete, download
+5.  graceful filelock
+6.  full content search
+7.  better MIME message display
+8.  Draft folder support
+9.  POP3 mail support
+10. mail filter support
+11. message count preview
+12. 'confirm reading' support
 
 
 REQUIREMENT
@@ -117,7 +120,7 @@ ps: an account may be created to the maintain the global
 
 SPEEDUP ENCODING/DECODING OF MIME ATTACHMENTS
 ---------------------------------------------
-The encoding/decoding speed would be much faster if you install thr 
+The encoding/decoding speed would be much faster if you install the 
 MIME-Base64 module from CPAN with XS support
 
 1. download MIME-Base64-2.12.tar.gz from CPAN 
@@ -126,13 +129,13 @@ MIME-Base64 module from CPAN with XS support
 
 MIGRATE FROM NEOMAIL
 --------------------
-1. For get better compatiability with pine(an unix email reader)
+1. For get better compatibility with pine(an unix email reader)
    user folderdir is changed from ~/neomail to ~/mail
    folder saved_messages is changed to saved-messages
    folder sent_mail      is changed to sent-mail
    folder neomail_trash  is changed to mail-trash
 
-ps. a script 'migrate.pl' is provided in uty/ for administor 
+ps. a script 'migrate.pl' is provided in uty/ for administer 
     to migrate user folders from neomail easily
 
 
@@ -141,7 +144,7 @@ TEST
 test your webmail with http://your_server/cgi-bin/openwebmail/openwebmail.pl
 
 
-04/17/2001
+04/20/2001
 
 Ebola@turtle.ee.ncku.edu.tw
 eddie@turtle.ee.ncku.edu.tw

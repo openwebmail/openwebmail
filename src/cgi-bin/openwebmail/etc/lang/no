@@ -5,10 +5,10 @@ $lang_charset = 'iso-8859-1';
 %lang_folders =
    (
    INBOX => 'INNBOKS',
-   SAVED => 'LAGRET',
-   SENT  => 'SENDT',
-   DRAFT => 'DRAFT',
-   TRASH => 'SØPPELBØTTE',
+   'saved-messages' => 'LAGRET',
+   'sent-mail'      => 'SENDT',
+   'saved-drafts'   => 'DRAFT',
+   'mail-trash'     => 'SØPPELBØTTE',
    DELETE => '--DELETE--'
    );
 
@@ -90,6 +90,7 @@ $lang_charset = 'iso-8859-1';
    addmod     => 'Legg til/Endre',
    abooktitle => 'Adressebok',
    abook      => 'ADRESSEBOK',
+   group      => 'Group',
    quota_hit  => 'IKKE MER LAGRINGSPLASS',
    pop3book   => 'POP3 Setup',
    retr_pop3s => 'Retrieve POP3 Mail',

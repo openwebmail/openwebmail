@@ -19,6 +19,7 @@ require "etc/openwebmail.conf";
 require "openwebmail-shared.pl";
 
 local $user;
+local $userip='localhost';
 local ($uid, $gid, $homedir);
 local $folderdir;
 
@@ -32,22 +33,21 @@ if ($user !~ /^[A-Za-z0-9_]+$/) {
 }
 ($user =~ /^(.+)$/) && ($user = $1);  # untaint $user...
 
+$uid=0; $gid = getgrnam('mail');
 if (($homedirspools eq 'yes') || ($homedirfolders eq 'yes')) {
-   ($uid, $gid, $homedir) = (getpwnam($user))[2,3,7];
+   my $ugid;
+   ($uid, $ugid, $homedir) = (getpwnam($user))[2,3,7];
    if ($uid eq '') {
       print ("no such user\n");
       exit 2;
    }
-   $gid = getgrnam('mail');
-} else {
-   $uid=0; $gid=0;
 }
 set_euid_egid_umask($uid, $gid, 0077);
 
 if ( $homedirfolders eq 'yes') {
    $folderdir = "$homedir/$homedirfolderdirname";
 } else {
-   $folderdir = "$userprefsdir/$user";
+   $folderdir = "$openwebmaildir/users/$user";
 }
 if ( ! -d $folderdir ) {
    print("$folderdir doesn't exist\n");
@@ -55,7 +55,7 @@ if ( ! -d $folderdir ) {
 }
 
 
-my ($spoolfile, $headerdb)=get_spoolfile_headerdb($user, 'INBOX');
+my ($spoolfile, $headerdb)=get_folderfile_headerdb($user, 'INBOX');
 if ( ! -f $spoolfile || (stat($spoolfile))[7]==0 ) {
    print ("$user has no mail\n");
    exit 0;
@@ -68,7 +68,9 @@ require "mailfilter.pl";
 my @folderlist=();
 my $removed=mailfilter($spoolfile, $headerdb, 
 			$folderdir, \@folderlist, $user, $uid, $gid);
-writelog("filter $removed msgs from $spoolfile");
+if ($removed>0) {
+   writelog("filter $removed msgs from $spoolfile");
+}
 
 my (%HDB, $allmessages, $internalmessages, $newmessages);
 filelock("$headerdb.$dbm_ext", LOCK_SH);

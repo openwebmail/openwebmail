@@ -13,5 +13,5 @@ if ( $#ARGV ==1 ) {
   unlink ("$ARGV[0].db", "$ARGV[0].dir", "$ARGV01].pag");
   update_headerdb($ARGV[0], $ARGV[1]);
 } else {
-  print "makedb [headerdb] [spoolfile]\n";
+  print "makedb [headerdb] [folderfile]\n";
 }

@@ -2,50 +2,43 @@
 # routines shared by openwebmail.pl and openwebmail-prefs.pl
 
 ############### GET_SPOOLFILE_FOLDERDB ################
-sub get_spoolfile_headerdb {
+sub get_folderfile_headerdb {
    my ($username, $foldername)=@_;
-   my ($spoolfile, $headerdb);
+   my ($folderfile, $headerdb);
 
    if ($foldername eq 'INBOX') {
       if ($homedirspools eq "yes") {
-         $spoolfile = "$homedir/$homedirspoolname";
+         $folderfile = "$homedir/$homedirspoolname";
       } elsif ($hashedmailspools eq "yes") {
          $username =~ /^(.)(.)/;
          my $firstchar = $1;
          my $secondchar = $2;
-         $spoolfile = "$mailspooldir/$firstchar/$secondchar/$username";
+         $folderfile = "$mailspooldir/$firstchar/$secondchar/$username";
       } else {
-         $spoolfile = "$mailspooldir/$username";
+         $folderfile = "$mailspooldir/$username";
       }
       $headerdb="$folderdir/.$username";
 
    } elsif ($foldername eq 'DELETE') {
-      $spoolfile = $headerdb ='';
-
-   } elsif ( ( $homedirfolders eq 'yes' ) || 
-      ($foldername eq 'SAVED') || ($foldername eq 'SENT') || 
-      ($foldername eq 'DRAFT') || ($foldername eq 'TRASH') ) {
-      $spoolfile = "$folderdir/$foldername";
-      $headerdb="$folderdir/.$foldername";
+      $folderfile = $headerdb ='';
 
    } else {
-      $spoolfile = "$folderdir/$foldername.folder";
-      $headerdb= "$folderdir/.$foldername.folder";
+      $folderfile = "$folderdir/$foldername";
+      $headerdb="$folderdir/.$foldername";
    }
 
-   return($spoolfile, $headerdb);
+   return($folderfile, $headerdb);
 }
 
 sub set_euid_egid_umask {
    my ($uid, $gid, $umask)=@_;
-   # chnage egid and euid if data is located in user dir
-   if ( ( ($homedirfolders eq 'yes') || ($homedirspools eq 'yes') ) && ($> == 0) ) {
-      $) = $gid;
-      $> = $uid;
-      umask($umask); # make sure only owner can read/write
-   }
-}
 
+   # note! egid must be set before set euid to normal user,
+   #       since a normal user can not set egid to mail
+   $) = $gid;
+   $> = $uid if ($> == 0);
+   umask($umask);
+}
 
 ############### GET_SPOOLFILE_FOLDERDB ################
 
@@ -56,7 +49,7 @@ sub verifysession {
    if ($validsession == 1) {
       return 1;
    }
-   if ( -M "$openwebmaildir/$thissession" > $sessiontimeout || !(-e "$openwebmaildir/$thissession")) {
+   if ( -M "$openwebmaildir/sessions/$thissession" > $sessiontimeout || !(-e "$openwebmaildir/sessions/$thissession")) {
       my $html = '';
       printheader();
       open (TIMEOUT, "$openwebmaildir/templates/$lang/sessiontimeout.template") or
@@ -74,8 +67,8 @@ sub verifysession {
       writelog("timed-out session access attempt - $thissession");
       exit 0;
    }
-   if ( -e "$openwebmaildir/$thissession" ) {
-      open (SESSION, "$openwebmaildir/$thissession");
+   if ( -e "$openwebmaildir/sessions/$thissession" ) {
+      open (SESSION, "$openwebmaildir/sessions/$thissession");
       my $cookie = <SESSION>;
       close (SESSION);
       chomp $cookie;
@@ -87,7 +80,7 @@ sub verifysession {
 
    openwebmailerror("Session ID $lang_err{'has_illegal_chars'}") unless
       (($thissession =~ /^([\w\.\-]+)$/) && ($thissession = $1));
-   open (SESSION, '>' . $openwebmaildir . $thissession) or
+   open (SESSION, "> $openwebmaildir/sessions/$thissession") or
       openwebmailerror("$lang_err{'couldnt_open'} $thissession!");
    print SESSION cookie("sessionid");
    close (SESSION);
@@ -103,19 +96,11 @@ sub getfolders {
    my $totalfoldersize = 0;
    my $filename;
 
-   if ( $homedirfolders eq 'yes' ) {
-      @folders = qw(INBOX saved-messages sent-mail saved-drafts mail-trash);
-      $totalfoldersize += ( -s "$folderdir/saved-messages" ) || 0;
-      $totalfoldersize += ( -s "$folderdir/sent-mail" ) || 0;
-      $totalfoldersize += ( -s "$folderdir/saved-drafts" ) || 0;
-      $totalfoldersize += ( -s "$folderdir/mail-trash" ) || 0;
-   } else {
-      @folders = qw(INBOX SAVED SENT DRAFT TRASH);
-      $totalfoldersize += ( -s "$folderdir/SAVED" ) || 0;
-      $totalfoldersize += ( -s "$folderdir/SENT" ) || 0;
-      $totalfoldersize += ( -s "$folderdir/DRAFT" ) || 0;
-      $totalfoldersize += ( -s "$folderdir/TRASH" ) || 0;
-   }
+   @folders = qw(INBOX saved-messages sent-mail saved-drafts mail-trash);
+   $totalfoldersize += ( -s "$folderdir/saved-messages" ) || 0;
+   $totalfoldersize += ( -s "$folderdir/sent-mail" ) || 0;
+   $totalfoldersize += ( -s "$folderdir/saved-drafts" ) || 0;
+   $totalfoldersize += ( -s "$folderdir/mail-trash" ) || 0;
 
    opendir (FOLDERDIR, "$folderdir") or 
       openwebmailerror("$lang_err{'couldnt_open'} $folderdir!");
@@ -124,7 +109,7 @@ sub getfolders {
 
       ### files started with . are not folders
       ### they are openwebmail internal files (., .., dbm, search caches)
-      if ( $filename=~/^\./ ) {
+      if ( $filename=~/^\./ ) {	# .* are files other than folder
          if ( $filename=~/^\.(.*)\.db$/ ||
               $filename=~/^\.(.*)\.dir$/ ||
               $filename=~/^\.(.*)\.pag$/ ||
@@ -140,22 +125,14 @@ sub getfolders {
       }
 
       ### find all user folders
-      if ( $homedirfolders eq 'yes' ) {
-         unless ( ($filename eq 'saved-messages') ||
-                  ($filename eq 'sent-mail') ||
-                  ($filename eq 'saved-drafts') ||
-                  ($filename eq 'mail-trash') ||
-                  ($filename eq '.') || ($filename eq '..') ||
-                  ($filename =~ /\.lock$/) 
-                ) {
-            push (@userfolders, $filename);
-            $totalfoldersize += ( -s "$folderdir/$filename" );
-         }
-      } else {
-         if ($filename =~ /^(.+)\.folder$/) {
-            push (@userfolders, $1);
-            $totalfoldersize += ( -s "$folderdir/$filename" );
-         }
+      if ( ($filename ne 'saved-messages') &&
+           ($filename ne 'sent-mail') &&
+           ($filename ne 'saved-drafts') &&
+           ($filename ne 'mail-trash') &&
+           ($filename ne '.') && ($filename ne '..') &&
+           ($filename !~ /\.lock$/) ) {
+         push (@userfolders, $filename);
+         $totalfoldersize += ( -s "$folderdir/$filename" );
       }
    }
 
@@ -180,9 +157,9 @@ sub getfolders {
 sub readprefs {
    my ($key,$value);
    my %prefshash;
-   if ( -f "$userprefsdir$user/config" ) {
-      open (CONFIG,"$userprefsdir$user/config") or
-         openwebmailerror("$lang_err{'couldnt_open'} config!");
+   if ( -f "$folderdir/.openwebmailrc" ) {
+      open (CONFIG,"$folderdir/.openwebmailrc") or
+         openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.openwebmailrc!");
       while (<CONFIG>) {
          ($key, $value) = split(/=/, $_);
          chomp($value);
@@ -191,16 +168,16 @@ sub readprefs {
          }
          $prefshash{"$key"} = $value;
       }
-      close (CONFIG) or openwebmailerror("$lang_err{'couldnt_close'} config!");
+      close (CONFIG) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.openwebmailrc!");
    }
-   if ( -f "$userprefsdir$user/signature" ) {
+   if ( -f "$folderdir/.signature" ) {
       $prefshash{"signature"} = '';
-      open (SIGNATURE, "$userprefsdir$user/signature") or
-         openwebmailerror("$lang_err{'couldnt_open'} signature!");
+      open (SIGNATURE, "$folderdir/.signature") or
+         openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.signature!");
       while (<SIGNATURE>) {
          $prefshash{"signature"} .= $_;
       }
-      close (SIGNATURE) or openwebmailerror("$lang_err{'couldnt_close'} signature!");
+      close (SIGNATURE) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.signature!");
    }
    return \%prefshash;
 }
@@ -211,10 +188,10 @@ sub readstyle {
    my ($key,$value);
    my $stylefile = $prefs{"style"} || 'Default';
    my %stylehash;
-   unless ( -f "$stylesdir$stylefile") {
+   unless ( -f "$openwebmaildir/styles/$stylefile") {
       $stylefile = 'Default';
    }
-   open (STYLE,"$stylesdir$stylefile") or
+   open (STYLE,"$openwebmaildir/styles/$stylefile") or
       openwebmailerror("$lang_err{'couldnt_open'} $stylefile!");
    while (<STYLE>) {
       if (/###STARTSTYLESHEET###/) {

@@ -3,7 +3,7 @@
 # It is mainly for doing upgrade from neomail or neomail professional 
 # to Open WebMail.
 #
-# 03/15/2001 tung@turtle.ee.ncku.edu.tw
+# 04/20/2001 tung@turtle.ee.ncku.edu.tw
 #
 #
 # syntax:
@@ -47,10 +47,11 @@ $|=1;
 
 
 # move user's prefs
-print ("============== move all user preferences ==============\n");
-print "mv $olduserprefsdir/* $userprefsdir/\n";
-`mv $olduserprefsdir/* $userprefsdir/ 2>/dev/null`;
-
+if ($olduserprefsdir ne $userprefsdir) {
+   print ("============== move all user preferences ==============\n");
+   print "mv $olduserprefsdir/* $userprefsdir/\n";
+   `mv $olduserprefsdir/* $userprefsdir/ 2>/dev/null`;
+}
 
 # move user mails
 open (PASS, "/etc/passwd");
@@ -62,7 +63,7 @@ while (<PASS>) {
    $folderdir = "$homedir/$homedirfolderdirname";
    $oldfolderdir = "$homedir/$oldhomedirfolderdirname";
 
-   if ( ! -d "$oldfolderdir" ) {
+   if ( ! -d "$oldfolderdir" && ! -d "$folderdir" ) {
       next;
    }
 
@@ -78,48 +79,63 @@ while (<PASS>) {
       chown ("$uid", "$ugid", "$folderdir");
    }
             
-   opendir (OLDFOLDERDIR, "$oldfolderdir");
+   if ($oldfolderdir ne $folderdir && -d "$oldfolderdir" ) {
+      opendir (OLDFOLDERDIR, "$oldfolderdir");
 
-   while (defined($oldfilename = readdir(OLDFOLDERDIR))) {
-      if ( $oldfilename eq "." || $oldfilename eq ".." ) {
-         next;
+      while (defined($oldfilename = readdir(OLDFOLDERDIR))) {
+         if ( $oldfilename eq "." || $oldfilename eq ".." ) {
+            next;
+         }
+         if ( -l "$oldfolderdir/$oldfilename" ) {	# remove symboliclink to avoid loop
+            print "rm symbliclink $oldfolderdir/$oldfilename\n";
+            unlink("$oldfolderdir/$oldfilename");
+            next;
+         }
+
+         $filename=$oldfilename;
+         $filename=~s/saved_messages/saved-messages/;
+         $filename=~s/sent_mail/sent-mail/;
+         $filename=~s/neomail_trash/mail-trash/;
+         if ( -l "$folderdir/$filename" ) {	# remove symboliclink to avoid loop
+            print "rm symboliclink $folderdir/$filename\n";
+            unlink("$folderdir/$filename");
+         }
+
+         if ( -f "$folderdir/$filename" && $filename !~/^\./ ) {
+            print "cat $oldfolderdir/$oldfilename >> $folderdir/$filename\n";
+            `cat "$oldfolderdir/$oldfilename" >> "$folderdir/$filename"`;
+
+            print "rm $oldfolderdir/$oldfilename\n";
+            unlink("$oldfolderdir/$oldfilename");
+
+         } else {
+            print "mv $oldfolderdir/$oldfilename $folderdir/$filename\n";
+            `mv "$oldfolderdir/$oldfilename" "$folderdir/$filename"`;
+
+         }
       }
-      if ( -l "$oldfolderdir/$oldfilename" ) {	# remove symboliclink to avoid loop
-         print "rm symbliclink $oldfolderdir/$oldfilename\n";
-         unlink("$oldfolderdir/$oldfilename");
-         next;
-      }
-
-      $filename=$oldfilename;
-      $filename=~s/saved_messages/saved-messages/;
-      $filename=~s/sent_mail/sent-mail/;
-      $filename=~s/neomail_trash/mail-trash/;
-      if ( -l "$folderdir/$filename" ) {	# remove symboliclink to avoid loop
-         print "rm symboliclink $folderdir/$filename\n";
-         unlink("$folderdir/$filename");
-      }
-
-      if ( -f "$folderdir/$filename" && $filename !~/^\./ ) {
-         print "cat $oldfolderdir/$oldfilename >> $folderdir/$filename\n";
-         `cat "$oldfolderdir/$oldfilename" >> "$folderdir/$filename"`;
-
-         print "rm $oldfolderdir/$oldfilename\n";
-         unlink("$oldfolderdir/$oldfilename");
-
-      } else {
-         print "mv $oldfolderdir/$oldfilename $folderdir/$filename\n";
-         `mv "$oldfolderdir/$oldfilename" "$folderdir/$filename"`;
-
-      }
+      closedir (OLDFOLDERDIR);
+      print "rmdir $oldfolderdir\n";
+      `rmdir $oldfolderdir`;
    }
-   closedir (OLDFOLDERDIR);
-   print "rmdir $oldfolderdir\n";
-   `rmdir $oldfolderdir`;
 
+   if ( -f "$userprefsdir/$user/config" ) {
+      print "mv $userprefsdir/$user/config $folderdir/.openwebmailrc\n";
+      `mv $userprefsdir/$user/config $folderdir/.openwebmailrc`;
+      chmod(0600, "$folderdir/.openwebmailrc");
+      chown($uid, $ugid, "$folderdir/.openwebmailrc");
+   }
+   if ( -f "$userprefsdir/$user/signature" ) {
+      print "mv $userprefsdir/$user/signature $folderdir/.signature\n";
+      `mv $userprefsdir/$user/signature $folderdir/.signature`;
+      chmod(0600, "$folderdir/.signature");
+      chown($uid, $ugid, "$folderdir/.signature");
+   }
    if ( -f "$userprefsdir/$user/addressbook" ) {
       print "mv $userprefsdir/$user/addressbook $folderdir/.address.book\n";
       `mv $userprefsdir/$user/addressbook $folderdir/.address.book`;
-      chown($uid, $ugid, "$userprefsdir/$user/addressbook $folderdir/.address.book");
+      chmod(0600, "$folderdir/.address.book");
+      chown($uid, $ugid, "$folderdir/.address.book");
    }
 }
 print ("============== migration is done ==============\n");

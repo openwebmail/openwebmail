@@ -1,6 +1,28 @@
+04/20/2001
+----------
+1. code clean for better security
+   set_euid_egid_umask as early as possible
+2. The name of default folders are the same now for either homefolderdir='yes' 
+   or 'no', they are saved-messages, sent-mail, saved-draft and mail-trash
+3. move openwebmail/etc/users/user/config    to ~user/mail/.openwebmailrc 
+        openwebmail/etc/users/user/signature to ~user/mail/.signature
+
+ps: Reinstallation is recommended for those who upgrade from old version...
+
+
+04/19/2001
+----------
+1. code clean for better program structure
+   a. change the location for session files and temporary attachments 
+      from cgi-bin/openwebmail/etc to cgi-bin/openwebmail/etc/sessions
+   b. change items in openwebmail.conf
+   c. change get_spoolfile_headerdb to get_folderfile_headerdb
+
+
 04/18/2001
 ----------
 1. slightly reduce the memory usage in message move/copy/delete
+2. preliminary support for group email address
 
 
 04/17/2001 (version 1.07)
@@ -58,9 +80,9 @@
 04/10/2001
 ----------
 1. add $use_dotlockfile to openmail.conf to support using dot lockfile
-   for files located on remote nfs servers. This is recommended only if the 
-   lockd on nfs server or client has problems
-ps: FrreBSD/Linux nfs server/client may need this. Solaris doesn't.
+   for files located on remote NFS servers. This is recommended only if the 
+   lockd on NFS server or client has problems
+ps: FrreBSD/Linux NFS server/client may need this. Solaris doesn't.
 ps: This dotlock routine has not been tested under heavy load yet...
 
 2. add support to filter mails relayed from a specific 'SMTP Relay'
@@ -79,7 +101,7 @@ ps: This dotlock routine has not been tested under heavy load yet...
 1. message move in folderview will check if any message is selected 
    before showing up the confirm window
 2. the prompt of folder delete confirmation will contain the foldername now.
-3. fix a bug in adding attachment without pressing add buttom
+3. fix a bug in adding attachment without pressing add button
 
 
 04/06/2001 (version 1.04)
@@ -127,13 +149,13 @@ ps: This dotlock routine has not been tested under heavy load yet...
 1. change name to 'Open WebMail'
 2. fix bug related to from attribute
 3. add 'confirm reading' support
-4. for better compatiability with pine(an unix email reader):
+4. for better compatibility with pine(an unix email reader):
    user folderdir is changed from ~/neomail to ~/mail
    folder saved_messages is changed to saved-messages
    folder sent_mail      is changed to sent-mail
    folder neomail_trash  is changed to mail-trash
 
-ps. a script migrate.pl is provided for administor 
+ps. a script migrate.pl is provided for administer 
     to migrate user folders from neomail easily
 
 
@@ -141,7 +163,7 @@ ps. a script migrate.pl is provided for administor
 ----------
 1. add 'sort by status (unread first)'
 2. fix date sort bug
-3. add a golbal variable in $homedirfolderdirname neomail.conf
+3. add a global variable in $homedirfolderdirname neomail.conf
    to specify the folderdir used in user homedir.
 4. support charset in CGI.pm version > 2.57 
 
@@ -198,7 +220,7 @@ ps. a script migrate.pl is provided for administor
 1. better support for mime message display (almost the same as outlook)
 2. add support for unlimited levels of attachments
 3. add support for links to attachments with content-id or content-location
-4. merge in content-disipition patch from neomail-1.20
+4. merge in content-disposition patch from neomail-1.20
 
 
 10/15/2000
@@ -215,7 +237,7 @@ Erine, I decide to put my modification to a new version --- neomail 1.14+
 
 1. add support for full content search
 2. improve speed of movemessage
-3. fix bugs on solaris
+3. fix bugs on Solaris
 
 
 09/28/2000
@@ -238,4 +260,4 @@ submit the patch to Erine
 
 09/14/2000
 ----------
-first testdrive of the original neomail 1.14
+first test-drive of the original neomail 1.14

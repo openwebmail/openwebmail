@@ -6,23 +6,23 @@
 # return: 0=nothing, <0=error, n=filted count
 # there are 4 op for a msg: 'copy', 'move', 'delete' and 'keep'
 sub mailfilter {
-   my ($spoolfile, $headerdb, $folderdir, $r_validfolders, $user, $uid, $gid)=@_;
+   my ($folderfile, $headerdb, $folderdir, $r_validfolders, $user, $uid, $gid)=@_;
    my @filterrules;
-   my $spoolhandle=FileHandle->new();
+   my $folderhandle=FileHandle->new();
    my %HDB;
    my ($blockstart, $blockend, $writepointer);
    my (@allmessageids, $i);
    my $removed=0;
    
    ## check existence of spoolfile
-   if ( ! -f $spoolfile ) {
+   if ( ! -f $folderfile ) {
       return 0;
    }
    ## check .filter_check ##
    if ( -f "$folderdir/.filter.check" ) {
       open (FILTERCHECK, "$folderdir/.filter.check" ) or 
          return -1; # $lang_err{'couldnt_open'} .filter.check!
-      if (<FILTERCHECK> eq metainfo($spoolfile)) {
+      if (<FILTERCHECK> eq metainfo($folderfile)) {
          return 0;
       }      
       close (FILTERCHECK);
@@ -50,12 +50,12 @@ sub mailfilter {
    }
 
    ## open INBOX, since spool must exist => lock before open ##
-   unless (filelock($spoolfile, LOCK_EX|LOCK_NB)) {
-      return -3; # $lang_err{'couldnt_lock'} $spoolfile!
+   unless (filelock($folderfile, LOCK_EX|LOCK_NB)) {
+      return -3; # $lang_err{'couldnt_lock'} $folderfile!
    }
-   update_headerdb($headerdb, $spoolfile);
-   open ($spoolhandle, "+<$spoolfile") or 
-      return -4; # $lang_err{'couldnt_open'} $spoolfile!;
+   update_headerdb($headerdb, $folderfile);
+   open ($folderhandle, "+<$folderfile") or 
+      return -4; # $lang_err{'couldnt_open'} $folderfile!;
 
    @allmessageids=get_messageids_sorted_by_offset($headerdb);
 
@@ -81,6 +81,7 @@ sub mailfilter {
             ($priority, $rules, $include, $text, $destination, $enable) = split(/\@\@\@/, $line);
             $op='move';
          }
+         $destination =~ s/[\s|\.|\/|\\|\`|;|<|>]//g; # remove dangerous char
 
          ## check if current rule is enabled ##
          next unless ($enable == 1);
@@ -103,8 +104,8 @@ sub mailfilter {
                $matched=1;
                if ( $op eq 'move' || $op eq 'copy') {
                   if ($currmessage eq "") {
-                     seek($spoolhandle, $attr[$_OFFSET], 0);
-                     read($spoolhandle, $currmessage, $attr[$_SIZE]);
+                     seek($folderhandle, $attr[$_OFFSET], 0);
+                     read($folderhandle, $currmessage, $attr[$_SIZE]);
                   }
                   my $append=append_message_to_folder($allmessageids[$i],
 					\@attr, \$currmessage, $destination, 
@@ -121,8 +122,8 @@ sub mailfilter {
                $matched=1;
                if ( $op eq 'move' || $op eq 'copy') {
                   if ($currmessage eq "") {
-                     seek($spoolhandle, $attr[$_OFFSET], 0);
-                     read($spoolhandle, $currmessage, $attr[$_SIZE]);
+                     seek($folderhandle, $attr[$_OFFSET], 0);
+                     read($folderhandle, $currmessage, $attr[$_SIZE]);
                   }
                   my $append=append_message_to_folder($allmessageids[$i],
 					\@attr, \$currmessage, $destination, 
@@ -139,8 +140,8 @@ sub mailfilter {
                $matched=1;
                if ( $op eq 'move' || $op eq 'copy') {
                   if ($currmessage eq "") {
-                     seek($spoolhandle, $attr[$_OFFSET], 0);
-                     read($spoolhandle, $currmessage, $attr[$_SIZE]);
+                     seek($folderhandle, $attr[$_OFFSET], 0);
+                     read($folderhandle, $currmessage, $attr[$_SIZE]);
                   }
                   my $append=append_message_to_folder($allmessageids[$i],
 					\@attr, \$currmessage, $destination, 
@@ -153,8 +154,8 @@ sub mailfilter {
 
          } elsif ( $rules eq 'header' ) {
             if ($currmessage eq "") {
-               seek($spoolhandle, $attr[$_OFFSET], 0);
-               read($spoolhandle, $currmessage, $attr[$_SIZE]);
+               seek($folderhandle, $attr[$_OFFSET], 0);
+               read($folderhandle, $currmessage, $attr[$_SIZE]);
             }
             if ($header eq "") {
                ($header, $body, $r_attachments)=parse_rfc822block(\$currmessage);
@@ -176,8 +177,8 @@ sub mailfilter {
 
          } elsif ( $rules eq 'smtprelay' ) {
             if ($currmessage eq "") {
-               seek($spoolhandle, $attr[$_OFFSET], 0);
-               read($spoolhandle, $currmessage, $attr[$_SIZE]);
+               seek($folderhandle, $attr[$_OFFSET], 0);
+               read($folderhandle, $currmessage, $attr[$_SIZE]);
             }
             if ($header eq "") {
                ($header, $body, $r_attachments)=parse_rfc822block(\$currmessage);
@@ -209,8 +210,8 @@ sub mailfilter {
 
          } elsif ( $rules eq 'body' ) {
             if ($currmessage eq "") {
-               seek($spoolhandle, $attr[$_OFFSET], 0);
-               read($spoolhandle, $currmessage, $attr[$_SIZE]);
+               seek($folderhandle, $attr[$_OFFSET], 0);
+               read($folderhandle, $currmessage, $attr[$_SIZE]);
             }
             if ($header eq "") {
                ($header, $body, $r_attachments)=parse_rfc822block(\$currmessage);
@@ -265,8 +266,8 @@ sub mailfilter {
                         
          } elsif ($rules eq 'attfilename') {
             if ($currmessage eq "") {
-               seek($spoolhandle, $attr[$_OFFSET], 0);
-               read($spoolhandle, $currmessage, $attr[$_SIZE]);
+               seek($folderhandle, $attr[$_OFFSET], 0);
+               read($folderhandle, $currmessage, $attr[$_SIZE]);
             }
             if ($header eq "") {
                ($header, $body, $r_attachments)=parse_rfc822block(\$currmessage);
@@ -301,7 +302,7 @@ sub mailfilter {
          $messagestart=$attr[$_OFFSET];
          $messagesize=$attr[$_SIZE];
 
-         shiftblock($spoolhandle, $blockstart, $blockend-$blockstart, $writepointer-$blockstart);
+         shiftblock($folderhandle, $blockstart, $blockend-$blockstart, $writepointer-$blockstart);
 
          $writepointer=$writepointer+($blockend-$blockstart);
          $blockstart=$blockend=$messagestart+$messagesize;
@@ -327,32 +328,30 @@ sub mailfilter {
    } ## end of allmessages ##
 
    if ($removed>0) {
-      shiftblock($spoolhandle, $blockstart, $blockend-$blockstart, $writepointer-$blockstart);
-      seek($spoolhandle, $writepointer+($blockend-$blockstart), 0);
-      truncate($spoolhandle, tell($spoolhandle));
+      shiftblock($folderhandle, $blockstart, $blockend-$blockstart, $writepointer-$blockstart);
+      seek($folderhandle, $writepointer+($blockend-$blockstart), 0);
+      truncate($folderhandle, tell($folderhandle));
    }
-   close ($spoolhandle);
+   close ($folderhandle);
 
-   $HDB{'METAINFO'}=metainfo($spoolfile);
+   $HDB{'METAINFO'}=metainfo($folderfile);
    dbmclose(%HDB);
    filelock("$headerdb.$dbm_ext", LOCK_UN);
 
-   filelock($spoolfile, LOCK_UN);
+   filelock($folderfile, LOCK_UN);
    
    ## update .filter.check ##
    if (-f "$folderdir/.filter.check" ) {
       open (FILTERCHECK, ">$folderdir/.filter.check" ) or
          return -5; # $lang_err{'couldnt_open'} .filter.check!
-      print FILTERCHECK metainfo($spoolfile);
+      print FILTERCHECK metainfo($folderfile);
       truncate(FILTERCHECK, tell(FILTERCHECK));
       close (FILTERCHECK);
    } else {
       open (FILTERCHECK, ">$folderdir/.filter.check" ) or
          return -5; # $lang_err{'couldnt_open'} .filter.check!
-      print FILTERCHECK metainfo($spoolfile);
+      print FILTERCHECK metainfo($folderfile);
       close (FILTERCHECK);
-      chmod (0600, "$folderdir/.filter.check");
-      chown ($uid, $gid, "$folderdir/.filter.check");
    }
 
    return($removed);
@@ -363,15 +362,13 @@ sub append_message_to_folder {
    my ($messageid, $r_attr, $r_currmessage, $destination, 
 	$r_validfolders, $user, $uid, $gid)=@_;
    my %HDB2;
-   my ($dstfile, $dstdb)=get_spoolfile_headerdb($user, $destination);
+   my ($dstfile, $dstdb)=get_folderfile_headerdb($user, $destination);
    ($dstfile =~ /^(.+)$/) && ($dstfile = $1);  # untaint $dstfile
    ($dstdb =~ /^(.+)$/) && ($dstdb = $1);  # untaint $dstdb
 
    if(! -f $dstfile) {
       if (open (DEST, ">$dstfile")) {
          close (DEST);
-         chmod (0600, $dstfile);
-         chown ($uid, $gid, $dstfile);
          push (@{$r_validfolders}, $destination);
       }
    }

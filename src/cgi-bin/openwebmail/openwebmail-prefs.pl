@@ -29,12 +29,22 @@ use CGI::Carp qw(fatalsToBrowser);
 CGI::nph();   # Treat script as a non-parsed-header script
 
 $ENV{PATH} = ""; # no PATH should be needed
-umask(0002); # make sure the openwebmail group can write
+umask(0007); # make sure the openwebmail group can write
+
+if ($> != 0) {
+   my $suidperl=$^X;
+   $suidperl=~s/perl/suidperl/;
+   print "Content-type: text/html\n\n",
+         "<br><b>$0 is not setuid to root!</b><br>",
+         "<br>1. check if script is owned by root with mode 4755",
+         "<br>2. use #!$suidperl instead of #!$^X in script";
+   exit;
+}  
 
 require "etc/openwebmail.conf";
 require "openwebmail-shared.pl";
 require "pop3mail.pl";
-
+require "maildb.pl";
 
 local $thissession;
 local $user;
@@ -59,13 +69,24 @@ $user = $thissession || '';
 $user =~ s/\-session\-0.*$//; # Grab userid from sessionid
 ($user =~ /^(.+)$/) && ($user = $1);  # untaint $user...
 
+$uid=0; $gid = getgrnam('mail');
 if ($user) {
    if (($homedirspools eq 'yes') || ($homedirfolders eq 'yes')) {
-      ($uid, $gid, $homedir) = (getpwnam($user))[2,3,7] or
+      my $ugid;
+      ($uid, $ugid, $homedir) = (getpwnam($user))[2,3,7] or
          openwebmailerror("User $user doesn't exist!");
-      $gid = getgrnam('mail');
    }
 }
+set_euid_egid_umask($uid, $gid, 0077);
+
+if ( $homedirfolders eq 'yes') {
+   $folderdir = "$homedir/$homedirfolderdirname";
+} else {
+   $folderdir = "$openwebmaildir/users/$user";
+}
+
+$sessiontimeout = $sessiontimeout/60/24; # convert to format expected by -M
+
 
 %prefs = %{&readprefs};
 %style = %{&readstyle};
@@ -75,42 +96,18 @@ $lang = $prefs{'language'} || $defaultlanguage;
 require "etc/lang/$lang";
 $lang_charset ||= 'iso-8859-1';
 
-if (param("firstmessage")) {
-   $firstmessage = param("firstmessage");
-} else {
-   $firstmessage = 1;
-}
-
-if (param("sort")) {
-   $sort = param("sort");
-} else {
-   $sort = 'date';
-}
-
 $hitquota=0;
-
-if ( $homedirfolders eq 'yes') {
-   $folderdir = "$homedir/$homedirfolderdirname";
-} else {
-   $folderdir = "$userprefsdir/$user";
-}
-
-if (param("folder")) {
-   $folder = param("folder");
-} else {
-   $folder = "INBOX";
-}
+$folder = param("folder") || 'INBOX';
 $printfolder = $lang_folders{$folder} || $folder;
 $escapedfolder = CGI::escape($folder);
 
-if (param("message_id")) {
-   $messageid=param("message_id");
-}
+$messageid=param("message_id") || '';
 $escapedmessageid=CGI::escape($messageid);
 
-$firsttimeuser = param("firsttimeuser") || ''; # Don't allow cancel if 'yes'
+$firstmessage = param("firstmessage") || 1;
+$sort = param("sort") || $prefs{"sort"} || 'date';
 
-$sessiontimeout = $sessiontimeout/60/24; # convert to format expected by -M
+$firsttimeuser = param("firsttimeuser") || ''; # Don't allow cancel if 'yes'
 
 ########################## MAIN ##############################
 if (defined(param("action"))) {      # an action has been chosen
@@ -172,8 +169,8 @@ if (defined(param("action"))) {      # an action has been chosen
    printheader();
 
 ### Get a list of valid style files
-   opendir (STYLESDIR, $stylesdir) or
-      openwebmailerror("$lang_err{'couldnt_open'} $stylesdir directory for reading!");
+   opendir (STYLESDIR, "$openwebmaildir/styles") or
+      openwebmailerror("$lang_err{'couldnt_open'} $openwebmaildir/styles directory for reading!");
    while (defined(my $currentstyle = readdir(STYLESDIR))) {
       unless ($currentstyle =~ /\./) {
          push (@styles, $currentstyle);
@@ -181,7 +178,7 @@ if (defined(param("action"))) {      # an action has been chosen
    }
    @styles = sort(@styles);
    closedir(STYLESDIR) or
-      openwebmailerror("$lang_err{'couldnt_close'} $stylesdir!");
+      openwebmailerror("$lang_err{'couldnt_close'} $openwebmaildir/styles!");
    $temphtml = start_form(-action=>$prefsurl);
    $temphtml .= hidden(-name=>'action',
                        -default=>'saveprefs',
@@ -368,7 +365,7 @@ sub editfolders {
 
    printheader();
 
-   $temphtml = "<a href=\"$scripturl?action=displayheaders&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$escapedfolder\"><IMG SRC=\"$image_url/backtofolder.gif\" border=\"0\" ALT=\"$lang_text{'backto'} $printfolder\"></a>";
+   $temphtml = "<a href=\"$scripturl?action=displayheaders&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$escapedfolder\"><IMG SRC=\"$imagedir_url/backtofolder.gif\" border=\"0\" ALT=\"$lang_text{'backto'} $printfolder\"></a>";
 
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
 
@@ -490,21 +487,24 @@ sub addfolder {
       openwebmailerror("$lang_err{'cant_create_folder'}");
    }
    if ($foldertoadd eq 'INBOX' ||
-       $foldertoadd eq 'SAVED' || $foldertoadd eq 'saved-messages' ||
-       $foldertoadd eq 'SENT' ||  $foldertoadd eq 'sent-mail' ||
-       $foldertoadd eq 'DRAFT' || $foldertoadd eq 'saved-drafts' ||
-       $foldertoadd eq 'TRASH' || $foldertoadd eq 'trash-mail' ) {
+       $foldertoadd eq 'saved-messages' || 
+       $foldertoadd eq 'sent-mail' ||
+       $foldertoadd eq 'saved-drafts' ||
+       $foldertoadd eq 'trash-mail' ||
+       $foldertoadd eq 'DELETE' ||
+       $foldertoadd eq $lang_folders{'saved-messages'} ||
+       $foldertoadd eq $lang_folders{'sent-mail'} ||
+       $foldertoadd eq $lang_folders{'saved-drafts'} ||
+       $foldertoadd eq $lang_folders{'trash-mail'} ) {
       openwebmailerror("$lang_err{'cant_create_folder'}");
    }
 
-   my ($spoolfile, $headerdb)=get_spoolfile_headerdb($user, $foldertoadd);
-   if ( -f $spoolfile ) {
+   my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $foldertoadd);
+   if ( -f $folderfile ) {
       openwebmailerror ("$lang_err{'folder_with_name'} $foldertoadd $lang_err{'already_exists'}");
    }
 
-   set_euid_egid_umask($uid, $gid, 0077);
-
-   open (FOLDERTOADD, ">$spoolfile") or
+   open (FOLDERTOADD, ">$folderfile") or
       openwebmailerror("$lang_err{'cant_create_folder'} $foldertoadd!");
    close (FOLDERTOADD) or openwebmailerror("$lang_err{'couldnt_close'} $foldertoadd!");
 
@@ -778,11 +778,11 @@ sub editaddresses {
    $html =~ s/\@\@\@FREESPACE\@\@\@/$freespace/g;
 
    if ( param("message_id") ) {
-      $temphtml = "<a href=\"$scripturl?action=readmessage&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid\"><IMG SRC=\"$image_url/backtofolder.gif\" border=\"0\" ALT=\"$lang_text{'backto'} $printfolder\"></a> &nbsp; &nbsp; ";
+      $temphtml = "<a href=\"$scripturl?action=readmessage&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid\"><IMG SRC=\"$imagedir_url/backtofolder.gif\" border=\"0\" ALT=\"$lang_text{'backto'} $printfolder\"></a> &nbsp; &nbsp; ";
    } else {
-      $temphtml = "<a href=\"$scripturl?action=displayheaders&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder\"><IMG SRC=\"$image_url/backtofolder.gif\" border=\"0\" ALT=\"$lang_text{'backto'} $printfolder\"></a> &nbsp; &nbsp; ";
+      $temphtml = "<a href=\"$scripturl?action=displayheaders&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder\"><IMG SRC=\"$imagedir_url/backtofolder.gif\" border=\"0\" ALT=\"$lang_text{'backto'} $printfolder\"></a> &nbsp; &nbsp; ";
    }
-   $temphtml .= "<a href=\"$prefsurl?action=importabook&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid\"><IMG SRC=\"$image_url/import.gif\" border=\"0\" ALT=\"$lang_text{'importadd'}\"></a>";
+   $temphtml .= "<a href=\"$prefsurl?action=importabook&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid\"><IMG SRC=\"$imagedir_url/import.gif\" border=\"0\" ALT=\"$lang_text{'importadd'}\"></a>";
 
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
 
@@ -820,6 +820,7 @@ sub editaddresses {
                          -default=>'',
                          -size=>'35',
                          -override=>'1');
+   $temphtml .= "<a href=\"Javascript:GoAddressWindow('email')\">&nbsp;<IMG SRC=\"$imagedir_url/group.gif\" border=\"0\" ALT=\"$lang_text{'group'}\"></a>";
 
    $html =~ s/\@\@\@EMAILFIELD\@\@\@/$temphtml/;
 
@@ -833,10 +834,15 @@ sub editaddresses {
    my $bgcolor = $style{"tablerow_dark"};
 
    foreach my $key (sort { uc($a) cmp uc($b) } (keys %addresses)) {
+      my ($namestr, $emailstr)=($key, $addresses{$key});
+
+      $namestr=substr($namestr, 0, 25)."..." if (length($namestr)>30);
+      $emailstr=substr($emailstr, 0, 45)."..." if (length($emailstr)>50);
+
       $temphtml .= "<tr><td bgcolor=$bgcolor width=\"200\">
                     <a href=\"Javascript:Update('$key','$addresses{$key}')\">
-                    $key</a></td><td bgcolor=$bgcolor width=\"300\">
-                    <a href=\"$scripturl?action=composemessage&amp;firstmessage=$firstmessage&amp;sort=$sort&amp;folder=$escapedfolder&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$addresses{$key}\">$addresses{$key}</a></td>";
+                    $namestr</a></td><td bgcolor=$bgcolor width=\"300\">
+                    <a href=\"$scripturl?action=composemessage&amp;firstmessage=$firstmessage&amp;sort=$sort&amp;folder=$escapedfolder&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$addresses{$key}\">$emailstr</a></td>";
 
       $temphtml .= start_form(-action=>$prefsurl);
       $temphtml .= hidden(-name=>'action',
@@ -893,6 +899,9 @@ sub editaddresses {
    }
 
    $html =~ s/\@\@\@ADDRESSES\@\@\@/$temphtml/;
+
+   $html =~ s/\@\@\@SESSIONID\@\@\@/$thissession/g;
+
    print $html;
 
    printfooter();
@@ -947,8 +956,6 @@ sub modaddress {
             openwebmailerror("$lang_err{'couldnt_open'} .address.book!");
          print ABOOK "$realname:$address\n";
          close (ABOOK) or openwebmailerror("$lang_err{'couldnt_close'} .address.book!");
-         chmod (0600, "$folderdir/.address.book");
-         chown ($uid, $gid, "$folderdir/.address.book");
       }
    }
 
@@ -993,11 +1000,11 @@ sub editpop3 {
    $html =~ s/\@\@\@FREESPACE\@\@\@/$freespace/g;
 
    if ( param("message_id") ) {
-      $temphtml = "<a href=\"$scripturl?action=readmessage&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid\"><IMG SRC=\"$image_url/backtofolder.gif\" border=\"0\" ALT=\"$lang_text{'backto'} $printfolder\"></a> &nbsp; &nbsp; ";
+      $temphtml = "<a href=\"$scripturl?action=readmessage&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid\"><IMG SRC=\"$imagedir_url/backtofolder.gif\" border=\"0\" ALT=\"$lang_text{'backto'} $printfolder\"></a> &nbsp; &nbsp; ";
    } else {
-      $temphtml = "<a href=\"$scripturl?action=displayheaders&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder\"><IMG SRC=\"$image_url/backtofolder.gif\" border=\"0\" ALT=\"$lang_text{'backto'} $printfolder\"></a> &nbsp; &nbsp; ";
+      $temphtml = "<a href=\"$scripturl?action=displayheaders&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder\"><IMG SRC=\"$imagedir_url/backtofolder.gif\" border=\"0\" ALT=\"$lang_text{'backto'} $printfolder\"></a> &nbsp; &nbsp; ";
    }
-   $temphtml .= "<a href=\"$scripturl?action=retrpop3s&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid\"><IMG SRC=\"$image_url/pop3.gif\" border=\"0\" ALT=\"$lang_text{'retr_pop3s'}\"></a>";
+   $temphtml .= "<a href=\"$scripturl?action=retrpop3s&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid\"><IMG SRC=\"$imagedir_url/pop3.gif\" border=\"0\" ALT=\"$lang_text{'retr_pop3s'}\"></a>";
 
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
 
@@ -1183,8 +1190,6 @@ sub modpop3 {
             openwebmailerror("$lang_err{'couldnt_open'} .pop3.book!");
          print POP3BOOK "$host:$name:$pass:$del:$lastid\n";
          close (POP3BOOK) or openwebmailerror("$lang_err{'couldnt_close'} .pop3.book!");
-         chmod (0600, "$folderdir/.pop3.book");
-         chown ($uid, $gid, "$folderdir/.pop3.book");
       }
    }
 
@@ -1225,9 +1230,9 @@ sub editfilter {
    
    ## replace @@@MENUBARLINKS@@@ ##
    if ( param("message_id") ) {
-      $temphtml = "<a href=\"$scripturl?action=readmessage&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid\"><IMG SRC=\"$image_url/backtofolder.gif\" border=\"0\" ALT=\"$lang_text{'backto'} $printfolder\"></a>";
+      $temphtml = "<a href=\"$scripturl?action=readmessage&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid\"><IMG SRC=\"$imagedir_url/backtofolder.gif\" border=\"0\" ALT=\"$lang_text{'backto'} $printfolder\"></a>";
    } else {
-      $temphtml = "<a href=\"$scripturl?action=displayheaders&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder\"><IMG SRC=\"$image_url/backtofolder.gif\" border=\"0\" ALT=\"$lang_text{'backto'} $printfolder\"></a>";
+      $temphtml = "<a href=\"$scripturl?action=displayheaders&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder\"><IMG SRC=\"$imagedir_url/backtofolder.gif\" border=\"0\" ALT=\"$lang_text{'backto'} $printfolder\"></a>";
    }
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
 
@@ -1310,15 +1315,9 @@ sub editfilter {
          $labels{$_} = $_; 
       }
    }
-   my $trashfolder;
-   if ( $homedirfolders eq 'yes' ) {
-      $trashfolder='mail-trash';
-   } else {
-      $trashfolder='TRASH';
-   }
    $temphtml = popup_menu(-name=>'destination',
                           -values=>[@validfolders],
-                          -default=>$trashfolder,
+                          -default=>'mail-trash',
                           -labels=>\%labels);
    $html =~ s/\@\@\@FOLDERMENU\@\@\@/$temphtml/;
    
@@ -1489,6 +1488,7 @@ sub modfilter {
    $text =~ s/\@\@\@//g;
    $op = param("op") || 'move';
    $destination = param("destination") || '';
+   $destination =~ s/[\s|\.|\/|\\|\`|;|<|>]//g;	# remove dangerous char
    $enable = param("enable") || 0;
    
    ## add mode -> can't have null $rules, null $text, null $destination ##
@@ -1530,8 +1530,6 @@ sub modfilter {
                   openwebmailerror("$lang_err{'couldnt_open'} .filter.book!");
          print FILTER "$priority\@\@\@$rules\@\@\@$include\@\@\@$text\@\@\@$op\@\@\@$destination\@\@\@$enable\n";
          close (FILTER) or openwebmailerror("$lang_err{'couldnt_close'} .filter.book!");
-         chmod (0600, "$folderdir/.filter.book");
-         chown ($uid, $gid, "$folderdir/.filter.book");
       }
       
       ## remove .filter.check ##
@@ -1545,12 +1543,12 @@ sub modfilter {
 ###################### SAVEPREFS #########################
 sub saveprefs {
    verifysession();
-   unless ( -d "$userprefsdir$user" ) {
-      mkdir ("$userprefsdir$user", oct(700)) or
-         openwebmailerror("$lang_err{'cant_create_dir'}");
+   if (! -d "$folderdir" ) {
+      mkdir ("$folderdir", oct(700)) or
+         openwebmailerror("$lang_err{'cant_create_dir'} $folderdir");
    }
-   open (CONFIG,">$userprefsdir$user/config") or
-      openwebmailerror("$lang_err{'couldnt_open'} config!");
+   open (CONFIG,">$folderdir/.openwebmailrc") or
+      openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.openwebmailrc!");
    foreach my $key (qw(realname domainname replyto sort headers style
                        numberofmessages language fromname)) {
       my $value = param("$key") || '';
@@ -1571,15 +1569,15 @@ sub saveprefs {
          print CONFIG "$key=$value\n";
       }
    }
-   close (CONFIG) or openwebmailerror("$lang_err{'couldnt_close'} config!");
-   open (SIGNATURE,">$userprefsdir$user/signature") or
-      openwebmailerror("$lang_err{'couldnt_open'} signature!");
+   close (CONFIG) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.openwebmailrc!");
+   open (SIGNATURE,">$folderdir/.signature") or
+      openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.signature!");
    my $value = param("signature") || '';
    if (length($value) > 500) {  # truncate signature to 500 chars
       $value = substr($value, 0, 500);
    }
    print SIGNATURE $value;
-   close (SIGNATURE) or openwebmailerror("$lang_err{'couldnt_close'} signature!");
+   close (SIGNATURE) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.signature!");
    printheader();
 
    my $html = '';
@@ -1634,6 +1632,7 @@ sub addressbook {
    my %addresses=();
    my %globaladdresses=();
    my ($name, $email);
+   my $form=param("form");
    my $field=param("field");
    my $preexisting = param("preexisting") || '';
    $preexisting =~ s/(\s+)?,(\s+)?/,/g;
@@ -1642,10 +1641,15 @@ sub addressbook {
                   );
    print '<table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">';
 
-   print '<tr><td colspan="2" bgcolor=',$style{"titlebar"},' align="left">',
-   '<font color=',$style{"titlebar_text"},' face=',$style{"fontface"},' size="3"><b>',uc($lang_text{$field}),": $lang_text{'abook'}</b></font>",
-   '</td></tr>';
-
+   if (defined($lang_text{$field})) {
+      print '<tr><td colspan="2" bgcolor=',$style{"titlebar"},' align="left">',
+      '<font color=',$style{"titlebar_text"},' face=',$style{"fontface"},' size="3"><b>',uc($lang_text{$field}),": $lang_text{'abook'}</b></font>",
+      '</td></tr>';
+   } else {
+      print '<tr><td colspan="2" bgcolor=',$style{"titlebar"},' align="left">',
+      '<font color=',$style{"titlebar_text"},' face=',$style{"fontface"},' size="3"><b>',uc($field),": $lang_text{'abook'}</b></font>",
+      '</td></tr>';
+   }
    my $bgcolor = $style{"tablerow_dark"};
    if ( -f "$folderdir/.address.book" ) {
       open (ABOOK,"$folderdir/.address.book") or
@@ -1701,7 +1705,7 @@ sub addressbook {
    print '<input type="submit" name="mailto.x" value="OK"> &nbsp;&nbsp;';
    print '<input type="button" value="Cancel" onClick="window.close();">';
    print '</td></tr></table>';
-   print '<script language="JavaScript">
+   print qq|<script language="JavaScript">
       <!--
       function Update(whichfield)
       {
@@ -1716,16 +1720,11 @@ sub addressbook {
                e2 += e.value;
             }
          }
-         if (whichfield == "to")
-            window.opener.document.composeform.to.value = e2;
-         else if (whichfield == "cc")
-            window.opener.document.composeform.cc.value = e2;
-         else
-            window.opener.document.composeform.bcc.value = e2;
+         window.opener.document.$form.$field.value = e2;
          window.close();
       }
       //-->
-      </script>';
+      </script>|;
    print end_form();
    print end_html();
 }

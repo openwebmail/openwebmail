@@ -3,7 +3,7 @@ Q: I got "Internal server error" when running openwebmail?
 A: please check you have install a complete set of perl 5.005 above
 
 Q: I got "can not do setuid" error?
-A: You may uncompress the openwebmail-1.xx.tgz with inproper parameter.
+A: You may uncompress the openwebmail-1.xx.tgz with improper parameter.
    It is "tar -zxvBpf openwebmail-.1.xx.tgz"
 
 Q: I still got "cannot do set uid" error?
@@ -14,8 +14,10 @@ A: You perl is compiled with suid ability disabled.
    b. recompile your perl with suid enabled
 
 Q: Attachments disappeared when I forward a message?
-A: check the permission of cgi-bin/openwebmail/etc
-   It should be owend by user=root, group=mail and mode=770
+A: check the permission of the following directories
+   cgi-bin/openwebmail/etc          - owner=root, group=mail, mode=750
+   cgi-bin/openwebmail/etc/sessions - owner=root, group=mail, mode=770
+   cgi-bin/openwebmail/etc/users    - owner=root, group=mail, mode=770
 
 Q: The permission cgi-bin/openwebmail/etc is correct but attachments 
    still disappeared in message forwarding?
@@ -35,7 +37,7 @@ A: It depends on how you define the "slow".
    1 second on a celeron300 machine.
 
 ps: Some operations would take more time than normal operation like:
-    reindexing of a large folder, adding large attachment to a message.
+    re-indexing of a large folder, adding large attachment to a message.
 
    It is recommended that you install Open WebMail on a medium-sized machine.
    (ex: Celeron 300 with 128MB ram). Actually it runs well on a pentium 200mmx 

@@ -1,7 +1,7 @@
 #
-# maildb.pl are functions for mail spool file.
+# maildb.pl are functions for mail folderfile.
 #
-# 1. it greatly speeds up the mail spool files access by hash 
+# 1. it greatly speeds up the mail folderfiles access by hash 
 #    important info with the perl build in dbm. 
 # 2. it can parse mail with unlimited level attachments through 
 #    recursive parsing
@@ -10,19 +10,24 @@
 # 4. it supports search on mail spool file and cache the results for 
 #    repeated queries.
 #
-# 2001/04/06 tung@turtle.ee.ncku.edu.tw
+# 2001/04/20 tung@turtle.ee.ncku.edu.tw
 #
 # IMPORTANT!!!
 #
 # Functions in this file will do locks for dbm before read/write.
-# They doesn't do locks for spoolfile/spoolhandle and relies the 
+# They doesn't do locks for folderfile/folderhandle and relies the 
 # caller for that lock.
-# Functions with spoolfile/spoolhandle in argument must be inside
-# a spool lock session
+# Functions with folderfile/folderhandle in argument must be inside
+# a folderfile lock session
 #
 # An global variable $dbm_ext needs to be defined to represent the
 # dbm filename extension on your system. 
 # ex: use 'db' for FreeBSD and 'dir' for Solaris
+#
+# An global variable $use_dotlockfile needs to be defined to use 
+# dotlockfile style locking
+# This is recommended only if the lockd on your nfs server or client is broken
+# ps: FrreBSD/Linux nfs server/client may need this. Solaris doesn't.
 
 use Fcntl qw(:DEFAULT :flock);
 use FileHandle;
@@ -141,7 +146,7 @@ if ( $dbm_ext eq "" ) {
 # this routine indexes the messages in a mailfolder
 # and remove those with duplicated messageids
 sub update_headerdb {
-   my ($headerdb, $spoolfile) = @_;
+   my ($headerdb, $folderfile) = @_;
    my (%HDB, @datearray);
 
    if ( -e "$headerdb.$dbm_ext" ) {
@@ -156,7 +161,7 @@ sub update_headerdb {
       dbmclose(%HDB);
       filelock("$headerdb.$dbm_ext", LOCK_UN);
 
-      if ( $metainfo ne metainfo($spoolfile) 
+      if ( $metainfo ne metainfo($folderfile) 
         || $allmessages eq "" 
         || $internalmessages eq "" 
         || $newmessages eq "" ) {
@@ -166,7 +171,7 @@ sub update_headerdb {
    }
 
    if ( !(-e "$headerdb.$dbm_ext") ) {
-      open (SPOOL, $spoolfile);
+      open (FOLDER, $folderfile);
       dbmopen(%HDB, $headerdb, 0600);
       filelock("$headerdb.$dbm_ext", LOCK_EX);
 
@@ -187,7 +192,7 @@ sub update_headerdb {
 
       %HDB=();	# ensure the headerdb is empty
 
-      while (defined($line = <SPOOL>)) {
+      while (defined($line = <FOLDER>)) {
 
          $offset=$total_size;
          $total_size += length($line);
@@ -195,7 +200,7 @@ sub update_headerdb {
          if ($line =~ /^From /) {
 
             unless ($messagenumber == -1) {
-               if ( $spoolfile=~ m#/SENT#i ) {
+               if ( $folderfile=~ m#/SENT#i ) {
 ### We aren't interested in the sender in this case, but the recipient
 ### Handling it this way avoids having a separate sort sub for To:.
                   $_from = (split(/,/, $_to))[0];
@@ -286,7 +291,7 @@ sub update_headerdb {
 ###### Catch the last message, since there won't be a From: to trigger the capture
 
       unless ($messagenumber == -1) {
-         if ( $spoolfile=~ m#/SENT#i ) {
+         if ( $folderfile=~ m#/SENT#i ) {
 ###### We aren't interested in the sender in this case, but the recipient
 ###### Handling it this way avoids having a separate sort sub for To:.
             $_from = (split(/,/, $_to))[0];
@@ -324,28 +329,26 @@ sub update_headerdb {
          }
       }
 
-      $HDB{'METAINFO'}=metainfo($spoolfile);
+      $HDB{'METAINFO'}=metainfo($folderfile);
       $HDB{'ALLMESSAGES'}=$messagenumber+1;
       $HDB{'INTERNALMESSAGES'}=$internalmessages;
       $HDB{'NEWMESSAGES'}=$newmessages;
       filelock("$headerdb.$dbm_ext", LOCK_UN);
       dbmclose(%HDB);
-      close (SPOOL);
+      close (FOLDER);
 
       # remove if any duplicates
       if ($#duplicateids>=0) {
-         op_message_with_ids("delete", \@duplicateids, $spoolfile, $headerdb);
+         op_message_with_ids("delete", \@duplicateids, $folderfile, $headerdb);
       }
    }
 }
 
 # return a string composed by the modify time & size of a file
 sub metainfo {
-   my @l;
-
    if (-e $_[0]) {
       # $dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks
-      @l=stat($_[0]);
+      my @l=stat($_[0]);
       return("mtime=$l[9] size=$l[7]");
    } else {
       return("");
@@ -615,17 +618,17 @@ sub get_message_attributes {
 
 
 sub get_message_block {
-   my ($messageid, $headerdb, $spoolhandle)=@_;
+   my ($messageid, $headerdb, $folderhandle)=@_;
    my (@attr, $buff);
 
    $buff="";
    @attr=get_message_attributes($messageid, $headerdb);
    return if ($#attr<0);   
 
-   my $oldoffset=tell($spoolhandle);
-   seek($spoolhandle, $attr[$_OFFSET], 0);
-   read($spoolhandle, $buff, $attr[$_SIZE]);
-   seek($spoolhandle, $oldoffset, 0);
+   my $oldoffset=tell($folderhandle);
+   seek($folderhandle, $attr[$_OFFSET], 0);
+   read($folderhandle, $buff, $attr[$_SIZE]);
+   seek($folderhandle, $oldoffset, 0);
 
    return(\$buff);
 }
@@ -634,28 +637,28 @@ sub get_message_block {
 
 ###################### MOVE_MESSAGE_WITH_IDS #########################
 
-# operate messages with @messageids from srcfolder to dstfolder
+# operate messages with @messageids from src folderfile to dst folderfile
 # available $op: "move", "copy", "delete"
 sub op_message_with_ids {
-   my ($op, $r_messageids, $srcfolder, $srcdb, $dstfolder, $dstdb)=@_;
-   my $spoolhandle=FileHandle->new();
+   my ($op, $r_messageids, $srcfile, $srcdb, $dstfile, $dstdb)=@_;
+   my $folderhandle=FileHandle->new();
    my (%HDB, %HDB2);
    my $messageids = join("\n", @{$r_messageids});
 
    # $lang_err{'inv_msg_op'}
    return(-1) if ($op ne "move" && $op ne "copy" && $op ne "delete"); 
-   return(0) if ($srcfolder eq $dstfolder || $#{$r_messageids} < 0);
+   return(0) if ($srcfile eq $dstfile || $#{$r_messageids} < 0);
 
    # open source folder, since spool must exist => lock before open
-   update_headerdb($srcdb, $srcfolder);
-   open ($spoolhandle, "+<$srcfolder") or 
-      return(-2);	# $lang_err{'couldnt_open'} $srcfolder!
+   update_headerdb($srcdb, $srcfile);
+   open ($folderhandle, "+<$srcfile") or 
+      return(-2);	# $lang_err{'couldnt_open'} $srcfile!
 
    if ($op eq "move" || $op eq "copy") {
       # open destination folder, since dest may not exist => open before lock
-      open (DEST, ">>$dstfolder") or
+      open (DEST, ">>$dstfile") or
          return(-3);	# $lang_err{'couldnt_open'} $destination!
-      update_headerdb("$dstdb", $dstfolder);
+      update_headerdb("$dstdb", $dstfile);
    }
 
    my @allmessageids=get_messageids_sorted_by_offset($srcdb);
@@ -678,11 +681,11 @@ sub op_message_with_ids {
       $messagestart=$attr[$_OFFSET];
       $messagesize=$attr[$_SIZE];
 
-      if ($messageids =~ /^\Q$allmessageids[$i]\E$/m) {	# msg to be moved
+      if ($messageids =~ /^\Q$allmessageids[$i]\E$/m) {	# msg to be operated
          $counted++;
 
          if ($op eq 'move' || $op eq 'delete') {
-            shiftblock($spoolhandle, $blockstart, $blockend-$blockstart, $writepointer-$blockstart);
+            shiftblock($folderhandle, $blockstart, $blockend-$blockstart, $writepointer-$blockstart);
             $writepointer=$writepointer+($blockend-$blockstart);
             $blockstart=$blockend=$messagestart+$messagesize;
          } else {
@@ -690,21 +693,21 @@ sub op_message_with_ids {
          }
 
 
-         # only append msg to dst folder only if 
-         # op=move/copy and msg doesn't exist in dstfolder
+         # append msg to dst folder only if 
+         # op=move/copy and msg doesn't exist in dstfile
          if (($op eq "move" || $op eq "copy") && 
              !defined($HDB2{$allmessageids[$i]}) ) {
             my ($left, $buff);
 
-            seek($spoolhandle, $attr[$_OFFSET], 0);
+            seek($folderhandle, $attr[$_OFFSET], 0);
 
             $attr[$_OFFSET]=tell(DEST);
 
-            # copy message from $spoolhandle to DEST and append "From " if needed
+            # copy message from $folderhandle to DEST and append "From " if needed
             $left=$attr[$_SIZE];
             while ($left>0) {
                if ($left>=32768) {
-                   read($spoolhandle, $buff, 32768);
+                   read($folderhandle, $buff, 32768);
                    # append 'From ' if 1st buff is not started with 'From '
                    if ($left==$attr[$_SIZE]  && $buff!~/^From /) {
                       print DEST "From ";
@@ -713,7 +716,7 @@ sub op_message_with_ids {
                    print DEST $buff;
                    $left=$left-32768;
                } else {
-                   read($spoolhandle, $buff, $left);
+                   read($folderhandle, $buff, $left);
                    # append 'From ' if 1st buff is not started with 'From '
                    if ($left==$attr[$_SIZE]  && $buff!~/^From /) {
                       print DEST "From ";
@@ -750,21 +753,21 @@ sub op_message_with_ids {
       }
    }
 
-   if ( ($counted>0) && ($op eq 'move' || $op eq 'delete') ) {
-      shiftblock($spoolhandle, $blockstart, $blockend-$blockstart, $writepointer-$blockstart);
-      seek($spoolhandle, $writepointer+($blockend-$blockstart), 0);
-      truncate($spoolhandle, tell($spoolhandle));
+   if ( ($op eq 'move' || $op eq 'delete') && $counted>0 ) {
+      shiftblock($folderhandle, $blockstart, $blockend-$blockstart, $writepointer-$blockstart);
+      seek($folderhandle, $writepointer+($blockend-$blockstart), 0);
+      truncate($folderhandle, tell($folderhandle));
    }
 
    if ($op eq "move" || $op eq "copy") { 
       close (DEST);
-      $HDB2{'METAINFO'}=metainfo($dstfolder);
+      $HDB2{'METAINFO'}=metainfo($dstfile);
       dbmclose(%HDB2);
       filelock("$dstdb.$dbm_ext", LOCK_UN);
    }
 
-   close ($spoolhandle);
-   $HDB{'METAINFO'}=metainfo($srcfolder);
+   close ($folderhandle);
+   $HDB{'METAINFO'}=metainfo($srcfile);
    dbmclose(%HDB);
    filelock("$srcdb.$dbm_ext", LOCK_UN);
 
@@ -1152,6 +1155,7 @@ sub make_attachment {
          $attfilename = "Unknown.".contenttype2ext($attcontenttype);
       }
    }
+   $attdisposition =~ s/^(.+);.*/$1/g;
 
    # the 2 attr are coming from parent block
    $temphash{subtype} = $subtype;
@@ -1160,9 +1164,10 @@ sub make_attachment {
    $temphash{header} = decode_mimewords($attheader);
    $temphash{r_content} = $r_attcontent;
    $temphash{contentlength} = $attcontentlength;
-   $temphash{filename} = decode_mimewords($attfilename);
    $temphash{contenttype} = $attcontenttype || 'text/plain';
    $temphash{encoding} = $attencoding;
+   $temphash{disposition} = $attdisposition;
+   $temphash{filename} = decode_mimewords($attfilename);
    $temphash{id} = $attid;
    $temphash{location} = $attlocation;
    $temphash{nodeid} = $nodeid;
@@ -1193,7 +1198,7 @@ sub contenttype2ext {
 #################### SEARCH_MESSAGES_FOR_KEYWORD ###########################
 
 sub search_messages_for_keyword {
-   my ($keyword, $searchcontent, $headerdb, $spoolhandle, $cachefile)=@_;
+   my ($keyword, $searchcontent, $headerdb, $folderhandle, $cachefile)=@_;
    my %found;
    my (%HDB, @messageids);
    my ($metainfo, $cache_metainfo, $cache_headerdb, $cache_keyword, $cache_searchcontent);
@@ -1224,7 +1229,7 @@ sub search_messages_for_keyword {
       print CACHE $keyword, "\n";
       print CACHE $searchcontent, "\n";
 
-      @messageids=get_messageids_sorted_by_offset($headerdb, $spoolhandle);
+      @messageids=get_messageids_sorted_by_offset($headerdb, $folderhandle);
 
       foreach $messageid (@messageids) {
          my (@attr, $block, $header, $body, $r_attachments) ;
@@ -1241,8 +1246,8 @@ sub search_messages_for_keyword {
          next unless ($searchcontent);
 
 # check raw header and body
-         seek($spoolhandle, $attr[$_OFFSET], 0);
-         read($spoolhandle, $block, $attr[$_SIZE]);
+         seek($folderhandle, $attr[$_OFFSET], 0);
+         read($folderhandle, $block, $attr[$_SIZE]);
 
          ($header, $body, $r_attachments)=parse_rfc822block(\$block);
          if ( $header =~ /$keyword/i ) {

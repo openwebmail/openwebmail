@@ -8,10 +8,10 @@ $lang_charset = 'iso-8859-2';
 %lang_folders =
    (
    INBOX => 'PRIJATÉ',
-   SAVED => 'ULO®ENÉ',
-   SENT  => 'POSLANÉ',
-   DRAFT => 'DRAFT',
-   TRASH => 'KÔ©',
+   'saved-messages' => 'ULO®ENÉ',
+   'sent-mail'      => 'POSLANÉ',
+   'saved-drafts'   => 'DRAFT',
+   'mail-trash'     => 'KÔ©',
    DELETE => '--DELETE--'
    );
 
@@ -93,6 +93,7 @@ $lang_charset = 'iso-8859-2';
    addmod     => 'Prida»/Zmeni»',
    abooktitle => 'Adresár',
    abook      => 'ADRESÁR',
+   group      => 'Group',
    quota_hit  => 'VRCHOL KVÔTY',
    pop3book   => 'POP3 Setup',
    retr_pop3s => 'Retrieve POP3 Mail',
