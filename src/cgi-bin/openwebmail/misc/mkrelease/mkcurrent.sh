@@ -203,3 +203,5 @@ fi
 
 cd $tmpdir
 su webmail -c '/bin/sh /usr/local/www/cgi-bin/openwebmail/misc/mkrelease/notify.sh'
+cd ..
+rmdir $tmpdir

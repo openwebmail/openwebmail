@@ -1014,6 +1014,9 @@ sub eventreminder_html {
                   $t='#';
                }
                $s=$items{$index}{'string'};
+               if (is_convertable($items{$index}{'charset'}, $prefs{'charset'})) {
+                  ($s)=iconv($items{$index}{'charset'}, $prefs{'charset'}, $s);
+               }
                $s=substr($s,0,20).".." if (length($s)>=21);
                $s.='*' if ($index>=1E6);
                $dayhtml.=qq|&nbsp; | if $dayhtml ne "";

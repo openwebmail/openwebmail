@@ -1298,7 +1298,12 @@ sub checknotify {
             } else {
                $itemstr=hourmin($items{$index}{'starthourmin'})."-".hourmin($items{$index}{'endhourmin'});
             }
-            $itemstr .= "  $items{$index}{'string'}";
+
+            my $s=$items{$index}{'string'};
+            if (is_convertable($items{$index}{'charset'}, $prefs{'charset'})) {
+               ($s)=iconv($items{$index}{'charset'}, $prefs{'charset'}, $s);
+            }
+            $itemstr .= "  $s";
             $itemstr .= " ($items{$index}{'link'})" if ($items{$index}{'link'});
 
             if (defined($message{$items{$index}{'email'}})) {

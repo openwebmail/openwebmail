@@ -29,7 +29,8 @@ sub readcalbook {
                             string       => $a[4],
                             link         => $a[5],
                             email        => $a[6],
-                            eventcolor   => $a[7]||'none' };
+                            eventcolor   => $a[7]||'none',
+                            charset      => $a[8]||'' };
 
       my $idate=$a[1]; $idate= '*' if ($idate=~/[^\d]/); # use '*' for regex date
       if ( !defined(${$r_indexes}{$idate}) ) {
@@ -60,12 +61,15 @@ sub writecalbook {
    open (CALBOOK, ">$calbook") or return -1;
    my $newindex=1;
    foreach (@indexlist) {
-      print CALBOOK join('@@@', $newindex, ${$r_items}{$_}{'idate'},
-                       ${$r_items}{$_}{'starthourmin'}, ${$r_items}{$_}{'endhourmin'},
+      print CALBOOK join('@@@', $newindex, 
+                       ${$r_items}{$_}{'idate'},
+                       ${$r_items}{$_}{'starthourmin'},
+                       ${$r_items}{$_}{'endhourmin'},
                        ${$r_items}{$_}{'string'},
                        ${$r_items}{$_}{'link'},
                        ${$r_items}{$_}{'email'},
-                       ${$r_items}{$_}{'eventcolor'})."\n";
+                       ${$r_items}{$_}{'eventcolor'}||'none',
+                       ${$r_items}{$_}{'charset'}||'' )."\n";
       $newindex++;
    }
    close(CALBOOK);

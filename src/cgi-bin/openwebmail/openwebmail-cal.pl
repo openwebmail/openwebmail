@@ -43,6 +43,7 @@ require "auth/auth.pl";
 require "quota/quota.pl";
 require "shares/ow-shared.pl";
 require "shares/lunar.pl";
+require "shares/iconv.pl";
 require "shares/iconv-chinese.pl";
 require "shares/calbook.pl";
 
@@ -331,7 +332,11 @@ sub yearview {
 
                my $eventstr='';
                for my $index (@indexlist) {
-                  $eventstr.="$items{$index}{'string'} ";
+                  my $s=$items{$index}{'string'};
+                  if (is_convertable($items{$index}{'charset'}, $prefs{'charset'})) {
+                     ($s)=iconv($items{$index}{'charset'}, $prefs{'charset'}, $s);
+                  }
+                  $eventstr.="$s ";
                }
                if ($eventstr ne '') {
                   if ($eventstr!~/"/) {
@@ -790,6 +795,9 @@ sub month_week_item {
    }
 
    my $s=${$r_item}{'string'};
+   if (is_convertable(${$r_item}{'charset'}, $prefs{'charset'})) {
+      ($s)=iconv(${$r_item}{'charset'}, $prefs{'charset'}, $s);
+   }
    my $nohtml=$s; $nohtml=~ s/<.*?>//g;
    $s=substr($nohtml, 0, 76)."..." if (length($nohtml)>80);
    $s="$s *" if ($is_global);
@@ -1001,13 +1009,17 @@ sub dayview {
       $temphtml .= qq|<tr>|.
                    qq|<td bgcolor=$bgcolor[$colornum] valign="top" colspan="|.($colmax+1).qq|">\n|.
                    qq|<table width="100%" cellpadding="2" cellspacing="0"><tr><td $bgcolorstr valign="top" align="left">|;
+
+      my $s=${$r_event}{'string'};
+      if (is_convertable(${$r_event}{'charset'}, $prefs{'charset'})) {
+         ($s)=iconv(${$r_event}{'charset'}, $prefs{'charset'}, $s);
+      }
       if ($index>=1E6) {
-         $temphtml .= qq|$eventtime${$r_event}{'string'} *|.
-                      $eventlink.$eventemail;
+         $temphtml .= qq|$eventtime$s *|.$eventlink.$eventemail;
       } else {
          $temphtml .= qq|<a accesskey="E" title="$lang_text{'edit'}" href="$cal_url&amp;|.
                       qq|action=caledit&amp;year=$year&amp;month=$month&amp;day=$day&amp;index=$index" $jsedit>|.
-                      qq|$eventtime${$r_event}{'string'}</a>|.
+                      qq|$eventtime$s</a>|.
                       $eventlink.$eventemail.
                       qq|&nbsp;&nbsp;|. iconlink("cal-delete.gif", "$lang_text{'delete'}", qq|href="$cal_url&amp;action=caldel&amp;year=$year&amp;month=$month&amp;day=$day&amp;index=$index" $jsdel|);
       }
@@ -1141,13 +1153,19 @@ sub dayview {
                $temphtml .= qq|<td $bgcolorstr $bdstylestr valign="top" width="|.
                             int(100 * $layout{$index}{'colspan'}/($colmax+1)).
                             qq|%" rowspan="$layout{$index}{'rowspan'}" colspan="$layout{$index}{'colspan'}">|;
+
+
+               my $s=${$r_event}{'string'};
+               if (is_convertable(${$r_event}{'charset'}, $prefs{'charset'})) {
+                  ($s)=iconv(${$r_event}{'charset'}, $prefs{'charset'}, $s);
+               }
                if ($index > 1E6) {
-                  $temphtml .=qq|$eventtime ${$r_event}{'string'} *|.
+                  $temphtml .=qq|$eventtime $s *|.
                               $eventlink.$eventemail;
                } else {
                   $temphtml .= qq|<a accesskey="E" title="$lang_text{'edit'}" href="$cal_url&amp;|.
                                qq|action=caledit&amp;year=$year&amp;month=$month&amp;day=$day&amp;index=$index" $jsedit>|.
-                               qq|$eventtime ${$r_event}{'string'}</a>|.
+                               qq|$eventtime $s</a>|.
                                $eventlink.$eventemail.
                                qq|&nbsp;&nbsp;|. iconlink("cal-delete.gif", "$lang_text{'delete'}", qq|href="$cal_url&amp;action=caldel&amp;year=$year&amp;month=$month&amp;day=$day&amp;index=$index" $jsdel|);
                }
@@ -1758,6 +1776,9 @@ sub listview_item {
    }
 
    my $s=${$r_item}{'string'};
+   if (is_convertable(${$r_item}{'charset'}, $prefs{'charset'})) {
+      ($s)=iconv(${$r_item}{'charset'}, $prefs{'charset'}, $s);
+   }
    my $nohtml=$s; $nohtml=~ s/<.*?>//g;
    $s=substr($nohtml, 0, 76)."..." if (length($nohtml)>80);
 
@@ -1862,8 +1883,12 @@ sub edit_item {
    $html =~ s/\@\@\@DAY\@\@\@/$temphtml/g;
 
 
+   my $s=$items{$index}{'string'};
+   if (is_convertable($items{$index}{'charset'}, $prefs{'charset'})) {
+      ($s)=iconv($items{$index}{'charset'}, $prefs{'charset'}, $s);
+   }
    $temphtml = textfield(-name=>'string',
-                         -default=>$items{$index}{'string'},
+                         -default=>$s,
                          -size=>'32',
                          -override=>'1');
    $html =~ s/\@\@\@STRINGFIELD\@\@\@/$temphtml/;
@@ -2270,6 +2295,7 @@ sub add_item {
    $items{$index}{'link'}=$link;
    $items{$index}{'email'}=$email;
    $items{$index}{'eventcolor'}=$eventcolor;
+   $items{$index}{'charset'}=$prefs{'charset'};
 
    if (writecalbook($calbookfile, \%items) <0 ) {
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $calbookfile");
@@ -2300,7 +2326,11 @@ sub del_item {
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $calbookfile");
    }
 
-   my $msg="delete calitem - index=$index, t=$items{$index}{'starthourmin'}, str=$items{$index}{'string'}";
+   my $s=$items{$index}{'string'};
+   if (is_convertable($items{$index}{'charset'}, $prefs{'charset'})) {
+      ($s)=iconv($items{$index}{'charset'}, $prefs{'charset'}, $s);
+   }
+   my $msg="delete calitem - index=$index, t=$items{$index}{'starthourmin'}, str=$s";
    writelog($msg);
    writehistory($msg);
 }
@@ -2450,6 +2480,7 @@ sub update_item {
    $items{$index}{'link'}=$link;
    $items{$index}{'email'}=$email;
    $items{$index}{'eventcolor'}="$eventcolor";
+   $items{$index}{'charset'}=$prefs{'charset'};
 
    if ( writecalbook($calbookfile, \%items) <0 ) {
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $calbookfile");

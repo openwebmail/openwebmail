@@ -319,6 +319,26 @@ sub upgrade_all {	# called if user releasedate is too old
          writelog("release upgrade - openwebmailrc by 20041101");
       }
    }
+
+   if ( $user_releasedate lt "20041107" ) {
+      my $calbookfile=dotpath('calendar.book');
+      my $data;
+      if (open(F, $calbookfile)) {
+         while (<F>) {
+            chomp;
+            my @a=split(/\@\@\@/, $_);
+            $a[8]=$prefs{'charset'} if ($a[8] eq '');
+            $data.=join('@@@', @a)."\n";
+         }
+         close(F);
+         if (open(F, ">$calbookfile")) {
+            print F $data;
+            close(F);
+            writehistory("release upgrade - $calbookfile charset by 20041107");
+            writelog("release upgrade - $calbookfile charset by 20041107");
+         }
+      }
+   }
    return;
 }
 
