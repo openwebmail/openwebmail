@@ -1,3 +1,10 @@
+02/04/2005
+----------
+1. fix a bug in calendar that day of month was not properly checked when
+   the user clicked calendar from webmail
+   (thanks to Alex Teslik, alex.AT.acatysmoof.com for his fix)
+
+
 02/03/2005
 ----------
 1. fix a bug that in-reply-to header may be not correctly handled if it

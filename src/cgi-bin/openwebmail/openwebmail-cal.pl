@@ -202,8 +202,6 @@ openwebmail_requestend();
 ########## YEARVIEW ##############################################
 sub yearview {
    my $year=$_[0];
-   my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
-   $days_in_month[2]++ if ( ($year%4)==0 && (($year%100)!=0||($year%400)==0) );
 
    my $localtime=ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'});
    my ($current_year, $current_month, $current_day)=(ow::datetime::seconds2array($localtime))[5,4,3];
@@ -211,6 +209,9 @@ sub yearview {
 
    $year = $current_year if (!$year);
    $year=2037 if ($year>2037); $year=1970 if ($year<1970);
+
+   my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
+   $days_in_month[2]++ if ( ($year%4)==0 && (($year%100)!=0||($year%400)==0) );
 
    my ($html, $temphtml);
    $html = applystyle(readtemplate("yearview.template"));
@@ -379,8 +380,6 @@ sub yearview {
 ########## MONTHVIEW #############################################
 sub monthview {
    my ($year, $month)=@_;
-   my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
-   $days_in_month[2]++ if ( ($year%4)==0 && (($year%100)!=0||($year%400)==0) );
 
    my $localtime=ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'});
    my ($current_year, $current_month, $current_day)=(ow::datetime::seconds2array($localtime))[5,4,3];
@@ -390,6 +389,9 @@ sub monthview {
    $month = $current_month if (!$month);
    $year=2037 if ($year>2037); $year=1970 if ($year<1970);
    $month=12 if ($month>12); $month=1 if ($month<1);
+
+   my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
+   $days_in_month[2]++ if ( ($year%4)==0 && (($year%100)!=0||($year%400)==0) );
 
    my ($html, $temphtml);
    $html = applystyle(readtemplate("monthview.template"));
@@ -577,8 +579,6 @@ sub monthview {
 ########## WEEKVIEW ##############################################
 sub weekview {
    my ($year, $month, $day)=@_;
-   my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
-   $days_in_month[2]++ if ( ($year%4)==0 && (($year%100)!=0||($year%400)==0) );
 
    my $localtime=ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'});
    my ($current_year, $current_month, $current_day)=(ow::datetime::seconds2array($localtime))[5,4,3];
@@ -589,6 +589,10 @@ sub weekview {
    $day = $current_day if (!$day);
    $year=2037 if ($year>2037); $year=1970 if ($year<1970);
    $month=12 if ($month>12); $month=1 if ($month<1);
+
+   my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
+   $days_in_month[2]++ if ( ($year%4)==0 && (($year%100)!=0||($year%400)==0) );
+
    $day=$days_in_month[$month] if ($day>$days_in_month[$month]); $day=1 if ($day<1);
 
    my ($html, $temphtml);
@@ -818,8 +822,6 @@ sub month_week_item {
 ########## DAYVIEW ###############################################
 sub dayview {
    my ($year, $month, $day)=@_;
-   my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
-   $days_in_month[2]++ if ( ($year%4)==0 && (($year%100)!=0||($year%400)==0) );
 
    my $localtime=ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'});
    my ($current_year, $current_month, $current_day)=(ow::datetime::seconds2array($localtime))[5,4,3];
@@ -830,6 +832,10 @@ sub dayview {
    $day = $current_day if (!$day);
    $year=2037 if ($year>2037); $year=1970 if ($year<1970);
    $month=12 if ($month>12); $month=1 if ($month<1);
+
+   my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
+   $days_in_month[2]++ if ( ($year%4)==0 && (($year%100)!=0||($year%400)==0) );
+
    $day=$days_in_month[$month] if ($day>$days_in_month[$month]); $day=1 if ($day<1);
 
    my ($html, $temphtml);
