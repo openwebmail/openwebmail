@@ -46,21 +46,11 @@ sub upgrade_20021218 {		# called only if folderdir doesn't exist
 sub upgrade_all {	# called if user releasedate is too old
    my $user_releasedate=$_[0];
    my $content;
-   my ($_OFFSET, $_FROM, $_TO, $_DATE, $_SUBJECT, $_CONTENT_TYPE, $_STATUS, $_SIZE, $_REFERENCES, $_CHARSET)
-       =(0,1,2,3,4,5,6,7,8,9);
-   my %is_internal_dbkey= (
-      METAINFO => 1,
-      NEWMESSAGES => 1,
-      INTERNALMESSAGES => 1,
-      ALLMESSAGES => 1,
-      ZAPSIZE => 1,
-      "" => 1
-   );
 
    my $folderdir="$homedir/$config{'homedirfolderdirname'}";
 
-   my (@validfolders, $folderusage);
-   getfolders(\@validfolders, \$folderusage);
+   my (@validfolders, $inboxusage, $folderusage);
+   getfolders(\@validfolders, \$inboxusage, \$folderusage);
 
    if ( $user_releasedate lt "20011101" ) {
       if ( -f "$folderdir/.filter.book" ) {
@@ -167,177 +157,6 @@ sub upgrade_all {	# called if user releasedate is too old
       }
    }
 
-   if ( $user_releasedate lt "20020108.02" ) {
-      foreach my $foldername (@validfolders) {
-         my ($folderfile, $folderdb)=get_folderpath_folderdb_old($user, $foldername);
-         my (%FDB, @messageids, @attr);
-         next if (!ow::dbm::exist($folderdb));
-
-         ow::filelock::lock($folderfile, LOCK_SH) or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $folderfile");
-         open (FOLDER, $folderfile);
-         ow::dbm::open(\%FDB, $folderdb, LOCK_EX) or
-               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} db $folderdb");
-
-         if ( $FDB{'METAINFO'} eq ow::tool::metainfo($folderfile) ) { # upgrade only if hdb is uptodate
-            @messageids=keys %FDB;
-            foreach my $id (@messageids) {
-               next if ($is_internal_dbkey{$id});
-               @attr=split( /@@@/, $FDB{$id} );
-
-               next if ( ($attr[$_CONTENT_TYPE] eq '' ||
-                          $attr[$_CONTENT_TYPE] eq 'N/A' ||
-                          $attr[$_CONTENT_TYPE] =~ /^text/i)
-                       && $attr[$_SIZE]<4096 );
-
-               next if ($attr[$_STATUS] =~ /T/i);
-
-               if ($attr[$_SIZE]>65536) { # assume message > 64k has attachments
-                  $attr[$_STATUS].="T";
-               } else {
-                  my $buff;
-                  seek(FOLDER, $attr[$_OFFSET], 0);
-                  read(FOLDER, $buff, $attr[$_SIZE]);
-                  if ( $buff =~ /\ncontent\-type:.*;\s+name\s*=(.+?)\n/ims ||
-                       $buff =~ /\n\s+name\s*=(.+?)\n/ims ||
-                       $buff =~ /\ncontent\-disposition:.*;\s+filename\s*=(.+?)\n/ims ||
-                       $buff =~ /\n\s+filename\s*=(.+?)\n/ims ||
-                       $buff =~ /\nbegin [0-7][0-7][0-7][0-7]? [^\n\r]+\n/ims ) {
-                     my $misc=$1;
-                     if ($misc !~ /[\<\>]/ && $misc !~ /type=/i) {
-                        $attr[$_STATUS].="T";
-                     } else {
-                        next;
-                     }
-                  } else {
-                     next;
-                  }
-               }
-               $FDB{$id}=join('@@@', @attr);
-            }
-         }
-         ow::dbm::close(\%FDB, $folderdb);
-         close(FOLDER);
-         ow::filelock::lock($folderfile, LOCK_UN);
-      }
-      writehistory("release upgrade - $folderdir/* by 20020108.02");
-      writelog("release upgrade - $folderdir/* by 20020108.02");
-   }
-
-   if ( $user_releasedate lt "20020108.02" ) {
-      foreach my $foldername (@validfolders) {
-         my ($folderfile, $folderdb)=get_folderpath_folderdb_old($user, $foldername);
-         my (%FDB, @messageids, @attr);
-         next if (!ow::dbm::exist($folderdb));
-
-         ow::dbm::open(\%FDB, $folderdb, LOCK_EX) or
-               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} db $folderdb");
-         @messageids=keys %FDB;
-         foreach my $id (@messageids) {
-            next if ($is_internal_dbkey{$id});
-            @attr=split( /@@@/, $FDB{$id} );
-            next if ( $attr[$_DATE] !~ m!(\d+)/(\d+)/(\d\d+)\s+(\d+):(\d+):(\d+)! );
-            my @d = ($1, $2, $3, $4, $5, $6);
-            if ($d[2]<50) {
-               $d[2]+=2000;
-            } elsif ($d[2]<=1900) {
-               $d[2]+=1900;
-            }
-            $attr[$_DATE]=sprintf("%4d%02d%02d%02d%02d%02d",
-					$d[2],$d[0],$d[1], $d[3],$d[4],$d[5]);
-            $FDB{$id}=join('@@@', @attr);
-         }
-         ow::dbm::close(\%FDB, $folderdb);
-
-         my $cachefile=ow::tool::untaint("$folderdb.cache");
-         unlink($cachefile); # remove cache possiblely for old dbm
-      }
-      writehistory("release upgrade - $folderdir/.* db by 20020108.02");
-      writelog("release upgrade - $folderdir/.* db by 20020108.02");
-   }
-
-   if ( $user_releasedate lt "20020601" ) {
-      my $timeoffset=ow::datetime::gettimeoffset();
-      foreach my $foldername (@validfolders) {
-         my ($folderfile, $folderdb)=get_folderpath_folderdb_old($user, $foldername);
-         my (%FDB, @messageids, @attr);
-         next if (!ow::dbm::exist($folderdb));
-
-         ow::filelock::lock($folderfile, LOCK_SH) or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $folderfile");
-         open (FOLDER, $folderfile);
-         ow::dbm::open(\%FDB, $folderdb, LOCK_EX) or
-               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} db $folderdb");
-
-         @messageids=keys %FDB;
-         foreach my $id (@messageids) {
-            next if ($is_internal_dbkey{$id});
-            my ($buff, $delimiter, $datefield, $dateserial);
-            @attr=split( /@@@/, $FDB{$id} );
-            seek(FOLDER, $attr[$_OFFSET], 0);
-            if (length($attr[$_FROM].$attr[$_TO].$attr[$_SUBJECT].$attr[$_CONTENT_TYPE].$attr[$_REFERENCES])>384) {
-                read(FOLDER, $buff, 2048);
-            } else {
-                read(FOLDER, $buff, 1024);
-            }
-            if ( $buff =~ /^From (.+?)\n/ims) {
-               $delimiter=$1;
-               if ( $buff =~ /\nDate: (.+?)\n/ims ) {
-                  $datefield=$1;
-               }
-               my $dateserial=ow::datetime::datefield2dateserial($datefield);
-               my $deliserial=ow::datetime::delimiter2dateserial($delimiter, $config{'deliver_use_GMT'}, $prefs{'daylightsaving'}) ||
-                              ow::datetime::gmtime2dateserial();
-               if ($dateserial eq "") {
-                  $dateserial=$deliserial;
-               } elsif ($deliserial ne "") {
-                   my $t=ow::datetime::dateserial2gmtime($deliserial)-ow::datetime::dateserial2gmtime($dateserial);
-                   if ($t>86400*7 || $t<-86400) { # msg transmission time
-                      # use deliverytime in case sender host may have wrong time configuration
-                      $dateserial=$deliserial;
-                   }
-               }
-               $attr[$_DATE]=$dateserial;
-            } else {
-               my $t=ow::datetime::dateserial2gmtime($attr[$_DATE]) -
-                     ow::datetime::timeoffset2seconds($timeoffset);	# local -> gm
-               $t-=3600 if (ow::datetime::is_dst($t, $timeoffset));
-               $attr[$_DATE]=ow::datetime::gmtime2dateserial($t);
-            }
-            $FDB{$id}=join('@@@', @attr);
-         }
-         ow::dbm::close(\%FDB, $folderdb);
-         close(FOLDER);
-         ow::filelock::lock($folderfile, LOCK_UN);
-      }
-      writehistory("release upgrade - $folderdir/* by 20020601");
-      writelog("release upgrade - $folderdir/* by 20020601");
-   }
-
-   if ( $user_releasedate lt "20021111" ) {
-      foreach my $foldername (@validfolders) {
-         my ($folderfile, $folderdb)=get_folderpath_folderdb_old($user, $foldername);
-         my (%FDB, @messageids, @attr);
-         next if (!ow::dbm::exist($folderdb));
-
-         ow::dbm::open(\%FDB, $folderdb, LOCK_EX) or
-               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} db $folderdb");
-         @messageids=keys %FDB;
-         foreach my $id (@messageids) {
-            next if ($is_internal_dbkey{$id});
-            @attr=split( /@@@/, $FDB{$id} );
-            if ( $attr[$_CHARSET] eq "" &&
-                 $attr[$_CONTENT_TYPE]=~/charset="?([^\s"';]*)"?\s?/i) {
-               $attr[$_CHARSET]=$1;
-               $FDB{$id}=join('@@@', @attr);
-            }
-         }
-         ow::dbm::close(\%FDB, $folderdb);
-      }
-      writehistory("release upgrade - $folderdir/.* db by 20021111.02");
-      writelog("release upgrade - $folderdir/.* db by 20021111.02");
-   }
-
    if ( $user_releasedate lt "20021201" ) {
       if ( -f "$folderdir/.calendar.book" ) {
          my $content='';
@@ -442,19 +261,37 @@ sub upgrade_all {	# called if user releasedate is too old
       writehistory("release upgrade - $folderdir/.* to .openwebmail/ by 20031128");
       writelog("release upgrade - $folderdir/.* to .openwebmail/ by 20031128");
    }
-}
 
-# used by upgrade routine before 20031128 to locate folder db
-sub get_folderpath_folderdb_old {
-   my ($username, $foldername)=@_;
-   my ($folderfile, $folderdb)=get_folderpath_folderdb($username, $foldername);
-   if ($foldername eq 'INBOX') {
-      $folderdb="$homedir/$config{'homedirfolderdirname'}/.$username";
-   } else {
-      $folderdb="$homedir/$config{'homedirfolderdirname'}/$foldername";
-      ($folderdb=~/^(.+)\/(.*)$/) && ($folderdb = "$1/.$2");
+   if ( $user_releasedate lt "20040111" ) {
+      my $pop3book = dotpath('pop3.book');
+      if ( -f $pop3book ) {
+         $content="";
+         ow::filelock::lock($pop3book, LOCK_EX) or
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $pop3book");
+         open(F, $pop3book);
+         while (<F>) {
+            chomp;
+            my @a=split(/\@\@\@/);
+            if ($#a==6) {
+               $content.="$_\n";
+            } else {
+               my ($pop3host, $pop3port, $pop3user, $pop3passwd, $pop3del, $enable)=@a;
+               my $pop3ssl=0;
+               $content.="$pop3host\@\@\@$pop3port\@\@\@$pop3ssl\@\@\@$pop3user\@\@\@$pop3passwd\@\@\@$pop3del\@\@\@$enable\n";
+            }
+         }
+         close(F);
+         if ($content ne "") {
+            writehistory("release upgrade - $pop3book by 20040111");
+            writelog("release upgrade - $pop3book by 20040111");
+            open(F, ">$pop3book");
+            print F $content;
+            close(F);
+         }
+         ow::filelock::lock($pop3book, LOCK_UN);
+      }
    }
-   return($folderfile, ow::tool::untaint($folderdb));
+
 }
 
 sub read_releasedatefile {

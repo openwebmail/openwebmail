@@ -13,6 +13,7 @@ use vars qw(%charset_convlist %charset_localname);
    (
    'big5'          => [ 'gb2312' ],
    'gb2312'        => [ 'big5' ],
+   'gbk'           => [ 'gbk' ],
    'euc-jp'        => [ 'shift_jis' ],
    'iso-2022-jp'   => [ 'shift_jis' ],
    'shift_jis'     => [ 'iso-2022-jp', 'euc-jp' ],
@@ -22,8 +23,8 @@ sub is_convertable {
    my ($from, $to)=@_;
    $from=lc($from); $to=lc($to);
 
-   return 1 if ($from eq 'big5' && $to eq 'gb2312');
-   return 1 if ($from eq 'gb2312' && $to eq 'big5');
+   return 1 if ($from eq 'big5' && ($to eq 'gb2312'||$to eq 'gbk'));
+   return 1 if (($from eq 'gb2312'||$from eq 'gbk') && $to eq 'big5');
    return 1 if ($from eq 'shift_jis' && $to eq 'iso-2022-jp');
    return 1 if ($from eq 'iso-2022-jp' && $to eq 'shift_jis');
    return 1 if ($from eq 'shift_jis' && $to eq 'euc-jp');
@@ -42,10 +43,10 @@ sub iconv {
       if ($text[$i]!~/[^\s]/) {
          $result[$i]=$text[$i]; next;
       }
-      # since g2b, b2g in openwebmail is quite complete, we prefer it than iconv
-      if ($from  eq 'big5' && $to eq 'gb2312' ) {
+      # try convertion routine in iconv-chinese, iconv-japan first
+      if ($from  eq 'big5' && ($to eq 'gb2312'||$to eq 'gbk') ) {
          $result[$i]=b2g($text[$i]); next;
-      } elsif ($from eq 'gb2312' && $to eq 'big5' ) {
+      } elsif (($from eq 'gb2312'||$from eq 'gbk') && $to eq 'big5' ) {
          $result[$i]=g2b($text[$i]); next;
       } elsif ($from eq 'shift_jis' && $to eq 'iso-2022-jp' ) {
          $result[$i]=$text[$i]; sjis2jis(\$result[$i]); next;

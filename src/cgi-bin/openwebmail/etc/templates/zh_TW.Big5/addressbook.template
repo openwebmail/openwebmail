@@ -34,7 +34,10 @@
    }
    function Update(email)
    {
-      var addrlist=unescape(document.addressbook.elist.value);
+      // decode elist escaped in openwebmail-abook.pl
+      var addrlist=unescape(document.addressbook.elist.value);	
+      // decode %unicode in string returned from previous unescape
+      addrlist=unescape(addrlist);
 
       for (var i = 0; i < document.addressbook.elements.length; i++)
       {

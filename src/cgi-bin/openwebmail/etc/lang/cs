@@ -3,7 +3,8 @@ package ow::cs;
 # Czech translation, charset: iso-8859-2
 # by Michal Drapak, michal.AT.stavlib.hiedu.cz, 2001-NOV-8
 #    Jan Bilik, jan.AT.bilik.org, 2002-JUN-6, 2003-JAN-5
-#    Pavel Schauer, schauer.AT.dp.fce.vutbr.cz, 2002-DEC-3
+#    Pavel Schauer, schauer.AT.dp.fce.vutbr.cz, 2003-DEC-3
+#    Milan Kerslager, kerslage.AT.linux.cz, 2004-APR-13
 
 %lang_folders =
    (
@@ -20,8 +21,8 @@ package ow::cs;
    status      => 'Øadit podle stavu (Nepøeètené první)',
    date        => 'Øadit podle data (Nejnovìj¹í první)',
    date_rev    => 'Øadit podle data (Nejstar¹í první)',
-   sender      => 'Øadit podle odesilatele (Nejnovìj¹í první)',
-   sender_rev  => 'Øadit podle odesilatele (Nejstar¹í první)',
+   sender      => 'Øadit podle odesílatele (Nejnovìj¹í první)',
+   sender_rev  => 'Øadit podle odesílatele (Nejstar¹í první)',
    subject     => 'Øadit podle pøedmìtu (Nejnovìj¹í první)',
    subject_rev => 'Øadit podle pøedmìtu (Nejstar¹í první)',
    size        => 'Øadit podle velikosti (Nejdel¹í první)',
@@ -30,9 +31,9 @@ package ow::cs;
 
 %lang_onofflabels =
    (
-   auto => 'Auto switched',
-   on   => 'On',
-   off  => 'Off',
+   auto => 'Autom. pøepnutí',
+   on   => 'Zapnuto',
+   off  => 'Vypnuto',
    );
 
 %lang_prioritylabels =
@@ -44,10 +45,10 @@ package ow::cs;
 
 %lang_msgformatlabels =
    (
-   auto => 'Auto selected',
+   auto => 'Autom. výbìr',
    text => 'Text',
    html => 'HTML',
-   both => 'HTML and Text'
+   both => 'HTML a Text'
    );
 
 %lang_withoriglabels =
@@ -66,14 +67,14 @@ package ow::cs;
 
 %lang_disableemblinklabels =
    (
-   none    => 'None',
-   cgionly => 'CGI only',
-   all     => 'All embedded URLs'
+   none    => '®ádné',
+   cgionly => 'Jen CGI',
+   all     => 'V¹echna vlo¾ená URL'
    );
 
 %lang_ctrlpositionlabels =
    (
-   top => 'Nahoøe',
+   top    => 'Nahoøe',
    bottom => 'Dole'
    );
 
@@ -144,7 +145,7 @@ package ow::cs;
    7  => 'èervenec',
    8  => 'srpen',
    9  => 'záøí',
-   10 => 'øijen',
+   10 => 'øíjen',
    11 => 'listopad',
    12 => 'prosinec'
    );
@@ -189,8 +190,8 @@ package ow::cs;
    listarchive=> 'Obsah',
    decompress=>'Dekomprimovat',
    extract  => 'Rozbalit',
-   mkpdf    => 'Make Pdf',
-   mkps     => 'Make Ps',
+   mkpdf    => 'Vytvoøit PDF',
+   mkps     => 'Vytvoøit PS',
    chdir    => 'ZmìnaSlo¾ky',
    mkdir    => 'NováSlo¾ka',
    newfile  => 'NovýSoubor',
@@ -201,14 +202,14 @@ package ow::cs;
    gzip     => 'GZip',
    mkzip    => 'Zip',
    mktgz    => 'TAR+GZip',
-   mkthumbnail  => 'MkThumb',
+   mkthumbnail  => 'VytvNáhled',
    download => 'Stáhnout',
    upload   => 'Poslat',
    );   
 
 %lang_text =
    (
-   loading    => 'Loading, please wait',
+   loading    => 'Nahrávám, èekejte prosím',
    help       => 'Nápovìda',
    login      => 'Pøihlásit',
    clear      => 'Smazat',
@@ -234,12 +235,13 @@ package ow::cs;
    userdef    => 'U¾iv.def.',
    logout     => 'Odhlásit',
    page       => 'Strana',
+   msgsperpage=> '@@@MSGCOUNT@@@ zpráv na stránku',
    msgcopyconf=> '\'Jste si jisti, ¾e chcete zkopírovat vybrané zprávy?\'',
    copy       => 'Kopírovat',
    msgmoveconf=> '\'Jste si jisti ¾e chcete pøesunout vybrané zprávy?\'',
    move       => 'Pøesunout',
-   markasread => 'Oznaèit jako pøeèteno',
-   markasunread => 'Oznaèit jako nepøeèteno',
+   markasread => 'Oznaèit jako pøeètená',
+   markasunread => 'Oznaèit jako nepøeètená',
    dateformat => 'Formát datumu',
    date       => 'Datum',
    recipient  => 'Pøíjemce',
@@ -252,11 +254,11 @@ package ow::cs;
    replyall   => 'Odpovìdìt v¹em',
    forward    => 'Poslat dál',
    forwardasatt=>'Poslat jako pøílohu',
-   forwardasorig=>'Forward as original',
+   forwardasorig=>'Pøeposlat jako originál',
    printfriendly=> 'Formát pro tisk',
-   msgformat  => 'MsgFormat',
+   msgformat  => 'Formát zprávy',
    from       => 'Od',
-   replyto    => 'Kam odpovídat (pokud má být pro odpovìï pou¾ita jiná adresa) ',
+   replyto    => 'Kam odpovídat (jiná adresa) ',
    to         => 'Komu',
    cc         => 'Kopie',
    bcc        => 'Neviditelná kopie',
@@ -276,9 +278,9 @@ package ow::cs;
    msgrebuild => 'Zrekonstruovat zprávu',
    editdraft  => 'Editovat rozepsané',
    savedraft  => 'Ulo¾it rozepsané',
-   draftsaved => 'Draft @@@SUBJECT@@@ has been saved successfully',
+   draftsaved => 'Rozepsaná zpráva @@@SUBJECT@@@ byla úspì¹nì ulo¾ena',
    send       => 'Poslat',
-   msgsent    => 'Message @@@SUBJECT@@@ has been sent successfully',
+   msgsent    => 'Zpráva @@@SUBJECT@@@ byla úspì¹nì odeslána',
    about      => 'O systému',
    close      => 'Zavøít',
    cancel     => 'Zru¹it',
@@ -315,24 +317,26 @@ package ow::cs;
    note       => 'Poznámka',
    max        => 'Maximum',
    group      => 'Skupina',
-   quotausage => 'Quota usage',
-   quotalimit => 'Quota limit',
-   quotahit   => 'Vrchol kvóty',
+   quotausage => 'Vyu¾ití kvóty',
+   quotalimit => 'Limit kvóty',
+   quotahit   => 'Dosa¾ena kvóta',
    tzmap      => 'Svìtová mapa èasových zón',
    testsound  => 'Otestovat zvuk',
    editfroms  => 'Správa vlastních e-mailových adres',
    pop3book   => 'Správa POP3 úètù',
    retr_pop3s => 'Stáhnout po¹tu z POP3 úètù',
    filterbook => 'Definice filtrù po¹ty',
-   include    => 'Vèetnì',
-   exclude    => 'Mimo',
+   include    => 'Obsahuje',
+   exclude    => 'Neobsahuje',
    smtprelay  => 'Zdrojový SMTP server',
    header     => 'Záhlaví',
    body       => 'Tìlo',
-   attfilename=> 'Jméno soboru pøílohy',
+   attfilename=> 'Jméno souboru pøílohy',
    all        => 'V¹e',
    enable     => 'Aktivní',
    disable    => 'Neaktivní',
+   yes        => 'Ano',
+   no         => 'Ne',
    filtered   => 'Filtrováno',
    blockrelay => 'Blokovat zdrojový SMTP server',
    blockemail => 'Blokovat adresu',
@@ -356,13 +360,13 @@ package ow::cs;
    editpdict  => 'Editovat osobní slovník',
    addtodict  => 'Pøidat do slovníku',
    manuallyfix=> 'Opravit ruènì',
-   editstat   => 'Upravit komentáø',
-   savestat   => 'Ulo¾it komentáø',
-   clearstat  => 'Vymazat v¹echny komentáøe',
-   statreply  => '-- Vybrat komentáø jako odpovìï --',
+   editstat   => 'Upravit ¹ablony',
+   savestat   => 'Ulo¾it ¹ablonu',
+   clearstat  => 'Vymazat v¹echny ¹ablony',
+   statreply  => '-- Vybrat ¹ablonu pro odpovìï --',
    calendar   => 'Kalendáø',
    allday     => 'Ka¾dý den',
-   today      => 'Today',
+   today      => 'Dnes',
    am         => 'dop.',
    pm         => 'odp.',
    calfmt_year          => 'Rok @@@YEAR@@@',
@@ -370,7 +374,7 @@ package ow::cs;
    calfmt_yearmonthday  => '@@@DAY@@@. @@@MONTH_STR@@@ @@@YEAR@@@',
    calfmt_yearmonthdaywday => '@@@DAY@@@. @@@MONTH_STR@@@ @@@YEAR@@@, @@@WEEKDAY_STR@@@',
    calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
-   autosel    => 'Auto selected',
+   autosel    => 'Automat. výbìr',
    none       => '¾ádný',
    moreitems  => 'více polo¾ek',
    multieditconf => 'Tato polo¾ka byla vlo¾ena pro více datumù.\\nÚprava zmìní hodnoty pro v¹echny datumy.\\nPokraèovat s úpravou datumu?',
@@ -395,7 +399,7 @@ package ow::cs;
    name_of_newdir => 'jméno nové slo¾ky',
    name_of_newfile=> 'jméno nového souboru',
    dest_of_thecopy=> 'cílová slo¾ka kopírovaného souboru',
-   dest_of_themove=> 'cílová slo¾ka pøesovaného souboru èi slo¾ky',
+   dest_of_themove=> 'cílová slo¾ka pøesouvaného souboru èi slo¾ky',
    dest_of_thezip=> 'jméno nového .ZIP souboru',
    dest_of_thetgz=> 'jméno nového .TGZ souboru',
    homedir      => 'Domovská slo¾ka',
@@ -404,31 +408,31 @@ package ow::cs;
    lastmodified => 'Èas poslední zmìny',
    perm         => 'Práva',
    permission   => 'Pøístup povolen',
-   noitemfound  => 'Nebyla nalezena ¾ádáná polo¾ka',
+   noitemfound  => 'Nebyla nalezena ¾ádaná polo¾ka',
    savefile     => 'Ulo¾ení',
    succeeded    => 'se podaøilo',
    failed       => 'selhalo',
    savefile_towd=> 'Ulo¾it soubor na WebDisk',
    saveatt_towd => 'Ulo¾it pøílohu na WebDisk',
    addatt_fromwd=> 'Vlo¾it pøílohu z WebDisku',
-   vdomain_usermgr    => 'Virtual Domain User Management',
-   vdomain_createuser => 'Create User',
-   vdomain_changeuser => 'Change User',
-   vdomain_deleteuser => 'Delete User',
-   vdomain_changeview => 'Change view to',
-   vdomain_usersonly  => 'users only',
-   vdomain_useralias  => 'users/aliases',
-   vdomain_fmtuseralias => 'formatted users/aliases',
+   vdomain_usermgr    => 'Správa u¾ivatelù virtuálních domén',
+   vdomain_createuser => 'Vytvoøit u¾ivatele',
+   vdomain_changeuser => 'Upravit u¾ivatele',
+   vdomain_deleteuser => 'Smazat u¾ivatele',
+   vdomain_changeview => 'Zobrazit',
+   vdomain_usersonly  => 'jen u¾ivatele',
+   vdomain_useralias  => 'u¾ivatele/aliasy',
+   vdomain_fmtuseralias => 'formátované u¾ivatele/aliasy',
    vdomain_admin      => 'Admin',
-   vdomain_localuser  => 'Local User',
-   set_passwd         => 'Set Password',
-   reset_passwd       => 'Reset Password',
+   vdomain_localuser  => 'Lokální u¾ivatel',
+   set_passwd         => 'Nastavit heslo',
+   reset_passwd       => 'Znovu nastavit heslo',
    email_alias        => 'E-MAIL Alias'
    );
 
 %lang_err =
    (
-   has_illegal_chars => 'má nepovolené znaky!',
+   has_illegal_chars => 'obsahuje nepovolené znaky!',
    couldnt_open      => 'Nepodaøilo se otevøít',
    couldnt_locksh    => 'Nepodaøilo se otevøít pro ètení',
    couldnt_lock      => 'Nepodaøilo se otevøít pro zápis',
@@ -480,18 +484,18 @@ package ow::cs;
    no_file_todownload=> 'Nebyl zvolen soubor ke sta¾ení',
    upload_overlimit  => 'Velikost posílaného souboru je vìt¹í ne¾ povolená',
    decomp_notsupported =>'Dekomprimace tohoto souboru není podporována.',
-   filefmt_notsupported =>'The file format is not supported.',
+   filefmt_notsupported =>'Formát souboru není podporován.',
    webdisk_readonly  => 'Promiòte, Vá¹ WebDisk je urèen jen ke ètení.',
-   quota_syserr      => 'Quota system error',
-   quotahit_alert    => 'Sorry, you\'ve hit your quota limit. Please delete some messages from mail folders or some files from the webdisk to free disk space.',
-   quotahit_delmail  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, oldest messages in folders have been removed automatcially',
-   quotahit_delfile  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, some files in the webdisk have been removed automatcially',
-   spool_overlimit   => 'Sorry, your INBOX has exceeded the spool limit(@@@SPOOLLIMIT@@@). Please move some messages from INBOX to other folders.',
-   vdomain_toomanyuser  => 'Sorry, the user count of this domain has reached its maximum limit',
-   vdomain_toomanyalias => 'Sorry, the E-MAIL alias count of this user has reached its maximum limit',
-   vdomain_userrequired => 'A user name is required',
-   vdomain_fwdrequired => 'A valid forwarding E-MAIL is required',
-   all_module_disabled => 'All modules are disabled'
+   quota_syserr      => 'Systémová chyba kvóty',
+   quotahit_alert    => 'Dosáhli jste hranice kvóty. Sma¾te prosím nìjaké zprávy nebo soubory z WebDisku, abyste si uvolnili místo na disku.',
+   quotahit_delmail  => 'Varování: Proto¾e byla dosa¾ena hranice kvóty (@@@QUOTALIMIT@@@), byly ve slo¾kách automaticky smazány nejstar¹í zprávy',
+   quotahit_delfile  => 'Varování: Proto¾e byla dosa¾ena hranice kvóty (@@@QUOTALIMIT@@@), byly nìkteré soubory WebDisku automaticky smazány',
+   spool_overlimit   => 'Velikost slo¾ky s pøijatými zprávami pøesáhla limit (@@@SPOOLLIMIT@@@). Pøesuòte prosím nìkteré zprávy do jiných slo¾ek.',
+   vdomain_toomanyuser  => 'Poèet virtuálních u¾ivatelù této domény dosáhl maximálního poètu',
+   vdomain_toomanyalias => 'Poèet E-MAIL aliasù tohoto u¾ivatele dosáhl maximálního poètu',
+   vdomain_userrequired => 'Je vy¾adováno u¾ivatelské jméno',
+   vdomain_fwdrequired => 'Je vy¾adována korektní E-MAIL adresa pro pøeposlání',
+   all_module_disabled => 'V¹echny moduly byly zakázány'
    );
 
 1;

@@ -71,7 +71,7 @@ package ow::zh_CN_GB2312;
 
 %lang_ctrlpositionlabels =
    (
-   top => '在上面',
+   top    => '在上面',
    bottom => '在下面'
    );
 
@@ -232,6 +232,7 @@ package ow::zh_CN_GB2312;
    userdef    => '用户自定义',
    logout     => '退出',
    page       => '页',
+   msgsperpage=> '每页 @@@MSGCOUNT@@@ 封信',
    msgcopyconf=> '\'您确定要复制所选择的邮件吗？\'',
    copy       => '复制',
    msgmoveconf=> '\'您确定要移动所选择的邮件吗？\'',
@@ -331,6 +332,8 @@ package ow::zh_CN_GB2312;
    all        => '全部',
    enable     => '启用',
    disable    => '停用',
+   yes        => '是',
+   no         => '否',
    filtered   => '过滤',
    blockrelay => '封锁转信主机',
    blockemail => '封锁 email',

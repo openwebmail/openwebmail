@@ -44,7 +44,7 @@ my $check_cobaltuser = $conf{'check_cobaltuser'} || 'no';
 # -4 : user doesn't exist
 sub get_userinfo {
    my ($r_config, $user)=@_;
-   return(-2, 'User is null') if (!$user);
+   return(-2, 'User is null') if ($user eq '');
 
    my ($uid, $gid, $realname, $homedir);
    if ($passwdfile_plaintext eq "/etc/passwd") {
@@ -83,7 +83,7 @@ sub get_userlist {	# only used by openwebmail-tool.pl -a
 
    # a file should be locked only if it is local accessable
    if ( -f $passwdfile_plaintext) {
-      ow::filelock::lock("$passwdfile_plaintext", LOCK_SH) or
+      ow::filelock::lock($passwdfile_plaintext, LOCK_SH) or
          return (-3, "Couldn't get read lock on $passwdfile_plaintext", @userlist);
    }
    open(PASSWD, $passwdfile_plaintext);
@@ -93,7 +93,7 @@ sub get_userlist {	# only used by openwebmail-tool.pl -a
       push(@userlist, (split(/:/, $line))[0]);
    }
    close(PASSWD);
-   ow::filelock::lock("$passwdfile_plaintext", LOCK_UN) if ( -f $passwdfile_plaintext);
+   ow::filelock::lock($passwdfile_plaintext, LOCK_UN) if ( -f $passwdfile_plaintext);
    return(0, "", @userlist);
 }
 
@@ -108,7 +108,7 @@ sub check_userpassword {
    my $r_config;
    local ($pam_user, $pam_password);	# localized global to make reentry safe
    ($r_config, $pam_user, $pam_password)=@_;
-   return (-2, "User or password is null") if (!$pam_user||!$pam_password);
+   return (-2, "User or password is null") if ($pam_user eq '' || $pam_password eq '');
 
    sub checkpwd_conv_func {
       my @res;
@@ -177,7 +177,7 @@ sub change_userpassword {
    local ($pam_user, $pam_password, $pam_newpassword); # localized global to make reentry safe
    my $r_config;
    ($r_config, $pam_user, $pam_password, $pam_newpassword)=@_;
-   return (-2, "User or password is null") if (!$pam_user||!$pam_password||!$pam_newpassword);
+   return (-2, "User or password is null") if ($pam_user eq '' || $pam_password eq '' || $pam_newpassword eq '');
 
    local $pam_convstate=0;	# localized global to make reentry safe
    sub changepwd_conv_func {

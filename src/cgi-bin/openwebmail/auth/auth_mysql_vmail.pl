@@ -53,7 +53,7 @@ sub get_userinfo {
    my ($r_config, $user)=@_;
    my ( $unix_user, $gid, $uid, $home, $key, $domain );
 
-   return(-2, 'User is null') if (!$user);
+   return(-2, 'User is null') if ($user eq '');
    if ( $user =~ /^(.*)\@(.*)$/ ) {
       ($user, $domain) = ($1, $2);
    }
@@ -75,7 +75,7 @@ sub get_userinfo {
       return(-3, "MySQL disconnect error");
 
    ( $uid, $gid ) = ( getpwnam($unix_user) )[2,3];
-   return (-4, "User $user doesn't exist") if ( !$unix_user || !$uid || !$gid );
+   return (-4, "User $user doesn't exist") if ( $unix_user eq '' || $uid eq '' || $gid eq '');
 
    return (0, '', "",$uid,$gid,$home);
 }
@@ -104,7 +104,7 @@ sub get_userlist { # only used by openwebmail-tool.pl -a
 # -4 : password incorrect
 sub check_userpassword {
    my ($r_config, $user, $passwd)=@_;
-   return (-2, "User or password is null") if (!$user||!$passwd);
+   return (-2, "User or password is null") if ($user eq '' || $passwd eq '');
 
    my ( $passwd_hash, $domain );
    if ( $user =~ /^(.*)\@(.*)$/ ) { ($user,$domain) = ($1,$2); }
@@ -137,7 +137,7 @@ sub check_userpassword {
 # -4 : password incorrect
 sub change_userpassword {
    my ($r_config, $user, $oldpasswd, $newpasswd)=@_;
-   return (-2, "User or password is null") if (!$user||!$oldpasswd||!$newpasswd);
+   return (-2, "User or password is null") if ($user eq '' || $oldpasswd eq '' || $newpasswd eq '');
    return (-2, "Password too short") if (length($newpasswd)<${$r_config}{'passwd_minlen'});
 
    my ($ret, $errmsg)=check_userpassword($r_config, $user, $oldpasswd);

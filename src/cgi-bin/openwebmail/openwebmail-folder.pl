@@ -5,10 +5,10 @@
 
 use vars qw($SCRIPT_DIR);
 if ( $0 =~ m!^(\S*)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1 }
-if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
+if ($SCRIPT_DIR eq '' && open(F, '/etc/openwebmail_path.conf')) {
    $_=<F>; close(F); if ( $_=~/^(\S*)/) { $SCRIPT_DIR=$1 }
 }
-if (!$SCRIPT_DIR) { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
+if ($SCRIPT_DIR eq '') { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
 push (@INC, $SCRIPT_DIR);
 
 foreach (qw(PATH ENV BASH_ENV CDPATH IFS TERM)) { $ENV{$_}='' }	# secure ENV
@@ -19,14 +19,17 @@ use Fcntl qw(:DEFAULT :flock);
 use CGI qw(-private_tempfiles :standard);
 use CGI::Carp qw(fatalsToBrowser carpout);
 
-require "modules/datetime.pl";
-require "modules/lang.pl";
 require "modules/dbm.pl";
+require "modules/suid.pl";
 require "modules/filelock.pl";
 require "modules/tool.pl";
-require "modules/htmltext.pl";
+require "modules/datetime.pl";
+require "modules/lang.pl";
 require "modules/mime.pl";
 require "modules/mailparse.pl";
+require "modules/htmltext.pl";
+require "auth/auth.pl";
+require "quota/quota.pl";
 require "shares/ow-shared.pl";
 require "shares/maildb.pl";
 
@@ -92,9 +95,9 @@ openwebmail_requestend();
 
 ########## EDITFOLDERS ###########################################
 sub editfolders {
-   my (@userfolders, @validfolders, $folderusage);
+   my (@userfolders, @validfolders, $inboxusage, $folderusage);
 
-   getfolders(\@validfolders, \$folderusage);
+   getfolders(\@validfolders, \$inboxusage, \$folderusage);
    foreach (@validfolders) {
       push (@userfolders, $_) if (!$is_defaultfolder{$_});
    }
@@ -297,8 +300,8 @@ sub _folderline {
 sub refreshfolders {
    my $errcount=0;
 
-   my (@validfolders, $folderusage);
-   getfolders(\@validfolders, \$folderusage);
+   my (@validfolders, $inboxusage, $folderusage);
+   getfolders(\@validfolders, \$inboxusage, \$folderusage);
 
    foreach my $currfolder (@validfolders) {
       my ($folderfile,$folderdb)=get_folderpath_folderdb($user, $currfolder);
@@ -317,7 +320,7 @@ sub refreshfolders {
    writehistory("folder - refresh, $errcount errors");
 
    if ($config{'quota_module'} ne 'none') {
-      $quotausage=(quota_get_usage_limit(\%config, $user, $homedir, 1))[2];
+      $quotausage=(ow::quota::get_usage_limit(\%config, $user, $homedir, 1))[2];
    }
    editfolders();
 }
@@ -327,6 +330,8 @@ sub refreshfolders {
 sub markreadfolder {
    my $foldertomark = ow::tool::untaint(safefoldername(param('foldername'))) || '';
    my ($folderfile, $folderdb)=get_folderpath_folderdb($user, $foldertomark);
+
+   my $ioerr=0;
 
    ow::filelock::lock($folderfile, LOCK_EX|LOCK_NB) or
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $folderfile!");
@@ -341,56 +346,67 @@ sub markreadfolder {
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} db $folderdb");
    foreach my $messageid (keys %FDB) {
       next if ($is_internal_dbkey{$messageid});
-      my @attr=split(/@@@/, $FDB{$messageid});
+      my @attr=string2msgattr($FDB{$messageid});
       if ($attr[$_STATUS] !~ /R/i) {
          $offset{$messageid}=$attr[$_OFFSET];
          $status{$messageid}=$attr[$_STATUS];
       }
    }
    ow::dbm::close(\%FDB, $folderdb);
+   my @unreadmsgids=(sort { $offset{$a}<=>$offset{$b} } keys %offset);
 
-   my @markids;
    my $tmpfile=ow::tool::untaint("/tmp/markread_tmp_$$");
    my $tmpdb=ow::tool::untaint("/tmp/.markread_tmp_$$");
 
-   open(F, ">$tmpfile"); close(F);
-   ow::filelock::lock("$tmpfile", LOCK_EX) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $tmpfile");
+   while (!$ioerr && $#unreadmsgids>=0) {
+      my @markids=();
 
-   if (update_folderindex($tmpfile, $tmpdb)<0) {
-      ow::filelock::lock($tmpfile, LOCK_UN);
-      ow::dbm::unlink($tmpdb);
-      unlink($tmpfile);
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_updatedb'} db $tmpdb");
-   }
+      open(F, ">$tmpfile"); close(F);
+      ow::filelock::lock($tmpfile, LOCK_EX) or
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $tmpfile");
 
-   foreach my $messageid (sort { $offset{$a}<=>$offset{$b} } keys %offset) {
-      my @copyid;
-      push(@copyid, $messageid);
-      if (operate_message_with_ids("copy", \@copyid,
-   					$folderfile, $folderdb, $tmpfile, $tmpdb) >0 ) {
-         update_message_status($messageid, $status{$messageid}."R", $tmpdb, $tmpfile);
-         push(@markids, $messageid);
+      if (update_folderindex($tmpfile, $tmpdb)<0) {
+         ow::filelock::lock($tmpfile, LOCK_UN);
+         ow::dbm::unlink($tmpdb);
+         unlink($tmpfile);
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_updatedb'} db $tmpdb");
+      }
 
-         if ($#markids>=99) { # flush per 100 msgs
-            operate_message_with_ids("delete", \@markids, $folderfile, $folderdb);
-            folder_zapmessages($folderfile, $folderdb);
-            operate_message_with_ids("move", \@markids,
-   					$tmpfile, $tmpdb, $folderfile, $folderdb);
-            @markids=();
+      while (!$ioerr && $#unreadmsgids>=0) {
+         my $messageid=shift(@unreadmsgids);
+
+         my $copied=operate_message_with_ids("copy", [$messageid], $folderfile, $folderdb, $tmpfile, $tmpdb);
+         if ($copied>0) {
+            if (update_message_status($messageid, $status{$messageid}."R", $tmpdb, $tmpfile)==0) {
+               push(@markids, $messageid);
+            } else {
+               $ioerr++;
+            }
+         } elsif ($copied<0) {
+            $ioerr++;
          }
 
+         my $tmpsize=(stat($tmpfile))[7];
+         if ( (!$ioerr && ($tmpsize>10*1024*1024||$#markids>=999)) ||	# tmpfolder size>10MB or marked==1000
+              ($ioerr && $tmpsize>0) ||			# any io error
+              $#unreadmsgids<0 ) { 			# no more unread msg
+            # copy read msg back from tmp folder
+            if ($#markids>=0) {
+               $ioerr++ if (operate_message_with_ids("delete", \@markids, $folderfile, $folderdb)<0);
+               $ioerr++ if (folder_zapmessages($folderfile, $folderdb)<0);
+               $ioerr++ if (operate_message_with_ids("move", \@markids,
+   					$tmpfile, $tmpdb, $folderfile, $folderdb)<0);
+            }
+            last;	# renew tmp folder and @markids
+         }
       }
-   }
-   operate_message_with_ids("delete", \@markids, $folderfile, $folderdb);
-   folder_zapmessages($folderfile, $folderdb);
-   operate_message_with_ids("move", \@markids,
-   					$tmpfile, $tmpdb, $folderfile, $folderdb);
 
-   ow::filelock::lock("$tmpfile", LOCK_UN);
+      ow::dbm::unlink($tmpdb);
+      ow::filelock::lock("$tmpfile", LOCK_UN);
+      unlink($tmpfile);
+   }
+
    ow::filelock::lock($folderfile, LOCK_UN);
-   ow::dbm::unlink($tmpdb);
-   unlink($tmpfile);
 
    writelog("markread folder - $foldertomark");
    writehistory("markread folder - $foldertomark");
@@ -438,7 +454,7 @@ sub reindexfolder {
 ########## ADDFOLDER #############################################
 sub addfolder {
    if ($quotalimit>0 && $quotausage>$quotalimit) {
-      $quotausage=(quota_get_usage_limit(\%config, $user, $homedir, 1))[2];	# get uptodate quotausage
+      $quotausage=(ow::quota::get_usage_limit(\%config, $user, $homedir, 1))[2];	# get uptodate quotausage
       if ($quotausage>$quotalimit) {
          openwebmailerror(__FILE__, __LINE__, $lang_err{'quotahit_alert'});
       }
@@ -506,7 +522,7 @@ sub deletefolder {
    }
 
    if ($quotalimit>0 && $quotausage>$quotalimit) {
-      $quotausage=(quota_get_usage_limit(\%config, $user, $homedir, 1))[2];
+      $quotausage=(ow::quota::get_usage_limit(\%config, $user, $homedir, 1))[2];
    }
    editfolders();
 }

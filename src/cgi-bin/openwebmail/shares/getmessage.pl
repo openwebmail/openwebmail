@@ -30,8 +30,8 @@ sub getmessage {
       return \%message;
 
    } elsif (${$r_messageblock}!~/^From / ) {	# db index inconsistance
-      writelog("db warning - msg $messageid in $folderfile index inconsistence");
-      writehistory("db warning - msg $messageid in $folderfile index inconsistence");
+      writelog("db warning - msg $messageid in $folderfile index inconsistence - ".__FILE__.':'.__LINE__);
+      writehistory("db warning - msg $messageid in $folderfile index inconsistence - ".__FILE__.':'.__LINE__);
 
       my %FDB;
       ow::dbm::open(\%FDB, $folderdb, LOCK_EX) or
@@ -75,6 +75,19 @@ sub getmessage {
 
    ow::mailparse::parse_header(\$message{header}, \%message);
    $message{status} .= $message{'x-status'} if (defined($message{'x-status'}));
+
+   # recover incomplete header attr for msgs resent from mailing list, tricky!
+   if ($message{'content-type'} eq 'N/A') {
+      if (defined(${$message{attachment}}[0])) {	# msg has attachment(s)
+         $message{'content-type'}=qq|multipart/mixed;|;
+      } elsif ($message{body}=~/^\n*([A-Za-z0-9+]{50,}\n?)+/s) {
+         $message{'content-type'}=qq|text/plain|;
+         $message{'content-transfer-encoding'}='base64';
+      } elsif ($message{body}=~/(=[\dA-F][\dA-F]){3}/i) {
+         $message{'content-type'}=qq|text/plain|;
+         $message{'content-transfer-encoding'}='quoted-printable';
+      }
+   }
 
    my($r_smtprelays, $r_connectfrom, $r_byas)
       =ow::mailparse::get_smtprelays_connectfrom_byas_from_header($message{header});

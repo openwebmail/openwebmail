@@ -4,7 +4,6 @@
 #
 # 2003/02/19 Scott E. Campbell, scampbel.AT.gvpl.ca
 #            add personal dictionary support
-#
 # 2001/09/27 tung.AT.turtle.ee.ncku.edu.tw
 #            modified from WBOSS Version 1.50a
 #
@@ -17,7 +16,7 @@
 # than english letters, you have to define new entry in below hash
 
 use vars qw (%dictionary_letters);
-if (!$dictionary_letters{english}) {
+if ($dictionary_letters{english} eq '') {
    %dictionary_letters =
    (
    english   => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
@@ -25,6 +24,7 @@ if (!$dictionary_letters{english}) {
    czech     => 'AÁBCÈDÏEÉÌFGHIÍJKLMNÒOÓPQRØS©T«UÚÙVWXYÝZ®aábcèdïeéìfghiíjklmnòoópqrøs¹t»uúùvwxyýz¾',
    dansk     => 'ABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅabcdefghijklmnopqrstuvwxyzæøå',
    deutsch   => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzäÄöÖüÜß',
+   greek     => 'ÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÓÔÕÖ×ØÙáâãäåæçèéêëìíîïðñóôõö÷øùòÜÝþÞýßü¶¸¿¹¾º¼ûúÛÚ',
    french    => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzàáâäÀÁÂÄèéêëÈÉÊËìíîïÌÍÎÏòóôöÒÓÔÖùúûüÙÚÛÜ',
    magyar    => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzáÁéÉíÍóÓúÚüÜõÕûÛÀÁÈÉÌÍÒÓÔÕÖÙÚÛÜàáèéêëìíòóôõö¢~ûü',
    polski    => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz±æê³ñó¶¼¿¡ÆÊ£ÑÓ¦¬¯',
@@ -57,10 +57,10 @@ if (!$memdic{a}) {
 
 use vars qw($SCRIPT_DIR);
 if ( $0 =~ m!^(\S*)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1 }
-if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
+if ($SCRIPT_DIR eq '' && open(F, '/etc/openwebmail_path.conf')) {
    $_=<F>; close(F); if ( $_=~/^(\S*)/) { $SCRIPT_DIR=$1 }
 }
-if (!$SCRIPT_DIR) { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
+if ($SCRIPT_DIR eq '') { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
 push (@INC, $SCRIPT_DIR);
 
 foreach (qw(PATH ENV BASH_ENV CDPATH IFS TERM)) { $ENV{$_}='' }	# secure ENV
@@ -72,12 +72,15 @@ use CGI qw(-private_tempfiles :standard);
 use CGI::Carp qw(fatalsToBrowser carpout);
 use IPC::Open3;
 
-require "modules/datetime.pl";
-require "modules/lang.pl";
 require "modules/dbm.pl";
+require "modules/suid.pl";
 require "modules/filelock.pl";
 require "modules/tool.pl";
+require "modules/datetime.pl";
+require "modules/lang.pl";
 require "modules/htmltext.pl";
+require "auth/auth.pl";
+require "quota/quota.pl";
 require "shares/ow-shared.pl";
 
 # common globals
@@ -110,8 +113,9 @@ my $dictionary = param('dictionary') || $prefs{'dictionary'} || 'english';
 my $dicletters=$dictionary_letters{'english'};
 $dicletters=$dictionary_letters{$dictionary} if (defined($dictionary_letters{$dictionary}));
 
-if (! -x $config{'spellcheck'}) {
-   openwebmailerror(__FILE__, __LINE__, "Spellcheck is not available.<br>( $config{'spellcheck'} not found )");
+my $spellbin=(split(/\s+/, $config{'spellcheck'}))[0];
+if (! -x $spellbin) {
+   openwebmailerror(__FILE__, __LINE__, "Spellcheck is not available.<br>( $spellbin not found )");
 }
 
 if (defined(param('string'))) {
@@ -249,53 +253,56 @@ sub editpdict {
    my ($dictword2delete, $dictionary) = @_;
    local $_;
 
-   my ($html, $temphtml);
-   $html= applystyle(readtemplate("editdictionary.template"));
+   my $html= applystyle(readtemplate("editdictionary.template"));
+   my $temphtml = "";
 
    # use same pdicfile path as spellchecker default
-   my $pdicfile= ow::tool::untaint($homedir.'/'.pdicname($config{'spellcheck'}, $dictionary));
+   my $pdicname=$config{'spellcheck_pdicname'}; $pdicname=~s/\@\@\@DICTIONARY\@\@\@/$dictionary/;
+   my $pdicfile=ow::tool::untaint("$homedir/$pdicname");
 
-   if ($dictword2delete and -f $pdicfile) {
-      my $pdicwordstr="";
+   if (-f $pdicfile) {
+      if ($dictword2delete) {
+         my $pdicwordstr="";
+         open(PERSDICT, $pdicfile) or
+            openwebmailerror(__FILE__, __LINE__, "Couldn't open personal dictionary $pdicfile! ($!)");
+         while (<PERSDICT>) {
+            chomp($_);
+            next if ($_ eq $dictword2delete);
+            $pdicwordstr.="$_\n";
+         }
+         close(PERSDICT);
+
+         open(NEWPERSDICT,">$pdicfile.new") or
+            openwebmailerror(__FILE__, __LINE__, "Couldn't open personal dictionary $pdicfile! ($!)");
+         print NEWPERSDICT $pdicwordstr;
+         close(NEWPERSDICT);
+
+         rename($pdicfile, "$pdicfile.bak");
+         rename("$pdicfile.new", $pdicfile);
+      }
+
+      my $count = 1;
+      my $bgcolor = $style{"tablerow_light"};
+
       open(PERSDICT, $pdicfile) or
          openwebmailerror(__FILE__, __LINE__, "Couldn't open personal dictionary $pdicfile! ($!)");
       while (<PERSDICT>) {
-         chomp($_);
-         next if ($_ eq $dictword2delete);
-         $pdicwordstr.="$_\n";
+         my $dictword = $_;
+         chomp($dictword);
+         next if ($count==1 and $dictword=~m/personal_ws/);  # past aspell's first line
+
+         $bgcolor=($style{"tablerow_dark"},$style{"tablerow_light"})[$count%2];
+         $temphtml .= qq|<tr><td bgcolor=$bgcolor>$dictword</td>\n<td bgcolor=$bgcolor align=center>|.
+                      button(-name=>'dictword2delete',
+                             -value=>$lang_text{'delete'},
+                             -onclick=>"window.location.href='$config{ow_cgiurl}/openwebmail-spell.pl?editpdictbutton=yes&amp;dictword2delete=$dictword&amp;sessionid=$thissession';",
+                             -class=>"medtext",
+                             -override=>'1').
+                      qq|</td></tr>\n|;
+         $count++;
       }
       close(PERSDICT);
-
-      open(NEWPERSDICT,">$pdicfile.new") or
-         openwebmailerror(__FILE__, __LINE__, "Couldn't open personal dictionary $pdicfile! ($!)");
-      print NEWPERSDICT $pdicwordstr;
-      close(NEWPERSDICT);
-
-      rename($pdicfile, "$pdicfile.bak");
-      rename("$pdicfile.new", $pdicfile);
    }
-
-   my $count = 1;
-   my $bgcolor = $style{"tablerow_light"};
-   open(PERSDICT, $pdicfile) or
-      openwebmailerror(__FILE__, __LINE__, "Couldn't open personal dictionary $pdicfile! ($!)");
-   $temphtml = "";
-   while (<PERSDICT>) {
-      my $dictword = $_;
-      chomp($dictword);
-      next if ($count==1 and $dictword=~m/personal_ws/);  # past aspell's first line
-
-      $bgcolor=($style{"tablerow_dark"},$style{"tablerow_light"})[$count%2];
-      $temphtml .= qq|<tr><td bgcolor=$bgcolor>$dictword</td>\n<td bgcolor=$bgcolor align=center>|.
-                   button(-name=>'dictword2delete',
-                          -value=>$lang_text{'delete'},
-                          -onclick=>"window.location.href='$config{ow_cgiurl}/openwebmail-spell.pl?editpdictbutton=yes&amp;dictword2delete=$dictword&amp;sessionid=$thissession';",
-                          -class=>"medtext",
-                          -override=>'1').
-                   qq|</td></tr>\n|;
-      $count++;
-   }
-   close(PERSDICT);
    $html =~ s/\@\@\@DICTIONARYWORDS\@\@\@/$temphtml/;
 
    $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-spell.pl",
@@ -317,20 +324,6 @@ sub editpdict {
    httpprint([], [htmlheader(), $html, htmlfooter(0)]);
 }
 
-
-# use same pdic path as the spellchecker default
-sub pdicname {
-   my ($spellchecker, $dictionary)=@_;
-   $dictionary="english" if ($dictionary eq "american");
-   $spellchecker=~s|^.*/||;
-   if ($spellchecker=~/^ispell/) {
-      return(".ispell_words");
-   } elsif ($spellchecker=~/^aspell/) {
-      return(".aspell.$dictionary.pws");
-   } else {
-      return(".$spellchecker.$dictionary.pws");
-   }
-}
 
 ########## TEXT SPLIT/JOIN #######################################
 # $wordframe is a rough structure of the original text, containing no word in it.
@@ -436,19 +429,20 @@ sub words2text {
 # and generate query html for incorrect word
 sub spellcheck_words2html {
    my ($htmlmode, $wordcount, $r_wordframe, $r_words, $dictionary)=@_;
-   my $pdicname=pdicname($config{'spellcheck'}, $dictionary);
+   my $pdicname=$config{'spellcheck_pdicname'}; $pdicname=~s/\@\@\@DICTIONARY\@\@\@/$dictionary/;
    my $pdicfile=ow::tool::untaint("$homedir/$pdicname");
 
    # Below two is already done in userenv_init()
    # chdir($homedir);	  # in case spellchecker write pdic in ./
    # $ENV{'HOME'}=$homedir; # aspell/ispell refers this env to locate pdic file
-
    # we pass pdicname instead of pdicfile
    # because aspell won't work if it is fullpath?
-   my ($stdout, $stderr)=pipeopen($config{'spellcheck'}, '-a', '-S',
-				'-d', $dictionary,
-				'-p', $pdicname,
-				'-w', '"-"');
+
+   my $spellcheck=$config{'spellcheck'};
+   $spellcheck=~s/\@\@\@DICTIONARY\@\@\@/$dictionary/;
+   $spellcheck=~s/\@\@\@PDICNAME\@\@\@/$pdicname/;
+
+   my ($stdout, $stderr)=pipeopen(split(/\s+/, $spellcheck));
    if ($stdout!~/^\@\(#\)/ && $stderr=~/[^\s]/) {
       pipeclose();
       openwebmailerror(__FILE__, __LINE__, "Spellcheck error: $stderr");

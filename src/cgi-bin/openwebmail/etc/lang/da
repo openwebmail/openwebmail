@@ -71,7 +71,7 @@ package ow::da;
 
 %lang_ctrlpositionlabels =
    (
-   top => 'i toppen',
+   top    => 'i toppen',
    bottom => 'i bunden'
    );
 
@@ -232,6 +232,7 @@ package ow::da;
    userdef    => 'Bruger defineret',
    logout     => 'Afslut webmail',
    page       => 'Side',
+   msgsperpage=> '@@@MSGCOUNT@@@ messages per page',
    msgcopyconf=> '\'Er du sikker på du vil kopiere de(n) valgte mails?\'',
    copy       => 'Kopier',
    msgmoveconf=> '\'Er du sikker på, at du vil flytte de(n) valgte mails?\'',
@@ -331,6 +332,8 @@ package ow::da;
    all        => 'Alle felter',
    enable     => 'Aktiver',
    disable    => 'Deaktiver',
+   yes        => 'Ja',
+   no         => 'Nej',
    filtered   => 'Filtreret',
    blockrelay => 'Bloker SMTP Server:',
    blockemail => 'Bloker mailadressen:',

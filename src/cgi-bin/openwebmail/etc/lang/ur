@@ -71,7 +71,7 @@ package ow::ur;
 
 %lang_ctrlpositionlabels =
    (
-   top => 'ﺍﻭﭘﺮ',
+   top    => 'ﺍﻭﭘﺮ',
    bottom => 'ﻧﻴﭽﮯ'
    );
 
@@ -232,6 +232,7 @@ package ow::ur;
    userdef    => 'ﻳﻮﺯﺭ ﻛﮯ ﺑﻴﺎﻥ ﻛﺮﺩﻩ',
    logout     => 'ﺑﮯ ﺩﺧﻞ',
    page       => 'ﺻﻔﺣﮧ',
+   msgsperpage=> '@@@MSGCOUNT@@@ messages per page',
    msgcopyconf=> '\' ﻛﻴﺎ ﺁﭖ ﭼﺎﮬﺘﮯ ﮬﻴﮟ ﻛﮯ ﻣﻨﺘﺨﺐ ﭘﻴﻐﺎﻡ ﻛﻮ ﻧﻘﻞ ﻛﺮﻳﮟ ؟  \'',
    copy       => 'ﻧﻘﻞ',
    msgmoveconf=> '\' ﻛﻴﺎ ﺁﭖ ﭼﺎﮬﺘﮯ ﮬﻴﮟ ﻛﮯ ﻣﻨﺘﺨﺐ ﭘﻴﻐﺎﻡ ﻛﻮ ﻣﻧﺘﻘﻞ ﻛﺮﻳﮟ ؟  \'',
@@ -331,6 +332,8 @@ package ow::ur;
    all        => 'ﺗﻤﺎﻡ',
    enable     => 'ﻗﺎﺑﻞ ﺍﺳﺘﻌﻤﺎﻝ',
    disable    => 'ﻧﺎﻗﺎﺑﻞ ﺍﺳﺘﻌﻤﺎﻝ',
+   yes        => 'ﮨﺎﮞ',
+   no         => 'ﻧﻬﻴﮟ',
    filtered   => 'ﻓﻠﭩﺮﺷﺪﻩ',
    blockrelay => 'ﺭﻳﻠﮯ ﺑﻼﮎ ﻛﺮﻳﮟ SMTP',
    blockemail => 'ﺍﻯ ﻣﻴﻞ ﺑﻼﮎ ﻛﺮﻳﮟ',

@@ -18,10 +18,10 @@
 
 use vars qw($SCRIPT_DIR);
 if ( $0 =~ m!^(\S*)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1 }
-if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
+if ($SCRIPT_DIR eq '' && open(F, '/etc/openwebmail_path.conf')) {
    $_=<F>; close(F); if ( $_=~/^(\S*)/) { $SCRIPT_DIR=$1 }
 }
-if (!$SCRIPT_DIR) { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
+if ($SCRIPT_DIR eq '') { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
 push (@INC, $SCRIPT_DIR);
 
 foreach (qw(PATH ENV BASH_ENV CDPATH IFS TERM)) { $ENV{$_}='' }	# secure ENV
@@ -32,13 +32,16 @@ use Fcntl qw(:DEFAULT :flock);
 use CGI qw(-private_tempfiles :standard);
 use CGI::Carp qw(fatalsToBrowser carpout);
 
-require "modules/datetime.pl";
-require "modules/lang.pl";
 require "modules/dbm.pl";
+require "modules/suid.pl";
 require "modules/filelock.pl";
 require "modules/tool.pl";
 require "modules/execute.pl";
+require "modules/datetime.pl";
+require "modules/lang.pl";
 require "modules/htmltext.pl";
+require "auth/auth.pl";
+require "quota/quota.pl";
 require "shares/ow-shared.pl";
 require "shares/iconv.pl";
 require "shares/cut.pl";
@@ -104,7 +107,7 @@ $currentdir = absolute_vpath("/", $currentdir);
 $gotodir = absolute_vpath($currentdir, $gotodir);
 
 my $msg=verify_vpath($webdiskrootdir, $currentdir);
-openwebmailerror(__FILE__, __LINE__, $msg) if ($msg);
+openwebmailerror(__FILE__, __LINE__, $msg) if ($msg ne '');
 $currentdir=ow::tool::untaint($currentdir);
 
 if ($action eq "mkdir" || defined(param('mkdirbutton')) ) {
@@ -183,7 +186,7 @@ if ($action eq "mkdir" || defined(param('mkdirbutton')) ) {
    if ($config{'webdisk_readonly'}) {
       autoclosewindow($lang_wdbutton{'edit'}, $lang_err{'webdisk_readonly'});
    } elsif (is_quota_available(0)) {
-      savefile($currentdir, $destname, param('filecontent')) if ($destname);
+      savefile($currentdir, $destname, param('filecontent')) if ($destname ne '');
    } else {
       autoclosewindow($lang_text{'quotahit'}, $lang_err{'quotahit_alert'});
    }
@@ -298,7 +301,7 @@ if ($action eq "mkdir" || defined(param('mkdirbutton')) ) {
    } else {
       $msg=$lang_err{'no_file_todownload'};
    }
-   openwebmailerror(__FILE__, __LINE__, $msg) if ($msg);
+   openwebmailerror(__FILE__, __LINE__, $msg) if ($msg ne '');
 
 } elsif ($action eq "download" || defined(param('downloadbutton'))) {
    if ($#selitems>0) {
@@ -313,7 +316,7 @@ if ($action eq "mkdir" || defined(param('mkdirbutton')) ) {
    } else {
       $msg="$lang_err{'no_file_todownload'}\n";
    }
-   showdir($currentdir, $gotodir, $filesort, $page, $msg) if ($msg);
+   showdir($currentdir, $gotodir, $filesort, $page, $msg) if ($msg ne '');
 
 } elsif ($action eq "upload" || defined(param('uploadbutton'))) {
    if ($config{'webdisk_readonly'}) {
@@ -341,13 +344,13 @@ if ($action eq "mkdir" || defined(param('mkdirbutton')) ) {
 
 } elsif ($action eq "userrefresh")  {
    if ($config{'quota_module'} ne 'none') {
-      $quotausage=(quota_get_usage_limit(\%config, $user, $homedir, 1))[2];
+      $quotausage=(ow::quota::get_usage_limit(\%config, $user, $homedir, 1))[2];
    }
    showdir($currentdir, $gotodir, $filesort, $page, $msg);
 
 } elsif ($action eq "showdir" || $action eq "" || defined(param('chdirbutton')))  {
    # put chdir in last or user will be matched by ($action eq "") when clicking button
-   if ($destname) {	# chdir
+   if ($destname ne '') {	# chdir
       $destname = absolute_vpath($currentdir, $destname);
       showdir($currentdir, $destname, $filesort, $page, $msg);
    } else {		# showdir, refresh
@@ -367,7 +370,7 @@ sub createdir {
 
    my $vpath=ow::tool::untaint(absolute_vpath($currentdir, $destname));
    my $err=verify_vpath($webdiskrootdir, $vpath);
-   return ("$err\n") if ($err);
+   return ("$err\n") if ($err ne '');
 
    if ( -e "$webdiskrootdir/$vpath") {
       return("$lang_text{'dir'} $vpath $lang_err{'already_exists'}\n") if (-d _);
@@ -390,7 +393,7 @@ sub createfile {
 
    my $vpath=ow::tool::untaint(absolute_vpath($currentdir, $destname));
    my $err=verify_vpath($webdiskrootdir, $vpath);
-   return ("$err\n") if ($err);
+   return ("$err\n") if ($err ne '');
 
    if ( -e "$webdiskrootdir/$vpath") {
       return("$lang_text{'dir'} $vpath $lang_err{'already_exists'}\n") if (-d _);
@@ -418,7 +421,7 @@ sub deletedirfiles {
    foreach (@selitems) {
       my $vpath=ow::tool::untaint(absolute_vpath($currentdir, $_));
       $err=verify_vpath($webdiskrootdir, $vpath);
-      if ($err) {
+      if ($err ne '') {
          $msg.="$err\n"; next;
       }
       if (!-l "$webdiskrootdir/$vpath" && !-e "$webdiskrootdir/$vpath") {
@@ -434,7 +437,7 @@ sub deletedirfiles {
 
    my @cmd;
    my $rmbin=ow::tool::findbin('rm');
-   return("$lang_text{'program'} rm $lang_err{'doesnt_exist'}\n") if (!$rmbin);
+   return("$lang_text{'program'} rm $lang_err{'doesnt_exist'}\n") if ($rmbin eq '');
    @cmd=($rmbin, '-Rfv');
 
    chdir("$webdiskrootdir/$currentdir") or
@@ -447,7 +450,7 @@ sub deletedirfiles {
    }
    $msg.=$msg2;
    if ($quotalimit>0 && $quotausage>$quotalimit) {	# get uptodate quotausage
-      $quotausage=(quota_get_usage_limit(\%config, $user, $homedir, 1))[2];
+      $quotausage=(ow::quota::get_usage_limit(\%config, $user, $homedir, 1))[2];
    }
    return($msg);
 }
@@ -460,7 +463,7 @@ sub copymovesymlink_dirfiles {
 
    my $vpath2=ow::tool::untaint(absolute_vpath($currentdir, $destname));
    $err=verify_vpath($webdiskrootdir, $vpath2);
-   return ("$err\n") if ($err);
+   return ("$err\n") if ($err ne '');
 
    if ($#selitems>0) {
       if (!-e "$webdiskrootdir/$vpath2") {
@@ -474,7 +477,7 @@ sub copymovesymlink_dirfiles {
    foreach (@selitems) {
       my $vpath1=ow::tool::untaint(absolute_vpath($currentdir, $_));
       $err=verify_vpath($webdiskrootdir, $vpath1);
-      if ($err) {
+      if ($err ne '') {
          $msg.="$err\n"; next;
       }
       if (! -e "$webdiskrootdir/$vpath1") {
@@ -490,15 +493,15 @@ sub copymovesymlink_dirfiles {
    my @cmd;
    if ($op eq "copy") {
       my $cpbin=ow::tool::findbin('cp');
-      return("$lang_text{'program'} cp $lang_err{'doesnt_exist'}\n") if (!$cpbin);
+      return("$lang_text{'program'} cp $lang_err{'doesnt_exist'}\n") if ($cpbin eq '');
       @cmd=($cpbin, '-pRfv');
    } elsif ($op eq "move") {
       my $mvbin=ow::tool::findbin('mv');
-      return("$lang_text{'program'} mv $lang_err{'doesnt_exist'}\n") if (!$mvbin);
+      return("$lang_text{'program'} mv $lang_err{'doesnt_exist'}\n") if ($mvbin eq '');
       @cmd=($mvbin, '-fv');
    } elsif ($op eq "symlink") {
       my $lnbin=ow::tool::findbin('ln');
-      return("$lang_text{'program'} ln $lang_err{'doesnt_exist'}\n") if (!$lnbin);
+      return("$lang_text{'program'} ln $lang_err{'doesnt_exist'}\n") if ($lnbin eq '');
       @cmd=($lnbin, '-sv');
    } else {
       return($msg);
@@ -530,7 +533,7 @@ sub editfile {
       autoclosewindow($lang_wdbutton{'edit'}, $lang_err{'edit_notfordir'});
    } elsif ( -f "$webdiskrootdir/$vpath" ) {
       my $err=verify_vpath($webdiskrootdir, $vpath);
-      autoclosewindow($lang_wdbutton{'edit'}, $err) if ($err);
+      autoclosewindow($lang_wdbutton{'edit'}, $err) if ($err ne '');
 
       if (!open(F, "$webdiskrootdir/$vpath")) {
          autoclosewindow($lang_wdbutton{'edit'}, "$lang_err{'couldnt_open'} $vpath");
@@ -610,7 +613,7 @@ sub savefile {
    my ($currentdir, $destname, $content)=@_;
    my $vpath=ow::tool::untaint(absolute_vpath($currentdir, $destname));
    my $err=verify_vpath($webdiskrootdir, $vpath);
-   autoclosewindow($lang_text{'savefile'}, $err, 60) if ($err);
+   autoclosewindow($lang_text{'savefile'}, $err, 60) if ($err ne '');
 
    $content =~ s|</ESCAPE_TEXTAREA>|</textarea>|gi;
    $content =~ s/\r\n/\n/g;
@@ -641,7 +644,7 @@ sub compressfiles {	# pack files with zip or tgz (tar -zcvf)
    if ($ztype eq "mkzip" || $ztype eq "mktgz" ) {
       $vpath2=ow::tool::untaint(absolute_vpath($currentdir, $destname));
       $err=verify_vpath($webdiskrootdir, $vpath2);
-      return ("$err\n") if ($err);
+      return ("$err\n") if ($err ne '');
       if ( -e "$webdiskrootdir/$vpath2") {
          return("$lang_text{'dir'} $vpath2 $lang_err{'already_exists'}\n") if (-d _);
          return("$lang_text{'file'} $vpath2 $lang_err{'already_exists'}\n");
@@ -652,7 +655,7 @@ sub compressfiles {	# pack files with zip or tgz (tar -zcvf)
    foreach (@selitems) {
       my $vpath=absolute_vpath($currentdir, $_);
       $err=verify_vpath($webdiskrootdir, $vpath);
-      if ($err) {
+      if ($err ne '') {
          $msg.="$err\n"; next;
       }
 
@@ -674,16 +677,16 @@ sub compressfiles {	# pack files with zip or tgz (tar -zcvf)
    my @cmd;
    if ($ztype eq "gzip") {
       my $gzipbin=ow::tool::findbin('gzip');
-      return("$lang_text{'program'} gzip $lang_err{'doesnt_exist'}\n") if (!$gzipbin);
+      return("$lang_text{'program'} gzip $lang_err{'doesnt_exist'}\n") if ($gzipbin eq '');
       @cmd=($gzipbin, '-rq');
    } elsif ($ztype eq "mkzip") {
       my $zipbin=ow::tool::findbin('zip');
-      return("$lang_text{'program'} zip $lang_err{'doesnt_exist'}\n") if (!$zipbin);
+      return("$lang_text{'program'} zip $lang_err{'doesnt_exist'}\n") if ($zipbin eq '');
       @cmd=($zipbin, '-ryq', "$webdiskrootdir/$vpath2");
    } elsif ($ztype eq "mktgz") {
       my $gzipbin=ow::tool::findbin('gzip');
       my $tarbin=ow::tool::findbin('tar');
-      if ($gzipbin) {
+      if ($gzipbin ne '') {
          $ENV{'PATH'}=$gzipbin;
          $ENV{'PATH'}=~s|/gzip||; # tar finds gzip through PATH
          @cmd=($tarbin, '-zcpf', "$webdiskrootdir/$vpath2");
@@ -718,56 +721,56 @@ sub decompressfile {	# unpack tar.gz, tgz, tar.bz2, tbz, gz, zip, rar, arj, lzh,
       return("$lang_err{'couldnt_open'} $vpath");
    }
    my $err=verify_vpath($webdiskrootdir, $vpath);
-   return($err) if ($err);
+   return($err) if ($err ne '');
 
    my @cmd;
    if ($vpath=~/\.(tar\.g?z||tgz)$/i && $config{'webdisk_allow_untar'}) {
       my $gzipbin=ow::tool::findbin('gzip');
-      return("$lang_text{'program'} gzip $lang_err{'doesnt_exist'}\n") if (!$gzipbin);
+      return("$lang_text{'program'} gzip $lang_err{'doesnt_exist'}\n") if ($gzipbin eq '');
       my $tarbin=ow::tool::findbin('tar');
       $ENV{'PATH'}=$gzipbin; $ENV{'PATH'}=~s|/gzip||; # for tar
       @cmd=($tarbin, '-zxpf');
 
    } elsif ($vpath=~/\.(tar\.bz2?||tbz)$/i && $config{'webdisk_allow_untar'}) {
       my $bzip2bin=ow::tool::findbin('bzip2');
-      return("$lang_text{'program'} bzip2 $lang_err{'doesnt_exist'}\n") if (!$bzip2bin);
+      return("$lang_text{'program'} bzip2 $lang_err{'doesnt_exist'}\n") if ($bzip2bin eq '');
       my $tarbin=ow::tool::findbin('tar');
       $ENV{'PATH'}=$bzip2bin; $ENV{'PATH'}=~s|/bzip2||;	# for tar
       @cmd=($tarbin, '-yxpf');
 
    } elsif ($vpath=~/\.g?z$/i) {
       my $gzipbin=ow::tool::findbin('gzip');
-      return("$lang_text{'program'} gzip $lang_err{'doesnt_exist'}\n") if (!$gzipbin);
+      return("$lang_text{'program'} gzip $lang_err{'doesnt_exist'}\n") if ($gzipbin eq '');
       @cmd=($gzipbin, '-dq');
 
    } elsif ($vpath=~/\.bz2?$/i) {
       my $bzip2bin=ow::tool::findbin('bzip2');
-      return("$lang_text{'program'} bzip2 $lang_err{'doesnt_exist'}\n") if (!$bzip2bin);
+      return("$lang_text{'program'} bzip2 $lang_err{'doesnt_exist'}\n") if ($bzip2bin eq '');
       @cmd=($bzip2bin, '-dq');
 
    } elsif ($vpath=~/\.zip$/i && $config{'webdisk_allow_unzip'}) {
       my $unzipbin=ow::tool::findbin('unzip');
-      return("$lang_text{'program'} unzip $lang_err{'doesnt_exist'}\n") if (!$unzipbin);
+      return("$lang_text{'program'} unzip $lang_err{'doesnt_exist'}\n") if ($unzipbin eq '');
       @cmd=($unzipbin, '-oq');
 
    } elsif ($vpath=~/\.rar$/i && $config{'webdisk_allow_unrar'}) {
       my $unrarbin=ow::tool::findbin('unrar');
-      return("$lang_text{'program'} unrar $lang_err{'doesnt_exist'}\n") if (!$unrarbin);
+      return("$lang_text{'program'} unrar $lang_err{'doesnt_exist'}\n") if ($unrarbin eq '');
       @cmd=($unrarbin, 'x', '-r', '-y', '-o+');
 
    } elsif ($vpath=~/\.arj$/i && $config{'webdisk_allow_unarj'}) {
       my $unarjbin=ow::tool::findbin('unarj');
-      return("$lang_text{'program'} unarj $lang_err{'doesnt_exist'}\n") if (!$unarjbin);
+      return("$lang_text{'program'} unarj $lang_err{'doesnt_exist'}\n") if ($unarjbin eq '');
       @cmd=($unarjbin, 'x');
 
    } elsif ($vpath=~/\.lzh$/i && $config{'webdisk_allow_unlzh'}) {
       my $lhabin=ow::tool::findbin('lha');
-      return("$lang_text{'program'} lha $lang_err{'doesnt_exist'}\n") if (!$lhabin);
+      return("$lang_text{'program'} lha $lang_err{'doesnt_exist'}\n") if ($lhabin eq '');
       @cmd=($lhabin, '-xfq');
 
    } elsif ($vpath=~/\.tnef$/i) {
       my $tnefbin=ow::tool::findbin('tnef');
-      return("$lang_text{'program'} tnef $lang_err{'doesnt_exist'}\n") if (!$tnefbin);
+      return("$lang_text{'program'} tnef $lang_err{'doesnt_exist'}\n") if ($tnefbin eq '');
       @cmd=($tnefbin, '--overwrite', '-v', '-f');
 
    } else {
@@ -800,7 +803,7 @@ sub listarchive {
       return;
    }
    my $err=verify_vpath($webdiskrootdir, $vpath);
-   if ($err) {
+   if ($err ne '') {
       autoclosewindow($lang_wdbutton{'listarchive'}, $err);
       return;
    }
@@ -808,41 +811,41 @@ sub listarchive {
    my @cmd;
    if ($vpath=~/\.(tar\.g?z|tgz)$/i) {
       my $gzipbin=ow::tool::findbin('gzip');
-      autoclosewindow($lang_wdbutton{'listarchive'}, "$lang_text{'program'} gzip $lang_err{'doesnt_exist'}\n") if (!$gzipbin);
+      autoclosewindow($lang_wdbutton{'listarchive'}, "$lang_text{'program'} gzip $lang_err{'doesnt_exist'}\n") if ($gzipbin eq '');
       my $tarbin=ow::tool::findbin('tar');
       $ENV{'PATH'}=$gzipbin; $ENV{'PATH'}=~s|/gzip||; # for tar
       @cmd=($tarbin, '-ztvf');
 
    } elsif ($vpath=~/\.(tar\.bz2?|tbz)$/i) {
       my $bzip2bin=ow::tool::findbin('bzip2');
-      autoclosewindow($lang_wdbutton{'listarchive'}, "$lang_text{'program'} bzip2 $lang_err{'doesnt_exist'}\n") if (!$bzip2bin);
+      autoclosewindow($lang_wdbutton{'listarchive'}, "$lang_text{'program'} bzip2 $lang_err{'doesnt_exist'}\n") if ($bzip2bin eq '');
       my $tarbin=ow::tool::findbin('tar');
       $ENV{'PATH'}=$bzip2bin; $ENV{'PATH'}=~s|/bzip2||;	# for tar
       @cmd=($tarbin, '-ytvf');
 
    } elsif ($vpath=~/\.zip$/i) {
       my $unzipbin=ow::tool::findbin('unzip');
-      autoclosewindow($lang_wdbutton{'listarchive'}, "$lang_text{'program'} unzip $lang_err{'doesnt_exist'}\n") if (!$unzipbin);
+      autoclosewindow($lang_wdbutton{'listarchive'}, "$lang_text{'program'} unzip $lang_err{'doesnt_exist'}\n") if ($unzipbin eq '');
       @cmd=($unzipbin, '-lq');
 
    } elsif ($vpath=~/\.rar$/i) {
       my $unrarbin=ow::tool::findbin('unrar');
-      autoclosewindow($lang_wdbutton{'listarchive'}, "$lang_text{'program'} unrar $lang_err{'doesnt_exist'}\n") if (!$unrarbin);
+      autoclosewindow($lang_wdbutton{'listarchive'}, "$lang_text{'program'} unrar $lang_err{'doesnt_exist'}\n") if ($unrarbin eq '');
       @cmd=($unrarbin, 'l');
 
    } elsif ($vpath=~/\.arj$/i) {
       my $unarjbin=ow::tool::findbin('unarj');
-      autoclosewindow($lang_wdbutton{'listarchive'}, "$lang_text{'program'} unarj $lang_err{'doesnt_exist'}\n") if (!$unarjbin);
+      autoclosewindow($lang_wdbutton{'listarchive'}, "$lang_text{'program'} unarj $lang_err{'doesnt_exist'}\n") if ($unarjbin eq '');
       @cmd=($unarjbin, 'l');
 
    } elsif ($vpath=~/\.lzh$/i) {
       my $lhabin=ow::tool::findbin('lha');
-      autoclosewindow($lang_wdbutton{'listarchive'}, "$lang_text{'program'} lha $lang_err{'doesnt_exist'}\n") if (!$lhabin);
+      autoclosewindow($lang_wdbutton{'listarchive'}, "$lang_text{'program'} lha $lang_err{'doesnt_exist'}\n") if ($lhabin eq '');
       @cmd=($lhabin, '-l');
 
    } elsif ($vpath=~/\.tnef$/i) {
       my $tnefbin=ow::tool::findbin('tnef');
-      autoclosewindow($lang_wdbutton{'listarchive'}, "$lang_text{'program'} tnef $lang_err{'doesnt_exist'}\n") if (!$tnefbin);
+      autoclosewindow($lang_wdbutton{'listarchive'}, "$lang_text{'program'} tnef $lang_err{'doesnt_exist'}\n") if ($tnefbin eq '');
       @cmd=($tnefbin, '-t');
 
    } else {
@@ -905,7 +908,7 @@ sub wordpreview {		# msword text preview
       return;
    }
    my $err=verify_vpath($webdiskrootdir, $vpath);
-   if ($err) {
+   if ($err ne '') {
       autoclosewindow("MS Word $lang_wdbutton{'preview'}", $err);
       return;
    }
@@ -913,7 +916,7 @@ sub wordpreview {		# msword text preview
    my @cmd;
    if ($vpath=~/\.(?:doc|dot)$/i) {
       my $antiwordbin=ow::tool::findbin('antiword');
-      autoclosewindow("MS Word $lang_wdbutton{'preview'}", "$lang_text{'program'} antiword $lang_err{'doesnt_exist'}\n") if (!$antiwordbin);
+      autoclosewindow("MS Word $lang_wdbutton{'preview'}", "$lang_text{'program'} antiword $lang_err{'doesnt_exist'}\n") if ($antiwordbin eq '');
       @cmd=($antiwordbin, '-m', 'UTF-8.txt');
    } else {
       autoclosewindow("MS Word $lang_wdbutton{'preview'}", "$lang_err{'filefmt_notsupported'} ($vpath)\n");
@@ -978,10 +981,10 @@ sub makepdfps {		# ps2pdf or pdf2ps
       return("$lang_err{'couldnt_open'} $vpath");
    }
    my $err=verify_vpath($webdiskrootdir, $vpath);
-   return($err) if ($err);
+   return($err) if ($err ne '');
 
    my $gsbin=ow::tool::findbin('gs');
-   return("$lang_text{'program'} gs $lang_err{'doesnt_exist'}\n") if (!$gsbin);
+   return("$lang_text{'program'} gs $lang_err{'doesnt_exist'}\n") if ($gsbin eq '');
 
    my @cmd;
    my $outputfile="$webdiskrootdir/$vpath";
@@ -1014,13 +1017,13 @@ sub makethumbnail {
    my $msg;
 
    my $convertbin=ow::tool::findbin('convert');
-   return("$lang_text{'program'} convert $lang_err{'doesnt_exist'}\n") if (!$convertbin);
+   return("$lang_text{'program'} convert $lang_err{'doesnt_exist'}\n") if ($convertbin eq '');
    my @cmd=($convertbin, '+profile', '*', '-interlace', 'NONE', '-geometry', '64x64');
 
    foreach (@selitems) {
       my $vpath=absolute_vpath($currentdir, $_);
       my $err=verify_vpath($webdiskrootdir, $vpath);
-      if ($err) {
+      if ($err ne '') {
          $msg.="$err\n"; next;
       }
       next if ( $vpath!~/\.(jpe?g|gif|png|bmp|tif)$/i || !-f "$webdiskrootdir/$vpath");
@@ -1072,7 +1075,7 @@ sub downloadfiles {	# through zip or tgz
    foreach (@selitems) {
       my $vpath=absolute_vpath($currentdir, $_);
       my $err=verify_vpath($webdiskrootdir, $vpath);
-      if ($err) {
+      if ($err ne '') {
          $msg.="$err\n"; next;
       }
       # use relative path to currentdir since we will chdir to webdiskrootdir/currentdir before DL
@@ -1101,13 +1104,13 @@ sub downloadfiles {	# through zip or tgz
 
    my @cmd;
    my $zipbin=ow::tool::findbin('zip');
-   if ($zipbin) {
+   if ($zipbin ne '') {
       @cmd=($zipbin, '-ryq', '-');
       $dlname.=".zip";
    } else {
       my $gzipbin=ow::tool::findbin('gzip');
       my $tarbin=ow::tool::findbin('tar');
-      if ($gzipbin) {
+      if ($gzipbin ne '') {
          $ENV{'PATH'}=$gzipbin;
          $ENV{'PATH'}=~s|/gzip||; # tar finds gzip through PATH
          @cmd=($tarbin, '-zcpf', '-');
@@ -1150,7 +1153,7 @@ sub downloadfile {
 
    my $vpath=absolute_vpath($currentdir, $selitem);
    my $err=verify_vpath($webdiskrootdir, $vpath);
-   return($err) if ($err);
+   return($err) if ($err ne '');
 
    open(F, "$webdiskrootdir/$vpath") or
       return("$lang_err{'couldnt_open'} $vpath\n");
@@ -1173,9 +1176,7 @@ sub downloadfile {
    }
 
    if ($contenttype=~/^text/ && $length>512 &&
-       cookie("openwebmail-httpcompress") &&
-       $ENV{'HTTP_ACCEPT_ENCODING'}=~/\bgzip\b/ &&
-       ow::tool::has_zlib()) {
+       is_http_compression_enabled()) {
       my $content;
       local $/; undef $/; $content=<F>; # no seperator, read whole file at once
       close (F);
@@ -1187,14 +1188,18 @@ sub downloadfile {
    } else {
       print qq|Content-Length: $length\n\n|;
       my $buff;
-      while (read(F, $buff, 16384)) {
+      while (read(F, $buff, 32768)) {
          print $buff;
       }
       close(F);
    }
 
-   writelog("webdisk download - $vpath");
-   writehistory("webdisk download - $vpath ");
+   # we only log download other than thumbnail imgs
+   my @p=split(/\//, $vpath); 
+   if (!defined($p[$#p-1]) || $p[$#p-1] ne '.thumbnail') {	
+      writelog("webdisk download - $vpath");
+      writehistory("webdisk download - $vpath ");
+   }
    return;
 }
 ########## END DOWNLOADFILE ######################################
@@ -1206,7 +1211,7 @@ sub previewfile {
    my ($currentdir, $selitem, $filecontent)=@_;
    my $vpath=absolute_vpath($currentdir, $selitem);
    my $err=verify_vpath($webdiskrootdir, $vpath);
-   return($err) if ($err);
+   return($err) if ($err ne '');
 
    if ($filecontent eq "") {
       open(F, "$webdiskrootdir/$vpath") or return("$lang_err{'couldnt_open'} $vpath\n");
@@ -1235,9 +1240,7 @@ sub previewfile {
 
    my $length = length($filecontent);	# calc length since linkconv may change data length
    if ($contenttype=~/^text/ && $length>512 &&
-       cookie("openwebmail-httpcompress") &&
-       $ENV{'HTTP_ACCEPT_ENCODING'}=~/\bgzip\b/ &&
-       ow::tool::has_zlib()) {
+       is_http_compression_enabled()) {
       $filecontent=Compress::Zlib::memGzip($filecontent);
       $length=length($filecontent);
       print qq|Content-Encoding: gzip\n|,
@@ -1309,7 +1312,7 @@ sub uploadfile {
 
    my $vpath=ow::tool::untaint(absolute_vpath($currentdir, $fname));
    my $err=verify_vpath($webdiskrootdir, $vpath);
-   return($err) if ($err);
+   return($err) if ($err ne '');
 
    renameoldfile("$webdiskrootdir/$vpath") if ( -f "$webdiskrootdir/$vpath");
 
@@ -1371,7 +1374,7 @@ sub dirfilesel {
    my ($currentdir, $escapedcurrentdir, $msg);
    foreach my $dir ($newdir, $olddir, "/") {
       my $err=verify_vpath($webdiskrootdir, $dir);
-      if ($err) {
+      if ($err ne '') {
          $msg .= "$err<br>\n"; next;
       }
       if (!opendir(D, "$webdiskrootdir/$dir")) {
@@ -1379,7 +1382,7 @@ sub dirfilesel {
       }
       $currentdir=$dir; last;
    }
-   openwebmailerror(__FILE__, __LINE__, $msg) if (!$currentdir);
+   openwebmailerror(__FILE__, __LINE__, $msg) if ($currentdir eq '');
    $escapedcurrentdir=ow::tool::escapeURL($currentdir);
 
    my (%fsize, %fdate, %ftype, %flink);
@@ -1394,7 +1397,7 @@ sub dirfilesel {
          my $realpath=readlink("$webdiskrootdir/$currentdir/$fname");
          $realpath="$webdiskrootdir/$currentdir/$realpath" if ($realpath!~m!^/!);
          my $vpath=fullpath2vpath($realpath, $webdiskrootdir);
-         if ($vpath) {
+         if ($vpath ne '') {
             $flink{$fname}=" -> $vpath";
          } else {
             next if (!$config{'webdisk_allow_symlinkout'});
@@ -1547,7 +1550,7 @@ sub dirfilesel {
    }
    $html =~ s/\@\@\@FILEDATE\@\@\@/$temphtml/g;
 
-   $temphtml='';
+   my $filelisthtml='';
    if ($#sortedlist>=0) {
       my $os=$^O||'generic';
       my $bgcolor;
@@ -1605,23 +1608,23 @@ sub dirfilesel {
          }
 
          $bgcolor = ($style{'tablerow_dark'},$style{'tablerow_light'})[$i%2];
-         $temphtml.=qq|<tr>\n|.
-                    qq|<td bgcolor=$bgcolor>$namestr</td>\n|.
-                    qq|<td bgcolor=$bgcolor align="right">$sizestr</td>\n|.
-                    qq|<td bgcolor=$bgcolor align="center">$datestr</td>\n|.
-                    qq|</tr>\n\n|;
+         $filelisthtml.=qq|<tr>\n|.
+                        qq|<td bgcolor=$bgcolor>$namestr</td>\n|.
+                        qq|<td bgcolor=$bgcolor align="right">$sizestr</td>\n|.
+                        qq|<td bgcolor=$bgcolor align="center">$datestr</td>\n|.
+                        qq|</tr>\n\n|;
       }
    } else {
       my $bgcolor = $style{"tablerow_light"};
-      $temphtml.=qq|<tr>\n|.
-                 qq|<td bgcolor=$bgcolor align=center>|.
-                 qq|<table><tr><td><font color=#aaaaaa>$lang_text{'noitemfound'}</font></td</tr></table>|.
-                 qq|</td>\n|.
-                 qq|<td bgcolor=$bgcolor>&nbsp;</td>\n|.
-                 qq|<td bgcolor=$bgcolor>&nbsp;</td>\n|.
-                 qq|</tr>\n\n|;
+      $filelisthtml.=qq|<tr>\n|.
+                     qq|<td bgcolor=$bgcolor align=center>|.
+                     qq|<table><tr><td><font color=#aaaaaa>$lang_text{'noitemfound'}</font></td</tr></table>|.
+                     qq|</td>\n|.
+                     qq|<td bgcolor=$bgcolor>&nbsp;</td>\n|.
+                     qq|<td bgcolor=$bgcolor>&nbsp;</td>\n|.
+                     qq|</tr>\n\n|;
    }
-   $html =~ s/\@\@\@FILELIST\@\@\@/$temphtml/g;
+   undef(%fsize); undef(%fdate); undef(%ftype); undef(%flink);	# relase mem if possible
 
    if (!$singlepage) {
       my $wd_url_page=qq|$wd_url&amp;action=$action&amp;gotodir=$escapedcurrentdir&amp;showhidden=$showhidden&amp;singlepage=$singlepage&amp;filesort=$filesort&amp;page|;
@@ -1730,6 +1733,9 @@ sub dirfilesel {
                end_form();
    $html =~ s/\@\@\@SAVEATTACHMENTFORM\@\@\@/$temphtml/;
 
+   # since $filelisthtml may be large, we put it into $html as late as possible
+   $html =~ s/\@\@\@FILELIST\@\@\@/$filelisthtml/; undef($filelisthtml);
+
    my $cookie = cookie( -name  => "$user-currentdir",
                         -value => $currentdir,
                         -path  => '/');
@@ -1750,35 +1756,35 @@ sub showdir {
    my $quotahit_deltype='';
    if ($quotalimit>0 && $quotausage>$quotalimit &&
        ($config{'delmail_ifquotahit'}||$config{'delfile_ifquotahit'}) ) {
-      $quotausage=(quota_get_usage_limit(\%config, $user, $homedir, 1))[2]; # get uptodate usage
+      $quotausage=(ow::quota::get_usage_limit(\%config, $user, $homedir, 1))[2]; # get uptodate usage
       if ($quotausage>$quotalimit) {
 
-         my (@validfolders, $folderusage);
-         getfolders(\@validfolders, \$folderusage);
+         my (@validfolders, $inboxusage, $folderusage);
+         getfolders(\@validfolders, \$inboxusage, \$folderusage);
 
          if ($config{'delfile_ifquotahit'} && $folderusage < $quotausage*0.5) {
             $quotahit_deltype='quotahit_delfile';
             my $webdiskrootdir=$homedir.absolute_vpath("/", $config{'webdisk_rootpath'});
             cutdirfiles(($quotausage-$quotalimit*0.9)*1024, $webdiskrootdir);
 
-            $quotausage=(quota_get_usage_limit(\%config, $user, $homedir, 1))[2]; # get uptodate usage
+            $quotausage=(ow::quota::get_usage_limit(\%config, $user, $homedir, 1))[2]; # get uptodate usage
          }
       }
    }
 
    my ($currentdir, $escapedcurrentdir, @list);
-   if ($keyword) {	# olddir = newdir if keyword is supplied for searching
+   if ($keyword ne '') {	# olddir = newdir if keyword is supplied for searching
       my $err=filelist_of_search($searchtype, $keyword, $olddir, dotpath('webdisk.cache'), \@list);
-      if ($err) {
+      if ($err ne '') {
          $keyword=""; $msg.=$err;
       } else {
          $currentdir=$olddir;
       }
    }
-   if (!$keyword) {
+   if ($keyword eq '') {
       foreach my $dir ($newdir, $olddir, "/") {
          my $err=verify_vpath($webdiskrootdir, $dir);
-         if ($err) {
+         if ($err ne '') {
             $msg .= "$err\n"; next;
          }
          if (!opendir(D, "$webdiskrootdir/$dir")) {
@@ -1789,7 +1795,7 @@ sub showdir {
          $currentdir=$dir;
          last;
       }
-      openwebmailerror(__FILE__, __LINE__, $msg) if (!$currentdir);
+      openwebmailerror(__FILE__, __LINE__, $msg) if ($currentdir eq '');
    }
    $escapedcurrentdir=ow::tool::escapeURL($currentdir);
 
@@ -1808,7 +1814,7 @@ sub showdir {
          my $realpath=readlink("$webdiskrootdir/$vpath");
          $realpath="$webdiskrootdir/$vpath/../$realpath" if ($realpath!~m!^/!);
          my $vpath2=fullpath2vpath($realpath, $webdiskrootdir);
-         if ($vpath2) {
+         if ($vpath2 ne '') {
             $flink{$p}=" -> $vpath2";
          } else {
             next if (!$config{'webdisk_allow_symlinkout'});
@@ -1931,7 +1937,7 @@ sub showdir {
                                  page=>$page);
    $html =~ s/\@\@\@STARTDIRFORM\@\@\@/$temphtml/g;
 
-   if ($keyword) {
+   if ($keyword ne '') {
       $temphtml=qq|$lang_text{'search'} &nbsp;|;
    } else {
       $temphtml=qq|$lang_text{'dir'} &nbsp;|;
@@ -2035,7 +2041,7 @@ sub showdir {
    }
    $html =~ s/\@\@\@FILEPERM\@\@\@/$temphtml/g;
 
-   $temphtml='';
+   my $filelisthtml;
    if ($#sortedlist>=0) {
       my $os=$^O||'generic';
       my $bgcolor;
@@ -2202,31 +2208,31 @@ sub showdir {
                      qq|</tr></table>|;
 
          $bgcolor = ($style{'tablerow_dark'},$style{'tablerow_light'})[$i%2];
-         $temphtml.=qq|<tr>\n|.
-                    qq|<td bgcolor=$bgcolor>$namestr</td>\n|.
-                    qq|<td bgcolor=$bgcolor align="right">$sizestr</td>\n|.
-                    qq|<td bgcolor=$bgcolor align="center">$datestr</td>\n|.
-                    qq|<td bgcolor=$bgcolor align="center">$permstr</td>\n|.
-                    qq|<td bgcolor=$bgcolor align="center">|;
-         $temphtml.=checkbox(-name=>'selitems',
-                             -value=>$p,
-                             -override=>'1',
-                             -label=>'');
-         $temphtml.=qq|</td>\n</tr>\n\n|;
+         $filelisthtml.=qq|<tr>\n|.
+                        qq|<td bgcolor=$bgcolor>$namestr</td>\n|.
+                        qq|<td bgcolor=$bgcolor align="right">$sizestr</td>\n|.
+                        qq|<td bgcolor=$bgcolor align="center">$datestr</td>\n|.
+                        qq|<td bgcolor=$bgcolor align="center">$permstr</td>\n|.
+                        qq|<td bgcolor=$bgcolor align="center">|.
+                        checkbox(-name=>'selitems',
+                                 -value=>$p,
+                                 -override=>'1',
+                                 -label=>'').
+                        qq|</td>\n</tr>\n\n|;
       }
    } else {
       my $bgcolor = $style{"tablerow_light"};
-      $temphtml.=qq|<tr>\n|.
-                 qq|<td bgcolor=$bgcolor align=center>|.
-                 qq|<table><tr><td><font color=#aaaaaa>$lang_text{'noitemfound'}</font></td</tr></table>|.
-                 qq|</td>\n|.
-                 qq|<td bgcolor=$bgcolor>&nbsp;</td>\n|.
-                 qq|<td bgcolor=$bgcolor>&nbsp;</td>\n|.
-                 qq|<td bgcolor=$bgcolor>&nbsp;</td>\n|.
-                 qq|<td bgcolor=$bgcolor>&nbsp;</td>\n|.
-                 qq|</tr>\n\n|;
+      $filelisthtml.=qq|<tr>\n|.
+                     qq|<td bgcolor=$bgcolor align=center>|.
+                     qq|<table><tr><td><font color=#aaaaaa>$lang_text{'noitemfound'}</font></td</tr></table>|.
+                     qq|</td>\n|.
+                     qq|<td bgcolor=$bgcolor>&nbsp;</td>\n|.
+                     qq|<td bgcolor=$bgcolor>&nbsp;</td>\n|.
+                     qq|<td bgcolor=$bgcolor>&nbsp;</td>\n|.
+                     qq|<td bgcolor=$bgcolor>&nbsp;</td>\n|.
+                     qq|</tr>\n\n|;
    }
-   $html =~ s/\@\@\@FILELIST\@\@\@/$temphtml/g;
+   undef(%fsize); undef(%fdate); undef(%fperm); undef(%ftype); undef(%flink);	# release mem if possible
 
    if (!$singlepage) {
       my $wd_url_page=qq|$wd_url&amp;action=showdir&amp;gotodir=$escapedcurrentdir&amp;filesort=$filesort&amp;searchtype=$searchtype&amp;keyword=$escapedkeyword&amp;page|;
@@ -2410,7 +2416,7 @@ sub showdir {
    $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/g;
 
    # show quotahit del warning
-   if ($quotahit_deltype) {
+   if ($quotahit_deltype ne '') {
       my $msg=qq|<font size="-1" color="#cc0000">$lang_err{$quotahit_deltype}</font>|;
       $msg=~s/\@\@\@QUOTALIMIT\@\@\@/$config{'quota_limit'}$lang_sizes{'kb'}/;
       $html.=readtemplate('showmsg.js').
@@ -2418,6 +2424,9 @@ sub showdir {
              qq|showmsg('$prefs{"charset"}', '$lang_text{"quotahit"}', '$msg', '$lang_text{"close"}', '_quotahit_del', 400, 100, 60);\n|.
              qq|//-->\n</script>\n|;
    }
+
+   # since $filelisthtml may be large, we put it into $html as late as possible
+   $html =~ s/\@\@\@FILELIST\@\@\@/$filelisthtml/g; undef($filelisthtml);
 
    # since some browser always treat refresh directive as realtive url.
    # we use relative path for refresh
@@ -2428,7 +2437,7 @@ sub showdir {
                         -value => $currentdir,
                         -path  => '/');
    httpprint([-cookie=>[$cookie],
-              -Refresh=>"$refreshinterval;URL=$relative_url?sessionid=$thissession&folder=escapedfolder&message_id=$escapedmessageid&action=showdir&currentdir=$escapedcurrentdir&gotodir=$escapedcurrentdir&showthumbnail=$showthumbnail&showhidden=$showhidden&singlepage=$singlepage&filesort=$filesort&page=$page&searchtype=$searchtype&keyword=$escapedkeyword&session_noupdate=1"],
+              -Refresh=>"$refreshinterval;URL=$relative_url?sessionid=$thissession&folder=$escapedfolder&message_id=$escapedmessageid&action=showdir&currentdir=$escapedcurrentdir&gotodir=$escapedcurrentdir&showthumbnail=$showthumbnail&showhidden=$showhidden&singlepage=$singlepage&filesort=$filesort&page=$page&searchtype=$searchtype&keyword=$escapedkeyword&session_noupdate=1"],
              [htmlheader(), htmlplugin($config{'header_pluginfile'}),
               $html,
               htmlplugin($config{'footer_pluginfile'}), htmlfooter(2)] );
@@ -2457,21 +2466,21 @@ sub filelist_of_search {
 
       if ($searchtype eq "filename") {	# find . -name "*keyword"
          my $findbin=ow::tool::findbin('find');
-         return("$lang_text{'program'} find $lang_err{'doesnt_exist'}\n") if (!$findbin);
+         return("$lang_text{'program'} find $lang_err{'doesnt_exist'}\n") if ($findbin eq '');
          @cmd=($findbin, ".", '-iname', "*$keyword*", '-print');
          ($stdout, $stderr, $exit, $sig)=ow::execute::execute(@cmd);
 
-         if ($stderr) {	# old find doesn't support -iname, use -name instead
+         if ($stderr ne '') {	# old find doesn't support -iname, use -name instead
             @cmd=($findbin, ".", '-name', "*$keyword*", '-print');
             ($stdout, $stderr, $exit, $sig)=ow::execute::execute(@cmd);
          }
       } else {				# grep -ilsr -- keyword .
          my $grepbin=ow::tool::findbin('grep');
-         return("$lang_text{'program'} grep $lang_err{'doesnt_exist'}\n") if (!$grepbin);
+         return("$lang_text{'program'} grep $lang_err{'doesnt_exist'}\n") if ($grepbin eq '');
          @cmd=($grepbin, "-ilsr", '--', $keyword, '.');
          ($stdout, $stderr, $exit, $sig)=ow::execute::execute(@cmd);
 
-         if ($stderr) {	# old grep doesn't support -r, do no-recursive search instead
+         if ($stderr ne '') {	# old grep doesn't support -r, do no-recursive search instead
             if (!opendir(D, "$webdiskrootdir/$vpath")) {
                return("$lang_err{'couldnt_open'} $vpath ($!)\n");
             }
@@ -2589,7 +2598,7 @@ sub findicon {
 sub is_quota_available {
    my $writesize=$_[0];
    if ($quotalimit>0 && $quotausage+$writesize>$quotalimit) {
-      $quotausage=(quota_get_usage_limit(\%config, $user, $homedir, 1))[2];
+      $quotausage=(ow::quota::get_usage_limit(\%config, $user, $homedir, 1))[2];
       return 0 if ($quotausage+$writesize>$quotalimit);
    }
    return 1;

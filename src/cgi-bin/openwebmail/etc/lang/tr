@@ -71,7 +71,7 @@ package ow::tr;
 
 %lang_ctrlpositionlabels =
    (
-   top => 'En Üstte',
+   top    => 'En Üstte',
    bottom => 'En Altta'
    );
 
@@ -232,6 +232,7 @@ package ow::tr;
    userdef    => 'Kullancý Tanýmlý',
    logout     => 'Çýkýþ',
    page       => 'Sayfa',
+   msgsperpage=> '@@@MSGCOUNT@@@ messages per page',
    msgcopyconf=> '\'Seçili iletiy(ler)i kopyalamak istediðinize emin misiniz ?\'',
    copy       => 'Kopyala',
    msgmoveconf=> '\'Seçili iletileri göndermek istediðinize emin misiniz?\'',
@@ -331,6 +332,8 @@ package ow::tr;
    all        => 'Hepsi',
    enable     => 'Etkinleþtir',
    disable    => 'Engelle',
+   yes        => 'Evet',
+   no         => 'Hayýr',
    filtered   => 'Filtrelenmiþ',
    blockrelay => 'SMTP Relay Engelle',
    blockemail => 'eposta engelle',

@@ -73,15 +73,15 @@ package ow::pt_BR;
 
 %lang_ctrlpositionlabels =
    (
-   top => 'Acima',
+   top    => 'Acima',
    bottom => 'Abaixo'
    );
 
 %lang_sendpositionlabels =
    (
    before => 'Antes da área de edição',
-   after  => 'Depois a área de edição',
-   both   => 'Antes e depois a área de edição'
+   after  => 'Depois da área de edição',
+   both   => 'Antes e depois da área de edição'
    );
 
 %lang_abookbuttonpositionlabels = 
@@ -234,6 +234,7 @@ package ow::pt_BR;
    userdef    => 'Definição do Usuário',
    logout     => 'Sair',
    page       => 'Página',
+   msgsperpage=> '@@@MSGCOUNT@@@ mensagens por página',
    msgcopyconf=> '\'Tem certeza que quer copiar a(s) mensagem(s) selecionada(s)?\'',
    copy       => 'Copiar',
    msgmoveconf=> '\'Tem certeza que quer mover as mensagens selecionadas?\'',
@@ -254,7 +255,7 @@ package ow::pt_BR;
    forwardasatt=>'Encaminhar como Anexo',
    forwardasorig=>'Encaminhar como original',
    printfriendly=> 'Impressão Amigável',
-   msgformat  => 'Formato da Mensagem',
+   msgformat  => 'Formato:',
    from       => 'De',
    replyto    => 'Responder a',
    to         => 'Para',
@@ -270,12 +271,12 @@ package ow::pt_BR;
    encoding   => 'Codificação',
    description=> 'Descrição',
    download   => 'Baixar',
-   charset    => 'Codificação de caracteres',
+   charset    => 'Codificação',
    samecharset=> 'A mesma codificação de caracteres da composição',
    thisispartialmsg => 'Esta é uma mensagem parcial.',
    msgrebuild => 'Reconstrói mensagem',
-   editdraft  => 'Editar Rascunho',
-   savedraft  => 'Salvar Rascunho',
+   editdraft  => 'Editar',
+   savedraft  => 'Salvar',
    draftsaved => 'Rascunho @@@SUBJECT@@@ salvo com sucesso',
    send       => 'Enviar',
    msgsent    => 'Mensagem, @@@SUBJECT@@@ enviada com sucesso',
@@ -333,6 +334,8 @@ package ow::pt_BR;
    all        => 'Tudo',
    enable     => 'Ativo',
    disable    => 'Inativo',
+   yes        => 'Sim',
+   no         => 'Não',
    filtered   => 'Filtrado',
    blockrelay => 'Bloquear SMTP Relay',
    blockemail => 'Bloquear E-mail',
@@ -350,19 +353,19 @@ package ow::pt_BR;
    folder     => 'Pasta',
    nofoldersel=> 'Nenhuma Pasta Selecionada',
    showall    => 'Mostrar Todas',
-   spellcheck => 'Verificar Ortografia',
-   checkagain => 'Verificar Novamente',
-   finishchecking => 'Terminar a Verificação',
+   spellcheck => 'Corrigir Ortografia',
+   checkagain => 'Corrigir Novamente',
+   finishchecking => 'Terminar a Correção',
    editpdict  => 'Editar Dicionário Pessoal',
    addtodict  => 'Adicione ao Dicionário',
    manuallyfix=> 'Corrigir Manualmente',
    editstat   => 'Editar Timbre',
    savestat   => 'Salvar Timbre',
    clearstat  => 'Apagar todos Timbres',
-   statreply  => '-- Selecione o Timbre para resposta --',
+   statreply  => '--Sel. Timbre p/ resposta--',
    calendar   => 'Agenda de Compromissos',
    allday     => 'Dia Todo',
-   today      => 'Today',
+   today      => 'Hoje',
    am         => 'am',
    pm         => 'pm',
    calfmt_year          => 'Ano de @@@YEAR@@@',

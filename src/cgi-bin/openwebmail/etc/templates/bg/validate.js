@@ -11,8 +11,8 @@ function valiDate(formName) {
    if (formMonth < checkDate.getMonth()+1) {
      var selectedmonth=document.forms[formName].elements['month'].options[document.forms[formName].elements['month'].selectedIndex].text;
      var daysinmonth=formDay-checkDate.getDate();
-     alert("Sorry, "+selectedmonth+" only has "+daysinmonth+" days in "+formYear+".\n"+
-           "Changing the day to "+daysinmonth+".");
+     alert("За съжаление "+selectedmonth+" има само "+daysinmonth+" дни през "+formYear+".\n"+
+           "Промяна на дните на "+daysinmonth+".");
      document.forms[formName].elements['day'].selectedIndex = formDay-checkDate.getDate()-1;
      // reset our vars
      formDay = formDay-checkDate.getDate();

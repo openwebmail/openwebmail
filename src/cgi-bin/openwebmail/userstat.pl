@@ -26,8 +26,10 @@ my $soundurl="/openwebmail/sounds/YouGotMail.English.wav";
 
 # status text to be displayed
 my %text = (
-   has_newmail   => "_USER_ has new mail",
-   has_mail      => "_USER_ has mail",
+   has_newmail   => "_USER_ has 1 new mail",
+   has_newmails  => "_USER_ has _N_ new mails",
+   has_mail      => "_USER_ has 1 mail",
+   has_mails     => "_USER_ has _N_ mails",
    has_newevent  => "_USER_ has new event",
    has_event     => "_USER_ has event",
    user_calendar => "_USER_'s calendar"
@@ -43,15 +45,24 @@ if (!defined($ENV{'GATEWAY_INTERFACE'})) {	# cmd mode
          qq|<script language="JavaScript"\n|.
          qq|src="http://you_server_domainname/cgi-bin/openwebmail/userstat.pl">\n|.
          qq|</script>\n|.
+         qq|\nor\n\n|.
+         qq|<table cellspacing=0 cellpadding=0><tr><td>\n|.
+         qq|<script language="JavaScript"\n|.
+         qq|src="http://you_server_domainname/cgi-bin/openwebmail/userstat.pl?logionname=someuser">\n|.
+         qq|</script>\n|.
          qq|</td></tr></table>\n\n|;
    exit 1;
 }
 
-my $user = cookie('openwebmail-loginname') || param('loginname') || '';
+my $user=param('loginname')||cookie('openwebmail-loginname')||'';
 my $playsound = param('playsound')||'';
 my $html=qq|<a href="_URL_" target="_blank" style="text-decoration: none">|.
          qq|<font color="_COLOR_">_TEXT_</font></a>|;
 
+# filter out dangerous characters
+$user=~s/[\/\"\'\`\|\<\>\\\(\)\[\]\{\}\$\s;&]//g;
+
+# remove shell escape char
 if ($user ne "") {
    my $status=`$ow_cgidir/openwebmail-tool.pl -m -e $user`;
    if ($status =~ /has no mail/) {
@@ -68,18 +79,32 @@ if ($user ne "") {
       }
    } else {
       $html=~s|_URL_|$ow_cgiurl/openwebmail.pl|;
-      if ($status =~ /has new mail/) {
+      if ($status =~ /has (\d+) new mail/) {
+         my $n=$1;
+         if ($n>1) {
+            $html=~s|_TEXT_|$text{'has_newmails'}|;
+            $html=~s|_N_|$n|;
+         } else {
+            $html=~s|_TEXT_|$text{'has_newmail'}|;
+         }
          $html=~s|_COLOR_|#cc0000|;
-         $html=~s|_TEXT_|$text{'has_newmail'}|;
          if ($playsound) {
             $html.=qq|<embed src="$soundurl" autostart=true hidden=true>|;
          }
-      } elsif ($status =~ /has mail/) {
+      } elsif ($status =~ /has (\d+) mail/) {
+         my $n=$1;
+         if ($n>1) {
+            $html=~s|_TEXT_|$text{'has_mails'}|;
+            $html=~s|_N_|$n|;
+         } else {
+            $html=~s|_TEXT_|$text{'has_mail'}|;
+         }
          $html=~s|_COLOR_|#000000|;
-         $html=~s|_TEXT_|$text{'has_mail'}|;
       }
    }
+   $html=~s|_TEXT_|Open WebMail|;
    $html=~s/_USER_/$user/g;
+   $html=~s|_COLOR_|#000000|;
    $html=~s/'/\\'/g;
 
    print qq|Pragma: no-cache\n|.

@@ -71,7 +71,7 @@ package ow::ro;
 
 %lang_ctrlpositionlabels =
    (
-   top => 'Deasupra',
+   top    => 'Deasupra',
    bottom => 'Dedesubt'
    );
 
@@ -232,6 +232,7 @@ package ow::ro;
    userdef    => 'definit de utilizator ',
    logout     => 'Iesire',
    page       => 'Pagina',
+   msgsperpage=> '@@@MSGCOUNT@@@ messages per page',
    msgcopyconf=> '\'Sunteti sigur ca doriti sa copiati mesajul(ele) selectate?\'',
    copy       => 'Copiaza',
    msgmoveconf=> '\'Esti sigur ca vrei sa muti mesajul(ele) selectate?\'',
@@ -331,6 +332,8 @@ package ow::ro;
    all        => 'Toate',
    enable     => 'Activ',
    disable    => 'Inactiv',
+   yes        => 'Da',
+   no         => 'Nu',
    filtered   => 'Filtrat',
    blockrelay => 'Blocare redirectionare SMTP',
    blockemail => 'Blocare adresa e-mail',

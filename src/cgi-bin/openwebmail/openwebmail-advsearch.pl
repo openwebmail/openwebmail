@@ -7,10 +7,10 @@
 
 use vars qw($SCRIPT_DIR);
 if ( $0 =~ m!^(\S*)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1 }
-if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
+if ($SCRIPT_DIR eq '' && open(F, '/etc/openwebmail_path.conf')) {
    $_=<F>; close(F); if ( $_=~/^(\S*)/) { $SCRIPT_DIR=$1 }
 }
-if (!$SCRIPT_DIR) { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
+if ($SCRIPT_DIR eq '') { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
 push (@INC, $SCRIPT_DIR);
 
 foreach (qw(PATH ENV BASH_ENV CDPATH IFS TERM)) { $ENV{$_}='' }	# secure ENV
@@ -23,14 +23,17 @@ use CGI::Carp qw(fatalsToBrowser carpout);
 use MIME::Base64;
 use MIME::QuotedPrint;
 
-require "modules/datetime.pl";
-require "modules/lang.pl";
 require "modules/dbm.pl";
+require "modules/suid.pl";
 require "modules/filelock.pl";
 require "modules/tool.pl";
-require "modules/htmltext.pl";
+require "modules/datetime.pl";
+require "modules/lang.pl";
 require "modules/mime.pl";
 require "modules/mailparse.pl";
+require "modules/htmltext.pl";
+require "auth/auth.pl";
+require "quota/quota.pl";
 require "shares/ow-shared.pl";
 require "shares/iconv.pl";
 require "shares/maildb.pl";
@@ -144,8 +147,8 @@ sub advsearch {
 
    $temphtml = qq|<table cols=4 width="100%">\n|;
 
-   my (@validfolders, $folderusage);
-   getfolders(\@validfolders, \$folderusage);
+   my (@validfolders, $inboxusage, $folderusage);
+   getfolders(\@validfolders, \$inboxusage, \$folderusage);
 
    for(my $i=0; $i<=$#validfolders; $i++) {
       $temphtml.=qq|<tr>| if ($i%4==0);
@@ -295,7 +298,7 @@ sub search_folders2 {
       foreach my $messageid (@{$r_messageids}) {
          # begin the search
          my ($block, $header, $body, $r_attachments);
-         my @attr=split(/@@@/, $FDB{$messageid});
+         my @attr=string2msgattr($FDB{$messageid});
          my $is_conv=is_convertable($attr[$_CHARSET], $prefs{'charset'});
          my $state=0;
 

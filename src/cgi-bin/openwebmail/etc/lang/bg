@@ -1,7 +1,7 @@
 package ow::bg;
 
 # Bulgarian translation, charset: windows-1251
-# by Veselin Slavov, vess.AT.vess.bnc.bg, 2003/02/21
+# by Veselin Slavov, vess.AT.slavof.net, 2004/04/22
 
 %lang_folders =
    (
@@ -64,14 +64,14 @@ package ow::bg;
 
 %lang_disableemblinklabels =
    (
-   none    => 'None',
-   cgionly => 'CGI only',
-   all     => 'All embedded URLs'
+   none    => 'няма',
+   cgionly => 'само CGI',
+   all     => 'всички URL'
    );
 
 %lang_ctrlpositionlabels =
    (
-   top => 'най-отгоре',
+   top    => 'най-отгоре',
    bottom => 'най-отдолу'
    );
 
@@ -232,6 +232,7 @@ package ow::bg;
    userdef    => 'Дефинирано от потребителя',
    logout     => 'Изход',
    page       => 'Страница',
+   msgsperpage=> '@@@MSGCOUNT@@@ съобщения на страница',
    msgcopyconf=> '\'Моля потвърдете за копиране\'',
    copy       => 'Копирай',
    msgmoveconf=> '\'Моля потвърдете за преместване\'',
@@ -274,9 +275,9 @@ package ow::bg;
    msgrebuild => 'Преподреждане на съобщението',
    editdraft  => 'Редакция чернова',
    savedraft  => 'Запис чернова',
-   draftsaved => 'Draft @@@SUBJECT@@@ has been saved successfully',
+   draftsaved => 'Чернова @@@SUBJECT@@@ записана успешно',
    send       => 'Изпращане',
-   msgsent    => 'Message @@@SUBJECT@@@ has been sent successfully',
+   msgsent    => 'Съобщение @@@SUBJECT@@@ записано успешно',
    about      => 'Информация',
    close      => 'Затвори',
    cancel     => 'Откажи',
@@ -313,8 +314,8 @@ package ow::bg;
    note       => 'Забележка',
    max        => 'Максимално',
    group      => 'Група',
-   quotausage => 'Quota използване',
-   quotalimit => 'Quota лимит',
+   quotausage => 'Квота използване',
+   quotalimit => 'Квота лимит',
    quotahit   => 'ОГРАНИЧЕНИЕ',
    tzmap      => 'Карта с часовите пояси',
    testsound  => 'Звук за тест',
@@ -331,6 +332,8 @@ package ow::bg;
    all        => 'Всички',
    enable     => 'активен',
    disable    => 'неактивн',
+   yes        => 'Да',
+   no         => 'Не',
    filtered   => 'Филтриране',
    blockrelay => 'Блокирай SMTP Relay',
    blockemail => 'Блокирай поща',
@@ -360,7 +363,7 @@ package ow::bg;
    statreply  => '-- Шаблон за отговор --',
    calendar   => 'Календар',
    allday     => 'Всички дни',
-   today      => 'Today',
+   today      => 'Днес',
    am         => 'am',
    pm         => 'pm',
    calfmt_year          => 'година @@@YEAR@@@',

@@ -111,7 +111,7 @@ sub get_userlist {	# only used by openwebmail-tool.pl -a
 # -4 : password incorrect
 sub check_userpassword {
    my ($r_config, $user_domain, $password)=@_;
-   return (-2, "User or password is null") if (!$user_domain||!$password);
+   return (-2, "User or password is null") if ($user_domain eq '' || $password eq '');
    return (-2, 'Not valid user@domain format') if ($user_domain !~ /(.+)[\@:!](.+)/);
    my ($user, $domain)=($1, $2);
 
@@ -146,7 +146,7 @@ sub check_userpassword {
 # -4 : password incorrect
 sub change_userpassword {
    my ($r_config, $user_domain, $oldpassword, $newpassword)=@_;
-   return (-2, "User or password is null") if (!$user_domain||!$oldpassword||!$newpassword);
+   return (-2, "User or password is null") if ($user_domain eq '' || $oldpassword eq '' || $newpassword eq '');
    return (-2, 'Not valid user@domain format') if ($user_domain !~ /(.+)[\@:!](.+)/);
    my ($user, $domain)=($1, $2);
 
@@ -171,11 +171,11 @@ sub change_userpassword {
    close (PASSWD);
 
    if ($u ne $user) {
-      ow::filelock::lock("$pwdfile", LOCK_UN);
+      ow::filelock::lock($pwdfile, LOCK_UN);
       return (-4, "User $user_domain doesn't exist");
    }
    if (crypt($oldpassword,$p) ne $p) {
-      ow::filelock::lock("$pwdfile", LOCK_UN);
+      ow::filelock::lock($pwdfile, LOCK_UN);
       return (-4, "Incorrect password");
    }
 
@@ -189,7 +189,7 @@ sub change_userpassword {
    my $oldline="$u:$p";
    my $newline="$u:$encrypted";
    if ($content !~ s/\Q$oldline\E/$newline/) {
-      ow::filelock::lock("$pwdfile", LOCK_UN);
+      ow::filelock::lock($pwdfile, LOCK_UN);
       return (-3, "Unable to match entry for modification");
    }
 
@@ -203,12 +203,12 @@ sub change_userpassword {
    chmod($fmode, "$pwdfile.tmp.$$");
    rename("$pwdfile.tmp.$$", $pwdfile) or goto authsys_error;
 
-   ow::filelock::lock("$pwdfile", LOCK_UN);
+   ow::filelock::lock($pwdfile, LOCK_UN);
    return (0, '');
 
 authsys_error:
    unlink("$pwdfile.tmp.$$");
-   ow::filelock::lock("$pwdfile", LOCK_UN);
+   ow::filelock::lock($pwdfile, LOCK_UN);
    return (-3, "Unable to write $pwdfile");
 }
 

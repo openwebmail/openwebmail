@@ -11,7 +11,7 @@ use MIME::Base64;
 use MIME::QuotedPrint;
 
 # extern vars
-use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE $_STATUS $_SIZE $_REFERENCES $_CHARSET);
+use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE $_STATUS $_SIZE $_REFERENCES $_CHARSET $_HEADERSIZE $_HEADERCHKSUM);
 use vars qw(%config %lang_err);
 
 # local global
@@ -42,7 +42,6 @@ sub filtermessage {
    my ($folderfile, $folderdb)=get_folderpath_folderdb($user, $folder);
    return 0 if ( ! -f $folderfile );	# check existence of folderfile
 
-   my %ruletypeindex=(from=>$_FROM, to=>$_TO, subject=>$_SUBJECT);
    my $filtercheckfile=dotpath('filter.check');
    my $filterbookfile=dotpath('filter.book');
 
@@ -121,44 +120,73 @@ sub filtermessage {
       writehistory("db error - Couldn't update index db $folderdb");
       return -4;
    }
+
    open ($folderhandle, "+<$folderfile") or return -5;
-   @allmessageids=get_messageids_sorted_by_offset($folderdb);
    if (!ow::dbm::open(\%FDB, $folderdb, LOCK_EX)) {
       ow::dbm::close(\%FILTERDB, $filterbookfile);
+      close($folderhandle);
       ow::filelock::lock($folderfile, LOCK_UN);
       return -6;
    }
 
+   @allmessageids=get_messageids_sorted_by_offset_db(\%FDB);
    foreach my $messageid (@allmessageids) {
-      my @attr = split(/@@@/, $FDB{$messageid});
-      my ($currmessage, $header, $body, $r_attachments, $decoded_header)=("", "", "", "", "");
-      my ($r_smtprelays, $r_connectfrom, $r_byas);
-      my ($is_message_parsed, $is_body_decoded, $is_attachments_decoded)=(0,0,0);
-      my ($reserved_in_folder, $to_be_moved)=(0,0);
+      next if ($messageid=~/^DUP\d+\-/);        # skip duplicated msg in src folder
+      my @attr = string2msgattr($FDB{$messageid});
+      my ($header, $decoded_header, $currmessage, $body)=("", "", "", "");
+      my (%msg, $r_attachments, $r_smtprelays, $r_connectfrom, $r_byas);
+      my ($is_body_decoded, $is_attachments_decoded)=(0, 0);
+      my ($reserved_in_folder, $to_be_moved)=(0, 0);
 
       # if flag V not found, this msg has not been filtered before (Verify)
       if ($attr[$_STATUS] !~ /V/i || $forced_recheck) {
+
+         # 0. read && check msg header
+         if ($attr[$_OFFSET]>=0 && $attr[$_HEADERSIZE]>0 && 
+             $attr[$_SIZE]>$attr[$_HEADERSIZE]) {
+            seek($folderhandle, $attr[$_OFFSET], 0);
+            read($folderhandle, $header, $attr[$_HEADERSIZE]);
+         }
+         if ($header!~/^From /) {
+            ow::dbm::close(\%FILTERDB, $filterbookfile);
+
+            close($folderhandle);
+            $FDB{'METAINFO'}='ERR';
+            ow::dbm::close(\%FDB, $folderdb);
+
+            # forced reindex since metainfo = ERR
+            update_folderindex($folderfile, $folderdb);
+
+            ow::filelock::lock($folderfile, LOCK_UN);
+            writelog("db warning - msg $messageid in $folderfile index inconsistence - ".__FILE__.':'.__LINE__);
+            writehistory("db warning - msg $messageid in $folderfile index inconsistence - ".__FILE__.':'.__LINE__);
+            return(-10);
+         }
+
          if ($attr[$_STATUS] !~ /V/i) {
             $attr[$_STATUS].="V";
-            $FDB{$messageid}=join('@@@', @attr);
+            $FDB{$messageid}=msgattr2string(@attr);
          }
+
          # 1. collect matched rules
          foreach my $r_rule (@filterrules) {
             my $ruletype=${$r_rule}[$_RULETYPE];
             my $is_matched=0;
 
             if ( $ruletype eq 'from' || $ruletype eq 'to' || $ruletype eq 'subject') {
-               if ($attr[$ruletypeindex{$ruletype}]=~/${$r_rule}[$_REGEX_TEXT]/
+               if ($decoded_header eq "") {
+                  $decoded_header=ow::mime::decode_mimewords($header);
+                  $decoded_header=~s/\s*\n\s+/ /sg; # concate folding lines
+               }
+               if (!defined($msg{from})) { # this is defined after parse_header is called
+                  ow::mailparse::parse_header(\$decoded_header, \%msg);
+               }
+               if ($msg{$ruletype}=~/${$r_rule}[$_REGEX_TEXT]/
                    xor ${$r_rule}[$_INCLUDE] eq 'exclude') {
                    $is_matched=1;
                }
 
             } elsif ( $ruletype eq 'header' ) {
-               if ($header eq "") {
-                  local $/="\n\n";
-                  seek($folderhandle, $attr[$_OFFSET], 0);
-                  $header=<$folderhandle>;
-               }
                if ($decoded_header eq "") {
                   $decoded_header=ow::mime::decode_mimewords($header);
                   $decoded_header=~s/\s*\n\s+/ /sg; # concate folding lines
@@ -169,11 +197,6 @@ sub filtermessage {
                }
 
             } elsif ( $ruletype eq 'smtprelay' ) {
-               if ($header eq "") {
-                  local $/="\n\n";
-                  seek($folderhandle, $attr[$_OFFSET], 0);
-                  $header=<$folderhandle>;
-               }
                if (!defined($r_smtprelays) ) {
                   ($r_smtprelays, $r_connectfrom, $r_byas)=ow::mailparse::get_smtprelays_connectfrom_byas_from_header($header);
                }
@@ -191,9 +214,8 @@ sub filtermessage {
                   seek($folderhandle, $attr[$_OFFSET], 0);
                   read($folderhandle, $currmessage, $attr[$_SIZE]);
                }
-               if (!$is_message_parsed) {
+               if (!defined(@{$r_attachments})) {
                   ($header, $body, $r_attachments)=ow::mailparse::parse_rfc822block(\$currmessage);
-                  $is_message_parsed=1;
                }
 
                # check body text
@@ -252,9 +274,8 @@ sub filtermessage {
                   seek($folderhandle, $attr[$_OFFSET], 0);
                   read($folderhandle, $currmessage, $attr[$_SIZE]);
                }
-               if (!$is_message_parsed) {
+               if (!defined(@{$r_attachments})) {
                   ($header, $body, $r_attachments)=ow::mailparse::parse_rfc822block(\$currmessage);
-                  $is_message_parsed=1;
                }
                # check attachments
                foreach my $r_attachment (@{$r_attachments}) {
@@ -279,21 +300,19 @@ sub filtermessage {
                   if (${$r_rule}[$_DESTINATION] eq $folder) {
                      $reserved_in_folder=1;
                   } else {
-                     if ($currmessage eq "") {
-                        seek($folderhandle, $attr[$_OFFSET], 0);
-                        read($folderhandle, $currmessage, $attr[$_SIZE]);
-                     }
-                     $appended=append_message_to_folder($messageid,
+                     $appended=append_message_to_folder($messageid, $folderhandle,
          				\@attr, \$currmessage, $user, ${$r_rule}[$_DESTINATION]);
                   }
                }
-               if (${$r_rule}[$_OP] eq 'delete' || ${$r_rule}[$_OP] eq 'move') {
+               if (!$reserved_in_folder &&
+                   (${$r_rule}[$_OP] eq 'delete' || ${$r_rule}[$_OP] eq 'move')) {
                   if ($appended>=0) {
                      $to_be_moved=1;
                      $filtered_to_folder{'_ALL'}++;
                      $filtered_to_folder{${$r_rule}[$_DESTINATION]}++;
                   } else {
                      $ioerr++;
+                     last;
                   }
                }
                last if (${$r_rule}[$_OP] eq 'move' || ${$r_rule}[$_OP] eq 'delete');
@@ -305,11 +324,6 @@ sub filtermessage {
             # bypass smart filters for good messages
             if ($config{'smartfilter_bypass_goodmessage'} &&
                 !$reserved_in_folder && !$to_be_moved ) {
-               if ($header eq "") {
-                  local $/="\n\n";
-                  seek($folderhandle, $attr[$_OFFSET], 0);
-                  $header=<$folderhandle>;
-               }
                if ( ($header=~/^X\-Mailer: Open WebMail/m && $header=~/^X\-OriginatingIP: /m) ||
                     ($header=~/^In\-Reply\-To: /m && $header=~/^References: /m) ) {
                   $reserved_in_folder=1;
@@ -343,11 +357,6 @@ sub filtermessage {
             # filter message whose from: is different than the envelope email address
             if ( ${$r_prefs}{'filter_fakedfrom'} &&
                 !$reserved_in_folder && !$to_be_moved ) {
-               if ($header eq "") {
-                  local $/="\n\n";
-                  seek($folderhandle, $attr[$_OFFSET], 0);
-                  $header=<$folderhandle>;
-               }
                my $is_software_generated=0;	# skip faked from check for msg generated by some software
                if ( ($header=~/^\QX-Delivery-Agent: TMDA\E/m &&
                      $header=~/^\QPrecedence: bulk\E/m &&
@@ -378,11 +387,6 @@ sub filtermessage {
             # filter message from smtprelay with faked name if msg is not moved or deleted
             if ( ${$r_prefs}{'filter_fakedsmtp'} &&
                 !$reserved_in_folder && !$to_be_moved ) {
-               if ($header eq "") {
-                  local $/="\n\n";
-                  seek($folderhandle, $attr[$_OFFSET], 0);
-                  $header=<$folderhandle>;
-               }
                if (!defined($r_smtprelays) ) {
                   ($r_smtprelays, $r_connectfrom, $r_byas)=ow::mailparse::get_smtprelays_connectfrom_byas_from_header($header);
                }
@@ -421,9 +425,8 @@ sub filtermessage {
                   seek($folderhandle, $attr[$_OFFSET], 0);
                   read($folderhandle, $currmessage, $attr[$_SIZE]);
                }
-               if (!$is_message_parsed) {
+               if (!defined(@{$r_attachments})) {
                   ($header, $body, $r_attachments)=ow::mailparse::parse_rfc822block(\$currmessage);
-                  $is_message_parsed=1;
                }
 
                # check executable attachment and contenttype
@@ -444,7 +447,7 @@ sub filtermessage {
                $matchcount++; $matchdate=ow::datetime::gmtime2dateserial();
                $FILTERDB{$matchedsmartrule}="$matchcount:$matchdate";
 
-               my $appended=append_message_to_folder($messageid,
+               my $appended=append_message_to_folder($messageid, $folderhandle,
       			\@attr, \$currmessage, $user, 'mail-trash');
                if ($appended>=0) {
                   $filtered_to_folder{'_ALL'}++;
@@ -452,6 +455,7 @@ sub filtermessage {
                } else {
                   $to_be_moved=0;
                   $ioerr++;
+                  last;
                }
             }
          } # end of if enable_smartfilter
@@ -459,7 +463,7 @@ sub filtermessage {
          # 3. mark to be moved message as zap
          if ($to_be_moved) {
             $attr[$_STATUS].='Z' if ($attr[$_STATUS]!~/Z/i);
-            $FDB{$messageid}=join('@@@', @attr);
+            $FDB{$messageid}=msgattr2string(@attr);
             $FDB{'ZAPSIZE'}+=$attr[$_SIZE];
          }
       } # end of msg verify
@@ -508,9 +512,10 @@ sub filtermessage {
 
    ow::dbm::close(\%FILTERDB, $filterbookfile);
 
-   if (folder_zapmessages($folderfile, $folderdb)<0) {
-      $ioerr++;
-   }
+   my $zapped=folder_zapmessages($folderfile, $folderdb);
+   # zap again if data error or index inconsistence
+   $zapped=folder_zapmessages($folderfile, $folderdb) if ($zapped==-9||$zapped==-10);
+   $ioerr++ if ($zapped<0);
 
    ow::filelock::lock($folderfile, LOCK_UN);
 
@@ -518,18 +523,24 @@ sub filtermessage {
 
    open (FILTERCHECK, ">$filtercheckfile" ) or  return -8;
    print FILTERCHECK ow::tool::metainfo($folderfile);
-   truncate(FILTERCHECK, tell(FILTERCHECK));
    close (FILTERCHECK);
 
    return($filtered_to_folder{'_ALL'}, \%filtered_to_folder);
 }
 
 sub append_message_to_folder {
-   my ($messageid, $r_attr, $r_currmessage, $user, $destination)=@_;
+   my ($messageid, $source, $r_attr, $r_currmessage, $user, $destination)=@_;
    my %FDB2;
    my ($dstfile, $dstdb)=get_folderpath_folderdb($user, $destination);
    my $ioerr=0;
-   if (${$r_currmessage} !~ /^From /) { # msg format error
+   my @attr=@{$r_attr};
+
+   if ($$r_currmessage eq "") {
+      seek($source, $attr[$_OFFSET], 0);
+      read($source, $$r_currmessage, $attr[$_SIZE]);
+   }
+
+   if ($$r_currmessage !~ m/^From /) { # msg format error
       return -1;
    }
 
@@ -554,17 +565,16 @@ sub append_message_to_folder {
          ow::dbm::close(\%FDB2, $dstdb);
          return -6;
       }
-      seek(DEST, 0, 2);	# seek end explicitly to cover tell() bug in perl 5.8
-      my @attr2=@{$r_attr};
-      $attr2[$_OFFSET]=tell(DEST);
-      $attr2[$_SIZE]=length(${$r_currmessage});
+      $attr[$_OFFSET]=(stat(DEST))[7];
+      seek(DEST, $attr[$_OFFSET], 0);
+      $attr[$_SIZE]=length(${$r_currmessage});
       print DEST ${$r_currmessage} or $ioerr++;
       close (DEST);
 
       if (!$ioerr) {
-         $FDB2{$messageid}=join('@@@', @attr2);
-         $FDB2{'NEWMESSAGES'}++ if ($attr2[$_STATUS]!~/r/i);
-         $FDB2{'INTERNALMESSAGES'}++ if (is_internal_subject($attr2[$_SUBJECT]));
+         $FDB2{$messageid}=msgattr2string(@attr);
+         $FDB2{'NEWMESSAGES'}++ if ($attr[$_STATUS]!~/r/i);
+         $FDB2{'INTERNALMESSAGES'}++ if (is_internal_subject($attr[$_SUBJECT]));
          $FDB2{'ALLMESSAGES'}++;
          $FDB2{'METAINFO'}=ow::tool::metainfo($dstfile);
       }
@@ -620,6 +630,9 @@ sub domain {
 sub filtermessage2 {
    my ($user, $folder, $r_prefs)=@_;
    my ($filtered, $r_filtered)=filtermessage($user, $folder, $r_prefs);
+   if ($filtered==-10) {	# filter again if db inconsistence
+      ($filtered, $r_filtered)=filtermessage($user, $folder, $r_prefs);
+   }
 
    if ($filtered > 0) {
       my $dststr;

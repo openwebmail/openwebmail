@@ -87,7 +87,7 @@ sub array2seconds {
    $hour=$t[2] if ($hour<0||$hour>23);
    $d   =$t[3] if ($d<1||$d>31);
    $m   =$t[4] if ($m<0||$m>11);
-   $y   =$t[5] if ($y<70||$y>139);
+   $y   =$t[5] if ($y<70||$y>137);	# invalid if outside 1970...2037
    if ($d>28) {
       my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
       my $year=1900+$y;
@@ -114,12 +114,12 @@ sub is_dst {
       if ($month==3) {
          $lt=array2seconds(0,0,2, 1,3,$year);	# localtime Apr/1 2:00
          $dow=(seconds2array($lt))[6];		# weekday of localtime Apr/1 2:00:01
-         $gm=$lt+(7-$dow)*86400-$seconds;		# gmtime of localtime Apr/1st Sunday
+         $gm=$lt+(7-$dow)*86400-$seconds;	# gmtime of localtime Apr/1st Sunday
          return 1 if ($gmtime>=$gm);
       } elsif ($month==9) {
          $lt=array2seconds(0,0,2, 30,9,$year);	# localtime Oct/30 2:00
          $dow=(seconds2array($lt))[6];		# weekday of localtime Oct/30
-         $gm=$lt-$dow*86400-$seconds;			# gmtime of localtime Oct/last Sunday
+         $gm=$lt-$dow*86400-$seconds;		# gmtime of localtime Oct/last Sunday
          return 1 if ($gmtime<=$gm);
       }
    } elsif ($seconds >= 0 && $seconds <= 6*3600 ) {	# dst rule for europe
@@ -127,12 +127,12 @@ sub is_dst {
       if ($month==2) {
          $gm=array2seconds(0,0,1, 31,2,$year);	# gmtime Mar/31 1:00
          $dow=(seconds2array($gm))[6];		# weekday of gmtime Mar/31
-         $gm-=$dow*86400;				# gmtime Mar/last Sunday
+         $gm-=$dow*86400;			# gmtime Mar/last Sunday
          return 1 if ($gmtime>=$gm);
       } elsif ($month==9) {
          $gm=array2seconds(0,0,1, 30,9,$year);	# gmtime Oct/30 1:00
          $dow=(seconds2array($gm))[6];		# weekday of gmtime Oct/30
-         $gm-=$dow*86400;				# gmtime Oct/last Sunday
+         $gm-=$dow*86400;			# gmtime Oct/last Sunday
          return 1 if ($gmtime<=$gm);
       }
    }
@@ -266,12 +266,16 @@ sub datefield2dateserial {	# return dateserial of GMT
 sub dateserial2datefield {
    my ($dateserial, $timeoffset, $daylightsaving)=@_;
 
-   my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst)=
-      seconds2array(time_gm2local(dateserial2gmtime($dateserial), $timeoffset, $daylightsaving));
+   # both datetime and the timezone str in date field include the dst shift
+   # so we calc datetime, timeoffset_with_dst through timegm and timelocal
+   my $timegm=dateserial2gmtime($dateserial);
+   my $timelocal=time_gm2local($timegm, $timeoffset, $daylightsaving);
+   my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst)=seconds2array($timelocal);
+   my $timeoffset_with_dst=seconds2timeoffset($timelocal-$timegm);
 
    #Date: Wed, 9 Sep 1998 19:30:17 +0800 (CST)
    return(sprintf("%3s, %d %3s %4d %02d:%02d:%02d %s",
-              $wday_en[$wday], $mday,$month_en[$mon],$year+1900, $hour,$min,$sec, $timeoffset));
+              $wday_en[$wday], $mday,$month_en[$mon],$year+1900, $hour,$min,$sec, $timeoffset_with_dst));
 }
 ########## END DATEFIELD <-> DATESERIAL ##########################
 

@@ -29,7 +29,7 @@
 @@@TIMEOFFSETMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Daylight Saving Time:</B>
+<B>Letní èas:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DAYLIGHTSAVINGMENU@@@
 </td></tr>
@@ -94,7 +94,7 @@ Pøedmìt:
 @@@BACKGROUNDMENU@@@ <font size=-2>URL </font>@@@BGURLFIELD@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Background image repeated:</B>
+<B>Opakování obrázku na pozadí:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BGREPEATCHECKBOX@@@<br>
 </td></tr>
@@ -138,7 +138,7 @@ Pøedmìt:
 @@@SORTMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Display mini search icon@@@MINISEARCHICON@@@:</B>
+<B>Zobrazovat malou ikonu pro hledání @@@MINISEARCHICON@@@:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USEMINISEARCHICONCHECKBOX@@@<br>
 </td></tr>
@@ -203,7 +203,7 @@ Pøedmìt:
 @@@USESMILEICON@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Show HTML message as plain text:</B>
+<B>Zobrazit HTML zprávu jako holý text:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SHOWHTMLASTEXT@@@
 </td></tr>
@@ -218,7 +218,7 @@ Pøedmìt:
 @@@DISABLEJS@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Nepovolit embed/object/applet tag uvnitø zpráv:</B>
+<B>Nepovolit znaèky vlo¾ených objektù/appletù uvnitø zpráv:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEEMBCODE@@@
 </td></tr>
@@ -236,7 +236,7 @@ Pøedmìt:
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Odpovìdi na zprávy</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Message format:</B>
+<B>Formát zprávy:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@MSGFORMATMENU@@@
 </td></tr>
@@ -280,7 +280,7 @@ Pøedmìt:
 @@@FILTERREPEATLIMIT@@@ &nbsp;( 0 znamená nekontrolovat, zda jsou opakované )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Filter msgs with email address in bad format:</B>
+<B>Filtrovat zprávy s adresou ve ¹patném formátu:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERBADADDRFORMAT@@@
 </td></tr>
@@ -290,7 +290,7 @@ Pøedmìt:
 @@@FILTERFAKEDSMTP@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Filtrovat zprávy se zfal¹ovanou adresou odesilatele:</B>
+<B>Filtrovat zprávy se zfal¹ovanou adresou odesílatele:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDFROM@@@
 </td></tr>
@@ -324,12 +324,12 @@ Pøedmìt:
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Kalendáø</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Default calendar view:</B>
+<B>Implicitní pohled kalendáøe:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DEFAULTVIEWMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Holiday definition:</B>
+<B>Definice svátkù:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@HOLIDAYDEFMENU@@@
 </td></tr>
@@ -426,12 +426,12 @@ Pøedmìt:
 @@@NEWMAILSOUNDMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Okno pro oznámení nové po¹ty:</B>
+<B>Okno s oznámením nové zprávy:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 zobrazit @@@NEWMAILWINDOWTIMEMENU@@@ sekund &nbsp;( 0 znamená nezobrazovat )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Mail sent window notification:</B>
+<B>Okno s oznámením odeslané zprávy:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 zobrazit @@@MAILSENTWINDOWTIMEMENU@@@ sekund &nbsp;( 0 znamená nezobrazovat )
 </td></tr>

@@ -15,9 +15,9 @@
 @@@ENDFORM@@@
 </tr><tr><td colspan="4">&nbsp;</td></tr>
 <tr><td bgcolor=@@@COLUMNHEADER@@@>
-<B>Jméno</B> (Kliknutím zmìnit adresu)</td>
+<B>Jméno</B> (klik zmìní adresu)</td>
 <td bgcolor=@@@COLUMNHEADER@@@>
-<B>Adresa/Skupina adres</B> (Kliknutím poslat zprávu)</td>
+<B>Adresa/Skupina adres</B> (klik po¹le zprávu)</td>
 <td bgcolor=@@@COLUMNHEADER@@@>
 <B>Poznámka</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
@@ -45,8 +45,9 @@
    {
       var url = "@@@ABOOKURL@@@?action=addressbook&sessionid=@@@SESSIONID@@@&form=newaddress&field=" + field;
 
+      // double escape, one for url, one for elist (see openwebmail-abook.pl)
       if (field == "email")
-	 url += "&elist=" + escape (document.newaddress.email.value);
+         url += "&elist=" + escape(escape(document.newaddress.email.value));
 
       var hWnd = window.open(url,"_addressbook","width=380,height=360,resizable=yes,scrollbars=yes");
       if ((document.window != null) && (!hWnd.opener))

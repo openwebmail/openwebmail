@@ -31,15 +31,22 @@
 # Linux/Solaris	                   none
 # else...                          none
 
+# check_expire
+# -----------------------------------------------------------------------
+# if this option is set to yes, openwebmail will check if an account
+# is expired when the user logins. valid value: yes, no
+#
+# This feature may only work on *bsd, linux or solaris.
+
 # check_nologin
 # -----------------------------------------------------------------------
 # if this option is set to yes and file /etc/nologin does exist,
-# then all account will be suspended valid value: yes, no
+# then all account will be suspended. valid value: yes, no
 
 # check_shell
 # -----------------------------------------------------------------------
 # if the user's shell is not listed in /etc/shells,
-# then this user won't be able to login valid value: yes, no
+# then this user won't be able to login. valid value: yes, no
 
 # check_cobaltuser
 # -----------------------------------------------------------------------
@@ -57,9 +64,16 @@
 # Cobalt MUST be accessed via the the FQDN 'http://HOST.DOMAIN.COM'.
 # Using 'http://DOMAIN.COM' will fail the user security check.
 
+# change_smbpasswd
+# -----------------------------------------------------------------------
+# if this option is set to yes, openwebmail will also change the
+# smbpasswd after changing the unix password successfully
+
 passwdfile_plaintext	/etc/passwd
 passwdfile_encrypted	/etc/master.passwd
 passwdmkdb		/usr/sbin/pwd_mkdb
+check_expire		no
 check_nologin		no
 check_shell		no
 check_cobaltuser	no
+change_smbpasswd	no

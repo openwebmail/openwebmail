@@ -35,7 +35,7 @@ my $PgPassType	= $conf{'PgPassType'};
 # -4 : user doesn't exist
 sub get_userinfo {
    my ($r_config, $user)=@_;
-   return(-2, 'User is null') if (!$user);
+   return(-2, 'User is null') if ($user eq '');
 
    my $DB = Pg::connectdb("host='$PgHost' port='$PgPort' dbname='$PgBase' user='$PgUser' password='$PgPass'") or
       return(-3, "PgSQL server $PgHost connect error");
@@ -81,7 +81,7 @@ sub get_userlist {      # only used by openwebmail-tool.pl -a
 # -4 : password incorrect
 sub check_userpassword {
    my ($r_config, $user, $password)=@_;
-   return (-2, "User or password is null") if (!$user||!$password);
+   return (-2, "User or password is null") if ($user eq '' || $password eq '');
 
    my $DB = Pg::connectdb("host='$PgHost' port='$PgPort' dbname='$PgBase' user='$PgUser' password='$PgPass'") or
       return(-3, "PgSQL server $PgHost connect error");
@@ -130,7 +130,7 @@ sub check_userpassword {
 # -4 : password incorrect
 sub change_userpassword {
    my ($r_config, $user, $oldpassword, $newpassword)=@_;
-   return (-2, "User or password is null") if (!$user||!$oldpassword||!$newpassword);
+   return (-2, "User or password is null") if ($user eq '' || $oldpassword eq '' || $newpassword eq '');
    return (-2,"Password too short") if (length($newpassword)<${$r_config}{'passwd_minlen'});
 
    my ($ret, $errmsg)=check_userpassword($r_config, $user, $oldpassword);

@@ -75,7 +75,7 @@ package ow::pl;
 
 %lang_ctrlpositionlabels =
    (
-   top => 'Na górze',
+   top    => 'Na górze',
    bottom => 'Na dole'
    );
 
@@ -165,7 +165,7 @@ package ow::pl;
 %lang_wday_abbrev =
    (
    week => 't.',
-   0 => 'N',
+   0 => 'Nd',
    1 => 'Pn',
    2 => 'Wt',
    3 => '¦r',
@@ -236,6 +236,7 @@ package ow::pl;
    userdef    => 'Zdefiniowane przez u¿ytkownika',
    logout     => 'Wyloguj',
    page       => 'Strona',
+   msgsperpage=> '@@@MSGCOUNT@@@ wiadomo¶ci na stronê',
    msgcopyconf=> '\'Na pewno chcesz skopiowaæ zaznaczone widomo¶ci?\'',
    copy       => 'Kopiuj',
    msgmoveconf=> '\'Na pewno chcesz przenie¶æ zaznaczone wiadomo¶ci?\'',
@@ -335,6 +336,8 @@ package ow::pl;
    all        => 'Wszystko',
    enable     => 'Aktywne',
    disable    => 'Nieaktywne',
+   yes        => 'Tak',
+   no         => 'Nie',
    filtered   => 'Filtrowane',
    blockrelay => 'Zablokuj SMTP Relay',
    blockemail => 'Zablokuj e-mail',

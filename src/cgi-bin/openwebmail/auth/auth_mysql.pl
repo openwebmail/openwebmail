@@ -1,14 +1,17 @@
 package ow::auth_mysql;
 use strict;
 #
-# auth_mysql.pl - authenticate user with DBD::MySQL
+# auth_mysql.pl - authenticate user with DBD::MySQL and Digest::MD5
 #
+# 2003/12/20 Yuan-Chung Hsiao, ychsiao.AT.linux.mis.stu.edu.tw (fix MD5 crypto & change password function)
+# 2003/07/15 far, far.bbs.AT.abpe.org (add MD5 crypto)
 # 2002/03/07 Alan Sung, AlanSung.AT.dragon2.net
 #
 
 ########## No configuration required from here ###################
 
 use DBI;
+use Digest::MD5;
 require "modules/tool.pl";
 
 my %conf;
@@ -42,7 +45,7 @@ my $pass_type = $conf{'pass_type'} || 'cleartxt';
 # -4 : user doesn't exist
 sub get_userinfo {
    my ($r_config, $user)=@_;
-   return(-2, 'User is null') if (!$user);
+   return(-2, 'User is null') if ($user eq '');
 
    my $dbh = DBI->connect("dbi:mysql:$auth_db;host=$SQLHost", $sqlusr,$sqlpwd)
       or return(-3, "Cannot connect to db server: ".$DBI::errstr);
@@ -60,7 +63,7 @@ sub get_userinfo {
       if (my $result = $sth->fetchrow_hashref()) {
          $sth->finish;
          $dbh->disconnect or return(-3, "Disconnection failed: ".$DBI::errstr);;
-	 return(0, '', $result->{$field_realname}, $result->{$field_uid}, $result->{$field_gid}, $result->{$field_home});
+         return(0, '', $result->{$field_realname}, $result->{$field_uid}, $result->{$field_gid}, $result->{$field_home});
       } else {
          return(-3, "Can't fetch SQL result: ".$sth->errstr());
       }
@@ -100,7 +103,7 @@ sub get_userlist {      # only used by openwebmail-tool.pl -a
 # -4 : password incorrect
 sub check_userpassword {
    my ($r_config, $user, $password)=@_;
-   return (-2, "User or password is null") if (!$user||!$password);
+   return (-2, "User or password is null") if ($user eq '' || $password eq '');
 
    my $dbh = DBI->connect("dbi:mysql:$auth_db;host=$SQLHost", $sqlusr,$sqlpwd)
       or return(-3, "Cannot connect to db server: ".$DBI::errstr);
@@ -118,19 +121,25 @@ sub check_userpassword {
       if (my $result = $sth->fetchrow_hashref()) {
          $sth->finish;
          $dbh->disconnect or return(-3, "Disconnection failed: ".$DBI::errstr);
-	 my $tmp_pwd = $result->{$field_password};
+         my $tmp_pwd = $result->{$field_password};
          if ($pass_type eq "cleartxt") {
-	    if ($tmp_pwd eq $password) {
-	       return (0, '');
-	    } else {
-               return (-4, 'Password incorrect');
-	    }
-         } elsif ($pass_type eq "crypt") {
-	    if ($tmp_pwd eq crypt($password, $tmp_pwd)) {
+            if ($tmp_pwd eq $password) {
                return (0, '');
-	    } else {
+            } else {
                return (-4, 'Password incorrect');
-	    }
+            }
+         } elsif ($pass_type eq "crypt") {
+            if ($tmp_pwd eq crypt($password, $tmp_pwd)) {
+               return (0, '');
+            } else { 
+               return (-4, 'Password incorrect');
+            }
+         } elsif ($pass_type eq "md5") {
+            if ($tmp_pwd eq Digest::MD5::md5_hex($password)) {
+               return (0,'');
+            } else {
+               return (-4, 'Password incorrect');
+            }
          } else {
             return(-3, "Unknown password type: $pass_type");
          }
@@ -148,7 +157,7 @@ sub check_userpassword {
 # -4 : password incorrect
 sub change_userpassword {
    my ($r_config, $user, $oldpassword, $newpassword)=@_;
-   return (-2, "User or password is null") if (!$user||!$oldpassword||!$newpassword);
+   return (-2, "User or password is null") if ($user eq '' || $oldpassword eq '' || $newpassword eq '');
    return (-2, "Password too short") if (length($newpassword)<${$r_config}{'passwd_minlen'});
 
    my ($ret, $errmsg)=check_userpassword($r_config, $user, $oldpassword);
@@ -158,6 +167,9 @@ sub change_userpassword {
       my @salt_chars = ('a'..'z','A'..'Z','0'..'9');
       my $salt = $salt_chars[rand(62)] . $salt_chars[rand(62)];
       $newpassword = crypt($newpassword, $salt);
+   }
+   if ($pass_type eq "md5") {
+      $newpassword = Digest::MD5::md5_hex($newpassword);
    }
 
    my $dbh = DBI->connect("dbi:mysql:$auth_db;host=$SQLHost", $sqlusr,$sqlpwd)

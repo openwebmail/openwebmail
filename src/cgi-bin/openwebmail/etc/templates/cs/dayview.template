@@ -35,8 +35,8 @@
 <tr><td colspan=2 align=center><B>Pøidej polo¾ku do kalendáøe</B></td></tr>
 <tr><td colspan=2 nowrap>@@@ITEMDATEMENU@@@</td></tr>
 <tr><td colspan=2 nowrap>@@@STRINGFIELD@@@</td></tr>
-<tr><td width=25% nowrap>Poèáteèní èas</td><td nowrap>@@@STARTHOURMINMENU@@@</td></tr>
-<tr><td width=25% nowrap>Koneèný èas</td><td nowrap>@@@ENDHOURMINMENU@@@</td></tr>
+<tr><td width=25% nowrap>Zaèátek</td><td nowrap>@@@STARTHOURMINMENU@@@</td></tr>
+<tr><td width=25% nowrap>Konec</td><td nowrap>@@@ENDHOURMINMENU@@@</td></tr>
 <tr><td colspan=2 nowrap>@@@FREQMENU@@@</td></tr>
 <tr><td colspan=2 nowrap>@@@THISANDNEXTNDAYSCHECKBOX@@@ Dnes a následujících @@@NDAYSFIELD@@@ dní</td></tr>
 <tr><td colspan=2 nowrap>@@@MONTHFREQMENU@@@</td></tr>

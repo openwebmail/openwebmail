@@ -62,9 +62,14 @@ vacation.pl                     vacation utility for auto reply
 openwebmail.conf                customized configuration file
 openwebmail.conf.default        default configuration file
 openwebmail.conf.help           help for default configuration file
+
+dbm.conf.default		default config file for dbm.pl
+suid.conf.default		default config file for suid.pl
+filelock.conf.default		default config file for filelock.pl
+smtpauth.conf                   file to store username/passwd for SMTP auth
+
 auth_xxx.conf.default		default config file for auth_xxx.pl
 auth_xxx.conf			customized config file for auth_xxx.pl
-smtpauth.conf                   file to store username/passwd for SMTP auth
 
 styles/                         various CSS files
 lang/                           translation files for various languages

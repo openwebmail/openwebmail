@@ -1,7 +1,7 @@
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>U¾ivatelská historie</B></font>
+<B>Historie provedených akcí (pøihlá¹eného u¾ivatele)</B></font>
 </td></tr>
 <tr><td bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
@@ -17,7 +17,7 @@
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>U¾ivatel</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Èinnost</B></td>
+<B>Akce</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Popis</B></td>
 </tr>

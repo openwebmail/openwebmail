@@ -10,10 +10,10 @@
 <BR>Um conjunto de sugestões é fornecida para cada palavra ortograficamente incorreta
 e você pode escolher uma para substituir a palavra original.
 Se não for encontrada nenhuma sugestão ou você escolher "--Corrigir manualmente--" e
-pressionar o botão [Verificar Novamente], um campo de texto ficará disponível para
+pressionar o botão [Corrigir Novamente], um campo de texto ficará disponível para
 você digitar sua correção.
 
-Se você escolher "--Adicione ao dicionário--" e então pressionar o botão [Verificar Novamente], 
+Se você escolher "--Adicione ao dicionário--" e então pressionar o botão [Corrigir Novamente], 
 a palavra original será adicionada ao seu dicionário pessoal.
 </td></tr>
 </table>

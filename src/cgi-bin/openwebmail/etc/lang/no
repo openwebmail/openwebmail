@@ -71,7 +71,7 @@ package ow::no;
 
 %lang_ctrlpositionlabels =
    (
-   top => 'På toppen',
+   top    => 'På toppen',
    bottom => 'På bunn'
    );
 
@@ -232,6 +232,7 @@ package ow::no;
    userdef    => 'Brukerdefinert',
    logout     => 'Logg ut',
    page       => 'Side',
+   msgsperpage=> '@@@MSGCOUNT@@@ messages per page',
    msgcopyconf=> '\'Er du sikker på at du vil kopiere de valgte meldingene?\'',
    copy       => 'Kopiér',
    msgmoveconf=> '\'Er du sikker på at du vil flytte de valgte meldingene?\'',
@@ -331,6 +332,8 @@ package ow::no;
    all        => 'Alle',
    enable     => 'På',
    disable    => 'Av',
+   yes        => 'Ja',
+   no         => 'Nei',
    filtered   => 'Filtrert',
    blockrelay => 'Blokkér SMTP-Relé',
    blockemail => 'Blokkér avsender',

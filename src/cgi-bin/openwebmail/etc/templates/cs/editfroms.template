@@ -13,7 +13,7 @@
 <td nowrap bgcolor=@@@COLUMNHEADER@@@>
 <B>Jméno</B></td>
 <td nowrap bgcolor=@@@COLUMNHEADER@@@>
-<B>E-mail adresa</B> (kliknout pro editaci)</td>
+<B>E-mail adresa</B> (klik pro editaci)</td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Akce</B>
 </td></tr>

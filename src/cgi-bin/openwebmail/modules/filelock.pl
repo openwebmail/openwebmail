@@ -33,7 +33,7 @@ use vars qw(%opentable);
 # this should be called at the end of each request to free the file handles
 sub closeall {
    foreach (keys %opentable) {
-      close($opentable{$_}) if ( defined(fileno($opentable{$_})) );
+      close($opentable{$_}{fh}) if ( defined(fileno($opentable{$_}{fh})) );
    }
    %opentable=();
 }
@@ -43,35 +43,57 @@ sub closeall {
 # than do lock operation on the related filehandle
 sub flock_lock {
    my ($filename, $lockflag, $perm)=@_;
-
    $filename=ow::tool::untaint($filename);
-   if ( (! -e $filename) && $lockflag ne LOCK_UN) {
+
+   my ($dev, $inode, $fh, $n, $retval);
+
+   # deal unlock first
+   if ($lockflag & LOCK_UN) {
+      return 1 if ( !-e $filename);
+      ($dev, $inode)=(stat($filename))[0,1];
+      return 0 if ($dev eq '' || $inode eq '');
+
+      if (defined($opentable{"$dev-$inode"}) ) {
+         $fh=$opentable{"$dev-$inode"}{fh};
+         $retval=flock($fh, LOCK_UN);
+         if ($retval) {
+            $opentable{"$dev-$inode"}{n}--;
+            if ($opentable{"$dev-$inode"}{n}==0) {
+               delete($opentable{"$dev-$inode"});
+               close($fh) if ( defined(fileno($fh)) );
+            }
+         }
+      } else {
+         return 0;
+      }
+      return $retval;
+   }
+
+   # else are file lock
+   if (!-e $filename) {
       $perm=0600 if (!$perm);
       sysopen(F, $filename, O_RDWR|O_CREAT, $perm) or return 0; # create file for lock
       close(F);
    }
-
-   my ($dev, $inode, $fh);
    ($dev, $inode)=(stat($filename))[0,1];
    return 0 if ($dev eq '' || $inode eq '');
 
-   if (defined($opentable{"$dev-$inode"}) ) {
-      $fh=$opentable{"$dev-$inode"};
-   } else { # handle not found, open it!
+   if (!defined($opentable{"$dev-$inode"}) ) {
       $fh=do { local *FH };
       if (sysopen($fh, $filename, O_RDWR) ||	# try RDWR open first
           sysopen($fh, $filename, O_RDONLY) ) {	# then RDONLY for readonly file
-         $opentable{"$dev-$inode"}=$fh;
+         $opentable{"$dev-$inode"}{fh}=$fh;
       } else {
          return 0;
       }
+   } else {
+      $fh=$opentable{"$dev-$inode"}{fh};
    }
 
    # turn nonblocking lock to  30 secs timeouted lock
    # so owm gets higher chance to success in case other ap locks same file for only few secs
    # turn blocking    lock to 120 secs timeouted lock
    # so openwebmaill won't hang because of file locking
-   my $retval;
    eval {
       local $SIG{ALRM} = sub { die "alarm\n" }; # NB: \n required
       if ( $lockflag & LOCK_NB ) {	# nonblocking lock
@@ -79,12 +101,12 @@ sub flock_lock {
       } else {
          alarm 120;
       }
-      $retval=flock($fh, $lockflag & (~LOCK_NB) );
+      $retval=flock($fh, $lockflag&(~LOCK_NB));
       alarm 0;
    };
-   if ($@) {	# eval error, it means timeout
-      $retval=0;
-   }
+   $retval=0 if ($@);	# eval error, it means timeout
+   $opentable{"$dev-$inode"}{n}++ if ($retval);
+
    return($retval);
 }
 
@@ -148,13 +170,15 @@ sub dotfile_lock {
       if ( $lockflag & LOCK_UN ) {
          if ( -f "$filename.lock") {
             if (open(L, "+<$filename.lock") ) {
+               seek(L, 0, 0);
                $_=<L>; chop;
                ($mode,$count)=split(/:/);
                if ( $mode eq "READ" && $count>1 ) {
                   $count--;
                   seek(L, 0, 0);
-                  print L "READ:$count\n";
-                  truncate(L, tell(L));
+                  my $rec="READ:$count\n";
+                  print L $rec;
+                  truncate(L, length($rec));
                   close(L);
                   $status=1;
                } else {
@@ -174,28 +198,26 @@ sub dotfile_lock {
          }
 
       } elsif ( sysopen(L, "$filename.lock", O_RDWR|O_CREAT|O_EXCL) ) {
-         if ( $lockflag & LOCK_EX ) {
-            close(L);
-         } elsif ( $lockflag & LOCK_SH ) {
-            print L "READ:1\n";
-            close(L);
-         }
+         print L "READ:1\n" if ( $lockflag & LOCK_SH );
+         close(L);
          $status=1;
 
       } else { # create failed, assume lock file already exists
          if ( ($lockflag & LOCK_SH) && open(L,"+<$filename.lock") ) {
+           seek(L, 0, 0);
             $_=<L>; chop;
             ($mode, $count)=split(/:/);
             if ( $mode eq "READ" ) {
                $count++;
                seek(L,0,0);
-               print L "READ:$count\n";
-               truncate(L, tell(L));
-               close(L);
+               my $rec="READ:$count\n";
+               print L $rec;
+               truncate(L, length($rec));
                $status=1;
             } else {
                $status=0;
             }
+            close(L);
          } else {
             $status=0;
          }

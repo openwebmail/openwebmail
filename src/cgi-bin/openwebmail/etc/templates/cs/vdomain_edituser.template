@@ -13,10 +13,10 @@
 
 <table align="center" border="0" cellspacing="0" cellpadding="1">
 <tr>
-<td align="right">User Name: </td>
+<td align="right">U¾ivatelské jméno: </td>
 <td>@@@VUSER@@@&nbsp;@&nbsp;@@@DOMAINNAME@@@</td>
 <td width="10%">&nbsp;</td>
-<td align="right">Real Name: </td>
+<td align="right">Skuteèné jméno: </td>
 <td>@@@REALNAME@@@</td>
 </tr>
 </table>
@@ -32,14 +32,14 @@
 <td align="right">@@@SETPASS@@@: </td>
 <td>@@@NEWPASSWORDFIELD@@@</td>
 <td width="10%" align="right">@@@CHKLOGIN@@@ </td>
-<td>Suspend Login @@@DISABLECHKLOGIN@@@</td>
+<td>Pozastavit pøihla¹ování @@@DISABLECHKLOGIN@@@</td>
 <td>&nbsp;</td>
 </tr>
 <tr>
-<td align="right">Confirm Password: </td>
+<td align="right">Potvrdit heslo: </td>
 <td>@@@CONFIRMNEWPASSWORDFIELD@@@</td>
 <td width="10%" align="right">@@@CHKFWD@@@ </td>
-<td>Forward E-Mail to: </td>
+<td>Pøeposílat E-maily na: </td>
 <td>@@@DIRECT@@@</td>
 </tr>
 </table>
@@ -52,9 +52,9 @@
 <tr><td align="center" valign="middle" bgcolor=@@@WINDOW_LIGHT@@@>
 <table align="center" border="0" cellspacing="0" cellpadding="1" width="90%">
 <tr>
- <td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Email Address/Alias</B> (click to edit)</td>
- <td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Real Name</B></td>
- <td align="center" bgcolor=@@@COLUMNHEADER@@@><B>Action</B></td>
+ <td nowrap bgcolor=@@@COLUMNHEADER@@@><B>E-mailové adresy/aliasy</B> (klik pro úpravu)</td>
+ <td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Skuteèné jméno</B></td>
+ <td align="center" bgcolor=@@@COLUMNHEADER@@@><B>Akce</B></td>
 </tr>
 <tr>
  <td nowrap bgcolor=@@@TABLEROW_LIGHT@@@>@@@EMAILFIELD@@@</td>
@@ -63,7 +63,7 @@
 </tr>
 @@@ALIASENTRIES@@@
 </table>
-</td></tr>
+:</td></tr>
 
 <tr><td align="center" valign="middle" bgcolor=@@@WINDOW_LIGHT@@@>
 <hr width="90%">

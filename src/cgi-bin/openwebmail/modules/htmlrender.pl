@@ -10,6 +10,8 @@ use strict;
 # html4attachment, html4mailto, html2table
 #
 
+require "modules/tool.pl";
+
 # since this routine deals with base directive,
 # it must be called first before other html...routines when converting html
 sub html4nobase {
@@ -146,8 +148,9 @@ sub html4attachments {
 
       if ( ($cid ne "cid:" && $html =~ s#\Q$cid\E#$link#sig ) ||
            ($loc ne "" && $html =~ s#\Q$loc\E#$link#sig ) ||
-           # ugly hack for strange CID
-           ($filename ne "" && $html =~ s#CID:\{[\d\w\-]+\}/$filename#$link#sig )
+           ($filename ne "" && 			# ugly hack for strange CID
+              ($html =~ s#CID:\{[\d\w\-]+\}/$filename#$link#sig ||
+               $html =~ s#(background|src)\s*=\s*"[^\s\<\>"]{0,256}?/$filename"#$1="$link"#sig) )
          ) {
          # this attachment is referenced by the html
          ${${$r_attachments}[$i]}{referencecount}++;
@@ -171,8 +174,9 @@ sub html4attfiles {
 
       if ( ($cid ne "cid:" && $html =~ s#\Q$cid\E#$link#sig ) ||
            ($loc ne "" && $html =~ s#\Q$loc\E#$link#sig ) ||
-           # ugly hack for strange CID
-           ($filename ne "" && $html =~ s#CID:\{[\d\w\-]+\}/$filename#$link#sig )
+           ($filename ne "" && 			# ugly hack for strange CID
+              ($html =~ s#CID:\{[\d\w\-]+\}/$filename#$link#sig ||
+               $html =~ s#(background|src)\s*=\s*"[^\s\<\>"]{0,256}?/$filename"#$1="$link"#sig) )
          ) {
          # this attachment is referenced by the html
          ${${$r_attfiles}[$i]}{referencecount}++;

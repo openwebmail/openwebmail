@@ -71,7 +71,7 @@ package ow::he_ISO8859_8;
 
 %lang_ctrlpositionlabels =
    (
-   top => 'שארב',
+   top    => 'שארב',
    bottom => 'תיתחתב'
    );
 
@@ -232,6 +232,7 @@ package ow::he_ISO8859_8;
    userdef    => 'שמתשמ תרדגה',
    logout     => 'האיצי',
    page       => 'דומע',
+   msgsperpage=> '@@@MSGCOUNT@@@ messages per page',
    msgcopyconf=> '\'ורחבנש תועדוהה תקתעה יבגל חוטב ךניה םאה\'',
    copy       => 'קתעה',
    msgmoveconf=> '\'ורחבנש תועדוהה תרבעה יבגל חוטב ךניה םאה?\'',
@@ -331,6 +332,8 @@ package ow::he_ISO8859_8;
    all        => 'לכה',
    enable     => 'רשפא',
    disable    => 'לטב',
+   yes        => 'ןכ',
+   no         => 'אל',
    filtered   => 'ןנוסמ',
    blockrelay => 'ראוד תרש םוסח',
    blockemail => 'ראוד תבותכ םוסח',

@@ -102,10 +102,10 @@
 
 use vars qw($SCRIPT_DIR);
 if ( $0 =~ m!^(\S*)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1 }
-if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
+if ($SCRIPT_DIR eq '' && open(F, '/etc/openwebmail_path.conf')) {
    $_=<F>; close(F); if ( $_=~/^(\S*)/) { $SCRIPT_DIR=$1 }
 }
-if (!$SCRIPT_DIR) { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
+if ($SCRIPT_DIR eq '') { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
 push (@INC, $SCRIPT_DIR);
 
 foreach (qw(PATH ENV BASH_ENV CDPATH IFS TERM)) { $ENV{$_}='' }	# secure ENV
@@ -117,14 +117,16 @@ use CGI qw(-private_tempfiles :standard);
 use CGI::Carp qw(fatalsToBrowser carpout);
 use File::Path;
 
-require "modules/datetime.pl";
-require "modules/lang.pl";
 require "modules/dbm.pl";
+require "modules/suid.pl";
 require "modules/filelock.pl";
 require "modules/tool.pl";
 require "modules/execute.pl";
+require "modules/datetime.pl";
+require "modules/lang.pl";
+require "auth/auth.pl";
+require "quota/quota.pl";
 require "shares/ow-shared.pl";
-require "shares/upgrade.pl";
 
 # common globals
 use vars qw(%config %config_raw);
@@ -143,7 +145,7 @@ userenv_init();
 # this allows real user to be administrator of the vdomains, tricky!
 if ( $config{'auth_module'} ne 'auth_vdomain.pl' ) {
    read_owconf(\%config, \%config_raw, "$config{'ow_sitesconfdir'}/$logindomain");
-   loadauth($config{'auth_module'});
+   ow::auth::load($config{'auth_module'});
 }
 
 # $user has been determined by openwebmain_init()
@@ -546,7 +548,7 @@ sub change_vuser {
 
    my $chkfwd=param('chkfwd')||'';
    my $direct=param('direct')||'';
-   my %from_list=param('fromlist')||();
+   my %from_list=param('fromlist');
 
    my %vusers=vuser_list();
    my @vuser_list = sort (keys %vusers);
@@ -646,11 +648,10 @@ sub change_vuser {
       # CREATE USER IN VIRTUAL PASSWD
       vpasswd_update($vuser_original,0,$pwd,$chklogin);
 
-      my ($vuid, $vhomedir) = (get_userinfo(\%config, "$vuser\@$domain"))[3,5];
-      $vhomedir = user_home_adj($vhomedir,$vuser,$domain);
+      my ($vuid, $vhomedir, $release) = get_uid_home_release($vuser,$domain);
 
       # switch to root
-      my ($origeuid,$origgid,$orighomedir)=switch_user(0,0,$vhomedir);
+      my ($origruid, $origeuid, $origegid)=ow::suid::set_uid_to_root();
 
       # CREATE USER HOME DIRECTORY
       if ( !-d $vhomedir ) {
@@ -662,13 +663,19 @@ sub change_vuser {
       }
 
       # switch to virtual user
-      switch_user($vuid,$vgid,$vhomedir);
+      ow::suid::set_euid_egids($vuid,$vgid);
       
       # create dot directory structure
       check_and_create_dotdir(_dotpath('/', $domain, $vuser, $vhomedir));
 
       # default a new release date file
-      update_releasedatefile();
+      my $releasedatefile=_dotpath('release.date', $domain, $vuser, $vhomedir);
+      writelog("vdomain $user: $vuser\@$domain  create release.date - $releasedatefile, uid=$vuid, gid=$vgid");
+      open(RD, ">$releasedatefile") or
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $releasedatefile ($!)");
+      print RD "$config{'releasedate'}\n";
+      close(RD);
+      chmod(0700, $releasedatefile);
 
       # CREATE USER .forward
       my $dotforward="$vhomedir/.forward";
@@ -677,12 +684,13 @@ sub change_vuser {
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $dotforward ($!)");
       print DF vdomain_userspool($vuser, $vhomedir)."\n";
       close (DF);
+      chmod(0700, $dotforward);
 
       # return to orignal uid
-      switch_user($origeuid,$origgid,$orighomedir);
+      ow::suid::restore_uid_from_root($origruid, $origeuid, $origegid);
 
       # CREATE USER .FROM.BOOK
-      from_update($vuser, $vhomedir, $vuid, $vgid, $realnm, %from_list);
+      from_update($vuser, $vhomedir, $config{'releasedate'}, $vuid, $vgid, $realnm, %from_list);
 
       # CREATE USER IN POSTFIX VIRTUAL
       vuser_update($vuser, 0, @alias_list);
@@ -702,8 +710,7 @@ sub change_vuser {
          vpasswd_update($vuser_original,$action,$pwd,$chklogin);
       }
 
-      my ($vuid, $vhomedir) = (get_userinfo(\%config, "$vuser\@$domain"))[3,5];
-      $vhomedir = user_home_adj($vhomedir,$vuser,$domain);
+      my ($vuid, $vhomedir, $release) = get_uid_home_release($vuser,$domain);
       my ($orig_realnm,%orig_from_list) = from_list($vuser); # original values
       my @orig_alias_list=from_2_valias($vuser,%orig_from_list);
 
@@ -734,7 +741,7 @@ sub change_vuser {
             $match=0 if ( keys %orig_from_list );
          } else { $match=0; }
       }
-      from_update($vuser, $vhomedir, $vuid, $vgid, $realnm, %from_list) if ( ! $match );
+      from_update($vuser, $vhomedir, $release, $vuid, $vgid, $realnm, %from_list) if ( ! $match );
 
       # changed fwd to
       if ($chkfwd != $oldchkfwd or $direct ne $olddirect) {
@@ -760,8 +767,7 @@ sub delete_vuser {
 
    if ( vuser_exists($vuser,vuser_list()) ) {
       # get the home directory before we remove the user from password file or trouble later!
-      my ($vhomedir) = (get_userinfo(\%config, "$vuser\@$domain"))[5];
-      $vhomedir = user_home_adj($vhomedir,$vuser,$domain);
+      my ($vuid, $vhomedir, $release) = get_uid_home_release($vuser,$domain);
 
       writelog("vdomain $user: $vuser\@$domain  delete $vuser_original");
       # DELETE USER IN VMPOP3D PASSWD
@@ -772,7 +778,7 @@ sub delete_vuser {
       valias_update($vuser, 1);
 
       # switch to root
-      my ($origeuid,$origgid,$orighomedir)=switch_user(0,0,$vhomedir);
+      my ($origruid, $origeuid, $origegid)=ow::suid::set_uid_to_root();
 
       # DELETE MAILBOX FILE
       my $spoolfile=ow::tool::untaint("$config{'vdomain_vmpop3_mailpath'}/$domain/$vuser");
@@ -795,7 +801,7 @@ sub delete_vuser {
       }
 
       # return to orignal uid
-      switch_user($origeuid,$origgid,$orighomedir);
+      ow::suid::restore_uid_from_root($origruid, $origeuid, $origegid);
    }
 
    # go back to start and display index
@@ -808,13 +814,13 @@ sub vuser_list {
    my %vusers;
 
    # USERLIST FROM VMPOP3D PASSWD
-   my ($fh, $file, $origruid, $origeuid) = root_open("$config{'vdomain_vmpop3_pwdpath'}/$domain/$config{'vdomain_vmpop3_pwdname'}");
+   my ($fh, $file, $origruid, $origeuid, $origegid) = root_open("$config{'vdomain_vmpop3_pwdpath'}/$domain/$config{'vdomain_vmpop3_pwdname'}");
    while (<$fh>) {
       next if (/^#/);
       chomp;
       $vusers{$1}=$2 if (/([^:]+):([^\s:]+)/);
    }
-   root_close($fh, $file, $origruid, $origeuid);
+   root_close($fh, $file, $origruid, $origeuid, $origegid);
 
    # include users from localusers if this is the local domain
    foreach  ( @{$config{'localusers'}} ) {
@@ -839,23 +845,23 @@ sub vuser_alias_list {
 
    # load up the virtual aliases
    foreach my $virtualfile (@{$config{'vdomain_postfix_virtual'}}) {
-      my ($fh, $file, $origruid, $origeuid) = root_open($virtualfile);
+      my ($fh, $file, $origruid, $origeuid, $origegid) = root_open($virtualfile);
       while (<$fh>) {
          next if (/^#/);
          $temp{lc($1)}=lc($2) if ( /^\s*([^@]+)\@$domain\s+(\S+)\.$domain\s*$/i );
       }
-      root_close($fh, $file, $origruid, $origeuid);
+      root_close($fh, $file, $origruid, $origeuid, $origegid);
    }
 
    # add in the local user aliases
    if (is_localdomain()) {
       foreach my $aliasfile (@{$config{'vdomain_postfix_aliases'}}) {
-         my ($fh, $file, $origruid, $origeuid) = root_open($aliasfile);
+         my ($fh, $file, $origruid, $origeuid, $origegid) = root_open($aliasfile);
          while (<$fh>) {
             s/^\s+//;s/\s+$//;
             $temp{lc($1)}=lc($2) if( ! /^#/ and /^([^\s:]+)\s*:\s*(.+)$/ and ! $vusers{$1});
          }
-         root_close($fh, $file, $origruid, $origeuid);
+         root_close($fh, $file, $origruid, $origeuid, $origegid);
       }
       # compact the aliases of aliases
       foreach (keys %temp) {
@@ -878,7 +884,7 @@ sub vuser_fwd_list {
    my @vusers=@_;
    my %fwd;
    foreach (@vusers){$fwd{$_}=0}
-   my ($fh, $file, $origruid, $origeuid) = root_open(${$config{'vdomain_postfix_aliases'}}[0]);
+   my ($fh, $file, $origruid, $origeuid, $origegid) = root_open(${$config{'vdomain_postfix_aliases'}}[0]);
    while (<$fh>) {
       next if (/^#/);
       if ( /^\s*(\S+)\.$domain\s*:\s*(.+)/i and defined $fwd{lc($1)}) {
@@ -887,7 +893,7 @@ sub vuser_fwd_list {
          $fwd{$user}=$entry if ( $entry !~ /:include:/ );
       }
    }
-   root_close($fh, $file, $origruid, $origeuid);
+   root_close($fh, $file, $origruid, $origeuid, $origegid);
    return %fwd;
 }
 ########## END VUSER_FWD_LIST ####################################
@@ -899,7 +905,7 @@ sub valias_list {
 
    # POSTFIX VIRTUAL=> john@sample.com    john.sample.com
    foreach my $virtualfile (@{$config{'vdomain_postfix_virtual'}}) {
-      my ($fh, $file, $origruid, $origeuid) = root_open($virtualfile);
+      my ($fh, $file, $origruid, $origeuid, $origegid) = root_open($virtualfile);
       while (<$fh>) {
          next if (/^#/);
          if ( /^\s*([^@]+)\@$domain\s+$vuser\.$domain\s*$/ ) {
@@ -909,7 +915,7 @@ sub valias_list {
             }
          }
       }
-      root_close($fh, $file, $origruid, $origeuid);
+      root_close($fh, $file, $origruid, $origeuid, $origegid);
    }
    return (sort @alias_list);
 }
@@ -921,7 +927,7 @@ sub valias_list_exists {
    my $fnd=0;
 
    foreach my $virtualfile (@{$config{'vdomain_postfix_virtual'}}) {
-      my ($fh, $file, $origruid, $origeuid) = root_open($virtualfile);
+      my ($fh, $file, $origruid, $origeuid, $origegid) = root_open($virtualfile);
       while (<$fh>) {
          next if (/^#/);
          chomp; s/^\s*//; s/\s*$//;
@@ -929,20 +935,20 @@ sub valias_list_exists {
             $fnd=1; last;
          }
       }
-      root_close($fh, $file, $origruid, $origeuid);
+      root_close($fh, $file, $origruid, $origeuid, $origegid);
       last if ($fnd);
    }
 
    # check local aliases if localdomain
    if (! $fnd and is_localdomain()) {
       foreach my $aliasfile (@{$config{'vdomain_postfix_aliases'}}) {
-         my ($fh, $file, $origruid, $origeuid) = root_open($aliasfile);
+         my ($fh, $file, $origruid, $origeuid, $origegid) = root_open($aliasfile);
          while (<$fh>) {
             if( /^\s*$alias\s*:/ ) {
                $fnd=1; last;
             }
          }
-         root_close($fh, $file, $origruid, $origeuid);
+         root_close($fh, $file, $origruid, $origeuid, $origegid);
          last if ($fnd);
       }
    }
@@ -977,18 +983,20 @@ sub from_2_valias {
 # of the from names).
 sub from_list {
    my ($vuser)=@_;
-   my $vhomedir; my $realnm='';
-   if ($config{'use_syshomedir'}) {
-      $vhomedir = (get_userinfo(\%config, "$vuser\@$domain"))[5];
-   } else {
-      $vhomedir = user_home_adj($vhomedir,$vuser,$domain);
-   }
-
+   my $realnm='';
+   my ($vuid, $vhomedir, $release) = get_uid_home_release($vuser,$domain);
    my $frombook=_dotpath('from.book',$domain,$vuser,$vhomedir);
+
+   # the user home directory structure changed pre 20031128
+   # better try to get the correct frombook path
+   if ($release lt "20031128") {
+      $frombook="$vhomedir/$config{'homedirfolderdirname'}/.from.book";
+      $frombook=ow::tool::untaint($frombook);
+   }
 
    my %fromlist=();
    if ( root_exists($frombook) ) {
-      my ($fh, $file) = root_open($frombook);
+      my ($fh, $file, $origruid, $origeuid, $origegid) = root_open($frombook);
       while (<$fh>) {
          chomp;
          if ( /^\s*(\S+)\@\@\@(.*)\s*$/ ) {
@@ -998,7 +1006,7 @@ sub from_list {
             else {$fromlist{$mail}=$name;}
          }
       }
-      root_close($fh, $file);
+      root_close($fh, $file, $origruid, $origeuid, $origegid);
    }
 
    # add in the email aliases
@@ -1025,7 +1033,7 @@ sub vuser_exists {
 ########## VUSER_UPDATE ##########################################
 sub vuser_update {
    my ($vuser,$delete, @alias_list)=@_;
-   my ($fh, $file, $origruid, $origeuid) = root_open(${$config{'vdomain_postfix_virtual'}}[0]);
+   my ($fh, $file, $origruid, $origeuid, $origegid) = root_open(${$config{'vdomain_postfix_virtual'}}[0]);
 
    my $fnd=0;
    my @lines;
@@ -1067,7 +1075,7 @@ sub vuser_update {
 
    print $fh @lines;
 
-   root_close($fh, $file, $origruid, $origeuid);
+   root_close($fh, $file, $origruid, $origeuid, $origegid);
 
    # rebuild postfix virtual map index
    root_execute($config{'vdomain_postfix_postmap'}, $file);
@@ -1078,15 +1086,18 @@ sub vuser_update {
 
 ########## FROM_UPDATE ###########################################
 sub from_update {
-   my ($vuser, $vhomedir, $vuid, $vgid, $realnm, %from_list)=@_;
-   my ($origuid,$origgid,$orighomedir)=switch_user($vuid,$vgid,$vhomedir);
-
-   # CREATE USER DOT DIRECTORY
-   # This is a precaution against an old (non-upgraded) user
-   # This should really be part of a more comprehensive upgrade process
-   check_and_create_dotdir(_dotpath('/', $domain, $vuser, $vhomedir));
+   my ($vuser, $vhomedir, $releasedate, $vuid, $vgid, $realnm, %from_list)=@_;
+   my ($origruid, $origeuid, $origegid)=ow::suid::set_uid_to_root();
+   ow::suid::set_euid_egids($vuid,$vgid);
 
    my $frombook=_dotpath('from.book', $domain, $vuser, $vhomedir);
+
+  # the user home directory structure changed pre 20031128
+  # better try to get the correct frombook path
+   if ($releasedate lt "20031128") {
+      $frombook="$vhomedir/$config{'homedirfolderdirname'}/.from.book";
+      $frombook=ow::tool::untaint($frombook);
+   }
 
    if (-e $frombook) { writelog("vdomain $user: $vuser\@$domain  update from.book - $frombook"); }
    else { writelog("vdomain $user: $vuser\@$domain  create from.book - $frombook, uid=$<, gid=$>"); }
@@ -1103,7 +1114,7 @@ sub from_update {
    close (FB);
    ow::filelock::lock($frombook, LOCK_UN);
 
-   switch_user($origuid,$origgid,$orighomedir);
+   ow::suid::restore_uid_from_root($origruid, $origeuid, $origegid);
    return;
 }
 ########## END FROM_UPDATE #######################################
@@ -1111,7 +1122,7 @@ sub from_update {
 ########## VALIAS_UPDATE #########################################
 sub valias_update {
    my ($vuser,$delete,$entry)=@_;
-   my ($fh, $file, $origruid, $origeuid) = root_open(${$config{'vdomain_postfix_aliases'}}[0]);
+   my ($fh, $file, $origruid, $origeuid, $origegid) = root_open(${$config{'vdomain_postfix_aliases'}}[0]);
 
    my $fnd=0;
    $fnd=1 if ($delete);
@@ -1139,7 +1150,7 @@ sub valias_update {
 
    print $fh @lines;
 
-   root_close($fh, $file, $origruid, $origeuid);
+   root_close($fh, $file, $origruid, $origeuid, $origegid);
 
    # rebuild postfix virtual map index
    root_execute($config{'vdomain_postfix_postalias'}, $file);
@@ -1169,7 +1180,7 @@ sub vpasswd_update {
    # A lock here at worst will only momentarily delay another user pop login.
    # We should be in and out of this file fast enough to not be noticed.
 
-   my ($fh, $file, $origruid, $origeuid) = root_open("$config{'vdomain_vmpop3_pwdpath'}/$domain/$config{'vdomain_vmpop3_pwdname'}");
+   my ($fh, $file, $origruid, $origeuid, $origegid) = root_open("$config{'vdomain_vmpop3_pwdpath'}/$domain/$config{'vdomain_vmpop3_pwdname'}");
 
    my $fnd=0;
    $fnd=1 if ($action==1);
@@ -1208,41 +1219,43 @@ sub vpasswd_update {
 
    print $fh @lines;
 
-   root_close($fh, $file, $origruid, $origeuid);
+   root_close($fh, $file, $origruid, $origeuid, $origegid);
    return;
 }
 ########## END VPASSWD_UPDATE ####################################
 
-########## USER_HOME_ADJ ##########################################
-sub user_home_adj {
-   my ($homedir, $user, $domain)=@_;
+########## GET_UID_HOME_RELEASE ##########################################
+sub get_uid_home_release {
+   my ($user, $domain)=@_;
+   my $releasedate='';
+
+   # switch to root
+   my ($origruid, $origeuid, $origegid)=ow::suid::set_uid_to_root();
+
+   my ($ret,$err,$uid,$homedir) = (ow::auth::get_userinfo(\%config, "$user\@$domain"))[0,1,3,5];
+   openwebmailerror(__FILE__, __LINE__, "$lang_err{'auth_syserr'} ret $ret, $err") if ($ret!=0);
 
    if ( !$config{'use_syshomedir'} ) {
       $homedir = "$config{'ow_usersdir'}/".($config{'auth_withdomain'}?"$domain/".$user:$user);
    }
    $homedir=ow::tool::untaint($homedir);
-   return $homedir;
-}
 
-########## SWITCH_USER ##########################################
-# This does very little now.  May do more later...
-# Taken from set_euid_egids
-sub switch_user {
-   my ($neweuid,$newgid,$newhomedir)=@_;
+   my $releasedatefile=_dotpath('release.date', $domain, $user, $homedir);
+   $releasedatefile="$homedir/$config{'homedirfolderdirname'}/.release.date" if (! -f $releasedatefile);
+   $releasedatefile="$homedir/.release.date" if (! -f $releasedatefile);
+   $releasedatefile=ow::tool::untaint($releasedatefile);
 
-   my ($origeuid,$origgid,$orighomedir)=($>,$),$homedir);
-   if ($neweuid == 0) {
-      # set the user first (back to root), then the group
-      $<=$> if (!$config{'has_savedsuid_support'} && $>==0);
-      $>=$neweuid;
-      $) = $newgid;
-   } else {
-      $) = $newgid;
-      $<=$> if (!$config{'has_savedsuid_support'} && $>==0);
-      $>=$neweuid;
+   # the release date file may very well not exist!
+   if (open(D, $releasedatefile)) {
+      $releasedate=<D>;
+      chomp($releasedate);
+      close(D);
    }
-   $homedir=$newhomedir;
-   return ($origeuid,$origgid,$orighomedir);
+
+   # return to original user
+   ow::suid::restore_uid_from_root($origruid, $origeuid, $origegid);
+
+   return ($uid,$homedir,$releasedate);
 }
 
 ########## ROOT_EXECUTE ##########################################
@@ -1254,14 +1267,15 @@ sub root_execute {
       }
    }
 
-   # set ruid/euid to root before calling command
-   my ($origruid, $origeuid)=($<, $>); $>=0; $<=0;
+   # switch to root
+   my ($origruid, $origeuid, $origegid)=ow::suid::set_uid_to_root();
 
    # use execute.pl instead of system() to avoid shell escape chars in @cmd
    my ($stdout, $stderr, $exit, $sig)=ow::execute::execute(@cmd);
 
-   # go back to orignal uid
-   $<=$origruid; $>=$origeuid;
+   # return to original user
+   ow::suid::restore_uid_from_root($origruid, $origeuid, $origegid);
+
    return;
 }
 ########## END ROOT_EXECUTE ######################################
@@ -1275,11 +1289,10 @@ sub root_open {
    # create a file handle
    my $fh = do { local *FH };
 
-   # set ruid/euid to root before change files
-   my ($origruid, $origeuid)=($<, $>);
-   $>=0; $<=0;
+   # switch to root
+   my ($origruid, $origeuid, $origegid)=ow::suid::set_uid_to_root();
 
-   if ($action) {
+   if ($action ne '') {
       ow::filelock::lock($file, LOCK_EX) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $file");
    } else {
@@ -1289,22 +1302,21 @@ sub root_open {
    open ($fh, "$action$file") or
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $file ($!)");
 
-   return ($fh, $file, $origruid, $origeuid);
+   return ($fh, $file, $origruid, $origeuid, $origegid);
 }
 ########## END ROOT_OPEN #########################################
 
 ########## ROOT_CLOSE ############################################
 # close a file using root permissions
 sub root_close {
-   my ($fh, $file, $origruid, $origeuid)=@_;
+   my ($fh, $file, $origruid, $origeuid, $origegid)=@_;
 
    close ($fh);
    ow::filelock::lock($file, LOCK_UN);
 
-   if (defined($origruid) && defined($origeuid)) {
-      # go back to orignal uid
-      $<=$origruid; $>=$origeuid;
-   }
+   # return to original user
+   ow::suid::restore_uid_from_root($origruid, $origeuid, $origegid);
+
    return;
 }
 ########## END ROOT_CLOSE ########################################
@@ -1314,12 +1326,15 @@ sub root_close {
 sub root_exists {
    my ($file)=@_;
    my $exist=0;
-   # switch to root, check if file exists
-   my ($origruid, $origeuid)=($<, $>);
-   $>=0; $<=0;
+
+   # switch to root
+   my ($origruid, $origeuid, $origegid)=ow::suid::set_uid_to_root();
+
    $exist=1 if (-e $file);
-   # go back to orignal uid
-   ($<,$>)=($origruid, $origeuid);
+
+   # return to original user
+   ow::suid::restore_uid_from_root($origruid, $origeuid, $origegid);
+
    return $exist;
 }
 ########## END FILE_EXISTS #######################################
@@ -1328,7 +1343,7 @@ sub root_exists {
 sub clean_email {
    my $email=lc($_[0]);
    $email=~s/\s*//g;                                            # remove spaces
-   if ($email) {
+   if ($email ne '') {
       my @temp=split(/\@/,$email);                     # split user domain
       $temp[1]=$domain if (! $temp[1]);               # default local domain
       $temp[0]=safedomainname($temp[0]);     # cleanup user

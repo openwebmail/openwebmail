@@ -12,10 +12,17 @@
 
 <table border="0" align="center" width="85%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>Outlook Express 5 a Netscape Mail umo¾òují exportovat své adresáøe do souboru .CSV (zkratka Comma Separated Values - èárkou oddìlené hodnoty). @@@NAME@@@ doká¾e tyto soubory importovat do Va¹eho osobního adresáøe. Tak je mo¾né vyhnout se pøepisování adres z jednoho adresáøe do druhého.
+<BR>Po¹tovní programy Outlook Express, Mozilla Mail a Netscape Mail umo¾òují
+exportovat adresáøe (kontakty) do souboru .CSV (zkratka Comma Separated Values -
+èárkou oddìlené hodnoty). @@@NAME@@@ doká¾e tyto soubory importovat do Va¹eho
+osobního adresáøe. Tak je mo¾né se vyhnout pøepisování adres z jednoho adresáøe
+do druhého.
 <ul>
-<li> Netscape - otevøete Vá¹ adresáø a zvolte Soubor-&gt;Exportovat, potom zvolte "Ulo¾it jako:" a vyberte "Comma Separated (*.csv)." <BR><BR>
-<li> Outlook Express - v hlavním oknì Outlook Express zvolte Soubor-&gt;Exportovat-&gt;Adresáø, a vyberte typ souboru "textpvý soubor." Ujistìte se, ¾e v seznamu exportovaných údajù jsou vybrána pole Jméno a E-mail.
+<li> Mozilla (Netscape) - otevøete Vá¹ adresáø a zvolte Soubor-&gt;Exportovat,
+potom zvolte "Ulo¾it jako:" a vyberte "Comma Separated (*.csv)." <BR><BR>
+<li> Outlook Express - v hlavním oknì Outlook Express zvolte
+Soubor-&gt;Exportovat-&gt;Adresáø, a vyberte typ souboru &quot;textový soubor&quot;.
+Ujistìte se, ¾e v seznamu exportovaných údajù jsou vybrána pole Jméno a E-mail.
 </ul>
 </td></tr></table>
 

@@ -61,15 +61,15 @@
    {
       if (document.login.httpcompress.checked) {
          alert(
-"HTTP Compression can reduce the use of network bandwidth between your computer and the webmail server effectively, "+
-"but there are some compatibility issues:\n\n"+
-"1. some proxy servers only support HTTP compression via HTTP 1.1, "+
-"you may have to enable the HTTP1.1 support for proxy in your browser\n"+
-"2. some proxy servers don't support HTTP compression at all, "+
-"you may have to list the webmail server as directly connected in the proxy configuration of your browser.\n"+
-"3. some browsers have problems when using HTTP compression with SSL...\n"+
-"4. some browsers claim to support HTTP compression but actually not...\n\n"+
-"So if you encounter any problem, please login again with this checkbox unchecked.\n"
+"Compressão HTTP pode efetivamente reduzir o uso da largura de banda entre seu computador e o servidor webmail, "+
+"porém há algumas restrições de compatibilidade:\n\n"+
+"1. algums servidores proxy só suportam compressão HTTP via HTTP 1.1, "+
+"voce pode ter que permitir o suporte HTTP1.1 para o proxy em seu browser\n"+
+"2. algums servidores proxy não suportam a compressão HTTP em tudo, "+
+"voce pode ter que listar o usuário do webmail como conectado diretamente na configuração do proxy de seu browser.\n"+
+"3. algums browsers tem problemas quando usam compressão HTTP com SSL...\n"+
+"4. alguns browsers reivindicarm suporta a compressão HTTP mas atualmente não suportam...\n\n"+
+"Assim se voce encontrar qualquer problema, por favor mantenha este checkbox desmarcado.\n"
          );
       }
       return(true);

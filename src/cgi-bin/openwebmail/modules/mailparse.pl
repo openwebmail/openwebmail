@@ -20,10 +20,12 @@ use strict;
 
 use MIME::Base64;
 use MIME::QuotedPrint;
+require "modules/tool.pl";
+require "modules/mime.pl";
 
 sub parse_header {
    # concatenate folding lines in header but not the last blank line
-   my $header=${$_[0]}; $header=~s/\s+$//s; $header=~s/\s*\n\s+/ /sg;
+   my $header=${$_[0]}; $header=~s/\s+$//s; $header=~s/\s*\n\s+/ /sg; 
    my $r_message=$_[1];
 
    my @lines=split(/\r*\n/, $header);
@@ -47,18 +49,30 @@ sub parse_rfc822block {
    $header=substr(${$r_block}, 0, $headerlen);
 
    $msg{'content-type'}='N/A';	# assume msg as simple text
-   ow::mailparse::parse_header(\$header, \%msg);
+   parse_header(\$header, \%msg);
+
+   # recover incomplete header for msgs resent from mailing list, tricky!
+   if ($msg{'content-type'} eq 'N/A') {
+      my $testdata=substr(${$r_block}, $headerlen+2, 256);
+      if (($testdata=~/multi\-part message in MIME format/i &&
+           $testdata=~/\n--(\S*?)\n/s) ||
+          $testdata=~/\n--(\S*?)\nContent\-/is ||
+          $testdata=~/^--(\S*?)\nContent\-/is ) {
+         $msg{'content-type'}=qq|multipart/mixed; boundary="$1"|;
+      }
+   }
 
    if ($msg{'content-type'} =~ /^multipart/i) {
       my ($subtype, $boundary, $boundarylen);
       my ($bodystart, $boundarystart, $nextboundarystart, $attblockstart);
+      my $search_html_related_att=0;
 
       $subtype = $msg{'content-type'};
       $subtype =~ s/^multipart\/(.*?)[;\s].*$/$1/i;
 
       $boundary = $msg{'content-type'};
       $boundary =~ s/.*?boundary\s?=\s?"([^"]+)".*$/$1/i or
-         $boundary =~ s/.*?boundary\s?=\s?([^\s]+)\s?.*$/$1/i;
+         $boundary =~ s/.*?boundary\s?=\s?([^\s;]+);?\s?.*$/$1/i;
       $boundary="--$boundary";
       $boundarylen=length($boundary);
 
@@ -80,7 +94,13 @@ sub parse_rfc822block {
          }
 
          $nextboundarystart=index(${$r_block}, "$boundary\n", $attblockstart);
-         if ($nextboundarystart <= $attblockstart) {
+         if ($nextboundarystart == $attblockstart) {
+            # this attblock is empty?, skip it.
+            $boundarystart=$nextboundarystart;
+            $attblockstart=$boundarystart+$boundarylen;
+            next;
+         } elsif ($nextboundarystart < $attblockstart) {
+            # last atblock?
             $nextboundarystart=index(${$r_block}, "$boundary--", $attblockstart);
          }
          if ($nextboundarystart > $attblockstart) {
@@ -91,7 +111,19 @@ sub parse_rfc822block {
             } elsif ($searchid eq "$nodeid-$i" || $searchid=~/^$nodeid-$i-/) {
                my $r_attachments2=parse_attblock($r_block, $attblockstart, $nextboundarystart-$attblockstart, $subtype, $boundary, "$nodeid-$i", $searchid);
                push(@attachments, @{$r_attachments2});
-               last;	# attblock after this is not the one to look for...
+               if (defined(${${$r_attachments2}[0]}{'content-type'}) &&
+                   ${${$r_attachments2}[0]}{'content-type'} =~ /^text\/html/i ) {
+                  $search_html_related_att=1;	# to gather inlined attachment info for this html
+               } else {
+                  last;	# attblock after this is not the one to look for...
+               }
+            } elsif ($search_html_related_att) {
+               if ($searchid=~/^$nodeid-/) { # an att is html related if it has same parent as html
+                  my $r_attachments2=parse_attblock($r_block, $attblockstart, $nextboundarystart-$attblockstart, $subtype, $boundary, "$nodeid-$i", $searchid);
+                  push(@attachments, @{$r_attachments2});
+               } else {
+                  last;	# attblock after this is not related to previous html
+               }
             } # else : skip the att
             $boundarystart=$nextboundarystart;
             $attblockstart=$boundarystart+$boundarylen;
@@ -209,13 +241,14 @@ sub parse_attblock {
    if ($att{'content-type'} =~ /^multipart/i) {
       my ($subtype, $boundary, $boundarylen);
       my ($boundarystart, $nextboundarystart, $subattblockstart);
+      my $search_html_related_att=0;
 
       $subtype = $att{'content-type'};
       $subtype =~ s/^multipart\/(.*?)[;\s].*$/$1/i;
 
       $boundary = $att{'content-type'};
       $boundary =~ s/.*?boundary\s?=\s?"([^"]+)".*$/$1/i or
-         $boundary =~ s/.*?boundary\s?=\s?([^\s]+)\s?.*$/$1/i;
+         $boundary =~ s/.*?boundary\s?=\s?([^\s;]+);?\s?.*$/$1/i;
       $boundary="--$boundary";
       $boundarylen=length($boundary);
 
@@ -245,7 +278,12 @@ sub parse_attblock {
          }
 
          $nextboundarystart=index(${$r_buff}, "$boundary\n", $subattblockstart);
-         if ($nextboundarystart <= $subattblockstart) {
+         if ($nextboundarystart == $subattblockstart) {
+            # this subattblock is empty?, skip it.
+            $boundarystart=$nextboundarystart;
+            $subattblockstart=$boundarystart+$boundarylen;
+            next;
+         } elsif ($nextboundarystart < $subattblockstart) {
             $nextboundarystart=index(${$r_buff}, "$boundary--", $subattblockstart);
          }
 
@@ -257,7 +295,19 @@ sub parse_attblock {
             } elsif ( $searchid eq "$nodeid-$i" || $searchid=~/^$nodeid-$i-/ ) {
                my $r_attachments2=parse_attblock($r_buff, $subattblockstart, $nextboundarystart-$subattblockstart, $subtype, $boundary, "$nodeid-$i", $searchid);
                push(@attachments, @{$r_attachments2});
-               last;	# attblock after this is not the one to look for...
+               if (defined(${${$r_attachments2}[0]}{'content-type'}) &&
+                   ${${$r_attachments2}[0]}{'content-type'} =~ /^text\/html/i ) {
+                  $search_html_related_att=1;	# to gather inlined attachment info for this html
+               } else {
+                  last;	# attblock after this is not the one to look for...
+               }
+            } elsif ($search_html_related_att) {
+               if ($searchid=~/^$nodeid-/) { # an att is html related if it has same parent as html
+                  my $r_attachments2=parse_attblock($r_buff, $subattblockstart, $nextboundarystart-$subattblockstart, $subtype, $boundary, "$nodeid-$i", $searchid);
+                  push(@attachments, @{$r_attachments2});
+               } else {
+                  last;	# attblock after this is not related to previous html
+               }
             }
             $boundarystart=$nextboundarystart;
             $subattblockstart=$boundarystart+$boundarylen;

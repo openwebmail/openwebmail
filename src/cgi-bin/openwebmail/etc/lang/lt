@@ -71,7 +71,7 @@ package ow::lt;
 
 %lang_ctrlpositionlabels =
    (
-   top => 'Virğuje',
+   top    => 'Virğuje',
    bottom => 'Apaèioje'
    );
 
@@ -232,6 +232,7 @@ package ow::lt;
    userdef    => 'Vartotojo nustatyti',
    logout     => 'Baigti darbà',
    page       => 'Lapas',
+   msgsperpage=> '@@@MSGCOUNT@@@ messages per page',
    msgcopyconf=> '\'Ar tikrai norite nukopijuoti paşymëtus laiğkus?\'',
    copy       => 'Kopijuoti',
    msgmoveconf=> '\'Ar tikrai norite perkelti paşymëtus laiğkus?\'',
@@ -331,6 +332,8 @@ package ow::lt;
    all        => 'Visur',
    enable     => '',
    disable    => 'Uşdrausta',
+   yes        => 'Taip',
+   no         => 'Ne',
    filtered   => 'Nufiltruota',
    blockrelay => 'Uşdraustas SMTP',
    blockemail => 'Uşdraustas pağtas',

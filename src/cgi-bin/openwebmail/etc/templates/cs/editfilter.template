@@ -14,17 +14,17 @@
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Priorita</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Pravidla</B></td>
+<B>Polo¾ka</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Vèetnì/Bez</B></td>
+<B>Podmínka</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Øetìzec</B> (Kliknutím zmìnit)</td>
+<B>Øetìzec</B> (klik pro úpravu)</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Akce</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Cíl</B></td>
+<B>Cílová slo¾ka</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Aktivovat</B></td>
+<B>Aktivní</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Akce</B>
 </td></tr>

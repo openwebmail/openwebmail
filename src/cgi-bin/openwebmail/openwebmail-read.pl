@@ -5,10 +5,10 @@
 
 use vars qw($SCRIPT_DIR);
 if ( $0 =~ m!^(\S*)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1 }
-if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
+if ($SCRIPT_DIR eq '' && open(F, '/etc/openwebmail_path.conf')) {
    $_=<F>; close(F); if ( $_=~/^(\S*)/) { $SCRIPT_DIR=$1 }
 }
-if (!$SCRIPT_DIR) { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
+if ($SCRIPT_DIR eq '') { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
 push (@INC, $SCRIPT_DIR);
 
 foreach (qw(PATH ENV BASH_ENV CDPATH IFS TERM)) { $ENV{$_}='' }	# secure ENV
@@ -21,15 +21,19 @@ use CGI::Carp qw(fatalsToBrowser carpout);
 use MIME::Base64;
 use MIME::QuotedPrint;
 
-require "modules/datetime.pl";
-require "modules/lang.pl";
 require "modules/dbm.pl";
+require "modules/suid.pl";
 require "modules/filelock.pl";
 require "modules/tool.pl";
+require "modules/datetime.pl";
+require "modules/lang.pl";
 require "modules/htmlrender.pl";
 require "modules/htmltext.pl";
+require "modules/enriched.pl";
 require "modules/mime.pl";
 require "modules/mailparse.pl";
+require "auth/auth.pl";
+require "quota/quota.pl";
 require "shares/ow-shared.pl";
 require "shares/iconv.pl";
 require "shares/maildb.pl";
@@ -53,7 +57,7 @@ use vars qw(%is_defaultfolder @defaultfolders);	# defined in ow-shared.pl
 
 # local globals
 use vars qw($folder);
-use vars qw($sort $page);
+use vars qw($sort $page $longpage);
 use vars qw($searchtype $keyword);
 use vars qw($escapedfolder $escapedkeyword);
 
@@ -115,6 +119,7 @@ if (!$config{'enable_webmail'}) {
 
 $folder = param('folder') || 'INBOX';
 $page = param('page') || 1;
+$longpage = param('longpage') || 0;
 $sort = param('sort') || $prefs{'sort'} || 'date';
 $searchtype = param('searchtype') || 'subject';
 $keyword = param('keyword') || '';
@@ -142,13 +147,13 @@ sub readmessage {
    my ($filtered, $r_filtered);
    ($filtered, $r_filtered)=filtermessage2($user, 'INBOX', \%prefs) if ($folder eq 'INBOX');
 
-   my (@validfolders, $folderusage);
-   getfolders(\@validfolders, \$folderusage);
+   my (@validfolders, $inboxusage, $folderusage);
+   getfolders(\@validfolders, \$inboxusage, \$folderusage);
 
    my $quotahit_deltype='';
    if ($quotalimit>0 && $quotausage>$quotalimit &&
        ($config{'delmail_ifquotahit'}||$config{'delfile_ifquotahit'}) ) {
-      $quotausage=(quota_get_usage_limit(\%config, $user, $homedir, 1))[2]; # get uptodate usage
+      $quotausage=(ow::quota::get_usage_limit(\%config, $user, $homedir, 1))[2]; # get uptodate usage
       if ($quotausage>$quotalimit) {
          if ($config{'delmail_ifquotahit'} && $folderusage > $quotausage*0.5) {
             $quotahit_deltype='quotahit_delmail';
@@ -158,7 +163,7 @@ sub readmessage {
             my $webdiskrootdir=$homedir.absolute_vpath("/", $config{'webdisk_rootpath'});
             cutdirfiles(($quotausage-$quotalimit*0.9)*1024, $webdiskrootdir);
          }
-         $quotausage=(quota_get_usage_limit(\%config, $user, $homedir, 1))[2]; # get uptodate usage
+         $quotausage=(ow::quota::get_usage_limit(\%config, $user, $homedir, 1))[2]; # get uptodate usage
       }
    }
 
@@ -200,7 +205,8 @@ sub readmessage {
    my $readcharset=$prefs{'charset'};	# charset choosed by user to read current message
    $readcharset=$1 if ($convfrom=~/^none\.(.+)$/);	# read msg with no conversion
 
-   my $urlparm="sessionid=$thissession&amp;folder=$escapedfolder&amp;page=$page&amp;".
+   my $urlparm="sessionid=$thissession&amp;folder=$escapedfolder&amp;".
+               "page=$page&amp;longpage=$longpage&amp;".
                "sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype";
    my $main_url = "$config{'ow_cgiurl'}/openwebmail-main.pl?$urlparm";
    my $read_url = "$config{'ow_cgiurl'}/openwebmail-read.pl?$urlparm";
@@ -248,6 +254,7 @@ sub readmessage {
       } elsif ($message{'content-transfer-encoding'} =~ /^x-uuencode/i) {
          $body= ow::mime::uudecode($body);
       }
+
    }
 
    if (is_convertable($convfrom, $readcharset) ) {
@@ -266,14 +273,16 @@ sub readmessage {
               qq|$lang_text{'thisispartialmsg'}&nbsp; |.
               qq|<a href="$read_url_with_id&amp;action=rebuildmessage&amp;partialid=$escapedpartialid&amp;attmode=$attmode&amp;headers=$headers">[$lang_text{'msgrebuild'}]</a>|.
               qq|</td></tr></table>|;
-   } elsif ($message{'content-type'} =~ m#^text/html#i) { # convert html msg into table
+   } elsif ($message{'content-type'} =~ m#^text/(html|enriched)#i) { # convert html msg into table
+      my $subtype=$1;
+      $body = ow::enriched::enriched2html($body) if ($subtype eq 'enriched');
       if ($showhtmlastext) {	# html -> text -> html
          $body = ow::htmltext::html2text($body);
          $body = ow::htmltext::text2html($body);
          # change color for quoted lines
          $body =~ s!^(&gt;.*<br>)$!<font color=#009900>$1</font>!img;
          $body =~ s/<a href=/<a class=msgbody href=/ig;
-      } else {			# html rendering
+      } elsif ($subtype eq 'html') {			# html rendering
          $body = ow::htmlrender::html4nobase($body);
          $body = ow::htmlrender::html4noframe($body);
          $body = ow::htmlrender::html4link($body);
@@ -284,7 +293,7 @@ sub readmessage {
       }
       $body = ow::htmlrender::html2table($body);
       $is_htmlmsg=1;
-   } else { 					     # body must be html or text
+   } else { 					     # body other than html, enriched is displayed as pure text
       # remove odds space or blank lines
       $body =~ s/(\r?\n){2,}/\n\n/g;
       $body =~ s/^\s+//;
@@ -499,6 +508,7 @@ sub readmessage {
                                     folder=>$folder,
                                     sort=>$sort,
                                     page=>$page,
+                                    convfrom=>$convfrom,
                                     action=>'composemessage',
                                     composetype=>'reply',
                                     compose_caller=>'read').
@@ -556,7 +566,7 @@ sub readmessage {
          my $subject=$message{'subject'}; $subject=~s/\s//g;
          foreach (@movefolders) {
             next if ($_ eq "DELETE");
-            if ($subject=~/\Q$_\E/i) {
+            if ($subject=~/\Q$_\E/i || $message{'from'}=~/\Q$_\E/i) {
                $smartdestination=$_; last;
             }
          }
@@ -637,35 +647,33 @@ sub readmessage {
       }
       $temphtml .= "<BR>";
 
-      if ($replyto) {
+      if ($replyto ne '') {
          $temphtml .= "<B>$lang_text{'replyto'}:</B> $replyto<BR>\n";
       }
 
       my $dotstr=qq| <a href="$read_url_with_id&amp;action=readmessage&amp;attmode=$attmode&amp;receivers=all"><b>.....</b></a>|;
-      if ($to) {
+      if ($to ne '') {
          $to=substr($to,0,90).$dotstr if (length($to)>96 && param('receivers') ne "all");
          $temphtml .= qq|<B>$lang_text{'to'}:</B> $to<BR>\n|;
       }
-      if ($cc) {
+      if ($cc ne '') {
          $cc=substr($cc,0,90).$dotstr if (length($cc)>96 && param('receivers') ne "all");
          $temphtml .= qq|<B>$lang_text{'cc'}:</B> $cc<BR>\n|;
       }
-      if ($bcc) {
+      if ($bcc ne '') {
          $bcc=substr($bcc,0,90).$dotstr if (length($bcc)>96 && param('receivers') ne "all");
          $temphtml .= qq|<B>$lang_text{'bcc'}:</B> $bcc<BR>\n|;
       }
 
-      if ($subject) {
+      if ($subject ne '') {
          $temphtml .= qq|<B>$lang_text{'subject'}:</B> $subject\n|;
       }
 
       if ($printfriendly ne "yes") {
-         # display import icon
-         if ($message{'priority'} eq 'urgent') {
+         if ($message{'priority'} eq 'urgent') {# display import icon
             $temphtml .= qq|&nbsp;|. iconlink("important.gif", "", "");
-         }
-         # display read and answered icon
-         if ($message{'status'} =~ /a/i) {
+         }         
+         if ($message{'status'} =~ /a/i) {	# display read and answered icon
             $temphtml .= qq|&nbsp; |. iconlink("read.a.gif", "", "");
          }
       }
@@ -699,6 +707,9 @@ sub readmessage {
       $temphtml="" if ( $message{'content-type'} =~ /^multipart/i );
    }
 
+   my $onlyone_att=0;
+   $onlyone_att=1 if ($#{$message{attachment}}==0);
+
    foreach my $attnumber (0 .. $#{$message{attachment}}) {
       next unless (defined(%{$message{attachment}[$attnumber]}));
 
@@ -722,53 +733,41 @@ sub readmessage {
          }
 
       } else {	# attmode==simple
-         my $onlyone_att=0;
-         $onlyone_att=1 if ($#{$message{attachment}}==0);
-
          # handle case to skip to next text/html attachment
          if ( defined(%{$message{attachment}[$attnumber+1]}) &&
               (${$message{attachment}[$attnumber+1]}{boundary} eq
 		  ${$message{attachment}[$attnumber]}{boundary}) ) {
 
-            # skip to next text/html attachment in the same alternative group
+            # skip to next text/(html|enriched) attachment in the same alternative group
             if ( (${$message{attachment}[$attnumber]}{subtype} =~ /alternative/i) &&
                  (${$message{attachment}[$attnumber+1]}{subtype} =~ /alternative/i) &&
                  (${$message{attachment}[$attnumber+1]}{'content-type'} =~ /^text/i) &&
                  (${$message{attachment}[$attnumber+1]}{filename}=~ /^Unknown\./ ) ) {
                next;
             }
-            # skip to next attachment if this=unknow.txt and next=unknow.html
-            if ( (${$message{attachment}[$attnumber]}{'content-type'}=~ /^text\/plain/i ) &&
+            # skip to next attachment if this=unknow.(txt|enriched) and next=unknow.(html|enriched)
+            if ( (${$message{attachment}[$attnumber]}{'content-type'}=~ /^text\/(?:plain|enriched)/i ) &&
                  (${$message{attachment}[$attnumber]}{filename}=~ /^Unknown\./ ) &&
-                 (${$message{attachment}[$attnumber+1]}{'content-type'} =~ /^text\/html/i)  &&
+                 (${$message{attachment}[$attnumber+1]}{'content-type'} =~ /^text\/(?:html|enriched)/i)  &&
                  (${$message{attachment}[$attnumber+1]}{filename}=~ /^Unknown\./ ) ) {
                next;
             }
          }
 
          # handle display of attachments in simple mode
-         if ( ${$message{attachment}[$attnumber]}{'content-type'}=~ /^text\/html/i ) {
+         if ( ${$message{attachment}[$attnumber]}{'content-type'}=~ /^text/i ) {
             if ( ${$message{attachment}[$attnumber]}{filename}=~ /^Unknown\./ ||
                  $onlyone_att ) {
-               my $content=html_att2table($message{attachment}, $attnumber, $escapedmessageid, $showhtmlastext);
-               my $charset=$convfrom;
-               if ($convfrom eq lc($message{'charset'})) {	# get convfrom from attheader is it was from msgheader
-                  $charset=lc(${$message{attachment}[$attnumber]}{charset})||
-                           lc(${$message{attachment}[$attnumber]}{filenamecharset})||
-                           $convfrom;
+               my $content;
+               if ( ${$message{attachment}[$attnumber]}{'content-type'}=~ /^text\/html/i ) {
+                  $content=html_att2table($message{attachment}, $attnumber, $escapedmessageid, $showhtmlastext);
+                  $is_htmlmsg=1;
+               } elsif ( ${$message{attachment}[$attnumber]}{'content-type'}=~ /^text\/enriched/i ) {
+                  $content=enriched_att2table($message{attachment}, $attnumber, $showhtmlastext);
+                  $is_htmlmsg=1;
+               } else {
+                  $content=text_att2table($message{attachment}, $attnumber);
                }
-               if (is_convertable($charset, $readcharset)) {
-                  ($content)=iconv($charset, $readcharset, $content);
-               }
-               $temphtml .= $content;
-               $is_htmlmsg=1;
-            } else {
-               $temphtml .= misc_att2table($message{attachment}, $attnumber, $escapedmessageid, "&amp;convfrom=$convfrom");
-            }
-         } elsif ( ${$message{attachment}[$attnumber]}{'content-type'}=~ /^text/i ) {
-            if ( ${$message{attachment}[$attnumber]}{filename}=~ /^Unknown\./ ||
-                 $onlyone_att ) {
-               my $content=text_att2table($message{attachment}, $attnumber);
                my $charset=$convfrom;
                if ($convfrom eq lc($message{'charset'})) {	# get convfrom from attheader is it was from msgheader
                   $charset=lc(${$message{attachment}[$attnumber]}{charset})||
@@ -846,7 +845,7 @@ sub readmessage {
 
    $temphtml='';
    # show quotahit del warning
-   if ($quotahit_deltype) {
+   if ($quotahit_deltype ne '') {
       my $msg=qq|<font size="-1" color="#cc0000">$lang_err{$quotahit_deltype}</font>|;
       $msg=~s/\@\@\@QUOTALIMIT\@\@\@/$config{'quota_limit'}$lang_sizes{'kb'}/;
       $msg =~ s!\\!\\\\!g; $msg =~ s!'!\\'!g;	# escape ' for javascript
@@ -927,7 +926,7 @@ sub readmessage {
          my $status=(get_message_attributes($messageid, $folderdb))[$_STATUS];
          update_message_status($messageid, $status."R", $folderdb, $folderfile);
 
-         ow::filelock::lock("$folderfile", LOCK_UN);
+         ow::filelock::lock($folderfile, LOCK_UN);
          openwebmail_exit(0);
       }
    } elsif (param('db_chkstatus')) { # check and set msg status R flag
@@ -935,10 +934,10 @@ sub readmessage {
       my (%FDB, @attr);
       ow::dbm::open(\%FDB, $folderdb, LOCK_EX) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} db $folderdb");
-      @attr=split(/@@@/, $FDB{$messageid});
+      @attr=string2msgattr($FDB{$messageid});
       if ($attr[$_STATUS] !~ /r/i) {
          $attr[$_STATUS].="R";
-         $FDB{$messageid}=join('@@@', @attr);
+         $FDB{$messageid}=msgattr2string(@attr);
       }
       ow::dbm::close(\%FDB, $folderdb);
    }
@@ -982,7 +981,33 @@ sub html_att2table {
                   "action=composemessage&amp;message_id=$escapedmessageid&amp;compose_caller=read");
    }
    $temphtml = ow::htmlrender::html2table($temphtml);
+   return($temphtml);
+}
 
+sub enriched_att2table {
+   my ($r_attachments, $attnumber, $showhtmlastext)=@_;
+
+   my $r_attachment=${$r_attachments}[$attnumber];
+   my $temphtml;
+
+   if (${$r_attachment}{'content-transfer-encoding'} =~ /^quoted-printable/i) {
+      $temphtml = decode_qp(${${$r_attachment}{r_content}});
+   } elsif (${$r_attachment}{'content-transfer-encoding'} =~ /^base64/i) {
+      $temphtml = decode_base64(${${$r_attachment}{r_content}});
+   } elsif (${$r_attachment}{'content-transfer-encoding'} =~ /^x-uuencode/i) {
+      $temphtml = ow::mime::uudecode(${${$r_attachment}{r_content}});
+   } else {
+      $temphtml = ${${$r_attachment}{r_content}};
+   }
+   $temphtml = ow::enriched::enriched2html($temphtml);
+   if ($showhtmlastext) {	# html -> text -> html
+      $temphtml = ow::htmltext::html2text($temphtml);
+      $temphtml = ow::htmltext::text2html($temphtml);
+      # change color for quoted lines
+      $temphtml =~ s!^(&gt;.*<br>)$!<font color=#009900>$1</font>!img;
+      $temphtml =~ s/<a href=/<a class=msgbody href=/ig;
+   }
+   $temphtml = ow::htmlrender::html2table($temphtml);
    return($temphtml);
 }
 
@@ -1095,10 +1120,12 @@ sub image_att2table {
                    qq|$lang_text{'attachment'} $attnumber: ${$r_attachment}{filename} &nbsp;($attlen)&nbsp;&nbsp;|;
    if ($config{'enable_webdisk'} && !$config{'webdisk_readonly'}) {
       $temphtml .= qq|<a href=#here title="$lang_text{'saveatt_towd'}" onClick="window.open('$config{'ow_cgiurl'}/openwebmail-webdisk.pl?action=sel_saveattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder&amp;attachment_nodeid=$nodeid$extraparm&amp;attname=|.
-                   ow::tool::escapeURL(${$r_attachment}{filename}).qq|', '_blank','width=500,height=330,scrollbars=yes,resizable=yes,location=no');">$lang_text{'webdisk'}</a>|;
+                   ow::tool::escapeURL(${$r_attachment}{filename}).qq|', '_blank','width=500,height=330,scrollbars=yes,resizable=yes,location=no');">$lang_text{'webdisk'}</a>|.
+                   qq|&nbsp;\n|;
    }
    $temphtml .=    qq|<font color=$style{"attachment_dark"} class="smalltext">$nodeid $disposition</font>|.
-                   qq|</td></tr><td bgcolor=$style{"attachment_light"} align="center">|.
+                   qq|</td></tr>|.
+                   qq|<tr><td bgcolor=$style{"attachment_light"} align="center">|.
                    qq|<a href="$config{'ow_cgiurl'}/openwebmail-viewatt.pl/$escapedfilename?action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder&amp;attachment_nodeid=$nodeid$extraparm" title="$lang_text{'download'}">|.
                    qq|<img border="0" |;
    if (${$r_attachment}{'content-description'} ne "") {
@@ -1123,13 +1150,14 @@ sub misc_att2table {
    my $temphtml .= qq|<table border="0" width="40%" align="center" cellpadding="2">|.
                    qq|<tr><td nowrap colspan="2" bgcolor=$style{"attachment_dark"} align="center">|.
                    qq|$lang_text{'attachment'} $attnumber: ${$r_attachment}{filename}&nbsp;($attlen)&nbsp;&nbsp;\n|;
+   if (${$r_attachment}{filename}=~/\.(?:doc|dot)$/ ) {
+      $temphtml .= qq|<a href="$attlink&amp;wordpreview=1" target="_blank">$lang_wdbutton{'preview'}</a>|.
+                   qq|&nbsp;\n|;
+   }
    if ($config{'enable_webdisk'} && !$config{'webdisk_readonly'}) {
       $temphtml .= qq|<a href=#here title="$lang_text{'saveatt_towd'}" onClick="window.open('$config{'ow_cgiurl'}/openwebmail-webdisk.pl?action=sel_saveattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder&amp;attachment_nodeid=$nodeid$extraparm&amp;attname=|.
                    ow::tool::escapeURL(${$r_attachment}{filename}).qq|', '_blank','width=500,height=330,scrollbars=yes,resizable=yes,location=no');">$lang_text{'webdisk'}</a>|.
                    qq|&nbsp;\n|;
-   }
-   if (${$r_attachment}{filename}=~/\.(?:doc|dot)$/ ) {
-      $temphtml .= qq|<a href="$attlink&amp;wordpreview=1" target="_blank">$lang_wdbutton{'preview'}</a>\n|;
    }
    $temphtml .= qq|<font color=$style{"attachment_dark"} class="smalltext">$nodeid $disposition|.
                 qq|</td></tr>|.
@@ -1162,18 +1190,18 @@ sub rebuildmessage {
    my ($errorcode, $rebuildmsgid, @partialmsgids)=
 	rebuild_message_with_partialid($folderfile, $folderdb, $partialid);
 
-   ow::filelock::lock("$folderfile", LOCK_UN);
+   ow::filelock::lock($folderfile, LOCK_UN);
 
    if ($errorcode==0) {
       # move partial msgs to trash folder
       my ($trashfile, $trashdb)=get_folderpath_folderdb($user, "mail-trash");
       if ($folderfile ne $trashfile) {
-         ow::filelock::lock("$trashfile", LOCK_EX) or
+         ow::filelock::lock($trashfile, LOCK_EX) or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $trashfile");
          my $moved=operate_message_with_ids("move", \@partialmsgids,
 				$folderfile, $folderdb, $trashfile, $trashdb);
          folder_zapmessages($folderfile, $folderdb) if ($moved>0);
-         ow::filelock::lock("$trashfile", LOCK_UN);
+         ow::filelock::lock($trashfile, LOCK_UN);
       }
 
       readmessage($rebuildmsgid);

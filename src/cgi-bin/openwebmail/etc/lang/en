@@ -71,7 +71,7 @@ package ow::en;
 
 %lang_ctrlpositionlabels =
    (
-   top => 'At top',
+   top    => 'At top',
    bottom => 'At bottom'
    );
 
@@ -232,6 +232,7 @@ package ow::en;
    userdef    => 'User Defined',
    logout     => 'Logout',
    page       => 'Page',
+   msgsperpage=> '@@@MSGCOUNT@@@ messages per page',
    msgcopyconf=> '\'Are you sure you want to copy the selected message(s)?\'',
    copy       => 'Copy',
    msgmoveconf=> '\'Are you sure you want to move the selected message(s)?\'',
@@ -331,6 +332,8 @@ package ow::en;
    all        => 'All',
    enable     => 'Enable',
    disable    => 'Disable',
+   yes        => 'Yes',
+   no         => 'No',
    filtered   => 'Filtered',
    blockrelay => 'Block SMTP Relay',
    blockemail => 'Block email',

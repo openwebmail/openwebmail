@@ -4,7 +4,7 @@
 #
 # 2003/03/24 tung.AT.turtle.ee.ncku.edu.tw
 #
-# This script can work in both CGI mode or command mode.
+# This script can work as a CGI or command line tool.
 # It is used to preload openwebmail scripts in persistent mode,
 # so the user won't encounter the script startup delay.
 #

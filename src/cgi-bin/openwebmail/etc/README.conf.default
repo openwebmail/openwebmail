@@ -21,8 +21,8 @@ openwebmail.conf.default will be loaded for only once,
 but other conf file will be reloaded by openwebmail if they have been changed.
 
 
-auth_*.conf.default, dbm.conf.default, filelock.conf.default
--------------------------------------------------------------
+auth_*.conf.default, dbm.conf.default, filelock.conf.default, suid.conf.default
+------------------------------------------------------------------------------
 Other *.conf.default files contain default setting for openwebmail modules,
 you may write your own *.conf to replace the *.conf.default.
 The module will try to load *.conf instead of *.conf.default if *.conf exist.

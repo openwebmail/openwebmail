@@ -1,21 +1,28 @@
+package ow::pop3;
+use strict;
 #
-# pop3mail.pl - pop3 mail retrieval routines
+# pop3.pl - fetch mail messages from pop3 server
 #
 # 2003/05/25 tung.AT.turtle.ee.ncku.edu.tw
 # 2002/03/19 eddie.AT.turtle.ee.ncku.edu.tw
 #
 
-use strict;
 use Fcntl qw(:DEFAULT :flock);
 use IO::Socket;
 use MIME::Base64;
+require "modules/dbm.pl";
+require "modules/filelock.pl";
+require "modules/tool.pl";
+require "modules/datetime.pl";
 
-# extern vars, defined in caller openwebmail-xxx.pl
-use vars qw(%config %prefs);
+sub fetchmail {
+   my ($pop3host, $pop3port, $pop3ssl, 
+       $pop3user, $pop3passwd, $pop3del, 
+       $uidldb, $spoolfile, 
+       $deliver_use_GMT, $daylightsaving, $loginonly)=@_;
 
-sub retrpop3mail {
-   my ($pop3host, $pop3port, $pop3user, $pop3passwd, $pop3del, $uidldb, $spoolfile)=@_;
-   my $remote_sock;
+   my $is_ssl_supported=ow::tool::has_module('IO/Socket/SSL.pm');
+   my $socket;
 
    $pop3host=ow::tool::untaint($pop3host);	# untaint for connection creation
    $pop3port=ow::tool::untaint($pop3port);
@@ -25,51 +32,64 @@ sub retrpop3mail {
    eval {
       local $SIG{ALRM} = sub { die "alarm\n" }; # NB: \n required
       alarm 30;
-      $remote_sock=new IO::Socket::INET(   Proto=>'tcp',
+      if ($pop3ssl && $is_ssl_supported) {
+         $socket=new IO::Socket::SSL (Proto=>'tcp',
                                            PeerAddr=>$pop3host,
                                            PeerPort=>$pop3port);
+      } else {
+         $pop3port=110 if ($pop3ssl && !$is_ssl_supported);
+         $socket=new IO::Socket::INET(Proto=>'tcp',
+                                           PeerAddr=>$pop3host,
+                                           PeerPort=>$pop3port);
+      }
       alarm 0;
    };
-   return(-11, "connect error") if ($@);		# eval error, it means timeout
-   return(-11, "connect error") if (!$remote_sock);	# connect error
+   return(-11, "connection timeout") if ($@); 		# timeout
+   return(-12, "connection refused") if (!$socket);	# connect refused
 
-   $remote_sock->autoflush(1);
-   $_=<$remote_sock>;
-   return(-12, "server not ready") if (/^\-/);		# server not ready
+   eval {
+      local $SIG{ALRM} = sub { die "alarm\n" }; # NB: \n required
+      alarm 10;
+      $socket->autoflush(1);
+      $_=<$socket>;
+      alarm 0;
+   };
+   return(-13, "server not ready") if ($@ || /^\-/);	# timeout or server not ready
 
    # try if server supports auth login(base64 encoding) first
-   print $remote_sock "auth login\r\n";
-   $_=<$remote_sock>;
+   print $socket "auth login\r\n";
+   $_=<$socket>;
    if (/^\+/) {
-      print $remote_sock &encode_base64($pop3user);
-      $_=<$remote_sock>;
+      print $socket &encode_base64($pop3user);
+      $_=<$socket>;
       if (/^\-/) {		# username error
-         close($remote_sock);
-         return(-13, "user name error");
+         close($socket);
+         return(-14, "user name error");
       }
-      print $remote_sock &encode_base64($pop3passwd);
-      $_=<$remote_sock>;
+      print $socket &encode_base64($pop3passwd);
+      $_=<$socket>;
    }
 
    if (! /^\+/) {	# not supporting auth login or auth login failed
-      print $remote_sock "user $pop3user\r\n";
-      $_=<$remote_sock>;
+      print $socket "user $pop3user\r\n";
+      $_=<$socket>;
       if (/^\-/) {		# username error
-         close($remote_sock);
-         return(-13, "user name error");
+         close($socket);
+         return(-14, "user name error");
       }
-      print $remote_sock "pass $pop3passwd\r\n";
-      $_=<$remote_sock>;
+      print $socket "pass $pop3passwd\r\n";
+      $_=<$socket>;
       if (/^\-/) {		# password error
-         close($remote_sock);
-         return(-14, "password error");
+         close($socket);
+         return(-15, "password error");
       }
    }
-   print $remote_sock "stat\r\n";
-   $_=<$remote_sock>;
-   if (/^\-/) {		# stat error
-      close($remote_sock);
-      return(-15, "pop3 'stat' error");
+
+   if ($loginonly) {
+      print $socket "quit\r\n";
+      $_=<$socket>;	# wait +OK from server
+      close($socket);
+      return 0;
    }
 
 
@@ -77,31 +97,40 @@ sub retrpop3mail {
    my ($uidl_support, $uidl_field, $uidl, $last)=(0, 2, -1, 0);
    my (%UIDLDB, %uidldb);
 
+   print $socket "stat\r\n";
+   $_=<$socket>;
+   if (/^\-/) {		# stat error
+      close($socket);
+      return(-16, "pop3 'stat' error");
+   }
+
    $mailcount=(split(/\s/))[1];
    if ($mailcount == 0) {		# no message
-      print $remote_sock "quit\r\n";
-      close($remote_sock);
+      print $socket "quit\r\n";
+      $_=<$socket>;	# wait +OK from server
+      close($socket);
       return 0;
    }
 
    # use 'uidl' to find the msg being retrieved last time
-   print $remote_sock "uidl 1\r\n";
-   $_ = <$remote_sock>;
+   print $socket "uidl 1\r\n";
+   $_ = <$socket>;
 
    if (/^\-/) {	# pop3d not support uidl, try last command
       # use 'last' to find the msg being retrieved last time
-      print $remote_sock "last\r\n";
-      $_ = <$remote_sock>; s/^\s+//;
+      print $socket "last\r\n";
+      $_ = <$socket>; s/^\s+//;
       if (/^\+/) { # server does support last
          $last=(split(/\s/))[1];		# +OK N
          if ($last eq $mailcount) {
-            print $remote_sock "quit\r\n";
-            close($remote_sock);
+            print $socket "quit\r\n";
+            $_=<$socket>;	# wait +OK from server
+            close($socket);
             return 0;
          }
       } else {			# both uidl and last not supported
          if (!$pop3del) {	# err if user want to reserve mail on pop3 server
-            return(-16, "UIDL and LAST not supported");
+            return(-17, "UIDL and LAST not supported");
          } else {		# fetch all messages and del them from server
             $last=0;
          }
@@ -115,26 +144,27 @@ sub retrpop3mail {
          $uidl_field=1;	# some broken pop3d return uidl without leading +
       }
       if (!ow::dbm::open(\%UIDLDB, $uidldb, LOCK_EX)) {
-         close($remote_sock);
+         close($socket);
          return(-1, "uidldb lock error");
       }
    }
 
    # retr messages
    for (my $i=$last+1; $i<=$mailcount; $i++) {
-      my ($msgcontent, $msgfrom, $msgdate)=("", "", "");
+      my ($msgfrom, $msgdate)=("", "");
+      my @msgcontent=();
 
       if ($uidl_support) {
-         print $remote_sock "uidl $i\r\n";
-         $_ = <$remote_sock>;
+         print $socket "uidl $i\r\n";
+         $_ = <$socket>;
          $uidl=(split(/\s/))[$uidl_field];
          if ( defined($UIDLDB{$uidl}) ) {		# already fetched before
             $uidldb{$uidl}=1; next;
          }
       }
 
-      print $remote_sock "retr ".$i."\r\n";
-      while (<$remote_sock>) {	# use loop to filter out verbose output
+      print $socket "retr ".$i."\r\n";
+      while (<$socket>) {	# use loop to filter out verbose output
          if ( /^\+/ ) {
             next;
          } elsif (/^\-/) {
@@ -142,27 +172,25 @@ sub retrpop3mail {
                @UIDLDB{keys %uidldb}=values %uidldb if ($retr_total>0);
                ow::dbm::close(\%UIDLDB, $uidldb);
             }
-            close($remote_sock);
-            return(-17, "pop3 'retr' error");
+            close($socket);
+            return(-18, "pop3 RETR error");
          } else {
             last;
          }
       }
 
       # first line of message
-      if ( /^From / ) {
-         $msgcontent = "";	#drop 1st line if containing msg delimiter
-      } else {
+      if ($_!~/^From /) {	# keep 1st line if it is not msg delimiter
          s/\s+$//;
-         $msgcontent = "$_\n";
          $msgdate=$1 if ( /^Date:\s+(.*)$/i);
+         push(@msgcontent, $_);
       }
 
       #####  read else lines of message
-      while ( <$remote_sock>) {
+      while ( <$socket>) {
          s/\s+$//;
          last if ($_ eq "." );	#end and exit while
-         $msgcontent .= "$_\n";
+         push(@msgcontent, $_);
          # get $msgfrom, $msgdate to compose the mail delimiter 'From xxxx' line
          if ( /\(envelope\-from \s*(.+?)\s*\)/i && $msgfrom eq "" ) {
             $msgfrom = $1;
@@ -191,23 +219,37 @@ sub retrpop3mail {
           ow::datetime::dateserial2gmtime($dateserial_gm) > 86400 ) {
          $dateserial=$dateserial_gm;	# use current time if msg time is newer than now for 1 day
       }
-      if ($config{'deliver_use_GMT'}) {
-         $msgdate=ow::datetime::dateserial2delimiter($dateserial, "", $prefs{'daylightsaving'});
+      if ($deliver_use_GMT) {
+         $msgdate=ow::datetime::dateserial2delimiter($dateserial, "", $daylightsaving);
       } else {
-         $msgdate=ow::datetime::dateserial2delimiter($dateserial, ow::datetime::gettimeoffset(), $prefs{'daylightsaving'});
+         $msgdate=ow::datetime::dateserial2delimiter($dateserial, ow::datetime::gettimeoffset(), $daylightsaving);
       }
 
       # append message to mail folder
-      my $append=0;;
+      my $append=0;
       if (! -f $spoolfile) {
          open(F, ">>$spoolfile"); close(F);
       }
       if (ow::filelock::lock($spoolfile, LOCK_EX)) {
          if (open(F,"+<$spoolfile")) {
-            seek(F, 0, 2);	# seek to file end
-            print F "From $msgfrom $msgdate\n$msgcontent\n";
+            my $err=0;
+            my $origsize=(stat(F))[7];
+            seek(F, $origsize, 0);	# seek to file end
+            print F "From $msgfrom $msgdate\n" or $err++;
+            foreach (@msgcontent) {
+               last if ($err>0);
+               print F $_, "\n" or $err++;
+            }
+            if (!$err && $#msgcontent>=0 &&
+                $msgcontent[$#msgcontent] ne '') { # msg not ended with empty line
+               print F "\n" or $err++;
+            }
+            if ($err) {
+               truncate(F, $origsize);
+            } else {
+               $append=1;
+            }
             close(F);
-            $append=1;
          }
          ow::filelock::lock($spoolfile, LOCK_UN);
       }
@@ -216,13 +258,13 @@ sub retrpop3mail {
             @UIDLDB{keys %uidldb}=values %uidldb if ($retr_total>0);
             ow::dbm::close(\%UIDLDB, $uidldb);
          }
-         close($remote_sock);
+         close($socket);
          return(-3, "spool write error");
       }
 
       if ($pop3del) {
-         print $remote_sock "dele $i\r\n";
-         $_=<$remote_sock>;
+         print $socket "dele $i\r\n";
+         $_=<$socket>;
          $uidldb{$uidl}=1 if ($uidl_support && !/^\+/);
       } else {
          $uidldb{$uidl}=1 if ($uidl_support);
@@ -230,16 +272,16 @@ sub retrpop3mail {
       $retr_total++;
    }
 
-   print $remote_sock "quit\r\n";
-   close($remote_sock);
-
    if ($uidl_support) {
       %UIDLDB=%uidldb if ($retr_total>0);
       ow::dbm::close(\%UIDLDB, $uidldb);
    }
 
-   # return number of fetched mail
-   return($retr_total);
+   print $socket "quit\r\n";
+   $_=<$socket>;	# wait +OK from server
+   close($socket);
+   return(-19, "pop3 QUIT did not succeed, mail may not have been deleted") if ($pop3del && !/^+/);
+   return($retr_total);	# return number of fetched mail
 }
 
 1;

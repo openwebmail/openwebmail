@@ -71,7 +71,7 @@ package ow::th;
 
 %lang_ctrlpositionlabels =
    (
-   top => 'ที่ด้านบน',
+   top    => 'ที่ด้านบน',
    bottom => 'ที่ด้านล่าง'
    );
 
@@ -232,6 +232,7 @@ package ow::th;
    userdef    => 'ผู้ใช้กำหนด',
    logout     => 'ออกจากระบบ',
    page       => 'หน้า',
+   msgsperpage=> '@@@MSGCOUNT@@@ messages per page',
    msgcopyconf=> '\'กรุณายืนยันการคัดลอกจดหมายที่เลือกไว้?\'',
    copy       => 'คัดลอก',
    msgmoveconf=> '\'กรุณายืนยันการย้ายจดหมายที่เลือกไว้?\'',
@@ -331,6 +332,8 @@ package ow::th;
    all        => 'ทั้งหมด',
    enable     => 'ใช้งาน',
    disable    => 'ไม่ใช้',
+   yes        => 'ใช่',
+   no         => 'ไม่',
    filtered   => 'กรองแล้ว',
    blockrelay => 'ไม่รับจดหมายที่ผ่าน SMTP เซิร์ฟเวอร์',
    blockemail => 'ไม่รับจดหมายจากอีเมลชื่อ',

@@ -72,7 +72,7 @@ package ow::ca;
 
 %lang_ctrlpositionlabels =
    (
-   top => 'Al principi',
+   top    => 'Al principi',
    bottom => 'Al final'
    );
 
@@ -233,6 +233,7 @@ package ow::ca;
    userdef    => 'Definit per l\'usuari',
    logout     => 'Surt',
    page       => 'Pàgina',
+   msgsperpage=> '@@@MSGCOUNT@@@ messages per page',
    msgcopyconf=> '\'Esteu segurs de voler copiar els missatges seleccionats?\'',
    copy       => 'Copia',
    msgmoveconf=> '\'Esteu segurs de voler moure els missatges seleccionats?\'',
@@ -332,6 +333,8 @@ package ow::ca;
    all        => 'Tot',
    enable     => 'Actiu',
    disable    => 'Inactiu',
+   yes        => 'Si',
+   no         => 'No',
    filtered   => 'Filtrat',
    blockrelay => 'Bloqueja SMTP Relay',
    blockemail => 'Bloqueja adreça',

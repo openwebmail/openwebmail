@@ -5,10 +5,10 @@
 
 use vars qw($SCRIPT_DIR);
 if ( $0 =~ m!^(\S*)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1 }
-if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
+if ($SCRIPT_DIR eq '' && open(F, '/etc/openwebmail_path.conf')) {
    $_=<F>; close(F); if ( $_=~/^(\S*)/) { $SCRIPT_DIR=$1 }
 }
-if (!$SCRIPT_DIR) { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
+if ($SCRIPT_DIR eq '') { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
 push (@INC, $SCRIPT_DIR);
 
 foreach (qw(PATH ENV BASH_ENV CDPATH IFS TERM)) { $ENV{$_}='' }	# secure ENV
@@ -21,16 +21,19 @@ use CGI::Carp qw(fatalsToBrowser carpout);
 use MIME::Base64;
 use MIME::QuotedPrint;
 
+require "modules/dbm.pl";
+require "modules/suid.pl";
 require "modules/filelock.pl";
+require "modules/tool.pl";
 require "modules/datetime.pl";
 require "modules/lang.pl";
-require "modules/dbm.pl";
-require "modules/tool.pl";
-require "modules/htmlrender.pl";
-require "modules/htmltext.pl";
 require "modules/mime.pl";
 require "modules/mailparse.pl";
+require "modules/htmltext.pl";
+require "modules/htmlrender.pl";
 require "modules/execute.pl";
+require "auth/auth.pl";
+require "quota/quota.pl";
 require "shares/ow-shared.pl";
 require "shares/iconv.pl";
 require "shares/maildb.pl";
@@ -96,10 +99,8 @@ sub viewattachment {	# view attachments inside a message
    my ($attfilename, $length, $r_attheader, $r_attbody)=getattachment($folder, $messageid, $nodeid, $wordpreview);
 
    if (${$r_attheader}=~m!Content-Type: text/!i && $length>512 &&
-       cookie("openwebmail-httpcompress") &&
-       $ENV{'HTTP_ACCEPT_ENCODING'}=~/\bgzip\b/ &&
-       ow::tool::has_zlib()) {
-      my $zattbody=Compress::Zlib::memGzip($r_attbody);
+       is_http_compression_enabled()) {
+      my $zattbody=Compress::Zlib::memGzip($r_attbody); undef(${$r_attbody}); undef($r_attbody);
       my $zlen=length($zattbody);
       my $zattheader=qq|Content-Encoding: gzip\n|.
                      qq|Vary: Accept-Encoding\n|.
@@ -182,8 +183,7 @@ sub getattachment {
    } else {
       # return a specific attachment
       my ($header, $body, $r_attachments)=ow::mailparse::parse_rfc822block($r_block, "0", $nodeid);
-      undef(${$r_block});
-      undef($r_block);
+      undef(${$r_block}); undef($r_block);
 
       my $r_attachment;
       for (my $i=0; $i<=$#{$r_attachments}; $i++) {
@@ -282,10 +282,8 @@ sub getattachment {
          }
 
          # use undef to free memory before attachment transfer
-         undef %{$r_attachment};
-         undef $r_attachment;
-         undef @{$r_attachments};
-         undef $r_attachments;
+         undef %{$r_attachment}; undef $r_attachment;
+         undef @{$r_attachments}; undef $r_attachments;
 
          return($filename, $length, \$attheader, \$content);
       } else {
@@ -303,10 +301,8 @@ sub viewattfile {	# view attachments uploaded to $config{'ow_sessionsdir'}
    my ($attfilename, $length, $r_attheader, $r_attbody)=getattfile($attfile, $wordpreview);
 
    if (${$r_attheader}=~m!Content-Type: text/!i && $length>512 &&
-       cookie("openwebmail-httpcompress") &&
-       $ENV{'HTTP_ACCEPT_ENCODING'}=~/\bgzip\b/ &&
-       ow::tool::has_zlib()) {
-      my $zattbody=Compress::Zlib::memGzip($r_attbody);
+       is_http_compression_enabled()) {
+      my $zattbody=Compress::Zlib::memGzip($r_attbody); undef(${$r_attbody}); undef($r_attbody);
       my $zlen=length($zattbody);
       my $zattheader=qq|Content-Encoding: gzip\n|.
                      qq|Vary: Accept-Encoding\n|.
@@ -380,7 +376,7 @@ sub savefile2webdisk {
    my ($filename, $length, $r_content, $webdisksel)=@_;
 
    if ($quotalimit>0 && $quotausage+$length/1024>$quotalimit) {
-      $quotausage=(quota_get_usage_limit(\%config, $user, $homedir, 1))[2];	# get uptodate quotausage
+      $quotausage=(ow::quota::get_usage_limit(\%config, $user, $homedir, 1))[2];	# get uptodate quotausage
       if ($quotausage + $length/1024 > $quotalimit) {
          autoclosewindow($lang_text{'quotahit'}, $lang_err{'quotahit_alert'});
       }

@@ -3,7 +3,7 @@
 #                                                               #
 # Open WebMail - Provides a web interface to user mailboxes     #
 #                                                               #
-# Copyright (C) 2001-2003                                       #
+# Copyright (C) 2001-2004                                       #
 # The Open Webmail Team                                         #
 #                                                               #
 # Copyright (C) 2000                                            #
@@ -18,10 +18,10 @@
 #
 use vars qw($SCRIPT_DIR);
 if ( $0 =~ m!^(\S*)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1 }
-if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
+if ($SCRIPT_DIR eq '' && open(F, '/etc/openwebmail_path.conf')) {
    $_=<F>; close(F); if ( $_=~/^(\S*)/) { $SCRIPT_DIR=$1 }
 }
-if (!$SCRIPT_DIR) { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
+if ($SCRIPT_DIR eq '') { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
 push (@INC, $SCRIPT_DIR);
 
 foreach (qw(PATH ENV BASH_ENV CDPATH IFS TERM)) { $ENV{$_}='' }	# secure ENV
@@ -34,12 +34,15 @@ use CGI::Carp qw(fatalsToBrowser carpout);
 use Socket;	# for gethostbyaddr() in ip2hostname
 use MIME::Base64;
 
-require "modules/datetime.pl";
-require "modules/lang.pl";
 require "modules/dbm.pl";
+require "modules/suid.pl";
 require "modules/filelock.pl";
 require "modules/tool.pl";
+require "modules/datetime.pl";
+require "modules/lang.pl";
 require "modules/mime.pl";
+require "auth/auth.pl";
+require "quota/quota.pl";
 require "shares/ow-shared.pl";
 require "shares/pop3book.pl";
 require "shares/upgrade.pl";
@@ -164,7 +167,8 @@ sub loginmenu {
                               -override=>'1');
    $html =~ s/\@\@\@PASSWORDFIELD\@\@\@/$temphtml/;
 
-   if ( $ENV{'HTTP_ACCEPT_ENCODING'}=~/\bgzip\b/ && ow::tool::has_zlib() ) {
+   if ($ENV{'HTTP_ACCEPT_ENCODING'}=~/\bgzip\b/ && 
+       ow::tool::has_module('Compress/Zlib.pm') ) {
       $temphtml = checkbox(-name=>'httpcompress',
                            -value=>'1',
                            -checked=>cookie("openwebmail-httpcompress")||0,
@@ -222,7 +226,7 @@ sub login {
         $config{'mailspooldir'} eq "/var/spool/mail")) {
       print "Content-type: text/html\n\n'$0' must setuid to root"; openwebmail_exit(0);
    }
-   loadauth($config{'auth_module'});
+   ow::auth::load($config{'auth_module'});
 
    # create domain logfile
    if ($config{'logfile'}) {
@@ -275,28 +279,24 @@ sub login {
    }
    # validate client ip
    my $clientip=ow::tool::clientip();
-   if ($#{$config{'allowed_clientip'}}>=0) {
+   if (defined($config{'allowed_clientip'})) {
       my $allowed=0;
       foreach my $token (@{$config{'allowed_clientip'}}) {
          if (lc($token) eq 'all' || $clientip=~/^\Q$token\E/) {
             $allowed=1; last;
-         } elsif (lc($token) eq 'none') {
-            last;
          }
       }
       if (!$allowed) {
-         openwebmailerror(__FILE__, __LINE__, $lang_err{'disallowed_client'}." ( ip:$clientip )");
+         openwebmailerror(__FILE__, __LINE__, $lang_err{'disallowed_client'}."<br> ( ip: $clientip )");
       }
    }
    # validate client domain
-   if ($#{$config{'allowed_clientdomain'}}>=0) {
+   if (defined($config{'allowed_clientdomain'})) {
       my $clientdomain;
       my $allowed=0;
       foreach my $token (@{$config{'allowed_clientdomain'}}) {
          if (lc($token) eq 'all') {
             $allowed=1; last;
-         } elsif (lc($token) eq 'none') {
-            last;
          }
          $clientdomain=ip2hostname($clientip) if ($clientdomain eq "");
          if ($clientdomain=~/\Q$token\E$/ || # matched
@@ -305,7 +305,8 @@ sub login {
          }
       }
       if (!$allowed) {
-         openwebmailerror(__FILE__, __LINE__, $lang_err{'disallowed_client'}." ( hotname:$clientdomain )");
+         $clientdomain=ip2hostname($clientip) if ($clientdomain eq "");
+         openwebmailerror(__FILE__, __LINE__, $lang_err{'disallowed_client'}."<br> ( host: $clientdomain )");
       }
    }
 
@@ -330,27 +331,17 @@ sub login {
       }
    }
    upgrade_20030323();
-   # create owuserdir for stuff not put in syshomedir
-   if ( !$config{'use_syshomedir'} || !$config{'use_syshomedir_for_dotdir'} ) {
-      if (!-d $owuserdir) {
-         if (mkdir ("$owuserdir", oct(700)) && chown($uuid, (split(/\s+/,$ugid))[0], $owuserdir)) {
-            writelog("create owuserdir - $owuserdir, uid=$uuid, gid=".(split(/\s+/,$ugid))[0]);
-         } else {
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'cant_create_dir'} $owuserdir ($!)");
-         }
-      }
-   }
 
-   my ($errorcode, $errormsg);
+   my ($errorcode, $errormsg, @sessioncount);
    my $password = param('password') || '';
    if ($config{'auth_withdomain'}) {
-      ($errorcode, $errormsg)=check_userpassword(\%config, "$user\@$domain", $password);
+      ($errorcode, $errormsg)=ow::auth::check_userpassword(\%config, "$user\@$domain", $password);
    } else {
-      ($errorcode, $errormsg)=check_userpassword(\%config, $user, $password);
+      ($errorcode, $errormsg)=ow::auth::check_userpassword(\%config, $user, $password);
    }
    if ( $errorcode==0 ) {
       # search old alive session and deletes old expired sessionids
-      $thissession = search_and_cleanoldsessions(cookie("$user-sessionid"), $uuid);
+      ($thissession, @sessioncount) = search_and_cleanoldsessions(cookie("$user-sessionid"), $uuid);
       if ($thissession eq "") {	# name the new sessionid
          $thissession = $loginname."*".$default_logindomain."-session-".rand();
       }
@@ -360,15 +351,27 @@ sub login {
       } else {
          openwebmailerror(__FILE__, __LINE__, "Session ID $thissession $lang_err{'has_illegal_chars'}");
       }
-      writelog("login - $thissession");
+      writelog("login - $thissession - active=$sessioncount[0],$sessioncount[1],$sessioncount[2]");
 
       # get user release date
       my $user_releasedate=read_releasedatefile();
 
+      # create owuserdir for stuff not put in syshomedir
+      # this must be done before changing to the user's uid.
+      if ( !$config{'use_syshomedir'} || !$config{'use_syshomedir_for_dotdir'} ) {
+         if (!-d $owuserdir) {
+            if (mkdir ($owuserdir, oct(700)) && chown($uuid, (split(/\s+/,$ugid))[0], $owuserdir)) {
+               writelog("create owuserdir - $owuserdir, uid=$uuid, gid=".(split(/\s+/,$ugid))[0]);
+            } else {
+               openwebmailerror(__FILE__, __LINE__, "$lang_err{'cant_create_dir'} $owuserdir ($!)");
+            }
+         }
+      }
+
       # create the user's syshome directory if necessary.
       # this must be done before changing to the user's uid.
       if (!-d $homedir && $config{'create_syshomedir'}) {
-         if (mkdir ("$homedir", oct(700)) && chown($uuid, (split(/\s+/,$ugid))[0], $homedir)) {
+         if (mkdir ($homedir, oct(700)) && chown($uuid, (split(/\s+/,$ugid))[0], $homedir)) {
             writelog("create homedir - $homedir, uid=$uuid, gid=".(split(/\s+/,$ugid))[0]);
          } else {
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'cant_create_dir'} $homedir ($!)");
@@ -378,7 +381,7 @@ sub login {
       umask(0077);
       if ( $>==0 ) {			# switch to uuid:mailgid if script is setuid root.
          my $mailgid=getgrnam('mail');	# for better compatibility with other mail progs
-         set_euid_egids($uuid, $mailgid, split(/\s+/,$ugid));
+         ow::suid::set_euid_egids($uuid, $mailgid, split(/\s+/,$ugid));
          if ( $)!~/\b$mailgid\b/) {	# group mail doesn't exist?
             openwebmailerror(__FILE__, __LINE__, "Set effective gid to mail($mailgid) failed!");
          }
@@ -434,6 +437,7 @@ sub login {
 
             open(T,"$homedir/mbox.tmp.$$");
             open(F,"+<$folderdir/saved-messages");
+            seek(F, 0, 2);	# seek to end;
             while(<T>) { print F $_; }
             close(F);
             close(T);
@@ -444,50 +448,21 @@ sub login {
       }
 
       # check if releaseupgrade() is required
-      if ($user_releasedate ne "" &&
-          $user_releasedate ne $config{'releasedate'}) {
-         upgrade_all($user_releasedate);
+      if ($user_releasedate ne $config{'releasedate'}) {
+         upgrade_all($user_releasedate) if ($user_releasedate ne "");
          update_releasedatefile();
       }
       update_openwebmailrc($user_releasedate);
 
       # remove stale folder db
-      my (@validfolders, $folderusage);
-      getfolders(\@validfolders, \$folderusage);
+      my (@validfolders, $inboxusage, $folderusage);
+      getfolders(\@validfolders, \$inboxusage, \$folderusage);
       del_staledb($user, \@validfolders);
 
-      # create authpop3 book if auth_pop3.pl  & getmail_from_pop3_authserver is yes
-      if ($config{'auth_module'} eq 'auth_pop3.pl') {
-         my $authpop3book=ow::tool::untaint(dotpath('authpop3.book'));
-
-         if ($config{'getmail_from_pop3_authserver'}) {
-            my ($pop3host,$pop3port, $pop3user,$pop3passwd, $pop3del,$enable);
-            my $login=$user; $login .= "\@$domain" if ($config{'auth_withdomain'});
-            if ( -f "$authpop3book") {
-                my %accounts;
-                readpop3book("$authpop3book", \%accounts);
-                ($pop3host,$pop3port, $pop3user,$pop3passwd, ,$pop3del,$enable)
-                   =split(/\@\@\@/, $accounts{"$config{'pop3_authserver'}:$config{'pop3_authport'}\@\@\@$login"});
-            }
-
-            if ($pop3host ne $config{'pop3_authserver'} ||
-                $pop3port ne $config{'pop3_authport'} ||
-                $pop3user ne $login ||
-                $pop3passwd ne $password ||
-                $pop3del ne $config{'delpop3mail_by_default'} ) {
-               if ($pop3host ne $config{'pop3_authserver'} ||
-                   $pop3port ne $config{'pop3_authport'} ||
-                   $pop3user ne $login ) {
-                  $enable=1;
-               }
-               my %accounts;
-               $accounts{"$config{'pop3_authserver'}:$config{'pop3_authport'}\@\@\@$login"}
-                  ="$config{'pop3_authserver'}\@\@\@$config{'pop3_authport'}\@\@\@$login\@\@\@$password\@\@\@$config{'delpop3mail_by_default'}\@\@\@$enable";
-               writepop3book("$authpop3book", \%accounts);
-            }
-         } else {
-            unlink("$authpop3book");
-         }
+      # create authpop3 book if auth_pop3.pl or auth_ldap_vpopmail.pl
+      if ($config{'auth_module'} eq 'auth_pop3.pl' ||
+          $config{'auth_module'} eq 'auth_ldap_vpopmail.pl') {
+         update_authpop3book(dotpath('authpop3.book'), $domain, $user, $password);
       }
 
       # set cookie in header and redirect page to openwebmail-main
@@ -558,6 +533,13 @@ sub login {
       }
       $repeatstr='repeat' if ($prefs{'bgrepeat'});
 
+      my $countstr='';
+      if ($config{'session_count_display'}) {
+         $countstr=qq|<br><br><br>\n|.
+                   qq|<a href=# title="number of active sessions in the past 1, 5, 15 minutes">Sessions&nbsp; :&nbsp; |.
+                   qq|$sessioncount[0],&nbsp; $sessioncount[1],&nbsp; $sessioncount[2]</a>\n|;
+      }
+
       # display copyright. Don't touch it, please.
       httpprint(\@header,
       		[qq|<html>\n|.
@@ -579,7 +561,7 @@ sub login {
 		 qq|<br><br><br>\n\n|.
 		 qq|<a href="http://openwebmail.org/" title="click to home of $config{'name'}" target="_blank" style="text-decoration: none">\n|.
 		 qq|$config{'name'} $config{'version'} $config{'releasedate'}<br><br>\n|.
-		 qq|Copyright (C) 2001-2003<br>\n|.
+		 qq|Copyright (C) 2001-2004<br>\n|.
 		 qq|Chung-Kie Tung, Nai-Jung Kuo, Chao-Chiu Wang, Emir Litric,<br>|.
                  qq|Thomas Chung, Dattola Filippo, Bernd Bass, Scott Mazur<br><br>\n|.
 		 qq|Copyright (C) 2000<br>\n|.
@@ -595,7 +577,7 @@ sub login {
 		 qq|See the GNU General Public License for more details.<br><br>\n|.
 		 qq|Removal or change of this copyright is prohibited.\n|.
 		 qq|</a>\n|.
-		 qq|$js\n|.
+		 qq|$countstr$js\n|.
 		 qq|</center></body></html>\n|] );
 
    } else { # Password is INCORRECT
@@ -603,7 +585,7 @@ sub login {
       umask(0077);
       if ( $>==0 ) {	# switch to uuid:mailgid if script is setuid root.
          my $mailgid=getgrnam('mail');
-         set_euid_egids($uuid, $mailgid, split(/\s+/,$ugid));
+         ow::suid::set_euid_egids($uuid, $mailgid, split(/\s+/,$ugid));
       }
       my $historyfile=ow::tool::untaint(dotpath('history.log'));
       if (-f $historyfile ) {
@@ -648,12 +630,10 @@ sub ip2hostname {
 ########## IS_SERVERDOMAIN_ALLOWED ###############################
 sub is_serverdomain_allowed {
    my $domain=$_[0];
-   if ($#{$config{'allowed_serverdomain'}}>=0) {
+   if (defined($config{'allowed_serverdomain'})) {
       foreach my $token (@{$config{'allowed_serverdomain'}}) {
          if (lc($token) eq 'all' || lc($domain) eq lc($token)) {
             return 1;
-         } elsif (lc($token) eq 'none') {
-            return 0;
          }
       }
       return 0;
@@ -669,48 +649,53 @@ sub is_serverdomain_allowed {
 sub search_and_cleanoldsessions {
    my ($oldcookie, $owner_uid)=@_;
    my $oldsessionid="";
-   my ($sessionid, $modifyage);
+   my @sessioncount=(0,0,0);	# active sessions in 1, 5, 15 minutes
    my @delfiles;
 
    opendir(SESSIONSDIR, "$config{'ow_sessionsdir'}") or
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}! ($!)");
-   my $t=time();
-   while (defined($sessionid = readdir(SESSIONSDIR))) {
-      if ($sessionid =~ /^(.+\-session\-0.*)$/) {
-         $sessionid = $1;
-         $modifyage = $t-(stat("$config{'ow_sessionsdir'}/$sessionid"))[9];
-
-         $sessionid =~ /^([\w\.\-\%\@]+)\*([\w\.\-]*)\-session\-(0\.\d+)$/;
-         my ($sess_loginname, $sess_default_logindomain)=($1, $2); # param from sessionid
-
-         if ($loginname eq $sess_loginname &&
-             $default_logindomain eq $sess_default_logindomain) {
-            # remove user old session if timeout
-            if ( $modifyage > $prefs{'sessiontimeout'}*60 ) {
-               writelog("session cleanup - $sessionid");
-               push(@delfiles, "$config{'ow_sessionsdir'}/$sessionid");
-            } else {
-               my ($cookie, $ip, $userinfo)=sessioninfo($sessionid);
-               if ($oldcookie && $cookie eq $oldcookie && $ip eq ow::tool::clientip() &&
-                   (stat("$config{'ow_sessionsdir'}/$sessionid"))[4] == $owner_uid ) {
-                  $oldsessionid=$sessionid;
-               } elsif (!$config{'session_multilogin'}) { # remove old session of this user
-                  writelog("session cleanup - $sessionid");
-                  push(@delfiles, "$config{'ow_sessionsdir'}/$sessionid");
-               }
-            }
-         } else {	# remove old session of other user if more than 1 day
-            if ( $modifyage > 86400 ) {
-               writelog("session cleanup - $sessionid");
-               push(@delfiles, "$config{'ow_sessionsdir'}/$sessionid");
-            }
-         }
-      }
-   }
+      my @sessfiles=readdir(SESSIONSDIR);
    closedir(SESSIONSDIR);
 
-   unlink(@delfiles) if ($#delfiles>=0);
-   return($oldsessionid);
+   my $t=time();
+   foreach my $sessfile (@sessfiles) {
+      next if ($sessfile !~ /^([\w\.\-\%\@]+)\*([\w\.\-]*)\-session\-(0\.\d+)(-.*)?$/);
+
+      my ($sess_loginname, $sess_default_logindomain, $serial, $misc)=($1, $2, $3, $4); # param from sessfile
+      my $modifyage = $t-(stat("$config{'ow_sessionsdir'}/$sessfile"))[9];
+
+      if ($loginname eq $sess_loginname &&
+          $default_logindomain eq $sess_default_logindomain) {
+         # remove user old session if timeout
+         if ( $modifyage > $prefs{'sessiontimeout'}*60 ) {
+            push(@delfiles, $sessfile);
+         } elsif ($misc eq '') {	# this is a session info file
+            my ($cookie, $ip, $userinfo)=sessioninfo($sessfile);
+            if ($oldcookie && $cookie eq $oldcookie && $ip eq ow::tool::clientip() &&
+               (stat("$config{'ow_sessionsdir'}/$sessfile"))[4] == $owner_uid ) {
+               $oldsessionid=$sessfile;
+            } elsif (!$config{'session_multilogin'}) { # remove old session of this user
+               push(@delfiles, $sessfile);
+            }
+         }
+
+      } else {	# remove old session of other user if more than 1 day
+         push(@delfiles, $sessfile) if ( $modifyage > 86400 );
+      }
+
+      if ($misc eq '') {
+         $sessioncount[0]++ if ($modifyage <= 60);
+         $sessioncount[1]++ if ($modifyage <= 300);
+         $sessioncount[2]++ if ($modifyage <= 900);
+      }
+   }
+
+   foreach my $sessfile (@delfiles) {
+      writelog("session cleanup - $sessfile");
+      unlink ow::tool::untaint("$config{'ow_sessionsdir'}/$sessfile");
+   }
+
+   return($oldsessionid, @sessioncount);
 }
 ########## END SEARCH_AND_CLEANOLDSESSIONS #######################
 

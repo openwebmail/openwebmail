@@ -45,8 +45,9 @@
    {
       var url = "@@@ABOOKURL@@@?action=addressbook&sessionid=@@@SESSIONID@@@&form=newaddress&field=" + field;
 
+      // double escape, one for url, one for elist (see openwebmail-abook.pl)
       if (field == "email")
-         url += "&elist=" + escape (document.newaddress.email.value);
+         url += "&elist=" + escape(escape(document.newaddress.email.value));
 
       var hWnd = window.open(url,"_addressbook","width=380,height=360,resizable=yes,scrollbars=yes");
       if ((document.window != null) && (!hWnd.opener))

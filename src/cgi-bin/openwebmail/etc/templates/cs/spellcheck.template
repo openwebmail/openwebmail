@@ -7,13 +7,13 @@
 
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>Ke ka¾dému ¹patnì napsanému slovu bude zobrazen seznam mo¾ných tvarù.
-U¾ivatel nìkterý z nich mù¾e vybrat a nahradit jím pùvodní slovo.
-Pokud není ¾ádný alternativní tvar nalezen, mù¾e u¾ivatel vybrat  "--Opravit ruènì--",
-následnì kliknout na [Pokraèovat v kontrole] a do textového pole zadat po¾adovaný
+<BR>Ke ka¾dému neznámému slovu bude zobrazen seznam nabízených alternativ.
+Mù¾ete nìkteré z nich vybrat a nahradit jím pùvodní slovo.
+Pokud není ¾ádný alternativní tvar nalezen, mù¾ete vybrat &quot;--Opravit ruènì--&quot;,
+následnì kliknout na [ Pokraèovat v kontrole pravopisu ] a do textového pole zadat po¾adovaný
 tvar slova.
-Jestli¾e u¾ivatel vybere "--Pøidat do slovníku--" a následnì klikne na [Opìt kontrolovat], 
-pùvodní slovo bude pøidáno do osobního slovníku u¾ivatele.
+Jestli¾e u¾ivatel vybere &quot;--Pøidat do slovníku--&quot; a následnì klikne na [ Pokraèovat v kontrole pravopisu ],
+bude pùvodní slovo pøidáno do osobního slovníku u¾ivatele.
 </td></tr>
 </table>
 <br>

@@ -73,7 +73,7 @@ package ow::de;
 
 %lang_ctrlpositionlabels =
    (
-   top => 'Am oberen Rand',
+   top    => 'Am oberen Rand',
    bottom => 'Am unteren Rand'
    );
 
@@ -234,6 +234,7 @@ package ow::de;
    userdef    => 'benutzerdefiniert',
    logout     => 'Abmelden',
    page       => 'Seite',
+   msgsperpage=> '@@@MSGCOUNT@@@ messages per page',
    msgcopyconf=> '\'Sind Sie sicher, dass Sie die markierte(n) Nachricht(en) kopieren möchten?\'',
    copy       => 'Kopieren',
    msgmoveconf=> '\'Sind Sie sicher, dass Sie die markierte(n) Nachricht(en) verschieben möchten?\'',
@@ -333,6 +334,8 @@ package ow::de;
    all        => 'Alles',
    enable     => 'aktivieren',
    disable    => 'deaktivieren',
+   yes        => 'Ja',
+   no         => 'Nein',
    filtered   => 'Gefiltert',
    blockrelay => 'SMTP-Relay blockieren',
    blockemail => 'eMail-Adresse blockieren',

@@ -12,6 +12,7 @@ use strict;
 ########## No configuration required from here ###################
 
 use Fcntl qw(:DEFAULT :flock);
+require "modules/filelock.pl";
 require "modules/tool.pl";
 
 use vars qw($dbm_ext $dbmopen_ext $dbmopen_haslock);
@@ -142,6 +143,60 @@ sub unlink {
    return 1 if (unlink(dblist2dbfiles(@_)));
    ($dbm_errno, $dbm_errmsg)=(-1, $!);
    return 0;
+}
+
+sub guessoptions {
+   my (%DB, @filelist, @delfiles);
+   my ($dbm_ext, $dbmopen_ext, $dbmopen_haslock);
+
+   mkdir ("/tmp/dbmtest.$$", 0755);
+
+   dbmopen(%DB, "/tmp/dbmtest.$$/test", 0600); dbmclose(%DB);
+   @delfiles=();
+   opendir(TESTDIR, "/tmp/dbmtest.$$");
+   while (defined(my $filename = readdir(TESTDIR))) {
+      if ($filename!~/^\./ ) {
+         push(@filelist, $filename);
+         push(@delfiles, ow::tool::untaint("/tmp/dbmtest.$$/$filename"));
+      }
+   }
+   closedir(TESTDIR);
+   unlink(@delfiles) if ($#delfiles>=0);
+
+   @filelist=reverse sort(@filelist);
+   if ($filelist[0]=~/(\..*)$/) {
+      ($dbm_ext, $dbmopen_ext)=($1, '');
+   } else {
+      ($dbm_ext, $dbmopen_ext)=('.db', '.db');
+   }
+
+   my $result;
+   ow::filelock::lock("/tmp/dbmtest.$$/test$dbm_ext", LOCK_EX);
+   eval {
+      local $SIG{ALRM} = sub { die "alarm\n" }; # NB: \n required
+      alarm 5;	# timeout 5 sec
+      $result = dbmopen(%DB, "/tmp/dbmtest.$$/test$dbmopen_ext", 0600);
+      dbmclose(%DB) if ($result);
+      alarm 0;
+   };
+   if ($@ or !$result) {	# eval error, it means timeout
+      $dbmopen_haslock=1;
+   } else {
+      $dbmopen_haslock=0;
+   }
+   ow::filelock::lock("/tmp/dbmtest.$$/test$dbm_ext", LOCK_UN);
+
+   @delfiles=();
+   opendir(TESTDIR, "/tmp/dbmtest.$$");
+   while (defined(my $filename = readdir(TESTDIR))) {
+      push(@delfiles, ow::tool::untaint("/tmp/dbmtest.$$/$filename")) if ($filename!~/^\./ );
+   }
+   closedir(TESTDIR);
+   unlink(@delfiles) if ($#delfiles>=0);
+
+   rmdir("/tmp/dbmtest.$$");
+
+   return($dbm_ext, $dbmopen_ext, $dbmopen_haslock);
 }
 
 ########## misc support routine ##################################

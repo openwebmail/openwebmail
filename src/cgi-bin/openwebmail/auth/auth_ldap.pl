@@ -37,7 +37,7 @@ my $ldapBase = "$dc1, $dc2";
 # -4 : user doesn't exist
 sub get_userinfo {
    my ($r_config, $user)=@_;
-   return(-2, 'User is null') if (!$user);
+   return(-2, 'User is null') if ($user eq '');
 
    my $ldap = Net::LDAP->new($ldapHost) or return(-3, "LDAP error $@");
    $ldap->bind (dn=>"$cn, $dc1, $dc2", password =>$pwd) or  return(-3, "LDAP error $@");
@@ -47,7 +47,6 @@ sub get_userinfo {
                             filter  => "(&(objectClass=posixAccount)(uid=$user))",
                             attrs   => ['uidNumber','gidNumber','gecos','homeDirectory']
                             ) or return(-3, "LDAP error $@");
-
    undef($ldap); # disconnect
 
    if ($list->count eq 0) {
@@ -78,15 +77,14 @@ sub get_userlist {      # only used by openwebmail-tool.pl -a
                             filter  => "(&(objectClass=posixAccount))",
                             attrs   => ['uid']
                             ) or return(-3, "LDAP error $@");
-
    undef($ldap); # disconnect
 
    my $num = $list->count;
    my @userlist=();
    for (my $i = 0; $i < $num; $i++) {
-	my $entry = $list->entry($i);
-	push (@userlist, $entry->get_value("uid"));
-	}
+      my $entry = $list->entry($i);
+      push (@userlist, $entry->get_value("uid"));
+   }
 
    return (0, '', @userlist);
 }
@@ -98,7 +96,7 @@ sub get_userlist {      # only used by openwebmail-tool.pl -a
 # -4 : password incorrect
 sub check_userpassword {
    my ($r_config, $user, $password)=@_;
-   return (-2, "User or password is null") if (!$user||!$password);
+   return (-2, "User or password is null") if ($user eq '' || $password eq '');
 
    my $ldap = Net::LDAP->new($ldapHost) or return(-3, "LDAP error $@");
    # $ldap->bind (dn=>"$cn, $dc1, $dc2", password =>$pwd) or  return(-3, "LDAP error $@");
@@ -125,7 +123,7 @@ sub check_userpassword {
 # -4 : password incorrect
 sub change_userpassword {
    my ($r_config, $user, $oldpassword, $newpassword)=@_;
-   return (-2, "User or password is null") if (!$user||!$oldpassword||!$newpassword);
+   return (-2, "User or password is null") if ($user eq '' || $oldpassword eq '' || $newpassword eq '');
    return (-2, "Password too short") if (length($newpassword)<${$r_config}{'passwd_minlen'});
 
    my ($ret, $errmsg)=check_userpassword($r_config, $user, $oldpassword);
@@ -142,7 +140,6 @@ sub change_userpassword {
                             dn      => "uid=$user, ou=People, $dc1, $dc2",
                             replace => {'userPassword'=>$encrypted}
                             );
-
    undef($ldap);
 
    return (0, '');

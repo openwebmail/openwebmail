@@ -71,7 +71,7 @@ package ow::uk;
 
 %lang_ctrlpositionlabels =
    (
-   top => 'Зверху',
+   top    => 'Зверху',
    bottom => 'Знизу'
    );
 
@@ -232,6 +232,7 @@ package ow::uk;
    userdef    => 'Визначений користувачем',
    logout     => 'Вих╕д',
    page       => 'Стор╕нка',
+   msgsperpage=> '@@@MSGCOUNT@@@ messages per page',
    msgcopyconf=> '\'Ви впевнен╕ що хочете скоп╕ювати вибран╕ пов╕домлення?\'',
    copy       => 'Коп╕ювати',
    msgmoveconf=> '\'Видалити вибран╕ пов╕домлення?\'',
@@ -331,6 +332,8 @@ package ow::uk;
    all        => 'Вс╕',
    enable     => 'Дозволити',
    disable    => 'Заборонити',
+   yes        => 'Так',
+   no         => 'Н╕',
    filtered   => 'В╕дф╕льтровано',
    blockrelay => 'Заблокувати пересилання по SMTP',
    blockemail => 'Заблокувати адресу',

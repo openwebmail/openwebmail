@@ -72,7 +72,7 @@ package ow::kr;
 
 %lang_ctrlpositionlabels =
    (
-   top => '위에',
+   top    => '위에',
    bottom => '밑에'
    );
 
@@ -233,6 +233,7 @@ package ow::kr;
    userdef    => '사용자 정의',
    logout     => '로그아웃',
    page       => '페이지',
+   msgsperpage=> '@@@MSGCOUNT@@@ messages per page',
    msgcopyconf=> '\'선택된 메시지(들)을 복사하시겠습니까?\'',
    copy       => '복사하기',
    msgmoveconf=> '\'선택된 메시지(들)을 옮기시겠습니까?\'',
@@ -332,6 +333,8 @@ package ow::kr;
    all        => '모두',
    enable     => '활성',
    disable    => '비활성',
+   yes        => '예',
+   no         => '아니오',
    filtered   => '필터된',
    blockrelay => 'SMTP 릴래이 막기',
    blockemail => '이메일 막기',

@@ -12,6 +12,7 @@
    'blockrelay.gif'    => ' [!发信主机] ',
    'cal-delete.gif'    => ' [删除] ',
    'cal-link.gif'      => ' [连结] ',
+   'cal-popup.gif'     => ' ',
    'calendar.gif'      => ' [行事历] ',
    'chpwd.gif'         => ' [换密码] ',
    'clearaddress.gif'  => ' [清除通讯录] ',
@@ -74,6 +75,7 @@
    'right-grey.s.gif'  => ' > ',
    'right.gif'         => ' > ',
    'right.s.gif'       => ' > ',
+   'search.s.gif'      => ' [搜寻] ',
    'sound.gif'         => ' [试听] ',
    'sshterm.gif'       => ' [SSH终端机] ',
    'thumbnail.gif'     => ' [建立缩图] ',
@@ -84,6 +86,7 @@
    'up.gif'            => ' ^ ',
    'vdusers.gif'       => ' [虚拟帐号管理] ',
    'webdisk.gif'       => ' [网路硬碟] ',
+   'webdisk.s.gif'     => ' [网路硬碟] ',
    'weekview.gif'      => ' [周行事历] ',
    'yearview.gif'      => ' [年行事历]'
    );

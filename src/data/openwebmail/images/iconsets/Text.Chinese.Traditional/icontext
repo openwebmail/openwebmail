@@ -1,4 +1,3 @@
-
 #!/usr/bin/perl
 
 %icontext =
@@ -13,6 +12,7 @@
    'blockrelay.gif'    => ' [!發信主機] ',
    'cal-delete.gif'    => ' [刪除] ',
    'cal-link.gif'      => ' [連結] ',
+   'cal-popup.gif'     => ' ',
    'calendar.gif'      => ' [行事曆] ',
    'chpwd.gif'         => ' [換密碼] ',
    'clearaddress.gif'  => ' [清除通訊錄] ',
@@ -75,6 +75,7 @@
    'right-grey.s.gif'  => ' > ',
    'right.gif'         => ' > ',
    'right.s.gif'       => ' > ',
+   'search.s.gif'      => ' [搜尋] ',
    'sound.gif'         => ' [試聽] ',
    'sshterm.gif'       => ' [SSH終端機] ',
    'thumbnail.gif'     => ' [建立縮圖] ',
@@ -85,6 +86,7 @@
    'up.gif'            => ' ^ ',
    'vdusers.gif'       => ' [虛擬帳號管理] ',
    'webdisk.gif'       => ' [網路硬碟] ',
+   'webdisk.s.gif'     => ' [網路硬碟] ',
    'weekview.gif'      => ' [週行事曆] ',
    'yearview.gif'      => ' [年行事曆]'
    );

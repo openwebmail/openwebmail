@@ -7,10 +7,10 @@ date=`date "+%y%m%d"`
 ar=isam@planet.edu
 bg=vess@vess.bnc.bg
 ca=mikaku@fiwix.org
-cs=schauer@dp.fyz.fce.vutbr.cz
+cs=milan.kerslager@pslib.cz
 gb2312=wjun@mail.iap.ac.cn
 big5=openwebmail@turtle.ee.ncku.edu.tw
-da=frank@post12.tele.dk
+da=
 nl=openwebmail@forty-two.nl
 fi=kari.paivarinta@viivatieto.fi
 fr=admin@osmium-work.com
@@ -99,9 +99,9 @@ tung
 
     cat /tmp/notify.tmp.$$| \
     /usr/local/bin/mutt -s "OWM $date translation update request" \
-    -a /usr/local/www/data/openwebmail/download/*-lang-template.diff \
+    -a /usr/local/www/data/openwebmail/download/*-lang-templates.diff \
     $ar $bg $ca $cs $gb2312 $big5 $da $nl $fi $fr $de $el $he $hu $id \
-    $it $jp $kr $lt $no $pl $pt $ptbr $ro $ru $sr $sk $es $sv $th $tr $uk $ur
+    $it $jp $kr $lt $no $pl $pt $ptbr $ro $ru $sr $sk $es $sv $th $tr $uk $ur webmail
   fi
   rm /tmp/notify.tmp.$$
 fi
@@ -118,9 +118,9 @@ Since your are one of the package/port or service maintainer of openwebmail,
 so I sent you this message for notification.
 
 The latest release is available at
-http://openwebmail.com/openwebmail/download/openwebmail-2.20.tgz
-http://openwebmail.org/openwebmail/download/openwebmail-2.20.tgz
-http://turtle.ee.ncku.edu.tw/openwebmail/download/openwebmail-2.20.tgz
+http://openwebmail.com/openwebmail/download/openwebmail-2.32.tgz
+http://openwebmail.org/openwebmail/download/openwebmail-2.32.tgz
+http://turtle.ee.ncku.edu.tw/openwebmail/download/openwebmail-2.32.tgz
 
 The MD5 is xxxxxx
 

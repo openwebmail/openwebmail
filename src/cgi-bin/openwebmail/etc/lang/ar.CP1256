@@ -71,7 +71,7 @@ package ow::ar_CP1256;
 
 %lang_ctrlpositionlabels =
    (
-   top => 'Ýם ÇבÃÚבל',
+   top    => 'Ýם ÇבÃÚבל',
    bottom => 'Ýם ÇבÃÓÝב'
    );
 
@@ -232,6 +232,7 @@ package ow::ar_CP1256;
    userdef    => 'דÍÏÏ דה ÇבדÓÊÎÏד',
    logout     => 'ÊÓÌםב ÇבÎÑזÌ',
    page       => 'ÕÝÍÉ',
+   msgsperpage=> '@@@MSGCOUNT@@@ messages per page',
    msgcopyconf=> '\'וב ÃהÊ דÊÃ‗רÏ Ãהר‗ ÊÑםÏ הÓÎ ÇבÑÓÇבÉ (ÇבÑÓÇÆב) ÇבדÎÊÇÑÉ¿\'',
    copy       => 'הÓÎ Åבל',
    msgmoveconf=> '\' וב ÃהÊ דÊÃ‗רÏ Ãהר‗ ÊÑםÏ הÞב ÇבÑÓÇבÉ (ÇבÑÓÇÆב) ÇבדÎÊÇÑÉ¿\'',
@@ -331,6 +332,8 @@ package ow::ar_CP1256;
    all        => 'Çב‗ב',
    enable     => 'דד‗ה',
    disable    => 'דÚØב',
+   yes        => 'הÚד',
+   no         => 'בÇ',
    filtered   => 'ÊדÊ ÝבÊÑÊוÇ',
    blockrelay => 'דהÚ ÇבÈÑםÏ דה דבÞד SMTP',
    blockemail => 'דהÚ ÇבÈÑםÏ דה ÇבÚהזÇה',

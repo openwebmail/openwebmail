@@ -72,7 +72,7 @@ package ow::nl;
 
 %lang_ctrlpositionlabels =
    (
-   top => 'Bovenaan',
+   top    => 'Bovenaan',
    bottom => 'Onderaan'
    );
 
@@ -188,8 +188,8 @@ package ow::nl;
    listarchive=> 'Lijst',
    decompress=>'Uitpakken',
    extract  => 'Uitpakken',
-   mkpdf    => 'Make Pdf',
-   mkps     => 'Make Ps',
+   mkpdf    => 'Maak Pdf',
+   mkps     => 'Maak Ps',
    chdir    => 'ChDir',
    mkdir    => 'MkDir',
    newfile  => 'Nieuw bestand',
@@ -233,6 +233,7 @@ package ow::nl;
    userdef    => 'Gebruiker bepaald',
    logout     => 'Uitloggen',
    page       => 'Pagina',
+   msgsperpage=> '@@@MSGCOUNT@@@ messages per page',
    msgcopyconf=> '\'Weet u zeker dat u de geselecteerde berichten wilt kopieren?\'',
    copy       => 'Kopieer',
    msgmoveconf=> '\'Weet u zeker dat u de geselecteerde berichten wilt verplaatsen?\'',
@@ -253,7 +254,7 @@ package ow::nl;
    forwardasatt=>'Doorsturen als bijlage',
    forwardasorig=>'Forward as original',
    printfriendly=> 'Printvriendelijke versie',
-   msgformat  => 'MsgFormat',
+   msgformat  => 'MsgFormaat',
    from       => 'Van',
    replyto    => 'Antwoord naar',
    to         => 'Naar',
@@ -314,7 +315,7 @@ package ow::nl;
    note       => 'Notitie',
    max        => 'Maximum',
    group      => 'Groep',
-   quotausage => 'Quota usage',
+   quotausage => 'Quota gebruikt',
    quotalimit => 'Quota limiet',
    quotahit   => 'QUOTUM OVERSCHREDEN',
    tzmap      => 'Wereldtijdenkaart',
@@ -332,6 +333,8 @@ package ow::nl;
    all        => 'Alle',
    enable     => 'Activeer',
    disable    => 'Login Geblokkeerd',
+   yes        => 'Ja',
+   no         => 'Nee',
    filtered   => 'Gefilterd',
    blockrelay => 'Blokkeer SMTP Relay',
    blockemail => 'Blokkeer e-mail',
@@ -479,7 +482,7 @@ package ow::nl;
    no_file_todownload=> 'U heeft geen bestand gekozen om te downloaden',
    upload_overlimit  => 'Dit bestand is te groot om te uploaden',
    decomp_notsupported =>'Het uitpakken van dit bestandsformaat wordt niet ondersteund.',
-   filefmt_notsupported =>'The file format is not supported.',
+   filefmt_notsupported =>'Het bestandsformaat wordt niet ondersteund.',
    webdisk_readonly  => 'Sorry, uw webdisk staat op Alleen Lezen.',
    quota_syserr      => 'Quota systeemfout',
    quotahit_alert    => 'Sorry, u heeft uw opslaglimiet bereikt. Verwijder a.u.b. een aantal berichten uit uw e-mail mappen of verwijder een aantal bestanden uit uw webdisk om ruimte te maken.',

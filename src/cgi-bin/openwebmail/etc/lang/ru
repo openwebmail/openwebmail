@@ -71,7 +71,7 @@ package ow::ru;
 
 %lang_ctrlpositionlabels =
    (
-   top => 'At top',
+   top    => 'At top',
    bottom => 'At bottom'
    );
 
@@ -232,6 +232,7 @@ package ow::ru;
    userdef    => 'Указано пользователем',
    logout     => 'Выход',
    page       => 'Страница',
+   msgsperpage=> '@@@MSGCOUNT@@@ messages per page',
    msgcopyconf=> '\'Вы уверены, что хотите копировать выделенные сообщения?\'',
    copy       => 'Copy',
    msgmoveconf=> '\'Удалить выбранные сообщения?\'',
@@ -331,6 +332,8 @@ package ow::ru;
    all        => 'Все',
    enable     => 'Включить',
    disable    => 'Выключить',
+   yes        => 'Да',
+   no         => 'Нет',
    filtered   => 'Зафильтровано',
    blockrelay => 'Блокировать SMTP шлюз',
    blockemail => 'Блокировать почту',

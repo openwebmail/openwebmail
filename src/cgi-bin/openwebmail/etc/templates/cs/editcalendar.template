@@ -13,21 +13,21 @@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@STRINGFIELD@@@
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Poèáteèní èas:</B>
+<B>Zaèátek:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@STARTHOURMINMENU@@@
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Koneèný èas:</B>
+<B>Konec:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ENDHOURMINMENU@@@
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Recurrence:</B>
+<B>Opakování:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FREQMENU@@@
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>&nbsp;</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@THISANDNEXTNDAYSCHECKBOX@@@ This day and next @@@NDAYSFIELD@@@ days
+@@@THISANDNEXTNDAYSCHECKBOX@@@ Tento den a dal¹ích @@@NDAYSFIELD@@@ dní
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>&nbsp;</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -35,9 +35,9 @@
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>&nbsp;</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@EVERYYEARCHECKBOX@@@ Every year
+@@@EVERYYEARCHECKBOX@@@ Ka¾dý rok
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Zmìnit http odkaz související s polo¾kou:</B>
+<B>HTTP odkaz u polo¾ky:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@LINKFIELD@@@
 @@@EMAILSTART@@@

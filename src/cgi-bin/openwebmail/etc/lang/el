@@ -1,7 +1,7 @@
 package ow::el;
 
-# Greek translation, charset: iso-8859-7
-# by Dimitris 'sehh' Michelinakis
+# Hellenic/Greek translation, charset: iso-8859-7
+# by Dimitris 'sehh' Michelinakis <dimitris.AT.michelinakis.gr>
 
 %lang_folders =
    (
@@ -9,7 +9,7 @@ package ow::el;
    'saved-messages' => 'Σωσμένα',
    'sent-mail'      => 'Εξερχόμενα',
    'saved-drafts'   => 'Προσχέδιο',
-   'mail-trash'     => 'Απορρίματα',
+   'mail-trash'     => 'Απορρίμματα',
    DELETE           => '--Διαγραφή--'
    );
 
@@ -28,9 +28,9 @@ package ow::el;
 
 %lang_onofflabels =
    (
-   auto => 'Auto switched',
-   on   => 'On',
-   off  => 'Off',
+   auto => 'Αυτόματη επιλογή',
+   on   => 'Ενεργοποίηση',
+   off  => 'Απενεργοποίηση',
    );
 
 %lang_prioritylabels =
@@ -42,51 +42,51 @@ package ow::el;
 
 %lang_msgformatlabels =
    (
-   auto => 'Auto selected',
-   text => 'Text',
+   auto => 'Αυτόματη επιλογή',
+   text => 'Κείμενο',
    html => 'HTML',
-   both => 'HTML and Text'
+   both => 'HTML και Κείμενο'
    );
 
 %lang_withoriglabels =
    (
-   at_beginning => 'στήν αρχή',
-   at_end       => 'στό τέλος',
+   at_beginning => 'στην αρχή',
+   at_end       => 'στο τέλος',
    none         => 'Καθόλου'
    );
 
 %lang_receiptlabels =
    (
    ask => 'Επαλήθευση',
-   yes => 'Ναί',
+   yes => 'Ναι',
    no  => 'Όχι'
    );
 
 %lang_disableemblinklabels =
    (
-   none    => 'None',
-   cgionly => 'CGI only',
-   all     => 'All embedded URLs'
+   none    => 'Καθόλου',
+   cgionly => 'CGI μόνο',
+   all     => 'Όλα τα ενσωματωμένα URLs'
    );
 
 %lang_ctrlpositionlabels =
    (
-   top => 'At top',
-   bottom => 'At bottom'
+   top => 'Πάνω τμήμα',
+   bottom => 'Κάτω τμήμα'
    );
 
 %lang_sendpositionlabels =
    (
-   before => 'Before mail edit area',
-   after  => 'After mail edit area',
-   both   => 'Before and after mail edit area'
+   before => 'Πριν τον χώρο επεξεργασίας',
+   after  => 'Μετά τον χώρο επεξεργασίας',
+   both   => 'Και πριν και μετά τον χώρο επεξεργασίας'
    );
 
 %lang_abookbuttonpositionlabels = 
    (
-   before => 'Before addressbook entries',
-   after  => 'After addressbook entries',
-   both   => 'Before and after addressbook entries'
+   before => 'Πριν τον χώρο εισαγωγής διευθύνσεων',
+   after  => 'Μετά τον χώρο εισαγωγής διευθύνσεων',
+   both   => 'Και πριν και μετά τον χώρο εισαγωγής διευθύνσεων'
    );
 
 %lang_timelabels =
@@ -107,10 +107,10 @@ package ow::el;
 %lang_advsearchlabels =
    (
    contains    => 'περιέχει',
-   notcontains => 'δέν περιέχει',
+   notcontains => 'δεν περιέχει',
    is          => 'είναι',
-   isnot       => 'δέν είναι',
-   startswith  => 'αρχίξει με',
+   isnot       => 'δεν είναι',
+   startswith  => 'αρχίζει με',
    endswith    => 'τελειώνει με',
    regexp      => 'παρόμοιο με regexp',
    );
@@ -127,8 +127,8 @@ package ow::el;
    yearview  => 'Ετήσιο ημερολόγιο, ',
    monthview => 'Μηνιαίο ημερολόγιο, ',
    weekview  => 'Εβδομαδιαίο ημερολόγιο, ',
-   dayview   => 'Ημερίσιο ημερολόγιο, ',
-   listview  => 'Listview'
+   dayview   => 'Ημερήσιο ημερολόγιο, ',
+   listview  => 'Κατάλογος'
    );
 
 %lang_month =
@@ -140,9 +140,9 @@ package ow::el;
    5  => 'Μάϊος',
    6  => 'Ιούνιος',
    7  => 'Ιούλιος',
-   8  => 'Άυγουστος',
+   8  => 'Αύγουστος',
    9  => 'Σεπτέμβριος',
-   10 => 'Οκτόβριος',
+   10 => 'Οκτώβριος',
    11 => 'Νοέμβριος',
    12 => 'Δεκέμβριος'
    );
@@ -181,33 +181,33 @@ package ow::el;
 
 %lang_wdbutton =
    (
-   refresh  => 'Refresh',
-   preview  => 'Preview',
-   edit     => 'Edit',
-   listarchive=> 'List',
-   decompress=>'Decompress',
-   extract  => 'Extract',
-   mkpdf    => 'Make Pdf',
-   mkps     => 'Make Ps',
-   chdir    => 'ChDir',
-   mkdir    => 'MkDir',
-   newfile  => 'NewFile',
-   copy     => 'Copy',
-   move     => 'Move',
+   refresh  => 'Ανανέωση',
+   preview  => 'Προσωρινή ανάγνωση',
+   edit     => 'Επεξεργασία',
+   listarchive=> 'Κατάλογος',
+   decompress=>'Αποσυμπίεση',
+   extract  => 'Απόσπασμα',
+   mkpdf    => 'Δημιουργία Pdf',
+   mkps     => 'Δημιουργία Ps',
+   chdir    => 'Αλλαγή Κατaλόγου',
+   mkdir    => 'Δημιουργία Κατaλόγου',
+   newfile  => 'Νέο Αρχείο',
+   copy     => 'Αντιγραφή',
+   move     => 'Μεταφορά',
    symlink  => 'Symlink',
-   delete   => 'Delete',
+   delete   => 'Διαγραφή',
    gzip     => 'gzCompress',
-   mkzip    => 'MkZip',
-   mktgz    => 'MkTgz',
-   mkthumbnail  => 'MkThumb',
+   mkzip    => 'Δημιουργία Zip',
+   mktgz    => 'Δημιουργία Tgz',
+   mkthumbnail  => 'Δημιουργία Thumbnail',
    download => 'Download',
    upload   => 'Upload',
    );   
 
 %lang_text =
    (
-   loading    => 'Loading, please wait',
-   help       => 'Help',
+   loading    => 'Φόρτωση υπό εξέλιξη, παρακαλώ περιμένετε',
+   help       => 'Βοήθεια',
    login      => 'Είσοδος',
    clear      => 'Εκκαθάριση',
    webmail    => 'WebMail',
@@ -219,7 +219,7 @@ package ow::el;
    messages   => 'μηνύματα',
    unread     => 'αδιάβαστα',
    nomessages => 'Κανένα μήνυμα',
-   inmessages => 'Incoming msgs',
+   inmessages => 'Εισερχόμενα μηνύματα',
    composenew => 'Δημιουργία μηνύματος',
    refresh    => 'Ανανέωση',
    userprefs  => 'Προτιμήσεις',
@@ -228,13 +228,14 @@ package ow::el;
    emptytrash => 'Άδειασμα απορριμάτων',
    totrash    => 'Διαγραφή',
    forever    => 'Για πάντα',
-   delatlogout=> 'Delete at Logout',
+   delatlogout=> 'Διαγραφή κατά την έξοδο',
    userdef    => 'Καθορισμός από τον χρήστη',
    logout     => 'Έξοδος',
    page       => 'Σελίδα',
+   msgsperpage=> '@@@MSGCOUNT@@@ μηνύματα ανά σελίδα',
    msgcopyconf=> '\'Επιβεβαίωση αντιγραφής επιλεγμένου(-νων) μηνύματος(-των);\'',
    copy       => 'Αντιγραφή',
-   msgmoveconf=> '\'Επιβεβέωση μεταφοράς επιλεγμλένου(-νων) μηνύματος(-των);\'',
+   msgmoveconf=> '\'Επιβεβαίωση μεταφοράς επιλεγμένου(-νων) μηνύματος(-των);\'',
    move       => 'Μεταφορά',
    markasread => 'Σημάδεμα ως διαβασμένο',
    markasunread => 'Σημάδεμα ως αδιάβαστο',
@@ -250,18 +251,18 @@ package ow::el;
    replyall   => 'Απάντηση σε όλους',
    forward    => 'Διαβίβαση',
    forwardasatt=>'Διαβίβαση σαν επισύναψη',
-   forwardasorig=>'Forward as original',
+   forwardasorig=>'Διαβίβαση σαν πρωτότυπο',
    printfriendly=> 'Προς εκτύπωση',
-   msgformat  => 'MsgFormat',
+   msgformat  => 'Διάταξη μηνύματος',
    from       => 'Από',
    replyto    => 'Απάντηση-προς',
    to         => 'Προς',
    cc         => 'CC',
    bcc        => 'BCC',
-   simplehead => 'Simple headers',
-   allhead    => 'All headers',
+   simplehead => 'Απλά headers',
+   allhead    => 'Όλα τα headers',
    simpleattmode => 'Απλή επισύναψη',
-   allattmode    => 'Όλες οι επισυνάψοις',
+   allattmode    => 'Όλες οι επισυνάψεις',
    attachment => 'Επισύναψη',
    type       => 'Τύπος',
    filename   => 'Αρχείο',
@@ -269,14 +270,14 @@ package ow::el;
    description=> 'Περιγραφή',
    download   => 'Download',
    charset    => 'Charset',
-   samecharset=> 'The same as composing charset',
+   samecharset=> 'Ίδιο όπως αρχικό charset',
    thisispartialmsg => 'Ατελές μήνυμα',
    msgrebuild => 'Ανοικοδόμηση Μηνύματος',
    editdraft  => 'Επεξεργασία Προσχεδίου',
    savedraft  => 'Σώσιμο Προσχεδίου',
-   draftsaved => 'Draft @@@SUBJECT@@@ has been saved successfully',
+   draftsaved => 'Προσχέδιο @@@SUBJECT@@@ σώθηκε επιτυχώς',
    send       => 'Αποστολή',
-   msgsent    => 'Message @@@SUBJECT@@@ has been sent successfully',
+   msgsent    => 'Μήνυμα @@@SUBJECT@@@ απεστάλη επιτυχώς',
    about      => 'Πληροφορίες',
    close      => 'Κλείσιμο',
    cancel     => 'Ακύρωση',
@@ -287,8 +288,8 @@ package ow::el;
    yourname   => 'Το Όνομα',
    save       => 'Σώσιμο',
    add        => 'Πρόσθεση',
-   folderrenprop => '\'Please enter the new name for this folder\'',
-   rename     => 'Μετονόμαση',
+   folderrenprop => '\'Παρακαλώ, δώστε ένα καινούριο όνομα για αυτό τον φάκελο\'',
+   rename     => 'Μετονομασία',
    folderdelconf => '\'Are you sure you want to delete this folder and all its contents?\'',
    markread   => 'Σημάδεμα/διαβασμένα',
    foldermarkreadconf => '\'Are you going to mark read on all messages in this folder?\'',
@@ -297,7 +298,7 @@ package ow::el;
    reindex    => 'ReIndex',
    folderreindexconf => '\'Are you sure you want to reindex this folder?\'',
    total      => 'Συνολικό ποσό',
-   edit       => 'Edit',
+   edit       => 'Επεξεργασία',
    delete     => 'Διαγραφή',
    reserve    => 'Εφεδρεία',
    clearadd   => 'Διαγραφή όλων των διευθύνσεων',
@@ -307,20 +308,20 @@ package ow::el;
    addmod     => 'Πρόσθεση/Τροποποίηση',
    modify     => 'Τροποποίηση',
    abooktitle => 'Κατάλογος διευθύνσεων',
-   abook      => 'ΚΑΤΑΛΟΓΟΣ ΔΙΕΥΘΥΝΣΕΩΝ',
+   abook      => 'ΚΑΤΆΛΟΓΟΣ ΔΙΕΥΘΎΝΣΕΩΝ',
    name       => 'Όνομα',
    email      => 'Email',
    note       => 'Σημείωση',
-   max        => 'Maximum',
+   max        => 'Ανώτατο',
    group      => 'Κατηγορία',
-   quotausage => 'Quota usage',
-   quotalimit => 'Quota limit',
+   quotausage => 'Αναλογία χρήσης',
+   quotalimit => 'Όριο αναλογίας',
    quotahit   => 'Υπέρβαση Ανώτατου Ορίου',
    tzmap      => 'Χάρτης της παγκόσμιας ωριαίας ζώνης',
-   testsound  => 'Test sound',
+   testsound  => 'Δοκιμή ήχου',
    editfroms  => 'Επεξεργασία προσωπικών email διευθύνσεων',
    pop3book   => 'Προτιμήσεις POP3',
-   retr_pop3s => 'Παραλαβή POP3 μηνημάτων',
+   retr_pop3s => 'Παραλαβή POP3 μηνυμάτων',
    filterbook => 'Προτιμήσεις φίλτρων μηνυμάτων',
    include    => 'Περιλαμβάνω',
    exclude    => 'Αποκλείω',
@@ -329,17 +330,19 @@ package ow::el;
    body       => 'Σώμα',
    attfilename=> 'Αρχείο/Επισύναψη',
    all        => 'Όλα',
-   enable     => 'Ενεργωποίηση',
+   enable     => 'Ενεργοποίηση',
    disable    => 'Απενεργοποίηση',
+   yes        => 'Ναι',
+   no         => 'Όχι',
    filtered   => 'Φιλτραρισμένο',
    blockrelay => 'Φραγή SMTP Relay',
    blockemail => 'Φραγή email',
    read       => 'Ανάγνωση',
    yourmsg    => 'Το μήνυμα',
-   delivered  => 'Απεστάλλει',
+   delivered  => 'Παραδόθηκε',
    wasreadon1 => 'διαβάστηκε στις',
    wasreadon2 => '.',
-   globaladdressbook => 'Γενικός Κατάλογος διευθύνσεων',
+   globaladdressbook => 'Γενικός κατάλογος διευθύνσεων',
    globalfilterrule => 'Γενικά φίλτρα μηνυμάτων',
    readonly   => 'ReadOnly',
    textcontent=> 'Κείμενο/Περιεχόμενο',
@@ -351,16 +354,16 @@ package ow::el;
    spellcheck => 'Ορθογραφικός Έλεγχος',
    checkagain => 'Επανέλεγχος',
    finishchecking => 'Λήξη',
-   editpdict  => 'Edit Personal Dictionary',
-   addtodict  => 'Add to Dictionary',
+   editpdict  => 'Επεξεργασία Προσωπικού Λεξικού',
+   addtodict  => 'Πρόσθεση στο Λεξικό',
    manuallyfix=> 'Χειροκίνητη διόρθωση',
-   editstat   => 'Edit Stationery',
-   savestat   => 'Save Stationery',
-   clearstat  => 'Clear All Stationery',
-   statreply  => '-- Stationery for Reply --',
+   editstat   => 'Επεξεργασία Επιστολόχαρτου',
+   savestat   => 'Σώσιμο Επιστολόχαρτου',
+   clearstat  => 'Διαγραφή Όλων',
+   statreply  => '-- Επιστολόχαρτο προς απάντηση --',
    calendar   => 'Ημερολόγιο',
-   allday     => 'All day',
-   today      => 'Today',
+   allday     => 'Όλη την ημέρα',
+   today      => 'Σήμερα',
    am         => 'πμ',
    pm         => 'μμ',
    calfmt_year          => 'Χρονιά @@@YEAR@@@',
@@ -368,7 +371,7 @@ package ow::el;
    calfmt_yearmonthday  => '@@@DAY@@@ @@@MONTH_STR@@@ @@@YEAR@@@',
    calfmt_yearmonthdaywday => '@@@WEEKDAY_STR@@@ @@@DAY@@@, @@@MONTH_STR@@@ @@@YEAR@@@',
    calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
-   autosel    => 'Auto selected',
+   autosel    => 'Αυτόματη επιλογή',
    none       => 'Καθόλου',
    moreitems  => 'περισσότερα αντικείμενα',
    multieditconf => 'This item was added for multiple dates.\\nEditing it will change the item for all dates.\\nContinue with Edit?',
@@ -378,17 +381,17 @@ package ow::el;
    thisday_only          => 'Σημερινή ημέρα',
    the_wday_of_thismonth => 'Η @@@ORDER@@@ @@@WDAY@@@ του μήνα',
    every_wday_thismonth  => 'Κάθε @@@WDAY@@@ του μήνα',
-   thismonth_only           => 'This month only',
-   every_oddmonth_thisyear  => 'Every odd month this year',
-   every_evenmonth_thisyear => 'Every even month this year',
-   every_month_thisyear     => 'Every month this year',
+   thismonth_only           => 'Αυτό το μήνα μόνο',
+   every_oddmonth_thisyear  => 'Κάθε άρτιο μήνα του έτους',
+   every_evenmonth_thisyear => 'Κάθε ζυγό μήνα του έτους',
+   every_month_thisyear     => 'Κάθε μήνα του έτους',
    webdisk      => 'WebDisk',
-   sshterm      => 'SSH Terminal',
+   sshterm      => 'SSH Τερματικό',
    dir          => 'Dir',
    dirs         => 'Dirs',
-   file         => 'File',
-   files        => 'Files',
-   program      => 'Program',
+   file         => 'Αρχείο',
+   files        => 'Αρχεία',
+   program      => 'Πρόγραμμα',
    dest_of_chdir  => 'the destined directory',
    name_of_newdir => 'the directory name to create',
    name_of_newfile=> 'the filename to create',
@@ -409,19 +412,19 @@ package ow::el;
    savefile_towd=> 'Save file to WebDisk',
    saveatt_towd => 'Save attachment to WebDisk',
    addatt_fromwd=> 'Add attachment from WebDisk',
-   vdomain_usermgr    => 'Virtual Domain User Management',
-   vdomain_createuser => 'Create User',
-   vdomain_changeuser => 'Change User',
-   vdomain_deleteuser => 'Delete User',
+   vdomain_usermgr    => 'Διοίκηση Χρηστών Εικονικού Τομέα',
+   vdomain_createuser => 'Δημιουργία Χρήστη',
+   vdomain_changeuser => 'Αλλαγή Χρήστη',
+   vdomain_deleteuser => 'Διαγραφή Χρήστη',
    vdomain_changeview => 'Change view to',
    vdomain_usersonly  => 'users only',
    vdomain_useralias  => 'users/aliases',
    vdomain_fmtuseralias => 'formatted users/aliases',
    vdomain_admin      => 'Admin',
-   vdomain_localuser  => 'Local User',
-   set_passwd         => 'Set Password',
-   reset_passwd       => 'Reset Password',
-   email_alias        => 'E-MAIL Alias'
+   vdomain_localuser  => 'Τοπικός Χρήστης',
+   set_passwd         => 'Καθορισμός Κωδικού',
+   reset_passwd       => 'Ρύθμιση Κωδικού',
+   email_alias        => 'E-MAIL Ψευδώνυμο'
    );
 
 %lang_err =

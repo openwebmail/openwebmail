@@ -138,7 +138,7 @@
 @@@SORTMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Display mini search icon@@@MINISEARCHICON@@@:</B>
+<B>Използвай малка икона за търсене@@@MINISEARCHICON@@@:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USEMINISEARCHICONCHECKBOX@@@<br>
 </td></tr>
@@ -218,17 +218,17 @@
 @@@DISABLEJS@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Изключи embed/object/applet tag в съобщенията:</B>
+<B>Изключи прикачени/обекти/аплети в съобщенията:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEEMBCODE@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Изключи вмъкнати links в съобщенията:</B>
+<B>Изключи вмъкнати линкове в съобщенията:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEEMBLINKMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Изпращане на 'confirm reading' на получателя:</B>
+<B>Изпращане на 'прочитането потвърдено' на получателя:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SENDRECEIPTMENU@@@
 </td></tr>
@@ -280,7 +280,7 @@
 @@@FILTERREPEATLIMIT@@@ &nbsp;( 0 изключва тази проверка )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Filter msgs with email address in bad format:</B>
+<B>Филтриране на съобщения с 'лош' формат на адреса:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERBADADDRFORMAT@@@
 </td></tr>

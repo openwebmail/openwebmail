@@ -11,25 +11,25 @@
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
 
 @@@INFOSOFTWARESTART@@@
-<tr><td colspan=2 bgcolor=@@@COLUMNHEADER@@@><B>SOFTWARE</B></td></tr>
+<tr><td colspan=2 bgcolor=@@@COLUMNHEADER@@@><B>янтрсеп</B></td></tr>
 @@@INFOSOFTWARE@@@
 @@@INFOSOFTWAREEND@@@
 
 @@@INFOPROTOCOLSTART@@@
 <tr><td colspan=2>&nbsp;</td></tr>
-<tr><td colspan=2 bgcolor=@@@COLUMNHEADER@@@><B>PROTOCOL</B></td></tr>
+<tr><td colspan=2 bgcolor=@@@COLUMNHEADER@@@><B>опнрнйнк</B></td></tr>
 @@@INFOPROTOCOL@@@
 @@@INFOPROTOCOLEND@@@
 
 @@@INFOSERVERSTART@@@
 <tr><td colspan=2>&nbsp;</td></tr>
-<tr><td colspan=2 bgcolor=@@@COLUMNHEADER@@@><B>SERVER</B></td></tr>
+<tr><td colspan=2 bgcolor=@@@COLUMNHEADER@@@><B>язпбзп</B></td></tr>
 @@@INFOSERVER@@@
 @@@INFOSERVEREND@@@
 
 @@@INFOCLIENTSTART@@@
 <tr><td colspan=2>&nbsp;</td></tr>
-<tr><td colspan=2 bgcolor=@@@COLUMNHEADER@@@><B>CLIENT</B></td></tr>
+<tr><td colspan=2 bgcolor=@@@COLUMNHEADER@@@><B>йкхемр</B></td></tr>
 @@@INFOCLIENT@@@
 @@@INFOCLIENTEND@@@
 

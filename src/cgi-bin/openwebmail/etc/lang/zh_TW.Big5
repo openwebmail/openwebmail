@@ -7,7 +7,7 @@ package ow::zh_TW_Big5;
    (
    INBOX            => '新信匣',
    'saved-messages' => '收件匣',
-   'sent-mail'      => '寄件備分',
+   'sent-mail'      => '寄件備份',
    'saved-drafts'   => '草稿匣',
    'mail-trash'     => '垃圾桶',
    DELETE           => '--直接刪除--'
@@ -71,7 +71,7 @@ package ow::zh_TW_Big5;
 
 %lang_ctrlpositionlabels =
    (
-   top => '在上面',
+   top    => '在上面',
    bottom => '在下面'
    );
 
@@ -232,6 +232,7 @@ package ow::zh_TW_Big5;
    userdef    => '使用者自訂',
    logout     => '登出',
    page       => '頁',
+   msgsperpage=> '每頁 @@@MSGCOUNT@@@ 封信',
    msgcopyconf=> '\'您確定要複製選擇的信件嗎?\'',
    copy       => '複製',
    msgmoveconf=> '\'您確定要搬移選擇的信件嗎?\'',
@@ -331,6 +332,8 @@ package ow::zh_TW_Big5;
    all        => '全部',
    enable     => '啟動',
    disable    => '停用',
+   yes        => '是',
+   no         => '否',
    filtered   => '過濾',
    blockrelay => '封鎖轉信主機',
    blockemail => '封鎖郵件地址',

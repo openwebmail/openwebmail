@@ -127,7 +127,7 @@ sub search_info_messages_for_keyword {
 
       foreach $messageid (@messageids) {
          my (@attr, @references, $block, $header, $body, $r_attachments) ;
-         @attr=split(/@@@/, $FDB{$messageid});
+         @attr=string2msgattr($FDB{$messageid});
          next if ($ignore_internal && is_internal_subject($attr[$_SUBJECT]));
          @references=split(/\s+/, $attr[$_REFERENCES]);
 

@@ -72,7 +72,7 @@ package ow::hu;
 
 %lang_ctrlpositionlabels =
    (
-   top => 'Felül',
+   top    => 'Felül',
    bottom => 'Alul'
    );
 
@@ -233,6 +233,7 @@ package ow::hu;
    userdef    => 'Felhasználó definiálja',
    logout     => 'Kijelentkezés',
    page       => 'oldal',
+   msgsperpage=> '@@@MSGCOUNT@@@ messages per page',
    msgcopyconf=> '\'Biztosan átmásolja a kijelölt üzenet(ek)et?\'',
    copy       => 'Másol',
    msgmoveconf=> '\'Biztosan áthelyezi a kijelölt üzenet(ek)et?\'',
@@ -332,6 +333,8 @@ package ow::hu;
    all        => 'Minden',
    enable     => 'Engedélyez',
    disable    => 'Tilt',
+   yes        => 'Igen',
+   no         => 'Nem',
    filtered   => 'Kiszûrve',
    blockrelay => 'Tiltja az SMTP Relay-t',
    blockemail => 'Tiltja a levelet',

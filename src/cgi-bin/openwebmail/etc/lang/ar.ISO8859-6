@@ -71,7 +71,7 @@ package ow::ar_ISO8859_6;
 
 %lang_ctrlpositionlabels =
    (
-   top => 'בך ÇהÃÙהי',
+   top    => 'בך ÇהÃÙהי',
    bottom => 'בך ÇהÃÓבה'
    );
 
@@ -232,6 +232,7 @@ package ow::ar_ISO8859_6;
    userdef    => 'וÍÏÏ וז ÇהוÓÊÎÏו',
    logout     => 'ÊÓÌךה ÇהÎÑטÌ',
    page       => 'ÕבÍÉ',
+   msgsperpage=> '@@@MSGCOUNT@@@ messages per page',
    msgcopyconf=> '\'חה ÃזÊ וÊÃדסÏ Ãזסד ÊÑךÏ זÓÎ ÇהÑÓÇהÉ (ÇהÑÓÇÆה) ÇהוÎÊÇÑÉ¿\'',
    copy       => 'זÓÎ Åהי',
    msgmoveconf=> '\' חה ÃזÊ וÊÃדסÏ Ãזסד ÊÑךÏ זגה ÇהÑÓÇהÉ (ÇהÑÓÇÆה) ÇהוÎÊÇÑÉ¿\'',
@@ -331,6 +332,8 @@ package ow::ar_ISO8859_6;
    all        => 'Çהדה',
    enable     => 'וודז',
    disable    => 'וÙ×ה',
+   yes        => 'זÙו',
+   no         => 'הÇ',
    filtered   => 'ÊוÊ בהÊÑÊחÇ',
    blockrelay => 'וזÙ ÇהÈÑךÏ וז והגו SMTP',
    blockemail => 'וזÙ ÇהÈÑךÏ וז ÇהÙזטÇז',

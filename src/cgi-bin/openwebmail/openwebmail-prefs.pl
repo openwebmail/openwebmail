@@ -5,10 +5,10 @@
 
 use vars qw($SCRIPT_DIR);
 if ( $0 =~ m!^(\S*)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1 }
-if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
+if ($SCRIPT_DIR eq '' && open(F, '/etc/openwebmail_path.conf')) {
    $_=<F>; close(F); if ( $_=~/^(\S*)/) { $SCRIPT_DIR=$1 }
 }
-if (!$SCRIPT_DIR) { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
+if ($SCRIPT_DIR eq '') { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
 push (@INC, $SCRIPT_DIR);
 
 foreach (qw(PATH ENV BASH_ENV CDPATH IFS TERM)) { $ENV{$_}='' }	# secure ENV
@@ -19,13 +19,16 @@ use Fcntl qw(:DEFAULT :flock);
 use CGI qw(-private_tempfiles :standard);
 use CGI::Carp qw(fatalsToBrowser carpout);
 
-require "modules/datetime.pl";
-require "modules/lang.pl";
 require "modules/dbm.pl";
+require "modules/suid.pl";
 require "modules/filelock.pl";
 require "modules/tool.pl";
-require "modules/htmltext.pl";
+require "modules/datetime.pl";
+require "modules/lang.pl";
 require "modules/mime.pl";
+require "modules/htmltext.pl";
+require "auth/auth.pl";
+require "quota/quota.pl";
 require "shares/ow-shared.pl";
 require "shares/iconv.pl";
 require "shares/pop3book.pl";
@@ -71,7 +74,11 @@ $messageid=param('message_id') || '';
 $page = param('page') || 1;
 $sort = param('sort') || $prefs{'sort'} || 'date';
 $userfirsttime = param('userfirsttime')||0;
+
 $prefs_caller = param('prefs_caller')||'';	# passed from the caller
+$prefs_caller='main' if ($prefs_caller eq '' && $config{'enable_webmail'});
+$prefs_caller='cal' if ($prefs_caller eq '' && $config{'enable_calendar'});
+$prefs_caller='webdisk' if ($prefs_caller eq '' && $config{'enable_webdisk'});
 
 $escapedfolder=ow::tool::escapeURL($folder);
 $escapedmessageid=ow::tool::escapeURL($messageid);
@@ -151,9 +158,7 @@ sub about {
       templateblock_enable($html, 'INFOSOFTWARE');
       my $os=`/bin/uname -srm`; $os=`/usr/bin/uname -srm` if ( -f "/usr/bin/uname");
       my $flag; $flag.='Persistence' if ($persistence_count>0);
-      if (cookie("openwebmail-httpcompress") &&
-          $ENV{'HTTP_ACCEPT_ENCODING'}=~/\bgzip\b/ &&
-          ow::tool::has_zlib()) {
+      if (is_http_compression_enabled()) {
          $flag.=', ' if ($flag ne '');
          $flag.='HTTP Compression';
       }
@@ -250,10 +255,39 @@ sub editprefs {
    my ($html, $temphtml);
    $html = applystyle(readtemplate("prefs.template"));
 
-   $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-prefs.pl",
-                          -name=>'prefsform').
-               ow::tool::hiddens(action=>'saveprefs').
-               $formparmstr;
+   if ($userfirsttime) {	# simple prefs menu, most items become hidden
+      templateblock_disable($html, 'FULLPREFS');
+      $html =~ s/\@\@\@DESCWIDTH\@\@\@/width="40%"/;
+
+      my (%is_firsttimercitem, %hiddenvalue);
+      foreach (qw(language charset timeoffset daylightsaving email replyto signature)) { $is_firsttimercitem{$_}=1 }
+      foreach (@openwebmailrcitem) { 
+         next if ($is_firsttimercitem{$_});
+         if ($_ eq 'bgurl') {
+            my ($background, $bgurl)=($prefs{'bgurl'}, '');
+            if ($background !~ s!$config{'ow_htmlurl'}/images/backgrounds/!!) {
+               ($background, $bgurl)=('USERDEFINE', $prefs{'bgurl'});
+            }
+            @hiddenvalue{'background', 'bgurl'}=($background, $bgurl);
+         } else {
+            $hiddenvalue{$_}=$prefs{$_};
+         }
+      }
+      $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-prefs.pl",
+                             -name=>'prefsform').
+                  ow::tool::hiddens(action=>'saveprefs').
+                  ow::tool::hiddens(%hiddenvalue).
+                  $formparmstr;
+
+   } else {			# full prefs menu
+      templateblock_enable($html, 'FULLPREFS');
+      $html =~ s/\@\@\@DESCWIDTH\@\@\@//;
+
+      $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-prefs.pl",
+                             -name=>'prefsform').
+                  ow::tool::hiddens(action=>'saveprefs').
+                  $formparmstr;
+   }
    $html =~ s/\@\@\@STARTPREFSFORM\@\@\@/$temphtml/;
 
    if ($config{'quota_module'} ne "none") {
@@ -323,14 +357,6 @@ sub editprefs {
    }
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/;
 
-
-   if ($userfirsttime) {
-      templateblock_disable($html, 'FULLPREFS');
-      $html =~ s/\@\@\@DESCWIDTH\@\@\@/width="40%"/;
-   } else {
-      templateblock_enable($html, 'FULLPREFS');
-      $html =~ s/\@\@\@DESCWIDTH\@\@\@//;
-   }
 
    my $defaultlanguage=$prefs{'language'};
    my $defaultcharset=$prefs{'charset'}||$ow::lang::languagecharsets{$prefs{'language'}};
@@ -534,11 +560,9 @@ sub editprefs {
       @backgrounds = sort(@backgrounds);
       push(@backgrounds, "USERDEFINE");
 
-      my $background=$prefs{'bgurl'};
-      my $bgurl='';
+      my ($background, $bgurl)=($prefs{'bgurl'}, '');
       if ($background !~ s!$config{'ow_htmlurl'}/images/backgrounds/!!) {
-         $background="USERDEFINE";
-         $bgurl=$prefs{'bgurl'};
+         ($background, $bgurl)=('USERDEFINE', $prefs{'bgurl'});
       }
       $temphtml = popup_menu(-name=>'background',
                              -values=>\@backgrounds,
@@ -1336,14 +1360,9 @@ sub saveprefs {
       hideinternal 1
    );
 
-   my %is_param_defined; foreach (param()) { $is_param_defined{$_}=1 }
    my (%newprefs, $key, $value);
    foreach $key (@openwebmailrcitem) {
-      if ($is_param_defined{$key}) {
-         $value = param($key);
-      } else {
-         $value = $prefs{$key};	# use old value if no defined in this form
-      }
+      $value = param($key);
 
       if ($key eq 'bgurl') {
          my $background=param('background');
@@ -1534,9 +1553,9 @@ sub writedotforward {
          $vacationuser = "-p$homedir nobody";
       }
       if (length("xxx$config{'vacationpipe'} $aliasparm $vacationuser")<250) {
-         push(@forwards, qq!| "$config{'vacationpipe'} $aliasparm $vacationuser"!);
+         push(@forwards, qq!"| $config{'vacationpipe'} $aliasparm $vacationuser"!);
       } else {
-         push(@forwards, qq!| "$config{'vacationpipe'} -j $vacationuser"!);
+         push(@forwards, qq!"| $config{'vacationpipe'} -j $vacationuser"!);
       }
    }
 
@@ -1760,15 +1779,16 @@ sub changepassword {
    } else {
       my ($origruid, $origeuid)=($<, $>);
       my ($errorcode, $errormsg);
-      $>=0; $<=$>;			# set ruid/euid to root before change passwd
       if ($config{'auth_withdomain'}) {
-         ($errorcode, $errormsg)=change_userpassword(\%config, "$user\@$domain", $oldpassword, $newpassword);
+         ($errorcode, $errormsg)=ow::auth::change_userpassword(\%config, "$user\@$domain", $oldpassword, $newpassword);
       } else {
-         ($errorcode, $errormsg)=change_userpassword(\%config, $user, $oldpassword, $newpassword);
+         ($errorcode, $errormsg)=ow::auth::change_userpassword(\%config, $user, $oldpassword, $newpassword);
       }
-      $<=$origruid; $>=$origeuid;	# fall back to original ruid/euid
-
       if ($errorcode==0) {
+         # update authpop3book since it will be used to fetch mail from remote pop3 in this active session
+         if ($config{'auth_module'} eq 'auth_ldap_vpopmail.pl') {
+            update_authpop3book(dotpath('authpop3.book'), $domain, $user, $newpassword);
+         }
          writelog("change password");
          writehistory("change password");
          $html = readtemplate("chpwdok.template");
@@ -1975,6 +1995,8 @@ sub editpop3 {
    my ($html, $temphtml);
    $html = applystyle(readtemplate("editpop3.template"));
 
+   my $is_ssl_supported=ow::tool::has_module('IO/Socket/SSL.pm');
+
    my %accounts;
    my $pop3bookfile = dotpath('pop3.book');
    my $pop3booksize = ( -s $pop3bookfile ) || 0;
@@ -2005,8 +2027,9 @@ sub editpop3 {
    $html =~ s/\@\@\@HOSTFIELD\@\@\@/$temphtml/;
 
    $temphtml = textfield(-name=>'pop3port',
-                         -default=>'110',
+                         -default=>$config{'pop3_usessl_by_default'} ?  '995' : '110',
                          -size=>'4',
+                         -onChange=>"JavaScript:document.newpop3.pop3passwd.value='';",
                          -override=>'1');
    $html =~ s/\@\@\@PORTFIELD\@\@\@/$temphtml/;
 
@@ -2024,17 +2047,31 @@ sub editpop3 {
    $html =~ s/\@\@\@PASSFIELD\@\@\@/$temphtml/;
 
    # if hidden, disable user to change this option
-   if ($config{'delpop3mail_hidden'}) {
+   if ($config{'pop3_delmail_hidden'}) {
       templateblock_disable($html, 'DELPOP3STR');
-      $temphtml = ow::tool::hiddens(pop3del=>$config{'delpop3mail_by_default'});
+      $temphtml = ow::tool::hiddens(pop3del=>$config{'pop3_delmail_by_default'});
       $html =~ s/\@\@\@DELCHECKBOX\@\@\@/$temphtml/;
    } else {
       templateblock_enable($html, 'DELPOP3STR');
       $temphtml = checkbox(-name=>'pop3del',
                            -value=>'1',
-                           -checked=>$config{'delpop3mail_by_default'},
+                           -checked=>$config{'pop3_delmail_by_default'},
                            -label=>'');
       $html =~ s/\@\@\@DELCHECKBOX\@\@\@/$temphtml/;
+   }
+
+   if ($is_ssl_supported) {
+      templateblock_enable($html, 'USEPOP3SSL');
+      $temphtml = checkbox(-name=>'pop3ssl',
+                           -value=>'1',
+                           -checked=>$config{'pop3_usessl_by_default'},
+                           -label=>'',
+                           -onClick=>'ssl();');
+      $html =~ s/\@\@\@USEPOP3SSLCHECKBOX\@\@\@/$temphtml/;
+   } else {
+     templateblock_disable($html, 'USEPOP3SSL');
+     $temphtml = ow::tool::hiddens(pop3ssl=>'0');
+     $html =~ s/\@\@\@USEPOP3SSLCHECKBOX\@\@\@/$temphtml/;
    }
 
    $temphtml = checkbox(-name=>'enable',
@@ -2053,16 +2090,29 @@ sub editpop3 {
    $temphtml = '';
    my $bgcolor = $style{"tablerow_dark"};
    foreach (sort values %accounts) {
-      my ($pop3host, $pop3port, $pop3user, $pop3passwd, $pop3del, $enable) = split(/\@\@\@/, $_);
+      my ($pop3host, $pop3port, $pop3ssl, $pop3user, $pop3passwd, $pop3del, $enable) = split(/\@\@\@/, $_);
 
       $temphtml .= qq|<tr>\n|.
-      		   qq|<td bgcolor=$bgcolor><a href="Javascript:Update('$pop3host','$pop3port','$pop3user','******','$pop3del','$enable')">$pop3host</a></td>\n|.
-      		   qq|<td bgcolor=$bgcolor>$pop3port</td>\n|.
-                   qq|<td align="center" bgcolor=$bgcolor><a href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=retrpop3&pop3user=$pop3user&pop3host=$pop3host&pop3port=$pop3port&pop3user=$pop3user&$urlparmstr">$pop3user</a></td>\n|.
+      		   qq|<td bgcolor=$bgcolor><a href="Javascript:Update('$pop3host','$pop3port','$pop3ssl','$pop3user','******','$pop3del','$enable')">$pop3host</a></td>\n|.
+      		   qq|<td bgcolor=$bgcolor>$pop3port</td>\n|;
+
+      $temphtml .= qq|<td align="center" bgcolor=$bgcolor>\n|;      
+      if ($is_ssl_supported) {
+         if ( $pop3ssl == 1) {
+            $temphtml .= $lang_text{'yes'};
+         } else {
+            $temphtml .= $lang_text{'no'};
+         }
+      } else {
+         $temphtml .= "&nbsp;";
+      }
+      $temphtml .= "</td>";
+
+      $temphtml .= qq|<td align="center" bgcolor=$bgcolor><a href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=retrpop3&pop3user=$pop3user&pop3host=$pop3host&pop3port=$pop3port&pop3user=$pop3user&$urlparmstr">$pop3user</a></td>\n|.
                    qq|<td align="center" bgcolor=$bgcolor>\*\*\*\*\*\*</td>\n|.
                    qq|<td align="center" bgcolor=$bgcolor>\n|;
 
-      if ($config{'delpop3mail_hidden'}) {
+      if ($config{'pop3_delmail_hidden'}) {
       	 $temphtml .= "&nbsp;";
       } else {
          if ( $pop3del == 1) {
@@ -2106,9 +2156,10 @@ sub editpop3 {
 ########## MODPOP3 ###############################################
 sub modpop3 {
    my $mode = shift;
-   my ($pop3host, $pop3port, $pop3user, $pop3passwd, $pop3del, $enable);
+   my ($pop3host, $pop3port, $pop3ssl, $pop3user, $pop3passwd, $pop3del, $enable);
    $pop3host = param('pop3host') || '';
    $pop3port = param('pop3port') || '110';
+   $pop3ssl = param('pop3ssl') || 0;
    $pop3user = param('pop3user') || '';
    $pop3passwd = param('pop3passwd') || '';
    $pop3del = param('pop3del') || 0;
@@ -2145,7 +2196,7 @@ sub modpop3 {
          if ( (-s $pop3bookfile) >= ($config{'maxbooksize'} * 1024) ) {
             openwebmailerror(__FILE__, __LINE__, qq|$lang_err{'abook_toobig'} <a href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editpop3&amp;$urlparmstr">$lang_err{'back'}</a> $lang_err{'tryagain'}|);
          }
-         foreach ( @{$config{'disallowed_pop3servers'}} ) {
+         foreach ( @{$config{'pop3_disallowed_servers'}} ) {
             if ($pop3host eq $_) {
                openwebmailerror(__FILE__, __LINE__, "$lang_err{'disallowed_pop3'} $pop3host");
             }
@@ -2153,9 +2204,9 @@ sub modpop3 {
          $pop3port=110 if ($pop3port!~/^\d+$/);
          if ( defined($accounts{"$pop3host:$pop3port\@\@\@$pop3user"}) &&
               $pop3passwd eq "******") {
-            $pop3passwd=(split(/\@\@\@/, $accounts{"$pop3host:$pop3port\@\@\@$pop3user"}))[3];
+            $pop3passwd=(split(/\@\@\@/, $accounts{"$pop3host:$pop3port\@\@\@$pop3user"}))[4];
          }
-         $accounts{"$pop3host:$pop3port\@\@\@$pop3user"}="$pop3host\@\@\@$pop3port\@\@\@$pop3user\@\@\@$pop3passwd\@\@\@$pop3del\@\@\@$enable";
+         $accounts{"$pop3host:$pop3port\@\@\@$pop3user"}="$pop3host\@\@\@$pop3port\@\@\@$pop3ssl\@\@\@$pop3user\@\@\@$pop3passwd\@\@\@$pop3del\@\@\@$enable";
       }
 
       if (writepop3book($pop3bookfile, \%accounts)<0) {
@@ -2255,8 +2306,8 @@ sub editfilter {
                           -labels=>\%labels);
    $html =~ s/\@\@\@OPMENU\@\@\@/$temphtml/;
 
-   my (@validfolders, $folderusage);
-   getfolders(\@validfolders, \$folderusage);
+   my (@validfolders, $inboxusage, $folderusage);
+   getfolders(\@validfolders, \$inboxusage, \$folderusage);
    foreach (@validfolders, 'DELETE') {
       if ( defined($lang_folders{$_}) ) {
           $labels{$_} = $lang_folders{$_};
@@ -2491,7 +2542,7 @@ sub modfilter {
          # read personal filter and update it
          ow::filelock::lock($filterbookfile, LOCK_EX|LOCK_NB) or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $filterbookfile!");
-         open (FILTER,"+<$filterbookfile") or
+         open (FILTER,$filterbookfile) or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $filterbookfile! ($!)");
          while(<FILTER>) {
             my ($epriority,$eruletype,$einclude,$etext,$eop,$edestination,$eenable);
@@ -2505,13 +2556,11 @@ sub modfilter {
             $text =~ s/\@\@/\@\@ /; $text =~ s/\@$/\@ /;
             $filterrules{"$ruletype\@\@\@$include\@\@\@$text\@\@\@$destination"}="$priority\@\@\@$ruletype\@\@\@$include\@\@\@$text\@\@\@$op\@\@\@$destination\@\@\@$enable";
          }
-         seek (FILTER, 0, 0) or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_seek'} $filterbookfile! ($!)");
+         close (FILTER) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $filterbookfile! ($!)");
 
-         foreach (sort values %filterrules) {
-            print FILTER "$_\n";
-         }
-         truncate(FILTER, tell(FILTER));
+         open (FILTER,">$filterbookfile") or
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $filterbookfile! ($!)");
+         print FILTER join("\n", sort values %filterrules)."\n";
          close (FILTER) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $filterbookfile! ($!)");
          ow::filelock::lock($filterbookfile, LOCK_UN);
 
@@ -2546,7 +2595,7 @@ sub modfilter {
          ow::dbm::close(\%FILTERDB, $filterbookfile);
       } else {
          open (FILTER, ">$filterbookfile" ) or
-                  openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $filterbookfile! ($!)");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $filterbookfile! ($!)");
          print FILTER "$priority\@\@\@$ruletype\@\@\@$include\@\@\@$text\@\@\@$op\@\@\@$destination\@\@\@$enable\n";
          close (FILTER) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $filterbookfile! ($!)");
       }
@@ -2567,21 +2616,15 @@ sub modfilter {
 
 ########## EDITSTAT ##############################################
 sub editstat {
-   my (%stationery, $name, $content);
+   my %stationery=();
 
    my ($html, $temphtml);
    $html = applystyle(readtemplate("editstationery.template"));
 
    my $statbookfile=dotpath('stationery.book');
    if ( -f $statbookfile ) {
-      open (STATBOOK, $statbookfile) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $statbookfile! ($!)");
-      while (<STATBOOK>) {
-         ($name, $content) = split(/\@\@\@/, $_, 2);
-         chomp($name); chomp($content);
-         $stationery{$name} = ow::tool::unescapeURL($content);
-      }
-      close (STATBOOK) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $statbookfile! ($!)");
+      my ($stat,$err)=read_stationarybook($statbookfile,\%stationery);
+      openwebmailerror(__FILE__, __LINE__, $err) if ($stat<0);
    }
 
    if ($prefs_caller eq "") {
@@ -2663,31 +2706,18 @@ sub delstat {
    my $statname = param('statname') || '';
    if ($statname) {
       my %stationery;
-      my ($name,$content);
       my $statbookfile=dotpath('stationery.book');
       if ( -f $statbookfile ) {
          ow::filelock::lock($statbookfile, LOCK_EX|LOCK_NB) or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $statbookfile!");
-         open (STATBOOK,"+<$statbookfile") or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $statbookfile! ($!)");
-         while (<STATBOOK>) {
-            ($name, $content) = split(/\@\@\@/, $_, 2);
-            chomp($name); chomp($content);
-            $stationery{"$name"} = $content;
-         }
+         my ($stat,$err)=read_stationarybook($statbookfile,\%stationery);
+         openwebmailerror(__FILE__, __LINE__, $err) if ($stat<0);
+
          delete $stationery{$statname};
 
-         seek (STATBOOK, 0, 0) or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_seek'} $statbookfile! ($!)");
+         ($stat,$err)=write_stationarybook($statbookfile,\%stationery);
+         openwebmailerror(__FILE__, __LINE__, $err) if ($stat<0);
 
-         foreach (sort keys %stationery) {
-            ($name,$content)=($_, $stationery{$_});
-            $name=~s/\@\@/\@\@ /g; $name=~s/\@$/\@ /;
-            print STATBOOK "$name\@\@\@$content\n";
-         }
-         truncate(STATBOOK, tell(STATBOOK));
-         close (STATBOOK) or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $statbookfile! ($!)");
          ow::filelock::lock($statbookfile, LOCK_UN);
       }
    }
@@ -2715,7 +2745,7 @@ sub clearstat {
 sub addstat {
    my $newname = param('statname') || '';
    my $newcontent = param('statbody') || '';
-   my (%stationery, $name, $content);
+   my %stationery=();
 
    if($newname ne '' && $newcontent ne '') {
       # save msg to file stationery
@@ -2724,33 +2754,20 @@ sub addstat {
       if ( -f $statbookfile ) {
          ow::filelock::lock($statbookfile, LOCK_EX|LOCK_NB) or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $statbookfile!");
-         open (STATBOOK,"+<$statbookfile") or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $statbookfile! ($!)");
-         while (<STATBOOK>) {
-            ($name, $content) = split(/\@\@\@/, $_, 2);
-            chomp($name); chomp($content);
-            $stationery{"$name"} = $content;
-         }
-         $stationery{"$newname"} = ow::tool::escapeURL($newcontent);
 
-         seek (STATBOOK, 0, 0) or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_seek'} $statbookfile! ($!)");
+         my ($stat,$err)=read_stationarybook($statbookfile,\%stationery);
+         openwebmailerror(__FILE__, __LINE__, $err) if ($stat<0);
 
-         foreach (sort keys %stationery) {
-            ($name,$content)=($_, $stationery{$_});
-            $name=~s/\@\@/\@\@ /g; $name=~s/\@$/\@ /;
-            print STATBOOK "$name\@\@\@$content\n";
-         }
-         truncate(STATBOOK, tell(STATBOOK));
-         close (STATBOOK) or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $statbookfile! ($!)");
+         $stationery{"$newname"} = $newcontent;
+
+         ($stat,$err)=write_stationarybook($statbookfile,\%stationery);
+         openwebmailerror(__FILE__, __LINE__, $err) if ($stat<0);
+
          ow::filelock::lock($statbookfile, LOCK_UN);
       } else {
-         open (STATBOOK,">$statbookfile") or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $statbookfile! ($!)");
-         print STATBOOK "$newname\@\@\@".ow::tool::escapeURL($newcontent)."\n";
-         close (STATBOOK) or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $statbookfile! ($!)");
+         $stationery{"$newname"} = $newcontent;
+         my ($stat,$err)=write_stationarybook($statbookfile,\%stationery);
+         openwebmailerror(__FILE__, __LINE__, $err) if ($stat<0);
       }
    }
 
@@ -2766,3 +2783,49 @@ sub timeoutwarning {
    httpprint([], [htmlheader(), $html, htmlfooter(0)]);
 }
 ########## END TIMEOUTWARNING ####################################
+
+########## READ_STATIONARYBOOK ######################################
+# Read the stationary book file (assumes locking has been done elsewhere)
+sub read_stationarybook {
+   my ($file, $r_stationary)=@_;
+   my ($stat,$err)=(0);
+
+   # read openwebmail addressbook
+   if ( open(STATBOOK, $file) ) {
+      while (<STATBOOK>) {
+         my ($name, $content) = split(/\@\@\@/, $_, 2);
+         chomp($name); chomp($content);
+         $$r_stationary{"$name"} = ow::tool::unescapeURL($content);
+      }
+      close (STATBOOK) or  ($stat,$err)=(-1, "$lang_err{'couldnt_close'} $file! ($!)");
+   } else {
+      ($stat,$err)=(-1, "$lang_err{'couldnt_open'} $file! ($!)");
+   }
+
+   return ($stat,$err);
+}
+########## END READ_STATIONARYBOOK ######################################
+
+########## WRITE_STATIONARYBOOK ######################################
+# Write the stationary book file (assumes locking has been done elsewhere)
+sub write_stationarybook {
+   my ($file, $r_stationary)=@_;
+   my ($stat,$err, $stationarytowrite)=(0);
+
+   # maybe this should be limited in size some day?
+   foreach (sort keys %$r_stationary) {
+      my ($name,$content)=($_, ow::tool::escapeURL($$r_stationary{$_}));
+      $name=~s/\@\@/\@\@ /g; $name=~s/\@$/\@ /;
+      $stationarytowrite .= "$name\@\@\@$content\n";
+   }
+
+   if ( open(STATBOOK, ">$file") ) {
+      print STATBOOK $stationarytowrite;
+      close (STATBOOK) or  ($stat,$err)=(-1, "$lang_err{'couldnt_close'} $file! ($!)");
+   } else {
+      ($stat,$err)=(-1, "$lang_err{'couldnt_open'} $file! ($!)");
+   }
+
+   return ($stat,$err);
+}
+########## END WRITE_STATIONARYBOOK ######################################

@@ -1,5 +1,6 @@
 Open WebMail Frequently Asked Questions
 
+0.  SPECIAL NOTE FOR SPEEDYCGI
 1.  INSTALLATION & STARTUP PROBLEMS
 2.  LOGIN PROBLEMS
 3.  RUNTIME ERRORS
@@ -17,6 +18,23 @@ Open WebMail Frequently Asked Questions
 15. SPEED TUNING
 16. SOME CONCEPT
 17. HOW CAN I...
+
+
+========================================================================
+SPECIAL NOTE FOR SPEEDYCGI
+========================================================================
+
+We highly recommend using SpeedyCGI with Open WebMail.
+Open WebMail gets almost 5x to 10x speedup when running with SpeedyCGI.
+
+Please refer to section "PERSISTENT RUNNING through SpeedyCGI" in 
+readme.txt for how to install SpeedyCGI on your system.
+
+If you are using SpeedyCGI with Open WebMail
+and you have modified any file other than etc/openwebmail.conf...
+
+Don't forget to do 'touch openwebmail*.pl' 
+so SpeedyCGI knows to reload the scripts to see your modification.
 
 ========================================================================
 INSTALLATION & STARTUP PROBLEMS
@@ -81,29 +99,44 @@ A: There are many possible answers...
       owner=root
       group=mail
 
-   3. Your perl may be compiled with suid ability disabled.
-      a. check if you have a executable of suidperl,
-         then 'chmod 4555 suidperl'
+   3. The suidperl may not have enough permission for SUID scripts.
+      It should owned by root with permission bits set to 4555
 
-      b. Or recompile your perl with suid enabled
-         Here are the steps:
-         1. grab the perl source tar ball
-         2. sh Configure -de (de means default perl config)
-         3. edit config.sh and set this :
-            d_dosuid='define'
-            d_suidsafe='undef'
-         4. then make, make install (make suidperl if needed)
-         5. if you have compiled suidperl, then chmod 4555 suidperl
-            if you don't have suidperl, change #!/usr/bin/suidperl to
-            the path of your perl
-         (thanks to Nemo Kaiser, nemoo.AT.users.sourceforge.net)
+   4. Execute openwebmail.pl from command line, if it still complains
+      it could not do suid, then your perl executable was compiled without
+      SUID support
+
+      Here are the steps to recompile your perl with suid enabled:
+
+      a. grab the perl source tar ball
+      b. sh Configure -de (de means default perl config)
+      c. edit config.sh and set this :
+         d_dosuid='define'
+         d_suidsafe='undef'
 
       ps:If you run './Configure' to configure the perl interactively, 
          then don't forget to answer 'yes' for question 
          "Do you want to do setuid/setgid emulation? "
          Or you won't be able to execute openwebmail
 
-      c. Or use uty/suidwrap.pl to generate C wrappers for all suid scripts.
+      d. then make, make install (make suidperl if needed)
+      e. if you have compiled suidperl, then chmod 4555 suidperl
+         if you don't have suidperl, change #!/usr/bin/suidperl to
+         the path of your perl
+         (thanks to Nemo Kaiser, nemoo.AT.users.sourceforge.net)
+
+      ps:If you are using FreeBSD and your perl is compiled from port,
+         then please note that the SUID support is disabled by default
+         since the port for perl 5.8.1
+
+         You need to do 'make -DENABLE_SUIDPER' in making port
+
+      ps:If you don't want to recompile perl, you choose to may use 
+         uty/suidwrap.pl to generate C wrappers for all suid scripts.
+
+         However, this is not recommended, as you will not be able to
+         use SpeedyCGI with the openwebmail system.
+
          Here are the steps:
          1. cd cgi-bin/openwebmail
          2. perl uty/wrapsuid.pl /fullpath/cgi-bin/openwebmail
@@ -113,18 +146,33 @@ A: There are many possible answers...
          the C wrapper will be generated and named as script.pl
          (thanks to Chris Heegard, heegard.AT.NativeI.com)
 
-      ps: If you use the wrappers for the suid scripts on the Solaris,
-          and the spelling check doesn't work not work
-          You may need to recompile your perl with suid enabled
-          instead of using C wrappers.
+         The spellcheck may not work on Solaris when using C wrappers.
          (thanks to Isam Ishaq, isam.AT.planet.edu)
 
-   4. The MIME::Base64 or CGI module on your system may be too old
-      a. install MIME-Base64-2.12.tar.gz
-      b. install CGI.pm-2.74.tar.gz
+   4. If you are using SpeedyCGI, and openwebmail always shows Internal error,
+      then you SpeedyCGI may be compiled without SUID support.
+      a. please be sure the speedycgi executable is owned by root with 
+         permission 4555
+      b. please be sure you are using SpeedyCGI 2.22 or above
+      c. please be sure your perl is compiled with SUID support enabled
+         before compiling SpeedyCGI
+      d. please refer to section "PERSISTENT RUNNING through SpeedyCGI" 
+         in readme.txt for how to compile SpeedyCGI.
 
-   5. Please install the libnet-1.0901.tar.gz, this is required since
-      version 1.60.
+   5. If you are using SpeedyCGI, openwebmail seems be okay at the begining,
+      but it shows "Internal Server Error" sometimes ...
+
+      Please check the apache log to see if there is error messages like 
+
+      "unable to open tmp file ..."
+
+      If yes, you system may not have the savedsuid support,
+      please set have_savedsuid_suooprt to 'no' in etc/suid.conf
+      
+   6. Some perl modules may be too old or not exist on your system
+      a. install MIME-Base64-2.12.tar.gz or above
+      b. install CGI.pm-2.74.tar.gz or above
+      c. install the libnet-1.0901.tar.gz or above
 
 ps: In most cases, you can run the './openwebmail.pl' in text terminal
     to get more information about the error.
@@ -161,9 +209,10 @@ A: You may has wrong settings in your etc/dbm.conf.
 
 Q: --init complains the dbm options after I upgrade OS?
    --init complains the dbm options after I upgrade perl?
-   --init complains the dbm options when I copy openwebmail.conf to another machine??
+   --init complains the dbm options when I copy openwebmail.conf to another 
+   machine?
 A: The perl system may use different dbm format depending on what packages
-   have been installed in your server. And these dbm format may be not compatible.
+   have been installed in your server. These dbm format may be not compatible.
    To know what dbm packages are used by your perl, please execute:
 
    perl uty/dbmtest.pl
@@ -191,8 +240,8 @@ A: The perl system may use different dbm format depending on what packages
 
    In the above example, the system uses NBDM package for dbm.
    when you upgrade OS, perl or migrade openwebmail to other machine,
-   you should run dbmtest.pl on both system to ensure that they use same underlying
-   dbm package.
+   you should run dbmtest.pl on both system to ensure that they use same 
+   underlying dbm package.
 
 Q: ok, my two machins use different DBM systems, what can I do next?
 A: you can enforce the new one to use the same dbm package as the old one by
@@ -254,6 +303,12 @@ Q: Some of my user with invalid shell couldn't login since upgrade to 1.80?
 A: A new variable check_shell option has been added to the auth_unix.conf
    If it is set to yes, which means only users with valid shell can login. 
    If it is set to no, then eopnwebmail won't do valid shell checking.
+
+Q: A string 'Sessions : 5, 10, 20' appeared at the bottom of the copyright 
+   page after successful login, what does this string mean?
+A: It means the number of users that were active in the last 1, 5 and 15 
+   minutes, which gives a rough estimation of the webmail usage state.
+
 
 ========================================================================
 RUNTIME ERRORS
@@ -535,8 +590,9 @@ A: First, you have to decide whether to use real virtual hosting or
    1. the domainname part in loginname, or
    2. the hostname in the url of the webmail
 
-   ps: You may need to use the domainname_equiv option to ensure no matter which
-       domainname is used by user or in URL, they will be mapped to a consistent one.
+   ps: You may need to use the domainname_equiv option to ensure no matter 
+       which domainname is used by user or in URL, they will be mapped to 
+       a consistent one.
 
    For example:
 
@@ -591,9 +647,15 @@ A: You can use the virtusertable or the per user config file
        for many users, per user config file let sysadm control many properties
        for a specific user.
 
-Q: How can I disallow the user to set their from email address?
-A: set option enable_setfromemail to 'no' in either openwebmal.conf or per
-   user config.
+Q: How can I disallow the user to set their from email address or realname?
+A: set option enable_loadfrombook to 'no' 
+   in either openwebmal.conf or per user config.
+
+Q: How can I allow user to change their realname 
+   but disallow the user to set their from email address?
+A: set option enable_loadfrombook to 'yes' and 
+   set option frombook_for_realname_only to 'yes'
+   in either openwebmal.conf or per user config.   
 
 Q: Can I install openwebmail without iconv() support?
 A: Yes, you may copy the uty/iconv.pl.fake over the shares/iconv.pl,
@@ -633,7 +695,7 @@ A: There are 2 possible answers for this:
 
    2. Your system doesn't support saved set-user-ID, so openwebmail won't get
       enough privilege to change the passwd file.
-      Try to set option has_savedsuid_support to 'no' in openwebmail.conf 
+      Try to set option has_savedsuid_support to 'no' in etc/suid.conf 
       to solve this problem.
 
    3. The authentication module which you used doesn't support password
@@ -755,7 +817,8 @@ A: Your messages were either filtered by 'global filter rule',
    email address. A from email address is in bad format if
    1. it is started with digits
    2. it contains both digits and dot
-   3. it caontains characters other than alphabets, digits, dot, dask, underline.
+   3. it caontains characters other than alphabets, digits, dot, dask, 
+      underline.
 
    The 'faked smtp filter' will filter messages that have a faked smtp
    source, those messages are often from spammers.
@@ -811,20 +874,21 @@ A: 1. Set default_filter_fakedsmtp and default_filter_fakedexecontenttype
       user
 
 Q: Some of my messages disappeared?
-A: Your messages my be removed by the delmail_ifquota feature.
+A: Your messages may be removed by the delmail_ifquota feature.
 
 Q: How does the delmail_ifquotahit option work?
    Which message will be removed first?
 A: It will clean trash and draft first,
    then remove oldest messages in other folders.
-   The removal will stop if the quota size is download to the 90% of user quota limit.
+   The removal will stop if the quota size is download to the 90% of user 
+   quota limit.
 ps:The messages in INBOX and user defined folders will be removed only if
    these folders occupy the majority of the mailfolder space.
 
    Please refer to routine cutfolders in ow-shared.pl for detail
 
-Q: There were strange characters in the mail filter menu and those rules could
-   not be deleted?
+Q: There were strange characters in the mail filter menu and those rules 
+   could not be deleted?
 A: This is due to the dbmopen() of your perl didn't add the ".db" extension
    automatically, so the ~/.filter.book and its index were written to the same
    file. This problem can be fixed by properly setting dbm options.
@@ -945,7 +1009,7 @@ A: 1. Please upgrade your openwebmail to 2003/11/16 or later.
       Yes, this is strange, but it seems aspell need this.
       (thanks Scott A. Mazur, scott.AT.littlefish.ca)
    3. If you don't want to change the directory permission.
-      Please set option has_savedsuid_support to 'no' in openwebmail.conf
+      Please set option has_savedsuid_support to 'no' in etc/suid.conf
    4. If you don't want to set option either, you may try to use ispell
       instead of aspell
 
@@ -1060,7 +1124,7 @@ A: The GNU copyright page should be displayed for less than 1 second.
 
 Q: My openwebmail is slow, how can I make it faster?
 A: You may try to use Open WebMail with the SpeedyCGI package, you will
-   get about 5x-10 speedup. Please refer to the readme.txt with keyword
+   get about 5x-10x speedup. Please refer to the readme.txt with keyword
    SpeedyCGI for more detail.
 
 Q: How SpeedyCGI speeds up Open WebMail?
@@ -1129,7 +1193,7 @@ A: When it is checked, web pages generated by Open WebMail will be
 
    This is very useful for users with slow connection. An rough experiment
    showed that the compressed format is about only 10% in size compared with
-   he original web page.
+   the original web page.
 
 Q: I could not check the HTTP compression checkbox, it is always disabled?
 A: The HTTP compression feature won't be available if any one of the three
@@ -1230,11 +1294,12 @@ A: When the stop key is pressed, the browser will close its connection to
 
    Now, what openwebmail do with this?
    Since version 2.00, all stdout output code has been move to the end of the
-   request processing in openwebmail, this the data being processed will be
-   always in a complete state.
+   request processing in openwebmail, this ensures the data being processed 
+   will be always in a complete state and not terminated because of PIPE error.
 
 Q: How is the domain of a login user determined?
-A: It is determined in the following order(the earlier one has higher precedence)
+A: It is determined in the following order
+   (the earlier one has higher precedence)
    1. from the login name
       eg: the user logined with username@virtualdomain
    2. from the parameter 'logindomain' specified in login page url
@@ -1248,7 +1313,8 @@ Q: How does the delfile_ifquotahit option work?
    Which file will be removed first?
 A: It will remove the oldest files or direcotries under the webdiskrootdir
    (webdiskrootdir is default to / of user homedir, but you can change it).
-   The removal will stop if the quota size is download to the 90% of user quota limit.
+   The removal will stop if the quota size is download to the 90% of user 
+   quota limit.
 
 Q: What is the difference between 'Forward', 'ForwardAsAtt', 'ForwardAsOrig'
 A: If A send msg1 to B,
@@ -1442,7 +1508,8 @@ A: Please create a file, index.html, like below. Either a or b is okay.
    </html>
    ----------------------------------------
 
-   ps: An example redirect html is available at the data/openwebmail/redirect.html
+   ps: An example redirect html is available at the 
+       data/openwebmail/redirect.html
 
 Q: Can I install openwebmail without root privilege?
 A: Yes, try the auth_pop3.pl. Some information is available in it.

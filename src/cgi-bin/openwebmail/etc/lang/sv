@@ -71,7 +71,7 @@ package ow::sv;
 
 %lang_ctrlpositionlabels =
    (
-   top => 'At top',
+   top    => 'At top',
    bottom => 'At bottom'
    );
 
@@ -232,6 +232,7 @@ package ow::sv;
    userdef    => 'User Defined',
    logout     => 'Logga ut',
    page       => 'Sida',
+   msgsperpage=> '@@@MSGCOUNT@@@ messages per page',
    msgcopyconf=> '\'Är du säker på att du vill kopiera de markerade meddelandena?\'',
    copy       => 'Kopiera',
    msgmoveconf=> '\'Är du säker på att du vill flytta de markerade meddelandena?\'',
@@ -331,6 +332,8 @@ package ow::sv;
    all        => 'Alla',
    enable     => 'Aktivera',
    disable    => 'Avaktivera',
+   yes        => 'Yes',
+   no         => 'No',
    filtered   => 'Filtered',
    blockrelay => 'Blockera SMTP Relay',
    blockemail => 'Blockera email',

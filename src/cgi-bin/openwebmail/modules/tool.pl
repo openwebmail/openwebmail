@@ -4,6 +4,10 @@ use strict;
 # tool.pl - routines independent with openwebmail systems
 #
 
+use Digest::MD5 qw(md5);
+use Carp;
+$Carp::MaxArgNums = 0; # return all args in Carp output
+
 sub findbin {
    my $name=$_[0];
    foreach ('/usr/local/bin', '/usr/bin', '/bin', '/usr/X11R6/bin/', '/opt/bin') {
@@ -62,6 +66,33 @@ sub load_configfile {
    return 0;
 }
 
+# use 'require' to load the package ow::$file
+# then alias ow::$file::symbo to $newpkg::symbo
+# through Glob and 'tricky' symbolic reference feature
+sub loadmodule {
+   my ($newpkg, $moduledir, $modulefile, @symlist)=@_;
+   $modulefile=~s|/||g; $modulefile=~s|\.\.||g; # remove / and .. to anti path hack
+
+   # this would be done only once because of %INC
+   my $modulepath=ow::tool::untaint("$moduledir/$modulefile");
+   require $modulepath;
+
+   # . - is not allowed for package name
+   my $modulepkg='ow::'.$modulefile; $modulepkg=~s/\.pl//; $modulepkg=~s/[\.\-]/_/g;
+
+   # release strict refs until block end
+   no strict 'refs';
+   # use symbo table of package $modulepkg if no symbo passed in
+   @symlist=keys %{$modulepkg.'::'} if ($#symlist<0);
+
+   foreach my $sym (@symlist) {
+      # alias symbo of sub routine into current package
+      *{$newpkg.'::'.$sym}=*{$modulepkg.'::'.$sym};
+   }
+
+   return;
+}
+
 sub hostname {
    my $hostname=`/bin/hostname`; chomp ($hostname);
    return($hostname) if ($hostname=~/\./);
@@ -89,6 +120,19 @@ sub clientip {
    return $clientip;
 }
 
+use vars qw(%_has_module_err);
+sub has_module {
+   my $module=$_[0];
+   return 1 if (defined($INC{$module}));
+   return 0 if ($_has_module_err{$module});
+   eval { require $module; };	# test module existance and load if it exists
+   if ($@) {
+      $_has_module_err{$module}=1; return 0;
+   } else {
+      return 1;
+   }
+}
+
 # return a string composed by the modify time & size of a file
 sub metainfo {
    return '' if (!-e $_[0]);
@@ -97,16 +141,12 @@ sub metainfo {
    return("mtime=$a[9] size=$a[7]");
 }
 
-use vars qw($_zliberr);
-sub has_zlib {
-   return 1 if (defined($INC{'Compress/Zlib.pm'}));
-   return 0 if ($_zliberr);
-   eval { require "Compress/Zlib.pm"; };
-   if ($@) {
-      $_zliberr=1; return 0;
-   } else {
-      return 1;
-   }
+# generate a unique (well nearly) checksum through MD5
+sub calc_checksum {
+   my $checksum = md5(${$_[0]});
+   # remove any \n so it doesn't react with ow folder db index delimiter
+   $checksum =~ s/[\r\n]/./sg;
+   return $checksum;
 }
 
 # escape & unescape routine are not available in CGI.pm 3.0
@@ -130,9 +170,9 @@ sub escapeURL {
 # limitation: no escape for keyname, value can not be an array
 sub hiddens {
    my %h=@_;
-   my ($temphtml, $key, $value);
-   while (($key, $value)=each(%h)) {
-      $temphtml.=qq|<INPUT TYPE="hidden" NAME="$key" VALUE="$value">\n|;
+   my ($temphtml, $key);
+   foreach my $key (sort keys %h) {
+      $temphtml.=qq|<INPUT TYPE="hidden" NAME="$key" VALUE="$h{$key}">\n|;
    }
    return $temphtml;
 }
@@ -146,7 +186,7 @@ sub zh_dospath2fname {
       # this line can't be put inside while or will go wrong in perl 5.8.0
       if ($dospath=~m!([\x81-\xFE][\x40-\x7E\x80-\xFE]|.)!g) {
          if ($1 eq '\\') {
-            if ($newdelim) {
+            if ($newdelim ne '') {
                $buff.=$newdelim;
             } else {
                $buff='';
@@ -331,6 +371,10 @@ sub is_regex {
    return eval { m!$_[0]!; 1; };
 }
 
+sub stacktrace {
+   return Carp::longmess(join(' ', @_));
+}
+
 # for profiling and debugging
 sub log_time {
    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst);
@@ -351,8 +395,8 @@ sub log_time {
    chmod(0666, "/tmp/openwebmail.debug");
 }
 
-# dump data stru for debugging
-sub refdump {
+# dump data stru with its reference for debugging
+sub dumpref {
    my ($var, $c)=@_;
    return("too many levels") if ($c>128);
    my $type=ref($var);

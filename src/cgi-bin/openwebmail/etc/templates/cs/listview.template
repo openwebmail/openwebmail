@@ -24,7 +24,7 @@
 <td bgcolor=@@@COLUMNHEADER@@@ nowrap><B>Datum</B></td>
 <td bgcolor=@@@COLUMNHEADER@@@ nowrap><B>Den týdne</B></td>
 <td bgcolor=@@@COLUMNHEADER@@@ nowrap align="center" width="5%"><B>Dny</B></td>
-<td bgcolor=@@@COLUMNHEADER@@@ nowrap align=center width="75%"><B>Polo¾ky</B></td>
+<td bgcolor=@@@COLUMNHEADER@@@ nowrap align="center" width="75%"><B>Polo¾ka</B></td>
 </tr>
 @@@ITEMLIST@@@
 </table>

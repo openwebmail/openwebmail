@@ -30,9 +30,10 @@ sub get_usage_limit {
    my $dev = Quota::getqcarg($homedir);
    return(-2, "Error in finding device for $homedir") if(!$dev);
 
-   if (Quota::sync($dev) && ($!!=1)) {  # ignore EPERM
-      return(-2, Quota::strerr);	# quota not enabled mostly
-   }
+   Quota::sync($dev);
+   #if (Quota::sync($dev) && ($!!=1)) {	# ignore EPERM
+   #   return(-2, Quota::strerr);	# quota not enabled mostly
+   #}
 
    my ($bc,$bs) = (Quota::query($dev, $uid))[0,1];
    if(!defined($bc)) { ; # not enough privilege to query

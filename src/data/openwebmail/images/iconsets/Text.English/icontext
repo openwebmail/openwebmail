@@ -12,6 +12,7 @@
    'blockrelay.gif'    => ' [!Relay] ',
    'cal-delete.gif'    => ' [Del] ',
    'cal-link.gif'      => ' [Link] ',
+   'cal-popup.gif'     => ' ',
    'calendar.gif'      => ' [Calendar] ',
    'chpwd.gif'         => ' [ChPwd] ',
    'clearaddress.gif'  => ' [ClearAddr] ',
@@ -74,6 +75,7 @@
    'right-grey.s.gif'  => ' > ',
    'right.gif'         => ' > ',
    'right.s.gif'       => ' > ',
+   'search.s.gif'      => ' [Search] ',
    'sound.gif'         => ' [TestSnd] ',
    'sshterm.gif'       => ' [SSH Terminal] ',
    'thumbnail.gif'     => ' [Make Thumb] ',
@@ -84,6 +86,7 @@
    'up.gif'            => ' ^ ',
    'vdusers.gif'       => ' [VDomainUsers Admin] ',
    'webdisk.gif'       => ' [WebDisk] ',
+   'webdisk.s.gif'     => ' [WebDisk] ',
    'weekview.gif'      => ' [WeekView] ',
    'yearview.gif'      => ' [YearView] '
    );

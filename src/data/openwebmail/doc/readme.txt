@@ -47,16 +47,22 @@ Perl 5.005 or above
 CGI.pm-2.74.tar.gz        (required)
 MIME-Base64-2.12.tar.gz   (required)
 libnet-1.0901.tar.gz      (required)
+Digest-1.05.tar.gz        (required)
+Digest-MD5-2.33.tar.gz    (required)
 Text-Iconv-1.2.tar.gz     (required)
 libiconv-1.9.1.tar.gz     (required if system doesn't support iconv)
 
-CGI-SpeedyCGI-2.22.tar.gz (optional)
-Compress-Zlib-1.21.tar.gz (optional)
-ispell-3.1.20.tar.gz      (optional)
-Quota-1.4.6.tar.gz        (optional)
-Authen-PAM-0.12.tar.gz    (optional)
-ImageMagick-5.5.3.tar.gz  (optional)
-antiword-0.35.tar.gz      (optional)
+CGI-SpeedyCGI-2.22.tar.gz (optional, for persistent running)
+Compress-Zlib-1.21.tar.gz (optional, for HTTP compression)
+ispell-3.1.20.tar.gz      (optional, for spellcheck)
+Quota-1.4.6.tar.gz        (optional, for unixfs quota support)
+Authen-PAM-0.12.tar.gz    (optional, for auth_pam support)
+ImageMagick-5.5.3.tar.gz  (optional, for thumbnail support in webdisk)
+antiword-0.35.tar.gz      (optional, for msword preview)
+openssl-0.9.7c.tar.gz     (optional, for pop3 over SSL support,
+                           this is required only if system doesn't support libssl) 
+Net_SSLeay.pm-1.25.tar.gz (optional, for pop3 over SSL support)
+IO-Socket-SSL-0.95.tar.gz (optional, for pop3 over SSL support)
 
 
 INSTALL REQUIRED PACKAGES
@@ -66,7 +72,7 @@ http://openwebmail.com/openwebmail/download/packages/
 and copy them to /tmp
 
 
-For CGI.pm do the following:
+CGI.pm installation:
 
    cd /tmp
    tar -zxvf CGI.pm-2.74.tar.gz
@@ -83,7 +89,7 @@ ps: It is reported that Open Webmail will hang in attachment uploading
     perl -MCGI -e 'print $CGI::VERSION'
 
 
-For MIME-Base64 do the following:
+MIME-Base64 installation:
 
    cd /tmp
    tar -zxvf MIME-Base64-2.12.tar.gz
@@ -98,7 +104,7 @@ ps: Though you may already have the MIME-Base64 perl module,
     improves the encoding/decoding speed of MIME attachment.
 
 
-For libnet do the following:
+libnet installation:
 
    cd /tmp
    tar -zxvf libnet-1.0901.tar.gz
@@ -108,7 +114,7 @@ For libnet do the following:
    make install
 
 
-For Text-Iconv-1.2 do the following:
+Text-Iconv-1.2 installation:
 
    Since Text-Iconv-1.2 is actually a perl interface to the underlying iconv()
    support, you have to check if iconv() support is available in your system.
@@ -116,8 +122,8 @@ For Text-Iconv-1.2 do the following:
 
    man iconv
 
-   If there is no manual page for iconv, your system may not support iconv().
-   Don't worry, you can have the iconv() support by installing libiconv package.
+   If there is no manual page for iconv, your system might not support iconv(), 
+   You need to install libiconv package to get iconv() support.
 
    cd /tmp
    tar -zxvf libiconv-1.9.1.tar.gz
@@ -134,9 +140,9 @@ For Text-Iconv-1.2 do the following:
    cd Text-Iconv-1.2
    perl Makefile.PL
 
-   ps: if your system is FreeBSD, or you just installed libiconv manually,
+   ps: If your system is FreeBSD, or you just installed libiconv manually,
        please edit the Makefile.PL and change the LIBS and INC lines
-       to the following before doing 'perl Makefile.PL'
+       as the following before doing 'perl Makefile.PL'
 
        'LIBS'         => ['-L/usr/local/lib -liconv'], # e.g., '-lm'
        'INC'          => '-I/usr/local/include',      # e.g., '-I/usr/include/other'
@@ -188,7 +194,7 @@ If you are using RedHat 7.x (or most Linux) with Apache
    a. set mailspooldir to '/var/spool/mail'
    b. set ow_htmldir   to '/var/www/html/openwebmail'
       set ow_cgidir    to '/var/www/cgi-bin/openwebmail'
-   c. set spellcheck   to '/usr/bin/ispell'
+   c. set spellcheck   to '/usr/bin/ispell -a -S -w "-" -d @@@DICTIONARY@@@ -p @@@PDICNAME@@@'
    d. change default_signature for your need
    e. other changes you want
 
@@ -233,7 +239,7 @@ eg: /usr/local/apache/share, then
    a. set mailspooldir to where your system mail spool is
    b. set ow_htmldir   to '/usr/local/apache/share/htdocs'
       set ow_cgidir    to '/usr/local/apache/share/cgi-bin'
-   c. set spellcheck   to '/usr/local/bin/ispell'
+   c. set spellcheck   to '/usr/local/bin/ispell -a -S -w "-" -d @@@DICTIONARY@@@ -p @@@PDICNAME@@@'
    d. change default_signature for your need
    e. other changes you want
 
@@ -368,8 +374,8 @@ If you set this option to 'none', then no quota system will be used in openwebma
 
 This option sets the limit (in kb) for user quota usage.
 The webmail and webdisk operation is limited to 'delete' if quota is hit.
-This option does not prevent the operation taking the user over this limit
-from completing, it simply inhibits further saving of messages or files
+This option won't prevent the operation taking the user over this limit
+from completing but simply inhibits further saving of messages or files
 until the user quota usage is brought down again.
 
 ps: The value set in this option is used only if quota module doesn't support
@@ -413,14 +419,14 @@ So 'finger' or other mail status check utility may give you wrong
 information since they don't know about the filter.
 
 A command tool 'openwebmail-tool.pl' can be used as finger replacement.
-It does mail filtering before report mail status.
+It does mail filtering before reporting mail status.
 
 Some fingerd allow you to specify the name of finger program by -p option
 (eg: fingerd on FreeBSD). By changing the parameter to fingerd in
 /etc/inetd.conf, users can get their mail status from remote host.
 
-openwebmail-tool.pl can be also used in crontab to prefetch pop3mail or do folder
-index verification for users. For example:
+openwebmail-tool.pl can be also used in crontab to prefetch pop3mail or 
+do folder index verification for users. For example:
 
 59 5 * * *  /usr/local/www/cgi-bin/openwebmail/openwebmail-tool.pl -q -a -p -i
 
@@ -505,6 +511,50 @@ you can do debug with the -d option
    add the '-d' option after vacation.pl
 3. send a message to this user to test the autoreply
 4. check the /tmp/vacation.debug for possible error information
+
+Things you may find in /tmp/vacation.debug 
+
+'User ... not found in to: and cc:', 
+
+This tends to occur (assuming the address is legitimate) when your email 
+addresses don't match your system accounts.  For instance, when mail for 
+tim.wood@xyz.com is deposited in system account twood.  The error will look 
+something like this: 
+
+20040505 170028 User twood@xyz.com twood not found in to: and cc:, autoreply canceled 
+
+Vacation.pl assumes that the user part of the email address (e.g. tim.wood) 
+will match their account on the system (e.g. twood).  If they don't you can 
+work around this by 
+
+a. add the -j after vacation.pl in option vacationpipe in openwebmail.conf
+
+vacationpipe            %ow_cgidir%/vacation.pl -j -t60s
+
+ps: this modification won't take effect until user reset their .forward 
+    file by switching on and off the email forwarding in openwebmail,
+    so you may wish to use the following modification instead
+
+b. editing vacation.pl (in the openwebmail folder, typically at 
+   /var/www/cgi-bin/openwebmail/). At the top of the 'MAIN' section, 
+   you'll find a while that's used to parse options: 
+
+    # parse options, handle initialization or interactive mode 
+    while (defined($ARGV[0]) && $ARGV[0] =~ /^-/) { 
+       $_ = shift; 
+    [snip] 
+       } 
+    } 
+
+   Immeadiately after that section, add: 
+
+      $opt_j=1; 
+
+   This tells vacation.pl to not check that the email address and system 
+   account match.  Note: this means that everytime the user receives an email 
+   from a mailing list, everyone on the mailing list will know the user is 
+   out-of-office.  And if it's a busy list, they'll hear about it a lot. 
+   (by twood, tim.wood.AT.compucomfed.com)
 
 
 WEBDISK SUPPORT
@@ -758,6 +808,16 @@ please create a file /etc/pam.d/openwebmail with the following content
 auth       required	/lib/security/pam_unix.so
 account    required	/lib/security/pam_unix.so
 password   required	/lib/security/pam_unix.so
+
+If you are using Red Hat Enterprise Linux 3, Fedora Core 1  or 
+Red Hat Linux 9, please use the following content instead.
+(by Milan Kerslager, milan.kerslager.AT.pslib.cz)
+
+auth       required     pam_stack.so service=system-auth
+account    required     pam_stack.so service=system-auth
+session    required     pam_stack.so service=system-auth
+password   required     pam_stack.so service=system-auth 
+
 
 (on FreeBSD)
 openwebmail   auth	required	/usr/lib/pam_unix.so

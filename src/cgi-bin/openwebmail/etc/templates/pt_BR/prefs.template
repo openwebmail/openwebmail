@@ -138,7 +138,7 @@ Assunto:
 @@@SORTMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Display mini search icon@@@MINISEARCHICON@@@:</B>
+<B>Exibir ícone de mini-busca@@@MINISEARCHICON@@@:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USEMINISEARCHICONCHECKBOX@@@<br>
 </td></tr>
@@ -169,7 +169,7 @@ Assunto:
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Buscar mensagens automaticamente na entrada:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@AUTOPOP3CHECKBOX@@@ (wait @@@AUTOPOP3WAITMENU@@@ seconds)
+@@@AUTOPOP3CHECKBOX@@@ (Aguardar @@@AUTOPOP3WAITMENU@@@ segundos)
 </td></tr>
 @@@AUTOPOP3END@@@
 @@@MOVEOLDSTART@@@
@@ -280,7 +280,7 @@ Colunas @@@EDITCOLUMNSMENU@@@ Linhas @@@EDITROWSMENU@@@
 @@@FILTERREPEATLIMIT@@@ &nbsp;( ZERO significa a não verificação de repetições )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Filter msgs with email address in bad format:</B>
+<B>Filtrar mensagens com endereço de e-mail em formato errado:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERBADADDRFORMAT@@@
 </td></tr>
@@ -324,7 +324,7 @@ Colunas @@@ABOOKWIDTHMENU@@@ Linhas @@@ABOOKHEIGHTMENU@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Opções do Calendário</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Visão de calendário Default:</B>
+<B>Visão de calendário padrão:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DEFAULTVIEWMENU@@@
 </td></tr>

@@ -71,7 +71,7 @@ package ow::fi;
 
 %lang_ctrlpositionlabels =
    (
-   top => 'At top',
+   top    => 'At top',
    bottom => 'At bottom'
    );
 
@@ -232,6 +232,7 @@ package ow::fi;
    userdef    => 'Määritä käyttäjä',
    logout     => 'Kirjaudu ulos',
    page       => 'Sivu',
+   msgsperpage=> '@@@MSGCOUNT@@@ messages per page',
    msgcopyconf=> '\'Haluatko VARMASTI kopioida valitut viestit?\'',
    copy       => 'Kopioi',
    msgmoveconf=> '\'Haluatko VARMASTI siirtää valitut viestit?\'',
@@ -331,6 +332,8 @@ package ow::fi;
    all        => 'Kaikki',
    enable     => 'Käytössä',
    disable    => 'Ei käytössä',
+   yes        => 'Kyllä',
+   no         => 'Ei',
    filtered   => 'Suodatettu',
    blockrelay => 'Estä SMTP Palvelin',
    blockemail => 'Estä viestit',

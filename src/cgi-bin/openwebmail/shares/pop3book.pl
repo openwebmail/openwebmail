@@ -16,10 +16,15 @@ sub readpop3book {
       open (POP3BOOK,"$pop3book") or return -1;
       while (<POP3BOOK>) {
       	 chomp($_);
-         my ($pop3host,$pop3port, $pop3user,$pop3passwd, $pop3del, $enable)=split(/\@\@\@/, $_);
+         my @a=split(/\@\@\@/, $_);
+         my ($pop3host,$pop3port,$pop3ssl, $pop3user,$pop3passwd, $pop3del, $enable)=@a;
+         if ($#a==5) {	# for backward comparibility
+            ($pop3host,$pop3port, $pop3user,$pop3passwd, $pop3del, $enable)=@a;
+            $pop3ssl=0;
+         }
          $pop3passwd=decode_base64($pop3passwd);
          $pop3passwd=$pop3passwd^substr($pop3host,5,length($pop3passwd));
-         ${$r_accounts}{"$pop3host:$pop3port\@\@\@$pop3user"} = "$pop3host\@\@\@$pop3port\@\@\@$pop3user\@\@\@$pop3passwd\@\@\@$pop3del\@\@\@$enable";
+         ${$r_accounts}{"$pop3host:$pop3port\@\@\@$pop3user"} = "$pop3host\@\@\@$pop3port\@\@\@$pop3ssl\@\@\@$pop3user\@\@\@$pop3passwd\@\@\@$pop3del\@\@\@$enable";
          $i++;
       }
       close (POP3BOOK);
@@ -41,11 +46,11 @@ sub writepop3book {
    open (POP3BOOK,">$pop3book") or return -1;
    foreach (values %{$r_accounts}) {
      chomp($_);
-     my ($pop3host,$pop3port, $pop3user,$pop3passwd, $pop3del,$enable)=split(/\@\@\@/, $_);
+     my ($pop3host,$pop3port,$pop3ssl, $pop3user,$pop3passwd, $pop3del, $enable)=split(/\@\@\@/, $_);
      # not secure, but better than plaintext
      $pop3passwd=$pop3passwd ^ substr($pop3host,5,length($pop3passwd));
      $pop3passwd=encode_base64($pop3passwd, '');
-     print POP3BOOK "$pop3host\@\@\@$pop3port\@\@\@$pop3user\@\@\@$pop3passwd\@\@\@$pop3del\@\@\@$enable\n";
+     print POP3BOOK "$pop3host\@\@\@$pop3port\@\@\@$pop3ssl\@\@\@$pop3user\@\@\@$pop3passwd\@\@\@$pop3del\@\@\@$enable\n";
    }
    close (POP3BOOK);
    ow::filelock::lock($pop3book, LOCK_UN);
@@ -54,4 +59,3 @@ sub writepop3book {
 }
 
 1;
-

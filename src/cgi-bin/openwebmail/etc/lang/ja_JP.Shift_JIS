@@ -71,7 +71,7 @@ package ow::ja_JP_Shift_JIS;
 
 %lang_ctrlpositionlabels =
    (
-   top => '上に',
+   top    => '上に',
    bottom => '下に'
    );
 
@@ -232,6 +232,7 @@ package ow::ja_JP_Shift_JIS;
    userdef    => 'ユーザー定義',
    logout     => 'ログアウト',
    page       => 'ページ',
+   msgsperpage=> '@@@MSGCOUNT@@@ messages per page',
    msgcopyconf=> '\'選択されたメッセージをコピーしてもよろしいですか?\'',
    copy       => 'コピー',
    msgmoveconf=> '\'選択されたメッセージを移動してもよろしいですか?\'',
@@ -331,6 +332,8 @@ package ow::ja_JP_Shift_JIS;
    all        => 'すべて',
    enable     => '有効',
    disable    => '無効',
+   yes        => 'はい',
+   no         => 'いいえ',
    filtered   => 'フィルターを介す',
    blockrelay => 'SMTPリレーをブロックする',
    blockemail => 'Eメールをブロックする',

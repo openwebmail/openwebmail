@@ -16,7 +16,7 @@ sub html2text {
    $t=~s!¡@!  !g;	# clean chinese big5 space char
    $t=~s!&nbsp;! !g;
    $t=~s![ \t]+! !g;
-   $t=~s!^\s+!!mg; $t=~s!\s+$!!mg;
+   $t=~s!^\s+!!mg; $t=~s!\s+$! !mg;
    $t=~s![\r\n]+!!g;
 
    $t=~s|<!--.*?-->||sg;

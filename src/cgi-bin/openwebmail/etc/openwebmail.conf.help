@@ -192,21 +192,6 @@ line when writing new messages to mailspool.
 eg: Qmail is know to use GMT time in mail delivery.
 
 
-has_savedsuid_support
------------------------------------------------------------------------
-Does your system have 'saved set-user-ID' support?
-On system with saved set-user-ID support, the effective uid of a process
-will be saved to 'saved set-user-ID' (structure prepared by OS) before euid
-is changed, thus the process can switch back to previous euid if required.
-
-If this option is set to 'no', openwebmail will tries to save euid 0 to ruid,
-this give the same effect as 'saved set-user-ID' but is somewhat unsafe
-since child forked by openwebmail may have ruid 0
-
-Only set this to 'no' if you got 'authentication error' in changing passwd.
-eg: perl 5.6.1 on FreeBSD 4.4 is found to need setting this to 'no'.
-
-
 
 
 
@@ -396,9 +381,27 @@ While method 1 is more realtime, moethod 2 would have samller overhead.
 
 spellcheck
 -----------------------------------------------------------------------
-The location of your spelling check program,
-it could be ether ispell (http://fmg-www.cs.ucla.edu/geoff/ispell.html)
-               or aspell (http://aspell.sourceforge.net/)
+The command to trigger your spelling check program
+
+Example: (for ispell, http://fmg-www.cs.ucla.edu/geoff/ispell.html)
+spellcheck	/usr/local/bin/ispell -a -S -w "-" -d @@@DICTIONARY@@@ -p @@@PDICNAME@@@
+
+Example: (for aspell, http://aspell.sourceforge.net/)"
+spellcheck	/usr/local/bin/aspell -a -S -w "-" -d @@@DICTIONARY@@@ -p @@@PDICNAME@@@
+
+ps: @@@DICTIONARY@@@ will be replaced with the dictionary user choose to use at runtime
+    @@@PDICNAME@@@ will be replaced with the value defined in option spellcheck_pdicname
+
+
+spellcheck_pdicname
+-----------------------------------------------------------------------
+The filename of the personal dictionary
+
+Example: (for ispell)
+spellcheck_pdicname	.ispell_words'
+
+Example: (for aspell)
+spellcheck_pdicname	.aspell.@@@DICTIONARY@@@.pws
 
 
 spellcheck_dictionaries
@@ -605,6 +608,12 @@ ps: We suggest you at least set one of the two options:
     or the user session may be hijacked by others.
 
 
+session_count_display
+-----------------------------------------------------------------------
+Set this option to 'no' if you don't want the count of active sessions 
+in the past 1, 5, 15 minutes to be displayed at the user login
+
+
 cache_userinfo
 -----------------------------------------------------------------------
 Openwebmail will cache the user info (uid, gid, homedir...) in per
@@ -652,7 +661,7 @@ the read messages from either pop3 client or openwebmail
 
 enable_history
 -----------------------------------------------------------------------
-Set this to 'no' if you want to disable the 'History' button in the user
+Set this to 'no' if you want to disable the 'History' feature in the user
 preference
 
 
@@ -811,47 +820,65 @@ Open WebMail has complete support as pop3 client. If you want to disable
 pop3 related functions from user, please set this to 'no'
 
 
-disallowed_pop3servers
+pop3_disallowed_servers
 -----------------------------------------------------------------------
 a list of hostnames which we disallow.
 The host may share the same mailspool, or for some administrative
 reason be undesirable.
 
 
-delpop3mail_by_default
+pop3_delmail_by_default
 -----------------------------------------------------------------------
 If this option is on, openwebamil will set 'delete remote mail' to yes
 when creating new record in pop3 book
 
 
-delpop3mail_hidden
+pop3_delmail_hidden
 -----------------------------------------------------------------------
 If this option is on, openwebmail will hide the 'del remote mail'
 checkbox in editpop3 menu so uer will not be able to change it.
-Then the value delpop3mail_by_default will be used
+Then the value pop3_delmail_by_default will be used
 
 
-pop3_authserver
+pop3_usessl_by_default
+-----------------------------------------------------------------------
+If this option is on, openwebmail will set 'use SSL connection' to yes
+when creating new record in pop3 book
+
+
+authpop3_server
 -----------------------------------------------------------------------
 When auth_pop3.pl is used as authentication module, this option specify
 the pop3 server for authentication
 Default: localhost
 
 
-pop3_authport
+authpop3_port
 -----------------------------------------------------------------------
 When auth_pop3.pl is used as authentication module, this option specify
 the port of the pop3 server for authentication
 Default: 110
 
 
-getmail_from_pop3_authserver
+authpop3_getmail
 -----------------------------------------------------------------------
 When auth_pop3.pl is used as authentication module, this option makes
 openwebmail fetch the mails from pop3 auth server after login automatically
 
 ps: this option should be set to 'no' if the pop3 authserver is the
     machine where openwebmail is running to aviod loop.
+
+
+authpop3_delmail
+-----------------------------------------------------------------------
+When auth_pop3.pl is used as authentication module, this option makes
+openwebmail delete mails from pop3 auth server after they have be fetched
+
+
+authpop3_usessl
+-----------------------------------------------------------------------
+When auth_pop3.pl is used as authentication module, this option makes
+openwebmail use SSL to connect to auth pop3 server
 
 
 loginerrordelay

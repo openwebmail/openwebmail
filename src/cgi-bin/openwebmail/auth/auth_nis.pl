@@ -33,7 +33,7 @@ sub get_userinfo {
    my ($r_config, $user)=@_;
    my ($uid, $gid, $realname, $homedir);
 
-   return(-2, 'User is null') if (!$user);
+   return(-2, 'User is null') if ($user eq '');
    ($uid, $gid, $realname, $homedir)= (getpwnam($user))[2,3,6,7];
    return(-4, "User $user doesn't exist") if ($uid eq "");
 
@@ -75,7 +75,7 @@ sub get_userlist {	# only used by openwebmail-tool.pl -a
 # -4 : password incorrect
 sub check_userpassword {
    my ($r_config, $user, $password)=@_;
-   return (-2, "User or password is null") if (!$user||!$password);
+   return (-2, "User or password is null") if ($user eq '' || $password eq '');
 
    my $remote_sock;
    eval {
@@ -127,7 +127,7 @@ sub check_userpassword {
 # -4 : password incorrect
 sub change_userpassword {
    my ($r_config, $user, $oldpassword, $newpassword)=@_;
-   return (-2, "User or password is null") if (!$user||!$oldpassword||!$newpassword);
+   return (-2, "User or password is null") if ($user eq '' || $oldpassword eq '' || $newpassword eq '');
    return (-2, "Password too short") if (length($newpassword)<${$r_config}{'passwd_minlen'});
 
    my $remote_sock;

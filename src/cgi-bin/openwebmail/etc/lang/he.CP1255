@@ -72,7 +72,7 @@ package ow::he_CP1255;
 
 %lang_ctrlpositionlabels =
    (  
-   top => 'בראש',
+   top    => 'בראש',
    bottom => 'בתחתית'
    );
   
@@ -233,6 +233,7 @@ package ow::he_CP1255;
    userdef    => 'הגדרת משתמש',
    logout     => 'יציאה',
    page       => 'עמוד',
+   msgsperpage=> '@@@MSGCOUNT@@@ messages per page',
    msgcopyconf=> '\'האם הינך בטוח לגבי העתקת ההודעות שנבחרו\'',
    copy       => 'העתק',
    msgmoveconf=> '\'?האם הינך בטוח לגבי העברת ההודעות שנבחרו\'',
@@ -332,6 +333,8 @@ package ow::he_CP1255;
    all        => 'הכל',
    enable     => 'אפשר',
    disable    => 'בטל',
+   yes        => 'כן',
+   no         => 'לא',
    filtered   => 'מסונן',
    blockrelay => 'חסום שרת דואר',
    blockemail => 'חסום כתובת דואר',

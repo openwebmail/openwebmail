@@ -6,19 +6,19 @@
 <tr><td colspan="5" bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
 </td></tr><tr><td colspan="5">&nbsp;</td></tr>
-<tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<tr><td align="left" bgcolor=@@@COLUMNHEADER@@@>
 <B>Název slo¾ky (@@@FOLDERNAME_MAXLEN@@@ znakù)</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Nová</B></td>
+<B>Nových</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Zpráva</B></td>
+<B>Poèet</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Velikost</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Akce</B>
 </td></tr>
 @@@STARTFOLDERFORM@@@
-<tr><td align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
+<tr><td align="left" bgcolor=@@@TABLEROW_LIGHT@@@>
 @@@FOLDERNAMEFIELD@@@
 </td><td align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
 &nbsp;
@@ -37,9 +37,9 @@
 <tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Výchozí slo¾ka</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Nová</B></td>
+<B>Nových</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Zpráva</B></td>
+<B>Poèet</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Velikost</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>

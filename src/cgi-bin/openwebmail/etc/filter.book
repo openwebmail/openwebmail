@@ -1,3 +1,5 @@
+25@@@header@@@include@@@X\-Spam\-Level: \*\*\*\*\*\*\*\*@@@move@@@mail-trash@@@1
+30@@@subject@@@include@@@virus.*mail|virus.*alert|virus.*found@@@move@@@mail-trash@@@1
 30@@@subject@@@include@@@sampledesktopdesktopsampledesktopsamplesample@@@move@@@DELETE@@@1
 30@@@subject@@@include@@@\s{12}@@@move@@@mail-trash@@@1
 30@@@subject@@@include@@@new photos from my party@@@move@@@mail-trash@@@1
@@ -8,6 +10,7 @@
 30@@@subject@@@include@@@Worm Klez.E immunity@@@move@@@mail-trash@@@1
 30@@@subject@@@include@@@Verba Volant@@@move@@@mail-trash@@@1
 30@@@subject@@@include@@@viagra|xanax|vicodin|zoloft|citrate|penis@@@move@@@mail-trash@@@1
+30@@@from@@@include@@@anti.*virus|amavisd|interscan|mailsqr@@@move@@@mail-trash@@@1
 30@@@from@@@include@@@\s{7}@@@move@@@mail-trash@@@1
 30@@@from@@@include@@@[a-z][0-9]{6,11}@(yahoo|hotmail).com@@@move@@@mail-trash@@@1
 30@@@from@@@include@@@[a-z][0-9]{6,11}@pchome.com.tw@@@move@@@mail-trash@@@1

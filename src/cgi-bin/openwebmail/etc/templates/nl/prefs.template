@@ -280,7 +280,7 @@ Breedte @@@EDITCOLUMNSMENU@@@ Hoogte @@@EDITROWSMENU@@@
 @@@FILTERREPEATLIMIT@@@ &nbsp;( 0 betekent: geen controle )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Filter msgs with email address in bad format:</B>
+<B>Filter berichten met een foutief e-mailadres:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERBADADDRFORMAT@@@
 </td></tr>
@@ -431,7 +431,7 @@ Breedte @@@EDITCOLUMNSMENU@@@ Hoogte @@@EDITROWSMENU@@@
 zichtbaar voor @@@NEWMAILWINDOWTIMEMENU@@@ seconden &nbsp;( 0 is GEEN waarschuwingsscherm )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Mail sent window notification:</B>
+<B>E-mail verzonden waarschuwingsscherm:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 zichtbaar voor @@@MAILSENTWINDOWTIMEMENU@@@ seconden &nbsp;( 0 is GEEN waarschuwingsscherm )
 </td></tr>

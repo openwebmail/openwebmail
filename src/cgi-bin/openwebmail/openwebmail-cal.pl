@@ -19,10 +19,10 @@
 
 use vars qw($SCRIPT_DIR);
 if ( $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1 }
-if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
+if ($SCRIPT_DIR eq '' && open(F, '/etc/openwebmail_path.conf')) {
    $_=<F>; close(F); if ( $_=~/^([^\s]*)/) { $SCRIPT_DIR=$1 }
 }
-if (!$SCRIPT_DIR) { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
+if ($SCRIPT_DIR eq '') { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
 push (@INC, $SCRIPT_DIR);
 
 foreach (qw(PATH ENV BASH_ENV CDPATH IFS TERM)) { $ENV{$_}='' }	# secure ENV
@@ -33,11 +33,14 @@ use Fcntl qw(:DEFAULT :flock);
 use CGI qw(-private_tempfiles :standard);
 use CGI::Carp qw(fatalsToBrowser carpout);
 
-require "modules/datetime.pl";
-require "modules/lang.pl";
 require "modules/dbm.pl";
+require "modules/suid.pl";
 require "modules/filelock.pl";
 require "modules/tool.pl";
+require "modules/datetime.pl";
+require "modules/lang.pl";
+require "auth/auth.pl";
+require "quota/quota.pl";
 require "shares/ow-shared.pl";
 require "shares/lunar.pl";
 require "shares/iconv-chinese.pl";
@@ -324,11 +327,11 @@ sub yearview {
                                  $items{$a}{'endhourmin'}<=>$items{$b}{'endhourmin'} ||
                                  $b<=>$a } @indexlist;
 
-               my $eventstr="";
+               my $eventstr='';
                for my $index (@indexlist) {
                   $eventstr.="$items{$index}{'string'} ";
                }
-               if ($eventstr) {
+               if ($eventstr ne '') {
                   if ($eventstr!~/"/) {
                      $eventstr=qq|title="$eventstr"|;
                   } else {
@@ -342,7 +345,7 @@ sub yearview {
                }
 
                $temphtml .= qq|<td $bgcolor><a href="$cal_url&amp;action=calday&amp;year=$year&amp;month=$month&amp;day=$day" $eventstr>|;
-               if ($eventstr) {
+               if ($eventstr ne '') {
                   $temphtml .= qq|<b>$days[$x][$y]</b>|;
                } else {
                   $temphtml .= qq|$days[$x][$y]|;
@@ -1048,6 +1051,7 @@ sub dayview {
                $is_earily=0; last;
             }
          }
+
          if ($is_earily) {
             $slot=$slot+$slots_in_hour-1; next;		# skip $slots_in_hour slots at once
          }
@@ -1411,7 +1415,7 @@ sub build_event_matrix {
        $r_allday_indexies, $r_matrix, $r_layout, $r_slotmin, $r_slotmax, $r_colmax)=@_;
    my @matrix_indexies;
    my %slots;
-   (${$r_slotmin}, ${$r_slotmax}, ${$r_colmax})=(24, 0, 0);
+   (${$r_slotmin}, ${$r_slotmax}, ${$r_colmax})=(999999, 0, 0);
 
    # split the events into two lists: all day events, and not all day events.
    foreach my $index (@{$r_indexlist}) {
@@ -1443,7 +1447,7 @@ sub build_event_matrix {
          }
       }
 
-      # find the fisrt available column for this event so all it won't conflict with other event
+      # find the first available column for this event so all it won't conflict with other event
       my $col=0;
       for ($col=0; ; $col++) {
          my $col_available=1;
@@ -1982,7 +1986,7 @@ sub edit_item {
        # That regex breaks apart idates like (20030808|20030809)
        $startdate = $1;
        $enddate = $2 || '';
-       if ($enddate) { # we have a next Nday recurrance here
+       if ($enddate ne '') { # we have a next Nday recurrance here
           $thisandnextndays_default = 1;
           $ndays_default = $items{$index}{'idate'} =~ tr/|/|/; # count pipes - cheap and easy
        }
@@ -2583,7 +2587,6 @@ sub reset_notifycheck_for_newitem {
             if (${$r_item}{'starthourmin'} < $1) {
                open (NOTIFYCHECK, ">$notifycheckfile" ) or return -1; # write err
                print NOTIFYCHECK sprintf("%08d%04d", $date, ${$r_item}{'starthourmin'});
-               truncate(NOTIFYCHECK, tell(NOTIFYCHECK));
                close (NOTIFYCHECK);
             }
          }

@@ -69,7 +69,7 @@
 <!--
    function replyreceiptconfirm(url, yes)
    {
-      if (yes==1 || confirm('Odesilatel zprávy po¾ádal o potvrzení o pøeètení, chcete  potvrzení odeslat?')) {
+      if (yes==1 || confirm('Odesílatel zprávy po¾ádal o potvrzení o pøeètení. Chcete potvrzení odeslat?')) {
 	 var hWnd = window.open("","_replyreceipt","width=100,height=50,resizable=no,scrollbars=no");
 	 hWnd.document.write('Odesílám...');
 	 hWnd.location.href=url;

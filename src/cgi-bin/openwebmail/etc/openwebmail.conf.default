@@ -16,8 +16,8 @@
 #
 
 name			Open WebMail
-version			2.30
-releasedate		20040103
+version			2.32
+releasedate		20040525
 
 ##############################################################################
 # host dependent configuration
@@ -43,7 +43,6 @@ homedirdotdirname		.openwebmail
 use_syshomedir_for_dotdir	yes
 
 deliver_use_GMT		no
-has_savedsuid_support	yes
 
 ##############################################################################
 # openwebmail system configuration
@@ -79,7 +78,8 @@ lunar_map		%ow_etcdir%/lunar.map
 header_pluginfile	none
 footer_pluginfile	none
 
-spellcheck		/usr/local/bin/ispell
+spellcheck		/usr/local/bin/ispell -a -S -w "-" -d @@@DICTIONARY@@@ -p @@@PDICNAME@@@
+spellcheck_pdicname	.ispell_words
 spellcheck_dictionaries	english, american
 vacationinit		%ow_cgidir%/vacation.pl -i
 vacationpipe		%ow_cgidir%/vacation.pl -t60s
@@ -105,6 +105,7 @@ passwd_minlen		6
 session_multilogin	yes
 session_checkcookie	yes
 session_checksameip	no
+session_count_display	yes
 cache_userinfo		yes
 
 auto_createrc		no
@@ -140,16 +141,19 @@ enable_sshterm			yes
 enable_vdomain          	no
 
 enable_pop3		yes
-disallowed_pop3servers	your_server, your_server.domain
-delpop3mail_by_default	yes
-delpop3mail_hidden	no
+pop3_disallowed_servers	your_server, your_server.domain
+pop3_delmail_by_default	yes
+pop3_delmail_hidden	no
+pop3_usessl_by_default	no
 
-pop3_authserver		localhost
-pop3_authport		110
-getmail_from_pop3_authserver	no
+authpop3_server		localhost
+authpop3_port		110
+authpop3_getmail	no
+authpop3_delmail	yes
+authpop3_usessl		no
 
-loginerrordelay		10
-fetchpop3interval	15
+loginerrordelay			10
+fetchpop3interval		15
 calendar_email_notifyinterval	120
 
 enable_strictfoldername	no
@@ -182,7 +186,7 @@ delfile_ifquotahit	no
 
 vdomain_admlist			sysadm
 vdomain_maxuser			100
-vdomain_maxalias			100
+vdomain_maxalias		100
 vdomain_vmpop3_pwdpath		/etc/virtual
 vdomain_vmpop3_pwdname		passwd
 vdomain_vmpop3_mailpath		/var/spool/virtual

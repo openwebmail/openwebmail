@@ -1,6 +1,10 @@
---- openwebmail.conf.orig	Thu Dec 11 02:59:57 2003
-+++ openwebmail.conf	Thu Dec 11 03:00:19 2003
-@@ -19,7 +19,5 @@
+--- openwebmail.conf.orig	Sat Apr 17 03:25:41 2004
++++ openwebmail.conf	Sat Apr 17 03:24:38 2004
+@@ -16,11 +16,8 @@
+ ow_htmldir		/usr/local/www/data/openwebmail
+ ow_htmlurl		/openwebmail
+ logfile			/var/log/openwebmail.log
+-default_iconset		Default.Chinese.Traditional
  
  <default_signature>
  -- 

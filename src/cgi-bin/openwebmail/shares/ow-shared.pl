@@ -26,13 +26,13 @@ use vars qw(%is_defaultfolder @defaultfolders);
 foreach (qw(
    smtpauth use_hashedmailspools use_homedirspools
    use_syshomedir create_syshomedir use_syshomedir_for_dotdir
-   auth_withdomain deliver_use_GMT has_savedsuid_support
+   auth_withdomain deliver_use_GMT
    error_with_debuginfo
    case_insensitive_login forced_ssl_login stay_ssl_afterlogin
    enable_rootlogin enable_domainselectmenu enable_strictvirtuser
    enable_changepwd enable_strictpwd
    enable_loadfrombook enable_editfrombook frombook_for_realname_only
-   session_multilogin session_checksameip session_checkcookie
+   session_multilogin session_checksameip session_checkcookie session_count_display
    cache_userinfo
    auto_createrc domainnames_override symboliclink_mbox
    enable_history enable_about about_info_software about_info_protocol
@@ -40,10 +40,11 @@ foreach (qw(
    xmailer_has_version xoriginatingip_has_userid
    enable_preference enable_setforward enable_strictforward
    enable_autoreply enable_strictfoldername enable_stationery
-   enable_smartfilters enable_userfilter
+   enable_smartfilter enable_userfilter
    enable_webmail enable_spellcheck enable_calendar enable_webdisk 
    enable_sshterm enable_vdomain
-   enable_pop3 delpop3mail_by_default delpop3mail_hidden getmail_from_pop3_authserver
+   enable_pop3 pop3_delmail_by_default pop3_delmail_hidden pop3_usessl_by_default 
+   authpop3_getmail authpop3_delmail authpop3_usessl
    webdisk_readonly webdisk_lsmailfolder webdisk_lshidden webdisk_lsunixspec webdisk_lssymlink
    webdisk_allow_symlinkcreate webdisk_allow_symlinkout webdisk_allow_thumbnail
    webdisk_allow_untar webdisk_allow_unzip webdisk_allow_unrar webdisk_allow_unarj webdisk_allow_unlzh
@@ -88,7 +89,7 @@ foreach (qw(
    domainnames domainselmenu_list spellcheck_dictionaries
    allowed_serverdomain
    allowed_clientdomain allowed_clientip
-   allowed_receiverdomain disallowed_pop3servers
+   allowed_receiverdomain pop3_disallowed_servers
    vdomain_admlist vdomain_postfix_aliases vdomain_postfix_virtual localusers
    default_fromemails
 )) { $is_config_option{'list'}{$_}=1}
@@ -102,7 +103,7 @@ foreach (qw(
     ow_sitesconfdir ow_usersconfdir ow_usersdir ow_sessionsdir
     vacationinit vacationpipe spellcheck
     global_addressbook global_filterbook global_calendarbook
-    pop3_authserver pop3_authport
+    authpop3_server authpop3_port
     vdomain_vmpop3_pwdpath vdomain_vmpop3_pwdname vdomain_vmpop3_mailpath
     vdomain_postfix_postalias vdomain_postfix_postmap
     vdomain_postfix_aliases vdomain_postfix_virtual
@@ -167,33 +168,33 @@ foreach (@defaultfolders, 'DELETE') { $is_defaultfolder{$_}=1 };
 ########## CLEARVAR/ENDREQUEST/EXIT ##############################
 use vars qw($_vars_used);
 sub openwebmail_clearall {
-   # clear gobal variable for persistent perl
-   undef(%SIG);
-   undef(%config);
-   undef(%config_raw);
-   undef($thissession);
-   undef(%icontext);
-
-   undef($loginname);
-   undef($logindomain);
-   undef($loginuser);
-
-   undef($domain);
-   undef($user);
-   undef($userrealname);
-   undef($uuid);
-   undef($ugid);
-   undef($homedir);
-   undef(%prefs);
-
-   undef($quotausage);
-   undef($quotalimit);
-
    # clear opentable in filelock.pl
    ow::filelock::closeall() if (defined(%ow::filelock::opentable));
 
    # chdir back to openwebmail cgidir
    chdir($config{'ow_cgidir'}) if ($config{'ow_cgidir'});
+
+   # clear gobal variable for persistent perl
+   undef(%SIG)		if (defined(%SIG));
+   undef(%config)	if (defined(%config));
+   undef(%config_raw)	if (defined(%config_raw));
+   undef($thissession)	if (defined($thissession));
+   undef(%icontext)	if (defined(%icontext));
+
+   undef($loginname)	if (defined($loginname));
+   undef($logindomain)	if (defined($logindomain));
+   undef($loginuser)	if (defined($loginuser));
+
+   undef($domain)	if (defined($domain));
+   undef($user)		if (defined($user));
+   undef($userrealname)	if (defined($userrealname));
+   undef($uuid)		if (defined($uuid));
+   undef($ugid)		if (defined($ugid));
+   undef($homedir)	if (defined($homedir));
+   undef(%prefs)	if (defined(%prefs));
+
+   undef($quotausage)	if (defined($quotausage));
+   undef($quotalimit)	if (defined($quotalimit));
 
    # back euid to root if possible, required for setuid under persistent perl
    $>=0;
@@ -259,7 +260,7 @@ sub userenv_init {
         $config{'mailspooldir'} eq "/var/spool/mail")) {
       print "Content-type: text/html\n\n'$0' must setuid to root"; openwebmail_exit(0);
    }
-   loadauth($config{'auth_module'});
+   ow::auth::load($config{'auth_module'});
 
    $user='';
    # try userinfo cached in session file first
@@ -267,7 +268,7 @@ sub userenv_init {
 	=split(/\@\@\@/, (sessioninfo($thissession))[2]) if ($config{'cache_userinfo'});
    # use userinfo from auth server if user is root or null
    ($domain, $user, $userrealname, $uuid, $ugid, $homedir)
-	=get_domain_user_userinfo($logindomain, $loginuser) if (!$user||$uuid==0||$ugid=~/\b0\b/);
+	=get_domain_user_userinfo($logindomain, $loginuser) if ($user eq '' || $uuid==0 || $ugid=~/\b0\b/);
 
    if ($user eq "") {
       sleep $config{'loginerrordelay'};	# delayed response
@@ -307,7 +308,7 @@ sub userenv_init {
    umask(0077);
    if ( $>==0 ) {			# switch to uuid:mailgid if script is setuid root.
       my $mailgid=getgrnam('mail');	# for better compatibility with other mail progs
-      set_euid_egids($uuid, $mailgid, $ugid);
+      ow::suid::set_euid_egids($uuid, $mailgid, $ugid);
       if ( $)!~/\b$mailgid\b/) { # group mail doesn't exist?
          openwebmailerror(__FILE__, __LINE__, "Set effective gid to mail($mailgid) failed!");
       }
@@ -327,10 +328,10 @@ sub userenv_init {
    }
 
    if ($config{'quota_module'} ne "none") {
-      loadquota($config{'quota_module'});
+      ow::quota::load($config{'quota_module'});
 
       my ($ret, $errmsg);
-      ($ret, $errmsg, $quotausage, $quotalimit)=quota_get_usage_limit(\%config, $user, $homedir, 0);
+      ($ret, $errmsg, $quotausage, $quotalimit)=ow::quota::get_usage_limit(\%config, $user, $homedir, 0);
       if ($ret==-1) {
          writelog("quota error - $config{'quota_module'}, ret $ret, $errmsg");
          openwebmailerror(__FILE__, __LINE__, "Quota $lang_err{'param_fmterr'}");
@@ -351,25 +352,6 @@ sub userenv_init {
    return;
 }
 ########## END USERENV_INIT ######################################
-
-########## SET_EUID_EGID_UMASK ###################################
-# this routine save euid root to ruid in case system doesn't support saved-euid
-# so we can give up euid root temporarily and get it back later.
-# Saved-euid means the euid will be saved to a variable saved-euid(prepared by OS)
-# before it is changed, thus the process can switch back to previous euid if required
-sub set_euid_egids {
-   my ($uid, @gids)=@_;
-   # note! egid must be set before set euid to normal user,
-   #       since a normal user can not set egid to others
-   # trick: 2nd parm will be ignore, so we repeat parm 1 twice
-   $) = join(" ", $gids[0], @gids);
-   if ($> != $uid) {
-      $<=$> if (!$config{'has_savedsuid_support'} && $>==0);
-      $> = $uid
-   }
-   return;
-}
-########## END SET_EUID_EGID_UMASK ###############################
 
 ########## LOGINNAME 2 LOGINDOMAIN LOGINUSER #####################
 sub login_name2domainuser {
@@ -486,7 +468,6 @@ sub load_owconf {
       # backward compatibility
       $key='use_syshomedir'    if ($key eq 'use_homedirfolders');
       $key='create_syshomedir' if ($key eq 'create_homedir');
-      $key='has_savedsuid_support' if ($key eq 'savedsuid_support');
 
       # OK, put this to existing hash %{$r_config_raw}
       ${$r_config_raw}{$key}=$value;
@@ -559,7 +540,7 @@ sub fmt_subvars {
    return $value;
 }
 sub fmt_yesno {	# translate yes/no text into 1/0  (true/false)
-   return 1 if ($_[0] =~ m/y(es)?/i || $_[0] == 1);
+   return 1 if ($_[0] =~ m/y(es)?/i || $_[0] eq '1');
    return 0;
 }
 sub fmt_none {	# blank out a 'none' value
@@ -572,52 +553,14 @@ sub fmt_require { # remove / and .. for variables used in require statement for 
 }
 ########## END READCONF ##########################################
 
-########## LOAD AUTH/QUOTA/LANG ##################################
-# use 'require' to load the package ow::$file
-# then alias symbos of routines in package ow::$file to
-# current(main::) package through Glob and 'tricky' symbolic reference feature
-
-sub loadmodule {
-   my ($moduledir, $modulefile, @symlist)=@_;
-   $modulefile=~s|/||g; $modulefile=~s|\.\.||g; # remove / and .. to anti path hack
-
-   # this would be done only once because of %INC
-   my $modulepath=ow::tool::untaint("$moduledir/$modulefile");
-   require $modulepath;
-
-   # . - is not allowed for package name
-   my $pkg=$modulefile; $pkg=~s/\.pl//; $pkg=~s/[\.\-]/_/g;
-
-   no strict 'refs';	# until block end
-   if ($#symlist<0) { # use symbo table of package ow::$pkg if no symbo passed in
-      @symlist=keys %{"ow::".$pkg."::"};
-   }
-   foreach my $sym (@symlist) {
-      # alias symbo of sub routine into current package
-      *{"$sym"}=*{"ow::".$pkg."::".$sym};
-   }
-
-   return;
-}
-
-sub loadauth {
-   loadmodule("$config{'ow_cgidir'}/auth", $_[0],
-              "get_userinfo",
-              "get_userlist",
-              "check_userpassword",
-              "change_userpassword");
-}
-
-sub loadquota {
-   loadmodule("$config{'ow_cgidir'}/quota", $_[0],
-              "get_usage_limit");
-}
-
+########## LOADLANG ##############################################
 sub loadlang {
    my $langfile=$_[0]; $langfile='en' if (!-f "$config{'ow_langdir'}/$langfile");
-   loadmodule($config{'ow_langdir'}, $langfile);	# load all symbos
+   ow::tool::loadmodule("main",
+                        $config{'ow_langdir'}, $langfile);	
+                        # null list, load all symbos
 }
-########## END LOAD AUTH/QUOTA/LANG ##############################
+########## END LOADLANG ##########################################
 
 ########## READPREFS #############################################
 sub readprefs {
@@ -832,10 +775,10 @@ sub applystyle {
 ########## VERIFYSESSION #########################################
 sub verifysession {
    my $now=time();
-   my $modifyage=$now-(stat("$config{'ow_sessionsdir'}/$thissession"))[9];
+   my $sessionfile=ow::tool::untaint("$config{'ow_sessionsdir'}/$thissession");
+   my $modifyage=$now-(stat($sessionfile))[9];
    if ( $modifyage > $prefs{'sessiontimeout'}*60) {
-      my $delfile=ow::tool::untaint("$config{'ow_sessionsdir'}/$thissession");
-      unlink ($delfile) if ( -e "$delfile");
+      unlink ( $sessionfile) if ( -e  $sessionfile);
 
       my $html = applystyle(readtemplate("sessiontimeout.template"));
       httpprint([], [htmlheader(), $html, htmlfooter(1)]);
@@ -869,8 +812,8 @@ sub verifysession {
       # update the session timestamp with now-1,
       # the -1 is for nfs, utime is actually the nfs rpc setattr()
       # since nfs server current time will be used if setattr() is issued with nfs client's current time.
-      utime ($now-1, $now-1, "$config{'ow_sessionsdir'}/$thissession") or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}/$thissession! ($!)");
+      utime ($now-1, $now-1,  $sessionfile) or
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'}  $sessionfile! ($!)");
    }
    return 1;
 }
@@ -1000,19 +943,19 @@ sub get_domain_user_userinfo {
       }
       foreach (@domainlist) {
          $user=get_user_by_virtualuser("$loginuser\@$_");
-         last if ($user);
+         last if ($user ne '');
       }
    }
 
    if ($user=~/^(.*)\@(.*)$/) {
       ($user, $domain)=($1, lc($2));
    } else {
-      if (!$user) {
+      if ($user eq '') {
          if ($config{'enable_strictvirtuser'}) {
             # if the loginuser is mapped in virtusertable by any vuser,
             # then one of the vuser should be used instead of loginname for login
             my $vu=get_virtualuser_by_user($loginuser);
-            return("", "", "", "", "", "") if ($vu);
+            return("", "", "", "", "", "") if ($vu ne '');
          }
          $user=$loginuser;
       }
@@ -1025,9 +968,9 @@ sub get_domain_user_userinfo {
 
    my ($errcode, $errmsg);
    if ($config{'auth_withdomain'}) {
-      ($errcode, $errmsg, $realname, $uid, $gid, $homedir)=get_userinfo(\%config, "$user\@$domain");
+      ($errcode, $errmsg, $realname, $uid, $gid, $homedir)=ow::auth::get_userinfo(\%config, "$user\@$domain");
    } else {
-      ($errcode, $errmsg, $realname, $uid, $gid, $homedir)=get_userinfo(\%config, $user);
+      ($errcode, $errmsg, $realname, $uid, $gid, $homedir)=ow::auth::get_userinfo(\%config, $user);
    }
    writelog("userinfo error - $config{'auth_module'}, ret $errcode, $errmsg") if ($errcode!=0);
 
@@ -1112,7 +1055,7 @@ sub sort_emails_by_domainnames {
       }
    }
    for (my $i=0; $i<=$#email; $i++) {
-      push(@result, $email[$i]) if ($email[$i]);
+      push(@result, $email[$i]) if ($email[$i] ne '');
    }
 
    return(@result);
@@ -1120,13 +1063,21 @@ sub sort_emails_by_domainnames {
 ########## END GET_DEFAULTEMAILS GET_USERFROM ####################
 
 ########## HTTPPRINT/HTMLHEADER/HTMLFOOTER #######################
+sub is_http_compression_enabled {
+   if (cookie("openwebmail-httpcompress") &&
+       $ENV{'HTTP_ACCEPT_ENCODING'}=~/\bgzip\b/ &&
+       ow::tool::has_module('Compress/Zlib.pm')) {
+      return 1;
+   } else {
+      return 0;
+   }
+}
+
 sub httpprint {
    my ($r_headers, $r_htmls)=@_;
-   if ( cookie("openwebmail-httpcompress") &&
-        $ENV{'HTTP_ACCEPT_ENCODING'}=~/\bgzip\b/ &&
-        ow::tool::has_zlib() ) {
+   if (is_http_compression_enabled()) {
       my $zhtml=Compress::Zlib::memGzip(join('',@{$r_htmls}));
-      if ($zhtml) {
+      if ($zhtml ne '') {
          print httpheader(@{$r_headers},
                           '-Content-Encoding'=>'gzip',
                           '-Vary'=>'Accept-Encoding',
@@ -1156,9 +1107,7 @@ sub htmlheader {
 
    my $mode;
    $mode.='+' if ($persistence_count>0);
-   $mode.='z' if (cookie("openwebmail-httpcompress") &&
-                  $ENV{'HTTP_ACCEPT_ENCODING'}=~/\bgzip\b/ &&
-                  ow::tool::has_zlib());
+   $mode.='z' if (is_http_compression_enabled());
    $mode="($mode)" if ($mode);
 
    $html =~ s/\@\@\@MODE\@\@\@/$mode/g;
@@ -1167,7 +1116,7 @@ sub htmlheader {
    $html =~ s/\@\@\@CHARSET\@\@\@/$prefs{'charset'}/g;
 
    my $info;
-   if ($user) {
+   if ($user ne '') {
       $info=qq|$prefs{'email'} -|;
       if ($config{'quota_module'} ne "none") {
          $info.=qq| |.lenstr($quotausage*1024,1);
@@ -1195,7 +1144,7 @@ sub htmlheader {
 
 sub htmlplugin {
    my $html='';
-   if ($_[0] && open(F, $_[0]) ) {	# $_[0] is filename
+   if ($_[0] ne '' && open(F, $_[0]) ) {	# $_[0] is filename
       local $/; undef $/; $html=<F>;	# no seperator, read whole file in once
       close(F);
       $html="<center>\n$html</center>\n" if ($html);
@@ -1325,7 +1274,8 @@ sub writelog {
    $loggeduser .= "\@$logindomain" if ($config{'auth_withdomain'});
    $loggeduser .= "($user)" if ($user && $loginuser ne $user);
 
-   if (open(LOGFILE,">>$config{'logfile'}")) {
+   if (open(LOGFILE,"+<$config{'logfile'}")) {
+      seek(LOGFILE, 0, 2);	# seek to tail
       print LOGFILE "$timestamp - [$$] ($loggedip) $loggeduser - $_[0]\n";	# log
       close (LOGFILE);
    } else {
@@ -1338,6 +1288,7 @@ sub writelog {
 }
 
 sub writehistory {
+   return if (!$config{'enable_history'});
    my $timestamp = localtime();
    my $loggedip = ow::tool::clientip();
    my $loggeduser = $loginuser || 'UNKNOWNUSER';
@@ -1347,29 +1298,29 @@ sub writehistory {
    my $historyfile=dotpath('history.log');
 
    if ( -f $historyfile ) {
-      my ($start, $end, $buff);
-
       ow::filelock::lock($historyfile, LOCK_EX) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $historyfile");
-      open (HISTORYLOG,"+< $historyfile") or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $historyfile!($!)");
-      seek(HISTORYLOG, 0, 2);	# seek to tail
-      $end=tell(HISTORYLOG);
+      my $end=(stat($historyfile))[7];
 
-      if ( $end > ($config{'maxbooksize'} * 1024)) {
-         seek(HISTORYLOG, $end-int($config{'maxbooksize'} * 1024 * 0.8), 0);
+      if ( $end > ($config{'maxbooksize'} * 1024) ) {
+         my ($start, $buff);
+         $start=$end-int($config{'maxbooksize'} * 1024 * 0.8);
+         open (HISTORYLOG,$historyfile) or
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $historyfile!($!)");
+         seek(HISTORYLOG, $start, 0);
          $_=<HISTORYLOG>;
-         $start=tell(HISTORYLOG);
-
+         $start+=length($_);
          read(HISTORYLOG, $buff, $end-$start);
+         close(HISTORYLOG);
 
-         seek(HISTORYLOG, 0, 0);
+         open (HISTORYLOG,">$historyfile") or
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $historyfile!($!)");
          print HISTORYLOG $buff;
-
-         $end=tell(HISTORYLOG);
-         truncate(HISTORYLOG, $end);
+      } else {
+         open (HISTORYLOG,"+<$historyfile") or
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $historyfile!($!)");
+         seek(HISTORYLOG, $end, 0);	# seek to tail
       }
-
       print HISTORYLOG "$timestamp - [$$] ($loggedip) $loggeduser - $_[0]\n";	# log
       close(HISTORYLOG);
       ow::filelock::lock($historyfile, LOCK_UN);
@@ -1384,6 +1335,24 @@ sub writehistory {
    return 0;
 }
 ########## END WRITELOG/WRITEHISTORY #############################
+
+########## UPDATE_AUTHPOP3BOOK ###################################
+sub update_authpop3book {
+   my ($authpop3book, $domain, $user, $password)=@_;
+ 
+   $authpop3book=ow::tool::untaint($authpop3book);
+   if ($config{'authpop3_getmail'}) {
+      my $login=$user; $login .= "\@$domain" if ($config{'auth_withdomain'});
+      my %accounts;
+      $accounts{"$config{'authpop3_server'}:$config{'authpop3_port'}\@\@\@$login"}
+         =join('@@@', $config{'authpop3_server'}, $config{'authpop3_port'}, $config{'authpop3_usessl'},
+                      $login, $password, $config{'authpop3_delmail'}, 1);
+      writepop3book($authpop3book, \%accounts);
+   } else {
+      unlink($authpop3book);
+   }
+}
+########## END UPDATE_AUTHPOP3BOOK ###############################
 
 ########## SAFE DOMAINNAME/FOLDERNAME/DLNAME #####################
 sub safedomainname {
@@ -1478,9 +1447,11 @@ sub verify_vpath {
       writelog("webdisk error - attemp to hack sessions dir!");
       return "$lang_err{'access_denied'} ($vpath is sessions dir)\n";
    }
-   if ( fullpath2vpath($realpath, (resolv_symlink($config{'logfile'}))[1]) ne "") {
-      writelog("webdisk error - attemp to hack log file!");
-      return "$lang_err{'access_denied'} ($vpath is log file)\n";
+   if ($config{'logfile'}) {
+      if ( fullpath2vpath($realpath, (resolv_symlink($config{'logfile'}))[1]) ne "") {
+         writelog("webdisk error - attemp to hack log file!");
+         return "$lang_err{'access_denied'} ($vpath is log file)\n";
+      }
    }
 
    if (!$config{'webdisk_lsmailfolder'} && is_under_dotdir_or_folderdir($realpath)) {
@@ -1556,16 +1527,6 @@ sub vdomain_userspool {
    return $dest;
 }
 ########## END VUSER_SPOOL #######################################
-
-########## QUOTA_GET_USAGE_LIMIT #################################
-sub quota_get_usage_limit {
-   my ($origruid, $origeuid)=($<, $>);
-   $>=0; $<=0;				# set ruid/euid to root before quota query
-   my @ret=get_usage_limit(@_);
-   $<=$origruid; $>=$origeuid;		# fall back to original ruid/euid
-   return(@ret);
-}
-########## END QUOTA_GET_USAGE_LIMIT #############################
 
 ########## ICONLINK ##############################################
 sub iconlink {
@@ -1673,9 +1634,9 @@ sub check_and_create_dotdir {
 
    foreach  ('/', 'db', keys %_is_dotpath) {
       next if ($_ eq 'root');
-      my $p=$dotdir; $p.="/$_" if ($_ ne '/');
+      my $p=ow::tool::untaint($dotdir); $p.="/$_" if ($_ ne '/');
       if (! -d $p) {
-         mkdir(ow::tool::untaint($p), 0700) or 
+         mkdir($p, 0700) or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'cant_create_dir'} $p ($!)");
          writelog("create dir - $p, euid=$>, egid=$)");
       }
@@ -1694,25 +1655,34 @@ sub is_under_dotdir_or_folderdir {
 ########## END DOTDIR RELATED ####################################
 
 ########## GETFOLDERS ############################################
-# return list of valid folders and calc the total folder usage(0..100%)
+# return list of valid folders and size of INBOX and other folders
 sub getfolders {
-   my ($r_folders, $r_usage)=@_;
+   my ($r_folders, $r_inboxusage, $r_folderusage)=@_;
    my @userfolders;
    my $totalsize = 0;
-   my $filename;
+
+   my $spoolfile=(get_folderpath_folderdb($user, 'INBOX'))[0];
 
    my $folderdir="$homedir/$config{'homedirfolderdirname'}";
-   my @fdirs=($folderdir);		# start with root folderdir
-   while (my $fdir=pop(@fdirs)) {
+
+   my (@fdirs, $fdir, @folderfiles, $filename);
+   @fdirs=($folderdir);				# start with root folderdir
+
+   while ($fdir=pop(@fdirs)) {
       opendir(FOLDERDIR, "$fdir") or
     	 openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $fdir! ($!)");
-      while (defined($filename = readdir(FOLDERDIR))) {
-         next if ( $filename eq "." || $filename eq ".." ||
-                   $filename=~/^\./ || $filename =~ /\.lock$/);
-         if (-d "$fdir/$filename" && $filename!~/^\./) { # recursive into non dot dir
+         @folderfiles=readdir(FOLDERDIR);
+      closedir(FOLDERDIR) or
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $folderdir! ($!)");
+
+      foreach $filename (@folderfiles) {
+         next if (substr($filename,0,1) eq '.' || $filename =~ /\.lock$/);
+         if (-d "$fdir/$filename") { # recursive into non dot dir
             push(@fdirs,"$fdir/$filename");
             next;
          }
+         # don't count spoolfile in folder finding
+         next if ("$fdir/$filename" eq $spoolfile);
 
          # summary file size
          $totalsize += ( -s "$folderdir/$filename" );
@@ -1722,18 +1692,14 @@ sub getfolders {
             push(@userfolders, substr("$fdir/$filename",length($folderdir)+1));
          }
       }
-      closedir(FOLDERDIR) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $folderdir! ($!)");
    }
 
    @{$r_folders}=();
    push (@{$r_folders}, @defaultfolders, sort(@userfolders));
 
-   # add INBOX size to totalsize
-   my ($spoolfile,$folderdb)=get_folderpath_folderdb($user, 'INBOX');
-   $totalsize += ( -s "$spoolfile" ) if ( -f $spoolfile );
-
-   ${$r_usage}=$totalsize/1024;	# unit=k
+   ${$r_inboxusage}=0;
+   ${$r_inboxusage}=(-s $spoolfile)/1024 if (-f $spoolfile);
+   ${$r_folderusage}=$totalsize/1024;	# unit=k
    return;
 }
 ########## END GETFOLDERS ########################################
@@ -1782,11 +1748,15 @@ sub del_staledb {
    }
 
    my @delfiles=();
-   my $filename;
+   my (@dbfiles, $filename);
 
    opendir(DBDIR, $dbdir) or
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $dbdir! ($!)");
-   while (defined($filename = readdir(DBDIR))) {
+      @dbfiles=readdir(DBDIR);
+   closedir(DBDIR) or
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $dbdir! ($!)");
+
+   foreach $filename (@dbfiles) {
       next if ($filename eq '.' || $filename eq '..');
       my $purename=$filename;
       $purename=~s/\.(lock|cache|db|dir|pag|db\.lock|dir\.lock|pag\.lock)$//;
@@ -1794,8 +1764,6 @@ sub del_staledb {
          push(@delfiles, ow::tool::untaint("$dbdir/$filename"));
       }
    }
-   closedir(DBDIR) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $dbdir! ($!)");
 
    if ($#delfiles>=0) {
       writelog("del staledb - ".join(", ", @delfiles));

@@ -17,6 +17,7 @@ use vars qw(%charset_convlist %charset_localname %localname_cache);
    'euc-jp'        => [ 'EUC-JP', 'EUC', 'eucJP' ],
    'euc-kr'        => [ 'EUC-KR', 'EUCKR' ],
    'gb2312'        => [ 'GB2312', 'gb2312' ],
+   'gbk'           => [ 'GBK', 'gbk' ],
    'iso-2022-jp'   => [ 'ISO-2022-JP', 'JIS' ],
    'iso-2022-kr'   => [ 'ISO-2022-KR' ],
    'iso-8859-1'    => [ 'ISO-8859-1', '8859-1', 'ISO8859-1', 'ISO_8859-1' ],
@@ -48,13 +49,14 @@ use vars qw(%charset_convlist %charset_localname %localname_cache);
 # charset in the left can be converted from the charsets in right list
 %charset_convlist=
    (
-   'big5'          => [ 'utf-8', 'gb2312' ],
+   'big5'          => [ 'utf-8', 'gb2312', 'gbk' ],
    'euc-jp'        => [ 'utf-8', 'iso-2022-jp', 'shift_jis' ],
    'euc-kr'        => [ 'utf-8', 'ks_c_5601-1987', 'ksc5601', 'iso-2022-kr' ],
    'iso-2022-kr'   => [ 'utf-8', 'ks_c_5601-1987', 'ksc5601', 'euc-kr' ],
    'ks_c_5601-1987'=> [ 'utf-8', 'euc-kr', 'iso-2022-kr' ],
    'ksc5601'       => [ 'utf-8', 'euc-kr', 'iso-2022-kr' ],
-   'gb2312'        => [ 'utf-8', 'big5' ],
+   'gb2312'        => [ 'utf-8', 'big5', 'gbk' ],
+   'gbk'           => [ 'utf-8', 'big5', 'gb2312' ],
    'iso-2022-jp'   => [ 'utf-8', 'shift_jis', 'euc-jp' ],
    'iso-8859-1'    => [ 'utf-8', 'windows-1252' ],
    'iso-8859-2'    => [ 'utf-8', 'windows-1250' ],
@@ -76,7 +78,7 @@ use vars qw(%charset_convlist %charset_localname %localname_cache);
    'windows-1255'  => [ 'utf-8', 'iso-8859-8' ],
    'windows-1256'  => [ 'utf-8', 'iso-8859-6' ],
    'windows-1257'  => [ 'utf-8', 'iso-8859-13' ],
-   'utf-8'         => [ 'big5', 'euc-jp', 'euc-kr', 'gb2312',
+   'utf-8'         => [ 'big5', 'euc-jp', 'euc-kr', 'gb2312', 'gbk',
 			'iso-2022-jp', 'iso-2022-kr',
 			'iso-8859-1', 'iso-8859-2', 'iso-8859-5', 'iso-8859-6',
 			'iso-8859-7', 'iso-8859-9', 'iso-8859-13',
@@ -91,13 +93,14 @@ sub is_convertable {
    my ($from, $to)=@_;
    $from=lc($from); $to=lc($to);
 
-   return 1 if ($from eq 'big5' && $to eq 'gb2312');
-   return 1 if ($from eq 'gb2312' && $to eq 'big5');
+   return 1 if ($from eq 'big5' && ($to eq 'gb2312'||$to eq 'gbk'));
+   return 1 if (($from eq 'gb2312'||$from eq 'gbk') && $to eq 'big5');
    return 1 if ($from eq 'shift_jis' && $to eq 'iso-2022-jp');
    return 1 if ($from eq 'iso-2022-jp' && $to eq 'shift_jis');
    return 1 if ($from eq 'shift_jis' && $to eq 'euc-jp');
    return 1 if ($from eq 'euc-jp' && $to eq 'shift_jis');
 
+   return 0 if ( !defined($charset_convlist{$to}) );
    foreach my $charset (@{$charset_convlist{$to}}) {
       if ($from=~/$charset/) {
          my $converter=iconv_open($charset, $to);
@@ -143,9 +146,9 @@ sub iconv {
          $result[$i]=$text[$i]; next;
       }
       # try convertion routine in iconv-chinese, iconv-japan first
-      if ($from  eq 'big5' && $to eq 'gb2312' ) {
+      if ($from  eq 'big5' && ($to eq 'gb2312'||$to eq 'gbk') ) {
          $result[$i]=b2g($text[$i]); next;
-      } elsif ($from eq 'gb2312' && $to eq 'big5' ) {
+      } elsif (($from eq 'gb2312'||$from eq 'gbk') && $to eq 'big5' ) {
          $result[$i]=g2b($text[$i]); next;
       } elsif ($from eq 'shift_jis' && $to eq 'iso-2022-jp' ) {
          $result[$i]=$text[$i]; sjis2jis(\$result[$i]); next;

@@ -124,7 +124,7 @@ sub cutfolder {				# reduce folder size by $cutpercent
    ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or return -3;
    foreach my $id  (reverse @{$r_messageids}) {
       push(@delids, $id);
-      $cutsize += (split(/@@@/, $FDB{$id}))[$_SIZE];
+      $cutsize += (string2msgattr($FDB{$id}))[$_SIZE];
       last if ($cutsize > $totalsize*$cutpercent);
    }
    ow::dbm::close(\%FDB, $folderdb);
@@ -140,10 +140,12 @@ sub cutdirfiles {
    my ($sizetocut, $dir)=@_;
    return 0 if (is_under_dotdir_or_folderdir($dir));
    return -1 if (!opendir(D, $dir));
-
+   my @files=readdir(D);
+   closedir(D);
+   
    my (%ftype, %fdate, %fsize);
 
-   while (defined(my $fname=readdir(D))) {
+   foreach my $fname (@files) {
       next if ($fname eq "."|| $fname eq "..");
 
       my ($st_mode, $st_mtime, $st_blocks)= (lstat("$dir/$fname"))[2,9,12];
@@ -160,7 +162,6 @@ sub cutdirfiles {
          next;
       }
    }
-   closedir(D);
 
    my $now=time();
    my @sortedlist= sort { $fdate{$a}<=>$fdate{$b} } keys(%ftype);

@@ -92,12 +92,13 @@
    {
       var url = "@@@ABOOKURL@@@?action=addressbook&sessionid=@@@SESSIONID@@@&form=composeform&field=" + toccbcc+"&abook_keyword=@@@ABOOKKEYWORD@@@&abook_searchtype=@@@ABOOKSEARCHTYPE@@@";
 
+      // double escape, one for url, one for elist value (see openwebmail-abook.pl)
       if (toccbcc == "to")
-         url += "&elist=" + escape (document.composeform.to.value);
+         url += "&elist=" + escape(escape(document.composeform.to.value));
       else if (toccbcc == "cc")
-         url += "&elist=" + escape (document.composeform.cc.value);
+         url += "&elist=" + escape(escape(document.composeform.cc.value));
       else if (toccbcc == "bcc")
-         url += "&elist=" + escape (document.composeform.bcc.value);
+         url += "&elist=" + escape(escape(document.composeform.bcc.value));
 
       var hWnd = window.open(url,"_addressbook","width=@@@ABOOKWIDTH@@@,height=@@@ABOOKHEIGHT@@@,resizable=yes,scrollbars=yes");
       if ((document.window != null) && (!hWnd.opener))

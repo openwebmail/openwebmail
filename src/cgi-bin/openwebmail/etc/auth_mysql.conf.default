@@ -16,4 +16,4 @@ field_uid	u_id
 field_gid	g_id
 field_home	home
 
-pass_type	cleartxt	# crypt, cleartxt
+pass_type	cleartxt	# crypt, cleartxt, md5

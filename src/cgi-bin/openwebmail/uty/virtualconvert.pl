@@ -105,33 +105,6 @@ my $deletereal=0;
 
 # taken from ow-shared.pl
 ##############################
-sub loadmodule {
-   my ($file, @symlist)=@_;
-   $file=~s|/||g; $file=~s|\.\.||g; # remove / and .. to anti path hack
-
-   # . - is not allowed for package name
-   my $pkg=$file; $pkg=~s/\.pl//; $pkg=~s/[\.\-]/_/g;
-
-   $file="$config{'ow_cgidir'}/auth/$file";
-   ($file=~ /^(.*)$/) && ($file = $1);
-   require $file; # done only once because of %INC
-
-   no strict 'refs';	# until block end
-   # traverse the symbo table of package openwebmail::$pkg
-   foreach my $sym (@symlist) {
-      # alias symbo of sub routine into current package
-      *{"$sym"}=*{"ow::".$pkg."::".$sym};
-   }
-   return;
-}
-
-sub loadauth {
-   loadmodule($_[0], "get_userinfo",
-                     "get_userlist",
-                     "check_userpassword",
-                     "change_userpassword");
-}
-
 ########## DOTDIR RELATED ########################################
 use vars qw(%_is_dotpath);
 foreach (qw(
@@ -366,9 +339,16 @@ sub UPDATE_POSTFIX_ALIASES { my (@lines)=@_;
    chomp @aliasfile;
 }
 sub MAKE_DOMDIR {
+   ow::tool::loadmodule('main',
+                        "$config{'ow_cgidir'}/auth", $config{'auth_module'},
+                        "get_userinfo",
+                        "get_userlist",
+                        "check_userpassword",
+                        "change_userpassword");
+
    # create domain password file, domain home directory
    my ($errcode, $errmsg, $realname, $uid, $gid, $homedir, $dummy, @paths, $new);
-   loadauth($config{'auth_module'});
+
    if (@virtusers) { #password file must already exist
       CMD("backup $pwdfile to $pwdfile.$stamp.bak", "$cp -fp $pwdfile $pwdfile.$stamp.bak");
       # use any virtual user to get the proper $uid, $gid and $homedir

@@ -68,7 +68,7 @@
 "2. Niektóre serwery proxy w ogóle nie obs³uguj± kompresji HTTP, "+
 "mo¿liwe, ¿e bêdziesz musia³ oznaczyæ serwer webmaila jako pod³±czony bezpo¶rednio w konfiguracji proxy Twojej przegl±darki.\n"+
 "3. Niektóre przegl±darki maj± problemy z obs³ug± kompresji HTTP z SSL.\n"+
-"4. Niektóre przegl±darki nie obs³uguj± kompresji HTTP mimo, ¿e twierdz± inaczej.\n\n"+
+"4. Niektóre przegl±darki nie obs³uguj± kompresji HTTP, mimo ¿e twierdz± inaczej.\n\n"+
 "Wiêc je¶li zaistniej± jakiekolwiek problemy, proszê zalogowaæ siê jeszcze raz z odznaczonym polem kompersji HTTP.\n"
          );
       }

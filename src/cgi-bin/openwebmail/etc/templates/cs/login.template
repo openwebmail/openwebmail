@@ -25,7 +25,7 @@
 <table><tr><td>@@@LOGINBUTTON@@@</td></tr></table>
 </td>
 <td align=center>
-<table><tr><td><font size=1>use HTTP<br>compression</font></td><td>@@@HTTPCOMPRESSIONCHECKBOX@@@</td></tr></table>
+<table><tr><td><font size=1>Pou¾ít HTTP<br>kompresi</font></td><td>@@@HTTPCOMPRESSIONCHECKBOX@@@</td></tr></table>
 </td>
 </tr>
 </table>
@@ -61,15 +61,16 @@
    {
       if (document.login.httpcompress.checked) {
          alert(
-"HTTP Compression can reduce the use of network bandwidth between your computer and the webmail server effectively, "+
-"but there are some compatibility issues:\n\n"+
-"1. some proxy servers only support HTTP compression via HTTP 1.1, "+
-"you may have to enable the HTTP1.1 support for proxy in your browser\n"+
-"2. some proxy servers don't support HTTP compression at all, "+
-"you may have to list the webmail server as directly connected in the proxy configuration of your browser.\n"+
-"3. some browsers have problems when using HTTP compression with SSL...\n"+
-"4. some browsers claim to support HTTP compression but actually not...\n\n"+
-"So if you encounter any problem, please login again with this checkbox unchecked.\n"
+"HTTP komprese umo¾òuje sní¾it mno¾ství dat pøená¹ených mezi serverem a va¹ím poèítaèem, co¾ mù¾e "+
+"být výhodné pro pomalé pøipojení (napø. pomocí modemu). Mohou v¹ak vyvstat nìkteré problémy "+
+"s kompatibilitou:\n\n"+
+"1) nìkteré proxy servery podporují kompresi jen u HTTP/1.1, tak¾e mù¾e být nutné povolit "+
+"v prohlí¾eèi podporu HTTP/1.1 u pøipojení pøes proxy\n"+
+"2) nìkteré proxy servery vùbec nepodporují kompresi a budete muset v prohlí¾eèi nastavit "+
+"pøímý pøístup na WebMail server (tj. výjimku z pou¾ití proxy)\n"+
+"3) nìkteré prohlí¾eèe mají problémy pøi pou¾ití komprese spoleènì se SSL\n"+
+"4) nìkteré prohlí¾eèe oznamují podporu komprese, ale ve skuteènosti ji nepodporují\n\n"+
+"Tak¾e pokud budete mít nìjaké problémy, pøihlaste se prosím znovu a kompresi vypnìte.\n"
          );
       }
       return(true);

@@ -92,12 +92,13 @@
    {
       var url = "@@@ABOOKURL@@@?action=addressbook&sessionid=@@@SESSIONID@@@&form=composeform&field=" + toccbcc+"&abook_keyword=@@@ABOOKKEYWORD@@@&abook_searchtype=@@@ABOOKSEARCHTYPE@@@";
 
+      // double escape, one for url, one for elist value (see openwebmail-abook.pl)
       if (toccbcc == "to")
-   url += "&elist=" + escape (document.composeform.to.value);
+         url += "&elist=" + escape(escape(document.composeform.to.value));
       else if (toccbcc == "cc")
-   url += "&elist=" + escape (document.composeform.cc.value);
+         url += "&elist=" + escape(escape(document.composeform.cc.value));
       else if (toccbcc == "bcc")
-   url += "&elist=" + escape (document.composeform.bcc.value);
+         url += "&elist=" + escape(escape(document.composeform.bcc.value));
 
       var hWnd = window.open(url,"_addressbook","width=@@@ABOOKWIDTH@@@,height=@@@ABOOKHEIGHT@@@,resizable=yes,scrollbars=yes");
       if ((document.window != null) && (!hWnd.opener))
@@ -113,7 +114,7 @@
 
    function msgfmthelp()
    {
-      alert("Sorry, IE 5.5+(Windows) or Mozilla 1.3+(all OS) is required for HTML composing support.");
+      alert("Pro vytváøení HTML zprávy je nutný prohlí¾eè IE 5.5+ (Windows) nebo Mozilla 1.3+ (v¹echny OS).");
    }
 
    function msgfmtchangeconfirm()
@@ -121,7 +122,7 @@
       if ((document.composeform.msgformat.value == "html" ||
            document.composeform.msgformat.value == "both") &&
           document.composeform.newmsgformat.value == "text" ) {
-         if (confirm("The HTML data format will be lost after the conversion, are you sure to change to Text mode?")) {
+         if (confirm("HTML formátování bude po konverzi ztraceno. Jste si jisti, ¾e chcete provést konverzi na prostý text?")) {
             bodygethtml();
             document.composeform.submit();
             return true;
@@ -173,11 +174,11 @@
       if (document.composeform.to.value == ""
        && document.composeform.cc.value == ""
        && document.composeform.bcc.value == "" ) {
-   alert("Prosím napi¹te pøíjemce.");
+   alert("Vyplòte prosím pøíjemce.");
    return false;
       }
       if (document.composeform.subject.value == "" ) {
-   return(confirm("Tato zpráva nemá pøedmìt, pøesto ji chcete odeslat?"));
+   return(confirm("Zpráva nemá pøedmìt, chcete ji pøesto odeslat?"));
       }
       return true;
    }

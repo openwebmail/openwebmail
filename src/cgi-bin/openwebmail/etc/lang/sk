@@ -72,7 +72,7 @@ package ow::sk;
 
 %lang_ctrlpositionlabels =
    (
-   top => 'Hore',
+   top    => 'Hore',
    bottom => 'Dolu'
    );
 
@@ -233,6 +233,7 @@ package ow::sk;
    userdef    => 'Vlastné',
    logout     => 'Odhlási»',
    page       => 'Stránka',
+   msgsperpage=> '@@@MSGCOUNT@@@ messages per page',
    msgcopyconf=> '\'Chcete naozaj kopírova» vybranú(é) správu(y)?\'',
    copy       => 'Kopírova»',
    msgmoveconf=> '\'Chcete naozaj presunú» vybranú(é) správu(y)?\'',
@@ -332,6 +333,8 @@ package ow::sk;
    all        => 'V¹etko',
    enable     => 'Zapnuté',
    disable    => 'Vypnuté',
+   yes        => 'Áno',
+   no         => 'Nie',
    filtered   => 'Filtrované',
    blockrelay => 'Blokova» SMTP Relay',
    blockemail => 'Blokova» e-mail',

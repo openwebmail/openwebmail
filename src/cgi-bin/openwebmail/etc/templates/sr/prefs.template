@@ -138,7 +138,7 @@ Tema:
 @@@SORTMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Display mini search icon@@@MINISEARCHICON@@@:</B>
+<B>Pri¾i slièicu za pretragu@@@MINISEARCHICON@@@:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USEMINISEARCHICONCHECKBOX@@@<br>
 </td></tr>
@@ -203,7 +203,7 @@ Tema:
 @@@USESMILEICON@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Show HTML message as plain text:</B>
+<B>Prika¾i HTML poruku kao èist tekst:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SHOWHTMLASTEXT@@@
 </td></tr>
@@ -218,12 +218,12 @@ Tema:
 @@@DISABLEJS@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Onemoguæi izvr¹avanje embed/object/applet tag-a unutar poruka:</B>
+<B>Onemoguæi izvr¹avanje ugraðenog objekta/apleta unutar poruka:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEEMBCODE@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Onemoguæi izvr¹avanje ugraðenog links-a unutar poruka:</B>
+<B>Onemoguæi izvr¹avanje ugraðene veze unutar poruka:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEEMBLINKMENU@@@
 </td></tr>
@@ -236,7 +236,7 @@ Tema:
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Pode¹avanja odgovaranja na poruke</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Message format:</B>
+<B>Format poruka:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@MSGFORMATMENU@@@
 </td></tr>
@@ -280,7 +280,7 @@ Tema:
 @@@FILTERREPEATLIMIT@@@  ( 0 znaèi da nema provere )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Filter msgs with email address in bad format:</B>
+<B>Filtriranje poruka sa nepravilnom email adresom:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERBADADDRFORMAT@@@
 </td></tr>
