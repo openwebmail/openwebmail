@@ -149,14 +149,21 @@ sub advsearch {
                           -default=>param('daterange')||'all');
    $html =~ s/\@\@\@DATERANGEMENU\@\@\@/$temphtml/;
 
-   my $startserial=sprintf("%04d%02d%02d%02d%02d%02d", 1990, 1, 1, 0, 0, 0);
-   my $endserial=sprintf("%04d%02d%02d%02d%02d%02d", $current_year, $current_month, $current_day, 23, 59, 59);
-   if (defined param('year1') && defined param('year2')) {
-      my $seconds=ow::datetime::array2seconds(0,0,0, param('day1'),param('month1')-1,param('year1')-1900);
-      $startserial=ow::datetime::gmtime2dateserial(ow::datetime::time_local2gm($seconds, $prefs{'timeoffset'}, $prefs{'daylighsaving'}));
-      $seconds=ow::datetime::array2seconds(23,59,59, param('day2'),param('month2')-1,param('year2')-1900);
-      $endserial=ow::datetime::gmtime2dateserial(ow::datetime::time_local2gm($seconds, $prefs{'timeoffset'}, $prefs{'daylighsaving'}));
+   my ($startserial, $endserial, $seconds);
+
+   if (defined param('year1')) {
+      $seconds=ow::datetime::array2seconds(0,0,0, param('day1'),param('month1')-1,param('year1')-1900);
+   } else {
+      $seconds=ow::datetime::array2seconds(0,0,0, 1,0,90);	# 1990/1/1
    }
+   $startserial=ow::datetime::gmtime2dateserial(ow::datetime::time_local2gm($seconds, $prefs{'timeoffset'}, $prefs{'daylighsaving'}));
+
+   if (defined param('year2')) {
+      $seconds=ow::datetime::array2seconds(59,59,23, param('day2'),param('month2')-1,param('year2')-1900);
+   } else {
+      $seconds=ow::datetime::array2seconds(59,59,23, $current_day,$current_month-1,$current_year-1900);
+   }
+   $endserial=ow::datetime::gmtime2dateserial(ow::datetime::time_local2gm($seconds, $prefs{'timeoffset'}, $prefs{'daylighsaving'}));
 
    for(my $i=0; $i<=2; $i++) {
       my %labels = ('from'=>$lang_text{'from'},

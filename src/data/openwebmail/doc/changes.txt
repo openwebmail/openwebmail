@@ -1,3 +1,16 @@
+01/14/2005
+----------
+1. fix a bug in advsearch that start/end day were passed to array2seconds()
+   with wrong parameters
+   (reported by Yang Yao-Strong, ysyang.AT.visionext.com)
+2. support checking sender with addressbook in messagelist.
+   a friend icon will show up if the sender is found in any of user's
+   addressbooks or global affressbook
+   (suggested by SlowIce, peterf.AT.peterf.com)
+3. Catalan language and template files translation update
+   (thanks to Jordi Sanfeliu, mikaku.AT.fiwix.org)
+
+
 01/12/2005
 ----------
 1. Indonesian lang file translation update

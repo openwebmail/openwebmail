@@ -512,6 +512,7 @@ sub listmessages {
 
    $headershtml .= qq|<tr>$linehtml</tr>\n|;
 
+   my $r_abookemailhash=get_abookemailhash();
    my ($folderfile, $folderdb)=get_folderpath_folderdb($user, $folder);
    my ($messageid, $messagedepth, $escapedmessageid);
    my ($offset, $from, $to, $dateserial, $subject, $content_type, $status, $messagesize, $references, $charset);
@@ -605,21 +606,30 @@ sub listmessages {
          ($from2, $from2_name, $from2_address)=($from, $from_name, $from_address);
          ($from2_searchtype, $from2_keyword)=('from', $from_address);
       }
-      my $from2str=$from2_name;
+
+      my ($linkstr, $searchstr, $friendstr);
       if (!$limited) {
-         $from2str=qq|<a href="$config{'ow_cgiurl'}/openwebmail-send.pl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=|.
-                   ow::tool::escapeURL($from2).
-                   qq|&amp;compose_caller=main" title="$from_address -> $to_address">$from2_name </a>|;
+         $linkstr=qq|href="$config{'ow_cgiurl'}/openwebmail-send.pl\?action=composemessage&amp;|.
+                  qq|sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;|.
+                  qq|folder=$escapedfolder&amp;page=$page&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=|.
+                  ow::tool::escapeURL($from2).qq|&amp;compose_caller=main"|;
       }
       if ($prefs{'useminisearchicon'}) {
-         my $searchstr=iconlink("search.s.gif", "$lang_text{'search'} $from2_address",
-                               qq|href="$main_url&amp;action=listmessages&amp;sort=$sort&amp;searchtype=$from2_searchtype&amp;keyword=|.
-                               ow::tool::escapeURL($from2_keyword).qq|"| ).
-                               qq|&nbsp;|;
+         $searchstr=iconlink("search.s.gif", "$lang_text{'search'} $from2_address",
+                            qq|href="$main_url&amp;action=listmessages&amp;sort=$sort&amp;searchtype=$from2_searchtype&amp;keyword=|.
+                            ow::tool::escapeURL($from2_keyword).qq|"| );
+      }
+      if ($config{'enable_addressbook'} &&
+          defined ${$r_abookemailhash}{$from2_address}) {
+         $friendstr=iconlink("friend.gif", "$lang_text{'search'} $lang_text{'addressbook'}", qq|href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrlistview&amp;abookkeyword=$from2_address&amp;abooksearchtype=email&amp;abookfolder=ALL&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page"|);
+      }
+
+      my $from2str=qq|<a $linkstr title="$from_address -> $to_address">$from2_name </a>|;
+      if ($searchstr ne '' || $friendstr ne '') {
          $temphtml = qq|<td $td_bgcolorstr>|.
                      qq|<table cellspacing="0" cellpadding="0"><tr>\n|.
-                     qq|<td>$searchstr</td>|.
-                     qq|<td>$boldon$from2str$boldoff</td>\n|.
+                     qq|<td nowrap>$searchstr$friendstr&nbsp;</td>|.
+                     qq|<td>$boldon$from2str$boldoff</td>|.
                      qq|</tr></table></td>\n|;
       } else {
          $temphtml=qq|<td $td_bgcolorstr>$boldon$from2str$boldoff</td>\n|;
@@ -1045,6 +1055,33 @@ sub eventreminder_html {
 
    $temphtml=qq|&nbsp;$temphtml|;
    return($temphtml);
+}
+
+# this routine gets the EMAIL attributes in abookfiles directly
+# to avoid the overhead of vcard parsing
+sub get_abookemailhash {
+   my (%emails, @abookfiles);
+
+   my $webaddrdir = dotpath('webaddr');
+   if (opendir(WEBADDR, $webaddrdir)) {
+      @abookfiles = map { "$webaddrdir/$_" }
+                          grep { /^[^.]/ && !/^categories\.cache$/ }
+                          readdir(WEBADDR);
+      closedir(WEBADDR);
+   }
+   if ($config{'global_addressbook'} ne "" && -f $config{'global_addressbook'}) {
+      push(@abookfiles, $config{'global_addressbook'});
+   }
+   foreach my $abookfile (@abookfiles) {
+      if (open(F, $abookfile)) {
+         while (<F>) {
+            $emails{$2}=1 if (/^EMAIL(;TYPE=PREF)?:(.+?)\s*$/);
+         }
+         close(F);
+      }
+   }
+
+   return(\%emails);
 }
 ########## END LISTMESSAGES ######################################
 

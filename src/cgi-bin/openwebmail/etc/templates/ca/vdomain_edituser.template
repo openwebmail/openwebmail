@@ -52,7 +52,7 @@
 <tr><td align="center" valign="middle" bgcolor=@@@WINDOW_LIGHT@@@>
 <table align="center" border="0" cellspacing="0" cellpadding="1" width="90%">
 <tr>
- <td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Adreça de correu electrònic/Àlies</B> (clica per editar)</td>
+ <td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Adreça electrònica/Sobrenom</B> (cliqueu per editar)</td>
  <td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Nom real</B></td>
  <td align="center" bgcolor=@@@COLUMNHEADER@@@><B>Acció</B></td>
 </tr>

@@ -34,7 +34,7 @@
       if (remainingseconds>0) {
          return true;
       } else {
-         alert("Sorry, your session is timeouted, please login again.");
+         alert("Ho sento, la vostra sessió ha sobrepassat el temps d'espera. Torneu a entrar si us plau.");
          return false;
       }
    }
