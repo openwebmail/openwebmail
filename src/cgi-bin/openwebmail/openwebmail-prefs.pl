@@ -360,6 +360,9 @@ sub editprefs {
          if ($config{'enable_pop3'}) {
             $temphtml .= iconlink("pop3setup.gif", $lang_text{'pop3book'}, qq|accesskey="G" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editpop3&amp;$urlparmstr"|);
          }
+         if ($config{'enable_saprefs'}) {
+            $temphtml .= iconlink("saprefs.gif", $lang_text{'sa_prefs'}, qq|href="$config{'ow_cgiurl'}/openwebmail-saprefs.pl?action=edittest&amp;$urlparmstr"|);
+         }
       }
       $temphtml .= qq|&nbsp;\n|;
 

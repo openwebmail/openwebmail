@@ -348,7 +348,7 @@ sub listmessages {
    if ($config{'enable_userfilter'}) {
       $temphtml .= iconlink("filtersetup.gif", $lang_text{'filterbook'}, qq|accesskey="I" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editfilter&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page"|);
    }
-   if ($config{'enable_saprefs'}) {
+   if ($config{'enable_saprefs'} && !$config{'enable_preference'}) {
       $temphtml .= iconlink("saprefs.gif", $lang_text{'sa_prefs'}, qq|href="$config{'ow_cgiurl'}/openwebmail-saprefs.pl?action=edittest&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page"|);
    }
 
@@ -854,8 +854,7 @@ sub listmessages {
              qq|//-->\n</script>\n|;
    }
 
-   # play sound if
-   # a. new msg increases in INBOX
+   # play sound if number of new msg increases in INBOX
    if ( $now_inbox_newmessages>$orig_inbox_newmessages ) {
       if (-f "$config{'ow_htmldir'}/sounds/$prefs{'newmailsound'}" ) {
          $html.=qq|<embed src="$config{'ow_htmlurl'}/sounds/$prefs{'newmailsound'}" autostart="true" hidden="true">\n|;
@@ -1159,7 +1158,7 @@ sub movemessage {
    # fork a child to do learn the msg in background
    # thus the resulted msglist can be returned as soon as possible
    if ($learntype ne 'none') {
-      #local $SIG{CHLD}=\&zombie_cleaner; # handler not necessary, as we call zobie_cleaner at end of each request
+      #local $SIG{CHLD}=\&zombie_cleaner; # handler not necessary, as we call zombie_cleaner at end of each request
 
       local $|=1; 			# flush all output
       if ( fork() == 0 ) {		# child

@@ -95,9 +95,9 @@ sub cutfoldermails {
          my $sizereduced = (-s "$folderfile{$f}");
          my $ret;
          if ($f eq 'sent-mail') {
-            $ret=cutfolder($folderfile{$f}, $folderdb{$f}, $cutpercent+0.1);
+            $ret=_cutfoldermail($folderfile{$f}, $folderdb{$f}, $cutpercent+0.1);
          } else {
-            $ret=cutfolder($folderfile{$f}, $folderdb{$f}, $cutpercent);
+            $ret=_cutfoldermail($folderfile{$f}, $folderdb{$f}, $cutpercent);
          }
          if ($ret<0) {
             writelog("cutfoldermails error - folder $f ret=$ret");
@@ -118,8 +118,7 @@ sub cutfoldermails {
    writehistory("cutfoldermails error - still $sizetocut bytes to cut");
    return ($_[0]-$sizetocut);	# return cutsize
 }
-
-sub cutfolder {				# reduce folder size by $cutpercent
+sub _cutfoldermail {	# reduce folder size by $cutpercent
    my ($folderfile, $folderdb, $cutpercent) = @_;
    my (@delids, $cutsize, %FDB);
 
@@ -180,7 +179,7 @@ sub cutdirfiles {
    my @sortedlist= sort { $fdate{$a}<=>$fdate{$b} } keys(%ftype);
    foreach my $fname (@sortedlist) {
       if ($ftype{$fname} eq 'f') {
-         if (unlink("$dir/$fname")) {
+         if (unlink ow::tool::untaint("$dir/$fname")) {
             $sizetocut-=$fsize{$fname};
             writelog("cutdirfiles - file $dir/$fname has been removed");
             writehistory("cutdirfiles - file $dir/$fname has been removed");
@@ -190,11 +189,12 @@ sub cutdirfiles {
          my $sizecut=cutdirfiles($sizetocut, "$dir/$fname");
          if ($sizecut>0) {
             $sizetocut-=$sizecut;
-            if (rmdir("$dir/$fname")) {
+            if (rmdir ow::tool::untaint("$dir/$fname")) {
                writelog("cutdir - dir $dir/$fname has been removed");
                writehistory("cutdir - dir $dir/$fname has been removed");
             } else {
-               utime($now, $fdate{$fname}, "$dir/$fname");	# set modify time back
+               # restore dir modify time
+               utime($now, ow::tool::untaint($fdate{$fname}), ow::tool::untaint("$dir/$fname"));
             }
             return ($_[0]-$sizetocut) if ($sizetocut<=0);	# return cutsize
          }

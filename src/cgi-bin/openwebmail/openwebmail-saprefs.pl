@@ -279,9 +279,10 @@ sub edittest {
 ########## MODTEST ############################################
 sub modtest {
    my $mode = shift;
-   my $testname = param('testname') || '';
-   my %test;
+   my $testname = param('testname')||''; $testname=~s/^\s*//; $testname=~s/\s*$//;
+   return edittest() if ($testname eq '');
 
+   my %test;
    my $saprefsfile="$homedir/.spamassassin/userprefs";
    my ($r_datas, $r_rules, $r_whitelist_from, $r_blacklist_from)=read_saprefs($saprefsfile);
 
@@ -407,9 +408,9 @@ sub editlist {
 ########## MODWHITELIST ##########################################
 sub modlist {
    my ($mode, $listtype) = @_;
-   my $email = param('email') || '';
-
    return edittest() if ($listtype ne 'whitelist' && $listtype ne 'blacklist');
+
+   my $email = param('email') || ''; $email=~s/^\s*//; $email=~s/\s*$//;
    return editlist($listtype) if ($email eq '' || $email=~/[^\d\w_\@\%\*\!\&\.#]/);
 
    my $saprefsfile="$homedir/.spamassassin/userprefs";

@@ -949,7 +949,7 @@ sub readmessage {
    # fork a child to do the status update and folderdb update
    # thus the result of readmessage can be returned as soon as possible
    if ($message{status} !~ /R/i) {	# msg file doesn't has R flag
-      #local $SIG{CHLD}=\&zombie_cleaner; # handler not necessary, as we call zobie_cleaner at end of each request
+      #local $SIG{CHLD}=\&zombie_cleaner; # handler not necessary, as we call zombie_cleaner at end of each request
 
       local $|=1; 			# flush all output
       if ( fork() == 0 ) {		# child

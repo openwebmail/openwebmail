@@ -1,3 +1,9 @@
+12/08/2004
+----------
+1. fix a bug in cut.pl that parameter for utime is not untainted
+   (reported by Dimitrios 'sehh' Michelinakis, dimitrios.AT.michelinakis.gr)
+
+
 12/07/2004
 ----------
 1. Deutsch lang file translation update
