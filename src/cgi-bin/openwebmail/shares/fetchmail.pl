@@ -108,7 +108,7 @@ sub fetchmail {
       my $uidl;
       if ($uidl_support) {
          sendcmd($socket, "uidl $msgnum\r\n", \@result); $uidl=$result[1];
-         if ( defined($UIDLDB{$uidl}) ) {# already fetched before
+         if (defined $UIDLDB{$uidl}) {	# already fetched before
             $uidldb{$uidl}=1; next;
          }
       } else {

@@ -437,10 +437,10 @@ sub readmessage {
    my ($htmlconv, $htmlstat, $htmlmove);
 
    # charset conversion menu
-   if(defined($charset_convlist{$prefs{'charset'}}) ) {
+   if(defined $charset_convlist{$prefs{'charset'}} ) {
       my (@cflist, %cflabels, %allsets, $cf);
       foreach (values %ow::lang::languagecharsets, keys %charset_convlist) {
-         $allsets{$_}=1 if (!defined($allsets{$_}));
+         $allsets{$_}=1 if (!defined $allsets{$_});
       }
 
       $cf="none.".lc($message{'charset'}); # readmsg with orig charset and no conversion
@@ -448,7 +448,7 @@ sub readmessage {
       delete $allsets{$cf};
 
       $cf="none.$prefs{'charset'}";	# readmsg with prefs charset and no conversion
-      if (!defined($cflabels{$cf})) {
+      if (!defined $cflabels{$cf}) {
          push(@cflist, $cf); $cflabels{$cf}=$prefs{'charset'};
          delete $allsets{$prefs{'charset'}};
       }
@@ -459,7 +459,7 @@ sub readmessage {
          delete $allsets{$cf};
       }
       foreach $cf (@{$charset_convlist{$prefs{'charset'}}}) {
-         if (!defined($cflabels{$cf})) {
+         if (!defined $cflabels{$cf}) {
             push(@cflist, $cf); $cflabels{$cf}="$cf > $prefs{'charset'}";
             delete $allsets{$cf};
          }
@@ -467,7 +467,7 @@ sub readmessage {
 
       foreach (sort keys %allsets) {	# readmsg with other charset and no conversion
          $cf="none.$_";
-         next if (defined($cflabels{$cf}));
+         next if (defined $cflabels{$cf});
          push(@cflist, $cf); $cflabels{$cf}=$_;
       }
 
@@ -753,7 +753,7 @@ sub readmessage {
    $onlyone_att=1 if ($#{$message{attachment}}==0);
 
    foreach my $attnumber (0 .. $#{$message{attachment}}) {
-      next unless (defined(%{$message{attachment}[$attnumber]}));
+      next unless (defined %{$message{attachment}[$attnumber]});
 
       my $attcharset=$convfrom;
       # if convfrom eq msgcharset, we try to get attcharset from attheader since it may differ from msgheader
@@ -777,7 +777,7 @@ sub readmessage {
 
       } else {	# attmode==simple
          # handle case to skip to next text/html attachment
-         if ( defined(%{$message{attachment}[$attnumber+1]}) &&
+         if ( defined %{$message{attachment}[$attnumber+1]} &&
               (${$message{attachment}[$attnumber+1]}{boundary} eq
 		  ${$message{attachment}[$attnumber]}{boundary}) ) {
 

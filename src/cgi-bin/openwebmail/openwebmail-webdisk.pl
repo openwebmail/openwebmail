@@ -89,7 +89,7 @@ if (! -d $webdiskrootdir) {
 
 my $action = param('action')||'';
 my $currentdir;
-if (defined(param('currentdir')) && param('currentdir') ne "") {
+if (defined param('currentdir') && param('currentdir') ne "") {
    $currentdir = ow::tool::unescapeURL(param('currentdir'));
 } else {
    $currentdir = cookie("ow-currentdir-$domain-$user"),
@@ -108,7 +108,7 @@ my $msg=verify_vpath($webdiskrootdir, $currentdir);
 openwebmailerror(__FILE__, __LINE__, "$lang_err{'access_denied'} (".f2u($currentdir).": $msg)") if ($msg);
 $currentdir=ow::tool::untaint($currentdir);
 
-if ($action eq "mkdir" || defined(param('mkdirbutton')) ) {
+if ($action eq "mkdir" || defined param('mkdirbutton') ) {
    if ($config{'webdisk_readonly'}) {
       $msg=$lang_err{'webdisk_readonly'};
    } elsif (is_quota_available(0)) {
@@ -118,7 +118,7 @@ if ($action eq "mkdir" || defined(param('mkdirbutton')) ) {
    }
    showdir($currentdir, $gotodir, $filesort, $page, $msg);
 
-} elsif ($action eq "newfile" || defined(param('newfilebutton'))) {
+} elsif ($action eq "newfile" || defined param('newfilebutton')) {
    if ($config{'webdisk_readonly'}) {
       $msg="$lang_err{'webdisk_readonly'}\n";
    } elsif (is_quota_available(0)) {
@@ -128,7 +128,7 @@ if ($action eq "mkdir" || defined(param('mkdirbutton')) ) {
    }
    showdir($currentdir, $gotodir, $filesort, $page, $msg);
 
-} elsif ($action eq "copy" || defined(param('copybutton'))) {
+} elsif ($action eq "copy" || defined param('copybutton')) {
    if ($config{'webdisk_readonly'}) {
       $msg="$lang_err{'webdisk_readonly'}\n";
    } elsif (is_quota_available(0)) {
@@ -138,7 +138,7 @@ if ($action eq "mkdir" || defined(param('mkdirbutton')) ) {
    }
    showdir($currentdir, $gotodir, $filesort, $page, $msg);
 
-} elsif ($action eq "move" || defined(param('movebutton'))) {
+} elsif ($action eq "move" || defined param('movebutton')) {
    if ($config{'webdisk_readonly'}) {
       $msg="$lang_err{'webdisk_readonly'}\n";
    } elsif (is_quota_available(0)) {
@@ -149,7 +149,7 @@ if ($action eq "mkdir" || defined(param('mkdirbutton')) ) {
    showdir($currentdir, $gotodir, $filesort, $page, $msg);
 
 } elsif ( $config{'webdisk_allow_symlinkcreate'} &&
-         ($action eq "symlink" || defined(param('symlinkbutton'))) ){
+         ($action eq "symlink" || defined param('symlinkbutton')) ){
    if ($config{'webdisk_readonly'}) {
       $msg="$lang_err{'webdisk_readonly'}\n";
    } elsif (is_quota_available(0)) {
@@ -159,7 +159,7 @@ if ($action eq "mkdir" || defined(param('mkdirbutton')) ) {
    }
    showdir($currentdir, $gotodir, $filesort, $page, $msg);
 
-} elsif ($action eq "delete" || defined(param('deletebutton'))) {
+} elsif ($action eq "delete" || defined param('deletebutton')) {
    if ($config{'webdisk_readonly'}) {
       $msg="$lang_err{'webdisk_readonly'}\n";
    } else {
@@ -167,7 +167,7 @@ if ($action eq "mkdir" || defined(param('mkdirbutton')) ) {
    }
    showdir($currentdir, $gotodir, $filesort, $page, $msg);
 
-} elsif ($action eq "editfile" || defined(param('editbutton'))) {
+} elsif ($action eq "editfile" || defined param('editbutton')) {
    if ($config{'webdisk_readonly'}) {
       autoclosewindow($lang_wdbutton{'edit'}, $lang_err{'webdisk_readonly'});
    } elsif (is_quota_available(0)) {
@@ -180,7 +180,7 @@ if ($action eq "mkdir" || defined(param('mkdirbutton')) ) {
       autoclosewindow($lang_text{'quotahit'}, $lang_err{'quotahit_alert'});
    }
 
-} elsif ($action eq "savefile" || defined(param('savebutton'))) {
+} elsif ($action eq "savefile" || defined param('savebutton')) {
    if ($config{'webdisk_readonly'}) {
       autoclosewindow($lang_wdbutton{'edit'}, $lang_err{'webdisk_readonly'});
    } elsif (is_quota_available(0)) {
@@ -189,7 +189,7 @@ if ($action eq "mkdir" || defined(param('mkdirbutton')) ) {
       autoclosewindow($lang_text{'quotahit'}, $lang_err{'quotahit_alert'});
    }
 
-} elsif ($action eq "gzip" || defined(param('gzipbutton'))) {
+} elsif ($action eq "gzip" || defined param('gzipbutton')) {
    if ($config{'webdisk_readonly'}) {
       $msg="$lang_err{'webdisk_readonly'}\n";
    } elsif (is_quota_available(0)) {
@@ -199,7 +199,7 @@ if ($action eq "mkdir" || defined(param('mkdirbutton')) ) {
    }
    showdir($currentdir, $gotodir, $filesort, $page, $msg);
 
-} elsif ($action eq "mkzip" || defined(param('mkzipbutton'))) {
+} elsif ($action eq "mkzip" || defined param('mkzipbutton')) {
    if ($config{'webdisk_readonly'}) {
       $msg="$lang_err{'webdisk_readonly'}\n";
    } elsif (is_quota_available(0)) {
@@ -209,7 +209,7 @@ if ($action eq "mkdir" || defined(param('mkdirbutton')) ) {
    }
    showdir($currentdir, $gotodir, $filesort, $page, $msg);
 
-} elsif ($action eq "mktgz" || defined(param('mktgzbutton'))) {
+} elsif ($action eq "mktgz" || defined param('mktgzbutton')) {
    if ($config{'webdisk_readonly'}) {
       $msg="$lang_err{'webdisk_readonly'}\n";
    } elsif (is_quota_available(0)) {
@@ -219,7 +219,7 @@ if ($action eq "mkdir" || defined(param('mkdirbutton')) ) {
    }
    showdir($currentdir, $gotodir, $filesort, $page, $msg);
 
-} elsif ($action eq "decompress" || defined(param('decompressbutton'))) {
+} elsif ($action eq "decompress" || defined param('decompressbutton')) {
    if ($config{'webdisk_readonly'}) {
       $msg="$lang_err{'webdisk_readonly'}\n";
    } elsif (is_quota_available(0)) {
@@ -233,21 +233,21 @@ if ($action eq "mkdir" || defined(param('mkdirbutton')) ) {
    }
    showdir($currentdir, $gotodir, $filesort, $page, $msg);
 
-} elsif ($action eq "listarchive" || defined(param('listarchivebutton'))) {
+} elsif ($action eq "listarchive" || defined param('listarchivebutton')) {
    if ($#selitems==0) {
       $msg=listarchive($currentdir, $selitems[0]);
    } else {
       $msg="$lang_wdbutton{'listarchive'} - $lang_err{'onefileonly'}";
    }
 
-} elsif ($action eq "wordpreview" || defined(param('wordpreviewbutton'))) {
+} elsif ($action eq "wordpreview" || defined param('wordpreviewbutton')) {
    if ($#selitems==0) {
       $msg=wordpreview($currentdir, $selitems[0]);
    } else {
       $msg="MS Word $lang_wdbutton{'preview'} - $lang_err{'onefileonly'}";
    }
 
-} elsif ($action eq "mkpdf" || defined(param('mkpdfbutton')) ) {
+} elsif ($action eq "mkpdf" || defined param('mkpdfbutton') ) {
    if ($config{'webdisk_readonly'}) {
       $msg="$lang_err{'webdisk_readonly'}\n";
    } elsif (is_quota_available(0)) {
@@ -261,7 +261,7 @@ if ($action eq "mkdir" || defined(param('mkdirbutton')) ) {
    }
    showdir($currentdir, $gotodir, $filesort, $page, $msg);
 
-} elsif ($action eq "mkps" || defined(param('mkpsbutton')) ) {
+} elsif ($action eq "mkps" || defined param('mkpsbutton') ) {
    if ($config{'webdisk_readonly'}) {
       $msg="$lang_err{'webdisk_readonly'}\n";
    } elsif (is_quota_available(0)) {
@@ -275,7 +275,7 @@ if ($action eq "mkdir" || defined(param('mkdirbutton')) ) {
    }
    showdir($currentdir, $gotodir, $filesort, $page, $msg);
 
-} elsif ($action eq "mkthumbnail" || defined(param('mkthumbnailbutton'))) {
+} elsif ($action eq "mkthumbnail" || defined param('mkthumbnailbutton')) {
    if ($config{'webdisk_readonly'}) {
       $msg="$lang_err{'webdisk_readonly'}\n";
    } elsif (is_quota_available(0)) {
@@ -301,7 +301,7 @@ if ($action eq "mkdir" || defined(param('mkdirbutton')) ) {
    }
    openwebmailerror(__FILE__, __LINE__, $msg) if ($msg ne '');
 
-} elsif ($action eq "download" || defined(param('downloadbutton'))) {
+} elsif ($action eq "download" || defined param('downloadbutton')) {
    if ($#selitems>0) {
       $msg=downloadfiles($currentdir, @selitems);
    } elsif ($#selitems==0) {
@@ -316,7 +316,7 @@ if ($action eq "mkdir" || defined(param('mkdirbutton')) ) {
    }
    showdir($currentdir, $gotodir, $filesort, $page, $msg) if ($msg ne '');
 
-} elsif ($action eq "upload" || defined(param('uploadbutton'))) {
+} elsif ($action eq "upload" || defined param('uploadbutton')) {
    if ($config{'webdisk_readonly'}) {
       $msg="$lang_err{'webdisk_readonly'}\n";
    } elsif (is_quota_available(0)) {
@@ -346,7 +346,7 @@ if ($action eq "mkdir" || defined(param('mkdirbutton')) ) {
    }
    showdir($currentdir, $gotodir, $filesort, $page, $msg);
 
-} elsif ($action eq "showdir" || $action eq "" || defined(param('chdirbutton')))  {
+} elsif ($action eq "showdir" || $action eq "" || defined param('chdirbutton'))  {
    # put chdir in last or user will be matched by ($action eq "") when clicking button
    if ($destname ne '') {	# chdir
       $destname = absolute_vpath($currentdir, $destname);
@@ -1217,7 +1217,7 @@ sub downloadfile {
 
    # we only log download other than thumbnail imgs
    my @p=split(/\//, $vpath);
-   if (!defined($p[$#p-1]) || $p[$#p-1] ne '.thumbnail') {
+   if (!defined $p[$#p-1] || $p[$#p-1] ne '.thumbnail') {
       writelog("webdisk download - $vpath");
       writehistory("webdisk download - $vpath ");
    }
@@ -1655,7 +1655,7 @@ sub dirfilesel {
          my $sizestr=qq|<a title="|.lenstr($fsize{$fname},1).qq|">$fsize{$fname}</a>|;
 
          my $datestr;
-         if (defined($fdate{$fname})) {
+         if (defined $fdate{$fname}) {
             $datestr=ow::datetime::dateserial2str(ow::datetime::gmtime2dateserial($fdate{$fname}),
                                       $prefs{'timeoffset'}, $prefs{'daylightsaving'},
                                       $prefs{'dateformat'}, $prefs{'hourformat'});
@@ -2148,7 +2148,7 @@ sub showdir {
             $namestr=qq|<a href="$wd_url_sort_page&amp;action=showdir&amp;gotodir=|.
                      ow::tool::escapeURL($p).qq|" $accesskeystr>$imgstr <b> |.
                      ow::htmltext::str2html(f2u($p));
-            $namestr.=ow::htmltext::str2html(f2u($flink{$p})) if (defined($flink{$p}));
+            $namestr.=ow::htmltext::str2html(f2u($flink{$p})) if (defined $flink{$p});
             $namestr.=qq|</b></a>|;
             $opstr=qq|<a href="$wd_url_sort_page&amp;action=showdir&amp;gotodir=|.
                    ow::tool::escapeURL($p).qq|"><b>&lt;$lang_text{'dir'}&gt;</b></a>|;
@@ -2181,7 +2181,7 @@ sub showdir {
                          ow::htmltext::str2html(f2u($dname)).qq|</b> </a>|;
             }
             $namestr.=$a.ow::htmltext::str2html(f2u($fname));
-            $namestr.=ow::htmltext::str2html(f2u($flink{$p})) if (defined($flink{$p}));
+            $namestr.=ow::htmltext::str2html(f2u($flink{$p})) if (defined $flink{$p});
             $namestr.=qq|</a>|;
 
             if ($p=~/\.(?:pdf|ps)$/i ) {
@@ -2275,7 +2275,7 @@ sub showdir {
          my $sizestr=qq|<a title="|.lenstr($fsize{$p},1).qq|">$fsize{$p}</a>|;
 
          my $datestr;
-         if (defined($fdate{$p})) {
+         if (defined $fdate{$p}) {
             $datestr=ow::datetime::dateserial2str(ow::datetime::gmtime2dateserial($fdate{$p}),
                                       $prefs{'timeoffset'}, $prefs{'daylightsaving'},
                                       $prefs{'dateformat'}, $prefs{'hourformat'});

@@ -274,6 +274,11 @@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REPLYWITHORIGMSGMENU@@@
 </td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>自動副本給:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@AUTOCCFIELD@@@
+</td></tr>
 @@@BACKUPSENTSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>備份寄出的信件:</B>

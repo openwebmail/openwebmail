@@ -46,7 +46,7 @@ sub get_usage_limit {
    if (!$uptodate && $duinfo_lifetime>0) {
       ow::dbm::open (\%Q, $duinfo_db, LOCK_EX, 0664) or
          return(-2, "Quota db open error, $ow::dbm::errmsg");
-      ($timestamp, $usage)=split(/\@\@\@/, $Q{"$user\@\@\@$homedir"}) if (defined($Q{"$user\@\@\@$homedir"}));
+      ($timestamp, $usage)=split(/\@\@\@/, $Q{"$user\@\@\@$homedir"}) if (defined $Q{"$user\@\@\@$homedir"});
       ow::dbm::close(\%Q, $duinfo_db);
 
       if ($now-$timestamp>=0 && $now-$timestamp<=$duinfo_lifetime) {

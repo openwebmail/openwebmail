@@ -292,7 +292,7 @@ sub composemessage {
    }
 
    my %userfrom=get_userfrom($logindomain, $loginuser, $user, $userrealname, dotpath('from.book'));
-   if ( defined(param('from')) ) {
+   if (defined param('from')) {
       $from=param('from')||'';
    } elsif ($userfrom{$prefs{'email'}} ne "") {
       $from=qq|"$userfrom{$prefs{'email'}}" <$prefs{'email'}>|;
@@ -339,7 +339,7 @@ sub composemessage {
       }
       ($attfiles_totalsize, $r_attfiles) = getattfilesinfo();
 
-   } elsif (defined(param('addbutton')) ||	# user press 'add' button
+   } elsif (defined param('addbutton') ||	# user press 'add' button
             param('webdisksel') ) { 		# file selected from webdisk
       ($attfiles_totalsize, $r_attfiles) = getattfilesinfo();
 
@@ -383,7 +383,7 @@ sub composemessage {
                $attname =~ s|^.*/||;	# unix path
                $attname =~ s|^.*:||;	# mac path and dos drive
 
-               if (defined(uploadInfo($attachment))) {
+               if (defined uploadInfo($attachment)) {
 #                  my %info=%{uploadInfo($attachment)};
                   $attcontenttype = ${uploadInfo($attachment)}{'Content-Type'} || 'application/octet-stream';
                } else {
@@ -439,8 +439,8 @@ sub composemessage {
       }
 
    # usr press 'send' button but no receiver, keep editing
-   } elsif ( defined(param('sendbutton')) &&
-             param('to') eq '' && param('cc') eq '' && param('bcc') eq '' ) {
+   } elsif (defined param('sendbutton') &&
+            param('to') eq '' && param('cc') eq '' && param('bcc') eq '' ) {
       ($attfiles_totalsize, $r_attfiles) = getattfilesinfo();
 
    } elsif ($newmsgformat ne $msgformat) {	# chnage msg format between text & html
@@ -473,7 +473,7 @@ sub composemessage {
       # handle the messages generated if sendmail is set up to send MIME error reports
       if ($message{'content-type'} =~ /^multipart\/report/i) {
          foreach my $attnumber (0 .. $#{$message{attachment}}) {
-            if (defined(${${$message{attachment}[$attnumber]}{r_content}})) {
+            if (defined ${${$message{attachment}[$attnumber]}{r_content}}) {
                $body .= ${${$message{attachment}[$attnumber]}{r_content}};
                shift @{$message{attachment}};
             }
@@ -481,7 +481,7 @@ sub composemessage {
       } elsif ($message{'content-type'} =~ /^multipart/i) {
          # If the first attachment is text,
          # assume it's the body of a message in multi-part format
-         if ( defined(%{$message{attachment}[0]}) &&
+         if ( defined %{$message{attachment}[0]} &&
               ${$message{attachment}[0]}{'content-type'} =~ /^text/i ) {
             if (${$message{attachment}[0]}{'content-transfer-encoding'} =~ /^quoted-printable/i) {
                $body = decode_qp(${${$message{attachment}[0]}{r_content}});
@@ -502,7 +502,7 @@ sub composemessage {
             # handle mail with both text and html version
             # rename html to other name so if user in text compose mode,
             # the modified/forwarded text won't be overridden by html again
-            if ( defined(%{$message{attachment}[1]}) &&
+            if ( defined %{$message{attachment}[1]} &&
                  ${$message{attachment}[1]}{boundary} eq ${$message{attachment}[0]}{boundary} ) {
                # rename html attachment in the same alternative group
                if ( (${$message{attachment}[0]}{subtype}=~/alternative/i &&
@@ -564,13 +564,13 @@ sub composemessage {
       # carry attachments from old mesage to the new one
       if ($composetype eq "forward" ||  $composetype eq "forwardasorig" ||
           $composetype eq "editdraft") {
-         if (defined(${$message{attachment}[0]}{header})) {
+         if (defined ${$message{attachment}[0]}{header}) {
             my $attserial=time(); $attserial=ow::tool::untaint($attserial);
             foreach my $attnumber (0 .. $#{$message{attachment}}) {
                my $r_attachment=$message{attachment}[$attnumber];
                $attserial++;
                if (${$r_attachment}{header} ne "" &&
-                   defined(${$r_attachment}{r_content}) ) {
+                   defined ${$r_attachment}{r_content}) {
                   my ($attheader, $r_content)=(${$r_attachment}{header}, ${$r_attachment}{r_content});
 
                   if (${$r_attachment}{'content-type'}=~/^application\/ms\-tnef/i) {
@@ -603,7 +603,7 @@ sub composemessage {
          $msgformat='both' if ($msgformat eq 'html');
 
          my $showhtmlastext=$prefs{'showhtmlastext'};
-         $showhtmlastext=param('showhtmlastext') if (defined(param('showhtmlastext')));
+         $showhtmlastext=param('showhtmlastext') if (defined param('showhtmlastext'));
          $msgformat='text' if ($showhtmlastext);
       }
 
@@ -635,7 +635,7 @@ sub composemessage {
       if ($composetype eq "reply" || $composetype eq "replyall") {
          $subject = $message{'subject'} || '';
          $subject = "Re: " . $subject unless ($subject =~ /^re:/i);
-         if (defined($message{'reply-to'}) && $message{'reply-to'}=~/[^\s]/) {
+         if (defined $message{'reply-to'} && $message{'reply-to'}=~/[^\s]/) {
             $to = $message{'reply-to'} || '';
          } else {
             $to = $message{'from'} || '';
@@ -710,7 +710,11 @@ sub composemessage {
          }
          ($body, $subject, $to, $cc)=iconv($convfrom, $composecharset, $body,$subject,$to,$cc);
 
-         $replyto = $prefs{'replyto'} if (defined($prefs{'replyto'}));
+         if (defined $prefs{'autocc'} && $prefs{'autocc'} ne '') {
+            $cc .= ', ' if ($cc ne '');
+            $cc .= (iconv($convfrom, $composecharset, $prefs{'autocc'}))[0];
+         }
+         $replyto = (iconv($convfrom, $composecharset, $prefs{'replyto'}))[0] if (defined $prefs{'replyto'});
          $inreplyto = $message{'message-id'};
          if ( $message{'references'} ne "" ) {
             $references = $message{'references'}." ".$message{'message-id'};
@@ -745,7 +749,7 @@ sub composemessage {
          } else {
             $body = $n.$n;
          }
-         $body.= str2str($prefs{'signature'}, $msgformat).$n if ($prefs{'signature'}=~/[^\s]/);
+         $body.= str2str((iconv($prefs{'charset'}, $composecharset, $prefs{'signature'}))[0], $msgformat).$n if ($prefs{'signature'}=~/[^\s]/);
 
          if ($prefs{replywithorigmsg} eq 'at_beginning') {
             $body = $origbody.$n.$body;
@@ -781,9 +785,10 @@ sub composemessage {
 
          my $n="\n"; $n="<br>" if ($msgformat ne 'text');
          $body .= $n.$n;
-         $body .= str2str($prefs{'signature'}, $msgformat).$n if ($prefs{'signature'}=~/[^\s]/);
+         $body .= str2str((iconv($prefs{'charset'}, $composecharset, $prefs{'signature'}))[0], $msgformat).$n if ($prefs{'signature'}=~/[^\s]/);
 
-         $replyto = $prefs{'replyto'} if (defined($prefs{'replyto'}));
+         $cc = (iconv($prefs{'charset'}, $composecharset, $prefs{'autocc'}))[0] if (defined $prefs{'autocc'});
+         $replyto = (iconv($prefs{'charset'}, $composecharset, $prefs{'replyto'}))[0] if (defined $prefs{'replyto'});
          $inreplyto = $message{'message-id'};
          if ( $message{'references'} ne "" ) {
             $references = $message{'references'}." ".$message{'message-id'};
@@ -799,7 +804,9 @@ sub composemessage {
          ($body, $subject, $replyto)=iconv($convfrom, $composecharset, $body,$subject,$replyto);
 
          $references = $message{'references'};
-         $priority = $message{'priority'} if (defined($message{'priority'}));
+         $priority = $message{'priority'} if (defined $message{'priority'});
+
+         $cc = (iconv($prefs{'charset'}, $composecharset, $prefs{'autocc'}))[0] if (defined $prefs{'autocc'});
 
          # remove odds space or blank lines from body
          if ($msgformat eq 'text') {
@@ -810,17 +817,17 @@ sub composemessage {
 
       } elsif ($composetype eq "editdraft") {
          $subject = $message{'subject'} || '';
-         $to = $message{'to'} if (defined($message{'to'}));
-         $cc = $message{'cc'} if (defined($message{'cc'}));
-         $bcc = $message{'bcc'} if (defined($message{'bcc'}));
-         $replyto = $message{'reply-to'} if (defined($message{'reply-to'}));
+         $to = $message{'to'} if (defined $message{'to'});
+         $cc = $message{'cc'} if (defined $message{'cc'});
+         $bcc = $message{'bcc'} if (defined $message{'bcc'});
+         $replyto = $message{'reply-to'} if (defined $message{'reply-to'});
          ($body, $subject, $to, $cc, $bcc, $replyto)=
             iconv($convfrom, $composecharset, $body,$subject,$to,$cc,$bcc,$replyto);
 
          $inreplyto = $message{'in-reply-to'};
          $references = $message{'references'};
-         $priority = $message{'priority'} if (defined($message{'priority'}));
-         $replyto = $prefs{'replyto'} if ($replyto eq '' && defined($prefs{'replyto'}));
+         $priority = $message{'priority'} if (defined $message{'priority'});
+         $replyto = (iconv($convfrom, $composecharset, $prefs{'replyto'}))[0] if ($replyto eq '' && defined $prefs{'replyto'});
 
          # we prefer to use the messageid in a draft message if available
          $mymessageid = $messageid if ($messageid);
@@ -893,11 +900,12 @@ sub composemessage {
       } else {
          $references = $message{'message-id'};
       }
-      $replyto = $prefs{'replyto'} if (defined($prefs{'replyto'}));
+      $cc = (iconv($prefs{'charset'}, $composecharset, $prefs{'autocc'}))[0] if (defined $prefs{'autocc'});
+      $replyto = (iconv($prefs{'charset'}, $composecharset, $prefs{'replyto'}))[0] if (defined $prefs{'replyto'});
 
       my $n="\n"; $n="<br>" if ($msgformat ne 'text');
       $body = $n."# Message forwarded as attachment".$n.$n;
-      $body .= str2str($prefs{'signature'}, $msgformat).$n if ($prefs{'signature'}=~/[^\s]/);
+      $body .= str2str((iconv($prefs{'charset'}, $composecharset, $prefs{'signature'}))[0], $msgformat).$n if ($prefs{'signature'}=~/[^\s]/);
 
    } elsif ($composetype eq 'forwardids' || $composetype eq 'forwardids_delete') {
       $msgformat='text' if ($msgformat eq 'auto');
@@ -950,7 +958,8 @@ sub composemessage {
       ($attfiles_totalsize, $r_attfiles) = getattfilesinfo();
 
       $subject = "Fw: ";
-      $replyto = $prefs{'replyto'} if (defined($prefs{'replyto'}));
+      $cc = (iconv($prefs{'charset'}, $composecharset, $prefs{'autocc'}))[0] if (defined $prefs{'autocc'});
+      $replyto = (iconv($prefs{'charset'}, $composecharset, $prefs{'replyto'}))[0] if (defined $prefs{'replyto'});
 
       my $n="\n"; $n="<br>" if ($msgformat ne 'text');
       if ($#forwardids>0) {
@@ -958,7 +967,7 @@ sub composemessage {
       } else {
          $body = $n."# Message forwarded as attachment".$n.$n;
       }
-      $body .= str2str($prefs{'signature'}, $msgformat).$n if ($prefs{'signature'}=~/[^\s]/);
+      $body .= str2str((iconv($prefs{'charset'}, $composecharset, $prefs{'signature'}))[0], $msgformat).$n if ($prefs{'signature'}=~/[^\s]/);
 
    } elsif ($composetype eq 'continue') {
       $msgformat='text'    if ($msgformat eq 'auto');
@@ -984,10 +993,11 @@ sub composemessage {
 
    } else { # sendto or newmail
       $msgformat='text' if ($msgformat eq 'auto');
-      $replyto = $prefs{'replyto'} if (defined($prefs{'replyto'}));
+      $cc = (iconv($prefs{'charset'}, $composecharset, $prefs{'autocc'}))[0] if (defined $prefs{'autocc'});
+      $replyto = (iconv($prefs{'charset'}, $composecharset, $prefs{'replyto'}))[0] if (defined $prefs{'replyto'});
 
       my $n="\n"; $n="<br>" if ($msgformat ne 'text');
-      $body.=$n.$n.str2str($prefs{'signature'}, $msgformat).$n if ($prefs{'signature'}=~/[^\s]/);
+      $body.=$n.$n.str2str((iconv($prefs{'charset'}, $composecharset, $prefs{'signature'}))[0], $msgformat).$n if ($prefs{'signature'}=~/[^\s]/);
 
    }
 
@@ -1099,11 +1109,11 @@ sub composemessage {
    my @ctlist=('none');
    my %allsets=();
    foreach (values %ow::lang::languagecharsets, keys %charset_convlist) {
-      $allsets{$_}=1 if (!defined($allsets{$_}));
+      $allsets{$_}=1 if (!defined $allsets{$_});
    }
    delete $allsets{$composecharset};
 
-   if (defined($charset_convlist{$composecharset})) {
+   if (defined $charset_convlist{$composecharset}) {
       foreach my $ct (sort @{$charset_convlist{$composecharset}}) {
          if (is_convertible($composecharset, $ct)) {
             $ctlabels{$ct}="$composecharset > $ct";
@@ -1251,7 +1261,7 @@ sub composemessage {
 
       templateblock_enable($html, 'BACKUPSENT');
       my $backupsent=$prefs{'backupsentmsg'};
-      if (defined(param('backupsent'))) {
+      if (defined param('backupsent')) {
          $backupsent=param('backupsent')||0;
       }
       $temphtml = checkbox(-name=>'backupsentmsg',
@@ -1489,7 +1499,7 @@ sub composemessage {
       ($prefs{'language'}, $prefs{'charset'})=('en', $composecharset);
    }
    my $session_noupdate=param('session_noupdate')||'';
-   if (defined(param('savedraftbutton')) && !$session_noupdate) {
+   if (defined param('savedraftbutton') && !$session_noupdate) {
       # savedraft from user clicking, show show some msg for notifitcaiton
       my $msg=qq|<font size="-1">$lang_text{'draftsaved'}</font>|;
       $msg=~s/\@\@\@SUBJECT\@\@\@/$subject/;
@@ -1498,7 +1508,7 @@ sub composemessage {
               qq|showmsg('$prefs{charset}', '$lang_text{savedraft}', '$msg', '$lang_text{"close"}', '_savedraft', 300, 100, 5);\n|.
               qq|//-->\n</script>\n|;
    }
-   if (defined(param('savedraftbutton')) && $session_noupdate) {
+   if (defined param('savedraftbutton') && $session_noupdate) {
       # this is auto savedraft triggered by timeoutwarning,
       # timeoutwarning js code is not required any more
       httpprint([], [htmlheader(), $html, htmlfooter(2)]);
@@ -1520,8 +1530,8 @@ sub composemessage {
 sub sendmessage {
    no strict 'refs';	# for $attchment, which is fname and fhandle of the upload
    # goto composemessage if !savedraft && !send
-   if ( !defined(param('savedraftbutton')) &&
-        !(defined(param('sendbutton')) && (param('to')||param('cc')||param('bcc')))  ) {
+   if ( !defined param('savedraftbutton') &&
+        !(defined param('sendbutton') && (param('to')||param('cc')||param('bcc')))  ) {
       return(composemessage());
    }
 
@@ -1568,7 +1578,7 @@ sub sendmessage {
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'att_overlimit'} $config{'attlimit'} $lang_sizes{'kb'}!");
       }
       my $attcontenttype;
-      if (defined(uploadInfo($attachment))) {
+      if (defined uploadInfo($attachment)) {
          $attcontenttype = ${uploadInfo($attachment)}{'Content-Type'} || 'application/octet-stream';
       } else {
          $attcontenttype = 'application/octet-stream';
@@ -1626,7 +1636,7 @@ sub sendmessage {
    my $messageheader='';
    my $folderhandle=do { local *FH };
 
-   if (defined(param('savedraftbutton'))) { # save msg to draft folder
+   if (defined param('savedraftbutton')) { # save msg to draft folder
       $savefolder = 'saved-drafts';
       $do_send=0;
       $do_save=0 if ($quotalimit>0 && $quotausage>=$quotalimit ||
@@ -1719,7 +1729,7 @@ sub sendmessage {
          my %FDB;
          ow::dbm::open(\%FDB, $savedb, LOCK_SH) or
                openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} ".f2u($savedb));
-         if (defined($FDB{$mymessageid})) {
+         if (defined $FDB{$mymessageid}) {
             $oldmsgfound=1;
             $oldsubject=(string2msgattr($FDB{$mymessageid}))[$_SUBJECT];
          }
@@ -2182,7 +2192,7 @@ sub sendmessage {
 
          ow::dbm::open(\%FDB, $folderdb, LOCK_EX) or
                openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} ".f2u($folderdb));
-         if (defined($FDB{$inreplyto})) {
+         if (defined $FDB{$inreplyto}) {
             $oldstatus = (string2msgattr($FDB{$inreplyto}))[$_STATUS];
             $found=1;
          }
@@ -2207,7 +2217,7 @@ sub sendmessage {
    } elsif ($saveerr) {
       openwebmailerror(__FILE__, __LINE__, $saveerrstr);
    } else {
-      if (defined(param('sendbutton'))) {
+      if (defined param('sendbutton')) {
          # delete attachments only if no error,
          # in case user trys resend, attachments could be available
          deleteattachments();

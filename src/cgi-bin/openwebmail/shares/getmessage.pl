@@ -53,11 +53,11 @@ sub getmessage {
    return {} if ( $message{header} eq "" ); 	# return empty hash if no header found
 
    ow::mailparse::parse_header(\$message{header}, \%message);
-   $message{status} .= $message{'x-status'} if (defined($message{'x-status'}));
+   $message{status} .= $message{'x-status'} if (defined $message{'x-status'});
 
    # recover incomplete header attr for msgs resent from mailing list, tricky!
    if ($message{'content-type'} eq 'N/A') {
-      if (defined(${$message{attachment}}[0])) {	# msg has attachment(s)
+      if (defined ${$message{attachment}}[0]) {	# msg has attachment(s)
          $message{'content-type'}=qq|multipart/mixed;|;
       } elsif ($message{body}=~/^\n*([A-Za-z0-9+]{50,}\n?)+/s) {
          $message{'content-type'}=qq|text/plain|;
@@ -88,10 +88,10 @@ sub getmessage {
    $message{status} =~ s/\s//g;
    if ($message{'content-type'}=~/charset="?([^\s"';]*)"?\s?/i) {
       $message{charset}=$1;
-   } elsif (defined(@{$message{attachment}})) {
+   } elsif (defined @{$message{attachment}}) {
       my @att=@{$message{attachment}};
       foreach my $i (0 .. $#att) {
-         if (defined(${$att[$i]}{charset}) && ${$att[$i]}{charset} ne '') {
+         if (defined ${$att[$i]}{charset} && ${$att[$i]}{charset} ne '') {
             $message{charset}=${$att[$i]}{charset};
             last;
          }

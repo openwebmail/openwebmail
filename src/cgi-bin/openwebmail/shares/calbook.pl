@@ -33,7 +33,7 @@ sub readcalbook {
                             charset      => $a[8]||'' };
 
       my $idate=$a[1]; $idate= '*' if ($idate=~/[^\d]/); # use '*' for regex date
-      if ( !defined(${$r_indexes}{$idate}) ) {
+      if (!defined ${$r_indexes}{$idate}) {
          ${$r_indexes}{$idate}=[$index];
       } else {
          push(@{${$r_indexes}{$idate}}, $index);

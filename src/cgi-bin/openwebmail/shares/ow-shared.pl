@@ -140,7 +140,7 @@ foreach my $opttype ('yesno', 'none', 'list') {
    viewnextaftermsgmovecopy autopop3 autopop3wait
    bgfilterthreshold bgfilterwait moveoldmsgfrominbox
    msgformat editcolumns editrows sendbuttonposition
-   reparagraphorigmsg replywithorigmsg backupsentmsg sendcharset
+   reparagraphorigmsg replywithorigmsg autocc backupsentmsg sendcharset
    viruscheck_source viruscheck_maxsize viruscheck_minbodysize
    spamcheck_source spamcheck_maxsize spamcheck_threshold
    filter_repeatlimit filter_badaddrformat
@@ -182,33 +182,33 @@ foreach my $opttype ('yesno', 'none', 'list') {
 use vars qw($_vars_used);
 sub openwebmail_clearall {
    # clear opentable in filelock.pl
-   ow::filelock::closeall() if (defined(%ow::filelock::opentable));
+   ow::filelock::closeall() if (defined %ow::filelock::opentable);
 
    # chdir back to openwebmail cgidir
    chdir($config{'ow_cgidir'}) if ($config{'ow_cgidir'});
 
    # clear gobal variable for persistent perl
-   undef(%SIG)		if (defined(%SIG));
-   undef(%config)	if (defined(%config));
-   undef(%config_raw)	if (defined(%config_raw));
-   undef($thissession)	if (defined($thissession));
-   undef(%icontext)	if (defined(%icontext));
+   undef(%SIG)		if (defined %SIG);
+   undef(%config)	if (defined %config);
+   undef(%config_raw)	if (defined %config_raw);
+   undef($thissession)	if (defined $thissession);
+   undef(%icontext)	if (defined %icontext);
 
-   undef($default_logindomain) if (defined($default_logindomain));
-   undef($loginname)	if (defined($loginname));
-   undef($logindomain)	if (defined($logindomain));
-   undef($loginuser)	if (defined($loginuser));
+   undef($default_logindomain) if (defined $default_logindomain);
+   undef($loginname)	if (defined $loginname);
+   undef($logindomain)	if (defined $logindomain);
+   undef($loginuser)	if (defined $loginuser);
 
-   undef($domain)	if (defined($domain));
-   undef($user)		if (defined($user));
-   undef($userrealname)	if (defined($userrealname));
-   undef($uuid)		if (defined($uuid));
-   undef($ugid)		if (defined($ugid));
-   undef($homedir)	if (defined($homedir));
-   undef(%prefs)	if (defined(%prefs));
+   undef($domain)	if (defined $domain);
+   undef($user)		if (defined $user);
+   undef($userrealname)	if (defined $userrealname);
+   undef($uuid)		if (defined $uuid);
+   undef($ugid)		if (defined $ugid);
+   undef($homedir)	if (defined $homedir);
+   undef(%prefs)	if (defined %prefs);
 
-   undef($quotausage)	if (defined($quotausage));
-   undef($quotalimit)	if (defined($quotalimit));
+   undef($quotausage)	if (defined $quotausage);
+   undef($quotalimit)	if (defined $quotalimit);
 
    # back euid to root if possible, required for setuid under persistent perl
    $>=0;
@@ -254,7 +254,7 @@ sub userenv_init {
       }
    }
 
-   if (!defined(param('sessionid')) ) {
+   if (!defined param('sessionid') ) {
       # delayed response for non localhost
       sleep $config{'loginerrordelay'} if (ow::tool::clientip() ne "127.0.0.1");
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'param_fmterr'}, $lang_err{'access_denied'}");
@@ -390,7 +390,7 @@ sub login_name2domainuser {
    }
    $loginuser=lc($loginuser) if ($config{'case_insensitive_login'});
    $logindomain=lc(safedomainname($logindomain));
-   $logindomain=$config{'domainname_equiv'}{'map'}{$logindomain} if (defined($config{'domainname_equiv'}{'map'}{$logindomain}));
+   $logindomain=$config{'domainname_equiv'}{'map'}{$logindomain} if (defined $config{'domainname_equiv'}{'map'}{$logindomain});
    return($logindomain, $loginuser);
 }
 ########## END LOGINNAME 2 LOGINDOMAIN LOGINUSER #################
@@ -406,7 +406,7 @@ sub read_owconf {
    load_owconf($r_config_raw, $configfile) if ($configfile);
 
    # make sure there are default values for array/hash references!!
-   if (!defined(${$r_config_raw}{'domainname_equiv'})){
+   if (!defined ${$r_config_raw}{'domainname_equiv'}){
       ${$r_config_raw}{'domainname_equiv'}= { 'map'=>{}, 'list'=>{} };
    }
    foreach $key (keys %{$is_config_option{'list'}}) {
@@ -482,7 +482,7 @@ sub load_owconf {
    my ($r_config_raw, $configfile)=@_;
 
    my $t=0; $t=(-M $configfile) if ($configfile!~/openwebmail\.conf\.default$/);
-   if (!defined($_rawconfcache{$configfile}{'t'}) ||
+   if (!defined $_rawconfcache{$configfile}{'t'} ||
        $_rawconfcache{$configfile}{'t'} ne $t ) {
       $_rawconfcache{$configfile}{'t'}=$t;
       $_rawconfcache{$configfile}{'c'}=_load_owconf($configfile);
@@ -580,7 +580,7 @@ sub fmt_require { # remove / and .. for variables used in require statement for 
 ########## MATCHLIST_... #########################################
 sub matchlist_all {
    my ($listname)=@_;
-   return 1 if (!defined($config{$listname}));
+   return 1 if (!defined $config{$listname});
 
    foreach my $token (@{$config{$listname}}) {
       return 1 if (lc($token) eq 'all');
@@ -590,7 +590,7 @@ sub matchlist_all {
 
 sub matchlist_exact {
    my ($listname, $value)=($_[0], lc($_[1]));
-   return 1 if (!defined($config{$listname}));
+   return 1 if (!defined $config{$listname});
 
    foreach (@{$config{$listname}}) {
       my $token=lc($_);
@@ -601,7 +601,7 @@ sub matchlist_exact {
 
 sub matchlist_fromhead {
    my ($listname, $value)=($_[0], lc($_[1]));
-   return 1 if (!defined($config{$listname}));
+   return 1 if (!defined $config{$listname});
 
    foreach (@{$config{$listname}}) {
       my $token=lc($_);
@@ -612,7 +612,7 @@ sub matchlist_fromhead {
 
 sub matchlist_fromtail {
    my ($listname, $value)=($_[0], lc($_[1]));
-   return 1 if (!defined($config{$listname}));
+   return 1 if (!defined $config{$listname});
 
    foreach (@{$config{$listname}}) {
       my $token=lc($_);
@@ -686,19 +686,19 @@ sub readprefs {
 
    # all rc entries are disallowed to be empty
    foreach $key (@openwebmailrcitem) {
-      if (defined($config{'DEFAULT_'.$key})) {
+      if (defined $config{'DEFAULT_'.$key}) {
          $prefshash{$key}=$config{'DEFAULT_'.$key};
-      } elsif ((!defined($prefshash{$key})||$prefshash{$key} eq "") &&
-               defined($config{'default_'.$key}) ) {
+      } elsif ((!defined $prefshash{$key}||$prefshash{$key} eq '') &&
+               defined $config{'default_'.$key} ) {
          $prefshash{$key}=$config{'default_'.$key};
       }
    }
    # signature allowed to be empty but not undefined
    foreach $key ( 'signature') {
-      if (defined($config{'DEFAULT_'.$key})) {
+      if (defined $config{'DEFAULT_'.$key}) {
          $prefshash{$key}=$config{'DEFAULT_'.$key};
-      } elsif (!defined($prefshash{$key}) &&
-               defined($config{'default_'.$key}) ) {
+      } elsif (!defined $prefshash{$key} &&
+               defined $config{'default_'.$key} ) {
          $prefshash{$key}=$config{'default_'.$key};
       }
    }
@@ -766,7 +766,7 @@ sub readstyle {
    my $stylefile = $_[0] || 'Default';
    $stylefile = 'Default' if (!-f "$config{'ow_stylesdir'}/$stylefile");
 
-   if (!defined($_stylecache{"$config{'ow_stylesdir'}/$stylefile"})) {
+   if (!defined $_stylecache{"$config{'ow_stylesdir'}/$stylefile"}) {
       my (%hash, $key, $value);
       open (STYLE,"$config{'ow_stylesdir'}/$stylefile") or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_stylesdir'}/$stylefile! ($!)");
@@ -971,7 +971,7 @@ sub update_virtuserdb {
       next if ($vu =~ /^@/);	# don't care entries for whole domain mapping
 
       $DB{$vu}=$u;
-      if ( defined($DBR{$u}) ) {
+      if (defined $DBR{$u}) {
          $DBR{$u}.=",$vu";
       } else {
          $DBR{$u}.="$vu";
@@ -1026,7 +1026,7 @@ sub get_domain_user_userinfo {
    $user=get_user_by_virtualuser($loginuser);
    if ($user eq "") {
       my @domainlist=($logindomain);
-      if (defined(@{$config{'domain_equiv'}{'list'}{$logindomain}})) {
+      if (defined @{$config{'domain_equiv'}{'list'}{$logindomain}}) {
          push(@domainlist, @{$config{'domain_equiv'}{'list'}{$logindomain}});
       }
       foreach (@domainlist) {
@@ -1110,7 +1110,7 @@ sub get_defaultemails {
 sub get_userfrom {
    my ($logindomain, $loginuser, $user, $realname, $frombook)=@_;
    my %from=();
-   $realname=$config{'DEFAULT_realname'} if (defined($config{'DEFAULT_realname'}));
+   $realname=$config{'DEFAULT_realname'} if (defined $config{'DEFAULT_realname'});
 
    # get default fromemail
    my @defaultemails=get_defaultemails($logindomain, $loginuser, $user);
@@ -1122,8 +1122,8 @@ sub get_userfrom {
    if ($config{'enable_loadfrombook'} && open(FROMBOOK, $frombook)) {
       while (<FROMBOOK>) {
          my ($_email, $_realname) = split(/\@\@\@/, $_, 2); chomp($_realname);
-         $_realname=$config{'DEFAULT_realname'} if (defined($config{'DEFAULT_realname'}));
-         if (!$config{'frombook_for_realname_only'} || defined($from{$_email}) ) {
+         $_realname=$config{'DEFAULT_realname'} if (defined $config{'DEFAULT_realname'});
+         if (!$config{'frombook_for_realname_only'} || defined $from{$_email}) {
              $from{"$_email"} = $_realname;
          }
       }
@@ -1184,8 +1184,8 @@ sub httpprint {
 sub httpheader {
    my %headers=@_;
    $headers{'-charset'}=$prefs{'charset'} if ($CGI::VERSION>=2.57);
-   if (!defined($headers{'-Cache-Control'}) &&
-       !defined($headers{'-Expires'}) ) {
+   if (!defined $headers{'-Cache-Control'} &&
+       !defined $headers{'-Expires'} ) {
       $headers{'-Pragma'}='no-cache';
       $headers{'-Cache-Control'}='no-cache,no-store';
    }
@@ -1283,7 +1283,7 @@ sub openwebmailerror {
       $stackdump=~s/^\s*//gm;
    }
 
-   if (defined($ENV{'GATEWAY_INTERFACE'})) {	# in CGI mode
+   if (defined $ENV{'GATEWAY_INTERFACE'}) {	# in CGI mode
       # load prefs if possible, or use default value
       my $background = $style{"background"}||"#FFFFFF"; $background =~ s/"//g;
       my $bgurl=$prefs{'bgurl'}||"/openwebmail/images/backgrounds/Globe.gif";
@@ -1342,7 +1342,7 @@ sub autoclosewindow {
    my ($title, $msg, $time, $jscode)=@_;
    $time=5 if ($time<3);
 
-   if (defined($ENV{'GATEWAY_INTERFACE'})) {	# in CGI mode
+   if (defined $ENV{'GATEWAY_INTERFACE'}) {	# in CGI mode
       my ($html, $temphtml);
       $html = applystyle(readtemplate("autoclose.template"));
 
@@ -1380,7 +1380,7 @@ sub writelog {
       close (LOGFILE);
    } else {
       # show log error only if CGI mode
-      if (defined($ENV{'GATEWAY_INTERFACE'})) {
+      if (defined $ENV{'GATEWAY_INTERFACE'}) {
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'logfile'}! ($!)");
       }
    }
@@ -1639,7 +1639,7 @@ sub is_localuser {
 
 ########## IS_ADM ################################################
 sub is_vdomain_adm {
-   if (defined(@{$config{'vdomain_admlist'}})) {
+   if (defined @{$config{'vdomain_admlist'}}) {
       foreach my $adm (@{$config{'vdomain_admlist'}}) {
          return 1 if ($_[0] eq $adm);		# $_[0] is the user
       }
@@ -1861,7 +1861,7 @@ sub autologin_check {
 
    return 0 if (!ow::dbm::exist($autologindb));
    return 0 if (!ow::dbm::open(\%DB, $autologindb, LOCK_EX));
-   $DB{$agentip}=$timestamp=time() if (defined($DB{$agentip}));
+   $DB{$agentip}=$timestamp=time() if (defined $DB{$agentip});
    ow::dbm::close(\%DB, $autologindb);
    return 1 if ($timestamp ne '');
 }

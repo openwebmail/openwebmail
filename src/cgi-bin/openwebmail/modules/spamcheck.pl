@@ -57,7 +57,7 @@ sub scanmsg {
 
    # determine runtime error
    my $exit=$?&255;
-   return(-99999, $spamcerr{$exit}) if (defined($spamcerr{$exit}));
+   return(-99999, $spamcerr{$exit}) if (defined $spamcerr{$exit});
    return(-99999, "spamd error, exit=$exit, ret=$ret");
 }
 

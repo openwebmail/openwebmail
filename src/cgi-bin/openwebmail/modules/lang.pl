@@ -134,8 +134,8 @@ sub guess_language {
       push(@lang, $1) if (/^([a-z]+)\-[a-z]+$/ ); # eg: zh-tw -> zh
    }
    foreach my $lang (@lang) {
-      return $lang                       if (defined($languagenames{$lang}));
-      return $httpaccept2language{$lang} if (defined($httpaccept2language{$lang}));
+      return $lang                       if (defined $languagenames{$lang});
+      return $httpaccept2language{$lang} if (defined $httpaccept2language{$lang});
    }
    return('en');
 }

@@ -37,7 +37,7 @@ my %text = (
 
 ########## No configuration required from here ###################
 
-if (!defined($ENV{'GATEWAY_INTERFACE'})) {	# cmd mode
+if (!defined $ENV{'GATEWAY_INTERFACE'}) {	# cmd mode
    print qq|\nThis script is designed to be used by static html pages to\n|.
          qq|display openwebmail user mail/calendar status dynamically.\n|.
          qq|All you need to do is to include the following block in html source code.\n\n|.

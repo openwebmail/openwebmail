@@ -197,7 +197,7 @@ sub about {
       templateblock_enable($html, 'INFOPROTOCOL');
       $temphtml = '';
       foreach my $attr ( qw(SERVER_PROTOCOL HTTP_CONNECTION HTTP_KEEP_ALIVE) ) {
-         $temphtml.= attr_html($attr, $ENV{$attr}) if (defined($ENV{$attr}));
+         $temphtml.= attr_html($attr, $ENV{$attr}) if (defined $ENV{$attr});
       }
       $html=~s/\@\@\@INFOPROTOCOL\@\@\@/$temphtml/;
    } else {
@@ -208,13 +208,13 @@ sub about {
       templateblock_enable($html, 'INFOSERVER');
       $temphtml = '';
       foreach my $attr ( qw(HTTP_HOST SCRIPT_NAME) ) {
-         $temphtml.= attr_html($attr, $ENV{$attr}) if (defined($ENV{$attr}));
+         $temphtml.= attr_html($attr, $ENV{$attr}) if (defined $ENV{$attr});
       }
       if ($config{'about_info_scriptfilename'}) {
-         $temphtml.= attr_html('SCRIPT_FILENAME', $ENV{'SCRIPT_FILENAME'}) if (defined($ENV{'SCRIPT_FILENAME'}));
+         $temphtml.= attr_html('SCRIPT_FILENAME', $ENV{'SCRIPT_FILENAME'}) if (defined $ENV{'SCRIPT_FILENAME'});
       }
       foreach my $attr ( qw(SERVER_NAME SERVER_ADDR SERVER_PORT SERVER_SOFTWARE) ) {
-         $temphtml.= attr_html($attr, $ENV{$attr}) if (defined($ENV{$attr}));
+         $temphtml.= attr_html($attr, $ENV{$attr}) if (defined $ENV{$attr});
       }
       if ($config{'session_count_display'}) {
          $temphtml .= attr_html('ACTIVE_SESSIONS', join(', ', get_sessioncount()).' ( in 1, 5, 10 minutes )');
@@ -230,7 +230,7 @@ sub about {
       foreach my $attr ( qw(REMOTE_ADDR REMOTE_PORT HTTP_CLIENT_IP
                             HTTP_X_FORWARDED_FOR HTTP_VIA
                             HTTP_USER_AGENT HTTP_ACCEPT_ENCODING HTTP_ACCEPT_LANGUAGE) ) {
-         $temphtml.= attr_html($attr, $ENV{$attr}) if (defined($ENV{$attr}));
+         $temphtml.= attr_html($attr, $ENV{$attr}) if (defined $ENV{$attr});
       }
       $html=~s/\@\@\@INFOCLIENT\@\@\@/$temphtml/;
    } else {
@@ -652,7 +652,7 @@ sub editprefs {
                              -default=>$prefs{'fontsize'},
                              -labels=>\%fontsizelabels,
                              -override=>'1',
-                             defined($config_raw{'DEFAULT_font'})?('-disabled'=>'1'):());
+                             defined($config_raw{'DEFAULT_fontsize'})?('-disabled'=>'1'):());
       $html =~ s/\@\@\@FONTSIZEMENU\@\@\@/$temphtml/;
 
       $temphtml = popup_menu(-name=>'dateformat',
@@ -929,6 +929,13 @@ sub editprefs {
                                 -override=>'1',
                                 defined($config_raw{'DEFAULT_replywithorigmsg'})?('-disabled'=>'1'):());
          $html =~ s/\@\@\@REPLYWITHORIGMSGMENU\@\@\@/$temphtml/;
+
+         $temphtml = textfield(-name=>'autocc',
+                               -default=>$prefs{'autocc'} || '',
+                               -size=>'40',
+                               -override=>'1',
+                               defined($config_raw{'DEFAULT_autocc'})?('-disabled'=>'1'):());
+         $html =~ s/\@\@\@AUTOCCFIELD\@\@\@/$temphtml/;
 
          if ($config{'enable_backupsent'}) {
             templateblock_enable($html, 'BACKUPSENT');
@@ -2186,7 +2193,7 @@ sub editfroms {
                $formparmstr;
    $html =~ s/\@\@\@STARTFROMFORM\@\@\@/$temphtml/;
 
-   if (defined($config{'DEFAULT_realname'})) {
+   if (defined $config{'DEFAULT_realname'}) {
       $temphtml = textfield(-name=>'realname',
                             -default=>$config{'DEFAULT_realname'},
                             -size=>'20',
@@ -2271,7 +2278,7 @@ sub modfrom {
          if ( (-s $frombookfile) >= ($config{'maxbooksize'} * 1024) ) {
             openwebmailerror(__FILE__, __LINE__, qq|$lang_err{'abook_toobig'} <a href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editfroms&amp;$urlparmstr">$lang_err{'back'}</a>$lang_err{'tryagain'}|);
          }
-         if (!$config{'frombook_for_realname_only'} || defined($userfrom{$email}) ) {
+         if (!$config{'frombook_for_realname_only'} || defined $userfrom{$email}) {
             $userfrom{$email} = $realname;
          }
       }
@@ -2500,7 +2507,7 @@ sub modpop3 {
             }
          }
          $pop3port=110 if ($pop3port!~/^\d+$/);
-         if ( defined($accounts{"$pop3host:$pop3port\@\@\@$pop3user"}) &&
+         if (defined $accounts{"$pop3host:$pop3port\@\@\@$pop3user"} &&
               $pop3passwd eq "******") {
             $pop3passwd=(split(/\@\@\@/, $accounts{"$pop3host:$pop3port\@\@\@$pop3user"}))[4];
          }
@@ -2518,7 +2525,7 @@ sub modpop3 {
             if ( $filename=~/uidl\.(.*)\.(?:db|dir|pag)$/) {
                $_=$1; /^(.*)\@(.*):(.*)$/;
                ($pop3user, $pop3host, $pop3port)=($1, $2, $3);
-               if (!defined($accounts{"$pop3host:$pop3port\@\@\@$pop3user"})) {
+               if (!defined $accounts{"$pop3host:$pop3port\@\@\@$pop3user"}) {
                   push (@delfiles, ow::tool::untaint(dotpath($filename)));
                }
             }
@@ -2610,7 +2617,7 @@ sub editfilter {
    my (@validfolders, $inboxusage, $folderusage);
    getfolders(\@validfolders, \$inboxusage, \$folderusage);
    foreach (@validfolders, 'DELETE') {
-      if ( defined($lang_folders{$_}) ) {
+      if (defined $lang_folders{$_}) {
           $labels{$_} = $lang_folders{$_};
       } else {
          $labels{$_} = $_;
@@ -2711,7 +2718,7 @@ sub editfilter {
       } else {
          $temphtml .= "<td bgcolor=$bgcolor align=center>$lang_text{$op}</td>\n";
       }
-      if (defined($lang_folders{$destination})) {
+      if (defined $lang_folders{$destination}) {
          $temphtml .= "<td bgcolor=$bgcolor align=center>$lang_folders{$destination}</td>\n";
       } else {
          $temphtml .= "<td bgcolor=$bgcolor align=center>$destination</td>\n";
@@ -2771,7 +2778,7 @@ sub editfilter {
                    qq|<td bgcolor=$bgcolor align=center>$lang_text{$include}</td>\n|.
                    qq|<td bgcolor=$bgcolor align=center><a $accesskeystr href="Javascript:Update('$priority','$ruletype','$include','$jstext','$op','$destination','$enable')">|.ow::htmltext::str2html($text).qq|</a></td>\n|.
                    qq|<td bgcolor=$bgcolor align=center>$lang_text{$op}</td>\n|;
-      if (defined($lang_folders{$destination})) {
+      if (defined $lang_folders{$destination}) {
          $temphtml .= "<td bgcolor=$bgcolor align=center>$lang_folders{$destination}</td>\n";
       } else {
          $temphtml .= "<td bgcolor=$bgcolor align=center>$destination</td>\n";
@@ -2870,7 +2877,7 @@ sub modfilter {
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} db $filterbookfile");
          @keys=keys %FILTERRULEDB;
          foreach my $key (@keys) {
-           if ( ! defined($filterrules{$key}) &&
+           if (!defined $filterrules{$key} &&
                 $key ne "filter_badaddrformat" &&
                 $key ne "filter_fakedexecontenttype" &&
                 $key ne "filter_fakedfrom" &&
@@ -2964,7 +2971,7 @@ sub editstat {
 
    # load the stat for edit only if editstat button is clicked
    my $statname;
-   $statname=ow::tool::unescapeURL(param('statname')) if (defined(param('editstatbutton')));
+   $statname=ow::tool::unescapeURL(param('statname')) if (defined param('editstatbutton'));
 
    $temphtml = textfield(-name=>'statname',
                          -default=>$statname,

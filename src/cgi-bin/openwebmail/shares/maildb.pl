@@ -309,7 +309,7 @@ sub update_folderindex {
       _prepare_msghash($r_message, \%flag);
 
       my $id=$$r_message{'message-id'};
-      if (defined($FDB{$id})) {	# duplicated msg found?
+      if (defined $FDB{$id}) {	# duplicated msg found?
          if ( $$r_message{status}!~/Z/i ) {	# this is not zap, mark prev as zap
             my @attr0=string2msgattr($FDB{$id});
             if ($attr0[$_STATUS]!~/Z/i) {	# try to mark prev as zap
@@ -479,7 +479,7 @@ sub _prepare_msghash {
    my ($r_message, $r_flag)=@_;
 
    # msg status
-   $$r_message{status}.=$$r_message{'x-status'} if (defined($$r_message{'x-status'}));
+   $$r_message{status}.=$$r_message{'x-status'} if (defined $$r_message{'x-status'});
    $$r_message{status}.='I' if ($$r_message{priority}=~/urgent/i);
 
    # msg dateserial
@@ -846,7 +846,7 @@ sub operate_message_with_ids {
 
    my $counted=0;
    foreach my $messageid (@{$r_messageids}) {
-      next if (!defined($FDB{$messageid}));
+      next if (!defined $FDB{$messageid});
 
       my @attr = string2msgattr( $FDB{$messageid} );
 
@@ -873,7 +873,7 @@ sub operate_message_with_ids {
       $counted++;
       # append msg to dst folder only if op=move/copy and msg doesn't exist in dstfile
       if ($opendst) {
-         if (defined($FDB2{$messageid})) {
+         if (defined $FDB2{$messageid}) {
             my @attr0=string2msgattr( $FDB2{$messageid} );
             if ($attr0[$_SIZE] eq $attr[$_SIZE]) {	# skip the cp because same size
                if ($attr0[$_STATUS] =~ s/Z//ig) {	# undelete if the one in dest is zapped
@@ -900,7 +900,7 @@ sub operate_message_with_ids {
             }
          }
 
-         if (!defined($FDB2{$messageid})) {	# cp message from $srchandle to $dsthandle
+         if (!defined $FDB2{$messageid}) {	# cp message from $srchandle to $dsthandle
             # since @attr will be used for FDB2 temporarily and $attr[$_OFFSET] will be modified
             # we save it in $srcoffset and copy it back after write of dst folder
             my $srcoffset=$attr[$_OFFSET];

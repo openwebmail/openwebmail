@@ -126,7 +126,7 @@ my %eventcolors=( '1a'=>'b0b0e0', '1b'=>'b0e0b0', '1c'=>'b0e0e0',
 my $year=param('year')||'';
 my $month=param('month')||'';
 my $day=param('day')||'';
-if (defined(param('daybutton'))) {
+if (defined param('daybutton')) {
    $day=param('daybutton'); $day=~s/\s//g;
 }
 
@@ -170,7 +170,7 @@ if ($action eq "calyear") {
    dayview($year, $month, $day);
 } elsif ($action eq "caldel") {
    del_item($index);
-   if (defined(param('callist'))) {
+   if (defined param('callist')) {
       listview($year);
    } else {
       dayview($year, $month, $day);
@@ -185,7 +185,7 @@ if ($action eq "calyear") {
                $thisandnextndays, $ndays, $monthfreq, $everyyear,
                $link, $email, $eventcolor);
 
-   if (defined(param('callist'))) {
+   if (defined param('callist')) {
       listview($year);
    } else {
       dayview($year, $month, $day);
@@ -316,7 +316,7 @@ sub yearview {
 
                my @indexlist=();
                foreach ($date, '*') {
-                  next if (!defined($indexes{$_}));
+                  next if (!defined $indexes{$_});
                   foreach my $index (@{$indexes{$_}}) {
                      if ($date =~/$items{$index}{'idate'}/ ||
                          $date2=~/$items{$index}{'idate'}/ ||
@@ -526,7 +526,7 @@ sub monthview {
 
             my @indexlist=();
             foreach ($date, '*') {
-               next if (!defined($indexes{$_}));
+               next if (!defined $indexes{$_});
                foreach my $index (@{$indexes{$_}}) {
                   if ($date =~/$items{$index}{'idate'}/ ||
                       $date2=~/$items{$index}{'idate'}/ ||
@@ -740,7 +740,7 @@ sub weekview {
 
       my @indexlist=();
       foreach ($date, '*') {
-         next if (!defined($indexes{$_}));
+         next if (!defined $indexes{$_});
          foreach my $index (@{$indexes{$_}}) {
             if ($date =~/$items{$index}{'idate'}/ ||
                 $date2=~/$items{$index}{'idate'}/ ||
@@ -801,7 +801,7 @@ sub month_week_item {
    $nohtml="$nohtml *" if ($is_global);
 
    my $colorstr='';
-   if (defined($eventcolors{${$r_item}{'eventcolor'}})) {
+   if (defined $eventcolors{${$r_item}{'eventcolor'}}) {
       $colorstr=qq|bgcolor="#$eventcolors{${$r_item}{'eventcolor'}}"|;
    }
 
@@ -934,7 +934,7 @@ sub dayview {
 
    my @indexlist = (); # an index list of how many events occur on this day
    foreach ($date, '*') {
-      next if (!defined($indexes{$_}));
+      next if (!defined $indexes{$_});
       foreach my $index (@{$indexes{$_}}) {
          if ($date =~/$items{$index}{'idate'}/ ||
              $date2=~/$items{$index}{'idate'}/ ||
@@ -1064,7 +1064,7 @@ sub dayview {
             my $is_empty=1;
             for my $col (0..$colmax) {
                for my $i (0..$slots_in_hour-1) {
-                  if ( defined($matrix[$slot+$i][$col]) && $matrix[$slot+$i][$col] ) {
+                  if ( defined $matrix[$slot+$i][$col] && $matrix[$slot+$i][$col] ) {
                      $is_empty=0; last;
                   }
                   last if (!$is_empty);
@@ -1099,7 +1099,7 @@ sub dayview {
       }
 
       for my $col (0..$colmax) {
-         if (defined($matrix[$slot][$col])) {
+         if (defined $matrix[$slot][$col]) {
             my $index=$matrix[$slot][$col];
             my $r_event=$items{$index};
 
@@ -1459,7 +1459,7 @@ sub build_event_matrix {
       for ($col=0; ; $col++) {
          my $col_available=1;
          foreach my $slot (@{$slots{$index}}) {
-            if (defined(${$r_matrix}[$slot][$col]) && ${$r_matrix}[$slot][$col]) {
+            if (defined ${$r_matrix}[$slot][$col] && ${$r_matrix}[$slot][$col]) {
                $col_available=0; last;
             }
          }
@@ -1480,7 +1480,7 @@ sub build_event_matrix {
       my $extensible=1;
       foreach my $slot (@{$slots{$index}}) {
          for my $col (${$r_layout}{$index}{'startcol'}+1..${$r_colmax}) {
-            if (defined(${$r_matrix}[$slot][$col]) && ${$r_matrix}[$slot][$col]) {
+            if (defined ${$r_matrix}[$slot][$col] && ${$r_matrix}[$slot][$col]) {
                $extensible=0; last;
             }
          }
@@ -1662,7 +1662,7 @@ sub listview {
 
          my @indexlist=();
          foreach ($date, '*') {
-            next if (!defined($indexes{$_}));
+            next if (!defined $indexes{$_});
             foreach my $index (@{$indexes{$_}}) {
                if ($date =~/$items{$index}{'idate'}/ ||
                    $date2=~/$items{$index}{'idate'}/ ||
@@ -1741,7 +1741,7 @@ sub listview_item {
    my $temphtml;
 
    my $colorstr='';
-   if (defined($eventcolors{${$r_item}{'eventcolor'}})) {
+   if (defined $eventcolors{${$r_item}{'eventcolor'}}) {
       $colorstr=qq|bgcolor="#$eventcolors{${$r_item}{'eventcolor'}}"|;
    }
 
@@ -1807,7 +1807,7 @@ sub edit_item {
    if ( readcalbook($calbookfile, \%items, \%indexes, 0)<0 ) {
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $calbookfile");
    }
-   if (! defined($items{$index}) ) {
+   if (!defined $items{$index}) {
       openwebmailerror(__FILE__, __LINE__, "$lang_text{'calendar'} $index $lang_err{'doesnt_exist'}");
       writelog("edit calitem error - item missing, index=$index");
       writehistory("edit calitem error - item missing, index=$index");
@@ -1841,7 +1841,7 @@ sub edit_item {
                                  message_id=>$messageid,
                                  action=>'calupdate',
                                  index=>$index);
-   $temphtml .= ow::tool::hiddens(callist=>'1') if (defined(param('callist')));
+   $temphtml .= ow::tool::hiddens(callist=>'1') if (defined param('callist'));
    $html =~ s/\@\@\@STARTFORM\@\@\@/$temphtml/;
 
    my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
@@ -2125,7 +2125,7 @@ sub edit_item {
                                  folder=>$escapedfolder,
                                  message_id=>$messageid,
                                  year=>$year);
-   if (defined(param('callist'))) {
+   if (defined param('callist')) {
       $temphtml .= ow::tool::hiddens(action=>'callist');
    } else {
       $temphtml .= ow::tool::hiddens(month=>$month,
@@ -2306,7 +2306,7 @@ sub del_item {
    if ( readcalbook($calbookfile, \%items, \%indexes, 0)<0 ) {
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $calbookfile");
    }
-   return if (! defined($items{$index}) );
+   return if (!defined $items{$index});
 
    delete $items{$index};
    if ( writecalbook($calbookfile, \%items) <0 ) {
@@ -2451,7 +2451,7 @@ sub update_item {
    if ( readcalbook($calbookfile, \%items, \%indexes, 0)<0 ) {
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $calbookfile");
    }
-   if (! defined($items{$index}) ) {
+   if (!defined $items{$index}) {
       openwebmailerror(__FILE__, __LINE__, "$lang_text{'calendar'} $index $lang_err{'doesnt_exist'}");
       writelog("update calitem error - item missing, index=$index");
       writehistory("update calitem error - item missing, index=$index");
@@ -2531,13 +2531,13 @@ sub hourmin2str {
 sub formatted_date {
    my ($year, $month, $day, $wday)=@_;
    my $fmtstr;
-   if (defined($wday)) {
+   if (defined $wday) {
       $fmtstr=$lang_text{'calfmt_yearmonthdaywday'};
-   } elsif (defined($day)) {
+   } elsif (defined $day) {
       $fmtstr=$lang_text{'calfmt_yearmonthday'};
-   } elsif (defined($month)) {
+   } elsif (defined $month) {
       $fmtstr=$lang_text{'calfmt_yearmonth'};
-   } elsif (defined($year)) {
+   } elsif (defined $year) {
       $fmtstr=$lang_text{'calfmt_year'};
    } else {
       return("");
@@ -2546,7 +2546,7 @@ sub formatted_date {
    $fmtstr=~s/\@\@\@MONTH_STR\@\@\@/$lang_month{$month}/ if ($month);
    $fmtstr=~s/\@\@\@DAY\@\@\@/$day/ if ($day);
 
-   if (defined($wday)) {
+   if (defined $wday) {
       my $wdaystr=$lang_wday{$wday};
       if ($wday==0) {
          $wdaystr=qq|<font color=#cc0000>$wdaystr</font>|; # sunday

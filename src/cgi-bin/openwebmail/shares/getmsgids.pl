@@ -178,7 +178,7 @@ sub search_info_messages_for_keyword {
             my @references=split(/\s+/, $attr[$_REFERENCES]);
             foreach my $refid (@references) {
                # if a msg is already in %found, then we put all msgs it references in %found
-               $found{$refid}=1 if ($found{$messageid} && defined($FDB{$refid}));
+               $found{$refid}=1 if ($found{$messageid} && defined $FDB{$refid});
                # if a msg references any member in %found, thn we put this msg in %found
                $found{$messageid}=1 if ($found{$refid});
             }
@@ -339,7 +339,7 @@ sub get_messageids_sorted {
    my $messagedepths_size;
    my $rev;
 
-   if (defined($sorttype{$sort})) {
+   if (defined $sorttype{$sort}) {
       ($sort, $rev)=@{$sorttype{$sort}};
    } else {
       ($sort, $rev)= ('date', 0);
@@ -526,7 +526,7 @@ sub get_messageids_sorted_by_subject {
       my @parents = reverse split(/ /, ${${$r_msgid2attrs}{$key}}[1]); # most nearby first
       my $parent = "ROOT.nonexist";	# this should be a string that would never be used as a messageid
       foreach my $id (@parents) {
-         if ( defined($subject{$id}) ) {
+         if (defined $subject{$id}) {
  	    $parent = $id;
 	    last;
          }
@@ -587,7 +587,7 @@ sub _recursively_thread {
 
    push @{$r_message_ids}, $id;
    push @{$r_message_depths}, $depth;
-   if (defined(${$r_thread_children}{$id})) {
+   if (defined ${$r_thread_children}{$id}) {
       my @children = sort { ${$r_date}{$a} <=> ${$r_date}{$b}; } @{${$r_thread_children}{$id}};
       foreach my $thread (@children) {
          _recursively_thread ($thread, $depth+1,

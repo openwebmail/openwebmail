@@ -56,12 +56,12 @@ my $quiet=0;
 ########## MAIN ##################################################
 my %param=ReadParse();
 
-if (defined($ENV{'GATEWAY_INTERFACE'})) {	# CGI mode
+if (defined $ENV{'GATEWAY_INTERFACE'}) {	# CGI mode
    local $|=1;
    print qq|Content-type: text/html\n\n|.
          qq|<html><body>\n|.
          qq|<h2>Open WebMail Preload Page</h2>\n|;
-   if (defined($param{'password'}) &&
+   if (defined $param{'password'} &&
        crypt($param{'password'},$cgipwd) eq $cgipwd){
       print qq|<pre>\n|;
       preload($quiet, $httphost, $httpport, $cgiurl, @scripts);
@@ -70,7 +70,7 @@ if (defined($ENV{'GATEWAY_INTERFACE'})) {	# CGI mode
             qq|<input type="submit" name=" Clear " value=" Clear " />\n|.
             qq|</form>\n|;
    } else {
-      sleep 8 if (defined($param{'password'}));
+      sleep 8 if (defined $param{'password'});
       print qq|<form method="post" action="/cgi-bin/openwebmail/preload.pl" enctype="application/x-www-form-urlencoded">\n|.
             qq|Access Password : \n|.
             qq|<input type="password" name="password"  size="16" />\n|.
@@ -148,7 +148,7 @@ sub ReadParse {
    foreach (split(/&/, $string)) {
       s|[^\-a-zA-Z0-9_\.@=/+\/\,\(\)!\s]|_|g;		# rm bad char
       my ($key, $val)=split(/=/, $_, 2);		# split into key and value.
-      $param{$key} .= '\0' if (defined($param{$key}));	# \0 is multiple separator
+      $param{$key} .= '\0' if (defined $param{$key});	# \0 is multiple separator
       $param{$key} .= $val;
    }
    return %param;

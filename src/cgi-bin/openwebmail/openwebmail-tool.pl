@@ -357,7 +357,7 @@ sub do_test {
 
    $logindomain=$default_logindomain||ow::tool::hostname();
    $logindomain=lc(safedomainname($logindomain));
-   $logindomain=$config{'domainname_equiv'}{'map'}{$logindomain} if (defined($config{'domainname_equiv'}{'map'}{$logindomain}));
+   $logindomain=$config{'domainname_equiv'}{'map'}{$logindomain} if (defined $config{'domainname_equiv'}{'map'}{$logindomain});
    if ( -f "$config{'ow_sitesconfdir'}/$logindomain") {
       read_owconf(\%config, \%config_raw, "$config{'ow_sitesconfdir'}/$logindomain");
       print "D readconf $config{'ow_sitesconfdir'}/$logindomain\n" if ($opt{'debug'});
@@ -691,7 +691,7 @@ sub allusers {
 
    my $logindomain=$default_logindomain||ow::tool::hostname();
    $logindomain=lc(safedomainname($logindomain));
-   $logindomain=$config{'domainname_equiv'}{'map'}{$logindomain} if (defined($config{'domainname_equiv'}{'map'}{$logindomain}));
+   $logindomain=$config{'domainname_equiv'}{'map'}{$logindomain} if (defined $config{'domainname_equiv'}{'map'}{$logindomain});
    print "D found default domain $logindomain\n" if ($opt{'debug'});
 
    # if there's localusers defined for vdomain,
@@ -809,7 +809,7 @@ sub usertool {
       $logindomain=lc(safedomainname($logindomain));
       print "D loginuser=$loginuser, logindomain=$logindomain\n" if ($opt{'debug'});
 
-      if (defined($config{'domainname_equiv'}{'map'}{$logindomain})) {
+      if (defined $config{'domainname_equiv'}{'map'}{$logindomain}) {
          $logindomain=$config{'domainname_equiv'}{'map'}{$logindomain};
          print "D logindomain equiv to $logindomain\n" if ($opt{'debug'});
       }
@@ -878,7 +878,7 @@ sub usertool {
          print "D homedir is /, skipped!\n" if ($opt{'debug'});
       }
 
-      if (defined($homedir_processed{$homedir})) {
+      if (defined $homedir_processed{$homedir}) {
          print "D $loginname homedir already processed, skipped!\n" if ($opt{'debug'});
          next;
       }
@@ -1336,8 +1336,8 @@ sub checknewevent {
    }
 
    my @indexlist=();
-   push(@indexlist, @{$indexes{$date}}) if (defined($indexes{$date}));
-   push(@indexlist, @{$indexes{'*'}})   if (defined($indexes{'*'}));
+   push(@indexlist, @{$indexes{$date}}) if (defined $indexes{$date});
+   push(@indexlist, @{$indexes{'*'}})   if (defined $indexes{'*'});
    @indexlist=sort { ($items{$a}{'starthourmin'}||1E9)<=>($items{$b}{'starthourmin'}||1E9) } @indexlist;
 
    for my $index (@indexlist) {
@@ -1412,8 +1412,8 @@ sub checknotify {
    }
 
    my @indexlist=();
-   push(@indexlist, @{$indexes{$date}}) if (defined($indexes{$date}));
-   push(@indexlist, @{$indexes{'*'}})   if (defined($indexes{'*'}));
+   push(@indexlist, @{$indexes{$date}}) if (defined $indexes{$date});
+   push(@indexlist, @{$indexes{'*'}})   if (defined $indexes{'*'});
    @indexlist=sort { ($items{$a}{'starthourmin'}||1E9)<=>($items{$b}{'starthourmin'}||1E9) } @indexlist;
 
    my $future_items=0;
@@ -1437,7 +1437,7 @@ sub checknotify {
             $itemstr.=(iconv($items{$index}{'charset'}, $prefs{'charset'}, $items{$index}{'string'}))[0]."\n";
             $itemstr.=$items{$index}{'link'}."\n" if ($items{$index}{'link'});
 
-            if (defined($message{$items{$index}{'email'}})) {
+            if (defined $message{$items{$index}{'email'}}) {
                $message{$items{$index}{'email'}} .= $itemstr;
             } else {
                $message{$items{$index}{'email'}} = $itemstr;

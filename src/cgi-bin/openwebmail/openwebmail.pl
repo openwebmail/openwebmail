@@ -145,7 +145,7 @@ sub loginmenu {
    $logindomain=param('logindomain')||lc($ENV{'HTTP_HOST'});
    $logindomain=~s/:\d+$//;	# remove port number
    $logindomain=lc(safedomainname($logindomain));
-   $logindomain=$config{'domainname_equiv'}{'map'}{$logindomain} if (defined($config{'domainname_equiv'}{'map'}{$logindomain}));
+   $logindomain=$config{'domainname_equiv'}{'map'}{$logindomain} if (defined $config{'domainname_equiv'}{'map'}{$logindomain});
 
    matchlist_exact('allowed_serverdomain', $logindomain) or
       openwebmailerror(__FILE__, __LINE__, "Service is not available for domain  '$logindomain'");

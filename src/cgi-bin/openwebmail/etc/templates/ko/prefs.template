@@ -274,6 +274,11 @@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REPLYWITHORIGMSGMENU@@@
 </td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Automatic CC:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@AUTOCCFIELD@@@
+</td></tr>
 @@@BACKUPSENTSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>보내는 메시지 보낸 편지함에 저장:</B>

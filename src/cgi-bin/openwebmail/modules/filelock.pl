@@ -33,7 +33,7 @@ use vars qw(%opentable);
 # this should be called at the end of each request to free the file handles
 sub closeall {
    foreach (keys %opentable) {
-      close($opentable{$_}{fh}) if ( defined(fileno($opentable{$_}{fh})) );
+      close($opentable{$_}{fh}) if (defined fileno($opentable{$_}{fh}));
    }
    %opentable=();
 }
@@ -53,14 +53,14 @@ sub flock_lock {
       ($dev, $inode)=(stat($filename))[0,1];
       return 0 if ($dev eq '' || $inode eq '');
 
-      if (defined($opentable{"$dev-$inode"}) ) {
+      if (defined $opentable{"$dev-$inode"}) {
          $fh=$opentable{"$dev-$inode"}{fh};
          $retval=flock($fh, LOCK_UN);
          if ($retval) {
             $opentable{"$dev-$inode"}{n}--;
             if ($opentable{"$dev-$inode"}{n}==0) {
                delete($opentable{"$dev-$inode"});
-               close($fh) if ( defined(fileno($fh)) );
+               close($fh) if (defined fileno($fh));
             }
          }
       } else {
@@ -78,7 +78,7 @@ sub flock_lock {
    ($dev, $inode)=(stat($filename))[0,1];
    return 0 if ($dev eq '' || $inode eq '');
 
-   if (!defined($opentable{"$dev-$inode"}) ) {
+   if (!defined $opentable{"$dev-$inode"}) {
       $fh=do { local *FH };
       if (sysopen($fh, $filename, O_RDWR) ||	# try RDWR open first
           sysopen($fh, $filename, O_RDONLY) ) {	# then RDONLY for readonly file

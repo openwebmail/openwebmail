@@ -11,7 +11,7 @@ $Carp::MaxArgNums = 0; # return all args in Carp output
 
 use vars qw(%_bincache);
 sub findbin {
-   return $_bincache{$_[0]} if (defined($_bincache{$_[0]}));
+   return $_bincache{$_[0]} if (defined $_bincache{$_[0]});
    foreach my $p ('/usr/local/bin', '/usr/bin', '/bin', '/usr/X11R6/bin/', '/opt/bin') {
       return($_bincache{$_[0]}="$p/$_[0]") if (-x "$p/$_[0]");
    }
@@ -20,7 +20,7 @@ sub findbin {
 
 use vars qw(%_sbincache);
 sub findsbin {
-   return $_sbincache{$_[0]} if (defined($_sbincache{$_[0]}));
+   return $_sbincache{$_[0]} if (defined $_sbincache{$_[0]});
    foreach my $p ('/usr/local/sbin', '/usr/sbin', '/sbin', '/usr/X11R6/sbin/', '/opt/sbin') {
       return($_sbincache{$_[0]}="$p/$_[0]") if (-x "$p/$_[0]");
    }
@@ -120,9 +120,9 @@ sub hostname {
 
 sub clientip {
    my $clientip;
-   if (defined($ENV{'HTTP_CLIENT_IP'})) {
+   if (defined $ENV{'HTTP_CLIENT_IP'}) {
       $clientip=$ENV{'HTTP_CLIENT_IP'};
-   } elsif (defined($ENV{'HTTP_X_FORWARDED_FOR'}) &&
+   } elsif (defined $ENV{'HTTP_X_FORWARDED_FOR'} &&
             $ENV{'HTTP_X_FORWARDED_FOR'} !~ /^(?:10\.|172\.(?:1[6-9]|2[0-9]|3[0-1])\.|192\.168\.|127\.0\.)/ ) {
       $clientip=(split(/,/,$ENV{'HTTP_X_FORWARDED_FOR'}))[0];
    } else {
@@ -134,7 +134,7 @@ sub clientip {
 use vars qw(%_has_module_err);
 sub has_module {
    my $module=$_[0];
-   return 1 if (defined($INC{$module}));
+   return 1 if (defined $INC{$module});
    return 0 if ($_has_module_err{$module});
    eval { require $module; };	# test module existance and load if it exists
    if ($@) {
@@ -164,7 +164,7 @@ sub calc_checksum {
 # so we borrow the 2 routines from 2.xx version of CGI.pm
 sub unescapeURL {
     my $todecode = shift;
-    return undef if (!defined($todecode));
+    return undef if (!defined $todecode);
     $todecode =~ tr/+/ /;       # pluses become spaces
     $todecode =~ s/%([0-9a-fA-F]{2})/pack("c",hex($1))/ge;
     return $todecode;
@@ -172,7 +172,7 @@ sub unescapeURL {
 
 sub escapeURL {
     my $toencode = shift;
-    return undef if (!defined($toencode));
+    return undef if (!defined $toencode);
     $toencode=~s/([^a-zA-Z0-9_.-])/uc sprintf("%%%02x",ord($1))/eg;
     return $toencode;
 }

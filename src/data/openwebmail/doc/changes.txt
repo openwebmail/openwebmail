@@ -1,3 +1,12 @@
+01/29/2005
+----------
+1. support autuo cc feature
+   (suggested by Dominique, dominique.fournier.AT.grenoble.cnrs.fr)
+2. new mirror site at Khonkaen, Thailand
+   http://openwebmail.nameserver.in.th/
+   (thanks to Buagern Buataitom, buagern.AT.hotmail.com)
+
+
 01/28/2005
 ----------
 1. Dutch language file translation update

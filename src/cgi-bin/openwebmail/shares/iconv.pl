@@ -102,7 +102,7 @@ use vars qw(%charset_convlist %charset_equiv %charset_localname);
 sub official_charset {
    my $charset=lc($_[0]);
    $charset=~s/iso_?8859/iso\-8859/;
-   $charset=$charset_equiv{$charset} if (defined($charset_equiv{$charset}));
+   $charset=$charset_equiv{$charset} if (defined $charset_equiv{$charset});
    return $charset;
 }
 
@@ -197,8 +197,8 @@ use vars qw(%localname_cache); %localname_cache=();
 sub iconv_open {
    my ($from, $to)=@_;
 
-   if (defined($localname_cache{$from}) &&
-       defined($localname_cache{$to}) ) {
+   if (defined $localname_cache{$from} &&
+       defined $localname_cache{$to}) {
       return(Text::Iconv->new($localname_cache{$from}, $localname_cache{$to}));
    }
 

@@ -238,13 +238,13 @@ sub _folderline {
    if (ow::dbm::exist("$folderdb")) {
       ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} db ".f2u($folderdb));
-      if ( defined($FDB{'ALLMESSAGES'}) ) {
+      if (defined $FDB{'ALLMESSAGES'}) {
          $allmessages=$FDB{'ALLMESSAGES'};
          ${$r_total_allmessages}+=$allmessages;
       } else {
          $allmessages='&nbsp;';
       }
-      if ( defined($FDB{'NEWMESSAGES'}) ) {
+      if (defined $FDB{'NEWMESSAGES'}) {
          $newmessages=$FDB{'NEWMESSAGES'};
          ${$r_total_newmessages}+=$newmessages;
       } else {

@@ -111,7 +111,7 @@ sub parse_rfc822block {
             } elsif ($searchid eq "$nodeid-$i" || $searchid=~/^$nodeid-$i-/) {
                my $r_attachments2=parse_attblock($r_block, $attblockstart, $nextboundarystart-$attblockstart, $subtype, $boundary, "$nodeid-$i", $searchid);
                push(@attachments, @{$r_attachments2});
-               if (defined(${${$r_attachments2}[0]}{'content-type'}) &&
+               if (defined ${${$r_attachments2}[0]}{'content-type'} &&
                    ${${$r_attachments2}[0]}{'content-type'} =~ /^text\/html/i ) {
                   $search_html_related_att=1;	# to gather inlined attachment info for this html
                } else {
@@ -295,7 +295,7 @@ sub parse_attblock {
             } elsif ( $searchid eq "$nodeid-$i" || $searchid=~/^$nodeid-$i-/ ) {
                my $r_attachments2=parse_attblock($r_buff, $subattblockstart, $nextboundarystart-$subattblockstart, $subtype, $boundary, "$nodeid-$i", $searchid);
                push(@attachments, @{$r_attachments2});
-               if (defined(${${$r_attachments2}[0]}{'content-type'}) &&
+               if (defined ${${$r_attachments2}[0]}{'content-type'} &&
                    ${${$r_attachments2}[0]}{'content-type'} =~ /^text\/html/i ) {
                   $search_html_related_att=1;	# to gather inlined attachment info for this html
                } else {
@@ -534,7 +534,7 @@ sub get_smtprelays_connectfrom_byas_from_header {
          next if ($value=~/^ \(.+?\)/);
 
          if ($value=~/ by\s+(\S+)/i) {
-           $smtprelays[0]=$1 if (!defined($smtprelays[0]));	# the last relay on path
+           $smtprelays[0]=$1 if (!defined $smtprelays[0]);	# the last relay on path
            $byas{$smtprelays[0]}=$1;
          }
          if ($value=~/ from\s+(\S+)\s+\((.+?) \(.*?\)\)/i ||

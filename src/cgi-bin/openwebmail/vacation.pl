@@ -117,7 +117,7 @@ my ($opt_i, $opt_d, $opt_j, $home_path)=(0,0,0,0);
 
 ########## MAIN ##################################################
 
-if (defined($ENV{'GATEWAY_INTERFACE'})) {	# cgi mode
+if (defined $ENV{'GATEWAY_INTERFACE'}) {	# cgi mode
    my $clientip=clientip();
    my $info=$ENV{'HTTP_ACCEPT_LANGUAGE'}; $info.=', ' if ($info ne '');
    $info.=$ENV{'HTTP_USER_AGENT'}; $info=" ($info)" if ($info ne '');
@@ -127,7 +127,7 @@ if (defined($ENV{'GATEWAY_INTERFACE'})) {	# cgi mode
 }
 
 # parse options, handle initialization or interactive mode
-while (defined($ARGV[0]) && $ARGV[0] =~ /^-/) {
+while (defined $ARGV[0] && $ARGV[0] =~ /^-/) {
    $_ = shift;
    if (/^-I/i) {  # eric allman's source has both cases
       $opt_i=1;
@@ -576,9 +576,9 @@ sub _decode_Q {
 
 sub clientip {
    my $clientip;
-   if (defined($ENV{'HTTP_CLIENT_IP'})) {
+   if (defined $ENV{'HTTP_CLIENT_IP'}) {
       $clientip=$ENV{'HTTP_CLIENT_IP'};
-   } elsif (defined($ENV{'HTTP_X_FORWARDED_FOR'}) &&
+   } elsif (defined $ENV{'HTTP_X_FORWARDED_FOR'} &&
             $ENV{'HTTP_X_FORWARDED_FOR'} !~ /^(?:10\.|172\.(?:1[6-9]|2[0-9]|3[0-1])\.|192\.168\.|127\.0\.)/ ) {
       $clientip=(split(/,/,$ENV{'HTTP_X_FORWARDED_FOR'}))[0];
    } else {

@@ -104,7 +104,7 @@ $escapedmessageid = ow::tool::escapeURL($messageid);
 $escapedkeyword = ow::tool::escapeURL($keyword);
 
 # addressbook globals
-if (defined(param('abookfolder')) && param('abookfolder') ne "") {
+if (defined param('abookfolder') && param('abookfolder') ne "") {
    # unescape just in case if this parm is returned in escaped form
    $abookfolder = ow::tool::unescapeURL(param('abookfolder'));
 } else {
@@ -115,9 +115,9 @@ $abookpage = param('abookpage') || 1;
 $abooklongpage = param('abooklongpage') || 0;
 $abooksort = param('abooksort') || $prefs{'abook_sort'} || 'fullname';
 $abooksearchtype = $prefs{'abook_defaultfilter'}?$prefs{'abook_defaultsearchtype'}:undef;
-$abooksearchtype = param('abooksearchtype') if defined(param('abooksearchtype'));
+$abooksearchtype = param('abooksearchtype') if (defined param('abooksearchtype'));
 $abookkeyword = $prefs{'abook_defaultfilter'}?$prefs{'abook_defaultkeyword'}:undef;
-$abookkeyword = ow::tool::unescapeURL(param('abookkeyword')) if defined(param('abookkeyword'));
+$abookkeyword = ow::tool::unescapeURL(param('abookkeyword')) if (defined param('abookkeyword'));
 $keyword=ow::tool::unescapeURL($keyword);
 $abookcollapse = param('abookcollapse');
 $abookcollapse = $prefs{'abook_collapse'} if (!defined $abookcollapse);
@@ -609,7 +609,7 @@ sub addrlistview {
               );
 
    # setup the search terms
-   if ($abooksearchtype ne '' && defined($abookkeyword) && $abookkeyword ne '' && $abookkeyword !~ m/^\s+$/) {
+   if ($abooksearchtype ne '' && defined $abookkeyword && $abookkeyword ne '' && $abookkeyword !~ m/^\s+$/) {
       if ($vcardmapping{$abooksearchtype} eq 'N') {
          $searchterms{$vcardmapping{$abooksearchtype}}[0]{VALUE}{$Nmap{$abooksearchtype}} = $abookkeyword;
       } elsif ($vcardmapping{$abooksearchtype} eq 'CATEGORIES') {
@@ -2174,11 +2174,11 @@ sub addreditform {
    my @ctlist=($composecharset);
    my %allsets;
    foreach (values %ow::lang::languagecharsets, keys %charset_convlist) {
-      $allsets{$_}=1 if (!defined($allsets{$_}));
+      $allsets{$_}=1 if (!defined $allsets{$_});
    }
    delete $allsets{$composecharset};
 
-   if (defined($charset_convlist{$composecharset})) {
+   if (defined $charset_convlist{$composecharset}) {
       foreach my $ct (sort @{$charset_convlist{$composecharset}}) {
          if (is_convertible($composecharset, $ct)) {
             $ctlabels{$ct}="$composecharset > $ct";
@@ -3104,12 +3104,12 @@ sub addreditform_merge_nested {
       }
    } elsif (ref($r_source) eq 'ARRAY') {
       for(my $pos=0;$pos<@{$r_source};$pos++) {
-         if (defined($r_source->[$pos])) {
-            if (!defined($r_target->[$pos])) { # no danger of array overwrite
+         if (defined $r_source->[$pos]) {
+            if (!defined $r_target->[$pos]) { # no danger of array overwrite
                $r_target->[$pos] = $r_source->[$pos];
             }
          } else {
-            if (defined($r_target->[$pos])) {
+            if (defined $r_target->[$pos]) {
                next; # preserve the value in the target
             } else {
                $r_target->[$pos] = $r_source->[$pos];
@@ -3287,7 +3287,7 @@ sub addredit {
       #################################################
       print "<pre>GOING TO THE ADDREDITFORM via FORMCHANGE\n</pre>" if $addrdebug;
       addreditform();
-   } elsif (defined(param('EDITFORMUPLOAD')) ||      # user press 'add' button
+   } elsif (defined param('EDITFORMUPLOAD') ||      # user press 'add' button
                     param('webdisksel') ) {          # file selected from webdisk
 
       #################################################
@@ -3397,7 +3397,7 @@ sub addredit {
             $attname =~ s|^.*/||;       # unix path
             $attname =~ s|^.*:||;       # mac path and dos drive
 
-            if (defined(uploadInfo($attachment))) {
+            if (defined uploadInfo($attachment)) {
                $attcontenttype = ${uploadInfo($attachment)}{'Content-Type'} || 'application/octet-stream';
             } else {
                $attcontenttype = 'application/octet-stream';

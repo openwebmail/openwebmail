@@ -108,30 +108,30 @@ my $form = param('form')||'';
 my $field = param('field')||'';
 my $dictionary = param('dictionary') || $prefs{'dictionary'} || 'english';
 my $dicletters=$dictionary_letters{'english'};
-$dicletters=$dictionary_letters{$dictionary} if (defined($dictionary_letters{$dictionary}));
+$dicletters=$dictionary_letters{$dictionary} if (defined $dictionary_letters{$dictionary});
 
 my $spellbin=(split(/\s+/, $config{'spellcheck'}))[0];
 if (! -x $spellbin) {
    openwebmailerror(__FILE__, __LINE__, "Spellcheck is not available.<br>( $spellbin not found )");
 }
 
-if (defined(param('string'))) {
+if (defined param('string')) {
    my ($wordcount, $wordframe, @words)=text2words($htmlmode, param('string')||'', $dicletters);
    my ($wordshtml, $error)=spellcheck_words2html($htmlmode, $wordcount, \$wordframe, \@words, $dictionary);
    docheckform($htmlmode, $form, $field, $dictionary, $wordshtml, $error, $wordcount, $wordframe);
 
-} elsif (defined(param('checkagainbutton'))) {
+} elsif (defined param('checkagainbutton')) {
    my ($wordcount, $wordframe, @words)=cgiparam2words();
    my ($wordshtml, $error)=spellcheck_words2html($htmlmode, $wordcount, \$wordframe, \@words, $dictionary);
    docheckform($htmlmode, $form, $field, $dictionary, $wordshtml, $error, $wordcount, $wordframe);
 
-} elsif (defined(param('finishcheckingbutton'))) {
+} elsif (defined param('finishcheckingbutton')) {
    my ($wordcount, $wordframe, @words)=cgiparam2words();
    spellcheck_words2html($htmlmode, $wordcount, \$wordframe, \@words, $dictionary);	# for updating pdict
    my $finalstring=words2text(\$wordframe, \@words, $dicletters);
    finalform($form, $field, $finalstring);
 
-} elsif (defined(param('editpdictbutton'))) {
+} elsif (defined param('editpdictbutton')) {
    editpdict(param('dictword2delete')||'', $dictionary);
 
 } else {
@@ -167,7 +167,7 @@ sub docheckform {
                                  wordframe=>ow::htmltext::str2html($wordframe));
    $html =~ s/\@\@\@STARTSPELLCHECKFORM\@\@\@/$temphtml/;
 
-   if ( defined(param('checkagainbutton')) ) {
+   if (defined param('checkagainbutton')) {
       $temphtml = button(-name=>'backbutton',
                          -value=>$lang_err{'back'},
                          -onclick=>'window.history.back();',
@@ -176,7 +176,7 @@ sub docheckform {
       $temphtml = "";
    }
    if ($error>0) {
-      $temphtml .= "&nbsp;&nbsp;" if (defined(param('checkagainbutton')));
+      $temphtml .= "&nbsp;&nbsp;" if (defined param('checkagainbutton'));
       $temphtml .= submit(-name=>'checkagainbutton',
                           -value=>$lang_text{'checkagain'},
                           -override=>'1');
@@ -377,7 +377,7 @@ sub _word2label {
    my ($word, $wordignore, $r_wordcount, $r_words, $r_wordnums)=@_;
    return($word) if ($memdic{lc($word)} || $wordignore=~/\Q$word\E/i ||
                      $word =~/^WORD/ || $word =~/^TAG/);
-   return('%%WORD'.${$r_wordnums}{$word}.'%%') if (defined(${$r_wordnums}{$word}));
+   return('%%WORD'.${$r_wordnums}{$word}.'%%') if (defined ${$r_wordnums}{$word});
 
    my $label='%%WORD'.${$r_wordcount}.'%%';
    ${$r_words}[${$r_wordcount}]=$word;
@@ -395,9 +395,9 @@ sub cgiparam2words {
 
    my $newwordcount=0;
    for (my $i=0; $i<$wordcount; $i++) {
-      if (defined(param($i))) {
+      if (defined param($i)) {
          my $word=param($i);
-         if (!defined($wordnums{$word})) {
+         if (!defined $wordnums{$word}) {
             $words[$i]=$word;
             $wordnums{$word}=$i;
             $newwordcount=$i+1;
@@ -485,10 +485,10 @@ sub spellcheck_words2html {
       my $word=${$r_words}[$i];
       my $wordhtml='';
 
-      if (defined($dupwordhtml{$word})) {	# different symbo with duplicate word
+      if (defined $dupwordhtml{$word}) {	# different symbo with duplicate word
          $wordhtml=$dupwordhtml{$word};
 
-      } elsif (defined($pdicword{$word})) {	# words already put into pdic
+      } elsif (defined $pdicword{$word}) {	# words already put into pdic
          $wordhtml=$dupwordhtml{$word}=$word;
 
       } elsif ( $word=~/^~~/ ) {	# check if manualfix

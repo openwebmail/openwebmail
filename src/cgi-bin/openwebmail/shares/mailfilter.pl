@@ -375,7 +375,7 @@ sub filter_allmessageids {
                      $decoded_header=decode_mimewords_iconv($header, $attr[$_CHARSET]);
                      $decoded_header=~s/\s*\n\s+/ /sg; # concate folding lines
                   }
-                  if (!defined($msg{from})) { # this is defined after parse_header is called
+                  if (!defined $msg{from}) { # this is defined after parse_header is called
                      ow::mailparse::parse_header(\$decoded_header, \%msg);
                   }
                   if ($msg{$ruletype}=~/${$r_rule}[$_REGEX_TEXT]/
@@ -394,7 +394,7 @@ sub filter_allmessageids {
                   }
 
                } elsif ( $ruletype eq 'smtprelay' ) {
-                  if (!defined($r_smtprelays) ) {
+                  if (!defined $r_smtprelays) {
                      ($r_smtprelays, $r_connectfrom, $r_byas)=ow::mailparse::get_smtprelays_connectfrom_byas_from_header($header);
                   }
                   my $smtprelays;
@@ -415,7 +415,7 @@ sub filter_allmessageids {
                         $io_errcount++; $i--; next;
                      }
                   }
-                  if (!defined(@{$r_attachments})) {
+                  if (!defined @{$r_attachments}) {
                      ($header, $body, $r_attachments)=ow::mailparse::parse_rfc822block(\$currmessage);
                   }
 
@@ -479,7 +479,7 @@ sub filter_allmessageids {
                         $io_errcount++; $i--; next;
                      }
                   }
-                  if (!defined(@{$r_attachments})) {
+                  if (!defined @{$r_attachments}) {
                      ($header, $body, $r_attachments)=ow::mailparse::parse_rfc822block(\$currmessage);
                   }
                   # check attachments
@@ -648,11 +648,11 @@ sub filter_allmessageids {
             # filter message from smtprelay with faked name if msg is not moved or deleted
             if ( ${$r_prefs}{'filter_fakedsmtp'} &&
                 !$reserved_in_folder && !$to_be_moved ) {
-               if (!defined($r_smtprelays) ) {
+               if (!defined $r_smtprelays) {
                   ($r_smtprelays, $r_connectfrom, $r_byas)=ow::mailparse::get_smtprelays_connectfrom_byas_from_header($header);
                }
                # move msg to trash if the first relay has invalid/faked hostname
-               if ( defined(${$r_smtprelays}[0]) ) {
+               if (defined ${$r_smtprelays}[0]) {
                   my $relay=${$r_smtprelays}[0];
                   my $connectfrom=${$r_connectfrom}{$relay};
                   my $byas=${$r_byas}{$relay};
@@ -690,7 +690,7 @@ sub filter_allmessageids {
                      $io_errcount++; $i--; next;
                   }
                }
-               if (!defined(@{$r_attachments})) {
+               if (!defined @{$r_attachments}) {
                   ($header, $body, $r_attachments)=ow::mailparse::parse_rfc822block(\$currmessage);
                }
 
@@ -748,7 +748,7 @@ sub filter_allmessageids {
           ow::datetime::dateserial2gmtime($attr[$_DATE]) >= $repeatstarttime) {
          # store msgid with same '$from:$subject' to same array
          my $msgstr="$attr[$_FROM]:$attr[$_SUBJECT]";
-         if (!defined($repeatlists{$msgstr}) ) {
+         if (!defined $repeatlists{$msgstr}) {
             $repeatlists{$msgstr}=[];	# reference of null array
          }
          push (@{$repeatlists{$msgstr}}, $messageid_i);
@@ -884,7 +884,7 @@ sub append_filteredmsg_to_folder {
       return(-2, "Couldn't update index db $dstdb");
    }
    ow::dbm::open(\%FDB2, $dstdb, LOCK_EX) or return(-1, "$dstdb dbm open error");
-   if (!defined($FDB2{$messageid}) ) {	# append only if not found in dstfile
+   if (!defined $FDB2{$messageid}) {	# append only if not found in dstfile
       if (! open(DEST, "+<$dstfile")) {
          ow::dbm::close(\%FDB2, $dstdb);
          return(-1, "$dstfile write open error");

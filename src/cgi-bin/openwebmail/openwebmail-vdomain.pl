@@ -577,7 +577,7 @@ sub change_vuser {
    if ( $emailkey ) {
       if ( $alias ne $emailkey and $alias ne $vuser) {
          # alias entry needs additional edit checks.
-         if ( ! defined($from_list{$emailkey}) and $config{'vdomain_maxalias'} < ($#alias_list + 2) ) {
+         if ( ! defined $from_list{$emailkey} and $config{'vdomain_maxalias'} < ($#alias_list + 2) ) {
             $alert=$lang_err{'vdomain_toomanyalias'};
          } elsif ( valias_list_exists($vuser,$alias) ) {
              $alert="$alias\@$domain $lang_err{'already_exists'}";
@@ -736,7 +736,7 @@ sub change_vuser {
          # changed froms?
          if ($orig_realnm eq $realnm) {
             foreach (keys %from_list) {
-               if (! defined( $orig_from_list{$_} ) or $orig_from_list{$_} ne $from_list{$_} ) {
+               if (!defined $orig_from_list{$_} or $orig_from_list{$_} ne $from_list{$_} ) {
                   $match=0;
                   last;
                }
@@ -1015,7 +1015,7 @@ sub from_list {
 
    # add in the email aliases
    foreach ( valias_list($vuser) ){
-      $fromlist{"$_\@$domain"}='' if ( ! defined( $fromlist{"$_\@$domain"} ));
+      $fromlist{"$_\@$domain"}='' if (!defined $fromlist{"$_\@$domain"});
    }
    return $realnm,%fromlist;
 }

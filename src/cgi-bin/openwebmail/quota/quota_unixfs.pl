@@ -21,7 +21,7 @@ sub get_usage_limit {
    my ($r_config, $user, $homedir, $uptodate)=@_;
    return(-1, "$homedir doesn't exist") if (!-d $homedir);
    my $uid=getpwnam($user);
-   return (-1, "No such user") if (!defined($uid));
+   return (-1, "No such user") if (!defined $uid);
 
    # this routine doesn't care about the $uptodate flag
    # the usage/limit is directly from unixfs quota db everytime.
@@ -36,7 +36,7 @@ sub get_usage_limit {
    #}
 
    my ($bc,$bs) = (Quota::query($dev, $uid))[0,1];
-   if(!defined($bc)) { ; # not enough privilege to query
+   if(!defined $bc) { ; # not enough privilege to query
       # $!==3,  no quota for this user, return no limit instead of error
       return(0, "", 0, 0) if ($!==3);
       return(-2, Quota::strerr);

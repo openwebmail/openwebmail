@@ -178,7 +178,7 @@ sub getattachment {
             $r_attachment=${$r_attachments}[$i];
          }
       }
-      if (defined($r_attachment)) {
+      if (defined $r_attachment) {
          my $charset=${$r_attachment}{filenamecharset}||
                      ${$r_attachment}{charset}||
                      $convfrom||

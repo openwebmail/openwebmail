@@ -352,11 +352,11 @@ sub easter_match {
    return 0 unless ($year =~ /$fields[0]/);  # year matches?
 
    if ($idate =~ /easter/i) {
-      $_gregoria_cache{$year}=[gregorian_easter($year)] if (!defined($_gregoria_cache{$year}));
+      $_gregoria_cache{$year}=[gregorian_easter($year)] if (!defined $_gregoria_cache{$year});
       $fields[1] =~ s/easter/${$_gregoria_cache{$year}}[0]/i;	# month
       $fields[2] =~ s/easter/${$_gregoria_cache{$year}}[1]/i;	# day
    } elsif ($idate =~ /orthodox/i) {
-      $_orthodox_cache{$year}=[orthodox_easter($year)] if (!defined($_orthodox_cache{$year}));
+      $_orthodox_cache{$year}=[orthodox_easter($year)] if (!defined $_orthodox_cache{$year});
       $fields[1] =~ s/orthodox/${$_orthodox_cache{$year}}[0]/i;	# month
       $fields[2] =~ s/orthodox/${$_orthodox_cache{$year}}[1]/i;	# day
    } else {

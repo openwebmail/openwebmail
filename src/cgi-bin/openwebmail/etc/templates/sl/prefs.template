@@ -274,6 +274,11 @@ Tema:
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REPLYWITHORIGMSGMENU@@@
 </td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Automatic CC:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@AUTOCCFIELD@@@
+</td></tr>
 @@@BACKUPSENTSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Shrani poslana sporoèila v mapo POSLANA:</B>

@@ -82,8 +82,8 @@ $escapedfolder = ow::tool::escapeURL($folder);
 $escapedkeyword = ow::tool::escapeURL($keyword);
 
 if ($action eq "movemessage" ||
-    defined(param('movebutton')) ||
-    defined(param('copybutton')) ) {
+    defined param('movebutton') ||
+    defined param('copybutton') ) {
    my @messageids = param('message_ids');
    my $destination=ow::tool::unescapeURL(param('destination'));
    $destination=ow::tool::untaint(safefoldername($destination));
@@ -97,7 +97,7 @@ if ($action eq "movemessage" ||
                      qq|page=$page&amp;longpage=$longpage&amp;|.
                      qq|sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;|.
                      qq|compose_caller=main&amp;action=composemessage|;
-      if (defined(param('movebutton'))) {
+      if (defined param('movebutton')) {
          print redirect(-location=>"$send_url&amp;composetype=forwardids_delete");
       } else {
          print redirect(-location=>"$send_url&amp;composetype=forwardids");
@@ -108,7 +108,7 @@ if ($action eq "movemessage" ||
          my $headers = param('headers') || $prefs{'headers'} || 'simple';
          my $attmode = param('attmode') || 'simple';
          my $escapedmessageid=ow::tool::escapeURL(param('message_id')||'');
-         $escapedmessageid=ow::tool::escapeURL($messageids[0]) if (defined(param('copybutton'))); # copy button pressed, msg not moved
+         $escapedmessageid=ow::tool::escapeURL($messageids[0]) if (defined param('copybutton')); # copy button pressed, msg not moved
          print redirect(-location=>"$config{'ow_cgiurl'}/openwebmail-read.pl?sessionid=$thissession&folder=$escapedfolder&page=$page&longpage=$longpage&sort=$sort&keyword=$escapedkeyword&searchtype=$searchtype&message_id=$escapedmessageid&action=readmessage&headers=$headers&attmode=$attmode");
       } else {
          listmessages();
@@ -529,7 +529,7 @@ sub listmessages {
    foreach my $messnum ($firstmessage  .. $lastmessage) {
       $messageid=${$r_messageids}[$messnum-1];
       $messagedepth=${$r_messagedepths}[$messnum-1];
-      next if (! defined($FDB{$messageid}) );
+      next if (!defined $FDB{$messageid});
 
       $escapedmessageid = ow::tool::escapeURL($messageid);
       ($offset, $from, $to, $dateserial, $subject,
@@ -904,7 +904,7 @@ sub listmessages {
                  qq|//-->\n</script>\n|;
    }
    # show msgsent confirmation
-   if (defined(param('sentsubject')) && $prefs{'mailsentwindowtime'}>0) {
+   if (defined param('sentsubject') && $prefs{'mailsentwindowtime'}>0) {
       my $msg=qq|<font size="-1">$lang_text{'msgsent'}</font>|;
       my $sentsubject=param('sentsubject')||'N/A';
       $msg=~s!\@\@\@SUBJECT\@\@\@!$sentsubject!;
@@ -997,8 +997,8 @@ sub eventreminder_html {
       my $date2=sprintf("%04d,%02d,%02d,%s", $year,$month,$day,$dow);
 
       my @indexlist=();
-      push(@indexlist, @{$indexes{$date}}) if (defined($indexes{$date}));
-      push(@indexlist, @{$indexes{'*'}})   if (defined($indexes{'*'}));
+      push(@indexlist, @{$indexes{$date}}) if (defined $indexes{$date});
+      push(@indexlist, @{$indexes{'*'}})   if (defined $indexes{'*'});
       @indexlist=sort { ($items{$a}{'starthourmin'}||1E9)<=>($items{$b}{'starthourmin'}||1E9) } @indexlist;
 
       my $dayhtml="";
@@ -1113,10 +1113,10 @@ sub movemessage {
 
    my $op='move';
    if ($destination eq 'DELETE') {	# copy to DELETE is meaningless, so return
-      return if (defined(param('copybutton')));		# copy to delete =>nothing to do
+      return if (defined param('copybutton'));		# copy to delete =>nothing to do
       $op='delete';
    } else {
-      $op='copy' if (defined(param('copybutton')));	# copy button pressed
+      $op='copy' if (defined param('copybutton'));	# copy button pressed
    }
    if ($quotalimit>0 && $quotausage>$quotalimit && $op ne "delete") {
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'quotahit_alert'}");
