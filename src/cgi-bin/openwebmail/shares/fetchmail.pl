@@ -143,7 +143,7 @@ sub fetchmail {
          }
 
          $line=~s/\r//g; 			# remove \r
-         last if ($line eq ".\n" );		# end and exit while
+         last if ($line eq ".\n" );		# end and leave while
          push(@lines, $line); $msgsize+=length($line);
 
          if ($is_in_header) { # try to get msgfrom/msgdate/msgid in header

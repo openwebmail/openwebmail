@@ -64,6 +64,17 @@ package ow::no;
    off  => 'Av',
    );
 
+%lang_bgfilterthresholdlabels =
+   (
+     0 => 'No',
+     1 => 'Yes',
+    20 => 'Only if INBOX has more than 20 messages',
+    50 => 'Only if INBOX has more than 50 messages',
+   100 => 'Only if INBOX has more than 100 messages',
+   200 => 'Only if INBOX has more than 200 messages',
+   500 => 'Only if INBOX has more than 500 messages',
+   );
+
 %lang_prioritylabels =
    (
    normal      => 'Normal',

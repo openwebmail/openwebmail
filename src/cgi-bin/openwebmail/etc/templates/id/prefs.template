@@ -177,6 +177,11 @@ Otomatis Balas dengan Subjek:
 </td></tr>
 @@@AUTOPOP3END@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Put mail filter at background:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@BGFILTERTHRESHOLDMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Menunggu waktu untuk mem-<i>filter</i> email</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 (menunggu @@@BGFILTERWAITMENU@@@ detik)

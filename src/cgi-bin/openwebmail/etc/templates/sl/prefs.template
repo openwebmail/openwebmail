@@ -177,6 +177,11 @@ Tema:
 </td></tr>
 @@@AUTOPOP3END@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Put mail filter at background:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@BGFILTERTHRESHOLDMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Èas za filtriranje sporoèil v ozadju:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BGFILTERWAITMENU@@@ sekundi

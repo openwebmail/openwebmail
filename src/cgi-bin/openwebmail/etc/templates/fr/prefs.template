@@ -177,6 +177,11 @@ Sujet :
 </td></tr>
 @@@AUTOPOP3END@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Put mail filter at background:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@BGFILTERTHRESHOLDMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Temps d'attente pour le filtrage des mails en arrière plan :</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BGFILTERWAITMENU@@@ seconds

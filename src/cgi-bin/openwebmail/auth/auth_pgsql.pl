@@ -116,7 +116,7 @@ sub check_userpassword {
    if ($sth->rows eq 0) {
       $sth->finish;
       $dbh->disconnect or return(-3, "Disconnection failed: ".$DBI::errstr);
-      return (-4, "User $user doesn't exit");
+      return (-4, "User $user doesn't exist");
    } else {
       if (my $result = $sth->fetchrow_hashref()) {
          $sth->finish;

@@ -4,7 +4,6 @@
 
 use strict;
 use Fcntl qw(:DEFAULT :flock);
-use POSIX qw(:sys_wait_h);	# for WNOHANG in waitpid()
 
 # extern vars, defined in caller openwebmail-xxx.pl
 use vars qw($SCRIPT_DIR);
@@ -143,7 +142,8 @@ foreach (qw(
    ctrlposition_msgread headers usefixedfont usesmileicon
    disablejs disableembcode disableemblink showhtmlastext showimgaslink sendreceipt
    confirmmsgmovecopy defaultdestination smartdestination
-   viewnextaftermsgmovecopy autopop3 autopop3wait bgfilterwait moveoldmsgfrominbox
+   viewnextaftermsgmovecopy autopop3 autopop3wait
+   bgfilterthreshold bgfilterwait moveoldmsgfrominbox
    msgformat editcolumns editrows sendbuttonposition
    reparagraphorigmsg replywithorigmsg backupsentmsg sendcharset
    viruscheck_source viruscheck_maxsize viruscheck_minbodysize
@@ -183,20 +183,6 @@ foreach (qw(
 
 ########## CLEARVAR/ENDREQUEST/EXIT ##############################
 
-# routine to clean all zombie child processes
-sub zombie_cleaner {
-   while (waitpid(-1,WNOHANG)>0) {}
-}
-#
-# Note: zombie_cleaner is called at the begin/end of each request
-#
-# We don't put zombie_cleaner() into $SIG{CHLD} because
-# 1. if $SIG{CHLD} is set some signal handler, even a very simple one,
-#    we got "recursive call...,out of memory!" in httpd error log occasionally
-# 2. if $SIG{CHLD} is set to 'IGNORE', we got warning in system log
-#    "application bug: perl5.8.3 has SIGCHLD set to SIG_IGN but calls wait()..."
-#
-
 use vars qw($_vars_used);
 sub openwebmail_clearall {
    # clear opentable in filelock.pl
@@ -234,7 +220,7 @@ sub openwebmail_clearall {
 
 # routine used at CGI request begin
 sub openwebmail_requestbegin {
-#   zombie_cleaner();				# clear pending zombies
+#   ow::tool::zombie_cleaner();			# clear pending zombies
    openwebmail_clearall() if ($_vars_used);	# clear global
    $_vars_used=1;
 
@@ -244,7 +230,7 @@ sub openwebmail_requestbegin {
 
 # routine used at CGI request end
 sub openwebmail_requestend {
-   zombie_cleaner();				# clear pending zombies
+   ow::tool::zombie_cleaner();			# clear pending zombies
    openwebmail_clearall() if ($_vars_used);	# clear global
    $_vars_used=0;
    $persistence_count++;

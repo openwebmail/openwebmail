@@ -87,7 +87,7 @@ sub open {
          }
       }
 
-      last;	# default to exit the loop
+      last;	# default to leave the loop
    }
    ($dbm_errno, $dbm_errmsg)=(-4 , $openerror);
    return 0;

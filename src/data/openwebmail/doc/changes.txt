@@ -1,3 +1,15 @@
+12/24/2004
+----------
+1. fix a minor bug in mailfilter.pl that the filter.check file was not updated
+   after folder is changed by mailfilter itself, which caused the mailfilter
+   does one more message status scan of all messages in the folder next time.
+2. add option bgfilterthreshold to the user preference so user can
+   determine whether the mail filter should be put into background
+   based on the message count in INBOX folder
+3. Polish language and template files translation update
+   (thanks to Pawel Foremski, pjf.AT.gna.org)
+
+
 12/23/2004
 ----------
 1. call charset() after loadlang to set the charset for CGI module to fix

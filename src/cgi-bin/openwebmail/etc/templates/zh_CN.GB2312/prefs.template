@@ -177,6 +177,11 @@
 </td></tr>
 @@@AUTOPOP3END@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>在背景进行信件过滤:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@BGFILTERTHRESHOLDMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>等待邮件后台过滤时间：</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BGFILTERWAITMENU@@@ 秒

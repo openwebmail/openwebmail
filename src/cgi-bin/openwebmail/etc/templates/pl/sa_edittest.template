@@ -1,7 +1,7 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>Edit Spamassassin Test Rules</b></font>
+<b>SpamAssassin - edycja regu³ testuj±cych</b></font>
 </td></tr>
 <tr><td bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
@@ -12,29 +12,29 @@
 
 <table bgcolor=@@@TABLEROW_DARK@@@ border="0" cellspacing="1" cellpadding="2" align="center" width="100%">
 @@@STARTADDTESTFORM@@@
-<tr><td><B>TestName:</B></td>
-<td colspan="2">@@@TESTNAMEFIELD@@@&nbsp;(letters, digits & underline only)</td></tr>
-<tr><td><B>Description:</B></td>
+<tr><td><B>Nazwa testu:</B></td>
+<td colspan="2">@@@TESTNAMEFIELD@@@&nbsp;(tylko litery, cyfry i znaki podkre¶lenia)</td></tr>
+<tr><td><B>Opis:</B></td>
 <td colspan="2">@@@TESTDESCFIELD@@@</td></tr>
 
-<tr><td><B>TestType:</B></td>
+<tr><td><B>Typ testu:</B></td>
 <td colspan="2">
 <table border="0" cellpadding="0" cellspacing="0"><tr>
 <td>@@@TESTTYPEMENU@@@</td>
 <td>
 <div id="headerdiv" style="position:relative; visibility:visible;" width="100%" height="100%">
 <table border="0" cellpadding="0" cellspacing="0"><tr>
-<td>Attr&nbsp;</td><td>@@@HEADERATTRMENU@@@</td><td>@@@HEADERATTRFIELD@@@</td><td>@@@OPMENU@@@</td>
+<td>Atr&nbsp;</td><td>@@@HEADERATTRMENU@@@</td><td>@@@HEADERATTRFIELD@@@</td><td>@@@OPMENU@@@</td>
 </tr></table>
 </div>
 </td>
 </tr></table>
 </td></tr>
 
-<tr><td><B>Expression:</B></td>
-<td colspan="2">@@@PATTERNFIELD@@@ &nbsp; Ignore Case@@@IGNORECASECHECKBOX@@@ &nbsp; SingleLine Match@@@SINGLELINECHECKBOX@@@</td></tr>
+<tr><td><B>Wyra¿enie:</B></td>
+<td colspan="2">@@@PATTERNFIELD@@@ &nbsp; Ignoruj rozmiar liter@@@IGNORECASECHECKBOX@@@ &nbsp; Pojedyncza linia@@@SINGLELINECHECKBOX@@@</td></tr>
 <tr><td><B>Score:</B></td>
-<td>@@@SCOREMENU@@@  (set score>0 for Spam, score <0 for Ham)</td><td align="right">@@@ADDBUTTON@@@ &nbsp; </td></tr>
+<td>@@@SCOREMENU@@@  (ustaw wynik >0 dla spamu, wynik <0 dla Hamu)</td><td align="right">@@@ADDBUTTON@@@ &nbsp; </td></tr>
 @@@ENDFORM@@@
 </table>
 
@@ -109,11 +109,11 @@
    function addcheck()
    {
       if (document.addtest.testname.value  == "") {
-         alert("Please specify the test name.");
+         alert("Proszê podaæ nazwê testu.");
          return false;
       }
       if (document.addtest.pattern.value  == "") {
-         alert("Please specify the test expression.");
+         alert("Proszê podaæ wyra¿enie testuj±ce.");
          return false;
       }
       return true;

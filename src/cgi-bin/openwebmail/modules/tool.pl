@@ -5,6 +5,7 @@ use strict;
 #
 
 use Digest::MD5 qw(md5);
+use POSIX qw(:sys_wait_h);	# for WNOHANG in waitpid()
 use Carp;
 $Carp::MaxArgNums = 0; # return all args in Carp output
 
@@ -410,6 +411,19 @@ sub is_tainted {
 sub is_regex {
    return eval { m!$_[0]!; 1; };
 }
+
+sub zombie_cleaner {
+   while (waitpid(-1,WNOHANG)>0) {}
+}
+#
+# Note: zombie_cleaner is called at the begin/end of each request
+#
+# Openwebmail doesn't put zombie_cleaner() into $SIG{CHLD} because
+# 1. if $SIG{CHLD} is set some signal handler, even a very simple one,
+#    we got "recursive call...,out of memory!" in httpd error log occasionally
+# 2. if $SIG{CHLD} is set to 'IGNORE', we got warning in system log
+#    "application bug: perl5.8.3 has SIGCHLD set to SIG_IGN but calls wait()..."
+#
 
 sub stacktrace {
    return Carp::longmess(join(' ', @_));

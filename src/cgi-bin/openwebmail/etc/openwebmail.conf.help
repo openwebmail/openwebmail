@@ -1330,6 +1330,11 @@ from INBOX to other folder until the size of INBOX is under this limit.
 
 quota_limit
 -----------------------------------------------------------------------
+Basically, openwebmail will get the use quota usage and quota limit from 
+module defined in option quota_module. However, if quota module doesn't
+support quota limit (eg:quota_du.pl always return the limit as -1),
+the value defined in this option will be used as quota limit
+
 Once a user's homedir diskusage meet or exceed this size (in KB),
 most write access in openwebmail will be disabled, except the deletion
 of messages or files.
@@ -1783,13 +1788,28 @@ If option autopop3 is set to yes, this wait means how long openwebmail
 should wait before putting the pop3 fetch process into background
 
 
+default_bgfilterthreshold
+-----------------------------------------------------------------------
+This defines when openwebmail should do mail filtering at background.
+If this option is set to 0, mail filtering is always done at foreground.
+If this option is set to equal or more than 1, the mail filtering is 
+put into background only if INBOX has messages more than this value.
+
+
 default_bgfilterwait
 -----------------------------------------------------------------------
 This defines how long openwebmail should wait for background mail
 filtering before returning the folder message listing or message
 content to user
-If the wait is too short, some spam/virus mails may be not filtered in time
-at the user access to the INBOX folder.
+
+ps: Forgroung mail filtering guarentees that all messages are checked
+    and filtered before the message list is shown to user, but the 
+    user have to wait to see the message list until the filter finishes.
+
+    On the other hand, backgound mail filtering returns if the mail 
+    filtering is not finished in a certain period of time, but the user
+    may see some spam/virus mails that are actually going to be 
+    checked and filtered later by the backgound mail filter.
 
 
 default_moveoldmsgfrominbox

@@ -1158,7 +1158,8 @@ sub movemessage {
    # fork a child to do learn the msg in background
    # thus the resulted msglist can be returned as soon as possible
    if ($learntype ne 'none') {
-      #local $SIG{CHLD}=\&zombie_cleaner; # handler not necessary, as we call zombie_cleaner at end of each request
+      # below handler is not necessary, as we call zombie_cleaner at end of each request
+      #local $SIG{CHLD}=\&ow::tool::zombie_cleaner;
 
       local $|=1; 			# flush all output
       if ( fork() == 0 ) {		# child

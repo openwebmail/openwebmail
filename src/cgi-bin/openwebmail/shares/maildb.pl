@@ -547,9 +547,9 @@ sub get_messageids_sorted_by_offset {
 
    return @keys;
 }
-########## END GET_MESSAGEIDS_OSRTED_BY_OFFSET ###################
+########## END GET_MESSAGEIDS_SORTED_BY_OFFSET ###################
 
-########## GET_MESSAGEIDS_SORTED_BY_OFFSET #######################
+########## GET_MESSAGEIDS_SORTED_BY_OFFSET_DB ####################
 # same as above, only no DBM open close
 sub get_messageids_sorted_by_offset_db {
    my ($r_FDB)=@_;
@@ -559,7 +559,7 @@ sub get_messageids_sorted_by_offset_db {
    }
    return( sort { $offset{$a}<=>$offset{$b} } keys(%offset) );
 }
-########## END GET_MESSAGEIDS_OSRTED_BY_OFFSET ###################
+########## END GET_MESSAGEIDS_SORTED_BY_OFFSET_DB ################
 
 ########## GET_INFO_MSGID2ATTRS ##################################
 sub get_msgid2attrs {

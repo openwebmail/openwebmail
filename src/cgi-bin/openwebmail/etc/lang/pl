@@ -7,7 +7,7 @@ package ow::pl;
 #    Andrzej Cuber, rea.AT.supermedia.pl
 #    Pawe³ Foremski, pjf.AT.gna.org
 #
-# Last update: 23.11.2004 (Pawe³ Foremski)
+# Last update: 23.12.2004 (Pawe³ Foremski)
 
 %lang_folders =
    (
@@ -68,6 +68,17 @@ package ow::pl;
    auto => 'Automatycznie',
    on   => 'W³±czone',
    off  => 'Wy³±czone',
+   );
+
+%lang_bgfilterthresholdlabels =
+   (
+     0 => 'No',
+     1 => 'Yes',
+    20 => 'Only if INBOX has more than 20 messages',
+    50 => 'Only if INBOX has more than 50 messages',
+   100 => 'Only if INBOX has more than 100 messages',
+   200 => 'Only if INBOX has more than 200 messages',
+   500 => 'Only if INBOX has more than 500 messages',
    );
 
 %lang_prioritylabels =
@@ -193,32 +204,32 @@ package ow::pl;
 
 %lang_satestfields =
    (
-   name       => 'Name',
-   desc       => 'Description',
-   type       => 'Test Type',
-   expression => 'Expression',
-   score      => 'Score',
+   name       => 'Nazwa',
+   desc       => 'Opis',
+   type       => 'Typ testu',
+   expression => 'Wyra¿enie',
+   score      => 'Wynik',
    );
 
 %lang_satesttypes =
    (
-   header  => 'Message Header',
-   body    => 'Text in Msgbody (HTML tag removed)',
-   uri     => 'Links in Message Body',
-   rawbody => 'Text in Msgbody and Attachments (HTML tag reserved)',
-   full    => 'Undecoded Msgbody and Attachments',
+   header  => 'Nag³ówek',
+   body    => 'Tekst w tre¶ci (tagi HTML usuwane)',
+   uri     => 'Linki w tre¶ci',
+   rawbody => 'Tekst w tre¶ci i za³±czniki (tagi HTML nie usuwane)',
+   full    => 'Nieodkodowana tre¶æ i za³±czniki',
    );
 
 %lang_satestheaderattrs =
    (
-   ALL        => 'All',
-   Subject    => 'Subject',
-   From       => 'From',
-   To         => 'To',
-   Cc         => 'Cc',
-   ToCc       => 'To and Cc',
-   MESSAGEID  => 'Message Id',
-   USERDEFINE => 'User Define',
+   ALL        => 'Wszystkie',
+   Subject    => 'Tre¶æ',
+   From       => 'Od',
+   To         => 'Do',
+   Cc         => 'DW',
+   ToCc       => 'Do i DW',
+   MESSAGEID  => 'Id wiadomo¶ci',
+   USERDEFINE => 'Zdefiniuj',
    );
 
 %lang_searchtypelabels =
@@ -234,14 +245,14 @@ package ow::pl;
 
 %lang_searchdaterangelabels =
    (
-   all         => 'All',
-   today       => 'Today',
-   oneweek     => 'One week',
-   twoweeks    => 'Two weeks',
-   onemonth    => 'One month',
-   threemonths => 'Three months',
-   sixmonths   => 'Six months',
-   oneyear     => 'One year',
+   all         => 'Wszystkie',
+   today       => 'Dzisiaj',
+   oneweek     => 'Jeden tydzieñ',
+   twoweeks    => 'Dwa tygodnie',
+   onemonth    => 'Jeden miesi±c',
+   threemonths => 'Trzy miesi±ce',
+   sixmonths   => 'Sze¶æ miesiêcy',
+   oneyear     => 'Jeden rok',
    );
 
 %lang_sizes =
@@ -357,7 +368,7 @@ package ow::pl;
    emptyfolder=> 'Opró¿nij folder',
    emptytrash => 'Opró¿nij kosz',
    totrash    => 'Przenie¶ do kosza',
-   learnspam  => 'Learn Spam',
+   learnspam  => 'Zg³o¶ spam',
    forever    => 'Zawsze',
    delatlogout=> 'Usuñ przy wylogowaniu',
    userdef    => 'Zdefiniowane przez u¿ytkownika',
@@ -551,9 +562,9 @@ package ow::pl;
    set_passwd         => 'Zmieñ has³o',
    reset_passwd       => 'Resetuj has³o',
    email_alias        => 'Alias e-mail',
-   name       => 'Name',
+   name       => 'Nazwa',
    email      => 'Email',
-   note       => 'Note',
+   note       => 'Notatka',
    abooks => 'Ksi±¿ki adresowe',
    abook_title => 'Ksi±¿ka Adresowa',
    abook_converted => 'Skonwertowane',
@@ -660,10 +671,10 @@ package ow::pl;
    abook_editform_save_and_return => 'Zapisz i wróæ',
    abook_editform_cancel_and_return => 'Anuluj i wróæ',
    abook_editform_new_agent_link => 'utwórz',
-   sa_prefs         => 'SpamAssassin user preferences',
-   sa_edittest      => 'Edit Test Rules',
-   sa_editblacklist => 'Edit Black List',
-   sa_editwhitelist => 'Edit White List',
+   sa_prefs         => 'Preferencje SpamAssassin',
+   sa_edittest      => 'Edytuj regu³y testuj±ce',
+   sa_editblacklist => 'Edytuj Czarn± Listê',
+   sa_editwhitelist => 'Edytuj Bia³± Listê',
    );
 
 %lang_err =

@@ -50,7 +50,7 @@ use vars qw(%lang_folders %lang_sizes %lang_text %lang_err
             %lang_disableemblinklabels %lang_msgformatlabels
             %lang_withoriglabels %lang_receiptlabels
             %lang_ctrlpositionlabels %lang_sendpositionlabels
-            %lang_checksourcelabels
+            %lang_checksourcelabels %lang_bgfilterthresholdlabels
             %lang_abookbuttonpositionlabels %lang_abooksortlabels
 	    %lang_timelabels %lang_wday);	# defined in lang/xy
 use vars qw(%charset_convlist);			# defined in iconv.pl
@@ -754,6 +754,14 @@ sub editprefs {
          } else {
             templateblock_disable($html, 'AUTOPOP3');
          }
+
+         $temphtml = popup_menu(-name=>'bgfilterthreshold',
+                                -values=>[0,1,20,50,100,200,500],
+                                -labels=>\%lang_bgfilterthresholdlabels,
+                                -default=>$prefs{'bgfilterthreshold'},
+                                -override=>'1',
+                                defined($config_raw{'DEFAULT_bgfilterthreshold'})?('-disabled'=>'1'):());
+         $html =~ s/\@\@\@BGFILTERTHRESHOLDMENU\@\@\@/$temphtml/;
 
          $temphtml = popup_menu(-name=>'bgfilterwait',
                                 -values=>[5,10,15,20,25,30,35,40,45,50,55,60,90,120],

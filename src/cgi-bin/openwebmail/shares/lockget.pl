@@ -20,38 +20,42 @@ use Fcntl qw(:DEFAULT :flock);
 #
 
 sub lockget_messageids {
-   my ($folderfile, $folderdb, $r_messageids)=@_;
+   my ($folderfile, $folderdb, $r_messageids, $has_globallock)=@_;
 
-   if (!ow::filelock::lock($folderfile, LOCK_SH|LOCK_NB)) {
-      return(-1, "$folderfile read lock error");
-   }
-   if (!update_folderindex($folderfile, $folderdb)<0) {
-      ow::filelock::lock($folderfile, LOCK_UN);
-      return(-1, "Couldn't update index db $folderdb");
+   if (!$has_globallock) {
+      if (!ow::filelock::lock($folderfile, LOCK_SH|LOCK_NB)) {
+         return(-1, "$folderfile read lock error");
+      }
+      if (!update_folderindex($folderfile, $folderdb)<0) {
+         ow::filelock::lock($folderfile, LOCK_UN);
+         return(-1, "Couldn't update index db $folderdb");
+      }
    }
    @{$r_messageids}=get_messageids_sorted_by_offset($folderdb);
-   ow::filelock::lock($folderfile, LOCK_UN);
+   ow::filelock::lock($folderfile, LOCK_UN) if (!$has_globallock);
 
    return(0, '');
 }
 
 sub lockget_message_header {
-   my ($messageid, $folderfile, $folderdb, $r_header)=@_;
+   my ($messageid, $folderfile, $folderdb, $r_header, $has_globallock)=@_;
    my $folderhandle=do { local *FH };
 
-   ow::filelock::lock($folderfile, LOCK_SH|LOCK_NB) or
-      return(-1, "$folderfile read lock error");
-   if (!update_folderindex($folderfile, $folderdb)<0) {
-      ow::filelock::lock($folderfile, LOCK_UN);
-      return(-1, "Couldn't update index db $folderdb");
+   if (!$has_globallock) {
+      ow::filelock::lock($folderfile, LOCK_SH|LOCK_NB) or
+         return(-1, "$folderfile read lock error");
+      if (!update_folderindex($folderfile, $folderdb)<0) {
+         ow::filelock::lock($folderfile, LOCK_UN);
+         return(-1, "Couldn't update index db $folderdb");
+      }
    }
    if (!open ($folderhandle, $folderfile)) {
-      ow::filelock::lock($folderfile, LOCK_UN);
+      ow::filelock::lock($folderfile, LOCK_UN) if (!$has_globallock);
       return(-1, "$folderfile read open error");
    }
    my ($size, $errmsg)=get_message_header($messageid, $folderdb, $folderhandle, $r_header);
    close($folderhandle);
-   ow::filelock::lock($folderfile, LOCK_UN);
+   ow::filelock::lock($folderfile, LOCK_UN) if (!$has_globallock);
 
    # -1 lock/open err, -2 msg not found in db, -3 size in db invalid, -4 read size mismatched
    return($size-1, $errmsg) if ($size<0);
@@ -64,22 +68,24 @@ sub lockget_message_header {
 }
 
 sub lockget_message_block {
-   my ($messageid, $folderfile, $folderdb, $r_block)=@_;
+   my ($messageid, $folderfile, $folderdb, $r_block, $has_globallock)=@_;
    my $folderhandle=do { local *FH };
 
-   ow::filelock::lock($folderfile, LOCK_SH|LOCK_NB) or
-      return(-1, "$folderfile read lock error");
-   if (!update_folderindex($folderfile, $folderdb)<0) {
-      ow::filelock::lock($folderfile, LOCK_UN);
-      return(-1, "Couldn't update index db $folderdb");
+   if (!$has_globallock) {
+      ow::filelock::lock($folderfile, LOCK_SH|LOCK_NB) or
+         return(-1, "$folderfile read lock error");
+      if (!update_folderindex($folderfile, $folderdb)<0) {
+         ow::filelock::lock($folderfile, LOCK_UN);
+         return(-1, "Couldn't update index db $folderdb");
+      }
    }
    if (!open ($folderhandle, $folderfile)) {
-      ow::filelock::lock($folderfile, LOCK_UN);
+      ow::filelock::lock($folderfile, LOCK_UN) if (!$has_globallock);
       return(-1, "$folderfile read open error");
    }
    my ($size, $errmsg)=get_message_block($messageid, $folderdb, $folderhandle, $r_block);
    close($folderhandle);
-   ow::filelock::lock($folderfile, LOCK_UN);
+   ow::filelock::lock($folderfile, LOCK_UN) if (!$has_globallock);
 
    # -1 lock/open err, -2 msg not found in db, -3 size in db invalid, -4 read size mismatched
    return($size-1, $errmsg) if ($size<0);
