@@ -345,6 +345,7 @@ package ow::pt;
    login      => 'Entrar',
    clear      => 'Limpar',
    webmail    => 'WebMail',
+   msglist    => 'Message List',
    point      => 'Ponto',
    pixel      => 'Pixel',
    changepwd  => 'Alterar Senha',

@@ -345,6 +345,7 @@ package ow::tr;
    login      => 'Gir',
    clear      => 'Temizle',
    webmail    => 'WebMail',
+   msglist    => 'Message List',
    point      => 'Nokta',
    pixel      => 'Piksel',
    changepwd  => 'Parolayý Deðiþtir',

@@ -346,6 +346,7 @@ package ow::fi;
    login      => 'Kirjaudu',
    clear      => 'Tyhjennä',
    webmail    => 'WebMail',
+   msglist    => 'Message List',
    point      => 'Piste',
    pixel      => 'Pikseli',
    changepwd  => 'Vaihda salasana',

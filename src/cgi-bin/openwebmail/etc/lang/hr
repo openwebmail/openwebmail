@@ -345,6 +345,7 @@ package ow::hr;
    login      => 'Prijava',
    clear      => 'Oèisti',
    webmail    => 'WebMail',
+   msglist    => 'Message List',
    point      => 'toèaka',
    pixel      => 'Piksel',
    changepwd  => 'Promijeni lozinku',

@@ -345,6 +345,7 @@ package ow::ar_CP1256;
    login      => 'ÊÓÌםב ÇבÏרÎזב',
    clear      => 'Clear',
    webmail    => 'WebMail',
+   msglist    => 'Message List',
    point      => 'הרÞØÉ',
    pixel      => 'Èם‗Óב',
    changepwd  => 'ÊÛםםÑ ‗בדÉ ÇבדÑזÑ',

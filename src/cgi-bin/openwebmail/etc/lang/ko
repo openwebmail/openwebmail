@@ -347,6 +347,7 @@ package ow::ko;
    login      => '로그인',
    clear      => '다시 시작',
    webmail    => '웹메일',
+   msglist    => 'Message List',
    point      => '포인트',
    pixel      => '픽셀',
    changepwd  => '비밀번호 변경',

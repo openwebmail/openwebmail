@@ -348,6 +348,7 @@ package ow::cs;
    login      => 'Pøihlásit',
    clear      => 'Smazat',
    webmail    => 'WebMail',
+   msglist    => 'Message List',
    point      => 'Bodù',
    pixel      => 'Pixelù',
    changepwd  => 'Zmìna pøístupového hesla',

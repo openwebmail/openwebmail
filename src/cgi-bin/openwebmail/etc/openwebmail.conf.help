@@ -625,6 +625,11 @@ Example:
 allowed_rootloginip	140.116.72., 192.168.
 
 
+login_fieldwidth
+-----------------------------------------------------------------------
+The width of the username and password fields in the login
+
+
 case_insensitive_login
 -----------------------------------------------------------------------
 Set this to 'yes' if you want case insensitive login in openwebmail,

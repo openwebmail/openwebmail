@@ -346,6 +346,7 @@ package ow::he_CP1255;
    login      => 'כניסה',
    clear      => 'נקה',
    webmail    => 'WebMail',
+   msglist    => 'Message List',
    point      => 'נקודה',
    pixel      => 'פיקסל',
    changepwd  => 'שנה סיסמא',

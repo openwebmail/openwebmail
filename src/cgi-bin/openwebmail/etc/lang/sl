@@ -345,6 +345,7 @@ package ow::sl;
    login      => 'Prijava',
    clear      => 'Oèisti',
    webmail    => 'Spletna pošta',
+   msglist    => 'Message List',
    point      => 'toèka',
    pixel      => 'piksel',
    changepwd  => 'Sprememba gesla',

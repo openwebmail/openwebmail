@@ -345,6 +345,7 @@ package ow::bg;
    login      => 'Вход',
    clear      => 'Изчисти',
    webmail    => 'Web-поща',
+   msglist    => 'Message List',
    point      => 'поинта',
    pixel      => 'пиксела',
    changepwd  => 'Смяна на парола',

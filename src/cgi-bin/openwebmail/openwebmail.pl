@@ -191,14 +191,14 @@ sub loginmenu {
 
    $temphtml = textfield(-name=>'loginname',
                          -default=>'',
-                         -size=>'14',
+                         -size=>$config{'login_fieldwidth'},
                          -onChange=>($ENV{HTTP_USER_AGENT}=~/Gecko/)?'':'focuspwd()',
                          -override=>'1');
    $html =~ s/\@\@\@LOGINNAMEFIELD\@\@\@/$temphtml/;
 
    $temphtml = password_field(-name=>'password',
                               -default=>'',
-                              -size=>'14',
+                              -size=>$config{'login_fieldwidth'},
                               -onChange=>($ENV{HTTP_USER_AGENT}=~/Gecko/)?'':'focusloginbutton()',
                               -override=>'1');
    $html =~ s/\@\@\@PASSWORDFIELD\@\@\@/$temphtml/;

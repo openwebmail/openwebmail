@@ -345,6 +345,7 @@ package ow::el;
    login      => 'Είσοδος',
    clear      => 'Εκκαθάριση',
    webmail    => 'Μηνύματα',
+   msglist    => 'Message List',
    point      => 'Σημείο',
    pixel      => 'Πίξελ',
    changepwd  => 'Αλλαγή Κωδικού',

@@ -346,6 +346,7 @@ package ow::nl;
    login      => 'Inloggen',
    clear      => 'Wissen',
    webmail    => 'WebMail',
+   msglist    => 'Message List',
    point      => 'Punt',
    pixel      => 'Pixel',
    changepwd  => 'Wachtwoord wijzigen',

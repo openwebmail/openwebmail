@@ -238,7 +238,6 @@ sub listmessages {
    $folder='INBOX' if (!$is_validfolder);
 
    my ($totalsize, $newmessages, $r_messageids, $r_messagedepths)=getinfomessageids($user, $folder, $sort, $searchtype, $keyword);
-
    my $msgsperpage=$prefs{'msgsperpage'}||10; $msgsperpage=1000 if ($longpage);
    my $totalmessage=$#{$r_messageids}+1; $totalmessage=0 if ($totalmessage<0);
    my $totalpage=int($totalmessage/$msgsperpage+0.999999); $totalpage=1 if ($totalpage==0);

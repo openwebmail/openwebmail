@@ -345,6 +345,7 @@ package ow::ur;
    login      => 'ﺩﺍﺨﻞ ﻫﻮﮞ',
    clear      => 'ﺻﺎﻑ',
    webmail    => 'WebMail',
+   msglist    => 'Message List',
    point      => 'ﭘﻜﺴﻞ',
    pixel      => 'ﭘﻜﺴﻞ',
    changepwd  => 'ﭘﺎﺱ ﻭﺭﮈ ﺗﺒﺪﻳﻞ',

@@ -345,6 +345,7 @@ package ow::it;
    login      => 'Login',
    clear      => 'Cancella',
    webmail    => 'WebMail',
+   msglist    => 'Message List',
    point      => 'Punti',
    pixel      => 'Pixel',
    changepwd  => 'Cambia Password',

@@ -276,9 +276,9 @@ sub edittest {
       $temphtml.=qq|<tr $tr_bgcolorstr><td bgcolor=$style{'columnheader'} align="center">|.($i+1).qq|</td><td $td_bgcolorstr>$testhtml</td>|.
                  qq|<td align="center" $td_bgcolorstr>|.
                  submit(-name=>$lang_text{'delete'},
-                        -class=>"medtext");
+                        -class=>"medtext").
                  qq|</td></tr>|.
-                 end_form();
+                 end_form().qq|\n|;
       $i++;
    }
 

@@ -348,6 +348,7 @@ package ow::pt_BR;
    login      => 'Entrar',
    clear      => 'Limpar',
    webmail    => 'WebMail',
+   msglist    => 'Message List',
    point      => 'Pontos',
    pixel      => 'Pixels',
    changepwd  => 'Trocar Senha',

@@ -345,6 +345,7 @@ package ow::th;
    login      => 'เข้าระบบ',
    clear      => 'ล้าง',
    webmail    => 'WebMail',
+   msglist    => 'Message List',
    point      => 'พ้อยต์',
    pixel      => 'จุด',
    changepwd  => 'เปลี่ยนรหัสผ่าน',

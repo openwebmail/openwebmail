@@ -350,6 +350,7 @@ package ow::ja_JP_eucJP;
    login      => 'ログイン',
    clear      => '消去',
    webmail    => 'ウェブメール',
+   msglist    => 'Message List',
    point      => 'ポイント',
    pixel      => 'ピクセル',
    changepwd  => 'パスワードの変更',

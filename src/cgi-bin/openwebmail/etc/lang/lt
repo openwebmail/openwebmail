@@ -345,6 +345,7 @@ package ow::lt;
    login      => 'Jungtis',
    clear      => 'Iðvalyti',
    webmail    => 'WebMail',
+   msglist    => 'Message List',
    point      => 'Taðkas',
    pixel      => 'Vaizdo elementas',
    changepwd  => 'Keisti slaptaþodá',

@@ -66,6 +66,7 @@ sub getinfomessageids {
 
    if ( $keyword ne '' ) {
       my $folderhandle=do { local *FH };
+      my %FDB;
       my $r_haskeyword;
       my @messageids=();
       my @messagedepths=();
@@ -74,11 +75,21 @@ sub getinfomessageids {
 
       ow::filelock::lock($folderfile, LOCK_SH|LOCK_NB) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_readlock'} ".f2u($folderfile)."!");
+
       open($folderhandle, $folderfile);
-      ($totalsize, $new, $r_haskeyword)=search_info_messages_for_keyword(
-					$keyword, $prefs{'charset'}, $searchtype, $folderdb, $folderhandle,
-					dotpath('search.cache'), $prefs{'hideinternal'}, $prefs{'regexmatch'});
+      $r_haskeyword=search_info_messages_for_keyword(
+			$keyword, $prefs{'charset'}, $searchtype, $folderdb, $folderhandle,
+			dotpath('search.cache'), $prefs{'hideinternal'}, $prefs{'regexmatch'});
       close($folderhandle);
+
+      ow::dbm::open(\%FDB, $folderdb, LOCK_SH);
+      foreach my $messageid (keys %{$r_haskeyword}) {
+         my @attr=string2msgattr($FDB{$messageid});
+         $new++ if ($attr[$_STATUS]!~/R/i);
+         $totalsize+=$attr[$_SIZE];
+      }
+      ow::dbm::close(\%FDB, $folderdb);
+
       ow::filelock::lock($folderfile, LOCK_UN);
 
       for (my $i=0; $i<@{$r_messageids}; $i++) {
@@ -112,16 +123,15 @@ sub search_info_messages_for_keyword {
    my ($keyword, $prefs_charset, $searchtype, $folderdb, $folderhandle, $cachefile, $ignore_internal, $regexmatch)=@_;
    my ($cache_lstmtime, $cache_folderdb, $cache_keyword, $cache_searchtype, $cache_ignore_internal);
    my (%FDB, @messageids, $messageid);
-   my ($totalsize, $new)=(0,0);
    my %found=();
 
    ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or
-      return($totalsize, $new, \%found);
+      return(\%found);
    my $lstmtime=$FDB{'LSTMTIME'};
    ow::dbm::close(\%FDB, $folderdb);
 
    ow::filelock::lock($cachefile, LOCK_EX) or
-      return($totalsize, $new, \%found);
+      return(\%found);
 
    if ( -e $cachefile ) {
       open(CACHE, $cachefile);
@@ -137,7 +147,8 @@ sub search_info_messages_for_keyword {
       $cachefile=ow::tool::untaint($cachefile);
       @messageids=get_messageids_sorted_by_offset($folderdb, $folderhandle);
 
-      ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or return($totalsize, $new, \%found);
+      ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or
+         return(\%found);
 
       # check if keyword a valid regex
       $regexmatch = $regexmatch && ow::tool::is_regex($keyword);
@@ -188,8 +199,6 @@ sub search_info_messages_for_keyword {
             }
          }
          if ($found{$messageid}) {
-            $new++ if ($attr[$_STATUS]!~/R/i);
-            $totalsize+=$attr[$_SIZE];
             next;
          }
 
@@ -208,8 +217,6 @@ sub search_info_messages_for_keyword {
 
             if ( ($regexmatch && $header =~ /$keyword/im) ||
                  $header =~ /\Q$keyword\E/im ) {
-               $new++ if ($attr[$_STATUS]!~/R/i);
-               $totalsize+=$attr[$_SIZE];
                $found{$messageid}=1;
                next;
             }
@@ -237,8 +244,6 @@ sub search_info_messages_for_keyword {
                ($body)=iconv($attr[$_CHARSET], $prefs_charset, $body);
                if ( ($regexmatch && $body =~ /$keyword/im) ||
                     $body =~ /\Q$keyword\E/im ) {
-                  $new++ if ($attr[$_STATUS]!~/R/i);
-                  $totalsize+=$attr[$_SIZE];
                   $found{$messageid}=1;
                   next;
                }
@@ -262,8 +267,6 @@ sub search_info_messages_for_keyword {
 
                   if ( ($regexmatch && $content =~ /$keyword/im) ||
                        $content =~ /\Q$keyword\E/im ) {
-                     $new++ if ($attr[$_STATUS]!~/R/i);
-                     $totalsize+=$attr[$_SIZE];
                      $found{$messageid}=1;
                      last;	# leave attachments check in one message
                   }
@@ -279,8 +282,6 @@ sub search_info_messages_for_keyword {
 
                if ( ($regexmatch && $filename =~ /$keyword/im) ||
                     $filename =~ /\Q$keyword\E/im ) {
-                  $new++ if ($attr[$_STATUS]!~/R/i);
-                  $totalsize+=$attr[$_SIZE];
                   $found{$messageid}=1;
                   last;	# leave attachments check in one message
                }
@@ -294,14 +295,12 @@ sub search_info_messages_for_keyword {
       foreach ($lstmtime, $folderdb, $keyword, $searchtype, $ignore_internal) {
          print CACHE $_, "\n";
       }
-      print CACHE join("\n", $totalsize, $new, keys(%found));
+      print CACHE join("\n", keys(%found));
       close(CACHE);
 
    } else {
       open(CACHE, $cachefile);
       for (0..4) { $_=<CACHE>; }	# skip 5 lines
-      $totalsize=<CACHE>; chomp($totalsize);
-      $new=<CACHE>; chomp($new);
       while (<CACHE>) {
          chomp; $found{$_}=1;
       }
@@ -310,7 +309,7 @@ sub search_info_messages_for_keyword {
 
    ow::filelock::lock($cachefile, LOCK_UN);
 
-   return($totalsize, $new, \%found);
+   return(\%found);
 }
 
 ########## GET_MESSAGEIDS_SORTED_BY_...  #########################
@@ -369,7 +368,7 @@ sub get_messageids_sorted {
    # eg: 1. db is rebuild
    #     2. messages added into or removed from db
    # But LSTMTIME won't be changed in message_status_update.
-   # so we don't have to reload msglist form db a message status change
+   # so we don't have to reload msglist from db after a message status is changed
    if ( $cache_lstmtime ne $lstmtime || $cache_folderdb ne $folderdb ||
         $cache_sort ne $sort || $cache_ignore_internal ne $ignore_internal) {
       $cachefile=ow::tool::untaint($cachefile);

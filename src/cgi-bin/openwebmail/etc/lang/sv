@@ -345,6 +345,7 @@ package ow::sv;
    login      => 'Logga in',
    clear      => 'Rensa',
    webmail    => 'WebMail',
+   msglist    => 'Message List',
    point      => 'Point',
    pixel      => 'Pixel',
    changepwd  => 'Change Password',

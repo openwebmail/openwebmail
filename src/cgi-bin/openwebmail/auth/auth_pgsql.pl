@@ -97,7 +97,6 @@ sub get_userlist {      # only used by openwebmail-tool.pl -a
 
 
 #  0 : ok
-# -1 : username incorrect
 # -2 : parameter format error
 # -3 : authentication system/internal error
 # -4 : password incorrect

@@ -1994,26 +1994,26 @@ sub editpassword {
    # display virtual or user, but actually not used, chnagepassword grab user from sessionid
    $temphtml = textfield(-name=>'loginname',
                          -default=>$loginname,
-                         -size=>'10',
+                         -size=>'20',
                          -disabled=>1,
                          -override=>'1');
    $html =~ s/\@\@\@LOGINNAMEFIELD\@\@\@/$temphtml/;
 
    $temphtml = password_field(-name=>'oldpassword',
                               -default=>'',
-                              -size=>'10',
+                              -size=>'20',
                               -override=>'1');
    $html =~ s/\@\@\@OLDPASSWORDFIELD\@\@\@/$temphtml/;
 
    $temphtml = password_field(-name=>'newpassword',
                               -default=>'',
-                              -size=>'10',
+                              -size=>'20',
                               -override=>'1');
    $html =~ s/\@\@\@NEWPASSWORDFIELD\@\@\@/$temphtml/;
 
    $temphtml = password_field(-name=>'confirmnewpassword',
                               -default=>'',
-                              -size=>'10',
+                              -size=>'20',
                               -override=>'1');
    $html =~ s/\@\@\@CONFIRMNEWPASSWORDFIELD\@\@\@/$temphtml/;
 

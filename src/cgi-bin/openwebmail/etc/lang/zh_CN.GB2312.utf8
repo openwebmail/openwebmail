@@ -345,6 +345,7 @@ package ow::zh_CN_GB2312_utf8;
    login      => '登录',
    clear      => '清除',
    webmail    => '网络邮箱',
+   msglist    => '邮件列表',
    point      => '点',
    pixel      => '像素',
    changepwd  => '修改密码',

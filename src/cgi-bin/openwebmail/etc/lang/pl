@@ -351,6 +351,7 @@ package ow::pl;
    login      => 'Wejd¼',
    clear      => 'Wyczy¶æ',
    webmail    => 'WebMail',
+   msglist    => 'Message List',
    point      => 'Pkt.',
    pixel      => 'Pikseli',
    changepwd  => 'Zmiana has³a',

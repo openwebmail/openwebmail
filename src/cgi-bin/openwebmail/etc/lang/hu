@@ -346,6 +346,7 @@ package ow::hu;
    login      => 'Belépés',
    clear      => 'Töröl',
    webmail    => 'WebMail',
+   msglist    => 'Message List',
    point      => 'Pont',
    pixel      => 'Pixel',
    changepwd  => 'Jelszócsere',

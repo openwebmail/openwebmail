@@ -345,6 +345,7 @@ package ow::uk;
    login      => 'Вх╕д',
    clear      => 'В╕дм╕на',
    webmail    => 'WebMail',
+   msglist    => 'Message List',
    point      => 'Крапка',
    pixel      => 'П╕ксель',
    changepwd  => 'Зм╕нити пароль',

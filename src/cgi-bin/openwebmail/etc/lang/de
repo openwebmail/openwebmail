@@ -347,6 +347,7 @@ package ow::de;
    login      => 'Anmelden',
    clear      => 'Löschen',
    webmail    => 'WebMail',
+   msglist    => 'Message List',
    point      => 'Punkt',
    pixel      => 'Pixel',
    changepwd  => 'Kennwort ändern',

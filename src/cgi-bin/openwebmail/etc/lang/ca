@@ -346,6 +346,7 @@ package ow::ca;
    login      => 'Entra',
    clear      => 'Neteja',
    webmail    => 'WebMail',
+   msglist    => 'Message List',
    point      => 'Punts',
    pixel      => 'Píxels',
    changepwd  => 'Canvia contrassenya',

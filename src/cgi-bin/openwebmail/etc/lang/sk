@@ -346,6 +346,7 @@ package ow::sk;
    login      => 'Prihlási»',
    clear      => 'Zmaza»',
    webmail    => 'WebMail',
+   msglist    => 'Message List',
    point      => 'Bodov',
    pixel      => 'Pixelov',
    changepwd  => 'Zmeni» heslo',

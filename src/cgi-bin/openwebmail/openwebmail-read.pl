@@ -149,6 +149,20 @@ openwebmail_requestend();
 sub readmessage {
    my $messageid = $_[0];
 
+   my $orig_inbox_newmessages=0;
+   my $now_inbox_newmessages=0;
+   my $now_inbox_allmessages=0;
+   my $inboxsize_k=0;
+   my %FDB;
+
+   my $spooldb=(get_folderpath_folderdb($user, 'INBOX'))[1];
+   if (ow::dbm::exist($spooldb)) {
+      ow::dbm::open(\%FDB, $spooldb, LOCK_SH) or
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_readlock'} db $spooldb");
+      $orig_inbox_newmessages=$FDB{'NEWMESSAGES'};	# new msg in INBOX
+      ow::dbm::close(\%FDB, $spooldb);
+   }
+
    # filtermessage in background, hope junk is removed before displayed to user
    filtermessage($user, 'INBOX', \%prefs) if ($folder eq 'INBOX');
 
@@ -192,6 +206,10 @@ sub readmessage {
    }
 
    my %message = %{&getmessage($user, $folder, $messageid)};
+   if ($message{status} !~ /R/i) {	# current msg is new and counted as old after this read
+      $orig_inbox_newmessages-- if ($folder eq 'INBOX' && $orig_inbox_newmessages>0);
+      $newmessages-- if ($newmessages>0);
+   }
 
    $page=int($message_num/($prefs{'msgsperpage'}||10)+0.999999)||$page;
 
@@ -211,15 +229,6 @@ sub readmessage {
    my $readcharset=$prefs{'charset'};	# charset choosed by user to read current message
    $readcharset=$1 if ($convfrom=~/^none\.(.+)$/);	# read msg with no conversion
 
-   my $urlparm="sessionid=$thissession&amp;folder=$escapedfolder&amp;".
-               "page=$page&amp;longpage=$longpage&amp;".
-               "sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype";
-   my $main_url = "$config{'ow_cgiurl'}/openwebmail-main.pl?$urlparm";
-   my $read_url = "$config{'ow_cgiurl'}/openwebmail-read.pl?$urlparm";
-   my $send_url = "$config{'ow_cgiurl'}/openwebmail-send.pl?$urlparm";
-   my $read_url_with_id = "$read_url&amp;message_id=$escapedmessageid";
-   my $send_url_with_id = "$send_url&amp;message_id=$escapedmessageid".
-                          "&amp;showhtmlastext=$showhtmlastext&amp;compose_caller=read";
 
    my ($html, $temphtml, @tmp);
    my $templatefile="readmessage.template";
@@ -237,8 +246,105 @@ sub readmessage {
       ($prefs{'language'}, $prefs{'charset'})=@tmp;
    }
 
-   my $folderstr=ow::htmltext::str2html($lang_folders{$folder}||(iconv($prefs{'fscharset'}, $readcharset, $folder))[0]);
-   $html =~ s/\@\@\@FOLDER\@\@\@/$folderstr/;
+   $temphtml = end_form();
+   $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/g;
+
+
+   ### we don't keep keyword, firstpage between folders,
+   ### thus the keyword, firstpage will be cleared when user change folder
+   $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-main.pl",
+                         -name=>'FolderForm').
+               ow::tool::hiddens(sessionid=>$thissession,
+                                 sort=>$sort,
+                                 action=>'listmessages');
+   $html =~ s/\@\@\@STARTFOLDERFORM\@\@\@/$temphtml/;
+
+   # this popup_menu is done with pure html code
+   # because we want to set font style for options in the select menu
+   my $select_str=qq|\n<SELECT name="folder" accesskey="L" onChange="JavaScript:document.FolderForm.submit();">\n|;
+
+   foreach my $foldername (@validfolders) {
+      my ($folderfile, $folderdb, $newmessages, $allmessages);
+
+      # find message count for folderlabel
+      ($folderfile, $folderdb)=get_folderpath_folderdb($user, $foldername);
+      if (ow::dbm::exist($folderdb)) {
+         ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or
+               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_readlock'} db ".f2u($folderdb));
+         $allmessages=$FDB{'ALLMESSAGES'}-$FDB{'ZAPMESSAGES'};
+         $allmessages-=$FDB{'INTERNALMESSAGES'} if ($prefs{'hideinternal'});
+         $newmessages=$FDB{'NEWMESSAGES'};
+         # current message is turned from new to old after this read
+         $newmessages-- if ($foldername eq $folder && $message{status} !~ /R/i && $newmessages>0);
+
+         if ($foldername eq 'INBOX') {
+            $now_inbox_allmessages=$allmessages;
+            $now_inbox_newmessages=$newmessages;
+            $inboxsize_k=(-s $folderfile)/1024;
+         }
+         ow::dbm::close(\%FDB, $folderdb);
+      }
+
+      my $option_str=qq|<OPTION value="|.ow::tool::escapeURL($foldername).qq|"|;
+      $option_str.=qq| selected| if ($foldername eq $folder);
+      if ($newmessages>0) {
+         $option_str.=qq| class="hilighttext">|;
+      } else {
+         $option_str.=qq|>|;
+      }
+      if (defined $lang_folders{$foldername}) {
+         $option_str.=$lang_folders{$foldername};
+      } else {
+         $option_str.=ow::htmltext::str2html((iconv($prefs{'fscharset'}, $readcharset, $foldername))[0]);
+      }
+      $option_str.=" ($newmessages/$allmessages)" if ( $newmessages ne "" && $allmessages ne "");
+
+      $select_str.="$option_str</OPTION>\n";
+   }
+   $select_str.="</SELECT>\n";
+
+   $temphtml=$select_str;
+   if ( $ENV{'HTTP_USER_AGENT'} =~ /lynx/i || # take care for text browser...
+        $ENV{'HTTP_USER_AGENT'} =~ /w3m/i ) {
+      $temphtml .= submit(-name=>$lang_text{'read'},
+                          -class=>"medtext");
+   }
+   $html =~ s/\@\@\@FOLDERPOPUP\@\@\@/$temphtml/;
+
+   if ($config{'quota_module'} ne "none") {
+      $temphtml='';
+      my $overthreshold=($quotalimit>0 && $quotausage/$quotalimit>$config{'quota_threshold'}/100);
+      if ($config{'quota_threshold'}==0 || $overthreshold) {
+         $temphtml = "$lang_text{'quotausage'}: ".lenstr($quotausage*1024,1);
+      }
+      if ($overthreshold) {
+         $temphtml.=" (".(int($quotausage*1000/$quotalimit)/10)."%) ";
+      }
+   } else {
+      $temphtml="&nbsp;";
+   }
+   $html =~ s/\@\@\@QUOTAUSAGE\@\@\@/$temphtml/;
+
+   $temphtml = '';
+   my $totalmessage=$#{$r_messageids}+1; $totalmessage=0 if ($totalmessage<0);
+   if ($totalmessage>0) {
+      $temphtml .= "$newmessages $lang_text{'unread'} / " if ($newmessages);
+      $temphtml .= "$totalmessage $lang_text{'messages'} / ". lenstr($totalsize, 1);
+   } else {
+      $temphtml = $lang_text{'nomessages'};
+   }
+   $html =~ s/\@\@\@NUMBEROFMESSAGES\@\@\@/$temphtml/;
+
+
+   my $urlparm="sessionid=$thissession&amp;folder=$escapedfolder&amp;".
+               "page=$page&amp;longpage=$longpage&amp;".
+               "sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype";
+   my $main_url = "$config{'ow_cgiurl'}/openwebmail-main.pl?$urlparm";
+   my $read_url = "$config{'ow_cgiurl'}/openwebmail-read.pl?$urlparm";
+   my $send_url = "$config{'ow_cgiurl'}/openwebmail-send.pl?$urlparm";
+   my $read_url_with_id = "$read_url&amp;message_id=$escapedmessageid";
+   my $send_url_with_id = "$send_url&amp;message_id=$escapedmessageid".
+                          "&amp;showhtmlastext=$showhtmlastext&amp;compose_caller=read";
 
    my $is_htmlmsg=0;
 
@@ -258,7 +364,6 @@ sub readmessage {
       } elsif ($message{'content-transfer-encoding'} =~ /^x-uuencode/i) {
          $body= ow::mime::uudecode($body);
       }
-
    }
 
    ($from,$replyto,$to,$cc,$bcc,$subject,$body)
@@ -319,27 +424,10 @@ sub readmessage {
    my $messageaftermove = $messageid_next || $messageid_prev;;
    my $escapedmessageaftermove = ow::tool::escapeURL($messageaftermove);
 
-   if ($config{'quota_module'} ne "none") {
-      $temphtml='';
-      my $overthreshold=($quotalimit>0 && $quotausage/$quotalimit>$config{'quota_threshold'}/100);
-      if ($config{'quota_threshold'}==0 || $overthreshold) {
-         $temphtml = "$lang_text{'quotausage'}: ".lenstr($quotausage*1024,1);
-      }
-      if ($overthreshold) {
-         $temphtml.=" (".(int($quotausage*1000/$quotalimit)/10)."%) ";
-      }
-   } else {
-      $temphtml="&nbsp;";
-   }
-   $html =~ s/\@\@\@QUOTAUSAGE\@\@\@/$temphtml/;
-
-   $html =~ s/\@\@\@MESSAGETOTAL\@\@\@/$message_total/;
-
-   $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $folderstr", qq|accesskey="B" href="$main_url&amp;action=listmessages"|);
+   $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $lang_text{'msglist'}", qq|accesskey="B" href="$main_url&amp;action=listmessages"|);
    $temphtml .= "&nbsp;\n";
 
    # quota or spool over the limit
-   my $inboxsize_k=(-s (get_folderpath_folderdb($user, 'INBOX'))[0])/1024;
    my $limited=(($quotalimit>0 && $quotausage>$quotalimit) ||			   # quota
                 ($config{'spool_limit'}>0 && $inboxsize_k>$config{'spool_limit'})); # spool
 
@@ -891,6 +979,28 @@ sub readmessage {
          $html.=qq|<script language="JavaScript">\n<!--\n|.
                 qq|replyreceiptconfirm('$send_url_with_id&amp;action=replyreceipt', 1);\n|.
                 qq|//-->\n</script>\n|;
+      }
+   }
+
+   # show 'you have new messages' at status line
+   if ($folder ne 'INBOX' ) {
+      my $msg;
+      if ($now_inbox_newmessages>0) {
+         $msg="$now_inbox_newmessages $lang_text{'messages'} $lang_text{'unread'}";
+      } elsif ($now_inbox_allmessages>0) {
+         $msg="$now_inbox_allmessages $lang_text{'messages'}";
+      } else {
+         $msg=$lang_text{'nomessages'};
+      }
+      $html.=qq|<script language="JavaScript">\n<!--\n|.
+             qq|window.defaultStatus = "$lang_folders{'INBOX'} : $msg";\n|.
+             qq|//-->\n</script>\n|;
+   }
+
+   # play sound if number of new msg increases in INBOX
+   if ( $now_inbox_newmessages>$orig_inbox_newmessages ) {
+      if (-f "$config{'ow_htmldir'}/sounds/$prefs{'newmailsound'}" ) {
+         $html.=qq|<embed src="$config{'ow_htmlurl'}/sounds/$prefs{'newmailsound'}" autostart="true" hidden="true">\n|;
       }
    }
 

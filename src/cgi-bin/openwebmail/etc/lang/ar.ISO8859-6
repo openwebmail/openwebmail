@@ -345,6 +345,7 @@ package ow::ar_ISO8859_6;
    login      => ' ”ћкд «дѕсќид',
    clear      => 'Clear',
    webmail    => 'WebMail',
+   msglist    => 'Message List',
    point      => 'жсв„…',
    pixel      => '»кг”д',
    changepwd  => ' Џкк— где… «де—и—',

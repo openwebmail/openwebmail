@@ -345,6 +345,7 @@ package ow::zh_TW_Big5;
    login      => '登入',
    clear      => '清除',
    webmail    => '網路郵局',
+   msglist    => '信件列表',
    point      => '點',
    pixel      => '像素',
    changepwd  => '變更密碼',

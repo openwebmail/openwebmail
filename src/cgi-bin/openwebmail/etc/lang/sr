@@ -345,6 +345,7 @@ package ow::sr;
    login      => 'Prijava',
    clear      => 'Oèisti',
    webmail    => 'WebMail',
+   msglist    => 'Message List',
    point      => 'taèaka',
    pixel      => 'Piksel',
    changepwd  => 'Promeni lozinku',

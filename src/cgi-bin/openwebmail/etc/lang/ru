@@ -345,6 +345,7 @@ package ow::ru;
    login      => 'Вход',
    clear      => 'Сброс',
    webmail    => 'Почта',
+   msglist    => 'Message List',
    point      => 'Единиц',
    pixel      => 'Точек',
    changepwd  => 'Сменить пароль',
