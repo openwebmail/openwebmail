@@ -169,13 +169,13 @@ Temat:
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Odbieraj pocztê z kont POP3 po zalogowaniu:</B>	
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@AUTOPOP3CHECKBOX@@@ (wait @@@AUTOPOP3WAITMENU@@@ seconds)
+@@@AUTOPOP3CHECKBOX@@@ (czekaj @@@AUTOPOP3WAITMENU@@@ sekund)
 </td></tr>
 @@@AUTOPOP3END@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Wait time for background mail filtering:</B>
+<B>Czas oczekiwania na filtrowanie w tle:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@BGFILTERWAITMENU@@@ seconds
+@@@BGFILTERWAITMENU@@@ sekund
 </td></tr>
 @@@MOVEOLDSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
@@ -203,7 +203,7 @@ Temat:
 @@@USEFIXEDFONT@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>U¿ywaj obrazków jako 'usmiechów' ;-):</B>
+<B>W³±cz emotikony ;-):</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USESMILEICON@@@
 </td></tr>
@@ -351,11 +351,11 @@ Szeroko¶æ @@@EDITCOLUMNSMENU@@@ Wysoko¶æ @@@EDITROWSMENU@@@
 
 @@@WEBADDRSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>AddressBook Options</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Opcje ksi±¿ki adresowej</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Rozmiar okna ksi±¿ki adresowej:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
+D³ugo¶æ @@@ABOOKWIDTHMENU@@@ Wysoko¶æ @@@ABOOKHEIGHTMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Pozycja przycisku ksi±¿ki adresowej:</B>
@@ -383,7 +383,7 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 @@@ABOOKADDRSORTORDER@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Po¿±dek pól widoku listy:</B>
+<B>Porz±dek pól widoku listy:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@ nowrap>
 @@@ABOOKLISTVIEWFIELDORDERMENU@@@
 </td></tr>

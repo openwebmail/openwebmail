@@ -14,10 +14,10 @@
      </tr>
      <tr>
         <td class="smalltext">@@@GROUPLABEL@@@</td>
-        <td class="smalltext">month</td>
-        <td class="smalltext">day</td>
-        <td class="smalltext">year</td>
-        <td class="smalltext" colspan="2">age</td>
+        <td class="smalltext">mese</td>
+        <td class="smalltext">giorno</td>
+        <td class="smalltext">anno</td>
+        <td class="smalltext" colspan="2">eta'</td>
      </tr>
      <tr>
         <td colspan="6">&nbsp;</td>

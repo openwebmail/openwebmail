@@ -167,7 +167,7 @@ sub iconv {
       } elsif ($from eq 'euc-jp' && $to eq 'shift_jis' ) {
          euc2sjis(\$text[$i]); next;
       } else {
-         $text[$i]=~s/(.*?\s+|.+)/_iconv($from, $to, $1)/egis;
+         $text[$i]=~s/(\S+)/_iconv($from, $to, $1)/egis;
       }
    }
 

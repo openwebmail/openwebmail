@@ -471,15 +471,18 @@ sub addfolder {
       }
    }
 
-   my $foldertoadd = ow::tool::untaint(safefoldername(param('foldername'))) || '';
+   my $foldertoadd = ow::tool::untaint(param('foldername')) || '';
+   is_safefoldername($foldertoadd) or 
+      openwebmailerror(__FILE__, __LINE__, "$foldertoadd $lang_err{'has_illegal_chars'}");
+   $foldertoadd = safefoldername($foldertoadd);
    return editfolders() if ($foldertoadd eq '');
 
    if (length($foldertoadd) > $config{'foldername_maxlen'}) {
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'foldername_long'}");
    }
    if ( is_defaultfolder($foldertoadd) || is_lang_defaultfolder($foldertoadd) ||
-        $foldertoadd eq "$user" || $foldertoadd eq "" ) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'cant_create_folder'}");
+        $foldertoadd eq "$user") {
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'cant_create_folder'} ($foldertoadd)");
    }
 
    my ($folderfile, $folderdb)=get_folderpath_folderdb($user, $foldertoadd);
@@ -538,16 +541,20 @@ sub deletefolder {
 sub renamefolder {
    my $oldname = ow::tool::untaint(safefoldername(param('foldername'))) || '';
    if ($oldname eq 'INBOX') {
-      editfolders();
-      return;
+      return editfolders();
    }
 
-   my $newname = ow::tool::untaint(safefoldername(param('foldernewname')))||'';
+   my $newname = ow::tool::untaint(param('foldernewname'))||'';
+   is_safefoldername($newname) or 
+      openwebmailerror(__FILE__, __LINE__, "$newname $lang_err{'has_illegal_chars'}");
+   $newname = safefoldername($newname);
+   return editfolders() if ($newname eq '');
+
    if (length($newname) > $config{'foldername_maxlen'}) {
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'foldername_long'}");
    }
    if ( is_defaultfolder($newname) || is_lang_defaultfolder($newname) ||
-        $newname eq "$user" || $newname eq "" ) {
+        $newname eq "$user") {
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'cant_create_folder'}");
    }
 

@@ -59,7 +59,7 @@
       <td>
         <select name="UPLOAD.FILE.TYPE" class="mono">
         <option value="PHOTO" selected>Zdjêcie grupy</option>
-        <option value="SOUND">d¼wiêk</option>
+        <option value="SOUND">D¼wiêk</option>
         </select>
       </td>
       <td width="5">&nbsp;</td>
@@ -67,7 +67,7 @@
       <td width="5">&nbsp;</td>
       <td><input class="mono" type="file" name="UPLOAD.FILE" size="25"></td>
       <td width="5">&nbsp;</td>
-      <td><input class="medtext" type="submit" name="EDITFORMUPLOAD" value="Add"></td>
+      <td><input class="medtext" type="submit" name="EDITFORMUPLOAD" value="Dodaj"></td>
       <td width="5">&nbsp;</td>
       <td>@@@UPLOADWEBDISKLINK@@@</td>
     </tr>
@@ -117,9 +117,9 @@ function check_toggle(target) {
 
 function popupNotice (msgOption) {
    if (msgOption == 'agentmustsave') {
-      return(confirm('All data must be saved before viewing or creating an agent card.\nSave and continue?'));
+      return(confirm('Wszystkie dane musz± zostaæ zapisane przed widokiem lub tworzeniem karty agenta.\nZapisaæ i kontynuowaæ?'));
    } else if (msgOption == 'cancelchanges') {
-      return(confirm('All changes to this agent will be lost, continue?'));
+      return(confirm('Wszystkie zmiany w tym agencie zostan± utracone, kontynuowaæ?'));
    }
 }
 

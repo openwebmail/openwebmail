@@ -14,11 +14,11 @@
     </tr>
     <tr>
       <td class="smalltext">@@@GROUPLABEL@@@</td>
-      <td class="smalltext">prefix</td>
-      <td class="smalltext">first</td>
-      <td class="smalltext">middle</td>
-      <td class="smalltext">last</td>
-      <td class="smalltext">suffix</td>
+      <td class="smalltext">titolo</td>
+      <td class="smalltext">nome</td>
+      <td class="smalltext">secondo nome</td>
+      <td class="smalltext">cognome</td>
+      <td class="smalltext">titolo studio</td>
     </tr>
     <tr>
       <td colspan="6">@@@TYPES@@@&nbsp;</td>

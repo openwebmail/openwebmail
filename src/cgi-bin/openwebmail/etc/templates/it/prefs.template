@@ -342,7 +342,7 @@ Larghezza @@@EDITCOLUMNSMENU@@@ Altezza @@@EDITROWSMENU@@@
 @@@FILTERFAKEDFROM@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Filtera messaggi con intestazioni EXE alterate:</B>
+<B>Filtra messaggi con intestazioni EXE alterate:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDEXECONTENTTYPE@@@
 </td></tr>
@@ -351,39 +351,39 @@ Larghezza @@@EDITCOLUMNSMENU@@@ Altezza @@@EDITROWSMENU@@@
 
 @@@WEBADDRSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>AddressBook Options</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Opzioni Rubrica</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Size for addressbook window:</B>
+<B>Dimesione finestra rubrica:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
+Larghezza @@@ABOOKWIDTHMENU@@@ Altezza @@@ABOOKHEIGHTMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Addressbook button position:</B>
+<B>Posizione pulsante rubrica:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKBUTTONPOSITIONMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Addressbook default filter:</B>
+<B>Filtro default rubrica:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKDEFAULTFILTER@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Addresses displayed per page:</B>
+<B>Indirizzi visualizzati per pagina:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKADDRSPERPAGE@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Display only one line per contact:</B>
+<B>Visualizza solo una riga per contatto:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKADDRCOLLAPSE@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Default addressbook sort order:</B>
+<B>Ordinamento di default della rubrica:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKADDRSORTORDER@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Listview field order:</B>
+<B>Ordine Campi in visualizzazione lista:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@ nowrap>
 @@@ABOOKLISTVIEWFIELDORDERMENU@@@
 </td></tr>
@@ -480,7 +480,7 @@ Larghezza @@@FILEEDITCOLUMNSMENU@@@ Altezza @@@FILEEDITROWSMENU@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Opzioni Varie</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Default charset for file system:</B>
+<B>Set caratteri di default charset per il file system:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FSCHARSETMENU@@@
 </td></tr>

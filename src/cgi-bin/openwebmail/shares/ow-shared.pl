@@ -1494,7 +1494,7 @@ sub safefoldername {
    $foldername =~ s!\.\.+!!g;
    # $foldername =~ s!/!!g;	# comment out because of sub folder
 
-   # dangerous char for perl file open
+   # dangerous char at string begin/tail for perl file open
    $foldername =~ s!^\s*[\|\<\>]+!!g;
    $foldername =~ s![\|\<\>]+\s*$!!g;
 
@@ -1503,6 +1503,18 @@ sub safefoldername {
       $foldername =~ s![\s\`\|\<\>/;&]+!_!g;
    }
    return $foldername;
+}
+
+sub is_safefoldername {		# used before create folder
+   my $foldername=$_[0];
+
+   return 0 if ($foldername =~ m!\.\.+! ||
+                $foldername =~ m!^\s*[\|\<\>]+! ||
+                $foldername =~ m![\|\<\>]+\s*$!);
+   if ($config{'enable_strictfoldername'}) {
+      return 0 if ($foldername =~ m![\s\`\|\<\>/;&]+!);
+   }
+   return 1;
 }
 
 sub safedlname {

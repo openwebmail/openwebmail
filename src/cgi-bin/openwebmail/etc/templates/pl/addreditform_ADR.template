@@ -36,7 +36,7 @@
           <td><input class="mono" type="text" name="@@@POSTOFFICEADDRESS.NAME@@@" value="@@@POSTOFFICEADDRESS.VALUE@@@" size="30"></td>
         </tr>
         <tr>
-          <td class="smalltext">Skr. pocztowa</td>
+          <td class="smalltext">skr. pocztowa</td>
         </tr>
         <tr>
           <td class="smalltext">&nbsp;</td>
@@ -128,7 +128,7 @@
           </td>
         </tr>
         <tr>
-          <td colspan="2"><a href="javascript:makeLabel('editForm','@@@LABEL.INDEX@@@');"><span class="smalltext"><b>automake label</b></span></a></td>
+          <td colspan="2"><a href="javascript:makeLabel('editForm','@@@LABEL.INDEX@@@');"><span class="smalltext"><b>stwórz etykietê automatycznie</b></span></a></td>
         </tr>
         </table>
       </td>

@@ -13,9 +13,9 @@
          tid=setTimeout("timeoutcheck()", 1*1000);
          if (remainingseconds<65) {
             if (remainingseconds>6) {
-               window.defaultStatus="session time : "+ (remainingseconds-5) +" seconds left";
+               window.defaultStatus="czas sesji : zosta³o "+ (remainingseconds-5) +" sekund";
             } else if (remainingseconds>=5) {
-               window.defaultStatus="session time : "+ (remainingseconds-5) +" second left";
+               window.defaultStatus="czas sesji : zosta³o "+ (remainingseconds-5) +" sekund";
             }
             if (!warn) {
                warn=1;
@@ -25,7 +25,7 @@
             }
          }
       } else {
-         window.defaultStatus="session timeout";
+         window.defaultStatus="sesja wygas³a";
          clearTimeout(tid);
       }
    }
@@ -34,7 +34,7 @@
       if (remainingseconds>0) {
          return true;
       } else {
-         alert("Sorry, your session is timeouted, please login again.");
+         alert("Niestety, Twoja sesja wygas³a, proszê zalogowaæ siê ponownie.");
          return false;
       }
    }

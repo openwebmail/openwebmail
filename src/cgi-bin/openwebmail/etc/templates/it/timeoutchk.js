@@ -25,7 +25,7 @@
             }
          }
       } else {
-         window.defaultStatus="session timeout";
+         window.defaultStatus="sessione scaduta";
          clearTimeout(tid);
       }
    }
@@ -34,7 +34,7 @@
       if (remainingseconds>0) {
          return true;
       } else {
-         alert("Sorry, your session is timeouted, please login again.");
+         alert("Spiacente, la tua sessione e' scaduta, devi rieffettuare il login.");
          return false;
       }
    }

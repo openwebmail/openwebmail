@@ -5,7 +5,7 @@
   <td bgcolor=@@@TITLEBAR@@@>
     <table cellpadding="0" cellspacing="0" border="0" width="100%">
     <tr>
-      <td bgcolor=@@@TITLEBAR@@@><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>Edytuj informacje personalne</b></font></td>
+      <td bgcolor=@@@TITLEBAR@@@><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>Edycja informacji personalnych</b></font></td>
       <td bgcolor=@@@TITLEBAR@@@ align="right"><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>@@@ABOOKNAME@@@</b></td>
     </tr>
     </table>
@@ -182,7 +182,7 @@
       <td width="5">&nbsp;</td>
       <td><input class="mono" type="file" name="UPLOAD.FILE" size="25"></td>
       <td width="5">&nbsp;</td>
-      <td><input class="medtext" type="submit" name="EDITFORMUPLOAD" value="Add"></td>
+      <td><input class="medtext" type="submit" name="EDITFORMUPLOAD" value="Dodaj"></td>
       <td width="5">&nbsp;</td>
       <td>@@@UPLOADWEBDISKLINK@@@</td>
     </tr>
@@ -291,26 +291,26 @@ function showGeo (formName, geoNumber, showThing) {
          window.open(url,"_showGeo","width=550,height=500,resizable=yes,scrollbars=yes");
       }
    } else {
-      alert('You must fill in the longitude and latitude\nbefore any maps or photos can be viewed.');
+      alert('Musisz podaæ d³ugo¶æ i szeroko¶æ geograficzn±\naby pokazaæ mapy lub zdjêcia.');
    }
 }
 
 function popupNotice (msgOption) {
    if (msgOption == 'agentmustsave') {
-      return(confirm('All data must be saved before viewing or creating an agent card.\nSave and continue?'));
+      return(confirm('Wszystkie dane musz± zostaæ zapisane przed widokiem lub tworzeniem karty agenta.\nZapisaæ i kontynuowaæ?'));
    } else if (msgOption == 'cancelchanges') {
-      return(confirm('All changes to this agent will be lost, continue?'));
+      return(confirm('Wszystkie zmiany w tym agencie zostan± utracone, kontynuowaæ?'));
    }
 }
 
 function savecheck (formName) {
    if (document.forms[formName].elements['N.0.VALUE.GIVENNAME'].value == '' &&
        document.forms[formName].elements['N.0.VALUE.FAMILYNAME'].value == '') {
-      alert("Please fill in the firstname or lastname field first.");
+      alert("Proszê najpierw podaæ imiê i nazwisko.");
       return false;
    }
    if (document.forms[formName].elements['EMAIL.0.VALUE'].value == '') {
-      return(confirm("Email address is empty, are you sure to save this contact?"));
+      return(confirm("Adres email jest pusty, czy na pewno zapisaæ ten kontakt?"));
    }
    return true
 }

@@ -177,17 +177,20 @@ sub loginmenu {
    }
    $html =~ s/\@\@\@STARTFORM\@\@\@/$temphtml/;
 
+   # we set onChange to '' if browser is gecko based (eg:mozilla, firefox) to avoid the following warning in js console
+   # "Permission denied to get property XULElement.selectedIndex' when calling method: [nsIAutoCompletePopup::selectedIndex]"
+
    $temphtml = textfield(-name=>'loginname',
                          -default=>'',
                          -size=>'14',
-                         -onChange=>'focuspwd()',
+                         -onChange=>($ENV{HTTP_USER_AGENT}=~/Gecko/)?'':'focuspwd()',
                          -override=>'1');
    $html =~ s/\@\@\@LOGINNAMEFIELD\@\@\@/$temphtml/;
 
    $temphtml = password_field(-name=>'password',
                               -default=>'',
                               -size=>'14',
-                              -onChange=>'focusloginbutton()',
+                              -onChange=>($ENV{HTTP_USER_AGENT}=~/Gecko/)?'':'focusloginbutton()',
                               -override=>'1');
    $html =~ s/\@\@\@PASSWORDFIELD\@\@\@/$temphtml/;
 

@@ -9,7 +9,7 @@
 use strict;
 use Fcntl qw(:DEFAULT :flock);
 use CGI::Carp qw(fatalsToBrowser carpout);
-use Text::Iconv;
+#use Text::Iconv;	# let caller do this, as Text::Icon may be unavailable on some platform
 
 require "modules/filelock.pl"; # openwebmail filelocking routines
 
@@ -324,6 +324,7 @@ sub decodeUTF {
    # Text::Iconv is required to already have been loaded.
    my ($chars) = @_;
    return unless defined $chars;
+   return $chars if (!defined $INC{'Text/Iconv.pm'});	# Text::Iconv.pm not loaded
 
    print "converting chars: $chars\n" if $vfiledebug;
    my ($format, $converter, $newchars);

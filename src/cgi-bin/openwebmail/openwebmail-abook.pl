@@ -205,7 +205,11 @@ openwebmail_requestend();
 
 ########## ADDRBOOKADD ###########################################
 sub addrbookadd {
-   my $abookfoldernew = ow::tool::untaint(safefoldername(param('abookfoldernew')||''));
+   my $abookfoldernew = ow::tool::untaint(param('abookfoldernew'))||'';
+   is_safefoldername($abookfoldernew) or 
+      openwebmailerror(__FILE__, __LINE__, "$abookfoldernew $lang_err{'has_illegal_chars'}");
+
+   $abookfoldernew = ow::tool::untaint($abookfoldernew);
    return addrbookedit() if ($abookfoldernew eq '');
 
    my $abookfilenew = abookfolder2file($abookfoldernew);
@@ -407,8 +411,10 @@ sub addrbookedit {
 
 ########## ADDRBOOKRENAME ########################################
 sub addrbookrename {
-   my $abookfoldernew = param('abookfoldernew') || '';
-   $abookfoldernew = ow::tool::untaint(safefoldername($abookfoldernew));
+   my $abookfoldernew = ow::tool::untaint(param('abookfoldernew')) || '';
+   is_safefoldername($abookfoldernew) or 
+      openwebmailerror(__FILE__, __LINE__, "$abookfoldernew $lang_err{'has_illegal_chars'}");
+   $abookfoldernew = safefoldername($abookfoldernew);
    return addrbookedit() if ($abookfoldernew eq '');
 
    $abookfolder = ow::tool::untaint(safefoldername($abookfolder));

@@ -14,11 +14,11 @@
     </tr>
     <tr>
       <td class="smalltext">@@@GROUPLABEL@@@</td>
-      <td class="smalltext">tytularny przedrostek</td>
-      <td class="smalltext">pierwsze</td>
-      <td class="smalltext">drugie</td>
+      <td class="smalltext">tyt. przedrostek&nbsp;</td>
+      <td class="smalltext">imiê</td>
+      <td class="smalltext">drugie imiê</td>
       <td class="smalltext">nazwisko</td>
-      <td class="smalltext">tytularny przyrostek</td>
+      <td class="smalltext">tyt. przyrostek</td>
     </tr>
     <tr>
       <td colspan="6">@@@TYPES@@@&nbsp;</td>

@@ -5,7 +5,7 @@
       <td></td>
       <td><b>Nazwa firmy</b></td>
       <td rowspan="3">&nbsp;</td>
-      <td><b>Pozycja w pracy</b></td>
+      <td><b>Rodzaj pracy</b></td>
     </tr>
     <tr>
       <td>@@@GROUP@@@</td>
@@ -24,9 +24,9 @@
       <td colspan="3" class="smalltext">&nbsp;</td>
     </tr>
     <tr>
-      <td><b>Klasyfikacja pracy</b></td>
+      <td><b>Stanowisko</b></td>
       <td rowspan="2">&nbsp;</td>
-      <td><b>Struktura dzia³u</b>&nbsp;<a href="javascript:document.editForm.formchange.value='@@@ADDORGANIZATIONALUNITS@@@,0,1'; document.editForm.submit();">+</a></td>
+      <td><b>Dzia³</b>&nbsp;<a href="javascript:document.editForm.formchange.value='@@@ADDORGANIZATIONALUNITS@@@,0,1'; document.editForm.submit();">+</a></td>
     </tr>
     <tr>
       <td valign="top">

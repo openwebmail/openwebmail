@@ -1,3 +1,20 @@
+11/25/2004
+----------
+1. fix a problem that when dangerous chars in foldername in was silently 
+   removed in folder creation, the resulted string might contain invalid 
+   chars to user current charset
+   (reported by chip.AT.turtle.ee.ncku.edu.tw)
+2. new mirror site at Beijing, China
+   http://web.lasg.ac.cn/openwebmail/
+   (thanks to Wang Jun, wjun.AT.mail.iap.ac.cn)
+3. fix a problem that shares/vfile.pl won't work without Text::Iconv.pm 
+   (reported by marvi.AT.menhir.biz, Marvi Benedet)
+4. Polish language and template files translation update
+   (thanks to Pawel Foremski, pjf.AT.gna.org)
+5. Italian language and template files translation update
+   (thanks to Benedet Marvi, marvi.AT.menhir.biz)
+
+
 11/24/2004
 ----------
 1. fix the "Undefined subroutine &main::get_messageids_sorted_by_date" error 

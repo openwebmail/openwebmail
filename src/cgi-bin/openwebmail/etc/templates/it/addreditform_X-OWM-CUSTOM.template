@@ -2,9 +2,9 @@
   <td>
     <table cellpadding="0" cellspacing="0" border="0">
     <tr>
-      <td><b>Custom Name</b></td>
+      <td><b>Nome Personalizzato</b></td>
       <td rowspan="2">&nbsp;</td>
-      <td><b>Custom Values</b>&nbsp;<a href="javascript:document.editForm.formchange.value='@@@ADDCUSTOMVALUES@@@,0,1'; document.editForm.submit();">+</a></td>
+      <td><b>Valori Personalizzati</b>&nbsp;<a href="javascript:document.editForm.formchange.value='@@@ADDCUSTOMVALUES@@@,0,1'; document.editForm.submit();">+</a></td>
     </tr>
     <tr>
       <td valign="top">
