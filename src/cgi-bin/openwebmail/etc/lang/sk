@@ -1,8 +1,8 @@
-#!/usr/bin/perl
+package openwebmail::sk;
 
-# Slovak translation by lubos klokner, lubos@klokner.sk, 2002-JUL-11
-# Ripped by PeSe, pese@svf.stuba.sk, 2003-01-15
-# charset: iso-8859-2
+# Slovak translation, charset: iso-8859-2
+# by lubos klokner, lubos.AT.klokner.sk, 2002-JUL-11
+#    PeSe, pese.AT.svf.stuba.sk, 2003-01-15
 
 %lang_folders =
    (
@@ -63,9 +63,9 @@
 
 %lang_abookbuttonpositionlabels = 
    (
-   before => 'Before addressbook entries',
-   after  => 'After addressbook entries',
-   both   => 'Before and after addressbook entries'
+   before => 'Pred zoznamom kontaktov',
+   after  => 'Za zoznamom kontaktov',
+   both   => 'Pred aj za zoznamom kontaktov'
    );
 
 %lang_timelabels =
@@ -175,13 +175,14 @@
    gzip     => 'gzKomprimova»',
    mkzip    => 'VytvorZip',
    mktgz    => 'VytvorTgz',
-   mkthumbnail  => 'MkThumb',
+   mkthumbnail  => 'VytorNáhµad',
    download => 'Stiahnu»',
    upload   => 'Nahra»',
    );   
 
 %lang_text =
    (
+   help       => 'Pomoc',
    login      => 'Prihlási»',
    clear      => 'Zmaza»',
    point      => 'Bodov',
@@ -237,7 +238,7 @@
    type       => 'Typ',
    filename   => 'Meno súboru',
    encoding   => 'Kódovanie',
-   description=> 'Description',
+   description=> 'Popis',
    download   => 'Ulo¾i» do súboru',
    charset    => 'Znaková sada',
    samecharset=> 'Rovnaká ako pre písanie správy',
@@ -320,12 +321,15 @@
    spellcheck => 'Skontrolova» pravopis',
    checkagain => 'Skontrolova» znovu',
    finishchecking => 'Ukonèi» kontrolu',
+   editpdict  => 'Upravi» osobný slovník',
+   addtodict  => 'Prida» do slovníka',
    manuallyfix=> 'Ruène upravi»',
    editstat   => 'Upravi» komentár',
    savestat   => 'Ulo¾i» komentár',
    clearstat  => 'Zmaza» v¹etky komentáre',
    statreply  => '-- Vybra» komentár ako odpoveï --',
    calendar   => 'Kalendár',
+   allday     => 'Celý deò',
    am         => 'doobeda',
    pm         => 'poobede',
    calfmt_year          => 'Rok @@@YEAR@@@',
@@ -337,14 +341,15 @@
    moreitems  => 'viac polo¾iek',
    multieditconf => 'Táto polo¾ka bola pridaná pre viac dátumov.\\nÚprava zmení hodnoty pre v¹etky dátumi.\\nPokraèova» s úpravou?',
    multidelconf  => 'Táto polo¾ka bola pridaná pre viac dátumov.\\nVymazanie zma¾e hodnoty pre v¹etky dátumi.\\nPokraèova» s mazaním?',
+   caldelconf => 'Ste si istý, ¾e si ¾eláte zmaza» túto polo¾ku?',
    noitemforthisday => '®iadne polo¾ky pre tento deò',
    thisday_only          => 'Iba dne¹ný dátum',
    the_wday_of_thismonth => ' @@@ORDER@@@ @@@WDAY@@@ v mesiaci',
    every_wday_thismonth  => 'ka¾dý @@@WDAY@@@ tento mesiac',
-   thismonth_only           => 'This month only',
-   every_oddmonth_thisyear  => 'Every odd month this year',
-   every_evenmonth_thisyear => 'Every even month this year',
-   every_month_thisyear     => 'Every month this year',
+   thismonth_only           => 'Iba tento mesiac',
+   every_oddmonth_thisyear  => 'Ka¾dý nepárny mesiac v tomto roku',
+   every_evenmonth_thisyear => 'Ka¾dý párny mesiac v tomto roku',
+   every_month_thisyear     => 'Ka¾dý mesiac v tomto roku',
    webdisk      => 'WebDisk',
    sshterm      => 'SSH Terminál',
    dir          => 'Adresár',
@@ -360,18 +365,24 @@
    dest_of_thezip=> 'názov súboru nového zip archívu',
    dest_of_thetgz=> 'názov súboru novího tgz archívu',
    homedir      => 'Domovský adresár',
-   showthumbnail    => 'Thumbnails',
+   showthumbnail    => 'Náhµady',
    showhidden   => 'Zobrazi» skryté súbory',
    lastmodified => 'Naposledy modifikovaný',
    perm         => 'Práva',
-   permission   => 'Access Permission',
-   noitemfound  => '®iadne polo¾ky nenájdené',
+   permission   => 'Právo prístupu',
+   noitemfound  => 'Nenájdené ¾iadne polo¾ky',
    savefile     => 'Ulo¾i»Súbor',
    succeeded    => 'prebehlo úspe¹ne',
    failed       => 'zlyhalo',
    savefile_towd=> 'Ulo¾i» súbor na WebDisk',
    saveatt_towd => 'Ulo¾i» prílohu na WebDisk',
-   addatt_fromwd=> 'Prida» prílohu z WebDisk-u'
+   addatt_fromwd=> 'Prida» prílohu z WebDisk-u',
+   vdomain_usermgr    => 'Virtual Domain User Management',
+   vdomain_createuser => 'Create User',
+   vdomain_changeuser => 'Change User',
+   vdomain_deleteuser => 'Delete User',
+   vdomain_usertype_localmbox  => 'Local Mailbox',
+   vdomain_usertype_redirected => 'Redirect to external mail address'
    );
 
 %lang_err =
@@ -405,7 +416,7 @@
    att_overlimit     => 'Prepáète, Va¹a príloha presiahla veµkostný limit, ktorý je',
    inv_msg_op        => 'Neplatná operácia pre správu',
    sess_cookieerr    => 'Va¹a po¾iadavka neobsahuje korektné ID sedenia -- prístup zamietnutý!',
-   sess_iperr        => 'Your request didn\'t come from the same ip of this session -- access denied!',
+   sess_iperr        => 'Va¹a po¾iadavka nepri¹la z ip adresy, ktorá je ulo¾ená v sedení tohoto spojenia -- prístup zamietnutý!',
    no_endpart        => 'Koncová èas» chýba',
    part_missing      => 'Niektoré èasti chýbajú',
    rebuild_fmterr    => 'Chybný formát novej správy',
@@ -415,6 +426,7 @@
    auth_syserr       => 'systémová chyba pri overovaní',
    param_fmterr      => 'chybný formát parametra',
    pwd_incorrect     => 'nesprávne heslo',
+   pwd_confirmmismatch=>'Potvrdenie nového hesla zlyhalo',
    pwd_tooshort      => 'Heslo je príli¹ krátke (minimálna då¾ka @@@PASSWDMINLEN@@@)',
    pwd_toosimple     => 'Heslo je príli¹ jednoduché (po¾adované sú aj èísla aj písmená)',
    network_server_error => 'chyba sie»ového servera',
@@ -428,9 +440,10 @@
    onefileonly       => 'Pre túto operáciu je povolený len jeden súbor.',
    no_file_todownload=> 'Nebol ¹pecifikovaný súbor na prebranie.',
    upload_overlimit  => 'Upload file size is over the limit',
-   decomp_notsupported=>'Decompression support is not available for this file.',
+   decomp_notsupported=>'Dekompresia pre tento typ súbor nie je dostupná.',
    webdisk_hitquota   => 'Prepáète, ale prekroèili ste Vá¹ limit diskového priestoru. Skúste si najskôr vymaza» nepotrebné súbory.',
-   webdisk_readonly   => 'Sorry, your webdisk is read only.'
+   webdisk_readonly   => 'Prepáète, ale Vá¹ WebDisk je nastavený iba na èítanie.',
+   vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
    );
 
 1;

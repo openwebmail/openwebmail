@@ -1,3 +1,5 @@
+package openwebmail::auth_pop3;
+use strict;
 #
 # auth_pop3.pl - authenticate user with POP3 server
 #
@@ -46,49 +48,51 @@
 #
 #    auth_module		auth_pop3.pl
 #    mailspooldir		any directory that the runtime user could write
+#    use_syshomedir		no
 #    use_homedirspools		no
-#    use_homedirfolders		no
 #    log_file			any file that runtime user could write
 #    enable_changepwd		no
 #    enable_autoreply		no
 #    enable_setforward		no
+#    pop3_authserver		pop3 server for authentication (default:localhost)
+#    pop3_authport		110
 #    getmail_from_pop3_authserver	yes
 #
 # 3. if your users are not on remote server but virtual users on this machine
 #    (eg: you use vm-pop3d on this machine for authentication)
 #
 #    a. you need to install openwebmail as described in step 1.b or 1.c
-#       and the user must be the same as the vm-pop3d is.
+#       and the user must be the same as the vm-pop3d.
 #    b. replace the following two options in step 2
 #
 #       mailspooldir			the mailspool used by vmpop3d
 #       getmail_from_pop3_authserver	no
 #
-# $pop3_authserver: the server used to authenticate pop3 user
-# $pop3_authport: the port which pop3 server is listening to
 # $local_uid: uid used on this machine
 #
 
-# global vars, also used by openwebmail.pl
-use vars qw($pop3_authserver $pop3_authport $local_uid);
-
-$pop3_authserver="localhost";
-$pop3_authport='110';
+# global vars, the uid used for all pop3 users mails
+use vars qw($local_uid);
 $local_uid=$>;
 
 ################### No configuration required from here ###################
 
-# routines get_userinfo() and get_userlist still depend on /etc/passwd
-# you may have to write your own routines if your user are not form /etc/passwd
-
-use strict;
-use FileHandle;
 use IO::Socket;
 require "mime.pl";
 
+# routines get_userinfo() and get_userlist still depend on /etc/passwd
+# you may have to write your own routines if your user are not form /etc/passwd
+
+#  0 : ok
+# -2 : parameter format error
+# -3 : authentication system/internal error
+# -4 : user doesn't exist
 sub get_userinfo {
-   my $user=$_[0];
+   my ($r_config, $user)=@_;
+   return(-2, 'User is null') if (!$user);
+
    my ($uid, $gid, $realname, $homedir) = (getpwuid($local_uid))[2,3,6,7];
+   return(-4, "User $user doesn't exist") if ($uid eq "");
 
    # use first field only
    $realname=(split(/,/, $realname))[0];
@@ -96,12 +100,16 @@ sub get_userinfo {
    if ($uid) {
       $homedir="/export$homedir" if (-d "/export$homedir");
    }
-   return($realname, $uid, $gid, $homedir);
+   return(0, '', $realname, $uid, $gid, $homedir);
 }
 
 
+#  0 : ok
+# -1 : function not supported
+# -3 : authentication system/internal error
 sub get_userlist {	# only used by openwebmail-tool.pl -a
-   return();		# not supported, return empty
+   my $r_config=$_[0];
+   return(-1, "userlist() is not available in auth_pop3.pl");
 }
 
 
@@ -110,25 +118,31 @@ sub get_userlist {	# only used by openwebmail-tool.pl -a
 # -3 : authentication system/internal error
 # -4 : password incorrect
 sub check_userpassword {
-   my ($user, $password)=@_;
+   my ($r_config, $user, $password)=@_;
+   return (-2, "User or password is null") if (!$user||!$password);
+
    my $remote_sock;
-
-   return -2 if ($user eq "");
-
    eval {
       local $SIG{ALRM} = sub { die "alarm\n" }; # NB: \n required
       alarm 10;
       $remote_sock=new IO::Socket::INET(   Proto=>'tcp',
-                                           PeerAddr=>$pop3_authserver,
-                                           PeerPort=>$pop3_authport,);
+                                           PeerAddr=>${$r_config}{'pop3_authserver'},
+                                           PeerPort=>${$r_config}{'pop3_authport'});
       alarm 0;
    };
-   return -3 if ($@);			# eval error, it means timeout
-   return -3 if (!$remote_sock);	# connect error
+   if ($@){ 			# eval error, it means timeout
+      return (-3, "pop3 server ${$r_config}{'pop3_authserver'} timeout");
+   }
+   if (!$remote_sock) { 	# connect error
+      return (-3, "pop3 server ${$r_config}{'pop3_authserver'} connection refused");
+   }
 
    $remote_sock->autoflush(1);
    $_=<$remote_sock>;
-   (close($remote_sock) && return -3) if (/^\-/);	# server not ready
+   if (/^\-/) {
+      close($remote_sock);
+      return(-3, "pop3 server ${$r_config}{'pop3_authserver'} not ready");
+   }
 
    # try if server supports auth login(base64 encoding) first
    print $remote_sock "auth login\r\n";
@@ -136,23 +150,32 @@ sub check_userpassword {
    if (/^\+/) {
       print $remote_sock &encode_base64($user);
       $_=<$remote_sock>;
-      (close($remote_sock) && return -2) if (/^\-/);		# username error
+      if (/^\-/) {
+         close($remote_sock);
+         return(-2, "pop3 server ${$r_config}{'pop3_authserver'} username error");
+      }
       print $remote_sock &encode_base64($password);
       $_=<$remote_sock>;
    }
    if (! /^\+/) {	# not supporting auth login or auth login failed
       print $remote_sock "user $user\r\n";
       $_=<$remote_sock>;
-      (close($remote_sock) && return -2) if (/^\-/);		# username error
+      if (/^\-/) {		# username error
+         close($remote_sock);
+         return(-2, "pop3 server ${$r_config}{'pop3_authserver'} username error");
+      }
       print $remote_sock "pass $password\r\n";
       $_=<$remote_sock>;
-      (close($remote_sock) && return -4) if (/^\-/);		# passwd error
+      if (/^\-/) {		# passwd error
+         close($remote_sock);
+         return(-4, "pop3 server ${$r_config}{'pop3_authserver'} password error");
+      }
    }
 
    print $remote_sock "quit\r\n";
    close($remote_sock);
 
-   return 0;
+   return (0, "");
 }
 
 
@@ -162,10 +185,9 @@ sub check_userpassword {
 # -3 : authentication system/internal error
 # -4 : password incorrect
 sub change_userpassword {
-   my ($user, $oldpassword, $newpassword)=@_;
-
-   return -2 if ($user eq "");
-   return -1;			# not supported
+   my ($r_config, $user, $oldpassword, $newpassword)=@_;
+   return (-2, "User or password is null") if (!$user||!$oldpassword||!$newpassword);
+   return (-1, "change_password() is not available in authpop3.pl");
 }
 
 1;

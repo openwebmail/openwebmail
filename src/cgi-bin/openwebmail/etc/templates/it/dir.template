@@ -74,7 +74,7 @@
 
 @@@UPLOADSTART@@@
 <table border="0" width="100%" cellpadding="1" cellspacing="1"><tr>
-<td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Upload</B></td>
+<td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Carica</B></td>
 </tr><tr>
 <td nowrap bgcolor=@@@MENUBAR@@@>@@@UPLOADFILEFIELD@@@</td>
 </tr></table>
@@ -86,7 +86,7 @@
 
 <table border="0" align="center" width="95%" cellpadding="1" cellspacing="1">
 <tr><td bgcolor=@@@COLUMNHEADER@@@>
-<B>Messages</B>
+<B>Messaggi</B>
 </td></tr><tr><td bgcolor=@@@MENUBAR@@@>
 @@@MSGTEXTAREA@@@
 </td></tr>
@@ -122,7 +122,7 @@
             return true;
          }
       }
-      alert("There is no directory or file selected.");
+      alert("Non ci sono file o cartelle selezionate.");
       return false;
    }
    function selectedstr()
@@ -156,7 +156,7 @@
    }
    function uploadfilled() {
       if (document.dirform.upload.value == '') {
-         alert("Please choose the file to upload first.");
+         alert("Scegli il file da caricare prima.");
          return false;
       } else {
          return true;
@@ -164,7 +164,7 @@
    }
    function opconfirm(op, conf) {
       if (conf) {
-         return(confirm('Are you sure you want to '+op+' the selected items? ( '+selectedstr()+' )'));
+         return(confirm('Sei sicuro di voler '+op+' gli elementi selezionati? ( '+selectedstr()+' )'));
       } else {
          return true;
       }

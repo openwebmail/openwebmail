@@ -4,9 +4,12 @@
 #
 
 use vars qw($SCRIPT_DIR);
-if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-\.]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
-if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
-push (@INC, $SCRIPT_DIR, ".");
+if ( $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
+if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
+   $_=<F>; close(F); if ( $_=~/^([^\s]*)/) { $SCRIPT_DIR=$1; }
+}
+if (!$SCRIPT_DIR) { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
+push (@INC, $SCRIPT_DIR);
 
 $ENV{PATH} = ""; # no PATH should be needed
 $ENV{ENV} = "";      # no startup script for sh
@@ -16,8 +19,7 @@ umask(0002); # make sure the openwebmail group can write
 use strict;
 use Fcntl qw(:DEFAULT :flock);
 use CGI qw(-private_tempfiles :standard);
-use CGI::Carp qw(fatalsToBrowser);
-CGI::nph();   # Treat script as a non-parsed-header script
+use CGI::Carp qw(fatalsToBrowser carpout);
 
 require "ow-shared.pl";
 require "filelock.pl";
@@ -28,13 +30,13 @@ require "mailfilter.pl";
 
 use vars qw(%config %config_raw);
 use vars qw($thissession);
-use vars qw($loginname $domain $user $userrealname $uuid $ugid $homedir);
+use vars qw($domain $user $userrealname $uuid $ugid $homedir);
 use vars qw(%prefs %style %icontext);
 use vars qw($folderdir @validfolders $folderusage);
 use vars qw($folder $printfolder $escapedfolder);
 
 openwebmail_init();
-verifysession();
+$SIG{CHLD}=sub { wait }; # whole process scope to prevent zombie
 
 use vars qw($sort $page);
 use vars qw($searchtype $keyword $escapedkeyword);
@@ -61,6 +63,8 @@ if ($action eq "readmessage") {
    openwebmailerror("Action $lang_err{'has_illegal_chars'}");
 }
 
+# back to root if possible, required for setuid under persistent perl
+$<=0; $>=0;
 ###################### END MAIN ##############################
 
 ################# READMESSAGE ####################
@@ -140,14 +144,13 @@ sub readmessage {
       }
    }
 
-   my $main_url = "$config{'ow_cgiurl'}/openwebmail-main.pl?sessionid=$thissession&amp;page=$page".
-                  "&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder";
-   my $read_url = "$config{'ow_cgiurl'}/openwebmail-read.pl?sessionid=$thissession&amp;page=$page".
-                  "&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder";
-   my $send_url = "$config{'ow_cgiurl'}/openwebmail-send.pl?sessionid=$thissession&amp;page=$page".
-                  "&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder";
+   my $urlparm="sessionid=$thissession&amp;folder=$escapedfolder&amp;page=$page&amp;".
+               "sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype";
+   my $main_url = "$config{'ow_cgiurl'}/openwebmail-main.pl?$urlparm";
+   my $read_url = "$config{'ow_cgiurl'}/openwebmail-read.pl?$urlparm";
+   my $send_url = "$config{'ow_cgiurl'}/openwebmail-send.pl?$urlparm";
    my $read_url_with_id = "$read_url&amp;message_id=$escapedmessageid";
-   my $send_url_with_id = "$send_url&amp;message_id=$escapedmessageid";
+   my $send_url_with_id = "$send_url&amp;message_id=$escapedmessageid&amp;compose_caller=read";
 
    my ($html, $temphtml, $temphtml1, $temphtml2);
    my $templatefile="readmessage.template";
@@ -158,15 +161,13 @@ sub readmessage {
       my @tmp=($prefs{'language'}, $prefs{'charset'});
       ($prefs{'language'}, $prefs{'charset'})=('en', lc($message{'charset'}));
 
-      require "$config{'ow_langdir'}/$prefs{'language'}";
-      printheader();
+      readlang($prefs{'language'});
       $printfolder = $lang_folders{$folder} || $folder || '';
-      $html=readtemplate($templatefile);
+      $html=htmlheader().readtemplate($templatefile);
 
       ($prefs{'language'}, $prefs{'charset'})=@tmp;
    } else {
-      printheader();
-      $html=readtemplate($templatefile);
+      $html=htmlheader().readtemplate($templatefile);
    }
    $html = applystyle($html);
 
@@ -224,7 +225,7 @@ sub readmessage {
       $body = html4link($body);
       $body = html4disablejs($body) if ($prefs{'disablejs'}==1);
       $body = html4disableembcgi($body) if ($prefs{'disableembcgi'}==1);
-      $body = html4mailto($body, "$config{'ow_cgiurl'}/openwebmail-send.pl", "action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page&amp;sessionid=$thissession&amp;composetype=sendto");
+      $body = html4mailto($body, "$config{'ow_cgiurl'}/openwebmail-send.pl", "$urlparm&amp;action=composemessage&amp;message_id=$escapedmessageid&amp;compose_caller=read");
       $body = html2table($body);
    } else { 					     # body must be html or text
       # remove odds space or blank lines
@@ -263,7 +264,7 @@ sub readmessage {
                    iconlink("forward.gif",      $lang_text{'forward'},      qq|accesskey="F" href="$send_url_with_id&amp;action=composemessage&amp;composetype=forward&amp;convfrom=$convfrom"|).
                    iconlink("forwardasatt.gif", $lang_text{'forwardasatt'}, qq|accesskey="M" href="$send_url_with_id&amp;action=composemessage&amp;composetype=forwardasatt"|);
    } else {
-      $temphtml .= iconlink("compose.gif",      $lang_text{'composenew'},   qq|accesskey="C" href="$send_url&amp;action=composemessage"|).
+      $temphtml .= iconlink("compose.gif",      $lang_text{'composenew'},   qq|accesskey="C" href="$send_url_with_id&amp;action=composemessage"|).
                    iconlink("reply.gif",        $lang_text{'reply'},        qq|accesskey="R" href="$send_url_with_id&amp;action=composemessage&amp;composetype=reply&amp;convfrom=$convfrom"|).
                    iconlink("replyall.gif",     $lang_text{'replyall'},     qq|accesskey="A" href="$send_url_with_id&amp;action=composemessage&amp;composetype=replyall&amp;convfrom=$convfrom"|).
                    iconlink("forward.gif",      $lang_text{'forward'},      qq|accesskey="F" href="$send_url_with_id&amp;action=composemessage&amp;composetype=forward&amp;convfrom=$convfrom"|).
@@ -284,7 +285,7 @@ sub readmessage {
    if ( $config{'enable_sshterm'} && -r "$config{'ow_htmldir'}/applet/mindterm/mindtermfull.jar" ) {
       $temphtml .= iconlink("sshterm.gif" ,"$lang_text{'sshterm'} ", qq|accesskey="T" href="#" onClick="window.open('$config{ow_htmlurl}/applet/mindterm/ssh.html', '_applet', 'width=400,height=100,top=2000,left=2000,resizable=no,menubar=no,scrollbars=no');"|);
    }
-   $temphtml .= iconlink("prefs.gif", $lang_text{'userprefs'}, qq|accesskey="O" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;sort=$sort&amp;page=$page"|);
+   $temphtml .= iconlink("prefs.gif", $lang_text{'userprefs'}, qq|accesskey="O" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;sort=$sort&amp;page=$page&amp;prefs_caller=read"|);
    $temphtml .= iconlink("logout.gif","$lang_text{'logout'} $prefs{'email'}", qq|accesskey="Q" href="$main_url&amp;action=logout"|) . qq| \n|;
 
    $html =~ s/\@\@\@LEFTMENUBARLINKS\@\@\@/$temphtml/;
@@ -326,7 +327,7 @@ sub readmessage {
    if ($prefs{'charset'} ne lc($message{'charset'}) &&
         defined($charset_convlist{$prefs{'charset'}}) ) {
 
-      # the string none.msgcharset and none.prefscharset are carefully choosed 
+      # the string none.msgcharset and none.prefscharset are carefully choosed
       # so it won't be convertable with any other charset in iconv()
       my %cflabels=( 'none.msgcharset'   => lc($message{'charset'})||$lang_text{'none'},
                      'none.prefscharset' => lc($prefs{'charset'}) );
@@ -405,7 +406,7 @@ sub readmessage {
          }
          close (STATBOOK) or
             openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.stationery.book!");
-      } 
+      }
 
       $htmlstat = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-send.pl",
                             -name=>'ReplyWith');
@@ -429,6 +430,9 @@ sub readmessage {
                           -override=>'1');
       $htmlstat .= hidden(-name=>'composetype',
                           -value=>'reply',
+                          -override=>'1');
+      $htmlstat .= hidden(-name=>'compose_caller',
+                          -value=>'read',
                           -override=>'1');
       $htmlstat .= qq|<table cellspacing=0 cellpadding=0 border=0><tr>$htmlstat|.
                    qq|<td>|.
@@ -503,11 +507,13 @@ sub readmessage {
       $defaultdestination='mail-trash';
    } else {
       my $smartdestination;
-      my $subject=$message{'subject'}; $subject=~s/\s//g;
-      foreach (@movefolders) {
-         next if ($_ eq "DELETE");
-         if ($subject=~/\Q$_\E/i) {
-            $smartdestination=$_; last;
+      if ($prefs{'smartdestination'}) {
+         my $subject=$message{'subject'}; $subject=~s/\s//g;
+         foreach (@movefolders) {
+            next if ($_ eq "DELETE");
+            if ($subject=~/\Q$_\E/i) {
+               $smartdestination=$_; last;
+            }
          }
       }
       $defaultdestination=$smartdestination || $prefs{'defaultdestination'} || 'mail-trash';
@@ -775,18 +781,16 @@ sub readmessage {
    }
    $html =~ s/\@\@\@BODY\@\@\@/$temphtml/;
 
-   print $html;
-
    # if this is unread message, confirm to transmit read receipt if requested
    if ($message{status} !~ /r/i && $notificationto ne '') {
       if ($prefs{'sendreceipt'} eq 'ask') {
-         print qq|<script language="JavaScript">\n<!--\n|,
-               qq|replyreceiptconfirm('$send_url_with_id&amp;action=replyreceipt', 0);\n|,
-               qq|//-->\n</script>\n|;
+         $html.=qq|<script language="JavaScript">\n<!--\n|.
+                qq|replyreceiptconfirm('$send_url_with_id&amp;action=replyreceipt', 0);\n|.
+                qq|//-->\n</script>\n|;
       } elsif ($prefs{'sendreceipt'} eq 'yes') {
-         print qq|<script language="JavaScript">\n<!--\n|,
-               qq|replyreceiptconfirm('$send_url_with_id&amp;action=replyreceipt', 1);\n|,
-               qq|//-->\n</script>\n|;
+         $html.=qq|<script language="JavaScript">\n<!--\n|.
+                qq|replyreceiptconfirm('$send_url_with_id&amp;action=replyreceipt', 1);\n|.
+                qq|//-->\n</script>\n|;
       }
    }
 
@@ -795,22 +799,22 @@ sub readmessage {
    # show cut folder warning
    if ($do_cutfolders) {
       if (!$load_showmsgjs) {
-         print qq|<script language="JavaScript" src="$config{'ow_htmlurl'}/javascript/showmsg.js"></script>\n|;
+         $html.=qq|<script language="JavaScript" src="$config{'ow_htmlurl'}/javascript/showmsg.js"></script>\n|;
          $load_showmsgjs=1;
       }
       my $charset=$prefs{'charset'};
       $charset=lc($message{'charset'}) if ($convfrom eq 'none.msgcharset');
       my $msg=qq|<font size="-1" color="#cc0000">$lang_err{'folder_cutdone'}</font>|;
       $msg=~s/\@\@\@FOLDERQUOTA\@\@\@/$config{'folderquota'}$lang_sizes{'kb'}/;
-      print qq|<script language="JavaScript">\n<!--\n|.
-            qq|showmsg('$charset', '$lang_text{"quota_hit"}', '$msg', '$lang_text{"close"}', '_cutfolders', 400, 100, 60);\n|.
-            qq|//-->\n</script>\n|;
+      $html.=qq|<script language="JavaScript">\n<!--\n|.
+             qq|showmsg('$charset', '$lang_text{"quota_hit"}', '$msg', '$lang_text{"close"}', '_cutfolders', 400, 100, 60);\n|.
+             qq|//-->\n</script>\n|;
    }
 
    # popup stat of incoming msgs
    if ($prefs{'newmailwindowtime'}>0 && $filtered > 0) {
       if (!$load_showmsgjs) {
-         print qq|<script language="JavaScript" src="$config{'ow_htmlurl'}/javascript/showmsg.js"></script>\n|;
+         $html.=qq|<script language="JavaScript" src="$config{'ow_htmlurl'}/javascript/showmsg.js"></script>\n|;
          $load_showmsgjs=1;
       }
       my $charset=$prefs{'charset'};
@@ -836,9 +840,9 @@ sub readmessage {
       }
       $msg = qq|<font size=-1>$msg</font>|;
       $msg =~ s!\\!\\\\!g; $msg =~ s!'!\\'!g;	# escape ' for javascript
-      print qq|<script language="JavaScript">\n<!--\n|.
-            qq|showmsg('$charset', '$lang_text{"inmessages"}', '$msg', '$lang_text{"close"}', '_incoming', 160, |.($line*16+70).qq|, $prefs{'newmailwindowtime'});\n|.
-            qq|//-->\n</script>\n|;
+      $html.=qq|<script language="JavaScript">\n<!--\n|.
+             qq|showmsg('$charset', '$lang_text{"inmessages"}', '$msg', '$lang_text{"close"}', '_incoming', 160, |.($line*16+70).qq|, $prefs{'newmailwindowtime'});\n|.
+             qq|//-->\n</script>\n|;
    }
 
    my @tmp;
@@ -847,12 +851,12 @@ sub readmessage {
       ($prefs{'language'}, $prefs{'charset'})=('en', lc($message{'charset'}));
    }
    if ($printfriendly eq "yes") {
-      print qq|<script language="JavaScript">\n<!--\n|.
-            qq|setTimeout("window.print()", 1*1000);\n|.
-            qq|//-->\n</script>\n|;
-      printfooter(0);
+      $html.=qq|<script language="JavaScript">\n<!--\n|.
+             qq|setTimeout("window.print()", 1*1000);\n|.
+             qq|//-->\n</script>\n|;
+      print $html, htmlfooter(0);
    } else {
-      printfooter(2);
+      print $html, htmlfooter(2);
    }
    if ($convfrom eq 'none.msgcharset') {
       ($prefs{'language'}, $prefs{'charset'})=@tmp;
@@ -861,11 +865,10 @@ sub readmessage {
    # fork a child to do the status update and headerdb update
    # thus the result of readmessage can be returned as soon as possible
    if ($message{status} !~ /r/i) {	# msg file doesn't has R flag
-      $|=1; 				# flush all output
-      $SIG{CHLD} = sub { wait };	# handle zombie
+      local $|=1; 			# flush all output
+      local $SIG{CHLD} = sub { wait };	# handle zombie
       if ( fork() == 0 ) {		# child
-         close(STDOUT);
-         close(STDIN);
+         close(STDIN); close(STDOUT); close(STDERR);
 
          my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
          filelock($folderfile, LOCK_EX|LOCK_NB) or exit 1;
@@ -919,7 +922,10 @@ sub html_att2table {
    $temphtml = html4disablejs($temphtml) if ($prefs{'disablejs'}==1);
    $temphtml = html4disableembcgi($temphtml) if ($prefs{'disableembcgi'}==1);
    $temphtml = html4attachments($temphtml, $r_attachments, "$config{'ow_cgiurl'}/openwebmail-viewatt.pl", "action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder");
-   $temphtml = html4mailto($temphtml, "$config{'ow_cgiurl'}/openwebmail-send.pl", "action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page&amp;sessionid=$thissession&amp;composetype=sendto");
+   $temphtml = html4mailto($temphtml, "$config{'ow_cgiurl'}/openwebmail-send.pl",
+                  "sessionid=$thissession&amp;folder=$escapedfolder&amp;page=$page&amp;".
+                  "sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;".
+                  "action=composemessage&amp;message_id=$escapedmessageid&amp;compose_caller=read");
    $temphtml = html2table($temphtml);
 
    return($temphtml);
@@ -1081,7 +1087,6 @@ sub misc_att2table {
                    qq|</td></tr></table>|;
    return($temphtml);
 }
-
 ############### END READMESSAGE ##################
 
 ################# REBUILDMESSAGE ####################
@@ -1117,10 +1122,11 @@ sub rebuildmessage {
       writelog("rebuildmsg - rebuild $rebuildmsgid in $folder");
       writehistory("rebuildmsg - rebuild $rebuildmsgid from $folder");
    } else {
-      my $html = '';
-      my $temphtml;
-      my $errormsg;
+      my ($html, $temphtml);
+      $html = readtemplate("rebuildfailed.template");
+      $html = applystyle($html);
 
+      my $errormsg;
       if ($errorcode==-1) {
          $errormsg=$lang_err{'no_endpart'};
       } elsif ($errorcode==-2) {
@@ -1130,12 +1136,7 @@ sub rebuildmessage {
       } elsif ($errorcode==-4) {
          $errormsg=$lang_err{'rebuild_sizeerr'};
       }
-
-      $html=readtemplate("rebuildfailed.template");
       $html =~ s/\@\@\@ERRORMSG\@\@\@/$errormsg/;
-      $html = applystyle($html);
-
-      printheader();
 
       $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-read.pl");
       $temphtml .= hidden(-name=>'action',
@@ -1172,9 +1173,7 @@ sub rebuildmessage {
                    end_form();
       $html =~ s/\@\@\@CONTINUEBUTTON\@\@\@/$temphtml/;
 
-      print $html;
-
-      printfooter(2);
+      print htmlheader(), $html, htmlfooter(2);
    }
 }
 ################# END REBUILDMESSGAE ####################

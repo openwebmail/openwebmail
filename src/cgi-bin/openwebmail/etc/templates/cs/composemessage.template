@@ -85,11 +85,11 @@
       var url = "@@@ABOOKURL@@@?action=addressbook&sessionid=@@@SESSIONID@@@&form=composeform&field=" + toccbcc+"&abook_keyword=@@@ABOOKKEYWORD@@@&abook_searchtype=@@@ABOOKSEARCHTYPE@@@";
 
       if (toccbcc == "to")
-   url += "&preexisting=" + escape (document.composeform.to.value);
+   url += "&elist=" + escape (document.composeform.to.value);
       else if (toccbcc == "cc")
-   url += "&preexisting=" + escape (document.composeform.cc.value);
+   url += "&elist=" + escape (document.composeform.cc.value);
       else if (toccbcc == "bcc")
-   url += "&preexisting=" + escape (document.composeform.bcc.value);
+   url += "&elist=" + escape (document.composeform.bcc.value);
 
       var hWnd = window.open(url,"_addressbook","width=@@@ABOOKWIDTH@@@,height=@@@ABOOKHEIGHT@@@,resizable=yes,scrollbars=yes");
       if ((document.window != null) && (!hWnd.opener))

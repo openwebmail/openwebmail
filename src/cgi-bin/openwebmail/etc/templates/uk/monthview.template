@@ -2,7 +2,7 @@
 <table border="0" align="center" width="95%" cellpadding="0" cellspacing="0">
 <tr><td colspan="2" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>Month View</b></font>
+<b>Перегляд м╕сяця</b></font>
 </td></tr>
 @@@STARTFORM@@@
 <tr><td bgcolor=@@@MENUBAR@@@>

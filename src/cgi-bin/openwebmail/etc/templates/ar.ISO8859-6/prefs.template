@@ -1,13 +1,14 @@
 @@@STARTPREFSFORM@@@
-<table border="0" align="center" width="90%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="0" bgcolor=@@@BACKGROUND@@@>
 <tr><td colspan="2" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>ÊבÖךהÇÊ ÇהוÓÊÎÏו @@@REALNAME@@@</B></font>
 <tr><td colspan="2" bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
 </td></tr>
-
-<tr><td colspan="2">&nbsp;</td></tr>
+</table>
+&nbsp;
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>ÇהוÙהטוÇÊ ÇהÔÎÕךÉ</B></td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>ÇההÚÉ:</B>
@@ -74,9 +75,12 @@
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>ÕטÑÉ ÇהÎהבךסÉ:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@ nowrap>
-@@@BACKGROUNDMENU@@@
-&nbsp;URL
-@@@BGURLFIELD@@@
+@@@BACKGROUNDMENU@@@ <font size=-2>URL </font>@@@BGURLFIELD@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Background image repeated:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@BGREPEATCHECKBOX@@@<br>
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>וגÇÓ ÇהÎ×ס:</B>
@@ -93,15 +97,23 @@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@HOURFORMATMENU@@@ ÓÇÙÉ
 </td></tr>
+
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>ÊÕבÍ ÇהוÌהÏÇÊ</B></td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>וטגÙ ÔÑך× ÇהÊÍדו ÙזÏ ÙÑÖ ÇהוÌהÏ:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CTRLPOSITIONFOLDERVIEWMENU@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>ÙÏÏ ÇהÑסÓÇÆה הדהס ÕבÍÉ:</B>
+<B>ÙÏÏ ÇהÙזÇÕÑ הדהס ÕבÍÉ:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@HEADERSPERPAGE@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ÊÑÊךÈ ÇהÍגטה:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@FIELDORDERMENU@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>ÇהÊÑÊךÈ ÇהÇבÊÑÇÖך:</B>
@@ -120,6 +132,11 @@
 <B>ÇהטÌחÉ ÇהÇבÊÑÇÖךÉ:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DEFAULTDESTINATIONMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ÇהטÌחÉ ÇהÐסדךסÉ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SMARTDESTINATION@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>ÙÑÖ ÇהÑÓÇהÉ ÇהÊÇהךÉ ÈÙÏ Çהזגה/ÇהזÓÎ:</B>
@@ -217,6 +234,7 @@
 @@@SENDCHARSETMENU@@@
 </td></tr>
 
+@@@FILTERSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>ÎךÇÑÇÊ בהÊÑÉ ÇהÑÓÇÆה</B></td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
@@ -239,21 +257,22 @@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDEXECONTENTTYPE@@@
 </td></tr>
+@@@FILTEREND@@@
 
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>AddressBook Options</B></td></tr>
-<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Size for addressbook window:</B>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>ÎךÇÑÇÊ ÏבÊÑ ÇהÙזÇטךז</B></td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>וÓÇÍÉ Å×ÇÑ ÏבÊÑ ÇהÙזÇטךז:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
+ÇהÙÑÖ @@@ABOOKWIDTHMENU@@@ ÇהÅÑÊבÇÙ @@@ABOOKHEIGHTMENU@@@
 </td></tr>
-<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Addressbook button position:</B>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>וטגÙ ÇÒÑÇÑ ÏבÊÑ ÇהÙזÇטךז:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKBUTTONPOSITIONMENU@@@
 </td></tr>
-<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Addressbook default filter:</B>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ÇהבהÊÑ ÇהÅבÊÑÇÖך הÏבÊÑ ÇהÙזÇטךז:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKDEFAULTFILTER@@@
 </td></tr>
@@ -280,6 +299,11 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 <B>ÓÇÙÉ ÇהזחÇךÉ:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ENDHOURMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ÇהבÊÑÉ בך ÙÑÖ Çהךטו:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@INTERVALMENU@@@ ÏגךגÉ (ÏגÇÆג)
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>ÅØחÇÑ ÇהÓÇÙÇÊ ÇהבÇÑÚÉ:</B>
@@ -324,7 +348,7 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>וÓÇÍÉ Å×ÇÑ ÊÍÑךÑ ÇהוהבÇÊ:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-Width @@@FILEEDITCOLUMNSMENU@@@ Height @@@FILEEDITROWSMENU@@@
+ÇהÙÑÖ @@@FILEEDITCOLUMNSMENU@@@ ÇהÅÑÊבÇÙ @@@FILEEDITROWSMENU@@@
 </td></tr>
 @@@WEBDISKEND@@@
 

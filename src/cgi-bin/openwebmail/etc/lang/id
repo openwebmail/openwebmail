@@ -1,7 +1,7 @@
-#!/usr/bin/perl
+package openwebmail::id;
 
-# Indonesian translation by Hu-Wei Liang, liangs.AT.kunchang.com.tw
-# charset: iso-8859-1
+# Indonesian translation, charset: iso-8859-1
+# by Hu-Wei Liang, liangs.AT.kunchang.com.tw
 
 %lang_folders =
    (
@@ -181,6 +181,7 @@
 
 %lang_text =
    (
+   help       => 'Help',
    login      => 'Login Masuk',
    clear      => 'Hapus',
    point      => 'Point',
@@ -319,12 +320,15 @@
    spellcheck => 'Periksa Spel tulisan',
    checkagain => 'Periksa Kembali',
    finishchecking => 'Pemeriksaan Selesai',
+   editpdict  => 'Edit Personal Dictionary',
+   addtodict  => 'Add to Dictionary',
    manuallyfix=> 'Pemeriksaan manual',
    editstat   => 'Edit Stationery',
    savestat   => 'Save Stationery',
    clearstat  => 'Clear All Stationery',
    statreply  => '-- Stationery for Reply --',
    calendar   => 'Calendar',
+   allday     => 'All day',
    am         => 'am',
    pm         => 'pm',
    calfmt_year          => 'Year @@@YEAR@@@',
@@ -336,6 +340,7 @@
    moreitems  => 'more items',
    multieditconf => 'This item was added for multiple dates.\\nEditing it will change the item for all dates.\\nContinue with Edit?',
    multidelconf  => 'This item was added for multiple dates.\\nDeleting it will delete the item for all dates.\\nContinue with Delete?',
+   caldelconf => 'Are you sure you want to delete this item?',
    noitemforthisday => 'No items for this day',
    thisday_only          => 'This day\'s date only',
    the_wday_of_thismonth => 'The @@@ORDER@@@ @@@WDAY@@@ of the month',
@@ -370,7 +375,13 @@
    failed       => 'failed',
    savefile_towd=> 'Save file to WebDisk',
    saveatt_towd => 'Save attachment to WebDisk',
-   addatt_fromwd=> 'Add attachment from WebDisk'
+   addatt_fromwd=> 'Add attachment from WebDisk',
+   vdomain_usermgr    => 'Virtual Domain User Management',
+   vdomain_createuser => 'Create User',
+   vdomain_changeuser => 'Change User',
+   vdomain_deleteuser => 'Delete User',
+   vdomain_usertype_localmbox  => 'Local Mailbox',
+   vdomain_usertype_redirected => 'Redirect to external mail address'
    );
 
 %lang_err =
@@ -414,6 +425,7 @@
    auth_syserr       => 'Sistem pemeriksaan ada yg tidak benar',
    param_fmterr      => 'Format yg salah',
    pwd_incorrect     => 'Kode Rahasia salah',
+   pwd_confirmmismatch=>'Kode baru dan Pemeriksaan tidak sama',
    pwd_tooshort      => 'Password too short (minimum length @@@PASSWDMINLEN@@@)',
    pwd_toosimple     => 'Password too simple (both alphabet and digit are required)',
    network_server_error => 'Internet server ada yg salah',
@@ -429,7 +441,8 @@
    upload_overlimit  => 'Upload file size is over the limit',
    decomp_notsupported=>'Decompression support is not available for this file.',
    webdisk_hitquota   => 'Sorry, you\'ve hit your webdisk quota, please delete some files first.',
-   webdisk_readonly   => 'Sorry, your webdisk is read only.'
+   webdisk_readonly   => 'Sorry, your webdisk is read only.',
+   vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
    );
 
 1;

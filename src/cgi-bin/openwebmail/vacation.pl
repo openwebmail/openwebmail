@@ -208,7 +208,7 @@ sub interactive_mode {
             qq|\n|,
             qq|Press return when ready to continue, and you will enter your favorite\n|,
             qq|editor ($editor) to edit the messasge to your own tastes.\n|;
-      $| = 1;
+      local $| = 1;
       print "Press return to continue: ";
       <STDIN>;
       system $editor, '.vacation.msg';
@@ -523,7 +523,7 @@ sub log_debug {
    open(Z, ">> /tmp/vacation.debug");
 
    # unbuffer mode
-   select(Z); $| = 1;
+   select(Z); local $| = 1;
    select(STDOUT);
 
    print Z "$today $time ", join(" ",@msg), "\n";

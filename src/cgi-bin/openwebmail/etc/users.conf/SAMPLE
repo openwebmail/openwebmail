@@ -33,6 +33,8 @@ attlimit			50
 <page_footer>
 <a href="%ow_htmlurl%/openwebmail.html" target="_blank">%name%</a>
 version %version%
+&nbsp;
+<a accesskey="H" href="%help_url%" target="_help">%help_text%?</a>
 </page_footer>
 
 <mailfooter>

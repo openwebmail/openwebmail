@@ -2,6 +2,9 @@
 #
 # openwebmail-spell.pl - spell check program
 #
+# 2003/02/19 Scott E. Campbell, scampbel@gvpl.ca
+#            add personal dictionary support
+#
 # 2001/09/27 tung@turtle.ee.ncku.edu.tw
 #            modified from WBOSS Version 1.50a
 #
@@ -20,6 +23,7 @@ my %dictionary_letters =
    czech     => 'AÁBCÈDÏEÉÌFGHIÍJKLMNÒOÓPQRØS©T«UÚÙVWXYÝZ®aábcèdïeéìfghiíjklmnòoópqrøs¹t»uúùvwxyýz¾',
    dansk     => 'ABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅabcdefghijklmnopqrstuvwxyzæøå',
    deutsch   => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzäÄöÖüÜß',
+   french    => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzàáâäÀÁÂÄèéêëÈÉÊËìíîïÌÍÎÏòóôöÒÓÔÖùúûüÙÚÛÜ',
    magyar    => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzáÁéÉíÍóÓúÚüÜõÕûÛÀÁÈÉÌÍÒÓÔÕÖÙÚÛÜàáèéêëìíòóôõö¢~ûü',
    polski    => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz±æê³ñó¶¼¿¡ÆÊ£ÑÓ¦¬¯',
    ukrainian => 'ÊÃÕËÅÎÇÛÝÚÈ§Æ¦×ÁÐÒÏÌÄÖ¤­ÑÞÓÍÉÔØÂÀ\'êãõëåîçûýúè·æ¶÷áðòïìäö´½ñþóíéôøâà',
@@ -27,9 +31,12 @@ my %dictionary_letters =
 
 
 use vars qw($SCRIPT_DIR);
-if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-\.]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
-if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
-push (@INC, $SCRIPT_DIR, ".");
+if ( $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
+if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
+   $_=<F>; close(F); if ( $_=~/^([^\s]*)/) { $SCRIPT_DIR=$1; }
+}
+if (!$SCRIPT_DIR) { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
+push (@INC, $SCRIPT_DIR);
 
 $ENV{PATH} = ""; # no PATH should be needed
 $ENV{ENV} = "";      # no startup script for sh
@@ -40,21 +47,19 @@ use strict;
 use Fcntl qw(:DEFAULT :flock);
 use IPC::Open3;
 use CGI qw(-private_tempfiles :standard);
-use CGI::Carp qw(fatalsToBrowser);
-CGI::nph();   # Treat script as a non-parsed-header script
+use CGI::Carp qw(fatalsToBrowser carpout);
 
 require "ow-shared.pl";
 require "filelock.pl";
 
 use vars qw(%config %config_raw);
 use vars qw($thissession);
-use vars qw($loginname $domain $user $userrealname $uuid $ugid $homedir);
+use vars qw($domain $user $userrealname $uuid $ugid $homedir);
 use vars qw(%prefs %style);
 use vars qw($folderdir @validfolders $folderusage);
 use vars qw($folder $printfolder $escapedfolder);
 
 openwebmail_init();
-verifysession();
 
 # extern vars
 use vars qw(%lang_text %lang_err);	# defined in lang/xy
@@ -66,69 +71,66 @@ use vars qw(*spellIN *spellOUT *spellERR);
 my $form = param('form');
 my $field = param('field');
 my $dictionary = param('dictionary') || $prefs{'dictionary'};
-my $dicletters = $dictionary_letters{$dictionary} || $dictionary_letters{'english'};
-
 ($dictionary =~ /^([\w\d\.\-_]+)$/) && ($dictionary = $1);
+my $dicletters=$dictionary_letters{'english'};
+$dicletters=$dictionary_letters{$dictionary} if (defined($dictionary_letters{$dictionary}));
 
-$|=1;	# fix the duplicate output problem caused by fork in spellcheck
+local $|=1;	# fix the duplicate output problem caused by fork in spellcheck
 
 if (! -x $config{'spellcheck'}) {
    openwebmailerror("Spellcheck is not available.<br>( $config{'spellcheck'} not found )");
 }
 
-my @cmd=($config{'spellcheck'}, '-a', '-S', '-d', $dictionary);
+my @cmd=($config{'spellcheck'}, '-a', '-S', '-d', $dictionary, '-p', "$homedir/.ispell_words");
 if (defined(param('string'))) {
    my $pid = open3(\*spellIN, \*spellOUT, \*spellERR, @cmd);
-   text2words(param('string'));
-   docheck($form,$field);
+   my ($wordcount, $wordframe, @words)=text2words(param('string'), $dicletters);
+   my ($wordshtml, $error)=spellcheck_words2html($wordcount, \$wordframe, \@words);
+   docheckform($form, $field, $dictionary, $wordshtml, $error, $wordcount, $wordframe);
    close spellIN;
    close spellOUT;
    wait;
-} elsif (defined(param($lang_text{'checkagain'}))) {
+
+} elsif (defined(param('checkagainbutton'))) {
    my $pid = open3(\*spellIN, \*spellOUT, \*spellERR, @cmd);
-   cgiparam2words();
-   docheck($form,$field);
+   my ($wordcount, $wordframe, @words)=cgiparam2words();
+   my ($wordshtml, $error)=spellcheck_words2html($wordcount, \$wordframe, \@words);
+   docheckform($form, $field, $dictionary, $wordshtml, $error, $wordcount, $wordframe);
    close spellIN;
    close spellOUT;
    wait;
-} elsif (defined(param($lang_text{'finishchecking'}))) {
-   cgiparam2words();
-   final($form,$field);
+
+} elsif (defined(param('editpdictbutton'))) {
+   editpdict(param('dictword2delete'), $dictionary);
+
+} elsif (defined(param('finishcheckingbutton'))) {
+   my ($wordcount, $wordframe, @words)=cgiparam2words();
+   my $finalstring=words2text(\$wordframe, \@words, $dicletters);
+   finalform($form, $field, $finalstring);
+
 } else {
-   printheader();
-   print "What the heck? Invalid input for Spellcheck!";
-   printfooter(1);
+   print htmlheader(), "What the heck? Invalid input for Spellcheck!", htmlfooter(1);
 }
 
-exit;
+# back to root if possible, required for setuid under persistent perl
+$<=0; $>=0;
+############################### END MAIN #################################
 
 ############################### ROUTINES ##############################
-my @words=();
-my $wordframe="";
-my $wordcount=0;
-my $worderror=0;
-my $wordignore="";
-
-sub docheck {
-   my ($formname, $fieldname) = @_;
-   my $html = '';
-   my $temphtml;
+sub docheckform {
+   my ($formname, $fieldname, $dictionary, 
+       $wordshtml, $error, $wordcount, $wordframe) = @_;
    my $escapedwordframe;
    local $_;
 
-   $html=readtemplate("spellcheck.template");
+   my ($html, $temphtml);
+   $html = readtemplate("spellcheck.template");
    $html = applystyle($html);
 
    $html =~ s/\@\@\@FORMNAME\@\@\@/$formname/;
    $html =~ s/\@\@\@FIELDNAME\@\@\@/$fieldname/;
    $html =~ s/\@\@\@DICTIONARY\@\@\@/$dictionary/;
-
-   $temphtml=words2html();
-   $html =~ s/\@\@\@WORDSHTML\@\@\@/$temphtml/;
-
-   # escapedwordframe must be done after words2html()
-   # since $wordframe may changed in words2html()
-   $escapedwordframe=escapeURL($wordframe);
+   $html =~ s/\@\@\@WORDSHTML\@\@\@/$wordshtml/;
 
    $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-spell.pl",
                          -name=>'spellcheck') .
@@ -144,15 +146,15 @@ sub docheck {
                hidden(-name=>'dictionary',
                       -default=>$dictionary,
                       -override=>'1') .
-               hidden(-name=>'wordframe',
-                      -default=>$escapedwordframe,
-                      -override=>'1') .
                hidden(-name=>'wordcount',
                       -default=>$wordcount,
+                      -override=>'1') .
+               hidden(-name=>'wordframe',
+                      -default=>escapeURL($wordframe),
                       -override=>'1');
    $html =~ s/\@\@\@STARTSPELLCHECKFORM\@\@\@/$temphtml/;
 
-   if ( defined(param($lang_text{'checkagain'})) ) {
+   if ( defined(param('checkagainbutton')) ) {
       $temphtml = button(-name=>"backbutton",
                          -value=>$lang_err{'back'},
                          -onclick=>'window.history.back();',
@@ -160,16 +162,24 @@ sub docheck {
    } else {	# first time check, no history to back
       $temphtml = "";
    }
-   if (defined(param($lang_text{'checkagain'})) && $worderror>0) {
-      $temphtml .= "&nbsp;&nbsp;&nbsp;&nbsp;";
-   }
-   if ($worderror>0) {
-      $temphtml .= submit("$lang_text{'checkagain'}");
+   if ($error>0) {
+      $temphtml .= "&nbsp;&nbsp;" if (defined(param('checkagainbutton')));
+      $temphtml .= submit(-name=>'checkagainbutton',
+                          -value=>"$lang_text{'checkagain'}",
+                          -override=>'1');
    }
    $html =~ s/\@\@\@CHECKAGAINBUTTON\@\@\@/$temphtml/;
 
-   $temphtml = submit("$lang_text{'finishchecking'}");
+   $temphtml = submit(-name=>"finishcheckingbutton",
+                      -value=>"$lang_text{'finishchecking'}",
+                      -override=>'1');
    $html =~ s/\@\@\@FINISHCHECKINGBUTTON\@\@\@/$temphtml/;
+
+   $temphtml = button(-name=>"editpdictbutton",
+                      -value=>$lang_text{'editpdict'},
+                      -onclick=>"window.open('$config{'ow_cgiurl'}/openwebmail-spell.pl?editpdictbutton=yes&amp;sessionid=$thissession','_personaldict','width=300,height=350,resizable=yes,menubar=no,scrollbars=yes');",
+                      -override=>'1');
+   $html =~ s/\@\@\@EDITPERSDICTIONARYBUTTON\@\@\@/$temphtml/;
 
    $temphtml = button(-name=>"cancelbutton",
                       -value=>$lang_text{'cancel'},
@@ -180,28 +190,26 @@ sub docheck {
    $temphtml = end_form();
    $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/;
 
-   printheader();
-   print $html;
-   printfooter(2);
+   print htmlheader(), $html, htmlfooter(2);
 }
 
 
-sub final {
-   my ($formname, $fieldname) = @_;
-   my $escapedfinalstring;
-
-   $escapedfinalstring=words2text();
+sub finalform {
+   my ($formname, $fieldname, $finalstring) = @_;
 
    # since jscript has problem in unescape doublebyte char string,
    # we only escape " to !QUOT! and unescape in jscript by RegExp
-   # $escapedfinalstring=escapeURL(words2text());
-   $escapedfinalstring=~s/"/!QUOT!/g;
+   $finalstring=~s/"/!QUOT!/g;
 
    print qq|Content-type: text/html
 
-<html><body>
+<html>
+<head>
+<meta HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=$prefs{'charset'}">
+</head>
+<body>
 <form name="spellcheck">
-<input type="hidden" name="finalstring" value="$escapedfinalstring">
+<input type="hidden" name="finalstring" value="$finalstring">
 </form>
 <script language="JavaScript">
    <!--
@@ -224,82 +232,153 @@ sub final {
 }
 
 
-########################## article split/join #########################
+sub editpdict {
+   my ($dictword2delete, $dictionary) = @_;
+   local $_;
+   my ($spellerdict) = $config{'spellcheck'} =~ m/\/?(\w+)\s*$/;
+   my $bgcolor = $style{"tablerow_light"};
+   my $count = 1;
 
-sub _word2label {
-   my $word=$_[0];
-   my $label='%%WORD'.$wordcount.'%%';
+   my ($html, $temphtml);
+   $html= readtemplate("editdictionary.template");
+   $html = applystyle($html);
 
-   if ($wordignore=~/\Q$word\E/i || $word =~/^WORD/) {
-       return($word);
+   if ($dictword2delete) {
+      open(PERSDICT,"<$homedir/.ispell_words");
+      open(NEWPERSDICT,">$homedir/.ispell_words.new");
+      while (<PERSDICT>) {
+         chop($_);
+         if ($_ ne $dictword2delete) {
+            print NEWPERSDICT "$_\n";
+         }
+      }
+      close(PERSDICT);
+      close(NEWPERSDICT);
+      rename("$homedir/.ispell_words",     "$homedir/.ispell_words.bak");
+      rename("$homedir/.ispell_words.new", "$homedir/.ispell_words");
    }
-   $words[$wordcount]=$word;
-   $wordcount++;
+
+   open(PERSDICT,"$homedir/.ispell_words");
+   $temphtml = "";
+
+   while (<PERSDICT>) {
+      my $dictword = $_;
+      chop($dictword);
+
+      next if ($dictword=~m/personal_ws/);  # to get past aspell's first line
+
+      $bgcolor=($style{"tablerow_dark"},$style{"tablerow_light"})[$count%2];
+      $temphtml .= qq|<tr><td bgcolor=$bgcolor>$dictword</td>\n<td bgcolor=$bgcolor align=center>|.
+                   button(-name=>"dictword2delete",
+                          -value=>$lang_text{'delete'},
+                          -onclick=>"window.open('$config{'ow_cgiurl'}/openwebmail-spell.pl?editpdictbutton=yes&amp;dictword2delete=$dictword&amp;sessionid=$thissession','_self','width=300,height=350,resizable=yes,menubar=no,scrollbars=yes');",
+                          -class=>"medtext",
+                          -override=>'1').    
+                   qq|</td></tr>\n|;
+      $count++;
+   }
+   close(PERSDICT);
+   $html =~ s/\@\@\@DICTIONARYWORDS\@\@\@/$temphtml/;
+
+   $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-spell.pl",
+                         -name=>'spellcheck') .
+                  hidden(-name=>$lang_text{'editpdict'},
+                         -default=>'yes',
+                         -override=>'1') .
+                  hidden(-name=>'sessionid',
+                         -default=>$thissession,
+                         -override=>'1') .
+                  hidden(-name=>'dictionary',
+                         -default=>$dictionary,
+                         -override=>'1');
+   $html =~ s/\@\@\@STARTFORM\@\@\@/$temphtml/;
+
+   $temphtml = button(-name=>"closebutton",
+                      -value=>$lang_text{'close'},
+                      -onclick=>'window.close();',
+                      -override=>'1');
+   $html =~ s/\@\@\@CLOSEBUTTON\@\@\@/$temphtml/;
+
+   $temphtml = end_form();
+   $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/;
+
+   print htmlheader(), $html, htmlfooter();
+}
+
+
+########################## article split/join #########################
+# $wordframe is a rough structure of the original text, containing no word in it.
+# words of the orgignal text are put into @words.
+
+# text -> $wordframe and @words
+sub text2words {
+   my ($text, $dicletters)=@_;
+   my $ignore = "they'll we'll you'll she'll he'll i'll ".	# init don't care term
+		"they've we've you've I've ".
+		"can't couldn't won't wouldn't shouldn't ".
+		"don't doesn't didn't hasn't hadn't ".
+		"isn't wasn't aren't weren't ".
+		"http https ftp nntp smtp nfs html xml sgml mailto ".
+		"freebsd linux solaris gnu gpl bsd openwebmail";
+   # put url to ignore
+   foreach my $word ($text=~m![A-Za-z]+tp://[A-Za-z\d\.]+!ig) {
+      $ignore.=" $word";
+   }
+   # put email to ignore
+   foreach my $word ($text=~m![A-Za-z\d]+\@[A-Za-z\d]+!ig) {
+      $ignore.=" $word";
+   }
+   # put FQDN to ignore
+   foreach my $word ($text=~m![A-Za-z\d\.]+\.(com|org|edu|net|gov)[A-Za-z\d\.]*!ig) {
+      $ignore.=" $word";
+   }
+
+   my $wordframe=$text;
+   my $wordcount=0;
+   my @words=();
+   $wordframe=~s/([$dicletters][$dicletters\-]*[$dicletters])|(~~[$dicletters][$dicletters\-]*[$dicletters])/_word2label($1, $ignore, \$wordcount, \@words)/ge;
+   return($wordcount, $wordframe, @words);
+}
+sub _word2label {
+   my ($word, $wordignore, $r_wordcount, $r_words)=@_;
+   return($word) if ($wordignore=~/\Q$word\E/i || $word =~/^WORD/);
+
+   my $label='%%WORD'.${$r_wordcount}.'%%';
+   ${$r_words}[${$r_wordcount}]=$word;
+   ${$r_wordcount}++;
    return($label);
 }
 
-# fill $wordframe and @words by spliting an article
-sub text2words {
-   my $text=$_[0];
-   local $_;
-
-   # init don't care term
-   $wordignore  = "they'll we'll you'll she'll he'll i'll ".
-                  "they've we've you've I've ".
-                  "can't couldn't won't wouldn't shouldn't ".
-                  "don't doesn't didn't hasn't hadn't ".
-                  "isn't wasn't aren't weren't ".
-                  "http https ftp nntp smtp nfs html xml sgml mailto ".
-                  "freebsd linux solaris gnu gpl bsd openwebmail";
-
-   # put url to ignore
-   foreach ($text=~m![A-Za-z]+tp://[A-Za-z\d\.]+!ig) {
-      $wordignore.=" $_";
-   }
-   # put email to ignore
-   foreach ($text=~m![A-Za-z\d]+\@[A-Za-z\d]+!ig) {
-      $wordignore.=" $_";
-   }
-   # put FQDN to ignore
-   foreach ($text=~m![A-Za-z\d\.]+\.(com|org|edu|net|gov)[A-Za-z\d\.]*!ig) {
-      $wordignore.=" $_";
-   }
-
-   @words=();
-   $wordcount=0;
-   $wordframe=$text;
-   $wordframe=~s/([$dicletters][$dicletters\-]*[$dicletters])|(~~[$dicletters][$dicletters\-]*[$dicletters])/_word2label($1)/ge;
-   return $wordcount;
-}
-
-# fill $wordframe and @words by CGI $query
+# cgi param -> $wordframe and @words
 sub cgiparam2words {
-   my $q=$_[0];
-   my $i;
-
-   @words=();
-   $wordcount=param('wordcount');
-   $wordframe=unescapeURL(param('wordframe'));
-   for ($i=0; $i<$wordcount; $i++) {
+   my $wordframe=unescapeURL(param('wordframe'));
+   my $wordcount=param('wordcount');
+   my @words=();
+   for (my $i=0; $i<$wordcount; $i++) {
       $words[$i]=param($i) if (defined(param($i)));
    }
-   return;
+   return($wordcount, $wordframe, @words);
 }
 
 # rebuilt article from $wordframe and @words
 sub words2text {
-   my $text=$wordframe;
-   $text=~s/%%WORD(\d+)%%/$words[$1]/g;
+   my ($r_wordframe, $r_words, $dicletters)=@_;
+
+   my $text=${$r_wordframe};
+   $text=~s/%%WORD(\d+)%%/${$r_words}[$1]/g;
    $text=~s/~~([$dicletters]*)/$1/g;		# covert manualfix to origword
+   $text=~s/~!~([$dicletters]*)/$1/g;		# covert addtodict to origword
    return($text);
 }
 
-# generate html from $wordframe and @words and spellcheck()
-sub words2html {
-   my $html=$wordframe;
-   my $i;
+# spellcheck @words, 
+# put correct word back to word frame, 
+# and generate query html for incorrect word
+sub spellcheck_words2html {
+   my ($wordcount, $r_wordframe, $r_words)=@_;
 
    # conversion make html display happy
+   my $html=${$r_wordframe};
    $html=~s/&/&amp;/g;
    $html=~s/</&lt;/g;
    $html=~s/>/&gt;/g;
@@ -307,50 +386,61 @@ sub words2html {
    $html=~s/"/&quot;/g;
    $html=~s/  /&nbsp;&nbsp;/g;
 
-   $worderror=0;
-   for ($i=0; $i<$wordcount; $i++) {
+   my $error=0;
+   for (my $i=0; $i<$wordcount; $i++) {
       my $wordhtml="";
 
-      if ( $words[$i]=~/^~~/ ) {	# check if manualfix
-         my $origword=substr($words[$i],2);
+      if ( ${$r_words}[$i]=~/^~!~/ ) {         # check if addtodict
+         my $origword=substr(${$r_words}[$i],3);
+         $wordhtml= $origword;
+         print spellIN "*$origword\n\#\n";		# add to person dict
+         ${$r_words}[$i] = $origword;
+         ${$r_wordframe}=~s/%%WORD$i%%/${$r_words}[$i]/;# remove the word symbol from wordframe
+
+      } elsif ( ${$r_words}[$i]=~/^~~/ ) {	# check if manualfix
+         my $origword=substr(${$r_words}[$i],2);
          my $len=length($origword);
          $wordhtml=qq|<input type="text" size="$len" name="$i" value="$origword">\n|;
-         $worderror++;
+         $error++;
 
       } else {				# normal word
-         my ($r) = spellcheck($words[$i]);
+         my ($r) = spellcheck(${$r_words}[$i]);
 
          if ($r->{'type'} eq 'none' || $r->{'type'} eq 'guess') {
-            my $len=length($words[$i]);
-            $wordhtml=qq|<input type="text" size="$len" name="$i" value="$words[$i]">\n|;
-            $worderror++;
+            # my $len=length(${$r_words}[$i]);
+            # $wordhtml=qq|<input type="text" size="$len" name="$i" value="$words[$i]">\n|;
+            $wordhtml=qq|<select size="1" name="$i">\n|.
+                      qq|<option>${$r_words}[$i]</option>\n|.
+                      qq|<option value="~!~${$r_words}[$i]">--$lang_text{'addtodict'}--</option>\n|.
+                      qq|<option value="~~${$r_words}[$i]">--$lang_text{'manuallyfix'}--</option>\n|.
+                      qq|</select>\n|;
+            $error++;
 
          } elsif ($r->{'type'} eq 'miss')  {
-            my $sugg;
             $wordhtml=qq|<select size="1" name="$i">\n|.
-                      qq|<option>$words[$i]</option>\n|.
-                      qq|<option value="~~$words[$i]">--$lang_text{'manuallyfix'}--</option>\n|;
-            foreach $sugg (@{$r->{'misses'}}) {
+                      qq|<option>${$r_words}[$i]</option>\n|.
+                      qq|<option value="~!~${$r_words}[$i]">--$lang_text{'addtodict'}--</option>\n|.
+                      qq|<option value="~~${$r_words}[$i]">--$lang_text{'manuallyfix'}--</option>\n|;
+            foreach my $sugg (@{$r->{'misses'}}) {
                $wordhtml.=qq|<option>$sugg</option>\n|;
             }
             $wordhtml.=qq|</select>\n|;
-            $worderror++;
+            $error++;
 
          } else {	# type= ok, compound, root
-            $wordhtml=qq|$words[$i]|;
-            $wordframe=~s/%%WORD$i%%/$words[$i]/; # remove the word symbo from wordframe
+            $wordhtml=${$r_words}[$i];
+            ${$r_wordframe}=~s/%%WORD$i%%/${$r_words}[$i]/; # remove the word symbo from wordframe
          }
 
       }
       $html=~s/%%WORD$i%%/$wordhtml/;
    }
-   return($html);
+   return($html, $error);
 }
 
 ########################## spellcheck #########################
-
 sub spellcheck {
-   my $word = shift(@_);
+   my $word = $_[0];;
    my @commentary;
    my @results;
    my %types = (

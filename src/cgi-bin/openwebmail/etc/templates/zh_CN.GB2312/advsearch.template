@@ -1,7 +1,7 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>进阶搜索</b></font>
+<b>高级搜索</b></font>
 </td></tr><tr><td bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
 </td></tr><tr><td>&nbsp;</td></tr>
@@ -10,7 +10,7 @@
 
 <table border="0" width="100%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@COLUMNHEADER@@@>
-<B>选择信件箱</B>
+<B>选择邮件箱</B>
 &nbsp;<input name="allbox" type="checkbox" value="1" onClick="CheckAll();">
 </td></tr>
 <tr><td bgcolor=@@@TABLEROW_LIGHT@@@>
@@ -24,7 +24,7 @@
 <tr>
 <td bgcolor=@@@COLUMNHEADER@@@><B>位置</B></td>
 <td bgcolor=@@@COLUMNHEADER@@@><B>比对方式</B></td>
-<td bgcolor=@@@COLUMNHEADER@@@><B>搜索字串</B></td>
+<td bgcolor=@@@COLUMNHEADER@@@><B>搜索字符串</B></td>
 <td bgcolor=@@@COLUMNHEADER@@@ align=center><B>输出列数</B></td>
 </tr>
 <tr>

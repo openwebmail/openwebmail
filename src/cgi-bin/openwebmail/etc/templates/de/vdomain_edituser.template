@@ -1,0 +1,62 @@
+<BR><BR><BR><BR><BR>
+<table border="0" align="center" width="70%" cellpadding="0" cellspacing="0">
+<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><B>Edit Virtual User</B></FONT>
+</td></tr><tr><td align="center" valign="middle" bgcolor=@@@WINDOW_LIGHT@@@>
+@@@STARTUSERFORM@@@
+<BR>
+<table align=center border=0 cellspacing=1 cellpadding=1 width=80%>
+<tr>
+<td align=right>E-MAIL Adresse:</td><td>@@@VUSER@@@ @ @@@DOMAINNAME@@@</td>
+</tr><tr>
+<td colspan=2><hr></td>
+</tr><tr>
+
+<td align=right>Neues Passwort: </td><td>@@@NEWPASSWORDFIELD@@@</td>
+</tr><tr>
+<td align=right>Password Bestaetigung: </td><td>@@@CONFIRMNEWPASSWORDFIELD@@@</td>
+</tr><tr>
+<td colspan=2><hr></td>
+</tr><tr>
+  <td align=right>Benutzer Typ:</td>
+  <td>@@@USERTYPEFIELD@@@</td>
+</tr><tr>
+<td align=right>E-Mail Weiterleitung: </td><td>@@@REDIRECTFIELD@@@</td>
+</tr><tr>
+<td colspan=2><hr></td>
+</tr><tr>
+<td colspan=2>
+<table align="center" width="80%"><tr>
+<td align=center>@@@CHANGEBUTTON@@@</td>
+@@@ENDFORM@@@
+@@@STARTDELFORM@@@
+<td align=center>@@@DELETEBUTTON@@@</td>
+@@@ENDFORM@@@
+@@@STARTCANCELFORM@@@
+<td align=center>@@@CANCELBUTTON@@@</td>
+@@@ENDFORM@@@
+</tr></table>
+</td>
+</tr>
+</table>
+</td></tr></table>
+<script language="JavaScript">
+   document.userform.newpassword.focus()
+
+   function changecheck()
+   {
+      var s;
+      s=document.userform.newpassword.value;
+      if (s.length < @@@PASSWDMINLEN@@@) {
+         alert("Kennwort muss mindestens @@@PASSWDMINLEN@@@ Zeichen lang sein!");
+         return false;
+      }
+      if (document.userform.newpassword.value !=
+	  document.userform.confirmnewpassword.value) {
+         alert("Passwoerter sind nicht gleich !");
+         return false;
+      }
+      if (document.userform.newpassword.value ==
+   }
+
+</script>

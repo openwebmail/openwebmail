@@ -40,7 +40,15 @@ while (<FIND>) {
 	}
 	';
     close C;
-    system '/usr/bin/cc', ".tmp$$.c", '-o', $file;
+    if ( -x '/usr/bin/cc') {
+       system '/usr/bin/cc', ".tmp$$.c", '-o', $file;
+    } elsif (-x '/usr/bin/gcc' ) {
+       system '/usr/bin/gcc', ".tmp$$.c", '-o', $file;
+    } elsif (-x '/usr/local/bin/gcc' ) {
+       system '/usr/local/bin/gcc', ".tmp$$.c", '-o', $file;
+    } else {
+       die "Can't find C compiler";
+    }
     die "Can't compile new $_" if $?;
     chmod $mode, $file;
     chown $uid, $gid, $file;

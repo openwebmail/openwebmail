@@ -1,12 +1,12 @@
 <table border="0" align="center" width="95%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>File szerkesztÃ©se</b></font>
+<b>File szerkesztése</b></font>
 </td></tr>
 <tr><td bgcolor=@@@WINDOW_DARK@@@>&nbsp;</td></tr>
 @@@STARTEDITFORM@@@
 <tr><td align="center" bgcolor=@@@WINDOW_DARK@@@>
-<table border="0" cellpadding="0" cellspacing="0"><tr><td><B>FilenÃ©v</B>&nbsp;</td><td>@@@FILENAME@@@</td></tr></table>
+<table border="0" cellpadding="0" cellspacing="0"><tr><td><B>Filenév</B>&nbsp;</td><td>@@@FILENAME@@@</td></tr></table>
 </td></tr>
 <tr><td align="center" bgcolor=@@@WINDOW_DARK@@@ class=msgbody>
 <B>Tartalom</B><BR>@@@FILECONTENT@@@

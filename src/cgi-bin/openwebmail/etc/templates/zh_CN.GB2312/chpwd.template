@@ -31,17 +31,17 @@
       var s;
       s=document.passwordform.newpassword.value;
       if (s.length < @@@PASSWDMINLEN@@@) {
-         alert("Password must has at least @@@PASSWDMINLEN@@@ characters.");
+         alert("密码长度至少要有 @@@PASSWDMINLEN@@@ 个字元.");
          return false;
       }
       if (document.passwordform.newpassword.value !=
 	  document.passwordform.confirmnewpassword.value) {
-         alert("New password confirm mismatch.");
+         alert("新密码与确认栏位内容不符.");
          return false;
       }
       if (document.passwordform.newpassword.value ==
 	  document.passwordform.oldpassword.value) {
-         alert("New password is the same as the old one.");
+         alert("新密码与旧密码完全相同.");
          return false;
       }
       return true;

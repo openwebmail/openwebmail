@@ -18,14 +18,14 @@
 <td align="right" nowrap>Пароль: </td><td>@@@PASSWORDFIELD@@@</td>
 @@@DOMAINSTART@@@
 </tr><tr>
-<td align="right" nowrap>Domain: </td><td>@@@DOMAINMENU@@@</td>
+<td align="right" nowrap>Домен: </td><td>@@@DOMAINMENU@@@</td>
 @@@DOMAINEND@@@
 </tr><tr>
 <td align=center>
 <table><tr><td>@@@LOGINBUTTON@@@</td></tr></table>
 </td>
 <td align=center>
-<table><tr><td><font size=1>remember<br>my userid</font></td><td>@@@REMEMBERMECHECKBOX@@@</td></tr></table>
+<table><tr><td><font size=1>запам'ятати<br>мо╓ ╕м'я</font></td><td>@@@REMEMBERMECHECKBOX@@@</td></tr></table>
 </td>
 </tr>
 </table>
@@ -35,12 +35,6 @@
 </tr></table>
 
 </td></tr></table>
-<p align="center">
-<BR>
-@@@PAGE_FOOTER@@@ &nbsp;
-<a href="@@@HELP_LINK@@@" target="_help">Help?</a>
-<BR>
-</p>
 
 <script language="JavaScript">
 <!--
@@ -65,5 +59,3 @@
 
 //-->
 </script>
-
-</BODY></HTML>

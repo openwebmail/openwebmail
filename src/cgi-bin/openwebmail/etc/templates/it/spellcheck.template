@@ -12,6 +12,8 @@ L'utente puo' sceglierne una per rimpiazzare l'originale.
 Se non viene trovata nessuna correzione o l'utente sceglie "-correzione manuale-"
 e poi clicca [Controlla Ancora], una casella testo sara' disponibile all'utente
 per correggere manualmente.
+Se l'utente sceglie "--Aggiungi al dizionario--" e poi clicca [Controla Ancora], 
+la parola originale verra` aggiunta al dizionario personale dell`utente.
 </td></tr>
 </table>
 <br>
@@ -27,9 +29,8 @@ per correggere manualmente.
 
 <br>
 @@@CHECKAGAINBUTTON@@@
-&nbsp;&nbsp;&nbsp;
 @@@FINISHCHECKINGBUTTON@@@
-&nbsp;&nbsp;&nbsp;
+@@@EDITPERSDICTIONARYBUTTON@@@
 @@@CANCELBUTTON@@@
 <br><br>
 </td></tr>

@@ -12,6 +12,8 @@ Brukeren kan velge en av dem for å bytte ut det originale ordet.
 Dersom ingen forslag blir funnet eller brukeren velger "-Rett selv-"
 og klikker [Kontrollér igjen], et tekstfelt vil la brukeren skrive inn
 manuellt.
+If the user chooses "--Add to Dictionary--" and then clicks [Check Again], 
+the original word will be added to the user's personal dictionary.
 </td></tr>
 </table>
 <br>
@@ -27,9 +29,8 @@ manuellt.
 
 <br>
 @@@CHECKAGAINBUTTON@@@
-&nbsp;&nbsp;&nbsp;
 @@@FINISHCHECKINGBUTTON@@@
-&nbsp;&nbsp;&nbsp;
+@@@EDITPERSDICTIONARYBUTTON@@@
 @@@CANCELBUTTON@@@
 <br><br>
 </td></tr>

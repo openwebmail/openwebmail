@@ -1,13 +1,14 @@
 @@@STARTPREFSFORM@@@
-<table border="0" align="center" width="90%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="0" bgcolor=@@@BACKGROUND@@@>
 <tr><td colspan="2" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>GEBRUIKERSINSTELLINGEN @@@REALNAME@@@</B></font>
+<B>Gebruikersinstellingen @@@REALNAME@@@</B></font>
 <tr><td colspan="2" bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
 </td></tr>
-
-<tr><td colspan="2">&nbsp;</td></tr>
+</table>
+&nbsp;
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Persoolijke Informatie</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Taal:</B>
@@ -74,9 +75,12 @@ Bewaar lokale kopie
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Achtergrond afbeelding:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@ nowrap>
-@@@BACKGROUNDMENU@@@
-&nbsp;URL
-@@@BGURLFIELD@@@
+@@@BACKGROUNDMENU@@@ <font size=-2>URL </font>@@@BGURLFIELD@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Background image repeated:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@BGREPEATCHECKBOX@@@<br>
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Lettertype grootte:</B>
@@ -93,8 +97,11 @@ Bewaar lokale kopie
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@HOURFORMATMENU@@@ hour
 </td></tr>
+
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Bladeren door Mappen</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Controlbar position in folder view:</B>
+<B>Knoppenbalk positie bij overzicht:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CTRLPOSITIONFOLDERVIEWMENU@@@
 </td></tr>
@@ -102,6 +109,11 @@ Bewaar lokale kopie
 <B>Berichten per pagina:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@HEADERSPERPAGE@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Veld volgorde:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@FIELDORDERMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Standaard sortering:</B>
@@ -120,6 +132,11 @@ Bewaar lokale kopie
 <B>Standaard bestemming:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DEFAULTDESTINATIONMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Slimme afhandeling van bestemming:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SMARTDESTINATION@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Open opvolgend bericht na verplaatsen of kopiëren:</B>
@@ -144,7 +161,7 @@ Bewaar lokale kopie
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Bericht weergave</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Controlbar position in message reading:</B>
+<B>Knoppenbalk positie bij lezen bericht:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CTRLPOSITIONMSGREADMENU@@@
 </td></tr>
@@ -192,7 +209,7 @@ Bewaar lokale kopie
 Breedte @@@EDITCOLUMNSMENU@@@ Hoogte @@@EDITROWSMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Compose button position:</B>
+<B>Positie van Knoppen voor versturen:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SENDBUTTONPOSITIONMENU@@@
 </td></tr>
@@ -212,11 +229,12 @@ Breedte @@@EDITCOLUMNSMENU@@@ Hoogte @@@EDITROWSMENU@@@
 @@@BACKUPSENTMSG@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Charset for outgoing message:</B>
+<B>Karakterset voor uitgaande berichten:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SENDCHARSETMENU@@@
 </td></tr>
 
+@@@FILTERSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Berichtfiltering Instellingen</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
@@ -239,28 +257,29 @@ Breedte @@@EDITCOLUMNSMENU@@@ Hoogte @@@EDITROWSMENU@@@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDEXECONTENTTYPE@@@
 </td></tr>
+@@@FILTEREND@@@
 
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>AddressBook Options</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Adressenboek Instellingen</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Size for addressbook window:</B>
+<B>Grootte van het adresboekscherm:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
+ Breedte @@@ABOOKWIDTHMENU@@@ Hoogte @@@ABOOKHEIGHTMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Addressbook button position:</B>
+<B>Positie van de knoppen in het Adresboek:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKBUTTONPOSITIONMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Addressbook default filter:</B>
+<B>Adresboek standaard filter:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKDEFAULTFILTER@@@
 </td></tr>
 
 @@@CALENDARSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Kalender Opties</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Kalender Instellingen</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Aantal items in maandoverzicht:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -282,6 +301,11 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 @@@ENDHOURMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Tijdsinterval in dagoverzicht:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@INTERVALMENU@@@ minutes
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Laat lege velden zien:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SHOWEMPTYHOURSCHECKBOX@@@
@@ -300,31 +324,31 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 
 @@@WEBDISKSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>WebDisk Options</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>WebDisk Instellingen</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Number of items in directory list:</B>
+<B>Aantal bestanden en folders in overzicht:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DIRNUMITEMSMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Confirm before directory/file move/copy:</B>
+<B>Vraag bevestiging directory/bestand verplaatsing of kopie actie:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CONFIRMFILEMOVECOPY@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Confirm before directory/file deletion:</B>
+<B>Vraag bevestiging directory/bestand verwijdering:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CONFIRMFILEDEL@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Confirm before directory/file compress:</B>
+<B>Vraag bevestiging directory/bestand archivering:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CONFIRMFILECOMPRESS@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Size for file edit window:</B>
+<B>Grootte voor bestandsbewerkings scherm:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-Width @@@FILEEDITCOLUMNSMENU@@@ Height @@@FILEEDITROWSMENU@@@
+ Breedte @@@FILEEDITCOLUMNSMENU@@@ Hoogte @@@FILEEDITROWSMENU@@@
 </td></tr>
 @@@WEBDISKEND@@@
 
@@ -341,7 +365,7 @@ Width @@@FILEEDITCOLUMNSMENU@@@ Height @@@FILEEDITROWSMENU@@@
 @@@HIDEINTERNAL@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Refresh Interval:</B>
+<B>Verversingsinterval:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REFRESHINTERVALMENU@@@
 </td></tr>
@@ -351,9 +375,9 @@ Width @@@FILEEDITCOLUMNSMENU@@@ Height @@@FILEEDITROWSMENU@@@
 @@@NEWMAILSOUNDMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>NewMail window notification:</B>
+<B>Nieuw bericht waarschuwingsscherm:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-remaining @@@NEWMAILWINDOWTIMEMENU@@@ seconds &nbsp;( 0 means No window notification )
+zichtbaar voor @@@NEWMAILWINDOWTIMEMENU@@@ seconden &nbsp;( 0 is GEEN waarschuwingsscherm )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Woordenboek voor spellingscontrole:</B>

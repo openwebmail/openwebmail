@@ -4,11 +4,14 @@
    (
    'addrbook.gif'      => ' [AddrBk] ', 
    'addrbook.s.gif'    => ' [AddrBk] ',
+   'adduser.gif',      => ' [AddUser] ',
    'advsearch.gif'     => ' [Search] ',
    'attach.gif'        => ' @ ',
    'backtofolder.gif'  => ' [Back] ',
    'blockemail.gif'    => ' [!Email] ',
    'blockrelay.gif'    => ' [!Relay] ',
+   'cal-delete.gif'    => ' [Del] ',
+   'cal-link.gif'      => ' [Link] ',
    'calendar.gif'      => ' [Calendar] ',
    'chpwd.gif'         => ' [ChPwd] ',
    'clearaddress.gif'  => ' [ClearAddr] ',
@@ -77,6 +80,7 @@
    'unread.a.gif'      => ' A ',
    'unread.gif'        => ' N ',
    'up.gif'            => ' ^ ',
+   'vdusers.gif'       => ' [VDomainUsers Admin] ',
    'webdisk.gif'       => ' [WebDisk] ',
    'weekview.gif'      => ' [WeekView] ',
    'yearview.gif'      => ' [YearView] '

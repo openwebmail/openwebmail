@@ -12,6 +12,8 @@ Mô¾ete vybra» jeden z návrhov na nahradenie originálneho slova.
 Ak nieje nájdený ¾iadny návrh alebo si vyberiete "-Ruène upravi»-"
 a potom zvolíte [Skontrolova» znovu], objaví sa formulár na ruèné vo¾enie
 správneho slova.
+Ak zvolíte "--Prida» do slovníka--" a potom kliknete [Skontrolova» znovu],
+pôvodné slovo bude pridané do osobného slovníka.
 </td></tr>
 </table>
 <br>
@@ -27,9 +29,8 @@ správneho slova.
 
 <br>
 @@@CHECKAGAINBUTTON@@@
-&nbsp;&nbsp;&nbsp;
 @@@FINISHCHECKINGBUTTON@@@
-&nbsp;&nbsp;&nbsp;
+@@@EDITPERSDICTIONARYBUTTON@@@
 @@@CANCELBUTTON@@@
 <br><br>
 </td></tr>

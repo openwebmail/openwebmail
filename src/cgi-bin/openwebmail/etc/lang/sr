@@ -1,0 +1,448 @@
+package openwebmail::sr;
+
+# Serbian (latin) translation, charset: iso-8859-2
+# by Aleksandar Pejic, alexa.AT.yunord.net, March 08, 2003
+
+%lang_folders =
+   (
+   INBOX => 'Pristigle',
+   'saved-messages' => 'Saèuvane',
+   'sent-mail'      => 'Poslate',
+   'saved-drafts'   => 'Nedovr¹ene',
+   'mail-trash'     => 'Smeæe',
+   DELETE => '--IZBRI©I--'
+   );
+
+%lang_sortlabels =
+   (
+   status      => 'Status (Neproèitane prvo)',
+   date        => 'Datum (Najnovije prvo)',
+   date_rev    => 'Datum (Najstarije prvo)',
+   sender      => 'Po¹iljalac (Najnovije prvo)',
+   sender_rev  => 'Po¹iljalac (Najstarije prvo)',
+   subject     => 'Tema (Najnovije prvo)',
+   subject_rev => 'Tema (Najstarije prvo)',
+   size        => 'Velièina (Najveæe prvo)',
+   size_rev    => 'Velièina (Najmanje prvo)'
+   );
+
+%lang_prioritylabels =
+   (
+   normal      => 'Obièna poruka',
+   urgent      => 'Hitna poruka',
+   'non-urgent'=> 'Nije hitna poruka'
+   );
+
+%lang_withoriglabels =
+   (
+   at_beginning => 'na poèetku',
+   at_end      => 'na kraju',
+   none        => 'nijedan'
+   );
+
+%lang_receiptlabels =
+   (
+   ask => 'Pitaj za potvrdu',
+   yes => 'Da',
+   no  => 'Ne'
+   );
+
+%lang_ctrlpositionlabels =
+   (
+   top => 'Na vrhu',
+   bottom => 'Na dnu'
+   );
+
+%lang_sendpositionlabels =
+   (
+   before => 'Pre prostora za pisanje poruke',
+   after => 'Iza prostora za pisanje poruke',
+   both  => 'Pre i iza prostora za pisanje poruke'
+   );
+
+%lang_abookbuttonpositionlabels = 
+   (
+   before => 'Ispred zapisa u adresaru',
+   after  => 'Iza zapisa u adresaru',
+   both   => 'Ispred i iza zapisa u adresaru'
+   );
+
+%lang_timelabels =
+   (
+      3 => '3 minuta',
+      5 => '5 minuta',
+     10 => '10 minuta',
+     20 => '20 minuta',
+     30 => '30 minuta',
+     60 => '60 minuta',
+    120 => '2 sata',
+    180 => '3 sata',
+    360 => '6 sati',
+    720 => '12 sata',
+   1440 => '24 sata'
+   );
+
+%lang_advsearchlabels =
+   (
+   contains    => 'sadr¾i',
+   notcontains => 'ne sadr¾i',
+   is          => 'je',
+   isnot       => 'nije',
+   startswith  => 'poèinje sa',
+   endswith    => 'zavr¹ava sa',
+   regexp      => 'sla¾e se sa regexp',
+   );
+
+%lang_sizes =
+   (
+   mb   => 'MB',	# megabajti
+   kb   => 'KB',	# kilobajti
+   byte => 'bajt(ov)(a)'
+   );
+
+%lang_calendar = 
+   (
+   yearview  => 'Godi¹nji kalendar -',
+   monthview => 'Meseèni kalendar -',
+   weekview  => 'Sedmièni kalendar -',
+   dayview   => 'Dnevni kalendar -',
+   listview  => 'Listanje kalendara -'
+   );
+
+%lang_month =
+   (
+   1  => 'Januar',
+   2  => 'Februar',
+   3  => 'Mart',
+   4  => 'April',
+   5  => 'Maj',
+   6  => 'Jun',
+   7  => 'Jul',
+   8  => 'Avgust',
+   9  => 'Septembar',
+   10 => 'Oktobar',
+   11 => 'Novembar',
+   12 => 'Decembar'
+   );
+
+%lang_wday =
+   (
+   0 => 'Nedelja',
+   1 => 'Ponedeljak',
+   2 => 'Utorak',
+   3 => 'Sreda',
+   4 => 'Èetvrtak',
+   5 => 'Petak',
+   6 => 'Subota'
+   );
+
+%lang_wday_abbrev =
+   (
+   week => 'SM',
+   0 => 'N',
+   1 => 'P',
+   2 => 'U',
+   3 => 'S',
+   4 => 'È',
+   5 => 'P',
+   6 => 'S'
+   );
+
+%lang_order =
+   (
+   1 => 'Prvi(a)(e)',
+   2 => 'Drugi(a)(e)',
+   3 => 'Treæi(a)(e)',
+   4 => 'Èetvrti(a)(e)',
+   5 => 'Zadnji(a)(e)'
+   );
+
+%lang_wdbutton =
+   (
+   refresh  => 'Osve¾i',
+   preview  => 'Prika¾i',
+   edit     => 'Uredi',
+   listarchive=> 'Lista',
+   decompress=>'Dekompresija',
+   extract  => 'Izvuci',
+   chdir    => 'Promeni direktorijum',
+   mkdir    => 'Novi direktorijum',
+   newfile  => 'Novi fajl',
+   delete   => 'Izbri¹i',
+   copy     => 'Kopiraj',
+   move     => 'Pomeri',
+   gzip     => 'Napravi gz',
+   mkzip    => 'Napravi zip',
+   mktgz    => 'Napravi tgz',
+   mkthumbnail  => 'Napravi slièicu',
+   download => 'Download',
+   upload   => 'Upload',
+   );   
+
+%lang_text =
+   (
+   help       => 'Pomoæ',
+   login      => 'Prijava',
+   clear      => 'Oèisti',
+   point      => 'taèaka',
+   pixel      => 'Piksel',
+   changepwd  => 'Promeni lozinku',
+   viewhistory=> 'Pogledaj dnevnik',
+   of         => 'od',
+   messages   => 'poruka(e)',
+   unread     => 'neproèitana(e)',
+   nomessages => 'Nema poruka',
+   inmessages => 'Pristigle poruke',
+   composenew => 'Pisanje nove poruke',
+   refresh    => 'Osve¾i',
+   userprefs  => 'Pode¹avanja',
+   addressbook=> 'Adresar',
+   folders    => 'Folderi',
+   emptytrash => 'Isprazni smeæe',
+   totrash    => 'Premesti u smeæe',
+   forever    => 'Zauvek',
+   delatlogout=> 'Izbri¹i pri odjavi',
+   userdef    => 'Korisnièki odreðeno',
+   logout     => 'Odjava',
+   page       => 'Stranica',
+   msgcopyconf=> '\'Da li ste sigurni da ¾elite da kopirate odabranu(e) poruku(e)?\'',
+   copy       => 'Kopiraj',
+   msgmoveconf=> '\'Da li ste sigurni da ¾elite da premestite odabranu(e) poruku(e)?\'',
+   move       => 'Pomeri',
+   markasread => 'Oznaèi kao proèitano',
+   markasunread => 'Oznaèi kao neproèitano',
+   dateformat => 'Format datuma',
+   date       => 'Datum',
+   recipient  => 'Primalac',
+   sender     => 'Po¹iljalac',
+   subject    => 'Tema',
+   thread     => 'Zaglavlja',
+   size       => 'Velièina',
+   backto     => 'Nazad na',
+   reply      => 'Odgovori',
+   replyall   => 'Odgovori svima',
+   forward    => 'Prosledi',
+   forwardasatt=>'Prosledi kao prilog',
+   printfriendly=> 'Prilagoðeno ¹tampanju',
+   from       => '©alje',
+   replyto    => 'Odgovor-na',
+   to         => 'Prima',
+   cc         => 'Kopija',
+   bcc        => 'Slepa kopija',
+   simplehead => 'Pojednostavljeno zaglavlje',
+   allhead    => 'Celo zaglavlje',
+   simpleattmode => 'Pojednostavljeni prikaz priloga',
+   allattmode    => 'Svi prilozi',
+   attachment => 'Prilog',
+   type       => 'Tip',
+   filename   => 'Naziv fajla',
+   encoding   => 'Kodiranje',
+   description=> 'Opis',
+   download   => 'Download',
+   charset    => 'Skup znakova',
+   samecharset=> 'Isti skup znakova kao kod nove poruke',
+   thisispartialmsg => 'Ovo je nepotpuna poruka',
+   msgrebuild => 'Opravka poruke',
+   editdraft  => 'Sredi nedovr¹enu poruku',
+   savedraft  => 'Saèuvaj nedovr¹enu poruku',
+   send       => 'Po¹alji',
+   about      => 'Informacije o softveru',
+   close      => 'Zatvori',
+   cancel     => 'Otka¾i',
+   ok         => 'U redu',
+   continue   => 'Nastavi',
+   loginagain => 'Ponovna prijava',
+   exit       => 'Izaði',
+   for        => 'za',
+   yourname   => 'Va¹e Ime',
+   save       => 'Saèuvaj',
+   add        => 'Dodaj',
+   folderrenprop => '\'Molim da unesete novi naziv za ovaj folder\'',
+   rename     => 'Preimenuj',
+   folderdelconf => '\'Da li ste sigurni da ¾elite da izbri¹ete ovaj folder i sve ¹to sadr¾i?\'',
+   markread   => 'Oznaèi proèitano',
+   foldermarkreadconf => '\'Da li ¾elite da obele¾ite sve poruke kao proèitane u ovom folderu?\'',
+   chkindex   => 'Provera indeksa',
+   folderchkindexconf => '\'Da li ¾elite da proverite indeks ovog foldera?\'',
+   reindex    => 'Ponovno indeksiranje',
+   folderreindexconf => '\'Da li ste sigurni da ¾elite da ponovno indeksirate ovaj folder?\'',
+   total      => 'Ukupno',
+   edit       => 'Uredi',
+   delete     => 'Izbri¹i',
+   reserve    => 'Rezervi¹i',
+   clearadd   => 'Obri¹i sve adrese',
+   importadd  => 'Uvezi adrese',
+   exportadd  => 'Izvezi adrese',
+   import     => 'Uvezi',
+   addmod     => 'Dodaj/Izmeni',
+   modify     => 'Izmeni',
+   abooktitle => 'Adresar',
+   abook      => 'ADRESAR',
+   name       => 'Ime',
+   email      => 'Email',
+   note       => 'Bele¹ka',
+   max        => 'Najvi¹e',
+   group      => 'Grupa',
+   quota_hit  => 'Po¹tansko sanduèe je puno',
+   usage      => 'Popunjenost',
+   tzmap      => 'Mapa vremenskih zona',
+   testsound  => 'Testiraj zvuk',
+   editfroms  => 'Uredi liène email adrese',
+   pop3book   => 'POP3 pode¹avanja',
+   retr_pop3s => 'Dobavi POP3 po¹tu',
+   filterbook => 'Pode¹avanja filtara za po¹tu',
+   include    => 'Ukljuèi',
+   exclude    => 'Iskljuèi',
+   smtprelay  => 'SMTP prenos',
+   header     => 'Zaglavlje',
+   body       => 'Telo',
+   attfilename=> 'Naziv priloga',
+   all        => 'Sve',
+   enable     => 'Omoguæi',
+   disable    => 'Onemoguèi',
+   filtered   => 'Filtrirano',
+   blockrelay => 'Blokiraj SMTP prenos',
+   blockemail => 'Blokiraj email',
+   read       => 'Proèitaj',
+   yourmsg    => 'Va¹a poruka',
+   delivered  => 'Isporuèena',
+   wasreadon1 => 'proèitana',
+   wasreadon2 => '.',
+   globaladdressbook => 'Op¹ti adresar',
+   globalfilterrule => 'Op¹ti filteri',
+   readonly   => 'Samo za èitanje',
+   textcontent=> 'Tekstualni sadr¾aj',
+   search     => 'Pretra¾i',
+   advsearch  => 'Napredno pretra¾ivanje',
+   folder     => 'Folder',
+   nofoldersel=> 'Niste odabrali folder',
+   showall    => 'Prika¾i sve',
+   spellcheck => 'Provera pravopisa',
+   checkagain => 'Proveri ponovo',
+   finishchecking => 'Zavr¹i proveru',
+   editpdict  => 'Uredi lièni reènik',
+   addtodict  => 'Dodaj u reènik',
+   manuallyfix=> 'Ruèno ispravi',
+   editstat   => 'Uredi ¹ablon',
+   savestat   => 'Saèuvaj ¹ablon',
+   clearstat  => 'Izbri¹i sve ¹ablone',
+   statreply  => '-- Odaberi ¹ablon za odgovor --',
+   calendar   => 'Kalendar',
+   allday     => 'Ceo dan',
+   am         => 'prepodne',
+   pm         => 'popodne',
+   calfmt_year          => 'Godina @@@YEAR@@@',
+   calfmt_yearmonth     => '@@@MONTH_STR@@@ @@@YEAR@@@',
+   calfmt_yearmonthday  => '@@@DAY@@@ @@@MONTH_STR@@@ @@@YEAR@@@',
+   calfmt_yearmonthdaywday => '@@@DAY@@@ @@@MONTH_STR@@@ @@@YEAR@@@ @@@WEEKDAY_STR@@@',
+   calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
+   none       => 'Nijedan',
+   moreitems  => 'jo¹ zapisa',
+   multieditconf => 'Ovaj zapis je dat za vi¹e datuma.\\nNjena promena æe se odraziti na sve datume.\\nDa li ¾elite da nastavite sa ureðivanjem?',
+   multidelconf  => 'Ovaj zapis je dat za vi¹e datuma.\\nNjeno brisanje æe se odraziti na sve datume.\\nDa li ste sigurni da ¾elite da ga izbri¹ete?',
+   caldelconf => 'Da li ste sigurni da ¾elite da izbri¹ete ovaj zapis?',
+   noitemforthisday => 'Nema zapisa za ovaj dan',
+   thisday_only          => 'Samo ovaj dan',
+   the_wday_of_thismonth => '@@@ORDER@@@ @@@WDAY@@@ meseca',
+   every_wday_thismonth  => 'Svaka(i)(e) @@@WDAY@@@(a)(e) ovog meseca',
+   thismonth_only           => 'Samo ovaj mesec',
+   every_oddmonth_thisyear  => 'Svakog preostalog meseca ove godine',
+   every_evenmonth_thisyear => 'Svakog meseca sa istim brojem dana ove godine',
+   every_month_thisyear     => 'Svakog meseca ove godine',
+   webdisk      => 'Mre¾ni disk',
+   sshterm      => 'SSH terminal',
+   dir          => 'direktorijum',
+   dirs         => 'direktorijuma',
+   file         => 'fajl',
+   files        => 'fajl(ov)a',
+   program      => 'program',
+   dest_of_chdir  => 'odredi¹ni direktorijum',
+   name_of_newdir => 'naziv novog direktorijuma',
+   name_of_newfile=> 'naziv novog fajla',
+   dest_of_thecopy=> 'odredi¹ni direktorijum ili fajl kopiranja',
+   dest_of_themove=> 'odredi¹ni direktorijum ili fajl preme¹tanja',
+   dest_of_thezip=> 'naziv nove zip arhive',
+   dest_of_thetgz=> 'naziv nove tgz arhive',
+   homedir      => 'Korisnièki direktorijum',
+   showthumbnail    => 'Slièice',
+   showhidden   => 'Prika¾i sakrivene fajlove',
+   lastmodified => 'Vreme zadnje izmene',
+   perm         => 'Dozvole',
+   permission   => 'Dozvole za pristup',
+   noitemfound  => 'Nema nijedan fajl',
+   savefile     => 'Saèuvaj kao',
+   succeeded    => 'uspelo',
+   failed       => 'neuspelo',
+   savefile_towd=> 'Saèuvaj fajl na WebDisk',
+   saveatt_towd => 'Saèuvaj prilog na WebDisk',
+   addatt_fromwd=> 'Dodaj prilog sa WebDisk-a',
+   vdomain_usermgr    => 'Upravljanje korisnicima virtuelnih domena',
+   vdomain_createuser => 'Novi korisnik',
+   vdomain_changeuser => 'Izmena korisnika',
+   vdomain_deleteuser => 'Brisanje korisnika',
+   vdomain_usertype_localmbox  => 'Lokalno po¹tansko sanduèe',
+   vdomain_usertype_redirected => 'Preusmeravanje na spoljnu adresu elektronske po¹te'
+   );
+
+%lang_err =
+   (
+   has_illegal_chars => 'ima nepravilne karaktere!',
+   couldnt_open      => 'Nemogu da otvorim',
+   couldnt_locksh    => 'Nemogu da zakljuèam za èitanje',
+   couldnt_lock      => 'Nemogu da zakljuèam za pisanje',
+   couldnt_seek      => 'Nemogu da naðem poèetak',
+   couldnt_close     => 'Nemogu da zatvorim',
+   couldnt_updatedb  => 'Nemogu da a¾uriram indeks bp',
+   disallowed_pop3   => 'Nedozvoljen POP3 server',
+   disallowed_client => 'Nije Vam dozvoljeno da uspostavite vezu sa ovog klijenta',
+   disallowed_receiverdomain => 'Nije Vam dozvoljeno da ¹aljete poruke na ovu email adresu',
+   norootlogin       => 'Pristup korisnièkom nalogu je onemoguæen iz sigurnosnih razloga.',
+   shouldnt_move_here=> 'Nebiste trebali da pomerate poruke ovde!',
+   destination_folder=> 'Odredi¹ni folder',
+   doesnt_exist      => 'ne postoji!',
+   foldername_long   => 'Naziv foldera ne sme da bude du¾i od 16 znakova!',
+   folder_with_name  => 'Folder sa imenom',
+   already_exists    => 'veæ postoji!',
+   cant_create_folder=> 'Nemogu da napravim fodler!',
+   under_indexing    => 'se jo¹ uvek indeksira, molim da poku¹ate kasnije',
+   abook_invalid     => 'Na¾alost izgleda da ovaj fajl nije adresar izvezen iz Microsoft Outlook Express-a 5 u CSV formatu.  Proverite u editoru teksta da li prva linija poèinje sa "Name,E-mail Address", zatim se vratite',
+   back              => 'nazad',
+   tryagain          => 'i poku¹ate ponovo.',
+   abook_toobig      => 'Ovim biste prema¹ili limit Va¹eg adresara.  Molim da se',
+   cant_create_dir   => 'Nemo¾ete da napravite svoj korisnièki folder!',
+   folder_hitquota   => 'Dostigli ste limit Va¹eg sanduèeta, tako da nemo¾ete da primate novu po¹tu.  Poruke mo¾ete jedino da preme¹tate u folder SMEæE, odakle æe biti izbrisane.  Vratite se nazad, izbri¹ite neke poruke ili ispraznite smeæe i poku¹ajte ponovo.',
+   folder_cutdone    => 'Upozorenje: kako ste dostigli limit sanduèeta (@@@FOLDERQUOTA@@@), najstarije poruke su automatski uklonjene',
+   att_overlimit     => 'Velièina Va¹eg priloga je veæa od dozvoljene velièine, koja je',
+   inv_msg_op        => 'Nepravila operacija za poruku',
+   sess_cookieerr    => 'Va¹ zahtev ne sadr¾i odgovarajuæi kolaèiæ sesije -- pristup odbijen!',
+   sess_iperr        => 'Va¹ zahtev ne dolazi sa istog IP broja ove sesije -- pristup odbijen!',
+   no_endpart        => 'Krajnji deo nedostaje',
+   part_missing      => 'Jedan deo nedostaje',
+   rebuild_fmterr    => 'Gre¹ka pri formatiranju nove poruke',
+   rebuild_sizeerr   => 'Velièina nove poruke je nepravilna',
+   user_not_exist    => 'korisnik ne postoji',
+   func_notsupported => 'funkcija nije podr¾ana',
+   auth_syserr       => 'Gre¹ka sistema za potvrdu verodostojnosti',
+   param_fmterr      => 'Gre¹ka pri formatiranju parametra',
+   pwd_incorrect     => 'Lozinka neispravna',
+   pwd_confirmmismatch=>'Nova lozinka i njena potvrda se ne podudaraju',
+   pwd_tooshort      => 'Lozinka je kratka (najmanja du¾ina je @@@PASSWDMINLEN@@@)',
+   pwd_toosimple     => 'Lozinka je previ¹e jednostavna (potrebna je kombinacija znaka i brojeva)',
+   network_server_error => 'gre¹ka na serveru',
+   sendmail_error    => 'Pojavio se problem prilikom slanja Va¹e poruke.  Pritisnite dugme za povratak, proverite Va¹u poruku i poku¹ajte ponovo.',
+   at_char_not_allowed => 'Znak @ nije dozvoljen u ovom polju.  Pritisnite dugme za povratak i poku¹ajte ponovo',
+   badnum_in_days => 'pogre¹an broj u nizu uzastopnih dana',
+   access_denied     => 'Pristup odbijen',
+   couldnt_chdirto   => 'Nemogu da promenim direktorijum na',
+   isnt_a_dir        => 'nije direktorijum',
+   edit_notfordir    => 'Nemo¾ete da menjate direktorijum',
+   onefileonly       => 'Dozvoljen je samo jedan fajl za ovu operaciju',
+   no_file_todownload=> 'Nije odabran nijedan fajl za download',
+   upload_overlimit  => 'Velièina fajla za upload je prevelika',
+   decomp_notsupported=>'Dekompresija ovog tipa fajla nije moguæa.',
+   webdisk_hitquota   => 'Na¾alost, popunili ste kvotu Va¹eg mre¾nog diska, molim da prvo izbri¹ete neki fajl.',
+   webdisk_readonly   => 'Na¾alost, na Va¹ mre¾ni disk nemogu da se pi¹u podaci.',
+   vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
+   );
+
+1;

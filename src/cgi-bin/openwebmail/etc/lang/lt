@@ -1,7 +1,7 @@
-#!/usr/bin/perl
+package openwebmail::lt;
 
-# Lithuanian translation by Alvydas Sinkunas, dvm382.AT.takas.lt, 2003-01-15
-# charset: windows-1257
+# Lithuanian translation, charset: windows-1257
+# by Alvydas Sinkunas, dvm382.AT.takas.lt, 2003-01-15
 
 %lang_folders =
    (
@@ -181,6 +181,7 @@
 
 %lang_text =
    (
+   help       => 'Reikia pagalbos',
    login      => 'Jungtis',
    clear      => 'Iðvalyti',
    point      => 'Taðkas',
@@ -319,12 +320,15 @@
    spellcheck => 'Tikrinti raðybà',
    checkagain => 'Tikrinti vël',
    finishchecking => 'Patikrinta',
+   editpdict  => 'Edit Personal Dictionary',
+   addtodict  => 'Add to Dictionary',
    manuallyfix=> 'Fiksuoti',
    editstat   => 'Redaguoti atsakymus',
    savestat   => 'Áraðyti atsakymà',
    clearstat  => 'Iðtrinti visus atsakymus',
    statreply  => '-- Standartiniai atsakymai --',
    calendar   => 'Kalendorius',
+   allday     => 'All day',
    am         => 'iki.p',
    pm         => 'po.p',
    calfmt_year          => 'Metai @@@YEAR@@@',
@@ -336,6 +340,7 @@
    moreitems  => 'daugiau áraðø',
    multieditconf => 'Ðis áraðas su keliomis datomis.\\nRedaguodami pakeisite áraðà visoms datoms.\\nAr testi redagavimà?',
    multidelconf  => 'Ðis áraðas su keliomis datomis.\\nIðtrinti galima tik visas datas ið karto.\\nAr tæsti trynimà?',
+   caldelconf => 'Are you sure you want to delete this item?',
    noitemforthisday => 'Ðiai dienai áraðø nëra',
    thisday_only          => 'Tik ðiai datai',
    the_wday_of_thismonth => ' @@@ORDER@@@ @@@WDAY@@@ per mënesá',
@@ -370,7 +375,13 @@
    failed       => 'klaidingai',
    savefile_towd=> 'Áraðyti bylà á WWW Diskà',
    saveatt_towd => 'Áraðyti priedà á WWW Diskà',
-   addatt_fromwd=> 'Prikabinti priedà ið WWW Disko'
+   addatt_fromwd=> 'Prikabinti priedà ið WWW Disko',
+   vdomain_usermgr    => 'Virtual Domain User Management',
+   vdomain_createuser => 'Create User',
+   vdomain_changeuser => 'Change User',
+   vdomain_deleteuser => 'Delete User',
+   vdomain_usertype_localmbox  => 'Local Mailbox',
+   vdomain_usertype_redirected => 'Redirect to external mail address'
    );
 
 %lang_err =
@@ -414,6 +425,7 @@
    auth_syserr       => 'slaptaþodþio tikrinimo klaida',
    param_fmterr      => 'parametro formato klaida',
    pwd_incorrect     => 'slaptaþodis neteisingas',
+   pwd_confirmmismatch=>'Slaptaþodis pakartotas klaidingai! Teks bandyti dar kartà.',
    pwd_tooshort      => 'Slaptaþodis per trumpas (minimumas - @@@PASSWDMINLEN@@@)',
    pwd_toosimple     => 'Slaptaþodis per daug paprastas',
    network_server_error => 'tinklo klaida',
@@ -429,7 +441,8 @@
    upload_overlimit  => 'Per didelë byla. Nusiuntimo limitas - ',
    decomp_notsupported=>'Negalimaa iðarchyvuoti ðios bylos',
    webdisk_hitquota   => 'Virðijote Jums skirtos disko vietos limità. Gal ka nors iðtrinkite...',
-   webdisk_readonly   => 'Sorry, your webdisk is read only.'
+   webdisk_readonly   => 'Sorry, your webdisk is read only.',
+   vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
    );
 
 1;

@@ -3,26 +3,18 @@
 #
 # 2001/04/25 tung@turtle.ee.ncku.edu.tw
 #
+package openwebmail::filelock;
 
 use strict;
 use Fcntl qw(:DEFAULT :flock);
-use FileHandle;
-
-sub filelock {
-   my $ret;
-   if ( $::config{'use_dotlockfile'} ) {
-      $ret=filelock_dotlockfile(@_);
-   } else {
-      $ret=filelock_flock(@_);
-   }
-   return($ret);
-}
 
 # this routine provides flock with filename
 # it opens the file to get the handle if need,
 # than do lock operation on the related filehandle
-my %opentable;
-sub filelock_flock {
+use vars qw(%opentable);
+%opentable=();
+
+sub flock_lock {
    my ($filename, $lockflag)=@_;
    my ($dev, $inode, $fh);
 
@@ -41,17 +33,18 @@ sub filelock_flock {
    if (defined($opentable{"$dev-$inode"}) ) {
       $fh=$opentable{"$dev-$inode"};
    } else { # handle not found, open it!
-      $fh=FileHandle->new();
-      if (sysopen($fh, $filename, O_RDWR)) {
+      $fh=do { local *FH };
+      if (sysopen($fh, $filename, O_RDWR) ||	# try RDWR open first
+          sysopen($fh, $filename, O_RDONLY) ) {	# then RDONLY for readonly file
          $opentable{"$dev-$inode"}=$fh;
       } else {
          return 0;
       }
    }
 
-   # turn nonblocking lock to  30 secs timeouted lock 
+   # turn nonblocking lock to  30 secs timeouted lock
    # so owm gets higher chance to success in case other ap locks same file for only few secs
-   # turn blocking    lock to 120 secs timeouted lock 
+   # turn blocking    lock to 120 secs timeouted lock
    # so openwebmaill won't hang because of file locking
    my $retval;
    eval {
@@ -81,7 +74,7 @@ sub filelock_flock {
 # If the filename is locates in a readonly directory, since the
 # filename.lock and filename.lock.lock could not be created, this routine will
 # grant all shared lock and deny all exclusive lock.
-sub filelock_dotlockfile {
+sub dotfile_lock {
    my ($filename, $lockflag)=@_;
    my ($mode, $count);
 
@@ -219,6 +212,7 @@ sub _lock {
       }
    }
 }
+
 sub _unlock {
    my ($filename)=$_[0];
    ($filename =~ /^(.+)$/) && ($filename = $1);		# untaint ...

@@ -20,7 +20,7 @@
 <table border="0" cellpadding="0" cellspacing="0"><tr>
 <td>@@@SHOWHIDDENLABEL@@@</td><td>@@@SHOWHIDDENCHECKBOX@@@</td>
 <td>@@@SHOWTHUMBLABEL@@@</td><td>@@@SHOWTHUMBCHECKBOX@@@</td>
-<td>Single page</td><td>@@@SINGLEPAGECHECKBOX@@@</td>
+<td>Alt p&aring; en side</td><td>@@@SINGLEPAGECHECKBOX@@@</td>
 </tr></table>
 </td>
 </tr></table>
@@ -46,7 +46,7 @@
 <table border="0" align="center" width="95%" cellpadding="0" cellspacing="0"><tr>
 <td width="15%" nowrap>&nbsp;@@@INFOCOUNT@@@</td>
 <td align=center nowrap>@@@LEFTPAGECONTROL@@@ @@@PAGELINKS@@@ @@@RIGHTPAGECONTROL@@@</td>
-<td width="15%" nowrap align="right">Listed file size: @@@INFOSIZE@@@&nbsp;</td>
+<td width="15%" nowrap align="right">Samlet st&oslash;rrelse p&aring; viste filer: @@@INFOSIZE@@@&nbsp;</td>
 </tr></table>
 
 <table border="0" align="center" width="95%" cellpadding="1" cellspacing="1">
@@ -64,7 +64,7 @@
 <td>
 
 <table border="0" width="100%" cellpadding="1" cellspacing="1"><tr>
-<td nopwrap bgcolor=@@@COLUMNHEADER@@@><B>Search</B></td>
+<td nopwrap bgcolor=@@@COLUMNHEADER@@@><B>S&oslash;g</B></td>
 </tr><tr>
 <td nowrap bgcolor=@@@MENUBAR@@@>@@@SEARCHFILEFIELD@@@</td>
 </tr></table>
@@ -74,7 +74,7 @@
 
 @@@UPLOADSTART@@@
 <table border="0" width="100%" cellpadding="1" cellspacing="1"><tr>
-<td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Upload</B></td>
+<td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Send</B></td>
 </tr><tr>
 <td nowrap bgcolor=@@@MENUBAR@@@>@@@UPLOADFILEFIELD@@@</td>
 </tr></table>
@@ -86,7 +86,7 @@
 
 <table border="0" align="center" width="95%" cellpadding="1" cellspacing="1">
 <tr><td bgcolor=@@@COLUMNHEADER@@@>
-<B>Messages</B>
+<B>Info</B>
 </td></tr><tr><td bgcolor=@@@MENUBAR@@@>
 @@@MSGTEXTAREA@@@
 </td></tr>

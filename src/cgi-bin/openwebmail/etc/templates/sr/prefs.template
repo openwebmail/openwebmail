@@ -1,0 +1,417 @@
+@@@STARTPREFSFORM@@@
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
+<tr><td colspan="2" bgcolor=@@@TITLEBAR@@@>
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>Korisnièka pode&#154;avanja @@@REALNAME@@@</B></font>
+<tr><td colspan="2" bgcolor=@@@MENUBAR@@@>
+@@@MENUBARLINKS@@@
+</td></tr>
+</table>
+&nbsp;
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Lièni podaci</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Jezik:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@LANGUAGEMENU@@@ Skup znakova @@@CHARSETMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Odstupanje vremenske zone:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@TIMEOFFSETMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>©alje:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@FROMEMAILMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Odgovor-na:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@REPLYTOFIELD@@@
+</td></tr>
+@@@FORWARDSTART@@@
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Prosledi po&#154;tu na:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@FORWARDADDRESS@@@
+ 
+@@@KEEPLOCALCOPY@@@
+Saèuvaj lokalnu kopiju
+</td></tr>
+@@@FORWARDEND@@@
+@@@AUTOREPLYSTART@@@
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Automatski odgovor:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@AUTOREPLYCHECKBOX@@@
+ 
+Tema:
+@@@AUTOREPLYSUBJECT@@@
+</td></tr>
+<tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@ class=msgbody>
+<B>Tekst automatskog odgovora (500 znakova najvi&#154;e)</B><BR>
+@@@AUTOREPLYTEXT@@@
+</td></tr>
+@@@AUTOREPLYEND@@@
+<tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@ class=msgbody>
+<B>Potpis (500 znakova najvi&#154;e)</B><BR>
+@@@SIGAREA@@@
+<br> 
+</td></tr>
+
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Pode&#154;avanje prikaza</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Stil:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@STYLEMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Skup ikona:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@ICONSETMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Pozadinska slika:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@ nowrap>
+@@@BACKGROUNDMENU@@@ <font size=-2>URL </font>@@@BGURLFIELD@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Background image repeated:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@BGREPEATCHECKBOX@@@<br>
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Velièina fonta:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@FONTSIZEMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Format datuma:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DATEFORMATMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Format vremena:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@HOURFORMATMENU@@@ sati(a)
+</td></tr>
+
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Pregled foldera</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Pozicija kontrola pri pregledu foldera:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CTRLPOSITIONFOLDERVIEWMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Broj poruka po stranici:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@HEADERSPERPAGE@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Redosled polja:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@FIELDORDERMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Podrazumevano sortiranje:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SORTMENU@@@
+</td></tr>
+
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Operacije sa porukama</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Potvrda pre pomeranja / kopiranja poruke(a):</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CONFIRMMSGMOVECOPY@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Podrazumevano odredi&#154;te:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DEFAULTDESTINATIONMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>"Pametno" odredi&#154;te:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SMARTDESTINATION@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Prikaz sledeæe poruke nakon pomeranja / kopiranja:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@VIEWNEXTAFTERMSGMOVECOPY@@@
+</td></tr>
+@@@AUTOPOP3START@@@
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Automatski dobavi POP3 po&#154;tu po prijavi:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@AUTOPOP3CHECKBOX@@@
+</td></tr>
+@@@AUTOPOP3END@@@
+@@@MOVEOLDSTART@@@
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Pomeri stare poruke u SAÈUVANE pri odjavi:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@MOVEOLDMSGFROMINBOX@@@
+</td></tr>
+@@@MOVEOLDEND@@@
+
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Pode&#154;avanja za èitanje poruka</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Pozicija kontrola prilikom èitanja poruke:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CTRLPOSITIONMSGREADMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Podrazumevana zaglavlja:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@HEADERSMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Koristi font fiksne &#154;irine prilikom èitanja:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@USEFIXEDFONT@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Koristi slièice sme&#154;ka prilikom èitanja:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@USESMILEICON@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Onemoguæi izvr&#154;avanje JavaScript-a unutar poruka:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DISABLEJS@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Onemoguæi izvr&#154;avanje ugraðenog CGI-a unutar poruka:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DISABLEEMBCGI@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Prika¾i prilog kao vezu:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SHOWIMGASLINK@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>©alji priznanicu za 'potvrdu èitanja':</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SENDRECEIPTMENU@@@
+</td></tr>
+
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Pode&#154;avanja odgovaranja na poruke</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Velièina prostora za ureðivanje poruka:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+©irina @@@EDITCOLUMNSMENU@@@ Visina @@@EDITROWSMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Pozicija dugmeta za slanje:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SENDBUTTONPOSITIONMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Paragrafiraj poruku pre odgovaranja:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@REPARAGRAPHORIGMSG@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Odgovor sa izvornom porukom:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@REPLYWITHORIGMSGMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Saèuvaj odlazeæu poruku u folder POSLATE:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@BACKUPSENTMSG@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Skup znakova za odlazeæe poruke:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SENDCHARSETMENU@@@
+</td></tr>
+
+@@@FILTERSTART@@@
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Pode&#154;avanje filtera za poruke</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Ogranièenje za poruke koje se ponavljaju:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@FILTERREPEATLIMIT@@@  ( 0 znaèi da nema provere )
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Filtriranje poruka sa la¾nim SMTP serverom:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@FILTERFAKEDSMTP@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Filtriranje poruka sa la¾nim ©alje poljem:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@FILTERFAKEDFROM@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Filteriranje poruka sa la¾nim izvr&#154;nim (.exe) sadr¾ajem:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@FILTERFAKEDEXECONTENTTYPE@@@
+</td></tr>
+@@@FILTEREND@@@
+
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Pode&#154;avanje adresara</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Velièina prozora za adresar:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+©irina @@@ABOOKWIDTHMENU@@@ Visina @@@ABOOKHEIGHTMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Pozicija dugmeta za adresar:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@ABOOKBUTTONPOSITIONMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Podrazumevani filter adresara:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@ABOOKDEFAULTFILTER@@@
+</td></tr>
+
+@@@CALENDARSTART@@@
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Pode&#154;avanje kalendara</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Broj zapisa u meseènom pregledu:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@MONTHVIEWNUMITEMSMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Poèetak nedelje:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@WEEKSTARTMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Èas poèetka:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@STARTHOURMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Èas zavr&#154;etka:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@ENDHOURMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Vremenski interval u dnevnom pregledu:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@INTERVALMENU@@@ minuta
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Prika¾i prazne èasove:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SHOWEMPTYHOURSCHECKBOX@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Podsetnik dogaðaja proverava dane:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@REMINDERDAYSMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Podsetnik za op&#154;te dogaðaje kalendara:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@REMINDERFORGLOBALCHECKBOX@@@
+</td></tr>
+@@@CALENDAREND@@@
+
+@@@WEBDISKSTART@@@
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Pode&#154;avanje mre¾nog diska - WebDisk-a</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Broj stavki pri prikazu direktorijuma:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DIRNUMITEMSMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Potvrda pre pomeranja / kopiranja direktorijuma / fajla:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CONFIRMFILEMOVECOPY@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Potvrda pre brisana direktorijuma / fajla:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CONFIRMFILEDEL@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Potvrda pre kompresovanja direktorijuma / fajla:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CONFIRMFILECOMPRESS@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Velièina prozora za ureðivanje fajla:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+©irina @@@FILEEDITCOLUMNSMENU@@@ Visina @@@FILEEDITROWSMENU@@@
+</td></tr>
+@@@WEBDISKEND@@@
+
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Razna pode&#154;avanja</B></td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Koristi Regex pri pretrazi i filtriranju:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@REGEXMATCH@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Sakrij interne podatke foldera:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@HIDEINTERNAL@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Interval osve¾avanja:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@REFRESHINTERVALMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Zvuk za obave&#154;tavanje novopristigle po&#154;te:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@NEWMAILSOUNDMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Prozor za obave&#154;tavanje novopristigle po&#154;te:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+preostalo @@@NEWMAILWINDOWTIMEMENU@@@ sekundi  ( 0 znaèi da nema obave&#154;tavanja )
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Reènik za pravopisnu proveru :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DICTIONARYMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Poruke u smeæu se èuvaju dan(a):</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@RESERVEDDAYSMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Isticanje sesije:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SESSIONTIMEOUTMENU@@@
+</td></tr>
+
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>
+<table><tr>
+<td>@@@SAVEBUTTON@@@</td>
+@@@ENDFORM@@@
+@@@STARTCANCELFORM@@@
+<td>@@@CANCELBUTTON@@@</td>
+@@@ENDFORM@@@
+</tr></table></td></tr></table>
+
+<script language="JavaScript">
+<!--
+   function playsound(url, soundname) 
+   {
+      if (soundname != "NONE" ) {
+         window.open(url+soundname);
+      } 
+   }
+//-->
+</script>

@@ -20,7 +20,7 @@ sub mailfilter {
 	$filter_fakedfrom, $filter_fakedexecontenttype)=@_;
    my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
    my @filterrules;
-   my $folderhandle=FileHandle->new();
+   my $folderhandle=do { local *FH };
    my (%HDB, %FTDB, %IS_GLOBAL);
    my (@allmessageids, $i);
    my $newfilterrule=0;
@@ -33,7 +33,7 @@ sub mailfilter {
    ## check .filter_check ##
    if ( -f "$folderdir/.filter.check" ) {
       my $checkinfo;
-      open (FILTERCHECK, "$folderdir/.filter.check" ) or return -1; 
+      open (FILTERCHECK, "$folderdir/.filter.check" ) or return -1;
       $checkinfo=<FILTERCHECK>;
       close (FILTERCHECK);
       if ($checkinfo eq metainfo($folderfile)) {
@@ -649,7 +649,7 @@ sub mailfilter {
          my $repeated;
          my ($trashfile, $trashdb)=get_folderfile_headerdb($user, 'mail-trash');
 
-         filelock($trashfile, LOCK_EX|LOCK_NB) or return -7; 
+         filelock($trashfile, LOCK_EX|LOCK_NB) or return -7;
          $repeated=operate_message_with_ids('move', \@repeatedids, $folderfile, $headerdb,
    							$trashfile, $trashdb);
          filelock($trashfile, LOCK_UN);
@@ -670,7 +670,7 @@ sub mailfilter {
    if (!$ioerr) {
       ## update .filter.check ##
       if (-f "$folderdir/.filter.check" ) {
-         open (FILTERCHECK, ">$folderdir/.filter.check" ) or  return -8; 
+         open (FILTERCHECK, ">$folderdir/.filter.check" ) or  return -8;
          print FILTERCHECK metainfo($folderfile);
          truncate(FILTERCHECK, tell(FILTERCHECK));
          close (FILTERCHECK);

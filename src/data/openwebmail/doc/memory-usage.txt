@@ -82,7 +82,13 @@ Conclusion
 Amazing? Yes, this program is a memory hog.....
 You'd better install more ram on your webmail server to make it faster...
 
+ps: Since version 1.90 20030313, openwebmail can work with SpeedyCGI, 
+    the speed will be much much faster because of persistent running,
 
-04/26/2001  
+    And memory usage will be greatly reduced when serving multiple 
+    concurrent requrests because of unix copy-on-write :)
+    You can get a quite reactive webmail system on a P133/64Mb machine :)
+
+03/13/2003
 
 openwebmail.AT.turtle.ee.ncku.edu.tw

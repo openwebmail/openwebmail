@@ -12,6 +12,8 @@
 Если подходящего варианта не обнаружено можно выбрать "-исправить вручную-"
 и затем нажать [Проверить снова], появится возможность писать в поле письма
 вручную.
+If the user chooses "--Add to Dictionary--" and then clicks [Check Again], 
+the original word will be added to the user's personal dictionary.
 </td></tr>
 </table>
 <br>
@@ -27,9 +29,8 @@
 
 <br>
 @@@CHECKAGAINBUTTON@@@
-&nbsp;&nbsp;&nbsp;
 @@@FINISHCHECKINGBUTTON@@@
-&nbsp;&nbsp;&nbsp;
+@@@EDITPERSDICTIONARYBUTTON@@@
 @@@CANCELBUTTON@@@
 <br><br>
 </td></tr>

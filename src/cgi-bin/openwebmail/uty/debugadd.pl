@@ -15,6 +15,7 @@ my $totalinsertion=0;
 foreach my $script (@ARGV) {
    my $content='';
    my $insertion=0;
+   my $package=0;
    print "add debug code to $script ...";
    open (F, $script);
    while (<F>) {
@@ -28,13 +29,18 @@ foreach my $script (@ARGV) {
          $debugline=qq|log_time('$debugline :', \@_);\n|;
          $content.=$debugline;
          $insertion++;
+      } elsif ($line=~/^package openwebmail::/) {
+         $package=1;
+         $content.=$line;
       } else {
          $content.=$line;
       }
    }
    close(F);
 
-   if ($insertion) {
+   if ($package) {
+      print "package skipped\n";
+   } elsif ($insertion) {
       if (open (F, ">$script")) {
          print F $content;
          close(F);

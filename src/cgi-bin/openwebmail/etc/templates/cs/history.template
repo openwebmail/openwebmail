@@ -1,8 +1,12 @@
-<table border="0" align="center" width="90%" cellpadding="1" cellspacing="1">
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>U¾ivatelská historie</B></font>
-</td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
+</td></tr>
+<tr><td bgcolor=@@@MENUBAR@@@>
+@@@MENUBARLINKS@@@
+</td></tr>
+</table>
 &nbsp;
 <table border="0" align="center" width="90%" cellspacing="0" cellpadding="0">
 <tr>
@@ -19,6 +23,3 @@
 </tr>
 @@@LOGINHISTORY@@@
 </table>
-
-@@@CONTINUEBUTTON@@@
-</td></tr></table>

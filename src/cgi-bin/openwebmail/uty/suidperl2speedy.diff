@@ -1,0 +1,126 @@
+diff -ruN suidperl/openwebmail-abook.pl speedy/openwebmail-abook.pl
+--- suidperl/openwebmail-abook.pl	Tue Mar 25 00:04:20 2003
++++ speedy/openwebmail-abook.pl	Tue Mar 25 00:07:44 2003
+@@ -1,4 +1,4 @@
+-#!/usr/bin/suidperl -T
++#!/usr/local/bin/speedy -T -- -T/var/run/speedy_abook
+ #
+ # openwebmail-abook.pl - address book program
+ #
+diff -ruN suidperl/openwebmail-advsearch.pl speedy/openwebmail-advsearch.pl
+--- suidperl/openwebmail-advsearch.pl	Tue Mar 25 00:04:20 2003
++++ speedy/openwebmail-advsearch.pl	Tue Mar 25 00:08:12 2003
+@@ -1,4 +1,4 @@
+-#!/usr/bin/suidperl -T
++#!/usr/local/bin/speedy -T -- -T/var/run/speedy_advsearch
+ #
+ # openwebmail-adsearch.pl - advanced search program
+ #
+diff -ruN suidperl/openwebmail-cal.pl speedy/openwebmail-cal.pl
+--- suidperl/openwebmail-cal.pl	Tue Mar 25 00:04:20 2003
++++ speedy/openwebmail-cal.pl	Tue Mar 25 00:07:42 2003
+@@ -1,4 +1,4 @@
+-#!/usr/bin/suidperl -T
++#!/usr/local/bin/speedy -T -- -T/var/run/speedy_cal
+ #
+ # openwebmail-cal.pl - calendar program
+ #
+diff -ruN suidperl/openwebmail-folder.pl speedy/openwebmail-folder.pl
+--- suidperl/openwebmail-folder.pl	Tue Mar 25 00:04:20 2003
++++ speedy/openwebmail-folder.pl	Tue Mar 25 00:08:09 2003
+@@ -1,4 +1,4 @@
+-#!/usr/bin/suidperl -T
++#!/usr/local/bin/speedy -T -- -T/var/run/speedy_folder
+ #
+ # openwebmail-folder.pl - mail folder management program
+ #
+diff -ruN suidperl/openwebmail-main.pl speedy/openwebmail-main.pl
+--- suidperl/openwebmail-main.pl	Tue Mar 25 00:04:20 2003
++++ speedy/openwebmail-main.pl	Tue Mar 25 00:07:41 2003
+@@ -1,4 +1,4 @@
+-#!/usr/bin/suidperl -T
++#!/usr/local/bin/speedy -T -- -T/var/run/speedy_main
+ #
+ # openwebmail-main.pl - message list browing program
+ #
+diff -ruN suidperl/openwebmail-prefs.pl speedy/openwebmail-prefs.pl
+--- suidperl/openwebmail-prefs.pl	Tue Mar 25 00:04:20 2003
++++ speedy/openwebmail-prefs.pl	Tue Mar 25 00:08:06 2003
+@@ -1,4 +1,4 @@
+-#!/usr/bin/suidperl -T
++#!/usr/local/bin/speedy -T -- -T/var/run/speedy_prefs
+ #
+ # openwebmail-prefs.pl - preference configuration, book editing program
+ #
+diff -ruN suidperl/openwebmail-read.pl speedy/openwebmail-read.pl
+--- suidperl/openwebmail-read.pl	Tue Mar 25 00:04:20 2003
++++ speedy/openwebmail-read.pl	Tue Mar 25 00:07:39 2003
+@@ -1,4 +1,4 @@
+-#!/usr/bin/suidperl -T
++#!/usr/local/bin/speedy -T -- -T/var/run/speedy_read
+ #
+ # openwebmail-read.pl - message reading program
+ #
+diff -ruN suidperl/openwebmail-send.pl speedy/openwebmail-send.pl
+--- suidperl/openwebmail-send.pl	Tue Mar 25 00:04:20 2003
++++ speedy/openwebmail-send.pl	Tue Mar 25 00:08:04 2003
+@@ -1,4 +1,4 @@
+-#!/usr/bin/suidperl -T
++#!/usr/local/bin/speedy -T -- -T/var/run/speedy_send
+ #
+ # openwebmail-send.pl - mail composing and sending program
+ #
+diff -ruN suidperl/openwebmail-spell.pl speedy/openwebmail-spell.pl
+--- suidperl/openwebmail-spell.pl	Tue Mar 25 00:04:20 2003
++++ speedy/openwebmail-spell.pl	Tue Mar 25 00:07:38 2003
+@@ -1,4 +1,4 @@
+-#!/usr/bin/suidperl -T
++#!/usr/local/bin/speedy -T -- -T/var/run/speedy_spell
+ #
+ # openwebmail-spell.pl - spell check program
+ #
+diff -ruN suidperl/openwebmail-tool.pl speedy/openwebmail-tool.pl
+--- suidperl/openwebmail-tool.pl	Tue Mar 25 00:04:20 2003
++++ speedy/openwebmail-tool.pl	Tue Mar 25 00:08:02 2003
+@@ -1,4 +1,4 @@
+-#!/usr/bin/suidperl -T
++#!/usr/local/bin/speedy -T -- -T/var/run/speedy_tool
+ #
+ # openwebmail-tool.pl - command tool for mail/event/notify/index...
+ #
+diff -ruN suidperl/openwebmail-vdomain.pl speedy/openwebmail-vdomain.pl
+--- suidperl/openwebmail-vdomain.pl	Tue Mar 25 00:04:20 2003
++++ speedy/openwebmail-vdomain.pl	Tue Mar 25 00:08:16 2003
+@@ -1,4 +1,4 @@
+-#!/usr/bin/suidperl -T
++#!/usr/local/bin/speedy -T -- -T/var/run/speedy_vdomain
+ #
+ # openwebmail-vdomain.pl - virtual domain user management
+ #
+diff -ruN suidperl/openwebmail-viewatt.pl speedy/openwebmail-viewatt.pl
+--- suidperl/openwebmail-viewatt.pl	Tue Mar 25 00:04:20 2003
++++ speedy/openwebmail-viewatt.pl	Tue Mar 25 00:08:00 2003
+@@ -1,4 +1,4 @@
+-#!/usr/bin/suidperl -T
++#!/usr/local/bin/speedy -T -- -T/var/run/speedy_viewatt
+ #
+ # openwebmail-viewatt.pl - attachment reading program
+ #
+diff -ruN suidperl/openwebmail-webdisk.pl speedy/openwebmail-webdisk.pl
+--- suidperl/openwebmail-webdisk.pl	Tue Mar 25 00:04:20 2003
++++ speedy/openwebmail-webdisk.pl	Tue Mar 25 00:08:14 2003
+@@ -1,4 +1,4 @@
+-#!/usr/bin/suidperl -T
++#!/usr/local/bin/speedy -T -- -T/var/run/speedy_webdisk
+ #
+ # openwebmail-webdisk.pl - web disk program
+ #
+diff -ruN suidperl/openwebmail.pl speedy/openwebmail.pl
+--- suidperl/openwebmail.pl	Tue Mar 25 00:04:20 2003
++++ speedy/openwebmail.pl	Tue Mar 25 00:07:57 2003
+@@ -1,4 +1,4 @@
+-#!/usr/bin/suidperl -T
++#!/usr/local/bin/speedy -T -- -T/var/run/speedy_login
+ #################################################################
+ #                                                               #
+ # Open WebMail - Provides a web interface to user mailboxes     #

@@ -1,7 +1,7 @@
-#!/usr/bin/perl
+package openwebmail::fr;
 
-# French translation by Cyril Sabatier, c.sabatier.AT.bocquet.com
-# charset: iso-8859-1
+# French translation, charset: iso-8859-1
+# by Cyril Sabatier, c.sabatier.AT.bocquet.com
 
 %lang_folders =
    (
@@ -15,7 +15,7 @@
 
 %lang_sortlabels =
    (
-   status      => 'Status (Non lus d\'abord)',
+   status      => 'Statut (Non lus d\'abord)',
    date        => 'Date (Le plus récent d\'abord)',
    date_rev    => 'Date (Le plus ancien d\'abord)',
    sender      => 'Expéditeur (Le plus récent d\'abord)',
@@ -62,9 +62,9 @@
 
 %lang_abookbuttonpositionlabels = 
    (
-   before => 'Before addressbook entries',
-   after  => 'After addressbook entries',
-   both   => 'Before and after addressbook entries'
+   before => 'Avant les adresses',
+   after  => 'Après les adresses',
+   both   => 'Avant et après les adresses'
    );
 
 %lang_timelabels =
@@ -167,7 +167,7 @@
    extract  => 'Extraire',
    chdir    => 'Ch. Rép.',
    mkdir    => 'Créer Rép.',
-   newfile  => 'Nouv. Fic.',
+   newfile  => 'Nouv. Fich.',
    delete   => 'Effacer',
    copy     => 'Copier',
    move     => 'Déplacer',
@@ -181,6 +181,7 @@
 
 %lang_text =
    (
+   help       => 'Aide ',
    login      => 'Entrer',
    clear      => 'Effacer',
    point      => 'Points',
@@ -319,12 +320,15 @@
    spellcheck => 'Vérif. Orth.',
    checkagain => 'Vérif. encore',
    finishchecking => 'Fin vérif.',
+   editpdict  => 'Edit Personal Dictionary',
+   addtodict  => 'Add to Dictionary',
    manuallyfix=> 'Correction manuelle',
    editstat   => 'Editer modèle de documents',
    savestat   => 'Sauver modèle de documents',
    clearstat  => 'Effacer tous les modèles de documents',
    statreply  => '-- Modèle de documents pour répondre --',
    calendar   => 'Calendrier',
+   allday     => 'All day',
    am         => 'am',
    pm         => 'pm',
    calfmt_year          => 'Année @@@YEAR@@@',
@@ -336,6 +340,7 @@
    moreitems  => 'plus d\'éléments',
    multieditconf => 'Cet élément a été ajouté pour des dates multiples.\\nSi vous le modifiez l\'élément sera modifié pour toutes les autres dates.\\nContinuer?',
    multidelconf  => 'Cet élément a été ajouté pour des dates multiples.\\nSi vous l\'effacez l\'élément sera effacé pour toutes les autres dates.\\nContinuer?',
+   caldelconf => 'Are you sure you want to delete this item?',
    noitemforthisday => 'Aucun élément pour cette journée',
    thisday_only          => 'La date d\'aujourd\'hui uniquement',
    the_wday_of_thismonth => 'le @@@ORDER@@@ @@@WDAY@@@ du mois',
@@ -364,13 +369,19 @@
    lastmodified => 'Date de modification',
    perm         => 'Perm.',
    permission   => 'Access Permission',
-   noitemfound  => 'Pas d'objet trouvé',
+   noitemfound  => 'Pas d\'objet trouvé',
    savefile     => 'Fichier sauvé',
    succeeded    => 'avec succès',
    failed       => 'avec des erreurs',
    savefile_towd=> 'Sauver fichier vers le WebDisk',
    saveatt_towd => 'Sauver l\'attachement vers le WebDisk',
-   addatt_fromwd=> 'Ajouter un attachement à partir du WebDisk'
+   addatt_fromwd=> 'Ajouter un attachement à partir du WebDisk',
+   vdomain_usermgr    => 'Virtual Domain User Management',
+   vdomain_createuser => 'Create User',
+   vdomain_changeuser => 'Change User',
+   vdomain_deleteuser => 'Delete User',
+   vdomain_usertype_localmbox  => 'Local Mailbox',
+   vdomain_usertype_redirected => 'Redirect to external mail address'
    );
 
 %lang_err =
@@ -414,6 +425,7 @@
    auth_syserr       => 'erreur d\'authentification',
    param_fmterr      => 'erreur de format de paramètre',
    pwd_incorrect     => 'Mot de passe incorrect ',
+   pwd_confirmmismatch=>'Les mots de passe de concordent pas ',
    pwd_tooshort      => 'Mot de passe trop court (Longueur minimum : @@@PASSWDMINLEN@@@)',
    pwd_toosimple     => 'Mot de passe trop simple (Il faut qu\'il y ait des chiffres et des lettres !)',
    network_server_error => 'erreur de serveur réseau',
@@ -429,7 +441,8 @@
    upload_overlimit  => 'La taille du fichier d\'upload dépasse la taille limite',
    decomp_notsupported=>'La décompression n\'est pas disponible pour ce fichier.',
    webdisk_hitquota   => 'Désolé, vous avez atteind le QUOTA. Effacer d\'abord des fichiers.',
-   webdisk_readonly   => 'Désolé, votre webdisk est en lexture seule.'
+   webdisk_readonly   => 'Désolé, votre webdisk est en lecture seule.',
+   vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
    );
 
 1;

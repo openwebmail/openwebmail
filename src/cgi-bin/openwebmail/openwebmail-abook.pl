@@ -4,9 +4,12 @@
 #
 
 use vars qw($SCRIPT_DIR);
-if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-\.]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
-if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
-push (@INC, $SCRIPT_DIR, ".");
+if ( $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
+if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
+   $_=<F>; close(F); if ( $_=~/^([^\s]*)/) { $SCRIPT_DIR=$1; }
+}
+if (!$SCRIPT_DIR) { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
+push (@INC, $SCRIPT_DIR);
 
 $ENV{PATH} = ""; # no PATH should be needed
 $ENV{ENV} = "";      # no startup script for sh
@@ -16,21 +19,19 @@ umask(0002); # make sure the openwebmail group can write
 use strict;
 use Fcntl qw(:DEFAULT :flock);
 use CGI qw(-private_tempfiles :standard);
-use CGI::Carp qw(fatalsToBrowser);
-CGI::nph();   # Treat script as a non-parsed-header script
+use CGI::Carp qw(fatalsToBrowser carpout);
 
 require "ow-shared.pl";
 require "filelock.pl";
 
 use vars qw(%config %config_raw);
 use vars qw($thissession);
-use vars qw($loginname $domain $user $userrealname $uuid $ugid $homedir);
+use vars qw($domain $user $userrealname $uuid $ugid $homedir);
 use vars qw(%prefs %style %icontext);
 use vars qw($folderdir @validfolders $folderusage);
 use vars qw($folder $printfolder $escapedfolder);
 
 openwebmail_init();
-verifysession();
 
 use vars qw($sort $page);
 use vars qw($messageid $escapedmessageid);
@@ -44,7 +45,6 @@ $escapedmessageid=escapeURL($messageid);
 use vars qw(%lang_folders %lang_sizes %lang_text %lang_err);	# defined in lang/xy
 
 ########################## MAIN ##############################
-
 my $action = param("action");
 if ($action eq "addressbook") {
    addressbook();
@@ -65,29 +65,32 @@ if ($action eq "addressbook") {
 } else {
    openwebmailerror("Action $lang_err{'has_illegal_chars'}");
 }
+
+# back to root if possible, required for setuid under persistent perl
+$<=0; $>=0;
 ###################### END MAIN ##############################
 
 #################### ADDRESSBOOK #######################
 sub addressbook {
+   my $elist = param("elist") || '';	# emails not checked or not convered by addressbook
+   my $tolist = join(",", param("to")) || '';	# emails checked in addressbook window
    my $form=param("form");
-
    my $field=param("field");
-   my $preexisting = param("preexisting") || '';
-   my $notlisted = param("notlisted") || '';
-   my $others = param("others") || '';
+
+   my %emailhash=();	# store all entries in emailhash
+   foreach my $u (str2list($elist,0), str2list($tolist,0)) {
+      if ($u) {
+         my $email=(email2nameaddr($u))[1];
+         $emailhash{$email}=$u;
+      }
+   }
 
    my $abook_keyword = param("abook_keyword") || '';
    my $abook_searchtype = param("abook_searchtype") || 'name';
-
-   my $formdata = join(",", param("to")) || '';
    my $results_flag = 0;
 
-   printheader();
-
-   my $html = '';
-   my $temphtml;
-
-   $html=readtemplate("addressbook.template");
+   my ($html, $temphtml);
+   $html = readtemplate("addressbook.template");
    $html = applystyle($html);
 
    if (defined($lang_text{$field})) {
@@ -118,35 +121,12 @@ sub addressbook {
 	               -class=>'medtext');
    $html =~ s/\@\@\@SEARCH\@\@\@/$temphtml/g;
 
-   my %preexistinghash=();
-   foreach my $u (str2list($preexisting,0)) {
-      my $email=(email2nameaddr($u))[1];
-      $preexistinghash{$email}=$u;
-   }
-   my %formdatahash=();
-   foreach my $u (str2list($formdata,0)) {
-      my $email=(email2nameaddr($u))[1];
-      $formdatahash{$email}=$u;
-   }
-   my %notlistedhash=();
-   foreach my $u (str2list($notlisted,0)) {
-      my $email=(email2nameaddr($u))[1];
-      $notlistedhash{$email}=$u;
-   }
-   my %othershash=();
-   foreach my $u (str2list($others,0)) {
-      my $email=(email2nameaddr($u))[1];
-      $othershash{$email}=$u;
-   }
-
-
    $temphtml="";
    $temphtml .= qq|<tr><td colspan="4">&nbsp;</td></tr>|;
 
    my $count=0;
    my $bgcolor = $style{"tablerow_dark"};
-   if ( -f "$folderdir/.address.book" ||
-        -f "$folderdir/.address.book"  ) {
+   if ( -f "$folderdir/.address.book" ) {
       my %addresses=();
       my %notes=();
 
@@ -178,19 +158,23 @@ sub addressbook {
          my $email=$addresses{$name};
          my $emailstr;
 
-         if ( $email =~ /[,"]/ ) {	# expand multiple addr to multiple "name" <addr>
-            foreach my $e (str2list($email,0)) {
-               foreach my $n (keys %addresses) {
-                  if ( $e eq $addresses{$n} ) {
-                     $e="\&quot;$n\&quot; &lt;$e&gt;";
-                     last;
-                  }
-               }
-               $emailstr .= "," if ($emailstr ne "");
-               $emailstr .= $e;
-            }
+         if ( $form eq "newaddress" && $field eq "email" ) { # if addr popup window is used to define group email
+            $emailstr="$email";	                             # then only pure addr is required
          } else {
-            $emailstr="\&quot;$name\&quot; &lt;$email&gt;";
+            if ( $email =~ /[,"]/ ) {	# expand multiple addr to multiple "name" <addr>
+               foreach my $e (str2list($email,0)) {
+                  foreach my $n (keys %addresses) {
+                     if ( $e eq $addresses{$n} ) {
+                        $e="\&quot;$n\&quot; &lt;$e&gt;";
+                        last;
+                     }
+                  }
+                  $emailstr .= "," if ($emailstr ne "");
+                  $emailstr .= $e;
+               }
+            } else {
+               $emailstr="\&quot;$name\&quot; &lt;$email&gt;";
+            }
          }
 
          my $accesskeystr=$count%10+1;
@@ -200,19 +184,14 @@ sub addressbook {
             $accesskeystr=qq|accesskey="$accesskeystr"|;
          }
          $temphtml .= qq|<tr>| if ($count %2 == 0);
-         $temphtml .= qq|<td width="20" bgcolor=$bgcolor><input type="checkbox" name="to" value="$emailstr" onChange="UpdateCheckbox(this)"|;
+         $temphtml .= qq|<td width="20" bgcolor=$bgcolor><input type="checkbox" name="to" value="$emailstr"|;
 
-         if (defined($preexistinghash{$email})) {
+         if (defined($emailhash{$email})) {
             $temphtml .= " checked";
-            delete $preexistinghash{$email};
-         } elsif (defined($notlistedhash{$email})) {
-            $temphtml .= " checked";
-            delete $notlistedhash{$email};
-         } elsif (defined($formdatahash{$email})) {
-            $temphtml .= " checked";
-            delete $formdatahash{$email};
+            delete $emailhash{$email};
          }
 
+         $emailstr=~s/\\/\\\\/g; $emailstr=~s/'/\\'/g;	# escape \ and ' for javascript
          $temphtml .= qq|></td><td width="45%" bgcolor=$bgcolor nowrap>|.
                       qq|<a $accesskeystr href="javascript:Update('$emailstr')" title="$email $notes{$name}">$name</a></td>\n|;
          $temphtml .= qq|</tr>| if ($count %2 == 1);
@@ -262,35 +241,35 @@ sub addressbook {
       foreach my $name (@namelist) {
          my $email=$globaladdresses{$name};
          my $emailstr;
-         if ( $email =~ /[,"]/ ) {	# expamd multiple addr to "name" <addr>
-            foreach my $e (str2list($email,0)) {
-               foreach my $n (keys %globaladdresses) {
-                  if ( $e eq $globaladdresses{$n} ) {
-                     $e="\&quot;$n\&quot; &lt;$e&gt;";
-                     last;
-                  }
-               }
-               $emailstr .= "," if ($emailstr ne "");
-               $emailstr .= $e;
-            }
+
+         if ( $form eq "newaddress" && $field eq "email" ) { # if addr popup window is used to define group email
+            $emailstr="$email";	                             # then only pure addr is required
          } else {
-            $emailstr="\&quot;$name\&quot; &lt;$email&gt;";
+            if ( $email =~ /[,"]/ ) {	# expamd multiple addr to "name" <addr>
+               foreach my $e (str2list($email,0)) {
+                  foreach my $n (keys %globaladdresses) {
+                     if ( $e eq $globaladdresses{$n} ) {
+                        $e="\&quot;$n\&quot; &lt;$e&gt;";
+                        last;
+                     }
+                  }
+                  $emailstr .= "," if ($emailstr ne "");
+                  $emailstr .= $e;
+               }
+            } else {
+               $emailstr="\&quot;$name\&quot; &lt;$email&gt;";
+            }
          }
 
          $temphtml .= qq|<tr>| if ($count %2 == 0);
          $temphtml .= qq|<td width="20" bgcolor=$bgcolor><input type="checkbox" name="to" value="$emailstr"|;
 
-         if (defined($preexistinghash{$email})) {
+         if (defined($emailhash{$email})) {
             $temphtml .= " checked";
-            delete $preexistinghash{$email};
-         } elsif (defined($notlistedhash{$email})) {
-            $temphtml .= " checked";
-            delete $notlistedhash{$email};
-         } elsif (defined($formdatahash{$email})) {
-            $temphtml .= " checked";
-            delete $formdatahash{$email};
+            delete $emailhash{$email};
          }
 
+         $emailstr=~s/\\/\\\\/g; $emailstr=~s/'/\\'/g;	# escape \ and ' for javascript
          $temphtml .= qq|></td><td width="45%" bgcolor=$bgcolor nowrap>|.
                       qq|<a href="javascript:Update('$emailstr')" title="$email $globalnotes{$name}">$name</a></td>\n|;
          $temphtml .= qq|</tr>| if ($count %2 == 1);
@@ -308,27 +287,12 @@ sub addressbook {
 
    $html =~ s/\@\@\@ADDRESSES\@\@\@/$temphtml/g;
 
-   # rebuild others into preexisting
-   if ($preexisting) {
-      my @u=sort values(%preexistinghash);
-      $others=join(",", @u);
-   } else {
-      my @u = sort values(%notlistedhash);
-      $notlisted = join(",", @u);
-      @u = sort values(%formdatahash);
-      if ($#u>=0) {
-         $notlisted .= "," if ($notlisted);
-         $notlisted .= join(",", @u);
-      }
-   }
-   # DEBUG
-   # log_time("Preexisting:$preexisting\nOhers:$others\nNot listed:$notlisted");
+   # rebuild entries not checked on address popup window backto elist
+   my @u=sort values(%emailhash);
+   $elist=join(",", @u);
 
-   $temphtml = hidden(-name=>'others',
-                      -value=>$others,
-                      -override=>'1').
-               hidden(-name=>'notlisted',
-                      -value=>$notlisted,
+   $temphtml = hidden(-name=>'elist',
+                      -value=>$elist,
                       -override=>'1').
                hidden(-name=>'action',
                       -value=>'addressbook',
@@ -344,12 +308,12 @@ sub addressbook {
                       -override=>'1');
    $html =~ s/\@\@\@HIDDENFIELDS\@\@\@/$temphtml/g;
 
-   $temphtml = button(-name=>"mailto.x",
+   $temphtml = button(-name=>"update",
                       -value=>"$lang_text{'continue'}",
                       -accesskey=>'C',		# continue
 	              -class=>'medtext',
-                      -onclick=>'Update()').
-               "&nbsp;&nbsp;";
+                      -onclick=>'Update(); return false;');
+   $temphtml .= "&nbsp;&nbsp;";
    $temphtml .= button(-name=>"cancel",
                       -value=>"$lang_text{'cancel'}",
                       -onclick=>'window.close();',
@@ -359,10 +323,10 @@ sub addressbook {
 
 
    my $temphtml_before = '&nbsp;</td></tr><tr><td align="center" colspan=4>'.$temphtml;
-   if ($prefs{'abookbuttonposition'} eq 'after') {
+   if ($prefs{'abook_buttonposition'} eq 'after') {
       $html =~ s/\@\@\@BUTTONSBEFORE\@\@\@//g;
       $html =~ s/\@\@\@BUTTONSAFTER\@\@\@/$temphtml/g;
-   } elsif (($prefs{'abookbuttonposition'} eq 'both') && $results_flag) {
+   } elsif (($prefs{'abook_buttonposition'} eq 'both') && $results_flag) {
       $html =~ s/\@\@\@BUTTONSBEFORE\@\@\@/$temphtml_before/g;
       $html =~ s/\@\@\@BUTTONSAFTER\@\@\@/$temphtml/g;
    } else {
@@ -376,8 +340,7 @@ sub addressbook {
    $html =~ s/\@\@\@FORMNAME\@\@\@/$form/g;
    $html =~ s/\@\@\@FIELDNAME\@\@\@/$field/g;
 
-   print $html;
-   print end_html();
+   print htmlheader(), $html, htmlfooter();
 }
 ################## END ADDRESSBOOK #####################
 
@@ -465,8 +428,8 @@ sub importabook {
       close (ABOOK) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.address.book!");
       filelock("$folderdir/.address.book", LOCK_UN);
 
-      writelog("import addressbook");
-      writehistory("import addressbook");
+      writelog("abok - import addressbook");
+      writehistory("abook - import addressbook");
 
 #      print "Location: $config{'ow_cgiurl'}/openwebmail-abook.pl?action=editaddresses&sessionid=$thissession&sort=$sort&folder=$escapedfolder&page=$page&message_id=$escapedmessageid\n\n";
       editaddresses();
@@ -476,13 +439,9 @@ sub importabook {
       my $abooksize = ( -s "$folderdir/.address.book" ) || 0;
       my $freespace = int($config{'maxbooksize'} - ($abooksize/1024) + .5);
 
-      my $html = '';
-      my $temphtml;
-
-      $html=readtemplate("importabook.template");
+      my ($html, $temphtml);
+      $html = readtemplate("importabook.template");
       $html = applystyle($html);
-
-      printheader();
 
       $html =~ s/\@\@\@FREESPACE\@\@\@/$freespace $lang_sizes{'kb'}/g;
 
@@ -549,13 +508,10 @@ sub importabook {
                          -override=>'1') .
       $html =~ s/\@\@\@STARTCANCELFORM\@\@\@/$temphtml/;
 
-
       $temphtml = submit("$lang_text{'cancel'}");
       $html =~ s/\@\@\@CANCELBUTTON\@\@\@/$temphtml/;
 
-      print $html;
-
-      printfooter(2);
+      print htmlheader(), $html, htmlfooter(2);
    }
 }
 
@@ -613,8 +569,8 @@ sub importabook_pine {
       close (ABOOK) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.address.book!");
       filelock("$folderdir/.address.book", LOCK_UN);
 
-      writelog("import addressbook");
-      writehistory("import addressbook");
+      writelog("abook - import addressbook");
+      writehistory("abook - import addressbook");
    }
    editaddresses();
 }
@@ -631,15 +587,11 @@ sub exportabook {
    print qq|Content-Transfer-Coding: binary\n|,
          qq|Connection: close\n|,
          qq|Content-Type: text/plain; name="adbook.csv"\n|;
-
-   # ugly hack since ie5.5 is broken with disposition: attchment
-   if ( $ENV{'HTTP_USER_AGENT'}!~/MSIE 5.5/ ) {
-      print qq|Content-Disposition: attachment; filename="adbook.csv"\n|,
+   if ( $ENV{'HTTP_USER_AGENT'}!~/MSIE 5.5/ ) {	# ie5.5 is broken with content-disposition
+      print qq|Content-Disposition: attachment; filename="adbook.csv"\n|;
    }
    print qq|\n|;
-
    print qq|Name,E-mail Address,Note\n|;
-
    while (<ABOOK>) {
       print join(",", split(/\@\@\@/,$_,3));
    }
@@ -647,8 +599,8 @@ sub exportabook {
    close(ABOOK);
    filelock("$folderdir/.address.book", LOCK_UN);
 
-   writelog("export addressbook");
-   writehistory("export addressbook");
+   writelog("abook - export addressbook");
+   writehistory("abook - export addressbook");
 
    return;
 }
@@ -665,10 +617,8 @@ sub editaddresses {
    my $abook_keyword = param("abook_keyword") || '';
    my $abook_searchtype = param("abook_searchtype") || 'name';
 
-   my $html = '';
-   my $temphtml;
-
-   $html=readtemplate("editaddresses.template");
+   my ($html, $temphtml);
+   $html = readtemplate("editaddresses.template");
    $html = applystyle($html);
 
    if ( -f "$folderdir/.address.book" ) {
@@ -697,8 +647,6 @@ sub editaddresses {
          close (ABOOK);
       }
    }
-
-   printheader();
 
    $html =~ s/\@\@\@FREESPACE\@\@\@/$freespace $lang_sizes{'kb'}/g;
 
@@ -808,6 +756,7 @@ sub editaddresses {
 
    $temphtml = submit(-name=>"$lang_text{'addmod'}",
                       -accesskey=>'A',
+                      -onClick=>'return addcheck();',
                       -class=>"medtext");
    $html =~ s/\@\@\@ADDBUTTON\@\@\@/$temphtml/;
 
@@ -840,9 +789,14 @@ sub editaddresses {
       } elsif ($accesskeystr < 10) {
          $accesskeystr=qq|accesskey="$accesskeystr"|;
       }
+
+      my ($k, $a, $n)=($key, $addresses{$key}, $notes{$key});
+      $k=~s/\\/\\\\/; $k=~s/'/\\'/; 
+      $a=~s/\\/\\\\/; $a=~s/'/\\'/; 
+      $n=~s/\\/\\\\/; $n=~s/'/\\'/; # escape \ and ' for javascript
       $temphtml .= qq|<tr>|.
-                   qq|<td bgcolor=$bgcolor><a $accesskeystr href="Javascript:Update('$key','$addresses{$key}','$notes{$key}')">$namestr</a></td>|.
-                   qq|<td bgcolor=$bgcolor><a href="$config{'ow_cgiurl'}/openwebmail-send.pl?action=composemessage&amp;page=$page&amp;sort=$sort&amp;folder=$escapedfolder&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$addresses{$key}">$emailstr</a></td>|.
+                   qq|<td bgcolor=$bgcolor><a $accesskeystr href="Javascript:Update('$k','$a','$n')">$namestr</a></td>|.
+                   qq|<td bgcolor=$bgcolor><a href="$config{'ow_cgiurl'}/openwebmail-send.pl?action=composemessage&amp;page=$page&amp;sort=$sort&amp;folder=$escapedfolder&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$addresses{$key}&amp;compose_caller=abook">$emailstr</a></td>|.
                    qq|<td bgcolor=$bgcolor>$notestr</td>|;
 
       $temphtml .= qq|<td bgcolor=$bgcolor align="center">|;
@@ -905,9 +859,14 @@ sub editaddresses {
       }
       $namestr=substr($namestr, 0, 25)."..." if (length($namestr)>30);
       $emailstr=substr($emailstr, 0, 35)."..." if (length($emailstr)>40);
+
+      my ($k, $a, $n)=($key, $globaladdresses{$key}, $globalnotes{$key});
+      $k=~s/\\/\\\\/; $k=~s/'/\\'/; 
+      $a=~s/\\/\\\\/; $a=~s/'/\\'/; 
+      $n=~s/\\/\\\\/; $n=~s/'/\\'/; # escape \ and ' for javascript
       $temphtml .= qq|<tr>|.
-                   qq|<td bgcolor=$bgcolor><a href="Javascript:Update('$key','$globaladdresses{$key}','$globalnotes{$key}')">$namestr</a></td>|.
-                   qq|<td bgcolor=$bgcolor><a href="$config{'ow_cgiurl'}/openwebmail-send.pl?action=composemessage&amp;page=$page&amp;sort=$sort&amp;folder=$escapedfolder&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$globaladdresses{$key}">$emailstr</a></td>|.
+                   qq|<td bgcolor=$bgcolor><a href="Javascript:Update('$k','$a','$n')">$namestr</a></td>|.
+                   qq|<td bgcolor=$bgcolor><a href="$config{'ow_cgiurl'}/openwebmail-send.pl?action=composemessage&amp;page=$page&amp;sort=$sort&amp;folder=$escapedfolder&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$globaladdresses{$key}&amp;compose_caller=abook">$emailstr</a></td>|.
                    qq|<td bgcolor=$bgcolor>$notestr</td>|.
                    qq|<td bgcolor=$bgcolor align="center">-----</td></tr>|;
 
@@ -920,9 +879,7 @@ sub editaddresses {
    }
    $html =~ s/\@\@\@ADDRESSES\@\@\@/$temphtml/;
 
-   print $html;
-
-   printfooter(2);
+   print htmlheader(), $html, htmlfooter(2);
 }
 ################### END EDITADDRESSES ########################
 
@@ -1010,8 +967,8 @@ sub clearaddress {
       close (ABOOK) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.address.book!");
    }
 
-   writelog("clear addressbook");
-   writehistory("clear addressbook");
+   writelog("abook - clear addressbook");
+   writehistory("abook - clear addressbook");
 
 #   print "Location: $config{'ow_cgiurl'}/openwebmail-abook.pl?action=editaddresses&sessionid=$thissession&sort=$sort&folder=$escapedfolder&page=$page&message_id=$escapedmessageid\n\n";
    editaddresses();

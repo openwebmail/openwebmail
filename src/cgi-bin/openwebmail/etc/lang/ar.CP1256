@@ -1,7 +1,7 @@
-#!/usr/bin/perl
+package openwebmail::ar_CP1256;
 
-# Arabic translation by Isam Ishaq
-# charset: windows-1256
+# Arabic translation, charset: windows-1256
+# by Isam Ishaq
 
 %lang_folders =
    (
@@ -62,9 +62,9 @@
 
 %lang_abookbuttonpositionlabels = 
    (
-   before => 'Before addressbook entries',
-   after  => 'After addressbook entries',
-   both   => 'Before and after addressbook entries'
+   before => 'ÞÈá ÚäÇÕÑ ÏÝÊÑ ÇáÚäÇæíä',
+   after  => 'ÈÚÏ ÚäÇÕÑ ÏÝÊÑ ÇáÚäÇæíä',
+   both   => 'ÞÈá æÈÚÏ ÚäÇÕÑ ÏÝÊÑ ÇáÚäÇæíä'
    );
 
 %lang_timelabels =
@@ -181,6 +181,7 @@
 
 %lang_text =
    (
+   help       => 'ÊÚáíãÇÊ¿',
    login      => 'ÊÓÌíá ÇáÏøÎæá',
    clear      => 'Clear',
    point      => 'äøÞØÉ',
@@ -280,7 +281,7 @@
    name       => 'ÇáÇÓã',
    email      => 'ÈÑíÏ ÇáßÊÑæäí',
    note       => 'ãáÇÍÙÉ',
-   max        => 'Maximum',
+   max        => 'ÇáÍÏø ÇáÃÞÕì',
    group      => 'ÇáãÌãæÚÉ',
    quota_hit  => 'Êã ÊÌÇæÒ ÇáÍÕÉ ÇáãÓãæÍ ÈåÇ',
    usage      => 'ãÓÊÎÏã',
@@ -319,12 +320,15 @@
    spellcheck => 'ÊÏÞíÞ ÇáÅãáÇÁ',
    checkagain => 'ÊÏÞíÞ ãÌÏÏ',
    finishchecking => 'ÅäåÇÁ ÇáÊÏÞíÞ',
+   editpdict  => 'ÊÍÑíÑ ÇáÞÇãæÓ ÇáÔÎøÕíø',
+   addtodict  => 'ÃÖÝ Çáì ÇáÞÇãæÓ',
    manuallyfix=> 'ÊÕÍíÍ íÏæí',
    editstat   => 'ÊÍÑíÑ ÇáäÕæÕ ÇáËÇÈÊå',
    savestat   => 'ÍÝÙ ÇáäÕ ÇáËÇÈÊ',
    clearstat  => 'ÍÐÝ ÌãíÚ ÇáäÕæÕ ÇáËÇÈÊå',
    statreply  => '-- ÅÎÊÇÑ ÇáäÕ ÇáËÇÈÊ ááÅÌÇÈå --',
    calendar   => 'ÇáÊÞæíã',
+   allday     => 'ØæÇá Çáíæã',
    am         => 'Õ.',
    pm         => 'ã.',
    calfmt_year          => 'ÓäÉ @@@YEAR@@@',
@@ -336,6 +340,7 @@
    moreitems  => 'ÚäÇÕÑ ÃßËÑ',
    multieditconf => 'ÊãÊ ÅÖÇÝÉ åÐÇ ÇáÚäÕÑ áÚÏÉ ÊæÇÑíÎ. \\n ÊÚÏíá åÐÇ ÇáÚäÕÑ íÊã ÊØÈíÞå Úáì ßá åÐå ÇáÊæÇÑíÎ\\nÇáÇÓÊãÑÇÑ ÈÇáÊÍÑíÑ¿',
    multidelconf  => 'ÊãÊ ÅÖÇÝÉ åÐÇ ÇáÚäÕÑ áÚÏÉ ÊæÇÑíÎ. \\n ÍÐÝ åÐÇ ÇáÚäÕÑ íÊã ÊØÈíÞå Úáì ßá åÐå ÇáÊæÇÑíÎ\\nÇáÇÓÊãÑÇÑ ÈÇáÍÐÝ¿',
+   caldelconf => 'åá ÊÑíÏ ÈÇáÊÃßíÏ ÍÐÝ åÐÇ ÇáÚäÕÑ?',
    noitemforthisday => 'áÇ ÊæÌÏ ÚäÇÕÑ áåÐÇ Çáíæã',
    thisday_only          => 'Çáíæã ÇáÍÇáí ÝÞØ',
    the_wday_of_thismonth => 'íæã @@@WDAY@@@ @@@ORDER@@@ ãä ßá ÔåÑ',
@@ -363,14 +368,20 @@
    showhidden   => 'ÅÙåÇÑ ÇáãáÝÇÊ ÇáãÎÛíÉ',
    lastmodified => 'æÞÊ ÃÎÑ ÊÚÏíá',
    perm         => 'ÕáÇÍíÇÊ',
-   permission   => 'Access Permission',
+   permission   => 'ÕáÇÍíÇÊ ÇáæÕæá',
    noitemfound  => 'áÇ ÊæÌÏ ÚäÇÕÑ',
    savefile     => 'ÍÝÙ ãáÝ',
    succeeded    => 'Êã ÈäÌÇÍ',
    failed       => 'ÝÔá',
    savefile_towd=> 'ÅÍÝÙ ÇáãáÝ Ýí ÇáæíÈ-ÏÓß',
    saveatt_towd => 'ÅÍÝÙ ÇáãáÍÞ Ýí ÇáæíÈ-ÏÓß',
-   addatt_fromwd=> 'ÃÖÝ ãáÍÞ ãä ÇáæíÈ-ÏÓß'
+   addatt_fromwd=> 'ÃÖÝ ãáÍÞ ãä ÇáæíÈ-ÏÓß',
+   vdomain_usermgr    => 'Virtual Domain User Management',
+   vdomain_createuser => 'Create User',
+   vdomain_changeuser => 'Change User',
+   vdomain_deleteuser => 'Delete User',
+   vdomain_usertype_localmbox  => 'Local Mailbox',
+   vdomain_usertype_redirected => 'Redirect to external mail address'
    );
 
 %lang_err =
@@ -414,6 +425,7 @@
    auth_syserr       => 'authentication system error',
    param_fmterr      => 'parameter format error',
    pwd_incorrect     => 'Password incorrect',
+   pwd_confirmmismatch=>'ßáãÉ ÇáãÑæÑ áÇ ÊÊØÇÈÞ ãÚ ÊÃßíÏåÇ',
    pwd_tooshort      => 'Password too short (minimum length @@@PASSWDMINLEN@@@)',
    pwd_toosimple     => 'Password too simple (both alphabet and digit are required)',
    network_server_error => 'network server error',
@@ -429,7 +441,8 @@
    upload_overlimit  => 'Upload file size is over the limit',
    decomp_notsupported=>'Decompression support is not available for this file.',
    webdisk_hitquota   => 'Sorry, you\'ve hit your webdisk quota, please delete some files first.',
-   webdisk_readonly   => 'Sorry, your webdisk is read only.'
+   webdisk_readonly   => 'Sorry, your webdisk is read only.',
+   vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
    );
 
 1;

@@ -1,3 +1,5 @@
+package openwebmail::auth_unix_cobalt;
+use strict;
 #
 # auth_unix_cobalt.pl - authenticate user with unix password and check
 #                       if user is valid under the HOST specified in the URL
@@ -45,22 +47,28 @@
 my $unix_passwdfile_plaintext="/etc/passwd";
 my $unix_passwdfile_encrypted="/etc/shadow";
 my $unix_passwdmkdb="none";
-my $check_shell=1;
+my $check_shell=0;
 
 ################### No configuration required from here ###################
 
-use strict;
 use Fcntl qw(:DEFAULT :flock);
+require "filelock.pl";
 
+#  0 : ok
+# -2 : parameter format error
+# -3 : authentication system/internal error
+# -4 : user doesn't exist
 sub get_userinfo {
-   my $user=$_[0];
-   my ($uid, $gid, $realname, $homedir);
+   my ($r_config, $user)=$_[0];
+   return(-2, 'User is null') if (!$user);
 
+   my ($uid, $gid, $realname, $homedir);
    if ($unix_passwdfile_plaintext eq "/etc/passwd") {
       ($uid, $gid, $realname, $homedir)= (getpwnam($user))[2,3,6,7];
    } else {
       ($uid, $gid, $realname, $homedir)= (getpwnam_file($user, $unix_passwdfile_plaintext))[2,3,6,7];
    }
+   return(-4, "User $user doesn't exist") if ($uid eq "");
 
    # use first field only
    $realname=(split(/,/, $realname))[0];
@@ -68,25 +76,30 @@ sub get_userinfo {
    if ($uid) {
       $homedir="/export$homedir" if (-d "/export$homedir");
    }
-   return($realname, $uid, $gid, $homedir);
+   return(0, "", $realname, $uid, $gid, $homedir);
 }
 
 
+#  0 : ok
+# -1 : function not supported
+# -3 : authentication system/internal error
 sub get_userlist {	# only used by openwebmail-tool.pl -a
+   my $r_config=$_[0];
    my @userlist=();
    my $line;
 
    # a file should be locked only if it is local accessable
-   if (-f $unix_passwdfile_encrypted) {
-      filelock("$unix_passwdfile_encrypted", LOCK_SH) or return @userlist;
+   if (-f $unix_passwdfile_plaintext) {
+      filelock("$unix_passwdfile_plaintext", LOCK_SH) or
+         return (-3, "Couldn't get read lock on $unix_passwdfile_plaintext", @userlist);
    }
-   open(PASSWD, $unix_passwdfile_encrypted);
+   open(PASSWD, $unix_passwdfile_plaintext);
    while (defined($line=<PASSWD>)) {
       push(@userlist, (split(/:/, $line))[0]);
    }
    close(PASSWD);
-   filelock("$unix_passwdfile_encrypted", LOCK_UN) if ( -f $unix_passwdfile_encrypted);
-   return(@userlist);
+   filelock("$unix_passwdfile_plaintext", LOCK_UN) if ( -f $unix_passwdfile_plaintext);
+   return(0, '', @userlist);
 }
 
 
@@ -95,19 +108,19 @@ sub get_userlist {	# only used by openwebmail-tool.pl -a
 # -3 : authentication system/internal error
 # -4 : password incorrect
 sub check_userpassword {
-   my ($user, $password)=@_;
-   my ($line, $u, $p);
-
-   return -2 unless ( $user ne "" && $password ne "");
+   my ($r_config, $user, $password)=@_;
+   return (-2, "User or password is null") if (!$user||!$password);
 
    # a file should be locked only if it is local accessable
    if (-f $unix_passwdfile_encrypted) {
-      filelock("$unix_passwdfile_encrypted", LOCK_SH) or return -3;
+      filelock("$unix_passwdfile_encrypted", LOCK_SH) or 
+         return (-3, "Couldn't get read lock on $unix_passwdfile_encrypted");
    }
    if ( ! open (PASSWD, "$unix_passwdfile_encrypted") ) {
       filelock("$unix_passwdfile_encrypted", LOCK_UN) if ( -f $unix_passwdfile_encrypted);
-      return -3;
+      return (-3, "Couldn't open $unix_passwdfile_encrypted");
    }
+   my ($line, $u, $p);
    while (defined($line=<PASSWD>)) {
       ($u, $p) = (split(/:/, $line))[0,1];
       last if ($u eq $user); # We've found the user in /etc/passwd
@@ -115,39 +128,33 @@ sub check_userpassword {
    close (PASSWD);
    filelock("$unix_passwdfile_encrypted", LOCK_UN) if ( -f $unix_passwdfile_encrypted);
 
-   return -4 if ($u ne $user || crypt($password,$p) ne $p);
-
+   return(-4, "User $user doesn't exist") if ($u ne $user);
+   return(-4, "Passowrd incorrect") if (crypt($password,$p) ne $p);
 
    ##############################################
    # Cobalt security check
    ##############################################
-   # before we return 0 we need to check to see if
-   # the user is in the domain URL passed.
-   #  This stops people 'piggybacking' their login
-   #  from allowed domains.
+   # check to see if the user is in the domain URL passed.
+   # This stops people 'piggybacking' their login from allowed domains.
 
    # construct home directory from info given
    my $cbhttphost=$ENV{'HTTP_HOST'}; $cbhttphost=~s/:\d+$//;	# remove port number
    my $cbhomedir="/home/sites/$cbhttphost/users/$user";
    if ( ! -d $cbhomedir ) {
-      writelog("auth_cobalt - invalid access, user: $user, site: $cbhttphost");
-      return -4;
+      return (-4, "invalid access, homedir /home/sites/$cbhttphost/users/$user doesn't exist");
    }
 
    # ----------------------------------------
    # emulate pam_nologin.so
    # first.. make sure /etc/nologin is not there
    if ( -e "/etc/nologin" ) {
-      writelog("auth_cobalt - /etc/nologin found, all pop logins suspended");
-      return -4;
+      return (-4, "/etc/nologin found, all pop logins suspended");
    }
 
    # ----------------------------------------
    # emulate pam_shells.so
    # Make sure that the user has not been 'suspended'
-
-   return 0 if (!$check_shell);
-   # get the current shell
+   return (0, "") if (!$check_shell);
    my $shell;
    if ($unix_passwdfile_plaintext eq "/etc/passwd") {
       $shell = (getpwnam($user))[8];
@@ -156,8 +163,7 @@ sub check_userpassword {
    }
    # if we can't open /etc/shells; assume password is invalid
    if (!open(ES, "/etc/shells")) {
-     writelog("auth_cobalt - /etc/shells not found, all pop logins suspended");
-     return -4;
+     return (-4, "/etc/shells not found, all pop logins suspended");
    }
    if ($shell) {
       # assume an invalid shell until we get a match
@@ -171,14 +177,13 @@ sub check_userpassword {
       close(ES);
       if (!$validshell) {
          # the user has been suspended.. return bad password
-         writelog("auth_cobalt - user suspended, user: $user, site: $cbhttphost");
-         return -4;
+         return (-4, "user doesn't have valid shell");
       }
    }
 
    # at this point we have a valid userid, under the url passwd,
    # and they have not been suspended
-   return 0;
+   return (0, "");
 }
 
 
@@ -188,19 +193,21 @@ sub check_userpassword {
 # -3 : authentication system/internal error
 # -4 : password incorrect
 sub change_userpassword {
-   my ($user, $oldpassword, $newpassword)=@_;
+   my ($r_config, $user, $oldpassword, $newpassword)=@_;
    my ($u, $p, $misc, $encrypted);
-   my $content="";
-   my $line;
-
-   return -2 unless ( $user ne "" && $oldpassword ne "" && $newpassword ne "" );
-   return -2 if (length($newpassword)<4);
+   my ($content, $line);
+   return (-2, "User or password is null") if (!$user||!$oldpassword||!$newpassword);
+   return (-2, "Password too short") if (length($newpassword)<${$r_config}{'passwd_minlen'});
 
    # a passwdfile could be modified only if it is local accessable
-   return -1 if (! -f $unix_passwdfile_encrypted);
+   return (-1, "$unix_passwdfile_encrypted doesn't exist on local") if (! -f $unix_passwdfile_encrypted);
 
-   filelock("$unix_passwdfile_encrypted", LOCK_EX) or return -3;
-   open (PASSWD, $unix_passwdfile_encrypted) or return -3;
+   filelock("$unix_passwdfile_encrypted", LOCK_EX) or
+      return (-3, "Couldn't get write lock on $unix_passwdfile_encrypted");
+   if ( ! open (PASSWD, "$unix_passwdfile_encrypted") ) {
+      filelock("$unix_passwdfile_encrypted", LOCK_UN);
+      return (-3, "Couldn't open $unix_passwdfile_encrypted");
+   }
    while (defined($line=<PASSWD>)) {
       $content .= $line;
       if ($u ne $user) {
@@ -209,20 +216,20 @@ sub change_userpassword {
    }
    close (PASSWD);
 
-   if ($u ne $user || crypt($oldpassword,$p) ne $p) {
+   if ($u ne $user) {
       filelock("$unix_passwdfile_encrypted", LOCK_UN);
-      return -4;
+      return (-4, "User $user doesn't exist");
+   }
+   if (crypt($oldpassword,$p) ne $p) {
+      filelock("$unix_passwdfile_encrypted", LOCK_UN);
+      return (-4, "Password incorrect");
    }
 
-   srand();
-   my $table="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-   my $salt=substr($table, int(rand(length($table))), 1).
-            substr($table, int(rand(length($table))), 1);
-
+   my @salt_chars = ('a'..'z','A'..'Z','0'..'9');
+   my $salt = $salt_chars[rand(62)] . $salt_chars[rand(62)];
    if ($p =~ /^\$1\$/) {	# if orig encryption is MD5, keep using it
       $salt = '$1$'. $salt;
    }
-
    $encrypted= crypt($newpassword, $salt);
 
    my $oldline=join(":", $u, $p, $misc);
@@ -230,7 +237,7 @@ sub change_userpassword {
 
    if ($content !~ s/\Q$oldline\E/$newline/) {
       filelock("$unix_passwdfile_encrypted", LOCK_UN);
-      return -3;
+      return (-3, "Unable to match entry for modification");
    }
 
    open(TMP, ">$unix_passwdfile_encrypted.tmp.$$") || goto authsys_error;
@@ -250,12 +257,19 @@ sub change_userpassword {
       rename("$unix_passwdfile_encrypted.tmp.$$", $unix_passwdfile_encrypted) || goto authsys_error;
    }
    filelock("$unix_passwdfile_encrypted", LOCK_UN);
-   return 0;
+   return (0, "");
 
 authsys_error:
    unlink("$unix_passwdfile_encrypted.tmp.$$");
    filelock("$unix_passwdfile_encrypted", LOCK_UN);
-   return -3;
+   return (-3, "Unable to write $unix_passwdfile_encrypted");
+}
+
+
+################### misc support routine ###################
+# use flock since what we modify here are local system files
+sub filelock () {
+   return(openwebmail::filelock::flock_lock(@_));
 }
 
 # this routie is slower than system getpwnam() but can work with file

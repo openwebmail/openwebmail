@@ -1,0 +1,53 @@
+<center> 
+<table border="0" align="center" width="95%" cellpadding="0" cellspacing="0">
+<tr><td colspan="2" bgcolor=@@@TITLEBAR@@@>
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<b>Dnevni pregled</b></font>
+</td></tr>
+@@@STARTFORM@@@
+<tr><td bgcolor=@@@MENUBAR@@@>
+@@@MENUBARLINKS@@@
+</td><td bgcolor=@@@MENUBAR@@@ align="right">
+@@@YEARFIELD@@@ 
+</td></tr>
+@@@ENDFORM@@@
+<tr><td colspan="2">&nbsp;</td></tr>
+</table>
+
+<table width=95% cellpadding=1 cellspacing=0><tr bgcolor=@@@TABLEROW_DARK@@@>
+<td nowrap align=center>@@@PREV_LINK@@@ <b>@@@CALTITLE@@@</b> @@@NEXT_LINK@@@</td>
+</tr></table>
+ 
+
+<table border=0 width=95%><tr><td align="right" valign=top width=85%>
+
+<table border=0 cellspacing=0 cellpadding=0 width=100% bgcolor=@@@BACKGROUND@@@>
+@@@CALENDARITEMS@@@
+</table>
+
+</td><td bgcolor=@@@WINDOW_DARK@@@ align=center valign=top width=15%>
+
+<table border=0 cellspacing=2 width=100%>
+@@@STARTADDITEMFORM@@@
+<tr><td colspan=2 align=center><B>Dodaj zapis u kalendar</B></td></tr>
+<tr><td colspan=2 nowrap>@@@STRINGFIELD@@@</td></tr>
+<tr><td width=25% nowrap>Vreme poèetka</td><td nowrap>@@@STARTHOURMINMENU@@@</td></tr>
+<tr><td width=25% nowrap>Vreme zavr&#154;etka</td><td nowrap>@@@ENDHOURMINMENU@@@</td></tr>
+<tr><td colspan=2 nowrap>@@@FREQMENU@@@</td></tr>
+<tr><td colspan=2 nowrap>@@@THISANDNEXTNDAYSCHECKBOX@@@ Ovaj dan i sledeæih @@@NDAYSFIELD@@@ dana</td></tr>
+<tr><td colspan=2 nowrap>@@@MONTHFREQMENU@@@</td></tr>
+<tr><td colspan=2 nowrap>@@@EVERYYEARCHECKBOX@@@ Svake godine</td></tr>
+<tr><td colspan=2 nowrap>Napravi da zapis bude veza na</td></tr>
+<tr><td colspan=2 nowrap>@@@LINKFIELD@@@</td></tr>
+@@@EMAILSTART@@@
+<tr><td colspan=2 nowrap>Po&#154;alji poruku obave&#154;tenja na</td></tr>
+<tr><td colspan=2 nowrap>@@@EMAILFIELD@@@</td></tr>
+@@@EMAILEND@@@
+<tr><td nowrap>Boja dogaðaja</td><td nowrap>@@@EVENTCOLORMENU@@@</td></tr>
+<tr><td colspan=2>@@@COLORTABLE@@@</td></tr>
+<tr><td colspan=2 align=center>@@@SUBMITBUTTON@@@</td></tr>
+@@@ENDFORM@@@
+</table>
+
+</td></tr></table>
+</center>

@@ -1,7 +1,7 @@
-#!/usr/bin/perl
+package openwebmail::zh_TW_Big5;
 
-# Traditional Chinese translation by openwebmail team
-# charset: big5
+# Traditional Chinese translation, charset: big5
+# by openwebmail team
 
 %lang_folders =
    (
@@ -181,6 +181,7 @@
 
 %lang_text =
    (
+   help       => '說明',
    login      => '登入',
    clear      => '清除',
    point      => '點',
@@ -319,12 +320,15 @@
    spellcheck => '拼字檢查',
    checkagain => '重新檢查',
    finishchecking => '檢查完畢',
+   editpdict  => '編輯個人字典',
+   addtodict  => '加入字典',
    manuallyfix=> '手動修正',
    editstat   => '編輯信紙底稿',
    savestat   => '儲存信紙底稿',
    clearstat  => '清除所有信紙底稿',
    statreply  => '-- 選擇回信底稿 --',
    calendar   => '行事曆',
+   allday     => '本日',
    am         => '上午',
    pm         => '下午',
    calfmt_year          => '@@@YEAR@@@年',
@@ -336,6 +340,7 @@
    moreitems  => '更多項目...',
    multieditconf => '這個項目已經被放到多份的行程中.\\n如果修改會更動所有相關行程.\\n繼續修改?',
    multidelconf  => '這個項目已經被放到多份的行程中..\\n如果刪除會全部刪掉.\\n進行刪除?',
+   caldelconf => '您確定要刪除這個項目嗎?',
    noitemforthisday => '本日沒有安排事情',
    thisday_only          => '本日',
    the_wday_of_thismonth => '本月 @@@ORDER@@@ @@@WDAY@@@ ',
@@ -370,7 +375,13 @@
    failed       => '失敗',
    savefile_towd=> '儲存檔案 到 網路硬碟',
    saveatt_towd => '儲存附件 到 網路硬碟',
-   addatt_fromwd=> '從 網路硬碟 新增附件'
+   addatt_fromwd=> '從 網路硬碟 新增附件',
+   vdomain_usermgr    => '虛擬帳號管理',
+   vdomain_createuser => '新增使用者',
+   vdomain_changeuser => '修改使用者',
+   vdomain_deleteuser => '刪除使用者',
+   vdomain_usertype_localmbox  => '本地端信件匣',
+   vdomain_usertype_redirected => '轉向到外部郵件地址'
    );
 
 %lang_err =
@@ -414,6 +425,7 @@
    auth_syserr       => '認證系統內部錯誤',
    param_fmterr      => '參數格式錯誤',
    pwd_incorrect     => '密碼錯誤',
+   pwd_confirmmismatch=>'新密碼與確認欄內容不符',
    pwd_tooshort      => '密碼太短 (最小長度 @@@PASSWDMINLEN@@@)',
    pwd_toosimple     => '密碼太簡單 (同時要有字母與數字)',
    network_server_error => '網路伺服器錯誤',
@@ -429,7 +441,8 @@
    upload_overlimit  => '上傳檔案的大小超出限制',
    decomp_notsupported=>'系統不支援這種檔案的解壓縮.',
    webdisk_hitquota   => '抱歉, 你的網路硬碟大小已經超出限制, 請先試著刪除一些檔案.',
-   webdisk_readonly   => '抱歉, 你的網路硬碟是唯讀的.'
+   webdisk_readonly   => '抱歉, 你的網路硬碟是唯讀的.',
+   vdomain_toomanyuser=> '抱歉, 這個網域的使用者數目已經到達上限'
    );
 
 1;

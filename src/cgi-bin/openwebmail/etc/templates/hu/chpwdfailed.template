@@ -2,8 +2,8 @@
 <table border="0" align="center" width="40%" cellpadding="1" cellspacing="1">
 <tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>A jelszÃ³vÃ¡ltoztatÃ¡s nem sikerÃ¼lt</B></font>
+<B>A jelszó változtatás nem sikerült</B></font>
 </td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>@@@ERRORMSG@@@, nem tÃ¶rtÃ©nt vÃ¡ltozÃ¡s.<BR>
+<BR>@@@ERRORMSG@@@, nem történt változás.<BR>
 @@@CONTINUEBUTTON@@@
 </td></tr></table>

@@ -6,13 +6,17 @@
 # Put any overrides into openwebmail.conf instead. The openwebmail.conf
 # should only contain values which override values set in this file. 
 # This eases the upgrade when defaults are changed or new features are added.
-#
 # Please refer to openwebmail.conf.help for description of each option
+#
+# ps: This file will be loaded only once if Open WebMail is running in 
+#     persistent mode. To force Open WebMail reread this file, please do
+#
+#     touch openwebmail*pl
 #
 
 name			Open WebMail
-version			1.90
-releasedate		20030212
+version			2.00
+releasedate		20030325
 
 ##############################################################################
 # host dependent configuration
@@ -27,10 +31,10 @@ auth_withdomain		no
 auth_domain		auto
 mailspooldir		/var/mail
 use_hashedmailspools	no
-create_homedir		no
+use_syshomedir		yes
+create_syshomedir	no
 use_homedirspools	no
 homedirspoolname	Mailbox
-use_homedirfolders	yes
 homedirfolderdirname	mail
 use_dotlockfile		no
 dbm_ext			.db
@@ -54,10 +58,14 @@ ow_sitesconfdir		%ow_etcdir%/sites.conf
 ow_usersconfdir		%ow_etcdir%/users.conf
 ow_usersdir		%ow_etcdir%/users
 ow_sessionsdir		%ow_etcdir%/sessions
+
 start_url		%ow_cgiurl%/openwebmail.pl
 ico_url			%ow_htmlurl%/images/openwebmail.ico
 logo_url		%ow_htmlurl%/images/openwebmail.gif
 logo_link		http://openwebmail.org/
+help_url		@@@HELP_URL@@@
+help_text		@@@HELP_TEXT@@@
+
 logfile			/var/log/openwebmail.log
 global_addressbook	%ow_etcdir%/address.book
 global_filterbook	%ow_etcdir%/filter.book
@@ -65,11 +73,15 @@ global_calendarbook	%ow_etcdir%/calendar.book
 g2b_map			%ow_etcdir%/g2b.map
 b2g_map			%ow_etcdir%/b2g.map
 lunar_map		%ow_etcdir%/lunar.map
+
 spellcheck		/usr/local/bin/ispell
 spellcheck_dictionaries	english, american
 vacationinit		%ow_cgidir%/vacation.pl -i
 vacationpipe		%ow_cgidir%/vacation.pl -t60s
-auto_createrc		no
+
+<domainname_equiv>
+</domainname_equiv>
+
 allowed_serverdomain	all
 allowed_clientdomain	all
 allowed_clientip	all
@@ -78,13 +90,20 @@ case_insensitive_login	no
 stay_ssl_afterlogin	yes
 enable_rootlogin	no
 enable_domainselectmenu yes
+domainselmenu_list	auto
 enable_changepwd	yes
 enable_strictpwd 	yes
 passwd_minlen		6
 session_multilogin	yes
 session_checkcookie	yes
 session_checksameip	no
-enable_about		yes
+cache_userinfo		yes
+
+auto_createrc		no
+domainnames_override	no
+symboliclink_mbox	yes
+
+enable_about			yes
 about_info_software		yes
 about_info_scriptfilename	no
 about_info_protocol		yes
@@ -92,25 +111,32 @@ about_info_server		yes
 about_info_client		yes
 xmailer_has_version		yes
 xoriginatingip_has_userid	yes
+
 enable_setfromemail	yes
 enable_autoreply	yes
 enable_setforward	yes
 enable_strictforward	no
 enable_stationery	yes
+enable_smartfilters	yes
 enable_calendar		yes
 enable_webdisk		yes
 enable_sshterm		yes
-calendar_email_notifyinterval	120
+enable_vdomain          no
+
 enable_pop3		yes
 disallowed_pop3servers	your_server, your_server.domain
-getmail_from_pop3_authserver	no
 delpop3mail_by_default	yes
 delpop3mail_hidden	no
-domainnames_override	no
-symboliclink_mbox	yes
+
+pop3_authserver		localhost
+pop3_authport		110
+getmail_from_pop3_authserver	no
+
 loginerrordelay		10
 refreshinterval		15
 fetchpop3interval	15
+calendar_email_notifyinterval	120
+
 enable_strictfoldername	no
 foldername_maxlen	32
 folderquota		0
@@ -118,6 +144,8 @@ folderusage_threshold	75
 cutfolders_ifoverquota	no
 maxbooksize		32
 attlimit		50000
+
+webdisk_rootpath	/
 webdisk_readonly	no
 webdisk_quota		0
 webdisk_uploadlimit	50000
@@ -125,8 +153,18 @@ webdisk_lsmailfolder	yes
 webdisk_lshidden	yes
 webdisk_lsunixspec	yes
 webdisk_lssymlink	yes
-webdisk_allow_symlinkouthome	yes
+webdisk_allow_symlinkout	yes
 webdisk_allow_thumbnail	yes
+
+vdomain_admlist			sysadm
+vdomain_maxuser			100
+vdomain_vmpop3_pwdpath		/etc/virtual
+vdomain_vmpop3_pwdname		passwd
+vdomain_vmpop3_mailpath		/var/spool/virtual
+vdomain_postfix_aliases		/etc/postfix/aliases
+vdomain_postfix_virtual		/etc/postfix/virtual
+vdomain_postfix_postalias	/usr/sbin/postalias
+vdomain_postfix_postmap		/usr/sbin/postmap
 
 <mailfooter>
 </mailfooter>
@@ -134,6 +172,8 @@ webdisk_allow_thumbnail	yes
 <page_footer>
 <a href="%ow_htmlurl%/openwebmail.html" target="_blank">%name%</a>
 version %version%
+&nbsp;
+<a accesskey="H" href="%help_url%" target="_help">%help_text%?</a>
 </page_footer>
 
 ##############################################################################
@@ -161,15 +201,18 @@ Open WebMail Project (http://openwebmail.org)
 default_style			Default
 default_iconset			Default
 default_bgurl			%ow_htmlurl%/images/backgrounds/Globe.gif
+default_bgrepeat		yes
 default_fontsize		10pt
 default_dateformat		mm/dd/yyyy
 default_hourformat		12
+
 default_ctrlposition_folderview	top
 default_msgsperpage		10
+default_fieldorder		date from subject size
 default_sort			date		
-
 default_confirmmsgmovecopy	yes
 default_defaultdestination	saved-messages
+default_smartdestination	yes
 default_viewnextaftermsgmovecopy	yes
 default_autopop3		yes
 default_moveoldmsgfrominbox	no
@@ -218,6 +261,7 @@ default_calendar_monthviewnumitems	5
 default_calendar_weekstart		0
 default_calendar_starthour		0800
 default_calendar_endhour		1700
+default_calendar_interval		30
 default_calendar_showemptyhours		yes
 default_calendar_reminderdays		7
 default_calendar_reminderforglobal	yes

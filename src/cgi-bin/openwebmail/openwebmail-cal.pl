@@ -10,9 +10,12 @@
 #
 
 use vars qw($SCRIPT_DIR);
-if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-\.]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
-if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
-push (@INC, $SCRIPT_DIR, ".");
+if ( $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
+if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
+   $_=<F>; close(F); if ( $_=~/^([^\s]*)/) { $SCRIPT_DIR=$1; }
+}
+if (!$SCRIPT_DIR) { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
+push (@INC, $SCRIPT_DIR);
 
 $ENV{PATH} = ""; # no PATH should be needed
 $ENV{ENV} = "";      # no startup script for sh
@@ -23,8 +26,7 @@ use strict;
 use Fcntl qw(:DEFAULT :flock);
 use Time::Local;
 use CGI qw(-private_tempfiles :standard);
-use CGI::Carp qw(fatalsToBrowser);
-CGI::nph();   # Treat script as a non-parsed-header script
+use CGI::Carp qw(fatalsToBrowser carpout);
 
 require "ow-shared.pl";
 require "filelock.pl";
@@ -33,14 +35,14 @@ require "iconv-chinese.pl";
 
 use vars qw(%config %config_raw);
 use vars qw($thissession);
-use vars qw($loginname $domain $user $userrealname $uuid $ugid $homedir);
+use vars qw($domain $user $userrealname $uuid $ugid $homedir);
 use vars qw(%prefs %style %icontext);
 use vars qw($folderdir @validfolders $folderusage);
 use vars qw($folder $printfolder $escapedfolder);
 use vars qw($miscbuttonsstr);
+use vars qw(@slottime);
 
 openwebmail_init();
-verifysession();
 
 # extern vars
 use vars qw(%lang_folders %lang_text %lang_err);	# defined in lang/xy
@@ -58,6 +60,15 @@ my %eventcolors=( '1a'=>'b0b0e0', '1b'=>'b0e0b0', '1c'=>'b0e0e0',
                   '2a'=>'9090f8', '2b'=>'90f890', '2c'=>'90f8f8',
                   '2d'=>'f89090', '2e'=>'f890f8', '2f'=>'f8f890');
 
+# init global @slottime
+@slottime=();
+for my $h (0..23) {
+   for (my $m=0; $m<60 ; $m=$m+$prefs{'calendar_interval'}) {
+      push(@slottime, sprintf("%02d%02d", $h, $m));
+   }
+}
+push(@slottime, "2400");
+
 if ($messageid eq "") {
    $miscbuttonsstr = iconlink("owm.gif", "$lang_text{'backto'} $printfolder", qq|accesskey="M" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;sessionid=$thissession&amp;folder=$escapedfolder"|);
 } else {
@@ -69,7 +80,7 @@ if ($config{'enable_webdisk'}) {
 if ( $config{'enable_sshterm'} && -r "$config{'ow_htmldir'}/applet/mindterm/mindtermfull.jar" ) {
    $miscbuttonsstr .= iconlink("sshterm.gif" ,"$lang_text{'sshterm'} ", qq|accesskey="T" href="#" onClick="window.open('$config{ow_htmlurl}/applet/mindterm/ssh.html', '_applet', 'width=400,height=100,top=2000,left=2000,resizable=no,menubar=no,scrollbars=no');"|);
 }
-$miscbuttonsstr .= iconlink("prefs.gif", $lang_text{'userprefs'}, qq|accesskey="O" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid"|);
+$miscbuttonsstr .= iconlink("prefs.gif", $lang_text{'userprefs'}, qq|accesskey="O" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;prefs_caller=cal"|);
 $miscbuttonsstr .= iconlink("logout.gif", "$lang_text{'logout'} $prefs{'email'}", qq|accesskey="X" href="$config{'ow_cgiurl'}/openwebmail-main.pl?sessionid=$thissession&amp;action=logout"|);
 
 my $action = param("action");
@@ -144,6 +155,9 @@ if ($action eq "calyear") {
 } else {
    openwebmailerror("Action $lang_err{'has_illegal_chars'}");
 }
+
+# back to root if possible, required for setuid under persistent perl
+$<=0; $>=0;
 ########################## END MAIN ##########################
 
 ########################## YEARVIEW ##########################
@@ -158,12 +172,8 @@ sub yearview {
    $year=2037 if ($year>2037);
    $year=1970 if ($year<1970);
 
-   printheader();
-
-   my $html = '';
-   my $temphtml;
-
-   $html=readtemplate("yearview.template");
+   my ($html, $temphtml);
+   $html = readtemplate("yearview.template");
    $html = applystyle($html);
 
    $temphtml = startform(-name=>"yearform",
@@ -278,15 +288,22 @@ sub yearview {
                my $date2=sprintf("%04d,%02d,%02d,%s", $year,$month,$day,$dow);
 
                my @indexlist=();
-               push(@indexlist, @{$indexes{$date}}) if (defined($indexes{$date}));
-               push(@indexlist, @{$indexes{'*'}})   if (defined($indexes{'*'}));
-               @indexlist=sort { ($items{$a}{'starthourmin'}||1E9)<=>($items{$b}{'starthourmin'}||1E9) } @indexlist;
+               foreach ($date, '*') {
+                  next if (!defined($indexes{$_}));
+                  foreach my $index (@{$indexes{$_}}) {
+                     if ($date=~/$items{$index}{'idate'}/ ||
+                        $date2=~/$items{$index}{'idate'}/ ) {
+                        push(@indexlist, $index);
+                     }
+                  }
+               }
+               @indexlist=sort { $items{$a}{'starthourmin'}<=>$items{$b}{'starthourmin'} || 
+                                 $items{$a}{'endhourmin'}<=>$items{$b}{'endhourmin'} || 
+                                 $b<=>$a } @indexlist;
 
                my $eventstr="";
                for my $index (@indexlist) {
-                  if ($date=~/$items{$index}{'idate'}/ || $date2=~/$items{$index}{'idate'}/) {
-                     $eventstr.="$items{$index}{'string'} ";
-                  }
+                  $eventstr.="$items{$index}{'string'} ";
                }
                if ($eventstr) {
                   if ($eventstr!~/"/) {
@@ -320,8 +337,7 @@ sub yearview {
       $html =~ s/\@\@\@MONTH$month\@\@\@/$temphtml/;
    }
 
-   print $html;
-   printfooter(2);
+   print htmlheader(), $html, htmlfooter(2);
 }
 ######################## END YEARVIEW ########################
 
@@ -337,12 +353,8 @@ sub monthview {
    $year=2037 if ($year>2037);
    $year=1970 if ($year<1970);
 
-   printheader();
-
-   my $html = '';
-   my $temphtml;
-
-   $html=readtemplate("monthview.template");
+   my ($html, $temphtml);
+   $html = readtemplate("monthview.template");
    $html = applystyle($html);
 
    $temphtml = startform(-name=>"yearform",
@@ -485,19 +497,25 @@ sub monthview {
                          qq|</td></tr>|;
 
             my @indexlist=();
-            push(@indexlist, @{$indexes{$date}}) if (defined($indexes{$date}));
-            push(@indexlist, @{$indexes{'*'}})   if (defined($indexes{'*'}));
-            @indexlist=sort { ($items{$a}{'starthourmin'}||1E9)<=>($items{$b}{'starthourmin'}||1E9) } @indexlist;
+            foreach ($date, '*') {
+               next if (!defined($indexes{$_}));
+               foreach my $index (@{$indexes{$_}}) {
+                  if ($date=~/$items{$index}{'idate'}/ ||
+                      $date2=~/$items{$index}{'idate'}/ ) {
+                     push(@indexlist, $index);
+                  }
+               }
+            }
+            @indexlist=sort { $items{$a}{'starthourmin'}<=>$items{$b}{'starthourmin'} || 
+                              $items{$a}{'endhourmin'}<=>$items{$b}{'endhourmin'} || 
+                              $b<=>$a } @indexlist;
 
             $temphtml .= qq|<tr><td>|;
             for my $index (@indexlist) {
-               if ($date=~/$items{$index}{'idate'}/ ||
-                   $date2=~/$items{$index}{'idate'}/) {
-                  if ($i<$prefs{'calendar_monthviewnumitems'}) {
-                     $temphtml .= month_week_item($items{$index}, $cal_url.qq|action=calday&year=$year&month=$month&day=$day|, ($index>=1E6))
-                  }
-                  $i++;
+               if ($i<$prefs{'calendar_monthviewnumitems'}) {
+                  $temphtml .= month_week_item($items{$index}, $cal_url.qq|action=calday&year=$year&month=$month&day=$day|, ($index>=1E6))
                }
+               $i++;
             }
             if ($i>$prefs{'calendar_monthviewnumitems'}) {
                $temphtml .= qq|<br><br><font size=-1><a href="|.$cal_url.
@@ -516,8 +534,7 @@ sub monthview {
       }
    }
 
-   print $html;
-   printfooter(2);
+   print htmlheader(), $html, htmlfooter(2);
 }
 ######################## END MONTHVIEW ########################
 
@@ -527,18 +544,15 @@ sub weekview {
    my $g2l=time()+timeoffset2seconds($prefs{'timeoffset'}); # trick makes gmtime($g2l) return localtime in timezone of timeoffsset
    my ($current_year, $current_month, $current_day)=(gmtime($g2l))[5,4,3];
    $current_year+=1900; $current_month++;
+
    $year = $current_year if (!$year);
    $month = $current_month if (!$month);
    $day = $current_day if (!$day);
    $year=2037 if ($year>2037);
    $year=1970 if ($year<1970);
 
-   printheader();
-
-   my $html = '';
-   my $temphtml;
-
-   $html=readtemplate("weekview.template");
+   my ($html, $temphtml);
+   $html = readtemplate("weekview.template");
    $html = applystyle($html);
 
    $temphtml = startform(-name=>"yearform",
@@ -681,18 +695,23 @@ sub weekview {
       my $i=0;
 
       my @indexlist=();
-      push(@indexlist, @{$indexes{$date}}) if (defined($indexes{$date}));
-      push(@indexlist, @{$indexes{'*'}})   if (defined($indexes{'*'}));
-      @indexlist=sort { ($items{$a}{'starthourmin'}||1E9)<=>($items{$b}{'starthourmin'}||1E9) } @indexlist;
+      foreach ($date, '*') {
+         next if (!defined($indexes{$_}));
+         foreach my $index (@{$indexes{$_}}) {
+            if ($date=~/$items{$index}{'idate'}/ ||
+                $date2=~/$items{$index}{'idate'}/ ) {
+               push(@indexlist, $index);
+            }
+         }
+      }
+      @indexlist=sort { $items{$a}{'starthourmin'}<=>$items{$b}{'starthourmin'} || 
+                        $items{$a}{'endhourmin'}<=>$items{$b}{'endhourmin'} || 
+                        $b<=>$a } @indexlist;
 
       $temphtml .= qq|<tr><td valign=bottom>|;
       for my $index (@indexlist) {
-         if ($date=~/$items{$index}{'idate'}/ ||
-             $date2=~/$items{$index}{'idate'}/) {
-            $temphtml .= qq|<br>\n| if ( $i>0);
-            $temphtml .= month_week_item($items{$index}, $cal_url.qq|action=calday&year=$year&month=$month&day=$day|, ($index>=1E6));
-            $i++;
-         }
+         $temphtml .= month_week_item($items{$index}, $cal_url.qq|action=calday&year=$year&month=$month&day=$day|, ($index>=1E6));
+         $i++;
       }
       $temphtml .= qq|&nbsp;<br>\n| if ($i==0);
       $temphtml .= qq|</td></tr></table></td>\n|;
@@ -700,43 +719,45 @@ sub weekview {
       $html =~ s/\@\@\@DAY$x\@\@\@/$temphtml/;
    }
 
-   print $html;
-   printfooter(2);
+   print htmlheader(), $html, htmlfooter(2);
 }
 
 # print an item in the month or week view
 sub month_week_item {
    my ($r_item, $daylink, $is_global) = @_;
 
-   my $t='#';
+   my ($eventtime, $eventlink, $eventemail);
    if (${$r_item}{'starthourmin'} ne "0") {
-      $t = hourmin2str(${$r_item}{'starthourmin'}, $prefs{'hourformat'});
+      $eventtime = hourmin2str(${$r_item}{'starthourmin'}, $prefs{'hourformat'});
       if (${$r_item}{'endhourmin'} ne "0") {
-         $t.= qq|-| . hourmin2str(${$r_item}{'endhourmin'}, $prefs{'hourformat'});
+        $eventtime .= qq|-| . hourmin2str(${$r_item}{'endhourmin'}, $prefs{'hourformat'});
       }
+   } else {
+      $eventtime="#";
+   }
+   $eventtime=qq|<font color="#c00000">$eventtime</font>&nbsp;|;
+
+   if (${$r_item}{'link'}) {
+      my $link=${$r_item}{'link'}; $link=~s/\%THISSESSION\%/$thissession/;
+      $eventlink = qq|&nbsp;|. iconlink("cal-link.gif", "${$r_item}{'link'}", qq|href="$link" target="_blank"|);
+   }
+   if (${$r_item}{'email'}) {
+      $eventemail = qq|&nbsp;|. iconlink("email.gif", "${$r_item}{'email'}", "");
    }
 
    my $s=${$r_item}{'string'};
    my $nohtml=$s; $nohtml=~ s/<.*?>//g;
    $s=substr($nohtml, 0, 36)."..." if (length($nohtml)>40);
-   $s=qq|$s *| if ($is_global);
-
-   my $temphtml=qq|<font color=#c00000>$t</font><br>|;
-   if (${$r_item}{'link'}) {
-      my $link=${$r_item}{'link'}; $link=~s/\%THISSESSION\%/$thissession/;
-      $temphtml .= qq|<a href="$link" target="_blank">$s</a>|;
-   } else {
-      $temphtml .= $s;
-   }
-   if ($config{'calendar_email_notifyinterval'}>0 && ${$r_item}{'email'}) {
-      $temphtml .= iconlink("email.gif", "${$r_item}{'email'}", ""). qq|\n|;
-   }
+   $s="$s *" if ($is_global);
 
    my $colorstr='';
    if (defined($eventcolors{${$r_item}{'eventcolor'}})) {
       $colorstr=qq|bgcolor="#$eventcolors{${$r_item}{'eventcolor'}}"|;
    }
-   $temphtml=qq|<table $colorstr cellspacing=1 cellpadding=0 width="100%"><tr><td>$temphtml</td></tr></table>|;
+
+   my $temphtml=qq|<table $colorstr cellspacing=1 cellpadding=0 width="100%"><tr><td>|.
+                "$eventtime$s$eventlink$eventemail".
+                qq|</td></tr></table>|;
 
    return($temphtml);
 }
@@ -755,12 +776,8 @@ sub dayview {
    $year=2037 if ($year>2037);
    $year=1970 if ($year<1970);
 
-   printheader();
-
-   my $html = '';
-   my $temphtml;
-
-   $html=readtemplate("dayview.template");
+   my ($html, $temphtml);
+   $html = readtemplate("dayview.template");
    $html = applystyle($html);
 
    $temphtml = startform(-name=>"yearform",
@@ -843,72 +860,250 @@ sub dayview {
    }
    $html =~ s/\@\@\@CALTITLE\@\@\@/$temphtml/g;
 
-   my $dow=$wdaystr[$wdaynum];
-   my $date=sprintf("%04d%02d%02d", $year, $month, $day);
-   my $date2=sprintf("%04d,%02d,%02d,%s", $year,$month,$day,$dow);
-   my @indexlist=();
-   push(@indexlist, @{$indexes{$date}}) if (defined($indexes{$date}));
-   push(@indexlist, @{$indexes{'*'}})   if (defined($indexes{'*'}));
-   @indexlist=sort { ($items{$a}{'starthourmin'}||1E9)<=>($items{$b}{'starthourmin'}||1E9) } @indexlist;
+   # Find all indexes that take place today and sort them by starthourmin
+   my $dow   = $wdaystr[$wdaynum];
+   my $date  = sprintf("%04d%02d%02d", $year, $month, $day);
+   my $date2 = sprintf("%04d,%02d,%02d,%s", $year,$month,$day,$dow);
 
-   my @bgcolor=($style{"tablerow_dark"}, $style{"tablerow_light"});
-   my $colornum=0;
-   my $itemcount=0;
-   $temphtml='';
-   for (my $t=0; $t<2400; $t+=100) {
-      my $timestr=hourmin2str(sprintf("%04d",$t), $prefs{'hourformat'});
-      my $y = 0;
-      for my $index (@indexlist) {
-         next if ($items{$index}{'starthourmin'} eq "0"|| !$index); # find timed items
+   my @indexlist = (); # an index list of how many events occur on this day
+   foreach ($date, '*') {
+      next if (!defined($indexes{$_}));
+      foreach my $index (@{$indexes{$_}}) {
          if ($date=~/$items{$index}{'idate'}/ ||
-             $date2=~/$items{$index}{'idate'}/) {
-            if ($items{$index}{'starthourmin'}>=$t && $items{$index}{'starthourmin'}< $t+100 ) {
-               if (!$y) {
-                  $colornum=($colornum+1)%2;
-                  $temphtml .= qq|<tr>|.
-                               qq|<td bgcolor=$bgcolor[$colornum] align="right" nowrap>$timestr</td>|.
-                               qq|<td bgcolor=$bgcolor[$colornum]>|.
-                               qq|<table width="100%" border="0" cellpadding="2" cellspacing="0">\n|;
-               }
-               $temphtml .= dayview_table_item($items{$index}, $cal_url, "&year=$year&month=$month&day=$day&index=$index", ($index>=1E6));
-               $itemcount++;
-               $y++;
+             $date2=~/$items{$index}{'idate'}/ ) {
+            push(@indexlist, $index);
+         }
+      }
+   }
+   @indexlist=sort { $items{$a}{'starthourmin'}<=>$items{$b}{'starthourmin'} || 
+                     $items{$a}{'endhourmin'}<=>$items{$b}{'endhourmin'} || 
+                     $b<=>$a } @indexlist;
+
+   my @bgcolor=($style{"tablerow_light"}, $style{"tablerow_dark"});
+   my $colornum=0;
+   $temphtml='';
+
+   my (@allday_indexies, @matrix, %layout, $slotmin, $slotmax, $colmax, );
+   build_event_matrix(\%items, \@indexlist, 
+       \@allday_indexies, \@matrix, \%layout, \$slotmin, \$slotmax, \$colmax);
+
+   $colornum=($colornum+1)%2; # alternate the bgcolor
+   $temphtml .= qq|<tr>|.
+                qq|<td colspan="2">|.
+                  qq|<!-- THE OUTSIDE-MOST TABLE DECLARATION FOR OUR CALENDAR DATA -->|.
+                  qq|<table width="100%" cellpadding="0" cellspacing="1" border="0">\n|.
+                  qq|<!-- BEGIN LISTING ALL DAY EVENTS -->|.
+                  qq|<tr>|.
+                  qq|<td width="10%" bgcolor=$style{'columnheader'} align="center" nowrap>$lang_text{'allday'}</td>|.
+                  qq|<td width="90%" bgcolor=$style{'columnheader'} colspan="|.($colmax+1).qq|">|.
+                  qq|<table width="100%" cellpadding="0" cellspacing="0">\n|; 
+
+   my ($bgcolorstr, $bdstylestr, $eventlink, $eventemail, $eventtime);
+
+   for my $index (@allday_indexies) {
+      my $r_event=$items{$index};
+
+      # we do the all day events first because they're the easiest
+      ($eventtime, $eventlink, $eventemail) = ('', '', '');
+
+      if (${$r_event}{'eventcolor'} eq "none") {
+         $bgcolorstr = qq|bgcolor=$style{'columnheader'}|;
+      } else {
+         $bgcolorstr = qq|bgcolor="#|. $eventcolors{${$r_event}{'eventcolor'}}. qq|"|;
+      }
+      if (${$r_event}{'starthourmin'} ne "0") {
+         $eventtime = hourmin2str(${$r_event}{'starthourmin'}, $prefs{'hourformat'});
+         if (${$r_event}{'endhourmin'} ne "0") {
+           $eventtime .= qq|-| . hourmin2str(${$r_event}{'endhourmin'}, $prefs{'hourformat'});
+         }
+      } else {
+         $eventtime = "#";
+      }
+      $eventtime=qq|<font color="#c00000">$eventtime</font>&nbsp;|;
+
+      if (${$r_event}{'link'}) {
+         my $link=${$r_event}{'link'}; $link=~s/\%THISSESSION\%/$thissession/;
+         $eventlink = qq|&nbsp;|. iconlink("cal-link.gif", "${$r_event}{'link'}", qq|href="$link" target="_blank"|);
+      }
+      if (${$r_event}{'email'}) {
+         $eventemail = qq|&nbsp;|. iconlink("email.gif", "${$r_event}{'email'}", "");
+      }
+      my ($jsedit, $jsdel)=('','');
+      if (${$r_event}{'idate'} =~ m/[\*|,|\|]/) {
+         $jsedit = qq|onclick="return confirm('$lang_text{multieditconf}')"|;
+         $jsdel = qq|onclick="return confirm('$lang_text{multidelconf}')"|;
+      } else {
+         $jsdel = qq|onclick="return confirm('$lang_text{caldelconf}')"|;
+      }
+
+      $temphtml .= qq|<tr>|.
+                   qq|<td bgcolor=$bgcolor[$colornum] valign="top" colspan="|.($colmax+1).qq|">\n|.
+                   qq|<table width="100%" cellpadding="2" cellspacing="0"><tr><td $bgcolorstr valign="top" align="left">|;
+      if ($index>=1E6) {
+         $temphtml .= qq|$eventtime${$r_event}{'string'} *|.
+                      $eventlink.$eventemail;
+      } else {
+         $temphtml .= qq|<a accesskey="E" title="$lang_text{'edit'}" href="$cal_url|.
+                      qq|action=caledit&year=$year&month=$month&day=$day&index=$index" $jsedit>|.
+                      qq|$eventtime${$r_event}{'string'}</a>|.
+                      $eventlink.$eventemail.
+                      qq|&nbsp;&nbsp;|. iconlink("cal-delete.gif", "$lang_text{'delete'}", qq|href="${cal_url}action=caldel&year=$year&month=$month&day=$day&index=$index" $jsdel|);
+      }
+      $temphtml .= qq|</td></tr></table>|.
+                   qq|</td>|.
+                   qq|</tr>|;
+   }
+
+   if ($#indexlist < 0) {
+      $temphtml .=  qq|<tr>|.
+                    qq|<td bgcolor=$style{'columnheader'} align=center colspan="|.($colmax+1).qq|">$lang_text{'noitemforthisday'}</td>|.
+                    qq|</tr>\n|;
+   } elsif ($#allday_indexies < 0) {
+      $temphtml .=  qq|<tr>|.
+                    qq|<td bgcolor=$style{'columnheader'} align=center colspan="|.($colmax+1).qq|">&nbsp;</td>|.
+                    qq|</tr>\n|;
+   }
+
+   $temphtml .= qq|</table>|.
+                qq|</td>|.
+                qq|</tr>|.
+                qq|<!--END OF ALL DAY LISTINGS-->|;
+
+
+   $temphtml .= qq|<!--START EVENT MATRIX-->|;
+
+   my $slots_in_hour=int(60/$prefs{'calendar_interval'}+0.999999);
+
+   for (my $slot = 0; $slot < $#slottime; $slot++) {
+      if ($slot % $slots_in_hour==0) {
+
+         # skip too earily time slots
+         my $is_earily=1;
+         for my $i (0..$slots_in_hour-1) {
+            if ($slot+$i >= $slotmin || 
+                $slottime[$slot+$i] ge $prefs{'calendar_starthour'}) {
+               $is_earily=0; last;
             }
          }
-      }
-      $temphtml .= qq|</table></td></tr>\n| if $y;
-
-      if (!$y && $prefs{'calendar_showemptyhours'} &&
-          $t>=$prefs{'calendar_starthour'} && $t<=$prefs{'calendar_endhour'}) {
-         $colornum=($colornum+1)%2;
-         $temphtml .= qq|<tr><td bgcolor=$bgcolor[$colornum] align="right" nowrap>$timestr</td>|.
-                      qq|<td bgcolor=$bgcolor[$colornum]>&nbsp;</td></tr>\n|;
-      }
-   }
-
-   my $y = 0;
-   for my $index (@indexlist) {
-      next if ($items{$index}{'starthourmin'} ne "0"|| !$index); # find non-timed items
-      if ($date=~/$items{$index}{'idate'}/ ||
-          $date2=~/$items{$index}{'idate'}/) {
-         if (!$y) {
-            $colornum=($colornum+1)%2;
-            $temphtml .= qq|<tr>|.
-                         qq|<td bgcolor=$bgcolor[$colornum]>&nbsp;</td>|.
-                         qq|<td bgcolor=$bgcolor[$colornum]>|.
-                         qq|<table width="100%" border="0" cellpadding="2" cellspacing="0">\n|;
+         if ($is_earily) {
+            $slot=$slot+$slots_in_hour-1; next;		# skip $slots_in_hour slots at once
          }
-         $temphtml .= dayview_table_item($items{$index}, $cal_url, "&year=$year&month=$month&day=$day&index=$index", ($index>=1E6));
-         $itemcount++;
-         $y++;
-      }
-   }
-   $temphtml .= qq|</table></td></tr>\n| if $y;
 
-   if ($itemcount==0) {
-      $colornum=($colornum+1)%2;
-      $temphtml .= qq|<tr><td bgcolor=$bgcolor[$colornum]>&nbsp;</td><td align=center bgcolor=$bgcolor[$colornum]>$lang_text{'noitemforthisday'}</td></tr>\n|;
+         # skip empty time slots
+         if (!$prefs{'calendar_showemptyhours'}) {
+            my $is_empty=1;
+            for my $col (0..$colmax) {
+               for my $i (0..$slots_in_hour-1) {
+                  if ( defined($matrix[$slot+$i][$col]) && $matrix[$slot+$i][$col] ) {
+                     $is_empty=0; last;
+                  }
+                  last if (!$is_empty);
+               }
+               last if (!$is_empty);
+            }
+            if ($is_empty) {
+               $slot=$slot+$slots_in_hour-1; next;	# skip $slots_in_hour slots at once
+            }
+         }
+
+         last if ($slot > $slotmax && $slottime[$slot] gt $prefs{'calendar_endhour'});
+ 
+         # start html for a full row
+         $colornum  = ($colornum+1)%2; # alternate the bgcolor
+         $temphtml .= qq|<tr>|.
+                      qq|<td width="10%" bgcolor=$bgcolor[$colornum] align="right" valign=top nowrap>|.
+                      hourmin2str($slottime[$slot], $prefs{'hourformat'}).
+                      qq|</td>|;
+      } else {
+         my $s="&nbsp;";
+         if ($slots_in_hour>3 && ($slot%$slots_in_hour)%2==0) {
+            $s=qq|<font color=#c0c0c0>|.
+               (($slot%$slots_in_hour)*$prefs{'calendar_interval'}).
+               qq|</font>|;
+         }
+         # start html for non hour row
+         $temphtml .= qq|<tr>|.
+                      qq|<td width="10%" bgcolor=$bgcolor[$colornum] valign="top" align="right">|.
+                      $s.
+                      qq|</td>|;
+      }
+
+      for my $col (0..$colmax) {
+         if (defined($matrix[$slot][$col])) {
+            my $index=$matrix[$slot][$col];
+            my $r_event=$items{$index};
+
+            if ($slot==$layout{$index}{'startslot'} &&
+                $col==$layout{$index}{'startcol'} ) {	# an event started at this cell
+               ($eventtime, $eventlink, $eventemail) = ('', '', '');
+
+               if (${$r_event}{'eventcolor'} ne "none") {
+                  $bgcolorstr = qq|bgcolor="#|. $eventcolors{${$r_event}{'eventcolor'}}. qq|"|;
+                  if (${$r_event}{'endhourmin'} ne '0') {
+                     $bdstylestr = qq|style="border-width: 1px; border-style: solid; border-color: #|.
+                                   bordercolor($eventcolors{${$r_event}{'eventcolor'}}).
+                                   qq|;"|;
+                  } else {
+                     $bdstylestr = '';
+                  }
+               } else {
+                  $bgcolorstr = qq|bgcolor=$bgcolor[$colornum]|;
+                  if (${$r_event}{'endhourmin'} ne '0') {
+                     $bdstylestr = qq|style="border-width: 1px; border-style: solid; border-color: #666666;"|;
+                  } else {
+                     $bdstylestr = '';
+                  }
+               }
+
+               $eventtime = hourmin2str(${$r_event}{'starthourmin'}, $prefs{'hourformat'});
+               if (${$r_event}{'endhourmin'} ne "0") {
+                  $eventtime .= qq|-| . hourmin2str(${$r_event}{'endhourmin'}, $prefs{'hourformat'});
+               }
+               $eventtime=qq|<font color="#c00000">$eventtime</font>&nbsp;|;
+
+               if (${$r_event}{'link'}) {
+                  my $link=${$r_event}{'link'}; $link=~s/\%THISSESSION\%/$thissession/;
+                  $eventlink = qq|&nbsp;|. iconlink("cal-link.gif", "${$r_event}{'link'}", qq|href="$link" target="_blank"|);
+               }
+               if (${$r_event}{'email'}) {
+                  $eventemail = qq|&nbsp;|. iconlink("email.gif", "${$r_event}{'email'}", "");
+               }
+               my ($jsedit, $jsdel)=('','');
+               if (${$r_event}{'idate'} =~ m/[\*|,|\|]/) {
+                  $jsedit = qq|onclick="return confirm('$lang_text{multieditconf}')"|;
+                  $jsdel = qq|onclick="return confirm('$lang_text{multidelconf}')"|;
+               } else {
+                  $jsdel = qq|onclick="return confirm('$lang_text{caldelconf}')"|;
+               }
+               $temphtml .= qq|<td $bgcolorstr $bdstylestr valign="top" width="|.
+                            int(100 * $layout{$index}{'colspan'}/($colmax+1)).
+                            qq|%" rowspan="$layout{$index}{'rowspan'}" colspan="$layout{$index}{'colspan'}">|;
+               if ($index > 1E6) {
+                  $temphtml .=qq|$eventtime ${$r_event}{'string'} *|.
+                              $eventlink.$eventemail;
+               } else {
+                  $temphtml .= qq|<a accesskey="E" title="$lang_text{'edit'}" href="$cal_url|.
+                               qq|action=caledit&year=$year&month=$month&day=$day&index=$index" $jsedit>|.
+                               qq|$eventtime ${$r_event}{'string'}</a>|.
+                               $eventlink.$eventemail.
+                               qq|&nbsp;&nbsp;|. iconlink("cal-delete.gif", "$lang_text{'delete'}", qq|href="${cal_url}action=caldel&year=$year&month=$month&day=$day&index=$index" $jsdel|);
+               }
+               $temphtml .= qq|</td>|;
+            } else {
+               # event in this cell has been drawed, nothing to do
+            }
+            
+         } else {
+            # no event in this cell
+            $temphtml .= qq|<td bgcolor=$bgcolor[$colornum]>&nbsp;</td>|;
+         }
+      }      
+      $temphtml .= qq|</tr>|;
    }
+
+   $temphtml .= qq|</table></td></tr>\n|;
+
+
    $html =~ s/\@\@\@CALENDARITEMS\@\@\@/$temphtml/;
 
    $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-cal.pl",
@@ -945,7 +1140,7 @@ sub dayview {
 
    my @hourlist;
    if ($prefs{'hourformat'}==12) {
-      @hourlist=qw(none 1 2 3 4 5 6 7 8 9 10 11 12);
+      @hourlist=qw(none 12 1 2 3 4 5 6 7 8 9 10 11);
    } else {
       @hourlist=qw(none 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23);
    }
@@ -1100,63 +1295,163 @@ sub dayview {
    $temphtml = end_form();
    $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/g;
 
-   print $html;
-   printfooter(2);
+   print htmlheader(), $html, htmlfooter(2);
 }
 
-# print an item in the day view table
-sub dayview_table_item {
-   my ($r_item, $cal_url, $cgi_parm, $is_global) = @_;
-   my $timestr='';
-   my $emailimgstr='';
+sub build_event_matrix {
+   my ($r_items, $r_indexlist, 
+       $r_allday_indexies, $r_matrix, $r_layout, $r_slotmin, $r_slotmax, $r_colmax)=@_;
+   my @matrix_indexies;
+   my %slots;
+   (${$r_slotmin}, ${$r_slotmax}, ${$r_colmax})=(24, 0, 0);
 
-   my $colorstr='';
-   if (defined($eventcolors{${$r_item}{'eventcolor'}})) {
-      $colorstr=qq|bgcolor="#$eventcolors{${$r_item}{'eventcolor'}}"|;
-   }
-
-   my $temphtml=qq|<tr $colorstr valign=top>|;
-
-   if (${$r_item}{'starthourmin'} ne "0") {
-      $timestr = hourmin2str(${$r_item}{'starthourmin'}, $prefs{'hourformat'});
-      if (${$r_item}{'endhourmin'} ne "0") {
-         $timestr .= qq|-| . hourmin2str(${$r_item}{'endhourmin'}, $prefs{'hourformat'});
-      }
-   }
-   $timestr = "<font color=#c00000>$timestr</font>" if ($timestr ne "");
-
-   if ($config{'calendar_email_notifyinterval'}>0 && ${$r_item}{'email'}) {
-      $emailimgstr=qq|&nbsp;|. iconlink("email.gif", "${$r_item}{'email'}", ""). qq|\n|;
-   }
-
-   if (${$r_item}{'string'}) {
-      if (${$r_item}{'link'} eq "0") {
-         $temphtml .= qq|<td $colorstr>$timestr ${$r_item}{'string'}$emailimgstr</td>\n|;
+   # split the events into two lists: all day events, and not all day events.
+   foreach my $index (@{$r_indexlist}) {
+      my $r_event=${$r_items}{$index};
+      if ( (${$r_event}{'starthourmin'} gt ${$r_event}{'endhourmin'} && ${$r_event}{'endhourmin'} ne '0') ||
+           (${$r_event}{'starthourmin'} eq '0' && ${$r_event}{'endhourmin'} eq '0') ) {
+          push(@{$r_allday_indexies}, $index);
       } else {
-         my $link=${$r_item}{'link'}; $link=~s/\%THISSESSION\%/$thissession/;
-         $temphtml .= qq|<td $colorstr>$timestr <a href="$link" target="_blank">${$r_item}{'string'}</a>$emailimgstr</td>\n|;
+          push(@matrix_indexies, $index);
       }
-   } else {
-      $temphtml .= qq|<td $colorstr>&nbsp;</td>\n|;
    }
 
-   my $right='right'; $right='left' if (is_RTLmode($prefs{'language'}));
-   if ($is_global) {
-      $temphtml .= "<td $colorstr>&nbsp;</td>\n";
-   } elsif (${$r_item}{'idate'} =~ /[^\d]/) {
-      $temphtml .= qq|<td align="$right" nowrap $colorstr>\n|.
-                   qq|<a accesskey="E" href="$cal_url|.qq|action=caledit$cgi_parm" onclick="return confirm('$lang_text{'multieditconf'}')">[$lang_text{'edit'}]</a>\n|.
-                   qq|<a href="$cal_url|.qq|action=caldel$cgi_parm" onclick="return confirm('$lang_text{'multidelconf'}')">[$lang_text{'delete'}]</a>\n|.
-                   qq|</td>\n|;
-   } else {
-      $temphtml .= qq|<td align="$right" nowrap $colorstr>\n|.
-                   qq|<a accesskey="E" href="$cal_url|.qq|action=caledit$cgi_parm">[$lang_text{'edit'}]</a>\n|.
-                   qq|<a href="$cal_url|.qq|action=caldel$cgi_parm">[$lang_text{'delete'}]</a>\n|.
-                   qq|</td>\n|;
-   }
-   $temphtml .= qq|</tr>|;
+   foreach my $index (@matrix_indexies) {
+      my $r_event=${$r_items}{$index};
+      next if (${$r_event}{'endhourmin'} ne '0' &&
+               ${$r_event}{'starthourmin'} gt ${$r_event}{'endhourmin'});
+      # find all slots of this event
+      for (my $slot = 0; $slot < $#slottime; $slot++) {
+         if ((${$r_event}{'endhourmin'}   gt $slottime[$slot] && 
+              ${$r_event}{'starthourmin'} lt $slottime[$slot+1]) ||
+             (${$r_event}{'endhourmin'}   eq '0' && 
+              ${$r_event}{'starthourmin'} ge $slottime[$slot] &&
+              ${$r_event}{'starthourmin'} lt $slottime[$slot+1]) ) {
+            push(@{$slots{$index}}, $slot);
+            ${$r_layout}{$index}{'rowspan'}++;
+            ${$r_slotmin}=$slot if ($slot<${$r_slotmin});
+            ${$r_slotmax}=$slot if ($slot>${$r_slotmax});
+         }
+      }
 
-   return $temphtml;
+      # find the fisrt available column for this event so all it won't conflict with other event
+      my $col=0;
+      for ($col=0; ; $col++) {
+         my $col_available=1;
+         foreach my $slot (@{$slots{$index}}) {
+            if (defined(${$r_matrix}[$slot][$col]) && ${$r_matrix}[$slot][$col]) {
+               $col_available=0; last;
+            }
+         }
+         last if ($col_available);
+      }
+      ${$r_layout}{$index}{'colspan'}=1;
+
+      foreach my $slot (@{$slots{$index}}) {
+         ${$r_matrix}[$slot][$col]=$index;
+      }
+      ${$r_layout}{$index}{'startslot'}=${$slots{$index}}[0];
+      ${$r_layout}{$index}{'startcol'}=$col;
+      ${$r_colmax}=$col if ($col>${$r_colmax});
+   }
+
+   # try to enlarge this event to other columns
+   foreach my $index (@matrix_indexies) {
+      my $extensible=1;
+      foreach my $slot (@{$slots{$index}}) {
+         for my $col (${$r_layout}{$index}{'startcol'}+1..${$r_colmax}) {
+            if (defined(${$r_matrix}[$slot][$col]) && ${$r_matrix}[$slot][$col]) {
+               $extensible=0; last;
+            }
+         }
+         last if ($extensible==0);
+      }
+      if ($extensible) {
+         for my $col (${$r_layout}{$index}{'startcol'}+1..${$r_colmax}) {
+            foreach my $slot (@{$slots{$index}}) {
+               ${$r_matrix}[$slot][$col]=$index;
+            }
+            ${$r_layout}{$index}{'colspan'}++;
+         }
+      }
+   }         
+}
+ 
+sub bordercolor {
+   # take a hex number and calculate a hex number that
+   # will be a nice complement to it as a bordercolor
+   my ($redhex, $greenhex, $bluehex) = $_[0] =~ m/(..)(..)(..)/;
+   my ($r, $g, $blue) = (sprintf("%d", hex($redhex)), sprintf("%d", hex($greenhex)), sprintf("%d", hex($bluehex)));
+   my ($h, $s, $v) = rgb2hsv($r, $g, $blue);
+
+   # adjust to get our new hsv bordercolor
+   if ($s > .5) { $s -= .15; $v += 30; } else { $s += .15; $v -= 30; };
+   $s = 0 if ($s < 0);
+   $s = 1 if ($s > 1);
+   $v = 0 if ($v < 0);
+   $v = 255 if ($v > 255);
+
+   ($r, $g, $blue) = hsv2rgb($h, $s, $v);
+   ($redhex, $greenhex, $bluehex) = (sprintf("%02x", $r), sprintf("%02x", $g), sprintf("%02x", $blue));
+
+   return "$redhex$greenhex$bluehex";
+}
+
+sub rgb2hsv {
+   # based off reference code at http://www.cs.rit.edu/~ncs/color/t_convert.html
+   my ($r, $g, $blue) = @_;
+   my ($h, $s, $v, $min, $max, $delta);
+
+   ($min, $max) = (sort { $a <=> $b } ($r,$g,$blue))[0,-1];
+   return(-1, 0, 0) if ($max==0); # r g b are all 0
+
+   $delta = $max - $min;
+
+   $v = $max;
+   $s = $delta / $max;
+   if ($r == $max) {
+      $h = ($g - $blue) / $delta;
+   } elsif ($g == $max) {
+      $h = 2 + ($blue - $r) / $delta;
+   } else {
+      $h = 4 + ($r - $g) / $delta;
+   }
+
+   $h *= 60;
+   $h += 360 if ($h < 0);
+
+   return ($h, $s, $v);
+}
+
+sub hsv2rgb {
+   # based off reference code at http://www.cs.rit.edu/~ncs/color/t_convert.html 
+   my ($h, $s, $v) = @_;
+   my ($i, $f, $p, $q, $t, $r, $g, $blue);
+
+   return ($v, $v, $v) if ($s == 0); # achromatic
+
+   $h /= 60; # sector 0 to 5
+   $i = int($h);
+   $f = $h - $i;
+   $p = $v * (1 - $s);
+   $q = $v * (1 - $s * $f);
+   $t = $v * (1 - $s * (1 - $f));
+
+   if ($i == 0) {
+      ($r, $g, $blue) = ($v, $t, $p);
+   } elsif ($i == 1) {
+      ($r, $g, $blue) = ($q, $v, $p);
+   } elsif ($i == 2) {
+      ($r, $g, $blue) = ($p, $v, $t);
+   } elsif ($i == 3) {
+      ($r, $g, $blue) = ($p, $q, $v);
+   } elsif ($i == 4) {
+      ($r, $g, $blue) = ($t, $p, $v);
+   } else {
+      ($r, $g, $blue) = ($v, $p, $q);
+   }
+
+   return ($r, $g, $blue);
 }
 ######################## END DAYVIEW #########################
 
@@ -1171,12 +1466,8 @@ sub listview {
    $year=2037 if ($year>2037);
    $year=1970 if ($year<1970);
 
-   printheader();
-
-   my $html = '';
-   my $temphtml;
-
-   $html=readtemplate("listview.template");
+   my ($html, $temphtml);
+   $html = readtemplate("listview.template");
    $html = applystyle($html);
 
    $temphtml = startform(-name=>"yearform",
@@ -1259,16 +1550,22 @@ sub listview {
          my $date2=sprintf("%04d,%02d,%02d,%s", $year,$month,$day,$dow);
 
          my @indexlist=();
-         push(@indexlist, @{$indexes{$date}}) if (defined($indexes{$date}));
-         push(@indexlist, @{$indexes{'*'}})   if (defined($indexes{'*'}));
-         @indexlist=sort { ($items{$a}{'starthourmin'}||1E9)<=>($items{$b}{'starthourmin'}||1E9) } @indexlist;
+         foreach ($date, '*') {
+            next if (!defined($indexes{$_}));
+            foreach my $index (@{$indexes{$_}}) {
+               if ($date=~/$items{$index}{'idate'}/ ||
+                   $date2=~/$items{$index}{'idate'}/ ) {
+                  push(@indexlist, $index);
+               }
+            }
+         }
+         @indexlist=sort { $items{$a}{'starthourmin'}<=>$items{$b}{'starthourmin'} || 
+                           $items{$a}{'endhourmin'}<=>$items{$b}{'endhourmin'} || 
+                           $b<=>$a } @indexlist;
 
          my $dayhtml="";
          for my $index (@indexlist) {
-            if ($date=~/$items{$index}{'idate'}/ ||
-                $date2=~/$items{$index}{'idate'}/) {
-               $dayhtml .= listview_item($items{$index}, $cal_url, "&year=$year&month=$month&day=$day&index=$index&callist=1", ($index>=1E6))
-            }
+            $dayhtml .= listview_item($index, \%items, $cal_url, "&year=$year&month=$month&day=$day&index=$index&callist=1", ($index>=1E6))
          }
 
          my $bgcolor;
@@ -1302,13 +1599,13 @@ sub listview {
    } # month loop end
    $html=~s/\@\@\@ITEMLIST\@\@\@/$temphtml/;
 
-   print $html;
-   printfooter(2);
+   print htmlheader(), $html, htmlfooter(2);
 }
 
 # print an item in the listview
 sub listview_item {
-   my ($r_item, $cal_url, $cgi_parm, $is_global) = @_;
+   my ($index, $r_items, $cal_url, $cgi_parm, $is_global) = @_;
+   my $r_item=${$r_items}{$index};
    my $temphtml;
 
    my $colorstr='';
@@ -1316,60 +1613,59 @@ sub listview_item {
       $colorstr=qq|bgcolor="#$eventcolors{${$r_item}{'eventcolor'}}"|;
    }
 
-   my $t='#';
+   my ($eventtime, $eventlink, $eventemail);
    if (${$r_item}{'starthourmin'} ne "0") {
-      $t = hourmin2str(${$r_item}{'starthourmin'}, $prefs{'hourformat'});
+      $eventtime = hourmin2str(${$r_item}{'starthourmin'}, $prefs{'hourformat'});
       if (${$r_item}{'endhourmin'} ne "0") {
-         $t.= qq|-| . hourmin2str(${$r_item}{'endhourmin'}, $prefs{'hourformat'});
+        $eventtime .= qq|-| . hourmin2str(${$r_item}{'endhourmin'}, $prefs{'hourformat'});
       }
+   } else {
+      $eventtime="#";
    }
-   $temphtml.=qq|<td $colorstr width="120" nowrap><font color="#c00000">$t</font></td>\n|;
+   $eventtime=qq|<font color="#c00000">$eventtime</font>&nbsp;|;
+   if (${$r_item}{'link'}) {
+      my $link=${$r_item}{'link'}; $link=~s/\%THISSESSION\%/$thissession/;
+      $eventlink = qq|&nbsp;|. iconlink("cal-link.gif", "${$r_item}{'link'}", qq|href="$link" target="_blank"|);
+   }
+   if (${$r_item}{'email'}) {
+      $eventemail = qq|&nbsp;|. iconlink("email.gif", "${$r_item}{'email'}", "");
+   }
+   my ($jsedit, $jsdel)=('','');
+   if (${$r_item}{'idate'} =~ m/[\*|,|\|]/) {
+      $jsedit = qq|onclick="return confirm('$lang_text{multieditconf}')"|;
+      $jsdel = qq|onclick="return confirm('$lang_text{multidelconf}')"|;
+   } else {
+      $jsdel = qq|onclick="return confirm('$lang_text{caldelconf}')"|;
+   }
 
    my $s=${$r_item}{'string'};
    my $nohtml=$s; $nohtml=~ s/<.*?>//g;
    $s=substr($nohtml, 0, 56)."..." if (length($nohtml)>60);
-   $s=qq|$s *| if ($is_global);
 
-   if (${$r_item}{'link'}) {
-      my $link=${$r_item}{'link'}; $link=~s/\%THISSESSION\%/$thissession/;
-      $s=qq|<a href="$link" target="_blank">$s</a>|;
-   }
-   if ($config{'calendar_email_notifyinterval'}>0 && ${$r_item}{'email'}) {
-      $s .= qq|&nbsp;|.iconlink("email.gif", "${$r_item}{'email'}", "");
-   }
-   $temphtml.=qq|<td $colorstr>$s</td>\n|;
-
-   my $right='right'; $right='left' if (is_RTLmode($prefs{'language'}));
    if ($is_global) {
-      $temphtml .= "<td $colorstr>&nbsp;</td>\n";
-   } elsif (${$r_item}{'idate'} =~ /[^\d]/) {
-      $temphtml .= qq|<td $colorstr align="$right" nowrap>\n|.
-                   qq|<a href="$cal_url|.qq|action=caledit$cgi_parm" onclick="return confirm('$lang_text{'multieditconf'}')">[$lang_text{'edit'}]</a>\n|.
-                   qq|<a href="$cal_url|.qq|action=caldel$cgi_parm" onclick="return confirm('$lang_text{'multidelconf'}')">[$lang_text{'delete'}]</a>\n|.
-                   qq|</td>\n|;
+      $temphtml.=qq|<td $colorstr width="120" nowrap>$eventtime</td>\n|.
+                 qq|<td $colorstr>$s *|.
+                 $eventlink.$eventemail.
+                 qq|</td>\n|;
    } else {
-      $temphtml .= qq|<td $colorstr align="$right" nowrap>\n|.
-                   qq|<a href="$cal_url|.qq|action=caledit$cgi_parm">[$lang_text{'edit'}]</a>\n|.
-                   qq|<a href="$cal_url|.qq|action=caldel$cgi_parm">[$lang_text{'delete'}]</a>\n|.
-                   qq|</td>\n|;
+      $temphtml.=qq|<td $colorstr width="120" nowrap>$eventtime</td>\n|.
+                 qq|<td $colorstr><a title="$lang_text{'edit'}" href="$cal_url|.qq|action=caledit$cgi_parm" $jsedit>$s</a>|.
+                 $eventlink.$eventemail.
+                 qq|&nbsp;&nbsp;|. iconlink("cal-delete.gif", "$lang_text{'delete'}", qq|href="${cal_url}action=caldel&index=$index$cgi_parm" $jsdel|).
+                 qq|</td>\n|;
    }
-
    $temphtml=qq|<tr $colorstr>$temphtml</tr>|;
    return($temphtml);
 }
-######################## END TODOVIEW #########################
+######################## END LISTVIEW #########################
 
 ######################## EDIT_ITEM #########################
 # display the edit menu of an event
 sub edit_item {
    my ($year, $month, $day, $index)=@_;
 
-   printheader();
-
-   my $html = '';
-   my $temphtml;
-
-   $html=readtemplate("editcalendar.template");
+   my ($html, $temphtml);
+   $html = readtemplate("editcalendar.template");
    $html = applystyle($html);
 
    my (%items, %indexes);
@@ -1456,6 +1752,8 @@ sub edit_item {
                               -values=>['am','pm'],
                               -default=>$startampm,
                               -labels=>{ am=>$lang_text{'am'}, pm=>$lang_text{'pm'} } );
+   } else {
+      $temphtml2 = '';
    }
    $temphtml =~ s/\@\@\@AMPM\@\@\@/$temphtml2/;
    $html =~ s/\@\@\@STARTHOURMINMENU\@\@\@/$temphtml/;
@@ -1482,6 +1780,8 @@ sub edit_item {
                               -values=>['am','pm'],
                               -default=>$endampm,
                               -labels=>{ am=>$lang_text{'am'}, pm=>$lang_text{'pm'} } );
+   } else {
+      $temphtml2 = '';
    }
    $temphtml =~ s/\@\@\@AMPM\@\@\@/$temphtml2/;
    $html =~ s/\@\@\@ENDHOURMINMENU\@\@\@/$temphtml/;
@@ -1568,8 +1868,7 @@ sub edit_item {
    $temphtml = end_form();
    $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/g;
 
-   print $html;
-   printfooter(2);
+   print htmlheader(), $html, htmlfooter(2);
 }
 ######################## END EDIT_ITEM #########################
 
@@ -1741,7 +2040,6 @@ sub del_item {
    writelog($msg);
    writehistory($msg);
 }
-
 ######################## END DEL_ITEM #########################
 
 ######################## UPDATE_ITEM #########################
@@ -1820,7 +2118,6 @@ sub update_item {
    writelog($msg);
    writehistory($msg);
 }
-
 ######################## END UPDATE_ITEM #########################
 
 ######################## SET_DAYS_IN_MONTH #########################
@@ -1869,7 +2166,7 @@ sub hourmin2str {
          $hourmin =~ s/\@\@\@HOURMIN\@\@\@/$hour:$min/;
          $hourmin =~ s/\@\@\@AMPM\@\@\@/$lang_text{$ampm}/;
       } else {
-         $hourmin = "$hour:$min";
+         $hourmin = sprintf("%02d", $hour) . ":" . sprintf("%02d", $min);
       }
    }
    return $hourmin;

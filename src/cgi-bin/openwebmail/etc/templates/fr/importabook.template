@@ -15,10 +15,10 @@
 <BR>Outlook Express 5 et Netscape Messenger peuvent exporter leurs carnets
 d'adresses dans un format CSV, ou alors dans des champs séparés par une virgule.  @@@NAME@@@ peut importer ces fichiers dans votre Carnet d'Adresses personnel pour vous éviter de les rentrer à la main.
 <ul>
-<li> Dans Netscape, ouvrez votre carnet d'adresses, et sélectionnez File-&gt;Export, ensuite dans
+<li> Dans Netscape, ouvrez votre carnet d'adresses, et sélectionnez Fichier-&gt;Exporter, ensuite dans
 "Save as type:" choisissez  "Comma Separated (*.csv)." <BR><BR>
 <li> Pour Outlook Express, dans la fenêtre principale de Outlook Express,
-séléctionnez File-&gt;Export-&gt;Address Book, et choisissez le type "Text file". Vérifiez bien
+séléctionnez Fichier-&gt;Exporter-&gt;Carnet d'adresses, et choisissez le type "Fichier texte". Vérifiez bien
 que le champ "nom" et le champ "adresse" viennent en premier, ce qui est la configuration par défaut.
 </ul>
 </td></tr></table>

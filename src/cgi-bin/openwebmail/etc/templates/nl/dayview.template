@@ -21,11 +21,7 @@
 
 <table border=0 width=95%><tr><td align="right" valign=top width=85%>
 
-<table border=0 cellspacing=1 width=100% bgcolor=@@@BACKGROUND@@@>
-<tr align=center>
-<td width="10%" bgcolor=@@@COLUMNHEADER@@@>&nbsp;</td>
-<td width="90%" nowrap bgcolor=@@@COLUMNHEADER@@@><B>Kalender Items</B></td>
-</tr>
+<table border=0 cellspacing=0 cellpadding=0 width=100% bgcolor=@@@BACKGROUND@@@>
 @@@CALENDARITEMS@@@
 </table>
 
@@ -44,10 +40,10 @@
 <tr><td colspan=2 nowrap>Creeër hyperlink naar:</td></tr>
 <tr><td colspan=2 nowrap>@@@LINKFIELD@@@</td></tr>
 @@@EMAILSTART@@@
-<tr><td colspan=2 nowrap>Send notification email to</td></tr>
+<tr><td colspan=2 nowrap>Stuur notificatie e-mail naar</td></tr>
 <tr><td colspan=2 nowrap>@@@EMAILFIELD@@@</td></tr>
 @@@EMAILEND@@@
-<tr><td nowrap>Event Color</td><td nowrap>@@@EVENTCOLORMENU@@@</td></tr>
+<tr><td nowrap>Kalenderitem kleur</td><td nowrap>@@@EVENTCOLORMENU@@@</td></tr>
 <tr><td colspan=2>@@@COLORTABLE@@@</td></tr>
 <tr><td colspan=2 align=center>@@@SUBMITBUTTON@@@</td></tr>
 @@@ENDFORM@@@

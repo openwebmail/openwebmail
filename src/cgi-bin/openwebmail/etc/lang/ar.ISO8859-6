@@ -1,7 +1,7 @@
-#!/usr/bin/perl
+package openwebmail::ar_ISO8859_6;
 
-# Arabic translation by Isam Ishaq
-# charset: iso-8859-6
+# Arabic translation, charset: ISO-8859-6
+# by Isam Ishaq
 
 %lang_folders =
    (
@@ -62,9 +62,9 @@
 
 %lang_abookbuttonpositionlabels = 
    (
-   before => 'Before addressbook entries',
-   after  => 'After addressbook entries',
-   both   => 'Before and after addressbook entries'
+   before => 'âÈä ÙæÇÕÑ ÏáÊÑ ÇäÙæÇèêæ',
+   after  => 'ÈÙÏ ÙæÇÕÑ ÏáÊÑ ÇäÙæÇèêæ',
+   both   => 'âÈä èÈÙÏ ÙæÇÕÑ ÏáÊÑ ÇäÙæÇèêæ'
    );
 
 %lang_timelabels =
@@ -160,7 +160,7 @@
 %lang_wdbutton =
    (
    refresh  => 'ÊÍÏêË',
-   preview  => 'Preview',
+   preview  => 'åÙÇêæÉ',
    edit     => 'ÊÍÑêÑ',
    listarchive=> 'List',
    decompress=>'áã ÇäÖÚ×',
@@ -181,6 +181,7 @@
 
 %lang_text =
    (
+   help       => 'ÊÙäêåÇÊ¿',
    login      => 'ÊÓÌêä ÇäÏñÎèä',
    clear      => 'Clear',
    point      => 'æñâ×É',
@@ -248,7 +249,7 @@
    about      => 'Íèä',
    close      => 'ÅÚäÇâ',
    cancel     => 'ÅäÚÇÁ',
-   ok         => 'Ok',
+   ok         => 'åèÇáâ',
    continue   => 'ÅÓÊåÑñ',
    loginagain => 'ÅÙÇÏÉ ÊÓÌêä ÇäÏÎèä',
    exit       => 'ÎÑèÌ',
@@ -270,7 +271,7 @@
    delete     => 'ÍÐá',
    reserve    => 'ÍÌÒ',
    clearadd   => 'ÍÐá ÌåêÙ ÇäÙæÇèêæ',
-   importadd  => 'ÇÓÊêÑÇÏ ÙæÇèêæ',
+   importadd  => 'ÇÓÊêÑÇÏ ÙæèÇæ',
    exportadd  => 'ÊÕÏêÑ ÙæÇèêæ',
    import     => 'ÇÓÊêÑÇÏ',
    addmod     => 'ÅÖÇáÉ/ÊÙÏêä',
@@ -280,7 +281,7 @@
    name       => 'ÇäÇÓå',
    email      => 'ÈÑêÏ ÇäãÊÑèæê',
    note       => 'åäÇÍØÉ',
-   max        => 'Maximum',
+   max        => 'ÇäÍÏñ ÇäÃâÕé',
    group      => 'ÇäåÌåèÙÉ',
    quota_hit  => 'Êå ÊÌÇèÒ ÇäÍÕÉ ÇäåÓåèÍ ÈçÇ',
    usage      => 'åÓÊÎÏå',
@@ -302,7 +303,7 @@
    filtered   => 'ÊåÊ áäÊÑÊçÇ',
    blockrelay => 'åæÙ ÇäÈÑêÏ åæ åäâå SMTP',
    blockemail => 'åæÙ ÇäÈÑêÏ åæ ÇäÙæèÇæ',
-   read       => 'Read',
+   read       => 'âÑÇÁç',
    yourmsg    => 'ÑÓÇäÊã',
    delivered  => 'Êå ÊèÕêäçÇ',
    wasreadon1 => 'Êå âÑÇÁÊçÇ áê',
@@ -319,12 +320,15 @@
    spellcheck => 'ÊÏâêâ ÇäÅåäÇÁ',
    checkagain => 'ÊÏâêâ åÌÏÏ',
    finishchecking => 'ÅæçÇÁ ÇäÊÏâêâ',
+   editpdict  => 'ÊÍÑêÑ ÇäâÇåèÓ ÇäÔÎñÕêñ',
+   addtodict  => 'ÃÖá Çäé ÇäâÇåèÓ',
    manuallyfix=> 'ÊÕÍêÍ êÏèê',
    editstat   => 'ÊÍÑêÑ ÇäæÕèÕ ÇäËÇÈÊç',
    savestat   => 'ÍáØ ÇäæÕ ÇäËÇÈÊ',
    clearstat  => 'ÍÐá ÌåêÙ ÇäæÕèÕ ÇäËÇÈÊç',
-   statreply  => '-- Stationery for Reply --',
+   statreply  => '-- ÅÎÊÇÑ ÇäæÕ ÇäËÇÈÊ ääÅÌÇÈç --',
    calendar   => 'ÇäÊâèêå',
+   allday     => '×èÇä Çäêèå',
    am         => 'Õ.',
    pm         => 'å.',
    calfmt_year          => 'ÓæÉ @@@YEAR@@@',
@@ -336,14 +340,15 @@
    moreitems  => 'ÙæÇÕÑ ÃãËÑ',
    multieditconf => 'ÊåÊ ÅÖÇáÉ çÐÇ ÇäÙæÕÑ äÙÏÉ ÊèÇÑêÎ. \\n ÊÙÏêä çÐÇ ÇäÙæÕÑ êÊå Ê×Èêâç Ùäé ãä çÐç ÇäÊèÇÑêÎ\\nÇäÇÓÊåÑÇÑ ÈÇäÊÍÑêÑ¿',
    multidelconf  => 'ÊåÊ ÅÖÇáÉ çÐÇ ÇäÙæÕÑ äÙÏÉ ÊèÇÑêÎ. \\n ÍÐá çÐÇ ÇäÙæÕÑ êÊå Ê×Èêâç Ùäé ãä çÐç ÇäÊèÇÑêÎ\\nÇäÇÓÊåÑÇÑ ÈÇäÍÐá¿',
+   caldelconf => 'çä ÊÑêÏ ÈÇäÊÃãêÏ ÍÐá çÐÇ ÇäÙæÕÑ?',
    noitemforthisday => 'äÇ ÊèÌÏ ÙæÇÕÑ äçÐÇ Çäêèå',
-   thisday_only          => 'Çäêèå áâ×',
+   thisday_only          => 'Çäêèå ÇäÍÇäê áâ×',
    the_wday_of_thismonth => 'êèå @@@WDAY@@@ @@@ORDER@@@ åæ ãä ÔçÑ',
    every_wday_thismonth  => 'ãä ÃêÇå @@@WDAY@@@ áê çÐÇ ÇäÔçÑ',
-   thismonth_only           => 'This month only',
-   every_oddmonth_thisyear  => 'Every odd month this year',
-   every_evenmonth_thisyear => 'Every even month this year',
-   every_month_thisyear     => 'Every month this year',
+   thismonth_only           => 'çÐÇ ÇäÔçÑ áâ×',
+   every_oddmonth_thisyear  => 'ãä ÇäÃÔçÑ ÇäáÑÏêç áê çÐç ÇäÓæç',
+   every_evenmonth_thisyear => 'ãä ÇäÃÔçÑ ÇäÒèÌêç áê çÐç ÇäÓæç',
+   every_month_thisyear     => 'ãä ÇäÃÔçÑ áê çÐç ÇäÓæç',
    webdisk      => 'èêÈ-ÏÓã',
    sshterm      => 'SSH Terminal',
    dir          => 'åÌäÏ',
@@ -351,26 +356,32 @@
    file         => 'åäá',
    files        => 'åäáÇÊ',
    program      => 'ÈÑæÇåÌ',
-   dest_of_chdir  => 'the destined directory',
+   dest_of_chdir  => 'ÇäåÌäÏ ÇäåâÕèÏ',
    name_of_newdir => 'ÇÓå ÇäåÌäÏ ÇäÌÏêÏ ÇäÐê ÊÑêÏ ÅæÔÇÆç',
    name_of_newfile=> 'ÇÓå Çäåäá ÇäÌÏêÏ ÇäÐê ÊÑêÏ ÅæÔÇÆç',
-   dest_of_thecopy=> 'the destined directory or file of the copy',
-   dest_of_themove=> 'the destined directory or file of the move',
-   dest_of_thezip=> 'the destined filename of the new zip',
-   dest_of_thetgz=> 'the destined filename of the new tgz',
+   dest_of_thecopy=> 'ÇäåÌäÏ Ãè Çäåäá ÇäåÑÇÏ ÇäæÓÎ Çäêç',
+   dest_of_themove=> 'ÇäåÌäÏ Ãè Çäåäá ÇäåÑÇÏ Çäæâä Çäêç',
+   dest_of_thezip=> 'Çäåäá ÇäÌÏêÏ ÇäæÇÊÌ åæ ÙåäêÉ zip',
+   dest_of_thetgz=> 'Çäåäá ÇäÌÏêÏ ÇäæÇÊÌ åæ ÙåäêÉ tgz',
    homedir      => 'Homedir',
-   showthumbnail    => 'Thumbnails',
+   showthumbnail    => 'åÕÚñÑÇÊ',
    showhidden   => 'ÅØçÇÑ ÇäåäáÇÊ ÇäåÎÚêÉ',
    lastmodified => 'èâÊ ÃÎÑ ÊÙÏêä',
-   perm         => 'Perm',
-   permission   => 'Access Permission',
+   perm         => 'ÕäÇÍêÇÊ',
+   permission   => 'ÕäÇÍêÇÊ ÇäèÕèä',
    noitemfound  => 'äÇ ÊèÌÏ ÙæÇÕÑ',
-   savefile     => 'Savefile',
+   savefile     => 'ÍáØ åäá',
    succeeded    => 'Êå ÈæÌÇÍ',
    failed       => 'áÔä',
    savefile_towd=> 'ÅÍáØ Çäåäá áê ÇäèêÈ-ÏÓã',
    saveatt_towd => 'ÅÍáØ ÇäåäÍâ áê ÇäèêÈ-ÏÓã',
-   addatt_fromwd=> 'ÃÖá åäÍâ åæ ÇäèêÈ-ÏÓã'
+   addatt_fromwd=> 'ÃÖá åäÍâ åæ ÇäèêÈ-ÏÓã',
+   vdomain_usermgr    => 'Virtual Domain User Management',
+   vdomain_createuser => 'Create User',
+   vdomain_changeuser => 'Change User',
+   vdomain_deleteuser => 'Delete User',
+   vdomain_usertype_localmbox  => 'Local Mailbox',
+   vdomain_usertype_redirected => 'Redirect to external mail address'
    );
 
 %lang_err =
@@ -414,6 +425,7 @@
    auth_syserr       => 'authentication system error',
    param_fmterr      => 'parameter format error',
    pwd_incorrect     => 'Password incorrect',
+   pwd_confirmmismatch=>'ãäåÉ ÇäåÑèÑ äÇ ÊÊ×ÇÈâ åÙ ÊÃãêÏçÇ',
    pwd_tooshort      => 'Password too short (minimum length @@@PASSWDMINLEN@@@)',
    pwd_toosimple     => 'Password too simple (both alphabet and digit are required)',
    network_server_error => 'network server error',
@@ -429,7 +441,8 @@
    upload_overlimit  => 'Upload file size is over the limit',
    decomp_notsupported=>'Decompression support is not available for this file.',
    webdisk_hitquota   => 'Sorry, you\'ve hit your webdisk quota, please delete some files first.',
-   webdisk_readonly   => 'Sorry, your webdisk is read only.'
+   webdisk_readonly   => 'Sorry, your webdisk is read only.',
+   vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
    );
 
 1;

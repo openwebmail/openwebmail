@@ -2,7 +2,7 @@
 <table border="0" align="center" width="95%" cellpadding="0" cellspacing="0">
 <tr><td colspan="2" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>Napi n√©zet</b></font>
+<b>Napi nÈzet</b></font>
 </td></tr>
 @@@STARTFORM@@@
 <tr><td bgcolor=@@@MENUBAR@@@>
@@ -21,11 +21,7 @@
 
 <table border=0 width=95%><tr><td align="right" valign=top width=85%>
 
-<table border=0 cellspacing=1 width=100% bgcolor=@@@BACKGROUND@@@>
-<tr align=center>
-<td width="10%" bgcolor=@@@COLUMNHEADER@@@>&nbsp;</td>
-<td width="90%" nowrap bgcolor=@@@COLUMNHEADER@@@><B>Napt√°rbejegyz√©sek</B></td>
-</tr>
+<table border=0 cellspacing=0 cellpadding=0 width=100% bgcolor=@@@BACKGROUND@@@>
 @@@CALENDARITEMS@@@
 </table>
 
@@ -33,21 +29,21 @@
 
 <table border=0 cellspacing=2 width=100%>
 @@@STARTADDITEMFORM@@@
-<tr><td colspan=2 align=center><B>Bejegyz√©s hozz√°ad√°sa</B></td></tr>
+<tr><td colspan=2 align=center><B>BejegyzÈs hozz·ad·sa</B></td></tr>
 <tr><td colspan=2 nowrap>@@@STRINGFIELD@@@</td></tr>
 <tr><td width=25% nowrap>Kezdet</td><td nowrap>@@@STARTHOURMINMENU@@@</td></tr>
-<tr><td width=25% nowrap>V√©g</td><td nowrap>@@@ENDHOURMINMENU@@@</td></tr>
+<tr><td width=25% nowrap>VÈg</td><td nowrap>@@@ENDHOURMINMENU@@@</td></tr>
 <tr><td colspan=2 nowrap>@@@FREQMENU@@@</td></tr>
-<tr><td colspan=2 nowrap>@@@THISANDNEXTNDAYSCHECKBOX@@@ Ezen a napon √©s a k√∂vetkez√µ @@@NDAYSFIELD@@@ napon</td></tr>
+<tr><td colspan=2 nowrap>@@@THISANDNEXTNDAYSCHECKBOX@@@ Ezen a napon Ès a kˆvetkezˆ @@@NDAYSFIELD@@@ napon</td></tr>
 <tr><td colspan=2 nowrap>@@@MONTHFREQMENU@@@</td></tr>
-<tr><td colspan=2 nowrap>@@@EVERYYEARCHECKBOX@@@ Minden √©vben</td></tr>
-<tr><td colspan=2 nowrap>Legyen ez egy hivatkoz√°s ide: </td></tr>
+<tr><td colspan=2 nowrap>@@@EVERYYEARCHECKBOX@@@ Minden Èvben</td></tr>
+<tr><td colspan=2 nowrap>Legyen ez egy hivatkoz·s ide: </td></tr>
 <tr><td colspan=2 nowrap>@@@LINKFIELD@@@</td></tr>
 @@@EMAILSTART@@@
-<tr><td colspan=2 nowrap>Email √©rtes√≠t√µ k√ºld√©se erre a c√≠mre:</td></tr>
+<tr><td colspan=2 nowrap>Email Èrtesitı k¸ldÈse erre a cÌmre:</td></tr>
 <tr><td colspan=2 nowrap>@@@EMAILFIELD@@@</td></tr>
 @@@EMAILEND@@@
-<tr><td nowrap>Sz√≠n</td><td nowrap>@@@EVENTCOLORMENU@@@</td></tr>
+<tr><td nowrap>Szin</td><td nowrap>@@@EVENTCOLORMENU@@@</td></tr>
 <tr><td colspan=2>@@@COLORTABLE@@@</td></tr>
 <tr><td colspan=2 align=center>@@@SUBMITBUTTON@@@</td></tr>
 @@@ENDFORM@@@

@@ -1,13 +1,14 @@
 @@@STARTPREFSFORM@@@
-<table border="0" align="center" width="90%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="0" bgcolor=@@@BACKGROUND@@@>
 <tr><td colspan="2" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>Preferências @@@REALNAME@@@</B></font>
 <tr><td colspan="2" bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
 </td></tr>
-
-<tr><td colspan="2">&nbsp;</td></tr>
+</table>
+&nbsp;
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Informações Pessoais</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Idioma:</B>
@@ -74,9 +75,12 @@ Assunto:
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Imagem de fundo:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@ nowrap>
-@@@BACKGROUNDMENU@@@
-&nbsp;URL
-@@@BGURLFIELD@@@
+@@@BACKGROUNDMENU@@@ <font size=-2>URL </font>@@@BGURLFIELD@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Background image repeated:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@BGREPEATCHECKBOX@@@<br>
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Tamanho da Fonte:</B>
@@ -93,6 +97,9 @@ Assunto:
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@HOURFORMATMENU@@@ horas
 </td></tr>
+
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Visualização de Pasta</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Posição da barra de controle em mensagens:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -104,7 +111,12 @@ Assunto:
 @@@HEADERSPERPAGE@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Ordena&ccedil;&atilde;o padr&atilde;o:</B>
+<B>Ordem dos campos:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@FIELDORDERMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Ordenar por:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SORTMENU@@@
 </td></tr>
@@ -120,6 +132,11 @@ Assunto:
 <B>Destino padrão:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DEFAULTDESTINATIONMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Destino inteligente:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SMARTDESTINATION@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Mostrar a próxima mensagem após mover/copiar:</B>
@@ -217,6 +234,7 @@ Colunas @@@EDITCOLUMNSMENU@@@ Linhas @@@EDITROWSMENU@@@
 @@@SENDCHARSETMENU@@@
 </td></tr>
 
+@@@FILTERSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Opções Filtrando Mensagens</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
@@ -239,21 +257,22 @@ Colunas @@@EDITCOLUMNSMENU@@@ Linhas @@@EDITROWSMENU@@@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDEXECONTENTTYPE@@@
 </td></tr>
+@@@FILTEREND@@@
 
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>AddressBook Options</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Opções do Livro de Endereços</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Size for addressbook window:</B>
+<B>Tamanho da janela do livro de endereços:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
+Colunas @@@ABOOKWIDTHMENU@@@ Linhas @@@ABOOKHEIGHTMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Addressbook button position:</B>
+<B>Posição do botão livro de endereçõs:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKBUTTONPOSITIONMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Addressbook default filter:</B>
+<B>Filtro pradão para livro de endereços:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKDEFAULTFILTER@@@
 </td></tr>
@@ -280,6 +299,11 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 <B>Horário final:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ENDHOURMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Intervalo de tempo em vizualizar dia:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@INTERVALMENU@@@ minutos
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Mostrar horários vazios:</B>

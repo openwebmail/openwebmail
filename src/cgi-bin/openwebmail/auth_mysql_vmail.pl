@@ -1,3 +1,5 @@
+package openwebmail::auth_mysql_vmail;
+use strict;
 #
 # auth_mysql_vmail.pl - authenticate user with MySQL, where required fields
 #                       are in more tables (like in vmail-sql).
@@ -27,80 +29,89 @@
 # ) ;
 #
 
-my ( %mysql_auth, %mysql_query );
-
 ########################
 # MySQL access options #
 ########################
-$mysql_auth{mysql_server} = "localhost";	# MySQL server
-$mysql_auth{mysql_database} = "vmail";		# MySQL database
-$mysql_auth{mysql_user} = "";			# MySQL username
-$mysql_auth{mysql_passwd} = "";			# MySQL password
-$mysql_auth{password_hash_method} = "MD5";	# supported methods: md5 and plaintext
-
+my %mysql_auth=(
+   mysql_server         => "localhost",	# MySQL server
+   mysql_database       => "vmail",	# MySQL database
+   mysql_user           => "",		# MySQL username
+   mysql_passwd         => "",		# MySQL password
+   password_hash_method => "MD5"	# supported methods: md5 and plaintext
+);
 
 #################
 # MySQL queries #
 #################
-
-# How can get user's list ###
-$mysql_query{userlist} = "SELECT local_part FROM popbox ORDER BY local_part";
-
-# How can get user's password (you can use _user_ and _domain_ variables)
-$mysql_query{user_password} = "SELECT password_hash FROM popbox WHERE local_part='_user_' AND domain_name='_domain_'";
-
-# How can get user's home directory (you can use _user_ and _domain_ variables)
-$mysql_query{user_homedir} = "";
-
-# How can get real unix user (you can use _user_ and _domain_ variables)
-$mysql_query{unix_user} = "SELECT domain.unix_user FROM domain LEFT JOIN popbox ON domain.domain_name=popbox.domain_name WHERE popbox.mbox_name='_user_' AND popbox.domain_name='_domain_'";
-
-# How can change user's password (you can use _user_, _domain_ and _new_password_ variables)
-$mysql_query{change_password} = "UPDATE popbox SET password_hash='_new_password_' WHERE local_part='_user_' AND domain_name='_domain_'";
+#userlist:        sql cmd to get user's list ###
+#user_password:   sql cmd to get user's password (you can use _user_ and _domain_ variables)
+#user_homedir:    sql cmd to get user's home directory (you can use _user_ and _domain_ variables)
+#unix_user:       sql cmd to get real unix user (you can use _user_ and _domain_ variables)
+#chnage_password: sql cmd to change user's password (you can use _user_, _domain_ and _new_password_ variables)
+my %mysql_query=(
+   userlist        => "SELECT local_part FROM popbox ORDER BY local_part",
+   user_password   => "SELECT password_hash FROM popbox WHERE local_part='_user_' AND domain_name='_domain_'",
+   user_homedir    => "",
+   unix_user       => "SELECT domain.unix_user FROM domain LEFT JOIN popbox ON domain.domain_name=popbox.domain_name WHERE popbox.mbox_name='_user_' AND popbox.domain_name='_domain_'",
+   change_password => "UPDATE popbox SET password_hash='_new_password_' WHERE local_part='_user_' AND domain_name='_domain_'"
+);
 
 ################### No configuration required from here ###################
 
-use strict;
 use DBI;
-if ( $mysql_auth{password_hash_method} =~ /md5/i ) { use Digest::MD5; }
+use Digest::MD5;
 
 #  0 : ok
 # -2 : parameter format error
 # -3 : authentication system/internal error
-# -4 : password incorrect
+# -4 : user doesn't exist
 sub get_userinfo {
-    my $user = $_[0];
-    my ( $unix_user, $gid, $uid, $home, $key, $domain );
+   my ($r_config, $user)=@_;
+   my ( $unix_user, $gid, $uid, $home, $key, $domain );
 
-    return -2 if ( !$user );
-    if ( $user =~ /^(.*)\@(.*)$/ ) { ($user,$domain) = ($1,$2); }
+   return(-2, 'User is null') if (!$user);
+   if ( $user =~ /^(.*)\@(.*)$/ ) { 
+      ($user, $domain) = ($1, $2); 
+   }
 
-    foreach ( keys %mysql_query ) {
-	$mysql_query{$_} =~ s/_user_/$user/g;
-	$mysql_query{$_} =~ s/_domain_/$domain/g;
-    }
+   mysql_command("USE $mysql_auth{mysql_database}")==0 or
+      return(-3, "MySQL connect error");
 
-    if ( !&mysql_command("USE $mysql_auth{mysql_database}") )  {
-        ( $home ) = &mysql_command($mysql_query{user_homedir}) if ( $mysql_query{user_homedir} );
-        ( $unix_user ) = &mysql_command($mysql_query{unix_user});
-    } else { return -3; }
-    &mysql_command("EXIT");
+   my $q;
+   if ( $mysql_query{user_homedir} ) {
+      $q=$mysql_query{user_homedir}; 
+      $q=~s/_user_/$user/g; $q=~s/_domain_/$domain/g;
+      ( $home ) = mysql_command($q);
+   }
+   $q=$mysql_query{unix_user}; 
+   $q=~s/_user_/$user/g; $q=~s/_domain_/$domain/g;
+   ( $unix_user ) = mysql_command($q);
 
-    ( $uid, $gid ) = ( getpwnam($unix_user) )[2,3];
+   mysql_command("EXIT")==0 or
+      return(-3, "MySQL disconnect error");
 
-    return -3 if ( !$unix_user || !$uid || !$gid );
-    return ("",$uid,$gid,$home);
+   ( $uid, $gid ) = ( getpwnam($unix_user) )[2,3];
+   return (-4, "User $user doesn't exist") if ( !$unix_user || !$uid || !$gid );
+
+   return (0, '', "",$uid,$gid,$home);
 }
 
+#  0 : ok
+# -1 : function not supported
+# -3 : authentication system/internal error
 sub get_userlist { # only used by openwebmail-tool.pl -a
-    my @userlist;
+   my $r_config=$_[0];
+   my @userlist;
 
-    if ( !&mysql_command("USE $mysql_auth{mysql_database}") ) {
-	@userlist = &mysql_command( $mysql_query{userlist} );
-    } else { return -3; }
-    &mysql_command("EXIT");
+   mysql_command("USE $mysql_auth{mysql_database}")==0 or
+      return(-3, "MySQL connect error");
 
-    return @userlist;
+   @userlist = &mysql_command( $mysql_query{userlist} );
+
+   mysql_command("EXIT")==0 or
+      return(-3, "MySQL disconnect error");
+
+   return (0, '', @userlist);
 }
 
 #  0 : ok
@@ -108,28 +119,30 @@ sub get_userlist { # only used by openwebmail-tool.pl -a
 # -3 : authentication system/internal error
 # -4 : password incorrect
 sub check_userpassword {
-    my ($user, $passwd)=@_;
-    my ( $passwd_hash, $domain );
+   my ($r_config, $user, $passwd)=@_;
+   return (-2, "User or password is null") if (!$user||!$passwd);
 
-    return -2 if ( !$user || !$passwd );
-    if ( $user =~ /^(.*)\@(.*)$/ ) { ($user,$domain) = ($1,$2); }
+   my ( $passwd_hash, $domain );
+   if ( $user =~ /^(.*)\@(.*)$/ ) { ($user,$domain) = ($1,$2); }
 
-    $mysql_query{user_password} =~ s/_user_/$user/g;
-    $mysql_query{user_password} =~ s/_domain_/$domain/g;
+   mysql_command("USE $mysql_auth{mysql_database}")==0 or
+      return(-3, "MySQL connect error");
 
-    if ( !&mysql_command("USE $mysql_auth{mysql_database}") ) {
-	( $passwd_hash ) = &mysql_command( $mysql_query{user_password} );
-    } else { return -3; }
-    &mysql_command("EXIT");
+   my $q=$mysql_query{user_password};
+   $q=~s/_user_/$user/g; $q=~s/_domain_/$domain/g;
+   ( $passwd_hash ) = &mysql_command($q);
 
-    if ( $mysql_auth{password_hash_method} =~ /plaintext/i ) {
-	return 0 if ( $passwd_hash eq $passwd );
-    } elsif ( $mysql_auth{password_hash_method} =~ /md5/i ) {
-	$passwd_hash =~ s/^\{.*\}(.*)$/$1/;
-	return 0 if ( $passwd_hash eq Digest::MD5::md5_hex($passwd) );
-    }
+   mysql_command("EXIT")==0 or
+      return(-3, "MySQL disconnect error");
 
-    return -4;
+   if ( $mysql_auth{password_hash_method} =~ /plaintext/i ) {
+      return (0,'') if ( $passwd_hash eq $passwd );
+   } elsif ( $mysql_auth{password_hash_method} =~ /md5/i ) {
+      $passwd_hash =~ s/^\{.*\}(.*)$/$1/;
+      return (0, '') if ( $passwd_hash eq Digest::MD5::md5_hex($passwd) );
+   }
+
+   return (-4, 'username/password incorrect');
 }
 
 
@@ -139,54 +152,62 @@ sub check_userpassword {
 # -3 : authentication system/internal error
 # -4 : password incorrect
 sub change_userpassword {
-    my ($user, $oldpasswd, $newpasswd)=@_;
-    my $domain;
+   my ($r_config, $user, $oldpasswd, $newpasswd)=@_;
+   return (-2, "User or password is null") if (!$user||!$oldpasswd||!$newpasswd);
+   return (-2, "Password too short") if (length($newpasswd)<${$r_config}{'passwd_minlen'});
 
-    return -2 if ( !$user || !$oldpasswd || !$newpasswd );
-    return -4 if ( &check_userpassword ($user,$oldpasswd) );
-    if ( $user =~ /^(.*)\@(.*)$/ ) { ($user,$domain) = ($1,$2); }
+   my ($ret, $errmsg)=check_userpassword($user, $oldpasswd);
+   return($ret, $errmsg) if ($ret!=0);
 
-    $mysql_query{change_password} =~ s/_user_/$user/g;
-    $mysql_query{change_password} =~ s/_domain_/$domain/g;
+   my $domain;
+   if ( $user =~ /^(.*)\@(.*)$/ ) { ($user,$domain) = ($1,$2); }
 
-    if ( !&mysql_command("USE $mysql_auth{mysql_database}") ) {
-	if ( $mysql_auth{password_hash_method} =~ /plaintext/i ) {
-	    $mysql_query{change_password} =~ s/_new_password_/$newpasswd/g;
-	    return -3 if ( &mysql_command( $mysql_query{change_password} ) );
-	} elsif ( $mysql_auth{password_hash_method} =~ /md5/i ) {
-	    $newpasswd = "{md5}".Digest::MD5::md5_hex($newpasswd);
-	    $mysql_query{change_password} =~ s/_new_password_/$newpasswd/g;
-	    return -3 if ( &mysql_command( $mysql_query{change_password} ) );
-	}
-    } else { return -3; }
-    &mysql_command("EXIT");
+   mysql_command("USE $mysql_auth{mysql_database}")==0 or
+      return(-3, "MySQL connect error");
+
+   my $q=$mysql_query{change_password};
+   $q=~s/_user_/$user/g; $q=~s/_domain_/$domain/g;
+   if ( $mysql_auth{password_hash_method} =~ /plaintext/i ) {
+      $q=~ s/_new_password_/$newpasswd/g;
+   } elsif ( $mysql_auth{password_hash_method} =~ /md5/i ) {
+      $newpasswd = "{md5}".Digest::MD5::md5_hex($newpasswd);
+      $q =~ s/_new_password_/$newpasswd/g;
+   }
+   return (-3, 'MySQL update error') if ( mysql_command($q)!=0 );
+
+   mysql_command("EXIT")==0 or
+      return(-3, "MySQL disconnect error");
+
+   return(0, '');
 }
+
+
+################### misc support routine ###################
 
 #  0 : ok
 # -1 : MySQL error
 sub mysql_command {
-    my @query = @_;
-    my ( @result, @row, $sth );
+   my @query = @_;
+   my (@result, @row, $sth);
 
-    for ( 0 .. $#query ) {
-	if ( $query[$_] =~ /^SELECT/ ) {
-    	    $sth = $main::dbh->prepare( $query[$_] );
-	    $sth->execute() || return -1;
-    	    while ( @row = $sth->fetchrow_array ) { push @result,@row; }
-	    $sth->finish();
-	} elsif ( $query[$_] =~ /^USE (.*)$/ ) {
-	    $main::dbh = DBI->connect("DBI:mysql:database=$1:host=$mysql_auth{mysql_server}",$mysql_auth{mysql_user},$mysql_auth{mysql_passwd}) || return -1;
-	    return 0;
-	} elsif ( $query[$_] eq "EXIT" ) {
-	    $main::dbh->disconnect() || return -1;
-	    return 0;
-	} else {
-	    $main::dbh->do( $query[$_] ) || return -1;
-	    return 0;
-	}
-    }
-
-    return @result;
+   for ( 0 .. $#query ) {
+      if ( $query[$_] =~ /^USE (.*)$/ ) {
+         $main::dbh = DBI->connect("DBI:mysql:database=$1:host=$mysql_auth{mysql_server}",$mysql_auth{mysql_user},$mysql_auth{mysql_passwd}) || return -1;
+         return 0;
+      } elsif ( $query[$_] eq "EXIT" ) {
+         $main::dbh->disconnect() || return -1;
+         return 0;
+      } elsif ( $query[$_] =~ /^SELECT/ ) {
+         $sth = $main::dbh->prepare( $query[$_] );
+         $sth->execute() || return -1;
+         while ( @row = $sth->fetchrow_array ) { push @result,@row; }
+         $sth->finish();
+      } else {
+         $main::dbh->do( $query[$_] ) || return -1;
+         return 0;
+      }
+   }
+   return (@result);
 }
 
 1;

@@ -1,7 +1,7 @@
-#!/usr/bin/perl
+package openwebmail::it;
 
-# Italian translation by Benedet Marvi, i3100579.AT.ingstud.univ.trieste.it
-# charset: iso-8859-1
+# Italian translation, charset: iso-8859-1
+# by Benedet Marvi, i3100579.AT.ingstud.univ.trieste.it 
 
 %lang_folders =
    (
@@ -50,7 +50,7 @@
 %lang_ctrlpositionlabels =
    (
    top => 'In alto',
-   bottom => 'In fondo'
+   bottom => 'In basso'
    );
 
 %lang_sendpositionlabels =
@@ -62,9 +62,9 @@
 
 %lang_abookbuttonpositionlabels = 
    (
-   before => 'Before addressbook entries',
-   after  => 'After addressbook entries',
-   both   => 'Before and after addressbook entries'
+   before => 'Prima voci agenda',
+   after  => 'Prima voci agenda',
+   both   => 'Prima e dopo voci agenda'
    );
 
 %lang_timelabels =
@@ -174,13 +174,14 @@
    gzip     => 'Comprimi_gz',
    mkzip    => 'Crea_Zip',
    mktgz    => 'Crea_Tgz',
-   mkthumbnail  => 'Crea_Thumb',
+   mkthumbnail  => 'Crea_Miniatura',
    download => 'Scarica',
    upload   => 'Carica',
    );   
 
 %lang_text =
    (
+   help       => 'Aiuto',
    login      => 'Login',
    clear      => 'Cancella',
    point      => 'Punti',
@@ -319,12 +320,15 @@
    spellcheck => 'Controllo Ortografico',
    checkagain => 'Controlla Ancora',
    finishchecking => 'Ferma controllo',
+   editpdict  => 'Modifica Dizionario personale',
+   addtodict  => 'Aggiungi al dizionario',
    manuallyfix=> 'Correggi a mano',
    editstat   => 'Modifica Stationery',
    savestat   => 'Salva Stationery',
    clearstat  => 'Cancella tutti i Stationery',
    statreply  => '-- Stationery per Risposta --',
    calendar   => 'Calendario',
+   allday     => 'Tutto il giorno',
    am         => 'am',
    pm         => 'pm',
    calfmt_year          => 'Anno @@@YEAR@@@',
@@ -336,6 +340,7 @@
    moreitems  => 'più voci',
    multieditconf => 'Questa voce è stata aggiunta per più date.\\nModificandola verrà cabiata per tutte le date.\\nContinuare?',
    multidelconf  => 'Qeusto voce è stata aggiunta per più date.\\nCancellandola verrà eliminata per ogni data.\\nContinuare?',
+   caldelconf => 'Sei sicuro di voler cancellarlo?',
    noitemforthisday => 'Nessuna voce per questo giorno',
    thisday_only          => 'Solo Oggi',
    the_wday_of_thismonth => 'Il @@@ORDER@@@ @@@WDAY@@@ del mese',
@@ -359,7 +364,7 @@
    dest_of_thezip=> 'il nome del nuovo file zip',
    dest_of_thetgz=> 'il nome del nuovo file tgz',
    homedir      => 'Homedir',
-   showthumbnail    => 'Thumbnails',
+   showthumbnail    => 'Miniatura',
    showhidden   => 'Mostra file nascosti',
    lastmodified => 'Ora ultima modifica',
    perm         => 'Perm',
@@ -370,7 +375,13 @@
    failed       => 'fallito',
    savefile_towd=> 'Salva file nel WebDisk',
    saveatt_towd => 'Salva allegato nel WebDisk',
-   addatt_fromwd=> 'Aggiungi allegato da WebDisk'
+   addatt_fromwd=> 'Aggiungi allegato da WebDisk',
+   vdomain_usermgr    => 'Virtual Domain User Management',
+   vdomain_createuser => 'Create User',
+   vdomain_changeuser => 'Change User',
+   vdomain_deleteuser => 'Delete User',
+   vdomain_usertype_localmbox  => 'Local Mailbox',
+   vdomain_usertype_redirected => 'Redirect to external mail address'
    );
 
 %lang_err =
@@ -414,6 +425,7 @@
    auth_syserr       => 'Password sbagliata!',
    param_fmterr      => 'errore formato parametri',
    pwd_incorrect     => 'Password sbagliata',
+   pwd_confirmmismatch=>'La nuova password non corrisponde',
    pwd_tooshort      => 'Password troppo corta (lunghezza minima @@@PASSWDMINLEN@@@)',
    pwd_toosimple     => 'Password troppo semplice (sono richiesti sia caratteri che numeri)',
    network_server_error => 'errore del server di rete',
@@ -429,7 +441,8 @@
    upload_overlimit  => 'Dimensione file da caricare superiori al consentito',
    decomp_notsupported=>'Il formato di decompressione non è supportato per questo file.',
    webdisk_hitquota   => 'Purtroppo hai superato lo spazio limite per il tuo webdisk quota, cancella prima qualche file.',
-   webdisk_readonly   => 'Impossibile continuare, il tuo webdisk è a sola lettura.'
+   webdisk_readonly   => 'Impossibile continuare, il tuo webdisk è a sola lettura.',
+   vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
    );
 
 1;

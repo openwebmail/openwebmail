@@ -1,8 +1,22 @@
 
+Q: I got "SCRIPT_DIR not set in /etc/openwebmail_path.conf !" error?
+A: On systems not passing perl script name as $0, openwebmail relies 
+   on /etc/openwebmail_path.conf to know the directory it locates.
+
+   Please put 'the path of your openwebmail cgi directory' in the first 
+   line of file /etc/openwebmail_path.conf. 
+
+   For example, if the script is located at 
+
+   /usr/local/www/cgi-bin/openwebmail/openwebmail.pl,
+   
+   then the content of /etc/openwebmail_path.conf should be:
+
+   /usr/local/www/cgi-bin/openwebmail/
+
 Q: I got the script content instead of the openwebmail login screen?
    I got "You don't have permission to access openwebmail.pl on this
    server" error?
-
 A: Your apache is not properly configured to execute CGI program.
    Please edit the httpd.conf for your apache and modify it as follow:
 
@@ -57,7 +71,8 @@ A: There are many possible answers...
             d_suidsafe='undef'
          4. then make, make install (make suidperl if needed) 
          5. if you have compiled suidperl, then chmod 4555 suidperl
-            if you don't have suidperl, change #!/usr/bin/suidperl to the path of your perl
+            if you don't have suidperl, change #!/usr/bin/suidperl to 
+            the path of your perl
          (thanks to Nemo Kaiser, nemoo.AT.users.sourceforge.net)
 
       c. Or use uty/suidwrap.pl to generate C wrappers for all suid scripts.
@@ -69,6 +84,13 @@ A: There are many possible answers...
          All suid scripts will be renamed to .scriptname.pl and
          the C wrapper will be generated and named as script.pl
          (thanks to Chris Heegard, heegard.AT.NativeI.com)
+
+      ps: If you use the wrappers for the suid scripts on the Solaris,
+          and the spelling check doesn't work not work
+          You may need to recompile your perl with suid enabled
+          instead of using C wrappers.
+         (thanks to Isam Ishaq, isam.AT.planet.edu)
+
 
    4. The MIME::Base64 or CGI module on your system may be too old
       a. install MIME-Base64-2.12.tar.gz
@@ -130,6 +152,9 @@ A: Check auth_module option in openwebmail.conf:
    2. login to openwebmail
    3. check the /tmp/openwebmail.debug for more information.
 
+ps:If you are running openwebmail under SpeedyCGI, don't forget to do a
+   'touch openwebmail*pl' after you complete the modification to auth module.
+
 Q: It took a long time in the first login?
 A: Openwebmail has to initialize some mapping tables for future use,
    it creates these tables in the first successful login, this guarantees 
@@ -144,7 +169,8 @@ Q: It took a long time in every login?
 A: You probably have wrong settings for option dbm_ext and dbmopen_ext in the 
    openwebmail.conf, please execute uty/dbmtest.pl to find correct settings.
 
-Q: Openwebmail hangs at every login after I saved the preference in the first time?
+Q: Openwebmail hangs at every login after I saved the preference in the first 
+   time?
 A: You probably have wrong settings for option dbmopen_haslock in the 
    openwebmail.conf, please execute uty/dbmtest.pl to find correct settings.
 
@@ -153,6 +179,51 @@ A: The GNU copyright page should be displayed for less than 1 second.
    if you see it for a very long time after you login, then openwebmail 
    is busy in processing your INBOX folder (eg: mail indexing, filtering, 
    trash cleaning..)
+
+Q: My openwebmail is slow, how can I make it faster?
+A: You may try to use Open WebMail with the SpeedyCGI package, you will
+   get about 5x-10 speedup. Please refer to the readme.txt with keyword 
+   SpeedyCGI for more detail.
+
+Q: How SpeedyCGI speeds up Open WebMail?
+A: SpeedyCGI makes Open WebMail resident in memory at the first request,
+   then the following requests will be served immediately without the 
+   overhead of starting perl CGI.
+
+   This resident copy will terminate if it is idle for a certain time,
+   the default is 3600 seconds (1 hour)
+   You can set this with -t option in the Open WebMail scripts.
+
+   eg: #!/usr/bin/speedy -T -- -t7200
+
+Q: Will the resident Open Webmail become larger and larger and finally 
+   a memory hog?
+A: No. We have tried our best to remove any memory leak from Open WebMail.
+   And a resident CGI will be restarted after it has serverd certain 
+   number of requests. The default maxrun number is 500.
+   You can set this with -r option in the Open WebMail scripts.
+
+   eg: #!/usr/bin/speedy -T -- -t7200 -r250
+
+Q: Some files of name like 'speedy.10.0.50.S' appear in my system /tmp?
+A: They are the temporary files used by speedy and its backend program.
+   Please don't remove them. If you hope to put them in other location,
+   You can set the prefix of temporary files with -T option
+
+   eg: #!/usr/bin/speedy -T -- -t7200 -r250 -T/var/tmp/.speedy
+
+Q: Open WebMail is fast when it is resident in memory, but the firsttime startup
+   delay is still long, is it possible to hide that delay from user?
+A: You can use the script preload.pl to preload openwebmail scripts,
+   so the webmail user won't see the startup delay.
+
+1. through web interface
+   http://your_server/cgi-bin/openwebmail/preload.pl
+   Please refer to preload.pl for default password and how to change it.
+
+2. through command line or you can put the following line in crontab
+
+   0 * * * *	/usr/local/www/cgi-bin/openwebmail/preload.pl -q
 
 Q: Some of my users login okay, but others don't, why?
 A: It is possible that you are upgrading from version prior to 1.41 
@@ -165,8 +236,8 @@ A: It is possible that you are upgrading from version prior to 1.41
 Q: Some of my user with invalid shell couldn't login since upgrade to 1.80?
 A: A new variable $check_shell has been added to the auth_unix.pl and 
    auth_unix_cobalt.pl in 1.80 or above. 
-   It is set to 1 by default, which means only users with valid shell can login. 
-   Please set it to 0 to skip the valid shell check.
+   It is set to 1 by default, which means only users with valid shell can 
+   login. Please set it to 0 to skip the valid shell check.
 
 Q: The login is okay, but I can't change by my password with openwebmail?
 A: There are 2 possible answers for this:
@@ -237,6 +308,12 @@ Q: I got "can't open /var/log/openwebmail.log" error?
 A: Please check the openwebmail.log permission, it should be
    owner=root, group=mail, mode=660
 
+ps: If you get this error periodicly and your are using Mandrake Linux,
+    You may have to move the logfile somewhere else.
+    The Mandrake's (8.2 and 9.0) security system periodically scans the 
+    /var/log directory and changes ownerships/permissions.  
+    (thanks to Karl Schricker, karl_schricker.AT.gmx.net)
+
 Q: Most functions work fine, but I could not send message.
    I got "Can't locate Net/SMTP.pm in @INC ..." error?
    I got "Internal server error"?
@@ -285,7 +362,8 @@ Q: The 'From' field of my message contained only 'username@'?
 A: You may has wrong setting for option domainnames in openwebmail.conf
    please list all domainnames separated with comma, or
    use auto for this setting, openwebmail will use the hostname in the url 
-   or call '/bin/hostname' to get the fqdn of your host.
+   or call '/bin/hostname' to get the FQDN (fully qualified domain name)
+   of your host.
 
 Q: The domainname detected by openwebmail is not what I want,
    how can I specified the outgoing mail domain for all my users?
@@ -298,7 +376,7 @@ A: You have 2 ways to do this:
    1. use the auth_ldap.pl written by Ivan Cerrato, pengus.AT.libero.it
    2. use auth_pam module and let pam to talk with ldap server.
 
-   Below is an article posted at sourceforge by "ispman.AT.user.sourceforge.net
+   Below is an article posted at sourceforge by ispman.AT.user.sourceforge.net
    (http://sourceforge.net/forum/message.php?msg_id=1462314)
 
    ---------------- begin ----------------
@@ -379,6 +457,9 @@ A: First, you have to decide whether to use real virtual hosting or
    1. the domainname part in loginname, or
    2. the hostname in the url of the webmail
 
+   ps: You may need to use the domainname_equiv option to ensure no matter which 
+       domainname is used by user or in URL, they will be mapped to a consistent one.
+
    For example:
 
    If the user login as tom and the webmail url is http://virtual_1.com/...,
@@ -395,6 +476,17 @@ A: First, you have to decide whether to use real virtual hosting or
    "How to setup virtual users on Open WebMail using Postfix & vm-pop3d"
    http://www.bluelavalamp.net/owmvirtual/
 
+Q: How is the domain of a login user determined?
+A: It is determined in the following order(the earlier one has higher precedence)
+   1. from the login name
+      eg: the user logined with username@virtualdomain
+   2. from the parameter 'logindomain' specified in login page url
+      eg: the login page was linked with 
+          http://server/cgi-bin/openwebmail/openwebmail.pl?logindomain=virtualdomain
+   3. from the servername specified in the login page url
+      eg: the login page was linked with
+          http://virtualdomain/cgi-bin/openwebmail/openwebmail.pl
+
 Q: The default mail domain for my user is always wrong, how can I set it?
 A: To have openwebmail find the correct mail domain for the user, 
    you'd give it some hint.
@@ -405,7 +497,7 @@ A: To have openwebmail find the correct mail domain for the user,
 
    and you want the email for tom to be tom@virtual_1.com.
 
-   You can achieve this in either the following 3 ways:
+   You can achieve this in either the following 2 ways:
 
    1. create per user config file etc/users.conf/tom
       and set option domainnames to virtual_1.com
@@ -428,9 +520,9 @@ A: You can use the virtusertable or the per user config file
       Multiple default email addresses can be specified only if you separate
       them with comma.
 
-   ps: While virtusertable is convenient in setting default email addresses for 
-       many users, per user config file let sysadm control many properties for 
-       a specific user.
+   ps: While virtusertable is convenient in setting default email addresses 
+       for many users, per user config file let sysadm control many properties
+       for a specific user.
 
 Q: How can I disallow the user to set their from email address?
 A: set option enable_setfromemail to 'no' in either openwebmal.conf or per 
@@ -547,7 +639,11 @@ A: The disk space occupied by a folder shown in 'edit folder menu' includes
 
 Q: When I clicked 'spell check' button, I got "Internal Server error" in new
    window?
-A: Please be sure that you have installed ispell-3.1.20.tar.gz
+A: 1. Please be sure that you have installed ispell-3.1.20.tar.gz
+   2. If you are using C wrappers for suid scripts on Solaris,
+      please recompile you perl with suid enabled instaed of using 
+      the C wrappers.
+      (thanks to Isam Ishaq, isam.AT.planet.edu)
 
 Q: Ispell has been correctly installed, but spellcheck still doesn't work?
 A: The spellcheck in old version of openwebmail doesn't work on RedHat 7.x,
@@ -578,7 +674,6 @@ A: This may happen if the folder openwebmail want to access is locked by
    5. Finally, don't forget to do 'patch < uty/filelock.pl.diff' again to 
       reverse filelock.pl back to normal version.
 
-
 Q: I have problems in reading some mail....
 A: please check 
    http://turtle.ee.ncku.edu.tw/openwebmail/download/doc/changes.txt
@@ -601,7 +696,7 @@ A: An incoming message won't be replied by vacation.pl if
    1. add the '-d' parameter to the vacationpipe in openwebmail.conf
       like below
 
-      vacationpipe   /usr/local/www/cgi-bin/openwebmail/vacation.pl -d -t60s
+      vacationpipe  /usr/local/www/cgi-bin/openwebmail/vacation.pl -d -t60s
 
    2. choose a user, enable his autoreply in openwebmail user preference
    3. check the ~user/.forward file, the '-d' option should appear after 
@@ -624,7 +719,7 @@ Q: The email notification for calendar event doesn't work?
 A: You need to use openwebmail-tool.pl in crontab to check the calendar 
    events for sending the notification emails. For example:
 
-   0 */2 * * *      /usr/local/www/cgi-bin/openwebmail/openwebmail-tool.pl -a -n -q
+   0 */2 * * * /usr/local/www/cgi-bin/openwebmail/openwebmail-tool.pl -a -n -q
 
    The above line will use openwebmail-tool.pl to check the calendar 
    events for all users every two hours. Please note we use this 
@@ -642,6 +737,14 @@ A: Yes, openwebmail can work with SSL.
 
    SetEnvIf User-Agent ".*MSIE.*" nokeepalive ssl-unclean-shutdown
    (thanks to Happy Camper, hcamper.AT.users.sourceforge.net) 
+
+Q: Can I use openwebmail with SSL on multiple virtual domains on one server?
+A: Since apache only allow SSL for one virtual domain, you can have only one
+   https url. To use virtual domain other than the one specified in https,
+   you have to specify the virtual domain in URL when link to login webpage
+
+   https://sample.com/openwebmail/openwebmail.pl?logindomain=vdomain1.com
+   (thanks to scott.AT.littlefish.ca for his code)
 
 Q: I got "Software error: ndbm store returned -1, errno 49, ..."?
 A: The user may exceed his quota limit on the file system.
@@ -683,9 +786,9 @@ A: It may have two possible meanings.
 
 Q: I got "db warning - msg yyy index inconsistence in INBOX" in the log?
    Does it mean my message were lost?
-A: No, you message were not lost, it just means the index db was not reflecting 
-   the newest state of your mail folder, openwebmail did the reindex 
-   automatically after logging this message.
+A: No, you message were not lost, it just means the index db was not 
+   reflecting the newest state of your mail folder, openwebmail did the 
+   reindex automatically after logging this message.
 
 Q: There were strange characters in the mail filter menu and those rules could
    not be deleted?
@@ -738,34 +841,16 @@ A: Openwebmail puts user uploaded attachments in
    rm -Rf sessions
    ln -s /new_place/sessions .
 
-Q: Is the filename search in webdisk case sensitive or case insensitive?
+Q: Is the 'filename search' in webdisk case sensitive or case insensitive?
 A: If the 'find' command in your unix supports -iname, the search will be 
    case insensitive. Or it will be case sensitive.
 
-Q: Why the content search in webdisk search files in current directory only?
+Q: Why the 'content search' in webdisk searches files in current directory
+   only?
 A: The file content search is done with the unix command 'grep'.
    If the 'grep' in your unix supports -r, the search will search current 
    directory and all its sub directories recursively. Or it will search files 
    in current directory only.
-
-Q: The Open WebMail is very slow on my machine?
-A: It depends on how you define the "slow". 
-
-   The response time of Open WebMail in normal operation would be:
-   7 second on a p133 machine.
-   4 second on a p200mmx machine.
-   2 second on a celeron300 machine.
-   less than 1 second on a P4-1.6G machine
-
-ps: Some operations would take more time than normal operation, for example:
-    indexing on a large folder, adding large attachment to a message.
-
-   It is recommended that you install Open WebMail on a medium-sized machine.
-   (ex: Celeron 300 with 128MB ram). Actually it runs quite well on a pentium 
-   200mmx machine if you have enough ram installed.
-
-   There is an analysis of memory usage of Open WebMail available at
-   http://turtle.ee.ncku.edu.tw/openwebmail/download/doc/memory.usage
 
 Q: How can I upgrade from old version of Open Webmail?
 A: Each version of openwebmail is made to be backward compatible with
@@ -920,13 +1005,17 @@ A: Yes, you need postfix + vm-pop3d + openwebmail.
 
 Q: I have set openwebmail for virtual user with vm-pop3d, but I got
    "Sorry, root login is disabled for security's sake" at login?
-A: Please check the descriptions in auth_pop3.pl and find which case you
-   are using. If you are using case b, don't forget to set the $local_uid
-   to the uid used by your vm-pop3d for all virtual users.
+A: Please check the descriptions in auth_vm-pop3d.pl/auth_pop3.pl and 
+   find which case you are using. If you are using case b, don't forget 
+   to set the $local_uid to the uid used by your vm-pop3d for all virtual 
+   users.
+ps: We suggest you use the auth_vdomain.pl for system running vm-pop3d+postfix
+    Please refer to descriptions in auth_vdomain.pl for more detail.
 
 Q: Can Open WebMail be used with mod_perl?
-A: No, lots of code needs to be changed to make Open WebMail a good behavior
-   program under mod_perl. Currently, it can not be used with mod_perl. 
+A: No, the most reason is mod_perl can't be used for setuid program.
+   But Open Webmail works great in persistent mode with SpeedyCGI.
+   It is very fast too.
 
 Q: Does Open WebMail support maildir and vpop3mail user by Qmail?
 A: No, It doesn't.
@@ -951,6 +1040,6 @@ A: Yes. Open WebMail is GPLed software (please see copyright.txt for
    c. Products based on Open Webmail must be also distributed under GPL.
 
 
-12/12/2002 
+03/23/2003
 
 openwebmail.AT.turtle.ee.ncku.edu.tw

@@ -4,6 +4,6 @@
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>Пароль зм╕нений</B></font>
 </td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>Пароль був зм╕нений усп╕шно. Дивись не забудь<BR>
+<BR>Пароль був зм╕нений усп╕шно. Дивись не забудь.<BR>
 @@@CONTINUEBUTTON@@@
 </td></tr></table>

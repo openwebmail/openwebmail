@@ -12,6 +12,8 @@ The user can choose one from them to replace the original word.
 If no suggested replacement is found or the user chooses "-manually fix-"
 and then clicks [Check Again], a text field will be available for user to
 input manually.
+If the user chooses "--Add to Dictionary--" and then clicks [Check Again], 
+the original word will be added to the user's personal dictionary.
 </td></tr>
 </table>
 <br>
@@ -27,9 +29,8 @@ input manually.
 
 <br>
 @@@CHECKAGAINBUTTON@@@
-&nbsp;&nbsp;&nbsp;
 @@@FINISHCHECKINGBUTTON@@@
-&nbsp;&nbsp;&nbsp;
+@@@EDITPERSDICTIONARYBUTTON@@@
 @@@CANCELBUTTON@@@
 <br><br>
 </td></tr>

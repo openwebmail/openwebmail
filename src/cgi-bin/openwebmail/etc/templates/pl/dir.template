@@ -1,7 +1,7 @@
 <table border="0" align="center" width="95%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>WebDisk</b></font>
+<b>Dysk sieciowy</b></font>
 </td><td bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <b>@@@INFOQUOTA@@@</b></font>
@@ -20,7 +20,7 @@
 <table border="0" cellpadding="0" cellspacing="0"><tr>
 <td>@@@SHOWHIDDENLABEL@@@</td><td>@@@SHOWHIDDENCHECKBOX@@@</td>
 <td>@@@SHOWTHUMBLABEL@@@</td><td>@@@SHOWTHUMBCHECKBOX@@@</td>
-<td>Single page</td><td>@@@SINGLEPAGECHECKBOX@@@</td>
+<td>Jedna strona</td><td>@@@SINGLEPAGECHECKBOX@@@</td>
 </tr></table>
 </td>
 </tr></table>
@@ -46,15 +46,15 @@
 <table border="0" align="center" width="95%" cellpadding="0" cellspacing="0"><tr>
 <td width="15%" nowrap>&nbsp;@@@INFOCOUNT@@@</td>
 <td align=center nowrap>@@@LEFTPAGECONTROL@@@ @@@PAGELINKS@@@ @@@RIGHTPAGECONTROL@@@</td>
-<td width="15%" nowrap align="right">Listed file size: @@@INFOSIZE@@@&nbsp;</td>
+<td width="15%" nowrap align="right">Rozmiar pliku: @@@INFOSIZE@@@&nbsp;</td>
 </tr></table>
 
 <table border="0" align="center" width="95%" cellpadding="1" cellspacing="1">
 <tr><td bgcolor=@@@COLUMNHEADER@@@>
-<B>Operation</B>
+<B>Czynno¶æ</B>
 </td></tr><tr><td bgcolor=@@@MENUBAR@@@>
 <table border="0" cellpadding="1" cellspacing="1">
-<tr><td width="10%">DestinedName:</td><td width=90%>@@@DESTNAMEFIELD@@@</td></tr>
+<tr><td width="10%">Nazwa przeznaczenia:</td><td width=90%>@@@DESTNAMEFIELD@@@</td></tr>
 <tr><td nowrap colspan="2">@@@BUTTONS@@@</td></tr>
 </table>
 </td></tr>
@@ -64,7 +64,7 @@
 <td>
 
 <table border="0" width="100%" cellpadding="1" cellspacing="1"><tr>
-<td nopwrap bgcolor=@@@COLUMNHEADER@@@><B>Search</B></td>
+<td nopwrap bgcolor=@@@COLUMNHEADER@@@><B>Szukaj</B></td>
 </tr><tr>
 <td nowrap bgcolor=@@@MENUBAR@@@>@@@SEARCHFILEFIELD@@@</td>
 </tr></table>
@@ -74,7 +74,7 @@
 
 @@@UPLOADSTART@@@
 <table border="0" width="100%" cellpadding="1" cellspacing="1"><tr>
-<td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Upload</B></td>
+<td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Wy¶lij</B></td>
 </tr><tr>
 <td nowrap bgcolor=@@@MENUBAR@@@>@@@UPLOADFILEFIELD@@@</td>
 </tr></table>
@@ -86,7 +86,7 @@
 
 <table border="0" align="center" width="95%" cellpadding="1" cellspacing="1">
 <tr><td bgcolor=@@@COLUMNHEADER@@@>
-<B>Messages</B>
+<B>Komunikaty</B>
 </td></tr><tr><td bgcolor=@@@MENUBAR@@@>
 @@@MSGTEXTAREA@@@
 </td></tr>
@@ -122,7 +122,7 @@
             return true;
          }
       }
-      alert("There is no directory or file selected.");
+      alert("Nie wybrano katalogu lub pliku");
       return false;
    }
    function selectedstr()
@@ -148,7 +148,7 @@
    }
    function destnamefilled(target) {
       if (document.dirform.destname.value == '') {
-         alert('Please fill  < '+target+' >  first.');
+         alert('Prosze rozpocz±æ od wype³nienia  < '+target+' >.');
          return false;
       } else {
          return true;
@@ -156,7 +156,7 @@
    }
    function uploadfilled() {
       if (document.dirform.upload.value == '') {
-         alert("Please choose the file to upload first.");
+         alert("Proszê rozpocz±æ od wybrania pliku do wys³ania");
          return false;
       } else {
          return true;
@@ -164,7 +164,7 @@
    }
    function opconfirm(op, conf) {
       if (conf) {
-         return(confirm('Are you sure you want to '+op+' the selected items? ( '+selectedstr()+' )'));
+         return(confirm('Na pewno chcesz  '+op+' zaznaczone elemanty? ( '+selectedstr()+' )'));
       } else {
          return true;
       }

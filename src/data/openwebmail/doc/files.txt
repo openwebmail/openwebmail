@@ -9,11 +9,13 @@ There are mainly 4 groups of files used in openwebmail.
 data/openwebmail/               mapping to url http://your_site/openwebmail/
 ------------------------------
 doc/                            text document for openwebmail
+help/				openwebmail tutorial of various languages
 images/                         runtime image/background/icons
 sounds/                         various YouHaveMail sound files
 applet/                         directory for runtime javaapplet
 javascript/			directory for runtime javascript
 openwebmail.html
+redirect.html
 index.html@
 
 
@@ -32,6 +34,7 @@ auth_pgsql.pl
 auth_pop3.pl
 auth_unix.pl
 auth_unix_cobalt.pl
+auth_vdomain.pl
 
 filelock.pl                     modules containing routines used by openwebmail
 iconv.pl
@@ -53,11 +56,13 @@ openwebmail-prefs.pl
 openwebmail-read.pl
 openwebmail-send.pl
 openwebmail-spell.pl
+openwebmail-vdomain.pl
 openwebmail-viewatt.pl
 openwebmail-webdisk.pl
-openwebmail.pl                        
+openwebmail.pl
 
 openwebmail-tool.pl             command tool of openwebmail
+preload.pl                      preload uty for both CGI and command line
 vacation.pl                     vacation utility for auto reply
 
 
@@ -73,7 +78,7 @@ lang/                           translation files for various languages
 templates/                      template files for various languages
 sites.conf/                     configuration file for different virtual domain
 users.conf/                     configuration file for different user
-users/                          user directories (used only if use_homedirfolders disabled)
+users/                          user directories (used only if use_syshomedir disabled)
 sessions/                       directory to store temporary session files
 
 address.book                    global address book

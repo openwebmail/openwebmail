@@ -4,9 +4,12 @@
 #
 
 use vars qw($SCRIPT_DIR);
-if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-\.]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
-if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
-push (@INC, $SCRIPT_DIR, ".");
+if ( $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
+if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
+   $_=<F>; close(F); if ( $_=~/^([^\s]*)/) { $SCRIPT_DIR=$1; }
+}
+if (!$SCRIPT_DIR) { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
+push (@INC, $SCRIPT_DIR);
 
 $ENV{PATH} = ""; # no PATH should be needed
 $ENV{ENV} = "";      # no startup script for sh
@@ -16,8 +19,7 @@ umask(0002); # make sure the openwebmail group can write
 use strict;
 use Fcntl qw(:DEFAULT :flock);
 use CGI qw(-private_tempfiles :standard);
-use CGI::Carp qw(fatalsToBrowser);
-CGI::nph();   # Treat script as a non-parsed-header script
+use CGI::Carp qw(fatalsToBrowser carpout);
 
 require "ow-shared.pl";
 require "filelock.pl";
@@ -29,13 +31,13 @@ require "mailfilter.pl";
 
 use vars qw(%config %config_raw);
 use vars qw($thissession);
-use vars qw($loginname $domain $user $userrealname $uuid $ugid $homedir);
+use vars qw($domain $user $userrealname $uuid $ugid $homedir);
 use vars qw(%prefs %style %icontext);
 use vars qw($folderdir @validfolders $folderusage);
 use vars qw($folder $printfolder $escapedfolder);
 
 openwebmail_init();
-verifysession();
+$SIG{CHLD}=sub { wait }; # whole process scope to prevent zombie
 
 use vars qw($sort $page);
 use vars qw($searchtype $keyword $escapedkeyword);
@@ -49,7 +51,6 @@ $escapedkeyword = escapeURL($keyword);
 # extern vars
 use vars qw(%lang_folders %lang_sizes %lang_text %lang_err %lang_sortlabels
             %lang_calendar %lang_wday @wdaystr); # defined in lang/xy
-use vars qw($pop3_authserver);	# defined in auth_pop3.pl
 use vars qw($_STATUS);		# defined in maildb.pl
 
 ########################## MAIN ##############################
@@ -66,19 +67,21 @@ if ($action eq "movemessage" ||
       moveoldmsg2saved();
    }
    update_pop3check();
-   if (defined($pop3_authserver) && $config{'getmail_from_pop3_authserver'}) {
+   if ($config{'auth_module'} eq 'auth_pop3.pl' && 
+       $config{'getmail_from_pop3_authserver'}) {
       my $login=$user; $login .= "\@$domain" if ($config{'auth_withdomain'});
-      _retrpop3($pop3_authserver, $login, "$folderdir/.authpop3.book");
+      _retrpop3($config{'pop3_authserver'}, $login, "$folderdir/.authpop3.book");
    }
    listmessages();
    if ($config{'enable_pop3'} && $prefs{'autopop3'}) {
       _retrpop3s(0, "$folderdir/.pop3.book");
    }
 } elsif ($action eq "userrefresh") {
-   if (defined($pop3_authserver) && $config{'getmail_from_pop3_authserver'}
-      && $folder eq "INBOX" ) {
+   if ($config{'auth_module'} eq 'auth_pop3.pl' && 
+       $config{'getmail_from_pop3_authserver'} && 
+       $folder eq "INBOX" ) {
       my $login=$user; $login .= "\@$domain" if ($config{'auth_withdomain'});
-      _retrpop3($pop3_authserver, $login, "$folderdir/.authpop3.book");
+      _retrpop3($config{'pop3_authserver'}, $login, "$folderdir/.authpop3.book");
    }
    listmessages();
    if (update_pop3check()) {
@@ -89,9 +92,10 @@ if ($action eq "movemessage" ||
 } elsif ($action eq "listmessages") {
    my $update=0; $update=1 if (update_pop3check());
    if ($update) {
-      if (defined($pop3_authserver) && $config{'getmail_from_pop3_authserver'}) {
+      if ($config{'auth_module'} eq 'auth_pop3.pl' && 
+          $config{'getmail_from_pop3_authserver'}) {
          my $login=$user; $login .= "\@$domain" if ($config{'auth_withdomain'});
-         _retrpop3($pop3_authserver, $login, "$folderdir/.authpop3.book");
+         _retrpop3($config{'pop3_authserver'}, $login, "$folderdir/.authpop3.book");
       }
    }
    listmessages();
@@ -124,6 +128,8 @@ if ($action eq "movemessage" ||
    openwebmailerror("Action $lang_err{'has_illegal_chars'}");
 }
 
+# back to root if possible, required for setuid under persistent perl
+$<=0; $>=0;
 ###################### END MAIN ##############################
 
 ################ LISTMESSGAES #####################
@@ -158,7 +164,7 @@ sub listmessages {
 
    my $totalmessage=$#{$r_messageids}+1;
    $totalmessage=0 if ($totalmessage<0);
-   my $totalpage = int($totalmessage/$prefs{'msgsperpage'}+0.999999); 
+   my $totalpage = int($totalmessage/$prefs{'msgsperpage'}+0.999999);
    $totalpage=1 if ($totalpage==0);
 
    $page = 1 if ($page < 1);
@@ -171,12 +177,6 @@ sub listmessages {
    my $main_url = "$config{'ow_cgiurl'}/openwebmail-main.pl?sessionid=$thissession&amp;sort=$sort&amp;folder=$escapedfolder";
    my $main_url_with_keyword = "$main_url&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype";
 
-   # since some browser always treat refresh directive as realtive url.
-   # we use relative path for refresh
-   my $refreshinterval=$prefs{'refreshinterval'}*60;
-   my $relative_url="$config{'ow_cgiurl'}/openwebmail-main.pl";
-   $relative_url=~s!/.*/!!g;
-   printheader(-Refresh=>"$refreshinterval;URL=$relative_url?sessionid=$thissession&sort=$sort&keyword=$escapedkeyword&searchtype=$searchtype&folder=INBOX&action=listmessages&page=1&session_noupdate=1");
 
    if ($totalsize > 1048575){
       $totalsize = int($totalsize/1048576*10+0.5)/10 . " $lang_sizes{'mb'}";
@@ -186,9 +186,8 @@ sub listmessages {
       $totalsize = $totalsize . " $lang_sizes{'byte'}";
    }
 
-   my $html = readtemplate("viewfolder.template");
-   my $temphtml;
-
+   my ($html, $temphtml);
+   $html = readtemplate("viewfolder.template");
    $html = applystyle($html);
 
    $temphtml = end_form();
@@ -283,7 +282,7 @@ sub listmessages {
    }
    $html =~ s/\@\@\@NUMBEROFMESSAGES\@\@\@/$temphtml/;
 
-   $temphtml = iconlink("compose.gif", $lang_text{'composenew'}, qq|accesskey="C" href="$config{'ow_cgiurl'}/openwebmail-send.pl?action=composemessage&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page"|);
+   $temphtml = iconlink("compose.gif", $lang_text{'composenew'}, qq|accesskey="C" href="$config{'ow_cgiurl'}/openwebmail-send.pl?action=composemessage&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page&amp;compose_caller=main"|);
 
    $temphtml .= qq|&nbsp;\n|;
 
@@ -314,7 +313,7 @@ sub listmessages {
    if ( $config{'enable_sshterm'} && -r "$config{'ow_htmldir'}/applet/mindterm/mindtermfull.jar" ) {
       $temphtml .= iconlink("sshterm.gif" ,"$lang_text{'sshterm'} ", qq|accesskey="T" href="#" onClick="window.open('$config{ow_htmlurl}/applet/mindterm/ssh.html', '_applet', 'width=400,height=100,top=2000,left=2000,resizable=no,menubar=no,scrollbars=no');"|);
    }
-   $temphtml .= iconlink("prefs.gif", $lang_text{'userprefs'}, qq|accesskey="O" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;sort=$sort&amp;page=$page"|);
+   $temphtml .= iconlink("prefs.gif", $lang_text{'userprefs'}, qq|accesskey="O" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;sort=$sort&amp;page=$page&amp;prefs_caller=main"|);
    $temphtml .= iconlink("logout.gif", "$lang_text{'logout'} $prefs{'email'}", qq|accesskey="X" href="$main_url&amp;action=logout"|);
 
    $html =~ s/\@\@\@LEFTMENUBARLINKS\@\@\@/$temphtml/;
@@ -354,10 +353,21 @@ sub listmessages {
       $html =~ s/\@\@\@EVENTREMINDER\@\@\@/<br>/;
    }
 
-   my $sort_url="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;page=$page&amp;sessionid=$thissession&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;sort";
 
-   $temphtml = iconlink("unread.gif", $lang_sortlabels{'status'}, qq|href="$sort_url=status"|). qq| \n|;
-   $html =~ s/\@\@\@STATUS\@\@\@/$temphtml/;
+   my $sort_url="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;page=$page&amp;sessionid=$thissession&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;sort";
+   my $linetemplate=$prefs{'fieldorder'};
+   $linetemplate=~s/date/\@\@\@DATE\@\@\@/;
+   $linetemplate=~s/from/\@\@\@FROM\@\@\@/;
+   $linetemplate=~s/size/\@\@\@SIZE\@\@\@/;
+   $linetemplate=~s/subject/\@\@\@SUBJECT\@\@\@/;
+   $linetemplate='@@@STATUS@@@ '.$linetemplate.' @@@CHECKBOX@@@';
+
+   my $headershtml='';
+   my $linehtml=$linetemplate;
+
+   $temphtml = iconlink("unread.gif", $lang_sortlabels{'status'}, qq|href="$sort_url=status"|);
+   $temphtml = qq|<td width="6%" bgcolor=$style{'columnheader'} align="center">$temphtml</td>\n|;
+   $linehtml =~ s/\@\@\@STATUS\@\@\@/$temphtml/;
 
    if ($sort eq "date") {
       $temphtml = qq|<a href="$sort_url=date_rev">$lang_text{'date'}</a> |.iconlink("up.gif", "^", "");
@@ -366,7 +376,8 @@ sub listmessages {
    } else {
       $temphtml = qq|<a href="$sort_url=date">$lang_text{'date'}</a>|;
    }
-   $html =~ s/\@\@\@DATE\@\@\@/$temphtml/;
+   $temphtml = qq|<td width="22%" bgcolor=$style{'columnheader'}><B>$temphtml</B></td>\n|;
+   $linehtml =~ s/\@\@\@DATE\@\@\@/$temphtml/;
 
    if ( $folder=~ m#sent-mail#i ||
         $folder=~ m#saved-drafts#i ||
@@ -388,7 +399,8 @@ sub listmessages {
          $temphtml = qq|<a href="$sort_url=sender">$lang_text{'sender'}</a>|;
       }
    }
-   $html =~ s/\@\@\@SENDER\@\@\@/$temphtml/;
+   $temphtml = qq|<td width="25%" bgcolor=$style{'columnheader'}><B>$temphtml</B></td>\n|;
+   $linehtml =~ s/\@\@\@FROM\@\@\@/$temphtml/;
 
    if ($sort eq "subject") {
       $temphtml = qq|<a href="$sort_url=subject_rev">$lang_text{'subject'}</a> |.iconlink("up.gif", "^", "");
@@ -397,7 +409,8 @@ sub listmessages {
    } else {
       $temphtml = qq|<a href="$sort_url=subject">$lang_text{'subject'}</a>|;
    }
-   $html =~ s/\@\@\@SUBJECT\@\@\@/$temphtml/;
+   $temphtml = qq|<td bgcolor=$style{'columnheader'}><B>$temphtml</B></td>\n|;
+   $linehtml =~ s/\@\@\@SUBJECT\@\@\@/$temphtml/;
 
    if ($sort eq "size") {
       $temphtml = qq|<a href="$sort_url=size_rev">$lang_text{'size'}</a> |.iconlink("up.gif", "^", "");
@@ -410,13 +423,24 @@ sub listmessages {
          $temphtml = qq|<a href="$sort_url=size">$lang_text{'size'}</a>|;
       }
    }
-   $html =~ s/\@\@\@SIZE\@\@\@/$temphtml/;
+   $temphtml = qq|<td width="5%" bgcolor=$style{'columnheader'} align="right"><B>$temphtml</B></td>\n|;
+   $linehtml =~ s/\@\@\@SIZE\@\@\@/$temphtml/;
+
+   $temphtml = qq|<td width="3%" bgcolor=$style{'columnheader'} align ="center">|.
+               checkbox(-name=>'allbox',
+                        -value=>'1',
+                        -onClick=>"CheckAll();",
+                        -label=>'',
+                        -override=>'1').
+               qq|</td>\n|;
+   $linehtml =~ s/\@\@\@CHECKBOX\@\@\@/$temphtml/;
+
+   $headershtml .= qq|<tr>$linehtml</tr>\n|;
 
    my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
    my ($messageid, $messagedepth, $escapedmessageid);
    my ($offset, $from, $to, $dateserial, $subject, $content_type, $status, $messagesize, $references, $charset);
-   my ($bgcolor, $message_status);
-   my ($boldon, $boldoff); # Used to control whether text is bold for new mails
+   my ($bgcolor, $boldon, $boldoff);
 
    if (!$config{'dbmopen_haslock'}) {
       filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) or
@@ -426,7 +450,6 @@ sub listmessages {
 
    $temphtml = '';
    foreach my $messnum ($firstmessage  .. $lastmessage) {
-
       $messageid=${$r_messageids}[$messnum-1];
       $messagedepth=${$r_messagedepths}[$messnum-1];
       next if (! defined($HDB{$messageid}) );
@@ -440,7 +463,34 @@ sub listmessages {
          ($from, $to, $subject)=iconv($charset, $prefs{'charset'}, $from, $to, $subject);
       }
 
-      # We aren't interested in the sender of SENT/DRAFT folder,
+      $linehtml=$linetemplate;
+      $bgcolor = ($style{"tablerow_dark"},$style{"tablerow_light"})[$messnum%2];
+
+      # STATUS, choose status icons based on Status: line and type of encoding
+      $temphtml = "<B>$messnum</B> \n";
+      $status =~ s/\s//g;	# remove blanks
+      if ( $status =~ /r/i ) {
+         ($boldon, $boldoff) = ('', '');
+         my $icon="read.gif"; $icon="read.a.gif" if ($status =~ m/a/i);
+         $temphtml .= iconlink("$icon", "$lang_text{'markasunread'} ", qq|href="$main_url_with_keyword&amp;action=markasunread&amp;message_id=$escapedmessageid&amp;status=$status&amp;page=$page"|);
+      } else {
+         ($boldon, $boldoff) = ('<B>', '</B>');
+         my $icon="unread.gif"; $icon="unread.a.gif" if ($status =~ m/a/i);
+         $temphtml .= iconlink("$icon", "$lang_text{'markasread'} ", qq|href="$main_url_with_keyword&amp;action=markasread&amp;message_id=$escapedmessageid&amp;status=$status&amp;page=$page"|);
+      }
+      # T flag is only supported by openwebmail internally
+      # see routine update_headerdb in maildb.pl for detail
+      $temphtml .= iconlink("attach.gif", "", "")    if ($status =~ /T/i);
+      $temphtml .= iconlink("important.gif", "", "") if ($status =~ /I/i);
+      $temphtml = qq|<td bgcolor=$bgcolor nowrap>$temphtml&nbsp;</td>\n|;
+      $linehtml =~ s/\@\@\@STATUS\@\@\@/$temphtml/;
+      
+      # DATE, convert dateserial(GMT) to localtime
+      $temphtml = dateserial2str(add_dateserial_timeoffset($dateserial, $prefs{'timeoffset'}), $prefs{'dateformat'});
+      $temphtml = qq|<td bgcolor=$bgcolor>$boldon<font size=-1>$temphtml</font>$boldoff</td>\n|;
+      $linehtml =~ s/\@\@\@DATE\@\@\@/$temphtml/;
+
+      # FROM, we aren't interested in the sender of SENT/DRAFT folder,
       # but the recipient, so display $to instead of $from
       if ( $folder=~ m#sent-mail#i ||
            $folder=~ m#saved-drafts#i ||
@@ -450,28 +500,44 @@ sub listmessages {
          my (@namelist, @addrlist);
          foreach my $recv (@recvlist) {
             my ($n, $a)=email2nameaddr($recv);
-            push(@namelist, $n);
-            push(@addrlist, $a);
+            # if $n or $a has ", $recv may be an incomplete addr
+            push(@namelist, $n) if ($n!~/"/);
+            push(@addrlist, $a) if ($a!~/"/);;
          }
          my ($to_name, $to_address)=(join(",", @namelist), join(",", @addrlist));
          $to_name=substr($to_name, 0, 29)."..." if (length($to_name)>32);
+         $to_address=substr($to_address, 0, 61)."..." if (length($to_address)>64);
          my $escapedto=escapeURL($to);
-         $from = qq|<a href="$config{'ow_cgiurl'}/openwebmail-send.pl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$escapedto" title="$to_address ">$to_name </a>|;
+         $from = qq|<a href="$config{'ow_cgiurl'}/openwebmail-send.pl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$escapedto&amp;compose_caller=main" title="$to_address ">$to_name </a>|;
       } else {
          my ($from_name, $from_address)=email2nameaddr($from);
+         $from_address=~s/"//g;
          my $escapedfrom=escapeURL($from);
-         $from = qq|<a href="$config{'ow_cgiurl'}/openwebmail-send.pl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$escapedfrom" title="$from_address ">$from_name </a>|;
+         $from = qq|<a href="$config{'ow_cgiurl'}/openwebmail-send.pl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$escapedfrom&amp;compose_caller=main" title="$from_address ">$from_name </a>|;
       }
+      $temphtml=qq|<td bgcolor=$bgcolor>$boldon$from$boldoff</td>\n|;
+      $linehtml =~ s/\@\@\@FROM\@\@\@/$temphtml/;
 
+      # SUBJECT, cut subject to less than 64
       $subject=substr($subject, 0, 64)."..." if (length($subject)>67);
       $subject = str2html($subject);
-      if ($subject !~ /[^\s]/) {	# Make sure there's SOMETHING clickable
-         $subject = "N/A";
+      $subject = "N/A" if ($subject !~ /[^\s]/); # Make sure there's SOMETHING clickable
+      my $accesskeystr=($messnum-$firstmessage)%10+1;	# 1..10
+      if ($accesskeystr == 10) {
+         $accesskeystr=qq|accesskey="0"|;
+      } elsif ($accesskeystr < 10) {
+         $accesskeystr=qq|accesskey="$accesskeystr"|;
       }
+      $temphtml = qq|<a href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&amp;|.
+                  qq|page=$page&amp;sessionid=$thissession&amp;|.
+                  qq|status=$status&amp;folder=$escapedfolder&amp;sort=$sort&amp;|.
+                  qq|keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;|.
+                  qq|headers=$prefs{'headers'}&amp;|.
+                  qq|message_id=$escapedmessageid" $accesskeystr title="Charset: $charset ">\n|.
+                  $subject.
+                  qq|</a>\n|;
 
-      my $subject_begin = "";
-      my $subject_end = "";
-      my $fill = "";
+      my ($subject_begin, $subject_end, $fill) = ('', '', '');
       for (my $i=1; $i<$messagedepth; $i++) {
          $fill .= "&nbsp; &nbsp; ";
       }
@@ -480,91 +546,40 @@ sub listmessages {
       } elsif ( $messagedepth>0 && $sort eq "subject_rev") {
          $fill .=qq|&nbsp; |.iconlink("follow.down.gif", "", "").qq|&nbsp;|;
       }
-
       if ($messagedepth) {
-         $subject_begin = '<table cellpadding="0" cellspacing="0"><tr><td nowrap>' . $fill . "</td><td>";
-         $subject_end = "</td></tr></table>";
+         $subject_begin = qq|<table cellpadding="0" cellspacing="0"><tr><td nowrap>$fill</td><td>|;
+         $subject_end = qq|</td></tr></table>|;
       }
+      $temphtml = qq|<td bgcolor=$bgcolor>$subject_begin$boldon$temphtml$boldoff$subject_end</td>\n|;
+      $linehtml =~ s/\@\@\@SUBJECT\@\@\@/$temphtml/;
 
-      if ( $messnum % 2 ) {
-         $bgcolor = $style{"tablerow_light"};
-      } else {
-         $bgcolor = $style{"tablerow_dark"};
-      }
+      # SIZE, round message size and change to an appropriate unit for display
+      $temphtml = lenstr($messagesize,0);
+      $temphtml = qq|<td align="right" bgcolor=$bgcolor>$boldon$temphtml$boldoff</td>\n|;
+      $linehtml =~ s/\@\@\@SIZE\@\@\@/$temphtml/;
 
-      $message_status = "<B>$messnum</B> \n";
-      # Choose status icons based on Status: line and type of encoding
-      $status =~ s/\s//g;	# remove blanks
-      if ( $status =~ /r/i ) {
-         my $icon="read.gif";
-         $icon="read.a.gif" if ($status =~ m/a/i);
-         $message_status .= iconlink("$icon", "$lang_text{'markasunread'} ", qq|href="$main_url_with_keyword&amp;action=markasunread&amp;message_id=$escapedmessageid&amp;status=$status&amp;page=$page"|);
-         $boldon = '';
-         $boldoff = '';
-      } else {
-         my $icon="unread.gif";
-         $icon="unread.a.gif" if ($status =~ m/a/i);
-         $message_status .= iconlink("$icon", "$lang_text{'markasread'} ", qq|href="$main_url_with_keyword&amp;action=markasread&amp;message_id=$escapedmessageid&amp;status=$status&amp;page=$page"|);
-         $boldon = "<B>";
-         $boldoff = "</B>";
-      }
-
-#      if ( ($content_type ne '') &&
-#           ($content_type ne 'N/A') &&
-#           ($content_type !~ /^text/i) )
-      # T flag is only supported by openwebmail internally
-      # see routine update_headerdb in maildb.pl for detail
-      $message_status .= iconlink("attach.gif", "", "")    if ($status =~ /T/i);
-      $message_status .= iconlink("important.gif", "", "") if ($status =~ /I/i);
-
-      # Round message size and change to an appropriate unit for display
-      $messagesize=lenstr($messagesize,0);
-
-      # convert dateserial(GMT) to localtime
-      my $datestr=dateserial2str(add_dateserial_timeoffset($dateserial, $prefs{'timeoffset'}), $prefs{'dateformat'});
-
-      my $accesskeystr=($messnum-$firstmessage)%10+1;	# 1..10
-      if ($accesskeystr == 10) {
-         $accesskeystr=qq|accesskey="0"|;
-      } elsif ($accesskeystr < 10) {
-         $accesskeystr=qq|accesskey="$accesskeystr"|;
-      }
-
-      $temphtml .= qq|<tr>|.
-         qq|<td bgcolor=$bgcolor nowrap>$message_status&nbsp;</td>\n|.
-         qq|<td bgcolor=$bgcolor>$boldon<font size=-1>$datestr</font>$boldoff</td>\n|.
-         qq|<td bgcolor=$bgcolor>$boldon$from$boldoff</td>\n|.
-         qq|<td bgcolor=$bgcolor>|.
-         $subject_begin .
-         qq|$boldon<a href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&amp;|.
-         qq|page=$page&amp;sessionid=$thissession&amp;|.
-         qq|status=$status&amp;folder=$escapedfolder&amp;sort=$sort&amp;|.
-         qq|keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;|.
-         qq|headers=|.($prefs{'headers'} || 'simple').qq|&amp;|.
-         qq|message_id=$escapedmessageid" $accesskeystr title="Charset: $charset ">\n$subject \n</a>$boldoff|.
-         $subject_end .
-         qq|</td>\n|.
-         qq|<td align="right" bgcolor=$bgcolor>$boldon$messagesize$boldoff</td>\n|.
-         qq|<td align="center" bgcolor=$bgcolor>|;
-
-      if ( $totalmessage==1 ) {
-         # make this msg selected if it is the only one
-         $temphtml .= checkbox(-name=>'message_ids',
+      # CHECKBOX
+      if ( $totalmessage==1 ) {	# make this msg selected if it is the only one         
+         $temphtml = checkbox(-name=>'message_ids',
                                -value=>$messageid,
                                -checked=>1,
                                -override=>'1',
                                -label=>'');
       } else {
-         $temphtml .= checkbox(-name=>'message_ids',
+         $temphtml = checkbox(-name=>'message_ids',
                                -value=>$messageid,
                                -override=>'1',
                                -label=>'');
       }
-      $temphtml .= qq|</td></tr>\n\n|;
+      $temphtml = qq|<td align="center" bgcolor=$bgcolor>$temphtml</td>\n|;
+      $linehtml =~ s/\@\@\@CHECKBOX\@\@\@/$temphtml/;
+
+      $headershtml .= qq|<tr>$linehtml</tr>\n\n|;
    }
    dbmclose(%HDB);
    filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
-   $html =~ s/\@\@\@HEADERS\@\@\@/$temphtml/;
+
+   $html =~ s/\@\@\@HEADERS\@\@\@/$headershtml/;
 
 
    my ($htmlsearch, $htmlpage, $htmlmove);
@@ -683,8 +698,6 @@ sub listmessages {
       $html =~ s/\@\@\@CONTROLBAR2END\@\@\@//;
    }
 
-   print $html;
-
    # show 'you have new messages' at status line
    if ($folder ne 'INBOX' ) {
       my $msg;
@@ -697,18 +710,18 @@ sub listmessages {
          $msg=$lang_text{'nomessages'};
       }
 
-      print qq|<script language="JavaScript">\n<!--\n|.
-            qq|window.defaultStatus = "$lang_folders{'INBOX'} : $msg";\n|.
-            qq|//-->\n</script>\n|;
+      $html.=qq|<script language="JavaScript">\n<!--\n|.
+             qq|window.defaultStatus = "$lang_folders{'INBOX'} : $msg";\n|.
+             qq|//-->\n</script>\n|;
    }
 
    # play sound if
    # a. INBOX has new msg and in refresh mode
    # b. user is viewing other folder and new msg increases in INBOX
-   if ( (defined(param("refresh")) && $now_inbox_newmessages>0) ||
+   if ( (defined(param("session_noupdate")) && $now_inbox_newmessages>0) ||
         ($folder ne 'INBOX' && $now_inbox_newmessages>$orig_inbox_newmessages) ) {
       if (-f "$config{'ow_htmldir'}/sounds/$prefs{'newmailsound'}" ) {
-         print qq|<embed src="$config{'ow_htmlurl'}/sounds/$prefs{'newmailsound'}" autostart=true hidden=true>|;
+         $html.=qq|<embed src="$config{'ow_htmlurl'}/sounds/$prefs{'newmailsound'}" autostart=true hidden=true>|;
       }
    }
 
@@ -717,21 +730,21 @@ sub listmessages {
    # show cut folder warning
    if ($do_cutfolders) {
       if (!$load_showmsgjs) {
-         print qq|<script language="JavaScript" src="$config{'ow_htmlurl'}/javascript/showmsg.js"></script>\n|;
+         $html.=qq|<script language="JavaScript" src="$config{'ow_htmlurl'}/javascript/showmsg.js"></script>\n|;
          $load_showmsgjs=1;
       }
       my $msg=qq|<font size="-1" color="#cc0000">$lang_err{'folder_cutdone'}</font>|;
       $msg=~s/\@\@\@FOLDERQUOTA\@\@\@/$config{'folderquota'}$lang_sizes{'kb'}/;
-      print qq|<script language="JavaScript">\n<!--\n|.
-            qq|showmsg('$prefs{"charset"}', '$lang_text{"quota_hit"}', '$msg', '$lang_text{"close"}', '_cutfolder', 400, 100, 60);\n|.
-            qq|//-->\n</script>\n|;
+      $html.=qq|<script language="JavaScript">\n<!--\n|.
+             qq|showmsg('$prefs{"charset"}', '$lang_text{"quota_hit"}', '$msg', '$lang_text{"close"}', '_cutfolder', 400, 100, 60);\n|.
+             qq|//-->\n</script>\n|;
    }
 
    # popup stat of incoming msgs
    if ($prefs{'newmailwindowtime'} >0 &&
        ($filtered > 0 || ($now_inbox_newmessages>$orig_inbox_newmessages))) {
       if (!$load_showmsgjs) {
-         print qq|<script language="JavaScript" src="$config{'ow_htmlurl'}/javascript/showmsg.js"></script>\n|;
+         $html.=qq|<script language="JavaScript" src="$config{'ow_htmlurl'}/javascript/showmsg.js"></script>\n|;
          $load_showmsgjs=1;
       }
       my $msg;
@@ -759,12 +772,19 @@ sub listmessages {
       }
       $msg = qq|<font size=-1>$msg</font>|;
       $msg =~ s!\\!\\\\!g; $msg =~ s!'!\\'!g;	# escape ' for javascript
-      print qq|<script language="JavaScript">\n<!--\n|.
-            qq|showmsg('$prefs{"charset"}', '$lang_text{"inmessages"}', '$msg', '$lang_text{"close"}', '_incoming', 160, |.($line*16+70).qq|, $prefs{'newmailwindowtime'});\n|.
-            qq|//-->\n</script>\n|;
+      $html.=qq|<script language="JavaScript">\n<!--\n|.
+             qq|showmsg('$prefs{"charset"}', '$lang_text{"inmessages"}', '$msg', '$lang_text{"close"}', '_incoming', 160, |.($line*16+70).qq|, $prefs{'newmailwindowtime'});\n|.
+             qq|//-->\n</script>\n|;
    }
 
-   printfooter(2);
+   # since some browser always treat refresh directive as realtive url.
+   # we use relative path for refresh
+   my $refreshinterval=$prefs{'refreshinterval'}*60;
+   my $relative_url="$config{'ow_cgiurl'}/openwebmail-main.pl";
+   $relative_url=~s!/.*/!!g;
+   print htmlheader(-Refresh=>"$refreshinterval;URL=$relative_url?sessionid=$thissession&sort=$sort&keyword=$escapedkeyword&searchtype=$searchtype&folder=INBOX&action=listmessages&page=1&session_noupdate=1"),
+         $html, 
+         htmlfooter(2);
 }
 
 # reminder for events within 7 days
@@ -1105,9 +1125,10 @@ sub retrpop3s {
    }
 
    if (update_pop3check()) {
-      if (defined($pop3_authserver) && $config{'getmail_from_pop3_authserver'}) {
+      if ($config{'auth_module'} eq 'auth_pop3.pl' &&
+          $config{'getmail_from_pop3_authserver'}) {
          my $login=$user; $login .= "\@$domain" if ($config{'auth_withdomain'});
-         _retrpop3($pop3_authserver, $login, "$folderdir/.authpop3.book");
+         _retrpop3($config{'pop3_authserver'}, $login, "$folderdir/.authpop3.book");
       }
    }
    _retrpop3s(10, "$folderdir/.pop3.book");
@@ -1127,15 +1148,14 @@ sub _retrpop3s {
       openwebmailerror("$lang_err{'couldnt_open'} $pop3book!");
    }
 
-   local $_retrpop3s_fetch_complete=0;	# localsize this var for reentry safe
    # fork a child to do fetch pop3 mails and return immediately
    if (%accounts >0) {
-      $|=1; 				# flush all output
-      $SIG{CHLD} = sub { wait; $_retrpop3s_fetch_complete=1; };	# handle zombie
+      local $|=1; # flush all output
+      local $SIG{CHLD} = sub { wait; $_retrpop3s_fetch_complete=1; };	# handle zombie
+      local $_retrpop3s_fetch_complete=0;	# localize for reentry safe
 
       if ( fork() == 0 ) {		# child
-         close(STDOUT);
-         close(STDIN);
+         close(STDIN); close(STDOUT); close(STDERR);
 
          foreach (values %accounts) {
             my ($pop3host, $pop3user, $enable);
@@ -1172,7 +1192,7 @@ sub _retrpop3s {
 }
 
 sub update_pop3check {
-   if ( (-M "$folderdir/.pop3.check") > $config{'fetchpop3interval'}/60/24
+   if ( time()-(stat("$folderdir/.pop3.check"))[9] > $config{'fetchpop3interval'}*60
      || !(-e "$folderdir/.pop3.check")) {
       my $timestamp = localtime();
       open (POP3CHECK, "> $folderdir/.pop3.check") or
@@ -1226,9 +1246,8 @@ sub cleantrash {
       return;
    }
 
-   # do clean only if last clean has passed for more than 0.5 day
-   my $m=(-M "$folderdir/.trash.check");
-   return if ( $m && $m<0.5 );
+   # do clean only if last clean has passed for more than 0.5 day (43200 sec)
+   return if (time()-(stat("$folderdir/.trash.check"))[9] < 43200);
 
    my ($trashfile, $trashdb)=get_folderfile_headerdb($user, 'mail-trash');
    filelock($trashfile, LOCK_EX|LOCK_NB) or
@@ -1260,27 +1279,24 @@ sub logout {
    writelog("logout - $thissession");
    writehistory("logout - $thissession");
 
-   printheader();
-
-   my $html=readtemplate("logout.template");
+   my ($html, $temphtml);
+   $html = readtemplate("logout.template");
    $html = applystyle($html);
 
    my $start_url=$config{'start_url'};
    if (cookie("openwebmail-ssl")) {
       $start_url="https://$ENV{'HTTP_HOST'}$start_url" if ($start_url!~m!^https?://!i);
    }
-   my $temphtml = startform(-action=>"$start_url") .
-                  submit("$lang_text{'loginagain'}").
-                  "&nbsp; &nbsp;".
-                  button(-name=>"exit",
-                         -value=>$lang_text{'exit'},
-                         -onclick=>'javascript:top.window.close();',
-                         -override=>'1').
-                  end_form();
+   $temphtml = startform(-action=>"$start_url") .
+               submit("$lang_text{'loginagain'}").
+               "&nbsp; &nbsp;".
+               button(-name=>"exit",
+                      -value=>$lang_text{'exit'},
+                      -onclick=>'javascript:top.window.close();',
+                      -override=>'1').
+               end_form();
    $html =~ s/\@\@\@BUTTONS\@\@\@/$temphtml/;
 
-   print $html;
-
-   printfooter(2);
+   print htmlheader(), $html, htmlfooter(2);
 }
 ################## END LOGOUT ######################

@@ -25,7 +25,7 @@
 <table><tr><td>@@@LOGINBUTTON@@@</td></tr></table>
 </td>
 <td align=center>
-<table><tr><td><font size=1>记住我的<br>登入账号</font></td><td>@@@REMEMBERMECHECKBOX@@@</td></tr></table>
+<table><tr><td><font size=1>记住我的<br>登录账号</font></td><td>@@@REMEMBERMECHECKBOX@@@</td></tr></table>
 </td>
 </tr>
 </table>
@@ -35,12 +35,6 @@
 </tr></table>
 
 </td></tr></table>
-<p align="center">
-<BR>
-@@@PAGE_FOOTER@@@ &nbsp;
-<a href="@@@HELP_LINK@@@" target="_help">说明?</a>
-<BR>
-</p>
 
 <script language="JavaScript">
 <!--
@@ -65,5 +59,3 @@
 
 //-->
 </script>
-
-</BODY></HTML>

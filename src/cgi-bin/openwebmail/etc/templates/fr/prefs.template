@@ -1,18 +1,19 @@
 @@@STARTPREFSFORM@@@
-<table border="0" align="center" width="90%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="0" bgcolor=@@@BACKGROUND@@@>
 <tr><td colspan="2" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>Options de @@@REALNAME@@@</B></font>
 <tr><td colspan="2" bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
 </td></tr>
-
-<tr><td colspan="2">&nbsp;</td></tr>
+</table>
+&nbsp;
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Informations personnelles</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Langue :</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@LANGUAGEMENU@@@&nbsp;Charset @@@CHARSETMENU@@@
+@@@LANGUAGEMENU@@@&nbsp;Jeu de caract&egrave;res @@@CHARSETMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Fuseau horaire :</B>
@@ -49,7 +50,7 @@ Sujet :
 @@@AUTOREPLYSUBJECT@@@
 </td></tr>
 <tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@ class=msgbody>
-<B>Texte de réponse automatique (500 caractères maxi)</B><BR>
+<B>Texte de la réponse automatique (500 caractères maxi)</B><BR>
 @@@AUTOREPLYTEXT@@@
 </td></tr>
 @@@AUTOREPLYEND@@@
@@ -74,9 +75,12 @@ Sujet :
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Image de fond :</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@ nowrap>
-@@@BACKGROUNDMENU@@@
-&nbsp;URL
-@@@BGURLFIELD@@@
+@@@BACKGROUNDMENU@@@ <font size=-2>URL </font>@@@BGURLFIELD@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Background image repeated:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@BGREPEATCHECKBOX@@@<br>
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Taille de la police :</B>
@@ -93,6 +97,9 @@ Sujet :
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@HOURFORMATMENU@@@ heures
 </td></tr>
+
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Folder browsing</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Position de la barre de contrôle dans la vue des dossiers :</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -102,6 +109,11 @@ Sujet :
 <B>Nombre de messages par page :</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@HEADERSPERPAGE@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Field order:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@FIELDORDERMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Tri des messages par défaut :</B>
@@ -120,6 +132,11 @@ Sujet :
 <B>Répertoire de destination par défaut :</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DEFAULTDESTINATIONMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Smart Destination:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SMARTDESTINATION@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Afficher le message suivant après un déplacer/copier :</B>
@@ -217,6 +234,7 @@ Largeur @@@EDITCOLUMNSMENU@@@ Hauteur @@@EDITROWSMENU@@@
 @@@SENDCHARSETMENU@@@
 </td></tr>
 
+@@@FILTERSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Options de filtrage des messages</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
@@ -239,21 +257,22 @@ Largeur @@@EDITCOLUMNSMENU@@@ Hauteur @@@EDITROWSMENU@@@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDEXECONTENTTYPE@@@
 </td></tr>
+@@@FILTEREND@@@
 
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>AddressBook Options</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Options du carnet d'adresses</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Size for addressbook window:</B>
+<B>Taille de la fenêtre du carnet d'adresses:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Addressbook button position:</B>
+<B>Position des boutons dans la fenêtre:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKBUTTONPOSITIONMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Addressbook default filter:</B>
+<B>Filtre par d&eacute;fault:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKDEFAULTFILTER@@@
 </td></tr>
@@ -280,6 +299,11 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 <B>la journée se termine à :</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ENDHOURMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Time interval in dayview:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@INTERVALMENU@@@ minutes
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Afficher les heures creuses :</B>

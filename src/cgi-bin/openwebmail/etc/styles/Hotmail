@@ -14,7 +14,7 @@ fontface="Arial"
 <!--
 body {
     background-image: url(@@@BG_URL@@@);
-    background-repeat: no-repeat;
+    background-repeat: @@@BGREPEAT@@@;
     font-family: Arial, Verdana; font-size: @@@FONTSIZE@@@;
     color: black;
     scrollbar-arrow-color:black;

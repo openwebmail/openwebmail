@@ -1,7 +1,7 @@
-#!/usr/bin/perl
+package openwebmail::tr;
 
-# Turkish translation by Erdinc Guler, eguler.AT.aegee.metu.edu.tr
-# charset: iso-8859-9
+# Turkish translation, charset: iso-8859-9
+# by Erdinc Guler, eguler.AT.aegee.metu.edu.tr
 
 %lang_folders =
    (
@@ -181,6 +181,7 @@
 
 %lang_text =
    (
+   help       => 'Yardým ',
    login      => 'Gir',
    clear      => 'Temizle',
    point      => 'Nokta',
@@ -319,12 +320,15 @@
    spellcheck => 'Yazým Kontrolü',
    checkagain => 'Tekrar Kontrol Edin',
    finishchecking => 'Kontrolü Bitir',
+   editpdict  => 'Edit Personal Dictionary',
+   addtodict  => 'Add to Dictionary',
    manuallyfix=> 'Elinle Düzelt',
    editstat   => 'Taslak Düzenle',
    savestat   => 'Taslaðý Kaydet',
    clearstat  => 'Tüm Taslaklarý Sil',
    statreply  => '-- Cevap Ýçin Taslak Seç --',
    calendar   => 'Takvim',
+   allday     => 'All day',
    am         => 'am',
    pm         => 'pm',
    calfmt_year          => 'Yýl @@@YEAR@@@',
@@ -336,6 +340,7 @@
    moreitems  => 'daha fazla girdi',
    multieditconf => 'Bu girdi birden çok tarih için geçerlidir.\\nDeðiþiklikler diðer tarihleri de etkileyecektir.\\nDeva edilsin mi?',
    multidelconf  => 'Bu girdi birden çok tarih için geçerlidir.\\nBu girdiyi sildiðiniz takdirde tüm tarihlerden de silinecektir.\\nSilmek istediðinize emin misiniz?',
+   caldelconf => 'Are you sure you want to delete this item?',
    noitemforthisday => 'Bu gün için girdi yok',
    thisday_only          => 'Sadece bu günün tarihi',
    the_wday_of_thismonth => 'ayýn @@@ORDER@@@ @@@WDAY@@@ ',
@@ -370,7 +375,13 @@
    failed       => 'baþarýsýz oldu',
    savefile_towd=> 'Dosyayý SanalDiske kaydet',
    saveatt_towd => 'Ek dosyasýný SanalDiske kaydet',
-   addatt_fromwd=> 'SanalDiskten ek dosyasý al'
+   addatt_fromwd=> 'SanalDiskten ek dosyasý al',
+   vdomain_usermgr    => 'Virtual Domain User Management',
+   vdomain_createuser => 'Create User',
+   vdomain_changeuser => 'Change User',
+   vdomain_deleteuser => 'Delete User',
+   vdomain_usertype_localmbox  => 'Local Mailbox',
+   vdomain_usertype_redirected => 'Redirect to external mail address'
    );
 
 %lang_err =
@@ -414,6 +425,7 @@
    auth_syserr       => 'onaylama sistem hatasý',
    param_fmterr      => 'parametre biçem hatasý',
    pwd_incorrect     => 'hatalý parola',
+   pwd_confirmmismatch=>'Yeni parola onay parolasý ile uyuþmadý!',
    pwd_tooshort      => 'Parola çok kýsa (en az @@@PWDMINLIMIT@@@)',
    pwd_toosimple     => 'Parola çok kolay (hem harf hem rakam içermeli)',
    network_server_error => 'að sunucu hatasý',
@@ -429,7 +441,8 @@
    upload_overlimit  => 'Yüklenecek dosya boyutu limiti aþýyor',
    decomp_notsupported=>'Bu dosya için sýkýþtýrmayý açma desteði yoktur',
    webdisk_hitquota   => 'Malesef, SanalDisk kotasýný doldurdunuz,önce dosya silmeniz gerekiyor.',
-   webdisk_readonly   => 'Malesef, SanalDiskiniz saltokunur.'
+   webdisk_readonly   => 'Malesef, SanalDiskiniz saltokunur.',
+   vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
    );
 
 1;

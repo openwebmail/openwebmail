@@ -1,287 +1,158 @@
-
-
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-    <meta http-equiv="Content-Language" content="es">
-    <title>
-      Ayuda de Open Webmail -  Estableciendo un Filtro
-    </title>
-    <link href="../../data/style.css" rel="stylesheet" type="text/css">
-  </head>
-  <body background="../../images/globe.gif">
-    <script src="../../data/makewin.js" type="text/javascript">
-    </script>
-    <script src="../../data/def.js" type="text/javascript">
-    </script>
-<!-- Uncomment this to include a link in every page for validating the HTML  
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<meta http-equiv="Content-Language" content="es">
+<title> Ayuda de Open Webmail - Estableciendo un Filtro </title>
+
+<link href="../../data/style.css" rel="stylesheet" type="text/css"></head>
+
+<body background="../../images/globe.gif">
+<script src="../../data/makewin.js" type="text/javascript"></script>
+
+<script src="../../data/def.js" type="text/javascript"></script>
+
+<!-- Uncomment this to include a link in every page for validating the HTML
 
 <table border=0 align="center" cellspacing=0 cellpadding=1>
-<tr>
-<td><a href="http://validator.w3.org/check/referer"><img border="0"
-       src="http://www.w3.org/Icons/valid-html401"
-       alt="Valid HTML 4.01?" height="31" width="88"></a>
-</td>
-<td>
-    <a href="http://jigsaw.w3.org/css-validator/check/referer">
-    <img style="border:0;width:88px;height:31px"
-    src="http://jigsaw.w3.org/css-validator/images/vcss"
-    alt="Valid CSS?">
-    </a>
-</td>
-</tr>
+<tr><td>
+<a href="http://validator.w3.org/check/referer">
+<img border="0" src="http://www.w3.org/Icons/valid-html401" alt="Valid HTML 4.01?" height="31" width="88"></a>
+</td><td>
+<a href="http://jigsaw.w3.org/css-validator/check/referer">
+<img style="border:0;width:88px;height:31px" src="http://jigsaw.w3.org/css-validator/images/vcss" alt="Valid CSS?"></a>
+</td></tr>
 </table>
 
- -->
-    <table border="0" cellpadding="0" cellspacing="0" width="100%">
-      <tr>
-        <td>
-          <div align="center">
-            <center>
-              <table cellspacing="0" cellpadding="0" width="550" border="0">
-                <tr>
-                  <td>
-                    <a href="../../index.html"><img border="0" src="../../images/logo_small.gif" width="150"                  
-                       height="78" alt="Ayuda de Open Webmail"></a>
-                  </td>
-                </tr>
-                <tr>
-                  <td bgcolor="#000000" height="1">
-                    <img height="1" src="../../images/space.gif" width="10" alt="">
-                  </td>
-                </tr>
-                <tr>
-                  <td bgcolor="#EEEEEE" height="1">
-                    <img height="1" src="../../images/space.gif" width="10" alt="">
-                  </td>
-                </tr>
-                <tr>
-                  <td bgcolor="#EEEEEE" height="1">
-                    <img height="1" src="../../images/space.gif" width="10" alt="">
-                  </td>
-                </tr>
-              </table>
-            </center>
-          </div>
-        </td>
-      </tr>
-    </table>
-    <table border="0" cellpadding="0" cellspacing="0" width="100%">
-      <tr>
-        <td valign="top">
-          <div align="center">
-            <center>
-              <table cellspacing="0" cellpadding="0" width="550" border="0">
-                <tbody>
-                  <tr>
-                    <td>
-                      <a href="../../index.html"><b>Ayuda de Open Webmail</b></a><b> &gt;&gt; Estableciendo un Filtro</b><br>
-                      <br>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </center>
-          </div>
-          <div align="center">
-            <center>
-              <table cellspacing="0" cellpadding="0" width="550" border="0">
-                <tbody>
-                <tr>
-                <td>
-                
-                      <p>
-                      Un filtro es una configuración que decide el destino de ciertos mensajes en función de algún
-                      criterio determinado. La clave para configurar un filtro es identificar un criterio que distinga
-                      a cierto tipo de mensajes del resto. Una vez hecho esto, se dispone que a los mensajes que
-                      coincidan con dicho criterio se les realice determinada acción.
-                      </p>
-                      <p>
-                        Para configurar un filtro, haga un clic en el botón "Filtros de Mensajes" ( <img src=
-                        "../../images/buttons/filter.gif" width="23" height="22" alt=""> ), y será redirigido a la página de
-                        configuración de filtros. Notará allí que ya existen varios filtros definidos que no son
-                        editables. Dichos filtros han sido colocados por el administrador de su sistema y en general
-                        identifican virus conocidos.
-                      </p>Sin embargo, usted puede definir sus propios filtros, editarlos o eliminarlos.<br>
-                      <br>
-                       
-                      <p>
-                        Como puede ver, los filtros existentes son poco claros. Por ejemplo, verá un filtro que envía a
-                        la Papelera los mensajes cuyo "Asunto" contenga el texto <b>\s{40,}\[[a-z0-9]{5}\]$</b>. Este
-                        es un filtro especial que utiliza <a href=
-                        "javascript:definition_window('../../def/regex.html')">expresiones regulares</a> para bloquear
-                        varios textos diferentes. En este caso bloquea cualquier mensaje cuyo asunto contenga 40 o
-                        menos caracteres en minúsculas y 5 o menos caracteres alfanuméricos. Sin embargo, en vez de
-                        entrar en detalles complejos, este tutorial explicará los conceptos básicos de la configuración
-                        de filtros.
-                      </p>
-                      <p>
-                        Use la siguiente table como una referencia para los filtros de mensajes:
-                      </p>
-                      <table cellspacing="1" cellpadding="1" width="540" align="center" border="0">
-                        <tbody>
-                          <tr bgcolor="#6699BB">
-                            <th width="100">
-                              Término
-                            </th>
-                            <th width="140">
-                              Acción o significado
-                            </th>
-                          </tr>
-                          <tr bgcolor="#CDCDCD">
-                            <td valign="top">
-                              Prioridad
-                            </td>
-                            <td valign="top">
-                              Prioridad de esta regla. Define el orden en que se aplicarán los filtros (los menores se
-                              aplicarán primero)
-                            </td>
-                          </tr>
-                          <tr bgcolor="#EFEFEF">
-                            <td valign="top">
-                              Campo
-                            </td>
-                            <td valign="top">
-                              Campo del mensaje en donde se buscará el texto
-                            </td>
-                          </tr>
-                          <tr bgcolor="#CDCDCD">
-                            <td valign="top">
-                              Con/Sin
-                            </td>
-                            <td valign="top">
-                              Incluyendo o excluyendo el texto (ver siguiente)
-                            </td>
-                          </tr>
-                          <tr bgcolor="#EFEFEF">
-                            <td valign="top">
-                              Texto
-                            </td>
-                            <td valign="top">
-                              Texto a buscar en el campo correspondiente
-                            </td>
-                          </tr>
-                          <tr bgcolor="#CDCDCD">
-                            <td valign="top">
-                              Acción
-                            </td>
-                            <td valign="top">
-                              Acción a realizar sobre el mensaje coincidente con el criterio especificado
-                            </td>
-                          </tr>
-                          <tr bgcolor="#EFEFEF">
-                            <td valign="top">
-                              Destino
-                            </td>
-                            <td valign="top">
-                              Ubicación donde se depositará el mensaje
-                            </td>
-                          </tr>
-                          <tr bgcolor="#CDCDCD">
-                            <td valign="top">
-                              Activar
-                            </td>
-                            <td valign="top">
-                              Seleccionar para que el filtro esté activo (en uso)
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                      <p>
-                        A continuación veremos un ejemplo:
-                      </p>
-                      <p align="center">
-                        <img border="0" src="../../images/screens/edit_filter.gif" width="529" height="37" alt="">
-                      </p>
-                      <p>
-                        Translating this filter into plain English would be:<br>
-                         <b>Move</b> all e-mail that is <b>from</b> anyone who resides on <b>bad-website.com</b> to the
-                        <b>Trash</b>. This filter is <b>enabled</b>. Therefore, if someone who's e-mail address was
-                        <i>bob@bad-website.com</i> tried to send you an e-mail, it would be automatically sent to the
-                        Trash.
-                      </p>
-                      <p>
-                        You could also have an exclusive filter, by blocking anyone who does not reside on a certain
-                        server. For example, if you changed <b>include</b> to <b>exclude</b>, you would be allowing
-                        e-mail from <i>only</i> those at <b>bad-website.com</b>.
-                      </p>
-                      <p>
-                        To edit a filter, simply click the string of the filter, and it will display on the editor at
-                        the top. see the above chart for details on filter editing.
-                      </p>
-                      <p>
-                        If you would like to temporarily disable a filter, there is an easier way than deleting it and
-                        having to create it all over again. Simply follow the instructions in the above paragraph to
-                        edit the filter, uncheck <b>Enable</b>, then click <b>Add/Modify</b>, and the filter will no
-                        longer be in place. It will store it in a second chart above the preset filters. To enable the
-                        filter again, you can either edit the newly created filter in the second chart and check off
-                        <b>Enable</b>, then click <b>Add/Modify</b>; or you can delete the newly created filter by
-                        clicking <b>Delete</b> to absolute right of the filter you wish to delete.
-                      </p>
+-->
 
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr><td>
+<div align="center"><center>
 
-                </td>
-                </tr>
-                </tbody>
-              </table>
-            </center>
-          </div>
-          <div align="center">
-            <center>
-              <table cellspacing="0" cellpadding="0" width="550" border="0">
-                <tbody>
-                  <tr>
-                    <td colspan="2">
-                      &nbsp;
-                    </td>
-                  </tr>
-                  <tr>
-                    <td width="50%" align="left">
-                      <a href="folders.html"><b>&lt;&lt; Administrando sus Bandejas</b></a>
-                    </td>
-                    <td width="50%" align="right">
-                      <a href="../address_book/editing.html"><b>Editando la Libreta de Direcciones &gt;&gt;</b></a>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </center>
-          </div>&nbsp;
-        </td>
-      </tr>
-    </table>
-    <table border="0" cellpadding="0" cellspacing="0" width="100%">
-      <tr>
-        <td>
-          <div align="center">
-            <center>
-              <table cellspacing="0" cellpadding="0" width="550" border="0">
-                <tr>
-                  <td bgcolor="#000000" height="1">
-                    <img height="1" src="../../images/space.gif" width="10" alt="">
-                  </td>
-                </tr>
-                <tr>
-                  <td bgcolor="#EEEEEE" height="1">
-                    <img height="1" src="../../images/space.gif" width="10" alt="">
-                  </td>
-                </tr>
-                <tr>
-                  <td bgcolor="#EEEEEE" height="1">
-                    <img height="1" src="../../images/space.gif" width="10" alt="">
-                  </td>
-                </tr>
-                <tr>
-                  <td bgcolor="#FFFFFF" height="1">
-                    <a href="../notes/using_owm_help.html"><font size="1">Acerca de la Ayuda de Open Webmail</font></a>
-                  </td>
-                </tr>
-              </table>
-            </center>
-          </div>
-        </td>
-      </tr>
-    </table>
-  </body>
+<table cellspacing="0" cellpadding="0" width="550" border="0">
+<tr><td>
+<a href="../../index.html">
+<img border="0" src="../../images/logo_small.gif" width="150" height="78" alt="Ayuda de Open Webmail"></a>
+</td></tr>
+<tr><td bgcolor="#000000" height="1">
+<img height="1" src="../../images/space.gif" width="10" alt=""></td></tr>
+<tr><td bgcolor="#EEEEEE" height="1">
+<img height="1" src="../../images/space.gif" width="10" alt=""></td></tr>
+<tr><td bgcolor="#EEEEEE" height="1">
+<img height="1" src="../../images/space.gif" width="10" alt=""></td></tr>
+</table>
+
+</center></div>
+</td></tr>
+</table>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr><td valign="top">
+<div align="center"><center>
+
+<table cellspacing="0" cellpadding="0" width="550" border="0">
+<tbody>
+<tr><td>
+<a href="../../index.html"><b>Ayuda de Open Webmail</b></a>
+<b> &gt;&gt; Estableciendo un Filtro</b>
+<br>
+<br></td></tr>
+</tbody>
+</table>
+
+</center></div>
+
+<div align="center"><center>
+
+<table cellspacing="0" cellpadding="0" width="550" border="0">
+<tbody>
+<tr><td>
+<p> Un filtro es una configuración que decide el destino de ciertos mensajes en función de algún criterio determinado. La clave para configurar un filtro es identificar un criterio que distinga a cierto tipo de mensajes del resto. Una vez hecho esto, se dispone que a los mensajes que coincidan con dicho criterio se les realice determinada acción. </p>
+
+<p> Para configurar un filtro, haga un clic en el botón "Filtros de Mensajes" (
+<img src= "../../images/buttons/filter.gif" width="23" height="22" alt=""> ), y será redirigido a la página de configuración de filtros. Notará allí que ya existen varios filtros definidos que no son editables. Dichos filtros han sido colocados por el administrador de su sistema y en general identifican virus conocidos. </p>
+Sin embargo, usted puede definir sus propios filtros, editarlos o eliminarlos.
+<br>
+<br>
+<p> Como puede ver, los filtros existentes son poco claros. Por ejemplo, verá un filtro que envía a la Papelera los mensajes cuyo "Asunto" contenga el texto <b>\s{40,}\[[a-z0-9]{5}\]$</b>. Este es un filtro especial que utiliza
+<a href= "javascript:definition_window('../../def/regex.html')">expresiones regulares</a>
+para bloquear varios textos diferentes. En este caso bloquea cualquier mensaje cuyo asunto contenga 40 o menos caracteres en minúsculas y 5 o menos caracteres alfanuméricos. Sin embargo, en vez de entrar en detalles complejos, este tutorial explicará los conceptos básicos de la configuración de filtros. </p>
+
+<p> Use la siguiente table como una referencia para los filtros de mensajes: </p>
+
+<table cellspacing="1" cellpadding="1" width="540" align="center" border="0">
+<tbody>
+<tr bgcolor="#6699BB">
+<th width="100"> Término </th>
+
+<th width="140"> Acción o significado </th>
+</tr>
+<tr bgcolor="#CDCDCD"><td valign="top"> Prioridad </td><td valign="top"> Prioridad de esta regla. Define el orden en que se aplicarán los filtros (los menores se aplicarán primero) </td></tr>
+<tr bgcolor="#EFEFEF"><td valign="top"> Campo </td><td valign="top"> Campo del mensaje en donde se buscará el texto </td></tr>
+<tr bgcolor="#CDCDCD"><td valign="top"> Con/Sin </td><td valign="top"> Incluyendo o excluyendo el texto (ver siguiente) </td></tr>
+<tr bgcolor="#EFEFEF"><td valign="top"> Texto </td><td valign="top"> Texto a buscar en el campo correspondiente </td></tr>
+<tr bgcolor="#CDCDCD"><td valign="top"> Acción </td><td valign="top"> Acción a realizar sobre el mensaje coincidente con el criterio especificado </td></tr>
+<tr bgcolor="#EFEFEF"><td valign="top"> Destino </td><td valign="top"> Ubicación donde se depositará el mensaje </td></tr>
+<tr bgcolor="#CDCDCD"><td valign="top"> Activar </td><td valign="top"> Seleccionar para que el filtro esté activo (en uso) </td></tr>
+</tbody>
+</table>
+
+<p> A continuación veremos un ejemplo: </p>
+
+<p align="center">
+<img border="0" src="../../images/screens/edit_filter.gif" width="529" height="37" alt=""></p>
+
+<p> Translating this filter into plain English would be:
+<br><b>Move</b> all e-mail that is <b>from</b> anyone who resides on <b>bad-website.com</b> to the <b>Trash</b>. This filter is <b>enabled</b>. Therefore, if someone who's e-mail address was <i>bob@bad-website.com</i> tried to send you an e-mail, it would be automatically sent to the Trash. </p>
+
+<p> You could also have an exclusive filter, by blocking anyone who does not reside on a certain server. For example, if you changed <b>include</b> to <b>exclude</b>, you would be allowing e-mail from <i>only</i> those at <b>bad-website.com</b>. </p>
+
+<p> To edit a filter, simply click the string of the filter, and it will display on the editor at the top. see the above chart for details on filter editing. </p>
+
+<p> If you would like to temporarily disable a filter, there is an easier way than deleting it and having to create it all over again. Simply follow the instructions in the above paragraph to edit the filter, uncheck <b>Enable</b>, then click <b>Add/Modify</b>, and the filter will no longer be in place. It will store it in a second chart above the preset filters. To enable the filter again, you can either edit the newly created filter in the second chart and check off <b>Enable</b>, then click <b>Add/Modify</b>; or you can delete the newly created filter by clicking <b>Delete</b> to absolute right of the filter you wish to delete. </p>
+</td></tr>
+</tbody>
+</table>
+
+</center></div>
+
+<div align="center"><center>
+
+<table cellspacing="0" cellpadding="0" width="550" border="0">
+<tbody>
+<tr><td colspan="2"> &nbsp; </td></tr>
+<tr><td width="50%" align="left">
+<a href="folders.html"><b>&lt;&lt; Administrando sus Bandejas</b></a>
+</td><td width="50%" align="right">
+<a href="../address_book/editing.html"><b>Editando la Libreta de Direcciones &gt;&gt;</b></a>
+</td></tr>
+</tbody>
+</table>
+
+</center></div>
+&nbsp; </td></tr>
+</table>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr><td>
+<div align="center"><center>
+
+<table cellspacing="0" cellpadding="0" width="550" border="0">
+<tr><td bgcolor="#000000" height="1">
+<img height="1" src="../../images/space.gif" width="10" alt=""></td></tr>
+<tr><td bgcolor="#EEEEEE" height="1">
+<img height="1" src="../../images/space.gif" width="10" alt=""></td></tr>
+<tr><td bgcolor="#EEEEEE" height="1">
+<img height="1" src="../../images/space.gif" width="10" alt=""></td></tr>
+<tr><td bgcolor="#FFFFFF" height="1">
+<a href="../notes/using_owm_help.html"><font size="1">Acerca de la Ayuda de Open Webmail</font></a>
+</td></tr>
+</table>
+
+</center></div>
+</td></tr>
+</table>
+
+</body>
 </html>

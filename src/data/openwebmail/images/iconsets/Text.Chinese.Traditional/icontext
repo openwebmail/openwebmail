@@ -1,14 +1,18 @@
+
 #!/usr/bin/perl
 
 %icontext =
    (
    'addrbook.gif'      => ' [通訊錄] ', 
    'addrbook.s.gif'    => ' [通訊錄] ',
+   'adduser.gif'       => ' [新增使用者] ',
    'advsearch.gif'     => ' [搜尋] ',
    'attach.gif'        => ' @ ',
    'backtofolder.gif'  => ' [回到] ',
    'blockemail.gif'    => ' [!發信地址] ',
    'blockrelay.gif'    => ' [!發信主機] ',
+   'cal-delete.gif'    => ' [刪除] ',
+   'cal-link.gif'      => ' [連結] ',
    'calendar.gif'      => ' [行事曆] ',
    'chpwd.gif'         => ' [換密碼] ',
    'clearaddress.gif'  => ' [清除通訊錄] ',
@@ -77,6 +81,7 @@
    'unread.a.gif'      => ' A ',
    'unread.gif'        => ' N ',
    'up.gif'            => ' ^ ',
+   'vdusers.gif'       => ' [虛擬帳號管理] ',
    'webdisk.gif'       => ' [網路硬碟] ',
    'weekview.gif'      => ' [週行事曆] ',
    'yearview.gif'      => ' [年行事曆]'

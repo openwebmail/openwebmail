@@ -40,14 +40,17 @@ sub mkdb_g2b {
    return 0;
 }
 
-# big5: hi 81-FE, lo 40-7E A1-FE, range a440-C67E C940-F9D5 F9D6-F9FE
-sub b2g {
+# big5:       hi A1-F9,       lo 40-7E A1-FE (big5-1984, big5-eten, big5-cp950, big5-unicode)
+# big5-hkscs: hi 88-F9,       lo 40-7E A1-FE
+# big5E:      hi 81-8E A1-F9, lo 40-7E A1-FE
+# from http://i18n.linux.org.tw/li18nux/big5/doc/big5-intro.txt
+sub b2g { # use range of big5
    my $str = $_[0];
    if ( -f "$config{'ow_etcdir'}/b2g$config{'dbm_ext'}" &&
        !-z "$config{'ow_etcdir'}/b2g$config{'dbm_ext'}" ) {
       my %B2G;
       dbmopen (%B2G, "$config{'ow_etcdir'}/b2g$config{'dbmopen_ext'}", undef);
-      $str =~ s/([\x81-\xFE][\x40-\x7E\xA1-\xFE])/$B2G{$1}/eg;
+      $str =~ s/([\xA1-\xF9][\x40-\x7E\xA1-\xFE])/$B2G{$1}/eg;
       dbmclose(%B2G);
    }
    return $str;
@@ -56,8 +59,8 @@ sub b2g {
 # gb2312-1980: hi A1-F7, lo A1-FE, range hi*lo
 # gb12345    : hi A1-F9, lo A1-FE, range hi*lo
 # gbk        : hi 81-FE, lo 40-7E 80-FE, range hi*lo
-# please refer http://www.haiyan.com/steelk/navigator/ref/gbindex1.htm for more detail
-sub g2b {
+# from http://www.haiyan.com/steelk/navigator/ref/gbindex1.htm
+sub g2b { # use range of gb2312
    my $str = $_[0];
    if ( -f "$config{'ow_etcdir'}/g2b$config{'dbm_ext'}" &&
        !-z "$config{'ow_etcdir'}/g2b$config{'dbm_ext'}" ) {

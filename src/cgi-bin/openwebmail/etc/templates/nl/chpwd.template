@@ -30,8 +30,8 @@
    {
       var s;
       s=document.passwordform.newpassword.value;
-      if (s.length < 4) {
-         alert("Een wachtwoord moet minimaal 4 tekens lang zijn.");
+      if (s.length < @@@PASSWDMINLEN@@@) {
+         alert("Een wachtwoord moet minimaal @@@PASSWDMINLEN@@@ tekens lang zijn.");
          return false;
       }
       if (document.passwordform.newpassword.value !=

@@ -1,13 +1,14 @@
 @@@STARTPREFSFORM@@@
-<table border="0" align="center" width="90%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="0" bgcolor=@@@BACKGROUND@@@>
 <tr><td colspan="2" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>PREFERENCJE U¯YTKOWNIKA @@@REALNAME@@@</B></font>
 <tr><td colspan="2" bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
 </td></tr>
-
-<tr><td colspan="2">&nbsp;</td></tr>
+</table>
+&nbsp;
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Opcje ogólne</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Jêzyk:</B>
@@ -74,9 +75,12 @@ Temat:
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Obrazek t³a:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@ nowrap>
-@@@BACKGROUNDMENU@@@
-&nbsp;URL
-@@@BGURLFIELD@@@
+@@@BACKGROUNDMENU@@@ <font size=-2>URL </font>@@@BGURLFIELD@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Background image repeated:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@BGREPEATCHECKBOX@@@<br>
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Wielko¶æ czcionki:</B>
@@ -93,8 +97,11 @@ Temat:
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@HOURFORMATMENU@@@ godzinny
 </td></tr>
+
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Przegl±danie folerów</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Controlbar position in folder view:</B>
+<B>Pozycja narzêdzi w widoku folderów</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CTRLPOSITIONFOLDERVIEWMENU@@@
 </td></tr>
@@ -102,6 +109,11 @@ Temat:
 <B>Nag³ówków na stronê:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@HEADERSPERPAGE@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Porz±dek pól:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@FIELDORDERMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Sortowanie:</B>
@@ -120,6 +132,11 @@ Temat:
 <B>Domy¶lnie przeno¶ do:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DEFAULTDESTINATIONMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Inteligentne przenoszenie:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SMARTDESTINATION@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Przejd¼ do nastêpnej wiadomo¶ci po kopiowaniu/przenoszeniu:</B>
@@ -144,7 +161,7 @@ Temat:
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Opcje przegl±dania wiadomo¶ci</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Controlbar position in message reading:</B>
+<B>Pozycja belki przy odczycie wiadomo¶ci:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CTRLPOSITIONMSGREADMENU@@@
 </td></tr>
@@ -159,7 +176,7 @@ Temat:
 @@@USEFIXEDFONT@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>U¿ywaj obrazków jako 'smileys' ;-):</B>
+<B>U¿ywaj obrazków jako 'usmiechów' ;-):</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USESMILEICON@@@
 </td></tr>
@@ -217,6 +234,7 @@ Szeroko¶æ @@@EDITCOLUMNSMENU@@@ Wysoko¶æ @@@EDITROWSMENU@@@
 @@@SENDCHARSETMENU@@@
 </td></tr>
 
+@@@FILTERSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Opcje filtrowania wiadomo¶ci</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
@@ -239,21 +257,22 @@ Szeroko¶æ @@@EDITCOLUMNSMENU@@@ Wysoko¶æ @@@EDITROWSMENU@@@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDEXECONTENTTYPE@@@
 </td></tr>
+@@@FILTEREND@@@
 
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>AddressBook Options</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Opcje ksi±¿ki adresowej</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Size for addressbook window:</B>
+<B>Rozmiar okna ksi±¿ki adresowej:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
+Szeroko¶æ @@@ABOOKWIDTHMENU@@@ Wysoko¶æ @@@ABOOKHEIGHTMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Addressbook button position:</B>
+<B>Pozycja przycisków ksi±¿ki adresowej:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKBUTTONPOSITIONMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Addressbook default filter:</B>
+<B>Domy¶lny filtr ksi±¿ki adresowej:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKDEFAULTFILTER@@@
 </td></tr>
@@ -282,17 +301,22 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 @@@ENDHOURMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Przedzia³ czasu w widoku dni:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@INTERVALMENU@@@ minut
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Pokazuj godziny bez zapisów:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SHOWEMPTYHOURSCHECKBOX@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Event reminder check days:</B>
+<B>Przypominanie zdarzeñ sprawdza dni:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REMINDERDAYSMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Reminder for global calendar events:</B>
+<B>Przypominanie dla globalnych zdarzeñ kalendarza:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REMINDERFORGLOBALCHECKBOX@@@
 </td></tr>
@@ -300,31 +324,31 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 
 @@@WEBDISKSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>WebDisk Options</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Opcje dysku sieciowego</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Number of items in directory list:</B>
+<B>Liczba pozycji na li¶cie folderów:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DIRNUMITEMSMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Confirm before directory/file move/copy:</B>
+<B>Potwierdzaæ kopiowanie/przesuwanie folderów/plików:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CONFIRMFILEMOVECOPY@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Confirm before directory/file deletion:</B>
+<B>Potwierdzaæ usuwanie folderów/plików:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CONFIRMFILEDEL@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Confirm before directory/file compress:</B>
+<B>Potwierdzaæ kompresjê folderów/plików:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CONFIRMFILECOMPRESS@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Size for file edit window:</B>
+<B>Rozmiar okna edycji plików:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-Width @@@FILEEDITCOLUMNSMENU@@@ Height @@@FILEEDITROWSMENU@@@
+Szeroko¶æ @@@FILEEDITCOLUMNSMENU@@@ Wysoko¶æ @@@FILEEDITROWSMENU@@@
 </td></tr>
 @@@WEBDISKEND@@@
 
@@ -351,7 +375,7 @@ Width @@@FILEEDITCOLUMNSMENU@@@ Height @@@FILEEDITROWSMENU@@@
 @@@NEWMAILSOUNDMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Powiadomienie o nowej poczcie w okienku pop-up trwa:</B>
+<B>Powiadomienie o nowej poczcie w wyskakuj±cym okienku trwa:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@NEWMAILWINDOWTIMEMENU@@@ sekund &nbsp;( 0 oznacza brak powiadomienia )
 </td></tr>

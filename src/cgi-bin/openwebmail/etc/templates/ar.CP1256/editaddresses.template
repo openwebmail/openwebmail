@@ -46,7 +46,7 @@
       var url = "@@@ABOOKURL@@@?action=addressbook&sessionid=@@@SESSIONID@@@&form=newaddress&field=" + field;
 
       if (field == "email")
-         url += "&preexisting=" + escape (document.newaddress.email.value);
+         url += "&elist=" + escape (document.newaddress.email.value);
 
       var hWnd = window.open(url,"_addressbook","width=380,height=360,resizable=yes,scrollbars=yes");
       if ((document.window != null) && (!hWnd.opener))
@@ -58,6 +58,15 @@
       document.newaddress.realname.value = name;
       document.newaddress.email.value = email;
       document.newaddress.note.value = note;
+   }
+
+   function addcheck()
+   {
+      if (document.newaddress.email.value  == "") {
+         alert("ÇáÑÌÇÁ ÊÍÏíÏ ÚäæÇä ÇáÈÑíÏ.");
+         return false;
+      }
+      return true;
    }
 //-->
 </script>

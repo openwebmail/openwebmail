@@ -35,12 +35,6 @@
 </tr></table>
 
 </td></tr></table>
-<p align="center">
-<BR>
-@@@PAGE_FOOTER@@@ &nbsp;
-<a href="@@@HELP_LINK@@@" target="_help">¿Ayuda?</a>
-<BR>
-</p>
 
 <script language="JavaScript">
 <!--
@@ -65,5 +59,3 @@
 
 //-->
 </script>
-
-</BODY></HTML>

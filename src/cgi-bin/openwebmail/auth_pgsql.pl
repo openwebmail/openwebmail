@@ -1,3 +1,5 @@
+package openwebmail::auth_pg;
+use strict;
 #
 # auth_pg.pl - authenticate user with DBD::Pg
 #
@@ -22,54 +24,64 @@ my $pass_type	= "cleartxt"; 		# crypt, cleartxt
 
 ################### No configuration required from here ###################
 
-use strict;
 use DBI;
 
+#  0 : ok
+# -2 : parameter format error
+# -3 : authentication system/internal error
+# -4 : user doesn't exist
 sub get_userinfo {
-   my $user=$_[0];
-   my ($uid, $gid, $realname, $home);
+   my ($r_config, $user)=@_;
+   return(-2, 'User is null') if (!$user);
 
    my $dbh = DBI->connect("dbi:Pg:dbname=$auth_db;host=$SQLHost", $sqlusr, $sqlpwd)
-      or die "Cannot connect to db server: ", $DBI::errstr, "\n";
+      or return(-3, "Cannot connect to db server: ".$DBI::errstr);
    my $queryStr =qq|select $field_uid, $field_gid, $field_realname, $field_home from $auth_table where $field_username='$user'|;
    my $sth = $dbh->prepare($queryStr)
-      or die "Can't prepare SQL statement: ", $dbh->errstr(), "\n";
+      or return(-3, "Can't prepare SQL statement: ".$dbh->errstr());
    $sth->execute
-      or die "Can't execute SQL statement: ", $sth->errstr(), "\n";
+      or return(-3, "Can't execute SQL statement: ".$sth->errstr());
 
    if ($sth->rows eq 0) {
       $sth->finish;
-      $dbh->disconnect or warn "Disconnection failed: $DBI::errstr\n";
-      return -1;
+      $dbh->disconnect or return(-3, "Disconnection failed: ".$DBI::errstr);
+      return (-4, "User $user doesn't exist");
    } else {
       if (my $result = $sth->fetchrow_hashref()) {
          $sth->finish;
-         $dbh->disconnect or warn "Disconnection failed: $DBI::errstr\n";
-	 return($result->{$field_realname}, $result->{$field_uid}, $result->{$field_gid}, $result->{$field_home});
+         $dbh->disconnect or return(-3, "Disconnection failed: ".$DBI::errstr);;
+	 return(0, '', $result->{$field_realname}, $result->{$field_uid}, $result->{$field_gid}, $result->{$field_home});
+      } else {
+         return(-3, "Can't fetch SQL result: ".$sth->errstr());
       }
    }
 }
 
 
+#  0 : ok
+# -1 : function not supported
+# -3 : authentication system/internal error
 sub get_userlist {      # only used by openwebmail-tool.pl -a
+   my $r_config=$_[0];
+
    my @userlist=();
 
    my $dbh = DBI->connect("dbi:Pg:dbname=$auth_db;host=$SQLHost", $sqlusr,$sqlpwd)
-      or die "Cannot connect to db server: ", $DBI::errstr, "\n";
+      or return(-3, "Cannot connect to db server: ".$DBI::errstr);
    my $queryStr = qq|select $field_username from $auth_table|;
    my $sth = $dbh->prepare($queryStr)
-      or die "Can't prepare SQL statement: ", $dbh->errstr(), "\n";
+      or return(-3, "Can't prepare SQL statement: ".$dbh->errstr());
    $sth->execute
-      or die "Can't execute SQL statement: ", $sth->errstr(), "\n";
+      or return(-3, "Can't execute SQL statement: ".$sth->errstr());
 
    my @data;
    while (@data = $sth->fetchrow_array()) {	# only 1 field here
       push (@userlist, $data[0]);
    }
    $sth->finish;
-   $dbh->disconnect or warn "Disconnection failed: $DBI::errstr\n";
+   $dbh->disconnect or return(-3, "Disconnection failed: ".$DBI::errstr);
 
-   return(@userlist)
+   return(0, '', @userlist)
 }
 
 
@@ -79,38 +91,37 @@ sub get_userlist {      # only used by openwebmail-tool.pl -a
 # -3 : authentication system/internal error
 # -4 : password incorrect
 sub check_userpassword {
-   my ($user, $password)=@_;
-
-   return -2 unless ( $user ne "" && $password ne "");
+   my ($r_config, $user, $password)=@_;
+   return (-2, "User or password is null") if (!$user||!$password);
 
    my $dbh = DBI->connect("dbi:Pg:dbname=$auth_db;host=$SQLHost", $sqlusr,$sqlpwd)
-      or die "Cannot connect to db server: ", $DBI::errstr, "\n";
+      or return(-3, "Cannot connect to db server: ".$DBI::errstr);
    my $queryStr = qq|select $field_username, $field_password from $auth_table where $field_username='$user'|;
    my $sth = $dbh->prepare($queryStr)
-      or die "Can't prepare SQL statement: ", $dbh->errstr(), "\n";
+      or return(-3, "Can't prepare SQL statement: ".$dbh->errstr());
    $sth->execute
-      or die "Can't execute SQL statement: ", $sth->errstr(), "\n";
+      or return(-3, "Can't execute SQL statement: ".$sth->errstr());
 
    if ($sth->rows eq 0) {
       $sth->finish;
-      $dbh->disconnect or warn "Disconnection failed: $DBI::errstr\n";
-      return -1;
+      $dbh->disconnect or return(-3, "Disconnection failed: ".$DBI::errstr);
+      return (-4, "User $user doesn't exit");
    } else {
       if (my $result = $sth->fetchrow_hashref()) {
          $sth->finish;
-         $dbh->disconnect or warn "Disconnection failed: $DBI::errstr\n";
+         $dbh->disconnect or return(-3, "Disconnection failed: ".$DBI::errstr);
 	 my $tmp_pwd = $result->{$field_password};
          if ($pass_type eq "cleartxt") {
 	    if ($tmp_pwd eq $password) {
-	       return 0;
+	       return (0, '');
 	    } else {
-	       return -4;
+               return (-4, 'Password incorrect');
 	    }
          } elsif ($pass_type eq "crypt") {
 	    if ($tmp_pwd eq crypt($password, $tmp_pwd)) {
-               return 0;
+               return (0, '');
 	    } else {
-	       return -4;
+               return (-4, 'Password incorrect');
 	    }
          }
       }
@@ -124,36 +135,29 @@ sub check_userpassword {
 # -3 : authentication system/internal error
 # -4 : password incorrect
 sub change_userpassword {
-   my ($user, $oldpassword, $newpassword)=@_;
-   my ($u, $p, $misc, $encrypted);
-   my $content="";
-   my $line;
+   my ($r_config, $user, $oldpassword, $newpassword)=@_;
+   return (-2, "User or password is null") if (!$user||!$oldpassword||!$newpassword);
+   return (-2, "Password too short") if (length($newpassword)<${$r_config}{'passwd_minlen'});
 
-   return -2 unless ( $user ne "" && $oldpassword ne "" && $newpassword ne "" );
-   return -2 if (length($newpassword)<4);
-
-   my $test = &check_userpassword ($user, $oldpassword);
-   return -4 unless $test eq 0;
+   my ($ret, $errmsg)=check_userpassword($user, $oldpassword);
+   return($ret, $errmsg) if ($ret!=0);
 
    if ($pass_type eq "crypt") { # encrypt the passwd
-      srand();
-      my $table="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-      my $salt=substr($table, int(rand(length($table))), 1).
-               substr($table, int(rand(length($table))), 1);
+      my @salt_chars = ('a'..'z','A'..'Z','0'..'9');
+      my $salt = $salt_chars[rand(62)] . $salt_chars[rand(62)];
       $newpassword = crypt($newpassword, $salt);
    }
 
    my $dbh = DBI->connect("dbi:Pg:dbname=$auth_db;host=$SQLHost", $sqlusr,$sqlpwd)
-      or die "Cannot connect to db server: ", $DBI::errstr, "\n";
+      or return(-3, "Cannot connect to db server: ".$DBI::errstr);
    my $queryStr = qq|update $auth_table set $field_password='$newpassword' where $field_username='$user'|;
    my $sth = $dbh->prepare($queryStr)
-      or die "Can't prepare SQL statement: ", $dbh->errstr(), "\n";
+      or return(-3, "Can't prepare SQL statement: ".$dbh->errstr());
    $sth->execute
-      or die "Can't execute SQL statement: ", $sth->errstr(), "\n";
-   $dbh->disconnect or warn "Disconnection failed: $DBI::errstr\n";
+      or return(-3, "Can't execute SQL statement: ".$sth->errstr());
+   $dbh->disconnect or return(-3, "Disconnection failed: ".$DBI::errstr);
 
-   return 0;
+   return (0, '');
 }
 
 1;
-

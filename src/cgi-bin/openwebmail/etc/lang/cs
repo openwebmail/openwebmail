@@ -1,9 +1,9 @@
-#!/usr/bin/perl
+package openwebmail::cs;
 
-# Czech translation by Michal Drapak, michal@stavlib.hiedu.cz, 2001-NOV-8
-#           changes by Jan Bilik, jan@bilik.org, 2002-JUN-6, 2003-JAN-5
-#           changes by Pavel Schauer, schauer@dp.fce.vutbr.cz, 2002-DEC-3
-# charset: iso-8859-2
+# Czech translation, charset: iso-8859-2
+# by Michal Drapak, michal.AT.stavlib.hiedu.cz, 2001-NOV-8
+#    Jan Bilik, jan.AT.bilik.org, 2002-JUN-6, 2003-JAN-5
+#    Pavel Schauer, schauer.AT.dp.fce.vutbr.cz, 2002-DEC-3
 
 %lang_folders =
    (
@@ -183,6 +183,7 @@
 
 %lang_text =
    (
+   help       => 'Nápovìda',
    login      => 'Pøihlásit',
    clear      => 'Smazat',
    point      => 'Bodù',
@@ -321,12 +322,15 @@
    spellcheck => 'Zkontrolovat pravopis',
    checkagain => 'Pokraèovat v kontrole pravopisu',
    finishchecking => 'Ukonèit kontrolu pravopisu',
+   editpdict  => 'Editovat osobní slovník',
+   addtodict  => 'Pøidat do slovníku',
    manuallyfix=> 'Opravit ruènì',
    editstat   => 'Upravit komentáø',
    savestat   => 'Ulo¾it komentáø',
    clearstat  => 'Vymazat v¹echny komentáøe',
-   statreply  => '-- Stationery for Reply --',
+   statreply  => '-- Vybrat komentáø jako odpovìï --',
    calendar   => 'Kalendáø',
+   allday     => 'Ka¾dý den',
    am         => 'dop.',
    pm         => 'odp.',
    calfmt_year          => 'Rok @@@YEAR@@@',
@@ -338,6 +342,7 @@
    moreitems  => 'více polo¾ek',
    multieditconf => 'Tato polo¾ka byla vlo¾ena pro více datumù.\\nÚprava zmìní hodnoty pro v¹echny datumy.\\nPokraèovat s úpravou datumu?',
    multidelconf  => 'Tato polo¾ka byla vlo¾ena pro více datumù.\\nVymazání sma¾e hodnoty pro v¹echny datumy.\\nPokraèovat s mazáním?',
+   caldelconf => 'Jste si jist(a), ¾e chcete vymazat tuto polo¾ku?',
    noitemforthisday => '®ádné polo¾ky pro tento den',
    thisday_only          => 'Jen dne¹ní datum',
    the_wday_of_thismonth => ' @@@ORDER@@@ @@@WDAY@@@ v mìsíci',
@@ -347,7 +352,7 @@
    every_evenmonth_thisyear => 'Ka¾dý sudý mìsíc tento rok',
    every_month_thisyear     => 'Ka¾dý mìsíc tento rok',
    webdisk      => 'WebDisk',
-   sshterm      => 'SSH Terminal',
+   sshterm      => 'SSH Terminál',
    dir          => 'Slo¾ka',
    dirs         => 'Slo¾ek',
    file         => 'Soubor',
@@ -372,7 +377,13 @@
    failed       => 'selhalo',
    savefile_towd=> 'Ulo¾it soubor na WebDisk',
    saveatt_towd => 'Ulo¾it pøílohu na WebDisk',
-   addatt_fromwd=> 'Vlo¾it pøílohu z WebDisku'
+   addatt_fromwd=> 'Vlo¾it pøílohu z WebDisku',
+   vdomain_usermgr    => 'Virtual Domain User Management',
+   vdomain_createuser => 'Create User',
+   vdomain_changeuser => 'Change User',
+   vdomain_deleteuser => 'Delete User',
+   vdomain_usertype_localmbox  => 'Local Mailbox',
+   vdomain_usertype_redirected => 'Redirect to external mail address'
    );
 
 %lang_err =
@@ -416,6 +427,7 @@
    auth_syserr       => 'Chyba ovìøovacího systému',
    param_fmterr      => 'Chybný formát parametru',
    pwd_incorrect     => 'Chybné heslo',
+   pwd_confirmmismatch=>'Nové heslo nebylo zadáno dvakrát stejnì ',
    pwd_tooshort      => 'Heslo je pøíli¹ krátké (minimální délka je @@@PASSWDMINLEN@@@)',
    pwd_toosimple     => 'Heslo je pøíli¹ jednoduché (jsou vy¾adovány jak písmena, tak èíslice)',
    network_server_error => 'Sí»ová chyba serveru',
@@ -431,7 +443,8 @@
    upload_overlimit  => 'Velikost posílaného souboru je vìt¹í ne¾ povolená',
    decomp_notsupported=>'Dekomprimace tohoto souboru není podporována.',
    webdisk_hitquota   => 'Dosáhl jste bohu¾el maximální kvótu va¹eho webdisku, sma¾te prosím nejdøíve nìjaké soubory.',
-   webdisk_readonly   => 'Promiòte, Vá¹ WebDisk je urèen jen ke ètení.'
+   webdisk_readonly   => 'Promiòte, Vá¹ WebDisk je urèen jen ke ètení.',
+   vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
    );
 
 1;

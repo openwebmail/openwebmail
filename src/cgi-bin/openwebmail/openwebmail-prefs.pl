@@ -4,9 +4,12 @@
 #
 
 use vars qw($SCRIPT_DIR);
-if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-\.]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
-if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
-push (@INC, $SCRIPT_DIR, ".");
+if ( $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
+if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
+   $_=<F>; close(F); if ( $_=~/^([^\s]*)/) { $SCRIPT_DIR=$1; }
+}
+if (!$SCRIPT_DIR) { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
+push (@INC, $SCRIPT_DIR);
 
 $ENV{PATH} = ""; # no PATH should be needed
 $ENV{ENV} = "";      # no startup script for sh
@@ -17,7 +20,6 @@ use strict;
 use Fcntl qw(:DEFAULT :flock);
 use CGI qw(-private_tempfiles :standard);
 use CGI::Carp qw(fatalsToBrowser carpout);
-CGI::nph();   # Treat script as a non-parsed-header script
 
 require "ow-shared.pl";
 require "filelock.pl";
@@ -27,17 +29,18 @@ require "iconv.pl";
 
 use vars qw(%config %config_raw);
 use vars qw($thissession);
-use vars qw($loginname $domain $user $userrealname $uuid $ugid $homedir);
+use vars qw($loginname $logindomain $loginuser);
+use vars qw($domain $user $userrealname $uuid $ugid $homedir);
 use vars qw(%prefs %style %icontext);
 use vars qw($folderdir @validfolders $folderusage);
 use vars qw($folder $printfolder $escapedfolder);
 
 openwebmail_init();
-verifysession();
+$SIG{CHLD}=sub { wait }; # whole process scope to prevent zombie
 
 use vars qw($sort $page);
 use vars qw($messageid $escapedmessageid);
-use vars qw($usertype $backto);
+use vars qw($userfirsttime $prefs_caller);
 use vars qw($urlparmstr $formparmstr);
 
 $page = param("page") || 1;
@@ -45,19 +48,10 @@ $sort = param("sort") || $prefs{'sort'} || 'date';
 $messageid=param("message_id") || '';
 $escapedmessageid=escapeURL($messageid);
 
-$usertype = param("usertype") || '';
-$backto= param("backto");
-if ($ENV{'HTTP_REFERER'}=~/\-cal\.pl/) {
-   $backto="cal";
-} elsif ($ENV{'HTTP_REFERER'}=~/\-webdisk\.pl/) {
-   $backto="webdisk";
-} elsif ($ENV{'HTTP_REFERER'}=~/\-main\.pl/) {
-   $backto="main";
-} elsif ($ENV{'HTTP_REFERER'}=~/\-read\.pl/) {
-   $backto="read";
-}
+$userfirsttime = param("userfirsttime") || 0;
+$prefs_caller= param("prefs_caller");	# passed from the caller
 
-$urlparmstr=qq|&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;sort=$sort&amp;page=$page&amp;usertype=$usertype&amp;backto=$backto|;
+$urlparmstr=qq|&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;sort=$sort&amp;page=$page&amp;userfirsttime=$userfirsttime&amp;prefs_caller=$prefs_caller|;
 $formparmstr=hidden(-name=>'sessionid',
                     -default=>$thissession,
                     -override=>'1') .
@@ -73,11 +67,11 @@ $formparmstr=hidden(-name=>'sessionid',
              hidden(-name=>'page',
                     -default=>$page,
                     -override=>'1').
-             hidden(-name=>'usertype',
-                    -default=>$usertype,
+             hidden(-name=>'userfirsttime',
+                    -default=>$userfirsttime,
                     -override=>'1').
-             hidden(-name=>'backto',
-                    -default=>$backto,
+             hidden(-name=>'prefs_caller',
+                    -default=>$prefs_caller,
                     -override=>'1');
 
 # extern vars
@@ -91,7 +85,6 @@ use vars qw(%charset_convlist);			# defined in iconv.pl
 use vars qw(%medfontsize);			# defined in ow-shared.pl
 
 ########################## MAIN ##############################
-
 my $action = param("action");
 if ($action eq "about") {
    about();
@@ -138,17 +131,21 @@ if ($action eq "about") {
 } else {
    openwebmailerror("Action $lang_err{'has_illegal_chars'}");
 }
+
+# back to root if possible, required for setuid under persistent perl
+$<=0; $>=0;
 ###################### END MAIN ##############################
 
 ########################### ABOUT ##############################
 sub about {
-   my $html = readtemplate("about.template");
-   my $temphtml;
-
+   my ($html, $temphtml);
+   $html = readtemplate("about.template");
    $html = applystyle($html);
 
-   printheader();
+   $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $lang_text{'userprefs'}", qq|accesskey="F" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;$urlparmstr"|);
+   $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/;
 
+   $temphtml = '';
    if ($config{'about_info_software'}) {
       my $os=`/bin/uname -srm`;
       $os=`/usr/bin/uname -srm` if ( -f "/usr/bin/uname");
@@ -183,17 +180,7 @@ sub about {
    }
    $html =~ s/\@\@\@INFORECORDS\@\@\@/$temphtml/;
 
-   $temphtml=qq|<br><form>|.
-             button(-name=>"closebutton",
-                    -value=>$lang_text{'close'},
-                    -onclick=>'window.close();',
-                    -override=>'1').
-             qq|</form>|;
-   $html =~ s/\@\@\@CLOSEBUTTON\@\@\@/$temphtml/;
-
-   print $html;
-
-   printfooter(1);
+   print htmlheader(), $html, htmlfooter(1);
 }
 
 sub attr_html {
@@ -207,12 +194,9 @@ sub attr_html {
 
 ##################### FIRSTTIMEUSER ################################
 sub userfirsttime {
-   my $html = readtemplate("userfirsttime.template");
-   my $temphtml;
-
+   my ($html, $temphtml);
+   $html = readtemplate("userfirsttime.template");
    $html = applystyle($html);
-
-   printheader();
 
    $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-prefs.pl");
    $temphtml .= hidden(-name=>'action',
@@ -221,37 +205,31 @@ sub userfirsttime {
    $temphtml .= hidden(-name=>'sessionid',
                        -default=>$thissession,
                        -override=>'1');
-   $temphtml .= hidden(-name=>'usertype',
-                       -default=>'firsttime',
+   $temphtml .= hidden(-name=>'userfirsttime',
+                       -default=>'1',
                        -override=>'1');
    $temphtml .= submit("$lang_text{'continue'}");
    $temphtml .= end_form();
    $html =~ s/\@\@\@CONTINUEBUTTON\@\@\@/$temphtml/;
 
-   print $html;
-
-   printfooter(2);
+   print htmlheader(), $html, htmlfooter(2);
 }
 ################### END FIRSTTIMEUSER ##############################
 
 #################### EDITPREFS ###########################
 sub editprefs {
-   my $html = '';
-   my $temphtml;
-
    if (param('language') =~ /^([\d\w\.\-_]+)$/ ) {
       my $language=$1;
       if ( -f "$config{'ow_langdir'}/$language" ) {
          $prefs{'language'}=$language;
          $prefs{'charset'}=$languagecharsets{$language};
-         require "$config{'ow_langdir'}/$prefs{'language'}";
+         readlang($language);
       }
    }
 
-   $html=readtemplate("prefs.template");
+   my ($html, $temphtml);
+   $html = readtemplate("prefs.template");
    $html = applystyle($html);
-
-   printheader();
 
    $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-prefs.pl",
                           -name=>'prefsform').
@@ -261,7 +239,7 @@ sub editprefs {
                $formparmstr;
    $html =~ s/\@\@\@STARTPREFSFORM\@\@\@/$temphtml/;
 
-   my %userfrom=get_userfrom($loginname, $user, $userrealname, "$folderdir/.from.book");
+   my %userfrom=get_userfrom($logindomain, $loginuser, $user, $userrealname, "$folderdir/.from.book");
 
    if ($userfrom{$prefs{'email'}}) {
       $temphtml = " $lang_text{'for'} " . $userfrom{$prefs{'email'}};
@@ -271,12 +249,12 @@ sub editprefs {
    $html =~ s/\@\@\@REALNAME\@\@\@/$temphtml/;
 
    $temphtml = '';
-   if ($usertype ne 'firsttime' && $usertype ne 'prefs') {
-      if ($backto eq "cal") {
+   if (!$userfirsttime) {
+      if ($prefs_caller eq "cal") {
          $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} $lang_text{'calendar'}", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-cal.pl?action=calmonth&amp;$urlparmstr"|);
-      } elsif ($backto eq "webdisk") {
+      } elsif ($prefs_caller eq "webdisk") {
          $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} $lang_text{'webdisk'}", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-webdisk.pl?action=showdir&amp;$urlparmstr"|);
-      } elsif ($backto eq "read") {
+      } elsif ($prefs_caller eq "read") {
          $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} $printfolder", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&amp;$urlparmstr"|);
       } else {
          $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} $printfolder", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;$urlparmstr"|);
@@ -297,9 +275,20 @@ sub editprefs {
    if ( $config{'enable_changepwd'}) {
       $temphtml .= iconlink("chpwd.gif", $lang_text{'changepwd'}, qq|accesskey="P" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editpassword&amp;$urlparmstr"|);
    }
+   if ( $config{'enable_vdomain'} ) {
+      my $is_adm=0;
+      foreach my $adm (@{$config{'vdomain_admlist'}}) {
+         if ($user eq $adm) {
+            $is_adm=1; last;
+         }
+      }
+      if ($is_adm) {
+         $temphtml .= iconlink("vdusers.gif", $lang_text{'vdomain_usermgr'}, qq|accesskey="P" href="$config{'ow_cgiurl'}/openwebmail-vdomain.pl?action=display_vuserlist&amp;sessionid=$thissession&amp;folder=$escapedfolder"|);
+      }
+   }
    $temphtml .= iconlink("history.gif", $lang_text{'viewhistory'}, qq|accesskey="V" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=viewhistory&amp;$urlparmstr"|);
    if ($config{'enable_about'}) {
-      $temphtml .= iconlink("info.gif", $lang_text{'about'}, qq|accesskey="I" href=# onclick="window.open('$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=about&amp;sessionid=$thissession','AboutWindow', 'width=600,height=400,resizable=yes,menubar=no,scrollbars=yes');"|);
+      $temphtml .= iconlink("info.gif", $lang_text{'about'}, qq|accesskey="I" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=about&amp;$urlparmstr"|);
    }
 
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/;
@@ -329,11 +318,8 @@ sub editprefs {
                           -override=>'1');
    $html =~ s/\@\@\@LANGUAGEMENU\@\@\@/$temphtml/;
 
-   my (%tmpset, @charset);
-   foreach (values %languagecharsets) {
-      $tmpset{$_}=1;
-   }
-   @charset=sort (keys %tmpset); push(@charset, 'utf-8');
+   my %tmpset=reverse %languagecharsets;
+   my @charset=sort keys %tmpset;
    $temphtml = popup_menu(-name=>'charset',
                           -values=>\@charset,
                           -default=>$defaultcharset,
@@ -516,6 +502,12 @@ sub editprefs {
                           -override=>'1');
    $html =~ s/\@\@\@BACKGROUNDMENU\@\@\@/$temphtml/;
 
+   $temphtml = checkbox(-name=>'bgrepeat',
+                        -value=>'1',
+                        -checked=>$prefs{'bgrepeat'},
+                        -label=>'');
+   $html =~ s/\@\@\@BGREPEATCHECKBOX\@\@\@/$temphtml/;
+
    $temphtml = textfield(-name=>'bgurl',
                          -default=>$bgurl,
                          -size=>'35',
@@ -550,6 +542,7 @@ sub editprefs {
                           -override=>'1');
    $html =~ s/\@\@\@HOURFORMATMENU\@\@\@/$temphtml/;
 
+
    $temphtml = popup_menu(-name=>'ctrlposition_folderview',
                           -values=>['top', 'bottom'],
                           -default=>$prefs{'ctrlposition_folderview'} || 'bottom',
@@ -563,7 +556,27 @@ sub editprefs {
                           -override=>'1');
    $html =~ s/\@\@\@HEADERSPERPAGE\@\@\@/$temphtml/;
 
-   $temphtml = popup_menu(-name=>'sort',
+   my %orderlabels = (
+      'date from subject size' =>
+      "$lang_text{'date'}, $lang_text{'from'}, $lang_text{'subject'}, $lang_text{'size'}",
+      'date subject from size' =>
+      "$lang_text{'date'}, $lang_text{'subject'}, $lang_text{'from'}, $lang_text{'size'}",
+      'subject from date size' =>
+      "$lang_text{'subject'}, $lang_text{'from'}, $lang_text{'date'}, $lang_text{'size'}",
+      'from subject date size' =>
+      "$lang_text{'from'}, $lang_text{'subject'}, $lang_text{'date'}, $lang_text{'size'}"
+      );
+   my @ordervalues=sort keys(%orderlabels);
+   $temphtml = popup_menu(-name=>'fieldorder',
+                          -default=>$prefs{'fieldorder'},
+                          -values=>\@ordervalues,
+                          -labels=>\%orderlabels,
+                          -override=>'1');
+   $html =~ s/\@\@\@FIELDORDERMENU\@\@\@/$temphtml/;
+
+   # since there is already sort param inherited from outside prefs form,
+   # so the prefs form pass the sort param as msgsort
+   $temphtml = popup_menu(-name=>'msgsort',
                           -values=>['date','date_rev','sender','sender_rev',
                                       'size','size_rev','subject','subject_rev',
                                       'status'],
@@ -586,6 +599,12 @@ sub editprefs {
                           -accesskey=>'4',
                           -override=>'1');
    $html =~ s/\@\@\@DEFAULTDESTINATIONMENU\@\@\@/$temphtml/;
+
+   $temphtml = checkbox(-name=>'smartdestination',
+                        -value=>'1',
+                        -checked=>$prefs{'smartdestination'},
+                        -label=>'');
+   $html =~ s/\@\@\@SMARTDESTINATION\@\@\@/$temphtml/;
 
    $temphtml = checkbox(-name=>'viewnextaftermsgmovecopy',
                         -value=>'1',
@@ -729,61 +748,69 @@ sub editprefs {
    $html =~ s/\@\@\@SENDCHARSETMENU\@\@\@/$temphtml/;
 
 
-   my (%FTDB, $matchcount, $matchdate);
-   if (!$config{'dbmopen_haslock'}) {
-      filelock("$folderdir/.filter.book$config{'dbm_ext'}", LOCK_SH) or
-         openwebmailerror("$lang_err{'couldnt_locksh'} $folderdir/.filter.book$config{'dbm_ext'}");
+   if ($config{'enable_smartfilters'}) {
+      $html =~ s/\@\@\@FILTERSTART\@\@\@//;
+      $html =~ s/\@\@\@FILTEREND\@\@\@//;
+
+      my (%FTDB, $matchcount, $matchdate);
+      if (!$config{'dbmopen_haslock'}) {
+         filelock("$folderdir/.filter.book$config{'dbm_ext'}", LOCK_SH) or
+            openwebmailerror("$lang_err{'couldnt_locksh'} $folderdir/.filter.book$config{'dbm_ext'}");
+      }
+      dbmopen (%FTDB, "$folderdir/.filter.book$config{'dbmopen_ext'}", 0600);
+
+      $temphtml = popup_menu(-name=>'filter_repeatlimit',
+                             -values=>['0','5','10','20','30','40','50','100'],
+                             -default=>$prefs{'filter_repeatlimit'},
+                             -accesskey=>'6',
+                             -override=>'1');
+      ($matchcount, $matchdate)=split(":", $FTDB{"filter_repeatlimit"});
+      if ($matchdate) {
+         $matchdate=dateserial2str($matchdate);
+         $temphtml .= "&nbsp;(<a title='$matchdate'>$lang_text{'filtered'}: $matchcount</a>)";
+      }
+      $html =~ s/\@\@\@FILTERREPEATLIMIT\@\@\@/$temphtml/;
+
+      $temphtml = checkbox(-name=>'filter_fakedsmtp',
+                           -value=>'1',
+                           -checked=>$prefs{'filter_fakedsmtp'},
+                           -label=>'');
+      ($matchcount, $matchdate)=split(":", $FTDB{"filter_fakedsmtp"});
+      if ($matchdate) {
+         $matchdate=dateserial2str($matchdate);
+         $temphtml .= "&nbsp;(<a title='$matchdate'>$lang_text{'filtered'}: $matchcount</a>)";
+      }
+      $html =~ s/\@\@\@FILTERFAKEDSMTP\@\@\@/$temphtml/;
+
+      $temphtml = checkbox(-name=>'filter_fakedfrom',
+                           -value=>'1',
+                           -checked=>$prefs{'filter_fakedfrom'},
+                           -label=>'');
+      ($matchcount, $matchdate)=split(":", $FTDB{"filter_fakedfrom"});
+      if ($matchdate) {
+         $matchdate=dateserial2str($matchdate);
+         $temphtml .= "&nbsp;(<a title='$matchdate'>$lang_text{'filtered'}: $matchcount</a>)";
+      }
+      $html =~ s/\@\@\@FILTERFAKEDFROM\@\@\@/$temphtml/;
+
+      $temphtml = checkbox(-name=>'filter_fakedexecontenttype',
+                           -value=>'1',
+                           -checked=>$prefs{'filter_fakedexecontenttype'},
+                           -label=>'');
+      ($matchcount, $matchdate)=split(":", $FTDB{"filter_fakedexecontenttype"});
+      if ($matchdate) {
+         $matchdate=dateserial2str($matchdate);
+         $temphtml .= "&nbsp;(<a title='$matchdate'>$lang_text{'filtered'}: $matchcount</a>)";
+      }
+      $html =~ s/\@\@\@FILTERFAKEDEXECONTENTTYPE\@\@\@/$temphtml/;
+
+      dbmclose(%FTDB);
+      filelock("$folderdir/.filter.book$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+
+   } else {
+      $html =~ s/\@\@\@FILTERSTART\@\@\@/<!--/;
+      $html =~ s/\@\@\@FILTEREND\@\@\@/-->/;
    }
-   dbmopen (%FTDB, "$folderdir/.filter.book$config{'dbmopen_ext'}", 0600);
-
-   $temphtml = popup_menu(-name=>'filter_repeatlimit',
-                          -values=>['0','5','10','20','30','40','50','100'],
-                          -default=>$prefs{'filter_repeatlimit'},
-                          -accesskey=>'6',
-                          -override=>'1');
-   ($matchcount, $matchdate)=split(":", $FTDB{"filter_repeatlimit"});
-   if ($matchdate) {
-      $matchdate=dateserial2str($matchdate);
-      $temphtml .= "&nbsp;(<a title='$matchdate'>$lang_text{'filtered'}: $matchcount</a>)";
-   }
-   $html =~ s/\@\@\@FILTERREPEATLIMIT\@\@\@/$temphtml/;
-
-   $temphtml = checkbox(-name=>'filter_fakedsmtp',
-                        -value=>'1',
-                        -checked=>$prefs{'filter_fakedsmtp'},
-                        -label=>'');
-   ($matchcount, $matchdate)=split(":", $FTDB{"filter_fakedsmtp"});
-   if ($matchdate) {
-      $matchdate=dateserial2str($matchdate);
-      $temphtml .= "&nbsp;(<a title='$matchdate'>$lang_text{'filtered'}: $matchcount</a>)";
-   }
-   $html =~ s/\@\@\@FILTERFAKEDSMTP\@\@\@/$temphtml/;
-
-   $temphtml = checkbox(-name=>'filter_fakedfrom',
-                        -value=>'1',
-                        -checked=>$prefs{'filter_fakedfrom'},
-                        -label=>'');
-   ($matchcount, $matchdate)=split(":", $FTDB{"filter_fakedfrom"});
-   if ($matchdate) {
-      $matchdate=dateserial2str($matchdate);
-      $temphtml .= "&nbsp;(<a title='$matchdate'>$lang_text{'filtered'}: $matchcount</a>)";
-   }
-   $html =~ s/\@\@\@FILTERFAKEDFROM\@\@\@/$temphtml/;
-
-   $temphtml = checkbox(-name=>'filter_fakedexecontenttype',
-                        -value=>'1',
-                        -checked=>$prefs{'filter_fakedexecontenttype'},
-                        -label=>'');
-   ($matchcount, $matchdate)=split(":", $FTDB{"filter_fakedexecontenttype"});
-   if ($matchdate) {
-      $matchdate=dateserial2str($matchdate);
-      $temphtml .= "&nbsp;(<a title='$matchdate'>$lang_text{'filtered'}: $matchcount</a>)";
-   }
-   $html =~ s/\@\@\@FILTERFAKEDEXECONTENTTYPE\@\@\@/$temphtml/;
-
-   dbmclose(%FTDB);
-   filelock("$folderdir/.filter.book$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
-
 
    my @pvalues=(300,320,340,360,380,400,420,440,460,480,500,600,700,800,900,1000);
    my %plabels;
@@ -807,17 +834,17 @@ sub editprefs {
                           -override=>'1');
    $html =~ s/\@\@\@ABOOKHEIGHTMENU\@\@\@/$temphtml/;
 
-   $temphtml = popup_menu(-name=>'abookbuttonposition',
+   $temphtml = popup_menu(-name=>'abook_buttonposition',
                           -values=>['before', 'after', 'both'],
-                          -default=>$prefs{'abookbuttonposition'} || 'before',
+                          -default=>$prefs{'abook_buttonposition'} || 'before',
                           -labels=>\%lang_abookbuttonpositionlabels,
                           -override=>'1');
    $html =~ s/\@\@\@ABOOKBUTTONPOSITIONMENU\@\@\@/$temphtml/;
 
    $temphtml = "$lang_text{'enable'}&nbsp;";
-   $temphtml .= checkbox(-name=>'abook_defualtfilter',
+   $temphtml .= checkbox(-name=>'abook_defaultfilter',
                   -value=>'1',
-                  -checked=>$prefs{'abook_defualtfilter'},
+                  -checked=>$prefs{'abook_defaultfilter'},
                   -label=>'');
    $temphtml .= "&nbsp;";
    my %searchtypelabels = ('name'=>$lang_text{'name'},
@@ -868,6 +895,12 @@ sub editprefs {
                              -default=>$prefs{'calendar_endhour'},
                              -override=>'1');
       $html =~ s/\@\@\@ENDHOURMENU\@\@\@/$temphtml/;
+
+      $temphtml = popup_menu(-name=>'calendar_interval',
+                             -values=>[5, 10, 15, 20, 30, 60],
+                             -default=>$prefs{'calendar_interval'},
+                             -override=>'1');
+      $html =~ s/\@\@\@INTERVALMENU\@\@\@/$temphtml/;
 
       $temphtml = checkbox(-name=>'calendar_showemptyhours',
                            -value=>'1',
@@ -1022,20 +1055,19 @@ sub editprefs {
                       -value=>"$lang_text{'save'}");
    $html =~ s/\@\@\@SAVEBUTTON\@\@\@/$temphtml/;
 
-   # show cancel button if usertype ne firsttime && prefs
-   my $usertype = param("usertype") || '';
-   if ( $usertype ne 'firsttime' && $usertype ne 'prefs') {
-      if ($backto eq "cal") {
+   # show cancel button if !userfirsttime
+   if ( !$userfirsttime) {
+      if ($prefs_caller eq "cal") {
          $temphtml  = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-cal.pl");
          $temphtml .= hidden(-name=>'action',
                              -default=>'calmonth',
                              -override=>'1');
-      } elsif ($backto eq "webdisk") {
+      } elsif ($prefs_caller eq "webdisk") {
          $temphtml  = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-webdisk.pl");
          $temphtml .= hidden(-name=>'action',
                              -default=>'showdir',
                              -override=>'1');
-      } elsif ($backto eq "read") {
+      } elsif ($prefs_caller eq "read") {
          $temphtml  = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-read.pl");
          $temphtml .= hidden(-name=>'action',
                              -default=>'readmessage',
@@ -1061,11 +1093,8 @@ sub editprefs {
    $temphtml = end_form();
    $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/g;
 
-   print $html;
-
-   printfooter(2);
+   print htmlheader(), $html, htmlfooter(2);
 }
-
 #################### END EDITPREFS ###########################
 
 ###################### SAVEPREFS #########################
@@ -1080,7 +1109,9 @@ sub saveprefs {
    }
 
    my %rcitem_yn=qw(
+      bgrepeat 1
       confirmmsgmovecopy 1
+      smartdestination 1
       viewnextaftermsgmovecopy 1
       autopop3 1
       moveoldmsgfrominbox 1
@@ -1094,7 +1125,7 @@ sub saveprefs {
       filter_fakedsmtp 1
       filter_fakedfrom 1
       filter_fakedexecontenttype 1
-      abook_defualtfilter 1
+      abook_defaultfilter 1
       calendar_showemptyhours 1
       calendar_reminderforglobal 1
       webdisk_confirmmovecopy 1
@@ -1129,6 +1160,10 @@ sub saveprefs {
                $newprefs{$key}=$value; last;
             }
          }
+      } elsif ($key eq 'sort') {
+         # since there is already sort param inherited from outside prefs form,
+         # so the prefs form pass the sort param as msgsort
+         $newprefs{$key}=param("msgsort");
       } elsif ($key eq 'dictionary') {
          foreach my $currdictionary (@{$config{'spellcheck_dictionaries'}}) {
             if ($value eq $currdictionary) {
@@ -1172,7 +1207,7 @@ sub saveprefs {
    my $autoreplytext=param("autoreplytext");
    $autoreply=0 if (!$config{'enable_autoreply'});
 
-   my %userfrom=get_userfrom($loginname, $user, $userrealname, "$folderdir/.from.book");
+   my %userfrom=get_userfrom($logindomain, $loginuser, $user, $userrealname, "$folderdir/.from.book");
 
 
    # save .forward file
@@ -1226,31 +1261,25 @@ sub saveprefs {
    }
    close (RC) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.openwebmailrc!");
 
+   %prefs = readprefs();
+   %style = readstyle($prefs{'style'});
+   readlang($prefs{'language'});
 
-   # reload prefs, style and language so user will see the change immediately
-   ($newprefs{'language'} =~ /^([\w\d\.\-_]+)$/) && ($newprefs{'language'} = $1);
-   require "$config{'ow_langdir'}/$newprefs{'language'}";
-   %prefs = %{&readprefs};
-   %style = %{&readstyle};
-
-   printheader();
-
-   my $html = readtemplate("prefssaved.template");
-   my $temphtml;
-
+   my ($html, $temphtml);
+   $html = readtemplate("prefssaved.template");
    $html = applystyle($html);
 
-   if ($backto eq "cal") {
+   if ($prefs_caller eq "cal") {
       $temphtml .= startform(-action=>"$config{'ow_cgiurl'}/openwebmail-cal.pl");
       $temphtml .= hidden(-name=>'action',
                           -default=>'calmonth',
                           -override=>'1');
-   } elsif ($backto eq "webdisk") {
+   } elsif ($prefs_caller eq "webdisk") {
       $temphtml .= startform(-action=>"$config{'ow_cgiurl'}/openwebmail-webdisk.pl");
       $temphtml .= hidden(-name=>'action',
                           -default=>'showdir',
                           -override=>'1');
-   } elsif ($backto eq "read") {
+   } elsif ($prefs_caller eq "read") {
       $temphtml .= startform(-action=>"$config{'ow_cgiurl'}/openwebmail-read.pl");
       $temphtml .= hidden(-name=>'action',
                           -default=>'readmessage',
@@ -1261,7 +1290,21 @@ sub saveprefs {
                           -default=>'listmessages',
                           -override=>'1');
    }
-   $temphtml .= $formparmstr;
+   $temphtml .= hidden(-name=>'sessionid',
+                       -default=>$thissession,
+                       -override=>'1') .
+                hidden(-name=>'folder',
+                       -default=>$folder,
+                       -override=>'1').
+                hidden(-name=>'message_id',
+                       -default=>$messageid,
+                       -override=>'1').
+                hidden(-name=>'sort',
+                       -default=>$prefs{'sort'},	# use new prefs instead of orig $sort
+                       -override=>'1') .
+                hidden(-name=>'page',
+                       -default=>$page,
+                       -override=>'1');
    $html =~ s/\@\@\@STARTSAVEDFORM\@\@\@/$temphtml/;
 
    $temphtml = submit("$lang_text{'continue'}");
@@ -1270,9 +1313,7 @@ sub saveprefs {
    $temphtml = end_form();
    $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/g;
 
-   print $html;
-
-   printfooter(2);
+   print htmlheader(), $html, htmlfooter(2);
 }
 ##################### END SAVEPREFS ######################
 
@@ -1283,9 +1324,8 @@ sub readdotforward {
    my $forwardtext;
 
    if (open(FOR, "$homedir/.forward")) {
-      while (<FOR>) {
-         $forwardtext.=$_;
-      }
+      local $/; undef $/;	# read whole file
+      $forwardtext=<FOR>;
       close(FOR);
       if ($forwardtext =~ /\|\s*$config{'vacationpipe'}\s+/) {
          $autoreply=1;
@@ -1403,10 +1443,9 @@ sub writedotvacationmsg {
    my $email;
 
    if ($autoreply) {
-      $|=1; 				# flush all output
+      local $|=1; # flush all output
       if ( fork() == 0 ) {		# child
-         close(STDOUT);
-         close(STDIN);
+         close(STDIN); close(STDOUT); close(STDERR);
          # set enviro's for vacation program
          $ENV{'USER'}=$user;
          $ENV{'LOGNAME'}=$user;
@@ -1440,17 +1479,13 @@ sub writedotvacationmsg {
    close MSG;
    chown($uuid, $ugid, "$homedir/.vacation.msg");
 }
-
 ###################### END R/W DOTFORWARD/DOTVACATIONMSG ##################
 
 ##################### EDITPASSWORD #######################
 sub editpassword {
-   my $html = readtemplate("chpwd.template");
-   my $temphtml;
-
+   my ($html, $temphtml);
+   $html = readtemplate("chpwd.template");
    $html = applystyle($html);
-
-   printheader();
 
    my $chpwd_url="$config{'ow_cgiurl'}/openwebmail-prefs.pl";
    if (cookie("openwebmail-ssl")) {
@@ -1508,9 +1543,7 @@ sub editpassword {
 
    $html =~ s/\@\@\@PASSWDMINLEN\@\@\@/$config{'passwd_minlen'}/g;
 
-   print $html;
-
-   printfooter(2);
+   print htmlheader(), $html, htmlfooter(2);
 }
 ##################### END EDITPASSWORD #######################
 
@@ -1520,60 +1553,54 @@ sub changepassword {
    my $newpassword=param("newpassword");
    my $confirmnewpassword=param("confirmnewpassword");
 
-   my $html = '';
-   my $temphtml;
-
+   my ($html, $temphtml);
    if ( length($newpassword) < $config{'passwd_minlen'} ) {
-      $html=readtemplate("chpwdfailed.template");
+      $html = readtemplate("chpwdfailed.template");
       $html =~ s/\@\@\@ERRORMSG\@\@\@/$lang_err{'pwd_tooshort'}/;
       $html =~ s/\@\@\@PASSWDMINLEN\@\@\@/$config{'passwd_minlen'}/;
-
    } elsif ( $config{'enable_strictpwd'} &&
              ($newpassword=~/^\d+$/ || $newpassword=~/^[A-Za-z]+$/) ) {
-      $html=readtemplate("chpwdfailed.template");
+      $html = readtemplate("chpwdfailed.template");
       $html =~ s/\@\@\@ERRORMSG\@\@\@/$lang_err{'pwd_toosimple'}/;
-
    } elsif ( $newpassword ne $confirmnewpassword ) {
-      $html=readtemplate("chpwdconfirmmismatch.template");
+      $html = readtemplate("chpwdfailed.template");
+      $html =~ s/\@\@\@ERRORMSG\@\@\@/$lang_err{'pwd_confirmmismatch'}/;
    } else {
       my ($origruid, $origeuid)=($<, $>);
-      my $errorcode;
-
+      my ($errorcode, $errormsg);
       $>=0; $<=$>;			# set ruid/euid to root before change passwd
       if ($config{'auth_withdomain'}) {
-         $errorcode=change_userpassword("$user\@$domain", $oldpassword, $newpassword);
+         ($errorcode, $errormsg)=change_userpassword(\%config, "$user\@$domain", $oldpassword, $newpassword);
       } else {
-         $errorcode=change_userpassword($user, $oldpassword, $newpassword);
+         ($errorcode, $errormsg)=change_userpassword(\%config, $user, $oldpassword, $newpassword);
       }
       $<=$origruid; $>=$origeuid;	# fall back to original ruid/euid
 
       if ($errorcode==0) {
          writelog("change passwd");
          writehistory("change passwd");
-         $html=readtemplate("chpwdok.template");
+         $html = readtemplate("chpwdok.template");
       } else {
-         my $errormsg='';
+         writelog("change passwd error - $config{'auth_module'} : $errorcode, $errormsg");
+         writehistory("change passwd error - $config{'auth_module'} : $errorcode");
+         my $webmsg='';
          if ($errorcode==-1) {
-            $errormsg=$lang_err{'func_notsupported'};
+            $webmsg=$lang_err{'func_notsupported'};
          } elsif ($errorcode==-2) {
-            $errormsg=$lang_err{'param_fmterr'};
+            $webmsg=$lang_err{'param_fmterr'};
          } elsif ($errorcode==-3) {
-            $errormsg=$lang_err{'auth_syserr'};
+            $webmsg=$lang_err{'auth_syserr'};
          } elsif ($errorcode==-4) {
-            $errormsg=$lang_err{'pwd_incorrect'};
+            $webmsg=$lang_err{'pwd_incorrect'};
          } else {
-            $errormsg="Unknow error code $errorcode";
+            $webmsg="Unknow error code $errorcode";
          }
-         writelog("change passwd error - $errorcode");
-         writehistory("change passwd error - $errorcode");
-         $html=readtemplate("chpwdfailed.template");
-         $html =~ s/\@\@\@ERRORMSG\@\@\@/$errormsg/;
+         $html = readtemplate("chpwdfailed.template");
+         $html =~ s/\@\@\@ERRORMSG\@\@\@/$webmsg/;
       }
    }
 
    $html = applystyle($html);
-
-   printheader();
 
    my $url="$config{'ow_cgiurl'}/openwebmail-prefs.pl";
    if ( ($ENV{'HTTPS'}=~/on/i || $ENV{'SERVER_PORT'}==443) && !$config{'stay_ssl_afterlogin'}) {
@@ -1584,28 +1611,24 @@ sub changepassword {
                       -default=>'editprefs',
                       -override=>'1') .
                $formparmstr.
-               submit("$lang_text{'continue'}").
+               submit("$lang_text{'backto'} $lang_text{'userprefs'}").
                end_form();
    $html =~ s/\@\@\@CONTINUEBUTTON\@\@\@/$temphtml/;
 
-   print $html;
-
-   printfooter(2);
+   print htmlheader(), $html, htmlfooter(2);
 }
 ##################### END CHANGEPASSWORD #######################
 
 ##################### LOGINHISTORY #######################
 sub viewhistory {
-   my $html = '';
-   my $temphtml;
-
-   $html=readtemplate("history.template");
+   my ($html, $temphtml);
+   $html = readtemplate("history.template");
    $html = applystyle($html);
 
-   printheader();
+   $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $lang_text{'userprefs'}", qq|accesskey="F" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;$urlparmstr"|);
+   $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/;
 
    $temphtml="";
-
    open (HISTORYLOG, "$folderdir/.history.log");
 
    my $bgcolor = $style{"tablerow_light"};
@@ -1636,36 +1659,24 @@ sub viewhistory {
    close(HISTORYLOG);
    $html =~ s/\@\@\@LOGINHISTORY\@\@\@/$temphtml/;
 
-   $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-prefs.pl") .
-               hidden(-name=>'action',
-                      -default=>'editprefs',
-                      -override=>'1') .
-               $formparmstr.
-               submit("$lang_text{'continue'}").
-               end_form();
-   $html =~ s/\@\@\@CONTINUEBUTTON\@\@\@/$temphtml/;
-
-   print $html;
-
-   printfooter(2);
+   print htmlheader(), $html, htmlfooter(2);
 }
 ##################### END LOGINHISTORY #######################
 
 #################### EDITFROMS ###########################
 sub editfroms {
-   my $html = '';
-   my $temphtml;
-
-   $html=readtemplate("editfroms.template");
+   my ($html, $temphtml);
+   $html = readtemplate("editfroms.template");
    $html = applystyle($html);
 
    my $frombooksize = ( -s "$folderdir/.from.book" ) || 0;
    my $freespace = int($config{'maxbooksize'} - ($frombooksize/1024) + .5);
-   my %from=get_userfrom($loginname, $user, $userrealname, "$folderdir/.from.book");
-
-   printheader();
+   my %from=get_userfrom($logindomain, $loginuser, $user, $userrealname, "$folderdir/.from.book");
 
    $html =~ s/\@\@\@FREESPACE\@\@\@/$freespace $lang_sizes{'kb'}/;
+
+   $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $lang_text{'userprefs'}", qq|accesskey="F" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;$urlparmstr"|);
+   $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/;
 
    $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-prefs.pl",
                          -name=>'newfrom') .
@@ -1705,9 +1716,12 @@ sub editfroms {
    $temphtml = '';
    foreach $email (sort keys %from) {
       $realname=$from{$email};
+
+      my ($r, $e)=($realname, $email);
+      $r=~s/'/\\'/; $e=~s/'/\\'/;	# escape ' for javascript
       $temphtml .= qq|<tr>|.
                    qq|<td bgcolor=$bgcolor>$realname</td>|.
-                   qq|<td bgcolor=$bgcolor><a href="Javascript:Update('$realname','$email')">$email</a></td>|;
+                   qq|<td bgcolor=$bgcolor><a href="Javascript:Update('$r','$e')">$email</a></td>|;
       $temphtml .= qq|<td bgcolor=$bgcolor align="center">|;
 
       $temphtml .= start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-prefs.pl").
@@ -1731,18 +1745,7 @@ sub editfroms {
    }
    $html =~ s/\@\@\@FROMS\@\@\@/$temphtml/;
 
-   $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-prefs.pl") .
-               hidden(-name=>'action',
-                      -default=>'editprefs',
-                      -override=>'1') .
-               $formparmstr .
-               submit("$lang_text{'backto'} $lang_text{'userprefs'}") .
-               end_form();
-   $html =~ s/\@\@\@CONTINUEBUTTON\@\@\@/$temphtml/;
-
-   print $html;
-
-   printfooter(2);
+   print htmlheader(), $html, htmlfooter(2);
 }
 ################### END EDITFROMS ########################
 
@@ -1758,7 +1761,7 @@ sub modfrom {
    $email =~ s/[#&=\?]//g;
 
    if ($email) {
-      my %from=get_userfrom($loginname, $user, $userrealname, "$folderdir/.from.book");
+      my %from=get_userfrom($logindomain, $loginuser, $user, $userrealname, "$folderdir/.from.book");
 
       if ($mode eq 'delete') {
          delete $from{$email};
@@ -1785,10 +1788,8 @@ sub modfrom {
 
 #################### EDITPOP3 ###########################
 sub editpop3 {
-   my $html = '';
-   my $temphtml;
-
-   $html=readtemplate("editpop3.template");
+   my ($html, $temphtml);
+   $html = readtemplate("editpop3.template");
    $html = applystyle($html);
 
    my %accounts;
@@ -1799,12 +1800,11 @@ sub editpop3 {
       openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.pop3.book!");
    }
 
-   printheader();
-
    $html =~ s/\@\@\@FREESPACE\@\@\@/$freespace $lang_sizes{'kb'}/;
 
+   $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $lang_text{'userprefs'}", qq|accesskey="F" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;$urlparmstr"|);
+   $temphtml .= "&nbsp;\n";
    $temphtml .= iconlink("pop3.gif", $lang_text{'retr_pop3s'}, qq|accesskey="G" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=retrpop3s&amp;$urlparmstr"|). qq| \n|;
-
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/;
 
    $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-prefs.pl",
@@ -1919,18 +1919,7 @@ sub editpop3 {
    }
    $html =~ s/\@\@\@ADDRESSES\@\@\@/$temphtml/;
 
-   $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-prefs.pl") .
-               hidden(-name=>'action',
-                      -default=>'editprefs',
-                      -override=>'1') .
-               $formparmstr .
-               submit("$lang_text{'backto'} $lang_text{'userprefs'}") .
-               end_form();
-   $html =~ s/\@\@\@CONTINUEBUTTON\@\@\@/$temphtml/;
-
-   print $html;
-
-   printfooter(2);
+   print htmlheader(), $html, htmlfooter(2);
 }
 ################### END EDITPOP3 ########################
 
@@ -1996,25 +1985,22 @@ sub modpop3 {
 #HERE TUNG
 #################### EDITFILTER ###########################
 sub editfilter {
-   my $html = '';
-   my $temphtml;
    my @filterrules=();
    my @globalfilterrules=();
 
-   printheader();
-
-   $html=readtemplate("editfilter.template");
+   my ($html, $temphtml);
+   $html = readtemplate("editfilter.template");
    $html = applystyle($html);
 
    my $filterbooksize = ( -s "$folderdir/.filter.book" ) || 0;
    my $freespace = int($config{'maxbooksize'} - ($filterbooksize/1024) + .5);
    $html =~ s/\@\@\@FREESPACE\@\@\@/$freespace $lang_sizes{'kb'}/;
 
-   if ($backto eq "cal") {
+   if ($prefs_caller eq "cal") {
       $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} $lang_text{'calendar'}", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-cal.pl?action=calmonth&amp;$urlparmstr"|);
-   } elsif ($backto eq "webdisk") {
+   } elsif ($prefs_caller eq "webdisk") {
       $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} $lang_text{'webdisk'}", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-webdisk.pl?action=showdir&amp;$urlparmstr"|);
-   } elsif ($backto eq "read") {
+   } elsif ($prefs_caller eq "read") {
       $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} $printfolder", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&amp;$urlparmstr"|);
    } else {
       $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} $printfolder", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;$urlparmstr"|);
@@ -2247,9 +2233,7 @@ sub editfilter {
 
    $html =~ s/\@\@\@FILTERRULES\@\@\@/$temphtml/;
 
-   print $html;
-
-   printfooter(2);
+   print htmlheader(), $html, htmlfooter(2);
 }
 ################### END EDITFILTER ########################
 
@@ -2357,9 +2341,8 @@ sub modfilter {
 sub editstat {
    my (%stationery, $name, $content);
 
-   my $html = '';
-   my $temphtml;
-   $html=readtemplate("editstationery.template");
+   my ($html, $temphtml);
+   $html = readtemplate("editstationery.template");
    $html = applystyle($html);
 
    if ( -f "$folderdir/.stationery.book" ) {
@@ -2373,20 +2356,13 @@ sub editstat {
       close (STATBOOK) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.stationery.book!");
    }
 
-   printheader();
-
-   if ($backto eq "cal") {
-      $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} $lang_text{'calendar'}", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-cal.pl?action=calmonth&amp;$urlparmstr"|);
-   } elsif ($backto eq "webdisk") {
-      $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} $lang_text{'webdisk'}", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-webdisk.pl?action=showdir&amp;$urlparmstr"|);
-   } elsif ($backto eq "read") {
+   if ($prefs_caller eq "") {
       $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} $printfolder", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&amp;$urlparmstr"|);
    } else {
-      $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} $printfolder", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;$urlparmstr"|);
+      $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} $lang_text{'userprefs'}", qq|accesskey="F" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;$urlparmstr"|);
    }
-   $temphtml .= "&nbsp; ";
+   $temphtml .= "&nbsp;\n";
    $temphtml .= iconlink("clearst.gif", "$lang_text{'clearstat'}", qq|accesskey="Z" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=clearstat&amp;$urlparmstr" onclick="return confirm('$lang_text{'clearstat'}?')"|). qq| \n|;
-
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/;
 
    $temphtml = '';
@@ -2431,7 +2407,7 @@ sub editstat {
                $formparmstr;
    $html =~ s/\@\@\@STARTSTATFORM\@\@\@/$temphtml/;
 
-   # load the stat for  edit only if editstat button is clicked
+   # load the stat for edit only if editstat button is clicked
    my $statname;
    $statname=unescapeURL(param('statname')) if (defined(param('editstatbutton')));
 
@@ -2450,14 +2426,11 @@ sub editstat {
    $html =~ s/\@\@\@STATBODY\@\@\@/$temphtml/;
 
    $temphtml = submit(-name=>$lang_text{'savestat'});
-   $html =~ s/\@\@\@SAVESTAT\@\@\@/$temphtml/;
-
+   $html =~ s/\@\@\@SAVESTATBUTTON\@\@\@/$temphtml/;
    $temphtml = end_form();
    $html =~ s/\@\@\@ENDSTATFORM\@\@\@/$temphtml/;
 
-   print $html;
-
-   printfooter(2);
+   print htmlheader(), $html, htmlfooter(2);
 }
 ################### END EDITSTAT ########################
 
@@ -2559,17 +2532,10 @@ sub addstat {
 
 #################### TIMEOUTWARNING ########################
 sub timeoutwarning {
-   my $html = '';
-   my $temphtml;
-
-   printheader();
-
-   $html=readtemplate("timeoutwarning.template");
+   my ($html, $temphtml);
+   $html = readtemplate("timeoutwarning.template");
    $html = applystyle($html);
    $html =~ s/\@\@\@USEREMAIL\@\@\@/$prefs{'email'}/g;
-
-   print $html;
-
-   printfooter(0);
+   print htmlheader(), $html, htmlfooter(0);
 }
 #################### END TIMEOUTWARNING ########################

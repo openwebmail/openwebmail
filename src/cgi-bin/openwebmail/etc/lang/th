@@ -1,7 +1,7 @@
-#!/usr/bin/perl
+package openwebmail::th;
 
-# Thai translation by Atsawin Chaowanakritsanakul, joke.AT.nakhon.net
-# charset: tis-620
+# Thai translation, charset: tis-620
+# by Atsawin Chaowanakritsanakul, joke.AT.nakhon.net
 
 %lang_folders =
    (
@@ -181,6 +181,7 @@
 
 %lang_text =
    (
+   help       => 'Help',
    login      => 'เข้าระบบ',
    clear      => 'ล้าง',
    point      => 'พ้อยต์',
@@ -319,12 +320,15 @@
    spellcheck => 'ตรวจคำผิด',
    checkagain => 'ตรวจอีกครั้ง',
    finishchecking => 'ตรวจเสร็จแล้ว',
+   editpdict  => 'Edit Personal Dictionary',
+   addtodict  => 'Add to Dictionary',
    manuallyfix=> 'แก้ไขเอง',
    editstat   => 'แก้ไขแบบข้อความ',
    savestat   => 'บันทึกแบบข้อความ',
    clearstat  => 'ลบแบบข้อความทั้งหมด',
    statreply  => '-- Stationery for Reply --',
    calendar   => 'ปฏิทิน',
+   allday     => 'All day',
    am         => 'am',
    pm         => 'pm',
    calfmt_year          => 'ค.ศ. @@@YEAR@@@',
@@ -336,6 +340,7 @@
    moreitems  => 'รายการเพิ่มเติม',
    multieditconf => 'รายการนี้ถูกใส่ไว้ในหลายวัน\\nการแก้ไขจะมีผลต่อทุกรายการ\\nกรุณายืนยันการแก้ไข?',
    multidelconf  => 'รายการนี้ถูกใส่ไว้ในหลายวัน\\nการลบจะมีผลต่อทุกรายการ\\nกรุณายืนยันการลบ?',
+   caldelconf => 'Are you sure you want to delete this item?',
    noitemforthisday => 'ไม่มีรายการในวันนี้',
    thisday_only          => 'วันนี้เท่านั้น',
    the_wday_of_thismonth => 'ใน @@@WDAY@@@ @@@ORDER@@@ ของเดือน',
@@ -370,7 +375,13 @@
    failed       => 'failed',
    savefile_towd=> 'Save file to WebDisk',
    saveatt_towd => 'Save attachment to WebDisk',
-   addatt_fromwd=> 'Add attachment from WebDisk'
+   addatt_fromwd=> 'Add attachment from WebDisk',
+   vdomain_usermgr    => 'Virtual Domain User Management',
+   vdomain_createuser => 'Create User',
+   vdomain_changeuser => 'Change User',
+   vdomain_deleteuser => 'Delete User',
+   vdomain_usertype_localmbox  => 'Local Mailbox',
+   vdomain_usertype_redirected => 'Redirect to external mail address'
    );
 
 %lang_err =
@@ -414,6 +425,7 @@
    auth_syserr       => 'การตรวจสอบผู้ใช้ผิดพลาด',
    param_fmterr      => 'รูปแบบผิดพลาด',
    pwd_incorrect     => 'รหัสผ่านผิดพลาด',
+   pwd_confirmmismatch=>'ยืนยันรหัสผ่านไม่ตรงกัน!',
    pwd_tooshort      => 'รหัสผ่านสั้นเกินไป (ขั้นต่ำ @@@PASSWDMINLEN@@@ ตัวอักษร)',
    pwd_toosimple     => 'รหัสผ่านง่ายเกินไป (ต้องมีทั้งตัวอักษร และตัวเลข)',
    network_server_error => 'เซิร์ฟเวอร์เครือข่ายผิดพลาด',
@@ -429,7 +441,8 @@
    upload_overlimit  => 'Upload file size is over the limit',
    decomp_notsupported=>'Decompression support is not available for this file.',
    webdisk_hitquota   => 'Sorry, you\'ve hit your webdisk quota, please delete some files first.',
-   webdisk_readonly   => 'Sorry, your webdisk is read only.'
+   webdisk_readonly   => 'Sorry, your webdisk is read only.',
+   vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
    );
 
 1;

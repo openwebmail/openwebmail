@@ -26,8 +26,7 @@
    self.focus();
    function CheckAll()
    {
-      for (var i=0;i<document.addressbook.elements.length;i++)
-      {
+      for (var i=0;i<document.addressbook.elements.length;i++) {
          var e = document.addressbook.elements[i];
          if (e.type == 'checkbox')
             e.checked = document.addressbook.allbox.checked;
@@ -35,23 +34,18 @@
    }
    function Update(email)
    {
-      var e2 = unescape(document.addressbook.others.value);
-      var e3 = unescape(document.addressbook.notlisted.value);
-      if (e2 && e3)
-         e2 += ",";
-      e2 += e3;
+      var addrlist=unescape(document.addressbook.elist.value);
 
       for (var i = 0; i < document.addressbook.elements.length; i++)
       {
          var e = document.addressbook.elements[i];
-         if ((e.name == "to" && e.checked) || e.value == email)
-         {
-            if (e2)
-               e2 += ",";
-            e2 += e.value;
+         if ((e.name == "to" && e.checked) || e.value == email) {
+            if (addrlist)
+               addrlist += ",";
+            addrlist += e.value;
          }
       }
-      window.opener.document.@@@FORMNAME@@@.@@@FIELDNAME@@@.value = e2;
+      window.opener.document.@@@FORMNAME@@@.@@@FIELDNAME@@@.value = addrlist;
       window.close();
    }
 

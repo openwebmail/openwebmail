@@ -12,6 +12,8 @@ U¾ivatel nìkterý z nich mù¾e vybrat a nahradit jím pùvodní slovo.
 Pokud není ¾ádný alternativní tvar nalezen, mù¾e u¾ivatel vybrat  "--Opravit ruènì--",
 následnì kliknout na [Pokraèovat v kontrole] a do textového pole zadat po¾adovaný
 tvar slova.
+Jestli¾e u¾ivatel vybere "--Pøidat do slovníku--" a následnì klikne na [Opìt kontrolovat], 
+pùvodní slovo bude pøidáno do osobního slovníku u¾ivatele.
 </td></tr>
 </table>
 <br>
@@ -27,9 +29,8 @@ tvar slova.
 
 <br>
 @@@CHECKAGAINBUTTON@@@
-&nbsp;&nbsp;&nbsp;
 @@@FINISHCHECKINGBUTTON@@@
-&nbsp;&nbsp;&nbsp;
+@@@EDITPERSDICTIONARYBUTTON@@@
 @@@CANCELBUTTON@@@
 <br><br>
 </td></tr>

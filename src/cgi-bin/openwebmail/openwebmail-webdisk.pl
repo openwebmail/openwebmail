@@ -8,18 +8,21 @@
 # with parameters in an array, this makes perl call execvp directly instead
 # of invoking the /bin/sh
 #
-# Path names from CGI are treated as virtual paths under the user homedir.
-# All pathname will be prefixed with $homedir when passing to external command
-# for security
+# Path names from CGI are treated as virtual paths under $webdiskrootdir 
+# ($homedir/$config{webdisk_rootpath}), and all pathnames will be prefixed 
+# with $webdiskrootdir before passing to external command for security
 #
 # To disable the use of symbolic link, please refer to openwebmail.conf.help
-# for options webdisk_lssymlink and webdisk_allow_symlinkouthome
+# for options webdisk_lssymlink and webdisk_allow_symlinkout
 #
 
 use vars qw($SCRIPT_DIR);
-if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-\.]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
-if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
-push (@INC, $SCRIPT_DIR, ".");
+if ( $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
+if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
+   $_=<F>; close(F); if ( $_=~/^([^\s]*)/) { $SCRIPT_DIR=$1; }
+}
+if (!$SCRIPT_DIR) { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
+push (@INC, $SCRIPT_DIR);
 
 $ENV{PATH} = ""; # no PATH should be needed
 $ENV{ENV} = "";      # no startup script for sh
@@ -30,26 +33,24 @@ use strict;
 use IPC::Open3;
 use Fcntl qw(:DEFAULT :flock);
 use CGI qw(-private_tempfiles :standard);
-use CGI::Carp qw(fatalsToBrowser);
-CGI::nph();   # Treat script as a non-parsed-header script
+use CGI::Carp qw(fatalsToBrowser carpout);
 
 require "ow-shared.pl";
 require "filelock.pl";
 
 use vars qw(%config %config_raw);
 use vars qw($thissession);
-use vars qw($loginname $domain $user $userrealname $uuid $ugid $homedir);
+use vars qw($domain $user $userrealname $uuid $ugid $homedir);
 use vars qw(%prefs %style %icontext);
 use vars qw($folderdir @validfolders $folderusage);
 use vars qw($folder $printfolder $escapedfolder);
-use vars qw($webdiskusage);
+use vars qw($webdiskusage $webdiskrootdir);
 
 openwebmail_init();
-verifysession();
 
 # openwebmail_init() will set umask to 0077 to protect mail folder data.
 # set umask back to 0022 here dir & files are created as world readable
-umask(0022); 
+umask(0022);
 
 # extern vars
 use vars qw(%lang_folders %lang_sizes %lang_wdbutton %lang_text %lang_err);	# defined in lang/xy
@@ -59,32 +60,38 @@ use vars qw($messageid $escapedmessageid);
 $messageid = param("message_id");
 $escapedmessageid = escapeURL($messageid);
 
+$webdiskrootdir=$homedir.absolute_vpath("/", $config{'webdisk_rootpath'});
+($webdiskrootdir =~ m!^(.+)/?$!) && ($webdiskrootdir = $1);  # untaint ...
+if (! -d $webdiskrootdir) {
+   mkdir($webdiskrootdir, 0755) or
+      openwebmailerror("lang_text{'cant_create_dir'} ($webdiskrootdir)");
+}
+
+$webdiskusage=0;
+if ($config{'webdisk_quota'}>0) {
+   my ($stdout, $stderr, $exit, $sig)=execute('/usr/bin/du', '-sk', $webdiskrootdir);
+   $webdiskusage=$1 if ($stdout=~/(\d+)/);
+}
+
 my $action = param("action");
 
 my $currentdir;
 if (defined(param('currentdir')) && param('currentdir') ne "") {
-   $currentdir = param('currentdir'); 
+   $currentdir = param('currentdir');
 } else {
    $currentdir = cookie("$user-currentdir"),
 }
-
-my $gotodir = param('gotodir'); 
-my @selitems = (param('selitems')); 
-my $destname = param('destname')||''; 
+my $gotodir = param('gotodir');
+my @selitems = (param('selitems'));
+my $destname = param('destname')||'';
 my $filesort = param('filesort')|| 'name';
 my $page = param('page') || 1;
 
-$webdiskusage=0;
-if ($config{'webdisk_quota'}>0) {
-   my ($stdout, $stderr, $exit, $sig)=execute('/usr/bin/du', '-sk', $homedir);
-   $webdiskusage=$1 if ($stdout=~/(\d+)/);
-}
-
-# all path in param are treated as virtual path under $homedir.
+# all path in param are treated as virtual path under $webdiskrootdir.
 $currentdir = absolute_vpath("/", $currentdir);
 $gotodir = absolute_vpath($currentdir, $gotodir);
 
-my $msg=verify_vpath($homedir, $currentdir);
+my $msg=verify_vpath($webdiskrootdir, $currentdir);
 openwebmailerror($msg) if ($msg);
 ($currentdir =~ /^(.+)$/) && ($currentdir = $1);  # untaint ...
 
@@ -198,7 +205,7 @@ if ($action eq "mkdir" || defined(param('mkdirbutton')) ) {
    if ($#selitems==0) {
       if ( $filecontent) {
          $msg=previewfile($currentdir, $selitems[0], $filecontent);
-      } elsif ( -d "$homedir/$vpath" ) {
+      } elsif ( -d "$webdiskrootdir/$vpath" ) {
          showdir($currentdir, $vpath, $filesort, $page, $msg); $msg='';
       } else {
          $msg=previewfile($currentdir, $selitems[0], '');
@@ -213,7 +220,7 @@ if ($action eq "mkdir" || defined(param('mkdirbutton')) ) {
       $msg=downloadfiles($currentdir, @selitems);
    } elsif ($#selitems==0) {
       my $vpath=absolute_vpath($currentdir, $selitems[0]);
-      if ( -d "$homedir/$vpath" ) {
+      if ( -d "$webdiskrootdir/$vpath" ) {
          $msg=downloadfiles($currentdir, @selitems);
       } else {
          $msg=downloadfile($currentdir, $selitems[0]);
@@ -256,6 +263,9 @@ if ($action eq "mkdir" || defined(param('mkdirbutton')) ) {
 } else {
    openwebmailerror("Action $lang_err{'has_illegal_chars'}");
 }
+
+# back to root if possible, required for setuid under persistent perl
+$<=0; $>=0;
 ########################## END MAIN ##########################
 
 ######################## CREATEDIR ##############################
@@ -264,14 +274,14 @@ sub createdir {
 
    my $vpath=absolute_vpath($currentdir, $destname);
    ($vpath =~ /^(.+)$/) && ($vpath = $1);  # untaint ...
-   my $err=verify_vpath($homedir, $vpath);
+   my $err=verify_vpath($webdiskrootdir, $vpath);
    return ("$err\n") if ($err);
 
-   if ( -e "$homedir/$vpath") {
+   if ( -e "$webdiskrootdir/$vpath") {
       return("$lang_text{'dir'} $vpath $lang_err{'already_exists'}\n") if (-d _);
       return("$lang_text{'file'} $vpath $lang_err{'already_exists'}\n");
    } else {
-      if (mkdir("$homedir/$vpath", 0755)) {
+      if (mkdir("$webdiskrootdir/$vpath", 0755)) {
          writelog("webdisk - mkdir $vpath");
          writehistory("webdisk - mkdir $vpath");
          return("$lang_wdbutton{'mkdir'} $vpath\n");
@@ -288,14 +298,14 @@ sub createfile {
 
    my $vpath=absolute_vpath($currentdir, $destname);
    ($vpath =~ /^(.+)$/) && ($vpath = $1);  # untaint ...
-   my $err=verify_vpath($homedir, $vpath);
+   my $err=verify_vpath($webdiskrootdir, $vpath);
    return ("$err\n") if ($err);
 
-   if ( -e "$homedir/$vpath") {
+   if ( -e "$webdiskrootdir/$vpath") {
       return("$lang_text{'dir'} $vpath $lang_err{'already_exists'}\n") if (-d _);
       return("$lang_text{'file'} $vpath $lang_err{'already_exists'}\n");
    } else {
-      if (open(F, ">$homedir/$vpath")) {
+      if (open(F, ">$webdiskrootdir/$vpath")) {
          print F "";
          close(F);
          writelog("webdisk - createfile $vpath");
@@ -317,18 +327,18 @@ sub deletedirfiles {
    foreach (@selitems) {
       my $vpath=absolute_vpath($currentdir, $_);
       ($vpath =~ /^(.+)$/) && ($vpath = $1);  # untaint ...
-      $err=verify_vpath($homedir, $vpath);
+      $err=verify_vpath($webdiskrootdir, $vpath);
       if ($err) {
          $msg.="$err\n"; next;
       }
-      if (!-e "$homedir/$vpath") {
+      if (!-e "$webdiskrootdir/$vpath") {
          $msg.="$vpath $lang_text{'doesnt_exist'}\n"; next;
       }
       if (-f _ && $vpath=~/\.(jpe?g|gif|png|bmp|tif)$/i) {
-         my $thumbnail=path2thumbnail("$homedir/$vpath");
+         my $thumbnail=path2thumbnail("$webdiskrootdir/$vpath");
          push(@filelist, $thumbnail) if (-f $thumbnail);
       }
-      push(@filelist, "$homedir/$vpath");
+      push(@filelist, "$webdiskrootdir/$vpath");
    }
    return($msg) if ($#filelist<0);
 
@@ -337,10 +347,16 @@ sub deletedirfiles {
    return("$lang_text{'program'} rm $lang_err{'doesnt_exist'}\n") if (!$rmbin);
    @cmd=($rmbin, '-Rfv');
 
-   chdir("$homedir/$currentdir") or
+   chdir("$webdiskrootdir/$currentdir") or
       return("$lang_err{'couldnt_chdirto'} $currentdir\n");
 
-   $msg.=webdisk_execute($lang_wdbutton{'delete'}, @cmd, @filelist);
+   my $msg2=webdisk_execute($lang_wdbutton{'delete'}, @cmd, @filelist);
+   if ($msg2=~/rm:/) {
+      $cmd[1]=~s/v//;
+      $msg2=webdisk_execute($lang_wdbutton{'delete'}, @cmd, @filelist);
+   }
+   $msg.=$msg2;
+
    return($msg);
 }
 ########################## END DELETEDIRFILES #######################
@@ -352,11 +368,11 @@ sub copymovedirfiles {
 
    my $vpath2=absolute_vpath($currentdir, $destname);
    ($vpath2 =~ /^(.+)$/) && ($vpath2 = $1);  # untaint ...
-   $err=verify_vpath($homedir, $vpath2);
+   $err=verify_vpath($webdiskrootdir, $vpath2);
    return ("$err\n") if ($err);
 
    if ($#selitems>0) {
-      if (!-e "$homedir/$vpath2") {
+      if (!-e "$webdiskrootdir/$vpath2") {
          return("$vpath2 $lang_err{'doesnt_exist'}\n");
       } elsif (!-d _) {
          return("$vpath2 $lang_err{'isnt_a_dir'}\n");
@@ -367,15 +383,15 @@ sub copymovedirfiles {
    foreach (@selitems) {
       my $vpath1=absolute_vpath($currentdir, $_);
       ($vpath1 =~ /^(.+)$/) && ($vpath1 = $1);  # untaint ...
-      $err=verify_vpath($homedir, $vpath1);
+      $err=verify_vpath($webdiskrootdir, $vpath1);
       if ($err) {
          $msg.="$err\n"; next;
       }
-      if (! -e "$homedir/$vpath1") {
+      if (! -e "$webdiskrootdir/$vpath1") {
          $msg.="$vpath1 $lang_text{'doesnt_exist'}\n"; next;
       }
       next if ($vpath1 eq $vpath2);
-      push(@filelist, "$homedir/$vpath1");
+      push(@filelist, "$webdiskrootdir/$vpath1");
    }
    return($msg) if ($#filelist<0);
 
@@ -392,10 +408,15 @@ sub copymovedirfiles {
       return($msg);
    }
 
-   chdir("$homedir/$currentdir") or
+   chdir("$webdiskrootdir/$currentdir") or
       return("$lang_err{'couldnt_chdirto'} $currentdir\n");
 
-   $msg.=webdisk_execute($lang_wdbutton{$op}, @cmd, @filelist, "$homedir/$vpath2");
+   my $msg2=webdisk_execute($lang_wdbutton{$op}, @cmd, @filelist, "$webdiskrootdir/$vpath2");
+   if ($msg2=~/cp:/ || $msg2=~/mv:/) {
+      $cmd[1]=~s/v//;
+      $msg2=webdisk_execute($lang_wdbutton{$op}, @cmd, @filelist, "$webdiskrootdir/$vpath2");
+   }
+   $msg.=$msg2;
    return($msg);
 }
 ######################### END COPYDIRFILES ########################
@@ -406,24 +427,24 @@ sub editfile {
    my $vpath=absolute_vpath($currentdir, $selitem);
    my $content;
 
-   my $html = readtemplate("editfile.template");
-   my $temphtml;
+   my ($html, $temphtml);
+   $html = readtemplate("editfile.template");
    $html = applystyle($html);
 
-   if ( -d "$homedir/$vpath") {
+   if ( -d "$webdiskrootdir/$vpath") {
       autoclosewindow($lang_wdbutton{'edit'}, $lang_err{'edit_notfordir'});
-   } elsif ( -f "$homedir/$vpath" ) {
-      my $err=verify_vpath($homedir, $vpath);
+   } elsif ( -f "$webdiskrootdir/$vpath" ) {
+      my $err=verify_vpath($webdiskrootdir, $vpath);
       autoclosewindow($lang_wdbutton{'edit'}, $err) if ($err);
 
-      if (!open(F, "$homedir/$vpath")) {
+      if (!open(F, "$webdiskrootdir/$vpath")) {
          autoclosewindow($lang_wdbutton{'edit'}, "$lang_err{'couldnt_open'} $vpath");
       }
-      filelock("$homedir/$vpath", LOCK_SH|LOCK_NB) or
-         autoclosewindow($lang_text{'edit'}, "$lang_err{'couldnt_locksh'} $homedir/$vpath!");
+      filelock("$webdiskrootdir/$vpath", LOCK_SH|LOCK_NB) or
+         autoclosewindow($lang_text{'edit'}, "$lang_err{'couldnt_locksh'} $webdiskrootdir/$vpath!");
       while (<F>) { $content .= $_; }
       close(F);
-      filelock("$homedir/$vpath", LOCK_UN);
+      filelock("$webdiskrootdir/$vpath", LOCK_UN);
 
       $content =~ s|<\s*/\s*textarea\s*>|</ESCAPE_TEXTAREA>|gi;
    }
@@ -498,9 +519,7 @@ sub editfile {
                         -override=>'1');
    $html =~ s/\@\@\@FILECONTENT\@\@\@/$temphtml/;
 
-   printheader();
-   print $html;
-   printfooter(2);
+   print htmlheader(), $html, htmlfooter(2);
 }
 ######################## END EDITFILE ##############################
 
@@ -509,21 +528,21 @@ sub savefile {
    my ($currentdir, $destname, $content)=@_;
    my $vpath=absolute_vpath($currentdir, $destname);
    ($vpath =~ /^(.+)$/) && ($vpath = $1);  # untaint ...
-   my $err=verify_vpath($homedir, $vpath);
+   my $err=verify_vpath($webdiskrootdir, $vpath);
    autoclosewindow($lang_text{'savefile'}, $err, 60) if ($err);
 
    $content =~ s|</ESCAPE_TEXTAREA>|</textarea>|gi;
    $content =~ s/\r\n/\n/g;
    $content =~ s/\r/\n/g;
 
-   if (!open(F, ">$homedir/$vpath") ) {
+   if (!open(F, ">$webdiskrootdir/$vpath") ) {
       autoclosewindow($lang_text{'savefile'}, "$lang_text{'savefile'} $lang_text{'failed'} ($vpath: $!)", 60);
    }
-   filelock("$homedir/$vpath", LOCK_EX|LOCK_NB) or
-      autoclosewindow($lang_text{'savefile'}, "$lang_err{'couldnt_lock'} $homedir/$vpath!", 60);
+   filelock("$webdiskrootdir/$vpath", LOCK_EX|LOCK_NB) or
+      autoclosewindow($lang_text{'savefile'}, "$lang_err{'couldnt_lock'} $webdiskrootdir/$vpath!", 60);
    print F "$content";
    close(F);
-   filelock("$homedir/$vpath", LOCK_UN);
+   filelock("$webdiskrootdir/$vpath", LOCK_UN);
 
    writelog("webdisk - save file $vpath");
    writehistory("webdisk - save file $vpath");
@@ -541,9 +560,9 @@ sub compressfiles {	# pack files with zip or tgz (tar -zcvf)
    if ($ztype eq "mkzip" || $ztype eq "mktgz" ) {
       $vpath2=absolute_vpath($currentdir, $destname);
       ($vpath2 =~ /^(.+)$/) && ($vpath2 = $1);  # untaint ...
-      $err=verify_vpath($homedir, $vpath2);
+      $err=verify_vpath($webdiskrootdir, $vpath2);
       return ("$err\n") if ($err);
-      if ( -e "$homedir/$vpath2") {
+      if ( -e "$webdiskrootdir/$vpath2") {
          return("$lang_text{'dir'} $vpath2 $lang_err{'already_exists'}\n") if (-d _);
          return("$lang_text{'file'} $vpath2 $lang_err{'already_exists'}\n");
       }
@@ -552,18 +571,18 @@ sub compressfiles {	# pack files with zip or tgz (tar -zcvf)
    my %selitem;
    foreach (@selitems) {
       my $vpath=absolute_vpath($currentdir, $_);
-      $err=verify_vpath($homedir, $vpath);
+      $err=verify_vpath($webdiskrootdir, $vpath);
       if ($err) {
          $msg.="$err\n"; next;
       }
 
-      # use relative path to currentdir since we will chdir to homedir/currentdir before compress
-      my $p=fullpath2vpath("$homedir/$vpath", "$homedir/$currentdir");
-      # use absolute path if relative to homedir/currentdir is not possible
-      $p="$homedir/$vpath" if (!$p);
+      # use relative path to currentdir since we will chdir to webdiskrootdir/currentdir before compress
+      my $p=fullpath2vpath("$webdiskrootdir/$vpath", "$webdiskrootdir/$currentdir");
+      # use absolute path if relative to webdiskrootdir/currentdir is not possible
+      $p="$webdiskrootdir/$vpath" if (!$p);
       ($p =~ /^(.+)$/) && ($p = $1);  # untaint ...
 
-      if ( -d "$homedir/$vpath" ) {
+      if ( -d "$webdiskrootdir/$vpath" ) {
          $selitem{".$p/"}=1;
       } elsif ( -e _ ) {
          $selitem{".$p"}=1;
@@ -580,22 +599,22 @@ sub compressfiles {	# pack files with zip or tgz (tar -zcvf)
    } elsif ($ztype eq "mkzip") {
       my $zipbin=findbin('zip');
       return("$lang_text{'program'} zip $lang_err{'doesnt_exist'}\n") if (!$zipbin);
-      @cmd=($zipbin, '-ryq', "$homedir/$vpath2");
+      @cmd=($zipbin, '-ryq', "$webdiskrootdir/$vpath2");
    } elsif ($ztype eq "mktgz") {
       my $gzipbin=findbin('gzip');
       my $tarbin=findbin('tar');
       if ($gzipbin) {
          $ENV{'PATH'}=$gzipbin;
          $ENV{'PATH'}=~s|/gzip||; # tar finds gzip through PATH
-         @cmd=($tarbin, '-zcpf', "$homedir/$vpath2");
+         @cmd=($tarbin, '-zcpf', "$webdiskrootdir/$vpath2");
       } else {
-         @cmd=($tarbin, '-cpf', "$homedir/$vpath2");
+         @cmd=($tarbin, '-cpf', "$webdiskrootdir/$vpath2");
       }
    } else {
       return("unknow ztype($ztype)?");
    }
 
-   chdir("$homedir/$currentdir") or
+   chdir("$webdiskrootdir/$currentdir") or
       return("$lang_err{'couldnt_chdirto'} $currentdir\n");
 
    my $opstr;
@@ -615,10 +634,10 @@ sub decompressfile {	# unpack zip, tar.gz, tgz, gz
    my ($currentdir, $selitem)=@_;
    my $vpath=absolute_vpath($currentdir, $selitem);
 
-   if ( !-f "$homedir/$vpath" || !-r _) {
+   if ( !-f "$webdiskrootdir/$vpath" || !-r _) {
       return("$lang_err{'couldnt_open'} $vpath");
    }
-   my $err=verify_vpath($homedir, $vpath);
+   my $err=verify_vpath($webdiskrootdir, $vpath);
    return($err) if ($err);
 
    my @cmd;
@@ -670,7 +689,7 @@ sub decompressfile {	# unpack zip, tar.gz, tgz, gz
       return("$lang_text{'decomp_notsupported'} ($vpath)\n");
    }
 
-   chdir("$homedir/$currentdir") or
+   chdir("$webdiskrootdir/$currentdir") or
       return("$lang_err{'couldnt_chdirto'} $currentdir\n");
 
    my $opstr;
@@ -679,7 +698,7 @@ sub decompressfile {	# unpack zip, tar.gz, tgz, gz
    } else {
       $opstr=$lang_wdbutton{'decompress'};
    }
-   return(webdisk_execute($opstr, @cmd, "$homedir/$vpath"));
+   return(webdisk_execute($opstr, @cmd, "$webdiskrootdir/$vpath"));
 }
 ####################### END DECOMPRESSFILE ##########################
 
@@ -688,15 +707,15 @@ sub listarchive {
    my ($currentdir, $selitem)=@_;
    my $vpath=absolute_vpath($currentdir, $selitem);
 
-   my $html = readtemplate("listarchive.template");
-   my $temphtml;
+   my ($html, $temphtml);
+   $html = readtemplate("listarchive.template");
    $html = applystyle($html);
 
-   if (! -f "$homedir/$vpath") {
+   if (! -f "$webdiskrootdir/$vpath") {
       autoclosewindow($lang_wdbutton{'listarchive'}, "$lang_text{'file'} $vpath $lang_err{'doesnt_exist'}");
       return;
    }
-   my $err=verify_vpath($homedir, $vpath);
+   my $err=verify_vpath($webdiskrootdir, $vpath);
    if ($err) {
       autoclosewindow($lang_wdbutton{'listarchive'}, $err);
       return;
@@ -741,10 +760,10 @@ sub listarchive {
       autoclosewindow($lang_wdbutton{'listarchive'}, "$lang_text{'decomp_notsupported'} ($vpath)\n");
    }
 
-   my ($stdout, $stderr, $exit, $sig)=execute(@cmd, "$homedir/$vpath");
+   my ($stdout, $stderr, $exit, $sig)=execute(@cmd, "$webdiskrootdir/$vpath");
    # try to conv realpath in stdout/stderr back to vpath
-   $stdout=~s!($homedir//|\s$homedir/)! /!g; $stdout=~s!/+!/!g;
-   $stderr=~s!($homedir//|\s$homedir/)! /!g; $stderr=~s!/+!/!g;
+   $stdout=~s!($webdiskrootdir//|\s$webdiskrootdir/)! /!g; $stdout=~s!/+!/!g;
+   $stderr=~s!($webdiskrootdir//|\s$webdiskrootdir/)! /!g; $stderr=~s!/+!/!g;
 
    if ($exit||$sig) {
       my $err="$lang_text{'program'} $cmd[0]  $lang_text{'failed'} (exit status $exit";
@@ -777,9 +796,7 @@ sub listarchive {
    $temphtml = end_form();
    $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/;
 
-   printheader();
-   print $html;
-   printfooter(2);
+   print htmlheader(), $html, htmlfooter(2);
 }
 ######################## END LISTARCHIVE ##############################
 
@@ -794,42 +811,42 @@ sub makethumbnail {
 
    foreach (@selitems) {
       my $vpath=absolute_vpath($currentdir, $_);
-      my $err=verify_vpath($homedir, $vpath);
+      my $err=verify_vpath($webdiskrootdir, $vpath);
       if ($err) {
          $msg.="$err\n"; next;
       }
-      next if ( $vpath!~/\.(jpe?g|gif|png|bmp|tif)$/i || !-f "$homedir/$vpath");
+      next if ( $vpath!~/\.(jpe?g|gif|png|bmp|tif)$/i || !-f "$webdiskrootdir/$vpath");
 
       my $thumbnail=path2thumbnail($vpath);
       ($thumbnail =~ /^(.*)$/) && ($thumbnail = $1);
 
       my @p=split(/\//, $thumbnail); pop(@p);
       my $thumbnaildir=join('/', @p);
-      if (!-d "$homedir/$thumbnaildir") {
+      if (!-d "$webdiskrootdir/$thumbnaildir") {
          ($thumbnaildir =~ /^(.*)$/) && ($thumbnaildir = $1);
-         if (!mkdir ("$homedir/$thumbnaildir", 0755)) {
+         if (!mkdir ("$webdiskrootdir/$thumbnaildir", 0755)) {
             $msg.="$!\n"; next;
          }
       }
 
-      my ($img_atime,$img_mtime)= (stat("$homedir/$vpath"))[8,9];
+      my ($img_atime,$img_mtime)= (stat("$webdiskrootdir/$vpath"))[8,9];
       if (-f $thumbnail) {
-         my ($thumbnail_atime,$thumbnail_mtime)= (stat("$homedir/$thumbnail"))[8,9];
+         my ($thumbnail_atime,$thumbnail_mtime)= (stat("$webdiskrootdir/$thumbnail"))[8,9];
          next if ($thumbnail_mtime==$img_mtime);
       }
-      $msg.=webdisk_execute("$lang_wdbutton{'mkthumbnail'} $thumbnail", @cmd, "$homedir/$vpath", "$homedir/$thumbnail");
-      if (-f "$homedir/$thumbnail.0") {
+      $msg.=webdisk_execute("$lang_wdbutton{'mkthumbnail'} $thumbnail", @cmd, "$webdiskrootdir/$vpath", "$webdiskrootdir/$thumbnail");
+      if (-f "$webdiskrootdir/$thumbnail.0") {
          my @f;
          foreach (1..20) {
-            push(@f, "$homedir/$thumbnail.$_");
+            push(@f, "$webdiskrootdir/$thumbnail.$_");
          }
          unlink @f;
-         rename("$homedir/$thumbnail.0", "$homedir/$thumbnail");
+         rename("$webdiskrootdir/$thumbnail.0", "$webdiskrootdir/$thumbnail");
       }
       if (-f $thumbnail) {
          ($img_atime  =~ /^(.*)$/) && ($img_atime = $1);
          ($img_mtime  =~ /^(.*)$/) && ($img_mtime = $1);
-         utime($img_atime, $img_mtime, "$homedir/$thumbnail") 
+         utime($img_atime, $img_mtime, "$webdiskrootdir/$thumbnail")
       }
    }
    return($msg);
@@ -851,17 +868,17 @@ sub downloadfiles {	# through zip or tgz
    my %selitem;
    foreach (@selitems) {
       my $vpath=absolute_vpath($currentdir, $_);
-      my $err=verify_vpath($homedir, $vpath);
+      my $err=verify_vpath($webdiskrootdir, $vpath);
       if ($err) {
          $msg.="$err\n"; next;
       }
-      # use relative path to currentdir since we will chdir to homedir/currentdir before DL
-      my $p=fullpath2vpath("$homedir/$vpath", "$homedir/$currentdir");
-      # use absolute path if relative to homedir/currentdir is not possible
-      $p="$homedir/$vpath" if (!$p);
+      # use relative path to currentdir since we will chdir to webdiskrootdir/currentdir before DL
+      my $p=fullpath2vpath("$webdiskrootdir/$vpath", "$webdiskrootdir/$currentdir");
+      # use absolute path if relative to webdiskrootdir/currentdir is not possible
+      $p="$webdiskrootdir/$vpath" if (!$p);
       ($p =~ /^(.+)$/) && ($p = $1);  # untaint ...
 
-      if ( -d "$homedir/$vpath" ) {
+      if ( -d "$webdiskrootdir/$vpath" ) {
          $selitem{".$p/"}=1;
       } elsif ( -e _ ) {
          $selitem{".$p"}=1;
@@ -898,16 +915,19 @@ sub downloadfiles {	# through zip or tgz
       }
    }
 
-   chdir("$homedir/$currentdir") or
+   chdir("$webdiskrootdir/$currentdir") or
       return("$lang_err{'couldnt_chdirto'} $currentdir\n");
 
    my $contenttype=ext2contenttype($dlname);
 
-   $|=1;
+   local $|=1;
    print qq|Content-Transfer-Coding: binary\n|,
          qq|Connection: close\n|,
-         qq|Content-Type: $contenttype; name="$dlname"\n|,
-         qq|Content-Disposition: attachment; filename="$dlname"\n\n|;
+         qq|Content-Type: $contenttype; name="$dlname"\n|;
+   if ( $ENV{'HTTP_USER_AGENT'}!~/MSIE 5.5/ ) {	# ie5.5 is broken with content-disposition
+      print qq|Content-Disposition: attachment; filename="$dlname"\n|;
+   }
+   print qq|\n|;
 
    writehistory("webdisk - download ".join(' ', @filelist));
    writelog("webdisk - download ".join(' ', @filelist));
@@ -925,27 +945,31 @@ sub downloadfile {
    my ($currentdir, $selitem)=@_;
 
    my $vpath=absolute_vpath($currentdir, $selitem);
-   my $err=verify_vpath($homedir, $vpath);
+   my $err=verify_vpath($webdiskrootdir, $vpath);
    return($err) if ($err);
 
-   open(F, "$homedir/$vpath") or
+   open(F, "$webdiskrootdir/$vpath") or
       return("$lang_err{'couldnt_open'} $vpath\n");
 
    my $dlname=safedlname($vpath);
    my $contenttype=ext2contenttype($vpath);
-   my $length = ( -s "$homedir/$vpath");
+   my $length = ( -s "$webdiskrootdir/$vpath");
 
    # disposition:inline default to open
    print qq|Content-Length: $length\n|,
          qq|Content-Transfer-Coding: binary\n|,
          qq|Connection: close\n|,
          qq|Content-Type: $contenttype; name="$dlname"\n|;
-   if ($contenttype=~/^text/ || 
-       $dlname=~/\.(jpe?g|gif|png|bmp)$/i) {
-      print qq|Content-Disposition: inline; filename="$dlname"\n\n|;
-   } else {
-      print qq|Content-Disposition: attachment; filename="$dlname"\n\n|;
+   if ( $ENV{'HTTP_USER_AGENT'}!~/MSIE 5.5/ ) {	# ie5.5 is broken with content-disposition
+      if ($contenttype=~/^text/ ||
+          $dlname=~/\.(jpe?g|gif|png|bmp)$/i) {
+         print qq|Content-Disposition: inline; filename="$dlname"\n|;
+      } else {
+         print qq|Content-Disposition: attachment; filename="$dlname"\n|;
+      }
    }
+   print qq|\n|;
+
    my $buff;
    while (read(F, $buff, 16384)) {
       print $buff;
@@ -958,17 +982,17 @@ sub downloadfile {
 ########################## END DOWNLOADFILE ##########################
 
 ########################## PREVIEWFILE ##############################
-# relative links in html content will be converted so they can be 
+# relative links in html content will be converted so they can be
 # redirect back to openwebmail-webdisk.pl with correct parmteters
 sub previewfile {
    my ($currentdir, $selitem, $filecontent)=@_;
    my $vpath=absolute_vpath($currentdir, $selitem);
-   my $err=verify_vpath($homedir, $vpath);
+   my $err=verify_vpath($webdiskrootdir, $vpath);
    return($err) if ($err);
 
    if ($filecontent eq "") {
       my $buff;
-      open(F, "$homedir/$vpath") or return("$lang_err{'couldnt_open'} $vpath\n");
+      open(F, "$webdiskrootdir/$vpath") or return("$lang_err{'couldnt_open'} $vpath\n");
       while (read(F, $buff, 16384)) { $filecontent.=$buff; }
       close(F);
    }
@@ -993,9 +1017,11 @@ sub previewfile {
    print qq|Content-Length: $length\n|,
          qq|Content-Transfer-Coding: binary\n|,
          qq|Connection: close\n|,
-         qq|Content-Type: $contenttype; name="$dlname"\n|,
-         qq|Content-Disposition: inline; filename="$dlname"\n\n|.
-         $filecontent;
+         qq|Content-Type: $contenttype; name="$dlname"\n|;
+   if ( $ENV{'HTTP_USER_AGENT'}!~/MSIE 5.5/ ) {	# ie5.5 is broken with content-disposition
+      print qq|Content-Disposition: inline; filename="$dlname"\n|;
+   }
+   print qq|\n|, $filecontent;
    return;
 }
 
@@ -1010,7 +1036,7 @@ sub _linkconv {
    my ($prefix, $link, $postfix, $preview_url)=@_;
    if ($link=~m!^(mailto:|javascript:|#)!i) {
       return($prefix.$link.$postfix);
-   } 
+   }
    if ($link !~ m!^http://!i && $link!~m!^/!) {
        $link=$preview_url.$link;	
    }
@@ -1055,10 +1081,10 @@ sub uploadfile {
 
    my $vpath=absolute_vpath($currentdir, $fname);
    ($vpath =~ /^(.+)$/) && ($vpath = $1);  # untaint ...
-   my $err=verify_vpath($homedir, $vpath);
+   my $err=verify_vpath($webdiskrootdir, $vpath);
    return($err) if ($err);
 
-   if (open(UPLOAD, ">$homedir/$vpath")) {
+   if (open(UPLOAD, ">$webdiskrootdir/$vpath")) {
       my $buff;
       while (read($upload, $buff, 32768)) {
          print UPLOAD $buff;
@@ -1091,11 +1117,11 @@ sub dirfilesel {
 
    my ($currentdir, $escapedcurrentdir, $msg);
    foreach my $dir ($newdir, $olddir, "/") {
-      my $err=verify_vpath($homedir, $dir);
+      my $err=verify_vpath($webdiskrootdir, $dir);
       if ($err) {
          $msg .= "$err<br>\n"; next;
       }
-      if (!opendir(D, "$homedir/$dir")) {
+      if (!opendir(D, "$webdiskrootdir/$dir")) {
          $msg .= "$lang_err{'couldnt_open'} $dir ($!)<br>\n"; next;
       }
       $currentdir=$dir; last;
@@ -1104,32 +1130,35 @@ sub dirfilesel {
    $escapedcurrentdir=escapeURL($currentdir);
 
    my (%fsize, %fdate, %ftype, %flink);
+   my $spoolfile=(get_folderfile_headerdb($user, 'INBOX'))[0];
    while( my $fname=readdir(D) ) {
       next if ( $fname eq "." || $fname eq ".." );
       next if ( (!$config{'webdisk_lshidden'} || !$showhidden) && $fname =~ /^\./ );
-      next if ( !$config{'webdisk_lsmailfolder'} && 
-                fullpath2vpath("$currentdir/$fname", $config{'homedirfolderdirname'}) ne "");
-      if ( -l "$homedir/$currentdir/$fname" ) {	# symbolic link, aka:shortcut
+      if ( !$config{'webdisk_lsmailfolder'} ) {
+          next if (fullpath2vpath("$webdiskrootdir/$currentdir/$fname", $folderdir) ne "");
+          next if (fullpath2vpath("$webdiskrootdir/$currentdir/$fname", $spoolfile) ne "");
+      }
+      if ( -l "$webdiskrootdir/$currentdir/$fname" ) {	# symbolic link, aka:shortcut
          next if (!$config{'webdisk_lssymlink'});
-         my $realpath=readlink("$homedir/$currentdir/$fname");
-         my $vpath=fullpath2vpath($realpath, $homedir);
+         my $realpath=readlink("$webdiskrootdir/$currentdir/$fname");
+         $realpath="$webdiskrootdir/$currentdir/$realpath" if ($realpath!~m!^/!);
+         my $vpath=fullpath2vpath($realpath, $webdiskrootdir);
          if ($vpath) {
             $flink{$fname}=$vpath;
          } else {
-            next if (!$config{'webdisk_allow_symlinkouthome'});
+            next if (!$config{'webdisk_allow_symlinkout'});
             $flink{$fname}="sys::$realpath";
          }
       }
 
       my ($st_dev,$st_ino,$st_mode,$st_nlink,$st_uid,$st_gid,$st_rdev,$st_size,
-          $st_atime,$st_mtime,$st_ctime,$st_blksize,$st_blocks)= stat("$homedir/$currentdir/$fname");
-      if ( ($st_mode&0040000)==0040000 ) {
+          $st_atime,$st_mtime,$st_ctime,$st_blksize,$st_blocks)= stat("$webdiskrootdir/$currentdir/$fname");
+      if ( ($st_mode&0170000)==0040000 ) {
          $ftype{$fname}="d";
-      } elsif ( ($st_mode&0100000)==0100000 ) {
+      } elsif ( ($st_mode&0170000)==0100000 ) {
          $ftype{$fname}="f";
       } else {	# unix specific filetype: fifo, socket, block dev, char dev..
-         next if (!$config{'webdisk_lsunixspec'});
-         $ftype{$fname}="u";
+         next;  # skip because dirfilesel is used for upload/download
       }
       $fsize{$fname}=$st_size;
       $fdate{$fname}=$st_mtime;
@@ -1161,13 +1190,8 @@ sub dirfilesel {
    }
 
    my ($html, $temphtml);
-   my $cookie = cookie( -name  => "$user-currentdir",
-                        -value => $currentdir,
-                        -path  => '/');
-   printheader(-cookie=>[$cookie]);
-
-   $html=readtemplate("dirfilesel.template");
-   $html=applystyle($html);
+   $html = readtemplate("dirfilesel.template");
+   $html = applystyle($html);
 
    my $wd_url=qq|$config{ow_cgiurl}/openwebmail-webdisk.pl?sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;currentdir=$escapedcurrentdir|;
    if ($action eq "sel_saveattfile") {
@@ -1269,7 +1293,7 @@ sub dirfilesel {
    $temphtml='';
    if ($#sortedlist>=0) {
       my $bgcolor;
-      my $unix=unixtype();
+      my $os=$^O||'generic';
       my ($i_first, $i_last)=(0, $#sortedlist);
       if (!$singlepage) {
          $i_first=($page-1)*10; # use 10 instead of $prefs{'webdisk_dirnumitems'} for shorter page
@@ -1292,7 +1316,7 @@ sub dirfilesel {
          if ($ftype{$fname} eq "d") {
             if ($prefs{'iconset'}!~/^Text\./) {
                $imgstr=qq|<IMG SRC="$config{'ow_htmlurl'}/images/file/|.
-                       findicon($fname, $ftype{$fname}, 0, $unix).
+                       findicon($fname, $ftype{$fname}, 0, $os).
                        qq|" align="absmiddle" border="0">|;
             }
             $namestr=qq|<a href="$wd_url_sort_page&amp;action=$action&amp;gotodir=|.
@@ -1301,10 +1325,10 @@ sub dirfilesel {
                    escapeURL("$fname").qq|"><b>&lt;$lang_text{'dir'}&gt;</b></a>|;
 
          } else {
-            my $is_txt= (-T "$homedir/$currentdir/$fname");
+            my $is_txt= (-T "$webdiskrootdir/$currentdir/$fname");
             if ($prefs{'iconset'}!~/^Text\./) {
                $imgstr=qq|<IMG SRC="$config{'ow_htmlurl'}/images/file/|.
-                       findicon($fname, $ftype{$fname}, $is_txt, $unix).
+                       findicon($fname, $ftype{$fname}, $is_txt, $os).
                        qq|" align="absmiddle" border="0">|;
             }
             $namestr=qq|<a href=# onClick="filldestname('$vpath');" $accesskeystr>$imgstr $namestr</a>|;
@@ -1323,12 +1347,7 @@ sub dirfilesel {
             $datestr=dateserial2str(add_dateserial_timeoffset($dateserial, $prefs{'timeoffset'}), $prefs{'dateformat'});
          }
 
-         if ( $i % 2 ) {
-            $bgcolor = $style{"tablerow_light"};
-         } else {
-            $bgcolor = $style{"tablerow_dark"};
-         }
-
+         $bgcolor = ($style{'tablerow_dark'},$style{'tablerow_light'})[$i%2];
          $temphtml.=qq|<tr>\n|.
                     qq|<td bgcolor=$bgcolor>$namestr</td>\n|.
                     qq|<td bgcolor=$bgcolor align="right">$sizestr</td>\n|.
@@ -1423,7 +1442,7 @@ sub dirfilesel {
                         -value=>$lang_text{'ok'});
    } elsif ($action eq "sel_saveattachment") {
       $temphtml.=submit(-name=>"okbutton",
-                        -onClick=>"saveattachment_and_close('$escapedfolder', '$escapedmessageid', '$attachment_nodeid'); return false;",
+                        -onClick=>"saveattachment_and_close('$folder', '$messageid', '$attachment_nodeid'); return false;",
                         -value=>$lang_text{'ok'});
    }
    $temphtml.=submit(-name=>"cencelbutton",
@@ -1434,8 +1453,50 @@ sub dirfilesel {
    $temphtml=end_form();
    $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/g;
 
-   print $html;
-   printfooter(2);
+   $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-viewatt.pl",
+                          -name=>'saveattfileform').
+               hidden(-name=>'action',
+                      -default=>'saveattfile',
+                      -override=>'1').
+               hidden(-name=>'sessionid',
+                      -default=>$thissession,
+                      -override=>'1') .
+               hidden(-name=>'attfile',
+                      -default=>'',
+                      -override=>'1').
+               hidden(-name=>'webdisksel',
+                      -default=>'',
+                      -override=>'1').
+               end_form();
+   $html =~ s/\@\@\@SAVEATTFILEFORM\@\@\@/$temphtml/;
+
+   $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-viewatt.pl",
+                          -name=>'saveattachmentform').
+               hidden(-name=>'action',
+                      -default=>'saveattachment',
+                      -override=>'1').
+               hidden(-name=>'sessionid',
+                      -default=>$thissession,
+                      -override=>'1') .
+               hidden(-name=>'folder',
+                      -default=>'',
+                      -override=>'1').
+               hidden(-name=>'message_id',
+                      -default=>'',
+                      -override=>'1').
+               hidden(-name=>'attachment_nodeid',
+                      -default=>'saveattfile',
+                      -override=>'1').
+               hidden(-name=>'webdisksel',
+                      -default=>'',
+                      -override=>'1').
+               end_form();
+   $html =~ s/\@\@\@SAVEATTACHMENTFORM\@\@\@/$temphtml/;
+
+   my $cookie = cookie( -name  => "$user-currentdir",
+                        -value => $currentdir,
+                        -path  => '/');
+   print htmlheader(-cookie=>[$cookie]), $html, htmlfooter(2);
 }
 ######################## END FILESELECT ##########################
 
@@ -1460,11 +1521,11 @@ sub showdir {
    }
    if (!$keyword) {
       foreach my $dir ($newdir, $olddir, "/") {
-         my $err=verify_vpath($homedir, $dir);
+         my $err=verify_vpath($webdiskrootdir, $dir);
          if ($err) {
             $msg .= "$err\n"; next;
          }
-         if (!opendir(D, "$homedir/$dir")) {
+         if (!opendir(D, "$webdiskrootdir/$dir")) {
             $msg .= "$lang_err{'couldnt_open'} $dir ($!)\n"; next;
          }
          @list=readdir(D);
@@ -1478,31 +1539,38 @@ sub showdir {
 
    my (%fsize, %fdate, %fperm, %ftype, %flink);
    my ($dcount, $fcount, $sizecount)=(0,0,0);
+   my $spoolfile=(get_folderfile_headerdb($user, 'INBOX'))[0];
    foreach my $p (@list) {
       next if ( $p eq "." || $p eq "..");
       my $vpath=absolute_vpath($currentdir, $p);
+      if ( !$config{'webdisk_lsmailfolder'} ) {
+          next if (fullpath2vpath("$webdiskrootdir/$vpath", $folderdir) ne "");
+          next if (fullpath2vpath("$webdiskrootdir/$vpath", $spoolfile) ne "");
+      }
       my $fname=$vpath; $fname=~s|.*/||;
-      next if ( !$config{'webdisk_lsmailfolder'} && 
-                 fullpath2vpath($vpath, $config{'homedirfolderdirname'}) ne "");
       next if ( (!$config{'webdisk_lshidden'}||!$showhidden) && $fname =~ /^\./ );
-      if ( -l "$homedir/$vpath" ) {	# symbolic link, aka:shortcut
+      if ( -l "$webdiskrootdir/$vpath" ) {	# symbolic link, aka:shortcut
          next if (!$config{'webdisk_lssymlink'});
-         my $realpath=readlink("$homedir/$vpath");
-         my $vpath2=fullpath2vpath($realpath, $homedir);
+         my $realpath=readlink("$webdiskrootdir/$vpath");
+         $realpath="$webdiskrootdir/$vpath/../$realpath" if ($realpath!~m!^/!);
+         my $vpath2=fullpath2vpath($realpath, $webdiskrootdir);
          if ($vpath2) {
             $flink{$p}=$vpath2;
          } else {
-            next if (!$config{'webdisk_allow_symlinkouthome'});
+            next if (!$config{'webdisk_allow_symlinkout'});
             $flink{$p}="sys::$realpath";
          }
       }
 
       my ($st_dev,$st_ino,$st_mode,$st_nlink,$st_uid,$st_gid,$st_rdev,$st_size,
-          $st_atime,$st_mtime,$st_ctime,$st_blksize,$st_blocks)= stat("$homedir/$vpath");
-      if ( ($st_mode&0040000)==0040000 ) {
+          $st_atime,$st_mtime,$st_ctime,$st_blksize,$st_blocks)= stat("$webdiskrootdir/$vpath");
+      if ( ($st_mode&0170000)==0040000 ) {
          $ftype{$p}="d"; $dcount++;
-      } elsif ( ($st_mode&0100000)==0100000 ) {
+      } elsif ( ($st_mode&0170000)==0100000 ) {
          $ftype{$p}="f"; $fcount++; $sizecount+=$st_size;
+      } else {	# unix specific filetype: fifo, socket, block dev, char dev..
+         next if (!$config{'webdisk_lsunixspec'});
+         $ftype{$fname}="u";
       }
       my $r=(-r _)?'R':'-';
       my $w=(-w _)?'W':'-';
@@ -1541,21 +1609,9 @@ sub showdir {
       $page=$totalpage if ($page>$totalpage);
    }
 
-   # since some browser always treat refresh directive as realtive url.
-   # we use relative path for refresh
-   my $refreshinterval=$prefs{'refreshinterval'}*60;
-   my $relative_url="$config{'ow_cgiurl'}/openwebmail-webdisk.pl";
-   $relative_url=~s!/.*/!!g;
-
    my ($html, $temphtml);
-   my $cookie = cookie( -name  => "$user-currentdir",
-                        -value => $currentdir,
-                        -path  => '/');
-   printheader(-cookie=>[$cookie],
-               -Refresh=>"$refreshinterval;URL=$relative_url?sessionid=$thissession&folder=escapedfolder&message_id=$escapedmessageid&action=showdir&currentdir=$escapedcurrentdir&gotodir=$escapedcurrentdir&showthumbnail=$showthumbnail&showhidden=$showhidden&singlepage=$singlepage&filesort=$filesort&page=$page&searchtype=$searchtype&keyword=$escapedkeyword&session_noupdate=1");
-
-   $html=readtemplate("dir.template");
-   $html=applystyle($html);
+   $html = readtemplate("dir.template");
+   $html = applystyle($html);
 
    my $wd_url=qq|$config{'ow_cgiurl'}/openwebmail-webdisk.pl?sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;currentdir=$escapedcurrentdir&amp;showthumbnail=$showthumbnail&amp;showhidden=$showhidden&amp;singlepage=$singlepage|;
    my $wd_url_sort_page=qq|$wd_url&amp;filesort=$filesort&amp;page=$page|;
@@ -1576,7 +1632,7 @@ sub showdir {
    if ( $config{'enable_sshterm'} && -r "$config{'ow_htmldir'}/applet/mindterm/mindtermfull.jar" ) {
       $temphtml .= iconlink("sshterm.gif" ,"$lang_text{'sshterm'} ", qq|accesskey="T" href="#" onClick="window.open('$config{ow_htmlurl}/applet/mindterm/ssh.html', '_applet', 'width=400,height=100,top=2000,left=2000,resizable=no,menubar=no,scrollbars=no');"|);
    }
-   $temphtml .= iconlink("prefs.gif", $lang_text{'userprefs'}, qq|accesskey="O" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid"|);
+   $temphtml .= iconlink("prefs.gif", $lang_text{'userprefs'}, qq|accesskey="O" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;prefs_caller=webdisk"|);
    $temphtml .= iconlink("logout.gif", "$lang_text{'logout'} $prefs{'email'}", qq|accesskey="X" href="$config{'ow_cgiurl'}/openwebmail-main.pl?sessionid=$thissession&amp;action=logout"|);
 
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
@@ -1720,7 +1776,7 @@ sub showdir {
    $temphtml='';
    if ($#sortedlist>=0) {
       my $bgcolor;
-      my $unix=unixtype();
+      my $os=$^O||'generic';
       my ($i_first, $i_last)=(0, $#sortedlist);
       if (!$singlepage) {
          $i_first=($page-1)*$prefs{'webdisk_dirnumitems'};
@@ -1742,7 +1798,7 @@ sub showdir {
          if ($ftype{$p} eq "d") {
             if ($prefs{'iconset'}!~/^Text\./) {
                $imgstr=qq|<IMG SRC="$config{'ow_htmlurl'}/images/file/|.
-                       findicon($p, $ftype{$p}, 0, $unix).
+                       findicon($p, $ftype{$p}, 0, $os).
                        qq|" align="absmiddle" border="0">|;
             }
             $namestr=qq|<a href="$wd_url_sort_page&amp;action=showdir&amp;gotodir=|.
@@ -1752,10 +1808,10 @@ sub showdir {
                    escapeURL($p).qq|"><b>&lt;$lang_text{'dir'}&gt;</b></a>|;
 
          } else {
-            my $is_txt= (-T "$homedir/$currentdir/$p" || $p=~/\.(txt|html?)$/i);
+            my $is_txt= (-T "$webdiskrootdir/$currentdir/$p" || $p=~/\.(txt|html?)$/i);
             if ($prefs{'iconset'}!~/^Text\./) {
                $imgstr=qq|<IMG SRC="$config{'ow_htmlurl'}/images/file/|.
-                       findicon($p, $ftype{$p}, $is_txt, $unix).
+                       findicon($p, $ftype{$p}, $is_txt, $os).
                        qq|" align="absmiddle" border="0">|;
             }
             my $blank="";
@@ -1806,7 +1862,7 @@ sub showdir {
             } elsif ($p=~/\.(jpe?g|gif|png|bmp|tif)$/i ) {
                if ($showthumbnail) {
                   my $thumbnail=path2thumbnail($p);
-                  if ( -f "$homedir/$currentdir/$thumbnail") {
+                  if ( -f "$webdiskrootdir/$currentdir/$thumbnail") {
                      $opstr=qq|<a href="$wd_url_sort_page&amp;action=download&amp;selitems=|.
                             escapeURL($p).qq|" $blank>|.
                             qq|<IMG SRC="$wd_url_sort_page&amp;action=download&amp;selitems=|.
@@ -1836,12 +1892,7 @@ sub showdir {
                      qq|<td align=center width=12>$3</td>|.
                      qq|</tr></table>|;
 
-         if ( $i % 2 ) {
-            $bgcolor = $style{"tablerow_light"};
-         } else {
-            $bgcolor = $style{"tablerow_dark"};
-         }
-
+         $bgcolor = ($style{'tablerow_dark'},$style{'tablerow_light'})[$i%2];
          $temphtml.=qq|<tr>\n|.
                     qq|<td bgcolor=$bgcolor>$namestr</td>\n|.
                     qq|<td bgcolor=$bgcolor align="right">$sizestr</td>\n|.
@@ -2043,8 +2094,18 @@ sub showdir {
    $temphtml=end_form();
    $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/g;
 
-   print $html;
-   printfooter(2);
+   # since some browser always treat refresh directive as realtive url.
+   # we use relative path for refresh
+   my $refreshinterval=$prefs{'refreshinterval'}*60;
+   my $relative_url="$config{'ow_cgiurl'}/openwebmail-webdisk.pl";
+   $relative_url=~s!/.*/!!g;
+   my $cookie = cookie( -name  => "$user-currentdir",
+                        -value => $currentdir,
+                        -path  => '/');
+   print htmlheader(-cookie=>[$cookie],
+                    -Refresh=>"$refreshinterval;URL=$relative_url?sessionid=$thissession&folder=escapedfolder&message_id=$escapedmessageid&action=showdir&currentdir=$escapedcurrentdir&gotodir=$escapedcurrentdir&showthumbnail=$showthumbnail&showhidden=$showhidden&singlepage=$singlepage&filesort=$filesort&page=$page&searchtype=$searchtype&keyword=$escapedkeyword&session_noupdate=1"),
+         $html,
+         htmlfooter(2);
 }
 
 sub filelist_of_search {
@@ -2065,7 +2126,7 @@ sub filelist_of_search {
    if ( $cache_metainfo ne $metainfo ) {
       my (@cmd, $stdout, $stderr, $exit, $sig);
 
-      chdir("$homedir/$vpath") or
+      chdir("$webdiskrootdir/$vpath") or
          return("$lang_err{'couldnt_chdirto'} $vpath\n");
 
       if ($searchtype eq "filename") {	# find . -name "*keyword"
@@ -2085,7 +2146,7 @@ sub filelist_of_search {
          ($stdout, $stderr, $exit, $sig)=execute(@cmd);
 
          if ($stderr) {	# old grep doesn't support -r, do no-recursive search instead
-            if (!opendir(D, "$homedir/$vpath")) {
+            if (!opendir(D, "$webdiskrootdir/$vpath")) {
                return("$lang_err{'couldnt_open'} $vpath ($!)\n");
             }
             my @f=readdir(D);
@@ -2133,8 +2194,8 @@ sub webdisk_execute {
    my ($stdout, $stderr, $exit, $sig)=execute(@cmd);
 
    # try to conv realpath in stdout/stderr back to vpath
-   $stdout=~s!($homedir//|\s$homedir/)! /!g; $stdout=~s!/+!/!g;
-   $stderr=~s!($homedir//|\s$homedir/)! /!g; $stderr=~s!/+!/!g;
+   $stdout=~s!($webdiskrootdir//|\s$webdiskrootdir/)! /!g; $stdout=~s!/+!/!g;
+   $stderr=~s!($webdiskrootdir//|\s$webdiskrootdir/)! /!g; $stderr=~s!/+!/!g;
 
    my $opresult;
    if ($exit||$sig) {
@@ -2164,7 +2225,7 @@ sub findbin {
 
 ########################## FINDICON ##############################
 sub findicon {
-   my ($fname, $ftype, $is_txt, $unix)=@_;
+   my ($fname, $ftype, $is_txt, $os)=@_;
 
    return ("dir.gif") if ($ftype eq "d");
    return ("sys.gif") if ($ftype eq "u");
@@ -2200,24 +2261,10 @@ sub findicon {
       return("xls.gif") if ( /\.xl[abcdmst]$/ );
       return("zip.gif") if ( /\.(zip|tar|t?g?z|tbz|bz2?|rar|lzh|arj|bhx|hqx)$/ );
 
-      return("filebsd.gif") if ( $unix eq "bsd" );
-      return("filelinux.gif") if ( $unix eq "linux" );
-      return("filesolaris.gif") if ( $unix eq "solaris");
+      return("filebsd.gif") if ( $os =~ /bsd/i );
+      return("filelinux.gif") if ( $os =~ /linux/i );
+      return("filesolaris.gif") if ( $os =~ /solaris/i );
       return("file.gif");
    }
 }
 ########################## END FINDICON ##############################
-
-########################## UNIXTYPE ##############################
-sub unixtype {
-   if ( -f "/kernel" ) {
-      return "bsd";
-   } elsif ( -f "/boot/vmlinuz" ) {
-      return "linux";
-   } elsif ( -f "/kernel/genunix" ) {
-      return "solaris";
-   } else {
-      return "generic";
-   }
-}
-########################## END UNIXTYPE ##############################

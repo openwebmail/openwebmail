@@ -15,7 +15,7 @@ fontface="Geneva, Arial, Helvetica"
 body
 {
     background-image: url(@@@BG_URL@@@);
-    background-repeat: no-repeat;
+    background-repeat: @@@BGREPEAT@@@;
     scrollbar-arrow-color:black;
     scrollbar-base-color:#EEEEEE;
     scrollbar-face-color:#EEEEEE;

@@ -11,23 +11,24 @@ cs=schauer@dp.fyz.fce.vutbr.cz
 gb2312=wjun@mail.iap.ac.cn
 big5=openwebmail@turtle.ee.ncku.edu.tw
 da=frank@post12.tele.dk
-nl=zaphod@zeephod.dyndns.org
+nl=openwebmail@zeephod.dyndns.org
 fi=kari.paivarinta@viivatieto.fi
-fr=hermet@narrowstream.net
+fr=admin@osmium-work.com
 de=mail@schoeppi.net
 el=dimitris@michelinakis.gr
-hu=gumo@lucifer.kgt.bme.hu
+hu=grin@grin.hu
 id=liangs@kunchang.com.tw
 it=marvi@menhir.biz
 jp=james@ActionMessage.com
 kr=kmscom@snu.ac.kr
 lt=dvm382@takas.lt
 no=are@valinor.dolphinics.no
-pl=miki@z.pl
+pl=pawelj@lodz.dialog.net.pl
 pt=jferra@sfconsultores.pt
 ptbr=vlad@univap.br
 ro=vladimir@bitsoft.ro
 ru=duster@tpu.ru
+sr=alexa@yunord.net
 sk=lubos@klokner.sk
 es=jsmaldone@yahoo.com
 sv=tryfan@telia.com
@@ -53,6 +54,7 @@ if [ "$ans" = "y" -o "$ans" = "Y" ]; then
   echo "openwebmail current $date"| \
   /usr/local/bin/mutt -s "openwebmail current $date" \
   -a /usr/local/www/data/openwebmail/download/openwebmail-current.tgz \
+  -a /usr/local/www/data/openwebmail/download/openwebmail-current-*.files.tgz \
   -a /usr/local/www/data/openwebmail/download/openwebmail-current-*.diff.gz \
   -a /usr/local/www/data/openwebmail/download/doc/changes.txt \
   openwebmail@turtle.ee.ncku.edu.tw \
@@ -97,7 +99,7 @@ tung
     /usr/local/bin/mutt -s "OWM $date translation update request" \
     -a /usr/local/www/data/openwebmail/download/lang-templates-* \
     $ar $bg $ca $cs $gb2312 $big5 $da $nl $fi $fr $de $el $hu $id \
-    $it $jp $kr $lt $no $pl $pt $ptbr $ro $ru $sk $es $sv $th $tr $uk
+    $it $jp $kr $lt $no $pl $pt $ptbr $ro $ru $sr $sk $es $sv $th $tr $uk
   fi
   rm /tmp/notify.tmp.$$
 fi
@@ -114,8 +116,8 @@ Since your are one of the package/port or service maintainer of openwebmail,
 so I sent you this message for notification.
 
 The latest release is available at
-http://openwebmail.org/openwebmail/download/openwebmail-1.90.tgz
-http://turtle.ee.ncku.edu.tw/openwebmail/download/openwebmail-1.90.tgz
+http://openwebmail.org/openwebmail/download/openwebmail-2.00.tgz
+http://turtle.ee.ncku.edu.tw/openwebmail/download/openwebmail-2.00.tgz
 
 And thanks for all your efforts in openwebmail.
 

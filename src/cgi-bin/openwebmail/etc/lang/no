@@ -1,7 +1,7 @@
-#!/usr/bin/perl
+package openwebmail::no;
 
-# Norwegian translation by Are Tysland
-# charset: iso-8859-1
+# Norwegian translation, charset: iso-8859-1
+# by Are Tysland
 
 %lang_folders =
    (
@@ -181,6 +181,7 @@
 
 %lang_text =
    (
+   help       => 'Hjelp',
    login      => 'Logg inn',
    clear      => 'Slett',
    point      => 'Punkt',
@@ -319,12 +320,15 @@
    spellcheck => 'Stavekontroll',
    checkagain => 'Kontrollér igjen',
    finishchecking => 'Kontroll ferdig',
+   editpdict  => 'Edit Personal Dictionary',
+   addtodict  => 'Add to Dictionary',
    manuallyfix=> 'Rett manuellt',
    editstat   => 'Editér brevpapir',
    savestat   => 'Lagre brevpapir',
    clearstat  => 'Blanke alle brevpapir',
    statreply  => '-- Brevpapir for svar --',
    calendar   => 'Kalender',
+   allday     => 'All day',
    am         => 'am',
    pm         => 'pm',
    calfmt_year          => 'År @@@YEAR@@@',
@@ -336,6 +340,7 @@
    moreitems  => 'flere elementer',
    multieditconf => 'Dette elementet er lagt inn for flere datoer.\\nEndringer vil gjelde alle datoene.\\nFortsette å endre?',
    multidelconf  => 'Dette elementet er lagt inn for flere datoer.\\nSletting vil gjelde alle datoene.\\nFortsette å slette?',
+   caldelconf => 'Are you sure you want to delete this item?',
    noitemforthisday => 'Ingen elementer for denne dagen',
    thisday_only          => 'Kun denne dagen',
    the_wday_of_thismonth => '@@@ORDER@@@ @@@WDAY@@@ hver måned',
@@ -370,7 +375,13 @@
    failed       => 'feilet',
    savefile_towd=> 'Lagre fil på WebDisk',
    saveatt_towd => 'Lagre vedlegg på WebDisk',
-   addatt_fromwd=> 'Legg til vedlegg fra WebDisk'
+   addatt_fromwd=> 'Legg til vedlegg fra WebDisk',
+   vdomain_usermgr    => 'Virtual Domain User Management',
+   vdomain_createuser => 'Create User',
+   vdomain_changeuser => 'Change User',
+   vdomain_deleteuser => 'Delete User',
+   vdomain_usertype_localmbox  => 'Local Mailbox',
+   vdomain_usertype_redirected => 'Redirect to external mail address'
    );
 
 %lang_err =
@@ -414,6 +425,7 @@
    auth_syserr       => 'autentiseringssystemet feilet',
    param_fmterr      => 'feil format i paramerterene',
    pwd_incorrect     => 'feil passord',
+   pwd_confirmmismatch=>'Bekreftet passord var ikke likt',
    pwd_tooshort      => 'Passord for kort (minimum lengde @@@PASSWDMINLEN@@@)',
    pwd_toosimple     => 'Passord for enkelt (både bokstaver og tall er påkrevet)',
    network_server_error => 'feil i nettverkstjeneren',
@@ -429,7 +441,8 @@
    upload_overlimit  => 'Opplastingsfilen er for stor',
    decomp_notsupported=>'Utpakking er ikke støttet for denne filen.',
    webdisk_hitquota   => 'Beklager, du har brukt din webdisk-kvote, vennligst slett noen filer først.',
-   webdisk_readonly   => 'Beklager, din webdisk er skrivebeskyttet.'
+   webdisk_readonly   => 'Beklager, din webdisk er skrivebeskyttet.',
+   vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
    );
 
 1;

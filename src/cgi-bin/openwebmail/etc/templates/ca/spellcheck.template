@@ -12,6 +12,8 @@ L'usuari pot triar-ne un per  substituir a l'original.
 Si no en va bé cap, pot triar "-Arreglar-ho a mà-"
 i faci clic [Tornar-ho a revisar], un camp de text estará disponible per la
 correcció manual.
+If the user chooses "--Add to Dictionary--" and then clicks [Check Again], 
+the original word will be added to the user's personal dictionary.
 </td></tr>
 </table>
 <br>
@@ -27,9 +29,8 @@ correcció manual.
 
 <br>
 @@@CHECKAGAINBUTTON@@@
-&nbsp;&nbsp;&nbsp;
 @@@FINISHCHECKINGBUTTON@@@
-&nbsp;&nbsp;&nbsp;
+@@@EDITPERSDICTIONARYBUTTON@@@
 @@@CANCELBUTTON@@@
 <br><br>
 </td></tr>

@@ -1,7 +1,7 @@
-#!/usr/bin/perl
+package openwebmail::da;
 
-# Danish translation by Frank, frank.AT.post12.tele.dk
-# charset: iso-8859-1
+# Danish translation, charset: iso-8859-1
+# by Frank, frank.AT.post12.tele.dk
 
 %lang_folders =
    (
@@ -16,14 +16,14 @@
 %lang_sortlabels =
    (
    status      => 'Status (Ulæst mail først)',
-   date        => 'Dato (Nyeste først)',
-   date_rev    => 'Dato (Ældste først)',
-   sender      => 'Afsender (Nyeste først)',
-   sender_rev  => 'Afsender (Ældste først)',
-   subject     => 'Emne (Nyeste først)',
-   subject_rev => 'Emne (Ældste først)',
-   size        => 'Størrelse (Den største først)',
-   size_rev    => 'Størrelse (Den mindste først)'
+   date        => 'Dato (nyeste først)',
+   date_rev    => 'Dato (ældste først)',
+   sender      => 'Afsender (nyeste først)',
+   sender_rev  => 'Afsender (ældste først)',
+   subject     => 'Emne (nyeste først)',
+   subject_rev => 'Emne (ældste først)',
+   size        => 'Størrelse (største først)',
+   size_rev    => 'Størrelse (mindste først)'
    );
 
 %lang_prioritylabels =
@@ -49,8 +49,8 @@
 
 %lang_ctrlpositionlabels =
    (
-   top => 'At top',
-   bottom => 'At bottom'
+   top => 'i toppen',
+   bottom => 'i bunden'
    );
 
 %lang_sendpositionlabels =
@@ -62,9 +62,9 @@
 
 %lang_abookbuttonpositionlabels = 
    (
-   before => 'Before addressbook entries',
-   after  => 'After addressbook entries',
-   both   => 'Before and after addressbook entries'
+   before => 'over optagelserne',
+   after  => 'under optagelserne',
+   both   => 'både over og under optagelserne'
    );
 
 %lang_timelabels =
@@ -159,28 +159,29 @@
 
 %lang_wdbutton =
    (
-   refresh  => 'Refresh',
-   preview  => 'Preview',
+   refresh  => 'Opdater',
+   preview  => 'AutoVisning',
    edit     => 'Rediger',
    listarchive=> 'List',
-   decompress=>'Decompress',
-   extract  => 'Extract',
-   chdir    => 'ChDir',
-   mkdir    => 'MkDir',
-   newfile  => 'NewFile',
-   delete   => 'Delete',
-   copy     => 'Copy',
-   move     => 'Move',
-   gzip     => 'gzCompress',
-   mkzip    => 'MkZip',
-   mktgz    => 'MkTgz',
+   decompress=>'DeKomprimer',
+   extract  => 'Udpak',
+   chdir    => 'Skift folder',
+   mkdir    => 'Ny folder',
+   newfile  => 'Ny fil',
+   delete   => 'Slet',
+   copy     => 'Kopier',
+   move     => 'Flyt',
+   gzip     => 'Pak m. gz',
+   mkzip    => 'Pak m. Zip',
+   mktgz    => 'Pak m. Tgz',
    mkthumbnail  => 'MkThumb',
-   download => 'Download',
-   upload   => 'Upload',
+   download => 'Hent',
+   upload   => 'Send',
    );   
 
 %lang_text =
    (
+   help       => 'Hjælp',
    login      => 'Log ind',
    clear      => 'Ryd',
    point      => 'punkt',
@@ -228,8 +229,8 @@
    to         => 'Til',
    cc         => 'CC',
    bcc        => 'BCC',
-   simplehead => 'Vis kort brevhoved',
-   allhead    => 'Vis alle linier i brevhoved',
+   simplehead => 'kort',
+   allhead    => 'alle linier',
    simpleattmode => 'Simpel vedhæng',
    allattmode    => 'Alle vedhæng',
    attachment => 'Vedhæft fil',
@@ -238,7 +239,7 @@
    encoding   => 'Encoding',
    description=> 'Beskrivelse',
    download   => 'Gem',
-   charset    => 'Charset',
+   charset    => 'Karaktersæt',
    samecharset=> 'samme tegnsæt som da mailen blev skrevet',
    thisispartialmsg => 'Dette er en del af en mail.',
    msgrebuild => 'Besked genopbygget',
@@ -280,7 +281,7 @@
    name       => 'Navn',
    email      => 'Email',
    note       => 'Notat',
-   max        => 'Maximum',
+   max        => 'Maksimum',
    group      => 'Gruppe',
    quota_hit  => 'ADVARSEL, din postkasse er fuld',
    usage      => 'ADVARSEL, din postkasse er snart fuld, du benytter nu:',
@@ -319,12 +320,15 @@
    spellcheck => 'Stavekontrol',
    checkagain => 'Check igen',
    finishchecking => 'Afslut stavekontrol',
-   manuallyfix=> 'Manual rettelse',
+   editpdict  => 'Edit Personal Dictionary',
+   addtodict  => 'Add to Dictionary',
+   manuallyfix=> 'Manuel rettelse',
    editstat   => 'Ret signatur',
    savestat   => 'Gem signatur',
    clearstat  => 'Slet alle signaturer',
    statreply  => '-- Stationery for Reply --',
    calendar   => 'Kalender',
+   allday     => 'Hele dagen',
    am         => 'am',
    pm         => 'pm',
    calfmt_year          => 'År @@@YEAR@@@',
@@ -332,24 +336,25 @@
    calfmt_yearmonthday  => '@@@DAY@@@ @@@MONTH_STR@@@ @@@YEAR@@@',
    calfmt_yearmonthdaywday => '@@@WEEKDAY_STR@@@ @@@DAY@@@ @@@MONTH_STR@@@ @@@YEAR@@@',
    calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
-   none       => 'Hele dagen',
+   none       => 'Ingen lyd',
    moreitems  => 'more items',
    multieditconf => 'Dette er en tilbagevendende aftale. Ændringer af denne\\naftale, vil også ændre alle de tilbagevendende aftaler.\\nØnsker du at fortsætte?',
    multidelconf  => 'Dette er en tilbagevendende aftale. Hvis du sletter denne\\naftale, sletter du også de tilbagevendende aftaler.\\nØnsker du at fortsætte?',
+   caldelconf => 'Are you sure you want to delete this item?',
    noitemforthisday => 'Ingen aftaler i dag',
    thisday_only          => 'Kun dags dato',
    the_wday_of_thismonth => 'Den @@@ORDER@@@ @@@WDAY@@@ i hver måned',
    every_wday_thismonth  => 'Hver @@@WDAY@@@ i denne måned',
-   thismonth_only           => 'This month only',
-   every_oddmonth_thisyear  => 'Every odd month this year',
-   every_evenmonth_thisyear => 'Every even month this year',
-   every_month_thisyear     => 'Every month this year',
+   thismonth_only           => 'Kun denne måned',
+   every_oddmonth_thisyear  => 'Hver ulige måneder dette år',
+   every_evenmonth_thisyear => 'Hver lige måneder dette år',
+   every_month_thisyear     => 'Hver måned dette år',
    webdisk      => 'WebDisk',
    sshterm      => 'SSH Terminal',
-   dir          => 'Dir',
-   dirs         => 'Dirs',
-   file         => 'File',
-   files        => 'Files',
+   dir          => 'Folder',
+   dirs         => 'Foldere',
+   file         => 'Fil',
+   files        => 'Filer',
    program      => 'Program',
    dest_of_chdir  => 'the destined directory',
    name_of_newdir => 'the directory name to create',
@@ -358,9 +363,9 @@
    dest_of_themove=> 'the destined directory or file of the move',
    dest_of_thezip=> 'the destined filename of the new zip',
    dest_of_thetgz=> 'the destined filename of the new tgz',
-   homedir      => 'Homedir',
+   homedir      => 'Hjemmefolder',
    showthumbnail    => 'Thumbnails',
-   showhidden   => 'Show hidden files',
+   showhidden   => 'Vis skjulte filter',
    lastmodified => 'Last modified time',
    perm         => 'Perm',
    permission   => 'Access Permission',
@@ -368,9 +373,15 @@
    savefile     => 'Savefile',
    succeeded    => 'succeeded',
    failed       => 'failed',
-   savefile_towd=> 'Save file to WebDisk',
-   saveatt_towd => 'Save attachment to WebDisk',
-   addatt_fromwd=> 'Add attachment from WebDisk'
+   savefile_towd=> 'Gem fil til WebDisk',
+   saveatt_towd => 'Gem vedhæftede filer til WebDisk',
+   addatt_fromwd=> 'Vedhæft fil fra WebDisk',
+   vdomain_usermgr    => 'Virtual Domain User Management',
+   vdomain_createuser => 'Create User',
+   vdomain_changeuser => 'Change User',
+   vdomain_deleteuser => 'Delete User',
+   vdomain_usertype_localmbox  => 'Local Mailbox',
+   vdomain_usertype_redirected => 'Redirect to external mail address'
    );
 
 %lang_err =
@@ -414,6 +425,7 @@
    auth_syserr       => 'godkendelse af systemet fejlede',
    param_fmterr      => 'parameter format fejlede',
    pwd_incorrect     => 'Ugyldig brugernavn eller adgangskode',
+   pwd_confirmmismatch=>'Ny adgangskode matcher ikke den gamle',
    pwd_tooshort      => 'Adgangskoden er for kort (minimum længde @@@PASSWDMINLEN@@@)',
    pwd_toosimple     => 'Adgangskoden er for simplel (der skal benyttes både bogstaver og tal)',
    network_server_error => 'server netværks fejl',
@@ -429,7 +441,8 @@
    upload_overlimit  => 'Upload file size is over the limit',
    decomp_notsupported=>'Decompression support is not available for this file.',
    webdisk_hitquota   => 'Sorry, you\'ve hit your webdisk quota, please delete some files first.',
-   webdisk_readonly   => 'Sorry, your webdisk is read only.'
+   webdisk_readonly   => 'Sorry, your webdisk is read only.',
+   vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
    );
 
 1;

@@ -28,6 +28,7 @@
 @@@STATBODY@@@
 </td></tr>
 <tr><td colspan="3" align="center" bgcolor=@@@WINDOW_DARK@@@>
-@@@SAVESTAT@@@</td></tr>
-</table>
+@@@SAVESTATBUTTON@@@
+</td></tr>
 @@@ENDSTATFORM@@@
+</table>

@@ -14,7 +14,7 @@
 <td align="right">
 <table border="0" cellpadding="0" cellspacing="0"><tr>
 <td>@@@SHOWHIDDENLABEL@@@</td><td>@@@SHOWHIDDENCHECKBOX@@@</td>
-<td>Single page</td><td>@@@SINGLEPAGECHECKBOX@@@</td>
+<td>Alt p&aring; en side</td><td>@@@SINGLEPAGECHECKBOX@@@</td>
 </tr></table>
 </td>
 </tr></table>
@@ -43,6 +43,9 @@
 @@@ENDFORM@@@
 </tr></table>
 
+@@@SAVEATTFILEFORM@@@
+@@@SAVEATTACHMENTFORM@@@
+
 <script language="JavaScript">
 <!--
    function filldestname(str) {
@@ -60,21 +63,19 @@
    function saveattfile_and_close(attfile)
    {
       if (document.selform.destname.value != "") {
-         window.open('@@@VIEWATTURL@@@?sessionid=@@@SESSIONID@@@&amp;action=saveattfile'
-                    +'&amp;attfile='+attfile
-                    +'&amp;webdisksel='+escape(document.selform.destname.value),
-                    '_self');
+         document.saveattfileform.attfile.value = attfile;
+         document.saveattfileform.webdisksel.value = document.selform.destname.value;
+         document.saveattfileform.submit();
       }
    }
-   function saveattachment_and_close(escapedfolder, escapedmessageid, attachment_nodeid)
+   function saveattachment_and_close(folder, messageid, attachment_nodeid)
    {
       if (document.selform.destname.value != "") {
-         window.open('@@@VIEWATTURL@@@?sessionid=@@@SESSIONID@@@&amp;action=saveattachment'
-                    +'&amp;folder='+escapedfolder
-                    +'&amp;message_id='+escapedmessageid
-                    +'&amp;attachment_nodeid='+attachment_nodeid
-                    +'&amp;webdisksel='+escape(document.selform.destname.value),
-                    '_self');
+         document.saveattachmentform.folder.value = folder;
+         document.saveattachmentform.message_id.value = messageid;
+         document.saveattachmentform.attachment_nodeid.value = attachment_nodeid;
+         document.saveattachmentform.webdisksel.value = document.selform.destname.value;
+         document.saveattachmentform.submit();
       }
    }
 //-->

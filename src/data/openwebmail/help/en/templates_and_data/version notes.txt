@@ -1,0 +1,9 @@
+Open Webmail Help Notes:
+------------------------
+
+"The Message Toolbar" (tutorial/toolbars/message.html)
+
+-Added footnote on  stating an alternate use for the "New Message" button swhen viewing a message in the "Drafts" folder.
+-Changed wording on one of the toolbar button descriptions (Print)
+
+Added page "Downloading & Backing up" to messages section

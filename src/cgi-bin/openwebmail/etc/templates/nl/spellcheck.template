@@ -1,7 +1,7 @@
 <table border="0" align="center" width="95%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>SPELLINGSCONTROLE VOOR @@@DICTIONARY@@@</B></font>
+<B>Spellingscontrole in het @@@DICTIONARY@@@</B></font>
 </td></tr>
 <tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 
@@ -9,9 +9,11 @@
 <tr><td bgcolor=@@@WINDOW_LIGHT@@@>
 <BR>Een keuze aan vervangingen wordt getoond voor ieder verkeerd gespeld woord.
 De gebruiker kan hieruit een keuze maken om het incorrect gespelde woord te vervangen.
-Als er geen goed alternatief getoond wordt, kiest de gebruiker "-handmatig herstellen-"
-en klikt op [Opnieuw openen], een tekstveld wordt getoond waarop de gebruiker zijn woord
+Als er geen goed alternatief getoond wordt, kiest de gebruiker "--handmatig herstellen--"
+en klikt op [Controleer opnieuw], een tekstveld wordt getoond waarop de gebruiker zijn woord
 kan invoeren.
+Als u "--Voeg aan woordenboek toe--" kiest en u klikt op [Controleer opnieuw], 
+wordt het originele woordt toegevoegd aan uw persoonlijke woordenboek.
 </td></tr>
 </table>
 <br>
@@ -27,9 +29,8 @@ kan invoeren.
 
 <br>
 @@@CHECKAGAINBUTTON@@@
-&nbsp;&nbsp;&nbsp;
 @@@FINISHCHECKINGBUTTON@@@
-&nbsp;&nbsp;&nbsp;
+@@@EDITPERSDICTIONARYBUTTON@@@
 @@@CANCELBUTTON@@@
 <br><br>
 </td></tr>

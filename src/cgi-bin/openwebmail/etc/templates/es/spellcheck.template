@@ -10,8 +10,10 @@
 <BR>Se sugerir&aacute;n una serie de reemplazos por cada palabra incorrecta.
 Usted puede elegir una de ellas para reemplazar la palabra original.
 Si no se encuentran reemplazos para sugerir o el usuario elige "-corregir manualmente-"
-y entonces haga un clic en [Comprobar de nuevo], un campo de texto estar&aacute; disponible para
+y entonces haga un clic en [Comprobar nuevamente], un campo de texto estar&aacute; disponible para
 que introduzca la corecci&oacute;n manualmente.
+Si selecciona "--Agregar al Diccionario--" y luego hace un clic en [Comprobar nuevamente], 
+la palabra original será agregada a su diccionario personal.
 </td></tr>
 </table>
 <br>
@@ -27,9 +29,8 @@ que introduzca la corecci&oacute;n manualmente.
 
 <br>
 @@@CHECKAGAINBUTTON@@@
-&nbsp;&nbsp;&nbsp;
 @@@FINISHCHECKINGBUTTON@@@
-&nbsp;&nbsp;&nbsp;
+@@@EDITPERSDICTIONARYBUTTON@@@
 @@@CANCELBUTTON@@@
 <br><br>
 </td></tr>

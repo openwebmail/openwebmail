@@ -11,6 +11,8 @@
 Du kan s&aring; v&aelig;lge et ord fra listen, til erstatning af original ordet.
 Hvis der ikke bliver fundet forslag til &aelig;ndringer kan du vælger "-Manuel rettelse-"
 og klikke på [Check igen], så vil ordet blive tilgængelig, og du kan selv rette det.
+If the user chooses "--Add to Dictionary--" and then clicks [Check Again], 
+the original word will be added to the user's personal dictionary.
 </td></tr>
 </table>
 <br>
@@ -26,9 +28,8 @@ og klikke på [Check igen], så vil ordet blive tilgængelig, og du kan selv rette 
 
 <br>
 @@@CHECKAGAINBUTTON@@@
-&nbsp;&nbsp;&nbsp;
 @@@FINISHCHECKINGBUTTON@@@
-&nbsp;&nbsp;&nbsp;
+@@@EDITPERSDICTIONARYBUTTON@@@
 @@@CANCELBUTTON@@@
 <br><br>
 </td></tr>

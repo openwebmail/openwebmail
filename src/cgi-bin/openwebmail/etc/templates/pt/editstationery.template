@@ -1,15 +1,15 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td colspan="3" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>Edit Stationery</b></font>
+<b>Editar Resposta Tipo</b></font>
 </td></tr><tr><td colspan="3" bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
 </td>
 </tr><tr><td colspan="3">&nbsp;</td></tr>
 <tr><td bgcolor=@@@COLUMNHEADER@@@ width="20%">
-<B>Title</B></td>
+<B>Titulo</B></td>
 <td bgcolor=@@@COLUMNHEADER@@@ width="70%">
-<B>Stationery Text</B></td>
+<B>Texto</B></td>
 </td>
 <td bgcolor=@@@COLUMNHEADER@@@ width="10%">&nbsp;</td>
 </tr>
@@ -18,15 +18,16 @@
 <tr><td colspan="3">&nbsp;</td></tr>
 
 @@@STARTSTATFORM@@@
-<tr><td colspan="3" bgcolor=@@@COLUMNHEADER@@@><B>Compose New Stationery</B></td></tr>
+<tr><td colspan="3" bgcolor=@@@COLUMNHEADER@@@><B>Compor Nova Resposta Tipo</B></td></tr>
 </td><td colspan="3" align="center" bgcolor=@@@WINDOW_DARK@@@>
-<B>Title:</B>&nbsp; &nbsp; 
+<B>Titulo:</B>&nbsp; &nbsp; 
 @@@STATNAME@@@
 <tr><td colspan="3" align="center" bgcolor=@@@WINDOW_DARK@@@ class=msgbody>
-<B>Stationery Text</B><BR>
+<B>Texto</B><BR>
 @@@STATBODY@@@
 </td></tr>
 <tr><td colspan="3" align="center" bgcolor=@@@WINDOW_DARK@@@>
-@@@SAVESTAT@@@</td></tr>
-</table>
+@@@SAVESTATBUTTON@@@
+</td></tr>
 @@@ENDSTATFORM@@@
+</table>

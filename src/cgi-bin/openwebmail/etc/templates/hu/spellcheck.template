@@ -11,6 +11,8 @@
 Minden tévesen írt szóhoz javaslatok jelennek meg.
 Ön választhat ezek közül egyet; ha egyik sem megfelelõ, válassza a
 "manuális javítás" lehetõséget.
+If the user chooses "--Add to Dictionary--" and then clicks [Check Again], 
+the original word will be added to the user's personal dictionary.
 </td></tr>
 </table>
 <br>
@@ -26,9 +28,8 @@ Minden tévesen írt szóhoz javaslatok jelennek meg.
 
 <br>
 @@@CHECKAGAINBUTTON@@@
-&nbsp;&nbsp;&nbsp;
 @@@FINISHCHECKINGBUTTON@@@
-&nbsp;&nbsp;&nbsp;
+@@@EDITPERSDICTIONARYBUTTON@@@
 @@@CANCELBUTTON@@@
 <br><br>
 </td></tr>

@@ -1,8 +1,8 @@
-#!/usr/bin/perl
+package openwebmail::pt_BR;
 
-# Portuguese Brazil translation by Edison Figueira Junior, edison.AT.brc.com.br
-#                       updated by Rui - iG, ruisb.AT.ig.com.br
-# charset: iso-8859-1
+# Portuguese Brazil translation, charset: iso-8859-1
+# by Edison Figueira Junior, edison.AT.brc.com.br
+#    Rui - iG, ruisb.AT.ig.com.br
 
 %lang_folders =
    (
@@ -63,9 +63,9 @@
 
 %lang_abookbuttonpositionlabels = 
    (
-   before => 'Before addressbook entries',
-   after  => 'After addressbook entries',
-   both   => 'Before and after addressbook entries'
+   before => 'Antes do livro de endereços',
+   after  => 'Depois do livro de endereços',
+   both   => 'Antes e depois do livro de endereços'
    );
 
 %lang_timelabels =
@@ -166,7 +166,7 @@
    listarchive=> 'Listar',
    decompress=>'Descompactar',
    extract  => 'Extrair',
-   chdir    => 'Mover Dir',
+   chdir    => 'Mudar Dir',
    mkdir    => 'Criar Dir',
    newfile  => 'Novo Arquivo',
    delete   => 'Apagar',
@@ -182,6 +182,7 @@
 
 %lang_text =
    (
+   help       => 'Ajuda',
    login      => 'Entrar',
    clear      => 'Limpar',
    point      => 'Pontos',
@@ -240,7 +241,7 @@
    description=> 'Descrição',
    download   => 'Baixar',
    charset    => 'Codificação de caracteres',
-   samecharset=> 'O mesma codificação de caracteres da composição',
+   samecharset=> 'A mesma codificação de caracteres da composição',
    thisispartialmsg => 'Esta é uma mensagem parcial.',
    msgrebuild => 'Reconstrói mensagem',
    editdraft  => 'Editar Rascunho',
@@ -281,9 +282,9 @@
    name       => 'Nome',
    email      => 'E-mail',
    note       => 'Nota',
-   max        => 'Maximum',
+   max        => 'Máximo',
    group      => 'Grupo',
-   quota_hit  => 'LIMITE DE TAMANHO PERMITIDO',
+   quota_hit  => 'LIMITE DE ESPAÇO PERMITIDO',
    usage      => 'Uso',
    tzmap      => 'Fuso horário',
    testsound  => 'Testar som',
@@ -320,12 +321,15 @@
    spellcheck => 'Verificar Ortografia',
    checkagain => 'Verificar Novamente',
    finishchecking => 'Terminar a Verificação',
+   editpdict  => 'Editar Dicionário Pessoal',
+   addtodict  => 'Adicione ao Dicionário',
    manuallyfix=> 'Corrigir Manualmente',
    editstat   => 'Editar Timbre',
    savestat   => 'Salvar Timbre',
    clearstat  => 'Apagar todos Timbres',
    statreply  => '-- Selecione o Timbre para resposta --',
    calendar   => 'Agenda de Compromissos',
+   allday     => 'Dia Todo',
    am         => 'am',
    pm         => 'pm',
    calfmt_year          => 'Ano de @@@YEAR@@@',
@@ -337,6 +341,7 @@
    moreitems  => 'mais itens',
    multieditconf => 'Este item foi adicionado em multiplas datas.\\nEditá-lo irá alterar o item em todas as datas.\\nContinua a Edição?',
    multidelconf  => 'Este item foi adicionado em multiplas datas.\\nExcluí-lo irá fazer com que seja excluido em todas as datas.\\nContinua a Exclusão?',
+   caldelconf => 'Tem certeza que quer excluir este item?',
    noitemforthisday => 'Nenhum item para esta data',
    thisday_only          => 'Somente nesta data',
    the_wday_of_thismonth => 'A @@@ORDER@@@ @@@WDAY@@@ do mês',
@@ -371,7 +376,13 @@
    failed       => 'falhou',
    savefile_towd=> 'Salvar arquivo no Disco Web',
    saveatt_towd => 'Salvar anexo no Disco Web',
-   addatt_fromwd=> 'Adicionar anexo do Disco Web'
+   addatt_fromwd=> 'Adicionar anexo do Disco Web',
+   vdomain_usermgr    => 'Virtual Domain User Management',
+   vdomain_createuser => 'Create User',
+   vdomain_changeuser => 'Change User',
+   vdomain_deleteuser => 'Delete User',
+   vdomain_usertype_localmbox  => 'Local Mailbox',
+   vdomain_usertype_redirected => 'Redirect to external mail address'
    );
 
 %lang_err =
@@ -415,6 +426,7 @@
    auth_syserr       => 'Erro na autenticação',
    param_fmterr      => 'Erro no formato do parâmetro',
    pwd_incorrect     => 'Senha incorreta',
+   pwd_confirmmismatch=>'A nova senha não confere',
    pwd_tooshort      => 'Senha muito curta (tamnaho mínimo @@@PASSWDMINLEN@@@)',
    pwd_toosimple     => 'Senha muito simples(letras e digítos são requeridos)',
    network_server_error => 'erro no servidor de rede',
@@ -430,7 +442,8 @@
    upload_overlimit  => 'O limite do arquivo para upload excedeu',
    decomp_notsupported=>'Não há descompactador para este arquivo.',
    webdisk_hitquota   => 'Desculpe, voce excedeu seu limite no Disco Web, apague alguns arquivos antes.',
-   webdisk_readonly   => 'Desculpe, seu diso web é somente para leitura.'
+   webdisk_readonly   => 'Desculpe, seu diso web é somente para leitura.',
+   vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
    );
 
 1;

@@ -4,9 +4,12 @@
 #
 
 use vars qw($SCRIPT_DIR);
-if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-\.]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
-if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
-push (@INC, $SCRIPT_DIR, ".");
+if ( $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
+if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
+   $_=<F>; close(F); if ( $_=~/^([^\s]*)/) { $SCRIPT_DIR=$1; }
+}
+if (!$SCRIPT_DIR) { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
+push (@INC, $SCRIPT_DIR);
 
 $ENV{PATH} = ""; # no PATH should be needed
 $ENV{ENV} = "";      # no startup script for sh
@@ -17,8 +20,7 @@ use strict;
 use IPC::Open3;
 use Fcntl qw(:DEFAULT :flock);
 use CGI qw(-private_tempfiles :standard);
-use CGI::Carp qw(fatalsToBrowser);
-CGI::nph();   # Treat script as a non-parsed-header script
+use CGI::Carp qw(fatalsToBrowser carpout);
 
 require "ow-shared.pl";
 require "filelock.pl";
@@ -28,13 +30,12 @@ require "maildb.pl";
 
 use vars qw(%config %config_raw);
 use vars qw($thissession);
-use vars qw($loginname $domain $user $userrealname $uuid $ugid $homedir);
+use vars qw($domain $user $userrealname $uuid $ugid $homedir);
 use vars qw(%prefs %style);
 use vars qw($folderdir @validfolders $folderusage);
 use vars qw($folder $printfolder $escapedfolder);
 
 openwebmail_init();
-verifysession();
 
 use vars qw($sort $page);
 use vars qw($searchtype $keyword $escapedkeyword);
@@ -50,7 +51,6 @@ use vars qw(%lang_text %lang_err);	# defined in lang/xy
 use vars qw($_SUBJECT $_CHARSET);	# defined in maildb.pl
 
 ########################## MAIN ##############################
-
 my $action = param("action");
 if ($action eq "viewattachment") {
    viewattachment();
@@ -64,6 +64,8 @@ if ($action eq "viewattachment") {
    openwebmailerror("Action $lang_err{'has_illegal_chars'}");
 }
 
+# back to root if possible, required for setuid under persistent perl
+$<=0; $>=0;
 ###################### END MAIN ##############################
 
 ################ VIEWATTACHMENT/SAVEATTACHMENT ##################
@@ -87,7 +89,7 @@ sub saveattachment {	# save attachments inside a message to webdisk
 sub getattachment {
    my ($folder, $messageid, $nodeid)=@_;
    my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
-   my $folderhandle=FileHandle->new();
+   my $folderhandle=do { local *FH };
 
    filelock($folderfile, LOCK_SH|LOCK_NB) or
       openwebmailerror("$lang_err{'couldnt_locksh'} $folderfile!");
@@ -128,9 +130,7 @@ sub getattachment {
                     qq|Content-Transfer-Coding: binary\n|.
                     qq|Connection: close\n|.
                     qq|Content-Type: message/rfc822; name="$subject.msg"\n|;
-
-      # ugly hack since ie5.5 is broken with disposition: attchment
-      if ( $ENV{'HTTP_USER_AGENT'}!~/MSIE 5.5/ ) {
+      if ( $ENV{'HTTP_USER_AGENT'}!~/MSIE 5.5/ ) {	# ie5.5 is broken with content-disposition
          $attheader.=qq|Content-Disposition: attachment; filename="$subject.msg"\n|;
       }
       return("$subject.msg", $length, \$attheader, $r_block);
@@ -218,8 +218,7 @@ sub getattachment {
                        qq|Content-Transfer-Coding: binary\n|.
                        qq|Connection: close\n|.
                        qq|Content-Type: $contenttype; name="$filename"\n|;
-         # ugly hack since ie5.5 is broken with disposition: attchment
-         if ( $ENV{'HTTP_USER_AGENT'}!~/MSIE 5.5/ ) {
+         if ( $ENV{'HTTP_USER_AGENT'}!~/MSIE 5.5/ ) {	# ie5.5 is broken with content-disposition
             if ($contenttype =~ /^text/i) {
                $attheader.=qq|Content-Disposition: inline; filename="$filename"\n|;
             } else {
@@ -350,10 +349,12 @@ sub getattfile {
 ##################### SAVEFILE2WEBDISK ###################
 sub savefile2webdisk {
    my ($filename, $length, $r_content, $webdisksel)=@_;
+   my $webdiskrootdir=$homedir.absolute_vpath("/", $config{'webdisk_rootpath'});
+   ($webdiskrootdir =~ m!^(.+)/?$!) && ($webdiskrootdir = $1);  # untaint ...
 
    if ($config{'webdisk_quota'}>0) {
       my $webdiskusage=0;
-      my ($stdout, $stderr, $exit, $sig)=execute('/usr/bin/du', '-sk', $homedir);
+      my ($stdout, $stderr, $exit, $sig)=execute('/usr/bin/du', '-sk', $webdiskrootdir);
       $webdiskusage=$1 if ($stdout=~/(\d+)/);
       if ($length/1024+$webdiskusage > $config{'webdisk_quota'}) {
          autoclosewindow($lang_text{'quota_hit'}, $lang_err{'webdisk_hitquota'});
@@ -361,25 +362,25 @@ sub savefile2webdisk {
    }
 
    my $vpath=absolute_vpath('/', $webdisksel);
-   my $err=verify_vpath($homedir, $vpath);
+   my $err=verify_vpath($webdiskrootdir, $vpath);
    openwebmailerror($err) if ($err);
 
-   if (-d "$homedir/$vpath") {			# use choose a dirname, save att with its original name
+   if (-d "$webdiskrootdir/$vpath") {			# use choose a dirname, save att with its original name
       $vpath=absolute_vpath($vpath, $filename);
-      $err=verify_vpath($homedir, $vpath);
+      $err=verify_vpath($webdiskrootdir, $vpath);
       openwebmailerror($err) if ($err);
    }
    ($vpath =~ /^(.+)$/) && ($vpath = $1);  # untaint ...
 
-   if (!open(F, ">$homedir/$vpath") ) {
+   if (!open(F, ">$webdiskrootdir/$vpath") ) {
       autoclosewindow($lang_text{'savefile'}, "$lang_text{'savefile'} $lang_text{'failed'} ($vpath: $!)");
    }
-   filelock("$homedir/$vpath", LOCK_EX|LOCK_NB) or
-      autoclosewindow($lang_text{'savefile'}, "$lang_err{'couldnt_lock'} $homedir/$vpath!");
+   filelock("$webdiskrootdir/$vpath", LOCK_EX|LOCK_NB) or
+      autoclosewindow($lang_text{'savefile'}, "$lang_err{'couldnt_lock'} $webdiskrootdir/$vpath!");
    print F ${$r_content};
    close(F);
-   chmod(0644, "$homedir/$vpath");
-   filelock("$homedir/$vpath", LOCK_UN);
+   chmod(0644, "$webdiskrootdir/$vpath");
+   filelock("$webdiskrootdir/$vpath", LOCK_UN);
 
    writelog("saveatt - $vpath");
    writehistory("saveatt - $vpath");

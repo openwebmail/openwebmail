@@ -32,7 +32,6 @@
 #
 use strict;
 use Fcntl qw(:DEFAULT :flock);
-use FileHandle;
 
 use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE $_STATUS $_SIZE $_REFERENCES $_CHARSET);
 
@@ -46,7 +45,6 @@ use vars qw(%config);	# defined in caller openwebmail-xxx.pl
 if ( $config{'dbm_ext'} eq "" ) {
    $config{'dbm_ext'}=".db";
 }
-
 ######################### UPDATE_HEADERDB ############################
 # this routine indexes the messages in a mailfolder
 # and remove those with duplicated messageids
@@ -398,7 +396,6 @@ sub make_msgrecord {
    }
    return(join('@@@', @_));
 }
-
 ################## END UPDATEHEADERDB ####################
 
 ############### GET_MESSAGEIDS_SORTED_BY_...  #################
@@ -946,14 +943,13 @@ sub get_message_header {
    }
    return(\$header);
 }
-
 ###################### END GET_MESSAGE_.... ########################
 
 ###################### UPDATE_MESSAGE_STATUS ########################
 sub update_message_status {
    my ($messageid, $status, $headerdb, $folderfile) = @_;
    my $messageoldstatus='';
-   my $folderhandle=FileHandle->new();
+   my $folderhandle=do { local *FH };
    my %HDB;
    my $ioerr=0;
 
@@ -1097,7 +1093,6 @@ sub update_message_status {
       return -3;
    }
 }
-
 #################### END UPDATE_MESSAGE_STATUS ######################
 
 ###################### OP_MESSAGE_WITH_IDS #########################
@@ -1105,7 +1100,7 @@ sub update_message_status {
 # available $op: "move", "copy", "delete"
 sub operate_message_with_ids {
    my ($op, $r_messageids, $srcfile, $srcdb, $dstfile, $dstdb)=@_;
-   my $folderhandle=FileHandle->new();
+   my $folderhandle=do { local *FH };
    my (%HDB, %HDB2);
    my $messageids = join("\n", @{$r_messageids});
    my $ioerr=0;
@@ -1273,7 +1268,7 @@ sub operate_message_with_ids {
 #################### DELETE_MESSAGE_BY_AGE #######################
 sub delete_message_by_age {
    my ($age, $headerdb, $folderfile)=@_;
-   my $folderhandle=FileHandle->new();
+   my $folderhandle=do { local *FH };
    my %HDB;
    my (@allmessageids, @agedids);
 
@@ -1303,7 +1298,6 @@ sub delete_message_by_age {
    return 0 if ($#agedids==-1);
    return(operate_message_with_ids('delete', \@agedids, $folderfile, $headerdb));
 }
-
 ################### END DELETE_MESSAGE_BY_AGE #####################
 
 ####################### MOVE_OLDMSG_FROM_FOLDER #################
@@ -1462,7 +1456,6 @@ sub rebuild_message_with_partialid {
 
    return(0, $rebuildmsgids[0], @partialmsgids);
 }
-
 ##################### END REBUILD_MESSAGE_WITH_PARTIALID #################
 
 ####################### PARSE_.... related ###########################
@@ -1603,7 +1596,7 @@ sub parse_rfc822block {
       if ( $searchid eq "" || $searchid eq "all" || $searchid=~/^$nodeid-0/ ) {
          # Handle uuencode blocks inside a text/plain mail
          if ( $contenttype =~ /^text\/plain/i || $contenttype eq 'N/A' ) {
-            if ( $body =~ /\nbegin ([0-7][0-7][0-7][0-7]?) ([^\n\r]+)\n(.+?)\nend\n/ims ) {
+            if ( $body =~ /(\nbegin|^begin) ([0-7][0-7][0-7][0-7]?) ([^\n\r]+)\n(.+?)\nend\n/ims ) {
                my $r_attachments2;
                ($body, $r_attachments2)=parse_uuencode_body($body, "$nodeid-0", $searchid);
                push(@attachments, @{$r_attachments2});
@@ -1829,9 +1822,9 @@ sub parse_uuencode_body {
 
    # Handle uuencode blocks inside a text/plain mail
    $i=0;
-   while ( $body =~ m/\nbegin ([0-7][0-7][0-7][0-7]?) ([^\n\r]+)\n(.+?)\nend\n/igms ) {
+   while ( $body =~ m/(\nbegin|^begin) ([0-7][0-7][0-7][0-7]?) ([^\n\r]+)\n(.+?)\nend\n/igms ) {
       if ( $searchid eq "" || $searchid eq "all" || $searchid eq "$nodeid-$i" ) {
-         my ($uumode, $uufilename, $uubody) = ($1, $2, $3);
+         my ($uumode, $uufilename, $uubody) = ($2, $3, $4);
          my $uutype;
 
          $uufilename=~/\.([\w\d]+)$/;
@@ -1851,7 +1844,7 @@ sub parse_uuencode_body {
       $i++;
    }
 
-   $body =~ s/\nbegin ([0-7][0-7][0-7][0-7]?) ([^\n\r]+)\n(.+?)\nend\n//igms;
+   $body =~ s/(\nbegin|^begin) ([0-7][0-7][0-7][0-7]?) ([^\n\r]+)\n(.+?)\nend\n//igms;
    return ($body, \@attachments);
 }
 
@@ -1954,15 +1947,16 @@ sub make_attachment {
    return(\%temphash);
 }
 
-# sub contenttype2ext & ext2contenttype is moved to ow-shared.pl 
+# sub contenttype2ext & ext2contenttype is moved to ow-shared.pl
 # since webdisk uses ext2contenttype in downloadfile
 
 ####################### END PARSE_.... related ###########################
 
 #################### SEARCH_MESSAGES_FOR_KEYWORD ###########################
 # searchtype: subject, from, to, date, attfilename, header, textcontent, all
+# prefs_charset: the charset of the keyword
 sub search_info_messages_for_keyword {
-   my ($keyword, $searchtype, $headerdb, $folderhandle, $cachefile, $ignore_internal, $regexmatch)=@_;
+   my ($keyword, $prefs_charset, $searchtype, $headerdb, $folderhandle, $cachefile, $ignore_internal, $regexmatch)=@_;
    my ($metainfo, $cache_metainfo, $cache_headerdb, $cache_keyword, $cache_searchtype, $cache_ignore_internal);
    my (%HDB, @messageids, $messageid);
    my ($totalsize, $new)=(0,0);
@@ -2008,6 +2002,12 @@ sub search_info_messages_for_keyword {
          @attr=split(/@@@/, $HDB{$messageid});
          next if ($ignore_internal && is_internal_subject($attr[$_SUBJECT]));
 
+         my $is_conv=is_convertable($attr[$_CHARSET], $prefs_charset);
+         if ($is_conv) {
+            ($attr[$_FROM], $attr[$_TO], $attr[$_SUBJECT])=
+               iconv($attr[$_CHARSET], $prefs_charset, $attr[$_FROM], $attr[$_TO], $attr[$_SUBJECT]);
+         }
+
          # check subject, from, to, date
          if ( ( ($searchtype eq 'all' ||
                  $searchtype eq 'subject') &&
@@ -2043,6 +2043,8 @@ sub search_info_messages_for_keyword {
             }
             $header = decode_mimewords($header);
             $header=~s/\n / /g;	# handle folding roughly
+            ($header)=iconv($attr[$_CHARSET], $prefs_charset, $header) if ($is_conv);
+
             if ( ($regexmatch && $header =~ /$keyword/im) ||
                  $header =~ /\Q$keyword\E/im ) {
                $new++ if ($attr[$_STATUS]!~/r/i);
@@ -2071,6 +2073,7 @@ sub search_info_messages_for_keyword {
                } elsif ($header =~ /content-transfer-encoding:\s+x-uuencode/i) {
                   $body = uudecode($body);
                }
+               ($body)=iconv($attr[$_CHARSET], $prefs_charset, $body) if ($is_conv);
                if ( ($regexmatch && $body =~ /$keyword/im) ||
                     $body =~ /\Q$keyword\E/im ) {
                   $new++ if ($attr[$_STATUS]!~/r/i);
@@ -2083,15 +2086,23 @@ sub search_info_messages_for_keyword {
             foreach my $r_attachment (@{$r_attachments}) {
                if ( ${$r_attachment}{contenttype} =~ /^text/i ||
                     ${$r_attachment}{contenttype} eq "N/A" ) {	# read all for text/plain. text/html
+                  my $content;
                   if ( ${$r_attachment}{encoding} =~ /^quoted-printable/i ) {
-                     ${${$r_attachment}{r_content}} = decode_qp( ${${$r_attachment}{r_content}});
+                     $content = decode_qp( ${${$r_attachment}{r_content}});
                   } elsif ( ${$r_attachment}{encoding} =~ /^base64/i ) {
-                     ${${$r_attachment}{r_content}} = decode_base64( ${${$r_attachment}{r_content}});
+                     $content = decode_base64( ${${$r_attachment}{r_content}});
                   } elsif ( ${$r_attachment}{encoding} =~ /^x-uuencode/i ) {
-                     ${${$r_attachment}{r_content}} = uudecode( ${${$r_attachment}{r_content}});
+                     $content = uudecode( ${${$r_attachment}{r_content}});
+                  } else {
+                     $content=${${$r_attachment}{r_content}};
                   }
-                  if ( ($regexmatch && ${${$r_attachment}{r_content}} =~ /$keyword/im) ||
-                       ${${$r_attachment}{r_content}} =~ /\Q$keyword\E/im ) {
+                  my $attcharset=${$r_attachment}{charset}||$attr[$_CHARSET];
+                  if (is_convertable($attcharset, $prefs_charset)) {
+                     ($content)=iconv($attcharset, $prefs_charset, $content);
+                  }
+
+                  if ( ($regexmatch && $content =~ /$keyword/im) ||
+                       $content =~ /\Q$keyword\E/im ) {
                      $new++ if ($attr[$_STATUS]!~/r/i);
                      $totalsize+=$attr[$_SIZE];
                      $found{$messageid}=1;
@@ -2104,8 +2115,13 @@ sub search_info_messages_for_keyword {
 	 # check attfilename
          if ($searchtype eq 'all' || $searchtype eq 'attfilename') {
             foreach my $r_attachment (@{$r_attachments}) {
-               if ( ($regexmatch && ${$r_attachment}{filename} =~ /$keyword/im) ||
-                    ${$r_attachment}{filename} =~ /\Q$keyword\E/im ) {
+               my $filename=${$r_attachment}{filename};
+               my $attcharset=${$r_attachment}{filenamecharset}||${$r_attachment}{charset}||$attr[$_CHARSET];
+               if (is_convertable($attcharset, $prefs_charset)) {
+                  ($filename)=iconv($attcharset, $prefs_charset, $filename);
+               }
+               if ( ($regexmatch && $filename =~ /$keyword/im) ||
+                    $filename =~ /\Q$keyword\E/im ) {
                   $new++ if ($attr[$_STATUS]!~/r/i);
                   $totalsize+=$attr[$_SIZE];
                   $found{$messageid}=1;
@@ -2146,7 +2162,6 @@ sub search_info_messages_for_keyword {
 
    return($totalsize, $new, \%found);
 }
-
 #################### END SEARCH_MESSAGES_FOR_KEYWORD ######################
 
 ######################## HTML related ##############################
@@ -2352,9 +2367,9 @@ sub html2text {
 sub text2html {
    my $t=$_[0];
 
+   $t=~s/&#(\d\d\d+);/ESCAPE_UNICODE_$1/g;
    $t=~s/&/ESCAPE_AMP/g;
 
-#   $t=~s!€!&#8364;!g;	# Euro symbo
    $t=~s/\"/ &quot;/g;
    $t=~s/</ &lt;/g;
    $t=~s/>/ &gt;/g;
@@ -2369,21 +2384,31 @@ sub text2html {
 
    # remove the blank inserted just now
    $t=~s/ (&quot;|&lt;|&gt;)/$1/g;
+
    $t=~s/ESCAPE_AMP/&amp;/g;
+   $t=~s/ESCAPE_UNICODE_(\d\d\d+)/&#$1;/g;
 
    return($t);
 }
 
 sub str2html {
-   my $s=$_[0];
+   my $t=$_[0];
 
-   $s=~s/&/&amp;/g;
-   $s=~s/\"/&quot;/g;
-   $s=~s/</&lt;/g;
-   $s=~s/>/&gt;/g;
-   return($s);
+   $t=~s/&#(\d\d\d\d);/ESCAPE_UNICODE_$1/g;
+   $t=~s/&/ESCAPE_AMP/g;
+
+   $t=~s/\"/ &quot;/g;
+   $t=~s/</ &lt;/g;
+   $t=~s/>/ &gt;/g;
+
+   # remove the blank inserted just now
+   $t=~s/ (&quot;|&lt;|&gt;)/$1/g;
+
+   $t=~s/ESCAPE_AMP/&amp;/g;
+   $t=~s/ESCAPE_UNICODE_(\d\d\d\d)/&#$1;/g;
+
+   return($t);
 }
-
 ######################## END HTML related ##############################
 
 #################### SHIFTBLOCK ####################
@@ -2442,7 +2467,6 @@ sub shiftblock {
       return 1;
    }
 }
-
 #################### END SHIFTBLOCK ####################
 
 #################### SIMPLEHEADER ######################
@@ -2486,7 +2510,6 @@ sub simpleheader {
    }
    return($simpleheader);
 }
-
 ################### END SIMPLEHEADER ###################
 
 #################### IS_INTERNAL_SUBJECT ###################
@@ -2498,7 +2521,6 @@ sub is_internal_subject {
       return 0;
    }
 }
-
 #################### END IS_INTERNAL_SUBJECT ###################
 
 1;

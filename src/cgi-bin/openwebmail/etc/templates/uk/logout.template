@@ -2,8 +2,8 @@
 <table border="0" align="center" width="250" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>Logout</B></FONT></TD></TR>
+<B>Вих╕д</B></FONT></TD></TR>
 <tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>Вийшли нормально, па.
+<BR>Вийшли нормально, бувай.
 <BR><BR>@@@BUTTONS@@@
 </td></tr></table>

@@ -3,7 +3,7 @@
 <table border="0" align="center" width="60%" cellpadding="3" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
 <tr><td colspan="2" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>修改行事历项目</B></FONT>
+<B>修改日程表项目</B></FONT>
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>日期:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -21,7 +21,7 @@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ENDHOURMINMENU@@@
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>连结:</B>
+<B>连接:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@LINKFIELD@@@
 @@@EMAILSTART@@@

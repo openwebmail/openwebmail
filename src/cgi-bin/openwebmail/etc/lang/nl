@@ -1,8 +1,8 @@
-#!/usr/bin/perl
+package openwebmail::nl;
 
-# Dutch translation by Michiel van Slobbe, m.m.vanslobbe.AT.connectux.com
-#                      Christian Boer, chris.AT.connectux.com
-# charset: iso-8859-1
+# Dutch translation, charset: iso-8859-1
+# by Jeroen Visser, openwebmail.AT.forty-two.nl
+#    Robert den Ouden, openwebmail.AT.forty-two.nl
 
 %lang_folders =
    (
@@ -50,22 +50,22 @@
 
 %lang_ctrlpositionlabels =
    (
-   top => 'At top',
-   bottom => 'At bottom'
+   top => 'Bovenaan',
+   bottom => 'Onderaan'
    );
 
 %lang_sendpositionlabels =
    (
-   before => 'Before mail edit area',
-   after => 'After mail edit area',
-   both  => 'Before and after mail edit area'
+   before => 'Boven e-mail invul velden',
+   after => 'Onder  e-mail invul velden',
+   both  => 'Boven en onder  e-mail invul velden'
    );
 
 %lang_abookbuttonpositionlabels = 
    (
-   before => 'Before addressbook entries',
-   after  => 'After addressbook entries',
-   both   => 'Before and after addressbook entries'
+   before => 'Boven adresboek velden',
+   after  => 'Onder adresboek velden',
+   both   => 'Boven en onder Boven adresboek velden'
    );
 
 %lang_timelabels =
@@ -107,7 +107,7 @@
    monthview => 'Maandoverzicht',
    weekview  => 'Weekoverzicht',
    dayview   => 'Dagoverzicht',
-   listview  => 'Listview'
+   listview  => 'Lijst Jaaroverzicht'
    );
 
 %lang_month =
@@ -160,28 +160,29 @@
 
 %lang_wdbutton =
    (
-   refresh  => 'Refresh',
-   preview  => 'Preview',
-   edit     => 'Edit',
-   listarchive=> 'List',
-   decompress=>'Decompress',
-   extract  => 'Extract',
+   refresh  => 'Vernieuwen',
+   preview  => 'Inzien',
+   edit     => 'Bewerken',
+   listarchive=> 'Lijst',
+   decompress=>'Uitpakken',
+   extract  => 'Inpakken',
    chdir    => 'ChDir',
    mkdir    => 'MkDir',
-   newfile  => 'NewFile',
-   delete   => 'Delete',
-   copy     => 'Copy',
-   move     => 'Move',
-   gzip     => 'gzCompress',
-   mkzip    => 'MkZip',
-   mktgz    => 'MkTgz',
-   mkthumbnail  => 'MkThumb',
-   download => 'Download',
-   upload   => 'Upload',
+   newfile  => 'Nieuw bestand',
+   delete   => 'Verwijder',
+   copy     => 'Kopiëren',
+   move     => 'Verplaatsen',
+   gzip     => 'gz Inpakken',
+   mkzip    => 'Maak Zip',
+   mktgz    => 'Maak TGZ',
+   mkthumbnail  => 'Maak Voorbeeld',
+   download => 'Ophalen',
+   upload   => 'Voeg toe',
    );   
 
 %lang_text =
    (
+   help       => 'Help',
    login      => 'Inloggen',
    clear      => 'Wissen',
    point      => 'Point',
@@ -192,17 +193,17 @@
    messages   => 'berichten',
    unread     => 'ongelezen',
    nomessages => 'Geen berichten',
-   inmessages => 'Incoming msgs',
+   inmessages => 'Inkomende berichten',
    composenew => 'Maak nieuw bericht',
    refresh    => 'Verversen',
    userprefs  => 'Gebruikersinstellingen',
    addressbook=> 'Adresboek',
    folders    => 'Mappen',
    emptytrash => 'Prullenbak legen',
-   totrash    => 'Move to Trash',
+   totrash    => 'Verplaats naar prullenbak',
    forever    => 'Altijd',
-   delatlogout=> 'Delete at Logout',
-   userdef    => 'Gebruiker Bepaald',
+   delatlogout=> 'Verwijder bij uitloggen',
+   userdef    => 'Gebruiker bepaald',
    logout     => 'Uitloggen',
    page       => 'Pagina',
    msgcopyconf=> '\'Weet u zeker dat u de geselecteerde berichten wilt kopieren?\'',
@@ -239,8 +240,8 @@
    encoding   => 'Codering',
    description=> 'Omschrijving',
    download   => 'Ophalen',
-   charset    => 'Charset',
-   samecharset=> 'The same as composing charset',
+   charset    => 'Karakterset',
+   samecharset=> 'Hetzelfde als ontvangen karakterset',
    thisispartialmsg => 'Dit is een gedeeld bericht.',
    msgrebuild => 'Bericht samenstellen',
    editdraft  => 'Wijzig Concept',
@@ -253,7 +254,7 @@
    continue   => 'Doorgaan',
    loginagain => 'Opnieuw Inloggen',
    exit       => 'Afsluiten',
-   for        => 'VOOR',
+   for        => 'Voor',
    yourname   => 'Uw naam',
    save       => 'Bewaar',
    add        => 'Voeg toe',
@@ -267,7 +268,7 @@
    reindex    => 'Herindexeren',
    folderreindexconf => '\'Weet u zeker dat u deze folder wilt herindexeren?\'',
    total      => 'Totaal',
-   edit       => 'Edit',
+   edit       => 'Wijzigen',
    delete     => 'Verwijder',
    reserve    => 'Bewaar',
    clearadd   => 'Verwijder alle adressen',
@@ -277,7 +278,7 @@
    addmod     => 'Toevoegen/Wijzigen',
    modify     => 'Wijzigen',
    abooktitle => 'Adresboek',
-   abook      => 'ADRESBOEK',
+   abook      => 'Adresboek',
    name       => 'Naam',
    email      => 'E-mail',
    note       => 'Notitie',
@@ -286,7 +287,7 @@
    quota_hit  => 'QUOTUM OVERSCHREDEN',
    usage      => 'Gebruik',
    tzmap      => 'Wereldtijdenkaart',
-   testsound  => 'Test sound',
+   testsound  => 'Test geluid',
    editfroms  => 'Bewerk persoonlijke e-mail adressen',
    pop3book   => 'POP3 Configuratie',
    retr_pop3s => 'Ontvang POP3 Mail',
@@ -320,12 +321,15 @@
    spellcheck => 'Spellingscontrole',
    checkagain => 'Controleer opnieuw',
    finishchecking => 'Controle voltooid',
+   editpdict  => 'Wijzig persoonlijk woordenboek',
+   addtodict  => 'Voeg aan woordenboek toe',
    manuallyfix=> 'Handmatig herstellen',
    editstat   => 'Wijzig Sjabloon',
    savestat   => 'Bewaar Sjabloon',
    clearstat  => 'Verwijder alle Sjablonen',
-   statreply  => '-- Stationery for Reply --',
+   statreply  => '-- Sjabloon voor antwoord --',
    calendar   => 'Kalender',
+   allday     => 'Gehele dag',
    am         => 'am',
    pm         => 'pm',
    calfmt_year          => 'Jaar @@@YEAR@@@',
@@ -337,41 +341,48 @@
    moreitems  => 'meer items',
    multieditconf => 'Dit item is verspreid over meerdere datums.\\nWijzigingen in dit item zullen op al deze datums worden doorgevoerd.\\nDoorgaan?',
    multidelconf  => 'Dit item is verspreid over meerdere datums.\\nVerwijdering van dit items zal op al deze datums worden doorgevoerd.\\nDoorgaan met verwijderen?',
+   caldelconf => 'Weet u zeker dat u dit item wilt verwijderen?',
    noitemforthisday => 'Geen items op de datum van vandaag.',
    thisday_only          => 'Alleen vandaag',
    the_wday_of_thismonth => 'De @@@ORDER@@@ @@@WDAY@@@ van de maand',
    every_wday_thismonth  => 'Elke @@@WDAY@@@ van deze maand',
-   thismonth_only           => 'This month only',
-   every_oddmonth_thisyear  => 'Every odd month this year',
-   every_evenmonth_thisyear => 'Every even month this year',
-   every_month_thisyear     => 'Every month this year',
+   thismonth_only           => 'Alleen deze maand',
+   every_oddmonth_thisyear  => 'Elke oneven maand van dit jaar',
+   every_evenmonth_thisyear => 'Elke even maand van dit jaar',
+   every_month_thisyear     => 'Elke maand van dit jaar',
    webdisk      => 'WebDisk',
    sshterm      => 'SSH Terminal',
    dir          => 'Dir',
    dirs         => 'Dirs',
-   file         => 'File',
-   files        => 'Files',
-   program      => 'Program',
-   dest_of_chdir  => 'the destined directory',
-   name_of_newdir => 'the directory name to create',
-   name_of_newfile=> 'the filename to create',
-   dest_of_thecopy=> 'the destined directory or file of the copy',
-   dest_of_themove=> 'the destined directory or file of the move',
-   dest_of_thezip=> 'the destined filename of the new zip',
-   dest_of_thetgz=> 'the destined filename of the new tgz',
+   file         => 'Bestand',
+   files        => 'Bestanden',
+   program      => 'Programma',
+   dest_of_chdir  => 'de doel directory',
+   name_of_newdir => 'de directorynaam om te creeëren',
+   name_of_newfile=> 'de bestandsnaam om te creeëren',
+   dest_of_thecopy=> 'de doeldirectory of het doelbestand om te kopiëren',
+   dest_of_themove=> 'de doeldirectory of het doelbestand om te verplaatsen',
+   dest_of_thezip=> 'de doel bestandsnaam voor het nieuwe zip bestand',
+   dest_of_thetgz=> 'de doel bestandsnaam voor het nieuwe tgz bestand',
    homedir      => 'Homedir',
-   showthumbnail    => 'Thumbnails',
-   showhidden   => 'Show hidden files',
-   lastmodified => 'Last modified time',
-   perm         => 'Perm',
-   permission   => 'Access Permission',
-   noitemfound  => 'No item found',
-   savefile     => 'Savefile',
-   succeeded    => 'succeeded',
-   failed       => 'failed',
-   savefile_towd=> 'Save file to WebDisk',
-   saveatt_towd => 'Save attachment to WebDisk',
-   addatt_fromwd=> 'Add attachment from WebDisk'
+   showthumbnail    => 'Voorbeeld',
+   showhidden   => 'Toon verborgen bestanden',
+   lastmodified => 'Laatst aangepast',
+   perm         => 'Permissies',
+   permission   => 'Toegangspermissie',
+   noitemfound  => 'Geen item gevonden',
+   savefile     => 'Bestand opslaan',
+   succeeded    => 'geslaagd',
+   failed       => 'mislukt',
+   savefile_towd=> 'Sla bestand op de WebDisk op',
+   saveatt_towd => 'Sla bijlage op de WebDisk op',
+   addatt_fromwd=> 'Voeg bijlage van WebDisk toe',
+   vdomain_usermgr    => 'Virtual Domain User Management',
+   vdomain_createuser => 'Create User',
+   vdomain_changeuser => 'Change User',
+   vdomain_deleteuser => 'Delete User',
+   vdomain_usertype_localmbox  => 'Local Mailbox',
+   vdomain_usertype_redirected => 'Redirect to external mail address'
    );
 
 %lang_err =
@@ -382,7 +393,7 @@
    couldnt_lock      => 'Kon niet openen om te schrijven',
    couldnt_seek      => 'Kan niet naar begin van',
    couldnt_close     => 'Kan niet gesloten worden',
-   couldnt_updatedb  => 'Couldn\'t update index db ',
+   couldnt_updatedb  => 'Kan index DB niet bijwerken',
    disallowed_pop3   => 'POP3 server niet toegestaan',
    disallowed_client => 'U bent niet gemachtigd om vanaf uw machine in te loggen.',
    disallowed_receiverdomain => 'U bent niet gemachtigd om een bericht naar dit e-mailadres te sturen.',
@@ -402,35 +413,37 @@
    cant_create_dir   => 'Kan uw eigen directory niet maken!',
    folder_hitquota   => 'Sorry, uw mail quotum is overschreden, er kan niet meer mail opgeslagen worden. Uw kunt nog wel berichten verplaatsen naar de PRULLENBAK, waar ze zullen worden verwijderd.  Ga terug, verwijder oude berichten of leeg uw PRULLENBAK, probeer dan opnieuw.',
    folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
-   att_overlimit     => 'Sorry, uw bijlage overschrijdt de maximale lengte, deze is',
+   att_overlimit     => 'Sorry, uw bijlage overschrijdt de maximale grootte van',
    inv_msg_op        => 'Onjuiste handeling op het bericht',
-   sess_cookieerr    => 'Uw verzoek bevatte geen juist cookie -- toegang gewijgerd!',
-   sess_iperr        => 'Your request didn\'t come from the same ip of this session -- access denied!',
+   sess_cookieerr    => 'Uw verzoek bevatte geen juist cookie -- toegang geweigerd!',
+   sess_iperr        => 'Uw aanvraag komt van een ander adres dan voor deze sessie bekend is. -- Toegang geweigerd!',
    no_endpart        => 'Einde berichtgedeelte gevonden',
    part_missing      => 'Een berichtgedeelte mist',
    rebuild_fmterr    => 'Nieuw berichtformaat fout opgetreden',
-   rebuild_sizeerr   => 'Grotte van nieuw bericht is niet correct',
+   rebuild_sizeerr   => 'Grootte van nieuw bericht is niet correct',
    user_not_exist    => 'gebruiker bestaat niet',
    func_notsupported => 'functie wordt niet ondersteund',
    auth_syserr       => 'inlogsysteem fout',
    param_fmterr      => 'parameter formaat fout',
    pwd_incorrect     => 'wachtwoord verkeerd',
-   pwd_tooshort      => 'Password too short (minimum length @@@PASSWDMINLEN@@@)',
-   pwd_toosimple     => 'Password too simple (both alphabet and digit are required)',
+   pwd_confirmmismatch=>'Het nieuwe wachtwoord komt niet overeen met de bevestiging',
+   pwd_tooshort      => 'Wachtwoord te kort (minimum lengte @@@PASSWDMINLEN@@@ tekens)',
+   pwd_toosimple     => 'Wachtwoord te eenvoudig (zowel letters als cijfers nodig)',
    network_server_error => 'netwerkserver fout',
    sendmail_error    => 'Sorry, er is een fout opgetreden bij het verzenden van uw bericht.  Klik op de \'Terug\' knop van uw browser, controleer het bericht, en probeer het opnieuw.',
    at_char_not_allowed => 'Het @ karakter is niet toegestaan in dit invulveld. Klik op de \'Terug\' knop van uw browser, corrigeer het invulveld en probeer opnieuw',
    badnum_in_days => 'incorrect getal in dagveld',
-   access_denied     => 'Access denied',
-   couldnt_chdirto   => 'Couldn\'t chdir to',
-   isnt_a_dir        => 'is not a directory',
-   edit_notfordir    => 'You can\'t edit a directory',
-   onefileonly       => 'Only one file is allowed for this operation',
-   no_file_todownload=> 'No file is specified for download',
-   upload_overlimit  => 'Upload file size is over the limit',
-   decomp_notsupported=>'Decompression support is not available for this file.',
-   webdisk_hitquota   => 'Sorry, you\'ve hit your webdisk quota, please delete some files first.',
-   webdisk_readonly   => 'Sorry, your webdisk is read only.'
+   access_denied     => 'Toegang geweigerd',
+   couldnt_chdirto   => 'Kan niet bekijken: ',
+   isnt_a_dir        => 'is geen directory',
+   edit_notfordir    => 'U kunt een directory niet bewerken',
+   onefileonly       => 'U kunt voor deze handeling maar één bestand tegelijkertijd kiezen',
+   no_file_todownload=> 'U heeft geen bestand gekozen om te downloaden',
+   upload_overlimit  => 'Dit bestand is te groot om te uploaden',
+   decomp_notsupported=>'Het uitpakken van dit bestandsformaat wordt niet ondersteund.',
+   webdisk_hitquota   => 'Sorry, uw webdisk quotum is bereikt. Verwijder eerst bestanden.',
+   webdisk_readonly   => 'Sorry, uw webdisk staat op Alleen Lezen.',
+   vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
    );
 
 1;

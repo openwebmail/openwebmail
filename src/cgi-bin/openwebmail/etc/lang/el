@@ -1,7 +1,7 @@
-#!/usr/bin/perl
+package openwebmail::el;
 
-# Greek translation by Dimitris 'sehh' Michelinakis
-# charset: iso-8859-7
+# Greek translation, charset: iso-8859-7
+# by Dimitris 'sehh' Michelinakis
 
 %lang_folders =
    (
@@ -181,6 +181,7 @@
 
 %lang_text =
    (
+   help       => 'Help',
    login      => 'Είσοδος',
    clear      => 'Εκκαθάριση',
    point      => 'Σημείο',
@@ -319,12 +320,15 @@
    spellcheck => 'Ορθογραφικός Έλεγχος',
    checkagain => 'Επανέλεγχος',
    finishchecking => 'Λήξη',
+   editpdict  => 'Edit Personal Dictionary',
+   addtodict  => 'Add to Dictionary',
    manuallyfix=> 'Χειροκίνητη διόρθωση',
    editstat   => 'Edit Stationery',
    savestat   => 'Save Stationery',
    clearstat  => 'Clear All Stationery',
    statreply  => '-- Stationery for Reply --',
    calendar   => 'Ημερολόγιο',
+   allday     => 'All day',
    am         => 'πμ',
    pm         => 'μμ',
    calfmt_year          => 'Χρονιά @@@YEAR@@@',
@@ -336,6 +340,7 @@
    moreitems  => 'περισσότερα αντικείμενα',
    multieditconf => 'This item was added for multiple dates.\\nEditing it will change the item for all dates.\\nContinue with Edit?',
    multidelconf  => 'This item was added for multiple dates.\\nDeleting it will delete the item for all dates.\\nContinue with Delete?',
+   caldelconf => 'Are you sure you want to delete this item?',
    noitemforthisday => 'Καμία εγγραφή για σήμερα',
    thisday_only          => 'Σημερινή ημέρα',
    the_wday_of_thismonth => 'Η @@@ORDER@@@ @@@WDAY@@@ του μήνα',
@@ -370,7 +375,13 @@
    failed       => 'failed',
    savefile_towd=> 'Save file to WebDisk',
    saveatt_towd => 'Save attachment to WebDisk',
-   addatt_fromwd=> 'Add attachment from WebDisk'
+   addatt_fromwd=> 'Add attachment from WebDisk',
+   vdomain_usermgr    => 'Virtual Domain User Management',
+   vdomain_createuser => 'Create User',
+   vdomain_changeuser => 'Change User',
+   vdomain_deleteuser => 'Delete User',
+   vdomain_usertype_localmbox  => 'Local Mailbox',
+   vdomain_usertype_redirected => 'Redirect to external mail address'
    );
 
 %lang_err =
@@ -414,6 +425,7 @@
    auth_syserr       => 'authentication system error',
    param_fmterr      => 'parameter format error',
    pwd_incorrect     => 'Password incorrect',
+   pwd_confirmmismatch=>'New passowrd confirm mismatch',
    pwd_tooshort      => 'Password too short (minimum length @@@PASSWDMINLEN@@@)',
    pwd_toosimple     => 'Password too simple (both alphabet and digit are required)',
    network_server_error => 'network server error',
@@ -429,7 +441,8 @@
    upload_overlimit  => 'Upload file size is over the limit',
    decomp_notsupported=>'Decompression support is not available for this file.',
    webdisk_hitquota   => 'Sorry, you\'ve hit your webdisk quota, please delete some files first.',
-   webdisk_readonly   => 'Sorry, your webdisk is read only.'
+   webdisk_readonly   => 'Sorry, your webdisk is read only.',
+   vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
    );
 
 1;

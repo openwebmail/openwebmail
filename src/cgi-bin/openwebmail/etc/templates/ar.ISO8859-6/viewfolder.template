@@ -37,20 +37,6 @@
 @@@CONTROLBAR1END@@@
 
 <table border="0" align="center" width="95%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
-<tr><td width="6%" bgcolor=@@@COLUMNHEADER@@@>
-<CENTER>@@@STATUS@@@</CENTER></td>
-<td width="22%" bgcolor=@@@COLUMNHEADER@@@>
-<B>@@@DATE@@@</B></td>
-<td width="25%" bgcolor=@@@COLUMNHEADER@@@>
-<B>@@@SENDER@@@</B></td>
-<td bgcolor=@@@COLUMNHEADER@@@>
-<B>@@@SUBJECT@@@</B></td>
-<td align="left" width="5%" bgcolor=@@@COLUMNHEADER@@@>
-<B>@@@SIZE@@@</B></td>
-<td align ="center" width="3%" bgcolor=@@@COLUMNHEADER@@@>
-<input name="allbox" type="checkbox" value="1"
-   onClick="CheckAll();"></td>
-</tr>
 @@@HEADERS@@@
 </table>
 
@@ -59,7 +45,7 @@
 <table border="0" align="center" width="95%" cellpadding="1" cellspacing="0"><tr>
 <td width="35%" bgcolor=@@@MENUBAR@@@ nowrap>@@@SEARCH2@@@</td>
 <td align="center" bgcolor=@@@MENUBAR@@@ nowrap>@@@PAGECONTROL2@@@</td>
-<td width="35%" align="left" bgcolor=@@@MENUBAR@@@ nowrap>@@@MOVECONTROLS2@@@&nbsp;</td>
+<td width="35%" align="right" bgcolor=@@@MENUBAR@@@ nowrap>@@@MOVECONTROLS2@@@&nbsp;</td>
 </tr></table>
 @@@CONTROLBAR2END@@@
 

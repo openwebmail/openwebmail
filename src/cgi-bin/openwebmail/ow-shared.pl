@@ -4,6 +4,7 @@
 
 use strict;
 use Fcntl qw(:DEFAULT :flock);
+use CGI::Carp qw(fatalsToBrowser carpout);
 
 use vars qw(%languagenames %languagecharsets @openwebmailrcitem);
 use vars qw(%months @monthstr @wdaystr %tzoffset %medfontsize);
@@ -11,9 +12,10 @@ use vars qw(%months @monthstr @wdaystr %tzoffset %medfontsize);
 # extern vars
 # defined in caller openwebmail-xxx.pl
 use vars qw($SCRIPT_DIR);
-use vars qw(%config %config_raw);
+use vars qw(%config %config_raw %default_config %default_config_raw);
 use vars qw($thissession);
-use vars qw($loginname $domain $user $userrealname $uuid $ugid $homedir);
+use vars qw($loginname $logindomain $loginuser);
+use vars qw($domain $user $userrealname $uuid $ugid $homedir);
 use vars qw(%prefs %style %icontext);
 use vars qw($folderdir @validfolders $folderusage);
 use vars qw($folder $printfolder $escapedfolder);
@@ -30,8 +32,8 @@ use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE $_STATUS $_SIZE
    'cs'           => 'Czech',
    'da'           => 'Danish',
    'de'           => 'Deutsch',			# German
-   'en'           => 'English',
    'el'           => 'Hellenic',			# Hellenic/Greek
+   'en'           => 'English',
    'es'           => 'Spanish',			# Espanol
    'fi'           => 'Finnish',
    'fr'           => 'French',
@@ -50,6 +52,7 @@ use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE $_STATUS $_SIZE
    'ro'           => 'Romanian',
    'ru'           => 'Russian',
    'sk'           => 'Slovak',
+   'sr'           => 'Serbian',
    'sv'           => 'Swedish',			# Svenska
    'th'           => 'Thai',
    'tr'           => 'Turkish',
@@ -94,25 +97,26 @@ use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE $_STATUS $_SIZE
    'tr'           => 'iso-8859-9',
    'uk'           => 'koi8-u',
    'zh_CN.GB2312' => 'gb2312',
-   'zh_TW.Big5'   => 'big5'
+   'zh_TW.Big5'   => 'big5',
+   'utf-8'        => 'utf-8'		# charset only, use en lang/template
 );
 
 @openwebmailrcitem=qw(
    language charset timeoffset email replyto
-   style iconset bgurl fontsize dateformat hourformat
-   ctrlposition_folderview  msgsperpage sort 
-   ctrlposition_msgread headers usefixedfont usesmileicon 
-   disablejs disableembcgi showimgaslink sendreceipt 
-   confirmmsgmovecopy defaultdestination 
+   style iconset bgurl bgrepeat fontsize dateformat hourformat
+   ctrlposition_folderview msgsperpage fieldorder sort
+   ctrlposition_msgread headers usefixedfont usesmileicon
+   disablejs disableembcgi showimgaslink sendreceipt
+   confirmmsgmovecopy defaultdestination smartdestination
    viewnextaftermsgmovecopy autopop3 moveoldmsgfrominbox
    editcolumns editrows sendbuttonposition
    reparagraphorigmsg replywithorigmsg backupsentmsg sendcharset
    filter_repeatlimit filter_fakedsmtp
    filter_fakedfrom filter_fakedexecontenttype
-   abook_width abook_height abookbuttonposition
-   abook_defualtfilter abook_defaultsearchtype abook_defaultkeyword
+   abook_width abook_height abook_buttonposition
+   abook_defaultfilter abook_defaultsearchtype abook_defaultkeyword
    calendar_monthviewnumitems calendar_weekstart
-   calendar_starthour calendar_endhour calendar_showemptyhours
+   calendar_starthour calendar_endhour calendar_interval calendar_showemptyhours
    calendar_reminderdays calendar_reminderforglobal
    webdisk_dirnumitems webdisk_confirmmovecopy webdisk_confirmdel
    webdisk_confirmcompress webdisk_fileeditcolumns  webdisk_fileeditrows
@@ -157,35 +161,86 @@ use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE $_STATUS $_SIZE
    '17px'=> '16px'
 );
 
+###################### CLEARVAR ###################
+# clear gobal variable for persistent perl
+sub clearvars {
+   undef(%SIG);
+   undef(%config);
+   undef(%config_raw);
+   undef($thissession);
+   undef(%icontext);
+
+   undef($loginname);
+   undef($logindomain);
+   undef($loginuser);
+
+   undef($domain);
+   undef($user);
+   undef($userrealname);
+   undef($uuid);
+   undef($ugid);
+   undef($homedir);
+   undef(%prefs);
+
+   undef($folderdir);
+   undef(@validfolders);
+   undef($folderusage);
+   undef($folder);
+   undef($printfolder); 
+   undef($escapedfolder);
+}
+#################### END CLEARVAR ###################
+
+############ LOGINNAME 2 LOGINDOMAIN LOGINUSER ##############
+sub login_name2domainuser {
+   my $loginname=$_[0];
+   my ($logindomain, $loginuser);
+   if ($loginname=~/^(.+)\@(.+)$/) {
+      ($loginuser, $logindomain)=($1, $2);
+   } else {
+      $loginuser=$loginname;
+      $logindomain=param('logindomain')||lc($ENV{'HTTP_HOST'});
+      $logindomain=~s/:\d+$//;	# remove port number
+   }
+   $loginuser=lc($loginuser) if ($config{'case_insensitive_login'});
+   $logindomain=lc(safedomainname($logindomain));
+   $logindomain=$config{'domainname_equiv'}{'map'}{$logindomain} if (defined($config{'domainname_equiv'}{'map'}{$logindomain}));
+   return($logindomain, $loginuser);
+}
+######### END LOGINNAME 2 LOGINDOMAIN LOGINUSER ###########
+
 ###################### OPENWEBMAIL_INIT ###################
 # init routine to set globals, switch euid
 sub openwebmail_init {
-   readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf.default");
+   clearvars();
+   if (!defined(%default_config_raw)) {	# read default only once if persistent mode
+      readconf(\%default_config, \%default_config_raw, "$SCRIPT_DIR/etc/openwebmail.conf.default");
+   }
+   %config=%default_config; %config_raw =%default_config_raw;
    readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf") if (-f "$SCRIPT_DIR/etc/openwebmail.conf");
-   # setuid is required if mails is located in user's dir
-   if ( $>!=0 && ($config{'use_homedirspools'}||$config{'use_homedirfolders'}) ) {
+
+   # setuid is required if mailspool is located in system directory
+   if ( $>!=0 &&
+       ($config{'mailspooldir'} eq "/var/mail" || 
+        $config{'mailspooldir'} eq "/var/spool/mail")) {
       print "Content-type: text/html\n\n'$0' must setuid to root"; exit 0;
    }
    if (! defined(param("sessionid")) ) {
-      sleep $config{'loginerrordelay'};	# delayed response
+      my $clientip=get_clientip();
+      sleep $config{'loginerrordelay'} if ($clientip ne "127.0.0.1");	# delayed response
       openwebmailerror("No user specified!");
    }
 
    $thissession = param("sessionid");
-   $loginname = $thissession || '';
-   $loginname =~ s/\-session\-0.*$//; # Grab loginname from sessionid
+   openwebmailerror("Session ID $lang_err{'has_illegal_chars'}") unless
+      (($thissession =~ /^([\w\.\-\%\@]+\-session\-0\.\d+)$/) && ($thissession = $1));
 
-   my $siteconf;
-   if ($loginname=~/\@(.+)$/) {
-       my $domain=safedomainname($1);
-       $siteconf="$config{'ow_sitesconfdir'}/$domain";
-   } else {
-       my $httphost=$ENV{'HTTP_HOST'};
-       $httphost=~s/:\d+$//;	# remove port number
-       $httphost=safedomainname($httphost);
-       $siteconf="$config{'ow_sitesconfdir'}/$httphost";
-   }
-   readconf(\%config, \%config_raw, "$siteconf") if ( -f "$siteconf");
+   # Grab loginname from sessionid
+   $loginname = $thissession; $loginname =~ s/\-session\-0.*$//; 
+   ($logindomain, $loginuser)=login_name2domainuser($loginname);
+
+   # load site conf
+   readconf(\%config, \%config_raw, "$config{'ow_sitesconfdir'}/$logindomain") if ( -f "$config{'ow_sitesconfdir'}/$logindomain");
 
    if ($config{'smtpauth'}) {
       readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/smtpauth.conf");
@@ -193,29 +248,45 @@ sub openwebmail_init {
          openwebmailerror("Invalid username/password in $SCRIPT_DIR/etc/smtpauth.conf");
       }
    }
+   loadauth($config{'auth_module'});
 
-   require $config{'auth_module'} or
-      openwebmailerror("Can't open authentication module $config{'auth_module'}");
-
-   ($loginname, $domain, $user, $userrealname, $uuid, $ugid, $homedir)
-	=get_domain_user_userinfo($loginname);
+   $user='';
+   # try userinfo cached in session file first
+   ($domain, $user, $userrealname, $uuid, $ugid, $homedir)
+	=split(/\@\@\@/, (sessioninfo())[2]) if ($config{'cache_userinfo'});
+   # use userinfo from auth server if user is root or null
+   ($domain, $user, $userrealname, $uuid, $ugid, $homedir)
+				=get_domain_user_userinfo($logindomain, $loginuser);
    if ($user eq "") {
       sleep $config{'loginerrordelay'};	# delayed response
       openwebmailerror("User $loginname doesn't exist!");
    }
+   if (! $config{'enable_rootlogin'}) {
+      if ($user eq 'root' || $uuid==0) {
+         sleep $config{'loginerrordelay'};	# delayed response
+         writelog("userinfo error - root hacking attempt");
+         openwebmailerror ("$lang_err{'norootlogin'}");
+      }
+   }
 
+   # load user config
    my $userconf="$config{'ow_usersconfdir'}/$user";
-   $userconf .= "\@$domain" if ($config{'auth_withdomain'});
+   $userconf="$config{'ow_usersconfdir'}/$domain/$user" if ($config{'auth_withdomain'});
    readconf(\%config, \%config_raw, "$userconf") if ( -f "$userconf");
 
    # override auto guessing domainanmes if loginame has domain
-   if ($config_raw{'domainnames'} eq 'auto' && $loginname=~/\@(.+)$/) {
-      $config{'domainnames'}=[ $1 ];
+   if ($config_raw{'domainnames'} eq 'auto' && $loginname=~/\@/) {
+      $config{'domainnames'}=[ $logindomain ];
    }
 
-   if ( !$config{'use_homedirfolders'} ) {
+   # override realname if defined in config
+   if ($config{'default_realname'} ne 'auto') {
+      $userrealname=$config{'default_realname'}
+   }
+
+   if ( !$config{'use_syshomedir'} ) {
       $homedir = "$config{'ow_usersdir'}/$user";
-      $homedir .= "\@$domain" if ($config{'auth_withdomain'});
+      $homedir = "$config{'ow_usersdir'}/$domain/$user" if ($config{'auth_withdomain'});
    }
    $folderdir = "$homedir/$config{'homedirfolderdirname'}";
 
@@ -226,20 +297,23 @@ sub openwebmail_init {
    ($folderdir =~ /^(.+)$/) && ($folderdir = $1);
 
    umask(0077);
-   if ( $config{'use_homedirspools'} || $config{'use_homedirfolders'} ) {
-      my $mailgid=getgrnam('mail');
+   if ( $>==0 ) {			# switch to uuid:mailgid if script is setuid root.
+      my $mailgid=getgrnam('mail');	# for better compatibility with other mail progs
       set_euid_egids($uuid, $mailgid, $ugid);
-      if ( $) != $mailgid) {	# egid must be mail since this is a mail program...
+      if ( $) != $mailgid) { # group mail doesn't exist?
          openwebmailerror("Set effective gid to mail($mailgid) failed!");
       }
    }
 
-   %prefs = %{&readprefs};
-   %style = %{&readstyle};
-   ($prefs{'language'} =~ /^([\w\d\.\-_]+)$/) && ($prefs{'language'} = $1);
-   require "$config{'ow_langdir'}/$prefs{'language'}";
+   %prefs = readprefs();
+   %style = readstyle($prefs{'style'});
+   readlang($prefs{'language'});
+
+   verifysession();
+
    if ($prefs{'iconset'}=~ /^Text\./) {
       ($prefs{'iconset'} =~ /^([\w\d\.\-_]+)$/) && ($prefs{'iconset'} = $1);
+      delete $INC{"$config{'ow_htmldir'}/images/iconsets/$prefs{'iconset'}/icontext"};
       require "$config{'ow_htmldir'}/images/iconsets/$prefs{'iconset'}/icontext";
    }
 
@@ -266,10 +340,10 @@ sub openwebmail_init {
 # the hash is 'called by reference' since we want to do 'bypass taint' on it
 sub readconf {
    my ($r_config, $r_config_raw, $configfile)=@_;
-
    if ($configfile=~/\.\./) {	# .. in path is not allowed for higher security
       openwebmailerror("Invalid config file path $configfile");
    }
+
    open(CONFIG, $configfile) or
       openwebmailerror("Couldn't open config file $configfile");
    my ($key, $value)=("", "");
@@ -293,6 +367,11 @@ sub readconf {
             $blockmode=1;
          } else {
             ($key, $value)=split(/\s+/, $line, 2);
+
+            # backward compatibility
+            $key='use_syshomedir'    if ($key eq 'use_homedirfolders');
+            $key='create_syshomedir' if ($key eq 'create_homedir');
+
             if ($key ne "" && $value ne "" ) {
                ${$r_config_raw}{$key}=$value;
             }
@@ -313,38 +392,39 @@ sub readconf {
    # processing yes/no
    foreach $key (qw(
       smtpauth use_hashedmailspools use_dotlockfile dbmopen_haslock
-      create_homedir use_homedirspools use_homedirfolders
+      use_syshomedir create_syshomedir use_homedirspools
       auth_withdomain deliver_use_GMT savedsuid_support
       case_insensitive_login stay_ssl_afterlogin
       enable_rootlogin enable_domainselectmenu
       enable_changepwd enable_strictpwd enable_setfromemail
       session_multilogin session_checksameip session_checkcookie
-      auto_createrc
+      cache_userinfo
+      auto_createrc domainnames_override symboliclink_mbox
       enable_about about_info_software about_info_protocol
       about_info_server about_info_client about_info_scriptfilename
       xmailer_has_version xoriginatingip_has_userid
       enable_setforward enable_strictforward
       enable_autoreply enable_strictfoldername enable_stationery
-      enable_calendar enable_webdisk enable_sshterm
+      enable_smartfilters enable_calendar enable_webdisk 
+      enable_sshterm enable_vdomain
       enable_pop3 delpop3mail_by_default delpop3mail_hidden
-      getmail_from_pop3_authserver domainnames_override cutfolders_ifoverquota
+      getmail_from_pop3_authserver cutfolders_ifoverquota
       webdisk_readonly webdisk_lsmailfolder webdisk_lshidden webdisk_lsunixspec
-      webdisk_lssymlink webdisk_allow_symlinkouthome webdisk_allow_thumbnail
-      default_autopop3
-      default_reparagraphorigmsg default_backupsentmsg
+      webdisk_lssymlink webdisk_allow_symlinkout webdisk_allow_thumbnail
+      default_bgrepeat
       default_confirmmsgmovecopy default_viewnextaftermsgmovecopy
       default_moveoldmsgfrominbox forced_moveoldmsgfrominbox
-      default_hideinternal symboliclink_mbox
-      default_filter_fakedsmtp default_filter_fakedfrom
-      default_filter_fakedexecontenttype
+      default_autopop3 default_hideinternal
       default_disablejs default_disableembcgi
       default_showimgaslink default_regexmatch
       default_usefixedfont default_usesmileicon
+      default_reparagraphorigmsg default_backupsentmsg
       default_abook_usedefaultfilter
-      default_calendar_showemptyhours
-      default_calendar_reminderforglobal
-      default_webdisk_confirmmovecopy
-      default_webdisk_confirmdel default_webdisk_confirmcompress
+      default_filter_fakedsmtp default_filter_fakedfrom 
+      default_filter_fakedexecontenttype
+      default_calendar_showemptyhours default_calendar_reminderforglobal
+      default_webdisk_confirmmovecopy default_webdisk_confirmdel
+      default_webdisk_confirmcompress
    )) {
       if (${$r_config}{$key} =~ /yes/i || ${$r_config}{$key} == 1) {
          ${$r_config}{$key}=1;
@@ -353,15 +433,35 @@ sub readconf {
       }
    }
 
+   # process domain equiv table
+   my %equiv=();
+   my %equivlist=();
+   if ( ${$r_config}{'domainname_equiv'} ne "") {
+      foreach (split(/\n/, ${$r_config}{'domainname_equiv'})) {
+         s/^[:,\s]+//g; s/[:,\s]+$//g;
+         my ($dst, @srclist)=split(/[:,\s]+/);
+         $equivlist{$dst}=\@srclist;  
+         foreach my $src (@srclist) {
+            $equiv{$src}=$dst if ($src && $dst);
+         }
+      }
+   }
+   ${$r_config}{'domainname_equiv'}= {
+      map => \%equiv,		# src -> dst
+      list=> \%equivlist	# dst <= srclist
+   };
+
    # processing auto
    if ( ${$r_config}{'domainnames'} eq 'auto' ) {
       if ($ENV{'HTTP_HOST'}=~/[A-Za-z]\./) {
          $value=$ENV{'HTTP_HOST'}; $value=~s/:\d+$//;	# remove port number
       } else {
-         $value=`/bin/hostname`;
-         $value=~s/^\s+//; $value=~s/\s+$//;
+         $value=hostname();
       }
       ${$r_config}{'domainnames'}=$value;
+   }
+   if ( ${$r_config}{'domainselmenu_list'} eq 'auto' ) {
+      ${$r_config}{'domainselmenu_list'}=${$r_config}{'domainnames'};
    }
    if ( ${$r_config}{'default_timeoffset'} eq 'auto' ) {
       ${$r_config}{'default_timeoffset'}=gettimeoffset();
@@ -369,11 +469,11 @@ sub readconf {
 
    # processing list
    foreach $key (qw(
-      domainnames spellcheck_dictionaries
+      domainnames domainselmenu_list spellcheck_dictionaries
       allowed_serverdomain
       allowed_clientdomain allowed_clientip
       allowed_receiverdomain disallowed_pop3servers
-      default_fromemails
+      vdomain_admlist default_fromemails
    )) {
       my $liststr=${$r_config}{$key}; $liststr=~s/\s//g;
       my @list=split(/,/, $liststr);
@@ -385,11 +485,9 @@ sub readconf {
       $value="${$r_config}{'ow_htmlurl'}/images/backgrounds/Transparent.gif";
       ${$r_config}{'default_bgurl'}=$value;
    }
-
    if ( ${$r_config}{'default_abook_defaultsearchtype'} eq 'none'|| ${$r_config}{'default_abook_defaultsearchtype'} eq '""' ) {
       ${$r_config}{'default_abook_defaultsearchtype'}="name";
    }
-
    foreach $key ( qw(dbmopen_ext default_realname default_abook_defaultkeyword) ){
       if ( ${$r_config}{$key} eq 'none' || ${$r_config}{$key} eq '""' ) {
          ${$r_config}{$key}="";
@@ -411,7 +509,11 @@ sub readconf {
       'ow_sitesconfdir', 'ow_usersconfdir',
       'ow_usersdir', 'ow_sessionsdir',
       'vacationinit', 'vacationpipe', 'spellcheck',
-      'global_addressbook', 'global_filterbook', 'global_calendarbook'
+      'global_addressbook', 'global_filterbook', 'global_calendarbook',
+      'pop3_authserver', 'pop3_authport',
+      'vdomain_vmpop3_pwdpath', 'vdomain_vmpop3_pwdname', 'vdomain_vmpop3_mailpath',
+      'vdomain_postfix_aliases', 'vdomain_postfix_virtual',
+      'vdomain_postfix_postalias', 'vdomain_postfix_postmap'
    ) {
       (${$r_config}{$key} =~ /^(.+)$/) && (${$r_config}{$key}=$1);
    }
@@ -422,6 +524,32 @@ sub readconf {
    return 0;
 }
 ##################### END READCONF #######################
+
+###################### LOADAUTH #########################
+# use 'require' to load the package openwebmail::$auth
+# then aliasing symbos of routine in package openwebmail:$auth to current package
+# through Glob and 'tricky' symbolic reference feature
+sub loadauth {
+   my $authfile=$_[0];
+   
+   $authfile=~s|/||g; $authfile=~s|\.\.||g; # remove / and .. to anti path hack
+   ($authfile=~ /^([\w\d\.\-_]+)$/) && ($authfile = $1);
+   require "$config{'ow_cgidir'}/$authfile"; # done only once because of %INC
+
+   # . - is not allowed for package name
+   my $pkg= $authfile; $pkg=~s/\.pl//; $pkg=~s/[\.\-]/_/g; 
+
+   no strict 'refs';	# until block end
+   # traverse the symbo table of package openwebmail::$pkg
+   foreach my $sym (qw(get_userinfo 
+                       get_userlist 
+                       check_userpassword
+                       change_userpassword)) {
+      # alias symbo of sub routine into current package
+      *{"$sym"}=*{"openwebmail::".$pkg."::".$sym};
+   }
+}
+###################### END LOADAUTH #########################
 
 ##################### VIRTUALUSER related ################
 sub update_virtusertable {
@@ -532,117 +660,92 @@ sub get_virtualuser_by_user {
 }
 
 sub get_domain_user_userinfo {
-   my $loginname=$_[0];
+   my ($logindomain, $loginuser)=@_;
    my ($domain, $user, $realname, $uid, $gid, $homedir);
-   my ($l, $u);
 
-   if ($loginname=~/^(.*)\@(.*)$/) {
+   my $virtname=$config{'virtusertable'}; $virtname=~s!/!.!g; $virtname=~s/^\.+//;
+   
+   $user=get_user_by_virtualuser("$loginuser", "$config{'ow_etcdir'}/$virtname");
+   if ($user eq "") {
+      my @domainlist=($logindomain);
+      if (defined(@{$config{'domain_equiv'}{'list'}{$logindomain}})) {
+         push(@domainlist, @{$config{'domain_equiv'}{'list'}{$logindomain}});
+      }
+      foreach (@domainlist) {
+         $user=get_user_by_virtualuser("$loginuser\@$_", "$config{'ow_etcdir'}/$virtname");
+         last if ($user);
+      }
+   }
+
+   if ($user=~/^(.*)\@(.*)$/) {
       ($user, $domain)=($1, lc($2));
    } else {
+      $user=$loginuser if (!$user);
       if($config{'auth_domain'} ne 'auto') {
-         ($user, $domain)=($loginname, lc($config{'auth_domain'}));
+         $domain=lc($config{'auth_domain'});
       } else {
-         my $httphost=$ENV{'HTTP_HOST'}; $httphost=~s/:\d+$//;        # remove port number
-         ($user, $domain)=($loginname, lc($httphost));
-      }
-   }
-   my $default_realname=$user;
-
-   my $virtname=$config{'virtusertable'};
-   $virtname=~s!/!.!g; $virtname=~s/^\.+//;
-
-   $l="$user\@$domain";
-   $u=get_user_by_virtualuser($l, "$config{'ow_etcdir'}/$virtname");
-   if ($u eq "") {
-      my $d=$domain;
-      if ($d=~s/^(mail|webmail|www|web)\.//) {
-         $l="$user\@$d";
-         $u=get_user_by_virtualuser($l, "$config{'ow_etcdir'}/$virtname");
-      } else {
-         $l="$user\@mail.$d";
-         $u=get_user_by_virtualuser($l, "$config{'ow_etcdir'}/$virtname");
-      }
-   }
-   if ($u eq "" && $loginname!~/\@/) {
-      $l=$user;
-      $u=get_user_by_virtualuser($l, "$config{'ow_etcdir'}/$virtname");
-   }
-
-   if ($u ne "") {
-      $loginname=$l;
-      if ($u=~/^(.*)\@(.*)$/) {
-         ($user, $domain)=($1, lc($2));
-      } else {
-         my $httphost=$ENV{'HTTP_HOST'}; $httphost=~s/:\d+$//;	# remove port number
-         ($user, $domain)=($u, lc($httphost));
+         $domain=$logindomain;
       }
    }
 
+   my ($errcode, $errmsg);
    if ($config{'auth_withdomain'}) {
-      ($realname, $uid, $gid, $homedir)=get_userinfo("$user\@$domain");
+      ($errcode, $errmsg, $realname, $uid, $gid, $homedir)=get_userinfo(\%config, "$user\@$domain");
    } else {
-      ($realname, $uid, $gid, $homedir)=get_userinfo($user);
+      ($errcode, $errmsg, $realname, $uid, $gid, $homedir)=get_userinfo(\%config, $user);
    }
-   if ($config{'default_realname'} ne 'auto') {
-      $realname=$config{'default_realname'}
-   } else {
-      $realname=$default_realname if ($realname eq "");
-   }
+   writelog("userinfo error - $config{'auth_module'} : $errcode, $errmsg") if ($errcode!=0);
 
+   $realname=$loginuser if ($realname eq "");
    if ($uid ne "") {
-      return($loginname, $domain, $user, $realname, $uid, $gid, $homedir);
+      return($domain, $user, $realname, $uid, $gid, $homedir);
    } else {
-      return($loginname, "", "", "", "", "", "");
+      return("", "", "", "", "", "");
    }
 }
 ##################### END VIRTUALUSER related ################
 
 ##################### GET_DEFAULTEMAILS, GET_USERFROM ################
 sub get_defaultemails {
-   my ($loginname, $user)=@_;
-   my @emails=();
+   my ($logindomain, $loginuser, $user)=@_;
+   return (@{$config{'default_fromemails'}}) if ($config_raw{'default_fromemails'} ne "auto");
 
-   if ($config_raw{'default_fromemails'} eq "auto") {
-      my $virtname=$config{'virtusertable'};
-      $virtname=~s!/!.!g; $virtname=~s/^\.+//;
-      my $vu=get_virtualuser_by_user($user, "$config{'ow_etcdir'}/$virtname.rev");
-      if ($vu ne "") {
-         foreach my $name (str2list($vu,0)) {
-            if ($name=~/^(.*)\@(.*)$/) {
-               next if ($1 eq "");	# skip whole @domain mapping
-               if ($config{'domainnames_override'}) {
-                  my $purename=$1;
-                  foreach my $host (@{$config{'domainnames'}}) {
-                     push(@emails,  "$purename\@$host");
-                  }
-               } else {
-                  push(@emails, $name);
+   my %emails=();
+   my $virtname=$config{'virtusertable'};  $virtname=~s!/!.!g; $virtname=~s/^\.+//;
+   my $vu=get_virtualuser_by_user($user, "$config{'ow_etcdir'}/$virtname.rev");
+   if ($vu ne "") {
+      foreach my $name (str2list($vu,0)) {
+         if ($name=~/^(.*)\@(.*)$/) {
+            next if ($1 eq "");	# skip whole @domain mapping
+            if ($config{'domainnames_override'}) {
+               my $purename=$1;
+               foreach my $host (@{$config{'domainnames'}}) {
+                  $emails{"$purename\@$host"}=1;
                }
             } else {
-               foreach my $host (@{$config{'domainnames'}}) {
-                  push(@emails, "$name\@$host");
-               }
+               $emails{$name}=1;
             }
-         }
-      } else {
-         my $name=$loginname;
-         $name=$1 if ($loginname =~ /^(.+)\@/ );
-         foreach my $host (@{$config{'domainnames'}}) {
-            push(@emails, "$name\@$host");
+         } else {
+            foreach my $host (@{$config{'domainnames'}}) {
+               $emails{"$name\@$host"}=1
+            }
          }
       }
    } else {
-      push(@emails, @{$config{'default_fromemails'}});
+      foreach my $host (@{$config{'domainnames'}}) {
+         $emails{"$loginuser\@$host"}=1;
+      }
    }
-   return(@emails);
+
+   return(keys %emails);
 }
 
 sub get_userfrom {
-   my ($loginname, $user, $realname, $frombook)=@_;
+   my ($logindomain, $loginuser, $user, $realname, $frombook)=@_;
    my %from=();
 
    # get default fromemail
-   my @defaultemails=get_defaultemails($loginname, $user);
+   my @defaultemails=get_defaultemails($logindomain, $loginuser, $user);
    foreach (@defaultemails) {
       $from{$_}=$realname;
    }
@@ -705,16 +808,14 @@ sub readprefs {
 
    # validate email with defaultemails if setfromemail is not allowed
    if (!$config{'enable_setfromemail'} || $prefshash{'email'} eq "") {
-      my @defaultemails=get_defaultemails($loginname, $user);
+      my @defaultemails=get_defaultemails($logindomain, $loginuser, $user);
       my $valid=0;
       foreach (@defaultemails) {
          if ($prefshash{'email'} eq $_) {
             $valid=1; last;
          }
       }
-      if (! $valid) {
-         $prefshash{'email'}=$defaultemails[0];
-      }
+      $prefshash{'email'}=$defaultemails[0] if (!$valid);
    }
 
    # all rc entries are disallowed to be empty
@@ -730,34 +831,31 @@ sub readprefs {
    }
 
    # remove / and .. from variables that will be used in require statement for security
-   $prefshash{'language'}=~s|/||g;
-   $prefshash{'language'}=~s|\.\.||g;
+   $prefshash{'language'}=~s|/||g; $prefshash{'language'}=~s|\.\.||g;
+   $prefshash{'iconset'}=~s|/||g;  $prefshash{'iconset'}=~s|\.\.||g;
 
    # entries related to ondisk dir or file
-   $prefshash{'language'}=$config{'default_language'} if (!defined($languagenames{$prefshash{'language'}}));
+   $prefshash{'language'}=$config{'default_language'} if (!-f "$config{'ow_langdir'}/$prefshash{'language'}");
    $prefshash{'style'}=$config{'default_style'} if (!-f "$config{'ow_stylesdir'}/$prefshash{'style'}");
    $prefshash{'iconset'}=$config{'default_iconset'} if (!-d "$config{'ow_htmldir'}/images/iconsets/$prefshash{'iconset'}");
 
    $prefshash{'refreshinterval'}=$config{'min_refreshinterval'} if ($prefshash{'refreshinterval'} < $config{'min_refreshinterval'});
    $prefshash{'charset'}=$languagecharsets{$prefshash{'language'}} if ($prefshash{'charset'} eq "auto");
 
-   return \%prefshash;
+   return %prefshash;
 }
 ##################### END READPREFS ######################
 
 ###################### READSTYLE #########################
 # error message is hardcoded with english
 # since $prefs{'language'} has not been initialized before this routine
-# This routine must be called after readstyle
-# since it references $prefs{'bgurl'}
+# this routine must be called after readprefs
+# since it references $prefs{'bgurl'} & prefs{'bgrepeat'}
 sub readstyle {
-   my ($key,$value);
-   my $stylefile = $prefs{'style'} || 'Default';
-   my %stylehash;
+   my $stylefile = $_[0] || 'Default';
+   $stylefile = 'Default' if (!-f "$config{'ow_stylesdir'}/$stylefile");
 
-   if (!-f "$config{'ow_stylesdir'}/$stylefile") {
-      $stylefile = 'Default';
-   }
+   my (%stylehash, $key, $value);
    open (STYLE,"$config{'ow_stylesdir'}/$stylefile") or
       openwebmailerror("Couldn't open $config{'ow_stylesdir'}/$stylefile!");
    while (<STYLE>) {
@@ -775,6 +873,11 @@ sub readstyle {
    close (STYLE);
 
    $stylehash{"css"}=~ s/\@\@\@BG_URL\@\@\@/$prefs{'bgurl'}/g;
+   if ($prefs{'bgrepeat'}) {
+      $stylehash{"css"}=~ s/\@\@\@BGREPEAT\@\@\@/repeat/g;
+   } else {
+      $stylehash{"css"}=~ s/\@\@\@BGREPEAT\@\@\@/no-repeat/g;
+   }
    $stylehash{"css"}=~ s/\@\@\@FONTSIZE\@\@\@/$prefs{'fontsize'}/g;
    $stylehash{"css"}=~ s/\@\@\@MEDFONTSIZE\@\@\@/$medfontsize{$prefs{'fontsize'}}/g;
    if ($prefs{'usefixedfont'}) {
@@ -782,9 +885,49 @@ sub readstyle {
    } else {
       $stylehash{"css"}=~ s/\@\@\@FIXEDFONT\@\@\@//g;
    }
-   return \%stylehash;
+   return %stylehash;
 }
 ##################### END READSTYLE ######################
+
+###################### READLANG #########################
+# use 'require' to load the package openwebmail::$lang
+# then aliasing symbos in package openwebmail:$lang to current package
+# through Glob and 'tricky' symbolic reference feature
+sub readlang {
+   my $langfile=$_[0]||'en';
+
+   $langfile=~s|/||g; $langfile=~s|\.\.||g; # remove / and .. for path hack
+   $langfile='en' if (!-f "$config{'ow_langdir'}/$langfile");
+   ($langfile=~ /^([\w\d\.\-_]+)$/) && ($langfile = $1);
+   require "$config{'ow_langdir'}/$langfile";	# done only once because of %INC
+
+   # . - is not allowed for package name
+   my $pkg= $langfile; $pkg=~s/[\.\-]/_/g; 
+
+   no strict 'refs';	# until block end
+   # traverse the symbo table of package openwebmail::$pkg
+   foreach my $sym ( keys %{"openwebmail::".$pkg."::"} ) {
+      # alias symbo into current package
+      *{"$sym"}=*{"openwebmail::".$pkg."::".$sym};
+   }
+}
+###################### END READLANG #########################
+
+#################### READTEMPLATE ###########################
+use vars qw(%templatecache);
+sub readtemplate {
+   my $templatename=$_[0];
+   my $lang=$prefs{'language'}||'en';
+   if (!defined($templatecache{"$lang/$templatename"})) {
+      open (T, "$config{'ow_templatesdir'}/$lang/$templatename") or
+         openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_templatesdir'}/$lang/$templatename!");
+      local $/; undef $/; 				# no seperator, read whole file in once
+      $templatecache{"$lang/$templatename"}=<T>;
+      close (T);
+   }
+   return($templatecache{"$lang/$templatename"});
+}
+#################### END READTEMPLATE ###########################
 
 ################# APPLYSTYLE ##############################
 sub applystyle {
@@ -803,7 +946,8 @@ sub applystyle {
    } else {
       $url="$config{'ow_htmlurl'}/help/en/index.html";
    }
-   $template =~ s/\@\@\@HELP_LINK\@\@\@/$url/g;
+   $template =~ s/\@\@\@HELP_URL\@\@\@/$url/g;
+   $template =~ s/\@\@\@HELP_TEXT\@\@\@/$lang_text{'help'}/g;
 
    $url=$config{'start_url'};
    if (cookie("openwebmail-ssl")) {
@@ -837,19 +981,6 @@ sub applystyle {
    return $template;
 }
 ################ END APPLYSTYLE ###########################
-
-#################### READTEMPLATE ###########################
-sub readtemplate {
-   my $templatename=$_[0];
-   my $content;
-
-   open (T, "$config{'ow_templatesdir'}/$prefs{'language'}/$templatename") or
-      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_templatesdir'}/$prefs{'language'}/$templatename!");
-   while (<T>) { $content .= $_; }
-   close (T);
-   return($content);
-}
-#################### END READTEMPLATE ###########################
 
 ################ READ/WRITE POP3BOOK ##############
 sub readpop3book {
@@ -894,7 +1025,6 @@ sub writepop3book {
 
    return 0;
 }
-
 ################ END GET/WRITEBACK POP3BOOK ##############
 
 #################### READ/WRITE CALBOOK #####################
@@ -971,48 +1101,40 @@ sub writecalbook {
 
 ############## VERIFYSESSION ########################
 sub verifysession {
-   openwebmailerror("Session ID $lang_err{'has_illegal_chars'}") unless
-      (($thissession =~ /^([\w\.\-\%\@]+)$/) && ($thissession = $1));
-
-   if ( (-M "$config{'ow_sessionsdir'}/$thissession") > $prefs{'sessiontimeout'}/60/24
-     || !(-e "$config{'ow_sessionsdir'}/$thissession")) {
+   my $modifyage=time()-(stat("$config{'ow_sessionsdir'}/$thissession"))[9];
+   if ( $modifyage > $prefs{'sessiontimeout'}*60) {
 
       my $delfile="$config{'ow_sessionsdir'}/$thissession";
       ($delfile =~ /^(.+)$/) && ($delfile = $1);  # untaint ...
       unlink ($delfile) if ( -e "$delfile");
 
-      my $html=readtemplate("sessiontimeout.template");
+      my $html = readtemplate("sessiontimeout.template");
       $html = applystyle($html);
-
-      printheader();
-      print $html;
-      printfooter(1);
+      print htmlheader(), $html, htmlfooter(1);
 
       writelog("session error - session $thissession timeout access attempt");
       writehistory("session error - session $thissession timeout access attempt");
+
+      # back to root if possible, required for setuid under persistent perl
+      $<=0; $>=0;
       exit 0;
    }
 
    my $clientip=get_clientip();
    my $clientcookie=cookie("$user-sessionid");
-   if ( -e "$config{'ow_sessionsdir'}/$thissession" ) {
-      open (SESSION, "$config{'ow_sessionsdir'}/$thissession");
-      my $cookie = <SESSION>; chomp $cookie;
-      my $ip = <SESSION>; chomp $ip;
-      close (SESSION);
 
-      if ( $config{'session_checkcookie'} &&
-           $clientcookie ne $cookie ) { 
-         writelog("session error - request doesn't have proper cookie, access denied!");
-         writehistory("session error - request doesn't have proper cookie, access denied !");
-         openwebmailerror("$lang_err{'sess_cookieerr'}");
-      }
-      if ( $config{'session_checksameip'} &&
-           $clientip ne $ip) { 
-         writelog("session error - request doesn't come from the same ip, access denied!");
-         writehistory("session error - request doesn't com from the same ip, access denied !");
-         openwebmailerror("$lang_err{'sess_iperr'}");
-      }
+   my ($cookie, $ip, $userinfo)=sessioninfo();
+   if ( $config{'session_checkcookie'} &&
+        $clientcookie ne $cookie ) {
+      writelog("session error - request doesn't have proper cookie, access denied!");
+      writehistory("session error - request doesn't have proper cookie, access denied !");
+      openwebmailerror("$lang_err{'sess_cookieerr'}");
+   }
+   if ( $config{'session_checksameip'} &&
+        $clientip ne $ip) {
+      writelog("session error - request doesn't come from the same ip, access denied!");
+      writehistory("session error - request doesn't com from the same ip, access denied !");
+      openwebmailerror("$lang_err{'sess_iperr'}");
    }
 
    my $session_noupdate=param('session_noupdate');
@@ -1020,10 +1142,28 @@ sub verifysession {
       # extend the session lifetime only if not auto-refresh/timeoutwarning
       open (SESSION, "> $config{'ow_sessionsdir'}/$thissession") or
          openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}/$thissession!");
-      print SESSION "$clientcookie\n$clientip\n";
+      print SESSION "$clientcookie\n$clientip\n$userinfo\n";
       close (SESSION);
    }
    return 1;
+}
+
+sub sessioninfo {
+   my ($cookie, $ip, $userinfo);
+
+   openwebmailerror("Session ID $thissession $lang_text{'doesnt_exist'}") unless
+      (-e "$config{'ow_sessionsdir'}/$thissession");
+
+   if (!open (F, "$config{'ow_sessionsdir'}/$thissession")) {
+      writelog("session error - Couldn't open $config{'ow_sessionsdir'}/$thissession ($@)");
+      openwebmailerror("$lang_text{'couldnt_open'} $config{'ow_sessionsdir'}/$thissession");
+   }
+   $cookie= <F>; chomp $cookie;
+   $ip= <F>; chomp $ip;
+   $userinfo = <F>; chomp $userinfo;
+   close (SESSION);
+
+   return($cookie, $ip, $userinfo);
 }
 ############# END VERIFYSESSION #####################
 
@@ -1059,7 +1199,6 @@ sub get_folderfile_headerdb {
 
    return($folderfile, $headerdb);
 }
-
 ############### GET_SPOOLFILE_FOLDERDB ################
 
 ################## GETFOLDERS ####################
@@ -1153,7 +1292,7 @@ sub getfolders {
 sub getmessage {
    my ($messageid, $mode) = @_;
    my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
-   my $folderhandle=FileHandle->new();
+   my $folderhandle=do { local *FH };
    my $r_messageblock;
    my %message = ();
 
@@ -1383,18 +1522,18 @@ search_smtprelay:
 #################### END GETMESSAGE #######################
 
 ################### GETINFOMESSAGEIDS ###################
+use vars qw($index_complete);
 sub getinfomessageids {
    my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
-   my $index_complete=0;
 
    # do new indexing in background if folder > 10 M && empty db
    if ( (stat("$headerdb$config{'dbm_ext'}"))[7]==0 &&
         (stat($folderfile))[7] >= 10485760 ) {
-      $|=1; 				# flush all output
-      $SIG{CHLD} = sub { wait; $index_complete=1 if ($?==0) };	# handle zombie
+      local $|=1; # flush all output
+      local $SIG{CHLD} = sub { wait; $index_complete=1 if ($?==0) };	# handle zombie
+      local $index_complete=0;
       if ( fork() == 0 ) {		# child
-         close(STDOUT);
-         close(STDIN);
+         close(STDIN); close(STDOUT); close(STDERR);
          filelock($folderfile, LOCK_SH|LOCK_NB) or exit 1;
          update_headerdb($headerdb, $folderfile);
          filelock($folderfile, LOCK_UN);
@@ -1405,6 +1544,7 @@ sub getinfomessageids {
          sleep 1;
          last if ($index_complete==1);
       }
+
       if ($index_complete==0) {
          openwebmailerror("$folderfile $lang_err{'under_indexing'}");
       }
@@ -1429,7 +1569,7 @@ sub getinfomessageids {
    }
 
    if ( $keyword ne '' ) {
-      my $folderhandle=FileHandle->new();
+      my $folderhandle=do { local *FH };
       my ($totalsize, $new, $r_haskeyword, $r_messageids, $r_messagedepths);
       my @messageids=();
       my @messagedepths=();
@@ -1439,7 +1579,9 @@ sub getinfomessageids {
       filelock($folderfile, LOCK_SH|LOCK_NB) or
          openwebmailerror("$lang_err{'couldnt_locksh'} $folderfile!");
       open($folderhandle, $folderfile);
-      ($totalsize, $new, $r_haskeyword)=search_info_messages_for_keyword($keyword, $searchtype, $headerdb, $folderhandle, "$folderdir/.search.cache", $prefs{'hideinternal'}, $prefs{'regexmatch'});
+      ($totalsize, $new, $r_haskeyword)=search_info_messages_for_keyword(
+         $keyword, $prefs{'charset'}, $searchtype, $headerdb, $folderhandle, 
+         "$folderdir/.search.cache", $prefs{'hideinternal'}, $prefs{'regexmatch'});
       close($folderhandle);
       filelock($folderfile, LOCK_UN);
 
@@ -1584,9 +1726,16 @@ sub cutfolder {				# reduce folder size by $cutpercent
 
 ################# FILTERMESSAGE ###########################
 sub filtermessage {
-   my ($filtered, $r_filtered)=mailfilter($user, 'INBOX', $folderdir, \@validfolders, $prefs{'regexmatch'},
+   my ($filtered, $r_filtered);
+   if ($config{'enable_smartfilters'}) {
+      ($filtered, $r_filtered)=mailfilter($user, 'INBOX', $folderdir, \@validfolders, $prefs{'regexmatch'},
 					$prefs{'filter_repeatlimit'}, $prefs{'filter_fakedsmtp'},
         				$prefs{'filter_fakedfrom'}, $prefs{'filter_fakedexecontenttype'});
+   } else {
+      ($filtered, $r_filtered)=mailfilter($user, 'INBOX', $folderdir, \@validfolders, $prefs{'regexmatch'},
+					0, 0, 0, 0);
+   }
+
    if ($filtered > 0) {
       my $dststr;
       foreach my $destination (sort keys %{$r_filtered}) {
@@ -1682,60 +1831,44 @@ sub writehistory {
 
    return 0;
 }
-
 ################ END WRITEHISTORY ##################
 
 ##################### PRINTHEADER/PRINTFOOTER #########################
-# $headerprinted is set to 1 once printheader is called and seto 0 until
-# printfooter is called. This variable is used to not print header again
-# in openwebmailerror
-my $headerprinted=0;
-
-sub printheader {
+sub htmlheader {
    my @headers=();
 
-   if (!$headerprinted) {
-      $headerprinted = 1;
+   my $html = readtemplate("header.template");
+   $html = applystyle($html);
 
-      my $html=readtemplate("header.template");
-      $html = applystyle($html);
+   $html =~ s/\@\@\@ICO_LINK\@\@\@/$config{'ico_url'}/g;
+   $html =~ s/\@\@\@BG_URL\@\@\@/$prefs{'bgurl'}/g;
+   $html =~ s/\@\@\@CHARSET\@\@\@/$prefs{'charset'}/g;
 
-      $html =~ s/\@\@\@ICO_LINK\@\@\@/$config{'ico_url'}/g;
-      $html =~ s/\@\@\@BG_URL\@\@\@/$prefs{'bgurl'}/g;
-      $html =~ s/\@\@\@CHARSET\@\@\@/$prefs{'charset'}/g;
-
-      my $info;
-      if ($user) {
-         $info=qq|$prefs{'email'} -|;
-         $info=qq|$prefs{'email'} ($folderusage%) -| if ($config{'folderquota'});
-      }
-      $info .= " ". dateserial2str(add_dateserial_timeoffset(gmtime2dateserial(),$prefs{'timeoffset'}), $prefs{'dateformat'}). " -";
-      $html =~ s/\@\@\@USERINFO\@\@\@/$info/g;
-
-      push(@headers, -charset=>$prefs{'charset'}) if ($CGI::VERSION>=2.57);
-      push(@headers, -pragma=>'no-cache');
-      push(@headers, @_);
-      print header(@headers);
-      print $html;
+   my $info;
+   if ($user) {
+      $info=qq|$prefs{'email'} -|;
+      $info=qq|$prefs{'email'} ($folderusage%) -| if ($config{'folderquota'});
    }
+   $info .= " ". dateserial2str(add_dateserial_timeoffset(gmtime2dateserial(),$prefs{'timeoffset'}), $prefs{'dateformat'}). " -";
+   $html =~ s/\@\@\@USERINFO\@\@\@/$info/g;
+
+   push(@headers, -charset=>$prefs{'charset'}) if ($CGI::VERSION>=2.57);
+   push(@headers, -pragma=>'no-cache');
+   push(@headers, @_);
+   return (header(@headers).$html);
 }
 
-sub printfooter {
+sub htmlfooter {
    my ($mode, $jscode)=@_;
    my $html = '';
 
-   $headerprinted = 0;
-
    if ($mode==2) {	# read in timeout check jscript
-      $html=readtemplate("footer.js.template");
-      my $remainingseconds= 365*24*60*60;	# default timeout = 1 year
-      if ($thissession ne "") { 	# if this is a session
-         my $sessionage=(-M "$config{'ow_sessionsdir'}/$thissession");
-         if ($sessionage ne "") {	# if this session is valid
-            $remainingseconds= ($prefs{'sessiontimeout'}/60/24-$sessionage)
-				*24*60*60 - (time()-$^T);
-         }
+      my $remainingseconds= 365*86400;	# default timeout = 1 year
+      my $modifytime= (stat("$config{'ow_sessionsdir'}/$thissession"))[9];
+      if ($thissession ne "" && $modifytime) { # this is a session & session file time available
+         $remainingseconds=$modifytime+$prefs{'sessiontimeout'}*60-time();
       }
+      $html = readtemplate("footer.js.template");
       $html =~ s/\@\@\@REMAININGSECONDS\@\@\@/$remainingseconds/g;
       $html =~ s/\@\@\@JSCODE\@\@\@/$jscode/g;
    }
@@ -1750,7 +1883,7 @@ sub printfooter {
       $html=qq|</body></html>\n|;
    }
 
-   print $html;
+   return $html;
 }
 ################# END PRINTHEADER/PRINTFOOTER #########################
 
@@ -1758,50 +1891,51 @@ sub printfooter {
 sub openwebmailerror {
    my $mailgid=getgrnam('mail');
 
-   if (defined($ENV{'HTTP_HOST'})) {	# in CGI mode
+   if (defined($ENV{'GATEWAY_INTERFACE'})) {	# in CGI mode
       # load prefs if possible, or use default value
-      my $background = $style{"background"}||"#FFFFFF";
-      my $css = $style{"css"}||"";
+      my $background = $style{"background"}||"#FFFFFF"; $background =~ s/"//g;
+      my $css = $style{"css"}||
+                qq|A:link    { text-decoration: none; color: blue}\n|.
+                qq|A:visited { text-decoration: none; color: blue}\n|.
+                qq|A:hover   { text-decoration: none; color: red}\n|;
       my $fontface = $style{"fontface"}||"Arial, Helvetica";
       my $titlebar = $style{"titlebar"}||"#002266";
       my $titlebar_text = $style{"titlebar_text"}||"#FFFFFF";
       my $window_light = $style{"window_light"}||"#EEEEEE";
-
-      if (!$headerprinted) {
-         $headerprinted = 1;
-         $background =~ s/"//g;
-
-         if ( $CGI::VERSION>=2.57) {
-            print header(-pragma=>'no-cache',
-                         -charset=>$prefs{'charset'});
-         } else {
-            print header(-pragma=>'no-cache');
-         }
-         print start_html(-"title"=>"$config{'name'}",
-                          -BGCOLOR=>"$background",
-                          -BACKGROUND=>$prefs{'bgurl'});
-         print qq|<style type="text/css">|,
-               $css,
-               qq|</style>|,
-               qq|<font face=$fontface>\n|;
+      if ( $CGI::VERSION>=2.57) {
+         print header(-pragma=>'no-cache',
+                      -charset=>$prefs{'charset'});
+      } else {
+         print header(-pragma=>'no-cache');
       }
+      print start_html(-"title"=>"$config{'name'}",
+                       -BGCOLOR=>"$background",
+                       -BACKGROUND=>$prefs{'bgurl'});
+      print qq|<style type="text/css">\n<!--\n|,
+            $css,
+            qq|-->\n</style>\n|,
+            qq|<font face=$fontface>\n|;
+
       print qq|<br><br><br><br><br><br><br>|,
             qq|<table border="0" align="center" width="40%" cellpadding="1" cellspacing="1">|,
             qq|<tr><td bgcolor=$titlebar>\n|,
             qq|<font color=$titlebar_text face=$fontface size="3"><b>$config{'name'} ERROR</b></font>\n|,
             qq|</td></tr>|,
-            qq|<tr><td align="center" bgcolor=$window_light><br>\n|;
+            qq|<tr><td align="center" bgcolor=$window_light><br>\n|,
+            @_, 
+            qq|<br><br>\n|;
 
-      print @_, qq|<br><br>\n|;
-#      print qq|<font color=$window_light size=-2>euid=$>, egid=$), mailgid=$mailgid</font><br>\n|;
-
+      my $footer=$config{'page_footer'};
+      $footer =~ s!\@\@\@HELP_URL\@\@\@!$config{'ow_htmlurl'}/help/en/index.html!g;
+      $footer =~ s!\@\@\@HELP_TEXT\@\@\@!Help!g;
       print qq|</td></tr>|,
             qq|</table>\n|,
             qq|<p align="center"><font size="-1"><br>|,
-            qq|$config{'page_footer'}<br>|,
+            qq|$footer<br>|,
             qq|</font></font></p></body></html>|;
 
-      $headerprinted = 0;
+      # back to root if possible, required for setuid under persistent perl
+      $<=0; $>=0;
       exit 0;
 
    } else { # command mode
@@ -1816,9 +1950,9 @@ sub autoclosewindow {
    my ($title, $msg, $time, $jscode)=@_;
    $time=8 if ($time<3);
 
-   if (defined($ENV{'HTTP_HOST'})) {	# in CGI mode
-      printheader();
-      my $html=readtemplate("autoclose.template");
+   if (defined($ENV{'GATEWAY_INTERFACE'})) {	# in CGI mode
+      my ($html, $temphtml);
+      $html = readtemplate("autoclose.template");
       $html = applystyle($html);
 
       $html =~ s/\@\@\@MSGTITLE\@\@\@/$title/g;
@@ -1826,15 +1960,18 @@ sub autoclosewindow {
       $html =~ s/\@\@\@TIME\@\@\@/$time/g;
       $html =~ s/\@\@\@JSCODE\@\@\@/$jscode/g;
 
-      my $temphtml = button(-name=>"okbutton",
-                            -value=>$lang_text{'ok'},
-                            -onclick=>'autoclose();',
-                            -override=>'1');
+      $temphtml = button(-name=>"okbutton",
+                         -value=>$lang_text{'ok'},
+                         -onclick=>'autoclose();',
+                         -override=>'1');
       $html =~ s/\@\@\@OKBUTTON\@\@\@/$temphtml/g;
 
-      print $html;
-      printfooter(2);
+      print htmlheader(), $html, htmlfooter(2);
+
+      # back to root if possible, required for setuid under persistent perl
+      $<=0; $>=0;
       exit 0;
+
    } else {
       print "$title - $msg\n";
       exit 0;
@@ -1891,7 +2028,6 @@ sub escapeURL {
     $toencode=~s/([^a-zA-Z0-9_.-])/uc sprintf("%%%02x",ord($1))/eg;
     return $toencode;
 }
-
 ##################### END escapeURL, unescapeURL #################
 
 ##################### SET_EUID_EGID_UMASK #################
@@ -1923,7 +2059,6 @@ sub metainfo {
       return("");
    }
 }
-
 ######################## END METAINFO #######################
 
 #################### GET_CLIENTIP #############################
@@ -2264,9 +2399,6 @@ sub _email2nameaddr {	# name may be null
    $address=~s/^\s+//; $address=~s/\s+$//;
    return($name, $address);
 }
-
-
-
 ################ END EMAIL2NAMEADDR  #####################
 
 ###################### STR2LIST #######################
@@ -2393,11 +2525,11 @@ sub safedomainname {
 sub safedlname {
    my $dlname=$_[0];
    $dlname=~s|/$||; $dlname=~s|^.*/||;	# unix path
-   if (length($dlname)>45) {   # IE6 go crazy if fname longer than 45, tricky!
+   if (length($dlname)>45) {   # IE6 goes crazy if fname longer than 45, tricky!
       $dlname=~/^(.*)(\.[^\.]*)$/;
       $dlname=substr($1, 0, 45-length($2)).$2;
    }
-   $dlname=~s|_*\._*|\.|g; 
+   $dlname=~s|_*\._*|\.|g;
    $dlname=~s|__+|_|g;
    return($dlname);
 }
@@ -2506,7 +2638,6 @@ sub absolute_vpath {
 ########################## PATH2ARRAY #############################
 sub path2array {
    my $path=$_[0];
-
    my @p=();
    foreach (split(/\//, $path)) {
       if ($_ eq "." || $_ eq "") {	# remove . and //
@@ -2521,10 +2652,27 @@ sub path2array {
 }
 ########################## END PATH2ARRAY #############################
 
+######################### RESOLV_SYMLINK ##########################
+sub resolv_symlink {
+   my $path=$_[0];	# $path should be absolute path
+   my $path0;
+   for (my $i=0; $i<20; $i++) {
+      last if (! -l $path);
+      $path0=$path;
+      $path=readlink($path);
+      if ($path!~m!^/!) {
+         my @p=path2array($path0); pop(@p);
+         @p=path2array(join('/', @p, $path));
+         $path='/'.join('/', @p);
+      }
+   }
+   return($path);
+}
+######################## END RESOLV_SYMLINK ########################
+
 ########################## FULLPATH2VPATH ##############################
 sub fullpath2vpath {
    my ($realpath, $rootpath)=@_;
-
    my @p=path2array($realpath);
    my @r=path2array($rootpath);
    foreach my $r (@r) {
@@ -2535,31 +2683,30 @@ sub fullpath2vpath {
 ######################### END FULLPATH2VPATH ##########################
 
 ########################## VERIFYVPATH ##############################
-# check hidden, symboliclink, outhome symboliclink, unix specific files
+# check hidden, symboliclink, out symboliclink, unix specific files
 sub verify_vpath {
    my ($rootpath, $vpath)=@_;
-
-   my $realpath="$rootpath/$vpath";
    my $filename=$vpath; $filename=~s|.*/||;
-
-   if (!$config{'webdisk_lsmailfolder'}) {
-      my $vpath2=fullpath2vpath($realpath, $folderdir);
-      if ($vpath2) {
-         return "$lang_err{'access_denied'} ($vpath is a mailfolder file)\n";
-      }
-   }
    if (!$config{'webdisk_lshidden'} && $filename=~/^\./) {
       return "$lang_err{'access_denied'} ($vpath is a hidden file)\n";
    }
-   if (-l $realpath) {
+
+   my $realpath=resolv_symlink("$rootpath/$vpath");
+   if (-l "$rootpath/$vpath") {
       if (!$config{'webdisk_lssymlink'}) {
          return "$lang_err{'access_denied'} ($vpath is a symbolic link)\n";
       }
-      if (!$config{'webdisk_allow_symlinkouthome'}) {
-         my $vpath2=fullpath2vpath(readlink($realpath), $homedir);
-         if (!$vpath2) {
-            return "$lang_err{'access_denied'} ($vpath is symbolic linked to dir/file outside homedir)\n";
+      if (!$config{'webdisk_allow_symlinkout'}) {
+         if (fullpath2vpath($realpath, $rootpath) ne "") {
+            return "$lang_err{'access_denied'} ($vpath is symbolic linked to dir/file outside webdisk)\n";
          }
+      }
+   }
+   if (!$config{'webdisk_lsmailfolder'}) {
+      my $spoolfile=(get_folderfile_headerdb($user, 'INBOX'))[0];
+      if ( fullpath2vpath($realpath, $folderdir) ne "" ||
+           fullpath2vpath($realpath, $spoolfile) ne "" ) {
+         return "$lang_err{'access_denied'} ($vpath is a mailfolder file)\n";
       }
    }
    if (!$config{'webdisk_lsunixspec'} && (-e $realpath && !-d _ && !-f _)) {
@@ -2578,7 +2725,8 @@ sub execute {
    my @cmd=@_;
    my ($childpid, $stdout, $stderr);
    my $mypid=$$;
-   $|=1;			# flush CGI related output in parent
+   local $SIG{CHLD}; undef $SIG{CHLD};	# disable outside $SIG{CHLD} handler temporarily for wait()
+   local $|=1;			# flush CGI related output in parent
 
    eval {
       $childpid = open3(\*cmdIN, \*cmdOUT, \*cmdERR, @cmd);
@@ -2619,6 +2767,32 @@ sub execute {
 }
 ########################## END EXECUTE ##########################
 
+########################## HOSTNAME ##########################
+sub hostname {
+   my $hostname=`/bin/hostname`; chomp ($hostname);
+   return($hostname) if ($hostname=~/\./);
+
+   my $domain="unknow";
+   open (R, "/etc/resolv.conf");
+   while (<R>) {
+      chop;
+      if (/domain\s+\.?(.*)/i) {$domain=$1;last;}
+   }
+   close(R);
+   return("$hostname.$domain");
+}
+########################## END HOSTNAME ##########################
+
+########################## FILELOCK ############################
+sub filelock {
+   if ( $config{'use_dotlockfile'} ) {
+      return(openwebmail::filelock::dotfile_lock(@_));
+   } else {
+      return(openwebmail::filelock::flock_lock(@_));
+   }
+}
+########################## END FILELOCK ############################
+
 ################# IS_REGEX, IS_TAINTED ##########
 sub is_regex {
    return eval { m!$_[0]!; 1; };
@@ -2627,7 +2801,6 @@ sub is_regex {
 sub is_tainted {
    return ! eval { join('',@_), kill 0; 1; };
 }
-
 ############### END IS_REGEX, IS_TAINTED ########
 
 #################### IS_R2LMODE ####################
@@ -2656,14 +2829,13 @@ sub log_time {
    open(Z, ">> /tmp/openwebmail.debug");
 
    # unbuffer mode
-   select(Z); $| = 1;
+   select(Z); local $| = 1;
    select(STDOUT);
 
    print Z "$today $time ", join(" ",@msg), "\n";
    close(Z);
    chmod(0666, "/tmp/openwebmail.debug");
 }
-
 ################## END LOG_TIME (for profiling) ##################
 
 1;

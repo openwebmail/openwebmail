@@ -21,10 +21,10 @@
 
 <table width=95% border=0 bgcolor=@@@BACKGROUND@@@ cellspacing=1>
 <tr>
-<td bgcolor=@@@COLUMNHEADER@@@ nowrap><B>DÃ¡tum</B></td>
-<td bgcolor=@@@COLUMNHEADER@@@ nowrap><B>A hÃ©t napja</B></td>
+<td bgcolor=@@@COLUMNHEADER@@@ nowrap><B>Dátum</B></td>
+<td bgcolor=@@@COLUMNHEADER@@@ nowrap><B>A hét napja</B></td>
 <td bgcolor=@@@COLUMNHEADER@@@ nowrap align="center" width="5%"><B>Nap(ok)</B></td>
-<td bgcolor=@@@COLUMNHEADER@@@ nowrap align=center width="75%"><B>BejegyzÃ©sek</B></td>
+<td bgcolor=@@@COLUMNHEADER@@@ nowrap align=center width="75%"><B>Bejegyzések</B></td>
 </tr>
 @@@ITEMLIST@@@
 </table>

@@ -11,6 +11,8 @@
 Utilizatorul poate replace cuvantul incorect.
 Daca variante n-au fost gasite, user poate utiliza "-manually fix-"
 si clicks [Check Again], atunci se poate fixa manual.
+If the user chooses "--Add to Dictionary--" and then clicks [Check Again], 
+the original word will be added to the user's personal dictionary.
 </td></tr>
 </table>
 <br>
@@ -26,9 +28,8 @@ si clicks [Check Again], atunci se poate fixa manual.
 
 <br>
 @@@CHECKAGAINBUTTON@@@
-&nbsp;&nbsp;&nbsp;
 @@@FINISHCHECKINGBUTTON@@@
-&nbsp;&nbsp;&nbsp;
+@@@EDITPERSDICTIONARYBUTTON@@@
 @@@CANCELBUTTON@@@
 <br><br>
 </td></tr>

@@ -21,11 +21,7 @@
 
 <table border=0 width=95%><tr><td align="right" valign=top width=85%>
 
-<table border=0 cellspacing=1 width=100% bgcolor=@@@BACKGROUND@@@>
-<tr align=center>
-<td width="10%" bgcolor=@@@COLUMNHEADER@@@>&nbsp;</td>
-<td width="90%" nowrap bgcolor=@@@COLUMNHEADER@@@><B>Εγγραφές</B></td>
-</tr>
+<table border=0 cellspacing=0 cellpadding=0 width=100% bgcolor=@@@BACKGROUND@@@>
 @@@CALENDARITEMS@@@
 </table>
 

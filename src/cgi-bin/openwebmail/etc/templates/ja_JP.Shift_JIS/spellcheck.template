@@ -12,6 +12,8 @@
 もし直された語がなければ、ユーザーは"-手動で直す-"を選択し、[もう一度チェック]をクリックすると、
 ユーザーはテキストフィールドが使え、手動で入力できるように
 なります。
+If the user chooses "--Add to Dictionary--" and then clicks [Check Again], 
+the original word will be added to the user's personal dictionary.
 </td></tr>
 </table>
 <br>
@@ -27,9 +29,8 @@
 
 <br>
 @@@CHECKAGAINBUTTON@@@
-&nbsp;&nbsp;&nbsp;
 @@@FINISHCHECKINGBUTTON@@@
-&nbsp;&nbsp;&nbsp;
+@@@EDITPERSDICTIONARYBUTTON@@@
 @@@CANCELBUTTON@@@
 <br><br>
 </td></tr>

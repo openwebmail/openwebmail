@@ -12,6 +12,8 @@ Kullanýcý bu önerilerden birini seçip hatalý yazýlan kelimeyle
 deðiþtirebilir.Eðer hiçbir öneri yoksa veya kullanýcý "-manuel düzelt-"
 seçerse ve [Tekrar Kontrol Edin] üzerine týklarsa metin
 alaný giriþ için açýlýr.
+If the user chooses "--Add to Dictionary--" and then clicks [Check Again], 
+the original word will be added to the user's personal dictionary.
 </td></tr>
 </table>
 <br>
@@ -27,9 +29,8 @@ alaný giriþ için açýlýr.
 
 <br>
 @@@CHECKAGAINBUTTON@@@
-&nbsp;&nbsp;&nbsp;
 @@@FINISHCHECKINGBUTTON@@@
-&nbsp;&nbsp;&nbsp;
+@@@EDITPERSDICTIONARYBUTTON@@@
 @@@CANCELBUTTON@@@
 <br><br>
 </td></tr>

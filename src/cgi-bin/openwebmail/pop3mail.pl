@@ -7,7 +7,6 @@
 
 use strict;
 use Fcntl qw(:DEFAULT :flock);
-use FileHandle;
 use IO::Socket;
 require "mime.pl";
 

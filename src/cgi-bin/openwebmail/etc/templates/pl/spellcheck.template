@@ -13,6 +13,9 @@ Je¶li nie ma ¿adnych sugestii lub wybierzesz "Popraw rêcznie" a potem
 klikniesz "Sprawd¼ powtórnie", pojawi siê pole tekstowe, w które bêdzie
 mo¿na wpisaæ ¿±dane s³owo.
 
+Je¶li wybierzes "--Dodaj do s³ownika--", a nastêpnie klikniesz
+If the user chooses "--Add to Dictionary--" and then clicks [Sprawd¼ powtórnie], 
+oryginalne s³owo zostanie dodane do osobistego s³ownika.
 </td></tr>
 </table>
 <br>
@@ -28,9 +31,8 @@ mo¿na wpisaæ ¿±dane s³owo.
 
 <br>
 @@@CHECKAGAINBUTTON@@@
-&nbsp;&nbsp;&nbsp;
 @@@FINISHCHECKINGBUTTON@@@
-&nbsp;&nbsp;&nbsp;
+@@@EDITPERSDICTIONARYBUTTON@@@
 @@@CANCELBUTTON@@@
 <br><br>
 </td></tr>

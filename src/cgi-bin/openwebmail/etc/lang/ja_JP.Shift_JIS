@@ -1,8 +1,7 @@
-#!/usr/bin/perl
+package openwebmail::ja_JP_Shift_JIS;
 
-# Japanese translation by
-# Captain James and Interactive Artists, LLC, james.AT.ActionMessage.com
-# charset : Shift_JIS
+# Japanese translation, charset : Shift_JIS
+# by Captain James and Interactive Artists, LLC, james.AT.ActionMessage.com
 
 %lang_folders =
    (
@@ -182,6 +181,7 @@
 
 %lang_text =
    (
+   help       => 'Help',
    login      => 'ログイン',
    clear      => '消去',
    point      => 'ポイント',
@@ -320,12 +320,15 @@
    spellcheck => 'スペルチェック',
    checkagain => '再度チェック',
    finishchecking => 'チェックが完了しました',
+   editpdict  => 'Edit Personal Dictionary',
+   addtodict  => 'Add to Dictionary',
    manuallyfix=> '手動で修正',
    editstat   => '背景を編集',
    savestat   => '背景を保存',
    clearstat  => '選択した背景をクリア',
    statreply  => '-- Stationery for Reply --',
    calendar   => 'カレンダー',
+   allday     => 'All day',
    am         => '午前',
    pm         => '午後',
    calfmt_year          => '@@@YEAR@@@年',
@@ -337,6 +340,7 @@
    moreitems  => 'ほかの項目',
    multieditconf => 'このアイテムが多くの日付に追加されました。\\nそれを編集するとすべての日付におけるアイテムが変更されます。\\n編集を続行しますか？',
    multidelconf  => 'このアイテムが多くの日付に追加されました。\\nそれを削除するとすべての日付におけるアイテムが削除されます。\\n削除を続行しますか？',
+   caldelconf => 'Are you sure you want to delete this item?',
    noitemforthisday => 'この日のアイテムはありません',
    thisday_only          => '今日\'の日付けのみ',
    the_wday_of_thismonth => 'その月の@@@ORDER@@@ @@@WDAY@@@ ',
@@ -371,7 +375,13 @@
    failed       => 'failed',
    savefile_towd=> 'Save file to WebDisk',
    saveatt_towd => 'Save attachment to WebDisk',
-   addatt_fromwd=> 'Add attachment from WebDisk'
+   addatt_fromwd=> 'Add attachment from WebDisk',
+   vdomain_usermgr    => 'Virtual Domain User Management',
+   vdomain_createuser => 'Create User',
+   vdomain_changeuser => 'Change User',
+   vdomain_deleteuser => 'Delete User',
+   vdomain_usertype_localmbox  => 'Local Mailbox',
+   vdomain_usertype_redirected => 'Redirect to external mail address'
    );
 
 %lang_err =
@@ -415,6 +425,7 @@
    auth_syserr       => '認証システムのエラーです',
    param_fmterr      => 'パラメーターのフォーマットエラーです',
    pwd_incorrect     => 'パスワードが間違っています',
+   pwd_confirmmismatch=>'新しいパスワードの確認が適合しません',
    pwd_tooshort      => 'パスワードが短すぎます (最小の長さは @@@PASSWDMINLEN@@@です)',
    pwd_toosimple     => 'パスワードが簡単すぎます (アルファベットと数字両方を使うようにしてください。)',
    network_server_error => 'ネットワークサーバーエラーです',
@@ -430,7 +441,8 @@
    upload_overlimit  => 'Upload file size is over the limit',
    decomp_notsupported=>'Decompression support is not available for this file.',
    webdisk_hitquota   => 'Sorry, you\'ve hit your webdisk quota, please delete some files first.',
-   webdisk_readonly   => 'Sorry, your webdisk is read only.'
+   webdisk_readonly   => 'Sorry, your webdisk is read only.',
+   vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
    );
 
 1;

@@ -1,8 +1,7 @@
-#!/usr/bin/perl
+package openwebmail::es;
 
-# Spanish translation by Javier Smaldone, jsmaldone.AT.yahoo.com
-# charset: iso-8859-1
-# last update 02-08-2003
+# Spanish translation, charset: iso-8859-1
+# by Javier Smaldone, jsmaldone.AT.yahoo.com, 02-22-2003
 
 %lang_folders =
    (
@@ -182,10 +181,11 @@
 
 %lang_text =
    (
+   help       => '¿Ayuda',
    login      => 'Ingresar',
    clear      => 'Restablecer',
-   point      => 'Punto',
-   pixel      => 'Píxel',
+   point      => 'puntos',
+   pixel      => 'píxels',
    changepwd  => 'Cambiar contraseña',
    viewhistory=> 'Ver Historial',
    of         => 'de',
@@ -320,12 +320,15 @@
    spellcheck => 'Corregir ortografía',
    checkagain => 'Comprobar nuevamente',
    finishchecking => 'Finalizar corrección',
+   editpdict  => 'Editar Diccionario Personal',
+   addtodict  => 'Agregar al diccionario',
    manuallyfix=> 'Corregir manualmente',
    editstat   => 'Editar membretes',
    savestat   => 'Guardar membrete',
    clearstat  => 'Borrar membrete',
    statreply  => '-- Membrete de respuesta --',
    calendar   => 'Calendario',
+   allday     => 'Todo el día',
    am         => 'am',
    pm         => 'pm',
    calfmt_year          => 'Año @@@YEAR@@@',
@@ -337,6 +340,7 @@
    moreitems  => 'más items',
    multieditconf => 'Este ítem fue agregado a múltiples fechas.\\nAl editarlo cambiará para todas las fechas\\n¿Desea continuar con la edición?',
    multidelconf	 => 'Este ítem fue agregado a múltiples fechas.\\nAl eliminarlo se quitará de todas las fechas\\n¿Desea eliminarlo?',
+   caldelconf => 'Are you sure you want to delete this item?',
    noitemforthisday => 'No hay items para este día',
    thisday_only          => 'Solamente hoy',
    the_wday_of_thismonth => 'El @@@ORDER@@@ @@@WDAY@@@ de cada mes',
@@ -364,14 +368,20 @@
    showhidden   => 'Mostrar archivos ocultos',
    lastmodified => 'Fecha de última modificación',
    perm         => 'Permisos',
-   permission   => 'Access Permission',
+   permission   => 'Permisos de acceso',
    noitemfound  => 'No hay ítems',
    savefile     => 'Guardado del archivo',
    succeeded    => 'exitoso',
    failed       => 'fallido',
    savefile_towd=> 'Guardar archivo en el Disco Web',
    saveatt_towd => 'Guardar adjunto en el Disco Web',
-   addatt_fromwd=> 'Adjuntar archivo desde el Disco Web'
+   addatt_fromwd=> 'Adjuntar archivo desde el Disco Web',
+   vdomain_usermgr    => 'Virtual Domain User Management',
+   vdomain_createuser => 'Create User',
+   vdomain_changeuser => 'Change User',
+   vdomain_deleteuser => 'Delete User',
+   vdomain_usertype_localmbox  => 'Local Mailbox',
+   vdomain_usertype_redirected => 'Redirect to external mail address'
    );
 
 %lang_err =
@@ -400,7 +410,7 @@
    tryagain          => 'y trate nuevamente.',
    abook_toobig      => 'Lo siento, se ha excedido del tamaño límite para su libreta de direcciones.  Por favor, regrese',
    cant_create_dir   => '¡No puedo crear su directorio de usuario!',
-   folder_hitquota   => 'Lo siento, usted llegó a su límite de espacio y no puedo guardar más mensajes en ninguna bandeja. Sólo podrá mover los mensajes a la bandeja PAPELERA, donde serán borrados.  Regrese atrás, borre algunos mensajes o vacíe la Papelera y trate de nuevo.',
+   folder_hitquota   => 'Lo siento, usted llegó a su límite de espacio y no puedo guardar más mensajes en ninguna bandeja. Sólo podrá mover los mensajes a la bandeja PAPELERA, donde serán borrados.  Regrese atrás, borre algunos mensajes o vacíe la Papelera e intente nuevamente.',
    folder_cutdone    => 'Advertencia, debido a que se alcanzó el límite del tamaño de las bandejas (@@@FOLDERQUOTA@@@), los mensajes más antiguoshan sido eliminados automáticamente de las mismas.',
    att_overlimit     => 'Lo siento, el tamaño de su archivo excede el tamaño límite permitido, el cual es de',
    inv_msg_op        => 'Operación no válida para el mensaje',
@@ -415,6 +425,7 @@
    auth_syserr       => 'error del sistema de autenticación',
    param_fmterr      => 'error en el formato de un parámetro',
    pwd_incorrect     => 'contraseña incorrecta',
+   pwd_confirmmismatch=>'Hubo un error al confirmar la contrase&ntilde;a',
    pwd_tooshort      => 'Contraseña demasiado corta (logitud mínima @@@PASSWDMINLEN@@@)',
    pwd_toosimple     => 'Contraseña demasidao simple (debe contener letras y números)',
    network_server_error => 'error de red del servidor',
@@ -430,7 +441,8 @@
    upload_overlimit  => 'El tamaño del archivo a subir supera el límite',
    decomp_notsupported=>'No se soporta la descompresión de este archivo.',
    webdisk_hitquota   => 'Lo lamento, ha alcanzado el límite de su Disco Web, por favor elimine algunos archivos primero.',
-   webdisk_readonly   => 'Lo lamento, su Disco Web es de sólo-lectura.'
+   webdisk_readonly   => 'Lo lamento, su Disco Web es de sólo-lectura.',
+   vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
    );
 
 1;

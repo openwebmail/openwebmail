@@ -1,10 +1,10 @@
-#!/usr/bin/perl
+package openwebmail::pl;
 
-# Polish translation by Pawel Jablonski, jablonski.AT.dialogok.pl 
-#                       michal talecki, mik.AT.orka.ibz.pl
-#                       Grzegorz Nosek, blackfire.AT.virtual.net.pl
-#                       Andrzej Cuber, rea.AT.supermedia.pl
-# charset: iso-8859-2
+# Polish translation, charset: iso-8859-2
+# by Pawel Jablonski, jablonski.AT.dialogok.pl 
+#    michal talecki, mik.AT.orka.ibz.pl
+#    Grzegorz Nosek, blackfire.AT.virtual.net.pl
+#    Andrzej Cuber, rea.AT.supermedia.pl
 
 %lang_folders =
    (
@@ -52,22 +52,22 @@
 
 %lang_ctrlpositionlabels =
    (
-   top => 'At top',
-   bottom => 'At bottom'
+   top => 'Na górze',
+   bottom => 'Na dole'
    );
 
 %lang_sendpositionlabels =
    (
-   before => 'Before mail edit area',
-   after => 'After mail edit area',
-   both  => 'Before and after mail edit area'
+   before => 'Przed obszarem edycji',
+   after => 'Po obszarze edycji',
+   both  => 'Przed i po obszarze edycji'
    );
 
 %lang_abookbuttonpositionlabels = 
    (
-   before => 'Before addressbook entries',
-   after  => 'After addressbook entries',
-   both   => 'Before and after addressbook entries'
+   before => 'Przed wpisami ksi±¿ki adresowej',
+   after  => 'Po wpisach ksi±¿ki adresowej',
+   both   => 'Przed i po wpisach ksi±¿ki adresowej'
    );
 
 %lang_timelabels =
@@ -93,23 +93,23 @@
    isnot       => 'nie jest równy',
    startswith  => 'rozpoczyna siê od',
    endswith    => 'koñczy siê na',
-   regexp      => 'matches regexp',
+   regexp      => 'pasuje do wyra¿enia',
    );
 
 %lang_sizes =
    (
    mb   => 'MB',	# mega bytes
    kb   => 'KB',	# kilo bytes
-   byte => 'Byte'
+   byte => 'bajtów'
    );
 
 %lang_calendar = 
    (
-   yearview  => '',
+   yearview  => 'Rok',
    monthview => 'Miesi±c:',
    weekview  => 'Tydzieñ:',
-   dayview   => '',
-   listview  => 'Listview'
+   dayview   => 'Dzieñ',
+   listview  => 'Lista'
    );
 
 %lang_month =
@@ -162,28 +162,29 @@
 
 %lang_wdbutton =
    (
-   refresh  => 'Refresh',
-   preview  => 'Preview',
-   edit     => 'Edit',
-   listarchive=> 'List',
-   decompress=>'Decompress',
-   extract  => 'Extract',
-   chdir    => 'ChDir',
-   mkdir    => 'MkDir',
-   newfile  => 'NewFile',
-   delete   => 'Delete',
-   copy     => 'Copy',
-   move     => 'Move',
-   gzip     => 'gzCompress',
+   refresh  => 'Od¶wie¿',
+   preview  => 'Podgl±d',
+   edit     => 'Edycja',
+   listarchive=> 'Lista',
+   decompress=>'Rozpakuj',
+   extract  => 'Wypakuj',
+   chdir    => 'ZmFold',
+   mkdir    => 'UtwFold',
+   newfile  => 'NowyPlik',
+   delete   => 'Usuñ',
+   copy     => 'Kopiuj',
+   move     => 'Przenie¶',
+   gzip     => 'Kompresujgz',
    mkzip    => 'MkZip',
    mktgz    => 'MkTgz',
-   mkthumbnail  => 'MkThumb',
-   download => 'Download',
-   upload   => 'Upload',
+   mkthumbnail  => 'UtwMin',
+   download => 'Pobierz',
+   upload   => 'Wy¶lij',
    );   
 
 %lang_text =
    (
+   help       => 'Pomoc',
    login      => 'Wejd¼',
    clear      => 'Wyczy¶æ',
    point      => 'Pkt.',
@@ -194,7 +195,7 @@
    messages   => 'wiadomo¶ci',
    unread     => 'nieprzeczytane',
    nomessages => 'Brak wiadomo¶ci',
-   inmessages => 'Incoming msgs',
+   inmessages => 'Przychodz±ce wiadomo¶ci',
    composenew => 'Utwórz now± wiadomo¶æ',
    refresh    => 'Od¶wie¿',
    userprefs  => 'Preferencje u¿ytkownika',
@@ -203,7 +204,7 @@
    emptytrash => 'Opró¿nij kosz',
    totrash    => 'Przenie¶ do kosza',
    forever    => 'Zawsze',
-   delatlogout=> 'Delete at Logout',
+   delatlogout=> 'Usuñ przy wylogowaniu',
    userdef    => 'Zdefiniowane przez u¿ytkownika',
    logout     => 'Wyloguj',
    page       => 'Strona',
@@ -241,8 +242,8 @@
    encoding   => 'Kodowanie',
    description=> 'Opis',
    download   => 'Pobierz',
-   charset    => 'Charset',
-   samecharset=> 'The same as composing charset',
+   charset    => 'Strona kodowa',
+   samecharset=> 'Taki sam jak dla tworzenia',
    thisispartialmsg => 'To jest czê¶æ wiadomo¶ci.',
    msgrebuild => 'Od¶wie¿anie',
    editdraft  => 'Edytuj brudnopis',
@@ -262,8 +263,8 @@
    folderrenprop => '\'Podaj now± nazwê folderu\'',
    rename     => 'Zmieñ nazwê',
    folderdelconf => '\'Na pewno chcesz usun±æ ten folder wraz z zawarto¶ci±?\'',
-   markread   => 'MarkRead',
-   foldermarkreadconf => '\'Are you going to mark read on all messages in this folder?\'',
+   markread   => 'Oznacz jako przeczytane',
+   foldermarkreadconf => '\'Na pewno chcesz zaznaczyæ wszystkie wiadomo¶ci w tym folderze jako przeczytane?\'',
    chkindex   => 'Sprawd¼ indeks',
    folderchkindexconf => '\'Czy chcesz sprawdziæ indeks tego folderu?\'',
    reindex    => 'Przeindeksuj',
@@ -283,12 +284,12 @@
    name       => 'Nazwa',
    email      => 'Email',
    note       => 'Opis',
-   max        => 'Maximum',
+   max        => 'Maksimum',
    group      => 'Grupa',
    quota_hit  => 'OSI¡GNIÊTO LIMIT DOSTÊPNEJ PRZESTRZENI NA DYSKU',
    usage      => 'U¿ycie',
    tzmap      => 'Mapa stref czasowych',
-   testsound  => 'Test sound',
+   testsound  => 'Sprawd¼ d¼wiêk',
    editfroms  => 'Edytuj w³asne adresy e-mail',
    pop3book   => 'Konfiguracja POP3',
    retr_pop3s => 'Odbierz pocztê POP3',
@@ -322,12 +323,15 @@
    spellcheck => 'Sprawd¼ pisowniê',
    checkagain => 'Sprawd¼ powtórnie',
    finishchecking => 'Zakoñcz sprawdzanie ',
+   editpdict  => 'Edycja osobistego s³ownika',
+   addtodict  => 'Dodaj do s³ownika',
    manuallyfix=> 'Popraw rêcznie',
-   editstat   => 'Edit Stationery',
-   savestat   => 'Save Stationery',
-   clearstat  => 'Clear All Stationery',
-   statreply  => '-- Stationery for Reply --',
+   editstat   => 'Edytuj szablon',
+   savestat   => 'Zapisz szablon',
+   clearstat  => 'Usuñ wszystkie szablony',
+   statreply  => '-- Szablony dla odpowiedzi --',
    calendar   => 'Kalendarz',
+   allday     => 'Ca³y dzieñ',
    am         => 'am',
    pm         => 'pm',
    calfmt_year          => 'Rok @@@YEAR@@@',
@@ -339,41 +343,48 @@
    moreitems  => 'wiêcej',
    multieditconf => 'This item was added for multiple dates.\\nEditing it will change the item for all dates.\\nContinue with Edit?',
    multidelconf  => 'This item was added for multiple dates.\\nDeleting it will delete the item for all dates.\\nContinue with Delete?',
+   caldelconf => 'Na pewno chcesz usun±æ t± pozycjê?',
    noitemforthisday => 'Koniec wpisów',
    thisday_only          => 'Tylko w dniu dzisiejszym',
    the_wday_of_thismonth => 'W  @@@ORDER@@@ @@@WDAY@@@ miesi±ca',
    every_wday_thismonth  => 'Ka¿dy(±) @@@WDAY@@@ bie¿±cego miesi±ca',
-   thismonth_only           => 'This month only',
-   every_oddmonth_thisyear  => 'Every odd month this year',
-   every_evenmonth_thisyear => 'Every even month this year',
-   every_month_thisyear     => 'Every month this year',
-   webdisk      => 'WebDisk',
-   sshterm      => 'SSH Terminal',
-   dir          => 'Dir',
-   dirs         => 'Dirs',
-   file         => 'File',
-   files        => 'Files',
+   thismonth_only           => 'Tylko w tym miesi±cu',
+   every_oddmonth_thisyear  => 'Ka¿dy nieparzysty miesi±c w tym roku',
+   every_evenmonth_thisyear => 'Ka¿dy parzysty miesi±c w tym roku',
+   every_month_thisyear     => 'Ka¿dy miesi±c w tym roku',
+   webdisk      => 'Dysk sieciowy',
+   sshterm      => 'Terminal SSH',
+   dir          => 'Folder',
+   dirs         => 'Foldery',
+   file         => 'Plik',
+   files        => 'Pliki',
    program      => 'Program',
-   dest_of_chdir  => 'the destined directory',
-   name_of_newdir => 'the directory name to create',
-   name_of_newfile=> 'the filename to create',
-   dest_of_thecopy=> 'the destined directory or file of the copy',
-   dest_of_themove=> 'the destined directory or file of the move',
-   dest_of_thezip=> 'the destined filename of the new zip',
-   dest_of_thetgz=> 'the destined filename of the new tgz',
-   homedir      => 'Homedir',
-   showthumbnail    => 'Thumbnails',
-   showhidden   => 'Show hidden files',
-   lastmodified => 'Last modified time',
-   perm         => 'Perm',
-   permission   => 'Access Permission',
-   noitemfound  => 'No item found',
-   savefile     => 'Savefile',
-   succeeded    => 'succeeded',
-   failed       => 'failed',
-   savefile_towd=> 'Save file to WebDisk',
-   saveatt_towd => 'Save attachment to WebDisk',
-   addatt_fromwd=> 'Add attachment from WebDisk'
+   dest_of_chdir  => 'folder przeznaczenia',
+   name_of_newdir => 'nazwa folderu do utworzenia',
+   name_of_newfile=> 'plik do utworzenia',
+   dest_of_thecopy=> 'folder przeznaczenia lub plik do skopiowania',
+   dest_of_themove=> 'folder przeznaczenia lub plik do przeniesienia',
+   dest_of_thezip=> 'plik nowego archiwum zip',
+   dest_of_thetgz=> 'plik nowego archiwum tgz',
+   homedir      => 'Folder domowy',
+   showthumbnail    => 'Miniaturki',
+   showhidden   => 'Poka¿ ukryte pliki',
+   lastmodified => 'Czas modyfikacji',
+   perm         => 'Prawa',
+   permission   => 'Prawa dostêpu',
+   noitemfound  => 'Nie znaleziono pozycji',
+   savefile     => 'Zapisz plik',
+   succeeded    => 'powiod³o siê',
+   failed       => 'nie powiod³o siê',
+   savefile_towd=> 'Zapisz plik na dysk sieciowy',
+   saveatt_towd => 'Zapisz za³±cznik na dysk sieciowy',
+   addatt_fromwd=> 'Dodaj za³±cznik z dysku sieciowego',
+   vdomain_usermgr    => 'Zarz±dzanie u¿ytkownikami wirtualnych domen',
+   vdomain_createuser => 'Utwórz u¿ytkownika',
+   vdomain_changeuser => 'Edytuj u¿ytkownika',
+   vdomain_deleteuser => 'Usuñ u¿ytkownika',
+   vdomain_usertype_localmbox  => 'Skrzynka lokalna',
+   vdomain_usertype_redirected => 'Przekierowanie na zewnêtrzny adres pocztowy'
    );
 
 %lang_err =
@@ -384,12 +395,12 @@
    couldnt_lock      => 'Nie mo¿na zablokowaæ pliku',
    couldnt_seek      => 'Nie mo¿na odnale¼æ pocz±tku',
    couldnt_close     => 'Nie mo¿na zamkn±æ',
-   couldnt_updatedb  => 'Couldn\'t update index db ',
+   couldnt_updatedb  => 'Nie mo¿na uaktualniæ indeksu bazy ',
    disallowed_pop3   => 'Niedozwolony serwer POP3',
    disallowed_client => 'Nie mo¿esz siê po³±czyæ za pomoc± tego klienta',
    disallowed_receiverdomain => 'Nie mo¿esz wys³aæ poczty e-mail na ten adres',
    norootlogin       => 'Nie chcesz tego robiæ!',
-   shouldnt_move_here=> 'Niepowiniene¶ próbowaæ przenie¶æ tu wiadomo¶ci!',
+   shouldnt_move_here=> 'Nie powiniene¶ próbowaæ przenie¶æ tu wiadomo¶ci!',
    destination_folder=> 'Folder docelowy',
    doesnt_exist      => 'nie istnieje!',
    foldername_long   => 'Nazwa folderu nie mo¿e byæ d³u¿sza ni¿ 16 znaków',
@@ -400,14 +411,14 @@
    abook_invalid     => 'Niestety, ale ten plik nie wygl±da na wyeksportowany z Outlook Express 5 w formacie CSV.  Upewnij siê przy pomocy edytora tekstu, czy pierwsza linia rozpoczyna siê od "Name,E-mail", przejd¼',
    back              => 'wstecz',
    tryagain          => 'i spróbuj jeszcze raz.',
-   abook_toobig      => 'Przykro mi ale przekraczasz dopuszczalny rozmiar swojej Ksi±¿ki Adresowej.  Przejd¼',
-   cant_create_dir   => 'Nie mogê utworzyæ twojego osobistego katalogu!',
-   folder_hitquota   => 'Przykro mi, ale przekroczy³e¶ dopuszczalny rozmiar skrzynki pocztowej. Nie bêdziesz teraz móg³ przenie¶æ wiadomo¶ci gdziekolwiek poza Kosze, z którego zostan± natychmiast usuniête.  Wróæ, usuñ czê¶æ wiadomo¶ci, opró¿nij kosz i spróbuj jeszcze raz.',
-   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
-   att_overlimit     => 'Przykro mi ale rozmiar za³±cznika przekracza limit, który wynosi',
+   abook_toobig      => 'Niestety przekraczasz dopuszczalny rozmiar swojej Ksi±¿ki Adresowej.  Przejd¼',
+   cant_create_dir   => 'Nie mo¿na utworzyæ twojego osobistego katalogu!',
+   folder_hitquota   => 'Niestety przekroczy³e¶ dopuszczalny rozmiar skrzynki pocztowej. Nie bêdziesz teraz móg³ przenie¶æ wiadomo¶ci gdziekolwiek poza Kosze, z którego zostan± natychmiast usuniête.  Wróæ, usuñ czê¶æ wiadomo¶ci, opró¿nij kosz i spróbuj jeszcze raz.',
+   folder_cutdone    => 'Uwaga, po osi±gniêciu maksymalnego rozmiaru skrzynki pocztowej (@@@FOLDERQUOTA@@@), najstarsze wiadomo¶ci zosta³y automatycznie usuniête',
+   att_overlimit     => 'Niestety rozmiar za³±cznika przekracza limit, który wynosi',
    inv_msg_op        => 'Nieprawid³owa operacja dla tej wiadomo¶ci',
    sess_cookieerr    => 'Twoje zapytanie nie zawiera w³asciwego identyfikatora sesji - dostêp zabroniony!',
-   sess_iperr        => 'Your request didn\'t come from the same ip of this session -- access denied!',
+   sess_iperr        => 'Twoje zapytanie nie pochodzi z adresu IP w³a¶ciwego do Twojej sesji -- dostêp zabroniony!',
    no_endpart        => 'Czê¶æ koñcowa nieznaleziona',
    part_missing      => 'Czê¶æ zosta³a zagubiona',
    rebuild_fmterr    => 'Z³y format wiadomo¶ci',
@@ -417,22 +428,24 @@
    auth_syserr       => 'b³±d autentyfikacji',
    param_fmterr      => 'nieprawid³owy format parametru',
    pwd_incorrect     => 'nieprawid³owe has³o',
-   pwd_tooshort      => 'Password too short (minimum length @@@PASSWDMINLEN@@@)',
-   pwd_toosimple     => 'Password too simple (both alphabet and digit are required)',
+   pwd_confirmmismatch=>'Nowe has³o nie zgadza siê z potwierdzeniem',
+   pwd_tooshort      => 'Has³o za krótkie (minimalna d³ugo¶æ @@@PASSWDMINLEN@@@)',
+   pwd_toosimple     => 'Has³o za proste (wymagane litery i cyfry)',
    network_server_error => 'b³±d sieci',
    sendmail_error    => 'Niestety wyst±pi³ problem podczas wysy³ania Twojej wiadomo¶ci. Naci¶nij przycisk wstecz w przegl±darce, sprawd¼ wiadomo¶æ i spróbuj ponownie.',
-   at_char_not_allowed => 'The @ character is not allowed in this field.  Press browser back button and try again',
-   badnum_in_days => 'bad number in consecutive days field',
-   access_denied     => 'Access denied',
-   couldnt_chdirto   => 'Couldn\'t chdir to',
-   isnt_a_dir        => 'is not a directory',
-   edit_notfordir    => 'You can\'t edit a directory',
-   onefileonly       => 'Only one file is allowed for this operation',
-   no_file_todownload=> 'No file is specified for download',
-   upload_overlimit  => 'Upload file size is over the limit',
-   decomp_notsupported=>'Decompression support is not available for this file.',
-   webdisk_hitquota   => 'Sorry, you\'ve hit your webdisk quota, please delete some files first.',
-   webdisk_readonly   => 'Sorry, your webdisk is read only.'
+   at_char_not_allowed => 'Znak @ jest niedozwolony. Naci¶nij przycisk wstecz w przegl±darce i spróbuj ponownie.',
+   badnum_in_days => 'nieprawid³owa liczba w polu kolejno¶ci dni',
+   access_denied     => 'Dostêp zabroniony',
+   couldnt_chdirto   => 'Nie mo¿na zmieniæ folderu do',
+   isnt_a_dir        => 'nie jest folderem',
+   edit_notfordir    => 'Nie mo¿na edytowaæ folderu',
+   onefileonly       => 'T± operacjê mo¿na wykonaæ na tylko jednym pliku',
+   no_file_todownload=> 'Nie okre¶lono pliku do pobrania',
+   upload_overlimit  => 'Rozmiar wysy³anego pliku przekracza limit',
+   decomp_notsupported=>'Rozpakowanie tego typu pliku nie jest mo¿liwe',
+   webdisk_hitquota   => 'Niestety osi±gniêto maksymalne zape³nienie dysku sieciowego, rozpoznij od usuniêcia pewnych plików.',
+   webdisk_readonly   => 'Niestety, dysk sieciowy jest tylko do odczytu',
+   vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
    );
 
 1;

@@ -21,11 +21,7 @@
 
 <table border=0 width=95%><tr><td align="right" valign=top width=85%>
 
-<table border=0 cellspacing=1 width=100% bgcolor=@@@BACKGROUND@@@>
-<tr align=center>
-<td width="10%" bgcolor=@@@COLUMNHEADER@@@>&nbsp;</td>
-<td width="90%" nowrap bgcolor=@@@COLUMNHEADER@@@><B>Zapisy w kalendarzu</B></td>
-</tr>
+<table border=0 cellspacing=0 cellpadding=0 width=100% bgcolor=@@@BACKGROUND@@@>
 @@@CALENDARITEMS@@@
 </table>
 
@@ -35,16 +31,16 @@
 @@@STARTADDITEMFORM@@@
 <tr><td colspan=2 align=center><B>Dodaj zapis do kalendarza</B></td></tr>
 <tr><td colspan=2 nowrap>@@@STRINGFIELD@@@</td></tr>
-<tr><td width=25% nowrap>Start time</td><td nowrap>@@@STARTHOURMINMENU@@@</td></tr>
-<tr><td width=25% nowrap>End time</td><td nowrap>@@@ENDHOURMINMENU@@@</td></tr>
+<tr><td width=25% nowrap>Czas rozpoczêcia</td><td nowrap>@@@STARTHOURMINMENU@@@</td></tr>
+<tr><td width=25% nowrap>Czas zakoñczenia</td><td nowrap>@@@ENDHOURMINMENU@@@</td></tr>
 <tr><td colspan=2 nowrap>@@@FREQMENU@@@</td></tr>
 <tr><td colspan=2 nowrap>@@@THISANDNEXTNDAYSCHECKBOX@@@ Dzi¶ i kolejne @@@NDAYSFIELD@@@ dni</td></tr>
 <tr><td colspan=2 nowrap>@@@MONTHFREQMENU@@@</td></tr>
 <tr><td colspan=2 nowrap>@@@EVERYYEARCHECKBOX@@@ Ka¿dego roku</td></tr>
-<tr><td colspan=2 nowrap>Make this item a hyperlink to</td></tr>
+<tr><td colspan=2 nowrap>Uczyñ ta pozycjê linkiem do</td></tr>
 <tr><td colspan=2 nowrap>@@@LINKFIELD@@@</td></tr>
 @@@EMAILSTART@@@
-<tr><td colspan=2 nowrap>Send notification email to</td></tr>
+<tr><td colspan=2 nowrap>Wy¶lij emaila z powiadomieniem do</td></tr>
 <tr><td colspan=2 nowrap>@@@EMAILFIELD@@@</td></tr>
 @@@EMAILEND@@@
 <tr><td nowrap>Event Color</td><td nowrap>@@@EVENTCOLORMENU@@@</td></tr>

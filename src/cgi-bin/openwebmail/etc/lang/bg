@@ -1,7 +1,7 @@
-#!/usr/bin/perl
+package openwebmail::bg;
 
-# Bulgarian translation by Veselin Slavov, vess@vess.bnc.bg, 2002/11/25
-# charset: windows-1251
+# Bulgarian translation, charset: windows-1251
+# by Veselin Slavov, vess.AT.vess.bnc.bg, 2003/02/21
 
 %lang_folders =
    (
@@ -62,9 +62,9 @@
 
 %lang_abookbuttonpositionlabels = 
    (
-   before => 'Before addressbook entries',
-   after  => 'After addressbook entries',
-   both   => 'Before and after addressbook entries'
+   before => 'над адресната книга',
+   after  => 'под адресната книга',
+   both   => 'над и под адресната книга'
    );
 
 %lang_timelabels =
@@ -106,7 +106,7 @@
    monthview => 'Месечен изглед за',
    weekview  => 'Седмичен изглед за',
    dayview   => 'Дневен изглед за',
-   listview  => 'Списък за '
+   listview  => 'Списък за'
    );
 
 %lang_month =
@@ -163,10 +163,10 @@
    preview  => 'Преглед',
    edit     => 'Редакция',
    listarchive=> 'Списък',
-   decompress=>'Декопресиране',
+   decompress=>'Декопресия',
    extract  => 'Изваждане',
    chdir    => 'Смяна дир.',
-   mkdir    => 'Създаване дир.',
+   mkdir    => 'Нова дир.',
    newfile  => 'Нов файл',
    delete   => 'Изтриване',
    copy     => 'Копиране',
@@ -181,6 +181,7 @@
 
 %lang_text =
    (
+   help       => 'Помощ',
    login      => 'Вход',
    clear      => 'Изчисти',
    point      => 'поинта',
@@ -280,11 +281,11 @@
    name       => 'Име',
    email      => 'Адрес',
    note       => 'Забележка',
-   max        => 'Maximum',
+   max        => 'Максимално',
    group      => 'Група',
    quota_hit  => 'ОГРАНИЧЕНИЕ',
    usage      => 'Използване',
-   tzmap      => 'Карта с часовите почси',
+   tzmap      => 'Карта с часовите пояси',
    testsound  => 'Звук за тест',
    editfroms  => 'Редакция на собствения адрес',
    pop3book   => 'POP3 Настройки',
@@ -319,12 +320,15 @@
    spellcheck => 'Проверка правописа',
    checkagain => 'Провери отново',
    finishchecking => 'Край на проверката',
+   editpdict  => 'Редакция на персоналния речник',
+   addtodict  => 'Добавяне в речника',
    manuallyfix=> 'Ръчна поправка',
    editstat   => 'Редакция на шаблони',
    savestat   => 'Запис на шаблон',
    clearstat  => 'Изтрий всички шаблони',
    statreply  => '-- Шаблон за отговор --',
    calendar   => 'Календар',
+   allday     => 'Всички дни',
    am         => 'am',
    pm         => 'pm',
    calfmt_year          => 'година @@@YEAR@@@',
@@ -336,6 +340,7 @@
    moreitems  => 'повече полета',
    multieditconf => 'Тази дефиниция съществува в повече от една дата.\\nРедакцията и ще се отрази на всичките записи.\\nПродължение с редакция?',
    multidelconf  => 'Тази дефиниция съществува в повече от една дата.\\nЩе бъдат изтрити всички дефиниции за всички дати.\\nПродължение с изтриване?',
+   caldelconf => 'Потвърждавате ли изтриването?',
    noitemforthisday => 'Няма дефиниции за този ден',
    thisday_only          => 'Само за днес',
    the_wday_of_thismonth => '@@@ORDER@@@ @@@WDAY@@@ от месеца',
@@ -363,14 +368,20 @@
    showhidden   => 'Покажи скритите файлове',
    lastmodified => 'Посредна промяна на',
    perm         => 'позволение',
-   permission   => 'Access Permission',
+   permission   => 'Права за достъп',
    noitemfound  => 'Нищо не е намерено',
    savefile     => 'Запис на файл',
    succeeded    => 'успешно',
    failed       => 'неуспешно',
    savefile_towd=> 'Запиши файла във Web-Диска',
    saveatt_towd => 'Запиши прикачените във Web-Диска',
-   addatt_fromwd=> 'Прикачи от Web-Диск'
+   addatt_fromwd=> 'Прикачи от Web-Диск',
+   vdomain_usermgr    => 'Virtual Domain User Management',
+   vdomain_createuser => 'Create User',
+   vdomain_changeuser => 'Change User',
+   vdomain_deleteuser => 'Delete User',
+   vdomain_usertype_localmbox  => 'Local Mailbox',
+   vdomain_usertype_redirected => 'Redirect to external mail address'
    );
 
 %lang_err =
@@ -404,7 +415,7 @@
    att_overlimit     => 'За съжаление превишавате лимита за прикачени файлове, който е',
    inv_msg_op        => 'Непозволена операция за съобщението',
    sess_cookieerr    => 'Достъпът отказан - проблем с БИСКВИТКИТЕ!',
-   sess_iperr        => 'Your request didn\'t come from the same ip of this session -- access denied!',
+   sess_iperr        => 'Заявката постъпва от IP различно за тази сесия - достъпът е отказан!',
    no_endpart        => 'Липсващ край',
    part_missing      => 'Липсващи части',
    rebuild_fmterr    => 'Грешка при форматиране',
@@ -414,6 +425,7 @@
    auth_syserr       => 'системна гришка при регистрация',
    param_fmterr      => 'грешен форматиращ параметър',
    pwd_incorrect     => 'грешна парола',
+   pwd_confirmmismatch=>'Грешка при потвърждаване на новата парола',
    pwd_tooshort      => 'Паролата е много кратка (минимална дължина @@@PASSWDMINLEN@@@)',
    pwd_toosimple     => 'Паролата е много лесна (изисква се използването на букви и цифри)',
    network_server_error => 'грешка при свързване със сървъра',
@@ -427,9 +439,10 @@
    onefileonly       => 'Тази операция се допуска само върху един файл',
    no_file_todownload=> 'Не е избран файл за даунлоуд',
    upload_overlimit  => 'Големината на файла надвишава лимита',
-   decomp_notsupported=>'Decompression support is not available for this file.',
+   decomp_notsupported=>'Файл с неподържан формат за компресия.',
    webdisk_hitquota   => 'За съжаление достигнахте лимита, първо трябва да изтриете някои файлове.',
-   webdisk_readonly   => 'За съжаление вашия web-диск е само за четене.'
+   webdisk_readonly   => 'За съжаление вашия web-диск е само за четене.',
+   vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
    );
 
 1;

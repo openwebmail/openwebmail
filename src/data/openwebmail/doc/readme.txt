@@ -19,22 +19,23 @@ Open WebMail has the following enhanced features:
 6.  remote SMTP relaying
 7.  virtual hosting
 8.  user alias
-9.  per user capability configuration
-10. various authentication modules
-11. pam support
-12. full content search
-13. strong MIME message capability
-14. draft folder support
-15. reply with stationery support
-16. spelling check support
-17. POP3 mail support
-18. mail filter support
-19. message count preview
-20. confirm reading support
-21. charset auto conversion
-22. calendar with reminder/notification support
-23. web disk support
-
+9.  pure virtual user support
+10. per user capability configuration
+11. various authentication modules
+12. pam support
+13. full content search
+14. strong MIME message capability
+15. draft folder support
+16. reply with stationery support
+17. spelling check support
+18. POP3 mail support
+19. mail filter support
+20. message count preview
+21. confirm reading support
+22. charset auto conversion
+23. calendar with reminder/notification support
+24. web disk support
+25. persistent running through SpeedyCGI
 
 
 REQUIREMENT
@@ -42,15 +43,16 @@ REQUIREMENT
 Apache web server with cgi enabled
 Perl 5.005 or above
 
-CGI.pm-2.74.tar.gz       (required)
-MIME-Base64-2.12.tar.gz  (required)
-libnet-1.0901.tar.gz     (required)
-Text-Iconv-1.2.tar.gz    (required)
-libiconv-1.8.tar.gz      (required if system doesn't support iconv)
+CGI.pm-2.74.tar.gz        (required)
+MIME-Base64-2.12.tar.gz   (required)
+libnet-1.0901.tar.gz      (required)
+Text-Iconv-1.2.tar.gz     (required)
+libiconv-1.8.tar.gz       (required if system doesn't support iconv)
 
-Authen-PAM-0.12.tar.gz   (optional)
-ispell-3.1.20.tar.gz     (optional)
-ImageMagick-5.5.3.tar.gz (optional)
+Authen-PAM-0.12.tar.gz    (optional)
+ispell-3.1.20.tar.gz      (optional)
+ImageMagick-5.5.3.tar.gz  (optional)
+CGI-SpeedyCGI-2.21.tar.gz (optional)
 
 
 INSTALL REQUIRED PACKAGES
@@ -192,7 +194,7 @@ ps: If you are using RedHat 7.x (or most Linux) with Apache
    }  
    to /etc/logrotate.d/syslog to enable logrotate on openwebmail.log
 
-5. execute /usr/local/www/cgi-bin/openwebmail/openwebmail-tool.pl --init
+5. execute /var/www/cgi-bin/openwebmail/openwebmail-tool.pl --init
 
 If you are using RedHat 6.2, please use /home/httpd instead of /var/www
 ps: It is highly recommended to read the doc/RedHat-README.txt(contributed by 
@@ -230,7 +232,7 @@ eg: /usr/local/apache/share, then
    a. set variable $unix_passwdfile_encrypted to '/etc/shadow'
    b  set variable $unix_passwdmkdb to 'none'
 
-4. execute /usr/local/www/cgi-bin/openwebmail/openwebmail-tool.pl --init
+4. execute /usr/local/apache/share/cgi-bin/openwebmail/openwebmail-tool.pl --init
 
 
 INITIALIZE OPENWEBMAIL
@@ -454,7 +456,7 @@ the external programs used by webdisk are:
 
 basic file uty                 - cp, mv, rm, 
 file compression/decompression - gzip, bzip2,
-archiive uty                   - tar, zip, unzip, unrar, unarj, lha
+archive uty                   - tar, zip, unzip, unrar, unarj, lha
 image thumbnail uty            - convert (in ImageMagick package)
 
 ps: You don't have to install all external programs to use WebDisk,
@@ -503,7 +505,7 @@ USER ALIAS MAPPING
 Open Webmail can use the sendmail virtusertable for user alias mapping. 
 The loginname typed by user may be pure name or name@somedomain. And this 
 loginname can be mapped to another pure name or name@otherdomain in the 
-virtusertable. This gives you the great flexsibility in account management. 
+virtusertable. This gives you the great flexibility in account management. 
 
 Please refer to http://www.sendmail.org/virtual-hosting.html for more detail
 
@@ -594,6 +596,28 @@ The above virtusertable means:
                        mary as virtualuser	---> not an alias
 
 
+PURE VIRTUAL USER SUPPORT
+-------------------------
+Pure virtual user means a mail user who can use pop3 or openwebmail 
+to access his mails on the mail server but actually has no unix account 
+on the server.
+
+Openwebmail pure virtual user support is currently available for system 
+running vm-pop3d + postfix. The authentication module auth_vdomain.pl is 
+designed for this purpose. Openwebmail also provides the web interface 
+which can be used to manage(add/delete/edit) these virtual users under
+various virtual domains.
+
+Please refer to the description in auth_vdomain.pl for more detail.
+
+ps: vm-pop3d : http://www.reedmedia.net/software/virtualmail-pop3d/
+    PostFix  : http://www.postfix.org/
+
+    Kevin L. Ellis (kevin.AT.bluelavalamp.net) has written a tutorial
+    for openwebmail + vm-pop3d + postfix
+    Iis available at http://www.bluelavalamp.net/owmvirtual/
+
+
 PER USER CAPABILITY CONFIGURATION
 ---------------------------------
 While options in system config file(openwebmail.conf) are applied to all 
@@ -647,7 +671,7 @@ To make Open WebMail use the support of PAM, you have to:
 
 ps: Doing 'make test' is recommended when making the Authen::PAM,
     if you encounter error in 'make test', the PAM on your system
-    will probablely not work.
+    will probable-ly not work.
 
 3. add the following 3 lines to your /etc/pam.conf 
 
@@ -680,6 +704,10 @@ ps: PAM support on some release of FreeBSD seems broken (eg:4.1)
 
 5. check auth_pam.pl for further modification required for your system.
 
+ps: Since the authentication module is loaded only once in persistent mode,
+    you need to do 'touch openwebmail*pl' to make the modification active.
+    To avoid this, you may change your openwebmail backto suid perl mode
+    before you make the modifications.
 ps: For more detail about PAM configuration, it is recommended to read 
     "The Linux-PAM System Administrators' Guide"
     http://www.kernel.org/pub/linux/libs/pam/Linux-PAM-html/pam.html
@@ -700,6 +728,7 @@ auth_pgsql.pl
 auth_pop3.pl
 auth_unix.pl
 auth_unix_cobalt.pl
+auth_vdomain.pl
 
 In case you found these modules not suitable for your need, 
 you may write a new authentication module for your own.
@@ -707,26 +736,50 @@ you may write a new authentication module for your own.
 To add new authentication module into openwebmail, you have to:
 
 1. choose an abbreviation name for this new authentication, eg: xyz
-2. write auth_xyz.pl with the following 4 function defined,
 
-   ($realname, $uid, $gid, $homedir)=get_userinfo($domain, $user);
-   @userlist=get_userlist($domain);
-   $retcode=check_userpassword($domain, $user, $password);
-   $retcode=change_userpassword($domain, $user, $oldpassword, $newpassword);
+2. declare the package name in the first line of file auth_xyz.pl
+
+   package openwebmail::auth_xyz;
+
+3. implement the following 4 function:
+
+   ($retcode, $errmsg, $realname, $uid, $gid, $homedir)=
+    get_userinfo($r_config, $domain, $user);
+
+   ($retcode, $errmsg, @userlist)=
+    get_userlist($r_config, $domain);
+
+   ($retcode, $errmsg)=
+    check_userpassword($r_config, $domain, $user, $password);
+
+   ($retcode, $errmsg)=
+    change_userpassword($r_config, $domain, $user, $oldpassword, $newpassword);
    
    where $retcode means:
     -1 : function not supported
     -2 : parameter format error
     -3 : authentication system internal error
-    -4 : password incorrect
+    -4 : username/password incorrect
 
-   You may refer to auth_unix.pl or auth_pam.pl to start.
+   $errmsg is the message to be logged to openwebmail log file,
+   this would ease the work for sysadm in debugging problem of openwebmail
 
-3. modify option auth_module in openwebmail.conf to auth_xyz.pl
-4. test your new authentication module :)
+   $r_config is the reference of the openwebmail %config, 
+   you may just leave it untouched
+
+   ps: You may refer to auth_unix.pl or auth_pam.pl to start.
+       And please read doc/auth_module.txt
+
+4. modify option auth_module in openwebmail.conf to auth_xyz.pl
+
+5. test your new authentication module :)
 
 ps: If you wish your authentication module to be included in the next release
     of openwebmail, please submit it to openwebmail.AT.turtle.ee.ncku.edu.tw.
+ps: Since the authentication module is loaded only once in persistent mode,
+    you need to do 'touch openwebmail*pl' to make the modification active.
+    To avoid this, you may change your openwebmail backto suid perl mode
+    before you make the modifications.
 
 
 ADD SUPPORT FOR NEW LANGUAGE
@@ -743,18 +796,29 @@ ps: You may choose the abbreviation by referencing the following url
 2. cd cgi-bin/openwebmail/etc. 
    cp lang/en lang/xy
    cp -R templates/en templates/xy
+
 3. translate file lang/xy and templates/xy/* from English to your language
-4. add the name and charset of your language to %languagenames, %languagecharsets 
+
+4. change the package name of you language file (in the first line)
+   
+   package openwebmail::xy
+
+5. add the name and charset of your language to %languagenames, %languagecharsets 
    in ow-shared.pl, then set default_language to 'xy' in openwebmail.conf
-5. check iconv.pl, if the charset is not listed, add a line for this charset in both
+
+6. check iconv.pl, if the charset is not listed, add a line for this charset in both
    %charset_localname and %charset_convlist.
 
-ps: if your language is Right-To-Left oriented and you can read arabic,
-    you can use the arabic template instead of english as the start templates.
-    And don't forget to mention itt when you submit the templates 
+ps: if your language is Right-To-Left oriented and you can read Arabic,
+    you can use the Arabic template instead of English as the start templates.
+    And don't forget to mention it when you submit the templates 
     to the openwebmail team.
 ps: If you wish your translation to be included in the next release of 
     openwebmail, please submit it to openwebmail.AT.turtle.ee.ncku.edu.tw.
+ps: Since the language and templates are loaded only once in persistent mode,
+    you need to do 'touch openwebmail*pl' to make the modification active.
+    To avoid this, you may change your openwebmail backto suid perl mode
+    before you make the modifications.
 
 
 ADD NEW CHARSET TO AUTO CONVERSION LIST
@@ -816,7 +880,7 @@ ps: If your are going to make Cool3D iconset for your language with Photoshop,
     http://turtle.ee.ncku.edu.tw/openwebmail/contrib/Cool3D.iconset.Photoshop.template.zip
 
 ps: If you wish the your new iconset to be included in the next release of 
-   openwebmail, please submit it to openwebmail.AT.turtle.ee.ncku.edu.tw
+    openwebmail, please submit it to openwebmail.AT.turtle.ee.ncku.edu.tw
 
 
 TEST
@@ -839,14 +903,114 @@ The latest version of FAQ will be available at
 http://turtle.ee.ncku.edu.tw/openwebmail/download/doc/faq.txt
 
 
+PERSISTENT RUNNING through SpeedyCGI
+------------------------------------
+"SpeedyCGI is a way to run perl scripts persistently, which can make 
+them run much more quickly."
+
+Openwebmail can get almost 5x to 10x speedup when running with SpeedyCGI.
+You can get a quite reactive openwebmail systems on a very old P133 machine :)
+
+Note: Don't want to fly before you can walk...
+      Please do this speedup modification only after your openwebmail is working.
+
+1. install SpeedyCGI
+
+   get the latest SpeedyCGI source from
+   http://sourceforge.net/project/showfiles.php?group_id=2208
+   http://daemoninc.com/SpeedyCGI/CGI-SpeedyCGI-2.21.tar.gz
+
+   cd /tmp
+   tar -zxvf path_to_source/CGI-SpeedyCGI-2.21.tar.gz
+   cd CGI-SpeedyCGI-2.21
+   perl Makefile.PL (ans 'no' with the default)
+
+   then edit speedy/Makefile 
+   and add " -DIAMSUID" to the end of the line of "DEFINE = "
+
+   make
+   make install
+   (If you encounter error complaining about install mod_speedy,
+    that is okay, you can safely ignore it.)
+
+ps:To make SpeedyCGI works with setuid scripts on Solaris,
+   you have to apply the following temporary fix.
+   This fix is provide by Sam Horrocks, author of SpeedyCGI :)
+
+   open src/speedy_backend_main.c
+
+   goto the main() function (about line 168)
+   find the following block (about line 179-184)
+
+    /* Close off all I/O except for stderr (close it later) */
+    for (i = 32; i >= 0; --i) {
+        if (i != 2 && i != PREF_FD_LISTENER)
+            (void) close(i);
+    }
+
+   move the block down below the speedy_perl_init(); (after line 201)    
+
+2. set speedy to setuid root
+
+   Find the speedy binary according to the messages in previous step,
+   it is possible-ly at /usr/bin/speedy or /usr/local/bin/speedy.
+
+   Assume it is installed in /usr/bin/speedy
+
+   cp /usr/bin/speedy /usr/bin/speedy_suid
+   chmod 4555 /usr/bin/speedy_suid
+
+3. modify openwebmail for speedy
+
+   The code of openwebmail has already been modified to work with SpeedyCGI,
+   so all you have to do is to
+   replace the first line of all cgi-bin/openwebmail/openwebmail*pl
+   from
+	#!/usr/bin/suidperl -T
+   to
+	#!/usr/bin/speedy_suid -T -- -T/tmp/speedy
+
+   The first -T option (before --) is for perl interpreter.
+   The second -T/tmp/speedy option is for SpeedyCGI system,
+   which means the prefix of temporary files used by SpeedyCGI.
+
+   ps: You will see a lot of /tmp/speedy.number files if your system is 
+       quite busy, so you may change this to value like /var/run/speedy
+   
+4. test you openwebmail for the speedup.
+
+5. If you are installing openwebmail on a very slow machine, then you may
+   wish to hide the firsttime startup delay of the scripts from the user.
+   You may use the preload.pl, it acts as a http client to start 
+   openwebmail on the web server automatically.
+
+   a. through web interface
+      http://your_server/cgi-bin/openwebmail/preload.pl
+      Please refer to preload.pl for default password and how to change it.
+
+   b. through command line or you can put the following line in crontab
+
+      0 * * * *	/usr/local/www/cgi-bin/openwebmail/preload.pl -q
+
+6. Need more speedup? 
+   Yes, you can try to install the mod_speedycgi to your Apache, 
+   but you may need to recompile Apache to make it allow using root as euid
+   Please refer to README in SpeedyCGI source tar ball..
+
+ps: SpeedyCGI: http://www.daemoninc.com/SpeedyCGI/
+
+    Kevin L. Ellis (kevin.AT.bluelavalamp.net) has written a tutorial
+    and benchmark for OWM + SpeedyCGI. 
+    It is available at http://www.bluelavalamp.net/owmspeedycgi/
+
+
 TODO
 ----
 Features that we would like to implement first...
 
 1. web bookmark
 2. PGP/GNUPG integration
-3. shared folder
-4. mod_perl or authload compatible implementation for speedup
+3. shared folder/calendar
 
 Features that people may also be interested
 
@@ -855,7 +1019,7 @@ Features that people may also be interested
 3. log analyzer
 
 
-01/19/2003
+03/23/2003
 
 openwebmail.AT.turtle.ee.ncku.edu.tw
 

@@ -90,7 +90,7 @@ sub encode_mimewords {
        $encoding=lc($params{Encoding});
     } else {
        # q is used if there is english words in the string
-       $encoding=(($rawstr=~/[A-Za-z]{4}/)? 'q':'b'); 
+       $encoding=(($rawstr=~/[A-Za-z]{4}/)? 'q':'b');
     }
 
     ### Encode any "words" with unsafe characters.
@@ -98,7 +98,7 @@ sub encode_mimewords {
     ###    worst-case encoding give us no more than 54 + ~10 < 75 characters
     my $word;
 #    $rawstr =~ s{([A-Za-z0-9\x00-\x1F\x7F-\xFF]{1,18})}{     	### get next "word"
-     $rawstr =~ s{([^\s\(\)\{\}\[\],:;"'=]{1,18})}{		# compared with above, this treats fewer chars as boundary 
+     $rawstr =~ s{([^\s\(\)\{\}\[\],:;"'=]{1,18})}{		# compared with above, this treats fewer chars as boundary
 	$word = $1;
 	(($word !~ /[$NONPRINT]/o)
 	 ? $word                                          ### no unsafe chars

@@ -4,9 +4,12 @@
 #
 
 use vars qw($SCRIPT_DIR);
-if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-\.]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
-if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
-push (@INC, $SCRIPT_DIR, ".");
+if ( $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
+if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
+   $_=<F>; close(F); if ( $_=~/^([^\s]*)/) { $SCRIPT_DIR=$1; }
+}
+if (!$SCRIPT_DIR) { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
+push (@INC, $SCRIPT_DIR);
 
 $ENV{PATH} = ""; # no PATH should be needed
 $ENV{ENV} = "";      # no startup script for sh
@@ -17,7 +20,6 @@ use strict;
 use Fcntl qw(:DEFAULT :flock);
 use CGI qw(-private_tempfiles :standard);
 use CGI::Carp qw(fatalsToBrowser carpout);
-CGI::nph();   # Treat script as a non-parsed-header script
 use Net::SMTP;
 
 require "ow-shared.pl";
@@ -28,19 +30,21 @@ require "maildb.pl";
 
 use vars qw(%config %config_raw);
 use vars qw($thissession);
-use vars qw($loginname $domain $user $userrealname $uuid $ugid $homedir);
+use vars qw($loginname $logindomain $loginuser);
+use vars qw($domain $user $userrealname $uuid $ugid $homedir);
 use vars qw(%prefs %style %icontext);
 use vars qw($folderdir @validfolders $folderusage);
 use vars qw($folder $printfolder $escapedfolder);
 
 openwebmail_init();
-verifysession();
 
-use vars qw($mymessageid);
+use vars qw($messageid $escapedmessageid $mymessageid);
 use vars qw($sort $page);
 use vars qw($searchtype $keyword $escapedkeyword);
 
-$mymessageid = param("mymessageid");
+$messageid = param("message_id");		# the orig message to reply/forward
+$escapedmessageid = escapeURL($messageid);
+$mymessageid = param("mymessageid");		# msg we are editing
 $page = param("page") || 1;
 $sort = param("sort") || $prefs{'sort'} || 'date';
 $searchtype = param("searchtype") || 'subject';
@@ -54,7 +58,6 @@ use vars qw(%charset_convlist);	# defined in iconv.pl
 use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE $_STATUS $_SIZE $_REFERENCES $_CHARSET);	# defined in maildb.pl
 
 ########################## MAIN ##############################
-
 my $action = param("action");
 if ($action eq "replyreceipt") {
    replyreceipt();
@@ -66,14 +69,14 @@ if ($action eq "replyreceipt") {
    openwebmailerror("Action $lang_err{'has_illegal_chars'}");
 }
 
+# back to root if possible, required for setuid under persistent perl
+$<=0; $>=0;
 ###################### END MAIN ##############################
 
 ################## REPLYRECEIPT ##################
 sub replyreceipt {
-   printheader();
-   my $messageid = param("message_id");
+   my $html='';
    my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
-   my $folderhandle=FileHandle->new();
    my @attr;
    my %HDB;
 
@@ -90,15 +93,15 @@ sub replyreceipt {
       my $header;
 
       # get message header
-      open ($folderhandle, "+<$folderfile") or
+      open (FOLDER, "+<$folderfile") or
           openwebmailerror("$lang_err{'couldnt_open'} $folderfile!");
-      seek ($folderhandle, $attr[$_OFFSET], 0) or openwebmailerror("$lang_err{'couldnt_seek'} $folderfile!");
+      seek (FOLDER, $attr[$_OFFSET], 0) or openwebmailerror("$lang_err{'couldnt_seek'} $folderfile!");
       $header="";
-      while (<$folderhandle>) {
+      while (<FOLDER>) {
          last if ($_ eq "\n" && $header=~/\n$/);
          $header.=$_;
       }
-      close($folderhandle);
+      close(FOLDER);
 
       # get notification-to
       if ($header=~/^Disposition-Notification-To:\s?(.*?)$/im ) {
@@ -106,7 +109,7 @@ sub replyreceipt {
          my $from=$prefs{'email'};
          my $date = dateserial2datefield(gmtime2dateserial(), $prefs{'timeoffset'});
 
-         my %userfrom=get_userfrom($loginname, $user, $userrealname, "$folderdir/.from.book");
+         my %userfrom=get_userfrom($logindomain, $loginuser, $user, $userrealname, "$folderdir/.from.book");
          foreach (sort keys %userfrom) {
             if ($header=~/$_/) {
                $from=$_; last;
@@ -187,7 +190,7 @@ sub replyreceipt {
                             "  Delivered: ", dateserial2str($attr[$_DATE], $prefs{'dateformat'}), "\n\n",
                             "was read on", dateserial2str(localtime2dateserial(), $prefs{'dateformat'}), ".\n\n");
          }
-         # $smtp->datasend($prefs{'signature'},   "\n") if (defined($prefs{'signature'}));
+         # $smtp->datasend($prefs{'signature'}, "\n") if ($prefs{'signature'}=~/[^\s]/);
          $smtp->datasend($config{'mailfooter'}, "\n") if ($config{'mailfooter'}=~/[^\s]/);
 
          if (!$smtp->dataend()) {
@@ -199,16 +202,16 @@ sub replyreceipt {
       }
 
       # close the window that is processing confirm-reading-receipt
-      print qq|<script language="JavaScript">\n|,
-            qq|<!--\n|,
-            qq|window.close();\n|,
-            qq|//-->\n|,
+      $html=qq|<script language="JavaScript">\n|.
+            qq|<!--\n|.
+            qq|window.close();\n|.
+            qq|//-->\n|.
             qq|</script>\n|;
    } else {
-      $messageid = str2html($messageid);
-      print "What the heck? Message $messageid seems to be gone!";
+      my $msgidstr = str2html($messageid);
+      $html="What the heck? Message $msgidstr seems to be gone!";
    }
-   printfooter(1);
+   print htmlheader(), $html, htmlfooter(1);
 }
 ################ END REPLYRECEIPT ################
 
@@ -219,12 +222,12 @@ sub replyreceipt {
 #                sendto(newmail with dest user),
 #                none(newmail)
 sub composemessage {
-   no strict 'refs';	# for $attchment, which is fname and fhandle of the upload
-
    # charset is the charset choosed by user for current composing
    my $charset= $prefs{'charset'};
    foreach (values %languagecharsets) {
-      $charset=$_ if ($_ eq param("charset"));
+      if ($_ eq param("charset")) {
+         $charset=$_; last;
+      }
    }
 
    my ($savedattsize, $r_attlist);
@@ -244,13 +247,15 @@ sub composemessage {
             param("webdisksel") ) { 		# file selected from webdisk
       ($savedattsize, $r_attlist) = getattlistinfo();
 
+      no strict 'refs';	# for $attchment, which is fname and fhandle of the upload
+
       my $attachment = param("attachment");
       my $webdisksel = param("webdisksel");
       my ($attname, $attcontenttype);
       if ($webdisksel || $attachment) {
          if ($attachment) {
             # Convert :: back to the ' like it should be.
-            $attname = $attachment; 
+            $attname = $attachment;
             $attname =~ s/::/'/g;
             # Trim the path info from the filename
             if ($charset eq 'big5' || $charset eq 'gb2312') {
@@ -270,20 +275,23 @@ sub composemessage {
             }
 
          } elsif ($webdisksel && $config{'enable_webdisk'}) {
-            my $vpath=absolute_vpath('/', $webdisksel);
-            my $err=verify_vpath($homedir, $vpath);
-            openwebmailerror($err) if ($err);
-            openwebmailerror("$lang_text{'file'} $vpath $lang_err{'doesnt_exist'}") if (!-f "$homedir/$vpath");
+            my $webdiskrootdir=$homedir.absolute_vpath("/", $config{'webdisk_rootpath'});
+            ($webdiskrootdir =~ m!^(.+)/?$!) && ($webdiskrootdir = $1);  # untaint ...
 
-            $attachment=FileHandle->new();
-            open($attachment, "$homedir/$vpath") or
+            my $vpath=absolute_vpath('/', $webdisksel);
+            my $err=verify_vpath($webdiskrootdir, $vpath);
+            openwebmailerror($err) if ($err);
+            openwebmailerror("$lang_text{'file'} $vpath $lang_err{'doesnt_exist'}") if (!-f "$webdiskrootdir/$vpath");
+
+            $attachment=do { local *FH };
+            open($attachment, "$webdiskrootdir/$vpath") or
                openwebmailerror ("$lang_err{'couldnt_open'} $lang_text{'webdisk'} $vpath!");
             $attname=$vpath; $attname=~s|/$||; $attname=~s|^.*/||;
             $attcontenttype=ext2contenttype($vpath);
          }
 
          if ($attachment) {
-            if ( ($config{'attlimit'}) && 
+            if ( ($config{'attlimit'}) &&
                  ( ($savedattsize + (-s $attachment)) > ($config{'attlimit'}*1024) ) ) {
                close($attachment);
                openwebmailerror ("$lang_err{'att_overlimit'} $config{'attlimit'} $lang_sizes{'kb'}!");
@@ -330,7 +338,7 @@ sub composemessage {
    my $to = param("to") || '';
    my $cc = param("cc") || '';
    my $bcc = param("bcc") || '';
-   my $replyto = param("replyto") || $prefs{'replyto'} || '';
+   my $replyto = param("replyto") || '';
    my $subject = param("subject") || '';
    my $body = param("body") || '';
    my $inreplyto = param("inreplyto") || '';
@@ -338,7 +346,7 @@ sub composemessage {
    my $priority = param("priority") || 'normal';	# normal/urgent/non-urgent
    my $statname = param("statname") || '';
 
-   my %userfrom=get_userfrom($loginname, $user, $userrealname, "$folderdir/.from.book");
+   my %userfrom=get_userfrom($logindomain, $loginuser, $user, $userrealname, "$folderdir/.from.book");
 
    if ( defined(param("from")) ) {
       $from=param("from");
@@ -351,7 +359,6 @@ sub composemessage {
    my $composetype = param("composetype");
    if ($composetype eq "reply" || $composetype eq "replyall" ||
        $composetype eq "forward" || $composetype eq "editdraft" ) {
-      my $messageid = param("message_id");
       if ($composetype eq "forward" || $composetype eq "editdraft") {
          %message = %{&getmessage($messageid, "all")};
       } else {
@@ -362,7 +369,9 @@ sub composemessage {
       my $convfrom=param('convfrom');
       if ($convfrom eq 'none.msgcharset') {
          foreach (values %languagecharsets) {
-            $charset=$_ if ($_ eq lc($message{'charset'}));
+            if ($_ eq lc($message{'charset'})) {
+               $charset=$_; last;
+            }
          }
       }
 
@@ -474,6 +483,7 @@ sub composemessage {
          } else {
             $to = $message{'from'} || '';
          }
+         
          if ($composetype eq "replyall") {
             my $t=$message{'to'}; $t=~s/undisclosed\-recipients:\s?;?//gi;
             $to .= "," . $t if ($t && $t=~/[^\s]/);
@@ -523,24 +533,25 @@ sub composemessage {
          if ($prefs{replywithorigmsg} eq 'at_beginning') {
             $body = "On $message{'date'}, ".(email2nameaddr($message{'from'}))[0]." wrote\n". $body if ($body=~/[^\s]/);
             $body .= "\n".$stationery."\n";
-            if (defined($prefs{'signature'})) {
+            if ($prefs{'signature'}=~/[^\s]/) {
                $body .= "\n\n".$prefs{'signature'};
             }
          } elsif ($prefs{replywithorigmsg} eq 'at_end') {
+            my $h="From: $message{'from'}\n".
+                  "To: $message{'to'}\n";
+            $h .= "Cc: $message{'cc'}\n" if ($message{'cc'} ne "");
+            $h .= "Sent: $message{'date'}\n".
+                  "Subject: $message{'subject'}\n";
             $body = "---------- Original Message -----------\n".
-                    "From: $message{'from'}\n".
-                    "To: $message{'to'}\n".
-                    "Sent: $message{'date'}\n".
-                    "Subject: $message{'subject'}\n\n".
-                    "$body\n".
+                    "$h\n$body\n".
                     "------- End of Original Message -------\n";
-            if (defined($prefs{'signature'})) {
+            if ($prefs{'signature'}=~/[^\s]/) {
                $body = "\n".$stationery."\n\n".$prefs{'signature'}."\n\n".$body;
             } else {
                $body = "\n".$stationery."\n\n".$body;
             }
          } else {
-            if (defined($prefs{'signature'})) {
+            if ($prefs{'signature'}=~/[^\s]/) {
                $body = "\n".$stationery."\n\n".$prefs{'signature'};
             } else {
                $body = "\n".$stationery."\n";
@@ -601,23 +612,21 @@ sub composemessage {
                $references = $message{'messageid'};
             }
 
-            $body = "\n".
-                    "\n---------- Forwarded Message -----------\n".
-                    "From: $message{'from'}\n".
-                    "To: $message{'to'}\n".
-                    "Sent: $message{'date'}\n".
-                    "Subject: $message{'subject'}\n\n".
-                    "$body".
-                    "\n------- End of Forwarded Message -------\n";
-            $body .= "\n\n".$prefs{'signature'} if (defined($prefs{'signature'}));
+            my $h="From: $message{'from'}\n".
+                  "To: $message{'to'}\n";
+            $h .= "Cc: $message{'cc'}\n" if ($message{'cc'} ne "");
+            $h .= "Sent: $message{'date'}\n".
+                  "Subject: $message{'subject'}\n";
+            $body = "\n\n".
+                    "---------- Forwarded Message -----------\n".
+                    "$h\n$body\n".
+                    "------- End of Forwarded Message -------\n";
+            $body .= "\n\n".$prefs{'signature'} if ($prefs{'signature'}=~/[^\s]/);
          }
       }
 
    } elsif ($composetype eq 'forwardasatt') {
       my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
-      my $folderhandle=FileHandle->new();
-      my $atthandle=FileHandle->new();
-
       filelock($folderfile, LOCK_SH|LOCK_NB) or
          openwebmailerror("$lang_err{'couldnt_locksh'} $folderfile!");
       if (update_headerdb($headerdb, $folderfile)<0) {
@@ -625,7 +634,6 @@ sub composemessage {
          openwebmailerror("$lang_err{'couldnt_updatedb'} $headerdb$config{'dbm_ext'}");
       }
 
-      my $messageid = param("message_id");
       my @attr=get_message_attributes($messageid, $headerdb);
 
       my $fromemail=$prefs{'email'};
@@ -640,32 +648,32 @@ sub composemessage {
          $from=qq|$fromemail|;
       }
 
-      open($folderhandle, "$folderfile");
+      open(FOLDER, "$folderfile");
       my $attserial=time();
       ($attserial =~ /^(.+)$/) && ($attserial = $1);   # untaint ...
-      open ($atthandle, ">$config{'ow_sessionsdir'}/$thissession-att$attserial") or
+      open (ATTFILE, ">$config{'ow_sessionsdir'}/$thissession-att$attserial") or
          openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}/$thissession-att$attserial!");
-      print $atthandle qq|Content-Type: message/rfc822;\n|,
-                       qq|Content-Disposition: attachment; filename="Forward.msg"\n\n|;
+      print ATTFILE qq|Content-Type: message/rfc822;\n|,
+                    qq|Content-Disposition: attachment; filename="Forward.msg"\n\n|;
 
       # copy message to be forwarded
       my $left=$attr[$_SIZE];
-      seek($folderhandle, $attr[$_OFFSET], 0);
+      seek(FOLDER, $attr[$_OFFSET], 0);
 
       # do not copy 1st line if it is the 'From ' delimiter
-      $_ = <$folderhandle>; $left-=length($_);
+      $_ = <FOLDER>; $left-=length($_);
       if ( ! /^From / ) {
-         print $atthandle $_;
+         print ATTFILE $_;
       }
       # copy other lines with the 'From ' delimiter escaped
       while ($left>0) {
-         $_ = <$folderhandle>; $left-=length($_);
+         $_ = <FOLDER>; $left-=length($_);
          s/^From />From /;
-         print $atthandle $_;
+         print ATTFILE $_;
       }
 
-      close $atthandle;
-      close($folderhandle);
+      close(ATTFILE);
+      close(FOLDER);
 
       filelock($folderfile, LOCK_UN);
 
@@ -689,40 +697,50 @@ sub composemessage {
       }
 
       $body = "\n\n# Message forwarded as attachment\n";
-      $body .= "\n\n".$prefs{'signature'} if (defined($prefs{'signature'}));
+      $body .= "\n\n".$prefs{'signature'} if ($prefs{'signature'}=~/[^\s]/);
 
    } elsif ($composetype eq 'continue') {
       my $convto=param('convto');
-
       $body = "\n".$body;	# the form text area would eat leading \n, so we add it back here
       if ($charset ne $convto && is_convertable($charset, $convto) ) {
          ($body, $subject, $from, $to, $cc, $bcc, $replyto)=iconv($charset, $convto,
                                                      $body,$subject,$from,$to,$cc,$bcc,$replyto);
-         $charset=$convto;
       }
+      foreach (values %languagecharsets) {
+         if ($_ eq $convto) {
+            $charset=$_; last;
+         }
+      }
+
    } else { # sendto or newmail
-      $body .= "\n\n\n".$prefs{'signature'} if (defined($prefs{'signature'}));
+      $replyto = $prefs{'replyto'} if (defined($prefs{'replyto'}));
+      $body .= "\n\n\n".$prefs{'signature'} if ($prefs{'signature'}=~/[^\s]/);
    }
 
    my ($html, $temphtml);
-
    if ($charset ne $prefs{'charset'}) {
       my @tmp=($prefs{'language'}, $prefs{'charset'});
       ($prefs{'language'}, $prefs{'charset'})=('en', $charset);
 
-      require "$config{'ow_langdir'}/$prefs{'language'}";
-      printheader();
+      readlang($prefs{'language'});
       $printfolder = $lang_folders{$folder} || $folder || '';
-      $html = readtemplate("composemessage.template");
+      $html = htmlheader().readtemplate("composemessage.template");
 
       ($prefs{'language'}, $prefs{'charset'})=@tmp;
    } else {
-      printheader();
-      $html = readtemplate("composemessage.template");
+      $html = htmlheader().readtemplate("composemessage.template");
    }
    $html = applystyle($html);
 
-   $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $printfolder", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;page=$page"|). qq|\n|;
+   my $compose_caller=param('compose_caller');
+   my $urlparm="sessionid=$thissession&amp;folder=$escapedfolder&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;page=$page";
+   if ($compose_caller eq "read") {
+      $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $printfolder", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&amp;message_id=$escapedmessageid&amp;$urlparm"|);
+   } elsif ($compose_caller eq "abook") {
+      $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $lang_text{'addressbook'}", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=editaddresses&amp;$urlparm"|). qq|\n|;
+   } else { # main
+      $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $printfolder", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;$urlparm"|). qq|\n|;
+   }
    $html =~ s/\@\@\@BACKTOFOLDER\@\@\@/$temphtml/g;
 
    $temphtml = start_multipart_form(-name=>'composeform');
@@ -746,6 +764,9 @@ sub composemessage {
                        -override=>'1');
    $temphtml .= hidden(-name=>'charset',
                        -default=>$charset,
+                       -override=>'1');
+   $temphtml .= hidden(-name=>'compose_caller',
+                       -default=>$compose_caller,
                        -override=>'1');
 
    $mymessageid=fakemessageid((email2nameaddr($from))[1]) if (!$mymessageid);
@@ -802,16 +823,22 @@ sub composemessage {
    $html =~ s/\@\@\@PRIORITYMENU\@\@\@/$temphtml/;
 
    # charset conversion menu
-   my %ctlabels=( 'none' => $charset );
+   my %ctlabels=( 'none' => "$charset *" );
    my @ctlist=('none');
+   my %miscsets=reverse %languagecharsets;
+   delete $miscsets{$charset};
+   
    if (defined($charset_convlist{$charset})) {
-      foreach my $ct (@{$charset_convlist{$charset}}) {
+      foreach my $ct (sort @{$charset_convlist{$charset}}) {
          if (is_convertable($charset, $ct)) {
             $ctlabels{$ct}="$charset > $ct";
             push(@ctlist, $ct);
+            delete $miscsets{$ct};
          }
       }
    }
+   push(@ctlist, sort keys %miscsets);
+
    $temphtml = popup_menu(-name=>'convto',
                           -values=>\@ctlist,
                           -labels=>\%ctlabels,
@@ -1069,13 +1096,11 @@ sub composemessage {
    $abook_height = 'screen.availHeight' if ($abook_height eq 'max');
    $html =~ s/\@\@\@ABOOKHEIGHT\@\@\@/$abook_height/g;
 
-   my $abook_searchtype = $prefs{'abook_defualtfilter'}?escapeURL($prefs{'abook_defaultsearchtype'}):'';
+   my $abook_searchtype = $prefs{'abook_defaultfilter'}?escapeURL($prefs{'abook_defaultsearchtype'}):'';
    $html =~ s/\@\@\@ABOOKSEARCHTYPE\@\@\@/$abook_searchtype/g;
 
-   my $abook_keyword = $prefs{'abook_defualtfilter'}?escapeURL($prefs{'abook_defaultkeyword'}):'';
+   my $abook_keyword = $prefs{'abook_defaultfilter'}?escapeURL($prefs{'abook_defaultkeyword'}):'';
    $html =~ s/\@\@\@ABOOKKEYWORD\@\@\@/$abook_keyword/g;
-
-   print $html;
 
    my @tmp=($prefs{'language'}, $prefs{'charset'});
    if ($charset ne $prefs{'charset'}) {
@@ -1088,29 +1113,29 @@ sub composemessage {
       my $msg=qq|<font size=-1>$lang_text{savedraft} |;
       $msg.= qq|($subject) | if ($subject);
       $msg.= qq|$lang_text{succeeded}</font>|;
-      print qq|<script language="JavaScript" src="$config{'ow_htmlurl'}/javascript/showmsg.js"></script>\n|;
-      print qq|<script language="JavaScript">\n<!--\n|.
-            qq|showmsg('$prefs{charset}', '$lang_text{savedraft}', '$msg', '$lang_text{"close"}', '_savedraft', 300, 100, 5);\n|.
-            qq|//-->\n</script>\n|;
+      $html.= qq|<script language="JavaScript" src="$config{'ow_htmlurl'}/javascript/showmsg.js"></script>\n|.
+              qq|<script language="JavaScript">\n<!--\n|.
+              qq|showmsg('$prefs{charset}', '$lang_text{savedraft}', '$msg', '$lang_text{"close"}', '_savedraft', 300, 100, 5);\n|.
+              qq|//-->\n</script>\n|;
    }
    if (defined(param('savedraftbutton')) && $session_noupdate) {
-      # this is auto savedraft triggered by timeoutwarning, 
+      # this is auto savedraft triggered by timeoutwarning,
       # timeoutwarning js code is not required any more
-      printfooter(1);
+      $html.=htmlfooter(1);
    } else {
-      # load printfooter.js.template and plugin jscode
+      # load footer.js.template and plugin jscode
       # which will be triggered when timeoutwarning shows up.
       my $jscode=qq|window.composeform.session_noupdate.value=1;|.
                  qq|window.composeform.savedraftbutton.click();|;
-      printfooter(2, $jscode);
+      $html.=htmlfooter(2, $jscode);
    }
 
    if ($charset ne $prefs{'charset'}) {
       ($prefs{'language'}, $prefs{'charset'})=@tmp;
    }
-}
-############# END COMPOSEMESSAGE #################
 
+   print $html;
+}
 ############# END COMPOSEMESSAGE #################
 
 ############### SENDMESSAGE ######################
@@ -1122,7 +1147,7 @@ sub sendmessage {
       return(composemessage());
    }
 
-   my %userfrom=get_userfrom($loginname, $user, $userrealname, "$folderdir/.from.book");
+   my %userfrom=get_userfrom($logindomain, $loginuser, $user, $userrealname, "$folderdir/.from.book");
    my ($realname, $from);
    if (param('from')) {
       ($realname, $from)=_email2nameaddr(param('from')); # use _email2nameaddr since it may return null name
@@ -1140,7 +1165,7 @@ sub sendmessage {
    my $to = param("to");
    my $cc = param("cc");
    my $bcc = param("bcc");
-   my $replyto = param("replyto") || $prefs{'replyto'};
+   my $replyto = param("replyto");
    my $subject = param("subject") || 'N/A';
    my $inreplyto = param("inreplyto");
    my $references = param("references");
@@ -1255,7 +1280,7 @@ sub sendmessage {
       # redirect stderr to smtperrfile
       ($smtperrfile =~ /^(.+)$/) && ($smtperrfile = $1);   # untaint ...
       open(STDERR, ">$smtperrfile");
-      select(STDERR); $| = 1; select(STDOUT);
+      select(STDERR); local $| = 1; select(STDOUT);
 
       if ( !($smtp=Net::SMTP->new($config{'smtpserver'},
                            Port => $config{'smtpport'},
@@ -1319,7 +1344,7 @@ sub sendmessage {
                if ($subject eq $oldheaders[$_SUBJECT]) {
                   $removeoldone=1;
                } else {
-                  # change mymessageid if old is not removed 
+                  # change mymessageid if old is not removed
                   # since messageid should be unique in one folder
                   # note: this new mymessageid will be used by composemessage later
                   $mymessageid=fakemessageid($from);
@@ -1780,7 +1805,7 @@ sub folding {
 
 ################### REPARAGRAPH #########################
 sub reparagraph {
-   my @lines=split("\n", $_[0]);
+   my @lines=split(/\n/, $_[0]);
    my $maxlen=$_[1];
    my ($text,$left) = ('','');
 

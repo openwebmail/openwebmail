@@ -1,15 +1,15 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td colspan="3" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>MintalevÃ©l szerkesztÃ©se</b></font>
+<b>Mintalevél szerkesztése</b></font>
 </td></tr><tr><td colspan="3" bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
 </td>
 </tr><tr><td colspan="3">&nbsp;</td></tr>
 <tr><td bgcolor=@@@COLUMNHEADER@@@ width="20%">
-<B>CÃ­m</B></td>
+<B>Cím</B></td>
 <td bgcolor=@@@COLUMNHEADER@@@ width="70%">
-<B>Minta szÃ¶veg</B></td>
+<B>Minta szöveg</B></td>
 </td>
 <td bgcolor=@@@COLUMNHEADER@@@ width="10%">&nbsp;</td>
 </tr>
@@ -18,15 +18,16 @@
 <tr><td colspan="3">&nbsp;</td></tr>
 
 @@@STARTSTATFORM@@@
-<tr><td colspan="3" bgcolor=@@@COLUMNHEADER@@@><B>Ãšj mintalevÃ©l kÃ©szÃ­tÃ©se</B></td></tr>
+<tr><td colspan="3" bgcolor=@@@COLUMNHEADER@@@><B>Új mintalevél készitése</B></td></tr>
 </td><td colspan="3" align="center" bgcolor=@@@WINDOW_DARK@@@>
-<B>CÃ­m:</B>&nbsp; &nbsp; 
+<B>Cím:</B>&nbsp; &nbsp; 
 @@@STATNAME@@@
 <tr><td colspan="3" align="center" bgcolor=@@@WINDOW_DARK@@@ class=msgbody>
-<B>Minta szÃ¶veg</B><BR>
+<B>Minta szöveg</B><BR>
 @@@STATBODY@@@
 </td></tr>
 <tr><td colspan="3" align="center" bgcolor=@@@WINDOW_DARK@@@>
-@@@SAVESTAT@@@</td></tr>
-</table>
+@@@SAVESTATBUTTON@@@
+</td></tr>
 @@@ENDSTATFORM@@@
+</table>

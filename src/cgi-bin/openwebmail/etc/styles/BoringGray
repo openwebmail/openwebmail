@@ -15,7 +15,7 @@ fontface="Arial, Helvetica"
 body 
 {
     background-image: url(@@@BG_URL@@@);
-    background-repeat: no-repeat;
+    background-repeat: @@@BGREPEAT@@@;
     font-family: Arial, Helvetica, sans-serif; font-size: @@@FONTSIZE@@@
 }
 th   {  font-family: Arial, Helvetica, sans-serif; font-size: @@@FONTSIZE@@@; font-weight: bold; background-color: #D3DCE3;}

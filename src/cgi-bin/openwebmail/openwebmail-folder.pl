@@ -4,9 +4,12 @@
 #
 
 use vars qw($SCRIPT_DIR);
-if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-\.]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
-if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
-push (@INC, $SCRIPT_DIR, ".");
+if ( $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
+if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
+   $_=<F>; close(F); if ( $_=~/^([^\s]*)/) { $SCRIPT_DIR=$1; }
+}
+if (!$SCRIPT_DIR) { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
+push (@INC, $SCRIPT_DIR);
 
 $ENV{PATH} = ""; # no PATH should be needed
 $ENV{ENV} = "";      # no startup script for sh
@@ -17,7 +20,6 @@ use strict;
 use Fcntl qw(:DEFAULT :flock);
 use CGI qw(-private_tempfiles :standard);
 use CGI::Carp qw(fatalsToBrowser carpout);
-CGI::nph();   # Treat script as a non-parsed-header script
 
 require "ow-shared.pl";
 require "filelock.pl";
@@ -26,13 +28,12 @@ require "maildb.pl";
 
 use vars qw(%config %config_raw);
 use vars qw($thissession);
-use vars qw($loginname $domain $user $userrealname $uuid $ugid $homedir);
+use vars qw($domain $user $userrealname $uuid $ugid $homedir);
 use vars qw(%prefs %style %icontext);
 use vars qw($folderdir @validfolders $folderusage);
 use vars qw($folder $printfolder $escapedfolder);
 
 openwebmail_init();
-verifysession();
 
 use vars qw($sort $page);
 
@@ -44,7 +45,6 @@ use vars qw(%lang_folders %lang_text %lang_err);	# defined in lang/xy
 use vars qw($_OFFSET $_STATUS);				# defined in maildb.pl
 
 ########################## MAIN ##############################
-
 my $action = param("action");
 if ($action eq "editfolders") {
    editfolders();
@@ -67,17 +67,17 @@ if ($action eq "editfolders") {
 } else {
    openwebmailerror("Action $lang_err{'has_illegal_chars'}");
 }
+
+# back to root if possible, required for setuid under persistent perl
+$<=0; $>=0;
 ###################### END MAIN ##############################
 
 #################### EDITFOLDERS ###########################
-my ($total_newmessages, $total_allmessages, $total_foldersize);
-
 sub editfolders {
    my (@defaultfolders, @userfolders);
-
-   $total_newmessages=0;
-   $total_allmessages=0;
-   $total_foldersize=0;
+   my $total_newmessages=0;
+   my $total_allmessages=0;
+   my $total_foldersize=0;
 
    push(@defaultfolders, 'INBOX',
                          'saved-messages',
@@ -95,15 +95,11 @@ sub editfolders {
       }
    }
 
-   my $html = '';
-   my $temphtml;
-
-   $html=readtemplate("editfolders.template");
+   my ($html, $temphtml);
+   $html = readtemplate("editfolders.template");
    $html = applystyle($html);
 
    $html =~ s/\@\@\@FOLDERNAME_MAXLEN\@\@\@/$config{'foldername_maxlen'}/g;
-
-   printheader();
 
    $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $printfolder", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;sessionid=$thissession&amp;sort=$sort&amp;page=$page&amp;folder=$escapedfolder"|). qq|&nbsp; \n|;
    $temphtml .= iconlink("refresh.gif", $lang_text{'refresh'}, qq|accesskey="R" href="$config{'ow_cgiurl'}/openwebmail-folder.pl?action=refreshfolders&amp;sessionid=$thissession&amp;sort=$sort&amp;folder=$escapedfolder&amp;page=$page"|). qq| \n|;
@@ -149,7 +145,8 @@ sub editfolders {
    my $form_i=0;
    $temphtml='';
    foreach $currfolder (@userfolders) {
-      $temphtml .= _folderline($currfolder, $form_i, $bgcolor);
+      $temphtml .= _folderline($currfolder, $form_i, $bgcolor, 
+                               \$total_newmessages, \$total_allmessages, \$total_foldersize);
       if ($bgcolor eq $style{"tablerow_dark"}) {
          $bgcolor = $style{"tablerow_light"};
       } else {
@@ -162,7 +159,8 @@ sub editfolders {
    $bgcolor = $style{"tablerow_dark"};
    $temphtml='';
    foreach $currfolder (@defaultfolders) {
-      $temphtml .= _folderline($currfolder, $form_i, $bgcolor);
+      $temphtml .= _folderline($currfolder, $form_i, $bgcolor,
+                               \$total_newmessages, \$total_allmessages, \$total_foldersize);
       if ($bgcolor eq $style{"tablerow_dark"}) {
          $bgcolor = $style{"tablerow_light"};
       } else {
@@ -194,15 +192,14 @@ sub editfolders {
                qq|</tr>|;
    $html =~ s/\@\@\@TOTAL\@\@\@/$temphtml/;
 
-   print $html;
-
-   printfooter(1);
+   print htmlheader(), $html, htmlfooter(1);
 }
 
 # this is inline function used by sub editfolders(), it changes
 # $total_newmessages, $total_allmessages and $total_size in editfolders()
 sub _folderline {
-   my ($currfolder, $i, $bgcolor)=@_;
+   my ($currfolder, $i, $bgcolor,
+       $r_total_newmessages, $r_total_allmessages, $r_total_foldersize)=@_;
    my $temphtml='';
    my (%HDB, $newmessages, $allmessages, $foldersize);
    my ($folderfile,$headerdb)=get_folderfile_headerdb($user, $currfolder);
@@ -215,13 +212,13 @@ sub _folderline {
       dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
       if ( defined($HDB{'ALLMESSAGES'}) ) {
          $allmessages=$HDB{'ALLMESSAGES'};
-         $total_allmessages+=$allmessages;
+         ${$r_total_allmessages}+=$allmessages;
       } else {
          $allmessages='&nbsp;';
       }
       if ( defined($HDB{'NEWMESSAGES'}) ) {
          $newmessages=$HDB{'NEWMESSAGES'};
-         $total_newmessages+=$newmessages;
+         ${$r_total_newmessages}+=$newmessages;
       } else {
          $newmessages='&nbsp;';
       }
@@ -235,7 +232,7 @@ sub _folderline {
    # we count size for both folder file and related dbm
    $foldersize = (-s "$folderfile") + (-s "$headerdb$config{'dbm_ext'}");
 
-   $total_foldersize+=$foldersize;
+   ${$r_total_foldersize}+=$foldersize;
    $foldersize=lenstr($foldersize,0);
 
    my $escapedcurrfolder = escapeURL($currfolder);
@@ -321,7 +318,7 @@ sub refreshfolders {
    foreach my $currfolder (@validfolders) {
       my ($folderfile,$headerdb)=get_folderfile_headerdb($user, $currfolder);
 
-      filelock($folderfile, LOCK_EX|LOCK_NB) or 
+      filelock($folderfile, LOCK_EX|LOCK_NB) or
          openwebmailerror("$lang_err{'couldnt_lock'} $folderfile!");
       if (update_headerdb($headerdb, $folderfile)<0) {
          $errcount++;
@@ -337,7 +334,6 @@ sub refreshfolders {
    getfolders(\@validfolders, \$folderusage);
    editfolders();
 }
-
 ################### END REFRESHFOLDERS ##########################
 
 ################### MARKREADFOLDER ##############################
@@ -346,7 +342,7 @@ sub markreadfolder {
    ($foldertomark =~ /^(.+)$/) && ($foldertomark = $1);
    my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $foldertomark);
 
-   filelock($folderfile, LOCK_EX|LOCK_NB) or 
+   filelock($folderfile, LOCK_EX|LOCK_NB) or
       openwebmailerror("$lang_err{'couldnt_lock'} $folderfile!");
 
    if (update_headerdb($headerdb, $folderfile)<0) {
@@ -637,9 +633,7 @@ sub downloadfolder {
    print qq|Content-Transfer-Coding: binary\n|,
          qq|Connection: close\n|,
          qq|Content-Type: $contenttype; name="$filename"\n|;
-
-   # ugly hack since ie5.5 is broken with disposition: attchment
-   if ( $ENV{'HTTP_USER_AGENT'}!~/MSIE 5.5/ ) {
+   if ( $ENV{'HTTP_USER_AGENT'}!~/MSIE 5.5/ ) {	# ie5.5 is broken with content-disposition
       print qq|Content-Disposition: attachment; filename="$filename"\n|;
    }
    print qq|\n|;

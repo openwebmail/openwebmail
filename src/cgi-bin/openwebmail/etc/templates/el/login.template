@@ -35,17 +35,15 @@
 </tr></table>
 
 </td></tr></table>
-<p align="center">
-<BR>
-@@@PAGE_FOOTER@@@ &nbsp;
-<a href="@@@HELP_LINK@@@" target="_help">Help?</a>
-<BR>
-</p>
 
 <script language="JavaScript">
 <!--
 
-   document.login.loginname.focus()
+   if (document.login.loginname.value == "") {
+      document.login.loginname.focus()
+   } else {
+      document.login.password.focus()
+   }
 
    function focuspwd()
    {
@@ -53,13 +51,11 @@
       return(true);
    }
 
-   function focuslogin()
+   function focusloginbutton()
    {
-      document.login.login.focus();
+      document.login.loginbutton.focus();
       return (true);
    }
 
 //-->
 </script>
-
-</BODY></HTML>

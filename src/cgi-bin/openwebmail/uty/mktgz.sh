@@ -21,7 +21,7 @@ fi
 
 echo make openwebmail-current.tgz
 
-rm -f /tmp/openwebmail-current.tgz 2>/dev/null
+rm -f /tmp/openwebmail-current.tgz /tmp/openwebmail-current 2>/dev/null
 cd /usr/local/www
 tar --exclude data/openwebmail/download \
     -zcBpf /tmp/openwebmail-current.tgz cgi-bin/openwebmail data/openwebmail
@@ -41,7 +41,6 @@ rm -Rf cgi-bin/openwebmail/etc/sessions/*
 rm -Rf cgi-bin/openwebmail/etc/users/*
 rm -Rf data/openwebmail/screenshots
 rm -Rf data/openwebmail/download
-#rm     cgi-bin/openwebmail/uty/mktgz.sh
 
 chmod 755 data cgi-bin
 chmod 755 cgi-bin/openwebmail/etc
@@ -54,9 +53,16 @@ cp /dev/null cgi-bin/openwebmail/etc/calendar.book
 patch cgi-bin/openwebmail/etc/openwebmail.conf < /usr/local/www/cgi-bin/openwebmail/uty/openwebmail.conf.diff
 rm cgi-bin/openwebmail/etc/openwebmail.conf.orig
 rm cgi-bin/openwebmail/etc/openwebmail.conf.rej
+chown root.mail cgi-bin/openwebmail/etc/openwebmail.conf
+
+cd cgi-bin/openwebmail
+patch -f -p1 < /usr/local/www/cgi-bin/openwebmail/uty/speedy2suidperl.diff
+rm *.orig
+chown root.mail openwebmail*pl
+chmod 4755 openwebmail*pl
+cd ../..
 
 tar -zcBpf /tmp/openwebmail-current.tgz *
-
 
 ##########################################################
 
@@ -74,6 +80,13 @@ if [ ! -z "$oldtgz" ]; then
    tar -zxBpf $oldtgz
    cd ..
 
+   sh /usr/local/www/cgi-bin/openwebmail/uty/mkmd5list.sh ./www.orig release
+   sh /usr/local/www/cgi-bin/openwebmail/uty/mkmd5list.sh ./www      current
+   diff -ruN /tmp/md5list.release /tmp/md5list.current|grep '^+'|cut -c35-|grep openwebmail >/tmp/md5.diff
+   cd /usr/local/www
+   tar -zcBpf /tmp/openwebmail-current-$oldrelease.files.tgz -I /tmp/md5.diff
+
+   cd /tmp
    rm -Rf \
    www.orig/data/openwebmail/images \
    www.orig/data/openwebmail/*.wav \
@@ -97,7 +110,13 @@ if [ ! -z "$oldtgz" ]; then
    mv www/cgi-bin/openwebmail/etc/templates/en      etc/templates/
    diff -ruN etc.orig etc > lang-templates-current-$oldrelease.diff
 
-   rm -Rf www www.orig etc etc.orig openwebmail.conf.default.orig openwebmail.conf.default 2>/dev/null
+   rm -Rf www www.orig \
+          etc etc.orig \
+          openwebmail.conf.default.orig \
+          openwebmail.conf.default \
+          md5list.release \
+          md5list.current \
+          md5.diff 2>/dev/null
 fi
 
 ##########################################################
@@ -111,7 +130,11 @@ fi
 cp /usr/local/www/data/openwebmail/doc/*.txt /usr/local/www/data/openwebmail/download/doc/
 
 rm /usr/local/www/data/openwebmail/download/openwebmail*current*gz 
-for f in openwebmail-current.tgz openwebmail-current-$oldrelease.diff.gz openwebmail.conf.default-current-$oldrelease.diff lang-templates-current-$oldrelease.diff; do
+for f in openwebmail-current.tgz \
+         openwebmail-current-$oldrelease.files.tgz \
+         openwebmail-current-$oldrelease.diff.gz \
+         openwebmail.conf.default-current-$oldrelease.diff \
+         lang-templates-current-$oldrelease.diff; do
    mv /tmp/$f /usr/local/www/data/openwebmail/download/
    chmod 644 /usr/local/www/data/openwebmail/download/$f
 done

@@ -6,9 +6,12 @@
 #
 
 use vars qw($SCRIPT_DIR);
-if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-\.]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
-if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
-push (@INC, $SCRIPT_DIR, ".");
+if ( $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
+if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
+   $_=<F>; close(F); if ( $_=~/^([^\s]*)/) { $SCRIPT_DIR=$1; }
+}
+if (!$SCRIPT_DIR) { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
+push (@INC, $SCRIPT_DIR);
 
 $ENV{PATH} = ""; # no PATH should be needed
 $ENV{ENV} = "";      # no startup script for sh
@@ -19,7 +22,6 @@ use strict;
 use Fcntl qw(:DEFAULT :flock);
 use CGI qw(-private_tempfiles :standard);
 use CGI::Carp qw(fatalsToBrowser carpout);
-CGI::nph();   # Treat script as a non-parsed-header script
 
 require "ow-shared.pl";
 require "filelock.pl";
@@ -29,13 +31,12 @@ require "maildb.pl";
 
 use vars qw(%config %config_raw);
 use vars qw($thissession);
-use vars qw($loginname $domain $user $userrealname $uuid $ugid $homedir);
+use vars qw($domain $user $userrealname $uuid $ugid $homedir);
 use vars qw(%prefs %style %icontext);
 use vars qw($folderdir @validfolders $folderusage);
 use vars qw($folder $printfolder $escapedfolder);
 
 openwebmail_init();
-verifysession();
 
 # extern vars
 use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE $_STATUS $_SIZE $_REFERENCES $_CHARSET); # defined in maildb.pl
@@ -48,6 +49,9 @@ if ($action eq "advsearch") {
 } else {
    openwebmailerror("Action $lang_err{'has_illegal_chars'}");
 }
+
+# back to root if possible, required for setuid under persistent perl
+$<=0; $>=0;
 ###################### END MAIN ##############################
 
 #################### ADVSEARCH ###########################
@@ -66,10 +70,7 @@ sub advsearch {
    }
 
    my ($html, $temphtml);
-
-   printheader();
-
-   $html=readtemplate("advsearch.template");
+   $html = readtemplate("advsearch.template");
    $html = applystyle($html);
 
    ## replace @@@MENUBARLINKS@@@ ##
@@ -204,9 +205,7 @@ sub advsearch {
       $html =~ s/\@\@\@SEARCHRESULT\@\@\@/$temphtml/g;
    }
 
-   print $html;
-
-   printfooter(2);
+   print htmlheader(), $html, htmlfooter(2);
 }
 ################### END ADVSEARCH ########################
 
@@ -275,16 +274,15 @@ sub search_folders2 {
          filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) or
             openwebmailerror("$lang_err{'couldnt_locksh'} $headerdb$config{'dbm_ext'}");
       }
+      open (FOLDER, "$folderfile"); # used in TEXTCONTENT search
       dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
 
       foreach my $messageid (@{$r_messageids}) {
          # begin the search
          my ($block, $header, $body, $r_attachments);
          my @attr=split(/@@@/, $HDB{$messageid});
-
+         my $is_conv=is_convertable($attr[$_CHARSET], $prefs{'charset'});
          my $state=0;
-         my $folderhandle=FileHandle->new();
-         open ($folderhandle, "+<$folderfile"); # used in TEXTCONTENT search
 
          foreach my $search (@validsearch) {
             my ($where, $type, $keyword) = (${$search}{'where'}, ${$search}{'type'}, ${$search}{'text'});
@@ -305,13 +303,16 @@ sub search_folders2 {
                             to      => $_TO,
                             date    => $_DATE
                             );
-                  if ( ($type eq 'contains' && $attr[$index{$where}]=~/\Q$keyword\E/i) ||
-                       ($type eq 'notcontains' && $attr[$index{$where}]!~/\Q$keyword\E/i) ||
-                       ($type eq 'is' && $attr[$index{$where}]=~/^\Q$keyword\E$/i) ||
-                       ($type eq 'isnot' && $attr[$index{$where}]!~/^\Q$keyword\E$/i) ||
-                       ($type eq 'startswith' && $attr[$index{$where}]=~/^\Q$keyword\E/i) ||
-                       ($type eq 'endswith' && $attr[$index{$where}]=~/\Q$keyword\E$/i) ||
-                       ($type eq 'regexp' && $regexvalid && $attr[$index{$where}]=~/$keyword/i) ) {
+                  my $data=$attr[$index{$where}];
+                  ($data)=iconv($attr[$_CHARSET], $prefs{'charset'}, $data) if ($is_conv);
+
+                  if ( ($type eq 'contains' && $data=~/\Q$keyword\E/i) ||
+                       ($type eq 'notcontains' && $data!~/\Q$keyword\E/i) ||
+                       ($type eq 'is' && $data=~/^\Q$keyword\E$/i) ||
+                       ($type eq 'isnot' && $data!~/^\Q$keyword\E$/i) ||
+                       ($type eq 'startswith' && $data=~/^\Q$keyword\E/i) ||
+                       ($type eq 'endswith' && $data=~/\Q$keyword\E$/i) ||
+                       ($type eq 'regexp' && $regexvalid && $data=~/$keyword/i) ) {
                      if($state == $#validsearch) {
                         $found{$messageid}=1; $state = 0;
                      } else {
@@ -324,14 +325,16 @@ sub search_folders2 {
                # check header
                } elsif ($where eq 'header') {
                   # check de-mimed header first since header in mail folder is raw format.
-                  seek($folderhandle, $attr[$_OFFSET], 0);
+                  seek(FOLDER, $attr[$_OFFSET], 0);
                   $header="";
-                  while(<$folderhandle>) {
+                  while(<FOLDER>) {
                      $header.=$_;
                      last if ($_ eq "\n");
                   }
                   $header = decode_mimewords($header);
                   $header=~s/\n / /g;   # handle folding roughly
+                  ($header)=iconv($attr[$_CHARSET], $prefs{'charset'}, $header) if ($is_conv);
+
                   if (($type eq 'contains' && $header=~/\Q$keyword\E/im) ||
                       ($type eq 'notcontains' && $header!~/\Q$keyword\E/im) ||
                       ($type eq 'is' && $header=~/^\Q$keyword\E$/im) ||
@@ -350,8 +353,8 @@ sub search_folders2 {
 
                # read and parse message
                } elsif ($where eq 'textcontent' || $where eq 'attfilename') {
-                  seek($folderhandle, $attr[$_OFFSET], 0);
-                  read($folderhandle, $block, $attr[$_SIZE]);
+                  seek(FOLDER, $attr[$_OFFSET], 0);
+                  read(FOLDER, $block, $attr[$_SIZE]);
                   ($header, $body, $r_attachments)=parse_rfc822block(\$block);
 
                   # check textcontent: text in body and attachments
@@ -366,6 +369,8 @@ sub search_folders2 {
                         } elsif ($header =~ /content-transfer-encoding:\s+x-uuencode/i) {
                            $body = uudecode($body);
                         }
+                        ($body)=iconv($attr[$_CHARSET], $prefs{'charset'}, $body) if ($is_conv);
+
                         if (($type eq 'contains' && $body=~/\Q$keyword\E/im) ||
                             ($type eq 'notcontains' && $body!~/\Q$keyword\E/im) ||
                             ($type eq 'is' && $body=~/^\Q$keyword\E$/im) ||
@@ -387,20 +392,28 @@ sub search_folders2 {
                      foreach my $r_attachment (@{$r_attachments}) {
                         if ( ${$r_attachment}{contenttype} =~ /^text/i ||
                              ${$r_attachment}{contenttype} eq "N/A" ) {   # read all for text/plain. text/html
+                           my $content;
                            if ( ${$r_attachment}{encoding} =~ /^quoted-printable/i ) {
-                              ${${$r_attachment}{r_content}} = decode_qp( ${${$r_attachment}{r_content}});
+                              $content = decode_qp( ${${$r_attachment}{r_content}});
                            } elsif ( ${$r_attachment}{encoding} =~ /^base64/i ) {
-                              ${${$r_attachment}{r_content}} = decode_base64( ${${$r_attachment}{r_content}});
+                              $content = decode_base64( ${${$r_attachment}{r_content}});
                            } elsif ( ${$r_attachment}{encoding} =~ /^x-uuencode/i ) {
-                              ${${$r_attachment}{r_content}} = uudecode( ${${$r_attachment}{r_content}});
+                              $content = uudecode( ${${$r_attachment}{r_content}});
+                           } else {
+                              $content=${${$r_attachment}{r_content}};
                            }
-                           if (($type eq 'contains' && ${${$r_attachment}{r_content}}=~/\Q$keyword\E/im) ||
-                               ($type eq 'notcontains' && ${${$r_attachment}{r_content}}!~/\Q$keyword\E/im) ||
-                               ($type eq 'is' && ${${$r_attachment}{r_content}}=~/^\Q$keyword\E$/im) ||
-                               ($type eq 'isnot' && ${${$r_attachment}{r_content}}!~/^\Q$keyword\E$/im) ||
-                               ($type eq 'startswith' && ${${$r_attachment}{r_content}}=~/^\Q$keyword\E/im) ||
-                               ($type eq 'endswith' && ${${$r_attachment}{r_content}}=~/\Q$keyword\E$/im) ||
-                               ($type eq 'regexp' && $regexvalid && ${${$r_attachment}{r_content}}=~/$keyword/im)) {
+                           my $charset=${$r_attachment}{charset}||$attr[$_CHARSET];
+                           if (is_convertable($charset, $prefs{'charset'})) {
+                              ($content)=iconv($charset, $prefs{'charset'}, $content);
+                           }
+
+                           if (($type eq 'contains' && $content=~/\Q$keyword\E/im) ||
+                               ($type eq 'notcontains' && $content!~/\Q$keyword\E/im) ||
+                               ($type eq 'is' && $content=~/^\Q$keyword\E$/im) ||
+                               ($type eq 'isnot' && $content!~/^\Q$keyword\E$/im) ||
+                               ($type eq 'startswith' && $content=~/^\Q$keyword\E/im) ||
+                               ($type eq 'endswith' && $content=~/\Q$keyword\E$/im) ||
+                               ($type eq 'regexp' && $regexvalid && $content=~/$keyword/im)) {
                               if($state == $#validsearch) {
                                  $found{$messageid}=1; $state = 0;
                               } else {
@@ -417,13 +430,19 @@ sub search_folders2 {
                   # check attfilename
                   if ($where eq 'attfilename') {
                      foreach my $r_attachment (@{$r_attachments}) {
-                        if (($type eq 'contains' && ${$r_attachment}{filename}=~/\Q$keyword\E/im) ||
-                            ($type eq 'notcontains' && ${$r_attachment}{filename}!~/\Q$keyword\E/im) ||
-                            ($type eq 'is' && ${$r_attachment}{filename}=~/^\Q$keyword\E$/im) ||
-                            ($type eq 'isnot' && ${$r_attachment}{filename}!~/^\Q$keyword\E$/im) ||
-                            ($type eq 'startswith' && ${$r_attachment}{filename}=~/^\Q$keyword\E/im) ||
-                            ($type eq 'endswith' && ${$r_attachment}{filename}=~/\Q$keyword\E$/im) ||
-                            ($type eq 'regexp' && $regexvalid && ${$r_attachment}{filename}=~/$keyword/im)) {
+                        my $filename=${$r_attachment}{filename};
+                        my $charset=${$r_attachment}{filenamecharset}||${$r_attachment}{charset}||$attr[$_CHARSET];
+                        if (is_convertable($charset, $prefs{'charset'})) {
+                           ($filename)=iconv($charset, $prefs{'charset'}, $filename);
+                        }
+
+                        if (($type eq 'contains' && $filename=~/\Q$keyword\E/im) ||
+                            ($type eq 'notcontains' && $filename!~/\Q$keyword\E/im) ||
+                            ($type eq 'is' && $filename=~/^\Q$keyword\E$/im) ||
+                            ($type eq 'isnot' && $filename!~/^\Q$keyword\E$/im) ||
+                            ($type eq 'startswith' && $filename=~/^\Q$keyword\E/im) ||
+                            ($type eq 'endswith' && $filename=~/\Q$keyword\E$/im) ||
+                            ($type eq 'regexp' && $regexvalid && $filename=~/$keyword/im)) {
                            if($state == $#validsearch) {
                               $found{$messageid}=1; $state = 0;
                            } else {
@@ -448,13 +467,13 @@ sub search_folders2 {
       } # end messageid loop
 
       dbmclose(%HDB);
+      close(FOLDER);
       filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
       filelock($folderfile, LOCK_UN);
    } # end foldertosearch loop
 
    return(\@result)
 }
-
 ################### END SEARCH_FOLDERS ########################
 
 ################ GENLINE #####################

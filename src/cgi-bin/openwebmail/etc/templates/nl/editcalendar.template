@@ -3,7 +3,7 @@
 <table border="0" align="center" width="60%" cellpadding="3" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
 <tr><td colspan="2" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>Wijzig Kalender Item</B></FONT>
+<B>Wijzig kalender item</B></FONT>
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Datum:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -31,7 +31,7 @@
 @@@EMAILFIELD@@@
 @@@EMAILEND@@@
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Event Color:</B>
+<B>Itemkleur:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@EVENTCOLORMENU@@@
 </td></tr><tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>

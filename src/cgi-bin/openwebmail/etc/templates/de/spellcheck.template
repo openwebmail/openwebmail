@@ -13,6 +13,8 @@ Liste kann ausgewählt werden um das fehlerhafte Wort zu ersetzen. Soll kein Vors
 Werden keine Vorschläge gefunden kann "manuell ändern" ausgewählt werden. Durch klicken auf "Erneut prüfen"
 erscheint eine Textbox, in der die Korrektur manuell
 eingetragen werden kann.
+If the user chooses "--Add to Dictionary--" and then clicks [Check Again], 
+the original word will be added to the user's personal dictionary.
 </td></tr>
 </table>
 <br>
@@ -28,9 +30,8 @@ eingetragen werden kann.
 
 <br>
 @@@CHECKAGAINBUTTON@@@
-&nbsp;&nbsp;&nbsp;
 @@@FINISHCHECKINGBUTTON@@@
-&nbsp;&nbsp;&nbsp;
+@@@EDITPERSDICTIONARYBUTTON@@@
 @@@CANCELBUTTON@@@
 <br><br>
 </td></tr>
