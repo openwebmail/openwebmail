@@ -299,7 +299,6 @@ sub search_folders2 {
          # begin the search
          my ($block, $header, $body, $r_attachments);
          my @attr=string2msgattr($FDB{$messageid});
-         my $is_conv=is_convertable($attr[$_CHARSET], $prefs{'charset'});
          my $state=0;
 
          foreach my $search (@validsearch) {
@@ -321,8 +320,7 @@ sub search_folders2 {
                             to      => $_TO,
                             date    => $_DATE
                             );
-                  my $data=$attr[$index{$where}];
-                  ($data)=iconv($attr[$_CHARSET], $prefs{'charset'}, $data) if ($is_conv);
+                  my ($data)=iconv($attr[$_CHARSET], $prefs{'charset'}, $attr[$index{$where}]);
 
                   if ( ($type eq 'contains' && $data=~/\Q$keyword\E/i) ||
                        ($type eq 'notcontains' && $data!~/\Q$keyword\E/i) ||
@@ -351,7 +349,7 @@ sub search_folders2 {
                   }
                   $header = decode_mimewords_iconv($header, $attr[$_CHARSET]);
                   $header=~s/\n / /g;   # handle folding roughly
-                  ($header)=iconv($attr[$_CHARSET], $prefs{'charset'}, $header) if ($is_conv);
+                  ($header)=iconv($attr[$_CHARSET], $prefs{'charset'}, $header);
 
                   if (($type eq 'contains' && $header=~/\Q$keyword\E/im) ||
                       ($type eq 'notcontains' && $header!~/\Q$keyword\E/im) ||
@@ -387,7 +385,7 @@ sub search_folders2 {
                         } elsif ($header =~ /content-transfer-encoding:\s+x-uuencode/i) {
                            $body = ow::mime::uudecode($body);
                         }
-                        ($body)=iconv($attr[$_CHARSET], $prefs{'charset'}, $body) if ($is_conv);
+                        ($body)=iconv($attr[$_CHARSET], $prefs{'charset'}, $body);
 
                         if (($type eq 'contains' && $body=~/\Q$keyword\E/im) ||
                             ($type eq 'notcontains' && $body!~/\Q$keyword\E/im) ||
@@ -421,9 +419,7 @@ sub search_folders2 {
                               $content=${${$r_attachment}{r_content}};
                            }
                            my $charset=${$r_attachment}{charset}||$attr[$_CHARSET];
-                           if (is_convertable($charset, $prefs{'charset'})) {
-                              ($content)=iconv($charset, $prefs{'charset'}, $content);
-                           }
+                           ($content)=iconv($charset, $prefs{'charset'}, $content);
 
                            if (($type eq 'contains' && $content=~/\Q$keyword\E/im) ||
                                ($type eq 'notcontains' && $content!~/\Q$keyword\E/im) ||
@@ -448,11 +444,8 @@ sub search_folders2 {
                   # check attfilename
                   if ($where eq 'attfilename') {
                      foreach my $r_attachment (@{$r_attachments}) {
-                        my $filename=${$r_attachment}{filename};
                         my $charset=${$r_attachment}{filenamecharset}||${$r_attachment}{charset}||$attr[$_CHARSET];
-                        if (is_convertable($charset, $prefs{'charset'})) {
-                           ($filename)=iconv($charset, $prefs{'charset'}, $filename);
-                        }
+                        my ($filename)=iconv($charset, $prefs{'charset'}, ${$r_attachment}{filename});
 
                         if (($type eq 'contains' && $filename=~/\Q$keyword\E/im) ||
                             ($type eq 'notcontains' && $filename!~/\Q$keyword\E/im) ||
@@ -518,9 +511,7 @@ sub genline {
    ($offset, $from, $to, $dateserial, $subject, $content_type, $status, $messagesize, $references, $charset) = @attr;
 
    # convert from mesage charset to current user charset
-   if (is_convertable($charset, $prefs{'charset'})) {
-      ($from, $to, $subject)=iconv($charset, $prefs{'charset'}, $from, $to, $subject);
-   }
+   ($from, $to, $subject)=iconv($charset, $prefs{'charset'}, $from, $to, $subject);
 
    my ($from_name, $from_address)=ow::tool::email2nameaddr($from);
    my $escapedfrom=ow::tool::escapeURL($from);

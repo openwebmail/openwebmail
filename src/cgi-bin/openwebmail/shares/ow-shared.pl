@@ -1436,15 +1436,7 @@ sub decode_mimewords_iconv {
    my $tocharset=$_[1];
    my $result;
    foreach my $r (@str) {	# r->[0]=decoded str, r->[1]=charset of str
-      my $fromcharset=lc(${$r}[1]);
-      if ($fromcharset ne '' && $fromcharset ne $tocharset &&
-          is_convertable($fromcharset, $tocharset)) {
-        # $result.=(iconv($fromcharset, $tocharset, ${$r}[0]))[0];
-         my $s=(iconv($fromcharset, $tocharset, ${$r}[0]))[0];
-         $result.=$s;
-      } else {
-         $result.=${$r}[0];
-      }
+      $result.=(iconv(${$r}[1], $tocharset, ${$r}[0]))[0];
    }
    return $result;
 }

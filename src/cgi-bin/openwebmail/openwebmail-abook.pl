@@ -743,11 +743,9 @@ sub addrlistview {
          my $recipients = join(',', param(lc($parmname)));
          # these param are passed in by javascript escape() routine         
          # CJK will be encoded as %uXXXX, we have to convert them back to prefs charset
-         if (is_convertable('utf-8', $prefs{'charset'}) && 
-             $recipients =~ s/%u([0-9a-fA-F]{4})/ow::tool::ucs4_to_utf8(hex($1))/ge) {
+         if ($recipients =~ s/%u([0-9a-fA-F]{4})/ow::tool::ucs4_to_utf8(hex($1))/ge) {
             ($recipients) = iconv('utf-8', $prefs{'charset'}, $recipients);
          }
-
          for (ow::tool::str2list($recipients)) {
             $waschecked{$key}{$_} = 1 if ($_ ne '');
          }
@@ -771,10 +769,6 @@ sub addrlistview {
    my %ischecked = ();
    foreach my $addrindex ($firstaddr..$lastaddr) {
       my $xowmuid = $sorted_addresses[$addrindex];
-      my $is_convertable=0;
-      if (exists $addresses{$xowmuid}{'X-OWM-CHARSET'}[0]{VALUE}) {
-         $is_convertable=is_convertable($addresses{$xowmuid}{'X-OWM-CHARSET'}[0]{VALUE}, $prefs{charset});
-      }
 
       # when we are in normal listview mode we add the xowmuid
       # to the check fields so that move/copy/delete applies to
@@ -825,9 +819,8 @@ sub addrlistview {
                         }
                      }
                   }
-                  
                   # do iconv on the "name" part of the "name" <user@hostname>
-                  ($email)=iconv($addresses{$xowmuid}{'X-OWM-CHARSET'}[0]{VALUE}, $prefs{charset}, $email) if ($is_convertable);
+                  ($email)=iconv($addresses{$xowmuid}{'X-OWM-CHARSET'}[0]{VALUE}, $prefs{charset}, $email);
 
                   foreach my $key (qw(TO CC BCC)) {
                      if (exists $addresses{$xowmuid}{'X-OWM-GROUP'} && $abookcollapse == 1) {
@@ -1365,11 +1358,6 @@ sub addrlistview {
    $temphtml = '';
    foreach my $addrindex ($firstaddr..$lastaddr) {
       my $xowmuid = $sorted_addresses[$addrindex];
-      my $is_convertable=0;
-      if (exists $addresses{$xowmuid}{'X-OWM-CHARSET'}[0]{VALUE}) {
-         $is_convertable=is_convertable($addresses{$xowmuid}{'X-OWM-CHARSET'}[0]{VALUE}, $prefs{charset});
-      }
-
       my $escapedaddrbook = ow::tool::escapeURL($addresses{$xowmuid}{'X-OWM-BOOK'}[0]{VALUE});
 
       my $editurl = qq|$config{'ow_cgiurl'}/openwebmail-abook.pl?action=|.
@@ -1432,8 +1420,7 @@ sub addrlistview {
                   foreach my $heading (grep(!m/^(to|cc|bcc)$/, @headings)) {
                      if (exists $addresses{$xowmuid}{N}[$index]{VALUE}{$Nmap{$heading}}) {
                         # do iconv on name prefix, first, middle, last, suffix
-                        my $s=$addresses{$xowmuid}{N}[$index]{VALUE}{$Nmap{$heading}};
-                        ($s)=iconv($addresses{$xowmuid}{'X-OWM-CHARSET'}[0]{VALUE}, $prefs{charset}, $s) if ($is_convertable);
+                        my ($s)=iconv($addresses{$xowmuid}{'X-OWM-CHARSET'}[0]{VALUE}, $prefs{charset}, $addresses{$xowmuid}{N}[$index]{VALUE}{$Nmap{$heading}});
                         if ($listviewmode eq '') {
                            $newrow[$headingpos{$heading}] .= qq|<td $td_bgcolorstr><a href="$editurl" $hreftitle>|.ow::htmltext::str2html($s).qq|</a></td>\n|;
                         } else {
@@ -1447,8 +1434,7 @@ sub addrlistview {
             # the fullname stuff
             if (exists $addresses{$xowmuid}{FN}) {
                if (defined $addresses{$xowmuid}{FN}[$index]) {
-                  my $s=$addresses{$xowmuid}{FN}[$index]{VALUE};
-                  ($s)=iconv($addresses{$xowmuid}{'X-OWM-CHARSET'}[0]{VALUE}, $prefs{charset}, $s) if ($is_convertable);
+                  my ($s)=iconv($addresses{$xowmuid}{'X-OWM-CHARSET'}[0]{VALUE}, $prefs{charset}, $addresses{$xowmuid}{FN}[$index]{VALUE});
                   if ($listviewmode eq '') {
                      $newrow[$headingpos{'fullname'}] .= qq|<td $td_bgcolorstr><a href="$editurl" $hreftitle>|.ow::htmltext::str2html($s).qq|</a></td>\n|;
                   } else {
@@ -1496,8 +1482,7 @@ sub addrlistview {
                         $email = "$addresses{$xowmuid}{EMAIL}[$index]{VALUE}";
                      }
                      # do iconv on the "name" part of the "name" <user@hostname>
-                     ($email)=iconv($addresses{$xowmuid}{'X-OWM-CHARSET'}[0]{VALUE}, $prefs{charset}, $email) if ($is_convertable);
-
+                     ($email)=iconv($addresses{$xowmuid}{'X-OWM-CHARSET'}[0]{VALUE}, $prefs{charset}, $email);
                      $escapedemail = ow::tool::escapeURL($email);
                      if ($listviewmode eq '') {
                         $newrow[$headingpos{'email'}] .= qq|<td $td_bgcolorstr nowrap><a href="$composeurl&amp;to=$escapedemail" title="$lang_text{'abook_listview_writemailto'}|.ow::htmltext::str2html($email).qq|">|.ow::htmltext::str2html($addresses{$xowmuid}{EMAIL}[$index]{VALUE}).qq|</a></td>\n|;
@@ -1517,7 +1502,7 @@ sub addrlistview {
                                            grep { !m/VOICE/ } keys %{$addresses{$xowmuid}{TEL}[$index]{TYPES}}
                                      );
                   my $s=$addresses{$xowmuid}{TEL}[$index]{VALUE};
-                  ($s)=iconv($addresses{$xowmuid}{'X-OWM-CHARSET'}[0]{VALUE}, $prefs{charset}, $s) if ($s=~/[^\d\-\+]/ && $is_convertable);
+                  ($s)=iconv($addresses{$xowmuid}{'X-OWM-CHARSET'}[0]{VALUE}, $prefs{charset}, $s) if ($s=~/[^\d\-\+]/);
                   if ($listviewmode eq '') {
                      $newrow[$headingpos{'phone'}] .= qq|<td $td_bgcolorstr nowrap><a href="$editurl">|.ow::htmltext::str2html("$s $typestag").qq|</a></td>\n|;
                   } else {
@@ -1529,10 +1514,9 @@ sub addrlistview {
             # the note stuff
             if (exists $addresses{$xowmuid}{NOTE}) {
                if (defined $addresses{$xowmuid}{NOTE}[$index]) {
-                  my $displaynote = $addresses{$xowmuid}{NOTE}[$index]{VALUE};
-                  ($displaynote)=iconv($addresses{$xowmuid}{'X-OWM-CHARSET'}[0]{VALUE}, $prefs{charset}, $displaynote) if ($is_convertable);
-
+                  my ($displaynote)=iconv($addresses{$xowmuid}{'X-OWM-CHARSET'}[0]{VALUE}, $prefs{charset}, $addresses{$xowmuid}{NOTE}[$index]{VALUE});
                   my $shortnote = $displaynote;
+
                   $shortnote = substr($shortnote,0,20) . "...";
                   $shortnote =~ s/</&lt;/g;
                   $shortnote =~ s/>/&gt;/g;
@@ -2084,7 +2068,7 @@ sub addreditform {
       $agentpath_str.="&nbsp;".iconlink($nextgif)."&nbsp;" if ($agentpath_str ne'');
       if ($agentpath[$i] eq '_NEW_') {
          $agentpath[$i] = $lang_text{'abook_editform_new_agent'};
-      } elsif ($agentpath_charset[$i] ne '' && is_convertable($agentpath_charset[$i], $composecharset)) {
+      } else {
          ($agentpath[$i])=iconv($agentpath_charset[$i], $composecharset, $agentpath[$i]) ;
       }
       $agentpath_str.= $agentpath[$i];
@@ -2574,11 +2558,7 @@ sub addreditform_KEYAGENT {
             my $agentvcard = readadrbook($targetfile, undef, undef);
             my $escapedabookfolder = ow::tool::escapeURL($abookfolder);
             foreach my $agentowmuid (keys %{$agentvcard}) {
-               my $s=$agentvcard->{$agentowmuid}{FN}[0]{VALUE};
-               if (is_convertable($agentvcard->{$agentowmuid}{'X-OWM-CHARSET'}[0]{VALUE}, $prefs{'charset'})) {
-                  ($s)=iconv($agentvcard->{$agentowmuid}{'X-OWM-CHARSET'}[0]{VALUE}, $prefs{'charset'}, $s);
-               }
-               $valuestring = "&nbsp;&nbsp;" . $s;
+               $valuestring = "&nbsp;&nbsp;".(iconv($agentvcard->{$agentowmuid}{'X-OWM-CHARSET'}[0]{VALUE}, $prefs{'charset'}, $agentvcard->{$agentowmuid}{FN}[0]{VALUE}))[0];
             }
             my $agenttarget = join(",",(1,(@{$r_targetagent}?@{$r_targetagent}:()),$index)); # the leading 1 sets 'access agent' mode
             $tablehtml .= iconlink("abook".lc($name).".gif", $lang_text{"abook_editform_download_$name"}, qq|href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrviewatt&amp;sessionid=$thissession&amp;file=$r_data->[$index]{VALUE}&amp;type=$type" target="_new"|).qq|\n|;
@@ -3072,12 +3052,6 @@ sub addreditform_to_vcard {
    # prepare to convert the character set if needed
    my $convfrom = param('convfrom');
    my $convto = param('X-OWM-CHARSET.0.VALUE');
-   my $convertchars = '';
-   if ($convfrom ne $convto && is_convertable($convfrom, $convto) ) {
-      $convertchars = sub { ($_[2]) = iconv($_[0], $_[1], $_[2]); return $_[2] };
-   } else {
-      $convertchars = sub { return $_[2] }; # do no conversion on the value
-   }
 
    print "<pre>INSIDE addreditform_to_vcard:\n</pre>" if $addrdebug;
 
@@ -3124,14 +3098,14 @@ sub addreditform_to_vcard {
                      $nest{$nestkeys[$pos]}[$nestkeys[$pos]] = $nest{$nestkeys[$pos+1]};
                      delete $nest{$nestkeys[$pos+1]};
                   } else { # there is no next one - assign value
-                     $nest{$nestkeys[$pos]}[$nestkeys[$pos]] = $convertchars->($convfrom, $convto, $value);
+                     $nest{$nestkeys[$pos]}[$nestkeys[$pos]] = (iconv($convfrom, $convto, $value))[0];
                   }
                } else { # this is a hash nest
                   if (defined $nestkeys[$pos+1]) { # there is a next one
                      $nest{$nestkeys[$pos]}{$nestkeys[$pos]} = $nest{$nestkeys[$pos+1]};
                      delete $nest{$nestkeys[$pos+1]};
                   } else { # there is no next one - assign value
-                     $nest{$nestkeys[$pos]}{$nestkeys[$pos]} = $convertchars->($convfrom, $convto, $value);
+                     $nest{$nestkeys[$pos]}{$nestkeys[$pos]} = (iconv($convfrom, $convto, $value))[0];
                   }
                }
                if ($pos == 0) {
@@ -3142,17 +3116,17 @@ sub addreditform_to_vcard {
                }
             }
          } else {
-            $formdata->{$xowmuid}{$propertyname}[$index]{VALUE} = $convertchars->($convfrom, $convto, $value);
+            $formdata->{$xowmuid}{$propertyname}[$index]{VALUE} = (iconv($convfrom, $convto, $value))[0];
          }
          #print "<pre>$field VALUE IS: " . Dumper($value) . "</pre>";
       } elsif ($datatype eq 'GROUP') {
          #print "<pre>$field GROUP IS: " . Dumper($value) . "</pre>";
-         $formdata->{$xowmuid}{$propertyname}[$index]{GROUP} = $convertchars->($convfrom, $convto, $value);
+         $formdata->{$xowmuid}{$propertyname}[$index]{GROUP} = (iconv($convfrom, $convto, $value))[0];
       } elsif ($datatype eq 'TYPE') {
          my @types = param($field);
          foreach my $type (@types) {
             #print "<pre>$field TYPE: $type</pre>";
-            $formdata->{$xowmuid}{$propertyname}[$index]{TYPES}{$convertchars->($convfrom, $convto, $type)} = 'TYPE';
+            $formdata->{$xowmuid}{$propertyname}[$index]{TYPES}{(iconv($convfrom, $convto, $type))[0]} = 'TYPE';
          }
       } else {
          openwebmailerror(__FILE__, __LINE__, "datatype $datatype is not supported");

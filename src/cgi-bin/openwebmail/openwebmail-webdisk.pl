@@ -936,9 +936,7 @@ sub wordpreview {		# msword text preview
       $err.=")\n$stderr";
       autoclosewindow("MS Word $lang_wdbutton{'preview'}", $err);
    } else {
-      if (is_convertable('utf-8', $prefs{'charset'}) ) {
-         ($stdout)=iconv('utf-8', $prefs{'charset'}, $stdout);
-      }
+      ($stdout)=iconv('utf-8', $prefs{'charset'}, $stdout);
       writelog("webdisk wordpreview - $vpath");
       writehistory("webdisk wordpreview - $vpath");
    }

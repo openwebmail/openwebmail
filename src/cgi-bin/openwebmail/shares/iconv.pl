@@ -9,7 +9,7 @@ require "modules/mime.pl";
 require "shares/iconv-chinese.pl";
 require "shares/iconv-japan.pl";
 
-use vars qw(%charset_convlist %charset_equiv %charset_localname %localname_cache);
+use vars qw(%charset_convlist %charset_equiv %charset_localname);
 
 # mapping www charset to all possible iconv charset on various platform
 %charset_localname=
@@ -48,6 +48,7 @@ use vars qw(%charset_convlist %charset_equiv %charset_localname %localname_cache
 %charset_equiv=
    (
    'big-5'          => 'big5',
+   'chinesebig5'    => 'big5',
    'gbk'            => 'gb2312',
    'iso-8859'       => 'iso-8859-1',
    'us-ascii'       => 'iso-8859-1',
@@ -97,86 +98,102 @@ use vars qw(%charset_convlist %charset_equiv %charset_localname %localname_cache
 			'windows-1256', 'windows-1257' ]
    );
 
-sub is_convertable {
-   my ($from, $to)=@_;
-   foreach my $charset ($from, $to) {
-      $charset=lc($charset);
-      $charset=~s/iso_?8859/iso\-8859/;
-      $charset=$charset_equiv{$charset} if (defined($charset_equiv{$charset})); 
-   }
-
-   return 1 if ($from eq 'big5' && $to eq 'gb2312');
-   return 1 if ($from eq 'gb2312' && $to eq 'big5');
-   return 1 if ($from eq 'shift_jis' && $to eq 'iso-2022-jp');
-   return 1 if ($from eq 'iso-2022-jp' && $to eq 'shift_jis');
-   return 1 if ($from eq 'shift_jis' && $to eq 'euc-jp');
-   return 1 if ($from eq 'euc-jp' && $to eq 'shift_jis');
-
-   return 0 if ( !defined($charset_convlist{$to}) );
-   foreach my $charset (@{$charset_convlist{$to}}) {
-      if ($from=~/$charset/) {
-         my $converter=iconv_open($charset, $to);
-         return 0 if (! $converter);
-         $converter='';
-         return 1;
-      }
-   }
-   return 0;
-}
 
 sub iconv {
    my ($from, $to, @text)=@_;
-   foreach my $charset ($from, $to) {
-      $charset=lc($charset);
-      $charset=~s/iso_?8859/iso\-8859/;
-      $charset=$charset_equiv{$charset} if (defined($charset_equiv{$charset})); 
-   }
+   return (@text) if (!is_convertable($from, $to));
 
-   my $converter = iconv_open($from, $to);
-   my @result;
+   $from=official_charset($from);
+   $to=official_charset($to);
 
    for (my $i=0; $i<=$#text; $i++) {
-      if ($text[$i]!~/[^\s]/) {
-         $result[$i]=$text[$i]; next;
-      }
+      next if ($text[$i]!~/[^\s]/);
+
       # try convertion routine in iconv-chinese, iconv-japan first
       if ($from  eq 'big5' && $to eq 'gb2312' ) {
-         $result[$i]=b2g($text[$i]); next;
+         $text[$i]=b2g($text[$i]); next;
       } elsif ($from eq 'gb2312' && $to eq 'big5' ) {
-         $result[$i]=g2b($text[$i]); next;
+         $text[$i]=g2b($text[$i]); next;
       } elsif ($from eq 'shift_jis' && $to eq 'iso-2022-jp' ) {
-         $result[$i]=$text[$i]; sjis2jis(\$result[$i]); next;
+         sjis2jis(\$text[$i]); next;
       } elsif ($from eq 'iso-2022-jp' && $to eq 'shift_jis' ) {
-         $result[$i]=$text[$i]; jis2sjis(\$result[$i]); next;
+         jis2sjis(\$text[$i]); next;
       } elsif ($from eq 'shift_jis' && $to eq 'euc-jp' ) {
-         $result[$i]=$text[$i]; sjis2euc(\$result[$i]); next;
+         sjis2euc(\$text[$i]); next;
       } elsif ($from eq 'euc-jp' && $to eq 'shift_jis' ) {
-         $result[$i]=$text[$i]; euc2sjis(\$result[$i]); next;
-      }
-      if ($converter) {
-         my @line=split(/\n/, $text[$i]);
-         for (my $j=0; $j<=$#line; $j++) {
-            next if ($line[$j]=~/^\s*$/);
-            my $converted=$converter->convert($line[$j]);
-            if ($converted ne '') {
-               $line[$j]=$converted;
-            } else {
-               # add [charset?] at the beginning if covert failed
-               $line[$j]="[".uc($from)."?]".$line[$j];
-               $converter='';	# free mem?
-               $converter = iconv_open($from, $to);
-            }
-         }
-         $result[$i]=join("\n", @line);
+         euc2sjis(\$text[$i]); next;
       } else {
-         $result[$i]=$text[$i];
+         $text[$i]=~s/(.*?\s+|.+)/_iconv($from, $to, $1)/egis;
       }
    }
-   $converter='';
-   return (@result);
+
+   return (@text);
+}
+# this routine try to keep opened iconv handle to speedup repeated conversion
+use vars qw($_iconv_handle $_iconv_tag);
+sub _iconv {
+   my ($from, $to, $s)=@_;
+   if ($_iconv_handle eq '' || $_iconv_tag ne "$from#$to" ) {
+      $_iconv_handle=iconv_open($from, $to);
+      $_iconv_tag = "$from#$to" if ($_iconv_handle ne '');
+   }
+   return $s if ($_iconv_handle eq '');		# no supported charset?
+
+   my $converted=$_iconv_handle->convert($s);
+   if ($converted ne '') {
+      return $converted;
+   } else {
+      $_iconv_handle='';   			# terminate converter
+      return "[".uc($from)."?]".$s;	# add [charset?] at the beginning if covert failed
+   }
 }
 
-%localname_cache=();
+
+sub official_charset {
+   my $charset=lc($_[0]);
+   $charset=~s/iso_?8859/iso\-8859/;
+   $charset=$charset_equiv{$charset} if (defined($charset_equiv{$charset})); 
+   return $charset;
+}
+
+
+use vars qw(%is_convertable_cache); 
+%is_convertable_cache=(
+   'big5#gb2312' => 1,
+   'gb2312#big5' => 1,
+   'shift_jis#isp-2022-jp' => 1,
+   'iso-2022-jp#euc-jp' => 1,
+   'euc-jp#shift_jis' => 1
+);
+sub is_convertable {
+   my ($from, $to)=@_;
+   return 0 if ($from eq'' || $to eq '');
+
+   $from=official_charset($from);
+   $to=official_charset($to);
+   return 0 if ($from eq $to || 			# not necessary
+                !defined $charset_convlist{$to} || 	# unrecognized to charset
+                !defined $charset_convlist{$from});	# unrecognized from charset
+   return 1 if ($from eq 'utf-8' || $to eq 'utf-8');	# utf8 is convertable with any charset
+
+   if (!defined $is_convertable_cache{"$from#$to"}) {
+      $is_convertable_cache{"$from#$to"}=0;
+      foreach my $charset (@{$charset_convlist{$to}}) {	# try all possible from charset
+         if ($from eq $charset) {
+            my $converter;
+            if ($converter=iconv_open($charset, $to)) {
+               $is_convertable_cache{"$from#$to"}=1;
+               $converter='';
+            }
+            last;
+         }
+      }
+   }
+   return $is_convertable_cache{"$from#$to"};
+}
+
+
+use vars qw(%localname_cache); %localname_cache=();
 sub iconv_open {
    my ($from, $to)=@_;
 

@@ -686,10 +686,7 @@ sub composemessage {
                        "<b>------- End of Original Message -------</b><br>\n";
             }
          }
-
-         if (is_convertable($convfrom, $composecharset) ) {
-            ($body, $subject, $to, $cc)=iconv($convfrom, $composecharset, $body,$subject,$to,$cc);
-         }
+         ($body, $subject, $to, $cc)=iconv($convfrom, $composecharset, $body,$subject,$to,$cc);
 
          $replyto = $prefs{'replyto'} if (defined($prefs{'replyto'}));
          $inreplyto = $message{'message-id'};
@@ -758,10 +755,7 @@ sub composemessage {
                     ow::htmltext::text2html($h)."<br>$body<br>".
                     "<b>------- End of Forwarded Message -------</b><br>\n";
          }
-
-         if (is_convertable($convfrom, $composecharset) ) {
-            ($body, $subject)=iconv($convfrom, $composecharset, $body,$subject);
-         }
+         ($body, $subject)=iconv($convfrom, $composecharset, $body,$subject);
 
          my $n="\n"; $n="<br>" if ($msgformat ne 'text');
          $body .= $n.$n;
@@ -780,9 +774,7 @@ sub composemessage {
       } elsif ($composetype eq "forwardasorig") {
          $subject = $message{'subject'} || '';
          $replyto = $message{'from'};
-         if (is_convertable($convfrom, $composecharset) ) {
-            ($body, $subject, $replyto)=iconv($convfrom, $composecharset, $body,$subject,$replyto);
-         }
+         ($body, $subject, $replyto)=iconv($convfrom, $composecharset, $body,$subject,$replyto);
 
          $references = $message{'references'};
          $priority = $message{'priority'} if (defined($message{'priority'}));
@@ -800,9 +792,8 @@ sub composemessage {
          $cc = $message{'cc'} if (defined($message{'cc'}));
          $bcc = $message{'bcc'} if (defined($message{'bcc'}));
          $replyto = $message{'reply-to'} if (defined($message{'reply-to'}));
-         if (is_convertable($convfrom, $composecharset) ) {
-            ($body, $subject, $to, $cc, $bcc, $replyto)=iconv($convfrom, $composecharset, $body,$subject,$to,$cc,$bcc,$replyto);
-         }
+         ($body, $subject, $to, $cc, $bcc, $replyto)=
+            iconv($convfrom, $composecharset, $body,$subject,$to,$cc,$bcc,$replyto);
 
          $inreplyto = $message{'in-reply-to'};
          $references = $message{'references'};
@@ -870,9 +861,7 @@ sub composemessage {
 
       $subject = $attr[$_SUBJECT];
       $subject = "Fw: " . $subject unless ($subject =~ /^fw:/i);
-      if (is_convertable($attr[$_CHARSET], $composecharset) ) {
-         ($subject)=iconv($attr[$_CHARSET], $composecharset, $subject);
-      }
+      ($subject)=iconv($attr[$_CHARSET], $composecharset, $subject);
 
       $inreplyto = $message{'message-id'};
       if ( $message{'references'} ne "" ) {
@@ -954,10 +943,9 @@ sub composemessage {
       $newmsgformat='text' if ($newmsgformat eq 'auto');
 
       my $convto=param('convto')||'';
-      if ($composecharset ne $convto && is_convertable($composecharset, $convto) ) {
-         ($body, $subject, $from, $to, $cc, $bcc, $replyto)=iconv($composecharset, $convto,
-                                                     $body,$subject,$from,$to,$cc,$bcc,$replyto);
-      }
+      ($body, $subject, $from, $to, $cc, $bcc, $replyto)=
+         iconv($composecharset, $convto, $body,$subject,$from,$to,$cc,$bcc,$replyto);
+
       foreach (values %ow::lang::languagecharsets, keys %charset_convlist) {
          if ($_ eq $convto) {
             $composecharset=$_; last;
@@ -1153,11 +1141,9 @@ sub composemessage {
          if (${${$r_attfiles}[$i]}{name}=~/\.(?:txt|jpg|jpeg|gif|png|bmp)$/i) {
             $blank="target=_blank";
          }
-         if (${${$r_attfiles}[$i]}{namecharset} &&
-             is_convertable(${${$r_attfiles}[$i]}{namecharset}, $composecharset) ) {
-            (${${$r_attfiles}[$i]}{name})=iconv(${${$r_attfiles}[$i]}{namecharset}, $composecharset,
-                                             ${${$r_attfiles}[$i]}{name});
-         }
+         (${${$r_attfiles}[$i]}{name})=
+            iconv(${${$r_attfiles}[$i]}{namecharset}, $composecharset, ${${$r_attfiles}[$i]}{name});
+
          my $attsize=${${$r_attfiles}[$i]}{size};
          if ($attsize > 1024) {
             $attsize=int($attsize/1024)."$lang_sizes{'kb'}";
@@ -1561,10 +1547,9 @@ sub sendmessage {
    }
 
    # convert message to prefs{'sendcharset'}
-   if ($prefs{'sendcharset'} ne 'sameascomposing' &&
-       is_convertable($composecharset, $prefs{'sendcharset'}) ) {
-      ($from,$replyto,$to,$cc,$subject,$body)=iconv($composecharset, $prefs{'sendcharset'},
-   						$from,$replyto,$to,$cc,$subject,$body);
+   if ($prefs{'sendcharset'} ne 'sameascomposing') {
+      ($from,$replyto,$to,$cc,$subject,$body)=
+         iconv($composecharset, $prefs{'sendcharset'}, $from,$replyto,$to,$cc,$subject,$body);
       $composecharset=$prefs{'sendcharset'};
    }
 
@@ -2178,10 +2163,7 @@ sub sendmessage {
          # in case user trys resend, attachments could be available
          deleteattachments();
 
-         my $sentsubject=$subject||'N/A';
-         if (is_convertable($composecharset, $prefs{'charset'}) ) {
-            ($sentsubject)=iconv($composecharset, $prefs{'charset'}, $sentsubject);
-         }
+         my ($sentsubject)=iconv($composecharset, $prefs{'charset'}, $subject||'N/A');
          $sentsubject=ow::tool::escapeURL($sentsubject);
          print redirect(-location=>"$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&sessionid=$thissession&sort=$sort&folder=$escapedfolder&page=$page&sentsubject=$sentsubject");
       } else {

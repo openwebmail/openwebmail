@@ -145,11 +145,8 @@ sub search_info_messages_for_keyword {
          next if ($ignore_internal && is_internal_subject($attr[$_SUBJECT]));
          @references=split(/\s+/, $attr[$_REFERENCES]);
 
-         my $is_conv=is_convertable($attr[$_CHARSET], $prefs_charset);
-         if ($is_conv) {
-            ($attr[$_FROM], $attr[$_TO], $attr[$_SUBJECT])=
+         ($attr[$_FROM], $attr[$_TO], $attr[$_SUBJECT])=
                iconv($attr[$_CHARSET], $prefs_charset, $attr[$_FROM], $attr[$_TO], $attr[$_SUBJECT]);
-         }
 
          # check subject, from, to, date
          if ( ( ($searchtype eq 'all' ||
@@ -197,7 +194,7 @@ sub search_info_messages_for_keyword {
             }
             $header = decode_mimewords_iconv($header, $attr[$_CHARSET]);
             $header=~s/\n / /g;	# handle folding roughly
-            ($header)=iconv($attr[$_CHARSET], $prefs_charset, $header) if ($is_conv);
+            ($header)=iconv($attr[$_CHARSET], $prefs_charset, $header);
 
             if ( ($regexmatch && $header =~ /$keyword/im) ||
                  $header =~ /\Q$keyword\E/im ) {
@@ -227,7 +224,7 @@ sub search_info_messages_for_keyword {
                } elsif ($header =~ /content-transfer-encoding:\s+x-uuencode/i) {
                   $body = ow::mime::uudecode($body);
                }
-               ($body)=iconv($attr[$_CHARSET], $prefs_charset, $body) if ($is_conv);
+               ($body)=iconv($attr[$_CHARSET], $prefs_charset, $body);
                if ( ($regexmatch && $body =~ /$keyword/im) ||
                     $body =~ /\Q$keyword\E/im ) {
                   $new++ if ($attr[$_STATUS]!~/R/i);
@@ -251,9 +248,7 @@ sub search_info_messages_for_keyword {
                      $content=${${$r_attachment}{r_content}};
                   }
                   my $attcharset=${$r_attachment}{charset}||$attr[$_CHARSET];
-                  if (is_convertable($attcharset, $prefs_charset)) {
-                     ($content)=iconv($attcharset, $prefs_charset, $content);
-                  }
+                  ($content)=iconv($attcharset, $prefs_charset, $content);
 
                   if ( ($regexmatch && $content =~ /$keyword/im) ||
                        $content =~ /\Q$keyword\E/im ) {
@@ -269,11 +264,9 @@ sub search_info_messages_for_keyword {
 	 # check attfilename
          if ($searchtype eq 'all' || $searchtype eq 'attfilename') {
             foreach my $r_attachment (@{$r_attachments}) {
-               my $filename=${$r_attachment}{filename};
                my $attcharset=${$r_attachment}{filenamecharset}||${$r_attachment}{charset}||$attr[$_CHARSET];
-               if (is_convertable($attcharset, $prefs_charset)) {
-                  ($filename)=iconv($attcharset, $prefs_charset, $filename);
-               }
+               my ($filename)=iconv($attcharset, $prefs_charset, ${$r_attachment}{filename});
+
                if ( ($regexmatch && $filename =~ /$keyword/im) ||
                     $filename =~ /\Q$keyword\E/im ) {
                   $new++ if ($attr[$_STATUS]!~/R/i);

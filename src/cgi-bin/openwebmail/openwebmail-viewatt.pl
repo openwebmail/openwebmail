@@ -147,10 +147,7 @@ sub getattachment {
 
    if ( $nodeid eq 'all' ) {
       # return whole msg as an message/rfc822 object
-      my $subject = $attr[$_SUBJECT];
-      if (is_convertable($convfrom, $prefs{'charset'}) ) {
-         ($subject)=iconv($convfrom, $prefs{'charset'}, $subject);
-      }
+      my ($subject) = iconv($convfrom, $prefs{'charset'}, $attr[$_SUBJECT]);
       $subject =~ s/\s+/_/g;
 
       my $length = length($block);
@@ -226,9 +223,7 @@ sub getattachment {
 #            $content = ow::htmlrender::html4mailto($content, "$config{'ow_cgiurl'}/openwebmail-send.pl", "action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page&amp;sessionid=$thissession&amp;composetype=sendto");
          }
 
-         if (is_convertable($charset, $prefs{'charset'})) {
-            ($filename)=iconv($charset, $prefs{'charset'}, $filename);
-         }
+         ($filename)=iconv($charset, $prefs{'charset'}, $filename);
          # remove char disallowed in some fs
          if ($prefs{'charset'} eq 'big5' || $prefs{'charset'} eq 'gb2312') {
             $filename = ow::tool::zh_dospath2fname($filename, '_');	# dos path

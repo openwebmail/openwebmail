@@ -527,11 +527,8 @@ sub listmessages {
          # assume msg is from sender using same language as the recipient's browser
          $charset=$ow::lang::languagecharsets{ow::lang::guess_language()};
       }
-
       # convert from mesage charset to current user charset
-      if (is_convertable($charset, $prefs{'charset'})) {
-         ($from, $to, $subject)=iconv($charset, $prefs{'charset'}, $from, $to, $subject);
-      }
+      ($from, $to, $subject)=iconv($charset, $prefs{'charset'}, $from, $to, $subject);
 
       $linehtml=$linetemplate;
       if ($prefs{'uselightbar'}) {
@@ -1013,10 +1010,8 @@ sub eventreminder_html {
                } else {
                   $t='#';
                }
-               $s=$items{$index}{'string'};
-               if (is_convertable($items{$index}{'charset'}, $prefs{'charset'})) {
-                  ($s)=iconv($items{$index}{'charset'}, $prefs{'charset'}, $s);
-               }
+
+               ($s)=iconv($items{$index}{'charset'}, $prefs{'charset'}, $items{$index}{'string'});
                $s=substr($s,0,20).".." if (length($s)>=21);
                $s.='*' if ($index>=1E6);
                $dayhtml.=qq|&nbsp; | if $dayhtml ne "";

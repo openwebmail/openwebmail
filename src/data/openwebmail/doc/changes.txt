@@ -1,3 +1,10 @@
+11/08/2004
+----------
+1. refine the iconv routine and clean related code
+2. remove debugging code
+3. fix a bug in refined iconv routine
+
+
 11/07/2004
 ----------
 1. add charset support in calendar, so user can read/write a calendar

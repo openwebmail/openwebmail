@@ -37,30 +37,24 @@ sub iconv {
    my ($from, $to, @text)=@_;
    $from=lc($from); $to=lc($to);
 
-   my @result;
-
    for (my $i=0; $i<=$#text; $i++) {
-      if ($text[$i]!~/[^\s]/) {
-         $result[$i]=$text[$i]; next;
-      }
+      next if ($text[$i]!~/[^\s]/);
       # try convertion routine in iconv-chinese, iconv-japan first
       if ($from  eq 'big5' && ($to eq 'gb2312'||$to eq 'gbk') ) {
-         $result[$i]=b2g($text[$i]); next;
+         $text[$i]=b2g($text[$i]); next;
       } elsif (($from eq 'gb2312'||$from eq 'gbk') && $to eq 'big5' ) {
-         $result[$i]=g2b($text[$i]); next;
+         $text[$i]=g2b($text[$i]); next;
       } elsif ($from eq 'shift_jis' && $to eq 'iso-2022-jp' ) {
-         $result[$i]=$text[$i]; sjis2jis(\$result[$i]); next;
+         sjis2jis(\$text[$i]); next;
       } elsif ($from eq 'iso-2022-jp' && $to eq 'shift_jis' ) {
-         $result[$i]=$text[$i]; jis2sjis(\$result[$i]); next;
+         jis2sjis(\$text[$i]); next;
       } elsif ($from eq 'shift_jis' && $to eq 'euc-jp' ) {
-         $result[$i]=$text[$i]; sjis2euc(\$result[$i]); next;
+         sjis2euc(\$text[$i]); next;
       } elsif ($from eq 'euc-jp' && $to eq 'shift_jis' ) {
-         $result[$i]=$text[$i]; euc2sjis(\$result[$i]); next;
-      } else {
-         $result[$i]=$text[$i];
+         euc2sjis(\$text[$i]); next;
       }
    }
-   return (@result);
+   return (@text);
 }
 
 1;

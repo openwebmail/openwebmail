@@ -260,10 +260,8 @@ sub readmessage {
 
    }
 
-   if (is_convertable($convfrom, $readcharset) ) {
-      ($from,$replyto,$to,$cc,$bcc,$subject,$body)
+   ($from,$replyto,$to,$cc,$bcc,$subject,$body)
 	=iconv($convfrom, $readcharset, $from,$replyto,$to,$cc,$bcc,$subject,$body);
-   }
 
    # web-ified headers
    foreach ($from, $replyto, $to, $cc, $bcc, $subject) { $_=ow::htmltext::str2html($_); }
@@ -456,7 +454,7 @@ sub readmessage {
       }
 
       $cf=lc($message{'charset'});	# readmsg with prefs charset and conversion
-      if ($cf ne "" && $cf ne $prefs{'charset'} && is_convertable($cf, $prefs{'charset'})) {
+      if (is_convertable($cf, $prefs{'charset'})) {
          push(@cflist, $cf); $cflabels{$cf}="$cf > $prefs{'charset'}";
          delete $allsets{$cf};
       }
@@ -634,9 +632,7 @@ sub readmessage {
       } else {
          $temphtml = decode_mimewords_iconv($message{header}, $convfrom);
       }
-      if (is_convertable($convfrom, $readcharset) ) {
-         ($temphtml)=iconv($convfrom, $readcharset, $temphtml);
-      }
+      ($temphtml)=iconv($convfrom, $readcharset, $temphtml);
       $temphtml = ow::htmltext::text2html($temphtml);
       $temphtml =~ s/\n([-\w]+?:)/\n<B>$1<\/B>/g;
    } else {
@@ -798,15 +794,15 @@ sub readmessage {
                  $onlyone_att ) {
                my $content;
                if ( ${$message{attachment}[$attnumber]}{'content-type'}=~ /^text\/html/i ) {
-                  $content=html_att2table($message{attachment}, $attnumber, $attcharset, $readcharset,
+                  $content=html_att2table($message{attachment}, $attnumber, $attcharset||$convfrom, $readcharset,
 					$escapedmessageid, $showhtmlastext);
                   $is_htmlmsg=1;
                } elsif ( ${$message{attachment}[$attnumber]}{'content-type'}=~ /^text\/enriched/i ) {
-                  $content=enriched_att2table($message{attachment}, $attnumber, $attcharset, $readcharset,
+                  $content=enriched_att2table($message{attachment}, $attnumber, $attcharset||$convfrom, $readcharset,
 					$showhtmlastext);
                   $is_htmlmsg=1;
                } else {
-                  $content=text_att2table($message{attachment}, $attnumber, $attcharset, $readcharset);
+                  $content=text_att2table($message{attachment}, $attnumber, $attcharset||$convfrom, $readcharset);
                }
                $temphtml .= $content;
             } else {
@@ -822,11 +818,11 @@ sub readmessage {
 					$escapedmessageid);
          } elsif ( ${$message{attachment}[$attnumber]}{'content-type'}=~ /^message\/partial/i ) {
             # fragmented message
-            $temphtml .= misc_att2table($message{attachment}, $attnumber, $attcharset, $readcharset,
+            $temphtml .= misc_att2table($message{attachment}, $attnumber, $attcharset||$convfrom, $readcharset,
 					$escapedmessageid);
          } elsif ( ${$message{attachment}[$attnumber]}{'content-type'}=~ /^message/i ) {
             # always show message/... attachment
-            $temphtml .= message_att2table($message{attachment}, $attnumber, $attcharset, $readcharset,
+            $temphtml .= message_att2table($message{attachment}, $attnumber, $attcharset||$convfrom, $readcharset,
 					$style{"window_dark"});
          } elsif ( ${$message{attachment}[$attnumber]}{filename}=~ /\.(?:jpg|jpeg|gif|png|bmp)$/i ) {
             # show image only if it is not referenced by other html
@@ -1023,9 +1019,8 @@ sub html_att2table {
                   "action=composemessage&amp;message_id=$escapedmessageid&amp;compose_caller=read");
    }
    $temphtml = ow::htmlrender::html2table($temphtml);
-   if (is_convertable($attcharset, $readcharset)) {
-      ($temphtml)=iconv($attcharset, $readcharset, $temphtml);
-   }
+   ($temphtml)=iconv($attcharset, $readcharset, $temphtml);
+
    return($temphtml);
 }
 
@@ -1053,9 +1048,8 @@ sub enriched_att2table {
       $temphtml =~ s/<a href=/<a class=msgbody href=/ig;
    }
    $temphtml = ow::htmlrender::html2table($temphtml);
-   if (is_convertable($attcharset, $readcharset)) {
-      ($temphtml)=iconv($attcharset, $readcharset, $temphtml);
-   }
+   ($temphtml)=iconv($attcharset, $readcharset, $temphtml);
+
    return($temphtml);
 }
 
@@ -1087,9 +1081,8 @@ sub text_att2table {
       $temptext = ow::htmltext::text2html($temptext);
    }
    $temptext =~ s/<a href=/<a class=msgbody href=/ig;
-   if (is_convertable($attcharset, $readcharset)) {
-      ($temptext)=iconv($attcharset, $readcharset, $temptext);
-   }
+   ($temptext)=iconv($attcharset, $readcharset, $temptext);
+
    return($temptext. "<BR>");
 }
 
@@ -1137,10 +1130,7 @@ sub message_att2table {
       $body = ow::htmltext::text2html($body);
       $body =~ s/<a href=/<a class=msgbody href=/ig;
    }
-
-   if (is_convertable($attcharset, $readcharset)) {
-      ($header, $body)=iconv($attcharset, $readcharset, $header, $body);
-   }
+   ($header, $body)=iconv($attcharset, $readcharset, $header, $body);
 
    # header lang_text replacement should be done after iconv
    $header=~s!Date: !<B>$lang_text{'date'}:</B> !i;
@@ -1169,10 +1159,7 @@ sub image_att2table {
    my $r_attachment=${$r_attachments}[$attnumber];
    my $filename=${$r_attachment}{filename};
    my $description=${$r_attachment}{'content-description'};
-
-   if (is_convertable($attcharset, $readcharset)) {
-      ($filename, $description)=iconv($attcharset, $readcharset, $filename, $description);
-   }
+   ($filename, $description)=iconv($attcharset, $readcharset, $filename, $description);
 
    my $attlen=lenstr(${$r_attachment}{'content-length'},1);
    my $nodeid=${$r_attachment}{nodeid};
@@ -1220,10 +1207,7 @@ sub misc_att2table {
          $description.= ", ${$r_attachment}{'content-description'}";
       }
    }
-
-   if (is_convertable($attcharset, $readcharset)) {
-      ($filename, $description)=iconv($attcharset, $readcharset, $filename, $description);
-   }
+   ($filename, $description)=iconv($attcharset, $readcharset, $filename, $description);
 
    my $escapedfilename = ow::tool::escapeURL($filename);
    my $attlen=lenstr(${$r_attachment}{'content-length'},1);
