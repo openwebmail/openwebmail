@@ -57,7 +57,7 @@ sub lockget_message_header {
    return($size-1, $errmsg) if ($size<0);
 
    if (substr(${$r_header}, 0, 5) ne 'From ' ||
-      substr(${$r_header}, $size-1, 1) ne "\n") {	# msg should end with blank line
+      substr(${$r_header}, $size-1, 1) ne "\n") {	# msg header should end with \n
       return(-5, "msg $messageid in $folderfile index inconsistence");
    }
    return($size, '');
@@ -85,7 +85,7 @@ sub lockget_message_block {
    return($size-1, $errmsg) if ($size<0);
 
    if (substr(${$r_block}, 0, 5) ne 'From ' ||
-      substr(${$r_block}, $size-2, 2) ne "\n\n") {	# msg should end with blank line
+      substr(${$r_block}, $size-1, 1) ne "\n") {	# msg should end with \n
       return(-5, "msg $messageid in $folderfile index inconsistence");
    }
    return($size, '');

@@ -879,7 +879,7 @@ then we bypass the smart filters check for this message.
 Set this to 'no' if you hope to apply smart filters on these good messages
 
 
-log_filtermove_detail
+log_filter_detail
 -----------------------------------------------------------------------
 If this option is set to yes, each message movement by mailfilter will
 be logged

@@ -1,3 +1,15 @@
+10/22/2004
+----------
+1. fix the problem that openwebmail didn't recognize messages properly
+   if the message is not delimited with a leading blank line
+   (thanks to tigeli, pasi.sjoholm.AT.tieto-x.fi for his report and patch)
+2. rename option log_filtermove_detail to log_filter_detail
+   as this option logs more generic information of filters now
+ps:If you encounter any problem with mail filtering,
+   please set this option to yes in your openwebmail.conf first.
+   Then check the information in openwebmail.log later.
+
+
 10/20/2004
 ----------
 1. add option enable_advsearch, enable_userfolders to openwebmail.conf

@@ -60,6 +60,11 @@ use vars qw(%is_internal_dbkey);
 use vars qw($BUFF_blocksize);
 $BUFF_blocksize=32768;
 
+use vars qw($BUFF_filehandle $BUFF_filestart $BUFF_fileoffset $BUFF_start $BUFF_size $BUFF_buff $BUFF_EOF);
+use vars qw($BUFF_blocksizemax $BUFF_regex);
+$BUFF_blocksizemax=$BUFF_blocksize+512;
+$BUFF_regex=qr/^From .*(\w\w\w)\s+(\w\w\w)\s+(\d+)\s+(\d+):(\d+):?(\d*)\s+([A-Z]{3,4}\d?\s+)?(\d\d+)/;
+
 ########## UPDATE_FOLDERDB #######################################
 # this routine indexes the mesgs in folder and mark duplicated msgs with Z (to be zapped)
 sub update_folderindex {
@@ -198,9 +203,9 @@ sub update_folderindex {
             $is_last_ok=1;
          } else {
             # did the last valid header match end at the start at a new message?
-            seek( $folderhandle, $totalsize+$lastsize-2, 0 );
-            my $buff; read($folderhandle, $buff, 7);
-            $is_last_ok=1 if ($buff eq "\n\nFrom ");
+            seek( $folderhandle, $totalsize+$lastsize-1, 0 );
+            my $buff; read($folderhandle, $buff, 6);
+            $is_last_ok=1 if ($buff eq "\nFrom ");
          }
          if ($is_last_ok) {
             $FDB{$lastid}=$OLDFDB{$lastid};
@@ -449,7 +454,7 @@ sub _get_next_msgheader_buffered {
    return ($offset, \$content);
 }
 
-# search the buffered file for a block of text (delimited by \n\n)
+# search the buffered file for a block of text (delimited by '\n\n' or '\nFrom ')
 # we're only interested in returning the first 500 or less bytes of the block
 sub _skip_to_next_text_block {
    my $block_content='';
@@ -459,11 +464,29 @@ sub _skip_to_next_text_block {
 
    # we're done if this is the next message block
    if ( buffer_startmsgchk(0)<0 ) {
+
+      # finst 1st occurance of "\n\n" or "\nFrom "
+      my $pos=-1;
+      my $pos1=buffer_index("\n\n", 1);
+      my $pos2=buffer_index("\nFrom ", 1);
+      if ($pos1>=0 && $pos2>=0) {
+         $pos=($pos1<$pos2)?$pos1:$pos2;
+      } elsif ($pos1>=0) {	# pos2<0, means not found
+         $pos=$pos1;
+      } elsif ($pos2>=0) {	# pos1<0, means not found
+         $pos=$pos2; 
+      }
+
       # get max 500 chars or to the end of the block
-      $block_content=buffer_getchars(500,"\n\n");
-      # skip to the next block end
-      my $pos=buffer_index("\n\n");
-      buffer_skipchars($pos);
+      # then skip to the next block start
+      if ($pos>500) {
+         $block_content=buffer_getchars(500);
+         buffer_skipchars($pos-500);
+      } elsif ($pos>=0) {
+         $block_content=buffer_getchars($pos);
+      } else { # pos==-1 means not found until eof
+         $block_content=buffer_getchars(500);	
+      }
    }
 
    return ($block_content);
@@ -1375,10 +1398,6 @@ sub is_msgattr_consistent_with_folder {
 ########## BUFFERED FILE PROCESSING ##############################
 # use buffered file reads to quickly scan through a mail file for the next message header
 
-use vars qw($BUFF_filehandle $BUFF_filestart $BUFF_fileoffset $BUFF_start $BUFF_size $BUFF_buff $BUFF_EOF);
-use vars qw($BUFF_blocksizemax $BUFF_regex);
-$BUFF_blocksizemax=$BUFF_blocksize+512;
-$BUFF_regex=qr/^From .*(\w\w\w)\s+(\w\w\w)\s+(\d+)\s+(\d+):(\d+):?(\d*)\s+([A-Z]{3,4}\d?\s+)?(\d\d+)/;
 
 sub buffer_reset {
    ($BUFF_filehandle, $BUFF_filestart)=@_;
@@ -1412,9 +1431,10 @@ sub buffer_startmsgchk {
 
    # verify preceding new line characters
    # if this fails, bump the position to invalidate it
-   if ( $pos>1 ) {
-      $pos++ if (substr($BUFF_buff, $pos-2, 2) ne "\n\n");
-   } elsif ( $pos==1 ) {
+#   if ( $pos>1 ) {
+#      $pos++ if (substr($BUFF_buff, $pos-2, 2) ne "\n\n");
+#   } elsif ( $pos==1 ) {
+   if ( $pos>=1 ) {
       $pos++ if (substr($BUFF_buff, $pos-1, 1) ne "\n");
    }
 

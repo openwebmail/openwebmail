@@ -42,7 +42,7 @@ foreach (qw(
    enable_preference enable_setforward enable_strictforward
    enable_autoreply enable_strictfoldername enable_stationery
    enable_globalfilter enable_userfilter enable_smartfilter
-   smartfilter_bypass_goodmessage log_filtermove_detail
+   smartfilter_bypass_goodmessage log_filter_detail
    enable_viruscheck enable_spamcheck enable_learnspam
    has_virusfolder_by_default has_spamfolder_by_default
    enable_pop3 pop3_delmail_by_default pop3_delmail_hidden pop3_usessl_by_default
