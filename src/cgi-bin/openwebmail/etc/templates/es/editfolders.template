@@ -10,7 +10,7 @@
 @@@USERFOLDERSSTART@@@
 <tr><td colspan="5">&nbsp;</td></tr>
 <tr><td bgcolor=@@@COLUMNHEADER@@@>&nbsp;
-<B>Nombre de la Bandeja (m&aacute;x. @@@FOLDERNAME_MAXLEN@@@ caracteres)</B></td>
+<B>Nombre (m&aacute;x. @@@FOLDERNAME_MAXLEN@@@ caracteres)</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Nuevos</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>

@@ -12,7 +12,7 @@ diff -ruN suidperl/openwebmail-advsearch.pl speedycgi/openwebmail-advsearch.pl
 +++ speedycgi/openwebmail-advsearch.pl	Wed Jan 26 22:42:24 2005
 @@ -1,4 +1,4 @@
 -#!/usr/bin/suidperl -T
-+#!/usr/local/bin/speedy_suidperl -T -- -T/var/run/speedy_advsearch
++#!/usr/local/bin/speedy_suidperl -T -- -T/var/run/speedy_advsrch
  #
  # openwebmail-adsearch.pl - advanced search program
  #

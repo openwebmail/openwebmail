@@ -55,7 +55,7 @@ HTMLArea.I18N = {
 		indent:         "Uveæaj razmak",
 		forecolor:      "Boja fonta",
 		hilitecolor:    "Boja pozadine",
-		horizontalrule: "Horizontalna linija",
+		inserthorizontalrule: "Horizontalna linija",
 		createlink:     "Ubaci vezu",
 		insertimage:    "Ubaci sliku",
 		insertsound:    "Ubaci zvuk",

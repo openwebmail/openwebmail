@@ -55,7 +55,7 @@ HTMLArea.I18N = {
 		indent:         "Poveèaj rob",
 		forecolor:      "Barva pisave",
 		hilitecolor:    "Barva ozadja",
-		horizontalrule: "Vodoravno vodilo",
+		inserthorizontalrule: "Vodoravno vodilo",
 		createlink:     "Vstavi spletno povezavo",
 		insertimage:    "Vstavi sliko",
 		insertsound:    "Vstavi zvok",

@@ -3,7 +3,7 @@
 @@@STARTSAVEDFORM@@@
 <tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>OPTIONS ENREGISTREES</B></font>
+<B>Options Enregistrées</B></font>
 </td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 <BR>Vos options ont été correctement enregistrées.<BR>&nbsp;<BR>
 @@@CONTINUEBUTTON@@@

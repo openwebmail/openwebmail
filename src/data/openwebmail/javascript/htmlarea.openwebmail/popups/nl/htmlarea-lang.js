@@ -55,7 +55,7 @@ HTMLArea.I18N = {
 		indent:         "Increase Indent",
 		forecolor:      "Karakterkleur",
 		hilitecolor:    "Achtergrondkleur",
-		horizontalrule: "Horizontale Lijn",
+		inserthorizontalrule: "Horizontale Lijn",
 		createlink:     "Voeg Web Link toe",
 		insertimage:    "Voeg afbeelding toe",
 		insertsound:    "Voeg geluid toe",

@@ -5,7 +5,7 @@
   <td bgcolor=@@@TITLEBAR@@@>
     <table cellpadding="0" cellspacing="0" border="0" width="100%">
     <tr>
-      <td bgcolor=@@@TITLEBAR@@@><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>Edit Group Information</b></font></td>
+      <td bgcolor=@@@TITLEBAR@@@><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>Modifie les Informations de Groupe</b></font></td>
       <td bgcolor=@@@TITLEBAR@@@ align="right"><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>@@@ABOOKNAME@@@</b></td>
     </tr>
     </table>
@@ -31,7 +31,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Group Information</b></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Informations de Groupe</b></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -47,7 +47,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Add Files to Contact - @@@AVAILABLEATTSPACE@@@ Available</b></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Ajoute des Fichiers au Contact - @@@AVAILABLEATTSPACE@@@ Disponible</b></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -58,8 +58,8 @@
     <tr>
       <td>
         <select name="UPLOAD.FILE.TYPE" class="mono">
-        <option value="PHOTO" selected>Photo of Group</option>
-        <option value="SOUND">Sound of Name</option>
+        <option value="PHOTO" selected>Photo du Groupe</option>
+        <option value="SOUND">Son du Nom</option>
         </select>
       </td>
       <td width="5">&nbsp;</td>
@@ -67,14 +67,14 @@
       <td width="5">&nbsp;</td>
       <td><input class="mono" type="file" name="UPLOAD.FILE" size="25"></td>
       <td width="5">&nbsp;</td>
-      <td><input class="medtext" type="submit" name="EDITFORMUPLOAD" value="Add"></td>
+      <td><input class="medtext" type="submit" name="EDITFORMUPLOAD" value="Ajouter"></td>
       <td width="5">&nbsp;</td>
       <td>@@@UPLOADWEBDISKLINK@@@</td>
     </tr>
     <tr>
-      <td colspan="2" class="smalltext" nowrap>choose a file type to add</td>
-      <td colspan="2" class="smalltext" nowrap>enter a url to the file (http://...)</td>
-      <td colspan="5" class="smalltext" nowrap>or upload the file directly</td>
+      <td colspan="2" class="smalltext" nowrap>choisissez un type de fichier à ajouter</td>
+      <td colspan="2" class="smalltext" nowrap>entrez une URL vers le fichier (http://...)</td>
+      <td colspan="5" class="smalltext" nowrap>ou téléchargez le fichier directement</td>
     </tr>
     <tr>
       <td  colspan="9" height="10">&nbsp;</td>
@@ -117,9 +117,9 @@ function check_toggle(target) {
 
 function popupNotice (msgOption) {
    if (msgOption == 'agentmustsave') {
-      return(confirm('All data must be saved before viewing or creating an agent card.\nSave and continue?'));
+      return(confirm('Toutes les données doivent être sauvées avant de voir ou de créer une carte d\'agent.\nSauver et continuer ?'));
    } else if (msgOption == 'cancelchanges') {
-      return(confirm('All changes to this agent will be lost, continue?'));
+      return(confirm('Tous changements seront perdus, continuer ?'));
    }
 }
 

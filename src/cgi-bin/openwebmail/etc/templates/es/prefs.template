@@ -120,9 +120,9 @@ Asunto:
 
 @@@WEBMAILSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Messages Listing</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Listado de Mensajes</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Controlbar position in messages list:</B>
+<B>Posición de la barra de control:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CTRLPOSITIONFOLDERVIEWMENU@@@
 </td></tr>
@@ -177,12 +177,12 @@ Asunto:
 </td></tr>
 @@@AUTOPOP3END@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Put mail filter at background:</B>
+<B>Realizar filtrado de mensajes en segundo plano:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BGFILTERTHRESHOLDMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Tiempo de espera para filtrado de e-mail en segundo plano:</B>
+<B>Tiempo de espera para filtrado de mensajes en segundo plano:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BGFILTERWAITMENU@@@ segundos
 </td></tr>
@@ -212,7 +212,7 @@ Asunto:
 @@@USEFIXEDFONT@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Usar &quot;smiles&quot; al mostrar mensajes:</B>
+<B>Usar &quot;emotíconos&quot; al mostrar mensajes:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USESMILEICON@@@
 </td></tr>
@@ -257,7 +257,7 @@ Asunto:
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Tama&ntilde;o del &aacute;rea de edici&oacute;n:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-Ancho @@@EDITCOLUMNSMENU@@@ Alto @@@EDITROWSMENU@@@
+Ancho @@@EDITCOLUMNSMENU@@@ Altura @@@EDITROWSMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Posición del botón &quot;Enviar&quot;:</B>
@@ -275,7 +275,7 @@ Ancho @@@EDITCOLUMNSMENU@@@ Alto @@@EDITROWSMENU@@@
 @@@REPLYWITHORIGMSGMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Automatic CC:</B>
+<B>CC automático:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@AUTOCCFIELD@@@
 </td></tr>
@@ -365,39 +365,39 @@ Ancho @@@EDITCOLUMNSMENU@@@ Alto @@@EDITROWSMENU@@@
 
 @@@WEBADDRSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>AddressBook Options</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Opciones de la Libreta de Direcciones</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Size for addressbook window:</B>
+<B>Tamaño de la ventana:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
+Ancho @@@ABOOKWIDTHMENU@@@ Altura @@@ABOOKHEIGHTMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Addressbook button position:</B>
+<B>Posición del botón:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKBUTTONPOSITIONMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Addressbook default filter:</B>
+<B>Filtro por defecto:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKDEFAULTFILTER@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Addresses displayed per page:</B>
+<B>Cantidad de direcciones por página:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKADDRSPERPAGE@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Display only one line per contact:</B>
+<B>Mostrar sólo una línea por cada contacto:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKADDRCOLLAPSE@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Default addressbook sort order:</B>
+<B>Criterio de ordenamiento por defecto:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKADDRSORTORDER@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Listview field order:</B>
+<B>Orden de los campos en el listado:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@ nowrap>
 @@@ABOOKLISTVIEWFIELDORDERMENU@@@
 </td></tr>
@@ -486,14 +486,14 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Tamaño de la ventana de edición:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-Ancho @@@FILEEDITCOLUMNSMENU@@@ Alto @@@FILEEDITROWSMENU@@@
+Ancho @@@FILEEDITCOLUMNSMENU@@@ Altura @@@FILEEDITROWSMENU@@@
 </td></tr>
 @@@WEBDISKEND@@@
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Opciones varias</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Default charset for file system:</B>
+<B>Mapa de caracteres del sistema de archivos:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FSCHARSETMENU@@@
 </td></tr>
@@ -514,9 +514,9 @@ Ancho @@@FILEEDITCOLUMNSMENU@@@ Alto @@@FILEEDITROWSMENU@@@
 @@@HIDEINTERNAL@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Categorized Folders list:</B>
+<B>Listado de bandejas categorizado:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@CATEGORIZEDFOLDERS@@@ &nbsp;( Category-Folder Separator @@@CATEGORIZEDFOLDERS_FS@@@ )
+@@@CATEGORIZEDFOLDERS@@@ &nbsp;(Separador de categorías @@@CATEGORIZEDFOLDERS_FS@@@)
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Notificación sonora de nuevos mensajes:</B>

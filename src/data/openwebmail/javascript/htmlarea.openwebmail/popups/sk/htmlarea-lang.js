@@ -55,7 +55,7 @@ HTMLArea.I18N = {
 		indent:         "Zväè¹i» odsadenie",
 		forecolor:      "Farba písma",
 		hilitecolor:    "Farba pozadia",
-		horizontalrule: "Horizontálna èiara",
+		inserthorizontalrule: "Horizontálna èiara",
 		createlink:     "Vlo¾i» webový odkaz",
 		insertimage:    "Vlo¾i» obrázok",
 		insertsound:    "Vlo¾i» zvuk",

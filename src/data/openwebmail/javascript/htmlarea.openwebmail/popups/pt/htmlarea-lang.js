@@ -55,7 +55,7 @@ HTMLArea.I18N = {
 		indent:         "Aumentar Avanço",
 		forecolor:      "Cor do tipo de fonte",
 		hilitecolor:    "Cor do fundo",
-		horizontalrule: "Régua Horizontal",
+		inserthorizontalrule: "Régua Horizontal",
 		createlink:     "Inserir Link",
 		insertimage:    "Inserir Imagem",
 		insertsound:    "Inserir Som",

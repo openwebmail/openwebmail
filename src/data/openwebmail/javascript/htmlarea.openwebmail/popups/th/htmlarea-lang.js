@@ -55,7 +55,7 @@ HTMLArea.I18N = {
 		indent:         "ร่นย่อหน้าเข้า",
 		forecolor:      "สีตัวอักษร",
 		hilitecolor:    "สีพื้นหลัง",
-		horizontalrule: "เส้นขวางแนวนอน",
+		inserthorizontalrule: "เส้นขวางแนวนอน",
 		createlink:     "แทรกตัวเชื่อม",
 		insertimage:    "แทรกรูป",
 		insertsound:    "แทรกเสียง",

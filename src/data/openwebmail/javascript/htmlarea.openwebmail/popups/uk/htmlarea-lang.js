@@ -55,7 +55,7 @@ HTMLArea.I18N = {
 		indent:         "зб╕льшити в╕дступ",
 		forecolor:      "кол╕р шрифта",
 		hilitecolor:    "кол╕р фону",
-		horizontalrule: "горизонтальний смуга",
+		inserthorizontalrule: "горизонтальний смуга",
 		createlink:     "вставити посилання",
 		insertimage:    "вставити зображення",
 		insertsound:    "вставити звук",

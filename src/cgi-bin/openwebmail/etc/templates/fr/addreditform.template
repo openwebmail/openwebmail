@@ -5,7 +5,7 @@
   <td bgcolor=@@@TITLEBAR@@@>
     <table cellpadding="0" cellspacing="0" border="0" width="100%">
     <tr>
-      <td bgcolor=@@@TITLEBAR@@@><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>Edit Personal Information</b></font></td>
+      <td bgcolor=@@@TITLEBAR@@@><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>Modifie les Informations Personnelles</b></font></td>
       <td bgcolor=@@@TITLEBAR@@@ align="right"><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>@@@ABOOKNAME@@@</b></td>
     </tr>
     </table>
@@ -22,7 +22,7 @@
     <table cellpadding="0" cellspacing="0" border="0" align="center" width="100%">
     <tr>
       <td>&nbsp;@@@AGENTPATH@@@</td>
-      <td align="right">Character Set:&nbsp;@@@CONVTOMENU@@@</td>
+      <td align="right">Caractères:&nbsp;@@@CONVTOMENU@@@</td>
     </tr>
     </table>
   </td>
@@ -31,7 +31,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Personal Information</b></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Informations Personnelles</b></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -47,7 +47,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Email Addresses</b>&nbsp;<a name="EMAIL" href="javascript:document.editForm.formchange.value='EMAIL,0,1'; document.editForm.submit();">+</a></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Adresse Email</b>&nbsp;<a name="EMAIL" href="javascript:document.editForm.formchange.value='EMAIL,0,1'; document.editForm.submit();">+</a></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -63,7 +63,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Telephone Numbers</b>&nbsp;<a name="TEL" href="javascript:document.editForm.formchange.value='TEL,0,1'; document.editForm.submit();">+</a></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Numéros de Téléphone</b>&nbsp;<a name="TEL" href="javascript:document.editForm.formchange.value='TEL,0,1'; document.editForm.submit();">+</a></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -79,7 +79,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Addresses</b>&nbsp;<a name="ADR" href="javascript:document.editForm.formchange.value='ADR,0,1'; document.editForm.submit();">+</a></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Adresses</b>&nbsp;<a name="ADR" href="javascript:document.editForm.formchange.value='ADR,0,1'; document.editForm.submit();">+</a></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -95,7 +95,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Work Information</b>&nbsp;<a name="ORG" href="javascript:document.editForm.formchange.value='ORG,0,1'; document.editForm.submit();">+</a></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Informations Société</b>&nbsp;<a name="ORG" href="javascript:document.editForm.formchange.value='ORG,0,1'; document.editForm.submit();">+</a></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -111,7 +111,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Miscellaneous Information</b><a name="URL"></a></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Informations Diverses</b><a name="URL"></a></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -127,7 +127,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>vCard Information</b></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Information vCard </b></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -143,7 +143,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Custom Properties</b>&nbsp;<a name="X-OWM-CUSTOM" href="javascript:document.editForm.formchange.value='X-OWM-CUSTOM,0,1'; document.editForm.submit();">+</a></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Proriétés Particulières</b>&nbsp;<a name="X-OWM-CUSTOM" href="javascript:document.editForm.formchange.value='X-OWM-CUSTOM,0,1'; document.editForm.submit();">+</a></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -159,7 +159,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Add Files to Contact - @@@AVAILABLEATTSPACE@@@ Available</b></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Ajoute des Fichiers au Contact - @@@AVAILABLEATTSPACE@@@ Disponible</b></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -170,10 +170,10 @@
     <tr>
       <td>
         <select name="UPLOAD.FILE.TYPE" class="mono">
-        <option value="PHOTO" selected>Photo of Contact</option>
-        <option value="SOUND">Sound of Name</option>
-        <option value="LOGO">Company Logo</option>
-        <option value="KEY">Public Encryption Key</option>
+        <option value="PHOTO" selected>Photo du Contact</option>
+        <option value="SOUND">Son du Nom</option>
+        <option value="LOGO">Logo Société</option>
+        <option value="KEY">Clé Publique de Cryptage</option>
         <option value="AGENT">Agent vCard</option>
         </select>
       </td>
@@ -182,14 +182,14 @@
       <td width="5">&nbsp;</td>
       <td><input class="mono" type="file" name="UPLOAD.FILE" size="25"></td>
       <td width="5">&nbsp;</td>
-      <td><input class="medtext" type="submit" name="EDITFORMUPLOAD" value="Add"></td>
+      <td><input class="medtext" type="submit" name="EDITFORMUPLOAD" value="Ajoute"></td>
       <td width="5">&nbsp;</td>
       <td>@@@UPLOADWEBDISKLINK@@@</td>
     </tr>
     <tr>
-      <td colspan="2" class="smalltext" nowrap>choose a file type to add</td>
-      <td colspan="2" class="smalltext" nowrap>enter a url to the file (http://...)</td>
-      <td colspan="5" class="smalltext" nowrap>or upload the file directly</td>
+      <td colspan="2" class="smalltext" nowrap>Choisissez un type de fichier à ajouter</td>
+      <td colspan="2" class="smalltext" nowrap>Entrez une URL vers le fichier (http://...)</td>
+      <td colspan="5" class="smalltext" nowrap>ou téléchargez le fichier directement</td>
     </tr>
     <tr>
       <td  colspan="9" height="10">&nbsp;</td>
@@ -250,14 +250,12 @@ function makeLabel(formName, adrNumber) {
 
    // OWM TRANSLATORS: MODIFY THE CODE BELOW THIS COMMENT TO CHANGE HOW ADDRESS LABELS ARE AUTO-GENERATED
    var label = '';
-   label += postofficeaddress != '' ? postofficeaddress+'\n' : '';
-   if (street != '' && extendedaddress != '') {
-      label += street+', '+extendedaddress+'\n';
-   } else if (street != '') {
-      label += street+'\n';
-   } else if (extendedaddress != '') {
+   label += street+'\n';
+   if (extendedaddress != '') {
       label += extendedaddress+'\n';
    }
+   label += postofficeaddress != '' ? postofficeaddress+'\n' : '';
+   label += postalcode+' ';
    if (locality != '' && region != '') {
       label += locality+', '+region+'\n';
    } else if (locality != '') {
@@ -265,13 +263,7 @@ function makeLabel(formName, adrNumber) {
    } else if (region != '') {
       label += region+'\n';
    }
-   if (postalcode != '' && country != '') {
-      label += '         '+postalcode+' '+country;
-   } else if (postalcode != '') {
-      label += '         '+postalcode;
-   } else if (country != '') {
-      label += '         '+country;
-   }
+      label += country;
    // END LANGUAGE-SPECIFIC LABEL CODE
 
    document.forms[formName].elements['ADR.'+adrNumber+'.VALUE.LABEL'].value = label;
@@ -291,26 +283,26 @@ function showGeo (formName, geoNumber, showThing) {
          window.open(url,"_showGeo","width=550,height=500,resizable=yes,scrollbars=yes");
       }
    } else {
-      alert('You must fill in the longitude and latitude\nbefore any maps or photos can be viewed.');
+      alert('Vous devez remplir la longitude et la latitude\navant de pouvoir voir les plans ou les photos.');
    }
 }
 
 function popupNotice (msgOption) {
    if (msgOption == 'agentmustsave') {
-      return(confirm('All data must be saved before viewing or creating an agent card.\nSave and continue?'));
+      return(confirm('Toutes les données doivent être sauvées avant de voir ou de créer une carte pour un agent.\nSauver et continuer ?'));
    } else if (msgOption == 'cancelchanges') {
-      return(confirm('All changes to this agent will be lost, continue?'));
+      return(confirm('Tous les changements de cet agent seront perdus, continuer ?'));
    }
 }
 
 function savecheck (formName) {
    if (document.forms[formName].elements['N.0.VALUE.GIVENNAME'].value == '' &&
        document.forms[formName].elements['N.0.VALUE.FAMILYNAME'].value == '') {
-      alert("Please fill in the firstname or lastname field first.");
+      alert("Remplissez  le prénom ou le nom d'abord.");
       return false;
    }
    if (document.forms[formName].elements['EMAIL.0.VALUE'].value == '') {
-      return(confirm("Email address is empty, are you sure to save this contact?"));
+      return(confirm("L'adresse email est vide, etes-vous sur de vouloir sauver ce contact ?"));
    }
    return true
 }

@@ -1,5 +1,5 @@
 Este archivo es una traducción al español del original (readme.txt)
-realizada por Javier Smaldone <jsmaldone.AT.yahoo.com>
+realizada por Javier Smaldone <javier.AT.diff.com.ar>
 
 Última actualización: 12-11-2003
 
@@ -596,7 +596,7 @@ En breve este trabajo estará finalizado. Por favor, sepa disculpar
 las molestias.
 
                                                    Javier Smaldone
-                                                jsmaldone.AT.yahoo.com
+                                                javier.AT.diff.com.ar
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 VIRTUAL HOSTING

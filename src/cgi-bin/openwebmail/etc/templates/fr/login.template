@@ -3,7 +3,7 @@
 <img border="0" src="@@@LOGO_URL@@@"></a></p>
 <table border="0" align="center" width="260" cellpadding="0" cellspacing="0">
 <tr><td bgcolor="#3161bd" background="@@@IMAGEDIR_URL@@@/bg-titleblue.gif">
-&nbsp;<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><B>IDENTIFICATION</B></FONT>
+&nbsp;<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><B>Identification</B></FONT>
 </td></tr><tr><td align="center" bgcolor="#3161bd">
 
 <table width="100%" cellpadding="0" cellspacing="1" border="0">

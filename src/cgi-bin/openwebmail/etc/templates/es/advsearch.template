@@ -22,10 +22,10 @@
 
 <table border="0" width="100%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@COLUMNHEADER@@@ colspan=2>
-<B>Date Range</B>
+<B>Rango de Fechas</B>
 </td></tr>
 <tr><td bgcolor=@@@TABLEROW_LIGHT@@@>
-Start @@@STARTDATE@@@ &nbsp; end @@@ENDDATE@@@
+Inicio @@@STARTDATE@@@ &nbsp; fin @@@ENDDATE@@@
 </td><td bgcolor=@@@TABLEROW_LIGHT@@@>
 @@@DATERANGEMENU@@@
 </td></tr>

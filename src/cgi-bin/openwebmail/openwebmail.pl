@@ -385,6 +385,7 @@ sub login {
       sleep $config{'loginerrordelay'};	# delayed response
       $user='';				# to remove userinfo in htmlheader
       httpprint([], [htmlheader(), $html, htmlfooter(1)]);
+      return;
    }
 
    # try to load lang and style based on user's preference (for error msg)

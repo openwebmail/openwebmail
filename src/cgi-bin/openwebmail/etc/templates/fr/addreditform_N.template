@@ -2,7 +2,7 @@
   <td>
     <table cellpadding="0" cellspacing="0" border="0">
     <tr>
-      <td colspan="6"><b>Name Attributes<font color="#ff0000"><super>*</super></font></b></td>
+      <td colspan="6"><b>Informations du Nom<font color="#ff0000"><super>*</super></font></b></td>
     </tr>
     <tr>
       <td>@@@GROUP@@@</td>
@@ -14,11 +14,11 @@
     </tr>
     <tr>
       <td class="smalltext">@@@GROUPLABEL@@@</td>
-      <td class="smalltext">prefix</td>
-      <td class="smalltext">first</td>
-      <td class="smalltext">middle</td>
-      <td class="smalltext">last</td>
-      <td class="smalltext">suffix</td>
+      <td class="smalltext">préfixe</td>
+      <td class="smalltext">prénom</td>
+      <td class="smalltext">second</td>
+      <td class="smalltext">nom</td>
+      <td class="smalltext">suffixe</td>
     </tr>
     <tr>
       <td colspan="6">@@@TYPES@@@&nbsp;</td>

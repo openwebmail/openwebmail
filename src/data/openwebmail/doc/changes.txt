@@ -1,3 +1,20 @@
+02/16/2005
+----------
+1. Spanish language, template and htmlarea files trnslation update
+   (thanks to Javier Smaldone, javier.AT.diff.com.ar)
+2. fix a bug in htmlarea htmlarea-lang.js file that the tips for HR button
+   should be labeled as inserthorizontalrule.
+   (reported by Javier Smaldone, javier.AT.diff.com.ar)
+3. Hellenic/Greek language file translation update
+   (thanks to Dimitrios 'sehh' Michelinakis, dimitrios.AT.michelinakis.gr)
+4. fix a bug in openwebmail.pl that the login of user with wrong
+   password get processed after sending out the wrong password screen.
+ps: this bug was introduced by the fix 1 in 20050115,
+   (thanks to Troy, troy.AT.riq.qc.ca for his fix)
+5. French language and templates translation update
+   (suggested by Dominique, dominique.fournier.AT.grenoble.cnrs.fr)
+
+
 02/15/2005
 ----------
 1. fix the bug that calling truncate function may have

@@ -55,7 +55,7 @@ HTMLArea.I18N = {
 		indent:         "增加縮排",
 		forecolor:      "字型顏色",
 		hilitecolor:    "背景顏色",
-		horizontalrule: "水平分隔線",
+		inserthorizontalrule: "水平分隔線",
 		createlink:     "插入超連結",
 		insertimage:    "插入圖片",
 		insertsound:    "插入聲音",

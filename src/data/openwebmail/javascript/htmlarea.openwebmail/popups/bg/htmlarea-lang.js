@@ -55,7 +55,7 @@ HTMLArea.I18N = {
 		indent:         "Уваличи отстъпа",
 		forecolor:      "Цвят на шрифта",
 		hilitecolor:    "Цвят на листа",
-		horizontalrule: "Хоризонтална линия",
+		inserthorizontalrule: "Хоризонтална линия",
 		createlink:     "Вмъкни линк",
 		insertimage:    "Вмъкни картинка",
 		insertsound:    "Вмъкни звук",

@@ -69,9 +69,9 @@
 <!--
    function replyreceiptconfirm(url, yes)
    {
-      if (yes==1 || confirm('ce message requière un accusé de reception, voulez-vous en envoyer un ?')) {
+      if (yes==1 || confirm('Ce message requiert un accusé de réception, voulez-vous en envoyer un ?')) {
          var hWnd = window.open("","_replyreceipt","width=100,height=50,resizable=no,scrollbars=no");
-         hWnd.document.write('Transmitting...');
+         hWnd.document.write('Transmission en cours...');
          hWnd.location.href=url;
 //         hWnd.close();
       }
