@@ -422,18 +422,17 @@ sub _get_next_msgheader_buffered {
 
    # locate the start of the message
    while ($offset < 0 and $pos >= 0) {
-      $pos=buffer_index("From ");
+      $pos=(buffer_index(0, "From "))[0];
       $offset = buffer_startmsgchk($pos) if ($pos>=0);
    }
 
    # get msgheader until to the first nlnl (pos>0) or end of file(pos=-1)
    # note: the 1st nl is counted as part of the msgheader
    if ($offset >=0) {
-      $pos=buffer_index("\n\n",1);
+      $pos=(buffer_index(1, "\n\n"))[0];
       $pos++ if ($pos>=0);		# count 1st nl into msgheader
       $content=buffer_getchars($pos);
    }
-
    return ($offset, \$content);
 }
 
@@ -447,18 +446,8 @@ sub _skip_to_next_text_block {
 
    # we're done if this is the next message block
    if ( buffer_startmsgchk(0)<0 ) {
-
-      # find 1st occurance of "\n\n" or "\nFrom "
-      my $pos=-1;
-      my $pos1=buffer_index("\n\n", 1);
-      my $pos2=buffer_index("\nFrom ", 1);
-      if ($pos1>=0 && $pos2>=0) {
-         $pos=($pos1<$pos2)?$pos1:$pos2;
-      } elsif ($pos1>=0) {	# pos2<0, means not found
-         $pos=$pos1;
-      } elsif ($pos2>=0) {	# pos1<0, means not found
-         $pos=$pos2;
-      }
+      # finst 1st occurance of "\n\n" or "\nFrom "
+      my ($pos, $foundstr)=buffer_index(1, "\n\n", "\nFrom");
 
       # get max 500 chars or to the end of the block
       # then skip to the next block start
@@ -1447,6 +1436,7 @@ sub is_msgattr_consistent_with_folder {
 
 ########## BUFFERED FILE PROCESSING ##############################
 # use buffered file reads to quickly scan through a mail file for the next message header
+
 sub buffer_reset {
    ($BUFF_filehandle, $BUFF_filestart)=@_;
    $BUFF_fileoffset=$BUFF_filestart;
@@ -1502,16 +1492,6 @@ sub buffer_startmsgchk {
       return -1;
    }
 }
-#
-# Note: buffer_startmsgchk() uses too many string copy (the substr())
-#       it should be further optimized with pos()
-#
-# example of pos()
-# ----------------------------------------------
-# $_ = 'this is a string of text';
-# $pos = m/(\bs\w+)/g ? pos() - length($1)  : -1;
-# print "$pos\n";
-#
 
 # get chars from the buffer
 # up to the size, or to the delim chars (which ever comes first)
@@ -1591,26 +1571,31 @@ sub buffer_skipleading {
 # if $keep = 1 then buffer contents will grow until $str is found
 #  otherwise, previous contents of buffer are tossed.
 sub buffer_index {
-   my ($str, $keep)=@_;
+   my ($keep, @strs)=@_;
+
    my $pos=-1;
-   my $eof=0;
-   my $offset=0;
-   my $len=length($str);
-
-   while ($pos<0 and !$eof) {
-      # search the buffer for the next message start
-      $pos=index($BUFF_buff, $str, $offset);
-      next if ($pos >= 0);
-
-      if ($keep) {
-         $offset = $BUFF_size-$len;
-      } else {
-         # keep the buffer size reasonable
-         buffer_skipchars($BUFF_blocksize) if ($BUFF_size > $BUFF_blocksizemax);
-      }
-      $eof=1 if ( !buffer_readblock() ); # nothing left to read?
+   my %i;
+   foreach my $str (@strs) {
+      $i{$str}{len}=length($str);
+      $i{$str}{offset}=0;
    }
-   return $pos;
+
+   while ($pos<0) {
+      # search the buffer for the next message start
+      foreach my $str (@strs) {
+         $pos=index($BUFF_buff, $str, $i{$str}{offset});
+         return ($pos, $str) if ($pos>=0);
+      }
+      # keep the buffer size reasonable
+      if (!$keep && $BUFF_size > $BUFF_blocksizemax) {
+         buffer_skipchars($BUFF_size-1024);	# only keep last 1024 byte
+      }
+      foreach my $str (@strs) {
+         $i{$str}{offset}=$BUFF_size-$i{$str}{len};
+      }
+      last if ( !buffer_readblock() ); # nothing left to read?
+   }
+   return (-1, '');
 }
 
 1;

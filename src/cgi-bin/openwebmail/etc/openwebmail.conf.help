@@ -1768,7 +1768,10 @@ Available value: date from subject size
 
 default_sort
 -----------------------------------------------------------------------
-default message sorting, available value: date, sender, subject, size
+default message sorting, available values: date, date_rev, 
+sender, sender_rev, subject, subject_rev, size, size_rev
+ps: date is oldest first, date_rev is newest first
+    the default value for this option is date_rev
 
 
 default_msgdatetimestamp

@@ -24,7 +24,7 @@ package ow::ur;
    date        => 'ﺗﺎﺭﻳﺦ - ﭘﺮﺍﻧﻰ ﭘﻫﻠﮯ',
    date_rev    => 'ﺗﺎﺭﻳﺦ - ﻧﺊ ﭘﻫﻠﮯ',
    sender      => 'ﺗﺎﺭﻳﺦ - Accending',
-   sender_rev  => 'ﺗﺎﺭﻳﺦ - Decending',
+   sender_rev  => 'ﺗﺎﺭﻳﺦ - Descending',
    subject     => 'ﻣﻮﺿﻮﻉ - ﭘﺮﺍﻧﻰ ﭘﻫﻠﮯ',
    subject_rev => 'ﻣﻮﺿﻮﻉ - ﻧﺊ ﭘﻫﻠﮯ',
    size        => 'ﻧﺎﭖ - ﺑﮍﻯ ﭘﻫﻠﮯ',

@@ -1,3 +1,13 @@
+03/10/2005
+----------
+1. minor change to buffer_index() code in maildb.pl which makes great
+   improvement :)
+   a. the indexing speed is about 2 times faster than before
+   b. the memory usage is basially foldersize/messagesize independent
+   c. the cpu usage is much less than before
+2. typo correction for Ascending and Descending in language files
+
+
 03/09/2005
 ----------
 1. support using either SentDate and Received Date as message timestamp

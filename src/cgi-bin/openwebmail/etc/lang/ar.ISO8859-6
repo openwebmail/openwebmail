@@ -24,7 +24,7 @@ package ow::ar_ISO8859_6;
    date        => 'ÇהÊסÇÑךÎ - ÇהÃגÏו ÃטסהÇכ',
    date_rev    => 'ÇהÊסÇÑךÎ - ÇהÃÍÏË ÃטסהÇכ',
    sender      => 'ÇהוÑÓה - Accending',
-   sender_rev  => 'ÇהוÑÓה - Decending',
+   sender_rev  => 'ÇהוÑÓה - Descending',
    subject     => 'ÇהוטÖטÙ - ÇהÃגÏו ÃטסהÇכ',
    subject_rev => 'ÇהוטÖטÙ - ÇהÃÍÏË ÃטסהÇכ',
    size        => 'ÇהÍÌו - ÇהÃÕÚÑ ÃטסהÇ',

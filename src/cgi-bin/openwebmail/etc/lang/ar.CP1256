@@ -24,7 +24,7 @@ package ow::ar_CP1256;
    date        => 'ÇבÊרÇÑםÎ - ÇבÃÞÏד ÃזרבÇנ',
    date_rev    => 'ÇבÊרÇÑםÎ - ÇבÃÍÏË ÃזרבÇנ',
    sender      => 'ÇבדÑÓב - Accending',
-   sender_rev  => 'ÇבדÑÓב - Decending',
+   sender_rev  => 'ÇבדÑÓב - Descending',
    subject     => 'ÇבדזÖזÚ - ÇבÃÞÏד ÃזרבÇנ',
    subject_rev => 'ÇבדזÖזÚ - ÇבÃÍÏË ÃזרבÇנ',
    size        => 'ÇבÍÌד - ÇבÃÕÛÑ ÃזרבÇ',
