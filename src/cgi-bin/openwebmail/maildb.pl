@@ -917,7 +917,6 @@ sub parse_rfc822block {
       if ( $searchid eq "" || $searchid eq "all" || $searchid=~/^$nodeid/ ) {
          $body=substr(${$r_block}, $headerlen+2);
          my ($header2, $body2, $r_attachments2)=parse_rfc822block(\$body, "$nodeid-0", $searchid);
-
          if ( $searchid eq "" || $searchid eq "all" || $searchid eq $nodeid ) {
             $header2 = decode_mimewords($header2);
             my $temphtml="$header2\n\n$body2";
@@ -926,6 +925,7 @@ sub parse_rfc822block {
          }
          push (@attachments, @{$r_attachments2});
       }
+      $body=''; # zero the body since it becomes to header2, body2 and r_attachment2
       return($header, $body, \@attachments);
 
    } elsif ( ($contenttype eq 'N/A') || ($contenttype =~ /^text\/plain/i) ) {
@@ -1060,7 +1060,7 @@ sub parse_attblock {
             $header2 = decode_mimewords($header2);
             my $temphtml="$header2\n\n$body2";
             push(@attachments, make_attachment($subtype,"", $attheader,\$temphtml, length($temphtml),
-		$attencoding,"message/rfc822", "inline; filename=Unknown.msg",$attid,$attlocation, $nodeid));
+		$attencoding,$attcontenttype, $attdisposition,$attid,$attlocation, $nodeid) );
          }
          push (@attachments, @{$r_attachments2});
       }

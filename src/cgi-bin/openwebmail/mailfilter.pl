@@ -312,18 +312,23 @@ sub mailfilter {
          if (!defined($r_smtprelays) ) {
             ($r_smtprelays, $r_connectfrom)=get_smtprelays_connectfrom($header);
          }
-         # move msg to trash if smtprelay has faked id
-         my $relay=${$r_smtprelays}[0];
-         if ($relay!~/[\w\d\-_]+\.[\w\d\-_]+/ && 
-             ${$r_connectfrom}{$relay}!~/$relay/i ) {
-            my $append=append_message_to_folder($allmessageids[$i],
+
+         # move msg to trash if the first relay has invalid/faked hostname
+         if (defined(${$r_smtprelays}[0])) { 
+            my $relay=${$r_smtprelays}[0];
+            if ($relay!~/[\w\d\-_]+\.[\w\d\-_]+/ && 
+                defined(${$r_connectfrom}{$relay}) &&
+                ${$r_connectfrom}{$relay}!~/$relay/i  ) {
+               my $append=append_message_to_folder($allmessageids[$i],
 					\@attr, \$currmessage, 'mail-trash', 
 					$r_validfolders, $user);
-            if ($append>=0) {
-               $op='move';
-               $matched=1;
+               if ($append>=0) {
+                  $op='move';
+                  $matched=1;
+               }
             }
          }
+
       }
 
       if ( $matched && ($op eq 'move' || $op eq 'delete') ) {
@@ -493,9 +498,12 @@ sub get_smtprelays_connectfrom {
    } elsif ($received=~ /^.*\sfrom\s([^\s]+)\s.*$/is) {
       unshift(@smtprelays, $1);
    }
-   # count last fromhost as relay only if there are just 2 host on relaylist 
+   # count first fromhost as relay only if there are just 2 host on relaylist 
    # since it means sender pc uses smtp to talk to our mail server directly
    shift(@smtprelays) if ($#smtprelays>1);
+   # remove last relay (it is our mail server)
+   pop (@smtprelays);
+
    return(\@smtprelays, \%connectfrom);
 }
 

@@ -159,7 +159,9 @@ ps. a script 'migrate.pl' is provided in uty/ for administer
 
 TEST
 -----      
-test your webmail with http://your_server/cgi-bin/openwebmail/openwebmail.pl
+Test your webmail with http://your_server/cgi-bin/openwebmail/openwebmail.pl
+
+If there are any problem, please check the faq.txt.
 
 
 04/24/2001

@@ -1,3 +1,18 @@
+05/04/2001 (version 1.12)
+----------
+1. support 'export addressbook'
+2. fix a bug in parsing recursive message/rfc822
+3. add option $enable_pop3 to openwebmail.conf
+
+
+05/03/2001
+----------
+1. support 'forward message as an attachment'
+2. add 'note field' to addressbook
+3. fix minor bug in spammer message filtering
+4. better folder summary in 'folder management menu'
+
+
 05/02/2001
 ----------
 1. fix thet replyto bug, the value of replyto field in message editing 

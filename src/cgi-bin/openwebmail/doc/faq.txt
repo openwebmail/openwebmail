@@ -1,15 +1,14 @@
 
 Q: I got "Internal server error" when running openwebmail?
-A: please check you have install a complete set of perl 5.005 above
+   I got "can not do setuid" error?
+   I got "Software error: Can't locate etc/openwebmail.conf in @INC" error?
 
-Q: I got "can not do setuid" error?
-   I still got "Software error: Can't locate etc/openwebmail.conf in @INC" error?
-A: You may uncompress the openwebmail-1.xx.tgz with improper parameter.
+A: Please check you have install a complete set of perl 5.005 above.
+   And You should uncompress the openwebmail-1.xx.tgz with proper parameter.
    It is "tar -zxvBpf openwebmail-.1.xx.tgz"
 
-Q: I still got "cannot do set uid" error?
-   I still got "Software error: Can't locate etc/openwebmail.conf in @INC" error?
-A: You perl is compiled with suid ability disabled.
+Q: The error is still there?
+A: You perl may be compiled with suid ability disabled.
    a. check if you have a executable of suidperl 
       'chmod 4555 suidperl'
       and change #!/usr/bin/perl to the path of this suidperl
@@ -29,6 +28,12 @@ Q: The 'From' field of my message contains only 'username@'?
 A: you may has wrong setting of domainname in openwebmail.conf
    Please be sure to use '' for a text string of hostname or
    use `` for the program /bin/hostname
+
+Q: I can not add attachments?
+A: Your proxy may limit the size of a POST request.
+   Try to add attachments with no proxy setting in your browser.
+   If you are the administrator of the proxy server and if you are using squid,
+   please set the request_body_max_size option to a larger value.
 
 Q: Attachments disappeared when I forward a message?
 A: check the permission of the following directories
@@ -64,13 +69,18 @@ ps: Some operations would take more time than normal operation, for example:
    http://turtle.ee.ncku.edu.tw/openwebmail/download/memory.usage
 
 Q: How can I report problem?
-A: The best way is to send me the message that causes problems.
-   a. create a test folder
-   b. move the message to the 'test' folder
-   c. save the 'test' folder to a zip file
-   ps: in version 1.06 or above, you can save a folder into a zip file
-       by clicking the foldername in "folder management" menu
-   d. mail it to me as an attachment and describe what the problem is.
+A: If your Open WebMail doesn't work, please describe your problem
+   with the following information
+
+   OS
+   Perl Version
+   the ls -l of the perl executable used in your openwebmail.pl
+   the ls -l of your cgi-bin/openwebmail and cgi-bin/openwebmail/etc
+   the error message in your brower
+
+   If your Open WebMail works but it shows strange output for some messages,
+   please forward the message as an attachment to me 
+   ps: clicking the 'forward as attachment' icon in message reading menu
 
 Q: Can I use Open WebMail in a commerical web site? 
    Can I change the page layout of openwebmail?
@@ -87,6 +97,6 @@ ps: I would be happy if you mail me a message that your commerical website
     advertisments :)
    
 
-04/24/2001 
+05/05/2001 
 
 tung@turtle.ee.ncku.edu.tw

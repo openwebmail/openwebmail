@@ -1,4 +1,4 @@
-<table border="0" align="center" width="65%" cellpadding="0" cellspacing="0">
+<table border="0" align="center" width="70%" cellpadding="0" cellspacing="0">
 <tr><td colspan="5" bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <b>信件匣管理</b></font>
@@ -32,6 +32,24 @@
 @@@ENDFORM@@@
 
 @@@FOLDERS@@@
+
+<tr><td colspan="5">&nbsp;</td></tr>
+<tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>預設信件匣</B></td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>新信</B></td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>信件</B></td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>大小</B></td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+&nbsp;
+</td></tr>
+
+@@@DEFAULTFOLDERS@@@
+
+<tr><td colspan="5">&nbsp;</td></tr>
+@@@TOTAL@@@
 
 </table>
 <script language="JavaScript">

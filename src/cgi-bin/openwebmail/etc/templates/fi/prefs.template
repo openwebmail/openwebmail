@@ -44,18 +44,22 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERREPEATLIMIT@@@ &nbsp( 0 means No check for repeatness )
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Filter messages with faked SMTP¡G</B>
+<B>Filter messages with faked SMTP:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDSMTP@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>NewMail Sound Notification:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@NEWMAILSOUND@@@
-</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+</td></tr>
+@@@AUTOPOP3START@@@
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>AutoFetch POP3 at login:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@AUTOPOP3CHECKBOX@@@
-</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+</td></tr>
+@@@AUTOPOP3END@@@
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Empty Trash at logout:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@AUTOEMPTYTRASHCHECKBOX@@@

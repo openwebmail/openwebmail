@@ -1,4 +1,4 @@
-<table border="0" align="center" width="65%" cellpadding="0" cellspacing="0">
+<table border="0" align="center" width="70%" cellpadding="0" cellspacing="0">
 <tr><td colspan="5" bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <b>Editar Pastas</b></font>
@@ -32,6 +32,24 @@
 @@@ENDFORM@@@
 
 @@@FOLDERS@@@
+
+<tr><td colspan="5">&nbsp;</td></tr>
+<tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>Default folders</B></td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>New</B></td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>Mesg</B></td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>Size</B></td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+&nbsp;
+</td></tr>
+
+@@@DEFAULTFOLDERS@@@
+
+<tr><td colspan="5">&nbsp;</td></tr>
+@@@TOTAL@@@
 
 </table>
 <script language="JavaScript">

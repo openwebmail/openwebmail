@@ -128,6 +128,8 @@ if (defined(param("action"))) {      # an action has been chosen
          deletefolder();
       } elsif ($action eq "renamefolder") {
          renamefolder();
+      } elsif ($action eq "downloadfolder") {
+         downloadfolder();
       } elsif ($action eq "addressbook") {
          addressbook();
       } elsif ($action eq "editaddresses") {
@@ -140,11 +142,13 @@ if (defined(param("action"))) {      # an action has been chosen
          clearaddress();
       } elsif ($action eq "importabook") {
          importabook();
-      } elsif ($action eq "editpop3") {
+      } elsif ($action eq "exportabook") {
+         exportabook();
+      } elsif ($action eq "editpop3" && $enable_pop3 eq 'yes') {
          editpop3();
-      } elsif ($action eq "addpop3") {
+      } elsif ($action eq "addpop3" && $enable_pop3 eq 'yes') {
          modpop3("add");
-      } elsif ($action eq "deletepop3") {
+      } elsif ($action eq "deletepop3" && $enable_pop3 eq 'yes') {
          modpop3("delete");
       } elsif ($action eq "editfilter") {
          editfilter();
@@ -322,12 +326,19 @@ sub editprefs {
 
    $html =~ s/\@\@\@NEWMAILSOUND\@\@\@/$temphtml/g;
 
-   $temphtml = checkbox(-name=>'autopop3',
-                  -value=>'1',
-                  -checked=>$prefs{"autopop3"},
-                  -label=>'');
-
-   $html =~ s/\@\@\@AUTOPOP3CHECKBOX\@\@\@/$temphtml/g;
+   if ($enable_pop3 eq 'yes') {
+      $temphtml = checkbox(-name=>'autopop3',
+                           -value=>'1',
+                           -checked=>$prefs{"autopop3"},
+                           -label=>'');
+      $html =~ s/\@\@\@AUTOPOP3CHECKBOX\@\@\@/$temphtml/g;
+      $html =~ s/\@\@\@AUTOPOP3START\@\@\@//g;
+      $html =~ s/\@\@\@AUTOPOP3END\@\@\@//g;
+   } else {
+      $html =~ s/\@\@\@AUTOPOP3CHECKBOX\@\@\@/not available/g;
+      $html =~ s/\@\@\@AUTOPOP3START\@\@\@/<!--/g;
+      $html =~ s/\@\@\@AUTOPOP3END\@\@\@/-->/g;
+   }
 
    $temphtml = checkbox(-name=>'autoemptytrash',
                   -value=>'1',
@@ -382,8 +393,15 @@ sub editprefs {
 #################### EDITFOLDERS ###########################
 sub editfolders {
    verifysession();
+   my (@defaultfolders, @userfolders);
+   my ($total_newmessages, $total_allmessages, $total_foldersize)=(0,0,0);
 
-   my @folders;
+   push(@defaultfolders, 'INBOX', 
+                         'saved-messages', 
+                         'sent-mail', 
+                         'saved-drafts', 
+                         'mail-trash');
+
    opendir (FOLDERDIR, "$folderdir") or
       openwebmailerror("$lang_err{'couldnt_open'} $folderdir!");
    while (defined(my $filename = readdir(FOLDERDIR))) {
@@ -396,7 +414,7 @@ sub editfolders {
             $filename ne 'sent-mail' &&
             $filename ne 'saved-drafts' &&
             $filename ne 'mail-trash' ) {
-         push (@folders, $filename);
+         push (@userfolders, $filename);
       }
    }
    closedir (FOLDERDIR) or
@@ -453,30 +471,34 @@ sub editfolders {
    $temphtml = end_form();
    $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/;
 
-   $temphtml = '';
    my $bgcolor = $style{"tablerow_dark"};
    my $currfolder;
    my $i=0;
-   foreach $currfolder (sort (@folders)) {
+
+   $temphtml = '';
+   foreach $currfolder (sort (@userfolders)) {
       my (%HDB, $newmessages, $allmessages, $foldersize);
-      my $headerdb="$folderdir/.$currfolder";
+      my ($folderfile,$headerdb)=get_folderfile_headerdb($user, $currfolder);
 
       filelock("$headerdb.$dbm_ext", LOCK_SH);
       dbmopen (%HDB, $headerdb, undef);
       if ( defined($HDB{'ALLMESSAGES'}) ) {
          $allmessages=$HDB{'ALLMESSAGES'};
+         $total_allmessages+=$allmessages;
       } else {
          $allmessages='&nbsp;';
       }
       if ( defined($HDB{'NEWMESSAGES'}) ) {
          $newmessages=$HDB{'NEWMESSAGES'};
+         $total_newmessages+=$newmessages;
       } else {
          $newmessages='&nbsp;';
       }
       dbmclose(%HDB);
       filelock("$headerdb.$dbm_ext", LOCK_UN);
 
-      $foldersize = (-s "$folderdir/$currfolder");
+      $foldersize = (-s "$folderfile");
+      $total_foldersize+=$foldersize;
       # round foldersize and change to an appropriate unit for display
       if ($foldersize > 1048575){
          $foldersize = int(($foldersize/1048576)+0.5) . "MB";
@@ -485,7 +507,7 @@ sub editfolders {
       }
 
       my $escapedcurrfolder = CGI::escape($currfolder);
-      my $url = "$scripturl?sessionid=$thissession&amp;folder=$escapedcurrfolder&amp;action=downloadfolder";
+      my $url = "$prefsurl?sessionid=$thissession&amp;folder=$escapedcurrfolder&amp;action=downloadfolder";
       $temphtml .= "<tr><td align=\"center\" bgcolor=$bgcolor><a href=\"$url\">$currfolder</a></td>".
                    "<td align=\"center\" bgcolor=$bgcolor>$newmessages</td>".
                    "<td align=\"center\" bgcolor=$bgcolor>$allmessages</td>".
@@ -532,8 +554,72 @@ sub editfolders {
 
       $i++;
    }
-
    $html =~ s/\@\@\@FOLDERS\@\@\@/$temphtml/;
+
+   $temphtml='';
+   foreach $currfolder (@defaultfolders) {
+      my (%HDB, $newmessages, $allmessages, $foldersize);
+      my ($folderfile,$headerdb)=get_folderfile_headerdb($user, $currfolder);
+
+      filelock("$headerdb.$dbm_ext", LOCK_SH);
+      dbmopen (%HDB, $headerdb, undef);
+      if ( defined($HDB{'ALLMESSAGES'}) ) {
+         $allmessages=$HDB{'ALLMESSAGES'};
+         $total_allmessages+=$allmessages;
+      } else {
+         $allmessages='&nbsp;';
+      }
+      if ( defined($HDB{'NEWMESSAGES'}) ) {
+         $newmessages=$HDB{'NEWMESSAGES'};
+         $total_newmessages+=$newmessages;
+      } else {
+         $newmessages='&nbsp;';
+      }
+      dbmclose(%HDB);
+      filelock("$headerdb.$dbm_ext", LOCK_UN);
+
+      $foldersize = (-s "$folderfile");
+      $total_foldersize+=$foldersize;
+      # round foldersize and change to an appropriate unit for display
+      if ($foldersize > 1048575){
+         $foldersize = int(($foldersize/1048576)+0.5) . "MB";
+      } elsif ($foldersize > 1023) {
+         $foldersize =  int(($foldersize/1024)+0.5) . "KB";
+      }
+
+      my $escapedcurrfolder = CGI::escape($currfolder);
+      my $url = "$prefsurl?sessionid=$thissession&amp;folder=$escapedcurrfolder&amp;action=downloadfolder";
+      my $folderstr=$currfolder;
+      $folderstr=$lang_folders{$currfolder} if defined($lang_folders{$currfolder});
+      $temphtml .= "<tr>".
+                   "<td align=\"center\" bgcolor=$bgcolor><a href=\"$url\">$folderstr</a></td>".
+                   "<td align=\"center\" bgcolor=$bgcolor>$newmessages</td>".
+                   "<td align=\"center\" bgcolor=$bgcolor>$allmessages</td>".
+                   "<td align=\"center\" bgcolor=$bgcolor>$foldersize</td>".
+                   "<td bgcolor=$bgcolor align=\"center\">-----</td>";
+                   "</tr>";
+      if ($bgcolor eq $style{"tablerow_dark"}) {
+         $bgcolor = $style{"tablerow_light"};
+      } else {
+         $bgcolor = $style{"tablerow_dark"};
+      }
+   }
+   $html =~ s/\@\@\@DEFAULTFOLDERS\@\@\@/$temphtml/;
+
+   if ($total_foldersize > 1048575){
+      $total_foldersize = int(($total_foldersize/1048576)+0.5) . "MB";
+   } elsif ($total_foldersize > 1023) {
+      $total_foldersize =  int(($total_foldersize/1024)+0.5) . "KB";
+   }
+   $temphtml = "<tr>".
+               "<td align=\"center\" bgcolor=$bgcolor><B>$lang_text{'total'}</B></td>".
+               "<td align=\"center\" bgcolor=$bgcolor><B>$total_newmessages</B></td>".
+               "<td align=\"center\" bgcolor=$bgcolor><B>$total_allmessages</B></td>".
+               "<td align=\"center\" bgcolor=$bgcolor><B>$total_foldersize</B></td>".
+               "<td bgcolor=$bgcolor align=\"center\">&nbsp</td>";
+               "</tr>";
+   $html =~ s/\@\@\@TOTAL\@\@\@/$temphtml/;
+
    print $html;
 
    printfooter();
@@ -662,6 +748,63 @@ sub renamefolder {
    editfolders();
 }
 ################### END RENAMEFOLDER ##########################
+
+#################### DOWNLOAD FOLDER #######################
+sub downloadfolder {
+   verifysession();
+
+   my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
+   my ($cmd, $contenttype, $filename);
+   my $buff;
+
+   if ( -x '/usr/local/bin/zip' ) {
+      $cmd="/usr/local/bin/zip -r - $folderfile |";
+      $contenttype='application/x-zip-compressed';
+      $filename="$folder.zip";
+
+   } elsif ( -x '/usr/bin/zip' ) {
+      $cmd="/usr/bin/zip -r - $folderfile |";
+      $contenttype='application/x-zip-compressed';
+      $filename="$folder.zip";
+
+   } elsif ( -x '/usr/bin/gzip' ) {
+      $cmd="/usr/bin/gzip -c $folderfile |";
+      $contenttype='application/x-gzip-compressed';
+      $filename="$folder.gz";
+
+   } elsif ( -x '/usr/local/bin/gzip' ) {
+      $cmd="/usr/local/bin/gzip -c $folderfile |";
+      $contenttype='application/x-gzip-compressed';
+      $filename="$folder.gz";
+
+   } else {
+      $cmd="$folderfile";
+      $contenttype='text/plain';
+      $filename="$folder";
+   }
+
+   filelock($folderfile, LOCK_EX|LOCK_NB) or
+      openwebmailerror("$lang_err{'couldnt_lock'} $folderfile");
+
+   # disposition:attachment default to save
+   print qq|Content-Transfer-Coding: binary\n|,
+         qq|Connection: close\n|,
+         qq|Content-Type: $contenttype; name="$filename"\n|,
+         qq|Content-Disposition: attachment; filename="$filename"\n|,
+         qq|\n|;
+
+   ($cmd =~ /^(.+)$/) && ($cmd = $1);		# bypass taint check
+   open (T, $cmd);
+   while ( read(T, $buff,32768) ) {
+     print $buff;
+   }
+   close(T);
+
+   filelock($folderfile, LOCK_UN);
+
+   return;
+}
+################## END DOWNLOADFOLDER #####################
 
 ##################### IMPORTABOOK ############################
 sub importabook {
@@ -859,13 +1002,43 @@ sub importabook {
 }
 #################### END IMPORTABOOK #########################
 
+##################### EXPORTABOOK ############################
+sub exportabook {
+   verifysession();
+
+   filelock("$folderdir/.address.book", LOCK_EX|LOCK_NB) or
+      openwebmailerror("$lang_err{'couldnt_lock'} .address.book!");
+   open (ABOOK,"$folderdir/.address.book") or
+      openwebmailerror("$lang_err{'couldnt_open'} .address.book!");
+
+   # disposition:attachment default to save
+   print qq|Content-Transfer-Coding: binary\n|,
+         qq|Connection: close\n|,
+         qq|Content-Type: text/plain; name="adbook.csv"\n|,
+         qq|Content-Disposition: attachment; filename="adbook.csv"\n|,
+         qq|\n|;
+
+   print qq|Name,E-mail Address,Note\n|;
+
+   while (<ABOOK>) {
+      print join(",", split(/:/,$_,3));
+   }
+
+   close(ABOOK);
+   filelock("$folderdir/.address.book", LOCK_UN);
+   return;
+}
+#################### END EXPORTABOOK #########################
+
 #################### EDITADDRESSES ###########################
 sub editaddresses {
    verifysession();
 
    my %addresses=();
+   my %notes=();
    my %globaladdresses=();
-   my ($name, $email);
+   my %globalnotes=();
+   my ($name, $email, $note);
 
    my $html = '';
    my $temphtml;
@@ -883,9 +1056,10 @@ sub editaddresses {
       open (ABOOK,"$folderdir/.address.book") or
          openwebmailerror("$lang_err{'couldnt_open'} .address.book!");
       while (<ABOOK>) {
-         ($name, $email) = split(/:/, $_);
-         chomp($email);
+         ($name, $email, $note) = split(/:/, $_, 3);
+         chomp($email); chomp($note);
          $addresses{"$name"} = $email;
+         $notes{"$name"}=$note;
       }
       close (ABOOK) or openwebmailerror("$lang_err{'couldnt_close'} .address.book!");
    }
@@ -895,9 +1069,10 @@ sub editaddresses {
    if ( $global_addressbook ne "" && -f "$global_addressbook" ) {
       if (open (ABOOK,"$global_addressbook") ) {
          while (<ABOOK>) {
-            ($name, $email) = split(/:/, $_);
+            ($name, $email, $note) = split(/:/, $_, 3);
             chomp($email);
             $globaladdresses{"$name"} = $email;
+            $globalnotes{"$name"} = $note;
          }
          close (ABOOK);
       }
@@ -913,6 +1088,7 @@ sub editaddresses {
       $temphtml = "<a href=\"$scripturl?action=displayheaders&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder\"><IMG SRC=\"$imagedir_url/backtofolder.gif\" border=\"0\" ALT=\"$lang_text{'backto'} $printfolder\"></a> &nbsp; &nbsp; ";
    }
    $temphtml .= "<a href=\"$prefsurl?action=importabook&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid\"><IMG SRC=\"$imagedir_url/import.gif\" border=\"0\" ALT=\"$lang_text{'importadd'}\"></a>&nbsp;";
+   $temphtml .= "<a href=\"$prefsurl?action=exportabook&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid\"><IMG SRC=\"$imagedir_url/export.gif\" border=\"0\" ALT=\"$lang_text{'exportadd'}\"></a>&nbsp;";
    $temphtml .= "<a href=\"$prefsurl?action=clearaddress&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid\" onclick=\"return confirm('$lang_text{'clearadd'}?')\"><IMG SRC=\"$imagedir_url/clearaddress.gif\" border=\"0\" ALT=\"$lang_text{'clearadd'}\"></a>";
 
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
@@ -942,18 +1118,24 @@ sub editaddresses {
 
    $temphtml = textfield(-name=>'realname',
                          -default=>'',
-                         -size=>'25',
+                         -size=>'20',
                          -override=>'1');
 
    $html =~ s/\@\@\@REALNAMEFIELD\@\@\@/$temphtml/;
 
    $temphtml = textfield(-name=>'email',
                          -default=>'',
-                         -size=>'35',
+                         -size=>'30',
                          -override=>'1');
    $temphtml .= "<a href=\"Javascript:GoAddressWindow('email')\">&nbsp;<IMG SRC=\"$imagedir_url/group.gif\" border=\"0\" ALT=\"$lang_text{'group'}\"></a>";
 
    $html =~ s/\@\@\@EMAILFIELD\@\@\@/$temphtml/;
+
+   $temphtml = textfield(-name=>'note',
+                         -default=>'',
+                         -size=>'20',
+                         -override=>'1');
+   $html =~ s/\@\@\@NOTEFIELD\@\@\@/$temphtml/;
 
    $temphtml = submit("$lang_text{'addmod'}");
    $html =~ s/\@\@\@ADDBUTTON\@\@\@/$temphtml/;
@@ -965,15 +1147,13 @@ sub editaddresses {
    my $bgcolor = $style{"tablerow_dark"};
 
    foreach my $key (sort { uc($a) cmp uc($b) } (keys %addresses)) {
-      my ($namestr, $emailstr)=($key, $addresses{$key});
-
+      my ($namestr, $emailstr, $notestr)=($key, $addresses{$key}, $notes{$key});
       $namestr=substr($namestr, 0, 25)."..." if (length($namestr)>30);
-      $emailstr=substr($emailstr, 0, 45)."..." if (length($emailstr)>50);
-
-      $temphtml .= "<tr><td bgcolor=$bgcolor width=\"200\">
-                    <a href=\"Javascript:Update('$key','$addresses{$key}')\">
-                    $namestr</a></td><td bgcolor=$bgcolor width=\"300\">
-                    <a href=\"$scripturl?action=composemessage&amp;firstmessage=$firstmessage&amp;sort=$sort&amp;folder=$escapedfolder&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$addresses{$key}\">$emailstr</a></td>";
+      $emailstr=substr($emailstr, 0, 35)."..." if (length($emailstr)>40);
+      $temphtml .= qq|<tr>|.
+                   qq|<td bgcolor=$bgcolor width="150"><a href="Javascript:Update('$key','$addresses{$key}','$notes{$key}')">$namestr</a></td>|.
+                   qq|<td bgcolor=$bgcolor width="250"><a href="$scripturl?action=composemessage&amp;firstmessage=$firstmessage&amp;sort=$sort&amp;folder=$escapedfolder&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$addresses{$key}">$emailstr</a></td>|.
+                   qq|<td bgcolor=$bgcolor width="150">$notestr</td>|;
 
       $temphtml .= start_form(-action=>$prefsurl);
       $temphtml .= hidden(-name=>'action',
@@ -997,7 +1177,7 @@ sub editaddresses {
       $temphtml .= hidden(-name=>'realname',
                           -value=>$key,
                           -override=>'1');
-      $temphtml .= "<td bgcolor=$bgcolor align=\"center\" width=\"100\">";
+      $temphtml .= "<td bgcolor=$bgcolor align=\"center\" width=\"80\">";
       $temphtml .= submit("$lang_text{'delete'}");
       $temphtml .= '</td></tr>';
       $temphtml .= end_form();
@@ -1010,15 +1190,19 @@ sub editaddresses {
 
    my @sortkeys=sort { uc($a) cmp uc($b) } (keys %globaladdresses);
    if ($#sortkeys >= 0) {
-      $temphtml .= "<tr><td colspan=\"3\">&nbsp;</td></tr>\n";
-      $temphtml .= "<tr><td colspan=\"3\" bgcolor=$style{columnheader}><B>$lang_text{globaladdressbook}</B> ($lang_text{readonly})</td></tr>\n";
+      $temphtml .= "<tr><td colspan=\"4\">&nbsp;</td></tr>\n";
+      $temphtml .= "<tr><td colspan=\"4\" bgcolor=$style{columnheader}><B>$lang_text{globaladdressbook}</B> ($lang_text{readonly})</td></tr>\n";
    }
    foreach my $key (@sortkeys) {
-      $temphtml .= "<tr><td bgcolor=$bgcolor width=\"200\">
-                    <a href=\"Javascript:Update('$key','$globaladdresses{$key}')\">
-                    $key</a></td><td bgcolor=$bgcolor width=\"300\">
-                    <a href=\"$scripturl?action=composemessage&amp;firstmessage=$firstmessage&amp;sort=$sort&amp;folder=$escapedfolder&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$globaladdresses{$key}\">$globaladdresses{$key}</a></td>";
-      $temphtml .= "<td bgcolor=$bgcolor align=\"center\" width=\"100\">";
+      my ($namestr, $emailstr, $notestr)=($key, $globaladdresses{$key}, $globalnotes{$key});
+      $namestr=substr($namestr, 0, 25)."..." if (length($namestr)>30);
+      $emailstr=substr($emailstr, 0, 35)."..." if (length($emailstr)>40);
+      $temphtml .= qq|<tr>|.
+                   qq|<td bgcolor=$bgcolor width="150"><a href="Javascript:Update('$key','$globaladdresses{$key}','$globalnotes{$key}')">$namestr</a></td>|.
+                   qq|<td bgcolor=$bgcolor width="250"><a href="$scripturl?action=composemessage&amp;firstmessage=$firstmessage&amp;sort=$sort&amp;folder=$escapedfolder&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$addresses{$key}">$emailstr</a></td>|.
+                   qq|<td bgcolor=$bgcolor width="150">$notestr</td>|;
+
+      $temphtml .= "<td bgcolor=$bgcolor align=\"center\" width=\"80\">";
       $temphtml .= "-----";
       $temphtml .= '</td></tr>';
 
@@ -1044,17 +1228,21 @@ sub modaddress {
    verifysession();
 
    my $mode = shift;
-   my ($realname, $address);
+   my ($realname, $address, $ussrnote);
    $realname = param("realname") || '';
    $address = param("email") || '';
+   $usernote = param("note") || '';
    $realname =~ s/://;
    $realname =~ s/^\s*//; # strip beginning and trailing spaces from hash key
    $realname =~ s/\s*$//;
    $address =~ s/[#&=\?]//g;
+   $usernote =~ s/^\s*//; # strip beginning and trailing spaces
+   $usernote =~ s/\s*$//;
 
    if (($realname && $address) || (($mode eq 'delete') && $realname) ) {
       my %addresses;
-      my ($name,$email);
+      my %notes;
+      my ($name,$email,$note);
       if ( -f "$folderdir/.address.book" ) {
          my $abooksize = ( -s "$folderdir/.address.book" );
          if ( (($abooksize + length($realname) + length($address) + 2) >= ($maxabooksize * 1024) ) && ($mode ne "delete") ) {
@@ -1066,19 +1254,24 @@ sub modaddress {
          open (ABOOK,"+<$folderdir/.address.book") or
             openwebmailerror("$lang_err{'couldnt_open'} .address.book!");
          while (<ABOOK>) {
-            ($name, $email) = split(/:/, $_);
-            chomp($email);
+            ($name, $email, $note) = split(/:/, $_, 3);
+            chomp($email); chomp($note);
             $addresses{"$name"} = $email;
+            $notes{"$name"} = $note;
          }
          if ($mode eq 'delete') {
             delete $addresses{"$realname"};
          } else {
             $addresses{"$realname"} = $address;
+            if ($usernote ne '') { # overwrite old note only if new one is not null
+               $notes{"$realname"} = $usernote;
+            }
          }
          seek (ABOOK, 0, 0) or
             openwebmailerror("$lang_err{'couldnt_seek'} .address.book!");
-         while ( ($name, $email) = each %addresses ) {
-            print ABOOK "$name:$email\n";
+
+         foreach my $key (sort { uc($a) cmp uc($b) } (keys %addresses)) {
+            print ABOOK "$key:$addresses{$key}:$notes{$key}\n";
          }
          truncate(ABOOK, tell(ABOOK));
          close (ABOOK) or openwebmailerror("$lang_err{'couldnt_close'} .address.book!");
@@ -1086,7 +1279,7 @@ sub modaddress {
       } else {
          open (ABOOK, ">$folderdir/.address.book" ) or
             openwebmailerror("$lang_err{'couldnt_open'} .address.book!");
-         print ABOOK "$realname:$address\n";
+         print ABOOK "$realname:$address:$usernote\n";
          close (ABOOK) or openwebmailerror("$lang_err{'couldnt_close'} .address.book!");
       }
    }
@@ -1217,12 +1410,11 @@ sub editpop3 {
    #foreach my $key (sort { uc($a) cmp uc($b) } (keys %account)) 
    foreach (sort values %account) {
       ($host, $name, $pass, $del) = split(/:/, $_);
-      #<td bgcolor=$bgcolor width=\"200\"><a href=\"$scripturl?action=retrpop3&name=$name&host=$host&del=0&mbox=$name\@$host&amp;firstmessage=$firstmessage&amp;sort=$sort&amp;folder=$escapedfolder&amp;sessionid=$thissession&\">$host</a></td>
       $temphtml .= "<tr>
-                    <td bgcolor=$bgcolor width=\"200\"><a href=\"$scripturl?action=retrpop3&name=$name&host=$host&amp;firstmessage=$firstmessage&amp;sort=$sort&amp;folder=$escapedfolder&amp;sessionid=$thissession&\">$host</a></td>
-      		    <td align=\"center\" bgcolor=$bgcolor width=\"200\"><a href=\"Javascript:Update('$name','$pass','$host','$del')\">$name</a></td>
-                    <td align=\"center\" bgcolor=$bgcolor width=\"200\">\*\*\*\*\*\*</td>
-                    <td align=\"center\" bgcolor=$bgcolor width=\"200\">";
+                    <td bgcolor=$bgcolor><a href=\"$scripturl?action=retrpop3&name=$name&host=$host&amp;firstmessage=$firstmessage&amp;sort=$sort&amp;folder=$escapedfolder&amp;sessionid=$thissession&\">$host</a></td>
+      		    <td align=\"center\" bgcolor=$bgcolor><a href=\"Javascript:Update('$name','$pass','$host','$del')\">$name</a></td>
+                    <td align=\"center\" bgcolor=$bgcolor>\*\*\*\*\*\*</td>
+                    <td align=\"center\" bgcolor=$bgcolor>";
       if ( $del == 1) {
       	 $temphtml .= $lang_text{'delete'};
       }
@@ -1824,7 +2016,7 @@ sub addressbook {
       open (ABOOK,"$folderdir/.address.book") or
          openwebmailerror("$lang_err{'couldnt_open'} .address.book!");
       while (<ABOOK>) {
-         ($name, $email) = split(/:/, $_);
+         ($name, $email) = (split(/:/, $_, 3))[0,1];
          chomp($email);
          $addresses{"$name"} = $email;
       }
@@ -1848,7 +2040,7 @@ sub addressbook {
    if ( $global_addressbook ne "" && -f "$global_addressbook" ) {
       if (open (ABOOK,"$global_addressbook")) {
          while (<ABOOK>) {
-            ($name, $email) = split(/:/, $_);
+            ($name, $email) = (split(/:/, $_, 3))[0,1];
             chomp($email);
             $globaladdresses{"$name"} = $email;
          }

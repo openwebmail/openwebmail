@@ -200,11 +200,9 @@ if (param("action")) {      # an action has been chosen
          sendmessage();
       } elsif ($action eq "movemessage") {
          movemessage();
-      } elsif ($action eq "downloadfolder") {
-         downloadfolder();
-      } elsif ($action eq "retrpop3s") {
+      } elsif ($action eq "retrpop3s" && $enable_pop3 eq 'yes') {
       	 retrpop3s();
-      } elsif ($action eq "retrpop3") {
+      } elsif ($action eq "retrpop3" && $enable_pop3 eq 'yes') {
      	 retrpop3();
       } elsif ($action eq "logout") {
          logout();
@@ -344,7 +342,7 @@ sub login {
          $sort = $prefs{"sort"} || 'date';
 
          displayheaders();
-         if ($prefs{"autopop3"}==1) {
+         if ($prefs{"autopop3"}==1 && $enable_pop3 eq 'yes') {
             _retrpop3s(0);
          }
       } else {
@@ -550,9 +548,10 @@ sub displayheaders {
    $temphtml .= "<a href=\"$prefsurl?action=editfolders&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/folder.gif\" border=\"0\" ALT=\"$lang_text{'folders'}\"></a> ";
    $temphtml .= "<a href=\"$prefsurl?action=editaddresses&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/addresses.gif\" border=\"0\" ALT=\"$lang_text{'addressbook'}\"></a> ";
    $temphtml .= "<a href=\"$prefsurl?action=editfilter&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/filtersetup.gif\" border=\"0\" ALT=\"$lang_text{'filterbook'}\"></a> &nbsp; &nbsp; ";
-   $temphtml .= "<a href=\"$prefsurl?action=editpop3&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/pop3setup.gif\" border=\"0\" ALT=\"$lang_text{'pop3book'}\"></a> ";
-   $temphtml .= "<a href=\"$scripturl?action=retrpop3s&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid\"><IMG SRC=\"$imagedir_url/pop3.gif\" border=\"0\" ALT=\"$lang_text{'retr_pop3s'}\"></a> &nbsp; &nbsp; ";
-
+   if ($enable_pop3 eq 'yes') {
+      $temphtml .= "<a href=\"$prefsurl?action=editpop3&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/pop3setup.gif\" border=\"0\" ALT=\"$lang_text{'pop3book'}\"></a> ";
+      $temphtml .= "<a href=\"$scripturl?action=retrpop3s&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid\"><IMG SRC=\"$imagedir_url/pop3.gif\" border=\"0\" ALT=\"$lang_text{'retr_pop3s'}\"></a> &nbsp; &nbsp; ";
+   }
    $temphtml .= "<a href=\"$base_url&amp;action=emptytrash&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/trash.gif\" border=\"0\" ALT=\"$lang_text{'emptytrash'}\"></a> ";
    $temphtml .= "<a href=\"$base_url&amp;action=logout&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/logout.gif\" border=\"0\" ALT=\"$lang_text{'logout'} $useremail\"></a>";
 
@@ -971,11 +970,15 @@ sub readmessage {
          $temphtml .= "<a href=\"$base_url&amp;action=composemessage&amp;composetype=editdraft\"><IMG SRC=\"$imagedir_url/compose.gif\" border=\"0\" ALT=\"$lang_text{'editdraft'}\"></a> " .
          "<a href=\"$base_url&amp;action=composemessage&amp;composetype=reply\"><IMG SRC=\"$imagedir_url/reply.gif\" border=\"0\" ALT=\"$lang_text{'reply'}\"></a> " .
          "<a href=\"$base_url&amp;action=composemessage&amp;composetype=replyall\"><IMG SRC=\"$imagedir_url/replyall.gif\" border=\"0\" ALT=\"$lang_text{'replyall'}\"></a> " .
-         "<a href=\"$base_url&amp;action=composemessage&amp;composetype=forward\"><IMG SRC=\"$imagedir_url/forward.gif\" border=\"0\" ALT=\"$lang_text{'forward'}\"></a> &nbsp; &nbsp; ";
+         "<a href=\"$base_url&amp;action=composemessage&amp;composetype=forward\"><IMG SRC=\"$imagedir_url/forward.gif\" border=\"0\" ALT=\"$lang_text{'forward'}\"></a> " .
+         "<a href=\"$base_url&amp;action=composemessage&amp;composetype=forwardasatt\"><IMG SRC=\"$imagedir_url/forwardasatt.gif\" border=\"0\" ALT=\"$lang_text{'forwardasatt'}\"></a> " .
+         "&nbsp; &nbsp; ";
       } else {
          $temphtml .= "<a href=\"$base_url&amp;action=composemessage&amp;composetype=reply\"><IMG SRC=\"$imagedir_url/reply.gif\" border=\"0\" ALT=\"$lang_text{'reply'}\"></a> " .
          "<a href=\"$base_url&amp;action=composemessage&amp;composetype=replyall\"><IMG SRC=\"$imagedir_url/replyall.gif\" border=\"0\" ALT=\"$lang_text{'replyall'}\"></a> " .
-         "<a href=\"$base_url&amp;action=composemessage&amp;composetype=forward\"><IMG SRC=\"$imagedir_url/forward.gif\" border=\"0\" ALT=\"$lang_text{'forward'}\"></a> &nbsp; &nbsp; ";
+         "<a href=\"$base_url&amp;action=composemessage&amp;composetype=forward\"><IMG SRC=\"$imagedir_url/forward.gif\" border=\"0\" ALT=\"$lang_text{'forward'}\"></a> " .
+         "<a href=\"$base_url&amp;action=composemessage&amp;composetype=forwardasatt\"><IMG SRC=\"$imagedir_url/forwardasatt.gif\" border=\"0\" ALT=\"$lang_text{'forwardasatt'}\"></a> " .
+         "&nbsp; &nbsp; ";
       }
       $temphtml .= "<a href=\"$base_url&amp;action=logout\"><IMG SRC=\"$imagedir_url/logout.gif\" border=\"0\" ALT=\"$lang_text{'logout'} $useremail\"></a>";
    
@@ -1195,11 +1198,8 @@ sub readmessage {
                   $temphtml .= misc_att2table($message{attachment}, $attnumber, $escapedmessageid);
                }
             } elsif ( ${$message{attachment}[$attnumber]}{contenttype}=~ /^message/i ) {
-               if ( ${$message{attachment}[$attnumber]}{filename}=~ /^Unknown\./ ) {
-                  $temphtml .= message_att2table($message{attachment}, $attnumber, $style{"window_dark"});
-               } else {
-                  $temphtml .= misc_att2table($message{attachment}, $attnumber, $escapedmessageid);
-               }
+               # always show message/... attachment
+               $temphtml .= message_att2table($message{attachment}, $attnumber, $style{"window_dark"});
             } elsif ( ${$message{attachment}[$attnumber]}{filename}=~ /\.(jpg|jpeg|gif|png)$/i) {
                # show image only if it is not linked
                if ( ($decodedhtml !~ /\Q${$message{attachment}[$attnumber]}{id}\E/) &&
@@ -1389,8 +1389,8 @@ sub lenstr {
 ############### END READMESSAGE ##################
 
 ############### COMPOSEMESSAGE ###################
-# 6 composetype: continue(used after adding attachment), 
-#                reply, replyall, forward, editdraft or none(newmail)
+# 7 composetype: continue(used after adding attachment), 
+#                reply, replyall, forward, forwardasatt, editdraft or none(newmail)
 sub composemessage {
    no strict 'refs';
    verifysession();
@@ -1571,7 +1571,8 @@ sub composemessage {
                ($attserial =~ /^(.+)$/) && ($attserial = $1);   # bypass taint check
                foreach my $attnumber (0 .. $#{$message{attachment}}) {
                   $attserial++;
-                  open (ATTFILE, ">$openwebmaildir/sessions/$thissession-att$attserial");
+                  open (ATTFILE, ">$openwebmaildir/sessions/$thissession-att$attserial") or 
+                     openwebmailerror("$lang_err{'couldnt_open'} $openwebmaildir/sessions/$thissession-att$attserial!");
                   print ATTFILE ${$message{attachment}[$attnumber]}{header}, "\n\n", ${${$message{attachment}[$attnumber]}{r_content}};
                   close ATTFILE;
                }
@@ -1592,11 +1593,43 @@ sub composemessage {
             } elsif ($composetype eq "forward") {
                $replyto = $prefs{"replyto"} if (defined($prefs{"replyto"}));
                $subject = "Fw: " . $subject unless ($subject =~ /^fw:/i);
-               $body = "\n\n------------- Forwarded message follows -------------\n$body" if ($body =~ /[^\s]/);
+               $body = "\n\n------------- Forwarded message -------------\n$body" if ($body =~ /[^\s]/);
             }
          }
 
-      }
+      } elsif ($composetype eq 'forwardasatt') {
+         my $messageid = param("message_id");
+         my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
+         my $folderhandle=FileHandle->new();
+         my $atthandle=FileHandle->new();
+
+         filelock($folderfile, LOCK_SH|LOCK_NB) or
+            openwebmailerror("$lang_err{'couldnt_locksh'} $folderfile!");
+         update_headerdb($headerdb, $folderfile);
+
+         my @attr=get_message_attributes($messageid, $headerdb);
+
+         open($folderhandle, "$folderfile");
+         my $attserial=time();
+         ($attserial =~ /^(.+)$/) && ($attserial = $1);   # bypass taint check
+         open ($atthandle, ">$openwebmaildir/sessions/$thissession-att$attserial") or
+            openwebmailerror("$lang_err{'couldnt_open'} $openwebmaildir/sessions/$thissession-att$attserial!");
+         print $atthandle "Content-Type: message/rfc822;\n",
+                          "Content-Disposition: attachment; filename=\"Forward.msg\"\n\n";
+         copyblock($folderhandle, $attr[$_OFFSET], $atthandle, tell($atthandle), $attr[$_SIZE]);
+         close $atthandle;
+         close($folderhandle);
+
+         filelock($folderfile, LOCK_UN);
+
+         ($savedattsize, $r_attnamelist, $r_attfilelist) = getattlistinfo();
+
+         $replyto = $prefs{"replyto"} if (defined($prefs{"replyto"}));
+         $subject = $attr[$_SUBJECT];
+         $subject = "Fw: " . $subject unless ($subject =~ /^fw:/i);
+         $body = "\n\n# Message forwarded as attachment\n";
+      }     
+
    }
 
    if ( (defined($prefs{"signature"})) && 
@@ -2148,12 +2181,18 @@ sub viewattachment {	# view attachments inside a message
          }
 
          my $length = length($content);
+         my $contenttype = ${$r_attachment}{contenttype}; 
+         # we send message with contenttype text/plain for easy view
+         if ($contenttype =~ /^message\//i) {
+            $contenttype = "text/plain";
+         }
+
          # disposition:attachment default to save
          print qq|Content-Length: $length\n|,
                qq|Content-Transfer-Coding: binary\n|,
                qq|Connection: close\n|,
-               qq|Content-Type: ${$r_attachment}{contenttype}; name="${$r_attachment}{filename}"\n|;
-         if (${$r_attachment}{contenttype} !~ /^text/i) {
+               qq|Content-Type: $contenttype; name="${$r_attachment}{filename}"\n|;
+         if ($contenttype !~ /^text/i) {
             print qq|Content-Disposition: attachment; filename="${$r_attachment}{filename}"\n|;
          }
 
@@ -2421,9 +2460,11 @@ sub getmessage {
    if ($currentreceived=~ /.*\sfrom\s([^\s]+)\s.*/) {
       unshift(@smtprelays, $1);
    }
-   # count last fromhost as relay only if there are just 2 host on relaylist 
+   # count first fromhost as relay only if there are just 2 host on relaylist 
    # since it means sender pc uses smtp to talk to our mail server directly
    shift(@smtprelays) if ($#smtprelays>1);
+   # remove last relay (it is our mail server)
+   pop (@smtprelays);
 
    foreach (@smtprelays) {
       if ($_=~/[\w\d\-_]+\.[\w\d\-_]+/ && $_ ne $prefs{domainname}) {
@@ -2708,63 +2749,6 @@ sub movemessage {
 
 
 #################### END MOVEMESSAGE #######################
-
-#################### DOWNLOAD FOLDER #######################
-sub downloadfolder {
-   verifysession();
-
-   my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
-   my ($cmd, $contenttype, $filename);
-   my $buff;
-
-   if ( -x '/usr/local/bin/zip' ) {
-      $cmd="/usr/local/bin/zip -r - $folderfile |";
-      $contenttype='application/x-zip-compressed';
-      $filename="$folder.zip";
-
-   } elsif ( -x '/usr/bin/zip' ) {
-      $cmd="/usr/bin/zip -r - $folderfile |";
-      $contenttype='application/x-zip-compressed';
-      $filename="$folder.zip";
-
-   } elsif ( -x '/usr/bin/gzip' ) {
-      $cmd="/usr/bin/gzip -c $folderfile |";
-      $contenttype='application/x-gzip-compressed';
-      $filename="$folder.gz";
-
-   } elsif ( -x '/usr/local/bin/gzip' ) {
-      $cmd="/usr/local/bin/gzip -c $folderfile |";
-      $contenttype='application/x-gzip-compressed';
-      $filename="$folder.gz";
-
-   } else {
-      $cmd="$folderfile";
-      $contenttype='text/plain';
-      $filename="$folder";
-   }
-
-   filelock($folderfile, LOCK_EX|LOCK_NB) or
-      openwebmailerror("$lang_err{'couldnt_lock'} $folderfile");
-
-   # disposition:attachment default to save
-   print qq|Content-Transfer-Coding: binary\n|,
-         qq|Connection: close\n|,
-         qq|Content-Type: $contenttype; name="$filename"\n|,
-         qq|Content-Disposition: attachment; filename="$filename"\n|,
-         qq|\n|;
-
-   ($cmd =~ /^(.+)$/) && ($cmd = $1);		# bypass taint check
-   open (T, $cmd);
-   while ( read(T, $buff,32768) ) {
-     print $buff;
-   }
-   close(T);
-
-   filelock($folderfile, LOCK_UN);
-
-   return;
-}
-################## END DOWNLOADFOLDER #####################
 
 #################### EMPTYTRASH ########################
 sub emptytrash {
