@@ -1,3 +1,9 @@
+02/17/2005
+----------
+1. French language file translation minor update
+   (thanks to Dominique, dominique.fournier.AT.grenoble.cnrs.fr)
+
+
 02/16/2005
 ----------
 1. Spanish language, template and htmlarea files trnslation update
@@ -12,7 +18,7 @@
 ps: this bug was introduced by the fix 1 in 20050115,
    (thanks to Troy, troy.AT.riq.qc.ca for his fix)
 5. French language and templates translation update
-   (suggested by Dominique, dominique.fournier.AT.grenoble.cnrs.fr)
+   (thanks to Dominique, dominique.fournier.AT.grenoble.cnrs.fr)
 
 
 02/15/2005
