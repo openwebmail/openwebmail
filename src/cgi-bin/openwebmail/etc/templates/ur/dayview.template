@@ -47,6 +47,7 @@
 <tr><td colspan=2 nowrap>ﺍﺱ ﺍﻳﻤﻴﻞ ﺍﮈﺭﻳﺲ ﭘﺮ ﺁﮔﺎﻩ ﻛﺮﻳﮟ</td></tr>
 <tr><td colspan=2 nowrap>@@@EMAILFIELD@@@</td></tr>
 @@@EMAILEND@@@
+<tr><td nowrap>Event reminder</td><td>@@@EVENTREMINDERMENU@@@</td></tr>
 <tr><td nowrap>ﺍﺋﭨﻢ ﻛﺎ ﺭﻧﮓ</td><td nowrap>@@@EVENTCOLORMENU@@@</td></tr>
 <tr><td colspan=2>@@@COLORTABLE@@@</td></tr>
 <tr><td colspan=2 align=center>@@@SUBMITBUTTON@@@</td></tr>

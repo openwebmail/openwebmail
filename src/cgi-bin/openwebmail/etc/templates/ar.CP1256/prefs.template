@@ -528,6 +528,11 @@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CATEGORIZEDFOLDERS@@@ &nbsp;( «·›«’· »Ì‰ «·’‰› Ê «·„Ã·œ @@@CATEGORIZEDFOLDERS_FS@@@ )
 </td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Show inbox unread count in titlebar:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@UNREADMSGINTITLEBAR@@@
+</td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>’Ê  «·≈Œÿ«— ··»—Ìœ «·ÃœÌœ:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>

@@ -529,6 +529,11 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 @@@CATEGORIZEDFOLDERS@@@ &nbsp;( Разделител на категорията папка @@@CATEGORIZEDFOLDERS_FS@@@ )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Show inbox unread count in titlebar:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@UNREADMSGINTITLEBAR@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Сигнал при ново съобщение:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@NEWMAILSOUNDMENU@@@

@@ -1002,8 +1002,15 @@ sub listmessages {
                     qq|//-->\n</script>\n|;
       }
    }
-
    $html.=readtemplate('showmsg.js').$temphtml if ($temphtml);
+
+   # show unread inbox messages count in titlebar
+   my $unread_messages_msg;
+   if ($prefs{'unreadmsgintitlebar'}) {
+      if ($now_inbox_newmessages>0) {
+         $unread_messages_msg = "$lang_folders{INBOX}: $now_inbox_newmessages $lang_text{'messages'} $lang_text{'unread'}";
+      }
+   }
 
    # since $headershtml may be large, we put it into $html as late as possible
    $html =~ s/\@\@\@HEADERS\@\@\@/$headershtml/; undef($headershtml);
@@ -1015,12 +1022,13 @@ sub listmessages {
    $relative_url=~s!/.*/!!g;
 
    httpprint([-Refresh=>"$refreshinterval;URL=$relative_url?sessionid=$thissession&sort=$sort&keyword=$escapedkeyword&searchtype=$searchtype&folder=INBOX&action=listmessages&page=1&session_noupdate=1"],
-             [htmlheader(),
+             [htmlheader($unread_messages_msg),
               htmlplugin($config{'header_pluginfile'}, $config{'header_pluginfile_charset'}, $prefs{'charset'}),
               $html,
               htmlplugin($config{'footer_pluginfile'}, $config{'footer_pluginfile_charset'}, $prefs{'charset'}),
               htmlfooter(2)] );
 }
+
 
 # reminder for events within 7 days
 sub eventreminder_html {
@@ -1064,6 +1072,8 @@ sub eventreminder_html {
       my $dayhtml="";
       for my $index (@indexlist) {
          next if ($used{$index});
+         next if (!$items{$index}{'eventreminder'});
+
          if ($date=~/$items{$index}{'idate'}/  ||
              $date2=~/$items{$index}{'idate'}/ ||
              ow::datetime::easter_match($year,$month,$day,$items{$index}{'idate'}) ) {

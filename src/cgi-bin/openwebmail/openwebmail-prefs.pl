@@ -1521,6 +1521,14 @@ sub editprefs {
                                defined($config_raw{'DEFAULT_categorizedfolders_fs'})?('-disabled'=>'1'):());
          $html =~ s/\@\@\@CATEGORIZEDFOLDERS_FS\@\@\@/$temphtml/;
 
+         $temphtml = checkbox(-name=>'unreadmsgintitlebar',
+                              -value=>'1',
+                              -checked=>$prefs{'unreadmsgintitlebar'},
+                              -label=>'',
+                              -override=>'1',
+                              defined($config_raw{'DEFAULT_unreadmsgintitlebar'})?('-disabled'=>'1'):());
+         $html =~ s/\@\@\@UNREADMSGINTITLEBAR\@\@\@/$temphtml/;
+
          # Get a list of new mail sound
          my @sounds;
          opendir(SOUNDDIR, "$config{'ow_htmldir'}/sounds") or

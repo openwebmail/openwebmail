@@ -47,6 +47,7 @@
 <tr><td colspan=2 nowrap>Po¹alji poruku obavje¹tenja na</td></tr>
 <tr><td colspan=2 nowrap>@@@EMAILFIELD@@@</td></tr>
 @@@EMAILEND@@@
+<tr><td nowrap>Event reminder</td><td>@@@EVENTREMINDERMENU@@@</td></tr>
 <tr><td nowrap>Boja dogaðaja</td><td nowrap>@@@EVENTCOLORMENU@@@</td></tr>
 <tr><td colspan=2>@@@COLORTABLE@@@</td></tr>
 <tr><td colspan=2 align=center>@@@SUBMITBUTTON@@@</td></tr>

@@ -1,18 +1,18 @@
-### Feriados Civis ou Nacionais@@@@@@@@@@@@@@@0@@@0@@@none@@@iso-8859-1
-1@@@.*,01,01,.*@@@0@@@0@@@Confraternização Universal@@@0@@@0@@@none@@@iso-8859-1
-2@@@.*,04,21,.*@@@0@@@0@@@Tiradentes@@@0@@@0@@@none@@@iso-8859-1
-3@@@.*,05,01,.*@@@0@@@0@@@Dia do Trabalho@@@0@@@0@@@none@@@iso-8859-1
-4@@@.*,09,07,.*@@@0@@@0@@@Independência do Brasil@@@0@@@0@@@none@@@iso-8859-1
-5@@@.*,10,12,.*@@@0@@@0@@@Nossa Senhora Aparecida@@@0@@@0@@@none@@@iso-8859-1
-7@@@.*,11,15,.*@@@0@@@0@@@Proclamação da República@@@0@@@0@@@none@@@iso-8859-1
-8@@@.*,12,25,.*@@@0@@@0@@@Natal@@@0@@@0@@@none@@@iso-8859-1
-### Datas Móveis@@@@@@@@@@@@@@@0@@@0@@@none@@@iso-8859-1
-9@@@.*,easter,easter-47,.*@@@0@@@0@@@Carnaval@@@0@@@0@@@none@@@iso-8859-1
-### Comemorações Religiosas@@@@@@@@@@@@@@@0@@@0@@@none@@@iso-8859-1
-6@@@.*,11,02,.*@@@0@@@0@@@Finados@@@0@@@0@@@none@@@iso-8859-1
-10@@@.*,easter,easter+60,.*@@@0@@@0@@@Corpus Christi@@@0@@@0@@@none@@@iso-8859-1
-11@@@.*,easter,easter-2,.*@@@0@@@0@@@Sexta Feira Santa@@@0@@@0@@@none@@@iso-8859-1
-12@@@.*,easter,easter,.*@@@0@@@0@@@Páscoa@@@0@@@0@@@none@@@iso-8859-1
-### Dias Comemorativos@@@@@@@@@@@@@@@0@@@0@@@none@@@iso-8859-1
-13@@@.*,05,((0[8-9])|(1[0-4])),Sun@@@0@@@0@@@Dia das Mães@@@0@@@0@@@none@@@iso-8859-1
-14@@@.*,08,((0[8-9])|(1[0-4])),Sun@@@0@@@0@@@Dia dos Pais@@@0@@@0@@@none@@@iso-8859-1
+### Feriados Civis ou Nacionais
+1@@@.*,01,01,.*@@@0@@@0@@@Confraternização Universal@@@0@@@0@@@none@@@iso-8859-1@@@1
+2@@@.*,04,21,.*@@@0@@@0@@@Tiradentes@@@0@@@0@@@none@@@iso-8859-1@@@1
+3@@@.*,05,01,.*@@@0@@@0@@@Dia do Trabalho@@@0@@@0@@@none@@@iso-8859-1@@@1
+4@@@.*,09,07,.*@@@0@@@0@@@Independência do Brasil@@@0@@@0@@@none@@@iso-8859-1@@@1
+5@@@.*,10,12,.*@@@0@@@0@@@Nossa Senhora Aparecida@@@0@@@0@@@none@@@iso-8859-1@@@1
+7@@@.*,11,15,.*@@@0@@@0@@@Proclamação da República@@@0@@@0@@@none@@@iso-8859-1@@@1
+8@@@.*,12,25,.*@@@0@@@0@@@Natal@@@0@@@0@@@none@@@iso-8859-1@@@1
+### Datas Móveis@@@@@@@@@@@@@@@0@@@0@@@none@@@iso-8859-1@@@1
+9@@@.*,easter,easter-47,.*@@@0@@@0@@@Carnaval@@@0@@@0@@@none@@@iso-8859-1@@@1
+### Comemorações Religiosas@@@@@@@@@@@@@@@0@@@0@@@none@@@iso-8859-1@@@1
+6@@@.*,11,02,.*@@@0@@@0@@@Finados@@@0@@@0@@@none@@@iso-8859-1@@@1
+10@@@.*,easter,easter+60,.*@@@0@@@0@@@Corpus Christi@@@0@@@0@@@none@@@iso-8859-1@@@1
+11@@@.*,easter,easter-2,.*@@@0@@@0@@@Sexta Feira Santa@@@0@@@0@@@none@@@iso-8859-1@@@1
+12@@@.*,easter,easter,.*@@@0@@@0@@@Páscoa@@@0@@@0@@@none@@@iso-8859-1@@@1
+### Dias Comemorativos@@@@@@@@@@@@@@@0@@@0@@@none@@@iso-8859-1@@@1
+13@@@.*,05,((0[8-9])|(1[0-4])),Sun@@@0@@@0@@@Dia das Mães@@@0@@@0@@@none@@@iso-8859-1@@@1
+14@@@.*,08,((0[8-9])|(1[0-4])),Sun@@@0@@@0@@@Dia dos Pais@@@0@@@0@@@none@@@iso-8859-1@@@1

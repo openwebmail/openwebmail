@@ -66,6 +66,7 @@ foreach (qw(
    default_calendar_showemptyhours default_calendar_reminderforglobal
    default_webdisk_confirmmovecopy default_webdisk_confirmdel default_webdisk_confirmcompress
    default_uselightbar default_regexmatch default_hideinternal default_categorizedfolders
+   default_unreadmsgintitlebar
 )) { $is_config_option{'yesno'}{$_}=1}
 
 # none type config options
@@ -154,7 +155,7 @@ foreach my $opttype ('yesno', 'none', 'list') {
    webdisk_dirnumitems webdisk_confirmmovecopy webdisk_confirmdel
    webdisk_confirmcompress webdisk_fileeditcolumns  webdisk_fileeditrows
    fscharset uselightbar regexmatch hideinternal
-   categorizedfolders categorizedfolders_fs
+   categorizedfolders categorizedfolders_fs unreadmsgintitlebar
    refreshinterval newmailsound newmailwindowtime mailsentwindowtime
    dictionary trashreserveddays spamvirusreserveddays sessiontimeout
 );
@@ -243,7 +244,10 @@ sub openwebmail_exit {
 sub userenv_init {
    load_owconf(\%config_raw, "$SCRIPT_DIR/etc/defaults/openwebmail.conf");
    read_owconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf") if (-f "$SCRIPT_DIR/etc/openwebmail.conf");
-   loadlang($config{'default_language'});	# so %lang... can be used in error msg
+
+   # so %lang... can be displayed with right charset in error msg
+   loadlang($config{'default_language'});
+   $prefs{'charset'}=$ow::lang::languagecharsets{$config{'default_language'}};
 
    if ($config{'smtpauth'}) {	# load smtp auth user/pass
       read_owconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/smtpauth.conf");
@@ -1191,6 +1195,8 @@ sub httpheader {
 }
 
 sub htmlheader {
+   my $extra_info = $_[0]; # any message in titlebar
+
    my $html = applystyle(readtemplate("header.template"));
    $html =~ s/\@\@\@DIRECTIVE\@\@\@/$_[0]/g;	# $_[0] is optional html directive
 
@@ -1204,9 +1210,9 @@ sub htmlheader {
    $html =~ s/\@\@\@BG_URL\@\@\@/$prefs{'bgurl'}/g;
    $html =~ s/\@\@\@CHARSET\@\@\@/$prefs{'charset'}/g;
 
-   my $info;
+   my $info = $extra_info?"$extra_info - ":"";
    if ($user ne '') {
-      $info=qq|$prefs{'email'} -|;
+      $info.=qq|$prefs{'email'} -|;
       if ($config{'quota_module'} ne "none") {
          $info.=qq| |.lenstr($quotausage*1024,1);
          $info.=qq| (|.(int($quotausage*1000/$quotalimit)/10).qq|%)| if ($quotalimit);

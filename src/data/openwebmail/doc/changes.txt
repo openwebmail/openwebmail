@@ -1,3 +1,21 @@
+03/19/2005
+----------
+1. add 'show inbox unread message count' option to prefs
+   (thanks to Alex Teslik, alex.AT.acatysmoof.com for his code)
+2. add 'event reminder' option to calendar item menu
+   (thanks to Matt Roberts, matt.AT.dworkin.org for his code)
+
+
+03/18/2005
+----------
+1. Spanish language file tranlsation minor update
+   Spanish holiday file
+   (thanks to Miguel Angel Fernandez Roiz, roiz.AT.lobocom.es)
+2. new mirrorsite at Burlingame, California, US
+   http://openwebmail.tolix.org/
+   (thanks to Deep, silver_masta.AT.yahoo.com)
+
+
 03/17/2005
 ----------
 1. fix a bug that relative links in message would be converted to absolute

@@ -2054,6 +2054,15 @@ This is used to protect your server from being too busy due to a very
 small refreshinterval setting
 
 
+default_unreadmsgintitlebar
+-----------------------------------------------------------------------
+If this option is enabled, the number of unread messages will show in the
+titlebar of the browser. This allows users to check to see if they have
+unread messages without maximizing their browser window. Currently, the
+titlebar will only be changed for unread messages in the inbox only.
+This is intended as a silent new message notification.
+
+
 default_newmailsound
 -----------------------------------------------------------------------
 this is the sound file played if new mail is found.

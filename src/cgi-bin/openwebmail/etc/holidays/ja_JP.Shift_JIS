@@ -1,23 +1,23 @@
-1@@@.*,02,03,.*@@@0@@@0@@@Beginning of spring (setsubun)@@@0@@@0@@@none@@@shift_jis
-2@@@.*,03,14,.*@@@0@@@0@@@White Day@@@0@@@0@@@none@@@shift_jis
-3@@@.*,09,((1[5-9])|(2[0-1])),Mon@@@0@@@0@@@Respect for the Aged Day (keiro no hi)@@@0@@@0@@@none@@@shift_jis
-4@@@.*,03,21,.*@@@0@@@0@@@Spring Eqinox Day (shunbun no hi)@@@0@@@0@@@none@@@shift_jis
-5@@@.*,11,03,.*@@@0@@@0@@@Culture Day (bunka no hi)@@@0@@@0@@@none@@@shift_jis
-6@@@.*,04,29,.*@@@0@@@0@@@Golden Week@@@0@@@0@@@none@@@shift_jis
-7@@@.*,07,((1[5-9])|(2[0-1])),Mon@@@0@@@0@@@Ocean Day (umi no hi)@@@0@@@0@@@none@@@shift_jis
-8@@@.*,10,((0[8-9])|(1[0-4])),Mon@@@0@@@0@@@Health and Sports Day (taiiku no hi)@@@0@@@0@@@none@@@shift_jis
-9@@@.*,11,15,.*@@@0@@@0@@@Seven-Five-Three Children's Festival (shichigosan)@@@0@@@0@@@none@@@shift_jis
-10@@@.*,01,12,.*@@@0@@@0@@@Coming of Age (seiji no hi)@@@0@@@0@@@none@@@shift_jis
-11@@@.*,02,14,.*@@@0@@@0@@@Valentine's Day@@@0@@@0@@@none@@@shift_jis
-12@@@.*,07,07,.*@@@0@@@0@@@Star Festival (tanabata)@@@0@@@0@@@none@@@shift_jis
-13@@@.*,11,23,.*@@@0@@@0@@@Labour Thanksgiving Day (kinro kansha no hi)@@@0@@@0@@@none@@@shift_jis
-14@@@.*,05,03,.*@@@0@@@0@@@Constitution Day (kenpo kinenbi)@@@0@@@0@@@none@@@shift_jis
-15@@@\d\d\d\d(0101|0102|0103)@@@0@@@0@@@New Year (shogatsu)@@@0@@@0@@@none@@@shift_jis
-16@@@.*,08,15,.*@@@0@@@0@@@Obon Festival@@@0@@@0@@@none@@@shift_jis
-17@@@\d\d\d\d(0429|0430|0501|0502|0503|0504|0505)@@@0@@@0@@@Green Day (midori no hi)@@@0@@@0@@@none@@@shift_jis
-18@@@.*,02,11,.*@@@0@@@0@@@National Foundation Day (kenkoku kinenbi)@@@0@@@0@@@none@@@shift_jis
-19@@@.*,12,24,.*@@@0@@@0@@@Christmas@@@0@@@0@@@none@@@shift_jis
-20@@@.*,12,23,.*@@@0@@@0@@@Emperor's Birthday (tenno no tanjobi)@@@0@@@0@@@none@@@shift_jis
-21@@@.*,05,04,.*@@@0@@@0@@@Between Day (kokumin no kyujitsu)@@@0@@@0@@@none@@@shift_jis
-22@@@.*,03,03,.*@@@0@@@0@@@Doll's Festival (hina matsuri)@@@0@@@0@@@none@@@shift_jis
-23@@@.*,05,05,.*@@@0@@@0@@@Children's (Boy's Festival) (kodomo no hi)@@@0@@@0@@@none@@@shift_jis
+1@@@.*,02,03,.*@@@0@@@0@@@Beginning of spring (setsubun)@@@0@@@0@@@none@@@shift_jis@@@1
+2@@@.*,03,14,.*@@@0@@@0@@@White Day@@@0@@@0@@@none@@@shift_jis@@@1
+3@@@.*,09,((1[5-9])|(2[0-1])),Mon@@@0@@@0@@@Respect for the Aged Day (keiro no hi)@@@0@@@0@@@none@@@shift_jis@@@1
+4@@@.*,03,21,.*@@@0@@@0@@@Spring Eqinox Day (shunbun no hi)@@@0@@@0@@@none@@@shift_jis@@@1
+5@@@.*,11,03,.*@@@0@@@0@@@Culture Day (bunka no hi)@@@0@@@0@@@none@@@shift_jis@@@1
+6@@@.*,04,29,.*@@@0@@@0@@@Golden Week@@@0@@@0@@@none@@@shift_jis@@@1
+7@@@.*,07,((1[5-9])|(2[0-1])),Mon@@@0@@@0@@@Ocean Day (umi no hi)@@@0@@@0@@@none@@@shift_jis@@@1
+8@@@.*,10,((0[8-9])|(1[0-4])),Mon@@@0@@@0@@@Health and Sports Day (taiiku no hi)@@@0@@@0@@@none@@@shift_jis@@@1
+9@@@.*,11,15,.*@@@0@@@0@@@Seven-Five-Three Children's Festival (shichigosan)@@@0@@@0@@@none@@@shift_jis@@@1
+10@@@.*,01,12,.*@@@0@@@0@@@Coming of Age (seiji no hi)@@@0@@@0@@@none@@@shift_jis@@@1
+11@@@.*,02,14,.*@@@0@@@0@@@Valentine's Day@@@0@@@0@@@none@@@shift_jis@@@1
+12@@@.*,07,07,.*@@@0@@@0@@@Star Festival (tanabata)@@@0@@@0@@@none@@@shift_jis@@@1
+13@@@.*,11,23,.*@@@0@@@0@@@Labour Thanksgiving Day (kinro kansha no hi)@@@0@@@0@@@none@@@shift_jis@@@1
+14@@@.*,05,03,.*@@@0@@@0@@@Constitution Day (kenpo kinenbi)@@@0@@@0@@@none@@@shift_jis@@@1
+15@@@\d\d\d\d(0101|0102|0103)@@@0@@@0@@@New Year (shogatsu)@@@0@@@0@@@none@@@shift_jis@@@1
+16@@@.*,08,15,.*@@@0@@@0@@@Obon Festival@@@0@@@0@@@none@@@shift_jis@@@1
+17@@@\d\d\d\d(0429|0430|0501|0502|0503|0504|0505)@@@0@@@0@@@Green Day (midori no hi)@@@0@@@0@@@none@@@shift_jis@@@1
+18@@@.*,02,11,.*@@@0@@@0@@@National Foundation Day (kenkoku kinenbi)@@@0@@@0@@@none@@@shift_jis@@@1
+19@@@.*,12,24,.*@@@0@@@0@@@Christmas@@@0@@@0@@@none@@@shift_jis@@@1
+20@@@.*,12,23,.*@@@0@@@0@@@Emperor's Birthday (tenno no tanjobi)@@@0@@@0@@@none@@@shift_jis@@@1
+21@@@.*,05,04,.*@@@0@@@0@@@Between Day (kokumin no kyujitsu)@@@0@@@0@@@none@@@shift_jis@@@1
+22@@@.*,03,03,.*@@@0@@@0@@@Doll's Festival (hina matsuri)@@@0@@@0@@@none@@@shift_jis@@@1
+23@@@.*,05,05,.*@@@0@@@0@@@Children's (Boy's Festival) (kodomo no hi)@@@0@@@0@@@none@@@shift_jis@@@1

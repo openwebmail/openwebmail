@@ -529,6 +529,11 @@
 @@@CATEGORIZEDFOLDERS@@@ &nbsp;( 類別分隔字串 @@@CATEGORIZEDFOLDERS_FS@@@ )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>標題列顯示新信匣未讀信件數目:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@UNREADMSGINTITLEBAR@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>新信通知音效:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@NEWMAILSOUNDMENU@@@

@@ -529,6 +529,11 @@ Tema:
 @@@CATEGORIZEDFOLDERS@@@ &nbsp;( Loèilni znak med kategorijami map @@@CATEGORIZEDFOLDERS_FS@@@ )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Show inbox unread count in titlebar:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@UNREADMSGINTITLEBAR@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Zvok za obvešèanje o novoprispelem sporoèilu:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@NEWMAILSOUNDMENU@@@

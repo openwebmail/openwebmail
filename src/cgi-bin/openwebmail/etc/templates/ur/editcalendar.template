@@ -47,6 +47,10 @@
 @@@EMAILFIELD@@@
 @@@EMAILEND@@@
 </td></tr><tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>Event reminder:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@EVENTREMINDERMENU@@@
+</td></tr><tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>ﻣﻮﻗﻌﮯ ﻛﺎ ﺭﻧﮓ :</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@EVENTCOLORMENU@@@

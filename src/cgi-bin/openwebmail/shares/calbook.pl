@@ -23,6 +23,7 @@ sub readcalbook {
       my @a=split(/\@{3}/, $_);
       my $index=$a[0]+$indexshift;
 
+      $a[9]=1 if ($a[9] eq '');
       ${$r_items}{$index}={ idate        => $a[1],
                             starthourmin => $a[2],
                             endhourmin   => $a[3],
@@ -30,7 +31,8 @@ sub readcalbook {
                             link         => $a[5],
                             email        => $a[6],
                             eventcolor   => $a[7]||'none',
-                            charset      => $a[8]||'' };
+                            charset      => $a[8]||'',
+                            eventreminder=> $a[9] };
 
       my $idate=$a[1]; $idate= '*' if ($idate=~/[^\d]/); # use '*' for regex date
       if (!defined ${$r_indexes}{$idate}) {
@@ -69,7 +71,8 @@ sub writecalbook {
                        ${$r_items}{$_}{'link'},
                        ${$r_items}{$_}{'email'},
                        ${$r_items}{$_}{'eventcolor'}||'none',
-                       ${$r_items}{$_}{'charset'}||'' )."\n";
+                       ${$r_items}{$_}{'charset'}||'',
+                       ${$r_items}{$_}{'eventreminder'} )."\n";
       $newindex++;
    }
    close(CALBOOK);

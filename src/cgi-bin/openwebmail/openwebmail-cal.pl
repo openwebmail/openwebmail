@@ -143,12 +143,13 @@ my $endmin=param('endmin')||0;
 my $endampm=param('endampm')||'am';
 my $link=param('link')||'';
 my $email=param('email')||'';
-my $eventcolor=param('eventcolor')||'none';
 my $dayfreq=param('dayfreq')||'thisdayonly';
 my $thisandnextndays=param('thisandnextndays')||0;
 my $ndays=param('ndays')||0;
 my $monthfreq=param('monthfreq')||0;
 my $everyyear=param('everyyear')||0;
+my $eventcolor=param('eventcolor')||'none';
+my $eventreminder=param('eventreminder');
 
 writelog("debug - request cal begin, action=$action - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
 if ($action eq "calyear") {
@@ -170,7 +171,7 @@ if ($action eq "calyear") {
             $endhour, $endmin, $endampm,
             $dayfreq,
             $thisandnextndays, $ndays, $monthfreq, $everyyear,
-            $link, $email, $eventcolor);
+            $link, $email, $eventcolor, $eventreminder);
    dayview($year, $month, $day);
 } elsif ($action eq "caldel") {
    del_item($index);
@@ -187,7 +188,7 @@ if ($action eq "calyear") {
                $endhour, $endmin, $endampm,
                $dayfreq,
                $thisandnextndays, $ndays, $monthfreq, $everyyear,
-               $link, $email, $eventcolor);
+               $link, $email, $eventcolor, $eventreminder);
 
    if (defined param('callist')) {
       listview($year);
@@ -1243,7 +1244,6 @@ sub dayview {
                           -override=>'1');
    $html =~ s/\@\@\@DAY\@\@\@/$temphtml/g;
 
-
    $temphtml = textfield(-name=>'string',
                          -default=>'',
                          -size=>'32',
@@ -1392,6 +1392,13 @@ sub dayview {
    } else {
       templateblock_disable($html, 'EMAIL');
    }
+
+   $temphtml = popup_menu(-name=>'eventreminder',
+                          -values=>[1, 0],
+                          -default=>1,
+                          -labels=>{ 1=>$lang_text{'yes'}, 0=>$lang_text{'no'} },
+                          -override=>'1');
+   $html =~ s/\@\@\@EVENTREMINDERMENU\@\@\@/$temphtml/g;
 
    $temphtml = popup_menu(-name=>'eventcolor',
                           -values=>['none', sort keys %eventcolors],
@@ -2076,7 +2083,6 @@ sub edit_item {
                           -override=>'1');
    $html =~ s/\@\@\@MONTHFREQMENU\@\@\@/$temphtml/g;
 
-
    $temphtml = checkbox(-name=>'everyyear',
                         -value=>'1',
                         -checked=>$everyyear_default,
@@ -2084,14 +2090,12 @@ sub edit_item {
                         -override=>'1');
    $html =~ s/\@\@\@EVERYYEARCHECKBOX\@\@\@/$temphtml/g;
 
-
    $linkstr_default="http://" if ($linkstr_default eq "0");
    $temphtml = textfield(-name=>'link',
                          -default=>$linkstr_default,
                          -size=>'32',
                          -override=>'1');
    $html =~ s/\@\@\@LINKFIELD\@\@\@/$temphtml/;
-
 
    $emailstr_default="" if ($emailstr_default eq "0");
    if ($config{'calendar_email_notifyinterval'} > 0 ) {
@@ -2105,6 +2109,13 @@ sub edit_item {
       $temphtml = ow::tool::hiddens(email=>$emailstr_default);
       templateblock_disable($html, 'EMAIL', $temphtml);
    }
+
+   $temphtml = popup_menu(-name=>'eventreminder',
+                          -values=>[1, 0],
+                          -default=>$items{$index}{'eventreminder'},
+                          -labels=>{ 1=>$lang_text{'yes'}, 0=>$lang_text{'no'} },
+                          -override=>'1');
+   $html =~ s/\@\@\@EVENTREMINDERMENU\@\@\@/$temphtml/g;
 
    $temphtml = qq|<table><tr>|;
    $temphtml .= qq|<td>|;
@@ -2166,7 +2177,7 @@ sub add_item {
        $thisandnextndays, $ndays,
        $monthfreq,
        $everyyear,
-       $link, $email, $eventcolor)=@_;
+       $link, $email, $eventcolor, $eventreminder)=@_;
    my $line;
    return if ($string=~/^\s?$/);
 
@@ -2294,6 +2305,7 @@ sub add_item {
    $items{$index}{'email'}=$email;
    $items{$index}{'eventcolor'}=$eventcolor;
    $items{$index}{'charset'}=$prefs{'charset'};
+   $items{$index}{'eventreminder'}=$eventreminder;
 
    if (writecalbook($calbookfile, \%items) <0 ) {
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $calbookfile");
@@ -2341,7 +2353,7 @@ sub update_item {
        $endhour, $endmin, $endampm,
        $dayfreq,
        $thisandnextndays, $ndays, $monthfreq, $everyyear,
-       $link, $email, $eventcolor)=@_;
+       $link, $email, $eventcolor, $eventreminder)=@_;
    my $line;
 
    return if ($string=~/^\s?$/);
@@ -2476,6 +2488,7 @@ sub update_item {
    $items{$index}{'email'}=$email;
    $items{$index}{'eventcolor'}="$eventcolor";
    $items{$index}{'charset'}=$prefs{'charset'};
+   $items{$index}{'eventreminder'}=$eventreminder;
 
    if ( writecalbook($calbookfile, \%items) <0 ) {
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $calbookfile");

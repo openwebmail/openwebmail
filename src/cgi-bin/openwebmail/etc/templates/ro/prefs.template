@@ -529,6 +529,11 @@ Latime @@@FILEEDITCOLUMNSMENU@@@ Inaltime @@@FILEEDITROWSMENU@@@
 @@@CATEGORIZEDFOLDERS@@@ &nbsp;( Separator categorii @@@CATEGORIZEDFOLDERS_FS@@@ )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Show inbox unread count in titlebar:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@UNREADMSGINTITLEBAR@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Notificare sonora la mesaje noi:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@NEWMAILSOUNDMENU@@@

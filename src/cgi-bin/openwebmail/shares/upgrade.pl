@@ -366,6 +366,26 @@ sub upgrade_all {	# called if user releasedate is too old
       }
    }
 
+   if ( $user_releasedate lt "20050319" ) {
+      my $calbookfile=dotpath('calendar.book');
+      my $data;
+      if (open(F, $calbookfile)) {
+         while (<F>) {
+            chomp;
+            my @a=split(/\@\@\@/, $_);
+            $a[9]=1 if ($a[9] eq '');
+            $data.=join('@@@', @a)."\n";
+         }
+         close(F);
+         if (open(F, ">$calbookfile")) {
+            print F $data;
+            close(F);
+            writehistory("release upgrade - $calbookfile charset by 20050319");
+            writelog("release upgrade - $calbookfile charset by 20050319");
+         }
+      }
+   }
+
    return;
 }
 
