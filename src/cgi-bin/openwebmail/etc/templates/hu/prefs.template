@@ -420,6 +420,11 @@ Szélesség @@@FILEEDITCOLUMNSMENU@@@ Magasság @@@FILEEDITROWSMENU@@@
 @@@NEWMAILWINDOWTIMEMENU@@@ másodpercenként &nbsp;( 0: nincs értesítõ ablak )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Mail sent window notification:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@MAILSENTWINDOWTIMEMENU@@@ másodpercenként &nbsp;( 0: nincs értesítõ ablak )
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Nyelvi ellenõrzés alapszótára:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DICTIONARYMENU@@@

@@ -1,9 +1,9 @@
 Alt-Key shortcuts in Open WebMail
 
-ps: the Alt-key shortcut feature are only supported on recent browsers, 
+ps: the Alt-key shortcut feature are only supported on recent browsers,
     eg: Mozilla, IE 5.0 or above
 
-ps: If the [Alt] key is not available in your keyboard, 
+ps: If the [Alt] key is not available in your keyboard,
     please try [Meta] key instead.
 
 
@@ -200,7 +200,7 @@ K: calendar
 X: logout
 
 J: chdir (jmp to)
-I: mkdir 
+I: mkdir
 F: newfile
 Y: delete (yank)
 C: copy

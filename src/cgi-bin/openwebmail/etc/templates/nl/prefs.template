@@ -420,6 +420,11 @@ Breedte @@@EDITCOLUMNSMENU@@@ Hoogte @@@EDITROWSMENU@@@
 zichtbaar voor @@@NEWMAILWINDOWTIMEMENU@@@ seconden &nbsp;( 0 is GEEN waarschuwingsscherm )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Mail sent window notification:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+zichtbaar voor @@@MAILSENTWINDOWTIMEMENU@@@ seconden &nbsp;( 0 is GEEN waarschuwingsscherm )
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Woordenboek voor spellingscontrole:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DICTIONARYMENU@@@

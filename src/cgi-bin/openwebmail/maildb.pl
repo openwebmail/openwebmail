@@ -51,7 +51,7 @@ sub update_headerdb {
    my @oldmessageids=();
    my $dberr=0;
 
-   ($headerdb =~ /^(.+)$/) && ($headerdb = $1);		# untaint ...
+   $headerdb=untaint($headerdb);
    if ( -e "$headerdb$config{'dbm_ext'}" ) {
       my ($metainfo, $allmessages, $internalmessages, $newmessages);
 
@@ -144,13 +144,9 @@ sub update_headerdb {
       if ( $eof || $line =~ /^From .*(\w\w\w)\s+(\w\w\w)\s+(\d+)\s+(\d+):(\d+):?(\d*)\s+([A-Z]{3,4}\d?\s+)?(\d\d+)/ ) {
          if ($_messagesize >0) {	# save previous msg
 
-            $_from=~s/\@\@/\@\@ /g;         $_from=~s/\@$/\@ /;
-            $_to=~s/\@\@/\@\@ /g;           $_to=~s/\@$/\@ /;
-            $_subject=~s/\@\@/\@\@ /g;      $_subject=~s/\@$/\@ /;
-            $_content_type=~s/\@\@/\@\@ /g; $_content_type=~s/\@$/\@ /;
-            $_status=~s/\@\@/\@\@ /g;       $_status=~s/\@$/\@ /;
-            $_references=~s/\@\@/\@\@ /g;   $_references=~s/\@$/\@ /;
-            $_inreplyto=~s/\@\@/\@\@ /g;    $_inreplyto=~s/\@$/\@ /;
+            foreach ($_from, $_to, $_subject, $_content_type, $_status, $_references, $_inreplyto) {
+               s/\@\@/\@\@ /g; s/\@$/\@ /;
+            }
 
             # try to get charset from contenttype header
             $_charset=$1 if ($_charset eq "" && $_content_type=~/charset\s*=\s*"?([^\s"';]*)"?\s?/i);
@@ -220,12 +216,12 @@ sub update_headerdb {
                my $deliserial=delimiter2dateserial($delimiter, $config{'deliver_use_GMT'}) ||
                               gmtime2dateserial();
                if ($dateserial eq "") {
-                  $dateserial=$deliserial; 
+                  $dateserial=$deliserial;
                } elsif ($deliserial ne "") {
-                   my $t=dateserial2gmtime($deliserial)-dateserial2gmtime($dateserial); 
+                   my $t=dateserial2gmtime($deliserial)-dateserial2gmtime($dateserial);
                    if ($t>86400*7 || $t<-86400) { # msg transmission time
                       # use deliverytime in case sender host may have wrong time configuration
-                      $dateserial=$deliserial; 
+                      $dateserial=$deliserial;
                    }
                }
                $_date=$dateserial;
@@ -305,12 +301,12 @@ sub update_headerdb {
 
          } else {
             if ($has_att==0 &&
+                ($line !~ /[\<\>]/ && $line !~ /type=/i) &&
                 ($line =~ /^content\-type:.*;\s+name\s*\*?=/i ||
                  $line =~ /^\s+name\s*=/i ||
                  $line =~ /^content\-disposition:.*;\s+filename\s*\*?=/i ||
                  $line =~ /^\s+filename\s*=/i ||
-                 $line =~ /^begin [0-7][0-7][0-7][0-7]? [^\n\r]+/) &&
-                ($line !~ /[\<\>]/ && $line !~ /type=/i) ) {
+                 $line =~ /^begin [0-7][0-7][0-7][0-7]? [^\n\r]+/) ) {
                $has_att=1;
             }
             if ($_charset eq '' &&
@@ -390,6 +386,22 @@ sub get_messageids_sorted_by_offset {
    return( sort { $offset{$a}<=>$offset{$b} } keys(%offset) );
 }
 
+use vars qw(%sorttype);
+%sorttype= (
+   'date'          => ['date', 0],
+   'date_rev'      => ['date', 1],
+   'sender'        => ['sender', 0],
+   'sender_rev'    => ['sender', 1],
+   'recipient'     => ['recipient', 0],
+   'recipient_rev' => ['recipient', 1],
+   'size'          => ['size', 0],
+   'size_rev'      => ['size', 1],
+   'subject'       => ['subject', 1],
+   'subject_rev'   => ['subject', 0],
+   'status'        => ['status', 0],
+   'status_rev'    => ['status', 1]
+   );
+
 sub get_info_messageids_sorted {
    my ($headerdb, $sort, $cachefile, $ignore_internal)=@_;
    my (%HDB, $metainfo);
@@ -403,28 +415,10 @@ sub get_info_messageids_sorted {
    my $messagedepths_size;
    my $rev;
 
-   if ( $sort eq 'date' ) {
-      $sort='date'; $rev=0;
-   } elsif ( $sort eq 'date_rev' ) {
-      $sort='date'; $rev=1;
-   } elsif ( $sort eq 'sender' ) {
-      $sort='sender'; $rev=0;
-   } elsif ( $sort eq 'sender_rev' ) {
-      $sort='sender'; $rev=1;
-   } elsif ( $sort eq 'recipient' ) {
-      $sort='recipient'; $rev=0;
-   } elsif ( $sort eq 'recipient_rev' ) {
-      $sort='recipient'; $rev=1;
-   } elsif ( $sort eq 'size' ) {
-      $sort='size'; $rev=0;
-   } elsif ( $sort eq 'size_rev' ) {
-      $sort='size'; $rev=1;
-   } elsif ( $sort eq 'subject' ) {
-      $sort='subject'; $rev=1;
-   } elsif ( $sort eq 'subject_rev' ) {
-      $sort='subject'; $rev=0;
+   if (defined($sorttype{$sort})) {
+      ($sort, $rev)=@{$sorttype{$sort}};
    } else {
-      $sort='status'; $rev=0;
+      ($sort, $rev)= ('date', 0);
    }
 
    open_dbm(\%HDB, $headerdb, LOCK_SH) or return ($totalsize, $new, \@messageids, \@messagedepths);
@@ -437,18 +431,16 @@ sub get_info_messageids_sorted {
 
    if ( -e $cachefile ) {
       open(CACHE, $cachefile);
-      $cache_metainfo=<CACHE>; chomp($cache_metainfo);
-      $cache_headerdb=<CACHE>; chomp($cache_headerdb);
-      $cache_sort=<CACHE>;     chomp($cache_sort);
-      $cache_ignore_internal=<CACHE>; chomp($cache_ignore_internal);
-      $totalsize=<CACHE>;      chomp($totalsize);
+      foreach ($cache_metainfo, $cache_headerdb, $cache_sort, $cache_ignore_internal, $totalsize) {
+         $_=<CACHE>; chomp;
+      }
       close(CACHE);
    }
 
    if ( $cache_metainfo ne $metainfo || $cache_headerdb ne $headerdb ||
         $cache_sort ne $sort || $cache_ignore_internal ne $ignore_internal ||
         $totalsize=~/[^\d]/ ) {
-      ($cachefile =~ /^(.+)$/) && ($cachefile = $1);		# untaint ...
+      $cachefile=untaint($cachefile);
       open(CACHE, ">$cachefile");
       print CACHE $metainfo, "\n", $headerdb, "\n", $sort, "\n", $ignore_internal, "\n";
       if ( $sort eq 'date' ) {
@@ -483,10 +475,9 @@ sub get_info_messageids_sorted {
    } else {
       open(CACHE, $cachefile);
       $_=<CACHE>; $_=<CACHE>; $_=<CACHE>; $_=<CACHE>;	# skip 4 lines
-      $totalsize=<CACHE>; chomp($totalsize);
-      $new=<CACHE>;       chomp($new);
-      $messageids_size=<CACHE>; chomp($messageids_size);
-      $messagedepths_size=<CACHE>; chomp($messagedepths_size);
+      foreach ($totalsize, $new, $messageids_size, $messagedepths_size) {
+         $_=<CACHE>; chomp;
+      }
       my $i = 0;
       while (<CACHE>) {
          chomp;
@@ -1519,8 +1510,12 @@ sub parse_rfc822block {
    } elsif ( $contenttype =~ /^text/i || $contenttype eq 'N/A' ) {
       $body=substr(${$r_block}, $headerlen+2);
       if ( $searchid eq "" || $searchid eq "all" || $searchid=~/^$nodeid-0/ ) {
-         # Handle uuencode blocks inside a text/plain mail
          if ( $contenttype =~ /^text\/plain/i || $contenttype eq 'N/A' ) {
+            # mime words inside a text/plain mail, not MIME compliant
+            if ($body=~/=\?[^?]*\?[bq]\?[^?]+\?=/si ) {
+               $body= decode_mimewords($body);
+            }
+            # uuencode blocks inside a text/plain mail, not MIME compliant
             if ( $body =~ /(?:\nbegin|^begin) [0-7][0-7][0-7][0-7]? [^\n\r]+\n.+?\nend\n/ims ) {
                my $r_attachments2;
                ($body, $r_attachments2)=parse_uuencode_body($body, "$nodeid-0", $searchid);
@@ -1901,18 +1896,16 @@ sub search_info_messages_for_keyword {
 
    if ( -e $cachefile ) {
       open(CACHE, $cachefile);
-      $cache_metainfo=<CACHE>; chomp($cache_metainfo);
-      $cache_headerdb=<CACHE>; chomp($cache_headerdb);
-      $cache_keyword=<CACHE>; chomp($cache_keyword);
-      $cache_searchtype=<CACHE>; chomp($cache_searchtype);
-      $cache_ignore_internal=<CACHE>; chomp($cache_ignore_internal);
+      foreach ($cache_metainfo, $cache_headerdb, $cache_keyword, $cache_searchtype, $cache_ignore_internal) {
+         $_=<CACHE>; chomp;
+      }
       close(CACHE);
    }
 
    if ( $cache_metainfo ne $metainfo || $cache_headerdb ne $headerdb ||
         $cache_keyword ne $keyword || $cache_searchtype ne $searchtype ||
         $cache_ignore_internal ne $ignore_internal ) {
-      ($cachefile =~ /^(.+)$/) && ($cachefile = $1);		# untaint ...
+      $cachefile=untaint($cachefile);
       @messageids=get_messageids_sorted_by_offset($headerdb, $folderhandle);
 
       open_dbm(\%HDB, $headerdb, LOCK_SH) or return($totalsize, $new, \%found);
@@ -2056,23 +2049,17 @@ sub search_info_messages_for_keyword {
       close_dbm(\%HDB, $headerdb);
 
       open(CACHE, ">$cachefile");
-      print CACHE $metainfo, "\n";
-      print CACHE $headerdb, "\n";
-      print CACHE $keyword, "\n";
-      print CACHE $searchtype, "\n";
-      print CACHE $ignore_internal, "\n";
+      foreach ($cache_metainfo, $cache_headerdb, $cache_keyword, $cache_searchtype, $cache_ignore_internal) {
+         print CACHE $_, "\n";
+      }
       print CACHE join("\n", $totalsize, $new, keys(%found));
       close(CACHE);
 
    } else {
       open(CACHE, $cachefile);
-      $_=<CACHE>;
-      $_=<CACHE>;
-      $_=<CACHE>;
-      $_=<CACHE>;
-      $_=<CACHE>;
+      $_=<CACHE>; $_=<CACHE>; $_=<CACHE>; $_=<CACHE>; $_=<CACHE>;
       $totalsize=<CACHE>; chomp($totalsize);
-      $new=<CACHE>;       chomp($new);
+      $new=<CACHE>; chomp($new);
       while (<CACHE>) {
          chomp; $found{$_}=1;
       }
@@ -2147,37 +2134,17 @@ sub shiftblock {
 sub simpleheader {
    my $header=$_[0];
    my $simpleheader="";
-
    my $lastline = 'NONE';
    foreach (split(/\n/, $header)) {
       if (/^\s/) {
          s/^\s+/ /;
-         if ( ($lastline eq 'FROM') || ($lastline eq 'REPLYTO') ||
-              ($lastline eq 'DATE') || ($lastline eq 'SUBJ') ||
-              ($lastline eq 'TO') || ($lastline eq 'CC') ) {
-            $simpleheader .= $_;
-         }
+         $simpleheader.=$_ if ($lastline eq 'HEADER');
+      } elsif (/^(?:from|reply\-to|to|cc|date|subject):\s?/ig) {
+         $simpleheader .= $_;
+         $lastline = 'HEADER';
       } elsif (/^</) {
          $simpleheader .= $_;
          $lastline = 'NONE';
-      } elsif (/^from:\s?/ig) {
-         $simpleheader .= $_;
-         $lastline = 'FROM';
-      } elsif (/^reply-to:\s?/ig) {
-         $simpleheader .= $_;
-         $lastline = 'REPLYTO';
-      } elsif (/^to:\s?/ig) {
-         $simpleheader .= $_;
-         $lastline = 'TO';
-      } elsif (/^cc:\s?/ig) {
-         $simpleheader .= $_;
-         $lastline = 'CC';
-      } elsif (/^date:\s?/ig) {
-         $simpleheader .= $_;
-         $lastline = 'DATE';
-      } elsif (/^subject:\s?/ig) {
-         $simpleheader .= $_;
-         $lastline = 'SUBJ';
       } else {
          $lastline = 'NONE';
       }

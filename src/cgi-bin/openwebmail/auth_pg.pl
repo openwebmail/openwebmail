@@ -3,7 +3,7 @@ use strict;
 #
 # auth_pgsql.pl - authenticate user with PostgreSQL
 #
-# 2002/04/05 Veselin Slavov vess@btc.net
+# 2002/04/05 Veselin Slavov, vess.AT.btc.net
 #
 
 #
@@ -41,7 +41,7 @@ sub get_userinfo {
       return(-3, "PgSQL server $PgHost connect error");
    my @ret=();
    my $q= qq/select "Uid", "Gid", "rname", "MailDir" from users where uname='$user'/;
-   Pg::doQuery($DB, $q, \@ret) or 
+   Pg::doQuery($DB, $q, \@ret) or
       return(-3, "PgSQL server $PgHost query error");
    undef($DB);
 
@@ -99,7 +99,7 @@ sub check_userpassword {
    CASE: for ($PgPassType){
       /cleartxt/ && do {	#if cleartext password
          return(-4, 'Password incorrect') if ($tmp_pwd ne $password);
-         last 
+         last
       };
 
       /crypt/ && do {		#if crypto password

@@ -39,10 +39,11 @@ uk=lvm@mystery.lviv.net
 ur=umair@khi.wol.net.pk
 
 # port/package/service maintainer email
-cobalt=taco@scargo.nl
+cobalt=brian@nuonce.net
 freebsd=leeym@leeym.com
 openbsd=kevlo@openbsd.org
 debian=srua@debian.org
+webmin=Helmut.Grund@fh-furtwangen.de
 ipspace=premier@qld.org
 
 
@@ -53,12 +54,10 @@ read ans
 if [ "$ans" = "y" -o "$ans" = "Y" ]; then
   echo sending to mirror sites...
 
-  echo "openwebmail current $date"| \
+  head -30 /usr/local/www/data/openwebmail/doc/changes.txt \
+  | perl -i -pe 'last if (/^\s*$/)' | \
   /usr/local/bin/mutt -s "openwebmail current $date" \
   -a /usr/local/www/data/openwebmail/download/openwebmail-current.tgz \
-  -a /usr/local/www/data/openwebmail/download/openwebmail-current-*.files.tgz \
-  -a /usr/local/www/data/openwebmail/download/openwebmail-current-*.diff.gz \
-  -a /usr/local/www/data/openwebmail/download/doc/changes.txt \
   openwebmail@turtle.ee.ncku.edu.tw \
   tchung@openwebmail.com
 #  elitric@hotmail.com 
@@ -118,8 +117,11 @@ Since your are one of the package/port or service maintainer of openwebmail,
 so I sent you this message for notification.
 
 The latest release is available at
-http://openwebmail.org/openwebmail/download/openwebmail-2.00.tgz
-http://turtle.ee.ncku.edu.tw/openwebmail/download/openwebmail-2.00.tgz
+http://openwebmail.com/openwebmail/download/openwebmail-2.20.tgz
+http://openwebmail.org/openwebmail/download/openwebmail-2.20.tgz
+http://turtle.ee.ncku.edu.tw/openwebmail/download/openwebmail-2.20.tgz
+
+The MD5 is xxxxxx
 
 And thanks for all your efforts in openwebmail.
 
@@ -137,7 +139,7 @@ tung
     cat /tmp/notify.tmp.$$| \
     /usr/local/bin/mutt -s "OWM new release announcement" \
     -a /usr/local/www/data/openwebmail/download/lang-templates-* \
-    $cobalt $freebsd $openbsd $debian $ipspace
+    $cobalt $freebsd $openbsd $debian $webmin $ipspace
   fi
   rm /tmp/notify.tmp.$$
 fi

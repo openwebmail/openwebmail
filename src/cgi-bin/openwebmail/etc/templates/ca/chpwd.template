@@ -7,7 +7,7 @@
 <BR>
 <table align=center border=0 cellspacing=2 cellpadding=0>
 <tr>
-<td align="right">Nom d`usuari: </td><td>@@@USERIDFIELD@@@</td>
+<td align="right">Nom d`usuari: </td><td>@@@LOGINNAMEFIELD@@@</td>
 </tr><tr>
 <td align="right">Clau Antiga: </td><td>@@@OLDPASSWORDFIELD@@@</td>
 </tr><tr>

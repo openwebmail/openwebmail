@@ -420,6 +420,11 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 (הארתה אלל רמוא @@@NEWMAILWINDOWTIMEMENU@@@  &nbsp;( 0@@@  וראשנ
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>Mail sent window notification:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+(הארתה אלל רמוא @@@MAILSENTWINDOWTIMEMENU@@@  &nbsp;( 0@@@  וראשנ
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>תויא תקידבל ןולימ:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DICTIONARYMENU@@@

@@ -420,6 +420,11 @@ Ancho @@@FILEEDITCOLUMNSMENU@@@ Alto @@@FILEEDITROWSMENU@@@
 Durante @@@NEWMAILWINDOWTIMEMENU@@@ segundos &nbsp;(0 desactiva la ventana de notificación).
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Mail sent window notification:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+Durante @@@MAILSENTWINDOWTIMEMENU@@@ segundos &nbsp;(0 desactiva la ventana de notificación).
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Diccionario predeterminado:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DICTIONARYMENU@@@

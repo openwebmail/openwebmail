@@ -420,6 +420,11 @@ Predmet:
 zobrazi» @@@NEWMAILWINDOWTIMEMENU@@@ sekúnd &nbsp;( 0 zmanená nezobrazova» )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Mail sent window notification:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+zobrazi» @@@MAILSENTWINDOWTIMEMENU@@@ sekúnd &nbsp;( 0 zmanená nezobrazova» )
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Slovník pre kontrolu pravopisu:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DICTIONARYMENU@@@

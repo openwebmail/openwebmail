@@ -10,7 +10,7 @@ use Time::Local;
 # extern vars, defined in caller openwebmail-xxx.pl
 use vars qw($SCRIPT_DIR);
 use vars qw($persistence_count);
-use vars qw(%config %config_raw %default_config %default_config_raw);
+use vars qw(%config %config_raw %default_config);
 use vars qw($thissession);
 use vars qw($default_logindomain $loginname $logindomain $loginuser);
 use vars qw($domain $user $userrealname $uuid $ugid $homedir);
@@ -70,7 +70,7 @@ use vars qw(%pop3error);
 
 # the language charset for each language abbreviation
 %languagecharsets =(
-   'ar.CP1256'    => 'windows-1256',	
+   'ar.CP1256'    => 'windows-1256',
    'ar.ISO8859-6' => 'iso-8859-6',
    'bg'           => 'windows-1251',
    'ca'           => 'iso-8859-1',
@@ -146,7 +146,8 @@ use vars qw(%pop3error);
    calendar_reminderdays calendar_reminderforglobal
    webdisk_dirnumitems webdisk_confirmmovecopy webdisk_confirmdel
    webdisk_confirmcompress webdisk_fileeditcolumns  webdisk_fileeditrows
-   regexmatch hideinternal refreshinterval newmailsound newmailwindowtime
+   regexmatch hideinternal refreshinterval
+   newmailsound newmailwindowtime mailsentwindowtime
    dictionary trashreserveddays sessiontimeout
 );
 
@@ -367,11 +368,8 @@ sub openwebmail_exit {
 ###################### USERENV_INIT ###################
 # init user globals, switch euid
 sub userenv_init {
-   if (!defined(%default_config_raw)) {	# read default only once if persistent mode
-      readconf(\%default_config, \%default_config_raw, "$SCRIPT_DIR/etc/openwebmail.conf.default");
-   }
-   %config=%default_config; %config_raw =%default_config_raw;
-   readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf") if (-f "$SCRIPT_DIR/etc/openwebmail.conf");
+   load_rawconf(\%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf.default");
+   readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf");
    readlang($config{'default_language'});	# so %lang... can be used in error msg
 
    if ($config{'smtpauth'}) {	# load smtp auth user/pass
@@ -435,7 +433,7 @@ sub userenv_init {
    readconf(\%config, \%config_raw, "$userconf") if ( -f "$userconf");
 
    # override auto guessing domainanmes if loginame has domain
-   if ($config_raw{'domainnames'} eq 'auto' && $loginname=~/\@/) {
+   if (${$config_raw{'domainnames'}}[0] eq 'auto' && $loginname=~/\@/) {
       $config{'domainnames'}=[ $logindomain ];
    }
    # override realname if defined in config
@@ -449,11 +447,11 @@ sub userenv_init {
    }
    $folderdir = "$homedir/$config{'homedirfolderdirname'}";
 
-   ($user =~ /^(.+)$/) && ($user = $1);  # untaint ...
-   ($uuid =~ /^(.+)$/) && ($uuid = $1);
-   ($ugid =~ /^(.+)$/) && ($ugid = $1);
-   ($homedir =~ /^(.+)$/) && ($homedir = $1);
-   ($folderdir =~ /^(.+)$/) && ($folderdir = $1);
+   $user=untaint($user);
+   $uuid=untaint($uuid);
+   $ugid=untaint($ugid);
+   $homedir=untaint($homedir);
+   $folderdir=untaint($folderdir);
 
    umask(0077);
    if ( $>==0 ) {			# switch to uuid:mailgid if script is setuid root.
@@ -472,8 +470,7 @@ sub userenv_init {
 
    if ($prefs{'iconset'}=~ /^Text\./) {
       ($prefs{'iconset'} =~ /^([\w\d\.\-_]+)$/) && ($prefs{'iconset'} = $1);
-      my $icontext="$config{'ow_htmldir'}/images/iconsets/$prefs{'iconset'}/icontext";
-      ($icontext =~ /^(.+)$/) && ($icontext = $1);  # untaint ...
+      my $icontext=untaint("$config{'ow_htmldir'}/images/iconsets/$prefs{'iconset'}/icontext");
       delete $INC{$icontext};
       require $icontext;
    }
@@ -543,205 +540,304 @@ sub is_localuser {
 ############ END IS_LOCALUSER ##############
 
 ####################### READCONF #######################
-# read openwebmail.conf into a hash
-# the hash is 'called by reference' since we want to do 'bypass taint' on it
+# since a required files is loaded only once in persistent mode
+# the initialization of %xxx_item is done only once
+use vars qw(%yesno_item %none_item %auto_item %list_item %untaint_item %require_item);
+
+# yes no type config parameters
+foreach (qw(
+   smtpauth use_hashedmailspools use_dotlockfile dbmopen_haslock
+   use_syshomedir create_syshomedir use_homedirspools
+   auth_withdomain deliver_use_GMT savedsuid_support
+   error_with_debuginfo
+   case_insensitive_login forced_ssl_login stay_ssl_afterlogin
+   enable_rootlogin enable_domainselectmenu enable_strictvirtuser
+   enable_changepwd enable_strictpwd
+   enable_loadfrombook enable_editfrombook frombook_for_realname_only
+   session_multilogin session_checksameip session_checkcookie
+   cache_userinfo
+   auto_createrc domainnames_override symboliclink_mbox
+   enable_history enable_about about_info_software about_info_protocol
+   about_info_server about_info_client about_info_scriptfilename
+   xmailer_has_version xoriginatingip_has_userid
+   enable_preference enable_setforward enable_strictforward
+   enable_autoreply enable_strictfoldername enable_stationery
+   enable_smartfilters enable_userfilter
+   enable_webmail enable_calendar enable_webdisk enable_sshterm enable_vdomain
+   enable_pop3 delpop3mail_by_default delpop3mail_hidden getmail_from_pop3_authserver
+   webdisk_readonly webdisk_lsmailfolder webdisk_lshidden webdisk_lsunixspec webdisk_lssymlink
+   webdisk_allow_symlinkcreate webdisk_allow_symlinkout webdisk_allow_thumbnail
+   delmail_ifquotahit delfile_ifquotahit
+   default_bgrepeat
+   default_confirmmsgmovecopy default_viewnextaftermsgmovecopy
+   default_moveoldmsgfrominbox forced_moveoldmsgfrominbox
+   default_autopop3 default_hideinternal
+   default_disablejs
+   default_showhtmlastext default_showimgaslink
+   default_regexmatch
+   default_usefixedfont default_usesmileicon
+   default_reparagraphorigmsg default_backupsentmsg
+   default_abook_defaultfilter
+   default_filter_badformatfrom default_filter_fakedsmtp
+   default_filter_fakedfrom default_filter_fakedexecontenttype
+   default_calendar_showemptyhours default_calendar_reminderforglobal
+   default_webdisk_confirmmovecopy default_webdisk_confirmdel
+   default_webdisk_confirmcompress
+)) { $yesno_item{$_}=1}
+
+#   default_disableemblink
+#   quota_module
+
+# none type config parameters
+foreach (qw(
+   dbmopen_ext logfile
+   b2g_map g2b_map lunar_map header_pluginfile footer_pluginfile
+   allowed_clientip allowed_clientdomain
+   localusers vdomain_mailbox_command
+   default_realname default_bgurl
+   default_abook_defaultkeyword default_abook_defaultsearchtype
+)) { $none_item{$_}=1}
+
+# auto type config parameters
+foreach (qw(
+   auth_domain domainnames domainselmenu_list
+   default_language default_charset default_msgformat
+   default_fromemails default_autoreplysubject
+   default_timeoffset default_daylightsaving default_calendar_holidaydef
+)) { $auto_item{$_}=1}
+
+# list type config parameters
+foreach (qw(
+   domainnames domainselmenu_list spellcheck_dictionaries
+   allowed_serverdomain
+   allowed_clientdomain allowed_clientip
+   allowed_receiverdomain disallowed_pop3servers
+   vdomain_admlist vdomain_postfix_aliases vdomain_postfix_virtual localusers
+   default_fromemails
+)) { $list_item{$_}=1}
+
+# untaint path config parameters
+foreach (qw(
+    domainnames default_language
+    smtpserver auth_module virtusertable
+    mailspooldir homedirspoolname homedirfolderdirname
+    dbm_ext dbmopen_ext logfile
+    ow_cgidir ow_htmldir ow_etcdir ow_stylesdir ow_langdir ow_templatesdir
+    ow_sitesconfdir ow_usersconfdir ow_usersdir ow_sessionsdir
+    vacationinit vacationpipe spellcheck
+    global_addressbook global_filterbook global_calendarbook
+    pop3_authserver pop3_authport
+    vdomain_vmpop3_pwdpath vdomain_vmpop3_pwdname vdomain_vmpop3_mailpath
+    vdomain_postfix_postalias vdomain_postfix_postmap
+    vdomain_postfix_aliases vdomain_postfix_virtual
+)) { $untaint_item{$_}=1}
+
+# require type config parameters
+foreach (qw(
+   default_language auth_module
+)) { $require_item{$_}=1}
+
+# read openwebmail.conf into a hash with %symbo% resolved
+# the hash is 'called by reference' since we want to do 'untaint' on it
 sub readconf {
    my ($r_config, $r_config_raw, $configfile)=@_;
+   my ($key, $value)=("", "");
+
+   # load up the config file if we have one
+   load_rawconf($r_config_raw, $configfile) if ($configfile);
+
+   # make sure there are default values for array/hash references!!
+   if (!defined(${$r_config_raw}{'domainname_equiv'})){
+      ${$r_config_raw}{'domainname_equiv'}= { 'map'=>{}, 'list'=>{} };
+   }
+   foreach $key (keys %list_item) {
+      ${$r_config_raw}{$key}=[] if (!defined(${$r_config_raw}{$key}));
+   }
+
+   # copy config_raw to config
+   %{$r_config}=%{$r_config_raw};
+
+   # resolve %var% in hash config
+   # note, no substitutions to domainname_equiv or yes/no items
+   # should the exclusion include other types??
+   foreach $key (keys %{$r_config}) {
+      next if ($key eq 'domainname_equiv' or $yesno_item{$key});
+      if ( $list_item{$key} ) {
+         foreach ( @{${$r_config}{$key}} ) {
+            $_ = fmt_subvars($key, $_, $r_config, $configfile);
+         }
+      } else {
+         ${$r_config}{$key} = fmt_subvars($key, ${$r_config}{$key}, $r_config, $configfile);
+      }
+   }
+
+   # cleanup auto values with server or client side runtime enviroment
+   # since result may differ for different clients, this couldn't be done in load_rawconf()
+   foreach $key ( keys %auto_item ) {
+      if ($list_item{$key}) {
+         next if (${${$r_config}{$key}}[0] ne 'auto');
+         if ($key eq 'domainnames') {
+            if ($ENV{'HTTP_HOST'}=~/[A-Za-z]\./) {
+               $value=$ENV{'HTTP_HOST'};
+               $value=~s/:\d+$//;	# remove port number
+            } else {
+               $value=hostname();
+            }
+            ${$r_config}{$key}=[$value];
+         }
+      } else {
+         next if (${$r_config}{$key} ne 'auto');
+         if ($key eq 'default_timeoffset') {
+            ${$r_config}{$key}=gettimeoffset();
+         } elsif ($key eq 'default_language') {
+            ${$r_config}{$key}=guess_language();
+         }
+      }
+   }
+   # set options that refer to other options
+   ${$r_config}{'default_bgurl'}="${$r_config}{'ow_htmlurl'}/images/backgrounds/Transparent.gif" if ( ${$r_config}{'default_bgurl'} eq '' );
+   ${$r_config}{'default_abook_defaultsearchtype'}="name" if ( ${$r_config}{'default_abook_defaultsearchtype'} eq '' );
+   ${$r_config}{'domainselmenu_list'}=${$r_config}{'domainnames'} if ( ${${$r_config}{'domainselmenu_list'}}[0] eq 'auto' );
+
+   # untaint pathname variable defined in openwebmail.conf
+   foreach $key ( keys %untaint_item ) {
+      if ( $list_item{$key} ) {
+         foreach ( @{${$r_config}{$key}} ) {
+            (/^(.+)$/) && ($_=$1);
+         }
+      } else {
+         ${$r_config}{$key} =untaint(${$r_config}{$key});
+      }
+   }
+
+   return;
+}
+
+# load configfile and merge with an existing hash
+use vars qw(%_rawconfcache);
+sub load_rawconf {
+   my ($r_config_raw, $configfile)=@_;
+
+   my $t=0; $t=(-M $configfile) if ($configfile!~/openwebmail\.conf\.default$/);
+   if (!defined($_rawconfcache{$configfile}{'t'}) ||
+       $_rawconfcache{$configfile}{'t'} ne $t ) {
+      $_rawconfcache{$configfile}{'t'}=$t;
+      $_rawconfcache{$configfile}{'c'}=_load_rawconf($configfile);
+   }
+
+   my $r_cache=$_rawconfcache{$configfile}{'c'};
+   my ($key, $value);
+   foreach $key (keys %{$r_cache}) {
+      $value=${$r_cache}{$key};
+
+      # backward compatibility
+      $key='use_syshomedir'    if ($key eq 'use_homedirfolders');
+      $key='create_syshomedir' if ($key eq 'create_homedir');
+
+      # OK, put this to existing hash %{$r_config_raw}
+      ${$r_config_raw}{$key}=$value;
+   }
+
+   return;
+}
+
+# read configfile into a new hash, return ref of the new hash
+# and the hash is cached to speedup later access
+sub _load_rawconf {	
+   my $configfile=$_[0];
    if ($configfile=~/\.\./) {	# .. in path is not allowed for higher security
       openwebmailerror(__FILE__, __LINE__, "Invalid config file path $configfile!");
    }
 
    open(CONFIG, $configfile) or
       openwebmailerror(__FILE__, __LINE__, "Couldn't open config file $configfile! ($!)");
-   my ($key, $value)=("", "");
-   my $blockmode=0;
-   while ((my $line=<CONFIG>)) {
+
+   my (%conf, $line, $key, $value, $blockmode);
+   $blockmode=0;
+   while (($line=<CONFIG>)) {
       $line=~s/\s+$//;
       if ($blockmode) {
          if ( $line =~ m!</$key>! ) {
             $blockmode=0;
+            $conf{$key}=$value if ( $value ne "" );
          } else {
-            ${$r_config_raw}{$key} .= "$line\n";
+            $value .= "$line\n";
          }
       } else {
-         $line=~s/#.*$//;
-         $line=~s/^\s+//; $line=~s/\s+$//;
-         next if ($line=~/^#/);
-
-         if ( $line =~ m!^<(.+)>$! ) {
-            $key=$1; $key=~s/^\s+//; $key=~s/\s+$//;
-            ${$r_config_raw}{$key}="";
+         $line=~s/\s*#.*$//;
+         $line=~s/^\s+//;
+         next if ($line=~/^$/);
+          if ( $line =~ m!^<\s*(\S+)\s*>$! ) {
+            $key=$1;
             $blockmode=1;
-         } else {
-            ($key, $value)=split(/\s+/, $line, 2);
-
-            # backward compatibility
-            $key='use_syshomedir'    if ($key eq 'use_homedirfolders');
-            $key='create_syshomedir' if ($key eq 'create_homedir');
-
-            if ($key ne "" && $value ne "" ) {
-               ${$r_config_raw}{$key}=$value;
-            }
+            $value='';
+         } elsif ( $line =~ m!(\S+)\s+(.+)! ) {
+            $conf{$1}=$2;
          }
       }
    }
    close(CONFIG);
 
-   # copy config_raw to config
-   %{$r_config}=%{$r_config_raw};
-   # turn ow_htmlurl from / to null to avoid // in url
-   ${$r_config}{'ow_htmlurl'}='' if (${$r_config}{'ow_htmlurl'} eq '/');
+   # data stru/value formatting
+   foreach $key (keys %conf) {
+      # turn ow_htmlurl from / to null to avoid // in url
+      $conf{$key}='' if ($key eq 'ow_htmlurl' and $conf{$key} eq '/');
+      # set exact 'auto'
+      $conf{$key}='auto' if ($auto_item{$key} && $conf{$key}=~/^auto$/i);
+      # clean up yes/no params
+      $conf{$key}=fmt_yesno($conf{$key}) if ($yesno_item{$key});
+      # remove / and .. from variables that will be used in require statement for security
+      $conf{$key}=fmt_require($conf{$key}) if ($require_item{$key});
+      # clean up none
+      $conf{$key}=fmt_none($conf{$key}) if ($none_item{$key});
 
-   # resolv %var% in hash config
-   foreach $key (keys %{$r_config}) {
-      for (my $i=0; $i<5; $i++) {
-        last if (${$r_config}{$key} !~ s/\%([\w\d_]+)\%/${$r_config}{$1}/msg);
-      }
-   }
-
-   # processing yes/no
-   foreach $key (qw(
-      smtpauth use_hashedmailspools use_dotlockfile dbmopen_haslock
-      use_syshomedir create_syshomedir use_homedirspools
-      auth_withdomain deliver_use_GMT savedsuid_support
-      error_with_debuginfo
-      case_insensitive_login forced_ssl_login stay_ssl_afterlogin
-      enable_rootlogin enable_domainselectmenu enable_strictvirtuser
-      enable_changepwd enable_strictpwd enable_setfrom enable_setfromemail
-      session_multilogin session_checksameip session_checkcookie
-      cache_userinfo
-      auto_createrc domainnames_override symboliclink_mbox
-      enable_history enable_about about_info_software about_info_protocol
-      about_info_server about_info_client about_info_scriptfilename
-      xmailer_has_version xoriginatingip_has_userid
-      enable_preference enable_setforward enable_strictforward
-      enable_autoreply enable_strictfoldername enable_stationery
-      enable_smartfilters enable_userfilter
-      enable_webmail enable_calendar enable_webdisk enable_sshterm enable_vdomain
-      enable_pop3 delpop3mail_by_default delpop3mail_hidden getmail_from_pop3_authserver
-      webdisk_readonly webdisk_lsmailfolder webdisk_lshidden webdisk_lsunixspec webdisk_lssymlink
-      webdisk_allow_symlinkcreate webdisk_allow_symlinkout webdisk_allow_thumbnail
-      delmail_ifquotahit delfile_ifquotahit
-      default_bgrepeat
-      default_confirmmsgmovecopy default_viewnextaftermsgmovecopy
-      default_moveoldmsgfrominbox forced_moveoldmsgfrominbox
-      default_autopop3 default_hideinternal
-      default_disablejs
-      default_showhtmlastext default_showimgaslink
-      default_regexmatch
-      default_usefixedfont default_usesmileicon
-      default_reparagraphorigmsg default_backupsentmsg
-      default_abook_defaultfilter
-      default_filter_badformatfrom default_filter_fakedsmtp
-      default_filter_fakedfrom default_filter_fakedexecontenttype
-      default_calendar_showemptyhours default_calendar_reminderforglobal
-      default_webdisk_confirmmovecopy default_webdisk_confirmdel
-      default_webdisk_confirmcompress
-   )) {
-      if (${$r_config}{$key} =~ /yes/i || ${$r_config}{$key} == 1) {
-         ${$r_config}{$key}=1;
-      } else {
-         ${$r_config}{$key}=0;
-      }
-   }
-
-   # process domain equiv table
-   my %equiv=();
-   my %equivlist=();
-   if ( ${$r_config}{'domainname_equiv'} ne "") {
-      foreach (split(/\n/, ${$r_config}{'domainname_equiv'})) {
-         s/^[:,\s]+//g; s/[:,\s]+$//g;
-         my ($dst, @srclist)=split(/[:,\s]+/);
-         $equivlist{$dst}=\@srclist;
-         foreach my $src (@srclist) {
-            $equiv{$src}=$dst if ($src && $dst);
+      # format hash or list data stru
+      if ($key eq 'domainname_equiv') {
+         my %equiv=();
+         my %equivlist=();
+         foreach (split(/\n/, $conf{$key})) {
+            s/^[:,\s]+//; s/[:,\s]+$//;
+            my ($dst, @srclist)=split(/[:,\s]+/);
+            $equivlist{$dst}=\@srclist;
+            foreach my $src (@srclist) {
+               $equiv{$src}=$dst if ($src && $dst);
+            }
          }
-      }
-   }
-   ${$r_config}{'domainname_equiv'}= {
-      map => \%equiv,		# src -> dst
-      list=> \%equivlist	# dst <= srclist
-   };
-
-   # processing auto
-   if ( ${$r_config}{'domainnames'} eq 'auto' ) {
-      if ($ENV{'HTTP_HOST'}=~/[A-Za-z]\./) {
-         $value=$ENV{'HTTP_HOST'}; $value=~s/:\d+$//;	# remove port number
-      } else {
-         $value=hostname();
-      }
-      ${$r_config}{'domainnames'}=$value;
-   }
-   if ( ${$r_config}{'domainselmenu_list'} eq 'auto' ) {
-      ${$r_config}{'domainselmenu_list'}=${$r_config}{'domainnames'};
-   }
-   if ( ${$r_config}{'default_timeoffset'} eq 'auto' ) {
-      ${$r_config}{'default_timeoffset'}=gettimeoffset();
-   }
-   if ( ${$r_config}{'default_language'} eq 'auto' ) {
-      ${$r_config}{'default_language'}=guess_language();
-   }
-
-   # processing list
-   foreach $key (qw(
-      domainnames domainselmenu_list spellcheck_dictionaries
-      allowed_serverdomain
-      allowed_clientdomain allowed_clientip
-      allowed_receiverdomain disallowed_pop3servers
-      vdomain_admlist vdomain_postfix_aliases vdomain_postfix_virtual localusers
-      default_fromemails
-   )) {
-      my $liststr=${$r_config}{$key}; $liststr=~s/\s//g;
-      my @list=split(/,/, $liststr);
-      ${$r_config}{$key}=\@list;
-   }
-
-   # processing none
-   if ( ${$r_config}{'default_bgurl'} eq 'none'|| ${$r_config}{'default_bgurl'} eq '""' ) {
-      $value="${$r_config}{'ow_htmlurl'}/images/backgrounds/Transparent.gif";
-      ${$r_config}{'default_bgurl'}=$value;
-   }
-   if ( ${$r_config}{'default_abook_defaultsearchtype'} eq 'none'|| ${$r_config}{'default_abook_defaultsearchtype'} eq '""' ) {
-      ${$r_config}{'default_abook_defaultsearchtype'}="name";
-   }
-   foreach $key ( qw(dbmopen_ext default_realname default_abook_defaultkeyword) ){
-      if ( ${$r_config}{$key} eq 'none' || ${$r_config}{$key} eq '""' ) {
-         ${$r_config}{$key}="";
+         $conf{$key}= { map => \%equiv,		# src -> dst
+                        list=> \%equivlist };	# dst <= srclist
+      } elsif ($list_item{$key}){
+         $value=$conf{$key}; $value=~s/\s//g;
+         my @list=split(/,+/, $value);
+         $conf{$key}=\@list;
       }
    }
 
-   # remove / and .. from variables that will be used in require statement for security
-   foreach $key ( 'default_language', 'auth_module') {
-      ${$r_config}{$key} =~ s|/||g;
-      ${$r_config}{$key} =~ s|\.\.||g;
+   return \%conf;
+}
+
+# substitute %var% values
+# Important: Don't mess with $_ in here!
+sub fmt_subvars {
+   my ($key, $value, $r_config, $configfile)=@_;
+
+   my $iterate = 5;
+   while ($iterate and $value =~ s/\%([\w\d_]+)\%/${$r_config}{$1}/msg) {
+      $iterate--;
    }
-   # untaint pathname variable defined in openwebmail.conf
-   foreach $key (
-      'smtpserver', 'auth_module', 'virtusertable',
-      'mailspooldir', 'homedirspoolname', 'homedirfolderdirname',
-      'dbm_ext', 'dbmopen_ext',
-      'ow_cgidir', 'ow_htmldir','ow_etcdir', 'logfile',
-      'ow_stylesdir', 'ow_langdir', 'ow_templatesdir',
-      'ow_sitesconfdir', 'ow_usersconfdir',
-      'ow_usersdir', 'ow_sessionsdir', 'html_plugin',
-      'vacationinit', 'vacationpipe', 'spellcheck',
-      'global_addressbook', 'global_filterbook', 'global_calendarbook',
-      'pop3_authserver', 'pop3_authport',
-      'vdomain_vmpop3_pwdpath', 'vdomain_vmpop3_pwdname', 'vdomain_vmpop3_mailpath',
-      'vdomain_postfix_postalias', 'vdomain_postfix_postmap'
-   ) {
-      (${$r_config}{$key} =~ /^(.+)$/) && (${$r_config}{$key}=$1);
-   }
-   foreach ( @{${$r_config}{'domainnames'}} ) {
-      (/^(.+)$/) && ($_=$1);
-   }
-   foreach ( @{${$r_config}{'vdomain_postfix_aliases'}} ) {
-      (/^(.+)$/) && ($_=$1);
-   }
-   foreach ( @{${$r_config}{'vdomain_postfix_virtual'}} ) {
-      (/^(.+)$/) && ($_=$1);
-   }
+   openwebmailerror(__FILE__, __LINE__, "Looping config file %var% expansion, $key $configfile!") if (! $iterate);
+   return $value;
+}
+sub fmt_yesno {	# translate yes/no text into 1/0  (true/false)
+   return 1 if ($_[0] =~ m/y(es)?/i || $_[0] == 1);
    return 0;
+}
+sub fmt_none {	# blank out a 'none' value
+   return '' if ( $_[0]=~/^(none|""|'')$/i );
+   return $_[0];
+}
+sub fmt_require { # remove / and .. for variables used in require statement for security
+   $_=$_[0]; s!(/|\.\.)!!g;
+   return $_;
 }
 ##################### END READCONF #######################
 
@@ -823,8 +919,7 @@ sub update_virtusertable {
    my ($virdb, $virfile)=@_;
    my (%DB, %DBR, $metainfo);
 
-   ($virdb =~ /^(.+)$/) && ($virdb = $1);		# untaint ...
-
+   $virdb=untaint($virdb);
    if (! -e $virfile) {
       unlink("$virdb$config{'dbm_ext'}") if (-e "$virdb$config{'dbm_ext'}");
       unlink("$virdb.rev$config{'dbm_ext'}") if (-e "$virdb.rev$config{'dbm_ext'}");
@@ -934,7 +1029,7 @@ sub get_domain_user_userinfo {
          }
          $user=$loginuser;
       }
-      if($config{'auth_domain'} ne 'auto') {
+      if ($config{'auth_domain'} ne 'auto') {
          $domain=lc($config{'auth_domain'});
       } else {
          $domain=$logindomain;
@@ -961,7 +1056,7 @@ sub get_domain_user_userinfo {
 ##################### GET_DEFAULTEMAILS, GET_USERFROM ################
 sub get_defaultemails {
    my ($logindomain, $loginuser, $user)=@_;
-   return (@{$config{'default_fromemails'}}) if ($config_raw{'default_fromemails'} ne "auto");
+   return (@{$config{'default_fromemails'}}) if (${$config{'default_fromemails'}}[0] ne 'auto');
 
    my %emails=();
    my $virtname=$config{'virtusertable'};  $virtname=~s!/!.!g; $virtname=~s/^\.+//;
@@ -1004,11 +1099,11 @@ sub get_userfrom {
    }
 
    # get user defined fromemail
-   if ($config{'enable_setfrom'} && open(FROMBOOK, $frombook)) {
+   if ($config{'enable_loadfrombook'} && open(FROMBOOK, $frombook)) {
       while (<FROMBOOK>) {
          my ($_email, $_realname) = split(/\@\@\@/, $_, 2);
          chomp($_realname);
-         if ( defined($from{"$_email"}) || $config{'enable_setfromemail'} ) {
+         if (!$config{'frombook_for_realname_only'} || defined($from{$_email}) ) {
              $from{"$_email"} = $_realname;
          }
       }
@@ -1077,8 +1172,8 @@ sub readprefs {
 
    # get default value from config for err/undefined/empty prefs entries
 
-   # validate email with defaultemails if setfromemail is not allowed
-   if (!$config{'enable_setfromemail'} || $prefshash{'email'} eq "") {
+   # validate email with defaultemails if frombook is limited to change realname only
+   if ($config{'frombook_for_realname_only'} || $prefshash{'email'} eq "") {
       my @defaultemails=get_defaultemails($logindomain, $loginuser, $user);
       my $valid=0;
       foreach (@defaultemails) {
@@ -1125,7 +1220,7 @@ sub readprefs {
    $prefshash{'iconset'}=$config{'default_iconset'} if (!-d "$config{'ow_htmldir'}/images/iconsets/$prefshash{'iconset'}");
 
    $prefshash{'refreshinterval'}=$config{'min_refreshinterval'} if ($prefshash{'refreshinterval'} < $config{'min_refreshinterval'});
-   $prefshash{'charset'}=$languagecharsets{$prefshash{'language'}} if ($prefshash{'charset'} eq "auto");
+   $prefshash{'charset'}=$languagecharsets{$prefshash{'language'}} if ($prefshash{'charset'} eq 'auto');
 
    return %prefshash;
 }
@@ -1302,7 +1397,7 @@ sub readpop3book {
 sub writepop3book {
    my ($pop3book, $r_accounts) = @_;
 
-   ($pop3book =~ /^(.+)$/) && ($pop3book = $1); # untaint ...
+   $pop3book=untaint($pop3book);
    if (! -f "$pop3book" ) {
       open (POP3BOOK,">$pop3book") or return -1;
       close(POP3BOOK);
@@ -1372,7 +1467,7 @@ sub writecalbook {
    my @indexlist=sort { ${$r_items}{$a}{'idate'}<=>${$r_items}{$b}{'idate'} }
                        (keys %{$r_items});
 
-   ($calbook =~ /^(.+)$/) && ($calbook = $1);	# untaint ...
+   $calbook=untaint($calbook);
    if (! -f "$calbook" ) {
       open (CALBOOK,">$calbook") or return -1;
       close(CALBOOK);
@@ -1465,8 +1560,7 @@ sub verifysession {
    my $now=time();
    my $modifyage=$now-(stat("$config{'ow_sessionsdir'}/$thissession"))[9];
    if ( $modifyage > $prefs{'sessiontimeout'}*60) {
-      my $delfile="$config{'ow_sessionsdir'}/$thissession";
-      ($delfile =~ /^(.+)$/) && ($delfile = $1);  # untaint ...
+      my $delfile=untaint("$config{'ow_sessionsdir'}/$thissession");
       unlink ($delfile) if ( -e "$delfile");
 
       my $html = applystyle(readtemplate("sessiontimeout.template"));
@@ -1554,8 +1648,8 @@ sub get_folderfile_headerdb {
       ($headerdb =~ /^(.+)\/(.*)$/) && ($headerdb = "$1/.$2");
    }
 
-   ($folderfile =~ /^(.+)$/) && ($folderfile = $1); # untaint ...
-   ($headerdb =~ /^(.+)$/) && ($headerdb = $1);
+   $folderfile=untaint($folderfile);
+   $headerdb=untaint($headerdb);
 
    return($folderfile, $headerdb);
 }
@@ -1578,7 +1672,7 @@ sub getfolders {
     	 openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $fdir! ($!)");
 
       while (defined($filename = readdir(FOLDERDIR))) {
-         ($filename =~ /^(.+)$/) && ($filename = $1);   # untaint data from readdir
+         $filename=untaint($filename);
          next if ( $filename eq "." || $filename eq ".." );
          if (-d "$fdir/$filename" && $filename!~/^\./) { # recursive into non dot dir
             push(@fdirs,"$fdir/$filename");
@@ -1631,7 +1725,7 @@ sub getfolders {
       $totalsize += ( -s "$spoolfile" ) || 0;
    } else {
       # create spool file with user uid, gid if it doesn't exist
-      ($spoolfile =~ /^(.+)$/) && ($spoolfile = $1); # untaint ...
+      $spoolfile=untaint($spoolfile);
       open (F, ">>$spoolfile"); close(F);
       chown ($uuid, (split(/\s+/,$ugid))[0], $spoolfile);
    }
@@ -1957,17 +2051,10 @@ sub getinfomessageids {
 
 ################# FILTERMESSAGE ###########################
 sub filtermessage {
-   my ($filtered, $r_filtered);
-   if ($config{'enable_smartfilters'}) {
-      ($filtered, $r_filtered)=mailfilter($user, 'INBOX', $folderdir, \@validfolders, $prefs{'regexmatch'},
+   my ($filtered, $r_filtered)=mailfilter($user, 'INBOX', $folderdir, \@validfolders, $prefs{'regexmatch'},
 					$prefs{'filter_repeatlimit'}, $prefs{'filter_badformatfrom'},
 					$prefs{'filter_fakedsmtp'}, $prefs{'filter_fakedfrom'},
 					$prefs{'filter_fakedexecontenttype'});
-   } else {
-      ($filtered, $r_filtered)=mailfilter($user, 'INBOX', $folderdir, \@validfolders, $prefs{'regexmatch'},
-					0, 0, 0, 0, 0);
-   }
-
    if ($filtered > 0) {
       my $dststr;
       foreach my $destination (sort keys %{$r_filtered}) {
@@ -2030,7 +2117,7 @@ sub cutfoldermails {
    }
 
    # empty folders
-   foreach my $f ('mail-trash', 'saved-drafts') {	
+   foreach my $f ('mail-trash', 'saved-drafts') {
       next if ( (-s "$folderfile{$f}")==0 );
 
       my $sizereduced = (-s "$folderfile{$f}") + (-s "$headerdb{$f}$config{'dbm_ext'}");
@@ -2201,7 +2288,7 @@ sub cutdirfiles {
 ##################### WRITELOG ############################
 sub writelog {
    my $logaction=$_[0];
-   return if ($config{'logfile'} eq 'no' || -l "$config{'logfile'}");
+   return if (!$config{'logfile'} || -l $config{'logfile'});
 
    my $timestamp = localtime();
    my $loggedip = get_clientip();
@@ -2303,7 +2390,10 @@ sub httpheader {
 }
 
 sub htmlheader {
+   my $directive=$_[0];
    my $html = applystyle(readtemplate("header.template"));
+
+   $html =~ s/\@\@\@DIRECTIVE\@\@\@/$directive/g;
 
    my $mode;
    $mode.='+' if ($persistence_count>0);
@@ -2326,15 +2416,23 @@ sub htmlheader {
          $info.=qq| -|;
       }
    }
-   $info .= " ".dateserial2str(gmtime2dateserial(), $prefs{'timeoffset'}, $prefs{'dateformat'})." -";
+   my $t=time();
+   $info.= " ".dateserial2str(gmtime2dateserial($t), $prefs{'timeoffset'}, $prefs{'dateformat'})." ";
+   if ($prefs{'daylightsaving'} eq 'on' ||
+       ($prefs{'daylightsaving'} eq 'auto' && is_dst($t, $prefs{'timeoffset'})) ) {
+      $info.=seconds2timeoffset(timeoffset2seconds($prefs{'timeoffset'})+3600)." -";
+   } else {
+      $info.="$prefs{'timeoffset'} -";
+   }
    $html =~ s/\@\@\@USERINFO\@\@\@/$info/g;
+
    return ($html);
 }
 
 sub htmlplugin {
    my $file=$_[0];
    my $html='';
-   if ($file && $file ne 'none' && open(F, $file) ) {
+   if ($file && open(F, $file) ) {
       local $/; undef $/; $html=<F>;	# no seperator, read whole file in once
       close(F);
       $html="<center>\n$html</center>\n" if ($html);
@@ -2516,7 +2614,7 @@ sub set_euid_egids {
    # note! egid must be set before set euid to normal user,
    #       since a normal user can not set egid to others
    # trick: 2nd parm will be ignore, so we repeat parm 1 twice
-   $) = join(" ", $gids[0], @gids);	
+   $) = join(" ", $gids[0], @gids);
    if ($> != $uid) {
       $<=$> if (!$config{'savedsuid_support'} && $>==0);
       $> = $uid
@@ -2540,7 +2638,7 @@ sub get_clientip {
    my $clientip;
    if (defined($ENV{'HTTP_CLIENT_IP'})) {
       $clientip=$ENV{'HTTP_CLIENT_IP'};
-   } elsif (defined($ENV{'HTTP_X_FORWARDED_FOR'}) && 
+   } elsif (defined($ENV{'HTTP_X_FORWARDED_FOR'}) &&
             $ENV{'HTTP_X_FORWARDED_FOR'} !~ /^(?:10\.|172\.(?:1[6-9]|2[0-9]|3[0-1])\.|192\.168\.|127\.0\.)/ ) {
       $clientip=(split(/,/,$ENV{'HTTP_X_FORWARDED_FOR'}))[0];
    } else {
@@ -2563,8 +2661,8 @@ sub timeoffset2seconds {
 
 sub seconds2timeoffset {
    my $seconds=abs($_[0]);
-   my $sign=($_[0]>=0)?"+":"-";
-   return(sprintf( "%s%02d%02d", $sign, int($seconds/3600), int(($seconds%3600)/60) ));
+   return(sprintf( "%s%02d%02d",
+	($_[0]>=0)?'+':'-', int($seconds/3600), int(($seconds%3600)/60) ));
 }
 ################## END TIMEOFFSET2SECONDS ######################
 
@@ -2572,38 +2670,41 @@ sub seconds2timeoffset {
 # Check if gmtime should be DST for timezone $timeoffset.
 # Since we use only 2 rules to calc daylight saving time for all timezones,
 # it is not very accurate but should be enough in most cases
-sub is_dst {	
+# reference: http://webexhibits.org/daylightsaving/g.html
+sub is_dst {
    my ($gmtime, $timeoffset)=@_;
-   my $year=(gmtime($gmtime))[5];
+   my ($month,$year)=(gmtime($gmtime))[4,5];	# $month 0..11
    my $seconds=timeoffset2seconds($timeoffset);
 
    my ($gm, $lt, $dow);
-   if ($seconds >= -9*3600 && $seconds <= 3*3600 ) {	# dst rule for us timezones
-      $lt=safetimegm(0,0,2, 1,3,$year);	# localtime Apr/1 2:00
-      $dow=(gmtime($lt))[6];		# weekday of localtime Apr/1 2:00:01
-      $gm=$lt+(7-$dow)*86400-$seconds;	# gmtime of localtime Apr/1st sunday
-      return 0 if ($gmtime<$gm);
-
-      $lt=safetimegm(0,0,2, 30,9,$year);	# localtime Oct/30 2:00
-      $dow=(gmtime($lt))[6];		# weekday of localtime Oct/30
-      $gm=$lt-$dow*86400-$seconds;	# gmtime of localtime Oct/last Sunday
-      return 0 if ($gmtime>$gm);
-
-   } elsif ($seconds >= 0 && $seconds <= 6*3600 ) {	# dst rule for europe timezones
-      $gm=safetimegm(0,0,1, 31,2,$year);     # gmtime Mar/31 1:00
-      $dow=(gmtime($gm))[6];		# weekday of gmtime Mar/31
-      $gm-=$dow*86400;			# gmtime Mar/last Sunday
-      return 0 if ($gmtime<$gm);
-
-      $gm=safetimegm(0,0,1, 30,9,$year);     # gmtime Oct/30 1:00
-      $dow=(gmtime($gm))[6];		# weekday of gmtime Oct/30
-      $gm-=$dow*86400;			# gmtime Oct/last Sunday
-      return 0 if ($gmtime>$gm);
-
-   } else {
-      return 0;
+   if ($seconds >= -9*3600 && $seconds <= -3*3600 ) {	# dst rule for us
+      return 1 if ($month>3 && $month<9);
+      if ($month==3) {
+         $lt=safetimegm(0,0,2, 1,3,$year);	# localtime Apr/1 2:00
+         $dow=(gmtime($lt))[6];			# weekday of localtime Apr/1 2:00:01
+         $gm=$lt+(7-$dow)*86400-$seconds;	# gmtime of localtime Apr/1st Sunday
+         return 1 if ($gmtime>=$gm);
+      } elsif ($month==9) {
+         $lt=safetimegm(0,0,2, 30,9,$year);	# localtime Oct/30 2:00
+         $dow=(gmtime($lt))[6];			# weekday of localtime Oct/30
+         $gm=$lt-$dow*86400-$seconds;		# gmtime of localtime Oct/last Sunday
+         return 1 if ($gmtime<=$gm);
+      }
+   } elsif ($seconds >= 0 && $seconds <= 6*3600 ) {	# dst rule for europe
+      return 1 if ($month>2 && $month<9);
+      if ($month==2) {
+         $gm=safetimegm(0,0,1, 31,2,$year);     # gmtime Mar/31 1:00
+         $dow=(gmtime($gm))[6];			# weekday of gmtime Mar/31
+         $gm-=$dow*86400;			# gmtime Mar/last Sunday
+         return 1 if ($gmtime>=$gm);
+      } elsif ($month==9) {
+         $gm=safetimegm(0,0,1, 30,9,$year);     # gmtime Oct/30 1:00
+         $dow=(gmtime($gm))[6];			# weekday of gmtime Oct/30
+         $gm-=$dow*86400;			# gmtime Oct/last Sunday
+         return 1 if ($gmtime<=$gm);
+      }
    }
-   return 1;
+   return 0;
 }
 ######################## END IS_DST ########################
 
@@ -2612,14 +2713,12 @@ sub is_dst {
 # so we remove the dstshift before return timeoffset
 # since whether dst shift should be used depends on the date to be converted
 sub gettimeoffset {
-   my $t=time();			# the UTC            sec from 1970/01/01
-   my $l=timegm((localtime($t))[0..5]);	# the UTC+timeoffset sec from 1970/01/01
-   my $offset=sprintf(seconds2timeoffset($l-$t));
+   my $t=time();		# the UTC sec from 1970/01/01
+   my @l=localtime($t);
+   my $sec=timegm(@l[0..5])-$t;	# diff between local and UTC
 
-   if (is_dst($t, $offset)) {	
-      $offset=sprintf(seconds2timeoffset($l-$t-3600));
-   }
-   return $offset;
+   $sec-=3600 if ($l[8]);	# is dst? (returned by localtime)
+   return sprintf(seconds2timeoffset($sec));
 }
 #################### END GETTIMEOFFSET #########################
 
@@ -2649,7 +2748,7 @@ sub safetimegm {
 # dateserial is used as an equivalent internal format to gmtime
 # the is_dst effect won't be not counted in dateserial until
 # the dateserial is converted to datefield, delimeterfield or str
-sub gmtime2dateserial {		
+sub gmtime2dateserial {
    # time() is used if $_[0] undefined
    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst)=gmtime($_[0]||time());
    return(sprintf("%4d%02d%02d%02d%02d%02d", $year+1900, $mon+1, $mday, $hour, $min, $sec));
@@ -2689,8 +2788,8 @@ sub delimiter2dateserial {	# return dateserial of GMT
       # since delimiter is written by local deliver, so we use $server_timeoffset instead
       $l2g-=timeoffset2seconds($server_timeoffset);
    }
-   if ($prefs{'daylightsaving'} eq "on" ||
-       ($prefs{'daylightsaving'} eq "auto" && is_dst($l2g,$server_timeoffset)) ) {
+   if ($prefs{'daylightsaving'} eq 'on' ||
+       ($prefs{'daylightsaving'} eq 'auto' && is_dst($l2g,$server_timeoffset)) ) {
       $l2g-=3600; # minus 1 hour if is_dst at that gmtime
    }
    return(gmtime2dateserial($l2g));
@@ -2700,8 +2799,8 @@ sub dateserial2delimiter {
    my ($dateserial, $timeoffset)=@_;
 
    my $g2l=dateserial2gmtime($dateserial);
-   if ($prefs{'daylightsaving'} eq "on" ||
-       ($prefs{'daylightsaving'} eq "auto" && is_dst($g2l,$timeoffset)) ) {
+   if ($prefs{'daylightsaving'} eq 'on' ||
+       ($prefs{'daylightsaving'} eq 'auto' && is_dst($g2l,$timeoffset)) ) {
       $g2l+=3600; # plus 1 hour if is_dst at this gmtime
    }
    $g2l+=timeoffset2seconds($timeoffset) if ($timeoffset);
@@ -2714,7 +2813,7 @@ sub dateserial2delimiter {
 ################ END DELIMITER <-> DATESERIAL #######################
 
 #################### DATEFIELD <-> DATESERIAL #####################
-# notice: both the datetime and the timezone str in date field 
+# notice: both the datetime and the timezone str in date field
 #         include the dst shift
 sub datefield2dateserial {	# return dateserial of GMT
    my $datefield=$_[0];
@@ -2760,8 +2859,8 @@ sub dateserial2datefield {
    my ($dateserial, $timeoffset)=@_;
 
    my $g2l=dateserial2gmtime($dateserial);
-   if ($prefs{'daylightsaving'} eq "on" ||
-       ($prefs{'daylightsaving'} eq "auto" && is_dst($g2l,$timeoffset)) ) {
+   if ($prefs{'daylightsaving'} eq 'on' ||
+       ($prefs{'daylightsaving'} eq 'auto' && is_dst($g2l,$timeoffset)) ) {
       $timeoffset=seconds2timeoffset(timeoffset2seconds($timeoffset)+3600);
    }
    $g2l+=timeoffset2seconds($timeoffset) if ($timeoffset);
@@ -2778,8 +2877,8 @@ sub dateserial2str {
    my ($dateserial, $timeoffset, $format)=@_;
 
    my $g2l=dateserial2gmtime($dateserial);
-   if ($prefs{'daylightsaving'} eq "on" ||
-       ($prefs{'daylightsaving'} eq "auto" && is_dst($g2l,$timeoffset)) ) {
+   if ($prefs{'daylightsaving'} eq 'on' ||
+       ($prefs{'daylightsaving'} eq 'auto' && is_dst($g2l,$timeoffset)) ) {
       $g2l+=3600; # plus 1 hour if is_dst at this gmtime
    }
    $g2l+=timeoffset2seconds($timeoffset) if ($timeoffset);
@@ -3224,10 +3323,9 @@ sub is_vdomain_adm {
 sub vdomain_userspool {
    my ($vuser, $vhomedir) = @_;
    my $dest;
-   my $spool="$config{'vdomain_vmpop3_mailpath'}/$domain/$vuser";
-   ($spool =~ /^(.+)$/) && ($spool = $1);		# untaint
+   my $spool=untaint("$config{'vdomain_vmpop3_mailpath'}/$domain/$vuser");
 
-   if ( $config{'vdomain_mailbox_command'} ne "none" ) {
+   if ( $config{'vdomain_mailbox_command'} ) {
       $dest = qq!| "$config{'vdomain_mailbox_command'}"!;
       $dest =~ s/<domain>/$domain/g;
       $dest =~ s/<user>/$vuser/g;
@@ -3266,13 +3364,19 @@ sub filelock {
 }
 ########################## END FILELOCK ############################
 
-################# IS_REGEX, IS_TAINTED ##########
-sub is_regex {
-   return eval { m!$_[0]!; 1; };
+################# UNTAINT, IS_TAINTED, IS_REGEX ##########
+sub untaint {
+   local $_ = shift;	# this line makes param into a new variable. don't remove it.
+   m/^(.*)$/;
+   return $1;
 }
 
 sub is_tainted {
    return ! eval { join('',@_), kill 0; 1; };
+}
+
+sub is_regex {
+   return eval { m!$_[0]!; 1; };
 }
 ############### END IS_REGEX, IS_TAINTED ########
 
@@ -3310,5 +3414,31 @@ sub log_time {
    chmod(0666, "/tmp/openwebmail.debug");
 }
 ################## END LOG_TIME (for profiling) ##################
+
+################## REFDUMP (for debug) ##################
+sub refdump {
+   my ($var, $c)=@_;
+   return("too many levels") if ($c>128);
+   my $type=ref($var);
+   my $prefix=' 'x$c;
+   my $output="$type\n";
+   if ($type =~/SCALAR/) {
+      $output.=$prefix.refdump(${$var}, $c)."\n";
+   } elsif ($type=~/HASH/) {
+      foreach my $key (sort keys %{$var}) {
+         $output.=$prefix." "."$key =>".refdump(${$var}{$key}, length("$key =>")+$c+1)."\n";
+      }
+   } elsif ($type=~/ARRAY/) {
+      foreach my $member (@{$var}) {
+         $output.=$prefix." ".refdump($member, $c+1)."\n";
+      }
+   } else {
+      return("$var (untaint)") if (!is_tainted($_[0]));
+      return($var);
+   }
+   $output=~s/\n\n+/\n/sg;
+   return $output;
+}
+################## END REFDUMP (for debug) ##################
 
 1;

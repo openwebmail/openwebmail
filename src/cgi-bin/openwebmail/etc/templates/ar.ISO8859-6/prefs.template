@@ -420,6 +420,11 @@
 ÙÏÏ ËטÇזך ÇהØחטÑ  @@@NEWMAILWINDOWTIMEMENU@@@  &nbsp;( 0 ÊÙזך ÙÏו ÅØחÇÑ ÇהזÇבÐÉ )
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>Mail sent window notification:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+ÙÏÏ ËטÇזך ÇהØחטÑ  @@@MAILSENTWINDOWTIMEMENU@@@  &nbsp;( 0 ÊÙזך ÙÏו ÅØחÇÑ ÇהזÇבÐÉ )
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>ÇהגÇוטÓ הÊÏגךג ÇהÅוהÇÁ:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DICTIONARYMENU@@@

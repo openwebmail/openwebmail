@@ -420,6 +420,11 @@ Latime @@@FILEEDITCOLUMNSMENU@@@ Inaltime @@@FILEEDITROWSMENU@@@
 ramase @@@NEWMAILWINDOWTIMEMENU@@@ secunde &nbsp;(0 inseamna - nici o notificare)
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Mail sent window notification:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+ramase @@@MAILSENTWINDOWTIMEMENU@@@ secunde &nbsp;(0 inseamna - nici o notificare)
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Dictionar pentru corector gramatical:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DICTIONARYMENU@@@

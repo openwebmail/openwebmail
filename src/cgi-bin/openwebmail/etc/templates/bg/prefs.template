@@ -420,6 +420,11 @@
 остават @@@NEWMAILWINDOWTIMEMENU@@@ секунди &nbsp;( 0 изключва опцията )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Mail sent window notification:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+остават @@@MAILSENTWINDOWTIMEMENU@@@ секунди &nbsp;( 0 изключва опцията )
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Речник за проверка на правописа:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DICTIONARYMENU@@@

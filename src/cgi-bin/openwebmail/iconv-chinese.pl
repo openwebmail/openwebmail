@@ -9,8 +9,7 @@ use strict;
 use vars qw(%config);
 
 sub mkdb_b2g {
-   my $b2gdb="$config{'ow_etcdir'}/b2g$config{'dbmopen_ext'}";
-   ($b2gdb =~ /^(.+)$/) && ($b2gdb = $1);	# untaint ...
+   my $b2gdb=untaint("$config{'ow_etcdir'}/b2g$config{'dbmopen_ext'}");
    my %B2G;
    dbmopen (%B2G, $b2gdb, 0644) or return -1;
    open (T, "$config{'b2g_map'}");
@@ -25,8 +24,7 @@ sub mkdb_b2g {
 }
 
 sub mkdb_g2b {
-   my $g2bdb="$config{'ow_etcdir'}/g2b$config{'dbmopen_ext'}";
-   ($g2bdb =~ /^(.+)$/) && ($g2bdb = $1);	# untaint ...
+   my $g2bdb=untaint("$config{'ow_etcdir'}/g2b$config{'dbmopen_ext'}");
    my %G2B;
    dbmopen (%G2B, $g2bdb, 0644) or return -1;
    open (T, "$config{'g2b_map'}");

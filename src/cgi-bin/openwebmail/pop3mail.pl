@@ -27,13 +27,10 @@ sub retrpop3mail {
    my ($pop3host, $pop3port, $pop3user, $pop3passwd, $pop3del, $uidldb, $spoolfile)=@_;
    my $remote_sock;
 
-   # untaint for connection creation
-   ($pop3host =~ /^(.+)$/) && ($pop3host = $1);
-   ($pop3port =~ /^(.+)$/) && ($pop3port = $1);
-   # untaint for file creation
-   ($spoolfile =~ /^(.+)$/) && ($spoolfile = $1);
-   # untaint for uidldb creation
-   ($uidldb =~ /^(.+)$/) && ($uidldb = $1);		# untaint ...
+   $pop3host=untaint($pop3host);	# untaint for connection creation
+   $pop3port=untaint($pop3port);
+   $spoolfile=untaint($spoolfile);	# untaint for file creation
+   $uidldb=untaint($uidldb);		# untaint for uidldb creation
 
    eval {
       local $SIG{ALRM} = sub { die "alarm\n" }; # NB: \n required
@@ -129,7 +126,7 @@ sub retrpop3mail {
             $uidldb{$uidl}=1; next;
          }
       }
-          
+
       print $remote_sock "retr ".$i."\r\n";
       while (<$remote_sock>) {	# use loop to filter out verbose output
          if ( /^\+/ ) {
@@ -202,9 +199,9 @@ sub retrpop3mail {
             print IN "\n";		# mark mail end
             close(IN);
             $append=1;
-         } 
+         }
          filelock($spoolfile, LOCK_UN);
-      } 
+      }
       if (!$append) {
          if ($uidl_support) {
             @UIDLDB{keys %uidldb}=values %uidldb if ($retr_total>0);

@@ -108,9 +108,9 @@ Judul:
 @@@DATEFORMATMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Hour format:</B>
+<B>Format jam:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@HOURFORMATMENU@@@ hour
+@@@HOURFORMATMENU@@@ jam
 </td></tr>
 
 @@@WEBMAILSTART@@@
@@ -163,7 +163,7 @@ Judul:
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Sewaktu Login,simpan surat POP3:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@AUTOPOP3CHECKBOX@@@ (wait @@@AUTOPOP3WAITMENU@@@ seconds)
+@@@AUTOPOP3CHECKBOX@@@ (tunggu @@@AUTOPOP3WAITMENU@@@ sekon)
 </td></tr>
 @@@AUTOPOP3END@@@
 @@@MOVEOLDSTART@@@
@@ -207,12 +207,12 @@ Judul:
 @@@SHOWIMGASLINK@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Tutup JavaScript¡G</B>
+<B>Tutup JavaScript</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEJS@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Tutup Embedded links¡G</B>
+<B>Tutup Embedded links</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEEMBLINKMENU@@@
 </td></tr>
@@ -295,7 +295,7 @@ Lebar @@@EDITCOLUMNSMENU@@@ Tinggi @@@EDITROWSMENU@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Size for addressbook window:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
+Lebar @@@ABOOKWIDTHMENU@@@ Tinggi @@@ABOOKHEIGHTMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Addressbook button position:</B>
@@ -345,7 +345,7 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Time interval in dayview:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@INTERVALMENU@@@ minutes
+@@@INTERVALMENU@@@ menit
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Show empty hours:</B>
@@ -392,7 +392,7 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Size for file edit window:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-Width @@@FILEEDITCOLUMNSMENU@@@ Height @@@FILEEDITROWSMENU@@@
+Lebar @@@FILEEDITCOLUMNSMENU@@@ Tinggi @@@FILEEDITROWSMENU@@@
 </td></tr>
 @@@WEBDISKEND@@@
 
@@ -417,7 +417,12 @@ Width @@@FILEEDITCOLUMNSMENU@@@ Height @@@FILEEDITROWSMENU@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>NewMail window notification:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-remaining @@@NEWMAILWINDOWTIMEMENU@@@ seconds &nbsp;( 0 means No window notification )
+remaining @@@NEWMAILWINDOWTIMEMENU@@@ sekon &nbsp;( 0 means No window notification )
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Mail sent window notification:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+remaining @@@MAILSENTWINDOWTIMEMENU@@@ sekon &nbsp;( 0 means No window notification )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Kamus periksa Spell:</B>
@@ -425,7 +430,7 @@ remaining @@@NEWMAILWINDOWTIMEMENU@@@ seconds &nbsp;( 0 means No window notifica
 @@@DICTIONARYMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Hari simpan Kotak sampah¡G</B>
+<B>Hari simpan Kotak sampah</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@RESERVEDDAYSMENU@@@
 </td></tr>

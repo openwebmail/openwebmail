@@ -420,6 +420,11 @@
 ﺍﮔﻠﮯ  @@@NEWMAILWINDOWTIMEMENU@@@  &nbsp; ﺳﻴﻜﻴﻨﮉ( 0 ﺻﻔﺮ ﻛﮯ ﻣﻌﻨﮯ ﻛﻮﺋﻰ ﺁﮔﺎﮨﻰ ﻧﻬﻴﮟ   )
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>Mail sent window notification:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+ﺍﮔﻠﮯ  @@@MAILSENTWINDOWTIMEMENU@@@  &nbsp; ﺳﻴﻜﻴﻨﮉ( 0 ﺻﻔﺮ ﻛﮯ ﻣﻌﻨﮯ ﻛﻮﺋﻰ ﺁﮔﺎﮨﻰ ﻧﻬﻴﮟ   )
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>ﻟﻐﻌﺖ :</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DICTIONARYMENU@@@

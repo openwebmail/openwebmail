@@ -116,7 +116,7 @@
       alert("Prepáète ale pre vytvorenie HTML správy potrebujete prehliadaè IE 5.5+(Windows) alebo Mozilla 1.3+(all OS).");
    }
 
-    function msgfmtchangeconfirm()
+   function msgfmtchangeconfirm()
    {
       if ((document.composeform.msgformat.value == "html" ||
            document.composeform.msgformat.value == "both") &&

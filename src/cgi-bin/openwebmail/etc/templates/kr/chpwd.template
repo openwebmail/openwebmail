@@ -7,7 +7,7 @@
 <BR>
 <table align=center border=0 cellspacing=2 cellpadding=0>
 <tr>
-<td align="right">사용자 ID: </td><td>@@@USERIDFIELD@@@</td>
+<td align="right">사용자 ID: </td><td>@@@LOGINNAMEFIELD@@@</td>
 </tr><tr>
 <td align="right">현재 패스워드: </td><td>@@@OLDPASSWORDFIELD@@@</td>
 </tr><tr>

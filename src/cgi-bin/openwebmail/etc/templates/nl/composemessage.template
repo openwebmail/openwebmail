@@ -116,7 +116,7 @@
       alert("Sorry, IE 5.5+(Windows) of Mozilla 1.3+(alle OSes) is benodigd voor het maken van HTML berichten.");
    }
 
-    function msgfmtchangeconfirm()
+   function msgfmtchangeconfirm()
    {
       if ((document.composeform.msgformat.value == "html" ||
            document.composeform.msgformat.value == "both") &&

@@ -28,7 +28,7 @@ package openwebmail::id;
 
 %lang_onofflabels =
    (
-   auto => 'Auto switched',
+   auto => 'otomatis',
    on   => 'On',
    off  => 'Off',
    );
@@ -42,10 +42,10 @@ package openwebmail::id;
 
 %lang_msgformatlabels =
    (
-   auto => 'Auto selected',
+   auto => 'otomatis',
    text	=> 'Text',
    html => 'HTML',
-   both => 'HTML and Text'
+   both => 'HTML dan Text'
    );
 
 %lang_withoriglabels =
@@ -64,15 +64,15 @@ package openwebmail::id;
 
 %lang_disableemblinklabels =
    (
-   none    => 'None',
-   cgionly => 'CGI only',
-   all     => 'All embedded URLs'
+   none    => 'Bukan',
+   cgionly => 'saja CGI',
+   all     => 'semua URL2 dalam'
    );
 
 %lang_ctrlpositionlabels =
    (
-   top => 'At top',
-   bottom => 'At bottom'
+   top => 'di atas',
+   bottom => 'di bawah'
    );
 
 %lang_sendpositionlabels =
@@ -124,59 +124,59 @@ package openwebmail::id;
 
 %lang_calendar = 
    (
-   yearview  => 'Yearview',
-   monthview => 'Monthview',
-   weekview  => 'Weekview',
-   dayview   => 'Dayview',
-   listview  => 'Listview'
+   yearview  => 'Tahun',
+   monthview => 'Bulan',
+   weekview  => 'Minggu',
+   dayview   => 'Hari',
+   listview  => 'Daftar'
    );
 
 %lang_month =
    (
-   1  => 'January',
-   2  => 'February',
-   3  => 'March',
+   1  => 'Januari',
+   2  => 'Februari',
+   3  => 'Maret',
    4  => 'April',
-   5  => 'May',
-   6  => 'June',
-   7  => 'July',
-   8  => 'August',
+   5  => 'Mei',
+   6  => 'Juni',
+   7  => 'Juli',
+   8  => 'Agustus',
    9  => 'September',
-   10 => 'October',
-   11 => 'November',
-   12 => 'December'
+   10 => 'Oktober',
+   11 => 'Nopember',
+   12 => 'Desember'
    );
 
 %lang_wday =
    (
-   0 => 'Sunday',
-   1 => 'Monday',
-   2 => 'Tuesday',
-   3 => 'Wednesday',
-   4 => 'Thursday',
-   5 => 'Friday',
-   6 => 'Saturday'
+   0 => 'Minggu',
+   1 => 'Senin',
+   2 => 'Selasa',
+   3 => 'Rabu',
+   4 => 'Kamis',
+   5 => 'Jumat',
+   6 => 'Sabtu'
    );
 
 %lang_wday_abbrev =
    (
-   week => 'WK',
-   0 => 'S',
-   1 => 'M',
-   2 => 'T',
-   3 => 'W',
-   4 => 'T',
-   5 => 'F',
+   week => 'minggu',
+   0 => 'M',
+   1 => 'S',
+   2 => 'S',
+   3 => 'R',
+   4 => 'K',
+   5 => 'J',
    6 => 'S'
    );
 
 %lang_order =
    (
-   1 => '1st',
-   2 => '2nd',
-   3 => '3rd',
-   4 => '4th',
-   5 => 'last'
+   1 => 'ke-1',
+   2 => 'ke-2',
+   3 => 'ke-3',
+   4 => 'ke-4',
+   5 => 'lalu'
    );
 
 %lang_wdbutton =
@@ -184,27 +184,29 @@ package openwebmail::id;
    refresh  => 'Refresh',
    preview  => 'Preview',
    edit     => 'Edit',
-   listarchive=> 'List',
-   decompress=>'Decompress',
-   extract  => 'Extract',
+   listarchive=> 'Daftar',
+   decompress=>'Bunga',
+   extract  => 'Ekstrak',
+   mkpdf    => 'Simpan PDF',
+   mkps     => 'Simpan PS',
    chdir    => 'ChDir',
-   mkdir    => 'MkDir',
+   mkdir    => 'Buat kotak',
    newfile  => 'NewFile',
-   copy     => 'Copy',
-   move     => 'Move',
+   copy     => 'Kopi',
+   move     => 'Pindah',
    symlink  => 'Symlink',
-   delete   => 'Delete',
-   gzip     => 'gzCompress',
-   mkzip    => 'MkZip',
-   mktgz    => 'MkTgz',
-   mkthumbnail  => 'MkThumb',
+   delete   => 'Hapus',
+   gzip     => 'Simpan gz',
+   mkzip    => 'Simpan zip',
+   mktgz    => 'Simpan tgz',
+   mkthumbnail  => 'Simpan gambaran kecil',
    download => 'Download',
    upload   => 'Upload',
    );   
 
 %lang_text =
    (
-   loading    => 'Loading, please wait',
+   loading    => 'Membaca, silakan tunggu.',
    help       => 'Help',
    login      => 'Login Masuk',
    clear      => 'Hapus',
@@ -217,14 +219,14 @@ package openwebmail::id;
    messages   => 'lembar Surat',
    unread     => 'Belum Baca',
    nomessages => 'Tidak ada surat',
-   inmessages => 'Incoming msgs',
+   inmessages => 'Email yg datang',
    composenew => 'Tulis Surat Baru',
    refresh    => 'Periksa Ulang',
    userprefs  => 'Konfigurasi',
    addressbook=> 'Buku Alamat',
    folders    => 'Kotak surat',
    emptytrash => 'Bersihkan Kotak Sampah',
-   totrash    => 'Move to Trash',
+   totrash    => 'Pindah ke Sampah',
    forever    => 'Tinggal Selamanya',
    delatlogout=> 'Delete at Logout',
    userdef    => 'Definisi Pengguna',
@@ -267,16 +269,16 @@ package openwebmail::id;
    description=> 'Keterangan',
    download   => 'Download',
    charset    => 'Charset',
-   samecharset=> 'The same as composing charset',
+   samecharset=> 'Sama charset yg tulisan',
    thisispartialmsg => 'Ini sebagian dari salah satu surat.',
    msgrebuild => 'Konfigurasi kembali Surat',
    editdraft  => 'Tulis Catatan',
    savedraft  => 'Simpan Catatan Sementara',
-   draftsaved => 'Draft @@@SUBJECT@@@ has been saved successfully',
+   draftsaved => 'Catatan @@@SUBJECT@@@ sudah simpan baik',
    send       => 'Kirim Surat',
-   msgsent    => 'Message @@@SUBJECT@@@ has been sent successfully',
-   about      => 'About',
-   close      => 'Close',
+   msgsent    => 'Email @@@SUBJECT@@@ sudah mengirim baik',
+   about      => 'Informasi',
+   close      => 'Menutup',
    cancel     => 'Batal',
    ok         => 'Ok',
    continue   => 'Lanjut',
@@ -311,8 +313,8 @@ package openwebmail::id;
    note       => 'Keterangan',
    max        => 'Maximum',
    group      => 'Kelompok',
-   quotausage => 'Quota usage',
-   quotalimit => 'Quota limit',
+   quotausage => 'Kuota usage',
+   quotalimit => 'Kuota limit',
    quotahit   => 'Kapasitas sudah penuh',
    tzmap      => 'World timezone map',
    testsound  => 'Test sound',
@@ -469,14 +471,15 @@ package openwebmail::id;
    badnum_in_days => 'bad number in consecutive days field',
    access_denied     => 'Access denied',
    couldnt_chdirto   => 'Couldn\'t chdir to',
-   isnt_a_dir        => 'is not a directory',
+   isnt_a_dir        => 'tidak kotak folder',
    edit_notfordir    => 'You can\'t edit a directory',
    onefileonly       => 'Only one file is allowed for this operation',
    no_file_todownload=> 'No file is specified for download',
    upload_overlimit  => 'Upload file size is over the limit',
-   decomp_notsupported=>'Decompression support is not available for this file.',
+   decomp_notsupported =>'Decompression support is not available for this file.',
+   filefmt_notsupported =>'The file format is not supported.',
    webdisk_readonly  => 'Sorry, your webdisk is read only.',
-   quota_syserr      => 'Quota system error',
+   quota_syserr      => 'Kuota sistem error',
    quotahit_alert    => 'Sorry, you\'ve hit your quota limit. Please delete some messages from mail folders or some files from the webdisk to free disk space.',
    quotahit_delmail  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, oldest messages in folders have been removed automatcially',
    quotahit_delfile  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, some files in the webdisk have been removed automatcially',

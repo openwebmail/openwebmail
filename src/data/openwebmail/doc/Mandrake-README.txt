@@ -8,19 +8,19 @@ File: Mandrake-README.txt
                        OPENWEBMAIL ON MANDRAKE 9.0 HOWTO
 ------------------------------------------------------------------------------
 
-1. Download redhat RPM and tar/gzipped packages. 
-   You will need both. Make sure you get the latest 1.71 version of the 
+1. Download redhat RPM and tar/gzipped packages.
+   You will need both. Make sure you get the latest 1.71 version of the
    ".tgz" package.
 
-2. Make sure you have all of Perl installed. I did not. 
-   And it was the cause of much frustration. 
-   And I had taken the installation route that supposedly installed all 
-   of it. I had to download all the packages and re-install them with 
+2. Make sure you have all of Perl installed. I did not.
+   And it was the cause of much frustration.
+   And I had taken the installation route that supposedly installed all
+   of it. I had to download all the packages and re-install them with
    the --force flag
 
 3. Install the Openwebmail.rpm file.
 
-4. Copy or move the latest "1.71" tar/gzip ".tgz" file to /var/www. 
+4. Copy or move the latest "1.71" tar/gzip ".tgz" file to /var/www.
    Unzip it there, it will write over the existing (older) version.
 
 5. Now the fun begins, this is what you have to do to make it work.....
@@ -60,29 +60,29 @@ change /var/log/openwebmail.log to /var/log/webmail/openwebmail.log (optional)
 add "default_realname auto" line
 this makes "from"line in webmail use login name.
 
-Add line "dbmopen_haslock yes" . 
-This parameter is only present and working in version 1.71 and 
+Add line "dbmopen_haslock yes" .
+This parameter is only present and working in version 1.71 and
 somehow Mandrake 9.0 requires it.
 
-6. Create the /var/log/webmail/ directory if you did the above optional step 
+6. Create the /var/log/webmail/ directory if you did the above optional step
    of moving the logfile.
 
-7. add /var/log/webmail/openwebmail.log entry to /etc/logrotate.d/syslog file. 
+7. add /var/log/webmail/openwebmail.log entry to /etc/logrotate.d/syslog file.
    This will cause you openwebmail logs to rotate like the rest of your system
    logs. Just add it to the existing line that's doing the current rotations.
 
 8. Stop and restart httpd, "service httpd restart".
 
-Done... 
+Done...
 
-Now any user that has a password in /etc/passwd-/etc/shadow will be able to 
-login and see any mail that is waiting on them on this machine. If this machine 
-is catching the mail for your domain then all of that mail will be seen. 
-There are multiple methods of authentication that OWM supports. I am using the 
-easiest because it's all I require. 
+Now any user that has a password in /etc/passwd-/etc/shadow will be able to
+login and see any mail that is waiting on them on this machine. If this machine
+is catching the mail for your domain then all of that mail will be seen.
+There are multiple methods of authentication that OWM supports. I am using the
+easiest because it's all I require.
 You will have to figure out on your own how to make the other methods work.
 
-httpd://machinename/cgi-bin/openwebmail/openwebmail.pl will get you to it. 
+httpd://machinename/cgi-bin/openwebmail/openwebmail.pl will get you to it.
 I put a link in my Home web page to it.
 
 That is what I did, and it works and works well.
@@ -115,6 +115,6 @@ spellcheck /usr/local/bin/ispell
 default_language en
 default_realname auto
 <default_signature>
--- 
+--
 Open WebMail Project (http://openwebmail.org)
 </default_signature>

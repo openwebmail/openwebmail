@@ -20,7 +20,7 @@ index.html -> openwebmail.html
 
 javascript/htmlarea			HTMLArea editor 3.0
 javascript/htmlarea.openwebmail		HTMLArea editor 3.0 customized for oepnwebmail
-javascript/htmlarea.openwebmail/popups	lang and html file of popup windows in 
+javascript/htmlarea.openwebmail/popups	lang and html file of popup windows in
 					htmlarea editor for different languages
 
 
@@ -32,6 +32,7 @@ uty/                            debug uty or tool used by sysadm
 auth_ldap.pl                    various authentication modules
 auth_mysql.pl
 auth_mysql_vmail.pl
+auth_nis.pl
 auth_pam.pl
 auth_pam_cobalt.pl
 auth_pg.pl
@@ -73,10 +74,11 @@ openwebmail.pl
 
 openwebmail-tool.pl             command tool of openwebmail
 preload.pl                      preload uty for both CGI and command line
+userstat.pl			user status utility for static html pages
 vacation.pl                     vacation utility for auto reply
 
 
-/usr/local/www/cgi-bin/etc/        
+/usr/local/www/cgi-bin/etc/
 ------------------------------
 openwebmail.conf                customized configuration file
 openwebmail.conf.default        default configuration file
@@ -115,7 +117,7 @@ for each USER
 ~USER/.vacation.db              db for autoreply history log
 ~USER/.signature                signature file
 ~USER/mail/.signature           signature file if ~USER/.signature doesn't exist
-~USER/mail/.openwebmailrc       openwebmail user preference 
+~USER/mail/.openwebmailrc       openwebmail user preference
 ~USER/mail/.release.date        the release date of openwebmail which user used
 ~USER/mail/.history.log         openwebmail user log file
 

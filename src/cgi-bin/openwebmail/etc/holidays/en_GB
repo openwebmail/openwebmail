@@ -10,17 +10,18 @@
 10@@@.*,08,((2[5-9])|(3[0-1])),Mon@@@0@@@0@@@Summer Bank Holiday@@@0
 11@@@.*,10,31,.*@@@0@@@0@@@Halloween@@@0
 12@@@.*,11,05,.*@@@0@@@0@@@Bonfire Night@@@0
-13@@@.*,11,11,.*@@@0@@@0@@@Rememberance Sunday@@@0
-14@@@.*,11,30,.*@@@0@@@0@@@St. Andrew's Day@@@0
-15@@@.*,12,24,.*@@@0@@@0@@@Christmas Eve@@@0
-16@@@.*,12,25,.*@@@0@@@0@@@Christmas Day@@@0
-17@@@.*,12,26,.*@@@0@@@0@@@Boxing Day@@@0
-18@@@.*,12,31,.*@@@0@@@0@@@New Year's Eve@@@0
-19@@@.*,03,((2[5-9])|(3[0-1])),Sun@@@0200@@@0@@@British Summer Time begins@@@0
-20@@@.*,10,((2[5-9])|(3[0-1])),Sun@@@0200@@@0@@@British Summer Time ends@@@0
-21@@@.*,easter,easter,.*@@@0@@@0@@@Easter Sunday@@@0
-22@@@.*,easter,easter-47,.*@@@0@@@0@@@Shrove Tuesday (Pancake Day)@@@0
-23@@@.*,easter,easter-46,.*@@@0@@@0@@@Ash Wednesday@@@0
-24@@@.*,easter,easter-2,.*@@@0@@@0@@@Good Friday@@@0
-25@@@.*,easter,easter+1,.*@@@0@@@0@@@Easter Monday@@@0
-26@@@.*,easter,easter-21,.*@@@0@@@0@@@Mother's Day@@@0
+13@@@.*,11,11,.*@@@0@@@0@@@Armistice Day@@@0
+14@@@.*,11,((0[7-9])|(1[0-3])),Sun@@@0@@@0@@@Remembrance Sunday@@@0
+15@@@.*,11,30,.*@@@0@@@0@@@St. Andrew's Day@@@0
+16@@@.*,12,24,.*@@@0@@@0@@@Christmas Eve@@@0
+17@@@.*,12,25,.*@@@0@@@0@@@Christmas Day@@@0
+18@@@.*,12,26,.*@@@0@@@0@@@Boxing Day@@@0
+19@@@.*,12,31,.*@@@0@@@0@@@New Year's Eve@@@0
+20@@@.*,03,((2[5-9])|(3[0-1])),Sun@@@0200@@@0@@@British Summer Time begins@@@0
+21@@@.*,10,((2[5-9])|(3[0-1])),Sun@@@0200@@@0@@@British Summer Time ends@@@0
+22@@@.*,easter,easter,.*@@@0@@@0@@@Easter Sunday@@@0
+23@@@.*,easter,easter-47,.*@@@0@@@0@@@Shrove Tuesday (Pancake Day)@@@0
+24@@@.*,easter,easter-46,.*@@@0@@@0@@@Ash Wednesday@@@0
+25@@@.*,easter,easter-2,.*@@@0@@@0@@@Good Friday@@@0
+26@@@.*,easter,easter+1,.*@@@0@@@0@@@Easter Monday@@@0
+27@@@.*,easter,easter-21,.*@@@0@@@0@@@Mother's Day@@@0

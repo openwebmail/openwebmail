@@ -8,8 +8,8 @@
 # with parameters in an array, this makes perl call execvp directly instead
 # of invoking the /bin/sh
 #
-# Path names from CGI are treated as virtual paths under $webdiskrootdir 
-# ($homedir/$config{webdisk_rootpath}), and all pathnames will be prefixed 
+# Path names from CGI are treated as virtual paths under $webdiskrootdir
+# ($homedir/$config{webdisk_rootpath}), and all pathnames will be prefixed
 # with $webdiskrootdir before passing to external command for security
 #
 # To disable the use of symbolic link, please refer to openwebmail.conf.help
@@ -74,7 +74,7 @@ $messageid = param("message_id");
 $escapedmessageid = escapeURL($messageid);
 
 $webdiskrootdir=$homedir.absolute_vpath("/", $config{'webdisk_rootpath'});
-($webdiskrootdir =~ m!^(.+)/?$!) && ($webdiskrootdir = $1);  # untaint ...
+($webdiskrootdir =~ m!^(.+)/?$!) && ($webdiskrootdir = $1);  # untaint & remove tail /
 if (! -d $webdiskrootdir) {
    mkdir($webdiskrootdir, 0755) or
       openwebmailerror(__FILE__, __LINE__, "lang_text{'cant_create_dir'} $webdiskrootdir ($!)");
@@ -99,7 +99,7 @@ $gotodir = absolute_vpath($currentdir, $gotodir);
 
 my $msg=verify_vpath($webdiskrootdir, $currentdir);
 openwebmailerror(__FILE__, __LINE__, $msg) if ($msg);
-($currentdir =~ /^(.+)$/) && ($currentdir = $1);  # untaint ...
+$currentdir=untaint($currentdir);
 
 if ($action eq "mkdir" || defined(param('mkdirbutton')) ) {
    if ($config{'webdisk_readonly'}) {
@@ -233,6 +233,34 @@ if ($action eq "mkdir" || defined(param('mkdirbutton')) ) {
       $msg="$lang_wdbutton{'listarchive'} - $lang_err{'onefileonly'}";
    }
 
+} elsif ($action eq "mkpdf" || defined(param('mkpdfbutton')) ) {
+   if ($config{'webdisk_readonly'}) {
+      $msg="$lang_err{'webdisk_readonly'}\n";
+   } elsif (is_quota_available(0)) {
+      if ($#selitems==0) {
+         $msg=makepdfps('mkpdf', $currentdir, $selitems[0]);
+      } else {
+         $msg="$lang_wdbutton{'mkpdf'} - $lang_err{'onefileonly'}";
+      }
+   } else {
+      $msg="$lang_err{'quotahit_alert'}\n";
+   }
+   showdir($currentdir, $gotodir, $filesort, $page, $msg);
+
+} elsif ($action eq "mkps" || defined(param('mkpsbutton')) ) {
+   if ($config{'webdisk_readonly'}) {
+      $msg="$lang_err{'webdisk_readonly'}\n";
+   } elsif (is_quota_available(0)) {
+      if ($#selitems==0) {
+         $msg=makepdfps('mkps', $currentdir, $selitems[0]);
+      } else {
+         $msg="$lang_wdbutton{'mkps'} - $lang_err{'onefileonly'}";
+      }
+   } else {
+      $msg="$lang_err{'quotahit_alert'}\n";
+   }
+   showdir($currentdir, $gotodir, $filesort, $page, $msg);
+
 } elsif ($action eq "mkthumbnail" || defined(param('mkthumbnailbutton'))) {
    if ($config{'webdisk_readonly'}) {
       $msg="$lang_err{'webdisk_readonly'}\n";
@@ -324,8 +352,7 @@ openwebmail_requestend();
 sub createdir {
    my ($currentdir, $destname)=@_;
 
-   my $vpath=absolute_vpath($currentdir, $destname);
-   ($vpath =~ /^(.+)$/) && ($vpath = $1);  # untaint ...
+   my $vpath=untaint(absolute_vpath($currentdir, $destname));
    my $err=verify_vpath($webdiskrootdir, $vpath);
    return ("$err\n") if ($err);
 
@@ -348,8 +375,7 @@ sub createdir {
 sub createfile {
    my ($currentdir, $destname)=@_;
 
-   my $vpath=absolute_vpath($currentdir, $destname);
-   ($vpath =~ /^(.+)$/) && ($vpath = $1);  # untaint ...
+   my $vpath=untaint(absolute_vpath($currentdir, $destname));
    my $err=verify_vpath($webdiskrootdir, $vpath);
    return ("$err\n") if ($err);
 
@@ -377,8 +403,7 @@ sub deletedirfiles {
 
    my @filelist;
    foreach (@selitems) {
-      my $vpath=absolute_vpath($currentdir, $_);
-      ($vpath =~ /^(.+)$/) && ($vpath = $1);  # untaint ...
+      my $vpath=untaint(absolute_vpath($currentdir, $_));
       $err=verify_vpath($webdiskrootdir, $vpath);
       if ($err) {
          $msg.="$err\n"; next;
@@ -420,8 +445,7 @@ sub copymovesymlink_dirfiles {
    my ($op, $currentdir, $destname, @selitems)=@_;
    my ($msg, $err);
 
-   my $vpath2=absolute_vpath($currentdir, $destname);
-   ($vpath2 =~ /^(.+)$/) && ($vpath2 = $1);  # untaint ...
+   my $vpath2=untaint(absolute_vpath($currentdir, $destname));
    $err=verify_vpath($webdiskrootdir, $vpath2);
    return ("$err\n") if ($err);
 
@@ -435,8 +459,7 @@ sub copymovesymlink_dirfiles {
 
    my @filelist;
    foreach (@selitems) {
-      my $vpath1=absolute_vpath($currentdir, $_);
-      ($vpath1 =~ /^(.+)$/) && ($vpath1 = $1);  # untaint ...
+      my $vpath1=untaint(absolute_vpath($currentdir, $_));
       $err=verify_vpath($webdiskrootdir, $vpath1);
       if ($err) {
          $msg.="$err\n"; next;
@@ -585,8 +608,7 @@ sub editfile {
 ########################## SAVEFILE ##############################
 sub savefile {
    my ($currentdir, $destname, $content)=@_;
-   my $vpath=absolute_vpath($currentdir, $destname);
-   ($vpath =~ /^(.+)$/) && ($vpath = $1);  # untaint ...
+   my $vpath=untaint(absolute_vpath($currentdir, $destname));
    my $err=verify_vpath($webdiskrootdir, $vpath);
    autoclosewindow($lang_text{'savefile'}, $err, 60) if ($err);
 
@@ -617,8 +639,7 @@ sub compressfiles {	# pack files with zip or tgz (tar -zcvf)
    my ($vpath2, $msg, $err);
 
    if ($ztype eq "mkzip" || $ztype eq "mktgz" ) {
-      $vpath2=absolute_vpath($currentdir, $destname);
-      ($vpath2 =~ /^(.+)$/) && ($vpath2 = $1);  # untaint ...
+      $vpath2=untaint(absolute_vpath($currentdir, $destname));
       $err=verify_vpath($webdiskrootdir, $vpath2);
       return ("$err\n") if ($err);
       if ( -e "$webdiskrootdir/$vpath2") {
@@ -638,8 +659,8 @@ sub compressfiles {	# pack files with zip or tgz (tar -zcvf)
       # use relative path to currentdir since we will chdir to webdiskrootdir/currentdir before compress
       my $p=fullpath2vpath("$webdiskrootdir/$vpath", "$webdiskrootdir/$currentdir");
       # use absolute path if relative to webdiskrootdir/currentdir is not possible
-      $p="$webdiskrootdir/$vpath" if (!$p);
-      ($p =~ /^(.+)$/) && ($p = $1);  # untaint ...
+      $p="$webdiskrootdir/$vpath" if ($p eq "");
+      $p=untaint($p);
 
       if ( -d "$webdiskrootdir/$vpath" ) {
          $selitem{".$p/"}=1;
@@ -868,6 +889,45 @@ sub listarchive {
 }
 ######################## END LISTARCHIVE ##############################
 
+############################ MAKEPDFPS ################################
+sub makepdfps {		# ps2pdf or pdf2ps
+   my ($mktype, $currentdir, $selitem)=@_;
+   my $vpath=absolute_vpath($currentdir, $selitem);
+
+   if ( !-f "$webdiskrootdir/$vpath" || !-r _) {
+      return("$lang_err{'couldnt_open'} $vpath");
+   }
+   my $err=verify_vpath($webdiskrootdir, $vpath);
+   return($err) if ($err);
+
+   my $gsbin=findbin('gs');
+   return("$lang_text{'program'} gs $lang_err{'doesnt_exist'}\n") if (!$gsbin);
+
+   my @cmd;
+   my $outputfile="$webdiskrootdir/$vpath";
+
+   if ($mktype eq 'mkpdf' && $outputfile=~s/^(.*)\.ps$/$1\.pdf/i) {
+      @cmd=($gsbin, '-q', '-dNOPAUSE', '-dBATCH', '-dSAFER',
+		'-dCompatibilityLevel=1.3', '-dPDFSETTINGS=/printer',
+		'-sDEVICE=pdfwrite', "-sOutputFile=$outputfile",
+		'-c', '.setpdfwrite', '-f');	# -c must immediately before -f
+
+   } elsif ($mktype eq 'mkps' && $outputfile=~s/^(.*)\.pdf$/$1\.ps/i) {
+      @cmd=($gsbin, '-q', '-dNOPAUSE', '-dBATCH', '-dSAFER',
+		'-sDEVICE=pswrite', "-sOutputFile=$outputfile",
+		'-c', 'save', 'pop', '-f');	# -c must immediately before -f
+
+   } else {
+      return("$lang_text{'filefmt_notsupported'} ($vpath)\n");
+   }
+
+   chdir("$webdiskrootdir/$currentdir") or
+      return("$lang_err{'couldnt_chdirto'} $currentdir\n");
+
+   return(webdisk_execute($lang_wdbutton{$mktype}, @cmd, "$webdiskrootdir/$vpath"));
+}
+########################## END MAKEPDFPS ##############################
+
 ########################## MAKETHUMB ################################
 sub makethumbnail {
    my ($currentdir, @selitems)=@_;
@@ -943,8 +1003,8 @@ sub downloadfiles {	# through zip or tgz
       # use relative path to currentdir since we will chdir to webdiskrootdir/currentdir before DL
       my $p=fullpath2vpath("$webdiskrootdir/$vpath", "$webdiskrootdir/$currentdir");
       # use absolute path if relative to webdiskrootdir/currentdir is not possible
-      $p="$webdiskrootdir/$vpath" if (!$p);
-      ($p =~ /^(.+)$/) && ($p = $1);  # untaint ...
+      $p="$webdiskrootdir/$vpath" if ($p eq "");
+      $p=untaint($p);
 
       if ( -d "$webdiskrootdir/$vpath" ) {
          $selitem{".$p/"}=1;
@@ -1043,7 +1103,7 @@ sub downloadfile {
        has_zlib()) {
       my $content;
       local $/; undef $/; $content=<F>; # no seperator, read whole file at once
-      close (F); 
+      close (F);
       $content=Compress::Zlib::memGzip($content);
       $length=length($content);
       print qq|Content-Encoding: gzip\n|,
@@ -1127,7 +1187,7 @@ sub _linkconv {
       return($prefix.$link.$postfix);
    }
    if ($link !~ m!^http://!i && $link!~m!^/!) {
-       $link=$preview_url.$link;	
+       $link=$preview_url.$link;
    }
    return($prefix.$link.$postfix);
 }
@@ -1136,7 +1196,7 @@ sub _linkconv2 {
    if ($link=~m!^'?(?:http://|/)!i) {
       return($prefix.$link.$postfix);
    }
-   $link=qq|'$preview_url'.$link|;	
+   $link=qq|'$preview_url'.$link|;
    return($prefix.$link.$postfix);
 }
 ########################## END PREVIEWFILE ##############################
@@ -1149,7 +1209,7 @@ sub uploadfile {
 
    if (!is_quota_available($size/1024)) {
       return("$lang_err{'quotahit_alert'}\n");
-   }   
+   }
    if ($config{'webdisk_uploadlimit'} &&
        $size/1024>$config{'webdisk_uploadlimit'} ) {
       return ("$lang_err{'upload_overlimit'} $config{'webdisk_uploadlimit'} $lang_sizes{'kb'}\n");
@@ -1171,8 +1231,7 @@ sub uploadfile {
    $fname =~ s|^.*/||;	# unix path
    $fname =~ s|^.*:||;	# mac path and dos drive
 
-   my $vpath=absolute_vpath($currentdir, $fname);
-   ($vpath =~ /^(.+)$/) && ($vpath = $1);  # untaint ...
+   my $vpath=untaint(absolute_vpath($currentdir, $fname));
    my $err=verify_vpath($webdiskrootdir, $vpath);
    return($err) if ($err);
 
@@ -1602,7 +1661,7 @@ sub showdir {
 
    my $quotahit_deltype='';
    if ($quotalimit>0 && $quotausage>$quotalimit &&
-       $config{'delfile_ifquotahit'} && 
+       $config{'delfile_ifquotahit'} &&
        (!$config{'delmail_ifquotahit'}||$folderusage<=$quotausage*0.5) ) {
       $quotausage=(quota_get_usage_limit(\%config, $user, $homedir, 1))[2]; # get uptodate usage
       if ($quotausage>$quotalimit) {
@@ -1909,8 +1968,6 @@ sub showdir {
          }
 
          my ($imgstr, $namestr, $opstr);
-         $namestr=str2html($p);
-         $namestr.=qq| -&gt; $flink{$p}| if (defined($flink{$p}));
          if ($ftype{$p} eq "d") {
             if ($prefs{'iconset'}!~/^Text\./) {
                $imgstr=qq|<IMG SRC="$config{'ow_htmlurl'}/images/file/|.
@@ -1918,8 +1975,9 @@ sub showdir {
                        qq|" align="absmiddle" border="0">|;
             }
             $namestr=qq|<a href="$wd_url_sort_page&amp;action=showdir&amp;gotodir=|.
-                     escapeURL($p).qq|" $accesskeystr>$imgstr <b>$namestr</b></a>|;
-
+                     escapeURL($p).qq|" $accesskeystr>$imgstr <b>|.str2html($p);
+            $namestr.=str2html(" -> $flink{$p}") if (defined($flink{$p}));
+            $namestr.=qq|</b></a>|;
             $opstr=qq|<a href="$wd_url_sort_page&amp;action=showdir&amp;gotodir=|.
                    escapeURL($p).qq|"><b>&lt;$lang_text{'dir'}&gt;</b></a>|;
 
@@ -1931,13 +1989,41 @@ sub showdir {
                        qq|" align="absmiddle" border="0">|;
             }
             my $blank=""; $blank="target=_blank" if ($is_txt || $p=~/\.(jpe?g|gif|png|bmp)$/i);
-            my $fname=$p; $fname=~s|.*/||g; $fname=escapeURL($fname);
-            $namestr=qq|<a href="$config{'ow_cgiurl'}/openwebmail-webdisk.pl/$fname?|.
-                     qq|sessionid=$thissession&amp;currentdir=$escapedcurrentdir&amp;|.
-                     qq|action=download&amp;selitems=|.escapeURL($p).
-                     qq|" $accesskeystr $blank>$imgstr $namestr</a>|;
 
-            if ($is_txt) {
+            my ($dname, $fname);
+            if ($p=~m|^(.*/)([^/]*)$|) {
+               ($dname, $fname)=($1, $2);
+            } else {
+               ($dname, $fname)=('', $p);
+            }
+
+            my $a=qq|<a href="$config{'ow_cgiurl'}/openwebmail-webdisk.pl/|.escapeURL($fname).
+                  qq|?sessionid=$thissession&amp;currentdir=$escapedcurrentdir&amp;|.
+                  qq|action=download&amp;selitems=|.escapeURL($p).
+                  qq|" $accesskeystr $blank>|;
+
+            $namestr="$a$imgstr</a> ";
+            if ($dname ne '') {
+               $namestr.=qq|<a href="$wd_url_sort_page&amp;action=showdir&amp;gotodir=|.
+                         escapeURL($dname).qq|" $accesskeystr><b>|.str2html($dname).qq|</b> </a>|;
+            }
+            $namestr.=$a.str2html($fname);
+            $namestr.=str2html(" -> $flink{$p}") if (defined($flink{$p}));
+            $namestr.=qq|</a>|;
+
+            if ($p=~/\.(?:pdf|ps)$/i ) {
+               if (!$config{'webdisk_readonly'} &&
+                   (!$quotalimit||$quotausage<$quotalimit) ) {
+                  my $mk='mkpdf'; $mk='mkps' if ($p=~/\.pdf$/i);
+                  my $onclickstr;
+                  if ($prefs{'webdisk_confirmcompress'}) {
+                     my $pstr=$p; $pstr=~s/'/\\'/g;	# escape for javascript
+                     $onclickstr=qq|onclick="return confirm('$lang_wdbutton{$mk}? ($pstr)');"|;
+                  }
+                  $opstr.=qq|<a href="$wd_url_sort_page&amp;action=$mk&amp;selitems=|.
+                         escapeURL($p).qq|" $onclickstr>[$lang_wdbutton{$mk}]</a>|;
+               }
+            } elsif ($is_txt) {
                if ($p=~/\.html?/i) {
                   $opstr=qq|<a href=# onClick="window.open('|.
                          qq|$wd_url&amp;action=preview&amp;selitems=|.escapeURL($p).
@@ -1981,9 +2067,9 @@ sub showdir {
                if ($showthumbnail) {
                   my $thumbnail=path2thumbnail($p);
                   if ( -f "$webdiskrootdir/$currentdir/$thumbnail") {
-                     my $fname=$p; $fname=~s|.*/||g; $fname=escapeURL($fname);
-                     $opstr=qq|<a href="$config{'ow_cgiurl'}/openwebmail-webdisk.pl/$fname?|.
-                            qq|sessionid=$thissession&amp;currentdir=$escapedcurrentdir&amp;|.
+                     my $fname=$p; $fname=~s|.*/||g;
+                     $opstr=qq|<a href="$config{'ow_cgiurl'}/openwebmail-webdisk.pl/|.escapeURL($fname).
+                            qq|?sessionid=$thissession&amp;currentdir=$escapedcurrentdir&amp;|.
                             qq|action=download&amp;selitems=|.escapeURL($p).qq|" $blank>|.
                             qq|<IMG SRC="$wd_url_sort_page&amp;action=download&amp;selitems=|.
                             escapeURL($thumbnail).qq|" align="absmiddle" border="0"></a>|;
@@ -2128,7 +2214,7 @@ sub showdir {
                            -accesskey=>"V",
                            -onClick=>"return(anyfileselected() && destnamefilled('$lang_text{dest_of_themove}') && opconfirm('$lang_wdbutton{move}', $prefs{webdisk_confirmmovecopy}));",
                            -value=>$lang_wdbutton{'move'});
-         if ($config{'webdisk_allow_symlinkcreate'} && 
+         if ($config{'webdisk_allow_symlinkcreate'} &&
              $config{'webdisk_lssymlink'}) {
             $temphtml.=submit(-name=>"symlinkbutton",
                               -accesskey=>"N",
@@ -2205,7 +2291,7 @@ sub showdir {
       $html =~ s/\@\@\@UPLOADSTART\@\@\@/<!--/g;
       $html =~ s/\@\@\@UPLOADEND\@\@\@/-->/g;
    }
-   
+
    if ($quotalimit>0 && $quotausage>=$quotalimit) {
       $msg.="$lang_err{'quotahit_alert'}\n";
    }
@@ -2240,8 +2326,8 @@ sub showdir {
                         -path  => '/');
    httpprint([-cookie=>[$cookie],
               -Refresh=>"$refreshinterval;URL=$relative_url?sessionid=$thissession&folder=escapedfolder&message_id=$escapedmessageid&action=showdir&currentdir=$escapedcurrentdir&gotodir=$escapedcurrentdir&showthumbnail=$showthumbnail&showhidden=$showhidden&singlepage=$singlepage&filesort=$filesort&page=$page&searchtype=$searchtype&keyword=$escapedkeyword&session_noupdate=1"],
-             [htmlheader(), htmlplugin($config{'header_pluginfile'}), 
-              $html, 
+             [htmlheader(), htmlplugin($config{'header_pluginfile'}),
+              $html,
               htmlplugin($config{'footer_pluginfile'}), htmlfooter(2)] );
 }
 
@@ -2250,7 +2336,7 @@ sub filelist_of_search {
    my $metainfo=join("@@@", $searchtype, $keyword, $vpath);
    my $cache_metainfo;
 
-   ($cachefile =~ /^(.+)$/) && ($cachefile = $1);		# untaint ...
+   $cachefile=untaint($cachefile);
    filelock($cachefile, LOCK_EX) or
       return("$lang_err{'couldnt_lock'} $cachefile\n");
 

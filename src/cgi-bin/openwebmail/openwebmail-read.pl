@@ -40,6 +40,7 @@ use vars qw($folderdir @validfolders $folderusage);
 use vars qw($folder $printfolder $escapedfolder);
 
 # extern vars
+use vars qw(%languagecharsets);	# defined in ow-shared.pl
 use vars qw(%lang_folders %lang_sizes %lang_text %lang_err);	# defined in lang/xy
 use vars qw(%charset_convlist);	# defined in iconv.pl
 use vars qw($_STATUS);	# defined in maildb.pl
@@ -49,7 +50,7 @@ use vars qw($sort $page);
 use vars qw($searchtype $keyword $escapedkeyword);
 
 use vars qw(%smilies);
-%smilies = (	
+%smilies = (
    ":)" => "FaceHappy",
    ":>" => "FaceHappy",
    ";)" => "FaceWinking",
@@ -96,7 +97,7 @@ use vars qw(%smilies);
 openwebmail_requestbegin();
 $SIG{PIPE}=\&openwebmail_exit;	# for user stop
 $SIG{TERM}=\&openwebmail_exit;	# for user stop
-$SIG{CHLD}=sub { wait }; 	# prevent zombie
+$SIG{CHLD}='IGNORE';		# prevent zombie
 
 userenv_init();
 
@@ -159,16 +160,14 @@ sub readmessage {
    my $headers = param("headers") || $prefs{'headers'} || 'simple';
    my $attmode = param("attmode") || 'simple';
    my $printfriendly = param("printfriendly");
-   my $convfrom= param('convfrom');
-   if ($convfrom eq "") {
-      if ( is_convertable($message{'charset'}, $prefs{'charset'}) ) {
-         $convfrom=lc($message{'charset'});
-      } else {
-         $convfrom='none.prefscharset';
-      }
-   }
+
    my $showhtmlastext=$prefs{'showhtmlastext'};
    $showhtmlastext=param('showhtmlastext') if (defined(param('showhtmlastext')));
+
+   my $convfrom=param('convfrom')||lc($message{'charset'});
+   $convfrom="none.$prefs{'charset'}" if ($convfrom!~/^none\./ && !is_convertable($convfrom, $prefs{'charset'}));
+   my $readcharset=$prefs{'charset'};	# charset choosed by user to read current message
+   $readcharset=$1 if ($convfrom=~/^none\.(.+)$/);	# read msg with no conversion
 
    my $urlparm="sessionid=$thissession&amp;folder=$escapedfolder&amp;page=$page&amp;".
                "sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype";
@@ -179,20 +178,19 @@ sub readmessage {
    my $send_url_with_id = "$send_url&amp;message_id=$escapedmessageid".
                           "&amp;showhtmlastext=$showhtmlastext&amp;compose_caller=read";
 
-   my ($html, $temphtml, $temphtml1, $temphtml2);
+   my ($html, $temphtml, @tmp);
    my $templatefile="readmessage.template";
    $templatefile="printmessage.template" if ($printfriendly eq 'yes');
 
    # temporarily switch lang/charset if user want original charset
-   my @tmp;
-   if ($convfrom eq 'none.msgcharset') {
+   if ($readcharset ne $prefs{'charset'}) {
       @tmp=($prefs{'language'}, $prefs{'charset'});
-      ($prefs{'language'}, $prefs{'charset'})=('en', lc($message{'charset'}));
+      ($prefs{'language'}, $prefs{'charset'})=('en', $readcharset);
       readlang($prefs{'language'});
       $printfolder = $lang_folders{$folder} || $folder || '';
    }
    $html=applystyle(readtemplate($templatefile));
-   if ($convfrom eq 'none.msgcharset') {
+   if ($#tmp>=1) {
       ($prefs{'language'}, $prefs{'charset'})=@tmp;
    }
 
@@ -225,18 +223,13 @@ sub readmessage {
       }
    }
 
-   if (is_convertable($convfrom, $prefs{'charset'}) ) {
+   if (is_convertable($convfrom, $readcharset) ) {
       ($from,$replyto,$to,$cc,$bcc,$subject,$body)
-	=iconv($convfrom, $prefs{'charset'},$from,$replyto,$to,$cc,$bcc,$subject,$body);
+	=iconv($convfrom, $readcharset, $from,$replyto,$to,$cc,$bcc,$subject,$body);
    }
 
    # web-ified headers
-   $from = str2html($from);
-   $replyto = str2html($replyto);
-   $to = str2html($to);
-   $cc = str2html($cc);
-   $bcc = str2html($bcc);
-   $subject = str2html($subject);
+   foreach ($from, $replyto, $to, $cc, $bcc, $subject) { $_=str2html($_); }
 
    if ($message{contenttype} =~ m#^message/partial#i &&
        $message{contenttype} =~ /;\s*id="(.+?)";?/i  ) { # is this a partial msg?
@@ -361,7 +354,9 @@ sub readmessage {
 
    $temphtml='';
    if ($folder ne 'mail-trash') {
-      my $url=qq|accesskey="Z" href="$main_url&amp;action=movemessage&amp;message_ids=$escapedmessageid&amp;message_id=$escapedmessageaftermove&amp;destination=mail-trash&amp;headers=$headers&amp;attmode=$attmode|;
+      my $trashfolder='mail-trash';
+      $trashfolder='DELETE' if ($quotalimit>0 && $quotausage>=$quotalimit);
+      my $url=qq|accesskey="Z" href="$main_url&amp;action=movemessage&amp;message_ids=$escapedmessageid&amp;message_id=$escapedmessageaftermove&amp;destination=$trashfolder&amp;headers=$headers&amp;attmode=$attmode|;
       $url .= qq|&amp;messageaftermove=1| if ($messageaftermove && $prefs{'viewnextaftermsgmovecopy'});
       $url .= qq|" |;
       $url .= qq|onClick="return confirm($lang_text{'msgmoveconf'})"| if ($prefs{'confirmmsgmovecopy'});
@@ -371,91 +366,108 @@ sub readmessage {
 
    $html =~ s/\@\@\@RIGHTMENUBARLINKS\@\@\@/$temphtml/;
 
-
+   my $gif;
+   $temphtml='';
    if (defined($message{"prev"})) {
-      my $gif="left.s.gif"; $gif="right.gif" if (is_RTLmode($prefs{'language'}));
-      $temphtml1 = iconlink($gif, "&lt;", qq|accesskey="U" href="$read_url&amp;message_id=|.escapeURL($message{'prev'}).qq|&amp;action=readmessage&amp;headers=$headers&amp;attmode=$attmode"|) . qq|\n|;
+      $gif="left.s.gif"; $gif="right.gif" if (is_RTLmode($prefs{'language'}));
+      $temphtml .= iconlink($gif, "&lt;", qq|accesskey="U" href="$read_url&amp;message_id=|.escapeURL($message{'prev'}).qq|&amp;action=readmessage&amp;headers=$headers&amp;attmode=$attmode"|);
    } else {
-      my $gif="left-grey.s.gif"; $gif="right-grey.gif" if (is_RTLmode($prefs{'language'}));
-      $temphtml1 = iconlink($gif, "-", ""). qq|\n|;
+      $gif="left-grey.s.gif"; $gif="right-grey.gif" if (is_RTLmode($prefs{'language'}));
+      $temphtml .= iconlink($gif, "-", "");
    }
+   $temphtml.=qq|$message{"number"}|;
    if (defined($message{"next"})) {
       my $gif="right.s.gif"; $gif="left.gif" if (is_RTLmode($prefs{'language'}));
-      $temphtml2 = iconlink($gif, "&gt;", qq|accesskey="D" href="$read_url&amp;message_id=|.escapeURL($message{'next'}).qq|&amp;action=readmessage&amp;headers=$headers&amp;attmode=$attmode"|). qq|\n|;
+      $temphtml .= iconlink($gif, "&gt;", qq|accesskey="D" href="$read_url&amp;message_id=|.escapeURL($message{'next'}).qq|&amp;action=readmessage&amp;headers=$headers&amp;attmode=$attmode"|);
    } else {
       my $gif="right-grey.s.gif"; $gif="left-grey.gif" if (is_RTLmode($prefs{'language'}));
-      $temphtml2 = iconlink($gif, "-", ""). qq|\n|;
+      $temphtml .= iconlink($gif, "-", "");
    }
-   $temphtml = $temphtml1 . "  " . $message{"number"} . "  " . $temphtml2;
    $html =~ s/\@\@\@MESSAGECONTROL\@\@\@/$temphtml/g;
+
+   $temphtml = iconlink("gotop.gif", "^", qq|href="#"|);
+   $html =~ s/\@\@\@TOPCONTROL\@\@\@/$temphtml/;
 
 
    my ($htmlconv, $htmlstat, $htmlmove);
 
    # charset conversion menu
-   if ($prefs{'charset'} ne lc($message{'charset'}) &&
-        defined($charset_convlist{$prefs{'charset'}}) ) {
+   if(defined($charset_convlist{$prefs{'charset'}}) ) {
+      my (@cflist, %cflabels, %allsets, $cf);
+      foreach (values %languagecharsets, keys %charset_convlist) {
+         $allsets{$_}=1 if (!defined($allsets{$_}));
+      }
 
-      # the string none.msgcharset and none.prefscharset are carefully choosed
-      # so it won't be convertable with any other charset in iconv()
-      my %cflabels=( 'none.msgcharset'   => lc($message{'charset'})||$lang_text{'none'},
-                     'none.prefscharset' => lc($prefs{'charset'}) );
-      my @cflist;
-      if ($prefs{'charset'} ne lc($message{'charset'}) ) {
-         push(@cflist, 'none.msgcharset', 'none.prefscharset');
-         $cflabels{'none.msgcharset'}.=" *";
-      } else {
-         push(@cflist, 'none.prefscharset');
-         $cflabels{'none.prefscharset'}.=" *";
-      }
-      foreach my $cf (@{$charset_convlist{$prefs{'charset'}}}) {
-         $cflabels{$cf}="$cf > $prefs{'charset'}";
-         push(@cflist, $cf);
-      }
-      if ($#cflist>0) {
-         $htmlconv = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-read.pl");
-         $htmlconv .= hidden(-name=>'action',
-                             -default=>'readmessage',
-                             -override=>'1');
-         $htmlconv .= hidden(-name=>'page',
-                             -default=>$page,
-                             -override=>'1');
-         $htmlconv .= hidden(-name=>'sort',
-                             -default=>$sort,
-                             -override=>'1');
-         $htmlconv .= hidden(-name=>'keyword',
-                             -default=>$keyword,
-                             -override=>'1');
-         $htmlconv .= hidden(-name=>'searchtype',
-                             -default=>$searchtype,
-                             -override=>'1');
-         $htmlconv .= hidden(-name=>'folder',
-                             -default=>$folder,
-                             -override=>'1');
-         $htmlconv .= hidden(-name=>'headers',
-                             -default=>param("headers") ||$prefs{'headers'} || 'simple',
-                             -override=>'1');
-         $htmlconv .= hidden(-name=>'attmode',
-                             -default=>param("attmode") || 'simple',
-                             -override=>'1');
-         $htmlconv .= hidden(-name=>'sessionid',
-                             -default=>$thissession,
-                             -override=>'1');
-         $htmlconv .= hidden(-name=>'message_id',
-                             -default=>param("message_id"),
-                             -override=>'1');
+      $cf="none.".lc($message{'charset'}); # readmsg with orig charset and no conversion
+      push(@cflist, $cf); $cflabels{$cf}=(lc($message{'charset'})||$lang_text{'none'})." *";
+      delete $allsets{$cf};
 
-         $htmlconv = qq|<table cellspacing=0 cellpadding=0 border=0><tr>$htmlconv|.
-                     qq|<td nowrap>$lang_text{'charset'}&nbsp;</td><td>|.
-                     popup_menu(-name=>'convfrom',
-                                -values=>\@cflist,
-                                -labels=>\%cflabels,
-                                -default=>$convfrom,
-                                -onChange=>'javascript:submit();',
-                                -accesskey=>'I',	# i18n
-                                -override=>'1').
-                     qq|</td>|.end_form().qq|</tr></table>|;
+      $cf="none.$prefs{'charset'}";	# readmsg with prefs charset and no conversion
+      if (!defined($cflabels{$cf})) {
+         push(@cflist, $cf); $cflabels{$cf}=$prefs{'charset'};
+         delete $allsets{$prefs{'charset'}};
       }
+
+      $cf=lc($message{'charset'});	# readmsg with prefs charset and conversion
+      if ($cf ne "" && $cf ne $prefs{'charset'} && is_convertable($cf, $prefs{'charset'})) {
+         push(@cflist, $cf); $cflabels{$cf}="$cf > $prefs{'charset'}";
+         delete $allsets{$cf};
+      }
+      foreach $cf (@{$charset_convlist{$prefs{'charset'}}}) {
+         if (!defined($cflabels{$cf})) {
+            push(@cflist, $cf); $cflabels{$cf}="$cf > $prefs{'charset'}";
+            delete $allsets{$cf};
+         }
+      }
+
+      foreach (sort keys %allsets) {	# readmsg with other charset and no conversion
+         $cf="none.$_";
+         next if (defined($cflabels{$cf}));
+         push(@cflist, $cf); $cflabels{$cf}=$_;
+      }
+
+      $htmlconv = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-read.pl");
+      $htmlconv .= hidden(-name=>'action',
+                          -default=>'readmessage',
+                          -override=>'1');
+      $htmlconv .= hidden(-name=>'page',
+                          -default=>$page,
+                          -override=>'1');
+      $htmlconv .= hidden(-name=>'sort',
+                          -default=>$sort,
+                          -override=>'1');
+      $htmlconv .= hidden(-name=>'keyword',
+                          -default=>$keyword,
+                          -override=>'1');
+      $htmlconv .= hidden(-name=>'searchtype',
+                          -default=>$searchtype,
+                          -override=>'1');
+      $htmlconv .= hidden(-name=>'folder',
+                          -default=>$folder,
+                          -override=>'1');
+      $htmlconv .= hidden(-name=>'headers',
+                          -default=>param("headers") ||$prefs{'headers'} || 'simple',
+                          -override=>'1');
+      $htmlconv .= hidden(-name=>'attmode',
+                          -default=>param("attmode") || 'simple',
+                          -override=>'1');
+      $htmlconv .= hidden(-name=>'sessionid',
+                          -default=>$thissession,
+                          -override=>'1');
+      $htmlconv .= hidden(-name=>'message_id',
+                          -default=>param("message_id"),
+                          -override=>'1');
+
+      $htmlconv = qq|<table cellspacing=0 cellpadding=0 border=0><tr>$htmlconv|.
+                  qq|<td nowrap>$lang_text{'charset'}&nbsp;</td><td>|.
+                  popup_menu(-name=>'convfrom',
+                             -values=>\@cflist,
+                             -labels=>\%cflabels,
+                             -default=>$convfrom,
+                             -onChange=>'javascript:submit();',
+                             -accesskey=>'I',	# i18n
+                             -override=>'1').
+                  qq|</td>|.end_form().qq|</tr></table>|;
    }
 
    # reply with stationary selection
@@ -571,7 +583,7 @@ sub readmessage {
    if ($quotalimit>0 && $quotausage>=$quotalimit) {
       $defaultdestination='DELETE';
    } elsif ($folder eq 'mail-trash') {
-      $defaultdestination='INBOX';
+      $defaultdestination='saved-messages';
    } elsif ($folder eq 'sent-mail' || $folder eq 'saved-drafts') {
       $defaultdestination='mail-trash';
    } else {
@@ -636,8 +648,8 @@ sub readmessage {
 
    if ($headers eq "all") {
       $temphtml = decode_mimewords($message{'header'});
-      if (is_convertable($convfrom, $prefs{'charset'}) ) {
-         ($temphtml)=iconv($convfrom, $prefs{'charset'}, $temphtml);
+      if (is_convertable($convfrom, $readcharset) ) {
+         ($temphtml)=iconv($convfrom, $readcharset, $temphtml);
       }
       $temphtml = text2html($temphtml);
       $temphtml =~ s/\n([-\w]+?:)/\n<B>$1<\/B>/g;
@@ -731,22 +743,17 @@ sub readmessage {
    foreach my $attnumber (0 .. $#{$message{attachment}}) {
       next unless (defined(%{$message{attachment}[$attnumber]}));
 
-      my $charset=${$message{attachment}[$attnumber]}{filenamecharset}||
-                  ${$message{attachment}[$attnumber]}{charset}||
-                  $convfrom||
-                  $message{charset};
-
-      if ($convfrom eq 'none.msgcharset') {
-         if (is_convertable($charset, $message{'charset'})) {
-            (${$message{attachment}[$attnumber]}{filename})
-		=iconv($charset, $message{'charset'},${$message{attachment}[$attnumber]}{filename});
-         }
-      } else {
-         if (is_convertable($charset, $prefs{'charset'})) {
-            (${$message{attachment}[$attnumber]}{filename})
-		=iconv($charset, $prefs{'charset'},${$message{attachment}[$attnumber]}{filename});
-         }
+      my $charset=$convfrom;
+      if ($convfrom eq lc($message{'charset'})) {	# get convfrom from attheader is it was from msgheader
+         $charset=lc(${$message{attachment}[$attnumber]}{filenamecharset})||
+                  lc(${$message{attachment}[$attnumber]}{charset})||
+                  $convfrom;
       }
+      if (is_convertable($charset, $readcharset)) {
+         (${$message{attachment}[$attnumber]}{filename})
+		=iconv($charset, $readcharset, ${$message{attachment}[$attnumber]}{filename});
+      }
+
       if ( $attmode eq 'all' ) {
          if ( ${$message{attachment}[$attnumber]}{filename}=~/\.(?:jpg|jpeg|gif|png|bmp)$/i
             && !$prefs{'showimgaslink'} ) {
@@ -785,18 +792,14 @@ sub readmessage {
             if ( ${$message{attachment}[$attnumber]}{filename}=~ /^Unknown\./ ||
                  $onlyone_att ) {
                my $content=html_att2table($message{attachment}, $attnumber, $escapedmessageid, $showhtmlastext);
-               my $charset=${$message{attachment}[$attnumber]}{charset}||
-                           ${$message{attachment}[$attnumber]}{filenamecharset}||
-                           $convfrom||
-                           $message{charset};
-               if ($convfrom eq 'none.msgcharset') {
-                  if (is_convertable($charset, $message{'charset'})) {
-                     ($content)=iconv($charset, $message{'charset'},$content);
-                  }
-               } else {
-                  if (is_convertable($charset, $prefs{'charset'})) {
-                     ($content)=iconv($charset, $prefs{'charset'},$content);
-                  }
+               my $charset=$convfrom;
+               if ($convfrom eq lc($message{'charset'})) {	# get convfrom from attheader is it was from msgheader
+                  $charset=lc(${$message{attachment}[$attnumber]}{charset})||
+                           lc(${$message{attachment}[$attnumber]}{filenamecharset})||
+                           $convfrom;
+               }
+               if (is_convertable($charset, $readcharset)) {
+                  ($content)=iconv($charset, $readcharset, $content);
                }
                $temphtml .= $content;
                $is_htmlmsg=1;
@@ -806,19 +809,15 @@ sub readmessage {
          } elsif ( ${$message{attachment}[$attnumber]}{contenttype}=~ /^text/i ) {
             if ( ${$message{attachment}[$attnumber]}{filename}=~ /^Unknown\./ ||
                  $onlyone_att ) {
-               my $content = text_att2table($message{attachment}, $attnumber);
-               my $charset=${$message{attachment}[$attnumber]}{charset}||
-                           ${$message{attachment}[$attnumber]}{filenamecharset}||
-                           $convfrom||
-                           $message{charset};
-               if ($convfrom eq 'none.msgcharset') {
-                  if (is_convertable($charset, $message{'charset'})) {
-                     ($content)=iconv($charset, $message{'charset'},$content);
-                  }
-               } else {
-                  if (is_convertable($charset, $prefs{'charset'})) {
-                     ($content)=iconv($charset, $prefs{'charset'},$content);
-                  }
+               my $content=text_att2table($message{attachment}, $attnumber);
+               my $charset=$convfrom;
+               if ($convfrom eq lc($message{'charset'})) {	# get convfrom from attheader is it was from msgheader
+                  $charset=lc(${$message{attachment}[$attnumber]}{charset})||
+                           lc(${$message{attachment}[$attnumber]}{filenamecharset})||
+                           $convfrom;
+               }
+               if (is_convertable($charset, $readcharset)) {
+                  ($content)=iconv($charset, $readcharset, $content);
                }
                $temphtml .= $content;
             } else {
@@ -855,7 +854,7 @@ sub readmessage {
    }
    $html =~ s/\@\@\@BODY\@\@\@/$temphtml/;
 
-   if ($prefs{'showhtmlastext'} && $is_htmlmsg) {
+   if ($is_htmlmsg) {
       $temphtml=qq|<a href="$read_url_with_id&amp;action=readmessage&amp;headers=$headers&amp;attmode=simple&amp;convfrom=$convfrom&amp;showhtmlastext=|;
       if ($showhtmlastext) {
          $temphtml.=qq|0">+html+</a>|;
@@ -881,16 +880,13 @@ sub readmessage {
    }
 
    $temphtml='';
-   my $charset=$prefs{'charset'}; 
-   $charset=lc($message{'charset'}) if ($convfrom eq 'none.msgcharset');
-
    # show quotahit del warning
    if ($quotahit_deltype) {
       my $msg=qq|<font size="-1" color="#cc0000">$lang_err{$quotahit_deltype}</font>|;
       $msg=~s/\@\@\@QUOTALIMIT\@\@\@/$config{'quota_limit'}$lang_sizes{'kb'}/;
       $msg =~ s!\\!\\\\!g; $msg =~ s!'!\\'!g;	# escape ' for javascript
       $temphtml.=qq|<script language="JavaScript">\n<!--\n|.
-                 qq|showmsg('$charset', '$lang_text{"quotahit"}', '$msg', '$lang_text{"close"}', '_quotahit_del', 400, 100, 60);\n|.
+                 qq|showmsg('$readcharset', '$lang_text{"quotahit"}', '$msg', '$lang_text{"close"}', '_quotahit_del', 400, 100, 60);\n|.
                  qq|//-->\n</script>\n|;
    }
    # show quotahit alert
@@ -898,7 +894,7 @@ sub readmessage {
       my $msg=qq|<font size="-1" color="#cc0000">$lang_err{'quotahit_alert'}</font>|;
       $msg =~ s!\\!\\\\!g; $msg =~ s!'!\\'!g;	# escape ' for javascript
       $temphtml.=qq|<script language="JavaScript">\n<!--\n|.
-                 qq|showmsg('$charset', '$lang_text{"quotahit"}', '$msg', '$lang_text{"close"}', '_quotahit_alert', 400, 100, 60);\n|.
+                 qq|showmsg('$readcharset', '$lang_text{"quotahit"}', '$msg', '$lang_text{"close"}', '_quotahit_alert', 400, 100, 60);\n|.
                  qq|//-->\n</script>\n|;
    # show spool overlimit alert
    } elsif ($config{'spool_limit'}>0 && $inboxsize_k>$config{'spool_limit'}) {
@@ -906,7 +902,7 @@ sub readmessage {
       $msg=~s/\@\@\@SPOOLLIMIT\@\@\@/$config{'spool_limit'}$lang_sizes{'kb'}/;
       $msg =~ s!\\!\\\\!g; $msg =~ s!'!\\'!g;	# escape ' for javascript
       $temphtml.=qq|<script language="JavaScript">\n<!--\n|.
-                 qq|showmsg('$charset', '$lang_text{"quotahit"}', '$msg', '$lang_text{"close"}', '_spool_overlimit', 400, 100, 60);\n|.
+                 qq|showmsg('$readcharset', '$lang_text{"quotahit"}', '$msg', '$lang_text{"close"}', '_spool_overlimit', 400, 100, 60);\n|.
                  qq|//-->\n</script>\n|;
    }
    # popup stat of incoming msgs
@@ -933,7 +929,7 @@ sub readmessage {
       $msg = qq|<font size="-1">$msg</font>|;
       $msg =~ s!\\!\\\\!g; $msg =~ s!'!\\'!g;	# escape ' for javascript
       $temphtml.=qq|<script language="JavaScript">\n<!--\n|.
-                 qq|showmsg('$charset', '$lang_text{"inmessages"}', '$msg', '$lang_text{"close"}', '_incoming', 160, |.($line*16+70).qq|, $prefs{'newmailwindowtime'});\n|.
+                 qq|showmsg('$readcharset', '$lang_text{"inmessages"}', '$msg', '$lang_text{"close"}', '_incoming', 160, |.($line*16+70).qq|, $prefs{'newmailwindowtime'});\n|.
                  qq|//-->\n</script>\n|;
    }
    $html.=readtemplate('showmsg.js').$temphtml if ($temphtml);
@@ -946,13 +942,13 @@ sub readmessage {
       $footermode=0;
    }
 
-   my @tmp;
-   if ($convfrom eq 'none.msgcharset') {
+   @tmp=();
+   if ($readcharset ne $prefs{'charset'}) {
       @tmp=($prefs{'language'}, $prefs{'charset'});
-      ($prefs{'language'}, $prefs{'charset'})=('en', lc($message{'charset'}));
+      ($prefs{'language'}, $prefs{'charset'})=('en', $readcharset);
    }
    httpprint([], [htmlheader(), $html, htmlfooter($footermode)]);
-   if ($convfrom eq 'none.msgcharset') {
+   if ($#tmp>=1) {
       ($prefs{'language'}, $prefs{'charset'})=@tmp;
    }
 
@@ -960,14 +956,14 @@ sub readmessage {
    # thus the result of readmessage can be returned as soon as possible
    if ($message{status} !~ /r/i) {	# msg file doesn't has R flag
       local $|=1; 			# flush all output
-      local $SIG{CHLD} = sub { wait };	# handle zombie
+      local $SIG{CHLD} = 'IGNORE';	# handle zombie
       if ( fork() == 0 ) {		# child
          close(STDIN); close(STDOUT); close(STDERR);
 
          my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
          filelock($folderfile, LOCK_EX|LOCK_NB) or openwebmail_exit(1);
 
-         # since status in headerdb may has flags not found in msg header
+         # since status in headerdb may have flags not found in msg header
          # we must read the status from headerdb and then update it back
          my $status=(get_message_attributes($messageid, $headerdb))[$_STATUS];
          update_message_status($messageid, $status."R", $headerdb, $folderfile);
@@ -975,7 +971,7 @@ sub readmessage {
          filelock("$folderfile", LOCK_UN);
          openwebmail_exit(0);
       }
-   } elsif (param("db_chkstatus")) { # check and set msg status R flag 
+   } elsif (param("db_chkstatus")) { # check and set msg status R flag
       my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
       my (%HDB, @attr);
       open_dbm(\%HDB, $headerdb, LOCK_EX) or
@@ -1197,9 +1193,6 @@ sub rebuildmessage {
    my $partialid = $_[0];
    my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
 
-   ($folderfile =~ /^(.+)$/) && ($folderfile = $1);	# untaint ...
-   ($headerdb =~ /^(.+)$/) && ($headerdb = $1);
-
    filelock($folderfile, LOCK_EX|LOCK_NB) or
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $folderfile!");
 
@@ -1279,4 +1272,3 @@ sub rebuildmessage {
    }
 }
 ################# END REBUILDMESSGAE ####################
-

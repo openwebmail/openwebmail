@@ -420,6 +420,11 @@ Width @@@FILEEDITCOLUMNSMENU@@@ Height @@@FILEEDITROWSMENU@@@
 Anzeigedauer in Sekunden: @@@NEWMAILWINDOWTIMEMENU@@@ &nbsp;( 0 schaltet die Benachrichtigung ab )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Mail sent window notification:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+Anzeigedauer in Sekunden: @@@MAILSENTWINDOWTIMEMENU@@@ &nbsp;( 0 schaltet die Benachrichtigung ab )
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>W&ouml;rterbuch f&uuml;r die Rechtschreibpr&uuml;fung:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DICTIONARYMENU@@@

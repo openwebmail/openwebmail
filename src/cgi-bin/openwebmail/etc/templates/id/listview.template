@@ -21,10 +21,10 @@
 
 <table width=95% border=0 bgcolor=@@@BACKGROUND@@@ cellspacing=1>
 <tr>
-<td bgcolor=@@@COLUMNHEADER@@@ nowrap><B>Date</B></td>
-<td bgcolor=@@@COLUMNHEADER@@@ nowrap><B>Weekday</B></td>
-<td bgcolor=@@@COLUMNHEADER@@@ nowrap align="center" width="5%"><B>Days</B></td>
-<td bgcolor=@@@COLUMNHEADER@@@ nowrap align=center width="75%"><B>Items</B></td>
+<td bgcolor=@@@COLUMNHEADER@@@ nowrap><B>Tanggal</B></td>
+<td bgcolor=@@@COLUMNHEADER@@@ nowrap><B>Hari Kerja</B></td>
+<td bgcolor=@@@COLUMNHEADER@@@ nowrap align="center" width="5%"><B>Hari2</B></td>
+<td bgcolor=@@@COLUMNHEADER@@@ nowrap align=center width="75%"><B>Hal2</B></td>
 </tr>
 @@@ITEMLIST@@@
 </table>

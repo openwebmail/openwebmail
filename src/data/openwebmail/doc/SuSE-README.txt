@@ -11,14 +11,14 @@ File: Mandrake-README.txt
 
 Why do i write this guidline?
 
-I'm using Openwebmail since Version 1.6 under Redhat Linux, 
-but now i must switch my System to SuSE Linux and i got a lot of 
-trouble installing OWM under SuSE 8.2. 
-After reading a lot of newsgroups and many Sites found by Google 
+I'm using Openwebmail since Version 1.6 under Redhat Linux,
+but now i must switch my System to SuSE Linux and i got a lot of
+trouble installing OWM under SuSE 8.2.
+After reading a lot of newsgroups and many Sites found by Google
 i had no success finding a guidline to make OWM running under SuSE :-(
 
-Sure, this Document is written for me, 
-if i must install OWM next time on a SuSE Box ;-) 
+Sure, this Document is written for me,
+if i must install OWM next time on a SuSE Box ;-)
 but hopefully, you can use it also for your System installation.
 
 
@@ -32,7 +32,7 @@ What do i need to install?
 6. Needed Packages
 
 
-1. Make sure your SuSE 8.2 is installed and configured correctly. 
+1. Make sure your SuSE 8.2 is installed and configured correctly.
    Check all sendmail and Apache settings!
 
 2. Take your wife/family out for a night or weekend
@@ -73,15 +73,15 @@ What do i need to install?
 	Quota-1.4.6.tar.gz        (optional)
 	Authen-PAM-0.12.tar.gz    (optional)
 	
- 	wget http://openwebmail.com/openwebmail/download/packages/Authen-PAM-0.12.tar.gz 
-  	wget http://openwebmail.com/openwebmail/download/packages/CGI-SpeedyCGI-2.22.tar.gz  
+ 	wget http://openwebmail.com/openwebmail/download/packages/Authen-PAM-0.12.tar.gz
+  	wget http://openwebmail.com/openwebmail/download/packages/CGI-SpeedyCGI-2.22.tar.gz
   	wget http://openwebmail.com/openwebmail/download/packages/Compress-Zlib-1.21.tar.gz
   	wget http://openwebmail.com/openwebmail/download/packages/Quota-1.4.6.tar.gz
   	wget http://openwebmail.com/openwebmail/download/packages/Convert-ASN1-0.07.tar.gz
   	wget http://openwebmail.com/openwebmail/download/packages/ispell-3.1.20.tar.gz
 
    Not all are needed, but download it, its possible that you need it later... who knows ???
-   
+
 
 INSTALLATION
 
@@ -89,13 +89,13 @@ INSTALLATION
 	
 	1.1 needed Modules
 	
-	tar -zxvBpf ~/tmp/Authen-PAM-0.12.tar.gz 
-  	tar -zxvBpf ~/tmp/CGI-SpeedyCGI-2.22.tar.gz 
-  	tar -zxvBpf ~/tmp/CGI.pm-2.74.tar.gz  
+	tar -zxvBpf ~/tmp/Authen-PAM-0.12.tar.gz
+  	tar -zxvBpf ~/tmp/CGI-SpeedyCGI-2.22.tar.gz
+  	tar -zxvBpf ~/tmp/CGI.pm-2.74.tar.gz
   	tar -zxvBpf ~/tmp/Compress-Zlib-1.21.tar.gz
-  	tar -zxvBpf ~/tmp/MIME-Base64-2.12.tar.gz  
-  	tar -zxvBpf ~/tmp/Text-Iconv-1.2.tar.gz  
-  	tar -zxvBpf ~/tmp/libnet-1.0901.tar.gz 
+  	tar -zxvBpf ~/tmp/MIME-Base64-2.12.tar.gz
+  	tar -zxvBpf ~/tmp/Text-Iconv-1.2.tar.gz
+  	tar -zxvBpf ~/tmp/libnet-1.0901.tar.gz
     	tar -zxvBpf ~/tmp/Text-Iconv-1.2.tar.gz
   	tar -zxvBpf ~/tmp/libiconv-1.9.1.tar.gz
   	tar -zxvBpf ~/tmp/Compress-Zlib-1.21.tar.gz
@@ -107,7 +107,7 @@ INSTALLATION
   	tar -zxvBpf ~/tmp/openwebmail-current.tgz
   	
  2. compile all modules
- 
+
  	switch to each created subdir and type:
  		perl Makefile.PL
  		make
@@ -128,12 +128,12 @@ INSTALLATION
 	
 4. Installation of OWM
 
-In step 1.2. we have untared the OWM programm to ~/tmp, 
+In step 1.2. we have untared the OWM programm to ~/tmp,
 now its time to move the programm to its right location.
 
-Under SuSE the default apache document dir is under /srv/www 
-not like Redhat (/var/www) or BSD (/usr/local/www) 
-so we must move the cgi-bin/openwebmail to /srv/www/cgi-bin and 
+Under SuSE the default apache document dir is under /srv/www
+not like Redhat (/var/www) or BSD (/usr/local/www)
+so we must move the cgi-bin/openwebmail to /srv/www/cgi-bin and
 the data/openwebmail to /srv/www/htdocs/ !
 
 	mv ~/tmp/cgi-bin/openwebmail /srv/www/cgi-bin
@@ -141,7 +141,7 @@ the data/openwebmail to /srv/www/htdocs/ !
 	
 File & Folder Permissions:
 
-Under SuSE the owner of the www dir is root, 
+Under SuSE the owner of the www dir is root,
 so user and group root must be set for folder permissions! For all
 Files is absolutly needed to set the rights to user root and group mail.
 
@@ -150,7 +150,7 @@ Files is absolutly needed to set the rights to user root and group mail.
 	
 Check the Filepermisiions for SUIDPERL:
 
-Each file of /srv/www/cgi-bin/openwebmail with openwebmail*.pl 
+Each file of /srv/www/cgi-bin/openwebmail with openwebmail*.pl
 must be set to: 4555 owned by root.mail
 
 	chmod 4555 /srv/www/cgi-bin/openwebmail/openwebmail*.pl
@@ -163,8 +163,8 @@ Thats it !!!! -> Now start configuring:
 
 5. Configuring Openwebmail
 
-	5.1. check and change setting of 
-	     /srv/www/cgi-bin/openwebmail/etc/openwebmail.conf 
+	5.1. check and change setting of
+	     /srv/www/cgi-bin/openwebmail/etc/openwebmail.conf
 	
 	domainnames             auto
 	auth_module             auth_unix.pl
@@ -181,7 +181,7 @@ Thats it !!!! -> Now start configuring:
 	
 	These are the settings working well for me !
 
-	5.2. check and change settings of 
+	5.2. check and change settings of
 	     /srv/www/cgi-bin/openwebmail/auth_unix.pl
 	
 	my $unix_passwdfile_plaintext="/etc/passwd";
@@ -195,7 +195,7 @@ Thats it !!!! -> Now start configuring:
 	
 	/srv/www/cgi-bin/openwebmail/openwebmail-tool --init
 	
-	This Script is setting up openwebmail and generating some files, 
+	This Script is setting up openwebmail and generating some files,
 	if this work without errors, you won!
 	
 6. Starting Openwebmail
@@ -204,12 +204,12 @@ Thats it !!!! -> Now start configuring:
 	
 	http://your.server.com/cgi-bin/openwebmail/openwebmail.pl
 	
-	Now the OWM Login Screen will be viewed. 
+	Now the OWM Login Screen will be viewed.
 	If not, check on the documentation for troubleshooting.
 	
 	
 7. What comes next?
 
-	If i find the time, i will write a installation script to 
+	If i find the time, i will write a installation script to
 	make the installation easier!
 

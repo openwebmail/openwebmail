@@ -116,7 +116,7 @@
       alert("За съжаление, за  HTML подръжка се изисква IE 5.5+(Windows) или Mozilla 1.3+(под всякаква OS).");
    }
 
-    function msgfmtchangeconfirm()
+   function msgfmtchangeconfirm()
    {
       if ((document.composeform.msgformat.value == "html" ||
            document.composeform.msgformat.value == "both") &&

@@ -420,6 +420,11 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 נשאר ל  @@@NEWMAILWINDOWTIMEMENU@@@  &nbsp;שניות ( 0 אומר ללא התראה
 )</td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>Mail sent window notification:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+נשאר ל  @@@MAILSENTWINDOWTIMEMENU@@@  &nbsp;שניות ( 0 אומר ללא התראה
+)</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>מילון לבדיקת איות:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DICTIONARYMENU@@@

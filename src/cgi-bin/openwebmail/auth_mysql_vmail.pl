@@ -4,7 +4,7 @@ use strict;
 # auth_mysql_vmail.pl - authenticate user with MySQL, where required fields
 #                       are in more tables (like in vmail-sql).
 # v1.5
-# 2002/04/23 Zoltan Kovacs - werdy@freemail.hu
+# 2002/04/23 Zoltan Kovacs, werdy.AT.freemail.hu
 #
 
 #
@@ -70,8 +70,8 @@ sub get_userinfo {
    my ( $unix_user, $gid, $uid, $home, $key, $domain );
 
    return(-2, 'User is null') if (!$user);
-   if ( $user =~ /^(.*)\@(.*)$/ ) { 
-      ($user, $domain) = ($1, $2); 
+   if ( $user =~ /^(.*)\@(.*)$/ ) {
+      ($user, $domain) = ($1, $2);
    }
 
    mysql_command("USE $mysql_auth{mysql_database}")==0 or
@@ -79,11 +79,11 @@ sub get_userinfo {
 
    my $q;
    if ( $mysql_query{user_homedir} ) {
-      $q=$mysql_query{user_homedir}; 
+      $q=$mysql_query{user_homedir};
       $q=~s/_user_/$user/g; $q=~s/_domain_/$domain/g;
       ( $home ) = mysql_command($q);
    }
-   $q=$mysql_query{unix_user}; 
+   $q=$mysql_query{unix_user};
    $q=~s/_user_/$user/g; $q=~s/_domain_/$domain/g;
    ( $unix_user ) = mysql_command($q);
 

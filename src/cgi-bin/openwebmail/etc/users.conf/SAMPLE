@@ -13,6 +13,7 @@ global_addressbook	%ow_etcdir%/address.book
 global_filterbook	%ow_etcdir%/filter.book
 global_calendarbook	%ow_etcdir%/calendar.book
 
+error_with_debuginfo	no
 allowed_serverdomain	all
 allowed_clientdomain	all
 allowed_clientip	all
@@ -28,6 +29,7 @@ session_checkcookie	yes
 session_checksameip	no
 
 auto_createrc		no
+domainnames_override	no
 symboliclink_mbox	yes
 
 enable_about			yes
@@ -39,42 +41,52 @@ about_info_client		yes
 xmailer_has_version		yes
 xoriginatingip_has_userid	yes
 
-enable_setfromemail	yes
-enable_autoreply	yes
-enable_setforward	yes
-enable_strictforward	no
-enable_stationery	yes
-enable_smartfilters	yes
-enable_calendar		yes
-enable_webdisk		yes
-enable_sshterm		yes
+enable_preference		yes
+enable_loadfrombook		yes
+enable_editfrombook		yes
+frombook_for_realname_only	no
+enable_autoreply		yes
+enable_setforward		yes
+enable_strictforward		no
+enable_stationery		yes
+enable_userfilter		yes
+enable_smartfilter		yes
+smartfilter_bypass_goodmessage	yes
+enable_webmail			yes
+enable_calendar			yes
+enable_webdisk			yes
+enable_sshterm			yes
 
 enable_pop3		yes
 disallowed_pop3servers	your_server, your_server.domain
 delpop3mail_by_default	yes
 delpop3mail_hidden	no
 
-refreshinterval		15
+loginerrordelay		10
 fetchpop3interval	15
+calendar_email_notifyinterval	120
 
 enable_strictfoldername	no
 foldername_maxlen	32
-folderquota		0
-folderusage_threshold	75
-cutfolders_ifoverquota	no
 maxbooksize		32
 attlimit		50000
 
 webdisk_rootpath	/
 webdisk_readonly	no
-webdisk_quota		0
 webdisk_uploadlimit	50000
 webdisk_lsmailfolder	yes
 webdisk_lshidden	yes
 webdisk_lsunixspec	yes
 webdisk_lssymlink	yes
+webdisk_allow_symlinkcreate	yes
 webdisk_allow_symlinkout	yes
-webdisk_allow_thumbnail	yes
+webdisk_allow_thumbnail		yes
+
+spool_limit		0
+quota_limit		0
+quota_threshold		75
+delmail_ifquotahit	no
+delfile_ifquotahit	no
 
 forced_moveoldmsgfrominbox	no
 min_refreshinterval		3

@@ -163,7 +163,7 @@ if ($action eq "calyear") {
       dayview($year, $month, $day);
    }
 } elsif ($action eq "calupdate") {
-   update_item($index, 
+   update_item($index,
                $year, $month, $day,
                $string,
                $starthour, $startmin, $startampm,
@@ -191,8 +191,8 @@ sub yearview {
    $days_in_month[2]++ if ( ($year%4)==0 && (($year%100)!=0||($year%400)==0) );
 
    my $g2l=time();
-   if ($prefs{'daylightsaving'} eq "on" ||
-       ($prefs{'daylightsaving'} eq "auto" && is_dst($g2l,$prefs{'timeoffset'})) ) {
+   if ($prefs{'daylightsaving'} eq 'on' ||
+       ($prefs{'daylightsaving'} eq 'auto' && is_dst($g2l,$prefs{'timeoffset'})) ) {
       $g2l+=3600; # plus 1 hour if is_dst at this gmtime
    }
    $g2l+=timeoffset2seconds($prefs{'timeoffset'}); # trick makes gmtime($g2l) return localtime in timezone of timeoffsset
@@ -332,8 +332,8 @@ sub yearview {
                      }
                   }
                }
-               @indexlist=sort { $items{$a}{'starthourmin'}<=>$items{$b}{'starthourmin'} || 
-                                 $items{$a}{'endhourmin'}<=>$items{$b}{'endhourmin'} || 
+               @indexlist=sort { $items{$a}{'starthourmin'}<=>$items{$b}{'starthourmin'} ||
+                                 $items{$a}{'endhourmin'}<=>$items{$b}{'endhourmin'} ||
                                  $b<=>$a } @indexlist;
 
                my $eventstr="";
@@ -373,9 +373,9 @@ sub yearview {
    }
 
    httpprint(['-Expires' => CGI::expires('+900s'),
-              '-Cache-Control' => 'private,max-age=900'], 
-             [htmlheader(), htmlplugin($config{'header_pluginfile'}), 
-              $html, 
+              '-Cache-Control' => 'private,max-age=900'],
+             [htmlheader(), htmlplugin($config{'header_pluginfile'}),
+              $html,
               htmlplugin($config{'footer_pluginfile'}), htmlfooter(2)] );
 }
 ######################## END YEARVIEW ########################
@@ -387,9 +387,9 @@ sub monthview {
    $days_in_month[2]++ if ( ($year%4)==0 && (($year%100)!=0||($year%400)==0) );
 
    my $g2l=time();
-   if ($prefs{'daylightsaving'} eq "on" ||
-       ($prefs{'daylightsaving'} eq "auto" && is_dst($g2l,$prefs{'timeoffset'})) ) {
-      $g2l+=3600; # plus 1 hour if is_dst at this gmtime                         
+   if ($prefs{'daylightsaving'} eq 'on' ||
+       ($prefs{'daylightsaving'} eq 'auto' && is_dst($g2l,$prefs{'timeoffset'})) ) {
+      $g2l+=3600; # plus 1 hour if is_dst at this gmtime
    }
    $g2l+=timeoffset2seconds($prefs{'timeoffset'}); # trick makes gmtime($g2l) return localtime in timezone of timeoffsset
    my ($current_year, $current_month, $current_day)=(gmtime($g2l))[5,4,3];
@@ -569,8 +569,8 @@ sub monthview {
                   }
                }
             }
-            @indexlist=sort { $items{$a}{'starthourmin'}<=>$items{$b}{'starthourmin'} || 
-                              $items{$a}{'endhourmin'}<=>$items{$b}{'endhourmin'} || 
+            @indexlist=sort { $items{$a}{'starthourmin'}<=>$items{$b}{'starthourmin'} ||
+                              $items{$a}{'endhourmin'}<=>$items{$b}{'endhourmin'} ||
                               $b<=>$a } @indexlist;
 
             $temphtml .= qq|<tr><td>|;
@@ -597,9 +597,9 @@ sub monthview {
       }
    }
 
-   httpprint([], 
-             [htmlheader(), htmlplugin($config{'header_pluginfile'}), 
-              $html, 
+   httpprint([],
+             [htmlheader(), htmlplugin($config{'header_pluginfile'}),
+              $html,
               htmlplugin($config{'footer_pluginfile'}), htmlfooter(2)] );
 }
 ######################## END MONTHVIEW ########################
@@ -611,9 +611,9 @@ sub weekview {
    $days_in_month[2]++ if ( ($year%4)==0 && (($year%100)!=0||($year%400)==0) );
 
    my $g2l=time();
-   if ($prefs{'daylightsaving'} eq "on" ||
-       ($prefs{'daylightsaving'} eq "auto" && is_dst($g2l,$prefs{'timeoffset'})) ) {
-      $g2l+=3600; # plus 1 hour if is_dst at this gmtime                         
+   if ($prefs{'daylightsaving'} eq 'on' ||
+       ($prefs{'daylightsaving'} eq 'auto' && is_dst($g2l,$prefs{'timeoffset'})) ) {
+      $g2l+=3600; # plus 1 hour if is_dst at this gmtime
    }
    $g2l+=timeoffset2seconds($prefs{'timeoffset'}); # trick makes gmtime($g2l) return localtime in timezone of timeoffsset
    my ($current_year, $current_month, $current_day)=(gmtime($g2l))[5,4,3];
@@ -802,8 +802,8 @@ sub weekview {
             }
          }
       }
-      @indexlist=sort { $items{$a}{'starthourmin'}<=>$items{$b}{'starthourmin'} || 
-                        $items{$a}{'endhourmin'}<=>$items{$b}{'endhourmin'} || 
+      @indexlist=sort { $items{$a}{'starthourmin'}<=>$items{$b}{'starthourmin'} ||
+                        $items{$a}{'endhourmin'}<=>$items{$b}{'endhourmin'} ||
                         $b<=>$a } @indexlist;
 
       $temphtml .= qq|<tr><td valign=bottom>|;
@@ -817,9 +817,9 @@ sub weekview {
       $html =~ s/\@\@\@DAY$x\@\@\@/$temphtml/;
    }
 
-   httpprint([], 
-             [htmlheader(), htmlplugin($config{'header_pluginfile'}), 
-              $html, 
+   httpprint([],
+             [htmlheader(), htmlplugin($config{'header_pluginfile'}),
+              $html,
               htmlplugin($config{'footer_pluginfile'}), htmlfooter(2)] );
 }
 
@@ -871,9 +871,9 @@ sub dayview {
    $days_in_month[2]++ if ( ($year%4)==0 && (($year%100)!=0||($year%400)==0) );
 
    my $g2l=time();
-   if ($prefs{'daylightsaving'} eq "on" ||
-       ($prefs{'daylightsaving'} eq "auto" && is_dst($g2l,$prefs{'timeoffset'})) ) {
-      $g2l+=3600; # plus 1 hour if is_dst at this gmtime                         
+   if ($prefs{'daylightsaving'} eq 'on' ||
+       ($prefs{'daylightsaving'} eq 'auto' && is_dst($g2l,$prefs{'timeoffset'})) ) {
+      $g2l+=3600; # plus 1 hour if is_dst at this gmtime
    }
    $g2l+=timeoffset2seconds($prefs{'timeoffset'}); # trick makes gmtime($g2l) return localtime in timezone of timeoffsset
    my ($current_year, $current_month, $current_day)=(gmtime($g2l))[5,4,3];
@@ -954,7 +954,7 @@ sub dayview {
    my $time = timegm(0,0,12, $day,$month-1,$year-1900);
 
    my $today = timegm(0,0,12, $current_day,$current_month-1,$current_year-1900);
-   $temphtml=int(($time-$today)/86400); 
+   $temphtml=int(($time-$today)/86400);
    $temphtml="+$temphtml" if ($temphtml>=0);
    $html =~ s/\@\@\@DAYDIFF\@\@\@/$temphtml/g;
 
@@ -1012,8 +1012,8 @@ sub dayview {
          }
       }
    }
-   @indexlist=sort { $items{$a}{'starthourmin'}<=>$items{$b}{'starthourmin'} || 
-                     $items{$a}{'endhourmin'}<=>$items{$b}{'endhourmin'} || 
+   @indexlist=sort { $items{$a}{'starthourmin'}<=>$items{$b}{'starthourmin'} ||
+                     $items{$a}{'endhourmin'}<=>$items{$b}{'endhourmin'} ||
                      $b<=>$a } @indexlist;
 
    my @bgcolor=($style{"tablerow_light"}, $style{"tablerow_dark"});
@@ -1021,7 +1021,7 @@ sub dayview {
    $temphtml='';
 
    my (@allday_indexies, @matrix, %layout, $slotmin, $slotmax, $colmax, );
-   build_event_matrix(\%items, \@indexlist, 
+   build_event_matrix(\%items, \@indexlist,
        \@allday_indexies, \@matrix, \%layout, \$slotmin, \$slotmax, \$colmax);
 
    $colornum=($colornum+1)%2; # alternate the bgcolor
@@ -1033,7 +1033,7 @@ sub dayview {
                 qq|<tr>|.
                 qq|<td width="10%" bgcolor=$style{'columnheader'} align="center" nowrap>$lang_text{'allday'}</td>|.
                 qq|<td width="90%" bgcolor=$style{'columnheader'} colspan="|.($colmax+1).qq|">|.
-                qq|<table width="100%" cellpadding="0" cellspacing="0">\n|; 
+                qq|<table width="100%" cellpadding="0" cellspacing="0">\n|;
 
    my ($bgcolorstr, $bdstylestr, $eventlink, $eventemail, $eventtime);
 
@@ -1117,7 +1117,7 @@ sub dayview {
          # skip too earily time slots
          my $is_earily=1;
          for my $i (0..$slots_in_hour-1) {
-            if ($slot+$i >= $slotmin || 
+            if ($slot+$i >= $slotmin ||
                 $slottime[$slot+$i] ge $prefs{'calendar_starthour'}) {
                $is_earily=0; last;
             }
@@ -1144,7 +1144,7 @@ sub dayview {
          }
 
          last if ($slot > $slotmax && $slottime[$slot] gt $prefs{'calendar_endhour'});
- 
+
          # start html for a full row
          $colornum  = ($colornum+1)%2; # alternate the bgcolor
          $temphtml .= qq|<tr>|.
@@ -1477,14 +1477,14 @@ sub dayview {
    $temphtml = end_form();
    $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/g;
 
-   httpprint([], 
-             [htmlheader(), htmlplugin($config{'header_pluginfile'}), 
-              $html, 
+   httpprint([],
+             [htmlheader(), htmlplugin($config{'header_pluginfile'}),
+              $html,
               htmlplugin($config{'footer_pluginfile'}), htmlfooter(2)] );
 }
 
 sub build_event_matrix {
-   my ($r_items, $r_indexlist, 
+   my ($r_items, $r_indexlist,
        $r_allday_indexies, $r_matrix, $r_layout, $r_slotmin, $r_slotmax, $r_colmax)=@_;
    my @matrix_indexies;
    my %slots;
@@ -1507,10 +1507,10 @@ sub build_event_matrix {
                ${$r_event}{'starthourmin'} gt ${$r_event}{'endhourmin'});
       # find all slots of this event
       for (my $slot = 0; $slot < $#slottime; $slot++) {
-         if ((${$r_event}{'endhourmin'}   gt $slottime[$slot] && 
+         if ((${$r_event}{'endhourmin'}   gt $slottime[$slot] &&
               ${$r_event}{'starthourmin'} lt $slottime[$slot+1]) ||
              ((${$r_event}{'endhourmin'} eq '0' ||
-               ${$r_event}{'endhourmin'} eq ${$r_event}{'starthourmin'}) && 
+               ${$r_event}{'endhourmin'} eq ${$r_event}{'starthourmin'}) &&
               ${$r_event}{'starthourmin'} ge $slottime[$slot] &&
               ${$r_event}{'starthourmin'} lt $slottime[$slot+1]) ) {
             push(@{$slots{$index}}, $slot);
@@ -1560,10 +1560,10 @@ sub build_event_matrix {
             ${$r_layout}{$index}{'colspan'}++;
          }
       }
-   }         
+   }
    return;
 }
- 
+
 sub bordercolor {
    # take a hex number and calculate a hex number that
    # will be a nice complement to it as a bordercolor
@@ -1611,7 +1611,7 @@ sub rgb2hsv {
 }
 
 sub hsv2rgb {
-   # based off reference code at http://www.cs.rit.edu/~ncs/color/t_convert.html 
+   # based off reference code at http://www.cs.rit.edu/~ncs/color/t_convert.html
    my ($h, $s, $v) = @_;
    my ($i, $f, $p, $q, $t, $r, $g, $blue);
 
@@ -1649,9 +1649,9 @@ sub listview {
    $days_in_month[2]++ if ( ($year%4)==0 && (($year%100)!=0||($year%400)==0) );
 
    my $g2l=time();
-   if ($prefs{'daylightsaving'} eq "on" ||
-       ($prefs{'daylightsaving'} eq "auto" && is_dst($g2l,$prefs{'timeoffset'})) ) {
-      $g2l+=3600; # plus 1 hour if is_dst at this gmtime                         
+   if ($prefs{'daylightsaving'} eq 'on' ||
+       ($prefs{'daylightsaving'} eq 'auto' && is_dst($g2l,$prefs{'timeoffset'})) ) {
+      $g2l+=3600; # plus 1 hour if is_dst at this gmtime
    }
    $g2l+=timeoffset2seconds($prefs{'timeoffset'}); # trick makes gmtime($g2l) return localtime in timezone of timeoffsset
    my ($current_year, $current_month, $current_day)=(gmtime($g2l))[5,4,3];
@@ -1758,8 +1758,8 @@ sub listview {
                }
             }
          }
-         @indexlist=sort { $items{$a}{'starthourmin'}<=>$items{$b}{'starthourmin'} || 
-                           $items{$a}{'endhourmin'}<=>$items{$b}{'endhourmin'} || 
+         @indexlist=sort { $items{$a}{'starthourmin'}<=>$items{$b}{'starthourmin'} ||
+                           $items{$a}{'endhourmin'}<=>$items{$b}{'endhourmin'} ||
                            $b<=>$a } @indexlist;
 
          my $dayhtml="";
@@ -1799,9 +1799,9 @@ sub listview {
    $html=~s/\@\@\@ITEMLIST\@\@\@/$temphtml/;
 
    httpprint(['-Expires' => CGI::expires('+900s'),
-              '-Cache-Control' => 'private,max-age=900'], 
-             [htmlheader(), htmlplugin($config{'header_pluginfile'}), 
-              $html, 
+              '-Cache-Control' => 'private,max-age=900'],
+             [htmlheader(), htmlplugin($config{'header_pluginfile'}),
+              $html,
               htmlplugin($config{'footer_pluginfile'}), htmlfooter(2)] );
 }
 
@@ -2413,7 +2413,7 @@ sub del_item {
 ######################## UPDATE_ITEM #########################
 # update an item in user calendar
 sub update_item {
-   my ($index, 
+   my ($index,
        $year, $month, $day,
        $string,
        $starthour, $startmin, $startampm,
@@ -2672,9 +2672,9 @@ sub lunar_str {
 sub reset_notifycheck_for_newitem {
    my $r_item=$_[0];
    my $g2l=time();
-   if ($prefs{'daylightsaving'} eq "on" ||
-       ($prefs{'daylightsaving'} eq "auto" && is_dst($g2l,$prefs{'timeoffset'})) ) {
-      $g2l+=3600; # plus 1 hour if is_dst at this gmtime                         
+   if ($prefs{'daylightsaving'} eq 'on' ||
+       ($prefs{'daylightsaving'} eq 'auto' && is_dst($g2l,$prefs{'timeoffset'})) ) {
+      $g2l+=3600; # plus 1 hour if is_dst at this gmtime
    }
    $g2l+=timeoffset2seconds($prefs{'timeoffset'}); # trick makes gmtime($g2l) return localtime in timezone of timeoffsset
    my ($wdaynum, $year, $month, $day, $hour, $min)=(gmtime($g2l))[6,5,4,3,2,1];

@@ -23,7 +23,7 @@ my $cgipwd="MW7y7p8tQsXpU"; # pwd=speedycgi, CHNANGE IT AS SOON AS POSSIBLE
 my $httphost="127.0.0.1";
 my $httpport="80";
 
-# url prefix of openwebmail scripts, 
+# url prefix of openwebmail scripts,
 # it should be the same as option ow_cgiurl in openwebmail.conf
 my $cgiurl="/cgi-bin/openwebmail";
 
@@ -32,7 +32,7 @@ my $cgiurl="/cgi-bin/openwebmail";
 use Socket;
 use IO::Socket;
 
-# all openwebmail scripts to preload, 
+# all openwebmail scripts to preload,
 # used in cgi mode or if --all is specified in command mode
 my @scripts=(
    'openwebmail.pl',
@@ -88,7 +88,7 @@ if (defined($ENV{'GATEWAY_INTERFACE'})) {	# CGI mode
       } elsif (/^--all/) {
          @preloadscripts=@scripts;
       } elsif (/^openwebmail.+pl$/) {
-         push(@preloadscripts, $_); 
+         push(@preloadscripts, $_);
       }
    }
    if ($#preloadscripts>=0) {

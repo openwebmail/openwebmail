@@ -420,109 +420,37 @@ sub mailfilter {
 
          } # end @filterrules
 
-         # filter message with bad format from if msg is not moved or deleted
-         if ( $filter_badformatfrom &&
-              !($matched && ($op eq 'move' || $op eq 'delete')) &&
-              !$reserved_in_inbox ) {
-            my $from=(email2nameaddr($attr[$_FROM]))[1]; $from=~s/\@.*$//;
-            if ($from=~/[^\d\w\-\._]/ ||
-                $from=~/^\d/ || 
-                ($from=~/\d/ && $from=~/\./) ) {
-               my ($matchcount, $matchdate)=split(":", $FTDB{'filter_badformatfrom'});
-               $matchcount++; $matchdate=gmtime2dateserial();
-               $FTDB{"filter_badformatfrom"}="$matchcount:$matchdate";
+         if ($config{'enable_smartfilter'}) {
 
-               my $append=append_message_to_folder($allmessageids[$i],
-   					\@attr, \$currmessage, 'mail-trash',
-   					$r_validfolders, $user);
-               if ($append>=0) {
-                  $op='move';
-                  $matched=1;
-               } else {
-                  $matched=0;	# match not counted if move failed
+            # bypass smart filters for good messages
+            if ($config{'smartfilter_bypass_goodmessage'} &&
+                 !($matched && ($op eq 'move' || $op eq 'delete')) &&
+                 !$reserved_in_inbox ) {
+               if ($currmessage eq "") {
+                  seek($folderhandle, $attr[$_OFFSET], 0);
+                  read($folderhandle, $currmessage, $attr[$_SIZE]);
+               }
+               if ($is_message_parsed==0) {
+                  ($header, $body, $r_attachments)=parse_rfc822block(\$currmessage);
+                  $is_message_parsed=1;
+               }
+               if ( ($header=~/^X\-Mailer: Open WebMail/m && $header=~/^X\-OriginatingIP: /m) ||
+                    ($header=~/^In\-Reply\-To: /m && $header=~/^References: /m) ) {
+                  $reserved_in_inbox=1;
                }
             }
-         } # end of checking bad format from
 
-         # filter message with faked exe contenttype if msg is not moved or deleted
-         if ( $filter_fakedexecontenttype &&
-              !($matched && ($op eq 'move' || $op eq 'delete')) &&
-              !$reserved_in_inbox ) {
-            if ($currmessage eq "") {
-               seek($folderhandle, $attr[$_OFFSET], 0);
-               read($folderhandle, $currmessage, $attr[$_SIZE]);
-            }
-            if ($is_message_parsed==0) {
-               ($header, $body, $r_attachments)=parse_rfc822block(\$currmessage);
-               $is_message_parsed=1;
-            }
-            # check executable attachment and contenttype
-            foreach my $r_attachment (@{$r_attachments}) {
-               if ( ${$r_attachment}{filename} =~ /\.(?:exe|com|bat|pif|lnk|scr)$/i &&
-                    ${$r_attachment}{contenttype} !~ /application\/octet\-stream/i &&
-                    ${$r_attachment}{contenttype} !~ /application\/x\-msdownload/i ) {
-                  my ($matchcount, $matchdate)=split(":", $FTDB{'filter_fakedexecontenttype'});
+            # filter message with bad format from if msg is not moved or deleted
+            if ( $filter_badformatfrom &&
+                 !($matched && ($op eq 'move' || $op eq 'delete')) &&
+                 !$reserved_in_inbox ) {
+               my $from=(email2nameaddr($attr[$_FROM]))[1]; $from=~s/\@.*$//;
+               if ($from=~/[^\d\w\-\._]/ ||
+                   $from=~/^\d/ ||
+                   ($from=~/\d/ && $from=~/\./) ) {
+                  my ($matchcount, $matchdate)=split(":", $FTDB{'filter_badformatfrom'});
                   $matchcount++; $matchdate=gmtime2dateserial();
-                  $FTDB{"filter_fakedexecontenttype"}="$matchcount:$matchdate";
-
-                  $matched = 1;
-                  last;	# leave attachments check from one message
-               }
-            }
-            if ($matched) {
-               my $append=append_message_to_folder($allmessageids[$i],
-   					\@attr, \$currmessage, 'mail-trash',
-   					$r_validfolders, $user);
-               if ($append>=0) {
-                  $op='move';
-                  $matched=1;
-               } else {
-                  $matched=0;	# match not counted if move failed
-               }
-            }
-         } # end of checking faked exe contenttype
-
-         # filter message whose from: is different than the envelope email address
-         if ( $filter_fakedfrom &&
-              !($matched && ($op eq 'move' || $op eq 'delete')) &&
-              !$reserved_in_inbox ) {
-            if ($currmessage eq "") {
-               seek($folderhandle, $attr[$_OFFSET], 0);
-               read($folderhandle, $currmessage, $attr[$_SIZE]);
-            }
-            if ($is_message_parsed==0) {
-               ($header, $body, $r_attachments)=parse_rfc822block(\$currmessage);
-               $is_message_parsed=1;
-            }
-
-            my $is_tmda=0;	# skip faked from check if TMDA msg
-            if ($header=~/^\QX-Delivery-Agent: TMDA\E/m &&
-                $header=~/^\QPrecedence: bulk\E/m &&
-                $allmessageids[$i]=~/\Q.TMDA@\E/ ) {
-               $is_tmda=1;
-            }
-            if (! $is_tmda) {
-               my $envelopefrom="";
-               foreach (split(/\n/, $header)) {
-                  if (/\(envelope\-from ([^\s]+).*\)/) {
-                     $envelopefrom=$1; last;
-                  }
-               }
-               if ($envelopefrom eq "") {
-                  $envelopefrom=$1 if ($header=~/^From ([^\s]+)/);
-               }
-
-               # compare user and domain independently
-               my ($hdr_user, $hdr_domain)=split(/\@/, (email2nameaddr($attr[$_FROM]))[1]);
-               my ($env_user, $env_domain)=split(/\@/, $envelopefrom);
-               if ( $hdr_user ne $env_user ||
-                   ($hdr_domain ne "" &&
-                    $env_domain ne "" &&
-                    $hdr_domain!~/\Q$env_domain\E/i &&
-                    $env_domain!~/\Q$hdr_domain\E/i) ) {
-                  my ($matchcount, $matchdate)=split(":", $FTDB{'filter_fakedfrom'});
-                  $matchcount++; $matchdate=gmtime2dateserial();
-                  $FTDB{"filter_fakedfrom"}="$matchcount:$matchdate";
+                  $FTDB{"filter_badformatfrom"}="$matchcount:$matchdate";
 
                   my $append=append_message_to_folder($allmessageids[$i],
       					\@attr, \$currmessage, 'mail-trash',
@@ -530,77 +458,174 @@ sub mailfilter {
                   if ($append>=0) {
                      $op='move';
                      $matched=1;
+                  } else {
+                     $matched=0;	# match not counted if move failed
                   }
                }
-            }
-         } # end of checking faked from
+            } # end of checking bad format from
 
-         # filter message from smtprelay with faked name if msg is not moved or deleted
-         if ( $filter_fakedsmtp &&
-              !($matched && ($op eq 'move' || $op eq 'delete')) &&
-              !$reserved_in_inbox ) {
-            if ($currmessage eq "") {
-               seek($folderhandle, $attr[$_OFFSET], 0);
-               read($folderhandle, $currmessage, $attr[$_SIZE]);
-            }
-            if ($is_message_parsed==0) {
-               ($header, $body, $r_attachments)=parse_rfc822block(\$currmessage);
-               $is_message_parsed=1;
-            }
-            if (!defined($r_smtprelays) ) {
-               ($r_smtprelays, $r_connectfrom, $r_byas)=get_smtprelays_connectfrom_byas($header);
-            }
+            # filter message with faked exe contenttype if msg is not moved or deleted
+            if ( $filter_fakedexecontenttype &&
+                 !($matched && ($op eq 'move' || $op eq 'delete')) &&
+                 !$reserved_in_inbox ) {
+               if ($currmessage eq "") {
+                  seek($folderhandle, $attr[$_OFFSET], 0);
+                  read($folderhandle, $currmessage, $attr[$_SIZE]);
+               }
+               if ($is_message_parsed==0) {
+                  ($header, $body, $r_attachments)=parse_rfc822block(\$currmessage);
+                  $is_message_parsed=1;
+               }
+               # check executable attachment and contenttype
+               foreach my $r_attachment (@{$r_attachments}) {
+                  if ( ${$r_attachment}{filename} =~ /\.(?:exe|com|bat|pif|lnk|scr)$/i &&
+                       ${$r_attachment}{contenttype} !~ /application\/octet\-stream/i &&
+                       ${$r_attachment}{contenttype} !~ /application\/x\-msdownload/i ) {
+                     my ($matchcount, $matchdate)=split(":", $FTDB{'filter_fakedexecontenttype'});
+                     $matchcount++; $matchdate=gmtime2dateserial();
+                     $FTDB{"filter_fakedexecontenttype"}="$matchcount:$matchdate";
 
-            # move msg to trash if the first relay has invalid/faked hostname
-            if ( defined(${$r_smtprelays}[0]) ) {
-               my $relay=${$r_smtprelays}[0];
-               my $connectfrom=${$r_connectfrom}{$relay};
-               my $byas=${$r_byas}{$relay};
+                     $matched = 1;
+                     last;	# leave attachments check from one message
+                  }
+               }
+               if ($matched) {
+                  my $append=append_message_to_folder($allmessageids[$i],
+      					\@attr, \$currmessage, 'mail-trash',
+      					$r_validfolders, $user);
+                  if ($append>=0) {
+                     $op='move';
+                     $matched=1;
+                  } else {
+                     $matched=0;	# match not counted if move failed
+                  }
+               }
+            } # end of checking faked exe contenttype
 
-               my $is_private=0;
-               if ($connectfrom =~ /\[10\./ ||
-                   $connectfrom =~ /\[172\.[1-3][0-9]\./ ||
-                   $connectfrom =~ /\[192\.168\./ ||
-                   $connectfrom =~ /\[127\.0\./ ) {
-                   $is_private=1;
+            # filter message whose from: is different than the envelope email address
+            if ( $filter_fakedfrom &&
+                 !($matched && ($op eq 'move' || $op eq 'delete')) &&
+                 !$reserved_in_inbox ) {
+               if ($currmessage eq "") {
+                  seek($folderhandle, $attr[$_OFFSET], 0);
+                  read($folderhandle, $currmessage, $attr[$_SIZE]);
+               }
+               if ($is_message_parsed==0) {
+                  ($header, $body, $r_attachments)=parse_rfc822block(\$currmessage);
+                  $is_message_parsed=1;
                }
 
-               my $is_valid;
-               my @compare=( namecompare($connectfrom, $relay),
-                             namecompare($byas, $relay),
-                             namecompare($connectfrom, $byas) );
-               if ( $compare[0]>0 || $compare[1]>0 || $compare[2]>0 ||
-                   ($compare[0]==0 && $compare[1]==0 && $compare[2]==0) ) {
-                  $is_valid=1;
-               } else {	# all <=0 and at least one < 0
-                  $is_valid=0;
+               my $is_software_generated=0;	# skip faked from check for msg generated by some software
+               if ( ($header=~/^\QX-Delivery-Agent: TMDA\E/m &&
+                     $header=~/^\QPrecedence: bulk\E/m &&
+                     $allmessageids[$i]=~/\Q.TMDA@\E/) ||	# TMDA
+                    ($header=~/^\QManaged-by: RT\E/m &&
+                     $header=~/^\QRT-Ticket: \E/m &&
+                     $header=~/^\QPrecedence: bulk\E/m) ) {	# Request Tracker
+                  $is_software_generated=1;
+               }
+               if (! $is_software_generated) {
+                  my $envelopefrom="";
+                  foreach (split(/\n/, $header)) {
+                     if (/\(envelope\-from ([^\s]+).*\)/) {
+                        $envelopefrom=$1; last;
+                     }
+                  }
+                  if ($envelopefrom eq "") {
+                     $envelopefrom=$1 if ($header=~/^From ([^\s]+)/);
+                  }
+
+                  # compare user and domain independently
+                  my ($hdr_user, $hdr_domain)=split(/\@/, (email2nameaddr($attr[$_FROM]))[1]);
+                  my ($env_user, $env_domain)=split(/\@/, $envelopefrom);
+                  if ( $hdr_user ne $env_user ||
+                      ($hdr_domain ne "" &&
+                       $env_domain ne "" &&
+                       $hdr_domain!~/\Q$env_domain\E/i &&
+                       $env_domain!~/\Q$hdr_domain\E/i) ) {
+                     my ($matchcount, $matchdate)=split(":", $FTDB{'filter_fakedfrom'});
+                     $matchcount++; $matchdate=gmtime2dateserial();
+                     $FTDB{"filter_fakedfrom"}="$matchcount:$matchdate";
+
+                     my $append=append_message_to_folder($allmessageids[$i],
+         					\@attr, \$currmessage, 'mail-trash',
+         					$r_validfolders, $user);
+                     if ($append>=0) {
+                        $op='move';
+                        $matched=1;
+                     }
+                  }
+               }
+            } # end of checking faked from
+
+            # filter message from smtprelay with faked name if msg is not moved or deleted
+            if ( $filter_fakedsmtp &&
+                 !($matched && ($op eq 'move' || $op eq 'delete')) &&
+                 !$reserved_in_inbox ) {
+               if ($currmessage eq "") {
+                  seek($folderhandle, $attr[$_OFFSET], 0);
+                  read($folderhandle, $currmessage, $attr[$_SIZE]);
+               }
+               if ($is_message_parsed==0) {
+                  ($header, $body, $r_attachments)=parse_rfc822block(\$currmessage);
+                  $is_message_parsed=1;
+               }
+               if (!defined($r_smtprelays) ) {
+                  ($r_smtprelays, $r_connectfrom, $r_byas)=get_smtprelays_connectfrom_byas($header);
                }
 
-               # the last relay is the mail server
-               my $dstdomain=domain(${$r_smtprelays}[$#{$r_smtprelays}]);
+               # move msg to trash if the first relay has invalid/faked hostname
+               if ( defined(${$r_smtprelays}[0]) ) {
+                  my $relay=${$r_smtprelays}[0];
+                  my $connectfrom=${$r_connectfrom}{$relay};
+                  my $byas=${$r_byas}{$relay};
+
+                  my $is_private=0;
+                  if ($connectfrom =~ /\[10\./ ||
+                      $connectfrom =~ /\[172\.[1-3][0-9]\./ ||
+                      $connectfrom =~ /\[192\.168\./ ||
+                      $connectfrom =~ /\[127\.0\./ ) {
+                      $is_private=1;
+                  }
+
+                  my $is_valid;
+                  my @compare=( namecompare($connectfrom, $relay),
+                                namecompare($byas, $relay),
+                                namecompare($connectfrom, $byas) );
+                  if ( $compare[0]>0 || $compare[1]>0 || $compare[2]>0 ||
+                      ($compare[0]==0 && $compare[1]==0 && $compare[2]==0) ) {
+                     $is_valid=1;
+                  } else {	# all <=0 and at least one < 0
+                     $is_valid=0;
+                  }
+
+                  # the last relay is the mail server
+                  my $dstdomain=domain(${$r_smtprelays}[$#{$r_smtprelays}]);
 #log_time("relay $relay");
 #log_time("connectfrom $connectfrom");
 #log_time("byas $byas");
 #log_time("dstdomain $dstdomain");
 #log_time("is_private $is_private");
 #log_time("is_valid $is_valid\n");
-               if ($connectfrom !~ /\Q$dstdomain\E/i &&
-                   !$is_private &&
-                   !$is_valid ) {
-                  my ($matchcount, $matchdate)=split(":", $FTDB{'filter_fakedsmtp'});
-                  $matchcount++; $matchdate=gmtime2dateserial();
-                  $FTDB{"filter_fakedsmtp"}="$matchcount:$matchdate";
+                  if ($connectfrom !~ /\Q$dstdomain\E/i &&
+                      !$is_private &&
+                      !$is_valid ) {
+                     my ($matchcount, $matchdate)=split(":", $FTDB{'filter_fakedsmtp'});
+                     $matchcount++; $matchdate=gmtime2dateserial();
+                     $FTDB{"filter_fakedsmtp"}="$matchcount:$matchdate";
 
-                  my $append=append_message_to_folder($allmessageids[$i],
-   					\@attr, \$currmessage, 'mail-trash',
-   					$r_validfolders, $user);
-                  if ($append>=0) {
-                     $op='move';
-                     $matched=1;
+                     my $append=append_message_to_folder($allmessageids[$i],
+      					\@attr, \$currmessage, 'mail-trash',
+      					$r_validfolders, $user);
+                     if ($append>=0) {
+                        $op='move';
+                        $matched=1;
+                     }
                   }
                }
-            }
-         } # end of checking faked smtp
+            } # end of checking faked smtp
+
+         } # end of if enable_smartfilter
 
       } # end of if msg not verified
 
@@ -717,10 +742,6 @@ sub append_message_to_folder {
    my %HDB2;
    my ($dstfile, $dstdb)=get_folderfile_headerdb($user, $destination);
    my $ioerr=0;
-
-   ($dstfile =~ /^(.+)$/) && ($dstfile = $1);  # untaint $dstfile
-   ($dstdb =~ /^(.+)$/) && ($dstdb = $1);  # untaint $dstdb
-
    if (${$r_currmessage} !~ /^From /) { # msg format error
       return -1;
    }

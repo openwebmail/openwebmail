@@ -1,10 +1,10 @@
 
-Open WebMail is a webmail system based on 
-the Neomail version 1.14 from Ernie Miller. 
+Open WebMail is a webmail system based on
+the Neomail version 1.14 from Ernie Miller.
 
-Open WebMail is targeted on dealing with very big mail folder files in a 
-memory efficient way. It also provides many features to help users to 
-switch from Microsoft Outlook smoothly. 
+Open WebMail is targeted on dealing with very big mail folder files in a
+memory efficient way. It also provides many features to help users to
+switch from Microsoft Outlook smoothly.
 
 
 FEATURES
@@ -74,8 +74,8 @@ For CGI.pm do the following:
    make
    make install
 
-ps: It is reported that Open Webmail will hang in attachment uploading 
-    when used with older version of CGI module. We recommend using CGI 
+ps: It is reported that Open Webmail will hang in attachment uploading
+    when used with older version of CGI module. We recommend using CGI
     version 2.74 or above for Open WebMail.
     To check the version of your CGI module :
 
@@ -134,18 +134,18 @@ For Text-Iconv-1.2 do the following:
    perl Makefile.PL
 
    ps: if your system is FreeBSD, or you just installed libiconv manually,
-       please edit the Makefile.PL and change the LIBS and INC lines 
+       please edit the Makefile.PL and change the LIBS and INC lines
        to the following before doing 'perl Makefile.PL'
 
        'LIBS'         => ['-L/usr/local/lib -liconv'], # e.g., '-lm'
-       'INC'          => '-I/usr/local/include',      # e.g., '-I/usr/include/other' 
+       'INC'          => '-I/usr/local/include',      # e.g., '-I/usr/include/other'
 
    make
    make test
 
-   ps: If the 'make test' failed, it means you set wrong value for LIBS and 
+   ps: If the 'make test' failed, it means you set wrong value for LIBS and
        INC in Makefile.PL or your iconv support is not complete.
-       You may copy the uty/iconv.pl.fake to iconv.pl to make openwebmail work 
+       You may copy the uty/iconv.pl.fake to iconv.pl to make openwebmail work
        without iconv support.
 
    make install
@@ -154,7 +154,7 @@ For Text-Iconv-1.2 do the following:
 INSTALL OPENWEBMAIL
 -------------------
 The latest released or current version is available at
-http://openwebmail.com/openwebmail/ 
+http://openwebmail.com/openwebmail/
 
 If you are using FreeBSD and install apache with pkg_add,
 then just
@@ -194,17 +194,17 @@ ps: If you are using RedHat 7.x (or most Linux) with Apache
        postrotate
            /usr/bin/killall -HUP syslogd
        endscript
-   }  
+   }
    to /etc/logrotate.d/syslog to enable logrotate on openwebmail.log
 
 5. execute /var/www/cgi-bin/openwebmail/openwebmail-tool.pl --init
 
 If you are using RedHat 6.2, please use /home/httpd instead of /var/www
-ps: It is highly recommended to read the doc/RedHat-README.txt(contributed by 
+ps: It is highly recommended to read the doc/RedHat-README.txt(contributed by
     elitric.AT.yahoo.com) if you are installing Open WebMail on RedHat Linux.
 
-ps: Thomas Chung (tchung.AT.openwebmail.org) maintains the rpm for all 
-    released and current version of openwebmail, It is available at 
+ps: Thomas Chung (tchung.AT.openwebmail.org) maintains the rpm for all
+    released and current version of openwebmail, It is available at
     http://openwebmail.com/openwebmail/download/redhat/rpm/
     You can get openwebmail working in 5 minutes with this :)
 
@@ -218,7 +218,7 @@ eg: /usr/local/apache/share, then
    mv data/openwebmail htdocs/
    rmdir data
 
-2. modify /usr/local/apache/share/cgi-bin/openwebmail/etc/openwebmail.conf 
+2. modify /usr/local/apache/share/cgi-bin/openwebmail/etc/openwebmail.conf
    a. set mailspooldir to where your system mail spool is
    b. set ow_htmldir to '/usr/local/apache/share/htdocs'
       set ow_cgidir  to '/usr/local/apache/share/cgi-bin'
@@ -237,21 +237,21 @@ eg: /usr/local/apache/share, then
 
 4. execute /usr/local/apache/share/cgi-bin/openwebmail/openwebmail-tool.pl --init
 
-ps:If you are installing Open WebMail on Solaris, please put 
-   'the path of your openwebmail cgi directory' in the first line of 
-   file /etc/openwebmail_path.conf. 
+ps:If you are installing Open WebMail on Solaris, please put
+   'the path of your openwebmail cgi directory' in the first line of
+   file /etc/openwebmail_path.conf.
 
-   For example, if the script is located at 
+   For example, if the script is located at
 
    /usr/local/apache/share/cgi-bin/openwebmail/openwebmail.pl,
-   
+
    then the content of /etc/openwebmail_path.conf should be:
 
    /usr/local/apache/share/cgi-bin/openwebmail
 
-ps: If you are using Apache server 2.0 or later, 
+ps: If you are using Apache server 2.0 or later,
     please edit your Apache Configuration file, replace
-   
+
     AddDefaultCharset ISO-8859-1
 
     with
@@ -267,13 +267,13 @@ cd the_directory_of_openwebmail_cgi_scripts
 ./openwebmail-tool.pl --init
 
 This init will create the mapping tables used by openwebmail in the future.
-If you skip this step, you will not be able to access the openwebmail through 
+If you skip this step, you will not be able to access the openwebmail through
 web interface.
 
-And since perl on various platforms may use different underlying dbm system, 
+And since perl on various platforms may use different underlying dbm system,
 the init routine will test them and try to give you some useful suggestions.
 
-1. it checks dbm_ext, dbmopen_ext and dbmopen_haslock options in 
+1. it checks dbm_ext, dbmopen_ext and dbmopen_haslock options in
    openwebmail.conf, if they are set to wrong value, you may see output like
 -------------------------------------------------------------
 Please change the following 3 options in openwebmail.conf
@@ -287,7 +287,7 @@ to
 	dbmopen_haslock   yes
 -------------------------------------------------------------
 
-2. it checks if the dbm system uses DB_File.pm by default and 
+2. it checks if the dbm system uses DB_File.pm by default and
    will suggest a necessary patch to DN_File.pm, you may see output like
 -------------------------------------------------------------
 Please modify /usr/libdata/perl/5.00503/mach/DB_File.pm by adding
@@ -300,7 +300,7 @@ before the following text (about line 247)
 -------------------------------------------------------------
 
 Please follow the suggestion or the openwebmail may not work properly.
-And don't forget to redo './openwebmail-tool.pl --init' after you complete 
+And don't forget to redo './openwebmail-tool.pl --init' after you complete
 the modification.
 
 
@@ -315,19 +315,19 @@ Please be sure the SMTP server allows mail relayed from your openwebmail host.
 
 FILTER SUPPORT
 --------------
-The mailfilter checks if messages in INBOX folder matches the filters rules 
+The mailfilter checks if messages in INBOX folder matches the filters rules
 defined by user. If matches, move/copy the message to the target folder.
-If you move a message to the DELETE folder, which means deleting messages 
-from a folder. If you use INBOX as the destination in a filter rule, 
-any message matching this rule will be kept in the INBOX folder and 
+If you move a message to the DELETE folder, which means deleting messages
+from a folder. If you use INBOX as the destination in a filter rule,
+any message matching this rule will be kept in the INBOX folder and
 other rules will be ignored.
 
 
 USER QUOTA
 ----------
-The disk space used by webmail, webcalendar or webdisk are counted together as 
-the user quota usage. There are five options can be used to control the user 
-quota in openwebmail.conf.default. You may override the defaults by setting 
+The disk space used by webmail, webcalendar or webdisk are counted together as
+the user quota usage. There are five options can be used to control the user
+quota in openwebmail.conf.default. You may override the defaults by setting
 them in openwebmail.conf.
 
 1. quota_module
@@ -337,37 +337,37 @@ There are two quota modules available currently.
 
 a. quota_unixfs.pl
 
-This is the recommended quota module if the openwebmail user is the real 
-unix user and you system has enables the disk quota. 
+This is the recommended quota module if the openwebmail user is the real
+unix user and you system has enables the disk quota.
 It has the minimal overhead.
 
 ps:You have to install the Quota-1.4.6.tar.gz to use the module.
 
 b. quota_du.pl
 
-This is the recommended module only if quota_unixfs.pl could not be used on 
-your system (eg: openwebmail user is not standard unix user or unix quota 
-is not available.), because it uses the 'du -sk' to get the user quota usage. 
+This is the recommended module only if quota_unixfs.pl could not be used on
+your system (eg: openwebmail user is not standard unix user or unix quota
+is not available.), because it uses the 'du -sk' to get the user quota usage.
 
-Since running 'du -sk' on a large directory may be quote time consuming, 
-this module will cache the result of the 'du -sk' to avoid too much overhead. 
+Since running 'du -sk' on a large directory may be quote time consuming,
+this module will cache the result of the 'du -sk' to avoid too much overhead.
 The default cache lifetime is 60 seconds and could be changed in quota_du.pl
 
 If you set this option to 'none', then no quota system will be used in openwebmail
-                
+
 2. quota_limit
 
-This option sets the limit (in kb) for user quota usage. 
-The webmail and webdisk operation is limited to 'delete' if quota is hit. 
-This option does not prevent the operation taking the user over this limit 
+This option sets the limit (in kb) for user quota usage.
+The webmail and webdisk operation is limited to 'delete' if quota is hit.
+This option does not prevent the operation taking the user over this limit
 from completing, it simply inhibits further saving of messages or files
 until the user quota usage is brought down again.
 
-ps: The value set in this option is used only if quota module doesn't support 
+ps: The value set in this option is used only if quota module doesn't support
     quotalimit. ( whose quota_info() routine returns the quotalimit as -1 )
 
 ps: If you use the quota_unixfs.pl as the quota module,
-    please be sure that there is some space between the softlimit and 
+    please be sure that there is some space between the softlimit and
     hardlimit (eg:5mb)
 
     eg: filesystem quota softlimit=25000, hardlimit=30000
@@ -380,14 +380,14 @@ a big quota string will be displayed at the top of webmail and webdisk main menu
 
 4. delmail_ifquotahit
 
-Set this option to yes to make openwebmail remove oldest messages from user 
-mail folders automatically in case his quotalimit is hit. the new total 
+Set this option to yes to make openwebmail remove oldest messages from user
+mail folders automatically in case his quotalimit is hit. the new total
 size will be cut down to apporximately 90% of option quota_limit
 
 5. delfile_ifquotahit
 
 Set this option to yes to make openwebmail remove oldest files from webdisk
-/ automatically in case his quotalimit is hit. the new total 
+/ automatically in case his quotalimit is hit. the new total
 size will be cut down to apporximately 90% of option quota_limit
 
 ps:The above options are used to control quota of user homedir.
@@ -398,19 +398,19 @@ ps:The above options are used to control quota of user homedir.
 
 COMMAND TOOL openwebmail-tool.pl
 --------------------------------
-Since mail filtering is activated only in Open WebMail, it means messages 
-will stay in the INBOX until user reads their mail with Open WebMail. 
-So 'finger' or other mail status check utility may give you wrong 
+Since mail filtering is activated only in Open WebMail, it means messages
+will stay in the INBOX until user reads their mail with Open WebMail.
+So 'finger' or other mail status check utility may give you wrong
 information since they don't know about the filter.
 
 A command tool 'openwebmail-tool.pl' can be used as finger replacement.
-It does mail filtering before report mail status. 
+It does mail filtering before report mail status.
 
 Some fingerd allow you to specify the name of finger program by -p option
-(eg: fingerd on FreeBSD). By changing the parameter to fingerd in 
+(eg: fingerd on FreeBSD). By changing the parameter to fingerd in
 /etc/inetd.conf, users can get their mail status from remote host.
 
-openwebmail-tool.pl can be also used in crontab to prefetch pop3mail or do folder 
+openwebmail-tool.pl can be also used in crontab to prefetch pop3mail or do folder
 index verification for users. For example:
 
 59 5 * * *  /usr/local/www/cgi-bin/openwebmail/openwebmail-tool.pl -q -a -p -i
@@ -419,14 +419,14 @@ The above line in crontab will do pop3mail prefetching, mail filtering and
 folder index verification quietly for all users at 5:59 every morning.
 
 If you have enabled the calendar_email_notifyinterval in openwebmail.conf,
-you will also need to use openwebmail-tool.pl in crontab to check the calendar 
+you will also need to use openwebmail-tool.pl in crontab to check the calendar
 events for sending the notification emails. For example:
 
 0 */2 * * *  /usr/local/www/cgi-bin/openwebmail/openwebmail-tool.pl -q -a -n
 
 The above line will use openwebmail-tool.pl to check the calendar events for all
 users every two hours. Please note we use this frequency because the default
-value of option calendar_email_notifyinterval is 120 (minute). 
+value of option calendar_email_notifyinterval is 120 (minute).
 You have to set the crontab according to  your calendar_email_notifyinterval.
 
 
@@ -434,10 +434,10 @@ GLOBAL ADDRESSBOOK, FILTERRULE and CALENDAR
 --------------------------------------------
 Current support for global addressbook/filterrule/calendar is very limited.
 The administrator has to make a copy of addressbook/filterbook/calendar to
-the file specified by global_addressbook, global_filterbook or 
+the file specified by global_addressbook, global_filterbook or
 global_calendarbook by himself.
 
-ps: An account may be created to maintain the global addressbook/filterbook, 
+ps: An account may be created to maintain the global addressbook/filterbook,
     for example: 'global'
 
     ln -s your_global_addressbook  ~global/mail/.address.book
@@ -450,21 +450,21 @@ ps: An account may be created to maintain the global addressbook/filterbook,
 
 SPELL CHECK SUPPORT
 -------------------
-To enable the spell check in openwebmail, you have to install the ispell or 
+To enable the spell check in openwebmail, you have to install the ispell or
 aspell package.
 
-1. download ispell-3.1.20.tar.gz from 
+1. download ispell-3.1.20.tar.gz from
    http://www.cs.ucla.edu/ficus-members/geoff/ispell.html and install it,
    or you can install binary from FreeBSD package or Linux rpm
 
-ps: if you are compiling ispell from source, you may enhance your ispell 
+ps: if you are compiling ispell from source, you may enhance your ispell
     by using a better dictionary source.
     a. download http://openwebmail.com/openwebmail/download/contrib/words.gz
     b. gzip -d words.gz
     c. mkdir /usr/dict; cp words /usr/dict/words
     d. start to make your ispell by reading README
 
-2. check the openwebmail.conf to see if spellcheck is pointed to the 
+2. check the openwebmail.conf to see if spellcheck is pointed to the
    ispell binary
 
 3. If you have installed multiple dictionaries for your ispell/aspell,
@@ -488,7 +488,7 @@ Since vacation utility is not available on some unix, a perl version of
 vacation utility 'vacation.pl' is distributed with openwebmail.
 This vacation.pl has the same syntax as the one on Solaris.
 
-If the autoreply doesn't work on your system, 
+If the autoreply doesn't work on your system,
 you can do debug with the -d option
 
 1. choose a user, enable his autoreply in openwebmail user preference
@@ -500,9 +500,9 @@ you can do debug with the -d option
 
 WEBDISK SUPPORT
 ---------------
-The webdisk module provides a web interface for user to use his home 
-directory as a virtual disk on the web. It is also designed as a 
-storage of the mail attachments, you can freely copy attachments 
+The webdisk module provides a web interface for user to use his home
+directory as a virtual disk on the web. It is also designed as a
+storage of the mail attachments, you can freely copy attachments
 between mail messages and the webdisk.
 
 The / of the virtual disk is mapped to the user's home directory,
@@ -511,17 +511,17 @@ user home directory.
 
 Webdisk supports basic file operation (mkdir, rmdir, copy, move, rm),
 file upload and download (multiple files or directories download is supported,
-webdisk compresses them into a zip stream on the fly when transmitting). 
-It can also handle many types of archives, including zip, arj, rar, tar.gz, 
+webdisk compresses them into a zip stream on the fly when transmitting).
+It can also handle many types of archives, including zip, arj, rar, tar.gz,
 tar.bz, tar.bz2, tgz, tbz, gz, z...
 
 Obviously, WebDisk have to call external program to provide all the above
-features, it finds the external programs in /usr/local/bin, /usr/bin 
+features, it finds the external programs in /usr/local/bin, /usr/bin
 and /bin respectively.
 
 the external programs used by webdisk are:
 
-basic file uty                 - cp, mv, rm, 
+basic file uty                 - cp, mv, rm,
 file compression/decompression - gzip, bzip2,
 archive uty                   - tar, zip, unzip, unrar, unarj, lha
 image thumbnail uty            - convert (in ImageMagick package)
@@ -529,24 +529,24 @@ image thumbnail uty            - convert (in ImageMagick package)
 ps: You don't have to install all external programs to use WebDisk,
     a feature will be disabled if related external program is not available.
 
-External commands are invoked with exec() and parameters are passed by 
-array, which prevents using /bin/sh for shell escaped character 
+External commands are invoked with exec() and parameters are passed by
+array, which prevents using /bin/sh for shell escaped character
 interpretation and thus is quite secure.
 
-To limit the WebDisk space used by the user, please refer to the 
+To limit the WebDisk space used by the user, please refer to the
 'USER QUOTA' section
 
 
 VIRTUAL HOSTING
 ---------------
-You can have as many virtual domains as you want on same server with only one 
-copy of openwebmail installed. Open Webmail supports per domain config file. 
-Each domain can have its own set of configuration options, including 
+You can have as many virtual domains as you want on same server with only one
+copy of openwebmail installed. Open Webmail supports per domain config file.
+Each domain can have its own set of configuration options, including
 domainname, authentication module, quota limit, mailspooldir ...
 
-You can even setup mail accounts for users without creating real unix accounts 
-for them. Please refer to Kevin Ellis's webpage: 
-"How to setup virtual users on Open WebMail using Postfix & vm-pop3d" 
+You can even setup mail accounts for users without creating real unix accounts
+for them. Please refer to Kevin Ellis's webpage:
+"How to setup virtual users on Open WebMail using Postfix & vm-pop3d"
 (http://www.bluelavalamp.net/owmvirtual/)
 
 eg: To create configuration file for virtualdomain 'sr1.domain.com'
@@ -558,14 +558,14 @@ eg: To create configuration file for virtualdomain 'sr1.domain.com'
 
 USER ALIAS MAPPING
 ------------------
-Open Webmail can use the sendmail virtusertable for user alias mapping. 
-The loginname typed by user may be pure name or name@somedomain. And this 
-loginname can be mapped to another pure name or name@otherdomain in the 
-virtusertable. This gives you the great flexibility in account management. 
+Open Webmail can use the sendmail virtusertable for user alias mapping.
+The loginname typed by user may be pure name or name@somedomain. And this
+loginname can be mapped to another pure name or name@otherdomain in the
+virtusertable. This gives you the great flexibility in account management.
 
 Please refer to http://www.sendmail.org/virtual-hosting.html for more detail
 
-When a user logins Open WebMail with a loginname, 
+When a user logins Open WebMail with a loginname,
 this loginname will be checked in the following order:
 
 if (loginname is in the form of 'someone@somedomain') {
@@ -609,7 +609,7 @@ if (option auth_withdomain is on) {
    }
 }
 
-ps: if any alias found in virtusertable, 
+ps: if any alias found in virtusertable,
     the alias will be used as default email address for user
 
 
@@ -624,12 +624,12 @@ mary@company3.com	mary3
 Assume the url of the webmail server is http://mail.company1.com/....
 
 The above virtusertable means:
-1. if a user logins as projectmanager, 
+1. if a user logins as projectmanager,
    openwebmail checks  projectmanager@mail.company1.com
                        projectmanager@company1.com
                        projectmanager as virtualuser	---> pm
 
-2. if a user logins as johnson@company1.com 
+2. if a user logins as johnson@company1.com
    openwebmail checks  johnson@company1.com	---> john1
 
    if a user logins as johnson,
@@ -654,13 +654,13 @@ The above virtusertable means:
 
 PURE VIRTUAL USER SUPPORT
 -------------------------
-Pure virtual user means a mail user who can use pop3 or openwebmail 
-to access his mails on the mail server but actually has no unix account 
+Pure virtual user means a mail user who can use pop3 or openwebmail
+to access his mails on the mail server but actually has no unix account
 on the server.
 
-Openwebmail pure virtual user support is currently available for system 
-running vm-pop3d + postfix. The authentication module auth_vdomain.pl is 
-designed for this purpose. Openwebmail also provides the web interface 
+Openwebmail pure virtual user support is currently available for system
+running vm-pop3d + postfix. The authentication module auth_vdomain.pl is
+designed for this purpose. Openwebmail also provides the web interface
 which can be used to manage(add/delete/edit) these virtual users under
 various virtual domains.
 
@@ -676,14 +676,14 @@ ps: vm-pop3d : http://www.reedmedia.net/software/virtualmail-pop3d/
 
 PER USER CAPABILITY CONFIGURATION
 ---------------------------------
-While options in system config file(openwebmail.conf) are applied to all 
-users, you may find it useful to set the options on per user basis sometimes. 
-For example, you may want to limit the client ip access for some users or 
-limit the domain which the user can sent to. This could be easily done with 
+While options in system config file(openwebmail.conf) are applied to all
+users, you may find it useful to set the options on per user basis sometimes.
+For example, you may want to limit the client ip access for some users or
+limit the domain which the user can sent to. This could be easily done with
 the per user config file support in Open Webmail.
 
 The user capability file is located in cgi-bin/openwebmail/etc/user.conf/
-and named as the realusername of user. Options in this file are actually 
+and named as the realusername of user. Options in this file are actually
 a subset of options in openwebmail.conf. An example 'SAMPLE' is provided.
 
 eg: To creat the capability file for user 'guest':
@@ -709,9 +709,9 @@ Options set in the later files will override the previous ones
 
 PAM SUPPORT
 -----------
-PAM (Pluggable Authentication Modules) provides a flexible mechanism 
+PAM (Pluggable Authentication Modules) provides a flexible mechanism
 for authenticating users. More detail is available at Linux-PAM webpage.
-http://www.kernel.org/pub/linux/libs/pam/ 
+http://www.kernel.org/pub/linux/libs/pam/
 
 Solaris 2.6, Linux and FreeBSD 3.1 are known to support PAM.
 To make Open WebMail use the support of PAM, you have to:
@@ -729,7 +729,7 @@ ps: Doing 'make test' is recommended when making the Authen::PAM,
     if you encounter error in 'make test', the PAM on your system
     will probable-ly not work.
 
-3. add the following 3 lines to your /etc/pam.conf 
+3. add the following 3 lines to your /etc/pam.conf
 
 (on Solaris)
 openwebmail   auth	required	/usr/lib/security/pam_unix.so.1
@@ -752,7 +752,7 @@ password   required	/lib/security/pam_unix.so
 (on FreeBSD)
 openwebmail   auth	required	/usr/lib/pam_unix.so
 openwebmail   account	required	/usr/lib/pam_unix.so
-openwebmail   password	required	/usr/lib/pam_unix.so    
+openwebmail   password	required	/usr/lib/pam_unix.so
 
 ps: PAM support on some release of FreeBSD seems broken (eg:4.1)
 
@@ -764,7 +764,7 @@ ps: Since the authentication module is loaded only once in persistent mode,
     you need to do 'touch openwebmail*pl' to make the modification active.
     To avoid this, you may change your openwebmail backto suid perl mode
     before you make the modifications.
-ps: For more detail about PAM configuration, it is recommended to read 
+ps: For more detail about PAM configuration, it is recommended to read
     "The Linux-PAM System Administrators' Guide"
     http://www.kernel.org/pub/linux/libs/pam/Linux-PAM-html/pam.html
     by Andrew G. Morgan, morgan.AT.kernel.org
@@ -786,7 +786,7 @@ auth_unix.pl
 auth_unix_cobalt.pl
 auth_vdomain.pl
 
-In case you found these modules not suitable for your need, 
+In case you found these modules not suitable for your need,
 you may write a new authentication module for your own.
 
 To add new authentication module into openwebmail, you have to:
@@ -810,7 +810,7 @@ To add new authentication module into openwebmail, you have to:
 
    ($retcode, $errmsg)=
     change_userpassword($r_config, $domain, $user, $oldpassword, $newpassword);
-   
+
    where $retcode means:
     -1 : function not supported
     -2 : parameter format error
@@ -820,7 +820,7 @@ To add new authentication module into openwebmail, you have to:
    $errmsg is the message to be logged to openwebmail log file,
    this would ease the work for sysadm in debugging problem of openwebmail
 
-   $r_config is the reference of the openwebmail %config, 
+   $r_config is the reference of the openwebmail %config,
    you may just leave it untouched
 
    ps: You may refer to auth_unix.pl or auth_pam.pl to start.
@@ -849,18 +849,18 @@ ps: You may choose the abbreviation by referencing the following url
     http://www.unicode.org/unicode/onlinedat/languages.html
     http://www.w3.org/International/O-charset.html
 
-2. cd cgi-bin/openwebmail/etc. 
+2. cd cgi-bin/openwebmail/etc.
    cp lang/en lang/xy
    cp -R templates/en templates/xy
 
 3. translate file lang/xy and templates/xy/* from English to your language
 
 4. change the package name of you language file (in the first line)
-   
+
    package openwebmail::xy
 
-5. add the name and charset of your language to %languagenames, 
-   %languagecharsets in ow-shared.pl, then set default_language 
+5. add the name and charset of your language to %languagenames,
+   %languagecharsets in ow-shared.pl, then set default_language
    to 'xy' in openwebmail.conf
 
 6. check iconv.pl, if the charset is not listed, add a line for this charset
@@ -875,7 +875,7 @@ ps: You may choose the abbreviation by referencing the following url
    insert_table.html and select_color.html  into language xy
 
    Some style sheel setting in insert*html may need to be adjusted to
-   get the best layout for your language. They are 
+   get the best layout for your language. They are
 
    a. the width and height of the pop window, defined in the first line
       <html style="width: 398; height: 243">
@@ -886,10 +886,10 @@ ps: You may choose the abbreviation by referencing the following url
 
       .fl is for box in the left and .fr is for box in the right,
       you may try wider width for better layout
-   
-8. If you want, you may create the holidays of your language with the 
+
+8. If you want, you may create the holidays of your language with the
    openwebmail calendar, then copy the ~/mail/.calendar.book into
-   etc/holidaysdir/your_languagename. Them the holidays will be displayed 
+   etc/holidaysdir/your_languagename. Them the holidays will be displayed
    to all users of this language
 
 9. If you want, you may also translation help tutorial to your language
@@ -897,43 +897,43 @@ ps: You may choose the abbreviation by referencing the following url
 
 ps: if your language is Right-To-Left oriented and you can read Arabic,
     you can use the Arabic template instead of English as the start templates.
-    And don't forget to mention it when you submit the templates 
+    And don't forget to mention it when you submit the templates
     to the openwebmail team.
 ps: Since the language and templates are loaded only once in persistent mode,
     you need to do 'touch openwebmail*pl' to make the modification active.
     To avoid this, you may change your openwebmail backto suid perl mode
     before you make the modifications.
 
-ps: If you wish your translation to be included in the next release of 
+ps: If you wish your translation to be included in the next release of
     openwebmail, please submit it to openwebmail.AT.turtle.ee.ncku.edu.tw.
 
     IMPORTANT!!!
     Please be sure your translation is based on the template files in the
     latest openwebmail-current.tgz. And please send both your tranlsation
     and english version files it based on to us. So we can check if there
-    is any latest modification should be added your translation. 
+    is any latest modification should be added your translation.
 
 
 ADD NEW CHARSET TO AUTO CONVERSION LIST
 ---------------------------------------
-Openwebmail can do charset conversion automatically if a message is written 
-with charset other than the one you are using. Openwebmail does this by calling 
+Openwebmail can do charset conversion automatically if a message is written
+with charset other than the one you are using. Openwebmail does this by calling
 the iconv() charset conversion function, as defined by the Single UNIX Specification.
 
 To make openwebmail do auto-convert a new charset for your language:
 1. find the charset used by your language in %charset_convlist in charset_iconv.pl
 2. put this new charset to the convlist of the charset of your language
-3. define the localname of the new charset on your OS to the %charset_localname. 
+3. define the localname of the new charset on your OS to the %charset_localname.
    (It is always the same as the name of charset but in capitals.)
 
-Note: The possible conversions and the quality of the conversions depend on the 
-      available iconv conversion tables and algorithms, which are in most cases 
+Note: The possible conversions and the quality of the conversions depend on the
+      available iconv conversion tables and algorithms, which are in most cases
       supplied by the operating system vendor.
 
 
 ADD MORE BACKGROUNDS TO OPENWEBMAIL
 -----------------------------------
-If you would like to add some background images into openwebmail for your 
+If you would like to add some background images into openwebmail for your
 user, you can copy them into %ow_htmldir%/images/backgrounds.
 Then the user can choose these backgrounds from user preference menu.
 
@@ -946,12 +946,12 @@ DESIGN YOUR OWN ICONSET IN OPENWEBMAIL
 If you are interested in designing your own image iconset in the openwebmail,
 you have to
 
-1. create a new sub directory in the %ow_htmldir%/images/iconsets/, 
+1. create a new sub directory in the %ow_htmldir%/images/iconsets/,
    eg: MyIconSet
    ps: %ow_htmldir% is the dir where openwebmail could find its html objects,
        it is defined in openwebmail.conf
 2. copy all images from %ow_htmldir%/images/iconsets/Default to MyIconSet
-3. modify the image files in the %ow_htmldir%/images/iconsets/MyIconSet 
+3. modify the image files in the %ow_htmldir%/images/iconsets/MyIconSet
    for your need
 
 ps:In case you want to design iconsets with text inside, the default font used
@@ -960,7 +960,7 @@ ps:In case you want to design iconsets with text inside, the default font used
 If you are interested in designing your own text iconset in the openwebmail,
 you have to
 
-1. create a new sub directory started with Text. in the %ow_htmldir%/images/iconsets/, 
+1. create a new sub directory started with Text. in the %ow_htmldir%/images/iconsets/,
    eg: Text.MyLang
    ps: %ow_htmldir% is the dir where openwebmail could find its html objects,
        it is defined in openwebmail.conf
@@ -972,20 +972,20 @@ ps: If your are going to make Cool3D iconset for your language with Photoshop,
     it could save some of your time. The psd file is available at
     http://openwebmail.com/openwebmail/contrib/Cool3D.iconset.Photoshop.template.zip
 
-ps: If you wish the your new iconset to be included in the next release of 
+ps: If you wish the your new iconset to be included in the next release of
     openwebmail, please submit it to openwebmail.AT.turtle.ee.ncku.edu.tw
 
 
 TEST
------      
+-----
 1. chdir to openwebmail cgi dir (eg: /usr/local/www/cgi-bin/openwebmail)
    and check the owner, group and permission of the following files
 
    ~/openwebmail*.pl            - owner=root, group=mail, mode=4755
    ~/vacation.pl                - owner=root, group=mail, mode=0755
    ~/etc                        - owner=root, group=mail, mode=755
-   ~/etc/sessions               - owner=root, group=mail, mode=770
-   ~/etc/users                  - owner=root, group=mail, mode=770
+   ~/etc/sessions               - owner=root, group=mail, mode=771
+   ~/etc/users                  - owner=root, group=mail, mode=771
 
    /var/log/openwebmail.log     - owner=root, group=mail, mode=660
 
@@ -1000,7 +1000,7 @@ PERSISTENT RUNNING through SpeedyCGI
 ------------------------------------
 SpeedyCGI: http://www.daemoninc.com/SpeedyCGI/
 
-"SpeedyCGI is a way to run perl scripts persistently, which can make 
+"SpeedyCGI is a way to run perl scripts persistently, which can make
 them run much more quickly." - Sam Horrocks.
 
 Openwebmail can get almost 5x to 10x speedup when running with SpeedyCGI.
@@ -1020,7 +1020,7 @@ Note: Don't try to fly before you can walk...
    cd CGI-SpeedyCGI-2.22
    perl Makefile.PL (ans 'no' with the default)
 
-   then edit speedy/Makefile 
+   then edit speedy/Makefile
    and add " -DIAMSUID" to the end of the line of "DEFINE = "
 
    make
@@ -1052,14 +1052,14 @@ Note: Don't try to fly before you can walk...
    The second -T/tmp/speedy option is for SpeedyCGI system,
    which means the prefix of temporary files used by SpeedyCGI.
 
-   ps: You will see a lot of /tmp/speedy.number files if your system is 
+   ps: You will see a lot of /tmp/speedy.number files if your system is
        quite busy, so you may change this to value like /var/run/speedy
-   
+
 4. test you openwebmail for the speedup.
 
 5. If you are installing openwebmail on a low end machine, then you may
    wish to eliminate the firsttime startup delay of the scripts for the user.
-   You may use the preload.pl, it acts as a http client to start 
+   You may use the preload.pl, it acts as a http client to start
    openwebmail on the web server automatically.
 
    a. through web interface
@@ -1071,25 +1071,25 @@ Note: Don't try to fly before you can walk...
 
       0 * * * *	/usr/local/www/cgi-bin/openwebmail/preload.pl -q openwebmail.pl openwebmail-main.pl openwebmail-read.pl
 
-      If your machine has a lot of memory, you may choose to preload all 
+      If your machine has a lot of memory, you may choose to preload all
       openwebmail scripts
 
       0 * * * *	/usr/local/www/cgi-bin/openwebmail/preload.pl -q --all
 
-6. Need more speedup? 
+6. Need more speedup?
 
-   Yes, you can try to install the mod_speedycgi to your Apache, 
+   Yes, you can try to install the mod_speedycgi to your Apache,
    but you may need to recompile Apache to make it allow using root as euid
    Please refer to README in SpeedyCGI source tar ball..
-   
-   Another approach for speedup is to use some httpd that handles muliples 
-   connections with only one process, eg: http://www.acme.com/software/thttpd/, 
+
+   Another approach for speedup is to use some httpd that handles muliples
+   connections with only one process, eg: http://www.acme.com/software/thttpd/,
    instead of the apache web server.
 
    Please refer to doc/thttpd.txt for some installation tips.
 
 ps: Kevin L. Ellis (kevin.AT.bluelavalamp.net) has written a tutorial
-    and benchmark for OWM + SpeedyCGI. 
+    and benchmark for OWM + SpeedyCGI.
     It is available at http://www.bluelavalamp.net/owmspeedycgi/
 
 
@@ -1097,14 +1097,14 @@ HTTP COMPRESSION
 ----------------
 To make this feature work, you have to install the Compress-Zlib-1.21.tar.gz.
 HTTP Compression is very useful for users with slow connection to the
-openwebmail server (eg: dialup user, PDA user). 
+openwebmail server (eg: dialup user, PDA user).
 
 Note: There are some compatibility issues for HTTP compression
 
 1. Some proxy servers only support HTTP compression via HTTP 1.1,
    the user have to enable the use of HTTP1.1 for proxy in their browser
 2. Some proxy servers don't support HTTP compression at all,
-   the user have to list the webmail server as directly connected in 
+   the user have to list the webmail server as directly connected in
    the advanced proxy setting in their browser
 3. Some browsers have problems when using HTTP compression with SSL,
 4. Some browsers claim to support HTTP compression but actually not.
@@ -1134,7 +1134,7 @@ src="http://you_server_domainname/cgi-bin/openwebmail/userstat.pl?playsound=1">
 </td></tr></table>
 
 If the user has ever logined openwebmail successfully,
-then his mail/calendar ststus would be displayed in this html page 
+then his mail/calendar ststus would be displayed in this html page
 as an link to the openwebmail login page.
 
 

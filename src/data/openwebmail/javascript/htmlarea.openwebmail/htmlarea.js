@@ -77,7 +77,7 @@ HTMLArea.Config = function () {
 	  "insertorderedlist", "insertunorderedlist", "outdent", "indent", "separator",
 	  "forecolor", "hilitecolor", "textindicator", "separator",
 	  "inserthorizontalrule", "createlink", "insertimage", "insertsound", "inserttable", "htmlmode", "separator",
-	  "about" ]
+	  "showhelp", "about" ]
 	];
 
 	this.attlist = {	// attachment URL passed from outside for image insertion
@@ -1326,7 +1326,7 @@ HTMLArea.prototype.execCommand = function(cmdID, UI, param) {
 	    case "insertsound": this._insertSound(); break;
 	    case "insertimage": this._insertImage(); break;
 	    case "about"    : this._popupDialog("about.html", null, null); break;
-	    case "showhelp" : window.open("reference.html", "ha_help"); break;
+	    case "showhelp" : window.open(this.popupURL("editor_help.html"), "ha_help", "width=600,height=400,resizable=no,menubar=no,scrollbars=yes"); break;
 	    default: this._doc.execCommand(cmdID, UI, param);
 	}
 	this.updateToolbar();

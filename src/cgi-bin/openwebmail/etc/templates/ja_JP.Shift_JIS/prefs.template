@@ -420,6 +420,11 @@
 あと @@@NEWMAILWINDOWTIMEMENU@@@ 秒残っています&nbsp;( 0 はお知らせウィンドウがないということです )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Mail sent window notification:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+あと @@@MAILSENTWINDOWTIMEMENU@@@ 秒残っています&nbsp;( 0 はお知らせウィンドウがないということです )
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>スペルチェックのディレクトリー :</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DICTIONARYMENU@@@

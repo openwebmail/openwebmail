@@ -420,6 +420,11 @@ Larghezza @@@FILEEDITCOLUMNSMENU@@@ Altezza @@@FILEEDITROWSMENU@@@
 durata @@@NEWMAILWINDOWTIMEMENU@@@ secondi &nbsp;( 0 significa Nessuna Finestra Notifica )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Mail sent window notification:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+durata @@@MAILSENTWINDOWTIMEMENU@@@ secondi &nbsp;( 0 significa Nessuna Finestra Notifica )
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Dizionario per controllo ortografico:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DICTIONARYMENU@@@

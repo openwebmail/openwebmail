@@ -420,6 +420,11 @@ Colunas @@@FILEEDITCOLUMNSMENU@@@ Linhas @@@FILEEDITROWSMENU@@@
 Durante @@@NEWMAILWINDOWTIMEMENU@@@ segundos &nbsp;( ZERO desativa a janela de notificação )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Mail sent window notification:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+Durante @@@MAILSENTWINDOWTIMEMENU@@@ segundos &nbsp;( ZERO desativa a janela de notificação )
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Dicionário para verificar ortografia:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DICTIONARYMENU@@@

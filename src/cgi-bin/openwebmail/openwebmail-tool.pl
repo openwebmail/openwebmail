@@ -4,13 +4,13 @@
 #
 # 03/27/2003 tung.AT.turtle.ee.ncku.edu.tw
 #            Ebola.AT.turtle.ee.ncku.edu.tw
-#            
+#
 use vars qw($SCRIPT_DIR);
 if ( $0 =~ m!^(\S*)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
 if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
    $_=<F>; close(F); if ( $_=~/^(\S*)/) { $SCRIPT_DIR=$1; }
 }
-if (!$SCRIPT_DIR) { 
+if (!$SCRIPT_DIR) {
    print qq|\nOpen WebMail is unable to locate itself on this system,\n|.
          qq|please put 'the path of openwebmail CGI directory' to\n|.
          qq|the first line of file /etc/openwebmail_path.conf\n\n|.
@@ -41,7 +41,7 @@ require "iconv-chinese.pl";
 require "execute.pl";
 
 # common globals
-use vars qw(%config %config_raw %default_config %default_config_raw);
+use vars qw(%config %config_raw %default_config);
 use vars qw($default_logindomain $loginname $logindomain $loginuser);
 use vars qw($domain $user $userrealname $uuid $ugid $homedir);
 use vars qw($folderdir);
@@ -59,7 +59,7 @@ use vars qw(%opt $pop3_process_count %complete);
 openwebmail_requestbegin();
 $SIG{PIPE}=\&openwebmail_exit;	# for user stop
 $SIG{TERM}=\&openwebmail_exit;	# for user stop
-$SIG{CHLD}=sub { wait }; 	# prevent zombie
+$SIG{CHLD}='IGNORE';		# prevent zombie
 
 $POP3_PROCESS_LIMIT=10;
 $POP3_TIMEOUT=20;
@@ -71,9 +71,9 @@ $pop3_process_count=0;
 
 my @list=();
 
-# set to ruid for secure access, this will be set to euid $> 
+# set to ruid for secure access, this will be set to euid $>
 # if operation is from inetd or -m (query mail status ) or -e(query event status)
-my $euid_to_use=$<;	
+my $euid_to_use=$<;
 
 # no buffer on stdout
 local $|=1;
@@ -129,7 +129,7 @@ if ($ARGV[0] eq "--") {		# called by inetd
       } elsif ($ARGV[$i] eq "--event" || $ARGV[$i] eq "-e") {
          $opt{'event'}=1; $opt{'null'}=0; $euid_to_use=$>;
       } elsif ($ARGV[$i] eq "--notify" || $ARGV[$i] eq "-n") {
-         $opt{'notify'}=1; $opt{'null'}=0; 
+         $opt{'notify'}=1; $opt{'null'}=0;
 
       } elsif ($ARGV[$i] eq "--pop3" || $ARGV[$i] eq "-p") {
          $opt{'pop3'}=1; $opt{'null'}=0;
@@ -152,7 +152,7 @@ if ($opt{'init'}) {
 } elsif ($opt{'test'}) {
    $retval=do_test();
 } elsif ($opt{'thumbnail'}) {
-   $retval=makethumbnail(\@list); 
+   $retval=makethumbnail(\@list);
 } else {
    if ($opt{'allusers'}) {
       $retval=allusers(\@list);
@@ -186,9 +186,9 @@ init options:
 thumbnail option:
  -f <imglist> \t image list from file, each line for one path
  -t, --thumbnail make thumbnail for images
-                
+
 mail/calendar options:
- -a, --alluser\t check for all users in passwd
+ -a, --alluser\t check for all users in all domains
  -d, --domain \t default domain for user with no domain specified
  -e, --event  \t check today's calendar event
  -f <userlist>\t userlist from file, each line for one user
@@ -214,15 +214,8 @@ sub init {
    my $err=0;
    print "\n";
 
-   if (!defined(%default_config_raw)) {	# read default only once if persistent mode
-      readconf(\%default_config, \%default_config_raw, "$SCRIPT_DIR/etc/openwebmail.conf.default");
-      print "D readconf $SCRIPT_DIR/etc/openwebmail.conf.default\n" if ($opt{'debug'});
-   }
-   %config=%default_config; %config_raw =%default_config_raw;
-   if (-f "$SCRIPT_DIR/etc/openwebmail.conf") {
-      readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf");
-      print "D readconf $SCRIPT_DIR/etc/openwebmail.conf\n" if ($opt{'debug'});
-   }
+   load_rawconf(\%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf.default");
+   readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf");
 
    $logindomain=$default_logindomain||hostname();
    $logindomain=lc(safedomainname($logindomain));
@@ -247,40 +240,31 @@ sub init {
    }
 
    foreach my $table ('b2g', 'g2b', 'lunar') {
-      if ( $config{$table.'_map'} ne 'none' &&
-           -f "$config{'ow_etcdir'}/$table$config{'dbm_ext'}") {
-         my %T; $err=0;
-         dbmopen(%T, "$config{'ow_etcdir'}/$table$config{'dbmopen_ext'}", undef) or $err=1;
-         dbmclose(%T);
-         if ($err) {
-            unlink("$config{'ow_etcdir'}/$table$config{'dbm_ext'}");
-            print "delete old $config{'ow_etcdir'}/$table$config{'dbm_ext'}\n";
+      my $key = "${table}_map";
+      if ( $config{$key} ) {
+         my $err=0;
+         if ( -f "$config{'ow_etcdir'}/$table$config{'dbm_ext'}") {
+            my %T;
+            dbmopen(%T, "$config{'ow_etcdir'}/$table$config{'dbmopen_ext'}", undef) or $err=1;
+            dbmclose(%T);
+            if ($err) {
+               unlink("$config{'ow_etcdir'}/$table$config{'dbm_ext'}");
+               print "delete old $config{'ow_etcdir'}/$table$config{'dbm_ext'}\n";
+            }
+         }
+         if ( !-f "$config{'ow_etcdir'}/$table$config{'dbm_ext'}") {
+            die "$config{$key} not found" if (!-f $config{$key});
+            print "creating $config{'ow_etcdir'}/$table$config{'dbm_ext'} ...";
+
+            $err=-2 if ($table eq 'b2g' and mkdb_b2g()<0);
+            $err=-3 if ($table eq 'g2b' and mkdb_g2b()<0);
+            $err=-4 if ($table eq 'lunar' and mkdb_lunar()<0);
+            if ($err < 0) {
+               print "error!\n"; return $err;
+            }
+            print "done.\n";
          }
       }
-   }
-   if ($config{'b2g_map'} ne 'none' && !-f "$config{'ow_etcdir'}/b2g$config{'dbm_ext'}") {
-      die "$config{'b2g_map'} not found" if (!-f $config{'b2g_map'});
-      print "creating $config{'ow_etcdir'}/b2g$config{'dbm_ext'} ...";
-      if (mkdb_b2g()<0) {
-         print "error!\n"; return -2;
-      }
-      print "done.\n";
-   }
-   if ($config{'g2b_map'} ne 'none' && !-f "$config{'ow_etcdir'}/g2b$config{'dbm_ext'}") {
-      die "$config{'g2b_map'} not found" if (!-f $config{'g2b_map'});
-      print "creating $config{'ow_etcdir'}/g2b$config{'dbm_ext'} ...";
-      if (mkdb_g2b()<0) {
-         print "error!\n"; return -3;
-      }
-      print "done.\n";
-   }
-   if ($config{'lunar_map'} ne 'none' && !-f "$config{'ow_etcdir'}/lunar$config{'dbm_ext'}") {
-      die "$config{'lunar_map'} not found" if (!-f $config{'lunar_map'});
-      print "creating $config{'ow_etcdir'}/lunar$config{'dbm_ext'} ...";
-      if (mkdb_lunar()<0) {
-         print "error!\n"; return -4;
-      }
-      print "done.\n";
    }
 
    %prefs = readprefs();	# send_mail() uses $prefs{...}
@@ -316,7 +300,7 @@ sub init {
       print qq|No.\n|;
    } else {
       $_=<STDIN>;
-      if ($_!~/^n/) {
+      if ($_!~/n/i) {
          print qq|sending report...\n|;
          send_mail("$id\@$hostname", $realname, $to, $date, $subject, "$content \n")
       }
@@ -329,15 +313,8 @@ sub do_test {
    my $err=0;
    print "\n";
 
-   if (!defined(%default_config_raw)) {	# read default only once if persistent mode
-      readconf(\%default_config, \%default_config_raw, "$SCRIPT_DIR/etc/openwebmail.conf.default");
-      print "D readconf $SCRIPT_DIR/etc/openwebmail.conf.default\n" if ($opt{'debug'});
-   }
-   %config=%default_config; %config_raw =%default_config_raw;
-   if (-f "$SCRIPT_DIR/etc/openwebmail.conf") {
-      readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf");
-      print "D readconf $SCRIPT_DIR/etc/openwebmail.conf\n" if ($opt{'debug'});
-   }
+   load_rawconf(\%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf.default");
+   readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf");
 
    $logindomain=$default_logindomain||hostname();
    $logindomain=lc(safedomainname($logindomain));
@@ -354,7 +331,7 @@ sub do_test {
    check_dbm_option(1, $dbm_ext, $dbmopen_ext, $dbmopen_haslock, %config);
    check_savedsuid_support();
 }
-   
+
 
 sub check_tell_bug {
    my $offset;
@@ -387,7 +364,7 @@ sub dbm_test {
    @delfiles=();
    opendir (TESTDIR, "/tmp/dbmtest.$$");
    while (defined(my $filename = readdir(TESTDIR))) {
-      ($filename =~ /^(.+)$/) && ($filename = $1);	# untaint ...
+      $filename=untaint($filename);
       if ($filename!~/^\./ ) {
          push(@filelist, $filename);
          push(@delfiles, "/tmp/dbmtest.$$/$filename");
@@ -422,7 +399,7 @@ sub dbm_test {
    @delfiles=();
    opendir (TESTDIR, "/tmp/dbmtest.$$");
    while (defined(my $filename = readdir(TESTDIR))) {
-      ($filename =~ /^(.+)$/) && ($filename = $1);	# untaint ...
+      $filename=untaint($filename);
       push(@delfiles, "/tmp/dbmtest.$$/$filename") if ($filename!~/^\./ );
    }
    closedir(TESTDIR);
@@ -434,7 +411,7 @@ sub dbm_test {
 }
 
 sub print_dbm_module {
-   print "You perl uses the following packages for dbm::\n\n";
+   print "You perl uses the following packages for dbm:\n\n";
    my @pm;
    foreach (keys %INC) { push (@pm, $_) if (/DB.*File/); }
    foreach (sort @pm) { print "$_\t\t$INC{$_}\n"; }
@@ -447,8 +424,8 @@ sub check_db_file_pm {
       my $t;
       open(F, $dbfile_pm); while(<F>) {$t.=$_;} close(F);
       $t=~s/\s//gms;
-      if ($t!~/\$arg\[3\]=0666unlessdefined\$arg\[3\];/sm 
-       && $t!~/\$arg\[3\]=0666if\@arg>=4&&!defined\$arg\[3\];/sm) { 
+      if ($t!~/\$arg\[3\]=0666unlessdefined\$arg\[3\];/sm
+       && $t!~/\$arg\[3\]=0666if\@arg>=4&&!defined\$arg\[3\];/sm) {
          print qq|Please modify $dbfile_pm by adding\n\n|.
                qq|\t\$arg[3] = 0666 unless defined \$arg[3];\n\n|.
                qq|before the following text (about line 247)\n\n|.
@@ -495,12 +472,12 @@ sub check_dbm_option {
             qq|dbmopen_haslock \t$config_raw{'dbmopen_haslock'}\n\n\n|;
    }
    return 0;
-} 
+}
 
 sub check_savedsuid_support {
    return if ($>!=0);
 
-   $>=65534; 
+   $>=65534;
    $>=0;
    if ($>!=0) {
       print qq|Your system didn't have saved suid support,\n|.
@@ -595,55 +572,106 @@ sub path2thumbnail {
 ######################### user folder/calendar routines #####################
 sub allusers {
    my $r_list=$_[0];
+   my $loaded_domain=0;
+   my %userhash=();
 
-   if (!defined(%default_config_raw)) {	# read default only once if persistent mode
-      readconf(\%default_config, \%default_config_raw, "$SCRIPT_DIR/etc/openwebmail.conf.default");
-      print "D readconf $SCRIPT_DIR/etc/openwebmail.conf.default\n" if ($opt{'debug'});
-   }
-   %config=%default_config; %config_raw =%default_config_raw;
-   if (-f "$SCRIPT_DIR/etc/openwebmail.conf") {
-      readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf");
-      print "D readconf $SCRIPT_DIR/etc/openwebmail.conf\n" if ($opt{'debug'});
-   }
+   load_rawconf(\%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf.default");
+   readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf");
+   print "D readconf $SCRIPT_DIR/etc/openwebmail.conf\n" if ($opt{'debug'});
 
-   $logindomain=$default_logindomain||hostname();
-   $logindomain=lc(safedomainname($logindomain));
-   $logindomain=$config{'domainname_equiv'}{'map'}{$logindomain} if (defined($config{'domainname_equiv'}{'map'}{$logindomain}));
-   if ( -f "$config{'ow_sitesconfdir'}/$logindomain") {
-      readconf(\%config, \%config_raw, "$config{'ow_sitesconfdir'}/$logindomain");
-      print "D readconf $config{'ow_sitesconfdir'}/$logindomain\n" if ($opt{'debug'});
-   }
-
+   # trap this once now.  Let usertool() test it at the domain level later
    if ( $>!=0 &&	# setuid is required if spool is located in system dir
-       ($config{'mailspooldir'} eq "/var/mail" || 
+       ($config{'mailspooldir'} eq "/var/mail" ||
         $config{'mailspooldir'} eq "/var/spool/mail")) {
       print "This operation is only available to root\n"; openwebmail_exit(0);
    }
-   loadauth($config{'auth_module'});
-   print "D loadauth $config{'auth_module'}\n" if ($opt{'debug'});
 
-   # update virtusertable
-   my $virtname=$config{'virtusertable'}; $virtname=~s!/!.!g; $virtname=~s/^\.+//;
-   update_virtusertable("$config{'ow_etcdir'}/$virtname", $config{'virtusertable'});
+   my $logindomain=$default_logindomain||hostname();
+   $logindomain=lc(safedomainname($logindomain));
+   $logindomain=$config{'domainname_equiv'}{'map'}{$logindomain} if (defined($config{'domainname_equiv'}{'map'}{$logindomain}));
+   print "D found default domain $logindomain\n" if ($opt{'debug'});
 
-   my ($errcode, $errmsg, @userlist)=get_userlist(\%config);
-   if ($errcode!=0) {
-      writelog("userlist error - $config{'auth_module'}, ret $errcode , $errmsg");
-      if ($errcode==-1) {
-         print "-a is not supported by $config{'auth_module'}, use -f instead\n" if (!$opt{'quiet'});
+   # if there's localusers defined for vdomain,
+   # we should grab them otherwise they'll be missed
+   foreach (@{$config{'localusers'}}) {
+      if (/^(.+)\@(.+)$/) {
+         $userhash{$2}{$1}=1;
       } else {
-         print "Unable to get userlist, error code $errcode\n" if (!$opt{'quiet'});
+         $userhash{$logindomain}{$_}=1;
       }
-      return -1; 
    }
-   push(@{$r_list}, @userlist);
-   return 0;
+
+   my @domains=($logindomain);
+   foreach (alldomains()) {
+      push(@domains, $_) if ($_ ne $logindomain);
+   }
+
+   foreach $logindomain (@domains) {
+      %config_raw=();
+      load_rawconf(\%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf.default");
+      readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf");
+
+      if ( -f "$config{'ow_sitesconfdir'}/$logindomain") {
+         readconf(\%config, \%config_raw, "$config{'ow_sitesconfdir'}/$logindomain");
+         print "D readconf $config{'ow_sitesconfdir'}/$logindomain\n" if ($opt{'debug'});
+      }
+
+      loadauth($config{'auth_module'});
+      print "D loadauth $config{'auth_module'}\n" if ($opt{'debug'});
+
+      my ($errcode, $errmsg, @userlist)=get_userlist(\%config);
+      if ($errcode!=0) {
+         writelog("userlist error - $config{'auth_module'}, ret $errcode , $errmsg");
+         if ($errcode==-1) {
+            print "-a is not supported by $config{'auth_module'}, use -f instead\n" if (!$opt{'quiet'});
+         } else {
+            print "Unable to get userlist, error code $errcode\n" if (!$opt{'quiet'});
+         }
+      } else {
+         $loaded_domain++;
+         foreach (@userlist) {
+            if (/^(.+)\@(.+)$/) {
+               $userhash{$2}{$1}=1;
+            } else {
+               $userhash{$logindomain}{$_}=1;
+            }
+         }
+      }
+   }
+
+   foreach $logindomain ( sort keys %userhash ) {
+      foreach (sort keys %{$userhash{$logindomain}}) {
+         push @{$r_list}, "$_\@$logindomain";
+      }
+   }
+
+   return if ($loaded_domain>0);
+   return -1;
 }
 
+
+sub alldomains {
+   my %domainnames=();
+
+   if ( ! opendir (SITEDIR, $config{'ow_sitesconfdir'})){
+      writelog("siteconf dir error $config{'ow_sitesconfdir'} $!");
+      print "Unable to read siteconf dir $config{'ow_sitesconfdir'} $!\n" if (!$opt{'quiet'});
+      return -1;
+   }
+   while ($domain=readdir(SITEDIR)) {
+      next if ($domain=~/^(\.|readme|sameple)/i);
+      $domainnames{$domain}=1;
+      print "D found domain $domain\n" if ($opt{'debug'});
+   }
+   closedir(SITEDIR);
+
+   return(keys %domainnames);
+}
 
 sub usertool {
    my ($euid_to_use, $r_userlist)=@_;
    my $hostname=hostname();
+   my %homedir_processed=();
    my $usercount=0;
 
    foreach $loginname (@{$r_userlist}) {
@@ -651,16 +679,9 @@ sub usertool {
       #$>=0;
       $>=$euid_to_use;
 
-      %config=(); %config_raw=();
-      if (!defined(%default_config_raw)) {	# read default only once if persistent mode
-         readconf(\%default_config, \%default_config_raw, "$SCRIPT_DIR/etc/openwebmail.conf.default");
-         print "D readconf $SCRIPT_DIR/etc/openwebmail.conf.default\n" if ($opt{'debug'});
-      }
-      %config=%default_config; %config_raw =%default_config_raw;
-      if (-f "$SCRIPT_DIR/etc/openwebmail.conf") {
-         readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf");
-         print "D readconf $SCRIPT_DIR/etc/openwebmail.conf\n" if ($opt{'debug'});
-      }
+      %config_raw=();
+      load_rawconf(\%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf.default");
+      readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf");
 
       if ($config{'smtpauth'}) {	# load smtp auth user/pass
          readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/smtpauth.conf");
@@ -712,9 +733,15 @@ sub usertool {
                $user eq 'daemon' || $user eq 'operator' || $user eq 'bin' ||
                $user eq 'tty' || $user eq 'kmem' || $user eq 'uucp');
 
+      if (defined($homedir_processed{$homedir})) {
+         print "D $loginname homedir already processed, skipped!\n" if ($opt{'debug'});
+         next;
+      }
+      $homedir_processed{$homedir}=1;
+
       if ( $>!=$uuid &&
            $>!=0 &&	# setuid root is required if spool is located in system dir
-          ($config{'mailspooldir'} eq "/var/mail" || 
+          ($config{'mailspooldir'} eq "/var/mail" ||
            $config{'mailspooldir'} eq "/var/spool/mail")) {
          print "This operation is only available to root\n"; openwebmail_exit(0);
       }
@@ -728,7 +755,7 @@ sub usertool {
       }
 
       # override auto guessing domainanmes if loginame has domain
-      if ($config_raw{'domainnames'} eq 'auto' && $loginname=~/\@/) {
+      if (${$config_raw{'domainnames'}}[0] eq 'auto' && $loginname=~/\@/) {
          $config{'domainnames'}=[ $logindomain ];
       }
       # override realname if defined in config
@@ -746,32 +773,32 @@ sub usertool {
       print "D folderdir=$folderdir\n" if ($opt{'debug'});
       next if ($homedir eq '/');
 
-      ($user =~ /^(.+)$/) && ($user = $1);  # untaint $user
-      ($uuid =~ /^(.+)$/) && ($uuid = $1);
-      ($ugid =~ /^(.+)$/) && ($ugid = $1);
-      ($homedir =~ /^(.+)$/) && ($homedir = $1);  # untaint $homedir
-      ($folderdir =~ /^(.+)$/) && ($folderdir = $1);  # untaint $folderdir
+      $user=untaint($user);
+      $uuid=untaint($uuid);
+      $ugid=untaint($ugid);
+      $homedir=untaint($homedir);
+      $folderdir=untaint($folderdir);
 
       umask(0077);
       if ( $>==0 ) { # switch to uuid:mailgid if process is setuid to root
          my $mailgid=getgrnam('mail');	# for better compatibility with other mail progs
-         set_euid_egids($uuid, $mailgid, split(/\s+/,$ugid)); 
+         set_euid_egids($uuid, $mailgid, split(/\s+/,$ugid));
          if ( $)!~/\b$mailgid\b/) {	# group mail doesn't exist?
-            print "Set effective gid to mail($mailgid) failed!"; openwebmail_exit(0);            
+            print "Set effective gid to mail($mailgid) failed!"; openwebmail_exit(0);
          }
       }
       print "D ruid=$<, euid=$>, rgid=$(, eguid=$)\n" if ($opt{'debug'});
 
       if ( ! -d $homedir ) {
-         print "$homedir doesn't exist\n" if (!$opt{'quiet'});
+         print "D $homedir doesn't exist\n" if ($opt{'debug'});
          next;
       }
       if ( ! -d $folderdir ) {
-         print "$folderdir doesn't exist\n" if (!$opt{'quiet'});
+         print "D $folderdir doesn't exist\n" if ($opt{'debug'});
          next;
       }
       if ( ! -f "$folderdir/.openwebmailrc" ) {
-         print "$folderdir/.openwebmailrc doesn't exist or open error\n" if (!$opt{'quiet'});
+         print "D $folderdir/.openwebmailrc doesn't exist or open error\n" if ($opt{'debug'});
          next;
       }
 
@@ -841,39 +868,42 @@ sub folderindex {
       my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $_);
       my %HDB;
 
-      next if (! -f $folderfile);
+      if (! -f $folderfile) {
+         print "$folderfile doesn't exist\n" if (!$opt{'quiet'});
+         next;
+      }
 
       if (!filelock($folderfile, LOCK_EX|LOCK_NB)) {
-         printf ("Couldn't get write lock on $folderfile") if (!$opt{'quiet'});
+         print "Couldn't get write lock on $folderfile\n" if (!$opt{'quiet'});
          return -1;
       }
       if ($op eq "dump") {
          my (@messageids, @attr, $buff, $buff2);
          my $error=0;
 
-         if (! -f "$headerdb$config{'dbm_ext'}") {
-            printf ("$headerdb$config{'dbm_ext'} doesn't exist") if (!$opt{'quiet'});
+         if (!-f "$headerdb$config{'dbm_ext'}") {
+            print "$headerdb$config{'dbm_ext'} doesn't exist\n" if (!$opt{'quiet'});
             return -1;
          }
          @messageids=get_messageids_sorted_by_offset($headerdb);
 
          if (!filelock($folderfile, LOCK_SH)) {
-            printf ("Couldn't get read lock on $folderfile") if (!$opt{'quiet'});
+            print "Couldn't get read lock on $folderfile\n" if (!$opt{'quiet'});
             return -1;
          }
          if (!open_dbm(\%HDB, $headerdb, LOCK_SH)) {
             filelock($folderfile, LOCK_UN);
-            printf ("Couldn't get read lock on $headerdb$config{'dbm_ext'}") if (!$opt{'quiet'});
+            print "Couldn't get read lock on $headerdb$config{'dbm_ext'}\n" if (!$opt{'quiet'});
             return -1;
          }
          open (FOLDER, $folderfile);
 
-         if (  $HDB{'METAINFO'} eq metainfo($folderfile) ) {
+         if ( $HDB{'METAINFO'} eq metainfo($folderfile) ) {
             print "+++" if (!$opt{'quiet'});
          } else {
             print "---" if (!$opt{'quiet'}); $error++;
          }
-         printf (" METAINFO db:'%s' folder:'%s'\n", $HDB{'METAINFO'}, metainfo($folderfile)) if (!$opt{'quiet'});
+         printf(" METAINFO db:'%s' folder:'%s'\n", $HDB{'METAINFO'}, metainfo($folderfile)) if (!$opt{'quiet'});
 
          for(my $i=0; $i<=$#messageids; $i++) {
             @attr=get_message_attributes($messageids[$i], $headerdb);
@@ -959,7 +989,7 @@ sub checksize {
    }
    $quotalimit=$config{'quota_limit'} if ($quotalimit<0);
    return 0 if (!$quotalimit);
-   
+
    my (@validfolders, $folderusage);
    my $i=0;
    while ($quotausage>$quotalimit && $i<2) {
@@ -999,7 +1029,7 @@ sub checknewmail {
          my ($pop3passwd, $pop3del)
 		=(split(/\@\@\@/, $accounts{"$config{'pop3_authserver'}:$config{'pop3_authport'}\@\@\@$login"}))[3,4];
          my $response = retrpop3mail($config{'pop3_authserver'},$config{'pop3_authport'}, $login,$pop3passwd, $pop3del,
-				"$folderdir/.uidl.$login\@$config{'pop3_authserver'}", 
+				"$folderdir/.uidl.$login\@$config{'pop3_authserver'}",
 				$spoolfile);
          if ( $response<0) {
             writelog("pop3 error - $pop3error{$response} at $login\@$config{'pop3_authserver'}:$config{'pop3_authport'}");
@@ -1013,16 +1043,10 @@ sub checknewmail {
    }
 
    my @folderlist=();
-   my ($filtered, $r_filtered);
-   if ($config{'enable_smartfilters'}) {
-      ($filtered, $r_filtered)=mailfilter($user, 'INBOX', $folderdir, \@folderlist, $prefs{'regexmatch'},
+   my ($filtered, $r_filtered)=mailfilter($user, 'INBOX', $folderdir, \@folderlist, $prefs{'regexmatch'},
 					$prefs{'filter_repeatlimit'}, $prefs{'filter_badformatfrom'},
 					$prefs{'filter_fakedsmtp'}, $prefs{'filter_fakedfrom'},
 					$prefs{'filter_fakedexecontenttype'});
-   } else {
-      ($filtered, $r_filtered)=mailfilter($user, 'INBOX', $folderdir, \@folderlist, $prefs{'regexmatch'},
-					0, 0, 0, 0, 0);
-   }
    if ($filtered>0) {
       writelog("filter message - filter $filtered msgs from INBOX");
       writehistory("filter message - filter $filtered msgs from INBOX");
@@ -1054,8 +1078,8 @@ sub checknewmail {
 sub checknewevent {
    my ($newevent, $oldevent);
    my $g2l=time();
-   if ($prefs{'daylightsaving'} eq "on" ||
-       ($prefs{'daylightsaving'} eq "auto" && is_dst($g2l,$prefs{'timeoffset'})) ) {
+   if ($prefs{'daylightsaving'} eq 'on' ||
+       ($prefs{'daylightsaving'} eq 'auto' && is_dst($g2l,$prefs{'timeoffset'})) ) {
       $g2l+=3600; # plus 1 hour if is_dst at this gmtime
    }
    $g2l+=timeoffset2seconds($prefs{'timeoffset'}); # trick makes gmtime($g2l) return localtime in timezone of timeoffsset
@@ -1116,8 +1140,8 @@ sub checknewevent {
 sub checknotify {
    my %message=();
    my $g2l=time();
-   if ($prefs{'daylightsaving'} eq "on" ||
-       ($prefs{'daylightsaving'} eq "auto" && is_dst($g2l,$prefs{'timeoffset'})) ) {
+   if ($prefs{'daylightsaving'} eq 'on' ||
+       ($prefs{'daylightsaving'} eq 'auto' && is_dst($g2l,$prefs{'timeoffset'})) ) {
       $g2l+=3600; # plus 1 hour if is_dst at this gmtime
    }
    $g2l+=timeoffset2seconds($prefs{'timeoffset'}); # trick makes gmtime($g2l) return localtime in timezone of timeoffsset
@@ -1171,7 +1195,7 @@ sub checknotify {
    my $future_items=0;
    for my $index (@indexlist) {
       if ( $items{$index}{'email'} &&
-           ($date=~/$items{$index}{'idate'}/  || 
+           ($date=~/$items{$index}{'idate'}/  ||
             $date2=~/$items{$index}{'idate'}/ ||
             easter_match($year,$month,$day, $easter_month,$easter_day,
                                       $items{$index}{'idate'})) ) {

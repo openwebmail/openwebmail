@@ -7,7 +7,7 @@ use strict;
 #
 
 # This module is used to authenticate users of virtual domain on system running
-# vm-pop3d and postfix. These user won't have any unix account on the server, 
+# vm-pop3d and postfix. These user won't have any unix account on the server,
 # they are mail only users.
 #
 # This module has the following assumptions:
@@ -17,7 +17,7 @@ use strict;
 # 3. mailspool   for each user           is /var/spool/virtual/VIRTUALDOMAIN/USERNAME
 # 4. homedir     for each user           is $config{ow_usersdir}/USERNAME@VIRTUALDOMAIN
 
-# Configure PostFix 
+# Configure PostFix
 # -----------------
 # Assume postfix conf is located at /etc/postfix
 # and we want to set 2 virtual domains: sample1.com and sample2.com
@@ -30,7 +30,7 @@ use strict;
 #    default_privs=nobody
 #
 # ps: if your postfix is 2.00 or above
-#     use virtual_alias_maps instead of virtual_maps in the above 
+#     use virtual_alias_maps instead of virtual_maps in the above
 #
 # 2. put the virtual user mapping in /etc/postfix/virtual
 #    to map an email address to a virtual user
@@ -42,7 +42,7 @@ use strict;
 #
 #    then run 'cd /etc/postfix/; postmap virtual'
 #
-# ps: the first two lines of the virtual domain are required for postfix 
+# ps: the first two lines of the virtual domain are required for postfix
 #     style virtual domain, please refer to man page virtual.5 for more detail
 #
 # 3. put the alias mapping in /etc/postfix/aliases
@@ -54,7 +54,7 @@ use strict;
 #    then run 'cd /etc/postfix/; postalias aliases'
 #
 # ps: When postfix creating the mailbox for a virtual user,
-#     the gid of this mailbox will be 'mail' and 
+#     the gid of this mailbox will be 'mail' and
 #     the uid will be determined by the following order:
 #
 #  a. if the alias.db (created by 'postalias alias') is owned by user other than root,
@@ -62,11 +62,11 @@ use strict;
 #  b. if alias.db is owned by root,
 #     then the uid of the user defined in option default_privs in main.cf will be used.
 #
-#  Since alias.db is owned by root in most case and 
+#  Since alias.db is owned by root in most case and
 #  option default_privs in main.cf is defined to 'nobody',
 #  the virtual user mailbox will be owned by uid 'nobody' and gid 'mail'.
 
-# Configure vm-pop3d 
+# Configure vm-pop3d
 # ------------------
 # Assume vm-pop3s is installed in /usr/local/sbin/vm-pop3d)
 #
@@ -79,8 +79,8 @@ use strict;
 # service pop3
 #     {
 #             socket_type     = stream
-#             protocol        = tcp 
-#             wait            = no  
+#             protocol        = tcp
+#             wait            = no
 #             user            = root
 #             instances       = 25
 #             server          = /usr/local/sbin/vm-pop3d
@@ -96,12 +96,12 @@ use strict;
 #     if the pop3 client login as username@virtualdomain
 #     vm-pop3d will query /etc/virtual/virtualdomain/passwd for authentication
 #
-#     And the -u nobody is to tell vm-pop3d to use euid nobody 
+#     And the -u nobody is to tell vm-pop3d to use euid nobody
 #     while accessing the mailbox of virtual users
 
 # Configure Open WebMail
 # ----------------------
-# For each virtual domain, creat per domain conf file 
+# For each virtual domain, creat per domain conf file
 # ($config{ow_siteconfdir}/VIRTUALDOMAIN) with the following options
 #
 # auth_module		auth_vdomain.pl
@@ -121,8 +121,8 @@ use strict;
 # vdomain_postfix_virtual	/etc/postfix/virtual
 # vdomain_postfix_postalias	/usr/sbin/postalias
 # vdomain_postfix_postmap	/usr/sbin/postmap
-# 
-# ps: vdomain_admlist defines the users who can create/delete/modify accounts 
+#
+# ps: vdomain_admlist defines the users who can create/delete/modify accounts
 #     of this virtual domain in openwebmail
 
 # create domain specific directory and files
@@ -148,7 +148,7 @@ use strict;
 
 # change the user for all virtual domain mails
 # ---------------------------------------------
-# If you wish to use other username, eg: vmail, 
+# If you wish to use other username, eg: vmail,
 # instead of 'nobody' for the virtual domain mails
 #
 # 1. set default_privs=vmail in postfix main.cf
@@ -208,7 +208,7 @@ sub get_userinfo {
    return(-4, "User $user_domain doesn't exist") if (!$found);
 
    my $domainhome="$homedir/$domain";
-   if ( ${$r_config}{'use_syshomedir'} && -d $homedir) {	
+   if ( ${$r_config}{'use_syshomedir'} && -d $homedir) {
       # mkdir domainhome so openwebmail.pl can create user homedir under this domainhome
       if (! -d $domainhome) {
          my $mailgid=getgrnam('mail');

@@ -229,7 +229,7 @@ sub search_folders {
    }
    $metainfo.="@@@".join("@@@", @{$r_folders});
 
-   ($cachefile =~ /^(.+)$/) && ($cachefile = $1);		# untaint ...
+   $cachefile=untaint($cachefile);
    filelock($cachefile, LOCK_EX) or
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $cachefile");
    if ( -e $cachefile ) {

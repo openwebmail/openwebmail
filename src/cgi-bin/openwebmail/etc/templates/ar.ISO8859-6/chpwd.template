@@ -7,7 +7,7 @@
 <BR>
 <table align=center border=0 cellspacing=2 cellpadding=0>
 <tr>
-<td align="left">UserID: </td><td>@@@USERIDFIELD@@@</td>
+<td align="left">UserID: </td><td>@@@LOGINNAMEFIELD@@@</td>
 </tr><tr>
 <td align="left">где… «де—и— «двѕке…: </td><td>@@@OLDPASSWORDFIELD@@@</td>
 </tr><tr>

@@ -420,6 +420,11 @@
 залиша╓ться @@@NEWMAILWINDOWTIMEMENU@@@ секунд &nbsp;( 0 - не нагадувати )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Mail sent window notification:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+залиша╓ться @@@MAILSENTWINDOWTIMEMENU@@@ секунд &nbsp;( 0 - не нагадувати )
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Словник для перев╕рки правопису:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DICTIONARYMENU@@@

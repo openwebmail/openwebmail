@@ -416,8 +416,7 @@ sub savefile2webdisk {
       }
    }
 
-   my $webdiskrootdir=$homedir.absolute_vpath("/", $config{'webdisk_rootpath'});
-   ($webdiskrootdir =~ m!^(.+)/?$!) && ($webdiskrootdir = $1);  # untaint ...
+   my $webdiskrootdir=untaint($homedir.absolute_vpath("/", $config{'webdisk_rootpath'}));
    my $vpath=absolute_vpath('/', $webdisksel);
    my $err=verify_vpath($webdiskrootdir, $vpath);
    openwebmailerror(__FILE__, __LINE__, $err) if ($err);
@@ -427,7 +426,7 @@ sub savefile2webdisk {
       $err=verify_vpath($webdiskrootdir, $vpath);
       openwebmailerror(__FILE__, __LINE__, $err) if ($err);
    }
-   ($vpath =~ /^(.+)$/) && ($vpath = $1);  # untaint ...
+   $vpath=untaint($vpath);
 
    if (!open(F, ">$webdiskrootdir/$vpath") ) {
       autoclosewindow($lang_text{'savefile'}, "$lang_text{'savefile'} $lang_text{'failed'} ($vpath: $!)");

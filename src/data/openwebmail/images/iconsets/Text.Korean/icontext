@@ -43,6 +43,7 @@
    'forward.gif'       => ' [전달하기] ',
    'forwardasatt.gif'  => ' [첨부화일로 전달] ',
    'forwardasorig.gif' => ' [원문으로 전달] ',
+   'gotop.gif'         => ' [^] ',
    'group.gif'         => ' [그룹] ',
    'history.gif'       => ' [내력] ',
    'home.gif'          => ' [홈] ',

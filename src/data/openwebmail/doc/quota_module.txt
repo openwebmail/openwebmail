@@ -13,7 +13,7 @@ The file name should be quota_XYZ.pl, XYZ could be A-Za-z and _
 
 location
 --------
-This quota_XYZ.pl should be put at the same directory 
+This quota_XYZ.pl should be put at the same directory
 as other quota module is.
 
 
@@ -47,36 +47,36 @@ A quota module would have only 1 API
 ($retcode, $errmsg, $usage, $quotalimit)=
 	get_usage_limit($r_config, $user, $homedir, $uptodate);
 
-ps: If $uptodate is 1, 
+ps: If $uptodate is 1,
     the most uptodate user quota information should be returned
     If $uptodate is 0,
-    the quota info may be not so fresh, eg: from a cache, 
+    the quota info may be not so fresh, eg: from a cache,
 
 
 globals
 ---------
-Openwebmail can run in persistent mode, 
+Openwebmail can run in persistent mode,
 so you have to be very careful about the global variables.
 
 1. initialize all globals explicitly
 
 2. it would be even better to use global as constent only
 
-3. don't write code outside routines, 
+3. don't write code outside routines,
    or they will be executed once in persistent mode
 
 4. if you quota module has to chat with remote server,
    please do all the following thing in the API routine
 
-   open the connection, 
-   chat with server, 
+   open the connection,
+   chat with server,
    close connection
 
    This is the simplest way, and it can avoid the problem of lost connection
    or server rebooting.
 
 5. if you really need global variables, please remember
-   value of global variables will be kept forever when running in 
+   value of global variables will be kept forever when running in
    persistent mode
 
 6. if you hope to save some connections to your quota server:
@@ -92,8 +92,8 @@ so you have to be very careful about the global variables.
          => free old/stale connection handle
             reinitialize the connection handle
 
-7. The signal handler for child process $SIG{CHLD} may have been set 
-   before calling the API routines, if your routine will fork new process, 
+7. The signal handler for child process $SIG{CHLD} may have been set
+   before calling the API routines, if your routine will fork new process,
    you may need to disable the handler temporarily by putting the following
    line in the routine
 
@@ -106,14 +106,14 @@ More about persistent CGI
    if more than one request come, more processes are forked
 
 2. a persistent CGI process won't end after a request is completed,
-   it waits for a new request and the global variable will be kept 
+   it waits for a new request and the global variable will be kept
    across requests.
 
 3. Normally, a persistent perl CGI runs under main:: package
    Just the same as pure CGI
 
 4. But SpeedyCGI has a group mode which puts servers CGIs into one process,
-   each CGI is running under a package other than main::, 
+   each CGI is running under a package other than main::,
 
    And here are the differences in group mode:
 
@@ -122,6 +122,6 @@ More about persistent CGI
    b. you can not access variable with prefix like  $main:: or $::.
 
    c. Different CGI may share one copy of packages during differnt time
-      So if package use global vraible to store state, 
+      So if package use global vraible to store state,
       the global may be changed or used by different CGIs
 

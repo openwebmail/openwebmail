@@ -13,7 +13,7 @@
 <BR>
 <table align=center border=0 cellspacing=2 cellpadding=0>
 <tr>
-<td align="right" nowrap>Όνομα: </td><td>@@@USERIDFIELD@@@</td>
+<td align="right" nowrap>Όνομα: </td><td>@@@LOGINNAMEFIELD@@@</td>
 </tr><tr>
 <td align="right" nowrap>Κωδικός: </td><td>@@@PASSWORDFIELD@@@</td>
 @@@DOMAINSTART@@@

@@ -42,6 +42,7 @@
    'forward.gif'       => ' [轉寄] ',
    'forwardasatt.gif'  => ' [轉寄成附件] ',
    'forwardasorig.gif' => ' [原信轉寄] ',
+   'gotop.gif'         => ' [^] ',
    'group.gif'         => ' [群組] ',
    'history.gif'       => ' [歷史紀錄] ',
    'home.gif'          => ' [家目錄] ',

@@ -26,7 +26,7 @@ sub closeall {
 sub flock_lock {
    my ($filename, $lockflag, $perm)=@_;
 
-   ($filename =~ /^(.+)$/) && ($filename = $1);	# untaint...
+   $filename=untaint($filename);
    if ( (! -e $filename) && $lockflag ne LOCK_UN) {
       $perm=0600 if (!$perm);
       sysopen(F, $filename, O_RDWR|O_CREAT, $perm) or return 0; # create file for lock
@@ -85,7 +85,7 @@ sub dotfile_lock {
    my ($filename, $lockflag, $perm)=@_;
    return 1 unless ($lockflag & (LOCK_SH|LOCK_EX|LOCK_UN));
 
-   ($filename =~ /^(.+)$/) && ($filename = $1);	# untaint...
+   $filename=untaint($filename);
    if ( (! -e $filename) && $lockflag ne LOCK_UN) {
       $perm=0600 if (!$perm);
       sysopen(F, $filename, O_RDWR|O_CREAT, $perm) or return 0; # create file for lock
@@ -98,7 +98,7 @@ sub dotfile_lock {
       $ldepth++; return (0) if ($ldepth>8);		# link to deep
       $filename=readlink($filename);
    }
-   ($filename =~ /^(.+)$/) && ($filename = $1);		# untaint ...
+   $filename=untaint($filename);
 
    my $oldumask=umask(0111);
    my ($endtime, $mode, $count);
@@ -204,7 +204,7 @@ sub dotfile_lock {
 # _lock and _unlock are used to lock/unlock xxx.lock
 sub _lock {
    my ($filename, $staletimeout)=@_;
-   ($filename =~ /^(.+)$/) && ($filename = $1);		# untaint ...
+   $filename=untaint($filename);
 
    $staletimeout=60 if $staletimeout eq 0;
    if ( my $t=(stat("$filename.lock"))[9] ) {
@@ -223,9 +223,7 @@ sub _lock {
 }
 
 sub _unlock {
-   my ($filename)=$_[0];
-   ($filename =~ /^(.+)$/) && ($filename = $1);		# untaint ...
-
+   my $filename=untaint($_[0]);
    if ( unlink("$filename.lock") ) {
       return 1;
    } else {
@@ -235,6 +233,12 @@ sub _unlock {
          return 0;
       }
    }
+}
+
+sub untaint {
+   local $_ = shift;
+   m/^(.*)$/;
+   return $1;
 }
 
 1;

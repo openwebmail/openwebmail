@@ -116,7 +116,7 @@
       alert("Nažalost, IE 5.5+(Windows) ili Mozilla 1.3+(svi operativni sistemi) je neophodna za pisanje HTML poruka.");
    }
 
-    function msgfmtchangeconfirm()
+   function msgfmtchangeconfirm()
    {
       if ((document.composeform.msgformat.value == "html" ||
            document.composeform.msgformat.value == "both") &&

@@ -3,7 +3,7 @@ use strict;
 #
 # auth_mysql.pl - authenticate user with DBD::MySQL
 #
-# 2002/03/07 Alan Sung - AlanSung@dragon2.net
+# 2002/03/07 Alan Sung, AlanSung.AT.dragon2.net
 #
 
 my $SQLHost = "dragon2.net";	# INSERT THE MYSQL SERVER IP HERE.

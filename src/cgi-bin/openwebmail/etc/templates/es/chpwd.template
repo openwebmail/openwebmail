@@ -7,7 +7,7 @@
 <BR>
 <table align=center border=0 cellspacing=2 cellpadding=0>
 <tr>
-<td align="right">Nombre de usuario: </td><td>@@@USERIDFIELD@@@</td>
+<td align="right">Nombre de usuario: </td><td>@@@LOGINNAMEFIELD@@@</td>
 </tr><tr>
 <td align="right">Contrase&ntilde;a anterior: </td><td>@@@OLDPASSWORDFIELD@@@</td>
 </tr><tr>

@@ -37,7 +37,7 @@
 #
 # enable_vdomain		yes
 #
-# 2. override the following option in openwebmail.conf 
+# 2. override the following option in openwebmail.conf
 #    if any one of them is not appropriate for your system
 #
 # vdomain_vmpop3_pwdpath	/etc/virtual/
@@ -45,7 +45,7 @@
 # vdomain_vmpop3_mailpath	/var/spool/virtual
 # vdomain_postfix_virtual	/etc/postfix/virtual
 # vdomain_postfix_aliases	/etc/postfix/aliases
-# vdomain_postfix_postmap	/usr/sbin/postmap 
+# vdomain_postfix_postmap	/usr/sbin/postmap
 # vdomain_postfix_postalias	/usr/sbin/postalias
 #
 # With the above default setting:
@@ -58,7 +58,7 @@
 # ps: this program won't create virtual, aliases or password file for you
 #     you have to create them explicitly by yourself
 #
-# 3. add this line to the openwebmail per domain config 
+# 3. add this line to the openwebmail per domain config
 #    (cgi-bin/openwebmail/etc/site.conf/DOMAINANME)
 #
 # vdomain_admlist                admin foo bar webmaster
@@ -160,7 +160,7 @@ foreach ("$config{'vdomain_vmpop3_pwdpath'}/$domain/$config{'vdomain_vmpop3_pwdn
          @{$config{'vdomain_postfix_virtual'}},
          @{$config{'vdomain_postfix_aliases'}}) {
    openwebmailerror(__FILE__, __LINE__, "$_ $lang_err{'doesnt_exist'}") if (! -f $_);
-}   
+}
 
 my $action = param("action");
 if ($action eq 'display_vuserlist') {
@@ -203,7 +203,7 @@ sub display_vuserlist {
    $html =~ s/\@\@\@DOMAINNAME\@\@\@/$domain/;
 
    $temphtml  = iconlink("backtofolder.gif", "$lang_text{'backto'} $lang_text{'userprefs'}", qq|accesskey="O" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;sessionid=$thissession"|);
-   if ($config{'vdomain_maxuser'}==0 || 
+   if ($config{'vdomain_maxuser'}==0 ||
        $#vusers_list+1<$config{'vdomain_maxuser'}) {
       $temphtml .= qq|&nbsp;\n|;
       $temphtml .= iconlink("adduser.gif", $lang_text{'vdomain_createuser'}, qq|accesskey="A" href="$config{'ow_cgiurl'}/openwebmail-vdomain.pl?action=edit_new_vuser&amp;sessionid=$thissession&amp;view=$view"|);
@@ -224,21 +224,21 @@ sub display_vuserlist {
    my %cell=(); my @order=();
    if ( $view eq 'users' ) {
       # list only users
-      $temphtml = "$lang_text{'vdomain_usersonly'}, $txtua, $txtuaf"; 
+      $temphtml = "$lang_text{'vdomain_usersonly'}, $txtua, $txtuaf";
       foreach (@vusers_list) {
          $cell{$_}=displaycell($_,$_,$view,\%vusers,\%vuserfwd);
          push @order, $_;
       }
    } elsif ( $view eq 'useralias' ) {
       # list users and aliases together
-      $temphtml = "$txtuonly, $lang_text{'vdomain_useralias'}, $txtuaf"; 
+      $temphtml = "$txtuonly, $lang_text{'vdomain_useralias'}, $txtuaf";
       foreach (sort keys %{$vuseralias{'list'}}) {
          $cell{$_}=displaycell($_,$vuseralias{'list'}{$_},$view,\%vusers,\%vuserfwd);
          push @order, $_;
       }
    } else {
       # list users and aliases grouped by user, formatted
-      $temphtml = "$txtuonly, $txtua, $lang_text{'vdomain_fmtuseralias'}"; 
+      $temphtml = "$txtuonly, $txtua, $lang_text{'vdomain_fmtuseralias'}";
       my $i=0;
       foreach (@vusers_list) {
          if (defined $vuseralias{'aliases'}{$_}) {
@@ -572,8 +572,7 @@ sub edit_vuser {
 sub change_vuser {
    my $vuser_original=param('vuser');
    my $realnm=param('realnm');
-   my $vuser=lc($vuser_original);
-   ($vuser =~ /^(.+)$/) && ($vuser = $1); # untaint $vuser 
+   my $vuser=untaint(lc($vuser_original));
 
    my $action=param('action');
    my $pwd=param('newpassword');
@@ -684,8 +683,7 @@ sub change_vuser {
       return;
    }
 
-   my $vgid=getgrnam('mail');	# for better compatibility with other mail progs
-   ($vgid =~ /^(.+)$/) && ($vgid = $1);	# untaint...
+   my $vgid=untaint(getgrnam('mail'));	# for better compatibility with other mail progs
 
    if ( $new ) { # CREATE NEW USER
       my $aliastxt='';
@@ -696,13 +694,11 @@ sub change_vuser {
 
       # need $vuid here, so don't skip get_userinfo() if 'use_syshomedir'
       my ($vuid, $vhomedir) = (get_userinfo(\%config, "$vuser_original\@$domain"))[3,5];
-      ($vuid =~ /^(.+)$/) && ($vuid = $1);	# untaint...
-
       $vhomedir="$config{'ow_usersdir'}/$domain/$vuser" if (!$config{'use_syshomedir'});
-      ($vhomedir =~ /^(.+)$/) && ($vhomedir = $1);	# untaint...
-      
-      my $folderdir = "$vhomedir/$config{'homedirfolderdirname'}";
-      ($folderdir =~ /^(.+)$/) && ($folderdir = $1);	# untaint...
+      $vuid=untaint($vuid);
+      $vhomedir=untaint($vhomedir);
+
+      my $folderdir = untaint("$vhomedir/$config{'homedirfolderdirname'}");
 
       my $frombook="$folderdir/.from.book";
 
@@ -761,10 +757,9 @@ sub change_vuser {
 
       # need $vuid here, so don't skip get_userinfo() if 'use_syshomedir'
       my ($vuid, $vhomedir) = (get_userinfo(\%config, "$vuser_original\@$domain"))[3,5];
-      ($vuid =~ /^(.+)$/) && ($vuid = $1);	# untaint...
-
       $vhomedir="$config{'ow_usersdir'}/$domain/$vuser" if (!$config{'use_syshomedir'});
-      ($vhomedir =~ /^(.+)$/) && ($vhomedir = $1);	# untaint...
+      $vuid=untaint($vuid);
+      $vhomedir=untaint($vhomedir);
 
       my $frombook="$vhomedir/$config{'homedirfolderdirname'}/.from.book";
 
@@ -820,8 +815,7 @@ sub change_vuser {
 ##################### DELETE USER  ##################
 sub delete_vuser {
    my $vuser_original = param('vuser');
-   my $vuser=lc($vuser_original);
-   ($vuser =~ /^(.+)$/) && ($vuser = $1); # untaint $vuser 
+   my $vuser=untaint(lc($vuser_original));
 
    if ( vuser_exists($vuser,vuser_list()) ) {
       # get the home directory before we remove the user from password file or trouble later!
@@ -831,11 +825,11 @@ sub delete_vuser {
       } else {
          $vhomedir="$config{'ow_usersdir'}/$domain/$vuser";
       }
-      ($vhomedir =~ /^(.+)$/) && ($vhomedir = $1); # untaint $vhomedir
- 
+      $vhomedir=untaint($vhomedir);
+
       writelog("vdomain $user: $vuser\@$domain  delete $vuser_original");
       # DELETE USER IN VMPOP3D PASSWD
-      vpasswd_update($vuser_original,1); 
+      vpasswd_update($vuser_original,1);
       # DELETE USER IN POSTFIX VIRTUAL
       vuser_update($vuser, 1);
       # DELETE USER IN POSTFIX ALIASES
@@ -845,16 +839,14 @@ sub delete_vuser {
       my ($origruid, $origeuid)=($<, $>); $>=0; $<=0;
 
       # DELETE MAILBOX FILE
-      my $spoolfile="$config{'vdomain_vmpop3_mailpath'}/$domain/$vuser";
-      ($spoolfile =~ /^(.+)$/) && ($spoolfile = $1);		# untaint
+      my $spoolfile=untaint("$config{'vdomain_vmpop3_mailpath'}/$domain/$vuser");
       if (-e $spoolfile) {
          writelog("vdomain $user: $vuser\@$domain  remove spool file - $spoolfile");
          rmtree ($spoolfile);
       }
 
       # DELETE OWM USER SETTINGS
-      my $userconf="$config{'ow_cgidir'}/etc/users/$vuser\@$domain";
-      ($userconf =~ /^(.+)$/) && ($userconf = $1);		# untaint
+      my $userconf=untaint("$config{'ow_cgidir'}/etc/users.conf/$domain/$vuser");
       if (-e $userconf) {
          writelog("vdomain $user: $vuser\@$domain  remove userconf file - $userconf");
          rmtree ($userconf);
@@ -902,7 +894,7 @@ sub vuser_alias_list {
    my %vusers=();
    my %temp=();
    my %alias=();
-   
+
    # include the user list as default aliases
    foreach (keys %vuser_list) {
       $temp{$_}=$_;
@@ -1273,7 +1265,7 @@ sub vpasswd_update {
 sub root_execute {
    my @cmd;
    foreach my $arg (@_) {
-      foreach (split(/\s+/, $arg)) { 
+      foreach (split(/\s+/, $arg)) {
          /^(.+)$/ && push(@cmd, $1);
       }
    }
@@ -1283,7 +1275,7 @@ sub root_execute {
 
    # use execute.pl instead of system() to avoid shell escape chars in @cmd
    my ($stdout, $stderr, $exit, $sig)=openwebmail::execute::execute(@cmd);
-   
+
    # go back to orignal uid
    $<=$origruid; $>=$origeuid;
    return;
@@ -1299,14 +1291,14 @@ sub root_open {
    my $fh = do { local *FH };
 
    # set ruid/euid to root before change files
-   my ($origruid, $origeuid)=($<, $>); 
+   my ($origruid, $origeuid)=($<, $>);
    $>=0; $<=0;
 
    if ($action) {
-      filelock($file, LOCK_EX) or 
+      filelock($file, LOCK_EX) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $file");
    } else {
-      filelock($file, LOCK_SH|LOCK_NB) or 
+      filelock($file, LOCK_SH|LOCK_NB) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $file");
    }
    open ($fh, "$action$file") or

@@ -420,6 +420,11 @@ Bredde @@@FILEEDITCOLUMNSMENU@@@ H&oslash;jde @@@FILEEDITROWSMENU@@@
 @@@NEWMAILWINDOWTIMEMENU@@@ sekunder &nbsp;( 0 = deaktiveret )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Mail sent window notification:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@MAILSENTWINDOWTIMEMENU@@@ sekunder &nbsp;( 0 = deaktiveret )
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Standard ordbog:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DICTIONARYMENU@@@

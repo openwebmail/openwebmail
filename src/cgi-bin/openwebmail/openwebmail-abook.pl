@@ -797,8 +797,8 @@ sub editaddresses {
       }
 
       my ($k, $a, $n)=($key, $addresses{$key}, $notes{$key});
-      $k=~s/\\/\\\\/; $k=~s/'/\\'/; 
-      $a=~s/\\/\\\\/; $a=~s/'/\\'/; 
+      $k=~s/\\/\\\\/; $k=~s/'/\\'/;
+      $a=~s/\\/\\\\/; $a=~s/'/\\'/;
       $n=~s/\\/\\\\/; $n=~s/'/\\'/; # escape \ and ' for javascript
       $temphtml .= qq|<tr>|.
                    qq|<td bgcolor=$bgcolor><a $accesskeystr href="Javascript:Update('$k','$a','$n')">$namestr</a></td>|.
@@ -867,8 +867,8 @@ sub editaddresses {
       $emailstr=substr($emailstr, 0, 35)."..." if (length($emailstr)>40);
 
       my ($k, $a, $n)=($key, $globaladdresses{$key}, $globalnotes{$key});
-      $k=~s/\\/\\\\/; $k=~s/'/\\'/; 
-      $a=~s/\\/\\\\/; $a=~s/'/\\'/; 
+      $k=~s/\\/\\\\/; $k=~s/'/\\'/;
+      $a=~s/\\/\\\\/; $a=~s/'/\\'/;
       $n=~s/\\/\\\\/; $n=~s/'/\\'/; # escape \ and ' for javascript
       $temphtml .= qq|<tr>|.
                    qq|<td bgcolor=$bgcolor><a href="Javascript:Update('$k','$a','$n')">$namestr</a></td>|.
@@ -892,15 +892,13 @@ sub editaddresses {
 ################### MODADDRESS ##############################
 sub modaddress {
    my $mode = shift;
-   my ($realname, $address, $usernote);
-   $realname = param("realname") || '';
-   $address = param("email") || '';
-   $usernote = param("note") || '';
-   $realname =~ s/^\s*//; # strip beginning and trailing spaces from hash key
-   $address =~ s/[#&=\?]//g;
+   my $realname = param("realname") || '';
+   my $address = param("email") || '';
+   my $usernote = param("note") || '';
+   $realname =~ s/^\s*//; $realname =~ s/^\s*//;
+   $address =~ s/[\<\>\[\]\\:\`\"\s]//g;
    $address =~ s/^\s*mailto:\s*//;
-   $usernote =~ s/^\s*//; # strip beginning and trailing spaces
-   $usernote =~ s/\s*$//;
+   $usernote =~ s/^\s*//; $usernote =~ s/\s*$//;
 
    if (($realname && $address) || (($mode eq 'delete') && $realname) ) {
       my %addresses;

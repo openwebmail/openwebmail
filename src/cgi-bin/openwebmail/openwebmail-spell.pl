@@ -120,7 +120,7 @@ openwebmail_requestend();
 
 ############################### CGI FORM ROUTINES ##############################
 sub docheckform {
-   my ($htmlmode, $formname, $fieldname, $dictionary, 
+   my ($htmlmode, $formname, $fieldname, $dictionary,
        $wordshtml, $error, $wordcount, $wordframe) = @_;
    my $escapedwordframe;
    local $_;
@@ -281,7 +281,7 @@ sub editpdict {
                           -value=>$lang_text{'delete'},
                           -onclick=>"window.location.href='$config{ow_cgiurl}/openwebmail-spell.pl?editpdictbutton=yes&amp;dictword2delete=$dictword&amp;sessionid=$thissession';",
                           -class=>"medtext",
-                          -override=>'1').    
+                          -override=>'1').
                    qq|</td></tr>\n|;
       $count++;
    }
@@ -397,8 +397,8 @@ sub words2text {
    return($text);
 }
 
-# spellcheck @words, 
-# put correct word back to word frame, 
+# spellcheck @words,
+# put correct word back to word frame,
 # and generate query html for incorrect word
 sub spellcheck_words2html {
    my ($htmlmode, $wordcount, $r_wordframe, $r_words, $dictionary)=@_;
@@ -414,7 +414,7 @@ sub spellcheck_words2html {
             $aspell_compatible=1; last;
          }
          chomp($_);
-         $pdicwordcount++; $pdicwordstr.="$_\n"; 
+         $pdicwordcount++; $pdicwordstr.="$_\n";
       }
       close(PERSDICT);
       if (!$aspell_compatible) {
@@ -430,8 +430,8 @@ sub spellcheck_words2html {
    my $pid = open3(\*spellIN, \*spellOUT, \*spellERR, @cmd);
 
    my $html=${$r_wordframe};
-   if ($htmlmode) {	
-      # remove html tage from wordframe 
+   if ($htmlmode) {
+      # remove html tage from wordframe
       # so they won't be displayed during spellchecking
       $html=html2text($html);
    }

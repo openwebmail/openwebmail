@@ -5,13 +5,13 @@ use strict;
 #		       if user is valid under the HOST specified in the URL
 #
 # 2002/08/01 webmaster.AT.pkgmaster.com,
-#            based on parts auth_cobalt.pl by Trevor.Paquette@TeraGo.ca
+#            based on parts auth_cobalt.pl by Trevor.Paquette.AT.TeraGo.ca
 # 2001/10/05 tung.AT.turtle.ee.ncku.edu.tw (orig: auth_pam.pl)
 #
 
 #
 # The code of check_userpassword and change_userpassword is from
-# the example code of Authen::PAM by Nikolay Pelov <nikip@iname.com>
+# the example code of Authen::PAM by Nikolay Pelov <nikip.AT.iname.com>
 # Webpage is available at http://www.cs.kuleuven.ac.be/~pelov/pam
 #
 # $pam_servicename : service name for authentication in /etc/pam.conf
@@ -47,7 +47,7 @@ use Authen::PAM;
 use Fcntl qw(:DEFAULT :flock);
 require "filelock.pl";
 
-# routines get_userinfo() and get_userlist still get data from a passwdfile 
+# routines get_userinfo() and get_userlist still get data from a passwdfile
 # instead of PAM, you may have to rewrite if it does notfit your requirement
 
 #  0 : ok
@@ -63,7 +63,7 @@ sub get_userinfo {
       ($uid, $gid, $realname, $homedir)= (getpwnam($user))[2,3,6,7];
    } else {
       if ($pam_passwdfile_plaintext=~/\|/) { # maybe NIS, try getpwnam first
-         ($uid, $gid, $realname, $homedir)= (getpwnam($user))[2,3,6,7]; 
+         ($uid, $gid, $realname, $homedir)= (getpwnam($user))[2,3,6,7];
       }
       if ($uid eq "") { # else, open file directly
          ($uid, $gid, $realname, $homedir)= (getpwnam_file($user, $pam_passwdfile_plaintext))[2,3,6,7];
@@ -92,7 +92,7 @@ sub get_userlist {	# only used by openwebmail-tool.pl -a
 
    # a file should be locked only if it is local accessable
    if ( -f $pam_passwdfile_plaintext) {
-      filelock("$pam_passwdfile_plaintext", LOCK_SH) or 
+      filelock("$pam_passwdfile_plaintext", LOCK_SH) or
          return (-3, "Couldn't get read lock on $pam_passwdfile_plaintext", @userlist);
    }
    open(PASSWD, $pam_passwdfile_plaintext);

@@ -41,6 +41,7 @@
    'forward.gif'       => ' [转发] ',
    'forwardasatt.gif'  => ' [转发成附件] ',
    'forwardasorig.gif' => ' [原信转发] ',
+   'gotop.gif'         => ' [^] ',
    'group.gif'         => ' [群组] ',
    'history.gif'       => ' [历史纪录] ',
    'home.gif'          => ' [家目录] ',

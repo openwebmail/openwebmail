@@ -54,7 +54,7 @@ use vars qw($searchtype $keyword $escapedkeyword);
 openwebmail_requestbegin();
 $SIG{PIPE}=\&openwebmail_exit;	# for user stop
 $SIG{TERM}=\&openwebmail_exit;	# for user stop
-$SIG{CHLD}=sub { wait }; 	# prevent zombie
+$SIG{CHLD}='IGNORE';		# prevent zombie
 
 userenv_init();
 
@@ -144,14 +144,14 @@ sub listmessages {
    my $trash_allmessages=0;
    my %HDB;
 
-   my ($filtered, $r_filtered)=filtermessage();
-
    if (-f "$folderdir/.$user$config{'dbm_ext'}" && !-z "$folderdir/.$user$config{'dbm_ext'}" ) {
       open_dbm(\%HDB, "$folderdir/.$user", LOCK_SH) or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $folderdir/.$user$config{'dbm_ext'}");
       $orig_inbox_newmessages=$HDB{'NEWMESSAGES'};	# new msg in INBOX
       close_dbm(\%HDB, "$folderdir/.$user");
    }
+
+   my ($filtered, $r_filtered)=filtermessage();
 
    my $quotahit_deltype='';
    if ($quotalimit>0 && $quotausage>$quotalimit &&
@@ -209,21 +209,16 @@ sub listmessages {
                        -override=>'1');
    $html =~ s/\@\@\@STARTFOLDERFORM\@\@\@/$temphtml/;
 
-   my %folderlabels;
+   # this popup_menu is done with pure html code
+   # because we want to set font style for options in the select menu
+   my $select_str=qq|\n<SELECT name="folder" accesskey="L" onChange="JavaScript:document.FolderForm.submit();">\n|;
+
    foreach my $foldername (@validfolders) {
-      my ($folderfile, $headerdb);
+      my ($folderfile, $headerdb, $newmessages, $allmessages);
 
-      if (defined $lang_folders{$foldername}) {
-         $folderlabels{$foldername}=$lang_folders{$foldername};
-      } else {
-         $folderlabels{$foldername}=$foldername;
-      }
-
-      # add message count in folderlabel
+      # find message count for folderlabel
       ($folderfile, $headerdb)=get_folderfile_headerdb($user, $foldername);
       if ( -f "$headerdb$config{'dbm_ext'}" && !-z "$headerdb$config{'dbm_ext'}" ) {
-         my ($newmessages, $allmessages);
-
          open_dbm(\%HDB, $headerdb, LOCK_SH) or
                openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $headerdb$config{'dbm_ext'}");
          $allmessages=$HDB{'ALLMESSAGES'};
@@ -237,20 +232,27 @@ sub listmessages {
             $trash_allmessages=$allmessages;
          }
          close_dbm(\%HDB, $headerdb);
-
-         if ( $newmessages ne "" && $allmessages ne "" ) {
-            $folderlabels{$foldername}.= " ($newmessages/$allmessages)";
-         }
       }
-   }
 
-   $temphtml = popup_menu(-name=>'folder',
-                          -values=>\@validfolders,
-                          -default=>$folder,
-                          -labels=>\%folderlabels,
-                          -onChange=>'JavaScript:document.FolderForm.submit();',
-                          -accesskey=>'L',	# list folder
-                          -override=>'1');
+      my $option_str=qq|<OPTION value="$foldername"|;
+      $option_str.=qq| selected| if ($foldername eq $folder);
+      if ($newmessages>0) {
+         $option_str.=qq| class="hilighttext">|;
+      } else {
+         $option_str.=qq|>|;
+      }
+      if (defined $lang_folders{$foldername}) {
+         $option_str.=$lang_folders{$foldername};
+      } else {
+         $option_str.=$foldername;
+      }
+      $option_str.=" ($newmessages/$allmessages)" if ( $newmessages ne "" && $allmessages ne "");
+
+      $select_str.="$option_str\n";
+   }
+   $select_str.="</SELECT>\n";
+
+   $temphtml.=$select_str;
    if ( $ENV{'HTTP_USER_AGENT'} =~ /lynx/i || # take care for text browser...
         $ENV{'HTTP_USER_AGENT'} =~ /w3m/i ) {
       $temphtml .= submit(-name=>"$lang_text{'read'}",
@@ -330,7 +332,9 @@ sub listmessages {
    if ($folder eq 'mail-trash') {
       $temphtml = iconlink("trash.gif", $lang_text{'emptytrash'}, qq|accesskey="Z" href="$main_url_with_keyword&amp;action=emptytrash&amp;page=$page" onclick="return confirm('$lang_text{emptytrash} ($trash_allmessages $lang_text{messages}) ?');"|);
    } else {
-      $temphtml = iconlink("totrash.gif", $lang_text{'totrash'}, qq|accesskey="Z" href="JavaScript:document.pageform.destination.value='mail-trash'; document.pageform.movebutton.click();"|);
+      my $trashfolder='mail-trash';
+      $trashfolder='DELETE' if ($quotalimit>0 && $quotausage>$quotalimit);
+      $temphtml = iconlink("totrash.gif", $lang_text{'totrash'}, qq|accesskey="Z" href="JavaScript:document.pageform.destination.value='$trashfolder'; document.pageform.movebutton.click();"|);
    }
    $temphtml .= qq|&nbsp;\n|;
 
@@ -359,7 +363,7 @@ sub listmessages {
    if ($temphtml ne "") {
       $html =~ s/\@\@\@EVENTREMINDER\@\@\@/$temphtml/;
    } else {
-      $html =~ s/\@\@\@EVENTREMINDER\@\@\@/<br>/;
+      $html =~ s/\@\@\@EVENTREMINDER\@\@\@/&nbsp;/;
    }
 
 
@@ -490,7 +494,7 @@ sub listmessages {
       $temphtml .= iconlink("important.gif", "", "") if ($status =~ /I/i);
       $temphtml = qq|<td bgcolor=$bgcolor nowrap>$temphtml&nbsp;</td>\n|;
       $linehtml =~ s/\@\@\@STATUS\@\@\@/$temphtml/;
-      
+
       # DATE, convert dateserial(GMT) to localtime
       $temphtml=dateserial2str($dateserial, $prefs{'timeoffset'}, $prefs{'dateformat'});
       $temphtml = qq|<td bgcolor=$bgcolor>$boldon$temphtml$boldoff</td>\n|;
@@ -543,7 +547,7 @@ sub listmessages {
          $accesskeystr=qq|accesskey="$accesskeystr"|;
       }
 
-      # param order is purposely same as prev/next links in readmessage, 
+      # param order is purposely same as prev/next links in readmessage,
       # so the resulted webpage could be cached with same url in both cases
       $temphtml = qq|<a href="$config{'ow_cgiurl'}/openwebmail-read.pl?|.
                   qq|sessionid=$thissession&amp;|.
@@ -578,7 +582,7 @@ sub listmessages {
       $linehtml =~ s/\@\@\@SIZE\@\@\@/$temphtml/;
 
       # CHECKBOX
-      if ( $totalmessage==1 ) {	# make this msg selected if it is the only one         
+      if ( $totalmessage==1 ) {	# make this msg selected if it is the only one
          $temphtml = checkbox(-name=>'message_ids',
                                -value=>$messageid,
                                -checked=>1,
@@ -599,17 +603,40 @@ sub listmessages {
 
    $html =~ s/\@\@\@HEADERS\@\@\@/$headershtml/;
 
+   my $gif;
+   $temphtml=qq|<table cellpadding="0" cellspacing="0" border="0"><tr><td>|;
+   if ($page > 1) {
+      $gif="left.gif"; $gif="right.gif" if (is_RTLmode($prefs{'language'}));
+      $temphtml .= iconlink($gif, "&lt;", qq|accesskey="U" href="$main_url_with_keyword&amp;action=listmessages&amp;page=|.($page-1).qq|"|);
+   } else {
+      $gif="left-grey.gif"; $gif="right-grey.gif" if (is_RTLmode($prefs{'language'}));
+      $temphtml .= iconlink($gif, "-", "");
+   }
+   $temphtml.=qq|</td><td>$page/$totalpage</td><td>|;
+   if ($page < $totalpage) {
+      $gif="right.gif"; $gif="left.gif" if (is_RTLmode($prefs{'language'}));
+      $temphtml .= iconlink($gif, "&gt;", qq|accesskey="D" href="$main_url_with_keyword&amp;action=listmessages&amp;page=|.($page+1) .qq|"|);
+   } else {
+      $gif="right-grey.gif"; $gif="left-grey.gif" if (is_RTLmode($prefs{'language'}));
+      $temphtml .= iconlink($gif, "-", "");
+   }
+   $temphtml.=qq|</td></tr></table>|;
+   $html =~ s/\@\@\@PAGECONTROL\@\@\@/$temphtml/g;
+
+   if ($lastmessage-$firstmessage>10) {
+      $temphtml = iconlink("gotop.gif", "^", qq|href="#"|);
+      $html =~ s/\@\@\@TOPCONTROL\@\@\@/$temphtml/;
+   } else {
+      $html =~ s/\@\@\@TOPCONTROL\@\@\@//;
+   }
+
 
    my ($htmlsearch, $htmlpage, $htmlmove);
 
-   my %searchtypelabels = ('from'=>$lang_text{'from'},
-                           'to'=>$lang_text{'to'},
-                           'subject'=>$lang_text{'subject'},
-                           'date'=>$lang_text{'date'},
-                           'attfilename'=>$lang_text{'attfilename'},
-                           'header'=>$lang_text{'header'},
-                           'textcontent'=>$lang_text{'textcontent'},
-                           'all'=>$lang_text{'all'});
+   my %searchtypelabels;
+   foreach (qw(from to subject date attfilename header textcontent all)) {
+      $searchtypelabels{$_}=$lang_text{$_};
+   }
    $htmlsearch = popup_menu(-name=>'searchtype',
                             -default=>'subject',
                             -values=>['from', 'to', 'subject', 'date', 'attfilename', 'header', 'textcontent' ,'all'],
@@ -624,41 +651,22 @@ sub listmessages {
                          -value=>$lang_text{'search'},
 		         -class=>'medtext');
 
-   my ($temphtml1, $temphtml2);
-   if ($page > 1) {
-      my $gif="first.gif"; $gif="last.gif" if (is_RTLmode($prefs{'language'}));
-      $temphtml1 = iconlink($gif, "&lt;&lt;", qq|href="$main_url_with_keyword&amp;action=listmessages&amp;page=1"|);
-      $gif="left.gif"; $gif="right.gif" if (is_RTLmode($prefs{'language'}));
-      $temphtml1 .= iconlink($gif, "&lt;", qq|accesskey="U" href="$main_url_with_keyword&amp;action=listmessages&amp;page=|.($page-1).qq|"|);
-   } else {
-      my $gif="first-grey.gif"; $gif="last-grey.gif" if (is_RTLmode($prefs{'language'}));
-      $temphtml1 = iconlink($gif, "=", "");
-      $gif="left-grey.gif"; $gif="right-grey.gif" if (is_RTLmode($prefs{'language'}));
-      $temphtml1 .= iconlink($gif, "-", "");
+   my @pagevalues;
+   for (my $p=1; $p<=$totalpage; $p++) {
+      my $pdiff=abs($p-$page);
+      if ($pdiff<10 || $p==1 || $p==$totalpage ||
+          ($pdiff<100 && $p%10==0) || ($pdiff<1000 && $p%100==0) || $p%1000==0) {
+         push(@pagevalues, $p);
+      }
    }
-   if ($page < $totalpage) {
-      my $gif="right.gif"; $gif="left.gif" if (is_RTLmode($prefs{'language'}));
-      $temphtml2 = iconlink($gif, "&gt;", qq|accesskey="D" href="$main_url_with_keyword&amp;action=listmessages&amp;page=|.($page+1) .qq|"|);
-      $gif="last.gif"; $gif="first.gif" if (is_RTLmode($prefs{'language'}));
-      $temphtml2 .= iconlink($gif, "&gt;&gt;", qq|href="$main_url_with_keyword&amp;action=listmessages&amp;page=$totalpage"|);
-   } else {
-      my $gif="right-grey.gif"; $gif="left-grey.gif" if (is_RTLmode($prefs{'language'}));
-      $temphtml2 = iconlink($gif, "-", "");
-      $gif="last-grey.gif"; $gif="first-grey.gif" if (is_RTLmode($prefs{'language'}));
-      $temphtml2 .= iconlink($gif, "=", "");
-   }
-
-   $htmlpage=textfield(-name=>'page',
-                       -default=>$page,
-                       -size=>'2',
-                       -override=>'1');
-   $htmlpage=qq|<table cellspacing=0 cellpadding=0 border=0><tr align=center>|.
-             qq|<td nowrap>$temphtml1&nbsp;</td>|.
-             qq|<td>$lang_text{'page'} </td>|.
-             qq|<td>$htmlpage</td>|.
-             qq|<td nowrap>$lang_text{'of'} $totalpage</td>|.
-             qq|<td nowrap>&nbsp;$temphtml2</td>|.
-             qq|</tr></table>|;
+   $htmlpage=qq|<table cellpadding="0" cellspacing="0"><tr>|.
+             qq|<td>$lang_text{'page'}</td><td>|.
+             popup_menu(-name=>'page',
+                        -values=>\@pagevalues,
+                        -default=>$page,
+                        -onChange=>"JavaScript:document.pageform.submit();",
+                        -override=>'1').
+             qq|</td></tr></table>|;
 
    my @movefolders;
    foreach my $checkfolder (@validfolders) {
@@ -701,7 +709,7 @@ sub listmessages {
    if ($prefs{'ctrlposition_folderview'} eq 'top') {
       $html =~ s/\@\@\@CONTROLBAR1START\@\@\@//;
       $html =~ s/\@\@\@SEARCH1\@\@\@/$htmlsearch/;
-      $html =~ s/\@\@\@PAGECONTROL1\@\@\@/$htmlpage/;
+      $html =~ s/\@\@\@PAGEMENU1\@\@\@/$htmlpage/;
       $html =~ s/\@\@\@MOVECONTROLS1\@\@\@/$htmlmove/;
       $html =~ s/\@\@\@CONTROLBAR1END\@\@\@//;
       $html =~ s/\@\@\@CONTROLBAR2START\@\@\@/<!--/;
@@ -711,7 +719,7 @@ sub listmessages {
       $html =~ s/\@\@\@CONTROLBAR1END\@\@\@/-->/;
       $html =~ s/\@\@\@CONTROLBAR2START\@\@\@//;
       $html =~ s/\@\@\@SEARCH2\@\@\@/$htmlsearch/;
-      $html =~ s/\@\@\@PAGECONTROL2\@\@\@/$htmlpage/;
+      $html =~ s/\@\@\@PAGEMENU2\@\@\@/$htmlpage/;
       $html =~ s/\@\@\@MOVECONTROLS2\@\@\@/$htmlmove/;
       $html =~ s/\@\@\@CONTROLBAR2END\@\@\@//;
    }
@@ -732,10 +740,8 @@ sub listmessages {
    }
 
    # play sound if
-   # a. INBOX has new msg and in refresh mode
-   # b. user is viewing other folder and new msg increases in INBOX
-   if ( (defined(param("session_noupdate")) && $now_inbox_newmessages>0) ||
-        ($folder ne 'INBOX' && $now_inbox_newmessages>$orig_inbox_newmessages) ) {
+   # a. new msg increases in INBOX
+   if ( $now_inbox_newmessages>$orig_inbox_newmessages ) {
       if (-f "$config{'ow_htmldir'}/sounds/$prefs{'newmailsound'}" ) {
          $html.=qq|<embed src="$config{'ow_htmlurl'}/sounds/$prefs{'newmailsound'}" autostart="true" hidden="true">\n|;
       }
@@ -768,13 +774,13 @@ sub listmessages {
                  qq|//-->\n</script>\n|;
    }
    # show msgsent confirmation
-   if (defined(param('sentsubject'))) {
+   if (defined(param('sentsubject')) && $prefs{'mailsentwindowtime'}>0) {
       my $msg=qq|<font size="-1">$lang_text{'msgsent'}</font>|;
       my $sentsubject=param('sentsubject');
       $msg=~s!\@\@\@SUBJECT\@\@\@!$sentsubject!;
       $msg =~ s!\\!\\\\!g; $msg =~ s!'!\\'!g;	# escape ' for javascript
       $temphtml.=qq|<script language="JavaScript">\n<!--\n|.
-                 qq|showmsg('$prefs{"charset"}', '$lang_text{'send'}', '$msg', '$lang_text{"close"}', '_msgsent', 300, 100, |.($prefs{'newmailwindowtime'}||7).qq|);\n|.
+                 qq|showmsg('$prefs{"charset"}', '$lang_text{'send'}', '$msg', '$lang_text{"close"}', '_msgsent', 300, 100, $prefs{'mailsentwindowtime'});\n|.
                  qq|//-->\n</script>\n|;
    }
    # popup stat of incoming msgs
@@ -806,7 +812,7 @@ sub listmessages {
       $msg = qq|<font size="-1">$msg</font>|;
       $msg =~ s!\\!\\\\!g; $msg =~ s!'!\\'!g;	# escape ' for javascript
       $temphtml.=qq|<script language="JavaScript">\n<!--\n|.
-                 qq|showmsg('$prefs{"charset"}', '$lang_text{"inmessages"}', '$msg', '$lang_text{"close"}', '_incoming', 160, |.($line*16+70).qq|, $prefs{'newmailwindowtime'});\n|.
+                 qq|showmsg('$prefs{"charset"}', '$lang_text{"inmessages"}', '$msg', '$lang_text{"close"}', '_incoming', 200, |.($line*16+70).qq|, $prefs{'newmailwindowtime'});\n|.
                  qq|//-->\n</script>\n|;
    }
    $html.=readtemplate('showmsg.js').$temphtml if ($temphtml);
@@ -827,8 +833,8 @@ sub listmessages {
 sub eventreminder_html {
    my ($reminderdays, $calbook)=@_;
    my $g2l=time();
-   if ($prefs{'daylightsaving'} eq "on" ||
-       ($prefs{'daylightsaving'} eq "auto" && is_dst($g2l,$prefs{'timeoffset'})) ) {
+   if ($prefs{'daylightsaving'} eq 'on' ||
+       ($prefs{'daylightsaving'} eq 'auto' && is_dst($g2l,$prefs{'timeoffset'})) ) {
       $g2l+=3600; # plus 1 hour if is_dst at this gmtime
    }
    $g2l+=timeoffset2seconds($prefs{'timeoffset'}); # trick makes gmtime($g2l) return localtime in timezone of timeoffsset
@@ -869,7 +875,7 @@ sub eventreminder_html {
       my $dayhtml="";
       for my $index (@indexlist) {
          next if ($used{$index});
-         if ($date=~/$items{$index}{'idate'}/  || 
+         if ($date=~/$items{$index}{'idate'}/  ||
              $date2=~/$items{$index}{'idate'}/ ||
              easter_match($year,$month,$day, $easter_month,$easter_day,
                                       $items{$index}{'idate'}) ) {
@@ -903,7 +909,7 @@ sub eventreminder_html {
                $s=substr($s,0,20).".." if (length($s)>=21);
                $s.='*' if ($index>=1E6);
                $dayhtml.=qq|&nbsp; | if $dayhtml ne "";
-               $dayhtml.=qq|<font color=#c00000 class="smalltext">$t </font><font color=#000000 class="smalltext">$s</font>|;
+               $dayhtml.=qq|<font class="smallcolortext">$t </font><font class="smallblacktext">$s</font>|;
             }
          }
       }
@@ -917,19 +923,14 @@ sub eventreminder_html {
             $title="$title $lang_wday{$wdaynum}";
          }
          $temphtml.=qq| &nbsp; | if ($temphtml ne"");
-         $temphtml.=qq|<font class="smalltext">[+$x] </font>| if ($x>0);
+         $temphtml.=qq|<font class="smallblacktext">[+$x] </font>| if ($x>0);
          $temphtml.=qq|<a href="$config{'ow_cgiurl'}/openwebmail-cal.pl?sessionid=$thissession&amp;folder=$escapedfolder&amp;|.
                     qq|action=calday&amp;year=$year&amp;month=$month&amp;day=$day" title="$title">$dayhtml</a>\n|;
       }
    }
    $temphtml .= " &nbsp; ..." if ($event_count>5);
 
-   if ($temphtml ne "") {
-      $temphtml=qq|<table width=95% border=0 cellspacing=1 cellpadding=0 align=center>\n|.
-                qq|<tr><td align="right" nowrap>|.
-                qq|&nbsp;$temphtml|.
-                qq|</td><tr></table>|;
-   }
+   $temphtml=qq|&nbsp;$temphtml|;
    return($temphtml);
 }
 ############### END LISTMESSAGES ##################
@@ -990,8 +991,7 @@ sub movemessage {
       return;
    }
 
-   my $destination = safefoldername(param("destination"));
-   ($destination =~ /^(.+)$/) && ($destination = $1);	# untaint ...
+   my $destination = untaint(safefoldername(param("destination")));
 #   if ($destination eq $folder || $destination eq 'INBOX')
    if ($destination eq $folder) {
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'shouldnt_move_here'}")
@@ -1030,7 +1030,7 @@ sub movemessage {
    }
    my ($dstfile, $dstdb)=get_folderfile_headerdb($user, $destination);
    if ($destination ne 'DELETE' && ! -f "$dstfile" ) {
-      open (F,">>$dstfile") or 
+      open (F,">>$dstfile") or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $lang_err{'destination_folder'} $dstfile! ($!)");
       close(F);
    }
@@ -1061,7 +1061,7 @@ sub movemessage {
          $msg="copy message - copy $counted msgs from $folder to $destination - ids=".join(", ", @messageids);
       } else {
          $msg="delete message - delete $counted msgs from $folder - ids=".join(", ", @messageids);
-        # recalc used quota for del if user quotahit 
+        # recalc used quota for del if user quotahit
         if ($quotalimit>0 && $quotausage>$quotalimit) {
            $quotausage=(quota_get_usage_limit(\%config, $user, $homedir, 1))[2];
         }
@@ -1163,7 +1163,7 @@ sub _retrpop3 {
 
    # since pop3 fetch may be slow, the spoolfile lock is done inside routine.
    # the spoolfile is locked when each one complete msg is retrieved
-   my $response=retrpop3mail($pop3host, $pop3port, $pop3user, $pop3passwd, $pop3del, 
+   my $response=retrpop3mail($pop3host, $pop3port, $pop3user, $pop3passwd, $pop3del,
 			"$folderdir/.uidl.$pop3user\@$pop3host", $spoolfile);
    if ($response< 0) {
       writelog("pop3 error - $pop3error{$response} at $pop3user\@$pop3host:$pop3port");
@@ -1226,7 +1226,7 @@ sub _retrpop3s {
             next if ($disallowed);
 
             my $response = retrpop3mail($pop3host,$pop3port, $pop3user,$pop3passwd, $pop3del,
-					"$folderdir/.uidl.$pop3user\@$pop3host", 
+					"$folderdir/.uidl.$pop3user\@$pop3host",
 					$spoolfile);
             if ( $response<0) {
                writelog("pop3 error - $pop3error{$response} at $pop3user\@$pop3host:$pop3port");
@@ -1341,7 +1341,7 @@ sub logout {
    $html = applystyle(readtemplate("logout.template"));
 
    my $start_url=$config{'start_url'};
- 
+
    if (cookie("openwebmail-ssl")) {	# backto SSL
       $start_url="https://$ENV{'HTTP_HOST'}$start_url" if ($start_url!~s!^https?://!https://!i);
    }

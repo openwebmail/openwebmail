@@ -13,7 +13,7 @@
 # src="http://you_server_domainname/cgi-bin/openwebmail/userstat.pl">
 # </script>
 # </td></tr></table>
-# 
+#
 use strict;
 use CGI qw(-private_tempfiles :standard);
 

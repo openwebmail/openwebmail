@@ -155,7 +155,7 @@ sub editfolders {
    my $form_i=0;
    $temphtml='';
    foreach $currfolder (@userfolders) {
-      $temphtml .= _folderline($currfolder, $form_i, $bgcolor, 
+      $temphtml .= _folderline($currfolder, $form_i, $bgcolor,
                                \$total_newmessages, \$total_allmessages, \$total_foldersize);
       if ($bgcolor eq $style{"tablerow_dark"}) {
          $bgcolor = $style{"tablerow_light"};
@@ -188,7 +188,7 @@ sub editfolders {
          $percent=int($quotausage*1000/$quotalimit)/10;
          $usagestr.=" ($percent%) &nbsp;";
          $usagestr.="$lang_text{'quotalimit'}: ".lenstr($quotalimit*1024,1);
-      }         
+      }
       if ($percent>=90) {
          $usagestr="<B><font color='#cc0000'>$usagestr</font></B>";
       } else {
@@ -343,7 +343,7 @@ sub refreshfolders {
    writehistory("folder - refresh, $errcount errors");
 
    # get uptodate quota/folder usage info
-   getfolders(\@validfolders, \$folderusage);   
+   getfolders(\@validfolders, \$folderusage);
    if ($config{'quota_module'} ne 'none') {
       $quotausage=(quota_get_usage_limit(\%config, $user, $homedir, 1))[2];
    }
@@ -439,8 +439,7 @@ sub reindexfolder {
    my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $foldertoindex);
 
    if ($recreate) {
-      my $filename="$headerdb$config{'dbm_ext'}";
-      ($filename =~ /^(.+)$/) && ($filename = $1);  # untaint
+      my $filename=untaint("$headerdb$config{'dbm_ext'}");
       unlink($filename);
    }
 
@@ -661,7 +660,7 @@ sub downloadfolder {
    }
    print qq|\n|;
 
-   ($cmd =~ /^(.+)$/) && ($cmd = $1);		# untaint ...
+   $cmd=untaint($cmd);
    open (T, $cmd);
    while ( read(T, $buff,32768) ) {
      print $buff;

@@ -36,7 +36,7 @@ my @jsevents=('onAbort', 'onBlur', 'onChange', 'onClick', 'onDblClick',
               'onDragDrop', 'onError', 'onFocus', 'onKeyDown', 'onKeyPress',
               'onKeyUp', 'onLoad', 'onMouseDown', 'onMouseMove', 'onMouseOut',
               'onMouseOver', 'onMouseUp', 'onMove', 'onReset', 'onResize',
-              'onSelect', 'onSubmit', 'onUnload');
+              'onSelect', 'onSubmit', 'onUnload', 'window.open');
 
 # this routine is used to add target=_blank to links in a html message
 # so clicking on it will open a new window
@@ -79,7 +79,6 @@ sub _frame2iframe {
 # to avoid user being hijacked by some evil programs
 sub html4disablejs {
    my $html=$_[0];
-
    foreach my $event (@jsevents) {
       $html=~s/$event/_$event/imsg;
    }
@@ -105,14 +104,16 @@ sub _clean_emblink {
    if ($url !~ /\Q$ENV{'HTTP_HOST'}\E/is) { # non-local URL found
       if ($range eq 'cgionly' && $url=~/\?/s) {
          $url=~s/["']//g;
-         return(qq|$type="$config{'ow_htmlurl'}/images/backgrounds/Transparent.gif" |.
-                qq|alt="Embedded CGI removed by $config{'name'}.\n$url" border="1" |.
+         return(qq|border="1" |.
+                qq|$type="$config{'ow_htmlurl'}/images/backgrounds/Transparent.gif" |.
+                qq|alt="Embedded CGI removed by $config{'name'}.\n$url" |.
                 qq|onclick="window.open('$url', '_extobj');" |.
                 $end);
       } elsif ($range eq 'all') {
          $url=~s/["']//g;
-         return(qq|$type="$config{'ow_htmlurl'}/images/backgrounds/Transparent.gif" |.
-                qq|alt="Embedded link removed by $config{'name'}.\n$url" border="1" |.
+         return(qq|border="1" |.
+                qq|$type="$config{'ow_htmlurl'}/images/backgrounds/Transparent.gif" |.
+                qq|alt="Embedded link removed by $config{'name'}.\n$url" |.
                 qq|onclick="window.open('$url', '_extobj');" |.
                 $end);
       }
@@ -121,7 +122,7 @@ sub _clean_emblink {
 }
 
 # this routine is used to resolve cid or loc in a html message to
-# the cgi openwebmail-viewatt.pl links of cross referenced mime objects 
+# the cgi openwebmail-viewatt.pl links of cross referenced mime objects
 # this is for read message
 sub html4attachments {
    my ($html, $r_attachments, $scripturl, $scriptparm)=@_;
@@ -146,7 +147,7 @@ sub html4attachments {
 }
 
 # this routine is used to resolve cid or loc in a html message to
-# the cgi openwebmail-viewatt.pl links of cross referenced mime objects 
+# the cgi openwebmail-viewatt.pl links of cross referenced mime objects
 # this is for message composing
 sub html4attfiles {
    my ($html, $r_attfiles, $scripturl, $scriptparm)=@_;

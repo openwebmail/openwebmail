@@ -420,6 +420,11 @@ Bredde @@@FILEEDITCOLUMNSMENU@@@ Høyde @@@FILEEDITROWSMENU@@@
 gjenstående @@@NEWMAILWINDOWTIMEMENU@@@ sekunder &nbsp;( 0 betyr ingen varsel )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Mail sent window notification:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+gjenstående @@@MAILSENTWINDOWTIMEMENU@@@ sekunder &nbsp;( 0 betyr ingen varsel )
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Ordbok for stavekontroll:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DICTIONARYMENU@@@

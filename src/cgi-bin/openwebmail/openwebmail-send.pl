@@ -42,10 +42,10 @@ use vars qw($folder $printfolder $escapedfolder);
 
 # extern vars
 use vars qw(%languagecharsets);	# defined in ow-shared.pl
-use vars qw(%lang_folders %lang_sizes %lang_text %lang_err 
+use vars qw(%lang_folders %lang_sizes %lang_text %lang_err
             %lang_prioritylabels %lang_msgformatlabels); # defined in lang/xy
 use vars qw(%charset_convlist);	# defined in iconv.pl
-use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE 
+use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE
             $_STATUS $_SIZE $_REFERENCES $_CHARSET);	# defined in maildb.pl
 
 # local globals
@@ -105,7 +105,7 @@ sub replyreceipt {
       # get message header
       open (FOLDER, "+<$folderfile") or
           openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderfile! ($!)");
-      seek (FOLDER, $attr[$_OFFSET], 0) or 
+      seek (FOLDER, $attr[$_OFFSET], 0) or
           openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_seek'} $folderfile! ($!)");
       $header="";
       while (<FOLDER>) {
@@ -184,7 +184,7 @@ sub replyreceipt {
          my $is_samecharset=0;
          $is_samecharset=1 if ( $attr[$_CONTENT_TYPE]=~/charset="?\Q$prefs{'charset'}\E"?/i);
 
-         if ($is_samecharset) {       
+         if ($is_samecharset) {
             $s .= "Subject: ".encode_mimewords("$lang_text{'read'} - $attr[$_SUBJECT]",('Charset'=>$prefs{'charset'}))."\n";
          } else {
             $s .= "Subject: ".encode_mimewords("Read - $attr[$_SUBJECT]", ('Charset'=>$prefs{'charset'}))."\n";
@@ -194,7 +194,7 @@ sub replyreceipt {
                "X-Mailer: $xmailer\n".
                "X-OriginatingIP: $xoriginatingip\n".
                "MIME-Version: 1.0\n";
-         if ($is_samecharset) {       
+         if ($is_samecharset) {
             $s .= "Content-Type: text/plain; charset=$prefs{'charset'}\n\n".
                   "$lang_text{'yourmsg'}\n\n".
                   "  $lang_text{'to'}: $attr[$_TO]\n".
@@ -266,14 +266,6 @@ sub composemessage {
       $from=qq|$prefs{'email'}|;
    }
 
-   # charset is the charset choosed by user for current composing
-   my $composecharset= $prefs{'charset'};
-   foreach (values %languagecharsets) {
-      if ($_ eq param("composecharset")) {
-         $composecharset=$_; last;
-      }
-   }
-
    # msgformat is text, html or both
    my $msgformat = param("msgformat") || $prefs{'msgformat'} || 'text';
    my $newmsgformat = param("newmsgformat") || $msgformat;
@@ -281,12 +273,20 @@ sub composemessage {
       $msgformat = $newmsgformat = 'text';
    }
 
+   # composecharset is the charset choosed by user for current composing
+   my $composecharset= $prefs{'charset'};
+   foreach (values %languagecharsets) {
+      if ($_ eq param("composecharset")) {
+         $composecharset=$_; last;
+      }
+   }
+
    my ($attfiles_totalsize, $r_attfiles);
    if ( param("deleteattfile") ne '' ) { # user click 'del' link
       my $deleteattfile=param("deleteattfile");
 
       $deleteattfile =~ s/\///g;  # just in case someone gets tricky ...
-      ($deleteattfile =~ /^(.+)$/) && ($deleteattfile = $1);   # untaint ...
+      $deleteattfile=untaint($deleteattfile);
       # only allow to delete attfiles belongs the $thissession
       if ($deleteattfile=~/^\Q$thissession\E/) {
          unlink ("$config{'ow_sessionsdir'}/$deleteattfile");
@@ -324,9 +324,7 @@ sub composemessage {
             }
 
          } elsif ($webdisksel && $config{'enable_webdisk'}) {
-            my $webdiskrootdir=$homedir.absolute_vpath("/", $config{'webdisk_rootpath'});
-            ($webdiskrootdir =~ m!^(.+)/?$!) && ($webdiskrootdir = $1);  # untaint ...
-
+            my $webdiskrootdir=untaint($homedir.absolute_vpath("/", $config{'webdisk_rootpath'}));
             my $vpath=absolute_vpath('/', $webdisksel);
             my $err=verify_vpath($webdiskrootdir, $vpath);
             openwebmailerror(__FILE__, __LINE__, $err) if ($err);
@@ -388,16 +386,16 @@ sub composemessage {
 
    my $composetype = param("composetype");
    if ($composetype eq "reply" || $composetype eq "replyall" ||
-       $composetype eq "forward" || $composetype eq "forwardasorig" || 
+       $composetype eq "forward" || $composetype eq "forwardasorig" ||
        $composetype eq "editdraft" ) {
-      if ($composetype eq "forward" || $composetype eq "forwardasorig" || 
+      if ($composetype eq "forward" || $composetype eq "forwardasorig" ||
           $composetype eq "editdraft") {
          %message = %{&getmessage($messageid, "all")};
       } else {
          %message = %{&getmessage($messageid, "")};
       }
 
-      # make the $body(text version) $bodyhtml(html version) for new mesage 
+      # make the $body(text version) $bodyhtml(html version) for new mesage
       # from original mesage for different contenttype
 
       # we try to reserve the bdy in its original format so no info would be lost
@@ -415,7 +413,7 @@ sub composemessage {
       } elsif ($message{contenttype} =~ /^multipart/i) {
          # If the first attachment is text,
          # assume it's the body of a message in multi-part format
-         if ( defined(%{$message{attachment}[0]}) && 
+         if ( defined(%{$message{attachment}[0]}) &&
               ${$message{attachment}[0]}{contenttype} =~ /^text/i ) {
             if (${$message{attachment}[0]}{encoding} =~ /^quoted-printable/i) {
                $body = decode_qp(${${$message{attachment}[0]}{r_content}});
@@ -487,11 +485,10 @@ sub composemessage {
       }
 
       # carry attachments from old mesage to the new one
-      if ($composetype eq "forward" ||  $composetype eq "forwardasorig" || 
+      if ($composetype eq "forward" ||  $composetype eq "forwardasorig" ||
           $composetype eq "editdraft") {
          if (defined(${$message{attachment}[0]}{header})) {
-            my $attserial=time();
-            ($attserial =~ /^(.+)$/) && ($attserial = $1);   # untaint ...
+            my $attserial=time(); $attserial=untaint($attserial);
             foreach my $attnumber (0 .. $#{$message{attachment}}) {
                $attserial++;
                if (${$message{attachment}[$attnumber]}{header} ne "" &&
@@ -534,9 +531,10 @@ sub composemessage {
 
       # convfrom is the charset choosed by user in last reading message
       my $convfrom=param('convfrom');
-      if ($convfrom eq 'none.msgcharset') {
+      if ($convfrom =~/^none\.(.*)$/) {
+         my $cf=$1;
          foreach (values %languagecharsets) {
-            if ($_ eq lc($message{'charset'})) {
+            if ($_ eq $cf) {
                $composecharset=$_; last;
             }
          }
@@ -592,7 +590,7 @@ sub composemessage {
                push(@recv, $email);
             }
             $cc = join(',', @recv) if ($#recv>=0);
-         }       
+         }
 
          if ($msgformat eq 'text') {
             # reparagraph orig msg for better look in compose window
@@ -619,7 +617,7 @@ sub composemessage {
 
          if ($prefs{replywithorigmsg} eq 'at_beginning') {
             my $h="On $message{'date'}, ".(email2nameaddr($message{'from'}))[0]." wrote";
-            if ($msgformat eq 'text') {            
+            if ($msgformat eq 'text') {
                $body = $h."\n".$body if ($body=~/[^\s]/);
             } else {
                $body = '<b>'.text2html($h).'</b><br>'.$body;
@@ -630,7 +628,7 @@ sub composemessage {
             $h .= "Cc: $message{'cc'}\n" if ($message{'cc'} ne "");
             $h .= "Sent: $message{'date'}\n".
                   "Subject: $message{'subject'}\n";
-            if ($msgformat eq 'text') {            
+            if ($msgformat eq 'text') {
                $body = "---------- Original Message -----------\n".
                        "$h\n$body\n".
                        "------- End of Original Message -------\n";
@@ -792,8 +790,7 @@ sub composemessage {
       }
 
       open(FOLDER, "$folderfile");
-      my $attserial=time();
-      ($attserial =~ /^(.+)$/) && ($attserial = $1);   # untaint ...
+      my $attserial=time(); $attserial=untaint($attserial);
       open (ATTFILE, ">$config{'ow_sessionsdir'}/$thissession-att$attserial") or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}/$thissession-att$attserial! ($!)");
       print ATTFILE qq|Content-Type: message/rfc822;\n|,
@@ -841,7 +838,7 @@ sub composemessage {
       my $n="\n"; $n="<br>" if ($msgformat ne 'text');
       $body = $n."# Message forwarded as attachment".$n.$n;
       $body .= str2str($prefs{'signature'}, $msgformat).$n if ($prefs{'signature'}=~/[^\s]/);
- 
+
    } elsif ($composetype eq 'continue') {
       $msgformat='text'    if ($msgformat eq 'auto');
       $newmsgformat='text' if ($newmsgformat eq 'auto');
@@ -884,9 +881,8 @@ sub composemessage {
       $body=qq|<font size=2>$body\n</font>|;
    }
 
-   my ($html, $temphtml);
+   my ($html, $temphtml, @tmp);
 
-   my @tmp;
    if ($composecharset ne $prefs{'charset'}) {
       @tmp=($prefs{'language'}, $prefs{'charset'});
       ($prefs{'language'}, $prefs{'charset'})=('en', $composecharset);
@@ -1003,7 +999,7 @@ sub composemessage {
       $allsets{$_}=1 if (!defined($allsets{$_}));
    }
    delete $allsets{$composecharset};
-   
+
    if (defined($charset_convlist{$composecharset})) {
       foreach my $ct (sort @{$charset_convlist{$composecharset}}) {
          if (is_convertable($composecharset, $ct)) {
@@ -1102,7 +1098,7 @@ sub composemessage {
             if ($ENV{'HTTPS'}=~/on/i || $ENV{'SERVER_PORT'}==443) {
                $attlink="https://$ENV{'HTTP_HOST'}$attlink";
             } else {
-               $attlink="http://$ENV{'HTTP_HOST'}$attlink"; 
+               $attlink="http://$ENV{'HTTP_HOST'}$attlink";
             }
          }
          $htmlarea_attlist_js.=qq|,\n| if ($htmlarea_attlist_js);
@@ -1247,7 +1243,7 @@ sub composemessage {
               qq|</td></tr></table>\n|.
               qq|<!--newmsgformatend-->\n|.
               qq|</td>\n|;
-        
+
    $temphtml.=qq|</tr></table>\n|;
 
    if ($prefs{'sendbuttonposition'} eq 'after') {
@@ -1374,7 +1370,7 @@ sub composemessage {
              qq|//-->\n</script>\n|;
    }
 
-   my @tmp;
+   @tmp=();
    if ($composecharset ne $prefs{'charset'}) {
       @tmp=($prefs{'language'}, $prefs{'charset'});
       ($prefs{'language'}, $prefs{'charset'})=('en', $composecharset);
@@ -1502,7 +1498,7 @@ sub sendmessage {
    }
 
    # form html body to a complete html;
-   if ($msgformat ne 'text') {	
+   if ($msgformat ne 'text') {
       $body=qq|<HTML>\n<HEAD>\n|.
             qq|<META content="text/html; charset=$composecharset" http-equiv=Content-Type>\n|.
             qq|<META content="$xmailer" name=GENERATOR>\n|.
@@ -1566,7 +1562,7 @@ sub sendmessage {
       }
 
       # redirect stderr to smtperrfile
-      ($smtperrfile =~ /^(.+)$/) && ($smtperrfile = $1);   # untaint ...
+      $smtperrfile=untaint($smtperrfile);
       open(STDERR, ">$smtperrfile");
       select(STDERR); local $| = 1; select(STDOUT);
 
@@ -1763,7 +1759,7 @@ sub sendmessage {
                      qq|\ttype="text/html";\n|.
                      qq|\tboundary="$boundary2"\n|,
                      $smtp, $folderhandle, $do_send, $do_save, \$senderr, \$saveerr);
-            
+
             dump_bodyhtml(\$body, $boundary2, $composecharset, $msgformat,
                               $smtp, $folderhandle, $do_send, $do_save, \$senderr, \$saveerr);
             dump_atts(\@related, $boundary2, $composecharset,
@@ -1802,7 +1798,7 @@ sub sendmessage {
          if ($msgformat eq 'text') {
             dump_bodytext(\$body, $boundary, $composecharset,  $msgformat,
                           $smtp, $folderhandle, $do_send, $do_save, \$senderr, \$saveerr);
-         
+
          } elsif ($msgformat eq 'html') {
             dump_bodyhtml(\$body, $boundary, $composecharset,  $msgformat,
                           $smtp, $folderhandle, $do_send, $do_save, \$senderr, \$saveerr);
@@ -1852,7 +1848,7 @@ sub sendmessage {
             print $folderhandle "Status: R\n" or $saveerr++ if ($do_save && !$saveerr);
             dump_str(qq|\nThis is a multi-part message in MIME format.\n|,
                      $smtp, $folderhandle, $do_send, $do_save, \$senderr, \$saveerr);
-            
+
             dump_bodyhtml(\$body, $boundary, $composecharset, $msgformat,
                           $smtp, $folderhandle, $do_send, $do_save, \$senderr, \$saveerr);
             dump_atts(\@related, $boundary, $composecharset,
@@ -1905,7 +1901,7 @@ sub sendmessage {
                $s=str2str($config{'mailfooter'}, $msgformat)."\n";
                $smtp->datasend($s) or $senderr++ if ($do_send && !$senderr);
             }
-         
+
          } elsif ($msgformat eq 'html') {
             $contenttype="text/html; charset=$composecharset";
 
@@ -1954,9 +1950,9 @@ sub sendmessage {
          $smtp->quit();
          close(STDERR);
          my @r;
-         push(@r, "to=$to") if ($to); 
-         push(@r, "cc=$cc") if ($cc); 
-         push(@r, "bcc=$bcc") if ($bcc); 
+         push(@r, "to=$to") if ($to);
+         push(@r, "cc=$cc") if ($cc);
+         push(@r, "bcc=$bcc") if ($bcc);
          writelog("send message - subject=$subject - ".join(', ', @r));
          writehistory("send message - subject=$subject - ".join(', ', @r));
       } else {
@@ -2186,7 +2182,7 @@ sub dump_bodyhtml {
 }
 
 sub dump_atts {
-   my ($r_atts, $boundary, $composecharset, 
+   my ($r_atts, $boundary, $composecharset,
        $smtp, $folderhandle, $do_send, $do_save, $r_senderr, $r_saveerr)=@_;
    my $s;
 
@@ -2201,8 +2197,8 @@ sub dump_atts {
       # print attheader line by line
       while (defined($s = <ATTFILE>)) {
          if ($s =~ /^Content\-Id: <?att\d\d\d\d\d\d\d\d/ && !$referenced) {
-            # remove contentid from attheader if it was set by openwebmail but not referenced, 
-            # since outlook will treat an attachment as invalid 
+            # remove contentid from attheader if it was set by openwebmail but not referenced,
+            # since outlook will treat an attachment as invalid
             # if it has content-id but not been referenced
             next;
          }
@@ -2431,10 +2427,10 @@ sub htmlarea_compatible {
           $u=~m!rv:([\d\.]+)! ) {
          return 1 if ($1 ge "1.3");	# full Mozilla>=1.3 on all plaform
       }
-      if ($u=~m!Firebird/([\d\.]+)!) {         
+      if ($u=~m!Firebird/([\d\.]+)!) {
          return 1 if ($1 ge "0.6.1");	# Firebird>=0.6.1 on all plaform
       }
-   }      
+   }
    return 0;
 }
 ################### END HTMLAREA_COMPATIBLE ######################

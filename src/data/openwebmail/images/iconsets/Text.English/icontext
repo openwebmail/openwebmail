@@ -41,6 +41,7 @@
    'forward.gif'       => ' [Fwd] ',
    'forwardasatt.gif'  => ' [FwdAsAtt] ',
    'forwardasorig.gif' => ' [FwdAsOrig] ',
+   'gotop.gif'         => ' [^] ',
    'group.gif'         => ' [Group] ',
    'history.gif'       => ' [History] ',
    'home.gif'          => ' [Home] ',

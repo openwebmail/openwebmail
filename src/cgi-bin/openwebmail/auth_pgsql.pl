@@ -3,8 +3,8 @@ use strict;
 #
 # auth_pg.pl - authenticate user with DBD::Pg
 #
-# 2002/05/08 Oliver Smith - oliver@kfs.org
-# 2002/03/07 Alan Sung - AlanSung@dragon2.net (orig: auth_mysql.pl)
+# 2002/05/08 Oliver Smith, oliver.AT.kfs.org
+# 2002/03/07 Alan Sung, AlanSung.AT.dragon2.net (orig: auth_mysql.pl)
 #
 
 my $SQLHost = "localhost";	# INSERT THE PGSQL SERVER IP HERE.

@@ -420,6 +420,11 @@ Width @@@FILEEDITCOLUMNSMENU@@@ Height @@@FILEEDITROWSMENU@@@
 remaining @@@NEWMAILWINDOWTIMEMENU@@@ seconds &nbsp;( 0 means No window notification )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Mail sent window notification:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+remaining @@@MAILSENTWINDOWTIMEMENU@@@ seconds &nbsp;( 0 means No window notification )
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Diccionari per defecte:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DICTIONARYMENU@@@

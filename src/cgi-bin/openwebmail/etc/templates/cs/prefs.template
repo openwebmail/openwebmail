@@ -420,6 +420,11 @@ Pøedmìt:
 zobrazit @@@NEWMAILWINDOWTIMEMENU@@@ sekund &nbsp;( 0 znamená nezobrazovat )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Mail sent window notification:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+zobrazit @@@MAILSENTWINDOWTIMEMENU@@@ sekund &nbsp;( 0 znamená nezobrazovat )
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Slovník pro kontrolu pravopisu:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DICTIONARYMENU@@@

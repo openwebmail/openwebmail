@@ -3,8 +3,8 @@ use strict;
 #
 # auth_ldap.pl - authenticate user with LDAP
 #
-# 2002/04/10 Kelson Vibber - kelson@speed.net (fixed check_userpassword)
-# 2002/01/27 Ivan Cerrato - pengus@libero.it
+# 2002/04/10 Kelson Vibber, kelson.AT.speed.net (fixed check_userpassword)
+# 2002/01/27 Ivan Cerrato, pengus.AT.libero.it
 #
 
 my $ldapHost = "HOSTNAME";	# INSERT THE LDAP SERVER IP HERE.

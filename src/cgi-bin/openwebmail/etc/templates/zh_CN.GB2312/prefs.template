@@ -420,6 +420,11 @@
 显示 @@@NEWMAILWINDOWTIMEMENU@@@ 秒 &nbsp;( 0 表示不显示通知窗口 )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>信件送出后, 显示通知视窗:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+显示 @@@MAILSENTWINDOWTIMEMENU@@@ 秒 &nbsp;( 0 表示不显示通知窗口 )
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>拼写检查字典:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DICTIONARYMENU@@@

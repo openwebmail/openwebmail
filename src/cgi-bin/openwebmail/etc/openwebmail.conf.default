@@ -2,21 +2,22 @@
 # Open WebMail configuration file DEFAULT
 #
 # This is openwebmail.conf.default - a file full of useful variables that
-# you can set for the openwebmail system. You should not edit this file! 
+# you can set for the openwebmail system. You should not edit this file!
 # Put any overrides into openwebmail.conf instead. The openwebmail.conf
-# should only contain values which override values set in this file. 
+# should only contain values which override values set in this file.
 # This eases the upgrade when defaults are changed or new features are added.
+#
 # Please refer to openwebmail.conf.help for description of each option
 #
-# ps: This file will be loaded only once if Open WebMail is running in 
+# ps: This file will be loaded only once if Open WebMail is running in
 #     persistent mode. To force Open WebMail reread this file, please do
 #
 #     touch openwebmail*pl
 #
 
 name			Open WebMail
-version			2.20
-releasedate		20031014
+version			2.21
+releasedate		20031110
 
 ##############################################################################
 # host dependent configuration
@@ -120,20 +121,22 @@ about_info_client		yes
 xmailer_has_version		yes
 xoriginatingip_has_userid	yes
 
-enable_preference	yes
-enable_setfrom		yes
-enable_setfromemail	yes
-enable_autoreply	yes
-enable_setforward	yes
-enable_strictforward	no
-enable_stationery	yes
-enable_smartfilters	yes
-enable_userfilter	yes
-enable_webmail		yes
-enable_calendar		yes
-enable_webdisk		yes
-enable_sshterm		yes
-enable_vdomain          no
+enable_preference		yes
+enable_loadfrombook		yes
+enable_editfrombook		yes
+frombook_for_realname_only	no
+enable_autoreply		yes
+enable_setforward		yes
+enable_strictforward		no
+enable_stationery		yes
+enable_userfilter		yes
+enable_smartfilter		yes
+smartfilter_bypass_goodmessage	yes
+enable_webmail			yes
+enable_calendar			yes
+enable_webdisk			yes
+enable_sshterm			yes
+enable_vdomain          	no
 
 enable_pop3		yes
 disallowed_pop3servers	your_server, your_server.domain
@@ -262,6 +265,7 @@ default_refreshinterval		20
 min_refreshinterval		3
 default_newmailsound		YouGotMail.English.wav
 default_newmailwindowtime	7
+default_mailsentwindowtime	5
 default_dictionary		english
 default_trashreserveddays	7
 default_sessiontimeout		60

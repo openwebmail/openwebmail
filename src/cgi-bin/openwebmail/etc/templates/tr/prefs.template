@@ -420,6 +420,11 @@ Geniþlik @@@FILEEDITCOLUMNSMENU@@@ Yükseklik @@@FILEEDITROWSMENU@@@
 kalan @@@NEWMAILWINDOWTIMEMENU@@@ saniye &nbsp;( 0 bu pencereyi kullanma demek)
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Mail sent window notification:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+kalan @@@MAILSENTWINDOWTIMEMENU@@@ saniye &nbsp;( 0 bu pencereyi kullanma demek)
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Yazým Kontrolü için Sözlük :</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DICTIONARYMENU@@@

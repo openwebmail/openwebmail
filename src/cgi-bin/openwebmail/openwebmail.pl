@@ -40,7 +40,7 @@ require "filelock.pl";
 require "mime.pl";
 
 # common globals
-use vars qw(%config %config_raw %default_config %default_config_raw);
+use vars qw(%config %config_raw %default_config);
 use vars qw($thissession);
 use vars qw($default_logindomain $loginname $logindomain $loginuser);
 use vars qw($domain $user $userrealname $uuid $ugid $homedir);
@@ -56,24 +56,20 @@ openwebmail_requestbegin();
 $SIG{PIPE}=\&openwebmail_exit;	# for user stop
 $SIG{TERM}=\&openwebmail_exit;	# for user stop
 
-if (!defined(%default_config_raw)) {	# read default only once if persistent mode
-   readconf(\%default_config, \%default_config_raw, "$SCRIPT_DIR/etc/openwebmail.conf.default");
-}
-%config=%default_config; %config_raw =%default_config_raw;
-readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf") if (-f "$SCRIPT_DIR/etc/openwebmail.conf");
+load_rawconf(\%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf.default");
+readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf");
 readlang($config{'default_language'});	# so %lang... can be used in error msg
 
 # check & create mapping table for solar/lunar, b2g, g2b convertion
 foreach my $table ('b2g', 'g2b', 'lunar') {
-   if ( $config{$table.'_map'} ne 'none' &&
-        ! -f "$config{'ow_etcdir'}/$table$config{'dbm_ext'}") {
+   if ( $config{$table.'_map'} && ! -f "$config{'ow_etcdir'}/$table$config{'dbm_ext'}") {
       print qq|Content-type: text/html\n\n|.
-            qq|Please execute '$config{'ow_cgidir'}/openwebmail-tool.pl --init' on server first!|; 
+            qq|Please execute '$config{'ow_cgidir'}/openwebmail-tool.pl --init' on server first!|;
       openwebmail_exit(0);
    }
 }
 
-if ( ($config{'logfile'} ne 'no') ) {
+if ($config{'logfile'}) {
    my $mailgid=getgrnam('mail');
    my ($fmode, $fuid, $fgid) = (stat($config{'logfile'}))[2,4,5];
    if ( !($fmode & 0100000) ) {
@@ -104,14 +100,14 @@ if ( $config{'forced_ssl_login'} &&	# check the forced use of SSL
          qq|Service is available over SSL only,<br>\n|.
          qq|you will be redirected to <a href="$start_url">SSL login</a> page in 5 seconds...\n|.
          qq|$js\n|.
-         qq|</body></html>\n|; 
+         qq|</body></html>\n|;
    openwebmail_exit(0);
 }
 
 if ( param('loginname') && param('password') ) {
    login();
-} else {            # no action has been taken, display login page
-   loginmenu();
+} else {
+   loginmenu();	# display login page if no login
 }
 
 openwebmail_requestend();
@@ -129,7 +125,7 @@ sub loginmenu {
 
    readconf(\%config, \%config_raw, "$config{'ow_sitesconfdir'}/$logindomain") if ( -f "$config{'ow_sitesconfdir'}/$logindomain");
    if ( $>!=0 &&	# setuid is required if spool is located in system dir
-       ($config{'mailspooldir'} eq "/var/mail" || 
+       ($config{'mailspooldir'} eq "/var/mail" ||
         $config{'mailspooldir'} eq "/var/spool/mail")) {
       print "Content-type: text/html\n\n'$0' must setuid to root"; openwebmail_exit(0);
    }
@@ -220,14 +216,14 @@ sub login {
       readconf(\%config, \%config_raw, "$config{'ow_sitesconfdir'}/$logindomain");
    }
    if ( $>!=0 &&	# setuid is required if spool is located in system dir
-       ($config{'mailspooldir'} eq "/var/mail" || 
+       ($config{'mailspooldir'} eq "/var/mail" ||
         $config{'mailspooldir'} eq "/var/spool/mail")) {
       print "Content-type: text/html\n\n'$0' must setuid to root"; openwebmail_exit(0);
    }
    loadauth($config{'auth_module'});
 
    # create domain logfile
-   if ( ($config{'logfile'} ne 'no') ) {
+   if ($config{'logfile'}) {
       my $mailgid=getgrnam('mail');
       my ($fmode, $fuid, $fgid) = (stat($config{'logfile'}))[2,4,5];
       if ( !($fmode & 0100000) ) {
@@ -284,7 +280,7 @@ sub login {
          # mkdir domainhome so openwebmail.pl can create user homedir under this domainhome
          if (!-d $domainhome) {
             my $mailgid=getgrnam('mail');
-            ($domainhome =~ /^(.+)$/) && ($domainhome = $1);	# untaint...
+            $domainhome=untaint($domainhome);
             mkdir($domainhome, 0750);
             openwebmailerror(__FILE__, __LINE__, "Couldn't create domain homedir $domainhome") if (! -d $domainhome);
             chown($uuid, $mailgid, $domainhome);
@@ -294,12 +290,11 @@ sub login {
    }
    $folderdir = "$homedir/$config{'homedirfolderdirname'}";
 
-   ($user =~ /^(.+)$/) && ($user = $1);		# untaint...
-   ($uuid =~ /^(.+)$/) && ($uuid = $1);
-   ($ugid =~ /^(.+)$/) && ($ugid = $1);
-   ($homedir =~ /^(.+)$/) && ($homedir = $1);
-   ($folderdir =~ /^(.+)$/) && ($folderdir = $1);
-
+   $user=untaint($user);
+   $uuid=untaint($uuid);
+   $ugid=untaint($ugid);
+   $homedir=untaint($homedir);
+   $folderdir=untaint($folderdir);
 
    # validate client ip
    my $clientip=get_clientip();
@@ -348,7 +343,7 @@ sub login {
       # search old alive session and deletes old expired sessionids
       $thissession = search_and_cleanoldsessions(cookie("$user-sessionid"), $uuid);
       if ($thissession eq "") {	# name the new sessionid
-         $thissession = $loginname."*".$default_logindomain."-session-".rand(); 
+         $thissession = $loginname."*".$default_logindomain."-session-".rand();
       }
       $thissession =~ s!\.\.+!!g;  # remove ..
       if ($thissession =~ /^([\w\.\-\%\@]+\*[\w\.\-]*\-session\-0\.\d+)$/) {
@@ -360,7 +355,7 @@ sub login {
 
       if (!$config{'use_syshomedir'} && $config{'auth_withdomain'} &&
           !-d "$homedir" && -d "$config{'ow_usersdir'}/$user\@$domain") {
-         # rename old homedir 
+         # rename old homedir
          my $olddir="$config{'ow_usersdir'}/$user\@$domain";
          ($olddir =~ /^(.+)$/) && ($olddir = $1);
          rename($olddir, $homedir) or
@@ -390,7 +385,7 @@ sub login {
 
       # create the user's home directory if necessary.
       # this must be done before changing to the user's uid.
-      if (($config{'create_syshomedir'} || !$config{'use_syshomedir'}) 
+      if (($config{'create_syshomedir'} || !$config{'use_syshomedir'})
           && !-d $homedir ) {
          if (mkdir ("$homedir", oct(700)) && chown($uuid, (split(/\s+/,$ugid))[0], $homedir)) {
             writelog("create homedir - $homedir, uid=$uuid, gid=".(split(/\s+/,$ugid))[0]);
@@ -402,7 +397,7 @@ sub login {
       umask(0077);
       if ( $>==0 ) {			# switch to uuid:mailgid if script is setuid root.
          my $mailgid=getgrnam('mail');	# for better compatibility with other mail progs
-         set_euid_egids($uuid, $mailgid, split(/\s+/,$ugid)); 
+         set_euid_egids($uuid, $mailgid, split(/\s+/,$ugid));
          if ( $)!~/\b$mailgid\b/) {	# group mail doesn't exist?
             openwebmailerror(__FILE__, __LINE__, "Set effective gid to mail($mailgid) failed!");
          }
@@ -425,7 +420,7 @@ sub login {
                closedir(HOMEDIR);
                foreach my $file (@files) {
                   next if ($file eq "." || $file eq ".." || $file eq $config{'homedirfolderdirname'});
-                  ($file =~ /^(.+)$/) && ($file = $1);	# untaint ...
+                  $file=untaint($file);
                   rename("$homedir/$file", "$folderdir/$file");
                }
                writelog("release upgrade - mv $homedir/* to $folderdir/* by 20021218");
@@ -436,7 +431,7 @@ sub login {
       # create system spool file /var/mail/xxxx
       my ($spoolfile, $headerdb)=get_folderfile_headerdb($user, 'INBOX');
       if ( ! -f "$spoolfile" ) {
-         ($spoolfile =~ /^(.+)$/) && ($spoolfile = $1); # untaint ...
+         $spoolfile=untaint($spoolfile);
          open (F, ">>$spoolfile"); close(F);
          chown($uuid, (split(/\s+/,$ugid))[0], $spoolfile);
       }
@@ -486,8 +481,7 @@ sub login {
 
       # create authpop3 book if auth_pop3.pl  & getmail_from_pop3_authserver is yes
       if ($config{'auth_module'} eq 'auth_pop3.pl') {
-         my $authpop3book="$folderdir/.authpop3.book";
-         ($authpop3book =~ /^(.+)$/) && ($authpop3book = $1);  # untaint ...
+         my $authpop3book=untaint("$folderdir/.authpop3.book");
 
          if ($config{'getmail_from_pop3_authserver'}) {
             my ($pop3host,$pop3port, $pop3user,$pop3passwd, $pop3del,$enable);
@@ -504,8 +498,8 @@ sub login {
                 $pop3user ne $login ||
                 $pop3passwd ne $password ||
                 $pop3del ne $config{'delpop3mail_by_default'} ) {
-               if ($pop3host ne $config{'pop3_authserver'} || 
-                   $pop3port ne $config{'pop3_authport'} || 
+               if ($pop3host ne $config{'pop3_authserver'} ||
+                   $pop3port ne $config{'pop3_authport'} ||
                    $pop3user ne $login ) {
                   $enable=1;
                }
@@ -525,7 +519,7 @@ sub login {
       if ( ! -f "$folderdir/.openwebmailrc" ) {
          $refreshurl="$config{'ow_cgiurl'}/openwebmail-prefs.pl?sessionid=$thissession&action=userfirsttime";
       } elsif ( $action eq 'composemessage' ) {
-         my $to=param('to'); 
+         my $to=param('to');
          $to =~ s!^mailto\:!!; # IE passes mailto: with mailaddr to mail client
          my $subject=param('subject');
          $refreshurl="$config{'ow_cgiurl'}/openwebmail-send.pl?sessionid=$thissession&action=composemessage&to=$to&subject=$subject";
@@ -716,15 +710,15 @@ sub search_and_cleanoldsessions {
          $sessionid =~ /^([\w\.\-\%\@]+)\*([\w\.\-]*)\-session\-(0\.\d+)$/;
          my ($sess_loginname, $sess_default_logindomain)=($1, $2); # param from sessionid
 
-         if ($loginname eq $sess_loginname && 
-             $default_logindomain eq $sess_default_logindomain) { 
+         if ($loginname eq $sess_loginname &&
+             $default_logindomain eq $sess_default_logindomain) {
             # remove user old session if timeout
             if ( $modifyage > $prefs{'sessiontimeout'}*60 ) {
                writelog("session cleanup - $sessionid");
                push(@delfiles, "$config{'ow_sessionsdir'}/$sessionid");
             } else {
                my ($cookie, $ip, $userinfo)=sessioninfo($sessionid);
-               if ($oldcookie && $cookie eq $oldcookie && $ip eq get_clientip() && 
+               if ($oldcookie && $cookie eq $oldcookie && $ip eq get_clientip() &&
                    (stat("$config{'ow_sessionsdir'}/$sessionid"))[4] == $owner_uid ) {
                   $oldsessionid=$sessionid;
                } elsif (!$config{'session_multilogin'}) { # remove old session of this user
@@ -958,8 +952,7 @@ sub releaseupgrade {
          }
          close_dbm(\%HDB, $headerdb);
 
-         my $cachefile="$headerdb.cache";
-         ($cachefile =~ /^(.+)$/) && ($cachefile = $1);  # untaint ...
+         my $cachefile=untaint("$headerdb.cache");
          unlink($cachefile); # remove cache possiblely for old dbm
       }
       writehistory("release upgrade - $folderdir/.*$config{'dbm_ext'} by 20020108.02");
@@ -1006,16 +999,16 @@ sub releaseupgrade {
                my $deliserial=delimiter2dateserial($delimiter, $config{'deliver_use_GMT'}) ||
                               gmtime2dateserial();
                if ($dateserial eq "") {
-                  $dateserial=$deliserial; 
+                  $dateserial=$deliserial;
                } elsif ($deliserial ne "") {
-                   my $t=dateserial2gmtime($deliserial)-dateserial2gmtime($dateserial); 
+                   my $t=dateserial2gmtime($deliserial)-dateserial2gmtime($dateserial);
                    if ($t>86400*7 || $t<-86400) { # msg transmission time
                       # use deliverytime in case sender host may have wrong time configuration
-                      $dateserial=$deliserial; 
+                      $dateserial=$deliserial;
                    }
                }
                $attr[$_DATE]=$dateserial;
-            } else {	
+            } else {
                my $t=dateserial2gmtime($attr[$_DATE])-timeoffset2seconds($timeoffset);	# local -> gm
                $t-=3600 if (is_dst($t, $timeoffset));
                $attr[$_DATE]=gmtime2dateserial($t);
@@ -1128,13 +1121,13 @@ sub releaseupgrade {
 
    my $saverc=0;
    if (-f "$folderdir/.openwebmailrc") {
-      $saverc=1 if ( $user_releasedate lt "20030826" );	# rc upgrade
+      $saverc=1 if ( $user_releasedate lt "20031027" );	# rc upgrade
       %prefs = readprefs() if ($saverc);		# load user old prefs + sys defaults
    } else {
       $saverc=1 if ($config{'auto_createrc'});		# rc auto create
    }
    if ($saverc) {
-      open (RC, ">$folderdir/.openwebmailrc") or 
+      open (RC, ">$folderdir/.openwebmailrc") or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderdir/.openwebmailrc! ($!)");
       foreach my $key (@openwebmailrcitem) {
          print RC "$key=$prefs{$key}\n";

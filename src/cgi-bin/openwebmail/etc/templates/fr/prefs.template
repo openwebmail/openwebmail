@@ -420,6 +420,11 @@ Largeur @@@FILEEDITCOLUMNSMENU@@@ Hauteur @@@FILEEDITROWSMENU@@@
 la laisser pendant @@@NEWMAILWINDOWTIMEMENU@@@ secondes &nbsp;( 0 signifie pas de fenêtre)
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Mail sent window notification:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+la laisser pendant @@@MAILSENTWINDOWTIMEMENU@@@ secondes &nbsp;( 0 signifie pas de fenêtre)
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Dictionnaire de correction orthographique :</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DICTIONARYMENU@@@

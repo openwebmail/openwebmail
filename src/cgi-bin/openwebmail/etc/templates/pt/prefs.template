@@ -420,6 +420,11 @@ Largura @@@FILEEDITCOLUMNSMENU@@@ Altura @@@FILEEDITROWSMENU@@@
 durante @@@NEWMAILWINDOWTIMEMENU@@@ segundos &nbsp;( 0 significa desactivar )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Mail sent window notification:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+durante @@@MAILSENTWINDOWTIMEMENU@@@ segundos &nbsp;( 0 significa desactivar )
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Dicionário :</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DICTIONARYMENU@@@

@@ -420,6 +420,11 @@ Tema:
 preostalo @@@NEWMAILWINDOWTIMEMENU@@@ sekundi  ( 0 znaèi da nema obave¹tavanja )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Mail sent window notification:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+preostalo @@@MAILSENTWINDOWTIMEMENU@@@ sekundi  ( 0 znaèi da nema obave¹tavanja )
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Reènik za pravopisnu proveru :</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DICTIONARYMENU@@@

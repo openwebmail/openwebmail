@@ -420,6 +420,11 @@
 @@@NEWMAILWINDOWTIMEMENU@@@ วินาที &nbsp;( 0 หมายถึงไม่ต้องมีหน้าต่าง )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Mail sent window notification:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@MAILSENTWINDOWTIMEMENU@@@ วินาที &nbsp;( 0 หมายถึงไม่ต้องมีหน้าต่าง )
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>พจนานุกรมสำหรับการตรวจคำผิด:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DICTIONARYMENU@@@

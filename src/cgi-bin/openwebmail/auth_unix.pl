@@ -9,7 +9,7 @@ use strict;
 #
 # $unix_passwdfile_plaintext : the plaintext file containing all usernames
 #                              and related uid, gid, homedir, shell info.
-#                              The deault is /etc/passwd on most unix systems.
+#                              The default is /etc/passwd on most unix systems.
 #
 # $unix_passwdfile_encrypted : the file containing all usernames and
 #                              their corresponding encrypted passwords.
@@ -60,7 +60,7 @@ sub get_userinfo {
       ($uid, $gid, $realname, $homedir)= (getpwnam($user))[2,3,6,7];
    } else {
       if ($unix_passwdfile_plaintext=~/\|/) { # maybe NIS, try getpwnam first
-         ($uid, $gid, $realname, $homedir)= (getpwnam($user))[2,3,6,7]; 
+         ($uid, $gid, $realname, $homedir)= (getpwnam($user))[2,3,6,7];
       }
       if ($uid eq "") { # else, open file directly
          ($uid, $gid, $realname, $homedir)= (getpwnam_file($user, $unix_passwdfile_plaintext))[2,3,6,7];
@@ -92,7 +92,7 @@ sub get_userlist {	# only used by openwebmail-tool.pl -a
 
    # a file should be locked only if it is local accessable
    if ( -f $unix_passwdfile_plaintext) {
-      filelock("$unix_passwdfile_plaintext", LOCK_SH) or 
+      filelock("$unix_passwdfile_plaintext", LOCK_SH) or
          return (-3, "Couldn't get read lock on $unix_passwdfile_plaintext", @userlist);
    }
    open(PASSWD, $unix_passwdfile_plaintext);
@@ -221,7 +221,7 @@ sub change_userpassword {
 
    if ($unix_passwdmkdb ne "" && $unix_passwdmkdb ne "none" ) {
       # disable outside $SIG{CHLD} handler temporarily for system() return value
-      local $SIG{CHLD}; undef $SIG{CHLD}; 
+      local $SIG{CHLD}; undef $SIG{CHLD};
       # update passwd and db with pwdmkdb program
       if ( system("$unix_passwdmkdb $unix_passwdfile_encrypted.tmp.$$")!=0 ) {
          goto authsys_error;
