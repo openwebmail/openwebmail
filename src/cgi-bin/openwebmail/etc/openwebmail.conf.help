@@ -1696,11 +1696,13 @@ default signature for all users
 default_style
 -----------------------------------------------------------------------
 the default style used for new user
+please check cgi-bin/openwebmail/etc/styles/ for available styles
 
 
 default_iconset
 -----------------------------------------------------------------------
 the default iconset used for new user
+please check data/openwebmail/images/iconsets/ for available iconsets
 
 
 default_bgurl
@@ -1976,11 +1978,14 @@ default_fscharset
 The default charset used for filenames on file system.
 If this is set to a supported charset, openwebmail will convert the
 filename between user preference charset and the fscharset.
+
 If this is set to 'none', no conversion will be issued.
+Please refer to modules/lang.pl for supported charsets.
 
-Please refer to ow-shared.pl for supported charsets.
-
-ps: this feature is actually not ready yet.
+ps: It is highly recommended to set this option to the most frequently 
+    used charset on the filesystem, which would allow openwebmail to 
+    always interpret the filename correctly when the user switches 
+    between different charsets.
 
 
 default_uselightbar

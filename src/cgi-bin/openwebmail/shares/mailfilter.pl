@@ -16,54 +16,35 @@ use strict;
 use Fcntl qw(:DEFAULT :flock);
 use MIME::Base64;
 use MIME::QuotedPrint;
+require "shares/filterbook.pl";
 
 # extern vars
 use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE $_STATUS $_SIZE $_REFERENCES $_CHARSET $_HEADERSIZE $_HEADERCHKSUM);
 use vars qw(%config %lang_err);
-
-# local global
-use vars qw ($_PRIORITY $_RULETYPE $_INCLUDE $_TEXT $_OP $_DESTINATION $_ENABLE $_REGEX_TEXT);
-($_PRIORITY, $_RULETYPE, $_INCLUDE, $_TEXT, $_OP, $_DESTINATION, $_ENABLE, $_REGEX_TEXT)=(0,1,2,3,4,5,6,7);
-
-use vars qw(%op_order %ruletype_order %folder_order);	# rule prefered order, the smaller one is prefered
-%op_order=(
-   copy   => 0,
-   move   => 1,
-   delete => 2,
-);
-%ruletype_order=(
-   from        => 0,
-   to          => 1,
-   subject     => 2,
-   header      => 3,
-   smtprelay   => 4,
-   attfilename => 5,
-   textcontent => 6
-);
-%folder_order=(		# folders not listed have order 0
-   INBOX        => -1,
-   DELETE       => 1,
-   'virus-mail' => 2,
-   'spam-mail'  => 3,
-   'mail-trash' => 4
-);
+use vars qw(%op_order %ruletype_order %folder_order);	# table defined in filterbook.pl
 
 ########## FILTERMESSAGE #########################################
 # filter inbox messages in background
-# return: 0 filtere not necessary
-#         1 background filtering started
+# return: 0 filter not necessary
+#         1 filter started (either forground or background)
 # there are 4 op for a msg: 'copy', 'move', 'delete' and 'keep'
 use vars qw($_filter_complete);
 sub filtermessage {
    my ($user, $folder, $r_prefs)=@_;
+
+   if (!$config{'enable_userfilter'} &&
+       !$config{'enable_globalfilter'} &&
+       !$config{'enable_smartfilter'} &&
+       !$config{'enabel_viruscheck'} &&
+       !$config{'enable_spamcheck'}) {
+      return 0;				# return immediately if nothing to do
+   }
 
    my ($folderfile, $folderdb)=get_folderpath_folderdb($user, $folder);
    return 0 if ( ! -f $folderfile );	# check existence of folderfile
 
    my $forced_recheck=0;
    my $filtercheckfile=dotpath('filter.check');
-   my $filterbookfile=dotpath('filter.book');
-   my (@filterfiles, @filterrules);
 
    # automic 'test & set' the metainfo value in filtercheckfile
    my $metainfo=ow::tool::metainfo($folderfile);
@@ -92,54 +73,6 @@ sub filtermessage {
    close (FILTERCHECK);
    ow::filelock::lock($filtercheckfile, LOCK_UN);
 
-   # get @filterrules
-   push(@filterfiles, $filterbookfile)              if ($config{'enable_userfilter'} && -f $filterbookfile);
-   push(@filterfiles, $config{'global_filterbook'}) if ($config{'enable_globalfilter'} && -f $config{'global_filterbook'});
-   foreach my $filterfile (@filterfiles) {
-      open (FILTER, $filterfile) or next;
-      while (<FILTER>) {
-         chomp($_);
-         if (/^\d+\@\@\@/) { # add valid rule only
-            my @rule=split(/\@\@\@/);
-            next if (!$rule[$_ENABLE]||
-                     $rule[$_OP] ne 'copy' && $rule[$_OP] ne 'move' && $rule[$_OP] ne 'delete');
-
-            $rule[$_DESTINATION]=safefoldername($rule[$_DESTINATION]);
-            next if (!is_defaultfolder($rule[$_DESTINATION]) &&
-                     !$config{'enable_userfolders'});
-
-            if ($rule[$_DESTINATION] eq 'DELETE') {
-               next if ($rule[$_OP] eq 'copy');			# copy to DELETE is meaningless
-               $rule[$_OP]='delete' if ($rule[$_OP] eq 'move');	# move to DELETE is 'delete'
-            }
-
-            # precompile text into regex for speed
-            if ( (${$r_prefs}{'regexmatch'} || $filterfile eq $config{'global_filterbook'}) &&
-                 ow::tool::is_regex($rule[$_TEXT]) ) {	# do regex compare?
-               $rule[$_REGEX_TEXT]=qr/$rule[$_TEXT]/im;
-            } else {
-               $rule[$_REGEX_TEXT]=qr/\Q$rule[$_TEXT]\E/im;
-            }
-            push(@filterrules, \@rule);
-         }
-      }
-      close (FILTER);
-   }
-
-   # sort rules by priority, the smaller the top
-   @filterrules=sort {
-                     ${$a}[$_PRIORITY]                   <=> ${$b}[$_PRIORITY]                   or
-                     $op_order{${$a}[$_OP]}              <=> $op_order{${$b}[$_OP]}              or
-                     $ruletype_order{${$a}[$_RULETYPE]}  <=> $ruletype_order{${$b}[$_RULETYPE]}  or
-                     $folder_order{${$a}[$_DESTINATION]} <=> $folder_order{${$b}[$_DESTINATION]}
-                     } @filterrules;
-   if ($#filterrules<0 &&
-       !$config{'enable_smartfilter'} &&
-       !$config{'enabel_viruscheck'} &&
-       !$config{'enable_spamcheck'}) {
-      return 1;				# return immediately if nothing to do
-   }
-
    if (!ow::filelock::lock($folderfile, LOCK_EX)) {
       openwebmailerror("$lang_err{'mailfilter_error'} (".f2u($folderfile)." read lock error)");
    }
@@ -160,7 +93,7 @@ sub filtermessage {
                         } @allmessageids;
    if ($#allmessageids<0) {
       ow::filelock::lock($folderfile, LOCK_UN);
-      return 1;				# retuen immediately if no message found
+      return 0;				# retuen immediately if no message found
    }
 
    if (${$r_prefs}{'bgfilterthreshold'}>0 &&
@@ -180,7 +113,7 @@ sub filtermessage {
          ow::suid::drop_ruid_rgid(); # set ruid=euid to avoid fork in spamcheck.pl
          filter_allmessageids($user, $folder, $r_prefs,
                               $folderfile, $folderdb, $metainfo, $filtercheckfile, $forced_recheck,
-                              \@filterrules, \@allmessageids, 0);	# 0 means no globallock
+                              \@allmessageids, 0);	# 0 means no globallock
 
          writelog("debug - mailfilter process terminated - " .__FILE__.":". __LINE__) if ($config{'debug_fork'}||$config{'debug_mailfilter'});
          openwebmail_exit(0);	# terminate this forked filter process
@@ -197,7 +130,7 @@ sub filtermessage {
       writelog("debug - mailfilter allmessageids started - " .__FILE__.":". __LINE__) if ($config{'debug_mailfilter'});
       filter_allmessageids($user, $folder, $r_prefs,
                            $folderfile, $folderdb, $metainfo, $filtercheckfile, $forced_recheck,
-                           \@filterrules, \@allmessageids, 1);		# 1 meas has globallock
+                           \@allmessageids, 1);		# 1 meas has globallock
       writelog("debug - mailfilter allmessageids ended - " .__FILE__.":". __LINE__) if ($config{'debug_mailfilter'});
       ow::filelock::lock($folderfile, LOCK_UN);
    }
@@ -208,7 +141,7 @@ sub filtermessage {
 sub filter_allmessageids {
    my ($user, $folder, $r_prefs,
        $folderfile, $folderdb, $metainfo, $filtercheckfile, $forced_recheck,
-       $r_filterrules, $r_allmessageids, $has_globallock)=@_;
+       $r_allmessageids, $has_globallock)=@_;
 
    my $pidfile;
    # threshold>0 means the bg filter may be actived if inbox have enough new msgs,
@@ -218,8 +151,32 @@ sub filter_allmessageids {
       open(F, ">$pidfile"); print F $$; close(F);
    }
 
-   my $i=$#{$r_allmessageids};
-   return 1 if ($i<0);
+   # get @filterrules
+   my (%filterrules, @sorted_filterrules);
+   my $filterbookfile=dotpath('filter.book');
+   if ($config{'enable_userfilter'} && -f $filterbookfile) {
+      read_filterbook($filterbookfile, \%filterrules);
+   }
+   if ($config{'enable_globalfilter'} && -f $config{'global_filterbook'}) {
+      read_filterbook($config{'global_filterbook'}, \%filterrules);
+   }
+   foreach my $key (sort_filterrules(\%filterrules)) {
+      my $r_rule=$filterrules{$key};
+      next if (!${$r_rule}{enable} ||
+               ${$r_rule}{op} ne 'copy' &&
+               ${$r_rule}{op} ne 'move' &&
+               ${$r_rule}{op} ne 'delete');
+      if (${$r_rule}{dest} eq 'DELETE') {
+         next if (${$r_rule}{op} eq 'copy');			# copy to DELETE is meaningless
+         ${$r_rule}{op}='delete' if (${$r_rule}{op} eq 'move');	# move to DELETE is 'delete'
+      }
+      push(@sorted_filterrules, $key);
+   }
+   # return immediately if nothing to do
+   return 1 if ($#sorted_filterrules<0 &&
+                !$config{'enable_smartfilter'} &&
+                !$config{'enabel_viruscheck'} &&
+                !$config{'enable_spamcheck'});
 
    my $repeatstarttime=time()-86400;	# only count repeat for messages within one day
    my %repeatlists=();
@@ -227,6 +184,7 @@ sub filter_allmessageids {
    my ($io_errcount, $viruscheck_errcount, $spamcheck_errcount)=(0, 0);
    my ($appended, $append_errmsg)=(0, '');
 
+   my $i=$#{$r_allmessageids};
    while ($i>=0) {
       my $messageid_i=${$r_allmessageids}[$i];
       writelog("debug - mailfilter loop $i, msgid=$messageid_i - " .__FILE__.":". __LINE__) if ($config{'debug_mailfilter'});
@@ -348,11 +306,21 @@ sub filter_allmessageids {
          if (!$to_be_moved) {
             writelog("debug - mailfilter static rules check $messageid_i - " .__FILE__.":". __LINE__) if ($config{'debug_mailfilter'});
 
-            foreach my $r_rule (@{$r_filterrules}) {
-               my $ruletype=${$r_rule}[$_RULETYPE];
+            foreach my $key (@sorted_filterrules) {
+               my $r_rule=$filterrules{$key};
                my $is_matched=0;
 
-               if ( $ruletype eq 'from' || $ruletype eq 'to' || $ruletype eq 'subject') {
+               # precompile text into regex of msg charset for speed
+               if (!defined ${$r_rule}{'regex.'.$attr[$_CHARSET]}) {
+                  my $text=(iconv(${$r_rule}{charset}, $attr[$_CHARSET], ${$r_rule}{text}))[0];
+                  if (${$r_prefs}{'regexmatch'} && ow::tool::is_regex($text)) {	# do regex compare?
+                     ${$r_rule}{'regex.'.$attr[$_CHARSET]}=qr/$text/im;
+                  } else {
+                     ${$r_rule}{'regex.'.$attr[$_CHARSET]}=qr/\Q$text\E/im;
+                  }
+               }
+
+               if ( ${$r_rule}{type} eq 'from' || ${$r_rule}{type} eq 'to' || ${$r_rule}{type} eq 'subject') {
                   if ($decoded_header eq "") {
                      $decoded_header=decode_mimewords_iconv($header, $attr[$_CHARSET]);
                      $decoded_header=~s/\s*\n\s+/ /sg; # concate folding lines
@@ -360,22 +328,22 @@ sub filter_allmessageids {
                   if (!defined $msg{from}) { # this is defined after parse_header is called
                      ow::mailparse::parse_header(\$decoded_header, \%msg);
                   }
-                  if ($msg{$ruletype}=~/${$r_rule}[$_REGEX_TEXT]/
-                      xor ${$r_rule}[$_INCLUDE] eq 'exclude') {
+                  if ($msg{${$r_rule}{type}}=~/${$r_rule}{'regex.'.$attr[$_CHARSET]}/
+                      xor ${$r_rule}{inc} eq 'exclude') {
                       $is_matched=1;
                   }
 
-               } elsif ( $ruletype eq 'header' ) {
+               } elsif ( ${$r_rule}{type} eq 'header' ) {
                   if ($decoded_header eq "") {
                      $decoded_header=decode_mimewords_iconv($header, $attr[$_CHARSET]);
                      $decoded_header=~s/\s*\n\s+/ /sg; # concate folding lines
                   }
-                  if ($decoded_header=~/${$r_rule}[$_REGEX_TEXT]/
-                      xor ${$r_rule}[$_INCLUDE] eq 'exclude') {
+                  if ($decoded_header=~/${$r_rule}{'regex.'.$attr[$_CHARSET]}/
+                      xor ${$r_rule}{inc} eq 'exclude') {
                       $is_matched=1;
                   }
 
-               } elsif ( $ruletype eq 'smtprelay' ) {
+               } elsif ( ${$r_rule}{type} eq 'smtprelay' ) {
                   if (!defined $r_smtprelays) {
                      ($r_smtprelays, $r_connectfrom, $r_byas)=ow::mailparse::get_smtprelays_connectfrom_byas_from_header($header);
                   }
@@ -383,12 +351,12 @@ sub filter_allmessageids {
                   foreach my $relay (@{$r_smtprelays}) {
                      $smtprelays.="$relay, ${$r_connectfrom}{$relay}, ${$r_byas}{$relay}, ";
                   }
-                  if ($smtprelays=~/${$r_rule}[$_REGEX_TEXT]/
-                      xor ${$r_rule}[$_INCLUDE] eq 'exclude') {
+                  if ($smtprelays=~/${$r_rule}{'regex.'.$attr[$_CHARSET]}/
+                      xor ${$r_rule}{inc} eq 'exclude') {
                       $is_matched=1;
                   }
 
-               } elsif ( $ruletype eq 'textcontent' ) {
+               } elsif ( ${$r_rule}{type} eq 'textcontent' ) {
                   if ($currmessage eq "") {
                      ($lockget_err, $lockget_errmsg)=lockget_message_block($messageid_i, $folderfile, $folderdb, \$currmessage, $has_globallock);
                      if ($lockget_err<0) {
@@ -417,8 +385,8 @@ sub filter_allmessageids {
                   }
                   if ( $attr[$_CONTENT_TYPE] =~ /^text/i ||
                        $attr[$_CONTENT_TYPE] eq 'N/A' ) {		# for text/plain. text/html
-                     if ($body=~/${$r_rule}[$_REGEX_TEXT]/
-                         xor ${$r_rule}[$_INCLUDE] eq 'exclude') {
+                     if ($body=~/${$r_rule}{'regex.'.$attr[$_CHARSET]}/
+                         xor ${$r_rule}{inc} eq 'exclude') {
                          $is_matched=1;
                      }
                   }
@@ -443,8 +411,8 @@ sub filter_allmessageids {
                      foreach my $r_attachment (@{$r_attachments}) {
                         if ( ${$r_attachment}{'content-type'} =~ /^text/i ||
                              ${$r_attachment}{'content-type'} eq "N/A" ) { # read all for text/plain. text/html
-                           if (${${$r_attachment}{r_content}}=~/${$r_rule}[$_REGEX_TEXT]/
-                               xor ${$r_rule}[$_INCLUDE] eq 'exclude') {
+                           if (${${$r_attachment}{r_content}}=~/${$r_rule}{'regex.'.$attr[$_CHARSET]}/
+                               xor ${$r_rule}{inc} eq 'exclude') {
                               $is_matched=1;
                               last;	# leave attachments loop of this msg
                            }
@@ -452,7 +420,7 @@ sub filter_allmessageids {
                      }
                   } # end !$is_matched bodytext
 
-               } elsif ($ruletype eq 'attfilename') {
+               } elsif (${$r_rule}{type} eq 'attfilename') {
                   if ($currmessage eq "") {
                      ($lockget_err, $lockget_errmsg)=lockget_message_block($messageid_i, $folderfile, $folderdb, \$currmessage, $has_globallock);
                      if ($lockget_err<0) {
@@ -466,8 +434,8 @@ sub filter_allmessageids {
                   }
                   # check attachments
                   foreach my $r_attachment (@{$r_attachments}) {
-                     if (${$r_attachment}{filename}=~/${$r_rule}[$_REGEX_TEXT]/
-                         xor ${$r_rule}[$_INCLUDE] eq 'exclude') {
+                     if (${$r_attachment}{filename}=~/${$r_rule}{'regex.'.$attr[$_CHARSET]}/
+                         xor ${$r_rule}{inc} eq 'exclude') {
                         $is_matched=1;
                         last;	# leave attachments loop of this msg
                      }
@@ -476,28 +444,33 @@ sub filter_allmessageids {
 
                if ($is_matched) {
                   # cp msg to other folder and set reserved_in_folder or to_be_moved flag
-                  my $rulestr=join('@@@', @{$r_rule}[$_RULETYPE, $_INCLUDE, $_TEXT, $_DESTINATION]);
+                  filterruledb_increase($key, 1);
 
-                  filterruledb_increase($rulestr, 1);
+                  if (!defined ${$r_rule}{fsdest}) {
+                     ${$r_rule}{fsdest}=(iconv(${$r_rule}{charset}, ${$r_prefs}{fscharset}, ${$r_rule}{dest}))[0];
+                  }
 
-                  if ( ${$r_rule}[$_OP] eq 'move' || ${$r_rule}[$_OP] eq 'copy') {
-                     if (${$r_rule}[$_DESTINATION] eq $folder) {
+                  if ( ${$r_rule}{op} eq 'move' || ${$r_rule}{op} eq 'copy') {
+                     if (${$r_rule}{fsdest} eq $folder) {
                         $reserved_in_folder=1;
                      } else {
                         ($appended, $append_errmsg)=append_filteredmsg_to_folder($folderfile, $folderdb,
-					$messageid_i, \@attr, \$currmessage, $user, ${$r_rule}[$_DESTINATION], $has_globallock);
+					$messageid_i, \@attr, \$currmessage, $user, ${$r_rule}{fsdest}, $has_globallock);
                      }
                   }
 
-                  if (${$r_rule}[$_OP] eq 'move' || ${$r_rule}[$_OP] eq 'delete') {
+                  if (${$r_rule}{op} eq 'move' || ${$r_rule}{op} eq 'delete') {
                      if ($appended>=0) {
                         if (!$reserved_in_folder) {
-                           writelog("debug - mailfilter move $messageid_i -> ${$r_rule}[$_DESTINATION] (rule: ${$r_rule}[$_RULETYPE] ${$r_rule}[$_INCLUDE] ${$r_rule}[$_TEXT]) - " .__FILE__.":". __LINE__) if ($config{'debug_mailfilter'});
+                           if ($config{'debug_mailfilter'}) {
+                              my $fstext=(iconv(${$r_rule}{charset}, ${$r_prefs}{fscharset}, ${$r_rule}{text}))[0];
+                              writelog("debug - mailfilter move $messageid_i -> ${$r_rule}{fsdest} (rule: ${$r_rule}{type} ${$r_rule}{inc} $fstext) - " .__FILE__.":". __LINE__);
+                           }
                            $to_be_moved=1;
-                           filterfolderdb_increase(${$r_rule}[$_DESTINATION], 1);
+                           filterfolderdb_increase(${$r_rule}{fsdest}, 1);
                         }
                      } else {
-                        my $m="mailfilter - ${$r_rule}[$_DESTINATION] write error"; writelog($m); writehistory($m);
+                        my $m="mailfilter - ${$r_rule}{fsdest} write error"; writelog($m); writehistory($m);
                         $io_errcount++;
                      }
                      last;

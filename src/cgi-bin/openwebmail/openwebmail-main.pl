@@ -41,7 +41,12 @@ require "shares/getmsgids.pl";
 require "shares/fetchmail.pl";
 require "shares/pop3book.pl";
 require "shares/calbook.pl";
+require "shares/filterbook.pl";
 require "shares/mailfilter.pl";
+
+# optional module
+ow::tool::has_module('IO/Socket/SSL.pm');
+ow::tool::has_module('Compress/Zlib.pm');
 
 # common globals
 use vars qw(%config %config_raw);

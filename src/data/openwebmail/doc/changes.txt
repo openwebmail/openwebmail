@@ -1,3 +1,11 @@
+02/06/2005
+----------
+1. Romanian (ro & ro.utf8) lang and prefs.template translation minor update
+   (thanks to Gabriel Hojda, gabriel.hojda.AT.gmail.com)
+2. multiple charset support for mailfilter
+3. clean code in mailfilte.pl for minor speedup
+
+
 02/04/2005
 ----------
 1. fix a bug in calendar that day of month was not properly checked when

@@ -44,8 +44,12 @@ require "shares/cut.pl";
 require "shares/getmsgids.pl";
 require "shares/getmessage.pl";
 require "shares/lockget.pl";
-require "shares/mailfilter.pl";
 require "shares/statbook.pl";
+require "shares/filterbook.pl";
+require "shares/mailfilter.pl";
+
+# optional module
+ow::tool::has_module('Compress/Zlib.pm');
 
 # common globals
 use vars qw(%config %config_raw);

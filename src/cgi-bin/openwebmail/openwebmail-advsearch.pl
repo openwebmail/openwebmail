@@ -39,6 +39,9 @@ require "shares/iconv.pl";
 require "shares/maildb.pl";
 require "shares/getmsgids.pl";
 
+# optional module
+ow::tool::has_module('Compress/Zlib.pm');
+
 # common globals
 use vars qw(%config %config_raw);
 use vars qw($thissession);

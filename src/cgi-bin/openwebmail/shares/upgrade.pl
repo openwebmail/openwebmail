@@ -339,6 +339,26 @@ sub upgrade_all {	# called if user releasedate is too old
          }
       }
    }
+
+   if ( $user_releasedate lt "20050206" ) {
+      my $filterbookfile=dotpath('filter.book');
+      my $data;
+      if (open(F, $filterbookfile)) {
+         while (<F>) {
+            chomp;
+            my @a=split(/\@\@\@/, $_);
+            $a[7]=$prefs{'charset'} if ($a[7] eq '');
+            $data.=join('@@@', @a)."\n";
+         }
+         close(F);
+         if (open(F, ">$filterbookfile")) {
+            print F $data;
+            close(F);
+            writehistory("release upgrade - $filterbookfile charset by 20050206");
+            writelog("release upgrade - $filterbookfile charset by 20050206");
+         }
+      }
+   }
    return;
 }
 

@@ -47,13 +47,17 @@ require "shares/maildb.pl";
 require "shares/lockget.pl";
 require "shares/cut.pl";
 require "shares/getmsgids.pl";
-require "shares/mailfilter.pl";
 require "shares/fetchmail.pl";
 require "shares/pop3book.pl";
+require "shares/adrbook.pl";
 require "shares/calbook.pl";
+require "shares/filterbook.pl";
+require "shares/mailfilter.pl";
 require "shares/lunar.pl";
 require "shares/upgrade.pl";
-require "shares/adrbook.pl";
+
+# optional module
+ow::tool::has_module('IO/Socket/SSL.pm');
 
 # common globals
 use vars qw(%config %config_raw);

@@ -128,6 +128,9 @@ require "auth/auth.pl";
 require "quota/quota.pl";
 require "shares/ow-shared.pl";
 
+# optional module
+ow::tool::has_module('Compress/Zlib.pm');
+
 # common globals
 use vars qw(%config %config_raw);
 use vars qw($thissession);

@@ -1,18 +1,18 @@
-25@@@header@@@include@@@X\-Spam\-Level: \*\*\*\*\*\*\*\*\*\*\*\*@@@move@@@spam-mail@@@1
-30@@@subject@@@include@@@virus.*mail|virus.*alert|virus.*found@@@move@@@mail-trash@@@1
-30@@@subject@@@include@@@\s{12}@@@move@@@mail-trash@@@1
-30@@@subject@@@include@@@A.*powful tool@@@move@@@spam-mail@@@1
-30@@@subject@@@include@@@A.*humour game@@@move@@@virus-mail@@@1
-30@@@subject@@@include@@@Attachments Deleted by MailScan@@@move@@@mail-trash@@@1
-30@@@subject@@@include@@@Worm Klez.E immunity@@@move@@@mail-trash@@@1
-30@@@subject@@@include@@@Verba Volant@@@move@@@spam-mail@@@1
-30@@@subject@@@include@@@viagra|xanax|vicodin|zoloft|citrate|penis@@@move@@@spam-mail@@@1
-30@@@from@@@include@@@anti.*virus|amavisd|interscan|mailsqr@@@move@@@mail-trash@@@1
-30@@@from@@@include@@@\s{7}@@@move@@@mail-trash@@@1
-30@@@from@@@include@@@[a-z][0-9]{6,11}@(yahoo|hotmail|pchome)\.com@@@move@@@mail-trash@@@1
-50@@@attfilename@@@include@@@(readme|instruction|transcript|mail|letter)\.(cmd|bat|com|exe|pif|scr|zip)@@@move@@@virus-mail@@@1
-50@@@attfilename@@@include@@@(file|text|attachment|document|message)\.(cmd|bat|com|exe|pif|scr|zip)@@@move@@@virus-mail@@@1
-50@@@attfilename@@@include@@@readme\.(eml|exe|com|wav)@@@move@@@virus-mail@@@1
-50@@@attfilename@@@include@@@(NakedWife|MYBABYPIC|SAMPLE)\.EXE@@@move@@@virus-mail@@@1
-60@@@textcontent@@@include@@@viagra|xanax|vicodin|zoloft|citrate|penis@@@move@@@spam-mail@@@1
-60@@@textcontent@@@include@@@I send you this file in order to have your advice@@@move@@@virus-mail@@@1
+25@@@header@@@include@@@X\-Spam\-Level: \*\*\*\*\*\*\*\*\*\*\*\*@@@move@@@spam-mail@@@1@@@iso-8859-1
+30@@@subject@@@include@@@virus.*mail|virus.*alert|virus.*found@@@move@@@mail-trash@@@1@@@iso-8859-1
+30@@@subject@@@include@@@\s{12}@@@move@@@mail-trash@@@1@@@iso-8859-1
+30@@@subject@@@include@@@A.*powful tool@@@move@@@spam-mail@@@1@@@iso-8859-1
+30@@@subject@@@include@@@A.*humour game@@@move@@@virus-mail@@@1@@@iso-8859-1
+30@@@subject@@@include@@@Attachments Deleted by MailScan@@@move@@@mail-trash@@@1@@@iso-8859-1
+30@@@subject@@@include@@@Worm Klez.E immunity@@@move@@@mail-trash@@@1@@@iso-8859-1
+30@@@subject@@@include@@@Verba Volant@@@move@@@spam-mail@@@1@@@iso-8859-1
+30@@@subject@@@include@@@viagra|xanax|vicodin|zoloft|citrate|penis@@@move@@@spam-mail@@@1@@@iso-8859-1
+30@@@from@@@include@@@anti.*virus|amavisd|interscan|mailsqr@@@move@@@mail-trash@@@1@@@iso-8859-1
+30@@@from@@@include@@@\s{7}@@@move@@@mail-trash@@@1@@@iso-8859-1
+30@@@from@@@include@@@[a-z][0-9]{6,11}@(yahoo|hotmail|pchome)\.com@@@move@@@mail-trash@@@1@@@iso-8859-1
+50@@@attfilename@@@include@@@(readme|instruction|transcript|mail|letter)\.(cmd|bat|com|exe|pif|scr|zip)@@@move@@@virus-mail@@@1@@@iso-8859-1
+50@@@attfilename@@@include@@@(file|text|attachment|document|message)\.(cmd|bat|com|exe|pif|scr|zip)@@@move@@@virus-mail@@@1@@@iso-8859-1
+50@@@attfilename@@@include@@@readme\.(eml|exe|com|wav)@@@move@@@virus-mail@@@1@@@iso-8859-1
+50@@@attfilename@@@include@@@(NakedWife|MYBABYPIC|SAMPLE)\.EXE@@@move@@@virus-mail@@@1@@@iso-8859-1
+60@@@textcontent@@@include@@@viagra|xanax|vicodin|zoloft|citrate|penis@@@move@@@spam-mail@@@1@@@iso-8859-1
+60@@@textcontent@@@include@@@I send you this file in order to have your advice@@@move@@@virus-mail@@@1@@@iso-8859-1

@@ -33,6 +33,10 @@ require "shares/ow-shared.pl";
 require "shares/iconv.pl";
 require "shares/pop3book.pl";
 require "shares/statbook.pl";
+require "shares/filterbook.pl";
+
+# optional module
+ow::tool::has_module('Compress/Zlib.pm');
 
 # common globals
 use vars qw(%config %config_raw);
@@ -63,30 +67,6 @@ use vars qw($sort $page);
 use vars qw($userfirsttime $prefs_caller);
 use vars qw($urlparmstr $formparmstr);
 use vars qw($escapedfolder $escapedmessageid);
-
-# const globals
-use vars qw(%op_order %ruletype_order %folder_order);	# filterrule prefered order, the smaller one is prefered
-%op_order=(
-   copy   => 0,
-   move   => 1,
-   delete => 2,
-);
-%ruletype_order=(
-   from        => 0,
-   to          => 1,
-   subject     => 2,
-   header      => 3,
-   smtprelay   => 4,
-   attfilename => 5,
-   textcontent => 6
-);
-%folder_order=(		# folders not listed have order 0
-   INBOX        => -1,
-   DELETE       => 1,
-   'virus-mail' => 2,
-   'spam-mail'  => 3,
-   'mail-trash' => 4
-);
 
 ########## MAIN ##################################################
 openwebmail_requestbegin();
@@ -2545,9 +2525,6 @@ sub modpop3 {
 
 ########## EDITFILTER ############################################
 sub editfilter {
-   my @filterrules=();
-   my @globalfilterrules=();
-
    my ($html, $temphtml);
    $html = applystyle(readtemplate("editfilter.template"));
 
@@ -2598,11 +2575,11 @@ sub editfilter {
                           -labels=>\%labels);
    $html =~ s/\@\@\@RULEMENU\@\@\@/$temphtml/;
 
-   my %labels = ('include'=>$lang_text{'include'},
+   my %inclabels = ('include'=>$lang_text{'include'},
                         'exclude'=>$lang_text{'exclude'});
    $temphtml = popup_menu(-name=>'include',
                           -values=>['include', 'exclude'],
-                          -labels=>\%labels);
+                          -labels=>\%inclabels);
    $html =~ s/\@\@\@INCLUDEMENU\@\@\@/$temphtml/;
 
    $temphtml = textfield(-name=>'text',
@@ -2612,26 +2589,22 @@ sub editfilter {
                          -override=>'1');
    $html =~ s/\@\@\@TEXTFIELD\@\@\@/$temphtml/;
 
-   my %labels = ('move'=>$lang_text{'move'},
+   my %oplabels = ('move'=>$lang_text{'move'},
                  'copy'=>$lang_text{'copy'});
    $temphtml = popup_menu(-name=>'op',
                           -values=>['move', 'copy'],
-                          -labels=>\%labels);
+                          -labels=>\%oplabels);
    $html =~ s/\@\@\@OPMENU\@\@\@/$temphtml/;
 
    my (@validfolders, $inboxusage, $folderusage);
    getfolders(\@validfolders, \$inboxusage, \$folderusage);
-   foreach (@validfolders, 'DELETE') {
-      if (defined $lang_folders{$_}) {
-          $labels{$_} = $lang_folders{$_};
-      } else {
-         $labels{$_} = $_;
-      }
-   }
+
+   my @foldervalues=iconv($prefs{fscharset}, $prefs{charset},
+                          @validfolders, 'DELETE');
    $temphtml = popup_menu(-name=>'destination',
-                          -values=>[@validfolders, 'DELETE'],
+                          -values=>\@foldervalues,
                           -default=>'mail-trash',
-                          -labels=>\%labels);
+                          -labels=>\%lang_folders);
    $html =~ s/\@\@\@FOLDERMENU\@\@\@/$temphtml/;
 
    $temphtml = checkbox(-name=>'enable',
@@ -2645,48 +2618,19 @@ sub editfilter {
                       -class=>"medtext");
    $html =~ s/\@\@\@ADDBUTTON\@\@\@/$temphtml/;
 
-   my ($_PRIORITY, $_RULETYPE, $_INCLUDE, $_TEXT, $_OP, $_DESTINATION, $_ENABLE, $_REGEX_TEXT)=(0,1,2,3,4,5,6,7);
+   my (%filterrules, @sorted_filterrules, %globalfilterrules, @sorted_globalfilterrules);
 
-   ## get @filterrules ##
+   ## get %filterrules ##
    if ( -f $filterbookfile ) {
-      open (FILTER, $filterbookfile) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $filterbookfile! ($!)");
-      while (<FILTER>) {
-         chomp($_);
-         if (/^\d+\@\@\@/) { # add valid rule only (Filippo Dattola)
-            my @rule=split(/\@\@\@/);
-            next if (!is_defaultfolder($rule[$_DESTINATION]) && !$config{'enable_userfolders'});
-            push(@filterrules, \@rule);
-         }
-      }
-      close (FILTER) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $filterbookfile! ($!)");
+      my ($ret, $errmsg)=read_filterbook($filterbookfile, \%filterrules);
+      openwebmailerror(__FILE__, __LINE__, $errmsg) if ($ret<0);
    }
-   @filterrules=sort {
-                     ${$a}[$_PRIORITY]                   <=> ${$b}[$_PRIORITY]                   or
-                     $op_order{${$a}[$_OP]}              <=> $op_order{${$b}[$_OP]}              or
-                     $ruletype_order{${$a}[$_RULETYPE]}  <=> $ruletype_order{${$b}[$_RULETYPE]}  or
-                     $folder_order{${$a}[$_DESTINATION]} <=> $folder_order{${$b}[$_DESTINATION]}
-                     } @filterrules;
+   @sorted_filterrules=sort_filterrules(\%filterrules);
 
    if ( $config{'enable_globalfilter'} && -f "$config{'global_filterbook'}" ) {
-      if ( open (FILTER, "$config{'global_filterbook'}") ) {
-         while (<FILTER>) {
-            chomp($_);
-            if (/^\d+\@\@\@/) { # add valid rule only (Filippo Dattola)
-               my @rule=split(/\@\@\@/);
-               next if (!is_defaultfolder($rule[$_DESTINATION]) && !$config{'enable_userfolders'});
-               push(@globalfilterrules, \@rule);
-            }
-         }
-         close (FILTER);
-      }
+      my ($ret, $errmsg)=read_filterbook($config{'global_filterbook'}, \%globalfilterrules);
+      @sorted_globalfilterrules=sort_filterrules(\%globalfilterrules) if ($ret==0);
    }
-   @globalfilterrules=sort {
-                     ${$a}[$_PRIORITY]                   <=> ${$b}[$_PRIORITY]                   or
-                     $op_order{${$a}[$_OP]}              <=> $op_order{${$b}[$_OP]}              or
-                     $ruletype_order{${$a}[$_RULETYPE]}  <=> $ruletype_order{${$b}[$_RULETYPE]}  or
-                     $folder_order{${$a}[$_DESTINATION]} <=> $folder_order{${$b}[$_DESTINATION]}
-                     } @globalfilterrules;
 
    $temphtml = '';
    my %FILTERRULEDB;
@@ -2694,9 +2638,9 @@ sub editfilter {
    ow::dbm::open(\%FILTERRULEDB, $filterruledb, LOCK_SH) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} db $filterruledb");
 
-   for (my $i=0; $i<=$#filterrules; $i++) {
-      my ($priority, $ruletype, $include, $text, $op, $destination, $enable) = @{$filterrules[$i]};
-      my ($matchcount, $matchdate)=split(":", $FILTERRULEDB{"$ruletype\@\@\@$include\@\@\@$text\@\@\@$destination"});
+   foreach my $key (@sorted_filterrules) {
+      my %rule=%{$filterrules{$key}};
+      my ($matchcount, $matchdate)=split(":", $FILTERRULEDB{$key});
 
       $temphtml .= "<tr>\n";
       if ($matchdate) {
@@ -2707,28 +2651,27 @@ sub editfilter {
       } else {
          $temphtml .= "<td bgcolor=$bgcolor align=center>0</font></td>\n";
       }
-      my $jstext = $text; $jstext=~s/\\/\\\\/g; $jstext=~s/'/\\'/g; $jstext=~s/"/!QUOT!/g;
-      my $accesskeystr=$i%10+1;
-      if ($accesskeystr == 10) {
-         $accesskeystr=qq|accesskey="0"|;
-      } elsif ($accesskeystr < 10) {
-         $accesskeystr=qq|accesskey="$accesskeystr"|;
-      }
-      $temphtml .= qq|<td bgcolor=$bgcolor align=center>$priority</td>\n|.
-                   qq|<td bgcolor=$bgcolor align=center>$lang_text{$ruletype}</td>\n|.
-                   qq|<td bgcolor=$bgcolor align=center>$lang_text{$include}</td>\n|.
-                   qq|<td bgcolor=$bgcolor align=center><a $accesskeystr href="Javascript:Update('$priority','$ruletype','$include','$jstext','$op','$destination','$enable')">|.ow::htmltext::str2html($text).qq|</a></td>\n|;
-      if ($destination eq 'INBOX') {
+
+      my ($textstr, $deststr)=iconv($rule{charset}, $prefs{charset}, $rule{text}, $rule{dest});
+      my $jstext = $textstr; $jstext=~s/\\/\\\\/g; $jstext=~s/'/\\'/g;
+      my $jsdest = $deststr; $jsdest=~s/\\/\\\\/g; $jsdest=~s/'/\\'/g;
+      $temphtml .= qq|<td bgcolor=$bgcolor align=center>$rule{priority}</td>\n|.
+                   qq|<td bgcolor=$bgcolor align=center>$lang_text{$rule{type}}</td>\n|.
+                   qq|<td bgcolor=$bgcolor align=center>$lang_text{$rule{inc}}</td>\n|.
+                   qq|<td bgcolor=$bgcolor align=center><a href="Javascript:|.
+                   qq|Update('$rule{priority}','$rule{type}','$rule{inc}','$jstext','$rule{op}','$jsdest','$rule{enable}')">|.
+                   ow::htmltext::str2html($textstr).qq|</a></td>\n|;
+      if ($rule{dest} eq 'INBOX') {
          $temphtml .= "<td bgcolor=$bgcolor align=center>-----</td>\n";
       } else {
-         $temphtml .= "<td bgcolor=$bgcolor align=center>$lang_text{$op}</td>\n";
+         $temphtml .= "<td bgcolor=$bgcolor align=center>$lang_text{$rule{op}}</td>\n";
       }
-      if (defined $lang_folders{$destination}) {
-         $temphtml .= "<td bgcolor=$bgcolor align=center>$lang_folders{$destination}</td>\n";
+      if (defined $lang_folders{$rule{dest}}) {
+         $temphtml .= "<td bgcolor=$bgcolor align=center>$lang_folders{$rule{dest}}</td>\n";
       } else {
-         $temphtml .= "<td bgcolor=$bgcolor align=center>$destination</td>\n";
+         $temphtml .= "<td bgcolor=$bgcolor align=center>".ow::htmltext::str2html($deststr)."</td>\n";
       }
-      if ($enable == 1) {
+      if ($rule{enable} == 1) {
          $temphtml .= "<td bgcolor=$bgcolor align=center>$lang_text{'enable'}</td>\n";
       } else {
          $temphtml .= "<td bgcolor=$bgcolor align=center>$lang_text{'disable'}</td>\n";
@@ -2736,10 +2679,10 @@ sub editfilter {
       $temphtml .= start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-prefs.pl").
                    qq|<td bgcolor=$bgcolor align=center>|.
                    ow::tool::hiddens(action=>'deletefilter',
-                                     ruletype=>$ruletype,
-                                     include=>$include,
-                                     text=>$text,
-                                     destination=>$destination).
+                                     ruletype=>$rule{type},
+                                     include=>$rule{inc},
+                                     text=>ow::tool::escapeURL($rule{text}),
+                                     destination=>ow::tool::escapeURL($rule{dest})).
                    submit(-name=>$lang_text{'delete'},
                           -class=>"medtext").
                    $formparmstr.
@@ -2752,15 +2695,15 @@ sub editfilter {
       }
    }
 
-   if ($#globalfilterrules >= 0) {
+   if ($#sorted_globalfilterrules >= 0) {
       $temphtml .= qq|<tr><td colspan="9">&nbsp;</td></tr>\n|.
                    qq|<tr><td colspan="9" bgcolor=$style{columnheader}><B>$lang_text{globalfilterrule}</B> ($lang_text{readonly})</td></tr>\n|;
    }
    $bgcolor = $style{"tablerow_dark"};
 
-   for (my $i=0; $i<=$#globalfilterrules; $i++) {
-      my ($priority, $ruletype, $include, $text, $op, $destination, $enable) = @{$globalfilterrules[$i]};
-      my ($matchcount, $matchdate)=split(":", $FILTERRULEDB{"$ruletype\@\@\@$include\@\@\@$text\@\@\@$destination"});
+   foreach (@sorted_globalfilterrules) {
+      my %rule=%{$globalfilterrules{$_}};
+      my ($matchcount, $matchdate)=split(":", $FILTERRULEDB{$_});
 
       $temphtml .= "<tr>\n";
       if ($matchdate) {
@@ -2771,24 +2714,22 @@ sub editfilter {
       } else {
          $temphtml .= "<td bgcolor=$bgcolor align=center>0</font></td>\n";
       }
-      my $jstext = $text; $jstext=~s/\\/\\\\/g; $jstext=~s/'/\\'/g; $jstext=~s/"/!QUOT!/g;
-      my $accesskeystr=$i%10+1;
-      if ($accesskeystr == 10) {
-         $accesskeystr=qq|accesskey="0"|;
-      } elsif ($accesskeystr < 10) {
-         $accesskeystr=qq|accesskey="$accesskeystr"|;
-      }
-      $temphtml .= qq|<td bgcolor=$bgcolor align=center>$priority</td>\n|.
-                   qq|<td bgcolor=$bgcolor align=center>$lang_text{$ruletype}</td>\n|.
-                   qq|<td bgcolor=$bgcolor align=center>$lang_text{$include}</td>\n|.
-                   qq|<td bgcolor=$bgcolor align=center><a $accesskeystr href="Javascript:Update('$priority','$ruletype','$include','$jstext','$op','$destination','$enable')">|.ow::htmltext::str2html($text).qq|</a></td>\n|.
-                   qq|<td bgcolor=$bgcolor align=center>$lang_text{$op}</td>\n|;
-      if (defined $lang_folders{$destination}) {
-         $temphtml .= "<td bgcolor=$bgcolor align=center>$lang_folders{$destination}</td>\n";
+      my ($textstr, $deststr)=iconv($rule{charset}, $prefs{charset}, $rule{text}, $rule{dest});
+      my $jstext = $textstr; $jstext=~s/\\/\\\\/g; $jstext=~s/'/\\'/g;
+      my $jsdest = $deststr; $jsdest=~s/\\/\\\\/g; $jsdest=~s/'/\\'/g;
+      $temphtml .= qq|<td bgcolor=$bgcolor align=center>$rule{priority}</td>\n|.
+                   qq|<td bgcolor=$bgcolor align=center>$lang_text{$rule{type}}</td>\n|.
+                   qq|<td bgcolor=$bgcolor align=center>$lang_text{$rule{inc}}</td>\n|.
+                   qq|<td bgcolor=$bgcolor align=center><a href="Javascript:|.
+                   qq|Update('$rule{priority}','$rule{type}','$rule{inc}','$jstext','$rule{op}','$jsdest','$rule{enable}')">|.
+                   ow::htmltext::str2html($textstr).qq|</a></td>\n|.
+                   qq|<td bgcolor=$bgcolor align=center>$lang_text{$rule{op}}</td>\n|;
+      if (defined $lang_folders{$rule{dest}}) {
+         $temphtml .= "<td bgcolor=$bgcolor align=center>$lang_folders{$rule{dest}}</td>\n";
       } else {
-         $temphtml .= "<td bgcolor=$bgcolor align=center>$destination</td>\n";
+         $temphtml .= "<td bgcolor=$bgcolor align=center>".ow::htmltext::str2html($deststr)."</td>\n";
       }
-      if ($enable == 1) {
+      if ($rule{enable} == 1) {
          $temphtml .= "<td bgcolor=$bgcolor align=center>$lang_text{'enable'}</td>\n";
       } else {
          $temphtml .= "<td bgcolor=$bgcolor align=center>$lang_text{'disable'}</td>\n";
@@ -2802,6 +2743,7 @@ sub editfilter {
       } else {
          $bgcolor = $style{"tablerow_dark"};
       }
+
    }
 
    ow::dbm::close(\%FILTERRULEDB, $filterruledb);
@@ -2841,39 +2783,32 @@ sub modfilter {
          # read personal filter and update it
          ow::filelock::lock($filterbookfile, LOCK_EX) or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $filterbookfile!");
-         open (FILTER,$filterbookfile) or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $filterbookfile! ($!)");
-         while(<FILTER>) {
-            my ($epriority,$eruletype,$einclude,$etext,$eop,$edestination,$eenable);
-            my $line=$_; chomp($line);
-            ($epriority,$eruletype,$einclude,$etext,$eop,$edestination,$eenable) = split(/\@\@\@/, $line);
-            $filterrules{"$eruletype\@\@\@$einclude\@\@\@$etext\@\@\@$edestination"}="$epriority\@\@\@$eruletype\@\@\@$einclude\@\@\@$etext\@\@\@$eop\@\@\@$edestination\@\@\@$eenable";
-         }
-         if ($mode eq 'delete') {
-            delete $filterrules{"$ruletype\@\@\@$include\@\@\@$text\@\@\@$destination"};
-         } else {
-            $text =~ s/\@\@/\@\@ /; $text =~ s/\@$/\@ /;
-            $filterrules{"$ruletype\@\@\@$include\@\@\@$text\@\@\@$destination"}="$priority\@\@\@$ruletype\@\@\@$include\@\@\@$text\@\@\@$op\@\@\@$destination\@\@\@$enable";
-         }
-         close (FILTER) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $filterbookfile! ($!)");
 
-         open (FILTER,">$filterbookfile") or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $filterbookfile! ($!)");
-         print FILTER join("\n", sort values %filterrules)."\n";
-         close (FILTER) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $filterbookfile! ($!)");
+         my ($ret, $errmsg)=read_filterbook($filterbookfile, \%filterrules);
+         openwebmailerror(__FILE__, __LINE__, $errmsg) if ($ret<0);
+
+         if ($mode eq 'delete') {
+            $text=ow::tool::unescapeURL($text);
+            $destination=ow::tool::unescapeURL($destination);
+            my $key="$ruletype\@\@\@$include\@\@\@$text\@\@\@$destination";
+            delete $filterrules{$key};
+         } else {
+            my $key="$ruletype\@\@\@$include\@\@\@$text\@\@\@$destination";
+            $text =~ s/\@\@/\@\@ /; $text =~ s/\@$/\@ /;
+            my %rule;
+            @rule{'priority', 'type', 'inc', 'text', 'op', 'dest', 'enable', 'charset'}
+                 =($priority, $ruletype, $include, $text, $op, $destination, $enable, $prefs{charset});
+            $filterrules{$key}=\%rule;
+         }
+
+         ($ret, $errmsg)=write_filterbook($filterbookfile, \%filterrules);
+         openwebmailerror(__FILE__, __LINE__, $errmsg) if ($ret<0);
+
          ow::filelock::lock($filterbookfile, LOCK_UN);
 
          # read global filter into hash %filterrules
          if ( $config{'global_filterbook'} ne "" && -f "$config{'global_filterbook'}" ) {
-            open (FILTER,"$config{'global_filterbook'}") or
-               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'global_filterbook'}! ($!)");
-            while(<FILTER>) {
-               my ($epriority,$eruletype,$einclude,$etext,$eop,$edestination,$eenable);
-               my $line=$_; chomp($line);
-               ($epriority,$eruletype,$einclude,$etext,$eop,$edestination,$eenable) = split(/\@\@\@/, $line);
-               $filterrules{"$eruletype\@\@\@$einclude\@\@\@$etext\@\@\@$edestination"}="$epriority\@\@\@$eruletype\@\@\@$einclude\@\@\@$etext\@\@\@$eop\@\@\@$edestination\@\@\@$eenable";
-            }
-            close (FILTER) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $config{'global_filterbook'}! ($!)");
+            ($ret, $errmsg)=read_filterbook($filterbookfile, \%filterrules);
          }
 
          # remove stale entries in filterrule db by checking %filterrules
@@ -2892,11 +2827,16 @@ sub modfilter {
            }
          }
          ow::dbm::close(\%FILTERRULEDB, $filterruledb);
+
       } else {
-         open (FILTER, ">$filterbookfile" ) or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $filterbookfile! ($!)");
-         print FILTER "$priority\@\@\@$ruletype\@\@\@$include\@\@\@$text\@\@\@$op\@\@\@$destination\@\@\@$enable\n";
-         close (FILTER) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $filterbookfile! ($!)");
+         $text =~ s/\@\@/\@\@ /; $text =~ s/\@$/\@ /;
+         my %rule;
+         @rule{'priority', 'type', 'inc', 'text', 'op', 'dest', 'enable', 'charset'}
+              =($priority, $ruletype, $include, $text, $op, $destination, $enable, $prefs{charset});
+         my $key="$ruletype\@\@\@$include\@\@\@$text\@\@\@$destination";
+         $filterrules{$key}=\%rule;
+         my ($ret, $errmsg)=write_filterbook($filterbookfile, \%filterrules);
+         openwebmailerror(__FILE__, __LINE__, $errmsg) if ($ret<0);
       }
 
       ## remove .filter.check ##
