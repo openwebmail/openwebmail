@@ -1,3 +1,12 @@
+11/29/2004
+----------
+1. add -u (--unlock) option to openwebmail-tool.pl,
+   it removes the file locks for specific openwebmail user by killing the
+   processes holding the locks
+ps: This function requires the program 'lsof',
+    lsof is available at http://people.freebsd.org/~abe/
+
+
 11/27/2004
 ----------
 1. fix the color of listview in addressbook when lightbar is disabled

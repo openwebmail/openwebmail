@@ -17,6 +17,15 @@ sub findbin {
    return ($_bincache{$_[0]}='');
 }
 
+use vars qw(%_sbincache);
+sub findsbin {
+   return $_sbincache{$_[0]} if (defined($_sbincache{$_[0]}));
+   foreach my $p ('/usr/local/sbin', '/usr/sbin', '/sbin', '/usr/X11R6/sbin/', '/opt/sbin') {
+      return($_sbincache{$_[0]}="$p/$_[0]") if (-x "$p/$_[0]");
+   }
+   return ($_sbincache{$_[0]}='');
+}
+
 sub find_configfile {
    my @configfiles=@_;
    my $cgi_bin = $INC[$#INC];		# get cgi-bin/openwebmail path from @INC

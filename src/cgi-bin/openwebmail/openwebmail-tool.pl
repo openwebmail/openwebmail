@@ -147,6 +147,8 @@ if ($ARGV[0] eq "--") {		# called by inetd
          $opt{'pop3'}=1; $opt{'null'}=0;
       } elsif ($ARGV[$i] eq "--size" || $ARGV[$i] eq "-s") {
          $opt{'size'}=1; $opt{'null'}=0;
+      } elsif ($ARGV[$i] eq "--unlock" || $ARGV[$i] eq "-u") {
+         $opt{'unlock'}=1; $opt{'null'}=0;
       } elsif ($ARGV[$i] eq "--zaptrash" || $ARGV[$i] eq "-z") {
          $opt{'zap'}=1; $opt{'null'}=0;
       } elsif ($ARGV[$i] eq "--convert_addressbooks" || $ARGV[$i] eq "-c") {
@@ -236,8 +238,9 @@ mail/calendar options:
  -n, --notify \t check and send calendar notification email
  -p, --pop3   \t fetch pop3 mail for user
  -s, --size   \t check user quota and cut mails/files if over quotalimit
+ -u, --unlock  \t remove file locks related to user
  -z, --zaptrash\t remove stale messages from trash folder
- -c, --convert_addressbooks\t convert global (and all users with -a) addressbooks to vcard format
+ -c, --convert_addressbooks\t convert addressbookglobal (and all users with -a) addressbooks to vcard format
 
 ps: <folder> can be INBOX, ALL or folder filename
 
@@ -885,6 +888,10 @@ sub usertool {
          my $ret=checknotify();
          print "checknotify() return $ret\n" if (!$opt{'quiet'} && $ret!=0);
       }
+      if ($opt{'unlock'}) {
+         my $ret=unlockfiles();
+         print "unlockfiles() return $ret\n" if (!$opt{'quiet'} && $ret!=0);
+      }
       if ($opt{'convert_addressbooks'}) {
          loadlang($prefs{'language'});	# for converted filename $lang_text{abook_converted}
          print "converting user $user addressbook..." if (!$opt{'quiet'});
@@ -1443,5 +1450,46 @@ sub pop3_fetches {
       }
    }
 
+   return 0;
+}
+
+sub unlockfiles {
+   my @cmd;
+   my $lsofbin=ow::tool::findsbin('lsof')||ow::tool::findbin('lsof');
+   if ($lsofbin eq '') {
+      print "Program lsof not found, please install lsof first";
+      return 1;
+   }
+
+   my $folderdir=ow::tool::untaint("$homedir/$config{'homedirfolderdirname'}");
+   my $dbdir=ow::tool::untaint(dotpath('/'));
+   my $spooldir=(get_folderpath_folderdb($user, 'INBOX'))[0]; $spooldir=~s!(.*)/.*!$1!;
+
+   push(@cmd, $lsofbin, '+w', '-l', '-S2', '-Di');
+   foreach ($spooldir, $folderdir, $dbdir, $config{'ow_etcdir'}) {
+      push(@cmd, '+d'.$_);
+   }
+   push(@cmd, '-a', '-d^cwd');
+
+   # since lsof read/write tmp cache file with ruid no matter what euid is
+   # so we set euid=root or euid won't have enough privilege to read/write lsof cache file
+   my $euid=$>; $>=0 if ($<==0);
+   my ($stdout, $stderr, $exit, $sig)=ow::execute::execute(@cmd);
+   $>=$euid if ($<==0);
+
+   my @pids;
+   foreach (split(/\n/, $stdout)) {
+      my ($cmd, $pid, $puid, $fd, $type, $device, $size, $mode, $fname)=split(/\s+/);
+      next if ($puid!=$euid);
+      next if ($fd!~/\d+([A-Za-z])([A-Za-z])/);
+      my ($rw, $lock)=($1, $2);
+      print "program=$cmd, pid=$pid, lock=$lock, file=$fname\n";
+      push(@pids, ow::tool::untaint($pid));
+   }
+   if ($#pids>=0) {
+      print "\nKill above processes to remove filelock for $user? (y/N) ";
+      $_=<STDIN>;
+      kill 9, @pids if (/y/i);
+   }
    return 0;
 }
