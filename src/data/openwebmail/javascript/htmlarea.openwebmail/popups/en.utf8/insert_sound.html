@@ -1,0 +1,220 @@
+<html style="width: 398; height: 220">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>Insert Sound</title>
+
+<script type="text/javascript" src="popup.js"></script>
+
+<script type="text/javascript">
+var preview_window = null;
+
+function Init() {
+  __dlg_init();
+  document.getElementById("f_url").focus();
+};
+
+function onOK() {
+  var required = {
+    "f_url": "You must enter the URL",
+    "f_alt": "Please enter the alternate text"
+  };
+  for (var i in required) {
+    var el = document.getElementById(i);
+    if (!el.value) {
+      alert(required[i]);
+      el.focus();
+      return false;
+    }
+  }
+  // pass data back to the calling window
+  var fields = ["f_url", "f_alt", "f_type", "f_autoplay", "f_hidden", "f_loop"];
+  var param = new Object();
+  for (var i in fields) {
+    var id = fields[i];
+    var el = document.getElementById(id);
+    if (id == "f_autoplay" || id == "f_hidden") {
+      if (el.checked) {
+         param[id] = "true";
+      } else {
+         param[id] = "false";
+      }
+    } else {
+      param[id] = el.value;
+    }
+  }
+
+  if (preview_window) {
+    preview_window.close();
+  }
+  __dlg_close(param);
+  return false;
+};
+
+function onCancel() {
+  if (preview_window) {
+    preview_window.close();
+  }
+  __dlg_close(null);
+  return false;
+};
+
+function onTestsound() {
+  var f_url = document.getElementById("f_url");
+  var url = f_url.value;
+  if (!url) {
+    alert("You have to enter an URL first");
+    f_url.focus();
+    return false;
+  }
+  var win = null;
+  if (!document.all) {
+    win = window.open(url, "ha_testsound", "width=100,height=100,toolbar=no,menubar=no,scrollbars=no,resizable=no,personalbar=no,");
+  } else {
+    win = window.open(url, "ha_testsound", "width=100,height=100,toolbar=no,menubar=no,scrollbars=no,resizable=no,location=no,channelmode=no,directories=no,");
+  }
+  return false;
+};
+
+function onChange() {
+   var f_attlist = document.getElementById('f_attlist');
+   var f_url  = document.getElementById('f_url');
+   var f_alt  = document.getElementById('f_alt');
+   var f_type = document.getElementById('f_type');
+
+   var i=f_attlist.options.selectedIndex;
+
+   f_url.value=f_attlist.options[i].value;
+   if (f_url.value == "") {
+      f_alt.value="";
+      f_type.value="";
+   } else {
+      f_alt.value=f_attlist.options[i].text;
+      var type=f_alt.value.replace(/^.*\./, "");
+      if ( type != '' ) {
+        f_type.value="audio/x-"+type;
+      } else {
+        f_type.value="audio/x-wav";
+      }
+   }
+   return true;
+};
+</script>
+
+<style type="text/css">
+html, body {
+  background: ButtonFace;
+  color: ButtonText;
+  font: 11px Tahoma,Verdana,sans-serif;
+  margin: 0px;
+  padding: 0px;
+}
+body { padding: 5px; }
+table {
+  font: 11px Tahoma,Verdana,sans-serif;
+}
+form p {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+.fl { width: 6em; float: left; padding: 2px 2px; text-align: right; }
+.fr { width: 7em; float: left; padding: 2px 2px; text-align: right; }
+fieldset { padding: 0px 10px 5px 5px; }
+select, input, button { font: 11px Tahoma,Verdana,sans-serif; }
+button { width: 70px; }
+.space { padding: 2px; }
+
+.title { background: #ddf; color: #000; font-weight: bold; font-size: 120%; padding: 3px 10px; margin-bottom: 10px;
+border-bottom: 1px solid black; letter-spacing: 2px;
+}
+form { padding: 0px; margin: 0px; }
+</style>
+
+</head>
+
+<body onload="Init()">
+
+<div class="title">Insert Sound</div>
+
+<form action="" method="get">
+<table border="0" width="100%" style="padding: 0px; margin: 0px">
+  <tbody>
+
+  <tr>
+    <td style="width: 7em; text-align: right">Attachments:</td>
+    <td><select name="attlist" id="f_attlist" 
+         onchange="return onChange();" style="witdth:100%">
+        <option selected value="">-- Not selected --
+        </select>
+    </td>
+  </tr>
+  <tr>
+    <td style="width: 7em; text-align: right">Sound URL:</td>
+    <td><input type="text" name="url" id="f_url" style="width:75%"
+      title="Enter the sound URL here" />
+      <button name="testsound" onclick="return onTestsound();"
+      title="Test the sound in a new window">TestSound</button>
+    </td>
+  </tr>
+  <tr>
+    <td style="width: 7em; text-align: right">Alternate text:</td>
+    <td><input type="text" name="alt" id="f_alt" style="width:100%"
+      title="For browsers that don't support embed tags" /></td>
+    <input type="hidden" name="type" id="f_type">
+  </tr>
+  </tbody>
+</table>
+
+<p />
+
+<fieldset style="float:center; margin-left: 5px; margin-right: 5px;">
+<legend>Attribute</legend>
+<table align="center" width="100%"><tr>
+<td nowrap>
+<div class="fl">Auto Play:</div>
+<input type="checkbox" name="autoplay" id="f_autoplay" value="1"
+title="start automatically after page loading" />
+</td>
+<td nowrap>
+<div class="fr">Hidden Control:</div>
+<input type="checkbox" name="hidden" id="f_hidden" value="1"
+title="Hide the sound control" />
+</td>
+<td nowrap>
+<div class="fr">Loop:</div>
+<input type="textfield" name="loop" id="f_loop" value="1" size="3"
+title="Repeat count" />
+</td>
+</tr></table>
+</fieldset>
+
+<div style="margin-top: 5px; text-align: right;">
+<hr />
+<button type="button" name="ok" onclick="return onOK();">OK</button>
+<button type="button" name="cancel" onclick="return onCancel();">Cancel</button>
+</div>
+
+</form>
+
+<script type="text/javascript">
+var tid;
+function init_attlist () {
+   var options=window.dialogArguments;
+   var sel=document.getElementById("f_attlist");
+   if (options) {
+      for (var i in options) {
+         if ( i.match(/\.(mid|midi|wav|mp3|ra|au|snd)$/i) ) {
+            var op = document.createElement("option");
+            op.appendChild(document.createTextNode(i));
+            op.value = options[i];
+            sel.appendChild(op);
+         }
+      }
+   }
+   clearTimeout(tid);
+}
+// delay 0.1 sec to ensure attlist has been loaded by Init at body onload
+tid=setTimeout("init_attlist()", 100);
+</script>
+</body>
+</html>
