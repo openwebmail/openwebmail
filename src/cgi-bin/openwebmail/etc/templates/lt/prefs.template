@@ -478,6 +478,11 @@ Width @@@FILEEDITCOLUMNSMENU@@@ Height @@@FILEEDITROWSMENU@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Kiti parametrai</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Default charset for file system:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@FSCHARSETMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Use lightbar for selection:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USELIGHTBARCHECKBOX@@@

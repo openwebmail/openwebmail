@@ -160,9 +160,11 @@ sub advsearch {
                                -label=>'').
                       $lang_folders{$validfolders[$i]};
       } else {
-         my $folderstr=$validfolders[$i];
+         my $folderstr;
          if ( defined($lang_folders{$validfolders[$i]}) ) {
             $folderstr=$lang_folders{$validfolders[$i]};
+         } else {
+            $folderstr= (iconv($prefs{'fscharset'}, $prefs{'charset'}, $validfolders[$i]))[0];
          }
          $temphtml .= checkbox(-name=>'folders',
                                -value=>$validfolders[$i],
@@ -497,7 +499,7 @@ sub genline {
    if ( defined($lang_folders{$folder}) ) {
       $folderstr = $lang_folders{$folder};
    } else {
-      $folderstr = $folder;
+      $folderstr = (iconv($prefs{'fscharset'}, $prefs{'charset'}, $folder))[0];
    }
 
    if ( $colornum ) {

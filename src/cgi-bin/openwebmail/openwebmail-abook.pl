@@ -2086,7 +2086,7 @@ sub addreditform {
 
    if (defined($charset_convlist{$composecharset})) {
       foreach my $ct (sort @{$charset_convlist{$composecharset}}) {
-         if (is_convertable($composecharset, $ct)) {
+         if (is_convertible($composecharset, $ct)) {
             $ctlabels{$ct}="$composecharset > $ct";
             push(@ctlist, $ct);
             delete $allsets{$ct};

@@ -120,7 +120,7 @@ if (!$config{'enable_webmail'}) {
    openwebmailerror(__FILE__, __LINE__, "$lang_text{'webmail'} $lang_err{'access_denied'}");
 }
 
-$folder = param('folder') || 'INBOX';
+$folder = param('folder')||'INBOX';
 $page = param('page') || 1;
 $longpage = param('longpage') || 0;
 $sort = param('sort') || $prefs{'sort'} || 'date';
@@ -204,7 +204,7 @@ sub readmessage {
       # assume msg is from sender using same language as the recipient's browser
       $convfrom=$ow::lang::languagecharsets{ow::lang::guess_language()};
    }
-   $convfrom="none.$prefs{'charset'}" if ($convfrom!~/^none\./ && !is_convertable($convfrom, $prefs{'charset'}));
+   $convfrom="none.$prefs{'charset'}" if ($convfrom!~/^none\./ && !is_convertible($convfrom, $prefs{'charset'}));
    my $readcharset=$prefs{'charset'};	# charset choosed by user to read current message
    $readcharset=$1 if ($convfrom=~/^none\.(.+)$/);	# read msg with no conversion
 
@@ -454,7 +454,7 @@ sub readmessage {
       }
 
       $cf=lc($message{'charset'});	# readmsg with prefs charset and conversion
-      if (is_convertable($cf, $prefs{'charset'})) {
+      if (is_convertible($cf, $prefs{'charset'})) {
          push(@cflist, $cf); $cflabels{$cf}="$cf > $prefs{'charset'}";
          delete $allsets{$cf};
       }

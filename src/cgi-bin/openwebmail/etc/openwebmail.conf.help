@@ -1877,6 +1877,18 @@ user in composing widnow will be used for outgoing message
 available value: sameascomposing or charset listed in iconv.pl
 
 
+default_fscharset
+-----------------------------------------------------------------------
+The default charset used for filenames on file system.
+If this is set to a supported charset, openwebmail will convert the 
+filename between user preference charset and the fscharset.
+If this is set to 'none', no conversion will be issued.
+
+Please refer to ow-shared.pl for supported charsets.
+
+ps: this feature is actually not ready yet.
+
+
 default_uselightbar
 -----------------------------------------------------------------------
 whether to use the light bar for selection

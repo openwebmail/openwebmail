@@ -158,7 +158,7 @@ foreach (qw(
    calendar_reminderdays calendar_reminderforglobal
    webdisk_dirnumitems webdisk_confirmmovecopy webdisk_confirmdel
    webdisk_confirmcompress webdisk_fileeditcolumns  webdisk_fileeditrows
-   uselightbar regexmatch hideinternal refreshinterval
+   fscharset uselightbar regexmatch hideinternal refreshinterval
    newmailsound newmailwindowtime mailsentwindowtime
    dictionary trashreserveddays spamvirusreserveddays sessiontimeout
 );

@@ -353,7 +353,7 @@ package ow::es;
    description=> 'Descripción',
    download   => 'Descargar',
    charset    => 'Mapa de caracteres',
-   samecharset=> 'El mismo mapa de caracteres que en la composición',
+   sameascomposecharset => 'El mismo mapa de caracteres que en la composición',
    thisispartialmsg => 'Este es un mensaje parcial.',
    msgrebuild => 'Reconstruir Mensaje',
    editdraft  => 'Editar borrador',

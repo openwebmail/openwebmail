@@ -353,7 +353,7 @@ package ow::pt;
    description=> 'Descrição',
    download   => 'Abrir',
    charset    => 'Cód. Caracteres',
-   samecharset=> 'O mesmo Cód. de caracteres da composição',
+   sameascomposecharset => 'O mesmo Cód. de caracteres da composição',
    thisispartialmsg => 'Esta é uma mensagem parcial.',
    msgrebuild => 'Reconstruir mensagem',
    editdraft  => 'Editar rascunho',

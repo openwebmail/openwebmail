@@ -478,6 +478,11 @@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>其它设定</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>档案系统预设字集:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@FSCHARSETMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>使用高亮条进行选择：</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USELIGHTBARCHECKBOX@@@

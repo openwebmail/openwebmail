@@ -354,7 +354,7 @@ package ow::ca;
    description=> 'Descripció',
    download   => 'Descàrrega',
    charset    => 'Mapa de caràcters',
-   samecharset=> 'El mateix mapa de caràcters que en la composició',
+   sameascomposecharset => 'El mateix mapa de caràcters que en la composició',
    thisispartialmsg => 'Aquest és un missatge parcial.',
    msgrebuild => 'Reconstrueix missatge',
    editdraft  => 'Edita esborrany',

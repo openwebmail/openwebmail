@@ -1,3 +1,8 @@
+11/09/2004
+----------
+1. rename is_convertable to is_convertible in iconv.pl
+
+
 11/08/2004
 ----------
 1. refine the iconv routine and clean related code

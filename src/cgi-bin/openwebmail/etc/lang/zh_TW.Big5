@@ -353,7 +353,7 @@ package ow::zh_TW_Big5;
    description=> '描述',
    download   => '下載',
    charset    => '字集',
-   samecharset=> '與寫信時字集相同',
+   sameascomposecharset => '與寫信時字集相同',
    thisispartialmsg => '這是某封信件的一部分.',
    msgrebuild => '信件重組',
    editdraft  => '編輯草稿',

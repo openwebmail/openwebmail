@@ -353,7 +353,7 @@ package ow::ja_JP_Shift_JIS;
    description=> '詳細',
    download   => 'ダウンロード',
    charset    => '文字セット',
-   samecharset=> '文章中の文字セットと同じ',
+   sameascomposecharset => '文章中の文字セットと同じ',
    thisispartialmsg => 'これは部分的なメッセージです',
    msgrebuild => 'メッセージを作り直します',
    editdraft  => '下書きの編集',

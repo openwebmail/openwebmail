@@ -356,7 +356,7 @@ package ow::pt_BR;
    description=> 'Descrição',
    download   => 'Baixar',
    charset    => 'Codificação',
-   samecharset=> 'A mesma codificação de caracteres da composição',
+   sameascomposecharset => 'A mesma codificação de caracteres da composição',
    thisispartialmsg => 'Esta é uma mensagem parcial.',
    msgrebuild => 'Reconstrói mensagem',
    editdraft  => 'Editar',

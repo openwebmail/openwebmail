@@ -56,7 +56,7 @@ use vars qw(%charset_convlist %charset_equiv %charset_localname);
    'utf8'           => 'utf-8'
    );
 
-# convertable list of WWW charset, the definition is:
+# convertible list of WWW charset, the definition is:
 # charset in the left can be converted from the charsets in right list
 %charset_convlist=
    (
@@ -101,7 +101,7 @@ use vars qw(%charset_convlist %charset_equiv %charset_localname);
 
 sub iconv {
    my ($from, $to, @text)=@_;
-   return (@text) if (!is_convertable($from, $to));
+   return (@text) if (!is_convertible($from, $to));
 
    $from=official_charset($from);
    $to=official_charset($to);
@@ -157,15 +157,15 @@ sub official_charset {
 }
 
 
-use vars qw(%is_convertable_cache); 
-%is_convertable_cache=(
+use vars qw(%is_convertible_cache); 
+%is_convertible_cache=(
    'big5#gb2312' => 1,
    'gb2312#big5' => 1,
    'shift_jis#isp-2022-jp' => 1,
    'iso-2022-jp#euc-jp' => 1,
    'euc-jp#shift_jis' => 1
 );
-sub is_convertable {
+sub is_convertible {
    my ($from, $to)=@_;
    return 0 if ($from eq'' || $to eq '');
 
@@ -174,22 +174,22 @@ sub is_convertable {
    return 0 if ($from eq $to || 			# not necessary
                 !defined $charset_convlist{$to} || 	# unrecognized to charset
                 !defined $charset_convlist{$from});	# unrecognized from charset
-   return 1 if ($from eq 'utf-8' || $to eq 'utf-8');	# utf8 is convertable with any charset
+   return 1 if ($from eq 'utf-8' || $to eq 'utf-8');	# utf8 is convertible with any charset
 
-   if (!defined $is_convertable_cache{"$from#$to"}) {
-      $is_convertable_cache{"$from#$to"}=0;
+   if (!defined $is_convertible_cache{"$from#$to"}) {
+      $is_convertible_cache{"$from#$to"}=0;
       foreach my $charset (@{$charset_convlist{$to}}) {	# try all possible from charset
          if ($from eq $charset) {
             my $converter;
             if ($converter=iconv_open($charset, $to)) {
-               $is_convertable_cache{"$from#$to"}=1;
+               $is_convertible_cache{"$from#$to"}=1;
                $converter='';
             }
             last;
          }
       }
    }
-   return $is_convertable_cache{"$from#$to"};
+   return $is_convertible_cache{"$from#$to"};
 }
 
 

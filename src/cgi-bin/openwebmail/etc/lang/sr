@@ -353,7 +353,7 @@ package ow::sr;
    description=> 'Opis',
    download   => 'Prenos sa servera',
    charset    => 'Skup znakova',
-   samecharset=> 'Isti skup znakova kao kod nove poruke',
+   sameascomposecharset => 'Isti skup znakova kao kod nove poruke',
    thisispartialmsg => 'Ovo je nepotpuna poruka',
    msgrebuild => 'Opravka poruke',
    editdraft  => 'Sredi nedovr¹enu poruku',

@@ -353,7 +353,7 @@ package ow::bg;
    description=> 'Описание',
    download   => 'Дръпни',
    charset    => 'Кодова таблица',
-   samecharset=> 'Същата кодова таблица, както при създаване',
+   sameascomposecharset => 'Същата кодова таблица, както при създаване',
    thisispartialmsg => 'Това е част от съобщение',
    msgrebuild => 'Преподреждане на съобщението',
    editdraft  => 'Редакция чернова',

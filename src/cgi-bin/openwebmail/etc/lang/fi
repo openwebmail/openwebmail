@@ -353,7 +353,7 @@ package ow::fi;
    description=> 'Kuvaus',
    download   => 'Lataa',
    charset    => 'Merkistö',
-   samecharset=> 'Sama kuin lähettäjällä',
+   sameascomposecharset => 'Sama kuin lähettäjällä',
    thisispartialmsg => 'Tämä on osittainen viesti.',
    msgrebuild => 'Viestin uudelleenluominen',
    editdraft  => 'Muokkaa luonnosta',

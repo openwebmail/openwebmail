@@ -353,7 +353,7 @@ package ow::uk;
    description=> 'Опис',
    download   => 'Завантажити',
    charset    => 'Кодування',
-   samecharset=> 'Таке ж, як ╕ кодування листа',
+   sameascomposecharset => 'Таке ж, як ╕ кодування листа',
    thisispartialmsg => 'Це часткове пов╕домлення.',
    msgrebuild => 'Перебудувати пов╕домлення',
    editdraft  => 'Редагувати чернетку',

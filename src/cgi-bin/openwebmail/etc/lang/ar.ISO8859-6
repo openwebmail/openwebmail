@@ -353,7 +353,7 @@ package ow::ar_ISO8859_6;
    description=> 'ÇהטÕב',
    download   => 'ÊÍוךה',
    charset    => 'ÇהÊÑוךÒ',
-   samecharset=> 'זבÓ זטÙ ÇהÊÑוךÒ ÇהוÓÊÎÏו בך ÅÙÏÇÏ ÇהÑÓÇהÉ',
+   sameascomposecharset => 'זבÓ זטÙ ÇהÊÑוךÒ ÇהוÓÊÎÏו בך ÅÙÏÇÏ ÇהÑÓÇהÉ',
    thisispartialmsg => 'חÐח ÑÓÇהÉ ÌÒÆךÉ',
    msgrebuild => 'ÅÙÇÏÉ ÈזÇÁ ÇהÑÓÇהÉ',
    editdraft  => 'ÊÍÑךÑ ÇהוÓטסÏÉ',

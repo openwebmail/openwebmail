@@ -353,7 +353,7 @@ package ow::ro;
    description=> 'Descriptia',
    download   => 'Downloadeaza',
    charset    => 'Charset',
-   samecharset=> 'The same as composing charset',
+   sameascomposecharset => 'The same as composing charset',
    thisispartialmsg => 'Acesta este un mesaj partial.',
    msgrebuild => 'Refacere Messajul',
    editdraft  => 'Redactare Draft',

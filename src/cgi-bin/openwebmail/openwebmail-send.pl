@@ -1078,7 +1078,7 @@ sub composemessage {
 
    if (defined($charset_convlist{$composecharset})) {
       foreach my $ct (sort @{$charset_convlist{$composecharset}}) {
-         if (is_convertable($composecharset, $ct)) {
+         if (is_convertible($composecharset, $ct)) {
             $ctlabels{$ct}="$composecharset > $ct";
             push(@ctlist, $ct);
             delete $allsets{$ct};
@@ -2183,7 +2183,7 @@ sub _convert_attfilename {
    $origcharset=$1 if ($name =~ m{=\?([^?]*)\?[bq]\?[^?]+\?=}xi);
    return($prefix.$name.$postfix)   if ($origcharset eq '' || $origcharset eq $targetcharset);
 
-   if (is_convertable($origcharset, $targetcharset)) {
+   if (is_convertible($origcharset, $targetcharset)) {
       $name=ow::mime::decode_mimewords($name);
       ($name)=iconv($origcharset, $targetcharset, $name);
       $name=ow::mime::encode_mimewords($name, ('Charset'=>$targetcharset));
@@ -2514,7 +2514,7 @@ sub tnefatt2archive {
 
    # convfrom is the charset choosed by user in message reading
    # we convert att attributes from convfrom to current composecharset
-   if (is_convertable($convfrom, $composecharset) ) {
+   if (is_convertible($convfrom, $composecharset) ) {
       ($arcname, $arcdescription)=iconv($convfrom, $composecharset, $arcname, $arcdescription);
       $arcname=ow::mime::encode_mimewords($arcname, ('Charset'=>$composecharset));
       $arcdescription=ow::mime::encode_mimewords($arcdescription, ('Charset'=>$composecharset));

@@ -412,10 +412,10 @@ sub editprefs {
                           defined($config_raw{'DEFAULT_language'})?('-disabled'=>'1'):());
    $html =~ s/\@\@\@LANGUAGEMENU\@\@\@/$temphtml/;
 
-   my %tmpset=reverse %ow::lang::languagecharsets;
-   my @charset=sort keys %tmpset;
+   my %tmpsets=reverse %ow::lang::languagecharsets;
+   my @allcharsets=sort keys %tmpsets;
    $temphtml = popup_menu(-name=>'charset',
-                          -values=>\@charset,
+                          -values=>\@allcharsets,
                           -default=>$defaultcharset,
                           -override=>'1');
    $html =~ s/\@\@\@CHARSETMENU\@\@\@/$temphtml/;
@@ -906,10 +906,10 @@ sub editprefs {
                               defined($config_raw{'DEFAULT_backupsentmsg'})?('-disabled'=>'1'):());
          $html =~ s/\@\@\@BACKUPSENTMSG\@\@\@/$temphtml/;
 
-         my %ctlabels=( 'sameascomposing' => $lang_text{'samecharset'} );
+         my %ctlabels=( 'sameascomposing' => $lang_text{'sameascomposecharset'} );
          my @ctlist=('sameascomposing', $prefs{charset});
          foreach my $ct (@{$charset_convlist{$prefs{charset}}}) {
-            push(@ctlist, $ct) if (is_convertable($prefs{charset}, $ct));
+            push(@ctlist, $ct) if (is_convertible($prefs{charset}, $ct));
          }
          $temphtml = popup_menu(-name=>'sendcharset',
                                 -values=>\@ctlist,
@@ -1395,6 +1395,13 @@ sub editprefs {
          templateblock_disable($html, 'WEBDISK');
       }
 
+
+      $temphtml = popup_menu(-name=>'fscharset',
+                             -values=>['none', @allcharsets],
+                             -labels=>{ 'none'=>$lang_text{'none'} },
+                             -default=>$prefs{'fscharset'},
+                             -override=>'1');
+      $html =~ s/\@\@\@FSCHARSETMENU\@\@\@/$temphtml/;
 
       $temphtml = checkbox(-name=>'uselightbar',
                            -value=>'1',

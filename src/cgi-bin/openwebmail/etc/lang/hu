@@ -354,7 +354,7 @@ package ow::hu;
    description=> 'Leírás',
    download   => 'Letöltés:',
    charset    => 'Karakterkészlet',
-   samecharset=> 'Azonos a levélíráséval',
+   sameascomposecharset => 'Azonos a levélíráséval',
    thisispartialmsg => 'Ez egy üzenetrész.',
    msgrebuild => 'Üzenet újraépítése',
    editdraft  => 'Félretett üzenet folytatása',

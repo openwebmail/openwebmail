@@ -353,7 +353,7 @@ package ow::it;
    description=> 'Descrizione',
    download   => 'Scarica',
    charset    => 'Set caratteri',
-   samecharset=> 'Stesso set carattere scrittura messaggio',
+   sameascomposecharset => 'Stesso set carattere scrittura messaggio',
    thisispartialmsg => 'Questo è un messaggio parziale.',
    msgrebuild => 'Messaggio ricostruito',
    editdraft  => 'Edita bozze',

@@ -353,7 +353,7 @@ package ow::no;
    description=> 'Beskrivelse',
    download   => 'Lagre',
    charset    => 'Tegnsett',
-   samecharset=> 'Samme som skrive-tegnsett',
+   sameascomposecharset => 'Samme som skrive-tegnsett',
    thisispartialmsg => 'Dette er en delt melding.',
    msgrebuild => 'Sett sammen melding',
    editdraft  => 'Editér kladd',

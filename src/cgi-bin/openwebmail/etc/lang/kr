@@ -355,7 +355,7 @@ package ow::kr;
    description=> '설명',
    download   => '내려보내기',
    charset    => '문자세트',
-   samecharset=> '편지쓰는 문자세트와 같음',
+   sameascomposecharset => '편지쓰는 문자세트와 같음',
    thisispartialmsg => 'This is a partial message.',
    msgrebuild => 'Message Rebuild',
    editdraft  => '임시 편지함 메시지 편집',

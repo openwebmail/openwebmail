@@ -75,7 +75,7 @@ if (!$config{'enable_webmail'} && $action ne "logout") {
    openwebmailerror(__FILE__, __LINE__, "$lang_text{'webmail'} $lang_err{'access_denied'}");
 }
 
-$folder = param('folder') || 'INBOX';
+$folder = param('folder')||'INBOX';
 $page = param('page') || 1;
 $longpage = param('longpage') || 0;
 $sort = param('sort') || $prefs{'sort'} || 'date';
@@ -89,7 +89,8 @@ if ($action eq "movemessage" ||
     defined(param('movebutton')) ||
     defined(param('copybutton')) ) {
    my @messageids = param('message_ids');
-   my $destination = ow::tool::untaint(safefoldername(param('destination')));
+   my $destination=ow::tool::untaint(safefoldername(param('destination')));
+
    if ($destination eq 'FORWARD' && $#messageids>=0) {	# forwarding msgs
       open (FORWARDIDS, ">$config{'ow_sessionsdir'}/$thissession-forwardids");
       print FORWARDIDS join("\n", @messageids);
@@ -287,7 +288,7 @@ sub listmessages {
          ow::dbm::close(\%FDB, $folderdb);
       }
 
-      my $option_str=qq|<OPTION value="$foldername"|;
+      my $option_str=qq|<OPTION value="|.ow::htmltext::str2html($foldername).qq|"|;
       $option_str.=qq| selected| if ($foldername eq $folder);
       if ($newmessages>0) {
          $option_str.=qq| class="hilighttext">|;
@@ -297,7 +298,7 @@ sub listmessages {
       if (defined $lang_folders{$foldername}) {
          $option_str.=$lang_folders{$foldername};
       } else {
-         $option_str.=$foldername;
+         $option_str.=ow::htmltext::str2html((iconv($prefs{'fscharset'}, $prefs{'charset'}, $foldername))[0]);
       }
       $option_str.=" ($newmessages/$allmessages)" if ( $newmessages ne "" && $allmessages ne "");
 
@@ -784,7 +785,7 @@ sub listmessages {
       @movefolders=('DELETE');
    } else {
       foreach (@validfolders) {
-         push (@movefolders, $_) if ($_ ne $folder);
+         push (@movefolders, (iconv($prefs{'fscharset'},$prefs{'charset'},$_))[0] ) if ($_ ne $folder);
       }
       push(@movefolders, 'LEARNSPAM', 'LEARNHAM') if ($config{'enable_learnspam'});
       push(@movefolders, 'FORWARD', 'DELETE');

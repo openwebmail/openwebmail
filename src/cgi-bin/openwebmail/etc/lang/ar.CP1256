@@ -353,7 +353,7 @@ package ow::ar_CP1256;
    description=> 'гАФущ',
    download   => 'ймЦМА',
    charset    => 'гАйяЦМр',
-   samecharset=> 'Дщс ДФз гАйяЦМр гАЦсйноЦ щМ езого гАясгАи',
+   sameascomposecharset => 'Дщс ДФз гАйяЦМр гАЦсйноЦ щМ езого гАясгАи',
    thisispartialmsg => 'ЕпЕ ясгАи лрфМи',
    msgrebuild => 'езгои хДга гАясгАи',
    editdraft  => 'ймяМя гАЦсФЬои',

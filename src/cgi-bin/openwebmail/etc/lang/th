@@ -353,7 +353,7 @@ package ow::th;
    description=> 'รายละเอียด',
    download   => 'ดาวน์โหลด',
    charset    => 'รหัสตัวอักษร',
-   samecharset=> 'เหมือนกับรหัสตอนเขียนจดหมาย',
+   sameascomposecharset => 'เหมือนกับรหัสตอนเขียนจดหมาย',
    thisispartialmsg => 'นี่เป็นบางส่วนของจดหมาย',
    msgrebuild => 'จดหมายถูกสร้างใหม่',
    editdraft  => 'แก้ไขร่าง',

@@ -354,7 +354,7 @@ package ow::he_CP1255;
    description=> 'תאור',
    download   => 'הורדה',
    charset    => 'סט אותיות',
-   samecharset=> 'זהה לסוג האותיות בהודעה',
+   sameascomposecharset => 'זהה לסוג האותיות בהודעה',
    thisispartialmsg => 'זוהי הודעה חלקית',
    msgrebuild => 'בנית הודעה מחדש',
    editdraft  => 'ערוך טיוטה',

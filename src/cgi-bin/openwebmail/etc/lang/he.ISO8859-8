@@ -353,7 +353,7 @@ package ow::he_ISO8859_8;
    description=> 'רואת',
    download   => 'הדרוה',
    charset    => 'תויתוא טס',
-   samecharset=> 'העדוהב תויתואה גוסל ההז',
+   sameascomposecharset => 'העדוהב תויתואה גוסל ההז',
    thisispartialmsg => 'תיקלח העדוה יהוז',
    msgrebuild => 'שדחמ העדוה תינב',
    editdraft  => 'הטויט ךורע',

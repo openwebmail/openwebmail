@@ -354,7 +354,7 @@ package ow::sk;
    description=> 'Popis',
    download   => 'Ulo¾i» do súboru',
    charset    => 'Znaková sada',
-   samecharset=> 'Rovnaká ako pre písanie správy',
+   sameascomposecharset => 'Rovnaká ako pre písanie správy',
    thisispartialmsg => 'Toto je èiastková správa.',
    msgrebuild => 'Správa bola prestavaná',
    editdraft  => 'Upravi» koncept',

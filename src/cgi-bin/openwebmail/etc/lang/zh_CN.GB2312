@@ -353,7 +353,7 @@ package ow::zh_CN_GB2312;
    description=> '描述',
    download   => '下载',
    charset    => '字符集',
-   samecharset=> '与写信时字符集相同',
+   sameascomposecharset => '与写信时字符集相同',
    thisispartialmsg => '这是某封邮件的一部分。',
    msgrebuild => '邮件重组',
    editdraft  => '编辑草稿',

@@ -353,7 +353,7 @@ package ow::ru;
    description=> 'Описание',
    download   => 'Загрузить',
    charset    => 'Кодировка',
-   samecharset=> 'Как у оригинала',
+   sameascomposecharset => 'Как у оригинала',
    thisispartialmsg => 'Это разбитое на части письмо.',
    msgrebuild => 'Перекомпоновка письма',
    editdraft  => 'Редактировать черновик',

@@ -353,7 +353,7 @@ package ow::tr;
    description=> 'Taným',
    download   => 'Ýndir',
    charset    => 'Karakterseti',
-   samecharset=> 'Ýleti ile ayný karakter seti',
+   sameascomposecharset => 'Ýleti ile ayný karakter seti',
    thisispartialmsg => 'Bu kýsmi bir ileti',
    msgrebuild => 'Ýletiyi yeniden yapýlandýr',
    editdraft  => 'Taslaðý Düzenle',

@@ -353,7 +353,7 @@ package ow::fr;
    description=> 'Description',
    download   => 'Télécharger',
    charset    => 'Jeu de caractères',
-   samecharset=> 'Le même que celui d\'édition',
+   sameascomposecharset => 'Le même que celui d\'édition',
    thisispartialmsg => 'Ceci est un message partiel.',
    msgrebuild => 'Message reconstruit',
    editdraft  => 'Editer brouillon',

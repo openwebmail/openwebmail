@@ -138,7 +138,7 @@ sub getattachment {
    my @attr=get_message_attributes($messageid, $folderdb);
    my $convfrom=param('convfrom')||'';
    if ($convfrom eq "") {
-      if ( is_convertable($attr[$_CHARSET], $prefs{'charset'}) ) {
+      if ( is_convertible($attr[$_CHARSET], $prefs{'charset'}) ) {
          $convfrom=lc($attr[$_CHARSET]);
       } else {
          $convfrom='none.prefscharset';
@@ -429,7 +429,7 @@ sub msword2html {
    return 0 if ($exit||$sig);
 
    my $charset=$prefs{'charset'};
-   if (is_convertable('utf-8', $prefs{'charset'}) ) {
+   if (is_convertible('utf-8', $prefs{'charset'}) ) {
       ($stdout)=iconv('utf-8', $prefs{'charset'}, $stdout);
    } else {
       $charset='utf-8';

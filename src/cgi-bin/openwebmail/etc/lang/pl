@@ -357,7 +357,7 @@ package ow::pl;
    description=> 'Opis',
    download   => 'Pobierz',
    charset    => 'Strona kodowa',
-   samecharset=> 'Taki sam jak dla tworzenia',
+   sameascomposecharset => 'Taki sam jak dla tworzenia',
    thisispartialmsg => 'To jest czê¶æ wiadomo¶ci.',
    msgrebuild => 'Od¶wie¿anie',
    editdraft  => 'Edytuj brudnopis',

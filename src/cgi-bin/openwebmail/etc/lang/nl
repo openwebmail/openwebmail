@@ -354,7 +354,7 @@ package ow::nl;
    description=> 'Omschrijving',
    download   => 'Ophalen',
    charset    => 'Karakterset',
-   samecharset=> 'Hetzelfde als ontvangen karakterset',
+   sameascomposecharset => 'Hetzelfde als ontvangen karakterset',
    thisispartialmsg => 'Dit is een gedeeld bericht.',
    msgrebuild => 'Bericht samenstellen',
    editdraft  => 'Wijzig Concept',

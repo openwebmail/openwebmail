@@ -247,7 +247,7 @@ sub _folderline {
 
    my $escapedcurrfolder = ow::tool::escapeURL($currfolder);
    my $url = "$config{'ow_cgiurl'}/openwebmail-folder.pl?sessionid=$thissession&amp;folder=$escapedcurrfolder&amp;action=downloadfolder";
-   my $folderstr=$lang_folders{$currfolder}||$currfolder;
+   my $folderstr=$lang_folders{$currfolder}||(iconv($prefs{'fscharset'}, $prefs{'charset'}, $currfolder))[0];
 
    my $accesskeystr=$i%10+1;
    if ($accesskeystr == 10) {

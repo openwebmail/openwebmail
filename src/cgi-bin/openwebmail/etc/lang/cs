@@ -356,7 +356,7 @@ package ow::cs;
    description=> 'Popis',
    download   => 'Ulo¾it do souboru',
    charset    => 'Kódování',
-   samecharset=> 'Stejná jako pro psaní zprávy',
+   sameascomposecharset => 'Stejná jako pro psaní zprávy',
    thisispartialmsg => 'Tato zpráva se skládá z více èástí.',
    msgrebuild => 'Zrekonstruovat zprávu',
    editdraft  => 'Editovat rozepsané',

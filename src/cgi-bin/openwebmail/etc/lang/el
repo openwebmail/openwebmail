@@ -353,7 +353,7 @@ package ow::el;
    description=> 'Περιγραφή',
    download   => 'Download',
    charset    => 'Σύνολο χαρακτήρων',
-   samecharset=> 'Ίδιο όπως το αρχικό σύνολο χαρακτήρων',
+   sameascomposecharset => 'Ίδιο όπως το αρχικό σύνολο χαρακτήρων',
    thisispartialmsg => 'Ατελές μήνυμα',
    msgrebuild => 'Ανοικοδόμηση Μηνύματος',
    editdraft  => 'Επεξεργασία Προσχεδίου',

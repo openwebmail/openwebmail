@@ -353,7 +353,7 @@ package ow::id;
    description=> 'Keterangan',
    download   => 'Download',
    charset    => 'Charset',
-   samecharset=> 'Chartset yang sama',
+   sameascomposecharset => 'Chartset yang sama',
    thisispartialmsg => 'Ini sebagian dari salah satu pesan.',
    msgrebuild => 'Konfigurasi kembali Pesan',
    editdraft  => 'Ubah Draft',

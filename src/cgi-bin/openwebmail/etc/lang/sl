@@ -353,7 +353,7 @@ package ow::sl;
    description=> 'Opis',
    download   => 'Prenesi s strenika',
    charset    => 'Kodni zapis',
-   samecharset=> 'Isti kodni zapis kot pri novem sporoèilu',
+   sameascomposecharset => 'Isti kodni zapis kot pri novem sporoèilu',
    thisispartialmsg => 'To je nepopolno sporoèilo',
    msgrebuild => 'Popravek sporoèila',
    editdraft  => 'Uredi osnutek',

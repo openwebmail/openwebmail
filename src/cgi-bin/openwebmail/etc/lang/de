@@ -355,7 +355,7 @@ package ow::de;
    description=> 'Beschreibung',
    download   => 'Herunterladen',
    charset    => 'Zeichensatz',
-   samecharset=> 'Der gleiche Zeichensatz',
+   sameascomposecharset => 'Der gleiche Zeichensatz',
    thisispartialmsg => 'Dies ist eine unvollständige Nachricht.',
    msgrebuild => 'Nachricht reformatieren',
    editdraft  => 'Entwurf bearbeiten',

@@ -353,7 +353,7 @@ package ow::ur;
    description=> 'ﺗﻔﺼﻴﻞ',
    download   => 'ﮈﺍﺅﻥ ﻟﻮﮈ',
    charset    => 'ﻛﻴﺮﻳﻛﭩﺮﺳﻴﭧ',
-   samecharset=> 'ﻟﻜﻬﮯ ﮔﮱ ﻛﻴﺮﻳﻛﭩﺮﺳﻴﭧ ﺟﻴﺴﺎ',
+   sameascomposecharset => 'ﻟﻜﻬﮯ ﮔﮱ ﻛﻴﺮﻳﻛﭩﺮﺳﻴﭧ ﺟﻴﺴﺎ',
    thisispartialmsg => 'ﻳﮧ ﭘﻴﻐﺎﻡ ﺟﺰ ﻫﮯ',
    msgrebuild => 'ﭘﻴﻐﺎﻡ ﺩﻭﺑﺎﺭﻩ ﺑﻨﺎ',
    editdraft  => 'ﮈﺭﺍﻓﭧ ﺗﺒﺪﻳﻝ ﻛﺮﻳﮟ',

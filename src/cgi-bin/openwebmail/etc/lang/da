@@ -353,7 +353,7 @@ package ow::da;
    description=> 'Beskrivelse',
    download   => 'Gem',
    charset    => 'Karaktersæt',
-   samecharset=> 'samme tegnsæt som da mailen blev skrevet',
+   sameascomposecharset => 'samme tegnsæt som da mailen blev skrevet',
    thisispartialmsg => 'Dette er en del af en mail.',
    msgrebuild => 'Besked genopbygget',
    editdraft  => 'Rediger kladde',

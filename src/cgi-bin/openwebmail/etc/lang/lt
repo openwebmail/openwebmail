@@ -353,7 +353,7 @@ package ow::lt;
    description=> 'Apraðymas',
    download   => 'Parsisiøsti',
    charset    => 'Kodø lentelë',
-   samecharset=> 'Kodø lentelë',
+   sameascomposecharset => 'Kodø lentelë',
    thisispartialmsg => 'Èia yra nepilnas laiðkas.',
    msgrebuild => 'Laiðko atstatymas',
    editdraft  => 'Redaguoti raðomà laiðkà',
