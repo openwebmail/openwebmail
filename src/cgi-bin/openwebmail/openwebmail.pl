@@ -197,9 +197,13 @@ sub loginmenu {
 
    if ($ENV{'HTTP_ACCEPT_ENCODING'}=~/\bgzip\b/ &&
        ow::tool::has_module('Compress/Zlib.pm') ) {
+      my $use_httpcompress=cookie("ow-httpcompress");
+      if ($use_httpcompress eq '') {	# use http compress by default
+         $use_httpcompress=1;
+      }
       $temphtml = checkbox(-name=>'httpcompress',
                            -value=>'1',
-                           -checked=>cookie("ow-httpcompress")||0,
+                           -checked=>$use_httpcompress||0,
                            -onClick=>'httpcompresshelp()',
                            -label=>'');
    } else {

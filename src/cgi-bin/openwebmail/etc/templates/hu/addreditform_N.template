@@ -14,11 +14,11 @@
     </tr>
     <tr>
       <td class="smalltext">@@@GROUPLABEL@@@</td>
-      <td class="smalltext">prefix</td>
-      <td class="smalltext">first</td>
-      <td class="smalltext">middle</td>
-      <td class="smalltext">last</td>
-      <td class="smalltext">suffix</td>
+      <td class="smalltext">titulus</td>
+      <td class="smalltext">kereszt</td>
+      <td class="smalltext">középsõ</td>
+      <td class="smalltext">vezeték</td>
+      <td class="smalltext">utónév</td>
     </tr>
     <tr>
       <td colspan="6">@@@TYPES@@@&nbsp;</td>

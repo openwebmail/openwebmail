@@ -5,7 +5,7 @@
   <td bgcolor=@@@TITLEBAR@@@>
     <table cellpadding="0" cellspacing="0" border="0" width="100%">
     <tr>
-      <td bgcolor=@@@TITLEBAR@@@><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>Edit Personal Information</b></font></td>
+      <td bgcolor=@@@TITLEBAR@@@><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>Személyes Adatok Szerkesztésen</b></font></td>
       <td bgcolor=@@@TITLEBAR@@@ align="right"><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>@@@ABOOKNAME@@@</b></td>
     </tr>
     </table>
@@ -31,7 +31,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Personal Information</b></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Személyes Adatok</b></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -47,7 +47,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Email Addresses</b>&nbsp;<a name="EMAIL" href="javascript:document.editForm.formchange.value='EMAIL,0,1'; document.editForm.submit();">+</a></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Emil Cím</b>&nbsp;<a name="EMAIL" href="javascript:document.editForm.formchange.value='EMAIL,0,1'; document.editForm.submit();">+</a></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -63,7 +63,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Telephone Numbers</b>&nbsp;<a name="TEL" href="javascript:document.editForm.formchange.value='TEL,0,1'; document.editForm.submit();">+</a></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Telefonszámok</b>&nbsp;<a name="TEL" href="javascript:document.editForm.formchange.value='TEL,0,1'; document.editForm.submit();">+</a></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -79,7 +79,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Addresses</b>&nbsp;<a name="ADR" href="javascript:document.editForm.formchange.value='ADR,0,1'; document.editForm.submit();">+</a></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Címek</b>&nbsp;<a name="ADR" href="javascript:document.editForm.formchange.value='ADR,0,1'; document.editForm.submit();">+</a></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -95,7 +95,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Work Information</b>&nbsp;<a name="ORG" href="javascript:document.editForm.formchange.value='ORG,0,1'; document.editForm.submit();">+</a></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Munkahelyi Adatok</b>&nbsp;<a name="ORG" href="javascript:document.editForm.formchange.value='ORG,0,1'; document.editForm.submit();">+</a></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -111,7 +111,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Miscellaneous Information</b><a name="URL"></a></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Egyéb Adatok</b><a name="URL"></a></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -127,7 +127,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>vCard Information</b></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>vCard Adatok</b></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -187,9 +187,9 @@
       <td>@@@UPLOADWEBDISKLINK@@@</td>
     </tr>
     <tr>
-      <td colspan="2" class="smalltext" nowrap>choose a file type to add</td>
-      <td colspan="2" class="smalltext" nowrap>enter a url to the file (http://...)</td>
-      <td colspan="5" class="smalltext" nowrap>or upload the file directly</td>
+      <td colspan="2" class="smalltext" nowrap>válassz egy hozzáadandó fájlt</td>
+      <td colspan="2" class="smalltext" nowrap>add meg a fájl URL-jét (http://...)</td>
+      <td colspan="5" class="smalltext" nowrap>vagy töltsd fel a fájl közvetlenül</td>
     </tr>
     <tr>
       <td  colspan="9" height="10">&nbsp;</td>

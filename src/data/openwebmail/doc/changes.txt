@@ -1,3 +1,10 @@
+01/07/2005
+----------
+1. Hungarion lang and template files translation update
+   (thanks to Posz Marton, ful_s.AY.fazekas.hu)
+2. enable http compression by default at login
+
+
 01/06/2005 (version 2.50)
 ----------
 1. categroized folders display in openwebmail-folder.pl
