@@ -1,3 +1,14 @@
+11/26/2004
+----------
+1. Bulgarian language and template files translation update
+   (thanks to Veselin Slavov, vess.AT.slavof.net)
+2. fix a but that addressbook related function in message reading/composing
+   was not disabled when option enable_addressbook is set to no
+3. fix a problem in mime.pl that encode_mimewords didn't encode two bytes of
+   a big5 char as a whole 
+   (reported by wongyf.AT.mail.savs.ilc.edu.tw)
+
+
 11/25/2004
 ----------
 1. fix a problem that when dangerous chars in foldername in was silently 

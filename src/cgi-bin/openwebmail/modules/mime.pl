@@ -11,9 +11,13 @@ use strict;
 # MIME-Base64 with XS support
 #
 use MIME::Base64;
+use vars qw($NONPRINT $BIG5CHARS $WORDCHARS);
 
 ### Nonprintables (controls + x7F + 8bit):
-my $NONPRINT = "\\x00-\\x1F\\x7F-\\xFF";
+$NONPRINT = "\\x00-\\x1F\\x7F-\\xFF";	
+
+$BIG5CHARS = "0-9 \\x40-\\xFF";		# char used in big5 words
+$WORDCHARS = "a-zA-Z0-9 \\x7F-\\xFF";	# char used in regular words
 
 sub decode_mimewords {
     my $encstr = shift;
@@ -83,17 +87,25 @@ sub encode_mimeword {
 sub encode_mimewords {
     my ($rawstr, %params) = @_;
     my $charset  = $params{Charset} || 'ISO-8859-1';
+
     #my $encoding = lc($params{Encoding} || 'q');
     # q is used if there is english words in the string
     my $encoding = lc($params{Encoding}) || (($rawstr=~/[A-Za-z]{4}/)? 'q':'b');
 
+    # determine chars used in a word based on the charset
+    my $wordchars=(lc($charset) eq 'big5')?$BIG5CHARS:$WORDCHARS;
+
     ### Encode any "words" with unsafe characters.
-    ###    We limit such words to 18 characters, to guarantee that the
-    ###    worst-case encoding give us no more than 54 + ~10 < 75 characters
+    ### We limit such words to 18 characters, to guarantee that 
+    ### the worst-case encoding give us no more than 75 characters (rfc2047, section2)
+    # 18*3   + ~7+10   < 75  under Q encoding (7 is =? ?Q? ?=, 10 is charsetname)
+    # 40/6*8 + ~7+10+3 < 75  under B encoding (7 is =? ?B? ?=, 10 is charsetname, 3 is base64 padding)
+    my $maxlen=($encoding eq 'q')?18:40; 
+
     my $word;
-    # $rawstr =~ s{([^\s\(\)\{\}\[\],:;"'=]{1,18})}{	# this treats fewer chars as boundary than below?
-    # $rawstr =~ s{([a-zA-Z0-9\x7F-\xFF]{1,18})}{     ### get next "word"
-    $rawstr =~ s{([a-zA-Z0-9 \x7F-\xFF]{1,18})}{     ### get next "word" with space encoded
+    #$rawstr =~ s{([a-zA-Z0-9\x7F-\xFF]{1,18})}{	### get next "word"
+    #$rawstr =~ s{([a-zA-Z0-9 \x7F-\xFF]{1,18})}{	### get next "word" with space encoded
+    $rawstr =~ s{([$wordchars]{1,$maxlen})}{		### get next "word"
 	$word = $1;
 	(($word !~ /[$NONPRINT]/o)
 	 ? $word                                          ### no unsafe chars

@@ -18,7 +18,7 @@
           <td><input class="mono" type="text" name="@@@STREET.NAME@@@" value="@@@STREET.VALUE@@@" size="30"></td>
         </tr>
         <tr>
-          <td class="smalltext">street address</td>
+          <td class="smalltext">улица</td>
         </tr>
         <tr>
           <td class="smalltext">&nbsp;</td>
@@ -27,7 +27,7 @@
           <td><input class="mono" type="text" name="@@@EXTENDEDADDRESS.NAME@@@" value="@@@EXTENDEDADDRESS.VALUE@@@" size="30"></td>
         </tr>
         <tr>
-          <td class="smalltext">suite, apartment, etc.</td>
+          <td class="smalltext">вход, апартамент и т.н.</td>
         </tr>
         <tr>
           <td class="smalltext">&nbsp;</td>
@@ -36,7 +36,7 @@
           <td><input class="mono" type="text" name="@@@POSTOFFICEADDRESS.NAME@@@" value="@@@POSTOFFICEADDRESS.VALUE@@@" size="30"></td>
         </tr>
         <tr>
-          <td class="smalltext">postoffice box</td>
+          <td class="smalltext">пощенска кутия</td>
         </tr>
         <tr>
           <td class="smalltext">&nbsp;</td>
@@ -50,9 +50,9 @@
               <td><input class="mono" type="text" name="@@@REGION.NAME@@@" value="@@@REGION.VALUE@@@" size="15"></td>
             </tr>
             <tr>
-              <td class="smalltext">city</td>
+              <td class="smalltext">град</td>
               <td>&nbsp;</td>
-              <td class="smalltext">state/province</td>
+              <td class="smalltext">област</td>
             </tr>
             </table>
           </td>
@@ -69,9 +69,9 @@
               <td><input class="mono" type="text" name="@@@COUNTRY.NAME@@@" value="@@@COUNTRY.VALUE@@@" size="12" onBlur="javascript:if (document.forms['editForm'].elements['@@@LABEL.NAME@@@'].value == '') { makeLabel('editForm','@@@LABEL.INDEX@@@'); }"></td>
             </tr>
             <tr>
-              <td class="smalltext">zip/postcode</td>
+              <td class="smalltext">пощенски код</td>
               <td>&nbsp;</td>
-              <td class="smalltext">country</td>
+              <td class="smalltext">държава</td>
             </tr>
             <tr>
               <td colspan="3" height="40">&nbsp;</td>
@@ -87,27 +87,27 @@
         <tr>
           <td><input class="mono" type="checkbox" name="@@@HOME.NAME@@@" value="HOME" @@@HOME.VALUE@@@></td>
           <td rowspan="6" width="5">&nbsp;</td>
-          <td nowrap><a href="javascript:check_toggle('@@@HOME.NAME@@@');"><span class="smalltext">home address</span></a></td>
+          <td nowrap><a href="javascript:check_toggle('@@@HOME.NAME@@@');"><span class="smalltext">домашен адрес</span></a></td>
         </tr>
         <tr>
           <td><input class="mono" type="checkbox" name="@@@WORK.NAME@@@" value="WORK" @@@WORK.VALUE@@@></td>
-          <td nowrap><a href="javascript:check_toggle('@@@WORK.NAME@@@');"><span class="smalltext">work address</span></a></td>
+          <td nowrap><a href="javascript:check_toggle('@@@WORK.NAME@@@');"><span class="smalltext">служебен адрес</span></a></td>
         </tr>
         <tr>
           <td><input class="mono" type="checkbox" name="@@@DOM.NAME@@@" value="DOM" @@@DOM.VALUE@@@></td>
-          <td nowrap><a href="javascript:check_toggle('@@@DOM.NAME@@@');"><span class="smalltext">domestic address</span></a></td>
+          <td nowrap><a href="javascript:check_toggle('@@@DOM.NAME@@@');"><span class="smalltext">семеен адрес</span></a></td>
         </tr>
         <tr>
           <td><input class="mono" type="checkbox" name="@@@INTL.NAME@@@" value="INTL" @@@INTL.VALUE@@@></td>
-          <td nowrap><a href="javascript:check_toggle('@@@INTL.NAME@@@');"><span class="smalltext">international address</span></a></td>
+          <td nowrap><a href="javascript:check_toggle('@@@INTL.NAME@@@');"><span class="smalltext">международен адрес</span></a></td>
         </tr>
         <tr>
           <td><input class="mono" type="checkbox" name="@@@POSTAL.NAME@@@" value="POSTAL" @@@POSTAL.VALUE@@@></td>
-          <td nowrap><a href="javascript:check_toggle('@@@POSTAL.NAME@@@');"><span class="smalltext">postal delivery address</span></a></td>
+          <td nowrap><a href="javascript:check_toggle('@@@POSTAL.NAME@@@');"><span class="smalltext">пощенски адрес за доставка</span></a></td>
         </tr>
         <tr>
           <td><input class="mono" type="checkbox" name="@@@PARCEL.NAME@@@" value="PARCEL" @@@PARCEL.VALUE@@@></td>
-          <td nowrap><a href="javascript:check_toggle('@@@PARCEL.NAME@@@');"><span class="smalltext">parcel delivery address</span></a></td>
+          <td nowrap><a href="javascript:check_toggle('@@@PARCEL.NAME@@@');"><span class="smalltext">адрес за колети</span></a></td>
         </tr>
         </table>
       </td>
@@ -128,7 +128,7 @@
           </td>
         </tr>
         <tr>
-          <td colspan="2"><a href="javascript:makeLabel('editForm','@@@LABEL.INDEX@@@');"><span class="smalltext"><b>automake label</b></span></a></td>
+          <td colspan="2"><a href="javascript:makeLabel('editForm','@@@LABEL.INDEX@@@');"><span class="smalltext"><b>автоматичен етикет</b></span></a></td>
         </tr>
         </table>
       </td>

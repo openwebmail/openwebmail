@@ -1097,8 +1097,10 @@ sub composemessage {
                          -default=>$to,
                          -size=>'66',
                          -accesskey=>'T',
-                         -override=>'1').
-               qq|\n |.iconlink("addrbook.s.gif", $lang_text{'addressbook'}, qq|href="javascript:GoAddressWindow()"|);
+                         -override=>'1');
+   if ($config{'enable_addressbook'}) {
+      $temphtml.=qq|\n |.iconlink("addrbook.s.gif", $lang_text{'addressbook'}, qq|href="javascript:GoAddressWindow()"|);
+   }
    $html =~ s/\@\@\@TOFIELD\@\@\@/$temphtml/;
 
    $temphtml = textfield(-name=>'cc',
