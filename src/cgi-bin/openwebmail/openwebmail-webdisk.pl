@@ -781,7 +781,7 @@ sub compressfiles {	# pack files with zip or tgz (tar -zcvf)
 ########## END COMPRESSFILES #####################################
 
 ########## DECOMPRESSFILE ########################################
-sub decompressfile {	# unpack tar.gz, tgz, tar.bz2, tbz, gz, zip, rar, arj, lzh, tnef/tnf
+sub decompressfile {	# unpack tar.gz, tgz, tar.bz2, tbz, gz, zip, rar, arj, ace, lzh, tnef/tnf
    my ($currentdir, $selitem)=@_;
    my $vpath=absolute_vpath($currentdir, $selitem);
    my $vpathstr=f2u($vpath);
@@ -832,6 +832,11 @@ sub decompressfile {	# unpack tar.gz, tgz, tar.bz2, tbz, gz, zip, rar, arj, lzh,
       return("$lang_text{'program'} unarj $lang_err{'doesnt_exist'}\n") if ($unarjbin eq '');
       @cmd=($unarjbin, 'x');
 
+   } elsif ($vpath=~/\.ace$/i && $config{'webdisk_allow_unace'}) {
+      my $unacebin=ow::tool::findbin('unace');
+      return("$lang_text{'program'} unace $lang_err{'doesnt_exist'}\n") if ($unacebin eq '');
+      @cmd=($unacebin, 'x', '-y');
+
    } elsif ($vpath=~/\.lzh$/i && $config{'webdisk_allow_unlzh'}) {
       my $lhabin=ow::tool::findbin('lha');
       return("$lang_text{'program'} lha $lang_err{'doesnt_exist'}\n") if ($lhabin eq '');
@@ -850,7 +855,7 @@ sub decompressfile {	# unpack tar.gz, tgz, tar.bz2, tbz, gz, zip, rar, arj, lzh,
       return("$lang_err{'couldnt_chdirto'} $currentdir\n");
 
    my $opstr;
-   if ($vpath=~/\.(?:zip|rar|arj|lhz|t[bg]z|tar\.g?z|tar\.bz2?|tne?f)$/i) {
+   if ($vpath=~/\.(?:zip|rar|arj|ace|lhz|t[bg]z|tar\.g?z|tar\.bz2?|tne?f)$/i) {
       $opstr=$lang_wdbutton{'extract'};
    } else {
       $opstr=$lang_wdbutton{'decompress'};
@@ -907,6 +912,11 @@ sub listarchive {
       my $unarjbin=ow::tool::findbin('unarj');
       autoclosewindow($lang_wdbutton{'listarchive'}, "$lang_text{'program'} unarj $lang_err{'doesnt_exist'}\n") if ($unarjbin eq '');
       @cmd=($unarjbin, 'l');
+
+   } elsif ($vpath=~/\.ace$/i) {
+      my $unacebin=ow::tool::findbin('unace');
+      autoclosewindow($lang_wdbutton{'listarchive'}, "$lang_text{'program'} unace $lang_err{'doesnt_exist'}\n") if ($unacebin eq '');
+      @cmd=($unacebin, 'l', '-y');
 
    } elsif ($vpath=~/\.lzh$/i) {
       my $lhabin=ow::tool::findbin('lha');
@@ -2268,7 +2278,7 @@ sub showdir {
                           qq|','_editfile','width=720,height=550,scrollbars=yes,resizable=yes,location=no');|.
                           qq|">[$lang_wdbutton{'edit'}]</a>|;
                }
-            } elsif ($p=~/\.(?:zip|rar|arj|lzh|t[bg]z|tar\.g?z|tar\.bz2?|tne?f)$/i ) {
+            } elsif ($p=~/\.(?:zip|rar|arj|ace|lzh|t[bg]z|tar\.g?z|tar\.bz2?|tne?f)$/i ) {
                $opstr=qq|<a href=#here onClick="window.open('|.
                       qq|$wd_url&amp;action=listarchive&amp;selitems=|.ow::tool::escapeURL($p).
                       qq|','_editfile','width=780,height=550,scrollbars=yes,resizable=yes,location=no');|.
@@ -2285,6 +2295,7 @@ sub showdir {
                       $p=~/\.zip$/i && !$config{'webdisk_allow_unzip'} ||
                       $p=~/\.rar$/i && !$config{'webdisk_allow_unrar'} ||
                       $p=~/\.arj$/i && !$config{'webdisk_allow_unarj'} ||
+                      $p=~/\.ace$/i && !$config{'webdisk_allow_unace'} ||
                       $p=~/\.lzh$/i && !$config{'webdisk_allow_unlzh'} ) {
                      $allow_extract=0;
                   }
@@ -2744,7 +2755,7 @@ sub findicon {
       return("ttf.gif")    if ( /\.tt[cf]$/ );
       return("video.gif")  if ( /\.(avi|mov|dat|mpe?g)$/ );
       return("xls.gif")    if ( /\.xl[abcdmst]$/ );
-      return("zip.gif")    if ( /\.(zip|tar|t?g?z|tbz|bz2?|rar|lzh|arj|bhx|hqx|jar|tne?f)$/ );
+      return("zip.gif")    if ( /\.(zip|tar|t?g?z|tbz|bz2?|rar|lzh|arj|ace|bhx|hqx|jar|tne?f)$/ );
 
       return("file".lc($1).".gif") if ( $os =~ /(bsd|linux|solaris)/i );
       return("file.gif");

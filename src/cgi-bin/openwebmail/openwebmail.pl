@@ -500,9 +500,10 @@ sub login {
    close (SESSION);
    writehistory("login - $thissession");
 
-   # symbolic link ~/mbox to ~/mail/saved-messages
+   # symbolic link ~/mbox to ~/mail/saved-messages if ~/mbox is not spoolfile
    if ( $config{'symboliclink_mbox'} &&
-        ((lstat("$homedir/mbox"))[2] & 07770000) eq 0100000) { # regular file
+        $spoolfile ne "$homedir/mbox" &&
+        ((lstat("$homedir/mbox"))[2] & 07770000) eq 0100000) { # ~/mbox is regular file
       if (ow::filelock::lock("$folderdir/saved-messages", LOCK_EX|LOCK_NB)) {
          writelog("symlink mbox - $homedir/mbox -> $folderdir/saved-messages");
 

@@ -1288,6 +1288,7 @@ webdisk_allow_untar
 webdisk_allow_unzip
 webdisk_allow_unrar
 webdisk_allow_unarj
+webdisk_allow_unace
 webdisk_allow_unlzh
 -----------------------------------------------------------------------
 The default for these options is 'yes', but you may want to disable some

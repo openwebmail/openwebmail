@@ -55,6 +55,18 @@ use vars qw(%lang_folders %lang_searchtypelabels %lang_searchdaterangelabels
 
 # local vars
 use vars qw($folder);
+use vars qw(%placeorder);
+
+%placeorder= (
+   from => 1,
+   to => 2,
+   subject => 3,
+   date => 4,
+   header => 5,
+   all => 6,
+   attfilename => 7,
+   textcontent => 8
+);
 
 ########## MAIN ##################################################
 openwebmail_requestbegin();
@@ -362,7 +374,8 @@ sub search_folders2 {
    my ($startserial, $endserial, $r_search, $r_folders)=@_;
    my (@validsearch, @result);
 
-   foreach my $search (@{$r_search}) {
+   # put faster search in front
+   foreach my $search (sort { $placeorder{${$a}{'where'}} <=>  $placeorder{${$b}{'where'}} } @{$r_search}) {
       push(@validsearch, $search) if (${$search}{'text'} ne "");
    }
 
@@ -389,10 +402,11 @@ sub search_folders2 {
          # skip this msg if is not within date range
          next if ($attr[$_DATE] lt $startserial || $attr[$_DATE] gt $endserial);
 
-         my $matchedsearch=0;
+         my $total_matched=0;
          foreach my $search (@validsearch) {
-            last if ($matchedsearch == $#validsearch+1);
+            last if ($total_matched == $#validsearch+1);
 
+            my $is_matched=0;
             my ($where, $type, $keyword) = (${$search}{'where'}, ${$search}{'type'}, ${$search}{'text'});
             my $regexvalid=ow::tool::is_regex($keyword);
             my @placetosearch;
@@ -403,7 +417,6 @@ sub search_folders2 {
             }
 
             foreach $where (@placetosearch) {
-               last if($matchedsearch == $#validsearch+1);
 
                # check subject, from, to, date
                if ($where eq 'subject' || $where eq 'from' || $where eq 'to' || $where eq 'date') {
@@ -422,7 +435,7 @@ sub search_folders2 {
                        ($type eq 'startswith' && $data=~/^\Q$keyword\E/i) ||
                        ($type eq 'endswith' && $data=~/\Q$keyword\E$/i) ||
                        ($type eq 'regexp' && $regexvalid && $data=~/$keyword/i) ) {
-                        $matchedsearch++; last;
+                        $is_matched=1; last;
                   }
 
                # check header
@@ -445,7 +458,7 @@ sub search_folders2 {
                       ($type eq 'startswith' && $header=~/^\Q$keyword\E/im) ||
                       ($type eq 'endswith' && $header=~/\Q$keyword\E$/im) ||
                       ($type eq 'regexp' && $regexvalid && $header=~/$keyword/im)) {
-                     $matchedsearch++; last;
+                     $is_matched=1; last;
                   }
 
                # read and parse message
@@ -475,12 +488,11 @@ sub search_folders2 {
                             ($type eq 'startswith' && $body=~/^\Q$keyword\E/im) ||
                             ($type eq 'endswith' && $body=~/\Q$keyword\E$/im) ||
                             ($type eq 'regexp' && $regexvalid && $body=~/$keyword/im)) {
-                           $matchedsearch++; last;
+                           $is_matched=1; last;
                         }
                      }
 
                      # check attachments
-                     my $att_macthed=0;
                      foreach my $r_attachment (@{$r_attachments}) {
                         if ( ${$r_attachment}{'content-type'} =~ /^text/i ||
                              ${$r_attachment}{'content-type'} eq "N/A" ) {   # read all for text/plain. text/html
@@ -504,18 +516,15 @@ sub search_folders2 {
                                ($type eq 'startswith' && $content=~/^\Q$keyword\E/im) ||
                                ($type eq 'endswith' && $content=~/\Q$keyword\E$/im) ||
                                ($type eq 'regexp' && $regexvalid && $content=~/$keyword/im)) {
-                              $att_macthed=1; last;
+                              $is_matched=1; last;
                            }
                         }
                      }
-                     if ($att_macthed) {
-                        $matchedsearch++; last;
-                     }
+                     last if ($is_matched);
                   }
 
                   # check attfilename
                   if ($where eq 'attfilename') {
-                     my $attfilename_macthed=0;
                      foreach my $r_attachment (@{$r_attachments}) {
                         my $charset=${$r_attachment}{filenamecharset}||${$r_attachment}{charset}||$msgcharset;
                         my ($filename)=iconv($charset, $prefs{'charset'}, ${$r_attachment}{filename});
@@ -526,20 +535,24 @@ sub search_folders2 {
                             ($type eq 'startswith' && $filename=~/^\Q$keyword\E/im) ||
                             ($type eq 'endswith' && $filename=~/\Q$keyword\E$/im) ||
                             ($type eq 'regexp' && $regexvalid && $filename=~/$keyword/im)) {
-                           $attfilename_macthed=1; last;
+                           $is_matched=1; last;
                         }
                      }
-                     if ($attfilename_macthed) {
-                        $matchedsearch++; last;
-                     }
+                     last if ($is_matched);
                   }
                } # end block check texcontent & attfilename
 
-            } # end block placetosearch
-         } # end block multiple text search
+               last if ($is_matched);	# should no need here but just in case ...
+
+            } # end loop placetosearch
+
+            last if (!$is_matched);	# this seach failed, stop continuing
+            $total_matched++;
+
+         } # end loop validsearch
 
          # generate messageid table line result if found
-         if($matchedsearch == $#validsearch+1) {
+         if ($total_matched == $#validsearch+1) {
             push(@result, { folder=> $foldertosearch,
                             msgid=>$messageid,
                             attr=>\@attr});

@@ -2124,7 +2124,7 @@ sub addreditform {
                           rootxowmuid=>($targetdepth>0?param('rootxowmuid'):$xowmuid),
                           editformcaller=>ow::tool::escapeURL($editformcaller),
                           defined(param('editgroupform'))?('editgroupform'=>1):()
-                         ). $abook_formparm;
+                         ). $abook_formparm.$webmail_formparm;
    $html =~ s/\@\@\@EDITFORMSTART\@\@\@/$temphtml/;
 
    # destination pulldown
@@ -2261,7 +2261,7 @@ sub addreditform {
                                     abookfolder=>ow::tool::escapeURL($abookfolder),
                                     targetagent=>join(",",(-1,@targetagent)),
                                     rootxowmuid=>param('rootxowmuid'),
-                                   ). $abook_formparm.
+                                   ). $abook_formparm.$webmail_formparm.
                   submit(-name=>"$lang_text{'abook_editform_cancel_and_return'}",
                          -class=>"medtext",
                          -onClick=>"return popupNotice('cancelchanges');",
@@ -2279,7 +2279,7 @@ sub addreditform {
                ow::tool::hiddens(action=>'addrlistview',
                                  sessionid=>$thissession,
                                  abookfolder=>ow::tool::escapeURL($editformcaller),
-                                ). $abook_formparm.
+                                ). $abook_formparm.$webmail_formparm.
                submit(-name=>"$lang_text{'cancel'}",
                       -class=>"medtext").
                end_form();

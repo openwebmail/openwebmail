@@ -1,3 +1,16 @@
+03/01/2005
+----------
+1. support *.ace archive list/decompression in webdisk
+   (suggested by rs232, bellocarico.AT.hotmail.com)
+2. new mirror site at Arad, Romania
+   http://mirrors.arad.astral.ro/openwebmail/
+   (thanks to Dani Radulescu, dani.radulescu.AT.astral.ro)
+3. greatly improve the speed of composited advsearch
+4. check if ~/mbox is INBOX before symlinking it to SAVED folder to avoid
+   problem on platforms(eg: Cobalt Raq servers) using ~/mbox as mailspool
+   (reported by tevike, csaba.AT.polyweb.no)
+
+
 02/28/2005 (version 2.51)
 ----------
 1. minor change to readmessage templates
