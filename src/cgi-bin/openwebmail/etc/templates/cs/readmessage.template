@@ -38,7 +38,7 @@
    </td></tr></table>
 </td></tr></table>
 <script language="JavaScript">
-   <!--
+<!--
    function replyreceiptconfirm(url, yes)
    {
       if (yes==1 || confirm('Tato zpráva vy¾aduje potvrzení o pøeètení, chcete to odeslat?')) {
@@ -48,6 +48,6 @@
 //         hWnd.close();
       }
    }
-   //-->
+//-->
 </script>
 

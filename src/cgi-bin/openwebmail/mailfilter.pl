@@ -13,8 +13,9 @@ sub mailfilter {
    my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
    my @filterrules;
    my $folderhandle=FileHandle->new();
-   my %HDB;
+   my (%HDB, %FTDB);
    my (@allmessageids, $i);
+   my $newfilterrule=0;
 
    ## check existence of folderfile
    if ( ! -f $folderfile ) {
@@ -30,7 +31,10 @@ sub mailfilter {
       if ($checkinfo eq metainfo($folderfile)) {
          return 0;
       }      
+   } else {
+      $newfilterrule=1;	# new filterrule, so do filtering on all msg
    }
+
    ## get @filterrules ##
    if ( -f "$folderdir/.filter.book" ) {
       open (FILTER,"$folderdir/.filter.book") or 
@@ -96,9 +100,11 @@ sub mailfilter {
 
       # if internal flag V not found, 
       # this message has not been filtered before (Verify)
-      if ($attr[$_STATUS] !~ /V/i) {
-         $attr[$_STATUS].="V";
-         $HDB{$allmessageids[$i]}=join('@@@', @attr);
+      if ($attr[$_STATUS] !~ /V/i || $newfilterrule) {
+         if ($attr[$_STATUS] !~ /V/i) {
+            $attr[$_STATUS].="V";
+            $HDB{$allmessageids[$i]}=join('@@@', @attr);
+         }
 
          ## if match filterrules => do $op (copy, move or delete)
          foreach my $line (sort @filterrules) {
@@ -264,10 +270,9 @@ sub mailfilter {
                   ($r_smtprelays, $r_connectfrom, $r_byas)=get_smtprelays_connectfrom_byas($header);
                }
                my $smtprelays;
-               for $relay (@{$r_smtprelays}) {
+               foreach my $relay (@{$r_smtprelays}) {
                   $smtprelays.="$relay, ${$r_connectfrom}{$relay}, ${$r_byas}{$relay}, ";
                }
-
                if (  ( $include eq 'include' && $smtprelays =~ /$text/im )
                    ||( $include eq 'include' && $smtprelays =~ /\Q$text\E/im )
                    ||( $include eq 'exclude' && $smtprelays !~ /$text/im )

@@ -10,7 +10,7 @@
 <BR>Um conjunto de sugestões é fornecida para cada palavra ortograficamente incorreta
 e você pode escolher uma para substituir a palavra original.
 Se não for encontrada nenhuma sugestão ou você escolher "-Corrigir manualmente-" e 
-pressionar o botão [Verificar novamente], um campo de texto ficará disponível para
+pressionar o botão [Verificar Novamente], um campo de texto ficará disponível para
 você digitar sua correção.
 
 </td></tr>
@@ -36,7 +36,7 @@ você digitar sua correção.
 </td></tr></table>
 
 <script language="JavaScript">
-   <!--
+<!--
    self.focus();
-   //-->
+//-->
 </script>

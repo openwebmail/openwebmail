@@ -11,9 +11,10 @@ A: There are many possible answers...
    2. Your openwebmail scripts may have wrong owner or mode.
       The permission of 
 
-      openwebmail.pl, openwebmail-main.pl, openwebmail-prefs.pl,
-      openwebmail-read.pl, openwebmail-viewatt.pl, openwebmail-send.pl,
-      openwebmail-spell.pl and checkmail.pl
+      openwebmail.pl, openwebmail-main.pl, 
+      openwebmail-read.pl, openwebmail-viewatt.pl, 
+      openwebmail-send.pl, openwebmail-spell.pl,
+      openwebmail-prefs.pl, openwebmail-folder.pl and checkmail.pl
 
       should be
       mode=4555
@@ -34,6 +35,15 @@ A: There are many possible answers...
             d_suidsafe='undef'
          4. then make, make install (make suidperl if needed) 
          (thanks to Nemo Kaiser, nemoo@users.sourceforge.net)
+
+      c. Or use uty/suidwrap.pl to generate C wrappers for all suid scripts.
+         Here are the steps:
+         1. cd cgi-bin/openwebmail
+         2. perl uty/wrapsuid.pl /fullpath/cgi-bin/openwebmail
+
+         All suid scripts will be renamed to .scriptname.pl and
+         the C wrapper will be generated and named as script.pl
+         (thanks to Chris Heegard, heegard@NativeI.com)
 
    4. The MIME::Base64 or CGI module on your system may be too old
       a. install MIME-Base64-2.12.tar.gz
@@ -76,16 +86,18 @@ A: It is possible that you are upgrading from version prior to 1.41
 
 Q: The login is okay, but I can't change by my password with openwebmail?
 A: There are 2 possible answers for this:
-   1. Your passwdfile is not local accessable.
+   1. Your passwdfile is not local accessible.
       If you use auth_unix.pl for authentication and your $unix_passwdfile
       is not a local accessible file (ex: examples in auth_unix.pl that are
       terminated with |), the changepassword feature won't be available.
       In these cases, you have to use auth_pam.pl to get the changepassword
       to work.
    2. Your system doesn't support saved set-user-ID, so openwebmail won't get
-      enough previledge to change the passwdfile.
+      enough privilege to change the passwdfile.
       Try to set savedsuid_support to 'no' in openwebmail.conf to solve 
       this problem.
+   3. The authentication module you used didn't support password changing, 
+      ex: auth_pop3.pl
 
 Q: I got "Couldn't open XXX-session-0.370606494136155!" error after login?
 A: You openwebmail-1.xx.tgz was uncompressed with improper parameter.
@@ -111,7 +123,7 @@ A: Please install the libnet-1.0901.tar.gz, this is required since
     version 1.60.
 
 Q: The 'From' field of my message contained only 'username@'?
-A: You may has wrong setting of domainname in openwebmail.conf
+A: You may has wrong setting for option domainname in openwebmail.conf
    1. For version older than 1.41 ,
       please be sure to use '' for a text string of hostname
       or use `` for the program (ex: /bin/hostname)
@@ -146,8 +158,8 @@ A: You have 2 ways to do this:
    vi /etc/pam.d/openwebmail:
 
    #%PAM-1.0 
-   auth         required     /lib/security/pam_unix.so 
-   auth         sufficient   /lib/security/pam_ldap.so 
+   auth       required     /lib/security/pam_unix.so 
+   auth       sufficient   /lib/security/pam_ldap.so 
    account    required     /lib/security/pam_unix.so 
    account    sufficient   /lib/security/pam_ldap.so
 
@@ -156,57 +168,97 @@ A: You have 2 ways to do this:
    ---------------- end ----------------
 
 Q: How can I use multiple virtual domains with openwebmail?
-A: First, you have to decide if you want to let user defines multiple 
-   from email address by themself. 
-   If yes, set 'enable_setfromemail' to 'yes', else set it to 'no'
+A: First, you have to decide whetherto use real virtual hosting or 
+   just user alias.
 
-   Second, you have to decide if you want to let user pick up the domainname
-   from all domainnames supported by your mail server or you want to statically
-   specify domainname used by each user.
+   1. The User Alias
 
-   To let user to pick domainname from all supported domainnames, you have to 
-   specify all domainnames in the option 'domainnames' in openwebmail.conf.
+   User alias is much simpler, your system is actually a one domain machine.
+   You only have to define the user alias in virtusertable.
 
-   To statically specify domain name used by each user, you have to define the
-   mapping from email address to userid in /etc/mail/virtusertable.
-   For example, a line like below
+   For example, you have 1    real domain server.com and 
+                         2 virtual domain virtual_1.com, virtual_2.com 
+   for your server. 
 
-   guest@virtual.com	guest
+   You already have tom and john on this server.
+   And now you want 2 more tom and john for each virtual domain.
 
-   will make the user guest using the domainname 'virtual.com'
+   Define the following entries in your virtusertable will make it.
+
+   tom@virtual_1.com	tom1
+   tom@virtual_2.com	tom2
+   john@virtual_1.com	john1
+   john@virtual_2.com	john2
+
+   And how these users are used?
+
+   If the user logins as tom and the webmail url is http://virtual_1.com/....
+   then alias tom@virtual_1.com will be matched, real user tom1 will be used.
+   If the user logins as tom and the webmail url is http://virtual_2.com/....
+   then alias tom@virtual_2.com will be matched, real user tom2 will be used.
    
-Q: What happens if users with same usernames exist in different domains?
-A: You have to create different accounts for each user.
+   If the user logins as tom and the webmail url is http://server.com/....
+   then real user tom will be authenticated.
 
-   For example, you have 3 users with name 'john':
-   john@company1.com, john@company2.com and john@company3.com.
+   If the user logins as tom@virtual_1.com, then no matter what the url is,
+   the alias tom@virtual_1.com will be matched, user tom1 will be used.
 
-   You need to create 3 accounts for these 3 johns and mapping the 3 email address
-   to the created accounts in /etc/mail/virtusertable
+   In the user alias mapping, users of different virtualdomains are actually 
+   mapped to the real domain and then passed to same authentication module.
 
-   john@company1.com	john1
-   john@company2.com	john2
-   john@company3.com	john3
 
-   Then user can login with full email address, ex: 'john@company1.com'.
+   2. Real Virtual Hosting
 
-Q: If user login with only username instead of full email address,
-   which user is choosed in above case?
-A: Since openwebmail is unable determine which user is the right one, 
-   it will return 'no such user'. But if there is only one virtual user john
-   defined in /etc/mail/virtusertable
+   The real virtual hosting means your system is configured to a multiple 
+   domain machine in either smtpd, pop3d, webmail and authentication module.
 
-   john@company1.com	john1
+   You will need to use the per domain config file in openwebmail for each 
+   of your virtual domain. These config files will be loaded based on
 
-   The john@company1.com will be choosed even user logins with only 'john'
+   1. the domainname part in loginname, or
+   2. the hostname in the url of the webmail
 
-Q: What happens if a real userid 'john' exists in above case?
-A: Openwebmail will choose real userid 'john' first.
-   But if the /etc/mail/virtusertable tables is defines as below
+   For example:
 
-   john@company1.com	john
+   If the user login as tom and the webmail url is http://virtual_1.com/...,
+   config file for virtual_1.com will be loaded
+   If the user login as tom and the webmail url is http://virtual_2.com/...,
+   config file for virtual_2.com will be loaded
+   If the user logins as tom@virtual_1.com, then no matter what the url is,
+   config file for virtual_1.com will be loaded
 
-   Then john@company1.com will be choosed.
+   Each domain can have its own set of options in its config file,
+   including domainname, authentication module, quota limit, mailspooldir ...
+
+   A more detailed example is described in the Kevin Ellis's webpage: 
+   "How to setup virtual users on Open WebMail using Postfix & vm-pop3d"
+   http://www.bluelavalamp.net/owmvirtual/
+
+Q: The default email address for my user is always wrong, how can I set it?
+A: To have openwemail find the correct email for the user, 
+   you'd give it some hint.
+
+   For example, if the webmail url is
+
+   http://mail.server_1.com/cgi-bin/.....,
+
+   and you want the email for tom to be tom@virtual_1.com.
+
+   You can achieve this in either the following 3 ways:
+
+   1. add an entry to virtusertable
+      tom@virtual_1.com tom
+   2. create per user config file etc/users.conf/tom
+      and set option domainnames to virtual_1.com
+   3. create per domain config file etc/sites.cof/mail1.server_1.com
+      and set option domainnames to virtual_1.com
+
+   While 1,2 are only for the user tom, the method 3 has effect for all users 
+   who logins with the url http://mail.server_1.com/cgi-bin/....
+
+Q: How can I disallow the user to set their from email address?
+A: set option allow_setfromemail to 'no' in either openwebmal.conf or per 
+   user config.
 
 Q: Some of my messages were moved to trash folder automatically?
 A: Your messages were either filtered by 'global filter rule' or 
@@ -325,10 +377,9 @@ A: please check
 
 Q: I got 'Sorry, there was a problem sending your message' error?
 A: Please check if smtpserver option in openwebmail.conf points to valid
-   SMTP server, its default is localhost. 
-   1. Please be sure the name 'localhost' is defined in your /etc/hosts
-   2. If you set it to name of some SMTP server, please be sure that SMTP 
-      server allows mails relayed from your host.
+   SMTP server, its default is '127.0.0.1'. If you set it to name of some
+   other SMTP server, please be sure the SMTP server allows mails relayed 
+   from your host.
 
 Q: The autoreply function doesn't work?
 A: An incoming message won't be replied by vacation.pl if
@@ -442,13 +493,33 @@ A: If your Open WebMail doesn't work, please post your problem on
 
 Q: Can I call openwebmail from my programs with username/password specified?
 A: You can call the openwebmail with url
-   http://server/openwebmail.pl?action=login&loginname=USER&password=PASS
+   http://server/openwebmail.pl?loginname=USER&password=PASS
 
    But this is a little dangerous since the loginname and password will
    be displayed on the URL line of the user's browser.
 
+Q: Can I call openwebmail and enter the composemessage menu directly?
+A: You can call the openwebmail with url
+   http://server/openwebmail.pl?loginname=USER&password=PASS&to=EMAIL&subject=SUBJECT
+
+Q: How can I setup IE to trigger Open WebMail compose window when I click
+   a "mailto:someone@somehost" link?
+A: In Windows Explorer, if you go to Tools -> Folder Options, click on the 
+   File Types tab. In the window that appears, scroll down the list to the 
+   entry for  "URL:MailTo Protocol".  Highlight URL:MailTo and click edit.
+  
+   Choose to edit the action for open.  By default it probably has a 
+   command to open Outlook Express (or your default email client).  
+   Change the Application to read:  
+   "C:\program files\internet explorer\iexplore.exe" http://your_server/cgi-bin/openwebmail.pl?loginname=NAME&password=PASS"
+
+   This will make Windows open Internet Explorer and go directly to the .pl 
+   page and login with the specified user and pass.
+
+   (Thanks to Mike Andrews, mike@lcso.org)
+
 Q: How can I set an alias or link to the openwebmail script so users can 
-   type in a shorter url?
+   user openwebmail with a shorter url?
 A: Please create a file, index.html, like below. Either a or b is okay. 
    Than put this index.html to the location mapped by the url you want.
    a.
@@ -467,6 +538,18 @@ A: Please create a file, index.html, like below. Either a or b is okay.
    </html>
    ----------------------------------------
 
+Q: Can I install openwebmail without root priviledge?
+A: Yes, try the auth_pop3.pl. Some information is available in it.
+
+Q: Can I setup mail account for user without creating the unix acount?
+A: Yes, you need postfix + vm-pop3d + openwebmail.
+   Kevin Ellis(kevin@bluelavalamp.net) has made a webpage for this,
+   it is available at http://www.bluelavalamp.net/owmvirtual/
+
+Q: Can Open WebMail be used with mod_perl?
+A: No, lots of code needs to be changed to make Open WebMail a good behavior
+   program under mod_perl. Currently, it can not be used with mod_perl. 
+
 Q: Does Open WebMail support maildir and vpop3mail user by Qmail?
 A: No, It doesn't.
 
@@ -475,25 +558,17 @@ A: Maybe, but it won't be implemented in the near future since we don't use
    qmail on our mail server. It is said that qmail has a 'mbox' compatible 
    mode, you may use that mode with openwebmail.
 
-Q: Can Open WebMail be used with mod_perl?
-A: No, lots of code needs to be changed to make Open WebMail a good behavior
-   program under mod_perl. Currently, it can not be used with mod_perl. 
-
 Q: Can I use Open WebMail in a commercial web site? 
 A: Yes. Open WebMail is GPLed software (please see copyright.txt for 
    detail of GPL). You can distribute/use/modify/sell it freely ONLY IF
 
    a. The GPL Copyright page must be kept untouched.
    b. Any improvement of Open WebMail or any product based on Open WebMail
-      must be released to the public for free if it is not for internal use.
+      must be released to the public for free in source form if it is not for 
+      internal use.
    c. Products based on Open Webmail must be also distributed under GPL.
 
 
-ps: We would be happy if you mail us a message that your commercial web site
-    is using Open WebMail. It may be put into the web page as some kind of 
-    advertisements :)
-   
-
-01/16/2002 
+03/08/2002 
 
 openwebmail@turtle.ee.ncku.edu.tw

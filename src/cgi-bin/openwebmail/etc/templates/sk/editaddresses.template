@@ -15,9 +15,9 @@
 @@@ENDFORM@@@
 </tr><tr><td colspan="4">&nbsp;</td></tr>
 <tr><td bgcolor=@@@COLUMNHEADER@@@>
-<B>Meno</B> (Kliknutím zmeni» adresu)</td>
+<B>Meno</B> (kliknutím zmeni» adresu)</td>
 <td bgcolor=@@@COLUMNHEADER@@@>
-<B>E-mail</B> (Kliknutím posla» správu)</td>
+<B>E-mail</B> (kliknutím posla» správu)</td>
 <td bgcolor=@@@COLUMNHEADER@@@>
 <B>Poznámka</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
@@ -48,7 +48,7 @@
       if (field == "email")
          url += "&preexisting=" + escape (document.newaddress.email.value);
    
-      var hWnd = window.open(url,"HelpWindow","width=320,height=360,resizable=yes,scrollbars=yes");
+      var hWnd = window.open(url,"HelpWindow","width=380,height=360,resizable=yes,scrollbars=yes");
       if ((document.window != null) && (!hWnd.opener))
          hWnd.opener = document.window;
    }

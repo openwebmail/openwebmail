@@ -10,9 +10,9 @@
 # This program is distributed under GNU General Public License              #
 #############################################################################
 
-my $SCRIPT_DIR="";
+local $SCRIPT_DIR="";
 if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-]+\.pl! ) { $SCRIPT_DIR=$1; }
-if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!"; exit 0; }
+if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
 
 use strict;
 no strict 'vars';
@@ -30,10 +30,15 @@ push (@INC, $SCRIPT_DIR, ".");
 require "openwebmail-shared.pl";
 require "filelock.pl";
 
-local %config;
-readconf(\%config, "$SCRIPT_DIR/etc/openwebmail.conf");
-require $config{'auth_module'} or
-   openwebmailerror("Can't open authentication module $config{'auth_module'}");
+local (%config, %config_raw);
+local $thissession;
+local ($loginname, $domain, $user, $userrealname, $uuid, $ugid, $homedir);
+local (%prefs, %style);
+local ($lang_charset, %lang_folders, %lang_sortlabels, %lang_text, %lang_err);
+local $folderdir;
+
+readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf.default");
+readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf") if (-f "$SCRIPT_DIR/etc/openwebmail.conf");
 
 if ( $config{'logfile'} ne 'no' && ! -f $config{'logfile'} ) {
    my $mailgid=getgrnam('mail');
@@ -43,15 +48,6 @@ if ( $config{'logfile'} ne 'no' && ! -f $config{'logfile'} ) {
    chmod(0660, $config{'logfile'});
    chown($>, $mailgid, $config{'logfile'});
 }
-
-local $thissession;
-local ($virtualuser, $user, $userrealname, $uuid, $ugid, $homedir);
-
-local %prefs;
-local %style;
-local ($lang_charset, %lang_folders, %lang_sortlabels, %lang_text, %lang_err);
-
-local $folderdir;
 
 # setuid is required if mails is located in user's dir
 if ( $>!=0 && ($config{'use_homedirspools'}||$config{'use_homedirfolders'}) ) {
@@ -67,14 +63,17 @@ $lang_charset ||= 'iso-8859-1';
 
 ####################### MAIN ##########################
 if ( param("loginname") && param("password") ) {
-   my $loginname=param("loginname");
+   $loginname=param("loginname");
    my $siteconf;
    if ($loginname=~/\@(.+)$/) {
        $siteconf="$config{'ow_etcdir'}/sites.conf/$1";
    } else {
        $siteconf="$config{'ow_etcdir'}/sites.conf/$ENV{'HTTP_HOST'}";
    }
-   readconf(\%config, "$siteconf") if ( -f "$siteconf"); 
+   readconf(\%config, \%config_raw, "$siteconf") if ( -f "$siteconf"); 
+
+   require $config{'auth_module'} or
+      openwebmailerror("Can't open authentication module $config{'auth_module'}");
 
    if ( ($config{'logfile'} ne 'no') && (! -f $config{'logfile'})  ) {
       my $mailgid=getgrnam('mail');
@@ -139,7 +138,6 @@ sub loginmenu {
 
 ####################### LOGIN ########################
 sub login {
-   my $loginname = param("loginname") || '';
    my $password = param("password") || '';
 
    $loginname =~ /^(.*)$/; # accept any characters for loginname/pass auth info
@@ -147,24 +145,35 @@ sub login {
    $password =~ /^(.*)$/;
    $password = $1;
 
-   ($virtualuser, $user, $userrealname, $uuid, $ugid, $homedir)=get_virtualuser_user_userinfo($loginname);
+   ($loginname, $domain, $user, $userrealname, $uuid, $ugid, $homedir)
+	=get_domain_user_userinfo($loginname);
    if ($user eq "") {
-      sleep 10;	# delayed response
+      sleep $config{'loginerrordelay'};	# delayed response
       openwebmailerror("$lang_err{'user_not_exist'}");
    }
    if (! $config{'enable_rootlogin'}) {
       if ($user eq 'root' || $uuid==0) {
-         sleep 10;	# delayed response
+         sleep $config{'loginerrordelay'};	# delayed response
          writelog("login error - root login attempt");
          openwebmailerror ("$lang_err{'norootlogin'}");
       }
    }
 
-   my $errorcode=check_userpassword($user, $password);
-   if ( $errorcode==0 ) {
-      if ( -f "$config{'ow_etcdir'}/users.conf/$user") { # read per user conf
-         readconf(\%config, "$config{'ow_etcdir'}/users.conf/$user");
+   my $errorcode;
+   if ($config{'auth_withdomain'}) {
+      $errorcode=check_userpassword("$user\@$domain", $password);
+   } else {
+      if ($domain eq $ENV{'HTTP_HOST'}) {
+         $errorcode=check_userpassword($user, $password);
+      } else {
+         sleep $config{'loginerrordelay'};	# delayed response
+         openwebmailerror("$lang_err{'user_not_exist'}");
       }
+   }
+   if ( $errorcode==0 ) {
+      my $userconf="$config{'ow_etcdir'}/users.conf/$user";
+      $userconf .= "\@$domain" if ($config{'auth_withdomain'});
+      readconf(\%config, \%config_raw, "$userconf") if ( -f "$userconf"); 
 
       my $clientip=get_clientip();
       # validate client ip
@@ -218,6 +227,7 @@ sub login {
          $folderdir = "$homedir/$config{'homedirfolderdirname'}";
       } else {
          $folderdir = "$config{'ow_etcdir'}/users/$user";
+         $folderdir .= "\@$domain" if ($config{'auth_withdomain'});
       }
 
       ($thissession =~ /^(.+)$/) && ($thissession = $1);  # untaint ...
@@ -231,6 +241,14 @@ sub login {
       if (! -d "$folderdir" ) {
          mkdir ("$folderdir", oct(700)) or
             openwebmailerror("$lang_err{'cant_create_dir'} $folderdir");
+      }
+
+      # create system spool file /var/mail/xxxx
+      my ($spoolfile, $headerdb)=get_folderfile_headerdb($user, 'INBOX');
+      if ( ! -f "$spoolfile" ) {
+         ($spoolfile =~ /^(.+)$/) && ($spoolfile = $1); # bypass taint check
+         open (F, ">>$spoolfile"); close(F);
+         chown($uuid, $ugid, $spoolfile);
       }
 
       # create session file
@@ -278,12 +296,50 @@ sub login {
          close(D);
       }
 
+      # create .authpop3.book
+      if (defined($pop3_authserver)) {
+         my $authpop3book="$folderdir/.authpop3.book";
+         ($authpop3book =~ /^(.+)$/) && ($authpop3book = $1);  # untaint ...
+
+         if ($config{'getmail_from_pop3_authserver'}) {
+            my ($pop3host, $pop3user, $pop3pass, $pop3lastid, $pop3del, $enable);
+            my $login=$user;
+            $login .= "\@$domain" if ($config{'auth_withdomain'});
+
+            if ( -f "$authpop3book") {
+               open(F, "$authpop3book");
+               $_=<F>; chomp;
+               ($pop3host,$pop3user,$pop3pass,$pop3lastid,$pop3del,$enable)=split(/\@\@\@/, $_);
+               close(F);
+            }
+
+            if ($pop3host ne $pop3_authserver ||
+                $pop3user ne $login || 
+                $pop3pass ne $password) {
+               if ($pop3host ne $pop3_authserver || $pop3user ne $login) {
+                  $pop3lastid="none";
+                  $pop3del=$config{'delpop3mail_by_default'};
+                  $enable=1;
+               }
+               open(F, ">$authpop3book");
+               print F "$pop3_authserver\@\@\@$login\@\@\@$password\@\@\@$pop3lastid\@\@\@$pop3del\@\@\@$enable";
+               close(F);
+            }
+         } else {
+            unlink("$authpop3book");
+         }
+      }
+
       # set cookie in header and redirect page to openwebmail-main
       my $url;
       if ( ! -f "$folderdir/.openwebmailrc" ) {
          $url="$config{'ow_cgiurl'}/openwebmail-prefs.pl?sessionid=$thissession&action=firsttimeuser";
       } elsif ( $rc_upgrade ) {
          $url="$config{'ow_cgiurl'}/openwebmail-prefs.pl?sessionid=$thissession&action=editprefs";
+      } elsif ( defined(param("to")) ) {
+         my $to=param("to");
+         my $subject=param("subject");
+         $url="$config{'ow_cgiurl'}/openwebmail-send.pl?sessionid=$thissession&action=composemessage&to=$to&subject=$subject";
       } else {
          $url="$config{'ow_cgiurl'}/openwebmail-main.pl?sessionid=$thissession&action=displayheaders_afterlogin";
       }
@@ -330,7 +386,7 @@ sub login {
 		qq|</font></a>\n\n|,
                 qq|<script language="JavaScript">\n<!--\n|,
                 qq|window.open('$url','_self')\n|,
-                qq|--->\n</script>\n|,
+                qq|//-->\n</script>\n|,
 		qq|</center></body></html>\n|;
       exit(0);
 
@@ -359,6 +415,7 @@ sub login {
          $folderdir = "$homedir/$config{'homedirfolderdirname'}";
       } else {
          $folderdir = "$config{'ow_etcdir'}/users/$user";
+         $folderdir .= "\@$domain" if ($config{'auth_withdomain'});
       }
 
       if ( -d $folderdir) {
@@ -370,7 +427,7 @@ sub login {
          writehistory("login error - $errorcode - loginname=$loginname");
       }
 
-      sleep 10;	# delayed response 
+      sleep $config{'loginerrordelay'};	# delayed response
 
       my $html = '';
       printheader();

@@ -46,7 +46,7 @@
   <td><font color=#cc0000>Master Site &nbsp; </font></td>
   <td>
     <a href="http://turtle.ee.ncku.edu.tw/openwebmail/"> 
-    http://turtle.ee.ncku.edu.tw/openwebmail/</a><br>
+    http://turtle.ee.ncku.edu.tw/openwebmail/</a> (Taiwan)<br>
   </td>
   </tr>
 
@@ -56,7 +56,7 @@
     <a href="http://openwebmail.org/openwebmail/">
     http://openwebmail.org/openwebmail/</a> |
     <a href="ftp://openwebmail.org">
-    ftp://openwebmail.org/</a>
+    ftp://openwebmail.org/</a> (US)
   </td>
   </tr>
 
@@ -64,7 +64,7 @@
   <td><font color=#cc0000>Mirror 2 &nbsp; </font></td>
   <td>
     <a href="http://www.geocities.com/openwebmail/">
-    http://www.geocities.com/openwebmail/</a>
+    http://www.geocities.com/openwebmail/</a> (US)
   </td>
   </tr>
 
@@ -72,7 +72,15 @@
   <td><font color=#cc0000>Mirror 3 &nbsp; </font></td>
   <td>
     <a href="http://ftp.ee.ncku.edu.tw/pub/openwebmail/index.html"> 
-    http://ftp.ee.ncku.edu.tw/pub/openwebmail/</a>
+    http://ftp.ee.ncku.edu.tw/pub/openwebmail/</a> (Taiwan)
+  </td>
+  </tr>
+
+  <tr>
+  <td><font color=#cc0000>Mirror 4 &nbsp; </font></td>
+  <td>
+    <a href="http://www.correuweb.com/mirror"> 
+    http://www.correuweb.com/mirror</a> (Spain)
   </td>
   </tr>
 
@@ -167,35 +175,61 @@
   more flexibility when designing the mail service system.
   </p>
 
-  <h4>Virtual Hosting and Login Alias</h4>
+  <h4>Virtual Hosting</h4>
+  <p>
+  You can have as many virtual domains as you want on same server with only one copy 
+  of openwebmail installed. Open Webmail supports per domain config file.
+  Each domain can have its own set of configuration options, including domainname, 
+  authentication module, quota limit, mailspooldir ...
+  </p>
+  <p>
+  You can even setup mail accounts for users without creating real unix accounts for them.
+  Please refer to <A href="mailto:kevin@bluelavalamp.net">Kevin Ellis</A>'s webpage:
+  <a href="http://www.bluelavalamp.net/owmvirtual/">"How to setup virtual users on Open WebMail using Postfix & vm-pop3d"</a>
+  </p>
+  
+  <h4>User Alias</h4>
   <p>
   Open Webmail can use the <a href="http://www.sendmail.org/virtual-hosting.html">
-  sendmail virtusertable</a> to map a virtualuser to the real userid in a system. 
-  A virtualuser can be either in the form of a pure 'virtualusername' or 
-  'virtualusername@somedomain'. 
-  When a user logins, the loginname will be checked in the following order:<br>
-  1. Is this loginname a virtualuser defined in virtusertable?<br>
-  2. Is this loginname a real userid in system?<br>
-  3. Does this loginname match the username part of a specific virtualuser?
-  </p>
+  sendmail virtusertable</a> for user alias mapping. 
 
-  <h4>PAM support</h4>
-  <p>
-  Openwebmail can use a number of sources for authentication through the PAM 
-  (pluggable authentication module). Ex: NIS+, NIS, LDAP.... Solaris 2.6, 
-  Linux and FreeBSD 3.1 are known to support PAM. 
-  For more information about PAM, please see 
-  <a href="http://www.kernel.org/pub/linux/libs/pam/">
-  http://www.kernel.org/pub/linux/libs/pam/</a>
+  The loginname typed by user may be pure name or name@somedomain. And this loginname
+  can be mapped to another pure name or name@otherdomain in the virtusertable.
+
+  This gives you the great flexsibility in account management. For example,
+  you may have john for different domains by actually mapping them to 
+  differnt real user ids.
+  <pre>  
+  john@domain1.com	john1
+  john@domain2.com	john2
+  john@domain3.com	john3
+  </pre>
   </p>
 
   <h4>Per User Capability Configuration</h4>
   <p>
-  While the user capability related options in system config file(openwebmail.conf)
-  are applied to all users, system administrator may want to set them on per user 
-  basis sometimes. 
-  Openwebmail supports this by making each user have his own capability file.
-  This gives the administrator ultra flexibility in user capability management.
+  While options in system config file(openwebmail.conf) are applied to all users, 
+  you may find it useful to set the options on per user basis sometimes.
+  For example, you may want to limit the client ip access for some users or limit
+  the domain which the user can sent to. This could be easily done with the per
+  user config file support in Open Webmail.
+  </p>
+
+  <h4>Various Authentication Modules</h4>
+  <p>
+  Various authentication modules are directly available for openwebmail, 
+  inclding auth_unix.pl, auth_ldap.pl, auth_mysql.pl and auth_pop3.pl.
+  With these modules, openwebmail can be integrated with other systems easily.
+  </p>
+
+  <h4>PAM support</h4>
+  <p>
+  Openwebmail can also use other sources for authentication through the PAM 
+  (pluggable authentication module). Ex: NIS+, NIS, LDAP, Radious.... Solaris 2.6, 
+  Linux and FreeBSD 3.1 are known to support PAM. 
+  For more information about PAM, please see 
+  <a href="http://www.kernel.org/pub/linux/libs/pam/">
+  http://www.kernel.org/pub/linux/libs/pam/</a>
   </p>
 
   <h4>Full Content Search</h4>
@@ -207,7 +241,7 @@
   user selects another folder or refreshes the current folder. 
   </p>
 
-  <h4> Strong MIME Message Capability</h4>
+  <h4>Strong MIME Message Capability</h4>
   <p>
   Most webmail packages present MIME messages poorly compared to traditional 
   POP clients. Open Webmail presents MIME messages in an attractive format 
@@ -285,83 +319,110 @@
   <table border=1 cellspacing=0 width=80%>
   <tr><td bgcolor=#999999><font color=#ffffff>Language</font></td>
       <td bgcolor=#999999><font color=#ffffff>Abbreviation</td>
-      <td bgcolor=#999999><font color=#ffffff>Translation Contributor</td></tr>
-  <tr><td>Catalan</td>
+      <td bgcolor=#999999><font color=#ffffff>Translation Maintainer</td>
+      <td bgcolor=#999999><font color=#ffffff>Cool3D Iconset Creator</td></tr>
+  <tr><td nowrap>Catalan</td>
       <td>ca</td>
+      <td><A href="mailto:st@e-puntcom.com">Jordi Vidal</A></td>
       <td><A href="mailto:st@e-puntcom.com">Jordi Vidal</A></td></tr>
-  <tr><td>Czech</td>
+  <tr><td nowrap>Czech</td>
       <td>cs</td>
-      <td><A href="mailto:michal@stavlib.hiedu.cz">Michal Drapak</A></td></tr>
-  <tr><td>Chinese (Simplified)</td>
+      <td><A href="mailto:michal@stavlib.hiedu.cz">Michal Drapak</A></td>
+      <td>&nbsp;</td></tr>
+  <tr><td nowrap>Chinese (Simplified)</td>
       <td>zh_CN.GB2312</td>
-      <td><A href="mailto:wjun@mail.iap.ac.cn">Wang Jun</A></td></tr>
-  <tr><td>Chinese (Traditional)</td>
+      <td><A href="mailto:wjun@mail.iap.ac.cn">Wang Jun</A></td>
+      <td>&nbsp;</td></tr>
+  <tr><td nowrap>Chinese (Traditional)</td>
       <td>zh_TW</td>
-      <td><A href="mailto:openwebmail@turtle.ee.ncku.edu.tw">openwebmail</A></td></tr>
-  <tr><td>Danish</td>
+      <td><A href="mailto:openwebmail@turtle.ee.ncku.edu.tw">openwebmail</A></td>
+      <td><A href="mailto:hoyuan@istyle.idv.tw">HoYuan</A></td></tr>
+  <tr><td nowrap>Danish</td>
       <td>da</td>
-      <td><A href="mailto:frank@post12.tele.dk">Frank</A></td></tr>
-  <tr><td>Dutch</td>
+      <td><A href="mailto:frank@post12.tele.dk">Frank</A></td>
+      <td><A href="mailto:knbn@hhf-kollegiet.dk">Kenneth Nielsen</A></td></tr>
+  <tr><td nowrap>Dutch</td>
       <td>nl</td>
       <td><A href="mailto:m.m.vanslobbe@connectux.com">Michiel van Slobbe</A>,
-          <A href="mailto:chris@connectux.com">Christian Boer</A></td></tr>
-  <tr><td>English</td>
+      <br><A href="mailto:chris@connectux.com">Christian Boer</A></td>
+      <td>&nbsp;</td></tr>
+  <tr><td nowrap>English</td>
       <td>en</td>
-      <td><A href="mailto:openwebmail@turtle.ee.ncku.edu.tw">openwebmail</A></td></tr>
-  <tr><td>Finnish</td>
+      <td><A href="mailto:openwebmail@turtle.ee.ncku.edu.tw">openwebmail</A></td>
+      <td><A href="mailto:elitric@yahoo.com">Emir Litric</A></td></tr>
+  <tr><td nowrap>Finnish</td>
       <td>fi</td>
       <td><A href="mailto:kivilahti@exdecfinland.org">Jouni Kivilahti</A>,
-          <A href="mailto:heljalaitinen@hotmail.com">Helja Laitinen</A></td></tr>
-  <tr><td>French</td>
+      <br><A href="mailto:heljalaitinen@hotmail.com">Helja Laitinen</A></td>
+      <td>&nbsp;</td></tr>
+  <tr><td nowrap>French</td>
       <td>fr</td>
-      <td><A href="mailto:c.sabatier@bocquet.com">Cyril Sabatier</A></td></tr>
-  <tr><td>German</td>
+      <td><A href="mailto:c.sabatier@bocquet.com">Cyril Sabatier</A></td>
+      <td>&nbsp;</td></tr>
+  <tr><td nowrap>German</td>
       <td>de</td>
-      <td><A href="mailto:flood@flood-net.de">Andreas Roedl</A></td></tr>
-  <tr><td>Hungarian</td>
+      <td><A href="mailto:flood@flood-net.de">Andreas Roedl</A>,
+      <br><A href="mailto:mail@schoeppi.net">Christian Schoepplein</A></td>
+      <td>&nbsp;</td></tr>
+  <tr><td nowrap>Hungarian</td>
       <td>hu</td>
       <td><A href="mailto:gumo@lucifer.kgt.bme.hu">Nagy Endre</A>, 
-          <A href="mailto:ful_s@fazekas.hu">Posz Marton</A></td></tr>
-  <tr><td>Italian</td>
+      <br><A href="mailto:ful_s@fazekas.hu">Posz Marton</A></td>
+      <td>&nbsp;</td></tr>
+  <tr><td nowrap>Italian</td>
       <td>it</td>
-      <td><A href="mailto:i3100579@ingstud.univ.trieste.it">Benedet Marvi</A></td></tr>
-  <tr><td>Korean</td>
+      <td><A href="mailto:i3100579@ingstud.univ.trieste.it">Benedet Marvi</A></td>
+      <td>&nbsp;</td></tr>
+  <tr><td nowrap>Korean</td>
       <td>kr</td>
-      <td><A href="mailto:kmscom@snu.ac.kr">Moonsang Kwon</A></td></tr>
-  <tr><td>Lithuanian</td>
+      <td><A href="mailto:kmscom@snu.ac.kr">Moonsang Kwon</A></td>
+      <td><A href="mailto:matthewyi@usermail.com">Matthewyi</A></td></tr>
+  <tr><td nowrap>Lithuanian</td>
       <td>lt</td>
-      <td><A href="mailto:dvm382@takas.lt">Alvydas Sinkunas</A></td></tr>
-  <tr><td>Norwegian Nynorsk</td>
+      <td><A href="mailto:dvm382@takas.lt">Alvydas Sinkunas</A></td>
+      <td>&nbsp;</td></tr>
+  <tr><td nowrap>Norwegian Nynorsk</td>
       <td>no_NY</td>
-      <td>incomplete</td></tr>
-  <tr><td>Polish</td>
+      <td>incomplete</td>
+      <td>&nbsp;</td></tr>
+  <tr><td nowrap>Polish</td>
       <td>pl</td>
-      <td><A href="mailto:jablonski@dialogok.pl">Pawel Jablonski</A></td></tr>
-  <tr><td>Portuguese</td>
+      <td><A href="mailto:jablonski@dialogok.pl">Pawel Jablonski</A></td>
+      <td>&nbsp;</td></tr>
+  <tr><td nowrap>Portuguese</td>
       <td>pt</td>
-      <td><A href="mailto:jferra@sfconsultores.pt">Jos Ferradeira</A></td></tr>
-  <tr><td>Portuguese Brazil</td>
+      <td><A href="mailto:jferra@sfconsultores.pt">Jos Ferradeira</A></td>
+      <td>&nbsp;</td></tr>
+  <tr><td nowrap>Portuguese Brazil</td>
       <td>pt_BR</td>
       <td><A href="mailto:edison@brc.com.br">Edison Figueira Junior</A>,
-          <A href="mailto:ruisb@ig.com.br">Rui - iG</A></td></tr>
-  <tr><td>Romanian</td>
+      <br><A href="mailto:ruisb@ig.com.br">Rui - iG</A></td>
+      <td><A href="mailto:jsb@ductape.net">Jordi S. Bunster</A></td></tr>
+  <tr><td nowrap>Romanian</td>
       <td>ro</td>
-      <td>incomplete</td></tr>
-  <tr><td>Russian</td>
+      <td>incomplete</td>
+      <td>&nbsp;</td></tr>
+  <tr><td nowrap>Russian</td>
       <td>ru</td>
-      <td>incomplete</td></tr>
-  <tr><td>Slovak</td>
+      <td><A href="mailto:duster@tpu.ru">Denis Mysenko</A></td>
+      <td>&nbsp;</td></tr>
+  <tr><td nowrap>Slovak</td>
       <td>sk</td>
+      <td><A href="mailto:lubos@klokner.sk">Lubos Klokner</A>,
+      <br><A href="mailto:pese@us.svf.stuba.sk">Peter Sedivy - PeSe</A></td>
       <td><A href="mailto:lubos@klokner.sk">Lubos Klokner</A></td></tr>
-  <tr><td>Spanish</td>
+  <tr><td nowrap>Spanish</td>
       <td>es</td>
+      <td><A href="mailto:jsmaldone@yahoo.com">Javier Smaldone</A></td>
       <td><A href="mailto:jsmaldone@yahoo.com">Javier Smaldone</A></td></tr>
-  <tr><td>Swedish</td>
+  <tr><td nowrap>Swedish</td>
       <td>sv</td>
-      <td><A href="mailto:tryfan@telia.com">Goran Jartin</A></td></tr>
-  <tr><td>Ukrainian</td>
+      <td><A href="mailto:tryfan@telia.com">Goran Jartin</A></td>
+      <td>&nbsp;</td></tr>
+  <tr><td nowrap>Ukrainian</td>
       <td>uk</td>
-      <td><A href="mailto:lvm@mystery.lviv.net">Volodymyr M. Lisivka</A></td></tr>
+      <td><A href="mailto:lvm@mystery.lviv.net">Volodymyr M. Lisivka</A></td>
+      <td>&nbsp;</td></tr>
   </table>
   </p>
 </blockquote>
@@ -426,14 +487,6 @@
     who submitted the patch for multiple dictionaries support in spellcheck.
   </li>
   <li>
-  Thanks to <A href="mailto:st@e-puntcom.com">Jordi Vidal</A>, 
-    who translated the language, template files and Cool3D icon into Catalan.
-  </li>
-  <li>
-  Thanks to <A href="mailto:lubos@klokner.sk">lubos klokner</A>, 
-    who translated the language, template files and Cool3D icon into Slovak.
-  </li>
-  <li>
   Thanks to <A href="mailto:james@tiger-marmalade.com">James Dean Palmer</A>,
     who contributed the support for new mail headers: In-Reply-To, References and X-Status.
     He also wrote a new sort method "by thread" for folderview, added the 'A' flag display 
@@ -450,10 +503,6 @@
     support for 'markasread'.
   </li>
   <li>
-  Thanks to <A href="mailto:jsmaldone@yahoo.com">Javier Smaldone</A>,
-    who contributed the Default.Spanish and Cool3D.Spanish iconset.
-  </li>
-  <li>
   Thanks to <A href="mailto:u8711028@cc.nkfust.edu.tw">©ú³Ó</A>,
     who contributed the patch of search support in addressbook.
   </li>
@@ -461,10 +510,6 @@
   Thanks to <A href="mailto:calle@batliv.nu.">Carl Olsen</A>,
     who contributed the code of using Net::SMTP module.
     This allows openwebmail to use other host as SMTP relay for mail sending.
-  </li>
-  <li>
-  Thanks to <A href="mailto:hoyuan@istyle.idv.tw">Yuan</A>,
-    who contributed the Cool3D.Chinese.Traditional iconset.
   </li>
   <li>
   Thanks to <A href="mailto:suttonb@users.sourceforge.net">Brian Suttonb</A>,
@@ -477,10 +522,6 @@
     account on a LDAP server
   </li>
   <li>
-  Thanks to <A href="mailto:jsb@ductape.net">Jordi S. Bunster</A>,
-    who contributed the Cool3D.Portuguese.Brazilian iconset.
-  </li>
-  <li>
   Thanks to <A href="mailto:kevlo@openbsd.org">Kevin Lo</A>,
     who made the <A href="http://www.openbsd.org/cgi-bin/cvsweb/ports/mail/openwebmail/">OpenBSD port</A> for openwebmail.
   </li>
@@ -491,9 +532,39 @@
   </li>
   <li>
   Thanks to <A href="mailto:frank@post12.tele.dk">Frank@post12.tele.dk</A>,
-    who provides the idea and code for disable_embded_CGI option.
+    who provided the idea and code for disable_embded_CGI option.
     He also suggested the use of $ENV{SCRIPT_FILENAME} so *.pl can find required 
     modules automatically
+  </li>
+  <li>
+  Thanks to <A href="mailto:heegard@NativeI.com">Chris Heegard</A>, 
+    who provided the information of how to use openwebmail on Mac OS X and 
+    suggested the use of 
+    <a href="http://turtle.ee.ncku.edu.tw/openwebmail/download/contrib/wrapsuid.pl">wrapsuid.pl</a>
+    to generate C wrappers for suid scripts.
+  </li>
+  <li>
+  Thanks to <A href="mailto:leeym@leeym.com">Yen-Ming Lee</A>,
+    who made the <A href="http://www.freebsd.org/cgi/cvsweb.cgi/ports/mail/openwebmail/">FreeBSD port</A> for openwebmail.
+  </li>
+  <li>
+  Thanks to <A href="mailto:johnson@ooty.tenet.res.in">A.Johnson Jeba Asir</A>,
+    who fixed the hang problem in attachment uploading caused by a bug in encode_base64()
+    in mime.pl
+  </li>
+  <li>
+  Thanks to <A href="mailto:kevin@bluelavalamp.net">Kevin Ellis</A>,
+    who fixed the bugs related to virtualuser and option auth_withdomain 
+    so openwebmail could work smoothly with vm-pop3d. Please refer to Kevin's webpage
+    <a href="http://www.bluelavalamp.net/owmvirtual/">"How to setup virtual users on Open WebMail using Postfix & vm-pop3d"</a>
+  </li>
+  <li>
+  Thanks to <A href="mailto:AlanSung@dragon2.net">Alan, Cheng-Lung Sung</A>,
+    who contributed the MySQL authentication module(auth_mysql.pl).
+  </li>
+  <li>
+  Thanks to <A href="mailto:koppi@action.at">Koppi</A>,
+    who fix the bug related to the variable localization behavior in 'foreach' statement.
   </li>
   </ul>
   </p>
@@ -510,17 +581,23 @@
      readme.txt</a> and
      <a href="http://turtle.ee.ncku.edu.tw/openwebmail/doc/faq.txt">
      faq.txt</a>. 
-     If you want to seek help, please post your problem in the
+     <br>
+     If you want to <b>seek help</b>, please post your problem in the
      <a href="http://sourceforge.net/forum/forum.php?forum_id=108433">
      openwebmail-users discussion forum</a>.
      <br>
-     If you want to mirror this site, please use this
-     <a href="http://turtle.ee.ncku.edu.tw/openwebmail/download/packages/mirror.openwebmail.sh">
-     script</a>.
-     <br>
-     If you still want to contact us, please email to
+     If you want to <b>submit patch or bug-report</b>, please email to
      <a href="mailto: openwebmail@turtle.ee.ncku.edu.tw">
      openwebmail@turtle.ee.ncku.edu.tw</a>
+     <br>
+     If you want to <b>mirror</b> this site, please use this
+     <a href="http://turtle.ee.ncku.edu.tw/openwebmail/download/packages/mirror.openwebmail.sh">
+     script</a>.
+     <br><br>
+     Please <b>DO NOT</b> email questions/problems to openwebmail@turtle.ee.ncku.edu.tw or the authors 
+     directly, they will be just <b>simplely ignored</b>. We would prefer to do the discussion
+     on the <a href="http://sourceforge.net/forum/forum.php?forum_id=108433">forum</a>
+     thus the information could be shared by others.
   </p>
 </blockquote>
 

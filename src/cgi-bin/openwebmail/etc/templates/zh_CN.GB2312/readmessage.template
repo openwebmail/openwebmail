@@ -38,7 +38,7 @@
    </td></tr></table>
 </td></tr></table>
 <script language="JavaScript">
-   <!--
+<!--
    function replyreceiptconfirm(url, yes)
    {
       if (yes==1 || confirm('这封信件要求发送读取收条，是否要发送？')) {
@@ -48,5 +48,5 @@
 //         hWnd.close();
       }
    }
-   //-->
+//-->
 </script>

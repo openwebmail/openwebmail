@@ -3,9 +3,6 @@
 # 
 # 2002/01/27 Ivan Cerrato - pengus@libero.it
 #
-# Based on auth_unix.pl written by tung@turtle.ee.ncku.edu.tw 
-#
-
 my $ldapHost = "HOSTNAME";	# INSERT THE LDAP SERVER IP HERE.
 my $cn = "cn=LOGIN";		# INSERT THE LDAP USER HERE.
 my $dc1 = "dc=DC1";		# INSERT THE FIRST DC HERE.
@@ -25,7 +22,7 @@ $ldap->bind ( dn        =>      $dn,
 
 sub get_userinfo {
    my $user=$_[0];
-   my ($uid, $gid, $realname, $homedir);
+   my ($uid, $gid, $gecos, $homedir);
 
    my $list = $ldap->search (
                              base    => $ldapBase,
@@ -37,16 +34,17 @@ sub get_userinfo {
 	return -1;
 	}
    else {
-	$entry = $list->entry(0);
+	my $entry = $list->entry(0);
 
+        $gecos = $entry->get_value("gecos");
         $uid = $entry->get_value("uidNumber");
         $gid = $entry->get_value("gidNumber");
-        $gecos = $entry->get_value("gecos");
-        $home = $entry->get_value("homeDirectory");
+        $homedir = $entry->get_value("homeDirectory");
 
-	return($gecos, $uid, $gid, $home);
+	return($gecos, $uid, $gid, $homedir);
 	}
 }
+
 
 sub get_userlist {      # only used by checkmail.pl -a
    my @userlist=();
@@ -59,7 +57,7 @@ sub get_userlist {      # only used by checkmail.pl -a
 
    my $num = $list->count;
 
-   for ($i = 0; $i < $num; $i++) {
+   for (my $i = 0; $i < $num; $i++) {
 	my $entry = $list->entry($i);
 	push (@userlist, $entry->get_value("uid"));
 	}
@@ -67,11 +65,11 @@ sub get_userlist {      # only used by checkmail.pl -a
    return (@userlist);
 }
 
+
 #  0 : ok
 # -2 : parameter format error
 # -3 : authentication system/internal error
 # -4 : password incorrect
-
 sub check_userpassword {
    my ($user, $password)=@_;
 
@@ -88,10 +86,10 @@ sub check_userpassword {
         }
    else {
 	my $entry = $list->entry(0);
-	$tmp_pwd = $entry->get_value("userPassword");
+	my $tmp_pwd = $entry->get_value("userPassword");
 
-	$c_pwd = substr($tmp_pwd, 7, 13);
-	$salt = substr($c_pwd, 0, 2);
+	my $c_pwd = substr($tmp_pwd, 7, 13);
+	my $salt = substr($c_pwd, 0, 2);
 
 	if ($c_pwd eq crypt($password, $salt)) {
         	return 0;
@@ -102,12 +100,12 @@ sub check_userpassword {
         }   
 }
 
+
 #  0 : ok
 # -1 : function not supported
 # -2 : parameter format error
 # -3 : authentication system/internal error
 # -4 : password incorrect
-
 sub change_userpassword {
    my ($user, $oldpassword, $newpassword)=@_;
    my ($u, $p, $misc, $encrypted);
@@ -136,4 +134,3 @@ sub change_userpassword {
 }
 
 1;
-

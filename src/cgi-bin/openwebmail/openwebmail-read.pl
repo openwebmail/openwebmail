@@ -10,9 +10,9 @@
 # This program is distributed under GNU General Public License              #
 #############################################################################
 
-my $SCRIPT_DIR="";
+local $SCRIPT_DIR="";
 if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-]+\.pl! ) { $SCRIPT_DIR=$1; }
-if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!"; exit 0; }
+if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
 
 use strict;
 no strict 'vars';
@@ -27,121 +27,35 @@ umask(0007); # make sure the openwebmail group can write
 
 push (@INC, $SCRIPT_DIR, ".");
 require "openwebmail-shared.pl";
-require "mime.pl";
 require "filelock.pl";
+require "mime.pl";
 require "maildb.pl";
 require "mailfilter.pl";
 
-local %config;
-readconf(\%config, "$SCRIPT_DIR/etc/openwebmail.conf");
-require $config{'auth_module'} or
-   openwebmailerror("Can't open authentication module $config{'auth_module'}");
-
+local (%config, %config_raw);
 local $thissession;
-local ($virtualuser, $user, $userrealname, $uuid, $ugid, $homedir);
-
-local %prefs;
-local %style;
+local ($loginname, $domain, $user, $userrealname, $uuid, $ugid, $homedir);
+local (%prefs, %style);
 local ($lang_charset, %lang_folders, %lang_sortlabels, %lang_text, %lang_err);
-
-local $folderdir;
-local (@validfolders, $folderusage);
-
+local ($folderdir, @validfolders, $folderusage);
 local ($folder, $printfolder, $escapedfolder);
-local ($searchtype, $keyword, $escapedkeyword);
+
+openwebmail_init();
+verifysession();
+
 local $firstmessage;
 local $sort;
-
-# setuid is required if mails is located in user's dir
-if ( $>!=0 && ($config{'use_homedirspools'}||$config{'use_homedirfolders'}) ) {
-   print "Content-type: text/html\n\n'$0' must setuid to root"; exit 0;
-}
-
-if ( defined(param("sessionid")) ) {
-   $thissession = param("sessionid");
-
-   my $loginname = $thissession || '';
-   $loginname =~ s/\-session\-0.*$//; # Grab loginname from sessionid
-
-   my $siteconf;
-   if ($loginname=~/\@(.+)$/) {
-       $siteconf="$config{'ow_etcdir'}/sites.conf/$1";
-   } else {
-       $siteconf="$config{'ow_etcdir'}/sites.conf/$ENV{'HTTP_HOST'}";
-   }
-   readconf(\%config, "$siteconf") if ( -f "$siteconf"); 
-
-   ($virtualuser, $user, $userrealname, $uuid, $ugid, $homedir)=get_virtualuser_user_userinfo($loginname);
-   if ($user eq "") {
-      sleep 10;	# delayed response
-      openwebmailerror("User $loginname doesn't exist!");
-   }
-   if ( -f "$config{'ow_etcdir'}/users.conf/$user") { # read per user conf
-      readconf(\%config, "$config{'ow_etcdir'}/users.conf/$user");
-   }
-
-   if ( $config{'use_homedirspools'} || $config{'use_homedirfolders'} ) {
-      my $mailgid=getgrnam('mail');
-      set_euid_egid_umask($uuid, $mailgid, 0077);	
-      if ( $) != $mailgid) {	# egid must be mail since this is a mail program...
-         openwebmailerror("Set effective gid to mail($mailgid) failed!");
-      }
-   }
-
-   if ( $config{'use_homedirfolders'} ) {
-      $folderdir = "$homedir/$config{'homedirfolderdirname'}";
-   } else {
-      $folderdir = "$config{'ow_etcdir'}/users/$user";
-   }
-
-   ($user =~ /^(.+)$/) && ($user = $1);  # untaint ...
-   ($uuid =~ /^(.+)$/) && ($uuid = $1);
-   ($ugid =~ /^(.+)$/) && ($ugid = $1);
-   ($homedir =~ /^(.+)$/) && ($homedir = $1);
-   ($folderdir =~ /^(.+)$/) && ($folderdir = $1);
-
-} else {
-   sleep 10;	# delayed response
-   openwebmailerror("No user specified!");
-}
-
-%prefs = %{&readprefs};
-%style = %{&readstyle};
-
-($prefs{'language'} =~ /^([\w\d\._]+)$/) && ($prefs{'language'} = $1);
-require "etc/lang/$prefs{'language'}";
-$lang_charset ||= 'iso-8859-1';
-
-getfolders(\@validfolders, \$folderusage);
-if (param("folder")) {
-   my $isvalid = 0;
-   $folder = param("folder");
-   foreach my $checkfolder (@validfolders) {
-      if ($folder eq $checkfolder) {
-         $isvalid = 1;
-         last;
-      }
-   }
-   ($folder = 'INBOX') unless ( $isvalid );
-} else {
-   $folder = "INBOX";
-}
-$printfolder = $lang_folders{$folder} || $folder || '';
-$escapedfolder = escapeURL($folder);
+local ($searchtype, $keyword, $escapedkeyword);
 
 $firstmessage = param("firstmessage") || 1;
 $sort = param("sort") || $prefs{"sort"} || 'date';
-
+$searchtype = param("searchtype") || 'subject';
 $keyword = param("keyword") || '';
 $escapedkeyword = escapeURL($keyword);
-$searchtype = param("searchtype") || 'subject';
 
 ########################## MAIN ##############################
 
-verifysession();
-
 my $action = param("action");
-
 if ($action eq "readmessage") {
    readmessage(param("message_id"));
 } elsif ($action eq "rebuildmessage") {
@@ -274,6 +188,7 @@ sub readmessage {
       }
 
       my $zhconvert=param('zhconvert');
+      my $zhconvertparm; # parm passed to composemessage/viewattachment 
       if ($zhconvert eq "") {
          if ($lang_charset eq "big5") {
             if ($message{contenttype}=~/charset="?gb2312"?/i) {
@@ -311,11 +226,13 @@ sub readmessage {
          $to= b2g($to);
          $subject= b2g($subject);
          $body= b2g($body);
+         $zhconvertparm="&amp;zhconvert=b2g";
       } elsif ( $zhconvert eq 'g2b' ) {
          $from= g2b($from);
          $to= g2b($to);
          $subject= g2b($subject);
          $body= g2b($body);
+         $zhconvertparm="&amp;zhconvert=g2b";
       }
 
       if ($message{contenttype} =~ m#^message/partial#i && 
@@ -324,7 +241,7 @@ sub readmessage {
          # display rebuild link
          $body = qq|<table width="100%"><tr><td>|.
                  qq|$lang_text{'thisispartialmsg'}&nbsp; |.
-                 qq|<a href=\"$read_url_with_id&amp;action=rebuildmessage&amp;partialid=$escapedpartialid&amp;attmode=$attmode&amp;headers=$headers\">[$lang_text{'msgrebuild'}]</a>|.
+                 qq|<a href="$read_url_with_id&amp;action=rebuildmessage&amp;partialid=$escapedpartialid&amp;attmode=$attmode&amp;headers=$headers">[$lang_text{'msgrebuild'}]</a>|.
                  qq|</td></tr></table>|;
       } elsif ($message{contenttype} =~ m#^text/html#i) { # convert into html table
          $body = html4nobase($body); 
@@ -342,7 +259,7 @@ sub readmessage {
          $body =~ s/\x1b\[(\d|\d\d|\d;\d\d)?m//g if ($from=~/bbs/i || $body=~/bbs/i); 
          $body = text2html($body);
          $body =~ s/<a href=/<a class=msgbody href=/ig;
-         $body =~ s/(>?)([:;8])[-^]?([\(\)\>\<\|PpDdOoX\\\/])([\s\<])/<img border=\"0\" width=\"12\" height=\"12\" src=\"$config{'ow_htmlurl'}\/images\/smilies\/$smilies{"$1$2$3"}\.png\" alt=\"$1$2$3\">$4/g if $prefs{'usesmileicon'};
+         $body =~ s/(>?)([:;8])[-^]?([\(\)\>\<\|PpDdOoX\\\/])([\s\<])/<img border="0" width="12" height="12" src="$config{'ow_htmlurl'}\/images\/smilies\/$smilies{"$1$2$3"}\.png" alt="$1$2$3">$4/g if $prefs{'usesmileicon'};
       }
 
       # Set up the message to go to after move.
@@ -355,61 +272,53 @@ sub readmessage {
 
       $html =~ s/\@\@\@MESSAGETOTAL\@\@\@/$message{"total"}/g;
 
-      $temphtml = "<a href=\"$main_url&amp;action=displayheaders\"><IMG SRC=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/backtofolder.gif\" border=\"0\" ALT=\"$lang_text{'backto'} $printfolder\"></a> &nbsp; ";
+      $temphtml = qq|<a href="$main_url&amp;action=displayheaders" title="$lang_text{'backto'} $printfolder"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/backtofolder.gif" border="0" ALT="$lang_text{'backto'} $printfolder"></a> &nbsp; \n|;
       $html =~ s/\@\@\@BACKTOLINK\@\@\@/$temphtml/g;
 
-      # passing zhcovnert to composemessage if message is zhconverted in reading
-      my $zhconvertparm;
-      if ( $zhconvert eq 'b2g' ) {
-         $zhconvertparm="&amp;zhconvert=b2g";
-      } elsif ( $zhconvert eq 'g2b' ) {
-         $zhconvertparm="&amp;zhconvert=g2b";
-      }
-
       if ($folder eq 'saved-drafts') {
-         $temphtml .= "<a href=\"$send_url_with_id&amp;action=composemessage&amp;composetype=editdraft\"><IMG SRC=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/editdraft.gif\" border=\"0\" ALT=\"$lang_text{'editdraft'}\"></a> ";
+         $temphtml .= qq|<a href="$send_url_with_id&amp;action=composemessage&amp;composetype=editdraft" title="$lang_text{'editdraft'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/editdraft.gif" border="0" ALT="$lang_text{'editdraft'}"></a> \n|;
       } elsif ($folder eq 'sent-mail') {
-         $temphtml .= "<a href=\"$send_url_with_id&amp;action=composemessage&amp;composetype=editdraft\"><IMG SRC=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/editdraft.gif\" border=\"0\" ALT=\"$lang_text{'editdraft'}\"></a> " .
-         "<a href=\"$send_url_with_id&amp;action=composemessage&amp;composetype=forward$zhconvertparm\"><IMG SRC=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/forward.gif\" border=\"0\" ALT=\"$lang_text{'forward'}\"></a> " .
-         "<a href=\"$send_url_with_id&amp;action=composemessage&amp;composetype=forwardasatt\"><IMG SRC=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/forwardasatt.gif\" border=\"0\" ALT=\"$lang_text{'forwardasatt'}\"></a> ";
+         $temphtml .= qq|<a href="$send_url_with_id&amp;action=composemessage&amp;composetype=editdraft" title="$lang_text{'editdraft'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/editdraft.gif" border="0" ALT="$lang_text{'editdraft'}"></a> \n|.
+                      qq|<a href="$send_url_with_id&amp;action=composemessage&amp;composetype=forward$zhconvertparm" title="$lang_text{'forward'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/forward.gif" border="0" ALT="$lang_text{'forward'}"></a> \n|.
+                      qq|<a href="$send_url_with_id&amp;action=composemessage&amp;composetype=forwardasatt" title="$lang_text{'forwardasatt'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/forwardasatt.gif" border="0" ALT="$lang_text{'forwardasatt'}"></a> \n|;
       } else {
-         $temphtml .= "<a href=\"$send_url_with_id&amp;action=composemessage&amp;composetype=reply$zhconvertparm\"><IMG SRC=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/reply.gif\" border=\"0\" ALT=\"$lang_text{'reply'}\"></a> " .
-         "<a href=\"$send_url_with_id&amp;action=composemessage&amp;composetype=replyall$zhconvertparm\"><IMG SRC=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/replyall.gif\" border=\"0\" ALT=\"$lang_text{'replyall'}\"></a> " .
-         "<a href=\"$send_url_with_id&amp;action=composemessage&amp;composetype=forward$zhconvertparm\"><IMG SRC=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/forward.gif\" border=\"0\" ALT=\"$lang_text{'forward'}\"></a> " .
-         "<a href=\"$send_url_with_id&amp;action=composemessage&amp;composetype=forwardasatt\"><IMG SRC=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/forwardasatt.gif\" border=\"0\" ALT=\"$lang_text{'forwardasatt'}\"></a> ";
+         $temphtml .= qq|<a href="$send_url_with_id&amp;action=composemessage&amp;composetype=reply$zhconvertparm" title="$lang_text{'reply'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/reply.gif" border="0" ALT="$lang_text{'reply'}"></a> \n|.
+                      qq|<a href="$send_url_with_id&amp;action=composemessage&amp;composetype=replyall$zhconvertparm" title="$lang_text{'replyall'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/replyall.gif" border="0" ALT="$lang_text{'replyall'}"></a> \n|.
+                      qq|<a href="$send_url_with_id&amp;action=composemessage&amp;composetype=forward$zhconvertparm" title="$lang_text{'forward'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/forward.gif" border="0" ALT="$lang_text{'forward'}"></a> \n|.
+                      qq|<a href="$send_url_with_id&amp;action=composemessage&amp;composetype=forwardasatt" title="$lang_text{'forwardasatt'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/forwardasatt.gif" border="0" ALT="$lang_text{'forwardasatt'}"></a> \n|;
       }
       $temphtml .= "&nbsp;";
 
       if ($lang_charset eq 'gb2312') {
          if ($zhconvert eq "b2g" ) {
-            $temphtml .= "<a href=\"$read_url_with_id&amp;action=readmessage&amp;headers=$headers&amp;attmode=$attmode&amp;zhconvert=none\"><img src=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/big52gb.gif\" border=\"0\" alt=\"revert back\"></a> ";
+            $temphtml .= qq|<a href="$read_url_with_id&amp;action=readmessage&amp;headers=$headers&amp;attmode=$attmode&amp;zhconvert=none" title="Revert back"><img src="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/big52gb.gif" border="0" alt="Revert back"></a> \n|;
          } else {
-            $temphtml .= "<a href=\"$read_url_with_id&amp;action=readmessage&amp;headers=$headers&amp;attmode=$attmode&amp;zhconvert=b2g\"><img src=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/big52gb.gif\" border=\"0\" alt=\"Big5 to GB\"></a> ";
+            $temphtml .= qq|<a href="$read_url_with_id&amp;action=readmessage&amp;headers=$headers&amp;attmode=$attmode&amp;zhconvert=b2g" title="Big5 to GB"><img src="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/big52gb.gif" border="0" alt="Big5 to GB"></a> \n|;
          }
       } elsif ($lang_charset eq 'big5') {
          if ($zhconvert eq "g2b" ) {
-            $temphtml .= "<a href=\"$read_url_with_id&amp;action=readmessage&amp;headers=$headers&amp;attmode=$attmode&amp;zhconvert=none\"><img src=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/gb2big5.gif\" border=\"0\" alt=\"revert back\"></a> ";
+            $temphtml .= qq|<a href="$read_url_with_id&amp;action=readmessage&amp;headers=$headers&amp;attmode=$attmode&amp;zhconvert=none" title="revert back"><img src="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/gb2big5.gif" border="0" alt="revert back"></a> \n|;
          } else {
-            $temphtml .= "<a href=\"$read_url_with_id&amp;action=readmessage&amp;headers=$headers&amp;attmode=$attmode&amp;zhconvert=g2b\"><img src=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/gb2big5.gif\" border=\"0\" alt=\"GB to Big5\"></a> ";
+            $temphtml .= qq|<a href="$read_url_with_id&amp;action=readmessage&amp;headers=$headers&amp;attmode=$attmode&amp;zhconvert=g2b" title="GB to Big5"><img src="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/gb2big5.gif" border="0" alt="GB to Big5"></a> \n|;
          }
       }
-      $temphtml .= "<a onclick=\"javascript:window.open('$read_url_with_id&amp;action=readmessage&amp;headers=$headers&amp;attmode=simple&amp;zhconvert=$zhconvert&amp;printfriendly=yes','PrintWindow', 'width=720,height=360,resizable=yes,menubar=yes,scrollbars=yes')\">".
-                   "<img src=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/print.gif\" border=\"0\" alt=\"$lang_text{'printfriendly'}\"></a> ";
-      $temphtml .= "<a href=\"$main_url&amp;action=logout\"><IMG SRC=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/logout.gif\" border=\"0\" ALT=\"$lang_text{'logout'} $prefs{'email'}\"></a>";
+      $temphtml .= qq|<a onclick="javascript:window.open('$read_url_with_id&amp;action=readmessage&amp;headers=$headers&amp;attmode=simple&amp;zhconvert=$zhconvert&amp;printfriendly=yes','PrintWindow', 'width=720,height=360,resizable=yes,menubar=yes,scrollbars=yes')" title="$lang_text{'printfriendly'}">|.
+                   qq|<img src="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/print.gif" border="0" ALT="$lang_text{'printfriendly'}"></a> \n|;
+      $temphtml .= qq|<a href="$main_url&amp;action=logout" title="$lang_text{'logout'} $prefs{'email'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/logout.gif" border="0" ALT="$lang_text{'logout'} $prefs{'email'}"></a>\n|;
    
       $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
 
       if (defined($message{"prev"})) {
-         $temphtml1 = "<a href=\"$read_url&amp;action=readmessage&amp;message_id=$message{'prev'}&amp;headers=$headers&amp;attmode=$attmode\"><img src=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/left.gif\" align=\"absmiddle\" border=\"0\" alt=\"&lt;&lt;\"></a>";
+         $temphtml1 = qq|<a href="$read_url&amp;action=readmessage&amp;message_id=$message{'prev'}&amp;headers=$headers&amp;attmode=$attmode"><img src="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/left.gif" align="absmiddle" border="0" alt="&lt;&lt;"></a>\n|;
       } else {
-         $temphtml1 = "<img src=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/left-grey.gif\" align=\"absmiddle\" border=\"0\" alt=\"\">";
+         $temphtml1 = qq|<img src="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/left-grey.gif" align="absmiddle" border="0" alt="">\n|;
       }
       $html =~ s/\@\@\@LEFTMESSAGECONTROL\@\@\@/$temphtml1/g;
 
       if (defined($message{"next"})) {
-         $temphtml2 = "<a href=\"$read_url&amp;action=readmessage&amp;message_id=$message{'next'}&amp;headers=$headers&amp;attmode=$attmode\"><img src=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/right.gif\" align=\"absmiddle\" border=\"0\" alt=\"&gt;&gt;\"></a>";
+         $temphtml2 = qq|<a href="$read_url&amp;action=readmessage&amp;message_id=$message{'next'}&amp;headers=$headers&amp;attmode=$attmode"><img src="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/right.gif" align="absmiddle" border="0" alt="&gt;&gt;"></a>\n|;
       } else {
-         $temphtml2 = "<img src=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/right-grey.gif\" align=\"absmiddle\" border=\"0\" alt=\"\">";
+         $temphtml2 = qq|<img src="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/right-grey.gif" align="absmiddle" border="0" alt="">\n|;
       }
       $html =~ s/\@\@\@RIGHTMESSAGECONTROL\@\@\@/$temphtml2/g;
 
@@ -475,7 +384,14 @@ sub readmessage {
       } elsif ($folder eq 'sent-mail' || $folder eq 'saved-drafts') {
          $defaultdestination='mail-trash';
       } else {
-         $defaultdestination=$prefs{'defaultdestination'} || 'mail-trash';
+         my $smartdestination;
+         my $subject=$message{'subject'}; $subject=~s/\s//g;
+         foreach (@movefolders) {
+            if ($subject=~/\Q$_\E/i) {
+               $smartdestination=$_; last;
+            }
+         }
+         $defaultdestination=$smartdestination || $prefs{'defaultdestination'} || 'mail-trash';
          $defaultdestination='mail-trash' if ( $folder eq $defaultdestination);
       }
       $temphtml = popup_menu(-name=>'destination',
@@ -517,18 +433,18 @@ sub readmessage {
          $temphtml = "<B>$lang_text{'date'}:</B> $message{date}<BR>\n";
 
          my ($ename, $eaddr)=email2nameaddr($message{from});
-         $temphtml .= "<B>$lang_text{'from'}:</B> <a href='http://www.google.com/search?q=$eaddr' title='google $lang_text{'search'}...' target=_blank>$from</a> &nbsp;";
+         $temphtml .= "<B>$lang_text{'from'}:</B> <a href='http://www.google.com/search?q=$eaddr' title='google $lang_text{'search'}...' target=_blank>$from</a>&nbsp; \n";
          if ($printfriendly ne "yes") {
-            $temphtml .= "&nbsp;<a href=\"$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=addaddress&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid&amp;realname=".escapeURL($ename)."&amp;email=".escapeURL($eaddr)."\">".
-                         "<IMG SRC=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/import.s.gif\" align=\"absmiddle\" border=\"0\" ALT=\"$lang_text{'importadd'} $eaddr\" onclick=\"return confirm('$lang_text{importadd} $eaddr ?');\">".
-                         "</a>";
-            $temphtml .= "&nbsp;<a href=\"$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=addfilter&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid&amp;priority=20&amp;rules=from&amp;include=include&amp;text=$eaddr&amp;destination=mail-trash&amp;enable=1\">".
-                         "<IMG SRC=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/blockemail.gif\" align=\"absmiddle\" border=\"0\" ALT=\"$lang_text{'blockemail'} $eaddr\" onclick=\"return confirm('$lang_text{blockemail} $eaddr ?');\">".
-                         "</a>";
+            $temphtml .= qq|&nbsp;<a href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=addaddress&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid&amp;realname=|.escapeURL($ename).qq|&amp;email=|.escapeURL($eaddr).qq|" title="$lang_text{'importadd'} $eaddr">|.
+                         qq|<IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/import.s.gif" align="absmiddle" border="0" ALT="$lang_text{'importadd'} $eaddr" onclick="return confirm('$lang_text{importadd} $eaddr ?');">|.
+                         qq|</a>\n|;
+            $temphtml .= qq|&nbsp;<a href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=addfilter&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid&amp;priority=20&amp;rules=from&amp;include=include&amp;text=$eaddr&amp;destination=mail-trash&amp;enable=1" title="$lang_text{'blockemail'} $eaddr">|.
+                         qq|<IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/blockemail.gif" align="absmiddle" border="0" ALT="$lang_text{'blockemail'} $eaddr" onclick="return confirm('$lang_text{blockemail} $eaddr ?');">|.
+                         qq|</a>\n|;
             if ($message{smtprelay} !~ /^\s*$/) {
-               $temphtml .= "&nbsp; <a href=\"$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=addfilter&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid&amp;priority=20&amp;rules=smtprelay&amp;include=include&amp;text=$message{smtprelay}&amp;destination=mail-trash&amp;enable=1\">".
-                         "<IMG SRC=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/blockrelay.gif\" align=\"absmiddle\" border=\"0\" ALT=\"$lang_text{'blockrelay'} $message{smtprelay}\" onclick=\"return confirm('$lang_text{blockrelay} $message{smtprelay} ?');\">".
-                         "</a>";
+               $temphtml .= qq|&nbsp; <a href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=addfilter&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid&amp;priority=20&amp;rules=smtprelay&amp;include=include&amp;text=$message{smtprelay}&amp;destination=mail-trash&amp;enable=1" title="$lang_text{'blockrelay'} $message{smtprelay}">|.
+                            qq|<IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/blockrelay.gif" align="absmiddle" border="0" ALT="$lang_text{'blockrelay'} $message{smtprelay}" onclick="return confirm('$lang_text{blockrelay} $message{smtprelay} ?');">|.
+                            qq|</a>\n|;
             }
          }
 
@@ -540,30 +456,30 @@ sub readmessage {
 
          if ($to) {
             if ( length($to)>96 && param('receivers') ne "all" ) {
-              $to=substr($to,0,90)." ".
-		  "<a href=\"$read_url_with_id&amp;action=readmessage&amp;attmode=$attmode&amp;receivers=all\">".
-		  "<b>.....</b>"."</a>";
+              $to=substr($to,0,90).
+		  qq| <a href="$read_url_with_id&amp;action=readmessage&amp;attmode=$attmode&amp;receivers=all">|.
+		  qq|<b>.....</b></a>|;
             }
-            $temphtml .= "<B>$lang_text{'to'}:</B> $to<BR>\n";
+            $temphtml .= qq|<B>$lang_text{'to'}:</B> $to<BR>\n|;
          }
 
          if ($cc) {
             if ( length($cc)>96 && param('receivers') ne "all" ) {
-              $cc=substr($cc,0,90)." ".
-		  "<a href=\"$read_url_with_id&amp;action=readmessage&amp;attmode=$attmode&amp;receivers=all&amp;\">".
-		  "<b>.....</b>"."</a>";
+              $cc=substr($cc,0,90).
+		  qq| <a href="$read_url_with_id&amp;action=readmessage&amp;attmode=$attmode&amp;receivers=all&amp;">|.
+		  qq|<b>.....</b></a>|;
             }
-            $temphtml .= "<B>$lang_text{'cc'}:</B> $cc<BR>\n";
+            $temphtml .= qq|<B>$lang_text{'cc'}:</B> $cc<BR>\n|;
          }
 
          if ($subject) {
-            $temphtml .= "<B>$lang_text{'subject'}:</B> $subject\n";
+            $temphtml .= qq|<B>$lang_text{'subject'}:</B> $subject\n|;
          }
 
          if ($printfriendly ne "yes") {
             # display import icon
             if ($message{'priority'} eq 'urgent') {
-               $temphtml .= "&nbsp<IMG SRC=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/important.gif\" align=\"absmiddle\" border=\"0\">";
+               $temphtml .= qq|&nbsp<IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/important.gif" align="absmiddle" border="0">|;
             }     
             # enable download the whole message
             my $dlicon;
@@ -572,9 +488,9 @@ sub readmessage {
             } else {
                $dlicon="download.s.gif";
             }
-            $temphtml .= "&nbsp;<a href=\"$config{'ow_cgiurl'}/openwebmail-viewatt.pl/Unknown.msg?action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder&amp;attachment_nodeid=all\">".
-                         "<IMG SRC=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/$dlicon\" align=\"absmiddle\" border=\"0\" ALT=\"$lang_text{'download'} $subject.msg\">".
-                         "</a>\n";
+            $temphtml .= qq|&nbsp;<a href="$config{'ow_cgiurl'}/openwebmail-viewatt.pl/Unknown.msg?action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder&amp;attachment_nodeid=all$zhconvertparm" title="$lang_text{'download'} $subject.msg">|.
+                         qq|<IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/$dlicon" align="absmiddle" border="0" ALT="$lang_text{'download'} $subject.msg">|.
+                         qq|</a>\n|;
          }
 
       }
@@ -582,18 +498,18 @@ sub readmessage {
       $html =~ s/\@\@\@HEADERS\@\@\@/$temphtml/g;
 
       if ($headers eq "all") {
-         $temphtml = "<a href=\"$read_url_with_id&amp;action=readmessage&amp;attmode=$attmode&amp;headers=simple\">$lang_text{'simplehead'}</a>";
+         $temphtml = qq|<a href="$read_url_with_id&amp;action=readmessage&amp;attmode=$attmode&amp;headers=simple$zhconvertparm">$lang_text{'simplehead'}</a>|;
       } else {
-         $temphtml = "<a href=\"$read_url_with_id&amp;action=readmessage&amp;attmode=$attmode&amp;headers=all\">$lang_text{'allhead'}</a>";
+         $temphtml = qq|<a href="$read_url_with_id&amp;action=readmessage&amp;attmode=$attmode&amp;headers=all$zhconvertparm">$lang_text{'allhead'}</a>|;
       }
       $html =~ s/\@\@\@HEADERSTOGGLE\@\@\@/$temphtml/g;
 
       if ( $#{$message{attachment}}>=0 || 
            $message{contenttype}=~/^multipart/i ) {
          if ($attmode eq "all") {
-            $temphtml = "<a href=\"$read_url_with_id&amp;action=readmessage&amp;headers=$headers&amp;attmode=simple\">$lang_text{'simpleattmode'}</a>";
+            $temphtml = qq|<a href="$read_url_with_id&amp;action=readmessage&amp;headers=$headers&amp;attmode=simple$zhconvertparm">$lang_text{'simpleattmode'}</a>|;
          } else {
-            $temphtml = "<a href=\"$read_url_with_id&amp;action=readmessage&amp;headers=$headers&amp;attmode=all\">$lang_text{'allattmode'}</a>";
+            $temphtml = qq|<a href="$read_url_with_id&amp;action=readmessage&amp;headers=$headers&amp;attmode=all$zhconvertparm">$lang_text{'allattmode'}</a>|;
          }
       } else {
          $temphtml="&nbsp";
@@ -611,15 +527,25 @@ sub readmessage {
       foreach my $attnumber (0 .. $#{$message{attachment}}) {
          next unless (defined(%{$message{attachment}[$attnumber]}));
 
+         if ( $zhconvert eq 'b2g' ) {
+            ${$message{attachment}[$attnumber]}{filename}=
+               b2g(${$message{attachment}[$attnumber]}{filename});
+         } elsif ( $zhconvert eq 'g2b' ) {
+            ${$message{attachment}[$attnumber]}{filename}=
+               g2b(${$message{attachment}[$attnumber]}{filename});
+         }
+
          if ( $attmode eq 'all' ) {
             if ( ${$message{attachment}[$attnumber]}{filename}=~
 							/\.(jpg|jpeg|gif|png|bmp)$/i) {
-               $temphtml .= image_att2table($message{attachment}, $attnumber, $escapedmessageid);
+               $temphtml .= image_att2table($message{attachment}, $attnumber, $escapedmessageid, $zhconvertparm);
             } else {
-               $temphtml .= misc_att2table($message{attachment}, $attnumber, $escapedmessageid);
+               $temphtml .= misc_att2table($message{attachment}, $attnumber, $escapedmessageid, $zhconvertparm);
             }
 
          } else {	# attmode==simple
+            my $onlyone_att=0;
+            $onlyone_att=1 if ($#{$message{attachment}}==0);
 
             # handle case to skip to next text/html attachment
             if ( defined(%{$message{attachment}[$attnumber+1]}) &&
@@ -644,7 +570,8 @@ sub readmessage {
 
             # handle display of attachments in simple mode
             if ( ${$message{attachment}[$attnumber]}{contenttype}=~ /^text\/html/i ) {
-               if ( ${$message{attachment}[$attnumber]}{filename}=~ /^Unknown\./ ) {
+               if ( ${$message{attachment}[$attnumber]}{filename}=~ /^Unknown\./ ||
+                    $onlyone_att ) {
                   # convert between gb and big5
                   if ( $zhconvert eq 'b2g' ) {
                      my $content = html_att2table($message{attachment}, $attnumber, $escapedmessageid);
@@ -656,26 +583,27 @@ sub readmessage {
                      $temphtml .= html_att2table($message{attachment}, $attnumber, $escapedmessageid);
                   }
                } else {
-                  $temphtml .= misc_att2table($message{attachment}, $attnumber, $escapedmessageid);
+                  $temphtml .= misc_att2table($message{attachment}, $attnumber, $escapedmessageid, $zhconvertparm);
                }
             } elsif ( ${$message{attachment}[$attnumber]}{contenttype}=~ /^text/i ) {
-               if ( ${$message{attachment}[$attnumber]}{filename}=~ /^Unknown\./ ) {
+               if ( ${$message{attachment}[$attnumber]}{filename}=~ /^Unknown\./ ||
+                    $onlyone_att ) {
                   # convert between gb and big5
                   if ( $zhconvert eq 'b2g' ) {
                      my $content = text_att2table($message{attachment}, $attnumber);
-                     $content =~ s/(>?)([:;8])[-^]?([\(\)\>\<\|PpDdOoX\\\/])([\s\<])/<img border=\"0\" width=\"12\" height=\"12\" src=\"$config{'ow_htmlurl'}\/images\/smilies\/$smilies{"$1$2$3"}\.png\" alt=\"$1$2$3\">$4/g if $prefs{'usesmileicon'};
+                     $content =~ s/(>?)([:;8])[-^]?([\(\)\>\<\|PpDdOoX\\\/])([\s\<])/<img border="0" width="12" height="12" src="$config{'ow_htmlurl'}\/images\/smilies\/$smilies{"$1$2$3"}\.png" alt="$1$2$3">$4/g if $prefs{'usesmileicon'};
                      $temphtml .= b2g($content);
                   } elsif ( $zhconvert eq 'g2b' ) {
                      my $content = text_att2table($message{attachment}, $attnumber);
-                     $content =~ s/(>?)([:;8])[-^]?([\(\)\>\<\|PpDdOoX\\\/])([\s\<])/<img border=\"0\" width=\"12\" height=\"12\" src=\"$config{'ow_htmlurl'}\/images\/smilies\/$smilies{"$1$2$3"}\.png\" alt=\"$1$2$3\">$4/g if $prefs{'usesmileicon'};
+                     $content =~ s/(>?)([:;8])[-^]?([\(\)\>\<\|PpDdOoX\\\/])([\s\<])/<img border="0" width="12" height="12" src="$config{'ow_htmlurl'}\/images\/smilies\/$smilies{"$1$2$3"}\.png" alt="$1$2$3">$4/g if $prefs{'usesmileicon'};
                      $temphtml .= g2b($content);
                   } else {
                      my $content = text_att2table($message{attachment}, $attnumber);
-                     $content =~ s/(>?)([:;8])[-^]?([\(\)\>\<\|PpDdOoX\\\/])([\s\<])/<img border=\"0\" width=\"12\" height=\"12\" src=\"$config{'ow_htmlurl'}\/images\/smilies\/$smilies{"$1$2$3"}\.png\" alt=\"$1$2$3\">$4/g if $prefs{'usesmileicon'};
+                     $content =~ s/(>?)([:;8])[-^]?([\(\)\>\<\|PpDdOoX\\\/])([\s\<])/<img border="0" width="12" height="12" src="$config{'ow_htmlurl'}\/images\/smilies\/$smilies{"$1$2$3"}\.png" alt="$1$2$3">$4/g if $prefs{'usesmileicon'};
                      $temphtml .= $content;
                   }
                } else {
-                  $temphtml .= misc_att2table($message{attachment}, $attnumber, $escapedmessageid);
+                  $temphtml .= misc_att2table($message{attachment}, $attnumber, $escapedmessageid, $zhconvertparm);
                }
             } elsif ( ${$message{attachment}[$attnumber]}{contenttype}=~ /^message\/external\-body/i ) {
                # attachment external reference, not an real message
@@ -689,10 +617,10 @@ sub readmessage {
             } elsif ( ${$message{attachment}[$attnumber]}{filename}=~ /\.(jpg|jpeg|gif|png|bmp)$/i) {
                # show image only if it is not referenced by other html
                if ( ${$message{attachment}[$attnumber]}{referencecount} ==0 ) {
-                  $temphtml .= image_att2table($message{attachment}, $attnumber, $escapedmessageid);
+                  $temphtml .= image_att2table($message{attachment}, $attnumber, $escapedmessageid, $zhconvertparm);
                }
             } else {
-               $temphtml .= misc_att2table($message{attachment}, $attnumber, $escapedmessageid);
+               $temphtml .= misc_att2table($message{attachment}, $attnumber, $escapedmessageid, $zhconvertparm);
             }
 
          }
@@ -854,7 +782,7 @@ sub message_att2table {
 }
 
 sub image_att2table {
-   my ($r_attachments, $attnumber, $escapedmessageid)=@_;
+   my ($r_attachments, $attnumber, $escapedmessageid, $extraparm)=@_;
 
    my $r_attachment=${$r_attachments}[$attnumber];
    my $escapedfilename = escapeURL(${$r_attachment}{filename});
@@ -871,13 +799,13 @@ sub image_att2table {
    if (${$r_attachment}{description} ne "") {
       $temphtml .= qq|alt="${$r_attachment}{description}" |;
    }
-   $temphtml .=    qq|SRC="$config{'ow_cgiurl'}/openwebmail-viewatt.pl/$escapedfilename?action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder&amp;attachment_nodeid=$nodeid">|.
+   $temphtml .=    qq|SRC="$config{'ow_cgiurl'}/openwebmail-viewatt.pl/$escapedfilename?action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder&amp;attachment_nodeid=$nodeid$extraparm">|.
                    qq|</td></tr></table>|;
    return($temphtml);
 }
 
 sub misc_att2table {
-   my ($r_attachments, $attnumber, $escapedmessageid)=@_;
+   my ($r_attachments, $attnumber, $escapedmessageid, $extraparm)=@_;
    my $r_attachment=${$r_attachments}[$attnumber];
    my $escapedfilename = escapeURL(${$r_attachment}{filename});
    my $attlen=lenstr(${$r_attachment}{contentlength});
@@ -904,7 +832,7 @@ sub misc_att2table {
       $blank="target=_blank";
    }
    $temphtml .=    qq|</td><td nowrap width="10%" valign="middle" bgcolor= $style{"attachment_light"} align="center">|.
-                   qq|<a href="$config{'ow_cgiurl'}/openwebmail-viewatt.pl/$escapedfilename?action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder&amp;attachment_nodeid=$nodeid" $blank>$lang_text{'download'}</a>|.
+                   qq|<a href="$config{'ow_cgiurl'}/openwebmail-viewatt.pl/$escapedfilename?action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder&amp;attachment_nodeid=$nodeid$extraparm" $blank>$lang_text{'download'}</a>|.
                    qq|</td></tr></table>|;
    return($temphtml);
 }
@@ -990,7 +918,7 @@ sub rebuildmessage {
                           -default=>$folder,
                           -override=>'1');
       $temphtml .= hidden(-name=>'headers',
-                          -default=>$headers ||$prefs{"headers"} || 'simple',
+                          -default=>param("headers") ||$prefs{"headers"} || 'simple',
                           -override=>'1');
       $temphtml .= hidden(-name=>'attmode',
                           -default=>param("attmode") || 'simple',

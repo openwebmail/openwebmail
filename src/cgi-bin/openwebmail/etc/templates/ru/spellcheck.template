@@ -1,17 +1,17 @@
 <table border="0" align="center" width="95%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>SPELL CHECK for @@@DICTIONARY@@@</B></font>
+<B>Проверка орфографии для @@@DICTIONARY@@@</B></font>
 </td></tr>
 <tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
-<BR>A set of suggested replacements will be provided for each mis-spelled word.
-The user can choose one from them to replace the original word.
-If no suggested replacement is found or the user chooses "-manually fix-" 
-and then clicks [Check Again], a text field will be available for user to 
-input manually.
+<BR>Для каждого некорректного слова будут предложены возможные варианты.
+Пользователь может выбрать один из них для замены оригинала.
+Если подходящего варианта не обнаружено можно выбрать "-исправить вручную-" 
+и затем нажать [Проверить снова], появится возможность писать в поле письма
+вручную. 
 </td></tr>
 </table>
 <br>
@@ -35,7 +35,7 @@ input manually.
 </td></tr></table>
 
 <script language="JavaScript">
-   <!--
+<!--
    self.focus();
-   //-->
+//-->
 </script>

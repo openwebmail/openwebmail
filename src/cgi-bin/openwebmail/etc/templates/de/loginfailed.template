@@ -4,6 +4,6 @@
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>UNGÜLTIGES PASSWORT</B></FONT></TD></TR>
 <tr><td valign="middle" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>@@@ERRORMSG@@@! Please go back and
-<a href="@@@SCRIPTURL@@@">try again</a>.<BR><BR>
+<BR>@@@ERRORMSG@@@! Bitte kehren Sie zurück auf die Startseite von Open Webmail
+und <a href="@@@SCRIPTURL@@@">melden sie sich erneut an</a>.<BR><BR>
 </td></tr></table>

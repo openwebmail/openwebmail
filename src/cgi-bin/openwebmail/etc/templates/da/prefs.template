@@ -66,7 +66,7 @@ Bredde (i karakterer) @@@EDITCOLUMNSMENU@@@ Højde (i linier) @@@EDITROWSMENU@@@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@HIDEINTERNAL@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Use fixed-width font when reading messages:</B>
+<B>Brug skrifttype med fast bredde ved l&aelig;sning af post:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@USEFIXEDFONT@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
@@ -74,11 +74,11 @@ Bredde (i karakterer) @@@EDITCOLUMNSMENU@@@ Højde (i linier) @@@EDITROWSMENU@@@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@USESMILEICON@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Forbyd JavaScript i meddelser (virus):</B>
+<B>Forbyd JavaScript i meddelser (virus beskyttelse):</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEJS@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Disable embeded CGI inside message:</B>
+<B>Forbyd CGI i meddelser:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEEMBCGI@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
@@ -119,18 +119,18 @@ Bredde (i karakterer) @@@EDITCOLUMNSMENU@@@ Højde (i linier) @@@EDITROWSMENU@@@
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Begræns ens meddelser til:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@FILTERREPEATLIMIT@@@ &nbsp( 0 means No check for repeatness )
+@@@FILTERREPEATLIMIT@@@ &nbsp( 0 deaktiverer )
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Filtrer (fjern) meddelser med falsk SMTP:</B>
+<B>Flyt meddelser til papirkurv, som er sendt via falsk SMTP-server:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDSMTP@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Filtrer (fjern) meddelser med falsk .exe content-type (virus):</B>
+<B>Flyt meddelses til papirkurv, som indeholder falsk .exe content-type (virus):</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDEXECONTENTTYPE@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Tøm papirkurven når posten er:</B>
+<B>Fjern meddelser fra papirkurven når meddelsen er:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@RESERVEDDAYSMENU@@@ dag(e) gammel
 </td></tr>

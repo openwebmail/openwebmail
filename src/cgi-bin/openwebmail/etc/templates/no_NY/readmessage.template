@@ -1,4 +1,4 @@
-0<table border="0" align="center" width="90%" cellpadding="1" cellspacing="0">
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="0">
 <tr><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="center">
    <table border="0" width="100%" cellpadding="0" cellspacing="0">
    <tr><td align="left" width="33%"><font color=@@@TITLEBAR_TEXT@@@
@@ -38,7 +38,7 @@
    </td></tr></table>
 </td></tr></table>
 <script language="JavaScript">
-   <!--
+<!--
    function replyreceiptconfirm(url, yes)
    {
       if (yes==1 || confirm('This message requests a read receipt, do you want to transmit?')) {
@@ -48,5 +48,5 @@
 //         hWnd.close();
       }
    }
-   //-->
+//-->
 </script>

@@ -2,26 +2,12 @@
 <!--
    // alert before session end
    var remainingseconds=@@@REMAININGSECONDS@@@;
-   var msg="親愛的 @@@USEREMAIL@@@,<br><br>\n"+
-           "您已經閒置很久了, "+
-           "如果沒有其他後續的動作, "+
-           "這個 SESSION 將會在 60 秒內結束.";
+   var url = "@@@PREFSURL@@@?action=timeoutwarning&sessionid=@@@SESSIONID@@@";
 
    function timeoutwarning () {
-      var hWnd = window.open("","timeoutwarning","width=400,height=140,resizable=no,scrollbars=no");
-      hWnd.document.write('<html><head><title>Warning! @@@NAME@@@ Session Timeout</title></head><body>\n');
-      hWnd.document.write('<center><table width="90%" cellspacing="0" cellpadding="0" border="0"><tr><td><font size="-1" color="#dd0000"><b>\n');
-      hWnd.document.write(msg);
-      hWnd.document.write('</b></font></td></tr></table><br>\n');
-      hWnd.document.write('<form><input type="button" NAME="OK" value=" ok " onclick="window.close();"/></form>\n');
-      hWnd.document.write('<br><br>\n');
-      hWnd.document.write('<script language="JavaScript">\n');
-      hWnd.document.write('setTimeout("close()", 60*1000);\n');
-      hWnd.document.write('</script>\n');
-      hWnd.document.write('</body></html>\n');
+      var hWnd = window.open(url,"timeoutwarning","width=400,height=140,resizable=no,scrollbars=no");
       hWnd.focus();
    }
-
    function timeoutcheck () {
       remainingseconds=remainingseconds-1;
       if (remainingseconds<65) {
@@ -32,7 +18,6 @@
    }
 
    timeoutcheck();
-
 //-->
 </script>
 

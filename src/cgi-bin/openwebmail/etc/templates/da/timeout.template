@@ -1,0 +1,21 @@
+<html>
+<head><title>Warning! @@@NAME@@@ Session Timeout</title></head>
+<body><center>
+<table width="90%" cellspacing="0" cellpadding="0" border="0">
+<tr><td><font size="-1" color="#dd0000"><b>
+
+K&aelig;re @@@USEREMAIL@@@,<br><br>
+Du har været inaktiv i langtid.
+Hvis du ikke foretager dig noget,
+vil denne session automatisk afslutte om 60 sekunder.
+
+</b></font></td></tr></table>
+<br>
+<form>
+<input type="button" NAME="OK" value=" ok " onclick="window.close();"/>
+</form>
+<br><br>
+<script language="JavaScript">
+setTimeout("close()", 60*1000);
+</script>
+</body></html>

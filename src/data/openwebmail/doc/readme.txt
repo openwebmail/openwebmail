@@ -17,18 +17,20 @@ Open WebMail has the following enhanced features:
 4.  convenient folder and message operation
 5.  graceful filelock
 6.  remote SMTP relaying
-7.  virtual hosting and account alias
-8.  pam support
+7.  virtual hosting
+8.  user alias
 9.  per user capability configuration
-10. full content search
-11. strong MIME message capability
-12. draft folder support
-13. spelling check support
-14. POP3 mail support
-15. mail filter support
-16. message count preview
-17. confirm reading support
-18. BIG5/GB conversion (for Chinese only)
+10. various authentication modules
+11. pam support
+12. full content search
+13. strong MIME message capability
+14. draft folder support
+15. spelling check support
+16. POP3 mail support
+17. mail filter support
+18. message count preview
+19. confirm reading support
+20. BIG5/GB conversion (for Chinese only)
 
 
 REQUIREMENT
@@ -88,7 +90,7 @@ For libnet do the following:
    cd /tmp
    tar -zxvf libnet-1.0901.tar.gz
    cd libnet-1.0901
-   perl Makefile.PL
+   perl Makefile.PL (ans 'no' if asked to update configuration)
    make
    make install
 
@@ -109,9 +111,11 @@ then just
 3. If your FreeBSD is 4.2 or later
    a. chmod 4555 /usr/bin/suidperl
    b. change #!/usr/bin/perl to #!/usr/bin/suidperl in
-      openwebmail.pl, openwebmail-main.pl, openwebmail-prefs.pl,
-      openwebmail-read.pl, openwebmail-send.pl, openwebmail-viewatt.pl,
-      openwebmail-spell.pl and checkmail.pl
+
+      openwebmail.pl, openwebmail-main.pl, 
+      openwebmail-read.pl, openwebmail-viewatt.pl, 
+      openwebmail-send.pl, openwebmail-spell.pl,
+      openwebmail-prefs.pl, openwebmail-folder.pl and checkmail.pl
 
 If you are using RedHat 6.2/CLE 0.9p1(or most Linux) with apache
 (by clarinet@totoro.cs.nthu.edu.tw)
@@ -170,10 +174,14 @@ eg: /usr/local/apache/share, then
    e. other changes you want
 
 3. cd /usr/local/apache/share/cgi-bin/openwebmail
-   modify openwebmail.pl, openwebmail-main.pl, openwebmail-prefs.pl,
-          openwebmail-read.pl, openwebmail-send.pl, openwebmail-viewatt.pl,
-          openwebmail-spell.pl and checkmail.pl
-   change the #!/usr/bin/perl to the location where your perl is.
+   modify 
+
+      openwebmail.pl, openwebmail-main.pl, 
+      openwebmail-read.pl, openwebmail-viewatt.pl, 
+      openwebmail-send.pl, openwebmail-spell.pl,
+      openwebmail-prefs.pl, openwebmail-folder.pl and checkmail.pl
+
+   change the #!/usr/bin/perl to the location where your suidperl is.
 
    modify auth_unix.pl
    a. set variable $unix_passwdfile to '/etc/shadow'
@@ -183,10 +191,59 @@ eg: /usr/local/apache/share, then
 USING OPENWEBMAIL WITH OTHER SMTP SERVER
 ----------------------------------------
 To make openwebmail use other SMTP server for mail sending,
-you have to edit the option 'smtpserver' in openwebmail.conf.
-Just change the default value 'localhost' to the name/ip of that SMTP server.
+you have to set the option 'smtpserver' in openwebmail.conf.
+Just change the default value '127.0.0.1' to the name/ip of that SMTP server.
 
 Please be sure the SMTP server allows mail relayed from your openwebmail host.
+
+
+FILTER SUPPORT
+--------------
+The mailfilter checks if messages in INBOX folder matches the filters rules 
+defined by user. If matches, move/copy the message to the target folder.
+If you move a message to the DELETE folder, which means deleting messages 
+from a folder. If you use INBOX as the destination in a filter rule, 
+any message matching this rule will be kept in the INBOX folder and 
+other rules will be ignored.
+
+
+COMMAND TOOL checkmail.pl
+-------------------------
+Since mail filtering is activated only in Open WebMail, it means messages 
+will stay in the INBOX until user reads their mail with Open WebMail. 
+So 'finger' or other mail status check utility may give you wrong 
+information since they don't know about the filter.
+
+A command tool 'checkmail.pl' can be used as finger replacement.
+It does mail filtering before report mail status. 
+
+Some fingerd allow you to specify the name of finger program by -p option
+(eg: fingerd on FreeBSD). By changing the parameter to fingerd in 
+/etc/inetd.conf, users can get their mail status from remote host.
+
+checkmail.pl can be also used in crontab to prefetch pop3mail or do folder 
+index verification for users. For example:
+
+59 23 * * *      /usr/local/www/cgi-bin/openwebmail/checkmail.pl -a -p -i -q
+
+The above line in crontab will do pop3mail prefetching, mail filtering and
+folder index verification quietly for all users at 23:59 every day .
+
+
+GLOBAL ADDRESSBOOK and FILTERRULE
+---------------------------------
+Current support for global addressbook/filterrule is very limited.
+The administrator has to make a copy of addressbook/filterbook to
+the file specified by global_addressbook or global_filterbook by himself.
+
+ps: An account may be created to maintain the global addressbook/filterbook, 
+    for example: 'global'
+
+    ln -s your_global_addressbook ~global/mail/.address.book
+    ln -s your_global_filterbook  ~global/mail/.filter.book
+
+    Please be sure that the global files are writeable by user 'global'
+    and readable by others
 
 
 SPELL CHECK SUPPORT
@@ -215,6 +272,192 @@ ps: To know if a specific dictionary is successfully installed on
     your system, you can do a test with following command
 
     ispell -d dictionaryname -a
+
+4. If the language used by a dictionary has a differnet character set than
+   English, you have to define the characters in %dictionary_letters in
+   the openwebmail-spell.pl for that dictionary.
+
+
+AUTOREPLY SUPPORT
+-----------------
+The auto reply function in Open WebMail is done with the vacation utility.
+Since vacation utility is not available on some unix, a perl version of
+vacation utility 'vacation.pl' is distributed with openwebmail.
+This vacation.pl has the same syntax as the one on Solaris.
+
+If the autoreply doesn't work on your system, 
+you can do debug with the -d option
+
+1. choose a user, enable his autoreply in openwebmail user preference
+2. edit the ~user/.forward file,
+   add the '-d' option after vacation.pl
+3. send a message to this user to test the autoreply
+4. check the /tmp/vacation.debug for possible error information
+
+
+BIG5<->GB CONVERSION
+--------------------
+Openwebmail supports chinese charset conversion between Big5 encoding
+(used in taiwan, hongkong) and GB encoding(used in mainland) in both message 
+reading and writing.
+To make the conversion work properly, you have to 
+
+1. download the Hanzi Converter (hc-30.tar.gz) 
+   by Ricky Yeung(Ricky.Yeung@eng.sun.com) and 
+      Fung F. Lee (lee@umunhum.stanford.edu).
+2. tar -zxvf hc-30.tar.gz
+   cd hc-30
+   make
+3. copy 'hc' and 'hc.tab' to cgi-bin/openwebmail or /usr/local/bin
+4. modify the openwebmail.conf g2b_converter and b2g_converter.
+
+
+VIRTUAL HOSTING
+---------------
+You can have as many virtual domains as you want on same server with only one 
+copy of openwebmail installed. Open Webmail supports per domain config file. 
+Each domain can have its own set of configuration options, including 
+domainname, authentication module, quota limit, mailspooldir ...
+
+You can even setup mail accounts for users without creating real unix accounts 
+for them. Please refer to Kevin Ellis's webpage: 
+"How to setup virtual users on Open WebMail using Postfix & vm-pop3d" 
+(http://www.bluelavalamp.net/owmvirtual/)
+
+eg: To create configuration file for virtualdomain 'sr1.domain.com'
+
+1. cd cgi-bin/openwebmail/etc/sites.conf/
+2. cp ../openwebmail.conf sr1.domain.com
+3. edit options in file 'sr1.domain.com' for domain 'vr1.domain.com'
+
+
+USER ALIAS MAPPING
+------------------
+Open Webmail can use the sendmail virtusertable for user alias mapping. 
+The loginname typed by user may be pure name or name@somedomain. And this 
+loginname can be mapped to another pure name or name@otherdomain in the 
+virtusertable. This gives you the great flexsibility in account management. 
+
+Please refer to http://www.sendmail.org/virtual-hosting.html for more detail
+
+When a user logins Open WebMail with a loginname, 
+this loginname will be checked in the following order:
+
+if (loginname is in the form of 'someone@somedomain') {
+   user=someone
+   domain=somedomain
+} else {  	# a purename
+   user=loginname
+   domain=HTTP_HOST	# hostname in url
+}
+
+is user@domain a virtualuser defined in virtusertable?
+if not {
+   if (domain is mail.somedomain) {
+      is user@somedomain defined in virtusertable?
+   } else {
+      is user@mail.domain defined in virtusertable?
+   }
+}
+
+if (no mapping found && loginname is pure name) {
+   is loginname a virtualuser defined in virtusertable?
+}
+
+if (any mapping found) {
+   if (mappedname is in the form of 'mappedone@mappeddomain') {
+      user=mappedone
+      domain=mappeddomain
+   } else {
+      user=mappedname
+      domain=HTTP_HOST
+   }
+}
+
+if (option auth_withdomain is on) {
+   check_userpassword for user@domain
+} else {
+   if (domain == HTTP_HOST) {
+      check_userpassword for user
+   } else {
+      user not found!
+   }
+}
+
+ps: if any alias found in virtusertable, 
+    the alias will be used as default email address for user
+
+
+Here is an example of /etc/virtusertable
+
+projectmanager		pm		
+johnson@company1.com	john1
+tom@company1.com	tom1
+tom@company2.com	tom2
+mary@company3.com	mary3
+
+Assume the url of the webmail server is http://mail.company1.com/....
+
+The above virtusertable means:
+1. if a user logins as projectmanager, 
+   openwebmail checks  projectmanager@mail.company1.com
+                       projectmanager@company1.com
+                       projectmanager as virtualuser	---> pm
+
+2. if a user logins as johnson@company1.com 
+   openwebmail checks  johnson@company1.com	---> john1
+
+   if a user logins as johnson,
+   openwebmail checks  johnson@mail.company1.com
+                       johnson@company1.com	---> john1
+
+3. if a user logins as tom@company1.com,
+   openwebmail checks  tom@company1.com		---> tom1
+
+   if a user logins as tom@company2.com,
+   openwebmail checks  tom@company2.com		---> tom2
+
+   if a user logins as tom,
+   openwebmail checks  tom@mail.company1.com
+                       tom@company1.com		---> tom1
+
+4. if a user logins as mary,
+   openwebmail checks  mary@mail.company1.com
+                       mary@company1.com
+                       mary as virtualuser	---> not an alias
+
+
+PER USER CAPABILITY CONFIGURATION
+---------------------------------
+While options in system config file(openwebmail.conf) are applied to all 
+users, you may find it useful to set the options on per user basis sometimes. 
+For example, you may want to limit the client ip access for some users or 
+limit the domain which the user can sent to. This could be easily done with 
+the per user config file support in Open Webmail.
+
+The user capability file is located in cgi-bin/openwebmail/etc/user.conf/
+and named as the realusername of user. Options in this file are actually 
+a subset of options in openwebmail.conf. An example 'SAMPLE' is provided.
+
+eg: To creat the capability file for user 'guest':
+
+1. cd cgi-bin/openwebmail/etc/users.conf/
+2. cp SAMPLE guest
+3. edit options in file 'guest' for user guest
+
+ps: Openwebmail loads configuration files in the following order
+
+1. cgi-bin/openwebmail/etc/openwebmail.conf.default
+2. cgi-bin/openwebmail/etc/openwebmail.conf
+3. cgi-bin/openwebmail/etc/sites.conf/domainname if file exists
+
+   a. authentication module is loaded
+   b. user alias is mapped to real userid.
+   c. userid is authenticated.
+
+4. cgi-bin/openwebmail/etc/users.conf/username if file exists
+
+Options set in the later files will override the previous ones
 
 
 PAM SUPPORT
@@ -276,19 +519,22 @@ ps: For more detail about PAM configuration, it is recommended to read
     by Andrew G. Morgan, morgan@kernel.org
 
 
-ADD NEW AUTHENTICATION TO OPENWEBMAIL
--------------------------------------
-In case you found auth_unix.pl and auth_pam.pl are not suitable for your 
-need, you may want to write new authentication for your own.
-To add new authentication into openwebmail, you have to:
+ADD NEW AUTHENTICATION MODULE TO OPENWEBMAIL
+--------------------------------------------
+Various authentications are directly available for openwebmail, including
+auth_unix.pl, auth_ldap.pl, auth_mysql, auth_pop3.pl and auth_pam.pl.
+In case you found these modules not suitable for your need, you may write 
+a new authentication module for your own.
+
+To add new authentication module into openwebmail, you have to:
 
 1. choose an abbreviation name for this new authentication, eg: xyz
 2. write auth_xyz.pl with the following 4 function defined,
 
-   ($realname, $uid, $gid, $homedir)=get_userinfo($user);
-   @userlist=get_userlist($user);
-   $retcode=check_userpassword($user, $password);
-   $retcode=change_userpassword($user, $oldpassword, $newpassword);
+   ($realname, $uid, $gid, $homedir)=get_userinfo($domain, $user);
+   @userlist=get_userlist($domain);
+   $retcode=check_userpassword($domain, $user, $password);
+   $retcode=change_userpassword($domain, $user, $oldpassword, $newpassword);
    
    where $retcode means:
     -1 : function not supported
@@ -301,201 +547,8 @@ To add new authentication into openwebmail, you have to:
 3. modify option auth_module in openwebmail.conf to auth_xyz.pl
 4. test your new authentication module :)
 
-ps: If you wish your authentication to be included in the next release of 
-    openwebmail, please submit it to openwebmail@turtle.ee.ncku.edu.tw.
-
-
-VIRTUAL USER SUPPORT
---------------------
-Open WebMail uses sendmail virtusertable to map a virtualuser to the real 
-userid in a system. A virtualuser can be either in the form of a pure 
-virtualusername or virtualusername@somedomain. Please refer to 
-http://www.sendmail.org/virtual-hosting.html for more detail
-
-When a user logins Open WebMail with a loginname, 
-this loginname will be checked in the following order:
-
-if loginname is in the form of 'name@hostname' {
-   if hostname contains 'mail.domain' {
-      is name@mail.domain is a virtualuser defined in virtusertable
-      is name@domain is a virtuser defined in virtusertable
-   } else {
-      is name@hostname is a virtualuser defined in virtusertable
-      is name@mail.hostname is a virtuser defined in virtusertable
-   }
-
-} else { loginname is purename
-   grap the hostname in the url line
-   is loginname@hostname is a virtualuser defined in virtusertable
-   if hostname contains 'mail.domain' {
-      is loginname@domain is a virtualuser defined in virtusertable
-   }
-}
-
-if virtualuser mapping to any realuser {
-   checkpassword for the realuser
-} else {
-   checkpassword for the loginname
-}
-
-
-Here is an example of /etc/virtusertable
-
-projectmanager		pm		
-johnson@company1.com	john1
-tom@company1.com	tom1
-tom@company2.com	tom2
-mary@company3.com	mary3
-
-Assume the url of the webmail server is http://mail.company1.com/....
-
-The above virtusertable means:
-1. if a user logins as projectmanager, 
-   openwebmail checks  projectmanager@mail.company1.com
-                       projectmanager@company1.com
-                       projectmanager as virtualuser	---> pm
-
-2. if a user logins as johnson@company1.com 
-   openwebmail checks  johnson@company1.com	---> john1
-
-   if a user logins as johnson,
-   openwebmail checks  johnson@mail.company1.com
-                       johnson@company1.com	---> john1
-
-3. if a user logins as tom@company1.com,
-   openwebmail checks  tom@company1.com		---> tom1
-
-   if a user logins as tom@company2.com,
-   openwebmail checks  tom@company2.com		---> tom2
-
-   if a user logins as tom,
-   openwebmail checks  tom@mail.company1.com
-                       tom@company1.com		---> tom1
-
-4. if a user logins as mary,
-   openwebmail checks  mary@mail.company1.com
-                       mary@company1.com
-                       mary as virtualuser
-                       mary as real user
-                                                ---> user not found   
-
-AUTOREPLY SUPPORT
------------------
-The auto reply function in Open WebMail is done with the vacation utility.
-Since vacation utility is not available on some unix, a perl version of
-vacation utility 'vacation.pl' is distributed with openwebmail.
-This vacation.pl has the same syntax as the one on Solaris.
-To make it work properly, be sure to modify $myname, $sendmail definition
-in the vacation.pl.
-
-If the autoreply doesn't work on your system, 
-you can do debug with the -d option
-
-1. choose a user, enable his autoreply in openwebmail user preference
-2. edit the ~user/.forward file,
-   add the '-d' option after vacation.pl
-3. send a message to this user to test the autoreply
-4. check the /tmp/vacation.debug for possible error information
-
-
-BIG5<->GB CONVERSION
---------------------
-Openwebmail supports chinese charset conversion between Big5 encoding
-(used in taiwan, hongkong) and GB encoding(used in mainland) in both message 
-reading and writing.
-To make the conversion work properly, you have to 
-
-1. download the Hanzi Converter (hc-30.tar.gz) 
-   by Ricky Yeung(Ricky.Yeung@eng.sun.com) and 
-      Fung F. Lee (lee@umunhum.stanford.edu).
-2. tar -zxvf hc-30.tar.gz
-   cd hc-30
-   make
-3. copy 'hc' and 'hc.tab' to cgi-bin/openwebmail or /usr/local/bin
-4. modify the openwebmail.conf g2b_converter and b2g_converter.
-
-
-FILTER SUPPORT
---------------
-The mailfilter checks if messages in INBOX folder matches the filters rules 
-defined by user. If matches, move/copy the message to the target folder.
-If you move a message to the DELETE folder, which means deleting messages 
-from a folder. If you use INBOX as the destination in a filter rule, 
-any message matching this rule will be kept in the INBOX folder and 
-other rules will be ignored.
-
-
-COMMAND TOOL checkmail.pl
--------------------------
-Since mail filtering is activated only in Open WebMail, it means messages 
-will stay in the INBOX until user reads their mail with Open WebMail. 
-So 'finger' or other mail status check utility may give you wrong 
-information since they don't know about the filter.
-
-A command tool 'checkmail.pl' can be used as finger replacement.
-It does mail filtering before report mail status. 
-
-Some fingerd allow you to specify the name of finger program by -p option
-(eg: fingerd on FreeBSD). By changing the parameter to fingerd in 
-/etc/inetd.conf, users can get their mail status from remote host.
-
-checkmail.pl can be also used in crontab to prefetch pop3mail or do folder 
-index verification for users. For example:
-
-59 23 * * *      /usr/local/www/cgi-bin/openwebmail/checkmail.pl -a -p -i -q
-
-The above line in crontab will do pop3mail prefetching, mail filtering and
-folder index verification quietly for all users at 23:59 every day .
-
-
-GLOBAL ADDRESSBOOK and FILTERRULE
----------------------------------
-Current support for global addressbook/filterrule is very limited.
-The administrator has to make a copy of addressbook/filterbook to
-the file specified by global_addressbook or global_filterbook by himself.
-
-ps: An account may be created to maintain the global addressbook/filterbook, 
-    for example: 'global'
-
-    ln -s your_global_addressbook ~global/mail/.address.book
-    ln -s your_global_filterbook  ~global/mail/.filter.book
-
-    Please be sure that the global files are writeable by user 'global'
-    and readable by others
-
-
-PER VIRTUALDOMAIN CONFIGURATION
--------------------------------
-IF you are running serveral virtualdomain on same server with openwebmail,
-you may want to have different settings for different virtualdomain.
-
-eg: To create configuration file for virtualdomain 'sr1.domain.com'
-
-1. cd cgi-bin/openwebmail/etc/sites.conf/
-2. cp ../openwebmail.conf sr1.domain.com
-3. edit options in file 'sr1.domain.com' for domain 'vr1.domain.com'
-
-ps: The openwebmail.conf will be loaded first and then virtualdomain specific
-    configuration file will be loaded
-
-
-PER USER CAPABILITY CONFIGURATION
----------------------------------
-While the user capability related options in openwebmail.conf are applied to 
-all users, you may want to set them on per user basis sometimes. 
-Openwebmail supports this by making each user have his own capability file.
-
-The user capability file is located in cgi-bin/openwebmail/etc/user.conf/
-and named as the realusername of user. Options in this file are actually 
-a subset of options in openwebmail.conf. An example 'SAMPLE' is provided.
-
-eg: To creat the capability file for user 'guest':
-
-1. cd cgi-bin/openwebmail/etc/users.conf/
-2. cp SAMPLE guest
-3. edit options in file 'guest' for user guest
-
-ps: only users that have different setting than others need the capability file
+ps: If you wish your authentication module to be included in the next release
+    of openwebmail, please submit it to openwebmail@turtle.ee.ncku.edu.tw.
 
 
 ADD SUPPORT FOR NEW LANGUAGE
@@ -554,11 +607,12 @@ TEST
 
    ~/openwebmail.pl             - owner=root, group=mail, mode=4755
    ~/openwebmail-main.pl        - owner=root, group=mail, mode=4755
-   ~/openwebmail-prefs.pl       - owner=root, group=mail, mode=4755
    ~/openwebmail-read.pl        - owner=root, group=mail, mode=4755
-   ~/openwebmail-send.pl        - owner=root, group=mail, mode=4755
    ~/openwebmail-viewatt.pl     - owner=root, group=mail, mode=4755
+   ~/openwebmail-send.pl        - owner=root, group=mail, mode=4755
    ~/openwebmail-spell.pl       - owner=root, group=mail, mode=4755
+   ~/openwebmail-prefs.pl       - owner=root, group=mail, mode=4755
+   ~/openwebmail-folder.pl      - owner=root, group=mail, mode=4755
    ~/checkmail.pl               - owner=root, group=mail, mode=4755
    ~/vacation.pl                - owner=root, group=mail, mode=0755
    ~/etc                        - owner=root, group=mail, mode=755
@@ -590,7 +644,7 @@ Features that people may also be interested
 3. log analyzer
 
 
-02/20/2002
+03/14/2002
 
 openwebmail@turtle.ee.ncku.edu.tw
 

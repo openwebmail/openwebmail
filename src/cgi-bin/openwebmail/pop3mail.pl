@@ -1,7 +1,7 @@
 #
 # pop3mail.pl - functions for pop3 mail retrieval
 #
-# 2001/03/02 eddie@turtle.ee.ncku.edu.tw
+# 2002/03/19 eddie@turtle.ee.ncku.edu.tw
 #            tung@turtle.ee.ncku.edu.tw
 #
 
@@ -9,46 +9,6 @@ use strict;
 use Fcntl qw(:DEFAULT :flock);
 use FileHandle;
 use IO::Socket;
-
-sub getpop3book {
-   my ($pop3book, $r_accounts) = @_;
-   my $i=0;
-
-   %{$r_accounts}=();
-
-   if ( -f "$pop3book" ) {
-      filelock($pop3book, LOCK_SH);
-      open (POP3BOOK,"$pop3book") or return(-1);
-      while (<POP3BOOK>) {
-      	 chomp($_);
-         my ($pop3host, $pop3user, $pop3passwd, $pop3lastid, $pop3del, $enable)
-								=split(/\@\@\@/, $_);
-         ${$r_accounts}{"$pop3host:$pop3user"} = "$pop3host\@\@\@$pop3user\@\@\@$pop3passwd\@\@\@$pop3lastid\@\@\@$pop3del\@\@\@$enable";
-         $i++;
-      }
-      close (POP3BOOK);
-      filelock($pop3book, LOCK_UN);
-   }
-   return($i);
-}
-
-sub writebackpop3book {
-   my ($pop3book, $r_accounts) = @_;
-
-   if ( -f "$pop3book" ) {
-      filelock($pop3book, LOCK_EX);
-      open (POP3BOOK,">$pop3book") or
-         return (-1);
-      foreach (values %{$r_accounts}) {
-      	 chomp($_);
-      	 print POP3BOOK $_ . "\n";
-      }
-      close (POP3BOOK);
-      filelock($pop3book, LOCK_UN);
-   }
-   return(0);
-}
-
 
 # return < 0 means error
 # -1 pop3book read error
@@ -69,7 +29,7 @@ sub retrpop3mail {
    my ($last, $nMailCount, $retr_total);
    my ($dummy, $i);
 
-   if ( getpop3book($pop3book, \%accounts)<0 ) {
+   if ( readpop3book($pop3book, \%accounts)<0 ) {
       return(-1);
    }
 
@@ -83,7 +43,7 @@ sub retrpop3mail {
    $ServerPort='110';
    eval {
       local $SIG{ALRM} = sub { die "alarm\n" }; # NB: \n required
-      alarm 5;
+      alarm 10;
       $remote_sock=new IO::Socket::INET(   Proto=>'tcp',
                                            PeerAddr=>$pop3host,
                                            PeerPort=>$ServerPort,);
@@ -169,14 +129,6 @@ sub retrpop3mail {
    # retr messages
    $retr_total=0;
    for ($i=$last+1; $i<=$nMailCount; $i++) {
-      my @monthstr=qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec);
-      my @wdaystr=qw(Sun Mon Tue Wed Thu Fri Sat);
-
-      my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) =localtime;
-      $year=$year+1900;
-      $mon=$monthstr[$mon]; 
-      $wday=$wdaystr[$wday];
-
       my ($FileContent,$stAddress,$stDate)=("","","");
 
       print $remote_sock "retr ".$i."\r\n";
@@ -190,13 +142,13 @@ sub retrpop3mail {
          }
       }
 
-
       # first line of message
       if ( /^From / ) {
          $FileContent = "";	#drop 1st line if containing msg delimiter
       } else {
          s/\s+$//;
          $FileContent = "$_\n";
+         $stDate=$1 if ( /^Date:\s+(.*)$/i);
       }
 
       #####  read else lines of message
@@ -204,8 +156,7 @@ sub retrpop3mail {
          s/\s+$//;
          last if ($_ eq "." );	#end and exit while
          $FileContent .= "$_\n";
-
-         # get $stAddress, $stDate to compose the mail delimer 'From xxxx' line
+         # get $stAddress, $stDate to compose the mail delimiter 'From xxxx' line
          if ( /^from:\s+(.+)$/i && $stAddress eq "" ) {
             $_ = $1;
             if ($_=~ /^"?(.+?)"?\s*<(.*)>$/ ) {
@@ -219,29 +170,11 @@ sub retrpop3mail {
             }
             $stAddress = $_;
 
-         } elsif ( /^Date:/i && $stDate eq "" ) {
-            if (/^Date:\s+(\w+),\s+(\d+)\s+(\w+)\s+(\d+)\s+(\d+):(\d+):(\d+)\s/i) { 
-               #Date: Wed, 9 Sep 1998 19:30:17 +0800 (CST)
-               $wday=$1; $mday=$2; $mon=$3; $year=$4; $hour=$5; $min=$6; $sec=$7;
-            } elsif (/^Date:\s+(\d+)\s+(\w+)\s+(\d+)\s+(\d+):(\d+):(\d+)\s/i) { 
-               #Date: 07 Sep 2000 23:01:36 +0200
-               $mday=$1; $mon=$2; $year=$3; $hour=$4; $min=$5; $sec=$6;
-            } elsif (/^Date:\s+(\w+),\s+(\w+)\s+(\d+),\s+(\d+)\s+(\d+):(\d+):(\d+)\s/i) { 
-               #Date: Wednesday, February 10, 1999 3:39 PM
-               $wday=$1; $mon=$2; $mday=$3; $year=$4; $hour=$5; $min=$6; $sec=$7;
-               $wday=~s/^(...).*/$1/;
-               $mon=~s/^(...).*/$1/;
-            }
-
-            # some machines has reverse order for month and mday
-            if ( $mday=~/[A-Za-z]+/ ) {
-               my $tmp=$mday; $mday=$mon; $mon=$tmp;
-            }
-
-            $stDate=sprintf("%3s %3s %2d %02d:%02d:%02d %4d",
-                             $wday, $mon, $mday, $hour,$min,$sec, $year);
+         } elsif ( /^Date:\s+(.*)$/i && $stDate eq "" ) {
+            $stDate=$1;
          }
       }
+      $stDate=date_for_delimiter($stDate);
 
       # append message to mail folder
       filelock($spoolfile, LOCK_EX);
@@ -272,12 +205,44 @@ sub retrpop3mail {
 
    ###  write back to pop3book
    $accounts{"$pop3host:$pop3user"} = "$pop3host\@\@\@$pop3user\@\@\@$pop3passwd\@\@\@$pop3lastid\@\@\@$pop3del\@\@\@$enable";
-   if (writebackpop3book($pop3book, \%accounts)<0) {
+   if (writepop3book($pop3book, \%accounts)<0) {
       return(-9);
    }
 
    # return number of fetched mail
    return($retr_total);		
+}
+
+sub date_for_delimiter {
+   my $datefield=$1;
+
+   my @monthstr=qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec);
+   my @wdaystr=qw(Sun Mon Tue Wed Thu Fri Sat);
+
+   my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) =localtime;
+   $year=$year+1900;
+   $mon=$monthstr[$mon]; 
+   $wday=$wdaystr[$wday];
+
+   if ($datefield =~ /(\w+),\s+(\d+)\s+(\w+)\s+(\d+)\s+(\d+):(\d+):(\d+)\s/i) { 
+      #Date: Wed, 9 Sep 1998 19:30:17 +0800 (CST)
+      $wday=$1; $mday=$2; $mon=$3; $year=$4; $hour=$5; $min=$6; $sec=$7;
+   } elsif ($datefield =~ /(\d+)\s+(\w+)\s+(\d+)\s+(\d+):(\d+):(\d+)\s/i) { 
+      #Date: 07 Sep 2000 23:01:36 +0200
+      $mday=$1; $mon=$2; $year=$3; $hour=$4; $min=$5; $sec=$6;
+   } elsif ($datefield =~ /(\w+),\s+(\w+)\s+(\d+),\s+(\d+)\s+(\d+):(\d+):(\d+)\s/i) { 
+      #Date: Wednesday, February 10, 1999 3:39 PM
+      $wday=$1; $mon=$2; $mday=$3; $year=$4; $hour=$5; $min=$6; $sec=$7;
+      $wday=~s/^(...).*/$1/;
+      $mon=~s/^(...).*/$1/;
+   }
+   # some machines has reverse order for month and mday
+   if ( $mday=~/[A-Za-z]+/ ) {
+      my $tmp=$mday; $mday=$mon; $mon=$tmp;
+   }
+
+   return(sprintf("%3s %3s %2d %02d:%02d:%02d %4d",
+              $wday,$mon,$mday, $hour,$min,$sec, $year));
 }
 
 1;

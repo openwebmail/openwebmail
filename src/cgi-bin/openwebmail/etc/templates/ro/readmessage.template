@@ -38,7 +38,7 @@
    </td></tr></table>
 </td></tr></table>
 <script language="JavaScript">
-   <!--
+<!--
    function replyreceiptconfirm(url, yes)
    {
       if (yes==1 || confirm('This message requests a read receipt, do you want to transmit?')) {
@@ -48,5 +48,5 @@
 //         hWnd.close();
       }
    }
-   //-->
+//-->
 </script>

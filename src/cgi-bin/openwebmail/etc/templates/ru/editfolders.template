@@ -1,4 +1,4 @@
-<table border="0" align="center" width="70%" cellpadding="0" cellspacing="0">
+<table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td colspan="5" bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <b>РЕДАКТОР ПАПОК</b></font>
@@ -9,11 +9,11 @@
 <tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Название папки (@@@FOLDERNAME_MAXLEN@@@ символов)</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>New</B></td>
+<B>Новая</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Mesg</B></td>
+<B>Сообщений</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Size</B></td>
+<B>Размер</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Действие</B>
 </td></tr>
@@ -35,13 +35,13 @@
 
 <tr><td colspan="5">&nbsp;</td></tr>
 <tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Default folders</B></td>
+<B>Стандартные папки</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>New</B></td>
+<B>Новая</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Mesg</B></td>
+<B>Сообщений</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Size</B></td>
+<B>Размер</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 &nbsp;
 </td></tr>
@@ -53,13 +53,23 @@
 
 </table>
 <script language="JavaScript">
-   <!--
+<!--
    function OpConfirm(formname, op, text)
    {   
       var newname='';
 
       if ( op == 'deletefolder' ) {
          document.forms[formname].action.value='deletefolder';
+         document.forms[formname].foldernewname.value='';
+         return(confirm(text));
+
+      } else if ( op == 'chkindexfolder' ) {
+         document.forms[formname].action.value='chkindexfolder';
+         document.forms[formname].foldernewname.value='';
+         return(confirm(text));
+
+      } else if ( op == 'reindexfolder' ) {
+         document.forms[formname].action.value='reindexfolder';
          document.forms[formname].foldernewname.value='';
          return(confirm(text));
 
@@ -77,5 +87,5 @@
 
       return false;
    }
-   //-->
+//-->
 </script>

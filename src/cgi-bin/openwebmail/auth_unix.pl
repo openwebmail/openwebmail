@@ -8,9 +8,10 @@
 # ------------------------------   --------------------------------
 # Shadow Passwd (linux/solaris)    /etc/shadow
 # FreeBSD                          /etc/master.passwd
+# Mac OS X                         /usr/bin/nidump passwd .|
 # NIS/YP                           /usr/bin/ypcat passwd|
 # NIS+                             /usr/bin/niscat passwd.org_dir|
-# else....                         /etc/passwd
+# else...                          /etc/passwd
 # ------------------------------   --------------------------------
 #
 # $unix_passwdmkdb : The command executed after any password modification 
@@ -19,8 +20,8 @@
 # platform                         passwd mkdb command
 # ------------------------------   --------------------------------
 # Free/Net/OpenBSD                 /usr/sbin/pwd_mkdb
-# Linux	                           none
-# Solaris                          none
+# Linux/Solaris	                   none
+# else...                          none
 # ------------------------------   --------------------------------
 #
 # 2001/12/20 tung@turtle.ee.ncku.edu.tw
@@ -154,8 +155,9 @@ sub change_userpassword {
       }
    } else {
       # automic update passwd by rename
-      chown(0,0, "$unix_passwdfile.tmp.$$");
-      chmod(0600, "$unix_passwdfile.tmp.$$");
+      my ($fmode, $fuid, $fgid) = (stat($unix_passwdfile))[2,4,5];
+      chown($fuid, $fgid, "$unix_passwdfile.tmp.$$");
+      chmod($fmode, "$unix_passwdfile.tmp.$$");
       rename("$unix_passwdfile.tmp.$$", $unix_passwdfile) || goto authsys_error;
    }
    filelock("$unix_passwdfile", LOCK_UN);

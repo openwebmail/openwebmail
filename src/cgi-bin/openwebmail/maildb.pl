@@ -338,7 +338,7 @@ sub update_headerdb {
                      $_messagesize=$oldmsgsize;
                      $totalsize=$_offset+$_messagesize;
                      # copy vars related to content
-                     $namedatt_account++ if ($oldstatus=~/T/);
+                     $namedatt_count++   if ($oldstatus=~/T/);
                      $zhtype="big5"      if ($oldstatus=~/B/);
                      $zhtype="gb"        if ($oldstatus=~/G/);
                   }
@@ -1346,6 +1346,7 @@ sub rebuild_message_with_partialid {
 
       my @attr=split( /@@@/, $HDB{$id} );
       next if ($attr[$_CONTENT_TYPE] !~ /^message\/partial/i );
+
       $attr[$_CONTENT_TYPE] =~ /;\s*id="(.+?)";?/i;
       next if ($partialid ne $1);
 
@@ -1500,7 +1501,6 @@ sub parse_rfc822block {
          if ($nextboundarystart <= $attblockstart) {
             $nextboundarystart=index(${$r_block}, "$boundary--", $attblockstart);
          }
-
          if ($nextboundarystart > $attblockstart) {
             # normal attblock handling
             if ( $searchid eq "" || $searchid eq "all") {
@@ -1509,7 +1509,7 @@ sub parse_rfc822block {
             } elsif ($searchid eq "$nodeid-$i" || $searchid=~/^$nodeid-$i-/) {
                my $r_attachments2=parse_attblock($r_block, $attblockstart, $nextboundarystart-$attblockstart, $subtype, $boundary, "$nodeid-$i", $searchid);
                push(@attachments, @{$r_attachments2});
-               last;	# attblock after this is not he one to look for...
+               last;	# attblock after this is not the one to look for...
             }
             $boundarystart=$nextboundarystart;
             $attblockstart=$boundarystart+$boundarylen;
@@ -1517,8 +1517,11 @@ sub parse_rfc822block {
             # abnormal attblock, last one?
             if ( $searchid eq "" || $searchid eq "all" || 
                  $searchid eq "$nodeid-$i" || $searchid=~/^$nodeid-$i-/ ) {
-               my $r_attachments2=parse_attblock($r_block, $attblockstart, length(${$r_block})-$attblockstart ,$subtype, $boundary, "$nodeid-$i", $searchid);
-               push(@attachments, @{$r_attachments2});
+               my $left=length(${$r_block})-$attblockstart;
+               if ($left>0) {
+                  my $r_attachments2=parse_attblock($r_block, $attblockstart, $left ,$subtype, $boundary, "$nodeid-$i", $searchid);
+                  push(@attachments, @{$r_attachments2});
+               }
             }
             last;
          }
@@ -1595,7 +1598,7 @@ sub parse_rfc822block {
          # null searchid means CGI is in returning html code or in context searching
          # thus content of an non-text based attachment is no need to be returned
          my $bodylength=length(${$r_block})-($headerlen+2);
-         push(@attachments, make_attachment("","", "",\"snipped...",$bodylength,
+         push(@attachments, make_attachment("","", "","snipped...",$bodylength,
 					$encoding,$contenttype, "","","",$description, $nodeid) );
       }
       return($header, " ", \@attachments);
@@ -1608,7 +1611,7 @@ sub parse_attblock {
    my ($r_buff, $attblockstart, $attblocklen, $subtype, $boundary, $nodeid, $searchid)=@_;
    my @attachments=();
    my ($attheader, $attcontent, $attencoding, $attcontenttype, 
-	$attdisposition, $attid, $attlocation);
+	$attdisposition, $attid, $attlocation, $attdescription);
    my $attheaderlen;
    if (/^\-\-\n/) {	# return empty array
       return(\@attachments) 
@@ -1710,8 +1713,11 @@ sub parse_attblock {
             # abnormal attblock, last one?
             if ( $searchid eq "" || $searchid eq "all" || 
                  $searchid eq "$nodeid-$i" || $searchid=~/^$nodeid-$i-/ ) {
-               my $r_attachments2=parse_attblock($r_buff, $subattblockstart, $attblocklen-$subattblockstart ,$subtype, $boundary, "$nodeid-$i", $searchid);
-               push(@attachments, @{$r_attachments2});
+               my $left=$attblocklen-$subattblockstart;
+               if ($left>0) {
+                  my $r_attachments2=parse_attblock($r_buff, $subattblockstart, $left ,$subtype, $boundary, "$nodeid-$i", $searchid);
+                  push(@attachments, @{$r_attachments2});
+               }
             }
             last;
          }
@@ -1737,6 +1743,13 @@ sub parse_attblock {
    } elsif ($attcontenttype =~ /^message/i ) {
       if ( $searchid eq "" || $searchid eq "all" || $searchid=~/^$nodeid/ ) {
          $attcontent=substr(${$r_buff}, $attblockstart+$attheaderlen+2, $attblocklen-($attheaderlen+2));
+         if ( $attencoding =~ /^quoted-printable/i) {
+            $attcontent = decode_qp($attcontent);
+         } elsif ($attencoding =~ /^base64/i) {
+            $attcontent = decode_base64($attcontent);
+         } elsif ($attencoding =~ /^x-uuencode/i) {
+            $attcontent = uudecode($attcontent);
+         }
          my ($header2, $body2, $r_attachments2)=parse_rfc822block(\$attcontent, "$nodeid-0", $searchid);
          if ( $searchid eq "" || $searchid eq "all" || $searchid eq $nodeid ) {
             $header2 = decode_mimewords($header2);
@@ -1770,7 +1783,7 @@ sub parse_attblock {
          # null searchid means CGI is in returning html code or in context searching
          # thus content of an non-text based attachment is no need to be returned
          my $attcontentlength=$attblocklen-($attheaderlen+2);
-         push(@attachments, make_attachment($subtype,$boundary, $attheader,\"snipped...",$attcontentlength,
+         push(@attachments, make_attachment($subtype,$boundary, $attheader,"snipped...",$attcontentlength,
 		$attencoding,$attcontenttype, $attdisposition,$attid,$attlocation,$attdescription, $nodeid) );
       }
 
@@ -1790,15 +1803,9 @@ sub parse_uuencode_body {
       if ( $searchid eq "" || $searchid eq "all" || $searchid eq "$nodeid-$i" ) {
          my ($uumode, $uufilename, $uubody) = ($1, $2, $3);
          my $uutype;
-         if ($uufilename=~/\.doc$/i) {
-            $uutype="application/msword";
-         } elsif ($uufilename=~/\.ppt$/i) {
-            $uutype="application/x-mspowerpoint";
-         } elsif ($uufilename=~/\.xls$/i) {
-            $uutype="application/x-msexcel";
-         } else {
-            $uutype="application/octet-stream";
-         }
+
+         $uufilename=~/\.([\w\d]+)$/;
+         $uutype=ext2contenttype($1);
 
          # convert and inline uuencode block into an base64 encoded attachment
          my $uuheader=qq|Content-Type: $uutype;\n|.
@@ -1878,6 +1885,15 @@ sub make_attachment {
 
    $attdisposition =~ s/^(.+);.*/$1/g;
 
+   # guess a better contenttype
+   if ( $attcontenttype =~ m!(\Qapplication/octet-stream\E)!i ||
+        $attcontenttype =~ m!(\Qvideo/mpg\E)!i ) {
+      my $oldtype=$1;
+      $attfilename=~ /\.([\w\d]*)$/;
+      my $newtype=ext2contenttype($1);
+      $attcontenttype=~ s!$oldtype!$newtype!i;
+   }
+
    # the 2 attr are coming from parent block
    $temphash{subtype} = $subtype;
    $temphash{boundary} = $boundary;
@@ -1926,6 +1942,31 @@ sub contenttype2ext {
    return("ps")  if ($ext =~ /postscript/i);
    return("js")  if ($ext =~ /javascript/i);
    return("bin");
+}
+
+sub ext2contenttype {
+   my $ext=$_[0];
+
+   return("application/msword") 	if ($ext =~ /doc$/i);
+   return("application/x-mspowerpoint") if ($ext =~ /ppt$/i);
+   return("application/x-msexcel") 	if ($ext =~ /xls$/i);
+   return("video/mpeg")			if ($ext =~ /(mpeg|mpg|mp2|mpe)$/i);
+   return("video/x-msvideo")		if ($ext =~ /(avi|wav|dl|fli)$/i);
+   return("video/quicktime")		if ($ext =~ /(mov|qt)$/i);
+   return("audio/mpeg")			if ($ext =~ /mp3$/i);
+   return("text/xml")			if ($ext =~ /xml$/i);
+   return("text/html")			if ($ext =~ /(html|htm)$/i);
+   return("text/plain")			if ($ext =~ /(txt|text|c|h|cpp|cc|asm|pas|f77|lst|sh|pl)$/i);
+   return("application/pdf")		if ($ext =~ /pdf$/i);
+   return("application/postscript")	if ($ext =~ /(ps|eps|ai)$/i);
+   return("application/mac-binhex40")	if ($ext =~ /hqx$/i);
+   return("application/x-javascript")	if ($ext =~ /js$/i);
+   return("application/x-msvisio")	if ($ext =~ /visio$/i);
+   return("application/x-vcard")	if ($ext =~ /vcf$/i);
+   return("application/x-shockwave-flash")	if ($ext =~ /swf$/i);
+   return("application/x-zip-compressed")	if ($ext =~ /zip$/i);
+
+   return("application/octet-stream");
 }
 ####################### END PARSE_.... related ###########################
 
@@ -2145,20 +2186,20 @@ my @jsevents=('onAbort', 'onBlur', 'onChange', 'onClick', 'onDblClick',
 # so clicking on it will open a new window
 sub html4link {
    my $html=$_[0];
-   $html=~s/(<a [^\<\>]*?>)/_link_target_blank($1)/igems;
+   $html=~s/(<a\s+[^\<\>]*?>)/_link_target_blank($1)/igems;
    return($html);
 }
 
 sub _link_target_blank {
    my $link=$_[0];
-   foreach my $event (@jsevents) {
-      return($link) if ($link =~ /$event/i);
-   }
+#   foreach my $event (@jsevents) {
+#      return($link) if ($link =~ /$event/i);
+#   }
    if ($link =~ /target=/i ||
        $link =~ /javascript:/i ) {
       return($link);
    }
-   $link=~s/<a ([^\<\>]*?)>/<a $1 target=_blank>/;
+   $link=~s/<a\s+([^\<\>]*?)>/<a $1 target=_blank>/is;
    return($link);
 }
 
@@ -2180,8 +2221,8 @@ sub html4disablejs {
    return($html);
 }
 
-# this routine disables the embeded CGI in a html message
-# to avoid user email addresses being confirmed by spammer through embeded CGIs
+# this routine disables the embedded CGI in a html message
+# to avoid user email addresses being confirmed by spammer through embedded CGIs
 sub html4disableembcgi {
    my $html=$_[0];
    $html=~s!(src|background)\s*=\s*("?https?://[\w\.\-]+?/?[^\s<>]*[\w/])([\b|\n| ]*)!_clean_embcgi($1,$2,$3)!egis;
@@ -2191,9 +2232,9 @@ sub html4disableembcgi {
 sub _clean_embcgi {
    my ($type, $url, $end)=@_;
 
-   if ($url=~/\?/ && $url !~ /\Q$ENV{'HTTP_HOST'}\E/i) { # non local CGI found
+   if ($url=~/\?/s && $url !~ /\Q$ENV{'HTTP_HOST'}\E/is) { # non local CGI found
       $url=~s/["']//g;
-      return("alt='embeded CGI removed ($url)'".$end);
+      return("alt='Embedded CGI removed by $config{'name'}.\n$url'".$end);
    } else {
       return("$type=$url".$end);
    }
@@ -2259,8 +2300,8 @@ sub html2text {
    my $t=$_[0];
 
    $t=~s!\s+! !g;
-   $t=~s|<style>.*?</style>||ig;
-   $t=~s|<script>.*?</script>||ig;
+   $t=~s|<style>.*?</style>||isg;
+   $t=~s|<script>.*?</script>||isg;
 
    $t=~s!<title[^\<\>]*?>!\n\n!ig;
    $t=~s!</title>!\n\n!ig;
@@ -2278,7 +2319,7 @@ sub html2text {
    $t=~s!<td[^\<\>]*?>! !ig;
    $t=~s!</td>! !ig;
 
-   $t=~s!<--.*?-->!!ig;
+   $t=~s!<--.*?-->!!isg;
 
    $t=~s!<[^\<\>]*?>!!gsm;
 
@@ -2287,6 +2328,7 @@ sub html2text {
    $t=~s!&gt;!>!g;
    $t=~s!&amp;!&!g;
    $t=~s!&quot;!\"!g;
+   $t=~s!&#8364;!€!g;	# Euro symbo 
 
    $t=~s!\n\n\s+!\n\n!g;
 
@@ -2296,7 +2338,9 @@ sub html2text {
 sub text2html {
    my $t=$_[0];
 
-   $t=~s/&/ &amp;/g;
+   $t=~s/&/ESCAPE_AMP/g;
+
+   $t=~s!€!&#8364;!g;	# Euro symbo 
    $t=~s/\"/ &quot;/g;
    $t=~s/</ &lt;/g;
    $t=~s/>/ &gt;/g;
@@ -2311,7 +2355,8 @@ sub text2html {
    $t=~s!([\b|\n| ]+)(www\.[\w\d\-\.]+\.[\w\d\-]{2,3})([\b|\n| ]*)!$1<a href="http://$2" target="_blank">$2</a>$3!gs;
 
    # remove the blank inserted just now
-   $t=~s/ (&amp;|&quot|&lt;|&gt;)/$1/g;
+   $t=~s/ (&quot;|&lt;|&gt;)/$1/g;
+   $t=~s/ESCAPE_AMP/&amp;/g;
 
    return($t);
 }

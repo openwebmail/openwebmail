@@ -78,12 +78,15 @@ if ($myname !~ m!^/! || ! -x $myname) {
 }
 
 my $sendmail;
-if ( -x '/usr/sbin/sendmail') {
-   $sendmail='/usr/sbin/sendmail';
-} elsif ( -x '/usr/lib/sendmail') {
-   $sendmail='/usr/lib/sendmail';
-} else {
-   die "Could not found sendmail binary";
+if ( $sendmail eq "" ) {
+   if ( -x '/usr/sbin/sendmail') {
+      $sendmail='/usr/sbin/sendmail';
+   } elsif ( -x '/usr/lib/sendmail') {
+      $sendmail='/usr/lib/sendmail';
+   }
+}
+if (! -x $sendmail) {
+   die "Sendmail binary not found";
 }
 
 my $usage = qq|Usage: vacation.pl -i\n|.
@@ -249,7 +252,7 @@ sub interactive_mode {
       system $editor, '.vacation.msg';
    }
 
-   print "\nTo enable the vacation feature a \".forward\" file will be created.\n";
+   print qq|\nTo enable the vacation feature a ".forward" file will be created.\n|;
    if (yorn("Would you like to enable the vacation feature now? ")) {
       init_vacation_db();
       create_dot_forward($user, $myname) if (! -f ".forward");
@@ -390,6 +393,7 @@ sub pipe_mode {
    # remove ' in $from to prevent shell escape
    $from=~s/'/ /g;
    
+#   open(MAIL, "|$sendmail -oi -t '$from'") || die "Can't run sendmail: $!\n";
    open(MAIL, "|$sendmail -oi '$from'") || die "Can't run sendmail: $!\n";
    print MAIL $msg;
    close MAIL;

@@ -7,9 +7,9 @@
 # and is copyrighted by 2001, Joshua Cantara
 #
 
-my $SCRIPT_DIR="";
+local $SCRIPT_DIR="";
 if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-]+\.pl! ) { $SCRIPT_DIR=$1; }
-if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!"; exit 0; }
+if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
 
 # This is the table of valid letters for various dictionaries.
 # If your dictionary checks vocabularies composed by characters other 
@@ -17,6 +17,7 @@ if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CG
 my %dictionary_letters =
    (
    english => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
+   magyar => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzáÁéÉíÍóÓúÚüÜõÕûÛÀÁÈÉÌÍÒÓÔÕÖÙÚÛÜàáèéêëìíòóôõö¢~ûü',
    ukrainian => 'ÊÃÕËÅÎÇÛÝÚÈ§Æ¦×ÁÐÒÏÌÄÖ¤­ÑÞÓÍÉÔØÂÀ\'êãõëåîçûýúè·æ¶÷áðòïìäö´½ñþóíéôøâà',
    );
 
@@ -35,91 +36,39 @@ push (@INC, $SCRIPT_DIR, ".");
 require "openwebmail-shared.pl";
 require "filelock.pl";
 
-local %config;
-readconf(\%config, "$SCRIPT_DIR/etc/openwebmail.conf");
-require $config{'auth_module'} or
-   openwebmailerror("Can't open authentication module $config{'auth_module'}");
-
+local (%config, %config_raw);
 local $thissession;
-local ($virtualuser, $user, $userrealname, $uuid, $ugid, $homedir);
-
-local %prefs;
-local %style;
+local ($loginname, $domain, $user, $userrealname, $uuid, $ugid, $homedir);
+local (%prefs, %style);
 local ($lang_charset, %lang_folders, %lang_sortlabels, %lang_text, %lang_err);
+local ($folderdir, @validfolders, $folderusage);
+local ($folder, $printfolder, $escapedfolder);
 
-local $folderdir;
+openwebmail_init();
+verifysession();
 
-if ( defined(param("sessionid")) ) {
-   $thissession = param("sessionid");
-
-   my $loginname = $thissession || '';
-   $loginname =~ s/\-session\-0.*$//; # Grab loginname from sessionid
-
-   my $siteconf;
-   if ($loginname=~/\@(.+)$/) {
-       $siteconf="$config{'ow_etcdir'}/sites.conf/$1";
-   } else {
-       $siteconf="$config{'ow_etcdir'}/sites.conf/$ENV{'HTTP_HOST'}";
-   }
-   readconf(\%config, "$siteconf") if ( -f "$siteconf"); 
-
-   ($virtualuser, $user, $userrealname, $uuid, $ugid, $homedir)=get_virtualuser_user_userinfo($loginname);
-   if ($user eq "") {
-      sleep 10;	# delayed response
-      openwebmailerror("User $loginname doesn't exist!");
-   }
-   if ( -f "$config{'ow_etcdir'}/users.conf/$user") { # read per user conf
-      readconf(\%config, "$config{'ow_etcdir'}/users.conf/$user");
-   }
-
-   if ( $config{'use_homedirspools'} || $config{'use_homedirfolders'} ) {
-      my $mailgid=getgrnam('mail');
-      set_euid_egid_umask($uuid, $mailgid, 0077);	
-      if ( $) != $mailgid) {	# egid must be mail since this is a mail program...
-         openwebmailerror("Set effective gid to mail($mailgid) failed!");
-      }
-   }
-
-   if ( $config{'use_homedirfolders'} ) {
-      $folderdir = "$homedir/$config{'homedirfolderdirname'}";
-   } else {
-      $folderdir = "$config{'ow_etcdir'}/users/$user";
-   }
-
-   ($user =~ /^(.+)$/) && ($user = $1);  # untaint $user
-   ($uuid =~ /^(.+)$/) && ($uuid = $1);
-   ($ugid =~ /^(.+)$/) && ($ugid = $1);
-   ($homedir =~ /^(.+)$/) && ($homedir = $1);  # untaint $homedir
-   ($folderdir =~ /^(.+)$/) && ($folderdir = $1);  # untaint $folderdir
-
-} else {
-   sleep 10;	# delayed response
-   openwebmailerror("No user specified!");
-}
-
-%prefs = %{&readprefs};
-%style = %{&readstyle};
-
-($prefs{'language'} =~ /^([\w\d\._]+)$/) && ($prefs{'language'} = $1);
-require "etc/lang/$prefs{'language'}";
-$lang_charset ||= 'iso-8859-1';
-
+local @words=();	# global
+local $wordframe="";	# global
+local $wordcount=0;	# global 
+local $worderror=0;	# global
+local $wordignore="";	# global
 
 ################################ MAIN #################################
 
-verifysession();
+local (*spellREAD, *spellWRITE, *spellERROR);
+
+my $form = param('form');
+my $field = param('field');
+my $dictionary = param('dictionary') || $prefs{'dictionary'};
+my $dicletters = $dictionary_letters{$dictionary} || $dictionary_letters{'english'};
+
+($dictionary =~ /^([\w\d\._]+)$/) && ($dictionary = $1);
+
+$|=1;	# fix the duplicate output problem caused by fork in spellcheck
 
 if (! -x $config{'spellcheck'}) {
    openwebmailerror("Spellcheck is not available.<br>( $config{'spellcheck'} not found )");
 }
-
-$|=1;	# fix the duplicate output problem caused by fork in spellcheck
-local (*spellREAD, *spellWRITE, *spellERROR);
-my $form = param('form');
-my $field = param('field');
-my $dictionary = param('dictionary') || $prefs{'dictionary'};
-($dictionary =~ /^([\w\d\._]+)$/) && ($dictionary = $1);
-my $dicletters = $dictionary_letters{$dictionary} || $dictionary_letters{'english'};
 
 if (defined(param('string'))) {
    my $pid = open3(\*spellWRITE, \*spellREAD, \*spellERROR, "$config{'spellcheck'} -a -S -d $dictionary");
@@ -270,12 +219,6 @@ sub final {
 
 
 ########################## article split/join #########################
-
-local @words=();	# global
-local $wordframe="";	# global
-local $wordcount=0;	# global 
-local $worderror=0;	# global
-local $wordignore="";	# global
 
 sub _word2label {
    my $word=$_[0];

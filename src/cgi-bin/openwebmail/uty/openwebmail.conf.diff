@@ -1,25 +1,12 @@
---- openwebmail.conf.orig	Wed Feb 20 11:30:06 2002
-+++ openwebmail.conf	Wed Feb 20 11:29:44 2002
-@@ -342,7 +342,7 @@
- # may share the same mailspool, or for some administrative reason be
- # undesirable.
- #
--disallowed_pop3servers	turtle.ee.ncku.edu.tw, turtle
-+disallowed_pop3servers	your_server, your_server.domain
- 
- #
- # autopop3_at_refresh : If user enables autopop3 in user preference,
-@@ -457,7 +457,7 @@
- # zh_CN.GB2312 => Chinese ( Simplified )
- # zh_TW.Big5   => Chinese ( Traditional )
- #
+--- openwebmail.conf.orig	Fri Feb 22 08:41:47 2002
++++ openwebmail.conf	Fri Feb 22 08:43:16 2002
+@@ -17,11 +17,9 @@
+ ow_htmldir		/usr/local/www/data/openwebmail
+ logfile			/var/log/openwebmail.log
+ spellcheck		/usr/local/bin/ispell
 -default_language	zh_TW.Big5
 +default_language	en
  
- #
- # default_bgurl : the default background image used for new user
-@@ -656,7 +656,5 @@
- #
  <default_signature>
  --
 -Distributed System Laboratory (http://dslab.ee.ncku.edu.tw)

@@ -2,7 +2,7 @@
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="1">
 <tr><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>Compose Message</B></font>
+<B>Naujo laiðko raðymas</B></font>
 </td></tr><tr><td colspan="2" bgcolor=@@@MENUBAR@@@ align="left">
 @@@BACKTOFOLDER@@@
 </td></tr><tr><td colspan="2">&nbsp;</td></tr>
@@ -11,7 +11,7 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@FROMMENU@@@
 &nbsp;&nbsp;
-<B>Priority:</B>
+<B>Prioritetas:</B>
 @@@PRIORITYMENU@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
@@ -61,7 +61,7 @@
 @@@SAVEDRAFTBUTTON@@@
 &nbsp;&nbsp;
 </td>
-@@@ENDFORM@@@ <!-- End of message composition form -->
+@@@ENDFORM@@@<!-- End of message composition form -->
 @@@STARTSPELLCHECKFORM@@@
 <td align="center" valign="top">
 @@@DICTIONARYMENU@@@
@@ -80,7 +80,7 @@
 </td></tr></table>
 
 <script language="JavaScript">
-  <!--
+<!--
    if (self.focus != null)
       self.focus();
 
@@ -100,7 +100,7 @@
       else if (toccbcc == "bcc")
          url += "&preexisting=" + escape (document.composeform.bcc.value);   
    
-      var hWnd = window.open(url,"HelpWindow","width=320,height=360,resizable=yes,scrollbars=yes");
+      var hWnd = window.open(url,"HelpWindow","width=380,height=360,resizable=yes,scrollbars=yes");
       if ((document.window != null) && (!hWnd.opener))
          hWnd.opener = document.window;
    }
@@ -134,5 +134,5 @@
       }
       return true;
    }
-   //-->
+//-->
 </script>

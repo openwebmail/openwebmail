@@ -2,40 +2,54 @@
 # auth_pop3.pl - authenticate user with POP3 server
 # 
 # This module assumes that users are located on remote pop3 server,
-# so it uses the same uid for all users on the local machine.
+# so it uses the same uid for all openwebmail users on the local machine.
 #
 # You have to do the following things to make the whole system work
 #
-# 1. create an user for the openwebmail runtime, ex: owmail
+# 1. decide the user openwebmail runtime to be executed as.
 #
-# 2. make the *.pl to be executed by user 'owmail'
-#    a. set all *.pl to be setuid script of 'owmail', or
-#    b. move whole openwebmail tree to the cgi dir under user 'owmail'
-#    ps: You may need to reference the manpage/document of your httpd to know 
-#        how to do user specific CGI
+#    a. if you have root permission on this machine.
+#       1> install openwebmail as readme.txt described
+#       2> cd cgi-bin/openwebmail
+#       3> chmod u-s *pl to remove setuid bit from scripts
+#       4> chown -R nobody.nobody ./etc
+#       Then the openwebmail runtime user will be the same as your web server, 
+#       normally 'nobody'
+#
+#    b. if you don't have root permission on this machine
+#       1> create an user for the openwebmail runtime, ex: owmail
+#          login as owmail
+#       2> mkdir public_html; cd public_html
+#       3> tar -zxvbpf openwebmail-x.yy.tgz
+#       4> cd cgi-bin/openwebmail
+#       5> chmod u-s *pl to remove setuid bit from scripts
+#       6> make the *.pl to be executed by user 'owmail'
+#       ps: You may need to reference the manpage/document of your httpd to 
+#           know how to do user specific CGI
+#       The openwebmail runtime user will be 'owmail'
 #
 # 3. set the following options in openwebmail.conf
 #
 #    auth_module		auth_pop3.pl
-#    mailspooldir		any directory that the user 'owmail' could write
+#    mailspooldir		any directory that the runtime user could write
 #    use_homedirspools		no
 #    use_homedirfolders		no
-#    log_file			any file that user 'owmail' could write
+#    log_file			any file that runtime user could write
 #    enable_changepwd		no
 #    enable_autoreply		no
 #    enable_setforward		no
-#    autopop3_at_refresh	no
+#    getmail_from_pop3_authserver	yes
 #
 # $pop3_authserver: the server used to authenticate pop3 user
 # $pop3_authport: the port which pop3 server is listening to
 # $local_uid: uid used on this machine
 #
-# 2002/02/12 tung@turtle.ee.ncku.edu.tw
+# 2002/03/08 tung@turtle.ee.ncku.edu.tw
 # 
 
-my $pop3_authserver="localhost";
-my $pop3_authport='110';
-my $local_uid=$>;
+$pop3_authserver="localhost";
+$pop3_authport='110';
+$local_uid=$>;
 
 ################### No configuration required from here ###################
 
@@ -76,7 +90,7 @@ sub check_userpassword {
 
    eval {
       local $SIG{ALRM} = sub { die "alarm\n" }; # NB: \n required
-      alarm 5;
+      alarm 10;
       $remote_sock=new IO::Socket::INET(   Proto=>'tcp',
                                            PeerAddr=>$pop3_authserver,
                                            PeerPort=>$pop3_authport,);

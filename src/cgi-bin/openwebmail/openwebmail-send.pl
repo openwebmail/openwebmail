@@ -10,17 +10,17 @@
 # This program is distributed under GNU General Public License              #
 #############################################################################
 
-my $SCRIPT_DIR="";
+local $SCRIPT_DIR="";
 if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-]+\.pl! ) { $SCRIPT_DIR=$1; }
-if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!"; exit 0; }
+if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
 
 use strict;
 no strict 'vars';
 use Fcntl qw(:DEFAULT :flock);
-use Net::SMTP;
 use CGI qw(:standard);
 use CGI::Carp qw(fatalsToBrowser);
 CGI::nph();   # Treat script as a non-parsed-header script
+use Net::SMTP;
 
 $ENV{PATH} = ""; # no PATH should be needed
 $ENV{BASH_ENV} = ""; # no startup script for bash
@@ -28,117 +28,32 @@ umask(0007); # make sure the openwebmail group can write
 
 push (@INC, $SCRIPT_DIR, ".");
 require "openwebmail-shared.pl";
-require "mime.pl";
 require "filelock.pl";
+require "mime.pl";
 require "maildb.pl";
 
-local %config;
-readconf(\%config, "$SCRIPT_DIR/etc/openwebmail.conf");
-require $config{'auth_module'} or
-   openwebmailerror("Can't open authentication module $config{'auth_module'}");
-
+local (%config, %config_raw);
 local $thissession;
-local ($virtualuser, $user, $userrealname, $uuid, $ugid, $homedir);
-
-local %prefs;
-local %style;
+local ($loginname, $domain, $user, $userrealname, $uuid, $ugid, $homedir);
+local (%prefs, %style);
 local ($lang_charset, %lang_folders, %lang_sortlabels, %lang_text, %lang_err);
-
-local $folderdir;
-local (@validfolders, $folderusage);
-
+local ($folderdir, @validfolders, $folderusage);
 local ($folder, $printfolder, $escapedfolder);
-local ($searchtype, $keyword, $escapedkeyword);
+
+openwebmail_init();
+verifysession();
+
 local $firstmessage;
 local $sort;
-
-# setuid is required if mails is located in user's dir
-if ( $>!=0 && ($config{'use_homedirspools'}||$config{'use_homedirfolders'}) ) {
-   print "Content-type: text/html\n\n'$0' must setuid to root"; exit 0;
-}
-
-if ( defined(param("sessionid")) ) {
-   $thissession = param("sessionid");
-
-   my $loginname = $thissession || '';
-   $loginname =~ s/\-session\-0.*$//; # Grab loginname from sessionid
-
-   my $siteconf;
-   if ($loginname=~/\@(.+)$/) {
-       $siteconf="$config{'ow_etcdir'}/sites.conf/$1";
-   } else {
-       $siteconf="$config{'ow_etcdir'}/sites.conf/$ENV{'HTTP_HOST'}";
-   }
-   readconf(\%config, "$siteconf") if ( -f "$siteconf"); 
-
-   ($virtualuser, $user, $userrealname, $uuid, $ugid, $homedir)=get_virtualuser_user_userinfo($loginname);
-   if ($user eq "") {
-      sleep 10;	# delayed response
-      openwebmailerror("User $loginname doesn't exist!");
-   }
-   if ( -f "$config{'ow_etcdir'}/users.conf/$user") { # read per user conf
-      readconf(\%config, "$config{'ow_etcdir'}/users.conf/$user");
-   }
-
-   if ( $config{'use_homedirspools'} || $config{'use_homedirfolders'} ) {
-      my $mailgid=getgrnam('mail');
-      set_euid_egid_umask($uuid, $mailgid, 0077);	
-      if ( $) != $mailgid) {	# egid must be mail since this is a mail program...
-         openwebmailerror("Set effective gid to mail($mailgid) failed!");
-      }
-   }
-
-   if ( $config{'use_homedirfolders'} ) {
-      $folderdir = "$homedir/$config{'homedirfolderdirname'}";
-   } else {
-      $folderdir = "$config{'ow_etcdir'}/users/$user";
-   }
-
-   ($user =~ /^(.+)$/) && ($user = $1);  # untaint ...
-   ($uuid =~ /^(.+)$/) && ($uuid = $1);
-   ($ugid =~ /^(.+)$/) && ($ugid = $1);
-   ($homedir =~ /^(.+)$/) && ($homedir = $1);
-   ($folderdir =~ /^(.+)$/) && ($folderdir = $1);
-
-} else {
-   sleep 10;	# delayed response
-   openwebmailerror("No user specified!");
-}
-
-%prefs = %{&readprefs};
-%style = %{&readstyle};
-
-($prefs{'language'} =~ /^([\w\d\._]+)$/) && ($prefs{'language'} = $1);
-require "etc/lang/$prefs{'language'}";
-$lang_charset ||= 'iso-8859-1';
-
-getfolders(\@validfolders, \$folderusage);
-if (param("folder")) {
-   my $isvalid = 0;
-   $folder = param("folder");
-   foreach my $checkfolder (@validfolders) {
-      if ($folder eq $checkfolder) {
-         $isvalid = 1;
-         last;
-      }
-   }
-   ($folder = 'INBOX') unless ( $isvalid );
-} else {
-   $folder = "INBOX";
-}
-$printfolder = $lang_folders{$folder} || $folder || '';
-$escapedfolder = escapeURL($folder);
+local ($searchtype, $keyword, $escapedkeyword);
 
 $firstmessage = param("firstmessage") || 1;
 $sort = param("sort") || $prefs{"sort"} || 'date';
-
+$searchtype = param("searchtype") || 'subject';
 $keyword = param("keyword") || '';
 $escapedkeyword = escapeURL($keyword);
-$searchtype = param("searchtype") || 'subject';
 
 ########################## MAIN ##############################
-
-verifysession();
 
 my $action = param("action");
 if ($action eq "replyreceipt") {
@@ -187,7 +102,7 @@ sub replyreceipt {
          my $to=$1;
          my $from=$prefs{'email'};
 
-         my %userfrom=get_userfrom($virtualuser, $user, $userrealname, "$folderdir/.from.book");
+         my %userfrom=get_userfrom($loginname, $userrealname, "$folderdir/.from.book");
          foreach (sort keys %userfrom) {
             if ($header=~/$_/) {
                $from=$_; last;
@@ -217,8 +132,11 @@ sub replyreceipt {
          }
 
          my $smtp;
-         $smtp=Net::SMTP->new($config{'smtpserver'}, Timeout => 20, Hello => ${$config{'domainnames'}}[0]) or 
-            openwebmailerror("$lang_err{'couldnt_open'} SMTP server $config{'smtpserver'}!");
+         $smtp=Net::SMTP->new($config{'smtpserver'}, 
+                              Port => $config{'smtpport'}, 
+                              Timeout => 30, 
+                              Hello => ${$config{'domainnames'}}[0]) or 
+            openwebmailerror("$lang_err{'couldnt_open'} SMTP server $config{'smtpserver'}:$config{'smtpport'}!");
          $smtp->mail($from);
          if (! $smtp->recipient(str2list($to), { SkipBad => 1 }) ) {
             $smtp->reset();
@@ -238,7 +156,7 @@ sub replyreceipt {
                             "Date: $date\n",
                             "Message-Id: $fakedid\n",
                             "X-Mailer: $config{'name'} $config{'version'} $config{'releasedate'}\n",
-                            "X-OriginatingIP: ", get_clientip(), " (", ($virtualuser || $user), ")\n",
+                            "X-OriginatingIP: ", get_clientip(), " ($loginname)\n",
                             "MIME-Version: 1.0\n",
                             "Content-Type: text/plain; charset=$lang_charset\n\n");
             $smtp->datasend("$lang_text{'yourmsg'}\n\n",
@@ -251,7 +169,7 @@ sub replyreceipt {
                             "Date: $date\n",
                             "Message-Id: $fakedid\n",
                             "X-Mailer: $config{'name'} $config{'version'} $config{'releasedate'}\n",
-                            "X-OriginatingIP: ", get_clientip(), " (", ($virtualuser || $user), ")\n",
+                            "X-OriginatingIP: ", get_clientip(), " ($loginname)\n",
                             "MIME-Version: 1.0\n",
                             "Content-Type: text/plain; charset=iso-8859-1\n\n");
             $smtp->datasend("Your message\n\n",
@@ -343,8 +261,8 @@ sub composemessage {
 
          my $attserial = time();
          open (ATTFILE, ">$config{'ow_etcdir'}/sessions/$thissession-att$attserial");
-         print ATTFILE "Content-Type: ", $content_type,";\n";
-         print ATTFILE "\tname=\"$attname\"\nContent-Transfer-Encoding: base64\n\n";
+         print ATTFILE qq|Content-Type: $content_type;\n|;
+         print ATTFILE qq|\tname="$attname"\nContent-Transfer-Encoding: base64\n\n|;
          while (read($attachment, $attcontents, 600*57)) {
             $attcontents=encode_base64($attcontents);
             $savedattsize += length($attcontents);
@@ -373,14 +291,14 @@ sub composemessage {
    my $to = param("to") || '';
    my $cc = param("cc") || '';
    my $bcc = param("bcc") || '';
-   my $replyto = param("replyto") || '';
+   my $replyto = param("replyto") || $prefs{"replyto"} || '';
    my $subject = param("subject") || '';
    my $body = param("body") || '';
    my $inreplyto = param("inreplyto") || '';
    my $references = param("references") || '';
    my $priority = param("priority") || 'normal';	# normal/urgent/non-urgent
 
-   my %userfrom=get_userfrom($virtualuser, $user, $userrealname, "$folderdir/.from.book");
+   my %userfrom=get_userfrom($loginname, $userrealname, "$folderdir/.from.book");
    if ($userfrom{$prefs{'email'}} ne "") {
       $from=qq|"$userfrom{$prefs{'email'}}" <$prefs{'email'}>|;
    } else {
@@ -429,7 +347,7 @@ sub composemessage {
          # If the first attachment is text, 
          # assume it's the body of a message in multi-part format
          if ( defined(${$message{attachment}[0]}{contenttype}) &&
-              ${$message{attachment}[0]}{contenttype} =~ /^text\/plain/i ) {
+              ${$message{attachment}[0]}{contenttype} =~ /^text/i ) {
             if (${$message{attachment}[0]}{encoding} =~ /^quoted-printable/i) {
                ${${$message{attachment}[0]}{r_content}} =
             		decode_qp(${${$message{attachment}[0]}{r_content}});
@@ -441,6 +359,9 @@ sub composemessage {
 			uudecode(${${$message{attachment}[$attnumber]}{r_content}});
             }
             $body = ${${$message{attachment}[0]}{r_content}};
+            if (${$message{attachment}[0]}{contenttype} =~ /^text\/html/i) {
+               $body= html2text($body);
+            }
             # remove this text attachment from the message's attachemnt list
             shift @{$message{attachment}};
          } else {
@@ -616,8 +537,8 @@ sub composemessage {
       ($attserial =~ /^(.+)$/) && ($attserial = $1);   # bypass taint check
       open ($atthandle, ">$config{'ow_etcdir'}/sessions/$thissession-att$attserial") or
          openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/sessions/$thissession-att$attserial!");
-      print $atthandle "Content-Type: message/rfc822;\n",
-                       "Content-Disposition: attachment; filename=\"Forward.msg\"\n\n";
+      print $atthandle qq|Content-Type: message/rfc822;\n|,
+                       qq|Content-Disposition: attachment; filename="Forward.msg"\n\n|;
 
       # copy message to be forwarded
       my $left=$attr[$_SIZE];
@@ -676,15 +597,15 @@ sub composemessage {
 
    printheader();
    
-   $temphtml = "<a href=\"$config{'ow_cgiurl'}/openwebmail-main.pl?action=displayheaders&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;firstmessage=$firstmessage\"><IMG SRC=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/backtofolder.gif\" border=\"0\" ALT=\"$lang_text{'backto'} $printfolder\"></a>";
+   $temphtml = qq|<a href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=displayheaders&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;firstmessage=$firstmessage" title="$lang_text{'backto'} $printfolder"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/backtofolder.gif" border="0" ALT="$lang_text{'backto'} $printfolder"></a>\n|;
    if ($prefs{'language'} eq 'zh_CN.GB2312' ) {
-       $temphtml .= " &nbsp; ".
-                    "<a href=\"javascript:convert_b2g()\"><IMG SRC=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/big52gb.gif\" border=\"0\" ALT=\"Big5 to GB\"></a> ".
-                    "<a href=\"javascript:convert_g2b()\"><IMG SRC=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/gb2big5.gif\" border=\"0\" ALT=\"GB to Big5\"></a>";
+       $temphtml .= qq| &nbsp; |.
+                    qq|<a href="javascript:convert_b2g()" title="Big5 to GB"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/big52gb.gif" border="0" ALT="Big5 to GB"></a> \n|.
+                    qq|<a href="javascript:convert_g2b()" title="GB to Big5"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/gb2big5.gif" border="0" ALT="GB to Big5"></a>\n|;
    } elsif ($prefs{'language'} eq 'zh_TW.Big5' ) {
-       $temphtml .= " &nbsp; ".
-                    "<a href=\"javascript:convert_g2b()\"><IMG SRC=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/gb2big5.gif\" border=\"0\" ALT=\"GB to Big5\"></a> ".
-                    "<a href=\"javascript:convert_b2g()\"><IMG SRC=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/big52gb.gif\" border=\"0\" ALT=\"Big5 to GB\"></a>";
+       $temphtml .= qq| &nbsp; |.
+                    qq|<a href="javascript:convert_g2b()" title="GB to Big5"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/gb2big5.gif" border="0" ALT="GB to Big5"></a> \n|.
+                    qq|<a href="javascript:convert_b2g()" title="Big5 to GB"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/big52gb.gif" border="0" ALT="Big5 to GB"></a>\n|;
    }
 
    $html =~ s/\@\@\@BACKTOFOLDER\@\@\@/$temphtml/g;
@@ -763,21 +684,21 @@ sub composemessage {
                          -default=>$to,
                          -size=>'70',
                          -override=>'1').
-               " <a href=\"javascript:GoAddressWindow('to')\"><IMG SRC=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/addrbook.s.gif\" valign=bottom border=\"0\" ALT=\"$lang_text{'addressbook'}\"></a>";
+               qq| <a href="javascript:GoAddressWindow('to')" title="$lang_text{'addressbook'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/addrbook.s.gif" valign=bottom border="0" ALT="$lang_text{'addressbook'}"></a>|;
    $html =~ s/\@\@\@TOFIELD\@\@\@/$temphtml/g;
 
    $temphtml = textfield(-name=>'cc',
                          -default=>$cc,
                          -size=>'70',
                          -override=>'1').
-               " <a href=\"javascript:GoAddressWindow('cc')\"><IMG SRC=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/addrbook.s.gif\" valign=bottom border=\"0\" ALT=\"$lang_text{'addressbook'}\"></a>";
+               qq| <a href="javascript:GoAddressWindow('cc')" title="$lang_text{'addressbook'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/addrbook.s.gif" valign=bottom border="0" ALT="$lang_text{'addressbook'}"></a>|;
    $html =~ s/\@\@\@CCFIELD\@\@\@/$temphtml/g;
           
    $temphtml = textfield(-name=>'bcc',
                          -default=>$bcc,
                          -size=>'70',
                          -override=>'1').
-               " <a href=\"javascript:GoAddressWindow('bcc')\"><IMG SRC=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/addrbook.s.gif\" valign=bottom border=\"0\" ALT=\"$lang_text{'addressbook'}\"></a>";
+               qq| <a href="javascript:GoAddressWindow('bcc')" title="$lang_text{'addressbook'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/addrbook.s.gif" valign=bottom border="0" ALT="$lang_text{'addressbook'}"></a>|;
    $html =~ s/\@\@\@BCCFIELD\@\@\@/$temphtml/g;
  
    $temphtml = textfield(-name=>'replyto',
@@ -797,11 +718,11 @@ sub composemessage {
          if (${$r_attnamelist}[$i]=~/\.(txt|jpg|jpeg|gif|png|bmp)$/i) {
             $blank="target=_blank";
          }
-         $temphtml .= "<tr valign=top>".
-                      "<td><a href=\"$config{'ow_cgiurl'}/openwebmail-viewatt.pl?sessionid=$thissession&amp;action=viewattfile&amp;attfile=${$r_attfilelist}[$i]\" $blank><em>${$r_attnamelist}[$i]</em></a></td>".
-                      "<td nowrap align='right'>&nbsp;$attsize KB &nbsp;</td>".
-                      "<td nowrap><a href=\"javascript:DeleteAttFile('${$r_attfilelist}[$i]')\">[$lang_text{'delete'}]</a></td>".
-                      "</tr>\n";
+         $temphtml .= qq|<tr valign=top>|.
+                      qq|<td><a href="$config{'ow_cgiurl'}/openwebmail-viewatt.pl?sessionid=$thissession&amp;action=viewattfile&amp;attfile=${$r_attfilelist}[$i]" $blank><em>${$r_attnamelist}[$i]</em></a></td>|.
+                      qq|<td nowrap align='right'>&nbsp;$attsize KB &nbsp;</td>|.
+                      qq|<td nowrap><a href="javascript:DeleteAttFile('${$r_attfilelist}[$i]')">[$lang_text{'delete'}]</a></td>|.
+                      qq|</tr>\n|;
       }
       $temphtml .= "</table></td>\n";
 
@@ -953,8 +874,6 @@ sub composemessage {
    $temphtml = submit("$lang_text{'cancel'}");
    $html =~ s/\@\@\@CANCELBUTTON\@\@\@/$temphtml/g;
 
-   $html =~ s/\@\@\@SESSIONID\@\@\@/$thissession/g;
-
    print $html;
 
    printfooter();
@@ -982,7 +901,7 @@ sub sendmessage {
       my @datearray = split(/ +/, $localtime);
       my $date = "$datearray[0], $datearray[2] $datearray[1] $datearray[4] $datearray[3] ".dst_adjust($config{'timeoffset'});
 
-      my %userfrom=get_userfrom($virtualuser, $user, $userrealname, "$folderdir/.from.book");
+      my %userfrom=get_userfrom($loginname, $userrealname, "$folderdir/.from.book");
       my ($realname, $from);
       if (param('from')) {
          ($realname, $from)=email2nameaddr(param('from'));
@@ -1001,6 +920,7 @@ sub sendmessage {
       my $bcc = param("bcc");
       my $replyto = param("replyto") || $prefs{"replyto"};
       my $subject = param("subject") || 'N/A';
+      $subject =~ s/&#8364;/€/g;	# Euro symbo
 
       # fake a messageid for this message
       my $fakedid = $dateserial.'.M'.int(rand()*100000);
@@ -1017,7 +937,8 @@ sub sendmessage {
       my $confirmreading = param("confirmreading");
       my $body = param("body");
 
-      $body =~ s/\r//g;  # strip ^M characters from message. How annoying!
+      $body =~ s/\r//g;		# strip ^M characters from message. How annoying!
+      $body =~ s/&#8364;/€/g;	# Euro symbo
 
       my $attachment = param("attachment");
       if ( $attachment ) {
@@ -1044,30 +965,46 @@ sub sendmessage {
       }
       closedir (SESSIONSDIR);
 
-      my $do_savefolder=1;
-      my $savefolder_errorstr="";
-      my $do_sendmail=1;
-      my $sendmail_errorstr="";
-      my ($savefolder, $savefile, $savedb);
+      my $do_sendmsg=1;
+      my $send_errstr="";
+      my $send_errcount=0;
+
+      my $do_savemsg=1;
+      my $save_errstr="";
+      my $save_errcount=0;
+
       my $smtp;
-
       my $smtperrfile="/tmp/.openwebmail.smtperr.$$";
-      local (*STDERR);	# localize stderr with a noew glob variable
+      local (*STDERR);	# localize stderr to a new global variable
 
-      if (defined(param($lang_text{'savedraft'}))) { # save message to draft folder
+      my ($savefolder, $savefile, $savedb);
+      my $messagestart=0;
+      my $messagesize=0;
+
+      if (defined(param($lang_text{'savedraft'}))) { # save msg to draft folder
          $savefolder = 'saved-drafts';
-         $do_sendmail=0;
+         $do_sendmsg=0;
+         $do_savemsg=0 if  ($folderusage>=100);
+      } else {					     # save msg to sent folder && send 
+         $savefolder = 'sent-mail';
+         $do_savemsg=0 if  ($folderusage>=100);
+      }
 
-      } else {				# sent message and save it to sent folder
+
+      if ($do_sendmsg) { 
          my @recipients=();
-         push(@recipients, str2list($to)) if ($to=~/\w/);
-         push(@recipients, str2list($cc)) if ($cc=~/\w/);
-         push(@recipients, str2list($bcc)) if ($bcc=~/\w/);
+         foreach my $recv ($to, $cc, $bcc) {
+            next if ($recv eq "");
+            foreach (str2list($recv)) {
+               my $email=(email2nameaddr($_))[1];
+               next if ($email eq "" || $email=~/\s/);
+               push (@recipients, $email);
+            }
+         }
 
          # validate receiver email
          if ($#{$config{'allowed_receiverdomain'}}>=0) {
-            foreach (@recipients) {
-               my $email=(email2nameaddr($_))[1];
+            foreach my $email (@recipients) {
                my $allowed=0;
                foreach my $token (@{$config{'allowed_receiverdomain'}}) {
                   if ($token eq 'ALL' || $email=~/\Q$token\E$/i) {
@@ -1087,8 +1024,12 @@ sub sendmessage {
          open(STDERR, ">$smtperrfile"); 
          select(STDERR); $| = 1; select(STDOUT);
 
-         $smtp=Net::SMTP->new($config{'smtpserver'}, Timeout => 20, Hello => ${$config{'domainnames'}}[0], Debug=>1) or 
-            openwebmailerror("$lang_err{'couldnt_open'} SMTP server $config{'smtpserver'}!");
+         $smtp=Net::SMTP->new($config{'smtpserver'}, 
+                              Port => $config{'smtpport'}, 
+                              Timeout => 30, 
+                              Hello => ${$config{'domainnames'}}[0], 
+                              Debug=>1) or 
+            openwebmailerror("$lang_err{'couldnt_open'} SMTP server $config{'smtpserver'}:$config{'smtpport'}!");
          $smtp->mail($from);
 
          if (! $smtp->recipient(@recipients, { SkipBad => 1 }) ) {
@@ -1100,35 +1041,26 @@ sub sendmessage {
             $smtp->quit();
             openwebmailerror($msg);
          }
-
          $smtp->data();
-         $do_sendmail=1;
-         $savefolder = 'sent-mail';
       }
-      ($savefile, $savedb)=get_folderfile_headerdb($user, $savefolder);
 
-      if ( ! -f $savefile) {
-         if (open (FOLDER, ">$savefile")) {
-            close (FOLDER);
-            $do_savefolder=1;
-         } else {
-            $savefolder_errorstr="$lang_err{'couldnt_open'} $savefile!";
-            $do_savefolder=0;
-            if ($do_savefolder==0 && $do_sendmail==0) {
-               openwebmailerror($savefolder_errorstr);
+      if ($do_savemsg) {
+         ($savefile, $savedb)=get_folderfile_headerdb($user, $savefolder);
+
+         if ( ! -f $savefile) {
+            if (open (FOLDER, ">$savefile")) {
+               close (FOLDER);
+            } else {
+               $save_errstr="$lang_err{'couldnt_open'} $savefile!";
+               $save_errcount++;
+               $do_savemsg=0;
             }
          }
-      }
 
-      my $messagestart=0;
-      my $messagesize=0;
-
-      if  ($folderusage>=100) {
-         $do_savefolder=0;
-      } else {
-         if (filelock($savefile, LOCK_EX|LOCK_NB)) {
+         if ($save_errcount==0 && filelock($savefile, LOCK_EX|LOCK_NB)) {
             update_headerdb($savedb, $savefile);
 
+            # remove message with same id from draft folder
             if ( $savefolder eq 'saved-drafts' && defined(param("message_id")) ) {
                my $removeoldone=0;
                my $messageid=param("message_id");
@@ -1155,40 +1087,48 @@ sub sendmessage {
             if (open (FOLDER, ">>$savefile") ) {
                $messagestart=tell(FOLDER);
             } else {
-               $savefolder_errorstr="$lang_err{'couldnt_open'} $savefile!";
-               $do_savefolder=0;
+               $save_errstr="$lang_err{'couldnt_open'} $savefile!";
+               $save_errcount++;
+               $do_savemsg=0;
             }
+
          } else {
-            $savefolder_errorstr="$lang_err{'couldnt_lock'} $savefile!";
-            $do_savefolder=0;
+            $save_errstr="$lang_err{'couldnt_lock'} $savefile!";
+            $save_errcount++;
+            $do_savemsg=0;
          }
-      }
+      } 
 
       # nothing to do, return error msg immediately
-      if ($do_savefolder==0 && $do_sendmail==0) {
-         openwebmailerror($savefolder_errorstr);
+      if ($do_sendmsg==0 && $do_savemsg==0) {
+         if ($save_errcount>0) {
+            openwebmailerror($save_errstr);
+         } else {
+            my $protocol=get_protocol(); 
+            print "Location: $protocol://$ENV{'HTTP_HOST'}$config{'ow_cgiurl'}/openwebmail-main.pl?action=displayheaders&sessionid=$thissession&sort=$sort&folder=$escapedfolder&firstmessage=$firstmessage\n\n";
+         }
       }
 
       # Add a 'From ' as the message delimeter before save a message
       # into sent-mail/saved-drafts folder 
-      print FOLDER "From $user $localtime\n" if ($do_savefolder);
+      print FOLDER "From $user $localtime\n" || $save_errcount++ if ($do_savemsg && $save_errcount==0);
 
       my $tempcontent="";
       $tempcontent .= "From: $realname <$from>\n";
       $tempcontent .= "To: ".folding($to)."\n";
       $tempcontent .= "CC: ".folding($cc)."\n" if ($cc);
       $tempcontent .= "Bcc: ".folding($bcc)."\n" if ($bcc);
-      $tempcontent .= "Reply-To: ".$replyto."\n" if ($replyto);
+      $tempcontent .= "Reply-To: $replyto\n" if ($replyto);
       $tempcontent .= "Subject: $subject\n";
       $tempcontent .= "Date: $date\n";
 
       $tempcontent .= "Message-Id: $fakedid\n";
 
-      $tempcontent .= "In-Reply-To: " . $inreplyto . "\n" if ($inreplyto);
-      $tempcontent .= "References: " . $references . "\n" if ($references);
-      $tempcontent .= "Priority: " . $priority . "\n" if ($priority && $priority ne 'normal');
+      $tempcontent .= "In-Reply-To: $inreplyto\n" if ($inreplyto);
+      $tempcontent .= "References: $references\n" if ($references);
+      $tempcontent .= "Priority: $priority\n" if ($priority && $priority ne 'normal');
       $tempcontent .= "X-Mailer: $config{'name'} $config{'version'} $config{'releasedate'}\n";
-      $tempcontent .= "X-OriginatingIP: ".get_clientip()." (". ($virtualuser || $user) .")\n";
+      $tempcontent .= "X-OriginatingIP: ".get_clientip()." ($loginname)\n";
       $tempcontent .= "MIME-Version: 1.0\n";
       if ($confirmreading) {
          if ($replyto) {
@@ -1199,46 +1139,45 @@ sub sendmessage {
             $tempcontent .= "Disposition-Notification-To: $from\n";
          }
       }
-      $smtp->datasend($tempcontent) if ($do_sendmail);
-      print FOLDER    $tempcontent  if ($do_savefolder);
+      $smtp->datasend($tempcontent) || $send_errcount++ if ($do_sendmsg && $send_errcount==0);
+      print FOLDER    $tempcontent  || $save_errcount++ if ($do_savemsg && $save_errcount==0);
 
       # mark msg saved in sent/draft folder as read
-      print FOLDER    "Status: R\n"  if ($do_savefolder);
+      print FOLDER    "Status: R\n" || $save_errcount++ if ($do_savemsg && $save_errcount==0);
 
       my $contenttype;
       if ($attachment || $#attfilelist>=0 ) {
          $contenttype="multipart/mixed;";
 
-         $tempcontent = "";
-         $tempcontent .= "Content-Type: multipart/mixed;\n";
-         $tempcontent .= "\tboundary=\"$boundary\"\n\n";
-         $tempcontent .= "This is a multi-part message in MIME format.\n\n";
-         $tempcontent .= "--$boundary\n";
-         $tempcontent .= "Content-Type: text/plain; charset=$lang_charset\n\n";
+         $tempcontent = qq|Content-Type: multipart/mixed;\n|.
+                        qq|\tboundary="$boundary"\n\n|.
+                        qq|This is a multi-part message in MIME format.\n\n|.
+                        qq|--$boundary\n|.
+                        qq|Content-Type: text/plain; charset=$lang_charset\n\n|;
 
-         $smtp->datasend($tempcontent) if ($do_sendmail);
-         print FOLDER    $tempcontent  if ($do_savefolder);
+         $smtp->datasend($tempcontent) || $send_errcount++ if ($do_sendmsg && $send_errcount==0);
+         print FOLDER    $tempcontent  || $save_errcount++ if ($do_savemsg && $save_errcount==0);
 
-         $smtp->datasend($body, "\n") if ($do_sendmail);
-         $smtp->datasend($config{'mailfooter'}, "\n") if ($do_sendmail && $config{'mailfooter'}=~/[^\s]/);
+         $smtp->datasend($body, "\n") || $send_errcount++ if ($do_sendmsg && $send_errcount==0);
+         $smtp->datasend($config{'mailfooter'}, "\n") || $send_errcount++ if ($do_sendmsg && $send_errcount==0 && $config{'mailfooter'}=~/[^\s]/);
          $body =~ s/^From />From /gm;
-         print FOLDER    $body, "\n"  if ($do_savefolder);
+         print FOLDER    $body, "\n"  || $save_errcount++ if ($do_savemsg && $save_errcount==0);
 
          my $buff='';
          foreach (@attfilelist) {
-            $smtp->datasend("\n--$boundary\n") if ($do_sendmail);
-            print FOLDER    "\n--$boundary\n"  if ($do_savefolder);
+            $smtp->datasend("\n--$boundary\n") || $send_errcount++ if ($do_sendmsg && $send_errcount==0);
+            print FOLDER    "\n--$boundary\n"  || $save_errcount++ if ($do_savemsg && $save_errcount==0);
             open(ATTFILE, $_);
 
             while (read(ATTFILE, $buff, 32768)) {
-               $smtp->datasend($buff) if ($do_sendmail);
-               print FOLDER    $buff  if ($do_savefolder);
+               $smtp->datasend($buff) || $send_errcount++ if ($do_sendmsg && $send_errcount==0);
+               print FOLDER    $buff  || $save_errcount++ if ($do_savemsg && $save_errcount==0);
             }
             close(ATTFILE);
          }
 
-         $smtp->datasend("\n") if ($do_sendmail);
-         print FOLDER    "\n"  if ($do_savefolder);
+         $smtp->datasend("\n") || $send_errcount++ if ($do_sendmsg && $send_errcount==0);
+         print FOLDER    "\n"  || $save_errcount++ if ($do_savemsg && $save_errcount==0);
 
          if ($attachment) {
             my $attcontenttype;
@@ -1247,92 +1186,108 @@ sub sendmessage {
             } else {
                $attcontenttype = 'application/octet-stream';
             }
-            $tempcontent ="";
-            $tempcontent .= "--$boundary\nContent-Type: $attcontenttype;\n";
-            $tempcontent .= "\tname=\"$attname\"\nContent-Transfer-Encoding: base64\n\n";
+            $tempcontent = qq|--$boundary\nContent-Type: $attcontenttype;\n|.
+                           qq|\tname="$attname"\n|.
+                           qq|Content-Transfer-Encoding: base64\n\n|;
 
-            $smtp->datasend($tempcontent) if ($do_sendmail);
-            print FOLDER    $tempcontent  if ($do_savefolder);
+            $smtp->datasend($tempcontent) || $send_errcount++ if ($do_sendmsg && $send_errcount==0);
+            print FOLDER    $tempcontent  || $save_errcount++ if ($do_savemsg && $save_errcount==0);
             
             while (read($attachment, $buff, 600*57)) {
                $tempcontent=encode_base64($buff);
-               $smtp->datasend($tempcontent) if ($do_sendmail);
-               print FOLDER    $tempcontent  if ($do_savefolder);
+               $smtp->datasend($tempcontent) || $send_errcount++ if ($do_sendmsg && $send_errcount==0);
+               print FOLDER    $tempcontent  || $save_errcount++ if ($do_savemsg && $save_errcount==0);
             }
 
-            $smtp->datasend("\n") if ($do_sendmail);
-            print FOLDER    "\n"  if ($do_savefolder);
+            $smtp->datasend("\n") || $send_errcount++ if ($do_sendmsg && $send_errcount==0);
+            print FOLDER    "\n"  || $save_errcount++ if ($do_savemsg && $save_errcount==0);
          }
-         $smtp->datasend("--$boundary--") if ($do_sendmail);
-         print FOLDER    "--$boundary--"  if ($do_savefolder);
+         $smtp->datasend("--$boundary--") || $send_errcount++ if ($do_sendmsg && $send_errcount==0);
+         print FOLDER    "--$boundary--"  || $save_errcount++ if ($do_savemsg && $save_errcount==0);
 
-         $smtp->datasend("\n") if ($do_sendmail);
-         print FOLDER   "\n\n" if ($do_savefolder);
+         $smtp->datasend("\n") || $send_errcount++ if ($do_sendmsg && $send_errcount==0);
+         print FOLDER   "\n\n" || $save_errcount++ if ($do_savemsg && $save_errcount==0);
 
       } else {
          $contenttype="text/plain; charset=$lang_charset";
 
-         $smtp->datasend("Content-Type: text/plain; charset=$lang_charset\n\n", $body, "\n") if ($do_sendmail);
-         $smtp->datasend($config{'mailfooter'}, "\n") if ($do_sendmail && $config{'mailfooter'}=~/[^\s]/);
+         $smtp->datasend("Content-Type: text/plain; charset=$lang_charset\n\n", $body, "\n") || $send_errcount++ if ($do_sendmsg && $send_errcount==0);
+         $smtp->datasend($config{'mailfooter'}, "\n") || $send_errcount++ if ($do_sendmsg && $send_errcount==0 && $config{'mailfooter'}=~/[^\s]/);
 
          $body =~ s/^From />From /gm;
-         print FOLDER   "Content-Type: text/plain; charset=$lang_charset\n\n", $body, "\n\n" if ($do_savefolder);
+         print FOLDER   "Content-Type: text/plain; charset=$lang_charset\n\n", $body, "\n\n" || $save_errcount++ if ($do_savemsg && $save_errcount==0);
       }
 
-      $messagesize=tell(FOLDER)-$messagestart if ($do_savefolder);
-      close(FOLDER);
-      if ($do_sendmail) {
-         if (! $smtp->dataend() ) {
+      if ($do_sendmsg) {
+         if ($send_errcount==0) {
+            $smtp->dataend();
+            $smtp->quit();
+            close(STDERR);
+         } else {
             $smtp->reset();
             $smtp->quit();
             close(STDERR);
-            $sendmail_errorstr="$lang_err{'sendmail_error'}!".
-                               readsmtperr($smtperrfile);
-         } else {
-            $smtp->quit();
-            close(STDERR);
+            $send_errstr="$lang_err{'send_err'}!".readsmtperr($smtperrfile);
          }
          unlink($smtperrfile);
       }
       
 
-      if ($do_savefolder) {
-         my @attr;
-         $attr[$_OFFSET]=$messagestart;
+      if ($do_savemsg) {
+         if ($save_errcount==0) {
+            $messagesize=tell(FOLDER)-$messagestart if ($do_savemsg && $save_errcount==0);
+            close(FOLDER);
 
-         $attr[$_TO]=$to;
-         $attr[$_TO]=$cc if ($attr[$_TO] eq '');
-         $attr[$_TO]=$bcc if ($attr[$_TO] eq '');
-         # some dbm(ex:ndbm on solaris) can only has value shorter than 1024 byte, 
-         # so we cut $_to to 256 byte to make dbm happy
-         if (length($attr[$_TO]) >256) {
-            $attr[$_TO]=substr($attr[$_TO], 0, 252)."...";
+            my @attr;
+            $attr[$_OFFSET]=$messagestart;
+
+            $attr[$_TO]=$to;
+            $attr[$_TO]=$cc if ($attr[$_TO] eq '');
+            $attr[$_TO]=$bcc if ($attr[$_TO] eq '');
+            # some dbm(ex:ndbm on solaris) can only has value shorter than 1024 byte, 
+            # so we cut $_to to 256 byte to make dbm happy
+            if (length($attr[$_TO]) >256) {
+               $attr[$_TO]=substr($attr[$_TO], 0, 252)."...";
+            }
+
+            $attr[$_FROM]="$realname <$from>";
+            $attr[$_DATE]=$dateserial;
+            $attr[$_SUBJECT]=$subject;
+            $attr[$_CONTENT_TYPE]=$contenttype;
+            $attr[$_STATUS]="R";
+            $attr[$_STATUS].="I" if ($priority eq 'urgent');
+
+            # flags used by openwebmail internally
+            $attr[$_STATUS].="T" if ($attachment || $#attfilelist>=0 );
+            $attr[$_STATUS].="B" if ($lang_charset=~/big5/i);
+            $attr[$_STATUS].="G" if ($lang_charset=~/gb2312/i);
+
+            $attr[$_SIZE]=$messagesize;
+
+            my %HDB;
+            filelock("$savedb$config{'dbm_ext'}", LOCK_EX);
+            dbmopen(%HDB, $savedb, 0600);
+            $HDB{$fakedid}=join('@@@', @attr);
+            $HDB{'ALLMESSAGES'}++;
+            $HDB{'METAINFO'}=metainfo($savefile);
+            dbmclose(%HDB);
+            filelock("$savedb$config{'dbm_ext'}", LOCK_UN);
+            filelock($savefile, LOCK_UN);
+
+         } else {
+            seek(FOLDER, $messagestart, 0);
+            truncate(FOLDER, tell(FOLDER));
+            close(FOLDER);
+
+            my %HDB;
+            filelock("$savedb$config{'dbm_ext'}", LOCK_EX);
+            dbmopen(%HDB, $savedb, 0600);
+            $HDB{'METAINFO'}=metainfo($savefile);
+            dbmclose(%HDB);
+            filelock("$savedb$config{'dbm_ext'}", LOCK_UN);
+            filelock($savefile, LOCK_UN);
          }
 
-         $attr[$_FROM]="$realname <$from>";
-         $attr[$_DATE]=$dateserial;
-         $attr[$_SUBJECT]=$subject;
-         $attr[$_CONTENT_TYPE]=$contenttype;
-         $attr[$_STATUS]="R";
-         $attr[$_STATUS].="I" if ($priority eq 'urgent');
-
-         # flags used by openwebmail internally
-         $attr[$_STATUS].="T" if ($attachment || $#attfilelist>=0 );
-         $attr[$_STATUS].="B" if ($lang_charset=~/big5/i);
-         $attr[$_STATUS].="G" if ($lang_charset=~/gb2312/i);
-
-         $attr[$_SIZE]=$messagesize;
-
-         my %HDB;
-         filelock("$savedb$config{'dbm_ext'}", LOCK_EX);
-         dbmopen(%HDB, $savedb, 0600);
-         $HDB{$fakedid}=join('@@@', @attr);
-         $HDB{'ALLMESSAGES'}++;
-         $HDB{'METAINFO'}=metainfo($savefile);
-         dbmclose(%HDB);
-         filelock("$savedb$config{'dbm_ext'}", LOCK_UN);
-
-         filelock($savefile, LOCK_UN);
       }
 
       # status update(mark referenced message as answered) and headerdb update
@@ -1340,7 +1295,7 @@ sub sendmessage {
       # this must be done AFTER the above do_savefolder block 
       # since the start of the savemessage would be changed by status_update
       # if the savedmessage is on the same folder as the answered message
-      if ($do_sendmail && $sendmail_errorstr eq "" && $inreplyto) {
+      if ($do_sendmsg && $send_errcount==0 && $inreplyto) {
          my @checkfolders=();
 
          # if current folder is sent/draft folder, 
@@ -1383,11 +1338,11 @@ sub sendmessage {
          }
       }
       
-      if ($sendmail_errorstr) {
-         openwebmailerror($sendmail_errorstr);
-      } elsif ($savefolder_errorstr) {
-         openwebmailerror($savefolder_errorstr);
-      } else {	
+      if ($send_errcount>0) {
+         openwebmailerror($send_errstr);
+      } elsif ($save_errcount>0) {
+         openwebmailerror($save_errstr);
+      } else {
          # delete attachments only if no error,
          # in case user trys resend, attachments could be available
          deleteattachments();

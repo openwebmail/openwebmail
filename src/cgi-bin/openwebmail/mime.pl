@@ -14,18 +14,20 @@ if (eval "require MIME::Base64") {
 
 sub encode_base64 
 {
+   my $str = shift;
    my $res = "";
    my $eol = "\n";
 
-   pos($_[0]) = 0;      # thanks, Andreas!
-   while ($_[0] =~ /(.{1,45})/gs) {
+   pos($str) = 0;      # thanks, Andreas!
+
+   while ($str =~ /(.{1,45})/gs) {
       $res .= substr(pack('u', $1), 1);
       chop($res);
    }
    $res =~ tr|` -_|AA-Za-z0-9+/|;
 
    # Fix padding at the end:
-   my $padding = (3 - length($_[0]) % 3) % 3;
+   my $padding = (3 - length($str) % 3) % 3;
    $res =~ s/.{$padding}$/'=' x $padding/e if $padding;
 
    # Break encoded string into lines of no more than 76 characters each:

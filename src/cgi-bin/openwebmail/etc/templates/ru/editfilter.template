@@ -10,23 +10,23 @@
 </td></tr><tr><td colspan="9">&nbsp;</td></tr>
 <tr>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Count</B>&nbsp;</td>
+<B>Счетчик</B>&nbsp;</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Priority</B></td>
+<B>Приоритет</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Rules</B></td>
+<B>Правила</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Inc/Exc</B></td>
+<B>Включ/Исключ</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>String</B> (click to edit)</td>
+<B>Строка</B> (редактировать)</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Action</B></td>
+<B>Действие</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Destination</B></td>
+<B>Назначение</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Enable</B></td>
+<B>Включить</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Action</B>
+<B>Действие</B>
 </td></tr>
 @@@STARTFILTERFORM@@@
 <tr>

@@ -10,9 +10,9 @@
 # This program is distributed under GNU General Public License              #
 #############################################################################
 
-my $SCRIPT_DIR="";
+local $SCRIPT_DIR="";
 if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-]+\.pl! ) { $SCRIPT_DIR=$1; }
-if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!"; exit 0; }
+if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
 
 use strict;
 no strict 'vars';
@@ -27,117 +27,32 @@ umask(0007); # make sure the openwebmail group can write
 
 push (@INC, $SCRIPT_DIR, ".");
 require "openwebmail-shared.pl";
-require "mime.pl";
 require "filelock.pl";
+require "mime.pl";
 require "maildb.pl";
 
-local %config;
-readconf(\%config, "$SCRIPT_DIR/etc/openwebmail.conf");
-require $config{'auth_module'} or
-   openwebmailerror("Can't open authentication module $config{'auth_module'}");
-
+local (%config, %config_raw);
 local $thissession;
-local ($virtualuser, $user, $userrealname, $uuid, $ugid, $homedir);
-
-local %prefs;
-local %style;
+local ($loginname, $domain, $user, $userrealname, $uuid, $ugid, $homedir);
+local (%prefs, %style);
 local ($lang_charset, %lang_folders, %lang_sortlabels, %lang_text, %lang_err);
-
-local $folderdir;
-local (@validfolders, $folderusage);
-
+local ($folderdir, @validfolders, $folderusage);
 local ($folder, $printfolder, $escapedfolder);
-local ($searchtype, $keyword, $escapedkeyword);
+
+openwebmail_init();
+verifysession();
+
 local $firstmessage;
 local $sort;
-
-# setuid is required if mails is located in user's dir
-if ( $>!=0 && ($config{'use_homedirspools'}||$config{'use_homedirfolders'}) ) {
-   print "Content-type: text/html\n\n'$0' must setuid to root"; exit 0;
-}
-
-if ( defined(param("sessionid")) ) {
-   $thissession = param("sessionid");
-
-   my $loginname = $thissession || '';
-   $loginname =~ s/\-session\-0.*$//; # Grab loginname from sessionid
-
-   my $siteconf;
-   if ($loginname=~/\@(.+)$/) {
-       $siteconf="$config{'ow_etcdir'}/sites.conf/$1";
-   } else {
-       $siteconf="$config{'ow_etcdir'}/sites.conf/$ENV{'HTTP_HOST'}";
-   }
-   readconf(\%config, "$siteconf") if ( -f "$siteconf"); 
-
-   ($virtualuser, $user, $userrealname, $uuid, $ugid, $homedir)=get_virtualuser_user_userinfo($loginname);
-   if ($user eq "") {
-      sleep 10;	# delayed response
-      openwebmailerror("User $loginname doesn't exist!");
-   }
-   if ( -f "$config{'ow_etcdir'}/users.conf/$user") { # read per user conf
-      readconf(\%config, "$config{'ow_etcdir'}/users.conf/$user");
-   }
-
-   if ( $config{'use_homedirspools'} || $config{'use_homedirfolders'} ) {
-      my $mailgid=getgrnam('mail');
-      set_euid_egid_umask($uuid, $mailgid, 0077);	
-      if ( $) != $mailgid) {	# egid must be mail since this is a mail program...
-         openwebmailerror("Set effective gid to mail($mailgid) failed!");
-      }
-   }
-
-   if ( $config{'use_homedirfolders'} ) {
-      $folderdir = "$homedir/$config{'homedirfolderdirname'}";
-   } else {
-      $folderdir = "$config{'ow_etcdir'}/users/$user";
-   }
-
-   ($user =~ /^(.+)$/) && ($user = $1);  # untaint ...
-   ($uuid =~ /^(.+)$/) && ($uuid = $1);
-   ($ugid =~ /^(.+)$/) && ($ugid = $1);
-   ($homedir =~ /^(.+)$/) && ($homedir = $1);
-   ($folderdir =~ /^(.+)$/) && ($folderdir = $1);
-
-} else {
-   sleep 10;	# delayed response
-   openwebmailerror("No user specified!");
-}
-
-%prefs = %{&readprefs};
-%style = %{&readstyle};
-
-($prefs{'language'} =~ /^([\w\d\._]+)$/) && ($prefs{'language'} = $1);
-require "etc/lang/$prefs{'language'}";
-$lang_charset ||= 'iso-8859-1';
-
-getfolders(\@validfolders, \$folderusage);
-if (param("folder")) {
-   my $isvalid = 0;
-   $folder = param("folder");
-   foreach my $checkfolder (@validfolders) {
-      if ($folder eq $checkfolder) {
-         $isvalid = 1;
-         last;
-      }
-   }
-   ($folder = 'INBOX') unless ( $isvalid );
-} else {
-   $folder = "INBOX";
-}
-$printfolder = $lang_folders{$folder} || $folder || '';
-$escapedfolder = escapeURL($folder);
+local ($searchtype, $keyword, $escapedkeyword);
 
 $firstmessage = param("firstmessage") || 1;
 $sort = param("sort") || $prefs{"sort"} || 'date';
-
 $keyword = param("keyword") || '';
 $escapedkeyword = escapeURL($keyword);
 $searchtype = param("searchtype") || 'subject';
 
 ########################## MAIN ##############################
-
-verifysession();
 
 my $action = param("action");
 if ($action eq "viewattachment") {
@@ -177,6 +92,12 @@ sub viewattachment {	# view attachments inside a message
       # return whole msg as an message/rfc822 object
       my $subject = (get_message_attributes($messageid, $headerdb))[$_SUBJECT];
       $subject =~ s/\s+/_/g;
+      if ( param('zhconvert') eq 'b2g' ) {
+         $subject= b2g($subject);
+      } elsif ( param('zhconvert') eq 'g2b' ) {
+         $subject= g2b($subject);
+      }
+
       my $length = length(${$r_block});
       # disposition:attachment default to save
       print qq|Content-Length: $length\n|,
@@ -204,8 +125,13 @@ sub viewattachment {	# view attachments inside a message
       }
 
       if (defined($r_attachment)) {
-         my $content;
+         if ( param('zhconvert') eq 'b2g' ) {
+            ${$r_attachment}{filename}=b2g(${$r_attachment}{filename});
+         } elsif ( param('zhconvert') eq 'g2b' ) {
+            ${$r_attachment}{filename}=g2b(${$r_attachment}{filename});
+         }
 
+         my $content;
          if (${$r_attachment}{encoding} =~ /^base64$/i) {
             $content = decode_base64(${${$r_attachment}{r_content}});
          } elsif (${$r_attachment}{encoding} =~ /^quoted-printable$/i) {
@@ -219,7 +145,7 @@ sub viewattachment {	# view attachments inside a message
          if (${$r_attachment}{contenttype} =~ m#^text/html#i ) {
             my $escapedmessageid = escapeURL($messageid);
             $content = html4nobase($content);
-            $content = html4link($content);
+#            $content = html4link($content);
             $content = html4disablejs($content) if ($prefs{'disablejs'}==1);
             $content = html4disableembcgi($content) if ($prefs{'disableembcgi'}==1);
             $content = html4attachments($content, $r_attachments, "$config{'ow_cgiurl'}/openwebmail-viewatt.pl", "action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder");
@@ -358,7 +284,7 @@ sub viewattfile {	# view attachments uploaded to openwebmail/etc/sessions/
    # remove char disallowed in some fs
    $attfilename=~s/[\s\\\/:]/_/g;	
    # IE6 will crash if filename longer than 45, tricky!
-   if (length($filename)>45) {
+   if (length($attfilename)>45) {
       $attfilename=~/^(.*)(\.[^\.]*)$/;
       $attfilename=substr($1, 0, 45-length($2)).$2;
    }

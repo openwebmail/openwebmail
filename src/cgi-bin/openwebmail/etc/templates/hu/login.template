@@ -21,7 +21,7 @@
 <table><tr><td>@@@LOGINBUTTON@@@</td></tr></table>
 </td>
 <td align=center>
-<table><tr><td><font size=1>All fields are<br>case sensitive</font></td></tr></table>
+<table><tr><td><font size=1>Minden mezõ érzékeny<br>az írásmódra</font></td></tr></table>
 </td>
 </tr>
 </table>
@@ -35,7 +35,10 @@
 <BR>
 @@@PAGE_FOOTER@@@<BR>
 </p>
+
 <script language="JavaScript">
+<!--
+
    document.login.loginname.focus()
 
    function focuspwd() 
@@ -49,5 +52,8 @@
       document.login.login.focus(); 
       return (true); 
    } 
+
+//-->
 </script>
-</body></html>
+
+</BODY></HTML>

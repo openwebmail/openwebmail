@@ -8,9 +8,9 @@
 # syntax: checkmail.pl [-q] [-p] [-i] [-a] [-f userlist] [user1 user2 ...]
 #
 
-my $SCRIPT_DIR="";
+local $SCRIPT_DIR="";
 if ( $0 =~ m!^(.*?)/[\w\d\-]+\.pl! ) { $SCRIPT_DIR=$1; }
-if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in script checkmail.pl!"; exit 0; }
+if (!$SCRIPT_DIR) { print "Content-type: text/html\n\nPlease execute script checkmail.pl with full path!\n"; exit 0; }
 
 local $POP3_PROCESS_LIMIT=10;
 local $POP3_TIMEOUT=20;
@@ -30,8 +30,9 @@ require "maildb.pl";
 require "mailfilter.pl";
 require "pop3mail.pl";
 
-local %config;
-readconf(\%config, "$SCRIPT_DIR/etc/openwebmail.conf");
+local (%config, %config_raw);
+readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf.default");
+readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf") if (-f "$SCRIPT_DIR/etc/openwebmail.conf");
 require $config{'auth_module'} or
    openwebmailerror("Can't open authentication module $config{'auth_module'}");
 
@@ -40,12 +41,23 @@ local $opt_verify=0;
 local $opt_quiet=0;
 local $pop3_process_count=0;
 
-local ($virtualuser, $user, $userrealname, $uuid, $ugid, $homedir);
+local ($loginname, $domain, $user, $userrealname, $uuid, $ugid, $homedir);
 local $folderdir;
 local %prefs;
 
 local @userlist;
 local %complete=();
+
+local %pop3error;
+%pop3error=( -1=>"pop3book read error",
+             -2=>"connect error",
+             -3=>"server not ready",
+             -4=>"'user' error",
+             -5=>"'pass' error",
+             -6=>"'stat' error",
+             -7=>"'retr' error",
+             -8=>"spoolfile write error",
+             -9=>"pop3book write error");
 
 ################################ main ##################################
 
@@ -64,8 +76,7 @@ if ($ARGV[0] eq "--") {
       } elsif ($ARGV[$i] eq "--quiet" || $ARGV[$i] eq "-q") {
          $opt_quiet=1;
       } elsif ($ARGV[$i] eq "--alluser" || $ARGV[$i] eq "-a") {
-         my $u;
-         foreach $u (get_userlist()) {
+         foreach my $u (get_userlist()) {
             push(@userlist, $u);
          }
       } elsif ($ARGV[$i] eq "--file" || $ARGV[$i] eq "-f") {
@@ -97,11 +108,12 @@ if ($#userlist<0) {
 }
 
 my $usercount=0;
-foreach my $loginname (@userlist) {
+foreach $loginname (@userlist) {
    # reset back to root before switch to next user
    $>=0;
 
-   ($virtualuser, $user, $userrealname, $uuid, $ugid, $homedir)=get_virtualuser_user_userinfo($loginname);
+   ($loginname, $domain, $user, $userrealname, $uuid, $ugid, $homedir)
+	=get_domain_user_userinfo($loginname);
    if ($user eq "") {
       print("user $loginname doesn't exist\n") if (!$opt_quiet);
       next;
@@ -110,6 +122,10 @@ foreach my $loginname (@userlist) {
    next if ($user eq 'root' || $user eq 'toor'||
             $user eq 'daemon' || $user eq 'operator' || $user eq 'bin' ||
             $user eq 'tty' || $user eq 'kmem' || $user eq 'uucp');
+
+   if ( -f "$config{'ow_etcdir'}/users.conf/$user") { # read per user conf
+      readconf(\%config, \%config_raw, "$config{'ow_etcdir'}/users.conf/$user");
+   }
 
    if ( $config{'use_homedirspools'} || $config{'use_homedirfolders'} ) {
       my $mailgid=getgrnam('mail');
@@ -123,6 +139,7 @@ foreach my $loginname (@userlist) {
       $folderdir = "$homedir/$config{'homedirfolderdirname'}";
    } else {
       $folderdir = "$config{'ow_etcdir'}/users/$user";
+      $folderdir .= "\@$domain" if ($config{'auth_withdomain'});
    }
 
    ($user =~ /^(.+)$/) && ($user = $1);  # untaint $user
@@ -160,8 +177,17 @@ if ($usercount>0) {
 sub checknewmail {
    my ($spoolfile, $headerdb)=get_folderfile_headerdb($user, 'INBOX');
 
+   if (defined($pop3_authserver) && $config{'getmail_from_pop3_authserver'}) {
+      my $login=$user; 
+      $login .= "\@$domain" if ($config{'auth_withdomain'});
+      my $response = retrpop3mail($login, $pop3_authserver, "$folderdir/.authpop3.book", $spoolfile);
+      if ( $response<0) {
+         writelog("pop3 error - $pop3error{$response} at $pop3user\@$pop3host");
+      }
+   }
+
    if ( ! -f $spoolfile || (stat($spoolfile))[7]==0 ) {
-      print (($virtualuser||$user)." has no mail\n") if (!$opt_quiet);
+      print ("$loginname has no mail\n") if (!$opt_quiet);
       return 0;
    }
 
@@ -184,11 +210,11 @@ sub checknewmail {
       filelock("$headerdb$config{'dbm_ext'}", LOCK_UN);
 
       if ($newmessages > 0 ) {
-         print (($virtualuser||$user)." has new mail\n");
+         print ("$loginname has new mail\n");
       } elsif ($allmessages-$internalmessages > 0 ) {
-         print (($virtualuser||$user)." has mail\n");
+         print ("$loginname has mail\n");
       } else {
-         print (($virtualuser||$user)." has no mail\n");
+         print ("$loginname has no mail\n");
       }
    }
 }
@@ -197,15 +223,6 @@ sub getpop3s {
    my $timeout=$_[0];
    my ($spoolfile, $header)=get_folderfile_headerdb($user, 'INBOX');
    my (%accounts, $response);
-   my %pop3error=( -1=>"pop3book read error",
-                   -2=>"connect error",
-                   -3=>"server not ready",
-                   -4=>"'user' error",
-                   -5=>"'pass' error",
-                   -6=>"'stat' error",
-                   -7=>"'retr' error",
-                   -8=>"spoolfile write error",
-                   -9=>"pop3book write error");
    my $childpid;
 
    if ( ! -f "$folderdir/.pop3.book" ) {
@@ -218,7 +235,7 @@ sub getpop3s {
       close(F);
    }
 
-   if (getpop3book("$folderdir/.pop3.book", \%accounts) <0) {
+   if (readpop3book("$folderdir/.pop3.book", \%accounts) <0) {
       return(-1);
    }
 
@@ -238,15 +255,18 @@ sub getpop3s {
 
          foreach (values %accounts) {
             my ($pop3host, $pop3user, $enable);
-            my ($response, $dummy, $h);
+            my ($response, $dummy);
+            my $disallowed=0;
 
             ($pop3host, $pop3user, $dummy, $dummy, $dummy, $enable) = split(/\@\@\@/,$_);
             next if (!$enable);
 
-            foreach $h ( @{$config{'disallowed_pop3servers'}} ) {
-               last if ($pop3host eq $h);
+            foreach ( @{$config{'disallowed_pop3servers'}} ) {
+               if ($pop3host eq $_) {
+                  $disallowed=1; last;
+               }
             }
-            next if ($pop3host eq $h);
+            next if ($disallowed);
 
             $response = retrpop3mail($pop3host, $pop3user, 
          				"$folderdir/.pop3.book",  $spoolfile);
@@ -277,4 +297,3 @@ sub verifyfolders {
    }
    return;
 }
-

@@ -58,7 +58,7 @@
 </table>
 
 <script language="JavaScript">
-   <!--
+<!--
    function CheckAll()
    {
       for (var i=0;i<document.moveform.elements.length;i++)
@@ -83,5 +83,5 @@
       }
       return false;
    }
-   //-->
+//-->
 </script>

@@ -2,8 +2,8 @@
 <table border="0" align="center" width="40%" cellpadding="1" cellspacing="1">
 <tr><td bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>Password Change Failed</B></font>
+<B>Не удается сменить пароль</B></font>
 </td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>@@@ERRORMSG@@@, no change is made.<BR>
+<BR>@@@ERRORMSG@@@, пароль остался без изменений.<BR>
 @@@CONTINUEBUTTON@@@
 </td></tr></table>

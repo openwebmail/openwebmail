@@ -48,7 +48,7 @@
       if (field == "email")
          url += "&preexisting=" + escape (document.newaddress.email.value);
    
-      var hWnd = window.open(url,"HelpWindow","width=320,height=360,resizable=yes,scrollbars=yes");
+      var hWnd = window.open(url,"HelpWindow","width=380,height=360,resizable=yes,scrollbars=yes");
       if ((document.window != null) && (!hWnd.opener))
          hWnd.opener = document.window;
    }

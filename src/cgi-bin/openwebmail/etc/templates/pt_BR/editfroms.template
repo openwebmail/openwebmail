@@ -4,7 +4,7 @@
 <table border="0" align="center" width="70%" cellpadding="1" cellspacing="1">
 <tr><td bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>Editar livro de endereços Pessoal</B></font>
+<B>Editar Endereços de E-mail Pessoal</B></font>
 </td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 &nbsp;
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
@@ -12,7 +12,7 @@
 <td nowrap bgcolor=@@@COLUMNHEADER@@@>
 <B>Nome Real</B></td>
 <td nowrap bgcolor=@@@COLUMNHEADER@@@>
-<B>Endereço de email</B> (clique para editar)</td>
+<B>Endereço de E-mail</B> (clique para editar)</td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Ação</B>
 </td></tr>

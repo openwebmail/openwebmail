@@ -35,7 +35,10 @@
 <BR>
 @@@PAGE_FOOTER@@@<BR>
 </p>
+
 <script language="JavaScript">
+<!--
+
    document.login.loginname.focus()
 
    function focuspwd() 
@@ -44,10 +47,13 @@
       return(true); 
    } 
 
-   function submitlogin() 
+   function focuslogin() 
    { 
-      document.login.submit(); 
+      document.login.login.focus(); 
       return (true); 
    } 
+
+//-->
 </script>
+
 </BODY></HTML>
