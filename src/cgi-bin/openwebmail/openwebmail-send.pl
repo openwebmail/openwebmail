@@ -719,10 +719,11 @@ sub composemessage {
          }
          $replyto = (iconv($convfrom, $composecharset, $prefs{'replyto'}))[0] if (defined $prefs{'replyto'});
          $inreplyto = $message{'message-id'};
-         if ( $message{'references'} ne "" ) {
+         if ($message{'references'} =~ /\S/) {
             $references = $message{'references'}." ".$message{'message-id'};
-         } elsif ( $message{'in-reply-to'} ne "" ) {
-            $references = $message{'in-reply-to'}." ".$message{'message-id'};
+         } elsif ($message{'in-reply-to'} =~ /\S/) {
+            my $s=$message{'in-reply-to'}; $s=~s/^.*?(\<\S+\>).*$/$1/;
+            $references = $s." ".$message{'message-id'};
          } else {
             $references = $message{'message-id'};
          }
@@ -786,10 +787,11 @@ sub composemessage {
          $cc = (iconv($prefs{'charset'}, $composecharset, $prefs{'autocc'}))[0] if (defined $prefs{'autocc'});
          $replyto = (iconv($prefs{'charset'}, $composecharset, $prefs{'replyto'}))[0] if (defined $prefs{'replyto'});
          $inreplyto = $message{'message-id'};
-         if ( $message{'references'} ne "" ) {
+         if ($message{'references'} =~ /\S/) {
             $references = $message{'references'}." ".$message{'message-id'};
-         } elsif ( $message{'in-reply-to'} ne "" ) {
-            $references = $message{'in-reply-to'}." ".$message{'message-id'};
+         } elsif ($message{'in-reply-to'} =~ /\S/) {
+            my $s=$message{'in-reply-to'}; $s=~s/^.*?(\<\S+\>).*$/$1/;
+            $references = $s." ".$message{'message-id'};
          } else {
             $references = $message{'message-id'};
          }
@@ -889,10 +891,11 @@ sub composemessage {
       ($subject)=iconv($attr[$_CHARSET], $composecharset, $subject);
 
       $inreplyto = $message{'message-id'};
-      if ( $message{'references'} ne "" ) {
+      if ($message{'references'} =~ /\S/) {
          $references = $message{'references'}." ".$message{'message-id'};
-      } elsif ( $message{'in-reply-to'} ne "" ) {
-         $references = $message{'in-reply-to'}." ".$message{'message-id'};
+      } elsif ($message{'in-reply-to'} =~ /\S/) {
+         my $s=$message{'in-reply-to'}; $s=~s/^.*?(\<\S+\>).*$/$1/;
+         $references = $s." ".$message{'message-id'};
       } else {
          $references = $message{'message-id'};
       }
@@ -1672,8 +1675,8 @@ sub sendmessage {
                            Debug=>1)) ) {
          $senderr++;
          $senderrstr="$lang_err{'couldnt_open'} SMTP server $config{'smtpserver'}:$config{'smtpport'}!";
-         writelog("send message error - couldn't open SMTP server $config{'smtpserver'}:$config{'smtpport'}");
-         writehistory("send message error - couldn't open SMTP server $config{'smtpserver'}:$config{'smtpport'}");
+         my $m="send message error - couldn't open SMTP server $config{'smtpserver'}:$config{'smtpport'}";
+         writelog($m); writehistory($m);
       }
 
       # SMTP SASL authentication (PLAIN only)
@@ -1682,8 +1685,8 @@ sub sendmessage {
          if (! $smtp->auth($config{'smtpauth_username'}, $config{'smtpauth_password'}) ) {
             $senderr++;
             $senderrstr="$lang_err{'network_server_error'}!<br>($config{'smtpserver'} - ".$smtp->message.")";
-            writelog("send message error - SMTP server $config{'smtpserver'} error - ".$smtp->message);
-            writehistory("send message error - SMTP server $config{'smtpserver'} error - ".$smtp->message);
+            my $m="send message error - SMTP server $config{'smtpserver'} error - ".$smtp->message;
+            writelog($m); writehistory($m);
          }
       }
 
@@ -2075,7 +2078,7 @@ sub sendmessage {
          push(@r, "cc=$cc") if ($cc);
          push(@r, "bcc=$bcc") if ($bcc);
          my $m="send message - subject=".(iconv($composecharset, $prefs{'fscharset'}, $subject))[0]." - ".join(', ', @r);
-         writehistory($m); writehistory($m);
+         writelog($m); writehistory($m);
       } else {
          $smtp->close() if ($smtp); # close smtp if it was sucessfully opened
          if ($senderrstr eq "") {

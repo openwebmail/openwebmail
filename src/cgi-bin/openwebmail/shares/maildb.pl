@@ -490,7 +490,7 @@ sub _prepare_msghash {
       $dateserial=$deliserial;
    } elsif ($deliserial ne "") {
       my $t=ow::datetime::dateserial2gmtime($deliserial) - ow::datetime::dateserial2gmtime($dateserial);
-      $dateserial=$deliserial if ($t>86400*7 || $t<-86400); # msg transmission time use deliverytime in case sender host may have wrong time configuration
+      $dateserial=$deliserial if ($t<-86400); # recvtime < sendtime for 1 day? sender host may have wrong time configuration
    }
    $$r_message{date}=$dateserial;
 
@@ -507,8 +507,9 @@ sub _prepare_msghash {
 
    # in most case, a msg references field should already contain
    # ids in in-reply-to: field, but do check it again here
-   if ($$r_message{'in-reply-to'}=~/^\s*(\<\S+\>)\s*$/) {
-      $$r_message{references} .= " " . $1 if ($$r_message{references} !~ m/\Q$1\E/);
+   if ($$r_message{'in-reply-to'}=~/\S/) {	# <someone@somehost> "desc..."
+      my $s=$$r_message{'in-reply-to'}; $s=~s/^.*?(\<\S+\>).*$/$1/;
+      $$r_message{references} .= " $s" if ($$r_message{references} !~ m/\Q$s\E/);
    }
    $$r_message{references} =~ s/\s{2,}/ /g;
 

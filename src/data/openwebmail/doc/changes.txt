@@ -1,3 +1,13 @@
+02/03/2005
+----------
+1. fix a bug that in-reply-to header may be not correctly handled if it
+   is expressed as <messageid> "message description"
+2. fix a problem that recv time was used as message timestamp if
+   recvtime-sendtime>7day, which caused problems when the user tries to
+   move very old messages to mail server through imapd
+   (reported by cyberic99.AT.hotmail.com)
+
+
 02/02/2005
 ----------
 1. fix a bug in fetchmail.pl readdata() which always returns true
