@@ -67,11 +67,11 @@ function onPreview() {
   } else {
     win = window.open("about:blank", "ha_imgpreview", "channelmode=no,directories=no,location=no,menubar=no,resizable=yes,scrollbars=yes,toolbar=no");
   }
-  [UTF-8?]win.document.write("<html><head></head><body>\n");
-  win.document.write("<table [UTF-8?]border=0><tr><td>\n");
-  win.document.write("<img noborder [UTF-8?]src='"+url+"'>\n");
-  [UTF-8?]win.document.write("</td></tr></table>\n");
-  [UTF-8?]win.document.write("</body></html>\n");
+  win.document.write("<html><head></head><body>\n");
+  win.document.write("<table border=0><tr><td>\n");
+  win.document.write("<img noborder src='"+url+"'>\n");
+  win.document.write("</td></tr></table>\n");
+  win.document.write("</body></html>\n");
   win.focus();
   return false;
 };
@@ -223,7 +223,7 @@ function init_attlist () {
    var sel=document.getElementById("f_attlist");
    if (options) {
       for (var i in options) {
-         if ( [UTF-8?]i.match(/\.(jpg|jpeg|gif|png|bmp)$/i) ) {
+         if ( i.match(/\.(jpg|jpeg|gif|png|bmp)$/i) ) {
             var op = document.createElement("option");
             op.appendChild(document.createTextNode(i));
             op.value = options[i];

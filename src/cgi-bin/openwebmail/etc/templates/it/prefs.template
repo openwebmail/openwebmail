@@ -398,7 +398,6 @@ Larghezza @@@ABOOKWIDTHMENU@@@ Altezza @@@ABOOKHEIGHTMENU@@@
 </td></tr>
 @@@WEBADDREND@@@
 
-
 @@@CALENDARSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Opzioni Calendario</B></td></tr>

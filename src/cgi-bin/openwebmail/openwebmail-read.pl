@@ -1181,7 +1181,7 @@ sub image_att2table {
                    qq|<tr><td bgcolor=$style{"attachment_dark"} align="center">|.
                    qq|$lang_text{'attachment'} $attnumber: |.ow::htmltext::str2html($filename).qq| &nbsp;($attlen)&nbsp;&nbsp;|;
    if ($config{'enable_webdisk'} && !$config{'webdisk_readonly'}) {
-      $temphtml .= qq|<a href=#here title="$lang_text{'saveatt_towd'}" onClick="window.open('$config{'ow_cgiurl'}/openwebmail-webdisk.pl?action=sel_saveattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder&amp;attachment_nodeid=$nodeid$extraparm&amp;attname=$escapedfilename|.
+      $temphtml .= qq|<a href=#here title="$lang_text{'saveatt_towd'}" onClick="window.open('$config{'ow_cgiurl'}/openwebmail-webdisk.pl?action=sel_saveattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder&amp;attachment_nodeid=$nodeid$extraparm&amp;attname=$escapedfilename&amp;attnamecharset=$readcharset|.
                    qq|', '_blank','width=500,height=330,scrollbars=yes,resizable=yes,location=no');">$lang_text{'webdisk'}</a>|.
                    qq|&nbsp;\n|;
    }
@@ -1234,7 +1234,7 @@ sub misc_att2table {
                    qq|&nbsp;\n|;
    }
    if ($config{'enable_webdisk'} && !$config{'webdisk_readonly'}) {
-      $temphtml .= qq|<a href=#here title="$lang_text{'saveatt_towd'}" onClick="window.open('$config{'ow_cgiurl'}/openwebmail-webdisk.pl?action=sel_saveattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder&amp;attachment_nodeid=$nodeid$extraparm&amp;attname=$escapedfilename|.
+      $temphtml .= qq|<a href=#here title="$lang_text{'saveatt_towd'}" onClick="window.open('$config{'ow_cgiurl'}/openwebmail-webdisk.pl?action=sel_saveattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder&amp;attachment_nodeid=$nodeid$extraparm&amp;attname=$escapedfilename&amp;attnamecharset=$readcharset|.
                    qq|', '_blank','width=500,height=330,scrollbars=yes,resizable=yes,location=no');">$lang_text{'webdisk'}</a>|.
                    qq|&nbsp;\n|;
    }

@@ -21,7 +21,7 @@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@ @@@DESCWIDTH@@@>
 <B>Bahasa:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@LANGUAGEMENU@@@&nbsp;Karakter Set @@@CHARSETMENU@@@
+@@@LANGUAGEMENU@@@&nbsp;Charset @@@CHARSETMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Zona Waktu (+/- Waktu Lokal):</B>
@@ -120,9 +120,9 @@ Otomatis Balas dengan Subjek:
 
 @@@WEBMAILSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Messages Listing</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Melihat Folder</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Controlbar position in messages list:</B>
+<B>Posisi tombol Navigasi di dalam Folder Lihat:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CTRLPOSITIONFOLDERVIEWMENU@@@
 </td></tr>
@@ -398,7 +398,6 @@ Lebar @@@ABOOKWIDTHMENU@@@ Tinggi @@@ABOOKHEIGHTMENU@@@
 </td></tr>
 @@@WEBADDREND@@@
 
-
 @@@CALENDARSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Pilihan untuk Kalender</B></td></tr>
@@ -489,7 +488,7 @@ Lebar @@@FILEEDITCOLUMNSMENU@@@ Tinggi @@@FILEEDITROWSMENU@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Pilihan Lain-Lain</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Default karakter set untuk sistem file:</B>
+<B>Default charset untuk sistem file:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FSCHARSETMENU@@@
 </td></tr>

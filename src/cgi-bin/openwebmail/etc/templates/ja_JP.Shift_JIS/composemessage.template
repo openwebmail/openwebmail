@@ -120,7 +120,7 @@
       if ((document.composeform.msgformat.value == "html" ||
            document.composeform.msgformat.value == "both") &&
           document.composeform.newmsgformat.value == "text" ) {
-         if [UTF-8?](confirm("ãƒ†ã‚­ã‚¹ãƒˆå½¢å¼ã¸å¤‰æ›´ã™ã‚‹ã¨HTMLãƒ‡ãƒ¼ã‚¿å½¢å¼ãŒãªããªã£ã¦ã—ã¾ã„ã¾ã™ã€‚\næœ¬å½“ã«ãƒ†ã‚­ã‚¹ãƒˆå½¢å¼ã«å¤‰æ›´ã—ã¾ã™ã‹ï¼Ÿ")) {
+         if (confirm("ƒeƒLƒXƒgŒ`®‚Ö•ÏX‚·‚é‚ÆHTMLƒf[ƒ^Œ`®‚ª‚È‚­‚È‚Á‚Ä‚µ‚Ü‚¢‚Ü‚·B\n–{“–‚ÉƒeƒLƒXƒgŒ`®‚É•ÏX‚µ‚Ü‚·‚©H")) {
             bodygethtml();
             document.composeform.submit();
             return true;

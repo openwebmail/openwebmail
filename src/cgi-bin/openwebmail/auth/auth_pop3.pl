@@ -91,20 +91,22 @@ sub check_userpassword {
    return (-3, "pop3 server $server:$port server not ready") if ($@ or /^\-/);	# timeout or server not ready
 
    my @result;
-   my $authlogin=0;
+   # try auth login first
    if (sendcmd($socket, "auth login\r\n", \@result) &&
        sendcmd($socket, &encode_base64($user), \@result) &&
        sendcmd($socket, &encode_base64($password), \@result)) {
-      $authlogin=1;
-   }
-   if (!$authlogin &&
-       !(sendcmd($socket, "user $user\r\n", \@result) &&
-         sendcmd($socket, "pass $password\r\n", \@result)) ) {
       sendcmd($socket, "quit\r\n", \@result); close($socket);
-      return(-4, "pop3 server $server:$port bad login");
+      return (0, '');
+   }
+   # try normal login
+   if (sendcmd($socket, "user $user\r\n", \@result) &&
+       sendcmd($socket, "pass $password\r\n", \@result)) {
+      sendcmd($socket, "quit\r\n", \@result); close($socket);
+      return (0, '');
    }
 
-   return (0, '');
+   sendcmd($socket, "quit\r\n", \@result); close($socket);
+   return(-4, "pop3 server $server:$port bad login");
 }
 
 

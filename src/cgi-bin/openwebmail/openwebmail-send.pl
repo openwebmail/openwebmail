@@ -346,9 +346,10 @@ sub composemessage {
       no strict 'refs';	# for $attchment, which is fname and fhandle of the upload
 
       my $attachment = param('attachment') ||'';
-      my $webdisksel = param('webdisksel') ||'';
+      # the webdisksel value copied from webdisk is in fscharset and protected with escapeURL.
+      # please see filldestname in openwebmail-webdisk.pl and templates/dirfilesel.template
+      my $webdisksel = ow::tool::unescapeURL(param('webdisksel')) ||'';
       my ($attname, $attcontenttype);
-
       if ($webdisksel || $attachment) {
          if ($attachment) {
             if ($attachment=~m!^(https?|ftp)://!) {	# attachment is a url
@@ -392,14 +393,16 @@ sub composemessage {
          } elsif ($webdisksel && $config{'enable_webdisk'}) {
             my $webdiskrootdir=ow::tool::untaint($homedir.absolute_vpath("/", $config{'webdisk_rootpath'}));
             my $vpath=absolute_vpath('/', $webdisksel);
+            my $vpathstr=(iconv($prefs{'fscharset'}, $composecharset, $vpath))[0];
             my $err=verify_vpath($webdiskrootdir, $vpath);
-            openwebmailerror(__FILE__, __LINE__, $err) if ($err);
-            openwebmailerror(__FILE__, __LINE__, "$lang_text{'file'} $vpath $lang_err{'doesnt_exist'}") if (!-f "$webdiskrootdir/$vpath");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'access_denied'} ($vpathstr: $err)") if ($err);
+            openwebmailerror(__FILE__, __LINE__, "$lang_text{'file'} $vpathstr $lang_err{'doesnt_exist'}") if (!-f "$webdiskrootdir/$vpath");
 
             $attachment=do { local *FH };
             open($attachment, "$webdiskrootdir/$vpath") or
-               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $lang_text{'webdisk'} $vpath! ($!)");
+               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $lang_text{'webdisk'} $vpathstr! ($!)");
             $attname=$vpath; $attname=~s|/$||; $attname=~s|^.*/||;
+            $attname=(iconv($prefs{fscharset}, $composecharset, $attname))[0];	# conv to composehcarset
             $attcontenttype=ow::tool::ext2contenttype($vpath);
          }
 
@@ -1166,8 +1169,10 @@ sub composemessage {
          if (${${$r_attfiles}[$i]}{name}=~/\.(?:txt|jpg|jpeg|gif|png|bmp)$/i) {
             $blank="target=_blank";
          }
-         (${${$r_attfiles}[$i]}{name})=
-            iconv(${${$r_attfiles}[$i]}{namecharset}, $composecharset, ${${$r_attfiles}[$i]}{name});
+
+         my $escapedattfile=ow::tool::escapeURL(${${$r_attfiles}[$i]}{file});
+         my $escapedattname=ow::tool::escapeURL(${${$r_attfiles}[$i]}{name});
+         my $attnamestr=(iconv(${${$r_attfiles}[$i]}{namecharset}, $composecharset, ${${$r_attfiles}[$i]}{name}))[0];
 
          my $attsize=${${$r_attfiles}[$i]}{size};
          if ($attsize > 1024) {
@@ -1176,18 +1181,19 @@ sub composemessage {
             $attsize= $attsize."$lang_sizes{'byte'}";
          }
 
-         my $attlink=qq|$config{'ow_cgiurl'}/openwebmail-viewatt.pl/|.
-                     ow::tool::escapeURL(${${$r_attfiles}[$i]}{name}).
-                     qq|?sessionid=$thissession&amp;action=viewattfile&amp;|.
-                     qq|attfile=|.ow::tool::escapeURL(${${$r_attfiles}[$i]}{file});
+         my $attlink=qq|$config{'ow_cgiurl'}/openwebmail-viewatt.pl/$escapedattname?|.
+                     qq|sessionid=$thissession&amp;action=viewattfile&amp;attfile=$escapedattfile|;
          $temphtml .= qq|<tr valign=top>|.
-                      qq|<td><a href="$attlink" $blank><em>${${$r_attfiles}[$i]}{name}</em></a></td>|.
+                      qq|<td><a href="$attlink" $blank><em>$attnamestr</em></a></td>|.
                       qq|<td nowrap align='right'>&nbsp; $attsize &nbsp;</td>|.
                       qq|<td nowrap>|.
                       qq|<a href="javascript:DeleteAttFile('${${$r_attfiles}[$i]}{file}')">[$lang_text{'delete'}]</a>\n|;
          if ($config{'enable_webdisk'} && !$config{'webdisk_readonly'}) {
-            $temphtml .= qq|<a href=#here title="$lang_text{'savefile_towd'}" onClick="window.open('$config{'ow_cgiurl'}/openwebmail-webdisk.pl?action=sel_saveattfile&amp;sessionid=$thissession&amp;attfile=${${$r_attfiles}[$i]}{file}&amp;attname=|.
-                         ow::tool::escapeURL(${${$r_attfiles}[$i]}{name}).qq|', '_blank','width=500,height=330,scrollbars=yes,resizable=yes,location=no'); return false;">[$lang_text{'webdisk'}]</a>|;
+            $temphtml .= qq|<a href=#here title="$lang_text{'savefile_towd'}" |.
+                         qq|onClick="window.open('$config{'ow_cgiurl'}/openwebmail-webdisk.pl?|.
+                         qq|action=sel_saveattfile&amp;sessionid=$thissession&amp;attfile=$escapedattfile&amp;|.
+                         qq|attnamecharset=${${$r_attfiles}[$i]}{namecharset}&amp;attname=$escapedattname|.
+                         qq|', '_blank','width=500,height=330,scrollbars=yes,resizable=yes,location=no'); return false;">[$lang_text{'webdisk'}]</a>|;
          }
          if (${${$r_attfiles}[$i]}{name}=~/\.(?:doc|dot)$/i) {
             $temphtml .= qq|<a href="$attlink&amp;wordpreview=1" title="MS Word $lang_wdbutton{'preview'}" target="_blank">[$lang_wdbutton{'preview'}]</a>|;

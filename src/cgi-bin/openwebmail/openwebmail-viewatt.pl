@@ -377,23 +377,29 @@ sub savefile2webdisk {
       }
    }
 
+   # webdisksel is from webdisk.pl and it's originally in $prefs{charset}
+   # so we have to convert it into fscharset before do vpath calculation
+   $webdisksel=(iconv($prefs{'charset'}, $prefs{'fscharset'}, $webdisksel))[0];
+
    my $webdiskrootdir=ow::tool::untaint($homedir.absolute_vpath("/", $config{'webdisk_rootpath'}));
    my $vpath=absolute_vpath('/', $webdisksel);
+   my $vpathstr=(iconv($prefs{'fscharset'}, $prefs{'charset'}, $vpath))[0];
    my $err=verify_vpath($webdiskrootdir, $vpath);
-   openwebmailerror(__FILE__, __LINE__, $err) if ($err);
+   openwebmailerror(__FILE__, __LINE__, "$lang_err{'access_denied'} ($vpathstr: $err)") if ($err);
 
    if (-d "$webdiskrootdir/$vpath") {			# use choose a dirname, save att with its original name
       $vpath=absolute_vpath($vpath, $filename);
+      $vpathstr=(iconv($prefs{'fscharset'}, $prefs{'charset'}, $vpath))[0];
       $err=verify_vpath($webdiskrootdir, $vpath);
-      openwebmailerror(__FILE__, __LINE__, $err) if ($err);
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'access_denied'} ($vpathstr: $err)") if ($err);
    }
    $vpath=ow::tool::untaint($vpath);
 
    if (!open(F, ">$webdiskrootdir/$vpath") ) {
-      autoclosewindow($lang_text{'savefile'}, "$lang_text{'savefile'} $lang_text{'failed'} ($vpath: $!)");
+      autoclosewindow($lang_text{'savefile'}, "$lang_text{'savefile'} $lang_text{'failed'} ($vpathstr: $!)");
    }
    ow::filelock::lock("$webdiskrootdir/$vpath", LOCK_EX) or
-      autoclosewindow($lang_text{'savefile'}, "$lang_err{'couldnt_lock'} $webdiskrootdir/$vpath!");
+      autoclosewindow($lang_text{'savefile'}, "$lang_err{'couldnt_lock'} $vpathstr!");
    print F ${$r_content};
    close(F);
    chmod(0644, "$webdiskrootdir/$vpath");
@@ -402,7 +408,7 @@ sub savefile2webdisk {
    writelog("save attachment - $vpath");
    writehistory("save attachment - $vpath");
 
-   autoclosewindow($lang_text{'savefile'}, "$lang_text{'savefile'} $lang_text{'succeeded'} ($vpath)");
+   autoclosewindow($lang_text{'savefile'}, "$lang_text{'savefile'} $lang_text{'succeeded'} ($vpathstr)");
 }
 ########## END SAVEFILE2WEBDISK ##################################
 

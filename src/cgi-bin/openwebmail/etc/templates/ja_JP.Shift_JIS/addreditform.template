@@ -250,20 +250,20 @@ function makeLabel(formName, adrNumber) {
 
    // OWM TRANSLATORS: MODIFY THE CODE BELOW THIS COMMENT TO CHANGE HOW ADDRESS LABELS ARE AUTO-GENERATED
    var label = '';
-   label += postofficeaddress != '' ? [UTF-8?]postofficeaddress+'\n' : '';
+   label += postofficeaddress != '' ? postofficeaddress+'\n' : '';
    if (street != '' && extendedaddress != '') {
-      label += street+', [UTF-8?]'+extendedaddress+'\n';
+      label += street+', '+extendedaddress+'\n';
    } else if (street != '') {
-      label += [UTF-8?]street+'\n';
+      label += street+'\n';
    } else if (extendedaddress != '') {
-      label += [UTF-8?]extendedaddress+'\n';
+      label += extendedaddress+'\n';
    }
    if (locality != '' && region != '') {
-      label += locality+', [UTF-8?]'+region+'\n';
+      label += locality+', '+region+'\n';
    } else if (locality != '') {
-      label += [UTF-8?]locality+'\n';
+      label += locality+'\n';
    } else if (region != '') {
-      label += [UTF-8?]region+'\n';
+      label += region+'\n';
    }
    if (postalcode != '' && country != '') {
       label += '         '+postalcode+' '+country;
@@ -291,13 +291,13 @@ function showGeo (formName, geoNumber, showThing) {
          window.open(url,"_showGeo","width=550,height=500,resizable=yes,scrollbars=yes");
       }
    } else {
-      alert('You must fill in the longitude and [UTF-8?]latitude\nbefore any maps or photos can be viewed.');
+      alert('You must fill in the longitude and latitude\nbefore any maps or photos can be viewed.');
    }
 }
 
 function popupNotice (msgOption) {
    if (msgOption == 'agentmustsave') {
-      return(confirm('All data must be saved before viewing or creating an agent [UTF-8?]card.\nSave and continue?'));
+      return(confirm('All data must be saved before viewing or creating an agent card.\nSave and continue?'));
    } else if (msgOption == 'cancelchanges') {
       return(confirm('All changes to this agent will be lost, continue?'));
    }

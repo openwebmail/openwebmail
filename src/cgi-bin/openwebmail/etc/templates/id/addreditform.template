@@ -306,7 +306,7 @@ function popupNotice (msgOption) {
 function savecheck (formName) {
    if (document.forms[formName].elements['N.0.VALUE.GIVENNAME'].value == '' &&
        document.forms[formName].elements['N.0.VALUE.FAMILYNAME'].value == '') {
-      alert("Isilah nama pertama atau nama akhir terlebih dahulu.");
+      alert("Isilah nama depan atau nama belakang terlebih dahulu.");
       return false;
    }
    if (document.forms[formName].elements['EMAIL.0.VALUE'].value == '') {

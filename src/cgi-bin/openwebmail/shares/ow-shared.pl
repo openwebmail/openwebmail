@@ -1565,38 +1565,38 @@ sub verify_vpath {
    my ($rootpath, $vpath)=@_;
    my $filename=$vpath; $filename=~s|.*/||;
    if (!$config{'webdisk_lshidden'} && $filename=~/^\./) {
-      return "$lang_err{'access_denied'} ($vpath is a hidden file)\n";
+      return "hidden file";
    }
 
    my ($retcode, $realpath)=resolv_symlink("$rootpath/$vpath");
-   return "$lang_err{'access_denied'} (too deep symbolic link?)\n" if ($retcode<0);
+   return "too deep symbolic link?" if ($retcode<0);
 
    if (-l "$rootpath/$vpath") {
       if (!$config{'webdisk_lssymlink'}) {
-         return "$lang_err{'access_denied'} ($vpath is a symbolic link)\n";
+         return "symbolic link";
       }
       if (!$config{'webdisk_allow_symlinkout'}) {
          if ( fullpath2vpath($realpath, (resolv_symlink($rootpath))[1]) eq "") {
-            return "$lang_err{'access_denied'} ($vpath is symbolic linked to dir/file outside webdisk)\n";
+            return "symbolic linked to dir/file outside webdisk";
          }
       }
    }
    if ( fullpath2vpath($realpath, (resolv_symlink($config{'ow_sessionsdir'}))[1]) ne "") {
       writelog("webdisk error - attemp to hack sessions dir!");
-      return "$lang_err{'access_denied'} ($vpath is sessions dir)\n";
+      return "system sessions dir";
    }
    if ($config{'logfile'}) {
       if ( fullpath2vpath($realpath, (resolv_symlink($config{'logfile'}))[1]) ne "") {
          writelog("webdisk error - attemp to hack log file!");
-         return "$lang_err{'access_denied'} ($vpath is log file)\n";
+         return "system log file";
       }
    }
 
    if (!$config{'webdisk_lsmailfolder'} && is_under_dotdir_or_folderdir($realpath)) {
-      return "$lang_err{'access_denied'} ($vpath is a mail system file)\n";
+      return "mail data file";
    }
    if (!$config{'webdisk_lsunixspec'} && (-e $realpath && !-d _ && !-f _)) {
-      return "$lang_err{'access_denied'} ($vpath is a unix specific file)\n";
+      return "unix specific file";
    }
    return;
 }

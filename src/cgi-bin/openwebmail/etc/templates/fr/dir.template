@@ -147,10 +147,11 @@
              e.name != 'singlepage' &&
              e.name != 'allbox' && 
              e.checked == 1 ) {
+            var p = document.getElementById('p_'+e.id);
             if (str == '') {
-               str=e.value;
+               str=p.value;
             } else {
-               str=str+', '+e.value;
+               str=str+', '+p.value;
             }
          }
       }

@@ -48,14 +48,18 @@
 
 <script language="JavaScript">
 <!--
-   function filldestname(str) {
-      document.selform.destname.value =str;
+   function filldestname(name, escapedname) {
+      document.selform.destname.value =name;		// to be dispalyed
+      document.selform.destname2.value =escapedname;	// to be copied to composeform in send.pl
       document.selform.okbutton.focus();
    }
    function addattachment_and_close()
    {
       if (document.selform.destname.value != "") {
-         window.opener.document.composeform.webdisksel.value=document.selform.destname.value;
+         // as composeform may be in different charset (composecharset) than webdisk prefs{charset},
+         // so the value copied between webdiskform and composeform is escaped
+         // to avoid blink charset conversion by javascript interpreter in brpowser
+         window.opener.document.composeform.webdisksel.value=document.selform.destname2.value;
          window.opener.document.composeform.submit();
          window.close();
       }

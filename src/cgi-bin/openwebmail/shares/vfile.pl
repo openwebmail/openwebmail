@@ -11,9 +11,10 @@ use Fcntl qw(:DEFAULT :flock);
 #use CGI::Carp qw(fatalsToBrowser carpout);
 #use Text::Iconv;	# let caller do this, as Text::Icon may be unavailable on some platform
 
-require "modules/filelock.pl"; # openwebmail filelocking routines
+require "modules/filelock.pl";	# openwebmail filelocking routines
+require "shares/iconv.pl";	# openwebmail iconv routines
 
-use vars qw($vfiledebug %supported_parsers);
+use vars qw($vfiledebug %supported_parsers %prefs);
 
 $vfiledebug = 0;
 print header() . "<pre>" if $vfiledebug;
@@ -137,8 +138,19 @@ sub readvfilesfromfile {
 
                      my $r_parsedvobject = $supported_parsers{$vtype}[1]->($vcontents,$vversion,$r_onlyreturn);
                      foreach my $objectid (keys %{$r_parsedvobject}) {
-                        if (is_entry_matched(\%{$r_parsedvobject->{$objectid}}, $r_searchtermshash)) {
-                           $allparsedvobjects{$objectid} = ${$r_parsedvobject}{$objectid};
+                        if (defined $r_searchtermshash &&	# avoid changing the stru of $r_searchtermhash carefully, tung
+                            defined ${$r_searchtermshash}{'X-OWM-CHARSET'} &&
+                            defined ${$r_searchtermshash}{'X-OWM-CHARSET'}[0]{VALUE}) {
+                           my $r_clone=entry_clone_iconv(${$r_searchtermshash}{'X-OWM-CHARSET'}[0]{VALUE},		# keyword charset
+                                                         ${$r_parsedvobject}{$objectid}{'X-OWM-CHARSET'}[0]{VALUE},	# abook record charset
+                                                         $r_searchtermshash);
+                           if (is_entry_matched(\%{$r_parsedvobject->{$objectid}}, $r_clone)) {
+                              $allparsedvobjects{$objectid} = ${$r_parsedvobject}{$objectid};
+                           }
+                        } else {
+                           if (is_entry_matched(\%{$r_parsedvobject->{$objectid}}, $r_searchtermshash)) {
+                              $allparsedvobjects{$objectid} = ${$r_parsedvobject}{$objectid};
+                           }
                         }
                      }
                      ($vcontents, $vtype, $vversion) = (); # clear
@@ -272,8 +284,19 @@ sub readvfilesfromstring {
 
                      my $r_parsedvobject = $supported_parsers{$vtype}[1]->($vcontents,$vversion,$r_onlyreturn);
                      foreach my $objectid (keys %{$r_parsedvobject}) {
-                        if (is_entry_matched(\%{$r_parsedvobject->{$objectid}}, $r_searchtermshash)) {
-                           $allparsedvobjects{$objectid} = ${$r_parsedvobject}{$objectid};
+                        if (defined $r_searchtermshash &&	# avoid changing the stru of $r_searchtermhash carefully, tung
+                            defined ${$r_searchtermshash}{'X-OWM-CHARSET'} &&
+                            defined ${$r_searchtermshash}{'X-OWM-CHARSET'}[0]{VALUE}) {
+                           my $r_clone=entry_clone_iconv(${$r_searchtermshash}{'X-OWM-CHARSET'}[0]{VALUE},		# keyword charset
+                                                         ${$r_parsedvobject}{$objectid}{'X-OWM-CHARSET'}[0]{VALUE},	# abook record charset
+                                                         $r_searchtermshash);
+                           if (is_entry_matched(\%{$r_parsedvobject->{$objectid}}, $r_clone)) {
+                              $allparsedvobjects{$objectid} = ${$r_parsedvobject}{$objectid};
+                           }
+                        } else {
+                           if (is_entry_matched(\%{$r_parsedvobject->{$objectid}}, $r_searchtermshash)) {
+                              $allparsedvobjects{$objectid} = ${$r_parsedvobject}{$objectid};
+                           }
                         }
                      }
                      ($vcontents, $vtype, $vversion) = (); # clear
@@ -434,6 +457,9 @@ sub is_entry_matched {
             }
          }
       }
+   } elsif (ref($r_searchterm) eq 'SCALAR' && ref($r_entry) eq 'SCALAR') {
+      return is_entry_matched(${$r_entry},${$r_searchterm},$matched);
+
    } else {
       print "======= CHECKING ACTUAL VALUES =======\n" if $vfiledebug;
       print "r_entry: \"$r_entry\"\n" if $vfiledebug;
@@ -451,6 +477,34 @@ sub is_entry_matched {
    }
 
    return $matched if defined $matched;
+}
+
+
+# clone the iconved $r_entry to $r_clone
+# hash of X-OWM-CHARSET is not copied so the entry could be matched by records of different charset
+sub entry_clone_iconv {
+   my ($fromcharset, $tocharset, $r_entry)=@_;
+
+   if (ref($r_entry) eq 'HASH') {
+      my $r_clone={};
+      foreach my $key (keys %{$r_entry}) {
+         if (defined ${$r_entry}{$key} && $key ne 'X-OWM-CHARSET') {
+             ${$r_clone}{$key}=entry_clone_iconv($fromcharset, $tocharset, ${$r_entry}{$key});
+         }
+      }
+      return $r_clone;
+   } elsif (ref($r_entry) eq 'ARRAY') {
+      my $r_clone=[];
+      foreach my $element (@{$r_entry}) {
+         push(@{$r_clone}, entry_clone_iconv($fromcharset, $tocharset, $element));
+      }
+      return $r_clone;
+   } elsif (ref($r_entry) eq 'SCALAR') {
+      my $clone=entry_clone_iconv($fromcharset, $tocharset, ${$r_entry});
+      return \$clone;
+   } else {
+      return (iconv($fromcharset, $tocharset, $r_entry))[0];
+   }
 }
 
 print "</pre>" if $vfiledebug;

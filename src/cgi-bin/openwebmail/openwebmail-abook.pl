@@ -611,6 +611,7 @@ sub addrlistview {
       } else {
          $searchterms{$vcardmapping{$abooksearchtype}}[0]{VALUE} = $abookkeyword;
       }
+      $searchterms{'X-OWM-CHARSET'}[0]{VALUE} = $prefs{'charset'};
    }
 
    my @viewabookfolders=();
@@ -3413,13 +3414,14 @@ sub addredit {
          } elsif ($webdisksel && $config{'enable_webdisk'}) {
             my $webdiskrootdir=ow::tool::untaint($homedir.absolute_vpath("/", $config{'webdisk_rootpath'}));
             my $vpath=absolute_vpath('/', $webdisksel);
+            my $vpathstr=(iconv($prefs{'fscharset'}, $prefs{'charset'}, $vpath))[0];
             my $err=verify_vpath($webdiskrootdir, $vpath);
-            openwebmailerror(__FILE__, __LINE__, $err) if ($err);
-            openwebmailerror(__FILE__, __LINE__, "$lang_text{'file'} $vpath $lang_err{'doesnt_exist'}") if (!-f "$webdiskrootdir/$vpath");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'access_denied'} ($vpathstr: $err)") if ($err);
+            openwebmailerror(__FILE__, __LINE__, "$lang_text{'file'} $vpathstr $lang_err{'doesnt_exist'}") if (!-f "$webdiskrootdir/$vpath");
 
             $attachment=do { local *FH };
             open($attachment, "$webdiskrootdir/$vpath") or
-               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $lang_text{'webdisk'} $vpath! ($!)");
+               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $lang_text{'webdisk'} $vpathstr! ($!)");
             $attname=$vpath; $attname=~s|/$||; $attname=~s|^.*/||;
             $attcontenttype=ow::tool::ext2contenttype($vpath);
          }
@@ -3603,8 +3605,7 @@ sub addredit {
                       exists $contact->{$xowmuid}{$propertyname}[$index]{TYPES}{VCARD}) {
                      my $fileserial = $contact->{$xowmuid}{$propertyname}[$index]{VALUE};
                      # make fileserial safe in case someone is getting tricky
-                     $fileserial = safefoldername($fileserial);
-                     $fileserial = ow::tool::untaint($fileserial);
+                     $fileserial = ow::tool::untaint(safefoldername($fileserial));
                      my $targetfile = "$config{'ow_sessionsdir'}/$thissession-vcard$fileserial";
                      if (exists $contact->{$xowmuid}{$propertyname}[$index]{TYPES}{VCARD}) {
                         $contact->{$xowmuid}{$propertyname}[$index]{VALUE} = readadrbook("$targetfile",undef,undef); # attach vcard file
@@ -3775,7 +3776,7 @@ sub addrmovecopydelete {
 
    # load the addressbooks and perform the move/copy/delete
    foreach my $abookfolder (keys %allabookfolders) {
-      my $sourcefile = ow::tool::untaint(safefoldername($allabookfolders{$abookfolder}));
+      my $sourcefile = ow::tool::untaint($allabookfolders{$abookfolder});
       my $sourcebook = readadrbook($sourcefile, undef, undef);
       my $changedsource = 0;
       foreach my $xowmuid (keys %{$waschecked{LIST}}) {

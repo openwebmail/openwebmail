@@ -398,7 +398,6 @@ Width @@@ABOOKWIDTHMENU@@@ Linhas @@@ABOOKHEIGHTMENU@@@
 </td></tr>
 @@@WEBADDREND@@@
 
-
 @@@CALENDARSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Opções do Calendário</B></td></tr>

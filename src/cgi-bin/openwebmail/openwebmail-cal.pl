@@ -39,6 +39,7 @@ require "modules/filelock.pl";
 require "modules/tool.pl";
 require "modules/datetime.pl";
 require "modules/lang.pl";
+require "modules/htmltext.pl";
 require "auth/auth.pl";
 require "quota/quota.pl";
 require "shares/ow-shared.pl";
@@ -88,11 +89,12 @@ push(@slottime, "2400");
 
 $miscbuttonsstr='';
 if ($config{'enable_webmail'}) {
+   my $folderstr=ow::htmltext::str2html($lang_folders{$folder}||(iconv($prefs{'fscharset'}, $prefs{'charset'}, $folder))[0]);
    if ($messageid eq "") {
-      $miscbuttonsstr .= iconlink("owm.gif", "$lang_text{'backto'} ".($lang_folders{$folder}||$folder),
+      $miscbuttonsstr .= iconlink("owm.gif", "$lang_text{'backto'} $folderstr",
                                   qq|accesskey="M" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;sessionid=$thissession&amp;folder=$escapedfolder"|);
    } else {
-      $miscbuttonsstr .= iconlink("owm.gif", "$lang_text{'backto'} ".($lang_folders{$folder}||$folder),
+      $miscbuttonsstr .= iconlink("owm.gif", "$lang_text{'backto'} $folderstr",
                                   qq|accesskey="M" href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid"|);
    }
 }

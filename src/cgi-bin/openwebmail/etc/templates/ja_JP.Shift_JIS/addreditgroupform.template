@@ -117,7 +117,7 @@ function check_toggle(target) {
 
 function popupNotice (msgOption) {
    if (msgOption == 'agentmustsave') {
-      return(confirm('All data must be saved before viewing or creating an agent [UTF-8?]card.\nSave and continue?'));
+      return(confirm('All data must be saved before viewing or creating an agent card.\nSave and continue?'));
    } else if (msgOption == 'cancelchanges') {
       return(confirm('All changes to this agent will be lost, continue?'));
    }

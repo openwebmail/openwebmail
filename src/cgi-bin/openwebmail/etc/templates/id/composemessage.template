@@ -8,7 +8,7 @@
 <td>@@@BACKTOFOLDER@@@</td>
 <td align="right">
 <table border="0" cellpadding="0" cellspacing="0"><tr>
-<td>Karakter Set Untuk Membuat Surat: </td>
+<td>Charset untuk membuat surat: </td>
 <td>@@@CONVTOMENU@@@&nbsp;</td>
 </tr></table>
 </td>

@@ -137,6 +137,8 @@ sub check_userpassword {
          } else {
             return (-3, "Unknown password type: $pass_type");
          }
+      } else {
+         return (-3, "PgSQL fetchrow error");
       }
    }
 }

@@ -457,10 +457,10 @@ sub dumpref {
    my $prefix=' 'x$c;
    my $output="$type\n";
    if ($type =~/SCALAR/) {
-      $output.=$prefix.refdump(${$var}, $c)."\n";
+      $output.=$prefix.dumpref(${$var}, $c)."\n";
    } elsif ($type=~/HASH/) {
       foreach my $key (sort keys %{$var}) {
-         $output.=$prefix." "."$key =>".refdump(${$var}{$key}, length("$key =>")+$c+1)."\n";
+         $output.=$prefix." "."$key =>".dumpref(${$var}{$key}, length("$key =>")+$c+1)."\n";
       }
    } elsif ($type=~/ARRAY/) {
       foreach my $member (@{$var}) {

@@ -34,7 +34,7 @@
       if (remainingseconds>0) {
          return true;
       } else {
-         [UTF-8?]alert("セッションが時間切れになりました。\n再度、ログインしてください。");
+         alert("�Z�b�V���������Ԑ؂�ɂȂ�܂����B\n�ēx�A���O�C�����Ă��������B");
          return false;
       }
    }

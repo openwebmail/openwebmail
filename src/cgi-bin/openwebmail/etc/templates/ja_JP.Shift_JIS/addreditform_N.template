@@ -32,7 +32,7 @@
 function makeFullName(formName) {
    var fullName = '';
    // Chinese Japan Korean unicode regex
-   var re = [UTF-8?]/^[\u2e80-\u9fff\uac00-\ud7ff\uf900-\ufaff]/;
+   var re = /^[\u2e80-\u9fff\uac00-\ud7ff\uf900-\ufaff]/;
 
    if (document.forms[formName].elements['@@@GIVENNAME.NAME@@@'].value != '' &&
        document.forms[formName].elements['@@@FAMILYNAME.NAME@@@'].value != '' &&

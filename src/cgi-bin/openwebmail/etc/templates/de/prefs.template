@@ -398,7 +398,6 @@ Breite @@@ABOOKWIDTHMENU@@@ H&ouml;he @@@ABOOKHEIGHTMENU@@@
 </td></tr>
 @@@WEBADDREND@@@
 
-
 @@@CALENDARSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Kalender</B></td></tr>

@@ -1,3 +1,24 @@
+01/20/2005
+----------
+1. greatly improved multiple charset support in openwebmail-webdisk.pl
+2. Indonesian template files minor translation update
+   (thanks to James Briggs, james.AT.ActionMessage.com)
+3. change url of mirror site 19 to location with faster link
+   from http://opensourcerules.com/openwebmail/
+   to   http://opensourcerules.net/openwebmail/
+   (thanks to Sam Gates, sam.AT.opensourcerules.net)
+4. Cool3D.Russian iconset update
+   (thanks to Oleg Dzyza, dzoleg.AT.mail.ru)
+5. minor change to auth_pop3.pl so it assumes user login will fail by default
+6. fix the error [UTF-8?] string in the ja_JP.Shift_JIS language, template
+   and htmlarea files
+ps: This is due to the iconv mapping table in libiconv-1.9 (used by FreeBSD)
+    is not as complete as the one in libc on Linux :(
+7. fix a bug that entries could not be delete from addressbook if option
+   strictfoldername was set to yes
+8. add multiple charset support to addressbook search
+
+
 01/18/2005
 ----------
 1. greatly impreoved multiple charset support on option fscharset.
