@@ -68,7 +68,7 @@ $prefs_caller = param('prefs_caller')||'';
 $escapedfolder=ow::tool::escapeURL($folder);
 $escapedmessageid=ow::tool::escapeURL($messageid);
 
-$urlparmstr=qq|&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;sort=$sort&amp;page=$page&amp;prefs_caller=$prefs_caller|;
+$urlparmstr=qq|sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;sort=$sort&amp;page=$page&amp;prefs_caller=$prefs_caller|;
 $formparmstr=ow::tool::hiddens(sessionid=>$thissession,
                                folder=>$folder,
                                message_id=>$messageid,

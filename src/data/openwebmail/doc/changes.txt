@@ -1,3 +1,12 @@
+01/12/2005
+----------
+1. Indonesian lang file translation update
+   (thanks to James Briggs, james.AT.ActionMessage.com)
+2. fix a bug that the pkg name of etc/lang/ko should be ow::ko instead
+   of ow::kr
+   (reported by Sungjun Park, psj.AT.soosan.co.kr)
+
+
 01/11/2005
 ----------
 1. change korean language abbreviation from kr to ko

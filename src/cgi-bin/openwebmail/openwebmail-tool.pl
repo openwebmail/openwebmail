@@ -1489,7 +1489,7 @@ sub send_mail {
                         Port => $config{'smtpport'},
                         Timeout => 120,
                         Hello => ${$config{'domainnames'}}[0]) or
-      die "Couldn't SMTP server $config{'smtpserver'}:$config{'smtpport'}!";
+      die "Couldn't connect SMTP server $config{'smtpserver'}:$config{'smtpport'}!";
 
    # SMTP SASL authentication (PLAIN only)
    if ($config{'smtpauth'}) {

@@ -11,7 +11,7 @@ package ow::id;
    'saved-drafts'   => 'Folder Simpan Catatan',
    'mail-trash'     => 'Folder Sampah',
    'spam-mail'      => 'Email Spam',
-   'virus-mail'     => 'Email Virus',
+   'virus-mail'     => 'Virus Email',
    LEARNSPAM        => '--BELAJAR SPAM--',
    LEARNHAM         => '--BELAJAR HAM--',
    FORWARD          => '--MENERUSKAN--',
@@ -20,13 +20,13 @@ package ow::id;
 
 %lang_sortlabels =
    (
-   status      => 'Keadaan (Utamakan Pesan Baru)',
-   date        => 'Tanggal (Utamakan Pesan Baru)',
-   date_rev    => 'Tanggal (Utamakan Pesan Lama)',
-   sender      => 'Pengirim (Utamakan Pesan Baru)',
-   sender_rev  => 'Pengirim (Utamakan Pesan Lama)',
-   subject     => 'Judul (Utamakan Pesan Baru)',
-   subject_rev => 'Judul (Utamakan Pesan Lama)',
+   status      => 'Status (Utamakan Pesan yang belum dibaca)',
+   date        => 'Tanggal (Utamakan Tanggal Pesan Baru)',
+   date_rev    => 'Tanggal (Utamakan Tanggal Pesan Lama)',
+   sender      => 'Pengirim (Utamakan Kirim Pesan Baru)',
+   sender_rev  => 'Pengirim (Utamakan Kirim Pesan Lama)',
+   subject     => 'Judul (Utamakan Judul Pesan Baru)',
+   subject_rev => 'Judul (Utamakan Judul Pesan Lama)',
    size        => 'Ukuran (Utamakan ukuran Besar)',
    size_rev    => 'Ukuran (Utamakan ukuran Kecil)'
    );
@@ -53,26 +53,26 @@ package ow::id;
 
 %lang_abookselectionlabels =
    (
-   ALL => "Semua Daftar Alamat",
-   GLOBAL => "Daftar Alamat Global ",
+   ALL => "Semua Buku Alamat",
+   GLOBAL => "Buku Alamat Global ",
    );
 
 %lang_onofflabels =
    (
-   auto => 'otomatis',
-   on   => 'aktif',
-   off  => 'tidak aktif',
+   auto => 'Otomatis',
+   on   => 'Aktif',
+   off  => 'Tidak Aktif',
    );
 
 %lang_bgfilterthresholdlabels =
    (
      0 => 'Tidak',
      1 => 'Ya',
-    20 => 'Only if INBOX has more than 20 new messages',
-    50 => 'Only if INBOX has more than 50 new messages',
-   100 => 'Only if INBOX has more than 100 new messages',
-   200 => 'Only if INBOX has more than 200 new messages',
-   500 => 'Only if INBOX has more than 500 new messages',
+    20 => 'Hanya jika FOLDER EMAIL BARU memiliki lebih dari 20 pesan',
+    50 => 'Hanya jika FOLDER EMAIL BARU memiliki lebih dari 50 pesan',
+   100 => 'Hanya jika FOLDER EMAIL BARU memiliki lebih dari 100 pesan',
+   200 => 'Hanya jika FOLDER EMAIL BARU memiliki lebih dari 200 pesan',
+   500 => 'Hanya jika FOLDER EMAIL BARU memiliki lebih dari 500 pesan',
    );
 
 %lang_prioritylabels =
@@ -84,8 +84,8 @@ package ow::id;
 
 %lang_msgformatlabels =
    (
-   auto => 'otomatis',
-   text	=> 'teks',
+   auto => 'Otomatis dipilih',
+   text	=> 'Teks',
    html => 'HTML',
    both => 'HTML dan Teks'
    );
@@ -93,7 +93,7 @@ package ow::id;
 %lang_withoriglabels =
    (
    at_beginning => 'Ditampilkan di Awal',
-   at_end       => 'Ditampilkan di akhir',
+   at_end       => 'Ditampilkan di Akhir',
    none         => 'Tidak Ditampilkan'
    );
 
@@ -106,15 +106,15 @@ package ow::id;
 
 %lang_disableemblinklabels =
    (
-   none    => 'bukan',
-   cgionly => 'hanya CGI',
-   all     => 'semua URL dalam'
+   none    => 'Bukan',
+   cgionly => 'Hanya CGI',
+   all     => 'Semua URL dalam'
    );
 
 %lang_ctrlpositionlabels =
    (
-   top    => ' di bagian atas',
-   bottom => ' di bagian bawah'
+   top    => 'Di bagian atas',
+   bottom => 'Di bagian bawah'
    );
 
 %lang_sendpositionlabels =
@@ -126,9 +126,9 @@ package ow::id;
 
 %lang_abookbuttonpositionlabels =
    (
-   before => 'Sebelum daftar alamat dimasukkan',
-   after  => 'Setelah daftar alamat dimasukkan',
-   both   => 'Sebelum dan Setelah daftar alamat dimasukkan'
+   before => 'Sebelum buku alamat dimasukkan',
+   after  => 'Setelah buku alamat dimasukkan',
+   both   => 'Sebelum dan Setelah buku alamat dimasukkan'
    );
 
 %lang_checksourcelabels =
@@ -192,7 +192,7 @@ package ow::id;
 
 %lang_abookclasslabels =
    (
-   PRIVATE => 'Privat',
+   PRIVATE => 'Pribadi',
    PUBLIC => 'Umum',
    );
 
@@ -223,7 +223,7 @@ package ow::id;
    Cc         => 'Cc',
    ToCc       => 'Ke dan Cc',
    MESSAGEID  => 'Id Pesan',
-   USERDEFINE => 'Didefinisikan oleh Pengguna',
+   USERDEFINE => 'Definisi Pengguna',
    );
 
 %lang_searchtypelabels =
@@ -315,18 +315,18 @@ package ow::id;
 
 %lang_wdbutton =
    (
-   refresh  => 'Refresh',
+   refresh  => '<i>Refresh</i>',
    preview  => 'Lihat',
    edit     => 'Ubah',
    listarchive=> 'Daftar Archive',
    decompress=>'Dekompresi',
-   extract  => 'DiEkstrak',
+   extract  => 'Diekstrak',
    mkpdf    => 'Simpan ke dalam format PDF',
    mkps     => 'Simpan ke dalam format PS',
    chdir    => 'Lihat Direktori',
    mkdir    => 'Buat Direktori',
    newfile  => 'File Baru ',
-   copy     => 'Kopi',
+   copy     => 'Meniru',
    move     => 'Pindah',
    symlink  => 'Symlink',
    delete   => 'Hapus',
@@ -345,19 +345,19 @@ package ow::id;
    login      => 'Login',
    clear      => 'Bersihkan',
    webmail    => 'WebMail',
-   point      => 'Menunjuk',
+   point      => 'Point',
    pixel      => 'Pixel',
    changepwd  => 'Ubah Sandi',
    viewhistory=> 'Lihat Historis',
    of         => 'Dari',
    messages   => 'Pesan',
-   unread     => 'Belum Baca',
+   unread     => 'Belum dibaca',
    nomessages => 'Tidak ada pesan',
-   inmessages => 'Email yang masuk',
+   inmessages => 'Pesan yang masuk',
    composenew => 'Menulis pesan baru',
    refresh    => 'Refresh',
    userprefs  => 'Pilihan Pengguna',
-   addressbook=> 'Daftar Alamat',
+   addressbook=> 'Buku Alamat',
    folders    => 'Folder',
    emptyfolder=> 'Folder Kosong',
    emptytrash => 'Kotak Sampah Kosong',
@@ -369,9 +369,9 @@ package ow::id;
    logout     => 'Logout',
    page       => 'Halaman',
    msgsperpage => '@@@MSGCOUNT@@@ pesan per halaman',
-   msgcopyconf => '\'Apakah anda yakin untuk Mengkopi Pesan yang di pilih ?\'',
-   copy       => 'Kopi',
-   msgmoveconf => '\'Apakah anda yakin untuk Memindahkan Pesan yang di pilih ?\'',
+   msgcopyconf => '\'Apakah anda yakin untuk meng-copy pesan yang di pilih ?\'',
+   copy       => 'Meniru',
+   msgmoveconf => '\'Apakah anda yakin untuk memindahkan pesan yang di pilih ?\'',
    move       => 'Pindah',
    markasread => 'Sudah dibaca',
    markasunread => 'Belum dibaca',
@@ -381,7 +381,7 @@ package ow::id;
    sender     => 'Pengirim',
    subject    => 'Judul',
    thread     => '<i>Thread</i>',
-   size       => 'Ukuran',
+   size       => 'Besar',
    backto     => 'Kembali Ke',
    reply      => 'Balas Ke Alamat Email',
    replyall   => 'Balas ke semua Alamat Email',
@@ -405,15 +405,15 @@ package ow::id;
    encoding   => 'Kode',
    description=> 'Deskripsi',
    download   => 'Download',
-   charset    => 'Charset',
-   sameascomposecharset => 'Chartset yang sama',
+   charset    => 'Set Karakter',
+   sameascomposecharset => 'Set karakter yang sama',
    thisispartialmsg => 'Ini sebagian dari salah satu pesan.',
    msgrebuild => 'Konfigurasi kembali Pesan',
    editdraft  => 'Ubah Draft',
    savedraft  => 'Simpan Draft',
-   draftsaved => 'Draft @@@SUBJECT@@@ Judul Draftsudah disimpan',
+   draftsaved => 'Draft @@@SUBJECT@@@ Judul Draft sudah sukses disimpan',
    send       => 'Kirim Pesan',
-   msgsent    => 'Email @@@SUBJECT@@@ Judul Email sudah dikirim',
+   msgsent    => 'Email @@@SUBJECT@@@ Judul Email sudah sukses dikirim',
    about      => 'Informasi',
    close      => 'Tutup',
    cancel     => 'Batal',
@@ -424,23 +424,23 @@ package ow::id;
    yourname   => 'Nama Anda',
    save       => 'Simpan',
    add        => 'Tambah',
-   folderrenprop => '\'Isi nama Folder baru.\'',
+   folderrenprop => '\'Silakan isi nama baru untuk folder ini.\'',
    rename     => 'Mengganti Nama',
-   folderdelconf => '\'Apakah anda yakin untuk menghapus kotak folder ini?\'',
+   folderdelconf => '\'Apakah anda yakin untuk menghapus folder ini dengan seluruh isinya?\'',
    markread   => 'Tanda Sudah Dibaca',
    foldermarkreadconf => '\'Apakah anda yakin akan memberi tanda bahwa seluruh pesan sudah dibaca di dalam folder ini?\'',
    chkindex   => 'Periksa Index',
    folderchkindexconf => '\'Apakah anda yakin untuk memeriksa index folder ini?\'',
    reindex    => 'Buat Kembali index',
    folderreindexconf => '\'Apakah anda yakin untuk membuat kembali index?\'',
-   total      => 'Total',
+   total      => 'Jumlah',
    edit       => 'Ubah',
    delete     => 'Hapus',
    reserve    => 'Disediakan',
    clearadd   => 'Bersihkan semua alamat email',
-   importadd  => 'Import alamat email',
+   importadd  => 'Impor alamat email',
    exportadd  => 'Ekspor alamat email',
-   import     => 'Import',
+   import     => 'Impor',
    export     => 'Ekspor',
    addmod     => 'Tambah/Perbaiki',
    modify     => 'Perbaiki',
@@ -451,7 +451,7 @@ package ow::id;
    quotahit   => 'Kapasitas kuota sudah penuh',
    tzmap      => 'Map Dunia Waktu Daerah',
    testsound  => 'Tes suara',
-   editfroms  => 'Mengganti Alamat Email',
+   editfroms  => 'Mengganti Alamat Email Pribadi',
    pop3book   => 'Konfigurasi pesan dari POP3',
    retr_pop3s => 'Coba kembali pesan dari POP3',
    filterbook => 'Konfigurasi filter daftar alamat',
@@ -474,7 +474,7 @@ package ow::id;
    delivered  => 'Dikirim',
    wasreadon1 => 'Sudah Dibaca',
    wasreadon2 => 'Sudah Dibaca',
-   globalfilterrule => 'Aturan Filter bersama',
+   globalfilterrule => 'Aturan Filter Global',
    readonly   => 'Hanya baca',
    textcontent=> 'Isi teks ',
    search     => 'Cari',
@@ -509,7 +509,7 @@ package ow::id;
    multidelconf  => 'Item ini sudah ditambahkan untuk beberapa tanggal.\\nPenghapusan akan menghapus item untuk seluruh tanggal.\\nMelanjutkan untuk dihapus?',
    caldelconf => 'Apakah anda yakin ingin menghapus item ini?',
    noitemforthisday => 'Tidak ada item untuk hari ini',
-   thisday_only          => 'Hari ini \'s hanya tanggal',
+   thisday_only          => 'Hanya hari ini',
    the_wday_of_thismonth => '@@@ORDER@@@ @@@WDAY@@@ dari bulan',
    every_wday_thismonth  => 'Setiap bulan @@@WDAY@@@',
    thismonth_only           => 'Hanya bulan ini',
@@ -526,7 +526,7 @@ package ow::id;
    dest_of_chdir  => 'Tujuan Direktori',
    name_of_newdir => 'Nama direktori untuk dibuat',
    name_of_newfile=> 'Nama file untuk dibuat',
-   dest_of_thecopy=> 'Tujuan direktori atau file untuk dikopi',
+   dest_of_thecopy=> 'Tujuan direktori atau file untuk dicopy',
    dest_of_themove=> 'Tujuan direktori atau file sudah dipindahkan',
    dest_of_thezip=> 'Nama file tujuan dari format zip yang baru',
    dest_of_thetgz=> 'Nama file tujuan dari format tgz yang baru',
@@ -554,20 +554,20 @@ package ow::id;
    vdomain_admin      => 'Admin',
    vdomain_localuser  => 'Pengguna Lokal',
    set_passwd         => 'Buat Sandi',
-   reset_passwd       => 'Mengulang Sandi',
+   reset_passwd       => 'Ulangi Sandi',
    email_alias        => 'Alias untuk E-MAIL',
    name       => 'Nama',
    email      => 'Email',
    note       => 'Catatan',
-   abooks => 'Daftar Alamat',
-   abook_title => 'Judul Daftar Alamat',
-   abook_converted => 'Converted', #Diubah
+   abooks => 'Buku Alamat',
+   abook_title => 'Judul Buku Alamat',
+   abook_converted => 'Converted',
    abook_group_member => 'Pelanggan',
    abook_group_allmembers => 'Semua Pelanggan',
-   abook_import => 'Import Infomasi Daftar Alamat',
-   abook_importdest => 'Import ke Daftar Alamat yang baru ...',
-   abook_export => 'Export informasi Daftar Alamat',
-   abook_exportnow => 'Export Sekarang',
+   abook_import => 'Impor Infomasi Buku Alamat',
+   abook_importdest => 'Impor ke Buku Alamat yang baru ...',
+   abook_export => 'Ekspor Informasi Buku Alamat',
+   abook_exportnow => 'Ekspor Sekarang',
    abook_newcontact => 'Kontak Person Baru',
    abook_newgroup => 'Grup Baru',
    abook_noconversion => 'Tidak ada Konversi',
@@ -575,7 +575,7 @@ package ow::id;
    abook_listview_writemailto => 'Tulis Email ke',
    abook_listview_edit => 'Ubah',
    abook_listview_move => 'Pindahkan',
-   abook_listview_copy => 'Kopi',
+   abook_listview_copy => 'Meniru',
    abook_listview_compose => 'Menulis pesan dari email yang dipilih',
    abook_listview_composemode => 'Pilih alamat email untuk menulis pesan',
    abook_listview_fullname => 'Nama Lengkap',
@@ -603,14 +603,14 @@ package ow::id;
    abook_listview_telmodem => 'Modem',
    abook_listview_categories => 'Kategori',
    abook_listview_quickadd => 'Tambah Cepat',
-   abook_listview_expandall => 'Semua Diperlihatkan',
-   abook_listview_collapseall => 'Semua Diminimalisasikan',
+   abook_listview_expandall => 'expand all',
+   abook_listview_collapseall => 'collapse all',
    abook_listview_noaddresses => '-- Tidak ada kontak person di daftar alamat ini --',
    abook_listview_nomatch => '-- Pencarian anda tidak ditemukan --',
    abook_listview_done => 'Selesai',
-   abook_listview_viewselected => 'Lihat daftar alamat yang dipilih',
+   abook_listview_viewselected => 'Lihat buku alamat yang dipilih',
    abook_listview_unselectall => 'Semua daftar alamat yang dipilih sama sekali tidak terpilih',
-   abook_showchecked_export => 'Dicek dan siap untuk diexport',
+   abook_showchecked_export => 'Dicek dan siap untuk diekspor',
    abook_editform_destination => 'Tujuan',
    abook_editform_new_agent => 'Agen baru ini',
    abook_editform_grouplabel => 'Grup',
@@ -621,13 +621,13 @@ package ow::id;
    abook_editform_namelabel_GROUPNAME => 'Nama Grup @@@SOUND@@@',
    abook_editform_namelabel_NICKNAME => 'Nama Panggilan</b>@@@ADDMORELINK@@@<b>',
    abook_editform_valuelabel_NICKNAME => '&nbsp;',
-   'abook_editform_namelabel_SORT-STRING' => 'Nama keluarga - Sort Override',
+   'abook_editform_namelabel_SORT-STRING' => 'Last Name Sort Override',
    'abook_editform_valuelabel_SORT-STRING' => 'Nama Belakang:<i>von Trapp</i>&nbsp;&nbsp;&nbsp;sort override:<i>Trapp</i>',
    abook_editform_valuelabel_TITLE => 'v.p., research and development',
-   abook_editform_valuelabel_ROLE => 'manajer, eksekutif, dan lain-lain',
+   abook_editform_valuelabel_ROLE => 'manajer, eksekutif, etc',
    abook_editform_valuelabel_ORGANIZATIONNAME => 'Pt. Raya',
-   abook_editform_valuelabel_ORGANIZATIONALUNITS => 'akuntasi, divisi eropa',
-   abook_editform_namelabel_URL => 'Situs web </b> @@@ADDMORELINK@@@<b>',
+   abook_editform_valuelabel_ORGANIZATIONALUNITS => 'akunting, divisi eropa',
+   abook_editform_namelabel_URL => 'Website <b>@@@ADDMORELINK@@@</b>',
    abook_editform_valuelabel_URL => 'http://www.mysite.com',
    abook_editform_namelabel_TZ => 'Zona Waktu',
    abook_editform_namelabel_MAILER => 'Program Email ',
@@ -637,13 +637,13 @@ package ow::id;
    abook_editform_undef_KEY => 'Tidak ada kunci untuk kontak person ini.',
    abook_editform_view_KEY => 'Lihat kunci pribadi ini',
    abook_editform_unknown_KEY => 'tipe kunci tidak dikenal',
-   abook_editform_x509_KEY => 'Sertifikat kunci umum X.509',
+   abook_editform_x509_KEY => 'Sertifikat Kunci Umum X.509',
    abook_editform_pgp_KEY => 'IETF Pretty Good Privacy PGP Key',
    abook_editform_gpg_KEY => 'GNU Privacy Guard GPG Key',
    abook_editform_namelabel_AGENT => 'Agen',
-   abook_editform_undef_AGENT => 'Tidak ada seorang pun yang bertindak atas nama kontak person ini.',
-   abook_editform_download_AGENT => 'download informasi vcard agen ini',
-   abook_editform_unknown_AGENT => 'tipe agen tidak dikenal',
+   abook_editform_undef_AGENT => 'Tidak ada seorangpun yang bertindak atas nama kontak person ini.',
+   abook_editform_download_AGENT => 'download informasi agen vcard ini',
+   abook_editform_unknown_AGENT => 'tipe agen tidak diketahui',
    abook_editform_vcf_AGENT => 'Versit Card File',
    abook_editform_GEO_find => 'Temukan posisi geografis anda',
    abook_editform_GEO_findurl => 'http://www.multimap.com/map/home.cgi?client=public&lang=&advanced=&db=US',
@@ -654,7 +654,7 @@ package ow::id;
    abook_editform_valuelabel_PRODID => 'Outlook, Openwebmail, dan lain-lain',
    abook_editform_namelabel_UID => 'ID Eksternal yang unik',
    abook_editform_valuelabel_UID => 'digunakan oleh program eksternal untuk mengidentifikasikan kartu ini',
-   abook_editform_namelabel_SOURCE => 'Sumber URL vCard',
+   abook_editform_namelabel_SOURCE => 'vCard Source URL',
    abook_editform_valuelabel_SOURCE => 'http://www.mysite.com/mycard.vcf',
    abook_editform_namelabel_NAME => 'Nama Sumber vCard',
    abook_editform_valuelabel_NAME => 'Deskripsi untuk sumber url',
@@ -667,8 +667,8 @@ package ow::id;
    abook_editform_new_agent_link => 'Buat',
    sa_prefs         => 'Pilihan Pengguna SpamAssassin',
    sa_edittest      => 'Ubah Aturan Tes',
-   sa_editblacklist => 'Ubah Blacklist',
-   sa_editwhitelist => 'Ubah Whitelist',
+   sa_editblacklist => 'Ubah Black List', #Ubah Buku alamat yang tidak diperbolehkan
+   sa_editwhitelist => 'Ubah White List', #Ubah Buku alamat
    );
 
 %lang_err =
@@ -677,7 +677,7 @@ package ow::id;
    couldnt_open      => 'Tidak dapat dibuka',
    couldnt_locksh    => 'Tidak dapat dikunci waktu membaca',
    couldnt_lock      => 'Tidak dapat dikunci waktu menulis',
-   couldnt_seek      => 'Tidak dapat Mencari',
+   couldnt_seek      => 'Tidak dapat mencari',
    couldnt_close     => 'Tidak dapat menutup',
    couldnt_updatedb  => 'Tidak dapat meng-update index db ',
    disallowed_pop3   => 'Tidak dapat berhubungan dengan server POP3',
@@ -687,7 +687,7 @@ package ow::id;
    shouldnt_move_here=> 'Pesan tidak dapat dipindahkan di sini!',
    destination_folder=> 'Folder Tujuan',
    doesnt_exist      => 'Tidak ada!',
-   foldername_long   => 'Nama folder tidak dapat melebihi @@@FOLDERNAME_MAXLEN@@@ huruf!',
+   foldername_long   => 'Nama folder tidak dapat melebihi 16 huruf!',
    folder_with_name  => 'Nama folder ini',
    already_exists    => 'Sudah ada',
    cant_create_folder=> 'Tidak dapat membuat folder!',
@@ -696,15 +696,15 @@ package ow::id;
    tryagain          => 'Cobalah lagi.',
    mailfilter_error  => 'Kesalahan dalam Filter Email ',
    cant_create_dir   => 'Tidak dapat membuat Direktori Pengguna',
-   att_overlimit     => 'Attachment melebihi kapasitas',
-   inv_msg_op        => 'Pengaturan tak dikenal',
-   sess_cookieerr    => 'Sesi ID anda tidak benar,periksa apakah ada yang masuk kembali.',
+   att_overlimit     => 'Attachment melebihi kapasitas, yaitu',
+   inv_msg_op        => 'Pengaturan pesan tak dikenal',
+   sess_cookieerr    => 'Permintaan anda tidak mengandung Sesi ID yang tepat, akses ditolak.',
    sess_iperr        => 'Permintaan anda tidak datang dari IP yang sama dalam sesi ini -- akses ditolak!',
-   no_endpart        => 'Tidak ada bagian akhir',
+   no_endpart        => 'Bagian akhir tidak ditemukan',
    part_missing      => 'Ada bagian yang hilang',
-   rebuild_fmterr    => 'Ada Format yang tidak benar pada Kelompok yang keluar',
-   rebuild_sizeerr   => 'Ada Ukuran yang tidak benar pada Kelompok yang keluar',
-   user_not_exist    => 'Pengunna ini tidak ada',
+   rebuild_fmterr    => 'Ada format pesan baru yang tidak benar',
+   rebuild_sizeerr   => 'Ada ukuran pesan baru yang tidak sama',
+   user_not_exist    => 'Penguna ini tidak ada',
    func_notsupported => 'Sistem tidak menunjang fungsi ini',
    auth_syserr       => 'Sistem pemeriksaan ada yang tidak benar',
    param_fmterr      => 'Ada Format parameter yang salah',
@@ -736,25 +736,25 @@ package ow::id;
    vdomain_userrequired => 'Nama pengguna diperlukan',
    vdomain_fwdrequired => 'Meneruskan email yang valid sangat diperlukan',
    all_module_disabled => 'Semua modul dinon-aktifkan',
-   abook_all_readonly => 'Semua daftar alamat hanya dapat dibaca, silakan membuat daftar alamat yang baru',
-   abook_import_nofile => 'File harus dipilih untuk diimport',
-   abook_import_noformat => 'Format import HARUS dipilih',
-   abook_import_nodest => 'Tujuan import HARUS dipilih',
-   abook_import_unsupfmt => 'Format daftar alamat "@@@FORMAT@@@" tidak mendukung pada saat ini. Silakan memilih format lain untuk diimport',
-   abook_export_unsupfmt => 'Format daftar alamat "@@@FORMAT@@@" tidak mendukung pada saat ini. Silakan memilih format lain untuk diexport',
-   abook_export_undef => 'Paling tidak ada satu alamat email yang HARUS dicek untuk diexport. Tidak ada alamat yang sudah dicek',
-   abook_delete_xowmuid => 'Gagal untuk dihapus. Tidak ada id unik yang didefinisikan',
-   abook_delete_book => 'Tidak dapat menghapus daftar alamat @@@ADDRESSBOOK@@@',
+   abook_all_readonly => 'Semua buku alamat hanya dapat dibaca, silakan membuat buku alamat yang baru',
+   abook_import_nofile => 'File harus dipilih untuk diimpor',
+   abook_import_noformat => 'Format impor HARUS dipilih',
+   abook_import_nodest => 'Tujuan impor HARUS dipilih',
+   abook_import_unsupfmt => 'Format buku alamat "@@@FORMAT@@@" tidak mendukung pada saat ini. Silakan memilih format lain untu impor',
+   abook_export_unsupfmt => 'Format buku alamat "@@@FORMAT@@@" tidak mendukung pada saat ini. Silakan memilih format lain untu ekspor',
+   abook_export_undef => 'Paling tidak ada satu alamat email yang HARUS dicek untuk diekspor. Tidak ada alamat yang sudah dicek',
+   abook_delete_xowmuid =>  'Gagal untuk dihapus. Tidak ada id unik yang didefinisikan',
+   abook_delete_book => 'Tidak dapat menghapus buku alamat @@@ADDRESSBOOK@@@',
    abook_doesnt_exist => 'Daftar Alamat @@@ADDRESSBOOK@@@ tidak ada',
-   abook_already_exists => 'Daftar Alamat @@@ADDRESSBOOK@@@ sudah ada. Silakan pilih nama yang lain',
-   abook_name_too_long => 'Nama Daftar Alamat @@@ADDRESSBOOK@@@ terlalu panjang. Batas maksimum adalah @@@FOLDERNAME_MAXLEN@@@',
-   abook_cant_rename => 'Gagal untuk mengganti daftar alamat',
+   abook_already_exists => 'Daftar Alamat @@@ADDRESSBOOK@@@ sudah ada.
+Silakan pilih nama yang lain',
+   abook_name_too_long => 'Nama Buku Alamat @@@ADDRESSBOOK@@@ terlalu panjang. Batas maksimum adalah @@@FOLDERNAME_MAX@@@',
+   abook_cant_rename => 'Gagal untuk mengganti buku alamat',
    abook_ext_notsupported => 'Tipe file yang diupload tidak didukung oleh',
-   abook_toobig => 'Maaf, Ini akan melebihi batas jumlah bagi semua daftar alamat anda. Silakan Pergi',
-   abook_delete_first => 'Sudah ada. Silakan menghapus sebelum mencoba untuk menambakan daftar alamat yang lain.',
-   abook_global_denied => 'Anda tidak memiliki izin untuk mengubah daftar alamat global',
+   abook_toobig => 'Maaf, Ini akan melebihi batas jumlah bagi semua buku alamat anda. Silakan Pergi',
+   abook_delete_first => 'Sudah ada. Silakan menghapus sebelum mencoba untuk menambakan buku alamat yang lain.',
+   abook_global_denied => 'Anda tidak memiliki izin untuk mengubah buku alamat global',
    abook_editform_no_N => 'kontak person tidak dapat disimpan sampai nama didefinisikan. Silakan kembali dan masukkan nama untuk kontak person ini.',
    abook_agent_one_contact => 'Agen yang diupload hanya boleh mengandung satu kontak person.',
    );
-
 1;
