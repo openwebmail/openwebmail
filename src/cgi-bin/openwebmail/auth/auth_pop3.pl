@@ -11,10 +11,9 @@ use strict;
 use IO::Socket;
 use MIME::Base64;
 require "modules/tool.pl";
-require "modules/pop3.pl";
 
 my %conf;
-if (($_=ow::tool::find_configfile('etc/auth_pop3.conf', 'etc/auth_pop3.conf.default')) ne '') {
+if (($_=ow::tool::find_configfile('etc/auth_pop3.conf', 'etc/defaults/auth_pop3.conf')) ne '') {
    my ($ret, $err)=ow::tool::load_configfile($_, \%conf);
    die $err if ($ret<0);
 }
@@ -67,23 +66,44 @@ sub check_userpassword {
    my ($r_config, $user, $password)=@_;
    return (-2, "User or password is null") if ($user eq '' || $password eq '');
 
-   my ($ret, $errmsg)=ow::pop3::fetchmail(${$r_config}{'authpop3_server'},
-                                          ${$r_config}{'authpop3_port'},
-                                          ${$r_config}{'authpop3_usessl'},
-                                          $user, $password, 0,
-                                          '', '',
-                                          1, 'auto', 1);
-   if ($ret==-11) {
-      return (-3, "pop3 server ${$r_config}{'authpop3_server'}:${$r_config}{'authpop3_port'} timeout");
-   } elsif ($ret==-12) {
-      return (-3, "pop3 server ${$r_config}{'authpop3_server'}:${$r_config}{'authpop3_port'} connection refused");
-   } elsif ($ret==-13) {
-      return(-3, "pop3 server ${$r_config}{'authpop3_server'}:${$r_config}{'authpop3_port'} not ready");
-   } elsif ($ret==-14) {
-      return(-2, "pop3 server ${$r_config}{'authpop3_server'}:${$r_config}{'authpop3_port'} username error");
-   } elsif ($ret==-15) {
-      return(-4, "pop3 server ${$r_config}{'authpop3_server'}:${$r_config}{'authpop3_port'} password error");
+   my ($server, $port, $usessl)=(ow::tool::untaint(${$r_config}{'authpop3_server'}),
+                                 ow::tool::untaint(${$r_config}{'authpop3_port'}),
+                                 ${$r_config}{'authpop3_usessl'});
+
+   my $socket;
+   eval {
+      alarm 30; local $SIG{ALRM}= sub {die "alarm\n"};
+      if ($usessl && ow::tool::has_module('IO/Socket/SSL.pm')) {
+         $socket=new IO::Socket::SSL (PeerAddr=>$server, PeerPort=>$port, Proto=>'tcp',);
+      } else {
+         $port=110 if ($usessl && $port==995);
+         $socket=new IO::Socket::INET (PeerAddr=>$server, PeerPort=>$port, Proto=>'tcp',);
+      }
+      alarm 0;
+   };
+   return (-3, "pop3 server $server:$port connect error") if ($@ or !$socket); # timeout or refused
+   eval {
+      alarm 10; local $SIG{ALRM}= sub {die "alarm\n"};
+      $socket->autoflush(1);
+      $_=<$socket>;
+      alarm 0;
+   };
+   return (-3, "pop3 server $server:$port server not ready") if ($@ or /^\-/);	# timeout or server not ready
+
+   my @result;
+   my $authlogin=0;
+   if (sendcmd($socket, "auth login\r\n", \@result) &&
+       sendcmd($socket, &encode_base64($user), \@result) &&
+       sendcmd($socket, &encode_base64($password), \@result)) {
+      $authlogin=1;
+   }      
+   if (!$authlogin &&
+       !(sendcmd($socket, "user $user\r\n", \@result) &&
+         sendcmd($socket, "pass $password\r\n", \@result)) ) {
+      sendcmd($socket, "quit\r\n", \@result); close($socket);
+      return(-4, "pop3 server $server:$port bad login");
    }
+
    return (0, '');
 }
 
@@ -97,6 +117,21 @@ sub change_userpassword {
    my ($r_config, $user, $oldpassword, $newpassword)=@_;
    return (-2, "User or password is null") if ($user eq '' || $oldpassword eq '' || $newpassword eq '');
    return (-1, "change_password() is not available in authpop3.pl");
+}
+
+
+########## misc support routine ##################################
+
+sub sendcmd {
+   my ($socket, $cmd, $r_result)=@_;
+   my $ret;
+
+   print $socket $cmd; $ret=<$socket>;
+   @{$r_result}=split(/\s+/, $ret); 
+   shift @{$r_result} if (${$r_result}[0]=~/^[\+\-]/); # rm str +OK or -ERR from @result
+
+   return 1 if ($ret!~/^\-/);
+   return 0;
 }
 
 1;

@@ -13,7 +13,7 @@ require "modules/filelock.pl";
 require "modules/tool.pl";
 
 my %conf;
-if (($_=ow::tool::find_configfile('etc/auth_vdomain.conf', 'etc/auth_vdomain.conf.default')) ne '') {
+if (($_=ow::tool::find_configfile('etc/auth_vdomain.conf', 'etc/defaults/auth_vdomain.conf')) ne '') {
    my ($ret, $err)=ow::tool::load_configfile($_, \%conf);
    die $err if ($ret<0);
 }

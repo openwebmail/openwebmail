@@ -15,7 +15,7 @@ require "modules/filelock.pl";
 require "modules/tool.pl";
 
 my %conf;
-if (($_=ow::tool::find_configfile('etc/auth_unix.conf', 'etc/auth_unix.conf.default')) ne '') {
+if (($_=ow::tool::find_configfile('etc/auth_unix.conf', 'etc/defaults/auth_unix.conf')) ne '') {
    my ($ret, $err)=ow::tool::load_configfile($_, \%conf);
    die $err if ($ret<0);
 }
@@ -242,7 +242,7 @@ authsys_error:
 
 ########## misc support routine ##################################
 
-# this routie is slower than system getpwnam() but can work with file
+# this routine is slower than system getpwnam() but can work with file
 # other than /etc/passwd. ps: it always return '*' for passwd field.
 sub getpwnam_file {
    my ($user, $passwdfile_plaintext)=@_;

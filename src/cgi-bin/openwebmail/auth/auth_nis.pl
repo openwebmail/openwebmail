@@ -14,7 +14,7 @@ use IO::Socket;
 require "modules/tool.pl";
 
 my %conf;
-if (($_=ow::tool::find_configfile('etc/auth_nis.conf', 'etc/auth_nis.conf.default')) ne '') {
+if (($_=ow::tool::find_configfile('etc/auth_nis.conf', 'etc/defaults/auth_nis.conf')) ne '') {
    my ($ret, $err)=ow::tool::load_configfile($_, \%conf);
    die $err if ($ret<0);
 }

@@ -13,7 +13,7 @@ use MD5;
 require "modules/tool.pl";
 
 my %conf;
-if (($_=ow::tool::find_configfile('etc/auth_pg.conf', 'etc/auth_pg.conf.default')) ne "") {
+if (($_=ow::tool::find_configfile('etc/auth_pg.conf', 'etc/defaults/auth_pg.conf')) ne "") {
    my ($ret, $err)=ow::tool::load_configfile($_, \%conf);
    die $err if ($ret<0);
 } else {

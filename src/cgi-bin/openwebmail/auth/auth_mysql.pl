@@ -15,7 +15,7 @@ use Digest::MD5;
 require "modules/tool.pl";
 
 my %conf;
-if (($_=ow::tool::find_configfile('etc/auth_mysql.conf', 'etc/auth_mysql.conf.default')) ne '') {
+if (($_=ow::tool::find_configfile('etc/auth_mysql.conf', 'etc/defaults/auth_mysql.conf')) ne '') {
    my ($ret, $err)=ow::tool::load_configfile($_, \%conf);
    die $err if ($ret<0);
 } else {

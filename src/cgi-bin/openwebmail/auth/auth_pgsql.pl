@@ -13,7 +13,7 @@ use DBI;
 require "modules/tool.pl";
 
 my %conf;
-if (($_=ow::tool::find_configfile('etc/auth_pgsql.conf', 'etc/auth_pgsql.conf.default')) ne '') {
+if (($_=ow::tool::find_configfile('etc/auth_pgsql.conf', 'etc/defaults/auth_pgsql.conf')) ne '') {
    my ($ret, $err)=ow::tool::load_configfile($_, \%conf);
    die $err if ($ret<0);
 } else {

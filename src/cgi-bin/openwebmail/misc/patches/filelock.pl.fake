@@ -1,5 +1,5 @@
 #
-# filelock.pl.fake - null lock version of filelock.pl
+# filelock.fake.pl - null lock version of filelock.pl
 # 
 # This is primarily used as a temporary replacement of filelock.pl
 # to determine if dead filelock problem is caused by code in openwebmail 

@@ -21,12 +21,12 @@ require "modules/filelock.pl";
 require "modules/tool.pl";
 
 my %conf;
-if (($_=ow::tool::find_configfile('etc/auth_pam.conf', 'etc/auth_pam.conf.default')) ne '') {
+if (($_=ow::tool::find_configfile('etc/auth_pam.conf', 'etc/defaults/auth_pam.conf')) ne '') {
    my ($ret, $err)=ow::tool::load_configfile($_, \%conf);
    die $err if ($ret<0);
 }
 
-my $servicename = $conf{'servicename'} || "openwebmail";
+my $servicename = $conf{'servicename'} || "login";
 my $passwdfile_plaintext = $conf{'passwdfile_plaintext'} || "/etc/passwd";
 
 my $check_nologin = $conf{'check_nologin'} || 'no';
@@ -226,7 +226,7 @@ sub change_userpassword {
 
 ########## misc support routine ##################################
 
-# this routie is slower than system getpwnam() but can work with file
+# this routine is slower than system getpwnam() but can work with file
 # other than /etc/passwd. ps: it always return '*' for passwd field.
 sub getpwnam_file {
    my ($user, $passwdfile_plaintext)=@_;

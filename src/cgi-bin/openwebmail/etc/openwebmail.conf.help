@@ -222,13 +222,13 @@ the url for ow_htmldir
 ow_etcdir
 -----------------------------------------------------------------------
 The directory for
-1. system config (openwebmail.conf.default and openwebmail.conf),
+1. system config (defaults/openwebmail.conf and openwebmail.conf),
 2. runtime created system-wide db (need about 10mb),
 3. and the default parent directory for the following runtime resources.
 (styles, lang, templates, sites.conf, users.conf, users, sessions)
 
 ps: No matter what value is set in this option,
-    openwebmail will always locate the openwebmail.conf.default and
+    openwebmail will always locate the defaults/openwebmail.conf and
     openwbemail.conf in %ow_cgidir%/etc
 
 
@@ -249,7 +249,12 @@ the directory for html templates of different languages
 
 ow_hodidaysdir
 -----------------------------------------------------------------------
-the directory for calendar book of holidays  of different languages
+the directory for calendar book of holidays of different languages
+
+
+ow_mapsdir
+-----------------------------------------------------------------------
+the directory for maps (eg:big5<->gb, solar<->lunar) and the db of maps
 
 
 ow_sitesconfdir
@@ -475,8 +480,13 @@ the error message.
 allowed_serverdomain
 -----------------------------------------------------------------------
 This limits the virtualdomain that openwebmail will serve.
-User's request will be served only if the hostname in URL
-($ENV{HTTP_HOST}) appears in this option
+
+If this option is empty or 'all', request to any hostname will be served.
+If this option is 'none', no request be served, this disables openwebmail.
+If this option is a list of domainname tokens seperated by comma, request 
+will be served only if the hostname in URL($ENV{HTTP_HOST}) appears in list
+
+The default is all.
 
 Example:
 allowed_serverdomain	virtualdomain1.com, virtualdomain2.com
@@ -485,11 +495,14 @@ allowed_serverdomain	virtualdomain1.com, virtualdomain2.com
 allowed_clientdomain
 -----------------------------------------------------------------------
 This limits the clients access by their domainnam
+
 If this option is empty or 'all', any client can access the system.
 If this option is 'none', no client can access the system.
 If this option is a list of domainname tokens seperated by comma,
 then only clients whose domainname matches the tokens from the tail can
 access the openwebmail system
+
+The default is all.
 
 Example:
 allowed_clientdomain	ee.ncku.edu.tw, hosp.ncku.edu.tw
@@ -501,6 +514,8 @@ This limits the clients accesses by their ip address
 Only clients whose IP address matches these tokens from the beginning can
 access the openwebmail system
 
+The default is all.
+
 Example:
 allowed_clientip	140.116.72., 192.168.
 
@@ -510,13 +525,49 @@ ps: A valid client has to pass both domain and ip check.
 allowed_receiverdomain
 -----------------------------------------------------------------------
 This limits the receiver the user can send mail to.
+
 If this option is empty or 'all', the mail can be sent to any email address.
 If this option is 'none', the mail can not be sent to any email address.
 If this option is a list of email domain tokens seperated by comma, then
 user can only send mail to email address which matches the tokens from tail
 
+The default is all.
+
 Example:
 allowed_receiverdomain	company.com, someone@company2.com
+
+
+allowed_autologinip
+-----------------------------------------------------------------------
+This limits the clients that can use autologin by their ip address
+
+If this option is empty or 'all', any client can use autologin
+If this option is 'none', no client can use autologin
+If this option is a list of ips seperated by comma, only clients whose 
+IP address matches these tokens from the beginning can use autologin.
+
+The default is all.
+
+ps: Sysadm may use this option to limit autologin feature 
+    so it is only available to computers inside the company/organization.
+
+Example:
+allowed_autologinip	140.116.72., 192.168.
+
+
+allowed_rootloginip
+-----------------------------------------------------------------------
+This limits the clients that can login as root user in openwebmail.
+
+If this option is empty or 'all', any client can login as root
+If this option is 'none', no client can login as root.
+If this option is a list of ips seperated by comma, only clients whose 
+IP address matches these tokens from the beginning can login as root
+
+The default is none.
+
+Example:
+allowed_rootloginip	140.116.72., 192.168.
 
 
 case_insensitive_login
@@ -538,12 +589,6 @@ requires more server power. If set this option to 'no', only login and
 change password page will use SSL.
 
 
-enable_rootlogin
------------------------------------------------------------------------
-Set this to 'yes' if you want to allow root login
-Warning! The option is dangerous, use it at your own risk!
-
-
 enable_domainselectmenu
 -----------------------------------------------------------------------
 Set this to 'yes' if you want a selection menu at login when there are
@@ -551,7 +596,7 @@ more than one domainnames defined.
 
 
 domainselmenu_list
------------------------------------------------------------------------
+----------------------------------------------------------------------
 This is the domainnames that will be listed in the above selection menu
 If this option is set to 'auto', the entries will be derived from option
 domainnames
@@ -659,6 +704,45 @@ symbolic link ~/mbox -> ~/mail/saved-messages, so users can access
 the read messages from either pop3 client or openwebmail
 
 
+enable_webmail
+-----------------------------------------------------------------------
+set this option to 'no' if you want to disable webmail related functions
+
+
+enable_spellcheck
+-----------------------------------------------------------------------
+Set this option to 'no' if you want to disable the spellcheck feature
+in composing message
+
+
+enable_calendar
+-----------------------------------------------------------------------
+Open WebMail has built-in clendar support,
+set this option to 'no' if you want to disable it.
+
+
+enable_webdisk
+-----------------------------------------------------------------------
+Open WebMail has built-in web disk support,
+set this option to 'no' if you want to disable it.
+
+
+enable_sshterm
+-----------------------------------------------------------------------
+If this option is set to 'no', then the SSH terminal button won't be
+available to the user.
+
+ps: To completely disable the SSH terminal support, you have to remove
+    the file data/openwebmail/applet/mindterm/mindtermfull.jar
+
+
+enable_vdomain
+-----------------------------------------------------------------------
+OpenWebMail has a build-in vm-pop3d/postfix virtual domain user manager.
+If this option is set to 'yes', the virtual domain manager will be
+available to the users that are specified in option vdomain_admlist.
+
+
 enable_history
 -----------------------------------------------------------------------
 Set this to 'no' if you want to disable the 'History' feature in the user
@@ -675,10 +759,13 @@ about_info_software
 -----------------------------------------------------------------------
 If cleared, the SOFTWARE part of the About dialog is not available. It
 contains OS, Perl and Open WebMail versions. You might find it
-undesirable for these data to be printed (it could help someone identify
-your system software as vulnerable if, say, a Perl exploit were found).
+undesirable for these data to be printed, it could help someone identify
+your system software as vulnerable if, say, an openwebmail or Perl exploit 
+were found.
 
-Yes, it is paranoid.
+ps: if enable_about or about_info_software is set to 'no',
+    then the version number and releasedate of openwebmail won't be 
+    displayed in the copyright page.
 
 
 about_info_scriptfilename
@@ -693,6 +780,17 @@ about_info_server
 about_info_client
 -----------------------------------------------------------------------
 Other information part of the About dialog. For completeness only.
+
+
+xheaders
+-----------------------------------------------------------------------
+This is used to define the additional headers that would be added to
+the header of all outgoing messsages
+
+eg: X-Mailer: %name% %version% %releasedate%
+    X-OriginatingIP: @@@CLIENTUP@@@ (@@@USERID@@@)
+
+ps: please note that all xheaders must be started with X-
 
 
 xmailer_has_version
@@ -772,46 +870,118 @@ smartfilter_bypass_goodmessage
 -----------------------------------------------------------------------
 If a message is sent by Open WebMail or is an reply message,
 then we bypass the smart filters check for this message.
-Set this to 'no' if you hope to apply smart filters on those good messages
+Set this to 'no' if you hope to apply smart filters on these good messages
 
 
-enable_webmail
+log_filtermove_detail
 -----------------------------------------------------------------------
-set this option to 'no' if you want to disable webmail related functions
+If this option is set to yes, each message movement by mailfilter will
+be logged
 
 
-enable_spellcheck
+enable_viruscheck
 -----------------------------------------------------------------------
-Set this option to 'no' if you want to disable the spellcheck feature
-in composing message
+This option enables external virus check program (clamav)
 
 
-enable_calendar
+viruscheck_pipe
 -----------------------------------------------------------------------
-Open WebMail has built-in clendar support,
-set this option to 'no' if you want to disable it.
+The location of the virus check program with parmeters to read a 
+message from the stdin
 
 
-enable_webdisk
+viruscheck_source_allowed
 -----------------------------------------------------------------------
-Open WebMail has built-in web disk support,
-set this option to 'no' if you want to disable it.
+this option limits the value that user can set for viruscheck_source 
+in preference. available value: all, pop3
 
 
-enable_sshterm
+viruscheck_maxsize_allowed
 -----------------------------------------------------------------------
-If this option is set to 'no', then the SSH terminal button won't be
-available to the user.
+this option limits the max value that user can set for viruscheck_maxsize
+in the user preference. (in KB)
+Value: 250, 500, 1000, 2000, 3000, 4000, 5000, 10000, 20000, 50000
 
-ps: To completely disable the SSH terminal support, you have to remove
-    the file data/openwebmail/applet/mindterm/mindtermfull.jar
-
-
-enable_vdomain
+virus_destination
 -----------------------------------------------------------------------
-OpenWebMail has a build-in vm-pop3d/postfix virtual domain user manager.
-If this option is set to 'yes', the virtual domain manager will be
-available to the users that are specified in option vdomain_admlist.
+The folder to be moved to for messages with virus (default: virus-mail)
+
+
+has_virusfolder_by_default
+-----------------------------------------------------------------------
+Set this option to no if you don't want virus-mail being displayed as
+one of the default folders
+
+
+enable_spamcheck
+-----------------------------------------------------------------------
+This option enables external spam checker (spamassassin)
+
+
+spamcheck_pipe
+-----------------------------------------------------------------------
+The location of the spam check program with parmeters to read a
+message from the stdin
+
+
+spamcheck_source_allowed
+-----------------------------------------------------------------------
+This option limits the value that user can set for viruscheck_source 
+in preference. available value: all, pop3
+
+
+spamcheck_maxsize_allowed
+-----------------------------------------------------------------------
+This option limits the max value that user can set for spamcheck_maxsize
+in the iser preference. (in KB)
+Value: 100, 150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000
+
+
+spam_destination
+-----------------------------------------------------------------------
+The folder to be moved to for spam messages (default: spam-mail)
+
+
+has_spamfolder_by_default
+-----------------------------------------------------------------------
+Set this option to no if you don't want spam-mail being displayed as
+one of the default folders
+
+
+enable_learnspam
+-----------------------------------------------------------------------
+This option enables the spam learner (sa-learn)
+
+ps: while enable_spamcheck is off, the system may still have spam check
+support in MTA or local deliver, so this learnspam option is independant
+with enable_spamcheck
+
+
+learnspam_pipe
+-----------------------------------------------------------------------
+The location of the spam learn program with parmeters to learn SPAM
+message from the stdin
+
+
+learnham_pipe
+-----------------------------------------------------------------------
+The location of the spam learn program with parmeters to learn HAM
+message from the stdin
+ps: HAM = non-SPAM
+
+
+learnspam_destination
+-----------------------------------------------------------------------
+If a message is learned as SPAM and it IS NOT located in either 
+mail-trash, spam-mail or virus-mail, then this is the folder that this
+learned message will be moved to. (default: spam-mail)
+
+
+learnham_destination
+-----------------------------------------------------------------------
+If a message is learned as HAM and it IS located in either 
+mail-trash, spam-mail or virus-mail, then this is the folder that this
+learned message will be moved to. (default: INBOX)
 
 
 enable_pop3
@@ -1506,14 +1676,23 @@ view window
 
 default_autopop3
 -----------------------------------------------------------------------
-if this option is set to yes, openwebmail will fetch pop3 mail for
+If this option is set to yes, openwebmail will fetch pop3 mail for
 user automatically after the user login
 
 
 default_autopop3wait
 -----------------------------------------------------------------------
-if option autopop3 is set to yes, this wait means how long openwebmail
+If option autopop3 is set to yes, this wait means how long openwebmail
 should wait before putting the pop3 fetch process into background
+
+
+default_bgfilterwait
+-----------------------------------------------------------------------
+This defines how long openwebmail should wait for background mail 
+filtering before returning the folder message listing or message 
+content to user
+If the wait is too short, some spam/virus mails may be not filtered in time
+at the user access to the INBOX folder.
 
 
 default_moveoldmsgfrominbox
@@ -1658,6 +1837,11 @@ user in composing widnow will be used for outgoing message
 available value: sameascomposing or charset listed in iconv.pl
 
 
+default_uselightbar
+-----------------------------------------------------------------------
+whether to use the light bar for selection
+
+
 default_regexmatch
 -----------------------------------------------------------------------
 if set this option to 'yes', the regular expression is assumed when
@@ -1718,12 +1902,67 @@ message in trash will be deleted if its day age is more than this value,
 0 means "delete at logout", 999999 means "never delete"
 
 
+default_spamvirusreserveddays
+-----------------------------------------------------------------------
+message in spam and virus folder will be deleted if its day age is more 
+than this value, 0 means "delete at logout", 999999 means "never delete"
+
+
 default_sessiontimeout
 -----------------------------------------------------------------------
 This indicates how many minutes of inactivity pass before the user
 session is considered timed out, and the user needs to log in again.
 Make sure this is big enough that a user typing a long message won't
 get timeouted while typing!
+
+
+default_viruscheck_source
+-----------------------------------------------------------------------
+the option specifies the mails to be checked by virus check program
+available value: all, pop3
+all - all incoming messages will be checked for virus
+pop3 - only messages fetched from pop3 servers will be checked for virus
+
+ps: this option sets the default source of viruscheck for user,
+    but the actual sources user can choose is limited by the option
+    viruscheck_source_allowed
+
+
+default_viruscheck_maxsize
+-----------------------------------------------------------------------
+To eliminate system load, messages larger than this size won't be 
+passed to virus check program (in KB)
+
+
+default_viruscheck_minbodysize
+-----------------------------------------------------------------------
+To eliminate system load, messages whose body size is smaller than this
+threshold won't be passed to virus check program (in KB)
+
+
+default_spamcheck_source
+-----------------------------------------------------------------------
+the option specifies the mails to be checked by spam check program
+available value: all, pop3
+all - all incoming messages will be checked for spam
+pop3 - only messages fetched from pop3 servers will be checked for spam
+
+ps: this option sets the default source of spamcheck for user,
+    but the actual sources user can choose is limited by the option
+    spamcheck_source_allowed
+
+
+default_spamcheck_maxsize
+-----------------------------------------------------------------------
+To eliminate system load, messages larger than this size won't be 
+passed to spam check program (in KB)
+
+
+default_spamcheck_threshold
+-----------------------------------------------------------------------
+spam check program is assumed to return a spam level of a message
+and messages with spam level equal or larger than this threshold will
+be treated as spam
 
 
 default_filter_repeatlimit

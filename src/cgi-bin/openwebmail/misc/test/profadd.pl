@@ -25,7 +25,7 @@ foreach my $script (@ARGV) {
       my $line=$_;
       if ($line=~/^require "/ && !$require) {
          $require=1;
-         $content.=qq|require "uty/gettimeofday.pl";\n|;          
+         $content.=qq|require "misc/test/gettimeofday.pl";\n|;          
          $content.=qq|ow::tool::timeofday_init();\n|;          
          $content.=$line;
          $insertion++;

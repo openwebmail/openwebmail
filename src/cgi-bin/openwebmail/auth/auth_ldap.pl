@@ -13,7 +13,7 @@ use Net::LDAP;
 require "modules/tool.pl";
 
 my %conf;
-if (($_=ow::tool::find_configfile('etc/auth_ldap.conf', 'etc/auth_ldap.conf.default')) ne '') {
+if (($_=ow::tool::find_configfile('etc/auth_ldap.conf', 'etc/defaults/auth_ldap.conf')) ne '') {
    my ($ret, $err)=ow::tool::load_configfile($_, \%conf);
    die $err if ($ret<0);
 } else {

@@ -1,11 +1,9 @@
 #
 # this is used by author to mail tarball to mirror
 #
-date=`date "+%y%m%d"`
-
 # translation maintainer email
 ar=isam@planet.edu
-bg=vess@vess.bnc.bg
+bg=vess@slavof.net
 ca=mikaku@fiwix.org
 cs=milan.kerslager@pslib.cz
 gb2312=wjun@mail.iap.ac.cn
@@ -21,16 +19,16 @@ hu=ful_s@fazekas.hu
 id=liangs@kunchang.com.tw
 it=marvi@menhir.biz
 jp=james@ActionMessage.com
-kr=kmscom@snu.ac.kr
+kr=psj@soosan.co.kr
 lt=dvm382@takas.lt
 no=are@valinor.dolphinics.no
-pl=pavcio@4lo.bytom.pl
+pl=pjf@gna.org
 pt=jferra@sfconsultores.pt
 ptbr=julio@cnm.org.br
 ro=zeno.popovici@ulbsibiu.ro
-ru=duster@tpu.ru
+ru=dzoleg@mail.ru
 sr=alexa@yunord.net
-sk=lubos@klokner.sk
+sk=pese@us.svf.stuba.sk
 es=jsmaldone@yahoo.com
 sv=tryfan@telia.com
 th=joke@nakhon.net
@@ -47,20 +45,25 @@ webmin=Helmut.Grund@fh-furtwangen.de
 ipspace=1073075441@cyruslesser.com
 
 
+releasedate=`grep '^releasedate' /usr/local/www/cgi-bin/openwebmail/etc/defaults/openwebmail.conf | cut -f3`
+version=`grep '^version.*[2-9]\.' /usr/local/www/cgi-bin/openwebmail/etc/defaults/openwebmail.conf | cut -f4`
+currentmd5=`md5 -q /usr/local/www/data/openwebmail/download/current/openwebmail-current.tar.gz`
+releasemd5=`md5 -q /usr/local/www/data/openwebmail/download/release/openwebmail-$version.tar.gz`
+
 #################################################################
 
-echo "send openwebmail-current.tgz to mirror sites? (y/N)"
+echo "send openwebmail-current.tar.gz to openwebmail.org? (y/N)"
 read ans
 if [ "$ans" = "y" -o "$ans" = "Y" ]; then
   echo sending to mirror sites...
 
   head -100 /usr/local/www/data/openwebmail/doc/changes.txt \
   | perl -e '$/="\n\n\n"; print $_=<>;' | \
-  /usr/local/bin/mutt -s "openwebmail current $date" \
+  /usr/local/bin/mutt -s "openwebmail current $releasedate" \
   -a /usr/local/www/data/openwebmail/doc/changes.txt \
-  -a /usr/local/www/data/openwebmail/download/openwebmail-current.tgz \
+  -a /usr/local/www/data/openwebmail/download/current/openwebmail-current.tar.gz \
   openwebmail@turtle.ee.ncku.edu.tw \
-  tchung@openwebmail.com
+  tchung@openwebmail.org
 #  elitric@hotmail.com 
 fi
 
@@ -76,12 +79,13 @@ version of openwebmail. And we would like to request for your
 help to make the translation up to date.
 
 The latest tarball is available at
-http://turtle.ee.ncku.edu.tw/openwebmail/download/openwebmail-current.tgz
+http://turtle.ee.ncku.edu.tw/openwebmail/download/current/openwebmail-current.tar.gz
+
 The latest changes is available at
 http://turtle.ee.ncku.edu.tw/openwebmail/download/doc/changes.txt
 
 The difference of language and templates between last release and the 
-latest current $date is attached in this message.
+latest current $releasedate is attached in this message.
 
 Finally, thank you for your efforts in openwebmail.
 
@@ -98,8 +102,8 @@ tung
     echo sending to translators...
 
     cat /tmp/notify.tmp.$$| \
-    /usr/local/bin/mutt -s "OWM $date translation update request" \
-    -a /usr/local/www/data/openwebmail/download/*-lang-templates.diff \
+    /usr/local/bin/mutt -s "OWM $releasedate translation update request" \
+    -a /usr/local/www/data/openwebmail/download/current/*-lang-templates.diff \
     $ar $bg $ca $cs $gb2312 $big5 $da $nl $fi $fr $de $el $he $hu $id \
     $it $jp $kr $lt $no $pl $pt $ptbr $ro $ru $sr $sk $es $sv $th $tr $uk $ur webmail
   fi
@@ -115,14 +119,13 @@ if [ "$ans" = "y" -o "$ans" = "Y" ]; then
 
 The new release of Open WebMail is available now.
 Since your are one of the package/port or service maintainer of openwebmail,
-so I sent you this message for notification.
+so we send you this message for notification.
 
 The latest release is available at
-http://openwebmail.com/openwebmail/download/openwebmail-2.32.tgz
-http://openwebmail.org/openwebmail/download/openwebmail-2.32.tgz
-http://turtle.ee.ncku.edu.tw/openwebmail/download/openwebmail-2.32.tgz
+http://openwebmail.org/openwebmail/download/release/openwebmail-$version.tar.gz
+http://turtle.ee.ncku.edu.tw/openwebmail/download/release/openwebmail-$version.tar.gz
 
-The MD5 is xxxxxx
+The MD5 is $releasemd5
 
 And thanks for all your efforts in openwebmail.
 

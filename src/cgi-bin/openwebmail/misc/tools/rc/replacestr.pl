@@ -10,7 +10,7 @@ use strict;
 use File::Find;
 
 my @dirs		= ('/var/home');
-my $filepattern		= "\/\.openwebmailrc\$";
+my $filepattern		= "\/\.openwebmail\/openwebmailrc\$";
 my $replacepattern	= "iconset=Cool3D.German";
 my $replacestring	= "iconset=Cool3D.Deutsch";
 

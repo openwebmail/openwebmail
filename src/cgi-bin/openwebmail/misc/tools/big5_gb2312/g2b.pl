@@ -3,7 +3,7 @@
 # script to convert chinese gb2312 to big5
 #
 my (%config, $content);
-$config{'ow_etcdir'}="/usr/local/www/cgi-bin/openwebmail/etc";
+$config{'ow_mapsdir'}="/usr/local/www/cgi-bin/openwebmail/etc/maps";
 $config{'dbm_ext'}=".db";
 $config{'dbmopen_ext'}="";
 
@@ -16,9 +16,9 @@ print g2b($content);
 sub g2b {
    my $str = $_[0];
 
-   if ( -f "$config{'ow_etcdir'}/g2b$config{'dbm_ext'}") {
+   if ( -f "$config{'ow_mapsdir'}/g2b$config{'dbm_ext'}") {
       my %G2B;
-      dbmopen(%G2B, "$config{'ow_etcdir'}/g2b$config{'dbmopen_ext'}", undef);
+      dbmopen(%G2B, "$config{'ow_mapsdir'}/g2b$config{'dbmopen_ext'}", undef);
       $str =~ s/([\xA1-\xF9][\xA1-\xFE])/$G2B{$1}/eg;
       dbmclose(%G2B);
    }

@@ -19,7 +19,7 @@ foreach my $script (@ARGV) {
    open (F, $script);
    while (<F>) {
       my $line=$_;
-      if ($line=~/^require "uty\/gettimeofday.pl"/) {
+      if ($line=~/^require "misc\/test\/gettimeofday.pl"/) {
          $removal++;
       } elsif ($line=~/^ow::tool::timeofday_init/) {
          $removal++;
