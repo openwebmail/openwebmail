@@ -1,3 +1,21 @@
+11/01/2004
+----------
+1. adjust the default width/height of address popup window for upgraded users.
+2. minor change to js routine makeFullName() in addreditform_N.template
+   so it can generate proper fullname for CJK
+3. calling sendmail with -f option in vacation.pl to specify envelope sender 
+   explicitly to avoid the intranet domainet being used in envelope.
+   (thanks to Pasi Sjoholm, pasi.sjoholm.AT.tieto-x.fi for his fix)
+4. add 'local $1' in regex untaint matching to avoid the perl $1 taintness bug
+   (thanks to Pasi Sjoholm, pasi.sjoholm.AT.tieto-x.fi for his help
+    in debugging this problem)
+5. add ucs4_to_utf8() to tool.pl to solve CJK problem in addressbook popup
+   it decodes the %uXXXX in CGI parameters encoded by javascript escape()
+6. fix a bug in composeselect and editgroup that parms set in form hiddens object 
+   should be escaped for < > & " chars only (ow::htmltext::str2html), 
+   not fully escaped (ow::tool::escapeURL)
+
+
 10/31/2004
 ----------
 1. integrate addressbook with other modules by putting the link of web 

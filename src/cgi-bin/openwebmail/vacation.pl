@@ -178,9 +178,10 @@ sub init_mode {
    }
    my $home = $home_path || $ENV{'HOME'} || (getpwnam($user))[7] or die "No home directory for user $user\n";
 
-   # guess real homedir under automounter
+   # guess real homedir if under automounter
    $home="/export$home" if ( -d "/export$home" );
-   ($home =~ /^(.+)$/) && ($home = $1);  # untaint $home...
+   $home=untaint($home);
+
    chdir $home or die "Can't chdir to $home: $!\n";
 
    init_vacation_db();
@@ -207,9 +208,9 @@ sub interactive_mode {
    my $editor = $ENV{'VISUAL'} || $ENV{'EDITOR'} || 'vi';
    my $pager = 'more'; $pager=$ENV{'PAGER'} if (-f $ENV{'PAGER'});
 
-   # guess real homedir under automounter
+   # guess real homedir if under automounter
    $home="/export$home" if ( -d "/export$home" );
-   ($home =~ /^(.+)$/) && ($home = $1);  # untaint $home...
+   $home=untaint($home);
    chdir $home or die "Can't chdir to $home: $!\n";
 
    print qq|This program can be used to answer your mail automatically\n|,
@@ -328,9 +329,9 @@ sub pipe_mode {
       die "No home directory for user $user\n";
    }
 
-   # guess real homedir under automounter
+   # guess real homedir if under automounter
    $home="/export$home" if ( -d "/export$home" );
-   ($home =~ /^(.+)$/) && ($home = $1);  # untaint $home...
+   $home=untaint($home);
    if (! chdir $home) {
       log_debug("Error! Can't chdir to $home: $!\n") if ($opt_d);
       die "Can't chdir to $home: $!\n";
@@ -414,9 +415,10 @@ sub pipe_mode {
 
    # remove ' in $from to prevent shell escape
    $from=~s/'/ /g;
+   $to=~s/'/ /g;
 
 #   open(MAIL, "|$sendmail -oi -t '$from'") or die "Can't run sendmail: $!\n";
-   open(MAIL, "|$sendmail -oi '$from'") or die "Can't run sendmail: $!\n";
+   open(MAIL, "|$sendmail -oi -f '$to' '$from'") or die "Can't run sendmail: $!\n";
    print MAIL $msg;
    close MAIL;
 
@@ -583,6 +585,13 @@ sub clientip {
       $clientip=$ENV{'REMOTE_ADDR'}||"127.0.0.1";
    }
    return $clientip;
+}
+
+sub untaint {
+   local $_ = shift;	# this line makes param into a new variable. don't remove it.
+   local $1; 		# fix perl $1 taintness propagation bug
+   m/^(.*)$/s;
+   return $1;
 }
 
 sub log_debug {

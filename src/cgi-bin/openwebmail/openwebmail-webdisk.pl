@@ -17,9 +17,9 @@
 #
 
 use vars qw($SCRIPT_DIR);
-if ( $0 =~ m!^(\S*)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1 }
+if ( $0 =~ m!^(\S*)/[\w\d\-\.]+\.pl! ) { local $1; $SCRIPT_DIR=$1 }
 if ($SCRIPT_DIR eq '' && open(F, '/etc/openwebmail_path.conf')) {
-   $_=<F>; close(F); if ( $_=~/^(\S*)/) { $SCRIPT_DIR=$1 }
+   $_=<F>; close(F); if ( $_=~/^(\S*)/) { local $1; $SCRIPT_DIR=$1 }
 }
 if ($SCRIPT_DIR eq '') { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
 push (@INC, $SCRIPT_DIR);
@@ -82,8 +82,8 @@ $messageid = param('message_id')||'';
 $escapedfolder = ow::tool::escapeURL($folder);
 $escapedmessageid = ow::tool::escapeURL($messageid);
 
-$webdiskrootdir=$homedir.absolute_vpath("/", $config{'webdisk_rootpath'});
-($webdiskrootdir =~ m!^(.+)/?$!) && ($webdiskrootdir = $1);  # untaint & remove tail /
+$webdiskrootdir=ow::tool::untaint($homedir.absolute_vpath("/", $config{'webdisk_rootpath'}));
+$webdiskrootdir=~s!/+$!!; # remove tail /
 if (! -d $webdiskrootdir) {
    mkdir($webdiskrootdir, 0755) or
       openwebmailerror(__FILE__, __LINE__, "lang_text{'cant_create_dir'} $webdiskrootdir ($!)");

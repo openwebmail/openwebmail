@@ -167,6 +167,25 @@ sub escapeURL {
     return $toencode;
 }
 
+# convert UCS4 to UTF8: 
+# string passed by with javascript escape() will encode CJK char to unicode
+# like %u5B78%u9577, this is used to turn %u.... back to the CJK char
+# eg: $str=~ s/%u([0-9a-fA-F]{4})/ucs4_to_utf8(hex($1))/ge;
+sub ucs4_to_utf8 {
+   my ($val)=@_;
+   my $c;   
+   if ($val < 0x7f){		#0000-007f
+      $c .= chr($val);
+   } elsif ($val < 0x800) {	#0080-0800
+      $c .= chr(0xC0 | ($val / 64));
+      $c .= chr(0x80 | ($val % 64));
+   } else {			#0800-ffff
+      $c .= chr(0xe0 | (($val / 64) / 64));
+      $c .= chr(0x80 | (($val / 64) % 64));
+      $c .= chr(0x80 | ($val % 64));
+   }
+}
+
 # generate html code for hidden options, faster than the one in CGI.pm
 # limitation: no escape for keyname, value can not be an array
 sub hiddens {
@@ -370,6 +389,7 @@ sub str2list {
 
 sub untaint {
    local $_ = shift;	# this line makes param into a new variable. don't remove it.
+   local $1; 		# fix perl $1 taintness propagation bug
    m/^(.*)$/s;
    return $1;
 }

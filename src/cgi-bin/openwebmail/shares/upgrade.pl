@@ -298,7 +298,28 @@ sub upgrade_all {	# called if user releasedate is too old
       my $filterruledb = dotpath('filter.ruledb');
       # rename filter.book.db -> filter.ruledb.db
       ow::dbm::rename($filterbook, $filterruledb);
+      writehistory("release upgrade - mv $filterbook to $filterruledb by 20040724");
+      writelog("release upgrade - mv $filterbook to $filterruledb by 20040724");
    }
+
+   if ( $user_releasedate lt "20041101" ) {
+      my $rcfile=dotpath('openwebmailrc');
+      if (-f $rcfile) {
+         %prefs = readprefs();
+         $prefs{'abook_width'}=$config{'default_abook_width'};
+         $prefs{'abook_height'}=$config{'default_abook_height'};
+         $prefs{'abook_listviewfieldorder'}=$config{'default_abook_listviewfieldorder'};
+         if (open (RC, ">$rcfile")) {
+            foreach my $key (@openwebmailrcitem) {
+               print RC "$key=$prefs{$key}\n";
+            }
+            close (RC);
+         }
+         writehistory("release upgrade - openwebmailrc by 20041101");
+         writelog("release upgrade - openwebmailrc by 20041101");
+      }
+   }
+   return;
 }
 
 sub read_releasedatefile {

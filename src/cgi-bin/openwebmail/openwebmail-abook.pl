@@ -4,9 +4,9 @@
 #
 
 use vars qw($SCRIPT_DIR);
-if ( $0 =~ m!^(\S*)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1 }
+if ( $0 =~ m!^(\S*)/[\w\d\-\.]+\.pl! ) { local $1; $SCRIPT_DIR=$1 }
 if ($SCRIPT_DIR eq '' && open(F, '/etc/openwebmail_path.conf')) {
-   $_=<F>; close(F); if ( $_=~/^(\S*)/) { $SCRIPT_DIR=$1 }
+   $_=<F>; close(F); if ( $_=~/^(\S*)/) { local $1; $SCRIPT_DIR=$1 }
 }
 if ($SCRIPT_DIR eq '') { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
 push (@INC, $SCRIPT_DIR);
@@ -512,27 +512,29 @@ sub addrlistview {
 
    # are we coming from the compose page?
    my $listviewmode = param('listviewmode');
+   my @fieldorder=split(/\s*[,\s]\s*/, $prefs{'abook_listviewfieldorder'});
+
    if ($listviewmode eq 'composeselect') {
       # use only the name type and email type headers
       # we don't want to see phone or note in this mode
       my $emailexists = 0;
-      for (my $i=0; $i <= $#{$prefs{'abook_listviewfieldorder'}}; $i++) {
-         if (${$prefs{'abook_listviewfieldorder'}}[$i] eq 'email') {
+      for (my $i=0; $i <= $#fieldorder; $i++) {
+         if ($fieldorder[$i] eq 'email') {
             $emailexists = 1;
          }
-         if (${$prefs{'abook_listviewfieldorder'}}[$i] !~ m/^(fullname|prefix|first|middle|last|suffix|email)$/) {
-            splice(@{$prefs{'abook_listviewfieldorder'}},$i,1); # take this one out
+         if ($fieldorder[$i] !~ m/^(fullname|prefix|first|middle|last|suffix|email)$/) {
+            splice(@fieldorder,$i,1); # take this one out
             $i--; # do this index over since the array got shorter
          }
       }
       if ($emailexists == 0) {
          # email must be a header in the compose mode
-         push(@{$prefs{'abook_listviewfieldorder'}},'email');
+         push(@fieldorder,'email');
       }
    }
 
    # what do users want to see?
-   my @headings = @{$prefs{'abook_listviewfieldorder'}};
+   my @headings = @fieldorder;
    for(my $index=0; $index <= $#headings; $index++) {
       if ($headings[$index] =~ m/^none$/i) {
          splice(@headings,$index,1); # take out the nones
@@ -548,7 +550,8 @@ sub addrlistview {
    for (0..$#headings) { $headingpos{$headings[$_]} = $_+1 }; # The +1 is for the num column
 
    # load up the list of available books
-   my @alladdressbooks = getaddrbooks_readable($webaddrdir);
+   my @alladdressbooks = getaddrbooks_readable($webaddrdir);	# readable ones
+   my @destbooks = getaddrbooks_writable($webaddrdir);		# writable ones
 
    # calculate the available free space
    my $availfreespace = '';
@@ -742,9 +745,23 @@ sub addrlistview {
 
    # remember all of the email addresses user checked with %waschecked hash
    my %waschecked = ();
-   for (ow::tool::str2list(join(",",param('to'))), ow::tool::str2list(param('checkedto')) ) { $waschecked{TO}{$_} = 1 if ($_ ne '') };
-   for (ow::tool::str2list(join(",",param('cc'))), ow::tool::str2list(param('checkedcc')) ) { $waschecked{CC}{$_} = 1 if ($_ ne '') };
-   for (ow::tool::str2list(join(",",param('bcc'))), ow::tool::str2list(param('checkedbcc')) ) { $waschecked{BCC}{$_} = 1 if ($_ ne '') };
+   foreach my $key ('TO', 'CC', 'BCC') {
+      foreach my $parmname (lc($key), 'checked'.lc($key)) {
+         my $recipients = join(',', param(lc($parmname)));
+ow::tool::log_time("$parmname -> $recipients");
+         # conv %uXXXX back to CJK
+         # since these parm are passed in by javascript escape() routine         
+         if (is_convertable('utf-8', $prefs{'charset'}) && 
+             $recipients =~ s/%u([0-9a-fA-F]{4})/ow::tool::ucs4_to_utf8(hex($1))/ge) {
+            ($recipients) = iconv('utf-8', $prefs{'charset'}, $recipients);
+ow::tool::log_time("$parmname iconv -> $recipients");
+         }
+
+         for (ow::tool::str2list($recipients)) {
+            $waschecked{$key}{$_} = 1 if ($_ ne '');
+         }
+      }
+   }
 
    # addresses arrive from editgroupform as '\n' delimited.
    # separate them into each individual addresses and put them
@@ -876,9 +893,6 @@ sub addrlistview {
    my $checkedto = join((param('editgroupform')?"\n":", "), sort { lc($a) cmp lc($b) } keys %{$waschecked{TO}});
    my $checkedcc = join((param('editgroupform')?"\n":", "), sort { lc($a) cmp lc($b) } keys %{$waschecked{CC}});
    my $checkedbcc = join((param('editgroupform')?"\n":", "), sort { lc($a) cmp lc($b) } keys %{$waschecked{BCC}});
-   my $escapedcheckedto = ow::tool::escapeURL($checkedto);
-   my $escapedcheckedcc = ow::tool::escapeURL($checkedcc);
-   my $escapedcheckedbcc =  ow::tool::escapeURL($checkedbcc);
 
    # check if quota is overlimit
    my $limited=(($quotalimit>0 && $quotausage>$quotalimit));
@@ -938,13 +952,18 @@ sub addrlistview {
    # left side navigation buttons
    $temphtml = '';
    if ($listviewmode eq '') {
-      if ( ($abookfolder !~ m/^ALL|GLOBAL$/ && -w "$webaddrdir/$abookfolder") || 
-           ($abookfolder eq 'GLOBAL' && $config{'abook_globaleditable'} && -w $config{'global_addressbook'})) {
+      if ($#destbooks>=0) {
          $temphtml .= iconlink("abooknewcontact.gif", $lang_text{'abook_newcontact'},
                                qq|accesskey="O" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addreditform&amp;$urlparm"|);
          $temphtml .= iconlink("abooknewgroup.gif", $lang_text{'abook_newgroup'},
                                qq|accesskey="O" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addreditform&amp;editgroupform=1&amp;$urlparm"|);
+      } else {
+         $temphtml .= iconlink("abooknewcontact.gif", $lang_text{'abook_newcontact'},
+                            qq|accesskey="O" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrbookedit&amp;$urlparm" onclick="return confirm('$lang_err{abook_all_readonly}');"|);
+         $temphtml .= iconlink("abooknewgroup.gif", $lang_text{'abook_newgroup'},
+                            qq|accesskey="O" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrbookedit&amp;$urlparm" onclick="return confirm('$lang_err{abook_all_readonly}');"|);
       }
+
       $temphtml .= iconlink("abooks.gif", $lang_text{'abooks'},
                             qq|accesskey="O" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrbookedit&amp;$urlparm"|);
       $temphtml .= iconlink("abookimport.gif", $lang_text{'abook_import'}, qq|accesskey="I" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrimportform&amp;$urlparm"|);
@@ -1042,10 +1061,11 @@ sub addrlistview {
 
 
    # move/copy/delete menu
-   $temphtml = '';
    my %movecopydeletelabels = %lang_abookselectionlabels;
    $movecopydeletelabels{'DELETE'} = $lang_folders{'DELETE'};
-   if ($listviewmode eq '') {
+   $temphtml = '';
+   if ($listviewmode eq '' &&	# no copy/move in export or compose popup
+       $#destbooks>=0) {	# copy/move is possible only if writable addressbook exists
       $temphtml = start_form(-name=>"moveCopyForm",
                              -action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl").
                   ow::tool::hiddens(action=>'addrmovecopydelete',
@@ -1061,29 +1081,42 @@ sub addrlistview {
                                     ).
                   $formparm;
 
-      # addressbooks that are writable for user
-      my @destbooks = getaddrbooks_writable($webaddrdir);
-      $temphtml .=popup_menu(-name=>'destinationabook',
-                             -default=>$destbooks[0],
-                             -override=>1,
-                             -values=>[@destbooks, 'DELETE'],
-                             -labels=>\%movecopydeletelabels,
-                            ).
-                  submit(-name=>'addrmoveaddresses',
-                         -value=>$lang_text{'abook_listview_move'},
-                         -onClick=>"javascript:addToForm('moveCopyForm','contactsForm','to','cc','bcc'); document.moveCopyForm.submit();",
-                         -class=>"medtext").
-                  submit(-name=>'addrcopyaddresses',
+      my $is_abookfolder_writable=0;
+      foreach (@destbooks) {
+         if ($_ eq $abookfolder) { $is_abookfolder_writable=1; last; }
+      }
+      if ($is_abookfolder_writable || $abookfolder eq 'ALL') {
+         $temphtml .=popup_menu(-name=>'destinationabook',
+                                -default=>$destbooks[0],
+                                -override=>1,
+                                -values=>[@destbooks, 'DELETE'],
+                                -labels=>\%movecopydeletelabels,
+                               );
+         $temphtml .=submit(-name=>'addrmoveaddresses',
+                            -value=>$lang_text{'abook_listview_move'},
+                            -onClick=>"javascript:addToForm('moveCopyForm','contactsForm','to','cc','bcc'); document.moveCopyForm.submit();",
+                            -class=>"medtext");
+      } else {	# current addrbook is readonly, delete/move is not allowed
+         $temphtml .=popup_menu(-name=>'destinationabook',
+                                -default=>$destbooks[0],
+                                -override=>1,
+                                -values=>\@destbooks,
+                                -labels=>\%movecopydeletelabels,
+                               );
+      }
+
+      $temphtml .=submit(-name=>'addrcopyaddresses',
                          -value=>$lang_text{'abook_listview_copy'},
                          -onClick=>"javascript:addToForm('moveCopyForm','contactsForm','to','cc','bcc'); document.moveCopyForm.submit();",
-                         -class=>"medtext").
-                  endform();
-      $html =~ s/\@\@\@MOVECOPYFORMWIDTH\@\@\@/width="33%"/g unless ($abookfolder eq 'GLOBAL' && !$config{'abook_globaleditable'});
-   }
-   $temphtml = '' if ($abookfolder eq 'GLOBAL' && !$config{'abook_globaleditable'});
-   $html =~ s/\@\@\@MOVECOPYFORM\@\@\@/$temphtml/g;
-   $html =~ s/\@\@\@MOVECOPYFORMWIDTH\@\@\@//g;
+                         -class=>"medtext");
+      $temphtml .=endform();
 
+      $html =~ s/\@\@\@MOVECOPYFORM\@\@\@/$temphtml/g;
+      $html =~ s/\@\@\@MOVECOPYFORMWIDTH\@\@\@/width="33%"/g;
+   } else {
+      $html =~ s/\@\@\@MOVECOPYFORM\@\@\@//g;
+      $html =~ s/\@\@\@MOVECOPYFORMWIDTH\@\@\@//g;
+   }
 
    # search form
    $temphtml = start_form(-name=>"searchForm",
@@ -1189,7 +1222,7 @@ sub addrlistview {
                      qq|<tr>\n|;
 
          foreach my $field (qw(first last phone email)) {
-            $temphtml .= qq|<td align="left"><b>$lang_text{"abook_listview_$field"}</b></td>\n|;
+            $temphtml .= qq|<td><b>$lang_text{"abook_listview_$field"}</b></td>\n|;
          }
 
          $temphtml .= qq|<td rowspan="2" align="center" valign="center">&nbsp;&nbsp;|.
@@ -1201,7 +1234,7 @@ sub addrlistview {
                       qq|<tr>\n|;
 
          foreach my $field (qw(first last phone email)) {
-            $temphtml .= qq|<td align="left">|.
+            $temphtml .= qq|<td>|.
                          textfield(-name=>$addaddressmap{$field},
                                    -default=>'',
                                    -class=>'mono',
@@ -1264,9 +1297,9 @@ sub addrlistview {
       $temphtml = startform(-name=>'composeselectForm',
                             -action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl").
                   ow::tool::hiddens(
-                                    checkedto=>$escapedcheckedto,
-                                    checkedcc=>$escapedcheckedcc,
-                                    checkedbcc=>$escapedcheckedbcc,
+                                    checkedto=>ow::htmltext::str2html($checkedto),
+                                    checkedcc=>ow::htmltext::str2html($checkedcc),
+                                    checkedbcc=>ow::htmltext::str2html($checkedbcc),
                                    ).
                   endform();
    }
@@ -1362,7 +1395,7 @@ sub addrlistview {
 
             # the number cell
             if ($index == 0) {
-               $newrow[0] .= qq|<td bgcolor=$bgcolor[$colornum] align="left" nowrap><b>|.($addrindex+1);
+               $newrow[0] .= qq|<td bgcolor=$bgcolor[$colornum] nowrap><b>|.($addrindex+1);
                if ($listviewmode eq '') {
                   $newrow[0] .= qq|&nbsp;|;
                   if ($addresses{$xowmuid}{'X-OWM-BOOK'}[0]{VALUE} eq 'GLOBAL') {
@@ -1549,9 +1582,7 @@ sub addrlistview {
 
    if ($lastaddr == -1) {
       $temphtml .= qq|<tr><td bgcolor=$bgcolor[$colornum] colspan="$tabletotalspan" align="center"><br><b>|;
-      if (@alladdressbooks == 0) {
-         $temphtml .= $lang_text{'abook_listview_noaddrbooks'};
-      } elsif ($abookkeyword eq '') {
+      if ($abookkeyword eq '') {
          $temphtml .= $lang_text{'abook_listview_noaddresses'};
       } else {
          $temphtml .= $lang_text{'abook_listview_nomatch'};
@@ -1649,11 +1680,7 @@ sub addrlistview {
       $html =~ s/\@\@\@BUTTONSBEFORE\@\@\@//g;
    }
 
-   if ($listviewmode eq 'composeselect') {	# don't show footer in popup
-      httpprint([], [htmlheader(), $html, htmlfooter(0)]);
-   } else {
-      httpprint([], [htmlheader(), $html, htmlfooter(2)]);
-   }
+   httpprint([], [htmlheader(), $html, htmlfooter(2)]);
 }
 ########## END ADDRLISTVIEW ######################################
 
@@ -1679,7 +1706,7 @@ sub addreditform {
    $abookfolder = ow::tool::untaint($abookfolder);
 
    my @destbooks = getaddrbooks_writable($webaddrdir);
-   openwebmailerror(__FILE__, __LINE__, "$lang_text{'abook_listview_noaddrbooks'}") if ($#destbooks<0);
+   openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_all_readonly'}") if ($#destbooks<0);
 
    my $is_abookfolder_writable=0;
    foreach (@destbooks) {
@@ -3920,8 +3947,7 @@ sub deleteattachments {
 
    foreach my $attfile (@sessfiles) {
       if ($attfile =~ /^(\Q$thissession\E\-vcard\d+)$/) {
-         $attfile = $1;
-         push(@delfiles, "$config{'ow_sessionsdir'}/$attfile");
+         push(@delfiles, ow::tool::untaint("$config{'ow_sessionsdir'}/$attfile"));
       }
    }
    unlink(@delfiles) if ($#delfiles>=0);

@@ -4,9 +4,9 @@
 #
 
 use vars qw($SCRIPT_DIR);
-if ( $0 =~ m!^(\S*)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1 }
+if ( $0 =~ m!^(\S*)/[\w\d\-\.]+\.pl! ) { local $1; $SCRIPT_DIR=$1 }
 if ($SCRIPT_DIR eq '' && open(F, '/etc/openwebmail_path.conf')) {
-   $_=<F>; close(F); if ( $_=~/^(\S*)/) { $SCRIPT_DIR=$1 }
+   $_=<F>; close(F); if ( $_=~/^(\S*)/) { local $1; $SCRIPT_DIR=$1 }
 }
 if ($SCRIPT_DIR eq '') { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
 push (@INC, $SCRIPT_DIR);
@@ -1190,36 +1190,37 @@ sub editprefs {
          my %addrfieldorderlabels = ();
          $addrfieldorderlabels{"$_"} = $lang_text{"abook_listview_$_"} for @choices;
 
+         my @fieldorder=split(/\s*[,\s]\s*/, $prefs{'abook_listviewfieldorder'});
          $temphtml = popup_menu(-name=>'abook_listviewfieldorder',
-                                -default=>$prefs{'abook_listviewfieldorder'}[0] || 'none',
+                                -default=>$fieldorder[0] || 'none',
                                 -values=>\@choices,
                                 -labels=>\%addrfieldorderlabels,
                                 -override=>'1',
                                 defined($config_raw{'DEFAULT_abook_listviewfieldorder'})?('-disabled'=>'1'):());
 
          $temphtml .= popup_menu(-name=>'abook_listviewfieldorder',
-                                 -default=>$prefs{'abook_listviewfieldorder'}[1] || 'none',
+                                 -default=>$fieldorder[1] || 'none',
                                  -values=>\@choices,
                                  -labels=>\%addrfieldorderlabels,
                                  -override=>'1',
                                  defined($config_raw{'DEFAULT_abook_listviewfieldorder'})?('-disabled'=>'1'):());
 
          $temphtml .= popup_menu(-name=>'abook_listviewfieldorder',
-                                 -default=>$prefs{'abook_listviewfieldorder'}[2] || 'none',
+                                 -default=>$fieldorder[2] || 'none',
                                  -values=>\@choices,
                                  -labels=>\%addrfieldorderlabels,
                                  -override=>'1',
                                  defined($config_raw{'DEFAULT_abook_listviewfieldorder'})?('-disabled'=>'1'):());
 
          $temphtml .= popup_menu(-name=>'abook_listviewfieldorder',
-                                 -default=>$prefs{'abook_listviewfieldorder'}[3] || 'none',
+                                 -default=>$fieldorder[3] || 'none',
                                  -values=>\@choices,
                                  -labels=>\%addrfieldorderlabels,
                                  -override=>'1',
                                  defined($config_raw{'DEFAULT_abook_listviewfieldorder'})?('-disabled'=>'1'):());
 
          $temphtml .= popup_menu(-name=>'abook_listviewfieldorder',
-                                 -default=>$prefs{'abook_listviewfieldorder'}[4] || 'none',
+                                 -default=>$fieldorder[4] || 'none',
                                  -values=>\@choices,
                                  -labels=>\%addrfieldorderlabels,
                                  -override=>'1',
@@ -1557,7 +1558,7 @@ sub saveprefs {
    my (%newprefs, $key, $value, @value);
 
    foreach $key (@openwebmailrcitem) {
-      if ( defined($is_config_option{'list'}{"default_$key"}) ) {
+      if ($key eq 'abook_listviewfieldorder') {
          @value = param($key);
          foreach my $index (0..$#value) {
             $value[$index] =~ s/\.\.+//g;
@@ -1565,9 +1566,9 @@ sub saveprefs {
          }
          $newprefs{$key} = join(",",@value);
          next;
-      } else {
-         $value = param($key);
       }
+
+      $value = param($key);
 
       if ($key eq 'bgurl') {
          my $background=param('background');
@@ -1847,6 +1848,7 @@ sub writedotvacationmsg {
          delete $ENV{'GATEWAY_INTERFACE'};
          my @cmd;
          foreach (split(/\s/, $config{'vacationinit'})) {
+            local $1; # fix perl $1 taintness propagation bug
             /^(.*)$/ && push(@cmd, $1); # untaint all argument
          }
          exec(@cmd);

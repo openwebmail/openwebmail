@@ -4,9 +4,9 @@
 #
 
 use vars qw($SCRIPT_DIR);
-if ( $0 =~ m!^(\S*)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1 }
+if ( $0 =~ m!^(\S*)/[\w\d\-\.]+\.pl! ) { local $1; $SCRIPT_DIR=$1 }
 if ($SCRIPT_DIR eq '' && open(F, '/etc/openwebmail_path.conf')) {
-   $_=<F>; close(F); if ( $_=~/^(\S*)/) { $SCRIPT_DIR=$1 }
+   $_=<F>; close(F); if ( $_=~/^(\S*)/) { local $1; $SCRIPT_DIR=$1 }
 }
 if ($SCRIPT_DIR eq '') { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
 push (@INC, $SCRIPT_DIR);
@@ -2365,8 +2365,7 @@ sub deleteattachments {
 
    foreach my $attfile (@sessfiles) {
       if ($attfile =~ /^(\Q$thissession\E\-att\d+)$/) {
-         $attfile = $1;
-         push(@delfiles, "$config{'ow_sessionsdir'}/$attfile");
+         push(@delfiles, ow::tool::untaint("$config{'ow_sessionsdir'}/$attfile"));
       }
    }
    unlink(@delfiles) if ($#delfiles>=0);

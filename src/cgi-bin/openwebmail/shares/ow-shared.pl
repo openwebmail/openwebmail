@@ -95,7 +95,7 @@ foreach (qw(
    allowed_receiverdomain allowed_autologinip allowed_rootloginip
    pop3_disallowed_servers localusers
    vdomain_admlist vdomain_postfix_aliases vdomain_postfix_virtual
-   default_fromemails default_abook_listviewfieldorder
+   default_fromemails
 )) { $is_config_option{'list'}{$_}=1}
 
 # untaint path config options
@@ -261,6 +261,7 @@ sub userenv_init {
 
    # sessionid format: loginname+domain-session-0.xxxxxxxxxx
    if ($thissession =~ /^([\w\.\-\%\@]+)\*([\w\.\-]*)\-session\-(0\.\d+)$/) {
+      local $1; 				# fix perl $1 taintness propagation bug
       $thissession = $1."*".$2."-session-".$3;	# untaint
       ($loginname, $default_logindomain)=($1, $2); # param from sessionid
    } else {
@@ -625,6 +626,9 @@ sub readprefs {
    my $rcfile=dotpath('openwebmailrc');
 
    # read .openwebmailrc
+   # ps: prefs entries are kept as pure strings to make the following things easier
+   #     1. copy default from $config{default...} 
+   #     2. store prefs value back to openwebmailrc file
    if ( -f $rcfile ) {
       open (RC, $rcfile) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $rcfile! ($!)");
@@ -634,14 +638,7 @@ sub readprefs {
          if ($key eq 'style') {
             $value =~ s/^\.//g;  ## In case someone gets a bright idea...
          }
-         if ($is_config_option{'list'}{"default_$key"}) {
-            # list type options should be saved in prefshash as a list
-            $value=~s/\s//g;
-            my @list=split(/,+/, $value);
-            $prefshash{$key} = \@list;
-         } else {
-            $prefshash{"$key"} = $value;
-         }
+         $prefshash{$key} = $value;
       }
       close (RC);
    }

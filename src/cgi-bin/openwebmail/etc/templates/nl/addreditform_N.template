@@ -30,17 +30,29 @@
 <script type="text/javascript" language="javascript">
 <!--
 function makeFullName(formName) {
-   var fullName = document.forms[formName].elements['@@@NAMEPREFIX.NAME@@@'].value;
-   fullName += document.forms[formName].elements['@@@NAMEPREFIX.NAME@@@'].value == ''?'':' ';
-   fullName += document.forms[formName].elements['@@@GIVENNAME.NAME@@@'].value;
-   fullName += document.forms[formName].elements['@@@GIVENNAME.NAME@@@'].value == ''?'':' ';
-   fullName += document.forms[formName].elements['@@@ADDITIONALNAMES.NAME@@@'].value;
-   fullName += document.forms[formName].elements['@@@ADDITIONALNAMES.NAME@@@'].value == ''?'':' ';
-   fullName += document.forms[formName].elements['@@@FAMILYNAME.NAME@@@'].value;
-   fullName += document.forms[formName].elements['@@@FAMILYNAME.NAME@@@'].value == ''?'':' ';
-   fullName += document.forms[formName].elements['@@@NAMESUFFIX.NAME@@@'].value;
+   var fullName = '';
+   // Chinese Japan Korean unicode regex
+   var re = /^[\u2e80-\u9fff\uac00-\ud7ff\uf900-\ufaff]/;
+
+   if (document.forms[formName].elements['@@@GIVENNAME.NAME@@@'].value != '' &&
+       document.forms[formName].elements['@@@FAMILYNAME.NAME@@@'].value != '' &&
+       document.forms[formName].elements['@@@GIVENNAME.NAME@@@'].value.match(re)) {
+      fullName += document.forms[formName].elements['@@@FAMILYNAME.NAME@@@'].value;
+      fullName += document.forms[formName].elements['@@@GIVENNAME.NAME@@@'].value;
+      fullName += document.forms[formName].elements['@@@ADDITIONALNAMES.NAME@@@'].value == ''?'':' ';
+      fullName += document.forms[formName].elements['@@@ADDITIONALNAMES.NAME@@@'].value;
+   } else {
+      fullName += document.forms[formName].elements['@@@NAMEPREFIX.NAME@@@'].value;
+      fullName += document.forms[formName].elements['@@@NAMEPREFIX.NAME@@@'].value == ''?'':' ';
+      fullName += document.forms[formName].elements['@@@GIVENNAME.NAME@@@'].value;
+      fullName += document.forms[formName].elements['@@@GIVENNAME.NAME@@@'].value == ''?'':' ';
+      fullName += document.forms[formName].elements['@@@ADDITIONALNAMES.NAME@@@'].value;
+      fullName += document.forms[formName].elements['@@@ADDITIONALNAMES.NAME@@@'].value == ''?'':' ';
+      fullName += document.forms[formName].elements['@@@FAMILYNAME.NAME@@@'].value;
+      fullName += document.forms[formName].elements['@@@FAMILYNAME.NAME@@@'].value == ''?'':' ';
+      fullName += document.forms[formName].elements['@@@NAMESUFFIX.NAME@@@'].value;
+   }
    document.forms[formName].elements['@@@FN.NAME@@@'].value = fullName;
 }
 //-->
 </script>
-

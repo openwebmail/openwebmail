@@ -46,7 +46,7 @@ sub readvfilesfromfile {
 
    return if (-s "$vFile" == 0);
 
-   ow::filelock::lock($vFile, LOCK_EX|LOCK_NB) or croak("$lang_err{'couldnt_lock'} $vFile");
+   ow::filelock::lock($vFile, LOCK_EX|LOCK_NB) or croak("Couldnt lock $vFile for write");
    open(VFILE, "$vFile") or croak("I can't open $vFile<br>\n");
 
    my $depth = 0;

@@ -364,12 +364,14 @@ sub easter_match {
    }
 
    if ($fields[1] =~ /^([\d+-]+)$/) {  #untaint
-      $fields[1] = eval($1);      # allow simple arithmetic: easter-7  1+easter
+      local $1; 		# fix perl $1 taintness propagation bug
+      $fields[1] = eval($1);	# allow simple arithmetic: easter-7  1+easter
    } else {
       return 0;  # bad syntax, only 0-9 + -  chars allowed
    }
    if ($fields[2] =~ /^([\d+-]+)$/) {  #untaint
-      $fields[2] = eval($1);      # allow simple arithmetic: easter-7  1+easter
+      local $1; 		# fix perl $1 taintness propagation bug
+      $fields[2] = eval($1);	# allow simple arithmetic: easter-7  1+easter
    } else {
       return 0;  # bad syntax, only 0-9 + -  chars allowed
    }

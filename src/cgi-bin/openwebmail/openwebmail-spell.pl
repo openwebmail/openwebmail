@@ -57,9 +57,9 @@ if (!$memdic{a}) {
 }
 
 use vars qw($SCRIPT_DIR);
-if ( $0 =~ m!^(\S*)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1 }
+if ( $0 =~ m!^(\S*)/[\w\d\-\.]+\.pl! ) { local $1; $SCRIPT_DIR=$1 }
 if ($SCRIPT_DIR eq '' && open(F, '/etc/openwebmail_path.conf')) {
-   $_=<F>; close(F); if ( $_=~/^(\S*)/) { $SCRIPT_DIR=$1 }
+   $_=<F>; close(F); if ( $_=~/^(\S*)/) { local $1; $SCRIPT_DIR=$1 }
 }
 if ($SCRIPT_DIR eq '') { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
 push (@INC, $SCRIPT_DIR);
@@ -625,6 +625,7 @@ use vars qw(*spellIN *spellOUT *spellERR);
 use vars qw($mypid $pipepid $piperun $pipeexit $pipesig);
 $mypid=$$;
 sub pipeopen {
+   local $1; # fix perl $1 taintness propagation bug
    my @cmd=@_; foreach (@cmd) { (/^(.*)$/) && ($_=$1) };	# untaint all argument
    local $|=1;				# flush CGI related output in parent
    ($piperun, $pipeexit, $pipesig)=(1,0,0);
