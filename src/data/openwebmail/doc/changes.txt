@@ -1,3 +1,18 @@
+11/24/2004
+----------
+1. fix the "Undefined subroutine &main::get_messageids_sorted_by_date" error 
+   in openwebmail-tool.pl that 
+   (reported by Yang Yao-Strong, ysyang.AT.visionnext.com)
+2. Polish language and template files translation update
+   (thanks to Pawel Foremski, pjf.AT.gna.org)
+3. fix a bug that DEFAULT_ restriction in openwebmail.conf is always active 
+   even when its default_ counterpart has been overridden
+   (reported by Yves MARTIN, ymartin.AT.mail.com)
+4. fix an error in iconv.pl.fake that the routine is_convertable() should be
+   renamed to is_convertible()
+   (reported by marvi.AT.menhir.biz, Marvi Benedet)
+
+
 11/23/2004
 ----------
 1. remove the default chld signal handler to eliminate the 

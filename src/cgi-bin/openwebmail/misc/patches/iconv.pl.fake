@@ -5,7 +5,17 @@ use strict;
 require "shares/iconv-chinese.pl";
 require "shares/iconv-japan.pl";
 
-use vars qw(%charset_convlist %charset_localname);
+use vars qw(%charset_convlist %charset_equiv);
+
+# map old/unofficial charset name to official charset name
+%charset_equiv=
+   (
+   'big-5'          => 'big5',
+   'chinesebig5'    => 'big5',
+   'gbk'            => 'gb2312',
+   'iso-8859'       => 'iso-8859-1',
+   'us-ascii'       => 'iso-8859-1',
+   );
 
 # convertable list of WWW charset, the definition is:
 # charset in the left can be converted from the charsets in right list
@@ -19,12 +29,22 @@ use vars qw(%charset_convlist %charset_localname);
    'shift_jis'     => [ 'iso-2022-jp', 'euc-jp' ],
    );
 
-sub is_convertable {
-   my ($from, $to)=@_;
-   $from=lc($from); $to=lc($to);
 
-   return 1 if ($from eq 'big5' && ($to eq 'gb2312'||$to eq 'gbk'));
-   return 1 if (($from eq 'gb2312'||$from eq 'gbk') && $to eq 'big5');
+sub official_charset {
+   my $charset=lc($_[0]);
+   $charset=~s/iso_?8859/iso\-8859/;
+   $charset=$charset_equiv{$charset} if (defined($charset_equiv{$charset})); 
+   return $charset;
+}
+
+
+sub is_convertible {
+   my ($from, $to)=@_;
+   $from=official_charset($from);
+   $to=official_charset($to);
+
+   return 1 if ($from eq 'big5' && $to eq 'gb2312');
+   return 1 if ($from eq 'gb2312' && $to eq 'big5');
    return 1 if ($from eq 'shift_jis' && $to eq 'iso-2022-jp');
    return 1 if ($from eq 'iso-2022-jp' && $to eq 'shift_jis');
    return 1 if ($from eq 'shift_jis' && $to eq 'euc-jp');
@@ -33,16 +53,18 @@ sub is_convertable {
    return 0;
 }
 
+
 sub iconv {
    my ($from, $to, @text)=@_;
-   $from=lc($from); $to=lc($to);
+   $from=official_charset($from);
+   $to=official_charset($to);
 
    for (my $i=0; $i<=$#text; $i++) {
       next if ($text[$i]!~/[^\s]/);
       # try convertion routine in iconv-chinese, iconv-japan first
-      if ($from  eq 'big5' && ($to eq 'gb2312'||$to eq 'gbk') ) {
+      if ($from  eq 'big5' && $to eq 'gb2312' ) {
          $text[$i]=b2g($text[$i]); next;
-      } elsif (($from eq 'gb2312'||$from eq 'gbk') && $to eq 'big5' ) {
+      } elsif ($from eq 'gb2312' && $to eq 'big5' ) {
          $text[$i]=g2b($text[$i]); next;
       } elsif ($from eq 'shift_jis' && $to eq 'iso-2022-jp' ) {
          sjis2jis(\$text[$i]); next;

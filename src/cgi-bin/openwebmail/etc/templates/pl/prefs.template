@@ -223,7 +223,7 @@ Temat:
 @@@DISABLEJS@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Wy³±cz embed/object/applet tag wewn±trz wiadomo¶ci:</B>
+<B>Wy³±cz obiekty osadzone wewn±trz wiadomo¶ci:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEEMBCODE@@@
 </td></tr>
@@ -292,7 +292,7 @@ Szeroko¶æ @@@EDITCOLUMNSMENU@@@ Wysoko¶æ @@@EDITROWSMENU@@@
 @@@VIRUSCHECKMAXSIZEMENU@@@ KB
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Minimalny rozmiar cia³a sprawdzanych wiadomo¶ci:</B>
+<B>Minimalny rozmiar tekstu sprawdzanych wiadomo¶ci:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@VIRUSCHECKMINBODYSIZEMENU@@@ KB
 </td></tr>
@@ -353,37 +353,37 @@ Szeroko¶æ @@@EDITCOLUMNSMENU@@@ Wysoko¶æ @@@EDITROWSMENU@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>AddressBook Options</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Size for addressbook window:</B>
+<B>Rozmiar okna ksi±¿ki adresowej:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Addressbook button position:</B>
+<B>Pozycja przycisku ksi±¿ki adresowej:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKBUTTONPOSITIONMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Addressbook default filter:</B>
+<B>Domy¶lny filtr ksi±¿ki adresowej:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKDEFAULTFILTER@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Addresses displayed per page:</B>
+<B>Ilo¶æ adresów na stronê:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKADDRSPERPAGE@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Display only one line per contact:</B>
+<B>Wy¶wietl tylko jedn± liniê na kontakt:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKADDRCOLLAPSE@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Default addressbook sort order:</B>
+<B>Domy¶lny porz±dek sortowania ksi±¿ki adresowej:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKADDRSORTORDER@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Listview field order:</B>
+<B>Po¿±dek pól widoku listy:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@ nowrap>
 @@@ABOOKLISTVIEWFIELDORDERMENU@@@
 </td></tr>
@@ -480,7 +480,7 @@ Szeroko¶æ @@@FILEEDITCOLUMNSMENU@@@ Wysoko¶æ @@@FILEEDITROWSMENU@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Dodatkowe opcje</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Default charset for file system:</B>
+<B>Domy¶lny zestaw znaku dla systemu plików:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FSCHARSETMENU@@@
 </td></tr>

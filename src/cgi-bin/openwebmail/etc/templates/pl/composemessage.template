@@ -34,7 +34,7 @@
 @@@CCFIELD@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
-<B>Bcc: ("¦lepa" kopia:)</B>
+<B>Bcc: (Niewidoczna kopia:)</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BCCFIELD@@@
 </td></tr>
@@ -112,7 +112,7 @@
 
    function msgfmthelp()
    {
-      alert("Edycja HTML wymaga przegl±darek IE 5.5+(Windows) lub Mozilla 1.3+(wszystkie systemy).");
+      alert("Edycja HTML wymaga przegl±darek IE 5.5+ lub Mozilla 1.3+.");
    }
 
    function msgfmtchangeconfirm()

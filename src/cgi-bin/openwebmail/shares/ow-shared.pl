@@ -503,6 +503,8 @@ sub load_owconf {
 
    foreach (keys %{$_rawconfcache{$configfile}{'c'}}) {
       ${$r_config_raw}{$_}=${$_rawconfcache{$configfile}{'c'}}{$_};
+      # remove DEFAULT_ restirction when default_ is overridden
+      delete ${$r_config_raw}{'DEFAULT_'.$1} if (/^default_(.*)/);
    }
    return;
 }

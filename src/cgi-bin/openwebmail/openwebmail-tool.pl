@@ -47,6 +47,7 @@ require "shares/iconv.pl";
 require "shares/maildb.pl";
 require "shares/lockget.pl";
 require "shares/cut.pl";
+require "shares/getmsgids.pl";
 require "shares/mailfilter.pl";
 require "shares/fetchmail.pl";
 require "shares/pop3book.pl";
