@@ -22,14 +22,14 @@ package ow::sk;
 %lang_sortlabels =
    (
    status      => 'Stav (Nepreèítané prvé)',
-   date        => 'Dátum (Najnov¹ie prvé)',
-   date_rev    => 'Dátum (Najstar¹ie prvé)',
-   sender      => 'Odosielateµ (Najnov¹ie prvé)',
-   sender_rev  => 'Odosielateµ (Najstar¹ie prvé)',
-   subject     => 'Predmet (Najnov¹ie prvé)',
-   subject_rev => 'Predmet (Najstar¹ie prvé)',
-   size        => 'Veµkos» (Najväè¹ie prvé)',
-   size_rev    => 'Veµkos» (Najmen¹ie prvé)'
+   date        => 'Dátum (Najstar¹ie prvé)',
+   date_rev    => 'Dátum (Najnov¹ie prvé)',
+   sender      => 'Odosielateµ (Accesding)',
+   sender_rev  => 'Odosielateµ (Decending)',
+   subject     => 'Predmet (Najstar¹ie prvé)',
+   subject_rev => 'Predmet (Najnov¹ie prvé)',
+   size        => 'Veµkos» (Najmen¹ie prvé)',
+   size_rev    => 'Veµkos» (Najväè¹ie prvé)',
    );
 
 %lang_abooksortlabels =
@@ -381,6 +381,8 @@ package ow::sk;
    markasunread => 'Oznaèi» ako nepreèítané',
    dateformat => 'Formát dátumu',
    date       => 'Dátum',
+   sentdate   => 'Sent Date',
+   recvdate   => 'Received Date',
    recipient  => 'Príjemca',
    sender     => 'Odosielateµ',
    subject    => 'Predmet',

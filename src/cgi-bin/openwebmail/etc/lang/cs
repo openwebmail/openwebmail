@@ -24,14 +24,14 @@ package ow::cs;
 %lang_sortlabels =
    (
    status      => 'Øadit podle stavu (Nepøeètené první)',
-   date        => 'Øadit podle data (Nejnovìj¹í první)',
-   date_rev    => 'Øadit podle data (Nejstar¹í první)',
-   sender      => 'Øadit podle odesílatele (Nejnovìj¹í první)',
-   sender_rev  => 'Øadit podle odesílatele (Nejstar¹í první)',
-   subject     => 'Øadit podle pøedmìtu (Nejnovìj¹í první)',
-   subject_rev => 'Øadit podle pøedmìtu (Nejstar¹í první)',
-   size        => 'Øadit podle velikosti (Nejdel¹í první)',
-   size_rev    => 'Øadit podle velikosti (Nejkrat¹í první)'
+   date        => 'Øadit podle data (Nejstar¹í první)',
+   date_rev    => 'Øadit podle data (Nejnovìj¹í první)',
+   sender      => 'Øadit podle odesílatele (Accesding)',
+   sender_rev  => 'Øadit podle odesílatele (Decending)',
+   subject     => 'Øadit podle pøedmìtu (Nejstar¹í první)',
+   subject_rev => 'Øadit podle pøedmìtu (Nejnovìj¹í první)',
+   size        => 'Øadit podle velikosti (Nejkrat¹í první)',
+   size_rev    => 'Øadit podle velikosti (Nejdel¹í první)',
    );
 
 %lang_abooksortlabels =
@@ -383,6 +383,8 @@ package ow::cs;
    markasunread => 'Oznaèit jako nepøeètená',
    dateformat => 'Formát datumu',
    date       => 'Datum',
+   sentdate   => 'Sent Date',
+   recvdate   => 'Received Date',
    recipient  => 'Pøíjemce',
    sender     => 'Odesílatel',
    subject    => 'Pøedmìt',

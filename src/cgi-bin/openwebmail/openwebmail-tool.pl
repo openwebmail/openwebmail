@@ -67,8 +67,10 @@ use vars qw(%prefs);
 use vars qw(%lang_text);
 
 # extern vars
+use vars qw($_DBVERSION);		# defined in maildb.pl
+use vars qw($_OFFSET $_SIZE $_HEADERSIZE $_HEADERCHKSUM $_RECVDATE $_DATE
+            $_FROM $_TO $_SUBJECT $_CONTENT_TYPE $_CHARSET $_STATUS $_REFERENCES);
 use vars qw(%is_config_option);		# from ow-shared.pl
-use vars qw($DBVERSION $_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE $_STATUS $_SIZE $_REFERENCES $_CHARSET $_HEADERSIZE $_HEADERCHKSUM);
 use vars qw(%is_internal_dbkey);	# from maildb.pl
 
 # local globals
@@ -1088,9 +1090,9 @@ sub folderindex {
 
             $error++ if (!$check[0] || !$check[1] || !$check[2]);
 
-            printf ("%s%s%s %4d, OFFSET:%8d, SIZE:%8d, HSIZE:%4d, DATE:%s, CHARSET:%s, STAT:%3s, MSGID:%s, FROM:%s, TO:%s, SUB:%s\n",
+            printf ("%s%s%s %4d, OFFSET:%8d, SIZE:%8d, HSIZE:%4d, DATE:%s, RECVDATE:%s, CHARSET:%s, STAT:%s, MSGID:%s, FROM:%s, TO:%s, SUB:%s\n",
                     $check[0]?'+':'-', $check[1]?'+':'-', $check[2]?'+':'-',
-                    $i+1, $attr[$_OFFSET], $attr[$_SIZE], $attr[$_HEADERSIZE], $attr[$_DATE], $attr[$_CHARSET], $attr[$_STATUS],
+                    $i+1, $attr[$_OFFSET], $attr[$_SIZE], $attr[$_HEADERSIZE], $attr[$_DATE], $attr[$_RECVDATE], $attr[$_CHARSET], $attr[$_STATUS],
                     substr($messageids[$i],0,50), $attr[$_FROM], $attr[$_TO], $attr[$_SUBJECT]) if (!$opt{'quiet'});
             #printf ("buf=$buff, buff2=$buff2\n");
 
@@ -1104,7 +1106,7 @@ sub folderindex {
             }
          }
 
-         $folderinfo{'DBVERSION'}=$DBVERSION;
+         $folderinfo{'DBVERSION'}=$_DBVERSION;
          $folderinfo{'METAINFO'}=ow::tool::metainfo($folderfile);
          if (!$opt{'quiet'}) {
             print "\n";

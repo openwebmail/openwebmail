@@ -1583,13 +1583,13 @@ sub dirfilesel {
 
    if ($action eq "sel_addattachment") {
       $temphtml=start_form(-name=>'selform',
-                          -action=>"javascript:addattachment_and_close();");
+                           -action=>"javascript:addattachment_and_close();");
    } elsif ($action eq "sel_saveattfile") {
       $temphtml=start_form(-name=>'selform',
-                          -action=>"javascript:saveattfile_and_close('$attfile');");
+                           -action=>"javascript:saveattfile_and_close('$attfile');");
    } elsif ($action eq "sel_saveattachment") {
       $temphtml=start_form(-name=>'selform',
-                          -action=>"javascript:saveattachment_and_close('$escapedfolder', '$escapedmessageid', '$attachment_nodeid');");
+                           -action=>"javascript:saveattachment_and_close('$escapedfolder', '$escapedmessageid', '$attachment_nodeid');");
    }
    $html =~ s/\@\@\@STARTDIRFORM\@\@\@/$temphtml/g;
 

@@ -61,7 +61,7 @@ use vars qw($quotausage $quotalimit);
 # extern vars
 use vars qw(%lang_folders %lang_sizes %lang_wdbutton %lang_text %lang_err);	# defined in lang/xy
 use vars qw(%charset_convlist);							# defined in iconv.pl
-use vars qw($_STATUS $_SIZE $_HEADERCHKSUM $_HEADERSIZE);			# defined in maildb.pl
+use vars qw($_SIZE $_HEADERSIZE $_HEADERCHKSUM $_STATUS);			# defined in maildb.pl
 
 # local globals
 use vars qw($folder);
@@ -265,8 +265,8 @@ sub readmessage {
 
    ### we don't keep keyword, firstpage between folders,
    ### thus the keyword, firstpage will be cleared when user change folder
-   $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-main.pl",
-                         -name=>'FolderForm').
+   $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-main.pl",
+                          -name=>'FolderForm').
                ow::tool::hiddens(sessionid=>$thissession,
                                  sort=>$sort,
                                  action=>'listmessages');
@@ -611,8 +611,8 @@ sub readmessage {
          }
       }
 
-      $htmlstat = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-send.pl",
-                            -name=>'ReplyWith').
+      $htmlstat = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-send.pl",
+                             -name=>'ReplyWith').
                   ow::tool::hiddens(sessionid=>$thissession,
                                     message_id=>$messageid,
                                     folder=>$escapedfolder,

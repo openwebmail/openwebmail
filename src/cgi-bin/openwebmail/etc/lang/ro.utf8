@@ -21,14 +21,14 @@ package ow::ro_utf8;
 %lang_sortlabels =
    (
    status      => 'Stare (Întâi cele necitite)',
-   date        => 'Data (Întâi cele mai noi)',
-   date_rev    => 'Data (Întâi cele mai vechi)',
-   sender      => 'Expeditor (Întâi cele mai noi)',
-   sender_rev  => 'Expeditor (Întâi cele mai vechi)',
-   subject     => 'Subiect (Întâi cele mai noi)',
-   subject_rev => 'Subiect (Întâi cele mai vechi)',
-   size        => 'Mărime (Întâi cele mai mari)',
-   size_rev    => 'Mărime (Întâi cele mai mici)'
+   date        => 'Data (Întâi cele mai vechi)',
+   date_rev    => 'Data (Întâi cele mai noi)',
+   sender      => 'Expeditor (Accesding)',
+   sender_rev  => 'Expeditor (Decending)',
+   subject     => 'Subiect (Întâi cele mai vechi)',
+   subject_rev => 'Subiect (Întâi cele mai noi)',
+   size        => 'Mărime (Întâi cele mai mici)',
+   size_rev    => 'Mărime (Întâi cele mai mari)',
    );
 
 %lang_abooksortlabels =
@@ -380,6 +380,8 @@ package ow::ro_utf8;
    markasunread => 'Marchează ca necitit',
    dateformat => 'Format Dată',
    date       => 'Data',
+   sentdate   => 'Sent Date',
+   recvdate   => 'Received Date',
    recipient  => 'Destinatar',
    sender     => 'Expeditor',
    subject    => 'Subiect',

@@ -21,14 +21,14 @@ package ow::he_ISO8859_8;
 %lang_sortlabels =
    (
    status      => 'םדוק וחתפנ אלש) סוטטס)',
-   date        => 'םדוק םישדח) ךיראת)',
-   date_rev    => 'םדוק םינשי) ךיראת)',
-   sender      => 'םדוק םישדח) חלוש)',
-   sender_rev  => 'םדוק םינשי) חלוש)',
-   subject     => 'םדוק םישדח) אשונ)',
-   subject_rev => 'םדוק םינשי) אשונ)',
-   size        => 'םדוק םילודג) לדוג)',
-   size_rev    => 'םדוק םינטק) לדוג)'
+   date        => 'םדוק םינשי) ךיראת)',
+   date_rev    => 'םדוק םישדח) ךיראת)',
+   sender      => 'םדוק - Accending',
+   sender_rev  => 'םדוק - Decending',
+   subject     => 'םדוק םינשי) אשונ)',
+   subject_rev => 'םדוק םישדח) אשונ)',
+   size        => 'םדוק םינטק) לדוג)',
+   size_rev    => 'םדוק םילודג) לדוג)',
    );
 
 %lang_abooksortlabels =
@@ -380,6 +380,8 @@ package ow::he_ISO8859_8;
    markasunread => 'ארקנ אלכ ןמס',
    dateformat => 'ךיראת תינבת',
    date       => 'ךיראת',
+   sentdate   => 'Sent Date',
+   recvdate   => 'Received Date',
    recipient  => 'ןעמנ',
    sender     => 'חלוש',
    subject    => 'אשונ',

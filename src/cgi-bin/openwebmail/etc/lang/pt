@@ -21,14 +21,14 @@ package ow::pt;
 %lang_sortlabels =
    (
    status      => 'Estado (Não lidas)',
-   date        => 'Data (Mais Recente)',
-   date_rev    => 'Data (Menos Recente)',
-   sender      => 'Remetente (Mais Recente)',
-   sender_rev  => 'Remetente (Menos Recente)',
-   subject     => 'Assunto (Mais Recente)',
-   subject_rev => 'Assunto (Menos Recente)',
-   size        => 'Tamanho (Maior)',
-   size_rev    => 'Tamanho (Menor)'
+   date        => 'Data (Menos Recente)',
+   date_rev    => 'Data (Mais Recente)',
+   sender      => 'Remetente (Accesding)',
+   sender_rev  => 'Remetente (Decending)',
+   subject     => 'Assunto (Menos Recente)',
+   subject_rev => 'Assunto (Mais Recente)',
+   size        => 'Tamanho (Menor)',
+   size_rev    => 'Tamanho (Maior)',
    );
 
 %lang_abooksortlabels =
@@ -380,6 +380,8 @@ package ow::pt;
    markasunread => 'Marcar como não lida',
    dateformat => 'Formato da data',
    date       => 'Data',
+   sentdate   => 'Sent Date',
+   recvdate   => 'Received Date',
    recipient  => 'Destinatário',
    sender     => 'Remetente',
    subject    => 'Assunto',

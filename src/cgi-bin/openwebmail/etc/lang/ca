@@ -22,14 +22,14 @@ package ow::ca;
 %lang_sortlabels =
    (
    status      => 'Estat (Primer els no llegits)',
-   date        => 'Data (Primer els nous)',
-   date_rev    => 'Data (Primer els vells)',
-   sender      => 'Remitent (Primer els nous)',
-   sender_rev  => 'Remitent (Primer els vells)',
-   subject     => 'Assumpte (Primer els nous)',
-   subject_rev => 'Assumpte (Primer els vells)',
-   size        => 'Mida (Primer els grans)',
-   size_rev    => 'Mida (Primer els petits)'
+   date        => 'Data (Primer els vells)',
+   date_rev    => 'Data (Primer els nous)',
+   sender      => 'Remitent (Accesding)',
+   sender_rev  => 'Remitent (Decending)',
+   subject     => 'Assumpte (Primer els vells)',
+   subject_rev => 'Assumpte (Primer els nous)',
+   size        => 'Mida (Primer els petits)',
+   size_rev    => 'Mida (Primer els grans)',
    );
 
 %lang_abooksortlabels =
@@ -381,6 +381,8 @@ package ow::ca;
    markasunread => 'Marca com a no llegit',
    dateformat => 'Format de data',
    date       => 'Data',
+   sentdate   => 'Sent Date',
+   recvdate   => 'Received Date',
    recipient  => 'Destinatari',
    sender     => 'Remitent',
    subject    => 'Assumpte',

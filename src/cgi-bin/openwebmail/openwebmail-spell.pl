@@ -162,8 +162,8 @@ sub docheckform {
    $html =~ s/\@\@\@DICTIONARY\@\@\@/$dictionary/;
    $html =~ s/\@\@\@WORDSHTML\@\@\@/$wordshtml/;
 
-   $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-spell.pl",
-                         -name=>'spellcheck') .
+   $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-spell.pl",
+                          -name=>'spellcheck') .
                ow::tool::hiddens(sessionid=>$thissession,
                                  htmlmode=>$htmlmode,
                                  form=>$formname,
@@ -308,8 +308,8 @@ sub editpdict {
    }
    $html =~ s/\@\@\@DICTIONARYWORDS\@\@\@/$temphtml/;
 
-   $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-spell.pl",
-                         -name=>'spellcheck').
+   $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-spell.pl",
+                          -name=>'spellcheck').
                ow::tool::hiddens($lang_text{'editpdict'}=>'yes',
                                  sessionid=>$thissession,
                                  dictionary=>$dictionary);

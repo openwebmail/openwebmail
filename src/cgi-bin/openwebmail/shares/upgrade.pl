@@ -309,12 +309,7 @@ sub upgrade_all {	# called if user releasedate is too old
          $prefs{'abook_width'}=$config{'default_abook_width'};
          $prefs{'abook_height'}=$config{'default_abook_height'};
          $prefs{'abook_listviewfieldorder'}=$config{'default_abook_listviewfieldorder'};
-         if (open (RC, ">$rcfile")) {
-            foreach my $key (@openwebmailrcitem) {
-               print RC "$key=$prefs{$key}\n";
-            }
-            close (RC);
-         }
+         # $rcfile is written back in update_openwebmailrc()
          writehistory("release upgrade - openwebmailrc by 20041101");
          writelog("release upgrade - openwebmailrc by 20041101");
       }
@@ -359,6 +354,18 @@ sub upgrade_all {	# called if user releasedate is too old
          }
       }
    }
+
+   if ( $user_releasedate lt "20050308.1" ) {
+      my $rcfile=dotpath('openwebmailrc');
+      if (-f $rcfile) {
+         %prefs = readprefs();
+         $prefs{'sort'}='date_rev' if ($prefs{'sort'} eq 'date');
+         # $rcfile is written back in update_openwebmailrc()
+         writehistory("release upgrade - openwebmailrc by 20050308.1");
+         writelog("release upgrade - openwebmailrc by 20050308.1");
+      }
+   }
+
    return;
 }
 
@@ -389,7 +396,7 @@ sub update_openwebmailrc {
    my $rcfile=dotpath('openwebmailrc');
    my $saverc=0;
    if (-f $rcfile) {
-      $saverc=1 if ( $user_releasedate lt "20050220" );	# rc upgrade
+      $saverc=1 if ( $user_releasedate lt "20050309" );	# rc upgrade
       %prefs = readprefs() if ($saverc);		# load user old prefs + sys defaults
    } else {
       $saverc=1 if ($config{'auto_createrc'});		# rc auto create

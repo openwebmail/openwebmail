@@ -256,7 +256,7 @@ sub userfirsttime {
    my ($html, $temphtml);
    $html = applystyle(readtemplate("userfirsttime.template"));
 
-   $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-prefs.pl").
+   $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-prefs.pl").
                ow::tool::hiddens(action=>'editprefs',
                                  sessionid=>$thissession,
                                  userfirsttime=>'1').
@@ -705,6 +705,14 @@ sub editprefs {
                                 -override=>'1',
                                 defined($config_raw{'DEFAULT_msgsort'})?('-disabled'=>'1'):());
          $html =~ s/\@\@\@SORTMENU\@\@\@/$temphtml/;
+
+         $temphtml = popup_menu(-name=>'msgdatetimestamp',
+                                -values=>['sentdate', 'recvdate'],
+                                -default=>$prefs{'msgdatetimestamp'} || 'sentdate',
+                                -labels=>{ sentdate => $lang_text{sentdate}, recvdate => $lang_text{recvdate} },
+                                -override=>'1',
+                                defined($config_raw{'DEFAULT_msgdatetimestamp'})?('-disabled'=>'1'):());
+         $html =~ s/\@\@\@MSGDATETIMESTAMPMENU\@\@\@/$temphtml/;
 
          $temphtml = iconlink("search.s.gif", '', '');
          $html =~ s/\@\@\@MINISEARCHICON\@\@\@/$temphtml/;
@@ -1609,19 +1617,19 @@ sub editprefs {
 
       # cancel button
       if ($prefs_caller eq "cal") {
-         $temphtml  = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-cal.pl").
+         $temphtml  = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-cal.pl").
                       ow::tool::hiddens(action=>$prefs{'calendar_defaultview'});
       } elsif ($prefs_caller eq "webdisk") {
-         $temphtml  = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-webdisk.pl").
+         $temphtml  = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-webdisk.pl").
                       ow::tool::hiddens(action=>'showdir');
       } elsif ($prefs_caller eq "read") {
-         $temphtml  = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-read.pl").
+         $temphtml  = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-read.pl").
                       ow::tool::hiddens(action=>'readmessage');
       } elsif ($prefs_caller eq "addrlistview") {
-         $temphtml  = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl").
+         $temphtml  = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl").
                       ow::tool::hiddens(action=>'addrlistview');
       } else {
-         $temphtml  = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-main.pl").
+         $temphtml  = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-main.pl").
                       ow::tool::hiddens(action=>'listmessages');
       }
       $temphtml .= $formparmstr;
@@ -1782,19 +1790,19 @@ sub saveprefs {
    $html = applystyle(readtemplate("prefssaved.template"));
 
    if ($prefs_caller eq "cal") {
-      $temphtml .= startform(-action=>"$config{'ow_cgiurl'}/openwebmail-cal.pl").
+      $temphtml .= start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-cal.pl").
                    ow::tool::hiddens(action=>$prefs{'calendar_defaultview'});
    } elsif ($prefs_caller eq "webdisk") {
-      $temphtml .= startform(-action=>"$config{'ow_cgiurl'}/openwebmail-webdisk.pl").
+      $temphtml .= start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-webdisk.pl").
                    ow::tool::hiddens(action=>'showdir');
    } elsif ($prefs_caller eq "read") {
-      $temphtml .= startform(-action=>"$config{'ow_cgiurl'}/openwebmail-read.pl").
+      $temphtml .= start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-read.pl").
                    ow::tool::hiddens(action=>'readmessage');
    } elsif ($prefs_caller eq "addrlistview") {
-      $temphtml .= startform(-action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl").
+      $temphtml .= start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl").
                    ow::tool::hiddens(action=>'addrlistview');
    } else {
-      $temphtml .= startform(-action=>"$config{'ow_cgiurl'}/openwebmail-main.pl").
+      $temphtml .= start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-main.pl").
                    ow::tool::hiddens(action=>'listmessages');
    }
    $temphtml .= ow::tool::hiddens(sessionid=>$thissession,
@@ -2025,8 +2033,8 @@ sub editpassword {
    if (cookie("ow-ssl")) {	# backto SSL
       $chpwd_url="https://$ENV{'HTTP_HOST'}$chpwd_url" if ($chpwd_url!~s!^https?://!https://!i);
    }
-   $temphtml = startform(-name=>'passwordform',
-			 -action=>$chpwd_url).
+   $temphtml = start_form(-name=>'passwordform',
+			  -action=>$chpwd_url).
                ow::tool::hiddens(action=>'changepassword').
                $formparmstr;
    $html =~ s/\@\@\@STARTFORM\@\@\@/$temphtml/;
@@ -2064,7 +2072,7 @@ sub editpassword {
    $temphtml = end_form();
    $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/g;
 
-   $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-prefs.pl") .
+   $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-prefs.pl") .
                ow::tool::hiddens(action=>'editprefs').
                $formparmstr.
                submit("$lang_text{'cancel'}").
@@ -2138,7 +2146,7 @@ sub changepassword {
         ($ENV{'HTTPS'}=~/on/i || $ENV{'SERVER_PORT'}==443) ) {
       $url="http://$ENV{'HTTP_HOST'}$url" if ($url!~s!^https?://!http://!i);
    }
-   $temphtml = startform(-action=>$url) .
+   $temphtml = start_form(-action=>$url) .
                ow::tool::hiddens(action=>'editprefs').
                $formparmstr.
                submit("$lang_text{'backto'} $lang_text{'userprefs'}").
@@ -2212,8 +2220,8 @@ sub editfroms {
    $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $lang_text{'userprefs'}", qq|accesskey="F" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;$urlparmstr"|);
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/;
 
-   $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-prefs.pl",
-                         -name=>'newfrom').
+   $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-prefs.pl",
+                          -name=>'newfrom').
                ow::tool::hiddens(action=>'addfrom').
                $formparmstr;
    $html =~ s/\@\@\@STARTFROMFORM\@\@\@/$temphtml/;
@@ -2343,8 +2351,8 @@ sub editpop3 {
    $temphtml .= iconlink("pop3.gif", $lang_text{'retr_pop3s'}, qq|accesskey="G" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=pop3fetches&amp;$urlparmstr"|). qq| \n|;
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/;
 
-   $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-prefs.pl",
-                         -name=>'newpop3').
+   $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-prefs.pl",
+                          -name=>'newpop3').
                ow::tool::hiddens(action=>'addpop3').
                $formparmstr;
    $html =~ s/\@\@\@STARTPOP3FORM\@\@\@/$temphtml/;
@@ -2591,8 +2599,8 @@ sub editfilter {
 
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/;
 
-   $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-prefs.pl",
-                         -name=>'newfilter').
+   $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-prefs.pl",
+                          -name=>'newfilter').
                ow::tool::hiddens(action=>'addfilter').
                $formparmstr;
    $html =~ s/\@\@\@STARTFILTERFORM\@\@\@/$temphtml/;
@@ -2935,8 +2943,8 @@ sub editstat {
                    qq|<td bgcolor=$bgcolor>$namestr</a></td>|.
                    qq|<td bgcolor=$bgcolor>$contentstr</td>|.
                    qq|<td bgcolor=$bgcolor nowrap>|;
-      $temphtml .= startform(-action=>"$config{'ow_cgiurl'}/openwebmail-prefs.pl",
-                             -name=>'stationery').
+      $temphtml .= start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-prefs.pl",
+                              -name=>'stationery').
                    ow::tool::hiddens(action=>'editstat',
                                      statname=>ow::tool::escapeURL($name)).
                    $formparmstr.
@@ -2955,8 +2963,8 @@ sub editstat {
    $html =~ s/\@\@\@STATIONERY\@\@\@/$temphtml/;
 
    # compose new stationery form
-   $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-prefs.pl",
-                         -name=>'stationery').
+   $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-prefs.pl",
+                          -name=>'stationery').
                ow::tool::hiddens(action=>'addstat').
                $formparmstr;
    $html =~ s/\@\@\@STARTSTATFORM\@\@\@/$temphtml/;

@@ -22,14 +22,14 @@ package ow::hu;
 %lang_sortlabels =
    (
    status      => 'Állapot (Elõre az olvasatlan)',
-   date        => 'Dátum (Elõre az új)',
-   date_rev    => 'Dátum (Elõre a régi)',
-   sender      => 'Küldõ (Elõre az új)',
-   sender_rev  => 'Küldõ (Elõre a régi)',
-   subject     => 'Tárgy (Elõre az új)',
-   subject_rev => 'Tárgy (Elõre a régi)',
-   size        => 'Méret (Elõre a nagyok)',
-   size_rev    => 'Méret (Elõre a kicsik)'
+   date        => 'Dátum (Elõre a régi)',
+   date_rev    => 'Dátum (Elõre az új)',
+   sender      => 'Küldõ (Accesding)',
+   sender_rev  => 'Küldõ (Decending)',
+   subject     => 'Tárgy (Elõre a régi)',
+   subject_rev => 'Tárgy (Elõre az új)',
+   size        => 'Méret (Elõre a kicsik)',
+   size_rev    => 'Méret (Elõre a nagyok)',
    );
 
 %lang_abooksortlabels =
@@ -381,6 +381,8 @@ package ow::hu;
    markasunread => 'Újnak jelöl',
    dateformat => 'Dátum formátum',
    date       => 'Dátum',
+   sentdate   => 'Sent Date',
+   recvdate   => 'Received Date',
    recipient  => 'Címzett',
    sender     => 'Küldõ',
    subject    => 'Tárgy',

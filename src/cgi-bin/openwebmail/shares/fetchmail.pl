@@ -172,7 +172,7 @@ sub fetchmail {
              ow::datetime::dateserial2gmtime($dateserial_gm) > 86400 ) {
             $dateserial=$dateserial_gm;	# use current time if msg time is newer than now for 1 day
          }
-         if ($config{'deliver_use_GMT'}) {
+         if ($config{'deliver_use_gmt'}) {
             $msgdate=ow::datetime::dateserial2delimiter($dateserial, "", $prefs{'daylightsaving'});
          } else {
             $msgdate=ow::datetime::dateserial2delimiter($dateserial, ow::datetime::gettimeoffset(), $prefs{'daylightsaving'});

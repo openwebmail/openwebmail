@@ -21,14 +21,14 @@ package ow::id;
 %lang_sortlabels =
    (
    status      => 'Status (Utamakan Pesan yang belum dibaca)',
-   date        => 'Tanggal (Utamakan Tanggal Pesan Baru)',
-   date_rev    => 'Tanggal (Utamakan Tanggal Pesan Lama)',
-   sender      => 'Pengirim (Utamakan Kirim Pesan Baru)',
-   sender_rev  => 'Pengirim (Utamakan Kirim Pesan Lama)',
-   subject     => 'Judul (Utamakan Judul Pesan Baru)',
-   subject_rev => 'Judul (Utamakan Judul Pesan Lama)',
-   size        => 'Ukuran (Utamakan ukuran Besar)',
-   size_rev    => 'Ukuran (Utamakan ukuran Kecil)'
+   date        => 'Tanggal (Utamakan Tanggal Pesan Lama)',
+   date_rev    => 'Tanggal (Utamakan Tanggal Pesan Baru)',
+   sender      => 'Pengirim (Accesding)',
+   sender_rev  => 'Pengirim (Decending)',
+   subject     => 'Judul (Utamakan Judul Pesan Lama)',
+   subject_rev => 'Judul (Utamakan Judul Pesan Baru)',
+   size        => 'Ukuran (Utamakan ukuran Kecil)',
+   size_rev    => 'Ukuran (Utamakan ukuran Besar)',
    );
 
 %lang_abooksortlabels =
@@ -380,6 +380,8 @@ package ow::id;
    markasunread => 'Belum dibaca',
    dateformat => 'Format Waktu',
    date       => 'Tanggal',
+   sentdate   => 'Sent Date',
+   recvdate   => 'Received Date',
    recipient  => 'Penerima',
    sender     => 'Pengirim',
    subject    => 'Judul',

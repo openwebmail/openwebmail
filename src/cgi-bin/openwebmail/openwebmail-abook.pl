@@ -940,7 +940,7 @@ sub addrlistview {
    $html =~ s/\@\@\@TOTALSPAN\@\@\@/$tabletotalspan/g;
 
    # the addressbook selection
-   $temphtml = startform(-name=>'abookFolderForm',
+   $temphtml = start_form(-name=>'abookFolderForm',
                          -action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl");
 
    # selection menu with fscharset support, tricky but important sample!
@@ -1249,8 +1249,8 @@ sub addrlistview {
                      qq|<tr>\n|.
                      qq|<td colspan="$tabletotalspan" bgcolor=$style{"tablerow_dark"}>\n|.
                      qq|<table cellpadding="0" cellspacing="4" border="0" align="center">\n|.
-                     startform(-name=>'quickAddForm',
-                               -action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl").
+                     start_form(-name=>'quickAddForm',
+                                -action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl").
                      ow::tool::hiddens(action=>'addredit',
                                        sessionid=>$thissession,
                                        abookfolder=>ow::tool::escapeURL($abookfolder),
@@ -1302,8 +1302,8 @@ sub addrlistview {
 
    if ($listviewmode eq '') {
       if (!$limited) {
-         $temphtml = startform(-name=>'composeForm',
-                               -action=>"$config{'ow_cgiurl'}/openwebmail-send.pl").
+         $temphtml = start_form(-name=>'composeForm',
+                                -action=>"$config{'ow_cgiurl'}/openwebmail-send.pl").
                      ow::tool::hiddens(action=>'composemessage',
                                        sessionid=>$thissession,
                                        checkedto=>ow::htmltext::str2html($checkedto),
@@ -1320,8 +1320,8 @@ sub addrlistview {
                      end_form();
       }
    } elsif ($listviewmode eq 'export') {
-      $temphtml = startform(-name=>'exportForm',
-                            -action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl").
+      $temphtml = start_form(-name=>'exportForm',
+                             -action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl").
                   ow::tool::hiddens(action=>'addrexport',
                                     sessionid=>$thissession,
                                     checkedto=>ow::htmltext::str2html($checkedto),
@@ -1337,8 +1337,8 @@ sub addrlistview {
                                    ).
                   end_form();
    } elsif ($listviewmode eq 'composeselect') {
-      $temphtml = startform(-name=>'composeselectForm',
-                            -action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl").
+      $temphtml = start_form(-name=>'composeselectForm',
+                             -action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl").
                   ow::tool::hiddens(
                                     checkedto=>ow::htmltext::str2html($checkedto),
                                     checkedcc=>ow::htmltext::str2html($checkedcc),
@@ -1348,8 +1348,8 @@ sub addrlistview {
    }
 
    # start the overall contacts area form (to capture to,cc,bcc input checkboxes)
-   $temphtml .= startform(-name=>'contactsForm',
-                          -action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl").
+   $temphtml .= start_form(-name=>'contactsForm',
+                           -action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl").
                 ow::tool::hiddens(action=>'addrlistview',
                                   checkedto=>ow::htmltext::str2html($checkedto),
                                   checkedcc=>ow::htmltext::str2html($checkedcc),
@@ -1690,8 +1690,8 @@ sub addrlistview {
 
       my $buttons = qq|<tr>|.
                     qq|<td colspan="$tabletotalspan" align="center" nowrap>|.
-                    startform(-name=>'closeform',
-                              -action=>"#").
+                    start_form(-name=>'closeform',
+                               -action=>"#").
                     button(-name=>'okbutton',
                            -value=>$lang_text{'abook_listview_done'},
                            -accesskey=>'J',
@@ -1757,7 +1757,7 @@ sub addrlistview {
       $html =~ s/\@\@\@EXPORTMODEFORMEXPORTNOW\@\@\@/$temphtml/;
 
       $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl",
-                              -name=>'cancelExportForm').
+                             -name=>'cancelExportForm').
                   ow::tool::hiddens(action=>'addrlistview'). $formparm;
       $temphtml .= submit(-name=>"$lang_text{'cancel'}",
                           -class=>"medtext");
@@ -3915,8 +3915,8 @@ sub addrshowchecked {
               qq|</script>\n|.
               qq|</head>\n|.
               qq|<body onLoad=getOpenerData('contactsForm','to','cc','bcc');>\n|.
-              startform(-name=>'grabForm',
-                        -action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl").
+              start_form(-name=>'grabForm',
+                         -action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl").
               ow::tool::hiddens(action=>'addrshowchecked',
                                 sessionid=>$thissession,
                                 listviewmode=>$aftergrabmode,

@@ -22,14 +22,14 @@ package ow::nl;
 %lang_sortlabels =
    (
    status      => 'Status (Ongelezen eerst)',
-   date        => 'Datum (Nieuwste eerst)',
-   date_rev    => 'Datum (Oudste eerst)',
-   sender      => 'Afzender (Nieuwste eerst)',
-   sender_rev  => 'Afzender (Oudste eerst)',
-   subject     => 'Onderwerp (Nieuwste eerst)',
-   subject_rev => 'Onderwerp (Oudste eerst)',
-   size        => 'Grootte (Grootste eerst)',
-   size_rev    => 'Grootte (Kleinste eerst)'
+   date        => 'Datum (Oudste eerst)',
+   date_rev    => 'Datum (Nieuwste eerst)',
+   sender      => 'Afzender (Accesding)',
+   sender_rev  => 'Afzender (Decending)',
+   subject     => 'Onderwerp (Oudste eerst)',
+   subject_rev => 'Onderwerp (Nieuwste eerst)',
+   size        => 'Grootte (Kleinste eerst)',
+   size_rev    => 'Grootte (Grootste eerst)',
    );
 
 %lang_abooksortlabels =
@@ -381,6 +381,8 @@ package ow::nl;
    markasunread => 'Markeren als ongelezen',
    dateformat => 'Datum formaat',
    date       => 'Datum',
+   sentdate   => 'Sent Date',
+   recvdate   => 'Received Date',
    recipient  => 'Geadresseerde',
    sender     => 'Afzender',
    subject    => 'Onderwerp',

@@ -21,14 +21,14 @@ package ow::lt;
 %lang_sortlabels =
    (
    status      => 'Ruðiavimas (pirma neskaityti)',
-   date        => 'Pagal datà (pirma naujausi)',
-   date_rev    => 'Pagal datà (pirma seniausi)',
-   sender      => 'Pagal siuntëjà (pirma naujausi)',
-   sender_rev  => 'Pagal siuntëjà (pirma seniausi)',
-   subject     => 'Pagal  temà (pirma naujausi)',
-   subject_rev => 'Pagal  temà (pirma seniausi)',
-   size        => 'Pagal dydá (pirma didþiausi)',
-   size_rev    => 'Pagal dydá (pirma maþiausia)'
+   date        => 'Pagal datà (pirma seniausi)',
+   date_rev    => 'Pagal datà (pirma naujausi)',
+   sender      => 'Pagal siuntëjà (Accesding)',
+   sender_rev  => 'Pagal siuntëjà (Decending)',
+   subject     => 'Pagal  temà (pirma seniausi)',
+   subject_rev => 'Pagal  temà (pirma naujausi)',
+   size        => 'Pagal dydá (pirma maþiausia)',
+   size_rev    => 'Pagal dydá (pirma didþiausi)',
    );
 
 %lang_abooksortlabels =
@@ -380,6 +380,8 @@ package ow::lt;
    markasunread => 'Neperskaitymo þymë',
    dateformat => 'Datos formatas',
    date       => 'Data',
+   sentdate   => 'Sent Date',
+   recvdate   => 'Received Date',
    recipient  => 'Gavëjas',
    sender     => 'Siuntëjas',
    subject    => 'Tema',

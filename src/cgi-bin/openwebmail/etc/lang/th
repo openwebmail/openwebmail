@@ -21,14 +21,14 @@ package ow::th;
 %lang_sortlabels =
    (
    status      => 'สถานะ (ยังไม่อ่านก่อน)',
-   date        => 'วันที่ (ใหม่สุดก่อน)',
-   date_rev    => 'วันที่ (เก่าสุดก่อน)',
-   sender      => 'ผู้ส่ง (เรียงตามลำดับ)',
-   sender_rev  => 'ผู้ส่ง (เรียงย้อนหลัง)',
-   subject     => 'เรื่อง (เรียงตามลำดับ)',
-   subject_rev => 'เรื่อง (เรียงย้อนหลัง)',
-   size        => 'ขนาด (ใหญ่สุดก่อน)',
-   size_rev    => 'ขนาด (เล็กสุดก่อน)'
+   date        => 'วันที่ (เก่าสุดก่อน)',
+   date_rev    => 'วันที่ (ใหม่สุดก่อน)',
+   sender      => 'ผู้ส่ง (Accesding)',
+   sender_rev  => 'ผู้ส่ง (Decending)',
+   subject     => 'เรื่อง (เรียงย้อนหลัง)',
+   subject_rev => 'เรื่อง (เรียงตามลำดับ)',
+   size        => 'ขนาด (เล็กสุดก่อน)',
+   size_rev    => 'ขนาด (ใหญ่สุดก่อน)',
    );
 
 %lang_abooksortlabels =
@@ -380,6 +380,8 @@ package ow::th;
    markasunread => 'หมายว่ายังไม่อ่าน',
    dateformat => 'รูปแบบวันที่',
    date       => 'วันที่',
+   sentdate   => 'Sent Date',
+   recvdate   => 'Received Date',
    recipient  => 'ผู้รับ',
    sender     => 'ผู้ส่ง',
    subject    => 'เรื่อง',

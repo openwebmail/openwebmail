@@ -4,7 +4,8 @@
 use strict;
 use Fcntl qw(:DEFAULT :flock);
 
-use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE $_STATUS $_SIZE $_REFERENCES $_CHARSET);	# defined in maildb.pl
+use vars qw($_OFFSET $_SIZE $_HEADERSIZE $_HEADERCHKSUM $_RECVDATE $_DATE
+            $_FROM $_TO $_SUBJECT $_CONTENT_TYPE $_CHARSET $_STATUS $_REFERENCES);	# defined in maildb.pl
 use vars qw(%config);
 
 ########## CUTFOLDERMAILS/CUTDIRFILES ############################
@@ -128,7 +129,7 @@ sub _cutfoldermail {	# reduce folder size by $cutpercent
       ow::filelock::lock($folderfile, LOCK_UN);
       return -2;
    }
-   my $r_messageids=get_messageids_sorted_by_date($folderdb, 0);
+   my $r_messageids=get_messageids_sorted_by_recvdate($folderdb, 0);
    if (!ow::dbm::open(\%FDB, $folderdb, LOCK_SH)) {
       ow::filelock::lock($folderfile, LOCK_UN);
       return -3;

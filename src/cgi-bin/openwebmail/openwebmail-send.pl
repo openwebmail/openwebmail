@@ -59,8 +59,8 @@ use vars qw($quotausage $quotalimit);
 use vars qw(%lang_folders %lang_sizes %lang_wdbutton %lang_text %lang_err
             %lang_prioritylabels %lang_msgformatlabels); # defined in lang/xy
 use vars qw(%charset_convlist);	# defined in iconv.pl
-use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE $_STATUS
-            $_SIZE $_REFERENCES $_CHARSET $_HEADERSIZE $_HEADERCHKSUM); # defined in maildb.pl
+use vars qw($_OFFSET $_SIZE $_HEADERSIZE $_HEADERCHKSUM $_RECVDATE $_DATE
+            $_FROM $_TO $_SUBJECT $_CONTENT_TYPE $_STATUS $_CHARSET $_REFERENCES);	# defined in maildb.pl
 
 # local globals
 use vars qw($folder $messageid $mymessageid);
@@ -2127,6 +2127,7 @@ sub sendmessage {
             $attr[$_FROM]=qq|$from|;
          }
          $attr[$_DATE]=$dateserial;
+         $attr[$_RECVDATE]=$dateserial;
          $attr[$_SUBJECT]=$subject;
          $attr[$_CONTENT_TYPE]=$contenttype;
 

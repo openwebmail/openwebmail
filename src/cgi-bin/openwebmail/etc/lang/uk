@@ -21,14 +21,14 @@ package ow::uk;
 %lang_sortlabels =
    (
    status      => 'Статус (Непрочитан╕ спочатку)',
-   date        => 'по дат╕ ',
-   date_rev    => 'по дат╕ (Зворотн╕й порядок)',
-   sender      => 'по автору',
-   sender_rev  => 'по автору (Зворотн╕й порядок)',
-   subject     => 'по тем╕ ',
-   subject_rev => 'по тем╕ (Зворотн╕й порядок)',
-   size        => 'по розм╕ру ',
-   size_rev    => 'по розм╕ру (Зворотн╕й порядок)'
+   date        => 'по дат╕ (Зворотн╕й порядок)',
+   date_rev    => 'по дат╕ ',
+   sender      => 'по автору (Accesding)',
+   sender_rev  => 'по автору',
+   subject     => 'по тем╕ (Decending)',
+   subject_rev => 'по тем╕ ',
+   size        => 'по розм╕ру (Зворотн╕й порядок)',
+   size_rev    => 'по розм╕ру ',
    );
 
 %lang_abooksortlabels =
@@ -380,6 +380,8 @@ package ow::uk;
    markasunread => 'Пом╕тити як непрочитане',
    dateformat => 'Формат дати',
    date       => 'Дата',
+   sentdate   => 'Sent Date',
+   recvdate   => 'Received Date',
    recipient  => 'В╕дправлено',
    sender     => 'Автор',
    subject    => 'Тема',

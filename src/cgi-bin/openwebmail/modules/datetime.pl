@@ -181,7 +181,7 @@ sub dateserial2gmtime {
 
 ########## DELIMITER <-> DATESERIAL ##############################
 sub delimiter2dateserial {	# return dateserial of GMT
-   my ($delimiter, $deliver_use_GMT, $daylightsaving)=@_;
+   my ($delimiter, $deliver_use_gmt, $daylightsaving)=@_;
 
    # extract date from the 'From ' line, it must be in this form
    # From Tung@turtle.ee.ncku.edu.tw Fri Jun 22 14:15:33 2001
@@ -199,7 +199,7 @@ sub delimiter2dateserial {	# return dateserial of GMT
    my $mon=$months{$monstr};
 
    my $t=array2seconds($sec,$min,$hour, $mday,$mon-1,$year-1900);
-   if (!$deliver_use_GMT) {
+   if (!$deliver_use_gmt) {
       # we don't trust the zone abbreviation in delimiter line because it is not unique.
       # see http://www.worldtimezone.com/wtz-names/timezonenames.html for detail
       # since delimiter is written by local deliver, so we use gettimeoffset() instead

@@ -26,14 +26,14 @@ package ow::ja_JP_utf8;
 %lang_sortlabels =
    (
    status      => 'ステータス (未読が最初)',
-   date        => '日付 (最新が最初)',
-   date_rev    => '日付 (最古が最初)',
-   sender      => '送信者 (最新が最初)',
-   sender_rev  => '送信者 (最古が最初)',
-   subject     => '件名 (最新が最初)',
-   subject_rev => '件名 (最古が最初)',
-   size        => 'サイズ (最大が最初)',
-   size_rev    => 'サイズ (最小が最初)'
+   date        => '日付 (最古が最初)',
+   date_rev    => '日付 (最新が最初)',
+   sender      => '送信者 (Accesding)',
+   sender_rev  => '送信者 (Decending)',
+   subject     => '件名 (最古が最初)',
+   subject_rev => '件名 (最新が最初)',
+   size        => 'サイズ (最小が最初)',
+   size_rev    => 'サイズ (最大が最初)',
    );
 
 %lang_abooksortlabels =
@@ -385,6 +385,8 @@ package ow::ja_JP_utf8;
    markasunread => '未読',
    dateformat => '日付フォーマット',
    date       => '日付',
+   sentdate   => 'Sent Date',
+   recvdate   => 'Received Date',
    recipient  => '受信者',
    sender     => '送信者',
    subject    => '件名',

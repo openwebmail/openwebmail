@@ -201,7 +201,7 @@ ps: In our experience, the folder db size is about 0.3% to 0.8% of the
     based on the ratio.
 
 
-deliver_use_GMT
+deliver_use_gmt
 -----------------------------------------------------------------------
 Set this to 'yes' if you mail deliver uses GMT time in the delimiter
 line when writing new messages to mailspool.
@@ -1769,6 +1769,12 @@ Available value: date from subject size
 default_sort
 -----------------------------------------------------------------------
 default message sorting, available value: date, sender, subject, size
+
+
+default_msgdatetimestamp
+-----------------------------------------------------------------------
+default timestamp used for date field in message list
+values:  sentdate or recvdate
 
 
 default_useminisearchicon

@@ -21,14 +21,14 @@ package ow::zh_CN_GB2312_utf8;
 %lang_sortlabels =
    (
    status      => '状态（未读优先）',
-   date        => '日期（新信优先）',
-   date_rev    => '日期（旧信优先）',
-   sender      => '发件人（新信优先）',
-   sender_rev  => '发件人（旧信优先）',
-   subject     => '主题（新信优先）',
-   subject_rev => '主题（旧信优先）',
-   size        => '大小（大信优先）',
-   size_rev    => '大小（小信优先）'
+   date        => '日期（旧信优先）',
+   date_rev    => '日期（新信优先）',
+   sender      => '发件人（笔画少）',
+   sender_rev  => '发件人（笔划多）',
+   subject     => '主题（旧信优先）',
+   subject_rev => '主题（新信优先）',
+   size        => '大小（小信优先）',
+   size_rev    => '大小（大信优先）',
    );
 
 %lang_abooksortlabels =
@@ -380,6 +380,8 @@ package ow::zh_CN_GB2312_utf8;
    markasunread => '标示成未读',
    dateformat => '日期格式',
    date       => '日期',
+   sentdate   => '发信日期',
+   recvdate   => '收信日期',
    recipient  => '收件人',
    sender     => '发件人',
    subject    => '主题',

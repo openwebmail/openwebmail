@@ -21,14 +21,14 @@ package ow::fr;
 %lang_sortlabels =
    (
    status      => 'Statut (Non lus d\'abord)',
-   date        => 'Date (Le plus récent d\'abord)',
-   date_rev    => 'Date (Le plus ancien d\'abord)',
-   sender      => 'Expéditeur (Le plus récent d\'abord)',
-   sender_rev  => 'Expéditeur (Le plus ancien d\'abord)',
-   subject     => 'Sujet (Le plus récent d\'abord)',
-   subject_rev => 'Sujet (Le plus ancien d\'abord)',
-   size        => 'Taille (Le plus gros d\'abord)',
-   size_rev    => 'Taille (Le plus petit d\'abord)'
+   date        => 'Date (Le plus ancien d\'abord)',
+   date_rev    => 'Date (Le plus récent d\'abord)',
+   sender      => 'Expéditeur (Accesding)',
+   sender_rev  => 'Expéditeur (Decending)',
+   subject     => 'Sujet (Le plus ancien d\'abord)',
+   subject_rev => 'Sujet (Le plus récent d\'abord)',
+   size        => 'Taille (Le plus petit d\'abord)',
+   size_rev    => 'Taille (Le plus gros d\'abord)',
    );
 
 %lang_abooksortlabels =
@@ -380,6 +380,8 @@ package ow::fr;
    markasunread => 'Marquer comme \'Non-Lu\'',
    dateformat => 'Format de date',
    date       => 'Date',
+   sentdate   => 'Sent Date',
+   recvdate   => 'Received Date',
    recipient  => 'Destinataire',
    sender     => 'Expéditeur',
    subject    => 'Sujet',

@@ -21,14 +21,14 @@ package ow::ur;
 %lang_sortlabels =
    (
    status      => 'ﺣﺎﻟﺖ - ﺍﻥ ﺩﻳﻛﮭﻰ',
-   date        => 'ﺗﺎﺭﻳﺦ - ﻧﺊ ﭘﻫﻠﮯ',
-   date_rev    => 'ﺗﺎﺭﻳﺦ - ﭘﺮﺍﻧﻰ ﭘﻫﻠﮯ',
-   sender      => 'ﺗﺎﺭﻳﺦ - ﻧﺊ ﭘﻫﻠﮯ',
-   sender_rev  => 'ﺗﺎﺭﻳﺦ - ﭘﺮﺍﻧﻰ ﭘﻫﻠﮯ',
-   subject     => 'ﻣﻮﺿﻮﻉ - ﻧﺊ ﭘﻫﻠﮯ',
-   subject_rev => 'ﻣﻮﺿﻮﻉ - ﭘﺮﺍﻧﻰ ﭘﻫﻠﮯ',
-   size        => 'ﻧﺎﭖ - ﭼﮭﻮﭨﻰ ﭘﻫﻠﮯ',
-   size_rev    => 'ﻧﺎﭖ - ﺑﮍﻯ ﭘﻫﻠﮯ'
+   date        => 'ﺗﺎﺭﻳﺦ - ﭘﺮﺍﻧﻰ ﭘﻫﻠﮯ',
+   date_rev    => 'ﺗﺎﺭﻳﺦ - ﻧﺊ ﭘﻫﻠﮯ',
+   sender      => 'ﺗﺎﺭﻳﺦ - Accending',
+   sender_rev  => 'ﺗﺎﺭﻳﺦ - Decending',
+   subject     => 'ﻣﻮﺿﻮﻉ - ﭘﺮﺍﻧﻰ ﭘﻫﻠﮯ',
+   subject_rev => 'ﻣﻮﺿﻮﻉ - ﻧﺊ ﭘﻫﻠﮯ',
+   size        => 'ﻧﺎﭖ - ﺑﮍﻯ ﭘﻫﻠﮯ',
+   size_rev    => 'ﻧﺎﭖ - ﭼﮭﻮﭨﻰ ﭘﻫﻠﮯ',
    );
 
 %lang_abooksortlabels =
@@ -380,6 +380,8 @@ package ow::ur;
    markasunread => 'ﺍﻥ ﺩﻳﻛﮭﮯ ﮬﻮﮮ ﻧﺸﺎﻥ ﻟﮕﺎﻳﮟ',
    dateformat => 'ﺗﺎﺭﻳﺦ ﻛﻰ ﺷﲁ',
    date       => 'ﺗﺎﺭﻳﺦ',
+   sentdate   => 'Sent Date',
+   recvdate   => 'Received Date',
    recipient  => 'ﻭﺻﻮﻝ ﻛﺮﻧﮯ ﻭﺍﻻ',
    sender     => 'ﺍﺭﺳﺎﻝ ﻛﺮﻧﮯ ﻭﺍﻻ',
    subject    => 'ﻣﻮﺿﻮﻉ',

@@ -21,14 +21,14 @@ package ow::tr;
 %lang_sortlabels =
    (
    status      => 'Durum (Okunmamýþ Önce)',
-   date        => 'Tarih (En Yeni Önce)',
-   date_rev    => 'Tarih (En Eski Önce)',
-   sender      => 'Gönderen (En Yeni Önce)',
-   sender_rev  => 'Gönderen (En Eski Önce)',
-   subject     => 'Konu (En Yeni Önce)',
-   subject_rev => 'Konu (En Eski Önce)',
-   size        => 'Boyut (En Büyük Önce)',
-   size_rev    => 'Boyut (En Küçük Önce)'
+   date        => 'Tarih (En Eski Önce)',
+   date_rev    => 'Tarih (En Yeni Önce)',
+   sender      => 'Gönderen (Accesding)',
+   sender_rev  => 'Gönderen (Decending)',
+   subject     => 'Konu (En Eski Önce)',
+   subject_rev => 'Konu (En Yeni Önce)',
+   size        => 'Boyut (En Küçük Önce)',
+   size_rev    => 'Boyut (En Büyük Önce)',
    );
 
 %lang_abooksortlabels =
@@ -380,6 +380,8 @@ package ow::tr;
    markasunread => 'Okunmamýþ Olarak Ýþaretle',
    dateformat => 'Tarih Biçemi',
    date       => 'Tarih',
+   sentdate   => 'Sent Date',
+   recvdate   => 'Received Date',
    recipient  => 'Alýcý',
    sender     => 'Gönderen',
    subject    => 'Konu',

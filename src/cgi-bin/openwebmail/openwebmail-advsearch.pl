@@ -49,7 +49,8 @@ use vars qw($domain $user $userrealname $uuid $ugid $homedir);
 use vars qw(%prefs %style %icontext);
 
 # extern vars
-use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE $_STATUS $_SIZE $_REFERENCES $_CHARSET); # defined in maildb.pl
+use vars qw($_OFFSET $_SIZE $_HEADERSIZE $_HEADERCHKSUM $_RECVDATE $_DATE
+            $_FROM $_TO $_SUBJECT $_CONTENT_TYPE $_CHARSET $_STATUS $_REFERENCES);	# defined in maildb.pl
 use vars qw(%lang_folders %lang_searchtypelabels %lang_searchdaterangelabels
             %lang_text %lang_err);	# defined in lang/xy
 
@@ -113,8 +114,8 @@ sub advsearch {
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
 
    ## replace @@@STARTADVSEARCHFORM@@@ ##
-   $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-advsearch.pl",
-                         -name=>'advsearchform').
+   $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-advsearch.pl",
+                          -name=>'advsearchform').
                ow::tool::hiddens(action=>'advsearch',
                                  sessionid=>$thissession);
    $html =~ s/\@\@\@STARTADVSEARCHFORM\@\@\@/$temphtml/;
@@ -382,7 +383,17 @@ sub search_folders2 {
    # search for the messageid in selected folder, return @result
    foreach my $foldertosearch (@{$r_folders}) {
       my ($folderfile, $folderdb)=get_folderpath_folderdb($user, $foldertosearch);
-      my $r_messageids=get_messageids_sorted_by_date($folderdb, 1);
+
+      next if (!ow::filelock::lock($folderfile, LOCK_SH|LOCK_NB));
+
+      if (!update_folderindex($folderfile, $folderdb)<0) {
+         writelog("db error - Couldn't update index db $folderdb");
+         writehistory("db error - Couldn't update index db $folderdb");
+         ow::filelock::lock($folderfile, LOCK_UN);
+         next;
+      }
+      my $r_messageids=get_messageids_sorted_by_sentdate($folderdb, 1);
+
       my (%FDB, %status);
 
       ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or

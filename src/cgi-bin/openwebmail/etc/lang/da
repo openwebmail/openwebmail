@@ -21,14 +21,14 @@ package ow::da;
 %lang_sortlabels =
    (
    status      => 'Status (Ulæst mail først)',
-   date        => 'Dato (nyeste først)',
-   date_rev    => 'Dato (ældste først)',
-   sender      => 'Afsender (nyeste først)',
-   sender_rev  => 'Afsender (ældste først)',
-   subject     => 'Emne (nyeste først)',
-   subject_rev => 'Emne (ældste først)',
-   size        => 'Størrelse (største først)',
-   size_rev    => 'Størrelse (mindste først)'
+   date        => 'Dato (ældste først)',
+   date_rev    => 'Dato (nyeste først)',
+   sender      => 'Afsender (Accesding)',
+   sender_rev  => 'Afsender (Decending)',
+   subject     => 'Emne (ældste først)',
+   subject_rev => 'Emne (nyeste først)',
+   size        => 'Størrelse (mindste først)',
+   size_rev    => 'Størrelse (største først)',
    );
 
 %lang_abooksortlabels =
@@ -380,6 +380,8 @@ package ow::da;
    markasunread => 'Marker som ulæst',
    dateformat => 'Dato format',
    date       => 'Dato',
+   sentdate   => 'Sent Date',
+   recvdate   => 'Received Date',
    recipient  => 'Modtager',
    sender     => 'Afsender',
    subject    => 'Emne',

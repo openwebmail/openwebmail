@@ -21,14 +21,14 @@ package ow::no;
 %lang_sortlabels =
    (
    status      => 'Status (Ulest først)',
-   date        => 'Dato (Nyeste først)',
-   date_rev    => 'Dato (Eldste først)',
-   sender      => 'Avsender (Nyeste først)',
-   sender_rev  => 'Avsender (Eldste først)',
-   subject     => 'Emne (Nyeste først)',
-   subject_rev => 'Emne (Eldste først)',
-   size        => 'Størresle (Største først)',
-   size_rev    => 'Størrelse (Minste først)'
+   date        => 'Dato (Eldste først)',
+   date_rev    => 'Dato (Nyeste først)',
+   sender      => 'Avsender (Accesding)',
+   sender_rev  => 'Avsender (Decending)',
+   subject     => 'Emne (Eldste først)',
+   subject_rev => 'Emne (Nyeste først)',
+   size        => 'Størrelse (Minste først)',
+   size_rev    => 'Størresle (Største først)',
    );
 
 %lang_abooksortlabels =
@@ -380,6 +380,8 @@ package ow::no;
    markasunread => 'Markér som ulest',
    dateformat => 'Datoformat',
    date       => 'Dato',
+   sentdate   => 'Sent Date',
+   recvdate   => 'Received Date',
    recipient  => 'Mottaker',
    sender     => 'Avsender',
    subject    => 'Emne',

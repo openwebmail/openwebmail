@@ -22,14 +22,14 @@ package ow::he_CP1255;
 %lang_sortlabels =
    (
    status      => 'סטטוס (שלא נפתחו קודם)',
-   date        => 'תאריך (חדשים קודם)',
-   date_rev    => 'תאריך (ישנים קודם)',
-   sender      => 'שולח (חדשים קודם)',
-   sender_rev  => 'שולח (ישנים קודם)',
-   subject     => 'נושא (חדשים קודם)',
-   subject_rev => 'נושא (ישנים קודם)',
-   size        => 'גודל (גדולים קודם)',
-   size_rev    => 'גודל (קטנים קודם)'
+   date        => 'תאריך (ישנים קודם)',
+   date_rev    => 'תאריך (חדשים קודם)',
+   sender      => 'שולח (Accesding)',
+   sender_rev  => 'שולח (Decending)',
+   subject     => 'נושא (ישנים קודם)',
+   subject_rev => 'נושא (חדשים קודם)',
+   size        => 'גודל (קטנים קודם)',
+   size_rev    => 'גודל (גדולים קודם)',
    );
 
 %lang_abooksortlabels =
@@ -381,6 +381,8 @@ package ow::he_CP1255;
    markasunread => 'סמן כלא נקרא',
    dateformat => 'תבנית תאריך',
    date       => 'תאריך',
+   sentdate   => 'Sent Date',
+   recvdate   => 'Received Date',
    recipient  => 'נמען',
    sender     => 'שולח',
    subject    => 'נושא',

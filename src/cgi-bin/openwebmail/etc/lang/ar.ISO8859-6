@@ -21,14 +21,14 @@ package ow::ar_ISO8859_6;
 %lang_sortlabels =
    (
    status      => 'ÇהטÖÙ - ÚךÑ וגÑטÁ ÃטסהÇכ',
-   date        => 'ÇהÊסÇÑךÎ - ÇהÃÍÏË ÃטסהÇכ',
-   date_rev    => 'ÇהÊסÇÑךÎ - ÇהÃגÏו ÃטסהÇכ',
-   sender      => 'ÇהוÑÓה - ÇהÃÍÏË ÃטסהÇכ',
-   sender_rev  => 'ÇהוÑÓה - ÇהÃגÏו ÃטסהÇכ',
-   subject     => 'ÇהוטÖטÙ - ÇהÃÍÏË ÃטסהÇכ',
-   subject_rev => 'ÇהוטÖטÙ - ÇהÃגÏו ÃטסהÇכ',
-   size        => 'ÇהÍÌו - ÇהÃדÈÑ ÃטסהÇכ',
-   size_rev    => 'ÇהÍÌו - ÇהÃÕÚÑ ÃטסהÇ'
+   date        => 'ÇהÊסÇÑךÎ - ÇהÃגÏו ÃטסהÇכ',
+   date_rev    => 'ÇהÊסÇÑךÎ - ÇהÃÍÏË ÃטסהÇכ',
+   sender      => 'ÇהוÑÓה - Accending',
+   sender_rev  => 'ÇהוÑÓה - Decending',
+   subject     => 'ÇהוטÖטÙ - ÇהÃגÏו ÃטסהÇכ',
+   subject_rev => 'ÇהוטÖטÙ - ÇהÃÍÏË ÃטסהÇכ',
+   size        => 'ÇהÍÌו - ÇהÃÕÚÑ ÃטסהÇ',
+   size_rev    => 'ÇהÍÌו - ÇהÃדÈÑ ÃטסהÇכ',
    );
 
 %lang_abooksortlabels =
@@ -380,6 +380,8 @@ package ow::ar_ISO8859_6;
    markasunread => 'Ùהסו דÚךÑ וגÑטÁ',
    dateformat => 'Ôדה ÇהÊסÇÑךÎ',
    date       => 'ÇהÊÇÑךÎ',
+   sentdate   => 'Sent Date',
+   recvdate   => 'Received Date',
    recipient  => 'ÇהוÓÊהו',
    sender     => 'ÇהוÑÓה',
    subject    => 'ÇהוטÖטÙ',

@@ -1,3 +1,26 @@
+03/09/2005
+----------
+1. support using either SentDate and Received Date as message timestamp
+2. messagelist code clean
+3. calculate message age based on its received date so messages with long
+   transmission delay won't be removed soon by clean_trash_spamvirus()
+4. show transmission delay as the tips of messagelist date field
+
+
+03/08/2005
+----------
+1. change the field order in folderdb and add the recvdate field.
+   The is preparation for recvdate display support in messagelist
+ps: The folderdb will be upgraded to new format automatically when being accessed
+    However, the sysadm may upgrade the folderdb for all users explicitly by
+
+       /path_to.../openwebmail-tool.pl -i -a
+
+    so the users won't be waiting the db conversion in using webmail
+2. rename option deliver_use_GMT to deliver_use_gmt or it won't be recognized
+   by conf parser
+
+
 03/07/2005
 ----------
 1. fix error "There is no file named "/tmp/nonexistance" main::readadrbook ..."

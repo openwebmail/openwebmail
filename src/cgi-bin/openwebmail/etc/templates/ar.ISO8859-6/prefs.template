@@ -142,6 +142,11 @@
 @@@SORTMENU@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>Timestamp used for message date:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@MSGDATETIMESTAMPMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>≈Ÿ—÷ √Í‚ËÊ… »ÕÀ Â’⁄—…@@@MINISEARCHICON@@@:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USEMINISEARCHICONCHECKBOX@@@<br>

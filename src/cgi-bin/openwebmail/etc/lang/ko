@@ -23,14 +23,14 @@ package ow::ko;
 %lang_sortlabels =
    (
    status      => '상태 (읽지 않은 편지 먼저)',
-   date        => '날짜 (최근 편지 먼저)',
-   date_rev    => '날짜 (오래된 편지 먼저)',
-   sender      => '보낸사람 (최근 편지 먼저)',
-   sender_rev  => '보낸사람 (오래된 편지 먼저)',
-   subject     => '주제 (최근 편지 먼저)',
-   subject_rev => '주제 (오래된 편지 먼저)',
-   size        => '크기 (큰 편지 먼저)',
-   size_rev    => '크기 (작은 편지 먼저)'
+   date        => '날짜 (오래된 편지 먼저)',
+   date_rev    => '날짜 (최근 편지 먼저)',
+   sender      => '보낸사람 (Accesding)',
+   sender_rev  => '보낸사람 (Decending)',
+   subject     => '주제 (오래된 편지 먼저)',
+   subject_rev => '주제 (최근 편지 먼저)',
+   size        => '크기 (작은 편지 먼저)',
+   size_rev    => '크기 (큰 편지 먼저)',
    );
 
 %lang_abooksortlabels =
@@ -382,6 +382,8 @@ package ow::ko;
    markasunread => '안읽음 표시하기',
    dateformat => '날짜 포맷',
    date       => '날짜',
+   sentdate   => 'Sent Date',
+   recvdate   => 'Received Date',
    recipient  => '받는 사람',
    sender     => '보내는 사람',
    subject    => '제              목',

@@ -8,7 +8,8 @@ use Fcntl qw(:DEFAULT :flock);
 use MIME::Base64;
 use MIME::QuotedPrint;
 
-use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE $_STATUS $_SIZE $_REFERENCES $_CHARSET);
+use vars qw($_OFFSET $_SIZE $_HEADERSIZE $_HEADERCHKSUM $_RECVDATE $_DATE
+            $_FROM $_TO $_SUBJECT $_CONTENT_TYPE $_CHARSET $_STATUS $_REFERENCES);	# defined in maildb.pl
 use vars qw(%config %prefs);
 use vars qw(%lang_folders %lang_err);
 
@@ -321,8 +322,12 @@ sub search_info_messages_for_keyword {
 
 use vars qw(%sorttype);
 %sorttype= (
-   'date'          => ['date', 0],
-   'date_rev'      => ['date', 1],
+   'date'          => ['sentdate', 0],
+   'date_rev'      => ['sentdate', 1],
+   'sentdate'      => ['sentdate', 0],
+   'sentdate_rev'  => ['sentdate', 1],
+   'recvdate'      => ['recvdate', 0],
+   'recvdate_rev'  => ['recvdate', 1],
    'sender'        => ['sender', 0],
    'sender_rev'    => ['sender', 1],
    'recipient'     => ['recipient', 0],
@@ -379,8 +384,10 @@ sub get_messageids_sorted {
       $cachefile=ow::tool::untaint($cachefile);
       open(CACHE, ">$cachefile");
       print CACHE $lstmtime, "\n", $folderdb, "\n", $sort, "\n", $ignore_internal, "\n";
-      if ( $sort eq 'date' ) {
-         ($r_messageids)=get_messageids_sorted_by_date($folderdb, $ignore_internal);
+      if ( $sort eq 'sentdate') {
+         ($r_messageids)=get_messageids_sorted_by_sentdate($folderdb, $ignore_internal);
+      } elsif ( $sort eq 'recvdate' ) {
+         ($r_messageids)=get_messageids_sorted_by_recvdate($folderdb, $ignore_internal);
       } elsif ( $sort eq 'sender' ) {
          ($r_messageids)=get_messageids_sorted_by_from($folderdb, $ignore_internal);
       } elsif ( $sort eq 'recipient' ) {
@@ -434,12 +441,22 @@ sub get_messageids_sorted {
 }
 
 
-sub get_messageids_sorted_by_date {
+sub get_messageids_sorted_by_sentdate {
    my ($folderdb, $ignore_internal)=@_;
 
    my ($total, $r_msgid2attrs)=get_msgid2attrs($folderdb, $ignore_internal, $_DATE);
    my @messageids= sort {
-                        ${${$r_msgid2attrs}{$b}}[0]<=>${${$r_msgid2attrs}{$a}}[0];
+                        ${${$r_msgid2attrs}{$a}}[0]<=>${${$r_msgid2attrs}{$b}}[0];
+                        } keys %{$r_msgid2attrs};
+   return(\@messageids);
+}
+
+sub get_messageids_sorted_by_recvdate {
+   my ($folderdb, $ignore_internal)=@_;
+
+   my ($total, $r_msgid2attrs)=get_msgid2attrs($folderdb, $ignore_internal, $_RECVDATE);
+   my @messageids= sort {
+                        ${${$r_msgid2attrs}{$a}}[0]<=>${${$r_msgid2attrs}{$b}}[0];
                         } keys %{$r_msgid2attrs};
    return(\@messageids);
 }
@@ -482,8 +499,8 @@ sub get_messageids_sorted_by_size {
 
    my ($total, $r_msgid2attrs)=get_msgid2attrs($folderdb, $ignore_internal, $_DATE, $_SIZE);
    my @messageids= sort {
-                        ${${$r_msgid2attrs}{$b}}[1]<=>${${$r_msgid2attrs}{$a}}[1] or
-                        ${${$r_msgid2attrs}{$b}}[0]<=>${${$r_msgid2attrs}{$a}}[0]
+                        ${${$r_msgid2attrs}{$a}}[1]<=>${${$r_msgid2attrs}{$b}}[1] or
+                        ${${$r_msgid2attrs}{$a}}[0]<=>${${$r_msgid2attrs}{$b}}[0]
                         } keys %{$r_msgid2attrs};
    return(\@messageids);
 }
@@ -503,14 +520,14 @@ sub get_messageids_sorted_by_status {
       $status{$key}++ if ($status=~/i/i);
    }
    my @messageids=sort {
-                       $status{$b} <=> $status{$a} or
-                       ${${$r_msgid2attrs}{$b}}[0]<=>${${$r_msgid2attrs}{$a}}[0]
+                       $status{$a} <=> $status{$b} or
+                       ${${$r_msgid2attrs}{$a}}[0]<=>${${$r_msgid2attrs}{$b}}[0]
                        } keys %status;
    return(\@messageids);
 }
 
 # this routine actually sorts messages by thread,
-# contributed by <james@tiger-marmalade.com"> James Dean Palmer
+# contributed by <james.AT.tiger-marmalade.com> James Dean Palmer
 sub get_messageids_sorted_by_subject {
    my ($folderdb, $ignore_internal)=@_;
 
@@ -593,8 +610,8 @@ sub _recursively_thread {
    my ($id, $depth,
 	$r_message_ids, $r_message_depths, $r_thread_children, $r_date) = @_;
 
-   push @{$r_message_ids}, $id;
-   push @{$r_message_depths}, $depth;
+   unshift @{$r_message_ids}, $id;
+   unshift @{$r_message_depths}, $depth;
    if (defined ${$r_thread_children}{$id}) {
       my @children = sort { ${$r_date}{$a} <=> ${$r_date}{$b}; } @{${$r_thread_children}{$id}};
       foreach my $thread (@children) {

@@ -22,14 +22,14 @@ package ow::fi;
 %lang_sortlabels =
    (
    status      => 'Tila (Lukematon ensin)',
-   date        => 'Aika (Uusin ensin)',
-   date_rev    => 'Aika (Vanhin ensin)',
-   sender      => 'Lähettäjä (Uusin ensin)',
-   sender_rev  => 'Lähettäjä (Vanhin ensin)',
-   subject     => 'Aihe (Uusin ensin)',
-   subject_rev => 'Aihe (Vanhin ensin)',
-   size        => 'Koko (Suurin ensin)',
-   size_rev    => 'Koko (Pienin ensin)'
+   date        => 'Aika (Vanhin ensin)',
+   date_rev    => 'Aika (Uusin ensin)',
+   sender      => 'Lähettäjä (Accesding)',
+   sender_rev  => 'Lähettäjä (Decending)',
+   subject     => 'Aihe (Vanhin ensin)',
+   subject_rev => 'Aihe (Uusin ensin)',
+   size        => 'Koko (Pienin ensin)',
+   size_rev    => 'Koko (Suurin ensin)',
    );
 
 %lang_abooksortlabels =
@@ -381,6 +381,8 @@ package ow::fi;
    markasunread => 'Merkitse lukemattomaksi',
    dateformat => 'Ajan muotoilu',
    date       => 'Aika',
+   sentdate   => 'Sent Date',
+   recvdate   => 'Received Date',
    recipient  => 'Vastaanottaja(t)',
    sender     => 'Lähettäjä',
    subject    => 'Aihe',

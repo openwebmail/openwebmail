@@ -27,14 +27,14 @@ package ow::pl;
 %lang_sortlabels =
    (
    status      => 'Status (Pierwsze nieprzeczytane)',
-   date        => 'Data (od najnowszych)',
-   date_rev    => 'Data (od najstarszych)',
-   sender      => 'Nadawca (od najnowszych)',
-   sender_rev  => 'Nadawca (od najstarszych)',
-   subject     => 'Temat (od najnowszych)',
-   subject_rev => 'Temat (od najstarszych)',
-   size        => 'Rozmiar (od najwiêkszych)',
-   size_rev    => 'Rozmiar (od najmniejszych)'
+   date        => 'Data (od najstarszych)',
+   date_rev    => 'Data (od najnowszych)',
+   sender      => 'Nadawca (Accesding)',
+   sender_rev  => 'Nadawca (Decending)',
+   subject     => 'Temat (od najstarszych)',
+   subject_rev => 'Temat (od najnowszych)',
+   size        => 'Rozmiar (od najmniejszych)',
+   size_rev    => 'Rozmiar (od najwiêkszych)',
    );
 
 %lang_abooksortlabels =
@@ -386,6 +386,8 @@ package ow::pl;
    markasunread => 'Zaznacz jako nieprzeczytane',
    dateformat => 'Format daty',
    date       => 'Data',
+   sentdate   => 'Sent Date',
+   recvdate   => 'Received Date',
    recipient  => 'Adresat',
    sender     => 'Nadawca',
    subject    => 'Temat',

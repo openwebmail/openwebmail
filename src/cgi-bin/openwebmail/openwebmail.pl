@@ -171,8 +171,8 @@ sub loginmenu {
    my ($html, $temphtml);
    $html = applystyle(readtemplate("login.template"));
 
-   $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail.pl",
-                         -name=>'login');
+   $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail.pl",
+                          -name=>'login');
 
    # remember params for redirection after login
    my $action=param('action');

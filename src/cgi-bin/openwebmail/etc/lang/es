@@ -21,14 +21,14 @@ package ow::es;
 %lang_sortlabels =
    (
    status      => 'Estado (No leídos primero)',
-   date        => 'Fecha (Nuevos primero)',
-   date_rev    => 'Fecha (Antiguos primero)',
-   sender      => 'Remitente (Nuevos primero)',
-   sender_rev  => 'Remitente (Antiguos primero)',
-   subject     => 'Asunto (Nuevos primero)',
-   subject_rev => 'Asunto (Antiguos primero)',
-   size        => 'Tamaño (Mayor primero)',
-   size_rev    => 'Tamaño (Menor primero)'
+   date        => 'Fecha (Antiguos primero)',
+   date_rev    => 'Fecha (Nuevos primero)',
+   sender      => 'Remitente (Accesding)',
+   sender_rev  => 'Remitente (Decending)',
+   subject     => 'Asunto (Antiguos primero)',
+   subject_rev => 'Asunto (Nuevos primero)',
+   size        => 'Tamaño (Menor primero)',
+   size_rev    => 'Tamaño (Mayor primero)',
    );
 
 %lang_abooksortlabels =
@@ -380,6 +380,8 @@ package ow::es;
    markasunread => 'Marcar como no leído',
    dateformat => 'Formato de fecha',
    date       => 'Fecha',
+   sentdate   => 'Sent Date',
+   recvdate   => 'Received Date',
    recipient  => 'Destinatario',
    sender     => 'Remitente',
    subject    => 'Asunto',

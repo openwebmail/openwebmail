@@ -25,7 +25,7 @@ use vars qw(%fontsize);
 foreach (qw(
    smtpauth use_hashedmailspools use_homedirspools
    use_syshomedir create_syshomedir use_syshomedir_for_dotdir
-   auth_withdomain deliver_use_GMT
+   auth_withdomain deliver_use_gmt
    error_with_debuginfo debug_request debug_fork debug_mailfilter
    case_insensitive_login forced_ssl_login stay_ssl_afterlogin
    enable_domainselectmenu enable_strictvirtuser
@@ -132,7 +132,7 @@ foreach my $opttype ('yesno', 'none', 'list') {
 @openwebmailrcitem=qw(
    language charset timeoffset daylightsaving email replyto
    style iconset bgurl bgrepeat fontsize dateformat hourformat
-   ctrlposition_folderview msgsperpage fieldorder sort useminisearchicon
+   ctrlposition_folderview msgsperpage fieldorder sort msgdatetimestamp useminisearchicon
    ctrlposition_msgread headers readwithmsgcharset usefixedfont usesmileicon
    disablejs disableembcode disableemblink showhtmlastext showimgaslink sendreceipt
    confirmmsgmovecopy defaultdestination smartdestination

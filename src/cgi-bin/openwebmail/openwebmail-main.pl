@@ -59,11 +59,12 @@ use vars qw($quotausage $quotalimit);
 # extern vars
 use vars qw(%lang_folders %lang_sizes %lang_text %lang_err %lang_sortlabels
             %lang_calendar %lang_wday);		# defined in lang/xy
-use vars qw($_STATUS);				# defined in maildb.pl
+use vars qw($_OFFSET $_SIZE $_HEADERSIZE $_HEADERCHKSUM $_RECVDATE $_DATE
+            $_FROM $_TO $_SUBJECT $_CONTENT_TYPE $_CHARSET $_STATUS $_REFERENCES);	# defined in maildb.pl
 
 # local globals
 use vars qw($folder);
-use vars qw($sort $page $longpage);
+use vars qw($sort $page $longpage $msgdatetimestamp);
 use vars qw($searchtype $keyword);
 use vars qw($escapedfolder $escapedkeyword);
 
@@ -79,7 +80,9 @@ if (!$config{'enable_webmail'} && $action ne "logout") {
 $folder = ow::tool::unescapeURL(param('folder'))||'INBOX';
 $page = param('page') || 1;
 $longpage = param('longpage') || 0;
-$sort = param('sort') || $prefs{'sort'} || 'date';
+$sort = param('sort') || $prefs{'sort'} || 'date_rev';
+$msgdatetimestamp = param('msgdatetimestamp') || $prefs{'msgdatetimestamp'};
+
 $searchtype = param('searchtype') || 'subject';
 $keyword = param('keyword') || ''; $keyword=~s/^\s*//; $keyword=~s/\s*$//;
 
@@ -237,7 +240,8 @@ sub listmessages {
    }
    $folder='INBOX' if (!$is_validfolder);
 
-   my ($totalsize, $newmessages, $r_messageids, $r_messagedepths)=getinfomessageids($user, $folder, $sort, $searchtype, $keyword);
+   my ($totalsize, $newmessages, $r_messageids, $r_messagedepths)=
+      getinfomessageids($user, $folder, $sort, $searchtype, $keyword);
    my $msgsperpage=$prefs{'msgsperpage'}||10; $msgsperpage=1000 if ($longpage);
    my $totalmessage=$#{$r_messageids}+1; $totalmessage=0 if ($totalmessage<0);
    my $totalpage=int($totalmessage/$msgsperpage+0.999999); $totalpage=1 if ($totalpage==0);
@@ -248,8 +252,11 @@ sub listmessages {
    my $lastmessage = $firstmessage + $msgsperpage - 1;
    $lastmessage = $totalmessage if ($lastmessage>$totalmessage);
 
-   my $main_url = "$config{'ow_cgiurl'}/openwebmail-main.pl?sessionid=$thissession&amp;sort=$sort&amp;folder=$escapedfolder";
-   my $main_url_with_keyword = "$main_url&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype";
+   my $main_url = "$config{'ow_cgiurl'}/openwebmail-main.pl";
+   my $urlparmstr="sessionid=$thissession&amp;folder=$escapedfolder&amp;".
+                  "page=$page&amp;longpage=$longpage&amp;".
+                  "sort=$sort&amp;msgdatetimestamp=$msgdatetimestamp&amp;";
+   my $urlparmstr_keyword=$urlparmstr."keyword=$escapedkeyword&amp;searchtype=$searchtype";
 
    my ($html, $temphtml);
    $html = applystyle(readtemplate("viewfolder.template"));
@@ -259,8 +266,8 @@ sub listmessages {
 
    ### we don't keep keyword, firstpage between folders,
    ### thus the keyword, firstpage will be cleared when user change folder
-   $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-main.pl",
-                         -name=>'FolderForm').
+   $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-main.pl",
+                          -name=>'FolderForm').
                ow::tool::hiddens(sessionid=>$thissession,
                                  sort=>$sort,
                                  action=>'listmessages');
@@ -362,23 +369,23 @@ sub listmessages {
    $temphtml .= qq|&nbsp;\n|;
 
    if ($config{'enable_pop3'} && $folder eq "INBOX") {
-      $temphtml .= iconlink("pop3.gif", $lang_text{'retr_pop3s'}, qq|accesskey="G" href="$main_url_with_keyword&amp;action=pop3fetches"|);
+      $temphtml .= iconlink("pop3.gif", $lang_text{'retr_pop3s'}, qq|accesskey="G" href="$main_url?$urlparmstr_keyword&amp;action=pop3fetches"|);
    }
    if ($config{'enable_advsearch'}) {
-      $temphtml .= iconlink("advsearch.gif", $lang_text{'advsearch'}, qq|accesskey="V" href="$config{'ow_cgiurl'}/openwebmail-advsearch.pl?action=advsearch&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;page=$page"|);
+      $temphtml .= iconlink("advsearch.gif", $lang_text{'advsearch'}, qq|accesskey="V" href="$config{'ow_cgiurl'}/openwebmail-advsearch.pl?$urlparmstr&amp;action=advsearch"|);
    }
-   $temphtml .= iconlink("refresh.gif", $lang_text{'refresh'}, qq|accesskey="R" href="$main_url&amp;action=userrefresh&amp;page=$page&amp;userfresh=1"|);
+   $temphtml .= iconlink("refresh.gif", $lang_text{'refresh'}, qq|accesskey="R" href="$main_url?$urlparmstr&amp;action=userrefresh&amp;userfresh=1"|);
 
    $temphtml .= qq|&nbsp;\n|;
 
    if ($config{'enable_addressbook'}) {
-      $temphtml .= iconlink("addrbook.gif", $lang_text{'addressbook'}, qq|accesskey="A" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrlistview&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page"|);
+      $temphtml .= iconlink("addrbook.gif", $lang_text{'addressbook'}, qq|accesskey="A" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?$urlparmstr_keyword&amp;action=addrlistview"|);
    }
    if ($config{'enable_calendar'}) {
-      $temphtml .= iconlink("calendar.gif", $lang_text{'calendar'}, qq|accesskey="K" href="$config{'ow_cgiurl'}/openwebmail-cal.pl?action=$prefs{'calendar_defaultview'}&amp;sessionid=$thissession&amp;folder=$escapedfolder"|);
+      $temphtml .= iconlink("calendar.gif", $lang_text{'calendar'}, qq|accesskey="K" href="$config{'ow_cgiurl'}/openwebmail-cal.pl?$urlparmstr&amp;action=$prefs{'calendar_defaultview'}"|);
    }
    if ($config{'enable_webdisk'}) {
-      $temphtml .= iconlink("webdisk.gif", $lang_text{'webdisk'}, qq|accesskey="E" href="$config{'ow_cgiurl'}/openwebmail-webdisk.pl?action=showdir&amp;sessionid=$thissession&amp;folder=$escapedfolder"|);
+      $temphtml .= iconlink("webdisk.gif", $lang_text{'webdisk'}, qq|accesskey="E" href="$config{'ow_cgiurl'}/openwebmail-webdisk.pl?$urlparmstr&amp;action=showdir"|);
    }
    if ( $config{'enable_sshterm'}) {
       if ( -r "$config{'ow_htmldir'}/applet/mindterm2/mindterm.jar" ) {
@@ -388,9 +395,9 @@ sub listmessages {
       }
    }
    if ( $config{'enable_preference'}) {
-      $temphtml .= iconlink("prefs.gif", $lang_text{'userprefs'}, qq|accesskey="O" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;sort=$sort&amp;page=$page&amp;prefs_caller=main"|);
+      $temphtml .= iconlink("prefs.gif", $lang_text{'userprefs'}, qq|accesskey="O" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?$urlparmstr&amp;action=editprefs&amp;prefs_caller=main"|);
    }
-   $temphtml .= iconlink("logout.gif", "$lang_text{'logout'} $prefs{'email'}", qq|accesskey="X" href="$main_url&amp;action=logout"|);
+   $temphtml .= iconlink("logout.gif", "$lang_text{'logout'} $prefs{'email'}", qq|accesskey="X" href="$main_url?$urlparmstr&amp;action=logout"|);
 
    $html =~ s/\@\@\@LEFTMENUBARLINKS\@\@\@/$temphtml/;
 
@@ -404,7 +411,7 @@ sub listmessages {
       }
    }
    if ($folder eq 'mail-trash' || $folder eq 'spam-mail' || $folder eq 'virus-mail') {
-      $temphtml .= iconlink("emptyfolder.gif", $lang_text{'emptyfolder'}, qq|accesskey="Z" href="$main_url_with_keyword&amp;action=emptyfolder&amp;page=$page&amp;longpage=$longpage" onclick="return confirm('$lang_text{emptyfolder} ($lang_folders{$folder}, $folder_allmessages $lang_text{messages}) ?');"|);
+      $temphtml .= iconlink("emptyfolder.gif", $lang_text{'emptyfolder'}, qq|accesskey="Z" href="$main_url?$urlparmstr&amp;action=emptyfolder" onclick="return confirm('$lang_text{emptyfolder} ($lang_folders{$folder}, $folder_allmessages $lang_text{messages}) ?');"|);
    } else {
       my $trashfolder='mail-trash';
       $trashfolder='DELETE' if ($quotalimit>0 && $quotausage>$quotalimit);
@@ -419,6 +426,7 @@ sub listmessages {
                ow::tool::hiddens(action=>'listmessages',
                                  sessionid=>$thissession,
                                  sort=>$sort,
+                                 msgdatetimestamp=>$msgdatetimestamp,
                                  folder=>$escapedfolder);
    $html =~ s/\@\@\@STARTPAGEFORM\@\@\@/$temphtml/;
 
@@ -439,7 +447,9 @@ sub listmessages {
       $html =~ s/\@\@\@MIDDLEPLUGIN\@\@\@/<br>/;
    }
 
-   my $sort_url="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;page=$page&amp;longpage=$longpage&amp;longpage=$longpage&amp;sessionid=$thissession&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;sort";
+   my $sort_url="$main_url?sessionid=$thissession&amp;folder=$escapedfolder&amp;".
+                "action=listmessages&amp;page=$page&amp;longpage=$longpage&amp;".
+                "keyword=$escapedkeyword&amp;searchtype=$searchtype";
    my $linetemplate=$prefs{'fieldorder'};
    $linetemplate=~s/date/\@\@\@DATE\@\@\@/;
    $linetemplate=~s/from/\@\@\@FROM\@\@\@/;
@@ -450,16 +460,30 @@ sub listmessages {
    my $headershtml='';
    my $linehtml=$linetemplate;
 
-   $temphtml = iconlink("unread.gif", $lang_sortlabels{'status'}, qq|href="$sort_url=status"|);
+   $temphtml = iconlink("unread.gif", $lang_sortlabels{'status'}, qq|href="$sort_url&amp;sort=status_rev"|);
    $temphtml = qq|<td width="6%" bgcolor=$style{'columnheader'} align="center">$temphtml</td>\n|;
    $linehtml =~ s/\@\@\@STATUS\@\@\@/$temphtml/;
 
-   if ($sort eq "date") {
-      $temphtml = qq|<a href="$sort_url=date_rev">$lang_text{'date'}</a> |.iconlink("up.gif", "^", "");
-   } elsif ($sort eq "date_rev") {
-      $temphtml = qq|<a href="$sort_url=date">$lang_text{'date'}</a> |.iconlink("down.gif", "v", "");;
+   if ($msgdatetimestamp eq 'recvdate') {
+      if ($sort eq "date") {
+         $temphtml = qq|<a href="$sort_url&amp;sort=date&amp;msgdatetimestamp=sentdate">$lang_text{'recvdate'}</a> |.
+                     iconlink("up.gif", "^", qq|href="$sort_url&amp;sort=date_rev&amp;msgdatetimestamp=recvdate"|);
+      } elsif ($sort eq "date_rev") {
+         $temphtml = qq|<a href="$sort_url&amp;sort=date_rev&amp;msgdatetimestamp=sentdate">$lang_text{'recvdate'}</a> |.
+                     iconlink("down.gif", "v", qq|href="$sort_url&amp;sort=date&amp;msgdatetimestamp=recvdate"|);
+      } else {
+         $temphtml = qq|<a href="$sort_url&amp;sort=date_rev">$lang_text{'recvdate'}</a>|;
+      }
    } else {
-      $temphtml = qq|<a href="$sort_url=date">$lang_text{'date'}</a>|;
+      if ($sort eq "date") {
+         $temphtml = qq|<a href="$sort_url&amp;sort=date&amp;msgdatetimestamp=recvdate">$lang_text{'sentdate'}</a> |.
+                     iconlink("up.gif", "^", qq|href="$sort_url&amp;sort=date_rev&amp;msgdatetimestamp=sentdate"|);
+      } elsif ($sort eq "date_rev") {
+         $temphtml = qq|<a href="$sort_url&amp;sort=date_rev&amp;msgdatetimestamp=recvdate">$lang_text{'sentdate'}</a> |.
+                     iconlink("down.gif", "v", qq|href="$sort_url&amp;sort=date&amp;msgdatetimestamp=sentdate"|);
+      } else {
+         $temphtml = qq|<a href="$sort_url&amp;sort=date_rev">$lang_text{'sentdate'}</a>|;
+      }
    }
    $temphtml = qq|<td width="22%" bgcolor=$style{'columnheader'}><B>$temphtml</B></td>\n|;
    $linehtml =~ s/\@\@\@DATE\@\@\@/$temphtml/;
@@ -469,43 +493,51 @@ sub listmessages {
         $folder=~ m#\Q$lang_folders{'sent-mail'}\E#i ||
         $folder=~ m#\Q$lang_folders{'saved-drafts'}\E#i ) {
       if ($sort eq "recipient" || $sort eq "sender") {
-         $temphtml = qq|<a href="$sort_url=recipient_rev">$lang_text{'recipient'}</a> |.iconlink("up.gif", "^", "");
+         $temphtml = qq|<a href="$sort_url&amp;sort=recipient_rev">$lang_text{'recipient'}</a> |.
+                     iconlink("up.gif", "^", qq|href="$sort_url&amp;sort=recipient_rev"|);
       } elsif ($sort eq "recipient_rev" || $sort eq "sender_rev") {
-         $temphtml = qq|<a href="$sort_url=recipient">$lang_text{'recipient'}</a> |.iconlink("down.gif", "v", "");
+         $temphtml = qq|<a href="$sort_url&amp;sort=recipient">$lang_text{'recipient'}</a> |.
+                     iconlink("down.gif", "v", qq|href="$sort_url&amp;sort=recipient"|);
       } else {
-         $temphtml = qq|<a href="$sort_url=recipient">$lang_text{'recipient'}</a>|;
+         $temphtml = qq|<a href="$sort_url&amp;sort=recipient">$lang_text{'recipient'}</a>|;
       }
    } else {
       if ($sort eq "sender" || $sort eq "recipient") {
-         $temphtml = qq|<a href="$sort_url=sender_rev">$lang_text{'sender'}</a> |.iconlink("up.gif", "^", "");
+         $temphtml = qq|<a href="$sort_url&amp;sort=sender_rev">$lang_text{'sender'}</a> |.
+                     iconlink("up.gif", "^", qq|href="$sort_url&amp;sort=sender_rev"|);
       } elsif ($sort eq "sender_rev" || $sort eq "recepient_rev") {
-         $temphtml = qq|<a href="$sort_url=sender">$lang_text{'sender'}</a> |.iconlink("down.gif", "v", "");
+         $temphtml = qq|<a href="$sort_url&amp;sort=sender">$lang_text{'sender'}</a> |.
+                     iconlink("down.gif", "v", qq|href="$sort_url&amp;sort=sender"|);
       } else {
-         $temphtml = qq|<a href="$sort_url=sender">$lang_text{'sender'}</a>|;
+         $temphtml = qq|<a href="$sort_url&amp;sort=sender">$lang_text{'sender'}</a>|;
       }
    }
    $temphtml = qq|<td width="25%" bgcolor=$style{'columnheader'}><B>$temphtml</B></td>\n|;
    $linehtml =~ s/\@\@\@FROM\@\@\@/$temphtml/;
 
    if ($sort eq "subject") {
-      $temphtml = qq|<a href="$sort_url=subject_rev">$lang_text{'subject'}</a> |.iconlink("up.gif", "^", "");
+      $temphtml = qq|<a href="$sort_url&amp;sort=subject_rev">$lang_text{'subject'}</a> |.
+                  iconlink("up.gif", "^", qq|href="$sort_url&amp;sort=subject_rev"|);
    } elsif ($sort eq "subject_rev") {
-      $temphtml = qq|<a href="$sort_url=subject">$lang_text{'subject'}</a> |.iconlink("down.gif", "v", "");
+      $temphtml = qq|<a href="$sort_url&amp;sort=subject">$lang_text{'subject'}</a> |.
+                  iconlink("down.gif", "v", qq|href="$sort_url&amp;sort=subject"|);
    } else {
-      $temphtml = qq|<a href="$sort_url=subject">$lang_text{'subject'}</a>|;
+      $temphtml = qq|<a href="$sort_url&amp;sort=subject_rev">$lang_text{'subject'}</a>|;
    }
    $temphtml = qq|<td bgcolor=$style{'columnheader'}><B>$temphtml</B></td>\n|;
    $linehtml =~ s/\@\@\@SUBJECT\@\@\@/$temphtml/;
 
    if ($sort eq "size") {
-      $temphtml = qq|<a href="$sort_url=size_rev">$lang_text{'size'}</a> |.iconlink("up.gif", "^", "");
+      $temphtml = qq|<a href="$sort_url&amp;sort=size_rev">$lang_text{'size'}</a> |.
+                  iconlink("up.gif", "^", qq|href="$sort_url&amp;sort=size_rev"|);
    } elsif ($sort eq "size_rev") {
-      $temphtml = qq|<a href="$sort_url=size">$lang_text{'size'}</a> |.iconlink("down.gif", "v", "");
+      $temphtml = qq|<a href="$sort_url&amp;sort=size">$lang_text{'size'}</a> |.
+                  iconlink("down.gif", "v", qq|href="$sort_url&amp;sort=size"|);
    } else {
       if ($folder eq "mail-trash" || $folder eq "spam-mail" || $folder eq "virus-mail") {
-         $temphtml = qq|<a href="$sort_url=size_rev">$lang_text{'size'}</a>|;
+         $temphtml = qq|<a href="$sort_url&amp;sort=size_rev">$lang_text{'size'}</a>|;
       } else {
-         $temphtml = qq|<a href="$sort_url=size">$lang_text{'size'}</a>|;
+         $temphtml = qq|<a href="$sort_url&amp;sort=size">$lang_text{'size'}</a>|;
       }
    }
    $temphtml = qq|<td width="5%" bgcolor=$style{'columnheader'} align="right" nowrap><B>$temphtml</B></td>\n|;
@@ -525,7 +557,6 @@ sub listmessages {
    my $r_abookemailhash=get_abookemailhash();
    my ($folderfile, $folderdb)=get_folderpath_folderdb($user, $folder);
    my ($messageid, $messagedepth, $escapedmessageid);
-   my ($offset, $from, $to, $dateserial, $subject, $content_type, $status, $messagesize, $references, $charset);
    my ($tr_bgcolorstr, $td_bgcolorstr, $checkbox_onclickstr, $boldon, $boldoff);
 
    ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or
@@ -538,14 +569,15 @@ sub listmessages {
       next if (!defined $FDB{$messageid});
 
       $escapedmessageid = ow::tool::escapeURL($messageid);
-      ($offset, $from, $to, $dateserial, $subject,
-	$content_type, $status, $messagesize, $references, $charset)=string2msgattr($FDB{$messageid});
+
+      my @attr=string2msgattr($FDB{$messageid});
+      my $charset=$attr[$_CHARSET];
       if ($charset eq '' && $prefs{'charset'} eq 'utf-8') {
          # assume msg is from sender using same language as the recipient's browser
          $charset=$ow::lang::languagecharsets{ow::lang::guess_browser_language()};
       }
       # convert from mesage charset to current user charset
-      ($from, $to, $subject)=iconv($charset, $prefs{'charset'}, $from, $to, $subject);
+      my ($from, $to, $subject)=iconv($charset, $prefs{'charset'}, $attr[$_FROM], $attr[$_TO], $attr[$_SUBJECT]);
 
       $linehtml=$linetemplate;
       if ($prefs{'uselightbar'}) {
@@ -562,17 +594,19 @@ sub listmessages {
          $td_bgcolorstr=qq|bgcolor=|.($style{"tablerow_dark"},$style{"tablerow_light"})[$messnum%2];
          $checkbox_onclickstr='';
       }
-      # STATUS, choose status icons based on Status: line and type of encoding
+
       $temphtml = "<B>$messnum</B> \n";
-      $status =~ s/\s//g;	# remove blanks
+
+      # STATUS, choose status icons based on Status: line and type of encoding
+      my $status=$attr[$_STATUS]; $status =~ s/\s//g;	# remove blanks
       if ( $status =~ /R/i ) {
          ($boldon, $boldoff) = ('', '');
          my $icon="read.gif"; $icon="read.a.gif" if ($status=~/A/i);
-         $temphtml .= iconlink("$icon", "$lang_text{'markasunread'} ", qq|href="$main_url_with_keyword&amp;action=markasunread&amp;message_id=$escapedmessageid&amp;status=$status&amp;page=$page&amp;longpage=$longpage"|);
+         $temphtml .= iconlink("$icon", "$lang_text{'markasunread'} ", qq|href="$main_url?$urlparmstr_keyword&amp;action=markasunread&amp;message_id=$escapedmessageid&amp;status=$status"|);
       } else {
          ($boldon, $boldoff) = ('<B>', '</B>');
          my $icon="unread.gif"; $icon="unread.a.gif" if ($status=~/A/i);
-         $temphtml .= iconlink("$icon", "$lang_text{'markasread'} ", qq|href="$main_url_with_keyword&amp;action=markasread&amp;message_id=$escapedmessageid&amp;status=$status&amp;page=$page&amp;longpage=$longpage"|);
+         $temphtml .= iconlink("$icon", "$lang_text{'markasread'} ", qq|href="$main_url?$urlparmstr_keyword&amp;action=markasread&amp;message_id=$escapedmessageid&amp;status=$status"|);
       }
       # T flag is only supported by openwebmail internally
       # see routine update_folderindex in maildb.pl for detail
@@ -582,10 +616,20 @@ sub listmessages {
       $linehtml =~ s/\@\@\@STATUS\@\@\@/$temphtml/;
 
       # DATE, convert dateserial(GMT) to localtime
-      $temphtml=ow::datetime::dateserial2str($dateserial,
-                                 $prefs{'timeoffset'}, $prefs{'daylightsaving'},
-                                 $prefs{'dateformat'}, $prefs{'hourformat'});
-      $temphtml = qq|<td $td_bgcolorstr>$boldon$temphtml$boldoff</td>\n|;
+      my $serial=($msgdatetimestamp eq 'recvdate')?$attr[$_RECVDATE]:$attr[$_DATE];
+      my %t=( sign => '+');
+      $t{sec}=ow::datetime::dateserial2gmtime($attr[$_RECVDATE])-ow::datetime::dateserial2gmtime($attr[$_DATE]);
+      if ($t{sec}<0) {
+         $t{sign}='-'; $t{sec}*=-1;
+      }
+      $t{min}=int($t{sec}/60); $t{sec}=$t{sec}%60;
+      $t{hour}=int($t{min}/60); $t{min}=$t{min}%60;
+      $temphtml = qq|<td $td_bgcolorstr>$boldon|.
+                  qq|<a title="|.sprintf("%s %dh %dm %ds ", $t{sign}, $t{hour}, $t{min}, $t{sec}).qq|">|.
+                  ow::datetime::dateserial2str($serial,
+						$prefs{'timeoffset'}, $prefs{'daylightsaving'},
+						$prefs{'dateformat'}, $prefs{'hourformat'}).
+                  qq|</a>$boldoff</td>\n|;
       $linehtml =~ s/\@\@\@DATE\@\@\@/$temphtml/;
 
       # FROM, find name, email of from and to field first
@@ -619,15 +663,15 @@ sub listmessages {
 
       my ($linkstr, $searchstr, $friendstr);
       if (!$limited) {
-         $linkstr=qq|href="$config{'ow_cgiurl'}/openwebmail-send.pl\?action=composemessage&amp;|.
-                  qq|sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;|.
-                  qq|folder=$escapedfolder&amp;page=$page&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=|.
-                  ow::tool::escapeURL($from2).qq|&amp;compose_caller=main"|;
+         $linkstr=qq|href="$config{'ow_cgiurl'}/openwebmail-send.pl?$urlparmstr_keyword&amp;|.
+                  qq|action=composemessage&amp;composetype=sendto&amp;|.
+                  qq|to=|.ow::tool::escapeURL($from2).qq|&amp;compose_caller=main"|;
       }
       if ($prefs{'useminisearchicon'}) {
          $searchstr=iconlink("search.s.gif", "$lang_text{'search'} $from2_address",
-                            qq|href="$main_url&amp;action=listmessages&amp;sort=$sort&amp;searchtype=$from2_searchtype&amp;keyword=|.
-                            ow::tool::escapeURL($from2_keyword).qq|"| );
+                            qq|href="$main_url?sessionid=$thissession&amp;folder=$escapedfolder&amp;|.
+                            qq|action=listmessages&amp;sort=$sort&amp;msgdatetimestamp=$msgdatetimestamp&amp;|.
+                            qq|searchtype=$from2_searchtype&amp;keyword=|.ow::tool::escapeURL($from2_keyword).qq|"| );
       }
       if ($config{'enable_addressbook'} &&
           defined ${$r_abookemailhash}{lc($from2_address)}) {	# case insensitive lookup
@@ -675,9 +719,9 @@ sub listmessages {
          $fill .= "&nbsp; &nbsp; ";
       }
       if ( $messagedepth>0 && $sort eq "subject" ) {
-         $fill .=qq|&nbsp; |.iconlink("follow.up.gif", "", "").qq|&nbsp;|;
-      } elsif ( $messagedepth>0 && $sort eq "subject_rev") {
          $fill .=qq|&nbsp; |.iconlink("follow.down.gif", "", "").qq|&nbsp;|;
+      } elsif ( $messagedepth>0 && $sort eq "subject_rev") {
+         $fill .=qq|&nbsp; |.iconlink("follow.up.gif", "", "").qq|&nbsp;|;
       }
       if ($messagedepth) {
          $subject_begin = qq|<table cellpadding="0" cellspacing="0"><tr><td nowrap>$fill</td><td>|;
@@ -686,8 +730,9 @@ sub listmessages {
       if ($prefs{'useminisearchicon'}) {
          my $subject2 = $subject; $subject2 =~ s/Res?:\s*//ig; $subject2=~s/\[.*?\]//g;
          my $searchstr = iconlink("search.s.gif", "$lang_text{'search'} $subject2 ",
-                                  qq|href="$main_url&amp;action=listmessages&amp;sort=$sort&amp;searchtype=subject&amp;keyword=|.
-                                  ow::tool::escapeURL($subject2).qq|"| ).
+                                  qq|href="$main_url?sessionid=$thissession&amp;folder=$escapedfolder&amp;|.
+                                  qq|action=listmessages&amp;sort=$sort&amp;msgdatetimestamp=$msgdatetimestamp&amp;|.
+                                  qq|searchtype=subject&amp;keyword=|.ow::tool::escapeURL($subject2).qq|"| ).
                                   qq|&nbsp;|;
          $temphtml = qq|<td $td_bgcolorstr>|.
                      qq|<table cellspacing="0" cellpadding="0"><tr>\n|.
@@ -700,7 +745,7 @@ sub listmessages {
       $linehtml =~ s/\@\@\@SUBJECT\@\@\@/$temphtml/;
 
       # SIZE, round message size and change to an appropriate unit for display
-      $temphtml = lenstr($messagesize,0);
+      $temphtml = lenstr($attr[$_SIZE],0);
       $temphtml = qq|<td align="right" $td_bgcolorstr>$boldon$temphtml$boldoff</td>\n|;
       $linehtml =~ s/\@\@\@SIZE\@\@\@/$temphtml/;
 
@@ -729,11 +774,15 @@ sub listmessages {
    ow::dbm::close(\%FDB, $folderdb);
    undef(@{$r_messageids}); undef($r_messageids);
 
+   my $page_url="$main_url?sessionid=$thissession&amp;folder=$escapedfolder&amp;".
+                "action=listmessages&amp;longpage=$longpage&amp;".
+                "sort=$sort&amp;msgdatetimestamp=$msgdatetimestamp&amp;".
+                "keyword=$escapedkeyword&amp;searchtype=$searchtype";
    my $gif;
    $temphtml=qq|<table cellpadding="0" cellspacing="0" border="0"><tr><td>|;
    if ($page > 1) {
       $gif="left.gif"; $gif="right.gif" if ($ow::lang::RTL{$prefs{'language'}});
-      $temphtml .= iconlink($gif, "&lt;", qq|accesskey="U" href="$main_url_with_keyword&amp;action=listmessages&amp;page=|.($page-1).qq|&amp;longpage=$longpage"|);
+      $temphtml .= iconlink($gif, "&lt;", qq|accesskey="U" href="$page_url&amp;page=|.($page-1).qq|"|);
    } else {
       $gif="left-grey.gif"; $gif="right-grey.gif" if ($ow::lang::RTL{$prefs{'language'}});
       $temphtml .= iconlink($gif, "-", "");
@@ -741,7 +790,7 @@ sub listmessages {
    $temphtml.=qq|</td><td>$page/$totalpage</td><td>|;
    if ($page < $totalpage) {
       $gif="right.gif"; $gif="left.gif" if ($ow::lang::RTL{$prefs{'language'}});
-      $temphtml .= iconlink($gif, "&gt;", qq|accesskey="D" href="$main_url_with_keyword&amp;action=listmessages&amp;page=|.($page+1) .qq|&amp;longpage=$longpage"|);
+      $temphtml .= iconlink($gif, "&gt;", qq|accesskey="D" href="$page_url&amp;page=|.($page+1) .qq|"|);
    } else {
       $gif="right-grey.gif"; $gif="left-grey.gif" if ($ow::lang::RTL{$prefs{'language'}});
       $temphtml .= iconlink($gif, "-", "");
@@ -795,12 +844,17 @@ sub listmessages {
                         -onChange=>"JavaScript:document.pageform.submit();",
                         -override=>'1').
              qq|</td>|.ow::tool::hiddens(longpage=>$longpage).qq|<td>|;
+
+   my $longpage_url="$main_url?sessionid=$thissession&amp;folder=$escapedfolder&amp;".
+                    "action=listmessages&amp;page=$page&amp;".
+                    "sort=$sort&amp;msgdatetimestamp=$msgdatetimestamp&amp;".
+                    "keyword=$escapedkeyword&amp;searchtype=$searchtype";
    if ($longpage) {
       my $str=$lang_text{'msgsperpage'}; $str=~s/\@\@\@MSGCOUNT\@\@\@/$prefs{'msgsperpage'}/;
-      $htmlpage.=qq|<a href="$main_url_with_keyword&amp;action=listmessages&amp;page=$page&amp;longpage=0" title="$str">&nbsp;-&nbsp;</a>|;
+      $htmlpage.=qq|<a href="$longpage_url&amp;longpage=0" title="$str">&nbsp;-&nbsp;</a>|;
    } else {
       my $str=$lang_text{'msgsperpage'}; $str=~s/\@\@\@MSGCOUNT\@\@\@/1000/;
-      $htmlpage.=qq|<a href="$main_url_with_keyword&amp;action=listmessages&amp;page=$page&amp;longpage=1" title="$str">&nbsp;+&nbsp;</a>|;
+      $htmlpage.=qq|<a href="$longpage_url&amp;longpage=1" title="$str">&nbsp;+&nbsp;</a>|;
    }
    $htmlpage.=qq|</td></tr></table>|;
 
@@ -1494,7 +1548,7 @@ sub logout {
    if (cookie("ow-ssl")) {	# backto SSL
       $start_url="https://$ENV{'HTTP_HOST'}$start_url" if ($start_url!~s!^https?://!https://!i);
    }
-   $temphtml = startform(-action=>"$start_url");
+   $temphtml = start_form(-action=>"$start_url");
    $temphtml .= ow::tool::hiddens(logindomain=>$default_logindomain) if ($default_logindomain);
    $temphtml .= submit("$lang_text{'loginagain'}").
                 "&nbsp; &nbsp;".

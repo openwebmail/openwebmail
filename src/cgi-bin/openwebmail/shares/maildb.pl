@@ -30,13 +30,14 @@ use FileHandle;
 use vars qw(%config %prefs %lang_err);
 
 # define the version of the mail index database
-use vars qw($DBVERSION);
-$DBVERSION=20040804;
+use vars qw($_DBVERSION);
+$_DBVERSION=20050308.1;
 
 # globals, message attribute number constant
-use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE $_STATUS $_SIZE $_REFERENCES $_CHARSET $_HEADERSIZE $_HEADERCHKSUM);
-($_OFFSET, $_FROM, $_TO, $_DATE, $_SUBJECT, $_CONTENT_TYPE, $_STATUS, $_SIZE, $_REFERENCES, $_CHARSET, $_HEADERSIZE, $_HEADERCHKSUM)
-=(0,1,2,3,4,5,6,7,8,9,10,11);
+use vars qw($_OFFSET $_SIZE $_HEADERSIZE $_HEADERCHKSUM $_RECVDATE $_DATE
+            $_FROM $_TO $_SUBJECT $_CONTENT_TYPE $_CHARSET $_STATUS $_REFERENCES);
+($_OFFSET, $_SIZE, $_HEADERSIZE, $_HEADERCHKSUM, $_RECVDATE, $_DATE, $_FROM, $_TO, $_SUBJECT, $_CONTENT_TYPE, $_CHARSET, $_STATUS, $_REFERENCES)
+=(0,1,2,3,4,5,6,7,8,9,10,11,12);
 
 # we devode messages in a folder into the following 4 types exclusively
 # ZAPPED: msg deleted by user by still not removed from folder, has Z flag in status in db
@@ -81,7 +82,7 @@ sub update_folderindex {
    if (ow::dbm::exist($folderdb)) {
       ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or return -1;
 
-      if ($FDB{'DBVERSION'} eq $DBVERSION) {
+      if ($FDB{'DBVERSION'} eq $_DBVERSION) {
          my $is_folderattrs_ok=0;
          $foldermeta=~/^mtime=\d+ size=(\d+)$/;	# $1 is foldersize
          if ($FDB{'NEWMESSAGES'}>=0 &&
@@ -342,7 +343,7 @@ sub update_folderindex {
    if ( !$dberr ) {
       @FDB{'ALLMESSAGES', 'NEWMESSAGES', 'INTERNALMESSAGES', 'INTERNALSIZE', 'ZAPMESSAGES', 'ZAPSIZE'}
          =($messagenumber+1, $newmessages, $internalmessages, $internalsize, $zapmessages, $zapsize);
-      $FDB{'DBVERSION'}=$DBVERSION;
+      $FDB{'DBVERSION'}=$_DBVERSION;
       $FDB{'METAINFO'}=$foldermeta;
       $FDB{'LSTMTIME'}=time();
    }
@@ -447,7 +448,7 @@ sub _skip_to_next_text_block {
    # we're done if this is the next message block
    if ( buffer_startmsgchk(0)<0 ) {
 
-      # finst 1st occurance of "\n\n" or "\nFrom "
+      # find 1st occurance of "\n\n" or "\nFrom "
       my $pos=-1;
       my $pos1=buffer_index("\n\n", 1);
       my $pos2=buffer_index("\nFrom ", 1);
@@ -470,11 +471,10 @@ sub _skip_to_next_text_block {
          $block_content=buffer_getchars(500);
       }
    }
-
    return ($block_content);
 }
 
-# more process on mshhash attributes for maildb
+# more process on msghash attributes for maildb
 sub _prepare_msghash {
    my ($r_message, $r_flag)=@_;
 
@@ -483,16 +483,10 @@ sub _prepare_msghash {
    $$r_message{status}.='I' if ($$r_message{priority}=~/urgent/i);
 
    # msg dateserial
-   my $dateserial=ow::datetime::datefield2dateserial($$r_message{date});
-   my $deliserial=ow::datetime::delimiter2dateserial($$r_message{delimiter}, $config{'deliver_use_GMT'}, $prefs{'daylightsaving'}) ||
-                  ow::datetime::gmtime2dateserial();
-   if ($dateserial eq "") {
-      $dateserial=$deliserial;
-   } elsif ($deliserial ne "") {
-      my $t=ow::datetime::dateserial2gmtime($deliserial) - ow::datetime::dateserial2gmtime($dateserial);
-      $dateserial=$deliserial if ($t<-86400); # recvtime < sendtime for 1 day? sender host may have wrong time configuration
-   }
-   $$r_message{date}=$dateserial;
+   $$r_message{date}=ow::datetime::datefield2dateserial($$r_message{date});
+   $$r_message{recvdate}=ow::datetime::delimiter2dateserial($$r_message{delimiter}, $config{'deliver_use_gmt'}, $prefs{'daylightsaving'}) ||
+                         ow::datetime::gmtime2dateserial();
+   $$r_message{date}=$$r_message{recvdate} if ($$r_message{date} eq "");
 
    # try to get charset from contenttype header
    if ($$r_message{charset} eq "" &&
@@ -528,10 +522,11 @@ sub _prepare_msghash {
 
 sub _update_index_with_msghash {
    my ($r_FDB, $id, $r_message)=@_;
-   $$r_FDB{$id}=msgattr2string(${$r_message}{offset}, ${$r_message}{from}, ${$r_message}{to},
-      ${$r_message}{date}, ${$r_message}{subject}, ${$r_message}{'content-type'}, ${$r_message}{status},
-      ${$r_message}{size}, ${$r_message}{references}, ${$r_message}{charset},
-      ${$r_message}{headersize}, ${$r_message}{headerchksum});
+   $$r_FDB{$id}=msgattr2string(${$r_message}{offset},
+      ${$r_message}{size}, ${$r_message}{headersize}, ${$r_message}{headerchksum},
+      ${$r_message}{recvdate}, ${$r_message}{date}, ${$r_message}{from}, ${$r_message}{to},
+      ${$r_message}{subject}, ${$r_message}{'content-type'}, ${$r_message}{charset},
+      ${$r_message}{status},${$r_message}{references});
    return 0;
 }
 
@@ -1126,7 +1121,7 @@ sub folder_zapmessages {
 ########## END OP_MESSAGE_WITH_IDS ###############################
 
 ########## DELETE_MESSAGE_BY_AGE #################################
-sub delete_message_by_age {
+sub delete_message_by_age {	# use receiveddate instead of sentdate for age calculation
    my ($dayage, $folderdb, $folderfile)=@_;
    return 0 if ( ! -f $folderfile );
 
@@ -1143,7 +1138,7 @@ sub delete_message_by_age {
    ow::dbm::open(\%FDB, $folderdb, LOCK_EX) or return -1;
    while ( ($key, $data)=each(%FDB) ) {
       my @attr = string2msgattr( $data );
-      push(@agedids, $key) if (ow::datetime::dateserial2gmtime($attr[$_DATE])<=$agestarttime); # too old
+      push(@agedids, $key) if (ow::datetime::dateserial2gmtime($attr[$_RECVDATE])<=$agestarttime); # too old
    }
    ow::dbm::close(\%FDB, $folderdb);
 
@@ -1452,8 +1447,6 @@ sub is_msgattr_consistent_with_folder {
 
 ########## BUFFERED FILE PROCESSING ##############################
 # use buffered file reads to quickly scan through a mail file for the next message header
-
-
 sub buffer_reset {
    ($BUFF_filehandle, $BUFF_filestart)=@_;
    $BUFF_fileoffset=$BUFF_filestart;
@@ -1541,9 +1534,7 @@ sub buffer_getchars {
 
    $size=$pos if ($pos>=0);
    $size=$BUFF_size if ($size<0);
-
    my $content=substr($BUFF_buff, 0, $size);
-
    buffer_skipchars($size);
    return $content;
 }
@@ -1607,10 +1598,8 @@ sub buffer_index {
    my $len=length($str);
 
    while ($pos<0 and !$eof) {
-
       # search the buffer for the next message start
       $pos=index($BUFF_buff, $str, $offset);
-
       next if ($pos >= 0);
 
       if ($keep) {
@@ -1619,7 +1608,6 @@ sub buffer_index {
          # keep the buffer size reasonable
          buffer_skipchars($BUFF_blocksize) if ($BUFF_size > $BUFF_blocksizemax);
       }
-
       $eof=1 if ( !buffer_readblock() ); # nothing left to read?
    }
    return $pos;

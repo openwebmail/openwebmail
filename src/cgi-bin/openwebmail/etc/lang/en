@@ -21,14 +21,14 @@ package ow::en;
 %lang_sortlabels =
    (
    status      => 'Status (Unread first)',
-   date        => 'Date (Newest first)',
-   date_rev    => 'Date (Oldest first)',
-   sender      => 'Sender (Newest first)',
-   sender_rev  => 'Sender (Oldest first)',
-   subject     => 'Subject (Newest first)',
-   subject_rev => 'Subject (Oldest first)',
-   size        => 'Size (Largest first)',
-   size_rev    => 'Size (Smallest first)'
+   date        => 'Date (Oldest first)',
+   date_rev    => 'Date (Newest first)',
+   sender      => 'Sender (Accesding)',
+   sender_rev  => 'Sender (Decending)',
+   subject     => 'Subject (Oldest first)',
+   subject_rev => 'Subject (Newest first)',
+   size        => 'Size (Smallest first)',
+   size_rev    => 'Size (Largest first)',
    );
 
 %lang_abooksortlabels =
@@ -380,6 +380,8 @@ package ow::en;
    markasunread => 'Mark as unread',
    dateformat => 'Date format',
    date       => 'Date',
+   sentdate   => 'Sent Date',
+   recvdate   => 'Received Date',
    recipient  => 'Recipient',
    sender     => 'Sender',
    subject    => 'Subject',

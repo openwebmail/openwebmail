@@ -21,14 +21,14 @@ package ow::bg;
 %lang_sortlabels =
    (
    status      => 'статус (първо непрочетени)',
-   date        => 'дата (първо новите)',
-   date_rev    => 'дата (първо старите)',
-   sender      => 'подател (първо новите)',
-   sender_rev  => 'подател (първо старите)',
-   subject     => 'тема (първо новите)',
-   subject_rev => 'тема (първо старите)',
-   size        => 'размер (първо големите)',
-   size_rev    => 'размер (първо малките)'
+   date        => 'дата (първо старите)',
+   date_rev    => 'дата (първо новите)',
+   sender      => 'подател (Accesding)',
+   sender_rev  => 'подател (Decending)',
+   subject     => 'тема (първо старите)',
+   subject_rev => 'тема (първо новите)',
+   size        => 'размер (първо малките)',
+   size_rev    => 'размер (първо големите)',
    );
 
 %lang_abooksortlabels =
@@ -380,6 +380,8 @@ package ow::bg;
    markasunread => 'Маркирано като непрочетено',
    dateformat => 'Формат за датата',
    date       => 'Дата',
+   sentdate   => 'Sent Date',
+   recvdate   => 'Received Date',
    recipient  => 'Получател',
    sender     => 'Подател',
    subject    => 'Тема',

@@ -19,7 +19,8 @@ use MIME::QuotedPrint;
 require "shares/filterbook.pl";
 
 # extern vars
-use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE $_STATUS $_SIZE $_REFERENCES $_CHARSET $_HEADERSIZE $_HEADERCHKSUM);
+use vars qw($_OFFSET $_SIZE $_HEADERSIZE $_HEADERCHKSUM $_RECVDATE $_DATE
+            $_FROM $_TO $_SUBJECT $_CONTENT_TYPE $_CHARSET $_STATUS $_REFERENCES);	# defined in maildb.pl
 use vars qw(%config %lang_err);
 use vars qw(%op_order %ruletype_order %folder_order);	# table defined in filterbook.pl
 

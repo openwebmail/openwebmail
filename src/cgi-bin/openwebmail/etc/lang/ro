@@ -23,14 +23,14 @@ package ow::ro;
 %lang_sortlabels =
    (
    status      => 'Stare (Intai cele necitite)',
-   date        => 'Data (Intai cele mai noi)',
-   date_rev    => 'Data (Intai cele mai vechi)',
-   sender      => 'Expeditor (Intai cele mai noi)',
-   sender_rev  => 'Expeditor (Intai cele mai vechi)',
-   subject     => 'Subiect (Intai cele mai noi)',
-   subject_rev => 'Subiect (Intai cele mai vechi)',
-   size        => 'Marime (Intai cele mai mari)',
-   size_rev    => 'Marime (Intai cele mai mici)'
+   date        => 'Data (Intai cele mai vechi)',
+   date_rev    => 'Data (Intai cele mai noi)',
+   sender      => 'Expeditor (Accesding)',
+   sender_rev  => 'Expeditor (Decending)',
+   subject     => 'Subiect (Intai cele mai vechi)',
+   subject_rev => 'Subiect (Intai cele mai noi)',
+   size        => 'Marime (Intai cele mai mici)',
+   size_rev    => 'Marime (Intai cele mai mari)',
    );
 
 %lang_abooksortlabels =
@@ -382,6 +382,8 @@ package ow::ro;
    markasunread => 'Marcheaza ca necitit',
    dateformat => 'Format Data',
    date       => 'Data',
+   sentdate   => 'Sent Date',
+   recvdate   => 'Received Date',
    recipient  => 'Destinatar',
    sender     => 'Expeditor',
    subject    => 'Subiect',

@@ -21,14 +21,14 @@ package ow::sl;
 %lang_sortlabels =
    (
    status      => 'Stanje (Najprej neprebrana)',
-   date        => 'Datum (Najprej novejša)',
-   date_rev    => 'Datum (Najprej starejša)',
-   sender      => 'Pošiljatelj (Od A do )',
-   sender_rev  => 'Pošiljatelj (Od  do A)',
-   subject     => 'Predmet (Od A do )',
-   subject_rev => 'Predmet (Od  do A)',
-   size        => 'Velikost (Najprej najveèja)',
-   size_rev    => 'Velikost (Najprej najmanjša)'
+   date        => 'Datum (Najprej starejša)',
+   date_rev    => 'Datum (Najprej novejša)',
+   sender      => 'Pošiljatelj (Accesding)',
+   sender_rev  => 'Pošiljatelj (Decending)',
+   subject     => 'Predmet (Od  do A)',
+   subject_rev => 'Predmet (Od A do )',
+   size        => 'Velikost (Najprej najmanjša)',
+   size_rev    => 'Velikost (Najprej najveèja)',
    );
 
 %lang_abooksortlabels =
@@ -380,6 +380,8 @@ package ow::sl;
    markasunread => 'Oznaèi kot neprebrano',
    dateformat => 'Format datuma',
    date       => 'Datum',
+   sentdate   => 'Sent Date',
+   recvdate   => 'Received Date',
    recipient  => 'Prejemnik',
    sender     => 'Pošiljatelj',
    subject    => 'Predmet',

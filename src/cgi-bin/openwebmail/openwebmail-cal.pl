@@ -219,8 +219,8 @@ sub yearview {
    my ($html, $temphtml);
    $html = applystyle(readtemplate("yearview.template"));
 
-   $temphtml = startform(-name=>'dateselform',
-			 -action=>"$config{'ow_cgiurl'}/openwebmail-cal.pl").
+   $temphtml = start_form(-name=>'dateselform',
+			  -action=>"$config{'ow_cgiurl'}/openwebmail-cal.pl").
                ow::tool::hiddens(action=>'calyear',
                                  sessionid=>$thissession,
                                  folder=>$escapedfolder,
@@ -399,8 +399,8 @@ sub monthview {
    my ($html, $temphtml);
    $html = applystyle(readtemplate("monthview.template"));
 
-   $temphtml = startform(-name=>'dateselform',
-			 -action=>"$config{'ow_cgiurl'}/openwebmail-cal.pl").
+   $temphtml = start_form(-name=>'dateselform',
+			  -action=>"$config{'ow_cgiurl'}/openwebmail-cal.pl").
                ow::tool::hiddens(action=>'calmonth',
                                  sessionid=>$thissession,
                                  folder=>$escapedfolder,
@@ -602,8 +602,8 @@ sub weekview {
    $html = applystyle(readtemplate("weekview.template").
                       readtemplate("calpopup.js") );
 
-   $temphtml = startform(-name=>'dateselform',
-			 -action=>"$config{'ow_cgiurl'}/openwebmail-cal.pl").
+   $temphtml = start_form(-name=>'dateselform',
+			  -action=>"$config{'ow_cgiurl'}/openwebmail-cal.pl").
                ow::tool::hiddens(action=>'calweek',
                                  sessionid=>$thissession,
                                  folder=>$escapedfolder,
@@ -846,8 +846,8 @@ sub dayview {
                       readtemplate("calpopup.js").
                       readtemplate("validate.js") );
 
-   $temphtml = startform(-name=>'dateselform',
-			 -action=>"$config{'ow_cgiurl'}/openwebmail-cal.pl").
+   $temphtml = start_form(-name=>'dateselform',
+			  -action=>"$config{'ow_cgiurl'}/openwebmail-cal.pl").
                ow::tool::hiddens(action=>'calday',
                                  sessionid=>$thissession,
                                  folder=>$escapedfolder,
@@ -1208,9 +1208,9 @@ sub dayview {
    $html =~ s/\@\@\@ORDER\@\@\@/"+wOrder[(weekOrder-1)]+"/g;
    $html =~ s/\@\@\@WDAY\@\@\@/"+wDay[(checkDate.getDay())]+"/g;
 
-   $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-cal.pl",
-                         -name=>'additemform',
-                         -override=>'1').
+   $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-cal.pl",
+                          -name=>'additemform',
+                          -override=>'1').
                ow::tool::hiddens(sessionid=>$thissession,
                                  folder=>$escapedfolder,
                                  message_id=>$messageid,
@@ -1603,8 +1603,8 @@ sub listview {
    my ($html, $temphtml);
    $html = applystyle(readtemplate("listview.template"));
 
-   $temphtml = startform(-name=>'dateselform',
-			 -action=>"$config{'ow_cgiurl'}/openwebmail-cal.pl").
+   $temphtml = start_form(-name=>'dateselform',
+			  -action=>"$config{'ow_cgiurl'}/openwebmail-cal.pl").
                ow::tool::hiddens(action=>'callist',
                                  sessionid=>$thissession,
                                  folder=>$escapedfolder,
@@ -1844,7 +1844,7 @@ sub edit_item {
    $html =~ s/\@\@\@ORDER\@\@\@/"+wOrder[(weekOrder-1)]+"/g;
    $html =~ s/\@\@\@WDAY\@\@\@/"+wDay[(checkDate.getDay())]+"/g;
 
-   $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-cal.pl",
+   $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-cal.pl",
                           -name=>'editcalendar',
                           -override=>'1').
                ow::tool::hiddens(sessionid=>$thissession,
@@ -2129,9 +2129,9 @@ sub edit_item {
    $temphtml = submit("$lang_text{'save'}");
    $html =~ s/\@\@\@SUBMITBUTTON\@\@\@/$temphtml/;
 
-   $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-cal.pl",
-                         -name=>'cancelform',
-                         -override=>'1').
+   $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-cal.pl",
+                          -name=>'cancelform',
+                          -override=>'1').
                ow::tool::hiddens(sessionid=>$thissession,
                                  folder=>$escapedfolder,
                                  message_id=>$messageid,

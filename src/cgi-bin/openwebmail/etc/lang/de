@@ -23,14 +23,14 @@ package ow::de;
 %lang_sortlabels =
    (
    status      => 'Status (ungelesene zuerst)',
-   date        => 'Datum (neueste zuerst)',
-   date_rev    => 'Datum (älteste zuerst)',
-   sender      => 'Absender (neueste zuerst)',
-   sender_rev  => 'Absender (älteste zuerst)',
-   subject     => 'Betreff (neueste zuerst)',
-   subject_rev => 'Betreff (älteste zuerst)',
-   size        => 'Größe (größte zuerst)',
-   size_rev    => 'Größe (kleinste zuerst)'
+   date        => 'Datum (älteste zuerst)',
+   date_rev    => 'Datum (neueste zuerst)',
+   sender      => 'Absender (Accesding)',
+   sender_rev  => 'Absender (Decending)',
+   subject     => 'Betreff (älteste zuerst)',
+   subject_rev => 'Betreff (neueste zuerst)',
+   size        => 'Größe (kleinste zuerst)',
+   size_rev    => 'Größe (größte zuerst)',
    );
 
 %lang_abooksortlabels =
@@ -382,6 +382,8 @@ package ow::de;
    markasunread => 'Als ungelesen markieren',
    dateformat => 'Datumsformat',
    date       => 'Datum',
+   sentdate   => 'Sent Date',
+   recvdate   => 'Received Date',
    recipient  => 'Empfänger',
    sender     => 'Absender',
    subject    => 'Betreff',

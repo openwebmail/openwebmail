@@ -21,14 +21,14 @@ package ow::sv;
 %lang_sortlabels =
    (
    status      => 'Status (Olästa först)',
-   date        => 'Datum (Nyaste först)',
-   date_rev    => 'Datum (Äldsta först)',
-   sender      => 'Avsändare (Nyaste först)',
-   sender_rev  => 'Avsändare (Äldsta först)',
-   subject     => 'Ämne (Nyaste först)',
-   subject_rev => 'Ämne (Äldsta först)',
-   size        => 'Storlek (Största först)',
-   size_rev    => 'Storlek (Minsta först)'
+   date        => 'Datum (Äldsta först)',
+   date_rev    => 'Datum (Nyaste först)',
+   sender      => 'Avsändare (Accesding)',
+   sender_rev  => 'Avsändare (Decending)',
+   subject     => 'Ämne (Äldsta först)',
+   subject_rev => 'Ämne (Nyaste först)',
+   size        => 'Storlek (Minsta först)',
+   size_rev    => 'Storlek (Största först)',
    );
 
 %lang_abooksortlabels =
@@ -380,6 +380,8 @@ package ow::sv;
    markasunread => 'Mark as unread',
    dateformat => 'Datum format',
    date       => 'Datum',
+   sentdate   => 'Sent Date',
+   recvdate   => 'Received Date',
    recipient  => 'Mottagare',
    sender     => 'Avsändare',
    subject    => 'Ämne',

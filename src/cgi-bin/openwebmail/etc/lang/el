@@ -21,14 +21,14 @@ package ow::el;
 %lang_sortlabels =
    (
    status      => 'Θέση (Πρώτα τα αδιάβαστα)',
-   date        => 'Ημερομηνία (Πρώτα τα νέα)',
-   date_rev    => 'Ημερομηνία (Πρώτα τα παλαιά)',
-   sender      => 'Αποστολέας (Πρώτα τα νέα)',
-   sender_rev  => 'Αποστολέας (Πρώτα τα παλαιά)',
-   subject     => 'Θέμα (Πρώτα τα νέα)',
-   subject_rev => 'Θέμα (Πρώτα τα παλαιά)',
-   size        => 'Μέγεθος (Πρώτα τα μεγαλύτερα)',
-   size_rev    => 'Μέγεθος (Πρώτα τα μικρότερα)'
+   date        => 'Ημερομηνία (Πρώτα τα παλαιά)',
+   date_rev    => 'Ημερομηνία (Πρώτα τα νέα)',
+   sender      => 'Αποστολέας (Accesding)',
+   sender_rev  => 'Αποστολέας (Decending)',
+   subject     => 'Θέμα (Πρώτα τα παλαιά)',
+   subject_rev => 'Θέμα (Πρώτα τα νέα)',
+   size        => 'Μέγεθος (Πρώτα τα μικρότερα)',
+   size_rev    => 'Μέγεθος (Πρώτα τα μεγαλύτερα)',
    );
 
 %lang_abooksortlabels =
@@ -380,6 +380,8 @@ package ow::el;
    markasunread => 'Σημάδεμα ως αδιάβαστο',
    dateformat => 'Διάταξη ημερομηνίας',
    date       => 'Ημερομηνία',
+   sentdate   => 'Sent Date',
+   recvdate   => 'Received Date',
    recipient  => 'Παραλήπτης',
    sender     => 'Αποστολέας',
    subject    => 'Θέμα',

@@ -142,6 +142,11 @@
 @@@SORTMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>信件日期时间标记:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@MSGDATETIMESTAMPMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>显示迷你搜寻图示@@@MINISEARCHICON@@@:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USEMINISEARCHICONCHECKBOX@@@<br>

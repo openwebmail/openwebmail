@@ -190,8 +190,8 @@ sub display_vuserlist {
    my @vusers_list = sort (keys %vusers);
    my $html = applystyle(readtemplate("vdomain_userlist.template"));
 
-   my $temphtml = startform(-name=>'indexform',
-                            -action=>"$config{'ow_cgiurl'}/openwebmail-vdomain.pl").
+   my $temphtml = start_form(-name=>'indexform',
+                             -action=>"$config{'ow_cgiurl'}/openwebmail-vdomain.pl").
                   ow::tool::hiddens(action=>'display_vuserlist',
                                     sessionid=>$thissession,
                                     view=>$view);
@@ -395,8 +395,8 @@ sub edit_vuser {
    $html =~ s/\@\@\@DOMAINNAME\@\@\@/$domain/;
    $html =~ s/\@\@\@VDOMAINTITLE\@\@\@/$title_txt/;
 
-   my $temphtml = startform(-name=>'userform',
-                            -action=>"$config{'ow_cgiurl'}/openwebmail-vdomain.pl").
+   my $temphtml = start_form(-name=>'userform',
+                             -action=>"$config{'ow_cgiurl'}/openwebmail-vdomain.pl").
                   ow::tool::hiddens(action=>$action,
                                     sessionid=>$thissession,
                                     view=>$view,
@@ -503,7 +503,7 @@ sub edit_vuser {
    $html =~ s/\@\@\@CHANGEBUTTON\@\@\@/$temphtml/;
 
    # delete button
-   $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-vdomain.pl").
+   $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-vdomain.pl").
                ow::tool::hiddens(action=>'delete_vuser',
                                  sessionid=>$thissession,
                                  view=>$view,
@@ -512,7 +512,7 @@ sub edit_vuser {
    $html =~ s/\@\@\@DELETEBUTTON\@\@\@/$del_txt/;
 
    # cancel button
-   $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-vdomain.pl").
+   $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-vdomain.pl").
                ow::tool::hiddens(action=>'display_vuserlist',
                                  sessionid=>$thissession,
                                  view=>$view);
