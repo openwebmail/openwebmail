@@ -104,7 +104,6 @@ sub _convert_addressbook {
    return 0 if (!-e "$old"); # no file to convert
    return 0 if (-e "$backup"); # was already run before so skip it
 
-
    my @entries = ();
    if (-s $old) { # file is not 0 bytes
       ow::filelock::lock($old, LOCK_EX|LOCK_NB) or croak("$lang_err{'couldnt_lock'} $old");
@@ -139,34 +138,36 @@ sub _convert_addressbook {
          # REV
          my $rev = $uid_year.$uid_mon.$uid_mday."T".$uid_hour.$uid_min.$uid_sec."Z";
 
-         # Only convert the record if name is defined
-         if (defined $name) {
-            my ($first, $mid, $last, $nick)=_parse_username($name);
-            foreach ($first, $mid, $last, $nick) { $_.=' ' if ($_=~/\\$/); }
-            push(@entries, qq|BEGIN:VCARD\r\n|.
-                           qq|VERSION:3.0\r\n|.
-                           qq|N:$last;$first;$mid;;\r\n|
-                );
-            push(@entries,"NICKNAME:$nick\r\n") if ($nick ne '');
-
-            # get all the emails
-            my @emails = split(/,/,$email);
-            foreach my $e (sort @emails) {
-               $e =~ s/\\$//; # chop off trailing slash that escaped comma char
-               push(@entries,"EMAIL:$e\r\n") if defined $e;
-            }
-            # how we handle distribution lists
-            if (@emails > 1) {
-               push(@entries, "X-OWM-GROUP:$name\r\n");
-            }
-
-            push(@entries, "NOTE:$note\r\n") if ($note ne '');
-            push(@entries, qq|REV:$rev\r\n|);
-            push(@entries, qq|X-OWM-CHARSET:$charset\r\n|) if ($charset ne '');
-            push(@entries, qq|X-OWM-UID:$x_owm_uid\r\n|.
-                           qq|END:VCARD\r\n\r\n|
-                );
+         # Name MUST be defined
+         if ($name eq "" || $name =~ m/^\s+$/) {
+            $name = $lang_text{'name'};
          }
+
+         # Start output
+         my ($first, $mid, $last, $nick)=_parse_username($name);
+         foreach ($first, $mid, $last, $nick) { $_.=' ' if ($_=~/\\$/); }
+         push(@entries, qq|BEGIN:VCARD\r\n|.
+                        qq|VERSION:3.0\r\n|.
+                        qq|N:$last;$first;$mid;;\r\n|
+             );
+         push(@entries,"NICKNAME:$nick\r\n") if ($nick ne '');
+
+         # get all the emails
+         my @emails = split(/,/,$email);
+         foreach my $e (sort @emails) {
+            $e =~ s/\\$//; # chop off trailing slash that escaped comma char
+            push(@entries,"EMAIL:$e\r\n") if defined $e;
+         }
+         # how we handle distribution lists
+         if (@emails > 1) {
+            push(@entries, "X-OWM-GROUP:$name\r\n");
+         }
+
+         push(@entries, "NOTE:$note\r\n") if ($note ne '');
+         push(@entries, qq|REV:$rev\r\n|.
+                        qq|X-OWM-UID:$x_owm_uid\r\n|.
+                        qq|END:VCARD\r\n\r\n|
+             );
       }
 
       close(ADRBOOKBACKUP) or return -1;

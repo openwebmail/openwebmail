@@ -1,3 +1,10 @@
+12/02/2004
+----------
+1. fix a minor bug in adrbook.pl which may generate invalid vcard in
+   addressbook conversion if an entry in old addressbook has no name defined.
+   (thanks to Alex Teslik, alex.AT.acatysmoof.com for his fix)
+
+
 12/01/2004
 ----------
 1. return false in html editor compatibility test for browser Opera

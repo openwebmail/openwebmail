@@ -1160,8 +1160,8 @@ This is the maximum length for the name of a folder
 
 maxbooksize
 -----------------------------------------------------------------------
-This is the maximum size, in kilobytes, that a user's filterbook,
-addressbook, pop3book or historybook can grow to. This avoids a user
+This is the maximum size, in kilobytes, that a user's frombook,
+filterbook, pop3book or historybook can grow to. This avoids a user
 filling up your server's hard drive space by spamming garbage book
 entries.
 
