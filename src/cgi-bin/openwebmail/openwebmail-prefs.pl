@@ -216,6 +216,9 @@ sub about {
       foreach my $attr ( qw(SERVER_NAME SERVER_ADDR SERVER_PORT SERVER_SOFTWARE) ) {
          $temphtml.= attr_html($attr, $ENV{$attr}) if (defined($ENV{$attr}));
       }
+      if ($config{'session_count_display'}) {
+         $temphtml .= attr_html('ACTIVE_SESSIONS', join(', ', get_sessioncount()).' ( in 1, 5, 10 minutes )');
+      }
       $html=~s/\@\@\@INFOSERVER\@\@\@/$temphtml/;
    } else {
       templateblock_disable($html, 'INFOSERVER');
@@ -243,6 +246,25 @@ sub attr_html {
                   qq|<td bgcolor=$style{'window_dark'}>$_[1]</td>|.
                   qq|</tr>\n|;
    return($temphtml);
+}
+
+sub get_sessioncount {
+   my $t=time();
+   my @sessioncount=();
+
+   opendir(SESSIONSDIR, "$config{'ow_sessionsdir'}") or
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}! ($!)");
+   while (defined(my $sessfile=readdir(SESSIONSDIR))) {
+      if ($sessfile =~ /^[\w\.\-\%\@]+\*[\w\.\-]*\-session\-0\.\d+$/) {
+         my $modifyage = $t-(stat("$config{'ow_sessionsdir'}/$sessfile"))[9];
+         $sessioncount[0]++ if ($modifyage <= 60);
+         $sessioncount[1]++ if ($modifyage <= 300);
+         $sessioncount[2]++ if ($modifyage <= 900);
+      }
+   }
+   closedir(SESSIONSDIR);
+
+   return(@sessioncount);
 }
 ########## END ABOUT #############################################
 

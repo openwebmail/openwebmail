@@ -1,3 +1,10 @@
+01/08/2005
+----------
+1. minor change to search form in addressbook listview to avoid security
+   warning under https
+2. show active sessions in server info in preference/about menu
+
+
 01/07/2005
 ----------
 1. Hungarion lang and template files translation update

@@ -1129,8 +1129,7 @@ sub addrlistview {
    $searchtypelabels{'categories'} = $lang_text{"abook_listview_categories"};
 
    $temphtml = qq|<table cellspacing="0" cellpadding="0" border="0">|.
-               start_form(-name=>"searchForm",
-                          -action=>"javascript:document.forms['contactsForm'].elements['abooksearchtype'].value=document.forms['searchForm'].elements['abooksearchtype'].options[document.forms['searchForm'].elements['abooksearchtype'].selectedIndex].value; document.forms['contactsForm'].elements['abookkeyword'].value=document.forms['searchForm'].elements['abookkeyword'].value; document.contactsForm.submit();").
+               start_form(-name=>"searchForm").
                qq|<tr><td>|.
                popup_menu(-name=>'abooksearchtype',
                           -default=>$abooksearchtype || $headings[0],
@@ -1144,7 +1143,8 @@ sub addrlistview {
                          -override=>'1').
                qq|</td><td>|.
                submit(-name=>$lang_text{'search'},
-                      -class=>'medtext').
+                      -class=>'medtext',
+                      -onClick=>"javascript:document.forms['contactsForm'].elements['abooksearchtype'].value=document.forms['searchForm'].elements['abooksearchtype'].options[document.forms['searchForm'].elements['abooksearchtype'].selectedIndex].value; document.forms['contactsForm'].elements['abookkeyword'].value=document.forms['searchForm'].elements['abookkeyword'].value; document.contactsForm.submit(); return false").
                qq|</td></tr>|.
                end_form().
                qq|</table>\n|;
