@@ -66,7 +66,11 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@HIDEINTERNAL@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>讀信時使用笑臉圖示：</B>
+<B>讀信時, 使用固定寬度字型：</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@USEFIXEDFONT@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>讀信時, 使用笑臉圖示：</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@USESMILEICON@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
@@ -144,12 +148,12 @@
 &nbsp;
 標題：
 @@@AUTOREPLYSUBJECT@@@
-</td></tr><tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>
+</td></tr><tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@ class=msgbody>
 <B>自動回覆內容 (最多250個中文字)</B><BR>
 @@@AUTOREPLYTEXT@@@
 </td></tr>
 @@@AUTOREPLYEND@@@
-<tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@ class=msgbody>
 <B>簽名 (最多250個中文字)</B><BR>
 @@@SIGAREA@@@
 </td></tr><tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>

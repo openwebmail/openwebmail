@@ -50,9 +50,9 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@HEADERSMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Área para edição de correio:</B>
+<B>Área para edição de mensagens:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-Width @@@EDITCOLUMNSMENU@@@ Height @@@EDITROWSMENU@@@
+Colunas @@@EDITCOLUMNSMENU@@@ Linhas @@@EDITROWSMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Dicionário para verificar ortografia:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
@@ -65,6 +65,10 @@ Width @@@EDITCOLUMNSMENU@@@ Height @@@EDITROWSMENU@@@
 <B>Esconder pasta de dados internos:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@HIDEINTERNAL@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Usar fonte de tamanho fixo na leitura de mensagens:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@USEFIXEDFONT@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Usar imagem do smiley na leitura das mensagens:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
@@ -144,12 +148,12 @@ Manter uma cópia
 &nbsp;
 Assunto:
 @@@AUTOREPLYSUBJECT@@@
-</td></tr><tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>
+</td></tr><tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@ class=msgbody>
 <B>Texto para a Resposta automática (500 caracteres ou menos)</B><BR>
 @@@AUTOREPLYTEXT@@@
 </td></tr>
 @@@AUTOREPLYEND@@@
-<tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@ class=msgbody>
 <B>Assinatura (m&aacute;ximo 500 caracteres)</B><BR>
 @@@SIGAREA@@@
 </td></tr><tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>

@@ -23,12 +23,15 @@ body {
      }
 th   {  font-family: Geneva, Arial, Helvetica, sans-serif; font-size: 10pt; font-weight: bold; background-color: #D3DAE3;}
 td   {  font-family: Geneva, Arial, Helvetica, sans-serif; font-size: 10pt;}
-td.msgbody   {  font-family: Geneva, Arial, Helvetica, sans-serif; font-size: 10pt;}
+td.msgbody   {  font-family: @@@FIXEDFONT@@@ Geneva, Arial, Helvetica, sans-serif; font-size: 10pt;}
 form   {  font-family: Geneva, Arial, Helvetica, sans-serif; font-size: 10pt}
 h1   {  font-family: Geneva, Arial, Helvetica, sans-serif; font-size: 16pt; font-weight: bold;}
-A:link    {  font-family: arial; font-size: 10pt; text-decoration: none; color: black}
-A:visited {  font-family: arial; font-size: 10pt; text-decoration: none; color: black}
+A:link    {  font-family: Geneva, Arial, Helvetica, sans-serif; font-size: 10pt; text-decoration: none; color: black}
+A:visited {  font-family: Geneva, Arial, Helvetica, sans-serif; font-size: 10pt; text-decoration: none; color: black}
 A:hover   {  font-family: Geneva, Arial, Helvetica, sans-serif; font-size: 10pt; text-decoration: none; color: red}
+A.msgbody:link    {  font-family: @@@FIXEDFONT@@@ Geneva, Arial, Helvetica, sans-serif; font-size: 10pt; text-decoration: none; color: black}
+A.msgbody:visited {  font-family: @@@FIXEDFONT@@@ Geneva, Arial, Helvetica, sans-serif; font-size: 10pt; text-decoration: none; color: black}
+A.msgbody:hover   {  font-family: @@@FIXEDFONT@@@ Geneva, Arial, Helvetica, sans-serif; font-size: 10pt; text-decoration: none; color: red}
 A:link.nav {  font-family: Geneva, Arial, Helvetica, sans-serif; color: blue}
 A:visited.nav {  font-family: Geneva, Arial, Helvetica, sans-serif; color: blue}
 A:hover.nav {  font-family: Geneva, Arial, Helvetica, sans-serif; color: blue;}

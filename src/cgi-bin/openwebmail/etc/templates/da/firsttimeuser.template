@@ -4,8 +4,8 @@
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>VELKOMMEN TIL @@@NAME@@@!</B></font>
 </td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>Velkommen til @@@NAME@@@! Det ser ud til at være første gang, du bruger @@@NAME@@@, 
+<BR>Velkommen til @@@NAME@@@! Det ser ud til at være f&oslash;rste gang, du bruger @@@NAME@@@, 
 så vi har brug for lidt information om dig for at kunne tilpasse @@@NAME@@@ til dine
-behov. Klik på fortsæt for at komme til @@@NAME@@@ opsætningsskærmen.
+behov. Klik på forts&aelig;t for at komme til @@@NAME@@@ ops&aelig;tningssk&aelig;rmen.
 @@@CONTINUEBUTTON@@@
 </td></tr></table>

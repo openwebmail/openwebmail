@@ -107,6 +107,12 @@ $default_msg = qq|Subject: This is an autoreply...[Re: \$SUBJECT]\n|.
 $editor = $ENV{'VISUAL'} || $ENV{'EDITOR'} || 'vi';
 $pager = $ENV{'PAGER'} || 'more';
 $user = $ENV{'USER'} || $ENV{'LOGNAME'} || getlogin || (getpwuid($>))[0];
+$uid=getpwnam($user))[2];
+if ($uid != $>) {
+   $<=$> if ($>==0);
+   $>=$uid;
+   log_debug("change to $user euid: ruid=$<, euid=$>") if ($opt_d);
+}
 
 $home = $ENV{'HOME'} || (getpwnam($user))[7];
 die "No home directory for user $user\n" unless $home;
@@ -168,15 +174,19 @@ if ($user eq '' || @ARGV ) {
    die $usage;
 }
 
-$home = (getpwnam($user))[7];
+($uid,$home) = (getpwnam($user))[2,7];
+if ($uid != $>) {
+   $<=$> if ($>==0);
+   $>=$uid;
+   log_debug("change to $user euid: ruid=$<, euid=$>") if ($opt_d);
+}
+
 if (!$home) {
    log_debug("Error! No home directory for user $user\n") if ($opt_d);
    die "No home directory for user $user\n";
 }
-
 # guess real homedir under automounter
 $home="/export$home" if ( -d "/export$home" );	
-
 ($home =~ /^(.+)$/) && ($home = $1);  # untaint $home...
 if (! chdir $home) {
     log_debug("Error! Can't chdir to $home: $!\n") if ($opt_d);
@@ -264,7 +274,7 @@ $msg=adjust_replymsg($msg, $from, $subject);
 # remove ' in $from to prevent shell escape
 $from=~s/'/ /g;
 
-open(MAIL, "|$sendmail -oi -t '$from'") || die "Can't run sendmail: $!\n";
+open(MAIL, "|$sendmail -oi '$from'") || die "Can't run sendmail: $!\n";
 print MAIL $msg;
 close MAIL;
 

@@ -1,4 +1,4 @@
-@@@STARTCOMPOSEFORM@@@
+0@@@STARTCOMPOSEFORM@@@
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="1">
 <tr><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
@@ -47,7 +47,7 @@
 <B>Conferma Lettura</B>
 @@@CONFIRMREADINGCHECKBOX@@@
 </td></tr>
-<tr><td colspan="2" bgcolor=@@@WINDOW_LIGHT@@@>
+<tr><td colspan="2" bgcolor=@@@WINDOW_LIGHT@@@ class=msgbody>
 @@@BODYAREA@@@
 </td></tr>
 <tr><td colspan="2" align="left" valign="top">

@@ -73,6 +73,9 @@ if ( defined(param("sessionid")) ) {
       sleep 10;	# delayed response
       openwebmailerror("User $loginname doesn't exist!");
    }
+   if ( -f "$config{'ow_etcdir'}/users.conf/$user") { # read per user conf
+      readconf(\%config, "$config{'ow_etcdir'}/users.conf/$user");
+   }
 
    if ( $config{'use_homedirspools'} || $config{'use_homedirfolders'} ) {
       set_euid_egid_umask($uuid, $mailgid, 0077);	
@@ -1229,7 +1232,7 @@ sub logout {
    $html = applystyle($html);
 
    my $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail.pl") .
-                  submit("$lang_text{'continue'}").
+                  submit("$lang_text{'loginagain'}").
                   "&nbsp; &nbsp;".
                   button(-name=>"exit",
                          -value=>$lang_text{'exit'},

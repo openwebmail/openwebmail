@@ -16,17 +16,19 @@ Open WebMail has the following enhanced features:
 3.  smaller memory footprint
 4.  convenient folder and message operation
 5.  graceful filelock
-6.  virtual hosting and account alias
-7.  pam support
-8.  full content search
-9.  better MIME message display
-10. draft folder support
-11. spelling check support
-12. POP3 mail support
-13. mail filter support
-14. message count preview
-15. confirm reading support
-16. BIG5/GB conversion (for Chinese only)
+6.  remote SMTP relaying
+7.  virtual hosting and account alias
+8.  pam support
+9.  per user capability configuration
+10.  full content search
+11. strong MIME message capability
+12. draft folder support
+13. spelling check support
+14. POP3 mail support
+15. mail filter support
+16. message count preview
+17. confirm reading support
+18. BIG5/GB conversion (for Chinese only)
 
 
 REQUIREMENT
@@ -149,14 +151,14 @@ If you are using RedHat 6.2/CLE 0.9p1(or most Linux) with apache
    }  
    to /etc/logrotate.d/syslog to enable logrotate on openwebmail.log
 
-ps: if you are using RedHat 7.1, please use /var/www instead of /home/httpd
+ps: If you are using RedHat 7.1, please use /var/www instead of /home/httpd
     It is highly recommended to read the doc/RedHat-README.txt(contributed by 
     elitric@yahoo.com) if you are installing Open WebMail on RedHat Linux.
 
 ps: Thomas Chung (tchung@pasadena.oao.com) maintains a tarbal packed 
     with an install script special for RedHat 7.x. It is available at
-    http://openwebmail.org/openwebmail/download/
-
+    http://openwebmail.org/openwebmail/download/redhat-7x-installer/.
+    You can get openwebmail to work in 5 minutes with this :)
 
 If you are using other UNIX with apache, that is okay
 
@@ -272,7 +274,7 @@ openwebmail   auth	required	/usr/lib/pam_unix.so
 openwebmail   account	required	/usr/lib/pam_unix.so
 openwebmail   password	required	/usr/lib/pam_unix.so    
 
-ps: PAM support on some release of FreeBSD seems broken (ex:4.1)
+ps: PAM support on some release of FreeBSD seems broken (eg:4.1)
 
 4. change auth_module to 'auth_pam.pl' in the openwebmail.conf
 
@@ -425,7 +427,7 @@ A command tool 'checkmail.pl' can be used as finger replacement.
 It does mail filtering before report mail status. 
 
 Some fingerd allow you to specify the name of finger program by -p option
-(ex: fingerd on FreeBSD). By changing the parameter to fingerd in 
+(eg: fingerd on FreeBSD). By changing the parameter to fingerd in 
 /etc/inetd.conf, users can get their mail status from remote host.
 
 checkmail.pl can be also used in crontab to prefetch pop3mail or do folder 
@@ -451,6 +453,25 @@ ps: An account may be created to maintain the global addressbook/filterbook,
 
     Please be sure that the global files are writeable by user 'global'
     and readable by others
+
+
+PER USER CAPABILITY CONFIGURATION
+---------------------------------
+While the user capability related options in openwebmail.conf are applied to 
+all users, you may want to set them on per user basis sometimes. 
+Openwebmail supports this by making each user have his own capability file.
+
+The user capability file is located in cgi-bin/openwebmail/etc/user.conf/
+and named as the realusername of user. Options in this file are actually 
+a subset of options in openwebmail.conf. An example 'SAMPLE' is provided.
+
+eg: To creat the capability file for user 'guest':
+
+1. cd cgi-bin/openwebmail/etc/users.conf/
+2. cp SAMPLE guest
+3. edit options in file 'guest' for your need
+
+ps: only users that have different setting than others need the capability file
 
 
 ADD SUPPORT FOR NEW LANGUAGE
@@ -545,7 +566,7 @@ Features that people may also be interested
 3. log analyzer
 
 
-12/16/2001
+01/30/2002
 
 openwebmail@turtle.ee.ncku.edu.tw
 

@@ -72,6 +72,9 @@ if ( defined(param("sessionid")) ) {
       sleep 10;	# delayed response
       openwebmailerror("User $loginname doesn't exist!");
    }
+   if ( -f "$config{'ow_etcdir'}/users.conf/$user") { # read per user conf
+      readconf(\%config, "$config{'ow_etcdir'}/users.conf/$user");
+   }
 
    if ( $config{'use_homedirspools'} || $config{'use_homedirfolders'} ) {
       set_euid_egid_umask($uuid, $mailgid, 0077);	
@@ -319,7 +322,8 @@ sub readmessage {
          # remove bbs control char
          $body =~ s/\x1b\[(\d|\d\d|\d;\d\d)?m//g if ($from=~/bbs/i || $body=~/bbs/i); 
          $body = text2html($body);
-         $body =~ s/(>?)([:;8])[-^]?([\(\)\>\<\|PpDdOoX\\\/\*])([\s\<])/<img border=\"0\" width=\"12\" height=\"12\" src=\"$config{'ow_htmlurl'}\/images\/smilies\/$smilies{"$1$2$3"}\.png\" alt=\"$1$2$3\">$4/g if $prefs{'usesmileicon'};
+         $body =~ s/<a href=/<a class=msgbody href=/ig;
+         $body =~ s/(>?)([:;8])[-^]?([\(\)\>\<\|PpDdOoX\\\/])([\s\<])/<img border=\"0\" width=\"12\" height=\"12\" src=\"$config{'ow_htmlurl'}\/images\/smilies\/$smilies{"$1$2$3"}\.png\" alt=\"$1$2$3\">$4/g if $prefs{'usesmileicon'};
       }
 
       # Set up the message to go to after move.
@@ -635,15 +639,15 @@ sub readmessage {
                   # convert between gb and big5
                   if ( $zhconvert eq 'b2g' ) {
                      my $content = text_att2table($message{attachment}, $attnumber);
-                     $content =~ s/(>?)([:;8])[-^]?([\(\)\>\<\|PpDdOoX\\\/\*])([\s\<])/<img border=\"0\" width=\"12\" height=\"12\" src=\"$config{'ow_htmlurl'}\/images\/smilies\/$smilies{"$1$2$3"}\.png\" alt=\"$1$2$3\">$4/g if $prefs{'usesmileicon'};
+                     $content =~ s/(>?)([:;8])[-^]?([\(\)\>\<\|PpDdOoX\\\/])([\s\<])/<img border=\"0\" width=\"12\" height=\"12\" src=\"$config{'ow_htmlurl'}\/images\/smilies\/$smilies{"$1$2$3"}\.png\" alt=\"$1$2$3\">$4/g if $prefs{'usesmileicon'};
                      $temphtml .= b2g($content);
                   } elsif ( $zhconvert eq 'g2b' ) {
                      my $content = text_att2table($message{attachment}, $attnumber);
-                     $content =~ s/(>?)([:;8])[-^]?([\(\)\>\<\|PpDdOoX\\\/\*])([\s\<])/<img border=\"0\" width=\"12\" height=\"12\" src=\"$config{'ow_htmlurl'}\/images\/smilies\/$smilies{"$1$2$3"}\.png\" alt=\"$1$2$3\">$4/g if $prefs{'usesmileicon'};
+                     $content =~ s/(>?)([:;8])[-^]?([\(\)\>\<\|PpDdOoX\\\/])([\s\<])/<img border=\"0\" width=\"12\" height=\"12\" src=\"$config{'ow_htmlurl'}\/images\/smilies\/$smilies{"$1$2$3"}\.png\" alt=\"$1$2$3\">$4/g if $prefs{'usesmileicon'};
                      $temphtml .= g2b($content);
                   } else {
                      my $content = text_att2table($message{attachment}, $attnumber);
-                     $content =~ s/(>?)([:;8])[-^]?([\(\)\>\<\|PpDdOoX\\\/\*])([\s\<])/<img border=\"0\" width=\"12\" height=\"12\" src=\"$config{'ow_htmlurl'}\/images\/smilies\/$smilies{"$1$2$3"}\.png\" alt=\"$1$2$3\">$4/g if $prefs{'usesmileicon'};
+                     $content =~ s/(>?)([:;8])[-^]?([\(\)\>\<\|PpDdOoX\\\/])([\s\<])/<img border=\"0\" width=\"12\" height=\"12\" src=\"$config{'ow_htmlurl'}\/images\/smilies\/$smilies{"$1$2$3"}\.png\" alt=\"$1$2$3\">$4/g if $prefs{'usesmileicon'};
                      $temphtml .= $content;
                   }
                } else {
@@ -763,7 +767,9 @@ sub text_att2table {
    $temptext =~ s/(\r?\n){2,}/\n\n/g;
    $temptext =~ s/^\s+//;	
    $temptext =~ s/\n\s*$/\n/;
-   return(text2html($temptext). "<BR>");
+   $temptext = text2html($temptext);
+   $temptext =~ s/<a href=/<a class=msgbody href=/ig;
+   return($temptext. "<BR>");
 }
 
 sub message_att2table {
@@ -772,7 +778,7 @@ sub message_att2table {
 
    my $r_attachment=${$r_attachments}[$attnumber];
    my ($header, $body)=split(/\n\r*\n/, ${${$r_attachment}{r_content}}, 2);
-   my ($contenttype, $encoding)=get_contenttype_encoding_from_header($header);
+   my ($contenttype, $encoding, $description)=get_contenttype_encoding_from_header($header);
    
    $header=text2html($header);
    $header=simpleheader($header);
@@ -799,6 +805,7 @@ sub message_att2table {
       $body = html2table($body); 
    } else {	
       $body = text2html($body);
+      $body =~ s/<a href=/<a class=msgbody href=/ig;
    }
 
    # be aware the message header are keep untouched here 
@@ -810,7 +817,7 @@ sub message_att2table {
                 qq|</font>\n|.
                 qq|</td></tr>\n|.
                 qq|\n\n|.
-                qq|<tr><td>\n|.
+                qq|<tr><td class=msgbody>\n|.
                 qq|$body\n|.
                 qq|</td></tr></table>|;
    return($temphtml);
@@ -830,7 +837,11 @@ sub image_att2table {
                    qq|<tr><td valign="middle" bgcolor=$style{"attachment_dark"} align="center">|.
                    qq|$lang_text{'attachment'} $attnumber: ${$r_attachment}{filename} &nbsp;($attlen)&nbsp;&nbsp;<font color=$style{"attachment_dark"}  size=-2>$nodeid $disposition</font>|.
                    qq|</td></tr><td valign="middle" bgcolor=$style{"attachment_light"} align="center">|.
-                   qq|<IMG BORDER="0" SRC="$config{'ow_cgiurl'}/openwebmail-viewatt.pl/$escapedfilename?action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder&amp;attachment_nodeid=$nodeid">|.
+                   qq|<img border="0" |;
+   if (${$r_attachment}{description} ne "") {
+      $temphtml .= qq|alt="${$r_attachment}{description}" |;
+   }
+   $temphtml .=    qq|SRC="$config{'ow_cgiurl'}/openwebmail-viewatt.pl/$escapedfilename?action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder&amp;attachment_nodeid=$nodeid">|.
                    qq|</td></tr></table>|;
    return($temphtml);
 }
@@ -853,9 +864,17 @@ sub misc_att2table {
                    qq|</td></tr>|.
                    qq|<tr><td nowrap valign="middle" bgcolor= $style{"attachment_light"} align="center">|.
                    qq|$lang_text{'type'}: $contenttype<br>|.
-                   qq|$lang_text{'encoding'}: ${$r_attachment}{encoding}|.
-                   qq|</td><td nowrap width="10%" valign="middle" bgcolor= $style{"attachment_light"} align="center">|.
-                   qq|<a href="$config{'ow_cgiurl'}/openwebmail-viewatt.pl/$escapedfilename?action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder&amp;attachment_nodeid=$nodeid">$lang_text{'download'}</a>|.
+                   qq|$lang_text{'encoding'}: ${$r_attachment}{encoding}|;
+   if (${$r_attachment}{description} ne "") {
+      $temphtml .= qq|<br>$lang_text{'description'}: ${$r_attachment}{description}|;
+   }
+   my $blank="";
+   if ($contenttpye=~/^text/ ||
+       ${$r_attachment}{filename}=~/\.(jpg|jpeg|gif|png|bmp)$/i) {
+      $blank="target=_blank";
+   }
+   $temphtml .=    qq|</td><td nowrap width="10%" valign="middle" bgcolor= $style{"attachment_light"} align="center">|.
+                   qq|<a href="$config{'ow_cgiurl'}/openwebmail-viewatt.pl/$escapedfilename?action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder&amp;attachment_nodeid=$nodeid" $blank>$lang_text{'download'}</a>|.
                    qq|</td></tr></table>|;
    return($temphtml);
 }

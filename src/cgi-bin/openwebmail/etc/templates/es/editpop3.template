@@ -4,19 +4,19 @@
 <b>Configurar cuenta POP3</b></font>
 </td><td nowrap colspan="3" bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b> @@@FREESPACE@@@ KB Available</b></font>
+<b> @@@FREESPACE@@@ KB disponibles</b></font>
 </td></tr><tr><td colspan="6" bgcolor=@@@MENUBAR@@@ align="left">
 @@@MENUBARLINKS@@@
 </td></tr><tr><td colspan="6">&nbsp;</td></tr>
 <tr>
 <td nowrap bgcolor=@@@COLUMNHEADER@@@>
-<B>Servidor POP3</B> (click to edit)</td>
+<B>Servidor POP3</B> (click para editar)</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Id</B> (pinchar para recibir)</td>
+<B>Cuenta</B> (click para recibir)</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Password</B></td>
+<B>Contrase&ntilde;a</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Borrar correo remoto</B></td>
+<B>Borrar correo al descargar</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Activar</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>

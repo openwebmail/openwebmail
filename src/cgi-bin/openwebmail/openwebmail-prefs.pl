@@ -67,7 +67,11 @@ if ( defined(param("sessionid")) ) {
 
    ($virtualuser, $user, $userrealname, $uuid, $ugid, $homedir)=get_virtualuser_user_userinfo($loginname);
    if ($user eq "") {
+      sleep 10;	# delayed response
       openwebmailerror("User $loginname doesn't exist!");
+   }
+   if ( -f "$config{'ow_etcdir'}/users.conf/$user") { # read per user conf
+      readconf(\%config, "$config{'ow_etcdir'}/users.conf/$user");
    }
 
    if ( $config{'use_homedirspools'} || $config{'use_homedirfolders'} ) {
@@ -573,6 +577,13 @@ sub editprefs {
 
    $html =~ s/\@\@\@NEWMAILSOUND\@\@\@/$temphtml/g;
 
+   $temphtml = checkbox(-name=>'usefixedfont',
+                  -value=>'1',
+                  -checked=>$prefs{'usefixedfont'},
+                  -label=>'');
+
+   $html =~ s/\@\@\@USEFIXEDFONT\@\@\@/$temphtml/g;
+
    $temphtml = checkbox(-name=>'usesmileicon',
                   -value=>'1',
                   -checked=>$prefs{'usesmileicon'},
@@ -774,7 +785,8 @@ sub saveprefs {
                        sort dateformat headers headersperpage 
                        editcolumns editrows dictionary
                        defaultdestination 
-                       disablejs hideinternal newmailsound usesmileicon 
+                       disablejs hideinternal newmailsound 
+                       usefixedfont usesmileicon 
                        confirmmsgmovecopy viewnextaftermsgmovecopy 
                        replywithorigmsg reparagraphorigmsg 
                        sendreceipt 
@@ -831,6 +843,7 @@ sub saveprefs {
                 $key eq 'disablejs' ||
                 $key eq 'hideinternal' ||
                 $key eq 'newmailsound' ||
+                $key eq 'usefixedfont' ||
                 $key eq 'usesmileicon' ||
                 $key eq 'autopop3' ) {
          $value=0 if ($value eq '');
@@ -1080,7 +1093,7 @@ sub writedotvacationmsg {
          $ENV{'USER'}=$user;
          $ENV{'LOGNAME'}=$user;
          $ENV{'HOME'}=$homedir;
-         $<=$>;		# set uid = euid
+         $<=$>;		# drop ruid by setting ruid = euid
          exec($config{'vacationinit'});
 #         system("/bin/sh -c '$config{vacationinit} 2>>/tmp/err.log2  >>/tmp/err.log'" );
          exit 0;
@@ -2584,6 +2597,7 @@ sub modaddress {
    $usernote = param("note") || '';
    $realname =~ s/^\s*//; # strip beginning and trailing spaces from hash key
    $address =~ s/[#&=\?]//g;
+   $address =~ s/^\s*mailto:\s*//;
    $usernote =~ s/^\s*//; # strip beginning and trailing spaces
    $usernote =~ s/\s*$//;
 

@@ -41,9 +41,9 @@
    <!--
    function replyreceiptconfirm(url, yes)
    {
-      if (yes==1 || confirm('Este mensaje requiere una notificaci¢Fn de que ha sido le!do, ¿quieres enviarla?')) {
+      if (yes==1 || confirm('Este mensaje requiere una notificaci&oacute;n de que ha sido le&iacute;do, ¿desea enviarla?')) {
          var hWnd = window.open("","ReplyReceipt","width=100,height=50,resizable=no,scrollbars=no");
-         hWnd.document.write('Transmitting...');
+         hWnd.document.write('Enviando...');
          hWnd.location.href=url;
 //         hWnd.close();
       }

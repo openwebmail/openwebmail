@@ -94,6 +94,13 @@
   </td>
   </tr>
 
+  <tr valign="top">
+  <td nowrap><font color=#cc0000>Quick Installer&nbsp;</font></td>
+  <td>
+    <a href="http://openwebmail.org/openwebmail/download/redhat-7x-installer/">
+    http://openwebmail.org/openwebmail/download/redhat-7x-installer/</a>
+  </td>
+  </tr>
   </table>
 
   </p>
@@ -147,9 +154,17 @@
   necessary to lock the file before accessing the folder. Open WebMail uses a 
   blocking lock with a timeout limit of 60 seconds. It gives the lock a better 
   chance of success than a nonblocking lock, which returns an error if the lock 
-  can not be aquired immediately. Open WebMail also supports locking by dotlock 
+  can not be acquired immediately. Open WebMail also supports locking by dotlock 
   file to ensure that the file locking operates correctly on platforms operating 
   with an incomplete implementation of NFS lockd.
+  </p>
+
+  <h4>Remote SMTP Relaying</h4>
+  <p>
+  With the help of Net::SMTP module, openwebamil can talk SMTP to SMTP daemons
+  on either localhost or remote machine. This gives openwebmail the better 
+  compatibility with various smtp daemons. The system administrator also has 
+  more flexibility when designing the mail service system.
   </p>
 
   <h4>Virtual Hosting and Login Alias</h4>
@@ -174,6 +189,15 @@
   http://www.kernel.org/pub/linux/libs/pam/</a>
   </p>
 
+  <h4>Per User Capability Configuration</h4>
+  <p>
+  While the user capability related options in system config file(openwebmail.conf)
+  are applied to all users, system administrator may want to set them on per user 
+  basis sometimes. 
+  Openwebmail supports this by making each user have his own capability file.
+  This gives the administrator ultra flexibility in user capability management.
+  </p>
+
   <h4>Full Content Search</h4>
   <p>
   Full content search with regular expression support is provided. When a user 
@@ -187,7 +211,7 @@
   <p>
   Most webmail packages present MIME messages poorly compared to traditional 
   POP clients. Open Webmail presents MIME messages in an attractive format 
-  comparable to that presnted by Microsoft Outlook. It does this through 
+  comparable to that presented by Microsoft Outlook. It does this through 
   supporting unlimited levels of attachments and cid object cross-reference 
   inside attachments. Open WebMail also supports uuencoded block inside messages, 
   and displays those uuencoded blocks as if they were normal attachments. 
@@ -237,7 +261,7 @@
   <p>
   When the user pulls down the folderlist menu to select a folder, the counts of 
   new messages and total messages of each mail folder are displayed after the 
-  folder name to assist the user in finding unread mesages.
+  folder name to assist the user in finding unread messages.
   </p>
 
   <h4>Confirm Reading Support</h4>
@@ -276,7 +300,7 @@
       <td><A href="mailto:openwebmail@turtle.ee.ncku.edu.tw">openwebmail</A></td></tr>
   <tr><td>Danish</td>
       <td>da</td>
-      <td>incomplete</td></tr>
+      <td><A href="mailto:frank@post12.tele.dk">Frank</A></td></tr>
   <tr><td>Dutch</td>
       <td>nl</td>
       <td><A href="mailto:m.m.vanslobbe@connectux.com">Michiel van Slobbe</A>,
@@ -330,7 +354,7 @@
       <td><A href="mailto:lubos@klokner.sk">Lubos Klokner</A></td></tr>
   <tr><td>Spanish</td>
       <td>es</td>
-      <td><A href="mailto:javier@dc.exa.unrc.edu.ar">Javier Smaldone</A></td></tr>
+      <td><A href="mailto:jsmaldone@yahoo.com">Javier Smaldone</A></td></tr>
   <tr><td>Swedish</td>
       <td>sv</td>
       <td><A href="mailto:tryfan@telia.com">Goran Jartin</A></td></tr>
@@ -339,74 +363,124 @@
 </blockquote>
 
 <h3>THANKS</h3>
-<blockquote> 
-  <p>
+  <p><ul>
+  <li>
   Thanks to <A href="mailto:neorants@users.sourceforge.net">Ernie Miller</A>. 
     His great work <A href="http://neomail.sourceforge.net/">Neomail</A> provided 
     the solid foundation upon which Open WebMail was built. Without Neomail, there 
-    would be no Open WebMail.<BR>
-  Thanks to <A href="mailto:jcantara@grappone.com">Joshua Cantara</A>, 
-    the web based spelling check is based on his code in 
-    <A href="http://www.dontpokebadgers.com/spellchecker/">WBOSS</A> 1.5a.<BR>
-  Thanks to <A href="mailto:nikip@iname.com">Nikolay Pelov</A>, 
-    the PAM support in openwebmail is mostly from the example code in his perl
-    <A href="http://www.cs.kuleuven.ac.be/~pelov/pam/">Authen::PAM</A> module.<BR>
+    would be no Open WebMail.
+  </li>
+  <li>
   Thanks to <A href="mailto:elitric@yahoo.com">Emir Litric</A> for his great works 
     of art. He made all the great 3D icons and the many fancy styles in Open 
     WebMail, and maintained the doc/RedHat-README.txt. He is now one of the
-    authors of Open Webmail.<BR>
+    authors of Open Webmail.
+  </li>
+  <li>
+  Thanks to <A href="mailto:tchung@pasadena.oao.com">Thomas Chung</A>, 
+    who donated the domain 
+    <A href="http://openwebmail.org">openwebmail.org</A>
+    to the Open Webmail project, setup 
+    <A href="http://openwebmail.org">openwebmail.org</A>
+    site and maintained 
+    <A href="http://openwebmail.org/openwebmail/download/redhat-7x-installer/">
+    the Quick Install package</A> for Open Webmail on RedHat 7.x platform. 
+    He also helped other users to solve problems on installing Open Webmail. 
+    Thank you, Thomas!
+  </li>
+  <li>
+  Thanks to <A href="mailto:jcantara@grappone.com">Joshua Cantara</A>, 
+    the web based spelling check is based on his code in 
+    <A href="http://www.dontpokebadgers.com/spellchecker/">WBOSS</A> 1.5a.
+  </li>
+  <li>
+  Thanks to <A href="mailto:nikip@iname.com">Nikolay Pelov</A>, 
+    the PAM support in openwebmail is mostly from the example code in his perl
+    <A href="http://www.cs.kuleuven.ac.be/~pelov/pam/">Authen::PAM</A> module.
+  </li>
+  <li>
   Thanks to <A href="mailto:russ@zerotech.net">Russ Reese</A>, 
-    the login alias/mapping is based on his patch code and idea.<BR>
+    the login alias/mapping is based on his patch code and idea.
+  </li>
+  <li>
   Thanks to <A href="mailto:zimerman@mailandnews.com">Nimrod Zimerman</A> and 
     <A href="mailto:simba@schoolsucks.com">Nimrod S. Carmi</A>, 
     who contributed the 
     <A href="http://turtle.ee.ncku.edu.tw/openwebmail/download/contrib/useraddbyweb.tar.gz">
     useraddbyweb</A> package in contrib/. This allows users to be added to a 
-    Linux system dynamically through web signup.<BR>
+    Linux system dynamically through web signup.
+  </li>
+  <li>
   Thanks to <A href="mailto:jpd@louisiana.edu">Dugal James P.</A>, 
     who submitted the patches for PAM support, automated DST adjustment, 
     internal msg detection on solaris dtmail, disallowed_pop3servers option, 
     fix for passwdfile in NIS+, fix for user homedir in sun automounter and 
-    fix to the content-type header error in attachment downloading.<BR>
+    fix to the content-type header error in attachment downloading.
+  </li>
+  <li>
   Thanks to <A href="mailto:raul@est.ct.upc.es">Raul Monferrer</A>, 
-    who submitted the patch for multiple dictionaries support in spellcheck.<BR>
+    who submitted the patch for multiple dictionaries support in spellcheck.
+  </li>
+  <li>
   Thanks to <A href="mailto:st@e-puntcom.com">Jordi Vidal</A>, 
-    who translated the language, template files and Cool3D icon into Catalan.<BR>
-  Thanks to <A href="mailto:tchung@pasadena.oao.com">Thomas Chung</A>, 
-    who registered the domain 
-    <A href="http://openwebmail.org">openwebmail.org</A>
-    for the Open Webmail project, setup 
-    <A href="http://openwebmail.org">openwebmail.org</A>
-    site and maintained a 
-    <A href="http://openwebmail.org/openwebmail/download/">tarball</A> 
-    packed with an install script special for RedHat 7.x platform.
-    He also helped other users to solve problems on installing Open Webmail.
-    Thank you, Thomas!<BR>
+    who translated the language, template files and Cool3D icon into Catalan.
+  </li>
+  <li>
   Thanks to <A href="mailto:lubos@klokner.sk">lubos klokner</A>, 
-    who translated the language, template files and Cool3D icon into Slovak.<BR>
+    who translated the language, template files and Cool3D icon into Slovak.
+  </li>
+  <li>
   Thanks to <A href="mailto:james@tiger-marmalade.com">James Dean Palmer</A>,
     who contributed the support for new mail headers: In-Reply-To, References and X-Status.
     He also wrote a new sort method "by thread" for folderview, added the 'A' flag display 
     of answered messages and made the from column more concise by cutting it off at @ 
-    symbol if it is a pure address.<BR>
+    symbol if it is a pure address.
+  </li>
+  <li>
   Thanks to <A href="mailto:nimalr@mail.pdn.ac.lk">Nimal Ratnayake</A>,
-    who submitted the patch for .forward editing.<BR>
+    who submitted the patch for .forward editing.
+  </li>
+  <li>
   Thanks to <A href="mailto:chenhsiu@gens.dhs.org">Chen-hsiu Huang</A>,
     who fixed the templates to solve the display problem on Mozilla/Netscape browser and added 
-    support for 'markasread'.<BR>
-  Thanks to <A href="mailto:javier@dc.exa.unrc.edu.ar">Javier Smaldone</A>,
-    who contributed the Default.Spanish and Cool3D.Spanish iconsets.<BR>
+    support for 'markasread'.
+  </li>
+  <li>
+  Thanks to <A href="mailto:jsmaldone@yahoo.com">Javier Smaldone</A>,
+    who contributed the Default.Spanish and Cool3D.Spanish iconset.
+  </li>
+  <li>
   Thanks to <A href="mailto:u8711028@cc.nkfust.edu.tw">©ú³Ó</A>,
-    who contributed the patch of search support in addressbook.<BR>
+    who contributed the patch of search support in addressbook.
+  </li>
+  <li>
   Thanks to <A href="mailto:calle@batliv.nu.">Carl Olsen</A>,
     who contributed the code of using Net::SMTP module.
-    This allows openwebmail to use other host as SMTP relay for mail sending<BR>
+    This allows openwebmail to use other host as SMTP relay for mail sending.
+  </li>
+  <li>
   Thanks to <A href="mailto:hoyuan@istyle.idv.tw">Yuan</A>,
-    who contributed the Cool3D.Chinese.Traditional iconset.<BR>
+    who contributed the Cool3D.Chinese.Traditional iconset.
+  </li>
+  <li>
   Thanks to <A href="mailto:suttonb@users.sourceforge.net">Brian Suttonb</A>,
-    who contributed the Hotmail style definition file.<BR>
+    who contributed the Hotmail style definition file.
+  </li>
+  <li>
+  Thanks to <A href="mailto:pengus@libero.it">Ivan Cerrato</A>,
+    who contributed the LDAP authentication module(auth_ldap.pl).
+  </li>
+  <li>
+  Thanks to <A href="mailto:jsb@ductape.net">Jordi S. Bunster</A>,
+    who contributed the Cool3D.Portuguese.Brazilian iconset.
+  </li>
+  <li>
+  Thanks to <A href="mailto:kevlo@openbsd.org">Kevin Lo</A>,
+    who made the <A href="http://www.openbsd.org/cgi-bin/cvsweb/ports/mail/openwebmail/">OpenBSD port</A> for openwebmail.
+  </li>
+  </ul>
   </p>
-</blockquote>
+
 <h3>CONTACT</h3>
 <blockquote> 
   <p> If you encountered any problem with Open Webmail, please check 
@@ -465,7 +539,7 @@
     <font color=#000000>National Chung-Kung University</font></a>, 
     Tainan, Taiwan, R.O.C. </p>
 </blockquote>
-<p>12/26/2001 </p>
+<p>01/28/2002 </p>
 
 <br>
 <center>

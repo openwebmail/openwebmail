@@ -46,7 +46,11 @@ if ( defined(param("sessionid")) ) {
 
    ($virtualuser, $user, $userrealname, $uuid, $ugid, $homedir)=get_virtualuser_user_userinfo($loginname);
    if ($user eq "") {
+      sleep 10;	# delayed response
       openwebmailerror("User $loginname doesn't exist!");
+   }
+   if ( -f "$config{'ow_etcdir'}/users.conf/$user") { # read per user conf
+      readconf(\%config, "$config{'ow_etcdir'}/users.conf/$user");
    }
 
    if ( $config{'use_homedirspools'} || $config{'use_homedirfolders'} ) {

@@ -9,7 +9,7 @@
 <tr>
 <td align=right>Nombre de usuario: </td><td align=left>@@@USERIDFIELD@@@</td>
 </tr><tr>
-<td align=right>Antigua contrase&ntilde;a: </td><td align=left>@@@OLDPASSWORDFIELD@@@</td>
+<td align=right>Contrase&ntilde;a anterior: </td><td align=left>@@@OLDPASSWORDFIELD@@@</td>
 </tr><tr>
 <td align=right>Nueva contrase&ntilde;a: </td><td align=left>@@@NEWPASSWORDFIELD@@@</td>
 </tr><tr>
@@ -41,7 +41,7 @@
       }
       if (document.passwordform.newpassword.value ==
 	  document.passwordform.oldpassword.value) {
-         alert("La nueva contrase&ntilde;a es la misma que la antigua.");
+         alert("La nueva contrase&ntilde;a es igual a la anterior.");
          return false;
       }
       return true;

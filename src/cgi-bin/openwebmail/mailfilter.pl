@@ -72,7 +72,7 @@ sub mailfilter {
 
    ## open INBOX dbm => lock before open ##
    filelock("$headerdb$config{'dbm_ext'}", LOCK_EX);
-   dbmopen (%HDB, $headerdb, 600);
+   dbmopen (%HDB, $headerdb, 0600);
 
    my ($blockstart, $blockend, $writepointer)=(0,0,0);
    my $filtered=0;
@@ -448,7 +448,8 @@ sub mailfilter {
                    ${$r_attachment}{filename} =~ /\.pif$/i ||
                    ${$r_attachment}{filename} =~ /\.lnk$/i ||
                    ${$r_attachment}{filename} =~ /\.scr$/i )  &&
-                  ${$r_attachment}{contenttype} !~ /application\/octet-stream/i ) {
+                  ${$r_attachment}{contenttype} !~ /application\/octet\-stream/i &&
+                  ${$r_attachment}{contenttype} !~ /application\/x\-msdownload/i ) {
                my ($matchcount, $matchdate)=split(":", $FTDB{"filter_fakedexecontenttype"});
                $matchcount++; $matchdate=getdateserial();
                $FTDB{"filter_fakedexecontenttype"}="$matchcount:$matchdate";
@@ -635,32 +636,37 @@ sub append_message_to_folder {
    ($dstfile =~ /^(.+)$/) && ($dstfile = $1);  # untaint $dstfile
    ($dstdb =~ /^(.+)$/) && ($dstdb = $1);  # untaint $dstdb
 
-   if(! -f $dstfile) {
+   if (${$r_currmessage} !~ /^From /) { # msg format error
+      return(-1);
+   }
+
+   if (! -f $dstfile) {
       if (open (DEST, ">$dstfile")) {
          close (DEST);
          push (@{$r_validfolders}, $destination);
+      } else {
+         return(-2);
       }
    }
    
-   filelock($dstfile, LOCK_EX|LOCK_NB) || return(-2);
+   filelock($dstfile, LOCK_EX|LOCK_NB) || return(-3);
 
    update_headerdb($dstdb, $dstfile);
              
    filelock("$dstdb$config{'dbm_ext'}", LOCK_EX);
 
-   dbmopen (%HDB2, $dstdb, 600);
+   dbmopen (%HDB2, $dstdb, 0600);
    if (! defined($HDB2{$messageid}) ) {	# append only if not found in dstfile
-      my @attr2=@{$r_attr};
-
-      open(DEST, ">>$dstfile") || return(-1);
-      $attr2[$_OFFSET]=tell(DEST);
-      if (${$r_currmessage} =~ /^From /) {
-         $attr2[$_SIZE]=length(${$r_currmessage});
-         print DEST ${$r_currmessage};
-      } else {
-         $attr2[$_SIZE]=length("From ")+length(${$r_currmessage});
-         print DEST "From ", ${$r_currmessage};
+      if (! open(DEST, ">>$dstfile")) {
+         dbmclose(%HDB2);
+         filelock("$dstdb$config{'dbm_ext'}", LOCK_UN);
+         filelock($dstfile, LOCK_UN);
+         return(-4);
       }
+      my @attr2=@{$r_attr};
+      $attr2[$_OFFSET]=tell(DEST);
+      $attr2[$_SIZE]=length(${$r_currmessage});
+      print DEST ${$r_currmessage};
       close (DEST);
 
       $HDB2{$messageid}=join('@@@', @attr2);

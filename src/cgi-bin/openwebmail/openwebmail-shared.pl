@@ -74,9 +74,9 @@ sub readconf {
    close(CONFIG);
 
    # processing yes/no
-   foreach $key ( 'deliver_use_GMT',
-                  'use_hashedmailspools', 'use_homedirspools',
+   foreach $key ( 'use_hashedmailspools', 'use_homedirspools',
                   'use_homedirfolders', 'use_dotlockfile', 
+                  'deliver_use_GMT', 'savedsuid_support',
                   'refresh_after_login', 'enable_rootlogin',
                   'enable_changepwd', 'enable_setfromemail', 
                   'enable_autoreply', 'enable_pop3', 'enable_setforward',
@@ -86,8 +86,9 @@ sub readconf {
                   'default_moveoldmsgfrominbox', 'forced_moveoldmsgfrominbox',
                   'default_hideinternal', 'symboliclink_mbox',
                   'default_filter_fakedsmtp', 'default_filter_fakedexecontenttype',
-                  'default_disablejs', 'default_newmailsound', 'default_usesmileicon') {
-      if (${$r_confighash}{$key} =~ /yes/i) {
+                  'default_disablejs', 'default_newmailsound', 
+                  'default_usefixedfont', 'default_usesmileicon') {
+      if (${$r_confighash}{$key} =~ /yes/i || ${$r_confighash}{$key} == 1) {
          ${$r_confighash}{$key}=1;
       } else {
          ${$r_confighash}{$key}=0;
@@ -106,8 +107,10 @@ sub readconf {
 
    # processing list
    foreach $key ('domainnames', 'spellcheck_dictionaries', 'disallowed_pop3servers') {
-      my @list=split(/\s*,\s*/, ${$r_confighash}{$key});
-      ${$r_confighash}{$key}=\@list;
+      if (! defined(@{${$r_confighash}{$key}}) ) { # conv str to list
+         my @list=split(/\s*,\s*/, ${$r_confighash}{$key});
+         ${$r_confighash}{$key}=\@list;
+      }
    }
 
    # processing none
@@ -419,7 +422,8 @@ sub readprefs {
                   'sendreceipt', 'moveoldmsgfrominbox',
                   'filter_repeatlimit', 'filter_fakedsmtp', 
                   'filter_fakedexecontenttype',
-                  'disablejs', 'hideinternal', 'newmailsound', 'usesmileicon', 'autopop3',
+                  'disablejs', 'hideinternal', 'newmailsound', 
+                  'usefixedfont', 'usesmileicon', 'autopop3',
                   'trashreserveddays') {
       if ( !defined($prefshash{$key}) || $prefshash{$key} eq "" ) {
           $prefshash{$key}=$config{'default_'.$key};
@@ -478,7 +482,11 @@ sub readstyle {
    close (STYLE);
 
    $stylehash{"css"}=~ s/\@\@\@BG_URL\@\@\@/$prefs{"bgurl"}/g;
-
+   if ($prefs{'usefixedfont'}) {
+      $stylehash{"css"}=~ s/\@\@\@FIXEDFONT\@\@\@/"Courier New",/g;
+   } else {
+      $stylehash{"css"}=~ s/\@\@\@FIXEDFONT\@\@\@//g;
+   }
    return \%stylehash;
 }
 ##################### END READSTYLE ######################
@@ -691,30 +699,55 @@ sub getmessage {
    my ($messageid, $mode) = @_;
    my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
    my $folderhandle=FileHandle->new();
+   my $r_messageblock;
    my %message = ();
-
-   my ($currentheader, $currentbody, $r_currentattachments, $currentfrom, $currentdate,
-       $currentsubject, $currentid, $currenttype, $currentto, $currentcc,
-       $currentreplyto, $currentencoding, $currentstatus, $currentreceived,
-       $currentpriority, $currentinreplyto, $currentreferences);
 
    filelock($folderfile, LOCK_SH|LOCK_NB) or
       openwebmailerror("$lang_err{'couldnt_locksh'} $folderfile!");
    update_headerdb($headerdb, $folderfile);
    open($folderhandle, "$folderfile");
+   $r_messageblock=get_message_block($messageid, $headerdb, $folderhandle);
+   close($folderhandle);
+   filelock($folderfile, LOCK_UN);
+
+   return \%message if (${$r_messageblock} eq "" );
+
+   if (${$r_messageblock}!~/^From /) {	# db index inconsistance found
+      filelock($folderfile, LOCK_SH|LOCK_NB) or
+         openwebmailerror("$lang_err{'couldnt_locksh'} $folderfile!");
+
+      filelock("$headerdb$config{'dbm_ext'}", LOCK_EX);
+      my %HDB;
+      dbmopen (%HDB, $headerdb, undef);
+      $HDB{'METAINFO'}="ERR";
+      dbmclose(%HDB);
+      filelock("$headerdb$config{'dbm_ext'}", LOCK_UN);
+      
+      # forced reindex since metainfo = ERR
+      update_headerdb($headerdb, $folderfile);
+
+      open($folderhandle, "$folderfile");
+      $r_messageblock=get_message_block($messageid, $headerdb, $folderhandle);
+      close($folderhandle);
+
+      filelock($folderfile, LOCK_UN);
+      writelog("db error - $folderfile index inconsistence fixed");
+      writehistory("db error - $folderfile index inconsistence fixed");
+   }
+
+   my ($currentheader, $currentbody, $r_currentattachments, $currentfrom, $currentdate,
+       $currentsubject, $currentid, $currenttype, $currentto, $currentcc, $currentbcc,
+       $currentreplyto, $currentencoding, $currentstatus, $currentreceived,
+       $currentpriority, $currentinreplyto, $currentreferences);
 
    # $r_attachment is a reference to attachment array!
    if ($mode eq "all") {
       ($currentheader, $currentbody, $r_currentattachments)
-		=parse_rfc822block(get_message_block($messageid, $headerdb, $folderhandle), "0", "all");
+		=parse_rfc822block($r_messageblock, "0", "all");
    } else {
       ($currentheader, $currentbody, $r_currentattachments)
-		=parse_rfc822block(get_message_block($messageid, $headerdb, $folderhandle), "0", "");
+		=parse_rfc822block($r_messageblock, "0", "");
    }
-
-   close($folderhandle);
-   filelock($folderfile, LOCK_UN);
-
    return \%message if ( $currentheader eq "" );
 
    $currentfrom = $currentdate = $currentsubject = $currenttype = 
@@ -737,6 +770,7 @@ sub getmessage {
          elsif ($lastline eq 'ENCODING') { $currentencoding .= $_ }
          elsif ($lastline eq 'TO')   { $currentto .= $_ }
          elsif ($lastline eq 'CC')   { $currentcc .= $_ }
+         elsif ($lastline eq 'BCC')   { $currentbcc .= $_ }
          elsif ($lastline eq 'INREPLYTO') { $currentinreplyto .= $_ }
          elsif ($lastline eq 'REFERENCES') { $currentreferences .= $_ }
          elsif ($lastline eq 'RECEIVED') { $currentreceived .= $_ }
@@ -752,6 +786,9 @@ sub getmessage {
       } elsif (/^cc:\s+(.+)$/ig) {
          $currentcc = $1;
          $lastline = 'CC';
+      } elsif (/^bcc:\s+(.+)$/ig) {
+         $currentbcc = $1;
+         $lastline = 'BCC';
       } elsif (/^date:\s+(.+)$/ig) {
          $currentdate = $1;
          $lastline = 'DATE';
@@ -835,6 +872,7 @@ search_smtprelay:
    $message{replyto} = decode_mimewords($currentreplyto) unless ($currentreplyto eq "N/A");
    $message{to}      = decode_mimewords($currentto) unless ($currentto eq "N/A");
    $message{cc}      = decode_mimewords($currentcc) unless ($currentcc eq "N/A");
+   $message{bcc}     = decode_mimewords($currentbcc) unless ($currentbcc eq "N/A");
    $message{subject} = decode_mimewords($currentsubject);
 
    $message{date} = $currentdate;
@@ -876,7 +914,7 @@ sub getinfomessageids {
          close(STDIN);
          filelock($folderfile, LOCK_SH|LOCK_NB) or exit 1;
          update_headerdb($headerdb, $folderfile);
-         filelock("$headerdb$config{'dbm_ext'}", LOCK_UN);
+         filelock($folderfile, LOCK_UN);
          exit 0;
       }
 
@@ -1174,8 +1212,8 @@ sub g2b {
    print TMP $_[0];		# orig gb
    close(TMP);
 
-   # required on linux since it execute shell with real uid (nobody),
-   # thus $config{'g2b_converter'} won't be able to read $tmpfile if mode not set
+   # required on linux since it execute shell with real uid, thus g2b_converter 
+   # with ruid may be not able to read $tmpfile if mode not set
    chmod(0644, $tmpfile);	
 
    open(CONV, "$config{'g2b_converter'} < $tmpfile |");
@@ -1203,8 +1241,8 @@ sub b2g {
    print TMP $_[0];		# orig big5
    close(TMP);
 
-   # required on linux since it execute shell with real uid (nobody),
-   # thus $config{'b2g_converter'} won't be able to read $tmpfile if mode not set
+   # required on linux since it execute shell with real uid, thus g2b_converter 
+   # with ruid may be not able to read $tmpfile if mode not set
    chmod(0644, $tmpfile);
 
    open(CONV, "$config{'b2g_converter'} < $tmpfile |");
@@ -1239,13 +1277,21 @@ sub escapeURL {
 ##################### END escapeURL, unescapeURL #################
 
 ##################### SET_EUID_EGID_UMASK #################
+# this routine save euid root to ruid in case system doesn't support saved-euid
+# so we can give up euid root temporarily and get it back later.
+# Saved-euid means the euid will be saved to a variable saved-euid(prepared by OS) 
+# before it is changed, thus the process can switch back to previous euid if required
 sub set_euid_egid_umask {
    my ($uid, $gid, $umask)=@_;
 
    # note! egid must be set before set euid to normal user,
    #       since a normal user can not set egid to others
    $) = $gid;
-   $> = $uid if ($> != $uid);
+
+   if ($> != $uid) {
+      $<=$> if (!$config{'savedsuid_support'} && $>==0); 
+      $> = $uid 
+   }
    umask($umask);
 }
 ################### END SET_EUID_EGID_UMASK ###############

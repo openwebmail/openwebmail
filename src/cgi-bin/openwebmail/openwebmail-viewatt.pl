@@ -71,6 +71,9 @@ if ( defined(param("sessionid")) ) {
       sleep 10;	# delayed response
       openwebmailerror("User $loginname doesn't exist!");
    }
+   if ( -f "$config{'ow_etcdir'}/users.conf/$user") { # read per user conf
+      readconf(\%config, "$config{'ow_etcdir'}/users.conf/$user");
+   }
 
    if ( $config{'use_homedirspools'} || $config{'use_homedirfolders'} ) {
       set_euid_egid_umask($uuid, $mailgid, 0077);	
@@ -248,7 +251,8 @@ sub viewattachment {	# view attachments inside a message
                 $filename =~ /\.pif$/i || 
                 $filename =~ /\.lnk$/i ||
                 $filename =~ /\.scr$/i )  &&
-               $contenttype !~ /application\/octet-stream/i ) {
+               $contenttype !~ /application\/octet\-stream/i &&
+               $contenttype !~ /application\/x\-msdownload/i ) {
             $filename="$filename.file";
          }
 

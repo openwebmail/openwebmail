@@ -4,21 +4,21 @@
 <b>Configurar filtros de correo</b></font>
 </td><td nowrap colspan="6" bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b> @@@FREESPACE@@@ KB Available</b></font>
+<b> @@@FREESPACE@@@ KB disponibles</b></font>
 </td></tr><tr><td colspan="9" bgcolor=@@@MENUBAR@@@ align="left">
 @@@MENUBARLINKS@@@
 </td></tr><tr><td colspan="9">&nbsp;</td></tr>
 <tr>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Count</B>&nbsp;</td>
+<B>Cantidad</B>&nbsp;</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Prioridad</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Reglas</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Inc/Exc</B></td>
+<B>Con/Sin</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Cadena</B> (click to edit)</td>
+<B>Cadena</B> (click para editar)</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Acci&oacute;n</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>

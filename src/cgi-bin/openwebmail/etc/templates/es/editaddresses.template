@@ -15,9 +15,9 @@
 @@@ENDFORM@@@
 </tr><tr><td colspan="4">&nbsp;</td></tr>
 <tr><td bgcolor=@@@COLUMNHEADER@@@>
-<B>Nombre</B> (Click para editar dirección)</td>
+<B>Nombre</B> (Click para editar direcci&oacute;n)</td>
 <td bgcolor=@@@COLUMNHEADER@@@>
-<B>E-mail</B> (Click para enviar)</td>
+<B>Direcci&oacute;n</B> (Click para enviar)</td>
 <td bgcolor=@@@COLUMNHEADER@@@>
 <B>Anotaci&oacute;n</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>

@@ -1,19 +1,21 @@
 <BR><BR><BR><BR><BR>
 <table border="0" align="center" width="60%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@ align="left">
-<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><B>CHANGE PASSWORD</B></FONT>
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><B>&AElig;NDRING AF ADGANGSKODE</B></FONT>
 </td></tr><tr><td align="center" valign="middle" bgcolor=@@@WINDOW_LIGHT@@@>
 @@@STARTFORM@@@
 <BR>
+Bemærk at denne &aelig;ndring KUN g&aelig;lder webmail.<BR>
+<BR>
 <table align=center border=0 cellspacing=2 cellpadding=0>
 <tr>
-<td align=right>UserID: </td><td align=left>@@@USERIDFIELD@@@</td>
+<td align=right>Brugernavn: </td><td align=left>@@@USERIDFIELD@@@</td>
 </tr><tr>
-<td align=right>Old Password: </td><td align=left>@@@OLDPASSWORDFIELD@@@</td>
+<td align=right>Gammel adgangskode: </td><td align=left>@@@OLDPASSWORDFIELD@@@</td>
 </tr><tr>
-<td align=right>New Password: </td><td align=left>@@@NEWPASSWORDFIELD@@@</td>
+<td align=right>Ny adgangskode: </td><td align=left>@@@NEWPASSWORDFIELD@@@</td>
 </tr><tr>
-<td align=right>Confirm New Password: </td><td align=left>@@@CONFIRMNEWPASSWORDFIELD@@@</td>
+<td align=right>Gentag ny adgangskode: </td><td align=left>@@@CONFIRMNEWPASSWORDFIELD@@@</td>
 </tr><tr>
 <td colspan=2>
 <table width="100%"><tr>

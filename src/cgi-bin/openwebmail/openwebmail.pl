@@ -145,6 +145,10 @@ sub login {
 
    my $errorcode=check_userpassword($user, $password);
    if ( $errorcode==0 ) {
+      if ( -f "$config{'ow_etcdir'}/users.conf/$user") { # read per user conf
+         readconf(\%config, "$config{'ow_etcdir'}/users.conf/$user");
+      }
+
       $thissession = $loginname. "-session-" . rand(); # name the sessionid
       writelog("login - $thissession");
       cleanupoldsessions(); # Deletes sessionids that have expired

@@ -1,4 +1,80 @@
-01/28/2001
+02/07/2002
+----------
+1. display 'login again' instead of 'continue' at logout page
+   (suggested by /Frank, frank@post12.tele.dk)
+2. fix the bug that the bcc field will be always empty when loading a draft 
+   to edit
+
+
+02/06/2002
+----------
+1. remove -t flag from vacation.pl to be compatiable with the sendmail 
+   wrapper of postfix
+
+
+02/05/2002
+----------
+1. danish language and templates translation
+   (thanks to /Frank, frank@post12.tele.dk)
+2. portuguese brazil language and templates translation update
+   (thanks to ruisb, ruisb@ig.com.br)
+
+
+02/04/2002 (version 1.61)
+----------
+1. remove the debugging code from maildb.pl
+2. minor fix to maildb.pl to display attachments with null contenttype
+
+
+02/02/2002
+----------
+1. add new iconset: Cool3D.Portuguese.Brazilian
+   (thanks to Jordi S. Bunster, jsb@ductape.net)
+2. minor fix to the mime boundary handling in maildb.pl
+   Openwebmail now passes the "MIME Torture Test" 
+   that UW makes available at ftp://ftp.cac.washington.edu/imap/mime
+3. display the content description of attachments if available
+
+
+02/01/2002
+----------
+1. folding the to, cc and bcc headers if they were longer than 960 chars
+   (suggested by Martin Gignac, <lmcgign@mobilitylab.net)
+2. further correction to fixedfont support
+   (thanks to Martin Gignac, <lmcgign@mobilitylab.net)
+3. display SMTP session detail if sendmessage failed.
+   It could be helpful to find out the source of the problem
+4. auto reindexing if an invalid message is found in getmessage
+
+
+01/31/2002
+----------
+1. improve the reparagraph code in openwebmail-send.pl
+2. add usefixedfont to openwebmail.conf and userpreference
+   (suggested by kyork, kyork@videovideo.com
+                 Martin Gignac, <lmcgign@mobilitylab.net)
+3. spanish language and template files update
+   (thanks to Javier Smaldone, jsmaldone@yahoo.com)
+
+
+01/30/2002
+----------
+1. auth_ldap.pl module
+   (thanks to Ivan Cerrato, pengus@libero.it)
+2. support user capability configuration on per user basis
+3. add option savedsuid_support to openwebmail.conf
+   This is used by openwebmail to determine if saving euid to ruid is required
+   before changing the euid.
+   (Thanks to Jim Flowers, jflowers@ezo.net for his detailed report)
+
+
+01/29/2002
+----------
+1. minor fix to the smileicon replacement in openwebmail-read.pl
+   (thanks to Rossen Tchobanski, rosko@rosko.net)
+
+
+01/28/2002
 ----------
 1. fix a serious bug in the 01/27/2002 patch, please DO UPGRADE if your are 
    using 01/27/2002
@@ -14,7 +90,7 @@
 ----------
 1. fix a bug in 'forward message as attachment' which copies the message 
    delimiter line into forward.msg without escaping the 'From ' mark
-2. fix a bug in addressbook which would expand the group address inproperly
+2. fix a bug in addressbook which would expand the group address improperly
    (thanks to clovis, cfcs98@users.sourceforge.net)
 3. use '&' instead of '&amp;' in Location directive to fix a minor compatible 
    problem on old apache server
@@ -259,7 +335,7 @@ ps: this version will do a release upgrade of your db, it may take several
 2. add support for 'markread' and 'markasunread'
    (thanks to Chen-hsiu Huang, chenhsiu@gens.dhs.org for his markasread patch)
 3. add new iconsets: Default.Spanish and Cool3d.Spanish
-   (thanks to Javier Smaldone, javier@dc.exa.unrc.edu.ar)
+   (thanks to Javier Smaldone, jsmaldone@yahoo.com)
 
 
 12/23/2001

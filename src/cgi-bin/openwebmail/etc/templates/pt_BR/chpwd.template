@@ -9,7 +9,7 @@
 <tr>
 <td align=right>UserID: </td><td align=left>@@@USERIDFIELD@@@</td>
 </tr><tr>
-<td align=right>Senha velha: </td><td align=left>@@@OLDPASSWORDFIELD@@@</td>
+<td align=right>Senha atual: </td><td align=left>@@@OLDPASSWORDFIELD@@@</td>
 </tr><tr>
 <td align=right>Senha nova: </td><td align=left>@@@NEWPASSWORDFIELD@@@</td>
 </tr><tr>
@@ -36,7 +36,7 @@
       }
       if (document.passwordform.newpassword.value !=
 	  document.passwordform.confirmnewpassword.value) {
-         alert("A nova senha não confirma");
+         alert("A nova senha não confere.");
          return false;
       }
       if (document.passwordform.newpassword.value ==

@@ -3,8 +3,8 @@
    // alert before session end
    var remainingseconds=@@@REMAININGSECONDS@@@;
    var msg="@@@USEREMAIL@@@,<br><br>\n"+
-           "Has estado ausente por un tiempo largo. "+
-           "Si no ejecutas ninguna acci&oacute;, "+
+           "Ha estado ausente demasiado tiempo. "+
+           "Si no ejecuta ninguna acci&oacute;n, "+
            "esta sesi&oacute;n terminar&aacute; en 60 segundos.";
 
    function timeoutwarning () {

@@ -72,6 +72,9 @@ if ( defined(param("sessionid")) ) {
       sleep 10;	# delayed response
       openwebmailerror("User $loginname doesn't exist!");
    }
+   if ( -f "$config{'ow_etcdir'}/users.conf/$user") { # read per user conf
+      readconf(\%config, "$config{'ow_etcdir'}/users.conf/$user");
+   }
 
    if ( $config{'use_homedirspools'} || $config{'use_homedirfolders'} ) {
       set_euid_egid_umask($uuid, $mailgid, 0077);	
@@ -342,7 +345,6 @@ sub composemessage {
          close ATTFILE;
 
          $attname = str2html($attname);
-         $attname =~ s/^(.*)$/<em>$1<\/em>/;
          push (@{$r_attnamelist}, "$attname");
          push (@{$r_attfilelist}, "$thissession-att$attserial");
       }
@@ -450,47 +452,14 @@ sub composemessage {
          }
          # convert to pure text since user is going to edit it
          if ($message{contenttype} =~ /^text\/html/i) {
-            $body= html2txt($body);
+            $body= html2text($body);
          }
       }
 
       # reparagraph orig msg for better look in compose window
       if ( ($composetype eq "reply" || $composetype eq "replyall")
            && $prefs{'reparagraphorigmsg'} ) {
-         my @lines=split("\n", $body);
-         my $maxlen=$prefs{'editcolumns'}-20;
-         my $left="";
-         $body="";
-         foreach my $line (@lines) {
-            if ($left eq  "" && length($line) < $maxlen) {
-               $body.="$line\n";
-            } elsif ($line=~/^\s*$/ ||		# newline
-                     $line=~/^>/ || 		# previous orig
-                     $line=~/^#/ || 		# comment line
-                     $line=~/^\s*[-=#]{3,}/ ) {	# dash line
-               $body.= "$left\n" if ($left ne "");
-               $body.= "$line\n";
-               $left="";
-            } elsif ($line=~/^\s*\(/ || 
-                     $line=~/^\s*\d\d?[\.:]/ || 
-                     $line=~/^\s*[A-Za-z][\.:]/ ||
-                     $line=~/\d\d:\d\d:\d\d/ ||
-                     $line=~/¡G/) {
-               $body.= "$left\n";
-               $left=$line;
-            } else {
-               if ($left=~/ $/ || $line=~/^ / || $left eq "" || $line eq "") {
-                  $left.=$line;
-               } else {
-                  $left.=" ".$line;
-               }
-               while ($left =~ /^(.{$maxlen}.*?[\s\,\)])(.*)$/ ) {
-                  $line=$1; $left=$2;
-                  $body.="$line\n";
-               }
-            }
-         }
-         $body.="$left\n" if ($left ne "");
+         $body=reparagraph($body, $prefs{'editcolumns'}-8);
       }
 
       # remove odds space or blank lines from body
@@ -816,8 +785,12 @@ sub composemessage {
       $temphtml .= "<td><table cellspacing='0' cellpadding='0'>\n";
       for (my $i=0; $i<=$#{$r_attnamelist}; $i++) {
          my $attsize=int((-s "$config{'ow_etcdir'}/sessions/${$r_attfilelist}[$i]")/1024);
+         my $blank="";
+         if (${$r_attnamelist}[$i]=~/\.(txt|jpg|jpeg|gif|png|bmp)$/i) {
+            $blank="target=_blank";
+         }
          $temphtml .= "<tr valign=top>".
-                      "<td><a href=\"$config{'ow_cgiurl'}/openwebmail-viewatt.pl?sessionid=$thissession&amp;action=viewattfile&amp;attfile=${$r_attfilelist}[$i]\">${$r_attnamelist}[$i]</a></td>".
+                      "<td><a href=\"$config{'ow_cgiurl'}/openwebmail-viewatt.pl?sessionid=$thissession&amp;action=viewattfile&amp;attfile=${$r_attfilelist}[$i]\" $blank><em>${$r_attnamelist}[$i]</em></a></td>".
                       "<td nowrap align='right'>&nbsp;$attsize KB &nbsp;</td>".
                       "<td nowrap><a href=\"javascript:DeleteAttFile('${$r_attfilelist}[$i]')\">[$lang_text{'delete'}]</a></td>".
                       "</tr>\n";
@@ -1070,20 +1043,32 @@ sub sendmessage {
       my ($savefolder, $savefile, $savedb);
       my $smtp;
 
+      my $smtperrfile="/tmp/.openwebmail.smtperr.$$";
+      local (*STDERR);	# localize stderr with a noew glob variable
+
       if (defined(param($lang_text{'savedraft'}))) { # save message to draft folder
          $savefolder = 'saved-drafts';
          $do_sendmail=0;
 
       } else {				# sent message and save it to sent folder
-         $smtp=Net::SMTP->new($config{'smtpserver'}, Timeout => 20, Hello => ${$config{'domainnames'}}[0]) or 
+         # redirect stderr to smtperrfile
+         ($smtperrfile =~ /^(.+)$/) && ($smtperrfile = $1);   # bypass taint check
+         open(STDERR, ">$smtperrfile"); 
+         select(STDERR); $| = 1; select(STDOUT);
+
+         $smtp=Net::SMTP->new($config{'smtpserver'}, Timeout => 20, Hello => ${$config{'domainnames'}}[0], Debug=>1) or 
             openwebmailerror("$lang_err{'couldnt_open'} SMTP server $config{'smtpserver'}!");
          $smtp->mail($from);
          $smtp->recipient(str2list($to), { SkipBad => 1 }) if ($to=~/\w/);
          $smtp->recipient(str2list($cc), { SkipBad => 1 }) if ($cc=~/\w/);
          $smtp->recipient(str2list($bcc), { SkipBad => 1 }) if ($bcc=~/\w/);
-         $smtp->data() or 
-            openwebmailerror("$lang_err{'sendmail_error'}!");
-
+         if (! $smtp->data() ) {
+            close(STDERR);
+            my $msg="$lang_err{'sendmail_error'}!".
+                    readsmtperr($smtperrfile);
+            unlink($smtperrfile);
+            openwebmailerror($msg);
+         }
          $savefolder = 'sent-mail';
          $do_sendmail=1;
       }
@@ -1157,9 +1142,9 @@ sub sendmessage {
 
       my $tempcontent="";
       $tempcontent .= "From: $realname <$from>\n";
-      $tempcontent .= "To: $to\n";
-      $tempcontent .= "CC: $cc\n" if ($cc);
-      $tempcontent .= "Bcc: $bcc\n" if ($bcc);
+      $tempcontent .= "To: ".folding($to)."\n";
+      $tempcontent .= "CC: ".folding($cc)."\n" if ($cc);
+      $tempcontent .= "Bcc: ".folding($bcc)."\n" if ($bcc);
       $tempcontent .= "Reply-To: ".$replyto."\n" if ($replyto);
       $tempcontent .= "Subject: $subject\n";
       $tempcontent .= "Date: $date\n";
@@ -1264,16 +1249,32 @@ sub sendmessage {
       $messagesize=tell(FOLDER)-$messagestart if ($do_savefolder);
       close(FOLDER);
       if ($do_sendmail) {
-         $smtp->dataend() or $sendmail_errorstr="$lang_err{'sendmail_error'}!";
-         $smtp->quit();
+         if (! $smtp->dataend() ) {
+            $smtp->quit();
+            close(STDERR);
+            $sendmail_errorstr="$lang_err{'sendmail_error'}!".
+                               readsmtperr($smtperrfile);
+         } else {
+            $smtp->quit();
+            close(STDERR);
+         }
+         unlink($smtperrfile);
       }
       
-      deleteattachments();
 
       if ($do_savefolder) {
          my @attr;
          $attr[$_OFFSET]=$messagestart;
+
          $attr[$_TO]=$to;
+         $attr[$_TO]=$cc if ($attr[$_TO] eq '');
+         $attr[$_TO]=$bcc if ($attr[$_TO] eq '');
+         # some dbm(ex:ndbm on solaris) can only has value shorter than 1024 byte, 
+         # so we cut $_to to 256 byte to make dbm happy
+         if (length($attr[$_TO]) >256) {
+            $attr[$_TO]=substr($attr[$_TO], 0, 252)."...";
+         }
+
          $attr[$_FROM]="$realname <$from>";
          $attr[$_DATE]=$dateserial;
          $attr[$_SUBJECT]=$subject;
@@ -1331,10 +1332,11 @@ sub sendmessage {
 
             if ( $found ) {
                if ($oldstatus !~ /a/i) {
-                  filelock($folderfile, LOCK_EX|LOCK_NB) or
-                     openwebmailerror("$lang_err{'couldnt_lock'} $folderfile!");
-                  update_message_status($inreplyto, $oldstatus."A", $headerdb, $folderfile);
-                  filelock("$folderfile", LOCK_UN);
+                  # try to mark answered if get filelock
+                  if (filelock($folderfile, LOCK_EX|LOCK_NB)) { 
+                     update_message_status($inreplyto, $oldstatus."A", $headerdb, $folderfile);
+                     filelock("$folderfile", LOCK_UN);
+                  }
                }
                last;
             }
@@ -1346,6 +1348,10 @@ sub sendmessage {
       } elsif ($savefolder_errorstr) {
          openwebmailerror($savefolder_errorstr);
       } else {	
+         # delete attachments only if no error,
+         # in case user trys resend, attachments could be available
+         deleteattachments();
+
          # call getfolders to recalc used quota
          #getfolders(\@validfolders, \$folderusage); 
          #displayheaders();
@@ -1384,11 +1390,10 @@ sub getattlistinfo {
          while (defined(my $line = <ATTFILE>)) {
             if ($line =~ s/^.+name="?([^"]+)"?.*$/$1/i) {
                $line = str2html($line);
-               $line =~ s/^(.*)$/<em>$1<\/em>/;
                push (@namelist, $line);
                last;
             } elsif ($line =~ /^\s+$/ ) {
-               push (@namelist, "<em>attachment.$attnum</em>");
+               push (@namelist, "attachment.$attnum");
                last; 
             }
          }
@@ -1436,3 +1441,102 @@ sub dst_adjust {
 }
 ################### END DST_ADJUST #######################
 
+###################### FOLDING ###########################
+# folding the to, cc, bcc field in case it violates the 998 char limit 
+# defined in RFC 2822 2.2.3
+sub folding {
+   return($_[0]) if (length($_[0])<960);
+
+   my ($folding, $line)=('', '');
+   foreach my $token (str2list($_[0])) {
+      if (length($line)+length($token) <960) {
+         $line.=",$token";
+      } else {
+         $folding.="$line,\n   ";
+         $line=$token;
+      }
+   }
+   $folding.=$line;
+
+   $folding=~s/^,//;   
+   return($folding);
+}
+###################### END FOLDING ########################
+
+################### REPARAGRAPH #########################
+sub reparagraph {
+   my @lines=split("\n", $_[0]);
+   my $maxlen=$_[1];
+   my ($text,$left) = ('','');
+
+   foreach my $line (@lines) {
+      if ($left eq  "" && length($line) < $maxlen) {
+         $text.="$line\n";
+      } elsif ($line=~/^\s*$/ ||		# newline
+               $line=~/^>/ || 		# previous orig
+               $line=~/^#/ || 		# comment line
+               $line=~/^\s*[\-=#]+\s*$/ || # dash line
+               $line=~/^\s*[\-=#]{3,}/ ) { # dash line
+         $text.= "$left\n" if ($left ne "");
+         $text.= "$line\n";
+         $left="";
+      } else {
+         if ($line=~/^\s*\(/ || 
+               $line=~/^\s*\d\d?[\.:]/ || 
+               $line=~/^\s*[A-Za-z][\.:]/ ||
+               $line=~/\d\d:\d\d:\d\d/ ||
+               $line=~/¡G/) {
+            $text.= "$left\n";
+            $left=$line;
+         } else {
+            if ($left=~/ $/ || $line=~/^ / || $left eq "" || $line eq "") {
+               $left.=$line;
+            } else {
+               $left.=" ".$line;
+            }
+         }
+
+         while ( length($left)>$maxlen ) {
+            my $furthersplit=0;
+            for (my $len=$maxlen-2; $len>2; $len-=2) {
+               if ($left =~ /^(.{$len}.*?[\s\,\)\-])(.*)$/) {
+                  if (length($1) < $maxlen) {
+                     $text.="$1\n"; $left=$2;
+                     $furthersplit=1;
+                     last;
+                  }
+               } else {
+                  $text.="$left\n"; $left="";
+                  last;
+               }
+            }
+            last if ($furthersplit==0);
+         }
+
+      }
+   }
+   $text.="$left\n" if ($left ne "");
+   return($text);
+}
+################### END REPARAGRAPH #########################
+
+################### READSMTPERR ##########################
+sub readsmtperr {
+   my $content='';
+
+   open(F, $_[0]);
+   while (<F>) {
+      $content.="$1\n" if (/(>>>.*$)/ || /(<<<.*$)/);
+   }
+   close(F);
+   $content =qq|<form>|.
+               textarea(-name=>'smtperror',
+                        -default=>$content,
+                        -rows=>'5',
+                        -columns=>'72',
+                        -wrap=>'soft',
+                        -override=>'1').
+             qq|</form>|;
+   return($content);
+}
+################### END READSMTPERR ##########################

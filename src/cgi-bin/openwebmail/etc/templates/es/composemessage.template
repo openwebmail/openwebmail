@@ -11,7 +11,7 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@FROMMENU@@@
 &nbsp;&nbsp;
-<B>Priority:</B>
+<B>Prioridad:</B>
 @@@PRIORITYMENU@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
@@ -30,7 +30,7 @@
 @@@BCCFIELD@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
-<B>Contestar a:</B>
+<B>Responder a:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@REPLYTOFIELD@@@
 </td></tr>
@@ -126,7 +126,7 @@
       if (document.composeform.to.value == "" 
        && document.composeform.cc.value == "" 
        && document.composeform.bcc.value == "" ) {
-         alert("Por favor, especifique el receptor antes de enviar.");
+         alert("Por favor, especifique el destinatario antes de enviar.");
          return false;
       }
       if (document.composeform.subject.value == "" ) {

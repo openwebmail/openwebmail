@@ -235,9 +235,9 @@ sub update_headerdb {
 
       # ex: From tung@turtle.ee.ncku.edu.tw Fri Jun 22 14:15:33 2001
       # ex: From tung@turtle.ee.ncku.edu.tw Mon Aug 20 18:24 CST 2001
+      # ex: From nsb@thumper.bellcore.com Wed Mar 11 16:27:37 EST 1992
       if ( $lastline =~ /^\r*$/ &&
-           ($line =~ /^From .*(\w\w\w)\s+(\w\w\w)\s+(\d+)\s+(\d+:\d+:\d+)\s+(\d\d+)/ ||
-            $line =~ /^From .*(\w\w\w)\s+(\w\w\w)\s+(\d+)\s+(\d+:\d+)\s+\w\w\w\s+(\d\d+)/) ) {
+           $line =~ /^From .*(\w\w\w)\s+(\w\w\w)\s+(\d+)\s+(\d+):(\d+):?(\d*)\s+(\w\w\w\s+)?(\d\d+)/ ) {
          if ($_messagesize >0) {
 
             $_from=~s/\@\@/\@\@ /g;         $_from=~s/\@$/\@ /;
@@ -245,7 +245,7 @@ sub update_headerdb {
             $_subject=~s/\@\@/\@\@ /g;      $_subject=~s/\@$/\@ /;
             $_content_type=~s/\@\@/\@\@ /g; $_content_type=~s/\@$/\@ /;
             $_status=~s/\@\@/\@\@ /g;       $_status=~s/\@$/\@ /;
-            $_references=~s/\@\@/\@\@ /g;   $_reference=~s/\@$/\@ /;
+            $_references=~s/\@\@/\@\@ /g;   $_references=~s/\@$/\@ /;
             $_inreplyto=~s/\@\@/\@\@ /g;    $_inreplyto=~s/\@$/\@ /;
 
             # in most case, a msg references field should already contain 
@@ -311,12 +311,10 @@ sub update_headerdb {
                # extract date from the 'From ' line, it must be in this form
                my @d;
                # From tung@turtle.ee.ncku.edu.tw Fri Jun 22 14:15:33 2001
-               if ($_date=~/(\w\w\w)\s+(\w\w\w)\s+(\d+)\s+(\d+):(\d+):(\d+)\s+(\d\d+)/ ) {
-                  @d=($7, $month{$2}, $3, $4, $5, $6);
                # From tung@turtle.ee.ncku.edu.tw Mon Aug 20 18:24 CST 2001
-               } elsif ($_date =~ /^From .*(\w\w\w)\s+(\w\w\w)\s+(\d+)\s+(\d+):(\d+)\s+\w\w\w\s+(\d\d+)/ ) {
-                  @d=($6, $month{$2}, $3, $4, $5, "00");
-               }
+               # From nsb@thumper.bellcore.com Wed Mar 11 16:27:37 EST 1992
+               $_date =~ /(\w\w\w)\s+(\w\w\w)\s+(\d+)\s+(\d+):(\d+):?(\d*)\s+(\w\w\w\s+)?(\d\d+)/;
+               @d=($8, $month{$2}, $3, $4, $5, $6);
                if ($d[0]<50) { 		# 2 digit year
                    $d[0]+=2000; 
                } elsif ($d[0]<=1900) {
@@ -329,7 +327,8 @@ sub update_headerdb {
 
                # check if msg info recorded in old headerdb, we can seek to msg end quickly
                if (defined($OLDHDB{$_message_id}) ) {
-                  my $oldmsgsize=(split(/@@@/, $OLDHDB{$_message_id}))[$_SIZE];
+                  my ($oldstatus, $oldmsgsize)=
+                     (split(/@@@/, $OLDHDB{$_message_id}))[$_STATUS, $_SIZE];
                   my $buff='';
 
                   seek(FOLDER, $_offset+$oldmsgsize, 0);
@@ -338,7 +337,11 @@ sub update_headerdb {
                   if ( $buff=~/^From /) { # ya, msg end is found!
                      $_messagesize=$oldmsgsize;
                      $totalsize=$_offset+$_messagesize;
-                  }  
+                     # copy vars related to content
+                     $namedatt_account++ if ($oldstatus=~/T/);
+                     $zhtype="big5"      if ($oldstatus=~/B/);
+                     $zhtype="gb"        if ($oldstatus=~/G/);
+                  }
 
                   seek(FOLDER, $totalsize, 0);
                }
@@ -374,11 +377,8 @@ sub update_headerdb {
             } elsif ($line =~ /^content-type:\s?(.+)$/ig) {
                $_content_type = $1;
                $lastheader = 'TYPE';
-            } elsif ($line =~ /^status:\s?(.+)$/i) {
-               $_status .= $1;
-               $_status =~ s/\s//g;	# remove blanks
-               $lastheader = 'NONE';
-            } elsif ($line =~ /^x-status:\s?(.+)$/i) {
+            } elsif ($line =~ /^status:\s?(.+)$/i ||
+                     $line =~ /^x\-status:\s?(.+)$/i ) {
                $_status .= $1;
                $_status =~ s/\s//g;	# remove blanks
                $lastheader = 'NONE';
@@ -423,7 +423,7 @@ sub update_headerdb {
       $_subject=~s/\@\@/\@\@ /g;      $_subject=~s/\@$/\@ /;
       $_content_type=~s/\@\@/\@\@ /g; $_content_type=~s/\@$/\@ /;
       $_status=~s/\@\@/\@\@ /g;       $_status=~s/\@$/\@ /;
-      $_references=~s/\@\@/\@\@ /g;   $_reference=~s/\@$/\@ /;
+      $_references=~s/\@\@/\@\@ /g;   $_references=~s/\@$/\@ /;
       $_inreplyto=~s/\@\@/\@\@ /g;    $_inreplyto=~s/\@$/\@ /;
 
       # in most case, a msg references field should already contain 
@@ -793,7 +793,7 @@ sub get_info_messageids_sorted_by_subject {
          $dateserial{$key}=$attr[$_DATE];
 	 $references{$key}=$attr[$_REFERENCES];
          $subject{$key}=$attr[$_SUBJECT];
-         $subject{$key}=~s/\s*Res?:\s*//ig;	
+         $subject{$key}=~s/Res?:\s*//ig;	
          $subject{$key}=~s/\[\d+\]//g;	
          $subject{$key}=~s/[\[\]]//g;	
       }
@@ -1009,19 +1009,19 @@ sub get_message_header {
 ###################### UPDATE_MESSAGE_STATUS ########################
 sub update_message_status {
    my ($messageid, $status, $headerdb, $folderfile) = @_;
-   my ($messageoldstatus, $notificationto)=('','');
+   my $messageoldstatus='';
    my $folderhandle=FileHandle->new();
    my %HDB;
 
    update_headerdb($headerdb, $folderfile);
 
    my @messageids=get_messageids_sorted_by_offset($headerdb);
-   my $movement;
+   my $movement=0;
    my @attr;
    my $i;
 
    filelock("$headerdb$config{'dbm_ext'}", LOCK_EX);
-   dbmopen (%HDB, $headerdb, 600);
+   dbmopen (%HDB, $headerdb, 0600);
 
    for ($i=0; $i<=$#messageids; $i++) {
       if ($messageids[$i] eq $messageid) {
@@ -1042,15 +1042,14 @@ sub update_message_status {
             last if ($_ eq "\n" && $header=~/\n$/);
             $header.=$_;
          }
+         if ($header !~ /^From /) { # index not consistent with folder content
+            close ($folderhandle);
+            dbmclose(%HDB);
+            filelock("$headerdb$config{'dbm_ext'}", LOCK_UN);
+            return(-1);
+         }
          $headerlen=length($header);
          $headerend=$messagestart+$headerlen;
-
-         # get notification-to 
-         if ($header=~/^Disposition-Notification-To:\s?(.*?)$/im ) {
-            $notificationto=$1;
-         } else {
-            $notificationto='';
-         }
 
          # update status, flags from rfc2076
          my $status_update = "";
@@ -1079,8 +1078,6 @@ sub update_message_status {
          } else {
             $header =~ s/^x-status:.*\n//im;
          }
-         $header="From $header" if ($header !~ /^From /);
-
 
          $newheaderlen=length($header);
          $movement=$newheaderlen-$headerlen;
@@ -1119,14 +1116,15 @@ sub update_message_status {
          $attr[$_OFFSET]+=$movement;
          $HDB{$messageids[$i]}=join('@@@', @attr);
       }
-      # change whole folder info
-      $HDB{'METAINFO'}=metainfo($folderfile);
    }
+
+   # update folder metainfo
+   $HDB{'METAINFO'}=metainfo($folderfile);
 
    dbmclose(%HDB);
    filelock("$headerdb$config{'dbm_ext'}", LOCK_UN);
 
-   return($messageoldstatus, $notificationto);
+   return(0);
 }
 
 #################### END UPDATE_MESSAGE_STATUS ######################
@@ -1156,15 +1154,15 @@ sub operate_message_with_ids {
 
    my @allmessageids=get_messageids_sorted_by_offset($srcdb);
    my ($blockstart, $blockend, $writepointer);
-   my ($messagestart, $messagesize, @attr);
+   my ($messagestart, $messagesize, $messagevalid, @attr, $buff);
    my $counted=0;
    
    filelock("$srcdb$config{'dbm_ext'}", LOCK_EX);
-   dbmopen (%HDB, $srcdb, 600);
+   dbmopen (%HDB, $srcdb, 0600);
 
    if ($op eq "move" || $op eq "copy") {
       filelock("$dstdb$config{'dbm_ext'}", LOCK_EX);
-      dbmopen (%HDB2, "$dstdb", 600);
+      dbmopen (%HDB2, "$dstdb", 0600);
    }
 
    $blockstart=$blockend=$writepointer=0;
@@ -1173,8 +1171,13 @@ sub operate_message_with_ids {
       @attr=split(/@@@/, $HDB{$allmessageids[$i]});
       $messagestart=$attr[$_OFFSET];
       $messagesize=$attr[$_SIZE];
+      $messagevalid=1;
 
-      if ($messageids =~ /^\Q$allmessageids[$i]\E$/m) {	# msg to be operated
+      seek($folderhandle, $attr[$_OFFSET], 0);
+      read($folderhandle, $buff, 5);
+      $messagevalid=0 if ($buff!~/^From /);
+
+      if ($messageids =~ /^\Q$allmessageids[$i]\E$/m && $messagevalid) { # msg to be operated
          $counted++;
 
          if ($op eq 'move' || $op eq 'delete') {
@@ -1185,36 +1188,23 @@ sub operate_message_with_ids {
             $blockend=$messagestart+$messagesize;
          }
 
-
          # append msg to dst folder only if 
          # op=move/copy and msg doesn't exist in dstfile
          if (($op eq "move" || $op eq "copy") && 
              !defined($HDB2{$allmessageids[$i]}) ) {
-            my ($left, $buff);
 
             seek($folderhandle, $attr[$_OFFSET], 0);
-
             $attr[$_OFFSET]=tell(DEST);
 
-            # copy message from $folderhandle to DEST and append "From " if needed
-            $left=$attr[$_SIZE];
+            # copy message from $folderhandle to DEST
+            my $left=$attr[$_SIZE];
             while ($left>0) {
                if ($left>=32768) {
                    read($folderhandle, $buff, 32768);
-                   # append 'From ' if 1st buff is not started with 'From '
-                   if ($left==$attr[$_SIZE]  && $buff!~/^From /) {
-                      print DEST "From ";
-                      $attr[$_SIZE]+=length("From ");
-                   }
                    print DEST $buff;
                    $left=$left-32768;
                } else {
                    read($folderhandle, $buff, $left);
-                   # append 'From ' if 1st buff is not started with 'From '
-                   if ($left==$attr[$_SIZE]  && $buff!~/^From /) {
-                      print DEST "From ";
-                      $attr[$_SIZE]+=length("From ");
-                   }
                    print DEST $buff;
                    $left=0;
                }
@@ -1284,7 +1274,7 @@ sub delete_message_by_age {
    @allmessageids=get_messageids_sorted_by_offset($headerdb);
 
    filelock("$headerdb$config{'dbm_ext'}", LOCK_EX);
-   dbmopen (%HDB, $headerdb, undef);
+   dbmopen (%HDB, $headerdb, 0600);
    foreach (@allmessageids) {
       my @attr = split(/@@@/, $HDB{$_});
       push(@agedids, $_) if (dateserial2age($attr[$_DATE])>=$age);
@@ -1455,24 +1445,26 @@ sub rebuild_message_with_partialid {
 # Handle "message/rfc822,multipart,uuencode inside message/rfc822" encapsulatio 
 #
 # Note: These parse_... routine are designed for CGI program !
-#       When calling parse_... with no $searid, these routine assume
-#       it is CGI in returning html text page or in content search,
-#       so contents of nont-text-based attachment wont be returned!
-#       When calling parse_... with a nodeid as searchid, these routine assume
-#       it is CGI in requesting one specific non-text-based attachment,
-#       one the attachment whose nodeid matches the searchid will be returned
-#       When calling parse_... with searchid="all", these routine will return
-#       all attachments. This is intended to be used in message forwording.
-
+#       if (nodeid eq "") {
+#          # html display / content search mode
+#          only attachment contenttype of text/... or n/a will be returned
+#       } elsif (node eq "all") {
+#          # used in message forwarding
+#          all attachments are returned
+#       } elsif (node eq specific-id ) {
+#          # html requesting an attachment with specific nodeid
+#          only return attachment with the id
+#       }
+#
 sub parse_rfc822block {
    my ($r_block, $nodeid, $searchid)=@_;
    my @attachments=();
-   my ($headerlen, $header, $body, $contenttype, $encoding);
+   my ($headerlen, $header, $body, $contenttype, $encoding, $description);
 
    $nodeid=0 unless defined $nodeid;
    $headerlen=index(${$r_block},  "\n\n");
    $header=substr(${$r_block}, 0, $headerlen);
-   ($contenttype, $encoding)=get_contenttype_encoding_from_header($header);
+   ($contenttype, $encoding, $description)=get_contenttype_encoding_from_header($header);
 
    if ($contenttype =~ /^multipart/i) {
       my $boundary = $contenttype;
@@ -1480,7 +1472,7 @@ sub parse_rfc822block {
       my $boundarylen;
       my ($bodystart, $boundarystart, $nextboundarystart, $attblockstart);
 
-      $boundary =~ s/.*?boundary\s?=\s?"?([^"]+)"?.*$/$1/i;
+      $boundary =~ s/.*?boundary\s?=\s?"?([^\s"]+)[\s"]?.*$/$1/i;
       $boundary="--$boundary";
       $boundarylen=length($boundary);
 
@@ -1549,7 +1541,7 @@ sub parse_rfc822block {
             $filename="Partial-$partialnumber.msg";
          }
          push(@attachments, make_attachment("","", "Content-Type: $contenttype",\$partialbody, length($partialbody),
-   	    $encoding,"message/partial", "attachment; filename=$filename",$partialid,$partialnumber, $nodeid) );
+   	    $encoding,"message/partial", "attachment; filename=$filename",$partialid,$partialnumber,$description, $nodeid) );
       }
       $body=''; # zero the body since it becomes to message/partial
       return($header, $body, \@attachments);
@@ -1571,37 +1563,44 @@ sub parse_rfc822block {
             $header2 = decode_mimewords($header2);
             my $temphtml="$header2\n\n$body2";
             push(@attachments, make_attachment("","", "",\$temphtml, length($temphtml),
-   		$encoding,"message/rfc822", "inline; filename=Unknown.msg","","", $nodeid) );
+   		$encoding,$contenttype, "inline; filename=Unknown.msg","","",$description, $nodeid) );
          }
          push (@attachments, @{$r_attachments2});
       }
       $body=''; # zero the body since it becomes to header2, body2 and r_attachment2
       return($header, $body, \@attachments);
 
-   } elsif ( ($contenttype eq 'N/A') || ($contenttype =~ /^text\/plain/i) ) {
+   } elsif ( $contenttype =~ /^text/i || $contenttype eq 'N/A' ) {
+      $body=substr(${$r_block}, $headerlen+2);
       if ( $searchid eq "" || $searchid eq "all" || $searchid=~/^$nodeid-0/ ) {
-         $body=substr(${$r_block}, $headerlen+2);
          # Handle uuencode blocks inside a text/plain mail
-         if ( $body =~ /\nbegin ([0-7][0-7][0-7][0-7]?) ([^\n\r]+)\n(.+?)\nend\n/ims ) {
-            my $r_attachments2;
-            ($body, $r_attachments2)=parse_uuencode_body($body, "$nodeid-0", $searchid);
-            push(@attachments, @{$r_attachments2});
+         if ( $contenttype =~ /^text\/plain/i || $contenttype eq 'N/A' ) {
+            if ( $body =~ /\nbegin ([0-7][0-7][0-7][0-7]?) ([^\n\r]+)\n(.+?)\nend\n/ims ) {
+               my $r_attachments2;
+               ($body, $r_attachments2)=parse_uuencode_body($body, "$nodeid-0", $searchid);
+               push(@attachments, @{$r_attachments2});
+            }
          }
       }
       return($header, $body, \@attachments);
 
-   } elsif ( ($contenttype ne 'N/A') && !($contenttype =~ /^text/i) ) {
-      if ( $searchid eq "" || $searchid eq "all" || $searchid eq $nodeid ) {
+   } else {
+      if ( $searchid eq "all" || $searchid=~/^$nodeid/ ) {
          $body=substr(${$r_block}, $headerlen+2);
-         push(@attachments, make_attachment("","", "",\$body,length($body), 
-					$encoding,$contenttype, "","","", $nodeid) );
+         if ($body !~ /^\s*$/ ) { # if attach contains only \s, discard it 
+            push(@attachments, make_attachment("","", "",\$body,length($body), 
+					$encoding,$contenttype, "","","",$description, $nodeid) );
+         }
+      } else {
+         # null searchid means CGI is in returning html code or in context searching
+         # thus content of an non-text based attachment is no need to be returned
+         my $bodylength=length(${$r_block})-($headerlen+2);
+         push(@attachments, make_attachment("","", "",\"snipped...",$bodylength,
+					$encoding,$contenttype, "","","",$description, $nodeid) );
       }
       return($header, " ", \@attachments);
-
-   } else {
-      $body=substr(${$r_block}, $headerlen+2);
-      return($header, $body, \@attachments);
    }
+
 }
 
 # Handle "message/rfc822,multipart,uuencode inside multipart" encapsulation.
@@ -1611,7 +1610,6 @@ sub parse_attblock {
    my ($attheader, $attcontent, $attencoding, $attcontenttype, 
 	$attdisposition, $attid, $attlocation);
    my $attheaderlen;
-
    if (/^\-\-\n/) {	# return empty array
       return(\@attachments) 
    }
@@ -1627,6 +1625,7 @@ sub parse_attblock {
          if    ($lastline eq 'TYPE')     { $attcontenttype .= $_ }
          elsif ($lastline eq 'DISPOSITION') { $attdisposition .= $_ } 
          elsif ($lastline eq 'LOCATION') { $attlocation .= $_ } 
+         elsif ($lastline eq 'DESC') { $attdescription .= $_ } 
       } elsif (/^content-type:\s+(.+)$/ig) {
          $attcontenttype = $1;
          $lastline = 'TYPE';
@@ -1643,6 +1642,9 @@ sub parse_attblock {
       } elsif (/^content-location:\s+(.+)$/ig) {
          $attlocation = $1;
          $lastline = 'LOCATION';
+      } elsif (/^content-description:\s+(.+)$/ig) {
+         $attdescription = $1;
+         $lastline = 'DESC';
       } else {
          $lastline = 'NONE';
       }
@@ -1656,7 +1658,7 @@ sub parse_attblock {
       my ($boundarystart, $nextboundarystart, $subattblockstart);
       my $subattblock="";
 
-      $boundary =~ s/.*?boundary\s?=\s?"?([^"]+)"?.*$/$1/i;
+      $boundary =~ s/.*?boundary\s?=\s?"?([^\s"]+)[\s"]?.*$/$1/i;
       $boundary="--$boundary";
       $boundarylen=length($boundary);
 
@@ -1673,7 +1675,7 @@ sub parse_attblock {
             $attcontent=substr(${$r_buff}, $attblockstart+$attheaderlen+2, $attcontentlength);
             if ($attcontent !~ /^\s*$/ ) { # if attach contains only \s, discard it 
                push(@attachments, make_attachment($subtype,$boundary, $attheader,\$attcontent, $attcontentlength,
-			$attencoding,$attcontenttype, $attdisposition,$attid,$attlocation, $nodeid) );
+			$attencoding,$attcontenttype, $attdisposition,$attid,$attlocation,$attdescription, $nodeid) );
             }
          }
          return(\@attachments);	# return this non-boundaried multipart as text
@@ -1718,7 +1720,6 @@ sub parse_attblock {
       }
 
    } elsif ($attcontenttype =~ /^message\/external\-body/i ) {
-
       if ( $searchid eq "" || $searchid eq "all" || $searchid=~/^$nodeid/ ) {
          my $attcontentlength=$attblocklen-($attheaderlen+2);
          $attcontent=substr(${$r_buff}, $attblockstart+$attheaderlen+2, $attcontentlength);
@@ -1730,47 +1731,49 @@ sub parse_attblock {
                      $attcontent;
 
          push(@attachments, make_attachment($subtype,$boundary, $attheader,\$attcontent, $attcontentlength,
-		$attencoding,$attcontenttype, $attdisposition,$attid,$attlocation, $nodeid) );
+		$attencoding,$attcontenttype, $attdisposition,$attid,$attlocation,$attdescription, $nodeid) );
       }
 
    } elsif ($attcontenttype =~ /^message/i ) {
-
       if ( $searchid eq "" || $searchid eq "all" || $searchid=~/^$nodeid/ ) {
          $attcontent=substr(${$r_buff}, $attblockstart+$attheaderlen+2, $attblocklen-($attheaderlen+2));
          my ($header2, $body2, $r_attachments2)=parse_rfc822block(\$attcontent, "$nodeid-0", $searchid);
-
          if ( $searchid eq "" || $searchid eq "all" || $searchid eq $nodeid ) {
             $header2 = decode_mimewords($header2);
             my $temphtml="$header2\n\n$body2";
             push(@attachments, make_attachment($subtype,"", $attheader,\$temphtml, length($temphtml),
-		$attencoding,$attcontenttype, $attdisposition,$attid,$attlocation, $nodeid) );
+		$attencoding,$attcontenttype, $attdisposition,$attid,$attlocation,$attdescription, $nodeid) );
          }
          push (@attachments, @{$r_attachments2});
       }
 
-   } elsif ($attcontenttype ne "N/A" ) {
-
-      # the content of an attachment is returned only if
-      #  a. the searchid is looking for this attachment (all or a nodeid)
-      #  b. this attachment is text based
-
-      if ( ($searchid eq "all") || ($searchid eq $nodeid) ||
-           ($searchid eq "" && $attcontenttype=~/^text/i) ) {
+   } elsif ($attcontenttype =~ /^text/i || $attcontenttype eq "N/A" ) {
+      $attcontenttype="text/plain" if ($attcontenttype eq "N/A");
+      if ( $searchid eq "" || $searchid eq "all" || $searchid=~/^$nodeid/ ) {
          my $attcontentlength=$attblocklen-($attheaderlen+2);
          $attcontent=substr(${$r_buff}, $attblockstart+$attheaderlen+2, $attcontentlength);
          if ($attcontent !~ /^\s*$/ ) { # if attach contains only \s, discard it 
             push(@attachments, make_attachment($subtype,$boundary, $attheader,\$attcontent, $attcontentlength,
-		$attencoding,$attcontenttype, $attdisposition,$attid,$attlocation, $nodeid) );
+		$attencoding,$attcontenttype, $attdisposition,$attid,$attlocation,$attdescription, $nodeid) );
          }
+      }
 
-      # null searchid means CGI is in returning html code or in context searching
-      # thus content of an non-text based attachment is no need to be returned
-
-      } elsif ( $searchid eq "" && $attcontenttype!~/^text/i) {
+   } else {
+      if ( $searchid eq "all" || $searchid=~/^$nodeid/ ) {
+         my $attcontentlength=$attblocklen-($attheaderlen+2);
+         $attcontent=substr(${$r_buff}, $attblockstart+$attheaderlen+2, $attcontentlength);
+         if ($attcontent !~ /^\s*$/ ) { # if attach contains only \s, discard it 
+            push(@attachments, make_attachment($subtype,$boundary, $attheader,\$attcontent, $attcontentlength,
+		$attencoding,$attcontenttype, $attdisposition,$attid,$attlocation,$attdescription, $nodeid) );
+         }
+      } else {
+         # null searchid means CGI is in returning html code or in context searching
+         # thus content of an non-text based attachment is no need to be returned
          my $attcontentlength=$attblocklen-($attheaderlen+2);
          push(@attachments, make_attachment($subtype,$boundary, $attheader,\"snipped...",$attcontentlength,
-		$attencoding,$attcontenttype, $attdisposition,$attid,$attlocation, $nodeid) );
+		$attencoding,$attcontenttype, $attdisposition,$attid,$attlocation,$attdescription, $nodeid) );
       }
+
    }
    return(\@attachments);
 }
@@ -1806,7 +1809,7 @@ sub parse_uuencode_body {
          $uubody=encode_base64(uudecode($uubody));
 
          push( @attachments, make_attachment("","", $uuheader,\$uubody, length($uubody),
-		"base64",$uutype, "attachment; filename=$uufilename","","", "$nodeid-$i") );
+		"base64",$uutype, "attachment; filename=$uufilename","","","uuencoded attachment", "$nodeid-$i") );
       }
       $i++;
    }
@@ -1817,7 +1820,7 @@ sub parse_uuencode_body {
 
 sub get_contenttype_encoding_from_header {
    my $header=$_[0];
-   my ($contenttype, $encoding) = ('N/A', 'N/A');
+   my ($contenttype, $encoding, $description) = ('N/A', 'N/A', '');
 
    my $lastline = 'NONE';
    foreach (split(/\n/, $header)) {
@@ -1825,17 +1828,21 @@ sub get_contenttype_encoding_from_header {
          s/^\s+/ /;
          if ($lastline eq 'TYPE') { $contenttype .= $_ }
          elsif ($lastline eq 'ENCODING') { $encoding .= $_ }
+         elsif ($lastline eq 'DESC') { $description .= $_ }
       } elsif (/^content-type:\s+(.+)$/ig) {
          $contenttype = $1;
          $lastline = 'TYPE';
       } elsif (/^content-transfer-encoding:\s+(.+)$/ig) {
          $encoding = $1;
          $lastline = 'ENCODING';
+      } elsif (/^content-description:\s+(.+)$/ig) {
+         $description = $1;
+         $lastline = 'DESC';
       } else {
          $lastline = 'NONE';
       }
    }
-   return($contenttype, $encoding);
+   return($contenttype, $encoding, $description);
 }
 
 # subtype and boundary are inherit from parent attblocks,
@@ -1846,7 +1853,8 @@ sub get_contenttype_encoding_from_header {
 #       $r_attcontent is kept untouched!
 sub make_attachment {
    my ($subtype,$boundary, $attheader,$r_attcontent,$attcontentlength, 
-	$attencoding,$attcontenttype, $attdisposition,$attid,$attlocation, $nodeid)=@_;
+	$attencoding,$attcontenttype, 
+        $attdisposition,$attid,$attlocation,$attdescription, $nodeid)=@_;
    my $attfilename;
    my %temphash;
 
@@ -1884,8 +1892,8 @@ sub make_attachment {
    $temphash{id} = $attid;
    $temphash{location} = $attlocation;
    $temphash{nodeid} = $nodeid;
+   $temphash{description} = $attdescription;
    $temphash{referencecount} = 0;
-
    return(\%temphash);
 }
 
@@ -1893,11 +1901,13 @@ sub contenttype2ext {
    my $contenttype=$_[0];
    my ($class, $ext, $dummy)=split(/[\/\s;,]+/, $contenttype);
    
+   return("txt") if ($contenttype eq "N/A");
    return("mp3") if ($contenttype=~m!audio/mpeg!i);
-   return("ra")  if ($contenttype=~m!audio/x-realaudio!i);
+   return("au")  if ($contenttype=~m!audio/x\-sun!i);
+   return("ra")  if ($contenttype=~m!audio/x\-realaudio!i);
 
-   $ext=~s/^x-//;
-   return($ext)  if length($ext) <=4;
+   $ext=~s/^x-//i;
+   return(lc($ext))  if length($ext) <=4;
 
    return("txt") if ($class =~ /text/i);
    return("msg") if ($class =~ /message/i);
@@ -2132,6 +2142,14 @@ sub html4nobase {
    return($html);
 }
 
+# this routine disables the javascript in a html page
+# to avoid user being hijacked by some eval programs
+my @jsevents=('onAbort', 'onBlur', 'onChange', 'onClick', 'onDblClick', 
+              'onDragDrop', 'onError', 'onFocus', 'onKeyDown', 'onKeyPress', 
+              'onKeyUp', 'onLoad', 'onMouseDown', 'onMouseMove', 'onMouseOut',
+              'onMouseOver', 'onMouseUp', 'onMove', 'onReset', 'onResize', 
+              'onSelect', 'onSubmit', 'onUnload');
+
 # this routine is used to add target=_blank to links in a html message
 # so clicking on it will open a new window
 sub html4link {
@@ -2153,13 +2171,6 @@ sub _link_target_blank {
    return($link);
 }
 
-# this routine disables the javascript in a html page
-# to avoid user being hijacked by some eval programs
-my @jsevents=('onAbort', 'onBlur', 'onChange', 'onClick', 'onDblClick', 
-              'onDragDrop', 'onError', 'onFocus', 'onKeyDown', 'onKeyPress', 
-              'onKeyUp', 'onLoad', 'onMouseDown', 'onMouseMove', 'onMouseOut',
-              'onMouseOver', 'onMouseUp', 'onMove', 'onReset', 'onResize', 
-              'onSelect', 'onSubmit', 'onUnload');
 sub html4disablejs {
    my $html=$_[0];
    my $event;
@@ -2232,15 +2243,17 @@ sub html2table {
    return($html);
 }
 
-sub html2txt {
+sub html2text {
    my $t=$_[0];
 
-   $t=~s!\n! !g;
+   $t=~s!\s+! !g;
+   $t=~s|<style>.*?</style>||ig;
+   $t=~s|<script>.*?</script>||ig;
 
    $t=~s!<title[^\<\>]*?>!\n\n!ig;
    $t=~s!</title>!\n\n!ig;
    $t=~s!<br>!\n!ig;
-   $t=~s!<hr[^\<\>]*?>!\n------------------------------------------------------------\n!ig;
+   $t=~s!<hr[^\<\>]*?>!\n-----------------------------------------------------------------------\n!ig;
 
    $t=~s!<p>\s?</p>!\n\n!ig; 
    $t=~s!<p>!\n\n!ig; 
@@ -2280,9 +2293,9 @@ sub text2html {
    $t=~s/\t/ &nbsp;&nbsp;&nbsp;&nbsp;/g;
          
    foreach (qw(http https ftp nntp news gopher telnet)) {
-      $t=~s/($_:\/\/[\w\.\-]+?\/?[^\s<>]*[\w\/])([\b|\n| ]*)/<A HREF=\"$1\" TARGET=\"_blank\">$1<\/A>$2/gs;
+      $t=~s!($_://[\w\.\-]+?/?[^\s<>]*[\w/])([\b|\n| ]*)!<a href="$1" target="_blank">$1</A>$2!gs;
    }
-   $t=~s/([\b|\n| ]+)(www\.[-\w\.]+\.[-\w]{2,3})([\b|\n| ]*)/$1<a href=\"http:\/\/$2\" TARGET=\"_blank\">$2<\/a>$3/gs;
+   $t=~s!([\b|\n| ]+)(www\.[\w\-\.]+\.[\w\-]{2,3})([\b|\n| ]*)!$1<a href="http://$2" target="_blank">$2</a>$3!gs;
 
    return($t);
 }

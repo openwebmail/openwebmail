@@ -1,0 +1,40 @@
+#
+# This is an example of per user capability file,
+# any option set in this file will overide the same one in openwebmail.conf.
+# Please refer to openwebmail.conf for detailed description of each option
+#
+
+#domainnames		server1.domain1.com, server2.domain2.com
+
+logfile			/var/log/openwebmail.log
+global_addressbook	%ow_etcdir%/address.book
+global_filterbook	%ow_etcdir%/filter.book
+
+enable_changepwd		yes
+enable_setfromemail		yes
+enable_autoreply		yes
+enable_setforward		yes
+enable_pop3			yes
+
+#disallowed_pop3servers		your_server, your_server.domain
+autopop3_at_refresh		yes
+symboliclink_mbox		yes
+forced_moveoldmsgfrominbox	no
+refreshinterval			15
+foldername_maxlen		32
+folderquota			0
+maxbooksize			32
+attlimit			50
+
+<page_footer>
+<a href="%ow_htmlurl%/openwebmail.html" target="_blank">%name%</a>
+version %version%
+</page_footer>
+
+<mailfooter>
+</mailfooter>
+
+<default_signature>
+--
+Open WebMail Project (http://openwebmail.org)
+</default_signature>

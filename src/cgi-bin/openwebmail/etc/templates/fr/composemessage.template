@@ -47,7 +47,7 @@
 @@@CONFIRMREADINGCHECKBOX@@@
 <B>Confirmation de la lecture</B>
 </td></tr>
-<tr><td colspan="2" bgcolor=@@@WINDOW_LIGHT@@@>
+<tr><td colspan="2" bgcolor=@@@WINDOW_LIGHT@@@ class=msgbody>
 @@@BODYAREA@@@
 </td></tr>
 <tr><td colspan="2" align="left" valign="top">

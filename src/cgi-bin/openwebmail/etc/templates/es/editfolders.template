@@ -7,13 +7,13 @@
 @@@MENUBARLINKS@@@
 </td></tr><tr><td colspan="5">&nbsp;</td></tr>
 <tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Nombre de Carpeta (@@@FOLDERNAME_MAXLEN@@@ caracteres)</B></td>
+<B>Nombre de Carpeta (m&aacute;x. @@@FOLDERNAME_MAXLEN@@@ caracteres)</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Nuevos</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Mensajes</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Tama&ntilde;</B></td>
+<B>Tama&ntilde;o</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Acción</B>
 </td></tr>

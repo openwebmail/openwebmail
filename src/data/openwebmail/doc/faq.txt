@@ -75,14 +75,57 @@ A: It is possible that you are upgrading from version prior to 1.41
    entries in genericstable to virtusertable.
 
 Q: The login is okay, but I can't change by my password with openwebmail?
-A: If you use auth_unix.pl for authentication and your $unix_passwdfile
-   is not a local accessible file (ex: examples in auth_unix.pl that are
-   terminated with |), the changepassword feature won't be available.
-   In these cases, you have to use auth_pam.pl to get the changepassword
-   to work.
+A: There are 2 possible answers for this:
+   1. Your passwdfile is not local accessable.
+      If you use auth_unix.pl for authentication and your $unix_passwdfile
+      is not a local accessible file (ex: examples in auth_unix.pl that are
+      terminated with |), the changepassword feature won't be available.
+      In these cases, you have to use auth_pam.pl to get the changepassword
+      to work.
+   2. Your system doesn't support saved set-user-ID, so openwebmail won't get
+      enough previledge to change the passwdfile.
+      Try to set savedsuid_support to 'no' in openwebmail.conf to solve 
+      this problem.
+
+Q: I got "Couldn't open XXX-session-0.370606494136155!" error after login?
+A: You openwebmail-1.xx.tgz was uncompressed with improper parameter.
+   It should be "tar -zxvBpf openwebmail-1.xx.tgz"
+
+Q: I got "Software error: Can't locate MIME/Base64.pm in @INC"?
+A: Please download MIME-Base64-2.12.tar.gz and install
+
+   cd /tmp
+   tar -zxvf MIME-Base64-2.12.tar.gz
+   cd MIME-Base64-2.12
+   perl Makefile.PL
+   make
+   make install
+
+Q: I got "can't open /var/log/openwebmail.log" error?
+A: Please check the openwebmail.log permission, it should be
+   owner=root, group=mail, mode=660
+
+Q: Most functions works fine, but I got "Internal server error" when sending
+   messages?
+A: Please install the libnet-1.0901.tar.gz, this is required since 
+    version 1.60.
+
+Q: The 'From' field of my message contained only 'username@'?
+A: You may has wrong setting of domainname in openwebmail.conf
+   1. For version older than 1.41 ,
+      please be sure to use '' for a text string of hostname
+      or use `` for the program (ex: /bin/hostname)
+   2. For version 1.50 or above,
+      please list all domainnames separated with comma.
+      or use auto for this setting, openwebmail will call '/bin/hostname'
+      to get the fqdn of your host.
 
 Q: How can I use LDAP to authenticate user in openwebmail?
-A: Below is a article posted at sourceforge by "ispman@user.sourceforge.net
+A: You have 2 ways to do this:
+   1. use the auth_ldap.pl written by Ivan Cerrato, pengus@libero.it
+   2. use auth_pam module and let pam to talk with ldap server.
+
+   Below is an article posted at sourceforge by "ispman@user.sourceforge.net
    (http://sourceforge.net/forum/message.php?msg_id=1462314)
 
    ---------------- begin ----------------
@@ -111,34 +154,6 @@ A: Below is a article posted at sourceforge by "ispman@user.sourceforge.net
    That's it.  LDAP users will authenticate with the pam_ldap module and 
    system users with pam_unix.
    ---------------- end ----------------
-
-Q: I got "Couldn't open XXX-session-0.370606494136155!" error after login?
-A: You openwebmail-1.xx.tgz was uncompressed with improper parameter.
-   It should be "tar -zxvBpf openwebmail-1.xx.tgz"
-
-Q: I got "Software error: Can't locate MIME/Base64.pm in @INC"?
-A: Please download MIME-Base64-2.12.tar.gz and install
-
-   cd /tmp
-   tar -zxvf MIME-Base64-2.12.tar.gz
-   cd MIME-Base64-2.12
-   perl Makefile.PL
-   make
-   make install
-
-Q: I got "can't open /var/log/openwebmail.log" error?
-A: Please check the openwebmail.log permission, it should be
-   owner=root, group=mail, mode=660
-
-Q: The 'From' field of my message contained only 'username@'?
-A: You may has wrong setting of domainname in openwebmail.conf
-   1. For version older than 1.41 ,
-      please be sure to use '' for a text string of hostname
-      or use `` for the program (ex: /bin/hostname)
-   2. For version 1.50 or above,
-      please list all domainnames separated with comma.
-      or use auto for this setting, openwebmail will call '/bin/hostname'
-      to get the fqdn of your host.
 
 Q: How can I use multiple virtual domains with openwebmail?
 A: First, you have to decide if you want to let user defines multiple 

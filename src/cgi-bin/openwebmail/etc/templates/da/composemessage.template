@@ -11,7 +11,7 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@FROMMENU@@@
 &nbsp;&nbsp;
-<B>Priority:</B>
+<B>Prioritet:</B>
 @@@PRIORITYMENU@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
@@ -44,7 +44,7 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@SUBJECTFIELD@@@
 &nbsp;
-<B>Confirm Reading</B>
+<B>Kvittering for læst post</B>
 @@@CONFIRMREADINGCHECKBOX@@@
 </td></tr>
 <tr><td colspan="2" bgcolor=@@@WINDOW_LIGHT@@@>
