@@ -1,3 +1,11 @@
+10/20/2004
+----------
+1. add option enable_advsearch, enable_userfolders to openwebmail.conf
+2. if domainames option has more than one members and 
+   option enable_domainselectmenu is set to yes, 
+   only the selected domainname will become the domainname in default emails
+
+
 10/14/2004
 ----------
 1. new mirror site at Moscow, Russia

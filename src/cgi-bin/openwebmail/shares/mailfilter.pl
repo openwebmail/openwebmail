@@ -104,6 +104,9 @@ sub filtermessage {
                      $rule[$_OP] ne 'copy' && $rule[$_OP] ne 'move' && $rule[$_OP] ne 'delete');
 
             $rule[$_DESTINATION]=safefoldername($rule[$_DESTINATION]);
+            next if (!is_defaultfolder($rule[$_DESTINATION]) && 
+                     !$config{'enable_userfolders'});
+
             if ($rule[$_DESTINATION] eq 'DELETE') {
                next if ($rule[$_OP] eq 'copy');			# copy to DELETE is meaningless
                $rule[$_OP]='delete' if ($rule[$_OP] eq 'move');	# move to DELETE is 'delete'

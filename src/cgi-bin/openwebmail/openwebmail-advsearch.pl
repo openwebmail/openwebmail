@@ -59,8 +59,8 @@ $SIG{TERM}=\&openwebmail_exit;	# for user stop
 
 userenv_init();
 
-if (!$config{'enable_webmail'}) {
-   openwebmailerror(__FILE__, __LINE__, "$lang_text{'webmail'} $lang_err{'access_denied'}");
+if (!$config{'enable_webmail'} || !$config{'enable_advsearch'}) {
+   openwebmailerror(__FILE__, __LINE__, "$lang_text{'advsearch'} $lang_err{'access_denied'}");
 }
 
 $folder = param('folder') || 'INBOX';

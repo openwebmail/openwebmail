@@ -5,7 +5,10 @@
 </td></tr>
 <tr><td colspan="5" bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
-</td></tr><tr><td colspan="5">&nbsp;</td></tr>
+</td></tr>
+
+@@@USERFOLDERSSTART@@@
+<tr><td colspan="5">&nbsp;</td></tr>
 <tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Ordnername (max. @@@FOLDERNAME_MAXLEN@@@ Zeichen)</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
@@ -32,6 +35,7 @@
 @@@ENDFORM@@@
 
 @@@FOLDERS@@@
+@@@USERFOLDERSEND@@@
 
 <tr><td colspan="5">&nbsp;</td></tr>
 <tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>

@@ -77,11 +77,11 @@ if ($action eq "editfolders") {
    reindexfolder(0);
 } elsif ($action eq "reindexfolder") {
    reindexfolder(1);
-} elsif ($action eq "addfolder") {
+} elsif ($action eq "addfolder" && $config{'enable_userfolders'}) {
    addfolder();
 } elsif ($action eq "deletefolder") {
    deletefolder();
-} elsif ($action eq "renamefolder") {
+} elsif ($action eq "renamefolder" && $config{'enable_userfolders'}) {
    renamefolder();
 } elsif ($action eq "downloadfolder") {
    downloadfolder();
@@ -115,45 +115,53 @@ sub editfolders {
 
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
 
-   $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-folder.pl").
-               ow::tool::hiddens(action=>'addfolder',
-                                 sessionid=>$thissession,
-                                 sort=>$sort,
-                                 page=>$page,
-                                 folder=>$folder);
-   $html =~ s/\@\@\@STARTFOLDERFORM\@\@\@/$temphtml/;
-
-   $temphtml = textfield(-name=>'foldername',
-                         -default=>'',
-                         -size=> 24,
-                         -maxlength=>$config{'foldername_maxlen'},
-                         -override=>'1');
-#                         -accesskey=>'I',
-   $html =~ s/\@\@\@FOLDERNAMEFIELD\@\@\@/$temphtml/;
-
-   $temphtml = submit(-name=>$lang_text{'add'},
-                      -accesskey=>'A',
-                      -class=>"medtext");
-   $html =~ s/\@\@\@ADDBUTTON\@\@\@/$temphtml/;
-
-   $temphtml = end_form();
-   $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/;
-
-   my $bgcolor = $style{"tablerow_dark"};
+   my $bgcolor;
    my $currfolder;
    my $form_i=0;
-   $temphtml='';
-   foreach $currfolder (@userfolders) {
-      $temphtml .= _folderline($currfolder, $form_i, $bgcolor,
-                               \$total_newmessages, \$total_allmessages, \$total_foldersize);
-      if ($bgcolor eq $style{"tablerow_dark"}) {
-         $bgcolor = $style{"tablerow_light"};
-      } else {
-         $bgcolor = $style{"tablerow_dark"};
+   if ($config{'enable_userfolders'}) {
+      templateblock_enable($html, 'USERFOLDERS');
+
+      $bgcolor = $style{"tablerow_dark"};
+      $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-folder.pl").
+                  ow::tool::hiddens(action=>'addfolder',
+                                    sessionid=>$thissession,
+                                    sort=>$sort,
+                                    page=>$page,
+                                    folder=>$folder);
+      $html =~ s/\@\@\@STARTFOLDERFORM\@\@\@/$temphtml/;
+
+      $temphtml = textfield(-name=>'foldername',
+                            -default=>'',
+                            -size=> 24,
+                            -maxlength=>$config{'foldername_maxlen'},
+                            -override=>'1');
+#                         -accesskey=>'I',
+      $html =~ s/\@\@\@FOLDERNAMEFIELD\@\@\@/$temphtml/;
+
+      $temphtml = submit(-name=>$lang_text{'add'},
+                         -accesskey=>'A',
+                         -class=>"medtext");
+      $html =~ s/\@\@\@ADDBUTTON\@\@\@/$temphtml/;
+
+      $temphtml = end_form();
+      $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/;
+
+      $temphtml='';
+      foreach $currfolder (@userfolders) {
+         $temphtml .= _folderline($currfolder, $form_i, $bgcolor,
+                                  \$total_newmessages, \$total_allmessages, \$total_foldersize);
+         if ($bgcolor eq $style{"tablerow_dark"}) {
+            $bgcolor = $style{"tablerow_light"};
+         } else {
+            $bgcolor = $style{"tablerow_dark"};
+         }
+         $form_i++;
       }
-      $form_i++;
+      $html =~ s/\@\@\@FOLDERS\@\@\@/$temphtml/;
+
+   } else {
+      templateblock_disable($html, 'USERFOLDERS');
    }
-   $html =~ s/\@\@\@FOLDERS\@\@\@/$temphtml/;
 
    $bgcolor = $style{"tablerow_dark"};
    $temphtml='';

@@ -35,8 +35,8 @@ foreach (qw(
    session_multilogin session_checksameip session_checkcookie session_count_display
    cache_userinfo
    auto_createrc domainnames_override symboliclink_mbox
-   enable_webmail enable_spellcheck enable_calendar enable_webdisk
-   enable_sshterm enable_vdomain
+   enable_webmail enable_userfolders enable_spellcheck enable_advsearch
+   enable_calendar enable_webdisk enable_sshterm enable_vdomain
    enable_history enable_about about_info_software about_info_protocol
    about_info_server about_info_client about_info_scriptfilename
    enable_preference enable_setforward enable_strictforward
@@ -1039,27 +1039,36 @@ sub get_defaultemails {
    return (@{$config{'default_fromemails'}}) if (${$config{'default_fromemails'}}[0] ne 'auto');
 
    my %emails=();
+
+   my @defaultdomains=();
+   if ($config{'enable_domainselectmenu'}) {	 
+      # if selectmenu used, we assume only the selected one should be treated as default
+      @defaultdomains=($logindomain);
+   } else {
+      @defaultdomains=@{$config{'domainnames'}};
+   }
+
    my $vu=get_virtualuser_by_user($user);
    if ($vu ne "") {
       foreach my $name (ow::tool::str2list($vu,0)) {
          if ($name=~/^(.*)\@(.*)$/) {
             next if ($1 eq "");	# skip whole @domain mapping
-            if ($config{'domainnames_override'}) {
+            if ($config{'domainnames_override'}) {	# override the domainname found in virtual table
                my $purename=$1;
-               foreach my $host (@{$config{'domainnames'}}) {
+               foreach my $host (@defaultdomains) {
                   $emails{"$purename\@$host"}=1;
                }
             } else {
                $emails{$name}=1;
             }
          } else {
-            foreach my $host (@{$config{'domainnames'}}) {
-               $emails{"$name\@$host"}=1
+            foreach my $host (@defaultdomains) {
+               $emails{"$name\@$host"}=1;
             }
          }
       }
    } else {
-      foreach my $host (@{$config{'domainnames'}}) {
+      foreach my $host (@defaultdomains) {
          $emails{"$loginuser\@$host"}=1;
       }
    }
@@ -1815,20 +1824,24 @@ sub getfolders {
 
       foreach $filename (@folderfiles) {
          next if (substr($filename,0,1) eq '.' || $filename =~ /\.lock$/);
-         if (-d "$fdir/$filename") { # recursive into non dot dir
+
+         if (-d "$fdir/$filename" && $config{'enable_userfolders'}) { 	# recursive into non dot dir
             push(@fdirs,"$fdir/$filename");
             next;
          }
          # don't count spoolfile in folder finding
          next if ("$fdir/$filename" eq $spoolfile);
 
-         # summary file size
-         $totalsize += ( -s "$folderdir/$filename" );
-
-         # find all user folders
-         if (!is_defaultfolder($filename) || $fdir ne $folderdir) {
-            push(@userfolders, substr("$fdir/$filename",length($folderdir)+1));
+         # distingush default folders and user folders
+         if (is_defaultfolder($filename) && $fdir eq $folderdir) {
+            $totalsize += ( -s "$folderdir/$filename" );
+         } else {
+            if ($config{'enable_userfolders'}) {
+               $totalsize += ( -s "$folderdir/$filename" );
+               push(@userfolders, substr("$fdir/$filename",length($folderdir)+1));
+            }
          }
+
       }
    }
 

@@ -2491,6 +2491,7 @@ sub editfilter {
          chomp($_);
          if (/^\d+\@\@\@/) { # add valid rule only (Filippo Dattola)
             my @rule=split(/\@\@\@/);
+            next if (!is_defaultfolder($rule[$_DESTINATION]) && !$config{'enable_userfolders'});
             push(@filterrules, \@rule);
          }
       }
@@ -2509,6 +2510,7 @@ sub editfilter {
             chomp($_);
             if (/^\d+\@\@\@/) { # add valid rule only (Filippo Dattola)
                my @rule=split(/\@\@\@/);
+               next if (!is_defaultfolder($rule[$_DESTINATION]) && !$config{'enable_userfolders'});
                push(@globalfilterrules, \@rule);
             }
          }

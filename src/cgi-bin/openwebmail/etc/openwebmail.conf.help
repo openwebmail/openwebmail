@@ -592,7 +592,7 @@ change password page will use SSL.
 enable_domainselectmenu
 -----------------------------------------------------------------------
 Set this to 'yes' if you want a selection menu at login when there are
-more than one domainnames defined.
+more than one domainnames defined. 
 
 
 domainselmenu_list
@@ -709,10 +709,21 @@ enable_webmail
 set this option to 'no' if you want to disable webmail related functions
 
 
+enable_userfolders
+-----------------------------------------------------------------------
+set this option to 'no' if you want to disable user created folders
+
+
 enable_spellcheck
 -----------------------------------------------------------------------
 Set this option to 'no' if you want to disable the spellcheck feature
 in composing message
+
+
+enable_advsearch
+-----------------------------------------------------------------------
+Set this option to 'no' if you want to disable the advanced search
+feature
 
 
 enable_calendar
