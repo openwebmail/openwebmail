@@ -358,6 +358,7 @@ sub userenv_init {
    %prefs = readprefs();
    %style = readstyle($prefs{'style'});
    loadlang($prefs{'language'});
+   charset($prefs{'charset'}) if ($CGI::VERSION>=2.58);	# setup charset of CGI module
 
    verifysession();
 

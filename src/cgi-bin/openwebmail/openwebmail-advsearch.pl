@@ -580,7 +580,7 @@ sub genline {
    }
 
    # Round message size and change to an appropriate unit for display
-   $messagesize=lenstr($messagesize,0);
+   $messagesize=lenstr($messagesize,1);
 
    # convert dateserial(GMT) to localtime
    my $datestr=ow::datetime::dateserial2str($dateserial,

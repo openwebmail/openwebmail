@@ -187,32 +187,32 @@ package ow::bg;
 
 %lang_satestfields =
    (
-   name       => 'Name',
-   desc       => 'Description',
-   type       => 'Test Type',
-   expression => 'Expression',
-   score      => 'Score',
+   name       => 'име',
+   desc       => 'описание',
+   type       => 'тип',
+   expression => 'израз',
+   score      => 'точки',
    );
 
 %lang_satesttypes =
    (
-   header  => 'Message Header',
-   body    => 'Text in Msgbody (HTML tag removed)',
-   uri     => 'Links in Message Body',
-   rawbody => 'Text in Msgbody and Attachments (HTML tag reserved)',
-   full    => 'Undecoded Msgbody and Attachments',
+   header  => 'Хедер на съобщението',
+   body    => 'Текст в тялото на съоб. (HTML тага премахнат)',
+   uri     => 'Линкове в тялото на съобщението',
+   rawbody => 'Текст в тялото и прикачените (HTML тага запазен)',
+   full    => 'Неразбираеми тяло и прикачени',
    );
 
 %lang_satestheaderattrs =
    (
-   ALL        => 'All',
-   Subject    => 'Subject',
-   From       => 'From',
-   To         => 'To',
-   Cc         => 'Cc',
-   ToCc       => 'To and Cc',
-   MESSAGEID  => 'Message Id',
-   USERDEFINE => 'User Define',
+   ALL        => 'всички',
+   Subject    => 'тема',
+   From       => 'от',
+   To         => 'до',
+   Cc         => 'копие',
+   ToCc       => 'до и копие',
+   MESSAGEID  => 'Id на съоб.',
+   USERDEFINE => 'собствена деф.',
    );
 
 %lang_searchtypelabels =
@@ -228,14 +228,14 @@ package ow::bg;
 
 %lang_searchdaterangelabels =
    (
-   all         => 'All',
-   today       => 'Today',
-   oneweek     => 'One week',
-   twoweeks    => 'Two weeks',
-   onemonth    => 'One month',
-   threemonths => 'Three months',
-   sixmonths   => 'Six months',
-   oneyear     => 'One year',
+   all         => 'всички',
+   today       => 'днес',
+   oneweek     => 'една седмица',
+   twoweeks    => 'две седмициuu',
+   onemonth    => 'един месец',
+   threemonths => 'три месеца',
+   sixmonths   => 'шест месеца',
+   oneyear     => 'една година',
    );
 
 %lang_sizes =
@@ -319,12 +319,12 @@ package ow::bg;
    move     => 'Преместване',
    symlink  => 'Препратка',
    delete   => 'Изтриване',
-   gzip     => 'gz-компресия',
-   mkzip    => 'Създаване Zip',
-   mktgz    => 'Създаване Tgz',
-   mkthumbnail  => 'Създаване Thumb',
-   download => 'Даунлоуд',
-   upload   => 'Ъполуд',
+   gzip     => 'gz-компр.',
+   mkzip    => 'създ. zip',
+   mktgz    => 'създ. tgz',
+   mkthumbnail  => 'създ. Thumb',
+   download => 'даунлоуд',
+   upload   => 'ъплоуд',
    );
 
 %lang_text =
@@ -640,7 +640,7 @@ package ow::bg;
    abook_editform_GEO_photo => 'Покажи сателитна снимка на района',
    abook_editform_namelabel_CLASS => 'Класифициран достъп',
    abook_editform_namelabel_PRODID => 'Създадено с',
-   abook_editform_valuelabel_PRODID => 'outlook, openwebmail, etc',
+   abook_editform_valuelabel_PRODID => 'outlook, openwebmail, т.н.',
    abook_editform_namelabel_UID => 'Уникално ID',
    abook_editform_valuelabel_UID => 'използване на външна програма за идентификация на тази карта',
    abook_editform_namelabel_SOURCE => '"vCard" URL',
@@ -654,10 +654,10 @@ package ow::bg;
    abook_editform_save_and_return => 'Запиши и се върни',
    abook_editform_cancel_and_return => 'Откажи и се върни',
    abook_editform_new_agent_link => 'създай',
-   sa_prefs         => 'SpamAssassin user preferences',
-   sa_edittest      => 'Edit Test Rules',
-   sa_editblacklist => 'Edit Black List',
-   sa_editwhitelist => 'Edit White List',
+   sa_prefs         => 'SpamAssassin собсвени настройки',
+   sa_edittest      => 'Редакция на тест правилата',
+   sa_editblacklist => 'Редакция на "черния списък"',
+   sa_editwhitelist => 'Редакция на "белия списък"',
    );
 
 %lang_err =

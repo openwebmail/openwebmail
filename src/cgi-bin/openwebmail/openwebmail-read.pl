@@ -223,6 +223,7 @@ sub readmessage {
       @tmp=($prefs{'language'}, $prefs{'charset'});
       ($prefs{'language'}, $prefs{'charset'})=('en', $readcharset);
       loadlang($prefs{'language'});
+      charset($prefs{'charset'}) if ($CGI::VERSION>=2.58);	# setup charset of CGI module
    }
    $html=applystyle(readtemplate($templatefile));
    if ($#tmp>=1) {

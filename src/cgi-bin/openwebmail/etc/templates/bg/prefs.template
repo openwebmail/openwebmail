@@ -304,7 +304,7 @@
 
 @@@SPAMCHECKSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Spam Check</B> &nbsp; @@@SAPREFSLINK@@@</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Спам проверка</B> &nbsp; @@@SAPREFSLINK@@@</td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Съобщения за проверка:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -484,7 +484,7 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Други опции</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Енкодинг по подразбиране на файловата система:</B>
+<B>Кодова таблица по подразбиране на файловата система:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FSCHARSETMENU@@@
 </td></tr>

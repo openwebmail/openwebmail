@@ -21,14 +21,14 @@ package ow::sl;
 %lang_sortlabels =
    (
    status      => 'Stanje (Najprej neprebrana)',
-   date        => 'Datum (Najprej novejši)',
-   date_rev    => 'Datum (Najprej starejši)',
+   date        => 'Datum (Najprej novejša)',
+   date_rev    => 'Datum (Najprej starejša)',
    sender      => 'Pošiljatelj (Od A do Ž)',
    sender_rev  => 'Pošiljatelj (Od Ž do A)',
    subject     => 'Predmet (Od A do Ž)',
    subject_rev => 'Predmet (Od Ž do A)',
-   size        => 'Velikost (Najprej najveèji)',
-   size_rev    => 'Velikost (Najprej najmanjši)'
+   size        => 'Velikost (Najprej najveèja)',
+   size_rev    => 'Velikost (Najprej najmanjša)'
    );
 
 %lang_abooksortlabels =
@@ -53,8 +53,8 @@ package ow::sl;
 
 %lang_abookselectionlabels =
    (
-   ALL => "All Addressbooks",
-   GLOBAL => "Global Addressbook",
+   ALL => "Vsi adresarji",
+   GLOBAL => "globalni adresar",
    );
 
 %lang_onofflabels =
@@ -187,32 +187,32 @@ package ow::sl;
 
 %lang_satestfields =
    (
-   name       => 'Name',
-   desc       => 'Description',
-   type       => 'Test Type',
-   expression => 'Expression',
-   score      => 'Score',
+   name       => 'ime',
+   desc       => 'Opis',
+   type       => 'Poskusni tip',
+   expression => 'Izraz',
+   score      => 'Toèke',
    );
 
 %lang_satesttypes =
    (
-   header  => 'Message Header',
-   body    => 'Text in Msgbody (HTML tag removed)',
-   uri     => 'Links in Message Body',
-   rawbody => 'Text in Msgbody and Attachments (HTML tag reserved)',
-   full    => 'Undecoded Msgbody and Attachments',
+   header  => 'Glava sporoèila',
+   body    => 'Besedilo sporoèila (HTML dodatki odstranjeni)',
+   uri     => 'Povezave v sporoèilu',
+   rawbody => 'Besedilo sporoèila in priponke (HTML dodatki ohranjeni)',
+   full    => 'Nedekodirano besedilo sporoèila in priponke',
    );
 
 %lang_satestheaderattrs =
    (
-   ALL        => 'All',
-   Subject    => 'Subject',
-   From       => 'From',
-   To         => 'To',
-   Cc         => 'Cc',
-   ToCc       => 'To and Cc',
-   MESSAGEID  => 'Message Id',
-   USERDEFINE => 'User Define',
+   ALL        => 'Vse',
+   Subject    => 'Predmet',
+   From       => 'Pošiljatelj (Od)',
+   To         => 'Naslovnik (Za)',
+   Cc         => 'Kopija (Kp)',
+   ToCc       => 'Za in Kp',
+   MESSAGEID  => 'Št. sporoèila',
+   USERDEFINE => 'Uporabniško definirano',
    );
 
 %lang_searchtypelabels =
@@ -228,14 +228,14 @@ package ow::sl;
 
 %lang_searchdaterangelabels =
    (
-   all         => 'All',
-   today       => 'Today',
-   oneweek     => 'One week',
-   twoweeks    => 'Two weeks',
-   onemonth    => 'One month',
-   threemonths => 'Three months',
-   sixmonths   => 'Six months',
-   oneyear     => 'One year',
+   all         => 'Vse',
+   today       => 'Danes',
+   oneweek     => 'En teden',
+   twoweeks    => 'Dva tedna',
+   onemonth    => 'En mesec',
+   threemonths => 'Tri mesece',
+   sixmonths   => 'Šest mesecev',
+   oneyear     => 'Eno leto',
    );
 
 %lang_sizes =
@@ -379,7 +379,7 @@ package ow::sl;
    forwardasorig=>'Posreduj kot original',
    printfriendly=> 'Prijazno tiskanje',
    msgformat  => 'Format sporoèila',
-   from       => 'Od',
+   from       => 'Pošiljatelj (Od)',
    replyto    => 'Odgovori-na',
    to         => 'Naslovnik (Za)',
    cc         => 'Kopija (Kp)',
@@ -420,7 +420,7 @@ package ow::sl;
    foldermarkreadconf => '\'Ali želite oznaèiti vsa sporoèila v tej mapi kot prebrana?\'',
    chkindex   => 'Preveri indeks',
    folderchkindexconf => '\'Ali želite preveriti indeks te mape?\'',
-   reindex    => 'ReIndex',
+   reindex    => 'Ponovno indeksiraj',
    folderreindexconf => '\'Ali ste preprièani, da želite ponovno indeksirati to mapo?\'',
    total      => 'Skupaj',
    edit       => 'Uredi',
@@ -530,7 +530,7 @@ package ow::sl;
    succeeded    => 'uspelo',
    failed       => 'neuspelo',
    savefile_towd=> 'Shrani datoteko na spletni disk',
-   saveatt_towd => 'shrani prilogo na spletni disk',
+   saveatt_towd => 'Shrani prilogo na spletni disk',
    addatt_fromwd=> 'Dodaj prilogo s spletnega diska',
    vdomain_usermgr    => 'Upravljanje z uporabniki virtualnih domen',
    vdomain_createuser => 'Novi uporabnik',
@@ -559,7 +559,7 @@ package ow::sl;
    abook_exportnow => 'Izvozi sedaj',
    abook_newcontact => 'Novi stik',
    abook_newgroup => 'Nova skupina',
-   abook_noconversion => 'No Conversion',
+   abook_noconversion => 'Brez pretvorbe',
    abook_listview_addrperpage => '@@@ADDRCOUNT@@@ naslovov na stran',
    abook_listview_writemailto => 'Napisi sporoèilo',
    abook_listview_edit => 'Uredi',
@@ -654,10 +654,10 @@ package ow::sl;
    abook_editform_save_and_return => 'Shrani in se vrni k prejšnjemu',
    abook_editform_cancel_and_return => 'Preklièi in se vrni k prejšnjemu',
    abook_editform_new_agent_link => 'ustvari',
-   sa_prefs         => 'SpamAssassin user preferences',
-   sa_edittest      => 'Edit Test Rules',
-   sa_editblacklist => 'Edit Black List',
-   sa_editwhitelist => 'Edit White List',
+   sa_prefs         => 'Nastavitve odstranjevanja oglasne pošte',
+   sa_edittest      => 'Uredi poskusna pravila',
+   sa_editblacklist => 'Uredi èrni seznam',
+   sa_editwhitelist => 'uredi beli seznam',
    );
 
 %lang_err =

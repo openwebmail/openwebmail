@@ -271,6 +271,7 @@ sub editprefs {
          $prefs{'language'}=$language;
          $prefs{'charset'}=$ow::lang::languagecharsets{$language};
          loadlang($language);
+         charset($prefs{'charset'}) if ($CGI::VERSION>=2.58);	# setup charset of CGI module
       }
    }
 
@@ -1698,6 +1699,7 @@ sub saveprefs {
    %prefs = readprefs();
    %style = readstyle($prefs{'style'});
    loadlang($prefs{'language'});
+   charset($prefs{'charset'}) if ($CGI::VERSION>=2.58);	# setup charset of CGI module
 
    my ($html, $temphtml);
    $html = applystyle(readtemplate("prefssaved.template"));

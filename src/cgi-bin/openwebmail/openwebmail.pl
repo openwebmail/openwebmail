@@ -159,6 +159,7 @@ sub loginmenu {
    %prefs = readprefs();
    %style = readstyle($prefs{'style'});
    loadlang($prefs{'language'});
+   charset($prefs{'charset'}) if ($CGI::VERSION>=2.58);	# setup charset of CGI module
 
    my ($html, $temphtml);
    $html = applystyle(readtemplate("login.template"));
@@ -288,6 +289,7 @@ sub login {
    %prefs = readprefs();
    %style = readstyle($prefs{'style'});
    loadlang($prefs{'language'});
+   charset($prefs{'charset'}) if ($CGI::VERSION>=2.58);	# setup charset of CGI module
 
    ($domain, $user, $userrealname, $uuid, $ugid, $homedir)
 				=get_domain_user_userinfo($logindomain, $loginuser);
@@ -355,6 +357,7 @@ sub login {
       %prefs = readprefs();
       %style = readstyle($prefs{'style'});
       loadlang($prefs{'language'});
+      charset($prefs{'charset'}) if ($CGI::VERSION>=2.58);	# setup charset of CGI module
    }
 
    my ($errorcode, $errormsg, @sessioncount);

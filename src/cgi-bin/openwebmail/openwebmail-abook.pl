@@ -2026,6 +2026,7 @@ sub addreditform {
       @tmp=($prefs{'language'}, $prefs{'charset'});
       ($prefs{'language'}, $prefs{'charset'})=('en', $composecharset);
       loadlang($prefs{'language'});
+      charset($prefs{'charset'}) if ($CGI::VERSION>=2.58);	# setup charset of CGI module
    }
 
    # convert the contact vcard data structure to html

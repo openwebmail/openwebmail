@@ -1,3 +1,16 @@
+12/23/2004
+----------
+1. call charset() after loadlang to set the charset for CGI module to fix
+   bugs because of wrong default charset
+   (thanks to Hidetoshi, hchacha.AT.users.sourceforge.net for his fix)
+2. new iconset: Cool3D.Japanese
+   (thanks to Hidetoshi, hchacha.AT.users.sourceforge.net)
+3. Bulgarian language and template files translation update
+   (thanks to Veselin Slavov, vess.AT.slavof.net)
+4. Slovenian language and template files translation update
+   (thanks to Uros Sajko, copatek.AT.yahoo.com)
+
+
 12/21/2004
 ----------
 1. fix a bug in addressbook that note field wtih ' or " won't be displayed

@@ -1,10 +1,10 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr>
   <td bgcolor=@@@TITLEBAR@@@>
-    <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>Импорт в книгата с адреси</b></font>
+    <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>Вмъкване в книгата с адреси</b></font>
   </td>
   <td bgcolor=@@@TITLEBAR@@@ align="right">
-    <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>@@@AVAILFREESPACE@@@ налично</b></font>
+    <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>@@@AVAILFREESPACE@@@ налични</b></font>
   </td>
 </tr>
 <tr>
@@ -21,11 +21,11 @@
       <td><br><b>На кратко</b></td>
     </tr>
     <tr>
-      <td>Много програми за адресни книги могат да ги експортират във файл. @@@NAME@@@ може да импортира някои от тези формати, спестяваики ви време и нерви. Следва пояснение как можете да направите това. Големината на файла за импорт е лимитирана  @@@ABOOKIMPORTLIMIT@@@ .</td>
+      <td>Много програми за адресни книги могат да ги записват във файл. @@@NAME@@@ може да вмъкне някои от тези формати, спестявайки Ви време и нерви. Следва пояснение как можете да направите това. Големината на файла за вмъкване е ограничена @@@ABOOKIMPORTLIMIT@@@ .</td>
     </tr>
     @@@STARTIMPORTFORM@@@
     <tr>
-      <td><br><br><b>1. Изберете файла, който искате да импортирате:</b></td>
+      <td><br><br><b>1. Изберете файла, който искате да вмъкнете:</b></td>
     </tr>
     <tr>
       <td>@@@IMPORTFILEFIELD@@@</td>
@@ -49,7 +49,7 @@
       </td>
     </tr>
     <tr>
-      <td><br><b>4. Изберете адресната книга в която ще импортирате:</b></td>
+      <td><br><b>4. Изберете адресната книга в която ще вмъквате:</b></td>
     </tr>
     <tr>
       <td>@@@ADDRBOOKSMENU@@@</td>

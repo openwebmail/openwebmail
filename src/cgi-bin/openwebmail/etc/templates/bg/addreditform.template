@@ -22,7 +22,7 @@
     <table cellpadding="0" cellspacing="0" border="0" align="center" width="100%">
     <tr>
       <td>&nbsp;@@@AGENTPATH@@@</td>
-      <td align="right">Енкодинг:&nbsp;@@@CONVTOMENU@@@</td>
+      <td align="right">Кодова таблица:&nbsp;@@@CONVTOMENU@@@</td>
     </tr>
     </table>
   </td>
@@ -299,7 +299,7 @@ function popupNotice (msgOption) {
    if (msgOption == 'agentmustsave') {
       return(confirm('Всички данни трябва да бъдат записани, преди разглеждането или създаването на карта "агент".\nДа запиша ли?'));
    } else if (msgOption == 'cancelchanges') {
-      return(confirm('Всички промени от този "агент' ще бъдат изгубени, да продъжа ли?'));
+      return(confirm('Всички промени от този "агент" ще бъдат изгубени, да продъжа ли?'));
    }
 }
 
