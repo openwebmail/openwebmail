@@ -22,7 +22,9 @@ $lang_charset = 'iso-8859-1';
    size        => 'Mida (Primer els grans)',
    size_rev    => 'Mida (Primer els petits)',
    subject     => 'Títol (Alfabètic - Ascendent)',
-   subject_rev => 'Títol (Alfabètic - Descendent)'
+   subject_rev => 'Títol (Alfabètic - Descendent)',
+   thread      => 'Thread (Newest First)',
+   thread_rev  => 'Thread (Oldest First)'
    );
 
 %lang_text =
@@ -53,6 +55,7 @@ $lang_charset = 'iso-8859-1';
    recipient  => 'Per a',
    sender     => 'Qui ho envia',
    subject    => 'Títol',
+   thread     => 'Thread',
    size       => 'Mida',
    backto     => 'Tornar a',
    reply      => 'Contestar',

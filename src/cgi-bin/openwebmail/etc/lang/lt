@@ -22,7 +22,9 @@ $lang_charset = 'windows-1257';
    size        => 'Pagal dydá (pirma didþiausi)',
    size_rev    => 'Pagal dydá (pirma maþiausia)',
    subject     => 'Pagal  temà (Pagal abëcëlæ a-z)',
-   subject_rev => 'Pagal  temà (Pagal abëcëlæ z-a)'
+   subject_rev => 'Pagal  temà (Pagal abëcëlæ z-a)',
+   thread      => 'Thread (Newest First)',
+   thread_rev  => 'Thread (Oldest First)'
    );
 
 %lang_text =
@@ -53,6 +55,7 @@ $lang_charset = 'windows-1257';
    recipient  => 'Gavëjas',
    sender     => 'Siuntëjas',
    subject    => 'Tema',
+   thread     => 'Thread',
    size       => 'Dydis',
    backto     => 'Gráþti á',
    reply      => 'Atsakyti',

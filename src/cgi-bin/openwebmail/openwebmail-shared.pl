@@ -16,6 +16,7 @@
                  'fr'           => 'French',
                  'hu'           => 'Hungarian',
                  'it'           => 'Italiano',
+                 'kr'           => 'Korean',
                  'lt'           => 'Lithuanian',
                  'nl'           => 'Nederlands',
                  'no_NY'        => 'Norwegian Nynorsk',
@@ -73,14 +74,14 @@ sub readconf {
    # processing yes/no
    foreach $key ( 'use_hashedmailspools', 'use_homedirspools',
                   'use_homedirfolders', 'use_dotlockfile', 
-                  'refresh_after_login',
+                  'refresh_after_login', 'enable_rootlogin',
                   'enable_changepwd', 'enable_setfromemail', 
                   'enable_autoreply', 'enable_pop3', 
                   'autopop3_at_refresh', 'default_autopop3', 
                   'default_confirmmsgmovecopy',
                   'default_hideinternal', 'symboliclink_mbox',
                   'default_filter_fakedsmtp', 'default_filter_fakedexecontenttype',
-                  'default_disablejs', 'default_newmailsound') {
+                  'default_disablejs', 'default_newmailsound', 'default_usesmileicon') {
       if (${$r_confighash}{$key} =~ /yes/i) {
          ${$r_confighash}{$key}=1;
       } else {
@@ -122,7 +123,7 @@ sub readconf {
 ##################### VIRTUALUSER related ################
 sub update_virtusertable {
    my ($virdb, $virfile)=@_;
-   my (%DB, %DBS, $metainfo);
+   my (%DB, %DBR, %DBS, $metainfo);
 
    if (! -e $virfile) {
       unlink("$virdb$config{'dbm_ext'}") if (-e "$virdb$config{'dbm_ext'}");
@@ -407,7 +408,7 @@ sub readprefs {
                   'confirmmsgmovecopy',
                   'filter_repeatlimit', 'filter_fakedsmtp', 
                   'filter_fakedexecontenttype',
-                  'disablejs', 'hideinternal', 'newmailsound', 'autopop3',
+                  'disablejs', 'hideinternal', 'newmailsound', 'usesmileicon', 'autopop3',
                   'trashreserveddays') {
       if ( !defined($prefshash{$key}) || $prefshash{$key} eq "" ) {
           $prefshash{$key}=$config{'default_'.$key};

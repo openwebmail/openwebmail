@@ -1,3 +1,146 @@
+12/15/2001 (version 1.53)
+----------
+1. support new mail header: In-Reply-To, References", X-Status
+2. display "A" flag in the first column in folderview to denote messages 
+   that have been answered.
+3  add a new sort method "by thread".  The threaded sort uses information 
+   from the references and in-reply-to fields in messages to thread the 
+   subjects.  This is especially nice for mailing lists.
+4. Changed sort by subject to sort the subjects just by subject
+   and not by the subject/date hybrid.
+5. If a from line only has an address, then cut it off at the
+   @ symbol in the from column.  
+
+Thanks to James Dean Palmer, james@tiger-marmalade.com,
+who contributed the all patches for the above features.
+
+
+12/13/2001
+----------
+1. slovak language and templates translation update
+   (thanks to lubos klokner, lubos@klokner.sk)
+2. korean language and templates translation
+   (thanks to Moonsang Kwon, kmscom@snu.ac.kr)
+
+
+12/11/2001
+----------
+1. fix a bug in auth_unix that may crash the passwd file under heave access.
+   (reported by ªôÃÙ·½, cty@mail2.scvs.tpc.edu.tw)
+2. fix a bug in readstyle that forgets to resolve the @@@BG_URL@@@ symbo
+   in $style{"css"} and causes access non-exist background in openwebmailerror
+   (reported by ªôÃÙ·½, cty@mail2.scvs.tpc.edu.tw)
+3. fix a bug in parse_uuencode_body that may miss some uuencoded blocks in a message
+   (reported by Andrew Cheung, kycheung@netfront.net)
+
+
+12/04/2001 (version 1.52)
+----------
+1. Emir Litric has done a lot of great powerd-by-openwebmail icons
+2. set $ENV{BASH_ENV} to "" at startup
+3. cool3d iconset for slovak
+   (thanks to lubos klokner, lubos@klokner.sk)
+
+
+11/28/2001
+----------
+1. use openwebmail.org as the portal site for this project
+   (thanks to Thomas Chung, tchung@pasadena.oao.com)
+2. lithuanian language and templates translation update
+   (thanks to Alvydas Sinkunas, alv@vkontrole.lt)
+
+
+11/27/2001
+----------
+1. use casesensitive compariton to match ignored user in vacation.pl
+   (thanks to erkac@users.sourceforge.net)
+
+
+11/23/2001
+----------
+1. change the way to get default user realname in auth_unix and auth_pam.
+   We use only 1st part of userinfo in passwd file instead of the whole 
+   userinfo as the realname.
+
+
+11/22/2001
+----------
+1. split the original openwebmail.pl into 2 scripts for better performance.
+   openwebmail.pl - login related routine only
+   openwebmail-main.pl - folder/message access routines
+   This also has the effect that hides the login params if the login is
+   redirected from other cgi by specifying loginname and password in url.
+2. fix a bug in adressbook import
+   (reported by Andrew Chang ±i§Ó¼Ð, andrew@ms15.url.com.tw)
+
+
+11/20/2001
+----------
+1. change the field delititer from ':' to '@@@' in ~user/mail/.from.book, 
+   ~user/mail/.address.book and ~user/mail/.pop3.book for better compatibility
+   (reported by Adams Fung, afung@startv.com)
+ps: The user .*.book file will be converted automatically when user logins. 
+    The global book file (etc/address.book, etc/filter.book) need to be 
+    chnaged manually by replacing all ':' with '@@@'
+    Or you can use the one in the openwebmail tarball.
+2. catalan language and templates translation update
+   (thanks Jordi Vidal, st@e-puntcom.com)
+
+
+11/17/2001
+----------
+1. minor fix to maildb.pl so it can find message start more precisely
+
+
+11/16/2001
+----------
+1. add option 'confirm before msg move/copy' to user preference 
+   and openwebmail.conf
+
+
+11/15/2001
+----------
+1. fix a bug that vacation.pl won't generate reply for messages whose sender
+   has same userid as the destinated username
+   (reported by Thomas Chung, tchung@pasadena.oao.com)
+2. czech language and templates translation update
+   (thanks to Michal Drapak, michal@stavlib.hiedu.cz)
+
+
+11/14/2001
+----------
+1. minor fix to do error checking on 'to:' field in replayall
+   (reported by Scott Ocken, jarlaxle@icsmail.net)
+
+
+11/13/2001
+----------
+1. fix the 'internal server error' bug that appears if .pop3.book doesn't 
+   exist and user presses 'retrieve pop3' button
+   (reported by erkac@users.sourceforge.net, lubos klokner)
+2. add option 'filter msgs with faked exe contenttype' to openwebmail.conf
+   and user preference. This is used to filter virus mails that faked 
+   content-type of executable to make the executable auto downloaded/executed 
+   on buggy browser.
+3. minor update to global filter rule to catch new viruses
+4. slovak language and templates translation update
+   (thanks to lubos klokner, lubos@klokner.sk)
+
+
+11/12/2001
+----------
+1. fix a bug in mailfilter.pl that sometimes decodes same text block part 
+   for more than once. This fix slightly speeds up the mail filtering.
+2. lithuanian language and templates translation
+   (thanks to Alvydas Sinkunas, dvm382@takas.lt)
+
+
+11/11/2001
+----------
+1. display a logout page instead of the redirection to login menu after user 
+   clicked the logout button. This saves one time of CGI execution.
+
+
 11/10/2001
 ----------
 1. add option 'symbolic_mbox' to openwebmail.conf
@@ -6,7 +149,7 @@
    will symlink ~/mbox -> ~/mail/saved-messages to make messages accessable
    either in pop3 client or openwebmail
 2. fix a javascript bug in setting background in user preference
-   (thanks to jslu@cobra.ee.ntu.edu.tw, ¿c¬ö¾Ë for his patch)
+   (thanks to ¿c¬ö¾Ë, jslu@cobra.ee.ntu.edu.tw for his patch)
 
 
 11/08/2001 (version 1.51)
@@ -45,9 +188,9 @@
 10/27/2001
 ----------
 1. minor fix for spanish templates
-   (thanks to Osvaldo Ancarola, ancarola@web724.com)
+   (thanks to Osvaldo Ancarola, oancarola@hotmail.com)
 2. correct a bug that locates background images in wrong path
-   (thanks to Osvaldo Ancarola, ancarola@web724.com)
+   (thanks to Osvaldo Ancarola, oancarola@hotmail.com)
 
 
 10/22/2001

@@ -9,7 +9,7 @@ A: There are many possible answers...
       It should be "tar -zxvBpf openwebmail-1.xx.tgz"
 
    2. Your openwebmail scripts may have wrong owner or mode.
-      The owner and mode of openwebmail.pl, openwebmail-prefs.pl, 
+      The permission of openwebmail.pl, openwebmail-main.pl, openwebmail-prefs.pl, 
       checkmail.pl, spellcheck.pl should be
       mode=4555
       owner=root
@@ -225,8 +225,8 @@ A: please check
    openwebmail-current.tgz
 
 Q: I got 'Sorry, there was a problem sending your message' error?
-A: please check if sendmail option in openwebmail.conf has pointed to correct 
-   program
+A: please check if sendmail option in openwebmail.conf has pointed to correct
+   program, it is normally /usr/sbin/sendmail or /usr/lib/sendmail.
 
 ps:If you are using postfix as an replacement for sendmail, you have to
    use its compatiable wrapper 'sendmail' instead of 'postfix'.
@@ -234,9 +234,26 @@ ps:If you are using postfix as an replacement for sendmail, you have to
    thus it could be read by all users. 
    (thanks to Rex_Chen, rex@ispro.com.tw)
 
+Q: The message sent from me has warning message like:
+   'X-Authentication-Warning: myhostname : apache set sender to ....'
+A: This is due to the effective user that openwebmail runs as is not trusted 
+   by sendmail. This effective user is actually inherited from httpd.
+   In above example, the effective user is 'apache', so add 
+   'Tapache' to sendmail to the 'Trusted users' session in your sendmail.cf
+
+ps: If you has followed the guide in readme.txt and added 'Tnobody' to 
+    sendmail.cf, please remove it if your httpd runs as other user
+
 Q: The autoreply function doesn't work?
-A: Please be sure that vacationinit and vacationpipe in openwebmail.conf 
-   have pointed to the path where the vacation program is.
+A: An incoming message won't be replied by vacation.pl if
+   1. the destinated username has entries defined in /etc/alias which causes
+      the mail routed to another account without calling vacation.pl
+   2. the destinated username doesn't not appear as an recipient in To: or Cc:
+   3. this message is sent by the destinated username himself
+
+   If your message is not in the above 2 cases, please be sure that 
+   vacationinit and vacationpipe in openwebmail.conf have pointed to the 
+   path where the vacation program is.
 
    If the path is correct, you can do debug with the -d option
 
@@ -289,7 +306,7 @@ A: Openwebmail puts user uploaded attachments in cgi-bin/openwebmail/etc/session
    mkdir sessions
    chmod 770 sessions
    chown 0 sessions
-   chgrp mail sessios
+   chgrp mail sessions
 
    cd yourweb_cgi-bin/openwebmail/etc/
    rm -Rf sessions
@@ -343,8 +360,8 @@ Q: Can I call openwebmail from my programs with username/password specified?
 A: You can call the openwebmail with url
    http://server/openwebmail.pl?action=login&loginname=USER&password=PASS
 
-   But this is somewhat dangerous since the loginname and password will
-   be displayed at the URL line on the user's browser.
+   But this is a little dangerous since the loginname and password will
+   be displayed at the URL line of the user's browser.
 
 Q: How can I set an alias or link to the openwebmail script so users can 
    type in a shorter url?
@@ -380,16 +397,19 @@ A: No, lots of code needs to be changed to make Open WebMail a good behavior
 
 Q: Can I use Open WebMail in a commercial web site? 
 A: Yes. Open WebMail is GPLed software (please see copyright.txt for 
-   detail of GPL). You can use or distribute it freely only if
+   detail of GPL). You can distribute/use/modify it freely only if
 
-   Any improvement of Open WebMail or any product based on Open WebMail 
-   must be released to the public in source form.
+   a. the GPL Copyright page must be kept untouched.
+   b. any improvement of Open WebMail or any product based on Open WebMail
+      must be released to the public for free if it is not for internal use.
+   c. products based on Open Webmail must be also distributed under GPL.
+
 
 ps: We would be happy if you mail us a message that your commercial web site
     is using Open WebMail. It may be put into the web page as some kind of 
     advertisements :)
    
 
-11/05/2001 
+11/22/2001 
 
 openwebmail@turtle.ee.ncku.edu.tw

@@ -22,7 +22,9 @@ $lang_charset = 'iso-8859-1';
    size        => 'Tamaño (Mayor primero)',
    size_rev    => 'Tamaño (Menor primero)',
    subject     => 'Asunto (Alfabético - Ascendente)',
-   subject_rev => 'Asunto (Alfabético - Descendente)'
+   subject_rev => 'Asunto (Alfabético - Descendente)',
+   thread      => 'Thread (Newest First)',
+   thread_rev  => 'Thread (Oldest First)'
    );
 
 %lang_text =
@@ -53,6 +55,7 @@ $lang_charset = 'iso-8859-1';
    recipient  => 'Para',
    sender     => 'Remitente',
    subject    => 'Asunto',
+   thread     => 'Thread',
    size       => 'Tamaño',
    backto     => 'Volver a',
    reply      => 'Contestar',

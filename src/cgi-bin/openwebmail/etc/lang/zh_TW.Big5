@@ -22,7 +22,9 @@ $lang_charset = 'big5';
    size        => '大小 (大優先)',
    size_rev    => '大小 (小優先)',
    subject     => '主旨 (遞增)',
-   subject_rev => '主旨 (遞減)'
+   subject_rev => '主旨 (遞減)',
+   thread      => '信件串連 (新信優先)',
+   thread_rev  => '信件串連 (舊信優先)'
    );
 
 %lang_text =
@@ -53,6 +55,7 @@ $lang_charset = 'big5';
    recipient  => '收件者',
    sender     => '寄件者',
    subject    => '主旨',
+   thread     => '信件串連',
    size       => '大小',
    backto     => '回至',
    reply      => '回信',

@@ -26,7 +26,9 @@ $lang_charset = 'iso-8859-2';
    size        => 'Veµkos» (Najväè¹ie prvé)',
    size_rev    => 'Veµkos» (Najmen¹ie prvé)',
    subject     => 'Predmet (Podµa abecedy)',
-   subject_rev => 'Predmet (Obrátene podµa abecedy)'
+   subject_rev => 'Predmet (Obrátene podµa abecedy)',
+   thread      => 'Thread (Newest First)',
+   thread_rev  => 'Thread (Oldest First)'
    );
 
 %lang_text =
@@ -57,6 +59,7 @@ $lang_charset = 'iso-8859-2';
    recipient  => 'Príjemca',
    sender     => 'Odosielateµ',
    subject    => 'Predmet',
+   thread     => 'Thread',
    size       => 'Veµkos»',
    backto     => 'Spä»',
    reply      => 'Odpoveda»',

@@ -193,7 +193,7 @@ sub displayheaders {
 
    filtermessage();
 
-   my ($totalsize, $newmessages, $r_messageids)=getinfomessageids();
+   my ($totalsize, $newmessages, $r_messageids, $r_messagedepths)=getinfomessageids();
 
    my $numheaders;
    if ($#{$r_messageids}>=0) {
@@ -537,7 +537,6 @@ sub displayheaders {
 
    $temphtml = "<a href=\"$config{'ow_cgiurl'}/openwebmail-main.pl?action=displayheaders&amp;firstmessage=".
                 ($firstmessage)."&amp;sessionid=$thissession&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;sort=";
-
    if ($sort eq "subject") {
       $temphtml .= "subject_rev\">$lang_text{'subject'} <IMG SRC=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/up.gif\" border=\"0\" alt=\"v\"></a>";
    } elsif ($sort eq "subject_rev") {
@@ -547,6 +546,18 @@ sub displayheaders {
    }
 
    $html =~ s/\@\@\@SUBJECT\@\@\@/$temphtml/g;
+
+   $temphtml = "<a href=\"$config{'ow_cgiurl'}/openwebmail-main.pl?action=displayheaders&amp;firstmessage=".
+                ($firstmessage)."&amp;sessionid=$thissession&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;sort=";
+   if ($sort eq "thread") {
+      $temphtml .= "thread_rev\">$lang_text{'thread'} <IMG SRC=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/up.gif\" border=\"0\" alt=\"v\"></a>";
+   } elsif ($sort eq "thread_rev") {
+      $temphtml .= "thread\">$lang_text{'thread'} <IMG SRC=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/down.gif\" border=\"0\" alt=\"^\"></a>";
+   } else {
+      $temphtml .= "thread\">$lang_text{'thread'}</a>";
+   }
+
+   $html =~ s/\@\@\@THREAD\@\@\@/$temphtml/g;
 
    $temphtml = "<a href=\"$config{'ow_cgiurl'}/openwebmail-main.pl?action=displayheaders&amp;firstmessage=".
                 ($firstmessage)."&amp;sessionid=$thissession&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;sort=";
@@ -561,9 +572,8 @@ sub displayheaders {
 
    $html =~ s/\@\@\@SIZE\@\@\@/$temphtml/g;
 
-
    my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
-   my ($messageid, $escapedmessageid);
+   my ($messageid, $messagedepth, $escapedmessageid);
    my ($offset, $from, $to, $date, $subject, $content_type, $status, $messagesize);
    my ($bgcolor, $message_status);
    my ($boldon, $boldoff); # Used to control whether text is bold for new mails
@@ -575,6 +585,7 @@ sub displayheaders {
    foreach my $messnum (($firstmessage - 1) .. ($lastmessage - 1)) {
 
       $messageid=${$r_messageids}[$messnum];
+      $messagedepth=${$r_messagedepths}[$messnum];
       next if (! defined($HDB{$messageid}) );
 
       $escapedmessageid = escapeURL($messageid);
@@ -590,10 +601,25 @@ sub displayheaders {
          $from = (split(/,/, $to))[0];
       }
 
-      ($from =~ s!^"?(.+?)"?\s*<(.*)>$!<a href="$config{'ow_cgiurl'}/openwebmail-main.pl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$2">$1</a>!) ||
-      ($from =~ s!<?(.*@.*)>?\s+\((.+?)\)!<a href="$config{'ow_cgiurl'}/openwebmail-main.pl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$1">$2</a>!) ||
-      ($from =~ s!<(.+)>!<a href="$config{'ow_cgiurl'}/openwebmail-main.pl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$1">$1</a>!) ||
-      ($from =~ s!(.+)!<a href="$config{'ow_cgiurl'}/openwebmail-main.pl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$1">$1</a>!);
+      my $from_name;
+      my $from_address;
+      if ($from =~ m/^"?(.+?)"?\s*<(.*)>$/) {
+         $from_name = $1;
+         $from_address = $2;
+      } elsif ($from =~ m/<?(.*@.*)>?\s+\((.+?)\)/) {
+         $from_name = $2;
+         $from_address = $1;
+      } elsif ($from =~ m/<(.+)>/) {
+         $from_name = $1;
+         $from_address = $1;
+         $from_name =~ s/\@.*$//;
+      } elsif ($from =~ m/(.+)/) {
+         $from_name = $1;
+         $from_address = $1;
+         $from_name =~ s/\@.*$//;
+      }
+      $from = qq|<a href="$config{'ow_cgiurl'}/openwebmail-main.pl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$from_address">$from_name</a>|;
+
       if ($from !~ /[^\s]/) {
          $from="&nbsp;";
       }
@@ -601,6 +627,17 @@ sub displayheaders {
       $subject = str2html($subject);
       if ($subject !~ /[^\s]/) {	# Make sure there's SOMETHING clickable 
          $subject = "N/A";
+      }
+
+      my $subject_begin = "";
+      my $subject_end = "";
+      my $fill = "";
+      for (my $i=0; $i<$messagedepth; $i++) {
+         $fill .= "&nbsp;&nbsp;&nbsp;&nbsp;";
+      }
+      if ($messagedepth) { 
+         $subject_begin = '<table cellpadding="0" cellspacing="0"><tr><td>' . $fill . "</td><td>";
+         $subject_end = "</td></tr></table>";
       }
 
       if ( $messnum % 2 ) {
@@ -634,19 +671,26 @@ sub displayheaders {
          $message_status .= "<img src=\"$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/attach.gif\" align=\"absmiddle\">";
       }
 
+      if ($status =~ m/a/i) {
+         $message_status .= "<B>A</B>";
+      }
+
       $temphtml .= qq|<tr>|.
-         qq|<td valign="middle" width="50" bgcolor=$bgcolor>$message_status&nbsp;</td>|.
-         qq|<td valign="middle" width="150" bgcolor=$bgcolor>$boldon<font size=-1>$date</font>$boldoff</td>|.
-         qq|<td valign="middle" width="150" bgcolor=$bgcolor>$boldon$from$boldoff</td>|.
-         qq|<td valign="middle" width="350" bgcolor=$bgcolor>|.
+         qq|<td valign="middle" width="6%" nowrap bgcolor=$bgcolor>$message_status&nbsp;</td>|.
+         qq|<td valign="middle" width="16%" bgcolor=$bgcolor>$boldon<font size=-1>$date</font>$boldoff</td>|.
+         qq|<td valign="middle" width="25%" bgcolor=$bgcolor>$boldon$from$boldoff</td>|.
+         qq|<td valign="middle" bgcolor=$bgcolor>|.
+         $subject_begin .
          qq|$boldon<a href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=readmessage&amp;|.
          qq|firstmessage=$firstmessage&amp;sessionid=$thissession&amp;|.
          qq|status=$status&amp;folder=$escapedfolder&amp;sort=$sort&amp;|.
          qq|keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;|.
          qq|headers=|.($prefs{"headers"} || 'simple').qq|&amp;|.
-         qq|message_id=$escapedmessageid">$subject </a>$boldoff</td>|.
-         qq|<td valign="middle" width="40" bgcolor=$bgcolor>$boldon$messagesize$boldoff</td>|.
-         qq|<td align="center" valign="middle" width="50" bgcolor=$bgcolor>|;
+         qq|message_id=$escapedmessageid">$subject </a>$boldoff|.
+         $subject_end .
+         qq|</td>|.
+         qq|<td valign="middle" width="5%" bgcolor=$bgcolor>$boldon$messagesize$boldoff</td>|.
+         qq|<td align="center" valign="middle" width="3%" bgcolor=$bgcolor>|;
 
       if ( $numheaders==1 ) {
          # make this msg selected if it is the only one
@@ -666,6 +710,7 @@ sub displayheaders {
 
    dbmclose(%HDB);
    filelock("$headerdb$config{'dbm_ext'}", LOCK_UN);
+
 
    $html =~ s/\@\@\@HEADERS\@\@\@/$temphtml/;
 
@@ -731,6 +776,7 @@ sub displayheaders {
             qq|//-->\n</script>\n|;
    }
 
+
    # fetch pop3 mail in refresh mode
    if (defined(param("refresh")) &&
        $prefs{"autopop3"}==1 && 
@@ -753,6 +799,7 @@ sub displayheaders {
    }
 
    printfooter();
+
 }
 ############### END DISPLAYHEADERS ##################
 
@@ -819,6 +866,47 @@ sub readmessage {
          $body= g2b($body);
       }
 
+      my %smilies = (":)" => "FaceHappy",
+		     ":>" => "FaceHappy",
+		     ";)" => "FaceWinking",
+		     ";>" => "FaceWinking",
+		     ";(" => "FaceSad",
+		     ";<" => "FaceSad",
+		     ":(" => "FaceSad",
+		     ":<" => "FaceSad",
+		     ">:)" => "FaceDevilish",
+		     ">;)" => "FaceDevilish",
+		     "8)" => "FaceGrinning",
+		     "8>" => "FaceGrinning",
+		     ":D" => "FaceGrinning",
+		     ";D" => "FaceGrinning",
+		     "8D" => "FaceGrinning",
+		     ":/" => "FaceIronic",
+		     ";/" => "FaceIronic",
+		     "8/" => "FaceIronic",
+		     ":\\" => "FaceIronic",
+		     ";\\" => "FaceIronic",
+		     "8\\" => "FaceIronic",
+		     ":P" => "FaceNyah",
+		     ";P" => "FaceNyah",
+		     "8P" => "FaceNyah",
+		     ":d" => "FaceTasty",
+		     ";d" => "FaceTasty",
+		     "8d" => "FaceTasty",
+		     ":o" => "FaceStartled",
+		     ";o" => "FaceStartled",
+		     "8o" => "FaceStartled",
+		     ":O" => "FaceStartled",
+		     ";O" => "FaceStartled",
+		     "8O" => "FaceStartled",
+		     ":|" => "FaceStraight",
+		     ";|" => "FaceWry",
+		     "8|" => "FaceKOed",
+		     ":X" => "FaceYukky",
+		     ";X" => "FaceYukky");
+
+      $body =~ s/(>?)([:;8])[-^]?([\(\)\>\<\|PDdoOX\\\/\*])(\s)/___SMILE_$smilies{$1.$2.$3}___$4/g if $prefs{'usesmileicon'};
+
       if ($message{contenttype} =~ m#^text/html#i) { # convert into html table
          $body = html4nobase($body); 
          $body = html4mailto($body, "$config{'ow_cgiurl'}/openwebmail-main.pl", "action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto");
@@ -831,6 +919,8 @@ sub readmessage {
          $body =~ s/\n\s*$/\n/;
          $body = text2html($body);
       }
+
+      $body =~ s/___SMILE_(\w*)___/<img border=\"0\" width=\"12\" height=\"12\" src=\"$config{'ow_htmlurl'}\/images\/smilies\/$1\.png\">/g if $prefs{'usesmileicon'};
 
       my $base_url = "$config{'ow_cgiurl'}/openwebmail-main.pl?sessionid=$thissession&amp;firstmessage=" . ($firstmessage) .
                      "&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid";
@@ -1192,7 +1282,7 @@ sub readmessage {
 
             my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
             filelock($folderfile, LOCK_EX|LOCK_NB) or exit 1;
-            update_message_status($messageid, "R", $headerdb, $folderfile);
+            update_message_status($messageid, $message{status}."R", $headerdb, $folderfile);
             filelock("$folderfile", LOCK_UN);
             exit 0;
          }
@@ -1601,6 +1691,7 @@ sub composemessage {
    my $replyto = '';
    my $subject = '';
    my $body = '';
+
    my $composetype = param("composetype");
 
    my %userfrom=get_userfrom($virtualuser, $user, $userrealname, "$folderdir/.from.book");
@@ -1698,6 +1789,7 @@ sub composemessage {
          if ( $composetype eq "reply" || $composetype eq "replyall" ) {
             $subject = $message{"subject"} || '';
             $subject = "Re: " . $subject unless ($subject =~ /^re:/i);
+
             if (defined($message{"replyto"})) {
                $to = $message{"replyto"} || '';
             } else {
@@ -1858,6 +1950,7 @@ sub composemessage {
    $temphtml .= hidden(-name=>'convert',
                        -default=>'',
                        -override=>'1');
+
    if (param("message_id")) {
       $temphtml .= hidden(-name=>'message_id',
                           -default=>param("message_id"),
@@ -2116,9 +2209,35 @@ sub sendmessage {
       my $bcc = param("bcc");
       my $replyto = param("replyto") || $prefs{"replyto"};
       my $subject = param("subject");
+      my $inreplyto = param("message_id");
+      my $references = "";
+      my $folder = param("folder");
       my $confirmreading = param("confirmreading");
       my $body = param("body");
+      my $oldstatus = "";
+
       $body =~ s/\r//g;  # strip ^M characters from message. How annoying!
+
+      if ($inreplyto) {
+         my %HDB;
+         my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
+
+         dbmopen(%HDB, $headerdb, 0600);
+         filelock("$headerdb$config{'dbm_ext'}", LOCK_EX);
+
+         if (defined($HDB{$inreplyto})) {
+            my @oldheaders=split(/@@@/, $HDB{$inreplyto});
+            $oldstatus = $oldheaders[$_STATUS];
+            if ($oldheaders[$_REFERENCES]) { 
+               $references = $oldheaders[$_REFERENCES];
+            } else { 
+               $references = $inreplyto;
+            }
+         }
+
+         filelock("$headerdb$config{'dbm_ext'}", LOCK_UN);
+         dbmclose(%HDB);
+      }
 
       my $attachment = param("attachment");
       if ( $attachment ) {
@@ -2192,8 +2311,8 @@ sub sendmessage {
                filelock("$savedb$config{'dbm_ext'}", LOCK_EX);
                dbmopen(%HDB, $savedb, undef);
                if (defined($HDB{$messageid})) {
-                  my $oldsubject=(split(/@@@/, $HDB{$messageid}))[$_SUBJECT];
-                  if ($oldsubject eq $subject) {
+                  my @oldheaders=split(/@@@/, $HDB{$messageid});
+                  if ($oldheaders[$_SUBJECT] eq $subject) {
                      $removeoldone=1;
                   }
                }
@@ -2235,6 +2354,8 @@ sub sendmessage {
       $tempcontent .= "Bcc: $bcc\n" if ($bcc);
       $tempcontent .= "Reply-To: ".$replyto."\n" if ($replyto);
       $tempcontent .= "Subject: $subject\n";
+      $tempcontent .= "In-Reply-To: " . $inreplyto . "\n" if ($inreplyto);
+      $tempcontent .= "References: " . $references . "\n" if ($references);
       $tempcontent .= "X-Mailer: Open WebMail $config{'version'} $config{'releasedate'}\n";
       $tempcontent .= "X-OriginatingIP: ".get_clientip()." ($user)\n";
       if ($confirmreading) {
@@ -2334,6 +2455,22 @@ sub sendmessage {
       }
       
       deleteattachments();
+
+      # fork a child to do the status update (mark message as answered) and headerdb update
+      if (($inreplyto) && ($oldstatus !~ /a/i)) {
+         $|=1; 				# flush all output
+         $SIG{CHLD} = sub { wait };	# handle zombie
+         if ( fork() == 0 ) {		# child
+            close(STDOUT);
+            close(STDIN);
+
+            my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
+            filelock($folderfile, LOCK_EX|LOCK_NB) or exit 1;
+            update_message_status($inreplyto, $oldstatus."A", $headerdb, $folderfile);
+            filelock("$folderfile", LOCK_UN);
+            exit 0;
+         }
+      }
       
       if ($do_savefolder) {
          my @attr;
@@ -2635,10 +2772,11 @@ sub getinfomessageids {
 
    if ( $keyword ne '' ) {
       my $folderhandle=FileHandle->new();
-      my ($totalsize, $new, $r_haskeyword, $r_messageids);
+      my ($totalsize, $new, $r_haskeyword, $r_messageids, $r_messagedepths);
       my @messageids=();
+      my @messagedepths=();
       
-      ($totalsize, $new, $r_messageids)=get_info_messageids_sorted($headerdb, $sort, "$headerdb.cache", $prefs{'hideinternal'});
+      ($totalsize, $new, $r_messageids, $r_messagedepths)=get_info_messageids_sorted($headerdb, $sort, "$headerdb.cache", $prefs{'hideinternal'});
 
       filelock($folderfile, LOCK_SH|LOCK_NB) or
          openwebmailerror("$lang_err{'couldnt_locksh'} $folderfile!");
@@ -2647,12 +2785,20 @@ sub getinfomessageids {
       close($folderhandle);
       filelock($folderfile, LOCK_UN);
 
-      foreach (@{$r_messageids}) {
-         push (@messageids, $_) if ( ${$r_haskeyword}{$_} == 1 ); 
+      for (my $i=0; $i<@{$r_messageids}; $i++) {
+	my $id = ${$r_messageids}[$i];
+	if ( ${$r_haskeyword}{$id} == 1 ) {
+	  push (@messageids, $id);
+	  push (@messagedepths, ${$r_messagedepths}[$i]);
+        }
       }
-      return($totalsize, $new, \@messageids);
+#      foreach (@{$r_messageids}) {
+#         push (@messageids, $_) if ( ${$r_haskeyword}{$_} == 1 ); 
+#      }
+      return($totalsize, $new, \@messageids, \@messagedepths);
 
    } else { # return: $totalsize, $new, $r_messageids for whole folder
+
       return(get_info_messageids_sorted($headerdb, $sort, "$headerdb.cache", $prefs{'hideinternal'}))
 
    }
@@ -2668,7 +2814,8 @@ sub getmessage {
 
    my ($currentheader, $currentbody, $r_currentattachments, $currentfrom, $currentdate,
        $currentsubject, $currentid, $currenttype, $currentto, $currentcc,
-       $currentreplyto, $currentencoding, $currentstatus, $currentreceived);
+       $currentreplyto, $currentencoding, $currentstatus, $currentreceived,
+       $currentinreplyto, $currentreferences);
 
    filelock($folderfile, LOCK_SH|LOCK_NB) or
       openwebmailerror("$lang_err{'couldnt_locksh'} $folderfile!");
@@ -2692,6 +2839,7 @@ sub getmessage {
    $currentfrom = $currentdate = $currentsubject = $currenttype = 
    $currentto = $currentcc = $currentreplyto = $currentencoding = 'N/A';
    $currentstatus = '';
+   $currentinreplyto = $currentreferences = '';
 
    my $lastline = 'NONE';
    my @smtprelays=();
@@ -2706,7 +2854,9 @@ sub getmessage {
          elsif ($lastline eq 'ENCODING') { $currentencoding .= $_ }
          elsif ($lastline eq 'TO')   { $currentto .= $_ }
          elsif ($lastline eq 'CC')   { $currentcc .= $_ }
-         elsif ($lastline eq 'RECEIVED')   { $currentreceived .= $_ }
+         elsif ($lastline eq 'INREPLYTO') { $currentinreplyto .= $_ }
+         elsif ($lastline eq 'REFERENCES') { $currentreferences .= $_ }
+         elsif ($lastline eq 'RECEIVED') { $currentreceived .= $_ }
       } elsif (/^from:\s+(.+)$/ig) {
          $currentfrom = $1;
          $lastline = 'FROM';
@@ -2737,6 +2887,12 @@ sub getmessage {
       } elsif (/^status:\s+(.+)$/ig) {
          $currentstatus = $1;
          $lastline = 'NONE';
+      } elsif (/^references:\s+(.+)$/ig) {
+         $currentreferences = $1;
+         $lastline = 'REFERENCES';
+      } elsif (/^in-reply-to:\s+(.+)$/ig) {
+         $currentinreplyto = $1;
+         $lastline = 'INREPLYTO';
       } elsif (/^Received:(.+)$/ig) {
          my $tmp=$1;
          if ($currentreceived=~ /.*\sby\s([^\s]+)\s.*/) {
@@ -2794,6 +2950,8 @@ search_smtprelay:
    $message{messageid} = $currentid;
    $message{contenttype} = $currenttype;
    $message{encoding} = $currentencoding;
+   $message{inreplyto} = $currentinreplyto;
+   $message{references} = $currentreferences;
 
    # Determine message's number and previous and next message IDs.
    my ($totalsize, $newmessages, $r_messageids)=getinfomessageids();

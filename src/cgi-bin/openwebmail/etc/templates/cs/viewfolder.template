@@ -24,17 +24,17 @@
 </td></tr></table>
 <br>
 <table border="0" align="center" width="95%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
-<tr><td valign="middle" width="50" bgcolor=@@@COLUMNHEADER@@@>
+<tr><td valign="middle" width="6%" bgcolor=@@@COLUMNHEADER@@@>
 <CENTER>@@@STATUS@@@</CENTER></td>
-<td valign="middle" width="150" bgcolor=@@@COLUMNHEADER@@@>
+<td valign="middle" width="16%" bgcolor=@@@COLUMNHEADER@@@>
 <B>@@@DATE@@@</B></td>
-<td valign="middle" width="150" bgcolor=@@@COLUMNHEADER@@@>
+<td valign="middle" width="25%" bgcolor=@@@COLUMNHEADER@@@>
 <B>@@@SENDER@@@</B></td>
-<td valign="middle" width="350" bgcolor=@@@COLUMNHEADER@@@>
-<B>@@@SUBJECT@@@</B></td>
-<td valign="middle" width="50" bgcolor=@@@COLUMNHEADER@@@>
+<td valign="middle" bgcolor=@@@COLUMNHEADER@@@>
+<table width="100%" cellpadding="0" cellspacing="0"><tr><td><B>@@@SUBJECT@@@</B></td><td align="right"><B>@@@THREAD@@@<B>&nbsp;</td></tr></table></td>
+<td valign="middle" width="5%" bgcolor=@@@COLUMNHEADER@@@>
 <B>@@@SIZE@@@</B></td>
-<td align ="center" valign="middle" width="50" bgcolor=@@@COLUMNHEADER@@@>
+<td align ="center" valign="middle" width="3%" bgcolor=@@@COLUMNHEADER@@@>
 <input name="allbox" type="checkbox" value="1"
    onClick="CheckAll();"></td>
 </tr>

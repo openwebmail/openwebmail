@@ -22,7 +22,9 @@ $lang_charset = 'koi8-r';
    size        => 'по размеру ',
    size_rev    => 'по размеру (Обратный порядок)',
    subject     => 'по теме ',
-   subject_rev => 'по теме (Обратный порядок)'
+   subject_rev => 'по теме (Обратный порядок)',
+   thread      => 'Thread (Newest First)',
+   thread_rev  => 'Thread (Oldest First)'
    );
 
 %lang_text =
@@ -53,6 +55,7 @@ $lang_charset = 'koi8-r';
    recipient  => 'Отправлено',
    sender     => 'Автор',
    subject    => 'Тема',
+   thread     => 'Thread',
    size       => 'Размер',
    backto     => 'Вернуться в',
    reply      => 'Ответить',

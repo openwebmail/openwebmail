@@ -22,7 +22,9 @@ $lang_charset = 'GB2312';
    size        => '大小（大优先）',
    size_rev    => '大小（小优先）',
    subject     => '主题（递增）',
-   subject_rev => '主题（递减）'
+   subject_rev => '主题（递减）',
+   thread      => '信件串连 (新信优先)',
+   thread_rev  => '信件串连 (旧信优先)'
    );
 
 %lang_text =
@@ -53,6 +55,7 @@ $lang_charset = 'GB2312';
    recipient  => '收件人',
    sender     => '发件人',
    subject    => '主题',
+   thread     => '信件串连',
    size       => '大小',
    backto     => '返回到',
    reply      => '回复',

@@ -46,13 +46,24 @@ INSTALL
 First, please connect to http://turtle.ee.ncku.edu.tw/openwebmail/ 
 to get the latest released openwebmail and required packages.
 
+
 If you are using FreeBSD and install apache with pkg_add,
 then just
 
 1. cd /usr/local/www
    tar -zxvBpf openwebmail-X.XX.tgz
+
 2. modify /usr/local/www/cgi-bin/openwebmail/etc/openwebmail.conf for your need.
-3. add 'Tnobody' to the 'Trusted users' session in your sendmail.cf
+
+3. add 'Thttpd_user' to the 'Trusted users' session in your sendmail.cf,
+   where 'httpd_user' is the effective user your httpd runs as.
+   it is 'nobody' or 'apache', please check it in the httpd configuration file
+
+4. If your FreeBSD is 4.2 or later
+   a. chmod 4555 /usr/bin/suidperl
+   b. change #!/usr/bin/perl to #!/usr/bin/suidperl in
+      openwebmail.pl, openwebmail-main.pl, openwebmail-prefs.pl
+      spellcheck.pl and checkmail.pl
 
 
 If you are using RedHat 6.2/CLE 0.9p1(or most Linux) with apache
@@ -62,8 +73,10 @@ If you are using RedHat 6.2/CLE 0.9p1(or most Linux) with apache
    tar -zxvBpf openwebmail-X.XX.tgz
    mv data/openwebmail html/
    rmdir data
+
 2. cd /home/httpd/cgi-bin/openwebmail
-   modify openwebmail.pl, openwebmail-prefs.pl, spellcheck.pl and checkmail.pl
+   modify openwebmail.pl, openwebmail-main.pl, openwebmail-prefs.pl, 
+          spellcheck.pl and checkmail.pl
    a. change all '/usr/local/www/cgi-bin/openwebmail'
               to '/home/httpd/cgi-bin/openwebmail'
       or make a symbolic link with 'ln -s /home/httpd /usr/local/www'
@@ -82,7 +95,10 @@ If you are using RedHat 6.2/CLE 0.9p1(or most Linux) with apache
    d. change default_signature for your need
    e. other changes you want
 
-4. add 'Tnobody' to the 'Trusted users' session in your /etc/sendmail.cf
+4. add 'Thttpd_user' to the 'Trusted users' session in your sendmail.cf,
+   where 'httpd_user' is the effective user your httpd runs as.
+   it is 'nobody' or 'apache', please check it in the httpd configuration file
+
 5. add
    /var/log/openwebmail.log {
        postrotate
@@ -95,9 +111,10 @@ ps: if you are using RedHat 7.1, please use /var/www instead of /home/httpd
     It is highly recommended to read the doc/RedHat-README.txt(contributed by 
     elitric@yahoo.com) if you are installing Open WebMail on RedHat Linux.
 
-ps: Thomas Chung (tchung@oaolinux.jpl.nasa.gov) maintains a tarbal packed 
+ps: Thomas Chung (tchung@pasadena.oao.com) maintains a tarbal packed 
     with an install script special for RedHat 7.x. It is available at
-    http://oaolinux.jpl.nasa.gov/openwebmail/
+    http://openwebmail.org/openwebmail/download/
+
 
 If you are using other UNIX with apache, that is okay
 
@@ -108,6 +125,7 @@ eg: /usr/local/apache/share, then
    tar -zxvBpf openwebmail-X.XX.tgz
    mv data/openwebmail htdocs/
    rmdir data
+
 2. modify /usr/local/apache/share/cgi-bin/openwebmail/etc/openwebmail.conf 
    a. set mailspooldir to where your system mail spool is
    b. set ow_htmldir to '/usr/local/apache/share/htdocs'
@@ -117,7 +135,8 @@ eg: /usr/local/apache/share, then
    e. other changes you want
 
 3. cd /usr/local/apache/share/cgi-bin/openwebmail
-   modify openwebmail.pl, openwebmail-prefs.pl, spellcheck.pl and checkmail.pl
+   modify openwebmail.pl, openwebmail-main.pl, openwebmail-prefs.pl, 
+          spellcheck.pl and checkmail.pl
    a. change the #!/usr/bin/perl to the location where your perl is.
    b. change all '/usr/local/www/cgi-bin/openwebmail'
               to '/usr/local/apache/share/cgi-bin/openwebmail'
@@ -125,12 +144,15 @@ eg: /usr/local/apache/share, then
    a. set variable $unix_passwdfile to '/etc/shadow'
    b  set variable $unix_passwdmkdb to 'none'
 
-4. add 'Tnobody' to the 'Trusted users' session in your sendmail.cf
+4. add 'Thttpd_user' to the 'Trusted users' session in your sendmail.cf,
+   where 'httpd_user' is the effective user your httpd runs as.
+   it is 'nobody' or 'apache', please check it in the httpd configuration file
+
 
 
 USING OPENWEBMAIL WITH POSTFIX
 ------------------------------
-If you are using postfix instead of sendmail as the MTA(mail transfer agent):
+If you are using postfix instead of sendmail as the MTA(mail transport agent):
 
 1. chmod 644 /etc/postfix/main.cf
 2. Use postfix 'sendmail' wrapper for the option sendmail in the 
@@ -223,30 +245,41 @@ ps: Doing 'make test' is recommended when making the Authen::PAM,
     if you encounter error in 'make test', the PAM on your system
     will probablely not work.
 
-3. add the following 2 lines to your /etc/pam.conf 
+3. add the following 3 lines to your /etc/pam.conf 
 
-(on FreeBSD)
-openwebmail auth    required    pam_unix.so         try_first_pass
-openwebmail account required    pam_unix.so         try_first_pass
+(on Solaris)
+openwebmail   auth	required	/usr/lib/security/pam_unix.so.1
+openwebmail   account	required	/usr/lib/security/pam_unix.so.1
+openwebmail   password	required	/usr/lib/security/pam_unix.so.1
 
 (on Linux)
-openwebmail auth    required    /lib/security/pam_unix.so
-openwebmail account required    /lib/security/pam_unix.so
+openwebmail   auth	required	/lib/security/pam_unix.so
+openwebmail   account	required	/lib/security/pam_unix.so
+openwebmail   password	required	/lib/security/pam_unix.so
 
 (on Linux without /etc/pam.conf, by protech@protech.net.tw)
 If you don't have /etc/pam.conf but the directory /etc/pam.d/,
 please create a file /etc/pam.d/openwebmail with the following content
 
-auth	   required	/lib/security/pam_unix.so
+auth       required	/lib/security/pam_unix.so
 account    required	/lib/security/pam_unix.so
+password   required	/lib/security/pam_unix.so
+
+(on FreeBSD)
+openwebmail   auth	required	/usr/lib/pam_unix.so
+openwebmail   account	required	/usr/lib/pam_unix.so
+openwebmail   password	required	/usr/lib/pam_unix.so    
+
+ps: PAM support on some release of FreeBSD seems broken (ex:4.1)
 
 4. change auth_module to 'auth_pam.pl' in the openwebmail.conf
 
 5. check auth_pam.pl for further modification required for your system.
 
-ps: It is recommended to reference the PAM webpage for Neomail by 
-    Peter Sinoros Szabo, sini@fazekas.hu
-    http://www.fazekas.hu/~sini/neomail_pam/
+ps: For more detail about PAM configuration, it is recommended to read 
+    "The Linux-PAM System Administrators' Guide"
+    http://www.kernel.org/pub/linux/libs/pam/Linux-PAM-html/pam.html
+    by Andrew G. Morgan, morgan@kernel.org
 
 
 ADD NEW AUTHENTICATION TO OPENWEBMAIL
@@ -472,16 +505,17 @@ TEST
 1. chdir to openwebmail cgi dir (eg: /usr/local/www/cgi-bin/openwebmail)
    and check the owner, group and permission of the following files
 
-   ~/openwebmail.pl		- owner=root, group=mail, mode=4755
-   ~/openwebmail-prefs.pl	- owner=root, group=mail, mode=4755
-   ~/spellcheck.pl		- owner=root, group=mail, mode=4755
-   ~/checkmail.pl		- owner=root, group=mail, mode=4755
-   ~/vacation.pl		- owner=root, group=mail, mode=0755
-   ~/etc            	 	- owner=root, group=mail, mode=755
-   ~/etc/sessions   	 	- owner=root, group=mail, mode=770
-   ~/etc/users      	 	- owner=root, group=mail, mode=770
+   ~/openwebmail.pl             - owner=root, group=mail, mode=4755
+   ~/openwebmail-main.pl        - owner=root, group=mail, mode=4755
+   ~/openwebmail-prefs.pl       - owner=root, group=mail, mode=4755
+   ~/spellcheck.pl              - owner=root, group=mail, mode=4755
+   ~/checkmail.pl               - owner=root, group=mail, mode=4755
+   ~/vacation.pl                - owner=root, group=mail, mode=0755
+   ~/etc                        - owner=root, group=mail, mode=755
+   ~/etc/sessions               - owner=root, group=mail, mode=770
+   ~/etc/users                  - owner=root, group=mail, mode=770
 
-   /var/log/openwebmail.log	- owner=root, group=mail, mode=660
+   /var/log/openwebmail.log     - owner=root, group=mail, mode=660
 
 2. test your webmail with http://your_server/cgi-bin/openwebmail/openwebmail.pl
 
@@ -506,7 +540,7 @@ Features that people may also be interested
 3. log analyzer
 
 
-11/06/2001
+12/16/2001
 
 openwebmail@turtle.ee.ncku.edu.tw
 

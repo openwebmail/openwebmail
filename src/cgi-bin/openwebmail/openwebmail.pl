@@ -135,10 +135,12 @@ sub login {
       sleep 10;	# delayed response
       openwebmailerror("$lang_err{'user_not_exist'}");
    }
-   if ($user eq 'root' || $uuid==0) {
-      sleep 10;	# delayed response
-      writelog("login error - root login attempt");
-      openwebmailerror ("$lang_err{'norootlogin'}");
+   if (! $config{'enable_rootlogin'}) {
+      if ($user eq 'root' || $uuid==0) {
+         sleep 10;	# delayed response
+         writelog("login error - root login attempt");
+         openwebmailerror ("$lang_err{'norootlogin'}");
+      }
    }
 
    my $errorcode=check_userpassword($user, $password);
@@ -225,6 +227,8 @@ sub login {
       } else {
          $action='firsttimeuser';
       }
+
+      my @headers=();
       push(@headers, -pragma=>'no-cache');
       $cookie = cookie( -name    => "$user-sessionid",
                         -value   => "$setcookie",
@@ -427,6 +431,28 @@ sub releaseupgrade {
          }
       }
    }
+
+   if ( $user_releasedate lt "20011216" ) {
+      my @cachefiles;
+      my $file;
+      opendir (FOLDERDIR, "$folderdir") or
+         openwebmailerror("$lang_err{'couldnt_open'} $folderdir");
+      while (defined($file = readdir(FOLDERDIR))) {
+         if ($file=~/^\..*.cache$/) {
+            $file="$folderdir/$file";
+            ($file=~/^(.*)$/) && ($file=$1);
+            push(@cachefiles, $file);
+         }
+      }
+      closedir (FOLDERDIR);
+      if ($#cachefiles>=0) {
+         writehistory("release upgrade - $folderdir/*.cache by 20011216");
+         writelog("release upgrade - $folderdir/*.cache by 20011216");
+         # remove old .cache since its format is not compatible with new one
+         unlink(@cachefiles); 
+      }
+   }
+
 }
 
 #################### END RELEASEUPGRADE ####################

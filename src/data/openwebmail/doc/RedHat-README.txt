@@ -342,6 +342,12 @@ g2b_converter           %ow_cgidir%/hc -mode g2b -t %ow_cgidir%/hc.tab
 b2g_converter           %ow_cgidir%/hc -mode b2g -t %ow_cgidir%/hc.tab
 
 #
+# enable_rootlogin : Set this to 'yes' if you want to allow root login 
+# Warning! The option is dangerous, use it at your own risk!
+#
+enable_rootlogin	no
+
+#
 # enable_changepwd : Set this to 'yes' if you want to let user set their
 # password through the web mail interface
 #
@@ -452,6 +458,7 @@ attlimit                50
 # supported language including: (defined in openwebmail-shared.pl)
 #
 # ca           => Catalan
+# cs           => Czech
 # da           => Danish
 # de           => German                # Deutsch
 # en           => English
@@ -460,6 +467,8 @@ attlimit                50
 # fr           => French
 # hu           => Hungarian
 # it           => Italian
+# kr           => Korean
+# lt           => Lithuanian
 # nl           => Dutch # Nederlands
 # no_NY        => Norwegian Nynorsk
 # pl           => Polish
@@ -556,6 +565,12 @@ default_disablejs               no
 # notified with sound 'You have mail' when new mail is available
 #
 default_newmailsound            yes
+
+#
+# default_usesmileicon : if this option is set to yes, all smile symbol :) in a 
+# message will be repleaced with icons.
+#
+default_usesmileicon		yes
 
 #
 # default_autopop3 : if this option is set to yes, openwebmail will fetch

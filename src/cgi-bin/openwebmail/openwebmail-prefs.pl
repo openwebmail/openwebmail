@@ -362,7 +362,7 @@ sub editprefs {
    $temphtml = popup_menu(-name=>'sort',
                           -"values"=>['date','date_rev','sender','sender_rev',
                                       'size','size_rev','subject','subject_rev',
-                                      'status'],
+                                      'status','thread','thread_rev'],
                           -default=>$prefs{"sort"},
                           -labels=>\%lang_sortlabels,
                           -override=>'1');
@@ -464,6 +464,13 @@ sub editprefs {
                   -label=>'');
 
    $html =~ s/\@\@\@NEWMAILSOUND\@\@\@/$temphtml/g;
+
+   $temphtml = checkbox(-name=>'usesmileicon',
+                  -value=>'1',
+                  -checked=>$prefs{'usesmileicon'},
+                  -label=>'');
+
+   $html =~ s/\@\@\@USESMILEICON\@\@\@/$temphtml/g;
 
    if ($config{'enable_pop3'}) {
       $temphtml = checkbox(-name=>'autopop3',
@@ -784,7 +791,7 @@ sub saveprefs {
                        editcolumns editrows dictionary
                        filter_repeatlimit filter_fakedsmtp 
                        filter_fakedexecontenttype 
-                       disablejs hideinternal newmailsound autopop3 
+                       disablejs hideinternal newmailsound usesmileicon autopop3 
                        trashreserveddays)) {
       my $value = param("$key");
       if ($key eq 'bgurl') {
@@ -829,6 +836,7 @@ sub saveprefs {
                 $key eq 'disablejs' ||
                 $key eq 'hideinternal' ||
                 $key eq 'newmailsound' ||
+                $key eq 'usesmileicon' ||
                 $key eq 'autopop3' ) {
          $value=0 if ($value eq '');
          print CONFIG "$key=$value\n";

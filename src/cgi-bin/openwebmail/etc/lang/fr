@@ -22,7 +22,9 @@ $lang_charset = 'iso-8859-1';
    size        => 'Taille (le plus gros d\'abord)',
    size_rev    => 'Taille (le plus petit d\'abord)',
    subject     => 'Sujet (Ordre alphabétique)',
-   subject_rev => 'Sujet (Ordre alphabétique inverse)'
+   subject_rev => 'Sujet (Ordre alphabétique inverse)',
+   thread      => 'Thread (Newest First)',
+   thread_rev  => 'Thread (Oldest First)'
    );
 
 %lang_text =
@@ -53,6 +55,7 @@ $lang_charset = 'iso-8859-1';
    recipient  => 'Destinataire',
    sender     => 'Expéditeur',
    subject    => 'Sujet',
+   thread     => 'Thread',
    size       => 'Taille',
    backto     => 'Retour à',
    reply      => 'Répondre',

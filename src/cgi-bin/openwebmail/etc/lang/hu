@@ -22,7 +22,9 @@ $lang_charset = 'iso-8859-2';
    size        => 'Méret (Elõre a nagyok)',
    size_rev    => 'Méret (Elõre a kicsik)',
    subject     => 'Tárgy (ABC szerint)',
-   subject_rev => 'Tárgy (Fordított ABC szerint)'
+   subject_rev => 'Tárgy (Fordított ABC szerint)',
+   thread      => 'Thread (Newest First)',
+   thread_rev  => 'Thread (Oldest First)'
    );
 
 %lang_text =
@@ -53,6 +55,7 @@ $lang_charset = 'iso-8859-2';
    recipient  => 'Címzett',
    sender     => 'Küldõ',
    subject    => 'Tárgy',
+   thread     => 'Thread',
    size       => 'Méret',
    backto     => 'Vissza:',
    reply      => 'Válasz',
