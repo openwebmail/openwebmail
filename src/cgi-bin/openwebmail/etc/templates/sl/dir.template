@@ -75,7 +75,7 @@
 
 @@@UPLOADSTART@@@
 <table border="0" width="100%" cellpadding="1" cellspacing="1"><tr>
-<td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Presnemavanje na strežnik</B> ( filename or URL )</td>
+<td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Presnemavanje na strežnik</B> ( ime datoteke ali URL )</td>
 </tr><tr>
 <td nowrap bgcolor=@@@MENUBAR@@@>@@@UPLOADFILEFIELD@@@</td>
 </tr></table>
@@ -184,10 +184,10 @@
    function chmodinput() {
       var oldperm=document.dirform.permission.value;
       var newperm;
-      newperm=prompt('Please enter the permission for selected items ( '+selectedstr()+' )\n\n'+
-                     'Permission examples:\n'+
-                     '0755 for shared directories , 0644 for shared files\n'+
-                     '0700 for private directories , 0600 for private files', oldperm);
+      newperm=prompt('Prosim vnesite dovoljenja za izbrane datoteke ( '+selectedstr()+' )\n\n'+
+                     'Primeri dovoljenj:\n'+
+                     '0755 za mape v skupni rabi , 0644 za datoteke v skupni rabi\n'+
+                     '0700 za zasebne mape , 0600 za zasebne datoteke', oldperm);
       if ( newperm==oldperm ||
            newperm==null ) {
          return false;

@@ -60,14 +60,15 @@ use vars qw($quotausage $quotalimit);
 
 # extern vars
 use vars qw(%lang_folders %lang_sizes %lang_wdbutton %lang_text %lang_err);	# defined in lang/xy
-use vars qw(%charset_convlist);			# defined in iconv.pl
-use vars qw($_STATUS);				# defined in maildb.pl
+use vars qw(%charset_convlist);							# defined in iconv.pl
+use vars qw($_STATUS $_SIZE $_HEADERCHKSUM $_HEADERSIZE);			# defined in maildb.pl
 
 # local globals
 use vars qw($folder);
 use vars qw($sort $page $longpage);
 use vars qw($searchtype $keyword);
 use vars qw($escapedfolder $escapedkeyword);
+use vars qw($urlparm);
 
 use vars qw(%smilies);
 %smilies = (
@@ -131,12 +132,19 @@ $keyword = param('keyword') || '';
 $escapedfolder = ow::tool::escapeURL($folder);
 $escapedkeyword = ow::tool::escapeURL($keyword);
 
+$urlparm="sessionid=$thissession&amp;folder=$escapedfolder&amp;".
+         "page=$page&amp;longpage=$longpage&amp;".
+         "sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype";
+
 my $action = param('action')||'';
 writelog("debug - request read begin, action=$action, folder=$folder - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
 if ($action eq "readmessage") {
    readmessage(param('message_id')||'');
 } elsif ($action eq "rebuildmessage") {
    rebuildmessage(param('partialid')||'');
+} elsif ($action eq "deleteattachment") {
+   del_attachment_from_message($user, $folder, param('message_id')||'', param('nodeid')) if (param('nodeid') ne '');
+   readmessage(param('message_id')||'');
 } else {
    openwebmailerror(__FILE__, __LINE__, "Action $lang_err{'has_illegal_chars'}");
 }
@@ -340,10 +348,6 @@ sub readmessage {
    }
    $html =~ s/\@\@\@NUMBEROFMESSAGES\@\@\@/$temphtml/;
 
-
-   my $urlparm="sessionid=$thissession&amp;folder=$escapedfolder&amp;".
-               "page=$page&amp;longpage=$longpage&amp;".
-               "sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype";
    my $main_url = "$config{'ow_cgiurl'}/openwebmail-main.pl?$urlparm";
    my $read_url = "$config{'ow_cgiurl'}/openwebmail-read.pl?$urlparm";
    my $send_url = "$config{'ow_cgiurl'}/openwebmail-send.pl?$urlparm";
@@ -849,12 +853,13 @@ sub readmessage {
       $temphtml="" if ( $message{'content-type'} =~ /^multipart/i );
    }
 
-   my $onlyone_att=0;
-   $onlyone_att=1 if ($#{$message{attachment}}==0);
+   my $onlyone_att=0; $onlyone_att=1 if ($#{$message{attachment}}==0);
+   my $has_nontext_att=0;
 
    foreach my $attnumber (0 .. $#{$message{attachment}}) {
       next unless (defined %{$message{attachment}[$attnumber]});
-
+      $has_nontext_att++ if (defined ${$message{attachment}[$attnumber]}{'content-type'} &&
+                             ${$message{attachment}[$attnumber]}{'content-type'}!~/^text/i);
       my $attcharset=$convfrom;
       # if convfrom eq msgcharset, we try to get attcharset from attheader since it may differ from msgheader
       # but if convfrom ne msgcharset, which means user has spsecified other charset in interpreting the msg
@@ -961,6 +966,16 @@ sub readmessage {
       }
    }
    $html =~ s/\@\@\@BODY\@\@\@/$temphtml/;
+
+   if ($has_nontext_att>1) {
+      $temphtml = qq|<a onclick="return confirm('$lang_text{'delete_nontextatt'} ?');" |.
+                  qq|href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=deleteattachment&amp;|.
+                  qq|message_id=$escapedmessageid&amp;nodeid=NONTEXT&amp;$urlparm&amp;headers=$headers&amp;attmode=$attmode&amp;convfrom=$convfrom">$lang_text{'delete_nontextatt'}</a>|.
+                  qq|&nbsp;\n|;
+   } else {
+      $temphtml='';
+   }
+   $html =~ s/\@\@\@DELNONTEXTATT\@\@\@/$temphtml/;
 
    if ($is_htmlmsg) {
       $temphtml=qq|<a href="$read_url_with_id&amp;action=readmessage&amp;headers=$headers&amp;attmode=simple&amp;convfrom=$convfrom&amp;showhtmlastext=|;
@@ -1301,10 +1316,15 @@ sub image_att2table {
    my $nodeid=${$r_attachment}{nodeid};
    my $disposition=substr(${$r_attachment}{'content-disposition'},0,1);
    my $escapedfilename = ow::tool::escapeURL($filename);
+   my $jsfilename=$filename; $jsfilename=~ s/'/\\'/g;	# escaep ' with \'
 
    my $temphtml .= qq|<table border="0" align="center" cellpadding="2">|.
                    qq|<tr><td bgcolor=$style{"attachment_dark"} align="center">|.
                    qq|$lang_text{'attachment'} $attnumber: |.ow::htmltext::str2html($filename).qq| &nbsp;($attlen)&nbsp;&nbsp;|;
+   $temphtml .= qq|<a onclick="return confirm('$lang_text{delete} $jsfilename?');" |.
+                qq|href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=deleteattachment&amp;|.
+                qq|message_id=$escapedmessageid&amp;nodeid=$nodeid&amp;$urlparm$extraparm">$lang_text{'delete'}</a>|.
+                qq|&nbsp;\n|;
    if ($config{'enable_webdisk'} && !$config{'webdisk_readonly'}) {
       $temphtml .= qq|<a href=#here title="$lang_text{'saveatt_towd'}" onClick="window.open('$config{'ow_cgiurl'}/openwebmail-webdisk.pl?action=sel_saveattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder&amp;attachment_nodeid=$nodeid$extraparm&amp;attname=$escapedfilename&amp;attnamecharset=$readcharset|.
                    qq|', '_blank','width=500,height=330,scrollbars=yes,resizable=yes,location=no');">$lang_text{'webdisk'}</a>|.
@@ -1346,6 +1366,7 @@ sub misc_att2table {
    ($filename, $description)=iconv($attcharset, $readcharset, $filename, $description);
 
    my $escapedfilename = ow::tool::escapeURL($filename);
+   my $jsfilename=$filename; $jsfilename=~ s/'/\\'/g;	# escaep ' with \'
    my $attlen=lenstr(${$r_attachment}{'content-length'},1);
    my $nodeid=${$r_attachment}{nodeid};
    my $disposition=substr(${$r_attachment}{'content-disposition'},0,1);
@@ -1354,9 +1375,13 @@ sub misc_att2table {
    my $temphtml .= qq|<table border="0" width="40%" align="center" cellpadding="2">|.
                    qq|<tr><td nowrap colspan="2" bgcolor=$style{"attachment_dark"} align="center">|.
                    qq|$lang_text{'attachment'} $attnumber: |.ow::htmltext::str2html($filename). qq|&nbsp;($attlen)&nbsp;&nbsp;\n|;
+   $temphtml .= qq|<a onclick="return confirm('$lang_text{delete} $jsfilename?');" |.
+                qq|href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=deleteattachment&amp;|.
+                qq|message_id=$escapedmessageid&amp;nodeid=$nodeid&amp;$urlparm$extraparm">$lang_text{'delete'}</a>|.
+                qq|&nbsp;\n|;
    if ($filename=~/\.(?:doc|dot)$/ ) {
       $temphtml .= qq|<a href="$attlink&amp;wordpreview=1" target="_blank">$lang_wdbutton{'preview'}</a>|.
-                   qq|&nbsp;\n|;
+                   qq|\n|;
    }
    if ($config{'enable_webdisk'} && !$config{'webdisk_readonly'}) {
       $temphtml .= qq|<a href=#here title="$lang_text{'saveatt_towd'}" onClick="window.open('$config{'ow_cgiurl'}/openwebmail-webdisk.pl?action=sel_saveattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder&amp;attachment_nodeid=$nodeid$extraparm&amp;attname=$escapedfilename&amp;attnamecharset=$readcharset|.
@@ -1474,3 +1499,75 @@ sub rebuildmessage {
    }
 }
 ########## END REBUILDMESSGAE ####################################
+
+########## DEL_ATTACHMENT_FROM_MESSAGE ###########################
+sub del_attachment_from_message {
+   my ($user, $folder, $messageid, $nodeid)=@_;
+   my ($folderfile, $folderdb)=get_folderpath_folderdb($user, $folder);
+   my @attr=get_message_attributes($messageid, $folderdb);
+
+   my ($block, $msgsize, $err, $errmsg, %message);
+   ($msgsize, $errmsg)=lockget_message_block($messageid, $folderfile, $folderdb, \$block);
+   return ($msgsize, $errmsg) if ($msgsize<=0);
+   ($message{header}, $message{body}, $message{attachment})
+		=ow::mailparse::parse_rfc822block(\$block, "0", "all");
+   return 0 if (!defined @{$message{attachment}});
+
+   my @datas;
+   my $boundary = "----=OPENWEBMAIL_ATT_" . rand();
+   my $contenttype_line=0;
+   foreach (split(/\n/, $message{header})) {
+      if (/^Content\-Type:/i) {
+         $contenttype_line=1;
+         $datas[0].= qq|Content-Type: multipart/mixed;\n|.
+                     qq|\tboundary="$boundary"\n|;
+      } else {
+         next if (/^\s/ && $contenttype_line);
+         $contenttype_line=0;
+         $datas[0].= "$_\n";
+      }
+   }
+   $attr[$_HEADERCHKSUM]=ow::tool::calc_checksum(\$datas[0]);
+   $attr[$_HEADERSIZE]=length($datas[0]);
+
+   push(@datas, "\n");
+   push(@datas, $message{body});
+
+   my @att=@{$message{attachment}};
+   my $has_namedatt=0;
+   my $delatt=0;
+   foreach my $i (0 .. $#att) {
+      if ($nodeid eq 'NONTEXT') {
+         if (${$att[$i]}{'content-type'}!~/^text/i) { $delatt++; next }
+      } else {
+         if (${$att[$i]}{nodeid} eq $nodeid) { $delatt++; next }
+      }
+
+      push(@datas, "\n--$boundary\n");
+      push(@datas, ${$att[$i]}{header});
+      push(@datas, "\n");
+      push(@datas, ${${$att[$i]}{r_content}});
+
+      $has_namedatt++ if (${$att[$i]}{filename}!~/^Unknown\./);
+   }
+   push(@datas, "\n--$boundary--\n");
+   return 0 if ($delatt==0);
+
+   $block=join('', @datas);
+   $attr[$_SIZE]=length($block);
+   $attr[$_STATUS]=~s/T// if (!$has_namedatt);
+
+   ow::filelock::lock($folderfile, LOCK_EX) or return(-2, "$folderfile write lock error");
+   ($err, $errmsg)=append_message_to_folder($messageid, \@attr, \$block, $folderfile, $folderdb);
+   if ($err==0) {
+      my $zapped=folder_zapmessages($folderfile, $folderdb);
+      if ($zapped<0) {
+         my $m="mailfilter - $folderfile zap error $zapped"; writelog($m); writehistory($m);
+      }
+   }
+   ow::filelock::lock($folderfile, LOCK_UN);
+
+   return ($err, $errmsg) if ($err<0);
+   return 0;
+}
+########## END DEL_ATTACHMENT_FROM_MESSAGE #######################

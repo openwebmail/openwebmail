@@ -807,54 +807,22 @@ sub domain {
 ########## APPEND_FILTEREDMSG_TO_FOLDER ##########################
 sub append_filteredmsg_to_folder {
    my ($folderfile, $folderdb, $messageid, $r_attr, $r_currmessage, $user, $destination, $has_globallock)=@_;
-   my %FDB2;
-   my ($dstfile, $dstdb)=get_folderpath_folderdb($user, $destination);
-   my $ioerr=0;
-   my @attr=@{$r_attr};
 
    if ($$r_currmessage eq "") {
       my ($lockget_err, $lockget_errmsg)=lockget_message_block($messageid, $folderfile, $folderdb, $r_currmessage, $has_globallock);
       return(-1, $lockget_errmsg) if ($lockget_err<0);
    }
+
+   my ($dstfile, $dstdb)=get_folderpath_folderdb($user, $destination);
    if (!-f $dstfile) {
-      open (DEST, ">$dstfile") or return(-2, "$dstfile write open error");
+      open (DEST, ">$dstfile") or return(-1, "$dstfile write open error");
       close (DEST);
    }
-
    ow::filelock::lock($dstfile, LOCK_EX) or return(-2, "$dstfile write lock error");
-   if (update_folderindex($dstfile, $dstdb)<0) {
-      ow::filelock::lock($dstfile, LOCK_UN);
-      writelog("db error - Couldn't update index db $dstdb");
-      writehistory("db error - Couldn't update index db $dstdb");
-      return(-2, "Couldn't update index db $dstdb");
-   }
-   ow::dbm::open(\%FDB2, $dstdb, LOCK_EX) or return(-1, "$dstdb dbm open error");
-   if (!defined $FDB2{$messageid}) {	# append only if not found in dstfile
-      if (! open(DEST, "+<$dstfile")) {
-         ow::dbm::close(\%FDB2, $dstdb);
-         return(-1, "$dstfile write open error");
-      }
-      $attr[$_OFFSET]=(stat(DEST))[7];
-      seek(DEST, $attr[$_OFFSET], 0);
-      $attr[$_SIZE]=length(${$r_currmessage});
-      print DEST ${$r_currmessage} or $ioerr++;
-      close (DEST);
-
-      if (!$ioerr) {
-         $FDB2{$messageid}=msgattr2string(@attr);
-         if (is_internal_subject($attr[$_SUBJECT])) {
-            $FDB2{'INTERNALMESSAGES'}++; $FDB2{'INTERNALSIZE'}+=$attr[$_SIZE];
-         } elsif ($attr[$_STATUS]!~/R/i) {
-            $FDB2{'NEWMESSAGES'}++;
-         }
-         $FDB2{'ALLMESSAGES'}++;
-         $FDB2{'METAINFO'}=ow::tool::metainfo($dstfile);
-         $FDB2{'LSTMTIME'}=time();
-      }
-   }
-   ow::dbm::close(\%FDB2, $dstdb);
+   my ($err, $errmsg)=append_message_to_folder($messageid, $r_attr, $r_currmessage, $dstfile, $dstdb);
    ow::filelock::lock($dstfile, LOCK_UN);
-   return(-2, "$dstfile write error") if ($ioerr);
+
+   return($err, $errmsg) if ($err<0);
    return 0;
 }
 ########## END APPEND_FILTEREDMSG_TO_FOLDER ######################

@@ -440,6 +440,7 @@ package ow::hu;
    total      => 'Összesen',
    edit       => 'Szerkeszt',
    delete     => 'Töröl',
+   delete_nontextatt => 'Delete all non-text attachment(s)',
    reserve    => 'Megõriz',
    clearadd   => 'Összes címet törli',
    importadd  => 'Címek importálása',

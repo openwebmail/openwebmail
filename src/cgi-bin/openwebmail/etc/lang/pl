@@ -445,6 +445,7 @@ package ow::pl;
    total      => 'Ca³kowity',
    edit       => 'Edytuj',
    delete     => 'Usuñ',
+   delete_nontextatt => 'Delete all non-text attachment(s)',
    reserve    => 'Zarezerwuj',
    clearadd   => 'Usuñ wszystkie adresy',
    importadd  => 'Importuj adresy',

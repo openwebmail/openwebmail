@@ -1193,15 +1193,15 @@ sub composemessage {
                       qq|<td nowrap align='right'>&nbsp; $attsize &nbsp;</td>|.
                       qq|<td nowrap>|.
                       qq|<a href="javascript:DeleteAttFile('${${$r_attfiles}[$i]}{file}')">[$lang_text{'delete'}]</a>\n|;
+         if (${${$r_attfiles}[$i]}{name}=~/\.(?:doc|dot)$/i) {
+            $temphtml .= qq|<a href="$attlink&amp;wordpreview=1" title="MS Word $lang_wdbutton{'preview'}" target="_blank">[$lang_wdbutton{'preview'}]</a>|;
+         }
          if ($config{'enable_webdisk'} && !$config{'webdisk_readonly'}) {
             $temphtml .= qq|<a href=#here title="$lang_text{'savefile_towd'}" |.
                          qq|onClick="window.open('$config{'ow_cgiurl'}/openwebmail-webdisk.pl?|.
                          qq|action=sel_saveattfile&amp;sessionid=$thissession&amp;attfile=$escapedattfile&amp;|.
                          qq|attnamecharset=${${$r_attfiles}[$i]}{namecharset}&amp;attname=$escapedattname|.
                          qq|', '_blank','width=500,height=330,scrollbars=yes,resizable=yes,location=no'); return false;">[$lang_text{'webdisk'}]</a>|;
-         }
-         if (${${$r_attfiles}[$i]}{name}=~/\.(?:doc|dot)$/i) {
-            $temphtml .= qq|<a href="$attlink&amp;wordpreview=1" title="MS Word $lang_wdbutton{'preview'}" target="_blank">[$lang_wdbutton{'preview'}]</a>|;
          }
          $temphtml .= qq|</td></tr>\n|;
 

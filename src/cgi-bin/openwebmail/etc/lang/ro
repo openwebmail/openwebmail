@@ -441,6 +441,7 @@ package ow::ro;
    total      => 'Total',
    edit       => 'Editeaza',
    delete     => 'Sterge',
+   delete_nontextatt => 'Delete all non-text attachment(s)',
    reserve    => 'Rezervare',
    clearadd   => 'Sterge toate adresele',
    importadd  => 'Importa adrese',

@@ -439,6 +439,7 @@ package ow::uk;
    total      => 'Всього',
    edit       => 'Редагувати',
    delete     => 'Видалити',
+   delete_nontextatt => 'Delete all non-text attachment(s)',
    reserve    => 'Залишати',
    clearadd   => 'Витерти ус╕ адреси',
    importadd  => '╤мпорт адресно╖ книги',

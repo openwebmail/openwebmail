@@ -439,6 +439,7 @@ package ow::ar_CP1256;
    total      => 'วแใฬใๆฺ',
    edit       => 'สอัํั',
    delete     => 'อะÝ',
+   delete_nontextatt => 'Delete all non-text attachment(s)',
    reserve    => 'อฬา',
    clearadd   => 'อะÝ ฬใํฺ วแฺไวๆํไ',
    importadd  => 'วำสํัวฯ ฺไๆวไ',

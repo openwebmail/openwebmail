@@ -440,6 +440,7 @@ package ow::sk;
    total      => 'Celkovo',
    edit       => 'Upravi»',
    delete     => 'Zmaza»',
+   delete_nontextatt => 'Delete all non-text attachment(s)',
    reserve    => 'Rezervova»',
    clearadd   => 'Zmaza» v¹etky adresy',
    importadd  => 'Import adries',

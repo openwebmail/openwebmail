@@ -115,14 +115,14 @@ Tema:
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Oblika èasa:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@HOURFORMATMENU@@@ sati(a)
+@@@HOURFORMATMENU@@@ urni
 </td></tr>
 
 @@@WEBMAILSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Pregled map</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Seznam sporoèil</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Položaj kontrolne vrstice pri pregledu map:</B>
+<B>Položaj kontrolne vrstice pri pregledu sporoèil:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CTRLPOSITIONFOLDERVIEWMENU@@@
 </td></tr>
@@ -207,12 +207,12 @@ Tema:
 @@@HEADERSMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Read with message charset:</B>
+<B>Pri branju sporoèil uporabi kodno tabelo:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@READWITHMSGCHARSET@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Uporabi pisavo fiksne širine pri branju:</B>
+<B>Pri branju uporabi pisavo fiksne širine:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USEFIXEDFONT@@@
 </td></tr>
@@ -280,7 +280,7 @@ Tema:
 @@@REPLYWITHORIGMSGMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Automatic CC:</B>
+<B>Avtomatièno pošlji kopijo (Kp):</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@AUTOCCFIELD@@@
 </td></tr>
@@ -519,9 +519,9 @@ Tema:
 @@@HIDEINTERNAL@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Categorized Folders list:</B>
+<B>Seznam kategorij map:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@CATEGORIZEDFOLDERS@@@ &nbsp;( Category-Folder Separator @@@CATEGORIZEDFOLDERS_FS@@@ )
+@@@CATEGORIZEDFOLDERS@@@ &nbsp;( Loèilni znak med kategorijami map @@@CATEGORIZEDFOLDERS_FS@@@ )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Zvok za obvešèanje o novoprispelem sporoèilu:</B>

@@ -439,6 +439,7 @@ package ow::zh_CN_GB2312;
    total      => '总计',
    edit       => '编辑',
    delete     => '删除',
+   delete_nontextatt => '移除所有非文字类型附件',
    reserve    => '保留',
    clearadd   => '清除所有地址',
    importadd  => '导入地址簿',

@@ -444,6 +444,7 @@ package ow::ja_JP_eucJP;
    total      => '合計',
    edit       => '編集',
    delete     => '削除',
+   delete_nontextatt => 'Delete all non-text attachment(s)',
    reserve    => '残す',
    clearadd   => 'すべてのアドレスを削除',
    importadd  => 'アドレスのインポート',

@@ -439,6 +439,7 @@ package ow::zh_TW_Big5_utf8;
    total      => '共計',
    edit       => '編輯',
    delete     => '刪除',
+   delete_nontextatt => '移除所有非文字類型附件',
    reserve    => '保留',
    clearadd   => '清除所有地址',
    importadd  => '匯入地址',

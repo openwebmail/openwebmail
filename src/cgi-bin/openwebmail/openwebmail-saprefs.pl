@@ -310,7 +310,7 @@ sub modtest {
       if ($test{type} ne '' && $test{pattern} ne '' && ow::tool::is_regex($test{pattern})) {
          $test{desc}=param('testdesc') if (param('testdesc') ne '');
          if ($test{type} eq 'header') {
-            $test{headerattr}=param('headerattr')||'ALL';
+            $test{headerattr}=param('testheaderattr')||'ALL';
             $test{op}=param('testop')||'=~';
          }
          $test{modifier}='';

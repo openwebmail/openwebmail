@@ -75,7 +75,7 @@
 
 @@@UPLOADSTART@@@
 <table border="0" width="100%" cellpadding="1" cellspacing="1"><tr>
-<td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Envoyer fichier</B> ( filename or URL )</td>
+<td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Envoyer fichier</B> ( nom de fichier ou URL )</td>
 </tr><tr>
 <td nowrap bgcolor=@@@MENUBAR@@@>@@@UPLOADFILEFIELD@@@</td>
 </tr></table>
@@ -132,7 +132,7 @@
             return true;
          }
       }
-      alert("There is no directory or file selected.");
+      alert("Aucun répertoire ou fichier sélectionné.");
       return false;
    }
    function selectedstr()
@@ -170,13 +170,13 @@
          alert("Please choose the file to upload first.");
          return false;
       } else {
-         document.dirform.msg.value = 'Uploading file '+document.dirform.upload.value+', please wait...';
+         document.dirform.msg.value = 'Téléchargement du fichier '+document.dirform.upload.value+', patientez...';
          return true;
       }
    }
    function opconfirm(op, conf) {
       if (conf) {
-         return(confirm('Are you sure you want to '+op+' the selected items? ( '+selectedstr()+' )'));
+         return(confirm('Etes-vous sur de vouloir '+op+' les éléments sélectionnés? ( '+selectedstr()+' )'));
       } else {
          return true;
       }
@@ -184,10 +184,10 @@
    function chmodinput() {
       var oldperm=document.dirform.permission.value;
       var newperm;
-      newperm=prompt('Please enter the permission for selected items ( '+selectedstr()+' )\n\n'+
-                     'Permission examples:\n'+
-                     '0755 for shared directories , 0644 for shared files\n'+
-                     '0700 for private directories , 0600 for private files', oldperm);
+      newperm=prompt('Veuillez donner les permissions pour les éléments sélectionnés ( '+selectedstr()+' )\n\n'+
+                     'Exemples de permissions:\n'+
+                     '0755 pour les répertoires partagés, 0644 pour les fichiers partagés\n'+
+                     '0700 pour les répertoires privés, 0600 pour les fichiers privés', oldperm);
       if ( newperm==oldperm ||
            newperm==null ) {
          return false;

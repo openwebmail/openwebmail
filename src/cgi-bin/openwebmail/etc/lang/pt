@@ -439,6 +439,7 @@ package ow::pt;
    total      => 'Total',
    edit       => 'Editar',
    delete     => 'Apagar',
+   delete_nontextatt => 'Delete all non-text attachment(s)',
    reserve    => 'Reservar',
    clearadd   => 'Apagar todos os endereços',
    importadd  => 'Importar Endereços',

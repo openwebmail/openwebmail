@@ -442,6 +442,7 @@ package ow::cs;
    total      => 'Celkovì',
    edit       => 'Upravit',
    delete     => 'Smazat',
+   delete_nontextatt => 'Delete all non-text attachment(s)',
    reserve    => 'Ponechat na serveru',
    clearadd   => 'Vymazat celı adresáø',
    importadd  => 'Pøidat do adresáøe',

@@ -439,6 +439,7 @@ package ow::no;
    total      => 'Total',
    edit       => 'Editér',
    delete     => 'Slett',
+   delete_nontextatt => 'Delete all non-text attachment(s)',
    reserve    => 'Reserve',
    clearadd   => 'Slett alle addresser',
    importadd  => 'Importér adresse',

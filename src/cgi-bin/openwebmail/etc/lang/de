@@ -441,6 +441,7 @@ package ow::de;
    total      => 'Gesamt',
    edit       => 'Bearbeiten',
    delete     => 'Löschen',
+   delete_nontextatt => 'Delete all non-text attachment(s)',
    reserve    => 'Reservieren',
    clearadd   => 'Alle Einträge löschen',
    importadd  => 'Adressbuch importieren',

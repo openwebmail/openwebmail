@@ -441,6 +441,7 @@ package ow::ko;
    total      => '총계',
    edit       => '편집',
    delete     => '삭제하기',
+   delete_nontextatt => 'Delete all non-text attachment(s)',
    reserve    => '보존하기',
    clearadd   => '모든 주소 삭제하기',
    importadd  => '주소 가져오기',

@@ -439,6 +439,7 @@ package ow::th;
    total      => 'รวม',
    edit       => 'แก้ไข',
    delete     => 'ลบ',
+   delete_nontextatt => 'Delete all non-text attachment(s)',
    reserve    => 'สำรอง',
    clearadd   => 'ลบรายชื่อทั้งหมด',
    importadd  => 'นำเข้ารายชื่อ',

@@ -439,6 +439,7 @@ package ow::he_ISO8859_8;
    total      => 'לכה-ךס',
    edit       => 'ךורע',
    delete     => 'קחמ',
+   delete_nontextatt => 'Delete all non-text attachment(s)',
    reserve    => 'ררחש',
    clearadd   => 'תובותכה לכ תא קחמ',
    importadd  => 'תובותכ אביי',

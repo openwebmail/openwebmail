@@ -875,32 +875,8 @@ sub operate_message_with_ids {
       # append msg to dst folder only if op=move/copy and msg doesn't exist in dstfile
       if ($opendst) {
          if (defined $FDB2{$messageid}) {
-            my @attr0=string2msgattr( $FDB2{$messageid} );
-            if ($attr0[$_SIZE] eq $attr[$_SIZE]) {	# skip the cp because same size
-               if ($attr0[$_STATUS] =~ s/Z//ig) {	# undelete if the one in dest is zapped
-                  $FDB2{$messageid}=msgattr2string(@attr0);
-                  $FDB2{'ZAPMESSAGES'}--; $FDB2{'ZAPSIZE'}-=$attr0[$_SIZE];
-                  if (is_internal_subject($attr0[$_SUBJECT])) {
-                     $FDB2{'INTERNALMESSAGES'}++; $FDB2{'INTERNALSIZE'}+=$attr0[$_SIZE];
-                  } elsif ($attr0[$_STATUS]!~m/R/i) {
-                     $FDB2{'NEWMESSAGES'}++;
-                  }
-               }
-            } else {
-               if ($attr0[$_STATUS] !~ m/Z/i) {		# mark old duplicated one as zap
-                  $attr0[$_STATUS].='Z';
-                  $FDB2{'ZAPMESSAGES'}++; $FDB2{'ZAPSIZE'}+=$attr0[$_SIZE];
-                  if (is_internal_subject($attr0[$_SUBJECT])) {
-                     $FDB2{'INTERNALMESSAGES'}--; $FDB2{'INTERNALSIZE'}-=$attr0[$_SIZE];
-                  } elsif ($attr0[$_STATUS]!~m/R/i) {
-                     $FDB2{'NEWMESSAGES'}--;
-                  }
-               }
-               $FDB2{"DUP$attr0[$_OFFSET]-$messageid"}=msgattr2string(@attr0);
-               delete $FDB2{$messageid};
-            }
+            _mark_duplicated_messageid(\%FDB2, $messageid, $attr[$_SIZE]);
          }
-
          if (!defined $FDB2{$messageid}) {	# cp message from $srchandle to $dsthandle
             # since @attr will be used for FDB2 temporarily and $attr[$_OFFSET] will be modified
             # we save it in $srcoffset and copy it back after write of dst folder
@@ -969,6 +945,80 @@ sub operate_message_with_ids {
    ow::dbm::close(\%FDB, $srcdb);
 
    return($counted, '');
+}
+
+sub append_message_to_folder {
+   my ($messageid, $r_attr, $r_message, $dstfile, $dstdb)=@_;
+   my @attr=@{$r_attr};
+   my %FDB;
+   my $ioerr=0;
+
+   if (update_folderindex($dstfile, $dstdb)<0) {
+      ow::filelock::lock($dstfile, LOCK_UN);
+      writelog("db error - Couldn't update index db $dstdb");
+      writehistory("db error - Couldn't update index db $dstdb");
+      return(-2, "Couldn't update index db $dstdb");
+   }
+
+   ow::dbm::open(\%FDB, $dstdb, LOCK_EX) or return(-1, "$dstdb dbm open error");
+   if (defined $FDB{$messageid}) {
+      _mark_duplicated_messageid(\%FDB, $messageid, $attr[$_SIZE]);
+   }
+   if (!defined $FDB{$messageid}) {	# append only if not found in dstfile
+      if (! open(DEST, "+<$dstfile")) {
+         ow::dbm::close(\%FDB, $dstdb);
+         return(-1, "$dstfile write open error");
+      }
+      $attr[$_OFFSET]=(stat(DEST))[7];
+      seek(DEST, $attr[$_OFFSET], 0);
+      $attr[$_SIZE]=length(${$r_message});
+      print DEST ${$r_message} or $ioerr++;
+      close (DEST);
+
+      if (!$ioerr) {
+         $FDB{$messageid}=msgattr2string(@attr);
+         if (is_internal_subject($attr[$_SUBJECT])) {
+            $FDB{'INTERNALMESSAGES'}++; $FDB{'INTERNALSIZE'}+=$attr[$_SIZE];
+         } elsif ($attr[$_STATUS]!~/R/i) {
+            $FDB{'NEWMESSAGES'}++;
+         }
+         $FDB{'ALLMESSAGES'}++;
+         $FDB{'METAINFO'}=ow::tool::metainfo($dstfile);
+         $FDB{'LSTMTIME'}=time();
+      }
+   }
+   ow::dbm::close(\%FDB, $dstdb);
+   return(-3, "$dstfile write error") if ($ioerr);
+   return 0;
+}
+
+sub _mark_duplicated_messageid {
+   my ($r_FDB, $messageid, $newmsgsize)=@_;
+   my @attr=string2msgattr( ${$r_FDB}{$messageid} );
+   if ($attr[$_SIZE] eq $newmsgsize) {	# skip because new msg is same size as existing one
+      if ($attr[$_STATUS] =~ s/Z//ig) {	# undelete if the one in dest is zapped
+         ${$r_FDB}{$messageid}=msgattr2string(@attr);
+         ${$r_FDB}{'ZAPMESSAGES'}--; ${$r_FDB}{'ZAPSIZE'}-=$attr[$_SIZE];
+         if (is_internal_subject($attr[$_SUBJECT])) {
+            ${$r_FDB}{'INTERNALMESSAGES'}++; ${$r_FDB}{'INTERNALSIZE'}+=$attr[$_SIZE];
+         } elsif ($attr[$_STATUS]!~m/R/i) {
+            ${$r_FDB}{'NEWMESSAGES'}++;
+         }
+      }
+   } else {
+      if ($attr[$_STATUS] !~ m/Z/i) {		# mark old duplicated one as zap
+         $attr[$_STATUS].='Z';
+         ${$r_FDB}{'ZAPMESSAGES'}++; ${$r_FDB}{'ZAPSIZE'}+=$attr[$_SIZE];
+         if (is_internal_subject($attr[$_SUBJECT])) {
+            ${$r_FDB}{'INTERNALMESSAGES'}--; ${$r_FDB}{'INTERNALSIZE'}-=$attr[$_SIZE];
+         } elsif ($attr[$_STATUS]!~m/R/i) {
+            ${$r_FDB}{'NEWMESSAGES'}--;
+         }
+      }
+      ${$r_FDB}{"DUP$attr[$_OFFSET]-$messageid"}=msgattr2string(@attr);
+      delete ${$r_FDB}{$messageid};
+   }
+   return;
 }
 
 sub folder_zapmessages {

@@ -1,3 +1,15 @@
+02/24/2005
+----------
+1. French language, template and htmlarea files translation minor update
+   (thanks to Dominique, dominique.fournier.AT.grenoble.cnrs.fr)
+2. fix a bug that saprefs always set headerattr to ALL when ruletype is header
+   (reported by Yang Yao-Strong, ysyang.AT.green-computing.com)
+3. Slovenian language and template files translation minor update
+   add Slovenian letters to spellcheck
+   (thanks to Uros Sajko, copatek.AT.yahoo.com)
+4. support attachment deletion in readmessage
+
+
 02/23/2005
 ----------
 1. Spanish language and template files trnslation minor update

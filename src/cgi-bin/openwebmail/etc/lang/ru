@@ -439,6 +439,7 @@ package ow::ru;
    total      => 'Итого',
    edit       => 'Редактировать',
    delete     => 'Удалить',
+   delete_nontextatt => 'Delete all non-text attachment(s)',
    reserve    => 'Резервировать',
    clearadd   => 'Удалить все адреса',
    importadd  => 'Импорт адресов',

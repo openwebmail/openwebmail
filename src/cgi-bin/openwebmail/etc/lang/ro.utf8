@@ -439,6 +439,7 @@ package ow::ro_utf8;
    total      => 'Total',
    edit       => 'Editează',
    delete     => 'Şterge',
+   delete_nontextatt => 'Delete all non-text attachment(s)',
    reserve    => 'Rezervare',
    clearadd   => 'Şterge toate adresele',
    importadd  => 'Importă adrese',

@@ -440,6 +440,7 @@ package ow::nl;
    total      => 'Totaal',
    edit       => 'Wijzigen',
    delete     => 'Verwijder',
+   delete_nontextatt => 'Delete all non-text attachment(s)',
    reserve    => 'Bewaar',
    clearadd   => 'Verwijder alle adressen',
    importadd  => 'Importeer adressen',

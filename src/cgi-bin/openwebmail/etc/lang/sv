@@ -439,6 +439,7 @@ package ow::sv;
    total      => 'Totalt',
    edit       => 'Edit',
    delete     => 'Ta bort',
+   delete_nontextatt => 'Delete all non-text attachment(s)',
    reserve    => 'Reserv',
    clearadd   => 'Ta bort alla adresser',
    importadd  => 'Importera adresser',
