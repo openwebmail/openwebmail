@@ -126,7 +126,7 @@ if ($ARGV[0] eq "--") {		# called by inetd
          $opt{'thumbnail'}=1;
 
       } elsif ($ARGV[$i] eq "--index" || $ARGV[$i] eq "-i") {
-         $opt{'iv'}='ALL'; $opt{'null'}=0; $euid_to_use=$<;
+         $opt{'iv'}='ALL'; $opt{'null'}=0;
       } elsif ($ARGV[$i] eq "-id") {
          $i++; $opt{'id'}=$ARGV[$i]; $opt{'null'}=0;
       } elsif ($ARGV[$i] eq "-iv") {
@@ -170,15 +170,18 @@ if ($opt{'init'}) {
 } elsif ($opt{'thumbnail'}) {
    $retval=makethumbnail(\@list);
 } else {
-   if ($opt{'convert_addressbooks'}) {
+   if ($opt{'convert_addressbooks'} && $>==0) {	# only allow root to convert globalbook
       load_owconf(\%config_raw, "$SCRIPT_DIR/etc/defaults/openwebmail.conf");
       if ( -f "$SCRIPT_DIR/etc/openwebmail.conf") {
          read_owconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf");
          print "D readconf $SCRIPT_DIR/etc/openwebmail.conf\n" if ($opt{'debug'});
       }
-      loadlang($config{'default_language'}); # for 'converted' word support
+
+      my %prefs = readprefs();		
+      loadlang($prefs{'language'});	# for converted filename $lang_text{abook_converted}
       print "converting GLOBAL addressbook..." if (!$opt{'quiet'});
-      $retval=convert_addressbook('global');
+
+      $retval=convert_addressbook('global', $prefs{'charset'});
       if ($retval<0) {
          print "error:$@. EXITING\n";
          openwebmail_exit($retval);
@@ -885,8 +888,9 @@ sub usertool {
          print "checknotify() return $ret\n" if (!$opt{'quiet'} && $ret!=0);
       }
       if ($opt{'convert_addressbooks'}) {
+         loadlang($prefs{'language'});	# for converted filename $lang_text{abook_converted}
          print "converting user $user addressbook..." if (!$opt{'quiet'});
-         my $ret=convert_addressbook('user');
+         my $ret=convert_addressbook('user', $prefs{'charset'});
          print "done.\n" if (!$opt{'quiet'} && $ret!=0);
       }
 

@@ -726,8 +726,9 @@ sub readprefs {
 ########## READTEMPLATE ##########################################
 use vars qw(%_templatecache);
 sub readtemplate {
-   my $templatename=$_[0]; 
-   my $lang=$prefs{'language'}||'en'; $lang='en' if ($lang eq 'en.utf8');
+   my ($templatename, $lang)=@_;
+   $lang=$prefs{'language'}||'en' if ($lang eq ''); 
+   $lang='en' if ($lang eq 'en.utf8');
 
    my $langfile="$config{'ow_templatesdir'}/$lang/$templatename";
    my $commonfile="$config{'ow_templatesdir'}/COMMON/$templatename";

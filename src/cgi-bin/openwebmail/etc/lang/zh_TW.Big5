@@ -508,7 +508,7 @@ package ow::zh_TW_Big5;
    note       => '備忘',
    abooks => '管理通訊錄',
    abook_title => '通訊錄',
-   abook_converted => 'Converted:',
+   abook_converted => 'Converted',
    abook_group_member => '成員',
    abook_group_allmembers => '所有成員',
    abook_import => '匯入通訊錄',

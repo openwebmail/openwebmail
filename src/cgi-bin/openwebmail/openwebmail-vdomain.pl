@@ -2,8 +2,8 @@
 #
 # openwebmail-vdomain.pl - virtual domain user management
 #
-# 2003/02/26 Bernd Bass, owm@adminsquare.de
-# 2003/05/09 Scott Mazur, scott@littlefish.ca
+# 2003/02/26 Bernd Bass, owm.AT.adminsquare.de
+# 2003/05/09 Scott Mazur, scott.AT.littlefish.ca
 #
 
 #

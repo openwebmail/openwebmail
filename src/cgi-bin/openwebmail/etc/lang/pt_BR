@@ -511,7 +511,7 @@ package ow::pt_BR;
    note       => 'Note',
    abooks => 'Listas de Contatos',
    abook_title => 'Lista de Contatos',
-   abook_converted => 'Convertido:',
+   abook_converted => 'Convertido',
    abook_group_member => 'Member',
    abook_group_allmembers => 'Todos do grupo',
    abook_import => 'Importar Informações de Contatos',

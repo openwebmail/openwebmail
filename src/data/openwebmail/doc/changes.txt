@@ -1,3 +1,15 @@
+11/05/2004
+----------
+1. fix a bug in addressbook that when collapse mode is off,
+   checking the checkox of any group will check all groups in currentpage
+2. fix a bug in addressbook that clicking save in groupedit form would
+   make the following addressbook listview have only a member field instead 
+   of the to, cc and bcc fields.
+3. use user prefs charset as the value for property X-OWM-CHARSET
+   in convert old addressbook
+4. improved charset support in addreditform and addrlistview
+
+
 11/04/2004
 ----------
 1. Slovenian language and template files translation

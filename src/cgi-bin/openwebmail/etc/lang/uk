@@ -508,7 +508,7 @@ package ow::uk;
    note       => 'Note',
    abooks => 'Addressbooks',
    abook_title => 'Addressbook',
-   abook_converted => 'Converted:',
+   abook_converted => 'Converted',
    abook_group_member => 'Member',
    abook_group_allmembers => 'All Members',
    abook_import => 'Import Addressbook Information',

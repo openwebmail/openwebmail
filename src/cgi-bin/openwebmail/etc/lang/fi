@@ -508,7 +508,7 @@ package ow::fi;
    note       => 'Merkintä',
    abooks => 'Osoitekirjat',
    abook_title => 'Osoitekirja',
-   abook_converted => 'Konveroitu:',
+   abook_converted => 'Konveroitu',
    abook_group_member => 'Member',
    abook_group_allmembers => 'Kaikki jäsenet',
    abook_import => 'Tuo osoitekirja',

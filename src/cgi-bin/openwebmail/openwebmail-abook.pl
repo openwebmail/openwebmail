@@ -85,7 +85,7 @@ my %supportedimportexportformat = (
                                   );
 
 # convert old proprietary addressbooks to the new vcard format
-convert_addressbook();
+convert_addressbook('user', $prefs{'charset'});
 
 # mail globals
 $folder = param('folder') || 'INBOX';
@@ -500,6 +500,14 @@ sub addrlistview {
 
    # are we coming from the compose page?
    my $listviewmode = param('listviewmode');
+   my $editgroupform=0;
+   if ($listviewmode eq 'composeselect' && param('editgroupform')) {
+      # param(editgroupform) is always set in the submit button in editgroup form
+      # which casue param(editgroupform) here be set even the listviewmode is not composeselect
+      # so we need to check both the listviewmode and editgroup parm
+      $editgroupform=1;
+   }
+
    my @fieldorder=split(/\s*[,\s]\s*/, $prefs{'abook_listviewfieldorder'});
 
    if ($listviewmode eq 'composeselect') {
@@ -561,10 +569,11 @@ sub addrlistview {
                        'categories' => 'CATEGORIES',
                       );
 
-   my %only_return = (                     # Always load these ones because:
-                       'CATEGORIES' => 1,  # Categories is always a searchable parameter
-                       'SORT-STRING' => 1, # We need to be able to do sort overrides
-                       'X-OWM-GROUP' => 1, # There is special handling for group entries, so we must always know
+   my %only_return = (                       # Always load these ones because:
+                       'CATEGORIES' => 1,    # Categories is always a searchable parameter
+                       'SORT-STRING' => 1,   # We need to be able to do sort overrides
+                       'X-OWM-CHARSET' => 1, # This charset of data in this vcard
+                       'X-OWM-GROUP' => 1,   # There is special handling for group entries, so we must always know
                      );
    $only_return{$vcardmapping{$_}}=1 for (@headings); # populate %only_return with what else we want
 
@@ -728,8 +737,8 @@ sub addrlistview {
    foreach my $key ('TO', 'CC', 'BCC') {
       foreach my $parmname (lc($key), 'checked'.lc($key)) {
          my $recipients = join(',', param(lc($parmname)));
-         # conv %uXXXX back to CJK
-         # since these parm are passed in by javascript escape() routine         
+         # these param are passed in by javascript escape() routine         
+         # CJK will be encoded as %uXXXX, we have to convert them back to prefs charset
          if (is_convertable('utf-8', $prefs{'charset'}) && 
              $recipients =~ s/%u([0-9a-fA-F]{4})/ow::tool::ucs4_to_utf8(hex($1))/ge) {
             ($recipients) = iconv('utf-8', $prefs{'charset'}, $recipients);
@@ -758,6 +767,10 @@ sub addrlistview {
    my %ischecked = ();
    foreach my $addrindex ($firstaddr..$lastaddr) {
       my $xowmuid = $sorted_addresses[$addrindex];
+      my $is_convertable=0;
+      if (exists $addresses{$xowmuid}{'X-OWM-CHARSET'}[0]{VALUE}) {
+         $is_convertable=is_convertable($addresses{$xowmuid}{'X-OWM-CHARSET'}[0]{VALUE}, $prefs{charset});
+      }
 
       # when we are in normal listview mode we add the xowmuid
       # to the check fields so that move/copy/delete applies to
@@ -793,7 +806,7 @@ sub addrlistview {
                                       );
                      } else {
                         if (!exists($addresses{$xowmuid}{'X-OWM-GROUP'}) && exists $addresses{$xowmuid}{FN}) {
-                           $email = "\"$addresses{$xowmuid}{FN}[0]{VALUE}\" <$addresses{$xowmuid}{EMAIL}[$index]{VALUE}>";
+                           $email = qq|"$addresses{$xowmuid}{FN}[0]{VALUE}" <$addresses{$xowmuid}{EMAIL}[$index]{VALUE}>|;
                         } elsif (!exists($addresses{$xowmuid}{'X-OWM-GROUP'}) && exists $addresses{$xowmuid}{N}) {
                            $email = join (" ", map { exists $addresses{$xowmuid}{N}[0]{VALUE}{$_}?
                                                      defined $addresses{$xowmuid}{N}[0]{VALUE}{$_}?$addresses{$xowmuid}{N}[0]{VALUE}{$_}:''
@@ -802,12 +815,16 @@ sub addrlistview {
                                          );
                            $email =~ s/^\s+(\S)/$1/;
                            $email =~ s/(\S)\s+$/$1/;
-                           $email = "\"$email\" <$addresses{$xowmuid}{EMAIL}[$index]{VALUE}>";
+                           $email = qq|"$email" <$addresses{$xowmuid}{EMAIL}[$index]{VALUE}>|;
                         } else {
                            $email = "$addresses{$xowmuid}{EMAIL}[$index]{VALUE}";
                         }
                      }
                   }
+                  
+                  # do iconv on the "name" part of the "name" <user@hostname>
+                  ($email)=iconv($addresses{$xowmuid}{'X-OWM-CHARSET'}[0]{VALUE}, $prefs{charset}, $email) if ($is_convertable);
+
                   foreach my $key (qw(TO CC BCC)) {
                      if (exists $addresses{$xowmuid}{'X-OWM-GROUP'} && $abookcollapse == 1) {
                         # move all or none to %ischecked
@@ -868,22 +885,20 @@ sub addrlistview {
    # remember what was checked so we can put these values into our form.
    # if we are in an editgroupform scenario the remembered addresses will be
    # '\n' delimited instead of ', ' delimited.
-   my $checkedto = join((param('editgroupform')?"\n":", "), sort { lc($a) cmp lc($b) } keys %{$waschecked{TO}});
-   my $checkedcc = join((param('editgroupform')?"\n":", "), sort { lc($a) cmp lc($b) } keys %{$waschecked{CC}});
-   my $checkedbcc = join((param('editgroupform')?"\n":", "), sort { lc($a) cmp lc($b) } keys %{$waschecked{BCC}});
+   my $checkedto = join(($editgroupform?"\n":", "), sort { lc($a) cmp lc($b) } keys %{$waschecked{TO}});
+   my $checkedcc = join(($editgroupform?"\n":", "), sort { lc($a) cmp lc($b) } keys %{$waschecked{CC}});
+   my $checkedbcc = join(($editgroupform?"\n":", "), sort { lc($a) cmp lc($b) } keys %{$waschecked{BCC}});
 
    # check if quota is overlimit
    my $limited=(($quotalimit>0 && $quotausage>$quotalimit));
 
    # setup the table specs and row color toggle
    my $tabletotalspan = '';
-   if ($listviewmode eq 'export' || param('editgroupform')) {
+   if ($listviewmode eq 'export' || $editgroupform) {
       $tabletotalspan = @headings + 2; # number, (export|to)
    } else {
       $tabletotalspan = @headings + 4; # number,to,cc,bcc
    }
-   my @bgcolor = ($style{"tablerow_dark"}, $style{"tablerow_light"});
-   my $colornum = 1;
 
    # Now we can start making the html
    $html = applystyle(readtemplate("addrlistview.template"));
@@ -1168,7 +1183,6 @@ sub addrlistview {
                qq|&nbsp;|;
    $html =~ s/\@\@\@EXPANDCOLLAPSE\@\@\@/$temphtml/g;
 
-   $colornum=($colornum+1)%2; # alternate the bgcolor
 
 
    # the quick-add toolbar
@@ -1194,7 +1208,7 @@ sub addrlistview {
 
          $temphtml = qq|<tr><td colspan="$tabletotalspan">&nbsp;</td></tr>\n|.
                      qq|<tr>\n|.
-                     qq|<td colspan="$tabletotalspan" bgcolor=$bgcolor[$colornum]>\n|.
+                     qq|<td colspan="$tabletotalspan" bgcolor=$style{"tablerow_dark"}>\n|.
                      qq|<table cellpadding="0" cellspacing="4" border="0" align="center">\n|.
                      startform(-name=>'quickAddForm',
                                -action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl").
@@ -1299,11 +1313,11 @@ sub addrlistview {
                                   checkedcc=>ow::htmltext::str2html($checkedcc),
                                   checkedbcc=>ow::htmltext::str2html($checkedbcc),
                                   listviewmode=>$listviewmode,
-                                  defined(param('editgroupform'))?('editgroupform'=>1):()
+                                  $editgroupform?('editgroupform'=>1):()
                                  ). $formparm;
 
    # the column headings
-   if ($listviewmode eq 'export' || param('editgroupform')) {
+   if ($listviewmode eq 'export' || $editgroupform) {
       push(@headings, 'to'); # only one checkbox for exporting or editgroup
    } else {
       push(@headings, qw(to cc bcc));
@@ -1314,7 +1328,7 @@ sub addrlistview {
       if (m/^(?:to|cc|bcc)$/) {
          if ($listviewmode eq 'export') {
             $temphtml .= qq|<td bgcolor=$style{'columnheader'} align="center"><a href="javascript:CheckAll(this,'contactsForm','|.$_.qq|');"><b>$lang_text{'export'}</b></a></td>\n|;
-         } elsif (param('editgroupform')) {
+         } elsif ($editgroupform) {
             $temphtml .= qq|<td bgcolor=$style{'columnheader'} align="center"><a href="javascript:CheckAll(this,'contactsForm','|.$_.qq|');"><b>$lang_text{'abook_group_member'}</b></a></td>\n|;
          } else {
             $temphtml .= qq|<td bgcolor=$style{'columnheader'} align="center"><a href="javascript:CheckAll(this,'contactsForm','|.$_.qq|');"><b>$lang_text{$_}</b></a></td>\n|;
@@ -1340,13 +1354,15 @@ sub addrlistview {
    $html =~ s/\@\@\@COLUMNHEADINGS\@\@\@/$temphtml/g;
 
 
-   $colornum=($colornum+1)%2; # alternate the bgcolor
-
 
    # write out the html of the addresses
    $temphtml = '';
    foreach my $addrindex ($firstaddr..$lastaddr) {
       my $xowmuid = $sorted_addresses[$addrindex];
+      my $is_convertable=0;
+      if (exists $addresses{$xowmuid}{'X-OWM-CHARSET'}[0]{VALUE}) {
+         $is_convertable=is_convertable($addresses{$xowmuid}{'X-OWM-CHARSET'}[0]{VALUE}, $prefs{charset});
+      }
 
       my $escapedaddrbook = ow::tool::escapeURL($addresses{$xowmuid}{'X-OWM-BOOK'}[0]{VALUE});
 
@@ -1409,10 +1425,13 @@ sub addrlistview {
                if (defined $addresses{$xowmuid}{N}[$index]) {
                   foreach my $heading (grep(!m/^(to|cc|bcc)$/, @headings)) {
                      if (exists $addresses{$xowmuid}{N}[$index]{VALUE}{$Nmap{$heading}}) {
+                        # do iconv on name prefix, first, middle, last, suffix
+                        my $s=$addresses{$xowmuid}{N}[$index]{VALUE}{$Nmap{$heading}};
+                        ($s)=iconv($addresses{$xowmuid}{'X-OWM-CHARSET'}[0]{VALUE}, $prefs{charset}, $s) if ($is_convertable);
                         if ($listviewmode eq '') {
-                           $newrow[$headingpos{$heading}] .= qq|<td $td_bgcolorstr><a href="$editurl" $hreftitle>|.ow::htmltext::str2html($addresses{$xowmuid}{N}[$index]{VALUE}{$Nmap{$heading}}).qq|</a></td>\n|;
+                           $newrow[$headingpos{$heading}] .= qq|<td $td_bgcolorstr><a href="$editurl" $hreftitle>|.ow::htmltext::str2html($s).qq|</a></td>\n|;
                         } else {
-                           $newrow[$headingpos{$heading}] .= qq|<td $td_bgcolorstr>|.ow::htmltext::str2html($addresses{$xowmuid}{N}[$index]{VALUE}{$Nmap{$heading}}).qq|</td>\n|;
+                           $newrow[$headingpos{$heading}] .= qq|<td $td_bgcolorstr>|.ow::htmltext::str2html($s).qq|</td>\n|;
                         }
                      }
                   }
@@ -1422,10 +1441,13 @@ sub addrlistview {
             # the fullname stuff
             if (exists $addresses{$xowmuid}{FN}) {
                if (defined $addresses{$xowmuid}{FN}[$index]) {
+                  # do iconv on fullname
+                  my $s=$addresses{$xowmuid}{FN}[$index]{VALUE};
+                  ($s)=iconv($addresses{$xowmuid}{'X-OWM-CHARSET'}[0]{VALUE}, $prefs{charset}, $s) if ($is_convertable);
                   if ($listviewmode eq '') {
-                     $newrow[$headingpos{'fullname'}] .= qq|<td $td_bgcolorstr><a href="$editurl" $hreftitle>|.ow::htmltext::str2html($addresses{$xowmuid}{FN}[$index]{VALUE}).qq|</a></td>\n|;
+                     $newrow[$headingpos{'fullname'}] .= qq|<td $td_bgcolorstr><a href="$editurl" $hreftitle>|.ow::htmltext::str2html($s).qq|</a></td>\n|;
                   } else {
-                     $newrow[$headingpos{'fullname'}] .= qq|<td $td_bgcolorstr>|.ow::htmltext::str2html($addresses{$xowmuid}{FN}[$index]{VALUE}).qq|</td>\n|;
+                     $newrow[$headingpos{'fullname'}] .= qq|<td $td_bgcolorstr>|.ow::htmltext::str2html($s).qq|</td>\n|;
                   }
                }
             }
@@ -1439,7 +1461,7 @@ sub addrlistview {
                   if (exists($addresses{$xowmuid}{'X-OWM-GROUP'}) && $index == 0) {
                      # if we're in editgroupform mode we want the addresses delimited by '\n',
                      # instead of the normal ', '.
-                     $allemails = join ((param('editgroupform')?"\n":", "), grep { !m/^$lang_text{'abook_group_allmembers'}$/ }
+                     $allemails = join (($editgroupform?"\n":", "), grep { !m/^$lang_text{'abook_group_allmembers'}$/ }
                                                map { $_->{'VALUE'} }
                                               sort { lc($a->{'VALUE'}) cmp lc($b->{'VALUE'}) } @{$addresses{$xowmuid}{EMAIL}}
                                        );
@@ -1455,7 +1477,7 @@ sub addrlistview {
                      }
                   } else {
                      if (!exists($addresses{$xowmuid}{'X-OWM-GROUP'}) && exists $addresses{$xowmuid}{FN}) {
-                        $email = "\"$addresses{$xowmuid}{FN}[0]{VALUE}\" <$addresses{$xowmuid}{EMAIL}[$index]{VALUE}>";
+                        $email = qq|"$addresses{$xowmuid}{FN}[0]{VALUE}" <$addresses{$xowmuid}{EMAIL}[$index]{VALUE}>|;
                      } elsif (!exists($addresses{$xowmuid}{'X-OWM-GROUP'}) && exists $addresses{$xowmuid}{N}) {
                         $email = join (" ", map { exists $addresses{$xowmuid}{N}[0]{VALUE}{$_}?
                                                   defined $addresses{$xowmuid}{N}[0]{VALUE}{$_}?$addresses{$xowmuid}{N}[0]{VALUE}{$_}:''
@@ -1464,10 +1486,12 @@ sub addrlistview {
                                       );
                         $email =~ s/^\s+(\S)/$1/;
                         $email =~ s/(\S)\s+$/$1/;
-                        $email = "\"$email\" <$addresses{$xowmuid}{EMAIL}[$index]{VALUE}>";
+                        $email = qq|"$email" <$addresses{$xowmuid}{EMAIL}[$index]{VALUE}>|;
                      } else {
                         $email = "$addresses{$xowmuid}{EMAIL}[$index]{VALUE}";
                      }
+                     # do iconv on the "name" part of the "name" <user@hostname>
+                     ($email)=iconv($addresses{$xowmuid}{'X-OWM-CHARSET'}[0]{VALUE}, $prefs{charset}, $email) if ($is_convertable);
 
                      $escapedemail = ow::tool::escapeURL($email);
                      if ($listviewmode eq '') {
@@ -1498,12 +1522,15 @@ sub addrlistview {
             # the note stuff
             if (exists $addresses{$xowmuid}{NOTE}) {
                if (defined $addresses{$xowmuid}{NOTE}[$index]) {
-                  my $shortnote = $addresses{$xowmuid}{NOTE}[$index]{VALUE};
+                  my $displaynote = $addresses{$xowmuid}{NOTE}[$index]{VALUE};
+                  ($displaynote)=iconv($addresses{$xowmuid}{'X-OWM-CHARSET'}[0]{VALUE}, $prefs{charset}, $displaynote) if ($is_convertable);
+
+                  my $shortnote = $displaynote;
                   $shortnote = substr($shortnote,0,20) . "...";
                   $shortnote =~ s/</&lt;/g;
                   $shortnote =~ s/>/&gt;/g;
                   $shortnote =~ s/\n/ /g;
-                  my $displaynote = $addresses{$xowmuid}{NOTE}[$index]{VALUE};
+
                   $displaynote =~ s/\n/<br>/g;
                   $displaynote =~ s!(https?|ftp|mms|nntp|news|gopher|telnet)://([\w\d\-\.]+?/?[^\s\(\)\<\>\x80-\xFF]*[\w/])([\b|\n| ]*)!<a href="$1://$2" target="_blank"+>$1://$2</a>$3!gs;
                   $displaynote =~ s!([\b|\n| ]+)(www\.[\w\d\-\.]+\.[\w\d\-]{2,4})([\b|\n| ]*)!$1<a href="http://$2" target="_blank">$2</a>$3!igs;
@@ -1520,10 +1547,11 @@ sub addrlistview {
                # keep track of xowmuids, not email addresses
                $email = $allemails = $xowmuid;
                $newrow[$tabletotalspan-1] = qq|<td $td_bgcolorstr align="center"><input type="checkbox" name="to" value="|.ow::htmltext::str2html($email).qq|" |.(exists $ischecked{TO}{$email}?'checked':'').qq|></td>\n|;
-            } elsif (param('editgroupform')) {	# edit group
+            } elsif ($editgroupform) {	# edit group
                my $xowmuidtrack = '';
                if (exists $addresses{$xowmuid}{'X-OWM-GROUP'}) {
-                  my $escapedxowmgroup = ow::htmltext::str2html($addresses{$xowmuid}{'X-OWM-GROUP'}[0]{'VALUE'});
+                  #my $escapedxowmgroup = ow::htmltext::str2html($addresses{$xowmuid}{'X-OWM-GROUP'}[0]{'VALUE'});
+                  my $escapedxowmgroup = ow::htmltext::str2html($xowmuid);	# xowmgroup is always 1, we use owmid instead, tung
                   if ($index == 0) { # the first line of a group
                      if ($abookcollapse == 1) {
                         $newrow[$tabletotalspan-1] = qq|<td $td_bgcolorstr align="center"><input type="checkbox" name="to" value="|.ow::htmltext::str2html("$allemails$xowmuidtrack").qq|" $disabled|.is_groupbox_checked('TO',\%ischecked,\$allemails,$xowmuidtrack).qq|></td>\n|;
@@ -1539,7 +1567,8 @@ sub addrlistview {
             } else {
                my $xowmuidtrack = ($listviewmode eq "composeselect"?'':"%@#$xowmuid"); # allows move/copy to work
                if (exists $addresses{$xowmuid}{'X-OWM-GROUP'}) {
-                  my $escapedxowmgroup = ow::htmltext::str2html($addresses{$xowmuid}{'X-OWM-GROUP'}[0]{'VALUE'});
+                  #my $escapedxowmgroup = ow::htmltext::str2html($addresses{$xowmuid}{'X-OWM-GROUP'}[0]{'VALUE'});
+                  my $escapedxowmgroup = ow::htmltext::str2html($xowmuid);	# xowmgroup is always 1, we use owmid instead, tung
                   if ($index == 0) { # the first line of a group
                      if ($abookcollapse == 1) {
                         $newrow[$tabletotalspan-3] = qq|<td $td_bgcolorstr align="center"><input type="checkbox" name="to" value="|.ow::htmltext::str2html("$allemails$xowmuidtrack").qq|" $disabled|.is_groupbox_checked('TO',\%ischecked,\$allemails,$xowmuidtrack).qq|></td>\n|;
@@ -1576,12 +1605,10 @@ sub addrlistview {
             $temphtml .= qq|</tr>\n|;
          }
       }
-
-      $colornum=($colornum+1)%2; # alternate the bgcolor
    }
 
    if ($lastaddr == -1) {
-      $temphtml .= qq|<tr><td bgcolor=$bgcolor[$colornum] colspan="$tabletotalspan" align="center"><br><b>|;
+      $temphtml .= qq|<tr><td bgcolor=$style{"tablerow_light"} colspan="$tabletotalspan" align="center"><br><b>|;
       if ($abookkeyword eq '') {
          $temphtml .= $lang_text{'abook_listview_noaddresses'};
       } else {
@@ -1598,7 +1625,7 @@ sub addrlistview {
    $temphtml = '';
    if ($listviewmode eq 'composeselect') {
       my $jsfunction = '';
-      if (param('editgroupform')) {
+      if ($editgroupform) {
          $jsfunction = 'updateEditForm(\'composeselectForm\', \'contactsForm\');';
       } else {
          $jsfunction = 'updateComposeForm(\'composeselectForm\', \'contactsForm\');';
@@ -1850,22 +1877,27 @@ sub addreditform {
    print "<pre>\n\naddreditform TARGETDEPTH: $targetdepth\nTRAVERSEDIRECTION: $traversedirection\nTARGETAGENT:\n".Dumper(\@targetagent)."\n\n</pre>" if $addrdebug;
 
    # Align $contact so it is pointing to the completevcard data we want to modify.
-   my $path_to_agent_string = $completevcard->{$xowmuid}{FN}[0]{VALUE};
    my $target = \%{$completevcard->{$xowmuid}};
    my $nextgif="right.s.gif"; $nextgif="left.s.gif" if ($ow::lang::RTL{$prefs{'language'}});
+
+   my @agentpath=($target->{FN}[0]{VALUE});
+   my @agentpath_charset=($target->{'X-OWM-CHARSET'}[0]{VALUE}||'');
+
    for(my $depth=1;$depth<=$targetdepth;$depth++) { # 0,0
    print "<pre>Digging: targetagent position ".($depth-1)." is ".$targetagent[$depth-1]."</pre>\n" if $addrdebug;
       if (exists $target->{AGENT}[$targetagent[$depth-1]]{VALUE}) {
          foreach my $agentxowmuid (keys %{$target->{AGENT}[$targetagent[$depth-1]]{VALUE}}) {
             print "<pre>The AGENTXOWMUID at this position is $agentxowmuid</pre>\n" if $addrdebug;
             $target = \%{$target->{AGENT}[$targetagent[$depth-1]]{VALUE}{$agentxowmuid}};
-            $path_to_agent_string .= "&nbsp;".iconlink($nextgif)."&nbsp;" . $target->{FN}[0]{VALUE};
+            push(@agentpath, $target->{FN}[0]{VALUE});
+            push(@agentpath_charset, $target->{'X-OWM-CHARSET'}[0]{VALUE}||'');
          }
       } else {
          # we're creating a new agent from scratch
          $target->{AGENT}[$targetagent[$depth-1]]{TYPES}{VCARD} = 'TYPE';
          $target = \%{$target->{AGENT}[$targetagent[$depth-1]]{VALUE}{''}};
-         $path_to_agent_string .= "&nbsp;".iconlink($nextgif)."&nbsp;" . $lang_text{'abook_editform_new_agent'};
+         push(@agentpath, '_NEW_');
+         push(@agentpath_charset, '');
       }
    }
    $contact->{$xowmuid} = $target;
@@ -1948,6 +1980,17 @@ sub addreditform {
 
    print "<pre>addreditform CONTACT after all modifications now looks like:\n" . Dumper(\%{$contact}) . "</pre>" if $addrdebug;
 
+   # find out composecharset
+   my $composecharset = $contact->{$xowmuid}{'X-OWM-CHARSET'}[0]{VALUE} || $prefs{'charset'};
+   # switch lang/charset from user prefs to en/composecharset temporarily
+   # so we can load proper language and template file for the current contact
+   my @tmp;
+   if ($composecharset ne $prefs{'charset'}) {	
+      @tmp=($prefs{'language'}, $prefs{'charset'});
+      ($prefs{'language'}, $prefs{'charset'})=('en', $composecharset);
+      loadlang($prefs{'language'});
+   }
+
    # convert the contact vcard data structure to html
    # this conversion happens in the order defined in %htmloutput, undef last, -1's skipped
    my %vcardhtml = ();
@@ -1962,6 +2005,7 @@ sub addreditform {
          $vcardhtml{$propertyname} = addreditform_GENERIC($propertyname, $contact->{$xowmuid}{$propertyname});
       }
    }
+
 
    # build up the template
    my ($html, $temphtml);
@@ -2025,11 +2069,19 @@ sub addreditform {
       $html =~ s/\@\@\@ABOOKNAME\@\@\@/$temphtml/;
    }
 
-   $html =~ s!\@\@\@AGENTPATH\@\@\@!<b>$path_to_agent_string</b>!;
+   my $agentpath_str;
+   for my $i (0.. $#agentpath) {
+      $agentpath_str.="&nbsp;".iconlink($nextgif)."&nbsp;" if ($agentpath_str ne'');
+      if ($agentpath[$i] eq '_NEW_') {
+         $agentpath[$i] = $lang_text{'abook_editform_new_agent'};
+      } elsif ($agentpath_charset[$i] ne '' && is_convertable($agentpath_charset[$i], $composecharset)) {
+         ($agentpath[$i])=iconv($agentpath_charset[$i], $composecharset, $agentpath[$i]) ;
+      }
+      $agentpath_str.= $agentpath[$i];
+   }
+   $html =~ s!\@\@\@AGENTPATH\@\@\@!<b>$agentpath_str</b>!;
 
    # charset conversion menu
-   my $composecharset = $contact->{$xowmuid}{'X-OWM-CHARSET'}[0]{VALUE} || $prefs{'charset'};
-   $prefs{'charset'} = $composecharset if ($composecharset ne $prefs{'charset'}); # change the page charset
    my %ctlabels=( $composecharset => "$composecharset *" );
    my @ctlist=($composecharset);
    my %allsets;
@@ -2148,6 +2200,11 @@ sub addreditform {
    }
 
    httpprint([], [htmlheader(), $html, htmlfooter(2)]);
+
+   # switch lang/charset back to user prefs
+   if ($#tmp>=1) {
+      ($prefs{'language'}, $prefs{'charset'})=@tmp;
+   }
 }
 ########## END ADDREDITFORM ######################################
 

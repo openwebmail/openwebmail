@@ -70,13 +70,15 @@ sub convert_addressbook {
    # vCard format. This may break some third party scripts that rely
    # on the format being in the openwebmail proprietary format.
    print "I am in convert_addressbook subroutine!<br><br>\n\n" if $debug;
-   my $convertbook = $_[0] || 'user';
+
+   my ($convertbook, $charset) = @_;
+   $convertbook='user' if ($convertbook eq '');
    my ($oldadrbookfile, $newadrbookfile, $adrbookfilebackup) = ();
 
    if ($convertbook eq 'user') {
       my $webaddrdir = dotpath('webaddr');
       $oldadrbookfile = dotpath('address.book');
-      $newadrbookfile = "$webaddrdir/$lang_text{'abook_converted'}";
+      $newadrbookfile = "$webaddrdir/".$lang_text{'abook_converted'}||'Converted';
       $newadrbookfile =~ s/[:@#$%^&*()!?|\\\[\]\/<>,`'+=\s]+$//; # no naughty filename
       $adrbookfilebackup = "$webaddrdir/.address.book.old";
    } elsif ($convertbook eq 'global') {
@@ -87,13 +89,13 @@ sub convert_addressbook {
       }
    }
 
-   my $status = _convert_addressbook($oldadrbookfile, $newadrbookfile, $adrbookfilebackup);
+   my $status = _convert_addressbook($oldadrbookfile, $newadrbookfile, $adrbookfilebackup, $charset);
    return $status;
 }
 
 
 sub _convert_addressbook {
-   my ($old, $new, $backup) = @_;
+   my ($old, $new, $backup, $charset) = @_;
 
    if (!defined $backup || $backup eq $old || $backup eq $new) {
       croak("Backup addressbook file must be specified!\n");
@@ -159,8 +161,9 @@ sub _convert_addressbook {
             }
 
             push(@entries, "NOTE:$note\r\n") if ($note ne '');
-            push(@entries, qq|REV:$rev\r\n|.
-                           qq|X-OWM-UID:$x_owm_uid\r\n|.
+            push(@entries, qq|REV:$rev\r\n|);
+            push(@entries, qq|X-OWM-CHARSET:$charset\r\n|) if ($charset ne '');
+            push(@entries, qq|X-OWM-UID:$x_owm_uid\r\n|.
                            qq|END:VCARD\r\n\r\n|
                 );
          }

@@ -508,7 +508,7 @@ package ow::sl;
    note       => 'Opomba',
    abooks => 'Addressbooks',
    abook_title => 'Adresar',
-   abook_converted => 'Converted:',
+   abook_converted => 'Converted',
    abook_group_member => 'Member',
    abook_group_allmembers => 'All Members',
    abook_import => 'Import Addressbook Information',
