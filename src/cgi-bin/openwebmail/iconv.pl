@@ -37,6 +37,7 @@ use vars qw(%charset_convlist %charset_localname %localname_cache);
    'windows-1252'  => [ 'WINDOWS-1252' ],
    'windows-1253'  => [ 'WINDOWS-1253' ],
    'windows-1254'  => [ 'WINDOWS-1254' ],
+   'windows-1255'  => [ 'WINDOWS-1255' ],
    'windows-1256'  => [ 'WINDOWS-1256' ],
    'windows-1257'  => [ 'WINDOWS-1257' ],
    );
@@ -57,6 +58,7 @@ use vars qw(%charset_convlist %charset_localname %localname_cache);
    'iso-8859-2'    => [ 'utf-8', 'windows-1250' ],
    'iso-8859-5'    => [ 'utf-8', 'winodws-1251', 'koi8-r' ],
    'iso-8859-7'    => [ 'utf-8', 'winodws-1253' ],
+   'iso-8859-8'    => [ 'utf-8', 'winodws-1255' ],
    'iso-8859-9'    => [ 'utf-8', 'windows-1254' ],
    'iso-8859-13'   => [ 'utf-8', 'windows-1257' ],
    'koi8-r'        => [ 'utf-8', 'windows-1251', 'iso-8859-5' ],
@@ -68,6 +70,7 @@ use vars qw(%charset_convlist %charset_localname %localname_cache);
    'windows-1252'  => [ 'utf-8', 'iso-8859-1' ],
    'windows-1253'  => [ 'utf-8', 'iso-8859-7' ],
    'windows-1254'  => [ 'utf-8', 'iso-8859-9' ],
+   'windows-1255'  => [ 'utf-8', 'iso-8859-8' ],
    'windows-1256'  => [ 'utf-8' ],
    'windows-1257'  => [ 'utf-8', 'iso-8859-13' ],
    'utf-8'         => [ 'big5', 'euc-jp', 'euc-kr', 'gb2312', 
@@ -77,8 +80,8 @@ use vars qw(%charset_convlist %charset_localname %localname_cache);
 			'koi8-r', 'koi8-u', 'ksc5601', 'ks_c_5601-1987', 
 			'shift_jis', 'tis-620', 
 			'windows-1250', 'windows-1251', 'windows-1252', 
-			'windows-1253', 'windows-1254', 'windows-1256', 
-			'windows-1257' ]
+			'windows-1253', 'windows-1254', 'windows-1255', 
+			'windows-1256', 'windows-1257' ]
    );
 
 sub is_convertable {

@@ -37,7 +37,7 @@ sub retrpop3mail {
    }
 
    ($dummy, $dummy, $pop3passwd, $pop3lastid, $pop3del, $enable)=
-			split(/\@\@\@/, $accounts{"$pop3host:$pop3user"});
+			split(/\@\@\@/, $accounts{"$pop3host\@\@\@$pop3user"});
 
    # untaint for file creation
    ($spoolfile =~ /^(.+)$/) && ($spoolfile = $1);

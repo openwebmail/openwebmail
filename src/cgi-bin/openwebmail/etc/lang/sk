@@ -49,9 +49,9 @@
 
 %lang_positionlabels =
    (
-   before => 'Before mail edit area',
-   after => 'After mail edit area',
-   both  => 'Before and after mail edit area'
+   before => 'Pred oblas»ou úpravy e-mailu',
+   after => 'Za oblas»ou úpravy e-mailu',
+   both  => 'Pred aj za oblas»ou úpravy e-mailu'
    );
 
 %lang_timelabels =
@@ -86,7 +86,7 @@
    monthview => 'Mesaèný prehµad',
    weekview  => 'Tý¾denný prehµad',
    dayview   => 'Denný prehµad',
-   listview   => 'Listview'
+   listview   => 'Zobrazenie zoznamu'
    );
 
 %lang_month =
@@ -141,15 +141,15 @@
    (
    login      => 'Prihlási»',
    clear      => 'Zmaza»',
-   point      => 'Bod(ov)',
-   pixel      => 'Pixel(ov)',
+   point      => 'Bodov',
+   pixel      => 'Pixelov',
    changepwd  => 'Zmeni» heslo',
    viewhistory=> 'Prezrie» históriu',
    of         => 'z',
    messages   => 'správ',
    unread     => 'nepreèítaných',
    nomessages => '®iadne správy',
-   inmessages => 'Incoming msgs',
+   inmessages => 'Prichádzajúce správy',
    composenew => 'Napísa» novú správu',
    refresh    => 'Obnovi»',
    userprefs  => 'U¾ívateµské nastavenia',
@@ -158,7 +158,7 @@
    emptytrash => 'Vysypa» kô¹',
    totrash    => 'Presunú» do ko¹a',
    forever    => 'Nav¾dy',
-   delatlogout=> 'Delete at Logout',
+   delatlogout=> 'Zmaza» pri odhlásení',
    userdef    => 'Vlastné',
    logout     => 'Odhlási»',
    page       => 'Stránka',
@@ -196,8 +196,8 @@
    encoding   => 'Kódovanie',
    description=> 'Description',
    download   => 'Ulo¾i» do súboru',
-   charset    => 'Charset',
-   samecharset=> 'The same as composing charset',
+   charset    => 'Znaková sada',
+   samecharset=> 'Rovnaká ako pre písanie správy',
    thisispartialmsg => 'Toto je èiastková správa.',
    msgrebuild => 'Správa bola prestavaná',
    editdraft  => 'Upravi» koncept',
@@ -240,7 +240,7 @@
    quota_hit  => 'Dosiahnutý limit (quota)',
    usage      => 'Vyu¾itie',
    tzmap      => 'Svetová mapa èasových zón',
-   testsound  => 'Test sound',
+   testsound  => 'Otestova» zvuk',
    editfroms  => 'Upravi» osobné e-mail adresy',
    pop3book   => 'POP3 nastavenia',
    retr_pop3s => 'Prija» POP3 po¹tu',
@@ -275,10 +275,10 @@
    checkagain => 'Skontrolova» znovu',
    finishchecking => 'Ukonèi» kontrolu',
    manuallyfix=> 'Ruène upravi»',
-   editstat   => 'Edit Stationery',
-   savestat   => 'Save Stationery',
-   clearstat  => 'Clear All Stationery',
-   selectstat => '-- Select Stationery for Reply --',
+   editstat   => 'Upravi» komentár',
+   savestat   => 'Ulo¾i» komentár',
+   clearstat  => 'Zmaza» v¹etky komentáre',
+   selectstat => '-- Vybra» komentár ako odpoveï --',
    calendar   => 'Kalendár',
    am         => 'doobeda',
    pm         => 'poobede',
@@ -307,7 +307,7 @@
    couldnt_lock      => 'Nedá sa uzamknú»',
    couldnt_seek      => 'Nedá sa presunú» na zaèiatok',
    couldnt_close     => 'Nedá sa zavrie»',
-   couldnt_updatedb  => 'Couldn\'t update index db ',
+   couldnt_updatedb  => 'Nedá sa aktualizova» index databázy ',
    disallowed_pop3   => 'Zakázaný POP3 server',
    disallowed_client => 'Nemáte povolenie pripája» sa z tohto poèítaèa',
    disallowed_receiverdomain => 'Nemáte povolenie odosiela» po¹tu na túto adresu',
@@ -326,7 +326,7 @@
    abook_toobig      => 'Prepáète, toto by presiahlo veµkostný limit pre Vá¹ adresár. Prosím pokraèujte.',
    cant_create_dir   => 'Nadá sa vytvori» Vá¹ pou¾ívateµský adresár!',
    folder_hitquota   => 'Prepáète, dosiahli ste Vá¹ limit (quotu) a u¾ ¾iadna z Va¹ích správ nemô¾e by» ulo¾ená do ¾iadneho katalógu. Nebudete môc» presunú» správu do iného katalógu okrem KO©A, kde mô¾e by» zmazaná. Vrá»te sa a zma¾te niektoré správy alebo vysypte KÔ© a skúste znovu.',
-   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
+   folder_cutdone    => 'Varovanie! Nakoµko ste dosiahli diskovú kvótu (@@@FOLDERQUOTA@@@), staré správy vo Va¹ich katalógoch boli automaticky zmazané',
    att_overlimit     => 'Prepáète, Va¹a príloha presiahla veµkostný limit, ktorý je',
    inv_msg_op        => 'Neplatná operácia pre správu',
    inv_sessid        => 'Va¹a po¾iadavka neobsahuje korektné ID sedenia -- prístup zamietnutý!',
@@ -339,7 +339,7 @@
    auth_syserr       => 'systémová chyba pri overovaní',
    param_fmterr      => 'chybný formát parametra',
    pwd_incorrect     => 'nesprávne heslo',
-   pwd_tooshort      => 'Password too short (minimum length @@@PASSWDMINLEN@@@)',
+   pwd_tooshort      => 'Heslo je príli¹ krátke (minimálna då¾ka @@@PASSWDMINLEN@@@)',
    pwd_toosimple     => 'Password too simple (both alphabet and digit are required)',
    network_server_error => 'chyba sie»ového servera',
    sendmail_error    => 'Prepáète, nastal problém pri posielaní Va¹ej správy. Kliknite prosím vo Va¹om prehliadaèi na tlaèidlo Spä», skontrolujte Va¹u správu a skúste to znovu.',

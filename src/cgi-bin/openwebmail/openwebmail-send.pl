@@ -232,7 +232,7 @@ sub composemessage {
       ($deleteattfile =~ /^(.+)$/) && ($deleteattfile = $1);   # untaint ...
       # only allow to delete attfiles belongs the $thissession
       if ($deleteattfile=~/^$thissession/) {
-         unlink ("$config{'ow_etcdir'}/sessions/$deleteattfile");
+         unlink ("$config{'ow_sessionsdir'}/$deleteattfile");
       }
       ($savedattsize, $r_attlist) = getattlistinfo();
 
@@ -269,7 +269,7 @@ sub composemessage {
          }
 
          my $attserial = time();
-         open (ATTFILE, ">$config{'ow_etcdir'}/sessions/$thissession-att$attserial");
+         open (ATTFILE, ">$config{'ow_sessionsdir'}/$thissession-att$attserial");
          print ATTFILE qq|Content-Type: $content_type;\n|,
                        qq|Content-Disposition: attachment; filename="|.encode_mimewords($attname, ('Charset'=>$charset)).qq|"\n|,
                        qq|Content-Transfer-Encoding: base64\n\n|;
@@ -528,8 +528,8 @@ sub composemessage {
                $attserial++;
                if (${$message{attachment}[$attnumber]}{header} ne "" &&
                    defined(${${$message{attachment}[$attnumber]}{r_content}}) ) {
-                  open (ATTFILE, ">$config{'ow_etcdir'}/sessions/$thissession-att$attserial") or
-                     openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/sessions/$thissession-att$attserial!");
+                  open (ATTFILE, ">$config{'ow_sessionsdir'}/$thissession-att$attserial") or
+                     openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}/$thissession-att$attserial!");
                   print ATTFILE ${$message{attachment}[$attnumber]}{header}, "\n\n";
                   print ATTFILE ${${$message{attachment}[$attnumber]}{r_content}};
                   close ATTFILE;
@@ -613,8 +613,8 @@ sub composemessage {
       open($folderhandle, "$folderfile");
       my $attserial=time();
       ($attserial =~ /^(.+)$/) && ($attserial = $1);   # untaint ...
-      open ($atthandle, ">$config{'ow_etcdir'}/sessions/$thissession-att$attserial") or
-         openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/sessions/$thissession-att$attserial!");
+      open ($atthandle, ">$config{'ow_sessionsdir'}/$thissession-att$attserial") or
+         openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}/$thissession-att$attserial!");
       print $atthandle qq|Content-Type: message/rfc822;\n|,
                        qq|Content-Disposition: attachment; filename="Forward.msg"\n\n|;
 
@@ -680,7 +680,7 @@ sub composemessage {
       my @tmp=($prefs{'language'}, $prefs{'charset'});
       ($prefs{'language'}, $prefs{'charset'})=('en', $charset);
 
-      require "etc/lang/$prefs{'language'}";
+      require "$config{'ow_langdir'}/$prefs{'language'}";
       printheader();
       $printfolder = $lang_folders{$folder} || $folder || '';
       $html = readtemplate("composemessage.template");
@@ -820,7 +820,7 @@ sub composemessage {
 
       $temphtml .= "<td><table cellspacing='0' cellpadding='0'>\n";
       for (my $i=0; $i<=$#{$r_attlist}; $i++) {
-         my $attsize=int((-s "$config{'ow_etcdir'}/sessions/${${$r_attlist}[$i]}{file}")/1024);
+         my $attsize=int((-s "$config{'ow_sessionsdir'}/${${$r_attlist}[$i]}{file}")/1024);
          my $blank="";
          if (${${$r_attlist}[$i]}{name}=~/\.(txt|jpg|jpeg|gif|png|bmp)$/i) {
             $blank="target=_blank";
@@ -1105,11 +1105,11 @@ sub sendmessage {
                    qq|Content-Transfer-Encoding: base64\n|;
    }
    my @attfilelist=();
-   opendir (SESSIONSDIR, "$config{'ow_etcdir'}/sessions") or
-      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/sessions!");
+   opendir (SESSIONSDIR, "$config{'ow_sessionsdir'}") or
+      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}!");
    while (defined(my $currentfile = readdir(SESSIONSDIR))) {
       if ($currentfile =~ /^($thissession-att\d+)$/) {
-         push (@attfilelist, "$config{'ow_etcdir'}/sessions/$1");
+         push (@attfilelist, "$config{'ow_sessionsdir'}/$1");
       }
    }
    closedir (SESSIONSDIR);
@@ -1254,6 +1254,7 @@ sub sendmessage {
          }
 
          if (open (FOLDER, ">>$savefile") ) {
+            seek(FOLDER, 0, 2);	# seek end manually to cover tell() bug in perl 5.8
             $messagestart=tell(FOLDER);
          } else {
             $save_errstr="$lang_err{'couldnt_open'} $savefile!";
@@ -1551,19 +1552,19 @@ sub getattlistinfo {
    my @attlist=();
    my $totalsize = 0;
 
-   opendir (SESSIONSDIR, "$config{'ow_etcdir'}/sessions") or
-      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/sessions!");
+   opendir (SESSIONSDIR, "$config{'ow_sessionsdir'}") or
+      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}!");
 
    my $attnum=-1;
    while (defined($currentfile = readdir(SESSIONSDIR))) {
       if ($currentfile =~ /^($thissession-att\d+)$/) {
          $attnum++;
          $currentfile = $1;
-         $totalsize += ( -s "$config{'ow_etcdir'}/sessions/$currentfile" );
+         $totalsize += ( -s "$config{'ow_sessionsdir'}/$currentfile" );
 
          ${$attlist[$attnum]}{file}=$currentfile;
 
-         open (ATTFILE, "$config{'ow_etcdir'}/sessions/$currentfile");
+         open (ATTFILE, "$config{'ow_sessionsdir'}/$currentfile");
          while (defined(my $line = <ATTFILE>)) {
             if ($line =~ s/^.+name="?([^"]+)"?.*$/$1/i) {
                ${$attlist[$attnum]}{namecharset}=lc($1) if ($line =~ m{=\?([^?]*)\?[bq]\?[^?]+\?=}xi);
@@ -1590,12 +1591,12 @@ sub getattlistinfo {
 ##################### DELETEATTACHMENTS ############################
 sub deleteattachments {
    my (@delfiles, $attfile);
-   opendir (SESSIONSDIR, "$config{'ow_etcdir'}/sessions") or
-      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/sessions!");
+   opendir (SESSIONSDIR, "$config{'ow_sessionsdir'}") or
+      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}!");
    while (defined($attfile = readdir(SESSIONSDIR))) {
       if ($attfile =~ /^($thissession-att\d+)$/) {
          $attfile = $1;
-         push(@delfiles, "$config{'ow_etcdir'}/sessions/$attfile");
+         push(@delfiles, "$config{'ow_sessionsdir'}/$attfile");
       }
    }
    closedir (SESSIONSDIR);

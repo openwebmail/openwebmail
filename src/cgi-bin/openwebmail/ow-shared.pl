@@ -58,7 +58,7 @@ use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE $_STATUS $_SIZE
 
 # the language charset for each language abbreviation
 %languagecharsets =(
-                   'ar'           => 'windows-1256',
+                   'ar'           => 'windows-1256',	# charset only, lang/template not translated
                    'bg'           => 'windows-1251',
                    'ca'           => 'iso-8859-1',
                    'cs'           => 'iso-8859-2',
@@ -69,6 +69,7 @@ use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE $_STATUS $_SIZE
                    'es'           => 'iso-8859-1',
                    'fi'           => 'iso-8859-1',
                    'fr'           => 'iso-8859-1',
+                   'hebrew'       => 'windows-1255',	# charset only, lang/template not translated
                    'hu'           => 'iso-8859-2',
                    'id'           => 'iso-8859-1',
                    'it'           => 'iso-8859-1',
@@ -141,10 +142,10 @@ sub openwebmail_init {
 
    my $siteconf;
    if ($loginname=~/\@(.+)$/) {
-       $siteconf="$config{'ow_etcdir'}/sites.conf/$1";
+       $siteconf="$config{'ow_sitesconfdir'}/$1";
    } else {
        my $httphost=$ENV{'HTTP_HOST'}; $httphost=~s/:\d+$//;	# remove port number
-       $siteconf="$config{'ow_etcdir'}/sites.conf/$httphost";
+       $siteconf="$config{'ow_sitesconfdir'}/$httphost";
    }
    readconf(\%config, \%config_raw, "$siteconf") if ( -f "$siteconf");
 
@@ -165,7 +166,7 @@ sub openwebmail_init {
       openwebmailerror("User $loginname doesn't exist!");
    }
 
-   my $userconf="$config{'ow_etcdir'}/users.conf/$user";
+   my $userconf="$config{'ow_usersconfdir'}/$user";
    $userconf .= "\@$domain" if ($config{'auth_withdomain'});
    readconf(\%config, \%config_raw, "$userconf") if ( -f "$userconf");
 
@@ -185,7 +186,7 @@ sub openwebmail_init {
    if ( $config{'use_homedirfolders'} ) {
       $folderdir = "$homedir/$config{'homedirfolderdirname'}";
    } else {
-      $folderdir = "$config{'ow_etcdir'}/users/$user";
+      $folderdir = "$config{'ow_usersdir'}/$user";
       $folderdir .= "\@$domain" if ($config{'auth_withdomain'});
    }
 
@@ -198,7 +199,7 @@ sub openwebmail_init {
    %prefs = %{&readprefs};
    %style = %{&readstyle};
    ($prefs{'language'} =~ /^([\w\d\._]+)$/) && ($prefs{'language'} = $1);
-   require "etc/lang/$prefs{'language'}";
+   require "$config{'ow_langdir'}/$prefs{'language'}";
    if ($prefs{'iconset'}=~ /^Text\./) {
       ($prefs{'iconset'} =~ /^([\w\d\._]+)$/) && ($prefs{'iconset'} = $1);
       require "$config{'ow_htmldir'}/images/iconsets/$prefs{'iconset'}/icontext";
@@ -344,6 +345,9 @@ sub readconf {
                   'mailspooldir', 'homedirspoolname', 'homedirfolderdirname',
                   'dbm_ext', 'dbmopen_ext',
                   'ow_cgidir', 'ow_htmldir','ow_etcdir', 'logfile',
+                  'ow_stylesdir', 'ow_langdir', 'ow_templatesdir',
+                  'ow_sitesconfdir', 'ow_usersconfdir',
+                  'ow_usersdir', 'ow_sessionsdir',
                   'vacationinit', 'vacationpipe', 'spellcheck',
                   'global_addressbook', 'global_filterbook', 'global_calendarbook') {
       (${$r_config}{$key} =~ /^(.+)$/) && (${$r_config}{$key}=$1);
@@ -666,8 +670,8 @@ sub readprefs {
    }
 
    # entries related to ondisk dir or file
-   $prefshash{'language'}=$config{'default_language'} if (!-f "$config{'ow_etcdir'}/lang/$prefshash{'language'}");
-   $prefshash{'style'}=$config{'default_style'} if (!-f "$config{'ow_etcdir'}/styles/$prefshash{'style'}");
+   $prefshash{'language'}=$config{'default_language'} if (!-f "$config{'ow_langdir'}/$prefshash{'language'}");
+   $prefshash{'style'}=$config{'default_style'} if (!-f "$config{'ow_stylesdir'}/$prefshash{'style'}");
    $prefshash{'iconset'}=$config{'default_iconset'} if (!-d "$config{'ow_htmldir'}/images/iconsets/$prefshash{'iconset'}");
 
    $prefshash{'refreshinterval'}=$config{'min_refreshinterval'} if ($prefshash{'refreshinterval'} < $config{'min_refreshinterval'});
@@ -687,11 +691,11 @@ sub readstyle {
    my $stylefile = $prefs{'style'} || 'Default';
    my %stylehash;
 
-   if (!-f "$config{'ow_etcdir'}/styles/$stylefile") {
+   if (!-f "$config{'ow_stylesdir'}/$stylefile") {
       $stylefile = 'Default';
    }
-   open (STYLE,"$config{'ow_etcdir'}/styles/$stylefile") or
-      openwebmailerror("Couldn't open $config{'ow_etcdir'}/styles/$stylefile!");
+   open (STYLE,"$config{'ow_stylesdir'}/$stylefile") or
+      openwebmailerror("Couldn't open $config{'ow_stylesdir'}/$stylefile!");
    while (<STYLE>) {
       if (/###STARTSTYLESHEET###/) {
          $stylehash{"css"} = '';
@@ -769,8 +773,8 @@ sub readtemplate {
    my $templatename=$_[0];
    my $content;
 
-   open (T, "$config{'ow_etcdir'}/templates/$prefs{'language'}/$templatename") or
-      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/templates/$prefs{'language'}/$templatename!");
+   open (T, "$config{'ow_templatesdir'}/$prefs{'language'}/$templatename") or
+      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_templatesdir'}/$prefs{'language'}/$templatename!");
    while (<T>) { $content .= $_; }
    close (T);
    return($content);
@@ -791,7 +795,7 @@ sub readpop3book {
       	 chomp($_);
          my ($pop3host, $pop3user, $pop3passwd, $pop3lastid, $pop3del, $enable)
 							=split(/\@\@\@/, $_);
-         ${$r_accounts}{"$pop3host:$pop3user"} = "$pop3host\@\@\@$pop3user\@\@\@$pop3passwd\@\@\@$pop3lastid\@\@\@$pop3del\@\@\@$enable";
+         ${$r_accounts}{"$pop3host\@\@\@$pop3user"} = "$pop3host\@\@\@$pop3user\@\@\@$pop3passwd\@\@\@$pop3lastid\@\@\@$pop3del\@\@\@$enable";
          $i++;
       }
       close (POP3BOOK);
@@ -913,10 +917,10 @@ sub writecalbook {
 
 ############## VERIFYSESSION ########################
 sub verifysession {
-   if ( (-M "$config{'ow_etcdir'}/sessions/$thissession") > $prefs{'sessiontimeout'}/60/24
-     || !(-e "$config{'ow_etcdir'}/sessions/$thissession")) {
+   if ( (-M "$config{'ow_sessionsdir'}/$thissession") > $prefs{'sessiontimeout'}/60/24
+     || !(-e "$config{'ow_sessionsdir'}/$thissession")) {
 
-      my $delfile="$config{'ow_etcdir'}/sessions/$thissession";
+      my $delfile="$config{'ow_sessionsdir'}/$thissession";
       ($delfile =~ /^(.+)$/) && ($delfile = $1);  # untaint ...
       unlink ($delfile) if ( -e "$delfile");
 
@@ -931,8 +935,8 @@ sub verifysession {
       writehistory("session error - session $thissession timeout access attempt");
       exit 0;
    }
-   if ( -e "$config{'ow_etcdir'}/sessions/$thissession" ) {
-      open (SESSION, "$config{'ow_etcdir'}/sessions/$thissession");
+   if ( -e "$config{'ow_sessionsdir'}/$thissession" ) {
+      open (SESSION, "$config{'ow_sessionsdir'}/$thissession");
       my $cookie = <SESSION>; chomp $cookie;
       my $ip = <SESSION>; chomp $ip;
       close (SESSION);
@@ -949,8 +953,8 @@ sub verifysession {
 
    if ( !defined(param("refresh")) && param("action") ne "timeoutwarning" ) {
       # extend the session lifetime only if not auto-refresh/timeoutwarning
-      open (SESSION, "> $config{'ow_etcdir'}/sessions/$thissession") or
-         openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/sessions/$thissession!");
+      open (SESSION, "> $config{'ow_sessionsdir'}/$thissession") or
+         openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}/$thissession!");
       print SESSION cookie("$user-sessionid"), "\n";
       print SESSION get_clientip(), "\n";
       close (SESSION);
@@ -1103,28 +1107,29 @@ sub getmessage {
       return \%message;
 
    } elsif (${$r_messageblock}!~/^From / ) {	# db index inconsistance
+      writelog("db warning - msg $messageid in $folderfile index inconsistence");
+      writehistory("db warning - msg $messageid in $folderfile index inconsistence");
+
       filelock($folderfile, LOCK_SH|LOCK_NB) or
          openwebmailerror("$lang_err{'couldnt_locksh'} $folderfile!");
 
       filelock("$headerdb$config{'dbm_ext'}", LOCK_EX) if (!$config{'dbmopen_haslock'});
       my %HDB;
-      dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
+      dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", 0600);
       $HDB{'METAINFO'}="ERR";
       dbmclose(%HDB);
       filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
-
       # forced reindex since metainfo = ERR
       if (update_headerdb($headerdb, $folderfile)<0) {
          filelock($folderfile, LOCK_UN);
          openwebmailerror("$lang_err{'couldnt_updatedb'} $headerdb$config{'dbm_ext'}");
       }
+
       open($folderhandle, "$folderfile");
       $r_messageblock=get_message_block($messageid, $headerdb, $folderhandle);
       close($folderhandle);
 
       filelock($folderfile, LOCK_UN);
-      writelog("db warning - msg $messageid in $folderfile index inconsistence");
-      writehistory("db warning - msg $messageid in $folderfile index inconsistence");
 
       return \%message if (${$r_messageblock} eq "" );
    }
@@ -1648,7 +1653,7 @@ sub printfooter {
       $html=readtemplate("footer.js.template");
       my $remainingseconds= 365*24*60*60;	# default timeout = 1 year
       if ($thissession ne "") { 	# if this is a session
-         my $sessionage=(-M "$config{'ow_etcdir'}/sessions/$thissession");
+         my $sessionage=(-M "$config{'ow_sessionsdir'}/$thissession");
          if ($sessionage ne "") {	# if this session is valid
             $remainingseconds= ($prefs{'sessiontimeout'}/60/24-$sessionage)
 				*24*60*60 - (time()-$^T);
@@ -1700,23 +1705,23 @@ sub openwebmailerror {
          print qq|<style type="text/css">|,
                $css,
                qq|</style>|,
-               qq|<FONT FACE=$fontface>\n|;
+               qq|<font face=$fontface>\n|;
       }
-      print qq|<BR><BR><BR><BR><BR><BR><BR>|,
+      print qq|<br><br><br><br><br><br><br>|,
             qq|<table border="0" align="center" width="40%" cellpadding="1" cellspacing="1">|,
-            qq|<tr><td bgcolor=$titlebar align="left">|,
-            qq|<font color=$titlebar_text face=$fontface size="3"><b>$config{'name'} ERROR</b></font>|,
+            qq|<tr><td bgcolor=$titlebar align="left">\n|,
+            qq|<font color=$titlebar_text face=$fontface size="3"><b>$config{'name'} ERROR</b></font>\n|,
             qq|</td></tr>|,
-            qq|<tr><td align="center" bgcolor=$window_light><BR>\n|,
-            @_, "\n",
-            qq|<BR><font color=$window_light size=-2>\n|,	# hide the fonts
-            qq|euid=$>, egid=$), mailgid=$mailgid\n|,
-            qq|</font><BR>|,
-            qq|</td></tr>|,
+            qq|<tr><td align="center" bgcolor=$window_light><br>\n|;
+
+      print @_, qq|<br><br>\n|;
+#      print qq|<font color=$window_light size=-2>euid=$>, egid=$), mailgid=$mailgid</font><br>\n|;
+
+      print qq|</td></tr>|,
             qq|</table>\n|,
-            qq|<p align="center"><font size="-1"><BR>|,
-            qq|$config{'page_footer'}<BR>|,
-            qq|</FONT></FONT></P></BODY></HTML>|;
+            qq|<p align="center"><font size="-1"><br>|,
+            qq|$config{'page_footer'}<br>|,
+            qq|</font></font></p></body></html>|;
 
       $headerprinted = 0;
       exit 0;

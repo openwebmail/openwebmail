@@ -11,8 +11,8 @@
 #
 
 name			Open WebMail
-version			1.80
-releasedate		20021122
+version			1.81
+releasedate		20021127
 
 ##############################################################################
 # host dependent configuration
@@ -47,11 +47,18 @@ ow_cgiurl		/cgi-bin/openwebmail
 ow_htmldir		/usr/local/www/data/openwebmail
 ow_htmlurl		/openwebmail
 ow_etcdir		%ow_cgidir%/etc
+ow_stylesdir		%ow_etcdir%/styles
+ow_langdir		%ow_etcdir%/lang
+ow_templatesdir		%ow_etcdir%/templates
+ow_sitesconfdir		%ow_etcdir%/sites.conf
+ow_usersconfdir		%ow_etcdir%/users.conf
+ow_usersdir		%ow_etcdir%/users
+ow_sessionsdir		%ow_etcdir%/sessions
 start_url		%ow_cgiurl%/openwebmail.pl
 ico_url			%ow_htmlurl%/images/openwebmail.ico
 logo_url		%ow_htmlurl%/images/openwebmail.gif
 logo_link		http://openwebmail.org/
-logfile			%ow_cgidir%/openwebmail.log
+logfile			/var/log/openwebmail.log
 global_addressbook	%ow_etcdir%/address.book
 global_filterbook	%ow_etcdir%/filter.book
 global_calendarbook	%ow_etcdir%/calendar.book
@@ -148,7 +155,7 @@ default_replywithorigmsg	at_beginning
 default_sendreceipt		ask
 default_sendcharset		sameascomposing
 default_autopop3		yes
-default_moveoldmsgfrominbox	yes
+default_moveoldmsgfrominbox	no
 forced_moveoldmsgfrominbox	no
 default_filter_repeatlimit	10
 default_filter_fakedsmtp	no

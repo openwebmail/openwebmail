@@ -58,7 +58,8 @@ use vars qw($_STATUS);		# defined in maildb.pl
 my $action = param("action");
 if ($action eq "displayheaders_afterlogin") {
    cleantrash($prefs{'trashreserveddays'});
-   if ($config{'forced_moveoldmsgfrominbox'} || $prefs{'moveoldmsgfrominbox'}) {
+   if ( ($config{'forced_moveoldmsgfrominbox'}||$prefs{'moveoldmsgfrominbox'}) &&
+        $folderusage<100) {
       moveoldmsg2saved();
    }
    update_pop3check();
@@ -114,7 +115,8 @@ if ($action eq "displayheaders_afterlogin") {
    displayheaders();
 } elsif ($action eq "logout") {
    cleantrash($prefs{'trashreserveddays'});
-   if ($config{'forced_moveoldmsgfrominbox'} || $prefs{'moveoldmsgfrominbox'}) {
+   if ( ($config{'forced_moveoldmsgfrominbox'}||$prefs{'moveoldmsgfrominbox'}) &&
+        $folderusage<100) {
       moveoldmsg2saved();
    }
    logout();
@@ -1283,7 +1285,7 @@ sub logout {
       (($thissession =~ /^(.+?\-\d?\.\d+)$/) && ($thissession = $1));
    $thissession =~ s/\///g;  # just in case someone gets tricky ...
 
-   unlink "$config{'ow_etcdir'}/sessions/$thissession";
+   unlink "$config{'ow_sessionsdir'}/$thissession";
    writelog("logout - $thissession");
    writehistory("logout - $thissession");
 

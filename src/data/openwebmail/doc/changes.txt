@@ -1,3 +1,74 @@
+11/27/2002 (version 1.81)
+----------
+1. minor change to openwebmail scripts to cover a bug in tell() in perl 5.8
+   which would return wrong offset if it is called after open(F, ">>file");
+
+ps:This is a serious bug which may corrup the folder file in some case.
+   If you are using perl 5.8 (eg: RedHat 8.0 uses perl 5.8 by default)
+   a. upgrade your openwebmail to this version as soon as possible
+   b. try to find a bug fix for your perl since other applications written 
+      by perl may operate inproperly due to this bug
+
+ps:Open WebMail goes to version 1.81 because of this fix and 
+   the popularity of Redhat 8.0
+
+2. fix a pop3 bug introduced by patch at 11/26/2002
+3. fix a bug in openwebmail-tool.pl that didn't show correct number of
+   filtered message 
+
+
+11/26/2002
+----------
+1. fix a bug that owm won't do reindex automatically when inconsistance found.
+   (reported by Chio Tsan-Yuan, cty.AT.mail.scvs.tpc.edu.tw)
+
+ps:This is due to different behavior of dbmopen in different versions of perls
+
+   Description: if we lock a dbm then call dbmopen in same process,
+
+                             if dbm is LOCK_EX           if dbm is LOCK_SH
+                             -------------------------   ---------------------
+   dbmopen(%H, dbm, 0600)    ok (a)                      ok (c)
+   dbmopen(%H, dbm, undef)   failed in perl 5.8 (b)      ok (d)
+
+   Case b has been removed in all scripts. Only case a and case d are used now.
+
+2. fix a bug in pop3book related routines which would strip : from username 
+   and password.
+   (reported by Dieter Houthooft, woody.AT.lin-k.net)
+3. add the following options to openwebmail.conf.default for easier customization
+   ow_stylesdir, ow_langdir, ow_templatesdir
+   ow_sitesconfdir, ow_usersconfdir, ow_usersdir, ow_sessionsdir
+   (suggested by Heather Stern, starshine.AT.users.sourceforge.net)
+4. add charset windows-1255 for Hebrew
+   (suggested by Hetz Ben-Hamo, hetz.AT.witch.dyndns.org)
+
+
+11/25/2002
+----------
+1. fix a bug in openwebmail-tool.pl which sent site report with incorrect 
+   timezone
+2. remove uid, gid and mailgid info from openwebmailerror output
+   return 'password incorrect' instead of 'user not exist' for nonexisting user 
+   login for better security
+   (suggested by Felipe Neuwald, felipe.AT.freebsdbr.com.br)
+
+
+11/24/2002
+----------
+1. check folder usage before moving old messages to saved folder
+
+
+11/23/2002
+----------
+1. Slovak language and templanes update
+   Default.Slovak and Cool3D.Slovak iconset update
+   (thanks to lubos klokner, lubos.AT.klokner.sk)
+2. fix a bug in openwebmail-tool.pl which uses start time as the end time
+   for event email notification
+   (reported by William Preston, bspesq.AT.users.sourceforge.net)
+
+
 11/22/2002 (version 1.80)
 ----------
 1. fix a bug that real name won't be null even it is set to none in 

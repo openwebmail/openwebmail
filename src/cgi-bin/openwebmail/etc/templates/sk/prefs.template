@@ -114,7 +114,7 @@ Predmet:
 ©írka @@@EDITCOLUMNSMENU@@@ Vý¹ka @@@EDITROWSMENU@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Compose button position:</B>
+<B>Pozícia tlaèítka "Odosla»":</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@SENDBUTTONPOSITIONMENU@@@
 </td></tr>
@@ -202,7 +202,7 @@ Predmet:
 @@@BACKUPSENTMSG@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Charset for outgoing message:</B>
+<B>Znaková sada pre odchádzajúce správy:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@SENDCHARSETMENU@@@
 </td></tr>
@@ -283,7 +283,7 @@ Predmet:
 @@@HIDEINTERNAL@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Refresh Interval:</B>
+<B>Obnovi» obrazovku ka¾dých:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@REFRESHINTERVALMENU@@@
 </td></tr>
@@ -293,9 +293,9 @@ Predmet:
 @@@NEWMAILSOUNDMENU@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>NewMail window notification:</B>
+<B>Okno pre upozornenie na nový e-mail:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-remaining @@@NEWMAILWINDOWTIMEMENU@@@ seconds &nbsp;( 0 means No window notification )
+zobrazi» @@@NEWMAILWINDOWTIMEMENU@@@ sekúnd &nbsp;( 0 zmanená nezobrazova» )
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Slovník pre kontrolu pravopisu:</B>

@@ -232,20 +232,64 @@ the url for ow_htmldir
 
 ow_etcdir
 -----------------------------------------------------------------------
-the directory for openwebmail runtime resource files,
+The directory for 
+1. system config (openwebmail.conf.default and openwebmail.conf),
+2. runtime created system-wide db (need about 10mb),
+3. and the default parent directory for the following runtime resources.
+(styles, lang, templates, sites.conf, users.conf, users, sessions)
 
-There are serval subdir under this directory
-  styles/    - holds styles definitions
-  templates/ - holds html templates for different languages
-  lang/      - hold messages for different languages
-  sessions/  - holds temporary session files and attachments currently
-               using by each session.
-  users/     - holds individual directories for users to store their
-               personal preferences, signatures, and addressbooks in.
+ps: No matter what value is set in this option,
+    openwebmail will always locate the openwebmail.conf.default and 
+    openwbemail.conf in %ow_cgidir%/etc
 
-ps: The directories sessions/ and users/ should be mode 750 and owned by the
-    user that openwebmail script will be running as (root in many cases) for
-    better security.
+
+ow_stylesdir		
+-----------------------------------------------------------------------
+the directory for styles definitions
+
+
+ow_langdir
+-----------------------------------------------------------------------
+the directory for string definitions of different languages
+
+
+ow_templatesdir
+-----------------------------------------------------------------------
+the directory for html templates of different languages
+
+
+ow_sitesconfdir
+-----------------------------------------------------------------------
+the directory for openwebmail per site config
+
+
+ow_usersconfdir
+-----------------------------------------------------------------------
+the directory for openwebmail per user config
+
+
+ow_usersdir
+-----------------------------------------------------------------------
+the directory for openwebmail users to store their messages, 
+personal preferences, signatures, and addressbooks in.
+
+ps: This option is used ONLY if option use_homedirfolders is set to 'yes'
+ps: This direcotry would become very large if you have many webmail users,
+    so please put it in a partition with enough space.
+
+
+ow_sessionsdir
+-----------------------------------------------------------------------
+the directory for openwebmail temporary session files and attachments 
+currently used by each session.
+
+ps: This directory would become very large if you have many concurrent 
+    webmail users. So please put it in a partition with enough space.
+
+ps: The permission for ow_usersdir and ow_sessionsdir directories should be 
+    mode:  750
+    owner: the user that openwebmail script will be running as (root in many cases) 
+    group: mail 
 
 
 start_url

@@ -242,13 +242,13 @@ sub viewattachment {	# view attachments inside a message
 ################### END VIEWATTACHMENT ##################
 
 ################ VIEWATTFILE ##################
-sub viewattfile {	# view attachments uploaded to openwebmail/etc/sessions/
+sub viewattfile {	# view attachments uploaded to $config{'ow_sessionsdir'}
    my $attfile=param("attfile");
    $attfile =~ s/\///g;  # just in case someone gets tricky ...
    # only allow to view attfiles belongs the $thissession
-   if ($attfile!~/^$thissession/  || !-f "$config{'ow_etcdir'}/sessions/$attfile") {
+   if ($attfile!~/^$thissession/  || !-f "$config{'ow_sessionsdir'}/$attfile") {
       printheader();
-      print "What the heck? Attfile $config{'ow_etcdir'}/sessions/$attfile seems to be gone!";
+      print "What the heck? Attfile $config{'ow_sessionsdir'}/$attfile seems to be gone!";
       printfooter(1);
       return;
    }
@@ -257,10 +257,10 @@ sub viewattfile {	# view attachments uploaded to openwebmail/etc/sessions/
    my ($attcontenttype, $attencoding, $attdisposition,
        $attid, $attlocation, $attfilename);
 
-   $attsize=(-s("$config{'ow_etcdir'}/sessions/$attfile"));
+   $attsize=(-s("$config{'ow_sessionsdir'}/$attfile"));
 
-   open(ATTFILE, "$config{'ow_etcdir'}/sessions/$attfile") or
-      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/sessions/$attfile!");
+   open(ATTFILE, "$config{'ow_sessionsdir'}/$attfile") or
+      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}/$attfile!");
    read(ATTFILE, $attheader, 512);
    $attheaderlen=index($attheader,  "\n\n", 0);
    $attheader=substr($attheader, 0, $attheaderlen);

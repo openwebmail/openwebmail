@@ -71,7 +71,7 @@ sub mailfilter {
       dbmclose(%FTDB);
    }
    filelock("$folderdir/.filter.book$config{'dbm_ext'}", LOCK_EX) if (!$config{'dbmopen_haslock'});
-   dbmopen (%FTDB, "$folderdir/.filter.book$config{'dbmopen_ext'}", undef);
+   dbmopen (%FTDB, "$folderdir/.filter.book$config{'dbmopen_ext'}", 0600);
 
    unless (filelock($folderfile, LOCK_EX|LOCK_NB)) {
       return -3; # $lang_err{'couldnt_lock'} $folder!
@@ -737,6 +737,7 @@ sub append_message_to_folder {
          filelock($dstfile, LOCK_UN);
          return(-5);
       }
+      seek(DEST, 0, 2);	# seek end explicitly to cover tell() bug in perl 5.8
       my @attr2=@{$r_attr};
       $attr2[$_OFFSET]=tell(DEST);
       $attr2[$_SIZE]=length(${$r_currmessage});

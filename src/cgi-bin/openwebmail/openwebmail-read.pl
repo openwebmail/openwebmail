@@ -165,7 +165,7 @@ sub readmessage {
       my @tmp=($prefs{'language'}, $prefs{'charset'});
       ($prefs{'language'}, $prefs{'charset'})=('en', $message{'charset'});
 
-      require "etc/lang/$prefs{'language'}";
+      require "$config{'ow_langdir'}/$prefs{'language'}";
       printheader();
       $printfolder = $lang_folders{$folder} || $folder || '';
       $html=readtemplate($templatefile);

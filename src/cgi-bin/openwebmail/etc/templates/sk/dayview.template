@@ -46,7 +46,7 @@
 <tr><td colspan=2 nowrap>Ulo¾i» túto polo¾ku ako hyperlinku na</td></tr>
 <tr><td colspan=2 nowrap>@@@LINKFIELD@@@</td></tr>
 @@@EMAILSTART@@@
-<tr><td colspan=2 nowrap>Send notification email to</td></tr>
+<tr><td colspan=2 nowrap>Odosla» upozornujúci e-mail na</td></tr>
 <tr><td colspan=2 nowrap>@@@EMAILFIELD@@@</td></tr>
 @@@EMAILEND@@@
 <tr><td colspan=2 align=center>@@@SUBMITBUTTON@@@</td></tr>

@@ -960,10 +960,15 @@ sub update_message_status {
          }
          if ($header !~ /^From /) { # index not consistent with folder content
             close ($folderhandle);
-            dbmclose(%HDB);
-            filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+
             writelog("db warning - msg $messageid in $folderfile index inconsistence");
             writehistory("db warning - msg $messageid in $folderfile index inconsistence");
+
+            $HDB{'METAINFO'}="ERR";
+            dbmclose(%HDB);
+            filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+            # forced reindex since metainfo = ERR
+            return -3 if (update_headerdb($headerdb, $folderfile)<0);
             return(-2);
          }
          $headerlen=length($header);
@@ -1087,6 +1092,7 @@ sub operate_message_with_ids {
    if ($op eq "move" || $op eq "copy") {
       open (DEST, ">>$dstfile") or
          return(-5);	# $lang_err{'couldnt_open'} $destination!
+      seek(DEST, 0, 2);	# seek end explicitly to cover tell() bug in perl 5.8
       if (update_headerdb("$dstdb", $dstfile)<0) {
          filelock($dstfile, LOCK_UN);
          writelog("db error - Couldn't update index db $dstdb$config{'dbm_ext'}");

@@ -160,9 +160,9 @@ foreach $loginname (@userlist) {
 
    my $siteconf="";
    if ($loginname=~/\@(.+)$/) {
-       $siteconf="$config{'ow_etcdir'}/sites.conf/$1";
+       $siteconf="$config{'ow_sitesconfdir'}/$1";
    } elsif ($defaultdomain ne "") {
-       $siteconf="$config{'ow_etcdir'}/sites.conf/$defaultdomain";
+       $siteconf="$config{'ow_sitesconfdir'}/$defaultdomain";
    }
    readconf(\%config, \%config_raw, "$siteconf") if ( $siteconf ne "" && -f "$siteconf");
 
@@ -183,8 +183,8 @@ foreach $loginname (@userlist) {
 
    if ($homedir eq '/') {
       ## Lets assume it a virtual user, and see if the user exist
-      if ( -d "$config{'ow_etcdir'}/users/$loginname") {
-         $homedir = "$config{'ow_etcdir'}/users/$loginname";
+      if ( -d "$config{'ow_usersdir'}/$loginname") {
+         $homedir = "$config{'ow_usersdir'}/$loginname";
       }
    }
 
@@ -193,7 +193,7 @@ foreach $loginname (@userlist) {
             $user eq 'daemon' || $user eq 'operator' || $user eq 'bin' ||
             $user eq 'tty' || $user eq 'kmem' || $user eq 'uucp');
 
-   my $userconf="$config{'ow_etcdir'}/users.conf/$user";
+   my $userconf="$config{'ow_usersconfdir'}/$user";
    $userconf .= "\@$domain" if ($config{'auth_withdomain'});
    readconf(\%config, \%config_raw, "$userconf") if ( -f "$userconf");
 
@@ -208,7 +208,7 @@ foreach $loginname (@userlist) {
    if ( $config{'use_homedirfolders'} ) {
       $folderdir = "$homedir/$config{'homedirfolderdirname'}";
    } else {
-      $folderdir = "$config{'ow_etcdir'}/users/$user";
+      $folderdir = "$config{'ow_usersdir'}/$user";
       $folderdir .= "\@$domain" if ($config{'auth_withdomain'});
    }
 
@@ -280,12 +280,23 @@ my %pop3error=( -1=>"pop3book read error",
                 -9=>"pop3book write error");
 
 sub init {
+   if (tell_has_bug()) {
+      print qq|\nWARNING!\n\n|.
+            qq|The perl on your system has serious bug in routine tell()!\n|.
+            qq|While openwebmail can work properly with this bug, other perl application\n|.
+            qq|may not function properly and thus cause data loss.\n\n|.
+            qq|We suggest that you should patch your perl as soon as possible.\n\n|.
+            qq|Please hit 'Enter' to continue or Ctrl-C to break.\n|;
+      $_=<STDIN> if (!$opt_yes);
+   }
+
    readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf.default");
    readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf") if (-f "$SCRIPT_DIR/etc/openwebmail.conf");
    if ($defaultdomain ne "") {
-      my $siteconf="$config{'ow_etcdir'}/sites.conf/$defaultdomain";
+      my $siteconf="$config{'ow_sitesconfdir'}/$defaultdomain";
       readconf(\%config, \%config_raw, "$siteconf") if ( -f "$siteconf");
    }
+   %prefs = %{&readprefs};
 
    exit 1 if (dbm_test()<0);
 
@@ -318,6 +329,7 @@ sub init {
    my $hostname=hostname();
    my $realname=(getpwnam($id))[6]||$id;
    my $to="openwebmail\@turtle.ee.ncku.edu.tw";
+   my $date = dateserial2datefield(gmtime2dateserial(), $config{'default_timeoffset'});
    my $subject="site report - $hostname";
    my $os;
    if ( -f "/usr/bin/uname") {
@@ -334,13 +346,25 @@ sub init {
          qq|using this software, the content to be sent is:\n\n|.
          qq|$content\n|.
          qq|Please hit 'Enter' to continue or Ctrl-C to break.\n|;
-   if (!$opt_yes) {
-      $_=<STDIN>;
-   }
-   send_mail("$id\@$hostname", $realname, $to, $subject, "$content \n");
+   $_=<STDIN> if (!$opt_yes);
+
+   send_mail("$id\@$hostname", $realname, $to, $date, $subject, "$content \n");
    print qq|Thank you.\n|;
    return 0;
 }
+
+sub tell_has_bug {
+   my $offset;
+   my $testfile="/tmp/testfile.$$";
+   ($testfile =~ /^(.+)$/) && ($testfile = $1);
+
+   open(F, ">$testfile"); print F "test"; close(F);
+   open(F, ">>$testfile"); $offset=tell(F); close(F);
+   unlink($testfile);
+   
+   return 1 if ($offset==0);
+   return 0;
+}   
 
 sub dbm_test {
    my (%DB, @filelist, @delfiles);
@@ -442,7 +466,7 @@ sub allusers {
    readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf.default");
    readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf") if (-f "$SCRIPT_DIR/etc/openwebmail.conf");
    if ($defaultdomain ne "") {
-      my $siteconf="$config{'ow_etcdir'}/sites.conf/$defaultdomain";
+      my $siteconf="$config{'ow_sitesconfdir'}/$defaultdomain";
       readconf(\%config, \%config_raw, "$siteconf") if ( -f "$siteconf");
    }
 
@@ -524,7 +548,7 @@ sub checknewmail {
    }
 
    my @folderlist=();
-   my $filtered=mailfilter($user, 'INBOX', $folderdir, \@folderlist, $prefs{'regexmatch'},
+   my ($filtered, $r_filtered)=mailfilter($user, 'INBOX', $folderdir, \@folderlist, $prefs{'regexmatch'},
 	$prefs{'filter_repeatlimit'}, $prefs{'filter_fakedsmtp'},
         $prefs{'filter_fakedfrom'}, $prefs{'filter_fakedexecontenttype'});
    if ($filtered>0) {
@@ -658,7 +682,7 @@ sub checknotify {
             } elsif ($items{$index}{'endhourmin'}==0) {
                $itemstr=hourmin($items{$index}{'starthourmin'});
             } else {
-               $itemstr=hourmin($items{$index}{'starthourmin'})."-".hourmin($items{$index}{'starthourmin'});
+               $itemstr=hourmin($items{$index}{'starthourmin'})."-".hourmin($items{$index}{'endhourmin'});
             }
             $itemstr .= "  $items{$index}{'string'}";
             $itemstr .= " ($items{$index}{'link'})" if ($items{$index}{'link'});
@@ -687,10 +711,11 @@ sub checknotify {
    my %userfrom=get_userfrom($loginname, $user, $userrealname, "$folderdir/.from.book");
    my $realname=$userfrom{$from};
    my $title=dateserial2str(sprintf("%04d%02d%02d",$year,$month,$day),$prefs{'dateformat'}).
-             "  ".hourmin($checkstart)."-".hourmin($checkend)."\n".
-             "---------------------------------\n";
+             " Event(s) between ".hourmin($checkstart)."-".hourmin($checkend)."\n".
+             "------------------------------------------------------------\n";
    foreach my $email (keys %message) {
-      my $ret=send_mail($from, $realname, $email, "calendar notification", $title.$message{$email});
+      my $date = dateserial2datefield(gmtime2dateserial(), $prefs{'timeoffset'});
+      my $ret=send_mail($from, $realname, $email, $date, "calendar notification", $title.$message{$email});
       if (!$opt_quiet) {
          print "mailing notification to $email for $loginname";
          print ", return $ret" if ($ret!=0);
@@ -701,8 +726,7 @@ sub checknotify {
 }
 
 sub send_mail {
-   my ($from, $realname, $to, $subject, $body)=@_;
-   my $date = dateserial2datefield(gmtime2dateserial(), $prefs{'timeoffset'});
+   my ($from, $realname, $to, $date, $subject, $body)=@_;
 
    $from =~ s/['"]/ /g;  # Get rid of shell escape attempts
    $realname =~ s/['"]/ /g;  # Get rid of shell escape attempts
@@ -791,8 +815,7 @@ sub getpop3s {
 
    # create system spool file /var/mail/xxxx
    if ( ! -f "$spoolfile" ) {
-      open (F, ">>$spoolfile");
-      close(F);
+      open (F, ">>$spoolfile"); close(F);
    }
 
    if (readpop3book("$folderdir/.pop3.book", \%accounts) <0) {

@@ -98,10 +98,10 @@ if ( param("loginname") && param("password") ) {
        if (! is_serverdomain_allowed($domain)) {
           openwebmailerror("Service is not available for domain  ' $domain '");
        }
-       $siteconf="$config{'ow_etcdir'}/sites.conf/$domain";
+       $siteconf="$config{'ow_sitesconfdir'}/$domain";
    } else {
        my $httphost=lc($ENV{'HTTP_HOST'}); $httphost=~s/:\d+$//;	# remove port number
-       $siteconf="$config{'ow_etcdir'}/sites.conf/$httphost";
+       $siteconf="$config{'ow_sitesconfdir'}/$httphost";
    }
    readconf(\%config, \%config_raw, "$siteconf") if ( -f "$siteconf");
 
@@ -127,19 +127,19 @@ if ( param("loginname") && param("password") ) {
    %prefs = %{&readprefs};
    %style = %{&readstyle};
    ($prefs{'language'} =~ /^([\w\d\._]+)$/) && ($prefs{'language'} = $1);
-   require "etc/lang/$prefs{'language'}";
+   require "$config{'ow_langdir'}/$prefs{'language'}";
 
    login();
 
 } else {            # no action has been taken, display login page
    my $httphost=lc($ENV{'HTTP_HOST'}); $httphost=~s/:\d+$//;	# remove port number
-   my $siteconf="$config{'ow_etcdir'}/sites.conf/$httphost";
+   my $siteconf="$config{'ow_sitesconfdir'}/$httphost";
    readconf(\%config, \%config_raw, "$siteconf") if ( -f "$siteconf");
 
    %prefs = %{&readprefs};
    %style = %{&readstyle};
    ($prefs{'language'} =~ /^([\w\d\._]+)$/) && ($prefs{'language'} = $1);
-   require "etc/lang/$prefs{'language'}";
+   require "$config{'ow_langdir'}/$prefs{'language'}";
 
    loginmenu();
 }
@@ -236,7 +236,9 @@ sub login {
 
    if ($user eq "") {
       sleep $config{'loginerrordelay'};	# delayed response
-      openwebmailerror("$lang_err{'user_not_exist'}");
+      writelog("login error - no such user - loginname=$loginname");
+      # show 'pwd incorrect' instead of 'user not exist' for better security
+      openwebmailerror("$lang_err{'pwd_incorrect'}");	
    }
    if (! $config{'enable_rootlogin'}) {
       if ($user eq 'root' || $uuid==0) {
@@ -253,7 +255,7 @@ sub login {
       $errorcode=check_userpassword($user, $password);
    }
    if ( $errorcode==0 ) {
-      my $userconf="$config{'ow_etcdir'}/users.conf/$user";
+      my $userconf="$config{'ow_usersconfdir'}/$user";
       $userconf .= "\@$domain" if ($config{'auth_withdomain'});
       readconf(\%config, \%config_raw, "$userconf") if ( -f "$userconf");
 
@@ -322,7 +324,7 @@ sub login {
       if ( $config{'use_homedirfolders'} ) {
          $folderdir = "$homedir/$config{'homedirfolderdirname'}";
       } else {
-         $folderdir = "$config{'ow_etcdir'}/users/$user";
+         $folderdir = "$config{'ow_usersdir'}/$user";
          $folderdir .= "\@$domain" if ($config{'auth_withdomain'});
       }
       ($folderdir =~ /^(.+)$/) && ($folderdir = $1);	# untaint
@@ -346,13 +348,13 @@ sub login {
 
       # create session file
       my $sessioncookie_value;
-      if ( -f "$config{'ow_etcdir'}/sessions/$thissession" ) { # continue an old session?
+      if ( -f "$config{'ow_sessionsdir'}/$thissession" ) { # continue an old session?
          $sessioncookie_value = cookie("$user-sessionid");
       } else {						       # a brand new sesion?
          $sessioncookie_value = crypt(rand(),'OW');
       }
-      open (SESSION, "> $config{'ow_etcdir'}/sessions/$thissession") or # create sessionid
-         openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/sessions/$thissession!");
+      open (SESSION, "> $config{'ow_sessionsdir'}/$thissession") or # create sessionid
+         openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}/$thissession!");
       print SESSION $sessioncookie_value, "\n";
       print SESSION get_clientip(), "\n";
       close (SESSION);
@@ -552,7 +554,7 @@ sub login {
       if ( $config{'use_homedirfolders'} ) {
          $folderdir = "$homedir/$config{'homedirfolderdirname'}";
       } else {
-         $folderdir = "$config{'ow_etcdir'}/users/$user";
+         $folderdir = "$config{'ow_usersdir'}/$user";
          $folderdir .= "\@$domain" if ($config{'auth_withdomain'});
       }
 
@@ -619,17 +621,17 @@ sub search_and_cleanoldsessions {
    my $sessionid;
    my @delfiles;
 
-   opendir (SESSIONSDIR, "$config{'ow_etcdir'}/sessions") or
-      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/sessions!");
+   opendir (SESSIONSDIR, "$config{'ow_sessionsdir'}") or
+      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}!");
    while (defined($sessionid = readdir(SESSIONSDIR))) {
       if ($sessionid =~ /^(.+\-session\-0.*)$/) {
          $sessionid = $1;
          if ($sessionid =~ /^$loginname\-session\-0./) { # remove user old session if timeout
-            if ( -M "$config{'ow_etcdir'}/sessions/$sessionid" > $prefs{'sessiontimeout'}/60/24 ) {
+            if ( -M "$config{'ow_sessionsdir'}/$sessionid" > $prefs{'sessiontimeout'}/60/24 ) {
                writelog("session cleanup - $sessionid");
-               push(@delfiles, "$config{'ow_etcdir'}/sessions/$sessionid");
+               push(@delfiles, "$config{'ow_sessionsdir'}/$sessionid");
             } else {	# remove user old session from same client
-               open (SESSION, "$config{'ow_etcdir'}/sessions/$sessionid");
+               open (SESSION, "$config{'ow_sessionsdir'}/$sessionid");
                my $cookie = <SESSION>; chomp $cookie;
                my $ip = <SESSION>; chomp $ip;
                close (SESSION);
@@ -638,14 +640,14 @@ sub search_and_cleanoldsessions {
                      $oldsessionid=$sessionid;
                   } else {
                      writelog("session cleanup - $sessionid");
-                     push(@delfiles, "$config{'ow_etcdir'}/sessions/$sessionid");
+                     push(@delfiles, "$config{'ow_sessionsdir'}/$sessionid");
                   }
                }
             }
          } else {	# remove others old session if more than 1 day
-            if ( -M "$config{'ow_etcdir'}/sessions/$sessionid" > 1 ) {
+            if ( -M "$config{'ow_sessionsdir'}/$sessionid" > 1 ) {
                writelog("session cleanup - $sessionid");
-               push(@delfiles, "$config{'ow_etcdir'}/sessions/$sessionid");
+               push(@delfiles, "$config{'ow_sessionsdir'}/$sessionid");
             }
          }
       }
@@ -779,7 +781,7 @@ sub releaseupgrade {
          filelock($folderfile, LOCK_SH);
          open (FOLDER, $folderfile);
          filelock("$headerdb$config{'dbm_ext'}", LOCK_EX) if (!$config{'dbmopen_haslock'});
-         dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
+         dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", 0600);
 
          if ( $HDB{'METAINFO'} eq metainfo($folderfile) ) { # upgrade only if hdb is uptodate
             @messageids=keys %HDB;
@@ -841,7 +843,7 @@ sub releaseupgrade {
          next if ( ! -f "$headerdb$config{'dbm_ext'}" || -z "$headerdb$config{'dbm_ext'}" );
 
          filelock("$headerdb$config{'dbm_ext'}", LOCK_EX) if (!$config{'dbmopen_haslock'});
-         dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
+         dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", 0600);
 
          @messageids=keys %HDB;
          foreach my $id (@messageids) {
@@ -888,7 +890,7 @@ sub releaseupgrade {
          filelock($folderfile, LOCK_SH);
          open (FOLDER, $folderfile);
          filelock("$headerdb$config{'dbm_ext'}", LOCK_EX) if (!$config{'dbmopen_haslock'});
-         dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
+         dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", 0600);
 
          @messageids=keys %HDB;
          foreach my $id (@messageids) {
@@ -941,7 +943,7 @@ sub releaseupgrade {
          next if ( ! -f "$headerdb$config{'dbm_ext'}" || -z "$headerdb$config{'dbm_ext'}" );
 
          filelock("$headerdb$config{'dbm_ext'}", LOCK_EX) if (!$config{'dbmopen_haslock'});
-         dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
+         dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", 0600);
 
          @messageids=keys %HDB;
          foreach my $id (@messageids) {

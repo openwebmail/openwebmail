@@ -14,7 +14,7 @@ if [ "$ans" = "y" -o "$ans" = "Y" ]; then
   -a /usr/local/www/data/openwebmail/download/openwebmail-current-*.diff.gz \
   -a /usr/local/www/data/openwebmail/download/doc/changes.txt \
   openwebmail@turtle.ee.ncku.edu.tw \
-  tchung@lmitlinux.jpl.nasa.gov 
+  tchung@openwebmail.org
 #  elitric@hotmail.com 
 fi
 

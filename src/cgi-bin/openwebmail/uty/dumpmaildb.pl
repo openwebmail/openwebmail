@@ -9,7 +9,7 @@ use Fcntl qw(:DEFAULT :flock);
 
 require "maildb.pl";
 require "filelock.pl";
-require "openwebmail-shared.pl";
+require "ow-shared.pl";
 
 sub dump_headerdb {
    my ($headerdb, $folderfile) = @_;
@@ -62,5 +62,5 @@ if ( $#ARGV ==1 ) {
   my $db=join('/', @a);
   dump_headerdb($db, $ARGV[0]);
 } else {
-  print "dumpdb folderfile [headerdb_without_extension]\n";
+  print "dumpdb folderfile [headerdb]\n";
 }

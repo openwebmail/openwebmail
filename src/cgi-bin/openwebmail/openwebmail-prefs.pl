@@ -219,10 +219,10 @@ sub editprefs {
 
    if (param('language') =~ /^([\d\w\._]+)$/ ) {
       my $language=$1;
-      if ( -f "$config{'ow_etcdir'}/lang/$language" ) {
+      if ( -f "$config{'ow_langdir'}/$language" ) {
          $prefs{'language'}=$language;
          $prefs{'charset'}=$languagecharsets{$language};
-         require "etc/lang/$prefs{'language'}";
+         require "$config{'ow_langdir'}/$prefs{'language'}";
       }
    }
 
@@ -424,8 +424,8 @@ sub editprefs {
 
    # Get a list of valid style files
    my @styles;
-   opendir (STYLESDIR, "$config{'ow_etcdir'}/styles") or
-      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/styles directory for reading!");
+   opendir (STYLESDIR, "$config{'ow_stylesdir'}") or
+      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_stylesdir'} directory for reading!");
    while (defined(my $currstyle = readdir(STYLESDIR))) {
       if ($currstyle =~ /^([^\.].*)$/) {
          push (@styles, $1);
@@ -433,7 +433,7 @@ sub editprefs {
    }
    @styles = sort(@styles);
    closedir(STYLESDIR) or
-      openwebmailerror("$lang_err{'couldnt_close'} $config{'ow_etcdir'}/styles!");
+      openwebmailerror("$lang_err{'couldnt_close'} $config{'ow_stylesdir'}!");
 
    $temphtml = popup_menu(-name=>'style',
                           -"values"=>\@styles,
@@ -1039,7 +1039,7 @@ sub saveprefs {
    }
 
    ($prefs{'language'} =~ /^([\w\d\._]+)$/) && ($prefs{'language'} = $1);
-   require "etc/lang/$prefs{'language'}";
+   require "$config{'ow_langdir'}/$prefs{'language'}";
 
    # save .forward file
    # if autoreply is set, include self-forward (if set) and pipe to vacation
@@ -1932,17 +1932,14 @@ sub modpop3 {
    $enable = param("enable") || 0;
 
    # strip beginning and trailing spaces from hash key
-   $pop3host =~ s/://;
    $pop3host =~ s/^\s*//;
    $pop3host =~ s/\s*$//;
    $pop3host =~ s/[#&=\?]//g;
 
-   $pop3user =~ s/://;
    $pop3user =~ s/^\s*//;
    $pop3user =~ s/\s*$//;
    $pop3user =~ s/[#&=\?]//g;
 
-   $pop3pass =~ s/://;
    $pop3pass =~ s/^\s*//;
    $pop3pass =~ s/\s*$//;
 
@@ -1955,7 +1952,7 @@ sub modpop3 {
       }
 
       if ($mode eq 'delete') {
-         delete $accounts{"$pop3host:$pop3user"};
+         delete $accounts{"$pop3host\@\@\@$pop3user"};
       } else {
          if ( (-s "$folderdir/.pop3.book") >= ($config{'maxbooksize'} * 1024) ) {
             openwebmailerror(qq|$lang_err{'abook_toobig'} <a href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editpop3&amp;sessionid=$thissession&amp;sort=$sort&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;message_id=$escapedmessageid">$lang_err{'back'}</a> $lang_err{'tryagain'}|);
@@ -1965,13 +1962,13 @@ sub modpop3 {
                openwebmailerror("$lang_err{'disallowed_pop3'} $pop3host");
             }
          }
-         if (defined($accounts{"$pop3host:$pop3user"})) {
+         if (defined($accounts{"$pop3host\@\@\@$pop3user"})) {
             my ($origpass, $origlastid)=
-		(split(/\@\@\@/, $accounts{"$pop3host:$pop3user"}))[2,3];
+		(split(/\@\@\@/, $accounts{"$pop3host\@\@\@$pop3user"}))[2,3];
             $pop3pass=$origpass if ($pop3pass eq "******");
             $pop3lastid=$origlastid;
          }
-         $accounts{"$pop3host:$pop3user"}="$pop3host\@\@\@$pop3user\@\@\@$pop3pass\@\@\@$pop3lastid\@\@\@$pop3del\@\@\@$enable";
+         $accounts{"$pop3host\@\@\@$pop3user"}="$pop3host\@\@\@$pop3user\@\@\@$pop3pass\@\@\@$pop3lastid\@\@\@$pop3del\@\@\@$enable";
       }
 
       if (writepop3book("$folderdir/.pop3.book", \%accounts)<0) {
@@ -2331,7 +2328,7 @@ sub modfilter {
          # remove stale entries in filterrule db by checking %filterrules
          filelock("$folderdir/.filter.book$config{'dbm_ext'}", LOCK_EX) if (!$config{'dbmopen_haslock'});
          my %FTDB;
-         dbmopen (%FTDB, "$folderdir/.filter.book$config{'dbmopen_ext'}", undef);
+         dbmopen (%FTDB, "$folderdir/.filter.book$config{'dbmopen_ext'}", 0600);
          foreach my $key (keys %FTDB) {
            if ( ! defined($filterrules{$key}) &&
                 $key ne "filter_fakedsmtp" &&
