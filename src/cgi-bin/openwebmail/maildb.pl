@@ -10,7 +10,7 @@
 # 4. it supports search on mail spool file and cache the results for 
 #    repeated queries.
 #
-# 2000/11/06 tung@turtle.ee.ncku.edu.tw
+# 2001/04/05 tung@turtle.ee.ncku.edu.tw
 #
 # IMPORTANT!!!
 #
@@ -603,12 +603,12 @@ sub get_message_block {
 ####################### PARSE_.... related ###########################
 # Handle "message/rfc822,multipart,uuencode inside message/rfc822" encapsulation.
 sub parse_rfc822block {
-   my $r_block=$_[0];
+   my ($r_block, $nodeid, $searchid)=@_;
    my @attachments=();
-
    my ($header, $body)=split(/\n\r*\n/, ${$r_block}, 2);
-
    my ($contenttype, $encoding)=get_contenttype_encoding_from_header($header);
+
+   $nodeid=0 unless defined $nodeid;
 
    if ($contenttype =~ /^multipart/i) {
       my @attblocks;
@@ -618,40 +618,54 @@ sub parse_rfc822block {
       $subtype =~ s/^multipart\/(.*?)[;\s].*$/$1/i;
 
       ($body, @attblocks) = split(/\-\-\Q$boundary\E\n*/,$body);
-      foreach (@attblocks) {
-         my $r_attachments2=parse_attblock(\$_, $subtype, $boundary);
-         push(@attachments, @{$r_attachments2});
+      for(my $i=0; $i<=$#attblocks; $i++) {
+         if ( $searchid eq "" || $searchid=~/^$nodeid-$i/ ) {
+            my $r_attachments2=parse_attblock(\$attblocks[$i], $subtype, $boundary, "$nodeid-$i");
+            push(@attachments, @{$r_attachments2});
+         }
       }
+      return($header, $body, \@attachments);
 
    } elsif ($contenttype =~ /^message/i ) {
-      my ($header2, $body2, $r_attachments2)=parse_rfc822block(\$body);
+      if ( $searchid eq "" || $searchid=~/^$nodeid-0/ ) {
+         my ($header2, $body2, $r_attachments2)=parse_rfc822block(\$body, "$nodeid-0", $searchid);
 
-      $header2 = decode_mimewords($header2);
-      my $temphtml=headerbody2html($header2, $body2);
+         if ( $searchid eq "" || $searchid eq $nodeid ) {
+            $header2 = decode_mimewords($header2);
 
-      push(@attachments, make_attachment("","", "",$temphtml,
-	$encoding,"text/html", "inline; filename=Unknown.msg","","") );
-      push (@attachments, @{$r_attachments2});
+            my $temphtml=headerbody2html($header2, $body2);
+            push(@attachments, make_attachment("","", "",\$temphtml,
+   		$encoding,"text/html", "inline; filename=Unknown.msg","","", $nodeid) );
+         }
+         push (@attachments, @{$r_attachments2});
+      }
+      return($header, $body, \@attachments);
 
    } elsif ( ($contenttype eq 'N/A') || ($contenttype =~ /^text\/plain/i) ) {
       # Handle uuencode blocks inside a text/plain mail
       if ( $body =~ /\n\nbegin ([0-7][0-7][0-7][0-7]?) ([^\n\r]+)\n(.+?)\nend\n/ims ) {
-         my $r_attachments2;
-         ($body, $r_attachments2)=parse_uuencode_body($body);
-         push(@attachments, @{$r_attachments2});
+         if ( $searchid eq "" || $searchid=~/^$nodeid-0/ ) {
+            my $r_attachments2;
+            ($body, $r_attachments2)=parse_uuencode_body($body, "$nodeid-0", $searchid);
+            push(@attachments, @{$r_attachments2});
+         }
       }
+      return($header, $body, \@attachments);
 
    } elsif ( ($contenttype ne 'N/A') && !($contenttype =~ /^text/i) ) {
-      push(@attachments, make_attachment("","", "",$body, $encoding,$contenttype, "","","") );
-      $body = " ";
-   }
+      if ( $searchid eq "" || $searchid eq $nodeid ) {
+         push(@attachments, make_attachment("","", "",\$body, $encoding,$contenttype, "","","", $nodeid) );
+      }
+      return($header, " ", \@attachments);
 
-   return($header, $body, \@attachments);
+   } else {
+      return($header, $body, \@attachments);
+   }
 }
 
 # Handle "message/rfc822,multipart,uuencode inside multipart" encapsulation.
 sub parse_attblock {
-   my ($r_attblock, $subtype, $boundary)=@_;
+   my ($r_attblock, $subtype, $boundary, $nodeid, $searchid)=@_;
    my @attachments=();
 
    my ($attheader, $attcontent, $attencoding, $attcontenttype, 
@@ -695,25 +709,32 @@ sub parse_attblock {
       $subtype =~ s/^multipart\/(.*?)[;\s].*$/$1/i;
 
       ($attcontent, @attblocks) = split(/\-\-\Q$boundary\E\n*/,$attcontent);
-      foreach (@attblocks) {
-         my $r_attachments2=parse_attblock(\$_, $subtype, $boundary);
-         push(@attachments, @{$r_attachments2});
+      foreach (my $i=0; $i<=$#attblocks; $i++) {
+         if ( $searchid eq "" || $searchid=~/^$nodeid-$i/ ) {
+            my $r_attachments2=parse_attblock(\$attblocks[$i], $subtype, $boundary, "$nodeid-$i");
+            push(@attachments, @{$r_attachments2});
+         }
       }
 
    } elsif ($attcontenttype =~ /^message/i ) {
-      my ($header2, $body2, $r_attachments2)=parse_rfc822block(\$attcontent);
+      if ( $searchid eq "" || $searchid=~/^$nodeid-0/ ) {
+         my ($header2, $body2, $r_attachments2)=parse_rfc822block(\$attcontent, "$nodeid-0");
 
-      $header2 = decode_mimewords($header2);
-      my $temphtml=headerbody2html($header2, $body2);
+         if ( $searchid eq "" || $searchid eq $nodeid ) {
+            $header2 = decode_mimewords($header2);
 
-      push(@attachments, make_attachment($subtype,"", $attheader,$temphtml,
-	$attencoding,"text/html", "inline; filename=Unknown.msg",$attid,$attlocation));
-      push (@attachments, @{$r_attachments2});
-
+            my $temphtml=headerbody2html($header2, $body2);
+            push(@attachments, make_attachment($subtype,"", $attheader,\$temphtml,
+		$attencoding,"text/html", "inline; filename=Unknown.msg",$attid,$attlocation, $nodeid));
+         }
+         push (@attachments, @{$r_attachments2});
+      }
    } elsif ($attcontenttype ne "N/A" ) {
-      if ($attcontent !~ /^\s*$/ ) { # if attach contains only \s, discard it 
-         push(@attachments, make_attachment($subtype,$boundary, $attheader,$attcontent, 
-		$attencoding,$attcontenttype, $attdisposition,$attid,$attlocation) );
+      if ( $searchid eq "" || $searchid eq $nodeid ) {
+         if ($attcontent !~ /^\s*$/ ) { # if attach contains only \s, discard it 
+            push(@attachments, make_attachment($subtype,$boundary, $attheader,\$attcontent, 
+		$attencoding,$attcontenttype, $attdisposition,$attid,$attlocation, $nodeid) );
+         }
       }
    }
    return(\@attachments);
@@ -721,33 +742,38 @@ sub parse_attblock {
 
 # convert uuencode block into base64 encoded atachment
 sub parse_uuencode_body {
-   my $body=$_[0];
+   my ($body, $nodeid, $searchid)=@_;
    my @attachments=();
+   my $i;
 
    # Handle uuencode blocks inside a text/plain mail
+   $i=0;
    while ( $body =~ m/\n\nbegin ([0-7][0-7][0-7][0-7]?) ([^\n\r]+)\n(.+?)\nend\n/igms ) {
-      my ($uumode, $uufilename, $uubody) = ($1, $2, $3);
-      my $uutype;
-      if ($uufilename=~/\.doc$/i) {
-          $uutype="application/msword";
-      } elsif ($uufilename=~/\.ppt$/i) {
-          $uutype="application/x-msexcel";
-      } elsif ($uufilename=~/\.xls$/i) {
-          $uutype="application/x-mspowerpoint";
-      } else {
-          $uutype="application/octet-stream";
+      if ( $searchid eq "" || $searchid eq "$nodeid-$i" ) {
+         my ($uumode, $uufilename, $uubody) = ($1, $2, $3);
+         my $uutype;
+         if ($uufilename=~/\.doc$/i) {
+            $uutype="application/msword";
+         } elsif ($uufilename=~/\.ppt$/i) {
+            $uutype="application/x-msexcel";
+         } elsif ($uufilename=~/\.xls$/i) {
+            $uutype="application/x-mspowerpoint";
+         } else {
+            $uutype="application/octet-stream";
+         }
+
+         # convert and inline uuencode block into an base64 encoded attachment
+         my $uuheader=qq|Content-Type: $uutype;\n|.
+                      qq|\tname="$uufilename"\n|.
+                      qq|Content-Transfer-Encoding: base64\n|.
+                      qq|Content-Disposition: attachment;\n|.
+                      qq|\tfilename="$uufilename"|;
+         $uubody=encode_base64(uudecode($uubody));
+
+         push( @attachments, make_attachment("","", $uuheader,\$uubody, 
+		"base64",$uutype, "attachment; filename=$uufilename","","", "$nodeid-$i") );
       }
-
-      # convert and inline uuencode block into an base64 encoded attachment
-      my $uuheader=qq|Content-Type: $uutype;\n|.
-                   qq|\tname="$uufilename"\n|.
-                   qq|Content-Transfer-Encoding: base64\n|.
-                   qq|Content-Disposition: attachment;\n|.
-                   qq|\tfilename="$uufilename"|;
-      $uubody=encode_base64(uudecode($uubody));
-
-      push( @attachments, make_attachment("","", $uuheader,$uubody, 
-	"base64",$uutype, "attachment; filename=$uufilename","","") );
+      $i++;
    }
 
    $body =~ s/\n\nbegin ([0-7][0-7][0-7][0-7]?) ([^\n\r]+)\n(.+?)\nend\n//igms;
@@ -813,9 +839,13 @@ sub headerbody2html {
 
 # subtype and boundary are inherit from parent attblocks,
 # they are used to distingush if two attachments are winthin same group
+# note: the $r_attcontent is a reference to the contents of an attachment,
+#       this routine will save this reference to attachment hash directly.
+#       It means the call must ensure the variable referenced by 
+#       $r_attcontent must be kept untouched!
 sub make_attachment {
-   my ($subtype,$boundary, $attheader,$attcontent, $attencoding,$attcontenttype, 
-			$attdisposition,$attid,$attlocation)=@_;
+   my ($subtype,$boundary, $attheader,$r_attcontent, $attencoding,$attcontenttype, 
+			$attdisposition,$attid,$attlocation, $nodeid)=@_;
    my $attfilename;
    my %temphash;
 
@@ -833,12 +863,13 @@ sub make_attachment {
    $temphash{boundary} = $boundary;
 
    $temphash{header} = decode_mimewords($attheader);
-   $temphash{contents} = $attcontent;
+   $temphash{r_content} = $r_attcontent;
    $temphash{filename} = decode_mimewords($attfilename);
    $temphash{contenttype} = $attcontenttype || 'text/plain';
    $temphash{encoding} = $attencoding;
    $temphash{id} = $attid;
    $temphash{location} = $attlocation;
+   $temphash{nodeid} = $nodeid;
 
    return(\%temphash);
 }
@@ -889,7 +920,7 @@ sub search_messages_for_keyword {
         $cache_keyword ne $keyword ) {
       ($cachefile =~ /^(.+)$/) && ($cachefile = $1);		# bypass taint check
       open(CACHE, ">$cachefile");
-      print CACHE $metainfo, "\n", $headerdb, "\n", $sort, "\n";
+      print CACHE $metainfo, "\n", $headerdb, "\n", $keyword, "\n";
 
       @messageids=get_messageids_sorted_by_offset($headerdb, $spoolhandle);
 
@@ -927,11 +958,11 @@ sub search_messages_for_keyword {
          foreach my $r_attachment (@{$r_attachments}) {
             if ( ${$r_attachment}{contenttype} =~ /^text/i ) {	# read all for text/plain. text/html
                if ( ${$r_attachment}{encoding} =~ /^quoted-printable/i ) {
-                  ${$r_attachment}{contents} = decode_qp( ${$r_attachment}{contents});
+                  ${${$r_attachment}{r_content}} = decode_qp( ${${$r_attachment}{r_content}});
                } elsif ( ${$r_attachment}{encoding} =~ /^base64/i ) {
-                  ${$r_attachment}{contents} = decode_base64( ${$r_attachment}{contents});
+                  ${${$r_attachment}{r_content}} = decode_base64( ${${$r_attachment}{r_content}});
                }
-               if ( ${$r_attachment}{contents} =~ /$keyword/im ) {
+               if ( ${${$r_attachment}{r_content}} =~ /$keyword/im ) {
                   print CACHE $messageid, "\n";
                   $found{$messageid}=1;
                   last;	# leave attachments check in one message
@@ -1056,7 +1087,7 @@ sub html4attachments {
 
    for ($i=0; $i<=$#{$r_attachments}; $i++) {
       my $filename=CGI::escape(${${$r_attachments}[$i]}{filename});
-      my $link="$scripturl/$filename?$scriptparm&amp;attachment_number=$i&amp;";
+      my $link="$scripturl/$filename?$scriptparm&amp;attachment_nodeid=${${$r_attachments}[$i]}{nodeid}&amp;";
       my $cid="cid:"."${${$r_attachments}[$i]}{id}";
       my $loc=${${$r_attachments}[$i]}{location};
       $html =~ s#\Q$loc\E#$link#ig if ($loc ne "");

@@ -1,10 +1,24 @@
-04/02/2001
+04/05/2001
 ----------
-1. reduce the memory usage when uploading large attachment
-2. use MIME::Base64 module with XS support to speed up the encoding/decoding 
-   of attachments
-3. minor change for attachments handling in message forward
-4. fix ~openwebmail/etc mode to 770
+1. fix "the message is gone" problem introduced by the patch
+   at 04/04/2001
+2. fix a bug in content search, which makes the search cache always miss
+
+
+04/04/2001
+----------
+1. further reduce the memory usage of attachment handling.
+
+
+04/02/2001 (version 1.03)
+----------
+1. reduce the memory usage when 
+   a. uploading a large attachment
+   b. reading message with large attachments
+2. use MIME::Base64 module with XS support to speed up the 
+   encoding/decoding of attachments
+3. fix 3DGENERATOR> bug when forwarding a message with attachments
+4. fix ~openwebmail/etc mode, it should be 770
 
 
 03/17/2001

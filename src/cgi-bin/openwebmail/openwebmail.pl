@@ -1206,11 +1206,11 @@ sub readmessage {
                if ( ${$message{attachment}[$attnumber]}{filename}=~ /^Unknown\.msg/ ) {
 
                   my ($header, $body)=
-			split(/\n\r*\n/, ${$message{attachment}[$attnumber]}{contents}, 2);
+			split(/\n\r*\n/, ${${$message{attachment}[$attnumber]}{r_content}}, 2);
                   $header=simpleheader($header);
                   #set bgcolor for message/rfc822 header
                   $header=~s/#dddddd/$style{"window_dark"}/ig;	
-                  ${$message{attachment}[$attnumber]}{contents}=$header."\n\n".$body;
+                  ${${$message{attachment}[$attnumber]}{r_content}}=$header."\n\n".$body;
 
                   $temphtml .= html_att2table($message{attachment}, $attnumber, $escapedmessageid);
                } elsif ( ${$message{attachment}[$attnumber]}{filename}=~ /^Unknown\./ ) {
@@ -1240,7 +1240,7 @@ sub readmessage {
       # enable download the whole message block in attmode==all
       if ( $attmode eq 'all' ) {
          $temphtml .= qq|<table width="100%" border="0" align="center" cellpadding="2"><tr><td align=right>|.
-                      qq|<a href="$scripturl/Unknown.msg?action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder&amp;attachment_number=all">$lang_text{'download'}</a>|.
+                      qq|<a href="$scripturl/Unknown.msg?action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder&amp;attachment_nodeid=all">$lang_text{'download'}</a>|.
                       qq|</td></tr></table>|;
       }
 
@@ -1274,11 +1274,11 @@ sub html_att2table {
    my $temphtml;
 
    if (${$r_attachment}{encoding} =~ /^quoted-printable/i) {
-      $temphtml = decode_qp(${$r_attachment}{contents});
+      $temphtml = decode_qp(${${$r_attachment}{r_content}});
    } elsif (${$r_attachment}{encoding} =~ /^base64/i) {
-      $temphtml = decode_base64(${$r_attachment}{contents});
+      $temphtml = decode_base64(${${$r_attachment}{r_content}});
    } else {
-      $temphtml = ${$r_attachment}{contents};
+      $temphtml = ${${$r_attachment}{r_content}};
    }
 
    $decodedhtml = $temphtml;	# store decoded html in global, used by others 
@@ -1298,11 +1298,11 @@ sub text_att2table {
    my $temptext;
 
    if (${$r_attachment}{encoding} =~ /^quoted-printable/i) {
-      $temptext = decode_qp(${$r_attachment}{contents});
+      $temptext = decode_qp(${${$r_attachment}{r_content}});
    } elsif (${$r_attachment}{encoding} =~ /^base64/i) {
-      $temptext = decode_base64(${$r_attachment}{contents});
+      $temptext = decode_base64(${${$r_attachment}{r_content}});
    } else {
-      $temptext = ${$r_attachment}{contents};
+      $temptext = ${${$r_attachment}{r_content}};
    }
  
    # remove odds space or blank lines
@@ -1317,13 +1317,14 @@ sub image_att2table {
 
    my $r_attachment=${$r_attachments}[$attnumber];
    my $escapedfilename = CGI::escape(${$r_attachment}{filename});
-   my $attlen=lenstr(length(${$r_attachment}{contents}));
+   my $attlen=lenstr(length(${${$r_attachment}{r_content}}));
+   my $nodeid=${$r_attachment}{nodeid};
 
    my $temphtml .= qq|<table border="0" align="center" cellpadding="2">|.
                    qq|<tr><td valign="middle" bgcolor=$style{"attachment_dark"} align="center">|.
-                   qq|$lang_text{'attachment'} $attnumber: ${$r_attachment}{filename} &nbsp;($attlen)|.
+                   qq|$lang_text{'attachment'} $attnumber: ${$r_attachment}{filename} &nbsp;($attlen)&nbsp;&nbsp;<font color=$style{"attachment_dark"}  size=-2>$nodeid</font>|.
                    qq|</td></tr><td valign="middle" bgcolor=$style{"attachment_light"} align="center">|.
-                   qq|<IMG BORDER="0" SRC="$scripturl/$escapedfilename?action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder&amp;attachment_number=$attnumber">|.
+                   qq|<IMG BORDER="0" SRC="$scripturl/$escapedfilename?action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder&amp;attachment_nodeid=$nodeid">|.
                    qq|</td></tr></table>|;
    return($temphtml);
 }
@@ -1333,17 +1334,18 @@ sub misc_att2table {
 
    my $r_attachment=${$r_attachments}[$attnumber];
    my $escapedfilename = CGI::escape(${$r_attachment}{filename});
-   my $attlen=lenstr(length(${$r_attachment}{contents}));
+   my $attlen=lenstr(length(${${$r_attachment}{r_content}}));
+   my $nodeid=${$r_attachment}{nodeid};
 
    my $temphtml .= qq|<table border="0" width="40%" align="center" cellpadding="2">|.
                    qq|<tr><td nowrap colspan="2" valign="middle" bgcolor=$style{"attachment_dark"} align="center">|.
-                   qq|$lang_text{'attachment'} $attnumber: ${$r_attachment}{filename}&nbsp;($attlen)|.
+                   qq|$lang_text{'attachment'} $attnumber: ${$r_attachment}{filename}&nbsp;($attlen)&nbsp;&nbsp;<font color=$style{"attachment_dark"}  size=-2>$nodeid|.
                    qq|</td></tr>|.
                    qq|<tr><td nowrap valign="middle" bgcolor= $style{"attachment_light"} align="center">|.
                    qq|$lang_text{'type'}: ${$r_attachment}{contenttype}<br>|.
                    qq|$lang_text{'encoding'}: ${$r_attachment}{encoding}|.
                    qq|</td><td nowrap width="10%" valign="middle" bgcolor= $style{"attachment_light"} align="center">|.
-                   qq|<a href="$scripturl/$escapedfilename?action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder&amp;attachment_number=$attnumber">$lang_text{'download'}</a>|.
+                   qq|<a href="$scripturl/$escapedfilename?action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder&amp;attachment_nodeid=$nodeid">$lang_text{'download'}</a>|.
                    qq|</td></tr></table>|;
    return($temphtml);
 }
@@ -1351,9 +1353,9 @@ sub misc_att2table {
 sub lenstr {
    my $len=$_[0];
 
-   if ($len > 1048575){
+   if ($len >= 10485760){
       $len = int(($len/1048576)+0.5) . "MB";
-   } elsif ($len > 1023) {
+   } elsif ($len > 10240) {
       $len =  int(($len/1024)+0.5) . "KB";
    } else {
       $len = $len . "byte";
@@ -1475,12 +1477,12 @@ sub composemessage {
             (defined(${$message{attachment}[0]}{contenttype})) &&
             (${$message{attachment}[0]}{contenttype} =~ /^text\/plain/i)) {
             if (${$message{attachment}[0]}{encoding} =~ /^quoted-printable/i) {
-               ${$message{attachment}[0]}{contents} =
-               decode_qp(${$message{attachment}[0]}{contents});
+               ${${$message{attachment}[0]}{r_content}} =
+               decode_qp(${${$message{attachment}[0]}{r_content}});
             } elsif (${$message{attachment}[$attnumber]}{encoding} =~ /^base64/i) {
-               	 ${$message{attachment}[$attnumber]}{contents} = decode_base64(${$message{attachment}[$attnumber]}{contents});
+               	 ${${$message{attachment}[$attnumber]}{r_content}} = decode_base64(${${$message{attachment}[$attnumber]}{r_content}});
             }
-            $body = ${$message{attachment}[0]}{contents};
+            $body = ${${$message{attachment}[0]}{r_content}};
 
 # remove text and html version of the body message from attachments
             if ( defined(%{$message{attachment}[1]}) &&
@@ -1514,8 +1516,8 @@ sub composemessage {
 # Handle the messages generated if sendmail is set up to send MIME error reports
          if ($message{contenttype} =~ /^multipart\/report/i) {
             foreach my $attnumber (0 .. $#{$message{attachment}}) {
-               if (defined(${$message{attachment}[$attnumber]}{contents})) {
-                  $body .= ${$message{attachment}[$attnumber]}{contents};
+               if (defined(${${$message{attachment}[$attnumber]}{r_content}})) {
+                  $body .= ${${$message{attachment}[$attnumber]}{r_content}};
                   shift @{$message{attachment}};
                }
             }
@@ -1549,7 +1551,7 @@ sub composemessage {
             foreach my $attnumber (0 .. $#{$message{attachment}}) {
 	       ($attnumber =~ /^(.+)$/) && ($attnumber = $1);   # bypass taint check
                open (ATTFILE, ">$openwebmaildir$thissession-att$attnumber");
-               print ATTFILE ${$message{attachment}[$attnumber]}{header}, "\n\n", ${$message{attachment}[$attnumber]}{contents};
+               print ATTFILE ${$message{attachment}[$attnumber]}{header}, "\n\n", ${${$message{attachment}[$attnumber]}{r_content}};
                close ATTFILE;
             }
             @attlist = @{&getattlist()};
@@ -1977,7 +1979,7 @@ sub viewattachment {
    verifysession();
 
    my $messageid = param("message_id");
-   my $attnum = param("attachment_number");
+   my $nodeid = param("attachment_nodeid");
 
    ($spoolfile, $headerdb)=get_spoolfile_headerdb_and_set_uid_gid();
 
@@ -1997,7 +1999,7 @@ sub viewattachment {
       return;
    }
 
-   if ( $attnum eq 'all' ) {
+   if ( $nodeid eq 'all' ) {
       # return whole msg as an message/rfc822 object
       my $length = length(${$r_block});
       print qq|Content-Length: $length\n|,
@@ -2010,20 +2012,26 @@ sub viewattachment {
    } else {
       # return a specific attachment
 
-      my ($header, $body, $r_attachments)=parse_rfc822block($r_block);
-      $r_attachment=${$r_attachments}[$attnum];
+      my ($header, $body, $r_attachments)=parse_rfc822block($r_block, "0", $nodeid);
+      my $r_attachment;
+
+      for (my $i=0; $i<=$#{$r_attachments}; $i++) {
+         if ( ${${$r_attachments}[$i]}{nodeid} eq $nodeid ) {
+            $r_attachment=${$r_attachments}[$i];
+         }
+      }
 
       if ($r_attachment) {
          my $content;
 
          if (${$r_attachment}{encoding} =~ /^base64$/i) {
-            $content = decode_base64(${$r_attachment}{contents});
+            $content = decode_base64(${${$r_attachment}{r_content}});
          } elsif (${$r_attachment}{encoding} =~ /^quoted-printable$/i) {
-            $content = decode_qp(${$r_attachment}{contents});
+            $content = decode_qp(${${$r_attachment}{r_content}});
 #         } elsif (${$r_attachment}{encoding} =~ /^uuencode$/i) {
-#            $content = uudecode(${$r_attachment}{contents});
+#            $content = uudecode(${${$r_attachment}{r_content}});
          } else { ## Guessing it's 7-bit, at least sending SOMETHING back! :)
-            $content = ${$r_attachment}{contents};
+            $content = ${${$r_attachment}{r_content}};
          }
 
          if (${$r_attachment}{contenttype} =~ m#^text/html#i ) {
@@ -2152,7 +2160,7 @@ sub getmessage {
 
    # $r_attachment is a reference to attachment array!
    ($currentheader, $currentbody, $r_currentattachments)
-	=parse_rfc822block(get_message_block($messageid, $headerdb, $spoolhandle));
+	=parse_rfc822block(get_message_block($messageid, $headerdb, $spoolhandle), "0");
 
    close($spoolhandle);
    filelock($spoolfile, LOCK_UN);
