@@ -2,7 +2,7 @@
 
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-  <title>Insert Image</title>
+  <title>Inds&aelig;t billede</title>
 
 <script type="text/javascript" src="popup.js"></script>
 
@@ -16,8 +16,8 @@ function Init() {
 
 function onOK() {
   var required = {
-    "f_url": "You must enter the URL",
-    "f_alt": "Please enter the alternate text"
+    "f_url": "Du skal skrive en URL",
+    "f_alt": "Du skal skrive en alternativ tekst"
   };
   for (var i in required) {
     var el = document.getElementById(i);
@@ -55,7 +55,7 @@ function onPreview() {
   var f_url = document.getElementById("f_url");
   var url = f_url.value;
   if (!url) {
-    alert("You have to enter an URL first");
+    alert("Du skal skrive en URL først");
     f_url.focus();
     return false;
   }
@@ -126,32 +126,32 @@ form { padding: 0px; margin: 0px; }
 
 <body onload="Init()">
 
-<div class="title">Insert Image</div>
+<div class="title">Inds&aelig;t billede</div>
 
 <form action="" method="get">
 <table border="0" width="100%" style="padding: 0px; margin: 0px">
   <tbody>
 
   <tr>
-    <td style="width: 7em; text-align: right">Attachments:</td>
+    <td style="width: 7em; text-align: right">Vedh&aelig;ftede:</td>
     <td><select name="attlist" id="f_attlist" 
          onchange="return onChange();" style="witdth:100%">
-        <option selected value="">-- Not selected --
+        <option selected value="">-- Ingen valgt --
         </select>
     </td>
   </tr>
   <tr>
-    <td style="width: 7em; text-align: right">Image URL:</td>
+    <td style="width: 7em; text-align: right">Billedets URL:</td>
     <td><input type="text" name="url" id="f_url" style="width:75%"
-      title="Enter the image URL here" />
+      title="Skriv billedets URL her" />
       <button name="preview" onclick="return onPreview();"
-      title="Preview the image in a new window">Preview</button>
+      title="Vis hvordan billedet kommer til at se ud i et nyt vindue">Forh&aring;ndsvis</button>
     </td>
   </tr>
   <tr>
-    <td style="width: 7em; text-align: right">Alternate text:</td>
+    <td style="width: 7em; text-align: right">Alternativ tekst:</td>
     <td><input type="text" name="alt" id="f_alt" style="width:100%"
-      title="For browsers that don't support images" /></td>
+      title="For browsere der ikke viser billeder" /></td>
   </tr>
 
   </tbody>
@@ -164,45 +164,45 @@ form { padding: 0px; margin: 0px; }
 
 <div class="space"></div>
 
-<div class="fl">Alignment:</div>
+<div class="fl">Justering:</div>
 <select size="1" name="align" id="f_align"
-  title="Positioning of this image">
-  <option value=""                             >Not set</option>
-  <option value="left"                         >Left</option>
-  <option value="right"                        >Right</option>
-  <option value="texttop"                      >Texttop</option>
-  <option value="absmiddle"                    >Absmiddle</option>
+  title="Billedets placering">
+  <option value=""                             >Ikke sat</option>
+  <option value="left"                         >Venstre</option>
+  <option value="right"                        >H&oslash;jre</option>
+  <option value="texttop"                      >Teksttop</option>
+  <option value="absmiddle"                    >Abs. midte</option>
   <option value="baseline" selected="1"        >Baseline</option>
-  <option value="absbottom"                    >Absbottom</option>
-  <option value="bottom"                       >Bottom</option>
-  <option value="middle"                       >Middle</option>
+  <option value="absbottom"                    >Abs. bund</option>
+  <option value="bottom"                       >Bund</option>
+  <option value="middle"                       >Midte</option>
   <option value="top"                          >Top</option>
 </select>
 
 <p />
 
-<div class="fl">Border thickness:</div>
+<div class="fl">Rammens tykkelse:</div>
 <input type="text" name="border" id="f_border" size="5"
-title="Leave empty for no border" />
+title="Lad den st&aring; blank hvis der ingen ramme skal v&aelig;re" />
 
 <div class="space"></div>
 
 </fieldset>
 
 <fieldset style="float:right; margin-right: 5px;">
-<legend>Spacing</legend>
+<legend>Afstand</legend>
 
 <div class="space"></div>
 
-<div class="fr">Horizontal:</div>
+<div class="fr">Vandrret:</div>
 <input type="text" name="horiz" id="f_horiz" size="5"
-title="Horizontal padding" />
+title="Afstand til siderne" />
 
 <p />
 
-<div class="fr">Vertical:</div>
+<div class="fr">Lodret:</div>
 <input type="text" name="vert" id="f_vert" size="5"
-title="Vertical padding" />
+title="Afstand ovenover og nedenunder" />
 
 <div class="space"></div>
 
@@ -210,8 +210,8 @@ title="Vertical padding" />
 
 <div style="margin-top: 85px; text-align: right;">
 <hr />
-<button type="button" name="ok" onclick="return onOK();">OK</button>
-<button type="button" name="cancel" onclick="return onCancel();">Cancel</button>
+<button type="button" name="ok" onclick="return onOK();">O.k.</button>
+<button type="button" name="cancel" onclick="return onCancel();">Annuler</button>
 </div>
 
 </form>

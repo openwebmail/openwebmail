@@ -1,7 +1,7 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td colspan="5" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>OPS&AElig;TNING AF POP3 KONTI</b></font>
+<b>OPS&AElig;TNING AF POP3-KONTI</b></font>
 </td><td nowrap colspan="3" bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <b> @@@FREESPACE@@@ ledig</b></font>
@@ -10,19 +10,19 @@
 </td></tr><tr><td colspan="8">&nbsp;</td></tr>
 <tr>
 <td nowrap bgcolor=@@@COLUMNHEADER@@@>
-<B>POP3 Server</B> (klik for at &aelig;ndre)</td>
+<B>POP3-server</B> (klik for at &aelig;ndre)</td>
 <td nowrap bgcolor=@@@COLUMNHEADER@@@>
 <B>Port</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-@@@USEPOP3SSLSTART@@@<B>Use SSL</B>@@@USEPOP3SSLEND@@@</td>
+@@@USEPOP3SSLSTART@@@<B>Brug SSL</B>@@@USEPOP3SSLEND@@@</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Brugernavn</B> (klik for at hente posten)</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Adgangskode</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-@@@DELPOP3STRSTART@@@<B>Slet p&aring; server</B>@@@DELPOP3STREND@@@</td>
+@@@DELPOP3STRSTART@@@<B>Slet p&aring; serveren</B>@@@DELPOP3STREND@@@</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Aktiver</B></td>
+<B>Aktivér</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Handling</B>
 </td></tr>

@@ -3,7 +3,7 @@ package ow::de;
 # German translation, charset: iso-8859-1
 # by Andreas Roedl, flood.AT.flood-net.de
 #    Christian Schoepplein, mail.AT.schoeppi.net
-#    Markus Zander, markus.zander1.at.epost.de
+#    Markus Zander, markus.zander1.AT.epost.de
 
 %lang_folders =
    (

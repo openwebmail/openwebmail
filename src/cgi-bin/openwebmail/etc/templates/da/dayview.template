@@ -2,7 +2,7 @@
 <table border="0" align="center" width="95%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>KALENDER - DAGS OVERSIGT</b></font>
+<b>KALENDER - DAGSOVERSIGT</b></font>
 </td><td align="right" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <b>@@@DAYDIFF@@@&nbsp;</b></font>
@@ -35,8 +35,8 @@
 <tr><td colspan=2 align=center><B>Tilf&oslash;j aftale</B></td></tr>
 <tr><td colspan=2 nowrap>@@@ITEMDATEMENU@@@</td></tr>
 <tr><td colspan=2 nowrap>@@@STRINGFIELD@@@</td></tr>
-<tr><td width=25% nowrap>Start time</td><td nowrap>@@@STARTHOURMINMENU@@@</td></tr>
-<tr><td width=25% nowrap>End time</td><td nowrap>@@@ENDHOURMINMENU@@@</td></tr>
+<tr><td width=25% nowrap>Starttid</td><td nowrap>@@@STARTHOURMINMENU@@@</td></tr>
+<tr><td width=25% nowrap>Sluttid</td><td nowrap>@@@ENDHOURMINMENU@@@</td></tr>
 <tr><td colspan=2 nowrap>@@@FREQMENU@@@</td></tr>
 <tr><td colspan=2 nowrap>@@@THISANDNEXTNDAYSCHECKBOX@@@ I dag og n&aelig;ste @@@NDAYSFIELD@@@ dage</td></tr>
 <tr><td colspan=2 nowrap>@@@MONTHFREQMENU@@@</td></tr>
@@ -44,10 +44,10 @@
 <tr><td colspan=2 nowrap>Link denne aftale til:</td></tr>
 <tr><td colspan=2 nowrap>@@@LINKFIELD@@@</td></tr>
 @@@EMAILSTART@@@
-<tr><td colspan=2 nowrap>Send p&aring;mindelses mail til</td></tr>
+<tr><td colspan=2 nowrap>Send p&aring;mindelses-mail til</td></tr>
 <tr><td colspan=2 nowrap>@@@EMAILFIELD@@@</td></tr>
 @@@EMAILEND@@@
-<tr><td nowrap>Event Color</td><td nowrap>@@@EVENTCOLORMENU@@@</td></tr>
+<tr><td nowrap>Farv aftalen</td><td nowrap>@@@EVENTCOLORMENU@@@</td></tr>
 <tr><td colspan=2>@@@COLORTABLE@@@</td></tr>
 <tr><td colspan=2 align=center>@@@SUBMITBUTTON@@@</td></tr>
 @@@ENDFORM@@@

@@ -3,7 +3,7 @@
 @@@STARTSAVEDFORM@@@
 <tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>INDSTILLINGER GEMT</B></font>
+<B>INDSTILLINGERNE BLEV GEMT</B></font>
 </td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 <BR>Dine indstillinger er blevet gemt.<BR>&nbsp;<BR>
 @@@CONTINUEBUTTON@@@

@@ -10,7 +10,7 @@
 
 <table border="0" width="100%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@COLUMNHEADER@@@>
-<B>V&aelig;lg folder</B>
+<B>V&aelig;lg mappe</B>
 &nbsp;<input name="allbox" type="checkbox" value="1" onClick="CheckAll();">
 </td></tr>
 <tr><td bgcolor=@@@TABLEROW_LIGHT@@@>
@@ -22,10 +22,10 @@
 
 <table border="0" width="100%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@COLUMNHEADER@@@ colspan=2>
-<B>Date Range</B>
+<B>Datoer mellem</B>
 </td></tr>
 <tr><td bgcolor=@@@TABLEROW_LIGHT@@@>
-Start @@@STARTDATE@@@ &nbsp; end @@@ENDDATE@@@
+Start @@@STARTDATE@@@ &nbsp; slut @@@ENDDATE@@@
 </td><td bgcolor=@@@TABLEROW_LIGHT@@@>
 @@@DATERANGEMENU@@@
 </td></tr>
@@ -38,18 +38,18 @@ Start @@@STARTDATE@@@ &nbsp; end @@@ENDDATE@@@
 <td bgcolor=@@@COLUMNHEADER@@@><B>Filtrer p&aring;</B></td>
 <td bgcolor=@@@COLUMNHEADER@@@><B>Som indeholder</B></td>
 <td bgcolor=@@@COLUMNHEADER@@@><B>Tekst</B></td>
-<td bgcolor=@@@COLUMNHEADER@@@ align=center><B>Antal linier</B></td>
+<td bgcolor=@@@COLUMNHEADER@@@ align=center><B>Antal linjer</B></td>
 </tr>
 <tr>
 <td bgcolor=@@@TABLEROW_LIGHT@@@>@@@WHEREMENU0@@@</td>
 <td bgcolor=@@@TABLEROW_LIGHT@@@>@@@TYPEMENU0@@@</td>
-<td bgcolor=@@@TABLEROW_LIGHT@@@>@@@SEARCHTEXT0@@@ and</td>
+<td bgcolor=@@@TABLEROW_LIGHT@@@>@@@SEARCHTEXT0@@@ og</td>
 <td bgcolor=@@@TABLEROW_LIGHT@@@ align=center>@@@RESLINE@@@</td>
 </tr>
 <tr>
 <td bgcolor=@@@TABLEROW_LIGHT@@@>@@@WHEREMENU1@@@</td>
 <td bgcolor=@@@TABLEROW_LIGHT@@@>@@@TYPEMENU1@@@</td>
-<td bgcolor=@@@TABLEROW_LIGHT@@@>@@@SEARCHTEXT1@@@ and</td>
+<td bgcolor=@@@TABLEROW_LIGHT@@@>@@@SEARCHTEXT1@@@ og</td>
 <td bgcolor=@@@TABLEROW_LIGHT@@@ align=center>&nbsp;</td>
 </tr>
 <tr>

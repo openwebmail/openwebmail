@@ -23,7 +23,7 @@
 @@@STATNAME@@@
 </td></tr>
 <tr><td colspan="3" align="center" bgcolor=@@@WINDOW_DARK@@@ class=msgbody>
-<B>Signatur tekst</B><BR>
+<B>Signaturtekst</B><BR>
 @@@STATBODY@@@
 </td></tr>
 <tr><td colspan="3" align="center" bgcolor=@@@WINDOW_DARK@@@>

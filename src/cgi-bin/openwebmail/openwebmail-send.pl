@@ -80,7 +80,7 @@ $folder = ow::tool::unescapeURL(param('folder')) || 'INBOX';
 $messageid = param('message_id')||'';		# the orig message to reply/forward
 $mymessageid = param('mymessageid')||'';		# msg we are editing
 $page = param('page') || 1;
-$sort = param('sort') || $prefs{'sort'} || 'date';
+$sort = param('sort') || $prefs{'sort'} || 'date_rev';
 $searchtype = param('searchtype') || 'subject';
 $keyword = param('keyword') || '';
 

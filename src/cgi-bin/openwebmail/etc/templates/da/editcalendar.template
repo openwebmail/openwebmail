@@ -5,7 +5,7 @@
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>ÆNDRING AF AFTALE</B></FONT>
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Date:</B>
+<B>Dato:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ITEMDATEMENU@@@
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
@@ -13,21 +13,21 @@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@STRINGFIELD@@@
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Start tid:</B>
+<B>Starttid:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@STARTHOURMINMENU@@@
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Slut tid:</B>
+<B>Sluttid:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ENDHOURMINMENU@@@
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Recurrence:</B>
+<B>Gentagelse:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FREQMENU@@@
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>&nbsp;</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@THISANDNEXTNDAYSCHECKBOX@@@ This day and next @@@NDAYSFIELD@@@ days
+@@@THISANDNEXTNDAYSCHECKBOX@@@ Denne dag og de næste @@@NDAYSFIELD@@@ dage
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>&nbsp;</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -35,7 +35,7 @@
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>&nbsp;</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@EVERYYEARCHECKBOX@@@ Every year
+@@@EVERYYEARCHECKBOX@@@ Hvert år
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Ny URL:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -47,7 +47,7 @@
 @@@EMAILFIELD@@@
 @@@EMAILEND@@@
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Event Color:</B>
+<B>Aftalens farve:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@EVENTCOLORMENU@@@
 </td></tr><tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>

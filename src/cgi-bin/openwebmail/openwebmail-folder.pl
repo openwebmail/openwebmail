@@ -63,7 +63,7 @@ if (!$config{'enable_webmail'}) {
 
 $folder = ow::tool::unescapeURL(param('folder')) || 'INBOX';
 $page = param('page') || 1;
-$sort = param('sort') || $prefs{'sort'} || 'date';
+$sort = param('sort') || $prefs{'sort'} || 'date_rev';
 
 $escapedfolder=ow::tool::escapeURL($folder);
 

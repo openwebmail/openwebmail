@@ -65,7 +65,7 @@ if (!$config{'enable_webmail'}) {
 
 $folder = ow::tool::unescapeURL(param('folder')) || 'INBOX';
 $page = param('page') || 1;
-$sort = param('sort') || $prefs{'sort'} || 'date';
+$sort = param('sort') || $prefs{'sort'} || 'date_rev';
 $messageid=param('message_id') || '';
 $prefs_caller = param('prefs_caller')||'';
 

@@ -27,9 +27,9 @@
 <td align=center>@@@LOGINBUTTON@@@</td>
 <td align=center>
 <table><tr>
-<td>@@@HTTPCOMPRESSIONCHECKBOX@@@</td><td><font size=1>HTTP<br>Compression</font></td>
+<td>@@@HTTPCOMPRESSIONCHECKBOX@@@</td><td><font size=1>HTTP-<br>kompression</font></td>
 @@@AUTOLOGINSTART@@@
-<td>@@@AUTOLOGINCHECKBOX@@@</td><td><font size=1>Auto<br>Login</font></td>
+<td>@@@AUTOLOGINCHECKBOX@@@</td><td><font size=1>Automatisk<br>indlogning</font></td>
 @@@AUTOLOGINEND@@@
 </tr></table>
 </td>

@@ -1,7 +1,7 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td colspan="4" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>FILTERREGLER</b></font>
+<b>FILTRERINGSREGLER</b></font>
 </td><td nowrap colspan="6" bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <b> @@@FREESPACE@@@ ledig</b></font>
@@ -22,9 +22,9 @@
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Handling</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Flyt til folder</B></td>
+<B>Flyt til mappen</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Aktiver</B></td>
+<B>Aktivér</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Handling</B>
 </td></tr>

@@ -95,8 +95,7 @@ convert_addressbook('user', $prefs{'charset'});
 # mail globals
 $folder = ow::tool::unescapeURL(param('folder')) || 'INBOX';
 $page = param('page') || 1;
-
-$sort = param('sort') || $prefs{'sort'} || 'date';
+$sort = param('sort') || $prefs{'sort'} || 'date_rev';
 $messageid = param('message_id') || '';
 $searchtype = param('searchtype') || '';
 $keyword = ow::tool::unescapeURL(param('keyword')) || '';

@@ -2,13 +2,13 @@
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="1">
 <tr><td colspan="2" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>SKRIV NY MAIL</B></font>
+<B>SKRIV NY MEDDELELSE</B></font>
 </td></tr><tr><td colspan="2" bgcolor=@@@MENUBAR@@@>
 <table width="100%" cellspacing="0" cellpadding="0"><tr>
 <td>@@@BACKTOFOLDER@@@</td>
 <td align="right">
 <table border="0" cellpadding="0" cellspacing="0"><tr>
-<td>Benyt f&oslash;lgende karakters&aelig;t: </td>
+<td>Benyt tegns&aelig;ttet:&nbsp; </td>
 <td>@@@CONVTOMENU@@@&nbsp;</td>
 </tr></table>
 </td>
@@ -29,12 +29,12 @@
 @@@TOFIELD@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
-<B>CC:</B>
+<B>Kopi til:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CCFIELD@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
-<B>BCC:</B>
+<B>Skjult kopi til:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BCCFIELD@@@
 </td></tr>
@@ -43,7 +43,7 @@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 <table border="0" cellpadding="0" cellspacing="0"><tr>
 <td>@@@REPLYTOFIELD@@@&nbsp;&nbsp;</td>
-<td><B>Kvittering for l&aelig;st post</B></td>
+<td><B>Kvittering ved l&aelig;sning</B></td>
 <td>@@@CONFIRMREADINGCHECKBOX@@@</td>
 </tr></table>
 </td></tr>
@@ -58,7 +58,7 @@
 <table border="0" cellpadding="0" cellspacing="0"><tr>
 <td>@@@SUBJECTFIELD@@@&nbsp;&nbsp;</td>
 @@@BACKUPSENTSTART@@@
-<td><B>Gem i 'Sendt post'</B></td>
+<td><B>Gem i 'Sendt mail'</B></td>
 <td>@@@BACKUPSENTMSGCHECKBOX@@@</td>
 @@@BACKUPSENTEND@@@
 </tr></table>

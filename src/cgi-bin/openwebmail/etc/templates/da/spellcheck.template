@@ -10,9 +10,9 @@
 <BR>Et sæt forslag af &aelig;ndringer vil blive givet for hver ord med stavefejl.
 Du kan s&aring; v&aelig;lge et ord fra listen, til erstatning af original ordet.
 Hvis der ikke bliver fundet forslag til &aelig;ndringer kan du vælger "-Manuel rettelse-"
-og klikke på [Check igen], så vil ordet blive tilgængelig, og du kan selv rette det.
-If the user chooses "--Add to Dictionary--" and then clicks [Check Again], 
-the original word will be added to the user's personal dictionary.
+og klikke på [Tjek igen], så vil ordet blive tilgængelig, og du kan selv rette det.
+Hvis brugeren vælger "--Tilføj til ordbogen--" og trykker på [Tjek igen], 
+bliver ordet tilføjet til brugerens personlige ordbog.
 </td></tr>
 </table>
 <br>

@@ -52,10 +52,10 @@
 
 <table border="0" align="center" width="95%" cellpadding="1" cellspacing="1">
 <tr><td bgcolor=@@@COLUMNHEADER@@@>
-<B>Operation</B>
+<B>Handling</B>
 </td></tr><tr><td bgcolor=@@@MENUBAR@@@>
 <table border="0" cellpadding="1" cellspacing="1">
-<tr><td width="10%">DestinedName:</td><td width=90%>@@@DESTNAMEFIELD@@@ @@@BUTTONS@@@</td></tr>
+<tr><td width="10%">Nyt&nbsp;filnavn:</td><td width=90%>@@@DESTNAMEFIELD@@@ @@@BUTTONS@@@</td></tr>
 <tr><td nowrap colspan="2">@@@BUTTONS2@@@</td></tr>
 </table>
 </td></tr>
@@ -75,7 +75,7 @@
 
 @@@UPLOADSTART@@@
 <table border="0" width="100%" cellpadding="1" cellspacing="1"><tr>
-<td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Send</B> ( filename or URL )</td>
+<td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Send</B> ( filenavn eller URL )</td>
 </tr><tr>
 <td nowrap bgcolor=@@@MENUBAR@@@>@@@UPLOADFILEFIELD@@@</td>
 </tr></table>

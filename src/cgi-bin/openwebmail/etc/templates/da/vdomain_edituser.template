@@ -13,10 +13,10 @@
 
 <table align="center" border="0" cellspacing="0" cellpadding="1">
 <tr>
-<td align="right">User Name: </td>
+<td align="right">Brugernavn: </td>
 <td>@@@VUSER@@@&nbsp;@&nbsp;@@@DOMAINNAME@@@</td>
 <td width="10%">&nbsp;</td>
-<td align="right">Real Name: </td>
+<td align="right">Rigtigt navn: </td>
 <td>@@@REALNAME@@@</td>
 </tr>
 </table>
@@ -32,14 +32,14 @@
 <td align="right">@@@SETPASS@@@: </td>
 <td>@@@NEWPASSWORDFIELD@@@</td>
 <td width="10%" align="right">@@@CHKLOGIN@@@ </td>
-<td>Suspend Login @@@DISABLECHKLOGIN@@@</td>
+<td>Forbyd indlogning @@@DISABLECHKLOGIN@@@</td>
 <td>&nbsp;</td>
 </tr>
 <tr>
-<td align="right">Confirm Password: </td>
+<td align="right">Bekræft adgangskoden: </td>
 <td>@@@CONFIRMNEWPASSWORDFIELD@@@</td>
 <td width="10%" align="right">@@@CHKFWD@@@ </td>
-<td>Forward E-Mail to: </td>
+<td>Videresend E-mail til: </td>
 <td>@@@DIRECT@@@</td>
 </tr>
 </table>
@@ -52,9 +52,9 @@
 <tr><td align="center" valign="middle" bgcolor=@@@WINDOW_LIGHT@@@>
 <table align="center" border="0" cellspacing="0" cellpadding="1" width="90%">
 <tr>
- <td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Email Address/Alias</B> (click to edit)</td>
- <td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Real Name</B></td>
- <td align="center" bgcolor=@@@COLUMNHEADER@@@><B>Action</B></td>
+ <td nowrap bgcolor=@@@COLUMNHEADER@@@><B>E-mail-adresser/Alias</B> (klik for at redigere)</td>
+ <td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Rigtigt navn</B></td>
+ <td align="center" bgcolor=@@@COLUMNHEADER@@@><B>Handling</B></td>
 </tr>
 <tr>
  <td nowrap bgcolor=@@@TABLEROW_LIGHT@@@>@@@EMAILFIELD@@@</td>

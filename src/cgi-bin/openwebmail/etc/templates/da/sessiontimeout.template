@@ -2,8 +2,8 @@
 <table border="0" align="center" width="250" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>SESSION UDL&Oslash;B</B></FONT></TD></TR>
+<B>SESSIONEN UDL&Oslash;B</B></FONT></TD></TR>
 <tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 <BR>Din session har varet for l&aelig;nge! G&aring; tilbage og
-<a href="@@@STARTURL@@@">log ind igen</a>.<BR><BR>
+<a href="@@@STARTURL@@@">log ind igen</a>. (Tidsgrænsen kan ændres under Indstillinger).<BR><BR>
 </td></tr></table>

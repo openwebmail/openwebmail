@@ -75,7 +75,7 @@ userenv_init();
 $folder = ow::tool::unescapeURL(param('folder')) || 'INBOX';
 $messageid=param('message_id') || '';
 $page = param('page') || 1;
-$sort = param('sort') || $prefs{'sort'} || 'date';
+$sort = param('sort') || $prefs{'sort'} || 'date_rev';
 $userfirsttime = param('userfirsttime')||0;
 
 $prefs_caller = param('prefs_caller')||'';	# passed from the caller
@@ -1706,7 +1706,7 @@ sub saveprefs {
       } elsif ($key eq 'sort') {
          # since there is already sort param inherited from outside prefs form,
          # so the prefs form pass the sort param as msgsort
-         $newprefs{$key}=param('msgsort')||'date';
+         $newprefs{$key}=param('msgsort') || 'date_rev';
       } elsif ($key eq 'dictionary') {
          foreach my $currdictionary (@{$config{'spellcheck_dictionaries'}}) {
             if ($value eq $currdictionary) {

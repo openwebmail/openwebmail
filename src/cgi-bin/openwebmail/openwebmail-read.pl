@@ -125,7 +125,7 @@ if (!$config{'enable_webmail'}) {
 $folder = ow::tool::unescapeURL(param('folder'))||'INBOX';
 $page = param('page') || 1;
 $longpage = param('longpage') || 0;
-$sort = param('sort') || $prefs{'sort'} || 'date';
+$sort = param('sort') || $prefs{'sort'} || 'date_rev';
 $searchtype = param('searchtype') || 'subject';
 $keyword = param('keyword') || '';
 

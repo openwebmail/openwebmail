@@ -1,9 +1,9 @@
 package ow::ro;
 
 # Original romanian translation, charset: iso-8859-2
-# by Zeno POPOVICI, zeno.popovici@ulbsibiu.ro
+# by Zeno POPOVICI, zeno.popovici.AT.ulbsibiu.ro
 # Updated romanian translation
-# by Gabriel HOJDA, gabriel.hojda@gmail.com
+# by Gabriel HOJDA, gabriel.hojda.AT.gmail.com
 
 %lang_folders =
    (
