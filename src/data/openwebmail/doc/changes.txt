@@ -1,3 +1,12 @@
+02/27/2005
+----------
+1. guess a better contenttype in attachment downloading
+   if attachment contenttype is application/octet-stream
+2. include openwebmail.logrotate in misc/tools/logrotate/
+   which is useful for systems supporting logrotate
+   (thanks to Thomas Chung, tchung.AT.openwebmail.org)
+
+
 02/25/2005
 ----------
 1. change autologin default action from listmessage to listmessage_afterlogin,

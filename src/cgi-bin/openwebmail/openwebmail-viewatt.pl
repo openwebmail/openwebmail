@@ -236,28 +236,24 @@ sub getattachment {
          $filename =~ s|^.*:||;	# mac path and dos drive
          $filename=safedlname($filename);
 
-         # we change the filename of an attachment
-         # from *.exe, *.com *.bat, *.pif, *.lnk, *.scr to *.file
-         # if its contenttype is not application/octet-stream
-         # to avoid this attachment is referenced by html and executed directly ie
+         # adjust att fname and contenttype
          if ( $filename =~ /\.(?:exe|com|bat|pif|lnk|scr)$/i &&
               $contenttype !~ /application\/octet\-stream/i &&
               $contenttype !~ /application\/x\-msdownload/i ) {
+            # change attname from *.exe, *.com *.bat, *.pif, *.lnk, *.scr to *.file
+            # if its contenttype is not application/octet-stream,
+            # so this attachment won't be referenced by html and executed directly ie
             $filename="$filename.file";
-         }
-
-         if ( $contenttype =~ /application\/octet\-stream/i &&
-              $filename =~ /\.(jpg|jpeg|gif|png|bmp)$/i ) {
-            # change contenttype of image to make it directly displayed by browser
-            $contenttype="image/".lc($1);
+         } elsif ($filename =~ /\.(?:doc|dot)$/i &&
+             $wordpreview && msword2html(\$content)) {
+            # in wordpreview mode?
+            $contenttype="text/html";
          } elsif ($contenttype =~ /^message\//i) {
             # set message contenttype to text/plain for easy view
             $contenttype = "text/plain";
-         }
-
-         if ($wordpreview && $filename =~ /\.(?:doc|dot)$/i &&	# in wordpreview mode?
-             msword2html(\$content)) {
-             $contenttype="text/html";
+         } elsif ($contenttype =~ /application\/octet\-stream/i) {
+            # guess a better contenttype so attachment can be better displayed by browser
+            $contenttype=ow::tool::ext2contenttype($filename);
          }
 
          my $length=length($content);

@@ -451,7 +451,7 @@ sub read_owconf {
          if ($key eq 'default_timeoffset') {
             ${$r_config}{$key}=ow::datetime::gettimeoffset();
          } elsif ($key eq 'default_language') {
-            ${$r_config}{$key}=ow::lang::guess_language();
+            ${$r_config}{$key}=ow::lang::guess_browser_language();
          }
       }
    }

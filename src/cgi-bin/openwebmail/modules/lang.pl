@@ -133,7 +133,7 @@ foreach (values %languagecharsets) {
 }
 
 ########## GUESS_LANGUAGE ########################################
-sub guess_language {
+sub guess_browser_language {
    my @lang;
    foreach ( split(/[,;\s]+/, lc($ENV{'HTTP_ACCEPT_LANGUAGE'})) ) {
       push(@lang, $_) if (/^[a-z\-_]+$/);

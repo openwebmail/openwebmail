@@ -233,7 +233,7 @@ sub readmessage {
       $convfrom=official_charset($message{'charset'});
       if ($convfrom eq '' && $prefs{'charset'} eq 'utf-8') {
          # assume msg is from sender using same language as the recipient's browser
-         $convfrom=$ow::lang::languagecharsets{ow::lang::guess_language()};
+         $convfrom=$ow::lang::languagecharsets{ow::lang::guess_browser_language()};
       }
       $convfrom="none.$convfrom" if ($prefs{'readwithmsgcharset'} &&
                                      defined $ow::lang::is_charset_supported{$convfrom});

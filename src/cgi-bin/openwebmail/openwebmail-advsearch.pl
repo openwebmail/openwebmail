@@ -383,7 +383,7 @@ sub search_folders2 {
          my $msgcharset=$attr[$_CHARSET];
          if ($msgcharset eq '' && $prefs{'charset'} eq 'utf-8') {
             # assume msg is from sender using same language as the recipient's browser
-            $msgcharset=$ow::lang::languagecharsets{ow::lang::guess_language()};
+            $msgcharset=$ow::lang::languagecharsets{ow::lang::guess_browser_language()};
          }
 
          # skip this msg if is not within date range
@@ -580,7 +580,7 @@ sub genline {
    # convert from mesage charset to current user charset
    if ($charset eq '' && $prefs{'charset'} eq 'utf-8') {
       # assume msg is from sender using same language as the recipient's browser
-      $charset=$ow::lang::languagecharsets{ow::lang::guess_language()};
+      $charset=$ow::lang::languagecharsets{ow::lang::guess_browser_language()};
    }
    ($from, $to, $subject)=iconv($charset, $prefs{'charset'}, $from, $to, $subject);
 

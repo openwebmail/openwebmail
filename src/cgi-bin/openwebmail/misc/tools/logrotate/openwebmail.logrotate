@@ -1,0 +1,24 @@
+#
+# openwebmail logrotate file by Thomas Chung <tchung@openwebmail.org>
+# RPM packages drop log rotation information into /etc/logrotate.d
+# By default, it rotates log files weekly and it keeps 4 weeks worth of backlogs
+#
+#       missingok
+#              If the log file is missing, go on to the next one without issuing an error message.
+#       nocompress
+#              Old versions of log files are not compressed with gzip. 
+#       notifempty
+#              Do not rotate the log if it is empty.
+#
+#       Type 'man logrotate' for more options
+#
+
+/var/log/openwebmail.log {
+    weekly
+    rotate 4
+    missingok
+    nocompress
+    notifempty
+    create 0660 root mail
+}
+

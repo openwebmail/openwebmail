@@ -542,7 +542,7 @@ sub listmessages {
 	$content_type, $status, $messagesize, $references, $charset)=string2msgattr($FDB{$messageid});
       if ($charset eq '' && $prefs{'charset'} eq 'utf-8') {
          # assume msg is from sender using same language as the recipient's browser
-         $charset=$ow::lang::languagecharsets{ow::lang::guess_language()};
+         $charset=$ow::lang::languagecharsets{ow::lang::guess_browser_language()};
       }
       # convert from mesage charset to current user charset
       ($from, $to, $subject)=iconv($charset, $prefs{'charset'}, $from, $to, $subject);
