@@ -29,7 +29,7 @@
 @@@TIMEOFFSETMENU@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Daylight Saving Time:</B>
+<B>ַהÊטגךÊ ַהױךבך:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DAYLIGHTSAVINGMENU@@@
 </td></tr>
@@ -98,7 +98,7 @@
 </tr></table>
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Background image repeated:</B>
+<B>ױטֹׁ ַה־הבךסֹ ודֹׁׁ:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BGREPEATCHECKBOX@@@<br>
 </td></tr>
@@ -120,9 +120,9 @@
 
 @@@WEBMAILSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Messages Listing</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>גֶַוֹ ַהׁ׃ֶַה</B></td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Controlbar position in messages list:</B>
+<B>וטגÙ װׁך׳ ַהÊֽדו בך גֶַוֹ ַהׁ׃ֶַה:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CTRLPOSITIONFOLDERVIEWMENU@@@
 </td></tr>
@@ -142,7 +142,7 @@
 @@@SORTMENU@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Display mini search icon@@@MINISEARCHICON@@@:</B>
+<B>ֵÙׁײ ֳךגטזֹ ָֻֽ וױÚֹׁ@@@MINISEARCHICON@@@:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USEMINISEARCHICONCHECKBOX@@@<br>
 </td></tr>
@@ -173,18 +173,18 @@
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>ַ׃Êהַו Êהגֶַך הָׁךֿ POP3 Ùזֿ Ê׃ּךה ַהֿ־טה:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@AUTOPOP3CHECKBOX@@@ (wait @@@AUTOPOP3WAITMENU@@@ seconds)
+@@@AUTOPOP3CHECKBOX@@@ (ַזÊײׁ @@@AUTOPOP3WAITMENU@@@ ַֻזךֹ/ֻטַזך)
 </td></tr>
 @@@AUTOPOP3END@@@
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Put mail filter at background:</B>
+<B>טײÙ בהÊׁ ַהָׁךֿ בך ַה־הבךֹ:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BGFILTERTHRESHOLDMENU@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Wait time for background mail filtering:</B>
+<B>טגÊ ֵזÊ״ַׁ בהÊׁ ַהָׁךֿ בך ַה־הבךֹ:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@BGFILTERWAITMENU@@@ seconds
+@@@BGFILTERWAITMENU@@@ ַֻזךֹ/ֻטַזך
 </td></tr>
 @@@MOVEOLDSTART@@@
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
@@ -212,17 +212,17 @@
 @@@USEFIXEDFONT@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>ַײחַׁ ַהׁוטׂ (ַהׁ׃טוַÊ) Ùזֿ Ùׁײ ַהׁ׃ֶַה:</B>
+<B>Ùׁײ ַהׁוטׂ (ַהׁ׃טוַÊ) Ùזֿ Ùׁײ ַהׁ׃ֶַה:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USESMILEICON@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Show HTML message as plain text:</B>
+<B>Ùׁײ ׁ׃ֶַה  HTML דזױטױ:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SHOWHTMLASTEXT@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>ֵ״חַׁ ַהױטׁ ַהוהֽגֹ דַׁÊַָ׳:</B>
+<B>Ùׁײ ַהױטׁ ַהוהֽגֹ דַׁÊַָ׳:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SHOWIMGASLINK@@@
 </td></tr>
@@ -250,7 +250,7 @@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>־ךַַׁÊ ַהֵַָֹּ Ùהי ַהׁ׃ֶַה</B></td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Message format:</B>
+<B>Êז׃ךג ַהׁ׃ַהֹ:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@MSGFORMATMENU@@@
 </td></tr>
@@ -289,21 +289,21 @@
 
 @@@VIRUSCHECKSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Virus Check</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>בֽױ ַהבךׁט׃</B></td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Messages to be checked:</B>
+<B>ַהׁ׃ֶַה ַהÊך Êבֽױ:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@VIRUSCHECKSOURCEMENU@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Maximum size of the checked messages:</B>
+<B>ַהֽֿ ַהֳÙהי הּֽו ַהׁ׃ֶַה ַהÊך Êבֽױ:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@VIRUSCHECKMAXSIZEMENU@@@ KB
+@@@VIRUSCHECKMAXSIZEMENU@@@ דךהט ַָךÊ
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Minimum size of the body of checked messages:</B>
+<B>ַהֽֿ ַהֳֿזי הּֽו ּ׃ו ַהׁ׃ֶַה ַהÊך Êבֽױ:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@VIRUSCHECKMINBODYSIZEMENU@@@ KB
+@@@VIRUSCHECKMINBODYSIZEMENU@@@ דךהט ַָךÊ
 </td></tr>
 @@@VIRUSCHECKEND@@@
 
@@ -360,24 +360,24 @@
 
 @@@WEBADDRSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>AddressBook Options</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>־ךַַׁÊ ֿבÊׁ ַהÙזַטךז</B></td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Size for addressbook window:</B>
+<B>וגַ׃ זַב׀ֹ ֿבÊׁ ַהÙזַטךז:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
+ַהÙׁײ @@@ABOOKWIDTHMENU@@@ ַהֵׁÊבַÙ@@@ABOOKHEIGHTMENU@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Addressbook button position:</B>
+<B>וטגÙ ׁׂ ֿבÊׁ ַהÙזַטךז:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKBUTTONPOSITIONMENU@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Addressbook default filter:</B>
+<B>ַהבהÊׁ  ַהֵבÊַׁײך הֿבÊׁ ַהÙזַטךז:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKDEFAULTFILTER@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Addresses displayed per page:</B>
+<B>Ùֿֿ ַהÙזַטךז ַהוÙׁטײֹ הדה ױבֹֽ:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKADDRSPERPAGE@@@
 </td></tr>
@@ -387,7 +387,7 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 @@@ABOOKADDRCOLLAPSE@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Default addressbook sort order:</B>
+<B>ַהÊׁÊךָ ַהֵבÊַׁײך הֿבÊׁ ַהÙזַטךז:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKADDRSORTORDER@@@
 </td></tr>
@@ -402,12 +402,12 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>־ךַַׁÊ ַהÊגטךו</B></td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Default calendar view:</B>
+<B>ַהÙׁײ ַהֵבÊַׁײך ההÊגטךו:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DEFAULTVIEWMENU@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Holiday definition:</B>
+<B>ÊÙׁךב ַהַÙךַֿ:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@HOLIDAYDEFMENU@@@
 </td></tr>
@@ -488,12 +488,12 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>ַה־ךַַׁÊ ַהוÊזטסÙֹ</B></td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Default charset for file system:</B>
+<B>ַהÊׁוךׂ ַהֵבÊַׁײך הז״ַו ַהוהבַÊ:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FSCHARSETMENU@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Use lightbar for selection:</B>
+<B>ֵ׃Ê־ֿו װׁך׳ ַהֵײֶַֹ ההÊֽֿךֿ:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USELIGHTBARCHECKBOX@@@
 </td></tr>
@@ -509,9 +509,9 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 @@@HIDEINTERNAL@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Categorized Folders list:</B>
+<B>גֶַוֹ וּהַֿÊ וױזבסֹ:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@CATEGORIZEDFOLDERS@@@ &nbsp;( Category-Folder Separator @@@CATEGORIZEDFOLDERS_FS@@@ )
+@@@CATEGORIZEDFOLDERS@@@ &nbsp;( ַהבַױה ָךז ַהױזב ט ַהוּהֿ @@@CATEGORIZEDFOLDERS_FS@@@ )
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>ױטÊ ַהֵ־׳ַׁ ההָׁךֿ ַהּֿךֿ:</B>
@@ -524,7 +524,7 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 Ùֿֿ ֻטַזך ַה״חטׁ  @@@NEWMAILWINDOWTIMEMENU@@@  &nbsp;( 0 ÊÙזך Ùֿו ֵ״חַׁ ַהזַב׀ֹ )
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Mail sent window notification:</B>
+<B>זַב׀ֹ ַהֵ־׳ַׁ Ùזֿ ַׁ׃ַה ַהָׁךֿ:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 Ùֿֿ ֻטַזך ַה״חטׁ  @@@MAILSENTWINDOWTIMEMENU@@@  &nbsp;( 0 ÊÙזך Ùֿו ֵ״חַׁ ַהזַב׀ֹ )
 </td></tr>

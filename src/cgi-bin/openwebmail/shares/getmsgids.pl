@@ -139,14 +139,19 @@ sub search_info_messages_for_keyword {
       $regexmatch = $regexmatch && ow::tool::is_regex($keyword);
 
       foreach $messageid (@messageids) {
-         my (@attr, @references, $block, $header, $body, $r_attachments) ;
+         my (@attr, $date, $block, $header, $body, $r_attachments);
          @attr=string2msgattr($FDB{$messageid});
          next if ($attr[$_STATUS]=~/Z/i);
          next if ($ignore_internal && is_internal_subject($attr[$_SUBJECT]));
-         @references=split(/\s+/, $attr[$_REFERENCES]);
 
          ($attr[$_FROM], $attr[$_TO], $attr[$_SUBJECT])=
                iconv($attr[$_CHARSET], $prefs_charset, $attr[$_FROM], $attr[$_TO], $attr[$_SUBJECT]);
+
+         if ($searchtype eq 'all' || $searchtype eq 'date') {
+            $date=ow::datetime::dateserial2str($attr[$_DATE],
+                                               $prefs{'timeoffset'}, $prefs{'daylightsaving'},
+                                               $prefs{'dateformat'}, $prefs{'hourformat'});
+         }
 
          # check subject, from, to, date
          if ( ( ($searchtype eq 'all' ||
@@ -163,13 +168,14 @@ sub search_info_messages_for_keyword {
                  $attr[$_TO]=~/\Q$keyword\E/i) )  ||
               ( ($searchtype eq 'all' ||
                  $searchtype eq 'date') &&
-                (($regexmatch && $attr[$_DATE]=~/$keyword/i) ||
-                 $attr[$_DATE]=~/\Q$keyword\E/i) )
+                (($regexmatch && $date=~/$keyword/i) ||
+                 $date=~/\Q$keyword\E/i) )
             ) {
             $found{$messageid}=1;
          }
          # try to find msgs in same thread with references if seaching subject
          if ($searchtype eq 'subject') {
+            my @references=split(/\s+/, $attr[$_REFERENCES]);
             foreach my $refid (@references) {
                # if a msg is already in %found, then we put all msgs it references in %found
                $found{$refid}=1 if ($found{$messageid} && defined($FDB{$refid}));

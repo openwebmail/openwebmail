@@ -748,8 +748,7 @@ package ow::id;
    abook_delete_xowmuid =>  'Gagal untuk dihapus. Tidak ada id unik yang didefinisikan',
    abook_delete_book => 'Tidak dapat menghapus buku alamat @@@ADDRESSBOOK@@@',
    abook_doesnt_exist => 'Daftar Alamat @@@ADDRESSBOOK@@@ tidak ada',
-   abook_already_exists => 'Daftar Alamat @@@ADDRESSBOOK@@@ sudah ada.
-Silakan pilih nama yang lain',
+   abook_already_exists => 'Daftar Alamat @@@ADDRESSBOOK@@@ sudah ada. Silakan pilih nama yang lain',
    abook_name_too_long => 'Nama Buku Alamat @@@ADDRESSBOOK@@@ terlalu panjang. Batas maksimum adalah @@@FOLDERNAME_MAX@@@',
    abook_cant_rename => 'Gagal untuk mengganti buku alamat',
    abook_ext_notsupported => 'Tipe file yang diupload tidak didukung oleh',

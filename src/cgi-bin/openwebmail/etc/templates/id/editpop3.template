@@ -4,7 +4,7 @@
 <b>Konfigurasi Surat dari POP3</b></font>
 </td><td nowrap colspan="3" bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>sisa @@@FREESPACE@@@ Kapasitas</b></font>
+<b>Sisa Kapasitas @@@FREESPACE@@@</b></font>
 </td></tr><tr><td colspan="8" bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
 </td></tr><tr><td colspan="8">&nbsp;</td></tr>

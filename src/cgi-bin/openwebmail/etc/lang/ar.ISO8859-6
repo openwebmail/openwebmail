@@ -11,10 +11,10 @@ package ow::ar_ISO8859_6;
    'saved-drafts'   => 'ַהו׃טסַֿÊ',
    'mail-trash'     => '׃הֹ ַהוחוהַÊ',
    'spam-mail'      => 'Spam',
-   'virus-mail'     => 'Virus',
+   'virus-mail'     => 'בךׁט׃',
    LEARNSPAM        => '--LEARN SPAM--',
    LEARNHAM         => '--LEARN HAM--',
-   FORWARD          => '--FORWARD--',
+   FORWARD          => '--וׁׁ--',
    DELETE           => '--ַֽ׀ב--'
    );
 
@@ -33,22 +33,22 @@ package ow::ar_ISO8859_6;
 
 %lang_abooksortlabels =
    (
-   fullname     => 'Full Name (A to Z)',
-   fullname_rev => 'Full Name (Z to A)',
+   fullname     => 'ַהַ׃ו ַהדַוה (ַ ַהי ך)',
+   fullname_rev => 'ַהַ׃ו ַהדַוה (ך ַהי  ַ)',
    prefix       => 'Name Prefix (A to Z)',
    prefix_rev   => 'Name Prefix (Z to A)',
-   first        => 'First Name (A to Z)',
-   first_rev    => 'First Name (Z to A)',
-   middle       => 'Middle Name (A to Z)',
-   middle_rev   => 'Middle Name (Z to A)',
-   last         => 'Last Name (A to Z)',
-   last_rev     => 'Last Name (Z to A)',
+   first        => 'ַהַ׃ו ַהַטה (ַ ַהי ך)',
+   first_rev    =>  'ַהַ׃ו ַהַטה (ך ַהי  ַ)',
+   middle       => 'ַהַ׃ו ַהַט׃׳ (ַ ַהי ך)',
+   middle_rev   =>  'ַהַ׃ו ַהַט׃׳ (ך ַהי  ַ)',
+   last         => 'ַהַ׃ו ַהֳ־ךׁ (ַ ַהי ך)',
+   last_rev     => 'ַהַ׃ו ַהֳ־ךׁ (ך ַהי  ַ)',
    suffix       => 'Name Suffix (A to Z)',
    suffix_rev   => 'Name Suffix (Z to A)',
    email        => 'First Email Address (A to Z)',
    email_rev    => 'First Email Address (Z to A)',
-   phone        => 'First Phone Number (ascending numeric)',
-   phone_rev    => 'First Phone Number (descending numeric)',
+   phone        => 'ֳטה ׁגו חַÊב (ÊױַÙֿך)',
+   phone_rev    =>  'ֳטה ׁגו חַÊב (Êזַׂהך)',
    );
 
 %lang_abookselectionlabels =
@@ -59,20 +59,20 @@ package ow::ar_ISO8859_6;
 
 %lang_onofflabels =
    (
-   auto => 'Auto switched',
-   on   => 'On',
-   off  => 'Off',
+   auto => 'Êֽטךה Êהגֶַך',
+   on   => 'וודז',
+   off  => 'וÙ׳ה',
    );
 
 %lang_bgfilterthresholdlabels =
    (
-     0 => 'No',
-     1 => 'Yes',
-    20 => 'Only if INBOX has more than 20 new messages',
-    50 => 'Only if INBOX has more than 50 new messages',
-   100 => 'Only if INBOX has more than 100 new messages',
-   200 => 'Only if INBOX has more than 200 new messages',
-   500 => 'Only if INBOX has more than 500 new messages',
+     0 => 'הַ',
+     1 => 'זÙו',
+    20 => 'בג׳ ַ׀ַ דַזÊ Ùהָֹ ַהטַֿׁ ÊֽÊטך Ùהי ֳדֻׁ וז 20 ׁ׃ַהֹ ּֿךֹֿ',
+    50 =>  'בג׳ ַ׀ַ דַזÊ Ùהָֹ ַהטַֿׁ ÊֽÊטך Ùהי ֳדֻׁ וז 50 ׁ׃ַהֹ ּֿךֹֿ',
+   100 =>  'בג׳ ַ׀ַ דַזÊ Ùהָֹ ַהטַֿׁ ÊֽÊטך Ùהי ֳדֻׁ וז 100 ׁ׃ַהֹ ּֿךֹֿ',
+   200 =>  'בג׳ ַ׀ַ דַזÊ Ùהָֹ ַהטַֿׁ ÊֽÊטך Ùהי ֳדֻׁ וז 200 ׁ׃ַהֹ ּֿךֹֿ',
+   500 =>  'בג׳ ַ׀ַ דַזÊ Ùהָֹ ַהטַֿׁ ÊֽÊטך Ùהי ֳדֻׁ וז 500 ׁ׃ַהֹ ּֿךֹֿ',
    );
 
 %lang_prioritylabels =
@@ -84,10 +84,10 @@ package ow::ar_ISO8859_6;
 
 %lang_msgformatlabels =
    (
-   auto => 'Auto selected',
-   text => 'Text',
+   auto => 'ַזÊגֱַ Êהגֶַך',
+   text => 'זױ',
    html => 'HTML',
-   both => 'HTML and Text'
+   both => 'HTML ט זױ'
    );
 
 %lang_withoriglabels =
@@ -106,8 +106,8 @@ package ow::ar_ISO8859_6;
 
 %lang_disableemblinklabels =
    (
-   none    => 'None',
-   cgionly => 'CGI only',
+   none    => 'הַ װךֱ',
+   cgionly => 'CGI בג׳',
    all     => 'All embedded URLs'
    );
 
@@ -133,9 +133,9 @@ package ow::ar_ISO8859_6;
 
 %lang_checksourcelabels =
    (
-   all  => 'All new messages in INBOX',
-   pop3 => 'Only messages from pop3 server',
-   none => 'None'
+   all  => 'ּוךÙ ַהׁ׃ֶַה ַהּֿךֹֿ בך Ùהָֹ ַהטַֿׁ',
+   pop3 => 'בג׳ ַהׁ׃ֶַה וז ־ַֿו  pop3',
+   none => 'הַ װךֱ'
    );
 
 %lang_timelabels =
@@ -192,17 +192,17 @@ package ow::ar_ISO8859_6;
 
 %lang_abookclasslabels =
    (
-   PRIVATE => 'Private',
-   PUBLIC => 'Public',
+   PRIVATE => '־ַױ',
+   PUBLIC => 'Ùַו',
    );
 
 %lang_satestfields =
    (
-   name       => 'Name',
-   desc       => 'Description',
-   type       => 'Test Type',
+   name       => 'ַהַ׃ו',
+   desc       => 'ַהטױב',
+   type       => 'זטÙ ַהבֽױ',
    expression => 'Expression',
-   score      => 'Score',
+   score      => 'ַהÙהַוֹ',
    );
 
 %lang_satesttypes =
@@ -216,14 +216,14 @@ package ow::ar_ISO8859_6;
 
 %lang_satestheaderattrs =
    (
-   ALL        => 'All',
-   Subject    => 'Subject',
-   From       => 'From',
-   To         => 'To',
-   Cc         => 'Cc',
-   ToCc       => 'To and Cc',
+   ALL        => 'ַהּוךÙ',
+   Subject    => 'ַהוטײטÙ',
+   From       => 'וז',
+   To         => 'ַהי',
+   Cc         => 'ז׃־ֹ',
+   ToCc       => 'ַהי ט ז׃־ֹ',
    MESSAGEID  => 'Message Id',
-   USERDEFINE => 'User Define',
+   USERDEFINE => 'וֽֿֿ וז ַהו׃Ê־ֿו',
    );
 
 %lang_searchtypelabels =
@@ -239,14 +239,14 @@ package ow::ar_ISO8859_6;
 
 %lang_searchdaterangelabels =
    (
-   all         => 'All',
-   today       => 'Today',
-   oneweek     => 'One week',
-   twoweeks    => 'Two weeks',
-   onemonth    => 'One month',
-   threemonths => 'Three months',
-   sixmonths   => 'Six months',
-   oneyear     => 'One year',
+   all         => 'ַהּוךÙ',
+   today       => 'ַהךטו',
+   oneweek     => 'ַ׃ָטÙ',
+   twoweeks    => 'ַ׃ָטÙךז',
+   onemonth    => 'װחׁ',
+   threemonths => 'ֻהַֹֻ ַװחׁ',
+   sixmonths   => '׃Êֹ ַװחׁ',
+   oneyear     => '׃זֹ',
    );
 
 %lang_sizes =
@@ -359,7 +359,7 @@ package ow::ar_ISO8859_6;
    userprefs  => 'ÊבײךהַÊ ַהו׃Ê־ֿו',
    addressbook=> 'ֿבÊׁ ַהÙזַטךז',
    folders    => 'וּהַֿÊ',
-   emptyfolder=> 'Empty folder',
+   emptyfolder=> 'וּהֿ בַׁÚ',
    emptytrash => 'ÊבׁךÚ ׃הֹ ַהוחוהַÊ',
    totrash    => 'ַזגה ֵהי ׃הֹ ַהוחוהַÊ',
    learnham   => 'LEARN HAM',
@@ -369,7 +369,7 @@ package ow::ar_ISO8859_6;
    userdef    => 'וֽֿֿ וז ַהו׃Ê־ֿו',
    logout     => 'Ê׃ּךה ַה־ׁטּ',
    page       => 'ױבֹֽ',
-   msgsperpage=> '@@@MSGCOUNT@@@ messages per page',
+   msgsperpage=> '@@@MSGCOUNT@@@ ׁ׃ַהֹ (ׁ׃ֶַה) הדה ױבֹֽ',
    msgcopyconf=> '\'חה ֳזÊ וÊֳדסֿ ֳזסד Êׁךֿ ז׃־ ַהׁ׃ַהֹ (ַהׁ׃ֶַה) ַהו־Êַֹׁ¿\'',
    copy       => 'ז׃־ ֵהי',
    msgmoveconf=> '\' חה ֳזÊ וÊֳדסֿ ֳזסד Êׁךֿ זגה ַהׁ׃ַהֹ (ַהׁ׃ֶַה) ַהו־Êַֹׁ¿\'',

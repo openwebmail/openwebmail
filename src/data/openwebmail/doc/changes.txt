@@ -1,3 +1,15 @@
+01/24/2005
+----------
+1. fix the bug that search by date in messagelist only matches with YYYYMMYY
+   Now the date will match with the the dateformat selected by users in their
+   user preference
+   (suggested by Joao S Veiga, openwebmail.AT.rf.com.br)
+2. Arabic language and prefs.template file translation update
+   (thanks to Isam Ishaq, isam.AT.planet.edu)
+3. Indonesian language and template files translation update
+   (thanks to James Briggs, james.AT.ActionMessage.com)
+
+
 01/22/2005
 ----------
 1. use random number to generate tmp filename for security

@@ -29,7 +29,7 @@
 @@@TIMEOFFSETMENU@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Daylight Saving Time:</B>
+<B>«· ÊﬁÌ  «·’Ì›Ì:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DAYLIGHTSAVINGMENU@@@
 </td></tr>
@@ -98,7 +98,7 @@
 </tr></table>
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Background image repeated:</B>
+<B>’Ê—… «·Œ·›Ì¯… „ﬂ——…:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BGREPEATCHECKBOX@@@<br>
 </td></tr>
@@ -120,9 +120,9 @@
 
 @@@WEBMAILSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Messages Listing</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>ﬁ«∆„… «·—”«∆·</B></td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Controlbar position in messages list:</B>
+<B>„Êﬁ⁄ ‘—Ìÿ «· Õﬂ„ ›Ì ﬁ«∆„… «·—”«∆·:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CTRLPOSITIONFOLDERVIEWMENU@@@
 </td></tr>
@@ -142,7 +142,7 @@
 @@@SORTMENU@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Display mini search icon@@@MINISEARCHICON@@@:</B>
+<B>≈⁄—÷ √ÌﬁÊ‰… »ÕÀ „’€—…@@@MINISEARCHICON@@@:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USEMINISEARCHICONCHECKBOX@@@<br>
 </td></tr>
@@ -173,18 +173,18 @@
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>«” ·«„  ·ﬁ«∆Ì ·»—Ìœ POP3 ⁄‰œ  ”ÃÌ· «·œŒÊ·:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@AUTOPOP3CHECKBOX@@@ (wait @@@AUTOPOP3WAITMENU@@@ seconds)
+@@@AUTOPOP3CHECKBOX@@@ («‰ ÷— @@@AUTOPOP3WAITMENU@@@ À«‰Ì…/ÀÊ«‰Ì)
 </td></tr>
 @@@AUTOPOP3END@@@
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Put mail filter at background:</B>
+<B>Ê÷⁄ ›· — «·»—Ìœ ›Ì «·Œ·›Ì…:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BGFILTERTHRESHOLDMENU@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Wait time for background mail filtering:</B>
+<B>Êﬁ  ≈‰ Ÿ«— ›· — «·»—Ìœ ›Ì «·Œ·›Ì…:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@BGFILTERWAITMENU@@@ seconds
+@@@BGFILTERWAITMENU@@@ À«‰Ì…/ÀÊ«‰Ì
 </td></tr>
 @@@MOVEOLDSTART@@@
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
@@ -212,17 +212,17 @@
 @@@USEFIXEDFONT@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>«÷Â«— «·—„Ê“ («·—”Ê„« ) ⁄‰œ ⁄—÷ «·—”«∆·:</B>
+<B>⁄—÷ «·—„Ê“ («·—”Ê„« ) ⁄‰œ ⁄—÷ «·—”«∆·:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USESMILEICON@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Show HTML message as plain text:</B>
+<B>⁄—÷ —”«∆·  HTML ﬂ‰’Ê’:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SHOWHTMLASTEXT@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>≈ŸÂ«— «·’Ê— «·„·Õﬁ… ﬂ«— »«ÿ:</B>
+<B>⁄—÷ «·’Ê— «·„·Õﬁ… ﬂ«— »«ÿ:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SHOWIMGASLINK@@@
 </td></tr>
@@ -250,7 +250,7 @@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>ŒÌ«—«  «·≈Ã«»… ⁄·Ï «·—”«∆·</B></td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Message format:</B>
+<B> ‰”Ìﬁ «·—”«·…:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@MSGFORMATMENU@@@
 </td></tr>
@@ -289,21 +289,21 @@
 
 @@@VIRUSCHECKSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Virus Check</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>›Õ’ «·›Ì—Ê”</B></td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Messages to be checked:</B>
+<B>«·—”«∆· «· Ì  ›Õ’:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@VIRUSCHECKSOURCEMENU@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Maximum size of the checked messages:</B>
+<B>«·Õœ «·√⁄·Ï ·ÕÃ„ «·—”«∆· «· Ì  ›Õ’:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@VIRUSCHECKMAXSIZEMENU@@@ KB
+@@@VIRUSCHECKMAXSIZEMENU@@@ ﬂÌ·Ê »«Ì 
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Minimum size of the body of checked messages:</B>
+<B>«·Õœ «·√œ‰Ï ·ÕÃ„ Ã”„ «·—”«∆· «· Ì  ›Õ’:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@VIRUSCHECKMINBODYSIZEMENU@@@ KB
+@@@VIRUSCHECKMINBODYSIZEMENU@@@ ﬂÌ·Ê »«Ì 
 </td></tr>
 @@@VIRUSCHECKEND@@@
 
@@ -360,24 +360,24 @@
 
 @@@WEBADDRSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>AddressBook Options</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>ŒÌ«—«  œ› — «·⁄‰«ÊÌ‰</B></td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Size for addressbook window:</B>
+<B>„ﬁ«” ‰«›–… œ› — «·⁄‰«ÊÌ‰:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
+«·⁄—÷ @@@ABOOKWIDTHMENU@@@ «·≈— ›«⁄@@@ABOOKHEIGHTMENU@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Addressbook button position:</B>
+<B>„Êﬁ⁄ “— œ› — «·⁄‰«ÊÌ‰:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKBUTTONPOSITIONMENU@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Addressbook default filter:</B>
+<B>«·›· —  «·≈› —«÷Ì ·œ› — «·⁄‰«ÊÌ‰:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKDEFAULTFILTER@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Addresses displayed per page:</B>
+<B>⁄œœ «·⁄‰«ÊÌ‰ «·„⁄—Ê÷… ·ﬂ· ’›Õ…:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKADDRSPERPAGE@@@
 </td></tr>
@@ -387,7 +387,7 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 @@@ABOOKADDRCOLLAPSE@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Default addressbook sort order:</B>
+<B>«· — Ì» «·≈› —«÷Ì ·œ› — «·⁄‰«ÊÌ‰:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKADDRSORTORDER@@@
 </td></tr>
@@ -402,12 +402,12 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>ŒÌ«—«  «· ﬁÊÌ„</B></td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Default calendar view:</B>
+<B>«·⁄—÷ «·≈› —«÷Ì ·· ﬁÊÌ„:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DEFAULTVIEWMENU@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Holiday definition:</B>
+<B> ⁄—Ì› «·«⁄Ì«œ:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@HOLIDAYDEFMENU@@@
 </td></tr>
@@ -488,12 +488,12 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>«·ŒÌ«—«  «·„ ‰Ê¯⁄…</B></td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Default charset for file system:</B>
+<B>«· —„Ì“ «·≈› —«÷Ì ·‰Ÿ«„ «·„·›« :</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FSCHARSETMENU@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Use lightbar for selection:</B>
+<B>≈” Œœ„ ‘—Ìÿ «·≈÷«∆… ·· ÕœÌœ:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USELIGHTBARCHECKBOX@@@
 </td></tr>
@@ -509,9 +509,9 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 @@@HIDEINTERNAL@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Categorized Folders list:</B>
+<B>ﬁ«∆„… „Ã·œ«  „’‰›¯…:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@CATEGORIZEDFOLDERS@@@ &nbsp;( Category-Folder Separator @@@CATEGORIZEDFOLDERS_FS@@@ )
+@@@CATEGORIZEDFOLDERS@@@ &nbsp;( «·›«’· »Ì‰ «·’‰› Ê «·„Ã·œ @@@CATEGORIZEDFOLDERS_FS@@@ )
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>’Ê  «·≈Œÿ«— ··»—Ìœ «·ÃœÌœ:</B>
@@ -524,7 +524,7 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 ⁄œœ ÀÊ«‰Ì «·ŸÂÊ—  @@@NEWMAILWINDOWTIMEMENU@@@  &nbsp;( 0  ⁄‰Ì ⁄œ„ ≈ŸÂ«— «·‰«›–… )
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>Mail sent window notification:</B>
+<B>‰«›–… «·≈Œÿ«— ⁄‰œ «—”«· «·»—Ìœ:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 ⁄œœ ÀÊ«‰Ì «·ŸÂÊ—  @@@MAILSENTWINDOWTIMEMENU@@@  &nbsp;( 0  ⁄‰Ì ⁄œ„ ≈ŸÂ«— «·‰«›–… )
 </td></tr>

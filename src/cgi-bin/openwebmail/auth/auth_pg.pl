@@ -9,7 +9,7 @@ use strict;
 ########## No configuration required from here ###################
 
 use Pg;
-use MD5;
+use Digest::MD5;
 require "modules/tool.pl";
 
 my %conf;
