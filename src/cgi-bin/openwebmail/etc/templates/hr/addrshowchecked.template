@@ -1,0 +1,9 @@
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="1">
+<tr>
+  <td bgcolor=@@@TITLEBAR@@@ colspan="2"><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>Checked Addresses List</b></font></td>
+</tr>
+<tr>
+  <td>&nbsp;</td>
+</tr>
+@@@LISTOFCHECKED@@@
+</table>

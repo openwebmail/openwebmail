@@ -1,0 +1,9 @@
+<BR><BR><BR><BR><BR><BR><BR>
+<table border="0" align="center" width="250" cellpadding="0" cellspacing="0">
+<tr><td bgcolor=@@@TITLEBAR@@@>
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>Sesija je istekla</B></FONT></TD></TR>
+<tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
+<BR>Na¾alost, izgleda da je Va¹a sesija istekla! Molim da se vratite natrag i ponovo 
+<a href="@@@STARTURL@@@">prijavite</a>.<BR><BR>
+</td></tr></table>

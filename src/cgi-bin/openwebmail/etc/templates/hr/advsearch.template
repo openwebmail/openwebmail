@@ -1,0 +1,176 @@
+<table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
+<tr><td bgcolor=@@@TITLEBAR@@@>
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<b>Napredno pretra¾ivanje</b></font>
+</td></tr><tr><td bgcolor=@@@MENUBAR@@@>
+@@@MENUBARLINKS@@@
+</td></tr><tr><td>&nbsp;</td></tr>
+@@@STARTADVSEARCHFORM@@@
+<tr><td>
+
+<table border="0" width="100%" cellpadding="0" cellspacing="0">
+<tr><td bgcolor=@@@COLUMNHEADER@@@>
+<B>Odaberite omotnicu</B>
+ <input name="allbox" type="checkbox" value="1" onclick="CheckAll();">
+</td></tr>
+<tr><td bgcolor=@@@TABLEROW_LIGHT@@@>
+@@@FOLDERLIST@@@
+</td></tr>
+</table>
+
+</td></tr><tr><td>&nbsp;</td></tr><tr><td>
+
+<table border="0" width="100%" cellpadding="0" cellspacing="0">
+<tr><td bgcolor=@@@COLUMNHEADER@@@ colspan=2>
+<B>Date Range</B>
+</td></tr>
+<tr><td bgcolor=@@@TABLEROW_LIGHT@@@>
+Start @@@STARTDATE@@@ &nbsp; end @@@ENDDATE@@@
+</td><td bgcolor=@@@TABLEROW_LIGHT@@@>
+@@@DATERANGEMENU@@@
+</td></tr>
+</table>
+
+</td></tr><tr><td>&nbsp;</td></tr><tr><td>
+
+<table border="0" width="100%" cellpadding="0" cellspacing="0">
+<tr>
+<td bgcolor=@@@COLUMNHEADER@@@><B>Gdje</B></td>
+<td bgcolor=@@@COLUMNHEADER@@@><B>Tip pretrage</B></td>
+<td bgcolor=@@@COLUMNHEADER@@@><B>Tekst za pretragu</B></td>
+<td bgcolor=@@@COLUMNHEADER@@@ align=center><B>Linija rezultata</B></td>
+</tr>
+<tr>
+<td bgcolor=@@@TABLEROW_LIGHT@@@>@@@WHEREMENU0@@@</td>
+<td bgcolor=@@@TABLEROW_LIGHT@@@>@@@TYPEMENU0@@@</td>
+<td bgcolor=@@@TABLEROW_LIGHT@@@>@@@SEARCHTEXT0@@@ i</td>
+<td bgcolor=@@@TABLEROW_LIGHT@@@ align=center>@@@RESLINE@@@</td>
+</tr>
+<tr>
+<td bgcolor=@@@TABLEROW_LIGHT@@@>@@@WHEREMENU1@@@</td>
+<td bgcolor=@@@TABLEROW_LIGHT@@@>@@@TYPEMENU1@@@</td>
+<td bgcolor=@@@TABLEROW_LIGHT@@@>@@@SEARCHTEXT1@@@ i</td>
+<td bgcolor=@@@TABLEROW_LIGHT@@@ align=center>&nbsp;</td>
+</tr>
+<tr>
+<td bgcolor=@@@TABLEROW_LIGHT@@@>@@@WHEREMENU2@@@</td>
+<td bgcolor=@@@TABLEROW_LIGHT@@@>@@@TYPEMENU2@@@</td>
+<td bgcolor=@@@TABLEROW_LIGHT@@@>@@@SEARCHTEXT2@@@</td>
+<td bgcolor=@@@TABLEROW_LIGHT@@@ align=center>@@@BUTTONSEARCH@@@</td>
+</tr>
+</table>
+
+</td></tr><tr><td>&nbsp;</td></tr><tr><td>
+
+<table border="0" width="100%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
+<tr><td colspan="5"><B>Rezultati: @@@TOTALFOUND@@@</B></td></tr>
+<tr><td width="10%" bgcolor=@@@COLUMNHEADER@@@>
+<B>@@@FOLDER@@@</B></td>
+<td width="18%" bgcolor=@@@COLUMNHEADER@@@>
+<B>@@@DATE@@@</B></td>
+<td width="25%" bgcolor=@@@COLUMNHEADER@@@>
+<B>@@@SENDER@@@</B></td>
+<td bgcolor=@@@COLUMNHEADER@@@>
+<B>@@@SUBJECT@@@</B></td>
+<td bgcolor=@@@COLUMNHEADER@@@>
+<B>@@@SIZE@@@</B></td>
+</tr>
+@@@SEARCHRESULT@@@
+</table>
+@@@ENDFORM@@@
+
+</td></tr>
+</table>
+
+<script language="JavaScript">
+<!--
+   function CheckAll()
+   {
+      for (var i=0;i<document.advsearchform.folders.length;i++)
+      {
+         var e = document.advsearchform.folders[i];
+         if (e.type == 'checkbox' && e.name != 'allbox')
+            e.checked = document.advsearchform.allbox.checked;
+      }
+   }
+
+   function setdaterange (range) 
+   {
+      var todayyear=@@@CURRENTYEAR@@@;
+      var todaymonth=@@@CURRENTMONTH@@@;
+      var todayday=@@@CURRENTDAY@@@;
+
+      var daysInMonth = new Array(0, 31,28,31,30,31,30,31,31,30,31,30,31);
+      if ((todayyear % 4 == 0 && todayyear % 100 != 0) || todayyear % 400 == 0) {
+         daysInMonth[1] = 29;
+      }
+
+      var startyear=todayyear;
+      var startmonth=todaymonth;
+      var startday=todayday;
+
+      if (range=='today') {
+         // do nothing
+      } else if (range=='oneweek') {
+         startday-=6;
+      } else if (range=='twoweeks') {
+         startday-=13;
+      } else if (range=='onemonth') {
+         startmonth--;
+      } else if (range=='threemonths') {
+         startmonth-=3;
+      } else if (range=='sixmonths') {
+         startmonth-=6;
+      } else if (range=='oneyear') {
+         startyear--;
+      } else {	// 'all' or unknow range
+         startyear=1990;
+         startmonth=1;
+         startday=1;
+      } 
+
+      if (startday<1) {
+         startmonth--;
+         if (startmonth<1) {
+            startday+=daysInMonth[startmont+12];
+         } else {
+            startday+=daysInMonth[startmonth];
+         }
+      }
+      if (startmonth<0) {
+         startyear--;
+         startmonth+=12; 
+      }
+      if (startday>daysInMonth[startmonth]) {
+         startday=daysInMonth[startmonth];
+      }
+
+      selectoption(document.advsearchform.year1, startyear);
+      selectoption(document.advsearchform.month1, startmonth);
+      selectoption(document.advsearchform.day1, startday);
+      selectoption(document.advsearchform.year2, todayyear);
+      selectoption(document.advsearchform.month2, todaymonth);
+      selectoption(document.advsearchform.day2, todayday);
+
+      return;
+   }
+
+   function selectoption (menu, value)
+   {
+      var i_default=0;
+
+      for (var i=0; i<menu.length; i++) {
+         if (menu.options[i].value==value) {
+            menu.options[i].selected=true;
+            return i;
+         }
+         if (menu.options[i].defaultSelected) {
+            i_default=i;
+         }
+      }
+
+      menu.options[i_default].selected=true;
+      return i_default;
+   }
+//-->
+</script>

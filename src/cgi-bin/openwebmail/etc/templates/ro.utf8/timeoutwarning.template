@@ -1,0 +1,18 @@
+<center>
+<table width="90%" cellspacing="0" cellpadding="0" border="0">
+<tr><td><font size="-1" color="#dd0000"><b>
+
+Stimate @@@USEREMAIL@@@,<br><br>
+Nu ati avut activitate de mult timp.
+Daca nu actionati, sesiunea dvs. va fi inchisa in 60 de secunde.
+
+</b></font></td></tr></table>
+<br>
+<form>
+<input type="button" NAME="OK" value=" ok " onclick="window.close();"/>
+</form>
+<br><br>
+<script language="JavaScript">
+setTimeout("close()", 60*1000);
+</script>
+</center>

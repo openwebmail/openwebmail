@@ -1582,6 +1582,7 @@ supported language including: (defined in modules/lang.pl)
    'fr'                => 'French',
    'he.ISO8859-8'      => 'Hebrew - ISO 8859-8',
    'he.CP1255'         => 'Hebrew - Windows',
+   'hr'                => 'Croatian',
    'hu'                => 'Hungarian',
    'id'                => 'Indonesian',
    'it'                => 'Italiano',

@@ -15,6 +15,7 @@ fr=admin@osmium-work.com
 de=martin@bronk.de
 el=dimitris@michelinakis.gr
 he=yehuda@whatsup.org.il
+hr=igor@linuxfromscratch.org
 hu=ful_s@fazekas.hu
 id=liangs@kunchang.com.tw
 it=marvi@menhir.biz
@@ -105,7 +106,7 @@ tung
     cat /tmp/notify.tmp.$$| \
     /usr/local/bin/mutt -s "OWM $releasedate translation update request" \
     -a /usr/local/www/data/openwebmail/download/current/*-lang-templates.diff \
-    $ar $bg $ca $cs $gb2312 $big5 $da $nl $fi $fr $de $el $he $hu $id \
+    $ar $bg $ca $cs $gb2312 $big5 $da $nl $fi $fr $de $el $he $hr $hu $id \
     $it $jp $ko $lt $no $pl $pt $ptbr $ro $ru $sr $sk $sl $es $sv $th $tr $uk $ur webmail
   fi
   rm /tmp/notify.tmp.$$

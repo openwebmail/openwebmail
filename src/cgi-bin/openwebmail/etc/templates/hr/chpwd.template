@@ -1,0 +1,50 @@
+<BR><BR><BR><BR><BR>
+<table border="0" align="center" width="60%" cellpadding="0" cellspacing="0">
+<tr><td bgcolor=@@@TITLEBAR@@@>
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><B>Promjena lozinke</B></FONT>
+</td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
+@@@STARTFORM@@@
+<BR>
+<table align=center border=0 cellspacing=2 cellpadding=0>
+<tr>
+<td align="right">Korisnik: </td><td>@@@LOGINNAMEFIELD@@@</td>
+</tr><tr>
+<td align="right">Stara lozinka: </td><td>@@@OLDPASSWORDFIELD@@@</td>
+</tr><tr>
+<td align="right">Nova lozinka: </td><td>@@@NEWPASSWORDFIELD@@@</td>
+</tr><tr>
+<td align="right">Potvrdite novu lozinku: </td><td>@@@CONFIRMNEWPASSWORDFIELD@@@</td>
+</tr><tr>
+<td colspan=2>
+<table width="100%"><tr>
+<td align=center>@@@CHANGEBUTTON@@@ @@@ENDFORM@@@ </td><td align=center>@@@CANCELBUTTON@@@</td>
+</tr></table>
+</td>
+</tr>
+</table>
+</td></tr></table>
+<script language="JavaScript">
+   document.passwordform.oldpassword.focus()
+
+   function changecheck()
+   {
+      var s;
+      s=document.passwordform.newpassword.value;
+      if (s.length < @@@PASSWDMINLEN@@@) {
+         alert("Lozinka mora imati najmanje @@@PASSWDMINLEN@@@ znakova.");
+         return false;
+      }
+      if (document.passwordform.newpassword.value !=
+	  document.passwordform.confirmnewpassword.value) {
+         alert("Nova lozinka i njena potvrda se ne podudaraju.");
+         return false;
+      }
+      if (document.passwordform.newpassword.value ==
+	  document.passwordform.oldpassword.value) {
+         alert("Nova lozinka se ne razlikuje od stare.");
+         return false;
+      }
+      return true;
+   }
+
+</script>

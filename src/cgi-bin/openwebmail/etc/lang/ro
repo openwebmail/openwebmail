@@ -1,7 +1,9 @@
 package ow::ro;
 
-# Romanian translation, charset: iso-8859-2
+# Original romanian translation, charset: iso-8859-2
 # by Zeno POPOVICI, zeno.popovici@ulbsibiu.ro
+# Updated romanian translation
+# by Gabriel HOJDA, gabriel.hojda@gmail.com
 
 %lang_folders =
    (
@@ -12,9 +14,9 @@ package ow::ro;
    'mail-trash'     => 'STERSE',
    'spam-mail'      => 'Spam',
    'virus-mail'     => 'Virus',
-   LEARNSPAM        => '--LEARN SPAM--',
-   LEARNHAM         => '--LEARN HAM--',
-   FORWARD          => '--FORWARD--',
+   LEARNSPAM        => '--INVATA SPAM--',
+   LEARNHAM         => '--INVATA HAM--',
+   FORWARD          => '--REDIRECTIONEAZA--',
    DELETE           => '-STERGERE-'
    );
 
@@ -54,12 +56,12 @@ package ow::ro;
 %lang_abookselectionlabels =
    (
    ALL => "Toate Agendele",
-   global => "Global Addressbook",
+   global => "Agenda Globala",
    );
 
 %lang_onofflabels =
    (
-   auto => 'Selectatare automata',
+   auto => 'Selectare automata',
    on   => 'Activ',
    off  => 'Inactiv',
    );
@@ -79,7 +81,7 @@ package ow::ro;
    (
    normal      => 'Normal',
    urgent      => 'Urgent',
-   'non-urgent'=> 'Nu e Urgent'
+   'non-urgent'=> 'Nu e urgent'
    );
 
 %lang_msgformatlabels =
@@ -106,9 +108,9 @@ package ow::ro;
 
 %lang_disableemblinklabels =
    (
-   none    => 'None',
-   cgionly => 'CGI only',
-   all     => 'All embedded URLs'
+   none    => 'Nici unul',
+   cgionly => 'Doar CGI',
+   all     => 'Toate legaturile incapsulate'
    );
 
 %lang_ctrlpositionlabels =
@@ -208,9 +210,9 @@ package ow::ro;
 %lang_satesttypes =
    (
    header  => 'Header mesaj',
-   body    => 'Text in mesaj (HTML tag sters)',
-   uri     => 'Link-uri in mesaj',
-   rawbody => 'Text in mesaj si atasamente (HTML tag pastrat)',
+   body    => 'Text in mesaj (tag HTML sters)',
+   uri     => 'Legaturi in mesaj',
+   rawbody => 'Text in mesaj si atasamente (tag HTML pastrat)',
    full    => 'Mesaj si atasamente nedecodate',
    );
 
@@ -241,7 +243,7 @@ package ow::ro;
    (
    all         => 'Toate',
    today       => 'Azi',
-   oneweek     => 'O sapatamana',
+   oneweek     => 'O saptamana',
    twoweeks    => 'Doua saptamani',
    onemonth    => 'O luna',
    threemonths => 'Trei luni',
@@ -362,7 +364,7 @@ package ow::ro;
    emptyfolder => 'Director vid',
    emptytrash => 'Goleste mesajele sterse',
    totrash    => 'Muta la STERSE',
-   learnham   => 'Learn Ham',
+   learnham   => 'Invata Ham',
    learnspam  => 'Invata Spam',
    forever    => 'Intotdeauna',
    delatlogout=> 'Goleste la iesire',
@@ -372,7 +374,7 @@ package ow::ro;
    msgsperpage => '@@@MSGCOUNT@@@ mesaje per pagina',
    msgcopyconf => '\'Sunteti sigur ca doriti sa copiati mesajul(ele) selectat(e)?\'',
    copy       => 'Copiaza',
-   msgmoveconf => '\'Esti sigur ca vrei sa muti mesajul(ele) selectat(e)?\'',
+   msgmoveconf => '\'Sunteti sigur ca doriti sa mutati mesajul(ele) selectat(e)?\'',
    move       => 'Muta',
    markasread => 'Marcheaza ca citit',
    markasunread => 'Marcheaza ca necitit',
@@ -454,8 +456,8 @@ package ow::ro;
    testsound  => 'Testeaza sunet',
    editfroms  => 'Editare adrese email personale',
    pop3book   => 'Configurare POP3',
-   retr_pop3s => 'Incarca e-mail POP3',
-   filterbook => 'Configurare filtre e-mail',
+   retr_pop3s => 'Incarca email POP3',
+   filterbook => 'Configurare filtre email',
    include    => 'Include',
    exclude    => 'Exclude',
    smtprelay  => 'Redirectionare SMTP',
@@ -469,7 +471,7 @@ package ow::ro;
    no         => 'Nu',
    filtered   => 'Filtrat',
    blockrelay => 'Blocare redirectionare SMTP',
-   blockemail => 'Blocare adresa e-mail',
+   blockemail => 'Blocare adresa email',
    read       => 'Citire',
    yourmsg    => 'Mesajul Dvs.',
    delivered  => 'Trimis',
@@ -489,10 +491,10 @@ package ow::ro;
    editpdict  => 'Editeaza dictionarul personal',
    addtodict  => 'Adauga la dictionar',
    manuallyfix=> 'Corecteaza manual',
-   editstat   => 'Editeza Stationery',
-   savestat   => 'Salveza Stationery',
-   clearstat  => 'Sterge toate Stationery',
-   statreply  => '-- Stationery pentru Raspuns --',
+   editstat   => 'Editeza notite',
+   savestat   => 'Salveza notita',
+   clearstat  => 'Sterge toate notitele',
+   statreply  => '-- Alege notita ca raspuns --',
    calendar   => 'Calendar',
    allday     => 'Toate zilele',
    today      => 'Azi',
@@ -556,13 +558,13 @@ package ow::ro;
    vdomain_localuser  => 'Utilizator local',
    set_passwd         => 'Seteaza parola',
    reset_passwd       => 'Reseteaza parola',
-   email_alias        => 'Alias e-mail',
+   email_alias        => 'Alias email',
    name       => 'Nume',
    email      => 'Email',
    note       => 'Nota',
    abooks => 'Agende',
-   abook_personal => 'Personal addressbook',
-   abook_global => 'Global addressbook',
+   abook_personal => 'Agenda Personala',
+   abook_global => 'Agenda Globala',
    abook_converted => 'Converted',
    abook_group_member => 'Membru',
    abook_group_allmembers => 'Toti membrii',
@@ -625,49 +627,49 @@ package ow::ro;
    abook_editform_valuelabel_NICKNAME => '&nbsp;',
    'abook_editform_namelabel_SORT-STRING' => 'Modificare sortare dupa nume familie',
    'abook_editform_valuelabel_SORT-STRING' => 'original:<i>von Trapp</i>&nbsp;&nbsp;&nbsp;modificat:<i>Trapp</i>',
-   abook_editform_valuelabel_TITLE => 'Cercetare, Dezvoltare, etc',
-   abook_editform_valuelabel_ROLE => 'Manager, Director, etc',
+   abook_editform_valuelabel_TITLE => 'cercetare, dezvoltare, etc',
+   abook_editform_valuelabel_ROLE => 'manager, director, etc',
    abook_editform_valuelabel_ORGANIZATIONNAME => 'srl, sa, inc.',
-   abook_editform_valuelabel_ORGANIZATIONALUNITS => 'Financiar, Divizia Europeana',
+   abook_editform_valuelabel_ORGANIZATIONALUNITS => 'financiar, divizia europeana',
    abook_editform_namelabel_URL => 'Site web</b> @@@ADDMORELINK@@@<b>',
    abook_editform_valuelabel_URL => 'http://www.mysite.com',
    abook_editform_namelabel_TZ => 'Zona de fus orar',
    abook_editform_namelabel_MAILER => 'Program email',
    abook_editform_valuelabel_MAILER => 'openwebmail, outlook, etc',
    abook_editform_namelabel_NOTE => 'Nota',
-   abook_editform_namelabel_KEY => 'Privacy Keys',
-   abook_editform_undef_KEY => 'no keys exist for this contact.',
-   abook_editform_view_KEY => 'view this privacy key',
-   abook_editform_unknown_KEY => 'unknown key type',
+   abook_editform_namelabel_KEY => 'Chei Criptare',
+   abook_editform_undef_KEY => 'nu exista chei de criptare pentru acest contact.',
+   abook_editform_view_KEY => 'afiseaza cheile de criptare',
+   abook_editform_unknown_KEY => 'tip cheie criptare necunoscut',
    abook_editform_x509_KEY => 'X.509 Public Key Certificate',
    abook_editform_pgp_KEY => 'IETF Pretty Good Privacy PGP Key',
    abook_editform_gpg_KEY => 'GNU Privacy Guard GPG Key',
    abook_editform_namelabel_AGENT => 'Agenti',
-   abook_editform_undef_AGENT => 'no one acts on behalf of this contact.',
-   abook_editform_download_AGENT => 'download this agent\'s vcard information',
-   abook_editform_unknown_AGENT => 'unknown agent type',
+   abook_editform_undef_AGENT => 'nimeni nu reprezinta acest contact.',
+   abook_editform_download_AGENT => 'descarca cartea de vizita a acestui agent',
+   abook_editform_unknown_AGENT => 'tip agent necunoscut',
    abook_editform_vcf_AGENT => 'Versit Card File',
    abook_editform_GEO_find => 'Afla pozitia geografica',
    abook_editform_GEO_findurl => 'http://www.multimap.com/map/home.cgi?client=public&lang=&advanced=&db=RO',
    abook_editform_GEO_map => 'Arata o harta a locatiei',
    abook_editform_GEO_photo => 'Arata o imagine satelit a locatiei',
-   abook_editform_namelabel_CLASS => 'Access Classification',
-   abook_editform_namelabel_PRODID => 'Creator Program',
+   abook_editform_namelabel_CLASS => 'Clasificare Acces',
+   abook_editform_namelabel_PRODID => 'Program Creator',
    abook_editform_valuelabel_PRODID => 'outlook, openwebmail, etc',
-   abook_editform_namelabel_UID => 'External Unique ID',
-   abook_editform_valuelabel_UID => 'used by external programs to identify this card',
-   abook_editform_namelabel_SOURCE => 'vCard Source URL',
+   abook_editform_namelabel_UID => 'ID Unic Extern',
+   abook_editform_valuelabel_UID => 'folosit de programe externe pentru identificarea acestei carti de vizita',
+   abook_editform_namelabel_SOURCE => 'Adresa Sursa vCard',
    abook_editform_valuelabel_SOURCE => 'http://www.mysite.com/mycard.vcf',
-   abook_editform_namelabel_NAME => 'vCard Source Name',
-   abook_editform_valuelabel_NAME => 'a description of the source url',
-   abook_editform_valuelabel_CUSTOMNAME => 'a custom name',
-   abook_editform_valuelabel_CUSTOMVALUES => 'custom values',
-   abook_editform_playsound => 'Play Sound',
-   abook_editform_deletesound => 'Delete Sound',
+   abook_editform_namelabel_NAME => 'Nume Sursa vCard',
+   abook_editform_valuelabel_NAME => 'o descriere a adresei sursa',
+   abook_editform_valuelabel_CUSTOMNAME => 'nume atribut',
+   abook_editform_valuelabel_CUSTOMVALUES => 'valori atribut',
+   abook_editform_playsound => 'Test Sunet',
+   abook_editform_deletesound => 'Sterge Sunet',
    abook_editform_save_and_return => 'Salvare',
    abook_editform_cancel_and_return => 'Abandon',
-   abook_editform_new_agent_link => 'create',
-   sa_prefs         => 'Preferinte personale SpamAssassin',
+   abook_editform_new_agent_link => 'creaza',
+   sa_prefs         => 'Preferinte Personale SpamAssassin',
    sa_edittest      => 'Editare Reguli Test',
    sa_editblacklist => 'Editare Lista Blocari',
    sa_editwhitelist => 'Editare Exceptii Blocari',
@@ -681,11 +683,11 @@ package ow::ro;
    couldnt_lock      => 'Nu se poate bloca',
    couldnt_seek      => 'Nu se poate ajunge la inceput',
    couldnt_close     => 'Nu se poate inchide',
-   couldnt_updatedb  => 'Nu se poate updata index-ul',
+   couldnt_updatedb  => 'Nu se poate actualiza index-ul',
    disallowed_pop3   => 'Server POP3 inaccesibil',
    disallowed_client => 'Nu aveti permisiunea sa va conectati de la acest client',
    disallowed_receiverdomain => 'Nu aveti permisiunea sa trimiteti mesaje la aceasta adresa',
-   norootlogin       => 'Din motive de scuritate accesul pe root nu este permis',
+   norootlogin       => 'Din motive de scuritate accesul cu user root nu este permis',
    shouldnt_move_here=> 'Nu ar trebui sa va mutati mesajele aici',
    destination_folder=> 'Directorul destinatie',
    doesnt_exist      => 'nu exista!',
@@ -696,9 +698,9 @@ package ow::ro;
    under_indexing    => 'este inca in proces de indexare, va rugam incercati din nou mai tarziu',
    back              => 'inapoi',
    tryagain          => 'incercati din nou.',
-   mailfilter_error  => 'Eraore Filtru Email',
+   mailfilter_error  => 'Eroare Filtru Email',
    cant_create_dir   => 'Nu se poate creea directorul dvs.!',
-   att_overlimit     => 'Atasamentul dvs. depaseste marimea acceptata, adica',
+   att_overlimit     => 'Atasamentul dvs. depaseste marimea maxima, adica',
    inv_msg_op        => 'Operatie incorecta pentru mesaj',
    sess_cookieerr    => 'Cererea dvs. nu contine cookie-ul potrivit pentru aceasta sesiune - Acces nepermis!',
    sess_iperr        => 'Cererea dvs. nu a venit de la aceiasi adresa de ip a acestei sesiuni - Acces nepermis!',
@@ -708,13 +710,13 @@ package ow::ro;
    rebuild_sizeerr   => 'Dimensiune mesajului nou este incorecta',
    user_not_exist    => 'Nu exista acest utilizator',
    func_notsupported => 'Functia nu este suportata',
-   auth_syserr       => 'Eroare in sistemul de autetificare. Va rugam contactati administratorul.',
+   auth_syserr       => 'Eroare in sistemul de autentificare. Va rugam contactati administratorul.',
    param_fmterr      => 'parametru incorect',
    pwd_incorrect     => 'parola incorecta',
    pwd_confirmmismatch=>'Confirmarea parolei nu este corecta',
    pwd_tooshort      => 'Parola este prea scurta (lungime minima acceptata @@@PASSWDMINLEN@@@)',
    pwd_toosimple     => 'Parola este prea simpla (sunt necesare atat cifre cat si litere)',
-   network_server_error => 'Eroare de Server. Va rugam contactati administratorul.',
+   network_server_error => 'Eroare de server. Va rugam contactati administratorul.',
    sendmail_error    => 'A aparut o problema la trimiterea mesajului dvs. Va rugam apasati butonul back al browser-ului si verificati mesajul.',
    at_char_not_allowed => 'Caracterul @ nu este permis in acest camp.  Va rugam apasati butonul back al browser-ului, faceti corecturile necesare si incercati din nou.',
    badnum_in_days => 'numar gresit in campul de zile consecutive',
@@ -727,9 +729,9 @@ package ow::ro;
    upload_overlimit  => 'Fisierul ce urmeaza a fi incarcat depaseste limita spatiului alocat',
    decomp_notsupported =>'Decompresia nu este disponibila pentru acest format de fisier.',
    filefmt_notsupported =>'Format fisier necunoscut.',
-   webdisk_readonly  => 'Aveti doar perimisiuni de citire pentru WebDisk-ul dvs.',
+   webdisk_readonly  => 'Aveti doar drepturi de citire pentru WebDisk-ul dvs.',
    quota_syserr      => 'Eroare a sistemului de calcul al spatiului alocat',
-   quotahit_alert    => 'ATENTIE! Ati depasit spatiul de stocare alocat. Va rugam stergeti cateva mesaje din directoarele de e-mail sau cateva fisiere de pe WebDisk pentru a elibera spatiu.',
+   quotahit_alert    => 'ATENTIE! Ati depasit spatiul de stocare alocat. Va rugam stergeti cateva mesaje din directoarele de email sau cateva fisiere de pe WebDisk pentru a elibera spatiu.',
    quotahit_delmail  => 'ATENTIE! Deoarece spatiul de stocare alocat(@@@QUOTALIMIT@@@) a fost depasit, mesajele cele mai vechi din directoare au fost sterse automat',
    quotahit_delfile  => 'ATENTIE! Deoarece spatiul de stocare alocat(@@@QUOTALIMIT@@@) a fost depasit, unele fisere de pe WebDisk au fost sterse automat',
    spool_overlimit   => 'ATENTIE! Ati depasit spatiul de stocare din INBOX(@@@SPOOLLIMIT@@@). Va rugam mutati cateva fisiere din INBOX in alte directoare.',
@@ -738,7 +740,7 @@ package ow::ro;
    vdomain_userrequired => 'Este necesar un nume de utilizator!',
    vdomain_fwdrequired => 'Este necesara o adresa email valida pentru redirectionare',
    all_module_disabled => 'Toate modulele sunt dezactivate',
-   abook_all_readonly => 'Toate agendele pot fi doar citite, creati o agenda noua',
+   abook_all_readonly => 'Toate agendele existente pot fi doar citite, creati o agenda noua',
    abook_import_nofile => 'Trebuie sa selectat un fisier pentru import',
    abook_import_noformat => 'Trebuie sa specificati un format de import',
    abook_import_nodest => 'Destinatia importului este obligatorie',
@@ -751,12 +753,12 @@ package ow::ro;
    abook_already_exists => 'Agenda @@@ADDRESSBOOK@@@ exista deja. Alegeti alt nume',
    abook_name_too_long => 'Numele agendei @@@ADDRESSBOOK@@@ e prea lung. Se pot folosi maximum @@@FOLDERNAME_MAX@@@ caractere',
    abook_cant_rename => 'Redenumirea agendei a esuat',
-   abook_ext_notsupported => 'The filetype uploaded is not supported as a ',
-   abook_toobig => 'Sorry, this would exceed the total size limit for all your addressbooks.  Please go',
+   abook_ext_notsupported => 'Tipul de fisier incarcat nu e recunoscut ca ',
+   abook_toobig => 'Ne pare rau, ati depasi limita totala a tuturor agendelor. Accesati',
    abook_delete_first => 'deja exista. Va rog sa stergeti inainte de a incerca sa adaugati.',
    abook_global_denied => 'Nu aveti dreptul sa modificati agenda globala',
    abook_editform_no_N => 'Un contact nou nu poate fi salvat pana nu completati numele. Va rog sa completati numele pentru acest contact.',
-   abook_agent_one_contact => 'An Agent upload may only contain one contact.',
+   abook_agent_one_contact => 'O incarcare agent poate contine doar un contact.',
    );
 
 1;

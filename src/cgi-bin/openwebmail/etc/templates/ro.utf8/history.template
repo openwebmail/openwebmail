@@ -1,0 +1,25 @@
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="0">
+<tr><td bgcolor=@@@TITLEBAR@@@>
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>Istoric utilizator</B></font>
+</td></tr>
+<tr><td bgcolor=@@@MENUBAR@@@>
+@@@MENUBARLINKS@@@
+</td></tr>
+</table>
+&nbsp;
+<table border="0" align="center" width="90%" cellspacing="0" cellpadding="0">
+<tr>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>Timp</B></td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>Adresa client</B></td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>Utilizator</B></td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>Eveniment</B></td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>Descriere</B></td>
+</tr>
+@@@LOGINHISTORY@@@
+</table>
