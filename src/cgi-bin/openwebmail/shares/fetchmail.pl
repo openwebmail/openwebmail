@@ -337,7 +337,7 @@ sub append_pop3msg_to_folder {
       ${$r_lines}[$#{$r_lines}] ne "\n") { # msg not ended with empty line
       print F "\n" or $err++;
    }
-   truncate(F, $origsize) if ($err);
+   truncate(F, ow::tool::untaint($origsize)) if ($err);
    close(F);
    ow::filelock::lock($folderfile, LOCK_UN);
 

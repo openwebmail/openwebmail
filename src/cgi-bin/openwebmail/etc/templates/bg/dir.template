@@ -75,7 +75,7 @@
 
 @@@UPLOADSTART@@@
 <table border="0" width="100%" cellpadding="1" cellspacing="1"><tr>
-<td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Ъплоуд</B> ( filename or URL )</td>
+<td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Ъплоуд</B> ( име на файл или връзка )</td>
 </tr><tr>
 <td nowrap bgcolor=@@@MENUBAR@@@>@@@UPLOADFILEFIELD@@@</td>
 </tr></table>

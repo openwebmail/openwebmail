@@ -2158,7 +2158,7 @@ sub sendmessage {
          $FDB{'LSTMTIME'}=time();
          ow::dbm::close(\%FDB, $savedb);
       } else {
-         truncate($folderhandle, $messagestart);
+         truncate($folderhandle, ow::tool::untaint($messagestart));
          close($folderhandle);
 
          my %FDB;

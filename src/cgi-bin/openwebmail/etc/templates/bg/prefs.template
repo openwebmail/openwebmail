@@ -120,9 +120,9 @@
 
 @@@WEBMAILSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Messages Listing</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Списък със съобщенията</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Controlbar position in messages list:</B>
+<B>Позиция на лентата при списъка със съобщениата:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CTRLPOSITIONFOLDERVIEWMENU@@@
 </td></tr>
@@ -275,7 +275,7 @@
 @@@REPLYWITHORIGMSGMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Automatic CC:</B>
+<B>Автоматично CC:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@AUTOCCFIELD@@@
 </td></tr>
@@ -516,7 +516,7 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Categorized Folders list:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@CATEGORIZEDFOLDERS@@@ &nbsp;( Category-Folder Separator @@@CATEGORIZEDFOLDERS_FS@@@ )
+@@@CATEGORIZEDFOLDERS@@@ &nbsp;( Разделител на категорията папка @@@CATEGORIZEDFOLDERS_FS@@@ )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Сигнал при ново съобщение:</B>

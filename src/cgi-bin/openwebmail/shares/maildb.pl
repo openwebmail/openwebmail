@@ -26,8 +26,8 @@ use strict;
 use Fcntl qw(:DEFAULT :flock);
 use FileHandle;
 
-# extern vars, defined in caller openwebmail-xxx.pl
-use vars qw(%config %prefs);
+# extern vars, defined in caller openwebmail-xxx.pl or etc/lang/*
+use vars qw(%config %prefs %lang_err);
 
 # define the version of the mail index database
 use vars qw($DBVERSION);
@@ -738,7 +738,7 @@ sub update_message_status {
          }
 
          if (!$ioerr) {
-            truncate($folderhandle, $foldersize+$movement) or writelog("truncate failed??");
+            truncate($folderhandle, ow::tool::untaint($foldersize+$movement)) or writelog("truncate failed??");
             if ($status=~/Z/i) {
                $FDB{'ZAPSIZE'}+=$movement;
             } elsif (is_internal_subject($attr[$_SUBJECT])) {
@@ -922,7 +922,7 @@ sub operate_message_with_ids {
                   writelog("data error - Couldn't write $dstfile, $!");
                   close ($srchandle);
                   ow::dbm::close(\%FDB, $srcdb);
-                  truncate($dsthandle, $dstlength);	# cut at last successful write
+                  truncate($dsthandle, ow::tool::untaint($dstlength));	# cut at last successful write
                   close ($dsthandle);
                   @FDB2{'METAINFO', 'LSTMTIME'}=('ERR', -1);
                   ow::dbm::close(\%FDB2, $dstdb);
@@ -1053,7 +1053,7 @@ sub folder_zapmessages {
          writehistory("data error - msgs in $srcfile shiftblock failed, $!");
          $ioerr++;
       } else {
-         truncate($folderhandle, $writepointer+$blockend-$blockstart);
+         truncate($folderhandle, ow::tool::untaint($writepointer+$blockend-$blockstart));
       }
    }
 

@@ -1,3 +1,13 @@
+02/15/2005
+----------
+1. fix the bug that calling truncate function may have
+   'insecure dependency' error
+2. Slovenian language and template files translation minor update
+   (thanks to Uros Sajko, copatek.AT.yahoo.com)
+3. Bulgarian language and template files translation minor update
+   (thanks to Veselin Slavov, vess.AT.slavof.net)
+
+
 02/13/2005
 ----------
 1. Deutsch language and template files translation minor update

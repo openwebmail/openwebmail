@@ -180,7 +180,7 @@ sub dotfile_lock {
                   seek(L, 0, 0);
                   my $rec="READ:$count\n";
                   print L $rec;
-                  truncate(L, length($rec));
+                  truncate(L, ow::tool::untaint(length($rec)));
                   close(L);
                   $status=1;
                } else {
@@ -214,7 +214,7 @@ sub dotfile_lock {
                seek(L,0,0);
                my $rec="READ:$count\n";
                print L $rec;
-               truncate(L, length($rec));
+               truncate(L, ow::tool::untaint(length($rec)));
                $status=1;
             } else {
                $status=0;
