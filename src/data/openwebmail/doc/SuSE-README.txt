@@ -169,9 +169,6 @@ Thats it !!!! -> Now start configuring:
 	domainnames             auto
 	auth_module             auth_unix.pl
 	mailspooldir            /var/mail
-	dbm_ext                 .pag
-	dbmopen_ext             none
-	dbmopen_haslock         no
 	ow_cgidir               /srv/www/cgi-bin/openwebmail
 	ow_cgiurl               /cgi-bin/openwebmail
 	ow_htmldir              /srv/www/htdocs/openwebmail
@@ -181,13 +178,22 @@ Thats it !!!! -> Now start configuring:
 	
 	These are the settings working well for me !
 
-	5.2. check and change settings of
-	     /srv/www/cgi-bin/openwebmail/auth_unix.pl
+        5.2. check and change setting of
+             /srv/www/cgi-bin/openwebmail/etc/dbm.conf
+
+	dbm_ext                 .pag
+	dbmopen_ext             none
+	dbmopen_haslock         no
+
+	5.3. check and change settings of
+	     /srv/www/cgi-bin/openwebmail/etc/auth_unix.conf
 	
-	my $unix_passwdfile_plaintext="/etc/passwd";
-	my $unix_passwdfile_encrypted="/etc/shadow";
-	my $unix_passwdmkdb="";
-	my $check_shell=0;
+	passwdfile_plaintext	/etc/passwd
+	passwdfile_encrypted	/etc/shadow
+	passwdmkdb		none
+	check_nologin           no
+	check_shell             no
+	check_cobaltuser        no
 	
 	These are the settings working well for me under SuSE!
 	

@@ -1,16 +1,16 @@
-package openwebmail::uk;
+package ow::uk;
 
 # Ukrainian translation, charset: koi8-u
 # by Volodymyr M. Lisivka, lvm.AT.mystery.lviv.net
 
 %lang_folders =
    (
-   INBOX => 'ВХ╤ДН╤',
+   INBOX            => 'ВХ╤ДН╤',
    'saved-messages' => 'АРХ╤В',
    'sent-mail'      => 'В╤ДПРАВЛЕН╤',
    'saved-drafts'   => 'ЧЕРНЕТКИ',
    'mail-trash'     => 'СМ╤ТНИК',
-   DELETE => '--ВИДАЛИТИ--'
+   DELETE           => '--ВИДАЛИТИ--'
    );
 
 %lang_sortlabels =
@@ -43,7 +43,7 @@ package openwebmail::uk;
 %lang_msgformatlabels =
    (
    auto => 'Автовизначене',
-   text	=> 'Текст',
+   text => 'Текст',
    html => 'HTML',
    both => 'HTML ╕ текст'
    );
@@ -51,8 +51,8 @@ package openwebmail::uk;
 %lang_withoriglabels =
    (
    at_beginning => 'на початку',
-   at_end      => 'в к╕нц╕',
-   none        => 'в╕дсутн╕й'
+   at_end       => 'в к╕нц╕',
+   none         => 'в╕дсутн╕й'
    );
 
 %lang_receiptlabels =
@@ -78,8 +78,8 @@ package openwebmail::uk;
 %lang_sendpositionlabels =
    (
    before => 'Перед областю редагування пошти',
-   after => 'П╕сля област╕ редагування пошти',
-   both  => 'Перед ╕ п╕сля област╕ редагування пошти'
+   after  => 'П╕сля област╕ редагування пошти',
+   both   => 'Перед ╕ п╕сля област╕ редагування пошти'
    );
 
 %lang_abookbuttonpositionlabels = 
@@ -127,7 +127,7 @@ package openwebmail::uk;
    yearview  => 'На р╕к',
    monthview => 'На м╕сяць',
    weekview  => 'На тиждень',
-   dayview   => 'На денний',
+   dayview   => 'На день',
    listview  => 'Список'
    );
 
@@ -187,14 +187,14 @@ package openwebmail::uk;
    listarchive=> 'Список',
    decompress=>'Розпакувати',
    extract  => 'Д╕стати',
-   mkpdf    => 'Make Pdf',
-   mkps     => 'Make Ps',
+   mkpdf    => 'Створити PDF',
+   mkps     => 'Створити PostScript',
    chdir    => 'Зм╕нити каталог',
    mkdir    => 'Створити каталог',
    newfile  => 'Новий файл',
    copy     => 'Скоп╕ювати',
    move     => 'Перенести',
-   symlink  => 'Symlink',
+   symlink  => 'Посилання',
    delete   => 'Видалити',
    gzip     => 'Стиснути gz',
    mkzip    => 'Створити zip',
@@ -206,7 +206,7 @@ package openwebmail::uk;
 
 %lang_text =
    (
-   loading    => 'Loading, please wait',
+   loading    => 'Зачекайте, завантажую...',
    help       => 'Дов╕дка',
    login      => 'Вх╕д',
    clear      => 'В╕дм╕на',
@@ -252,7 +252,7 @@ package openwebmail::uk;
    forwardasatt=>'Переслати як долучення',
    forwardasorig=>'Переслати як ориг╕нал',
    printfriendly=> 'Для друку',
-   msgformat  => 'MsgFormat',
+   msgformat  => 'Формат листа',
    from       => 'В╕д',
    replyto    => 'Зворотна адреса',
    to         => 'До кого',
@@ -274,9 +274,9 @@ package openwebmail::uk;
    msgrebuild => 'Перебудувати пов╕домлення',
    editdraft  => 'Редагувати чернетку',
    savedraft  => 'Зберегти чернетку',
-   draftsaved => 'Draft @@@SUBJECT@@@ has been saved successfully',
+   draftsaved => 'Чернетка @@@SUBJECT@@@ усп╕шно збережена',
    send       => 'В╕дправити',
-   msgsent    => 'Message @@@SUBJECT@@@ has been sent successfully',
+   msgsent    => 'Пов╕домлення @@@SUBJECT@@@ усп╕шно в╕д╕слане',
    about      => 'Про',
    close      => 'Закрити',
    cancel     => 'Скасувати',
@@ -360,6 +360,7 @@ package openwebmail::uk;
    statreply  => '-- Поштовий наб╕р для в╕дпов╕д╕ --',
    calendar   => 'Календар',
    allday     => 'Весь день',
+   today      => 'Today',
    am         => 'до',
    pm         => 'по',
    calfmt_year          => '@@@YEAR@@@-ий р╕к',
@@ -412,12 +413,12 @@ package openwebmail::uk;
    vdomain_createuser => 'Створити користувача',
    vdomain_changeuser => 'Зм╕нити користувача',
    vdomain_deleteuser => 'Видалити користувача',
-   vdomain_changeview => 'Change view to',
-   vdomain_usersonly  => 'users only',
-   vdomain_useralias  => 'users/aliases',
-   vdomain_fmtuseralias => 'formatted users/aliases',
-   vdomain_admin      => 'Admin',
-   vdomain_localuser  => 'Local User',
+   vdomain_changeview => 'Зм╕нити вигляд',
+   vdomain_usersonly  => 'лише користувач╕',
+   vdomain_useralias  => 'користувач╕/псевдон╕ми',
+   vdomain_fmtuseralias => 'в╕дформатован╕ користувач╕/псевдон╕ми',
+   vdomain_admin      => 'Адм╕н╕стратор',
+   vdomain_localuser  => 'Локальний користувач',
    set_passwd         => 'Встановити пароль',
    reset_passwd       => 'Перевстановити пароль',
    email_alias        => 'Псевдон╕м електронно╖ пошти'
@@ -477,7 +478,7 @@ package openwebmail::uk;
    no_file_todownload=> 'Не вказаний файл для завантаження',
    upload_overlimit  => 'Розм╕р в╕двантаженого файлу б╕льший за л╕м╕т',
    decomp_notsupported => 'Розтиснення таких файл╕в не п╕дтриму╓ться.',
-   filefmt_notsupported =>'The file format is not supported.',
+   filefmt_notsupported =>'Формат файлу не п╕дтриму╓ться.',
    webdisk_readonly  => 'Вибачте, ваш домашн╕й каталог лише для читання.',
    quota_syserr      => 'Помилка системи квот',
    quotahit_alert    => 'Вибачте, але ви перевищили меж╕ вашо╖ квоти. Будь ласка, видал╕ть як╕сь пов╕домлення з вашо╖ скриньки або з вашого домашнього каталогу.',
@@ -487,8 +488,8 @@ package openwebmail::uk;
    vdomain_toomanyuser  => 'Вибачте, к╕льк╕сть в╕ртуальних користувач╕в перевищила можливост╕ цього в╕ртуального домена.',
    vdomain_toomanyalias => 'Вибачте, але к╕льк╕сть псевдон╕м╕в електронно╖ пошти перевищела максимальну допустиму межу для цього користувача.',
    vdomain_userrequired => 'Вимага╓ться ╕м\'я користувача',
-   vdomain_fwdrequired => 'A valid forwarding E-MAIL is required',
-   all_module_disabled => 'All modules are disabled'
+   vdomain_fwdrequired => 'Вимага╓ться в╕рна поштова адреса для пересилки',
+   all_module_disabled => 'Вс╕ модул╕ заборонен╕'
    );
 
 1;

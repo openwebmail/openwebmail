@@ -2,13 +2,13 @@
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="1">
 <tr><td colspan="2" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>Skriv ny melding</B></font>
+<B>Skriv melding</B></font>
 </td></tr><tr><td colspan="2" bgcolor=@@@MENUBAR@@@>
 <table width="100%" cellspacing="0" cellpadding="0"><tr>
 <td>@@@BACKTOFOLDER@@@</td>
 <td align="right">
 <table border="0" cellpadding="0" cellspacing="0"><tr>
-<td>Tegnsett for komposisjonen: </td>
+<td>Tegnsett: </td>
 <td>@@@CONVTOMENU@@@&nbsp;</td>
 </tr></table>
 </td>
@@ -29,21 +29,21 @@
 @@@TOFIELD@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
-<B>Kopi:</B>
+<B>CC:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CCFIELD@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
-<B>Blindkopi:</B>
+<B>BCC:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BCCFIELD@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
-<B>Svar til:</B>
+<B>Svar-til:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 <table border="0" cellpadding="0" cellspacing="0"><tr>
 <td>@@@REPLYTOFIELD@@@&nbsp;&nbsp;</td>
-<td><B>Lesekvittering</B></td>
+<td><B>Bekreft Lest</B></td>
 <td>@@@CONFIRMREADINGCHECKBOX@@@</td>
 </tr></table>
 </td></tr>
@@ -57,7 +57,7 @@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 <table border="0" cellpadding="0" cellspacing="0"><tr>
 <td>@@@SUBJECTFIELD@@@&nbsp;&nbsp;</td>
-<td><B>Behold kopi ved sending</B></td>
+<td><B>Kopi av sendt melding</B></td>
 <td>@@@BACKUPSENTMSGCHECKBOX@@@</td>
 </tr></table>
 </td></tr>
@@ -91,7 +91,7 @@
    function GoAddressWindow(toccbcc)
    {
       var url = "@@@ABOOKURL@@@?action=addressbook&sessionid=@@@SESSIONID@@@&form=composeform&field=" + toccbcc+"&abook_keyword=@@@ABOOKKEYWORD@@@&abook_searchtype=@@@ABOOKSEARCHTYPE@@@";
-      
+
       if (toccbcc == "to")
          url += "&elist=" + escape (document.composeform.to.value);
       else if (toccbcc == "cc")
@@ -121,7 +121,7 @@
       if ((document.composeform.msgformat.value == "html" ||
            document.composeform.msgformat.value == "both") &&
           document.composeform.newmsgformat.value == "text" ) {
-         if (confirm("The HTML data format will be lost after the conversion, are you sure to change to Text mode?")) {
+         if (confirm("HTML-formateringen vil mistes i konverteringen. Vil fu likevel endre til ren tekst?")) {
             bodygethtml();
             document.composeform.submit();
             return true;
@@ -173,11 +173,11 @@
       if (document.composeform.to.value == ""
        && document.composeform.cc.value == ""
        && document.composeform.bcc.value == "" ) {
-         alert("Spesifisér mottaker før du sender.");
+         alert("Spesifisér mottaker før sending.");
          return false;
       }
       if (document.composeform.subject.value == "" ) {
-         return(confirm("Denne meldingen mangler emne. Vil du fortsatt sende den?"));
+         return(confirm("Meldingen mangler emne. Vil for likevel sende den?"));
       }
       return true;
    }

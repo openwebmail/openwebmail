@@ -1,16 +1,16 @@
-package openwebmail::pt;
+package ow::pt;
 
 # Portuguese translation, charset: iso-8859-1
 # by Jose Ferradeira, jferra.AT.sfconsultores.pt
 
 %lang_folders =
    (
-   INBOX => 'Entrada',
+   INBOX            => 'Entrada',
    'saved-messages' => 'Guardadas',
    'sent-mail'      => 'Enviadas',
    'saved-drafts'   => 'Rascunho',
    'mail-trash'     => 'Lixo',
-   DELETE => '--APAGAR--'
+   DELETE           => '--APAGAR--'
    );
 
 %lang_sortlabels =
@@ -43,7 +43,7 @@ package openwebmail::pt;
 %lang_msgformatlabels =
    (
    auto => 'Automático',
-   text	=> 'Texto',
+   text => 'Texto',
    html => 'HTML',
    both => 'HTML e Texto'
    );
@@ -51,8 +51,8 @@ package openwebmail::pt;
 %lang_withoriglabels =
    (
    at_beginning => 'no início',
-   at_end      => 'no fim',
-   none        => 'Ignorar'
+   at_end       => 'no fim',
+   none         => 'Ignorar'
    );
 
 %lang_receiptlabels =
@@ -78,8 +78,8 @@ package openwebmail::pt;
 %lang_sendpositionlabels =
    (
    before => 'Antes da área de edição',
-   after => 'Depois da área de edição',
-   both  => 'Antes e depois da área de edição'
+   after  => 'Depois da área de edição',
+   both   => 'Antes e depois da área de edição'
    );
 
 %lang_abookbuttonpositionlabels = 
@@ -360,6 +360,7 @@ package openwebmail::pt;
    statreply  => '-- Seleccione a resposta tipo --',
    calendar   => 'Agenda Calendário',
    allday     => 'Dia todo',
+   today      => 'Today',
    am         => 'am',
    pm         => 'pm',
    calfmt_year          => 'Ano de @@@YEAR@@@',

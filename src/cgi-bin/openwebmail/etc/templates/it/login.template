@@ -61,15 +61,15 @@
    {
       if (document.login.httpcompress.checked) {
          alert(
-"La compressione HTTP puo' ridurre notevolmente l'uso di banda tra il server e il suo computer, "+
-"ma ci posssono essere alcuni problemi di compatibilita':\n\n"+
+"La compressione HTTP può ridurre notevolmente l'uso di banda tra il server e il suo computer, "+
+"ma ci posssono essere alcuni problemi di compatibilità:\n\n"+
 "1. alcuni server proxy supportano la compressione HTTP solo mediante HTTP 1.1, "+
-"puo' essere necessario abilitare  il supporto alla compressione  HTTP1.1 via proxy nel vostro browser\n"+
+"può essere necessario abilitare  il supporto alla compressione  HTTP1.1 via proxy nel vostro browser\n"+
 "2. alcuni server proxy non supportano la compressione HTTP, "+
-"puo' essere necessario elencare i server webmail server come connessione diretta nella configurazione proxy del vostro browser.\n"+
+"può essere necessario elencare i server webmail come connessione diretta nella configurazione proxy del vostro browser.\n"+
 "3. alcuni browser possono avere problemi usando la compressione HTTP in combinazione con SSL...\n"+
-"4. alcuni browsers dichiarano di supportare la compressione HTTP ma in realta' mentono...\n\n"+
-"Se incontra difficolta' riprovi il login disabilitando questa opzione.\n"
+"4. alcuni browsers dichiarano di supportare la compressione HTTP ma in realtà mentono...\n\n"+
+"Se incontra difficoltà riprovi il login disabilitando questa opzione.\n"
          );
       }
       return(true);

@@ -23,7 +23,7 @@ use strict;
 my @homepaths = ( '/home', '/home/mailusers' );
 my @virtualpaths = ('/home/virtual');
 
-my $rctarget = 'mail/.openwebmailrc';
+my $rctarget = '.openwebmail/openwebmailrc';
 
 if ( @ARGV != 2 ) {
    print "Usage:  fixrc.pl   <searchstring>   <replacestring>\n";

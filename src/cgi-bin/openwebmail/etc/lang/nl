@@ -1,4 +1,4 @@
-package openwebmail::nl;
+package ow::nl;
 
 # Dutch translation, charset: iso-8859-1
 # by Jeroen Visser, openwebmail.AT.forty-two.nl
@@ -6,12 +6,12 @@ package openwebmail::nl;
 
 %lang_folders =
    (
-   INBOX => 'Postvak IN',
+   INBOX            => 'Postvak IN',
    'saved-messages' => 'Opgeslagen',
    'sent-mail'      => 'Verzonden',
    'saved-drafts'   => 'Concepten',
    'mail-trash'     => 'Prullenbak',
-   DELETE => '--VERWIJDER--'
+   DELETE           => '--VERWIJDER--'
    );
 
 %lang_sortlabels =
@@ -44,7 +44,7 @@ package openwebmail::nl;
 %lang_msgformatlabels =
    (
    auto => 'Automatisch',
-   text	=> 'Tekst',
+   text => 'Tekst',
    html => 'HTML',
    both => 'HTML en Tekst'
    );
@@ -52,8 +52,8 @@ package openwebmail::nl;
 %lang_withoriglabels =
    (
    at_beginning => 'aan het Begin',
-   at_end      => 'aanhet Eind',
-   none        => 'Geen'
+   at_end       => 'aanhet Eind',
+   none         => 'Geen'
    );
 
 %lang_receiptlabels =
@@ -79,8 +79,8 @@ package openwebmail::nl;
 %lang_sendpositionlabels =
    (
    before => 'Boven e-mail invul velden',
-   after => 'Onder  e-mail invul velden',
-   both  => 'Boven en onder  e-mail invul velden'
+   after  => 'Onder  e-mail invul velden',
+   both   => 'Boven en onder  e-mail invul velden'
    );
 
 %lang_abookbuttonpositionlabels = 
@@ -361,6 +361,7 @@ package openwebmail::nl;
    statreply  => '-- Sjabloon voor antwoord --',
    calendar   => 'Kalender',
    allday     => 'Gehele dag',
+   today      => 'Today',
    am         => 'am',
    pm         => 'pm',
    calfmt_year          => 'Jaar @@@YEAR@@@',

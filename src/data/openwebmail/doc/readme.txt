@@ -56,6 +56,7 @@ ispell-3.1.20.tar.gz      (optional)
 Quota-1.4.6.tar.gz        (optional)
 Authen-PAM-0.12.tar.gz    (optional)
 ImageMagick-5.5.3.tar.gz  (optional)
+antiword-0.35.tar.gz      (optional)
 
 
 INSTALL REQUIRED PACKAGES
@@ -145,8 +146,8 @@ For Text-Iconv-1.2 do the following:
 
    ps: If the 'make test' failed, it means you set wrong value for LIBS and
        INC in Makefile.PL or your iconv support is not complete.
-       You may copy the uty/iconv.pl.fake to iconv.pl to make openwebmail work
-       without iconv support.
+       You may copy the uty/iconv.pl.fake to shares/iconv.pl to make 
+       openwebmail work without iconv support.
 
    make install
 
@@ -156,40 +157,42 @@ INSTALL OPENWEBMAIL
 The latest released or current version is available at
 http://openwebmail.com/openwebmail/
 
+
 If you are using FreeBSD and install apache with pkg_add,
-then just
 
 1. chmod 4555 /usr/bin/suidperl
 
 2. cd /usr/local/www
    tar -zxvBpf openwebmail-X.XX.tgz
 
-3. modify /usr/local/www/cgi-bin/openwebmail/etc/openwebmail.conf for your need.
+3. cd /usr/local/www/cgi-bin/openwebmail/etc
+   modify openwebmail.conf for your need.
 
 4. execute /usr/local/www/cgi-bin/openwebmail/openwebmail-tool.pl --init
 
 
-ps: If you are using RedHat 7.x (or most Linux) with Apache
+If you are using RedHat 7.x (or most Linux) with Apache
 
 1. cd /var/www
    tar -zxvBpf openwebmail-X.XX.tgz
    mv data/openwebmail html/
    rmdir data
 
-2. cd /var/www/cgi-bin/openwebmail
-   modify auth_unix.pl
-   a. set variable $unix_passwdfile_encrypted to '/etc/shadow'
-   b  set variable $unix_passwdmkdb to 'none'
+2. cd /var/www/cgi-bin/openwebmail/etc
 
-3. modify /var/www/cgi-bin/openwebmail/etc/openwebmail.conf
+   modify auth_unix.conf from auth_unix.conf.default
+   a. set passwdfile_encrypted to '/etc/shadow'
+   b  set passwdmkdb           to 'none'
+
+   modify openwebmail.conf
    a. set mailspooldir to '/var/spool/mail'
-   b. set ow_htmldir to '/var/www/html/openwebmail'
-      set ow_cgidir  to '/var/www/cgi-bin/openwebmail'
-   c. set spellcheck to '/usr/bin/ispell'
+   b. set ow_htmldir   to '/var/www/html/openwebmail'
+      set ow_cgidir    to '/var/www/cgi-bin/openwebmail'
+   c. set spellcheck   to '/usr/bin/ispell'
    d. change default_signature for your need
    e. other changes you want
 
-4. add
+3. add
    /var/log/openwebmail.log {
        postrotate
            /usr/bin/killall -HUP syslogd
@@ -197,7 +200,7 @@ ps: If you are using RedHat 7.x (or most Linux) with Apache
    }
    to /etc/logrotate.d/syslog to enable logrotate on openwebmail.log
 
-5. execute /var/www/cgi-bin/openwebmail/openwebmail-tool.pl --init
+4. execute /var/www/cgi-bin/openwebmail/openwebmail-tool.pl --init
 
 If you are using RedHat 6.2, please use /home/httpd instead of /var/www
 ps: It is highly recommended to read the doc/RedHat-README.txt(contributed by
@@ -207,6 +210,7 @@ ps: Thomas Chung (tchung.AT.openwebmail.org) maintains the rpm for all
     released and current version of openwebmail, It is available at
     http://openwebmail.com/openwebmail/download/redhat/rpm/
     You can get openwebmail working in 5 minutes with this :)
+
 
 If you are using other UNIX with apache, that is okay
 
@@ -218,22 +222,24 @@ eg: /usr/local/apache/share, then
    mv data/openwebmail htdocs/
    rmdir data
 
-2. modify /usr/local/apache/share/cgi-bin/openwebmail/etc/openwebmail.conf
-   a. set mailspooldir to where your system mail spool is
-   b. set ow_htmldir to '/usr/local/apache/share/htdocs'
-      set ow_cgidir  to '/usr/local/apache/share/cgi-bin'
-   c. set spellcheck to '/usr/local/bin/ispell'
-   d. change default_signature for your need
-   e. other changes you want
-
-3. cd /usr/local/apache/share/cgi-bin/openwebmail
+2. cd /usr/local/apache/share/cgi-bin/openwebmail
 
    modify openwebmail*.pl
    change the #!/usr/bin/suidperl to the location where your suidperl is.
 
-   modify auth_unix.pl
-   a. set variable $unix_passwdfile_encrypted to '/etc/shadow'
-   b  set variable $unix_passwdmkdb to 'none'
+3. cd /usr/local/apache/share/cgi-bin/openwebmail/etc
+   
+   modify openwebmail.conf
+   a. set mailspooldir to where your system mail spool is
+   b. set ow_htmldir   to '/usr/local/apache/share/htdocs'
+      set ow_cgidir    to '/usr/local/apache/share/cgi-bin'
+   c. set spellcheck   to '/usr/local/bin/ispell'
+   d. change default_signature for your need
+   e. other changes you want
+
+   modify auth_unix.conf from auth_unix.conf.default
+   a. set passwdfile_encrypted to '/etc/shadow'
+   b  set passwdmkdb           to 'none'
 
 4. execute /usr/local/apache/share/cgi-bin/openwebmail/openwebmail-tool.pl --init
 
@@ -242,11 +248,9 @@ ps:If you are installing Open WebMail on Solaris, please put
    file /etc/openwebmail_path.conf.
 
    For example, if the script is located at
-
    /usr/local/apache/share/cgi-bin/openwebmail/openwebmail.pl,
 
    then the content of /etc/openwebmail_path.conf should be:
-
    /usr/local/apache/share/cgi-bin/openwebmail
 
 ps: If you are using Apache server 2.0 or later,
@@ -270,25 +274,30 @@ This init will create the mapping tables used by openwebmail in the future.
 If you skip this step, you will not be able to access the openwebmail through
 web interface.
 
-And since perl on various platforms may use different underlying dbm system,
-the init routine will test them and try to give you some useful suggestions.
+As perl on various platforms may use different underlying dbm system, the 
+default setting in the_directory_of_openwebmail_cgi_scripts/etc/dbm.conf
+may be not correct for your system.
 
-1. it checks dbm_ext, dbmopen_ext and dbmopen_haslock options in
-   openwebmail.conf, if they are set to wrong value, you may see output like
+The init routine will test them and try to give you some useful suggestions.
+
+1. it checks options in etc/dbm.conf, 
+   if they are set to wrong value, you may see output like
 -------------------------------------------------------------
-Please change the following 3 options in openwebmail.conf
-from
-	dbm_ext           .db
-	dbmopen_ext       none
-	dbmopen_haslock   no
+Please change '/the_directory_of_openwebmail_scripts/etc/dbm.conf' from
+
+dbm_ext                 .db
+dbmopen_ext             none
+dbmopen_haslock         no
+
 to
-	dbm_ext           .db
-	dbmopen_ext       %dbm_ext%
-	dbmopen_haslock   yes
+
+dbm_ext                 .db
+dbmopen_ext             none
+dbmopen_haslock         no
 -------------------------------------------------------------
 
-2. it checks if the dbm system uses DB_File.pm by default and
-   will suggest a necessary patch to DN_File.pm, you may see output like
+2. it checks if the dbm system uses DB_File.pm by default and will 
+   suggest a necessary patch to DB_File.pm, you may see output like
 -------------------------------------------------------------
 Please modify /usr/libdata/perl/5.00503/mach/DB_File.pm by adding
 
@@ -664,7 +673,8 @@ designed for this purpose. Openwebmail also provides the web interface
 which can be used to manage(add/delete/edit) these virtual users under
 various virtual domains.
 
-Please refer to the description in auth_vdomain.pl for more detail.
+Please refer to the description in auth_vdomain.pl and auth_vdomain.conf 
+for more detail.
 
 ps: vm-pop3d : http://www.reedmedia.net/software/virtualmail-pop3d/
     PostFix  : http://www.postfix.org/
@@ -758,7 +768,7 @@ ps: PAM support on some release of FreeBSD seems broken (eg:4.1)
 
 4. change auth_module to 'auth_pam.pl' in the openwebmail.conf
 
-5. check auth_pam.pl for further modification required for your system.
+5. check auth_pam.pl and auth_pam.conf for further information.
 
 ps: Since the authentication module is loaded only once in persistent mode,
     you need to do 'touch openwebmail*pl' to make the modification active.
@@ -778,12 +788,10 @@ auth_ldap.pl
 auth_mysql.pl
 auth_mysql_vmail.pl
 auth_pam.pl
-auth_pam_cobalt.pl
 auth_pg.pl
 auth_pgsql.pl
 auth_pop3.pl
 auth_unix.pl
-auth_unix_cobalt.pl
 auth_vdomain.pl
 
 In case you found these modules not suitable for your need,
@@ -795,7 +803,7 @@ To add new authentication module into openwebmail, you have to:
 
 2. declare the package name in the first line of file auth_xyz.pl
 
-   package openwebmail::auth_xyz;
+   package ow::auth_xyz;
 
 3. implement the following 4 function:
 
@@ -857,7 +865,7 @@ ps: You may choose the abbreviation by referencing the following url
 
 4. change the package name of you language file (in the first line)
 
-   package openwebmail::xy
+   package ow::xy
 
 5. add the name and charset of your language to %languagenames,
    %languagecharsets in ow-shared.pl, then set default_language
@@ -968,7 +976,7 @@ you have to
 3. modify the Text.MyLang/icontext for your language
 
 ps: If your are going to make Cool3D iconset for your language with Photoshop,
-    you may start with the psd file created by Jan Bilik <jan@bilik.org>,
+    you may start with the psd file created by Jan Bilik <jan.AT.bilik.org>,
     it could save some of your time. The psd file is available at
     http://openwebmail.com/openwebmail/contrib/Cool3D.iconset.Photoshop.template.zip
 

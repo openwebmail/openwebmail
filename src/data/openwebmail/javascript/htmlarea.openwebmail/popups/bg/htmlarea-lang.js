@@ -79,6 +79,6 @@ HTMLArea.I18N = {
 
 	msg: {
 		"Path":         "Път",
-		"TEXT_MODE":    "Вие сте в текстов режим. Използвайте бутона You are in TEXT MODE.  Use the [<>] за преминаване в WYSIWIG."
+		"TEXT_MODE":    "Вие сте в текстов режим. Използвайте  [<>] за преминаване в WYSIWIG."
 	}
 };

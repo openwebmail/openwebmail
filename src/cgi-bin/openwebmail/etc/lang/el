@@ -1,16 +1,16 @@
-package openwebmail::el;
+package ow::el;
 
 # Greek translation, charset: iso-8859-7
 # by Dimitris 'sehh' Michelinakis
 
 %lang_folders =
    (
-   INBOX => 'Εισερχόμενα',
+   INBOX            => 'Εισερχόμενα',
    'saved-messages' => 'Σωσμένα',
    'sent-mail'      => 'Εξερχόμενα',
    'saved-drafts'   => 'Προσχέδιο',
    'mail-trash'     => 'Απορρίματα',
-   DELETE => '--Διαγραφή--'
+   DELETE           => '--Διαγραφή--'
    );
 
 %lang_sortlabels =
@@ -43,7 +43,7 @@ package openwebmail::el;
 %lang_msgformatlabels =
    (
    auto => 'Auto selected',
-   text	=> 'Text',
+   text => 'Text',
    html => 'HTML',
    both => 'HTML and Text'
    );
@@ -51,8 +51,8 @@ package openwebmail::el;
 %lang_withoriglabels =
    (
    at_beginning => 'στήν αρχή',
-   at_end      => 'στό τέλος',
-   none        => 'Καθόλου'
+   at_end       => 'στό τέλος',
+   none         => 'Καθόλου'
    );
 
 %lang_receiptlabels =
@@ -78,8 +78,8 @@ package openwebmail::el;
 %lang_sendpositionlabels =
    (
    before => 'Before mail edit area',
-   after => 'After mail edit area',
-   both  => 'Before and after mail edit area'
+   after  => 'After mail edit area',
+   both   => 'Before and after mail edit area'
    );
 
 %lang_abookbuttonpositionlabels = 
@@ -360,6 +360,7 @@ package openwebmail::el;
    statreply  => '-- Stationery for Reply --',
    calendar   => 'Ημερολόγιο',
    allday     => 'All day',
+   today      => 'Today',
    am         => 'πμ',
    pm         => 'μμ',
    calfmt_year          => 'Χρονιά @@@YEAR@@@',

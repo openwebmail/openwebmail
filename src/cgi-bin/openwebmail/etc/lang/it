@@ -1,16 +1,16 @@
-package openwebmail::it;
+package ow::it;
 
 # Italian translation, charset: iso-8859-1
 # by Benedet Marvi, marvi@menhir.biz 
 
 %lang_folders =
    (
-   INBOX => 'ARRIVATI',
+   INBOX            => 'ARRIVATI',
    'saved-messages' => 'SALVATI',
    'sent-mail'      => 'INVIATI',
    'saved-drafts'   => 'BOZZE',
    'mail-trash'     => 'CESTINO',
-   DELETE => '--CANCELLA--'
+   DELETE           => '--CANCELLA--'
    );
 
 %lang_sortlabels =
@@ -43,7 +43,7 @@ package openwebmail::it;
 %lang_msgformatlabels =
    (
    auto => 'Selezione automatica',
-   text	=> 'Testo',
+   text => 'Testo',
    html => 'HTML',
    both => 'HTML e Testo'
    );
@@ -51,8 +51,8 @@ package openwebmail::it;
 %lang_withoriglabels =
    (
    at_beginning => 'all\'inizio',
-   at_end      => 'alla fine',
-   none        => 'Nessuno'
+   at_end       => 'alla fine',
+   none         => 'Nessuno'
    );
 
 %lang_receiptlabels =
@@ -78,8 +78,8 @@ package openwebmail::it;
 %lang_sendpositionlabels =
    (
    before => 'Prima area messaggio',
-   after => 'Dopo area messaggio',
-   both  => 'Prima e dopo area messaggio'
+   after  => 'Dopo area messaggio',
+   both   => 'Prima e dopo area messaggio'
    );
 
 %lang_abookbuttonpositionlabels = 
@@ -187,8 +187,8 @@ package openwebmail::it;
    listarchive=> 'Elenca',
    decompress=>'Scomprimi',
    extract  => 'Estrai',
-   mkpdf    => 'Make Pdf',
-   mkps     => 'Make Ps',
+   mkpdf    => 'Crea_Pdf',
+   mkps     => 'Crea_Ps',
    chdir    => 'CambiaCartella',
    mkdir    => 'CreaCartella',
    newfile  => 'NuovoFile',
@@ -360,6 +360,7 @@ package openwebmail::it;
    statreply  => '-- Stationery per Risposta --',
    calendar   => 'Calendario',
    allday     => 'Tutto il giorno',
+   today      => 'Today',
    am         => 'am',
    pm         => 'pm',
    calfmt_year          => 'Anno @@@YEAR@@@',
@@ -477,9 +478,9 @@ package openwebmail::it;
    no_file_todownload=> 'Non è stato specificato nessun file da scaricare',
    upload_overlimit  => 'Dimensione file da caricare superiori al consentito',
    decomp_notsupported =>'Il formato di decompressione non è supportato per questo file.',
-   filefmt_notsupported =>'The file format is not supported.',
+   filefmt_notsupported =>'Il formato del file non è supportato.',
    webdisk_readonly  => 'Impossibile continuare, il tuo webdisk è a sola lettura.',
-   quota_syserr      => 'Errore di sistema sulla Quota',
+   quota_syserr      => 'Errore di sistema sulla Quota Disco',
    quotahit_alert    => 'Spiacente, è stato raggiunto il limite di spazio su disco. Per favore cancellare alcuni messaggi nelle cartelle della posta o alcuni files nel webdisk per liberare spazio su disco',
    quotahit_delmail  => 'Attenzione, dal momento che il limite di spazio su disco (@@@QUOTALIMIT@@@) è stato raggiunto, sono stati rimossi automaticamente alcuni vecchi messaggi',
    quotahit_delfile  => 'Attenzione, dal momento che il limite di spazio su disco (@@@QUOTALIMIT@@@) è stato raggiunto, sono stati rimossi automaticamente alcuni files dal webdisk',

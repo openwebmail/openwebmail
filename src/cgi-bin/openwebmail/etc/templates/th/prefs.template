@@ -18,7 +18,7 @@
 &nbsp;
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>ข้อมูลส่วนตัว</B></td></tr>
-<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@ @@@DESCWIDTH@@@>
 <B>ภาษา:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@LANGUAGEMENU@@@&nbsp;รหัสตัวอักษร @@@CHARSETMENU@@@
@@ -75,6 +75,7 @@
 </td></tr>
 @@@WEBMAILEND@@@
 
+@@@FULLPREFSSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>ตัวเลือกการแสดงผล</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
@@ -136,6 +137,11 @@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SORTMENU@@@
 </td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>แสดงไอคอนค้นหา@@@MINISEARCHICON@@@:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@USEMINISEARCHICONCHECKBOX@@@<br>
+</td></tr>
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>การจัดการจดหมาย</B></td></tr>
@@ -163,7 +169,7 @@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>ดึงจดหมายแบบ POP3 โดยอัตโนมัติเมื่อเข้าสู่ระบบ:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@AUTOPOP3CHECKBOX@@@ (wait @@@AUTOPOP3WAITMENU@@@ seconds)
+@@@AUTOPOP3CHECKBOX@@@ (รอ @@@AUTOPOP3WAITMENU@@@ วินาที)
 </td></tr>
 @@@AUTOPOP3END@@@
 @@@MOVEOLDSTART@@@
@@ -197,7 +203,7 @@
 @@@USESMILEICON@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Show HTML message as plain text:</B>
+<B>แสดงเนื้อจดหมายแบบ HTML เป็นข้อความธรรมดา:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SHOWHTMLASTEXT@@@
 </td></tr>
@@ -212,7 +218,12 @@
 @@@DISABLEJS@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>ปิดการใช้งาน links ในเนื้อจดหมาย:</B>
+<B>ปิดการใช้งานคำสั่ง embed/object/applet ในเนื้อจดหมาย:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DISABLEEMBCODE@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>ปิดการใช้งานตัวเชื่อมในเนื้อจดหมาย:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEEMBLINKMENU@@@
 </td></tr>
@@ -269,9 +280,9 @@
 @@@FILTERREPEATLIMIT@@@ &nbsp;(0 หมายถึงไม่มีการตรวจสอบจดหมายซ้ำ)
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Filter messages with bad From email format:</B>
+<B>ไม่รับจดหมายที่ชื่อผู้ส่งมีรูปแบบไม่ถูกต้อง:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@FILTERBADFORMATFROM@@@
+@@@FILTERBADADDRFORMAT@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>ไม่รับจดหมายจาก SMTP เซิร์ฟเวอร์ปลอม:</B>
@@ -313,12 +324,12 @@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>ตัวเลือกปฏิทิน</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Default calendar view:</B>
+<B>รูปแบบปฏิทินเริ่มต้น:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DEFAULTVIEWMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Holiday definition:</B>
+<B>กำหนดรายการวันหยุดนักขัตฤกษ์:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@HOLIDAYDEFMENU@@@
 </td></tr>
@@ -420,15 +431,17 @@
 @@@NEWMAILWINDOWTIMEMENU@@@ วินาที &nbsp;( 0 หมายถึงไม่ต้องมีหน้าต่าง )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Mail sent window notification:</B>
+<B>แสดงหน้าต่างยืนยันการส่งจดหมายสำเร็จ:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@MAILSENTWINDOWTIMEMENU@@@ วินาที &nbsp;( 0 หมายถึงไม่ต้องมีหน้าต่าง )
 </td></tr>
+@@@SPELLCHECKSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>พจนานุกรมสำหรับการตรวจคำผิด:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DICTIONARYMENU@@@
 </td></tr>
+@@@SPELLCHECKEND@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>เก็บจดหมายในถังขยะไว้:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -445,15 +458,20 @@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SESSIONTIMEOUTMENU@@@
 </td></tr>
+@@@FULLPREFSEND@@@
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>
 <table><tr>
 <td>@@@SAVEBUTTON@@@</td>
 @@@ENDFORM@@@
+
+@@@FULLPREFSSTART@@@
 @@@STARTCANCELFORM@@@
 <td>@@@CANCELBUTTON@@@</td>
 @@@ENDFORM@@@
+@@@FULLPREFSEND@@@
+
 </tr></table></td></tr></table>
 
 <script language="JavaScript">

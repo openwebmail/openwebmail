@@ -1,6 +1,6 @@
---- openwebmail.conf.orig	Thu Apr 17 00:31:36 2003
-+++ openwebmail.conf	Thu Apr 17 00:32:57 2003
-@@ -23,7 +23,5 @@
+--- openwebmail.conf.orig	Thu Dec 11 02:59:57 2003
++++ openwebmail.conf	Thu Dec 11 03:00:19 2003
+@@ -19,7 +19,5 @@
  
  <default_signature>
  -- 

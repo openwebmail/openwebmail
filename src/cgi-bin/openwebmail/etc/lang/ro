@@ -1,16 +1,16 @@
-package openwebmail::ro;
+package ow::ro;
 
 # Romanian translation, charset: iso-8859-2
 # by Zeno POPOVICI, zeno.popovici@ulbsibiu.ro
 
 %lang_folders =
    (
-   INBOX => 'INBOX',
+   INBOX            => 'INBOX',
    'saved-messages' => 'SALVATE',
    'sent-mail'      => 'TRIMISE',
    'saved-drafts'   => 'DRAFT',
    'mail-trash'     => 'STERSE',
-   DELETE => '-STERGERE-'
+   DELETE           => '-STERGERE-'
    );
 
 %lang_sortlabels =
@@ -43,7 +43,7 @@ package openwebmail::ro;
 %lang_msgformatlabels =
    (
    auto => 'Selectare automata',
-   text	=> 'Text',
+   text => 'Text',
    html => 'HTML',
    both => 'HTML si Text'
    );
@@ -51,8 +51,8 @@ package openwebmail::ro;
 %lang_withoriglabels =
    (
    at_beginning => 'la inceput',
-   at_end      => 'la sfarsit',
-   none        => 'Nici unul'
+   at_end       => 'la sfarsit',
+   none         => 'Nici unul'
    );
 
 %lang_receiptlabels =
@@ -78,8 +78,8 @@ package openwebmail::ro;
 %lang_sendpositionlabels =
    (
    before => 'Inainte de spatiul editor mesaj',
-   after => 'Dupa spatiul editor mesaj',
-   both  => 'Inainte si dupa spatiul editor mesaj'
+   after  => 'Dupa spatiul editor mesaj',
+   both   => 'Inainte si dupa spatiul editor mesaj'
    );
 
 %lang_abookbuttonpositionlabels = 
@@ -283,7 +283,7 @@ package openwebmail::ro;
    ok         => 'Ok',
    continue   => 'Continua',
    loginagain => 'Intra inca o data',
-   exit       => 'Isire',
+   exit       => 'Iesire',
    yourname   => 'Numele',
    save       => 'Salveaza',
    add        => 'Adauga',
@@ -360,6 +360,7 @@ package openwebmail::ro;
    statreply  => '-- Stationery pentru Raspuns --',
    calendar   => 'Calendar',
    allday     => 'Toata ziua',
+   today      => 'Today',
    am         => 'Am',
    pm         => 'Pm',
    calfmt_year          => 'An @@@YEAR@@@',

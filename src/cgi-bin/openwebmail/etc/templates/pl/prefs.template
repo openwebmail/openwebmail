@@ -18,7 +18,7 @@
 &nbsp;
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Opcje ogólne</B></td></tr>
-<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@ @@@DESCWIDTH@@@>
 <B>Jêzyk:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@LANGUAGEMENU@@@&nbsp;Zestaw znaków @@@CHARSETMENU@@@
@@ -75,6 +75,7 @@ Temat:
 </td></tr>
 @@@WEBMAILEND@@@
 
+@@@FULLPREFSSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Opcje wygl±du</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
@@ -135,6 +136,11 @@ Temat:
 <B>Sortowanie:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SORTMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Poka¿ mini ikonê wyszukiwania@@@MINISEARCHICON@@@:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@USEMINISEARCHICONCHECKBOX@@@<br>
 </td></tr>
 
 <tr><td colspan="2">&nbsp;</td></tr>
@@ -212,6 +218,11 @@ Temat:
 @@@DISABLEJS@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Wy³±cz embed/object/applet tag wewn±trz wiadomo¶ci:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DISABLEEMBCODE@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Zablokuj skrypty linków wewn±trz wiadomo¶ci:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEEMBLINKMENU@@@
@@ -269,9 +280,9 @@ Szeroko¶æ @@@EDITCOLUMNSMENU@@@ Wysoko¶æ @@@EDITROWSMENU@@@
 @@@FILTERREPEATLIMIT@@@ &nbsp;( 0 oznacza brak sprawdzania powtórzeñ )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Filtruj wiadomo¶ci ze z³ym formatem pola 'From' (Od):</B>
+<B>Filtruj wiadomo¶ci maj±ce z³y format adresu email:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@FILTERBADFORMATFROM@@@
+@@@FILTERBADADDRFORMAT@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Filtruj wiadomo¶ci z fa³szywymi adresami SMTP:</B>
@@ -420,15 +431,17 @@ Szeroko¶æ @@@FILEEDITCOLUMNSMENU@@@ Wysoko¶æ @@@FILEEDITROWSMENU@@@
 @@@NEWMAILWINDOWTIMEMENU@@@ sekund &nbsp;( 0 oznacza brak powiadomienia )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Mail sent window notification:</B>
+<B>Powiadomienie o wys³anej wiadomo¶ci w wyskakuj±cym okienku trwa:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@MAILSENTWINDOWTIMEMENU@@@ sekund &nbsp;( 0 oznacza brak powiadomienia )
 </td></tr>
+@@@SPELLCHECKSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>S³ownik do sprawdzania pisowni :</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DICTIONARYMENU@@@
 </td></tr>
+@@@SPELLCHECKEND@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Trzymaj pocztê w koszu przez:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -445,15 +458,20 @@ Szeroko¶æ @@@FILEEDITCOLUMNSMENU@@@ Wysoko¶æ @@@FILEEDITROWSMENU@@@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SESSIONTIMEOUTMENU@@@
 </td></tr>
+@@@FULLPREFSEND@@@
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>
 <table><tr>
 <td>@@@SAVEBUTTON@@@</td>
 @@@ENDFORM@@@
+
+@@@FULLPREFSSTART@@@
 @@@STARTCANCELFORM@@@
 <td>@@@CANCELBUTTON@@@</td>
 @@@ENDFORM@@@
+@@@FULLPREFSEND@@@
+
 </tr></table></td></tr></table>
 
 <script language="JavaScript">
@@ -466,4 +484,3 @@ Szeroko¶æ @@@FILEEDITCOLUMNSMENU@@@ Wysoko¶æ @@@FILEEDITROWSMENU@@@
    }
 //-->
 </script>
-

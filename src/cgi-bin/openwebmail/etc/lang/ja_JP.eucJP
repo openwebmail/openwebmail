@@ -1,16 +1,16 @@
-package openwebmail::ja_JP_eucJP;
+package ow::ja_JP_eucJP;
 
 # Japanese translation, charset : euc-jp
 # converted form lang/ja_JP.Shift_JIS
 
 %lang_folders =
    (
-   INBOX => '受信トレイ',
+   INBOX            => '受信トレイ',
    'saved-messages' => '保存済み',
    'sent-mail'      => '送信済み',
    'saved-drafts'   => '下書き',
    'mail-trash'     => 'ごみ箱',
-   DELETE => '--削除--'
+   DELETE           => '--削除--'
    );
 
 %lang_sortlabels =
@@ -43,7 +43,7 @@ package openwebmail::ja_JP_eucJP;
 %lang_msgformatlabels =
    (
    auto => 'Auto selected',
-   text	=> 'Text',
+   text => 'Text',
    html => 'HTML',
    both => 'HTML and Text'
    );
@@ -51,8 +51,8 @@ package openwebmail::ja_JP_eucJP;
 %lang_withoriglabels =
    (
    at_beginning => '最初に',
-   at_end      => '終わりに',
-   none        => 'なし'
+   at_end       => '終わりに',
+   none         => 'なし'
    );
 
 %lang_receiptlabels =
@@ -78,8 +78,8 @@ package openwebmail::ja_JP_eucJP;
 %lang_sendpositionlabels =
    (
    before => '編集エリアの上',
-   after => '編集エリアの下',
-   both  => '編集エリアの上下'
+   after  => '編集エリアの下',
+   both   => '編集エリアの上下'
    );
 
 %lang_abookbuttonpositionlabels = 
@@ -360,6 +360,7 @@ package openwebmail::ja_JP_eucJP;
    statreply  => '-- 返信用ステイショナリ− --',
    calendar   => 'カレンダー',
    allday     => '一日中',
+   today      => 'Today',
    am         => '午前',
    pm         => '午後',
    calfmt_year          => '@@@YEAR@@@年',

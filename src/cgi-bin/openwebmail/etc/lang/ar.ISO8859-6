@@ -1,16 +1,16 @@
-package openwebmail::ar_ISO8859_6;
+package ow::ar_ISO8859_6;
 
 # Arabic translation, charset: ISO-8859-6
 # by Isam Ishaq
 
 %lang_folders =
    (
-   INBOX => 'Ÿ‰»… «‰Ë«—œ',
+   INBOX            => 'Ÿ‰»… «‰Ë«—œ',
    'saved-messages' => '«‰ÂÕ·Ëÿ« ',
    'sent-mail'      => 'Ÿ‰»… «‰’«œ—',
    'saved-drafts'   => '«‰Â”ËÒœ« ',
    'mail-trash'     => '”‰… «‰ÂÁÂ‰« ',
-   DELETE => '--«Õ–·--'
+   DELETE           => '--«Õ–·--'
    );
 
 %lang_sortlabels =
@@ -43,7 +43,7 @@ package openwebmail::ar_ISO8859_6;
 %lang_msgformatlabels =
    (
    auto => 'Auto selected',
-   text	=> 'Text',
+   text => 'Text',
    html => 'HTML',
    both => 'HTML and Text'
    );
@@ -51,8 +51,8 @@ package openwebmail::ar_ISO8859_6;
 %lang_withoriglabels =
    (
    at_beginning => '·Í «‰»œ«Í…',
-   at_end      => '·Í «‰ÊÁ«Í…',
-   none        => '»œËÊ'
+   at_end       => '·Í «‰ÊÁ«Í…',
+   none         => '»œËÊ'
    );
 
 %lang_receiptlabels =
@@ -78,8 +78,8 @@ package openwebmail::ar_ISO8859_6;
 %lang_sendpositionlabels =
    (
    before => '‚»‰ Â—»Ÿ  Õ—Í— «‰»—Íœ',
-   after => '»Ÿœ Â—»Ÿ  Õ—Í— «‰»—Íœ',
-   both  => '‚»‰ Ë»Ÿœ Â—»Ÿ  Õ—Í— «‰»—Íœ'
+   after  => '»Ÿœ Â—»Ÿ  Õ—Í— «‰»—Íœ',
+   both   => '‚»‰ Ë»Ÿœ Â—»Ÿ  Õ—Í— «‰»—Íœ'
    );
 
 %lang_abookbuttonpositionlabels = 
@@ -360,6 +360,7 @@ package openwebmail::ar_ISO8859_6;
    statreply  => '-- ≈Œ «— «‰Ê’ «‰À«»  ‰‰≈Ã«»Á --',
    calendar   => '«‰ ‚ËÍÂ',
    allday     => '◊Ë«‰ «‰ÍËÂ',
+   today      => 'Today',
    am         => '’.',
    pm         => 'Â.',
    calfmt_year          => '”Ê… @@@YEAR@@@',

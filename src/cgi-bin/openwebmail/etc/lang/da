@@ -1,16 +1,16 @@
-package openwebmail::da;
+package ow::da;
 
 # Danish translation, charset: iso-8859-1
 # by Frank, frank.AT.post12.tele.dk
 
 %lang_folders =
    (
-   INBOX => 'Indbakke',
+   INBOX            => 'Indbakke',
    'saved-messages' => 'Gemt mail',
    'sent-mail'      => 'Sendt mail',
    'saved-drafts'   => 'Kladder',
    'mail-trash'     => 'Papirkurv',
-   DELETE => '--Slet permanent--'
+   DELETE           => '--Slet permanent--'
    );
 
 %lang_sortlabels =
@@ -43,7 +43,7 @@ package openwebmail::da;
 %lang_msgformatlabels =
    (
    auto => 'Auto selected',
-   text	=> 'Text',
+   text => 'Text',
    html => 'HTML',
    both => 'HTML and Text'
    );
@@ -51,8 +51,8 @@ package openwebmail::da;
 %lang_withoriglabels =
    (
    at_beginning => 'i starten',
-   at_end      => 'i slutningen',
-   none        => 'undlad'
+   at_end       => 'i slutningen',
+   none         => 'undlad'
    );
 
 %lang_receiptlabels =
@@ -78,8 +78,8 @@ package openwebmail::da;
 %lang_sendpositionlabels =
    (
    before => 'over mailen',
-   after => 'under mailen',
-   both  => 'både over og under mailen'
+   after  => 'under mailen',
+   both   => 'både over og under mailen'
    );
 
 %lang_abookbuttonpositionlabels = 
@@ -360,6 +360,7 @@ package openwebmail::da;
    statreply  => '-- Stationery for Reply --',
    calendar   => 'Kalender',
    allday     => 'Hele dagen',
+   today      => 'Today',
    am         => 'am',
    pm         => 'pm',
    calfmt_year          => 'År @@@YEAR@@@',

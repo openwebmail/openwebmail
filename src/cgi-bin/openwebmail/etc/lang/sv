@@ -1,16 +1,16 @@
-package openwebmail::sv;
+package ow::sv;
 
 # Swedish translation, charset: iso-8859-1
 # by Goran Jartin, tryfan.AT.telia.com
 
 %lang_folders =
    (
-   INBOX => 'INKORG',
+   INBOX            => 'INKORG',
    'saved-messages' => 'SPARAT',
    'sent-mail'      => 'SKICKAT',
    'saved-drafts'   => 'UTKAST',
    'mail-trash'     => 'PAPPERSKORG',
-   DELETE => '--RADERA--'
+   DELETE           => '--RADERA--'
    );
 
 %lang_sortlabels =
@@ -43,7 +43,7 @@ package openwebmail::sv;
 %lang_msgformatlabels =
    (
    auto => 'Auto selected',
-   text	=> 'Text',
+   text => 'Text',
    html => 'HTML',
    both => 'HTML and Text'
    );
@@ -51,8 +51,8 @@ package openwebmail::sv;
 %lang_withoriglabels =
    (
    at_beginning => 'at Beginning',
-   at_end      => 'at End',
-   none        => 'None'
+   at_end       => 'at End',
+   none         => 'None'
    );
 
 %lang_receiptlabels =
@@ -78,8 +78,8 @@ package openwebmail::sv;
 %lang_sendpositionlabels =
    (
    before => 'Before mail edit area',
-   after => 'After mail edit area',
-   both  => 'Before and after mail edit area'
+   after  => 'After mail edit area',
+   both   => 'Before and after mail edit area'
    );
 
 %lang_abookbuttonpositionlabels = 
@@ -360,6 +360,7 @@ package openwebmail::sv;
    statreply  => '-- Stationery for Reply --',
    calendar   => 'Calendar',
    allday     => 'All day',
+   today      => 'Today',
    am         => 'am',
    pm         => 'pm',
    calfmt_year          => 'Year @@@YEAR@@@',

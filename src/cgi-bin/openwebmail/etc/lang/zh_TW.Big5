@@ -1,16 +1,16 @@
-package openwebmail::zh_TW_Big5;
+package ow::zh_TW_Big5;
 
 # Traditional Chinese translation, charset: big5
 # by openwebmail team
 
 %lang_folders =
    (
-   INBOX => '新信匣',
+   INBOX            => '新信匣',
    'saved-messages' => '收件匣',
    'sent-mail'      => '寄件備分',
    'saved-drafts'   => '草稿匣',
    'mail-trash'     => '垃圾桶',
-   DELETE => '--直接刪除--'
+   DELETE           => '--直接刪除--'
    );
 
 %lang_sortlabels =
@@ -43,7 +43,7 @@ package openwebmail::zh_TW_Big5;
 %lang_msgformatlabels =
    (
    auto => '自動選擇',
-   text	=> '純文字',
+   text => '純文字',
    html => 'HTML',
    both => '同時使用純文字與HTML'
    );
@@ -51,8 +51,8 @@ package openwebmail::zh_TW_Big5;
 %lang_withoriglabels =
    (
    at_beginning => '附在前面',
-   at_end      => '附在後面',
-   none        => '不要附上'
+   at_end       => '附在後面',
+   none         => '不要附上'
    );
 
 %lang_receiptlabels =
@@ -78,8 +78,8 @@ package openwebmail::zh_TW_Big5;
 %lang_sendpositionlabels =
    (
    before => '在信件編輯區之前',
-   after => '在信件編輯區之後',
-   both  => '在信件編輯區前後'
+   after  => '在信件編輯區之後',
+   both   => '在信件編輯區前後'
    );
 
 %lang_abookbuttonpositionlabels = 
@@ -360,6 +360,7 @@ package openwebmail::zh_TW_Big5;
    statreply  => '-- 選擇回信底稿 --',
    calendar   => '行事曆',
    allday     => '本日',
+   today      => '今天',
    am         => '上午',
    pm         => '下午',
    calfmt_year          => '@@@YEAR@@@年',

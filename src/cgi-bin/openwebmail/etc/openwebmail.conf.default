@@ -16,8 +16,8 @@
 #
 
 name			Open WebMail
-version			2.21
-releasedate		20031110
+version			2.30
+releasedate		20040103
 
 ##############################################################################
 # host dependent configuration
@@ -31,19 +31,19 @@ auth_module		auth_unix.pl
 auth_withdomain		no
 auth_domain		auto
 quota_module		none
-mailspooldir		/var/mail
-use_hashedmailspools	no
-use_syshomedir		yes
-create_syshomedir	no
-use_homedirspools	no
-homedirspoolname	Mailbox
-homedirfolderdirname	mail
-use_dotlockfile		no
-dbm_ext			.db
-dbmopen_ext		none
-dbmopen_haslock		no
+
+mailspooldir			/var/mail
+use_hashedmailspools		no
+use_syshomedir			yes
+create_syshomedir		no
+use_homedirspools		no
+homedirspoolname		Mailbox
+homedirfolderdirname		mail
+homedirdotdirname		.openwebmail
+use_syshomedir_for_dotdir	yes
+
 deliver_use_GMT		no
-savedsuid_support	yes
+has_savedsuid_support	yes
 
 ##############################################################################
 # openwebmail system configuration
@@ -133,6 +133,7 @@ enable_userfilter		yes
 enable_smartfilter		yes
 smartfilter_bypass_goodmessage	yes
 enable_webmail			yes
+enable_spellcheck		yes
 enable_calendar			yes
 enable_webdisk			yes
 enable_sshterm			yes
@@ -165,7 +166,13 @@ webdisk_lsunixspec	yes
 webdisk_lssymlink	yes
 webdisk_allow_symlinkcreate	yes
 webdisk_allow_symlinkout	yes
+webdisk_symlinkout_display	path
 webdisk_allow_thumbnail	yes
+webdisk_allow_untar	yes
+webdisk_allow_unzip	yes
+webdisk_allow_unrar	yes
+webdisk_allow_unarj	yes
+webdisk_allow_unlzh	yes
 
 spool_limit		0
 quota_limit		0
@@ -231,6 +238,7 @@ default_ctrlposition_folderview	top
 default_msgsperpage		10
 default_fieldorder		date from subject size
 default_sort			date		
+default_useminisearchicon	yes
 default_confirmmsgmovecopy	yes
 default_defaultdestination	saved-messages
 default_smartdestination	yes
@@ -246,8 +254,9 @@ default_showhtmlastext		no
 default_showimgaslink		no
 default_usefixedfont		no
 default_usesmileicon		yes
-default_disablejs		no
-default_disableemblink		none
+default_disablejs		yes
+default_disableembcode		yes
+default_disableemblink		cgionly
 default_sendreceipt		ask
 
 default_msgformat		auto
@@ -271,7 +280,7 @@ default_trashreserveddays	7
 default_sessiontimeout		60
 
 default_filter_repeatlimit	10
-default_filter_badformatfrom	no
+default_filter_badaddrformat	no
 default_filter_fakedsmtp	no
 default_filter_fakedfrom	no
 default_filter_fakedexecontenttype	no

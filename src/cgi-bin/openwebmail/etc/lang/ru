@@ -1,16 +1,16 @@
-package openwebmail::ru;
+package ow::ru;
 
 # Russian translation, charset: koi8-r
 # by Denis Mysenko, duster.AT.tpu.ru
 
 %lang_folders =
    (
-   INBOX => '÷èïäñýéå',
+   INBOX            => '÷èïäñýéå',
    'saved-messages' => 'áòèé÷',
    'sent-mail'      => 'ïôðòá÷ìåîîùå',
    'saved-drafts'   => 'þåòîï÷éëé',
    'mail-trash'     => 'ëïòúéîá',
-   DELETE => '--õäáìéôø--'
+   DELETE           => '--õäáìéôø--'
    );
 
 %lang_sortlabels =
@@ -43,7 +43,7 @@ package openwebmail::ru;
 %lang_msgformatlabels =
    (
    auto => 'Auto selected',
-   text	=> 'Text',
+   text => 'Text',
    html => 'HTML',
    both => 'HTML and Text'
    );
@@ -51,8 +51,8 @@ package openwebmail::ru;
 %lang_withoriglabels =
    (
    at_beginning => '× ÎÁÞÁÌÅ',
-   at_end      => '× ËÏÎÃÅ',
-   none        => 'ÂÅÚ'
+   at_end       => '× ËÏÎÃÅ',
+   none         => 'ÂÅÚ'
    );
 
 %lang_receiptlabels =
@@ -78,8 +78,8 @@ package openwebmail::ru;
 %lang_sendpositionlabels =
    (
    before => 'Before mail edit area',
-   after => 'After mail edit area',
-   both  => 'Before and after mail edit area'
+   after  => 'After mail edit area',
+   both   => 'Before and after mail edit area'
    );
 
 %lang_abookbuttonpositionlabels = 
@@ -360,6 +360,7 @@ package openwebmail::ru;
    statreply  => '-- Stationery for Reply --',
    calendar   => 'Calendar',
    allday     => 'All day',
+   today      => 'Today',
    am         => 'am',
    pm         => 'pm',
    calfmt_year          => 'Year @@@YEAR@@@',

@@ -6,7 +6,7 @@ use strict;
 no strict 'vars';
 push (@INC, '/usr/local/www/cgi-bin/openwebmail', ".");
 
-require "auth_pam.pl";
+require "modules/auth_pam.pl";
 
 my ($user, $passwd, $newpasswd)=@ARGV;
 

@@ -1,16 +1,16 @@
-package openwebmail::id;
+package ow::id;
 
 # Indonesian translation, charset: iso-8859-1
 # by Hu-Wei Liang, liangs.AT.kunchang.com.tw
 
 %lang_folders =
    (
-   INBOX => 'Surat Baru',
+   INBOX            => 'Surat Baru',
    'saved-messages' => 'Kotak Surat',
    'sent-mail'      => 'Kotak Pengiriman',
    'saved-drafts'   => 'Kotak Catatan',
    'mail-trash'     => 'Kotak Sampah',
-   DELETE => '--Hapus Langsung--'
+   DELETE           => '--Hapus Langsung--'
    );
 
 %lang_sortlabels =
@@ -29,8 +29,8 @@ package openwebmail::id;
 %lang_onofflabels =
    (
    auto => 'otomatis',
-   on   => 'On',
-   off  => 'Off',
+   on   => 'aktif',
+   off  => 'tidak aktif',
    );
 
 %lang_prioritylabels =
@@ -43,16 +43,16 @@ package openwebmail::id;
 %lang_msgformatlabels =
    (
    auto => 'otomatis',
-   text	=> 'Text',
+   text	=> 'Teks',
    html => 'HTML',
-   both => 'HTML dan Text'
+   both => 'HTML dan Teks'
    );
 
 %lang_withoriglabels =
    (
    at_beginning => 'Lampir di Depan',
-   at_end      => 'Lampir di Belakang',
-   none        => 'Tidak Lampirkan'
+   at_end       => 'Lampir di Belakang',
+   none         => 'Tidak Lampirkan'
    );
 
 %lang_receiptlabels =
@@ -66,20 +66,20 @@ package openwebmail::id;
    (
    none    => 'Bukan',
    cgionly => 'saja CGI',
-   all     => 'semua URL2 dalam'
+   all     => 'semua URL dalam'
    );
 
 %lang_ctrlpositionlabels =
    (
-   top => 'di atas',
+   top    => 'di atas',
    bottom => 'di bawah'
    );
 
 %lang_sendpositionlabels =
    (
    before => 'Before mail edit area',
-   after => 'After mail edit area',
-   both  => 'Before and after mail edit area'
+   after  => 'After mail edit area',
+   both   => 'Before and after mail edit area'
    );
 
 %lang_abookbuttonpositionlabels = 
@@ -154,7 +154,7 @@ package openwebmail::id;
    2 => 'Selasa',
    3 => 'Rabu',
    4 => 'Kamis',
-   5 => 'Jumat',
+   5 => 'Jumaat',
    6 => 'Sabtu'
    );
 
@@ -199,7 +199,7 @@ package openwebmail::id;
    gzip     => 'Simpan gz',
    mkzip    => 'Simpan zip',
    mktgz    => 'Simpan tgz',
-   mkthumbnail  => 'Simpan gambaran kecil',
+   mkthumbnail  => 'Simpan gambar kecil',
    download => 'Download',
    upload   => 'Upload',
    );   
@@ -316,7 +316,7 @@ package openwebmail::id;
    quotausage => 'Kuota usage',
    quotalimit => 'Kuota limit',
    quotahit   => 'Kapasitas sudah penuh',
-   tzmap      => 'World timezone map',
+   tzmap      => 'Map Dunia Waktu Daerah',
    testsound  => 'Test sound',
    editfroms  => 'Mengganti Alamat Email',
    pop3book   => 'Konfigurasi surat dari luar',
@@ -344,7 +344,7 @@ package openwebmail::id;
    readonly   => 'Hanya baca',
    textcontent=> 'Isi',
    search     => 'Cari',
-   advsearch  => 'Advanced search',
+   advsearch  => 'Cari lanjutan',
    folder     => 'Folder',
    nofoldersel=> 'No Folder selected',
    showall    => 'Show All',
@@ -352,22 +352,23 @@ package openwebmail::id;
    checkagain => 'Periksa Kembali',
    finishchecking => 'Pemeriksaan Selesai',
    editpdict  => 'Edit Personal Dictionary',
-   addtodict  => 'Add to Dictionary',
+   addtodict  => 'Membubuh kamus',
    manuallyfix=> 'Pemeriksaan manual',
-   editstat   => 'Edit Stationery',
-   savestat   => 'Save Stationery',
-   clearstat  => 'Clear All Stationery',
+   editstat   => 'Edit Kertas',
+   savestat   => 'Simpan Kertas',
+   clearstat  => 'Membereskan Kertas',
    statreply  => '-- Stationery for Reply --',
-   calendar   => 'Calendar',
-   allday     => 'All day',
-   am         => 'am',
-   pm         => 'pm',
-   calfmt_year          => 'Year @@@YEAR@@@',
+   calendar   => 'Kalender',
+   allday     => 'Seharian',
+   today      => 'Today',
+   am         => 'pagi',
+   pm         => 'sore',
+   calfmt_year          => '@@@YEAR@@@',
    calfmt_yearmonth     => '@@@MONTH_STR@@@ @@@YEAR@@@',
    calfmt_yearmonthday  => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@',
    calfmt_yearmonthdaywday => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@ @@@WEEKDAY_STR@@@',
    calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
-   autosel    => 'Auto selected',
+   autosel    => 'otomatis',
    none       => 'None',
    moreitems  => 'more items',
    multieditconf => 'This item was added for multiple dates.\\nEditing it will change the item for all dates.\\nContinue with Edit?',
@@ -386,7 +387,7 @@ package openwebmail::id;
    dir          => 'Dir',
    dirs         => 'Dirs',
    file         => 'File',
-   files        => 'Files',
+   files        => 'File2',
    program      => 'Program',
    dest_of_chdir  => 'the destined directory',
    name_of_newdir => 'the directory name to create',
@@ -396,25 +397,25 @@ package openwebmail::id;
    dest_of_thezip=> 'the destined filename of the new zip',
    dest_of_thetgz=> 'the destined filename of the new tgz',
    homedir      => 'Homedir',
-   showthumbnail    => 'Thumbnails',
+   showthumbnail    => 'gambar kecil',
    showhidden   => 'Show hidden files',
    lastmodified => 'Last modified time',
    perm         => 'Perm',
    permission   => 'Access Permission',
    noitemfound  => 'No item found',
-   savefile     => 'Savefile',
+   savefile     => 'Simpan file',
    succeeded    => 'succeeded',
    failed       => 'failed',
    savefile_towd=> 'Save file to WebDisk',
    saveatt_towd => 'Save attachment to WebDisk',
    addatt_fromwd=> 'Add attachment from WebDisk',
    vdomain_usermgr    => 'Virtual Domain User Management',
-   vdomain_createuser => 'Create User',
-   vdomain_changeuser => 'Change User',
-   vdomain_deleteuser => 'Delete User',
+   vdomain_createuser => 'Buat Pemakai',
+   vdomain_changeuser => 'Rubah Pemakai',
+   vdomain_deleteuser => 'Hapus Pemakai',
    vdomain_changeview => 'Change view to',
-   vdomain_usersonly  => 'users only',
-   vdomain_useralias  => 'users/aliases',
+   vdomain_usersonly  => 'Saja Pemakai',
+   vdomain_useralias  => 'pemakai/aliases',
    vdomain_fmtuseralias => 'formatted users/aliases',
    vdomain_admin      => 'Admin',
    vdomain_localuser  => 'Local User',
@@ -478,7 +479,7 @@ package openwebmail::id;
    upload_overlimit  => 'Upload file size is over the limit',
    decomp_notsupported =>'Decompression support is not available for this file.',
    filefmt_notsupported =>'The file format is not supported.',
-   webdisk_readonly  => 'Sorry, your webdisk is read only.',
+   webdisk_readonly  => 'Maaf, webdisk anda hanya baca.',
    quota_syserr      => 'Kuota sistem error',
    quotahit_alert    => 'Sorry, you\'ve hit your quota limit. Please delete some messages from mail folders or some files from the webdisk to free disk space.',
    quotahit_delmail  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, oldest messages in folders have been removed automatcially',

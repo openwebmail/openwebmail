@@ -3,23 +3,23 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>IMPORTAR LLIBRETA D'ADRECES</B></font>
+<B>IMPORTA LLIBRETA D'ADRECES</B></font>
 </td><td bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>@@@FREESPACE@@@ Koctets Lliures</B></font>
+<B>@@@FREESPACE@@@ KBytes Lliures</B></font>
 </td></tr>
 <tr><td colspan="2" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 
 <table border="0" align="center" width="85%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>Outlook Express 5 i Netscape Mail poden exportar libres d'adreces en
-format CSV, ó Comma Separated Values.  @@@NAME@@@ pot importar-ho.
+<BR>Outlook Express 5 i Netscape Mail poden exportar llibretess d'adreces en
+format CSV (Comma Separated Values).  @@@NAME@@@ pot importar-ho i estalviar-vos feina.
 <ul>
-<li> En Netscape, obri la seva llibreta d'adreces, seleccioni
-Arxiu-Exportar,desprès a "Guardar com tipus:" esculliu "Comma Separated (*.csv)." <BR><BR>
-<li> En Outlook Express, a la finestra principal, esculli la persiana de
-Arxiu-Exportar-Llibreta i seleccioni com a tipus d'arxiu "Arxiu de Text."
-Assegureu-vos que els camps Nom i E-mail estiguin primer.
+<li> En el Netscape, obriu la seva llibreta d'adreces, seleccioneu Arxiu-Exportar, 
+després a "Desar com tipus:" esculliu "Comma Separated (*.csv)." <BR><BR>
+<li> En l'Outlook Express, a la finestra principal, esculliu la 
+finestra d'Arxiu-Exportar-Llibreta i seleccioneu com a tipus d'arxiu 
+"Arxiu de Text.". Assegureu-vos que els camps Nom i E-mail estiguin primer.
 </ul>
 </td></tr></table>
 

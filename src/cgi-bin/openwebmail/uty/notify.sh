@@ -6,7 +6,7 @@ date=`date "+%y%m%d"`
 # translation maintainer email
 ar=isam@planet.edu
 bg=vess@vess.bnc.bg
-ca=st@e-puntcom.com
+ca=mikaku@fiwix.org
 cs=schauer@dp.fyz.fce.vutbr.cz
 gb2312=wjun@mail.iap.ac.cn
 big5=openwebmail@turtle.ee.ncku.edu.tw
@@ -44,7 +44,7 @@ freebsd=leeym@leeym.com
 openbsd=kevlo@openbsd.org
 debian=srua@debian.org
 webmin=Helmut.Grund@fh-furtwangen.de
-ipspace=premier@qld.org
+ipspace=1073075441@cyruslesser.com
 
 
 #################################################################
@@ -54,9 +54,10 @@ read ans
 if [ "$ans" = "y" -o "$ans" = "Y" ]; then
   echo sending to mirror sites...
 
-  head -30 /usr/local/www/data/openwebmail/doc/changes.txt \
-  | perl -i -pe 'last if (/^\s*$/)' | \
+  head -100 /usr/local/www/data/openwebmail/doc/changes.txt \
+  | perl -e '$/="\n\n\n"; print $_=<>;' | \
   /usr/local/bin/mutt -s "openwebmail current $date" \
+  -a /usr/local/www/data/openwebmail/doc/changes.txt \
   -a /usr/local/www/data/openwebmail/download/openwebmail-current.tgz \
   openwebmail@turtle.ee.ncku.edu.tw \
   tchung@openwebmail.com
@@ -98,7 +99,7 @@ tung
 
     cat /tmp/notify.tmp.$$| \
     /usr/local/bin/mutt -s "OWM $date translation update request" \
-    -a /usr/local/www/data/openwebmail/download/lang-templates-* \
+    -a /usr/local/www/data/openwebmail/download/*-lang-template.diff \
     $ar $bg $ca $cs $gb2312 $big5 $da $nl $fi $fr $de $el $he $hu $id \
     $it $jp $kr $lt $no $pl $pt $ptbr $ro $ru $sr $sk $es $sv $th $tr $uk $ur
   fi
@@ -138,7 +139,6 @@ tung
     echo sending to pkg/port maintainer...
     cat /tmp/notify.tmp.$$| \
     /usr/local/bin/mutt -s "OWM new release announcement" \
-    -a /usr/local/www/data/openwebmail/download/lang-templates-* \
     $cobalt $freebsd $openbsd $debian $webmin $ipspace
   fi
   rm /tmp/notify.tmp.$$

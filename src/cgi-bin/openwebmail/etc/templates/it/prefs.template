@@ -18,7 +18,7 @@
 &nbsp;
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Informazioni Personali</B></td></tr>
-<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@ @@@DESCWIDTH@@@>
 <B>Lingua:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@LANGUAGEMENU@@@&nbsp;Set caratteri @@@CHARSETMENU@@@
@@ -75,6 +75,7 @@ Soggetto:
 </td></tr>
 @@@WEBMAILEND@@@
 
+@@@FULLPREFSSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Preferenze Visualizzazione</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
@@ -135,6 +136,11 @@ Soggetto:
 <B>Ordine dei messaggi:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SORTMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Visualizza icona ricerca rapida@@@MINISEARCHICON@@@:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@USEMINISEARCHICONCHECKBOX@@@<br>
 </td></tr>
 
 <tr><td colspan="2">&nbsp;</td></tr>
@@ -212,6 +218,11 @@ Soggetto:
 @@@DISABLEJS@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Disabilita embed/object/applet tag all'interno dei messaggi:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DISABLEEMBCODE@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Disabilita links incorporati nei messaggi:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEEMBLINKMENU@@@
@@ -269,9 +280,9 @@ Larghezza @@@EDITCOLUMNSMENU@@@ Altezza @@@EDITROWSMENU@@@
 @@@FILTERREPEATLIMIT@@@ &nbsp;( 0 significa nessun controllo sulle ripetizioni )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Filtra messaggi con campo FROM errato:</B>
+<B>Filtra messaggi con indirizzi mail errati:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@FILTERBADFORMATFROM@@@
+@@@FILTERBADADDRFORMAT@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Filtra messaggi con intestazioni SMTP alterate:</B>
@@ -420,15 +431,17 @@ Larghezza @@@FILEEDITCOLUMNSMENU@@@ Altezza @@@FILEEDITROWSMENU@@@
 durata @@@NEWMAILWINDOWTIMEMENU@@@ secondi &nbsp;( 0 significa Nessuna Finestra Notifica )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Mail sent window notification:</B>
+<B>Finestra notifica mail inviato:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 durata @@@MAILSENTWINDOWTIMEMENU@@@ secondi &nbsp;( 0 significa Nessuna Finestra Notifica )
 </td></tr>
+@@@SPELLCHECKSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Dizionario per controllo ortografico:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DICTIONARYMENU@@@
 </td></tr>
+@@@SPELLCHECKEND@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Mantieni posta nel cestino per giorni:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -436,7 +449,7 @@ durata @@@MAILSENTWINDOWTIMEMENU@@@ secondi &nbsp;( 0 significa Nessuna Finestra
 </td></tr>
 @@@WEBMAILEND@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Tempo Aggiornamento:</B>
+<B>Tempo aggiornamento:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REFRESHINTERVALMENU@@@
 </td></tr>
@@ -445,15 +458,20 @@ durata @@@MAILSENTWINDOWTIMEMENU@@@ secondi &nbsp;( 0 significa Nessuna Finestra
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SESSIONTIMEOUTMENU@@@
 </td></tr>
+@@@FULLPREFSEND@@@
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>
 <table><tr>
 <td>@@@SAVEBUTTON@@@</td>
 @@@ENDFORM@@@
+
+@@@FULLPREFSSTART@@@
 @@@STARTCANCELFORM@@@
 <td>@@@CANCELBUTTON@@@</td>
 @@@ENDFORM@@@
+@@@FULLPREFSEND@@@
+
 </tr></table></td></tr></table>
 
 <script language="JavaScript">

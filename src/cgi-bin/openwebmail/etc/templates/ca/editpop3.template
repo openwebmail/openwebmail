@@ -1,10 +1,10 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td colspan="4" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>Configurar comptes POP3</b></font>
+<b>Configura comptes POP3</b></font>
 </td><td nowrap colspan="3" bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b> @@@FREESPACE@@@ KO lliures</b></font>
+<b> @@@FREESPACE@@@ KBytes lliures</b></font>
 </td></tr><tr><td colspan="7" bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
 </td></tr><tr><td colspan="7">&nbsp;</td></tr>
@@ -14,13 +14,13 @@
 <td nowrap bgcolor=@@@COLUMNHEADER@@@>
 <B>Port</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Id</B> (clica per rebrer)</td>
+<B>Compte</B> (clica per rebrer)</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Clau</B></td>
+<B>Contrassenya</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-@@@DELPOP3STRSTART@@@<B>Esborrar correu remot</B>@@@DELPOP3STREND@@@</td>
+@@@DELPOP3STRSTART@@@<B>Surpimeix correu remot</B>@@@DELPOP3STREND@@@</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Activar</B></td>
+<B>Activa</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Acci&oacute;</B>
 </td></tr>

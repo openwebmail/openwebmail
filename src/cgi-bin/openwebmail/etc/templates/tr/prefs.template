@@ -18,7 +18,7 @@
 &nbsp;
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Kiþisel Bilgiler</B></td></tr>
-<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@ @@@DESCWIDTH@@@>
 <B>Dil:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@LANGUAGEMENU@@@&nbsp;Karakter kümesi @@@CHARSETMENU@@@
@@ -75,6 +75,7 @@ Konu:
 </td></tr>
 @@@WEBMAILEND@@@
 
+@@@FULLPREFSSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Görünüm Tercihleri</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
@@ -135,6 +136,11 @@ Konu:
 <B>Öntanýmlý sýralama:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SORTMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Display mini search icon@@@MINISEARCHICON@@@:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@USEMINISEARCHICONCHECKBOX@@@<br>
 </td></tr>
 
 <tr><td colspan="2">&nbsp;</td></tr>
@@ -212,6 +218,11 @@ Konu:
 @@@DISABLEJS@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Disable embed/object/applet tag inside message:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DISABLEEMBCODE@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Ýleti içi links çalýþmasýný engelle:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEEMBLINKMENU@@@
@@ -269,9 +280,9 @@ Geniþlik @@@EDITCOLUMNSMENU@@@ Yükseklik @@@EDITROWSMENU@@@
 @@@FILTERREPEATLIMIT@@@ &nbsp;( 0, ileti tekrar kontrolü yapmaz )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Filter messages with bad From email format:</B>
+<B>Filter msgs with email address in bad format:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@FILTERBADFORMATFROM@@@
+@@@FILTERBADADDRFORMAT@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Sahte SMTP iletilerini filitrele:</B>
@@ -424,11 +435,13 @@ kalan @@@NEWMAILWINDOWTIMEMENU@@@ saniye &nbsp;( 0 bu pencereyi kullanma demek)
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 kalan @@@MAILSENTWINDOWTIMEMENU@@@ saniye &nbsp;( 0 bu pencereyi kullanma demek)
 </td></tr>
+@@@SPELLCHECKSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Yazým Kontrolü için Sözlük :</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DICTIONARYMENU@@@
 </td></tr>
+@@@SPELLCHECKEND@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Silinmiþ iletilerin Çöp Kutusu ömrü:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -445,15 +458,20 @@ kalan @@@MAILSENTWINDOWTIMEMENU@@@ saniye &nbsp;( 0 bu pencereyi kullanma demek)
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SESSIONTIMEOUTMENU@@@
 </td></tr>
+@@@FULLPREFSEND@@@
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>
 <table><tr>
 <td>@@@SAVEBUTTON@@@</td>
 @@@ENDFORM@@@
+
+@@@FULLPREFSSTART@@@
 @@@STARTCANCELFORM@@@
 <td>@@@CANCELBUTTON@@@</td>
 @@@ENDFORM@@@
+@@@FULLPREFSEND@@@
+
 </tr></table></td></tr></table>
 
 <script language="JavaScript">

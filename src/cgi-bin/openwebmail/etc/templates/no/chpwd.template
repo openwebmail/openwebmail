@@ -31,17 +31,17 @@
       var s;
       s=document.passwordform.newpassword.value;
       if (s.length < @@@PASSWDMINLEN@@@) {
-         alert("Passordet må ha minst @@@PASSWDMINLEN@@@ tegn.");
+         alert("Passordet må være på minst @@@PASSWDMINLEN@@@ tegn.");
          return false;
       }
       if (document.passwordform.newpassword.value !=
 	  document.passwordform.confirmnewpassword.value) {
-         alert("Bekreftet passord var ikke likt.");
+         alert("Feil ved passordbekreftelse.");
          return false;
       }
       if (document.passwordform.newpassword.value ==
 	  document.passwordform.oldpassword.value) {
-         alert("Det nye passordet er likt det gamle.");
+         alert("Nytt passord er likt samme det gamle.");
          return false;
       }
       return true;

@@ -8,9 +8,9 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@WINDOW_LIGHT@@@>
 <BR>Alcuni suggerimenti verrano proposti per ogni parola errata.
-L'utente puo' sceglierne una per rimpiazzare l'originale.
+L'utente può sceglierne una per rimpiazzare l'originale.
 Se non viene trovata nessuna correzione o l'utente sceglie "-correzione manuale-"
-e poi clicca [Controlla Ancora], una casella testo sara' disponibile all'utente
+e poi clicca [Controlla Ancora], una casella testo sarà disponibile all'utente
 per correggere manualmente.
 Se l'utente sceglie "--Aggiungi al dizionario--" e poi clicca [Controla Ancora], 
 la parola originale verra` aggiunta al dizionario personale dell`utente.

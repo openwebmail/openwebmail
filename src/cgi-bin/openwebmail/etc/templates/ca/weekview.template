@@ -2,7 +2,7 @@
 <table border="0" align="center" width="95%" cellpadding="0" cellspacing="0">
 <tr><td colspan="2" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>Week View</b></font>
+<b>Vista setmanal</b></font>
 </td></tr>
 @@@STARTFORM@@@
 <tr><td bgcolor=@@@MENUBAR@@@>
@@ -40,3 +40,30 @@
 </tr>
 </table>
 </center>
+
+<style type="text/css">
+<!--
+#mypopupCal{ position: absolute;
+             visibility: hidden;
+             background-color: @@@MENUBAR@@@;
+             layer-background-color: @@@MENUBAR@@@; }
+.stylecal { font-size: 9pt; color: #000000; }
+A.notmonth:link { font-size: 9pt; color: #cccccc; }
+A.notmonth:visited { font-size: 9pt; color: #cccccc; }
+A.notmonth:hover { font-size: 9pt; color: #ff0000; }
+A.stylecal:link { font-size: 9pt; color: #000000; }
+A.stylecal:visited { font-size: 9pt; color: #000000; }
+A.stylecal:hover { font-size: 9pt; color: #ff0000; }
+// -->
+</style>
+
+<div id="mypopupCal"></div>
+
+<script language="JavaScript">
+<!--
+   function submit_changed_dateselform()
+   {
+      document.dateselform.submit();
+   }
+//-->
+</script>

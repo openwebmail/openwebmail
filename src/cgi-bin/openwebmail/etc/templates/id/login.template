@@ -3,7 +3,7 @@
 <img border="0" src="@@@LOGO_URL@@@"></a></p>
 <table border="0" align="center" width="260" cellpadding="0" cellspacing="0">
 <tr><td bgcolor="#3161bd" background="@@@IMAGEDIR_URL@@@/bg-titleblue.gif">
-&nbsp;<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><B>ºô¸ô¶l§½</B></FONT>
+&nbsp;<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><B>LOGIN</B></FONT>
 </td></tr><tr><td align="center" bgcolor="#3161bd">
 
 <table width="100%" cellpadding=0 cellspacing=1 border=0>
@@ -15,7 +15,7 @@
 <tr>
 <td align="right" nowrap>Id: </td><td>@@@LOGINNAMEFIELD@@@</td>
 </tr><tr>
-<td align="right" nowrap>Password </td><td>@@@PASSWORDFIELD@@@</td>
+<td align="right" nowrap>Password: </td><td>@@@PASSWORDFIELD@@@</td>
 @@@DOMAINSTART@@@
 </tr><tr>
 <td align="right" nowrap>Domain: </td><td>@@@DOMAINMENU@@@</td>
@@ -25,7 +25,7 @@
 <table><tr><td>@@@LOGINBUTTON@@@</td></tr></table>
 </td>
 <td align=center>
-<table><tr><td><font size=1>use HTTP<br>compression</font></td><td>@@@HTTPCOMPRESSIONCHECKBOX@@@</td></tr></table>
+<table><tr><td><font size=1>pakai HTTP<br>kompresi</font></td><td>@@@HTTPCOMPRESSIONCHECKBOX@@@</td></tr></table>
 </td>
 </tr>
 </table>

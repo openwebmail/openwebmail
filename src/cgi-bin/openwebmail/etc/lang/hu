@@ -1,4 +1,4 @@
-package openwebmail::hu;
+package ow::hu;
 
 # Hungarian translation, charset: iso-8859-2
 # by Nagy Endre, gumo.AT.lucifer.kgt.bme.hu 
@@ -6,12 +6,12 @@ package openwebmail::hu;
 
 %lang_folders =
    (
-   INBOX => 'BEJÖVÕ',
+   INBOX            => 'BEJÖVÕ',
    'saved-messages' => 'MENTETT',
    'sent-mail'      => 'KÜLDÖTT',
    'saved-drafts'   => 'FÉLRETETT',
    'mail-trash'     => 'SZEMETES',
-   DELETE => '--TÖRÖL--'
+   DELETE           => '--TÖRÖL--'
    );
 
 %lang_sortlabels =
@@ -44,7 +44,7 @@ package openwebmail::hu;
 %lang_msgformatlabels =
    (
    auto => 'Automatikus',
-   text	=> 'Szöveg',
+   text => 'Szöveg',
    html => 'HTML',
    both => 'HTML és Szöveg'
    );
@@ -52,8 +52,8 @@ package openwebmail::hu;
 %lang_withoriglabels =
    (
    at_beginning => 'az elején',
-   at_end      => 'a végén',
-   none        => 'sehol'
+   at_end       => 'a végén',
+   none         => 'sehol'
    );
 
 %lang_receiptlabels =
@@ -79,8 +79,8 @@ package openwebmail::hu;
 %lang_sendpositionlabels =
    (
    before => 'Szövegterület elõtt',
-   after => 'Szövegterület után',
-   both  => 'Szövegterület elõtt és után'
+   after  => 'Szövegterület után',
+   both   => 'Szövegterület elõtt és után'
    );
 
 %lang_abookbuttonpositionlabels = 
@@ -188,8 +188,8 @@ package openwebmail::hu;
    listarchive=> 'Listáz',
    decompress=>'Kitömörít',
    extract  => 'Kivon',
-   mkpdf    => 'Make Pdf',
-   mkps     => 'Make Ps',
+   mkpdf    => 'Pdf készítés',
+   mkps     => 'Ps készítés',
    chdir    => 'Könyvtárváltás',
    mkdir    => 'Új könyvtár',
    newfile  => 'Új file',
@@ -251,7 +251,7 @@ package openwebmail::hu;
    replyall   => 'Válasz minden résztvevõnek',
    forward    => 'Továbbítás',
    forwardasatt=>'Továbbítás csatolásként',
-   forwardasorig=>'Forward as original',
+   forwardasorig=>'Eredetiként továbbít',
    printfriendly=> 'Nyomtatóbarát verzió',
    msgformat  => 'Üzenetformátum',
    from       => 'Küldõ',
@@ -275,9 +275,9 @@ package openwebmail::hu;
    msgrebuild => 'Üzenet újraépítése',
    editdraft  => 'Félretett üzenet folytatása',
    savedraft  => 'Félretesz',
-   draftsaved => 'Draft @@@SUBJECT@@@ has been saved successfully',
+   draftsaved => 'A vázlat (@@@SUBJECT@@@) sikeresen elmentve',
    send       => 'Küld',
-   msgsent    => 'Message @@@SUBJECT@@@ has been sent successfully',
+   msgsent    => 'Az üzenet (@@@SUBJECT@@@) elküldve',
    about      => '',
    close      => 'Bezár',
    cancel     => 'Mégsem',
@@ -314,8 +314,8 @@ package openwebmail::hu;
    note       => 'Megjegyzés',
    max        => 'Maximum',
    group      => 'Csoport',
-   quotausage => 'Quota usage',
-   quotalimit => 'Quota limit',
+   quotausage => 'Kvóta használat',
+   quotalimit => 'Kvóta határ',
    quotahit   => 'KVÓTA',
    tzmap      => 'Idõzóna térkép',
    testsound  => 'Hangpróba',
@@ -352,8 +352,8 @@ package openwebmail::hu;
    spellcheck => 'Helyesírás',
    checkagain => 'Újra ellenõriz',
    finishchecking => 'Befejezi az ellenõrzést',
-   editpdict  => 'Edit Personal Dictionary',
-   addtodict  => 'Add to Dictionary',
+   editpdict  => 'Személyes szótár szerkesztése',
+   addtodict  => 'Hozzáad a szótárhoz',
    manuallyfix=> 'Manuálisan javít',
    editstat   => 'Mintalevél szerkesztés',
    savestat   => 'Mintalevél mentése',
@@ -361,6 +361,7 @@ package openwebmail::hu;
    statreply  => '-- Mintalevél a válaszhoz --',
    calendar   => 'Naptár',
    allday     => 'Egész nap',
+   today      => 'Ma',
    am         => 'de.',
    pm         => 'du.',
    calfmt_year          => '@@@YEAR@@@.',
@@ -373,7 +374,7 @@ package openwebmail::hu;
    moreitems  => 'Továbbiak',
    multieditconf => 'Ezt több idõpontra is rögzítette.\\nA módosítás a többi idõpontot is érinti.\\nKívánja folytatni a szerkesztéssel?',
    multidelconf  => 'Ezt több idõpontra is rögzítette.\\nA törlés a többi idõpontot is érinti.\\nValóban törölni szeretné?',
-   caldelconf => 'Are you sure you want to delete this item?',
+   caldelconf => 'Biztos törlöd ezt a bejegyzést?',
    noitemforthisday => 'Erre a napra nem szerepel bejegyzés',
    thisday_only          => 'Csak a mai nap',
    the_wday_of_thismonth => 'E hónap @@@ORDER@@@ @@@WDAY@@@',
@@ -396,7 +397,7 @@ package openwebmail::hu;
    dest_of_themove=> 'az áthelyezés célja (könyvtár vagy file)',
    dest_of_thezip=> 'az új zip file neve',
    dest_of_thetgz=> 'az új tgz file neve',
-   homedir      => 'Home könyvtár',
+   homedir      => 'Saját könyvtár',
    showthumbnail    => 'Ikonok',
    showhidden   => 'Rejtett file-ok megjelenítése',
    lastmodified => 'Utolsó módosítás ideje',
@@ -413,15 +414,15 @@ package openwebmail::hu;
    vdomain_createuser => 'Felhasználó létrehozása',
    vdomain_changeuser => 'Felhasználóváltás',
    vdomain_deleteuser => 'Felhasználó törlése',
-   vdomain_changeview => 'Change view to',
+   vdomain_changeview => 'Nézetváltás',
    vdomain_usersonly  => 'users only',
    vdomain_useralias  => 'users/aliases',
    vdomain_fmtuseralias => 'formatted users/aliases',
    vdomain_admin      => 'Admin',
-   vdomain_localuser  => 'Local User',
+   vdomain_localuser  => 'Helyi felhasználó',
    set_passwd         => 'Jelszó megadása',
    reset_passwd       => 'Jelszó törlése',
-   email_alias        => 'E-MAIL Alias'
+   email_alias        => 'Emil Alias'
    );
 
 %lang_err =
@@ -482,14 +483,14 @@ package openwebmail::hu;
    webdisk_readonly  => 'Az ön WebDiskje nem írható.',
    quota_syserr      => 'Kvóta rendszerhiba',
    quotahit_alert    => 'Sajnálom, ön túllépte a kvótáját. Kérem töröljön néhány levelet vagy néhány fájlt a webdiszkrõl!',
-   quotahit_delmail  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, oldest messages in folders have been removed automatcially',
-   quotahit_delfile  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, some files in the webdisk have been removed automatcially',
+   quotahit_delmail  => 'Figyelem, mivel elérte a kvóta határt (@@@QUOTALIMIT@@@), a mappában lévõ régi üzenetek automatikusan törlõdtek',
+   quotahit_delfile  => 'Figyelem, mivel elérte a kvóta határt (@@@QUOTALIMIT@@@), a webdiszk-en található fájlok közül néhány automatikusan törlõdött',
    spool_overlimit   => 'Sajnálom, a BEJÖVÕ mappa elérte a felsõ határt(@@@SPOOLLIMIT@@@). Mozgasson át néhány levelet a BEJÖVÕ mappából más mappákba.',
    vdomain_toomanyuser  => 'Sorry, the user count of this domain has reached its maximum limit',
    vdomain_toomanyalias => 'Sorry, the E-MAIL alias count of this user has reached its maximum limit',
    vdomain_userrequired => 'Szükséges egy felhasználónév.',
-   vdomain_fwdrequired => 'A valid forwarding E-MAIL is required',
-   all_module_disabled => 'All modules are disabled'
+   vdomain_fwdrequired => 'Érvényes továbbküldõ emil cím szükséges',
+   all_module_disabled => 'Minden modul letiltva'
    );
 
 1;

@@ -19,10 +19,10 @@ as other auth module is.
 
 package name
 ------------
-The package name for this module is openwebmail::auth_XYZ
+The package name for this module is ow::auth_XYZ
 The first line of auth_XYZ.pl should be
 
-package openwebmail::auth_XYZ;
+package ow::auth_XYZ;
 
 
 functions
@@ -68,19 +68,53 @@ where:
 ($retcode, $errmsg)=change_userpassword($r_config, $user, $oldpassword, $newpassword)
 
 
+conf file
+---------
+you may read some config values from auth_XYZ.conf.
+
+Here is an example:
+
+If you have the following lines in auth_XYZ.conf
+
+option1		XXX
+option2		YYY
+option3		ZZZ
+
+Then you may put the following at the start of your auth module.
+
+----------------------------------------------------
+require "modules/tool.pl";
+
+my %conf;
+if (($_=ow::tool::find_configfile('auth/auth_XYZ.conf')) ne '') {
+   my ($ret, $err)=ow::tool::load_configfile($_, \%conf);
+   die $err if ($ret<0);
+}
+----------------------------------------------------
+
+Then option values in conf file can be derived by
+$conf{'option1'}, $conf{'option2'}, $conf{'option3'}
+
+
 globals
 ---------
 Openwebmail can run in persistent mode,
 so you have to be very careful about the global variables.
 
-1. initialize all globals explicitly
+1. only use 'my variable' for constant globals.
+   If the global variable will be changed and referenced at runtime by routines,
+   you need to delcare it with 'use vars qw(variable);'
 
-2. it would be even better to use global as constent only
+ps: this is due to the closure effect in persistent mode perl.
+    Once a my variable is referenced by a sub routine, then 
+    the subroutine will has its own copy of this my variable.
+    Then further change in the global my variable won't be seen by the subroutine.
 
-3. don't write code outside routines,
-   or they will be executed once in persistent mode
+2. code outside routines will be executed only once 
+   (when the module is required by main program)
+   So the outside routine code should be used for init only
 
-4. if you auth module has to chat with remote server,
+3. if you module has to chat with remote server,
    please do all the following thing in each of the 4 API routines
 
    open the connection,
@@ -92,15 +126,16 @@ so you have to be very careful about the global variables.
    Openwebmail will cache the userinfo for each session. In most case, each user
    session will need send only one request to auth server.
 
-5. if you really need global variables, please remember
-   value of global variables will be kept forever when running in persistent mode
+4. If you really need global variables, use 'use vars qw(variable)'.
+   And please remember that value of global variables will be kept forever
+   when running in persistent mode
 
-6. if you hope to save some connections to your auth server:
+5. if you hope to keep some connections to your remote server:
 
    a. you can use global variable to store connection handle
       but please don't do thing outside routines.
 
-   b. all of the 4 API routines should have the capability
+   b. all of the API routines should have the capability
 
       1. if the connection has not been initialized
          => initialize the connection handle
@@ -108,7 +143,7 @@ so you have to be very careful about the global variables.
          => free old/stale connection handle
             reinitialize the connection handle
 
-7. The signal handler for child process $SIG{CHLD} may have been set
+6. The signal handler for child process $SIG{CHLD} may have been set
    before calling the API routines, if your routine will fork new process,
    you may need to disable the handler temporarily by putting the following
    line in the routine

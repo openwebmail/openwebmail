@@ -1,16 +1,16 @@
-package openwebmail::bg;
+package ow::bg;
 
 # Bulgarian translation, charset: windows-1251
 # by Veselin Slavov, vess.AT.vess.bnc.bg, 2003/02/21
 
 %lang_folders =
    (
-   INBOX => 'Входящи',
+   INBOX            => 'Входящи',
    'saved-messages' => 'Записани',
    'sent-mail'      => 'Изпратени',
    'saved-drafts'   => 'Чернови',
    'mail-trash'     => 'Кошче',
-   DELETE => '--ИЗТРИЙ--'
+   DELETE           => '--ИЗТРИЙ--'
    );
 
 %lang_sortlabels =
@@ -51,8 +51,8 @@ package openwebmail::bg;
 %lang_withoriglabels =
    (
    at_beginning => 'в началото',
-   at_end      => 'в края',
-   none        => 'няма'
+   at_end       => 'в края',
+   none         => 'няма'
    );
 
 %lang_receiptlabels =
@@ -78,8 +78,8 @@ package openwebmail::bg;
 %lang_sendpositionlabels =
    (
    before => 'над полето за редакция',
-   after => 'под полето за редакция',
-   both  => 'над и под полето за редакция'
+   after  => 'под полето за редакция',
+   both   => 'над и под полето за редакция'
    );
 
 %lang_abookbuttonpositionlabels = 
@@ -187,8 +187,8 @@ package openwebmail::bg;
    listarchive=> 'Списък',
    decompress=>'Декопресия',
    extract  => 'Изваждане',
-   mkpdf    => 'Make Pdf',
-   mkps     => 'Make Ps',
+   mkpdf    => 'Създай Pdf',
+   mkps     => 'Създай Ps',
    chdir    => 'Смяна дир.',
    mkdir    => 'Нова дир.',
    newfile  => 'Нов файл',
@@ -360,6 +360,7 @@ package openwebmail::bg;
    statreply  => '-- Шаблон за отговор --',
    calendar   => 'Календар',
    allday     => 'Всички дни',
+   today      => 'Today',
    am         => 'am',
    pm         => 'pm',
    calfmt_year          => 'година @@@YEAR@@@',
@@ -477,7 +478,7 @@ package openwebmail::bg;
    no_file_todownload=> 'Не е избран файл за даунлоуд',
    upload_overlimit  => 'Големината на файла надвишава лимита',
    decomp_notsupported =>'Файл с неподържан формат за компресия.',
-   filefmt_notsupported =>'The file format is not supported.',
+   filefmt_notsupported =>'Неподържан файлов формат.',
    webdisk_readonly  => 'За съжаление вашия web-диск е само за четене.',
    quota_syserr      => 'Системна грешка при лимитиране',
    quotahit_alert    => 'За съжаление сте достигнали лимита си. Моля изтрийте няколко писма от пощенската си кутия или файл от web диска за да освободите място.',

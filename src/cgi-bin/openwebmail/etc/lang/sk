@@ -1,4 +1,4 @@
-package openwebmail::sk;
+package ow::sk;
 
 # Slovak translation, charset: iso-8859-2
 # by lubos klokner, lubos.AT.klokner.sk, 2002-JUL-11
@@ -6,12 +6,12 @@ package openwebmail::sk;
 
 %lang_folders =
    (
-   INBOX => 'PRIJATÉ',
+   INBOX            => 'PRIJATÉ',
    'saved-messages' => 'ULO®ENÉ',
    'sent-mail'      => 'ODOSLANÉ',
    'saved-drafts'   => 'KONCEPT',
    'mail-trash'     => 'KÔ©',
-   DELETE => '--ZMAZA«--'
+   DELETE           => '--ZMAZA«--'
    );
 
 %lang_sortlabels =
@@ -44,7 +44,7 @@ package openwebmail::sk;
 %lang_msgformatlabels =
    (
    auto => 'Automaticky',
-   text	=> 'Text',
+   text => 'Text',
    html => 'HTML',
    both => 'HTML a text'
    );
@@ -52,8 +52,8 @@ package openwebmail::sk;
 %lang_withoriglabels =
    (
    at_beginning => 'na zaèiatku',
-   at_end      => 'na konci',
-   none        => 'nikde'
+   at_end       => 'na konci',
+   none         => 'nikde'
    );
 
 %lang_receiptlabels =
@@ -79,8 +79,8 @@ package openwebmail::sk;
 %lang_sendpositionlabels =
    (
    before => 'Pred oblas»ou úpravy e-mailu',
-   after => 'Za oblas»ou úpravy e-mailu',
-   both  => 'Pred aj za oblas»ou úpravy e-mailu'
+   after  => 'Za oblas»ou úpravy e-mailu',
+   both   => 'Pred aj za oblas»ou úpravy e-mailu'
    );
 
 %lang_abookbuttonpositionlabels = 
@@ -361,6 +361,7 @@ package openwebmail::sk;
    statreply  => '-- Vybra» komentár ako odpoveï --',
    calendar   => 'Kalendár',
    allday     => 'Celý deò',
+   today      => 'Today',
    am         => 'doobeda',
    pm         => 'poobede',
    calfmt_year          => 'Rok @@@YEAR@@@',

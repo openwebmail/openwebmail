@@ -40,29 +40,37 @@ Alias /cgi-bin/openwebmail /var/www/cgi-bin/openwebmail
 
 AddHandler cgi-script .cgi .pl ( just add .pl onto the end of existing )
 
-b. Edit /var/www/cgi-bin/openwebmail/auth_unix.pl
-
-make sure the two lines that control authentication read as follows.
-
-my $unix_passwdfile_plaintext="/etc/passwd";
-my $unix_passwdfile_encrypted="/etc/shadow";
-
-This will use the local unix password files for authentication.
-
-c. Edit /var/www/cgi-bin/openwebmail/etc/openwebmail.conf
+b. Edit /var/www/cgi-bin/openwebmail/etc/openwebmail.conf
 
 There is an example of this file in it's correct format below.
 
-change .db to .dir
 change /var/mail to /var/spool/mail
 change /var/log/openwebmail.log to /var/log/webmail/openwebmail.log (optional)
 
 add "default_realname auto" line
 this makes "from"line in webmail use login name.
 
-Add line "dbmopen_haslock yes" .
+c. Edit /var/www/cgi-bin/openwebmail/etc/dbm.conf
+
+dbm_ext         .dir
+dbmopen_ext     none
+dbmopen_haslock yes
+
 This parameter is only present and working in version 1.71 and
 somehow Mandrake 9.0 requires it.
+
+d. Edit /var/www/cgi-bin/openwebmail/etc/auth_unix.conf
+
+make sure the lines that control authentication read as follows.
+
+passwdfile_plaintext    /etc/passwd
+passwdfile_encrypted    /etc/shadow
+passwdmkdb              none
+check_nologin           no
+check_shell             no
+check_cobaltuser        no
+
+This will use the local unix password files for authentication.
 
 6. Create the /var/log/webmail/ directory if you did the above optional step
    of moving the logfile.
@@ -88,8 +96,6 @@ I put a link in my Home web page to it.
 That is what I did, and it works and works well.
 Best to everyone, and thanks again all you who contributed to this project.
 
-The following is a good, working /var/www/cgi-bin/openwebmail/etc/openwebmail.conf file.
-
 #
 # Open WebMail configuration file
 #
@@ -103,9 +109,6 @@ The following is a good, working /var/www/cgi-bin/openwebmail/etc/openwebmail.co
 domainnames auto
 auth_module auth_unix.pl
 mailspooldir /var/spool/mail
-dbm_ext .dir
-dbmopen_ext none
-dbmopen_haslock yes
 ow_cgidir /var/www/cgi-bin/openwebmail
 ow_cgiurl /cgi-bin/openwebmail
 ow_htmldir /var/www/data/openwebmail
@@ -118,3 +121,4 @@ default_realname auto
 --
 Open WebMail Project (http://openwebmail.org)
 </default_signature>
+

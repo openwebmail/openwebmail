@@ -1,4 +1,4 @@
-package openwebmail::cs;
+package ow::cs;
 
 # Czech translation, charset: iso-8859-2
 # by Michal Drapak, michal.AT.stavlib.hiedu.cz, 2001-NOV-8
@@ -7,12 +7,12 @@ package openwebmail::cs;
 
 %lang_folders =
    (
-   INBOX => 'Pøijaté',
+   INBOX            => 'Pøijaté',
    'saved-messages' => 'Ulo¾ené',
    'sent-mail'      => 'Odeslané',
    'saved-drafts'   => 'Rozepsané',
    'mail-trash'     => 'Ko¹',
-   DELETE => '--SMAZAT--'
+   DELETE           => '--SMAZAT--'
    );
 
 %lang_sortlabels =
@@ -45,7 +45,7 @@ package openwebmail::cs;
 %lang_msgformatlabels =
    (
    auto => 'Auto selected',
-   text	=> 'Text',
+   text => 'Text',
    html => 'HTML',
    both => 'HTML and Text'
    );
@@ -53,8 +53,8 @@ package openwebmail::cs;
 %lang_withoriglabels =
    (
    at_beginning => 'Na zaèátek',
-   at_end      => 'Na konec',
-   none        => 'Nevkládat'
+   at_end       => 'Na konec',
+   none         => 'Nevkládat'
    );
 
 %lang_receiptlabels =
@@ -80,8 +80,8 @@ package openwebmail::cs;
 %lang_sendpositionlabels =
    (
    before => 'Pøed oblastí úpravy zprávy',
-   after => 'Za oblastí úpravy zprávy',
-   both  => 'Pøed a za oblastí úpravy zprávy'
+   after  => 'Za oblastí úpravy zprávy',
+   both   => 'Pøed a za oblastí úpravy zprávy'
    );
 
 %lang_abookbuttonpositionlabels = 
@@ -362,6 +362,7 @@ package openwebmail::cs;
    statreply  => '-- Vybrat komentáø jako odpovìï --',
    calendar   => 'Kalendáø',
    allday     => 'Ka¾dý den',
+   today      => 'Today',
    am         => 'dop.',
    pm         => 'odp.',
    calfmt_year          => 'Rok @@@YEAR@@@',

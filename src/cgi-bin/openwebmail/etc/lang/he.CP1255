@@ -1,4 +1,4 @@
-package openwebmail::he_CP1255;
+package ow::he_CP1255;
   
 # Hebrew translation, charset: windows-1255
 # by Yehuda Drori
@@ -6,12 +6,12 @@ package openwebmail::he_CP1255;
   
 %lang_folders =
    (   
-   INBOX => 'דואר נכנס',
+   INBOX            => 'דואר נכנס',
    'saved-messages' => 'הודעות שמורות',
    'sent-mail'      => 'דואר שנשלח',
    'saved-drafts'   => 'טיוטה',
    'mail-trash'     => 'סל מיחזור',
-   DELETE => '--מחיקה--'
+   DELETE           => '--מחיקה--'
    );   
   
 %lang_sortlabels =
@@ -52,8 +52,8 @@ package openwebmail::he_CP1255;
 %lang_withoriglabels =
    (   
    at_beginning => 'בתחילה',
-   at_end      => 'בסוף',
-   none        => 'ללא'
+   at_end       => 'בסוף',
+   none         => 'ללא'
    );   
   
 %lang_receiptlabels =
@@ -79,8 +79,8 @@ package openwebmail::he_CP1255;
 %lang_sendpositionlabels =
    (   
    before => 'לפני אזור עריכת דואר',
-   after => 'לאחר אזור עריכת דואר',   
-   both  => 'ערוך איזור לפני ואחרי משלוח'
+   after  => 'לאחר אזור עריכת דואר',   
+   both   => 'ערוך איזור לפני ואחרי משלוח'
    );   
 
 %lang_abookbuttonpositionlabels =
@@ -361,6 +361,7 @@ package openwebmail::he_CP1255;
    statreply  => '-- נייר מכתבים למענה על הודעה --',   
    calendar   => 'לוח שנה',
    allday     => 'כל היום',   
+   today      => 'Today',
    am         => 'am',   
    pm         => 'pm',  
    calfmt_year          => '@@@YEAR@@@ שנה',   

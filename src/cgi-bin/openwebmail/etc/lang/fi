@@ -1,16 +1,16 @@
-package openwebmail::fi;
+package ow::fi;
 
 # Finnish translation, charset: iso-8859-1
 # by Jouni Kivilahti and Helja Laitinen
 
 %lang_folders =
    (
-   INBOX => 'SAAPUNEET',
+   INBOX            => 'SAAPUNEET',
    'saved-messages' => 'TALLETETUT',
    'sent-mail'      => 'LÄHETETYT',
    'saved-drafts'   => 'LUONNOKSET',
    'mail-trash'     => 'ROSKAKORI',
-   DELETE => '--POISTA--'
+   DELETE           => '--POISTA--'
    );
 
 %lang_sortlabels =
@@ -43,7 +43,7 @@ package openwebmail::fi;
 %lang_msgformatlabels =
    (
    auto => 'Auto selected',
-   text	=> 'Text',
+   text => 'Text',
    html => 'HTML',
    both => 'HTML and Text'
    );
@@ -51,8 +51,8 @@ package openwebmail::fi;
 %lang_withoriglabels =
    (
    at_beginning => 'alkuun',
-   at_end      => 'loppuun',
-   none        => 'elä lainkaan'
+   at_end       => 'loppuun',
+   none         => 'elä lainkaan'
    );
 
 %lang_receiptlabels =
@@ -78,8 +78,8 @@ package openwebmail::fi;
 %lang_sendpositionlabels =
    (
    before => 'Before mail edit area',
-   after => 'After mail edit area',
-   both  => 'Before and after mail edit area'
+   after  => 'After mail edit area',
+   both   => 'Before and after mail edit area'
    );
 
 %lang_abookbuttonpositionlabels = 
@@ -360,6 +360,7 @@ package openwebmail::fi;
    statreply  => '-- Stationery for Reply --',
    calendar   => 'Kalenteri',
    allday     => 'All day',
+   today      => 'Today',
    am         => 'ap',
    pm         => 'ip',
    calfmt_year          => 'Vuosi @@@YEAR@@@',

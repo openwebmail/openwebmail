@@ -1,16 +1,16 @@
-package openwebmail::tr;
+package ow::tr;
 
 # Turkish translation, charset: iso-8859-9
 # by Erdinc Guler, eguler.AT.aegee.metu.edu.tr
 
 %lang_folders =
    (
-   INBOX => 'Gelen Kutusu',
+   INBOX            => 'Gelen Kutusu',
    'saved-messages' => 'Saklý',
    'sent-mail'      => 'Gönderilmiþ',
    'saved-drafts'   => 'Taslak',
    'mail-trash'     => 'Çöp Kutusu',
-   DELETE => '--ÇÖPE AT--'
+   DELETE           => '--ÇÖPE AT--'
    );
 
 %lang_sortlabels =
@@ -43,7 +43,7 @@ package openwebmail::tr;
 %lang_msgformatlabels =
    (
    auto => 'Auto selected',
-   text	=> 'Text',
+   text => 'Text',
    html => 'HTML',
    both => 'HTML and Text'
    );
@@ -51,8 +51,8 @@ package openwebmail::tr;
 %lang_withoriglabels =
    (
    at_beginning => 'Baþlangýçta',
-   at_end      => 'Sonunda',
-   none        => 'Hiçbiri'
+   at_end       => 'Sonunda',
+   none         => 'Hiçbiri'
    );
 
 %lang_receiptlabels =
@@ -78,8 +78,8 @@ package openwebmail::tr;
 %lang_sendpositionlabels =
    (
    before => 'Ýleti yazma alanýndan önce',
-   after => 'Ýleti yazma alanýndan sonra',
-   both  => 'Ýleti yazma alanýndan önce ve sonra'
+   after  => 'Ýleti yazma alanýndan sonra',
+   both   => 'Ýleti yazma alanýndan önce ve sonra'
    );
 
 %lang_abookbuttonpositionlabels = 
@@ -360,6 +360,7 @@ package openwebmail::tr;
    statreply  => '-- Cevap Ýçin Taslak Seç --',
    calendar   => 'Takvim',
    allday     => 'All day',
+   today      => 'Today',
    am         => 'am',
    pm         => 'pm',
    calfmt_year          => 'Yýl @@@YEAR@@@',

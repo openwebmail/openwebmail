@@ -33,7 +33,7 @@ my %text = (
    user_calendar => "_USER_'s calendar"
 );
 
-################### No configuration required from here ###################
+########## No configuration required from here ###################
 
 if (!defined($ENV{'GATEWAY_INTERFACE'})) {	# cmd mode
    print qq|\nThis script is designed to be used by static html pages to\n|.
@@ -47,8 +47,8 @@ if (!defined($ENV{'GATEWAY_INTERFACE'})) {	# cmd mode
    exit 1;
 }
 
-my $user = cookie('openwebmail-loginname') || param('loginname');
-my $playsound = param('playsound');
+my $user = cookie('openwebmail-loginname') || param('loginname') || '';
+my $playsound = param('playsound')||'';
 my $html=qq|<a href="_URL_" target="_blank" style="text-decoration: none">|.
          qq|<font color="_COLOR_">_TEXT_</font></a>|;
 

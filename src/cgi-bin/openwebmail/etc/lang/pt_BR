@@ -1,4 +1,4 @@
-package openwebmail::pt_BR;
+package ow::pt_BR;
 
 # Portuguese Brazil translation, charset: iso-8859-1
 # by Julio Cesar da Cunha, julio.AT.cnm.org.br
@@ -7,12 +7,12 @@ package openwebmail::pt_BR;
 
 %lang_folders =
    (
-   INBOX => 'Entrada',
+   INBOX            => 'Entrada',
    'saved-messages' => 'Guardadas',
    'sent-mail'      => 'Enviadas',
    'saved-drafts'   => 'Rascunho',
    'mail-trash'     => 'Lixeira',
-   DELETE => '--APAGAR--'
+   DELETE           => '--APAGAR--'
    );
 
 %lang_sortlabels =
@@ -45,7 +45,7 @@ package openwebmail::pt_BR;
 %lang_msgformatlabels =
    (
    auto => 'Automático',
-   text	=> 'Texto',
+   text => 'Texto',
    html => 'HTML',
    both => 'HTML e Texto'
    );
@@ -53,8 +53,8 @@ package openwebmail::pt_BR;
 %lang_withoriglabels =
    (
    at_beginning => 'No início',
-   at_end      => 'No final',
-   none        => 'Ignorar'
+   at_end       => 'No final',
+   none         => 'Ignorar'
    );
 
 %lang_receiptlabels =
@@ -80,8 +80,8 @@ package openwebmail::pt_BR;
 %lang_sendpositionlabels =
    (
    before => 'Antes da área de edição',
-   after => 'Depois a área de edição',
-   both  => 'Antes e depois a área de edição'
+   after  => 'Depois a área de edição',
+   both   => 'Antes e depois a área de edição'
    );
 
 %lang_abookbuttonpositionlabels = 
@@ -189,14 +189,14 @@ package openwebmail::pt_BR;
    listarchive=> 'Listar',
    decompress=>'Descompactar',
    extract  => 'Extrair',
-   mkpdf    => 'Make Pdf',
-   mkps     => 'Make Ps',
+   mkpdf    => 'Criar Pdf',
+   mkps     => 'Criar Ps',
    chdir    => 'Mudar Dir',
    mkdir    => 'Criar Dir',
    newfile  => 'Novo Arquivo',
    copy     => 'Copiar',
    move     => 'Mover',
-   symlink  => 'Symlink',
+   symlink  => 'Link simbólico',
    delete   => 'Apagar',
    gzip     => 'Gzip',
    mkzip    => 'Zip',
@@ -362,6 +362,7 @@ package openwebmail::pt_BR;
    statreply  => '-- Selecione o Timbre para resposta --',
    calendar   => 'Agenda de Compromissos',
    allday     => 'Dia Todo',
+   today      => 'Today',
    am         => 'am',
    pm         => 'pm',
    calfmt_year          => 'Ano de @@@YEAR@@@',
@@ -479,7 +480,7 @@ package openwebmail::pt_BR;
    no_file_todownload=> 'Nenhum arquivo foi marcado para download',
    upload_overlimit  => 'O limite do arquivo para upload excedeu',
    decomp_notsupported =>'Não há descompactador para este arquivo.',
-   filefmt_notsupported =>'The file format is not supported.',
+   filefmt_notsupported =>'Formato de arquivo não suportado.',
    webdisk_readonly  => 'Desculpe, seu Disco Web é somente para leitura.',
    quota_syserr      => 'Erro no sistema de Quota',
    quotahit_alert    => 'Desculpe, limite de espaço excedido. Favor apagar algumas mensagens das pastas de e-mail ou alguns arquivos do Disco Web para liberar espaço.',

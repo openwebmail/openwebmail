@@ -101,16 +101,14 @@
 #
 
 use vars qw($SCRIPT_DIR);
-if ( $0 =~ m!^(\S*)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
+if ( $0 =~ m!^(\S*)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1 }
 if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
-   $_=<F>; close(F); if ( $_=~/^(\S*)/) { $SCRIPT_DIR=$1; }
+   $_=<F>; close(F); if ( $_=~/^(\S*)/) { $SCRIPT_DIR=$1 }
 }
 if (!$SCRIPT_DIR) { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
 push (@INC, $SCRIPT_DIR);
 
-$ENV{PATH} = ""; # no PATH should be needed
-$ENV{ENV} = "";      # no startup script for sh
-$ENV{BASH_ENV} = ""; # no startup script for bash
+foreach (qw(PATH ENV BASH_ENV CDPATH IFS TERM)) { $ENV{$_}='' }	# secure ENV
 umask(0002); # make sure the openwebmail group can write
 
 use strict;
@@ -119,34 +117,32 @@ use CGI qw(-private_tempfiles :standard);
 use CGI::Carp qw(fatalsToBrowser carpout);
 use File::Path;
 
-require "ow-shared.pl";
-require "filelock.pl";
-require "execute.pl";
+require "modules/datetime.pl";
+require "modules/lang.pl";
+require "modules/dbm.pl";
+require "modules/filelock.pl";
+require "modules/tool.pl";
+require "modules/execute.pl";
+require "shares/ow-shared.pl";
+require "shares/upgrade.pl";
 
 # common globals
 use vars qw(%config %config_raw);
 use vars qw($thissession);
 use vars qw($logindomain $domain $user $userrealname $uuid $ugid $homedir);
 use vars qw(%prefs %style);
-use vars qw($folderdir @validfolders $folderusage);
-use vars qw($folder $printfolder $escapedfolder);
 
 # extern vars
 use vars qw(%lang_text %lang_err);	# defined in lang/xy
 
-# local globals
-use vars qw($sort $page);
-use vars qw($messageid $escapedmessageid);
-use vars qw($userfirsttime $prefs_caller);
-
-########################## MAIN ############################
+########## MAIN ##################################################
 openwebmail_requestbegin();
 userenv_init();
 
 # If this is a real user (not virtual) then switch to the virtual site config
 # this allows real user to be administrator of the vdomains, tricky!
 if ( $config{'auth_module'} ne 'auth_vdomain.pl' ) {
-   readconf(\%config, \%config_raw, "$config{'ow_sitesconfdir'}/$logindomain");
+   read_owconf(\%config, \%config_raw, "$config{'ow_sitesconfdir'}/$logindomain");
    loadauth($config{'auth_module'});
 }
 
@@ -162,7 +158,7 @@ foreach ("$config{'vdomain_vmpop3_pwdpath'}/$domain/$config{'vdomain_vmpop3_pwdn
    openwebmailerror(__FILE__, __LINE__, "$_ $lang_err{'doesnt_exist'}") if (! -f $_);
 }
 
-my $action = param("action");
+my $action = param('action');
 if ($action eq 'display_vuserlist') {
    display_vuserlist();
 } elsif ($action eq 'edit_vuser' ||
@@ -178,27 +174,20 @@ if ($action eq 'display_vuserlist') {
 }
 
 openwebmail_requestend();
-###################### END MAIN ############################
+########## END MAIN ##############################################
 
-##################### DISPLAY_VUSERLIST ##################
+########## DISPLAY_VUSERLIST #####################################
 sub display_vuserlist {
-   my $view = param('view');
+   my $view = param('view')||'';
    my %vusers=vuser_list();
    my @vusers_list = sort (keys %vusers);
    my $html = applystyle(readtemplate("vdomain_userlist.template"));
 
-   my $temphtml = startform(-name=>"indexform",
-			 -action=>"$config{'ow_cgiurl'}/openwebmail-vdomain.pl") .
-               hidden(-name=>'action',
-                      -default=>'display_vuserlist',
-                      -override=>'1') .
-               hidden(-name=>'sessionid',
-                      -default=>$thissession,
-                      -override=>'1') .
-               hidden(-name=>'view',
-                      -default=>$view,
-                      -override=>'1');
-
+   my $temphtml = startform(-name=>'indexform',
+                            -action=>"$config{'ow_cgiurl'}/openwebmail-vdomain.pl").
+                  ow::tool::hiddens(action=>'display_vuserlist',
+                                    sessionid=>$thissession,
+                                    view=>$view);
    $html =~ s/\@\@\@STARTFORM\@\@\@/$temphtml/;
    $html =~ s/\@\@\@DOMAINNAME\@\@\@/$domain/;
 
@@ -302,9 +291,9 @@ sub display_vuserlist {
    httpprint([], [htmlheader(), $html,  htmlfooter(2)]);
 
 }
-##################### END DISPLAY_VUSERLIST #####################
+########## END DISPLAY_VUSERLIST #################################
 
-##################### DISPLAYCELL ##################
+########## DISPLAYCELL ###########################################
 sub displaycell {
       my ($useralias,$useredit,$view,$vusers,$vuserfwd)=@_;
       my $oldchklogin=0;
@@ -339,17 +328,17 @@ sub displaycell {
       return qq|<a href="$config{'ow_cgiurl'}/openwebmail-vdomain.pl?action=edit_vuser&amp;vuser=$useredit&amp;sessionid=$thissession&amp;view=$view| .
                   qq|&amp;oldchklogin=$oldchklogin&amp;oldchkfwd=$oldchkfwd&amp;olddirect=$olddirect" title="$lang_text{'vdomain_changeuser'} $useredit">$useralias</a>|;
 }
-##################### END DISPLAYCELL ##################
+########## END DISPLAYCELL #######################################
 
-##################### EDIT USER ##################
+########## EDIT USER #############################################
 sub edit_vuser {
    my ($focus, $alert, $pwd, $pwd2, $emailkey, $e_realnm, $realnm, %from_list)=@_;
-   my $vuser = param('vuser');
-   my $action = param('action');
-   my $view = param('view');
-   my $oldchklogin=param('oldchklogin');
-   my $oldchkfwd=param('oldchkfwd');
-   my $olddirect=param('olddirect');
+   my $vuser = param('vuser')||'';
+   my $action = param('action')||'';
+   my $view = param('view')||'';
+   my $oldchklogin=param('oldchklogin')||'';
+   my $oldchkfwd=param('oldchkfwd')||'';
+   my $olddirect=param('olddirect')||'';
    my $chklogin=$oldchklogin;
    my $chkfwd=$oldchkfwd;
    my $direct=$olddirect;
@@ -399,41 +388,20 @@ sub edit_vuser {
    $html =~ s/\@\@\@DOMAINNAME\@\@\@/$domain/;
    $html =~ s/\@\@\@VDOMAINTITLE\@\@\@/$title_txt/;
 
-   my $temphtml = startform(-name=>"userform",
-                            -action=>"$config{'ow_cgiurl'}/openwebmail-vdomain.pl") .
-               hidden(-name=>'action',
-                      -default=>$action,
-                      -override=>'1') .
-               hidden(-name=>'sessionid',
-                      -default=>$thissession,
-                      -override=>'1') .
-               hidden(-name=>'view',
-                      -default=>$view,
-                      -override=>'1') .
-               hidden(-name=>'oldchklogin',
-                      -default=>$oldchklogin,
-                      -override=>'1') .
-               hidden(-name=>'oldchkfwd',
-                      -default=>$oldchkfwd,
-                      -override=>'1') .
-               hidden(-name=>'olddirect',
-                      -default=>$olddirect,
-                      -override=>'1') .
-               hidden(-name=>'addmod',
-                      -default=>'',
-                      -override=>'1') .
-               hidden(-name=>'aliasdel',
-                      -default=>'',
-                      -override=>'1') .
-               hidden(-name=>'fromlist',
-                      -default=>[%from_list ],
-                      -override=>'1');
-   if (! $new) {
-      $temphtml .= hidden(-name=>'vuser',
-                          -default=>$vuser,
-                          -override=>'1');
-   }
-
+   my $temphtml = startform(-name=>'userform',
+                            -action=>"$config{'ow_cgiurl'}/openwebmail-vdomain.pl").
+                  ow::tool::hiddens(action=>$action,
+                                    sessionid=>$thissession,
+                                    view=>$view,
+                                    oldchklogin=>$oldchklogin,
+                                    oldchkfwd=>$oldchkfwd,
+                                    olddirect=>$olddirect,
+                                    addmod=>'',
+                                    aliasdel=>'').
+                  hidden(-name=>'fromlist',
+                         -default=>[%from_list],
+                         -override=>'1');
+   $temphtml .= ow::tool::hiddens(vuser=>$vuser) if (! $new);
    $html =~ s/\@\@\@STARTUSERFORM\@\@\@/$temphtml/;
 
    $html =~ s/\@\@\@FOCUS\@\@\@/$focus/;
@@ -524,33 +492,19 @@ sub edit_vuser {
    $html =~ s/\@\@\@CHANGEBUTTON\@\@\@/$temphtml/;
 
    # delete button
-   $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-vdomain.pl") .
-               hidden(-name=>'action',
-                      -default=>'delete_vuser',
-                      -override=>'1') .
-               hidden(-name=>'sessionid',
-                      -default=>$thissession,
-                      -override=>'1') .
-               hidden(-name=>'view',
-                      -default=>$view,
-                      -override=>'1') .
-               hidden(-name=>'vuser',
-                      -default=>$vuser,
-                      -override=>'1');
+   $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-vdomain.pl").
+               ow::tool::hiddens(action=>'delete_vuser',
+                                 sessionid=>$thissession,
+                                 view=>$view,
+                                 vuser=>$vuser);
    $html =~ s/\@\@\@STARTDELFORM\@\@\@/$temphtml/;
    $html =~ s/\@\@\@DELETEBUTTON\@\@\@/$del_txt/;
 
    # cancel button
-   $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-vdomain.pl") .
-               hidden(-name=>'action',
-                      -default=>'display_vuserlist',
-                      -override=>'1').
-               hidden(-name=>'sessionid',
-                      -default=>$thissession,
-                      -override=>'1') .
-               hidden(-name=>'view',
-                      -default=>$view,
-                      -override=>'1') ;
+   $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-vdomain.pl").
+               ow::tool::hiddens(action=>'display_vuserlist',
+                                 sessionid=>$thissession,
+                                 view=>$view);
    $html =~ s/\@\@\@STARTCANCELFORM\@\@\@/$temphtml/;
    $temphtml = submit("$lang_text{'cancel'}");
    $html =~ s/\@\@\@CANCELBUTTON\@\@\@/$temphtml/;
@@ -566,33 +520,33 @@ sub edit_vuser {
 
    httpprint([], [htmlheader(), $html,  htmlfooter(2)]);
 }
-##################### END EDIT USER #####################
+########## END EDIT USER #########################################
 
-##################### CHANGE USER SETTINGS ##################
+########## CHANGE USER SETTINGS ##################################
 sub change_vuser {
-   my $vuser_original=param('vuser');
-   my $realnm=param('realnm');
-   my $vuser=untaint(lc($vuser_original));
+   my $vuser_original=param('vuser')||'';
+   my $realnm=param('realnm')||'';
+   my $vuser=ow::tool::untaint(lc($vuser_original));
 
-   my $action=param('action');
-   my $pwd=param('newpassword');
-   my $pwd2=param('confirmnewpassword');
+   my $action=param('action')||'';
+   my $pwd=param('newpassword')||'';
+   my $pwd2=param('confirmnewpassword')||'';
    my $emailkey=clean_email(param('emailaddr'));
    my $alias=$emailkey;
    $alias=~s/\@.*// if ($emailkey=~/\@$domain$/);
 
-   my $e_realnm=param('e_realnm');
+   my $e_realnm=param('e_realnm')||'';
    $e_realnm=~s/^\s*//;$e_realnm=~s/\s*$//;
 
-   my $oldchklogin=param('oldchklogin');
-   my $oldchkfwd=param('oldchkfwd');
-   my $olddirect=param('olddirect');
-   my $chklogin=param('chklogin');
+   my $oldchklogin=param('oldchklogin')||'';
+   my $oldchkfwd=param('oldchkfwd')||'';
+   my $olddirect=param('olddirect')||'';
+   my $chklogin=param('chklogin')||'';
    $chklogin=0 if (is_vdomain_adm($vuser));
 
-   my $chkfwd=param('chkfwd');
-   my $direct=param('direct');
-   my %from_list=param('fromlist');
+   my $chkfwd=param('chkfwd')||'';
+   my $direct=param('direct')||'';
+   my %from_list=param('fromlist')||();
 
    my %vusers=vuser_list();
    my @vuser_list = sort (keys %vusers);
@@ -683,7 +637,7 @@ sub change_vuser {
       return;
    }
 
-   my $vgid=untaint(getgrnam('mail'));	# for better compatibility with other mail progs
+   my $vgid=getgrnam('mail');	# for better compatibility with other mail progs
 
    if ( $new ) { # CREATE NEW USER
       my $aliastxt='';
@@ -692,19 +646,11 @@ sub change_vuser {
       # CREATE USER IN VIRTUAL PASSWD
       vpasswd_update($vuser_original,0,$pwd,$chklogin);
 
-      # need $vuid here, so don't skip get_userinfo() if 'use_syshomedir'
-      my ($vuid, $vhomedir) = (get_userinfo(\%config, "$vuser_original\@$domain"))[3,5];
-      $vhomedir="$config{'ow_usersdir'}/$domain/$vuser" if (!$config{'use_syshomedir'});
-      $vuid=untaint($vuid);
-      $vhomedir=untaint($vhomedir);
-
-      my $folderdir = untaint("$vhomedir/$config{'homedirfolderdirname'}");
-
-      my $frombook="$folderdir/.from.book";
+      my ($vuid, $vhomedir) = (get_userinfo(\%config, "$vuser\@$domain"))[3,5];
+      $vhomedir = user_home_adj($vhomedir,$vuser,$domain);
 
       # switch to root
-      my ($origruid, $origeuid)=($<, $>);
-      $>=0; $<=0;
+      my ($origeuid,$origgid,$orighomedir)=switch_user(0,0,$vhomedir);
 
       # CREATE USER HOME DIRECTORY
       if ( !-d $vhomedir ) {
@@ -714,25 +660,29 @@ sub change_vuser {
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'cant_create_dir'} $vhomedir ($!)");
          }
       }
-      # CREATE USER .forward
-      writelog("vdomain $user: $vuser\@$domain  create .forward - $vhomedir/.forward, uid=$vuid, gid=$vgid");
-      my ($fh, $vforward) = root_open(">$vhomedir/.forward");
-      my $spool=vdomain_userspool($vuser, $vhomedir);
-      print $fh "$spool\n";
-      root_close($fh, $vforward, 0, 0);
-      chown($vuid, $vgid, $vforward);
 
-      # CREATE USER MAIL DIRECTORY
-      if ( !-d $folderdir ) {
-         if (mkdir ($folderdir, 0700) && chown($vuid, $vgid, $folderdir)) {
-            writelog("vdomain $user: $vuser\@$domain  create folderdir - $folderdir, uid=$vuid, gid=$vgid");
-         } else {
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'cant_create_dir'} $folderdir ($!)");
-         }
-      }
+      # switch to virtual user
+      switch_user($vuid,$vgid,$vhomedir);
+      
+      # create dot directory structure
+      check_and_create_dotdir(_dotpath('/', $domain, $vuser, $vhomedir));
+
+      # default a new release date file
+      update_releasedatefile();
+
+      # CREATE USER .forward
+      my $dotforward="$vhomedir/.forward";
+      writelog("vdomain $user: $vuser\@$domain  create .forward - $dotforward, uid=$vuid, gid=$vgid");
+      open (DF, ">$dotforward") or
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $dotforward ($!)");
+      print DF vdomain_userspool($vuser, $vhomedir)."\n";
+      close (DF);
+
+      # return to orignal uid
+      switch_user($origeuid,$origgid,$orighomedir);
 
       # CREATE USER .FROM.BOOK
-      from_update($vuser, $frombook, $realnm, $vuid, $vgid, %from_list);
+      from_update($vuser, $vhomedir, $vuid, $vgid, $realnm, %from_list);
 
       # CREATE USER IN POSTFIX VIRTUAL
       vuser_update($vuser, 0, @alias_list);
@@ -740,12 +690,9 @@ sub change_vuser {
       # CREATE USER IN POSTFIX ALIASES
       if ($chkfwd) {
          writelog("vdomain $user: $vuser\@$domain  forward to $direct");
-         $vforward=$direct;
-      } else { $vforward=":include:$vforward" }
-      valias_update($vuser, 0, $vforward);
-
-      # go back to orignal uid
-      $<=$origruid; $>=$origeuid;
+         $dotforward=$direct;
+      } else { $dotforward=":include:$dotforward" }
+      valias_update($vuser, 0, $dotforward);
 
    } else { # UPDATE EXISTING USER
       # changed password ?
@@ -755,15 +702,9 @@ sub change_vuser {
          vpasswd_update($vuser_original,$action,$pwd,$chklogin);
       }
 
-      # need $vuid here, so don't skip get_userinfo() if 'use_syshomedir'
-      my ($vuid, $vhomedir) = (get_userinfo(\%config, "$vuser_original\@$domain"))[3,5];
-      $vhomedir="$config{'ow_usersdir'}/$domain/$vuser" if (!$config{'use_syshomedir'});
-      $vuid=untaint($vuid);
-      $vhomedir=untaint($vhomedir);
-
-      my $frombook="$vhomedir/$config{'homedirfolderdirname'}/.from.book";
-
-      my ($orig_realnm,%orig_from_list) = from_list(lc($vuser)); # original values
+      my ($vuid, $vhomedir) = (get_userinfo(\%config, "$vuser\@$domain"))[3,5];
+      $vhomedir = user_home_adj($vhomedir,$vuser,$domain);
+      my ($orig_realnm,%orig_from_list) = from_list($vuser); # original values
       my @orig_alias_list=from_2_valias($vuser,%orig_from_list);
 
       my $match = 1;
@@ -793,7 +734,7 @@ sub change_vuser {
             $match=0 if ( keys %orig_from_list );
          } else { $match=0; }
       }
-      from_update($vuser, $frombook, $realnm, $vuid, $vgid, %from_list) if ( ! $match );
+      from_update($vuser, $vhomedir, $vuid, $vgid, $realnm, %from_list) if ( ! $match );
 
       # changed fwd to
       if ($chkfwd != $oldchkfwd or $direct ne $olddirect) {
@@ -810,22 +751,17 @@ sub change_vuser {
    display_vuserlist();
 }
 
-##################### END CHANGE USER #####################
+########## END CHANGE USER #######################################
 
-##################### DELETE USER  ##################
+########## DELETE USER  ##########################################
 sub delete_vuser {
-   my $vuser_original = param('vuser');
-   my $vuser=untaint(lc($vuser_original));
+   my $vuser_original = param('vuser')||'';
+   my $vuser=ow::tool::untaint(lc($vuser_original));
 
    if ( vuser_exists($vuser,vuser_list()) ) {
       # get the home directory before we remove the user from password file or trouble later!
-      my $vhomedir;
-      if ($config{'use_syshomedir'}) {
-         $vhomedir = (get_userinfo(\%config, "$vuser\@$domain"))[5];
-      } else {
-         $vhomedir="$config{'ow_usersdir'}/$domain/$vuser";
-      }
-      $vhomedir=untaint($vhomedir);
+      my ($vhomedir) = (get_userinfo(\%config, "$vuser\@$domain"))[5];
+      $vhomedir = user_home_adj($vhomedir,$vuser,$domain);
 
       writelog("vdomain $user: $vuser\@$domain  delete $vuser_original");
       # DELETE USER IN VMPOP3D PASSWD
@@ -836,17 +772,17 @@ sub delete_vuser {
       valias_update($vuser, 1);
 
       # switch to root
-      my ($origruid, $origeuid)=($<, $>); $>=0; $<=0;
+      my ($origeuid,$origgid,$orighomedir)=switch_user(0,0,$vhomedir);
 
       # DELETE MAILBOX FILE
-      my $spoolfile=untaint("$config{'vdomain_vmpop3_mailpath'}/$domain/$vuser");
+      my $spoolfile=ow::tool::untaint("$config{'vdomain_vmpop3_mailpath'}/$domain/$vuser");
       if (-e $spoolfile) {
          writelog("vdomain $user: $vuser\@$domain  remove spool file - $spoolfile");
          rmtree ($spoolfile);
       }
 
       # DELETE OWM USER SETTINGS
-      my $userconf=untaint("$config{'ow_cgidir'}/etc/users.conf/$domain/$vuser");
+      my $userconf=ow::tool::untaint("$config{'ow_cgidir'}/etc/users.conf/$domain/$vuser");
       if (-e $userconf) {
          writelog("vdomain $user: $vuser\@$domain  remove userconf file - $userconf");
          rmtree ($userconf);
@@ -858,16 +794,16 @@ sub delete_vuser {
          rmtree ($vhomedir);
       }
 
-      # go back to orignal uid
-      $<=$origruid; $>=$origeuid;
+      # return to orignal uid
+      switch_user($origeuid,$origgid,$orighomedir);
    }
 
    # go back to start and display index
    display_vuserlist();
 }
-##################### END DELETE USER #####################
+########## END DELETE USER #######################################
 
-##################### VUSER_LIST ##################
+########## VUSER_LIST ############################################
 sub vuser_list {
    my %vusers;
 
@@ -886,9 +822,9 @@ sub vuser_list {
    }
    return (%vusers);
 }
-##################### END VUSER_LIST ##################
+########## END VUSER_LIST ########################################
 
-##################### VUSER_ALIAS_LIST ##################
+########## VUSER_ALIAS_LIST ######################################
 sub vuser_alias_list {
    my (%vuser_list)=@_;
    my %vusers=();
@@ -935,9 +871,9 @@ sub vuser_alias_list {
    }
    return %alias;
 }
-##################### END VUSER_ALIAS_LIST ##################
+########## END VUSER_ALIAS_LIST ##################################
 
-##################### VUSER_FWD_LIST ##################
+########## VUSER_FWD_LIST ########################################
 sub vuser_fwd_list {
    my @vusers=@_;
    my %fwd;
@@ -954,9 +890,9 @@ sub vuser_fwd_list {
    root_close($fh, $file, $origruid, $origeuid);
    return %fwd;
 }
-##################### END VUSER_FWD_LIST ##################
+########## END VUSER_FWD_LIST ####################################
 
-##################### VALIAS_LIST ##################
+########## VALIAS_LIST ###########################################
 sub valias_list {
    my ($vuser)=@_;
    my (@alias_list, $alias);
@@ -977,9 +913,9 @@ sub valias_list {
    }
    return (sort @alias_list);
 }
-##################### END VALIAS_LIST ##################
+########## END VALIAS_LIST #######################################
 
-##################### VALIAS_LIST_EXISTS ##################
+########## VALIAS_LIST_EXISTS ####################################
 sub valias_list_exists {
    my ($vuser,$alias)=@_;
    my $fnd=0;
@@ -1012,18 +948,18 @@ sub valias_list_exists {
    }
    return ($fnd);
 }
-##################### END VALIAS_LIST_EXISTS ##################
+########## END VALIAS_LIST_EXISTS ################################
 
-##################### IS_LOCALDOMAIN ##################
+########## IS_LOCALDOMAIN ########################################
 sub is_localdomain {
    foreach  ( @{$config{'localusers'}} ) {
       return 1 if (/^([^@]+)\@$domain$/);
    }
    return 0;
 }
-##################### END IS_LOCALDOMAIN ##################
+########## END IS_LOCALDOMAIN ####################################
 
-##################### FROM_2_VALIAS ##################
+########## FROM_2_VALIAS #########################################
 sub from_2_valias {
    my ($vuser, %from_list)=@_;
    my %alias_list=();
@@ -1032,9 +968,9 @@ sub from_2_valias {
    }
    return (sort keys %alias_list);
 }
-##################### END FROM_2_VALIAS ##################
+########## END FROM_2_VALIAS #####################################
 
-##################### FROM_LIST ##################
+########## FROM_LIST #############################################
 # merge the from address book with the postfix aliases
 # If the Real user (not an alias) has an entry in the from.book then
 # Use the name value to set the user $realnm (don't include with the rest
@@ -1042,12 +978,16 @@ sub from_2_valias {
 sub from_list {
    my ($vuser)=@_;
    my $vhomedir; my $realnm='';
-   if ($config{'use_syshomedir'}) { $vhomedir = (get_userinfo(\%config, "$vuser\@$domain"))[5]; }
-   else { $vhomedir="$config{'ow_usersdir'}/$domain/$vuser"; }
-   my $frombook="$vhomedir/$config{'homedirfolderdirname'}/.from.book";
+   if ($config{'use_syshomedir'}) {
+      $vhomedir = (get_userinfo(\%config, "$vuser\@$domain"))[5];
+   } else {
+      $vhomedir = user_home_adj($vhomedir,$vuser,$domain);
+   }
+
+   my $frombook=_dotpath('from.book',$domain,$vuser,$vhomedir);
 
    my %fromlist=();
-   if ( file_exists($frombook) ) {
+   if ( root_exists($frombook) ) {
       my ($fh, $file) = root_open($frombook);
       while (<$fh>) {
          chomp;
@@ -1067,9 +1007,9 @@ sub from_list {
    }
    return $realnm,%fromlist;
 }
-##################### END FROM_LIST ##################
+########## END FROM_LIST #########################################
 
-##################### VUSER_EXISTS ##################
+########## VUSER_EXISTS ##########################################
 sub vuser_exists {
    my ($vuser,@vuser_list)=@_;
    my $fnd=0;
@@ -1080,9 +1020,9 @@ sub vuser_exists {
    }
    return ($fnd);
 }
-##################### END VUSER_EXISTS ##################
+########## END VUSER_EXISTS ######################################
 
-##################### VUSER_UPDATE ##################
+########## VUSER_UPDATE ##########################################
 sub vuser_update {
    my ($vuser,$delete, @alias_list)=@_;
    my ($fh, $file, $origruid, $origeuid) = root_open(${$config{'vdomain_postfix_virtual'}}[0]);
@@ -1134,29 +1074,41 @@ sub vuser_update {
 
    return;
 }
-##################### END VUSER_UPDATE ##################
+########## END VUSER_UPDATE ######################################
 
-##################### FROM_UPDATE ##################
+########## FROM_UPDATE ###########################################
 sub from_update {
-   my ($vuser,$frombook, $realnm, $vuid, $vgid, %from_list)=@_;
-   my $exists=file_exists($frombook);
+   my ($vuser, $vhomedir, $vuid, $vgid, $realnm, %from_list)=@_;
+   my ($origuid,$origgid,$orighomedir)=switch_user($vuid,$vgid,$vhomedir);
 
-   if ($exists) { writelog("vdomain $user: $vuser\@$domain  update .from.book - $frombook"); }
-   else { writelog("vdomain $user: $vuser\@$domain  create .from.book - $frombook, uid=$vuid, gid=$vgid"); }
+   # CREATE USER DOT DIRECTORY
+   # This is a precaution against an old (non-upgraded) user
+   # This should really be part of a more comprehensive upgrade process
+   check_and_create_dotdir(_dotpath('/', $domain, $vuser, $vhomedir));
 
-   my ($fh, $fromfile, $origruid, $origeuid) = root_open(">$frombook");
-   print $fh "$vuser\@$domain\@\@\@$realnm\n" if ($realnm);
+   my $frombook=_dotpath('from.book', $domain, $vuser, $vhomedir);
+
+   if (-e $frombook) { writelog("vdomain $user: $vuser\@$domain  update from.book - $frombook"); }
+   else { writelog("vdomain $user: $vuser\@$domain  create from.book - $frombook, uid=$<, gid=$>"); }
+
+   ow::filelock::lock($frombook, LOCK_EX) or
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $frombook");
+   open (FB, ">$frombook") or
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $frombook ($!)");
+
+   print FB "$vuser\@$domain\@\@\@$realnm\n" if ($realnm);
    foreach (sort keys %from_list) {
-      print $fh "$_\@\@\@$from_list{$_}\n";
+      print FB "$_\@\@\@$from_list{$_}\n";
    }
-   root_close($fh, $frombook, $origruid, $origeuid);
+   close (FB);
+   ow::filelock::lock($frombook, LOCK_UN);
 
-   chown($vuid, $vgid, $frombook) if (! $exists);
+   switch_user($origuid,$origgid,$orighomedir);
    return;
 }
-##################### END FROM_UPDATE ##################
+########## END FROM_UPDATE #######################################
 
-##################### VALIAS_UPDATE ##################
+########## VALIAS_UPDATE #########################################
 sub valias_update {
    my ($vuser,$delete,$entry)=@_;
    my ($fh, $file, $origruid, $origeuid) = root_open(${$config{'vdomain_postfix_aliases'}}[0]);
@@ -1194,9 +1146,9 @@ sub valias_update {
 
    return;
 }
-##################### END VALIAS_UPDATE ##################
+########## END VALIAS_UPDATE #####################################
 
-##################### VPASSWD_UPDATE ##################
+########## VPASSWD_UPDATE ########################################
 sub vpasswd_update {
    my ($vuser,$action,$pwd,$disable)=@_;
    # $action = 0  encrypt and change password
@@ -1259,9 +1211,41 @@ sub vpasswd_update {
    root_close($fh, $file, $origruid, $origeuid);
    return;
 }
-##################### END VPASSWD_UPDATE ##################
+########## END VPASSWD_UPDATE ####################################
 
-##################### ROOT_EXECUTE ##################
+########## USER_HOME_ADJ ##########################################
+sub user_home_adj {
+   my ($homedir, $user, $domain)=@_;
+
+   if ( !$config{'use_syshomedir'} ) {
+      $homedir = "$config{'ow_usersdir'}/".($config{'auth_withdomain'}?"$domain/".$user:$user);
+   }
+   $homedir=ow::tool::untaint($homedir);
+   return $homedir;
+}
+
+########## SWITCH_USER ##########################################
+# This does very little now.  May do more later...
+# Taken from set_euid_egids
+sub switch_user {
+   my ($neweuid,$newgid,$newhomedir)=@_;
+
+   my ($origeuid,$origgid,$orighomedir)=($>,$),$homedir);
+   if ($neweuid == 0) {
+      # set the user first (back to root), then the group
+      $<=$> if (!$config{'has_savedsuid_support'} && $>==0);
+      $>=$neweuid;
+      $) = $newgid;
+   } else {
+      $) = $newgid;
+      $<=$> if (!$config{'has_savedsuid_support'} && $>==0);
+      $>=$neweuid;
+   }
+   $homedir=$newhomedir;
+   return ($origeuid,$origgid,$orighomedir);
+}
+
+########## ROOT_EXECUTE ##########################################
 sub root_execute {
    my @cmd;
    foreach my $arg (@_) {
@@ -1274,15 +1258,16 @@ sub root_execute {
    my ($origruid, $origeuid)=($<, $>); $>=0; $<=0;
 
    # use execute.pl instead of system() to avoid shell escape chars in @cmd
-   my ($stdout, $stderr, $exit, $sig)=openwebmail::execute::execute(@cmd);
+   my ($stdout, $stderr, $exit, $sig)=ow::execute::execute(@cmd);
 
    # go back to orignal uid
    $<=$origruid; $>=$origeuid;
    return;
 }
-##################### END ROOT_EXECUTE ##################
+########## END ROOT_EXECUTE ######################################
 
-##################### ROOT_OPEN ##################
+########## ROOT_OPEN #############################################
+# open a file using root permissions
 sub root_open {
    $_[0]=~/^\s*([|><+]*)\s*(\S+)/;
    my ($action, $file)=($1, $2);
@@ -1295,10 +1280,10 @@ sub root_open {
    $>=0; $<=0;
 
    if ($action) {
-      filelock($file, LOCK_EX) or
+      ow::filelock::lock($file, LOCK_EX) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $file");
    } else {
-      filelock($file, LOCK_SH|LOCK_NB) or
+      ow::filelock::lock($file, LOCK_SH|LOCK_NB) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $file");
    }
    open ($fh, "$action$file") or
@@ -1306,14 +1291,15 @@ sub root_open {
 
    return ($fh, $file, $origruid, $origeuid);
 }
-##################### END ROOT_OPEN ##################
+########## END ROOT_OPEN #########################################
 
-##################### ROOT_CLOSE ##################
+########## ROOT_CLOSE ############################################
+# close a file using root permissions
 sub root_close {
    my ($fh, $file, $origruid, $origeuid)=@_;
 
    close ($fh);
-   filelock($file, LOCK_UN);
+   ow::filelock::lock($file, LOCK_UN);
 
    if (defined($origruid) && defined($origeuid)) {
       # go back to orignal uid
@@ -1321,10 +1307,11 @@ sub root_close {
    }
    return;
 }
-##################### END ROOT_CLOSE ##################
+########## END ROOT_CLOSE ########################################
 
-##################### FILE_EXISTS ##################
-sub file_exists {
+########## ROOT_EXISTS ###########################################
+# check if file exists using root permissions
+sub root_exists {
    my ($file)=@_;
    my $exist=0;
    # switch to root, check if file exists
@@ -1332,12 +1319,12 @@ sub file_exists {
    $>=0; $<=0;
    $exist=1 if (-e $file);
    # go back to orignal uid
-   $<=$origruid; $>=$origeuid;
+   ($<,$>)=($origruid, $origeuid);
    return $exist;
 }
-##################### END FILE_EXISTS ##################
+########## END FILE_EXISTS #######################################
 
-##################### CLEAN_EMAIL ##################
+########## CLEAN_EMAIL ###########################################
 sub clean_email {
    my $email=lc($_[0]);
    $email=~s/\s*//g;                                            # remove spaces
@@ -1350,4 +1337,4 @@ sub clean_email {
    }
    return $email;
 }
-##################### END CLEAN_EMAIL ##################
+########## END CLEAN_EMAIL #######################################

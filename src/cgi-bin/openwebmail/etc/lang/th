@@ -1,16 +1,16 @@
-package openwebmail::th;
+package ow::th;
 
 # Thai translation, charset: tis-620
 # by Atsawin Chaowanakritsanakul, joke.AT.nakhon.net
 
 %lang_folders =
    (
-   INBOX => 'จดหมายเข้า',
+   INBOX            => 'จดหมายเข้า',
    'saved-messages' => 'บันทึก',
    'sent-mail'      => 'ส่งแล้ว',
    'saved-drafts'   => 'ร่าง',
    'mail-trash'     => 'ถังขยะ',
-   DELETE => '--ลบทิ้ง--'
+   DELETE           => '--ลบทิ้ง--'
    );
 
 %lang_sortlabels =
@@ -43,7 +43,7 @@ package openwebmail::th;
 %lang_msgformatlabels =
    (
    auto => 'เลือกอัตโนมัติ',
-   text	=> 'ข้อความ',
+   text => 'ข้อความ',
    html => 'HTML',
    both => 'HTML และข้อความ'
    );
@@ -51,8 +51,8 @@ package openwebmail::th;
 %lang_withoriglabels =
    (
    at_beginning => 'ที่จุดเริ่มต้น',
-   at_end      => 'ที่ท้าย',
-   none        => 'ไม่มี'
+   at_end       => 'ที่ท้าย',
+   none         => 'ไม่มี'
    );
 
 %lang_receiptlabels =
@@ -64,9 +64,9 @@ package openwebmail::th;
 
 %lang_disableemblinklabels =
    (
-   none    => 'None',
-   cgionly => 'CGI only',
-   all     => 'All embedded URLs'
+   none    => 'ไม่ต้อง',
+   cgionly => 'เฉพาะ CGI',
+   all     => 'ทุก URL'
    );
 
 %lang_ctrlpositionlabels =
@@ -78,8 +78,8 @@ package openwebmail::th;
 %lang_sendpositionlabels =
    (
    before => 'บนที่เขียนข้อความ',
-   after => 'ล่างที่เขียนข้อความ',
-   both  => 'ทั้งบนและล่างที่เขียนข้อความ'
+   after  => 'ล่างที่เขียนข้อความ',
+   both   => 'ทั้งบนและล่างที่เขียนข้อความ'
    );
 
 %lang_abookbuttonpositionlabels = 
@@ -187,14 +187,14 @@ package openwebmail::th;
    listarchive=> 'รายการ',
    decompress=>'ขยายไฟล์',
    extract  => 'แตกไฟล์',
-   mkpdf    => 'Make Pdf',
-   mkps     => 'Make Ps',
+   mkpdf    => 'สร้าง Pdf',
+   mkps     => 'สร้าง Ps',
    chdir    => 'เข้าโฟลเดอร์',
    mkdir    => 'สร้างโฟลเดอร์',
    newfile  => 'สร้างไฟล์',
    copy     => 'คัดลอก',
    move     => 'ย้าย',
-   symlink  => 'Symlink',
+   symlink  => 'ตัวชี้ไฟล์',
    delete   => 'ลบ',
    gzip     => 'ย่อโดย gz',
    mkzip    => 'สร้าง zip',
@@ -274,9 +274,9 @@ package openwebmail::th;
    msgrebuild => 'จดหมายถูกสร้างใหม่',
    editdraft  => 'แก้ไขร่าง',
    savedraft  => 'บันทึกร่าง',
-   draftsaved => 'Draft @@@SUBJECT@@@ has been saved successfully',
+   draftsaved => 'บันทึกร่าง @@@SUBJECT@@@ เสร็จเรียบร้อย',
    send       => 'ส่ง',
-   msgsent    => 'Message @@@SUBJECT@@@ has been sent successfully',
+   msgsent    => 'ส่งจดหมาย @@@SUBJECT@@@ เสร็จเรียบร้อย',
    about      => 'ข้อมูลระบบ',
    close      => 'ปิด',
    cancel     => 'ยกเลิก',
@@ -360,6 +360,7 @@ package openwebmail::th;
    statreply  => '-- แบบข้อความสำหรับตอบ --',
    calendar   => 'ปฏิทิน',
    allday     => 'ทั้งวัน',
+   today      => 'Today',
    am         => 'am',
    pm         => 'pm',
    calfmt_year          => 'ค.ศ. @@@YEAR@@@',
@@ -391,8 +392,8 @@ package openwebmail::th;
    dest_of_chdir  => 'โฟลเดอร์ที่ต้องการเข้า',
    name_of_newdir => 'โฟลเดอร์ที่ต้องการสร้าง',
    name_of_newfile=> 'ไฟล์ที่ต้องการสร้าง',
-   dest_of_thecopy=> 'โฟลเดอร์ หรือไฟล์ ที่ต้องการสำเนาไปสู่',
-   dest_of_themove=> 'โฟลเดอร์ หรือไฟล์ ที่ต้องการย้ายไปสู่',
+   dest_of_thecopy=> 'โฟลเดอร์ หรือไฟล์ ที่ต้องการสำเนาไปไว้',
+   dest_of_themove=> 'โฟลเดอร์ หรือไฟล์ ที่ต้องการย้ายไปไว้',
    dest_of_thezip=> 'ไฟล์ zip ที่ต้องการสร้าง',
    dest_of_thetgz=> 'ไฟล์ tgz ที่ต้องการสร้าง',
    homedir      => 'โฟลเดอร์แรกเริ่ม',
@@ -408,19 +409,19 @@ package openwebmail::th;
    savefile_towd=> 'บันทึกไฟล์สู่เว็บดิสก์',
    saveatt_towd => 'บันทึกแฟ้มแนบสู่เว็บดิสก์',
    addatt_fromwd=> 'แนบแฟ้มจากเว็บดิสก์',
-   vdomain_usermgr    => 'Virtual Domain User Management',
-   vdomain_createuser => 'Create User',
-   vdomain_changeuser => 'Change User',
-   vdomain_deleteuser => 'Delete User',
-   vdomain_changeview => 'Change view to',
-   vdomain_usersonly  => 'users only',
-   vdomain_useralias  => 'users/aliases',
-   vdomain_fmtuseralias => 'formatted users/aliases',
-   vdomain_admin      => 'Admin',
-   vdomain_localuser  => 'Local User',
-   set_passwd         => 'Set Password',
-   reset_passwd       => 'Reset Password',
-   email_alias        => 'E-MAIL Alias'
+   vdomain_usermgr    => 'การจัดการผู้ใช้ในโดเมนเสมือน',
+   vdomain_createuser => 'สร้างผู้ใช้',
+   vdomain_changeuser => 'แก้ไขผู้ใช้',
+   vdomain_deleteuser => 'ลบผู้ใช้',
+   vdomain_changeview => 'เปลี่ยนการแสดงผลเป็น',
+   vdomain_usersonly  => 'เฉพาะชื่อผู้ใช้',
+   vdomain_useralias  => 'ชื่อผู้ใช้/ชื่อแฝง',
+   vdomain_fmtuseralias => 'ชื่อผู้ใช้ที่กำหนดรูปแบบ/ชื่อแฝง',
+   vdomain_admin      => 'ผู้จัดการ',
+   vdomain_localuser  => 'ผู้ใช้ในเครื่อง',
+   set_passwd         => 'กำหนดรหัสผ่าน',
+   reset_passwd       => 'ล้างรหัสผ่าน',
+   email_alias        => 'ชื่อแฝงของจดหมาย'
    );
 
 %lang_err =
@@ -477,7 +478,7 @@ package openwebmail::th;
    no_file_todownload=> 'ไม่ได้ระบุไฟล์สำหรับดาวน์โหลด',
    upload_overlimit  => 'ขนาดของไฟล์ที่จะอัปโหลดใหญ่กว่าข้อจำกัด',
    decomp_notsupported =>'ไม่สามารถขยายไฟล์แบบนี้ได้',
-   filefmt_notsupported =>'The file format is not supported.',
+   filefmt_notsupported =>'ไม่สามารถใช้งานรูปแบบไฟล์นี้ได้',
    webdisk_readonly  => 'เว็บดิสก์ของคุณเป็นแบบอ่านได้เท่านั้น',
    quota_syserr      => 'ระบบโควต้ามีปัญหา',
    quotahit_alert    => 'คุณใช้งานเต็มโควต้าแล้ว กรุณาลบจดหมายบางฉบับ หรือลบไฟล์บางไฟล์จากเว็บดิสก์ เพื่อให้มีเนื้อที่ว่างสำหรับใช้งาน',
@@ -487,8 +488,8 @@ package openwebmail::th;
    vdomain_toomanyuser  => 'อีเมลสำหรับโดเมนนี้เต็มแล้ว',
    vdomain_toomanyalias => 'ชื่อแฝงของอีเมลสำหรับโดเมนนี้เต็มแล้ว',
    vdomain_userrequired => 'กรุณาใส่ชื่อผู้ใช้ด้วย',
-   vdomain_fwdrequired => 'A valid forwarding E-MAIL is required',
-   all_module_disabled => 'All modules are disabled'
+   vdomain_fwdrequired => 'ที่อยู่สำหรับส่งต่อจดหมาย จะต้องใช้งานได้',
+   all_module_disabled => 'โมดูลทั้งหมดถูกห้ามใช้งาน'
    );
 
 1;

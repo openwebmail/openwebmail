@@ -26,15 +26,15 @@ foreach my $script (@ARGV) {
       if ($line=~/^require "/ && !$require) {
          $require=1;
          $content.=qq|require "uty/gettimeofday.pl";\n|;          
-         $content.=qq|main::timeofday_init();\n|;          
+         $content.=qq|ow::tool::timeofday_init();\n|;          
          $content.=$line;
          $insertion++;
       } elsif ($line=~/^sub\s*([^\s\{]+)/) {
          $content.=$line;
          my $subname=$1; chomp($subname);
          if ($subname ne "log_time") {
-            $profbeginline=qq|main::log_time("PROF", main::timeofday_diff("$subname"), "CALL $subname()\\t", __LINE__, __FILE__, \@_);\n|;
-            $profendline  =qq|main::log_time("PROF", main::timeofday_diff("$subname"), "END  $subname()\\t", __LINE__, __FILE__);\n|;
+            $profbeginline=qq|ow::tool::log_time("PROF", ow::tool::timeofday_diff("$subname"), "CALL $subname()\\t", __LINE__, __FILE__, \@_);\n|;
+            $profendline  =qq|ow::tool::log_time("PROF", ow::tool::timeofday_diff("$subname"), "END  $subname()\\t", __LINE__, __FILE__);\n|;
             $content.=$profbeginline;
             $insertion++;
          }

@@ -1,16 +1,16 @@
-package openwebmail::zh_CN_GB2312;
+package ow::zh_CN_GB2312;
 
 # Simplified Chinese Translation, charset: gb2312
 # by Wang Jun, wjun.AT.mail.iap.ac.cn
 
 %lang_folders =
    (
-   INBOX => '收件箱',
+   INBOX            => '收件箱',
    'saved-messages' => '存档箱',
    'sent-mail'      => '已发送邮件',
    'saved-drafts'   => '草稿箱',
    'mail-trash'     => '垃圾箱',
-   DELETE => '--直接删除--'
+   DELETE           => '--直接删除--'
    );
 
 %lang_sortlabels =
@@ -43,7 +43,7 @@ package openwebmail::zh_CN_GB2312;
 %lang_msgformatlabels =
    (
    auto => '自动选择',
-   text	=> '纯文字',
+   text => '纯文字',
    html => 'HTML',
    both => '同时使用纯文字与HTML'
    );
@@ -51,8 +51,8 @@ package openwebmail::zh_CN_GB2312;
 %lang_withoriglabels =
    (
    at_beginning => '附在前面',
-   at_end      => '附在后面',
-   none        => '不要附上'
+   at_end       => '附在后面',
+   none         => '不要附上'
    );
 
 %lang_receiptlabels =
@@ -78,8 +78,8 @@ package openwebmail::zh_CN_GB2312;
 %lang_sendpositionlabels =
    (
    before => '在信件编辑区之前',
-   after => '在信件编辑区之后',
-   both  => '在信件编辑区前后'
+   after  => '在信件编辑区之后',
+   both   => '在信件编辑区前后'
    );
 
 %lang_abookbuttonpositionlabels = 
@@ -360,6 +360,7 @@ package openwebmail::zh_CN_GB2312;
    statreply  => '-- 选择回信底稿 --',
    calendar   => '日程表',
    allday     => '本日',
+   today      => '今天',
    am         => '上午',
    pm         => '下午',
    calfmt_year          => '@@@YEAR@@@年',

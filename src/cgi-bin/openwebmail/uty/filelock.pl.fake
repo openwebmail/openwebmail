@@ -10,10 +10,14 @@
 #
 # WARNING! NEVER use this script as a solution for filelock problem.
 #
-package openwebmail::filelock;
+package ow::filelock;
 
 use strict;
 use Fcntl qw(:DEFAULT :flock);
+
+sub filelock {
+   return 1;
+}
 
 sub flock_lock {
    my ($filename, $lockflag)=@_;

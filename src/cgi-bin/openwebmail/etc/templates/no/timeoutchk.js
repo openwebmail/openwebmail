@@ -13,19 +13,19 @@
          tid=setTimeout("timeoutcheck()", 1*1000);
          if (remainingseconds<65) {
             if (remainingseconds>6) {
-               window.defaultStatus="session time : "+ (remainingseconds-5) +" seconds left";
+               window.defaultStatus="sesjonstid : "+ (remainingseconds-5) +" sekunder igjen";
             } else if (remainingseconds>=5) {
-               window.defaultStatus="session time : "+ (remainingseconds-5) +" second left";
+               window.defaultStatus="sesjonstid : "+ (remainingseconds-5) +" sekunder igjen";
             }
             if (!warn) {
                warn=1;
+               @@@JSCODE@@@
                hWnd = window.open(url,"_timeoutwarning","width=400,height=140,resizable=no,scrollbars=no");
                hWnd.focus();
-               @@@JSCODE@@@
             }
          }
       } else {
-         window.defaultStatus="session timeout";
+         window.defaultStatus="sesjonstiden er utløpt";
          clearTimeout(tid);
       }
    }

@@ -1,16 +1,16 @@
-package openwebmail::es;
+package ow::es;
 
 # Spanish translation, charset: iso-8859-1
-# by Javier Smaldone, jsmaldone.AT.yahoo.com, 09-14-2003
+# by Javier Smaldone, jsmaldone.AT.yahoo.com, 12-28-2003
 
 %lang_folders =
    (
-   INBOX => 'ENTRADA',
+   INBOX            => 'ENTRADA',
    'saved-messages' => 'GUARDADOS',
    'sent-mail'      => 'ENVIADOS',
    'saved-drafts'   => 'BORRADOR',
    'mail-trash'     => 'PAPELERA',
-   DELETE => '--BORRAR--'
+   DELETE           => '--BORRAR--'
    );
 
 %lang_sortlabels =
@@ -43,7 +43,7 @@ package openwebmail::es;
 %lang_msgformatlabels =
    (
    auto => 'Automático',
-   text	=> 'Texto',
+   text => 'Texto',
    html => 'HTML',
    both => 'HTML y texto'
    );
@@ -51,8 +51,8 @@ package openwebmail::es;
 %lang_withoriglabels =
    (
    at_beginning => 'Al principio',
-   at_end      => 'Al final',
-   none        => 'Ninguno'
+   at_end       => 'Al final',
+   none         => 'Ninguno'
    );
 
 %lang_receiptlabels =
@@ -78,8 +78,8 @@ package openwebmail::es;
 %lang_sendpositionlabels =
    (
    before => 'Antes del área de edición del mensaje',
-   after => 'Después del área de edición del mensaje',
-   both  => 'Antes y después del área de edición del mensaje'
+   after  => 'Después del área de edición del mensaje',
+   both   => 'Antes y después del área de edición del mensaje'
    );
 
 %lang_abookbuttonpositionlabels = 
@@ -187,14 +187,14 @@ package openwebmail::es;
    listarchive=> 'Listar',
    decompress=>'Descomprimir',
    extract  => 'Extraer',
-   mkpdf    => 'Make Pdf',
-   mkps     => 'Make Ps',
+   mkpdf    => 'Crear Pdf',
+   mkps     => 'Crear Ps',
    chdir    => 'Cambiar Dir',
    mkdir    => 'Crear Dir',
    newfile  => 'Nuevo Archivo',
    copy     => 'Copiar',
    move     => 'Mover',
-   symlink  => 'Symlink',
+   symlink  => 'Enlace',
    delete   => 'Eliminar',
    gzip     => 'Crear gzip',
    mkzip    => 'Crear zip',
@@ -360,6 +360,7 @@ package openwebmail::es;
    statreply  => '-- Membrete de respuesta --',
    calendar   => 'Calendario',
    allday     => 'Todo el día',
+   today      => 'Hoy',
    am         => 'am',
    pm         => 'pm',
    calfmt_year          => 'Año @@@YEAR@@@',
@@ -477,7 +478,7 @@ package openwebmail::es;
    no_file_todownload=> 'No se especificó ningún archivo a descargar',
    upload_overlimit  => 'El tamaño del archivo a almacenar supera el límite',
    decomp_notsupported =>'No se soporta la descompresión de este archivo.',
-   filefmt_notsupported =>'The file format is not supported.',
+   filefmt_notsupported =>'El formato de archivo no está soportado.',
    webdisk_readonly  => 'Lo lamento, su Disco Web es de sólo-lectura.',
    quota_syserr      => 'Error del sistema de límite de espacio',
    quotahit_alert    => 'Lo lamento, ha alcanzado su límite de espacio. Por favor, elimine algunos mensajes de las bandejas o algunos archivos del disco web para liberar espacio.',

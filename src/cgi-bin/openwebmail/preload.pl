@@ -27,7 +27,7 @@ my $httpport="80";
 # it should be the same as option ow_cgiurl in openwebmail.conf
 my $cgiurl="/cgi-bin/openwebmail";
 
-################### No configuration required from here ###################
+########## No configuration required from here ###################
 
 use Socket;
 use IO::Socket;
@@ -52,7 +52,7 @@ my @scripts=(
 # -q option set this to 1, then no output, useful for cronatb
 my $quiet=0;
 
-############################# MAIN ############################
+########## MAIN ##################################################
 my %param=ReadParse();
 
 if (defined($ENV{'GATEWAY_INTERFACE'})) {	# CGI mode
@@ -100,7 +100,7 @@ if (defined($ENV{'GATEWAY_INTERFACE'})) {	# CGI mode
    }
 }
 
-########################### ROUTINES ##########################
+########## ROUTINES ##############################################
 sub preload {
    my ($quiet, $httphost, $httpport, $cgiurl, @scripts)=@_;
 

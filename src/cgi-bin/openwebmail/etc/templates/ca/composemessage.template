@@ -2,13 +2,13 @@
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="1">
 <tr><td colspan="2" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>COMPOSAR UN MISSATGE</B></font>
+<B>REDACTA UN MISSATGE</B></font>
 </td></tr><tr><td colspan="3" bgcolor=@@@MENUBAR@@@>
 <table width="100%" cellspacing="0" cellpadding="0"><tr>
 <td>@@@BACKTOFOLDER@@@</td>
 <td align="right">
 <table border="0" cellpadding="0" cellspacing="0"><tr>
-<td>Charset for composing: </td>
+<td>Mapa de caràcters: </td>
 <td>@@@CONVTOMENU@@@&nbsp;</td>
 </tr></table>
 </td>
@@ -34,30 +34,30 @@
 @@@CCFIELD@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
-<B>CCO:</B>
+<B>BCC:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BCCFIELD@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
-<B>Contestar a:</B>
+<B>Respón a:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 <table border="0" cellpadding="0" cellspacing="0"><tr>
 <td>@@@REPLYTOFIELD@@@&nbsp;&nbsp;</td>
-<td><B>Confirmar Lectura</B></td>
+<td><B>Acús de rebut</B></td>
 <td>@@@CONFIRMREADINGCHECKBOX@@@</td>
 </tr></table>
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
-<B>Afegits:</B>
+<B>Fitxers adjunts:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ATTACHMENTFIELD@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
-<B>Títol:</B>
+<B>Assumpte:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 <table border="0" cellpadding="0" cellspacing="0"><tr>
 <td>@@@SUBJECTFIELD@@@&nbsp;&nbsp;</td>
-<td><B>Copia el missatge enviat</B></td>
+<td><B>Desa el missatge enviat</B></td>
 <td>@@@BACKUPSENTMSGCHECKBOX@@@</td>
 </tr></table>
 </td></tr>
@@ -113,7 +113,7 @@
 
    function msgfmthelp()
    {
-      alert("Sorry, IE 5.5+(Windows) or Mozilla 1.3+(all OS) is required for HTML composing support.");
+      alert("Ho sento, per redactar en format HTML cal disposar d\'Internet Explorer 5.5+(Windows) o Mozilla 1.3+(tots els SO).");
    }
 
    function msgfmtchangeconfirm()
@@ -121,7 +121,7 @@
       if ((document.composeform.msgformat.value == "html" ||
            document.composeform.msgformat.value == "both") &&
           document.composeform.newmsgformat.value == "text" ) {
-         if (confirm("The HTML data format will be lost after the conversion, are you sure to change to Text mode?")) {
+         if (confirm("Després de la conversió, les dades en format HTML es perderan. Esteu segurs de canviar cap el mode text?")) {
             bodygethtml();
             document.composeform.submit();
             return true;
@@ -173,11 +173,11 @@
       if (document.composeform.to.value == ""
        && document.composeform.cc.value == ""
        && document.composeform.bcc.value == "" ) {
-         alert("Especifiqueu el receptor del missatge.");
+         alert("Especifiqueu el destinatari del missatge.");
          return false;
       }
       if (document.composeform.subject.value == "" ) {
-         return(confirm("Missatge sense títol, vol enviar-lo?"));
+         return(confirm("Missatge sense assumpte, voleu continuar?"));
       }
       return true;
    }

@@ -56,66 +56,29 @@
 </td></tr></table>
 </center>
 
-<script type="text/javascript" language="javascript">
+<style type="text/css">
 <!--
-function valiDate() {
-   var formYear = document.AddItemForm.year.options[document.AddItemForm.year.selectedIndex].value;
-   var formMonth = document.AddItemForm.month.options[document.AddItemForm.month.selectedIndex].value;
-   var formDay = document.AddItemForm.day.options[document.AddItemForm.day.selectedIndex].value;
-   var dayfreqSelection = document.AddItemForm.dayfreq.selectedIndex;
-   var monthfreqSelection = document.AddItemForm.monthfreq.selectedIndex;
-   var checkDate = new Date(formYear,formMonth-1,formDay);
-
-   wDay = new Array(@@@WDAY_ARRAY@@@);
-   wOrder = new Array(@@@WORDER_ARRAY@@@);
-
-   if (formMonth < checkDate.getMonth()+1) {
-     var selectedmonth=document.AddItemForm.month.options[document.AddItemForm.month.selectedIndex].text;
-     var daysinmonth=formDay-checkDate.getDate();
-     alert("很抱歉, "+selectedmonth+" 在 "+formYear+" 年只有 "+daysinmonth+" 日.\n"+
-           "日数将被改回 "+daysinmonth+".");
-     document.AddItemForm.day.selectedIndex = formDay-checkDate.getDate()-1;
-     // reset our vars
-     formDay = formDay-checkDate.getDate();
-     checkDate = new Date(formYear,formMonth-1,formDay);
-   }
-
-   var weekOrder = parseInt((parseInt(formDay)+6)/7);
-
-   // update the day recurrance
-   if (weekOrder<=4) {
-      if (! document.AddItemForm.dayfreq[2]) {  // coming from 2 choice menu
-         if (dayfreqSelection==1) {
-            dayfreqSelection++;
-         }
-      }
-      document.AddItemForm.dayfreq.options.length =0; // clear popup
-      document.AddItemForm.dayfreq[0] = new Option("@@@THISDAY_ONLY@@@","thisdayonly");
-      document.AddItemForm.dayfreq[1] = new Option("@@@THE_WDAY_OF_THISMONTH@@@","thewdayofthismonth");
-      document.AddItemForm.dayfreq[2] = new Option("@@@EVERY_WDAY_THISMONTH@@@","everywdaythismonth");
-   } else {
-      if (document.AddItemForm.dayfreq[2]) {  // coming from 3 choice menu
-         dayfreqSelection--;
-         if (dayfreqSelection < 0) {
-            dayfreqSelection = 0;
-         }
-      }
-      document.AddItemForm.dayfreq.options.length =0; // clear popup
-      document.AddItemForm.dayfreq[0] = new Option("@@@THISDAY_ONLY@@@","thisdayonly");
-      document.AddItemForm.dayfreq[1] = new Option("@@@EVERY_WDAY_THISMONTH@@@","everywdaythismonth");
-   }
-
-   // update the month recurrance
-   if (formMonth%2) {
-      document.AddItemForm.monthfreq[1] = new Option("@@@EVERY_ODDMONTH_THISYEAR@@@","everyoddmonththisyear");
-   } else {
-      document.AddItemForm.monthfreq[1] = new Option("@@@EVERY_EVENMONTH_THISYEAR@@@","everyevenmonththisyear");
-   }
-
-   document.AddItemForm.dayfreq.selectedIndex = dayfreqSelection;
-   document.AddItemForm.monthfreq.selectedIndex = monthfreqSelection;
-}
-
-function nothing() { ; } // for the colorpicker to work properly
+#mypopupCal{ position: absolute;
+             visibility: hidden;
+             background-color: @@@MENUBAR@@@;
+             layer-background-color: @@@MENUBAR@@@; }
+.stylecal { font-size: 9pt; color: #000000; }
+A.notmonth:link { font-size: 9pt; color: #cccccc; }
+A.notmonth:visited { font-size: 9pt; color: #cccccc; }
+A.notmonth:hover { font-size: 9pt; color: #ff0000; }
+A.stylecal:link { font-size: 9pt; color: #000000; }
+A.stylecal:visited { font-size: 9pt; color: #000000; }
+A.stylecal:hover { font-size: 9pt; color: #ff0000; }
 // -->
+</style>
+
+<div id="mypopupCal"></div>
+
+<script language="JavaScript">
+<!--
+   function submit_changed_dateselform()
+   {
+      document.dateselform.submit();
+   }
+//-->
 </script>

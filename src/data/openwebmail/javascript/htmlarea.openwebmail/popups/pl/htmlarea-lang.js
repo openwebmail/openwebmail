@@ -74,11 +74,11 @@ HTMLArea.I18N = {
 
 	buttons: {
 		"ok":           "OK",
-		"cancel":       "Cancel"
+		"cancel":       "Anuluj"
 	},
 
 	msg: {
-		"Path":         "Path",
-		"TEXT_MODE":    "You are in TEXT MODE.  Use the [<>] button to switch back to WYSIWIG."
+		"Path":         "¦cie¿ka",
+		"TEXT_MODE":    "U¿ywasz trybu TEKSTU.  U¿yj przycisku [<>] aby powróciæ do trybu WYSIWIG."
 	}
 };

@@ -1,16 +1,16 @@
-package openwebmail::lt;
+package ow::lt;
 
 # Lithuanian translation, charset: windows-1257
 # by Alvydas Sinkunas, dvm382.AT.takas.lt, 2003-01-15
 
 %lang_folders =
    (
-   INBOX => 'Gauti laiðkai',
+   INBOX            => 'Gauti laiðkai',
    'saved-messages' => 'Iðsaugoti laiðkai',
    'sent-mail'      => 'Iðsiøsti laiðkai',
    'saved-drafts'   => 'Raðomi laiðkai',
    'mail-trash'     => 'Ðiukðliadëþë',
-   DELETE => '--TRINTI--'
+   DELETE           => '--TRINTI--'
    );
 
 %lang_sortlabels =
@@ -43,7 +43,7 @@ package openwebmail::lt;
 %lang_msgformatlabels =
    (
    auto => 'Auto selected',
-   text	=> 'Text',
+   text => 'Text',
    html => 'HTML',
    both => 'HTML and Text'
    );
@@ -51,8 +51,8 @@ package openwebmail::lt;
 %lang_withoriglabels =
    (
    at_beginning => 'nuo pradþios',
-   at_end      => 'nuo pabaigos',
-   none        => 'Nëra'
+   at_end       => 'nuo pabaigos',
+   none         => 'Nëra'
    );
 
 %lang_receiptlabels =
@@ -78,8 +78,8 @@ package openwebmail::lt;
 %lang_sendpositionlabels =
    (
    before => 'Before mail edit area',
-   after => 'After mail edit area',
-   both  => 'Prieð ir po laiðko langu'
+   after  => 'After mail edit area',
+   both   => 'Prieð ir po laiðko langu'
    );
 
 %lang_abookbuttonpositionlabels = 
@@ -360,6 +360,7 @@ package openwebmail::lt;
    statreply  => '-- Standartiniai atsakymai --',
    calendar   => 'Kalendorius',
    allday     => 'All day',
+   today      => 'Today',
    am         => 'iki.p',
    pm         => 'po.p',
    calfmt_year          => 'Metai @@@YEAR@@@',

@@ -9,5 +9,28 @@
 </table>
 &nbsp;
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
-@@@INFORECORDS@@@
+
+@@@INFOSOFTWARESTART@@@
+<tr><td colspan=2 bgcolor=@@@COLUMNHEADER@@@><B>SOFTWARE</B></td></tr>
+@@@INFOSOFTWARE@@@
+@@@INFOSOFTWAREEND@@@
+
+@@@INFOPROTOCOLSTART@@@
+<tr><td colspan=2>&nbsp;</td></tr>
+<tr><td colspan=2 bgcolor=@@@COLUMNHEADER@@@><B>PROTOCOLO</B></td></tr>
+@@@INFOPROTOCOL@@@
+@@@INFOPROTOCOLEND@@@
+
+@@@INFOSERVERSTART@@@
+<tr><td colspan=2>&nbsp;</td></tr>
+<tr><td colspan=2 bgcolor=@@@COLUMNHEADER@@@><B>SERVIDOR</B></td></tr>
+@@@INFOSERVER@@@
+@@@INFOSERVEREND@@@
+
+@@@INFOCLIENTSTART@@@
+<tr><td colspan=2>&nbsp;</td></tr>
+<tr><td colspan=2 bgcolor=@@@COLUMNHEADER@@@><B>CLIENTE</B></td></tr>
+@@@INFOCLIENT@@@
+@@@INFOCLIENTEND@@@
+
 </table>

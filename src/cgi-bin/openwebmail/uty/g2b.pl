@@ -18,7 +18,7 @@ sub g2b {
 
    if ( -f "$config{'ow_etcdir'}/g2b$config{'dbm_ext'}") {
       my %G2B;
-      dbmopen (%G2B, "$config{'ow_etcdir'}/g2b$config{'dbmopen_ext'}", undef);
+      dbmopen(%G2B, "$config{'ow_etcdir'}/g2b$config{'dbmopen_ext'}", undef);
       $str =~ s/([\xA1-\xF9][\xA1-\xFE])/$G2B{$1}/eg;
       dbmclose(%G2B);
    }

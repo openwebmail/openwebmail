@@ -43,27 +43,42 @@ rm -Rf data/openwebmail/screenshots
 rm -Rf data/openwebmail/download
 rm -Rf data/openwebmail/applet/mindterm2/*.jar data/openwebmail/applet/mindterm2/*.txt
 
-chmod 755 data cgi-bin
-chmod 755 cgi-bin/openwebmail/etc
-chmod 770 cgi-bin/openwebmail/etc/users
-chmod 770 cgi-bin/openwebmail/etc/sessions
-
 cp /dev/null cgi-bin/openwebmail/etc/address.book
 cp /dev/null cgi-bin/openwebmail/etc/calendar.book
 #cp /dev/null cgi-bin/openwebmail/etc/filter.book
 patch cgi-bin/openwebmail/etc/openwebmail.conf < /usr/local/www/cgi-bin/openwebmail/uty/openwebmail.conf.diff
 rm cgi-bin/openwebmail/etc/openwebmail.conf.orig
 rm cgi-bin/openwebmail/etc/openwebmail.conf.rej
-chown root.mail cgi-bin/openwebmail/etc/openwebmail.conf
 
 cd cgi-bin/openwebmail
-patch -f -p1 < /usr/local/www/cgi-bin/openwebmail/uty/speedy2suidperl.diff
+patch -f -p1 < /usr/local/www/cgi-bin/openwebmail/uty/speedy_suid2suidperl.diff
 rm *.orig
-chown root.mail openwebmail*pl
-chmod 4755 openwebmail*pl
 cd ../..
 
-tar -zcBpf /tmp/openwebmail-current.tgz *
+echo fix permissions
+
+cd cgi-bin/openwebmail
+for d in uty etc/sites.conf etc/users.conf etc/templates etc/styles etc/holidays; do
+   chown -R 0.0 $d
+   chmod -R 644 $d
+   find $d -type d -exec chmod 755 {} \;
+done
+chown root.mail * auth/* quota/* modules/* shares/* uty/* etc/*
+chmod 644 */*pl
+chmod 4755 openwebmail*.pl
+chmod 755 vacation.pl userstat.pl preload.pl
+chmod 771 etc/users etc/sessions
+chmod 640 etc/smtpauth.conf
+cd ../..
+
+cd data/openwebmail
+chown -R 0.0 *
+chmod -R 644 *
+find ./ -type d -exec chmod 755 {} \;
+cd ../..
+
+chmod 755 cgi-bin data
+tar -zcBpf /tmp/openwebmail-current.tgz cgi-bin/openwebmail data/openwebmail
 
 ##########################################################
 
@@ -71,7 +86,7 @@ oldtgz=`ls -tr /usr/local/www/data/openwebmail/download/openwebmail-?.*tgz|tail 
 if [ ! -z "$oldtgz" ]; then
    oldrelease=`echo $oldtgz|sed -e 's/.*openwebmail-//'|sed -e 's/\.tgz.*//'`
 
-   echo make openwebmail-current-$oldrelease.diff.gz
+   echo make current-$oldrelease-openwebmail.diff.gz
 
    cd /tmp
    mv openwebmail-current www
@@ -85,7 +100,7 @@ if [ ! -z "$oldtgz" ]; then
    sh /usr/local/www/cgi-bin/openwebmail/uty/mkmd5list.sh ./www      current
    diff -ruN /tmp/md5list.release /tmp/md5list.current|grep '^+'|cut -c35-|grep openwebmail >/tmp/md5.diff
    cd /usr/local/www
-   tar -zcBpf /tmp/openwebmail-current-$oldrelease.files.tgz -I /tmp/md5.diff
+   tar -zcBpf /tmp/current-$oldrelease-openwebmail.files.tgz -I /tmp/md5.diff
 
    cd /tmp
    rm -Rf \
@@ -98,11 +113,11 @@ if [ ! -z "$oldtgz" ]; then
    www/data/openwebmail/*.au \
    www/data/openwebmail/index.html
 
-   diff -ruN www.orig www|grep -v '^Binary files '|gzip -9>openwebmail-current-$oldrelease.diff.gz
+   diff -ruN www.orig www|grep -v '^Binary files '|gzip -9>current-$oldrelease-openwebmail.diff.gz
 
    mv www.orig/cgi-bin/openwebmail/etc/openwebmail.conf.default openwebmail.conf.default.orig
    mv www/cgi-bin/openwebmail/etc/openwebmail.conf.default      openwebmail.conf.default
-   diff -ruN openwebmail.conf.default.orig openwebmail.conf.default > openwebmail.conf.default-current-$oldrelease.diff
+   diff -ruN openwebmail.conf.default.orig openwebmail.conf.default > current-$oldrelease-openwebmail.conf.default.diff
 
    mv www.orig www.orig.tmp
    mv www www.tmp
@@ -122,7 +137,7 @@ if [ ! -z "$oldtgz" ]; then
       mv www.tmp/$d/en www/$d/
    done
 
-   diff -ruN www.orig www > lang-templates-current-$oldrelease.diff
+   diff -ruN www.orig www > current-$oldrelease-lang-templates.diff
 
    rm -Rf www www.orig www.tmp www.orig.tmp \
           openwebmail.conf.default.orig \
@@ -144,10 +159,10 @@ cp /usr/local/www/data/openwebmail/doc/*.txt /usr/local/www/data/openwebmail/dow
 
 rm /usr/local/www/data/openwebmail/download/openwebmail*current*gz 
 for f in openwebmail-current.tgz \
-         openwebmail-current-$oldrelease.files.tgz \
-         openwebmail-current-$oldrelease.diff.gz \
-         openwebmail.conf.default-current-$oldrelease.diff \
-         lang-templates-current-$oldrelease.diff; do
+         current-$oldrelease-openwebmail.files.tgz \
+         current-$oldrelease-openwebmail.diff.gz \
+         current-$oldrelease-openwebmail.conf.default.diff \
+         current-$oldrelease-lang-templates.diff; do
    mv /tmp/$f /usr/local/www/data/openwebmail/download/
    chmod 644 /usr/local/www/data/openwebmail/download/$f
 done

@@ -1,4 +1,4 @@
-package openwebmail::pl;
+package ow::pl;
 
 # Polish translation, charset: iso-8859-2
 # by Pawel Jablonski, jablonski.AT.dialogok.pl 
@@ -9,12 +9,12 @@ package openwebmail::pl;
 
 %lang_folders =
    (
-   INBOX => 'PRZYCHODZ¡CA',
+   INBOX            => 'PRZYCHODZ¡CA',
    'saved-messages' => 'ZAPISANE',
    'sent-mail'      => 'WYS£ANE',
    'saved-drafts'   => 'BRUDNOPIS',
    'mail-trash'     => 'KOSZ',
-   DELETE => '--USUÑ--'
+   DELETE           => '--USUÑ--'
    );
 
 %lang_sortlabels =
@@ -47,7 +47,7 @@ package openwebmail::pl;
 %lang_msgformatlabels =
    (
    auto => 'Automatycznie',
-   text	=> 'Tekst',
+   text => 'Tekst',
    html => 'HTML',
    both => 'HTML i tekst'
    );
@@ -55,8 +55,8 @@ package openwebmail::pl;
 %lang_withoriglabels =
    (
    at_beginning => 'Na pocz±tku',
-   at_end      => 'Na koñcu',
-   none        => 'Brak'
+   at_end       => 'Na koñcu',
+   none         => 'Brak'
    );
 
 %lang_receiptlabels =
@@ -82,8 +82,8 @@ package openwebmail::pl;
 %lang_sendpositionlabels =
    (
    before => 'Przed obszarem edycji',
-   after => 'Po obszarze edycji',
-   both  => 'Przed i po obszarze edycji'
+   after  => 'Po obszarze edycji',
+   both   => 'Przed i po obszarze edycji'
    );
 
 %lang_abookbuttonpositionlabels = 
@@ -191,14 +191,14 @@ package openwebmail::pl;
    listarchive=> 'Lista',
    decompress=>'Rozpakuj',
    extract  => 'Wypakuj',
-   mkpdf    => 'Make Pdf',
-   mkps     => 'Make Ps',
+   mkpdf    => 'Utwórz Pdf',
+   mkps     => 'Utwórz Ps',
    chdir    => 'ZmFold',
    mkdir    => 'UtwFold',
    newfile  => 'NowyPlik',
    copy     => 'Kopiuj',
    move     => 'Przenie¶',
-   symlink  => 'Symlink',
+   symlink  => 'Link symboliczny',
    delete   => 'Usuñ',
    gzip     => 'KompresujGz',
    mkzip    => 'UtwZip',
@@ -364,6 +364,7 @@ package openwebmail::pl;
    statreply  => '-- Szablony dla odpowiedzi --',
    calendar   => 'Kalendarz',
    allday     => 'Ca³y dzieñ',
+   today      => 'Today',
    am         => 'am',
    pm         => 'pm',
    calfmt_year          => 'Rok @@@YEAR@@@',
@@ -481,7 +482,7 @@ package openwebmail::pl;
    no_file_todownload=> 'Nie okre¶lono pliku do pobrania',
    upload_overlimit  => 'Rozmiar wysy³anego pliku przekracza limit',
    decomp_notsupported =>'Rozpakowanie tego typu pliku nie jest mo¿liwe',
-   filefmt_notsupported =>'The file format is not supported.',
+   filefmt_notsupported =>'Format pliku nie jest obs³ugiwany.',
    webdisk_readonly  => 'Niestety, dysk sieciowy jest tylko do odczytu',
    quota_syserr      => 'B³±d systemowy limitu przestrzeni dyskowej',
    quotahit_alert    => 'Niestety, osi±gna³e¶ limit przydzielonej Ci przestrzeni dyskowej. Proszê usun±æ niepotrzebne wiadomo¶ci lub pliki z dysku sieciowego aby opró¿niæ Twoj± przestrzeñ dyskow±.',

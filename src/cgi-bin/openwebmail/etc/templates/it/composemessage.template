@@ -19,7 +19,7 @@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 <table border="0" cellpadding="0" cellspacing="1"><tr>
 <td>@@@FROMMENU@@@&nbsp;&nbsp;</td>
-<td><B>Priorita':</B></td>
+<td><B>Priorità:</B></td>
 <td>@@@PRIORITYMENU@@@</td>
 </tr></table>
 </td></tr>
@@ -121,7 +121,7 @@
       if ((document.composeform.msgformat.value == "html" ||
            document.composeform.msgformat.value == "both") &&
           document.composeform.newmsgformat.value == "text" ) {
-         if (confirm("La formattazione HTML andra\' perduta dopo la conversione, sei sicuro di voler passare alla modalita\' testo?")) {
+         if (confirm("La formattazione HTML andrà perduta dopo la conversione, sei sicuro di voler passare alla modalità testo?")) {
             bodygethtml();
             document.composeform.submit();
             return true;

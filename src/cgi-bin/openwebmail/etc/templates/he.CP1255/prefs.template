@@ -18,7 +18,7 @@
 &nbsp;
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>מידע אישי</B></td></tr>
-<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@ @@@DESCWIDTH@@@>
 <B>שפה:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@LANGUAGEMENU@@@&nbsp;קידוד @@@CHARSETMENU@@@
@@ -75,6 +75,7 @@
 </td></tr>
 @@@WEBMAILEND@@@
 
+@@@FULLPREFSSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>הגדרות תצוגה</B></td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
@@ -135,6 +136,11 @@
 <B>מיון ברירת מחדל:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SORTMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Display mini search icon@@@MINISEARCHICON@@@:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@USEMINISEARCHICONCHECKBOX@@@<br>
 </td></tr>
 
 <tr><td colspan="2">&nbsp;</td></tr>
@@ -212,6 +218,11 @@
 @@@DISABLEJS@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>בטל <span lang="en-us">embed/object/applet tag</span> בתוך הודעה:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DISABLEEMBCODE@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>בטל "היפר קישורים" בתוך הודעה:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEEMBLINKMENU@@@
@@ -269,9 +280,9 @@
 @@@FILTERREPEATLIMIT@@@ &nbsp;( 0 אומר ללא בדיקה )
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
-<B>סנן הודעות שנשלחות מכתובת e-mail משובשת:</B>
+<B>Filter msgs with email address in bad format:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@FILTERBADFORMATFROM@@@
+@@@FILTERBADADDRFORMAT@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>סנן הודעות משרת <span lang="en-us">SMTP</span> מזוייף:</B>
@@ -424,11 +435,13 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 נשאר ל  @@@MAILSENTWINDOWTIMEMENU@@@  &nbsp;שניות ( 0 אומר ללא התראה
 )</td></tr>
+@@@SPELLCHECKSTART@@@
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>מילון לבדיקת איות:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DICTIONARYMENU@@@
 </td></tr>
+@@@SPELLCHECKEND@@@
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>שמירת דואר בסל מיחזור בימים:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -445,15 +458,20 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SESSIONTIMEOUTMENU@@@
 </td></tr>
+@@@FULLPREFSEND@@@
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>
 <table><tr>
 <td>@@@SAVEBUTTON@@@</td>
 @@@ENDFORM@@@
+
+@@@FULLPREFSSTART@@@
 @@@STARTCANCELFORM@@@
 <td>@@@CANCELBUTTON@@@</td>
 @@@ENDFORM@@@
+@@@FULLPREFSEND@@@
+
 </tr></table></td></tr></table>
 
 <script language="JavaScript">

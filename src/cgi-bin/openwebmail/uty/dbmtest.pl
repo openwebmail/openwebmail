@@ -48,7 +48,7 @@ sub dbm_test {
    dbmopen(%DB, "/tmp/dbmtest.$$/test", 0600); dbmclose(%DB);
 
    @delfiles=();
-   opendir (TESTDIR, "/tmp/dbmtest.$$");
+   opendir(TESTDIR, "/tmp/dbmtest.$$");
    while (defined(my $filename = readdir(TESTDIR))) {
       ($filename =~ /^(.+)$/) && ($filename = $1);	# untaint ...
       if ($filename!~/^\./ ) {
@@ -83,7 +83,7 @@ sub dbm_test {
    flock_lock("/tmp/dbmtest.$$/test$dbm_ext", LOCK_UN);
 
    @delfiles=();
-   opendir (TESTDIR, "/tmp/dbmtest.$$");
+   opendir(TESTDIR, "/tmp/dbmtest.$$");
    while (defined(my $filename = readdir(TESTDIR))) {
       ($filename =~ /^(.+)$/) && ($filename = $1);	# untaint ...
       push(@delfiles, "/tmp/dbmtest.$$/$filename") if ($filename!~/^\./ );
@@ -124,17 +124,14 @@ sub check_db_file_pm {
 sub print_dbm_option {
    my ($dbm_ext, $dbmopen_ext, $dbmopen_haslock)=@_;
 
-   if ($dbmopen_ext eq $dbm_ext) {
-      $dbmopen_ext='%dbm_ext%';
-   } elsif ($dbmopen_ext eq "") {
-      $dbmopen_ext='none';
-   }
+   $dbm_ext='none' if ($dbm_ext eq '');
+   $dbmopen_ext='none' if ($dbmopen_ext eq '');
    if ($dbmopen_haslock) {
       $dbmopen_haslock='yes';
    } else {
       $dbmopen_haslock='no';
    }
-   print qq|The dbm options in openwebmail.conf should be set as follows:\n\n|.
+   print qq|The dbm options in dbm.conf should be set as follows:\n\n|.
          qq|dbm_ext    \t\t$dbm_ext\n|.
          qq|dbmopen_ext\t\t$dbmopen_ext\n|.
          qq|dbmopen_haslock\t\t$dbmopen_haslock\n\n\n|;
@@ -147,7 +144,7 @@ sub check_savedsuid_support {
    $>=0;
    if ($>!=0) {
       print qq|Your system didn't have saved suid support,\n|.
-            qq|please set the following option in openwebmail.conf\n\n|.
+            qq|please set the following option in dbm.conf\n\n|.
             qq|\tsavedsuid_support no\n\n\n|;
       return -1;
    }

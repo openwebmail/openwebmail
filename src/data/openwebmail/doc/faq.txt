@@ -98,6 +98,11 @@ A: There are many possible answers...
             the path of your perl
          (thanks to Nemo Kaiser, nemoo.AT.users.sourceforge.net)
 
+      ps:If you run './Configure' to configure the perl interactively, 
+         then don't forget to answer 'yes' for question 
+         "Do you want to do setuid/setgid emulation? "
+         Or you won't be able to execute openwebmail
+
       c. Or use uty/suidwrap.pl to generate C wrappers for all suid scripts.
          Here are the steps:
          1. cd cgi-bin/openwebmail
@@ -113,7 +118,6 @@ A: There are many possible answers...
           You may need to recompile your perl with suid enabled
           instead of using C wrappers.
          (thanks to Isam Ishaq, isam.AT.planet.edu)
-
 
    4. The MIME::Base64 or CGI module on your system may be too old
       a. install MIME-Base64-2.12.tar.gz
@@ -149,11 +153,11 @@ A: This may happens on platforms that run suid scripts through /dev/fd/.
    cd the_dir_of_your_openwebmail_cgi
    ./openwebmail-tool.pl --init
 
-Q: I got "Please change the 3 following options in openwebmail.conf...."
+Q: I got "Please change /openwebmail_scripts_dir/etc/dbm.conf from xxx to yyy"
    in executing 'openwebmail-tool.pl --init' ?
-A: You may has wrong settings in your openwebmail.conf.
-   Please modify youropenwebmail.conf as openwebmail suggested and
-   don't forget to redo 'openwebmail-tool.pl --init' again.
+A: You may has wrong settings in your etc/dbm.conf.
+   Please modify the etc/dbm.conf as openwebmail suggested 
+   and don't forget to redo 'openwebmail-tool.pl --init' again.
 
 Q: --init complains the dbm options after I upgrade OS?
    --init complains the dbm options after I upgrade perl?
@@ -173,7 +177,7 @@ A: The perl system may use different dbm format depending on what packages
    NDBM_File.pm            /usr/libdata/perl/5.00503/mach/NDBM_File.pm
 
 
-   The dbm options in openwebmail.conf should be set as follows:
+   The dbm options in dbm.conf should be set as follows:
 
    dbm_ext                 .db
    dbmopen_ext             none
@@ -205,12 +209,12 @@ LOGIN PROBLEMS
 Q: The login menu showed okay, but I always got login failure?
 A: Check auth_module option in openwebmail.conf:
 
-   If it is 'auth_unix.pl',
-   check if $unix_passwdfile_encrypted and $unix_passwdmkdb in auth_unix.pl
-   are correct
+   If it is 'auth_unix.pl', 
+   check if passwdfile_encrypted and passwdmkdb in auth_unix.conf are correct
 
    If it is 'auth_pam.pl',
    make sure you have followed the instructions of 'PAM SUPPORT' in readme.txt.
+
    If you still got login failure, you can debug the pam module by:
    1. modify auth_pam.pl
       uncomment all the lines of main::log_time(...)
@@ -218,7 +222,8 @@ A: Check auth_module option in openwebmail.conf:
    3. check the /tmp/openwebmail.debug for more information.
 
 ps:If you are running openwebmail under SpeedyCGI, don't forget to do a
-   'touch openwebmail*pl' after you complete the modification to auth module.
+   'touch openwebmail*pl' after you complete the modification to 
+   auth module or auth conf file.
 
 Q: It took a long time in the first login?
 A: Openwebmail has to initialize some mapping tables for future use,
@@ -231,13 +236,11 @@ ps:This automatic table initialization has been removed since openwebmail-1.80.
    './openwebmail-tool.pl --init'
 
 Q: It took a long time in every login?
-A: You probably have wrong settings for option dbm_ext and dbmopen_ext in the
-   openwebmail.conf, please execute uty/dbmtest.pl to find correct settings.
-
 Q: Openwebmail hangs at every login after I saved the preference in the first
    time?
-A: You probably have wrong settings for option dbmopen_haslock in the
-   openwebmail.conf, please execute uty/dbmtest.pl to find correct settings.
+A: You probably have wrong settings in the dbm.conf,
+   please execute 'perl uty/dbmtest.pl' to find correct settings.
+
 
 Q: Some of my users login okay, but others don't, why?
 A: It is possible that you are upgrading from version prior to 1.41
@@ -248,10 +251,9 @@ A: It is possible that you are upgrading from version prior to 1.41
    entries in genericstable to virtusertable.
 
 Q: Some of my user with invalid shell couldn't login since upgrade to 1.80?
-A: A new variable $check_shell has been added to the auth_unix.pl and
-   auth_unix_cobalt.pl in 1.80 or above.
-   It is set to 1 by default, which means only users with valid shell can
-   login. Please set it to 0 to skip the valid shell check.
+A: A new variable check_shell option has been added to the auth_unix.conf
+   If it is set to yes, which means only users with valid shell can login. 
+   If it is set to no, then eopnwebmail won't do valid shell checking.
 
 ========================================================================
 RUNTIME ERRORS
@@ -315,6 +317,11 @@ A: The meaning of errno XX could be found in errno.h
 
    Most of the time, the error is due to exceeded user quota.
    Please remove unwanted files or increase the quota for user.
+
+ps: Since openwebmail 20031128, you may set the option
+    use_syshomedir_for_dotdir to no to have openwebmail put index db
+    in ow_usersdir instead of user homedir, thus creating db won't be
+    limited by user quota.
 
 Q: My SENT folder shows -1 or other negative message size rather then
    regular message size?
@@ -408,20 +415,22 @@ A: If the error message appears immediately after you submit the CGI request,
    error_with_debuginfo to yes in openwebmail.conf. This would give you
    more detailed information in case openwebmailerror() happens.
 
-   If you always got the lock error and be sure it's not caused by pop3/imap,
-   you may try to debug the filelock in the following steps:
+   If you are running openwebmail in persistent mode, 
+   there could be openwebmail processes that lock the folder file for indexing.
+   To release the lock, you may kill the openwebmail speedy_backend process.
 
-   1. install the 'lsof' utility on your system
-      (lsof is available at http://freshmeat.net/projects/lsof/)
-   2. cd  your_web/cgi-bin/openwebmail
-      patch < uty/ow-shared.pl.filelock.diff
-   3. step 2 will turn the filelock routine in ow-shared.pl to a version
-      special for debugging, the debug output will be written to
-      /tmp/openwebmail.debug
-   4. login into openwebmail and do some operation that will cause lock error,
-      then check /tmp/openwebmail.debug for further information
-   5. Finally, don't forget to do 'patch < uty/filelock.pl.diff' again to
-      reverse ow-shared.pl back to the original state.
+   It is okay for openwebmail to have an incomplemet index db,
+   the folder index db will be fixed or rebuild in the next access.
+   
+   Sometimes, the folder may be lock by process other than openwebmail,
+   if you want to solve the problem in a quick and dirty way...
+
+   rename the file, copy it to original name, then remove the renamed one.
+   This would have the file a new inode and thus release all old locks.
+
+ps: The 'lsof' is useful tool to see file locking status,
+    it is available at http://freshmeat.net/projects/lsof/.
+
 
 ========================================================================
 CONFIGURATION OPTIONS
@@ -458,10 +467,10 @@ A: You have 2 ways to do this:
 
    auth_module             auth_pam.pl
 
-   In auth_pam.pl ~
+   In auth_pam.conf ~
 
-   my $pam_servicename="openwebmail";
-   my $pam_passwdfile_plaintext="/etc/passwd";
+   servicename			openwebmail
+   passwdfile_plaintext		/etc/passwd
 
    vi /etc/pam.d/openwebmail:
 
@@ -587,7 +596,7 @@ A: set option enable_setfromemail to 'no' in either openwebmal.conf or per
    user config.
 
 Q: Can I install openwebmail without iconv() support?
-A: Yes, you may copy the uty/iconv.pl.fake over the iconv.pl,
+A: Yes, you may copy the uty/iconv.pl.fake over the shares/iconv.pl,
    which doesn't use iconv() at all but still support charset conversion for
    Chinese and Japanese.
 
@@ -598,7 +607,7 @@ A: Yes, you need postfix + vm-pop3d + openwebmail.
 
 Q: I have set openwebmail for virtual user with vm-pop3d, but I got
    "Sorry, root login is disabled for security's sake" at login?
-A: Please check the descriptions in auth_vm-pop3d.pl/auth_pop3.pl and
+A: Please check the descriptions in auth_vdomain.pl/auth_pop3.pl and
    find which case you are using. If you are using case b, don't forget
    to set the $local_uid to the uid used by your vm-pop3d for all virtual
    users.
@@ -611,24 +620,29 @@ CHANGE PASSWORD
 
 Q: The login is okay, but I can't change by my password with openwebmail?
 A: There are 2 possible answers for this:
+
    1. Your passwdfile is not local accessible.
-      If you use auth_unix.pl for authentication and your
-      $unix_passwdfile_encrypted is not a local accessible file
+
+      If you use auth_unix.pl for authentication 
+      and your passwdfile_encrypted file is not a local accessible
       (ex: examples in auth_unix.pl that are terminated with |),
       the changepassword feature won't be available.
-      In these cases, you have to use auth_pam.pl to get the changepassword
-      to work.
+
+      If your system uses NIS, then you may try auth_nis.pl instead,
+      or you have to use auth_pam.pl to get the changepassword to work.
+
    2. Your system doesn't support saved set-user-ID, so openwebmail won't get
       enough privilege to change the passwd file.
-      Try to set savedsuid_support to 'no' in openwebmail.conf to solve
-      this problem.
+      Try to set option has_savedsuid_support to 'no' in openwebmail.conf 
+      to solve this problem.
+
    3. The authentication module which you used doesn't support password
       changing, ex: auth_pop3.pl
 
 Q: I use openwebmail with NIS/YP system, the user can login but can not
    change their password?
-A: The NIS/YP password can not be changed with auth_unix.pl, you need to
-   use the auth_pam.pl as the authentication module.
+A: The NIS/YP password can not be changed with auth_unix.pl, 
+   you need to use the auth_nis.pl or auth_pam.pl as the authentication module.
 
 ========================================================================
 READ MESSAGE
@@ -813,8 +827,7 @@ Q: There were strange characters in the mail filter menu and those rules could
    not be deleted?
 A: This is due to the dbmopen() of your perl didn't add the ".db" extension
    automatically, so the ~/.filter.book and its index were written to the same
-   file. This problem can be fixed by properly setting option dbm_ext and
-   dbmopen_ext. To find the correct setting for the two options:
+   file. This problem can be fixed by properly setting dbm options.
 
    perl cgi-bin/openwebmail/uty/dbmtest.pl [enter]
 
@@ -824,7 +837,7 @@ A: This is due to the dbmopen() of your perl didn't add the ".db" extension
    dbmopen_ext          none
    dbmopen_haslock      no
 
-   Then put the three lines into your openwebmail.conf.
+   Then put the three lines into your etc/dbm.conf.
 
 ========================================================================
 SEND MESSAGE
@@ -919,22 +932,22 @@ SPELLCHECK
 
 Q: When I clicked 'spell check' button, I got "Internal Server error" in new
    window?
-A: 1. Please be sure that you have installed ispell-3.1.20.tar.gz
+A: 1. Please upgrade your openwebmail to 2003/11/16 or later.
    2. If you are using C wrappers for suid scripts on Solaris,
       please recompile you perl with suid enabled instead of using
       the C wrappers.
       (thanks to Isam Ishaq, isam.AT.planet.edu)
+   3. Please check the apache error log for more information
 
-Q: Ispell has been correctly installed, but spellcheck still doesn't work?
-A: The spellcheck in old version of openwebmail doesn't work on RedHat 7.x,
-   please upgrade your openwebmail to the latest version.
-
-Q: I use aspell for spelling check, but I got "Internal Server error"
-   once I put some words into the personal dictionary?
-A: Please check the version of your aspell program.
-   The aspell that comes with RedHat is 0.33.7 which is quite old.
-   Please upgrade your aspell to 0.50.3 by installing the
-   aspell-0.50.3.tar.gz and aspell-en-0.51-0.tar.bz2
+Q: I can use aspell for spelling check, but persional dictionary doesn't work?
+A: 1. Please upgrade your openwebmail to 2003/11/16 or later.
+   2. If you are using aspell, please be sure your homedir is group readable.
+      Yes, this is strange, but it seems aspell need this.
+      (thanks Scott A. Mazur, scott.AT.littlefish.ca)
+   3. If you don't want to change the directory permission.
+      Please set option has_savedsuid_support to 'no' in openwebmail.conf
+   4. If you don't want to set option either, you may try to use ispell
+      instead of aspell
 
 Q: Why is openwebmail-spell.pl a suid root program?
 A: Because it needs to read the preference file, ~/mail/.openwebmailrc,

@@ -21,9 +21,9 @@ foreach my $script (@ARGV) {
       my $line=$_;
       if ($line=~/^require "uty\/gettimeofday.pl"/) {
          $removal++;
-      } elsif ($line=~/^main::timeofday_init/) {
+      } elsif ($line=~/^ow::tool::timeofday_init/) {
          $removal++;
-      } elsif ($line=~/main::log_time\("PROF", main::/) {
+      } elsif ($line=~/ow::tool::log_time\("PROF", ow::tool::/) {
          $removal++;
       } else {
          $content.=$line;

@@ -162,42 +162,27 @@ Set this to 'mail' to use ~user/mail/ for user's homdirfolders, it is
 compatible with 'PINE' MUA.
 
 
-use_dotlockfile
+homedirdotdirname
 -----------------------------------------------------------------------
-Set this to 'yes' to use .lock file for filelock
-This is only recommended if the mailspool or user's homedir are located
-on an remote nfs server and the lockd on your nfs server or client has
-problems
-
-ps: the freebsd/linux nfs may need this. solaris doesn't.
+This is the location under user homedir where openwebmail related files
+are stored. The default is .openwebmail
 
 
-dbm_ext
+use_syshomedir_for_dotdir
 -----------------------------------------------------------------------
-This is the extension name for the dbm file on your system
+whether to put dotdir (.openwebmail) under syshomedir
 
-ps: You can run 'perl openwebmail/uty/dbmtest.pl' to get value for this
+The .openwebmail dir is put at ~user/.openwebmail by default,
+But if this option is set to 'no', then .openwebmail will be put at
+%ow_usersdir%/user/.openwebmail instead
 
+This option is useful for systems using syshomedir and running quota.
+Placing .openwebmail outside user syshomedir can avoid folder db index
+updating error caused by quota limit
 
-dbmopen_ext
------------------------------------------------------------------------
-This is the db extension passed to the dbmopen() call.
-It should be set to 'none' in most case. You need to set it to %dbm_ext%
-only if you use any DB File module in script explicitly
-
-ps: It is said this option needs to be set to '%dbm_ext%' on the Sun
-    Cobal server or Slackware 8.x.
-    You can run 'perl openwebmail/uty/dbmtest.pl' to get value for this
-
-
-dbmopen_haslock
------------------------------------------------------------------------
-If your perl dbm system will do filelock in dbmopen() by itself,
-set this option to 'yes' so openwebmail won't do unnecessary filelock
-before dbmopen. On most systems, this option should be set to 'no'.
-
-ps: If your openwebmail hangs after login or saving preference,
-    you probablely need to set this option to 'yes'
+ps: In our experience, the folder db size is about 0.3% to 0.8% of the 
+    folder file, you can estimate the space required for %ow_usersdir% 
+    based on the ratio.
 
 
 deliver_use_GMT
@@ -207,9 +192,9 @@ line when writing new messages to mailspool.
 eg: Qmail is know to use GMT time in mail delivery.
 
 
-savedsuid_support
+has_savedsuid_support
 -----------------------------------------------------------------------
-Does your system support 'saved set-user-ID' ?
+Does your system have 'saved set-user-ID' support?
 On system with saved set-user-ID support, the effective uid of a process
 will be saved to 'saved set-user-ID' (structure prepared by OS) before euid
 is changed, thus the process can switch back to previous euid if required.
@@ -786,6 +771,12 @@ enable_webmail
 set this option to 'no' if you want to disable webmail related functions
 
 
+enable_spellcheck
+-----------------------------------------------------------------------
+Set this option to 'no' if you want to disable the spellcheck feature
+in composing message
+
+
 enable_calendar
 -----------------------------------------------------------------------
 Open WebMail has built-in clendar support,
@@ -1003,6 +994,15 @@ If this option is set to 'no', then access to symbolic links that
 points to files outside the webdisk will be prohibited.
 
 
+webdisk_symlinkout_display
+-----------------------------------------------------------------------
+The option detrmines how a symlinkout file is displayed in webdisk.
+
+If it is set to 'path', the destinated path is displayed after symlink
+If it is set to '@',    a '@' is displayed after symlink
+If it is set to 'none', the symlink will looks like regular dir or file
+
+
 webdisk_allow_thumbnail
 -----------------------------------------------------------------------
 If this option is set to 'no', then all thumbnail related function in
@@ -1010,6 +1010,21 @@ webdisk will not be available to user
 
 ps: This thumbnail is created by the 'convert' utility in the ImageMagick
     package. The conversion could take times to process on a slow machine.
+
+
+webdisk_allow_untar
+webdisk_allow_unzip
+webdisk_allow_unrar
+webdisk_allow_unarj
+webdisk_allow_unlzh
+-----------------------------------------------------------------------
+The default for these options is 'yes', but you may want to disable some
+of them if your openwebmail users are running in same uid.
+
+ps: These programs can do decompression recursively. 
+    And we suggest sysadm should at least disable webdisk_allow_untar 
+    if the users are running in same uid, since the the user may untar 
+    files containing symbolic links to files other than his own.
 
 
 spool_limit
@@ -1432,6 +1447,12 @@ default_sort
 default message sorting, available value: date, sender, subject, size
 
 
+default_useminisearchicon
+-----------------------------------------------------------------------
+whether to use mini search icon in sender and subject fields in 
+message list
+
+
 default_confirmmsgmovecopy
 -----------------------------------------------------------------------
 display confirm window before message move/copy
@@ -1530,6 +1551,17 @@ if set this option to 'yes', the java script in in html message will
 be disabled. This prevents user being hijacked to some web site
 by eval javascript
 
+Please refer to http://www.kb.cert.org/vuls/id/707100 for more information
+
+
+default_disableembcode
+-----------------------------------------------------------------------
+This is used to disable the EMBED, OBJECT and APPLET tags in a message.
+These tages can be used to load malicious code to user browser.
+
+Please refer to http://www.cert.org/advisories/CA-2000-02.html for more
+information
+
 
 default_disableemblink
 -----------------------------------------------------------------------
@@ -1540,8 +1572,9 @@ spammer through the embedded links.
 If this option is set to 'cgionly', only embedded CGIs will be disabled,
 if this option is set to 'all',  all embedded links will be disabled,
 if this option is set to 'none', all embedded links will be kept untouched.
+The default setting is 'cgionly'.
 
-Default: cgionly
+Please refer to http://www.kb.cert.org/vuls/id/707100 for more information
 
 
 default_sendreceipt
@@ -1675,13 +1708,14 @@ messages will be moved to mail-trash folder.
 Set this value to 0 will disable this feature.
 
 
-default_filter_badformatfrom
+default_filter_badaddrformat
 -----------------------------------------------------------------------
-A From email will be treated as bad format if it is in one of the following cases:
-1. started with digits
-2. containing both digits and dot (.)
-3. containing characters other than alphabat, digits dot(.), dash(-), underline(_)
-Messages with bad from email address are normally from spammers.
+A email will be treated as bad format in the following cases:
+1. from email started with digits
+2. from email containing both digits and dot (.)
+3. from email containing characters other than alphabat, digits dot(.), dash(-), underline(_)
+4. to email containing undisclosed-recipients and any email address
+Messages with bad email address are normally from spammers.
 If this option is set to 'yes', these messages will be moved to mail-trash.
 
 

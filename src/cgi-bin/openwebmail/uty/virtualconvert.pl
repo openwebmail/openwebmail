@@ -73,7 +73,8 @@ use strict;
 # some of these values can be found in your existing openwebmail.conf file
 
 # this is the local domain that will be setup for both real and virtual users
-my $domain = 'mydomain.com';
+#my $domain = 'mydomain.com';
+my $domain = 'littlefish.ca';
 
 # this is the OpenWebmail etc directory
 my $ow_cgi = '/var/www/cgi-bin/openwebmail';
@@ -83,7 +84,7 @@ my $ow_cgi = '/var/www/cgi-bin/openwebmail';
 my @exclude=();
 
 # commands used in this script
-# if your system does not have these equivalent commands, you'll need to make changes 
+# if your system does not have these equivalent commands, you'll need to make changes
 my $userdel='/usr/sbin/userdel';
 my $chown='/bin/chown';
 my $cp='/bin/cp';
@@ -92,12 +93,89 @@ my $cp='/bin/cp';
 #################################################################
 # main script
 use File::Path;
+
 chdir $ow_cgi;
+push (@INC, $ow_cgi);
+require "modules/tool.pl";
 
 my (%config);
 my $dryrun=0;
 my $notest=0;
 my $deletereal=0;
+
+# taken from ow-shared.pl
+##############################
+sub loadmodule {
+   my ($file, @symlist)=@_;
+   $file=~s|/||g; $file=~s|\.\.||g; # remove / and .. to anti path hack
+
+   # . - is not allowed for package name
+   my $pkg=$file; $pkg=~s/\.pl//; $pkg=~s/[\.\-]/_/g;
+
+   $file="$config{'ow_cgidir'}/auth/$file";
+   ($file=~ /^(.*)$/) && ($file = $1);
+   require $file; # done only once because of %INC
+
+   no strict 'refs';	# until block end
+   # traverse the symbo table of package openwebmail::$pkg
+   foreach my $sym (@symlist) {
+      # alias symbo of sub routine into current package
+      *{"$sym"}=*{"ow::".$pkg."::".$sym};
+   }
+   return;
+}
+
+sub loadauth {
+   loadmodule($_[0], "get_userinfo",
+                     "get_userlist",
+                     "check_userpassword",
+                     "change_userpassword");
+}
+
+########## DOTDIR RELATED ########################################
+use vars qw(%_is_dotpath);
+foreach (qw(
+   openwebmailrc release.date history.log
+)) { $_is_dotpath{'root'}{$_}=1; }
+foreach (qw(
+   filter.book filter.check
+   from.book address.book stationery.book
+   trash.check search.cache signature
+)) { $_is_dotpath{'webmail'}{$_}=1; }
+foreach (qw(
+   calendar.book notify.check
+)) { $_is_dotpath{'webcal'}{$_}=1; }
+foreach (qw(
+   webdisk.cache
+)) { $_is_dotpath{'webdisk'}{$_}=1; }
+foreach (qw(
+   pop3.book pop3.check authpop3.book
+)) { $_is_dotpath{'pop3'}{$_}=1; }
+
+# This _ version of routine is used by dotpath() and openwebmail-vdomain.pl
+# When vdomain adm has to determine dotpath for vusers,
+# the param of vuser($vdomain, $vuser, $vhomedir) will be passed
+# instead of the globals($domain, $user, $homedir), which are param of vdomain adm himself
+sub _dotpath {
+   my ($name, $domain, $user, $homedir)=@_;
+   my $dotdir;
+   if ($config{'use_syshomedir_for_dotdir'}) {
+      $dotdir = "$homedir/$config{'homedirdotdirname'}";
+   } else {
+      my $owuserdir = "$config{'ow_usersdir'}/".($config{'auth_withdomain'}?"$domain/$user":$user);
+      $dotdir = "$owuserdir/$config{'homedirdotdirname'}";
+   }
+   return(ow::tool::untaint($dotdir)) if ($name eq '/');
+
+   return(ow::tool::untaint("$dotdir/$name"))         if ($_is_dotpath{'root'}{$name});
+   return(ow::tool::untaint("$dotdir/webmail/$name")) if ($_is_dotpath{'webmail'}{$name} || $name=~/^filter\.book/);
+   return(ow::tool::untaint("$dotdir/webcal/$name"))  if ($_is_dotpath{'webcal'}{$name});
+   return(ow::tool::untaint("$dotdir/webdisk/$name")) if ($_is_dotpath{'webdisk'}{$name});
+   return(ow::tool::untaint("$dotdir/pop3/$name"))    if ($_is_dotpath{'pop3'}{$name} || $name=~/^uidl\./);
+
+   $name=~s!^/+!!;
+   return(ow::tool::untaint("$dotdir/$name"));
+}
 
 foreach ( @ARGV ) {
   if ( /^dryrun$/i ) { $dryrun = 1 }
@@ -110,7 +188,7 @@ my $test=!$notest;
 
 print "virtualconvert.pl\n";
 
-my ($ss, $mm, $hh, $dd, $mon, $yy) = localtime;$mm++;$yy-=100;
+my ($ss, $mm, $hh, $dd, $mon, $yy) = localtime;$mon++;$yy-=100;
 my $stamp=sprintf("%02d-%02d-%02d.%02d.%02d.%02d",$yy,$mon,$dd,$hh,$mm,$ss);
 
 # clean up exclude users
@@ -121,14 +199,18 @@ foreach (@exclude) {
 }
 
 # get default config file
-READCONFIG("$ow_cgi/etc/openwebmail.conf.default", \%config);
+my ($ret,$err)=ow::tool::load_configfile("$ow_cgi/etc/openwebmail.conf.default", \%config);
+ABORT($!) if ( $ret<0 );
+
 print "Found Openwebmail version $config{'version'}  releasedate $config{'releasedate'}\n";
 
 # verify version
 ABORT(  "Mixing virtual and real users on the same domain requires Openwebmail version 2.01 release 20030605 or newer.") if ( $config{'releasedate'} < 20030605 );
 
 # get the local config file
-READCONFIG("$ow_cgi/etc/openwebmail.conf", \%config);
+my ($ret,$err)=ow::tool::load_configfile("$ow_cgi/etc/openwebmail.conf", \%config);
+ABORT($!) if ( $ret<0 );
+
 ABORT(  "The main config file is already using auth_module 'auth_vdomain.pl'.  Real and virtual users can't be mixed here.") if ( $config{'auth_module'} eq 'auth_vdomain.pl' );
 
 # fill out config values
@@ -140,7 +222,9 @@ my $localusers=$config{'localusers'} ;
 
 my $siteconf="$config{'ow_sitesconfdir'}\/$domain";
 ABORT("There is no $siteconf file.") if (! -e $siteconf);
-READCONFIG($siteconf, \%config);
+my ($ret,$err)=ow::tool::load_configfile($siteconf, \%config);
+ABORT($!) if ( $ret<0 );
+
 ABORT("The site config file is not using auth_module 'auth_vdomain.pl'.  Real and virtual users can't be mixed here.") if ( $config{'auth_module'} ne 'auth_vdomain.pl' );
 
 # fill out siteconf values
@@ -148,16 +232,18 @@ foreach (keys %config) { while ( $config{$_}=~/%(\S+)%/ ) { my $parm=$1; $config
 
 my $pwddir="$config{'vdomain_vmpop3_pwdpath'}\/$domain";
 my $pwdfile="$pwddir/$config{'vdomain_vmpop3_pwdname'}";
+my ($postfix_aliases_file) = split(/[ ,]+/, $config{'vdomain_postfix_aliases'});
+my ($postfix_virtual_file) = split(/[ ,]+/, $config{'vdomain_postfix_virtual'});
 
 print " - running in dryrun mode (no updates to Postfix, no delete real users)\n\n" if ( $dryrun );
 print " - running in test mode (no updates)\n" if ( $test );
 print " - delete real users when done\n" if ( $deletereal );
 
 if ($dryrun){
-   CMD("copy $config{'vdomain_postfix_aliases'} to $config{'vdomain_postfix_aliases'}.test", "$cp -fp $config{'vdomain_postfix_aliases'} $config{'vdomain_postfix_aliases'}.test");
-   $config{'vdomain_postfix_aliases'}="$config{'vdomain_postfix_aliases'}.test";
-   CMD("copy $config{'vdomain_postfix_virtual'} to $config{'vdomain_postfix_virtual'}.test", "$cp -fp $config{'vdomain_postfix_virtual'} $config{'vdomain_postfix_virtual'}.test");
-   $config{'vdomain_postfix_virtual'}="$config{'vdomain_postfix_virtual'}.test";
+   CMD("copy $postfix_aliases_file to $postfix_aliases_file.test", "$cp -fp $postfix_aliases_file $postfix_aliases_file.test");
+   $postfix_aliases_file="$postfix_aliases_file.test";
+   CMD("copy $postfix_virtual_file to $postfix_virtual_file.test", "$cp -fp $postfix_virtual_file $postfix_virtual_file.test");
+   $postfix_virtual_file="$postfix_virtual_file.test";
 }
 
 my $Postfixreload = $config{'vdomain_postfix_postalias'};
@@ -165,7 +251,7 @@ $Postfixreload=~s/postalias$/Postfix reload/;
 
 # read all Postfix aliases
 my (%aliases, @aliasfile);
-foreach ( READFILE($config{'vdomain_postfix_aliases'}) ){
+foreach ( READFILE($postfix_aliases_file) ){
    push @aliasfile, $_;
    s/^\s+//;s/\s+$//;
    $aliases{$1}=$2 if( ! /^#/ and /^(\S+)\s*:\s*(.+)$/ );
@@ -182,7 +268,7 @@ my %raliases; foreach (keys %aliases) {push @{$raliases{$aliases{$_}}},$_}
 
 # read all Postfix virtual users (for local domain)
 my (%virtual, @virtualfile);
-foreach ( READFILE($config{'vdomain_postfix_virtual'}) ){
+foreach ( READFILE($postfix_virtual_file) ){
    push @virtualfile, $_;
    s/^\s+//;s/\s+$//;
    $virtual{$1}=$2 if( ! /^#/ and /^([^\s@]+)\@$domain\s+(.+)$/ );
@@ -269,13 +355,13 @@ sub CMD { my ($text, $cmd)=@_;
 sub BACKUP_POSTFIX {
    # backup the Postfix aliases and virtual files
    print "\n";
-   CMD("backup $config{'vdomain_postfix_aliases'} to $config{'vdomain_postfix_aliases'}.$stamp.bak", "$cp -fp $config{'vdomain_postfix_aliases'} $config{'vdomain_postfix_aliases'}.$stamp.bak");
-   CMD("backup $config{'vdomain_postfix_virtual'} to $config{'vdomain_postfix_virtual'}.$stamp.bak\n", "$cp -fp $config{'vdomain_postfix_virtual'} $config{'vdomain_postfix_virtual'}.$stamp.bak");
+   CMD("backup $postfix_aliases_file to $postfix_aliases_file.$stamp.bak", "$cp -fp $postfix_aliases_file $postfix_aliases_file.$stamp.bak");
+   CMD("backup $postfix_virtual_file to $postfix_virtual_file.$stamp.bak\n", "$cp -fp $postfix_virtual_file $postfix_virtual_file.$stamp.bak");
 }
 sub UPDATE_POSTFIX_ALIASES { my (@lines)=@_;
-   SKIPTXT("update $config{'vdomain_postfix_aliases'}");
-   UPDATEFILE( $config{'vdomain_postfix_aliases'}, @lines) if ($notest);
-   CMD("rebuild Postfix aliases database", "$config{'vdomain_postfix_postalias'} $config{'vdomain_postfix_aliases'}");
+   SKIPTXT("update $postfix_aliases_file");
+   UPDATEFILE( $postfix_aliases_file, @lines) if ($notest);
+   CMD("rebuild Postfix aliases database", "$config{'vdomain_postfix_postalias'} $postfix_aliases_file");
    @aliasfile=@lines;
    chomp @aliasfile;
 }
@@ -429,7 +515,7 @@ sub COPY_USERS { my ($homedir, $uid, $gid, @users)=@_;
       }
       if ($vac) {
          my $aliasparm="-a $user\@$domain";
-         my $fromsfile="$home/$config{'homedirfolderdirname'}/.from.book";
+         my $fromsfile=_dotpath('from.book', $domain, $user, $home);
          if (-f $fromsfile) { foreach ( READFILE($fromsfile) ) { if ( /^(.+\@$domain)+\@\@\@/ and $1 ne "$user\@$domain"){$aliasparm .= " -a $1"; } } }
          my $vacationuser = "-p$home nobody";
          if (length("xxx$config{'vacationpipe'} $aliasparm $vacationuser")<250) {
@@ -508,9 +594,9 @@ sub ADD_VIRTUAL { my (@users)=@_;
       push @result, "\n$hdrtxt\n" if (! $hdr);
       push @result, @list;
    }
-   SKIPTXT("update $config{'vdomain_postfix_virtual'}");
-   UPDATEFILE( $config{'vdomain_postfix_virtual'}, @result) if ($notest);
-   CMD("rebuild Postfix virtual database", "$config{'vdomain_postfix_postmap'} $config{'vdomain_postfix_virtual'}");
+   SKIPTXT("update $postfix_virtual_file");
+   UPDATEFILE( $postfix_virtual_file, @result) if ($notest);
+   CMD("rebuild Postfix virtual database", "$config{'vdomain_postfix_postmap'} $postfix_virtual_file");
    CMD("reload Postfix", $Postfixreload);
 }
 
@@ -607,50 +693,5 @@ sub UPDATEFILE { my ($file, @lines) = @_;
   print FILE @lines;
   close FILE;
   return;
-}
-
-sub READCONFIG { my ($file,$hash)=@_;
-   my $intag='';
-   foreach ( READFILE($file) ) {
-      if ($intag) {
-         if (/^\s*<\/$intag>/) {$intag=''; next}
-         $$hash{$intag} .= "$_\n";
-      } else {
-         if ( /^\s*<\s*([^\/]\S*)\s*>/ ) {$intag=$1; next}
-         s/#.*//; s/^\s+//; s/\s+$//;
-         next if (/^$/);
-         $$hash{$1}=$2 if ( /^(\S+)\s*(.*)$/ );
-      }
-   }
-   return;
-}
-
-##############################
-# copied from OW
-sub loadmodule {
-   my ($file, @symlist)=@_;
-   $file=~s|/||g; $file=~s|\.\.||g; # remove / and .. to anti path hack
-
-   # . - is not allowed for package name
-   my $pkg=$file; $pkg=~s/\.pl//; $pkg=~s/[\.\-]/_/g; 
-
-   $file="$config{'ow_cgidir'}/$file";
-   ($file=~ /^(.*)$/) && ($file = $1);
-   require $file; # done only once because of %INC
-
-   no strict 'refs';	# until block end
-   # traverse the symbo table of package openwebmail::$pkg
-   foreach my $sym (@symlist) {
-      # alias symbo of sub routine into current package
-      *{"$sym"}=*{"openwebmail::".$pkg."::".$sym};
-   }
-   return;
-}
-
-sub loadauth {
-   loadmodule($_[0], "get_userinfo",
-                     "get_userlist",
-                     "check_userpassword",
-                     "change_userpassword");
 }
 

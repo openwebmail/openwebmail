@@ -27,36 +27,15 @@ javascript/htmlarea.openwebmail/popups	lang and html file of popup windows in
 cgi-bin/openwebmail/            mapping to url http://your_site/cgi-bin/openwebmail
 ------------------------------
 etc/                            configuraation, template, language, temporary files
+auth/				place for auth_xxx.pl modules
+				routines/variables in these files belong to ow::auth_xxx::
+quota/				place for quota_xxx.pl modules
+				routines/variables in these files belong to ow::quota_xxx::
+modules/			place for module files
+				routines/variables in these files belong to packages other than main::
+shares/				place for shared routines files
+				routines/variables in these files belong to main::				
 uty/                            debug uty or tool used by sysadm
-
-auth_ldap.pl                    various authentication modules
-auth_mysql.pl
-auth_mysql_vmail.pl
-auth_nis.pl
-auth_pam.pl
-auth_pam_cobalt.pl
-auth_pg.pl
-auth_pgsql.pl
-auth_pop3.pl
-auth_unix.pl
-auth_unix_cobalt.pl
-auth_vdomain.pl
-
-quota_unixfs.pl			various quota modules
-quota_du.pl
-
-filelock.pl                     modules containing routines used by openwebmail
-htmlrender.pl
-htmltext.pl
-iconv.pl
-iconv-chinese.pl
-iconv-japan.pl
-lunar.pl
-maildb.pl
-mailfilter.pl
-mime.pl
-ow-shared.pl
-pop3mail.pl
 
 openwebmail-abook.pl            CGI programs of openwebmail
 openwebmail-advsearch.pl
@@ -83,6 +62,8 @@ vacation.pl                     vacation utility for auto reply
 openwebmail.conf                customized configuration file
 openwebmail.conf.default        default configuration file
 openwebmail.conf.help           help for default configuration file
+auth_xxx.conf.default		default config file for auth_xxx.pl
+auth_xxx.conf			customized config file for auth_xxx.pl
 smtpauth.conf                   file to store username/passwd for SMTP auth
 
 styles/                         various CSS files
@@ -112,36 +93,45 @@ etc.mail.virtusertable.rev.db   reverse index db of /etc/mail/virtusertable
 
 for each USER
 ------------------------------
+~USER/.openwebmail/             store openwebmail internal files
+   openwebmailrc                openwebmail user preference
+   release.date                 the release date of openwebmail which user used
+   history.log                  openwebmail user log file
+
+~USER/.openwebmail/db/		location for mail folder index db and messageid cache file
+   (for each foldername...)
+   foldername.db                the index db of the folder file
+   foldername.cache             messageid cache
+
+~USER/.openwebmail/webmail/	location for webmail internal file
+   signature                    signature file if ~USER/.signature doesn't exist
+   from.book                    from address book
+   address.book                 address book
+   stationery.book              stationery book
+   filter.book                  personal filter rule book
+   filter.book.db               db to store filtering count/date of filter rules
+   filter.check                 file that marked the last INBOX filting dat
+   trash.check                  file that marked the last trash-cleaning date
+   search.cache                 cache file to store last search result
+				
+~USER/.openwebmail/webcal/	location for webmail internal file
+   calendar.book                calendar book
+   notify.check                 file that marked the last calendar email notification check date
+
+~USER/.openwebmail/webdisk/	location for webdisk internal file
+   webdisk.cache                cache file to store last webdisk search result
+
+~USER/.openwebmail/pop3/	location for pop3 book and uidl database
+   authpop3.book                pop3 book for pop3 auth server
+   pop3.book                    pop3 book
+   pop3.check                   file that marked the last pop3 retrieval date
+   
 ~USER/.forward                  mail forwarding file
 ~USER/.vacation.msg             text for auto reply
 ~USER/.vacation.db              db for autoreply history log
 ~USER/.signature                signature file
-~USER/mail/.signature           signature file if ~USER/.signature doesn't exist
-~USER/mail/.openwebmailrc       openwebmail user preference
-~USER/mail/.release.date        the release date of openwebmail which user used
-~USER/mail/.history.log         openwebmail user log file
-
-~USER/mail/.from.book           from address book
-~USER/mail/.address.book        address book
-~USER/mail/.pop3.book           pop3 book
-~USER/mail/.filter.book         filter book
-~USER/mail/.stationery.book     stationery book
-~USER/mail/.calendar.book       calendar book
-
-~USER/mail/.trash.check         file that marked the last trash-cleaning date
-~USER/mail/.pop3.check          file that marked the last pop3 retrieval date
-~USER/mail/.filter.check        file that marked the last INBOX filting date
-~USER/mail/.notify.check        file that marked the last calendar email notification check date
-
-~USER/mail/.filter.book.db      db to store filtering count/date of filter rules
-~USER/mail/.search.cache        cache file to store last search result
-
-
-for each FOLDER in the ~USER/mail/
-----------------------------------
-~USER/mail/FOLDER               the folder file in mbox format
-~USER/mail/FOLDER.db            the index db of the folder file
-~USER/mail/FOLDER.cache         cache file to store last folder list result
+~USER/.ispell_words             personal dict for ispell
+~USER/.aspell.en.xxx            personal dict for aspell
 
 
 other files accessed by openwebmail

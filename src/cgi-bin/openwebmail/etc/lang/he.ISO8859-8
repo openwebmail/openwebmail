@@ -1,16 +1,16 @@
-package openwebmail::he_ISO8859_8;
+package ow::he_ISO8859_8;
 
 # Hebrew translation, charset: iso-8859-8
 # by Yehuda Drori
 
 %lang_folders =
    (
-   INBOX => 'סנכנ ראוד',
+   INBOX            => 'סנכנ ראוד',
    'saved-messages' => 'תורומש תועדוה',
    'sent-mail'      => 'חלשנש ראוד',
    'saved-drafts'   => 'הטויט',
    'mail-trash'     => 'רוזחימ לס',
-   DELETE => '--הקיחמ--'
+   DELETE           => '--הקיחמ--'
    );
 
 %lang_sortlabels =
@@ -43,7 +43,7 @@ package openwebmail::he_ISO8859_8;
 %lang_msgformatlabels =
    (
    auto => 'Auto selected',
-   text	=> 'Text',
+   text => 'Text',
    html => 'HTML',
    both => 'HTML and Text'
    );
@@ -51,8 +51,8 @@ package openwebmail::he_ISO8859_8;
 %lang_withoriglabels =
    (
    at_beginning => 'הליחתב',
-   at_end      => 'ףוסב',
-   none        => 'אלל'
+   at_end       => 'ףוסב',
+   none         => 'אלל'
    );
 
 %lang_receiptlabels =
@@ -78,8 +78,8 @@ package openwebmail::he_ISO8859_8;
 %lang_sendpositionlabels =
    (
    before => 'Before mail edit area',
-   after => 'After mail edit area',
-   both  => 'חולשמ ירחאו ינפל רוזיא ךורע'
+   after  => 'After mail edit area',
+   both   => 'חולשמ ירחאו ינפל רוזיא ךורע'
    );
 
 %lang_abookbuttonpositionlabels = 
@@ -360,6 +360,7 @@ package openwebmail::he_ISO8859_8;
    statreply  => '-- Stationery for Reply --',
    calendar   => 'הנש חול',
    allday     => 'All day',
+   today      => 'Today',
    am         => 'am',
    pm         => 'pm',
    calfmt_year          => 'הנש @@@YEAR@@@',

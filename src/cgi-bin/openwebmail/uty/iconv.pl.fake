@@ -2,8 +2,8 @@
 # iconv.pl - do charset conversion without system iconv() support
 #
 use strict;
-require "iconv-chinese.pl";
-require "iconv-japan.pl";
+require "shares/iconv-chinese.pl";
+require "shares/iconv-japan.pl";
 
 use vars qw(%charset_convlist %charset_localname);
 

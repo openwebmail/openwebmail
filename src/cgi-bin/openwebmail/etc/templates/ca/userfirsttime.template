@@ -2,12 +2,12 @@
 <table border="0" align="center" width="60%" cellpadding="1" cellspacing="1">
 <tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>BENBINGUT A @@@NAME@@@!</B></font>
+<B>BENVINGUT A @@@NAME@@@!</B></font>
 </td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 <table width=85%><tr><td align="center">
-<BR>Benvingut!<BR>Es la primera vegada que vostè usa @@@NAME@@@.
-Necessitem reunir alguna informació seva per poder
-configurar @@@NAME@@@ i que s'ajusti a les seves preferències. Faci clic a "Continuar"
+<BR>Benvingut!<BR>És la primera vegada que feu servir @@@NAME@@@.
+Cal reunir alguna informació vostre per poder
+configurar @@@NAME@@@ i que s'ajusti a les vostres preferències. Feu clic a "Continuar"
 per procedir amb la configuració.
 @@@CONTINUEBUTTON@@@
 </td></tr></table>

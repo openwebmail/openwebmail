@@ -17,16 +17,14 @@
 #
 
 use vars qw($SCRIPT_DIR);
-if ( $0 =~ m!^(\S*)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
+if ( $0 =~ m!^(\S*)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1 }
 if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
-   $_=<F>; close(F); if ( $_=~/^(\S*)/) { $SCRIPT_DIR=$1; }
+   $_=<F>; close(F); if ( $_=~/^(\S*)/) { $SCRIPT_DIR=$1 }
 }
 if (!$SCRIPT_DIR) { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
 push (@INC, $SCRIPT_DIR);
 
-$ENV{PATH} = ""; # no PATH should be needed
-$ENV{ENV} = "";      # no startup script for sh
-$ENV{BASH_ENV} = ""; # no startup script for bash
+foreach (qw(PATH ENV BASH_ENV CDPATH IFS TERM)) { $ENV{$_}='' }	# secure ENV
 umask(0002); # make sure the openwebmail group can write
 
 use strict;
@@ -34,10 +32,16 @@ use Fcntl qw(:DEFAULT :flock);
 use CGI qw(-private_tempfiles :standard);
 use CGI::Carp qw(fatalsToBrowser carpout);
 
-require "ow-shared.pl";
-require "filelock.pl";
-require "execute.pl";
-require "htmltext.pl";
+require "modules/datetime.pl";
+require "modules/lang.pl";
+require "modules/dbm.pl";
+require "modules/filelock.pl";
+require "modules/tool.pl";
+require "modules/execute.pl";
+require "modules/htmltext.pl";
+require "shares/ow-shared.pl";
+require "shares/iconv.pl";
+require "shares/cut.pl";
 
 # common globals
 use vars qw(%config %config_raw);
@@ -45,17 +49,16 @@ use vars qw($thissession);
 use vars qw($domain $user $userrealname $uuid $ugid $homedir);
 use vars qw(%prefs %style %icontext);
 use vars qw($quotausage $quotalimit);
-use vars qw($folderdir @validfolders $folderusage);
-use vars qw($folder $printfolder $escapedfolder);
 
 # extern vars
 use vars qw(%lang_folders %lang_sizes %lang_wdbutton %lang_text %lang_err);	# defined in lang/xy
 
 # local globals
-use vars qw($messageid $escapedmessageid);
+use vars qw($folder $messageid);
+use vars qw($escapedmessageid $escapedfolder);
 use vars qw($webdiskrootdir);
 
-########################## MAIN ##############################
+########## MAIN ##################################################
 openwebmail_requestbegin();
 $SIG{PIPE}=\&openwebmail_exit;	# for user stop
 $SIG{TERM}=\&openwebmail_exit;	# for user stop
@@ -70,8 +73,11 @@ if (!$config{'enable_webdisk'}) {
 # set umask back to 0022 here dir & files are created as world readable
 umask(0022);
 
-$messageid = param("message_id");
-$escapedmessageid = escapeURL($messageid);
+$folder = param('folder') || 'INBOX';
+$messageid = param('message_id')||'';
+
+$escapedfolder = ow::tool::escapeURL($folder);
+$escapedmessageid = ow::tool::escapeURL($messageid);
 
 $webdiskrootdir=$homedir.absolute_vpath("/", $config{'webdisk_rootpath'});
 ($webdiskrootdir =~ m!^(.+)/?$!) && ($webdiskrootdir = $1);  # untaint & remove tail /
@@ -80,14 +86,14 @@ if (! -d $webdiskrootdir) {
       openwebmailerror(__FILE__, __LINE__, "lang_text{'cant_create_dir'} $webdiskrootdir ($!)");
 }
 
-my $action = param("action");
+my $action = param('action')||'';
 my $currentdir;
 if (defined(param('currentdir')) && param('currentdir') ne "") {
    $currentdir = param('currentdir');
 } else {
    $currentdir = cookie("$user-currentdir"),
 }
-my $gotodir = param('gotodir');
+my $gotodir = param('gotodir')||'';
 my @selitems = (param('selitems'));
 my $destname = param('destname')||'';
 my $filesort = param('filesort')|| 'name';
@@ -99,7 +105,7 @@ $gotodir = absolute_vpath($currentdir, $gotodir);
 
 my $msg=verify_vpath($webdiskrootdir, $currentdir);
 openwebmailerror(__FILE__, __LINE__, $msg) if ($msg);
-$currentdir=untaint($currentdir);
+$currentdir=ow::tool::untaint($currentdir);
 
 if ($action eq "mkdir" || defined(param('mkdirbutton')) ) {
    if ($config{'webdisk_readonly'}) {
@@ -233,6 +239,13 @@ if ($action eq "mkdir" || defined(param('mkdirbutton')) ) {
       $msg="$lang_wdbutton{'listarchive'} - $lang_err{'onefileonly'}";
    }
 
+} elsif ($action eq "wordpreview" || defined(param('wordpreviewbutton'))) {
+   if ($#selitems==0) {
+      $msg=wordpreview($currentdir, $selitems[0]);
+   } else {
+      $msg="MS Word $lang_wdbutton{'preview'} - $lang_err{'onefileonly'}";
+   }
+
 } elsif ($action eq "mkpdf" || defined(param('mkpdfbutton')) ) {
    if ($config{'webdisk_readonly'}) {
       $msg="$lang_err{'webdisk_readonly'}\n";
@@ -273,7 +286,7 @@ if ($action eq "mkdir" || defined(param('mkdirbutton')) ) {
 
 } elsif ($action eq "preview") {
    my $vpath=absolute_vpath($currentdir, $selitems[0]);
-   my $filecontent=param('filecontent');
+   my $filecontent=param('filecontent')||'';
    if ($#selitems==0) {
       if ( $filecontent) {
          $msg=previewfile($currentdir, $selitems[0], $filecontent);
@@ -346,13 +359,13 @@ if ($action eq "mkdir" || defined(param('mkdirbutton')) ) {
 }
 
 openwebmail_requestend();
-########################## END MAIN ##########################
+########## END MAIN ##############################################
 
-######################## CREATEDIR ##############################
+########## CREATEDIR #############################################
 sub createdir {
    my ($currentdir, $destname)=@_;
 
-   my $vpath=untaint(absolute_vpath($currentdir, $destname));
+   my $vpath=ow::tool::untaint(absolute_vpath($currentdir, $destname));
    my $err=verify_vpath($webdiskrootdir, $vpath);
    return ("$err\n") if ($err);
 
@@ -369,13 +382,13 @@ sub createdir {
       }
    }
 }
-######################## END CREATEDIR ##########################
+########## END CREATEDIR #########################################
 
-########################## NEWFILE ##############################
+########## NEWFILE ###############################################
 sub createfile {
    my ($currentdir, $destname)=@_;
 
-   my $vpath=untaint(absolute_vpath($currentdir, $destname));
+   my $vpath=ow::tool::untaint(absolute_vpath($currentdir, $destname));
    my $err=verify_vpath($webdiskrootdir, $vpath);
    return ("$err\n") if ($err);
 
@@ -394,16 +407,16 @@ sub createfile {
       }
    }
 }
-########################## END NEWFILE ##########################
+########## END NEWFILE ###########################################
 
-########################## DELETEDIRFILES #######################
+########## DELETEDIRFILES ########################################
 sub deletedirfiles {
    my ($currentdir, @selitems)=@_;
    my ($msg, $err);
 
    my @filelist;
    foreach (@selitems) {
-      my $vpath=untaint(absolute_vpath($currentdir, $_));
+      my $vpath=ow::tool::untaint(absolute_vpath($currentdir, $_));
       $err=verify_vpath($webdiskrootdir, $vpath);
       if ($err) {
          $msg.="$err\n"; next;
@@ -420,7 +433,7 @@ sub deletedirfiles {
    return($msg) if ($#filelist<0);
 
    my @cmd;
-   my $rmbin=findbin('rm');
+   my $rmbin=ow::tool::findbin('rm');
    return("$lang_text{'program'} rm $lang_err{'doesnt_exist'}\n") if (!$rmbin);
    @cmd=($rmbin, '-Rfv');
 
@@ -438,14 +451,14 @@ sub deletedirfiles {
    }
    return($msg);
 }
-########################## END DELETEDIRFILES #######################
+########## END DELETEDIRFILES ####################################
 
-########################## COPYDIRFILES ##############################
+########## COPYDIRFILES ##########################################
 sub copymovesymlink_dirfiles {
    my ($op, $currentdir, $destname, @selitems)=@_;
    my ($msg, $err);
 
-   my $vpath2=untaint(absolute_vpath($currentdir, $destname));
+   my $vpath2=ow::tool::untaint(absolute_vpath($currentdir, $destname));
    $err=verify_vpath($webdiskrootdir, $vpath2);
    return ("$err\n") if ($err);
 
@@ -459,7 +472,7 @@ sub copymovesymlink_dirfiles {
 
    my @filelist;
    foreach (@selitems) {
-      my $vpath1=untaint(absolute_vpath($currentdir, $_));
+      my $vpath1=ow::tool::untaint(absolute_vpath($currentdir, $_));
       $err=verify_vpath($webdiskrootdir, $vpath1);
       if ($err) {
          $msg.="$err\n"; next;
@@ -476,15 +489,15 @@ sub copymovesymlink_dirfiles {
 
    my @cmd;
    if ($op eq "copy") {
-      my $cpbin=findbin('cp');
+      my $cpbin=ow::tool::findbin('cp');
       return("$lang_text{'program'} cp $lang_err{'doesnt_exist'}\n") if (!$cpbin);
       @cmd=($cpbin, '-pRfv');
    } elsif ($op eq "move") {
-      my $mvbin=findbin('mv');
+      my $mvbin=ow::tool::findbin('mv');
       return("$lang_text{'program'} mv $lang_err{'doesnt_exist'}\n") if (!$mvbin);
       @cmd=($mvbin, '-fv');
    } elsif ($op eq "symlink") {
-      my $lnbin=findbin('ln');
+      my $lnbin=ow::tool::findbin('ln');
       return("$lang_text{'program'} ln $lang_err{'doesnt_exist'}\n") if (!$lnbin);
       @cmd=($lnbin, '-sv');
    } else {
@@ -502,9 +515,9 @@ sub copymovesymlink_dirfiles {
    $msg.=$msg2;
    return($msg);
 }
-######################### END COPYDIRFILES ########################
+########## END COPYDIRFILES ######################################
 
-########################## EDITFILE ##############################
+########## EDITFILE ##############################################
 sub editfile {
    my ($currentdir, $selitem)=@_;
    my $vpath=absolute_vpath($currentdir, $selitem);
@@ -522,26 +535,23 @@ sub editfile {
       if (!open(F, "$webdiskrootdir/$vpath")) {
          autoclosewindow($lang_wdbutton{'edit'}, "$lang_err{'couldnt_open'} $vpath");
       }
-      filelock("$webdiskrootdir/$vpath", LOCK_SH|LOCK_NB) or
+      ow::filelock::lock("$webdiskrootdir/$vpath", LOCK_SH|LOCK_NB) or
          autoclosewindow($lang_text{'edit'}, "$lang_err{'couldnt_locksh'} $webdiskrootdir/$vpath!");
       while (<F>) { $content .= $_; }
       close(F);
-      filelock("$webdiskrootdir/$vpath", LOCK_UN);
+      ow::filelock::lock("$webdiskrootdir/$vpath", LOCK_UN);
 
       $content =~ s|<\s*/\s*textarea\s*>|</ESCAPE_TEXTAREA>|gi;
+
+      writelog("webdisk editfile - $vpath");
+      writehistory("webdisk editfile - $vpath");
    }
 
    $temphtml .= start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-webdisk.pl",
-                             -name=>'editfile') .
-                   hidden(-name=>'sessionid',
-                          -value=>$thissession,
-                          -override=>'1') .
-                   hidden(-name=>'action',
-                          -value=>'savefile',
-                          -override=>'1') .
-                   hidden(-name=>'currentdir',
-                          -value=>$currentdir,
-                          -override=>'1');
+                           -name=>'editfile') .
+                ow::tool::hiddens(sessionid=>$thissession,
+                                  action=>'savefile',
+                                  currentdir=>$currentdir);
    $html =~ s/\@\@\@STARTEDITFORM\@\@\@/$temphtml/;
 
    $temphtml = textfield(-name=>'destname',
@@ -563,7 +573,7 @@ sub editfile {
    $temphtml = submit("$lang_text{'save'}");
    $html =~ s/\@\@\@SAVEBUTTON\@\@\@/$temphtml/;
 
-   $temphtml = button(-name=>"cancelbutton",
+   $temphtml = button(-name=>'cancelbutton',
                       -value=>$lang_text{'cancel'},
                       -onclick=>'window.close();',
                       -override=>'1');
@@ -572,21 +582,11 @@ sub editfile {
    $temphtml= start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-webdisk.pl",
                          -name=>'previewform',
                          -target=>'_preview').
-               hidden(-name=>'sessionid',
-                      -default=>$thissession,
-                      -override=>'1').
-               hidden(-name=>'action',
-                      -value=>'preview',
-                      -override=>'1') .
-               hidden(-name=>'currentdir',
-                      -value=>$currentdir,
-                      -override=>'1').
-               hidden(-name=>'selitems',
-                      -default=>'',
-                      -override=>'1').
-               hidden(-name=>'filecontent',
-                      -default=>'',
-                      -override=>'1');
+              ow::tool::hiddens(sessionid=>$thissession,
+                                action=>'preview',
+                                currentdir=>$currentdir,
+                                selitems=>'',
+                                filecontent=>'');
    $html =~ s/\@\@\@STARTPREVIEWFORM\@\@\@/$temphtml/;
 
    $temphtml = end_form();
@@ -603,12 +603,12 @@ sub editfile {
 
    httpprint([], [htmlheader(), $html, htmlfooter(2)]);
 }
-######################## END EDITFILE ##############################
+########## END EDITFILE ##########################################
 
-########################## SAVEFILE ##############################
+########## SAVEFILE ##############################################
 sub savefile {
    my ($currentdir, $destname, $content)=@_;
-   my $vpath=untaint(absolute_vpath($currentdir, $destname));
+   my $vpath=ow::tool::untaint(absolute_vpath($currentdir, $destname));
    my $err=verify_vpath($webdiskrootdir, $vpath);
    autoclosewindow($lang_text{'savefile'}, $err, 60) if ($err);
 
@@ -619,27 +619,27 @@ sub savefile {
    if (!open(F, ">$webdiskrootdir/$vpath") ) {
       autoclosewindow($lang_text{'savefile'}, "$lang_text{'savefile'} $lang_text{'failed'} ($vpath: $!)", 60);
    }
-   filelock("$webdiskrootdir/$vpath", LOCK_EX|LOCK_NB) or
+   ow::filelock::lock("$webdiskrootdir/$vpath", LOCK_EX|LOCK_NB) or
       autoclosewindow($lang_text{'savefile'}, "$lang_err{'couldnt_lock'} $webdiskrootdir/$vpath!", 60);
    print F "$content";
    close(F);
-   filelock("$webdiskrootdir/$vpath", LOCK_UN);
+   ow::filelock::lock("$webdiskrootdir/$vpath", LOCK_UN);
 
    writelog("webdisk savefile - $vpath");
    writehistory("webdisk savefile - $vpath");
 
    my $jscode=qq|window.opener.document.dirform.submit();|;
-   autoclosewindow($lang_text{'savefile'}, "$lang_text{'savefile'} $lang_text{'succeeded'} ($vpath)", 8, $jscode);
+   autoclosewindow($lang_text{'savefile'}, "$lang_text{'savefile'} $lang_text{'succeeded'} ($vpath)", 5, $jscode);
 }
-########################## END SAVEFILE ##############################
+########## END SAVEFILE ##########################################
 
-########################## COMPRESSFILES ##############################
+########## COMPRESSFILES #########################################
 sub compressfiles {	# pack files with zip or tgz (tar -zcvf)
    my ($ztype, $currentdir, $destname, @selitems)=@_;
    my ($vpath2, $msg, $err);
 
    if ($ztype eq "mkzip" || $ztype eq "mktgz" ) {
-      $vpath2=untaint(absolute_vpath($currentdir, $destname));
+      $vpath2=ow::tool::untaint(absolute_vpath($currentdir, $destname));
       $err=verify_vpath($webdiskrootdir, $vpath2);
       return ("$err\n") if ($err);
       if ( -e "$webdiskrootdir/$vpath2") {
@@ -660,7 +660,7 @@ sub compressfiles {	# pack files with zip or tgz (tar -zcvf)
       my $p=fullpath2vpath("$webdiskrootdir/$vpath", "$webdiskrootdir/$currentdir");
       # use absolute path if relative to webdiskrootdir/currentdir is not possible
       $p="$webdiskrootdir/$vpath" if ($p eq "");
-      $p=untaint($p);
+      $p=ow::tool::untaint($p);
 
       if ( -d "$webdiskrootdir/$vpath" ) {
          $selitem{".$p/"}=1;
@@ -673,16 +673,16 @@ sub compressfiles {	# pack files with zip or tgz (tar -zcvf)
 
    my @cmd;
    if ($ztype eq "gzip") {
-      my $gzipbin=findbin('gzip');
+      my $gzipbin=ow::tool::findbin('gzip');
       return("$lang_text{'program'} gzip $lang_err{'doesnt_exist'}\n") if (!$gzipbin);
       @cmd=($gzipbin, '-rq');
    } elsif ($ztype eq "mkzip") {
-      my $zipbin=findbin('zip');
+      my $zipbin=ow::tool::findbin('zip');
       return("$lang_text{'program'} zip $lang_err{'doesnt_exist'}\n") if (!$zipbin);
       @cmd=($zipbin, '-ryq', "$webdiskrootdir/$vpath2");
    } elsif ($ztype eq "mktgz") {
-      my $gzipbin=findbin('gzip');
-      my $tarbin=findbin('tar');
+      my $gzipbin=ow::tool::findbin('gzip');
+      my $tarbin=ow::tool::findbin('tar');
       if ($gzipbin) {
          $ENV{'PATH'}=$gzipbin;
          $ENV{'PATH'}=~s|/gzip||; # tar finds gzip through PATH
@@ -707,10 +707,10 @@ sub compressfiles {	# pack files with zip or tgz (tar -zcvf)
    }
    return(webdisk_execute($opstr, @cmd, @filelist));
 }
-########################## END COMPRESSFILES ##########################
+########## END COMPRESSFILES #####################################
 
-########################## DECOMPRESSFILE ##############################
-sub decompressfile {	# unpack zip, tar.gz, tgz, gz
+########## DECOMPRESSFILE ########################################
+sub decompressfile {	# unpack tar.gz, tgz, tar.bz2, tbz, gz, zip, rar, arj, lzh, tnef
    my ($currentdir, $selitem)=@_;
    my $vpath=absolute_vpath($currentdir, $selitem);
 
@@ -721,57 +721,57 @@ sub decompressfile {	# unpack zip, tar.gz, tgz, gz
    return($err) if ($err);
 
    my @cmd;
-   if ($vpath=~/\.zip$/i) {
-      my $unzipbin=findbin('unzip');
-      return("$lang_text{'program'} unzip $lang_err{'doesnt_exist'}\n") if (!$unzipbin);
-      @cmd=($unzipbin, '-oq');
-
-   } elsif ($vpath=~/\.(tar\.g?z||tgz)$/i) {
-      my $gzipbin=findbin('gzip');
+   if ($vpath=~/\.(tar\.g?z||tgz)$/i && $config{'webdisk_allow_untar'}) {
+      my $gzipbin=ow::tool::findbin('gzip');
       return("$lang_text{'program'} gzip $lang_err{'doesnt_exist'}\n") if (!$gzipbin);
-      my $tarbin=findbin('tar');
+      my $tarbin=ow::tool::findbin('tar');
       $ENV{'PATH'}=$gzipbin; $ENV{'PATH'}=~s|/gzip||; # for tar
       @cmd=($tarbin, '-zxpf');
 
-   } elsif ($vpath=~/\.(tar\.bz2?||tbz)$/i) {
-      my $bzip2bin=findbin('bzip2');
+   } elsif ($vpath=~/\.(tar\.bz2?||tbz)$/i && $config{'webdisk_allow_untar'}) {
+      my $bzip2bin=ow::tool::findbin('bzip2');
       return("$lang_text{'program'} bzip2 $lang_err{'doesnt_exist'}\n") if (!$bzip2bin);
-      my $tarbin=findbin('tar');
+      my $tarbin=ow::tool::findbin('tar');
       $ENV{'PATH'}=$bzip2bin; $ENV{'PATH'}=~s|/bzip2||;	# for tar
       @cmd=($tarbin, '-yxpf');
 
    } elsif ($vpath=~/\.g?z$/i) {
-      my $gzipbin=findbin('gzip');
+      my $gzipbin=ow::tool::findbin('gzip');
       return("$lang_text{'program'} gzip $lang_err{'doesnt_exist'}\n") if (!$gzipbin);
       @cmd=($gzipbin, '-dq');
 
    } elsif ($vpath=~/\.bz2?$/i) {
-      my $bzip2bin=findbin('bzip2');
+      my $bzip2bin=ow::tool::findbin('bzip2');
       return("$lang_text{'program'} bzip2 $lang_err{'doesnt_exist'}\n") if (!$bzip2bin);
       @cmd=($bzip2bin, '-dq');
 
-   } elsif ($vpath=~/\.arj$/i) {
-      my $unarjbin=findbin('unarj');
-      return("$lang_text{'program'} unarj $lang_err{'doesnt_exist'}\n") if (!$unarjbin);
-      @cmd=($unarjbin, 'x');
+   } elsif ($vpath=~/\.zip$/i && $config{'webdisk_allow_unzip'}) {
+      my $unzipbin=ow::tool::findbin('unzip');
+      return("$lang_text{'program'} unzip $lang_err{'doesnt_exist'}\n") if (!$unzipbin);
+      @cmd=($unzipbin, '-oq');
 
-   } elsif ($vpath=~/\.rar$/i) {
-      my $unrarbin=findbin('unrar');
+   } elsif ($vpath=~/\.rar$/i && $config{'webdisk_allow_unrar'}) {
+      my $unrarbin=ow::tool::findbin('unrar');
       return("$lang_text{'program'} unrar $lang_err{'doesnt_exist'}\n") if (!$unrarbin);
       @cmd=($unrarbin, 'x', '-r', '-y', '-o+');
 
-   } elsif ($vpath=~/\.lzh$/i) {
-      my $lhabin=findbin('lha');
+   } elsif ($vpath=~/\.arj$/i && $config{'webdisk_allow_unarj'}) {
+      my $unarjbin=ow::tool::findbin('unarj');
+      return("$lang_text{'program'} unarj $lang_err{'doesnt_exist'}\n") if (!$unarjbin);
+      @cmd=($unarjbin, 'x');
+
+   } elsif ($vpath=~/\.lzh$/i && $config{'webdisk_allow_unlzh'}) {
+      my $lhabin=ow::tool::findbin('lha');
       return("$lang_text{'program'} lha $lang_err{'doesnt_exist'}\n") if (!$lhabin);
       @cmd=($lhabin, '-xfq');
 
    } elsif ($vpath=~/\.tnef$/i) {
-      my $tnefbin=findbin('tnef');
+      my $tnefbin=ow::tool::findbin('tnef');
       return("$lang_text{'program'} tnef $lang_err{'doesnt_exist'}\n") if (!$tnefbin);
       @cmd=($tnefbin, '--overwrite', '-v', '-f');
 
    } else {
-      return("$lang_text{'decomp_notsupported'} ($vpath)\n");
+      return("$lang_err{'decomp_notsupported'} ($vpath)\n");
    }
 
    chdir("$webdiskrootdir/$currentdir") or
@@ -785,9 +785,9 @@ sub decompressfile {	# unpack zip, tar.gz, tgz, gz
    }
    return(webdisk_execute($opstr, @cmd, "$webdiskrootdir/$vpath"));
 }
-####################### END DECOMPRESSFILE ##########################
+########## END DECOMPRESSFILE ####################################
 
-########################## LISTARCHIVE ##############################
+########## LISTARCHIVE ###########################################
 sub listarchive {
    my ($currentdir, $selitem)=@_;
    my $vpath=absolute_vpath($currentdir, $selitem);
@@ -806,50 +806,50 @@ sub listarchive {
    }
 
    my @cmd;
-   if ($vpath=~/\.zip$/i) {
-      my $unzipbin=findbin('unzip');
-      autoclosewindow($lang_wdbutton{'listarchive'}, "$lang_text{'program'} unzip $lang_err{'doesnt_exist'}\n") if (!$unzipbin);
-      @cmd=($unzipbin, '-lq');
-
-   } elsif ($vpath=~/\.(tar\.g?z||tgz)$/i) {
-      my $gzipbin=findbin('gzip');
+   if ($vpath=~/\.(tar\.g?z|tgz)$/i) {
+      my $gzipbin=ow::tool::findbin('gzip');
       autoclosewindow($lang_wdbutton{'listarchive'}, "$lang_text{'program'} gzip $lang_err{'doesnt_exist'}\n") if (!$gzipbin);
-      my $tarbin=findbin('tar');
+      my $tarbin=ow::tool::findbin('tar');
       $ENV{'PATH'}=$gzipbin; $ENV{'PATH'}=~s|/gzip||; # for tar
       @cmd=($tarbin, '-ztvf');
 
-   } elsif ($vpath=~/\.(tar\.bz2?||tbz)$/i) {
-      my $bzip2bin=findbin('bzip2');
+   } elsif ($vpath=~/\.(tar\.bz2?|tbz)$/i) {
+      my $bzip2bin=ow::tool::findbin('bzip2');
       autoclosewindow($lang_wdbutton{'listarchive'}, "$lang_text{'program'} bzip2 $lang_err{'doesnt_exist'}\n") if (!$bzip2bin);
-      my $tarbin=findbin('tar');
+      my $tarbin=ow::tool::findbin('tar');
       $ENV{'PATH'}=$bzip2bin; $ENV{'PATH'}=~s|/bzip2||;	# for tar
       @cmd=($tarbin, '-ytvf');
 
-   } elsif ($vpath=~/\.arj$/i) {
-      my $unarjbin=findbin('unarj');
-      autoclosewindow($lang_wdbutton{'listarchive'}, "$lang_text{'program'} unarj $lang_err{'doesnt_exist'}\n") if (!$unarjbin);
-      @cmd=($unarjbin, 'l');
+   } elsif ($vpath=~/\.zip$/i) {
+      my $unzipbin=ow::tool::findbin('unzip');
+      autoclosewindow($lang_wdbutton{'listarchive'}, "$lang_text{'program'} unzip $lang_err{'doesnt_exist'}\n") if (!$unzipbin);
+      @cmd=($unzipbin, '-lq');
 
    } elsif ($vpath=~/\.rar$/i) {
-      my $unrarbin=findbin('unrar');
+      my $unrarbin=ow::tool::findbin('unrar');
       autoclosewindow($lang_wdbutton{'listarchive'}, "$lang_text{'program'} unrar $lang_err{'doesnt_exist'}\n") if (!$unrarbin);
       @cmd=($unrarbin, 'l');
 
+   } elsif ($vpath=~/\.arj$/i) {
+      my $unarjbin=ow::tool::findbin('unarj');
+      autoclosewindow($lang_wdbutton{'listarchive'}, "$lang_text{'program'} unarj $lang_err{'doesnt_exist'}\n") if (!$unarjbin);
+      @cmd=($unarjbin, 'l');
+
    } elsif ($vpath=~/\.lzh$/i) {
-      my $lhabin=findbin('lha');
+      my $lhabin=ow::tool::findbin('lha');
       autoclosewindow($lang_wdbutton{'listarchive'}, "$lang_text{'program'} lha $lang_err{'doesnt_exist'}\n") if (!$lhabin);
       @cmd=($lhabin, '-l');
 
    } elsif ($vpath=~/\.tnef$/i) {
-      my $tnefbin=findbin('tnef');
+      my $tnefbin=ow::tool::findbin('tnef');
       autoclosewindow($lang_wdbutton{'listarchive'}, "$lang_text{'program'} tnef $lang_err{'doesnt_exist'}\n") if (!$tnefbin);
       @cmd=($tnefbin, '-t');
 
    } else {
-      autoclosewindow($lang_wdbutton{'listarchive'}, "$lang_text{'decomp_notsupported'} ($vpath)\n");
+      autoclosewindow($lang_wdbutton{'listarchive'}, "$lang_err{'decomp_notsupported'} ($vpath)\n");
    }
 
-   my ($stdout, $stderr, $exit, $sig)=openwebmail::execute::execute(@cmd, "$webdiskrootdir/$vpath");
+   my ($stdout, $stderr, $exit, $sig)=ow::execute::execute(@cmd, "$webdiskrootdir/$vpath");
    # try to conv realpath in stdout/stderr back to vpath
    $stdout=~s!(?:$webdiskrootdir//|\s$webdiskrootdir/)! /!g; $stdout=~s!/+!/!g;
    $stderr=~s!(?:$webdiskrootdir//|\s$webdiskrootdir/)! /!g; $stderr=~s!/+!/!g;
@@ -859,6 +859,9 @@ sub listarchive {
       $err.=", terminated by signal $sig" if ($sig);
       $err.=")\n$stdout$stderr";
       autoclosewindow($lang_wdbutton{'listarchive'}, $err);
+   } else {
+      writelog("webdisk listarchive - $vpath");
+      writehistory("webdisk listarchive - $vpath");
    }
 
    $temphtml .= start_form('listarchive') .
@@ -876,7 +879,7 @@ sub listarchive {
                qq|</td</tr></table>\n|;
    $html =~ s/\@\@\@FILECONTENT\@\@\@/$temphtml/;
 
-   $temphtml = button(-name=>"closebutton",
+   $temphtml = button(-name=>'closebutton',
                       -value=>$lang_text{'close'},
                       -onclick=>'window.close();',
                       -override=>'1');
@@ -887,9 +890,86 @@ sub listarchive {
 
    httpprint([], [htmlheader(), $html, htmlfooter(2)]);
 }
-######################## END LISTARCHIVE ##############################
+########## END LISTARCHIVE #######################################
 
-############################ MAKEPDFPS ################################
+########## WORDPREVIEW ###########################################
+sub wordpreview {		# msword text preview
+   my ($currentdir, $selitem)=@_;
+   my $vpath=absolute_vpath($currentdir, $selitem);
+
+   my ($html, $temphtml);
+   $html = applystyle(readtemplate("wordpreview.template"));
+
+   if (! -f "$webdiskrootdir/$vpath") {
+      autoclosewindow("MS Word $lang_wdbutton{'preview'}", "$lang_text{'file'} $vpath $lang_err{'doesnt_exist'}");
+      return;
+   }
+   my $err=verify_vpath($webdiskrootdir, $vpath);
+   if ($err) {
+      autoclosewindow("MS Word $lang_wdbutton{'preview'}", $err);
+      return;
+   }
+
+   my @cmd;
+   if ($vpath=~/\.(?:doc|dot)$/i) {
+      my $antiwordbin=ow::tool::findbin('antiword');
+      autoclosewindow("MS Word $lang_wdbutton{'preview'}", "$lang_text{'program'} antiword $lang_err{'doesnt_exist'}\n") if (!$antiwordbin);
+      @cmd=($antiwordbin, '-m', 'UTF-8.txt');
+   } else {
+      autoclosewindow("MS Word $lang_wdbutton{'preview'}", "$lang_err{'filefmt_notsupported'} ($vpath)\n");
+   }
+
+   chdir("$webdiskrootdir/$currentdir") or
+      return("$lang_err{'couldnt_chdirto'} $currentdir\n");
+
+   my ($stdout, $stderr, $exit, $sig)=ow::execute::execute(@cmd, "$webdiskrootdir/$vpath");
+
+   if ($exit||$sig) {
+      # try to conv realpath in stdout/stderr back to vpath
+      $stderr=~s!(?:$webdiskrootdir//|\s$webdiskrootdir/)! /!g; $stderr=~s!/+!/!g;
+      $stderr=~s!^\s+.*$!!mg;	# remove the antiword syntax description
+
+      my $err="$lang_text{'program'} antiword $lang_text{'failed'} (exit status $exit";
+      $err.=", terminated by signal $sig" if ($sig);
+      $err.=")\n$stderr";
+      autoclosewindow("MS Word $lang_wdbutton{'preview'}", $err);
+   } else {
+      if (is_convertable('utf-8', $prefs{'charset'}) ) {
+         ($stdout)=iconv('utf-8', $prefs{'charset'}, $stdout);
+      }      
+      writelog("webdisk wordpreview - $vpath");
+      writehistory("webdisk wordpreview - $vpath");
+   }
+
+   $temphtml .= start_form('wordpreview') .
+   $html =~ s/\@\@\@STARTEDITFORM\@\@\@/$temphtml/;
+
+   $temphtml = textfield(-name=>'selectitems',
+                         -default=>$vpath,
+                         -size=>'66',
+                         -disabled=>'1',
+                         -override=>'1');
+   $html =~ s/\@\@\@FILENAME\@\@\@/$temphtml/;
+
+   $temphtml = qq|<table width="95%" border=0 cellpadding=0 cellspacing=1 bgcolor=#999999><tr><td nowrap bgcolor=#ffffff>\n|.
+               qq|<table width=100%><tr><td><pre>$stdout</pre></td></tr></table>\n|.
+               qq|</td</tr></table>\n|;
+   $html =~ s/\@\@\@FILECONTENT\@\@\@/$temphtml/;
+
+   $temphtml = button(-name=>'closebutton',
+                      -value=>$lang_text{'close'},
+                      -onclick=>'window.close();',
+                      -override=>'1');
+   $html =~ s/\@\@\@CLOSEBUTTON\@\@\@/$temphtml/;
+
+   $temphtml = end_form();
+   $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/;
+
+   httpprint([], [htmlheader(), $html, htmlfooter(2)]);
+}
+########## END WORDPREVIEW #######################################
+
+########## MAKEPDFPS #############################################
 sub makepdfps {		# ps2pdf or pdf2ps
    my ($mktype, $currentdir, $selitem)=@_;
    my $vpath=absolute_vpath($currentdir, $selitem);
@@ -900,7 +980,7 @@ sub makepdfps {		# ps2pdf or pdf2ps
    my $err=verify_vpath($webdiskrootdir, $vpath);
    return($err) if ($err);
 
-   my $gsbin=findbin('gs');
+   my $gsbin=ow::tool::findbin('gs');
    return("$lang_text{'program'} gs $lang_err{'doesnt_exist'}\n") if (!$gsbin);
 
    my @cmd;
@@ -918,7 +998,7 @@ sub makepdfps {		# ps2pdf or pdf2ps
 		'-c', 'save', 'pop', '-f');	# -c must immediately before -f
 
    } else {
-      return("$lang_text{'filefmt_notsupported'} ($vpath)\n");
+      return("$lang_err{'filefmt_notsupported'} ($vpath)\n");
    }
 
    chdir("$webdiskrootdir/$currentdir") or
@@ -926,14 +1006,14 @@ sub makepdfps {		# ps2pdf or pdf2ps
 
    return(webdisk_execute($lang_wdbutton{$mktype}, @cmd, "$webdiskrootdir/$vpath"));
 }
-########################## END MAKEPDFPS ##############################
+########## END MAKEPDFPS #########################################
 
-########################## MAKETHUMB ################################
+########## MAKETHUMB #############################################
 sub makethumbnail {
    my ($currentdir, @selitems)=@_;
    my $msg;
 
-   my $convertbin=findbin('convert');
+   my $convertbin=ow::tool::findbin('convert');
    return("$lang_text{'program'} convert $lang_err{'doesnt_exist'}\n") if (!$convertbin);
    my @cmd=($convertbin, '+profile', '*', '-interlace', 'NONE', '-geometry', '64x64');
 
@@ -945,20 +1025,17 @@ sub makethumbnail {
       }
       next if ( $vpath!~/\.(jpe?g|gif|png|bmp|tif)$/i || !-f "$webdiskrootdir/$vpath");
 
-      my $thumbnail=path2thumbnail($vpath);
-      ($thumbnail =~ /^(.*)$/) && ($thumbnail = $1);
-
+      my $thumbnail=ow::tool::untaint(path2thumbnail($vpath));
       my @p=split(/\//, $thumbnail); pop(@p);
       my $thumbnaildir=join('/', @p);
       if (!-d "$webdiskrootdir/$thumbnaildir") {
-         ($thumbnaildir =~ /^(.*)$/) && ($thumbnaildir = $1);
-         if (!mkdir ("$webdiskrootdir/$thumbnaildir", 0755)) {
+         if (!mkdir (ow::tool::untaint("$webdiskrootdir/$thumbnaildir"), 0755)) {
             $msg.="$!\n"; next;
          }
       }
 
       my ($img_atime,$img_mtime)= (stat("$webdiskrootdir/$vpath"))[8,9];
-      if (-f $thumbnail) {
+      if (-f "$webdiskrootdir/$thumbnail") {
          my ($thumbnail_atime,$thumbnail_mtime)= (stat("$webdiskrootdir/$thumbnail"))[8,9];
          next if ($thumbnail_mtime==$img_mtime);
       }
@@ -971,10 +1048,8 @@ sub makethumbnail {
          unlink @f;
          rename("$webdiskrootdir/$thumbnail.0", "$webdiskrootdir/$thumbnail");
       }
-      if (-f $thumbnail) {
-         ($img_atime  =~ /^(.*)$/) && ($img_atime = $1);
-         ($img_mtime  =~ /^(.*)$/) && ($img_mtime = $1);
-         utime($img_atime, $img_mtime, "$webdiskrootdir/$thumbnail")
+      if (-f "$webdiskrootdir/$thumbnail") {
+         utime(ow::tool::untaint($img_atime), ow::tool::untaint($img_mtime), "$webdiskrootdir/$thumbnail");
       }
    }
    return($msg);
@@ -986,9 +1061,9 @@ sub path2thumbnail {
    push(@p, '.thumbnail');
    return(join('/',@p)."/$tfile");
 }
-######################### END MAKETHUMB #############################
+########## END MAKETHUMB #########################################
 
-########################## DOWNLOADFILES ##############################
+########## DOWNLOADFILES #########################################
 sub downloadfiles {	# through zip or tgz
    my ($currentdir, @selitems)=@_;
    my $msg;
@@ -1004,7 +1079,7 @@ sub downloadfiles {	# through zip or tgz
       my $p=fullpath2vpath("$webdiskrootdir/$vpath", "$webdiskrootdir/$currentdir");
       # use absolute path if relative to webdiskrootdir/currentdir is not possible
       $p="$webdiskrootdir/$vpath" if ($p eq "");
-      $p=untaint($p);
+      $p=ow::tool::untaint($p);
 
       if ( -d "$webdiskrootdir/$vpath" ) {
          $selitem{".$p/"}=1;
@@ -1019,19 +1094,19 @@ sub downloadfiles {	# through zip or tgz
    if ($#filelist==0) {
       $dlname=safedlname($filelist[0]);
    } else {
-      my $g2l=time()+timeoffset2seconds($prefs{'timeoffset'}); # trick makes gmtime($g2l) return localtime in timezone of timeoffsset
-      my @t=gmtime($g2l);
+      my $localtime=ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'});
+      my @t=ow::datetime::seconds2array($localtime);
       $dlname=sprintf("%4d%02d%02d-%02d%02d", $t[5]+1900,$t[4]+1,$t[3], $t[2],$t[1]);
    }
 
    my @cmd;
-   my $zipbin=findbin('zip');
+   my $zipbin=ow::tool::findbin('zip');
    if ($zipbin) {
       @cmd=($zipbin, '-ryq', '-');
       $dlname.=".zip";
    } else {
-      my $gzipbin=findbin('gzip');
-      my $tarbin=findbin('tar');
+      my $gzipbin=ow::tool::findbin('gzip');
+      my $tarbin=ow::tool::findbin('tar');
       if ($gzipbin) {
          $ENV{'PATH'}=$gzipbin;
          $ENV{'PATH'}=~s|/gzip||; # tar finds gzip through PATH
@@ -1046,7 +1121,7 @@ sub downloadfiles {	# through zip or tgz
    chdir("$webdiskrootdir/$currentdir") or
       return("$lang_err{'couldnt_chdirto'} $currentdir\n");
 
-   my $contenttype=ext2contenttype($dlname);
+   my $contenttype=ow::tool::ext2contenttype($dlname);
 
    local $|=1;
    print qq|Connection: close\n|,
@@ -1067,9 +1142,9 @@ sub downloadfiles {	# through zip or tgz
    $<=$>;		# drop ruid by setting ruid = euid
    exec(@cmd, @filelist) or print qq|Error in executing |.join(' ', @cmd, @filelist);
 }
-###################### END DOWNLOADFILES #############################
+########## END DOWNLOADFILES #####################################
 
-########################## DOWNLOADFILE ##############################
+########## DOWNLOADFILE ##########################################
 sub downloadfile {
    my ($currentdir, $selitem)=@_;
 
@@ -1081,7 +1156,7 @@ sub downloadfile {
       return("$lang_err{'couldnt_open'} $vpath\n");
 
    my $dlname=safedlname($vpath);
-   my $contenttype=ext2contenttype($vpath);
+   my $contenttype=ow::tool::ext2contenttype($vpath);
    my $length = ( -s "$webdiskrootdir/$vpath");
 
    # disposition:inline default to open
@@ -1100,7 +1175,7 @@ sub downloadfile {
    if ($contenttype=~/^text/ && $length>512 &&
        cookie("openwebmail-httpcompress") &&
        $ENV{'HTTP_ACCEPT_ENCODING'}=~/\bgzip\b/ &&
-       has_zlib()) {
+       ow::tool::has_zlib()) {
       my $content;
       local $/; undef $/; $content=<F>; # no seperator, read whole file at once
       close (F);
@@ -1117,13 +1192,14 @@ sub downloadfile {
       }
       close(F);
    }
+
    writelog("webdisk download - $vpath");
    writehistory("webdisk download - $vpath ");
    return;
 }
-########################## END DOWNLOADFILE ##########################
+########## END DOWNLOADFILE ######################################
 
-########################## PREVIEWFILE ##############################
+########## PREVIEWFILE ###########################################
 # relative links in html content will be converted so they can be
 # redirect back to openwebmail-webdisk.pl with correct parmteters
 sub previewfile {
@@ -1140,12 +1216,12 @@ sub previewfile {
 
    # remove path from filename
    my $dlname=safedlname($vpath);
-   my $contenttype=ext2contenttype($vpath);
+   my $contenttype=ow::tool::ext2contenttype($vpath);
    if ($vpath=~/\.(?:html?|js)$/i) {
       # use the dir where this html is as new currentdir
       my @p=path2array($vpath); pop @p;
       my $newdir='/'.join('/', @p);
-      my $escapednewdir=escapeURL($newdir);
+      my $escapednewdir=ow::tool::escapeURL($newdir);
       my $preview_url=qq|$config{'ow_cgiurl'}/openwebmail-webdisk.pl?sessionid=$thissession|.
                       qq|&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid|.
                       qq|&amp;currentdir=$escapednewdir&amp;action=preview&amp;selitems=|;
@@ -1161,7 +1237,7 @@ sub previewfile {
    if ($contenttype=~/^text/ && $length>512 &&
        cookie("openwebmail-httpcompress") &&
        $ENV{'HTTP_ACCEPT_ENCODING'}=~/\bgzip\b/ &&
-       has_zlib()) {
+       ow::tool::has_zlib()) {
       $filecontent=Compress::Zlib::memGzip($filecontent);
       $length=length($filecontent);
       print qq|Content-Encoding: gzip\n|,
@@ -1199,9 +1275,9 @@ sub _linkconv2 {
    $link=qq|'$preview_url'.$link|;
    return($prefix.$link.$postfix);
 }
-########################## END PREVIEWFILE ##############################
+########## END PREVIEWFILE #######################################
 
-########################## UPLOADFILE ##############################
+########## UPLOADFILE ############################################
 sub uploadfile {
    no strict 'refs';	# for $upload, which is fname and fhandle of the upload
    my ($currentdir, $upload)=@_;
@@ -1224,16 +1300,18 @@ sub uploadfile {
    # Trim the path info from the filename
 
    if ($prefs{'charset'} eq 'big5' || $prefs{'charset'} eq 'gb2312') {
-      $fname=zh_dospath2fname($fname);	# dos path
+      $fname=ow::tool::zh_dospath2fname($fname);	# dos path
    } else {
       $fname =~ s|^.*\\||;		# dos path
    }
    $fname =~ s|^.*/||;	# unix path
    $fname =~ s|^.*:||;	# mac path and dos drive
 
-   my $vpath=untaint(absolute_vpath($currentdir, $fname));
+   my $vpath=ow::tool::untaint(absolute_vpath($currentdir, $fname));
    my $err=verify_vpath($webdiskrootdir, $vpath);
    return($err) if ($err);
+
+   renameoldfile("$webdiskrootdir/$vpath") if ( -f "$webdiskrootdir/$vpath");
 
    if (open(UPLOAD, ">$webdiskrootdir/$vpath")) {
       my $buff;
@@ -1241,24 +1319,48 @@ sub uploadfile {
          print UPLOAD $buff;
       }
       close(UPLOAD);
+      writelog("webdisk upload - $vpath");
+      writehistory("webdisk upload - $vpath");
       return("$lang_wdbutton{'upload'} $vpath $lang_text{'succeeded'}\n");
+
    } else {
       return("$lang_wdbutton{'upload'} $vpath $lang_text{'failed'} ($!)\n");
    }
 }
-######################## END UPLOADFILE ############################
 
-########################## FILESELECT ##############################
+# rename fname.ext   to fname.0.ext
+#        fname.0.ext to fname.1.ext
+#        .....
+#        fname.8.ext to fname.9.ext
+# so fname.ext won't be overwritten by uploaded file if duplicated name
+sub renameoldfile {
+   my ($base, $ext)=($_[0], ''); ($base,$ext)=($1,$2) if ($_[0]=~/(.*)(\..*)/);
+   my (%from, %to); $to{0}=1;
+   for my $i (0..9) { 
+      $from{$i}=1 if (-f "$base.$i$ext");
+      $to{$i+1}=1 if ($to{$i} && $from{$i});
+   }
+   for (my $i=9; $i>=0; $i--) { 
+      if ($from{$i} && $to{$i+1}) {
+         rename(ow::tool::untaint("$base.$i$ext"), ow::tool::untaint("$base.".($i+1).$ext));
+      } 
+   }
+   rename(ow::tool::untaint("$base$ext"), ow::tool::untaint("$base.0$ext"));
+}         
+
+########## END UPLOADFILE ########################################
+
+########## FILESELECT ############################################
 sub dirfilesel {
    my ($action, $olddir, $newdir, $filesort, $page)=@_;
-   my $showhidden=param('showhidden');
-   my $singlepage=param('singlepage');
+   my $showhidden=param('showhidden')||0;
+   my $singlepage=param('singlepage')||0;
 
    # for sel_saveattfile, used in composemessage to save attfile
-   my $attfile=param('attfile');
+   my $attfile=param('attfile')||'';
    my $attachment_nodeid=param('attachment_nodeid');
-   my $convfrom=param('convfrom');
-   my $attname=param('attname');
+   my $convfrom=param('convfrom')||'';
+   my $attname=param('attname')||'';
 
    if ( $action eq "sel_saveattfile" && $attfile eq "") {
       autoclosewindow($lang_text{'savefile'}, $lang_err{'param_fmterr'});
@@ -1278,16 +1380,14 @@ sub dirfilesel {
       $currentdir=$dir; last;
    }
    openwebmailerror(__FILE__, __LINE__, $msg) if (!$currentdir);
-   $escapedcurrentdir=escapeURL($currentdir);
+   $escapedcurrentdir=ow::tool::escapeURL($currentdir);
 
    my (%fsize, %fdate, %ftype, %flink);
-   my $spoolfile=(get_folderfile_headerdb($user, 'INBOX'))[0];
    while( my $fname=readdir(D) ) {
       next if ( $fname eq "." || $fname eq ".." );
       next if ( (!$config{'webdisk_lshidden'} || !$showhidden) && $fname =~ /^\./ );
       if ( !$config{'webdisk_lsmailfolder'} ) {
-          next if (fullpath2vpath("$webdiskrootdir/$currentdir/$fname", $folderdir) ne "");
-          next if (fullpath2vpath("$webdiskrootdir/$currentdir/$fname", $spoolfile) ne "");
+          next if ( is_under_dotdir_or_folderdir("$webdiskrootdir/$currentdir/$fname") );
       }
       if ( -l "$webdiskrootdir/$currentdir/$fname" ) {	# symbolic link, aka:shortcut
          next if (!$config{'webdisk_lssymlink'});
@@ -1295,10 +1395,16 @@ sub dirfilesel {
          $realpath="$webdiskrootdir/$currentdir/$realpath" if ($realpath!~m!^/!);
          my $vpath=fullpath2vpath($realpath, $webdiskrootdir);
          if ($vpath) {
-            $flink{$fname}=$vpath;
+            $flink{$fname}=" -> $vpath";
          } else {
             next if (!$config{'webdisk_allow_symlinkout'});
-            $flink{$fname}="sys::$realpath";
+            if ($config{'webdisk_symlinkout_display'} eq 'path') {
+               $flink{$fname}=" -> sys::$realpath";
+            } elsif ($config{'webdisk_symlinkout_display'} eq '@') {
+               $flink{$fname}='@';
+            } else {
+               $flink{$fname}='';
+            }
          }
       }
 
@@ -1346,10 +1452,10 @@ sub dirfilesel {
    my $wd_url=qq|$config{ow_cgiurl}/openwebmail-webdisk.pl?sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;currentdir=$escapedcurrentdir|;
    if ($action eq "sel_saveattfile") {
       $html =~ s/\@\@\@SELTITLE\@\@\@/$lang_text{'savefile_towd'}/g;
-      $wd_url.=qq|&amp;attfile=$attfile&attname=|.escapeURL($attname);
+      $wd_url.=qq|&amp;attfile=$attfile&attname=|.ow::tool::escapeURL($attname);
    } elsif ($action eq "sel_saveattachment") {
       $html =~ s/\@\@\@SELTITLE\@\@\@/$lang_text{'saveatt_towd'}/g;
-      $wd_url.=qq|&amp;attachment_nodeid=$attachment_nodeid&amp;convfrom=$convfrom&amp;attname=|.escapeURL($attname);
+      $wd_url.=qq|&amp;attachment_nodeid=$attachment_nodeid&amp;convfrom=$convfrom&amp;attname=|.ow::tool::escapeURL($attname);
    } elsif ($action eq "sel_addattachment") {
       $html =~ s/\@\@\@SELTITLE\@\@\@/$lang_text{'addatt_fromwd'}/g;
    } else {
@@ -1358,24 +1464,24 @@ sub dirfilesel {
    my $wd_url_sort_page=qq|$wd_url&amp;showhidden=$showhidden&amp;singlepage=$singlepage&amp;filesort=$filesort&amp;page=$page|;
 
    if ($action eq "sel_addattachment") {
-      $temphtml=start_form(-name=>"selform",
+      $temphtml=start_form(-name=>'selform',
                           -action=>"javascript:addattachment_and_close();");
    } elsif ($action eq "sel_saveattfile") {
-      $temphtml=start_form(-name=>"selform",
+      $temphtml=start_form(-name=>'selform',
                           -action=>"javascript:saveattfile_and_close('$attfile');");
    } elsif ($action eq "sel_saveattachment") {
-      $temphtml=start_form(-name=>"selform",
+      $temphtml=start_form(-name=>'selform',
                           -action=>"javascript:saveattachment_and_close('$escapedfolder', '$escapedmessageid', '$attachment_nodeid');");
    }
    $html =~ s/\@\@\@STARTDIRFORM\@\@\@/$temphtml/g;
 
    my $p='/';
-   $temphtml=qq|<a href="$wd_url_sort_page&amp;action=$action&amp;gotodir=|.escapeURL($p).qq|">/</a>\n|;
+   $temphtml=qq|<a href="$wd_url_sort_page&amp;action=$action&amp;gotodir=|.ow::tool::escapeURL($p).qq|">/</a>\n|;
    foreach ( split(/\//, $currentdir) ) {
       next if ($_ eq "");
       $p.="$_/";
-      $temphtml.=qq|<a href="$wd_url_sort_page&amp;action=$action&amp;gotodir=|.escapeURL($p).qq|">|.
-                 str2html("$_/").qq|</a>\n|;
+      $temphtml.=qq|<a href="$wd_url_sort_page&amp;action=$action&amp;gotodir=|.ow::tool::escapeURL($p).qq|">|.
+                 ow::htmltext::str2html("$_/").qq|</a>\n|;
    }
    $html =~ s/\@\@\@CURRENTDIR\@\@\@/$temphtml/g;
 
@@ -1406,7 +1512,7 @@ sub dirfilesel {
       $temphtml=qq|<IMG SRC="$config{'ow_htmlurl'}/images/file/disk.gif" align="absmiddle" border="0">|;
    } else {
       my $parentdir = absolute_vpath($currentdir, "..");
-      $temphtml=qq|<a href="$wd_url_sort_page&amp;action=$action&amp;gotodir=|.escapeURL($parentdir).qq|">|.
+      $temphtml=qq|<a href="$wd_url_sort_page&amp;action=$action&amp;gotodir=|.ow::tool::escapeURL($parentdir).qq|">|.
                 qq|<IMG SRC="$config{'ow_htmlurl'}/images/file/dirup.gif" align="absmiddle" border="0">|.
                 qq|</a>|;
    }
@@ -1462,8 +1568,8 @@ sub dirfilesel {
          }
 
          my ($imgstr, $namestr, $opstr);
-         $namestr=str2html($fname);
-         $namestr.=qq| -&gt; $flink{$fname}| if (defined($flink{$fname}));
+         $namestr=ow::htmltext::str2html($fname);
+         $namestr.=ow::htmltext::str2html($flink{$fname}) if (defined($flink{$fname}));
          if ($ftype{$fname} eq "d") {
             if ($prefs{'iconset'}!~/^Text\./) {
                $imgstr=qq|<IMG SRC="$config{'ow_htmlurl'}/images/file/|.
@@ -1471,9 +1577,9 @@ sub dirfilesel {
                        qq|" align="absmiddle" border="0">|;
             }
             $namestr=qq|<a href="$wd_url_sort_page&amp;action=$action&amp;gotodir=|.
-                     escapeURL("$fname").qq|" $accesskeystr>$imgstr <b>$namestr</b></a>|;
+                     ow::tool::escapeURL("$fname").qq|" $accesskeystr>$imgstr <b>$namestr</b></a>|;
             $opstr=qq|<a href="$wd_url_sort_page&amp;action=$action&amp;gotodir=|.
-                   escapeURL("$fname").qq|"><b>&lt;$lang_text{'dir'}&gt;</b></a>|;
+                   ow::tool::escapeURL("$fname").qq|"><b>&lt;$lang_text{'dir'}&gt;</b></a>|;
 
          } else {
             my $is_txt= (-T "$webdiskrootdir/$currentdir/$fname");
@@ -1482,10 +1588,10 @@ sub dirfilesel {
                        findicon($fname, $ftype{$fname}, $is_txt, $os).
                        qq|" align="absmiddle" border="0">|;
             }
-            $namestr=qq|<a href=# onClick="filldestname('$vpath');" $accesskeystr>$imgstr $namestr</a>|;
+            $namestr=qq|<a href=#here onClick="filldestname('$vpath');" $accesskeystr>$imgstr $namestr</a>|;
          }
 
-         my $right='right'; $right='left' if (is_RTLmode($prefs{'language'}));
+         my $right='right'; $right='left' if ($ow::lang::RTL{$prefs{'language'}});
          $namestr=qq|<table width="100%" border=0 cellspacing=0 cellpadding=0><tr>|.
                   qq|<td>$namestr</td>\n<td align="$right" nowrap>$opstr</td></tr></table>|;
 
@@ -1493,7 +1599,9 @@ sub dirfilesel {
 
          my $datestr;
          if (defined($fdate{$fname})) {
-            $datestr=dateserial2str(gmtime2dateserial($fdate{$fname}), $prefs{'timeoffset'}, $prefs{'dateformat'});
+            $datestr=ow::datetime::dateserial2str(ow::datetime::gmtime2dateserial($fdate{$fname}),
+                                      $prefs{'timeoffset'}, $prefs{'daylightsaving'},
+                                      $prefs{'dateformat'}, $prefs{'hourformat'});
          }
 
          $bgcolor = ($style{'tablerow_dark'},$style{'tablerow_light'})[$i%2];
@@ -1519,19 +1627,19 @@ sub dirfilesel {
       my $wd_url_page=qq|$wd_url&amp;action=$action&amp;gotodir=$escapedcurrentdir&amp;showhidden=$showhidden&amp;singlepage=$singlepage&amp;filesort=$filesort&amp;page|;
 
       if ($page>1) {
-         my $gif="left.gif"; $gif="right.gif" if (is_RTLmode($prefs{'language'}));
+         my $gif="left.gif"; $gif="right.gif" if ($ow::lang::RTL{$prefs{'language'}});
          $temphtml = iconlink($gif, "&lt;", qq|accesskey="U" href="$wd_url_page=|.($page-1).qq|"|).qq|\n|;
       } else {
-         my $gif="left-grey.gif"; $gif="right-grey.gif" if (is_RTLmode($prefs{'language'}));
+         my $gif="left-grey.gif"; $gif="right-grey.gif" if ($ow::lang::RTL{$prefs{'language'}});
          $temphtml = iconlink($gif, "-", "").qq|\n|;
       }
       $html =~ s/\@\@\@LEFTPAGECONTROL\@\@\@/$temphtml/g;
 
       if ($page<$totalpage) {
-         my $gif="right.gif"; $gif="left.gif" if (is_RTLmode($prefs{'language'}));
+         my $gif="right.gif"; $gif="left.gif" if ($ow::lang::RTL{$prefs{'language'}});
          $temphtml = iconlink($gif, "&gt;", qq|accesskey="D" href="$wd_url_page=|.($page+1).qq|"|).qq|\n|;
       } else {
-         my $gif="right-grey.gif"; $gif="left-grey.gif" if (is_RTLmode($prefs{'language'}));
+         my $gif="right-grey.gif"; $gif="left-grey.gif" if ($ow::lang::RTL{$prefs{'language'}});
          $temphtml = iconlink($gif, "-", "").qq|\n|;
       }
       $html =~ s/\@\@\@RIGHTPAGECONTROL\@\@\@/$temphtml/g;
@@ -1582,19 +1690,19 @@ sub dirfilesel {
    # we return false for the okbutton click event because we do all things in javascript
    # and we dn't want the current page to be reloaded
    if ($action eq "sel_addattachment") {
-      $temphtml.=submit(-name=>"okbutton",
+      $temphtml.=submit(-name=>'okbutton',
                         -onClick=>"addattachment_and_close(); return false;",
                         -value=>$lang_text{'ok'});
    } elsif ($action eq "sel_saveattfile") {
-      $temphtml.=submit(-name=>"okbutton",
+      $temphtml.=submit(-name=>'okbutton',
                         -onClick=>"saveattfile_and_close('$attfile'); return false;",
                         -value=>$lang_text{'ok'});
    } elsif ($action eq "sel_saveattachment") {
-      $temphtml.=submit(-name=>"okbutton",
+      $temphtml.=submit(-name=>'okbutton',
                         -onClick=>"saveattachment_and_close('$folder', '$messageid', '$attachment_nodeid'); return false;",
                         -value=>$lang_text{'ok'});
    }
-   $temphtml.=submit(-name=>"cencelbutton",
+   $temphtml.=submit(-name=>'cencelbutton',
                      -onClick=>'window.close();',
                      -value=>$lang_text{'cancel'});
    $html =~ s/\@\@\@BUTTONS\@\@\@/$temphtml/g;
@@ -1604,41 +1712,21 @@ sub dirfilesel {
 
    $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-viewatt.pl",
                           -name=>'saveattfileform').
-               hidden(-name=>'action',
-                      -default=>'saveattfile',
-                      -override=>'1').
-               hidden(-name=>'sessionid',
-                      -default=>$thissession,
-                      -override=>'1') .
-               hidden(-name=>'attfile',
-                      -default=>'',
-                      -override=>'1').
-               hidden(-name=>'webdisksel',
-                      -default=>'',
-                      -override=>'1').
+               ow::tool::hiddens(action=>'saveattfile',
+                                 sessionid=>$thissession,
+                                 attfile=>'',
+                                 webdisksel=>'').
                end_form();
    $html =~ s/\@\@\@SAVEATTFILEFORM\@\@\@/$temphtml/;
 
    $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-viewatt.pl",
                           -name=>'saveattachmentform').
-               hidden(-name=>'action',
-                      -default=>'saveattachment',
-                      -override=>'1').
-               hidden(-name=>'sessionid',
-                      -default=>$thissession,
-                      -override=>'1') .
-               hidden(-name=>'folder',
-                      -default=>'',
-                      -override=>'1').
-               hidden(-name=>'message_id',
-                      -default=>'',
-                      -override=>'1').
-               hidden(-name=>'attachment_nodeid',
-                      -default=>'saveattfile',
-                      -override=>'1').
-               hidden(-name=>'webdisksel',
-                      -default=>'',
-                      -override=>'1').
+               ow::tool::hiddens(action=>'saveattachment',
+                                 sessionid=>$thissession,
+                                 folder=>'',
+                                 message_id=>'',
+                                 attachment_nodeid=>'saveattfile',
+                                 webdisksel=>'').
                end_form();
    $html =~ s/\@\@\@SAVEATTACHMENTFORM\@\@\@/$temphtml/;
 
@@ -1647,33 +1735,40 @@ sub dirfilesel {
                         -path  => '/');
    httpprint([-cookie=>[$cookie]], [htmlheader(), $html, htmlfooter(2)]);
 }
-######################## END FILESELECT ##########################
+########## END FILESELECT ########################################
 
-########################## SHOWDIR ##############################
+########## SHOWDIR ###############################################
 sub showdir {
    my ($olddir, $newdir, $filesort, $page, $msg)=@_;
-   my $showthumbnail=param('showthumbnail');
-   my $showhidden=param('showhidden');
-   my $singlepage=param('singlepage');
-   my $searchtype=param('searchtype');
-   my $keyword=param('keyword'); $keyword=~s/[`;\|]//g;
-   my $escapedkeyword=escapeURL($keyword);
+   my $showthumbnail=param('showthumbnail')||0;
+   my $showhidden=param('showhidden')||0;
+   my $singlepage=param('singlepage')||0;
+   my $searchtype=param('searchtype')||'';
+   my $keyword=param('keyword')||''; $keyword=~s/[`;\|]//g;
+   my $escapedkeyword=ow::tool::escapeURL($keyword);
 
    my $quotahit_deltype='';
    if ($quotalimit>0 && $quotausage>$quotalimit &&
-       $config{'delfile_ifquotahit'} &&
-       (!$config{'delmail_ifquotahit'}||$folderusage<=$quotausage*0.5) ) {
+       ($config{'delmail_ifquotahit'}||$config{'delfile_ifquotahit'}) ) {
       $quotausage=(quota_get_usage_limit(\%config, $user, $homedir, 1))[2]; # get uptodate usage
       if ($quotausage>$quotalimit) {
-         $quotahit_deltype='quotahit_delfile';
-         cutdirfiles(($quotausage-$quotalimit*0.9)*1024, $webdiskrootdir);
-         $quotausage=(quota_get_usage_limit(\%config, $user, $homedir, 1))[2]; # get uptodate usage
+
+         my (@validfolders, $folderusage);
+         getfolders(\@validfolders, \$folderusage);
+
+         if ($config{'delfile_ifquotahit'} && $folderusage < $quotausage*0.5) {
+            $quotahit_deltype='quotahit_delfile';
+            my $webdiskrootdir=$homedir.absolute_vpath("/", $config{'webdisk_rootpath'});
+            cutdirfiles(($quotausage-$quotalimit*0.9)*1024, $webdiskrootdir);
+
+            $quotausage=(quota_get_usage_limit(\%config, $user, $homedir, 1))[2]; # get uptodate usage
+         }
       }
    }
 
    my ($currentdir, $escapedcurrentdir, @list);
    if ($keyword) {	# olddir = newdir if keyword is supplied for searching
-      my $err=filelist_of_search($searchtype, $keyword, $olddir, "$folderdir/.webdisk.cache", \@list);
+      my $err=filelist_of_search($searchtype, $keyword, $olddir, dotpath('webdisk.cache'), \@list);
       if ($err) {
          $keyword=""; $msg.=$err;
       } else {
@@ -1696,17 +1791,15 @@ sub showdir {
       }
       openwebmailerror(__FILE__, __LINE__, $msg) if (!$currentdir);
    }
-   $escapedcurrentdir=escapeURL($currentdir);
+   $escapedcurrentdir=ow::tool::escapeURL($currentdir);
 
    my (%fsize, %fdate, %fperm, %ftype, %flink);
    my ($dcount, $fcount, $sizecount)=(0,0,0);
-   my $spoolfile=(get_folderfile_headerdb($user, 'INBOX'))[0];
    foreach my $p (@list) {
       next if ( $p eq "." || $p eq "..");
       my $vpath=absolute_vpath($currentdir, $p);
       if ( !$config{'webdisk_lsmailfolder'} ) {
-          next if (fullpath2vpath("$webdiskrootdir/$vpath", $folderdir) ne "");
-          next if (fullpath2vpath("$webdiskrootdir/$vpath", $spoolfile) ne "");
+          next if ( is_under_dotdir_or_folderdir("$webdiskrootdir/$vpath") );
       }
       my $fname=$vpath; $fname=~s|.*/||;
       next if ( (!$config{'webdisk_lshidden'}||!$showhidden) && $fname =~ /^\./ );
@@ -1716,10 +1809,16 @@ sub showdir {
          $realpath="$webdiskrootdir/$vpath/../$realpath" if ($realpath!~m!^/!);
          my $vpath2=fullpath2vpath($realpath, $webdiskrootdir);
          if ($vpath2) {
-            $flink{$p}=$vpath2;
+            $flink{$p}=" -> $vpath2";
          } else {
             next if (!$config{'webdisk_allow_symlinkout'});
-            $flink{$p}="sys::$realpath";
+            if ($config{'webdisk_symlinkout_display'} eq 'path') {
+               $flink{$p}=" -> sys::$realpath";
+            } elsif ($config{'webdisk_symlinkout_display'} eq '@') {
+               $flink{$p}='@';
+            } else {
+               $flink{$p}='';
+            }
          }
       }
 
@@ -1776,16 +1875,18 @@ sub showdir {
    my $wd_url=qq|$config{'ow_cgiurl'}/openwebmail-webdisk.pl?sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;currentdir=$escapedcurrentdir&amp;showthumbnail=$showthumbnail&amp;showhidden=$showhidden&amp;singlepage=$singlepage|;
    my $wd_url_sort_page=qq|$wd_url&amp;filesort=$filesort&amp;page=$page|;
 
-   $temphtml .= iconlink("home.gif" ,"$lang_text{'backto'} $lang_text{'homedir'}", qq|accesskey="G" href="$wd_url_sort_page&amp;action=showdir&amp;gotodir=|.escapeURL('/').qq|"|);
+   $temphtml .= iconlink("home.gif" ,"$lang_text{'backto'} $lang_text{'homedir'}", qq|accesskey="G" href="$wd_url_sort_page&amp;action=showdir&amp;gotodir=|.ow::tool::escapeURL('/').qq|"|);
    $temphtml .= iconlink("refresh.gif" ,"$lang_wdbutton{'refresh'} ", qq|accesskey="R" href="$wd_url_sort_page&amp;action=userrefresh&amp;gotodir=$escapedcurrentdir"|);
 
    $temphtml .= "&nbsp;\n";
 
    if ($config{'enable_webmail'}) {
       if ($messageid eq "") {
-         $temphtml .= iconlink("owm.gif", "$lang_text{'backto'} $printfolder", qq|accesskey="M" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;sessionid=$thissession&amp;folder=$escapedfolder"|);
+         $temphtml .= iconlink("owm.gif", "$lang_text{'backto'} ".($lang_folders{$folder}||$folder),
+                               qq|accesskey="M" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;sessionid=$thissession&amp;folder=$escapedfolder"|);
       } else {
-         $temphtml .= iconlink("owm.gif", "$lang_text{'backto'} $printfolder", qq|accesskey="M" href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid"|);
+         $temphtml .= iconlink("owm.gif", "$lang_text{'backto'} ".($lang_folders{$folder}||$folder),
+                               qq|accesskey="M" href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid"|);
       }
    }
    if ($config{'enable_calendar'}) {
@@ -1819,29 +1920,15 @@ sub showdir {
    }
    $html =~ s/\@\@\@QUOTAUSAGE\@\@\@/$temphtml/;
 
-   $temphtml = start_multipart_form(-name=>"dirform",
+   $temphtml = start_multipart_form(-name=>'dirform',
 				    -action=>"$config{'ow_cgiurl'}/openwebmail-webdisk.pl") .
-               hidden(-name=>'sessionid',
-                      -default=>$thissession,
-                      -override=>'1').
-               hidden(-name=>'folder',
-                      -default=>$folder,
-                      -override=>'1').
-               hidden(-name=>'message_id',
-                      -default=>$messageid,
-                      -override=>'1').
-               hidden(-name=>'currentdir',
-                      -default=>$currentdir,
-                      -override=>'1').
-               hidden(-name=>'gotodir',
-                      -default=>$currentdir,
-                      -override=>'1').
-               hidden(-name=>'filesort',
-                      -default=>$filesort,
-                      -override=>'1').
-               hidden(-name=>'page',
-                      -default=>$page,
-                      -override=>'1');
+               ow::tool::hiddens(sessionid=>$thissession,
+                                 folder=>$folder,
+                                 message_id=>$messageid,
+                                 currentdir=>$currentdir,
+                                 gotodir=>$currentdir,
+                                 filesort=>$filesort,
+                                 page=>$page);
    $html =~ s/\@\@\@STARTDIRFORM\@\@\@/$temphtml/g;
 
    if ($keyword) {
@@ -1851,12 +1938,12 @@ sub showdir {
    }
 
    my $p='/';
-   $temphtml.=qq|<a href="$wd_url_sort_page&amp;action=showdir&amp;gotodir=|.escapeURL($p).qq|">/</a>\n|;
+   $temphtml.=qq|<a href="$wd_url_sort_page&amp;action=showdir&amp;gotodir=|.ow::tool::escapeURL($p).qq|">/</a>\n|;
    foreach ( split(/\//, $currentdir) ) {
       next if ($_ eq "");
       $p.="$_/";
-      $temphtml.=qq|<a href="$wd_url_sort_page&amp;action=showdir&amp;gotodir=|.escapeURL($p).qq|">|.
-                 str2html("$_/").qq|</a>\n|;
+      $temphtml.=qq|<a href="$wd_url_sort_page&amp;action=showdir&amp;gotodir=|.ow::tool::escapeURL($p).qq|">|.
+                 ow::htmltext::str2html("$_/").qq|</a>\n|;
    }
    $html =~ s/\@\@\@CURRENTDIR\@\@\@/$temphtml/g;
 
@@ -1901,7 +1988,7 @@ sub showdir {
          $temphtml=qq|<IMG SRC="$config{'ow_htmlurl'}/images/file/disk.gif" align="absmiddle" border="0">|;
       } else {
          my $parentdir = absolute_vpath($currentdir, "..");
-         $temphtml=qq|<a href="$wd_url_sort_page&amp;action=showdir&amp;gotodir=|.escapeURL($parentdir).qq|">|.
+         $temphtml=qq|<a href="$wd_url_sort_page&amp;action=showdir&amp;gotodir=|.ow::tool::escapeURL($parentdir).qq|">|.
                    qq|<IMG SRC="$config{'ow_htmlurl'}/images/file/dirup.gif" align="absmiddle" border="0">|.
                    qq|</a>|;
       }
@@ -1975,11 +2062,11 @@ sub showdir {
                        qq|" align="absmiddle" border="0">|;
             }
             $namestr=qq|<a href="$wd_url_sort_page&amp;action=showdir&amp;gotodir=|.
-                     escapeURL($p).qq|" $accesskeystr>$imgstr <b>|.str2html($p);
-            $namestr.=str2html(" -> $flink{$p}") if (defined($flink{$p}));
+                     ow::tool::escapeURL($p).qq|" $accesskeystr>$imgstr <b>|.ow::htmltext::str2html($p);
+            $namestr.=ow::htmltext::str2html($flink{$p}) if (defined($flink{$p}));
             $namestr.=qq|</b></a>|;
             $opstr=qq|<a href="$wd_url_sort_page&amp;action=showdir&amp;gotodir=|.
-                   escapeURL($p).qq|"><b>&lt;$lang_text{'dir'}&gt;</b></a>|;
+                   ow::tool::escapeURL($p).qq|"><b>&lt;$lang_text{'dir'}&gt;</b></a>|;
 
          } else {
             my $is_txt= (-T "$webdiskrootdir/$currentdir/$p" || $p=~/\.(txt|html?)$/i);
@@ -1997,18 +2084,18 @@ sub showdir {
                ($dname, $fname)=('', $p);
             }
 
-            my $a=qq|<a href="$config{'ow_cgiurl'}/openwebmail-webdisk.pl/|.escapeURL($fname).
+            my $a=qq|<a href="$config{'ow_cgiurl'}/openwebmail-webdisk.pl/|.ow::tool::escapeURL($fname).
                   qq|?sessionid=$thissession&amp;currentdir=$escapedcurrentdir&amp;|.
-                  qq|action=download&amp;selitems=|.escapeURL($p).
+                  qq|action=download&amp;selitems=|.ow::tool::escapeURL($p).
                   qq|" $accesskeystr $blank>|;
 
             $namestr="$a$imgstr</a> ";
             if ($dname ne '') {
                $namestr.=qq|<a href="$wd_url_sort_page&amp;action=showdir&amp;gotodir=|.
-                         escapeURL($dname).qq|" $accesskeystr><b>|.str2html($dname).qq|</b> </a>|;
+                         ow::tool::escapeURL($dname).qq|" $accesskeystr><b>|.ow::htmltext::str2html($dname).qq|</b> </a>|;
             }
-            $namestr.=$a.str2html($fname);
-            $namestr.=str2html(" -> $flink{$p}") if (defined($flink{$p}));
+            $namestr.=$a.ow::htmltext::str2html($fname);
+            $namestr.=ow::htmltext::str2html($flink{$p}) if (defined($flink{$p}));
             $namestr.=qq|</a>|;
 
             if ($p=~/\.(?:pdf|ps)$/i ) {
@@ -2021,25 +2108,25 @@ sub showdir {
                      $onclickstr=qq|onclick="return confirm('$lang_wdbutton{$mk}? ($pstr)');"|;
                   }
                   $opstr.=qq|<a href="$wd_url_sort_page&amp;action=$mk&amp;selitems=|.
-                         escapeURL($p).qq|" $onclickstr>[$lang_wdbutton{$mk}]</a>|;
+                         ow::tool::escapeURL($p).qq|" $onclickstr>[$lang_wdbutton{$mk}]</a>|;
                }
             } elsif ($is_txt) {
-               if ($p=~/\.html?/i) {
-                  $opstr=qq|<a href=# onClick="window.open('|.
-                         qq|$wd_url&amp;action=preview&amp;selitems=|.escapeURL($p).
+               if ($p=~/\.html?$/i) {
+                  $opstr=qq|<a href=#here onClick="window.open('|.
+                         qq|$wd_url&amp;action=preview&amp;selitems=|.ow::tool::escapeURL($p).
                          qq|','_previewfile','width=720,height=550,scrollbars=yes,resizable=yes,location=no');|.
                          qq|">[$lang_wdbutton{'preview'}]</a>|;
                }
                if (!$config{'webdisk_readonly'} &&
                    (!$quotalimit||$quotausage<$quotalimit) ) {
-                  $opstr.=qq|<a href=# onClick="window.open('|.
-                          qq|$wd_url&amp;action=editfile&amp;selitems=|.escapeURL($p).
+                  $opstr.=qq|<a href=#here onClick="window.open('|.
+                          qq|$wd_url&amp;action=editfile&amp;selitems=|.ow::tool::escapeURL($p).
                           qq|','_editfile','width=720,height=550,scrollbars=yes,resizable=yes,location=no');|.
                           qq|">[$lang_wdbutton{'edit'}]</a>|;
                }
             } elsif ($p=~/\.(?:zip|rar|arj|lzh|t[bg]z|tar\.g?z|tar\.bz2?|tnef)$/i ) {
-               $opstr=qq|<a href=# onClick="window.open('|.
-                      qq|$wd_url&amp;action=listarchive&amp;selitems=|.escapeURL($p).
+               $opstr=qq|<a href=#here onClick="window.open('|.
+                      qq|$wd_url&amp;action=listarchive&amp;selitems=|.ow::tool::escapeURL($p).
                       qq|','_editfile','width=780,height=550,scrollbars=yes,resizable=yes,location=no');|.
                       qq|">[$lang_wdbutton{'listarchive'}]</a>|;
                if (!$config{'webdisk_readonly'} &&
@@ -2049,8 +2136,18 @@ sub showdir {
                      my $pstr=$p; $pstr=~s/'/\\'/g;	# escape for javascript
                      $onclickstr=qq|onclick="return confirm('$lang_wdbutton{extract}? ($pstr)');"|;
                   }
-                  $opstr.=qq| <a href="$wd_url_sort_page&amp;action=decompress&amp;selitems=|.
-                          escapeURL($p).qq|" $onclickstr>[$lang_wdbutton{'extract'}]</a>|;
+                  my $allow_extract=1;
+                  if ($p=~/\.(?:t[bg]z|tar\.g?z|tar\.bz2?)$/i && !$config{'webdisk_allow_untar'} ||
+                      $p=~/\.zip$/i && !$config{'webdisk_allow_unzip'} ||
+                      $p=~/\.rar$/i && !$config{'webdisk_allow_unrar'} ||
+                      $p=~/\.arj$/i && !$config{'webdisk_allow_unarj'} ||
+                      $p=~/\.lzh$/i && !$config{'webdisk_allow_unlzh'} ) {
+                     $allow_extract=0;
+                  }
+                  if ($allow_extract) {
+                     $opstr.=qq| <a href="$wd_url_sort_page&amp;action=decompress&amp;selitems=|.
+                          ow::tool::escapeURL($p).qq|" $onclickstr>[$lang_wdbutton{'extract'}]</a>|;
+                  }
                }
             } elsif ($p=~/\.(?:g?z|bz2?)$/i ) {
                if (!$config{'webdisk_readonly'} &&
@@ -2061,24 +2158,30 @@ sub showdir {
                      $onclickstr=qq|onclick="return confirm('$lang_wdbutton{decompress}? ($pstr)');"|;
                   }
                   $opstr=qq|<a href="$wd_url_sort_page&amp;action=decompress&amp;selitems=|.
-                         escapeURL($p).qq|" $onclickstr>[$lang_wdbutton{'decompress'}]</a>|;
+                         ow::tool::escapeURL($p).qq|" $onclickstr>[$lang_wdbutton{'decompress'}]</a>|;
                }
+            } elsif ($p=~/\.(?:doc|dot)$/i ) {
+               $opstr=qq|<a href=#here onClick="window.open('|.
+                      qq|$wd_url&amp;action=wordpreview&amp;selitems=|.ow::tool::escapeURL($p).
+                      qq|','_wordpreview','width=780,height=550,scrollbars=yes,resizable=yes,location=no');|.
+                      qq|">[$lang_wdbutton{'preview'}]</a>|;
+
             } elsif ($p=~/\.(?:jpe?g|gif|png|bmp|tif)$/i ) {
                if ($showthumbnail) {
                   my $thumbnail=path2thumbnail($p);
                   if ( -f "$webdiskrootdir/$currentdir/$thumbnail") {
                      my $fname=$p; $fname=~s|.*/||g;
-                     $opstr=qq|<a href="$config{'ow_cgiurl'}/openwebmail-webdisk.pl/|.escapeURL($fname).
+                     $opstr=qq|<a href="$config{'ow_cgiurl'}/openwebmail-webdisk.pl/|.ow::tool::escapeURL($fname).
                             qq|?sessionid=$thissession&amp;currentdir=$escapedcurrentdir&amp;|.
-                            qq|action=download&amp;selitems=|.escapeURL($p).qq|" $blank>|.
+                            qq|action=download&amp;selitems=|.ow::tool::escapeURL($p).qq|" $blank>|.
                             qq|<IMG SRC="$wd_url_sort_page&amp;action=download&amp;selitems=|.
-                            escapeURL($thumbnail).qq|" align="absmiddle" border="0"></a>|;
+                            ow::tool::escapeURL($thumbnail).qq|" align="absmiddle" border="0"></a>|;
                   }
                }
             }
          }
 
-         my $right='right'; $right='left' if (is_RTLmode($prefs{'language'}));
+         my $right='right'; $right='left' if ($ow::lang::RTL{$prefs{'language'}});
          $namestr=qq|<table width="100%" border=0 cellspacing=0 cellpadding=0><tr>|.
                   qq|<td>$namestr</td>\n<td align="$right" nowrap>$opstr</td></tr></table>|;
 
@@ -2086,7 +2189,9 @@ sub showdir {
 
          my $datestr;
          if (defined($fdate{$p})) {
-            $datestr=dateserial2str(gmtime2dateserial($fdate{$p}), $prefs{'timeoffset'}, $prefs{'dateformat'});
+            $datestr=ow::datetime::dateserial2str(ow::datetime::gmtime2dateserial($fdate{$p}),
+                                      $prefs{'timeoffset'}, $prefs{'daylightsaving'},
+                                      $prefs{'dateformat'}, $prefs{'hourformat'});
          }
 
          $fperm{$p}=~/^(.)(.)(.)$/;
@@ -2126,19 +2231,19 @@ sub showdir {
    if (!$singlepage) {
       my $wd_url_page=qq|$wd_url&amp;action=showdir&amp;gotodir=$escapedcurrentdir&amp;filesort=$filesort&amp;searchtype=$searchtype&amp;keyword=$escapedkeyword&amp;page|;
       if ($page>1) {
-         my $gif="left.gif"; $gif="right.gif" if (is_RTLmode($prefs{'language'}));
+         my $gif="left.gif"; $gif="right.gif" if ($ow::lang::RTL{$prefs{'language'}});
          $temphtml = iconlink($gif, "&lt;", qq|accesskey="U" href="$wd_url_page=|.($page-1).qq|"|).qq|\n|;
       } else {
-         my $gif="left-grey.gif"; $gif="right-grey.gif" if (is_RTLmode($prefs{'language'}));
+         my $gif="left-grey.gif"; $gif="right-grey.gif" if ($ow::lang::RTL{$prefs{'language'}});
          $temphtml = iconlink($gif, "-", "").qq|\n|;
       }
       $html =~ s/\@\@\@LEFTPAGECONTROL\@\@\@/$temphtml/g;
 
       if ($page<$totalpage) {
-         my $gif="right.gif"; $gif="left.gif" if (is_RTLmode($prefs{'language'}));
+         my $gif="right.gif"; $gif="left.gif" if ($ow::lang::RTL{$prefs{'language'}});
          $temphtml = iconlink($gif, "&gt;", qq|accesskey="D" href="$wd_url_page=|.($page+1).qq|"|).qq|\n|;
       } else {
-         my $gif="right-grey.gif"; $gif="left-grey.gif" if (is_RTLmode($prefs{'language'}));
+         my $gif="right-grey.gif"; $gif="left-grey.gif" if ($ow::lang::RTL{$prefs{'language'}});
          $temphtml = iconlink($gif, "-", "").qq|\n|;
       }
       $html =~ s/\@\@\@RIGHTPAGECONTROL\@\@\@/$temphtml/g;
@@ -2184,18 +2289,18 @@ sub showdir {
                          -override=>'1').qq|\n|;
    $html =~ s/\@\@\@DESTNAMEFIELD\@\@\@/$temphtml/g;
 
-   $temphtml=submit(-name=>"chdirbutton",
-                     -accesskey=>"J",
+   $temphtml=submit(-name=>'chdirbutton',
+                     -accesskey=>'J',
                      -onClick=>"if (document.dirform.keyword.value != '') {return true;}; return destnamefilled('$lang_text{dest_of_chdir}');",
                      -value=>$lang_wdbutton{'chdir'});
    if (!$config{'webdisk_readonly'} &&
        (!$quotalimit||$quotausage<$quotalimit) ) {
-      $temphtml.=submit(-name=>"mkdirbutton",
-                        -accesskey=>"M",
+      $temphtml.=submit(-name=>'mkdirbutton',
+                        -accesskey=>'M',
                         -onClick=>"return destnamefilled('$lang_text{name_of_newdir}');",
                         -value=>$lang_wdbutton{'mkdir'});
-      $temphtml.=submit(-name=>"newfilebutton",
-                        -accesskey=>"F",
+      $temphtml.=submit(-name=>'newfilebutton',
+                        -accesskey=>'F',
                         -onClick=>"return destnamefilled('$lang_text{name_of_newfile}');",
                         -value=>$lang_wdbutton{'newfile'});
       $temphtml.=qq|\n|;
@@ -2206,24 +2311,24 @@ sub showdir {
    $temphtml='';
    if (!$config{'webdisk_readonly'}) {
       if (!$quotalimit||$quotausage<$quotalimit) {
-         $temphtml.=submit(-name=>"copybutton",
-                           -accesskey=>"C",
+         $temphtml.=submit(-name=>'copybutton',
+                           -accesskey=>'C',
                            -onClick=>"return(anyfileselected() && destnamefilled('$lang_text{dest_of_thecopy}') && opconfirm('$lang_wdbutton{copy}', $prefs{webdisk_confirmmovecopy}));",
                            -value=>$lang_wdbutton{'copy'});
-         $temphtml.=submit(-name=>"movebutton",
-                           -accesskey=>"V",
+         $temphtml.=submit(-name=>'movebutton',
+                           -accesskey=>'V',
                            -onClick=>"return(anyfileselected() && destnamefilled('$lang_text{dest_of_themove}') && opconfirm('$lang_wdbutton{move}', $prefs{webdisk_confirmmovecopy}));",
                            -value=>$lang_wdbutton{'move'});
          if ($config{'webdisk_allow_symlinkcreate'} &&
              $config{'webdisk_lssymlink'}) {
-            $temphtml.=submit(-name=>"symlinkbutton",
-                              -accesskey=>"N",
+            $temphtml.=submit(-name=>'symlinkbutton',
+                              -accesskey=>'N',
                               -onClick=>"return(anyfileselected() && destnamefilled('$lang_text{dest_of_themove}') && opconfirm('$lang_wdbutton{symlink}', $prefs{webdisk_confirmmovecopy}));",
                               -value=>$lang_wdbutton{'symlink'});
          }
       }
-      $temphtml.=submit(-name=>"deletebutton",
-                        -accesskey=>"Y",
+      $temphtml.=submit(-name=>'deletebutton',
+                        -accesskey=>'Y',
                         -onClick=>"return (anyfileselected() && opconfirm('$lang_wdbutton{delete}', $prefs{webdisk_confirmdel}));",
                         -value=>$lang_wdbutton{'delete'});
       $temphtml.=qq|&nbsp;\n|;
@@ -2231,29 +2336,29 @@ sub showdir {
 
    if (!$config{'webdisk_readonly'} &&
        (!$quotalimit||$quotausage<$quotalimit) ) {
-      $temphtml.=submit(-name=>"gzipbutton",
-                        -accesskey=>"Z",
+      $temphtml.=submit(-name=>'gzipbutton',
+                        -accesskey=>'Z',
                         -onClick=>"return(anyfileselected() && opconfirm('$lang_wdbutton{gzip}', $prefs{webdisk_confirmcompress}));",
                         -value=>$lang_wdbutton{'gzip'});
-      $temphtml.=submit(-name=>"mkzipbutton",
-                        -accesskey=>"Z",
+      $temphtml.=submit(-name=>'mkzipbutton',
+                        -accesskey=>'Z',
                         -onClick=>"return(anyfileselected() && destnamefilled('$lang_text{dest_of_thezip}') && opconfirm('$lang_wdbutton{mkzip}', $prefs{webdisk_confirmcompress}));",
                         -value=>$lang_wdbutton{'mkzip'});
-      $temphtml.=submit(-name=>"mktgzbutton",
-                        -accesskey=>"Z",
+      $temphtml.=submit(-name=>'mktgzbutton',
+                        -accesskey=>'Z',
                         -onClick=>"return(anyfileselected() && destnamefilled('$lang_text{dest_of_thetgz}') && opconfirm('$lang_wdbutton{mktgz}', $prefs{webdisk_confirmcompress}));",
                         -value=>$lang_wdbutton{'mktgz'});
       if ($config{'webdisk_allow_thumbnail'}) {
-         $temphtml.=submit(-name=>"mkthumbnailbutton",
-                           -accesskey=>"Z",
+         $temphtml.=submit(-name=>'mkthumbnailbutton',
+                           -accesskey=>'Z',
                            -onClick=>"return(anyfileselected() && opconfirm('$lang_wdbutton{mkthumbnail}', $prefs{webdisk_confirmcompress}));",
                            -value=>$lang_wdbutton{'mkthumbnail'});
       }
       $temphtml.=qq|&nbsp;\n|;
    }
 
-   $temphtml.=submit(-name=>"downloadbutton",
-                     -accesskey=>"L",
+   $temphtml.=submit(-name=>'downloadbutton',
+                     -accesskey=>'L',
                      -onClick=>'return anyfileselected();',
                      -value=>$lang_wdbutton{'download'});
    $html =~ s/\@\@\@BUTTONS2\@\@\@/$temphtml/g;
@@ -2270,26 +2375,24 @@ sub showdir {
                          -accesskey=>'S',
                          -onChange=>'document.dirform.searchbutton.focus();',
                          -override=>'1');
-   $temphtml .= submit(-name=>"searchbutton",
-                       -value=>"$lang_text{'search'}");
+   $temphtml .= submit(-name=>'searchbutton',
+                       -value=>$lang_text{'search'});
    $html =~ s/\@\@\@SEARCHFILEFIELD\@\@\@/$temphtml/g;
 
    if (!$config{'webdisk_readonly'} &&
        (!$quotalimit||$quotausage<$quotalimit) ) {
+      templateblock_enable($html, 'UPLOAD');
       $temphtml = filefield(-name=>'upload',
                             -default=>"",
                             -size=>'20',
                             -accesskey=>'W',
                             -override=>'1');
-      $temphtml .= submit(-name=>"uploadbutton",
+      $temphtml .= submit(-name=>'uploadbutton',
                           -onClick=>'return uploadfilled();',
-                          -value=>"$lang_wdbutton{'upload'}");
+                          -value=>$lang_wdbutton{'upload'});
       $html =~ s/\@\@\@UPLOADFILEFIELD\@\@\@/$temphtml/g;
-      $html =~ s/\@\@\@UPLOADSTART\@\@\@//g;
-      $html =~ s/\@\@\@UPLOADEND\@\@\@//g;
    } else {
-      $html =~ s/\@\@\@UPLOADSTART\@\@\@/<!--/g;
-      $html =~ s/\@\@\@UPLOADEND\@\@\@/-->/g;
+      templateblock_disable($html, 'UPLOAD');
    }
 
    if ($quotalimit>0 && $quotausage>=$quotalimit) {
@@ -2336,8 +2439,8 @@ sub filelist_of_search {
    my $metainfo=join("@@@", $searchtype, $keyword, $vpath);
    my $cache_metainfo;
 
-   $cachefile=untaint($cachefile);
-   filelock($cachefile, LOCK_EX) or
+   $cachefile=ow::tool::untaint($cachefile);
+   ow::filelock::lock($cachefile, LOCK_EX) or
       return("$lang_err{'couldnt_lock'} $cachefile\n");
 
    if ( -e $cachefile ) {
@@ -2353,20 +2456,20 @@ sub filelist_of_search {
          return("$lang_err{'couldnt_chdirto'} $vpath\n");
 
       if ($searchtype eq "filename") {	# find . -name "*keyword"
-         my $findbin=findbin('find');
+         my $findbin=ow::tool::findbin('find');
          return("$lang_text{'program'} find $lang_err{'doesnt_exist'}\n") if (!$findbin);
          @cmd=($findbin, ".", '-iname', "*$keyword*", '-print');
-         ($stdout, $stderr, $exit, $sig)=openwebmail::execute::execute(@cmd);
+         ($stdout, $stderr, $exit, $sig)=ow::execute::execute(@cmd);
 
          if ($stderr) {	# old find doesn't support -iname, use -name instead
             @cmd=($findbin, ".", '-name', "*$keyword*", '-print');
-            ($stdout, $stderr, $exit, $sig)=openwebmail::execute::execute(@cmd);
+            ($stdout, $stderr, $exit, $sig)=ow::execute::execute(@cmd);
          }
       } else {				# grep -ilsr -- keyword .
-         my $grepbin=findbin('grep');
+         my $grepbin=ow::tool::findbin('grep');
          return("$lang_text{'program'} grep $lang_err{'doesnt_exist'}\n") if (!$grepbin);
          @cmd=($grepbin, "-ilsr", '--', $keyword, '.');
-         ($stdout, $stderr, $exit, $sig)=openwebmail::execute::execute(@cmd);
+         ($stdout, $stderr, $exit, $sig)=ow::execute::execute(@cmd);
 
          if ($stderr) {	# old grep doesn't support -r, do no-recursive search instead
             if (!opendir(D, "$webdiskrootdir/$vpath")) {
@@ -2375,7 +2478,7 @@ sub filelist_of_search {
             my @f=readdir(D);
             closedir(D);
             @cmd=($grepbin, "-ils", '--', $keyword, @f);
-            ($stdout, $stderr, $exit, $sig)=openwebmail::execute::execute(@cmd);
+            ($stdout, $stderr, $exit, $sig)=ow::execute::execute(@cmd);
          }
       }
 
@@ -2404,21 +2507,23 @@ sub filelist_of_search {
       close(CACHE);
    }
 
-   filelock($cachefile, LOCK_UN);
+   ow::filelock::lock($cachefile, LOCK_UN);
 
    return;
 }
-########################## END SHOWDIR ###########################
+########## END SHOWDIR ###########################################
 
-########################## WD_EXECUTE ##############################
+########## WD_EXECUTE ############################################
 # a wrapper for execute() to handle the dirty work
 sub webdisk_execute {
    my ($opstr, @cmd)=@_;
-   my ($stdout, $stderr, $exit, $sig)=openwebmail::execute::execute(@cmd);
+   my ($stdout, $stderr, $exit, $sig)=ow::execute::execute(@cmd);
 
    # try to conv realpath in stdout/stderr back to vpath
-   $stdout=~s!(?:$webdiskrootdir//|\s$webdiskrootdir/)! /!g; $stdout=~s!/+!/!g;
-   $stderr=~s!(?:$webdiskrootdir//|\s$webdiskrootdir/)! /!g; $stderr=~s!/+!/!g;
+   foreach ($stdout, $stderr) {
+      s!(?:$webdiskrootdir/+|^$webdiskrootdir/*|\s$webdiskrootdir/*)! /!g;
+      s!^\s*!!; s!/+!/!g;
+   }
 
    my $opresult;
    if ($exit||$sig) {
@@ -2434,19 +2539,9 @@ sub webdisk_execute {
       return "$opstr $opresult (exit status $exit)\n$stdout$stderr";
    }
 }
-######################### END WD_EXECUTE ##########################
+########## END WD_EXECUTE ########################################
 
-########################## FINDBIN ##############################
-sub findbin {
-   my $name=$_[0];
-   foreach ('/usr/local/bin', '/usr/bin', '/bin', '/usr/X11R6/bin/', '/opt/bin') {
-      return "$_/$name" if ( -x "$_/$name");
-   }
-   return;
-}
-########################## END FINDBIN ###########################
-
-########################## FINDICON ##############################
+########## FINDICON ##############################################
 sub findicon {
    my ($fname, $ftype, $is_txt, $os)=@_;
 
@@ -2488,9 +2583,9 @@ sub findicon {
       return("file.gif");
    }
 }
-########################## END FINDICON ##############################
+########## END FINDICON ##########################################
 
-########################## IS_QUOTA_AVAILABLE ##########################
+########## IS_QUOTA_AVAILABLE ####################################
 sub is_quota_available {
    my $writesize=$_[0];
    if ($quotalimit>0 && $quotausage+$writesize>$quotalimit) {
@@ -2499,4 +2594,4 @@ sub is_quota_available {
    }
    return 1;
 }
-######################## END IS_QUOTA_AVAILABLE ########################
+########## END IS_QUOTA_AVAILABLE ################################

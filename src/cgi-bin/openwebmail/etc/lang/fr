@@ -1,16 +1,16 @@
-package openwebmail::fr;
+package ow::fr;
 
 # French translation, charset: iso-8859-1
 # by Cyril Sabatier, c.sabatier.AT.bocquet.com
 
 %lang_folders =
    (
-   INBOX => 'Reçus',
+   INBOX            => 'Reçus',
    'saved-messages' => 'Enregistrés',
    'sent-mail'      => 'Envoyés',
    'saved-drafts'   => 'Brouillons',
    'mail-trash'     => 'Poubelle',
-   DELETE => '-- SUPPRIMER --'
+   DELETE           => '-- SUPPRIMER --'
    );
 
 %lang_sortlabels =
@@ -28,7 +28,7 @@ package openwebmail::fr;
 
 %lang_onofflabels =
    (
-   auto => 'Auto switched',
+   auto => 'Automatique',
    on   => 'On',
    off  => 'Off',
    );
@@ -42,17 +42,17 @@ package openwebmail::fr;
 
 %lang_msgformatlabels =
    (
-   auto => 'Auto selected',
-   text	=> 'Text',
+   auto => 'Automatique',
+   text => 'Text',
    html => 'HTML',
-   both => 'HTML and Text'
+   both => 'HTML et Text'
    );
 
 %lang_withoriglabels =
    (
    at_beginning => 'Au début',
-   at_end      => 'A la fin',
-   none        => 'Ne pas l\'insérer'
+   at_end       => 'A la fin',
+   none         => 'Ne pas l\'insérer'
    );
 
 %lang_receiptlabels =
@@ -64,9 +64,9 @@ package openwebmail::fr;
 
 %lang_disableemblinklabels =
    (
-   none    => 'None',
-   cgionly => 'CGI only',
-   all     => 'All embedded URLs'
+   none    => 'Non',
+   cgionly => 'CGI seulement',
+   all     => 'Oui'
    );
 
 %lang_ctrlpositionlabels =
@@ -78,8 +78,8 @@ package openwebmail::fr;
 %lang_sendpositionlabels =
    (
    before => 'Avant la zone d\'édition du mail',
-   after => 'Après la zone d\'édition du mail',
-   both  => 'Avant et après la zone d\'édition du mail'
+   after  => 'Après la zone d\'édition du mail',
+   both   => 'Avant et après la zone d\'édition du mail'
    );
 
 %lang_abookbuttonpositionlabels = 
@@ -187,14 +187,14 @@ package openwebmail::fr;
    listarchive=> 'Lister',
    decompress=>'Decompresser',
    extract  => 'Extraire',
-   mkpdf    => 'Make Pdf',
-   mkps     => 'Make Ps',
+   mkpdf    => 'Créer Pdf',
+   mkps     => 'Créer Ps',
    chdir    => 'Ch. Rép.',
    mkdir    => 'Créer Rép.',
    newfile  => 'Nouv. Fich.',
    copy     => 'Copier',
    move     => 'Déplacer',
-   symlink  => 'Symlink',
+   symlink  => 'Lier',
    delete   => 'Effacer',
    gzip     => 'Créer gz',
    mkzip    => 'Créer zip',
@@ -206,7 +206,7 @@ package openwebmail::fr;
 
 %lang_text =
    (
-   loading    => 'Loading, please wait',
+   loading    => 'Chargement, veuillez patinter',
    help       => 'Aide ',
    login      => 'Entrer',
    clear      => 'Effacer',
@@ -250,9 +250,9 @@ package openwebmail::fr;
    replyall   => 'Répondre à tous',
    forward    => 'Faire suivre',
    forwardasatt=>'Faire suivre en tant qu\'attachement',
-   forwardasorig=>'Forward as original',
+   forwardasorig=>'Faire suivre comme original',
    printfriendly=> 'Impression amicale',
-   msgformat  => 'MsgFormat',
+   msgformat  => 'Format Msg',
    from       => 'Expéditeur',
    replyto    => 'Répondre à',
    to         => 'Destinataire',
@@ -274,9 +274,9 @@ package openwebmail::fr;
    msgrebuild => 'Message reconstruit',
    editdraft  => 'Editer brouillon',
    savedraft  => 'Enregistrer brouillon',
-   draftsaved => 'Draft @@@SUBJECT@@@ has been saved successfully',
+   draftsaved => 'La brouillon @@@SUBJECT@@@ a été enregistrée',
    send       => 'Envoyer',
-   msgsent    => 'Message @@@SUBJECT@@@ has been sent successfully',
+   msgsent    => 'Le message @@@SUBJECT@@@ a été envoyé',
    about      => 'A propos',
    close      => 'Fermer',
    cancel     => 'Annuler',
@@ -352,14 +352,15 @@ package openwebmail::fr;
    checkagain => 'Vérif. encore',
    finishchecking => 'Fin vérif.',
    editpdict  => 'Edit Personal Dictionary',
-   addtodict  => 'Add to Dictionary',
+   addtodict  => 'Ajouter au dictionnaire',
    manuallyfix=> 'Correction manuelle',
    editstat   => 'Editer modèle de documents',
    savestat   => 'Sauver modèle de documents',
    clearstat  => 'Effacer tous les modèles de documents',
    statreply  => '-- Modèle de documents pour répondre --',
    calendar   => 'Calendrier',
-   allday     => 'All day',
+   allday     => 'Tous les jours',
+   today      => 'Aujourd\'hui',
    am         => 'am',
    pm         => 'pm',
    calfmt_year          => 'Année @@@YEAR@@@',
@@ -367,12 +368,12 @@ package openwebmail::fr;
    calfmt_yearmonthday  => '@@@DAY@@@ @@@MONTH_STR@@@ @@@YEAR@@@',
    calfmt_yearmonthdaywday => '@@@WEEKDAY_STR@@@ @@@DAY@@@ @@@MONTH_STR@@@ @@@YEAR@@@',
    calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
-   autosel    => 'Auto selected',
+   autosel    => 'Automatique',
    none       => 'Aucun',
    moreitems  => 'plus d\'éléments',
    multieditconf => 'Cet élément a été ajouté pour des dates multiples.\\nSi vous le modifiez l\'élément sera modifié pour toutes les autres dates.\\nContinuer?',
    multidelconf  => 'Cet élément a été ajouté pour des dates multiples.\\nSi vous l\'effacez l\'élément sera effacé pour toutes les autres dates.\\nContinuer?',
-   caldelconf => 'Are you sure you want to delete this item?',
+   caldelconf => 'Etês vous sûr de vouloir effacer cet élément?',
    noitemforthisday => 'Aucun élément pour cette journée',
    thisday_only          => 'La date d\'aujourd\'hui uniquement',
    the_wday_of_thismonth => 'le @@@ORDER@@@ @@@WDAY@@@ du mois',
@@ -408,18 +409,18 @@ package openwebmail::fr;
    savefile_towd=> 'Sauver fichier vers le WebDisk',
    saveatt_towd => 'Sauver l\'attachement vers le WebDisk',
    addatt_fromwd=> 'Ajouter un attachement à partir du WebDisk',
-   vdomain_usermgr    => 'Virtual Domain User Management',
-   vdomain_createuser => 'Create User',
-   vdomain_changeuser => 'Change User',
-   vdomain_deleteuser => 'Delete User',
-   vdomain_changeview => 'Change view to',
-   vdomain_usersonly  => 'users only',
-   vdomain_useralias  => 'users/aliases',
+   vdomain_usermgr    => 'Gestion des utilisateurs virtuels',
+   vdomain_createuser => 'Créer un utilisateur',
+   vdomain_changeuser => 'Changer l\'utilisateur',
+   vdomain_deleteuser => 'Supprimer l\'utilisateur',
+   vdomain_changeview => 'Changer la vue',
+   vdomain_usersonly  => 'utilisateurs uniquement',
+   vdomain_useralias  => 'utilisateurs/aliases',
    vdomain_fmtuseralias => 'formatted users/aliases',
    vdomain_admin      => 'Admin',
-   vdomain_localuser  => 'Local User',
-   set_passwd         => 'Set Password',
-   reset_passwd       => 'Reset Password',
+   vdomain_localuser  => 'Utilisateur local',
+   set_passwd         => 'Mot de passe',
+   reset_passwd       => 'RAZ du mot de passe',
    email_alias        => 'E-MAIL Alias'
    );
 
@@ -479,16 +480,16 @@ package openwebmail::fr;
    decomp_notsupported =>'La décompression n\'est pas disponible pour ce fichier.',
    filefmt_notsupported =>'The file format is not supported.',
    webdisk_readonly  => 'Désolé, votre webdisk est en lecture seule.',
-   quota_syserr      => 'Quota system error',
-   quotahit_alert    => 'Sorry, you\'ve hit your quota limit. Please delete some messages from mail folders or some files from the webdisk to free disk space.',
-   quotahit_delmail  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, oldest messages in folders have been removed automatcially',
-   quotahit_delfile  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, some files in the webdisk have been removed automatcially',
-   spool_overlimit   => 'Sorry, your INBOX has exceeded the spool limit(@@@SPOOLLIMIT@@@). Please move some messages from INBOX to other folders.',
-   vdomain_toomanyuser  => 'Sorry, the user count of this domain has reached its maximum limit',
-   vdomain_toomanyalias => 'Sorry, the E-MAIL alias count of this user has reached its maximum limit',
-   vdomain_userrequired => 'A user name is required',
-   vdomain_fwdrequired => 'A valid forwarding E-MAIL is required',
-   all_module_disabled => 'All modules are disabled'
+   quota_syserr      => 'Erreur de quotas système',
+   quotahit_alert    => 'Désolé, vous avez atteint votre quota. Prière d\'effacer des mails ou des fichiers dans WebDisk pour faire de la place',
+   quotahit_delmail  => 'Attention, vu que le quota (@@@QUOTALIMIT@@@) a été atteint, les anciens messages ont étés automatiquement suprimés',
+   quotahit_delfile  => 'Attention, vu que le quota (@@@QUOTALIMIT@@@) a été atteint, certains fichiers dans WebDisk ont étés automatiquement suprimés',
+   spool_overlimit   => 'Désolé, votre boîte de récéption a depassée la taille maximale en file d\'attente (@@@SPOOLLIMIT@@@). Veuillez déplacer certains messages de votre boîte de récéption vers d\'autres dossiers',
+   vdomain_toomanyuser  => 'Désolé, ce domaine a atteint son nombre maximum d\'utilisateurs',
+   vdomain_toomanyalias => 'Désolé, cet utilisateur a atteint son nombre maximum d\'alias',
+   vdomain_userrequired => 'Un nom d\'utilisateur est requis',
+   vdomain_fwdrequired => 'un Email valide est requis',
+   all_module_disabled => 'Tous les modules sont desactivés'
    );
 
 1;

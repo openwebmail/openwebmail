@@ -1,16 +1,16 @@
-package openwebmail::ur;
+package ow::ur;
 
 # Urdu translation, charset: utf-8
 # by Muhammad Umair Abbasi 
 
 %lang_folders =
    (
-   INBOX => '﻿ﺍﻥ ﺑﻜﺲ',
+   INBOX            => '﻿ﺍﻥ ﺑﻜﺲ',
    'saved-messages' => 'ﻣﺤﻔﻮﻇ ﺷﺪﻩ ﭘﻴﻐﺎﻣﺎﺕ',
    'sent-mail'      => 'ﺭﻭﺍﻧﮧ ﺷﺪﻩ ﻣﻴﻞ',
    'saved-drafts'   => 'ﻣﺤﻔﻮﻇ ﮈﺭﺍﻓﭧ',
    'mail-trash'     => 'ﺭﺩﻯ ﻛﻰ ﭨﻮﻛﺮﻯ',
-   DELETE => '-- ﻣﭩﺎ ﺩ ﻳﮟ --'
+   DELETE           => '-- ﻣﭩﺎ ﺩ ﻳﮟ --'
    );
 
 %lang_sortlabels =
@@ -43,7 +43,7 @@ package openwebmail::ur;
 %lang_msgformatlabels =
    (
    auto => 'Auto selected',
-   text	=> 'Text',
+   text => 'Text',
    html => 'HTML',
    both => 'HTML and Text'
    );
@@ -51,8 +51,8 @@ package openwebmail::ur;
 %lang_withoriglabels =
    (
    at_beginning => 'ﺁﻏﺎﺯ ﭘﺮ',
-   at_end      => 'ﺍﺨﺘﺎﻡ ﭘﺮ',
-   none        => 'ﻛﻬﻴﮟ ﻧﻬﻴﮟ'
+   at_end       => 'ﺍﺨﺘﺎﻡ ﭘﺮ',
+   none         => 'ﻛﻬﻴﮟ ﻧﻬﻴﮟ'
    );
 
 %lang_receiptlabels =
@@ -78,8 +78,8 @@ package openwebmail::ur;
 %lang_sendpositionlabels =
    (
    before => 'ﺗﺤﺮﻳﺮ ﺳﮯ ﻗﺒﻞ',
-   after => 'ﺗﺤﺮﻳﺮ ﻛﮯ ﺑﻌﺪ',
-   both  => 'ﺗﺤﺮﻳﺮ ﺳﮯ ﻗﺒﻞ ﺍﻭﺭ ﺑﻌﺪ'
+   after  => 'ﺗﺤﺮﻳﺮ ﻛﮯ ﺑﻌﺪ',
+   both   => 'ﺗﺤﺮﻳﺮ ﺳﮯ ﻗﺒﻞ ﺍﻭﺭ ﺑﻌﺪ'
    );
 
 %lang_abookbuttonpositionlabels = 
@@ -360,6 +360,7 @@ package openwebmail::ur;
    statreply  => '-- ﺟﻮﺍﺏ ﻛﻴﻠﮯ ﺍﺳﭩﻴﺸﻨﺮﻯ --',
    calendar   => 'ﻛﻠﻴﻨﮉﺭ',
    allday     => 'All day',
+   today      => 'Today',
    am         => 'am',
    pm         => 'pm',
    calfmt_year          => ' ﺳﺎﻝ @@@YEAR@@@',

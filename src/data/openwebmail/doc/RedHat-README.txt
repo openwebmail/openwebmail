@@ -119,8 +119,8 @@ For Text-Iconv-1.2 do the following:
 
    ps: If the 'make test' failed, it means you set wrong value for LIBS and
        INC in Makefile.PL or your iconv support is not complete.
-       You may copy the uty/iconv.pl.fake to iconv.pl to make openwebmail work
-       without iconv support.
+       You may copy the uty/iconv.pl.fake to shares/iconv.pl to make 
+       openwebmail work without iconv support.
 
    make install
 
@@ -132,9 +132,9 @@ openwebmail-1.xx.tgz file you have just downloaded.
 
    cd /home/httpd
    tar -zxvBpf openwebmail-1.xx.tgz
-   edit auth_unix.pl:
-   set $unix_passwdfile_encrypted to /etc/shadow
-       $unix_passwdmkdb to none
+   edit etc/auth_unix.conf (from etc/auth_unix.conf.default)
+   set passwdfile_encrypted to /etc/shadow
+       passwdmkdb           to none
 
    cd cgi-bin/etc
    edit openwebmail.conf:
@@ -148,9 +148,9 @@ openwebmail-1.xx.tgz file you have just downloaded.
 
    cd /var/www
    tar -zxvBpf openwebmail-1.xx.tgz
-   edit auth_unix.pl:
-   set $unix_passwdfile_encrypted to /etc/shadow
-       $unix_passwdmkdb to none
+   edit etc/auth_unix.conf (from etc/auth_unix.conf.default)
+   set passwdfile_encrypted to /etc/shadow
+       passwdmkdb           to none
 
    cd cgi-bin/etc
    edit openwebmail.conf:
@@ -175,9 +175,6 @@ Bellow is the example of my openwebmail.conf file on RedHat 7.x:
 domainnames		auto
 auth_module		auth_unix.pl
 mailspooldir		/var/spool/mail
-dbm_ext			.db
-dbmopen_ext		none
-dbmopen_haslock		no
 timeoffset		-0600
 ow_cgidir		/var/www/cgi-bin/openwebmail
 ow_cgiurl		/cgi-bin/openwebmail
@@ -192,6 +189,15 @@ default_language	en
 Open WebMail Project (http://openwebmail.org)
 </default_signature>
 ----------------------------------------------------------------------- end --
+
+Bellow is the example of my dbm.conf file on RedHat 7.x:
+
+--------------------------------------------------------------------- start --
+dbm_ext			.db
+dbmopen_ext		none
+dbmopen_haslock		no
+----------------------------------------------------------------------- end --
+
 
 
 

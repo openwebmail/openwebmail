@@ -4,30 +4,36 @@
 #
 
 use vars qw($SCRIPT_DIR);
-if ( $0 =~ m!^(\S*)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
+if ( $0 =~ m!^(\S*)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1 }
 if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
-   $_=<F>; close(F); if ( $_=~/^(\S*)/) { $SCRIPT_DIR=$1; }
+   $_=<F>; close(F); if ( $_=~/^(\S*)/) { $SCRIPT_DIR=$1 }
 }
 if (!$SCRIPT_DIR) { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
 push (@INC, $SCRIPT_DIR);
 
-$ENV{PATH} = ""; # no PATH should be needed
-$ENV{ENV} = "";      # no startup script for sh
-$ENV{BASH_ENV} = ""; # no startup script for bash
+foreach (qw(PATH ENV BASH_ENV CDPATH IFS TERM)) { $ENV{$_}='' }	# secure ENV
 umask(0002); # make sure the openwebmail group can write
 
 use strict;
 use Fcntl qw(:DEFAULT :flock);
 use CGI qw(-private_tempfiles :standard);
 use CGI::Carp qw(fatalsToBrowser carpout);
+use MIME::Base64;
+use MIME::QuotedPrint;
 
-require "ow-shared.pl";
-require "filelock.pl";
-require "mime.pl";
-require "iconv.pl";
-require "maildb.pl";
-require "htmlrender.pl";
-require "htmltext.pl";
+require "modules/filelock.pl";
+require "modules/datetime.pl";
+require "modules/lang.pl";
+require "modules/dbm.pl";
+require "modules/tool.pl";
+require "modules/htmlrender.pl";
+require "modules/htmltext.pl";
+require "modules/mime.pl";
+require "modules/mailparse.pl";
+require "modules/execute.pl";
+require "shares/ow-shared.pl";
+require "shares/iconv.pl";
+require "shares/maildb.pl";
 
 # common globals
 use vars qw(%config %config_raw);
@@ -35,18 +41,18 @@ use vars qw($thissession);
 use vars qw($domain $user $userrealname $uuid $ugid $homedir);
 use vars qw(%prefs %style);
 use vars qw($quotausage $quotalimit);
-use vars qw($folderdir @validfolders $folderusage);
-use vars qw($folder $printfolder $escapedfolder);
 
 # extern vars
-use vars qw(%lang_text %lang_err);	# defined in lang/xy
-use vars qw($_SUBJECT $_CHARSET);	# defined in maildb.pl
+use vars qw(%lang_wdbutton %lang_text %lang_err);	# defined in lang/xy
+use vars qw($_SUBJECT $_CHARSET);			# defined in maildb.pl
 
 # local global
+use vars qw($folder);
 use vars qw($sort $page);
-use vars qw($searchtype $keyword $escapedkeyword);
+use vars qw($searchtype $keyword);
+use vars qw($escapedkeyword);
 
-########################## MAIN ##############################
+########## MAIN ##################################################
 openwebmail_requestbegin();
 $SIG{PIPE}=\&openwebmail_exit;	# for user stop
 $SIG{TERM}=\&openwebmail_exit;	# for user stop
@@ -57,13 +63,15 @@ if (!$config{'enable_webmail'}) {
    openwebmailerror(__FILE__, __LINE__, "$lang_text{'webmail'} $lang_err{'access_denied'}");
 }
 
-$page = param("page") || 1;
-$sort = param("sort") || $prefs{'sort'} || 'date';
-$keyword = param("keyword") || '';
-$escapedkeyword = escapeURL($keyword);
-$searchtype = param("searchtype") || 'subject';
+$folder = param('folder') || 'INBOX';
+$page = param('page') || 1;
+$sort = param('sort') || $prefs{'sort'} || 'date';
+$keyword = param('keyword') || '';
+$searchtype = param('searchtype') || 'subject';
 
-my $action = param("action");
+$escapedkeyword = ow::tool::escapeURL($keyword);
+
+my $action = param('action')||'';
 if ($action eq "viewattachment") {
    viewattachment();
 } elsif ($action eq "saveattachment" && $config{'enable_webdisk'}) {
@@ -77,19 +85,20 @@ if ($action eq "viewattachment") {
 }
 
 openwebmail_requestend();
-###################### END MAIN ##############################
+########## END MAIN ##############################################
 
-################ VIEWATTACHMENT/SAVEATTACHMENT ##################
+########## VIEWATTACHMENT/SAVEATTACHMENT #########################
 sub viewattachment {	# view attachments inside a message
-   my $messageid = param("message_id");
-   my $nodeid = param("attachment_nodeid");
+   my $messageid = param('message_id')||'';
+   my $nodeid = param('attachment_nodeid');
+   my $wordpreview=param('wordpreview')||0;
 
-   my ($attfilename, $length, $r_attheader, $r_attbody)=getattachment($folder, $messageid, $nodeid);
+   my ($attfilename, $length, $r_attheader, $r_attbody)=getattachment($folder, $messageid, $nodeid, $wordpreview);
 
    if (${$r_attheader}=~m!Content-Type: text/!i && $length>512 &&
        cookie("openwebmail-httpcompress") &&
        $ENV{'HTTP_ACCEPT_ENCODING'}=~/\bgzip\b/ &&
-       has_zlib()) {
+       ow::tool::has_zlib()) {
       my $zattbody=Compress::Zlib::memGzip($r_attbody);
       my $zlen=length($zattbody);
       my $zattheader=qq|Content-Encoding: gzip\n|.
@@ -104,36 +113,36 @@ sub viewattachment {	# view attachments inside a message
 }
 
 sub saveattachment {	# save attachments inside a message to webdisk
-   my $messageid = param("message_id");
-   my $nodeid = param("attachment_nodeid");
-   my $webdisksel=param('webdisksel');
+   my $messageid = param('message_id')||'';
+   my $nodeid = param('attachment_nodeid');
+   my $webdisksel=param('webdisksel')||'';
 
    my ($attfilename, $length, $r_attheader, $r_attbody)=getattachment($folder, $messageid, $nodeid);
    savefile2webdisk($attfilename, $length, $r_attbody, $webdisksel);
 }
 
 sub getattachment {
-   my ($folder, $messageid, $nodeid)=@_;
-   my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
+   my ($folder, $messageid, $nodeid, $wordpreview)=@_;
+   my ($folderfile, $folderdb)=get_folderpath_folderdb($user, $folder);
    my $folderhandle=do { local *FH };
 
-   filelock($folderfile, LOCK_SH|LOCK_NB) or
+   ow::filelock::lock($folderfile, LOCK_SH|LOCK_NB) or
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $folderfile!");
-   if (update_headerdb($headerdb, $folderfile)<0) {
-      filelock($folderfile, LOCK_UN);
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_updatedb'} $headerdb$config{'dbm_ext'}");
+   if (update_folderindex($folderfile, $folderdb)<0) {
+      ow::filelock::lock($folderfile, LOCK_UN);
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_updatedb'} $folderdb");
    }
    open($folderhandle, "$folderfile");
-   my $r_block= get_message_block($messageid, $headerdb, $folderhandle);
+   my $r_block= get_message_block($messageid, $folderdb, $folderhandle);
    close($folderhandle);
-   filelock($folderfile, LOCK_UN);
+   ow::filelock::lock($folderfile, LOCK_UN);
 
    if ( !defined(${$r_block}) ) {
-      openwebmailerror(__FILE__, __LINE__, "What the heck? Message ".str2html($messageid)." seems to be gone!");
+      openwebmailerror(__FILE__, __LINE__, "What the heck? Message ".ow::htmltext::str2html($messageid)." seems to be gone!");
    }
 
-   my @attr=get_message_attributes($messageid, $headerdb);
-   my $convfrom=param('convfrom');
+   my @attr=get_message_attributes($messageid, $folderdb);
+   my $convfrom=param('convfrom')||'';
    if ($convfrom eq "") {
       if ( is_convertable($attr[$_CHARSET], $prefs{'charset'}) ) {
          $convfrom=lc($attr[$_CHARSET]);
@@ -172,7 +181,7 @@ sub getattachment {
 
    } else {
       # return a specific attachment
-      my ($header, $body, $r_attachments)=parse_rfc822block($r_block, "0", $nodeid);
+      my ($header, $body, $r_attachments)=ow::mailparse::parse_rfc822block($r_block, "0", $nodeid);
       undef(${$r_block});
       undef($r_block);
 
@@ -193,44 +202,39 @@ sub getattachment {
          }
 
          my $content;
-         if (${$r_attachment}{encoding} =~ /^base64$/i) {
+         if (${$r_attachment}{'content-transfer-encoding'} =~ /^base64$/i) {
             $content = decode_base64(${${$r_attachment}{r_content}});
-         } elsif (${$r_attachment}{encoding} =~ /^quoted-printable$/i) {
+         } elsif (${$r_attachment}{'content-transfer-encoding'} =~ /^quoted-printable$/i) {
             $content = decode_qp(${${$r_attachment}{r_content}});
-         } elsif (${$r_attachment}{encoding} =~ /^x-uuencode$/i) {
-            $content = uudecode(${${$r_attachment}{r_content}});
+         } elsif (${$r_attachment}{'content-transfer-encoding'} =~ /^x-uuencode$/i) {
+            $content = ow::mime::uudecode(${${$r_attachment}{r_content}});
          } else { ## Guessing it's 7-bit, at least sending SOMETHING back! :)
             $content = ${${$r_attachment}{r_content}};
          }
-         if (${$r_attachment}{contenttype} =~ m#^text/html#i ) {
-            my $escapedmessageid = escapeURL($messageid);
-            $content = html4nobase($content);
-#            $content = html4link($content);
-            $content = html4disablejs($content) if ($prefs{'disablejs'});
-            $content = html4disableemblink($content, $prefs{'disableemblink'}) if ($prefs{'disableemblink'} ne 'none');
-            $content = html4attachments($content, $r_attachments, "$config{'ow_cgiurl'}/openwebmail-viewatt.pl", "action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder");
-#            $content = html4mailto($content, "$config{'ow_cgiurl'}/openwebmail-send.pl", "action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page&amp;sessionid=$thissession&amp;composetype=sendto");
+         if (${$r_attachment}{'content-type'} =~ m#^text/html#i ) {
+            my $escapedfolder = ow::tool::escapeURL($folder);
+            my $escapedmessageid = ow::tool::escapeURL($messageid);
+            $content = ow::htmlrender::html4nobase($content);
+#            $content = ow::htmlrender::html4link($content);
+            $content = ow::htmlrender::html4disablejs($content) if ($prefs{'disablejs'});
+            $content = ow::htmlrender::html4disableembcode($content) if ($prefs{'disableembcode'});
+            $content = ow::htmlrender::html4disableemblink($content, $prefs{'disableemblink'}, "$config{'ow_htmlurl'}/images/backgrounds/Transparent.gif") if ($prefs{'disableemblink'} ne 'none');
+            $content = ow::htmlrender::html4attachments($content, $r_attachments, "$config{'ow_cgiurl'}/openwebmail-viewatt.pl", "action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder");
+#            $content = ow::htmlrender::html4mailto($content, "$config{'ow_cgiurl'}/openwebmail-send.pl", "action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page&amp;sessionid=$thissession&amp;composetype=sendto");
          }
 
-         my $length = length($content);
-         my $contenttype = ${$r_attachment}{contenttype};
-         my $filename = ${$r_attachment}{filename};
-         $filename=~s/\s$//;
+         my $contenttype = ${$r_attachment}{'content-type'};
+         my $filename = ${$r_attachment}{filename}; $filename=~s/\s$//;
 
          # remove char disallowed in some fs
          if ($prefs{'charset'} eq 'big5' || $prefs{'charset'} eq 'gb2312') {
-            $filename = zh_dospath2fname($filename, '_');	# dos path
+            $filename = ow::tool::zh_dospath2fname($filename, '_');	# dos path
          } else {
             $filename =~ s|\\|_|;			# dos path
          }
          $filename =~ s|^.*/||;	# unix path
          $filename =~ s|^.*:||;	# mac path and dos drive
          $filename=safedlname($filename);
-
-         # we send message with contenttype text/plain for easy view
-         if ($contenttype =~ /^message\//i) {
-            $contenttype = "text/plain";
-         }
 
          # we change the filename of an attachment
          # from *.exe, *.com *.bat, *.pif, *.lnk, *.scr to *.file
@@ -242,12 +246,21 @@ sub getattachment {
             $filename="$filename.file";
          }
 
-         # change contenttype of image to make it directly displayed by browser
          if ( $contenttype =~ /application\/octet\-stream/i &&
               $filename =~ /\.(jpg|jpeg|gif|png|bmp)$/i ) {
+            # change contenttype of image to make it directly displayed by browser
             $contenttype="image/".lc($1);
+         } elsif ($contenttype =~ /^message\//i) {
+            # set message contenttype to text/plain for easy view
+            $contenttype = "text/plain";
          }
 
+         if ($wordpreview && $filename =~ /\.(?:doc|dot)$/i &&	# in wordpreview mode?
+             word2simplehtml(\$content)) {	
+             $contenttype="text/html";
+         }
+
+         my $length=length($content);
          my $attheader=qq|Content-Length: $length\n|.
                        qq|Connection: close\n|.
                        qq|Content-Type: $contenttype; name="$filename"\n|;
@@ -276,22 +289,23 @@ sub getattachment {
 
          return($filename, $length, \$attheader, \$content);
       } else {
-         openwebmailerror(__FILE__, __LINE__, "What the heck? Message ".str2html($messageid)." $nodeid seems to be gone!");
+         openwebmailerror(__FILE__, __LINE__, "What the heck? Message ".ow::htmltext::str2html($messageid)." $nodeid seems to be gone!");
       }
    }
    # never reach
 }
-################### END VIEWATTACHMENT ##################
+########## END VIEWATTACHMENT ####################################
 
-################ VIEWATTFILE/SAVEATTFILE ##################
+########## VIEWATTFILE/SAVEATTFILE ###############################
 sub viewattfile {	# view attachments uploaded to $config{'ow_sessionsdir'}
-   my $attfile=param("attfile"); $attfile =~ s/\///g;  # just in case someone gets tricky ...
-   my ($attfilename, $length, $r_attheader, $r_attbody)=getattfile($attfile);
+   my $attfile=param('attfile')||''; $attfile =~ s/\///g;  # just in case someone gets tricky ...
+   my $wordpreview=param('wordpreview')||0;
+   my ($attfilename, $length, $r_attheader, $r_attbody)=getattfile($attfile, $wordpreview);
 
    if (${$r_attheader}=~m!Content-Type: text/!i && $length>512 &&
        cookie("openwebmail-httpcompress") &&
        $ENV{'HTTP_ACCEPT_ENCODING'}=~/\bgzip\b/ &&
-       has_zlib()) {
+       ow::tool::has_zlib()) {
       my $zattbody=Compress::Zlib::memGzip($r_attbody);
       my $zlen=length($zattbody);
       my $zattheader=qq|Content-Encoding: gzip\n|.
@@ -306,106 +320,62 @@ sub viewattfile {	# view attachments uploaded to $config{'ow_sessionsdir'}
 }
 
 sub saveattfile {	# save attachments uploaded to $config{'pw_sessiondir'} to webdisk
-   my $attfile=param("attfile");
-   my $webdisksel=param('webdisksel');
+   my $attfile=param('attfile')||'';
+   my $webdisksel=param('webdisksel')||'';
 
    my ($attfilename, $length, $r_attheader, $r_attbody)=getattfile($attfile);
    savefile2webdisk($attfilename, $length, $r_attbody, $webdisksel);
 }
 
 sub getattfile {
-   my $attfile=$_[0];
+   my ($attfile, $wordpreview)=@_;
+
    # only allow to view attfiles belongs the $thissession
    if ($attfile!~/^\Q$thissession\E/  || !-f "$config{'ow_sessionsdir'}/$attfile") {
       openwebmailerror(__FILE__, __LINE__, "What the heck? Attfile $config{'ow_sessionsdir'}/$attfile seems to be gone!");
    }
 
-   my ($attsize, $attheader, $attheaderlen, $attcontent);
-   my ($attcontenttype, $attencoding, $attdisposition,
-       $attid, $attlocation, $attfilename);
-
-   $attsize=(-s("$config{'ow_sessionsdir'}/$attfile"));
-
+   my (%att, $attheader, $attcontent);
    open(ATTFILE, "$config{'ow_sessionsdir'}/$attfile") or
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}/$attfile! ($!)");
-   read(ATTFILE, $attheader, 512);
-   $attheaderlen=index($attheader,  "\n\n", 0);
-   $attheader=substr($attheader, 0, $attheaderlen);
-   seek(ATTFILE, $attheaderlen+2, 0);
-   read(ATTFILE, $attcontent, $attsize-$attheaderlen-2);
+   local $/="\n\n"; $attheader=<ATTFILE>;	# read until 1st blank line
+   undef $/; $attcontent=<ATTFILE>;		# read until file end
    close(ATTFILE);
 
-   my $lastline='NONE';
-   foreach (split(/\n/, $attheader)) {
-      if (/^\s/) {
-         s/^\s+//; # fields in attheader us ';' as delimiter, no space is ok
-         if ($lastline eq 'TYPE') { $attcontenttype .= $_ }
-      } elsif (/^content-type:\s+(.+)$/ig) {
-         $attcontenttype = $1;
-         $lastline = 'TYPE';
-      } elsif (/^content-transfer-encoding:\s+(.+)$/ig) {
-         $attencoding = $1;
-         $lastline = 'NONE';
-      } elsif (/^content-disposition:\s+(.+)$/ig) {
-         $attdisposition = $1;
-         $lastline = 'NONE';
-      } elsif (/^content-id:\s+(.+)$/ig) {
-         $attid = $1;
-         $attid =~ s/^\<(.+)\>$/$1/;
-         $lastline = 'NONE';
-      } elsif (/^content-location:\s+(.+)$/ig) {
-         $attlocation = $1;
-         $lastline = 'NONE';
-      } else {
-         $lastline = 'NONE';
-      }
-   }
+   $att{'content-type'}='application/octet-stream';	# assume att is binary
+   ow::mailparse::parse_header(\$attheader, \%att);
+   ($att{filename}, $att{filenamecharset})=
+      ow::mailparse::get_filename_charset($att{'content-type'}, $att{'content-disposition'});
 
-   $attfilename = $attcontenttype;
-   $attcontenttype =~ s/^(.+);.*/$1/g;
-   unless ($attfilename =~ s/^.+name[:=]"?([^"]+)"?.*$/$1/ig) {
-      $attfilename = $attdisposition || '';
-      unless ($attfilename =~ s/^.+filename="?([^"]+)"?.*$/$1/ig) {
-         $attfilename = "Unknown.".contenttype2ext($attcontenttype);
-      }
-   }
-   $attdisposition =~ s/^(.+);.*/$1/g;
-
-   # remove char disallowed in some fs
-   if ($prefs{'charset'} eq 'big5' || $prefs{'charset'} eq 'gb2312') {
-      $attfilename = zh_dospath2fname($attfilename, '_');	# dos path
-   } else {
-      $attfilename =~ s|\\|_|;			# dos path
-   }
-   $attfilename =~ s|^.*/||;	# unix path
-   $attfilename =~ s|^.*:||;	# mac path and dos drive
-   $attfilename=safedlname($attfilename);
-
-   if ($attencoding =~ /^base64$/i) {
+   if ($att{'content-transfer-encoding'} =~ /^base64$/i) {
       $attcontent = decode_base64($attcontent);
-   } elsif ($attencoding =~ /^quoted-printable$/i) {
+   } elsif ($att{'content-transfer-encoding'} =~ /^quoted-printable$/i) {
       $attcontent = decode_qp($attcontent);
-   } elsif ($attencoding =~ /^x-uuencode$/i) {
-      $attcontent = uudecode($attcontent);
+   } elsif ($att{'content-transfer-encoding'} =~ /^x-uuencode$/i) {
+      $attcontent = ow::mime::uudecode($attcontent);
    }
 
+   if ($wordpreview && $att{filename} =~ /\.(?:doc|dot)$/i &&	# in wordpreview mode?
+       word2simplehtml(\$attcontent)) {
+       $attheader=~s!$att{'content-type'}!text/html!;
+       $att{'content-type'}="text/html";
+   }
+
+   # rebuild attheader for download, disposition:inline means default to open
    my $length = length($attcontent);
-   # rebuild attheader for download
-   # disposition:inline default to open
    $attheader= qq|Content-Length: $length\n|.
                qq|Connection: close\n|.
-               qq|Content-Type: $attcontenttype; name="$attfilename"\n|.
-               qq|Content-Disposition: inline; filename="$attfilename"\n|;
-
+               qq|Content-Type: $att{'content-type'}; name="$att{filename}"\n|.
+               qq|Content-Disposition: inline; filename="$att{filename}"\n|;
    # allow cache for attfile since its filename is based on times()
    $attheader.=qq|Expires: |.CGI::expires('+900s').qq|\n|.
                qq|Cache-Control: private,max-age=900\n|;
 
-   return($attfilename, $length, \$attheader, \$attcontent);
+   return($att{filename}, $length, \$attheader, \$attcontent);
 }
-################### END VIEWATTATTFILE ##################
+########## END VIEWATTATTFILE ####################################
 
-##################### SAVEFILE2WEBDISK ###################
+########## SAVEFILE2WEBDISK ######################################
 sub savefile2webdisk {
    my ($filename, $length, $r_content, $webdisksel)=@_;
 
@@ -416,7 +386,7 @@ sub savefile2webdisk {
       }
    }
 
-   my $webdiskrootdir=untaint($homedir.absolute_vpath("/", $config{'webdisk_rootpath'}));
+   my $webdiskrootdir=ow::tool::untaint($homedir.absolute_vpath("/", $config{'webdisk_rootpath'}));
    my $vpath=absolute_vpath('/', $webdisksel);
    my $err=verify_vpath($webdiskrootdir, $vpath);
    openwebmailerror(__FILE__, __LINE__, $err) if ($err);
@@ -426,21 +396,53 @@ sub savefile2webdisk {
       $err=verify_vpath($webdiskrootdir, $vpath);
       openwebmailerror(__FILE__, __LINE__, $err) if ($err);
    }
-   $vpath=untaint($vpath);
+   $vpath=ow::tool::untaint($vpath);
 
    if (!open(F, ">$webdiskrootdir/$vpath") ) {
       autoclosewindow($lang_text{'savefile'}, "$lang_text{'savefile'} $lang_text{'failed'} ($vpath: $!)");
    }
-   filelock("$webdiskrootdir/$vpath", LOCK_EX|LOCK_NB) or
+   ow::filelock::lock("$webdiskrootdir/$vpath", LOCK_EX|LOCK_NB) or
       autoclosewindow($lang_text{'savefile'}, "$lang_err{'couldnt_lock'} $webdiskrootdir/$vpath!");
    print F ${$r_content};
    close(F);
    chmod(0644, "$webdiskrootdir/$vpath");
-   filelock("$webdiskrootdir/$vpath", LOCK_UN);
+   ow::filelock::lock("$webdiskrootdir/$vpath", LOCK_UN);
 
    writelog("save attachment - $vpath");
    writehistory("save attachment - $vpath");
 
    autoclosewindow($lang_text{'savefile'}, "$lang_text{'savefile'} $lang_text{'succeeded'} ($vpath)");
 }
-################### END SAVEFILE2WEBDISK #################
+########## END SAVEFILE2WEBDISK ##################################
+
+########## WORD2SIMPLEHTML #######################################
+sub word2simplehtml {
+   my $r_content=$_[0];
+   my $antiwordbin=ow::tool::findbin('antiword');
+   return 0 if ($antiwordbin eq '');
+
+   my $tmpfile=ow::tool::untaint("/tmp/.tmpfile.".time());
+   my $err=0;
+   open(F, ">$tmpfile") or return 0; 
+   print F ${$r_content} or $err++; 
+   close(F);
+   if ($err) {
+      unlink($tmpfile);
+      return 0;
+   }
+   my ($stdout, $stderr, $exit, $sig)=ow::execute::execute($antiwordbin, '-m', 'UTF-8.txt', $tmpfile);
+   unlink($tmpfile);
+   return 0 if ($exit||$sig);
+
+   my $charset=$prefs{'charset'};
+   if (is_convertable('utf-8', $prefs{'charset'}) ) {
+      ($stdout)=iconv('utf-8', $prefs{'charset'}, $stdout);
+   } else {
+      $charset='utf-8';
+   }
+   ${$r_content}=qq|<html><head><meta http-equiv="Content-Type" content="text/html; charset=$charset">\n|.
+                 qq|<title>MS Word $lang_wdbutton{'preview'}</title></head>\n|.
+                 qq|<body><pre>\n$stdout\n</pre></body></html>\n|;
+   return 1;
+}
+########## WORD2SIMPLEHTML #######################################

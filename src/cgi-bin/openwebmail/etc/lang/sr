@@ -1,16 +1,16 @@
-package openwebmail::sr;
+package ow::sr;
 
 # Serbian (latin) translation, charset: iso-8859-2
 # by Aleksandar Pejic, alexa.AT.yunord.net, June 24, 2003
 
 %lang_folders =
    (
-   INBOX => 'Pristigle',
+   INBOX            => 'Pristigle',
    'saved-messages' => 'Saèuvane',
    'sent-mail'      => 'Poslate',
    'saved-drafts'   => 'Nedovr¹ene',
    'mail-trash'     => 'Smeæe',
-   DELETE => '--IZBRI©I--'
+   DELETE           => '--IZBRI©I--'
    );
 
 %lang_sortlabels =
@@ -43,7 +43,7 @@ package openwebmail::sr;
 %lang_msgformatlabels =
    (
    auto => 'Automatski',
-   text	=> 'Tekst',
+   text => 'Tekst',
    html => 'HTML',
    both => 'HTML i tekst'
    );
@@ -51,8 +51,8 @@ package openwebmail::sr;
 %lang_withoriglabels =
    (
    at_beginning => 'na poèetku',
-   at_end      => 'na kraju',
-   none        => 'nijedan'
+   at_end       => 'na kraju',
+   none         => 'nijedan'
    );
 
 %lang_receiptlabels =
@@ -78,8 +78,8 @@ package openwebmail::sr;
 %lang_sendpositionlabels =
    (
    before => 'Pre prostora za pisanje poruke',
-   after => 'Iza prostora za pisanje poruke',
-   both  => 'Pre i iza prostora za pisanje poruke'
+   after  => 'Iza prostora za pisanje poruke',
+   both   => 'Pre i iza prostora za pisanje poruke'
    );
 
 %lang_abookbuttonpositionlabels = 
@@ -360,6 +360,7 @@ package openwebmail::sr;
    statreply  => '-- Odaberi ¹ablon za odgovor --',
    calendar   => 'Kalendar',
    allday     => 'Ceo dan',
+   today      => 'Today',
    am         => 'prepodne',
    pm         => 'popodne',
    calfmt_year          => 'Godina @@@YEAR@@@',

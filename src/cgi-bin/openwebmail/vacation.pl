@@ -116,7 +116,7 @@ my @aliases = ();
 my ($opt_i, $opt_d, $opt_j, $home_path)=(0,0,0,0);
 
 
-#############################################################################
+########## INIT MODE #############################################
 sub init_mode {
    my $user = $ENV{'USER'} || $ENV{'LOGNAME'} || getlogin || (getpwuid($>))[0];
    my $uid=(getpwnam($user))[2];
@@ -143,7 +143,7 @@ sub init_vacation_db {
    dbmclose(%VAC);
 }
 
-#############################################################################
+########## INTERACTIVE MODE ######################################
 sub interactive_mode {
    my $user = $ENV{'USER'} || $ENV{'LOGNAME'} || getlogin || (getpwuid($>))[0];
    my $uid=(getpwnam($user))[2];
@@ -262,7 +262,7 @@ sub yorn {
    return($answer =~ /^y/i);
 }
 
-#############################################################################
+########## PIPE MODE #############################################
 sub pipe_mode {
    my $user = $_[0];
    my ($uid,$home) = (getpwnam($user))[2,7];
@@ -312,7 +312,7 @@ sub pipe_mode {
    ($subject) = ($header =~ /^Subject: +(.*)$/im);
    $subject = "(No subject)" unless $subject;
    $subject =~ s/\s+$//;
-   $subject=decode_mimewords($subject);
+   $subject= decode_mimewords($subject);
 
    ($to) = ($header =~ /^To:\s+(.*)$/im);
    ($cc) = ($header =~ /^Cc:\s+(.*)$/im);
@@ -434,68 +434,68 @@ sub adjust_replymsg {
    return($msg);
 }
 
-# MIME and DEBUG routines ######################################################
+########## MIME and DEBUG routines ###############################
+
 # decode_mimewords, decode_base64 and _decode_q are blatantly snatched
 # from parts of the MIME-Base64 Perl modules.
 sub decode_mimewords {
-   my $encstr = shift;
-   my %params = @_;
-   my @tokens;
-   $@ = '';         # error-return
+    my $encstr = shift;
+    my %params = @_;
+    my @tokens;
+    $@ = '';           ### error-return
 
-   # Collapse boundaries between adjacent encoded words:
-   $encstr =~ s{(\?\=)[\r\n \t]*(\=\?)}{$1$2}gs;
-   pos($encstr) = 0;
-   ### print STDOUT "ENC = [", $encstr, "]\n";
+    ### Collapse boundaries between adjacent encoded words:
+    $encstr =~ s{(\?\=)\s*(\=\?)}{$1$2}gs;
+    pos($encstr) = 0;
+    ### print STDOUT "ENC = [", $encstr, "]\n";
 
-   # Decode:
-   my ($charset, $encoding, $enc, $dec);
-   while (1) {
-      last if (pos($encstr) >= length($encstr));
-      my $pos = pos($encstr);            # save it
+    ### Decode:
+    my ($charset, $encoding, $enc, $dec);
+    while (1) {
+	last if (pos($encstr) >= length($encstr));
+	my $pos = pos($encstr);               ### save it
 
-      # Case 1: are we looking at "=?..?..?="?
-      if ($encstr =~   m{\G            # from where we left off..
-                     =\?([^?]*)      # "=?" + charset +
-                      \?([bq])       #  "?" + encoding +
-                      \?([^?]+)      #  "?" + data maybe with spcs +
-                      \?=           #  "?="
-                     }xgi) {
-         ($charset, $encoding, $enc) = ($1, lc($2), $3);
-         $dec = (($encoding eq 'q') ? _decode_Q($enc) : decode_base64($enc));
-         push @tokens, [$dec, $charset];
-         next;
-      }
+	### Case 1: are we looking at "=?..?..?="?
+	if ($encstr =~    m{\G             # from where we left off..
+			    =\?([^?]*)     # "=?" + charset +
+			     \?([bq])      #  "?" + encoding +
+			     \?([^?]+)     #  "?" + data maybe with spcs +
+			     \?=           #  "?="
+			    }xgi) {
+	    ($charset, $encoding, $enc) = ($1, lc($2), $3);
+	    $dec = (($encoding eq 'q') ? _decode_Q($enc) : _decode_B($enc));
+	    push @tokens, [$dec, $charset];
+	    next;
+	}
 
-      # Case 2: are we looking at a bad "=?..." prefix?
-      # We need this to detect problems for case 3, which stops at "=?":
-      pos($encstr) = $pos;            # reset the pointer.
-      if ($encstr =~ m{\G=\?}xg) {
-         $@ .= qq|unterminated "=?..?..?=" in "$encstr" (pos $pos)\n|;
-         push @tokens, ['=?'];
-         next;
-      }
+	### Case 2: are we looking at a bad "=?..." prefix?
+	### We need this to detect problems for case 3, which stops at "=?":
+	pos($encstr) = $pos;               # reset the pointer.
+	if ($encstr =~ m{\G=\?}xg) {
+	    $@ .= qq|unterminated "=?..?..?=" in "$encstr" (pos $pos)\n|;
+	    push @tokens, ['=?'];
+	    next;
+	}
 
-      # Case 3: are we looking at ordinary text?
-      pos($encstr) = $pos;            # reset the pointer.
-      if ($encstr =~ m{\G            # from where we left off...
-                   ([\x00-\xFF]*?   #   shortest possible string,
-                    \n*)          #   followed by 0 or more NLs,
-                   (?=(\Z|=\?))     # terminated by "=?" or EOS
-                  }xg) {
-         length($1) or die "MIME::Words: internal logic err: empty token\n";
-         push @tokens, [$1];
-         next;
-      }
+	### Case 3: are we looking at ordinary text?
+	pos($encstr) = $pos;               # reset the pointer.
+	if ($encstr =~ m{\G                # from where we left off...
+			 ([\x00-\xFF]*?    #   shortest possible string,
+			  \n*)             #   followed by 0 or more NLs,
+		         (?=(\Z|=\?))      # terminated by "=?" or EOS
+			}xg) {
+	    length($1) or die "mime: empty token";
+	    push @tokens, [$1];
+	    next;
+	}
 
-      # Case 4: bug!
-      die "MIME::Words: unexpected case:\n($encstr) pos $pos\n\t".
-         "Please alert developer.\n";
-   }
-   return (wantarray ? @tokens : join('',map {$_->[0]} @tokens));
+	### Case 4: bug!
+	die "mime: unexpected case:\n($encstr) pos $pos";
+    }
+    return (wantarray ? @tokens : join('',map {$_->[0]} @tokens));
 }
 
-sub decode_base64 {
+sub _decode_B {
    local($^W) = 0; # unpack("u",...) gives bogus warning in 5.00[123]
 
    my $str = shift;
@@ -539,9 +539,9 @@ sub log_debug {
    chmod(0666, "/tmp/vacation.debug");
 }
 
-# MAIN PROGRAM ################################################################
+########## MAIN ##################################################
 
-# parse options, handle initialization or interactive mode ##############
+# parse options, handle initialization or interactive mode
 while (defined($ARGV[0]) && $ARGV[0] =~ /^-/) {
    $_ = shift;
    if (/^-I/i) {  # eric allman's source has both cases

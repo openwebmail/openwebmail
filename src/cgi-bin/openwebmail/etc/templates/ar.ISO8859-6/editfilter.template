@@ -77,9 +77,9 @@
          }
       }
 
-      for (i=0; i<document.newfilter.rules.length; i++) {
-         if (document.newfilter.rules.options[i].value==rules) {
-            document.newfilter.rules.options[i].selected=true;
+      for (i=0; i<document.newfilter.ruletype.length; i++) {
+         if (document.newfilter.ruletype.options[i].value==rules) {
+            document.newfilter.ruletype.options[i].selected=true;
             break;
          }
       }

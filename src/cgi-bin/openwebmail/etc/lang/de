@@ -1,4 +1,4 @@
-package openwebmail::de;
+package ow::de;
 
 # German translation, charset: iso-8859-1
 # by Andreas Roedl, flood.AT.flood-net.de
@@ -7,12 +7,12 @@ package openwebmail::de;
 
 %lang_folders =
    (
-   INBOX => 'EINGANG',
+   INBOX            => 'EINGANG',
    'saved-messages' => 'GESICHERT',
    'sent-mail'      => 'GESENDET',
    'saved-drafts'   => 'ENTWÜRFE',
    'mail-trash'     => 'PAPIERKORB',
-   DELETE => '--LÖSCHEN--'
+   DELETE           => '--LÖSCHEN--'
    );
 
 %lang_sortlabels =
@@ -45,7 +45,7 @@ package openwebmail::de;
 %lang_msgformatlabels =
    (
    auto => 'Automatische Auswahl',
-   text	=> 'Text',
+   text => 'Text',
    html => 'HTML',
    both => 'HTML und Text'
    );
@@ -53,8 +53,8 @@ package openwebmail::de;
 %lang_withoriglabels =
    (
    at_beginning => 'Am Anfang der Nachricht',
-   at_end      => 'Am Ende der Nachricht',
-   none        => 'Nicht'
+   at_end       => 'Am Ende der Nachricht',
+   none         => 'Nicht'
    );
 
 %lang_receiptlabels =
@@ -80,8 +80,8 @@ package openwebmail::de;
 %lang_sendpositionlabels =
    (
    before => 'Vor dem Nachrichteneingabefeld',
-   after => 'Nach dem Nachrichteneingabefeld',
-   both  => 'Vor und nach dem Nachrichteneingabefeld'
+   after  => 'Nach dem Nachrichteneingabefeld',
+   both   => 'Vor und nach dem Nachrichteneingabefeld'
    );
 
 %lang_abookbuttonpositionlabels = 
@@ -362,6 +362,7 @@ package openwebmail::de;
    statreply  => '-- Antwortvorlage  --',
    calendar   => 'Kalender',
    allday     => 'Täglich',
+   today      => 'Today',
    am         => 'Vormittags',
    pm         => 'Nachmittags',
    calfmt_year          => 'Jahr @@@YEAR@@@',

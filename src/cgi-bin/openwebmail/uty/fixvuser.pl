@@ -40,17 +40,16 @@
 use strict;
 use File::Path;
 
-# this is the OpenWebmail etc directory
+# this is the OpenWebmail cgi-bin directory
 # it will be scanned for config files to determine
 # where the virtual user home directories are
 
-#my $ow_etc = '/var/www/cgi-bin/openwebmail/etc';
-my $ow_etc = '/var/www/apps/webmail/cgi-bin/etc';
+my $ow_cgi = '/var/www/cgi-bin/openwebmail';
 
 # this user to use creating virtual home directories
 
-#my $vuser = 'nobody';
-my $vuser = 'virtual';
+my $vuser = 'nobody';
+#my $vuser = 'virtual';
 
 # this group to use creating virtual home directories
 
@@ -59,18 +58,75 @@ my $vgroup = 'mail';
 # you shouldn't have to modify anything below here
 #################################################################
 
+chdir $ow_cgi;
+push (@INC, $ow_cgi);
+require "modules/tool.pl";
+
+my $ow_etc = "$ow_cgi/etc";
 my (%config, %site);
 my $uid = getpwnam( $vuser ) if ( $vuser !~ /^\d+$/ );
 my $gid = getgrnam( $vgroup ) if ( $vgroup !~ /^\d+$/ );
 my $tag = "# OW vdomain";
+
+# taken from ow-shared.pl
+########## DOTDIR RELATED ########################################
+use vars qw(%_is_dotpath);
+foreach (qw(
+   openwebmailrc release.date history.log
+)) { $_is_dotpath{'root'}{$_}=1; }
+foreach (qw(
+   filter.book filter.check
+   from.book address.book stationery.book
+   trash.check search.cache signature
+)) { $_is_dotpath{'webmail'}{$_}=1; }
+foreach (qw(
+   calendar.book notify.check
+)) { $_is_dotpath{'webcal'}{$_}=1; }
+foreach (qw(
+   webdisk.cache
+)) { $_is_dotpath{'webdisk'}{$_}=1; }
+foreach (qw(
+   pop3.book pop3.check authpop3.book
+)) { $_is_dotpath{'pop3'}{$_}=1; }
+
+# This _ version of routine is used by dotpath() and openwebmail-vdomain.pl
+# When vdomain adm has to determine dotpath for vusers,
+# the param of vuser($vdomain, $vuser, $vhomedir) will be passed
+# instead of the globals($domain, $user, $homedir), which are param of vdomain adm himself
+sub _dotpath {
+   my ($name, $domain, $user, $homedir)=@_;
+   my $dotdir;
+   if ($config{'use_syshomedir_for_dotdir'}) {
+      $dotdir = "$homedir/$config{'homedirdotdirname'}";
+   } else {
+      my $owuserdir = "$config{'ow_usersdir'}/".($config{'auth_withdomain'}?"$domain/$user":$user);
+      $dotdir = "$owuserdir/$config{'homedirdotdirname'}";
+   }
+   return(ow::tool::untaint($dotdir)) if ($name eq '/');
+
+   return(ow::tool::untaint("$dotdir/$name"))         if ($_is_dotpath{'root'}{$name});
+   return(ow::tool::untaint("$dotdir/webmail/$name")) if ($_is_dotpath{'webmail'}{$name} || $name=~/^filter\.book/);
+   return(ow::tool::untaint("$dotdir/webcal/$name"))  if ($_is_dotpath{'webcal'}{$name});
+   return(ow::tool::untaint("$dotdir/webdisk/$name")) if ($_is_dotpath{'webdisk'}{$name});
+   return(ow::tool::untaint("$dotdir/pop3/$name"))    if ($_is_dotpath{'pop3'}{$name} || $name=~/^uidl\./);
+
+   $name=~s!^/+!!;
+   return(ow::tool::untaint("$dotdir/$name"));
+}
 
 my $parm;
 foreach (@ARGV){
    if (/^(confirm|force)$/){ $parm=$_;last }
 }
 
-READCONFIG("$ow_etc/openwebmail.conf.default", \%config);
-READCONFIG("$ow_etc/openwebmail.conf", \%config);
+my ($ret,$err)=ow::tool::load_configfile("$ow_cgi/etc/openwebmail.conf.default", \%config);
+ABORT($!) if ( $ret<0 );
+
+my ($ret,$err)=ow::tool::load_configfile("$ow_cgi/etc/openwebmail.conf", \%config);
+ABORT($!) if ( $ret<0 );
+
+my ($postfix_aliases_file) = split(/[ ,]+/, $config{'vdomain_postfix_aliases'});
+my ($postfix_virtual_file) = split(/[ ,]+/, $config{'vdomain_postfix_virtual'});
 
 my $virtualhome=(getpwuid($uid))[7];
 $virtualhome=$config{'ow_usersdir'} if (!$config{'use_syshomedir'});
@@ -80,7 +136,7 @@ my ($user, $domain, $alias, $dest);
 my ( %virtual, %deletehome, %convertuser, %aliases, %vdomains, %vusers, %valiases );
 
 # parse virtual file
-foreach ( READFILE( $config{'vdomain_postfix_virtual'} ) ) {
+foreach ( READFILE( $postfix_virtual_file ) ) {
    if (/^\s*([^\s#]+)\s+([^\s#]+)/){
       $user=$1; $domain=$2;
       if ( $user=~/^(.+)@(.+)/ ) {
@@ -94,7 +150,7 @@ foreach ( READFILE( $config{'vdomain_postfix_virtual'} ) ) {
 while ( $#virtualfile and $virtualfile[$#virtualfile]=~/^\s*\n$/ ) { pop @virtualfile }
 
 # parse alises file
-foreach ( READFILE($config{'vdomain_postfix_aliases'}) ) {
+foreach ( READFILE($postfix_aliases_file) ) {
    next if (/^$tag /);
    if (/^\s*([^\s#:]+)\s*:\s*(.*)/ and $aliases{$1} ) {
       $aliases{$1}=$2;
@@ -161,12 +217,12 @@ foreach $domain (sort keys %vdomains ) {
 }
 
 if ( $chg and CONFIRM("update postfix aliases and virtual files") and $parm ) {
-   print `cp -fa $config{'vdomain_postfix_aliases'} $config{'vdomain_postfix_aliases'}.OWbak`;
-   print `cp -fa $config{'vdomain_postfix_virtual'} $config{'vdomain_postfix_virtual'}.OWbak`;
-   UPDATEFILE($config{'vdomain_postfix_aliases'}, @aliasesfile);
-   UPDATEFILE($config{'vdomain_postfix_virtual'}, @virtualfile);
-   print `$config{'vdomain_postfix_postalias'} $config{'vdomain_postfix_aliases'}`;
-   print `$config{'vdomain_postfix_postmap'} $config{'vdomain_postfix_virtual'}`;
+   print `cp -fa $postfix_aliases_file $postfix_aliases_file.OWbak`;
+   print `cp -fa $postfix_virtual_file $postfix_virtual_file.OWbak`;
+   UPDATEFILE($postfix_aliases_file, @aliasesfile);
+   UPDATEFILE($postfix_virtual_file, @virtualfile);
+   print `$config{'vdomain_postfix_postalias'} $postfix_aliases_file`;
+   print `$config{'vdomain_postfix_postmap'} $postfix_virtual_file`;
 }
 
 print "\ndone\n";
@@ -185,31 +241,26 @@ sub CONFIRM { my ($msg)=@_;
 }
 
 sub UPDATEFROMS { my ($vhome,$domain,$user,@useraliases)=@_;
-   my $maildir="$vhome/$domain/$user/$config{'homedirfolderdirname'}";
 
-   # user home mail root
-   if ( ! -d $maildir ) {
-      return 0 if ( ! CONFIRM("create user mail directory $maildir") );
-      NEWDIR($maildir,$uid,$gid, 0700) if ($parm);
-   }
-   
    my (%hash,@froms);
 
    # convert useraliases to hash
    foreach (@useraliases) { $hash{"$_\@$domain"}=$_ }
 
-   if ( -f "$maildir/.from.book" ) {
-      foreach (READFILE("$maildir/.from.book")) {
+   my $frombook=_dotpath('from.book', $domain, $user, $vhome);
+
+   if ( -f $frombook ) {
+      foreach (READFILE($frombook)) {
          push @froms, "$_\n";
          delete $hash{$1} if (/^(.+)@@@(.+)/ and $hash{$1} );
       }
    }
-   if (keys %hash and CONFIRM("  add $user\@$domain aliases to $maildir/.from.book") ) {
+   if (keys %hash and CONFIRM("  add $user\@$domain aliases to $frombook") ) {
       foreach (sort keys %hash) {
          push @froms, "$_\@\@\@$hash{$_}\n";
       }
-      print "  update user .from.book file $maildir/.from.book\n";
-      REPLACEFILE("$maildir/.from.book",$uid,$gid, 0600, @froms) if ($parm);
+      print "  update user from.book file $frombook\n";
+      REPLACEFILE($frombook,$uid,$gid, 0600, @froms) if ($parm);
    }
 }
 
@@ -276,12 +327,9 @@ sub UPDATEFILE { my ($file, @lines) = @_;
   return;
 }
 
-sub READCONFIG { my ($file,$hash)=@_;
-   foreach ( READFILE($file) ) {
-      s/#.*//;s/^\s+//;s/\s+$//;
-      $$hash{$1}=$2 if ( /(use_syshomedir|ow_usersdir|homedirfolderdirname|vdomain_postfix_aliases|vdomain_postfix_virtual|vdomain_postfix_postalias|vdomain_postfix_postmap|vdomain_mailbox_command)\s+(\S+)/ );
-   }
-   return;
+sub ABORT { my ($msg)=@_;
+   print "$msg\nScript Aborted.\n";
+   exit 1;
 }
 
 sub READDIR { my ($dir) = @_;
@@ -294,3 +342,5 @@ sub READDIR { my ($dir) = @_;
   closedir MYDIR;
   return @files;
 }
+
+

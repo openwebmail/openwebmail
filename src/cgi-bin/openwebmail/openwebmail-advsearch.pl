@@ -6,43 +6,50 @@
 #
 
 use vars qw($SCRIPT_DIR);
-if ( $0 =~ m!^(\S*)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
+if ( $0 =~ m!^(\S*)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1 }
 if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
-   $_=<F>; close(F); if ( $_=~/^(\S*)/) { $SCRIPT_DIR=$1; }
+   $_=<F>; close(F); if ( $_=~/^(\S*)/) { $SCRIPT_DIR=$1 }
 }
 if (!$SCRIPT_DIR) { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
 push (@INC, $SCRIPT_DIR);
 
-$ENV{PATH} = ""; # no PATH should be needed
-$ENV{ENV} = "";      # no startup script for sh
-$ENV{BASH_ENV} = ""; # no startup script for bash
+foreach (qw(PATH ENV BASH_ENV CDPATH IFS TERM)) { $ENV{$_}='' }	# secure ENV
 umask(0002); # make sure the openwebmail group can write
 
 use strict;
 use Fcntl qw(:DEFAULT :flock);
 use CGI qw(-private_tempfiles :standard);
 use CGI::Carp qw(fatalsToBrowser carpout);
+use MIME::Base64;
+use MIME::QuotedPrint;
 
-require "ow-shared.pl";
-require "filelock.pl";
-require "mime.pl";
-require "iconv.pl";
-require "maildb.pl";
-require "htmltext.pl";
+require "modules/datetime.pl";
+require "modules/lang.pl";
+require "modules/dbm.pl";
+require "modules/filelock.pl";
+require "modules/tool.pl";
+require "modules/htmltext.pl";
+require "modules/mime.pl";
+require "modules/mailparse.pl";
+require "shares/ow-shared.pl";
+require "shares/iconv.pl";
+require "shares/maildb.pl";
+require "shares/getmsgids.pl";
 
 # common globals
 use vars qw(%config %config_raw);
 use vars qw($thissession);
 use vars qw($domain $user $userrealname $uuid $ugid $homedir);
 use vars qw(%prefs %style %icontext);
-use vars qw($folderdir @validfolders $folderusage);
-use vars qw($folder $printfolder $escapedfolder);
 
 # extern vars
 use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE $_STATUS $_SIZE $_REFERENCES $_CHARSET); # defined in maildb.pl
 use vars qw(%lang_folders %lang_advsearchlabels %lang_text %lang_err);	# defined in lang/xy
 
-########################## MAIN ##############################
+# local vars
+use vars qw($folder);
+
+########## MAIN ##################################################
 openwebmail_requestbegin();
 $SIG{PIPE}=\&openwebmail_exit;	# for user stop
 $SIG{TERM}=\&openwebmail_exit;	# for user stop
@@ -53,7 +60,9 @@ if (!$config{'enable_webmail'}) {
    openwebmailerror(__FILE__, __LINE__, "$lang_text{'webmail'} $lang_err{'access_denied'}");
 }
 
-my $action = param("action");
+$folder = param('folder') || 'INBOX';
+
+my $action = param('action')||'';
 if ($action eq "advsearch") {
    advsearch();
 } else {
@@ -61,19 +70,19 @@ if ($action eq "advsearch") {
 }
 
 openwebmail_requestend();
-###################### END MAIN ##############################
+########## END MAIN ##############################################
 
-#################### ADVSEARCH ###########################
+########## ADVSEARCH #############################################
 sub advsearch {
    my @search;
 
    for (my $i=0; $i<3; $i++) {
-      my $text=param("searchtext$i"); $text=~s/^\s*//; $text=~s/\s*$//;
-      push(@search, {where=>param("where$i")||'', type=>param("type$i")||'', text=>$text||''} );
+      my $text=param('searchtext'.$i); $text=~s/^\s*//; $text=~s/\s*$//;
+      push(@search, {where=>param('where'.$i)||'', type=>param('type'.$i)||'', text=>$text||''} );
    }
 
-   my $resline = param("resline") || $prefs{'msgsperpage'};
-   my @folders = param("folders");
+   my $resline = param('resline') || $prefs{'msgsperpage'} || 10;
+   my @folders = param('folders');
    for (my $i=0; $i<=$#folders; $i++) {
       $folders[$i]=safefoldername($folders[$i]);
    }
@@ -82,18 +91,14 @@ sub advsearch {
    $html = applystyle(readtemplate("advsearch.template"));
 
    ## replace @@@MENUBARLINKS@@@ ##
-   $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $printfolder", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;sessionid=$thissession&amp;folder=$escapedfolder"|). qq| \n|;
+   $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} ".( $lang_folders{$folder}||$folder), qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;sessionid=$thissession&amp;folder=|.ow::tool::escapeURL($folder).qq|"|). qq| \n|;
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
 
    ## replace @@@STARTADVSEARCHFORM@@@ ##
    $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-advsearch.pl",
-                         -name=>'advsearchform') .
-                  hidden(-name=>'action',
-                         -value=>'advsearch',
-                         -override=>'1') .
-                  hidden(-name=>'sessionid',
-                         -value=>$thissession,
-                         -override=>'1');
+                         -name=>'advsearchform').
+               ow::tool::hiddens(action=>'advsearch',
+                                 sessionid=>$thissession);
    $html =~ s/\@\@\@STARTADVSEARCHFORM\@\@\@/$temphtml/;
 
    for(my $i=0; $i<=2; $i++) {
@@ -125,12 +130,12 @@ sub advsearch {
       $html =~ s/\@\@\@SEARCHTEXT$i\@\@\@/$temphtml/;
    }
 
-   $temphtml = submit(-name=>"$lang_text{'search'}",
+   $temphtml = submit(-name=>$lang_text{'search'},
                       -accesskey=>'S',
                       -class=>"medtext");
    $html =~ s/\@\@\@BUTTONSEARCH\@\@\@/$temphtml/;
 
-   $temphtml = textfield(-name=>"resline",
+   $temphtml = textfield(-name=>'resline',
                          -default=>"$resline",
                          -size=>'5',
                          -accesskey=>'L',
@@ -138,6 +143,10 @@ sub advsearch {
    $html =~ s/\@\@\@RESLINE\@\@\@/$temphtml/;
 
    $temphtml = qq|<table cols=4 width="100%">\n|;
+
+   my (@validfolders, $folderusage);
+   getfolders(\@validfolders, \$folderusage);
+
    for(my $i=0; $i<=$#validfolders; $i++) {
       $temphtml.=qq|<tr>| if ($i%4==0);
       $temphtml.=qq|<td>|;
@@ -186,20 +195,20 @@ sub advsearch {
       $temphtml = "";
       $html =~ s/\@\@\@SEARCHRESULT\@\@\@/$temphtml/g;
    } else {
-      my $r_result = search_folders(\@search, \@folders, "$folderdir/.search.cache");
+      my $r_result = search_folders(\@search, \@folders, dotpath('search.cache'));
       my $totalfound= $#{$r_result}+1;
       if ($totalfound <= $resline) {
          $html =~ s/\@\@\@TOTALFOUND\@\@\@/$totalfound/g;
       } else {
          my $escapedfolders;
          foreach (@folders) {
-            $escapedfolders .= "folders=".escapeURL($_)."&amp;";
+            $escapedfolders .= "folders=".ow::tool::escapeURL($_)."&amp;";
          }
          my $showall_url=qq|$config{'ow_cgiurl'}/openwebmail-advsearch.pl?sessionid=$thissession|.
                          qq|&amp;action=advsearch|.
-                         qq|&amp;where0=${$search[0]}{'where'}&amp;type0=${$search[0]}{'type'}&amp;searchtext0=|.escapeURL(${$search[0]}{'text'}).
-                         qq|&amp;where1=${$search[1]}{'where'}&amp;type1=${$search[1]}{'type'}&amp;searchtext1=|.escapeURL(${$search[1]}{'text'}).
-                         qq|&amp;where2=${$search[2]}{'where'}&amp;type2=${$search[2]}{'type'}&amp;searchtext2=|.escapeURL(${$search[2]}{'text'}).
+                         qq|&amp;where0=${$search[0]}{'where'}&amp;type0=${$search[0]}{'type'}&amp;searchtext0=|.ow::tool::escapeURL(${$search[0]}{'text'}).
+                         qq|&amp;where1=${$search[1]}{'where'}&amp;type1=${$search[1]}{'type'}&amp;searchtext1=|.ow::tool::escapeURL(${$search[1]}{'text'}).
+                         qq|&amp;where2=${$search[2]}{'where'}&amp;type2=${$search[2]}{'type'}&amp;searchtext2=|.ow::tool::escapeURL(${$search[2]}{'text'}).
                          qq|&amp;resline=$totalfound&amp;$escapedfolders|;
          $temphtml=qq|$totalfound &nbsp;<a href="$showall_url">[$lang_text{'showall'}]</a>|;
          $html =~ s/\@\@\@TOTALFOUND\@\@\@/$temphtml/g;
@@ -215,9 +224,9 @@ sub advsearch {
 
    httpprint([], [htmlheader(), $html, htmlfooter(2)]);
 }
-################### END ADVSEARCH ########################
+########## END ADVSEARCH #########################################
 
-################### SEARCH_FOLDERS ########################
+########## SEARCH_FOLDERS ########################################
 sub search_folders {
    my ($r_search, $r_folders, $cachefile)=@_;
    my ($metainfo, $cache_metainfo, $r_result);
@@ -229,8 +238,8 @@ sub search_folders {
    }
    $metainfo.="@@@".join("@@@", @{$r_folders});
 
-   $cachefile=untaint($cachefile);
-   filelock($cachefile, LOCK_EX) or
+   $cachefile=ow::tool::untaint($cachefile);
+   ow::filelock::lock($cachefile, LOCK_EX) or
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $cachefile");
    if ( -e $cachefile ) {
       open(CACHE, "$cachefile") or
@@ -259,7 +268,7 @@ sub search_folders {
       $r_result=\@result;
    }
 
-   filelock($cachefile, LOCK_UN);
+   ow::filelock::lock($cachefile, LOCK_UN);
 
    return($r_result);
 }
@@ -275,24 +284,24 @@ sub search_folders2 {
 
    # search for the messageid in selected folder, return @result
    foreach my $foldertosearch (@{$r_folders}) {
-      my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $foldertosearch);
-      my ($totalsize, $new, $r_messageids)=get_info_messageids_sorted_by_date($headerdb, 1);
-      my (%HDB, %status);
+      my ($folderfile, $folderdb)=get_folderpath_folderdb($user, $foldertosearch);
+      my ($totalsize, $new, $r_messageids)=get_info_messageids_sorted_by_date($folderdb, 1);
+      my (%FDB, %status);
 
-      open_dbm(\%HDB, $headerdb, LOCK_SH) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $headerdb$config{'dbm_ext'}");
+      ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} db $folderdb");
       open (FOLDER, "$folderfile"); # used in TEXTCONTENT search
 
       foreach my $messageid (@{$r_messageids}) {
          # begin the search
          my ($block, $header, $body, $r_attachments);
-         my @attr=split(/@@@/, $HDB{$messageid});
+         my @attr=split(/@@@/, $FDB{$messageid});
          my $is_conv=is_convertable($attr[$_CHARSET], $prefs{'charset'});
          my $state=0;
 
          foreach my $search (@validsearch) {
             my ($where, $type, $keyword) = (${$search}{'where'}, ${$search}{'type'}, ${$search}{'text'});
-            my $regexvalid=is_regex($keyword);
+            my $regexvalid=ow::tool::is_regex($keyword);
             my @placetosearch;
             if ($where eq 'all') {
                @placetosearch=('subject', 'from', 'to', 'date', 'header', 'attfilename', 'textcontent');
@@ -337,7 +346,7 @@ sub search_folders2 {
                      $header.=$_;
                      last if ($_ eq "\n");
                   }
-                  $header = decode_mimewords($header);
+                  $header = ow::mime::decode_mimewords($header);
                   $header=~s/\n / /g;   # handle folding roughly
                   ($header)=iconv($attr[$_CHARSET], $prefs{'charset'}, $header) if ($is_conv);
 
@@ -361,7 +370,7 @@ sub search_folders2 {
                } elsif ($where eq 'textcontent' || $where eq 'attfilename') {
                   seek(FOLDER, $attr[$_OFFSET], 0);
                   read(FOLDER, $block, $attr[$_SIZE]);
-                  ($header, $body, $r_attachments)=parse_rfc822block(\$block);
+                  ($header, $body, $r_attachments)=ow::mailparse::parse_rfc822block(\$block);
 
                   # check textcontent: text in body and attachments
                   if ($where eq 'textcontent') {
@@ -373,7 +382,7 @@ sub search_folders2 {
                         } elsif ($header =~ /content-transfer-encoding:\s+base64/i) {
                            $body = decode_base64($body);
                         } elsif ($header =~ /content-transfer-encoding:\s+x-uuencode/i) {
-                           $body = uudecode($body);
+                           $body = ow::mime::uudecode($body);
                         }
                         ($body)=iconv($attr[$_CHARSET], $prefs{'charset'}, $body) if ($is_conv);
 
@@ -396,15 +405,15 @@ sub search_folders2 {
 
                      # check attachments
                      foreach my $r_attachment (@{$r_attachments}) {
-                        if ( ${$r_attachment}{contenttype} =~ /^text/i ||
-                             ${$r_attachment}{contenttype} eq "N/A" ) {   # read all for text/plain. text/html
+                        if ( ${$r_attachment}{'content-type'} =~ /^text/i ||
+                             ${$r_attachment}{'content-type'} eq "N/A" ) {   # read all for text/plain. text/html
                            my $content;
-                           if ( ${$r_attachment}{encoding} =~ /^quoted-printable/i ) {
+                           if ( ${$r_attachment}{'content-transfer-encoding'} =~ /^quoted-printable/i ) {
                               $content = decode_qp( ${${$r_attachment}{r_content}});
-                           } elsif ( ${$r_attachment}{encoding} =~ /^base64/i ) {
+                           } elsif ( ${$r_attachment}{'content-transfer-encoding'} =~ /^base64/i ) {
                               $content = decode_base64( ${${$r_attachment}{r_content}});
-                           } elsif ( ${$r_attachment}{encoding} =~ /^x-uuencode/i ) {
-                              $content = uudecode( ${${$r_attachment}{r_content}});
+                           } elsif ( ${$r_attachment}{'content-transfer-encoding'} =~ /^x-uuencode/i ) {
+                              $content = ow::mime::uudecode( ${${$r_attachment}{r_content}});
                            } else {
                               $content=${${$r_attachment}{r_content}};
                            }
@@ -472,16 +481,16 @@ sub search_folders2 {
 
       } # end messageid loop
 
-      close_dbm(\%HDB, $headerdb);
+      ow::dbm::close(\%FDB, $folderdb);
       close(FOLDER);
-      filelock($folderfile, LOCK_UN);
+      ow::filelock::lock($folderfile, LOCK_UN);
    } # end foldertosearch loop
 
    return(\@result)
 }
-################### END SEARCH_FOLDERS ########################
+########## END SEARCH_FOLDERS ####################################
 
-################ GENLINE #####################
+########## GENLINE ###############################################
 # this routines generates one line table containing folder, msgid and @attr
 sub genline {
    my ($colornum, $folder, $messageid, @attr) = @_;
@@ -501,8 +510,8 @@ sub genline {
       $bgcolor = $style{"tablerow_dark"};
    }
 
-   $escapedfolder = escapeURL($folder);
-   $escapedmessageid = escapeURL($messageid);
+   $escapedfolder = ow::tool::escapeURL($folder);
+   $escapedmessageid = ow::tool::escapeURL($messageid);
    ($offset, $from, $to, $dateserial, $subject, $content_type, $status, $messagesize, $references, $charset) = @attr;
 
    # convert from mesage charset to current user charset
@@ -510,12 +519,12 @@ sub genline {
       ($from, $to, $subject)=iconv($charset, $prefs{'charset'}, $from, $to, $subject);
    }
 
-   my ($from_name, $from_address)=email2nameaddr($from);
-   my $escapedfrom=escapeURL($from);
+   my ($from_name, $from_address)=ow::tool::email2nameaddr($from);
+   my $escapedfrom=ow::tool::escapeURL($from);
    $from = qq|<a href="$config{'ow_cgiurl'}/openwebmail-send.pl\?action=composemessage&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$escapedfrom" title="$from_address">$from_name </a>|;
 
    $subject=substr($subject, 0, 64)."..." if (length($subject)>67);
-   $subject = str2html($subject);
+   $subject = ow::htmltext::str2html($subject);
    if ($subject !~ /[^\s]/) {   # Make sure there's SOMETHING clickable
       $subject = "N/A";
    }
@@ -524,7 +533,9 @@ sub genline {
    $messagesize=lenstr($messagesize,0);
 
    # convert dateserial(GMT) to localtime
-   my $datestr=dateserial2str($dateserial, $prefs{'timeoffset'}, $prefs{'dateformat'});
+   my $datestr=ow::datetime::dateserial2str($dateserial,
+                               $prefs{'timeoffset'}, $prefs{'daylightsaving'},
+                               $prefs{'dateformat'}, $prefs{'hourformat'});
    $temphtml = qq|<tr>|.
                qq|<td nowrap bgcolor=$bgcolor>$folderstr&nbsp;</td>\n|.
                qq|<td bgcolor=$bgcolor>$datestr</td>\n|.
@@ -537,4 +548,4 @@ sub genline {
 
    return $temphtml;
 }
-############### END GENLINE ##################
+########## END GENLINE ###########################################

@@ -19,9 +19,9 @@
             }
             if (!warn) {
                warn=1;
+               @@@JSCODE@@@
                hWnd = window.open(url,"_timeoutwarning","width=400,height=140,resizable=no,scrollbars=no");
                hWnd.focus();
-               @@@JSCODE@@@
             }
          }
       } else {

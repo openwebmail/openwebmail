@@ -1,4 +1,4 @@
-package openwebmail::kr;
+package ow::kr;
 
 # Korean translation, charset: euc-kr
 # by Moonsang Kwon, kmscom.AT.snu.ac.kr
@@ -6,12 +6,12 @@ package openwebmail::kr;
 
 %lang_folders =
    (
-   INBOX => '받은 편지함',
+   INBOX            => '받은 편지함',
    'saved-messages' => '보관 편지함',
    'sent-mail'      => '보낸 편지함',
    'saved-drafts'   => '임시 편지함',
    'mail-trash'     => '휴지통',
-   DELETE => '--삭제--'
+   DELETE           => '--삭제--'
    );
 
 %lang_sortlabels =
@@ -44,7 +44,7 @@ package openwebmail::kr;
 %lang_msgformatlabels =
    (
    auto => '자동 선정',
-   text	=> 'Text',
+   text => 'Text',
    html => 'HTML',
    both => 'HTML and Text'
    );
@@ -52,8 +52,8 @@ package openwebmail::kr;
 %lang_withoriglabels =
    (
    at_beginning => '처음에',
-   at_end      => '끝에',
-   none        => '없음'
+   at_end       => '끝에',
+   none         => '없음'
    );
 
 %lang_receiptlabels =
@@ -79,8 +79,8 @@ package openwebmail::kr;
 %lang_sendpositionlabels =
    (
    before => '메일 편집 지역 전에',
-   after => '메일 편집 지역 후에',
-   both  => '메일 편집 지역 전 과 후'
+   after  => '메일 편집 지역 후에',
+   both   => '메일 편집 지역 전 과 후'
    );
 
 %lang_abookbuttonpositionlabels = 
@@ -361,6 +361,7 @@ package openwebmail::kr;
    statreply  => '-- 스태셔내리 답장 쓰기 --',
    calendar   => '달력',
    allday     => '하루종일',
+   today      => 'Today',
    am         => '오전',
    pm         => '오후',
    calfmt_year          => '@@@YEAR@@@',
