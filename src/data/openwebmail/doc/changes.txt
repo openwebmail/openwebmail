@@ -1,3 +1,10 @@
+02/25/2005
+----------
+1. change autologin default action from listmessage to listmessage_afterlogin,
+   so 'autofetch pop3' and 'moving old message to saved folder' will be called
+   in autologin
+
+
 02/24/2005
 ----------
 1. French language, template and htmlarea files translation minor update
