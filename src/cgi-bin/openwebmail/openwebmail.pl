@@ -125,6 +125,7 @@ if ( $config{'forced_ssl_login'} &&	# check the forced use of SSL
    openwebmail_exit(0);
 }
 
+writelog("debug - request login begin - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
 if ( param('loginname') && param('password') ) {
    login();
 } elsif (matchlist_fromhead('allowed_autologinip', ow::tool::clientip()) &&
@@ -133,6 +134,7 @@ if ( param('loginname') && param('password') ) {
 } else {
    loginmenu();	# display login page if no login
 }
+writelog("debug - request login end - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
 
 openwebmail_requestend();
 ########## END MAIN ##############################################
@@ -152,6 +154,7 @@ sub loginmenu {
 
    read_owconf(\%config, \%config_raw, "$config{'ow_sitesconfdir'}/$logindomain") if ( -f "$config{'ow_sitesconfdir'}/$logindomain");
    if ( $>!=0 &&	# setuid is required if spool is located in system dir
+        !$config{'use_homedirspools'} &&
        ($config{'mailspooldir'} eq "/var/mail" ||
         $config{'mailspooldir'} eq "/var/spool/mail")) {
       print "Content-type: text/html\n\n'$0' must setuid to root"; openwebmail_exit(0);
@@ -270,6 +273,7 @@ sub login {
       read_owconf(\%config, \%config_raw, "$config{'ow_sitesconfdir'}/$logindomain");
    }
    if ( $>!=0 &&	# setuid is required if spool is located in system dir
+        !$config{'use_homedirspools'} &&
        ($config{'mailspooldir'} eq "/var/mail" ||
         $config{'mailspooldir'} eq "/var/spool/mail")) {
       print "Content-type: text/html\n\n'$0' must setuid to root"; openwebmail_exit(0);

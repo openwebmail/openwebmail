@@ -958,7 +958,7 @@ A: You may set options like enable_globalfilter, enable_userfilter,
 
 Q: How can I know which filter rule move my messages?
    How to debug the mailfilter message movement?
-A: An option log_filtermove_detail is available since openwebmail20040727,
+A: An option debug_mailfilter is available since openwebmail20050201,
    please set it to yes in openwebmail.conf, and you will see message
    movement detail in logfile
 

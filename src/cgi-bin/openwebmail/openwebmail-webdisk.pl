@@ -108,6 +108,7 @@ my $msg=verify_vpath($webdiskrootdir, $currentdir);
 openwebmailerror(__FILE__, __LINE__, "$lang_err{'access_denied'} (".f2u($currentdir).": $msg)") if ($msg);
 $currentdir=ow::tool::untaint($currentdir);
 
+writelog("debug - request webdisk begin, action=$action, currentdir=$currentdir - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
 if ($action eq "mkdir" || defined param('mkdirbutton') ) {
    if ($config{'webdisk_readonly'}) {
       $msg=$lang_err{'webdisk_readonly'};
@@ -358,6 +359,7 @@ if ($action eq "mkdir" || defined param('mkdirbutton') ) {
 } else {
    openwebmailerror(__FILE__, __LINE__, "Action $lang_err{'has_illegal_chars'}");
 }
+writelog("debug - request webdisk end, action=$action, currentdir=$currentdir - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
 
 openwebmail_requestend();
 ########## END MAIN ##############################################

@@ -65,6 +65,7 @@ $sort = param('sort') || $prefs{'sort'} || 'date';
 $escapedfolder=ow::tool::escapeURL($folder);
 
 my $action = param('action')||'';
+writelog("debug - request folder begin, action=$action - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
 if ($action eq "editfolders") {
    editfolders();
 } elsif ($action eq "refreshfolders") {
@@ -86,6 +87,7 @@ if ($action eq "editfolders") {
 } else {
    openwebmailerror(__FILE__, __LINE__, "Action $lang_err{'has_illegal_chars'}");
 }
+writelog("debug - request folder end, action=$action - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
 
 openwebmail_requestend();
 ########## END MAIN ##############################################

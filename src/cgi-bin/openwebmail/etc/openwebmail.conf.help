@@ -517,6 +517,21 @@ line number, real uid, effective uid, real uid, mailgid) will be put into
 the error message.
 
 
+debug_request
+-----------------------------------------------------------------------
+If this option is set to yes, info of each request will be logged
+
+
+debug_fork
+-----------------------------------------------------------------------
+If this option is set to yes, info of forked process will be logged
+
+
+debug_mailfilter
+-----------------------------------------------------------------------
+If this option is set to yes, details of mail filter will be logged
+
+
 allowed_serverdomain
 -----------------------------------------------------------------------
 This limits the virtualdomain that openwebmail will serve.
@@ -933,12 +948,6 @@ smartfilter_bypass_goodmessage
 If a message is sent by Open WebMail or is an reply message,
 then we bypass the smart filters check for this message.
 Set this to 'no' if you hope to apply smart filters on these good messages
-
-
-log_filter_detail
------------------------------------------------------------------------
-If this option is set to yes, each message movement by mailfilter will
-be logged
 
 
 enable_viruscheck

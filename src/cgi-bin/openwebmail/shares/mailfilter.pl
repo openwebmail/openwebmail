@@ -175,18 +175,14 @@ sub filtermessage {
 
       if ( fork() == 0) {		# child
          close(STDIN); close(STDOUT); close(STDERR);
-         ow::suid::drop_ruid_rgid(); # set ruid=euid to avoid fork in spamcheck.pl
+         writelog("debug - mailfilter process forked - " .__FILE__.":". __LINE__) if ($config{'debug_fork'}||$config{'debug_mailfilter'});
 
-         if ($config{'log_filter_detail'}) {
-            my $m="mailfilter - bg process forked"; writelog($m); writehistory($m);
-         }
+         ow::suid::drop_ruid_rgid(); # set ruid=euid to avoid fork in spamcheck.pl
          filter_allmessageids($user, $folder, $r_prefs,
                               $folderfile, $folderdb, $metainfo, $filtercheckfile, $forced_recheck,
                               \@filterrules, \@allmessageids, 0);	# 0 means no globallock
-         if ($config{'log_filter_detail'}) {
-            my $m="mailfilter - bg process terminated normally"; writelog($m); writehistory($m);
-         }
 
+         writelog("debug - mailfilter process terminated - " .__FILE__.":". __LINE__) if ($config{'debug_fork'}||$config{'debug_mailfilter'});
          openwebmail_exit(0);	# terminate this forked filter process
       }
 
@@ -198,16 +194,11 @@ sub filtermessage {
       }
 
    } else {
-      if ($config{'log_filter_detail'}) {
-         my $m="mailfilter - filter allmessageids started"; writelog($m); writehistory($m);
-      }
+      writelog("debug - mailfilter allmessageids started - " .__FILE__.":". __LINE__) if ($config{'debug_mailfilter'});
       filter_allmessageids($user, $folder, $r_prefs,
                            $folderfile, $folderdb, $metainfo, $filtercheckfile, $forced_recheck,
                            \@filterrules, \@allmessageids, 1);		# 1 meas has globallock
-      if ($config{'log_filter_detail'}) {
-         my $m="mailfilter - filter allmessageids ended"; writelog($m); writehistory($m);
-      }
-
+      writelog("debug - mailfilter allmessageids ended - " .__FILE__.":". __LINE__) if ($config{'debug_mailfilter'});
       ow::filelock::lock($folderfile, LOCK_UN);
    }
 
@@ -238,10 +229,8 @@ sub filter_allmessageids {
 
    while ($i>=0) {
       my $messageid_i=${$r_allmessageids}[$i];
+      writelog("debug - mailfilter loop $i, msgid=$messageid_i - " .__FILE__.":". __LINE__) if ($config{'debug_mailfilter'});
 
-      if ($config{'log_filter_detail'}) {
-         my $m="mailfilter - loop $i, msgid=$messageid_i"; writelog($m); writehistory($m);
-      }
       if ($is_verified{$messageid_i} ||	# skip already verified msg
           $messageid_i=~/^DUP\d+\-/ ) {	# skip duplicated msg in src folder
          $i--; next;
@@ -304,9 +293,7 @@ sub filter_allmessageids {
             $io_errcount++; $i--; next;
          }
 
-         if ($config{'log_filter_detail'}) {
-            my $m="mailfilter - check $messageid_i, subject=$attr[$_SUBJECT]"; writelog($m); writehistory($m);
-         }
+         writelog("debug - mailfilter check $messageid_i, subject=$attr[$_SUBJECT] - " .__FILE__.":". __LINE__) if ($config{'debug_mailfilter'});
 
          if ($attr[$_STATUS] !~ /V/i) {
             my %FDB;
@@ -317,9 +304,7 @@ sub filter_allmessageids {
          }
          # 1. virus check
          if ($config{'enable_viruscheck'} && !$to_be_moved) {
-            if ($config{'log_filter_detail'}) {
-               my $m="mailfilter - viruscheck $messageid_i"; writelog($m); writehistory($m);
-            }
+            writelog("debug - mailfilter viruscheck $messageid_i - " .__FILE__.":". __LINE__) if ($config{'debug_mailfilter'});
 
             my $virusfound=0;
             if ($header=~/^X\-OWM\-VirusCheck: ([a-z]+)/m) {		# virus checked in fetchmail.pl
@@ -349,9 +334,7 @@ sub filter_allmessageids {
                ($appended, $append_errmsg)=append_filteredmsg_to_folder($folderfile, $folderdb,
 				$messageid_i, \@attr, \$currmessage, $user, $config{'virus_destination'}, $has_globallock);
                if ($appended >=0) {
-                  if ($config{'log_filter_detail'}) {
-                     my $m="mailfilter - move $messageid_i -> $config{'virus_destination'}"; writelog($m); writehistory($m);
-                  }
+                  writelog("debug - mailfilter move $messageid_i -> $config{'virus_destination'} - " .__FILE__.":". __LINE__) if ($config{'debug_mailfilter'});
                   filterfolderdb_increase($config{'virus_destination'}, 1);
                   $to_be_moved=1;
                } else {
@@ -363,9 +346,8 @@ sub filter_allmessageids {
 
          # 2. static filter rules (including global and personal rules)
          if (!$to_be_moved) {
-            if ($config{'log_filter_detail'}) {
-               my $m="mailfilter - static rules check $messageid_i"; writelog($m); writehistory($m);
-            }
+            writelog("debug - mailfilter static rules check $messageid_i - " .__FILE__.":". __LINE__) if ($config{'debug_mailfilter'});
+
             foreach my $r_rule (@{$r_filterrules}) {
                my $ruletype=${$r_rule}[$_RULETYPE];
                my $is_matched=0;
@@ -510,9 +492,7 @@ sub filter_allmessageids {
                   if (${$r_rule}[$_OP] eq 'move' || ${$r_rule}[$_OP] eq 'delete') {
                      if ($appended>=0) {
                         if (!$reserved_in_folder) {
-                           if ($config{'log_filter_detail'}) {
-                              my $m="mailfilter - move $messageid_i -> ${$r_rule}[$_DESTINATION] (rule: ${$r_rule}[$_RULETYPE] ${$r_rule}[$_INCLUDE] ${$r_rule}[$_TEXT])"; writelog($m); writehistory($m);
-                           }
+                           writelog("debug - mailfilter move $messageid_i -> ${$r_rule}[$_DESTINATION] (rule: ${$r_rule}[$_RULETYPE] ${$r_rule}[$_INCLUDE] ${$r_rule}[$_TEXT]) - " .__FILE__.":". __LINE__) if ($config{'debug_mailfilter'});
                            $to_be_moved=1;
                            filterfolderdb_increase(${$r_rule}[$_DESTINATION], 1);
                         }
@@ -529,9 +509,7 @@ sub filter_allmessageids {
 
          # 3. spam check
          if ($config{'enable_spamcheck'} && !$reserved_in_folder && !$to_be_moved) {
-            if ($config{'log_filter_detail'}) {
-               my $m="mailfilter - spamcheck $messageid_i"; writelog($m); writehistory($m);
-            }
+            writelog("debug - mailfilter spamcheck $messageid_i - " .__FILE__.":". __LINE__) if ($config{'debug_mailfilter'});
 
             my $spamfound=0;
             if ($header=~/^X\-OWM\-SpamCheck: \** ([\d\.]+)/m) {	# spam checked in fetchmail.pl
@@ -564,9 +542,7 @@ sub filter_allmessageids {
                ($appended, $append_errmsg)=append_filteredmsg_to_folder($folderfile, $folderdb,
 				$messageid_i, \@attr, \$currmessage, $user, $config{'spam_destination'}, $has_globallock);
                if ($appended >=0) {
-                  if ($config{'log_filter_detail'}) {
-                     my $m="mailfilter - move $messageid_i -> $config{'spam_destination'}"; writelog($m); writehistory($m);
-                  }
+                  writelog("debug - mailfilter move $messageid_i -> $config{'spam_destination'} - " .__FILE__.":". __LINE__) if ($config{'debug_mailfilter'});
                   filterfolderdb_increase($config{'spam_destination'}, 1);
                   $to_be_moved=1;
                } else {
@@ -578,9 +554,7 @@ sub filter_allmessageids {
 
          # 4. smart filter rules
          if ($config{'enable_smartfilter'} && !$reserved_in_folder && !$to_be_moved) {
-            if ($config{'log_filter_detail'}) {
-               my $m="mailfilter - smart rules check $messageid_i"; writelog($m); writehistory($m);
-            }
+            writelog("debug - mailfilter smart rules check $messageid_i - " .__FILE__.":". __LINE__) if ($config{'debug_mailfilter'});
 
             # bypass smart filters for good messages
             if ($config{'smartfilter_bypass_goodmessage'} &&
@@ -712,9 +686,7 @@ sub filter_allmessageids {
                ($appended, $append_errmsg)=append_filteredmsg_to_folder($folderfile, $folderdb,
 				$messageid_i, \@attr, \$currmessage, $user, 'mail-trash', $has_globallock);
                if ($appended>=0) {
-                  if ($config{'log_filter_detail'}) {
-                     my $m="mailfilter - move $messageid_i -> mail-trash (smartrule: $matchedsmartrule)"; writelog($m); writehistory($m);
-                  }
+                  writelog("debug - mailfilter move $messageid_i -> mail-trash (smartrule: $matchedsmartrule) - " .__FILE__.":". __LINE__) if ($config{'debug_mailfilter'});
                   filterfolderdb_increase('mail-trash', 1);
                } else {
                   my $m="mailfilter - mail-trash write error"; writelog($m); writehistory($m);
@@ -772,9 +744,9 @@ sub filter_allmessageids {
       							$trashfile, $trashdb);
             ow::filelock::lock($trashfile, LOCK_UN);
             if ($moved>0) {
-               if ($config{'log_filter_detail'}) {
+               if ($config{'debug_mailfilter'}) {
                   my $idsstr=join(',', @repeatedids);
-                  my $m="mailfilter - move $idsstr -> mail-trash (smartrule: filter_repeatlimit)"; writelog($m); writehistory($m);
+                  writelog("debug - mailfilter move $idsstr -> mail-trash (smartrule: filter_repeatlimit) - " .__FILE__.":". __LINE__);
                }
                filterruledb_increase("filter_repeatlimit", $moved);
                filterfolderdb_increase('mail-trash', $moved);

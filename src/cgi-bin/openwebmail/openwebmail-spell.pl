@@ -115,6 +115,7 @@ if (! -x $spellbin) {
    openwebmailerror(__FILE__, __LINE__, "Spellcheck is not available.<br>( $spellbin not found )");
 }
 
+writelog("debug - request spell begin - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
 if (defined param('string')) {
    my ($wordcount, $wordframe, @words)=text2words($htmlmode, param('string')||'', $dicletters);
    my ($wordshtml, $error)=spellcheck_words2html($htmlmode, $wordcount, \$wordframe, \@words, $dictionary);
@@ -137,6 +138,7 @@ if (defined param('string')) {
 } else {
    httpprint([], [htmlheader(), "What the heck? Invalid input for Spellcheck!", htmlfooter(1)]);
 }
+writelog("debug - request spell end - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
 
 openwebmail_requestend();
 ########## END MAIN ##############################################

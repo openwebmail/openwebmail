@@ -170,6 +170,7 @@ $formparm=$webmail_formparm.
           ow::tool::hiddens(sessionid=>$thissession);
 
 my $action = param('action')||'';
+writelog("debug - request abook begin, action=$action - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
 if ($action eq "addrlistview") {
    addrlistview();
 } elsif ($action eq "addrshowchecked") {
@@ -201,6 +202,7 @@ if ($action eq "addrlistview") {
 } else {
    openwebmailerror(__FILE__, __LINE__, "Action $lang_err{'has_illegal_chars'}");
 }
+writelog("debug - request abook end, action=$action - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
 
 openwebmail_requestend();
 ########## END MAIN ##############################################

@@ -128,6 +128,7 @@ $escapedfolder = ow::tool::escapeURL($folder);
 $escapedkeyword = ow::tool::escapeURL($keyword);
 
 my $action = param('action')||'';
+writelog("debug - request read begin, action=$action, folder=$folder - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
 if ($action eq "readmessage") {
    readmessage(param('message_id')||'');
 } elsif ($action eq "rebuildmessage") {
@@ -135,6 +136,7 @@ if ($action eq "readmessage") {
 } else {
    openwebmailerror(__FILE__, __LINE__, "Action $lang_err{'has_illegal_chars'}");
 }
+writelog("debug - request read end, action=$action, folder=$folder - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
 
 openwebmail_requestend();
 ########## END MAIN ##############################################
@@ -967,6 +969,7 @@ sub readmessage {
       local $|=1; 			# flush all output
       if ( fork() == 0 ) {		# child
          close(STDIN); close(STDOUT); close(STDERR);
+         writelog("debug - update msg status process forked - " .__FILE__.":". __LINE__) if ($config{'debug_fork'});
 
          my ($folderfile, $folderdb)=get_folderpath_folderdb($user, $folder);
          ow::filelock::lock($folderfile, LOCK_EX) or openwebmail_exit(1);
@@ -977,6 +980,8 @@ sub readmessage {
          update_message_status($messageid, $attr[$_STATUS]."R", $folderdb, $folderfile) if ($#attr>0);
 
          ow::filelock::lock($folderfile, LOCK_UN);
+
+         writelog("debug - update msg status process terminated - " .__FILE__.":". __LINE__) if ($config{'debug_fork'});
          openwebmail_exit(0);
       }
    } elsif (param('db_chkstatus')) { # check and set msg status R flag

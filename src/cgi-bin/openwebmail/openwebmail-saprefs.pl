@@ -78,6 +78,7 @@ $formparmstr=ow::tool::hiddens(sessionid=>$thissession,
                                prefs_caller=>$prefs_caller);
 
 my $action = param('action')||'';
+writelog("debug - request saprefs begin, action=$action - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
 if ($action eq "edittest") {
    edittest();
 } elsif ($action eq "addtest") {
@@ -102,6 +103,7 @@ if ($action eq "edittest") {
 } else {
    openwebmailerror(__FILE__, __LINE__, "Action $lang_err{'has_illegal_chars'}");
 }
+writelog("debug - request saprefs end, action=$action - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
 
 openwebmail_requestend();
 ########## END MAIN ##############################################

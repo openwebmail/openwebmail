@@ -86,6 +86,7 @@ $escapedmessageid = ow::tool::escapeURL($messageid);
 $escapedkeyword = ow::tool::escapeURL($keyword);
 
 my $action = param('action')||'';
+writelog("debug - request send begin, action=$action - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
 if ($action eq "replyreceipt") {
    replyreceipt();
 } elsif ($action eq "composemessage") {
@@ -95,6 +96,7 @@ if ($action eq "replyreceipt") {
 } else {
    openwebmailerror(__FILE__, __LINE__, "Action $lang_err{'has_illegal_chars'}");
 }
+writelog("debug - request send end, action=$action - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
 
 openwebmail_requestend();
 ########## END MAIN ##############################################

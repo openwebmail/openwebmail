@@ -64,11 +64,13 @@ if (!$config{'enable_webmail'} || !$config{'enable_advsearch'}) {
 $folder = ow::tool::unescapeURL(param('folder')) || 'INBOX';
 
 my $action = param('action')||'';
+writelog("debug - request advsearch begin, action=$action - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
 if ($action eq "advsearch") {
    advsearch();
 } else {
    openwebmailerror(__FILE__, __LINE__, "Action $lang_err{'has_illegal_chars'}");
 }
+writelog("debug - request advsearch end, action=$action - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
 
 openwebmail_requestend();
 ########## END MAIN ##############################################

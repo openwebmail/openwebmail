@@ -81,6 +81,7 @@ $keyword = param('keyword') || ''; $keyword=~s/^\s*//; $keyword=~s/\s*$//;
 $escapedfolder = ow::tool::escapeURL($folder);
 $escapedkeyword = ow::tool::escapeURL($keyword);
 
+writelog("debug - request main begin, action=$action, folder=$folder - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
 if ($action eq "movemessage" ||
     defined param('movebutton') ||
     defined param('copybutton') ) {
@@ -179,6 +180,7 @@ if ($action eq "movemessage" ||
 } else {
    openwebmailerror(__FILE__, __LINE__, "Action $lang_err{'has_illegal_chars'}");
 }
+writelog("debug - request main end, action=$action, folder=$folder - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
 
 openwebmail_requestend();
 ########## END MAIN ##############################################
@@ -1180,8 +1182,9 @@ sub movemessage {
       local $|=1; 			# flush all output
       if ( fork() == 0 ) {		# child
          close(STDIN); close(STDOUT); close(STDERR);
-         ow::suid::drop_ruid_rgid(); # set ruid=euid to avoid fork in spamcheck.pl
+         writelog("debug - $learntype process forked - " .__FILE__.":". __LINE__) if ($config{'debug_fork'});
 
+         ow::suid::drop_ruid_rgid(); # set ruid=euid to avoid fork in spamcheck.pl
          my ($totallearned, $totalexamed)=(0,0);
          my ($learnfile, $learndb)=get_folderpath_folderdb($user, $learnfolder);
          my $learnhandle=FileHandle->new();
@@ -1207,6 +1210,7 @@ sub movemessage {
          my $m="$learntype - $totallearned learned, $totalexamed examined";
          writelog($m); writehistory($m);
 
+         writelog("debug - $learntype process terminated - " .__FILE__.":". __LINE__) if ($config{'debug_fork'});
          openwebmail_exit(0);
       }
    }
@@ -1342,8 +1346,9 @@ sub pop3_fetches {
 
       if ( fork() == 0 ) {		# child
          close(STDIN); close(STDOUT); close(STDERR);
-         ow::suid::drop_ruid_rgid(); # set ruid=euid can avoid fork in spamcheck.pl
+         writelog("debug - fetch pop3s process forked - " .__FILE__.":". __LINE__) if ($config{'debug_fork'});
 
+         ow::suid::drop_ruid_rgid(); # set ruid=euid can avoid fork in spamcheck.pl
          foreach (values %accounts) {
             my ($pop3host,$pop3port,$pop3ssl, $pop3user,$pop3passwd, $pop3del, $enable)=split(/\@\@\@/,$_);
             next if (!$enable);
@@ -1362,6 +1367,8 @@ sub pop3_fetches {
                writehistory("pop3 error - $errmsg at $pop3user\@$pop3host:$pop3port");
             }
          }
+
+         writelog("debug - fetch pop3s process terminated - " .__FILE__.":". __LINE__) if ($config{'debug_fork'});
          openwebmail_exit(0);
       }
 

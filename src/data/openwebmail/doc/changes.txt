@@ -1,3 +1,15 @@
+02/01/2005
+----------
+1. rename option log_filter_detail to debug_mailfilter,
+   add option debug_request, debug_fork to openwebmail.conf.default
+2. new mirror site at Jyvaskyla, Finland
+   http://ws182.wts.fi/openwebmail/
+   (thanks to Pasi Sjoholm, pasi.sjoholm.AT.tieto-x.fi)
+3. remove stale mirror sites
+   http://www.brc.com.br/openwebmail
+   http://openwebmail.typoheads.com
+
+
 01/30/2005
 ----------
 1. fix a bug in spellcheck that unreognized words in URL would cause

@@ -74,6 +74,7 @@ $searchtype = param('searchtype') || 'subject';
 $escapedkeyword = ow::tool::escapeURL($keyword);
 
 my $action = param('action')||'';
+writelog("debug - request viewatt begin, action=$action - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
 if ($action eq "viewattachment") {
    viewattachment();
 } elsif ($action eq "saveattachment" && $config{'enable_webdisk'}) {
@@ -85,6 +86,7 @@ if ($action eq "viewattachment") {
 } else {
    openwebmailerror(__FILE__, __LINE__, "Action $lang_err{'has_illegal_chars'}");
 }
+writelog("debug - request viewatt end, action=$action - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
 
 openwebmail_requestend();
 ########## END MAIN ##############################################

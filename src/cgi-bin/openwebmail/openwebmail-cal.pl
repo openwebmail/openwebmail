@@ -147,6 +147,7 @@ my $ndays=param('ndays')||0;
 my $monthfreq=param('monthfreq')||0;
 my $everyyear=param('everyyear')||0;
 
+writelog("debug - request cal begin, action=$action - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
 if ($action eq "calyear") {
    yearview($year);
 } elsif ($action eq "calmonth") {
@@ -193,6 +194,7 @@ if ($action eq "calyear") {
 } else {
    openwebmailerror(__FILE__, __LINE__, "Action $lang_err{'has_illegal_chars'}");
 }
+writelog("debug - request cal end, action=$action - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
 
 openwebmail_requestend();
 ########## END MAIN ##############################################

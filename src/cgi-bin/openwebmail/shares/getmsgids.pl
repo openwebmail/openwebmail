@@ -24,9 +24,13 @@ sub getinfomessageids {
       local $|=1; # flush all output
       if ( fork() == 0 ) {		# child
          close(STDIN); close(STDOUT); close(STDERR);
+         writelog("debug - update folderindex process forked - " .__FILE__.":". __LINE__) if ($config{'debug_fork'});
+
          ow::filelock::lock($folderfile, LOCK_SH|LOCK_NB) or openwebmail_exit(1);
          update_folderindex($folderfile, $folderdb);
          ow::filelock::lock($folderfile, LOCK_UN);
+
+         writelog("debug - update folderindex process terminated - " .__FILE__.":". __LINE__) if ($config{'debug_fork'});
          openwebmail_exit(0);
       }
 

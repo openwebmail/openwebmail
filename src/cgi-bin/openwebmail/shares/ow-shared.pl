@@ -26,7 +26,7 @@ foreach (qw(
    smtpauth use_hashedmailspools use_homedirspools
    use_syshomedir create_syshomedir use_syshomedir_for_dotdir
    auth_withdomain deliver_use_GMT
-   error_with_debuginfo
+   error_with_debuginfo debug_request debug_fork debug_mailfilter
    case_insensitive_login forced_ssl_login stay_ssl_afterlogin
    enable_domainselectmenu enable_strictvirtuser
    enable_changepwd enable_strictpwd
@@ -41,8 +41,7 @@ foreach (qw(
    enable_preference enable_setforward enable_strictforward
    enable_autoreply enable_strictfoldername
    enable_stationery enable_savedraft enable_backupsent
-   enable_globalfilter enable_userfilter enable_smartfilter
-   smartfilter_bypass_goodmessage log_filter_detail
+   enable_globalfilter enable_userfilter enable_smartfilter smartfilter_bypass_goodmessage
    enable_viruscheck enable_spamcheck enable_learnspam enable_saprefs
    has_virusfolder_by_default has_spamfolder_by_default
    enable_pop3 pop3_delmail_by_default pop3_delmail_hidden pop3_usessl_by_default
@@ -219,7 +218,6 @@ sub openwebmail_requestbegin {
 #   ow::tool::zombie_cleaner();			# clear pending zombies
    openwebmail_clearall() if ($_vars_used);	# clear global
    $_vars_used=1;
-
    $SIG{PIPE}=\&openwebmail_exit;		# for user stop
    $SIG{TERM}=\&openwebmail_exit;		# for user stop
 }

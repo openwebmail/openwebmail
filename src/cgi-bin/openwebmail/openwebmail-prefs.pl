@@ -116,6 +116,7 @@ $formparmstr=ow::tool::hiddens(sessionid=>$thissession,
                                prefs_caller=>$prefs_caller);
 
 my $action = param('action')||'';
+writelog("debug - request prefs begin, action=$action - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
 if ($action eq "about" && $config{'enable_about'}) {
    about();
 } elsif ($action eq "userfirsttime") {
@@ -165,6 +166,7 @@ if ($action eq "about" && $config{'enable_about'}) {
 } else {
    openwebmailerror(__FILE__, __LINE__, "Action $lang_err{'has_illegal_chars'}");
 }
+writelog("debug - request prefs end, action=$action - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
 
 openwebmail_requestend();
 ########## END MAIN ##############################################
@@ -1923,6 +1925,7 @@ sub writedotvacationmsg {
       local $|=1; # flush all output
       if ( fork() == 0 ) {		# child
          close(STDIN); close(STDOUT); close(STDERR);
+
          ow::suid::drop_ruid_rgid();
          # set enviro's for vacation program
          $ENV{'USER'}=$user;
@@ -1935,6 +1938,7 @@ sub writedotvacationmsg {
             /^(.*)$/ && push(@cmd, $1); # untaint all argument
          }
          exec(@cmd);
+
          exit 0; # should never reach here
       }
    }

@@ -166,26 +166,38 @@ if ($ARGV[0] eq "--") {		# called by inetd
 
 $>=$euid_to_use;
 
+load_owconf(\%config_raw, "$SCRIPT_DIR/etc/defaults/openwebmail.conf");
+if ( -f "$SCRIPT_DIR/etc/openwebmail.conf") {
+   read_owconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf");
+   print "D readconf $SCRIPT_DIR/etc/openwebmail.conf\n" if ($opt{'debug'});
+}
+
+$logindomain=$default_logindomain||ow::tool::hostname();
+$logindomain=lc(safedomainname($logindomain));
+if (defined $config{'domainname_equiv'}{'map'}{$logindomain}) {
+   print "D domain equivalence found: $logindomain -> $config{'domainname_equiv'}{'map'}{$logindomain}\n" if ($opt{'debug'});
+   $logindomain=$config{'domainname_equiv'}{'map'}{$logindomain};
+}
+if ( -f "$config{'ow_sitesconfdir'}/$logindomain") {
+   read_owconf(\%config, \%config_raw, "$config{'ow_sitesconfdir'}/$logindomain");
+   print "D readconf $config{'ow_sitesconfdir'}/$logindomain\n" if ($opt{'debug'});
+}
+
+%prefs = readprefs();
+loadlang($prefs{'language'});	# for converted filename $lang_text{abook_converted}
+
+writelog("debug - request tool begin, argv=".join(' ',@ARGV)." - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
 my $retval=0;
 if ($opt{'init'}) {
    $retval=init();
 } elsif ($opt{'test'}) {
    $retval=do_test();
 } elsif ($opt{'langconv'}) {
-   $retval=do_langconv($opt{'srclang'}, $opt{'dstlang'});
+   $retval=langconv($opt{'srclang'}, $opt{'dstlang'});
 } elsif ($opt{'thumbnail'}) {
    $retval=makethumbnail(\@list);
 } else {
    if ($opt{'convert_addressbooks'} && $>==0) {	# only allow root to convert globalbook
-      load_owconf(\%config_raw, "$SCRIPT_DIR/etc/defaults/openwebmail.conf");
-      if ( -f "$SCRIPT_DIR/etc/openwebmail.conf") {
-         read_owconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf");
-         print "D readconf $SCRIPT_DIR/etc/openwebmail.conf\n" if ($opt{'debug'});
-      }
-
-      my %prefs = readprefs();
-      loadlang($prefs{'language'});	# for converted filename $lang_text{abook_converted}
-
       print "converting GLOBAL addressbook..." if (!$opt{'quiet'});
       $retval=convert_addressbook('global', $prefs{'charset'});
       if ($retval<0) {
@@ -194,10 +206,12 @@ if ($opt{'init'}) {
       }
       print "done.\n" if (!$opt{'quiet'});
    }
+
    if ($opt{'allusers'}) {
       $retval=allusers(\@list);
       openwebmail_exit($retval) if ($retval<0);
    }
+
    if ($#list>=0 && !$opt{'null'}) {
       $retval=usertool($euid_to_use, \@list);
    } elsif ($opt{'convert_addressbooks'}) {
@@ -206,6 +220,7 @@ if ($opt{'init'}) {
       $retval=showhelp();
    }
 }
+writelog("debug - request tool end, argv=".join(' ',@ARGV)." - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
 
 openwebmail_exit($retval);
 
@@ -349,20 +364,6 @@ sub do_test {
             "please update to 3.00 or later.\n\n\n";
    }
 
-   load_owconf(\%config_raw, "$SCRIPT_DIR/etc/defaults/openwebmail.conf");
-   if ( -f "$SCRIPT_DIR/etc/openwebmail.conf") {
-      read_owconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf");
-      print "D readconf $SCRIPT_DIR/etc/openwebmail.conf\n" if ($opt{'debug'});
-   }
-
-   $logindomain=$default_logindomain||ow::tool::hostname();
-   $logindomain=lc(safedomainname($logindomain));
-   $logindomain=$config{'domainname_equiv'}{'map'}{$logindomain} if (defined $config{'domainname_equiv'}{'map'}{$logindomain});
-   if ( -f "$config{'ow_sitesconfdir'}/$logindomain") {
-      read_owconf(\%config, \%config_raw, "$config{'ow_sitesconfdir'}/$logindomain");
-      print "D readconf $config{'ow_sitesconfdir'}/$logindomain\n" if ($opt{'debug'});
-   }
-
 # disable this warning to make user happy...
 #   if ($in_init && check_tell_bug() <0) {
 #      print qq|Please hit 'Enter' to continue or Ctrl-C to break.\n|;
@@ -487,19 +488,6 @@ sub check_savedsuid_support {
 }
 
 ########## langconv routines #####################################
-sub do_langconv {
-   my ($srclang, $dstlang)=@_;
-
-   load_owconf(\%config_raw, "$SCRIPT_DIR/etc/defaults/openwebmail.conf");
-   if ( -f "$SCRIPT_DIR/etc/openwebmail.conf") {
-      read_owconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf");
-      print "D readconf $SCRIPT_DIR/etc/openwebmail.conf\n" if ($opt{'debug'});
-   }
-
-   langconv($srclang, $dstlang);
-   return 0;
-}
-
 sub langconv {
    my ($srclang, $dstlang)=@_;
 
@@ -525,6 +513,8 @@ sub langconv {
 
    langconv_dir("$config{'ow_htmldir'}/javascript/htmlarea.openwebmail/popups/$srclang", $srclang,
                 "$config{'ow_htmldir'}/javascript/htmlarea.openwebmail/popups/$dstlang", $dstlang);
+
+   return 0;
 }
 
 sub langconv_dir {
@@ -676,23 +666,13 @@ sub allusers {
    my $loaded_domain=0;
    my %userhash=();
 
-   load_owconf(\%config_raw, "$SCRIPT_DIR/etc/defaults/openwebmail.conf");
-   if ( -f "$SCRIPT_DIR/etc/openwebmail.conf") {
-      read_owconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf");
-      print "D readconf $SCRIPT_DIR/etc/openwebmail.conf\n" if ($opt{'debug'});
-   }
-
    # trap this once now.  Let usertool() test it at the domain level later
    if ( $>!=0 &&	# setuid is required if spool is located in system dir
+        !$config{'use_homedirspools'} &&
        ($config{'mailspooldir'} eq "/var/mail" ||
         $config{'mailspooldir'} eq "/var/spool/mail")) {
       print "This operation is only available to root\n"; openwebmail_exit(0);
    }
-
-   my $logindomain=$default_logindomain||ow::tool::hostname();
-   $logindomain=lc(safedomainname($logindomain));
-   $logindomain=$config{'domainname_equiv'}{'map'}{$logindomain} if (defined $config{'domainname_equiv'}{'map'}{$logindomain});
-   print "D found default domain $logindomain\n" if ($opt{'debug'});
 
    # if there's localusers defined for vdomain,
    # we should grab them otherwise they'll be missed
@@ -710,6 +690,9 @@ sub allusers {
    }
 
    foreach $logindomain (@domains) {
+
+      # REINIT %config for auth_module as each domain may use different auth_module!
+
       %config_raw=();
       load_owconf(\%config_raw, "$SCRIPT_DIR/etc/defaults/openwebmail.conf");
       if ( -f "$SCRIPT_DIR/etc/openwebmail.conf") {
@@ -845,6 +828,7 @@ sub usertool {
 
       if ( $>!=$uuid &&
            $>!=0 &&	# setuid root is required if spool is located in system dir
+           !$config{'use_homedirspools'} &&
           ($config{'mailspooldir'} eq "/var/mail" ||
            $config{'mailspooldir'} eq "/var/spool/mail")) {
          print "This operation is only available to root\n"; openwebmail_exit(0);
