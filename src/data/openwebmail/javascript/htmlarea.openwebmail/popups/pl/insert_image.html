@@ -1,8 +1,8 @@
-<html style="width: 398; height: 243">
+<html style="width: 428; height: 253">
 
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-2">
-  <title>Insert Image</title>
+  <title>Wstaw obrazek</title>
 
 <script type="text/javascript" src="popup.js"></script>
 
@@ -16,8 +16,8 @@ function Init() {
 
 function onOK() {
   var required = {
-    "f_url": "You must enter the URL",
-    "f_alt": "Please enter the alternate text"
+    "f_url": "Musisz podać URL",
+    "f_alt": "Proszę wprowadzić alternatywny tekst"
   };
   for (var i in required) {
     var el = document.getElementById(i);
@@ -110,7 +110,7 @@ form p {
   margin-bottom: 5px;
 }
 .fl { width: 9em; float: left; padding: 2px 5px; text-align: right; }
-.fr { width: 6em; float: left; padding: 2px 5px; text-align: right; }
+.fr { width: 8em; float: left; padding: 2px 5px; text-align: right; }
 fieldset { padding: 0px 10px 5px 5px; }
 select, input, button { font: 11px Tahoma,Verdana,sans-serif; }
 button { width: 70px; }
@@ -126,32 +126,32 @@ form { padding: 0px; margin: 0px; }
 
 <body onload="Init()">
 
-<div class="title">Insert Image</div>
+<div class="title">Wstaw obrazek</div>
 
 <form action="" method="get">
 <table border="0" width="100%" style="padding: 0px; margin: 0px">
   <tbody>
 
   <tr>
-    <td style="width: 7em; text-align: right">Attachments:</td>
-    <td><select name="attlist" id="f_attlist" 
+    <td style="width: 7em; text-align: right">Załączniki:</td>
+    <td><select name="attlist" id="f_attlist"
          onchange="return onChange();" style="witdth:100%">
-        <option selected value="">-- Not selected --
+        <option selected value="">-- Nie wybrane --
         </select>
     </td>
   </tr>
   <tr>
-    <td style="width: 7em; text-align: right">Image URL:</td>
+    <td style="width: 7em; text-align: right">URL obrazka:</td>
     <td><input type="text" name="url" id="f_url" style="width:75%"
-      title="Enter the image URL here" />
+      title="Wprowadź tu URL obrazka" />
       <button name="preview" onclick="return onPreview();"
-      title="Preview the image in a new window">Preview</button>
+      title="Podgląd obrazka w nowym oknie">Podgląd</button>
     </td>
   </tr>
   <tr>
-    <td style="width: 7em; text-align: right">Alternate text:</td>
+    <td style="width: 7em; text-align: right">Tekst alternatywny:</td>
     <td><input type="text" name="alt" id="f_alt" style="width:100%"
-      title="For browsers that don't support images" /></td>
+      title="Dla przeglądarek nie obsługujących obrazków" /></td>
   </tr>
 
   </tbody>
@@ -160,49 +160,49 @@ form { padding: 0px; margin: 0px; }
 <p />
 
 <fieldset style="float: left; margin-left: 5px;">
-<legend>Layout</legend>
+<legend>Format</legend>
 
 <div class="space"></div>
 
-<div class="fl">Alignment:</div>
+<div class="fl">Wyrównywanie:</div>
 <select size="1" name="align" id="f_align"
-  title="Positioning of this image">
-  <option value=""                             >Not set</option>
-  <option value="left"                         >Left</option>
-  <option value="right"                        >Right</option>
+  title="Pozycja obrazka">
+  <option value=""                             >Nie ustawione</option>
+  <option value="left"                         >Do lewej</option>
+  <option value="right"                        >Do prawej</option>
   <option value="texttop"                      >Texttop</option>
   <option value="absmiddle"                    >Absmiddle</option>
   <option value="baseline" selected="1"        >Baseline</option>
   <option value="absbottom"                    >Absbottom</option>
-  <option value="bottom"                       >Bottom</option>
-  <option value="middle"                       >Middle</option>
-  <option value="top"                          >Top</option>
+  <option value="bottom"                       >Dół</option>
+  <option value="middle"                       >Środek</option>
+  <option value="top"                          >Góra</option>
 </select>
 
 <p />
 
-<div class="fl">Border thickness:</div>
+<div class="fl">Szerokość ramki:</div>
 <input type="text" name="border" id="f_border" size="5"
-title="Leave empty for no border" />
+title="Pozostaw puste dla wyłączenia ramki" />
 
 <div class="space"></div>
 
 </fieldset>
 
 <fieldset style="float:right; margin-right: 5px;">
-<legend>Spacing</legend>
+<legend>Oddzielanie</legend>
 
 <div class="space"></div>
 
-<div class="fr">Horizontal:</div>
+<div class="fr">W poziomie:</div>
 <input type="text" name="horiz" id="f_horiz" size="5"
-title="Horizontal padding" />
+title="Oddzielanie w poziomie" />
 
 <p />
 
-<div class="fr">Vertical:</div>
+<div class="fr">W pionie:</div>
 <input type="text" name="vert" id="f_vert" size="5"
-title="Vertical padding" />
+title="Oddzielanie w pionie" />
 
 <div class="space"></div>
 
@@ -211,7 +211,7 @@ title="Vertical padding" />
 <div style="margin-top: 85px; text-align: right;">
 <hr />
 <button type="button" name="ok" onclick="return onOK();">OK</button>
-<button type="button" name="cancel" onclick="return onCancel();">Cancel</button>
+<button type="button" name="cancel" onclick="return onCancel();">Anuluj</button>
 </div>
 
 </form>

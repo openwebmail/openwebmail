@@ -1,8 +1,8 @@
-<html style="width: 398; height: 243">
+<html style="width: 448; height: 253">
 
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-  <title>Insert Image</title>
+  <title>Inserir Imagem</title>
 
 <script type="text/javascript" src="popup.js"></script>
 
@@ -16,8 +16,8 @@ function Init() {
 
 function onOK() {
   var required = {
-    "f_url": "You must enter the URL",
-    "f_alt": "Please enter the alternate text"
+    "f_url": "É necessário introduzir o URL",
+    "f_alt": "É favor introduzir o texto alternativo"
   };
   for (var i in required) {
     var el = document.getElementById(i);
@@ -55,7 +55,7 @@ function onPreview() {
   var f_url = document.getElementById("f_url");
   var url = f_url.value;
   if (!url) {
-    alert("You have to enter an URL first");
+    alert("Primeiro tem que introduzir o URL");
     f_url.focus();
     return false;
   }
@@ -109,8 +109,8 @@ form p {
   margin-top: 5px;
   margin-bottom: 5px;
 }
-.fl { width: 9em; float: left; padding: 2px 5px; text-align: right; }
-.fr { width: 6em; float: left; padding: 2px 5px; text-align: right; }
+.fl { width: 11em; float: left; padding: 2px 5px; text-align: right; }
+.fr { width: 7em; float: left; padding: 2px 5px; text-align: right; }
 fieldset { padding: 0px 10px 5px 5px; }
 select, input, button { font: 11px Tahoma,Verdana,sans-serif; }
 button { width: 70px; }
@@ -126,32 +126,32 @@ form { padding: 0px; margin: 0px; }
 
 <body onload="Init()">
 
-<div class="title">Insert Image</div>
+<div class="title">Inserir Imagem</div>
 
 <form action="" method="get">
 <table border="0" width="100%" style="padding: 0px; margin: 0px">
   <tbody>
 
   <tr>
-    <td style="width: 7em; text-align: right">Attachments:</td>
+    <td style="width: 7em; text-align: right">Anexos:</td>
     <td><select name="attlist" id="f_attlist" 
          onchange="return onChange();" style="witdth:100%">
-        <option selected value="">-- Not selected --
+        <option selected value="">-- Não seleccionado --
         </select>
     </td>
   </tr>
   <tr>
-    <td style="width: 7em; text-align: right">Image URL:</td>
+    <td style="width: 7em; text-align: right">URL da Imagem:</td>
     <td><input type="text" name="url" id="f_url" style="width:75%"
-      title="Enter the image URL here" />
+      title="Introduza aqui o URL da imagem" />
       <button name="preview" onclick="return onPreview();"
-      title="Preview the image in a new window">Preview</button>
+      title="Visualizar a imagem numa nova janela">Visualizar</button>
     </td>
   </tr>
   <tr>
-    <td style="width: 7em; text-align: right">Alternate text:</td>
+    <td style="width: 7em; text-align: right">Texto alternativo:</td>
     <td><input type="text" name="alt" id="f_alt" style="width:100%"
-      title="For browsers that don't support images" /></td>
+      title="Para browsers que não suportam imagens" /></td>
   </tr>
 
   </tbody>
@@ -160,49 +160,49 @@ form { padding: 0px; margin: 0px; }
 <p />
 
 <fieldset style="float: left; margin-left: 5px;">
-<legend>Layout</legend>
+<legend>Disposição</legend>
 
 <div class="space"></div>
 
-<div class="fl">Alignment:</div>
+<div class="fl">Alinhamento:</div>
 <select size="1" name="align" id="f_align"
-  title="Positioning of this image">
-  <option value=""                             >Not set</option>
-  <option value="left"                         >Left</option>
-  <option value="right"                        >Right</option>
-  <option value="texttop"                      >Texttop</option>
-  <option value="absmiddle"                    >Absmiddle</option>
-  <option value="baseline" selected="1"        >Baseline</option>
-  <option value="absbottom"                    >Absbottom</option>
-  <option value="bottom"                       >Bottom</option>
-  <option value="middle"                       >Middle</option>
-  <option value="top"                          >Top</option>
+  title="Posicionamento da imagem">
+  <option value=""                             >Não definido</option>
+  <option value="left"                         >Esquerda</option>
+  <option value="right"                        >Direita</option>
+  <option value="texttop"                      >Texto em cima</option>
+  <option value="absmiddle"                    >Meio Adsoluto</option>
+  <option value="baseline" selected="1"        >Base</option>
+  <option value="absbottom"                    >Inferior Absoluto</option>
+  <option value="bottom"                       >Rodapé</option>
+  <option value="middle"                       >Meio</option>
+  <option value="top"                          >Topo</option>
 </select>
 
 <p />
 
-<div class="fl">Border thickness:</div>
+<div class="fl">Espessura da borda:</div>
 <input type="text" name="border" id="f_border" size="5"
-title="Leave empty for no border" />
+title="Deixar em branco se não quiser usar borda" />
 
 <div class="space"></div>
 
 </fieldset>
 
 <fieldset style="float:right; margin-right: 5px;">
-<legend>Spacing</legend>
+<legend>Espaçamento</legend>
 
 <div class="space"></div>
 
 <div class="fr">Horizontal:</div>
 <input type="text" name="horiz" id="f_horiz" size="5"
-title="Horizontal padding" />
+title="Espaçamento Horizontal" />
 
 <p />
 
 <div class="fr">Vertical:</div>
 <input type="text" name="vert" id="f_vert" size="5"
-title="Vertical padding" />
+title="Espaçamento Vertical" />
 
 <div class="space"></div>
 
@@ -210,8 +210,8 @@ title="Vertical padding" />
 
 <div style="margin-top: 85px; text-align: right;">
 <hr />
-<button type="button" name="ok" onclick="return onOK();">OK</button>
-<button type="button" name="cancel" onclick="return onCancel();">Cancel</button>
+<button type="button" name="ok" onclick="return onOK();">Aceitar</button>
+<button type="button" name="cancel" onclick="return onCancel();">Cancelar</button>
 </div>
 
 </form>

@@ -1,8 +1,8 @@
-<html style="width: 398; height: 220">
+<html style="width: 398; height: 255">
 
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-  <title>Insert Sound</title>
+  <title>Geluid toevoegen</title>
 
 <script type="text/javascript" src="popup.js"></script>
 
@@ -16,8 +16,8 @@ function Init() {
 
 function onOK() {
   var required = {
-    "f_url": "You must enter the URL",
-    "f_alt": "Please enter the alternate text"
+    "f_url": "Voer eerst een link naar het geluid toe",
+    "f_alt": "Voer een alternatieve tekst in"
   };
   for (var i in required) {
     var el = document.getElementById(i);
@@ -63,7 +63,7 @@ function onTestsound() {
   var f_url = document.getElementById("f_url");
   var url = f_url.value;
   if (!url) {
-    alert("You have to enter an URL first");
+    alert("Voer eerst een link naar het geluid toe");
     f_url.focus();
     return false;
   }
@@ -134,32 +134,32 @@ form { padding: 0px; margin: 0px; }
 
 <body onload="Init()">
 
-<div class="title">Insert Sound</div>
+<div class="title">Geluid toevoegen</div>
 
 <form action="" method="get">
 <table border="0" width="100%" style="padding: 0px; margin: 0px">
   <tbody>
 
   <tr>
-    <td style="width: 7em; text-align: right">Attachments:</td>
+    <td style="width: 7em; text-align: right">Bijlagen:</td>
     <td><select name="attlist" id="f_attlist" 
          onchange="return onChange();" style="witdth:100%">
-        <option selected value="">-- Not selected --
+        <option selected value="">-- Niet geselecteerd --
         </select>
     </td>
   </tr>
   <tr>
-    <td style="width: 7em; text-align: right">Sound URL:</td>
+    <td style="width: 7em; text-align: right">Link naar geluid:</td>
     <td><input type="text" name="url" id="f_url" style="width:75%"
-      title="Enter the sound URL here" />
+      title="Voer een link naar het geluidsfragemten hier in" />
       <button name="testsound" onclick="return onTestsound();"
-      title="Test the sound in a new window">TestSound</button>
+      title="Test het geluid in een nieuw scherm">Test geluid</button>
     </td>
   </tr>
   <tr>
-    <td style="width: 7em; text-align: right">Alternate text:</td>
+    <td style="width: 7em; text-align: right">Alternatieve tekst:</td>
     <td><input type="text" name="alt" id="f_alt" style="width:100%"
-      title="For browsers that don't support embed tags" /></td>
+      title="Voor browsers die geen geluid ondersteunen" /></td>
     <input type="hidden" name="type" id="f_type">
   </tr>
   </tbody>
@@ -168,22 +168,22 @@ form { padding: 0px; margin: 0px; }
 <p />
 
 <fieldset style="float:center; margin-left: 5px; margin-right: 5px;">
-<legend>Attribute</legend>
+<legend>Eigenschappen</legend>
 <table align="center" width="100%"><tr>
 <td nowrap>
-<div class="fl">Auto Play:</div>
+<div class="fl">Automatisch Afspelen:</div>
 <input type="checkbox" name="autoplay" id="f_autoplay" value="1"
-title="start automatically after page loading" />
+title="Start het geluid automatisch bij het openenen van de pagina" />
 </td>
 <td nowrap>
-<div class="fr">Hidden Control:</div>
+<div class="fr">Verborgen item:</div>
 <input type="checkbox" name="hidden" id="f_hidden" value="1"
-title="Hide the sound control" />
+title="Maak het geluid onzichtbaar in de pagina" />
 </td>
 <td nowrap>
-<div class="fr">Loop:</div>
+<div class="fr">Aantal maal herhalen:</div>
 <input type="textfield" name="loop" id="f_loop" value="1" size="3"
-title="Repeat count" />
+title="Herhaal het geluid * keer" />
 </td>
 </tr></table>
 </fieldset>
@@ -191,7 +191,7 @@ title="Repeat count" />
 <div style="margin-top: 5px; text-align: right;">
 <hr />
 <button type="button" name="ok" onclick="return onOK();">OK</button>
-<button type="button" name="cancel" onclick="return onCancel();">Cancel</button>
+<button type="button" name="cancel" onclick="return onCancel();">Annuleren</button>
 </div>
 
 </form>

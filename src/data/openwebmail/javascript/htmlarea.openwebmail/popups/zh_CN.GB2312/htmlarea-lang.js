@@ -54,7 +54,7 @@ HTMLArea.I18N = {
 		outdent:        "减少缩排",
 		indent:         "增加缩排",
 		forecolor:      "字型颜色",
-		backcolor:      "背景颜色",
+		hilitecolor:    "背景颜色",
 		horizontalrule: "水平分隔线",
 		createlink:     "插入超连结",
 		insertimage:    "插入图片",
@@ -63,7 +63,22 @@ HTMLArea.I18N = {
 		htmlmode:       "切换 HTML 模式",
 		popupeditor:    "放大编辑器",
 		about:          "关于",
-		help:           "求助",
-		textindicator:  "目前字型样式"
+		showhelp:       "求助",
+		textindicator:  "目前字型样式",
+		undo:           "確",
+		redo:           "確",
+		cut:            "芭",
+		copy:           "狡籹",
+		paste:          "禟"
+	},
+
+	buttons: {
+		"ok":           "确定",
+		"cancel":       "取消"
+	},
+
+	msg: {
+		"Path":         "路径",
+		"TEXT_MODE":    "您现在正在看的是 HTML 信件的原始码. 请按下 [<>] 按钮回到 HTML 编辑模式."
 	}
 };

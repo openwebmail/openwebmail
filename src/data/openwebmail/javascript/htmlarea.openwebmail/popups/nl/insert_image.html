@@ -1,8 +1,8 @@
-<html style="width: 398; height: 243">
+<html style="width: 398; height: 256">
 
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-  <title>Insert Image</title>
+  <title>Voeg afbeelding toe</title>
 
 <script type="text/javascript" src="popup.js"></script>
 
@@ -16,8 +16,8 @@ function Init() {
 
 function onOK() {
   var required = {
-    "f_url": "You must enter the URL",
-    "f_alt": "Please enter the alternate text"
+    "f_url": "U moet een link invoeren",
+    "f_alt": "Voer een tekst in"
   };
   for (var i in required) {
     var el = document.getElementById(i);
@@ -55,7 +55,7 @@ function onPreview() {
   var f_url = document.getElementById("f_url");
   var url = f_url.value;
   if (!url) {
-    alert("You have to enter an URL first");
+    alert("U moet een link invoeren");
     f_url.focus();
     return false;
   }
@@ -126,32 +126,32 @@ form { padding: 0px; margin: 0px; }
 
 <body onload="Init()">
 
-<div class="title">Insert Image</div>
+<div class="title">Voeg afbeelding toe</div>
 
 <form action="" method="get">
 <table border="0" width="100%" style="padding: 0px; margin: 0px">
   <tbody>
 
   <tr>
-    <td style="width: 7em; text-align: right">Attachments:</td>
+    <td style="width: 7em; text-align: right">Bijlagen:</td>
     <td><select name="attlist" id="f_attlist" 
          onchange="return onChange();" style="witdth:100%">
-        <option selected value="">-- Not selected --
+        <option selected value="">-- Niet geselecteerd --
         </select>
     </td>
   </tr>
   <tr>
-    <td style="width: 7em; text-align: right">Image URL:</td>
+    <td style="width: 7em; text-align: right">Afbeelding URL:</td>
     <td><input type="text" name="url" id="f_url" style="width:75%"
-      title="Enter the image URL here" />
+      title="Voeg link naar afbeelding hier toe" />
       <button name="preview" onclick="return onPreview();"
-      title="Preview the image in a new window">Preview</button>
+      title="Geef voorbeeld van deze afbeelding weer">Voorbeeld</button>
     </td>
   </tr>
   <tr>
-    <td style="width: 7em; text-align: right">Alternate text:</td>
+    <td style="width: 7em; text-align: right">Alternatieve tekst:</td>
     <td><input type="text" name="alt" id="f_alt" style="width:100%"
-      title="For browsers that don't support images" /></td>
+      title="Voor browsers die geen afbeeldingen ondersteunen" /></td>
   </tr>
 
   </tbody>
@@ -160,49 +160,49 @@ form { padding: 0px; margin: 0px; }
 <p />
 
 <fieldset style="float: left; margin-left: 5px;">
-<legend>Layout</legend>
+<legend>Weergave</legend>
 
 <div class="space"></div>
 
-<div class="fl">Alignment:</div>
+<div class="fl">Uitlijnen:</div>
 <select size="1" name="align" id="f_align"
-  title="Positioning of this image">
-  <option value=""                             >Not set</option>
-  <option value="left"                         >Left</option>
-  <option value="right"                        >Right</option>
+  title="Positie van deze afbeelding">
+  <option value=""                             >Niet</option>
+  <option value="left"                         >Links</option>
+  <option value="right"                        >Rechts</option>
   <option value="texttop"                      >Texttop</option>
-  <option value="absmiddle"                    >Absmiddle</option>
-  <option value="baseline" selected="1"        >Baseline</option>
-  <option value="absbottom"                    >Absbottom</option>
-  <option value="bottom"                       >Bottom</option>
-  <option value="middle"                       >Middle</option>
-  <option value="top"                          >Top</option>
+  <option value="absmiddle"                    >Absoluut Midden</option>
+  <option value="baseline" selected="1"        >Op de Basis</option>
+  <option value="absbottom"                    >Absoluut Onderaan</option>
+  <option value="bottom"                       >Onderaan</option>
+  <option value="middle"                       >Midden</option>
+  <option value="top"                          >Bovenkant</option>
 </select>
 
 <p />
 
-<div class="fl">Border thickness:</div>
+<div class="fl">Dikte van de rand:</div>
 <input type="text" name="border" id="f_border" size="5"
-title="Leave empty for no border" />
+title="Laat leeg voor geen rand" />
 
 <div class="space"></div>
 
 </fieldset>
 
 <fieldset style="float:right; margin-right: 5px;">
-<legend>Spacing</legend>
+<legend>Spatiëren</legend>
 
 <div class="space"></div>
 
-<div class="fr">Horizontal:</div>
+<div class="fr">Horizontaal:</div>
 <input type="text" name="horiz" id="f_horiz" size="5"
-title="Horizontal padding" />
+title="Horizontale witruimte" />
 
 <p />
 
-<div class="fr">Vertical:</div>
+<div class="fr">Verticaal:</div>
 <input type="text" name="vert" id="f_vert" size="5"
-title="Vertical padding" />
+title="Verticale witruimte" />
 
 <div class="space"></div>
 
@@ -211,7 +211,7 @@ title="Vertical padding" />
 <div style="margin-top: 85px; text-align: right;">
 <hr />
 <button type="button" name="ok" onclick="return onOK();">OK</button>
-<button type="button" name="cancel" onclick="return onCancel();">Cancel</button>
+<button type="button" name="cancel" onclick="return onCancel();">Annuleren</button>
 </div>
 
 </form>

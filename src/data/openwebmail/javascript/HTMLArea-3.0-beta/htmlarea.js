@@ -6,9 +6,9 @@
 // For full source code and docs, visit http://www.interactivetools.com/
 //
 // Version 3.0 developed by Mihai Bazon for InteractiveTools.
-//           http://students.infoiasi.ro/~mishoo
+//	     http://students.infoiasi.ro/~mishoo
 //
-// $Id: htmlarea.js,v 1.3 2003/02/17 13:57:07 mishoo Exp $
+// $Id: htmlarea.js,v 1.22 2003/09/02 09:25:41 mishoo Exp $
 
 // Creates a new HTMLArea object.  Tries to replace the textarea with the given
 // ID with it.
@@ -19,12 +19,12 @@ function HTMLArea(textarea, config) {
 		} else {
 			this.config = config;
 		}
-		if (this.config.debug) {
-			// alert("DEBUG ON!!");
-		}
 		this._htmlArea = null;
 		this._textArea = textarea;
-		this._mode = "wysiwyg";
+		this._editMode = "wysiwyg";
+		this.plugins = {};
+		this._timerToolbar = null;
+		this._mdoc = document; // cache the document, we need it in plugins
 	}
 };
 
@@ -34,43 +34,61 @@ HTMLArea.Config = function () {
 	this.width = "auto";
 	this.height = "auto";
 
+	// enable creation of a status bar?
+	this.statusBar = true;
+
 	// the next parameter specifies whether the toolbar should be included
 	// in the size or not.
 	this.sizeIncludesToolbar = true;
 
-	this.bodyStyle = "background-color: #fff; font-family: verdana,sans-serif";
-	this.editorURL = "";
+	// style included in the iframe document
+	this.pageStyle = "body { background-color: #fff; font-family: verdana,sans-serif; }";
+	if (typeof _editor_url != "undefined") {
+		this.editorURL = _editor_url;
+	} else {
+		this.editorURL = "";
+	}
 
 	// URL-s
 	this.imgURL = "images/";
 	this.popupURL = "popups/";
 
-	this.debug = 0;
+	// configuration for plugins
+	this.plugins = {};
 
-	this.replaceNextLines = 0;
-	this.plainTextInput = 0;
-
-	this.toolbar = [ [ "fontname", "space" ],
-			 [ "fontsize", "space" ],
-			 [ "formatblock", "space"],
-			 [ "bold", "italic", "underline", "separator" ],
-			 [ "strikethrough", "subscript", "superscript", "linebreak" ],
-			 [ "justifyleft", "justifycenter", "justifyright", "justifyfull", "separator" ],
-			 [ "orderedlist", "unorderedlist", "outdent", "indent", "separator" ],
-			 [ "forecolor", "backcolor", "textindicator", "separator" ],
-			 [ "horizontalrule", "createlink", "insertimage", "inserttable", "htmlmode", "separator" ],
-			 [ "popupeditor", "about" ]
+	/** CUSTOMIZING THE TOOLBAR
+	 * -------------------------
+	 *
+	 * It is recommended that you customize the toolbar contents in an
+	 * external file (i.e. the one calling HTMLArea) and leave this one
+	 * unchanged.  That's because when we (InteractiveTools.com) release a
+	 * new official version, it's less likely that you will have problems
+	 * upgrading HTMLArea.
+	 */
+	this.toolbar = [
+		[ "fontname", "space",
+		  "fontsize", "space",
+		  "formatblock", "space",
+		  "bold", "italic", "underline", "separator",
+		  "strikethrough", "subscript", "superscript", "separator",
+		  "copy", "cut", "paste", "space", "undo", "redo" ],
+		
+		[ "justifyleft", "justifycenter", "justifyright", "justifyfull", "separator",
+		  "insertorderedlist", "insertunorderedlist", "outdent", "indent", "separator",
+		  "forecolor", "hilitecolor", "textindicator", "separator",
+		  "inserthorizontalrule", "createlink", "insertimage", "inserttable", "htmlmode", "separator",
+		  "popupeditor", "separator", "showhelp", "about" ]
 		];
 
 	this.fontname = {
-		"Arial":           'arial,helvetica,sans-serif',
-		"Courier New":     'courier new,courier,monospace',
-		"Georgia":         'georgia,times new roman,times,serif',
-		"Tahoma":          'tahoma,arial,helvetica,sans-serif',
+		"Arial":	   'arial,helvetica,sans-serif',
+		"Courier New":	   'courier new,courier,monospace',
+		"Georgia":	   'georgia,times new roman,times,serif',
+		"Tahoma":	   'tahoma,arial,helvetica,sans-serif',
 		"Times New Roman": 'times new roman,times,serif',
-		"Verdana":         'verdana,arial,helvetica,sans-serif',
-		"impact":          'impact',
-		"WingDings":       'wingdings'
+		"Verdana":	   'verdana,arial,helvetica,sans-serif',
+		"impact":	   'impact',
+		"WingDings":	   'wingdings'
 	};
 
 	this.fontsize = {
@@ -95,47 +113,192 @@ HTMLArea.Config = function () {
 		"Formatted": "pre"
 	};
 
-	//      ID              CMD                      ToolTip               Icon                        Enabled in text mode?
-	this.btnList = {
-		bold:           ["Bold",                 "Bold",               "ed_format_bold.gif",       false],
-		italic:         ["Italic",               "Italic",             "ed_format_italic.gif",     false],
-		underline:      ["Underline",            "Underline",          "ed_format_underline.gif",  false],
-		strikethrough:  ["StrikeThrough",        "Strikethrough",      "ed_format_strike.gif",     false],
-		subscript:      ["SubScript",            "Subscript",          "ed_format_sub.gif",        false],
-		superscript:    ["SuperScript",          "Superscript",        "ed_format_sup.gif",        false],
-		justifyleft:    ["JustifyLeft",          "Justify Left",       "ed_align_left.gif",        false],
-		justifycenter:  ["JustifyCenter",        "Justify Center",     "ed_align_center.gif",      false],
-		justifyright:   ["JustifyRight",         "Justify Right",      "ed_align_right.gif",       false],
-		justifyfull:    ["JustifyFull",          "Justify Full",       "ed_align_justify.gif",     false],
-		orderedlist:    ["InsertOrderedList",    "Ordered List",       "ed_list_num.gif",          false],
-		unorderedlist:  ["InsertUnorderedList",  "Bulleted List",      "ed_list_bullet.gif",       false],
-		outdent:        ["Outdent",              "Decrease Indent",    "ed_indent_less.gif",       false],
-		indent:         ["Indent",               "Increase Indent",    "ed_indent_more.gif",       false],
-		forecolor:      ["ForeColor",            "Font Color",         "ed_color_fg.gif",          false],
-		backcolor:      ["BackColor",            "Background Color",   "ed_color_bg.gif",          false],
-		horizontalrule: ["InsertHorizontalRule", "Horizontal Rule",    "ed_hr.gif",                false],
-		createlink:     ["CreateLink",           "Insert Web Link",    "ed_link.gif",              false],
-		insertimage:    ["InsertImage",          "Insert Image",       "ed_image.gif",             false],
-		inserttable:    ["InsertTable",          "Insert Table",       "insert_table.gif",         false],
-		htmlmode:       ["HtmlMode",             "Toggle HTML Source", "ed_html.gif",              true],
-		popupeditor:    ["popupeditor",          "Enlarge Editor",     "fullscreen_maximize.gif",  true],
-		about:          ["about",                "About this editor",  "ed_about.gif",             true],
-		help:           ["showhelp",             "Help using editor",  "ed_help.gif",              true]
+	this.customSelects = {};
+
+	function cut_copy_paste(e, cmd, obj) {
+		try {
+			e.execCommand(cmd);
+		} catch (e) {
+			if (HTMLArea.is_gecko) {
+				alert("Some revisions of Mozilla/Gecko do not support programatic " +
+				      "access to cut/copy/paste functions, for security reasons.  " +
+				      "Your browser is one of them.  Please use the standard key combinations:\n" +
+				      "CTRL-X for cut, CTRL-C for copy, CTRL-V for paste.");
+				obj.element.style.display = "none";
+			}
+		}
 	};
 
+	// ADDING CUSTOM BUTTONS: please read below!
+	// format of the btnList elements is "ID: [ ToolTip, Icon, Enabled in text mode?, ACTION ]"
+	//    - ID: unique ID for the button.  If the button calls document.execCommand
+	//	    it's wise to give it the same name as the called command.
+	//    - ACTION: function that gets called when the button is clicked.
+	//              it has the following prototype:
+	//                 function(editor, buttonName)
+	//              - editor is the HTMLArea object that triggered the call
+	//              - buttonName is the ID of the clicked button
+	//              These 2 parameters makes it possible for you to use the same
+	//              handler for more HTMLArea objects or for more different buttons.
+	//    - ToolTip: default tooltip, for cases when it is not defined in the -lang- file (HTMLArea.I18N)
+	//    - Icon: path to an icon image file for the button (TODO: use one image for all buttons!)
+	//    - Enabled in text mode: if false the button gets disabled for text-only mode; otherwise enabled all the time.
+	this.btnList = {
+		bold: [ "Bold", "images/ed_format_bold.gif", false, function(e) {e.execCommand("bold");} ],
+		italic: [ "Italic", "images/ed_format_italic.gif", false, function(e) {e.execCommand("italic");} ],
+		underline: [ "Underline", "images/ed_format_underline.gif", false, function(e) {e.execCommand("underline");} ],
+		strikethrough: [ "Strikethrough", "images/ed_format_strike.gif", false, function(e) {e.execCommand("strikethrough");} ],
+		subscript: [ "Subscript", "images/ed_format_sub.gif", false, function(e) {e.execCommand("subscript");} ],
+		superscript: [ "Superscript", "images/ed_format_sup.gif", false, function(e) {e.execCommand("superscript");} ],
+		justifyleft: [ "Justify Left", "images/ed_align_left.gif", false, function(e) {e.execCommand("justifyleft");} ],
+		justifycenter: [ "Justify Center", "images/ed_align_center.gif", false, function(e) {e.execCommand("justifycenter");} ],
+		justifyright: [ "Justify Right", "images/ed_align_right.gif", false, function(e) {e.execCommand("justifyright");} ],
+		justifyfull: [ "Justify Full", "images/ed_align_justify.gif", false, function(e) {e.execCommand("justifyfull");} ],
+		insertorderedlist: [ "Ordered List", "images/ed_list_num.gif", false, function(e) {e.execCommand("insertorderedlist");} ],
+		insertunorderedlist: [ "Bulleted List", "images/ed_list_bullet.gif", false, function(e) {e.execCommand("insertunorderedlist");} ],
+		outdent: [ "Decrease Indent", "images/ed_indent_less.gif", false, function(e) {e.execCommand("outdent");} ],
+		indent: [ "Increase Indent", "images/ed_indent_more.gif", false, function(e) {e.execCommand("indent");} ],
+		forecolor: [ "Font Color", "images/ed_color_fg.gif", false, function(e) {e.execCommand("forecolor");} ],
+		hilitecolor: [ "Background Color", "images/ed_color_bg.gif", false, function(e) {e.execCommand("hilitecolor");} ],
+		inserthorizontalrule: [ "Horizontal Rule", "images/ed_hr.gif", false, function(e) {e.execCommand("inserthorizontalrule");} ],
+		createlink: [ "Insert Web Link", "images/ed_link.gif", false, function(e) {e.execCommand("createlink", true);} ],
+		insertimage: [ "Insert Image", "images/ed_image.gif", false, function(e) {e.execCommand("insertimage");} ],
+		inserttable: [ "Insert Table", "images/insert_table.gif", false, function(e) {e.execCommand("inserttable");} ],
+		htmlmode: [ "Toggle HTML Source", "images/ed_html.gif", true, function(e) {e.execCommand("htmlmode");} ],
+		popupeditor: [ "Enlarge Editor", "images/fullscreen_maximize.gif", true, function(e) {e.execCommand("popupeditor");} ],
+		about: [ "About this editor", "images/ed_about.gif", true, function(e) {e.execCommand("about");} ],
+		showhelp: [ "Help using editor", "images/ed_help.gif", true, function(e) {e.execCommand("showhelp");} ],
+		undo: [ "Undoes your last action", "images/ed_undo.gif", false, function(e) {e.execCommand("undo");} ],
+		redo: [ "Redoes your last action", "images/ed_redo.gif", false, function(e) {e.execCommand("redo");} ],
+		cut: [ "Cut selection", "images/ed_cut.gif", false, cut_copy_paste ],
+		copy: [ "Copy selection", "images/ed_copy.gif", false, cut_copy_paste ],
+		paste: [ "Paste from clipboard", "images/ed_paste.gif", false, cut_copy_paste ]
+	};
+	/* ADDING CUSTOM BUTTONS
+	 * ---------------------
+	 *
+	 * It is recommended that you add the custom buttons in an external
+	 * file and leave this one unchanged.  That's because when we
+	 * (InteractiveTools.com) release a new official version, it's less
+	 * likely that you will have problems upgrading HTMLArea.
+	 *
+	 * Example on how to add a custom button when you construct the HTMLArea:
+	 *
+	 *   var editor = new HTMLArea("your_text_area_id");
+	 *   var cfg = editor.config; // this is the default configuration
+	 *   cfg.btnList["my-hilite"] =
+	 *	[ function(editor) { editor.surroundHTML('<span style="background:yellow">', '</span>'); }, // action
+	 *	  "Highlight selection", // tooltip
+	 *	  "my_hilite.gif", // image
+	 *	  false // disabled in text mode
+	 *	];
+	 *   cfg.toolbar.push(["linebreak", "my-hilite"]); // add the new button to the toolbar
+	 *
+	 * An alternate (also more convenient and recommended) way to
+	 * accomplish this is to use the registerButton function below.
+	 */
 	// initialize tooltips from the I18N module
 	for (var i in this.btnList) {
 		var btn = this.btnList[i];
 		if (typeof HTMLArea.I18N.tooltips[i] != "undefined") {
-			btn[1] = HTMLArea.I18N.tooltips[i];
+			btn[0] = HTMLArea.I18N.tooltips[i];
+		}
+	}
+};
+
+/** Helper function: register a new button with the configuration.  It can be
+ * called with all 5 arguments, or with only one (first one).  When called with
+ * only one argument it must be an object with the following properties: id,
+ * tooltip, image, textMode, action.  Examples:
+ *
+ * 1. config.registerButton("my-hilite", "Hilite text", "my-hilite.gif", false, function(editor) {...});
+ * 2. config.registerButton({
+ *      id       : "my-hilite",      // the ID of your button
+ *      tooltip  : "Hilite text",    // the tooltip
+ *      image    : "my-hilite.gif",  // image to be displayed in the toolbar
+ *      textMode : false,            // disabled in text mode
+ *      action   : function(editor) { // called when the button is clicked
+ *                   editor.surroundHTML('<span class="hilite">', '</span>');
+ *                 },
+ *      context  : "p"               // will be disabled if outside a <p> element
+ *    });
+ */
+HTMLArea.Config.prototype.registerButton = function(id, tooltip, image, textMode, action, context) {
+	var the_id;
+	if (typeof id == "string") {
+		the_id = id;
+	} else if (typeof id == "object") {
+		the_id = id.id;
+	} else {
+		alert("ERROR [HTMLArea.Config::registerButton]:\ninvalid arguments");
+		return false;
+	}
+	// check for existing id
+	if (typeof this.customSelects[the_id] != "undefined") {
+		alert("WARNING [HTMLArea.Config::registerDropdown]:\nA dropdown with the same ID already exists.");
+	}
+	if (typeof this.btnList[the_id] != "undefined") {
+		alert("WARNING [HTMLArea.Config::registerDropdown]:\nA button with the same ID already exists.");
+	}
+	switch (typeof id) {
+	    case "string": this.btnList[id] = [ tooltip, image, textMode, action, context ]; break;
+	    case "object": this.btnList[id.id] = [ id.tooltip, id.image, id.textMode, id.action, id.context ]; break;
+	}
+};
+
+/** The following helper function registers a dropdown box with the editor
+ * configuration.  You still have to add it to the toolbar, same as with the
+ * buttons.  Call it like this:
+ *
+ * FIXME: add example
+ */
+HTMLArea.Config.prototype.registerDropdown = function(object) {
+	// check for existing id
+	if (typeof this.customSelects[object.id] != "undefined") {
+		alert("WARNING [HTMLArea.Config::registerDropdown]:\nA dropdown with the same ID already exists.");
+	}
+	if (typeof this.btnList[object.id] != "undefined") {
+		alert("WARNING [HTMLArea.Config::registerDropdown]:\nA button with the same ID already exists.");
+	}
+	this.customSelects[object.id] = object;
+};
+
+/** Call this function to remove some buttons/drop-down boxes from the toolbar.
+ * Pass as the only parameter a string containing button/drop-down names
+ * delimited by spaces.  Note that the string should also begin with a space
+ * and end with a space.  Example:
+ *
+ *   config.hideSomeButtons(" fontname fontsize textindicator ");
+ *
+ * It's useful because it's easier to remove stuff from the defaul toolbar than
+ * create a brand new toolbar ;-)
+ */
+HTMLArea.Config.prototype.hideSomeButtons = function(remove) {
+	var toolbar = this.toolbar;
+	for (var i in toolbar) {
+		var line = toolbar[i];
+		for (var j = line.length; --j >= 0; ) {
+			if (remove.indexOf(" " + line[j] + " ") >= 0) {
+				var len = 1;
+				if (/separator|space/.test(line[j + 1])) {
+					len = 2;
+				}
+				line.splice(j, len);
+			}
 		}
 	}
 };
 
 /** Helper function: replace all TEXTAREA-s in the document with HTMLArea-s. */
-HTMLArea.replaceAll = function() {
+HTMLArea.replaceAll = function(config) {
 	var tas = document.getElementsByTagName("textarea");
-	for (var i = tas.length; i > 0; (new HTMLArea(tas[--i])).generate());
+	for (var i = tas.length; i > 0; (new HTMLArea(tas[--i], config)).generate());
+};
+
+/** Helper function: replaces the TEXTAREA with the given ID with HTMLArea. */
+HTMLArea.replace = function(id, config) {
+	var ta = document.getElementById(id);
+	return ta ? (new HTMLArea(ta, config)).generate() : null;
 };
 
 // Creates the toolbar and appends it to the _htmlarea
@@ -146,9 +309,6 @@ HTMLArea.prototype._createToolbar = function () {
 	this._toolbar = toolbar;
 	toolbar.className = "toolbar";
 	toolbar.unselectable = "1";
-	if (editor.config.debug) {
-		toolbar.style.border = "1px solid red";
-	}
 	var tb_row = null;
 	var tb_objects = new Object();
 	this._toolbarObjects = tb_objects;
@@ -166,74 +326,102 @@ HTMLArea.prototype._createToolbar = function () {
 		table.appendChild(tb_body);
 		tb_row = document.createElement("tr");
 		tb_body.appendChild(tb_row);
-	};
+	}; // END of function: newLine
 	// init first line
 	newLine();
 
-	// appends a new button to toolbar
-	function createButton(txt) {
-		// updates the state of a toolbar element
-		function setButtonStatus(id, newval) {
-			var oldval = this[id];
-			var el = this.element;
-			if (oldval != newval) {
-				switch (id) {
-				    case "enabled":
-					if (newval) {
-						HTMLArea._removeClass(el, "buttonDisabled");
-						el.disabled = false;
-					} else {
-						HTMLArea._addClass(el, "buttonDisabled");
-						el.disabled = true;
-					}
-					break;
-				    case "active":
-					if (newval) {
-						HTMLArea._addClass(el, "buttonPressed");
-					} else {
-						HTMLArea._removeClass(el, "buttonPressed");
-					}
-					break;
+	// updates the state of a toolbar element.  This function is member of
+	// a toolbar element object (unnamed objects created by createButton or
+	// createSelect functions below).
+	function setButtonStatus(id, newval) {
+		var oldval = this[id];
+		var el = this.element;
+		if (oldval != newval) {
+			switch (id) {
+			    case "enabled":
+				if (newval) {
+					HTMLArea._removeClass(el, "buttonDisabled");
+					el.disabled = false;
+				} else {
+					HTMLArea._addClass(el, "buttonDisabled");
+					el.disabled = true;
 				}
-				this[id] = newval;
-			}
-		};
-		// this function will handle creation of combo boxes
-		function createSelect() {
-			var options = null;
-			var el = null;
-			var cmd = null;
-			switch (txt) {
-			    case "fontsize":
-			    case "fontname":
-			    case "formatblock":
-				options = editor.config[txt]; // HACK ;)
-				cmd = txt;
+				break;
+			    case "active":
+				if (newval) {
+					HTMLArea._addClass(el, "buttonPressed");
+				} else {
+					HTMLArea._removeClass(el, "buttonPressed");
+				}
 				break;
 			}
-			if (options) {
-				el = document.createElement("select");
-				var obj = {
-					name: txt,     // field name
-					element: el,   // the UI element (SELECT)
-					enabled: true, // is it enabled?
-					text: false,   // enabled in text mode?
-					cmd: cmd,      // command ID
-					state: setButtonStatus // for changing state
-				};
-				tb_objects[txt] = obj;
-				for (var i in options) {
-					var op = document.createElement("option");
-					op.appendChild(document.createTextNode(i));
-					op.value = options[i];
-					el.appendChild(op);
-				}
-				HTMLArea._addEvent(el, "change", function () {
-					editor._comboSelected(el, txt);
-				});
+			this[id] = newval;
+		}
+	}; // END of function: setButtonStatus
+
+	// this function will handle creation of combo boxes.  Receives as
+	// parameter the name of a button as defined in the toolBar config.
+	// This function is called from createButton, above, if the given "txt"
+	// doesn't match a button.
+	function createSelect(txt) {
+		var options = null;
+		var el = null;
+		var cmd = null;
+		var customSelects = editor.config.customSelects;
+		var context = null;
+		switch (txt) {
+		    case "fontsize":
+		    case "fontname":
+		    case "formatblock":
+			// the following line retrieves the correct
+			// configuration option because the variable name
+			// inside the Config object is named the same as the
+			// button/select in the toolbar.  For instance, if txt
+			// == "formatblock" we retrieve config.formatblock (or
+			// a different way to write it in JS is
+			// config["formatblock"].
+			options = editor.config[txt];
+			cmd = txt;
+			break;
+		    default:
+			// try to fetch it from the list of registered selects
+			cmd = txt;
+			var dropdown = customSelects[cmd];
+			if (typeof dropdown != "undefined") {
+				options = dropdown.options;
+				context = dropdown.context;
+			} else {
+				alert("ERROR [createSelect]:\nCan't find the requested dropdown definition");
 			}
-			return el;
-		};
+			break;
+		}
+		if (options) {
+			el = document.createElement("select");
+			var obj = {
+				name	: txt, // field name
+				element : el,	// the UI element (SELECT)
+				enabled : true, // is it enabled?
+				text	: false, // enabled in text mode?
+				cmd	: cmd, // command ID
+				state	: setButtonStatus, // for changing state
+				context : context
+			};
+			tb_objects[txt] = obj;
+			for (var i in options) {
+				var op = document.createElement("option");
+				op.appendChild(document.createTextNode(i));
+				op.value = options[i];
+				el.appendChild(op);
+			}
+			HTMLArea._addEvent(el, "change", function () {
+				editor._comboSelected(el, txt);
+			});
+		}
+		return el;
+	}; // END of function: createSelect
+
+	// appends a new button to toolbar
+	function createButton(txt) {
 		// the element that will be created
 		var el = null;
 		var btn = null;
@@ -255,34 +443,34 @@ HTMLArea.prototype._createToolbar = function () {
 			el.className = "indicator";
 			el.title = HTMLArea.I18N.tooltips.textindicator;
 			var obj = {
-				name: txt,     // the button name (i.e. 'bold')
-				element: el,   // the UI element (DIV)
-				enabled: true, // is it enabled?
-				active: false, // is it pressed?
-				text: false,   // enabled in text mode?
-				cmd: "textindicator", // the command ID
-				state: setButtonStatus // for changing state
+				name	: txt, // the button name (i.e. 'bold')
+				element : el, // the UI element (DIV)
+				enabled : true, // is it enabled?
+				active	: false, // is it pressed?
+				text	: false, // enabled in text mode?
+				cmd	: "textindicator", // the command ID
+				state	: setButtonStatus // for changing state
 			};
 			tb_objects[txt] = obj;
 			break;
 		    default:
 			btn = editor.config.btnList[txt];
-			break;
 		}
 		if (!el && btn) {
 			el = document.createElement("div");
-			el.title = btn[1];
+			el.title = btn[0];
 			el.className = "button";
 			// let's just pretend we have a button object, and
 			// assign all the needed information to it.
 			var obj = {
-				name: txt,     // the button name (i.e. 'bold')
-				element: el,   // the UI element (DIV)
-				enabled: true, // is it enabled?
-				active: false, // is it pressed?
-				text: btn[3],  // enabled in text mode?
-				cmd: btn[0],   // the command ID
-				state: setButtonStatus // for changing state
+				name	: txt, // the button name (i.e. 'bold')
+				element : el, // the UI element (DIV)
+				enabled : true, // is it enabled?
+				active	: false, // is it pressed?
+				text	: btn[2], // enabled in text mode?
+				cmd	: btn[3], // the command ID
+				state	: setButtonStatus, // for changing state
+				context : btn[4] || null // enabled in a certain context?
 			};
 			tb_objects[txt] = obj;
 			// handlers to emulate nice flat toolbar buttons
@@ -310,15 +498,17 @@ HTMLArea.prototype._createToolbar = function () {
 				if (obj.enabled) with (HTMLArea) {
 					_removeClass(el, "buttonActive");
 					_removeClass(el, "buttonHover");
-					editor._buttonClicked(txt);
+					obj.cmd(editor, obj.name, obj);
 					_stopEvent(is_ie ? window.event : ev);
 				}
 			});
 			var img = document.createElement("img");
-			img.src = editor.imgURL(btn[2]);
+			img.src = editor.imgURL(btn[1]);
+			img.style.width = "18px";
+			img.style.height = "18px";
 			el.appendChild(img);
 		} else if (!el) {
-			el = createSelect();
+			el = createSelect(txt);
 		}
 		if (el) {
 			var tb_cell = document.createElement("td");
@@ -330,14 +520,51 @@ HTMLArea.prototype._createToolbar = function () {
 		return el;
 	};
 
+	var first = true;
 	for (var i in this.config.toolbar) {
+		if (!first) {
+			createButton("linebreak");
+		} else {
+			first = false;
+		}
 		var group = this.config.toolbar[i];
 		for (var j in group) {
-			createButton(group[j]);
+			var code = group[j];
+			if (/^([IT])\[(.*?)\]/.test(code)) {
+				// special case, create text label
+				var l7ed = RegExp.$1 == "I"; // localized?
+				var label = RegExp.$2;
+				if (l7ed) {
+					label = HTMLArea.I18N.custom[label];
+				}
+				var tb_cell = document.createElement("td");
+				tb_row.appendChild(tb_cell);
+				tb_cell.className = "label";
+				tb_cell.innerHTML = label;
+			} else {
+				createButton(code);
+			}
 		}
 	}
 
 	this._htmlArea.appendChild(toolbar);
+};
+
+HTMLArea.prototype._createStatusBar = function() {
+	var statusbar = document.createElement("div");
+	statusbar.className = "statusBar";
+	this._htmlArea.appendChild(statusbar);
+	this._statusBar = statusbar;
+	statusbar.appendChild(document.createTextNode(HTMLArea.I18N.msg["Path"] + ": "));
+	// creates a holder for the path view
+	div = document.createElement("span");
+	div.className = "statusBarTree";
+	this._statusBarTree = div;
+	this._statusBar.appendChild(div);
+	if (!this.config.statusBar) {
+		// disable it...
+		statusbar.style.display = "none";
+	}
 };
 
 // Creates the HTMLArea object and replaces the textarea with it.
@@ -353,7 +580,6 @@ HTMLArea.prototype.generate = function () {
 		w: textarea.offsetWidth,
 		h: textarea.offsetHeight
 	};
-	// hide the textarea
 	textarea.style.display = "none";
 
 	// create the editor framework
@@ -364,10 +590,34 @@ HTMLArea.prototype.generate = function () {
 	// insert the editor before the textarea.
 	textarea.parentNode.insertBefore(htmlarea, textarea);
 
-	// retrieve the HTML on submit
-	HTMLArea._addEvent(textarea.form, "submit", function (event) {
-		editor._formSubmit(HTMLArea.is_ie ? window.event : event);
-	});
+	if (textarea.form) {
+		// we have a form, on submit get the HTMLArea content and
+		// update original textarea.
+		var f = textarea.form;
+		if (typeof f.onsubmit == "function") {
+			var funcref = f.onsubmit;
+			if (typeof f.__msh_prevOnSubmit == "undefined") {
+				f.__msh_prevOnSubmit = [];
+			}
+			f.__msh_prevOnSubmit.push(funcref);
+		}
+		f.onsubmit = function() {
+			editor._textArea.value = editor.getHTML();
+			var a = this.__msh_prevOnSubmit;
+			// call previous submit methods if they were there.
+			if (typeof a != "undefined") {
+				for (var i in a) {
+					a[i]();
+				}
+			}
+		};
+	}
+
+	// add a handler for the "back/forward" case -- on body.unload we save
+	// the HTML content into the original textarea.
+	window.onunload = function() {
+		editor._textArea.value = editor.getHTML();
+	};
 
 	// creates & appends the toolbar
 	this._createToolbar();
@@ -375,12 +625,21 @@ HTMLArea.prototype.generate = function () {
 	// create the IFRAME
 	var iframe = document.createElement("iframe");
 	htmlarea.appendChild(iframe);
+
 	this._iframe = iframe;
+
+	// creates & appends the status bar, if the case
+	this._createStatusBar();
 
 	// remove the default border as it keeps us from computing correctly
 	// the sizes.  (somebody tell me why doesn't this work in IE)
-	// iframe.style.border = "none";
-	// iframe.frameborder = "0";
+
+	if (!HTMLArea.is_ie) {
+		iframe.style.borderWidth = "1px";
+	// iframe.frameBorder = "1";
+	// iframe.marginHeight = "0";
+	// iframe.marginWidth = "0";
+	}
 
 	// size the IFRAME according to user's prefs or initial textarea
 	var height = (this.config.height == "auto" ? (this._ta_size.h + "px") : this.config.height);
@@ -388,37 +647,37 @@ HTMLArea.prototype.generate = function () {
 	var width = (this.config.width == "auto" ? (this._ta_size.w + "px") : this.config.width);
 	width = parseInt(width);
 
+	if (!HTMLArea.is_ie) {
+		height -= 2;
+		width -= 2;
+	}
+
 	iframe.style.width = width + "px";
 	if (this.config.sizeIncludesToolbar) {
 		// substract toolbar height
 		height -= this._toolbar.offsetHeight;
+		height -= this._statusBar.offsetHeight;
+	}
+	if (height < 0) {
+		height = 0;
 	}
 	iframe.style.height = height + "px";
 
-	// now create a secondary textarea so that we can switch between
-	// WYSIWYG & text mode.
-	textarea = document.createElement("textarea");
-
-	// hidden by default
-	textarea.style.display = "none";
-
-	// make it the same size as the editor
+	// the editor including the toolbar now have the same size as the
+	// original textarea.. which means that we need to reduce that a bit.
 	textarea.style.width = iframe.style.width;
-	textarea.style.height = iframe.style.height;
-
-	// insert it after the iframe
-	htmlarea.appendChild(textarea);
-
-	// remember it for later
-	this._textArea2 = textarea;
+ 	textarea.style.height = iframe.style.height;
 
 	// IMPORTANT: we have to allow Mozilla a short time to recognize the
 	// new frame.  Otherwise we get a stupid exception.
 	function initIframe() {
 		var doc = editor._iframe.contentWindow.document;
 		if (!doc) {
+			// Try again..
+			// FIXME: don't know what else to do here.  Normally
+			// we'll never reach this point.
 			if (HTMLArea.is_gecko) {
-				setTimeout(function () { editor._initIframe(); }, 10);
+				setTimeout(initIframe, 10);
 				return false;
 			} else {
 				alert("ERROR: IFRAME can't be initialized.");
@@ -432,7 +691,7 @@ HTMLArea.prototype.generate = function () {
 		doc.open();
 		var html = "<html>\n";
 		html += "<head>\n";
-		html += "<style> body { " + editor.config.bodyStyle + " } </style>\n";
+		html += "<style>" + editor.config.pageStyle + "</style>\n";
 		html += "</head>\n";
 		html += "<body>\n";
 		html += editor._textArea.value;
@@ -442,7 +701,7 @@ HTMLArea.prototype.generate = function () {
 		doc.close();
 
 		if (HTMLArea.is_ie) {
-			// enable editable mode for IE.  For some reason this
+			// enable editable mode for IE.	 For some reason this
 			// doesn't work if done in the same place as for Gecko
 			// (above).
 			doc.body.contentEditable = true;
@@ -456,68 +715,192 @@ HTMLArea.prototype.generate = function () {
 				 return editor._editorEvent(HTMLArea.is_ie ? editor._iframe.contentWindow.event : event);
 			 });
 		editor.updateToolbar();
-		editor.focusEditor();
 	};
 	setTimeout(initIframe, HTMLArea.is_gecko ? 10 : 0);
 };
 
-// Switches editor mode; parameter can be "textmode" or "wysiwyg"
+// Switches editor mode; parameter can be "textmode" or "wysiwyg".  If no
+// parameter was passed this function toggles between modes.
 HTMLArea.prototype.setMode = function(mode) {
+	if (typeof mode == "undefined") {
+		mode = ((this._editMode == "textmode") ? "wysiwyg" : "textmode");
+	}
 	switch (mode) {
 	    case "textmode":
-		this._textArea2.value = this.getHTML();
+		this._textArea.value = this.getHTML();
 		this._iframe.style.display = "none";
-		this._textArea2.style.display = "block";
+		this._textArea.style.display = "block";
+		if (this.config.statusBar) {
+			this._statusBar.innerHTML = HTMLArea.I18N.msg["TEXT_MODE"];
+		}
 		break;
 	    case "wysiwyg":
+		if (HTMLArea.is_gecko) {
+			// disable design mode before changing innerHTML
+			this._doc.designMode = "off";
+		}
 		this._doc.body.innerHTML = this.getHTML();
 		this._iframe.style.display = "block";
-		this._textArea2.style.display = "none";
+		this._textArea.style.display = "none";
 		if (HTMLArea.is_gecko) {
 			// we need to refresh that info for Moz-1.3a
 			this._doc.designMode = "on";
+		}
+		if (this.config.statusBar) {
+			this._statusBar.innerHTML = '';
+			this._statusBar.appendChild(document.createTextNode(HTMLArea.I18N.msg["Path"] + ": "));
+			this._statusBar.appendChild(this._statusBarTree);
 		}
 		break;
 	    default:
 		alert("Mode <" + mode + "> not defined!");
 		return false;
 	}
-	this._mode = mode;
+	this._editMode = mode;
 	this.focusEditor();
+};
+
+/***************************************************
+ *  Category: PLUGINS
+ ***************************************************/
+
+// Create the specified plugin and register it with this HTMLArea
+HTMLArea.prototype.registerPlugin = function(pluginName) {
+	this.plugins[pluginName] = eval("new " + pluginName + "(this);");
+};
+
+// static function that loads the required plugin and lang file, based on the
+// language loaded already for HTMLArea.  You better make sure that the plugin
+// _has_ that language, otherwise shit might happen ;-)
+HTMLArea.loadPlugin = function(pluginName) {
+	var editorurl = '';
+	if (typeof _editor_url != "undefined") {
+		editorurl = _editor_url + "/";
+	}
+	var dir = editorurl + "plugins/" + pluginName;
+	var plugin = pluginName.replace(/([a-z])([A-Z])([a-z])/g,
+					function (str, l1, l2, l3) {
+						return l1 + "-" + l2.toLowerCase() + l3;
+					}).toLowerCase() + ".js";
+	document.write("<script type='text/javascript' src='" + dir + "/" + plugin + "'></script>");
+	document.write("<script type='text/javascript' src='" + dir + "/lang/" + HTMLArea.I18N.lang + ".js'></script>");
 };
 
 /***************************************************
  *  Category: EDITOR UTILITIES
  ***************************************************/
 
+HTMLArea.prototype.forceRedraw = function() {
+	this._doc.body.style.visibility = "hidden";
+	this._doc.body.style.visibility = "visible";
+	// this._doc.body.innerHTML = this.getInnerHTML();
+};
+
 // focuses the iframe window.  returns a reference to the editor document.
 HTMLArea.prototype.focusEditor = function() {
-	switch (this._mode) {
-	    case "wysiwyg":
-		this._iframe.contentWindow.focus();
-		break;
-	    case "textmode":
-		this._textArea2.focus();
-		break;
-	    default:
-		alert("ERROR: mode " + this._mode + " is not defined");
-		break;
+	switch (this._editMode) {
+	    case "wysiwyg" : this._iframe.contentWindow.focus(); break;
+	    case "textmode": this._textArea.focus(); break;
+	    default	   : alert("ERROR: mode " + this._editMode + " is not defined");
 	}
 	return this._doc;
 };
 
 // updates enabled/disable/active state of the toolbar elements
-HTMLArea.prototype.updateToolbar = function() {
+HTMLArea.prototype.updateToolbar = function(noStatus) {
 	var doc = this._doc;
-	var text = (this._mode == "textmode");
+	var text = (this._editMode == "textmode");
+	var ancestors = null;
+	if (!text) {
+		ancestors = this.getAllAncestors();
+		if (this.config.statusBar && !noStatus) {
+			this._statusBarTree.innerHTML = ''; // clear
+			for (var i = ancestors.length; --i >= 0;) {
+				var el = ancestors[i];
+				if (!el) {
+					// hell knows why we get here; this
+					// could be a classic example of why
+					// it's good to check for conditions
+					// that are impossible to happen ;-)
+					continue;
+				}
+				var a = document.createElement("a");
+				a.href = "#";
+				a.el = el;
+				a.editor = this;
+				a.onclick = function() {
+					this.blur();
+					this.editor.selectNodeContents(this.el);
+					this.editor.updateToolbar(true);
+					return false;
+				};
+				a.oncontextmenu = function() {
+					// TODO: add context menu here
+					this.blur();
+					var info = "Inline style:\n\n";
+					info += this.el.style.cssText.split(/;\s*/).join(";\n");
+					alert(info);
+					return false;
+				};
+				var txt = el.tagName.toLowerCase();
+				a.title = el.style.cssText;
+				if (el.id) {
+					txt += "#" + el.id;
+				}
+				if (el.className) {
+					txt += "." + el.className;
+				}
+				a.appendChild(document.createTextNode(txt));
+				this._statusBarTree.appendChild(a);
+				if (i != 0) {
+					this._statusBarTree.appendChild(document.createTextNode(String.fromCharCode(0xbb)));
+				}
+			}
+		}
+	}
 	for (var i in this._toolbarObjects) {
 		var btn = this._toolbarObjects[i];
-		var cmd = btn.cmd;
+		var cmd = i;
+		var inContext = true;
+		if (btn.context && !text) {
+			inContext = false;
+			var context = btn.context;
+			var attrs = [];
+			if (/(.*)\[(.*?)\]/.test(context)) {
+				context = RegExp.$1;
+				attrs = RegExp.$2.split(",");
+			}
+			context = context.toLowerCase();
+			var match = (context == "*");
+			for (var k in ancestors) {
+				if (!ancestors[k]) {
+					// the impossible really happens.
+					continue;
+				}
+				if (match || (ancestors[k].tagName.toLowerCase() == context)) {
+					inContext = true;
+					for (var ka in attrs) {
+						if (!eval("ancestors[k]." + attrs[ka])) {
+							inContext = false;
+							break;
+						}
+					}
+					if (inContext) {
+						break;
+					}
+				}
+			}
+		}
+		btn.state("enabled", (!text || btn.text) && inContext);
 		if (typeof cmd == "function") {
 			continue;
 		}
-		cmd = cmd.toLowerCase();
-		btn.state("enabled", !text || btn.text);
+		// look-it-up in the custom dropdown boxes
+		var dropdown = this.config.customSelects[cmd];
+		if ((!text || btn.text) && (typeof dropdown != "undefined")) {
+			dropdown.refresh(this);
+			continue;
+		}
 		switch (cmd) {
 		    case "fontname":
 		    case "fontsize":
@@ -528,7 +911,11 @@ HTMLArea.prototype.updateToolbar = function() {
 					// FIXME: what do we do here?
 					break;
 				}
-				var options = this.config[i]; // HACK!!
+				// HACK -- retrieve the config option for this
+				// combo box.  We rely on the fact that the
+				// variable in config has the same name as
+				// button name in the toolbar.
+				var options = this.config[cmd];
 				var k = 0;
 				// btn.element.selectedIndex = 0;
 				for (var j in options) {
@@ -545,24 +932,26 @@ HTMLArea.prototype.updateToolbar = function() {
 		    case "textindicator":
 			if (!text) {
 				try {with (btn.element.style) {
-					backgroundColor = HTMLArea._makeColor(doc.queryCommandValue("backcolor"));
+					backgroundColor = HTMLArea._makeColor(
+						doc.queryCommandValue(HTMLArea.is_ie ? "backcolor" : "hilitecolor"));
+					if (/transparent/i.test(backgroundColor)) {
+						// Mozilla
+						backgroundColor = HTMLArea._makeColor(doc.queryCommandValue("backcolor"));
+					}
 					color = HTMLArea._makeColor(doc.queryCommandValue("forecolor"));
 					fontFamily = doc.queryCommandValue("fontname");
 					fontWeight = doc.queryCommandState("bold") ? "bold" : "normal";
 					fontStyle = doc.queryCommandState("italic") ? "italic" : "normal";
 				}} catch (e) {
-					alert(e + "\n\n" + cmd);
+					// alert(e + "\n\n" + cmd);
 				}
 			}
 			break;
-		    case "htmlmode":
-			btn.state("active", text);
-			break;
+		    case "htmlmode": btn.state("active", text); break;
 		    default:
 			try {
 				btn.state("active", (!text && doc.queryCommandState(cmd)));
 			} catch (e) {}
-			break;
 		}
 	}
 };
@@ -579,32 +968,87 @@ HTMLArea.prototype.insertNodeAtSelection = function(toBeInserted) {
 		range.deleteContents();
 		var node = range.startContainer;
 		var pos = range.startOffset;
-		range = this._createRange();
 		switch (node.nodeType) {
 		    case 3: // Node.TEXT_NODE
 			// we have to split it at the caret position.
 			if (toBeInserted.nodeType == 3) {
 				// do optimized insertion
 				node.insertData(pos, toBeInserted.data);
+				range = this._createRange();
 				range.setEnd(node, pos + toBeInserted.length);
 				range.setStart(node, pos + toBeInserted.length);
+				sel.addRange(range);
 			} else {
 				node = node.splitText(pos);
+				var selnode = toBeInserted;
+				if (toBeInserted.nodeType == 11 /* Node.DOCUMENT_FRAGMENT_NODE */) {
+					selnode = selnode.firstChild;
+				}
 				node.parentNode.insertBefore(toBeInserted, node);
-				range.setStart(node, 0);
-				range.setEnd(node, 0);
+				this.selectNodeContents(selnode);
+				this.updateToolbar();
 			}
 			break;
 		    case 1: // Node.ELEMENT_NODE
-			node = node.childNodes[pos];
-			node.parentNode.insertBefore(toBeInserted, node);
-			range.setStart(node, 0);
-			range.setEnd(node, 0);
+			var selnode = toBeInserted;
+			if (toBeInserted.nodeType == 11 /* Node.DOCUMENT_FRAGMENT_NODE */) {
+				selnode = selnode.firstChild;
+			}
+			node.insertBefore(toBeInserted, node.childNodes[pos]);
+			this.selectNodeContents(selnode);
+			this.updateToolbar();
 			break;
 		}
-		sel.addRange(range);
 	} else {
 		return null;	// this function not yet used for IE <FIXME>
+	}
+};
+
+// Returns the deepest node that contains both endpoints of the selection.
+HTMLArea.prototype.getParentElement = function() {
+	var sel = this._getSelection();
+	var range = this._createRange(sel);
+	if (HTMLArea.is_ie) {
+		return range.parentElement ? range.parentElement() : this._doc.body;
+	} else {
+		var p = range.commonAncestorContainer;
+		while (p.nodeType == 3) {
+			p = p.parentNode;
+		}
+		return p;
+	}
+};
+
+// Returns an array with all the ancestor nodes of the selection.
+HTMLArea.prototype.getAllAncestors = function() {
+	var p = this.getParentElement();
+	var a = [];
+	while (p && (p.nodeType == 1) && (p.tagName.toLowerCase() != 'body')) {
+		a.push(p);
+		p = p.parentNode;
+	}
+	a.push(this._doc.body);
+	return a;
+};
+
+// Selects the contents inside the given node
+HTMLArea.prototype.selectNodeContents = function(node, pos) {
+	this.focusEditor();
+	this.forceRedraw();
+	var range;
+	var collapsed = (typeof pos != "undefined");
+	if (HTMLArea.is_ie) {
+		range = this._doc.body.createTextRange();
+		range.moveToElementText(node);
+		(collapsed) && range.collapse(pos);
+		range.select();
+	} else {
+		var sel = this._getSelection();
+		range = this._doc.createRange();
+		range.selectNodeContents(node);
+		(collapsed) && range.collapse(pos);
+		sel.removeAllRanges();
+		sel.addRange(range);
 	}
 };
 
@@ -632,7 +1076,7 @@ HTMLArea.prototype.insertHTML = function(html) {
 
 /**
  *  Call this function to surround the existing HTML code in the selection with
- *  your tags.
+ *  your tags.  FIXME: buggy!  This function will be deprecated "soon".
  */
 HTMLArea.prototype.surroundHTML = function(startTag, endTag) {
 	var html = this.getSelectedHTML();
@@ -655,14 +1099,14 @@ HTMLArea.prototype.getSelectedHTML = function() {
 
 // Called when the user clicks on "InsertImage" button
 HTMLArea.prototype._insertImage = function() {
-	var sel = this._getSelection();
-	var range = this._createRange(sel);
 	var editor = this;	// for nested functions
 	this._popupDialog("insert_image.html", function(param) {
 		if (!param) {	// user must have pressed Cancel
 			return false;
 		}
-		editor._execCommand("insertimage", false, param["f_url"]);
+		var sel = editor._getSelection();
+		var range = editor._createRange(sel);
+		editor._doc.execCommand("insertimage", false, param["f_url"]);
 		var img = null;
 		if (HTMLArea.is_ie) {
 			img = range.parentElement();
@@ -679,21 +1123,11 @@ HTMLArea.prototype._insertImage = function() {
 				continue;
 			}
 			switch (field) {
-			    case "f_alt":
-				img.alt = value;
-				break;
-			    case "f_border":
-				img.border = parseInt(value);
-				break;
-			    case "f_align":
-				img.align = value;
-				break;
-			    case "f_vert":
-				img.vspace = parseInt(value);
-				break;
-			    case "f_horiz":
-				img.hspace = parseInt(value);
-				break;
+			    case "f_alt"    : img.alt	 = value; break;
+			    case "f_border" : img.border = parseInt(value); break;
+			    case "f_align"  : img.align	 = value; break;
+			    case "f_vert"   : img.vspace = parseInt(value); break;
+			    case "f_horiz"  : img.hspace = parseInt(value); break;
 			}
 		}
 	}, null);
@@ -718,21 +1152,11 @@ HTMLArea.prototype._insertTable = function() {
 				continue;
 			}
 			switch (field) {
-			    case "f_width":
-				table.style.width = value + param["f_unit"];
-				break;
-			    case "f_align":
-				table.align = value;
-				break;
-			    case "f_border":
-				table.border = parseInt(value);
-				break;
-			    case "f_spacing":
-				table.cellspacing = parseInt(value);
-				break;
-			    case "f_padding":
-				table.cellpadding = parseInt(value);
-				break;
+			    case "f_width"   : table.style.width = value + param["f_unit"]; break;
+			    case "f_align"   : table.align	 = value; break;
+			    case "f_border"  : table.border	 = parseInt(value); break;
+			    case "f_spacing" : table.cellspacing = parseInt(value); break;
+			    case "f_padding" : table.cellpadding = parseInt(value); break;
 			}
 		}
 		var tbody = doc.createElement("tbody");
@@ -743,15 +1167,12 @@ HTMLArea.prototype._insertTable = function() {
 			for (var j = 0; j < param["f_cols"]; ++j) {
 				var td = doc.createElement("td");
 				tr.appendChild(td);
-				if (HTMLArea.is_gecko) {
-					// Mozilla likes to see something
-					// inside the cell.
-					td.appendChild(doc.createElement("br"));
-				}
+				// Mozilla likes to see something inside the cell.
+				(HTMLArea.is_gecko) && td.appendChild(doc.createElement("br"));
 			}
 		}
 		if (HTMLArea.is_ie) {
-			range.pasteHTML(HTMLArea.getHTML(table, true));
+			range.pasteHTML(table.outerHTML);
 		} else {
 			// insert the table
 			editor.insertNodeAtSelection(table);
@@ -764,42 +1185,60 @@ HTMLArea.prototype._insertTable = function() {
  *  Category: EVENT HANDLERS
  ***************************************************/
 
-// txt is the name of the button, as in config.toolbar
-HTMLArea.prototype._buttonClicked = function(txt) {
-	var editor = this;	// needed in nested functions
+// el is reference to the SELECT object
+// txt is the name of the select field, as in config.toolbar
+HTMLArea.prototype._comboSelected = function(el, txt) {
 	this.focusEditor();
-	var btn = this.config.btnList[txt];
-	if (!btn) {
-		alert("FIXME: Unconfigured button!");
-		return false;
-	}
-	var cmd = btn[0];
-	if (typeof cmd == "function") {
-		return cmd(this, txt);
-	}
-	switch (cmd.toLowerCase()) {
-	    case "htmlmode":
-		this.setMode(this._mode != "textmode" ? "textmode" : "wysiwyg");
+	var value = el.options[el.selectedIndex].value;
+	switch (txt) {
+	    case "fontname":
+	    case "fontsize": this.execCommand(txt, false, value); break;
+	    case "formatblock":
+		(HTMLArea.is_ie) && (value = "<" + value + ">");
+		this.execCommand(txt, false, value);
 		break;
+	    default:
+		// try to look it up in the registered dropdowns
+		var dropdown = this.config.customSelects[txt];
+		if (typeof dropdown != "undefined") {
+			dropdown.action(this);
+		} else {
+			alert("FIXME: combo box " + txt + " not implemented");
+		}
+	}
+};
+
+// the execCommand function (intercepts some commands and replaces them with
+// our own implementation)
+HTMLArea.prototype.execCommand = function(cmdID, UI, param) {
+	var editor = this;	// for nested functions
+	this.focusEditor();
+	switch (cmdID.toLowerCase()) {
+	    case "htmlmode" : this.setMode(); break;
+	    case "hilitecolor":
+		(HTMLArea.is_ie) && (cmdID = "backcolor");
 	    case "forecolor":
-	    case "backcolor":
 		this._popupDialog("select_color.html", function(color) {
-			editor._execCommand(cmd, false, "#" + color);
-		}, HTMLArea._colorToRgb(this._doc.queryCommandValue(btn[0])));
+			if (color) { // selection not canceled
+				editor._doc.execCommand(cmdID, false, "#" + color);
+			}
+		}, HTMLArea._colorToRgb(this._doc.queryCommandValue(cmdID)));
 		break;
 	    case "createlink":
-		this._execCommand(cmd, true);
-		break;
-	    case "insertimage":
-		this._insertImage();
-		break;
-	    case "inserttable":
-		this._insertTable();
+		if (HTMLArea.is_ie || !UI) {
+			this._doc.execCommand(cmdID, UI, param);
+		} else {
+			// browser is Mozilla & wants UI
+			var param;
+			if ((param = prompt("Enter URL"))) {
+				this._doc.execCommand(cmdID, false, param);
+			}
+		}
 		break;
 	    case "popupeditor":
 		if (HTMLArea.is_ie) {
 			window.open(this.popupURL("fullscreen.html"), "ha_fullscreen",
-				    "toolbar=no,location=no,directories=no,status=yes,menubar=no," +
+				    "toolbar=no,location=no,directories=no,status=no,menubar=no," +
 				    "scrollbars=no,resizable=yes,width=640,height=480");
 		} else {
 			window.open(this.popupURL("fullscreen.html"), "ha_fullscreen",
@@ -809,68 +1248,14 @@ HTMLArea.prototype._buttonClicked = function(txt) {
 		// pass this object to the newly opened window
 		HTMLArea._object = this;
 		break;
-	    case "about":
-		this._popupDialog("about.html", null, null);
-		break;
-	    case "help":
-		alert("Help not implemented");
-		break;
-	    default:
-		this._execCommand(btn[0], false, "");
-		break;
+	    case "inserttable": this._insertTable(); break;
+	    case "insertimage": this._insertImage(); break;
+	    case "about"    : this._popupDialog("about.html", null, null); break;
+	    case "showhelp" : window.open("reference.html", "ha_help"); break;
+	    default: this._doc.execCommand(cmdID, UI, param);
 	}
 	this.updateToolbar();
 	return false;
-};
-
-// el is reference to the SELECT object
-// txt is the name of the select field, as in config.toolbar
-HTMLArea.prototype._comboSelected = function(el, txt) {
-	this.focusEditor();
-	var value = el.options[el.selectedIndex].value;
-	switch (txt) {
-	    case "fontname":
-	    case "fontsize":
-		this._execCommand(txt, false, value);
-		break;
-	    case "formatblock":
-		if (HTMLArea.is_ie) { // sad but true
-			value = "<" + value + ">";
-		}
-		this._execCommand(txt, false, value);
-		break;
-	    default:
-		alert("FIXME: combo box " + txt + " not implemented");
-		break;
-	}
-};
-
-// the execCommand function (intercepts some commands and replaces them with
-// our own implementation)
-HTMLArea.prototype._execCommand = function(cmdID, UI, param) {
-	switch (cmdID.toLowerCase()) {
-	    case "createlink":
-		if (HTMLArea.is_ie || !UI) {
-			this._doc.execCommand(cmdID, UI, param);
-		} else {
-			// browser is Mozilla & wants UI
-			if ((param = prompt("Enter URL"))) {
-				this._doc.execCommand(cmdID, false, param);
-			}
-		}
-		break;
-	    case "backcolor":
-		if (HTMLArea.is_ie) {
-			this._doc.execCommand(cmdID, UI, param);
-		} else {
-			this._doc.execCommand("hilitecolor", UI, param);
-		}
-		break;
-	    default:
-		this._doc.execCommand(cmdID, UI, param);
-		break;
-	}
-	this.focusEditor();
 };
 
 /** A generic event handler for things that happen in the IFRAME's document.
@@ -899,38 +1284,22 @@ HTMLArea.prototype._editorEvent = function(ev) {
 
 			// simple key commands follow
 
-		    case 'b':	// KEY bold
-			(!HTMLArea.is_ie) && (cmd = "bold");
-			break;
-		    case 'i':	// KEY italic
-			(!HTMLArea.is_ie) && (cmd = "italic");
-			break;
-		    case 'u':	// KEY underline
-			(!HTMLArea.is_ie) && (cmd = "underline");
-			break;
-		    case 's':	// KEY justify full
-			cmd = "strikethrough";
-			break;
-		    case 'l':	// KEY justify left
-			cmd = "justifyleft";
-			break;
-		    case 'e':	// KEY justify center
-			cmd = "justifycenter";
-			break;
-		    case 'r':	// KEY justify right
-			cmd = "justifyright";
-			break;
-		    case 'j':	// KEY justify full
-			cmd = "justifyfull";
-			break;
+		    case 'b': cmd = "bold"; break;
+		    case 'i': cmd = "italic"; break;
+		    case 'u': cmd = "underline"; break;
+		    case 's': cmd = "strikethrough"; break;
+		    case 'l': cmd = "justifyleft"; break;
+		    case 'e': cmd = "justifycenter"; break;
+		    case 'r': cmd = "justifyright"; break;
+		    case 'j': cmd = "justifyfull"; break;
 
 			// headings
-		    case '1':	// KEY heading 1
-		    case '2':	// KEY heading 2
-		    case '3':	// KEY heading 3
-		    case '4':	// KEY heading 4
-		    case '5':	// KEY heading 5
-		    case '6':	// KEY heading 6
+		    case '1':
+		    case '2':
+		    case '3':
+		    case '4':
+		    case '5':
+		    case '6':
 			cmd = "formatblock";
 			value = "h" + key;
 			if (HTMLArea.is_ie) {
@@ -940,7 +1309,7 @@ HTMLArea.prototype._editorEvent = function(ev) {
 		}
 		if (cmd) {
 			// execute simple command
-			this._execCommand(cmd, false, value);
+			this.execCommand(cmd, false, value);
 			HTMLArea._stopEvent(ev);
 		}
 	}
@@ -958,54 +1327,41 @@ HTMLArea.prototype._editorEvent = function(ev) {
 	}
 	*/
 	// update the toolbar state after some time
-	setTimeout(function() {
+	if (editor._timerToolbar) {
+		clearTimeout(editor._timerToolbar);
+	}
+	editor._timerToolbar = setTimeout(function() {
 		editor.updateToolbar();
+		editor._timerToolbar = null;
 	}, 50);
-};
-
-// gets called before the form is submitted
-HTMLArea.prototype._formSubmit = function(ev) {
-	// retrieve the HTML
-	this._textArea.value = this.getHTML();
 };
 
 // retrieve the HTML
 HTMLArea.prototype.getHTML = function() {
-	switch (this._mode) {
-	    case "wysiwyg":
-		return HTMLArea.getHTML(this._doc.body, false);
-	    case "textmode":
-		return this._textArea2.value;
-	    default:
-		alert("Mode <" + mode + "> not defined!");
-		return false;
+	switch (this._editMode) {
+	    case "wysiwyg"  : return HTMLArea.getHTML(this._doc.body, false);
+	    case "textmode" : return this._textArea.value;
+	    default	    : alert("Mode <" + mode + "> not defined!");
 	}
+	return false;
 };
 
 // retrieve the HTML (fastest version, but uses innerHTML)
 HTMLArea.prototype.getInnerHTML = function() {
-	switch (this._mode) {
-	    case "wysiwyg":
-		return this._doc.body.innerHTML;
-	    case "textmode":
-		return this._textArea2.value;
-	    default:
-		alert("Mode <" + mode + "> not defined!");
-		return false;
+	switch (this._editMode) {
+	    case "wysiwyg"  : return this._doc.body.innerHTML;
+	    case "textmode" : return this._textArea.value;
+	    default	    : alert("Mode <" + mode + "> not defined!");
 	}
+	return false;
 };
 
 // completely change the HTML inside
 HTMLArea.prototype.setHTML = function(html) {
-	switch (this._mode) {
-	    case "wysiwyg":
-		this._doc.body.innerHTML = html;
-		break;
-	    case "textmode":
-		this._textArea2.value = html;
-		break;
-	    default:
-		alert("Mode <" + mode + "> not defined!");
+	switch (this._editMode) {
+	    case "wysiwyg"  : this._doc.body.innerHTML = html; break;
+	    case "textmode" : this._textArea.value = html; break;
+	    default	    : alert("Mode <" + mode + "> not defined!");
 	}
 	return false;
 };
@@ -1017,9 +1373,9 @@ HTMLArea.prototype.setHTML = function(html) {
 // browser identification
 
 HTMLArea.agt = navigator.userAgent.toLowerCase();
-HTMLArea.is_ie     = ((HTMLArea.agt.indexOf("msie") != -1) && (HTMLArea.agt.indexOf("opera") == -1));
+HTMLArea.is_ie	   = ((HTMLArea.agt.indexOf("msie") != -1) && (HTMLArea.agt.indexOf("opera") == -1));
 HTMLArea.is_opera  = (HTMLArea.agt.indexOf("opera") != -1);
-HTMLArea.is_mac    = (HTMLArea.agt.indexOf("mac") != -1);
+HTMLArea.is_mac	   = (HTMLArea.agt.indexOf("mac") != -1);
 HTMLArea.is_mac_ie = (HTMLArea.is_ie && HTMLArea.is_mac);
 HTMLArea.is_win_ie = (HTMLArea.is_ie && !HTMLArea.is_mac);
 HTMLArea.is_gecko  = (navigator.product == "Gecko");
@@ -1029,13 +1385,6 @@ HTMLArea._object = null;
 
 // FIXME!!! this should return false for IE < 5.5
 HTMLArea.checkSupportedBrowser = function() {
-	/*
-	var gigi = "Navigator:\n\n";
-	for (var i in navigator) {
-		gigi += i + " = " + navigator[i] + "\n";
-	}
-	alert(gigi);
-	*/
 	if (HTMLArea.is_gecko) {
 		if (navigator.productSub < 20021201) {
 			alert("You need at least Mozilla-1.3 Alpha.\n" +
@@ -1067,7 +1416,7 @@ HTMLArea.prototype._createRange = function(sel) {
 		return sel.createRange();
 	} else {
 		this.focusEditor();
-		if (sel) {
+		if (typeof sel != "undefined") {
 			return sel.getRangeAt(0);
 		} else {
 			return this._doc.createRange();
@@ -1148,29 +1497,33 @@ HTMLArea._hasClass = function(el, className) {
 	return false;
 };
 
-HTMLArea._isBlockElement = function(el) {
+HTMLArea.isBlockElement = function(el) {
 	var blockTags = " body form textarea fieldset ul ol dl li div " +
 		"p h1 h2 h3 h4 h5 h6 quote pre table thead " +
-		"tbody tfoot tr td iframe ";
+		"tbody tfoot tr td iframe address ";
 	return (blockTags.indexOf(" " + el.tagName.toLowerCase() + " ") != -1);
 };
 
-HTMLArea._needsClosingTag = function(el) {
-	var closingTags = " script style div span ";
+HTMLArea.needsClosingTag = function(el) {
+	var closingTags = " script style div span tr td tbody table em strong font a ";
 	return (closingTags.indexOf(" " + el.tagName.toLowerCase() + " ") != -1);
 };
 
-// Retrieves the HTML code from the given node.  This is a replacement for
+// performs HTML encoding of some given string
+HTMLArea.htmlEncode = function(str) {
+	// we don't need regexp for that, but.. so be it for now.
+	str = str.replace(/&/ig, "&amp;");
+	str = str.replace(/</ig, "&lt;");
+	str = str.replace(/>/ig, "&gt;");
+	str = str.replace(/\x22/ig, "&quot;");
+	// \x22 means '"' -- we use hex reprezentation so that we don't disturb
+	// JS compressors (well, at least mine fails.. ;)
+	return str;
+};
+
+// Retrieves the HTML code from the given node.	 This is a replacement for
 // getting innerHTML, using standard DOM calls.
 HTMLArea.getHTML = function(root, outputRoot) {
-	function encode(str) {
-		// we don't need regexp for that, but.. so be it for now.
-		str = str.replace(/&/ig, "&amp;");
-		str = str.replace(/</ig, "&lt;");
-		str = str.replace(/>/ig, "&gt;");
-		str = str.replace(/\"/ig, "&quot;");
-		return str;
-	};
 	var html = "";
 	switch (root.nodeType) {
 	    case 1: // Node.ELEMENT_NODE
@@ -1178,7 +1531,7 @@ HTMLArea.getHTML = function(root, outputRoot) {
 		var closed;
 		var i;
 		if (outputRoot) {
-			closed = (!(root.hasChildNodes() || HTMLArea._needsClosingTag(root)));
+			closed = (!(root.hasChildNodes() || HTMLArea.needsClosingTag(root)));
 			html = "<" + root.tagName.toLowerCase();
 			var attrs = root.attributes;
 			for (i = 0; i < attrs.length; ++i) {
@@ -1186,19 +1539,31 @@ HTMLArea.getHTML = function(root, outputRoot) {
 				if (!a.specified) {
 					continue;
 				}
-				var name = a.name.toLowerCase();
-				if (name.substr(0, 4) == "_moz") {
+				var name = a.nodeName.toLowerCase();
+				if (/_moz/.test(name)) {
 					// Mozilla reports some special tags
 					// here; we don't need them.
 					continue;
 				}
 				var value;
-				if (name != 'style') {
-					value = a.value;
+				if (name != "style") {
+					// IE5.5 reports 25 when cellSpacing is
+					// 1; other values might be doomed too.
+					// For this reason we extract the
+					// values directly from the root node.
+					// I'm starting to HATE JavaScript
+					// development.  Browser differences
+					// suck.
+					if (typeof root[a.nodeName] != "undefined") {
+						value = root[a.nodeName];
+					} else {
+						value = a.nodeValue;
+					}
 				} else { // IE fails to put style in attributes list
-					value = root.style.cssText.toLowerCase();
+					// FIXME: cssText reported by IE is UPPERCASE
+					value = root.style.cssText;
 				}
-				if (value.substr(0, 4) == "_moz") {
+				if (/_moz/.test(value)) {
 					// Mozilla reports some special tags
 					// here; we don't need them.
 					continue;
@@ -1215,7 +1580,7 @@ HTMLArea.getHTML = function(root, outputRoot) {
 		}
 		break;
 	    case 3: // Node.TEXT_NODE
-		html = encode(root.data);
+		html = HTMLArea.htmlEncode(root.data);
 		break;
 	    case 8: // Node.COMMENT_NODE
 		html = "<!--" + root.data + "-->";
@@ -1286,8 +1651,12 @@ HTMLArea.prototype._popupDialog = function(url, action, init) {
 
 // paths
 
-HTMLArea.prototype.imgURL = function(file) {
-	return this.config.editorURL + this.config.imgURL + file;
+HTMLArea.prototype.imgURL = function(file, plugin) {
+	if (typeof plugin == "undefined") {
+		return this.config.editorURL + file;
+	} else {
+		return this.config.editorURL + "plugins/" + plugin + "/img/" + file;
+	}
 };
 
 HTMLArea.prototype.popupURL = function(file) {

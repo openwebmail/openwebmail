@@ -39,31 +39,46 @@ HTMLArea.I18N = {
 	},
 
 	tooltips: {
-		bold:           "Bold",
-		italic:         "Italic",
-		underline:      "Underline",
-		strikethrough:  "Strikethrough",
-		subscript:      "Subscript",
-		superscript:    "Superscript",
-		justifyleft:    "Justify Left",
-		justifycenter:  "Justify Center",
-		justifyright:   "Justify Right",
-		justifyfull:    "Justify Full",
+		bold:           "Fett",
+		italic:         "Kursiv",
+		underline:      "Unterstrichen",
+		strikethrough:  "Durchgestrichen",
+		subscript:      "Tiefgestellt",
+		superscript:    "Hochgestellt",
+		justifyleft:    "Linksbuendig",
+		justifycenter:  "Zentriert",
+		justifyright:   "Rechtsbuendig",
+		justifyfull:    "Blocksatz",
 		orderedlist:    "Ordered List",
 		unorderedlist:  "Bulleted List",
 		outdent:        "Decrease Indent",
 		indent:         "Increase Indent",
-		forecolor:      "Font Color",
-		backcolor:      "Background Color",
-		horizontalrule: "Horizontal Rule",
-		createlink:     "Insert Web Link",
-		insertimage:    "Insert Image",
-		insertsound:    "Insert Sound",
-		inserttable:    "Insert Table",
-		htmlmode:       "Toggle HTML Source",
-		popupeditor:    "Enlarge Editor",
-		about:          "About this editor",
-		help:           "Help using editor",
-		textindicator:  "Current style"
+		forecolor:      "Schriftfarbe",
+		hilitecolor:    "Hintergrundfarbe",
+		horizontalrule: "Waagerechte Linie",
+		createlink:     "Web-Link einfuegen",
+		insertimage:    "Bild einfuegen",
+		insertsound:    "Klang einfuegen",
+		inserttable:    "Tabelle einfuegen",
+		htmlmode:       "HTML Quellcodeansicht (de-)aktivieren",
+		popupeditor:    "Eingabefeld vergrößern",
+		about:          "Über diesen Editor",
+		showhelp:       "Hilfe",
+		textindicator:  "Aktuelle Schrift",
+		undo:           "Rückgängig",
+		redo:           "Wiederholen",
+		cut:            "ausschneiden",
+		copy:           "kopieren",
+		paste:          "einfügen"
+	},
+
+	buttons: {
+		"ok":           "OK",
+		"cancel":       "Abbrechen"
+	},
+
+	msg: {
+		"Path":         "Pfad",
+		"TEXT_MODE":    "Sie befinden sich im Text-Modus. Benutzen Sie den [<>]-Button um in den HTML-Modus zurückzuwechseln."
 	}
 };

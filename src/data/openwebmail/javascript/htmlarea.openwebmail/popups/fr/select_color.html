@@ -2,7 +2,7 @@
 
 <html style="width: 238px; height: 182px"><head>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-  <title>Select Color</title>
+  <title>Sélection Couleur</title>
 
 <script type="text/javascript" src="popup.js"></script>
 
@@ -28,7 +28,7 @@ function View(color) {                  // preview color
 
 function Set(string) {                   // select color
   var color = ValidateColor(string);
-  if (color == null) { alert("Invalid color code: " + string); }        // invalid color
+  if (color == null) { alert("Code couleur invalide: " + string); }        // invalid color
   else {                                                                // valid color
     View(color);                          // show selected color
     __dlg_close(color);

@@ -54,7 +54,7 @@ HTMLArea.I18N = {
 		outdent:        "Decrease Indent",
 		indent:         "Increase Indent",
 		forecolor:      "Font Color",
-		backcolor:      "Background Color",
+		hilitecolor:    "Background Color",
 		horizontalrule: "Horizontal Rule",
 		createlink:     "Insert Web Link",
 		insertimage:    "Insert Image",
@@ -63,7 +63,22 @@ HTMLArea.I18N = {
 		htmlmode:       "Toggle HTML Source",
 		popupeditor:    "Enlarge Editor",
 		about:          "About this editor",
-		help:           "Help using editor",
-		textindicator:  "Current style"
+		showhelp:       "Help using editor",
+		textindicator:  "Current style",
+		undo:           "Undoes your last action",
+		redo:           "Redoes your last action",
+		cut:            "Cut selection",
+		copy:           "Copy selection",
+		paste:          "Paste from clipboard"
+	},
+
+	buttons: {
+		"ok":           "OK",
+		"cancel":       "Cancel"
+	},
+
+	msg: {
+		"Path":         "Path",
+		"TEXT_MODE":    "You are in TEXT MODE.  Use the [<>] button to switch back to WYSIWIG."
 	}
 };

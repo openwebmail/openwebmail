@@ -1,8 +1,8 @@
-<html style="width: 398; height: 220">
+<html style="width: 498; height: 220">
 
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-2">
-  <title>Insert Sound</title>
+  <title>Ubaci zvučni zapis</title>
 
 <script type="text/javascript" src="popup.js"></script>
 
@@ -16,8 +16,8 @@ function Init() {
 
 function onOK() {
   var required = {
-    "f_url": "You must enter the URL",
-    "f_alt": "Please enter the alternate text"
+    "f_url": "Morate uneti URL",
+    "f_alt": "Molim da unesete alternativni tekst"
   };
   for (var i in required) {
     var el = document.getElementById(i);
@@ -63,7 +63,7 @@ function onTestsound() {
   var f_url = document.getElementById("f_url");
   var url = f_url.value;
   if (!url) {
-    alert("You have to enter an URL first");
+    alert("Morate da unesete URL prvo");
     f_url.focus();
     return false;
   }
@@ -117,8 +117,8 @@ form p {
   margin-top: 5px;
   margin-bottom: 5px;
 }
-.fl { width: 6em; float: left; padding: 2px 2px; text-align: right; }
-.fr { width: 7em; float: left; padding: 2px 2px; text-align: right; }
+.fl { width: 8em; float: left; padding: 2px 2px; text-align: right; }
+.fr { width: 9em; float: left; padding: 2px 2px; text-align: right; }
 fieldset { padding: 0px 10px 5px 5px; }
 select, input, button { font: 11px Tahoma,Verdana,sans-serif; }
 button { width: 70px; }
@@ -134,14 +134,14 @@ form { padding: 0px; margin: 0px; }
 
 <body onload="Init()">
 
-<div class="title">Insert Sound</div>
+<div class="title">Ubaci zvučni zapis</div>
 
 <form action="" method="get">
 <table border="0" width="100%" style="padding: 0px; margin: 0px">
   <tbody>
 
   <tr>
-    <td style="width: 7em; text-align: right">Attachments:</td>
+    <td style="width: 7em; text-align: right">Prilozi:</td>
     <td><select name="attlist" id="f_attlist" 
          onchange="return onChange();" style="witdth:100%">
         <option selected value="">-- Not selected --
@@ -151,15 +151,15 @@ form { padding: 0px; margin: 0px; }
   <tr>
     <td style="width: 7em; text-align: right">Sound URL:</td>
     <td><input type="text" name="url" id="f_url" style="width:75%"
-      title="Enter the sound URL here" />
+      title="Unesite URL zvučnog zapisa ovde" />
       <button name="testsound" onclick="return onTestsound();"
-      title="Test the sound in a new window">TestSound</button>
+      title="Testirajte zvuk u novom prozoru">Test zvuka</button>
     </td>
   </tr>
   <tr>
     <td style="width: 7em; text-align: right">Alternate text:</td>
     <td><input type="text" name="alt" id="f_alt" style="width:100%"
-      title="For browsers that don't support embed tags" /></td>
+      title="Za browsere koji ne podravaju ugrađene tagove" /></td>
     <input type="hidden" name="type" id="f_type">
   </tr>
   </tbody>
@@ -168,30 +168,30 @@ form { padding: 0px; margin: 0px; }
 <p />
 
 <fieldset style="float:center; margin-left: 5px; margin-right: 5px;">
-<legend>Attribute</legend>
+<legend>Atributi</legend>
 <table align="center" width="100%"><tr>
 <td nowrap>
-<div class="fl">Auto Play:</div>
+<div class="fl">Automatsko reprodukovanje:</div>
 <input type="checkbox" name="autoplay" id="f_autoplay" value="1"
-title="start automatically after page loading" />
+title="automatski reprodukuje zvučni zapis nakon učitavanja stranice" />
 </td>
 <td nowrap>
-<div class="fr">Hidden Control:</div>
+<div class="fr">Skrivene kontrole:</div>
 <input type="checkbox" name="hidden" id="f_hidden" value="1"
-title="Hide the sound control" />
+title="Sakrij kontrole zvuka" />
 </td>
 <td nowrap>
-<div class="fr">Loop:</div>
+<div class="fr">Ponavljanje:</div>
 <input type="textfield" name="loop" id="f_loop" value="1" size="3"
-title="Repeat count" />
+title="Broj ponavljanja" />
 </td>
 </tr></table>
 </fieldset>
 
 <div style="margin-top: 5px; text-align: right;">
 <hr />
-<button type="button" name="ok" onclick="return onOK();">OK</button>
-<button type="button" name="cancel" onclick="return onCancel();">Cancel</button>
+<button type="button" name="ok" onclick="return onOK();">U redu</button>
+<button type="button" name="cancel" onclick="return onCancel();">Otkai</button>
 </div>
 
 </form>

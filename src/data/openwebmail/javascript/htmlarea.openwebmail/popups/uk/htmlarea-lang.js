@@ -54,7 +54,7 @@ HTMLArea.I18N = {
 		outdent:        "зменьшити в╕дступ",
 		indent:         "зб╕льшити в╕дступ",
 		forecolor:      "кол╕р шрифта",
-		backcolor:      "кол╕р фону",
+		hilitecolor:    "кол╕р фону",
 		horizontalrule: "горизонтальний смуга",
 		createlink:     "вставити посилання",
 		insertimage:    "вставити зображення",
@@ -63,7 +63,22 @@ HTMLArea.I18N = {
 		htmlmode:       "перемкнути показ сирого HTML-ю",
 		popupeditor:    "зб╕льшити редактор",
 		about:          "про цей редактор",
-		help:           "дов╕дка з використання",
-		textindicator:  "поточний стиль"
+		showhelp:       "дов╕дка з використання",
+		textindicator:  "поточний стиль",
+		undo:           "Undoes your last action",
+		redo:           "Redoes your last action",
+		cut:            "Cut selection",
+		copy:           "Copy selection",
+		paste:          "Paste from clipboard"
+	},
+
+	buttons: {
+		"ok":           "OK",
+		"cancel":       "Cancel"
+	},
+
+	msg: {
+		"Path":         "Path",
+		"TEXT_MODE":    "You are in TEXT MODE.  Use the [<>] button to switch back to WYSIWIG."
 	}
 };

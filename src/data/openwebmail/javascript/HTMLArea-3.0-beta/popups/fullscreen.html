@@ -4,13 +4,35 @@
 @import url(../htmlarea.css);
 html, body {	margin: 0px; border: 0px; background-color: buttonface; } </style>
 
+<!--
 <script type="text/javascript" src="../htmlarea.js"></script>
 <script type="text/javascript" src="../htmlarea-lang-en.js"></script>
 <script type="text/javascript" src="../dialog.js"></script>
+-->
+
+<script type="text/javascript">
+// load same scripts that were present in the opener page
+var scripts = opener.document.getElementsByTagName("script");
+var head = document.getElementsByTagName("head")[0];
+for (var i = 0; i < scripts.length; ++i) {
+  var script = scripts[i];
+  if (typeof script.src != "undefined" && /\S/.test(script.src)) {
+    // document.write("<scr" + "ipt type=" + "\"script/javascript\"");
+    // document.write(" src=\"../" + script.src + "\"></scr" + "ipt>");
+    var new_script = document.createElement("script");
+    if (/^http:/i.test(script.src)) {
+      new_script.src = script.src;
+    } else {
+      new_script.src = "../" + script.src;
+    }
+    head.appendChild(new_script);
+  }
+}
+</script>
 
 <script type="text/javascript">
 
-var parent_object = opener.HTMLArea._object;
+var parent_object  = null;
 var editor         = null;      // to be initialized later [ function init() ]
 
 /* ---------------------------------------------------------------------- *\
@@ -40,11 +62,14 @@ function cloneObject(obj) {
   var newObj          = new Object; 
 
   // check for array objects
-  if (obj.constructor.toString().indexOf('function Array(') == 1) {
+  if (obj.constructor.toString().indexOf("function Array(") == 1) {
     newObj = obj.constructor();
   }
 
-  for (var n in obj) {
+  // check for function objects (as usual, IE is fucked up)
+  if (obj.constructor.toString().indexOf("function Function(") == 1) {
+    newObj = obj; // just copy reference to it
+  } else for (var n in obj) {
     var node = obj[n];
     if (typeof node == 'object') { newObj[n] = cloneObject(node); }
     else                         { newObj[n] = node; }
@@ -68,7 +93,10 @@ function resize_editor() {  // resize editor to fix window
     // Gecko
     newHeight = window.innerHeight - editor._toolbar.offsetHeight;
   }
-  editor._textArea2.style.height = editor._iframe.style.height = newHeight + "px";
+  if (editor.config.statusBar) {
+    newHeight -= editor._statusBar.offsetHeight;
+  }
+  editor._textArea.style.height = editor._iframe.style.height = newHeight + "px";
 }
 
 /* ---------------------------------------------------------------------- *\
@@ -77,21 +105,22 @@ function resize_editor() {  // resize editor to fix window
 \* ---------------------------------------------------------------------- */
 
 function init() {
+  parent_object      = opener.HTMLArea._object;
   var config         = cloneObject( parent_object.config );
   config.editorURL   = "../";
   config.width       = "100%";
   config.height      = "auto";
 
   // change maximize button to minimize button
-  config.btnList["popupeditor"] = [ function() { window.close(); },
-                                    'Minimize Editor', 'fullscreen_minimize.gif', true ];
+  config.btnList["popupeditor"] = [ 'Minimize Editor', 'images/fullscreen_minimize.gif', true,
+                                    function() { window.close(); } ];
 
   // generate editor and resize it
   editor = new HTMLArea("editor", config);
   editor.generate();
-  resize_editor();
   editor._iframe.style.width = "100%";
-  editor._textArea2.style.width = "100%";
+  editor._textArea.style.width = "100%";
+  resize_editor();
 
   // set child window contents and event handlers, after a small delay
   setTimeout(function() {
@@ -106,7 +135,7 @@ function init() {
     // setup event handlers
     document.body.onkeypress = _CloseOnEsc;
     editor._doc.body.onkeypress = _CloseOnEsc;
-    editor._textArea2.onkeypress = _CloseOnEsc;
+    editor._textArea.onkeypress = _CloseOnEsc;
     window.onresize = resize_editor;
   }, 333);                      // give it some time to meet the new frame
 }

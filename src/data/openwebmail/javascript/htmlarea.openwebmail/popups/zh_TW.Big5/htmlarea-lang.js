@@ -54,7 +54,7 @@ HTMLArea.I18N = {
 		outdent:        "減少縮排",
 		indent:         "增加縮排",
 		forecolor:      "字型顏色",
-		backcolor:      "背景顏色",
+		hilitecolor:    "背景顏色",
 		horizontalrule: "水平分隔線",
 		createlink:     "插入超連結",
 		insertimage:    "插入圖片",
@@ -63,7 +63,22 @@ HTMLArea.I18N = {
 		htmlmode:       "切換 HTML 模式",
 		popupeditor:    "放大編輯器",
 		about:          "關於",
-		help:           "求助",
-		textindicator:  "目前字型樣式"
+		showhelp:       "求助",
+		textindicator:  "目前字型樣式",
+		undo:           "復原",
+		redo:           "取消復原",
+		cut:            "剪下",
+		copy:           "複製",
+		paste:          "貼上"
+	},
+
+	buttons: {
+		"ok":           "確定",
+		"cancel":       "取消"
+	},
+
+	msg: {
+		"Path":         "路徑",
+		"TEXT_MODE":    "您現在正在看的是 HTML 信件的原始碼. 請按下 [<>] 按鈕回到 HTML 編輯模式."
 	}
 };

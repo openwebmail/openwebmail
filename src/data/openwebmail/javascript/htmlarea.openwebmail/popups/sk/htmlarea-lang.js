@@ -54,7 +54,7 @@ HTMLArea.I18N = {
 		outdent:        "Zmen¹i» odsadenie",
 		indent:         "Zväè¹i» odsadenie",
 		forecolor:      "Farba písma",
-		backcolor:      "Farba pozadia",
+		hilitecolor:    "Farba pozadia",
 		horizontalrule: "Horizontálna èiara",
 		createlink:     "Vlo¾i» webový odkaz",
 		insertimage:    "Vlo¾i» obrázok",
@@ -63,7 +63,22 @@ HTMLArea.I18N = {
 		htmlmode:       "Zobrazi» HTML zdrojový kód",
 		popupeditor:    "Zväè¹i» editor",
 		about:          "O tomto editore",
-		help:           "Pomoc",
-		textindicator:  "Aktuálny ¹týl"
+		showhelp:       "Pomoc",
+		textindicator:  "Aktuálny ¹týl",
+		undo:           "Undoes your last action",
+		redo:           "Redoes your last action",
+		cut:            "Cut selection",
+		copy:           "Copy selection",
+		paste:          "Paste from clipboard"
+	},
+
+	buttons: {
+		"ok":           "OK",
+		"cancel":       "Cancel"
+	},
+
+	msg: {
+		"Path":         "Path",
+		"TEXT_MODE":    "You are in TEXT MODE.  Use the [<>] button to switch back to WYSIWIG."
 	}
 };

@@ -2,7 +2,7 @@
 
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-  <title>Insert Sound</title>
+  <title>Inserir Som</title>
 
 <script type="text/javascript" src="popup.js"></script>
 
@@ -16,8 +16,8 @@ function Init() {
 
 function onOK() {
   var required = {
-    "f_url": "You must enter the URL",
-    "f_alt": "Please enter the alternate text"
+    "f_url": "É necessário introduzir o URL",
+    "f_alt": "É favor introduzir o texto alternativo"
   };
   for (var i in required) {
     var el = document.getElementById(i);
@@ -63,7 +63,7 @@ function onTestsound() {
   var f_url = document.getElementById("f_url");
   var url = f_url.value;
   if (!url) {
-    alert("You have to enter an URL first");
+    alert("Primeiro tem que introduzir o URL");
     f_url.focus();
     return false;
   }
@@ -134,32 +134,32 @@ form { padding: 0px; margin: 0px; }
 
 <body onload="Init()">
 
-<div class="title">Insert Sound</div>
+<div class="title">Inserir Som</div>
 
 <form action="" method="get">
 <table border="0" width="100%" style="padding: 0px; margin: 0px">
   <tbody>
 
   <tr>
-    <td style="width: 7em; text-align: right">Attachments:</td>
+    <td style="width: 7em; text-align: right">Anexos:</td>
     <td><select name="attlist" id="f_attlist" 
          onchange="return onChange();" style="witdth:100%">
-        <option selected value="">-- Not selected --
+        <option selected value="">-- Não seleccionado --
         </select>
     </td>
   </tr>
   <tr>
-    <td style="width: 7em; text-align: right">Sound URL:</td>
+    <td style="width: 7em; text-align: right">URL do som:</td>
     <td><input type="text" name="url" id="f_url" style="width:75%"
-      title="Enter the sound URL here" />
+      title="Introduza aqui o URL do som" />
       <button name="testsound" onclick="return onTestsound();"
-      title="Test the sound in a new window">TestSound</button>
+      title="Testar o som numa nova imagem">Testar Som</button>
     </td>
   </tr>
   <tr>
-    <td style="width: 7em; text-align: right">Alternate text:</td>
+    <td style="width: 7em; text-align: right">Texto alternativo:</td>
     <td><input type="text" name="alt" id="f_alt" style="width:100%"
-      title="For browsers that don't support embed tags" /></td>
+      title="Para browsers que não suportam tags embutidas" /></td>
     <input type="hidden" name="type" id="f_type">
   </tr>
   </tbody>
@@ -168,30 +168,30 @@ form { padding: 0px; margin: 0px; }
 <p />
 
 <fieldset style="float:center; margin-left: 5px; margin-right: 5px;">
-<legend>Attribute</legend>
+<legend>Atributos</legend>
 <table align="center" width="100%"><tr>
 <td nowrap>
-<div class="fl">Auto Play:</div>
+<div class="fl">Automático:</div>
 <input type="checkbox" name="autoplay" id="f_autoplay" value="1"
-title="start automatically after page loading" />
+title="Tocar automaticamente após carregar a página" />
 </td>
 <td nowrap>
-<div class="fr">Hidden Control:</div>
+<div class="fr">Ocultar Controlo:</div>
 <input type="checkbox" name="hidden" id="f_hidden" value="1"
-title="Hide the sound control" />
+title="Ocultar controlo de som" />
 </td>
 <td nowrap>
-<div class="fr">Loop:</div>
+<div class="fr">Repetir:</div>
 <input type="textfield" name="loop" id="f_loop" value="1" size="3"
-title="Repeat count" />
+title="No Repetições" />
 </td>
 </tr></table>
 </fieldset>
 
 <div style="margin-top: 5px; text-align: right;">
 <hr />
-<button type="button" name="ok" onclick="return onOK();">OK</button>
-<button type="button" name="cancel" onclick="return onCancel();">Cancel</button>
+<button type="button" name="ok" onclick="return onOK();">Aceitar</button>
+<button type="button" name="cancel" onclick="return onCancel();">Cancelar</button>
 </div>
 
 </form>
