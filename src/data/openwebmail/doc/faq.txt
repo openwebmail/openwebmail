@@ -100,8 +100,20 @@ A: There are many possible answers...
       owner=root
       group=mail
 
-   3. The suidperl may not have enough permission for SUID scripts.
-      It should owned by root with permission bits set to 4555
+   3. The suid support of your perl may be not correctly enabled.
+
+      a. su to a regular user, then run openwebmail.pl form command line.
+      b. if it shows 'Can't do setuid', su to root,
+         have suidperl owner=root, node=4555, then try step a again
+      c. if it shows the following WARNING, su to root,
+         have suidperl owner=root, mode=555, then try step a again
+
+         YOU HAVEN'T DISABLED SET-ID SCRIPTS IN THE KERNEL YET!
+         FIX YOUR KERNEL, OR PUT A C WRAPPER AROUND THIS SCRIPT!
+
+      d. if it shows a long html text content, which means the suid
+         support of your suidperl is enabled.
+      e. if step b or c doesn't help, please goto step 4
 
    ps: If you are using Suse Linux 9.0 Professional, please note that the
        permissions of suidperl is changed at each time SuSEconfig is run.
@@ -110,9 +122,9 @@ A: There are many possible answers...
        to set the proper permissions.
        (thanks to dialsc.AT.t-online.de, Schaefer, Dirk Alexander)
 
-   4. Execute openwebmail.pl from command line, if it still complains
-      it could not do suid, then your perl executable was compiled without
-      SUID support
+   4. if executing openwebmail.pl with regular user always complains
+      'Can't do suid' or 'YOU HAVEN'T DISABLE SET-ID SCRIPTS IN THE KERNEL..'
+      then your perl executable was compiled without SUID support
 
       Here are the steps to recompile your perl with suid enabled:
 
@@ -142,8 +154,8 @@ A: There are many possible answers...
       ps: If you don't want to recompile perl, you choose to may use
           misc/tools/suidwrap.pl to generate C wrappers for all suid scripts.
 
-          However, this is not recommended, as you will not be able to
-          use SpeedyCGI with the openwebmail system.
+          However, this is not recommended at all, as you will not be able
+          to use SpeedyCGI with the openwebmail system.
 
           Here are the steps:
           1. cd cgi-bin/openwebmail
@@ -157,7 +169,7 @@ A: There are many possible answers...
           The spellcheck may not work on Solaris when using C wrappers.
           (thanks to Isam Ishaq, isam.AT.planet.edu)
 
-   4. If you are using SpeedyCGI, and openwebmail always shows Internal error,
+   5. If you are using SpeedyCGI, and openwebmail always shows Internal error,
       then your SpeedyCGI may be compiled without SUID support.
       a. please be sure the speedycgi executable is owned by root with
          permission 4555
@@ -167,7 +179,7 @@ A: There are many possible answers...
       d. please refer to section "PERSISTENT RUNNING through SpeedyCGI"
          in readme.txt for how to compile SpeedyCGI.
 
-   5. If you are using SpeedyCGI, openwebmail seems be okay at the beginning,
+   6. If you are using SpeedyCGI, openwebmail seems be okay at the beginning,
       but it shows "Internal Server Error" sometimes ...
 
       Please check the apache log to see if there is error messages like
@@ -177,7 +189,7 @@ A: There are many possible answers...
       If yes, you system may not have the savedsuid support,
       please set have_savedsuid_support to 'no' in etc/suid.conf
 
-   6. Some perl modules may be too old or not exist on your system
+   7. Some perl modules may be too old or not exist on your system
       a. install MIME-Base64-3.01.tar.gz or above
       b. install CGI.pm-3.05.tar.gz or above
       c. install the libnet-1.19.tar.gz or above
@@ -357,7 +369,10 @@ ps: you may check the permission cgi-bin/openwebmail/etc/sessions first,
     it should be owner=root, group=mail, mode=771
 
 Q: I got "Software error: Can't locate MIME/Base64.pm in @INC"?
-A: Please install the  MIME-Base64-3.01.tar.gz.
+A: Please install the MIME-Base64-3.01.tar.gz.
+
+Q: I got "Too many arguments for MIME::QuotedPrint::encode_qp"?
+A: Your MIME module is too old, please install the MIME-Base64-3.01.tar.gz.
 
 Q: I got "Software error: Can't locate Text/Iconv.pm in @INC"?
 A: Please install the Text-Iconv-1.2.tar.gz, this is required since
@@ -499,28 +514,31 @@ A: If the error message appears immediately after you submit the CGI request,
 
    Most of the time, it is due to the concurrent accesses to the folder by
    other mail client through the pop3/imap daemons.
-   This is okay, just back to previous page and try again.
+   This is okay, just back to previous page and try again later.
 
    To know where the error happened exactly, you may try to set option
    error_with_debuginfo to yes in openwebmail.conf. This would give you
    more detailed information in case openwebmailerror() happens.
 
    If you are running openwebmail in persistent mode,
-   there could be openwebmail processes that lock the folder file for indexing.
+   there could be openwebmail processes locking the folder file for indexing.
    To release the lock, you may kill the openwebmail speedy_backend process.
 
-   It is okay for openwebmail to have an incomplete index db,
-   the folder index db will be fixed or rebuild in the next access.
-
-   Sometimes, the folder may be lock by process other than openwebmail,
-   if you want to solve the problem in a quick and dirty way...
+   Since openwebmail 20041129, you may use 'openwebmail-tool.pl -u username'
+   to find the processes holding the filelocks, and kill the processes after
+   confirmation.
+   If the locks couldn't be released after killing the related processes,
+   you may solve the problem in a quick and dirty way...
 
    rename the file, copy it to original name, then remove the renamed one.
    This would have the file a new inode and thus release all old locks.
 
-ps: The 'lsof' is useful tool to see file locking status,
-    it is available at http://freshmeat.net/projects/lsof/.
+ps: The 'openwebmail-tool.pl -u requires the lsof package.
+    it is available at http://freshmeat.net/projects/lsof/
 
+ps: Killing the openwebmail process may leave an incomplete index db
+    on disk. It is okay, the folder index db will be fixed or rebuild
+    in the next access.
 
 ========================================================================
 CONFIGURATION OPTIONS

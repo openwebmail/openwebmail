@@ -234,7 +234,7 @@ sub openwebmail_clearall {
 
 # routine used at CGI request begin
 sub openwebmail_requestbegin {
-   zombie_cleaner();				# clear pending zombies
+#   zombie_cleaner();				# clear pending zombies
    openwebmail_clearall() if ($_vars_used);	# clear global
    $_vars_used=1;
 

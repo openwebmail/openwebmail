@@ -73,6 +73,8 @@ clamav-0.70.tar.gz            (optional, for viruscheck,
                                available at http://www.clamav.net)
 Mail-SpamAssassin-2.63.tar.gz (optional, for spamcheck,
                                available at http://www.spamassassin.org)
+lsof_4.73A.freebsd.tar.bz2    (optional, for openwebmail-tool --unlock,
+                               available at http://freshmeat.net/projects/lsof/)
 
 
 INSTALL REQUIRED PACKAGES
@@ -177,6 +179,8 @@ http://openwebmail.org/openwebmail/
 If you are using FreeBSD and install apache with pkg_add,
 
 1. chmod 4555 /usr/bin/suidperl
+   (It seems perl after 5.8.1 should set the suidperl to 555 instead,
+    or the suid support may not work)
 
 2. cd /usr/local/www
    tar -zxvBpf openwebmail-X.XX.tar.gz
@@ -512,10 +516,17 @@ Set this option to yes to make openwebmail remove oldest files from webdisk
 / automatically in case his quotalimit is hit. the new total
 size will be cut down to apporximately 90% of option quota_limit
 
-ps:The above options are used to control quota of user homedir.
-   if you want to limit the size of user mail spool (the INBOX folder),
-   you have to use the spool_limit option.
-   Please refer to openwebmail.conf.help for more detail.
+ps: The above options are used to control quota of user homedir.
+    if you want to limit the size of user mail spool (the INBOX folder),
+    you have to use the spool_limit option.
+    Please refer to openwebmail.conf.help for more detail.
+
+ps: Since openwebmail 20031128, you may set the option
+    use_syshomedir_for_dotdir to no to have openwebmail put index db
+    in ow_usersdir instead of user homedir, thus creating db won't be
+    limited by user quota.
+    This would fix the problem that user exceeding his quota was unable
+    to login openwebmail because of corrupt index folder db
 
 
 COMMAND TOOL openwebmail-tool.pl
@@ -689,7 +700,7 @@ the external programs used by webdisk are:
 
 basic file uty                 - cp, mv, rm,
 file compression/decompression - gzip, bzip2,
-archive uty                   - tar, zip, unzip, unrar, unarj, lha
+archive uty                    - tar, zip, unzip, unrar, unarj, lha
 image thumbnail uty            - convert (in ImageMagick package)
 
 ps: You don't have to install all external programs to use WebDisk,
@@ -1162,7 +1173,8 @@ Openwebmail can get almost 5x to 10x speedup when running with SpeedyCGI.
 You can get a quite reactive openwebmail systems on a very old P133 machine :)
 
 Note: Don't try to fly before you can walk...
-      Please do this speedup modification only after your openwebmail is working.
+      Please do this speedup modification only after
+      your openwebmail is working with regular suidperl
 
 1. install SpeedyCGI
 
@@ -1337,7 +1349,7 @@ Features that people may also be interested
 3. log analyzer
 
 
-10/13/2003
+11/29/2004
 
 openwebmail.AT.turtle.ee.ncku.edu.tw
 

@@ -1,3 +1,9 @@
+12/01/2004
+----------
+1. return false in html editor compatibility test for browser Opera
+   in openwebmail-send
+
+
 11/29/2004
 ----------
 1. add -u (--unlock) option to openwebmail-tool.pl,

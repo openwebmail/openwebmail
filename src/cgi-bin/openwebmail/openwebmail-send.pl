@@ -2489,10 +2489,12 @@ sub readsmtperr {
 sub htmlarea_compatible {
    my $u=$ENV{'HTTP_USER_AGENT'};
    if ( $u=~m!Mozilla/4.0! &&
-        $u=~m!compatible;! &&
-        $u=~m!Windows! &&
-        $u=~m!MSIE ([\d\.]+)! ) {
-      return 1 if ($1>=5.5);		# MSIE>=5.5 on windows platform
+        $u=~m!compatible;!) {
+      return 0 if ($u=~m!Opera!);	# not Opera
+      if ($u=~m!Windows! &&
+          $u=~m!MSIE ([\d\.]+)! ) {
+         return 1 if ($1>=5.5);		# MSIE>=5.5 on windows platform
+      }
    }
    if ( $u=~m!Mozilla/5.0! &&
         $u!~m!compatible;!) {
