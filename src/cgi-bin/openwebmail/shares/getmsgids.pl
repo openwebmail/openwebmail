@@ -36,14 +36,14 @@ sub getinfomessageids {
       }
 
       if ($_index_complete==0) {
-         openwebmailerror(__FILE__, __LINE__, "$folderfile $lang_err{'under_indexing'}");
+         openwebmailerror(__FILE__, __LINE__, f2u($folderfile)." $lang_err{'under_indexing'}");
       }
    } else {	# do indexing directly if small folder
       ow::filelock::lock($folderfile, LOCK_SH|LOCK_NB) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $folderfile!");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} ".f2u($folderfile)."!");
       if (update_folderindex($folderfile, $folderdb)<0) {
          ow::filelock::lock($folderfile, LOCK_UN);
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_updatedb'} db $folderdb");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_updatedb'} db ".f2u($folderdb));
       }
       ow::filelock::lock($folderfile, LOCK_UN);
    }
@@ -69,7 +69,7 @@ sub getinfomessageids {
       ($r_messageids, $r_messagedepths)=get_messageids_sorted($folderdb, $sort, "$folderdb.cache", $prefs{'hideinternal'});
 
       ow::filelock::lock($folderfile, LOCK_SH|LOCK_NB) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $folderfile!");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} ".f2u($folderfile)."!");
       open($folderhandle, $folderfile);
       ($totalsize, $new, $r_haskeyword)=search_info_messages_for_keyword(
 					$keyword, $prefs{'charset'}, $searchtype, $folderdb, $folderhandle,

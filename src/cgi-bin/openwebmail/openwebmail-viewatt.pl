@@ -379,7 +379,7 @@ sub savefile2webdisk {
 
    # webdisksel is from webdisk.pl and it's originally in $prefs{charset}
    # so we have to convert it into fscharset before do vpath calculation
-   $webdisksel=(iconv($prefs{'charset'}, $prefs{'fscharset'}, $webdisksel))[0];
+   $webdisksel=u2f($webdisksel);
 
    my $webdiskrootdir=ow::tool::untaint($homedir.absolute_vpath("/", $config{'webdisk_rootpath'}));
    my $vpath=absolute_vpath('/', $webdisksel);

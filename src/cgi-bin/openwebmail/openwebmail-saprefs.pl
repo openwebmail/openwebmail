@@ -30,6 +30,7 @@ require "modules/htmltext.pl";
 require "auth/auth.pl";
 require "quota/quota.pl";
 require "shares/ow-shared.pl";
+require "shares/iconv.pl";
 
 # common globals
 use vars qw(%config %config_raw);
@@ -115,7 +116,7 @@ sub edittest {
       $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $lang_text{'userprefs'}",
                            qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;$urlparmstr"|);
    } else {
-      my $folderstr=$lang_folders{$folder}||(iconv($prefs{'fscharset'}, $prefs{'charset'}, $folder))[0];
+      my $folderstr=$lang_folders{$folder}||f2u($folder);
       $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $folderstr",
                            qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;$urlparmstr"|);
    }
@@ -340,7 +341,7 @@ sub editlist {
       $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $lang_text{'userprefs'}",
                            qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;$urlparmstr"|);
    } else {
-      my $folderstr=$lang_folders{$folder}||(iconv($prefs{'fscharset'}, $prefs{'charset'}, $folder))[0];
+      my $folderstr=$lang_folders{$folder}||f2u($folder);
       $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $folderstr",
                            qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;$urlparmstr"|);
    }

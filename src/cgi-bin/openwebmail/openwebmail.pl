@@ -44,6 +44,7 @@ require "modules/mime.pl";
 require "auth/auth.pl";
 require "quota/quota.pl";
 require "shares/ow-shared.pl";
+require "shares/iconv.pl";
 require "shares/pop3book.pl";
 require "shares/upgrade.pl";
 

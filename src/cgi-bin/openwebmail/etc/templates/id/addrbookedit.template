@@ -60,8 +60,8 @@ function OpConfirm(op, formName, text)
    } else if (op == 'reindexbook') {
       return(confirm(text));
    } else if (op == 'renamebook') {
-      var newname=prompt(text, document.forms[formName].abookfolder.value);
-      if (newname==document.forms[formName].abookfolder.value || newname==null || newname=='') {
+      var newname=prompt(text, document.forms[formName].abookfolderstr.value);
+      if (newname==document.forms[formName].abookfolderstr.value || newname==null || newname=='') {
          return false;
       }
       document.forms[formName].abookfoldernew.value=newname;

@@ -91,7 +91,7 @@ sub advsearch {
    $html = applystyle(readtemplate("advsearch.template"));
 
    ## replace @@@MENUBARLINKS@@@ ##
-   my $folderstr=$lang_folders{$folder}||(iconv($prefs{'fscharset'}, $prefs{'charset'}, $folder))[0];
+   my $folderstr=$lang_folders{$folder}||f2u($folder);
    $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $folderstr", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;sessionid=$thissession&amp;folder=|.ow::tool::escapeURL($folder).qq|"|). qq| \n|;
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
 
@@ -213,12 +213,8 @@ sub advsearch {
    getfolders(\@validfolders, \$inboxusage, \$folderusage);
 
    for(my $i=0; $i<=$#validfolders; $i++) {
-      my $folderstr;
-      if ( defined($lang_folders{$validfolders[$i]}) ) {
-         $folderstr=$lang_folders{$validfolders[$i]};
-      } else {
-         $folderstr= (iconv($prefs{'fscharset'}, $prefs{'charset'}, $validfolders[$i]))[0];
-      }
+      my $folderstr=(defined $lang_folders{$validfolders[$i]})?
+                    $lang_folders{$validfolders[$i]}:f2u($validfolders[$i]);
       $temphtml.=qq|<tr>| if ($i%4==0);
       $temphtml.=qq|<td>|.
                  checkbox(-name=>'folders',
@@ -317,10 +313,10 @@ sub search_folders {
 
    $cachefile=ow::tool::untaint($cachefile);
    ow::filelock::lock($cachefile, LOCK_EX) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $cachefile");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} ".f2u($cachefile));
    if ( -e $cachefile ) {
       open(CACHE, "$cachefile") or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $cachefile! ($!)");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} ".f2u($cachefile)."! ($!)");
       $cache_metainfo=<CACHE>; chomp($cache_metainfo);
       close(CACHE);
    }
@@ -372,7 +368,7 @@ sub search_folders2 {
       my (%FDB, %status);
 
       ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} db $folderdb");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} db ".f2u($folderdb));
       open (FOLDER, "$folderfile"); # used in TEXTCONTENT search
 
       foreach my $messageid (@{$r_messageids}) {
@@ -565,12 +561,7 @@ sub genline {
    my ($offset, $from, $to, $dateserial, $subject, $content_type, $status, $messagesize, $references, $charset);
    my ($bgcolor, $message_status,$temphtml,$folderstr,$escapedfolder);
 
-   if ( defined($lang_folders{$folder}) ) {
-      $folderstr = $lang_folders{$folder};
-   } else {
-      $folderstr = (iconv($prefs{'fscharset'}, $prefs{'charset'}, $folder))[0];
-   }
-
+   $folderstr = (defined $lang_folders{$folder})?$lang_folders{$folder}:f2u($folder);
    if ( $colornum ) {
       $bgcolor = $style{"tablerow_light"};
    } else {

@@ -124,6 +124,8 @@ sub dotfile_lock {
    my ($filename, $lockflag, $perm)=@_;
    return 1 unless ($lockflag & (LOCK_SH|LOCK_EX|LOCK_UN));
 
+   local $/; $/="\n";	# just prevent in case $/ is not "\n" when this routine is called
+
    $filename=ow::tool::untaint($filename);
    if ( (! -e $filename) && $lockflag ne LOCK_UN) {
       $perm=0600 if (!$perm);

@@ -563,7 +563,7 @@ sub readmessage {
          if (defined $lang_folders{$f}) {
             $label=$lang_folders{$f};
          } else {
-            $label=(iconv($prefs{'fscharset'}, $prefs{'charset'}, $label))[0];
+            $label=(iconv($prefs{'fscharset'}, $readcharset, $label))[0];
          }
          push(@movefolders, $value); $movelabels{$value}=$label if ($value ne $label);
       }
@@ -927,7 +927,7 @@ sub readmessage {
          }
          foreach my $f (sort keys %filtered) {
             next if (is_defaultfolder($f));
-            $msg .= qq|$f &nbsp; $filtered{$f}<br>|;
+            $msg .= f2u($f).qq| &nbsp; $filtered{$f}<br>|;
             $line++;
          }
          $msg = qq|<font size="-1">$msg</font>|;
@@ -982,7 +982,7 @@ sub readmessage {
       my ($folderfile, $folderdb)=get_folderpath_folderdb($user, $folder);
       my (%FDB, @attr);
       ow::dbm::open(\%FDB, $folderdb, LOCK_EX) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} db $folderdb");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} db ".f2u($folderdb));
       @attr=string2msgattr($FDB{$messageid});
       if ($attr[$_STATUS] !~ /R/i) {
          $attr[$_STATUS].="R";
@@ -1293,7 +1293,7 @@ sub rebuildmessage {
    my ($folderfile, $folderdb)=get_folderpath_folderdb($user, $folder);
 
    ow::filelock::lock($folderfile, LOCK_EX) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $folderfile!");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} ".f2u($folderfile)."!");
 
    my ($errorcode, $rebuildmsgid, @partialmsgids)=
 	rebuild_message_with_partialid($folderfile, $folderdb, $partialid);

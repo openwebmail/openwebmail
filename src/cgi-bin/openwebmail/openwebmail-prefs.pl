@@ -360,7 +360,7 @@ sub editprefs {
 
    $temphtml = '';
    if (!$userfirsttime) {
-      my $folderstr=$lang_folders{$folder}||(iconv($prefs{'fscharset'}, $prefs{'charset'}, $folder))[0];
+      my $folderstr=$lang_folders{$folder}||f2u($folder);
       if ($prefs_caller eq "cal") {
          $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} $lang_text{'calendar'}", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-cal.pl?action=$prefs{'calendar_defaultview'}&amp;$urlparmstr"|);
       } elsif ($prefs_caller eq "webdisk") {
@@ -2118,6 +2118,8 @@ sub changepassword {
 ########## END CHANGEPASSWORD ####################################
 
 ########## LOGINHISTORY ##########################################
+# pathnames appear in history file are in filesystem charset,
+# and we call f2u() before showing them to user
 sub viewhistory {
    my ($html, $temphtml);
    $html = applystyle(readtemplate("history.template"));
@@ -2138,7 +2140,7 @@ sub viewhistory {
       my $record;
       my ($timestamp, $pid, $ip, $misc)=($1, $2, $3, $4);
       my ($u, $event, $desc, $desc2)=split(/ \- /, $misc, 4);
-      $desc=ow::htmltext::str2html($desc);
+      $desc=ow::htmltext::str2html(f2u($desc));
       foreach my $field ($timestamp, $ip, $u, $event, $desc) {
          if ($event=~/error/i) {
             $record.=qq|<td bgcolor=$bgcolor align="center"><font color="#cc0000"><b>$field</font></b></td>\n|;
@@ -2544,7 +2546,7 @@ sub editfilter {
    my $freespace = int($config{'maxbooksize'} - ($filterbooksize/1024) + .5);
    $html =~ s/\@\@\@FREESPACE\@\@\@/$freespace $lang_sizes{'kb'}/;
 
-   my $folderstr=$lang_folders{$folder}||(iconv($prefs{'fscharset'}, $prefs{'charset'}, $folder))[0];
+   my $folderstr=$lang_folders{$folder}||f2u($folder);
    if ($prefs_caller eq "cal") {
       $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} $lang_text{'calendar'}", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-cal.pl?action=$prefs{'calendar_defaultview'}&amp;$urlparmstr"|);
    } elsif ($prefs_caller eq "webdisk") {
@@ -2913,7 +2915,7 @@ sub editstat {
    }
 
    if ($prefs_caller eq "") {
-      my $folderstr=$lang_folders{$folder}||(iconv($prefs{'fscharset'}, $prefs{'charset'}, $folder))[0];
+      my $folderstr=$lang_folders{$folder}||f2u($folder);
       $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} $folderstr", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&amp;$urlparmstr"|);
    } else {
       $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} $lang_text{'userprefs'}", qq|accesskey="F" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;$urlparmstr"|);

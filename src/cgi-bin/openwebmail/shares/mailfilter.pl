@@ -141,11 +141,11 @@ sub filtermessage {
    }
 
    if (!ow::filelock::lock($folderfile, LOCK_EX)) {
-      openwebmailerror("$lang_err{'mailfilter_error'} ($folderfile read lock error)");
+      openwebmailerror("$lang_err{'mailfilter_error'} (".f2u($folderfile)." read lock error)");
    }
    if (!update_folderindex($folderfile, $folderdb)<0) {
       ow::filelock::lock($folderfile, LOCK_UN);
-      openwebmailerror("$lang_err{'mailfilter_error'} (Couldn't update index db $folderdb)");
+      openwebmailerror("$lang_err{'mailfilter_error'} (Couldn't update index db ".f2u($folderdb).")");
    }
 
    my @allmessageids=();

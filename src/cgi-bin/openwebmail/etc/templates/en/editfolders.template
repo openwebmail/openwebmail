@@ -82,8 +82,8 @@
          return(confirm(text));
 
       } else {	// renamefolder
-         newname=prompt(text, document.forms[formname].foldername.value);
-         if ( newname==document.forms[formname].foldername.value ||
+         newname=prompt(text, document.forms[formname].foldernamestr.value);
+         if ( newname==document.forms[formname].foldernamestr.value ||
               newname==null ||
               newname==''      ) {
             return false;

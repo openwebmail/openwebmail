@@ -89,7 +89,7 @@ push(@slottime, "2400");
 
 $miscbuttonsstr='';
 if ($config{'enable_webmail'}) {
-   my $folderstr=ow::htmltext::str2html($lang_folders{$folder}||(iconv($prefs{'fscharset'}, $prefs{'charset'}, $folder))[0]);
+   my $folderstr=ow::htmltext::str2html($lang_folders{$folder}||f2u($folder));
    if ($messageid eq "") {
       $miscbuttonsstr .= iconlink("owm.gif", "$lang_text{'backto'} $folderstr",
                                   qq|accesskey="M" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;sessionid=$thissession&amp;folder=$escapedfolder"|);

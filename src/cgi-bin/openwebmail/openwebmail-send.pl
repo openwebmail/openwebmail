@@ -106,7 +106,7 @@ sub replyreceipt {
    my %FDB;
 
    ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or
-               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $folderdb");
+               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} ".f2u($folderdb));
    @attr=string2msgattr($FDB{$messageid});
    ow::dbm::close(\%FDB, $folderdb);
 
@@ -115,9 +115,9 @@ sub replyreceipt {
 
       # get message header
       open (FOLDER, "+<$folderfile") or
-          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $folderfile! ($!)");
+          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} ".f2u($folderfile)."! ($!)");
       seek (FOLDER, $attr[$_OFFSET], 0) or
-          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_seek'} $folderfile! ($!)");
+          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_seek'} ".f2u($folderfile)."! ($!)");
       $header="";
       while (<FOLDER>) {
          last if ($_ eq "\n" && $header=~/\n$/);
@@ -830,14 +830,14 @@ sub composemessage {
 
       my ($folderfile, $folderdb)=get_folderpath_folderdb($user, $folder);
       ow::filelock::lock($folderfile, LOCK_SH|LOCK_NB) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $folderfile!");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} ".f2u($folderfile)."!");
       if (update_folderindex($folderfile, $folderdb)<0) {
          ow::filelock::lock($folderfile, LOCK_UN);
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_updatedb'} $folderdb");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_updatedb'} ".f2u($folderdb));
       }
 
       my @attr=get_message_attributes($messageid, $folderdb);
-      openwebmailerror(__FILE__, __LINE__, "$folderdb $messageid $lang_err{'doesnt_exist'}") if ($#attr<0);
+      openwebmailerror(__FILE__, __LINE__, f2u($folderdb)." $messageid $lang_err{'doesnt_exist'}") if ($#attr<0);
 
       my $fromemail=$prefs{'email'};
       foreach (keys %userfrom) {
@@ -903,11 +903,11 @@ sub composemessage {
 
       my ($folderfile, $folderdb)=get_folderpath_folderdb($user, $folder);
       ow::filelock::lock($folderfile, LOCK_SH|LOCK_NB) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $folderfile!");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} ".f2u($folderfile)."!");
 
       if (update_folderindex($folderfile, $folderdb)<0) {
          ow::filelock::lock($folderfile, LOCK_UN);
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_updatedb'} $folderdb");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_updatedb'} ".f2u($folderdb));
       }
 
       open(FOLDER, "$folderfile");
@@ -1711,14 +1711,14 @@ sub sendmessage {
       if (!$saveerr && ow::filelock::lock($savefile, LOCK_EX)) {
          if (update_folderindex($savefile, $savedb)<0) {
             ow::filelock::lock($savefile, LOCK_UN);
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_updatedb'} $savedb");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_updatedb'} ".f2u($savedb));
          }
 
          my $oldmsgfound=0;
          my $oldsubject='';
          my %FDB;
          ow::dbm::open(\%FDB, $savedb, LOCK_SH) or
-               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $savedb");
+               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} ".f2u($savedb));
          if (defined($FDB{$mymessageid})) {
             $oldmsgfound=1;
             $oldsubject=(string2msgattr($FDB{$mymessageid}))[$_SUBJECT];
@@ -2068,8 +2068,8 @@ sub sendmessage {
          push(@r, "to=$to") if ($to);
          push(@r, "cc=$cc") if ($cc);
          push(@r, "bcc=$bcc") if ($bcc);
-         writelog("send message - subject=$subject - ".join(', ', @r));
-         writehistory("send message - subject=$subject - ".join(', ', @r));
+         my $m="send message - subject=".(iconv($composecharset, $prefs{'fscharset'}, $subject))[0]." - ".join(', ', @r);
+         writehistory($m); writehistory($m);
       } else {
          $smtp->close() if ($smtp); # close smtp if it was sucessfully opened
          if ($senderrstr eq "") {
@@ -2131,7 +2131,7 @@ sub sendmessage {
 
          my %FDB;
          ow::dbm::open(\%FDB, $savedb, LOCK_EX) or
-               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $savedb");
+               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} ".f2u($savedb));
          $FDB{$mymessageid}=msgattr2string(@attr);
          $FDB{'ALLMESSAGES'}++;
          $FDB{'METAINFO'}=ow::tool::metainfo($savefile);
@@ -2143,7 +2143,7 @@ sub sendmessage {
 
          my %FDB;
          ow::dbm::open(\%FDB, $savedb, LOCK_EX) or
-               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $savedb");
+               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} ".f2u($savedb));
          $FDB{'METAINFO'}=ow::tool::metainfo($savefile);
          $FDB{'LSTMTIME'}=time();
          ow::dbm::close(\%FDB, $savedb);
@@ -2181,7 +2181,7 @@ sub sendmessage {
          my (%FDB, $oldstatus, $found);
 
          ow::dbm::open(\%FDB, $folderdb, LOCK_EX) or
-               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $folderdb");
+               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} ".f2u($folderdb));
          if (defined($FDB{$inreplyto})) {
             $oldstatus = (string2msgattr($FDB{$inreplyto}))[$_STATUS];
             $found=1;

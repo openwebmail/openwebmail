@@ -1218,7 +1218,7 @@ sub htmlheader {
    my $t=time();
    $info.= " ".ow::datetime::dateserial2str(ow::datetime::gmtime2dateserial($t),
                                $prefs{'timeoffset'}, $prefs{'daylightsaving'},
-                               $prefs{'dateformat'}, $prefs{'hourformat'});
+                               $prefs{'dateformat'}, $prefs{'hourformat'})." ";
    if ($prefs{'daylightsaving'} eq 'on' ||
        ($prefs{'daylightsaving'} eq 'auto' &&
         ow::datetime::is_dst($t, $prefs{'timeoffset'})) ) {
@@ -1226,6 +1226,7 @@ sub htmlheader {
    } else {
       $info.="$prefs{'timeoffset'} -";
    }
+   $info.=" $prefs{'charset'} -";
    $html =~ s/\@\@\@USERINFO\@\@\@/$info/g;
 
    $html = qq|<!-- $$:$persistence_count -->\n|.$html;
@@ -1911,10 +1912,10 @@ sub getfolders {
 
    while ($fdir=pop(@fdirs)) {
       opendir(FOLDERDIR, "$fdir") or
-    	 openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $fdir! ($!)");
+    	 openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} ".f2u($fdir)."! ($!)");
          @folderfiles=readdir(FOLDERDIR);
       closedir(FOLDERDIR) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $folderdir! ($!)");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} ".f2u($folderdir)."! ($!)");
 
       foreach $filename (@folderfiles) {
          next if (substr($filename,0,1) eq '.' || $filename =~ /\.lock$/);
@@ -1996,10 +1997,10 @@ sub del_staledb {
    my (@dbfiles, $filename);
 
    opendir(DBDIR, $dbdir) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $dbdir! ($!)");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} ".f2u($dbdir)."! ($!)");
       @dbfiles=readdir(DBDIR);
    closedir(DBDIR) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $dbdir! ($!)");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} ".f2u($dbdir)."! ($!)");
 
    foreach $filename (@dbfiles) {
       next if ($filename eq '.' || $filename eq '..');
@@ -2049,5 +2050,14 @@ sub get_abookemailhash {
    return(\%emails);
 }
 ########## END GET_ABOOKEMAILHASH ################################
+
+########## F2U/U2F ###############################################
+sub f2u { # convert str from userprefs charset to filesystem charset
+   return (iconv($prefs{'fscharset'}, $prefs{'charset'}, $_[0]))[0];
+}
+sub u2f { # convert str from filesystem charset to userprefs charset
+   return (iconv($prefs{'charset'}, $prefs{'fscharset'}, $_[0]))[0];
+}
+########## END F2U/U2F ###########################################
 
 1;

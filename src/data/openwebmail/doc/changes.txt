@@ -1,3 +1,15 @@
+01/21/2005
+----------
+1. multiple charset support for rename function in editfolder and
+   editabookfolder
+2. fix the bug that pathnames in openwebmailerror() were not converted from
+   fscharset to prefscharset
+3. fix the bug that pathnames in history file were not converted from
+   fscharset to prefscharset in viewhistory()
+4. fix the bug that foldernames in newmail notification window were not
+   converted from fscharset to prefscharset in viewhistory()
+
+
 01/20/2005
 ----------
 1. greatly improved multiple charset support in openwebmail-webdisk.pl

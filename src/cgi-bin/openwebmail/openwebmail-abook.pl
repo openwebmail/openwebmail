@@ -208,22 +208,22 @@ openwebmail_requestend();
 
 ########## ADDRBOOKADD ###########################################
 sub addrbookadd {
-   my $abookfoldernew = ow::tool::untaint(param('abookfoldernew'))||'';
+   my $abookfoldernewstr = ow::tool::untaint(param('abookfoldernew'))||'';
+   my $abookfoldernew = u2f($abookfoldernewstr);
    is_safefoldername($abookfoldernew) or
-      openwebmailerror(__FILE__, __LINE__, "$abookfoldernew $lang_err{'has_illegal_chars'}");
+      openwebmailerror(__FILE__, __LINE__, "$abookfoldernewstr $lang_err{'has_illegal_chars'}");
 
-   $abookfoldernew = ow::tool::untaint($abookfoldernew);
    return addrbookedit() if ($abookfoldernew eq '');
 
    my $abookfilenew = abookfolder2file($abookfoldernew);
    if (-e $abookfilenew || $abookfoldernew =~ m/^(?:ALL|DELETE)$/) {
       my $msg=$lang_err{'abook_already_exists'};
-      $msg =~ s/\@\@\@ADDRESSBOOK\@\@\@/$abookfoldernew/;
+      $msg =~ s/\@\@\@ADDRESSBOOK\@\@\@/$abookfoldernewstr/;
       openwebmailerror(__FILE__, __LINE__, $msg);
    } else {
       if (length($abookfoldernew) > $config{'foldername_maxlen'}) {
          my $msg="$lang_err{'abook_name_too_long'}";
-         $msg =~ s/\@\@\@ADDRESSBOOK\@\@\@/$abookfoldernew/;
+         $msg =~ s/\@\@\@ADDRESSBOOK\@\@\@/$abookfoldernewstr/;
          $msg =~ s/\@\@\@FOLDERNAME_MAXLEN\@\@\@/$config{'foldername_maxlen'}/;
          openwebmailerror(__FILE__, __LINE__, $msg);
       } else {
@@ -244,16 +244,17 @@ sub addrbookadd {
 ########## ADDRBOOKDELETE ########################################
 sub addrbookdelete {
    $abookfolder = ow::tool::untaint(safefoldername($abookfolder));
+   my $abookfolderstr = f2u($abookfolder);
    my $abookfile = abookfolder2file($abookfolder);
 
    # do the delete
    if (-e $abookfile) {
-      my $msg=$lang_err{'abook_delete_book'}; $msg=~s/\@\@\@ADDRESSBOOK\@\@\@/$abookfolder/;
+      my $msg=$lang_err{'abook_delete_book'}; $msg=~s/\@\@\@ADDRESSBOOK\@\@\@/$abookfolderstr/;
       unlink($abookfile) or openwebmailerror(__FILE__, __LINE__, "$msg! ($!)");
       writelog("delete addressbook - $abookfolder");
       writehistory("delete addressbook - $abookfolder");
    } else {
-      my $msg=$lang_err{'abook_no_exist'}; $msg=~s/\@\@\@ADDRESSBOOK\@\@\@/$abookfolder/;
+      my $msg=$lang_err{'abook_no_exist'}; $msg=~s/\@\@\@ADDRESSBOOK\@\@\@/$abookfolderstr/;
       openwebmailerror(__FILE__, __LINE__, "$msg! ($!)");
    }
 
@@ -285,7 +286,7 @@ sub addrbookedit {
    $html = applystyle(readtemplate("addrbookedit.template"));
 
    # menubar links
-   my $abookfolderstr=ow::htmltext::str2html($lang_abookselectionlabels{$abookfolder}||(iconv($prefs{'fscharset'}, $prefs{'charset'}, $abookfolder))[0]);
+   my $abookfolderstr=ow::htmltext::str2html($lang_abookselectionlabels{$abookfolder}||f2u($abookfolder));
    $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $abookfolderstr",
                         qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrlistview&amp;$urlparm"|);
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
@@ -326,21 +327,21 @@ sub addrbookedit {
    foreach my $abookfolder (@allabookfolders) {
       next if (is_abookfolder_global($abookfolder));
       my $escapedabookfolder = ow::tool::escapeURL($abookfolder);
-      my $abookfolderstr=ow::htmltext::str2html((iconv($prefs{'fscharset'}, $prefs{'charset'}, $abookfolder))[0]);
-      my $jsfolderstr = $abookfolder;
-      $jsfolderstr =~ s/'/\\'/g;
+      my $abookfolderstr=f2u($abookfolder);
+      my $jsfolderstr = $abookfolderstr; $jsfolderstr =~ s/'/\\'/g;
       $temphtml .= qq|<tr>\n|.
                    qq|<td width="10" bgcolor=$bgcolor[$colornum]>&nbsp;</td>|.
                    qq|<td bgcolor=$bgcolor[$colornum]>|.
                    iconlink("download.gif", $lang_text{'download'},
                              qq|accesskey="W" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrbookdownload&amp;sessionid=$thissession&amp;abookfolder=$escapedabookfolder"|).
-                   qq|<a href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrlistview&amp;sessionid=$thissession&amp;abookfolder=$escapedabookfolder">$abookfolderstr</a></td>\n|.
+                   qq|<a href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrlistview&amp;sessionid=$thissession&amp;abookfolder=$escapedabookfolder">|.ow::htmltext::str2html($abookfolderstr).qq|</a></td>\n|.
                    qq|<td align="center" bgcolor=$bgcolor[$colornum]>$total{$abookfolder}{'entries'}</td>\n|.
                    qq|<td align="center" bgcolor=$bgcolor[$colornum]>|.lenstr($total{$abookfolder}{'size'},0).qq|</td>\n|.
                    qq|<td bgcolor=$bgcolor[$colornum] align="center" nowrap>\n|.
                    qq|   <table cellpadding="0" cellspacing="0" border="0">\n|.
                    qq|   <tr>\n|.
                    qq|      <td>\n|.
+
                    start_form(-name=>"abookDeleteForm$i",
                               -action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl").
                    ow::tool::hiddens(
@@ -349,21 +350,25 @@ sub addrbookedit {
                                      abookfolder=>ow::tool::escapeURL($abookfolder),
                                     ).
                    submit(-name=>$lang_text{'delete'}, -class=>"medtext",
-                          -onClick=>"return OpConfirm('deletebook', 'abookDeleteForm$i', $lang_text{'folderdelconf'}+'\\n($jsfolderstr)');").
+                          -onClick=>"return OpConfirm('deletebook', 'abookDeleteForm$i', $lang_text{'folderdelconf'}+' ($jsfolderstr)');").
                    end_form().
+
                    qq|      </td>\n|.
                    qq|      <td>\n|.
+
                    start_form(-name=>"abookRenameForm$i",
                               -action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl").
                    ow::tool::hiddens(
                                      action=>'addrbookrename',
                                      sessionid=>$thissession,
                                      abookfolder=>ow::tool::escapeURL($abookfolder),
+                                     abookfolderstr=>$abookfolderstr,
                                      abookfoldernew=>'',
                                     ).
                    submit(-name=>$lang_text{'rename'}, -class=>"medtext",
                           -onClick=>"return OpConfirm('renamebook', 'abookRenameForm$i', $lang_text{'folderrenprop'})").
                    end_form().
+
                    qq|      </td>\n|.
                    qq|   </tr>\n|.
                    qq|   </table>\n|.
@@ -379,13 +384,13 @@ sub addrbookedit {
    $colornum = 1;
    $temphtml = '';
    foreach my $abookfolder (get_global_abookfolders()) {
-      my $abookfolderstr=ow::htmltext::str2html($lang_abookselectionlabels{$abookfolder}||(iconv($prefs{'fscharset'}, $prefs{'charset'}, $abookfolder))[0]);
+      my $abookfolderstr=$lang_abookselectionlabels{$abookfolder}||f2u($abookfolder);
       $temphtml .= qq|<tr>\n|.
                    qq|<td width="10" bgcolor=$bgcolor[$colornum]>&nbsp;</td>|.
                    qq|<td bgcolor=$bgcolor[$colornum]>|.
                    iconlink("download.gif", $lang_text{'download'},
                              qq|accesskey="W" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrbookdownload&amp;sessionid=$thissession&amp;abookfolder=$abookfolder"|).
-                   qq|<a href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrlistview&amp;sessionid=$thissession&amp;abookfolder=|.ow::tool::escapeURL($abookfolder).qq|">$abookfolderstr</a></td>\n|.
+                   qq|<a href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrlistview&amp;sessionid=$thissession&amp;abookfolder=|.ow::tool::escapeURL($abookfolder).qq|">|.ow::htmltext::str2html($abookfolderstr).qq|</a></td>\n|.
                    qq|<td align="center" bgcolor=$bgcolor[$colornum]>$total{$abookfolder}{'entries'}</td>\n|.
                    qq|<td align="center" bgcolor=$bgcolor[$colornum]>|.lenstr($total{$abookfolder}{'size'},0).qq|</td>\n|.
                    qq|<td bgcolor=$bgcolor[$colornum] align="center">&nbsp;</td>\n|.
@@ -416,9 +421,10 @@ sub addrbookedit {
 
 ########## ADDRBOOKRENAME ########################################
 sub addrbookrename {
-   my $abookfoldernew = ow::tool::untaint(param('abookfoldernew')) || '';
+   my $abookfoldernewstr = ow::tool::untaint(param('abookfoldernew')) || '';
+   my $abookfoldernew=u2f($abookfoldernewstr);
    is_safefoldername($abookfoldernew) or
-      openwebmailerror(__FILE__, __LINE__, "$abookfoldernew $lang_err{'has_illegal_chars'}");
+      openwebmailerror(__FILE__, __LINE__, "$abookfoldernewstr $lang_err{'has_illegal_chars'}");
    $abookfoldernew = safefoldername($abookfoldernew);
    return addrbookedit() if ($abookfoldernew eq '');
 
@@ -428,12 +434,12 @@ sub addrbookrename {
    my $abookfile=abookfolder2file($abookfolder);
 
    if (-e $abookfilenew || $abookfoldernew=~/^(?:ALL|DELETE|)$/) {
-      my $msg=$lang_err{'abook_already_exists'}; $msg =~ s/\@\@\@ADDRESSBOOK\@\@\@/$abookfoldernew/;
+      my $msg=$lang_err{'abook_already_exists'}; $msg =~ s/\@\@\@ADDRESSBOOK\@\@\@/$abookfoldernewstr/;
       openwebmailerror(__FILE__, __LINE__, $msg);
    } else {
       if (length($abookfoldernew) > $config{'foldername_maxlen'}) {
          my $msg=$lang_err{'abook_name_too_long'};
-         $msg =~ s/\@\@\@ADDRESSBOOK\@\@\@/$abookfoldernew/;
+         $msg =~ s/\@\@\@ADDRESSBOOK\@\@\@/$abookfoldernewstr/;
          $msg =~ s/\@\@\@FOLDERNAME_MAXLEN\@\@\@/$config{'foldername_maxlen'}/;
          openwebmailerror(__FILE__, __LINE__, $msg);
       } else {
@@ -472,7 +478,7 @@ sub addrbookdownload {
    $filename=~s/\s+/_/g;
 
    ow::filelock::lock($abookfile, LOCK_EX|LOCK_NB) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $abookfile");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} ".f2u($abookfile));
 
    # disposition:attachment default to save
    print qq|Connection: close\n|,
@@ -937,11 +943,7 @@ sub addrlistview {
    my (@abookvalues, %abooklabels);
    foreach my $abook ('ALL', @allabookfolders) {
       my ($value, $label)=(ow::tool::escapeURL($abook), $abook);
-      if (defined $lang_abookselectionlabels{$abook}) {
-         $label=$lang_abookselectionlabels{$abook};
-      } else {
-         $label=(iconv($prefs{'fscharset'}, $prefs{'charset'}, $abook))[0];
-      }
+      $label=(defined $lang_abookselectionlabels{$abook})?$lang_abookselectionlabels{$abook}:f2u($abook);
       $label.=" *" if (is_abookfolder_global($abook));
       push(@abookvalues, $value); $abooklabels{$value}=$label;
    }
@@ -993,7 +995,7 @@ sub addrlistview {
 
       $temphtml .= "&nbsp;\n";
       if ($config{'enable_webmail'}) {
-         my $folderstr=ow::htmltext::str2html($lang_folders{$folder}||(iconv($prefs{'fscharset'}, $prefs{'charset'}, $folder))[0]);
+         my $folderstr=ow::htmltext::str2html($lang_folders{$folder}||f2u($folder));
          if ($messageid eq "") {
             $temphtml .= iconlink("owm.gif", "$lang_text{'backto'} $folderstr",
                                   qq|accesskey="M" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;sessionid=$thissession&amp;folder=$escapedfolder"|);
@@ -1027,7 +1029,7 @@ sub addrlistview {
                             qq|accesskey="X" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=logout&amp;sessionid=$thissession"|);
 
    } elsif ($listviewmode eq 'export') {
-      my $abookfolderstr=ow::htmltext::str2html($lang_abookselectionlabels{$abookfolder}||(iconv($prefs{'fscharset'}, $prefs{'charset'}, $abookfolder))[0]);
+      my $abookfolderstr=ow::htmltext::str2html($lang_abookselectionlabels{$abookfolder}||f2u($abookfolder));
       $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} $abookfolderstr",
                                qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrlistview&amp;$urlparm"|);
    }
@@ -1094,11 +1096,7 @@ sub addrlistview {
    my (@mvcpvalues, %mvcplabels);
    foreach my $abook (@destabookfolders) {
       my ($value, $label)=(ow::tool::escapeURL($abook), $abook);
-      if (defined $lang_abookselectionlabels{$abook}) {
-         $label=$lang_abookselectionlabels{$abook};
-      } else {
-         $label=(iconv($prefs{'fscharset'}, $prefs{'charset'}, $abook))[0];
-      }
+      $label=(defined $lang_abookselectionlabels{$abook})?$lang_abookselectionlabels{$abook}:f2u($abook);
       $label.=" *" if (is_abookfolder_global($abook));
       push(@mvcpvalues, $value); $mvcplabels{$value}=$label if ($label ne $value);
    }
@@ -1415,7 +1413,7 @@ sub addrlistview {
 
       my $hreftitle='';
       if ($abookfolder eq 'ALL') {
-         my $addrbookstr=ow::htmltext::str2html((iconv($prefs{'fscharset'}, $prefs{'charset'}, $addrbook))[0]);
+         my $addrbookstr=ow::htmltext::str2html(f2u($addrbook));
          if (is_abookfolder_global($addrbook)) {
             $hreftitle=qq|title="$lang_text{'abook_global'}:$addrbookstr"|;
          } else {
@@ -3414,7 +3412,7 @@ sub addredit {
          } elsif ($webdisksel && $config{'enable_webdisk'}) {
             my $webdiskrootdir=ow::tool::untaint($homedir.absolute_vpath("/", $config{'webdisk_rootpath'}));
             my $vpath=absolute_vpath('/', $webdisksel);
-            my $vpathstr=(iconv($prefs{'fscharset'}, $prefs{'charset'}, $vpath))[0];
+            my $vpathstr=f2u($vpath);
             my $err=verify_vpath($webdiskrootdir, $vpath);
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'access_denied'} ($vpathstr: $err)") if ($err);
             openwebmailerror(__FILE__, __LINE__, "$lang_text{'file'} $vpathstr $lang_err{'doesnt_exist'}") if (!-f "$webdiskrootdir/$vpath");
@@ -3697,12 +3695,12 @@ sub addredit {
       # and write it out!
       my $writeoutput = outputvfile('vcard',$completebook);
       ow::filelock::lock($abookfile, LOCK_EX|LOCK_NB) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $abookfile");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} ".f2u($abookfile));
       open(TARGET, ">$abookfile") or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $abookfile ($!)\n");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} ".f2u($abookfile)." ($!)\n");
       print TARGET $writeoutput;
       close(TARGET) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $abookfile ($!)\n");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} ".f2u($abookfile)." ($!)\n");
       ow::filelock::lock($abookfile, LOCK_UN);
 
       writelog("edit contact - $xowmuid from $abookfolder");
@@ -3751,7 +3749,8 @@ sub addrmovecopydelete {
    } else {
       $allabookfolders{$abookfolder} = abookfolder2file($abookfolder);
       if (!-f $allabookfolders{$abookfolder}) {
-         my $msg=$lang_err{'abook_doesnt_exist'}; $msg=~s/\@\@\@ADDRESSBOOK\@\@\@/$abookfolder/;
+         my $abookfolderstr=f2u($abookfolder);
+         my $msg=$lang_err{'abook_doesnt_exist'}; $msg=~s/\@\@\@ADDRESSBOOK\@\@\@/$abookfolderstr/;
          openwebmailerror(__FILE__, __LINE__, $msg);
       }
    }
@@ -3764,7 +3763,8 @@ sub addrmovecopydelete {
    if ($targetfolder ne 'DELETE') {
       $targetfile = abookfolder2file($targetfolder);
       if (!-f $targetfile) {
-         my $msg=$lang_err{'abook_doesnt_exist'}; $msg =~ s/\@\@\@ADDRESSBOOK\@\@\@/$targetfolder/;
+         my $targetfolderstr=f2u($targetfolder);
+         my $msg=$lang_err{'abook_doesnt_exist'}; $msg =~ s/\@\@\@ADDRESSBOOK\@\@\@/$targetfolderstr/;
          openwebmailerror(__FILE__, __LINE__, $msg);
       }
       if (!-w $targetfile) {
@@ -3823,10 +3823,12 @@ sub addrmovecopydelete {
          my $writeoutput = outputvfile('vcard',$sourcebook);
 
          ow::filelock::lock($sourcefile, LOCK_EX|LOCK_NB) or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $sourcefile");
-         open(TARGET, ">$sourcefile") or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $sourcefile ($!)\n");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} ".f2u($sourcefile));
+         open(TARGET, ">$sourcefile") or
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} ".f2u($sourcefile)." ($!)\n");
          print TARGET $writeoutput;
-         close(TARGET) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $sourcefile ($!)\n");
+         close(TARGET) or
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} ".f2u($sourcefile)." ($!)\n");
          ow::filelock::lock($sourcefile, LOCK_UN);
       }
    }
@@ -3844,10 +3846,12 @@ sub addrmovecopydelete {
       }
 
       ow::filelock::lock($targetfile, LOCK_EX|LOCK_NB) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $targetfile");
-      open(TARGET, ">$targetfile") or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $targetfile ($!)\n");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} ".f2u($targetfile));
+      open(TARGET, ">$targetfile") or
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} ".f2u($targetfile)." ($!)\n");
       print TARGET $writeoutput;
-      close(TARGET) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $targetfile ($!)\n");
+      close(TARGET) or
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} ".f2u($targetfile)." ($!)\n");
       ow::filelock::lock($targetfile, LOCK_UN);
    }
 
@@ -4310,7 +4314,7 @@ sub addrimportform {
    $html =~ s/\@\@\@ABOOKIMPORTLIMIT\@\@\@/$config{'abook_importlimit'} $lang_sizes{'kb'}/g;
 
    # menubar links
-   my $abookfolderstr=ow::htmltext::str2html($lang_abookselectionlabels{$abookfolder}||(iconv($prefs{'fscharset'}, $prefs{'charset'}, $abookfolder))[0]);
+   my $abookfolderstr=ow::htmltext::str2html($lang_abookselectionlabels{$abookfolder}||f2u($abookfolder));
    $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $abookfolderstr",
                         qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrlistview&amp;$urlparm"|);
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
@@ -4470,7 +4474,7 @@ sub addrimport {
 
       my $newbookfile = ow::tool::untaint(abookfolder2file($fname));
       if (-e "$newbookfile" || $fname=~/^(?:ALL|DELETE)$/ ) {
-         openwebmailerror(__FILE__, __LINE__, "\"$fname\" $lang_err{'already_exists'}\n");
+         openwebmailerror(__FILE__, __LINE__, f2u($fname)." $lang_err{'already_exists'}\n");
       }
 
       my $writeoutput = outputvfile('vcard',$newaddrinfo);
@@ -4483,7 +4487,7 @@ sub addrimport {
          $abookfolder = $fname;
          $escapedabookfolder = ow::tool::escapeURL($fname);
       } else {
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $fname ($!)\n");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} ".f2u($fname)." ($!)\n");
       }
    } else { # append it to a selected book
       # load the existing book
@@ -4500,12 +4504,12 @@ sub addrimport {
 
       # overwrite the targetfile with the new data
       ow::filelock::lock($targetfile, LOCK_EX|LOCK_NB) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $targetfile");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} ".f2u($targetfile));
       open(TARGET, ">$targetfile") or
-        openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $targetfile ($!)\n");
+        openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} ".f2u($targetfile)." ($!)\n");
       print TARGET $writeoutput;
       close(TARGET) or
-        openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $targetfile ($!)\n");
+        openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} ".f2u($targetfile)." ($!)\n");
       ow::filelock::lock($targetfile, LOCK_UN);
 
       writelog("import addressbook - ".keys(%{$newaddrinfo})." contacts to $importdest");

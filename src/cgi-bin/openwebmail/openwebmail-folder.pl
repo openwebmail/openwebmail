@@ -108,7 +108,7 @@ sub editfolders {
 
    $html =~ s/\@\@\@FOLDERNAME_MAXLEN\@\@\@/$config{'foldername_maxlen'}/g;
 
-   my $folderstr=$lang_folders{$folder}||(iconv($prefs{'fscharset'}, $prefs{'charset'}, $folder))[0];
+   my $folderstr=$lang_folders{$folder}||f2u($folder);
    $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $folderstr", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;sessionid=$thissession&amp;sort=$sort&amp;page=$page&amp;folder=$escapedfolder"|). qq|&nbsp; \n|;
    $temphtml .= iconlink("refresh.gif", $lang_text{'refresh'}, qq|accesskey="R" href="$config{'ow_cgiurl'}/openwebmail-folder.pl?action=refreshfolders&amp;sessionid=$thissession&amp;sort=$sort&amp;folder=$escapedfolder&amp;page=$page"|). qq| \n|;
 
@@ -152,7 +152,7 @@ sub editfolders {
          if ($prefs{'categorizedfolders'} &&
              !is_defaultfolder($currfolder) &&
              !is_lang_defaultfolder($currfolder)) {
-            my $folderstr=$lang_folders{$currfolder}||(iconv($prefs{'fscharset'}, $prefs{'charset'}, $currfolder))[0];
+            my $folderstr=$lang_folders{$currfolder}||f2u($currfolder);
             if ($folderstr=~/^(.+?)\Q$categorizedfolders_fs\E/) {
                $thisfolderprefix=$1;
                if ($thisfolderprefix ne $lastfolderprefix) {
@@ -237,7 +237,7 @@ sub _folderline {
 
    if (ow::dbm::exist("$folderdb")) {
       ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} db $folderdb");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} db ".f2u($folderdb));
       if ( defined($FDB{'ALLMESSAGES'}) ) {
          $allmessages=$FDB{'ALLMESSAGES'};
          ${$r_total_allmessages}+=$allmessages;
@@ -263,8 +263,8 @@ sub _folderline {
    $foldersize=lenstr($foldersize,0);
 
    my $escapedcurrfolder = ow::tool::escapeURL($currfolder);
+   my $currfolderstr=$lang_folders{$currfolder}||f2u($currfolder);
    my $url = "$config{'ow_cgiurl'}/openwebmail-folder.pl?sessionid=$thissession&amp;folder=$escapedcurrfolder&amp;action=downloadfolder";
-   my $folderstr=$lang_folders{$currfolder}||(iconv($prefs{'fscharset'}, $prefs{'charset'}, $currfolder))[0];
 
    my $accesskeystr=$i%10+1;
    if ($accesskeystr == 10) {
@@ -273,12 +273,12 @@ sub _folderline {
       $accesskeystr=qq|accesskey="$accesskeystr"|;
    }
 
-   my ($gifstr, $folderbasename)=('', $folderstr);
+   my ($gifstr, $folderbasename)=('', $currfolderstr);
    if ($prefs{'categorizedfolders'} &&
        !is_defaultfolder($currfolder) &&
        !is_lang_defaultfolder($currfolder)) {
       my $categorizedfolders_fs = $prefs{'categorizedfolders_fs'}||'-';
-      if ($folderstr=~/^.+?\Q$categorizedfolders_fs\E(.+)$/) {
+      if ($currfolderstr=~/^.+?\Q$categorizedfolders_fs\E(.+)$/) {
          $gifstr=qq| &nbsp; - &nbsp; |;
          $folderbasename=$1;
       }
@@ -287,7 +287,7 @@ sub _folderline {
                 qq|<td bgcolor=$bgcolor> &nbsp; &nbsp; $gifstr|.
                 qq|<a href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;sessionid=$thissession&amp;sort=$sort&amp;page=$page&amp;folder=$escapedcurrfolder">|.
                 ow::htmltext::str2html($folderbasename).qq| </a>&nbsp;\n|.
-                iconlink("download.gif", "$lang_text{'download'} $folderstr ", qq|$accesskeystr href="$url"|).
+                iconlink("download.gif", "$lang_text{'download'} $currfolderstr ", qq|$accesskeystr href="$url"|).
                 qq|</td>\n|.
                 qq|<td align="center" bgcolor=$bgcolor>$newmessages</td>|.
                 qq|<td align="center" bgcolor=$bgcolor>&nbsp;$allmessages</td>|.
@@ -302,11 +302,11 @@ sub _folderline {
                                   sort=>$sort,
                                   page=>$page,
                                   folder=>$escapedfolder,
-                                  foldername=>$currfolder,
-                                  foldernewname=>$currfolder)."\n";
+                                  foldername=>$escapedcurrfolder,
+                                  foldernamestr=>$currfolderstr,
+                                  foldernewname=>'')."\n";
 
-   my $jsfolderstr=$lang_folders{$currfolder}||$currfolder;
-   $jsfolderstr=~ s/'/\\'/g;	# escaep ' with \'
+   my $jsfolderstr=$currfolderstr; $jsfolderstr=~ s/'/\\'/g;	# escaep ' with \'
    $temphtml .= submit(-name=>$lang_text{'markread'},
                        -class=>"medtext",
                        -onClick=>"return OpConfirm('folderform$i', 'markreadfolder', $lang_text{'foldermarkreadconf'}+' ( $jsfolderstr )')");
@@ -342,7 +342,7 @@ sub refreshfolders {
       my ($folderfile,$folderdb)=get_folderpath_folderdb($user, $currfolder);
 
       ow::filelock::lock($folderfile, LOCK_EX) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $folderfile!");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} ".f2u($folderfile)."!");
       if (update_folderindex($folderfile, $folderdb)<0) {
          $errcount++;
          writelog("db error - Couldn't update db $folderdb");
@@ -363,22 +363,22 @@ sub refreshfolders {
 
 ########## MARKREADFOLDER ########################################
 sub markreadfolder {
-   my $foldertomark = ow::tool::untaint(safefoldername(param('foldername'))) || '';
+   my $foldertomark = ow::tool::untaint(safefoldername(ow::tool::unescapeURL(param('foldername')))) || '';
    my ($folderfile, $folderdb)=get_folderpath_folderdb($user, $foldertomark);
 
    my $ioerr=0;
 
    ow::filelock::lock($folderfile, LOCK_EX) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $folderfile!");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} ".f2u($folderfile)."!");
 
    if (update_folderindex($folderfile, $folderdb)<0) {
       ow::filelock::lock($folderfile, LOCK_UN);
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_updatedb'} db $folderdb");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_updatedb'} db ".f2u($folderdb));
    }
 
    my (%FDB, %offset, %status);
    ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} db $folderdb");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} db ".f2u($folderdb));
    foreach my $messageid (keys %FDB) {
       next if ($is_internal_dbkey{$messageid});
       my @attr=string2msgattr($FDB{$messageid});
@@ -453,11 +453,11 @@ sub markreadfolder {
 ########## REINDEXFOLDER #########################################
 sub reindexfolder {
    my $recreate=$_[0];
-   my $foldertoindex = ow::tool::untaint(safefoldername(param('foldername'))) || '';
+   my $foldertoindex = ow::tool::untaint(safefoldername(ow::tool::unescapeURL(param('foldername')))) || '';
    my ($folderfile, $folderdb)=get_folderpath_folderdb($user, $foldertoindex);
 
    ow::filelock::lock($folderfile, LOCK_SH|LOCK_NB) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $folderfile");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} ".f2u($folderfile));
 
    if ($recreate) {
       ow::dbm::unlink($folderdb);
@@ -466,14 +466,14 @@ sub reindexfolder {
       my %FDB;
       if (!ow::dbm::open(\%FDB, $folderdb, LOCK_SH)) {
          ow::filelock::lock($folderfile, LOCK_UN);
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} db $folderdb");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} db ".f2u($folderdb));
       }
       @FDB{'METAINFO', 'LSTMTIME'}=('RENEW', -1);
       ow::dbm::close(\%FDB, $folderdb);
    }
    if (update_folderindex($folderfile, $folderdb)<0) {
       ow::filelock::lock($folderfile, LOCK_UN);
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_updatedb'} db $folderdb");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_updatedb'} db ".f2u($folderdb));
    }
 
    if ($recreate) {
@@ -501,8 +501,8 @@ sub addfolder {
       }
    }
 
-   my $foldertoadd = ow::tool::untaint(param('foldername')) || '';
-   $foldertoadd = (iconv($prefs{'charset'}, $prefs{'fscharset'}, $foldertoadd))[0];
+   my $foldertoadd = ow::tool::untaint(ow::tool::unescapeURL(param('foldername'))) || ''; # from js field
+   $foldertoadd = u2f($foldertoadd);
    is_safefoldername($foldertoadd) or
       openwebmailerror(__FILE__, __LINE__, "$foldertoadd $lang_err{'has_illegal_chars'}");
    $foldertoadd = safefoldername($foldertoadd);
@@ -515,22 +515,22 @@ sub addfolder {
    }
    if ( is_defaultfolder($foldertoadd) || is_lang_defaultfolder($foldertoadd) ||
         $foldertoadd eq "$user") {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'cant_create_folder'} ($foldertoadd)");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'cant_create_folder'} (".f2u($foldertoadd).")");
    }
 
    my ($folderfile, $folderdb)=get_folderpath_folderdb($user, $foldertoadd);
    if ( -f $folderfile ) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'folder_with_name'} $foldertoadd $lang_err{'already_exists'}");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'folder_with_name'} ".f2u($foldertoadd)." $lang_err{'already_exists'}");
    }
 
    open (FOLDERTOADD, ">$folderfile") or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'cant_create_folder'} $foldertoadd! ($!)");
-   close (FOLDERTOADD) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $foldertoadd! ($!)");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'cant_create_folder'} ".f2u($foldertoadd)."! ($!)");
+   close (FOLDERTOADD) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} ".f2u($foldertoadd)."! ($!)");
 
    # create empty index dbm with mode 0600
    my %FDB;
    ow::dbm::open(\%FDB, $folderdb, LOCK_EX) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $folderdb");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} ".f2u($folderdb));
    ow::dbm::close(\%FDB, $folderdb);
 
    writelog("create folder - $foldertoadd");
@@ -549,8 +549,7 @@ sub is_lang_defaultfolder {
 
 ########## DELETEFOLDER ##########################################
 sub deletefolder {
-   my $foldertodel = safefoldername(param('foldername')) || '';
-   $foldertodel = (iconv($prefs{'charset'}, $prefs{'fscharset'}, $foldertodel))[0];
+   my $foldertodel = safefoldername(ow::tool::unescapeURL(param('foldername'))) || '';
 
    my ($folderfile, $folderdb)=get_folderpath_folderdb($user, $foldertodel);
    if ( -f $folderfile) {
@@ -573,14 +572,13 @@ sub deletefolder {
 
 ########## RENAMEFOLDER ##########################################
 sub renamefolder {
-   my $oldname = ow::tool::untaint(safefoldername(param('foldername'))) || '';
+   my $oldname = ow::tool::untaint(safefoldername(ow::tool::unescapeURL(param('foldername')))) || '';
    if ($oldname eq 'INBOX') {
       return editfolders();
    }
-   $oldname = (iconv($prefs{'charset'}, $prefs{'fscharset'}, $oldname))[0];
 
-   my $newname = ow::tool::untaint(param('foldernewname'))||'';
-   $newname = (iconv($prefs{'charset'}, $prefs{'fscharset'}, $newname))[0];
+   my $newnamestr = ow::tool::untaint(param('foldernewname'))||'';	# from js field
+   my $newname = u2f($newnamestr);
    is_safefoldername($newname) or
       openwebmailerror(__FILE__, __LINE__, "$newname $lang_err{'has_illegal_chars'}");
    $newname = safefoldername($newname);
@@ -600,7 +598,7 @@ sub renamefolder {
    my ($newfolderfile, $newdb)=get_folderpath_folderdb($user, $newname);
 
    if ( -f $newfolderfile ) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'folder_with_name'} $newname $lang_err{'already_exists'}");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'folder_with_name'} $newnamestr $lang_err{'already_exists'}");
    }
 
    if ( -f $oldfolderfile ) {
@@ -642,7 +640,7 @@ sub downloadfolder {
    $filename=~s/\s+/_/g;
 
    ow::filelock::lock($folderfile, LOCK_EX) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $folderfile");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} ".f2u($folderfile));
 
    # disposition:attachment default to save
    print qq|Connection: close\n|,

@@ -105,8 +105,7 @@ $currentdir = absolute_vpath("/", $currentdir);
 $gotodir = absolute_vpath($currentdir, $gotodir);
 
 my $msg=verify_vpath($webdiskrootdir, $currentdir);
-$msg=(iconv($prefs{'fscharset'}, $prefs{'charset'}, $msg))[0] if ($msg);
-openwebmailerror(__FILE__, __LINE__, "$lang_err{'access_denied'} ($msg)") if ($msg);
+openwebmailerror(__FILE__, __LINE__, "$lang_err{'access_denied'} (".f2u($currentdir).": $msg)") if ($msg);
 $currentdir=ow::tool::untaint($currentdir);
 
 if ($action eq "mkdir" || defined(param('mkdirbutton')) ) {
@@ -366,10 +365,10 @@ openwebmail_requestend();
 ########## CREATEDIR #############################################
 sub createdir {
    my ($currentdir, $destname)=@_;
-   $destname=(iconv($prefs{'charset'}, $prefs{'fscharset'}, $destname))[0];
+   $destname=u2f($destname);
 
    my $vpath=ow::tool::untaint(absolute_vpath($currentdir, $destname));
-   my $vpathstr=(iconv($prefs{'fscharset'}, $prefs{'charset'}, $vpath))[0];
+   my $vpathstr=f2u($vpath);
    my $err=verify_vpath($webdiskrootdir, $vpath);
    return ("$lang_err{'access_denied'} ($vpathstr: $err)\n") if ($err);
 
@@ -391,10 +390,10 @@ sub createdir {
 ########## NEWFILE ###############################################
 sub createfile {
    my ($currentdir, $destname)=@_;
-   $destname=(iconv($prefs{'charset'}, $prefs{'fscharset'}, $destname))[0];
+   $destname=u2f($destname);
 
    my $vpath=ow::tool::untaint(absolute_vpath($currentdir, $destname));
-   my $vpathstr=(iconv($prefs{'fscharset'}, $prefs{'charset'}, $vpath))[0];
+   my $vpathstr=f2u($vpath);
    my $err=verify_vpath($webdiskrootdir, $vpath);
    return ("$lang_err{'access_denied'} ($vpathstr: $err)\n") if ($err);
 
@@ -422,7 +421,7 @@ sub deletedirfiles {
    my @filelist;
    foreach (@selitems) {
       my $vpath=ow::tool::untaint(absolute_vpath($currentdir, $_));
-      my $vpathstr=(iconv($prefs{'fscharset'}, $prefs{'charset'}, $vpath))[0];
+      my $vpathstr=f2u($vpath);
       $err=verify_vpath($webdiskrootdir, $vpath);
       if ($err) {
          $msg.="$lang_err{'access_denied'} ($vpathstr: $err)\n"; next;
@@ -462,11 +461,11 @@ sub deletedirfiles {
 ########## COPYDIRFILES ##########################################
 sub copymovesymlink_dirfiles {
    my ($op, $currentdir, $destname, @selitems)=@_;
-   $destname=(iconv($prefs{'charset'}, $prefs{'fscharset'}, $destname))[0];
+   $destname=u2f($destname);
 
    my ($msg, $err);
    my $vpath2=ow::tool::untaint(absolute_vpath($currentdir, $destname));
-   my $vpath2str=(iconv($prefs{'fscharset'}, $prefs{'charset'}, $vpath2))[0];
+   my $vpath2str=f2u($vpath2);
    $err=verify_vpath($webdiskrootdir, $vpath2);
    return ("$lang_err{'access_denied'} ($vpath2str: $err)\n") if ($err);
 
@@ -481,7 +480,7 @@ sub copymovesymlink_dirfiles {
    my @filelist;
    foreach (@selitems) {
       my $vpath1=ow::tool::untaint(absolute_vpath($currentdir, $_));
-      my $vpath1str=(iconv($prefs{'fscharset'}, $prefs{'charset'}, $vpath1))[0];
+      my $vpath1str=f2u($vpath1);
       $err=verify_vpath($webdiskrootdir, $vpath1);
       if ($err) {
          $msg.="$lang_err{'access_denied'} ($vpath1str: $err)\n"; next;
@@ -530,7 +529,7 @@ sub copymovesymlink_dirfiles {
 sub editfile {
    my ($currentdir, $selitem)=@_;
    my $vpath=absolute_vpath($currentdir, $selitem);
-   my $vpathstr=(iconv($prefs{'fscharset'}, $prefs{'charset'}, $vpath))[0];
+   my $vpathstr=f2u($vpath);
    my $content;
 
    my ($html, $temphtml);
@@ -542,13 +541,15 @@ sub editfile {
       my $err=verify_vpath($webdiskrootdir, $vpath);
       autoclosewindow($lang_wdbutton{'edit'}, "$lang_err{'access_denied'} ($vpathstr: $err)") if ($err);
 
-      if (!open(F, "$webdiskrootdir/$vpath")) {
-         autoclosewindow($lang_wdbutton{'edit'}, "$lang_err{'couldnt_open'} $vpathstr");
-      }
       ow::filelock::lock("$webdiskrootdir/$vpath", LOCK_SH|LOCK_NB) or
          autoclosewindow($lang_text{'edit'}, "$lang_err{'couldnt_locksh'} $vpathstr!");
-      while (<F>) { $content .= $_; }
-      close(F);
+      if (open(F, "$webdiskrootdir/$vpath")) {
+         local $/; undef $/;
+         $content=<F>; close(F);
+      } else {
+         ow::filelock::lock("$webdiskrootdir/$vpath", LOCK_UN);
+         autoclosewindow($lang_wdbutton{'edit'}, "$lang_err{'couldnt_open'} $vpathstr");
+      }
       ow::filelock::lock("$webdiskrootdir/$vpath", LOCK_UN);
 
       $content =~ s|<\s*/\s*textarea\s*>|</ESCAPE_TEXTAREA>|gi;
@@ -604,7 +605,7 @@ sub editfile {
 
    # put this at last to avoid @@@pattern@@@ replacement happens on $content
    $temphtml = textarea(-name=>'filecontent',
-                        -default=>(iconv($prefs{fscharset}, $prefs{charset}, $content))[0],
+                        -default=>f2u($content),
                         -rows=>$prefs{'webdisk_fileeditrows'},
                         -columns=>$prefs{'webdisk_fileeditcolumns'},
                         -wrap=>'soft',
@@ -621,7 +622,7 @@ sub savefile {
    ($destname, $content)=iconv($prefs{charset}, $prefs{fscharset}, $destname, $content);
 
    my $vpath=ow::tool::untaint(absolute_vpath($currentdir, $destname));
-   my $vpathstr=(iconv($prefs{'fscharset'}, $prefs{'charset'}, $vpath))[0];
+   my $vpathstr=f2u($vpath);
    my $err=verify_vpath($webdiskrootdir, $vpath);
    autoclosewindow($lang_text{'savefile'}, "$lang_err{'access_denied'} ($vpathstr: $err)", 60) if ($err);
 
@@ -649,12 +650,12 @@ sub savefile {
 ########## COMPRESSFILES #########################################
 sub compressfiles {	# pack files with zip or tgz (tar -zcvf)
    my ($ztype, $currentdir, $destname, @selitems)=@_;
-   $destname=(iconv($prefs{'charset'}, $prefs{'fscharset'}, $destname))[0];
+   $destname=u2f($destname);
 
    my ($vpath2, $vpath2str, $msg, $err);
    if ($ztype eq "mkzip" || $ztype eq "mktgz" ) {
       $vpath2=ow::tool::untaint(absolute_vpath($currentdir, $destname));
-      $vpath2str=(iconv($prefs{'fscharset'}, $prefs{'charset'}, $vpath2))[0];
+      $vpath2str=f2u($vpath2);
       $err=verify_vpath($webdiskrootdir, $vpath2);
       return ("$lang_err{'access_denied'} ($vpath2str: $err)\n") if ($err);
       if ( -e "$webdiskrootdir/$vpath2") {
@@ -666,7 +667,7 @@ sub compressfiles {	# pack files with zip or tgz (tar -zcvf)
    my %selitem;
    foreach (@selitems) {
       my $vpath=absolute_vpath($currentdir, $_);
-      my $vpathstr=(iconv($prefs{'fscharset'}, $prefs{'charset'}, $vpath))[0];
+      my $vpathstr=f2u($vpath);
       $err=verify_vpath($webdiskrootdir, $vpath);
       if ($err) {
          $msg.="$lang_err{'access_denied'} ($vpathstr: $err)\n"; next;
@@ -728,7 +729,7 @@ sub compressfiles {	# pack files with zip or tgz (tar -zcvf)
 sub decompressfile {	# unpack tar.gz, tgz, tar.bz2, tbz, gz, zip, rar, arj, lzh, tnef/tnf
    my ($currentdir, $selitem)=@_;
    my $vpath=absolute_vpath($currentdir, $selitem);
-   my $vpathstr=(iconv($prefs{'fscharset'}, $prefs{'charset'}, $vpath))[0];
+   my $vpathstr=f2u($vpath);
 
    if ( !-f "$webdiskrootdir/$vpath" || !-r _) {
       return("$lang_err{'couldnt_open'} $vpathstr");
@@ -807,7 +808,7 @@ sub decompressfile {	# unpack tar.gz, tgz, tar.bz2, tbz, gz, zip, rar, arj, lzh,
 sub listarchive {
    my ($currentdir, $selitem)=@_;
    my $vpath=absolute_vpath($currentdir, $selitem);
-   my $vpathstr=(iconv($prefs{'fscharset'}, $prefs{'charset'}, $vpath))[0];
+   my $vpathstr=f2u($vpath);
 
    my ($html, $temphtml);
    $html = applystyle(readtemplate("listarchive.template"));
@@ -914,7 +915,7 @@ sub listarchive {
 sub wordpreview {		# msword text preview
    my ($currentdir, $selitem)=@_;
    my $vpath=absolute_vpath($currentdir, $selitem);
-   my $vpathstr=(iconv($prefs{'fscharset'}, $prefs{'charset'}, $vpath))[0];
+   my $vpathstr=f2u($vpath);
 
    my ($html, $temphtml);
    $html = applystyle(readtemplate("wordpreview.template"));
@@ -947,7 +948,7 @@ sub wordpreview {		# msword text preview
       # try to conv realpath in stdout/stderr back to vpath
       $stderr=~s!(?:$webdiskrootdir//|\s$webdiskrootdir/)! /!g; $stderr=~s!/+!/!g;
       $stderr=~s!^\s+.*$!!mg;	# remove the antiword syntax description
-      $stderr=(iconv($prefs{'fscharset'}, $prefs{'charset'}, $stderr))[0];
+      $stderr=f2u($stderr);
 
       my $err="$lang_text{'program'} antiword $lang_text{'failed'} (exit status $exit";
       $err.=", terminated by signal $sig" if ($sig);
@@ -991,7 +992,7 @@ sub wordpreview {		# msword text preview
 sub makepdfps {		# ps2pdf or pdf2ps
    my ($mktype, $currentdir, $selitem)=@_;
    my $vpath=absolute_vpath($currentdir, $selitem);
-   my $vpathstr=(iconv($prefs{'fscharset'}, $prefs{'charset'}, $vpath))[0];
+   my $vpathstr=f2u($vpath);
 
    if ( !-f "$webdiskrootdir/$vpath" || !-r _) {
       return("$lang_err{'couldnt_open'} $vpathstr");
@@ -1038,7 +1039,7 @@ sub makethumbnail {
 
    foreach (@selitems) {
       my $vpath=absolute_vpath($currentdir, $_);
-      my $vpathstr=(iconv($prefs{'fscharset'}, $prefs{'charset'}, $vpath))[0];
+      my $vpathstr=f2u($vpath);
       my $err=verify_vpath($webdiskrootdir, $vpath);
       if ($err) {
          $msg.="$lang_err{'access_denied'} ($vpathstr: $err)\n"; next;
@@ -1093,7 +1094,7 @@ sub downloadfiles {	# through zip or tgz
    my %selitem;
    foreach (@selitems) {
       my $vpath=absolute_vpath($currentdir, $_);
-      my $vpathstr=(iconv($prefs{'fscharset'}, $prefs{'charset'}, $vpath))[0];
+      my $vpathstr=f2u($vpath);
       my $err=verify_vpath($webdiskrootdir, $vpath);
       if ($err) {
          $msg.="$lang_err{'access_denied'} ($vpathstr: $err)\n"; next;
@@ -1171,7 +1172,7 @@ sub downloadfile {
    my ($currentdir, $selitem)=@_;
 
    my $vpath=absolute_vpath($currentdir, $selitem);
-   my $vpathstr=(iconv($prefs{'fscharset'}, $prefs{'charset'}, $vpath))[0];
+   my $vpathstr=f2u($vpath);
    my $err=verify_vpath($webdiskrootdir, $vpath);
    return("$lang_err{'access_denied'} ($vpathstr: $err)\n") if ($err);
 
@@ -1230,7 +1231,7 @@ sub downloadfile {
 sub previewfile {
    my ($currentdir, $selitem, $filecontent)=@_;
    my $vpath=absolute_vpath($currentdir, $selitem);
-   my $vpathstr=(iconv($prefs{'fscharset'}, $prefs{'charset'}, $vpath))[0];
+   my $vpathstr=f2u($vpath);
    my $err=verify_vpath($webdiskrootdir, $vpath);
    return("$lang_err{'access_denied'} ($vpathstr: $err)\n") if ($err);
 
@@ -1348,7 +1349,7 @@ sub uploadfile {
    }
 
    my $vpath=ow::tool::untaint(absolute_vpath($currentdir, $fname));
-   my $vpathstr=(iconv($prefs{'fscharset'}, $prefs{'charset'}, $vpath))[0];
+   my $vpathstr=f2u($vpath);
    my $err=verify_vpath($webdiskrootdir, $vpath);
    return("$lang_err{'access_denied'} ($vpathstr: $err)\n") if ($err);
 
@@ -1422,11 +1423,10 @@ sub dirfilesel {
    foreach my $dir ($newdir, $olddir, "/") {
       my $err=verify_vpath($webdiskrootdir, $dir);
       if ($err) {
-         $err=(iconv($prefs{'fscharset'}, $prefs{'charset'}, $err))[0];
-         $msg .= "$lang_err{'access_denied'} ($err)<br>\n"; next;
+         $msg .= "$lang_err{'access_denied'} (".f2u($dir).": $err)<br>\n"; next;
       }
       if (!opendir(D, "$webdiskrootdir/$dir")) {
-         $msg .= "$lang_err{'couldnt_open'} $dir ($!)<br>\n"; next;
+         $msg .= "$lang_err{'couldnt_open'} ".f2u($dir)." ($!)<br>\n"; next;
       }
       $currentdir=$dir; last;
    }
@@ -1532,7 +1532,7 @@ sub dirfilesel {
       next if ($_ eq "");
       $p.="$_/";
       $temphtml.=qq|<a href="$wd_url_sort_page&amp;action=$action&amp;gotodir=|.ow::tool::escapeURL($p).qq|">|.
-                 ow::htmltext::str2html((iconv($prefs{fscharset}, $prefs{charset}, "$_/"))[0]).qq|</a>\n|;
+                 ow::htmltext::str2html(f2u("$_/")).qq|</a>\n|;
    }
    $html =~ s/\@\@\@CURRENTDIR\@\@\@/$temphtml/g;
 
@@ -1610,7 +1610,7 @@ sub dirfilesel {
       foreach my $i ($i_first..$i_last) {
          my $fname=$sortedlist[$i];
          my $vpath=absolute_vpath($currentdir, $fname);
-         my $vpathstr=(iconv($prefs{'fscharset'}, $prefs{'charset'}, $vpath))[0];
+         my $vpathstr=f2u($vpath);
          my $escapedvpath=ow::tool::escapeURL($vpath);
          my $accesskeystr=$i%10+1;
          if ($accesskeystr == 10) {
@@ -1620,8 +1620,8 @@ sub dirfilesel {
          }
 
          my ($imgstr, $namestr, $opstr, $onclickstr);
-         $namestr=ow::htmltext::str2html((iconv($prefs{fscharset}, $prefs{charset}, $fname))[0]);
-         $namestr.=ow::htmltext::str2html((iconv($prefs{fscharset}, $prefs{charset}, $flink{$fname}))[0]) if (defined($flink{$fname}));
+         $namestr=ow::htmltext::str2html(f2u($fname));
+         $namestr.=ow::htmltext::str2html(f2u($flink{$fname})) if (defined $flink{$fname});
          if ($ftype{$fname} eq "d") {
             if ($prefs{'iconset'}!~/^Text\./) {
                $imgstr=qq|<IMG SRC="$config{'ow_htmlurl'}/images/file/|.
@@ -1734,9 +1734,9 @@ sub dirfilesel {
    }
 
    if ($action eq "sel_saveattfile" || $action eq "sel_saveattachment") {
-      my $attname_fs=(iconv($prefs{'charset'}, $prefs{'fscharset'}, $attname))[0];
+      my $attname_fs=u2f($attname);
       my $vpath=absolute_vpath($currentdir, $attname_fs);
-      my $vpathstr=(iconv($prefs{'fscharset'}, $prefs{'charset'}, $vpath))[0];
+      my $vpathstr=f2u($vpath);
       $temphtml = textfield(-name=>'destname',
                             -default=>"",
                             -size=>'35',
@@ -1764,7 +1764,7 @@ sub dirfilesel {
                         -value=>$lang_text{'ok'});
    } elsif ($action eq "sel_saveattfile") {
       $temphtml.=submit(-name=>'okbutton',
-                        -onClick=>"saveattfile_and_close('".(iconv($prefs{fscharset}, $prefs{charset}, $attfile))[0]."'); return false;",
+                        -onClick=>"saveattfile_and_close('".f2u($attfile)."'); return false;",
                         -value=>$lang_text{'ok'});
    } elsif ($action eq "sel_saveattachment") {
       $temphtml.=submit(-name=>'okbutton',
@@ -1851,11 +1851,10 @@ sub showdir {
       foreach my $dir ($newdir, $olddir, "/") {
          my $err=verify_vpath($webdiskrootdir, $dir);
          if ($err) {
-            $err=(iconv($prefs{'fscharset'}, $prefs{'charset'}, $err))[0];
-            $msg .= "$lang_err{'access_denied'} ($err)\n"; next;
+            $msg .= "$lang_err{'access_denied'} (".f2u($dir).": $err)\n"; next;
          }
          if (!opendir(D, "$webdiskrootdir/$dir")) {
-            $msg .= "$lang_err{'couldnt_open'} $dir ($!)\n"; next;
+            $msg .= "$lang_err{'couldnt_open'} ".f2u($dir)." ($!)\n"; next;
          }
          @list=readdir(D);
          closedir(D);
@@ -1954,7 +1953,7 @@ sub showdir {
    $temphtml .= "&nbsp;\n";
 
    if ($config{'enable_webmail'}) {
-      my $folderstr=ow::htmltext::str2html($lang_folders{$folder}||(iconv($prefs{'fscharset'}, $prefs{'charset'}, $folder))[0]);
+      my $folderstr=ow::htmltext::str2html($lang_folders{$folder}||f2u($folder));
       if ($messageid eq "") {
          $temphtml .= iconlink("owm.gif", "$lang_text{'backto'} $folderstr",
                                qq|accesskey="M" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;sessionid=$thissession&amp;folder=$escapedfolder"|);
@@ -2020,7 +2019,7 @@ sub showdir {
       next if ($_ eq "");
       $p.="$_/";
       $temphtml.=qq|<a href="$wd_url_sort_page&amp;action=showdir&amp;gotodir=|.ow::tool::escapeURL($p).qq|">|.
-                 ow::htmltext::str2html((iconv($prefs{fscharset}, $prefs{charset}, "$_/"))[0]).qq|</a>\n|;
+                 ow::htmltext::str2html(f2u("$_/")).qq|</a>\n|;
    }
    $html =~ s/\@\@\@CURRENTDIR\@\@\@/$temphtml/g;
 
@@ -2146,8 +2145,8 @@ sub showdir {
             }
             $namestr=qq|<a href="$wd_url_sort_page&amp;action=showdir&amp;gotodir=|.
                      ow::tool::escapeURL($p).qq|" $accesskeystr>$imgstr <b> |.
-                     ow::htmltext::str2html((iconv($prefs{fscharset}, $prefs{charset}, $p))[0]);
-            $namestr.=ow::htmltext::str2html((iconv($prefs{fscharset}, $prefs{charset}, $flink{$p}))[0]) if (defined($flink{$p}));
+                     ow::htmltext::str2html(f2u($p));
+            $namestr.=ow::htmltext::str2html(f2u($flink{$p})) if (defined($flink{$p}));
             $namestr.=qq|</b></a>|;
             $opstr=qq|<a href="$wd_url_sort_page&amp;action=showdir&amp;gotodir=|.
                    ow::tool::escapeURL($p).qq|"><b>&lt;$lang_text{'dir'}&gt;</b></a>|;
@@ -2177,10 +2176,10 @@ sub showdir {
             if ($dname ne '') {
                $namestr.=qq|<a href="$wd_url_sort_page&amp;action=showdir&amp;gotodir=|.
                          ow::tool::escapeURL($dname).qq|" $accesskeystr><b>|.
-                         ow::htmltext::str2html((iconv($prefs{fscharset}, $prefs{charset}, $dname))[0]).qq|</b> </a>|;
+                         ow::htmltext::str2html(f2u($dname)).qq|</b> </a>|;
             }
-            $namestr.=$a.ow::htmltext::str2html((iconv($prefs{fscharset}, $prefs{charset}, $fname))[0]);
-            $namestr.=ow::htmltext::str2html((iconv($prefs{fscharset}, $prefs{charset}, $flink{$p}))[0]) if (defined($flink{$p}));
+            $namestr.=$a.ow::htmltext::str2html(f2u($fname));
+            $namestr.=ow::htmltext::str2html(f2u($flink{$p})) if (defined($flink{$p}));
             $namestr.=qq|</a>|;
 
             if ($p=~/\.(?:pdf|ps)$/i ) {
@@ -2189,7 +2188,7 @@ sub showdir {
                   my $mk='mkpdf'; $mk='mkps' if ($p=~/\.pdf$/i);
                   my $onclickstr;
                   if ($prefs{'webdisk_confirmcompress'}) {
-                     my $pstr=(iconv($prefs{fscharset}, $prefs{charset}, $p))[0]; $pstr=~s/'/\\'/g;	# escape for javascript
+                     my $pstr=f2u($p); $pstr=~s/'/\\'/g;	# escape for javascript
                      $onclickstr=qq|onclick="return confirm('$lang_wdbutton{$mk}? ($pstr)');"|;
                   }
                   $opstr.=qq|<a href="$wd_url_sort_page&amp;action=$mk&amp;selitems=|.
@@ -2218,7 +2217,7 @@ sub showdir {
                    (!$quotalimit||$quotausage<$quotalimit) ) {
                   my $onclickstr;
                   if ($prefs{'webdisk_confirmcompress'}) {
-                     my $pstr=(iconv($prefs{fscharset}, $prefs{charset}, $p))[0]; $pstr=~s/'/\\'/g;	# escape for javascript
+                     my $pstr=f2u($p); $pstr=~s/'/\\'/g;	# escape for javascript
                      $onclickstr=qq|onclick="return confirm('$lang_wdbutton{extract}? ($pstr)');"|;
                   }
                   my $allow_extract=1;
@@ -2239,7 +2238,7 @@ sub showdir {
                    (!$quotalimit||$quotausage<$quotalimit) ) {
                   my $onclickstr;
                   if ($prefs{'webdisk_confirmcompress'}) {
-                     my $pstr=(iconv($prefs{fscharset}, $prefs{charset}, $p))[0]; $pstr=~s/'/\\'/g;	# escape for javascript
+                     my $pstr=f2u($p); $pstr=~s/'/\\'/g;	# escape for javascript
                      $onclickstr=qq|onclick="return confirm('$lang_wdbutton{decompress}? ($pstr)');"|;
                   }
                   $opstr=qq|<a href="$wd_url_sort_page&amp;action=decompress&amp;selitems=|.
@@ -2302,7 +2301,7 @@ sub showdir {
             $checkbox_onclickstr='';
          }
 
-         my $pstr=ow::htmltext::str2html((iconv($prefs{'fscharset'}, $prefs{'charset'}, $p))[0]);
+         my $pstr=ow::htmltext::str2html(f2u($p));
          $filelisthtml.=qq|<tr $tr_bgcolorstr>\n|.
                         qq|<td $td_bgcolorstr>$namestr</td>\n|.
                         qq|<td $td_bgcolorstr align="right">$sizestr</td>\n|.
@@ -2550,7 +2549,7 @@ sub filelist_of_search {
 
    my $metainfo=join("@@@", $searchtype, $keyword_fs, $vpath);
    my $cache_metainfo;
-   my $vpathstr=(iconv($prefs{'fscharset'}, $prefs{'charset'}, $vpath))[0];
+   my $vpathstr=f2u($vpath);
 
    $cachefile=ow::tool::untaint($cachefile);
    ow::filelock::lock($cachefile, LOCK_EX) or
