@@ -40,7 +40,8 @@ foreach (qw(
    enable_history enable_about about_info_software about_info_protocol
    about_info_server about_info_client about_info_scriptfilename
    enable_preference enable_setforward enable_strictforward
-   enable_autoreply enable_strictfoldername enable_stationery
+   enable_autoreply enable_strictfoldername
+   enable_stationery enable_savedraft enable_backupsent
    enable_globalfilter enable_userfilter enable_smartfilter
    smartfilter_bypass_goodmessage log_filter_detail
    enable_viruscheck enable_spamcheck enable_learnspam
@@ -1238,11 +1239,12 @@ sub htmlheader {
 }
 
 sub htmlplugin {
+   my ($file, $fromcharset, $tocharset)=@_;
    my $html='';
-   if ($_[0] ne '' && open(F, $_[0]) ) {	# $_[0] is filename
+   if ($file ne '' && open(F, $file) ) {	# $file is plugin file
       local $/; undef $/; $html=<F>;	# no seperator, read whole file in once
       close(F);
-      $html="<center>\n$html</center>\n" if ($html);
+      ($html)=iconv($fromcharset, $tocharset, "<center>\n$html</center>\n") if ($html ne '');
    }
    return ($html);
 }
@@ -1831,25 +1833,31 @@ sub autologin_check {
 ########## END AUTOLOGIN DB related ##############################
 
 # DEFAULTFOLDERS related #########################################
-use vars qw(@_defaultfolders %_is_defaultfolder);
-@_defaultfolders=('INBOX', 'saved-messages', 'sent-mail', 'saved-drafts', 'mail-trash');
+
+use vars qw(@_defaultfolders %_is_defaultfolder %_folder_config);
+@_defaultfolders=('INBOX', 'saved-messages', 'sent-mail', 'saved-drafts', 'mail-trash', 'spam-mail', 'virus-mail');
 foreach (@_defaultfolders, 'LEARNSPAM', 'LEARNHAM', 'DELETE', 'FORWARD') { $_is_defaultfolder{$_}=1 };
+
+%_folder_config=(
+   'sent-mail'    => 'enable_backupsent',
+   'saved-drafts' => 'enable_savedraft',
+   'spam-mail'    => 'has_spamfolder_by_default',
+   'virus-mail'   => 'has_virusfolder_by_default',
+);
 
 sub get_defaultfolders {
    my @f;
-   push(@f, 'spam-mail') if ($config{'has_spamfolder_by_default'});
-   push(@f, 'virus-mail') if ($config{'has_virusfolder_by_default'});
-   return(@_defaultfolders, @f);
+   foreach (@_defaultfolders) {
+      next if (defined $_folder_config{$_} && !$config{$_folder_config{$_}});
+      push(@f, $_);
+   }
+   return(@f);
 }
 
 sub is_defaultfolder {
-   if ($_is_defaultfolder{$_[0]} ||
-       ($config{'has_spamfolder_by_default'} && $_[0] eq 'spam-mail') ||
-       ($config{'has_virusfolder_by_default'} && $_[0] eq 'virus-mail') ) {
-      return 1;
-   } else {
-      return 0;
-   }
+   return 0 if (defined $_folder_config{$_[0]} && !$config{$_folder_config{$_[0]}});
+   return 1 if ($_is_defaultfolder{$_[0]});
+   return 0;
 }
 # END DEFAULTFOLDERS related #####################################
 

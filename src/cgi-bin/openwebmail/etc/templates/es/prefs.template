@@ -265,11 +265,13 @@ Ancho @@@EDITCOLUMNSMENU@@@ Alto @@@EDITROWSMENU@@@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REPLYWITHORIGMSGMENU@@@
 </td></tr>
+@@@BACKUPSENTSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Copiar mensajes enviados en la bandeja ENVIADOS:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BACKUPSENTMSG@@@
 </td></tr>
+@@@BACKUPSENTEND@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Mapa de caracteres para mensajes salientes:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -525,11 +527,13 @@ Durante @@@MAILSENTWINDOWTIMEMENU@@@ segundos &nbsp;(0 desactiva la ventana de n
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@TRASHRESERVEDDAYSMENU@@@
 </td></tr>
+@@@SPAMVIRUSSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Días a guardar los mensajes de Spam/Virus:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SPAMVIRUSRESERVEDDAYSMENU@@@
 </td></tr>
+@@@SPAMVIRUSEND@@@
 @@@WEBMAILEND@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Intervalo de actualización:</B>

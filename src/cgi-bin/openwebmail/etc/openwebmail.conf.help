@@ -407,6 +407,18 @@ will embedded between the menu bar and the messagelist in webmail
 folderlist.
 
 
+header_pluginfile_charset
+footer_pluginfile_charset
+webmail_middle_pluginfile_charset
+-----------------------------------------------------------------------
+these options are used to specify the charset of the plugin data,
+so openwebmail will convert the charset of plugin data in case the user
+is using different charset
+
+ps: these options are set to 'none' by default, which means no charset
+    conversion at all for plugin data
+
+
 spellcheck
 -----------------------------------------------------------------------
 The command to trigger your spelling check program
@@ -783,6 +795,14 @@ If this option is set to 'yes', the virtual domain manager will be
 available to the users that are specified in option vdomain_admlist.
 
 
+enable_preference
+-----------------------------------------------------------------------
+set this option to 'no' if you want to disable preference setup fir users
+Note: Openwebmail will try to guess the proper value for user preference
+in case this is set to no, but we don't guarentee that user will like
+those values :)
+
+
 enable_history
 -----------------------------------------------------------------------
 Set this to 'no' if you want to disable the 'History' feature in the user
@@ -833,14 +853,6 @@ eg: X-Mailer: %name% %version% %releasedate%
 ps: please note that all xheaders must be started with X-
 
 
-enable_preference
------------------------------------------------------------------------
-set this option to 'no' if you want to disable preference setup fir users
-Note: Openwebmail will try to guess the proper value for user preference
-in case this is set to no, but we don't guarentee that user will like
-those values :)
-
-
 enable_loadfrombook
 -----------------------------------------------------------------------
 This option controls whether the email defined in ~user/.from.book
@@ -879,6 +891,16 @@ will be treated as invalid.
 enable_stationery
 -----------------------------------------------------------------------
 This option enables the stationery support
+
+
+enable_savedraft
+-----------------------------------------------------------------------
+This option enables the 'save draft' support in message composing
+
+
+enable_backupsent
+-----------------------------------------------------------------------
+This option enables the 'backup sent' support in message composing
 
 
 enable_globalfilter

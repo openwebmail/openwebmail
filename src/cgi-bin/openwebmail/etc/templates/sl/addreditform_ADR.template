@@ -18,7 +18,7 @@
           <td><input class="mono" type="text" name="@@@STREET.NAME@@@" value="@@@STREET.VALUE@@@" size="30"></td>
         </tr>
         <tr>
-          <td class="smalltext">street address</td>
+          <td class="smalltext">naslov</td>
         </tr>
         <tr>
           <td class="smalltext">&nbsp;</td>
@@ -27,7 +27,7 @@
           <td><input class="mono" type="text" name="@@@EXTENDEDADDRESS.NAME@@@" value="@@@EXTENDEDADDRESS.VALUE@@@" size="30"></td>
         </tr>
         <tr>
-          <td class="smalltext">suite, apartment, etc.</td>
+          <td class="smalltext">stanovanje</td>
         </tr>
         <tr>
           <td class="smalltext">&nbsp;</td>
@@ -36,7 +36,7 @@
           <td><input class="mono" type="text" name="@@@POSTOFFICEADDRESS.NAME@@@" value="@@@POSTOFFICEADDRESS.VALUE@@@" size="30"></td>
         </tr>
         <tr>
-          <td class="smalltext">postoffice box</td>
+          <td class="smalltext">poštni predal</td>
         </tr>
         <tr>
           <td class="smalltext">&nbsp;</td>
@@ -50,9 +50,9 @@
               <td><input class="mono" type="text" name="@@@REGION.NAME@@@" value="@@@REGION.VALUE@@@" size="15"></td>
             </tr>
             <tr>
-              <td class="smalltext">city</td>
+              <td class="smalltext">mesto</td>
               <td>&nbsp;</td>
-              <td class="smalltext">state/province</td>
+              <td class="smalltext">država</td>
             </tr>
             </table>
           </td>
@@ -69,9 +69,9 @@
               <td><input class="mono" type="text" name="@@@COUNTRY.NAME@@@" value="@@@COUNTRY.VALUE@@@" size="12" onBlur="javascript:if (document.forms['editForm'].elements['@@@LABEL.NAME@@@'].value == '') { makeLabel('editForm','@@@LABEL.INDEX@@@'); }"></td>
             </tr>
             <tr>
-              <td class="smalltext">zip/postcode</td>
+              <td class="smalltext">poštna številka</td>
               <td>&nbsp;</td>
-              <td class="smalltext">country</td>
+              <td class="smalltext">kraj</td>
             </tr>
             <tr>
               <td colspan="3" height="40">&nbsp;</td>
@@ -87,27 +87,27 @@
         <tr>
           <td><input class="mono" type="checkbox" name="@@@HOME.NAME@@@" value="HOME" @@@HOME.VALUE@@@></td>
           <td rowspan="6" width="5">&nbsp;</td>
-          <td nowrap><a href="javascript:check_toggle('@@@HOME.NAME@@@');"><span class="smalltext">home address</span></a></td>
+          <td nowrap><a href="javascript:check_toggle('@@@HOME.NAME@@@');"><span class="smalltext">domaèi naslov</span></a></td>
         </tr>
         <tr>
           <td><input class="mono" type="checkbox" name="@@@WORK.NAME@@@" value="WORK" @@@WORK.VALUE@@@></td>
-          <td nowrap><a href="javascript:check_toggle('@@@WORK.NAME@@@');"><span class="smalltext">work address</span></a></td>
+          <td nowrap><a href="javascript:check_toggle('@@@WORK.NAME@@@');"><span class="smalltext">službeni naslov</span></a></td>
         </tr>
         <tr>
           <td><input class="mono" type="checkbox" name="@@@DOM.NAME@@@" value="DOM" @@@DOM.VALUE@@@></td>
-          <td nowrap><a href="javascript:check_toggle('@@@DOM.NAME@@@');"><span class="smalltext">domestic address</span></a></td>
+          <td nowrap><a href="javascript:check_toggle('@@@DOM.NAME@@@');"><span class="smalltext">družinski naslov</span></a></td>
         </tr>
         <tr>
           <td><input class="mono" type="checkbox" name="@@@INTL.NAME@@@" value="INTL" @@@INTL.VALUE@@@></td>
-          <td nowrap><a href="javascript:check_toggle('@@@INTL.NAME@@@');"><span class="smalltext">international address</span></a></td>
+          <td nowrap><a href="javascript:check_toggle('@@@INTL.NAME@@@');"><span class="smalltext">mednarodni naslov</span></a></td>
         </tr>
         <tr>
           <td><input class="mono" type="checkbox" name="@@@POSTAL.NAME@@@" value="POSTAL" @@@POSTAL.VALUE@@@></td>
-          <td nowrap><a href="javascript:check_toggle('@@@POSTAL.NAME@@@');"><span class="smalltext">postal delivery address</span></a></td>
+          <td nowrap><a href="javascript:check_toggle('@@@POSTAL.NAME@@@');"><span class="smalltext">naslov za poštno dostavo</span></a></td>
         </tr>
         <tr>
           <td><input class="mono" type="checkbox" name="@@@PARCEL.NAME@@@" value="PARCEL" @@@PARCEL.VALUE@@@></td>
-          <td nowrap><a href="javascript:check_toggle('@@@PARCEL.NAME@@@');"><span class="smalltext">parcel delivery address</span></a></td>
+          <td nowrap><a href="javascript:check_toggle('@@@PARCEL.NAME@@@');"><span class="smalltext">naslov za paket</span></a></td>
         </tr>
         </table>
       </td>
@@ -128,7 +128,7 @@
           </td>
         </tr>
         <tr>
-          <td colspan="2"><a href="javascript:makeLabel('editForm','@@@LABEL.INDEX@@@');"><span class="smalltext"><b>automake label</b></span></a></td>
+          <td colspan="2"><a href="javascript:makeLabel('editForm','@@@LABEL.INDEX@@@');"><span class="smalltext"><b>avtomatièno naredi oznaèbo</b></span></a></td>
         </tr>
         </table>
       </td>

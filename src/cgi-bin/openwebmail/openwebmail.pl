@@ -58,6 +58,21 @@ use vars qw(%prefs %style);
 use vars qw(@openwebmailrcitem);	# defined in ow-shared.pl
 use vars qw(%lang_text %lang_err);	# defined in lang/xy
 
+use vars qw(%action_redirect @actions);
+%action_redirect= (
+   listmessages            => [1, 'enable_webmail',     'openwebmail-main.pl',    ['folder']],
+   calmonth                => [2, 'enable_calendar',    'openwebmail-cal.pl',     ['year', 'month']],
+   showdir                 => [3, 'enable_webdisk',     'openwebmail-webdisk.pl', ['currentdir']],
+   addrlistview            => [4, 'enable_addressbook', 'openwebmail-abook.pl',   ['abookfolder']],
+   callist                 => [5, 'enable_calendar',    'openwebmail-cal.pl',     ['year']],
+   calyear                 => [6, 'enable_calendar',    'openwebmail-cal.pl',     ['year']],
+   calday                  => [7, 'enable_calendar',    'openwebmail-cal.pl',     ['year', 'month', 'day']],
+   readmessage             => [8, 'enable_webmail',     'openwebmail-read.pl',    ['folder', 'message_id']],
+   composemessage          => [9, 'enable_webmail',     'openwebmail-send.pl',    ['to', 'cc', 'bcc', 'subject']],
+   listmessages_afterlogin => [10, 'enable_webmail',     'openwebmail-main.pl',    ['folder']],
+);
+@actions = sort { ${$action_redirect{$a}}[0] <=> ${$action_redirect{$b}}[0] } keys (%action_redirect);
+
 ########## MAIN ##################################################
 openwebmail_requestbegin();
 
@@ -150,10 +165,15 @@ sub loginmenu {
 
    $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail.pl",
                          -name=>'login');
-   if (defined(param('action'))) {
-      $temphtml .= ow::tool::hiddens(action=>param('action'));
-      $temphtml .= ow::tool::hiddens(to=>param('to')) if (defined(param('to')));
-      $temphtml .= ow::tool::hiddens(subject=>param('subject')) if (defined(param('subject')));
+
+   # remember params for redirection after login
+   my $action=param('action');
+   if (defined $action_redirect{$action}) {
+      $action='listmessages_afterlogin' if ($action eq 'listmessages');
+      $temphtml .= ow::tool::hiddens(action=>$action);
+      foreach my $name (@{${$action_redirect{$action}}[3]}) {
+         $temphtml .= ow::tool::hiddens($name=>param($name));
+      }
    }
    $html =~ s/\@\@\@STARTFORM\@\@\@/$temphtml/;
 
@@ -686,19 +706,6 @@ sub autologin {
 ########## REFRESHURL_AFTER_LOGIN ################################
 sub refreshurl_after_login {
    my $action=$_[0];
-
-   my %action_redirect= (
-      listmessages   => [1, 'enable_webmail',     'openwebmail-main.pl',    ['folder']],
-      calmonth       => [2, 'enable_calendar',    'openwebmail-cal.pl',     ['year', 'month']],
-      showdir        => [3, 'enable_webdisk',     'openwebmail-webdisk.pl', ['currentdir']],
-      addrlistview   => [4, 'enable_addressbook', 'openwebmail-abook.pl',   ['abookfolder']],
-      callist        => [5, 'enable_calendar',    'openwebmail-cal.pl',     ['year']],
-      calyear        => [6, 'enable_calendar',    'openwebmail-cal.pl',     ['year']],
-      calday         => [7, 'enable_calendar',    'openwebmail-cal.pl',     ['year', 'month', 'day']],
-      readmessage    => [8, 'enable_webmail',     'openwebmail-read.pl',    ['folder', 'message_id']],
-      composemessage => [9, 'enable_webmail',     'openwebmail-send.pl',    ['to', 'cc', 'bcc', 'subject']],
-   );
-   my @actions = sort { ${$action_redirect{$a}}[0] <=> ${$action_redirect{$b}}[0] } keys (%action_redirect);
 
    my $validaction;
    foreach (@actions) {

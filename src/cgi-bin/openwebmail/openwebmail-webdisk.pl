@@ -2475,9 +2475,11 @@ sub showdir {
                         -path  => '/');
    httpprint([-cookie=>[$cookie],
               -Refresh=>"$refreshinterval;URL=$relative_url?sessionid=$thissession&folder=$escapedfolder&message_id=$escapedmessageid&action=showdir&currentdir=$escapedcurrentdir&gotodir=$escapedcurrentdir&showthumbnail=$showthumbnail&showhidden=$showhidden&singlepage=$singlepage&filesort=$filesort&page=$page&searchtype=$searchtype&keyword=$escapedkeyword&session_noupdate=1"],
-             [htmlheader(), htmlplugin($config{'header_pluginfile'}),
+             [htmlheader(), 
+              htmlplugin($config{'header_pluginfile'}, $config{'header_pluginfile_charset'}, $prefs{'charset'}),
               $html,
-              htmlplugin($config{'footer_pluginfile'}), htmlfooter(2)] );
+              htmlplugin($config{'footer_pluginfile'}, $config{'footer_pluginfile_charset'}, $prefs{'charset'}),
+              htmlfooter(2)] );
 }
 
 sub filelist_of_search {

@@ -6,7 +6,7 @@
   <td colspan="@@@TOTALSPAN@@@" bgcolor=@@@WINDOW_LIGHT@@@ align="center">
     <table cellpadding="0" cellspacing="0" border="0" width="80%">
     <tr>
-      <td><br><p><b>Overview</b><br>The export system will help you download addresses to your local computer. If you want to download an entire addressbook please use the addressbook "books" page where you can click to download an entire addressbook at one time.</p><p><b>1. Select the addresses that you want to download from above.</b><br><br></p></td>
+      <td><br><p><b>Pregled</b><br>Izvozni sistem vam bo pomagal prenesti adresar na vaš raèunalnik. Èe bi želeli prenesti celotni adresar, prosimo uporabite adresar stran "knjige", kjer lahko pritisnete prenos celotnega adresarja.</p><p><b>1. Izberite naslove, ki jih želite prenesti.</b><br><br></p></td>
     </tr>
     </table>
   </td>
@@ -15,7 +15,7 @@
   <td colspan="@@@TOTALSPAN@@@" bgcolor=@@@WINDOW_LIGHT@@@ align="center">
     <table cellpadding="0" cellspacing="0" border="0" width="80%">
     <tr>
-      <td><b>2. Select an export format:</b></td>
+      <td><b>2. Izberite obliko izvozne datoteke:</b></td>
     </tr>
     <tr>
       <td>

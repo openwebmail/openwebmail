@@ -10,7 +10,7 @@ my $langfile=$ARGV[0];
 my $lang=$langfile; $lang=~s!.*/!!;
 
 if ($ARGV[0] eq '') {
-   print "syntax: perl mergelang.pl $translated_lang\n";
+   print "syntax: perl mergelang.pl newly_translated_langfile\n";
    exit;
 }
 

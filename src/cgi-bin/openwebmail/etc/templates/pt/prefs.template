@@ -265,11 +265,13 @@ Largura @@@EDITCOLUMNSMENU@@@ Altura @@@EDITROWSMENU@@@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REPLYWITHORIGMSGMENU@@@
 </td></tr>
+@@@BACKUPSENTSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Gravar mensagem enviada na pasta Enviadas:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BACKUPSENTMSG@@@
 </td></tr>
+@@@BACKUPSENTEND@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Charset para mensagem enviada:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -525,11 +527,13 @@ durante @@@MAILSENTWINDOWTIMEMENU@@@ segundos &nbsp;( 0 significa desactivar )
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@TRASHRESERVEDDAYSMENU@@@
 </td></tr>
+@@@SPAMVIRUSSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Spam/Virus mail reserved day(s):</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SPAMVIRUSRESERVEDDAYSMENU@@@
 </td></tr>
+@@@SPAMVIRUSEND@@@
 @@@WEBMAILEND@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Intervalo de Actualização:</B>

@@ -265,11 +265,13 @@ Szeroko¶æ @@@EDITCOLUMNSMENU@@@ Wysoko¶æ @@@EDITROWSMENU@@@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REPLYWITHORIGMSGMENU@@@
 </td></tr>
+@@@BACKUPSENTSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Zapisuj wysy³ane wiadomo¶ci w folderze WYS£ANE:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BACKUPSENTMSG@@@
 </td></tr>
+@@@BACKUPSENTEND@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Zestaw znaków dla wiadomo¶ci wychodz±cej:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -525,11 +527,13 @@ Szeroko¶æ @@@FILEEDITCOLUMNSMENU@@@ Wysoko¶æ @@@FILEEDITROWSMENU@@@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@TRASHRESERVEDDAYSMENU@@@ (dni)
 </td></tr>
+@@@SPAMVIRUSSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Trzymaj spam/wiadomo¶ci z wirusami przez:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SPAMVIRUSRESERVEDDAYSMENU@@@ (dni)
 </td></tr>
+@@@SPAMVIRUSEND@@@
 @@@WEBMAILEND@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Od¶wie¿aj co:</B>

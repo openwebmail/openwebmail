@@ -35,7 +35,9 @@ sub cutfoldermails {
    my @f;
    push(@f, 'virus-mail') if ($config{'has_virusfolder_by_default'});
    push(@f, 'spam-mail') if ($config{'has_spamfolder_by_default'});
-   push(@f, 'mail-trash', 'saved-drafts');
+   push(@f, 'mail-trash');
+   push(@f, 'saved-drafts') if ($config{'enable_savedraft'});
+
    foreach my $f (@f) {
       next if ( (-s "$folderfile{$f}")==0 );
 
@@ -62,7 +64,10 @@ sub cutfoldermails {
    }
 
    # cut folders
-   my @folders_tocut=('sent-mail', 'saved-messages');
+   my @folders_tocut;
+   push(@folders_tocut, 'sent-mail') if ($config{'enable_backupsent'});
+   push(@folders_tocut, 'saved-messages');
+
    # put @userfolders to cutlist if it occupies more than 33%
    if ($user_foldersize > $total_foldersize*0.33) {
       push (@folders_tocut, sort(@userfolders));

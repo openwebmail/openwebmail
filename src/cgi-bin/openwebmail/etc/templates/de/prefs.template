@@ -265,11 +265,13 @@ Breite @@@EDITCOLUMNSMENU@@@ H&ouml;he @@@EDITROWSMENU@@@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REPLYWITHORIGMSGMENU@@@
 </td></tr>
+@@@BACKUPSENTSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Nachrichten beim Versenden im Ordner GESENDET speichern:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BACKUPSENTMSG@@@
 </td></tr>
+@@@BACKUPSENTEND@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Standardzeichensatz f&uuml;r ausgehende Nachrichten:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -525,11 +527,13 @@ Anzeigedauer in Sekunden: @@@MAILSENTWINDOWTIMEMENU@@@ &nbsp;( 0 schaltet die Be
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@TRASHRESERVEDDAYSMENU@@@
 </td></tr>
+@@@SPAMVIRUSSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Spam/Virus-Nachrichten maximal halten (Tage):</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SPAMVIRUSRESERVEDDAYSMENU@@@
 </td></tr>
+@@@SPAMVIRUSEND@@@
 @@@WEBMAILEND@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Interval zur Aktualisierung:</B>

@@ -265,11 +265,13 @@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REPLYWITHORIGMSGMENU@@@
 </td></tr>
+@@@BACKUPSENTSTART@@@
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>≈Õ›Ÿ ‰”Œ… „‰ «·—”«∆· «·’«œ—… ›Ì „Ã·œ «·»—Ìœ «·’«œ—:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BACKUPSENTMSG@@@
 </td></tr>
+@@@BACKUPSENTEND@@@
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B> —„Ì“ «·—”«∆· «·’«œ—…:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -526,11 +528,13 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@TRASHRESERVEDDAYSMENU@@@
 </td></tr>
+@@@SPAMVIRUSSTART@@@
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>Spam/Virus mail reserved day(s):</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SPAMVIRUSRESERVEDDAYSMENU@@@
 </td></tr>
+@@@SPAMVIRUSEND@@@
 @@@WEBMAILEND@@@
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>› —… «· ÕœÌÀ:</B>

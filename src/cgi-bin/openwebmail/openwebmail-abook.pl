@@ -1722,9 +1722,11 @@ sub addrlistview {
                         -path  => '/');
    if ($listviewmode eq '') {
       httpprint([-cookie=>[$cookie]], 
-                [htmlheader(), htmlplugin($config{'header_pluginfile'}),
+                [htmlheader(),
+                 htmlplugin($config{'header_pluginfile'}, $config{'header_pluginfile_charset'}, $prefs{'charset'}),
                  $html, 
-                 htmlplugin($config{'footer_pluginfile'}), htmlfooter(2)]);
+                 htmlplugin($config{'footer_pluginfile'}, $config{'footer_pluginfile_charset'}, $prefs{'charset'}),
+                 htmlfooter(2)] );
    } else {
       httpprint([-cookie=>[$cookie]], [htmlheader(), $html, htmlfooter(2)]);
    }

@@ -1020,6 +1020,7 @@ ps: You may choose the abbreviation by referencing the following url
 7. translate the files used by HTML editor
 
    cd data/openwebmail/javascript/htmlarea.openwebmail/popups
+   cp -R en xy
    cd xy
 
    then translate htmlarea-lang.js, insert_image.html, insert_sound.html,

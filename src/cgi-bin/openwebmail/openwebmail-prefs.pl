@@ -895,12 +895,17 @@ sub editprefs {
                                 defined($config_raw{'DEFAULT_replywithorigmsg'})?('-disabled'=>'1'):());
          $html =~ s/\@\@\@REPLYWITHORIGMSGMENU\@\@\@/$temphtml/;
 
-         $temphtml = checkbox(-name=>'backupsentmsg',
-                              -value=>'1',
-                              -checked=>$prefs{'backupsentmsg'},
-                              -label=>'',
-                              defined($config_raw{'DEFAULT_backupsentmsg'})?('-disabled'=>'1'):());
-         $html =~ s/\@\@\@BACKUPSENTMSG\@\@\@/$temphtml/;
+         if ($config{'enable_backupsent'}) {
+            templateblock_enable($html, 'BACKUPSENT');
+            $temphtml = checkbox(-name=>'backupsentmsg',
+                                 -value=>'1',
+                                 -checked=>$prefs{'backupsentmsg'},
+                                 -label=>'',
+                                 defined($config_raw{'DEFAULT_backupsentmsg'})?('-disabled'=>'1'):());
+            $html =~ s/\@\@\@BACKUPSENTMSG\@\@\@/$temphtml/;
+         } else {
+            templateblock_disable($html, 'BACKUPSENT');
+         }
 
          my %ctlabels=( 'sameascomposing' => $lang_text{'sameascomposecharset'} );
          my @ctlist=('sameascomposing', $prefs{charset});
@@ -1482,13 +1487,18 @@ sub editprefs {
                                 defined($config_raw{'DEFAULT_trashreserveddays'})?('-disabled'=>'1'):());
          $html =~ s/\@\@\@TRASHRESERVEDDAYSMENU\@\@\@/$temphtml/;
 
-         $temphtml = popup_menu(-name=>'spamvirusreserveddays',
-                                -values=>[0,1,2,3,4,5,6,7,14,21,30,60,90,180,999999],
-                                -default=>$prefs{'spamvirusreserveddays'},
-                                -labels=>\%dayslabels,
-                                -override=>'1',
-                                defined($config_raw{'DEFAULT_spamvirusreserveddays'})?('-disabled'=>'1'):());
-         $html =~ s/\@\@\@SPAMVIRUSRESERVEDDAYSMENU\@\@\@/$temphtml/;
+         if ($config{'have_spamfolder_by_default'} || $config{'have_virusfolder_by_default'}) {
+            templateblock_enable($html, 'SPAMVIRUS');
+            $temphtml = popup_menu(-name=>'spamvirusreserveddays',
+                                   -values=>[0,1,2,3,4,5,6,7,14,21,30,60,90,180,999999],
+                                   -default=>$prefs{'spamvirusreserveddays'},
+                                   -labels=>\%dayslabels,
+                                   -override=>'1',
+                                   defined($config_raw{'DEFAULT_spamvirusreserveddays'})?('-disabled'=>'1'):());
+            $html =~ s/\@\@\@SPAMVIRUSRESERVEDDAYSMENU\@\@\@/$temphtml/;
+         } else {
+            templateblock_disable($html, 'SPAMVIRUS');
+         }
       }
 
       my @intervals;

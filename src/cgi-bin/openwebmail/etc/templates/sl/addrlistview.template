@@ -5,7 +5,7 @@
     <tr>
       <td nowrap bgcolor=@@@TITLEBAR@@@ width="30%">@@@ABOOKSELECTIONFORM@@@</td>
       <td nowrap bgcolor=@@@TITLEBAR@@@ align="center"><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>&nbsp;</b></font></td>
-      <td nowrap bgcolor=@@@TITLEBAR@@@ align="right" width="30%"><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>@@@FREESPACE@@@ Available</b></font>&nbsp;</td>
+      <td nowrap bgcolor=@@@TITLEBAR@@@ align="right" width="30%"><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>@@@FREESPACE@@@ na razpolago</b></font>&nbsp;</td>
     </tr>
     </table>
   </td>

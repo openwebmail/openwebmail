@@ -364,9 +364,11 @@ sub yearview {
    }
 
    httpprint([],
-             [htmlheader(), htmlplugin($config{'header_pluginfile'}),
+             [htmlheader(),
+              htmlplugin($config{'header_pluginfile'}, $config{'header_pluginfile_charset'}, $prefs{'charset'}),
               $html,
-              htmlplugin($config{'footer_pluginfile'}), htmlfooter(2)] );
+              htmlplugin($config{'footer_pluginfile'}, $config{'footer_pluginfile_charset'}, $prefs{'charset'}),
+              htmlfooter(2)] );
 }
 ########## END YEARVIEW ##########################################
 
@@ -560,9 +562,11 @@ sub monthview {
    }
 
    httpprint([],
-             [htmlheader(), htmlplugin($config{'header_pluginfile'}),
+             [htmlheader(),
+              htmlplugin($config{'header_pluginfile'}, $config{'header_pluginfile_charset'}, $prefs{'charset'}),
               $html,
-              htmlplugin($config{'footer_pluginfile'}), htmlfooter(2)] );
+              htmlplugin($config{'footer_pluginfile'}, $config{'footer_pluginfile_charset'}, $prefs{'charset'}),
+              htmlfooter(2)] );
 }
 ########## END MONTHVIEW #########################################
 
@@ -759,9 +763,11 @@ sub weekview {
    }
 
    httpprint([],
-             [htmlheader(), htmlplugin($config{'header_pluginfile'}),
+             [htmlheader(),
+              htmlplugin($config{'header_pluginfile'}, $config{'header_pluginfile_charset'}, $prefs{'charset'}),
               $html,
-              htmlplugin($config{'footer_pluginfile'}), htmlfooter(2)] );
+              htmlplugin($config{'footer_pluginfile'}, $config{'footer_pluginfile_charset'}, $prefs{'charset'}),
+              htmlfooter(2)] );
 }
 
 # print an item in the month or week view
@@ -1402,9 +1408,11 @@ sub dayview {
    $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/g;
 
    httpprint([],
-             [htmlheader(), htmlplugin($config{'header_pluginfile'}),
+             [htmlheader(),
+              htmlplugin($config{'header_pluginfile'}, $config{'header_pluginfile_charset'}, $prefs{'charset'}),
               $html,
-              htmlplugin($config{'footer_pluginfile'}), htmlfooter(2)] );
+              htmlplugin($config{'footer_pluginfile'}, $config{'footer_pluginfile_charset'}, $prefs{'charset'}),
+              htmlfooter(2)] );
 }
 
 sub build_event_matrix {
@@ -1717,9 +1725,11 @@ sub listview {
    $html=~s/\@\@\@ITEMLIST\@\@\@/$temphtml/;
 
    httpprint([],
-             [htmlheader(), htmlplugin($config{'header_pluginfile'}),
+             [htmlheader(),
+              htmlplugin($config{'header_pluginfile'}, $config{'header_pluginfile_charset'}, $prefs{'charset'}),
               $html,
-              htmlplugin($config{'footer_pluginfile'}), htmlfooter(2)] );
+              htmlplugin($config{'footer_pluginfile'}, $config{'footer_pluginfile_charset'}, $prefs{'charset'}),
+              htmlfooter(2)] );
 }
 
 # print an item in the listview

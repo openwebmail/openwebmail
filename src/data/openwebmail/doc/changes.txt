@@ -1,3 +1,17 @@
+11/16/2004
+----------
+1. fix a bug that parameters won't be remembered correctly in the url 
+   redirection in openwebmail.pl at user login
+2. fix a bug in vacation.pl that the from field in autoreplied message
+   may be wrong if the user was not the first recipient in the To: field
+   (thanks to Pasi Sjoholm, pasi.sjoholm.AT.tieto-x.fi for his fix)
+3. new options: header_pluginfile_charset, footer_pluginfile_charset,
+   webmail_middle_pluginfile_charset to specify the charset of plugin data
+4. new options: enable_savedraft, enable_backupsent
+5. Slovenian language and template files translation update
+   (thanks to Uros Sajko, copatek.AT.yahoo.com)
+
+
 11/14/2004
 ----------
 1. change default for enable_domainselectmenu from yes to no,

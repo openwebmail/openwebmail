@@ -374,7 +374,7 @@ sub pipe_mode {
       my $found=0;
       foreach my $name (@aliases) {
          if ($to =~ /\b$name\b/i) {
-            $found=1; last;
+            $found=1; $to=$name; last;
          }
       }
       if (!$found) {

@@ -1206,22 +1206,34 @@ sub composemessage {
    }
    $html =~ s/\@\@\@ATTACHMENTFIELD\@\@\@/$temphtml/;
 
-   $temphtml = textfield(-name=>'subject',
-                         -default=>$subject,
-                         -size=>'45',
-                         -accesskey=>'S',
-                         -override=>'1');
-   $html =~ s/\@\@\@SUBJECTFIELD\@\@\@/$temphtml/;
+   if ($config{'enable_backupsent'}) {
+      $temphtml = textfield(-name=>'subject',
+                            -default=>$subject,
+                            -size=>'45',
+                            -accesskey=>'S',
+                            -override=>'1');
+      $html =~ s/\@\@\@SUBJECTFIELD\@\@\@/$temphtml/;
 
-   my $backupsent=$prefs{'backupsentmsg'};
-   if (defined(param('backupsent'))) {
-      $backupsent=param('backupsent')||0;
+      templateblock_enable($html, 'BACKUPSENT');
+      my $backupsent=$prefs{'backupsentmsg'};
+      if (defined(param('backupsent'))) {
+         $backupsent=param('backupsent')||0;
+      }
+      $temphtml = checkbox(-name=>'backupsentmsg',
+                           -value=>'1',
+                           -checked=>$backupsent,
+                           -label=>'');
+      $html =~ s/\@\@\@BACKUPSENTMSGCHECKBOX\@\@\@/$temphtml/;
+   } else {
+      $temphtml = textfield(-name=>'subject',
+                            -default=>$subject,
+                            -size=>'66',
+                            -accesskey=>'S',
+                            -override=>'1');
+      $html =~ s/\@\@\@SUBJECTFIELD\@\@\@/$temphtml/;
+
+      templateblock_disable($html, 'BACKUPSENT');
    }
-   $temphtml = checkbox(-name=>'backupsentmsg',
-                        -value=>'1',
-                        -checked=>$backupsent,
-                        -label=>'');
-   $html =~ s/\@\@\@BACKUPSENTMSGCHECKBOX\@\@\@/$temphtml/;
 
    $temphtml = qq|<table width="100%" cellspacing="1" cellpadding="0" border="0">|;
 
@@ -1266,13 +1278,15 @@ sub composemessage {
                      -override=>'1').
               qq|</td>\n|;
 
-   $temphtml.=qq|<td align="center">|.
-              submit(-name=>'savedraftbutton',
-                     -value=>$lang_text{'savedraft'},
-                     -onClick=>'bodygethtml();',
-                     -accesskey=>'W',	# savedraft, Write
-                     -override=>'1').
-              qq|</td>\n|;
+   if ($config{'enable_savedraft'}) {
+      $temphtml.=qq|<td align="center">|.
+                 submit(-name=>'savedraftbutton',
+                        -value=>$lang_text{'savedraft'},
+                        -onClick=>'bodygethtml();',
+                        -accesskey=>'W',	# savedraft, Write
+                        -override=>'1').
+                 qq|</td>\n|;
+   }
 
    if ($config{'enable_spellcheck'}) {
       my $chkname=(split(/\s/, $config{'spellcheck'}))[0]; $chkname=~s|^.*/||;
@@ -1581,10 +1595,13 @@ sub sendmessage {
    if (defined(param('savedraftbutton'))) { # save msg to draft folder
       $savefolder = 'saved-drafts';
       $do_send=0;
-      $do_save=0 if ($quotalimit>0 && $quotausage>=$quotalimit);
+      $do_save=0 if ($quotalimit>0 && $quotausage>=$quotalimit ||
+                     !$config{'enable_savesraft'});
    } else {					     # save msg to sent folder && send
       $savefolder = 'sent-mail';
-      $do_save=0 if (($quotalimit>0 && $quotausage>=$quotalimit) || param('backupsentmsg')==0 );
+      $do_save=0 if (($quotalimit>0 && $quotausage>=$quotalimit) || 
+                     param('backupsentmsg')==0 ||
+                     !$config{'enable_backupsent'});
    }
 
    if ($do_send) {
@@ -1638,7 +1655,7 @@ sub sendmessage {
       $smtp->data()      or $senderr++ if (!$senderr);
 
       # save message to draft if smtp error, Dattola Filippo 06/20/2002
-      if ($senderr && (!$quotalimit||$quotausage<$quotalimit)) {
+      if ($senderr && (!$quotalimit||$quotausage<$quotalimit) && $config{'enable_savedraft'}) {
          $do_save = 1;
          $savefolder = 'saved-drafts';
       }

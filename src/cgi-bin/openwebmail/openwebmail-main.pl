@@ -419,7 +419,7 @@ sub listmessages {
       $html =~ s/\@\@\@EVENTREMINDER\@\@\@/&nbsp;/;
    }
 
-   $temphtml=htmlplugin($config{'webmail_middle_pluginfile'});
+   $temphtml=htmlplugin($config{'webmail_middle_pluginfile'}, $config{'webmail_middle_pluginfile_charset'}, $prefs{'charset'});
    if ($temphtml ne "") {
       $html =~ s/\@\@\@MIDDLEPLUGIN\@\@\@/$temphtml/;
    } else {
@@ -937,9 +937,11 @@ sub listmessages {
    $relative_url=~s!/.*/!!g;
 
    httpprint([-Refresh=>"$refreshinterval;URL=$relative_url?sessionid=$thissession&sort=$sort&keyword=$escapedkeyword&searchtype=$searchtype&folder=INBOX&action=listmessages&page=1&session_noupdate=1"],
-             [htmlheader(), htmlplugin($config{'header_pluginfile'}),
+             [htmlheader(), 
+              htmlplugin($config{'header_pluginfile'}, $config{'header_pluginfile_charset'}, $prefs{'charset'}),
               $html,
-              htmlplugin($config{'footer_pluginfile'}), htmlfooter(2)] );
+              htmlplugin($config{'footer_pluginfile'}, $config{'footer_pluginfile_charset'}, $prefs{'charset'}),
+              htmlfooter(2)] );
 }
 
 # reminder for events within 7 days
