@@ -2040,7 +2040,8 @@ sub get_abookemailhash {
    foreach my $abookfile (@userabookfiles, @globalabookfiles) {
       if (open(F, $abookfile)) {
          while (<F>) {
-            $emails{$2}=1 if (/^EMAIL(;TYPE=PREF)?:(.+?)\s*$/);
+            # stored in lower case for case insensitive lookup
+            $emails{lc($2)}=1 if (/^EMAIL(;TYPE=PREF)?:(.+?)\s*$/);
          }
          close(F);
       }

@@ -631,7 +631,7 @@ sub listmessages {
                             ow::tool::escapeURL($from2_keyword).qq|"| );
       }
       if ($config{'enable_addressbook'} &&
-          defined ${$r_abookemailhash}{$from2_address}) {
+          defined ${$r_abookemailhash}{lc($from2_address)}) {	# case insensitive lookup
          $friendstr=iconlink("friend.gif", "$lang_text{'search'} $lang_text{'addressbook'}", qq|href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrlistview&amp;abookkeyword=$from2_address&amp;abooksearchtype=email&amp;abookfolder=ALL&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page"|);
       }
 

@@ -1,3 +1,10 @@
+02/07/2005
+----------
+1. change address book email lookup in message list
+   from case sensitive to case insensitive
+   (suggested by Robert den Ouden, robert.AT.denouden.net)
+
+
 02/06/2005
 ----------
 1. Romanian (ro & ro.utf8) lang and prefs.template translation minor update
