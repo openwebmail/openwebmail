@@ -72,6 +72,7 @@
    'left-grey.s.gif'   => ' < ',
    'left.gif'          => ' < ',
    'left.s.gif'        => ' < ',
+   'learnham.gif'      => ' [LearnHam] ',
    'learnspam.gif'     => ' [LearnSpam] ',
    'listview.gif'      => ' [Vypsat] ',
    'logout.gif'        => ' [Odhla¹] ',

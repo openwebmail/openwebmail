@@ -54,7 +54,7 @@ package ow::sl;
 %lang_abookselectionlabels =
    (
    ALL => "Vsi adresarji",
-   GLOBAL => "globalni adresar",
+   global => "globalni adresar",
    );
 
 %lang_onofflabels =
@@ -362,6 +362,7 @@ package ow::sl;
    emptyfolder=> 'Izprazni mapo',
    emptytrash => 'Izprazni koš',
    totrash    => 'Premakni v koš',
+   learnham   => 'OZNAÈI HAM',
    learnspam  => 'Oznaèi spam',
    forever    => 'Za vedno',
    delatlogout=> 'Izbriši ob odjavi',
@@ -560,7 +561,8 @@ package ow::sl;
    email      => 'E-naslov',
    note       => 'Opomba',
    abooks => 'Adresarji',
-   abook_title => 'adresar',
+   abook_personal => 'Personal addressbook',
+   abook_global => 'Global addressbook',
    abook_converted => 'Preoblikovano:',
    abook_group_member => 'Èlan',
    abook_group_allmembers => 'Vsi èlani',

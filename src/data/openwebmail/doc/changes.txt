@@ -1,3 +1,10 @@
+01/17/2005
+----------
+1. multiple global addressbooks support
+   this could be useful for large companies or organizations
+2. add learnham icon in spam-mail folder
+
+
 01/16/2005
 ----------
 1. fix a bug that DEFUALT_ options of list/yesno/none type in config file

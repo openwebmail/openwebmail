@@ -569,17 +569,29 @@ value of option calendar_email_notifyinterval is 120 (minute).
 You have to set the crontab according to  your calendar_email_notifyinterval.
 
 
-GLOBAL ADDRESSBOOK, FILTERRULE and CALENDAR
+GLOBAL ADDRESSBOOK
 --------------------------------------------
-Current support for global addressbook/filterrule/calendar is very limited.
-The administrator has to make a copy of addressbook/filterbook/calendar to
-the file specified by global_addressbook, global_filterbook or
-global_calendarbook by himself.
+Open WebMail supports multiples global addressbooks, the location for global
+addressbook files is specified in the option ow_addressbooksdir.
+
+The sysadm have to create the empty global addressbooks manually with command
+'touch addressbook_filename', then other user may read/write the global
+addressbook from the web addressbook interface in openwebmail.
+
+The global addressbook will be editable to a user only if:
+1. the option abook_globaleditable is set to yes, and
+2. the user has enough privilege to write the global addressbook file.
+
+
+GLOBAL FILTERRULE and CALENDAR
+--------------------------------------------
+Current support for global filterrule/calendar is very limited.
+The administrator has to make a copy of filterbook/calendar to the file
+specified by global_filterbook or global_calendarbook by himself.
 
 ps: An account may be created to maintain the global addressbook/filterbook,
     for example: 'global'
 
-    ln -s your_global_addressbook  ~global/.openwebmail/webmail/address.book
     ln -s your_global_filterbook   ~global/.openwebmail/webmail/filter.book
     ln -s your_global_calendarbook ~global/.openwebmail/webcal/calendar.book
 

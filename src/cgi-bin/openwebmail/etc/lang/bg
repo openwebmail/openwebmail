@@ -54,7 +54,7 @@ package ow::bg;
 %lang_abookselectionlabels =
    (
    ALL => "Всички адресни книги",
-   GLOBAL => "Обща адресна книга",
+   global => "Обща адресна книга",
    );
 
 %lang_onofflabels =
@@ -362,6 +362,7 @@ package ow::bg;
    emptyfolder=> 'Празна папка',
    emptytrash => 'Изпразни кошчето',
    totrash    => 'Премести в коша',
+   learnham   => 'ХАМ ОБУЧЕНИЕ',
    learnspam  => 'Обучение спам',
    forever    => 'Завинаги',
    delatlogout=> 'Изтрий при влизане',
@@ -560,7 +561,8 @@ package ow::bg;
    email      => 'Поща',
    note       => 'Забележка',
    abooks => 'Адресни книги',
-   abook_title => 'Адресна книга',
+   abook_personal => 'Personal addressbook',
+   abook_global => 'Global addressbook',
    abook_converted => 'Адаптиран',
    abook_group_member => 'Член',
    abook_group_allmembers => 'Всички членове',

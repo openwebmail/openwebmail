@@ -57,7 +57,7 @@ package ow::pt_BR;
 %lang_abookselectionlabels =
    (
    ALL => "Todas Listas de Contatos",
-   GLOBAL => "Lista de Contatos Global",
+   global => "Lista de Contatos Global",
    );
 
 %lang_onofflabels =
@@ -365,6 +365,7 @@ package ow::pt_BR;
    emptyfolder=> 'Esvaziar Pasta',
    emptytrash => 'Esvaziar Lixeira',
    totrash    => 'Enviar para Lixeira',
+   learnham   => 'LEARN HAM',
    learnspam  => 'Treinar Spam',
    forever    => 'Para sempre',
    delatlogout=> 'Apagar ao Sair',
@@ -563,7 +564,8 @@ package ow::pt_BR;
    email      => 'Email',
    note       => 'Note',
    abooks => 'Listas de Contatos',
-   abook_title => 'Lista de Contatos',
+   abook_personal => 'Personal addressbook',
+   abook_global => 'Global addressbook',
    abook_converted => 'Convertido',
    abook_group_member => 'Member',
    abook_group_allmembers => 'Todos do grupo',

@@ -75,24 +75,28 @@ sub convert_addressbook {
    $convertbook='user' if ($convertbook eq '');
    my ($oldadrbookfile, $newadrbookfile, $adrbookfilebackup, $filemode) = ();
 
+   my $converted=$lang_text{'abook_converted'}||'Converted';
    if ($convertbook eq 'user') {
       my $webaddrdir = dotpath('webaddr');
       $oldadrbookfile = dotpath('address.book');
-      $newadrbookfile = "$webaddrdir/".$lang_text{'abook_converted'}||'Converted';
+      $newadrbookfile = "$webaddrdir/$converted";
       $newadrbookfile =~ s/[:@#$%^&*()!?|\\\[\]\/<>,`'+=\s]+$//; # no naughty filename
       $adrbookfilebackup = "$webaddrdir/.address.book.old";
       $filemode=0600;		# read by owner only
    } elsif ($convertbook eq 'global') {
-      $oldadrbookfile = $config{'global_addressbook'};
-      $newadrbookfile = $config{'global_addressbook'};
-      $adrbookfilebackup = $config{'global_addressbook'} . ".old";
-      $filemode=0640;		# read by all mail group
+      $oldadrbookfile = "$config{'ow_etcdir'}/address.book";
+      $newadrbookfile = "$config{'ow_addressbooksdir'}/$converted.global";
+      $adrbookfilebackup = "$config{'ow_addressbooksdir'}/.address.book.old";
+      $filemode=0644;		# readable by others
    }
 
    ow::filelock::lock($oldadrbookfile, LOCK_SH|LOCK_NB) or croak("$lang_err{'couldnt_locksh'} $oldadrbookfile");
    open(F, "$oldadrbookfile"); my $firstline=<F>; close(F);
    ow::filelock::lock($oldadrbookfile, LOCK_UN);
-   return 0 if ($firstline=~/^BEGIN:VCARD/);	# already in vcard format
+   if ($firstline=~/^BEGIN:VCARD/) {	# oldadrbookfile is already in vcard format
+      rename($oldadrbookfile, $newadrbookfile) if ($oldadrbookfile ne $newadrbookfile);
+      return 0;
+   }
 
    my $status = _convert_addressbook($oldadrbookfile, $newadrbookfile, $adrbookfilebackup, $charset, $filemode);
    return $status;

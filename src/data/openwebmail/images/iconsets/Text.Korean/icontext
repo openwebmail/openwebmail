@@ -74,6 +74,7 @@
    'left-grey.s.gif'   => ' < ',
    'left.gif'          => ' < ',
    'left.s.gif'        => ' < ',
+   'learnham.gif'      => ' [LearnHam] ',
    'learnspam.gif'     => ' [LearnSpam] ',
    'listview.gif'      => ' [목록 보기] ',
    'logout.gif'        => ' [로그아웃] ',

@@ -54,7 +54,7 @@ package ow::id;
 %lang_abookselectionlabels =
    (
    ALL => "Semua Buku Alamat",
-   GLOBAL => "Buku Alamat Global ",
+   global => "Buku Alamat Global ",
    );
 
 %lang_onofflabels =
@@ -362,6 +362,7 @@ package ow::id;
    emptyfolder=> 'Folder Kosong',
    emptytrash => 'Kotak Sampah Kosong',
    totrash    => 'Pindah ke Kotak Sampah',
+   learnham   => 'BELAJAR HAM',
    learnspam  => 'Belajar Spam',
    forever    => 'Tinggal Selamanya',
    delatlogout=> 'Dihapus saat Logout',
@@ -560,7 +561,8 @@ package ow::id;
    email      => 'Email',
    note       => 'Catatan',
    abooks => 'Buku Alamat',
-   abook_title => 'Judul Buku Alamat',
+   abook_personal => 'Personal addressbook',
+   abook_global => 'Global addressbook',
    abook_converted => 'Converted',
    abook_group_member => 'Pelanggan',
    abook_group_allmembers => 'Semua Pelanggan',

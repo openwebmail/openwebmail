@@ -55,7 +55,7 @@ package ow::he_CP1255;
 %lang_abookselectionlabels =
    (
    ALL => "All Addressbooks",
-   GLOBAL => "Global Addressbook",
+   global => "Global Addressbook",
    );
 
 %lang_onofflabels =
@@ -363,6 +363,7 @@ package ow::he_CP1255;
    emptyfolder=> 'Empty folder',
    emptytrash => 'נקה סל מיחזור',
    totrash    => 'העבר לסל מיחזור',
+   learnham   => 'LEARN HAM',
    learnspam  => 'Learn Spam',
    forever    => 'תמיד',
    delatlogout=> 'מחק ביציאה',
@@ -561,7 +562,8 @@ package ow::he_CP1255;
    email      => 'Email',
    note       => 'Note',
    abooks => 'Addressbooks',
-   abook_title => 'Addressbook',
+   abook_personal => 'Personal addressbook',
+   abook_global => 'Global addressbook',
    abook_converted => 'Converted',
    abook_group_member => 'Member',
    abook_group_allmembers => 'All Members',

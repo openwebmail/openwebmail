@@ -72,6 +72,7 @@
    'left-grey.s.gif'   => ' < ',
    'left.gif'          => ' < ',
    'left.s.gif'        => ' < ',
+   'learnham.gif'      => ' [正常信学习] ',
    'learnspam.gif'     => ' [垃圾邮件学习] ',
    'listview.gif'      => ' [项目列表] ',
    'logout.gif'        => ' [登出] ',

@@ -33,7 +33,7 @@
 </tr>
 <tr>
   <td width="10" bgcolor=@@@COLUMNHEADER@@@>&nbsp;</td>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Rubrica di Default</b></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Global Addressbooks</b></td>
   <td align="center" bgcolor=@@@COLUMNHEADER@@@><b>Voci</b></td>
   <td align="center" bgcolor=@@@COLUMNHEADER@@@><b>Dimensione</b></td>
   <td align="center" bgcolor=@@@COLUMNHEADER@@@>&nbsp;</td>

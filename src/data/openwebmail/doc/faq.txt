@@ -13,12 +13,13 @@ Open WebMail Frequently Asked Questions
 10. SEND MESSAGE
 11. AUTOREPLY
 12. SPELLCHECK
-13. CALENDAR
-14. SSL RELATED
-15. MISC PROBLEMS
-16. SPEED TUNING
-17. SOME CONCEPT
-18. HOW CAN I...
+13. ADDRESSBOOK
+14. CALENDAR
+15. SSL RELATED
+16. MISC PROBLEMS
+17. SPEED TUNING
+18. SOME CONCEPT
+19. HOW CAN I...
 
 
 ========================================================================
@@ -270,6 +271,11 @@ A: you can enforce the new one to use the same dbm package as the old one by
    really used.
 
    where XXX_File.pm is the value you get by running dbmtest.pl on old machine.
+
+Q: When I installed Open WebMail on Fedora 3, --init generated no output?
+A: Please turn the selinux feature off by
+   setting "SELINUX=disabled" in /etc/selinux/config,
+   then try to execute openwebmail-tool.pl --init again.
 
 ========================================================================
 LOGIN PROBLEMS
@@ -1165,6 +1171,42 @@ A: 1. Please upgrade your openwebmail to 2003/11/16 or later.
 Q: Why is openwebmail-spell.pl a suid root program?
 A: Because it needs to read the preference file, ~/.openwebmai/openwebmailrc
    of different users to get their language and dictionary setting.
+
+========================================================================
+ADDRESSBOOK
+========================================================================
+Q: I got "Too many arguments for MIME::QuotedPrint::encode_qp"?
+A: Your MIME module is too old, please install the MIME-Base64-3.01.tar.gz.
+
+Q: The content of my global addressbook is gone after I upgrade my openwebmail?
+A: No, it is still there.
+
+   The filename, location and format of openwebmail addressbook has been changes
+   since 2.41-20041030. While user personal addressbooks will be converted
+   automatically at user login, the global addressbook will be converted only if
+   it is specified by sysadm explicitly.
+
+   To convert the global addressbook:
+
+   cd your_cgi-bin/openwebmail
+   openwebmail-tool.pl -c
+
+Q: Can I have multiple personal addressbooks?
+A: Yes, each user can create as many addressbooks as he want through the
+   addressbooks web management menu
+
+Q: Can I have multiple global addressbooks?
+A: Yes, but this could not be done in web interface,
+   you have to goto directory specified by option ow_addressbooksdir
+   (eg: cgi-bin/openwebmail/etc/addressbooks)
+   then use 'touch new_addressbooks_filename' to create empty global addressbook.
+   Be sure the permission is right so other users can read it.
+
+Q: Can I edit the global addressbooks?
+   Which user can edit global addressbooks?
+A: Yes, if the option abook_globaleditable is set to yes
+   and the user has enough privilege to write the global addressbook file,
+   then he can add, delete or modify the contacts within that gobal addressbook.
 
 ========================================================================
 CALENDAR

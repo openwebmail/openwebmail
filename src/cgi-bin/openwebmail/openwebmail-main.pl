@@ -388,10 +388,13 @@ sub listmessages {
    $html =~ s/\@\@\@LEFTMENUBARLINKS\@\@\@/$temphtml/;
 
    $temphtml='';
-   if ($config{'enable_learnspam'} &&
-       $folder ne 'saved-drafts' && $folder ne 'sent-mail' &&
-       $folder ne 'spam-mail' && $folder ne 'virus-mail') {
-      $temphtml = iconlink("learnspam.gif", $lang_text{'learnspam'}, qq|accesskey="Z" href="JavaScript:document.pageform.destination.value='LEARNSPAM'; document.pageform.movebutton.click();"|);
+   if ($config{'enable_learnspam'}) {
+      if ($folder eq 'spam-mail') {
+         $temphtml = iconlink("learnham.gif", $lang_text{'learnham'}, qq|accesskey="Z" href="JavaScript:document.pageform.destination.value='LEARNHAM'; document.pageform.movebutton.click();"|);
+      } elsif ($folder ne 'saved-drafts' && $folder ne 'sent-mail' &&
+               $folder ne 'spam-mail' && $folder ne 'virus-mail') {
+         $temphtml = iconlink("learnspam.gif", $lang_text{'learnspam'}, qq|accesskey="Z" href="JavaScript:document.pageform.destination.value='LEARNSPAM'; document.pageform.movebutton.click();"|);
+      }
    }
    if ($folder eq 'mail-trash' || $folder eq 'spam-mail' || $folder eq 'virus-mail') {
       $temphtml .= iconlink("emptyfolder.gif", $lang_text{'emptyfolder'}, qq|accesskey="Z" href="$main_url_with_keyword&amp;action=emptyfolder&amp;page=$page&amp;longpage=$longpage" onclick="return confirm('$lang_text{emptyfolder} ($lang_folders{$folder}, $folder_allmessages $lang_text{messages}) ?');"|);

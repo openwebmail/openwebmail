@@ -54,7 +54,7 @@ package ow::zh_CN_GB2312;
 %lang_abookselectionlabels =
    (
    ALL => "全部通讯录",
-   GLOBAL => "公用通讯录",
+   global => "公用通讯录",
    );
 
 %lang_onofflabels =
@@ -362,6 +362,7 @@ package ow::zh_CN_GB2312;
    emptyfolder=> '清空邮件箱',
    emptytrash => '清空废件箱',
    totrash    => '移至废件箱',
+   learnham   => '正常邮件学习',
    learnspam  => '垃圾邮件学习',
    forever    => '永久保留',
    delatlogout=> '退出时删除',
@@ -560,7 +561,8 @@ package ow::zh_CN_GB2312;
    email      => '电子邮件地址',
    note       => '备忘',
    abooks => '管理通讯录',
-   abook_title => '通讯录',
+   abook_personal => '个人通讯录',
+   abook_global => '共用通讯录',
    abook_converted => 'Converted',
    abook_group_member => '成员',
    abook_group_allmembers => '所有成员',

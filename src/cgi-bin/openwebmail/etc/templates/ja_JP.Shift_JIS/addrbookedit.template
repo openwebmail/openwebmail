@@ -33,7 +33,7 @@
 </tr>
 <tr>
   <td width="10" bgcolor=@@@COLUMNHEADER@@@>&nbsp;</td>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>既定アドレス帳</b></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Global Addressbooks</b></td>
   <td align="center" bgcolor=@@@COLUMNHEADER@@@><b>連絡先の数</b></td>
   <td align="center" bgcolor=@@@COLUMNHEADER@@@><b>サイズ</b></td>
   <td align="center" bgcolor=@@@COLUMNHEADER@@@>&nbsp;</td>

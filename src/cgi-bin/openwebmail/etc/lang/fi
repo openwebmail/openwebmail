@@ -55,7 +55,7 @@ package ow::fi;
 %lang_abookselectionlabels =
    (
    ALL => "Kaikki osoitekirjat",
-   GLOBAL => "Yleinen osoitekirja",
+   global => "Yleinen osoitekirja",
    );
 
 %lang_onofflabels =
@@ -363,6 +363,7 @@ package ow::fi;
    emptyfolder=> 'Tyhjennä kansio',
    emptytrash => 'Tyhjennä roskakori',
    totrash    => 'Siirrä roskakoriin',
+   learnham   => 'OPETA OIK. POSTINA',
    learnspam  => 'Opeta Spammina',
    forever    => 'Aina',
    delatlogout=> 'Tuhoa uloskirjautuessa',
@@ -561,7 +562,8 @@ package ow::fi;
    email      => 'Email',
    note       => 'Merkintä',
    abooks => 'Osoitekirjat',
-   abook_title => 'Osoitekirja',
+   abook_personal => 'Personal addressbook',
+   abook_global => 'Global addressbook',
    abook_converted => 'Konveroitu',
    abook_group_member => 'Member',
    abook_group_allmembers => 'Kaikki jäsenet',

@@ -72,6 +72,7 @@
    'left-grey.s.gif'   => ' < ',
    'left.gif'          => ' < ',
    'left.s.gif'        => ' < ',
+   'learnham.gif'      => ' [正常信學習] ',
    'learnspam.gif'     => ' [廣告信學習] ',
    'listview.gif'      => ' [項目列表] ',
    'logout.gif'        => ' [登出] ',

@@ -59,7 +59,7 @@ package ow::ja_JP_Shift_JIS;
 %lang_abookselectionlabels =
    (
    ALL => "すべてのアドレス帳",
-   GLOBAL => "グローバルアドレス帳",
+   global => "グローバルアドレス帳",
    );
 
 %lang_onofflabels =
@@ -367,6 +367,7 @@ package ow::ja_JP_Shift_JIS;
    emptyfolder=> 'フォルダを空にする',
    emptytrash => 'ごみ箱を空にする',
    totrash    => 'ごみ箱に移動する',
+   learnham   => 'ハムの学習',
    learnspam  => 'スパムの学習',
    forever    => '永久に',
    delatlogout=> 'ログアウト時に削除',
@@ -565,7 +566,8 @@ package ow::ja_JP_Shift_JIS;
    email      => 'Email',
    note       => 'メモ',
    abooks => 'アドレス帳管理',
-   abook_title => 'アドレス帳',
+   abook_personal => 'Personal addressbook',
+   abook_global => 'Global addressbook',
    abook_converted => 'Converted',
    abook_group_member => 'メンバ',
    abook_group_allmembers => 'すべてのメンバ',

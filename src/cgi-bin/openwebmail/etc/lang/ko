@@ -56,7 +56,7 @@ package ow::ko;
 %lang_abookselectionlabels =
    (
    ALL => "All Addressbooks",
-   GLOBAL => "Global Addressbook",
+   global => "Global Addressbook",
    );
 
 %lang_onofflabels =
@@ -364,6 +364,7 @@ package ow::ko;
    emptyfolder=> '폴더 비우기',
    emptytrash => '휴지통 비우기',
    totrash    => '휴지통으로 옮기기',
+   learnham   => '스팸아님',
    learnspam  => '스팸으로 분류',
    forever    => '영원히',
    delatlogout=> '로그아웃할시 삭제하기',
@@ -562,7 +563,8 @@ package ow::ko;
    email      => 'Email',
    note       => 'Note',
    abooks => 'Addressbooks',
-   abook_title => 'Addressbook',
+   abook_personal => 'Personal addressbook',
+   abook_global => 'Global addressbook',
    abook_converted => 'Converted',
    abook_group_member => 'Member',
    abook_group_allmembers => 'All Members',

@@ -8,8 +8,10 @@
 
 #domainnames		server1.domain1.com, server2.domain2.com
 
+
+ow_addressbooksdir	%ow_etcdir%/addressbooks
+
 logfile			/var/log/openwebmail.log
-global_addressbook	%ow_etcdir%/address.book
 global_filterbook	%ow_etcdir%/filter.book
 global_calendarbook	%ow_etcdir%/calendar.book
 

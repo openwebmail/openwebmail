@@ -307,6 +307,11 @@ ps: The permission for ow_usersdir and ow_sessionsdir directories should be
     group: mail
 
 
+ow_addressbooksdir
+-----------------------------------------------------------------------
+the directory for global addressbooks
+
+
 start_url
 -----------------------------------------------------------------------
 The url of the start page for openwebmail login.
@@ -350,11 +355,6 @@ logfile
 -----------------------------------------------------------------------
 This should be set either to 'none' or the filename of a file you'd
 like to log actions to.
-
-
-global_addressbook
------------------------------------------------------------------------
-addressbook shared by all user
 
 
 global_filterbook

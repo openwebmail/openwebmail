@@ -33,7 +33,7 @@
 </tr>
 <tr>
   <td width="10" bgcolor=@@@COLUMNHEADER@@@>&nbsp;</td>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Default Addressbook</b></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Global Addressbooks</b></td>
   <td align="center" bgcolor=@@@COLUMNHEADER@@@><b>Entries</b></td>
   <td align="center" bgcolor=@@@COLUMNHEADER@@@><b>Size</b></td>
   <td align="center" bgcolor=@@@COLUMNHEADER@@@>&nbsp;</td>

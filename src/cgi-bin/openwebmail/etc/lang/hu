@@ -55,7 +55,7 @@ package ow::hu;
 %lang_abookselectionlabels =
    (
    ALL => "Összes Telefonkönyv",
-   GLOBAL => "Globális Telefonkönyv",
+   global => "Globális Telefonkönyv",
    );
 
 %lang_onofflabels =
@@ -363,6 +363,7 @@ package ow::hu;
    emptyfolder=> 'Empty folder',
    emptytrash => 'Szemetes ürítése',
    totrash    => 'Szemetesbe',
+   learnham   => 'TANULD: NEM SPAM',
    learnspam  => 'Learn Spam',
    forever    => 'örökre',
    delatlogout=> 'Kilépéskor töröl',
@@ -561,7 +562,8 @@ package ow::hu;
    email      => 'Emil',
    note       => 'Megjegyzés',
    abooks => 'Címlisták',
-   abook_title => 'Címlista',
+   abook_personal => 'Personal addressbook',
+   abook_global => 'Global addressbook',
    abook_converted => 'Konvertált',
    abook_group_member => 'Tag',
    abook_group_allmembers => 'Minden Tag',

@@ -54,7 +54,7 @@ package ow::fr;
 %lang_abookselectionlabels =
    (
    ALL => "All Addressbooks",
-   GLOBAL => "Global Addressbook",
+   global => "Global Addressbook",
    );
 
 %lang_onofflabels =
@@ -362,6 +362,7 @@ package ow::fr;
    emptyfolder=> 'Vider le dossier',
    emptytrash => 'Vider la poubelle',
    totrash    => 'Mettre à la poubelle',
+   learnham   => 'APPRENDRE HAM',
    learnspam  => 'Apprendre Spam',
    forever    => 'Toujours',
    delatlogout=> 'Effacer à la déconnexion',
@@ -560,7 +561,8 @@ package ow::fr;
    email      => 'Email',
    note       => 'Note',
    abooks => 'Addressbooks',
-   abook_title => 'Addressbook',
+   abook_personal => 'Personal addressbook',
+   abook_global => 'Global addressbook',
    abook_converted => 'Converted',
    abook_group_member => 'Member',
    abook_group_allmembers => 'All Members',

@@ -59,8 +59,8 @@ rm -Rf data/openwebmail/download
 rm -Rf data/openwebmail/applet/mindterm2/*.jar data/openwebmail/applet/mindterm2/*.txt
 
 cp cgi-bin/openwebmail/misc/mkrelease/openwebmail.conf cgi-bin/openwebmail/etc/openwebmail.conf
-rm    cgi-bin/openwebmail/etc/address.book* cgi-bin/openwebmail/etc/calendar.book*
-touch cgi-bin/openwebmail/etc/address.book  cgi-bin/openwebmail/etc/calendar.book
+rm    cgi-bin/openwebmail/etc/addressbooks/* cgi-bin/openwebmail/etc/address.book* cgi-bin/openwebmail/etc/calendar.book*
+touch cgi-bin/openwebmail/etc/addressbooks/global cgi-bin/openwebmail/etc/calendar.book
 
 cd cgi-bin/openwebmail
 patch -R -f -p1 -s < /usr/local/www/cgi-bin/openwebmail/misc/patches/suidperl2speedy_suidperl.patch

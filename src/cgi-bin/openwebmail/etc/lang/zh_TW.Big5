@@ -54,7 +54,7 @@ package ow::zh_TW_Big5;
 %lang_abookselectionlabels =
    (
    ALL => "全部通訊錄",
-   GLOBAL => "公用通訊錄",
+   global => "公用通訊錄",
    );
 
 %lang_onofflabels =
@@ -362,6 +362,7 @@ package ow::zh_TW_Big5;
    emptyfolder=> '清空信件匣',
    emptytrash => '清空垃圾桶',
    totrash    => '搬到垃圾桶',
+   learnham   => '正常信學習',
    learnspam  => '廣告信學習',
    forever    => '永久保留',
    delatlogout=> '登出時刪除',
@@ -560,7 +561,8 @@ package ow::zh_TW_Big5;
    email      => '電子郵件地址',
    note       => '備忘',
    abooks => '管理通訊錄',
-   abook_title => '通訊錄',
+   abook_personal => '個人通訊錄',
+   abook_global => '共用通訊錄',
    abook_converted => 'Converted',
    abook_group_member => '成員',
    abook_group_allmembers => '所有成員',

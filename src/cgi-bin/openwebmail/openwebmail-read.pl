@@ -386,14 +386,21 @@ sub readmessage {
    $html =~ s/\@\@\@LEFTMENUBARLINKS\@\@\@/$temphtml/;
 
    $temphtml='';
-   if ($config{'enable_learnspam'} &&
-       $folder ne 'saved-drafts' && $folder ne 'sent-mail' &&
-       $folder ne 'spam-mail' && $folder ne 'virus-mail') {
-      my $url=qq|accesskey="Z" href="$main_url&amp;action=movemessage&amp;message_ids=$escapedmessageid&amp;message_id=$escapedmessageaftermove&amp;destination=LEARNSPAM&amp;headers=$headers&amp;attmode=$attmode|;
-      $url .= qq|&amp;messageaftermove=1| if ($messageaftermove && $prefs{'viewnextaftermsgmovecopy'});
-      $url .= qq|" |;
-      $url .= qq|onClick="return confirm($lang_text{'msgmoveconf'})"| if ($prefs{'confirmmsgmovecopy'});
-      $temphtml .= iconlink("learnspam.gif", $lang_text{'learnspam'}, $url);
+   if ($config{'enable_learnspam'}) {
+      my ($dest, $gif, $title);
+      if ($folder eq 'spam-mail') {
+         ($dest, $gif, $title)=('LEARNHAM', "learnham.gif", $lang_text{'learnham'});
+      } elsif ($folder ne 'saved-drafts' && $folder ne 'sent-mail' &&
+               $folder ne 'spam-mail' && $folder ne 'virus-mail') {
+         ($dest, $gif, $title)=('LEARNSPAM', "learnspam.gif", $lang_text{'learnspam'});
+      }
+      if ($dest ne '') {
+         my $url=qq|accesskey="Z" href="$main_url&amp;action=movemessage&amp;message_ids=$escapedmessageid&amp;message_id=$escapedmessageaftermove&amp;destination=$dest&amp;headers=$headers&amp;attmode=$attmode|;
+         $url .= qq|&amp;messageaftermove=1| if ($messageaftermove && $prefs{'viewnextaftermsgmovecopy'});
+         $url .= qq|" |;
+         $url .= qq|onClick="return confirm($lang_text{'msgmoveconf'})"| if ($prefs{'confirmmsgmovecopy'});
+         $temphtml .= iconlink($gif, $title, $url);
+      }
    }
    if ($folder ne 'mail-trash') {
       my $trashfolder='mail-trash';
@@ -650,19 +657,20 @@ sub readmessage {
       $temphtml .= qq|<B>$lang_text{'from'}:</B> <a href="http://www.google.com/search?q=$eaddr" title="google $lang_text{'search'}..." target="_blank">$from</a>&nbsp; \n|;
       if ($printfriendly ne "yes") {
          if ($config{'enable_addressbook'}) {
-            # load up the list of available books
-            my $webaddrdir = dotpath('webaddr');
-            opendir(WEBADDR, $webaddrdir) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $webaddrdir directory for reading! ($!)");
-            my @writablebooks = map { (-w "$webaddrdir/$_")?$_:() }
-                                sort { $a cmp $b }
-                                grep { /^[^.]/ && !/^categories\.cache$/ }
-                                readdir(WEBADDR);
-            closedir(WEBADDR) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $webaddrdir! ($!)");
-            if ($config{'abook_globaleditable'} && $config{'global_addressbook'} ne "") {
-               push(@writablebooks, 'GLOBAL') if (-w $config{'global_addressbook'});
+            my $is_writableabook_found=0;
+            for my $dir (dotpath('webaddr'),  $config{'ow_addressbooksdir'}) {
+               opendir(D, $dir) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $dir directory for reading! ($!)");
+               while (defined(my $fname=readdir(D))) {
+                  next if ($fname=~/^\./ || $fname=~/^categories\.cache$/);
+                  if (-w "$dir/$fname") {
+                     $is_writableabook_found=1; last;
+                  }
+               }
+               closedir(D);
+               last if ($is_writableabook_found);
             }
 
-            if (@writablebooks > 0) {
+            if ($is_writableabook_found) {
                my ($firstname, @lastname) = split(/ /,$ename);
                my $lastname = join(" ",@lastname);
                $temphtml .= qq|&nbsp;|. iconlink("import.s.gif",  "$lang_text{'importadd'} $eaddr", qq|href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addreditform&amp;sessionid=$thissession&amp;sort=$sort&amp;page=$page&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;N.0.VALUE.GIVENNAME=|.ow::tool::escapeURL($firstname).qq|&amp;N.0.VALUE.FAMILYNAME=|.ow::tool::escapeURL($lastname).qq|&amp;FN.0.VALUE=|.ow::tool::escapeURL($ename).qq|&amp;EMAIL.0.VALUE=|.ow::tool::escapeURL($eaddr).qq|&amp;formchange=1" onclick="return confirm('$lang_text{importadd} $eaddr ?');"|) . qq|\n|;

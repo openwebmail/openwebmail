@@ -60,7 +60,7 @@ package ow::pl;
 %lang_abookselectionlabels =
    (
    ALL => "Wszystkie ksi±¿ki adresowe",
-   GLOBAL => "Globalna Ksi±¿ka Adresowa",
+   global => "Globalna Ksi±¿ka Adresowa",
    );
 
 %lang_onofflabels =
@@ -368,6 +368,7 @@ package ow::pl;
    emptyfolder=> 'Opró¿nij folder',
    emptytrash => 'Opró¿nij kosz',
    totrash    => 'Przenie¶ do kosza',
+   learnham   => 'ZG£O¦ HAM',
    learnspam  => 'Zg³o¶ spam',
    forever    => 'Zawsze',
    delatlogout=> 'Usuñ przy wylogowaniu',
@@ -566,7 +567,8 @@ package ow::pl;
    email      => 'Email',
    note       => 'Notatka',
    abooks => 'Ksi±¿ki adresowe',
-   abook_title => 'Ksi±¿ka Adresowa',
+   abook_personal => 'Personal addressbook',
+   abook_global => 'Global addressbook',
    abook_converted => 'Skonwertowane',
    abook_group_member => 'Cz³onek',
    abook_group_allmembers => 'Wszyscy cz³onkowie',

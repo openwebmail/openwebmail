@@ -33,7 +33,7 @@
 </tr>
 <tr>
   <td width="10" bgcolor=@@@COLUMNHEADER@@@>&nbsp;</td>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>预设通讯录</b></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>公用通讯录</b></td>
   <td align="center" bgcolor=@@@COLUMNHEADER@@@><b>资料笔数</b></td>
   <td align="center" bgcolor=@@@COLUMNHEADER@@@><b>大小</b></td>
   <td align="center" bgcolor=@@@COLUMNHEADER@@@>&nbsp;</td>

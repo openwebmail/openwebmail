@@ -54,7 +54,7 @@ package ow::el;
 %lang_abookselectionlabels =
    (
    ALL => "All Addressbooks",
-   GLOBAL => "Global Addressbook",
+   global => "Global Addressbook",
    );
 
 %lang_onofflabels =
@@ -362,6 +362,7 @@ package ow::el;
    emptyfolder=> '¶δειασμα φακέλου',
    emptytrash => '¶δειασμα απορριμάτων',
    totrash    => 'Διαγραφή',
+   learnham   => 'Μάθηση Ham',
    learnspam  => 'Μάθηση Spam',
    forever    => 'Για πάντα',
    delatlogout=> 'Διαγραφή κατά την έξοδο',
@@ -560,7 +561,8 @@ package ow::el;
    email      => 'Email',
    note       => 'Note',
    abooks => 'Addressbooks',
-   abook_title => 'Addressbook',
+   abook_personal => 'Personal addressbook',
+   abook_global => 'Global addressbook',
    abook_converted => 'Converted',
    abook_group_member => 'Member',
    abook_group_allmembers => 'All Members',

@@ -54,7 +54,7 @@ package ow::it;
 %lang_abookselectionlabels =
    (
    ALL => "Tutte le rubriche",
-   GLOBAL => "Rubrica generale",
+   global => "Rubrica generale",
    );
 
 %lang_onofflabels =
@@ -362,6 +362,7 @@ package ow::it;
    emptyfolder=> 'Svuota cartella',
    emptytrash => 'Svuota cestino',
    totrash    => 'Sposta in cestino',
+   learnham   => 'AGG. HAM',
    learnspam  => 'Learn Spam',
    forever    => 'Per Sempre',
    delatlogout=> 'Cancella all\'uscita',
@@ -560,7 +561,8 @@ package ow::it;
    email      => 'Email',
    note       => 'Note',
    abooks => 'Rubriche',
-   abook_title => 'Rubrica',
+   abook_personal => 'Personal addressbook',
+   abook_global => 'Global addressbook',
    abook_converted => 'Convertita',
    abook_group_member => 'Membro',
    abook_group_allmembers => 'Tutti i Membri',

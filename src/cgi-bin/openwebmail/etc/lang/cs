@@ -57,7 +57,7 @@ package ow::cs;
 %lang_abookselectionlabels =
    (
    ALL => "V¹echny adresáøe",
-   GLOBAL => "Globální adresáø",
+   global => "Globální adresáø",
    );
 
 %lang_onofflabels =
@@ -365,6 +365,7 @@ package ow::cs;
    emptyfolder=> 'Vyprázdnit slo¾ku',
    emptytrash => 'Vysypat Ko¹',
    totrash    => 'Pøesunout zprávy do Ko¹e',
+   learnham   => 'NAUÈIT HAM',
    learnspam  => 'Learn Spam',
    forever    => 'Napoøád',
    delatlogout=> 'Smazat pøi odhlá¹ení',
@@ -563,7 +564,8 @@ package ow::cs;
    email      => 'Email',
    note       => 'Poznámka',
    abooks => 'Adresáøe',
-   abook_title => 'Adresáø',
+   abook_personal => 'Personal addressbook',
+   abook_global => 'Global addressbook',
    abook_converted => 'Konvertované',
    abook_group_member => 'Èlen',
    abook_group_allmembers => 'V¹ichni èlenové',

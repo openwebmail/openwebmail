@@ -55,7 +55,7 @@ package ow::ca;
 %lang_abookselectionlabels =
    (
    ALL => "Totes les llibretes d\'adreces",
-   GLOBAL => "Llibreta d\'adreces global",
+   global => "Llibreta d\'adreces global",
    );
 
 %lang_onofflabels =
@@ -363,6 +363,7 @@ package ow::ca;
    emptyfolder=> 'Buida carpeta',
    emptytrash => 'Buida paperera',
    totrash    => 'Envia a la paperera',
+   learnham   => 'APRENDRE HAM',
    learnspam  => 'Aprèn Spam',
    forever    => 'Per sempre',
    delatlogout=> 'Suprimeix al sortir',
@@ -561,7 +562,8 @@ package ow::ca;
    email      => 'Correu electrònic',
    note       => 'Nota',
    abooks => 'Llibretes d\'adreces',
-   abook_title => 'Llibreta d\'adreces',
+   abook_personal => 'Personal addressbook',
+   abook_global => 'Global addressbook',
    abook_converted => 'Convertit',
    abook_group_member => 'Membre',
    abook_group_allmembers => 'Tots els membres',

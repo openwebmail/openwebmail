@@ -107,8 +107,9 @@ foreach (qw(
     ow_cgidir ow_htmldir ow_etcdir
     ow_stylesdir ow_langdir ow_templatesdir ow_mapsdir
     ow_sitesconfdir ow_usersconfdir ow_usersdir ow_sessionsdir
+    ow_addressbooksdir
     vacationinit vacationpipe spellcheck
-    global_addressbook global_filterbook global_calendarbook
+    global_filterbook global_calendarbook
     authpop3_server authpop3_port
     vdomain_vmpop3_pwdpath vdomain_vmpop3_pwdname vdomain_vmpop3_mailpath
     vdomain_postfix_postalias vdomain_postfix_postmap
@@ -2020,19 +2021,23 @@ sub del_staledb {
 # this routine gets the EMAIL attributes in abookfiles directly
 # to avoid the overhead of vcard parsing
 sub get_abookemailhash {
-   my (%emails, @abookfiles);
+   my (%emails, @userabookfiles, @globalabookfiles);
 
    my $webaddrdir = dotpath('webaddr');
-   if (opendir(WEBADDR, $webaddrdir)) {
-      @abookfiles = map { "$webaddrdir/$_" }
-                          grep { /^[^.]/ && !/^categories\.cache$/ }
-                          readdir(WEBADDR);
-      closedir(WEBADDR);
+   if (opendir(D, $webaddrdir)) {
+      @userabookfiles = map { "$webaddrdir/$_" }
+                        grep { /^[^.]/ && !/^categories\.cache$/ }
+                        readdir(D);
+      closedir(D);
    }
-   if ($config{'global_addressbook'} ne "" && -f $config{'global_addressbook'}) {
-      push(@abookfiles, $config{'global_addressbook'});
+   if (opendir(D, $config{'ow_addressbooksdir'})) {
+      @globalabookfiles = map { "$config{'ow_addressbooksdir'}/$_" }
+                          grep { /^[^.]/ }
+                          readdir(D);
+      closedir(D);
    }
-   foreach my $abookfile (@abookfiles) {
+
+   foreach my $abookfile (@userabookfiles, @globalabookfiles) {
       if (open(F, $abookfile)) {
          while (<F>) {
             $emails{$2}=1 if (/^EMAIL(;TYPE=PREF)?:(.+?)\s*$/);
