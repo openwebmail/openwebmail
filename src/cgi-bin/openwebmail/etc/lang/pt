@@ -90,6 +90,7 @@ $lang_charset = 'iso-8859-1';
    folderdelconf => '\'Vo&ccedil;&ecirc; tem certeza excluir esta pasta com o seu conte&uacute;do?\'',
    total      => 'Total',
    delete     => 'Deletar',
+   reserve    => 'Reserve',
    clearadd   => 'Clear all addresses',
    importadd  => 'Importar Endere&ccedil;os',
    exportadd  => 'Exportar Endere&ccedil;os',
@@ -108,6 +109,7 @@ $lang_charset = 'iso-8859-1';
    header     => 'Header',
    body       => 'Body',
    attfilename=> 'AttFilename',
+   all        => 'All',
    enable     => 'Enable',
    disable    => 'Disable',
    blockrelay => 'Block SMTP Relay',
@@ -119,7 +121,7 @@ $lang_charset = 'iso-8859-1';
    globaladdressbook => 'Global AddressBook',
    globalfilterrule => 'Global FilterRule',
    readonly   => 'ReadOnly',
-   content    => 'content',
+   textcontent=> 'TextContent',
    search     => 'Search'
    );
 

@@ -90,6 +90,7 @@ $lang_charset = 'koi8-r';
    folderdelconf => 'Удалить папку и её содержимое?',
    total      => 'Total',
    delete     => 'Удалить',
+   reserve    => 'Reserve',
    clearadd   => 'Clear all addresses',
    importadd  => 'Импорт адресной книги',
    exportadd  => 'Export addresses',
@@ -108,6 +109,7 @@ $lang_charset = 'koi8-r';
    header     => 'Header',
    body       => 'Body',
    attfilename=> 'AttFilename',
+   all        => 'All',
    enable     => 'Enable',
    disable    => 'Disable',
    blockrelay => 'Block SMTP Relay',
@@ -119,7 +121,7 @@ $lang_charset = 'koi8-r';
    globaladdressbook => 'Global AddressBook',
    globalfilterrule => 'Global FilterRule',
    readonly   => 'ReadOnly',
-   content    => 'content',
+   textcontent=> 'TextContent',
    search     => 'Search'
    );
 

@@ -90,7 +90,7 @@ $lang_charset = 'iso-8859-1';
    folderdelconf => '\'Are you sure you want to delete this folder and all its contents?\'',
    total      => 'Total',
    delete     => 'Delete',
-   reserve    => 'Reverse',
+   reserve    => 'Reserve',
    clearadd   => 'Clear all addresses',
    importadd  => 'Import addresses',
    exportadd  => 'Export addresses',
@@ -109,6 +109,7 @@ $lang_charset = 'iso-8859-1';
    header     => 'Header',
    body       => 'Body',
    attfilename=> 'AttFilename',
+   all        => 'All',
    enable     => 'Enable',
    disable    => 'Disable',
    blockrelay => 'Block SMTP Relay',
@@ -120,7 +121,7 @@ $lang_charset = 'iso-8859-1';
    globaladdressbook => 'Global AddressBook',
    globalfilterrule => 'Global FilterRule',
    readonly   => 'ReadOnly',
-   content    => 'content',
+   textcontent=> 'TextContent',
    search     => 'Search'
    );
 

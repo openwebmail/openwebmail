@@ -380,9 +380,10 @@ sub get_messageids_sorted_by_offset {
 }
 
 sub get_info_messageids_sorted {
-   my ($headerdb, $sort, $cachefile)=@_;
-   my (%HDB, $metainfo, $cache_metainfo, $cache_headerdb, $cache_sort);
-   my ($totalsize, $new, $internal)=(0,0,0);
+   my ($headerdb, $sort, $cachefile, $ignore_internal)=@_;
+   my (%HDB, $metainfo);
+   my ($cache_metainfo, $cache_headerdb, $cache_sort, $cache_ignore_internal);
+   my ($totalsize, $new)=(0,0);
    my $r_messageids;
    my @messageids=();
    my $rev;
@@ -423,32 +424,31 @@ sub get_info_messageids_sorted {
       $cache_metainfo=<CACHE>; chomp($cache_metainfo);
       $cache_headerdb=<CACHE>; chomp($cache_headerdb);
       $cache_sort=<CACHE>;     chomp($cache_sort);
-
-      # if this is a cache file of old version format, 
-      # 4th line will be a messageid and contain chars other than digit
+      $cache_ignore_internal=<CACHE>; chomp($cache_ignore_internal);
       $totalsize=<CACHE>;      chomp($totalsize); 
       close(CACHE);
    }
 
    if ( $cache_metainfo ne $metainfo || $cache_headerdb ne $headerdb ||
-        $cache_sort ne $sort || $totalsize=~/[^\d]/ ) { 
+        $cache_sort ne $sort || $cache_ignore_internal ne $ignore_internal || 
+        $totalsize=~/[^\d]/ ) { 
       ($cachefile =~ /^(.+)$/) && ($cachefile = $1);		# bypass taint check
       open(CACHE, ">$cachefile");
-      print CACHE $metainfo, "\n", $headerdb, "\n", $sort, "\n";
+      print CACHE $metainfo, "\n", $headerdb, "\n", $sort, "\n", $ignore_internal, "\n";
       if ( $sort eq 'date' ) {
-         ($totalsize, $new, $internal, $r_messageids)=get_info_messageids_sorted_by_date($headerdb);
+         ($totalsize, $new, $r_messageids)=get_info_messageids_sorted_by_date($headerdb, $ignore_internal);
       } elsif ( $sort eq 'sender' ) {
-         ($totalsize, $new, $internal, $r_messageids)=get_info_messageids_sorted_by_from($headerdb);
+         ($totalsize, $new, $r_messageids)=get_info_messageids_sorted_by_from($headerdb, $ignore_internal);
       } elsif ( $sort eq 'recipient' ) {
-         ($totalsize, $new, $internal, $r_messageids)=get_info_messageids_sorted_by_to($headerdb);
+         ($totalsize, $new, $r_messageids)=get_info_messageids_sorted_by_to($headerdb, $ignore_internal);
       } elsif ( $sort eq 'size' ) {
-         ($totalsize, $new, $internal, $r_messageids)=get_info_messageids_sorted_by_size($headerdb);
+         ($totalsize, $new, $r_messageids)=get_info_messageids_sorted_by_size($headerdb, $ignore_internal);
       } elsif ( $sort eq 'subject' ) {
-         ($totalsize, $new, $internal, $r_messageids)=get_info_messageids_sorted_by_subject($headerdb);
+         ($totalsize, $new, $r_messageids)=get_info_messageids_sorted_by_subject($headerdb, $ignore_internal);
       } elsif ( $sort eq 'status' ) {
-         ($totalsize, $new, $internal, $r_messageids)=get_info_messageids_sorted_by_status($headerdb);
+         ($totalsize, $new, $r_messageids)=get_info_messageids_sorted_by_status($headerdb, $ignore_internal);
       }
-      print CACHE join("\n", $totalsize, $new, $internal, @{$r_messageids});
+      print CACHE join("\n", $totalsize, $new, @{$r_messageids});
       close(CACHE);
       if ($rev) {
          @messageids=reverse @{$r_messageids};
@@ -461,9 +461,9 @@ sub get_info_messageids_sorted {
       $_=<CACHE>; 
       $_=<CACHE>;
       $_=<CACHE>;
+      $_=<CACHE>;
       $totalsize=<CACHE>; chomp($totalsize);
       $new=<CACHE>;       chomp($new);
-      $internal=<CACHE>;  chomp($internal);
       while (<CACHE>) {
          chomp; 
          if ($rev) {
@@ -477,13 +477,13 @@ sub get_info_messageids_sorted {
 
    filelock($cachefile, LOCK_UN);
 
-   return($totalsize, $new, $internal, \@messageids);
+   return($totalsize, $new, \@messageids);
 }
 
 sub get_info_messageids_sorted_by_date {
-   my $headerdb=$_[0];
+   my ($headerdb, $ignore_internal)=@_;
    my (%HDB, @attr, %datestr, $key, $data);
-   my ($totalsize, $new, $internal)=(0,0,0);
+   my ($totalsize, $new)=(0,0);
    my @messageids;
 
    filelock("$headerdb.$dbm_ext", LOCK_SH);
@@ -491,16 +491,15 @@ sub get_info_messageids_sorted_by_date {
    while ( ($key, $data)=each(%HDB) ) {
       if ( $key eq 'METAINFO' ||
            $key eq 'ALLMESSAGES' ||
+           $key eq 'INTERNALMESSAGES' ||
            $key eq "" ) {
          next;
       } elsif ( $key eq 'NEWMESSAGES' ) {
          $new=$data;
          next;
-      } elsif ( $key eq 'INTERNALMESSAGES' ) {
-         $internal=$data;
-         next;
       } else {
          @attr=split( /@@@/, $data );
+         next if ($ignore_internal && $attr[$_SUBJECT]=~/DON'T DELETE THIS MESSAGE/);
          $totalsize+=$attr[$_SIZE];
          $datestr{$key}=datestr($attr[$_DATE]);
       }
@@ -509,13 +508,13 @@ sub get_info_messageids_sorted_by_date {
    filelock("$headerdb.$dbm_ext", LOCK_UN);
 
    @messageids=sort { $datestr{$b}<=>$datestr{$a} } keys(%datestr);
-   return($totalsize, $new, $internal, \@messageids);
+   return($totalsize, $new, \@messageids);
 }
 
 sub get_info_messageids_sorted_by_from {
-   my $headerdb=$_[0];
+   my ($headerdb, $ignore_internal)=@_;
    my (%HDB, @attr, %from, %datestr, $key, $data);
-   my ($totalsize, $new, $internal)=(0,0,0);
+   my ($totalsize, $new)=(0,0);
    my @messageids;
 
    filelock("$headerdb.$dbm_ext", LOCK_SH);
@@ -523,16 +522,15 @@ sub get_info_messageids_sorted_by_from {
    while ( ($key, $data)=each(%HDB) ) {
       if ( $key eq 'METAINFO' ||
            $key eq 'ALLMESSAGES' ||
+           $key eq 'INTERNALMESSAGES' ||
            $key eq "" ) {
          next;
       } elsif ( $key eq 'NEWMESSAGES' ) {
          $new=$data;
          next;
-      } elsif ( $key eq 'INTERNALMESSAGES' ) {
-         $internal=$data;
-         next;
       } else {
          @attr=split( /@@@/, $data );
+         next if ($ignore_internal && $attr[$_SUBJECT]=~/DON'T DELETE THIS MESSAGE/);
          $totalsize+=$attr[$_SIZE];
          $from{$key}=$attr[$_FROM];
          $datestr{$key}=datestr($attr[$_DATE]);
@@ -544,13 +542,13 @@ sub get_info_messageids_sorted_by_from {
    @messageids=sort {
                     lc($from{$a}) cmp lc($from{$b}) or $datestr{$b} <=> $datestr{$a};
                     } keys(%from);
-   return($totalsize, $new, $internal, \@messageids);
+   return($totalsize, $new, \@messageids);
 }
 
 sub get_info_messageids_sorted_by_to {
-   my $headerdb=$_[0];
+   my ($headerdb, $ignore_internal)=@_;
    my (%HDB, @attr, %to, %datestr, $key, $data);
-   my ($totalsize, $new, $internal)=(0,0,0);
+   my ($totalsize, $new)=(0,0);
    my @messageids;
 
    filelock("$headerdb.$dbm_ext", LOCK_SH);
@@ -558,16 +556,15 @@ sub get_info_messageids_sorted_by_to {
    while ( ($key, $data)=each(%HDB) ) {
       if ( $key eq 'METAINFO' ||
            $key eq 'ALLMESSAGES' ||
+           $key eq 'INTERNALMESSAGES' ||
            $key eq "" ) {
          next;
       } elsif ( $key eq 'NEWMESSAGES' ) {
          $new=$data;
          next;
-      } elsif ( $key eq 'INTERNALMESSAGES' ) {
-         $internal=$data;
-         next;
       } else {
          @attr=split( /@@@/, $data );
+         next if ($ignore_internal && $attr[$_SUBJECT]=~/DON'T DELETE THIS MESSAGE/);
          $totalsize+=$attr[$_SIZE];
          $to{$key}=$attr[$_TO];
          $datestr{$key}=datestr($attr[$_DATE]);
@@ -579,13 +576,13 @@ sub get_info_messageids_sorted_by_to {
    @messageids=sort {
                     lc($to{$a}) cmp lc($to{$b}) or $datestr{$b} <=> $datestr{$a};
                     } keys(%to);
-   return($totalsize, $new, $internal, \@messageids);
+   return($totalsize, $new, \@messageids);
 }
 
 sub get_info_messageids_sorted_by_subject {
-   my $headerdb=$_[0];
+   my ($headerdb, $ignore_internal)=@_;
    my (%HDB, @attr, %subject, %datestr, $key, $data);
-   my ($totalsize, $new, $internal)=(0,0,0);
+   my ($totalsize, $new)=(0,0);
    my @messageids;
 
    filelock("$headerdb.$dbm_ext", LOCK_SH);
@@ -593,16 +590,15 @@ sub get_info_messageids_sorted_by_subject {
    while ( ($key, $data)=each(%HDB) ) {
       if ( $key eq 'METAINFO' ||
            $key eq 'ALLMESSAGES' ||
+           $key eq 'INTERNALMESSAGES' ||
            $key eq "" ) {
          next;
       } elsif ( $key eq 'NEWMESSAGES' ) {
          $new=$data;
          next;
-      } elsif ( $key eq 'INTERNALMESSAGES' ) {
-         $internal=$data;
-         next;
       } else {
          @attr=split( /@@@/, $data );
+         next if ($ignore_internal && $attr[$_SUBJECT]=~/DON'T DELETE THIS MESSAGE/);
          $totalsize+=$attr[$_SIZE];
          $subject{$key}=$attr[$_SUBJECT];
          $datestr{$key}=datestr($attr[$_DATE]);
@@ -614,13 +610,13 @@ sub get_info_messageids_sorted_by_subject {
    @messageids=sort {
                     lc($subject{$a}) cmp lc($subject{$b}) or $datestr{$b} <=> $datestr{$a};
                     } keys(%subject);
-   return($totalsize, $new, $internal, \@messageids);
+   return($totalsize, $new, \@messageids);
 }
 
 sub get_info_messageids_sorted_by_size {
-   my $headerdb=$_[0];
+   my ($headerdb, $ignore_internal)=@_;
    my (%HDB, @attr, %size, %datestr, $key, $data);
-   my ($totalsize, $new, $internal)=(0,0,0);
+   my ($totalsize, $new)=(0,0);
    my @messageids;
 
    filelock("$headerdb.$dbm_ext", LOCK_SH);
@@ -628,16 +624,15 @@ sub get_info_messageids_sorted_by_size {
    while ( ($key, $data)=each(%HDB) ) {
       if ( $key eq 'METAINFO' ||
            $key eq 'ALLMESSAGES' ||
+           $key eq 'INTERNALMESSAGES' ||
            $key eq "" ) {
          next;
       } elsif ( $key eq 'NEWMESSAGES' ) {
          $new=$data;
          next;
-      } elsif ( $key eq 'INTERNALMESSAGES' ) {
-         $internal=$data;
-         next;
       } else {
          @attr=split( /@@@/, $data );
+         next if ($ignore_internal && $attr[$_SUBJECT]=~/DON'T DELETE THIS MESSAGE/);
          $totalsize+=$attr[$_SIZE];
          $size{$key}=$attr[$_SIZE];
          $datestr{$key}=datestr($attr[$_DATE]);
@@ -649,13 +644,13 @@ sub get_info_messageids_sorted_by_size {
    @messageids=sort {
                     $size{$b} <=> $size{$a} or $datestr{$b} <=> $datestr{$a};
                     } keys(%size);
-   return($totalsize, $new, $internal, \@messageids);
+   return($totalsize, $new, \@messageids);
 }
 
 sub get_info_messageids_sorted_by_status {
-   my $headerdb=$_[0];
+   my ($headerdb, $ignore_internal)=@_;
    my (%HDB, @attr, %status, %datestr, $key, $data);
-   my ($totalsize, $new, $internal)=(0,0,0);
+   my ($totalsize, $new)=(0,0);
    my @messageids;
 
    filelock("$headerdb.$dbm_ext", LOCK_SH);
@@ -663,16 +658,15 @@ sub get_info_messageids_sorted_by_status {
    while ( ($key, $data)=each(%HDB) ) {
       if ( $key eq 'METAINFO' ||
            $key eq 'ALLMESSAGES' ||
+           $key eq 'INTERNALMESSAGES' ||
            $key eq "" ) {
          next;
       } elsif ( $key eq 'NEWMESSAGES' ) {
          $new=$data;
          next;
-      } elsif ( $key eq 'INTERNALMESSAGES' ) {
-         $internal=$data;
-         next;
       } else {
          @attr=split( /@@@/, $data );
+         next if ($ignore_internal && $attr[$_SUBJECT]=~/DON'T DELETE THIS MESSAGE/);
          $totalsize+=$attr[$_SIZE];
          if ($attr[$_STATUS]=~/r/i) {
             $status{$key}=0;
@@ -688,7 +682,7 @@ sub get_info_messageids_sorted_by_status {
    @messageids=sort { 
                     $status{$b} <=> $status{$a} or $datestr{$b} <=> $datestr{$a};
                     } keys(%status);
-   return($totalsize, $new, $internal, \@messageids);
+   return($totalsize, $new, \@messageids);
 }
 
 
@@ -712,16 +706,35 @@ sub get_message_block {
    my ($messageid, $headerdb, $folderhandle)=@_;
    my (@attr, $buff);
 
-   $buff="";
    @attr=get_message_attributes($messageid, $headerdb);
    return if ($#attr<0);   
 
    my $oldoffset=tell($folderhandle);
    seek($folderhandle, $attr[$_OFFSET], 0);
-   read($folderhandle, $buff, $attr[$_SIZE]);
-   seek($folderhandle, $oldoffset, 0);
 
+   read($folderhandle, $buff, $attr[$_SIZE]);
+
+   seek($folderhandle, $oldoffset, 0);
    return(\$buff);
+}
+
+
+sub get_message_header {
+   my ($messageid, $headerdb, $folderhandle)=@_;
+   my (@attr, $header);
+
+   @attr=get_message_attributes($messageid, $headerdb);
+   return if ($#attr<0);   
+
+   my $oldoffset=tell($folderhandle);
+   seek($folderhandle, $attr[$_OFFSET], 0);
+   $header="";
+   while(<$folderhandle>) {
+      $header.=$_;
+      last if ($_ eq "\n");
+   }
+   seek($folderhandle, $oldoffset, 0);
+   return(\$header);
 }
 
 ###################### END GET_MESSAGE_.... ########################
@@ -759,22 +772,12 @@ sub update_message_status {
          open ($folderhandle, "+<$folderfile") or 
             openwebmailerror("$lang_err{'couldnt_open'} $folderfile!");
          seek ($folderhandle, $messagestart, 0) or openwebmailerror("$lang_err{'couldnt_seek'} $folderfile!");
-
          $header="";
-         $headerlen=-1;
-         while ( ($headerlen=index($header,  "\n\n")) < 0 ) {
-             my $left = $messagesize-length($header);
-             if ($left>1024) {
-               read($folderhandle, $buff, 1024);
-             } elsif ($left>0) {
-               read($folderhandle, $buff, $left);
-             } else {
-               $headerlen=length($header);
-               last;
-             }
-             $header .= $buff;
+         while (<$folderhandle>) {
+            last if ($_ eq "\n" && $header=~/\n$/);
+            $header.=$_;
          }
-         $header=substr($header, 0, $headerlen);
+         $headerlen=length($header);
          $headerend=$messagestart+$headerlen;
 
          # get notification-to 
@@ -785,10 +788,10 @@ sub update_message_status {
          }
 
          # update status
-         if ($header =~ s/^status:\s?(.*?)$/Status: $status$1/im) {
+         if ($header =~ s/^status:\s?(.*?)\n$/Status: $status$1\n/im) {
            $messagenewstatus="$status$1";
          } else {
-           $header .= "\nStatus: $status";
+           $header .= "Status: $status\n";
            $messagenewstatus="$status";
          }
          $header="From $header" if ($header !~ /^From /);
@@ -1401,11 +1404,12 @@ sub contenttype2ext {
 ####################### END PARSE_.... related ###########################
 
 #################### SEARCH_MESSAGES_FOR_KEYWORD ###########################
+# searchtype: subject, from, to, date, attfilename, header, textcontent, all
 sub search_info_messages_for_keyword {
-   my ($keyword, $searchcontent, $headerdb, $folderhandle, $cachefile)=@_;
-   my ($metainfo, $cache_metainfo, $cache_headerdb, $cache_keyword, $cache_searchcontent);
+   my ($keyword, $searchtype, $headerdb, $folderhandle, $cachefile, $ignore_internal)=@_;
+   my ($metainfo, $cache_metainfo, $cache_headerdb, $cache_keyword, $cache_searchtype, $cache_ignore_internal);
    my (%HDB, @messageids, $messageid);
-   my ($totalsize, $new, $internal)=(0,0,0);
+   my ($totalsize, $new)=(0,0);
    my %found=();
 
    filelock("$headerdb.$dbm_ext", LOCK_SH);
@@ -1421,18 +1425,21 @@ sub search_info_messages_for_keyword {
       $cache_metainfo=<CACHE>; chomp($cache_metainfo);
       $cache_headerdb=<CACHE>; chomp($cache_headerdb);
       $cache_keyword=<CACHE>; chomp($cache_keyword);
-      $cache_searchcontent=<CACHE>; chomp($cache_searchcontent);
+      $cache_searchtype=<CACHE>; chomp($cache_searchtype);
+      $cache_ignore_internal=<CACHE>; chomp($cache_ignore_internal);
       close(CACHE);
    }
 
    if ( $cache_metainfo ne $metainfo || $cache_headerdb ne $headerdb ||
-        $cache_keyword ne $keyword || $cache_searchcontent ne $searchcontent) {
+        $cache_keyword ne $keyword || $cache_searchtype ne $searchtype ||
+        $cache_ignore_internal ne $ignore_internal ) {
       ($cachefile =~ /^(.+)$/) && ($cachefile = $1);		# bypass taint check
       open(CACHE, ">$cachefile");
       print CACHE $metainfo, "\n";
       print CACHE $headerdb, "\n";
       print CACHE $keyword, "\n";
-      print CACHE $searchcontent, "\n";
+      print CACHE $searchtype, "\n";
+      print CACHE $ignore_internal, "\n";
 
       @messageids=get_messageids_sorted_by_offset($headerdb, $folderhandle);
 
@@ -1442,57 +1449,87 @@ sub search_info_messages_for_keyword {
       foreach $messageid (@messageids) {
          my (@attr, $block, $header, $body, $r_attachments) ;
          @attr=split(/@@@/, $HDB{$messageid});
+         next if ($ignore_internal && $attr[$_SUBJECT]=~/DON'T DELETE THIS MESSAGE/);
 
-         # check de-mimed header first since header in mail folder is raw format.
-         $header=join("@@@", $attr[$_FROM], $attr[$_TO], $attr[$_DATE], $attr[$_SUBJECT]);
-         if ( $header =~ /$keyword/i ) {
+         # check subject, from, to, date
+         if ( (($searchtype eq 'all' || $searchtype eq 'subject')
+                && $attr[$_SUBJECT]=~/$keyword/i) ||
+              (($searchtype eq 'all' || $searchtype eq 'from')
+                && $attr[$_FROM]=~/$keyword/i) ||
+              (($searchtype eq 'all' || $searchtype eq 'to')
+                && $attr[$_TO]=~/$keyword/i) ||
+              (($searchtype eq 'all' || $searchtype eq 'date')
+                && $attr[$_DATE]=~/$keyword/i) ) {
             $new++ if ($attr[$_STATUS]!~/r/i);
-            $internal++ if ($attr[$_SUBJECT]=~/DON'T DELETE THIS MESSAGE/);
             $totalsize+=$attr[$_SIZE];
             $found{$messageid}=1;
             next;
          }
 
-         next unless ($searchcontent);
-
-         # check raw header and body
-         seek($folderhandle, $attr[$_OFFSET], 0);
-         read($folderhandle, $block, $attr[$_SIZE]);
-
-         ($header, $body, $r_attachments)=parse_rfc822block(\$block);
-         if ( $header =~ /$keyword/i ) {
-            $new++ if ($attr[$_STATUS]!~/r/i);
-            $internal++ if ($attr[$_SUBJECT]=~/DON'T DELETE THIS MESSAGE/);
-            $totalsize+=$attr[$_SIZE];
-            $found{$messageid}=1;
-            next;
-         }
-         if ( $attr[$_CONTENT_TYPE] =~ /^text/i ) {	# read all for text/plain. text/html
-            if ( $header =~ /content-transfer-encoding:\s+quoted-printable/i) {
-               $body = decode_qp($body);
-            } elsif ($header =~ /content-transfer-encoding:\s+base64/i) {
-               $body = decode_base64($body);
+	 # check header
+         if ($searchtype eq 'all' || $searchtype eq 'header') {
+            # check de-mimed header first since header in mail folder is raw format.
+            seek($folderhandle, $attr[$_OFFSET], 0);
+            $header="";
+            while(<$folderhandle>) {
+               $header.=$_;
+               last if ($_ eq "\n");
+            }
+            $header = decode_mimewords($header);
+            if ( $header =~ /$keyword/im ) {
+               $new++ if ($attr[$_STATUS]!~/r/i);
+               $totalsize+=$attr[$_SIZE];
+               $found{$messageid}=1;
+               next;
             }
          }
-         if ( $body =~ /$keyword/im ) {
-            $new++ if ($attr[$_STATUS]!~/r/i);
-            $internal++ if ($attr[$_SUBJECT]=~/DON'T DELETE THIS MESSAGE/);
-            $totalsize+=$attr[$_SIZE];
-            $found{$messageid}=1;
-            next;
+         
+         # read and parse message
+         if ($searchtype eq 'all' || $searchtype eq 'textcontent' || $searchtype eq 'attfilename') {
+            seek($folderhandle, $attr[$_OFFSET], 0);
+            read($folderhandle, $block, $attr[$_SIZE]);
+            ($header, $body, $r_attachments)=parse_rfc822block(\$block);
          }
 
-         # check attachments
-         foreach my $r_attachment (@{$r_attachments}) {
-            if ( ${$r_attachment}{contenttype} =~ /^text/i ) {	# read all for text/plain. text/html
-               if ( ${$r_attachment}{encoding} =~ /^quoted-printable/i ) {
-                  ${${$r_attachment}{r_content}} = decode_qp( ${${$r_attachment}{r_content}});
-               } elsif ( ${$r_attachment}{encoding} =~ /^base64/i ) {
-                  ${${$r_attachment}{r_content}} = decode_base64( ${${$r_attachment}{r_content}});
+	 # check textcontent: text in body and attachments
+         if ($searchtype eq 'all' || $searchtype eq 'textcontent') {
+            # check body
+            if ( $attr[$_CONTENT_TYPE] =~ /^text/i ) {	# read all for text/plain. text/html
+               if ( $header =~ /content-transfer-encoding:\s+quoted-printable/i) {
+                  $body = decode_qp($body);
+               } elsif ($header =~ /content-transfer-encoding:\s+base64/i) {
+                  $body = decode_base64($body);
                }
-               if ( ${${$r_attachment}{r_content}} =~ /$keyword/im ) {
+               if ( $body =~ /$keyword/im ) {
                   $new++ if ($attr[$_STATUS]!~/r/i);
-                  $internal++ if ($attr[$_SUBJECT]=~/DON'T DELETE THIS MESSAGE/);
+                  $totalsize+=$attr[$_SIZE];
+                  $found{$messageid}=1;
+                  next;
+               }
+            }
+            # check attachments
+            foreach my $r_attachment (@{$r_attachments}) {
+               if ( ${$r_attachment}{contenttype} =~ /^text/i ) {	# read all for text/plain. text/html
+                  if ( ${$r_attachment}{encoding} =~ /^quoted-printable/i ) {
+                     ${${$r_attachment}{r_content}} = decode_qp( ${${$r_attachment}{r_content}});
+                  } elsif ( ${$r_attachment}{encoding} =~ /^base64/i ) {
+                     ${${$r_attachment}{r_content}} = decode_base64( ${${$r_attachment}{r_content}});
+                  }
+                  if ( ${${$r_attachment}{r_content}} =~ /$keyword/im ) {
+                     $new++ if ($attr[$_STATUS]!~/r/i);
+                     $totalsize+=$attr[$_SIZE];
+                     $found{$messageid}=1;
+                     last;	# leave attachments check in one message
+                  }
+               }
+            }
+         }
+
+	 # check attfilename
+         if ($searchtype eq 'all' || $searchtype eq 'attfilename') {
+            foreach my $r_attachment (@{$r_attachments}) {
+               if ( ${$r_attachment}{filename} =~ /$keyword/im ) {	# read all for text/plain. text/html
+                  $new++ if ($attr[$_STATUS]!~/r/i);
                   $totalsize+=$attr[$_SIZE];
                   $found{$messageid}=1;
                   last;	# leave attachments check in one message
@@ -1504,7 +1541,7 @@ sub search_info_messages_for_keyword {
       dbmclose(%HDB);
       filelock("$headerdb.$dbm_ext", LOCK_UN);
 
-      print CACHE join("\n", $totalsize, $new, $internal, keys(%found));
+      print CACHE join("\n", $totalsize, $new, keys(%found));
       close(CACHE);
 
    } else {
@@ -1513,9 +1550,9 @@ sub search_info_messages_for_keyword {
       $_=<CACHE>;
       $_=<CACHE>;
       $_=<CACHE>;
+      $_=<CACHE>;
       $totalsize=<CACHE>; chomp($totalsize);
       $new=<CACHE>;       chomp($new);
-      $internal=<CACHE>;  chomp($internal);
       while (<CACHE>) {
          chomp; $found{$_}=1;
       }
@@ -1524,7 +1561,7 @@ sub search_info_messages_for_keyword {
 
    filelock($cachefile, LOCK_UN);
 
-   return($totalsize, $new, $internal, \%found);
+   return($totalsize, $new, \%found);
 }
 
 #################### END SEARCH_MESSAGES_FOR_KEYWORD ######################

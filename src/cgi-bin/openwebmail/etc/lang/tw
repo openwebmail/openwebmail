@@ -109,6 +109,7 @@ $lang_charset = 'big5';
    header     => '表頭',
    body       => '本文',
    attfilename=> '附件檔名',
+   all        => '全部',
    enable     => '啟動',
    disable    => '停用',
    blockrelay => '封鎖轉信主機',
@@ -120,7 +121,7 @@ $lang_charset = 'big5';
    globaladdressbook => '共用通訊錄',
    globalfilterrule => '共用郵件規則',
    readonly   => '唯讀',
-   content    => '內容',
+   textcontent=> '文字內容',
    search     => '搜尋'
    );
 

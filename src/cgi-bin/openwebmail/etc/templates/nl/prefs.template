@@ -56,19 +56,23 @@ Width @@@EDITWIDTHMENU@@@ Height @@@EDITHEIGHTMENU@@@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEJS@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>NewMail Sound Notification:</B>
+<B>Hide folder internal data:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@HIDEINTERNAL@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>NewMail sound notification:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@NEWMAILSOUND@@@
 </td></tr>
 @@@AUTOPOP3START@@@
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>AutoFetch POP3 at login:</B>
+<B>Auto fetch POP3 at login:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@AUTOPOP3CHECKBOX@@@
 </td></tr>
 @@@AUTOPOP3END@@@
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Trash Mail reserved day(s):</B>
+<B>Trash mail reserved day(s):</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@RESERVEDDAYSMENU@@@
 </td></tr><tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>

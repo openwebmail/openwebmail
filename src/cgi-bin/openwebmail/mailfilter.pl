@@ -111,6 +111,9 @@ sub mailfilter {
             last;
          }
          
+         # old version compatibility
+         $rules='textcontent' if ($rules eq 'body');
+
          if ( $rules eq 'from' ) {
             if (   ($include eq 'include' && $attr[$_FROM] =~ /$text/i)
                 || ($include eq 'exclude' && $attr[$_FROM] !~ /$text/i)  ) {
@@ -213,7 +216,7 @@ sub mailfilter {
                }
             }
 
-         } elsif ( $rules eq 'body' ) {
+         } elsif ( $rules eq 'textcontent' ) {
             if ($currmessage eq "") {
                seek($folderhandle, $attr[$_OFFSET], 0);
                read($folderhandle, $currmessage, $attr[$_SIZE]);
@@ -222,6 +225,7 @@ sub mailfilter {
                ($header, $body, $r_attachments)=parse_rfc822block(\$currmessage);
             }
 
+            # check body text
             if ( $attr[$_CONTENT_TYPE] =~ /^text/i ) {	# read all for text/plain. text/html
                if ( $header =~ /content-transfer-encoding:\s+quoted-printable/i) {
                   $body = decode_qp($body);
@@ -243,7 +247,7 @@ sub mailfilter {
             }
             next if ($matched);
 
-            # check attachments body
+            # check attachments text
             foreach my $r_attachment (@{$r_attachments}) {
                if ( ${$r_attachment}{contenttype} =~ /^text/i ) {	# read all for text/plain. text/html
                   if ( ${$r_attachment}{encoding} =~ /^quoted-printable/i ) {

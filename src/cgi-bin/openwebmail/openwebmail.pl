@@ -60,7 +60,7 @@ local $firstmessage;
 local $sort;
 local $keyword;
 local $escapedkeyword;
-local $searchcontent=0;
+local $searchtype;
 local $hitquota;
 local $folderdir;
 local $folder;
@@ -171,7 +171,14 @@ $sort = param("sort") || $prefs{"sort"} || 'date';
 
 $keyword = param("keyword") || '';
 $escapedkeyword=CGI::escape($keyword);
-$searchcontent = param("searchcontent") || 0;
+$searchtype = param("searchtype") || 'subject';
+
+# override global in openwebmail.conf with user preference
+$hide_internal=($hide_internal eq 'yes'||$hide_internal==1)?1:0;
+$hide_internal=$prefs{'hideinternal'} if ( defined($prefs{'hideinternal'}) );
+$filter_repeatlimit=$prefs{'filter_repeatlimit'} if ( defined($prefs{'filter_repeatlimit'}) );
+$filter_fakedsmtp=($filter_fakedsmtp eq 'yes'||$filter_fakedsmtp==1)?1:0;
+$filter_fakedsmtp=$prefs{'filter_fakedsmtp'} if ( defined($prefs{'filter_fakedsmtp'}) );
 
 # last html read within a message,
 # used to check if an attachment is linked by this html
@@ -431,7 +438,7 @@ sub displayheaders {
 
    filtermessage();
 
-   my ($totalsize, $newmessages, $internal, $r_messageids)=getinfomessageids();
+   my ($totalsize, $newmessages, $r_messageids)=getinfomessageids();
 
    my $numheaders;
    if ($#{$r_messageids}>=0) {
@@ -461,7 +468,7 @@ sub displayheaders {
    if ($lastmessage > $numheaders) {
        $lastmessage = $numheaders;
    }
-   my $base_url = "$scripturl?sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder";
+   my $base_url = "$scripturl?sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder";
    my $base_url_nokeyword = "$scripturl?sessionid=$thissession&amp;sort=$sort&amp;folder=$escapedfolder";
 
    # since some browser always treat refresh directive as realtive url.
@@ -469,7 +476,7 @@ sub displayheaders {
    my $refresh=param("refresh")+1;
    my $relative_url=$scripturl; 
    $relative_url=~s!/.*/!!g;
-   printheader(-Refresh=>"900;URL=$relative_url?sessionid=$thissession&sort=$sort&keyword=$escapedkeyword&searchcontent=$searchcontent&folder=INBOX&action=displayheaders&firstmessage=1&refresh=$refresh");
+   printheader(-Refresh=>"900;URL=$relative_url?sessionid=$thissession&sort=$sort&keyword=$escapedkeyword&searchtype=$searchtype&folder=INBOX&action=displayheaders&firstmessage=1&refresh=$refresh");
 
    my $page_nb;
    if ($numheaders > 0) {
@@ -532,15 +539,12 @@ sub displayheaders {
       ($folderfile, $headerdb)=get_folderfile_headerdb($user, $foldername);
       filelock("$headerdb.$dbm_ext", LOCK_SH);
       dbmopen (%HDB, $headerdb, undef);
-      if ($foldername eq 'INBOX') {	# don't count msg of 'DON'T DELETE THIS MAIL'
-						#-$HDB{'INTERNALMESSAGES'};
-         $allmessages=$HDB{'ALLMESSAGES'};
-         $newmessages=$HDB{'NEWMESSAGES'};
+      $allmessages=$HDB{'ALLMESSAGES'};
+      $allmessages-=$HDB{'INTERNALMESSAGES'} if ($hide_internal);
+      $newmessages=$HDB{'NEWMESSAGES'};
+      if ($foldername eq 'INBOX') {
          $now_inbox_allmessages=$allmessages;
          $now_inbox_newmessages=$newmessages;
-      } else {
-         $allmessages=$HDB{'ALLMESSAGES'};
-         $newmessages=$HDB{'NEWMESSAGES'};
       }
       dbmclose(%HDB);
       filelock("$headerdb.$dbm_ext", LOCK_UN);
@@ -576,12 +580,12 @@ sub displayheaders {
 
    $temphtml = "<a href=\"$base_url&amp;action=composemessage&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/compose.gif\" border=\"0\" ALT=\"$lang_text{'composenew'}\"></a> ";
    $temphtml .= "<a href=\"$base_url_nokeyword&amp;action=displayheaders&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/refresh.gif\" border=\"0\" ALT=\"$lang_text{'refresh'}\"></a> ";
-   $temphtml .= "<a href=\"$prefsurl?sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/prefs.gif\" border=\"0\" ALT=\"$lang_text{'userprefs'}\"></a> ";
-   $temphtml .= "<a href=\"$prefsurl?action=editfolders&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/folder.gif\" border=\"0\" ALT=\"$lang_text{'folders'}\"></a> ";
-   $temphtml .= "<a href=\"$prefsurl?action=editaddresses&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/addresses.gif\" border=\"0\" ALT=\"$lang_text{'addressbook'}\"></a> ";
-   $temphtml .= "<a href=\"$prefsurl?action=editfilter&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/filtersetup.gif\" border=\"0\" ALT=\"$lang_text{'filterbook'}\"></a> &nbsp; &nbsp; ";
+   $temphtml .= "<a href=\"$prefsurl?sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/prefs.gif\" border=\"0\" ALT=\"$lang_text{'userprefs'}\"></a> ";
+   $temphtml .= "<a href=\"$prefsurl?action=editfolders&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/folder.gif\" border=\"0\" ALT=\"$lang_text{'folders'}\"></a> ";
+   $temphtml .= "<a href=\"$prefsurl?action=editaddresses&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/addresses.gif\" border=\"0\" ALT=\"$lang_text{'addressbook'}\"></a> ";
+   $temphtml .= "<a href=\"$prefsurl?action=editfilter&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/filtersetup.gif\" border=\"0\" ALT=\"$lang_text{'filterbook'}\"></a> &nbsp; &nbsp; ";
    if ($enable_pop3 eq 'yes') {
-      $temphtml .= "<a href=\"$prefsurl?action=editpop3&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/pop3setup.gif\" border=\"0\" ALT=\"$lang_text{'pop3book'}\"></a> ";
+      $temphtml .= "<a href=\"$prefsurl?action=editpop3&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/pop3setup.gif\" border=\"0\" ALT=\"$lang_text{'pop3book'}\"></a> ";
       $temphtml .= "<a href=\"$scripturl?action=retrpop3s&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid\"><IMG SRC=\"$imagedir_url/pop3.gif\" border=\"0\" ALT=\"$lang_text{'retr_pop3s'}\"></a> &nbsp; &nbsp; ";
    }
    $temphtml .= "<a href=\"$base_url&amp;action=emptytrash&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/trash.gif\" border=\"0\" ALT=\"$lang_text{'emptytrash'}\"></a> ";
@@ -712,13 +716,13 @@ sub displayheaders {
    $html =~ s/\@\@\@MOVECONTROLS\@\@\@/$temphtml/g;
 
    $temphtml = "<a href=\"$scripturl?action=displayheaders&amp;firstmessage=".
-               ($firstmessage)."&amp;sessionid=$thissession&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;sort=";
+               ($firstmessage)."&amp;sessionid=$thissession&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;sort=";
    $temphtml .= "status\"><IMG SRC=\"$imagedir_url/new.gif\" border=\"0\" alt=\"$lang_sortlabels{'status'}\"></a>";
 
    $html =~ s/\@\@\@STATUS\@\@\@/$temphtml/g;
    
    $temphtml = "<a href=\"$scripturl?action=displayheaders&amp;firstmessage=".
-               ($firstmessage)."&amp;sessionid=$thissession&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;sort=";
+               ($firstmessage)."&amp;sessionid=$thissession&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;sort=";
    if ($sort eq "date") {
       $temphtml .= "date_rev\">$lang_text{'date'} <IMG SRC=\"$imagedir_url/up.gif\" border=\"0\" alt=\"^\"></a>";
    } elsif ($sort eq "date_rev") {
@@ -730,7 +734,7 @@ sub displayheaders {
    $html =~ s/\@\@\@DATE\@\@\@/$temphtml/g;
    
    $temphtml = "<a href=\"$scripturl?action=displayheaders&amp;firstmessage=".
-                ($firstmessage)."&amp;sessionid=$thissession&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;sort=";
+                ($firstmessage)."&amp;sessionid=$thissession&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;sort=";
 
    if ( ($folder eq 'sent-mail') || ($folder eq 'saved-drafts') ) {
       if ($sort eq "recipient") {
@@ -753,7 +757,7 @@ sub displayheaders {
    $html =~ s/\@\@\@SENDER\@\@\@/$temphtml/g;
 
    $temphtml = "<a href=\"$scripturl?action=displayheaders&amp;firstmessage=".
-                ($firstmessage)."&amp;sessionid=$thissession&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;sort=";
+                ($firstmessage)."&amp;sessionid=$thissession&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;sort=";
 
    if ($sort eq "subject") {
       $temphtml .= "subject_rev\">$lang_text{'subject'} <IMG SRC=\"$imagedir_url/down.gif\" border=\"0\" alt=\"v\"></a>";
@@ -766,7 +770,7 @@ sub displayheaders {
    $html =~ s/\@\@\@SUBJECT\@\@\@/$temphtml/g;
 
    $temphtml = "<a href=\"$scripturl?action=displayheaders&amp;firstmessage=".
-                ($firstmessage)."&amp;sessionid=$thissession&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;sort=";
+                ($firstmessage)."&amp;sessionid=$thissession&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;sort=";
 
    if ($sort eq "size") {
       $temphtml .= "size_rev\">$lang_text{'size'} <IMG SRC=\"$imagedir_url/up.gif\" border=\"0\" alt=\"^\"></a>";
@@ -804,10 +808,10 @@ sub displayheaders {
          $from = (split(/,/, $to))[0];
       }
 
-      ($from =~ s/^"?(.+?)"?\s*<(.*)>$/<a href="$scripturl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$2">$1<\/a>/) ||
-      ($from =~ s/<?(.*@.*)>?\s+\((.+?)\)/<a href="$scripturl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$1">$2<\/a>/) ||
-      ($from =~ s/<(.+)>/<a href="$scripturl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$1">$1<\/a>/) ||
-      ($from =~ s/(.+)/<a href="$scripturl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$1">$1<\/a>/);
+      ($from =~ s/^"?(.+?)"?\s*<(.*)>$/<a href="$scripturl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$2">$1<\/a>/) ||
+      ($from =~ s/<?(.*@.*)>?\s+\((.+?)\)/<a href="$scripturl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$1">$2<\/a>/) ||
+      ($from =~ s/<(.+)>/<a href="$scripturl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$1">$1<\/a>/) ||
+      ($from =~ s/(.+)/<a href="$scripturl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$1">$1<\/a>/);
 
       $subject = str2html($subject);
 
@@ -854,7 +858,7 @@ sub displayheaders {
          qq|$boldon<a href="$scripturl?action=readmessage&amp;|.
          qq|firstmessage=$firstmessage&amp;sessionid=$thissession&amp;|.
          qq|status=$status&amp;folder=$escapedfolder&amp;sort=$sort&amp;|.
-         qq|keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;|.
+         qq|keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;|.
          qq|headers=|.($prefs{"headers"} || 'simple').qq|&amp;|.
          qq|message_id=$escapedmessageid">$subject</a>$boldoff</td>|.
          qq|<td valign="middle" width="40" bgcolor=$bgcolor>$boldon$messagesize$boldoff</td>|.
@@ -888,14 +892,24 @@ sub displayheaders {
    $html =~ s/\@\@\@STARTSEARCHFORM\@\@\@/$temphtml/g;
 
    $temphtml = "<b>$lang_text{search}&nbsp;&nbsp;</b>";
+
+   my %searchtypelabels = ('from'=>$lang_text{'from'},
+                           'to'=>$lang_text{'to'},
+                           'subject'=>$lang_text{'subject'},
+                           'date'=>$lang_text{'date'},
+                           'attfilename'=>$lang_text{'attfilename'},
+                           'header'=>$lang_text{'header'},
+                           'textcontent'=>$lang_text{'textcontent'},
+                           'all'=>$lang_text{'all'});
+   $temphtml .= popup_menu(-name=>'searchtype',
+                           -default=>'subject',
+                           -values=>['from', 'to', 'subject', 'date', 'attfilename', 'header', 'textcontent' ,'all'],
+                           -labels=>\%searchtypelabels);
+   $temphtml .= "&nbsp;";
    $temphtml .= textfield(-name=>'keyword',
                           -default=>$keyword,
                           -size=>'25',
                           -override=>'1');
-   $temphtml .= "&nbsp;";
-   $temphtml .= checkbox(-name=>'searchcontent',
-                  -value=>'1',
-                  -label=>$lang_text{content});
 
    $html =~ s/\@\@\@SEARCH\@\@\@/$temphtml/g;
 
@@ -990,7 +1004,7 @@ sub readmessage {
       }
       if ($message{contenttype} =~ m#^text/html#i) { # convert into html table
          $body = html4nobase($body); 
-         $body = html4mailto($body, $scripturl, "action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto");
+         $body = html4mailto($body, $scripturl, "action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto");
          $body = html4disablejs($body) if ($prefs{'disablejs'}==1);
          $body = html2table($body); 
       } else { 					     # body must be html or text
@@ -1002,9 +1016,9 @@ sub readmessage {
       }
 
       my $base_url = "$scripturl?sessionid=$thissession&amp;firstmessage=" . ($firstmessage) .
-                     "&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid";
+                     "&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid";
       my $base_url_noid = "$scripturl?sessionid=$thissession&amp;firstmessage=" . ($firstmessage) .
-                          "&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder";
+                          "&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder";
 
 ##### Set up the message to go to after move.
       my $messageaftermove;
@@ -1337,7 +1351,7 @@ sub html_att2table {
 
    $temphtml = html4nobase($temphtml);
    $temphtml = html4attachments($temphtml, $r_attachments, $scripturl, "action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder");
-   $temphtml = html4mailto($temphtml, $scripturl, "action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto");
+   $temphtml = html4mailto($temphtml, $scripturl, "action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto");
    $temphtml = html4disablejs($temphtml) if ($prefs{'disablejs'}==1);
    $temphtml = html2table($temphtml);
 
@@ -1480,27 +1494,17 @@ sub replyreceipt {
    filelock("$headerdb.$dbm_ext", LOCK_UN);
    
    if ($attr[$_SIZE]>0) {
-      my ($header, $headerlen, $buff);
+      my $header;
 
       # get message header
       open ($folderhandle, "+<$folderfile") or 
           openwebmailerror("$lang_err{'couldnt_open'} $folderfile!");
       seek ($folderhandle, $attr[$_OFFSET], 0) or openwebmailerror("$lang_err{'couldnt_seek'} $folderfile!");
       $header="";
-      $headerlen=-1;
-      while ( ($headerlen=index($header,  "\n\n")) < 0 ) {
-         my $left = $attr[$_SIZE]-length($header);
-         if ($left>1024) {
-            read($folderhandle, $buff, 1024);
-         } elsif ($left>0) {
-            read($folderhandle, $buff, $left);
-         } else {
-            $headerlen=length($header);
-            last;
-         }
-         $header .= $buff;
+      while (<$folderhandle>) {
+         last if ($_ eq "\n" && $header=~/\n$/);
+         $header.=$_;
       }
-      $header=substr($header, 0, $headerlen);
       close($folderhandle);
 
       # get notification-to 
@@ -1817,7 +1821,7 @@ sub composemessage {
 
    printheader();
    
-   $temphtml = "<a href=\"$scripturl?action=displayheaders&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/backtofolder.gif\" border=\"0\" ALT=\"$lang_text{'backto'} $printfolder\"></a>";
+   $temphtml = "<a href=\"$scripturl?action=displayheaders&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/backtofolder.gif\" border=\"0\" ALT=\"$lang_text{'backto'} $printfolder\"></a>";
    $html =~ s/\@\@\@BACKTOFOLDER\@\@\@/$temphtml/g;
 
    $temphtml = start_multipart_form(-name=>'composeform');
@@ -2324,9 +2328,13 @@ sub viewattachment {	# view attachments inside a message
       print qq|Content-Length: $length\n|,
             qq|Content-Transfer-Coding: binary\n|,
             qq|Connection: close\n|,
-            qq|Content-Type: message/rfc822; name="$subject.msg"\n|,
-            qq|Content-Disposition: attachment; filename="$subject.msg"\n|,
-            qq|\n|, ${$r_block};
+            qq|Content-Type: message/rfc822; name="$subject.msg"\n|;
+
+      # ugly hack since ie5.5 is broken with disposition: attchhment
+      if ( $ENV{'HTTP_USER_AGENT'}!~/MSIE 5.5/ ) {
+         print qq|Content-Disposition: attachment; filename="$subject.msg"\n|;
+      }
+      print qq|\n|, ${$r_block};
 
    } else {
       # return a specific attachment
@@ -2358,7 +2366,7 @@ sub viewattachment {	# view attachments inside a message
             my $escapedmessageid = CGI::escape($messageid);
             $content = html4nobase($content);
             $content = html4attachments($content, $r_attachments, $scripturl, "action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder");
-            $content = html4mailto($content, $scripturl, "action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto");
+            $content = html4mailto($content, $scripturl, "action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto");
             $content = html4disablejs($content) if ($prefs{'disablejs'}==1);
          }
 
@@ -2372,10 +2380,16 @@ sub viewattachment {	# view attachments inside a message
          # disposition:attachment default to save
          print qq|Content-Length: $length\n|,
                qq|Content-Transfer-Coding: binary\n|,
-               qq|Connection: close\n|,
+               qq|Connection: close\n|;
                qq|Content-Type: $contenttype; name="${$r_attachment}{filename}"\n|;
-         if ($contenttype !~ /^text/i) {
-            print qq|Content-Disposition: attachment; filename="${$r_attachment}{filename}"\n|;
+
+         # ugly hack since ie5.5 is broken with disposition: attchhment
+         if ( $ENV{'HTTP_USER_AGENT'}!~/MSIE 5.5/ ) {
+            if ($contenttype =~ /^text/i) {
+               print qq|Content-Disposition: inline; filename="${$r_attachment}{filename}"\n|;
+            } else {
+               print qq|Content-Disposition: attachment; filename="${$r_attachment}{filename}"\n|;
+            }
          }
 
          # use undef to free memory before attachment transfer
@@ -2471,11 +2485,9 @@ sub viewattfile {	# view attachments uploaded to openwebmail/etc/sessions/
    print qq|Content-Length: $length\n|,
          qq|Content-Transfer-Coding: binary\n|,
          qq|Connection: close\n|,
-         qq|Content-Type: $attcontenttype; name="$attfilename"\n|;
-   if ($attcontenttype !~ /^text/i) {
-      print qq|Content-Disposition: inline; filename="$attfilename"\n|;
-   }
-   print qq|\n|, $attcontent;
+         qq|Content-Type: $attcontenttype; name="$attfilename"\n|,
+         qq|Content-Disposition: inline; filename="$attfilename"\n|,
+         qq|\n|, $attcontent;
 
    return;
 }
@@ -2525,25 +2537,25 @@ sub getinfomessageids {
 
    if ( $keyword ne '' ) {
       my $folderhandle=FileHandle->new();
-      my ($totalsize, $new, $internal, $r_haskeyword, $r_messageids);
+      my ($totalsize, $new, $r_haskeyword, $r_messageids);
       my @messageids=();
       
-      ($totalsize, $new, $internal, $r_messageids)=get_info_messageids_sorted($headerdb, $sort, "$headerdb.cache");
+      ($totalsize, $new, $r_messageids)=get_info_messageids_sorted($headerdb, $sort, "$headerdb.cache", $hide_internal);
 
       filelock($folderfile, LOCK_SH|LOCK_NB) or
          openwebmailerror("$lang_err{'couldnt_locksh'} $folderfile!");
       open($folderhandle, $folderfile);
-      ($totalsize, $new, $internal, $r_haskeyword)=search_info_messages_for_keyword($keyword, $searchcontent, $headerdb, $folderhandle, "$folderdir/.search.cache");
+      ($totalsize, $new, $r_haskeyword)=search_info_messages_for_keyword($keyword, $searchtype, $headerdb, $folderhandle, "$folderdir/.search.cache", $hide_internal);
       close($folderhandle);
       filelock($folderfile, LOCK_UN);
 
       foreach (@{$r_messageids}) {
          push (@messageids, $_) if ( ${$r_haskeyword}{$_} == 1 ); 
       }
-      return($totalsize, $new, $internal, \@messageids);
+      return($totalsize, $new, \@messageids);
 
-   } else { # return: $totalsize, $new, $internal, $r_messageids for whole folder
-      return(get_info_messageids_sorted($headerdb, $sort, "$headerdb.cache"))
+   } else { # return: $totalsize, $new, $r_messageids for whole folder
+      return(get_info_messageids_sorted($headerdb, $sort, "$headerdb.cache", $hide_internal))
 
    }
 }
@@ -2680,7 +2692,7 @@ sub getmessage {
    $message{encoding} = $currentencoding;
 
    # Determine message's number and previous and next message IDs.
-   my ($totalsize, $newmessages, $internal, $r_messageids)=getinfomessageids();
+   my ($totalsize, $newmessages, $r_messageids)=getinfomessageids();
    foreach my $i (0..$#{$r_messageids}) {
       if (${$r_messageids}[$i] eq $messageid) {
          $message{"prev"} = ${$r_messageids}[$i-1] if ($i > 0);
@@ -2918,12 +2930,19 @@ sub firsttimeuser {
 ################### END FIRSTTIMEUSER ##############################
 
 ################## RETRIVE POP3 ###########################
+
 sub retrpop3 {
    verifysession();
 
    my ($spoolfile, $header)=get_folderfile_headerdb($user, 'INBOX');
    my ($pop3host, $pop3user);
    my (%account, $response);
+   my %pop3error=( -1=>"connect error",
+                   -2=>"server not ready",
+                   -3=>"'user' error",
+                   -4=>"'pass' error",
+                   -5=>"'stat' error",
+                   -6=>"'retr' error" );
 
    # create system spool file /var/mail/xxxx
    if ( ! -f "$spoolfile" ) {
@@ -2935,7 +2954,7 @@ sub retrpop3 {
    $pop3user = param("name") || '';
 
    if ( ! -f "$folderdir/.pop3.book" ) {
-      print "Location:  $prefsurl?action=editpop3&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage";
+      print "Location:  $prefsurl?action=editpop3&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage";
    }
 
    %account = getpop3book("$folderdir/.pop3.book");
@@ -2951,15 +2970,15 @@ sub retrpop3 {
       $folder="INBOX";
       print "Location: $scripturl?action=displayheaders&sessionid=$thissession&sort=$sort&firstmessage=$firstmessage&folder=$folder\n\n";
    } else {
-      writelog("pop3 error $response at $pop3user\@$pop3host");
-      if ($response == -1) {
-   	  openwebmailerror("$lang_err{'user_not_exist'}");
-      } elsif ($response == -2) {
-   	  openwebmailerror("$lang_err{'couldnt_open'} pop3 folder for $host");
+      writelog("pop3 $pop3error{$response} at $pop3user\@$pop3host");
+      if ($response == -1 || $response == -2) {
+   	  openwebmailerror("$pop3user\@$pop3host $lang_err{'couldnt_open'}");
       } elsif ($response == -3) {
-   	  openwebmailerror("$host $lang_err{'network_server_error'}");
+    	  openwebmailerror("$pop3user\@$pop3host $lang_err{'user_not_exist'}");
       } elsif ($response == -4) {
-      	  openwebmailerror("$host $lang_err{'password_error'}");
+      	  openwebmailerror("$pop3user\@$pop3host $lang_err{'password_error'}");
+      } elsif ($response == -5 || $sreponse == -6) {
+   	  openwebmailerror("$pop3user\@$pop3host $lang_err{'network_server_error'}");
       }
    }
 }
@@ -2970,7 +2989,7 @@ sub retrpop3s {
    verifysession();
 
    if ( ! -f "$folderdir/.pop3.book" ) {
-      print "Location: $prefsurl?action=editpop3&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage";
+      print "Location: $prefsurl?action=editpop3&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage";
    }
   
    _retrpop3s(10);
@@ -2985,6 +3004,12 @@ sub _retrpop3s {
    my (%account, $response);
    my $fetch_complete=0;
    my $i;
+   my %pop3error=( -1=>"connect error",
+                   -2=>"server not ready",
+                   -3=>"'user' error",
+                   -4=>"'pass' error",
+                   -5=>"'stat' error",
+                   -6=>"'retr' error" );
 
    if ( ! -f "$folderdir/.pop3.book" ) {
       return;
@@ -3015,7 +3040,7 @@ sub _retrpop3s {
             $response = retrpop3mail($pop3host, $pop3user, 
          				"$folderdir/.pop3.book",  $spoolfile);
             if ( $response<0) {
-               writelog("pop3 error $response at $pop3user\@$pop3host");
+               writelog("pop3 $pop3error{$response} at $pop3user\@$pop3host");
             }
          }
          exit;
@@ -3034,11 +3059,6 @@ sub _retrpop3s {
 
 ################# FILTERMESSAGE ###########################
 sub filtermessage {
-   # override global $filter_repeatlimit with user preference
-   $filter_repeatlimit=$prefs{'filter_repeatlimit'} if ( defined($prefs{'filter_repeatlimit'}) );
-   $filter_fakedsmtp=($filter_fakedsmtp eq 'yes'||$filter_fakedsmtp==1)?1:0;
-   $filter_fakedsmtp=$prefs{'filter_fakedsmtp'} if ( defined($prefs{'filter_fakedsmtp'}) );
-
    my $filtered=mailfilter($user, 'INBOX', $folderdir, \@validfolders, 
 					$filter_repeatlimit, $filter_fakedsmtp);
    if ($filtered > 0) {

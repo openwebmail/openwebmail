@@ -7,7 +7,7 @@ A: There are many possible answers...
 
    1. Please check you have install a complete set of perl 5.005 above.
       And You should uncompress the openwebmail-1.xx.tgz with proper parameter.
-      It is "tar -zxvBpf openwebmail-.1.xx.tgz"
+      It is "tar -zxvBpf openwebmail-1.xx.tgz"
 
    2. Your perl may be compiled with suid ability disabled.
       a. check if you have a executable of suidperl 
@@ -54,6 +54,12 @@ Q: The permission of cgi-bin/openwebmail/etc is correct but attachments
    still disappeared in message forwarding?
 A: mmm, please upgrade the latest version. 
    Some old version(1.03,1.04) has little problem in attachment handling.
+
+Q: When I check 'edit folder menu', I found some folders are empty but take 
+   diskspace?
+A: The diskspace occupied by a folder shown in 'edit folder menu' includes
+   the size of folder and folder index. Though folder is empty, the folder 
+   index still has some data structure to maintain.
 
 Q: I have problems in reading some mail....
 A: please check http://turtle.ee.ncku.edu.tw/openwebmail/download/update.txt

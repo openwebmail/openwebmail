@@ -93,6 +93,7 @@ $lang_charset = 'iso-8859-2';
    folderdelconf => '\'Ste si istý ¾e chcete zmaza» tento katalóg a celý jeho obsah?\'',
    total      => 'Total',
    delete     => 'Zmaza»',
+   reserve    => 'Reserve',
    clearadd   => 'Clear all addresses',
    importadd  => 'Import adries',
    exportadd  => 'Export adries',
@@ -111,6 +112,7 @@ $lang_charset = 'iso-8859-2';
    header     => 'Header',
    body       => 'Body',
    attfilename=> 'AttFilename',
+   all        => 'All',
    enable     => 'Enable',
    disable    => 'Disable',
    blockrelay => 'Block SMTP Relay',
@@ -122,7 +124,7 @@ $lang_charset = 'iso-8859-2';
    globaladdressbook => 'Global AddressBook',
    globalfilterrule => 'Global FilterRule',
    readonly   => 'ReadOnly',
-   content    => 'content',
+   textcontent=> 'TextContent',
    search     => 'Search'
    );
 
@@ -158,5 +160,3 @@ $lang_charset = 'iso-8859-2';
             );
 
 1;
-
-

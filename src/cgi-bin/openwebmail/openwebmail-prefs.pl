@@ -113,6 +113,13 @@ $sort = param("sort") || $prefs{"sort"} || 'date';
 
 $firsttimeuser = param("firsttimeuser") || ''; # Don't allow cancel if 'yes'
 
+# override global in openwebmail.conf with user preference
+$hide_internal=($hide_internal eq 'yes'||$hide_internal==1)?1:0;
+$hide_internal=$prefs{'hideinternal'} if ( defined($prefs{'hideinternal'}) );
+$filter_repeatlimit=$prefs{'filter_repeatlimit'} if ( defined($prefs{'filter_repeatlimit'}) );
+$filter_fakedsmtp=($filter_fakedsmtp eq 'yes'||$filter_fakedsmtp==1)?1:0;
+$filter_fakedsmtp=$prefs{'filter_fakedsmtp'} if ( defined($prefs{'filter_fakedsmtp'}) );
+
 ########################## MAIN ##############################
 if (defined(param("action"))) {      # an action has been chosen
    my $action = param("action");
@@ -292,14 +299,6 @@ sub editprefs {
 
    $html =~ s/\@\@\@HEADERSPERPAGE\@\@\@/$temphtml/;
 
-   $filter_repeatlimit=$prefs{'filter_repeatlimit'} if ( defined($prefs{'filter_repeatlimit'}) );
-   $temphtml = popup_menu(-name=>'filter_repeatlimit',
-                          -"values"=>['0','5','10','20','30','40','50','100'],
-                          -default=>$filter_repeatlimit,
-                          -override=>'1');
-
-   $html =~ s/\@\@\@FILTERREPEATLIMIT\@\@\@/$temphtml/;
-
    my %headerlabels = ('simple'=>$lang_text{'simplehead'},
                        'all'=>$lang_text{'allhead'}
                       );
@@ -333,8 +332,14 @@ sub editprefs {
 
    $html =~ s/\@\@\@EDITHEIGHTMENU\@\@\@/$temphtml/;
 
-   $filter_fakedsmtp=($filter_fakedsmtp eq 'yes'||$filter_fakedsmtp==1)?1:0;
-   $filter_fakedsmtp=$prefs{'filter_fakedsmtp'} if ( defined($prefs{'filter_fakedsmtp'}) );
+   $filter_repeatlimit=$prefs{'filter_repeatlimit'} if ( defined($prefs{'filter_repeatlimit'}) );
+   $temphtml = popup_menu(-name=>'filter_repeatlimit',
+                          -"values"=>['0','5','10','20','30','40','50','100'],
+                          -default=>$filter_repeatlimit,
+                          -override=>'1');
+
+   $html =~ s/\@\@\@FILTERREPEATLIMIT\@\@\@/$temphtml/;
+
    $temphtml = checkbox(-name=>'filter_fakedsmtp',
                         -value=>'1',
                         -checked=>$filter_fakedsmtp,
@@ -348,6 +353,13 @@ sub editprefs {
                   -label=>'');
 
    $html =~ s/\@\@\@DISABLEJS\@\@\@/$temphtml/g;
+
+   $temphtml = checkbox(-name=>'hideinternal',
+                  -value=>'1',
+                  -checked=>$hide_internal,
+                  -label=>'');
+
+   $html =~ s/\@\@\@HIDEINTERNAL\@\@\@/$temphtml/g;
 
    $temphtml = checkbox(-name=>'newmailsound',
                   -value=>'1',
@@ -813,9 +825,13 @@ sub downloadfolder {
    # disposition:attachment default to save
    print qq|Content-Transfer-Coding: binary\n|,
          qq|Connection: close\n|,
-         qq|Content-Type: $contenttype; name="$filename"\n|,
-         qq|Content-Disposition: attachment; filename="$filename"\n|,
-         qq|\n|;
+         qq|Content-Type: $contenttype; name="$filename"\n|;
+
+   # ugly hack since ie5.5 is broken with disposition: attchhment
+   if ( $ENV{'HTTP_USER_AGENT'}!~/MSIE 5.5/ ) {
+      print qq|Content-Disposition: attachment; filename="$filename"\n|;
+   }
+   print qq|\n|;
 
    ($cmd =~ /^(.+)$/) && ($cmd = $1);		# bypass taint check
    open (T, $cmd);
@@ -1038,9 +1054,13 @@ sub exportabook {
    # disposition:attachment default to save
    print qq|Content-Transfer-Coding: binary\n|,
          qq|Connection: close\n|,
-         qq|Content-Type: text/plain; name="adbook.csv"\n|,
-         qq|Content-Disposition: attachment; filename="adbook.csv"\n|,
-         qq|\n|;
+         qq|Content-Type: text/plain; name="adbook.csv"\n|;
+
+   # ugly hack since ie5.5 is broken with disposition: attchhment
+   if ( $ENV{'HTTP_USER_AGENT'}!~/MSIE 5.5/ ) {
+      print qq|Content-Disposition: attachment; filename="adbook.csv"\n|,
+   }
+   print qq|\n|;
 
    print qq|Name,E-mail Address,Note\n|;
 
@@ -1640,10 +1660,10 @@ sub editfilter {
                         'subject'=>$lang_text{'subject'},
                         'smtprelay'=>$lang_text{'smtprelay'},
                         'header'=>$lang_text{'header'},
-                        'body'=>$lang_text{'body'},
+                        'textcontent'=>$lang_text{'textcontent'},
                         'attfilename'=>$lang_text{'attfilename'});
    $temphtml = popup_menu(-name=>'rules',
-                          -values=>['from', 'to', 'subject', 'smtprelay', 'header', 'body' ,'attfilename'],
+                          -values=>['from', 'to', 'subject', 'smtprelay', 'header', 'textcontent' ,'attfilename'],
                           -labels=>\%labels);
    $html =~ s/\@\@\@RULEMENU\@\@\@/$temphtml/;
 
@@ -1920,7 +1940,7 @@ sub saveprefs {
                        style sort headers headersperpage defaultdestination
                        editwidth editheight
                        filter_repeatlimit filter_fakedsmtp disablejs
-                       newmailsound autopop3 trashreserveddays)) {
+                       hideinternal newmailsound autopop3 trashreserveddays)) {
       my $value = param("$key") || '';
 
       $value =~ s/\.\.+//g;
@@ -1946,6 +1966,7 @@ sub saveprefs {
          print CONFIG "$key=$value\n";
       } elsif ( $key eq 'filter_fakedsmtp' ||
                 $key eq 'disablejs' ||
+                $key eq 'hideinternal' ||
                 $key eq 'newmailsound' ||
                 $key eq 'autopop3' ) {
          $value=0 if ($value eq '');

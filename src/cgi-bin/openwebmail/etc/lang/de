@@ -90,6 +90,7 @@ $lang_charset = 'iso-8859-1';
    folderdelconf => '\'Sind Sie sicher, dass Sie diesen Ordner mit all seinen Inhalten löschen möchten?\'',
    total      => 'Total',
    delete     => 'Löschen',
+   reserve    => 'Reserve',
    clearadd   => 'Clear all addresses',
    importadd  => 'Adressbuch importieren',
    exportadd  => 'Adressbuch exportieren',
@@ -108,6 +109,9 @@ $lang_charset = 'iso-8859-1';
    header     => 'Header',
    body       => 'Body',
    attfilename=> 'AttFilename',
+   all        => 'All',
+   enable     => 'Enable',
+   disable    => 'Disable',
    blockrelay => 'Block SMTP Relay',
    read       => 'Read',
    yourmsg    => 'Your message',
@@ -117,7 +121,7 @@ $lang_charset = 'iso-8859-1';
    globaladdressbook => 'Global AddressBook',
    globalfilterrule => 'Global FilterRule',
    readonly   => 'ReadOnly',
-   content    => 'content',
+   textcontent=> 'TextContent',
    search     => 'Search'
    );
 

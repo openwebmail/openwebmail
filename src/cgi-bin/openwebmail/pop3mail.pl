@@ -1,7 +1,8 @@
+use strict;
 #
 # pop3mail.pl - functions for pop3 mail retrieval
 #
-# 2001/02/15 eddie@turtle.ee.ncku.edu.tw
+# 2001/06/01 eddie@turtle.ee.ncku.edu.tw
 #
 
 use Fcntl qw(:DEFAULT :flock);
@@ -15,7 +16,7 @@ sub getpop3book {
    if ( -f "$pop3book" ) {
       filelock($pop3book, LOCK_SH);
       open (POP3BOOK,"$pop3book") or
-         return ();
+         return();
       while (<POP3BOOK>) {
       	 chomp($_);
       	 my ($pop3host, $pop3user, $pop3passwd, $pop3del, $lastid) = split(/:/, $_);
@@ -33,7 +34,7 @@ sub writebackpop3book {
    if ( -f "$pop3book" ) {
       filelock($pop3book, LOCK_EX);
       open (POP3BOOK,">$pop3book") or
-         return (-6);
+         return (-1);
       foreach (values %accounts) {
       	 chomp($_);
       	 print POP3BOOK $_ . "\n";
@@ -43,11 +44,20 @@ sub writebackpop3book {
    }
 }
 
+
+# return < 0 means error
+# -1 connect error
+# -2 server not ready
+# -3 user name error
+# -4 password error
+# -5 stat error
+# -6 retr error
+
 sub retrpop3mail {
    my ($pop3host, $pop3user, $pop3book, $spoolfile)=@_;
    my (%accounts, $pop3passwd, $pop3del, $lastid);
    my ($ServerPort, $remote_sock);
-   my ($locate, $nMailCount, $newid);
+   my ($last, $nMailCount, $support_uidl, $retr_total);
    my ($dummy, $i);
 
    %accounts = getpop3book($pop3book);
@@ -67,67 +77,71 @@ sub retrpop3mail {
                                            PeerPort=>$ServerPort,);
       alarm 0;
    };
-   if ($@) {	# eval error, it means timeout
-       return(-3);
-   }
-   if (!$remote_sock) { # connect error
-       return(-3);
-   }
+   return(-1) if ($@);			# eval error, it means timeout
+   return(-1) if (!$remote_sock);	# connect error
 
    $remote_sock->autoflush(1);
-
    $_=<$remote_sock>;
-   if (/^\-/) {
-      return(-3);
-   }
+   return(-2) if (/^\-/);		# server not ready
 
    print $remote_sock "user $pop3user\n";
    $_=<$remote_sock>;
-   if (/^\-/) {
-      return(-3);
-   }
+   return(-3) if (/^\-/);		# username error
 
    print $remote_sock "pass $pop3passwd\n";
    $_=<$remote_sock>;
-   if (/^\-/) {
-      return(-4);
-   }
+   return (-4) if (/^\-/);		# passwd error
 
    print $remote_sock "stat\n";
    $_=<$remote_sock>;
-   if (/^\-/) {
-      return(-3);
-   }
-   ($dummy, $nMailCount, $dummy) = split(/\s/,$_);
-   if ($nMailCount == 0) {
+   return(-5) if (/^\-/);		# stat error
+
+   $nMailCount=(split(/\s/))[1];
+   if ($nMailCount == 0) {		# no message
       print $remote_sock "quit\n";
       return 0;
    }
 
+   $last=-1;
+   $support_uidl=0;
+
+   # use 'uidl' to find the msg being retrieved last time
    print $remote_sock "uidl " . $nMailCount . "\n";
    $_ = <$remote_sock>;
-   if (/^\-/) {
-      return(-3);
-   }
-   ($dummy, $dummy, $newid)=split(/\s/);
-   if ($newid eq $lastid) {
-      print $remote_sock "quit\n";
-      return 0;
-   }
+   if (/^\+/) {
+      $support_uidl=1;
+      if ($lastid eq (split(/\s/))[2]) {	# +OK N ID
+         print $remote_sock "quit\n";
+         return 0;
+      }
+      for ($i=1; $i<$nMailCount; $i++) {
+         print $remote_sock "uidl ".$i."\n";
+         $_ = <$remote_sock>;
+         if ($lastid eq (split(/\s/))[2]) {
+            $last = $i;
+            last;
+         }
+      }
 
-   $locate = 1;
-   for ($i=1; $i<=$nMailCount; $i++) {
-      print $remote_sock "uidl ".$i."\n";
+   # use 'last' to find the msg being retrieved last time
+   } else {
+      print $remote_sock "last\n";
       $_ = <$remote_sock>;
-      split(/\s/,$_);
-      if ($lastid eq $_[2]) {
-         $locate = $i;
-   	 last;
+      if (/^\+/) { # server does support last
+         $last=(split(/\s/))[1];		# +OK N
+         if ($last eq $nMailCount) {
+            print $remote_sock "quit\n";
+            return 0;
+         }
       }
    }
-   
-   ### retr all messages
-   for ($i=$locate; $i<=$nMailCount; $i++) {
+
+   # if last retrieved msg not found, fetech from the beginning
+   $last=0 if ($last==-1);
+
+   # retr messages
+   $retr_total=0;
+   for ($i=$last+1; $i<=$nMailCount; $i++) {
       my ($FileContent,$stAddress,$stDate)=("","","");
 
       print $remote_sock "retr ".$i."\n";
@@ -135,7 +149,7 @@ sub retrpop3mail {
          if ( /^\+/ ) {
             next;
          } elsif (/^\-/) {
-            return(-5);
+            return(-6);
          } else {
             last;
          }
@@ -148,9 +162,7 @@ sub retrpop3mail {
       #####  read else lines of message
       while ( <$remote_sock>) {
          s/\s+$//;
-         if ($_ eq "." ) {
-            last;		#end and exit while
-         }
+         last if ($_ eq "." );	#end and exit while
          $FileContent .= "$_\n";
 
          # get $stAddress, $stDate to compose the mail delimer 'From xxxx' line
@@ -171,25 +183,25 @@ sub retrpop3mail {
              my @monthstr=qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec);
              my @wdaystr=qw(Sun Mon Tus Wen Thu Fri Sat);
              my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) =localtime;
-             my $time="$hour:$min:$sec";
 
              $year=$year+1900;
              $mon=$monthstr[$mon]; 
              $wday=$wdaystr[$wday];
 
-             if (/^Date:\s+(\w+),\s+(\d+)\s+(\w+)\s+(\d+)\s+([\d:]+)/) { 
+             if (/^Date:\s+(\w+),\s+(\d+)\s+(\w+)\s+(\d+)\s+(\d+):(\d+):(\d+)\s/) { 
                  #Date: Wed, 9 Sep 1998 19:30:16 +0800 (CST)
-                 $wday=$1; $mday=$2; $mon=$3; $year=$4; $time=$5;
-             } elsif (/^Date:\s+(\d+)\s+(\w+)\s+(\d+)\s+([\d:]+)/) { 
+                 $wday=$1; $mday=$2; $mon=$3; $year=$4; $hour=$5; $min=$6; $sec=$7;
+             } elsif (/^Date:\s+(\d+)\s+(\w+)\s+(\d+)\s+(\d+):(\d+):(\d+)\s/) { 
                  #Date: 07 Sep 2000 23:01:36 +0200
-                 $mday=$1; $mon=$2; $year=$3; $time=$4;
-             } elsif (/^Date:\s+(\w+),\s+(\w+)\s+(\d+),\s+(\d+)\s+([\d:]+)/) { 
+                 $mday=$1; $mon=$2; $year=$3; $hour=$4; $min=$5; $sec=$6;
+             } elsif (/^Date:\s+(\w+),\s+(\w+)\s+(\d+),\s+(\d+)\s+(\d+):(\d+):(\d+)\s/) { 
                  #Date: Wednesday, February 10, 1999 3:39 PM
-                 $wday=$1; $mon=$2; $mday=$3; $year=$4; $time=$5;
+                 $wday=$1; $mon=$2; $mday=$3; $year=$4; $hour=$5; $min=$6; $sec=$7;
                  $wday=~s/^(...).*/$1/;
                  $mon=~s/^(...).*/$1/;
              }
-             $stDate="$wday $mon $mday $time $year";
+             $stDate=sprintf("%3s %3s %2d %02d:%02d:%02d %4d",
+                             $wday, $mon, $mday, $hour,$min,$sec, $year);
          }
       }
 
@@ -204,14 +216,25 @@ sub retrpop3mail {
 
       if ($pop3del == 1) {
          print $remote_sock "dele " . $i . "\n";
+         $_=<$remote_sock>;
       }
+      if ($support_uidl) {
+         print $remote_sock "uidl " . $i . "\n";
+         $_=<$remote_sock>;
+         $lastid=(split(/\s/))[2];
+      }
+
+      $retr_total++;
    }
+   print $remote_sock "quit\n";
+   close($remote_sock);
 
    ###  write back to pop3book
-   $accounts{"$pop3host:$pop3user"} = "$pop3host:$pop3user:$pop3passwd:$pop3del:$newid";
+   $accounts{"$pop3host:$pop3user"} = "$pop3host:$pop3user:$pop3passwd:$pop3del:$lastid";
    writebackpop3book($pop3book, %accounts);
-   print $remote_sock "quit\n";
-   return($nMailCount-$locate+1);	# return number of fetched mail
+
+   # return number of fetched mail
+   return($retr_total);		
 }
 
 1;

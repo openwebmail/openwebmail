@@ -1,3 +1,25 @@
+
+06/01/2001 (version 1.15)
+----------
+1. improve the search function. Messages inside a folder can be searhed 
+   by sender, receiver, subject, date, filename of attachments, 
+   message header, text content or all of the above.
+2. temporarily fix download problem in IE5.5 by not sending 
+   Content-Disposition header to IE5.5. dirty hack!
+3. improve compatibility with pop3 servers that don't support 'uidl' command
+4. fix a bug that generates wrong date string for messages fetched from 
+   pop3 server
+5. fix a bug that strips the blank line between mail header and mail body
+   if the message already has an empty 'Status:' line before status updating. 
+
+
+05/30/2001
+----------
+1. add 'Hide folder internal data' option to openwebmail.conf and 
+   user preference. When this option is enabled, internal messages used by 
+   POP3 or IMAP server will be hidden from user.
+
+
 05/25/2001 (version 1.14)
 ----------
 1. fix a minor layout problem in folderview on konqueror browser
