@@ -1,7 +1,31 @@
+04/11/2001 (version 1.05)
+----------
+1. fix a bug in sendmessage. When making backup of a sent message to 
+   sent folder, it doesn't put a blank line at the end of that message 
+   if the message has no attachment.
+2. reduce the memory usage when updating the R status to a message
+3. fix the bug introduced by the optimization of version 1.04.
+   The message forwarding carries the attachments in the original message
+   to the new message and the header of those attachments is correct now.
+
+
+04/10/2001
+----------
+1. add $use_dotlockfile to openmail.conf to support using dot lockfile
+   for files located on remote nfs servers. This is recommended only if the 
+   lockd on nfs server or client has problems
+ps: FrreBSD/Linux nfs server/client may need this. Solaris doesn't.
+ps: This dotlock routine has not been tested under heavy load yet...
+
+2. add support to filter mails relayed from a specific 'SMTP Relay'
+
+
 04/09/2001
 ----------
 1. add $global_addressbook and $global_filterbook to openwebmail.conf 
    to support global addressbook/filterrule
+2. refresh every 15 minute if in INBOX folderview
+   notify user with sound if new mail found
 
 
 04/07/2001

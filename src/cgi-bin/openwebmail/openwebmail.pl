@@ -356,6 +356,7 @@ sub getfolders {
          if ( $filename=~/^\.(.*)\.db$/ ||
               $filename=~/^\.(.*)\.dir$/ ||
               $filename=~/^\.(.*)\.pag$/ ||
+              $filename=~/^(.*)\.lock$/ ||
               ($filename=~/^\.(.*)\.cache$/ && $filename ne ".search.cache") ) {
             if ( ($1 ne $user) && (! -f "$folderdir/$1") ){
                # dbm or cache whose folder doesn't exist
@@ -371,7 +372,8 @@ sub getfolders {
          unless ( ($filename eq 'saved-messages') ||
                   ($filename eq 'sent-mail') ||
                   ($filename eq 'mail-trash') ||
-                  ($filename eq '.') || ($filename eq '..')
+                  ($filename eq '.') || ($filename eq '..') ||
+                  ($filename =~ /\.lock$/) 
                 ) {
             push (@userfolders, $filename);
             $totalfoldersize += ( -s "$folderdir/$filename" );
@@ -507,7 +509,6 @@ sub get_spoolfile_headerdb_and_set_uid_gid {
 sub displayheaders {
    verifysession() unless $setcookie;
    filtermessage();
-   printheader();
 
    my ($bgcolor, $status, $message_size);
    my $newmessages = 0;
@@ -544,6 +545,14 @@ sub displayheaders {
 
    my $base_url = "$scripturl?sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;folder=$escapedfolder";
    my $base_url_nokeyword = "$scripturl?sessionid=$thissession&amp;sort=$sort&amp;folder=$escapedfolder";
+
+   my $refresh=param("refresh");
+   if ($folder eq "INBOX") {
+      my $i=$refresh+1;
+      printheader(-Refresh=>"900;URL='$scripturl?sessionid=$thissession&sort=$sort&keyword=$escapedkeyword&folder=$escapedfolder&action=displayheaders&firstmessage=$firstmessage&refresh=$i'");
+   } else {
+      printheader();
+   }
 
    my $page_nb;
    if ($#headers > 0) {
@@ -593,20 +602,21 @@ sub displayheaders {
                        -override=>'1');
    $html =~ s/\@\@\@STARTFOLDERFORM\@\@\@/$temphtml/;
 
+   my $hasnewmail=0;
    my %folderlabels;
-   foreach (@validfolders) {
+   foreach my $foldername (@validfolders) {
       my ($headerdb, $newmessages, $allmessages);
 
-      if (defined $lang_folders{$_}) {
-         $folderlabels{$_}=$lang_folders{$_};
+      if (defined $lang_folders{$foldername}) {
+         $folderlabels{$foldername}=$lang_folders{$foldername};
       } else {
-         $folderlabels{$_}=$_;
+         $folderlabels{$foldername}=$foldername;
       }
 
-      if ($_ eq 'INBOX') {
+      if ($foldername eq 'INBOX') {
          $headerdb="$folderdir/.$user";
       } else {
-         $headerdb="$folderdir/.$_";
+         $headerdb="$folderdir/.$foldername";
       }
       filelock("$headerdb.$dbm_ext", LOCK_SH);
       dbmopen (%HDB, $headerdb, undef);
@@ -615,8 +625,11 @@ sub displayheaders {
       dbmclose(%HDB);
       filelock("$headerdb.$dbm_ext", LOCK_UN);
 
+      if ($foldername eq 'INBOX' && $newmessages > 0 ) {
+         $hasnewmail=1;
+      }
       if ( $newmessages ne "" && $allmessages ne "" ) {
-         $folderlabels{$_}.= " ($newmessages/$allmessages)";
+         $folderlabels{$foldername}.= " ($newmessages/$allmessages)";
       }
    }
    $temphtml = popup_menu(-name=>'folder',
@@ -931,6 +944,13 @@ sub displayheaders {
 
    print $html;
 
+   if ($refresh && $hasnewmail && $sound_url ne "" ) {
+      # only enable sound in win platform
+      if ( $ENV{'HTTP_USER_AGENT'} =~ /Win/ ) {
+         print "<embed src=\"$sound_url\" autostart=true hidden=true>";
+      }
+   }
+
    printfooter();
 }
 ############### END DISPLAYHEADERS ##################
@@ -1101,7 +1121,7 @@ sub readmessage {
          $temphtml = "<B>$lang_text{'date'}:</B> $message{date}<BR>\n";
 
          $temphtml .= "<B>$lang_text{'from'}:</B> $from &nbsp;";
-         my ($readname, $email);
+         my ($readname, $email, $escapedemail);
          if  ( $message{from} =~ /^"?(.+?)"?\s*<(.*)>$/ ) {
             ($realname, $email)=($1, $2);
          } elsif ( $message{from} =~ /<?(.*@.*)>?\s+\((.+?)\)/ ) {
@@ -1110,10 +1130,24 @@ sub readmessage {
             ($realname, $email)=($from, $from);
          }
          $realname=CGI::escape($realname);
-         $email=CGI::escape($email);
-         $temphtml .= "<a href=\"$prefsurl?action=addaddress&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;realname=$realname&amp;email=$email&amp;message_id=$escapedmessageid\">".
-                      "<IMG SRC=\"$image_url/imports.gif\" border=\"0\" ALT=\"$lang_text{'importadd'}\">".
-                      "</a><BR>";
+         $escapedemail=CGI::escape($email);
+         $temphtml .= "&nbsp;<a href=\"$prefsurl?action=addaddress&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid&amp;realname=$realname&amp;email=$escapedemail\">".
+                      "<IMG SRC=\"$image_url/imports.gif\" border=\"0\" ALT=\"$lang_text{'importadd'} $email\">".
+                      "</a>";
+
+         my $trashfolder;
+         if ( $homedirfolders eq 'yes' ) {
+            $trashfolder='mail-trash';
+         } else {
+            $trashfolder='TRASH';
+         }
+         if ($message{smtprelay} !~ /^\s*$/) {
+            $temphtml .= "&nbsp;<a href=\"$prefsurl?action=addfilter&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid&amp;priority=20&amp;rules=smtprelay&amp;include=include&amp;text=$message{smtprelay}&amp;destination=$trashfolder&amp;enable=1\">".
+                      "<IMG SRC=\"$image_url/blockrelay.gif\" border=\"0\" ALT=\"$lang_text{'blockrelay'} $message{smtprelay}\">".
+                      "</a>";
+         }
+
+         $temphtml .= "<BR>";
 
          if ($replyto) {
             $temphtml .= "<B>$lang_text{'replyto'}:</B> $replyto<BR>\n";
@@ -1400,12 +1434,6 @@ sub composemessage {
          $attname =~ s/^.*\///;
          $attname =~ s/^.*://;
 
-#         $/ = undef; # Force a single input to grab the whole spool
-#         $attcontents = <$attachment>;
-#         $/ = "\n";
-#         $attcontents = encode_base64($attcontents);
-#         $savedattsize += length($attcontents);
-
          if (defined(uploadInfo($attachment))) {
             $content_type = ${uploadInfo($attachment)}{'Content-Type'} || 'application/octet-stream';
          } else {
@@ -1416,7 +1444,6 @@ sub composemessage {
          print ATTFILE "Content-Type: ", $content_type,";\n";
          print ATTFILE "\tname=\"$attname\"\nContent-Transfer-Encoding: base64\n\n";
 
-#         print ATTFILE $attcontents;
          while (read($attachment, $attcontents, 600*57)) {
             $attcontents=encode_base64($attcontents);
             $savedattsize += length($attcontents);
@@ -1463,7 +1490,11 @@ sub composemessage {
 
       if (($composetype eq "reply") || ($composetype eq "replyall") ||
           ($composetype eq "forward") ) {
-         %message = %{&getmessage($messageid)};
+         if ($composetype eq "forward") {
+            %message = %{&getmessage($messageid, "all")};
+         } else {
+            %message = %{&getmessage($messageid, "")};
+         }
 
 ### Handle mail programs that send the body of a message quoted-printable
          if ( ($message{contenttype} =~ /^text/i) &&
@@ -1925,12 +1956,13 @@ sub sendmessage {
          print SENDMAIL "--$boundary--";
          print SENT     "--$boundary--" if ($sentfolderok);
 
+         print SENDMAIL "\n";
          print SENT     "\n\n" if ($sentfolderok);
 
       } else {
          print SENDMAIL "Content-Type: text/plain; charset=$lang_charset\n\n", $body, "\n";
          $body =~ s/^From />From /gm;
-         print SENT     "Content-Type: text/plain; charset=$lang_charset\n\n", $body, "\n" if ($sentfolderok);
+         print SENT     "Content-Type: text/plain; charset=$lang_charset\n\n", $body, "\n\n" if ($sentfolderok);
       }
 
       $messagesize=tell(SENT)-$messagestart if ($sentfolderok);
@@ -2023,7 +2055,8 @@ sub viewattachment {
 
    if ( ! defined(${$r_block}) ) {
       printheader();
-      print "What the heck? Message seems to be gone!";
+      $messageid = str2html($messageid);
+      print "What the heck? Message $messageid seems to be gone!";
       printfooter();
       return;
    }
@@ -2042,17 +2075,17 @@ sub viewattachment {
       # return a specific attachment
 
       my ($header, $body, $r_attachments)=parse_rfc822block($r_block, "0", $nodeid);
-      my $r_attachment;
-
       undef(${$r_block});
       undef($r_block);
+
+      my $r_attachment;
       for (my $i=0; $i<=$#{$r_attachments}; $i++) {
          if ( ${${$r_attachments}[$i]}{nodeid} eq $nodeid ) {
             $r_attachment=${$r_attachments}[$i];
          }
       }
 
-      if ($r_attachment) {
+      if (defined($r_attachment)) {
          my $content;
 
          if (${$r_attachment}{encoding} =~ /^base64$/i) {
@@ -2083,7 +2116,8 @@ sub viewattachment {
          print qq|\n|, $content;
       } else {
          printheader();
-         print "What the heck? Message seems to be gone!";
+         $messageid = str2html($messageid);
+         print "What the heck? Message $messageid attachmment $nodeid seems to be gone!";
          printfooter();
       }
       return;
@@ -2160,7 +2194,7 @@ sub getheaders {
 
 #################### GETMESSAGE ###########################
 sub getmessage {
-   my $messageid = $_[0];
+   my ($messageid, $mode) = @_;
    my $spoolfile;
    my $headerdb;
    my $spoolhandle=FileHandle->new();
@@ -2170,7 +2204,7 @@ sub getmessage {
 
    my ($currentheader, $currentbody, $r_currentattachments, $currentfrom, $currentdate,
        $currentsubject, $currentid, $currenttype, $currentto, $currentcc,
-       $currentreplyto, $currentencoding, $currentstatus);
+       $currentreplyto, $currentencoding, $currentstatus, $currentreceived);
 
    ($spoolfile, $headerdb)=get_spoolfile_headerdb_and_set_uid_gid();
 
@@ -2190,8 +2224,13 @@ sub getmessage {
    }
 
    # $r_attachment is a reference to attachment array!
-   ($currentheader, $currentbody, $r_currentattachments)
-	=parse_rfc822block(get_message_block($messageid, $headerdb, $spoolhandle), "0");
+   if ($mode eq "all") {
+      ($currentheader, $currentbody, $r_currentattachments)
+		=parse_rfc822block(get_message_block($messageid, $headerdb, $spoolhandle), "0", "all");
+   } else {
+      ($currentheader, $currentbody, $r_currentattachments)
+		=parse_rfc822block(get_message_block($messageid, $headerdb, $spoolhandle), "0", "");
+   }
 
    close($spoolhandle);
    filelock($spoolfile, LOCK_UN);
@@ -2203,6 +2242,7 @@ sub getmessage {
    $currentstatus = '';
 
    my $lastline = 'NONE';
+   my @smtprelays=();
    foreach (split(/\n/, $currentheader)) {
       if (/^\s/) {
          if    ($lastline eq 'FROM') { $currentfrom .= $_ }
@@ -2214,6 +2254,7 @@ sub getmessage {
          elsif ($lastline eq 'ENCODING') { $currentencoding .= $_ }
          elsif ($lastline eq 'TO')   { $currentto .= $_ }
          elsif ($lastline eq 'CC')   { $currentcc .= $_ }
+         elsif ($lastline eq 'RECEIVED')   { $currentreceived .= $_ }
       } elsif (/^from:\s+(.+)$/ig) {
          $currentfrom = $1;
          $lastline = 'FROM';
@@ -2244,8 +2285,29 @@ sub getmessage {
       } elsif (/^status:\s+(.+)$/ig) {
          $currentstatus = $1;
          $lastline = 'NONE';
+      } elsif (/^Received:(.+)$/ig) {
+         my $tmp=$1;
+         if ($currentreceived=~ /.* by\s([^\s]+)\s.*/) {
+            unshift(@smtprelays, $1);
+         }
+         if ($currentreceived=~ /.* from\s([^\s]+)\s.*/) {
+            unshift(@smtprelays, $1);
+         }
+         $currentreceived=$tmp;
+         $lastline = 'RECEIVED';
       } else {
          $lastline = 'NONE';
+      }
+   }
+
+   # we don't count last from host as smtp relay since it is sender pc
+   if ($currentreceived=~ /.*by\s([^\s]+)\s.*/) {
+      unshift(@smtprelays, $1);
+   }
+   foreach (@smtprelays) {
+      if (/[\w\d\-_]+\.[\w\d\-_]+/) {
+         $message{smtprelay} = $_;
+         last;
       }
    }
 
@@ -2265,6 +2327,7 @@ sub getmessage {
    $message{contenttype} = $currenttype;
    $message{encoding} = $currentencoding;
 
+
    # Determine message's number and previous and next message IDs.
    foreach my $messagenumber (0..$#messageids) {
       if ($messageids[$messagenumber] eq $messageid) {
@@ -2283,7 +2346,6 @@ sub getmessage {
 #################### UPDATESTATUS #########################
 sub updatestatus {
    my ($messageid, $status) = @_;
-   my ($currmessage, $currentheader, $currentbody);
    my $spoolfile;
    my $headerdb;
    my $spoolhandle=FileHandle->new();
@@ -2310,19 +2372,36 @@ sub updatestatus {
       if ($messageids[$i] eq $messageid) {
          @attr=split(/@@@/, $HDB{$messageid});
 
+         return if ($attr[$_STATUS]=~/$status/i);
+
          my $messagestart=$attr[$_OFFSET];
          my $messagesize=$attr[$_SIZE];
-         my $messageend=$messagestart+$messagesize;
-         my $foldersize;
-         my ($messagenewsize, $messagenewstatus);
-
+         my $messagenewstatus;
+         my ($header, $headerend, $headerlen, $newheaderlen);
+         my $buff;
+         
          seek ($spoolhandle, $messagestart, 0) or openwebmailerror("$lang_err{'couldnt_seek'} $spoolfile!");
-         read($spoolhandle, $currmessage, $messagesize);
 
-         ($currentheader, $currentbody) = split(/\n\r*\n/,$currmessage, 2);
+         $header="";
+         $headerlen=-1;
+         while ( ($headerlen=index($header,  "\n\n")) < 0 ) {
+             my $left = $messagesize-length($header);
+             if ($left>1024) {
+               read($spoolhandle, $buff, 1024);
+             } elsif ($left>0) {
+               read($spoolhandle, $buff, $left);
+             } else {
+               $headerlen=length($header);
+               last;
+             }
+             $header .= $buff;
+         }
+         $header=substr($header, 0, $headerlen);
+         $headerend=$messagestart+$headerlen;
 
          # generate receipt to sender if read-confirmation is requested
-         if ( $currentheader=~/^Disposition-Notification-To:\s?(.*?)$/im ) {
+         if ( $attr[$_STATUS]!~/r/i && $status=~/r/i &&
+              $header=~/^Disposition-Notification-To:\s?(.*?)$/im ) {
             my $from;
             my $to=$1;
             my $realname = $prefs{"realname"} || '';
@@ -2379,22 +2458,22 @@ sub updatestatus {
          }      
 
          # update status
-         if ($currentheader =~ s/^status:\s?(.*?)$/Status: $status$1/im) {
+         if ($header =~ s/^status:\s?(.*?)$/Status: $status$1/im) {
            $messagenewstatus="$status$1";
          } else {
-           $currentheader .= "\nStatus: $status";
+           $header .= "\nStatus: $status";
            $messagenewstatus="$status";
          }
-         $currentheader="From $currentheader" unless ($currentheader =~ /^From /);
+         $header="From $header" unless ($header =~ /^From /);
 
-         $messagenewsize=length($currentheader)+length("\n\n")+length($currentbody);
-         $movement=$messagenewsize-$messagesize;
+         $newheaderlen=length($header);
+         $movement=$newheaderlen-$headerlen;
 
-         my @s=stat($spoolhandle); $foldersize=$s[7];
-         shiftblock($spoolhandle, $messageend, $foldersize-$messageend, $movement);
+         my $foldersize=(stat($spoolhandle))[7];
+         shiftblock($spoolhandle, $headerend, $foldersize-$headerend, $movement);
 
          seek($spoolhandle, $messagestart, 0) or openwebmailerror("$lang_err{'couldnt_seek'} $spoolfile!");
-         print $spoolhandle $currentheader, "\n\n", $currentbody;
+         print $spoolhandle $header;
 
          seek($spoolhandle, $foldersize+$movement, 0);
          truncate($spoolhandle, tell($spoolhandle));
@@ -2403,7 +2482,7 @@ sub updatestatus {
          if ($attr[$_STATUS]!~/r/i && $messagenewstatus=~/r/i) {
             $HDB{'NEWMESSAGES'}--;
          }
-         $attr[$_SIZE]=$messagenewsize;
+         $attr[$_SIZE]=$messagesize+$movement;
          $attr[$_STATUS]=$messagenewstatus;
          $HDB{$messageid}=join('@@@', @attr);
 
@@ -2969,6 +3048,8 @@ sub openwebmailerror {
 ##################### PRINTHEADER #########################
 sub printheader {
    my $cookie;
+   my @headers=();
+
    unless ($headerprinted) {
       if ($setcookie) {
          $cookie = cookie( -name    => 'sessionid',
@@ -2985,28 +3066,14 @@ sub printheader {
       close (HEADER);
 
       $html = applystyle($html);
-
       $html =~ s/\@\@\@BG_URL\@\@\@/$bg_url/g;
-
       $html =~ s/\@\@\@CHARSET\@\@\@/$lang_charset/g;
 
-      if ($setcookie) {
-         if ( $CGI::VERSION>=2.57) {
-            print header(-pragma=>'no-cache',
-                         -cookie=>$cookie,
-                         -charset=>$lang_charset);
-         } else {
-            print header(-pragma=>'no-cache',
-                         -cookie=>$cookie);
-         }
-      } else {
-         if ( $CGI::VERSION>=2.57) {
-            print header(-pragma=>'no-cache',
-                         -charset=>$lang_charset);
-         } else {
-            print header(-pragma=>'no-cache');
-         }
-      }
+      push(@headers, -pragma=>'no-cache');
+      push(@headers, -cookie=>$cookie) if ($setcookie);
+      push(@headers, -charset=>$lang_charset) if ($CGI::VERSION>=2.57);
+      push(@headers, @_);
+      print header(@headers);
       print $html;
    }
 }

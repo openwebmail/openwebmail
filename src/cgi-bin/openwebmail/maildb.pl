@@ -607,9 +607,11 @@ sub get_message_block {
 #       When calling parse_... with no $searid, these routine assume
 #       it is CGI in returning html text page or in content search,
 #       so contents of nont-text-based attachment wont be returned!
-#       When calling parse_... with a searchid, these routine assume
+#       When calling parse_... with a nodeid as searchid, these routine assume
 #       it is CGI in requesting one specific non-text-based attachment,
 #       one the attachment whose nodeid matches the searchid will be returned
+#       When calling parse_... with searchid="all", these routine will return
+#       all attachments. This is intended to be used in message forwording.
 
 sub parse_rfc822block {
    my ($r_block, $nodeid, $searchid)=@_;
@@ -628,12 +630,14 @@ sub parse_rfc822block {
       my ($bodystart, $boundarystart, $nextboundarystart, $attblockstart);
 
       $boundary =~ s/.*boundary\s?="?([^"]+)"?.*$/$1/i;
-      $subtype =~ s/^multipart\/(.*?)[;\s].*$/$1/i;
+      $boundary="--$boundary";
       $boundarylen=length($boundary);
+
+      $subtype =~ s/^multipart\/(.*?)[;\s].*$/$1/i;
 
       $bodystart=$headerlen+2;
       
-      $boundarystart=index(${$r_block}, "--$boundary", $bodystart);
+      $boundarystart=index(${$r_block}, $boundary, $bodystart);
       if ($boundarystart >= $bodystart) {
           $body=substr(${$r_block}, $bodystart, $boundarystart-$bodystart);
       } else {
@@ -645,18 +649,17 @@ sub parse_rfc822block {
       $attblockstart=$boundarystart+$boundarylen;
       while ( substr(${$r_block}, $attblockstart, 2) ne "--") {
          # skip \n after boundary
-         while ( substr(${$r_block}, $attblockstart, 1) eq "\n" ) {
+         while ( substr(${$r_block}, $attblockstart, 1) =~ /[\n\r]/ ) {
             $attblockstart++;
          }
 
-         $nextboundarystart=index(${$r_block}, "--$boundary", $attblockstart);
+         $nextboundarystart=index(${$r_block}, $boundary, $attblockstart);
          if ($nextboundarystart > $attblockstart) {
-            if ( $searchid eq "") {
-               # attblock handling
+            # normal attblock handling
+            if ( $searchid eq "" || $searchid eq "all") {
                my $r_attachments2=parse_attblock($r_block, $attblockstart, $nextboundarystart-$attblockstart, $subtype, $boundary, "$nodeid-$i", $searchid);
                push(@attachments, @{$r_attachments2});
             } elsif ($searchid eq "$nodeid-$i" || $searchid=~/^$nodeid-$i-/) {
-               # attblock handling
                my $r_attachments2=parse_attblock($r_block, $attblockstart, $nextboundarystart-$attblockstart, $subtype, $boundary, "$nodeid-$i", $searchid);
                push(@attachments, @{$r_attachments2});
                last;	# attblock after this is not he one to look for...
@@ -664,8 +667,9 @@ sub parse_rfc822block {
             $boundarystart=$nextboundarystart;
             $attblockstart=$boundarystart+$boundarylen;
          } else {
-            # attblock handling
-            if ( $searchid eq "" || $searchid eq "$nodeid-$i" || $searchid=~/^$nodeid-$i-/ ) {
+            # abnormal attblock, last one?
+            if ( $searchid eq "" || $searchid eq "all" || 
+                 $searchid eq "$nodeid-$i" || $searchid=~/^$nodeid-$i-/ ) {
                my $r_attachments2=parse_attblock($r_block, $attblockstart, length(${$r_block})-$attblockstart ,$subtype, $boundary, "$nodeid-$i", $searchid);
                push(@attachments, @{$r_attachments2});
             }
@@ -677,11 +681,11 @@ sub parse_rfc822block {
       return($header, $body, \@attachments);
 
    } elsif ($contenttype =~ /^message/i ) {
-      if ( $searchid eq "" || $searchid=~/^$nodeid-0/ ) {
+      if ( $searchid eq "" || $searchid eq "all" || $searchid=~/^$nodeid-0/ ) {
          $body=substr(${$r_block}, $headerlen+2);
          my ($header2, $body2, $r_attachments2)=parse_rfc822block(\$body, "$nodeid-0", $searchid);
 
-         if ( $searchid eq "" || $searchid eq $nodeid ) {
+         if ( $searchid eq "" || $searchid eq "all" || $searchid eq $nodeid ) {
             $header2 = decode_mimewords($header2);
 
             my $temphtml=headerbody2html($header2, $body2);
@@ -693,7 +697,7 @@ sub parse_rfc822block {
       return($header, $body, \@attachments);
 
    } elsif ( ($contenttype eq 'N/A') || ($contenttype =~ /^text\/plain/i) ) {
-      if ( $searchid eq "" || $searchid=~/^$nodeid-0/ ) {
+      if ( $searchid eq "" || $searchid eq "all" || $searchid=~/^$nodeid-0/ ) {
          $body=substr(${$r_block}, $headerlen+2);
          # Handle uuencode blocks inside a text/plain mail
          if ( $body =~ /\n\nbegin ([0-7][0-7][0-7][0-7]?) ([^\n\r]+)\n(.+?)\nend\n/ims ) {
@@ -705,7 +709,7 @@ sub parse_rfc822block {
       return($header, $body, \@attachments);
 
    } elsif ( ($contenttype ne 'N/A') && !($contenttype =~ /^text/i) ) {
-      if ( $searchid eq "" || $searchid eq $nodeid ) {
+      if ( $searchid eq "" || $searchid eq "all" || $searchid eq $nodeid ) {
          $body=substr(${$r_block}, $headerlen+2);
          push(@attachments, make_attachment("","", "",\$body,length($body), 
 					$encoding,$contenttype, "","","", $nodeid) );
@@ -766,10 +770,12 @@ sub parse_attblock {
       my $subattblock="";
 
       $boundary =~ s/.*boundary\s?="?([^"]+)"?.*$/$1/i;
-      $subtype =~ s/^multipart\/(.*?)[;\s].*$/$1/i;
+      $boundary="--$boundary";
       $boundarylen=length($boundary);
+
+      $subtype =~ s/^multipart\/(.*?)[;\s].*$/$1/i;
       
-      $boundarystart=index(${$r_buff}, "--$boundary", $attblockstart);
+      $boundarystart=index(${$r_buff}, $boundary, $attblockstart);
       if ($boundarystart < $attblockstart) {
           return(\());
       }
@@ -778,18 +784,17 @@ sub parse_attblock {
       $subattblockstart=$boundarystart+$boundarylen;
       while ( substr(${$r_buff}, $subattblockstart, 2) ne "--") {
          # skip \n after boundary
-         while ( substr(${$r_buff}, $subattblockstart, 1) eq "\n" ) {
+         while ( substr(${$r_buff}, $subattblockstart, 1) =~ /[\n\r]/ ) {
             $subattblockstart++;
          }
 
-         $nextboundarystart=index(${$r_buff}, "--$boundary", $subattblockstart);
+         $nextboundarystart=index(${$r_buff}, $boundary, $subattblockstart);
          if ($nextboundarystart > $subattblockstart) {
-            if ( $searchid eq "") {
-               # attblock handling
+            # normal attblock
+            if ( $searchid eq "" || $searchid eq "all" ) {
                my $r_attachments2=parse_attblock($r_buff, $subattblockstart, $nextboundarystart-$subattblockstart, $subtype, $boundary, "$nodeid-$i", $searchid);
                push(@attachments, @{$r_attachments2});
             } elsif ( $searchid eq "$nodeid-$i" || $searchid=~/^$nodeid-$i-/ ) {
-               # attblock handling
                my $r_attachments2=parse_attblock($r_buff, $subattblockstart, $nextboundarystart-$subattblockstart, $subtype, $boundary, "$nodeid-$i", $searchid);
                push(@attachments, @{$r_attachments2});
                last;	# attblock after this is not the one to look for...
@@ -797,8 +802,9 @@ sub parse_attblock {
             $boundarystart=$nextboundarystart;
             $subattblockstart=$boundarystart+$boundarylen;
          } else {
-            # attblock handling
-            if ( $searchid eq "" || $searchid eq "$nodeid-$i" || $searchid=~/^$nodeid-$i-/ ) {
+            # abnormal attblock, last one?
+            if ( $searchid eq "" || $searchid eq "all" || 
+                 $searchid eq "$nodeid-$i" || $searchid=~/^$nodeid-$i-/ ) {
                my $r_attachments2=parse_attblock($r_buff, $subattblockstart, $attblocklen-$subattblockstart ,$subtype, $boundary, "$nodeid-$i", $searchid);
                push(@attachments, @{$r_attachments2});
             }
@@ -809,13 +815,12 @@ sub parse_attblock {
       }
 
    } elsif ($attcontenttype =~ /^message/i ) {
-      if ( $searchid eq "" || $searchid=~/^$nodeid-0/ ) {
+      if ( $searchid eq "" || $searchid eq "all" || $searchid=~/^$nodeid-0/ ) {
          $attcontent=substr(${$r_buff}, $attblockstart+$attheaderlen+2, $attblocklen-($attheaderlen+2));
          my ($header2, $body2, $r_attachments2)=parse_rfc822block(\$attcontent, "$nodeid-0", $searchid);
 
-         if ( $searchid eq "" || $searchid eq $nodeid ) {
+         if ( $searchid eq "" || $searchid eq "all" || $searchid eq $nodeid ) {
             $header2 = decode_mimewords($header2);
-
             my $temphtml=headerbody2html($header2, $body2);
             push(@attachments, make_attachment($subtype,"", $attheader,\$temphtml, length($temphtml),
 		$attencoding,"text/html", "inline; filename=Unknown.msg",$attid,$attlocation, $nodeid));
@@ -826,10 +831,10 @@ sub parse_attblock {
    } elsif ($attcontenttype ne "N/A" ) {
 
       # the content of an attachment is returned only if
-      #  a. the searchid is looking for this attachment
+      #  a. the searchid is looking for this attachment (all or a nodeid)
       #  b. this attachment is text based
 
-      if ( ($searchid eq $nodeid) ||
+      if ( ($searchid eq "all") || ($searchid eq $nodeid) ||
            ($searchid eq "" && $attcontenttype=~/^text/i) ) {
          my $attcontentlength=$attblocklen-($attheaderlen+2);
          $attcontent=substr(${$r_buff}, $attblockstart+$attheaderlen+2, $attcontentlength);
@@ -859,7 +864,7 @@ sub parse_uuencode_body {
    # Handle uuencode blocks inside a text/plain mail
    $i=0;
    while ( $body =~ m/\n\nbegin ([0-7][0-7][0-7][0-7]?) ([^\n\r]+)\n(.+?)\nend\n/igms ) {
-      if ( $searchid eq "" || $searchid eq "$nodeid-$i" ) {
+      if ( $searchid eq "" || $searchid eq "all" || $searchid eq "$nodeid-$i" ) {
          my ($uumode, $uufilename, $uubody) = ($1, $2, $3);
          my $uutype;
          if ($uufilename=~/\.doc$/i) {
@@ -1270,11 +1275,19 @@ sub text2html {
 ######################## END HTML related ##############################
 
 ################### FILELOCK ###########################
+sub filelock {
+   if ($use_dotlockfile eq "yes") {
+      return filelock_dotlockfile(@_);
+   } else {
+      return filelock_flock(@_);
+   }
+}
+
 # this routine provides flock with filename
 # it opens the file to get the handle if need,
 # than do lock operation on the related filehandle
 my %opentable;
-sub filelock {
+sub filelock_flock {
    my ($filename, $lockflag)=@_;
    my $fh;
 
@@ -1294,10 +1307,10 @@ sub filelock {
       }
    }
 
-# Since nonblocking lock may return errors 
-# even the target is locked by others for just a few seconds,
-# we turn nonblocking lock into a blocking lock with timeout limit=10sec
-# thus the lock will have more chance to success.
+   # Since nonblocking lock may return errors 
+   # even the target is locked by others for just a few seconds,
+   # we turn nonblocking lock into a blocking lock with timeout limit=10sec
+   # thus the lock will have more chance to success.
 
    if ( $lockflag & LOCK_NB ) {	# nonblocking lock
       my $retval;
@@ -1316,6 +1329,147 @@ sub filelock {
       return(flock($fh, $lockflag));
    }
 }
+
+
+# this routine use file.lock for the lock of filename
+# it is only recommended if the files are located on remote nfs server
+# and the lockd on your nfs server and client has problems
+# since it is slower than flock
+sub filelock_dotlockfile {
+   my ($filename, $lockflag)=@_;
+   my ($mode, $count);
+   my $endtime=time()+30;
+
+   return 1 unless ($lockflag & (LOCK_SH|LOCK_EX|LOCK_UN));
+
+   my $oldumask=umask(0111);
+   ($filename =~ /^(.+)$/) && ($filename = $1);		# bypass taint check
+   
+   while (time() <= $endtime) {
+      my $status=0;
+
+      if ( -f "$filename.lock" ) {	# remove stale lock
+         my $t=(stat("$filename.lock"))[9];
+         unlink("$filename.lock") if (time()-$t > 300);
+      }
+
+      if (_lock("$filename.lock")==0) {
+         if ( $lockflag & LOCK_NB ) {
+            umask($oldumask);
+            return(0);
+         } else {
+            sleep 1;
+            next;
+         }
+      }
+
+      if ( $lockflag & LOCK_UN ) {
+         if ( -f "$filename.lock") {
+            if (open(L, "+<$filename.lock") ) {
+               $_=<L>; chop;
+               ($mode,$count)=split(/:/);
+               if ( $mode eq "READ" && $count>1 ) {
+                  $count--;
+                  seek(L, 0, 0);
+                  print L "READ:$count\n";
+                  truncate(L, tell(L));
+                  close(L);
+                  $status=1;
+               } else {
+                  close(L);
+                  unlink("$filename.lock");
+                  if ( -f "$filename.lock" ) {
+                     $status=0;
+                  } else {
+                     $status=1;
+                  }
+               }
+            } else { # can not read .lock
+               $status=0;
+            }
+         } else { # no .lock file
+            $status=1;
+         }
+
+      } elsif ( sysopen(L, "$filename.lock", O_RDWR|O_CREAT|O_EXCL) ) {
+         if ( $lockflag & LOCK_EX ) {
+            close(L);
+         } elsif ( $lockflag & LOCK_SH ) {
+            print L "READ:1\n";
+            close(L);
+         }
+         $status=1;
+
+      } else { # create failed, assume lock file already exists
+         if ( ($lockflag & LOCK_SH) && open(L,"+<$filename.lock") ) {
+            $_=<L>; chop;
+            print "$_\n";
+            ($mode, $count)=split(/:/);
+            if ( $mode eq "READ" ) {
+               $count++;
+               seek(L,0,0);
+               print L "READ:$count\n";
+               truncate(L, tell(L));
+               close(L);
+               $status=1;
+            } else {
+               $status=0;
+            }
+         } else {
+            $status=0;
+         }
+      }
+
+      if ($status==1) {
+         _unlock("$filename.lock");
+         umask($oldumask);
+         return(1);
+      } else {
+         if ( $lockflag & LOCK_NB ) {
+            _unlock("$filename.lock");
+            umask($oldumask);
+            return(0);
+         } else {
+            _unlock("$filename.lock");
+            sleep 1;
+            next;
+         }
+      }
+   }   
+
+   _unlock("$filename.lock");
+   umask($oldumask);
+   return(0);
+}
+
+
+# _lock and _unlock are used to lock/unlock xxx.lock
+sub _lock {
+   my ($filename, $timeout)=@_;
+   ($filename =~ /^(.+)$/) && ($filename = $1);		# bypass taint check
+
+   $timeout=30 if $timeout eq 0;
+   if ( -f "$filename.lock" ) {
+      my $t=(stat("$filename.lock"))[9];
+      unlink("$filename.lock") if (time()-$t > $timeout);
+   }
+   if ( sysopen(LL, "$filename.lock", O_RDWR|O_CREAT|O_EXCL) ) {
+      close(LL);
+      return(1)
+   } else {
+      return(0);
+   }
+}
+sub _unlock {
+   my ($filename)=$_[0];
+   ($filename =~ /^(.+)$/) && ($filename = $1);		# bypass taint check
+
+   unlink("$filename.lock");
+   return(1);
+}
+
+
+
 
 #################### END LOCKFILE ####################
 

@@ -481,6 +481,7 @@ sub deletefolder {
    }
    if ( -f "$folderdir/$foldertodel" ) {
       unlink ("$folderdir/$foldertodel",
+              "$folderdir/$foldertodel.lock",
               "$folderdir/.$foldertodel.db",
 	      "$folderdir/.$foldertodel.dir",
               "$folderdir/.$foldertodel.pag",
@@ -1219,11 +1220,12 @@ sub editfilter {
    %labels = ('from'=>$lang_text{'from'},
                         'to'=>$lang_text{'to'},
                         'subject'=>$lang_text{'subject'},
+                        'smtprelay'=>$lang_text{'smtprelay'},
                         'header'=>$lang_text{'header'},
                         'body'=>$lang_text{'body'},
                         'attfilename'=>$lang_text{'attfilename'});
    $temphtml = popup_menu(-name=>'rules',
-                          -values=>['from', 'to', 'subject', 'header', 'body' ,'attfilename'],
+                          -values=>['from', 'to', 'subject', 'smtprelay', 'header', 'body' ,'attfilename'],
                           -labels=>\%labels);
    $html =~ s/\@\@\@RULEMENU\@\@\@/$temphtml/;
 

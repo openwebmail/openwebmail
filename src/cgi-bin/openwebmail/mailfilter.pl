@@ -121,6 +121,32 @@ sub mailfilter {
                last;
             }
 
+         } elsif ( $rules eq 'smtprelay' ) {
+            if ($currmessage eq "") {
+               seek($spoolhandle, $attr[$_OFFSET], 0);
+               read($spoolhandle, $currmessage, $attr[$_SIZE]);
+            }
+            if ($header eq "") {
+               ($header, $body, $r_attachments)=parse_rfc822block(\$currmessage);
+            }
+
+            my $smtprelays="";
+            my @a=split(/Received:/,$header);
+            shift @a;
+            foreach (@a) {
+               if (/^.* by\s([^\s]+)\s.*$/is) {
+                  $smtprelays .= ", $1";
+               }
+               if (/^.* from\s([^\s]+)\s.*$/is) {
+                  $smtprelays .= ", $1";
+               }
+            }
+            if (  ( $include eq 'include' && $smtprelays =~ /$text/im )
+                ||( $include eq 'exclude' && $smtprelays !~ /$text/im ) ) {
+               $is_message_to_move = 1;
+               last;
+            }
+
          } elsif ( $rules eq 'body' ) {
             if ($currmessage eq "") {
                seek($spoolhandle, $attr[$_OFFSET], 0);
