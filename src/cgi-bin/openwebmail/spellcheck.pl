@@ -15,11 +15,12 @@ use CGI::Carp qw(fatalsToBrowser);
 CGI::nph();   # Treat script as a non-parsed-header script
 
 $ENV{PATH} = ""; # no PATH should be needed
+$ENV{BASH_ENV} = ""; # no startup sciprt for bash
 umask(0007); # make sure the openwebmail group can write
 
 push (@INC, '/usr/local/www/cgi-bin/openwebmail', ".");
-require "filelock.pl";
 require "openwebmail-shared.pl";
+require "filelock.pl";
 
 local %config;
 readconf(\%config, "/usr/local/www/cgi-bin/openwebmail/etc/openwebmail.conf");

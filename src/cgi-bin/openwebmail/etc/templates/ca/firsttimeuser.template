@@ -4,9 +4,9 @@
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>BIENVENIDO A OPEN WEBMAIL!</B></font>
 </td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>¡Benvingut al CorreuWeb! es la teva primera vegada usan OpenWebMail.
-Necessitem reunir alguna informació seva per a poder 
-configurar OpenWebMail adecuadament i que s'ajusti a les seves necesitats. Faci clic a "Continuar"
+<BR>Benvingut! es la primera vegada que vostè usa OpenWebMail.
+Necessitem reunir alguna informació seva per poder 
+configurar OpenWebMail i que s'ajusti a les seves preferències. Faci clic a "Continuar"
 per procedir amb la configuració.
 @@@CONTINUEBUTTON@@@
 </td></tr></table>

@@ -35,6 +35,8 @@ sub get_userinfo {
    my $user=$_[0];
    my ($uid, $gid, $realname, $homedir) = (getpwnam($user))[2,3,6,7];
 
+   # use first field only
+   $realname=(split(/,/, $realname))[0];
    # guess real homedir under sun's automounter
    if ($uid) {
       $homedir="/export$homedir" if (-d "/export$homedir");
@@ -47,11 +49,14 @@ sub get_userlist {	# only used by checkmail.pl -a
    my @userlist=();
    my $line;   
 
+   # a file should be locked only if it is local accessable
+   filelock("$unix_passwdfile", LOCK_SH) if ( -f $unix_passwdfile);
    open(PASSWD, $unix_passwdfile);
    while (defined($line=<PASSWD>)) {
       push(@userlist, (split(/:/, $line))[0]);
    }
    close(PASSWD);
+   filelock("$unix_passwdfile", LOCK_UN) if ( -f $unix_passwdfile);
    return(@userlist);
 }
 
@@ -66,12 +71,18 @@ sub check_userpassword {
 
    return -2 unless ( $user ne "" && $password ne "");
 
-   open (PASSWD, "$unix_passwdfile") or return -3;
+   # a file should be locked only if it is local accessable
+   filelock("$unix_passwdfile", LOCK_SH) if ( -f $unix_passwdfile);
+   if ( ! open (PASSWD, "$unix_passwdfile") ) {
+      filelock("$unix_passwdfile", LOCK_UN) if ( -f $unix_passwdfile);
+      return -3;
+   }
    while (defined($line=<PASSWD>)) {
       ($u, $p) = (split(/:/, $line))[0,1];
       last if ($u eq $user); # We've found the user in /etc/passwd
    }
    close (PASSWD);
+   filelock("$unix_passwdfile", LOCK_UN) if ( -f $unix_passwdfile);
 
    if ($u eq $user && crypt($password,$p) eq $p) {
       return 0;
@@ -98,6 +109,7 @@ sub change_userpassword {
    # a passwdfile could be modified only if it is local accessable
    return -3 if (! -f $unix_passwdfile);
 
+   filelock("$unix_passwdfile", LOCK_EX);
    open (PASSWD, $unix_passwdfile) or return -3;
    while (defined($line=<PASSWD>)) {
       $content .= $line;
@@ -107,7 +119,10 @@ sub change_userpassword {
    }
    close (PASSWD);
 
-   return -4 if ($u ne $user || crypt($oldpassword,$p) ne $p);
+   if ($u ne $user || crypt($oldpassword,$p) ne $p) {
+      filelock("$unix_passwdfile", LOCK_UN);
+      return -4;
+   }
 
    srand();
    my $table="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -123,23 +138,32 @@ sub change_userpassword {
    my $oldline=join(":", $u, $p, $misc);
    my $newline=join(":", $u, $encrypted, $misc);
 
-   return -3 if ($content !~ s/\Q$oldline\E/$newline/);
+   if ($content !~ s/\Q$oldline\E/$newline/) {
+      filelock("$unix_passwdfile", LOCK_UN);
+      return -3;
+   }
 
-   open(PASSWD, ">$unix_passwdfile.tmp") || return -3;
-   print PASSWD $content || return -3;
-   close(PASSWD) || return -3;
+   open(TMP, ">$unix_passwdfile.tmp") || goto authsys_error;
+   print TMP $content || goto authsys_error;
+   close(TMP) || goto authsys_error;
 
    chown(0,0, "$unix_passwdfile.tmp");
    chmod(0600, "$unix_passwdfile.tmp");
+   rename("$unix_passwdfile.tmp", $unix_passwdfile) || goto authsys_error;
 
-   if (rename("$unix_passwdfile.tmp", $unix_passwdfile) ) {
-      if ($unix_passwdmkdb ne "" && $unix_passwdmkdb ne "none" ) {
-         system("$unix_passwdmkdb $unix_passwdfile");	# update passwd db
+   # update passwd db
+   if ($unix_passwdmkdb ne "" && $unix_passwdmkdb ne "none" ) {
+      if ( system("$unix_passwdmkdb $unix_passwdfile")!=0 ) {
+         goto authsys_error;
       }
-      return(0);
-   } else {
-      return(-3);
    }
+
+   filelock("$unix_passwdfile", LOCK_UN);
+   return(0);
+
+authsys_error:
+   filelock("$unix_passwdfile", LOCK_UN);
+   return(-3);
 }
 
 1;

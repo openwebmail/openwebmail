@@ -46,6 +46,10 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@DEFAULTDESTINATIONMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Confirm before message move/copy:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@CONFIRMMSGMOVECOPY@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Dimensione finestra modifica messaggio:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 Larghezza @@@EDITCOLUMNSMENU@@@ Altezza @@@EDITROWSMENU@@@
@@ -61,6 +65,10 @@ Larghezza @@@EDITCOLUMNSMENU@@@ Altezza @@@EDITROWSMENU@@@
 <B>Filtra messaggi con intestazioni SMTP alterate:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDSMTP@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Filter msgs with faked exe content-type:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@FILTERFAKEDEXECONTENTTYPE@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Disabilita JavaScript all'interno dei messaggi:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>

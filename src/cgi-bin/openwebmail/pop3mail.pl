@@ -21,21 +21,9 @@ sub getpop3book {
       open (POP3BOOK,"$pop3book") or return(-1);
       while (<POP3BOOK>) {
       	 chomp($_);
-         my @a=split(/:/, $_);
-         my ($pop3host, $pop3user, $pop3passwd, $pop3lastid, $pop3del, $enable);
-
-         if ($#a==4) {			# backward compatibility
-            ($pop3host, $pop3user, $pop3passwd, $pop3del, $pop3lastid) = @a;
-            $enable=1;
-         } elsif ($a[3]=~/\@/) {	# backward compatibility
-            my $pop3email;
-            ($pop3host, $pop3user, $pop3passwd, $pop3email, $pop3del, $pop3lastid) = @a;
-            $enable=1;
-         } else {			# current version
-            ($pop3host, $pop3user, $pop3passwd, $pop3lastid, $pop3del, $enable) =@a;
-         }
-
-         ${$r_accounts}{"$pop3host:$pop3user"} = "$pop3host:$pop3user:$pop3passwd:$pop3lastid:$pop3del:$enable";
+         my ($pop3host, $pop3user, $pop3passwd, $pop3lastid, $pop3del, $enable)
+								=split(/\@\@\@/, $_);
+         ${$r_accounts}{"$pop3host:$pop3user"} = "$pop3host\@\@\@$pop3user\@\@\@$pop3passwd\@\@\@$pop3lastid\@\@\@$pop3del\@\@\@$enable";
          $i++;
       }
       close (POP3BOOK);
@@ -86,7 +74,7 @@ sub retrpop3mail {
    }
 
    ($dummy, $dummy, $pop3passwd, $pop3lastid, $pop3del, $enable)=
-			split(/:/, $accounts{"$pop3host:$pop3user"});
+			split(/\@\@\@/, $accounts{"$pop3host:$pop3user"});
 
    # bypass taint check for file create
    ($spoolfile =~ /^(.+)$/) && ($spoolfile = $1); 	
@@ -283,7 +271,7 @@ sub retrpop3mail {
    close($remote_sock);
 
    ###  write back to pop3book
-   $accounts{"$pop3host:$pop3user"} = "$pop3host:$pop3user:$pop3passwd:$pop3lastid:$pop3del:$enable";
+   $accounts{"$pop3host:$pop3user"} = "$pop3host\@\@\@$pop3user\@\@\@$pop3passwd\@\@\@$pop3lastid\@\@\@$pop3del\@\@\@$enable";
    if (writebackpop3book($pop3book, \%accounts)<0) {
       return(-9);
    }

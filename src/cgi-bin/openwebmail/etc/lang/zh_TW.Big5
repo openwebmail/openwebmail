@@ -78,6 +78,7 @@ $lang_charset = 'big5';
    send       => '寄信',
    cancel     => '取消',
    continue   => '繼續',
+   exit       => '離開',
    for        => 'for',
    yourname   => '您的姓名',
    save       => '儲存',

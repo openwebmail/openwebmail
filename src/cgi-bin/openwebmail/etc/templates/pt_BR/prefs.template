@@ -46,6 +46,10 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@DEFAULTDESTINATIONMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Confirm before message move/copy:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@CONFIRMMSGMOVECOPY@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Área para edição de correio:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 Width @@@EDITCOLUMNSMENU@@@ Height @@@EDITROWSMENU@@@
@@ -61,6 +65,10 @@ Width @@@EDITCOLUMNSMENU@@@ Height @@@EDITROWSMENU@@@
 <B>Filtrar mensagens com falso SMTP:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDSMTP@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Filter msgs with faked exe content-type:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@FILTERFAKEDEXECONTENTTYPE@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Desativar "JavaScript dentro da mensagem":</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>

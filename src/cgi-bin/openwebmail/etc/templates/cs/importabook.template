@@ -1,0 +1,40 @@
+<table border="0" align="center" width="75%" cellpadding="0" cellspacing="0">
+<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>IMPORTOVAT ADRESÁØE</B></font>
+</td><td bgcolor=@@@TITLEBAR@@@ align="right">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>@@@FREESPACE@@@ KB Volného místa</B></font>
+</td></tr>
+<tr><td colspan="2" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
+
+<table border="0" align="center" width="75%" cellpadding="0" cellspacing="0">
+<tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
+<BR>Outlook Express 5 a Netscape Mail mohou exportovat svoje adresáøe ve formátì CSV nebo Comma Separated Values. Open WebMail doká¾e importovat tyto soubory do Va¹eho osobního Adresáøe. Tím se zabráni hodinám pøepisování z jednoho adresáøe do druhého.
+<ul>
+<li> V Netscape, otevøete Vá¹ adresáø a zvoµte File-&gt;Export, potom
+zvoµte "Save as type:" a vyberte "Comma Separated (*.csv)." <BR><BR>
+<li> Pro Outlook Express, v hlavním oknì Outlook Express zvolte
+File-&gt;Export-&gt;Address Book, a vyberte typ souboru "Text file." Ujistìte se, ¾e Jméno a E-mail pole budou jako první, co je standardnì nastaveno.
+</ul>
+</td></tr></table>
+
+@@@STARTIMPORTFORM@@@
+@@@MUARADIOGROUP@@@
+<BR>
+@@@IMPORTFILEFIELD@@@
+</td></tr>
+<tr><td colspan=2 bgcolor=@@@WINDOW_LIGHT@@@>&nbsp;</td></tr>
+<tr><td width="50%" align="right" bgcolor=@@@WINDOW_LIGHT@@@>
+@@@IMPORTBUTTON@@@ &nbsp;&nbsp;
+</td>
+@@@ENDFORM@@@
+@@@STARTCANCELFORM@@@
+<td width="50%" align="left" bgcolor=@@@WINDOW_LIGHT@@@>
+&nbsp;&nbsp;@@@CANCELBUTTON@@@
+</td></tr>
+<tr><td colspan=2 bgcolor=@@@WINDOW_LIGHT@@@>&nbsp;</td></tr>
+</table>
+@@@ENDFORM@@@
+
+

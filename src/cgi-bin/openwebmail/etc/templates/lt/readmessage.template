@@ -1,0 +1,52 @@
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="0">
+<tr><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="center">
+   <table border="0" width="100%" cellpadding="0" cellspacing="0">
+   <tr><td align="left" width="33%"><font color=@@@TITLEBAR_TEXT@@@
+   face=@@@FONTFACE@@@ size="3"><B>Laiðko turinys</B></font></td>
+   <td align="center"><font color=@@@TITLEBAR_TEXT@@@
+   face=@@@FONTFACE@@@ size="3"><B>@@@FOLDER@@@</B></font></td>
+   <td align="right" width="33%"><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@
+   size="3"><B>Ið viso laiðkø: @@@MESSAGETOTAL@@@</B></font></td></tr></table>
+</td></tr><tr><td colspan="2" bgcolor=@@@MENUBAR@@@>
+   <table border="0" width="100%" cellpadding="0" cellspacing="0">
+   <tr><td valign="middle" align="left">
+   @@@MENUBARLINKS@@@
+   </td><td valign="middle" align="center">
+   @@@MESSAGECONTROL@@@
+   </td>@@@STARTMOVEFORM@@@<td valign="middle" align="right">
+   @@@MOVECONTROLS@@@&nbsp;
+   </td></tr></table>
+</td></tr><tr><td colspan="2" width="100%">&nbsp;</td></tr>
+<tr><td rowspan=2 width="90%" valign="middle" bgcolor=@@@WINDOW_DARK@@@>
+@@@HEADERS@@@
+</td><td width="10%" nowrap valign="top" align="right" bgcolor=@@@WINDOW_DARK@@@>
+@@@HEADERSTOGGLE@@@
+</td></tr><tr><td width="10%" nowrap valign="bottom" align="right" bgcolor=@@@WINDOW_DARK@@@>
+@@@ATTMODETOGGLE@@@
+</td></tr><tr><td colspan="2" width="100%" bgcolor=@@@WINDOW_LIGHT@@@>
+@@@BODY@@@
+</td></tr>
+<tr><td colspan="2" width="100%">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@MENUBAR@@@>
+   <table border="0" width="100%" cellpadding="0" cellspacing="0">
+   <font face=@@@FONTFACE@@@ size="2">
+   <tr valign=bottom><td valign="middle" align="left">
+   @@@BACKTOLINK@@@
+   @@@LEFTMESSAGECONTROL@@@
+   </td><td valign="middle" align="right">
+   @@@RIGHTMESSAGECONTROL@@@
+   </td></tr></table>
+</td></tr></table>
+<script language="JavaScript">
+   <!--
+   function replyreceiptconfirm(url)
+   {
+      if (confirm('This message requests a read receipt, do you want to transmit?')) {
+         var hWnd = window.open("","ReplyReceipt","width=100,height=50,resizable=no,scrollbars=no");
+         hWnd.document.write('Transmitting...');
+         hWnd.location.href=url;
+//         hWnd.close();
+      }
+   }
+   //-->
+</script>

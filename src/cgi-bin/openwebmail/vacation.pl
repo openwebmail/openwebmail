@@ -17,14 +17,22 @@ $defaulttimeout = 7 * 24 * 60 * 60;		# unit: second
 #    vacation.pl [ -I|-i ]
 #    	init vacation db
 #
-#    vacation.pl [ -j ] [ -a alias ] [ -tN ] username
+#    vacation.pl [ -j ] [ -a alias ] [-f ifile] [ -tN ] [-d] username
+#       used in ~/.forward file to auto-generate reply message
 #
-#     -j        Do not check whether the recipient appears in  the
-#               To:  or the Cc:  line.
+#     username  A message will be replied only if the username 
+#               appears as an recipient in To: or Cc:
 #
-#     -a alias  Indicate that alias is one of  the  valid  aliases
-#               for  the  user  running  vacation,  so  that  mail
-#               addressed to that alias generates a reply.
+#     -j        Do not check whether the username appears as an 
+#               recipient in the To: or the Cc: line.
+#
+#     -a alias  Indicate that alias is one of the valid names of the 
+#               username, so the reply will be generated is the alias
+#               appears in To: or Cc:
+#
+#     -f ifile  Specify a file containing ignored users. Mails sent
+#               from the ignored users won't be auto-replied
+#
 #
 #     -tN       Change the interval between repeat replies to  the
 #               same  sender.   The default is 1 week.  A trailing
@@ -33,7 +41,8 @@ $defaulttimeout = 7 * 24 * 60 * 60;		# unit: second
 #
 #     -d        log debug information to /var/tmp/vacation.debug
 #
-#    -j, -a -t or -d are options when vacation is used in .forward file         
+#    The options -a and -f can be specified for more than one times.
+#
 #
 #    .forward file will contain a line of the form:
 #
@@ -109,13 +118,13 @@ $home="/export$home" if ( -d "/export$home" );
 chdir $home || die "Can't chdir to $home: $!\n";
 
 # parse options, handle initialization or interactive mode ##############
+$opt_i=0;
 $opt_d=0;
 $opt_j=0;
 while ($ARGV[0] =~ /^-/) {
     $_ = shift;
     if (/^-I/i) {  # eric allman's source has both cases
-	&init_vacation_db;
-	exit 0;
+        $opt_i=1;
     } elsif (/^-d/) {		# log debug information to /var/tmp/vacation.debug
 	$opt_d=1;
     } elsif (/^-j/) {		# don't check if user is a valid receiver
@@ -132,7 +141,16 @@ while ($ARGV[0] =~ /^-/) {
     }
 }
 
+if ($opt_i) {
+    log_debug($0, " is executed in cmd mode with arg: ", @ARGV) if ($opt_d);
+    log_debug("ruid=$<, euid=$>, rgid=$(, egid=$)") if ($opt_d);
+    &init_vacation_db;
+    exit 0;
+}
+
 if (!@ARGV) {
+    log_debug($0, " is executed in cmd mode with no arg.") if ($opt_d);
+    log_debug("ruid=$<, euid=$>, rgid=$(, egid=$)") if ($opt_d);
     &interactive();
     exit 0;
 }
@@ -169,24 +187,24 @@ $/ = '';			# paragraph mode, readin until blank line
 $header = <>;
 $header =~ s/\n\s+/ /g;		# fix continuation lines
 $* = 1;
-if ($header =~ /^Precedence:\s*(bulk|junk)/i ||
-    $header =~ /^From.*-REQUEST@/i ) {
-    log_debug("Junk mail, autoreply canceled\n") if ($opt_d);
-    exit 0;
-}
-for (@ignores) {
-    if ($header =~ /^From.*\b$_\b/i) {
-        log_debug("Message from ignored user $_, autoreply canceled\n") if ($opt_d);
-        exit 0;
-    }
-} 
-
 
 ($from) = ($header =~ /^From\s+(\S+)/);	# that's the Unix-style From line
 if ($from eq "") {
     log_debug("Error! No \"From\" line.\n") if ($opt_d);
     die "No \"From\" line!!!!\n"; 
 }
+
+if ($header =~ /^Precedence:\s*(bulk|junk)/i ||
+    $from =~ /-REQUEST@/i ) {
+    log_debug("Junk mail, autoreply canceled\n") if ($opt_d);
+    exit 0;
+}
+for (@ignores) {
+    if ($form =~ /^$_$/i ) {
+        log_debug("Message from ignored user $_, autoreply canceled\n") if ($opt_d);
+        exit 0;
+    }
+} 
 
 ($subject) = ($header =~ /Subject: +(.*)/);
 $subject = "(No subject)" unless $subject;

@@ -1,0 +1,41 @@
+<table border="0" align="center" width="75%" cellpadding="0" cellspacing="0">
+<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>Adresø importas</B></font>
+</td><td bgcolor=@@@TITLEBAR@@@ align="right">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>yra @@@FREESPACE@@@ KB </B></font>
+</td></tr>
+<tr><td colspan="2" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
+
+<table border="0" align="center" width="75%" cellpadding="0" cellspacing="0">
+<tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
+<BR><i>Outlook Express 5</i> ir <i>Netscape Mai</i>l gali exportuoti adresø knygeles taip vadinamu CSV formatu 
+(kableliu atskirtø reikðmiø formatas).  <i>Open WebMail</i> gali importuoti ðias bylas (failus) á jûsø adresø 
+knygelæ ir taip padëti jums sutaupyti laiko, nes nereikës ið naujo suvedinëti.
+<ul>
+<li> Programoje <i>Netscape</i>, atsiverskite adresø knygelæ, pasirinkite File-&gt;Export, tada
+þemiau "Save as type:" paþymëkite "Comma Separated (*.csv)." <BR><BR>
+<li> Programoje <i>Outlook Express</i>, pagrindiniame lange paspauskite
+File-&gt;Export-&gt;Address Book, ir paþymëkite eksporto tipà "Text file." Ásitikinkite, 
+kad vardas ir el. paðto adrersas sukurtoje byloje áraðyti pirmiausia.
+</ul>
+</td></tr></table>
+
+@@@STARTIMPORTFORM@@@
+@@@MUARADIOGROUP@@@
+<BR>
+@@@IMPORTFILEFIELD@@@
+</td></tr>
+<tr><td colspan=2 bgcolor=@@@WINDOW_LIGHT@@@>&nbsp;</td></tr>
+<tr><td width="50%" align="right" bgcolor=@@@WINDOW_LIGHT@@@>
+@@@IMPORTBUTTON@@@ &nbsp;&nbsp;
+</td>
+@@@ENDFORM@@@
+@@@STARTCANCELFORM@@@
+<td width="50%" align="left" bgcolor=@@@WINDOW_LIGHT@@@>
+&nbsp;&nbsp;@@@CANCELBUTTON@@@
+</td></tr>
+<tr><td colspan=2 bgcolor=@@@WINDOW_LIGHT@@@>&nbsp;</td></tr>
+</table>
+@@@ENDFORM@@@

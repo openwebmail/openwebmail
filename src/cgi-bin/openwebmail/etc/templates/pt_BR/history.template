@@ -1,21 +1,21 @@
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="1">
 <tr><td bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>User History</B></font>
+<B>Historico do Usuário</B></font>
 </td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 &nbsp;
 <table border="0" align="center" width="90%" cellspacing="0" cellpadding="0">
 <tr>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Tempo</B></td>
+<B>Hora</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Endereço do Cliente</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Usuário</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Event</B></td>
+<B>Evento</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Description</B></td>
+<B>Descrição</B></td>
 </tr>
 @@@LOGINHISTORY@@@
 </table>

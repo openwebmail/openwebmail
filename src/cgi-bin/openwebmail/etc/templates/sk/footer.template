@@ -2,10 +2,10 @@
 <!--
    // alert before session end
    var remainingseconds=@@@REMAININGSECONDS@@@;
-   var msg="Dear @@@USEREMAIL@@@,<br><br>\n"+
-           "You have been idle for a long time. "+
-           "If no more action is taken, "+
-           "this session will be ended within 60 seconds.";
+   var msg="Vá¾ený pou¾ívateµ @@@USEREMAIL@@@,<br><br>\n"+
+           "Boli ste neaktivný po dlhý èas. "+
+           "Ak nevykonáte ¾iadnu akciu poèas, "+
+           "60 sekúnd Va¹e spojenie bude ukonèené.";
 
    function timeoutwarning () {
       var hWnd = window.open("","timeoutwarning","width=400,height=140,resizable=no,scrollbars=no");

@@ -78,6 +78,7 @@ $lang_charset = 'koi8-r';
    send       => 'Отправить',
    cancel     => 'Отмена',
    continue   => 'Продолжить',
+   exit       => 'Exit',
    for        => 'ДЛЯ',
    yourname   => 'Ваше Имя',
    save       => 'Сохранить',

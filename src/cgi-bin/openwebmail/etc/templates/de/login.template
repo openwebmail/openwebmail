@@ -13,9 +13,9 @@
 <BR>
 <table align=center border=0 cellspacing=2 cellpadding=0>
 <tr>
-<td align=right>Benutzer: </td><td align=left>@@@USERIDFIELD@@@</td>
+<td align=right nowrap>Benutzer: </td><td align=left>@@@USERIDFIELD@@@</td>
 </tr><tr>
-<td align=right>Passwort: </td><td align=left>@@@PASSWORDFIELD@@@</td>
+<td align=right nowrap>Passwort: </td><td align=left>@@@PASSWORDFIELD@@@</td>
 </tr><tr>
 <td align=center>
 <table><tr><td>@@@LOGINBUTTON@@@</td></tr></table>

@@ -28,6 +28,8 @@ sub get_userinfo {
    my $user=$_[0];
    my ($uid, $gid, $realname, $homedir) = (getpwnam($user))[2,3,6,7];
 
+   # use first field only
+   $realname=(split(/,/, $realname))[0];
    # guess real homedir under sun's automounter
    if ($uid) {
       $homedir="/export$homedir" if (-d "/export$homedir");

@@ -4,7 +4,7 @@
 <B>IMPORTOVA« ADRESÁR</B></font>
 </td><td bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>@@@FREESPACE@@@ KB Voµného miesta</B></font>
+<B>@@@FREESPACE@@@ KB voµného miesta</B></font>
 </td></tr>
 <tr><td colspan="2" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 
@@ -12,7 +12,7 @@
 <tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
 <BR>Outlook Express 5 a Netscape Mail mô¾u exportova» svoje adresáre vo formáte známom ako CSV alebo Comma Separated Values. Open WebMail doká¾e importova» tieto súbory do Vá¹ho osobného Adresára. Tým sa zabráni hodinám prepisovania z jedného adresára do druhého.
 <ul>
-<li> In Netscape, otvorte Vá¹ adresár a zvoµte File-&gt;Export, potom
+<li> V Netscape, otvorte Vá¹ adresár a zvoµte File-&gt;Export, potom
 zvoµte "Save as type:" a vyberte "Comma Separated (*.csv)." <BR><BR>
 <li> Pre Outlook Express, v hlavnom okne Outlook Express zvoµte
 File-&gt;Export-&gt;Address Book, a vyberte typ súboru "Text file." Uistite sa, ¾e Meno a E-mail polia budú ako prvé, èo je ¹tandartné nastavenie.

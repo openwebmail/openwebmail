@@ -7,13 +7,13 @@
 @@@MENUBARLINKS@@@
 </td></tr><tr><td colspan="5">&nbsp;</td></tr>
 <tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Názov Katalógu (@@@FOLDERNAME_MAXLEN@@@ znakov)</B></td>
+<B>Názov katalógu (@@@FOLDERNAME_MAXLEN@@@ znakov)</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>New</B></td>
+<B>Nových</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Mesg</B></td>
+<B>Správ</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Size</B></td>
+<B>Veµkos»</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Akcia</B>
 </td></tr>
@@ -35,13 +35,13 @@
 
 <tr><td colspan="5">&nbsp;</td></tr>
 <tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Default folders</B></td>
+<B>Predvolené katalógy (nedajú sa zmaza»)</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>New</B></td>
+<B>Nových</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Mesg</B></td>
+<B>Správ</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Size</B></td>
+<B>Veµkos»</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 &nbsp;
 </td></tr>

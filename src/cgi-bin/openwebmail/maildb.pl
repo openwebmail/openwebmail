@@ -24,7 +24,7 @@
 # This is recommended only if the lockd on your nfs server or client is broken
 # ps: FrreBSD/Linux nfs server/client may need this. Solaris doesn't.
 #
-# 2001/07/29 tung@turtle.ee.ncku.edu.tw
+# 2001/11/17 tung@turtle.ee.ncku.edu.tw
 #
 
 use Fcntl qw(:DEFAULT :flock);
@@ -186,7 +186,7 @@ sub update_headerdb {
 
    my @duplicateids=();
 
-   my ($line, $lastline);
+   my ($line, $lastline, $lastheader);
    my ($_message_id, $_offset);
    my ($_from, $_to, $_date, $_subject);
    my ($_content_type, $_status, $_messagesize);
@@ -197,6 +197,7 @@ sub update_headerdb {
 
    open (FOLDER, $folderfile);
 
+   $lastline="\r";
    while (defined($line = <FOLDER>)) {
 
       $offset=$totalsize;
@@ -204,7 +205,7 @@ sub update_headerdb {
 
       # ex: From tung@turtle.ee.ncku.edu.tw Fri Jun 22 14:15:33 2001
       # ex: From tung@turtle.ee.ncku.edu.tw Mon Aug 20 18:24 CST 2001
-      if ( $inheader==0 &&
+      if ( $lastline =~ /^\r*$/ &&
            ($line =~ /^From .*(\w\w\w)\s+(\w\w\w)\s+(\d+)\s+(\d+:\d+:\d+)\s+(\d\d+)/ ||
             $line =~ /^From .*(\w\w\w)\s+(\w\w\w)\s+(\d+)\s+(\d+:\d+)\s+\w\w\w\s+(\d\d+)/) ) {
          if ($messagenumber != -1) {
@@ -233,7 +234,7 @@ sub update_headerdb {
          $_messagesize = length($line);
          $_date = $line;
          $inheader = 1;
-         $lastline = 'NONE';
+         $lastheader = 'NONE';
 
       } else {
          $_messagesize += length($line);
@@ -281,38 +282,40 @@ sub update_headerdb {
                }
 
             } elsif ($line =~ /^\s/) {
-               if    ($lastline eq 'FROM') { $_from .= $line }
-               elsif ($lastline eq 'SUBJ') { $_subject .= $line }
-               elsif ($lastline eq 'TO') { $_to .= $line }
-               elsif ($lastline eq 'MESSID') { 
+               if    ($lastheader eq 'FROM') { $_from .= $line }
+               elsif ($lastheader eq 'SUBJ') { $_subject .= $line }
+               elsif ($lastheader eq 'TO') { $_to .= $line }
+               elsif ($lastheader eq 'MESSID') { 
                   $line =~ s/^\s+//;
                   chomp($line);
                   $_message_id .= $line;
                }
             } elsif ($line =~ /^from:\s+(.+)$/ig) {
                $_from = $1;
-               $lastline = 'FROM';
+               $lastheader = 'FROM';
             } elsif ($line =~ /^to:\s+(.+)$/ig) {
                $_to = $1;
-               $lastline = 'TO';
+               $lastheader = 'TO';
             } elsif ($line =~ /^subject:\s+(.+)$/ig) {
                $_subject = $1;
-               $lastline = 'SUBJ';
+               $lastheader = 'SUBJ';
             } elsif ($line =~ /^message-id:\s+(.*)$/ig) {
                $_message_id = $1;
-               $lastline = 'MESSID';
+               $lastheader = 'MESSID';
             } elsif ($line =~ /^content-type:\s+(.+)$/ig) {
                $_content_type = $1;
-               $lastline = 'NONE';
+               $lastheader = 'NONE';
             } elsif ($line =~ /^status:\s+(.+)$/ig) {
                $_status = $1;
                $_status =~ s/\s//g;	# remove blanks
-               $lastline = 'NONE';
+               $lastheader = 'NONE';
             } else {
-               $lastline = 'NONE';
+               $lastheader = 'NONE';
             }
          }
       }
+
+      $lastline=$line;
    }
 
    # Catch the last message, since there won't be a From: to trigger the capture
@@ -358,17 +361,6 @@ sub update_headerdb {
    }
 
    return;
-}
-
-# return a string composed by the modify time & size of a file
-sub metainfo {
-   if (-e $_[0]) {
-      # dev, ino, mode, nlink, uid, gid, rdev, size, atime, mtime, ctime, blksize, blocks
-      my @l=stat($_[0]);
-      return("mtime=$l[9] size=$l[7]");
-   } else {
-      return("");
-   }
 }
 
 ################## END UPDATEHEADERDB ####################

@@ -1,6 +1,7 @@
-10@@@textcontent@@@include@@@Hi! How are you\?@@@move@@@mail-trash@@@1
-10@@@textcontent@@@include@@@Te mando este archivo para que me des tu punto de vista@@@move@@@mail-trash@@@1
-10@@@textcontent@@@include@@@I send you this file in order to have your advice@@@move@@@mail-trash@@@1
+50@@@textcontent@@@include@@@I want a good job,I must support my parents.@@@move@@@mail-trash@@@1
+50@@@textcontent@@@include@@@I send you this file in order to have your advice OR@@@move@@@mail-trash@@@1
+50@@@textcontent@@@include@@@Te mando este archivo para que me des tu punto de vista OR@@@move@@@mail-trash@@@1
+50@@@attfilename@@@include@@@readme.eml|readme.exe|readme.com|readme.wav@@@move@@@mail-trash@@@1
 50@@@attfilename@@@include@@@navidad.exe|Emanuel.exe|creative.exe@@@move@@@mail-trash@@@1
 50@@@attfilename@@@include@@@zipped_files.exe|myromeo.exe|xromeo.exe@@@move@@@mail-trash@@@1
 50@@@attfilename@@@include@@@anti_cih.exe|avp_updates.exe|qi_test.exe@@@move@@@mail-trash@@@1
@@ -8,7 +9,9 @@
 50@@@attfilename@@@include@@@NakedWife.EXE|MYBABYPIC.EXE|SAMPLE.EXE@@@move@@@mail-trash@@@1
 50@@@attfilename@@@include@@@FLCSS.EXE|NARCISSUS.EXE|INETD.EXE@@@move@@@mail-trash@@@1
 50@@@attfilename@@@include@@@ANNAKOURNIKOVA.JPG.VBS|Joke.vbs@@@move@@@mail-trash@@@1
-50@@@attfilename@@@include@@@readme.eml|readme.exe|readme.com|readme.wav@@@move@@@mail-trash@@@1
-50@@@from@@@include@@@[a-z][0-9]{6,11}@hotmail.com@@@mail-trash@@@1
-50@@@from@@@include@@@[a-z][0-9]{6,11}@yahoo.com@@@mail-trash@@@1
-50@@@from@@@include@@@[a-z][0-9]{6,11}@pchome.com.tw@@@mail-trash@@@1
+50@@@attfilename@@@include@@@BINLADEN_BRASIL.EXE|STOPTERRORISTS.EXE@@@move@@@mail-trash@@@1
+50@@@attfilename@@@include@@@Anti_TeRRoRisM.exe|WTC.exe@@@move@@@mail-trash@@@1
+50@@@attfilename@@@include@@@antraxinfo.vbs|GONE.SCR@@@move@@@mail-trash@@@1
+50@@@from@@@include@@@[a-z][0-9]{6,11}@hotmail.com@@@move@@@mail-trash@@@1
+50@@@from@@@include@@@[a-z][0-9]{6,11}@yahoo.com@@@move@@@mail-trash@@@1
+50@@@from@@@include@@@[a-z][0-9]{6,11}@pchome.com.tw@@@move@@@mail-trash@@@1

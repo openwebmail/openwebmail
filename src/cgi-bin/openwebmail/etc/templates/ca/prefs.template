@@ -46,6 +46,10 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@DEFAULTDESTINATIONMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Confirmar avans de moure o copiar un missatge?:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@CONFIRMMSGMOVECOPY@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Mida de l'àrea d'edició:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 Ample @@@EDITCOLUMNSMENU@@@ Alt @@@EDITROWSMENU@@@
@@ -61,6 +65,10 @@ Ample @@@EDITCOLUMNSMENU@@@ Alt @@@EDITROWSMENU@@@
 <B>Filtrar missatges amb un  SMTP fals:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDSMTP@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Filtrar missatges amb afegits contenint un EXE:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@FILTERFAKEDEXECONTENTTYPE@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Desactivar JavaScript dins els missatges:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
@@ -88,7 +96,7 @@ Ample @@@EDITCOLUMNSMENU@@@ Alt @@@EDITROWSMENU@@@
 </td></tr>
 @@@AUTOREPLYSTART@@@
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Autorespondre:</B>
+<B>Resposta automàtica:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@AUTOREPLYCHECKBOX@@@
 &nbsp;

@@ -46,6 +46,10 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@DEFAULTDESTINATIONMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>信件搬移/复制前先行确认：</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@CONFIRMMSGMOVECOPY@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>信件编辑区大小：</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 宽 @@@EDITCOLUMNSMENU@@@ 高 @@@EDITROWSMENU@@@
@@ -61,6 +65,10 @@
 <B>过滤伪造来源端的邮件：</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDSMTP@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Filter msgs with faked exe content-type:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@FILTERFAKEDEXECONTENTTYPE@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>关闭邮件内的JavaScript：</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>

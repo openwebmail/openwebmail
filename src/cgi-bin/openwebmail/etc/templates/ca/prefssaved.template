@@ -4,6 +4,6 @@
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>PREFERÈNCIES GUARDADES</B></font>
 </td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>Preferències guardades amb èxit.<BR>
+<BR>Les seves preferències han estat modificades amb èxit.<BR>
 @@@CONTINUEBUTTON@@@
 </td></tr></table>

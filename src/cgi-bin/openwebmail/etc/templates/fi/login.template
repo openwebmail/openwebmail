@@ -13,9 +13,9 @@
 <BR>
 <table align=center border=0 cellspacing=2 cellpadding=0>
 <tr>
-<td align=right>Tunnus: </td><td align=left>@@@USERIDFIELD@@@</td>
+<td align=right nowrap>Tunnus: </td><td align=left>@@@USERIDFIELD@@@</td>
 </tr><tr>
-<td align=right>Salasana: </td><td align=left>@@@PASSWORDFIELD@@@</td>
+<td align=right nowrap>Salasana: </td><td align=left>@@@PASSWORDFIELD@@@</td>
 </tr><tr>
 <td align=center>
 <table><tr><td>@@@LOGINBUTTON@@@</td></tr></table>

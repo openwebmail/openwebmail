@@ -46,6 +46,10 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@DEFAULTDESTINATIONMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Confirm before message move/copy:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@CONFIRMMSGMOVECOPY@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Größe des Textfeldes:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 Width @@@EDITCOLUMNSMENU@@@ Height @@@EDITROWSMENU@@@
@@ -61,6 +65,10 @@ Width @@@EDITCOLUMNSMENU@@@ Height @@@EDITROWSMENU@@@
 <B>Filter messages with faked SMTP:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDSMTP@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Filter msgs with faked exe content-type:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@FILTERFAKEDEXECONTENTTYPE@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>JavaScript in Nachrichten deaktiveren:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>

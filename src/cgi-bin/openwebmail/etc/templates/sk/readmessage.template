@@ -41,7 +41,7 @@
    <!--
    function replyreceiptconfirm(url)
    {
-      if (confirm('This message requests a read receipt, do you want to transmit?')) {
+      if (confirm('Táto správa vy¾aduje potvrdenie o preèítaní. ®eláte si zasla» toto potvrdenie?')) {
          var hWnd = window.open("","ReplyReceipt","width=100,height=50,resizable=no,scrollbars=no");
          hWnd.document.write('Transmitting...');
          hWnd.location.href=url;

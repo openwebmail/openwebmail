@@ -4,16 +4,16 @@
 <b>EDITÁCIA ADRESÁRA</b></font>
 </td><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>@@@FREESPACE@@@ KB Voµného miesta</b></font>
+<b>@@@FREESPACE@@@ KB voµného miesta</b></font>
 </td></tr><tr><td colspan="4" bgcolor=@@@MENUBAR@@@ align="left">
 @@@MENUBARLINKS@@@
 </td></tr><tr><td colspan="4">&nbsp;</td></tr>
 <tr><td bgcolor=@@@COLUMNHEADER@@@>
 <B>Meno</B> (Kliknutím zmeni» adresu)</td>
 <td bgcolor=@@@COLUMNHEADER@@@>
-<B>E-mailové Adresa(y)</B> (Kliknutím posla» správu)</td>
+<B>E-mail</B> (Kliknutím posla» správu)</td>
 <td bgcolor=@@@COLUMNHEADER@@@>
-<B>Note</B></td>
+<B>Poznámka</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Akcia</B>
 </td></tr>

@@ -78,6 +78,7 @@ $lang_charset = 'iso-8859-1';
    send       => 'Verstuur',
    cancel     => 'Onderbreken',
    continue   => 'Doorgaan',
+   exit       => 'Exit',
    for        => 'VOOR',
    yourname   => 'Uw naam',
    save       => 'Bewaar',

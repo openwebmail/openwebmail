@@ -7,7 +7,7 @@
 @@@MENUBARLINKS@@@
 </td></tr><tr><td colspan="5">&nbsp;</td></tr>
 <tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Nom de la Carpeta (@@@FOLDERNAME_MAXLEN@@@ caracters)</B></td>
+<B>Nom de la carpeta (@@@FOLDERNAME_MAXLEN@@@ caracters)</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Nous</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>

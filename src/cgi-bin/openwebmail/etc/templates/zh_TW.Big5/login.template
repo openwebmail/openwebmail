@@ -13,9 +13,9 @@
 <BR>
 <table align=center border=0 cellspacing=2 cellpadding=0>
 <tr>
-<td align=right>±b¸¹¡G </td><td align=left>@@@USERIDFIELD@@@</td>
+<td align=right nowrap>±b¸¹¡G </td><td align=left>@@@USERIDFIELD@@@</td>
 </tr><tr>
-<td align=right>±K½X¡G </td><td align=left>@@@PASSWORDFIELD@@@</td>
+<td align=right nowrap>±K½X¡G </td><td align=left>@@@PASSWORDFIELD@@@</td>
 </tr><tr>
 <td align=center>
 <table><tr><td>@@@LOGINBUTTON@@@</td></tr></table>

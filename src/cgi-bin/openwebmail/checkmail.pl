@@ -16,6 +16,7 @@ no strict 'vars';
 use Fcntl qw(:DEFAULT :flock);
 
 $ENV{PATH} = ""; # no PATH should be needed
+$ENV{BASH_ENV} = ""; # no startup sciprt for bash
 
 push (@INC, '/usr/local/www/cgi-bin/openwebmail', ".");
 require "openwebmail-shared.pl";
@@ -162,7 +163,7 @@ sub checknewmail {
 
    my @folderlist=();
    my $filtered=mailfilter($user, 'INBOX', $folderdir, \@folderlist, 
-				$prefs{'filter_repeatlimit'}, $prefs{'filter_fakedsmtp'});
+	$prefs{'filter_repeatlimit'}, $prefs{'filter_fakedsmtp'}, $prefs{'filter_fakedexecontenttype'});
    if ($filtered>0) {
       writelog("filtermsg - filter $filtered msgs from INBOX");
       writehistory("filtermsg - filter $filtered msgs from INBOX");
@@ -235,7 +236,7 @@ sub getpop3s {
             my ($pop3host, $pop3user, $enable);
             my ($response, $dummy, $h);
 
-            ($pop3host, $pop3user, $dummy, $dummy, $dummy, $enable) = split(/:/,$_);
+            ($pop3host, $pop3user, $dummy, $dummy, $dummy, $enable) = split(/\@\@\@/,$_);
             next if (!$enable);
 
             foreach $h ( @{$config{'disallowed_pop3servers'}} ) {

@@ -1,7 +1,7 @@
 #
 # mailfilter.pl - function for mail filter
 #
-# 2001/03/15 Ebola@turtle.ee.ncku.edu.tw
+# 2001/11/13 Ebola@turtle.ee.ncku.edu.tw
 #            tung@turtle.ee.ncku.edu.tw
 #
 
@@ -9,7 +9,7 @@
 # there are 4 op for a msg: 'copy', 'move', 'delete' and 'keep'
 sub mailfilter {
    my ($user, $folder, $folderdir, $r_validfolders, 
-		$filter_repeatlimit, $filter_fakedsmtp)=@_;
+	$filter_repeatlimit, $filter_fakedsmtp, $filter_fakedexecontenttype)=@_;
    my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
    my @filterrules;
    my $folderhandle=FileHandle->new();
@@ -71,13 +71,12 @@ sub mailfilter {
    my %repeatlists=();	
 
    for ($i=0; $i<=$#allmessageids; $i++) {
-      my ($priority, $rules, $include, $text, $op, $destination, $enable);
-      my $line;
-      my ($messagestart, $messagesize);
       my @attr = split(/@@@/, $HDB{$allmessageids[$i]});
       my ($currmessage, $header, $body, $r_attachments)=("", "", "", "");
+      my ($is_message_parsed, $is_header_decoded, $is_body_decoded, $is_attachments_decoded)=(0,0,0,0);
       my ($r_smtprelays, $r_connectfrom, $r_byas);
       my $matched=0;
+      my ($priority, $rules, $include, $text, $op, $destination, $enable);
 
       if ($filter_repeatlimit>0) {
          # store msgid with same '$from:$subject' to same array
@@ -89,14 +88,10 @@ sub mailfilter {
       }
       
       ## if match filterrules => do $op (copy, move or delete)
-      foreach $line (sort @filterrules) {
+      foreach my $line (sort @filterrules) {
          $matched=0;
 
          ($priority, $rules, $include, $text, $op, $destination, $enable) = split(/\@\@\@/, $line);
-         if ( $enable eq '') {	# compatible with old format
-            ($priority, $rules, $include, $text, $destination, $enable) = split(/\@\@\@/, $line);
-            $op='move';
-         }
          $destination =~ s/\.\.+//g;
          $destination =~ s/[\s\/\`\|\<\>;]//g; # remove dangerous char
 
@@ -106,24 +101,22 @@ sub mailfilter {
 
          if ($destination eq 'DELETE') {
             if ( $op eq 'copy' ) {
-                next;			# copy to DELETE is meaningless
+               next;			# copy to DELETE is meaningless
             } elsif ($op eq 'move') {
-                $op='delete';		# move to DELETE is 'delete'
+               $op='delete';		# move to DELETE is 'delete'
             }
          } elsif ($destination eq 'INBOX') { 
             $op='keep';		# keep this msg in INBOX and skip all other rules.
             last;
          }
          
-         # old version compatibility
-         $rules='textcontent' if ($rules eq 'body');
-
          if ( $rules eq 'from' ) {
             if (   ($include eq 'include' && $attr[$_FROM] =~ /$text/i)
                 || ($include eq 'exclude' && $attr[$_FROM] !~ /$text/i)  ) {
                $matched=1;
-#log_time($priority, $rules, $include, $text, $op, $destination, $enable);
-               if ( $op eq 'move' || $op eq 'copy') {
+               if ($op eq 'delete') {
+                  last;
+               } elsif ( $op eq 'move' || $op eq 'copy') {
                   if ($currmessage eq "") {
                      seek($folderhandle, $attr[$_OFFSET], 0);
                      read($folderhandle, $currmessage, $attr[$_SIZE]);
@@ -131,9 +124,13 @@ sub mailfilter {
                   my $append=append_message_to_folder($allmessageids[$i],
 					\@attr, \$currmessage, $destination, 
 					$r_validfolders, $user);
-                  last if ($op eq 'move' && $append>=0);
-               } elsif ($op eq 'delete') {
-                  last;
+                  if ($op eq 'move') {
+                     if ($append>=0) {
+                        last; 
+                     } else {
+                        $matched=0;	# match not counted if move failed 
+                     }
+                  }
                }
             }
 
@@ -141,8 +138,9 @@ sub mailfilter {
             if (   ($include eq 'include' && $attr[$_TO] =~ /$text/i)
                 || ($include eq 'exclude' && $attr[$_TO] !~ /$text/i)  ) {
                $matched=1;
-#log_time($priority, $rules, $include, $text, $op, $destination, $enable);
-               if ( $op eq 'move' || $op eq 'copy') {
+               if ($op eq 'delete') {
+                  last;
+               } elsif ( $op eq 'move' || $op eq 'copy') {
                   if ($currmessage eq "") {
                      seek($folderhandle, $attr[$_OFFSET], 0);
                      read($folderhandle, $currmessage, $attr[$_SIZE]);
@@ -150,9 +148,13 @@ sub mailfilter {
                   my $append=append_message_to_folder($allmessageids[$i],
 					\@attr, \$currmessage, $destination, 
 					$r_validfolders, $user);
-                  last if ($op eq 'move' && $append>=0);
-               } elsif ($op eq 'delete') {
-                  last;
+                  if ($op eq 'move') {
+                     if ($append>=0) {
+                        last; 
+                     } else {
+                        $matched=0;	# match not counted if move failed 
+                     }
+                  }
                }
             }
 
@@ -160,8 +162,9 @@ sub mailfilter {
             if (   ($include eq 'include' && $attr[$_SUBJECT] =~ /$text/i)
                 || ($include eq 'exclude' && $attr[$_SUBJECT] !~ /$text/i)  ) {
                $matched=1;
-#log_time($priority, $rules, $include, $text, $op, $destination, $enable);
-               if ( $op eq 'move' || $op eq 'copy') {
+               if ($op eq 'delete') {
+                  last;
+               } elsif ( $op eq 'move' || $op eq 'copy') {
                   if ($currmessage eq "") {
                      seek($folderhandle, $attr[$_OFFSET], 0);
                      read($folderhandle, $currmessage, $attr[$_SIZE]);
@@ -169,9 +172,13 @@ sub mailfilter {
                   my $append=append_message_to_folder($allmessageids[$i],
 					\@attr, \$currmessage, $destination, 
 					$r_validfolders, $user);
-                  last if ($op eq 'move' && $append>=0);
-               } elsif ($op eq 'delete') {
-                  last;
+                  if ($op eq 'move') {
+                     if ($append>=0) {
+                        last; 
+                     } else {
+                        $matched=0;	# match not counted if move failed 
+                     }
+                  }
                }
             }
 
@@ -180,22 +187,30 @@ sub mailfilter {
                seek($folderhandle, $attr[$_OFFSET], 0);
                read($folderhandle, $currmessage, $attr[$_SIZE]);
             }
-            if ($header eq "") {
+            if ($is_message_parsed==0) {
                ($header, $body, $r_attachments)=parse_rfc822block(\$currmessage);
+               $is_message_parsed=1;
             }
-
-            $header=decode_mimewords($header);
+            if ($is_header_decoded==0) {
+               $header=decode_mimewords($header);
+               $is_header_decoded=1;
+            }
             if (  ( $include eq 'include' && $header =~ /$text/im )
                 ||( $include eq 'exclude' && $header !~ /$text/im ) ) {
                $matched=1;
-#log_time($priority, $rules, $include, $text, $op, $destination, $enable);
-               if ( $op eq 'move' || $op eq 'copy') {
+               if ($op eq 'delete') {
+                  last;
+               } elsif ( $op eq 'move' || $op eq 'copy') {
                   my $append=append_message_to_folder($allmessageids[$i],
 					\@attr, \$currmessage, $destination, 
 					$r_validfolders, $user);
-                  last if ($op eq 'move' && $append>=0);
-               } elsif ($op eq 'delete') {
-                  last;
+                  if ($op eq 'move') {
+                     if ($append>=0) {
+                        last; 
+                     } else {
+                        $matched=0;	# match not counted if move failed 
+                     }
+                  }
                }
             }
 
@@ -204,24 +219,34 @@ sub mailfilter {
                seek($folderhandle, $attr[$_OFFSET], 0);
                read($folderhandle, $currmessage, $attr[$_SIZE]);
             }
-            if ($header eq "") {
+            if ($is_message_parsed==0) {
                ($header, $body, $r_attachments)=parse_rfc822block(\$currmessage);
+               $is_message_parsed=1;
             }
             if (!defined($r_smtprelays) ) {
                ($r_smtprelays, $r_connectfrom, $r_byas)=get_smtprelays_connectfrom_byas($header);
             }
-            my $smtprelays=join(", ", @{$r_smtprelays});
+            my $smtprelays;
+            for $relay (@{$r_smtprelays}) {
+               $smtprelays.="$relay, ${$r_connectfrom}{$relay}, ${$r_byas}{$relay}, ";
+            }
+
             if (  ( $include eq 'include' && $smtprelays =~ /$text/im )
                 ||( $include eq 'exclude' && $smtprelays !~ /$text/im ) ) {
                $matched=1;
-#log_time($priority, $rules, $include, $text, $op, $destination, $enable);
-               if ( $op eq 'move' || $op eq 'copy') {
+               if ($op eq 'delete') {
+                  last;
+               } elsif ( $op eq 'move' || $op eq 'copy') {
                   my $append=append_message_to_folder($allmessageids[$i],
 					\@attr, \$currmessage, $destination, 
 					$r_validfolders, $user);
-                  last if ($op eq 'move' && $append>=0);
-               } elsif ($op eq 'delete') {
-                  last;
+                  if ($op eq 'move') {
+                     if ($append>=0) {
+                        last; 
+                     } else {
+                        $matched=0;	# match not counted if move failed 
+                     }
+                  }
                }
             }
 
@@ -230,57 +255,77 @@ sub mailfilter {
                seek($folderhandle, $attr[$_OFFSET], 0);
                read($folderhandle, $currmessage, $attr[$_SIZE]);
             }
-            if ($header eq "") {
+            if ($is_message_parsed==0) {
                ($header, $body, $r_attachments)=parse_rfc822block(\$currmessage);
+               $is_message_parsed=1;
             }
-
             # check body text
-            if ( $attr[$_CONTENT_TYPE] =~ /^text/i ) {	# read all for text/plain. text/html
-               if ( $header =~ /content-transfer-encoding:\s+quoted-printable/i) {
-                  $body = decode_qp($body);
-               } elsif ($header =~ /content-transfer-encoding:\s+base64/i) {
-                  $body = decode_base64($body);
+            if ($is_body_decoded==0) {
+               if ( $attr[$_CONTENT_TYPE] =~ /^text/i ) {	# read all for text/plain. text/html
+                  if ( $header =~ /content-transfer-encoding:\s+quoted-printable/i) {
+                     $body = decode_qp($body);
+                  } elsif ($header =~ /content-transfer-encoding:\s+base64/i) {
+                     $body = decode_base64($body);
+                  }
                }
+               $is_body_decoded=1;
             }
             if (  ( $include eq 'include' && $body =~ /$text/im )
                 ||( $include eq 'exclude' && $body !~ /$text/im ) ) {
                $matched=1;
-#log_time($priority, $rules, $include, $text, $op, $destination, $enable);
-               if ( $op eq 'move' || $op eq 'copy') {
+               if ($op eq 'delete') {
+                  last;
+               } elsif ( $op eq 'move' || $op eq 'copy') {
                   my $append=append_message_to_folder($allmessageids[$i],
 					\@attr, \$currmessage, $destination, 
 					$r_validfolders, $user);
-                  last if ($op eq 'move' && $append>=0);
-               } elsif ($op eq 'delete') {
-                  last;
+                  if ($op eq 'move') {
+                     if ($append>=0) {
+                        last; 
+                     } else {
+                        $matched=0;	# match not counted if move failed 
+                     }
+                  }
                }
             }
             next if ($matched);
 
             # check attachments text
+            if ($is_attachments_decoded==0) {
+               foreach my $r_attachment (@{$r_attachments}) {
+                  if ( ${$r_attachment}{contenttype} =~ /^text/i ) {	# read all for text/plain. text/html
+                     if ( ${$r_attachment}{encoding} =~ /^quoted-printable/i ) {
+                        ${${$r_attachment}{r_content}} = decode_qp( ${${$r_attachment}{r_content}});
+                     } elsif ( ${$r_attachment}{encoding} =~ /^base64/i ) {
+                        ${${$r_attachment}{r_content}} = decode_base64( ${${$r_attachment}{r_content}});
+                     }
+                  }
+               }
+               $is_attachments_decoded=1;
+            }
             foreach my $r_attachment (@{$r_attachments}) {
                if ( ${$r_attachment}{contenttype} =~ /^text/i ) {	# read all for text/plain. text/html
-                  if ( ${$r_attachment}{encoding} =~ /^quoted-printable/i ) {
-                     ${${$r_attachment}{r_content}} = decode_qp( ${${$r_attachment}{r_content}});
-                  } elsif ( ${$r_attachment}{encoding} =~ /^base64/i ) {
-                     ${${$r_attachment}{r_content}} = decode_base64( ${${$r_attachment}{r_content}});
-                  }
                   if (  ( $include eq 'include' && ${${$r_attachment}{r_content}} =~ /$text/im )
                       ||( $include eq 'exclude' && ${${$r_attachment}{r_content}} !~ /$text/im )  ) {
                      $matched = 1;
-                     last;	# leave attachments check in one message
+                     last;	# leave attachments check from one message
                   }
                }
             }
             if ($matched) {
-#log_time($priority, $rules, $include, $text, $op, $destination, $enable);
-               if ( $op eq 'move' || $op eq 'copy') {
+               if ($op eq 'delete') {
+                  last;
+               } elsif ( $op eq 'move' || $op eq 'copy') {
                   my $append=append_message_to_folder($allmessageids[$i],
 					\@attr, \$currmessage, $destination, 
 					$r_validfolders, $user);
-                  last if ($op eq 'move' && $append>=0);
-               } elsif ($op eq 'delete') {
-                  last;
+                  if ($op eq 'move') {
+                     if ($append>=0) {
+                        last; 
+                     } else {
+                        $matched=0;	# match not counted if move failed 
+                     }
+                  }
                }
             }
                         
@@ -289,32 +334,73 @@ sub mailfilter {
                seek($folderhandle, $attr[$_OFFSET], 0);
                read($folderhandle, $currmessage, $attr[$_SIZE]);
             }
-            if ($header eq "") {
+            if ($is_message_parsed==0) {
                ($header, $body, $r_attachments)=parse_rfc822block(\$currmessage);
+               $is_message_parsed=1;
             }
-
             # check attachments
             foreach my $r_attachment (@{$r_attachments}) {
                if (   ( $include eq 'include' && ${$r_attachment}{filename} =~ /$text/i )
                     ||( $include eq 'exclude' && ${$r_attachment}{filename} !~ /$text/i )  ) {
                   $matched = 1;
-                  last;	# leave attachments check in one message
+                  last;	# leave attachments check from one message
                }
             }
             if ($matched) {
-#log_time($priority, $rules, $include, $text, $op, $destination, $enable);
-               if ( $op eq 'move' || $op eq 'copy') {
+               if ($op eq 'delete') {
+                  last;
+               } elsif ( $op eq 'move' || $op eq 'copy') {
                   my $append=append_message_to_folder($allmessageids[$i],
 					\@attr, \$currmessage, $destination, 
 					$r_validfolders, $user);
-                  last if ($op eq 'move' && $append>=0);
-               } elsif ($op eq 'delete') {
-                  last;
+                  if ($op eq 'move') {
+                     if ($append>=0) {
+                        last; 
+                     } else {
+                        $matched=0;	# match not counted if move failed 
+                     }
+                  }
                }
             }
          }
          
       } # end @filterrules
+
+      # filter message with faked exe contenttype if msg is not moved or deleted
+      if ( $filter_fakedexecontenttype &&
+           !($matched && ($op eq 'move' || $op eq 'delete')) ) {
+         if ($currmessage eq "") {
+            seek($folderhandle, $attr[$_OFFSET], 0);
+            read($folderhandle, $currmessage, $attr[$_SIZE]);
+         }
+         if ($is_message_parsed==0) {
+            ($header, $body, $r_attachments)=parse_rfc822block(\$currmessage);
+            $is_message_parsed=1;
+         }
+         # check executable attachment and contenttype 
+         foreach my $r_attachment (@{$r_attachments}) {
+            if ( ( ${$r_attachment}{filename} =~ /\.exe$/i ||
+                   ${$r_attachment}{filename} =~ /\.com$/i ||
+                   ${$r_attachment}{filename} =~ /\.pif$/i ||
+                   ${$r_attachment}{filename} =~ /\.lnk$/i ||
+                   ${$r_attachment}{filename} =~ /\.scr$/i )  &&
+                  ${$r_attachment}{contenttype} !~ /application\/octet-stream/i ) {
+               $matched = 1;
+               last;	# leave attachments check from one message
+            }
+         }
+         if ($matched) {
+            my $append=append_message_to_folder($allmessageids[$i],
+					\@attr, \$currmessage, 'mail-trash', 
+					$r_validfolders, $user);
+            if ($append>=0) {
+               $op='move';
+               $matched=1;
+            } else {
+               $matched=0;	# match not counted if move failed 
+            }
+         }
+      }
 
       # filter message from smtprelay with faked name if msg is not moved or deleted
       if ( $filter_fakedsmtp &&
@@ -323,8 +409,9 @@ sub mailfilter {
             seek($folderhandle, $attr[$_OFFSET], 0);
             read($folderhandle, $currmessage, $attr[$_SIZE]);
          }
-         if ($header eq "") {
+         if ($is_message_parsed==0) {
             ($header, $body, $r_attachments)=parse_rfc822block(\$currmessage);
+            $is_message_parsed=1;
          }
          if (!defined($r_smtprelays) ) {
             ($r_smtprelays, $r_connectfrom, $r_byas)=get_smtprelays_connectfrom_byas($header);
@@ -335,7 +422,6 @@ sub mailfilter {
             my $relay=${$r_smtprelays}[0];
             my $connectfrom=${$r_connectfrom}{$relay};
             my $byas=${$r_byas}{$relay};
-
 
             my $is_private=0;
             if ($connectfrom =~ /\[10\./ ||
@@ -357,14 +443,12 @@ sub mailfilter {
 
             # the last relay is the mail server
             my $dstdomain=domain(${$r_smtprelays}[$#{$r_smtprelays}]); 
-
 #log_time("relay $relay");
 #log_time("connectfrom $connectfrom");
 #log_time("byas $byas");
 #log_time("dstdomain $dstdomain");
 #log_time("is_private $is_private");
 #log_time("is_valid $is_valid");
-
             if ($connectfrom !~ /\Q$dstdomain\E/i && 
                 !$is_private && 
                 !$is_valid ) {
@@ -380,12 +464,13 @@ sub mailfilter {
 
       }
 
+      # remove msg from src folder for delete or after a successful move operation
       if ( $matched && ($op eq 'move' || $op eq 'delete') ) {
          ## remove message ##
          $filtered++;
 
-         $messagestart=$attr[$_OFFSET];
-         $messagesize=$attr[$_SIZE];
+         my $messagestart=$attr[$_OFFSET];
+         my $messagesize=$attr[$_SIZE];
 
          shiftblock($folderhandle, $blockstart, $blockend-$blockstart, $writepointer-$blockstart);
 
@@ -399,8 +484,8 @@ sub mailfilter {
          $HDB{'ALLMESSAGES'}--;
          
       } else { # message not to move or destination can not write
-         $messagestart=$attr[$_OFFSET];
-         $messagesize=$attr[$_SIZE];
+         my $messagestart=$attr[$_OFFSET];
+         my $messagesize=$attr[$_SIZE];
          $blockend=$messagestart+$messagesize;
 
          my $movement=$writepointer-$blockstart;

@@ -46,6 +46,10 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@DEFAULTDESTINATIONMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Confirm before message move/copy:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@CONFIRMMSGMOVECOPY@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Rozmiar obszaru edycji wiadomo¶ci:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 Szeroko¶æ @@@EDITCOLUMNSMENU@@@ Wysoko¶æ @@@EDITROWSMENU@@@
@@ -61,6 +65,10 @@ Szeroko¶æ @@@EDITCOLUMNSMENU@@@ Wysoko¶æ @@@EDITROWSMENU@@@
 <B>Filtruj wiadomo¶ci z fa³szywymi adresami SMTP:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDSMTP@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Filter msgs with faked exe content-type:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@FILTERFAKEDEXECONTENTTYPE@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Wy³±cz JavaScript wewn±trz wiadomo¶ci:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>

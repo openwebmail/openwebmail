@@ -1,11 +1,13 @@
 #
 # routines shared by 
-# openwebmail.pl, openwebmail-prefs.pl, spellcheck and checkmail.pl
+# openwebmail.pl, openwebmail-main.pl, openwebmail-prefs.pl, 
+# spellcheck and checkmail.pl
 #
 
 # languagenames - The abbreviation of the languages and related names
 %languagenames = (
                  'ca'           => 'Catalan',
+                 'cs'           => 'Czech',
                  'da'           => 'Danish',
                  'de'           => 'German',			# Deutsch
                  'en'           => 'English',
@@ -14,6 +16,7 @@
                  'fr'           => 'French',
                  'hu'           => 'Hungarian',
                  'it'           => 'Italiano',
+                 'lt'           => 'Lithuanian',
                  'nl'           => 'Nederlands',
                  'no_NY'        => 'Norwegian Nynorsk',
                  'pl'           => 'Polish',
@@ -70,12 +73,14 @@ sub readconf {
    # processing yes/no
    foreach $key ( 'use_hashedmailspools', 'use_homedirspools',
                   'use_homedirfolders', 'use_dotlockfile', 
+                  'refresh_after_login',
                   'enable_changepwd', 'enable_setfromemail', 
                   'enable_autoreply', 'enable_pop3', 
-                  'autopop3_at_refresh', 'symboliclink_mbox',
-                  'default_hideinternal', 'default_filter_fakedsmtp', 
-                  'default_disablejs', 'default_autopop3', 
-                  'default_newmailsound') {
+                  'autopop3_at_refresh', 'default_autopop3', 
+                  'default_confirmmsgmovecopy',
+                  'default_hideinternal', 'symboliclink_mbox',
+                  'default_filter_fakedsmtp', 'default_filter_fakedexecontenttype',
+                  'default_disablejs', 'default_newmailsound') {
       if (${$r_confighash}{$key} =~ /yes/i) {
          ${$r_confighash}{$key}=1;
       } else {
@@ -332,7 +337,7 @@ sub get_userfrom {
    # get user defined fromemail
    if (open (FROMBOOK, $frombook)) {
       while (<FROMBOOK>) {
-         my ($_email, $_realname) = split(/:/, $_, 2);
+         my ($_email, $_realname) = split(/\@\@\@/, $_, 2);
          chomp($_realname); 
          if ( defined($from{"$_email"}) || $config{'enable_setfromemail'} ) {
              $from{"$_email"} = $_realname||$realname;
@@ -399,7 +404,9 @@ sub readprefs {
    # entries disallowed to be empty
    foreach $key ( 'language', 'dictionary', 'style', 'iconset', 'bgurl', 
                   'sort', 'headersperpage', 'editcolumns', 'editrows',
-                  'filter_repeatlimit', 'filter_fakedsmtp',
+                  'confirmmsgmovecopy',
+                  'filter_repeatlimit', 'filter_fakedsmtp', 
+                  'filter_fakedexecontenttype',
                   'disablejs', 'hideinternal', 'newmailsound', 'autopop3',
                   'trashreserveddays') {
       if ( !defined($prefshash{$key}) || $prefshash{$key} eq "" ) {
@@ -432,6 +439,8 @@ sub readprefs {
 ###################### READSTYLE #########################
 # error message is hardcoded with english 
 # since $prefs{'language'} has not been initialized before this routine
+# This routine must be called after readstyle 
+# since it references $prefs{'bgurl'}
 sub readstyle {
    my ($key,$value);
    my $stylefile = $prefs{"style"} || 'Default';
@@ -455,6 +464,9 @@ sub readstyle {
       }
    }
    close (STYLE);
+
+   $stylehash{"css"}=~ s/\@\@\@BG_URL\@\@\@/$prefs{"bgurl"}/g;
+
    return \%stylehash;
 }
 ##################### END READSTYLE ######################
@@ -513,7 +525,6 @@ sub escapeURL {
 }
 
 ##################### END escapeURL, unescapeURL #################
-
 
 ##################### SET_EUID_EGID_UMASK #################
 sub set_euid_egid_umask {
@@ -787,12 +798,6 @@ sub printheader {
       }
 
       push(@headers, -pragma=>'no-cache');
-      if ($setcookie) {
-         $cookie = cookie( -name    => "$user-sessionid",
-                           -"value" => $setcookie,
-                           -path    => '/' );
-         push(@headers, -cookie=>$cookie);
-      }
       push(@headers, -charset=>$lang_charset) if ($CGI::VERSION>=2.57);
       push(@headers, @_);
       print header(@headers);
@@ -891,6 +896,20 @@ sub openwebmailerror {
    }
 }
 ################### END OPENWEBMAILERROR #######################
+
+########################## METAINFO #########################
+# return a string composed by the modify time & size of a file
+sub metainfo {
+   if (-e $_[0]) {
+      # dev, ino, mode, nlink, uid, gid, rdev, size, atime, mtime, ctime, blksize, blocks
+      my @l=stat($_[0]);
+      return("mtime=$l[9] size=$l[7]");
+   } else {
+      return("");
+   }
+}
+
+######################## END METAINFO #######################
 
 #################### GET_CLIENTIP #############################
 sub get_clientip {

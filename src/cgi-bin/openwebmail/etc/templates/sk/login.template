@@ -3,7 +3,7 @@
 <img border="0" src="@@@LOGO_URL@@@"></a></p>
 <table border="0" align="center" width="250" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@ background="@@@IMAGEDIR_URL@@@/bg-titleblue.gif" align="left">
-&nbsp;<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><B>LOGIN</B></FONT>
+&nbsp;<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><B>PRIHLÁSENIE</B></FONT>
 </td></tr><tr><td align="center" valign="middle" bgcolor=#3161bd>
 
 <table width="100%" cellpadding="0" cellspacing="1" border="0">
@@ -13,15 +13,15 @@
 <BR>
 <table align=center border=0 cellspacing=2 cellpadding=0>
 <tr>
-<td align=right>Pou¾ívateµ: </td><td align=left>@@@USERIDFIELD@@@</td>
+<td align=right nowrap>Pou¾ívateµ: </td><td align=left>@@@USERIDFIELD@@@</td>
 </tr><tr>
-<td align=right>Heslo: </td><td align=left>@@@PASSWORDFIELD@@@</td>
+<td align=right nowrap>Heslo: </td><td align=left>@@@PASSWORDFIELD@@@</td>
 </tr><tr>
 <td align=center>
 <table><tr><td>@@@LOGINBUTTON@@@</td></tr></table>
 </td>
 <td align=center>
-<table><tr><td><font size=1>All fields are<br>case sensitive</font></td></tr></table>
+<table><tr><td><font size=1>Dávajte prosím pozor na<br>malé a veµké písmená</font></td></tr></table>
 </td>
 </tr>
 </table>

@@ -46,6 +46,10 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@DEFAULTDESTINATIONMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>信件搬移/複製前先行確認：</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@CONFIRMMSGMOVECOPY@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>信件編輯區大小：</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 寬 @@@EDITCOLUMNSMENU@@@ 高 @@@EDITROWSMENU@@@
@@ -61,6 +65,10 @@
 <B>過濾偽造來源端的信件：</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDSMTP@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>過濾偽造 EXE 附件型態的信件：</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@FILTERFAKEDEXECONTENTTYPE@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>關閉郵件內的 JavaScript：</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
