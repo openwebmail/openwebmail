@@ -13,6 +13,17 @@ A: You perl is compiled with suid ability disabled.
       and change #!/usr/bin/perl to the path of this suidperl
    b. recompile your perl with suid enabled
 
+
+Q: I got "Software error: Can't locate MIME/Base64.pm in @INC"?
+A: please download MIME-Base64-2.12.tar.gz and install
+
+   cd /tmp
+   tar -zxvf MIME-Base64-2.12.tar.gz
+   cd MIME-Base64-2.12
+   perl Makefile.PL
+   make
+   make install
+
 Q: Attachments disappeared when I forward a message?
 A: check the permission of the following directories
    cgi-bin/openwebmail/etc          - owner=root, group=mail, mode=750
@@ -36,7 +47,7 @@ A: It depends on how you define the "slow".
    3 second on a p200mmx machine.
    1 second on a celeron300 machine.
 
-ps: Some operations would take more time than normal operation like:
+ps: Some operations would take more time than normal operation, for example:
     re-indexing of a large folder, adding large attachment to a message.
 
    It is recommended that you install Open WebMail on a medium-sized machine.
@@ -55,7 +66,6 @@ A: The best way is send me the message that has problems.
        by clicking the foldername in "folder management" menu
    d. mail it to me as an attachment and describe what the problem is.
 
-
-04/14/2001 
+04/24/2001 
 
 tung@turtle.ee.ncku.edu.tw

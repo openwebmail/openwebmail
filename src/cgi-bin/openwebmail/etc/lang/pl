@@ -131,6 +131,7 @@ $lang_charset = 'iso-8859-2';
             folder_with_name  => 'Folder ',
             already_exists    => 'ju¿ istnieje!',
             cant_create_folder=> 'Nie mogê utworzyæ foldera!',
+            under_indexing    => 'is still under indexing, please try later',
             abook_invalid     => 'Przykro mi ale ten plik nie wygl±da na wyeksportowany z Outlook Express 5 w formacie CSV.  Upewnij siê przy pomocy edytora tekstu, czy pierwsza linia rozpoczyna siê od "Name,E-mail", przejd¼',
             back              => 'wstecz',
             tryagain          => 'i spróbuj jeszcze raz.',

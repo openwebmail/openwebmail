@@ -20,7 +20,9 @@ rm -Rf cgi-bin/openwebmail/etc/users/*
 #rm     cgi-bin/openwebmail/uty/mktgz.sh
 
 chmod 755 data cgi-bin
-chmod 770 cgi-bin/openwebmail/etc
+chmod 750 cgi-bin/openwebmail/etc
+chmod 770 cgi-bin/openwebmail/etc/users
+chmod 770 cgi-bin/openwebmail/etc/sessions
 
 cp /dev/null cgi-bin/openwebmail/etc/address.book
 cp /dev/null cgi-bin/openwebmail/etc/filter.book

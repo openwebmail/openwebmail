@@ -131,6 +131,7 @@ $lang_charset = 'iso-8859-1';
             folder_with_name  => 'Una cartella di nome',
             already_exists    => 'esiste già!',
             cant_create_folder=> 'Non posso creare la cartella',
+            under_indexing    => 'is still under indexing, please try later',
             abook_invalid     => 'Questo file non è una rubrica esportata da Outlook Express 5 in formato CSV. Assicurati che la prima riga inizi con
 "Nome ,E-mail", quindi torna',
             back              => 'indietro',

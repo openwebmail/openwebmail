@@ -72,7 +72,7 @@ sub verifysession {
       my $cookie = <SESSION>;
       close (SESSION);
       chomp $cookie;
-      unless ( cookie("sessionid") eq $cookie) {
+      if ( cookie("sessionid") ne $cookie) {
          writelog("attempt to hijack session $thissession!");
          openwebmailerror("$lang_err{'inv_sessid'}");
       }
@@ -243,16 +243,11 @@ sub printheader {
    my @headers=();
 
    unless ($headerprinted) {
-      if ($setcookie) {
-         $cookie = cookie( -name    => 'sessionid',
-                           -"value" => $setcookie,
-                           -path    => '/' );
-      }
-      my $html = '';
       $headerprinted = 1;
+
+      my $html = '';
       open (HEADER, "$openwebmaildir/templates/$lang/header.template") or
          openwebmailerror("$lang_err{'couldnt_open'} header.template!");
-
       while (<HEADER>) {
          $html .= $_;
       }
@@ -263,7 +258,12 @@ sub printheader {
       $html =~ s/\@\@\@CHARSET\@\@\@/$lang_charset/g;
 
       push(@headers, -pragma=>'no-cache');
-      push(@headers, -cookie=>$cookie) if ($setcookie);
+      if ($setcookie) {
+         $cookie = cookie( -name    => 'sessionid',
+                           -"value" => $setcookie,
+                           -path    => '/' );
+         push(@headers, -cookie=>$cookie);
+      }
       push(@headers, -charset=>$lang_charset) if ($CGI::VERSION>=2.57);
       push(@headers, @_);
       print header(@headers);
@@ -317,7 +317,7 @@ sub openwebmailerror {
          print header(-pragma=>'no-cache');
       }
       print start_html(-"title"=>"Open WebMail version $version",
-                       -BGCOLOR=>$background,
+                       -BGCOLOR=>"$background",
                        -BACKGROUND=>$bg_url);
       print '<style type="text/css">';
       print $style{"css"};

@@ -129,6 +129,7 @@ $lang_charset = 'iso-8859-1';
             folder_with_name  => 'Ein Ordner mit dem Namen',
             already_exists    => 'existiert bereits!',
             cant_create_folder=> 'Fehler beim Erstellen des Ordners',
+            under_indexing    => 'is still under indexing, please try later',
             abook_invalid     => 'Diese Datei scheint kein gültiges Outlook Express 5 CVS Format zu haben. Stellen Sie sicher, dass die erste Zeile der Datei "Name,E-mail Address" lautet. Gehen Sie dann',
             back              => 'zurück',
             tryagain          => 'und versuchen Sie es nocheinmal',

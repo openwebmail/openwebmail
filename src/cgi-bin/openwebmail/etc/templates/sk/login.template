@@ -13,7 +13,7 @@
 </tr><tr>
 <td align=right>Heslo: </td><td align=left>@@@PASSWORDFIELD@@@</td>
 </tr><tr>
-<td colspan=2 align=center>@@@LOGINBUTTON@@@ @@@CLEARBUTTON@@@</td>
+<td colspan=2 align=center>@@@LOGINBUTTON@@@ @@@CLEARBUTTON@@@</td>
 </tr>
 </table>
 @@@ENDFORM@@@

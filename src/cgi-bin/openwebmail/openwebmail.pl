@@ -186,6 +186,8 @@ if (param()) {      # an action has been chosen
          emptytrash();
       } elsif ($action eq "viewattachment") {
          viewattachment();
+      } elsif ($action eq "viewattfile") {
+         viewattfile();
       } elsif ($action eq "composemessage") {
          composemessage();
       } elsif ($action eq "sendmessage") {
@@ -319,6 +321,9 @@ sub login {
          $sort = $prefs{"sort"} || 'date';
 
          displayheaders();
+         if ($prefs{"autopop3"}==1) {
+            _retrpop3s(0);
+         }
       } else {
          firsttimeuser();
       }
@@ -347,8 +352,12 @@ sub logout {
    openwebmailerror("Session ID $lang_err{'has_illegal_chars'}") unless
       (($thissession =~ /^(.+?\-\d?\.\d+)$/) && ($thissession = $1));
    $thissession =~ s/\///g;  # just in case someone gets tricky ...
-   unlink "$openwebmaildir/sessions/$thissession";
 
+   if ($prefs{'autoemptytrash'}==1) {
+      _emptytrash();
+   }   
+
+   unlink "$openwebmaildir/sessions/$thissession";
    writelog("logout - $thissession");
 
    print "Location: $scripturl\n\n";
@@ -754,7 +763,9 @@ sub displayheaders {
          $boldoff = "</B>";
       }
 
-      if ( (${$headers[$messnum]}{content_type} ne 'N/A') && !(${$headers[$messnum]}{content_type} =~ /^text/i) ) {
+      if ( (${$headers[$messnum]}{content_type} ne '') && 
+           (${$headers[$messnum]}{content_type} ne 'N/A') && 
+           (${$headers[$messnum]}{content_type} !~ /^text/i) ) {
          $status .= "<img src=\"$imagedir_url/attach.gif\" align=\"absmiddle\">";
       }
 
@@ -1297,7 +1308,8 @@ sub composemessage {
    verifysession();
    my $html = '';
    my $temphtml;
-   my @attlist;
+   my ($r_attnamelist, $r_attfilelist);
+
    open (COMPOSEMESSAGE, "$openwebmaildir/templates/$lang/composemessage.template") or
       openwebmailerror("$lang_err{'couldnt_open'} composemessage.template!");
    while (<COMPOSEMESSAGE>) {
@@ -1307,8 +1319,19 @@ sub composemessage {
 
    $html = applystyle($html);
    
-   if (defined(param($lang_text{'add'}))) {
-      @attlist = @{&getattlist()};
+   if ( param("deleteattfile") ne '' ) { # user click 'del' link
+      my $deleteattfile=param("deleteattfile");
+
+      $deleteattfile =~ s/\///g;  # just in case someone gets tricky ...
+      ($deleteattfile =~ /^(.+)$/) && ($deleteattfile = $1);   # bypass taint check
+      # only allow to delete attfiles belongs the $thissession
+      if ($deleteattfile=~/^$thissession/) {
+         unlink ("$openwebmaildir/sessions/$deleteattfile");
+      }
+      ($savedattsize, $r_attnamelist, $r_attfilelist) = getattlistinfo();
+
+   } elsif (defined(param($lang_text{'add'}))) { # user press 'add' button
+      ($savedattsize, $r_attnamelist, $r_attfilelist) = getattlistinfo();
       my $attachment = param("attachment");
       my $attname = $attachment;
       my $attcontents = '';
@@ -1330,21 +1353,22 @@ sub composemessage {
          } else {
             $content_type = 'application/octet-stream';
          }
-         my $attnum = ($#attlist +1) || 0;
-         open (ATTFILE, ">$openwebmaildir/sessions/$thissession-att$attnum");
+
+         my $attserial = time();
+         open (ATTFILE, ">$openwebmaildir/sessions/$thissession-att$attserial");
          print ATTFILE "Content-Type: ", $content_type,";\n";
          print ATTFILE "\tname=\"$attname\"\nContent-Transfer-Encoding: base64\n\n";
-
          while (read($attachment, $attcontents, 600*57)) {
             $attcontents=encode_base64($attcontents);
             $savedattsize += length($attcontents);
             print ATTFILE $attcontents;
          }
-
          close ATTFILE;
+
          $attname = str2html($attname);
          $attname =~ s/^(.*)$/<em>$1<\/em>/;
-         push (@attlist, $attname);
+         push (@{$r_attnamelist}, $attname);
+         push (@{$r_attfilelist}, $thissession-att$attserial);
       }
    } elsif ( !(defined(param($lang_text{'add'}))) ) {
       deleteattachments();
@@ -1481,13 +1505,15 @@ sub composemessage {
 
       if ($composetype eq "forward" || $composetype eq "editdraft") {
          if (defined(${$message{attachment}[0]}{header})) {
+            my $attserial=time();
+	    ($attserial =~ /^(.+)$/) && ($attserial = $1);   # bypass taint check
             foreach my $attnumber (0 .. $#{$message{attachment}}) {
-	       ($attnumber =~ /^(.+)$/) && ($attnumber = $1);   # bypass taint check
-               open (ATTFILE, ">$openwebmaildir/sessions/$thissession-att$attnumber");
+               $attserial++;
+               open (ATTFILE, ">$openwebmaildir/sessions/$thissession-att$attserial");
                print ATTFILE ${$message{attachment}[$attnumber]}{header}, "\n\n", ${${$message{attachment}[$attnumber]}{r_content}};
                close ATTFILE;
             }
-            @attlist = @{&getattlist()};
+            ($savedattsize, $r_attnamelist, $r_attfilelist) = getattlistinfo();
          }
          $subject = $message{"subject"} || '';
 
@@ -1513,6 +1539,7 @@ sub composemessage {
    $html =~ s/\@\@\@BACKTOFOLDER\@\@\@/$temphtml/g;
 
    $temphtml = start_multipart_form(-name=>'composeform');
+
    $temphtml .= hidden(-name=>'action',
                        -default=>'sendmessage',
                        -override=>'1');
@@ -1533,6 +1560,9 @@ sub composemessage {
                        -override=>'1');
    $temphtml .= hidden(-name=>'folder',
                        -default=>$folder,
+                       -override=>'1');
+   $temphtml .= hidden(-name=>'deleteattfile',
+                       -default=>'',
                        -override=>'1');
    if (param("message_id")) {
       $temphtml .= hidden(-name=>'message_id',
@@ -1567,17 +1597,26 @@ sub composemessage {
                          -override=>'1');
    $html =~ s/\@\@\@REPLYTOFIELD\@\@\@/$temphtml/g;
    
-   $temphtml = '';
-   foreach my $filename (@attlist) {
-      $temphtml .= "$filename<BR>";
+   # table of attachment list 
+   $temphtml = "<table cellspacing='0' cellpadding='0' width='70%'><tr valign='bottom'><td>\n";
+   $temphtml .= "<table cellspacing='0' cellpadding='0'>\n";
+   for (my $i=0; $i<=$#{$r_attnamelist}; $i++) {
+      my $attsize=int((-s "$openwebmaildir/sessions/${$r_attfilelist}[$i]")/1024);
+      $temphtml .= "<tr valign=top>".
+                   "<td><a href=\"$scripturl?sessionid=$thissession&amp;action=viewattfile&amp;attfile=${$r_attfilelist}[$i]\">${$r_attnamelist}[$i]</a>&nbsp;</td>".
+                   "<td align='right'>$attsize KB &nbsp;</td>".
+                   "<td nowrap><a href=\"javascript:DeleteAttFile('${$r_attfilelist}[$i]')\">[$lang_text{'delete'}]</a></td>".
+                   "</tr>\n";
    }
+   $temphtml .= "</table>\n";
+   $temphtml .= "</td><td align='right'>\n";
    if ( $savedattsize ) {
       $temphtml .= "<em>" . int($savedattsize/1024) . "KB";
-      if ( $attlimit ) {
-         $temphtml .= " $lang_text{'of'} $attlimit MB";
-      }
-      $temphtml .= "</em><BR>";
+      $temphtml .= " $lang_text{'of'} $attlimit MB" if ( $attlimit );
+      $temphtml .= "</em>";
    }
+   $temphtml .= "</td></tr></table>\n";
+
    $temphtml .= filefield(-name=>'attachment',
                          -default=>'',
                          -size=>'60',
@@ -1600,7 +1639,7 @@ sub composemessage {
                   -value=>'1',
                   -label=>'');
 
-   $html =~ s/\@\@\@CONFIRMREADINGFIELD\@\@\@/$temphtml/;
+   $html =~ s/\@\@\@CONFIRMREADINGCHECKBOX\@\@\@/$temphtml/;
 
    $temphtml = textarea(-name=>'body',
                         -default=>$body,
@@ -1685,8 +1724,10 @@ sub sendmessage {
 
    verifysession();
 
-   if (defined(param($lang_text{'add'}))) {
+   # user press 'add' button or click 'delete' link
+   if (defined(param($lang_text{'add'})) || param("deleteattfile") ne '' ) {
       composemessage();
+
    } else {
 ### Add a header that will allow sent-mail/saved-drafts folder to function correctly
       my $localtime = scalar(localtime);
@@ -1712,7 +1753,7 @@ sub sendmessage {
 
       my $attachment = param("attachment");
       if ( $attachment ) {
-         getattlist();
+         $savedattsize=(getattlistinfo())[0];
          if ( ($attlimit) && ( ( $savedattsize + (-s $attachment) ) > ($attlimit * 1048576) ) ) {
             openwebmailerror ("$lang_err{'att_overlimit'} $attlimit MB!");
          }
@@ -1841,10 +1882,8 @@ sub sendmessage {
       print SENDMAIL "MIME-Version: 1.0\n" if ($do_sendmail);
       print FOLDER     "MIME-Version: 1.0\n" if ($do_savefolder);
 
-      my $contenttype="";
+      my $contenttype;
       if ($attachment || $#attfilelist>=0 ) {
-         my $buff='';
-
          $contenttype="multipart/mixed;";
 
          $tempcontent = "";
@@ -1861,6 +1900,7 @@ sub sendmessage {
          $body =~ s/^From />From /gm;
          print FOLDER   "$body\n" if ($do_savefolder);
 
+         my $buff='';
          foreach (@attfilelist) {
             print SENDMAIL "\n--$boundary\n" if ($do_sendmail);
             print FOLDER   "\n--$boundary\n" if ($do_savefolder);
@@ -1877,14 +1917,14 @@ sub sendmessage {
          print FOLDER   "\n" if ($do_savefolder);
 
          if ($attachment) {
-            my $content_type;
+            my $attcontenttype;
             if (defined(uploadInfo($attachment))) {
-               $content_type = ${uploadInfo($attachment)}{'Content-Type'} || 'application/octet-stream';
+               $attcontenttype = ${uploadInfo($attachment)}{'Content-Type'} || 'application/octet-stream';
             } else {
-               $content_type = 'application/octet-stream';
+               $attcontenttype = 'application/octet-stream';
             }
             $tempcontent ="";
-            $tempcontent .= "--$boundary\nContent-Type: $content_type;\n";
+            $tempcontent .= "--$boundary\nContent-Type: $attcontenttype;\n";
             $tempcontent .= "\tname=\"$attname\"\nContent-Transfer-Encoding: base64\n\n";
 
             print SENDMAIL $tempcontent if ($do_sendmail);
@@ -1906,6 +1946,8 @@ sub sendmessage {
          print FOLDER   "\n\n" if ($do_savefolder);
 
       } else {
+         $contenttype="text/plain; charset=$lang_charset";
+
          print SENDMAIL "Content-Type: text/plain; charset=$lang_charset\n\n", $body, "\n" if ($do_sendmail);
          $body =~ s/^From />From /gm;
          print FOLDER   "Content-Type: text/plain; charset=$lang_charset\n\n", $body, "\n\n" if ($do_savefolder);
@@ -1965,7 +2007,7 @@ sub sendmessage {
 ############## END SENDMESSAGE ###################
 
 ################ VIEWATTACHMENT ##################
-sub viewattachment {
+sub viewattachment {	# view attachments inside a message
    verifysession();
    my $messageid = param("message_id");
    my $nodeid = param("attachment_nodeid");
@@ -2055,6 +2097,90 @@ sub viewattachment {
 
 ################### END VIEWATTACHMENT ##################
 
+################ VIEWATTFILE ##################
+sub viewattfile {	# view attachments uploaded to openwebmail/etc/sessions/
+   verifysession();
+
+   my $attfile=param("attfile");
+   $attfile =~ s/\///g;  # just in case someone gets tricky ...
+   # only allow to view attfiles belongs the $thissession
+   if ($attfile!~/^$thissession/  || !-f "$openwebmaildir/sessions/$attfile") {
+      printheader();
+      print "What the heck? Attfile $openwebmaildir/sessions/$attfile seems to be gone!";
+      printfooter();
+      return;
+   }
+
+   my ($attsize, $attheader, $attheaderlen, $attcontent);
+   my ($attcontenttype, $attencoding, $attdisposition, 
+       $attid, $attlocation, $attfilename);
+   
+   $attsize=(-s("$openwebmaildir/sessions/$attfile"));
+
+   open(ATTFILE, "$openwebmaildir/sessions/$attfile") or 
+      openwebmailerror("$lang_err{'couldnt_open'} $openwebmaildir/sessions/$attfile!");
+   read(ATTFILE, $attheader, 512);
+   $attheaderlen=index($attheader,  "\n\n", 0);
+   $attheader=substr($attheader, 0, $attheaderlen);
+   seek(ATTFILE, $attheaderlen+2, 0);
+   read(ATTFILE, $attcontent, $attsize-$attheaderlen-2);
+   close(ATTFILE);
+
+   my $lastline='NONE';
+   foreach (split(/\n/, $attheader)) {
+      if (/^\s/) {
+         if ($lastline eq 'TYPE') { $attcontenttype .= $_ }
+      } elsif (/^content-type:\s+(.+)$/ig) {
+         $attcontenttype = $1;
+         $lastline = 'TYPE';
+      } elsif (/^content-transfer-encoding:\s+(.+)$/ig) {
+         $attencoding = $1;
+         $lastline = 'NONE';
+      } elsif (/^content-disposition:\s+(.+)$/ig) {
+         $attdisposition = $1;
+         $lastline = 'NONE';
+      } elsif (/^content-id:\s+(.+)$/ig) {
+         $attid = $1; 
+         $attid =~ s/^\<(.+)\>$/$1/;
+         $lastline = 'NONE';
+      } elsif (/^content-location:\s+(.+)$/ig) {
+         $attlocation = $1;
+         $lastline = 'NONE';
+      } else {
+         $lastline = 'NONE';
+      }
+   }
+
+   $attfilename = $attcontenttype;
+   $attcontenttype =~ s/^(.+);.*/$1/g;
+   unless ($attfilename =~ s/^.+name[:=]"?([^"]+)"?.*$/$1/ig) {
+      $attfilename = $attdisposition || '';
+      unless ($attfilename =~ s/^.+filename="?([^"]+)"?.*$/$1/ig) {
+         $attfilename = "Unknown.".contenttype2ext($attcontenttype);
+      }
+   }
+   $attdisposition =~ s/^(.+);.*/$1/g;
+
+   if ($attencoding =~ /^base64$/i) {
+      $attcontent = decode_base64($attcontent);
+   } elsif ($attencoding =~ /^quoted-printable$/i) {
+      $attcontent = decode_qp($attcontent);
+   }
+
+   my $length = length($attcontent);
+   print qq|Content-Length: $length\n|,
+         qq|Content-Transfer-Coding: binary\n|,
+         qq|Connection: close\n|,
+         qq|Content-Type: $attcontenttype; name="$attfilename"\n|;
+   unless ($attcontenttype =~ /^text/i) {
+      print qq|Content-Disposition: attachment; filename="$attfilename"\n|;
+   }
+   print qq|\n|, $attcontent;
+
+   return;
+}
+################### END VIEWATTATTFILE ##################
+
 ################## GETHEADERS #######################
 sub getheaders {
    my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
@@ -2062,13 +2188,45 @@ sub getheaders {
    my @message = ();
    my @messageids;
    my $messageid;
+   my $messagenumber;
+   my $index_complete=0;
+
+   # do new indexing in background if folder > 10 M && empty db
+   if ( (stat($headerdb.$dbm_ext))[7]==0 && 
+        (stat($folderfile))[7] >= 10485760 ) {
+      $|=1; 				# flush all output
+      $SIG{CHLD} = sub { wait; $index_complete=1 if ($?==0) };	# handle zombie
+      if ( fork() == 0 ) {		# child
+         close(STDOUT);
+         close(STDIN);
+         unless ( filelock($folderfile, LOCK_SH|LOCK_NB) ) {
+            exit 1;
+         }
+         update_headerdb($headerdb, $folderfile);
+         filelock("$headerdb.$dbm_ext", LOCK_UN);
+         exit 0;
+      }
+
+      for (my $i=0; $i<120; $i++) {	# wait index to complete for 120 seconds
+         sleep 1;
+         if ($index_complete==1) {
+            last;
+         }
+      }   
+      if ($index_complete==0) {
+         openwebmailerror("$folderfile $lang_err{'under_indexing'}");
+      }
+   } else {	# do indexing directly if small folder
+      unless ( filelock($folderfile, LOCK_SH|LOCK_NB) ) {
+         openwebmailerror("$lang_err{'couldnt_locksh'} $folderfile!");
+      }
+      update_headerdb($headerdb, $folderfile);
+      filelock($folderfile, LOCK_UN);
+   }
 
    unless ( filelock($folderfile, LOCK_SH|LOCK_NB) ) {
       openwebmailerror("$lang_err{'couldnt_locksh'} $folderfile!");
    }
-
-   update_headerdb($headerdb, $folderfile);
-
    if ( $keyword ne '' ) {
       open($folderhandle, "$folderfile");
       my %haskeyword=search_messages_for_keyword($keyword, $searchcontent, $headerdb, $folderhandle, "$folderdir/.search.cache");
@@ -2079,7 +2237,6 @@ sub getheaders {
    } else {
       @messageids=get_messageids_sorted($headerdb, $sort, "$headerdb.cache");
    }
-
    filelock($folderfile, LOCK_UN);
 
    $messagenumber=-1;
@@ -2568,42 +2725,53 @@ sub downloadfolder {
 #################### EMPTYTRASH ########################
 sub emptytrash {
    verifysession();
-   my ($trashfile, $trashdb)=get_folderfile_headerdb($user, 'trash-mail');
+   _emptytrash();
+   displayheaders();
+}
+
+# called by emptytrash or logout
+sub _emptytrash {
+   my ($trashfile, $trashdb)=get_folderfile_headerdb($user, 'mail-trash');
    open (TRASH, ">$trashfile") or
       openwebmailerror ("$lang_err{'couldnt_open'} $trashfile!");
    close (TRASH) or openwebmailerror("$lang_err{'couldnt_close'} $trashfile!");
    update_headerdb($trashdb, $trashfile);
 
    writelog("trash emptied");
-   displayheaders();
+   return;
 }
+
 #################### END EMPTYTRASH #######################
 
 
-##################### GETATTLIST ###############################
-sub getattlist {
+##################### GETATTLISTINFO ###############################
+sub getattlistinfo {
    my $currentfile;
-   my @attlist;
-   $savedattsize = 0;
+   my @namelist=();
+   my @filelist=();
+   my $totalsize = 0;
 
    opendir (SESSIONSDIR, "$openwebmaildir/sessions") or
       openwebmailerror("$lang_err{'couldnt_open'} $openwebmaildir/sessions!");
 
+   my $attnum=-1;
    while (defined($currentfile = readdir(SESSIONSDIR))) {
       if ($currentfile =~ /^($thissession-att\d+)$/) {
+         $attnum++;
          $currentfile = $1;
-         $savedattsize += ( -s "$openwebmaildir/sessions/$currentfile" );
+         $totalsize += ( -s "$openwebmaildir/sessions/$currentfile" );
+
+         push (@filelist, $currentfile);
+
          open (ATTFILE, "$openwebmaildir/sessions/$currentfile");
          while (defined(my $line = <ATTFILE>)) {
             if ($line =~ s/^.+name="?([^"]+)"?.*$/$1/i) {
                $line = str2html($line);
                $line =~ s/^(.*)$/<em>$1<\/em>/;
-               push (@attlist, $line);
+               push (@namelist, $line);
                last;
             } elsif ($line =~ /^\s+$/ ) {
-               $line = $currentfile;
-               $line =~ s/^.*att(\d+)$/<em>attachment.$1<\/em>/;
-               push (@attlist, $line);
+               push (@namelist, "<em>attachment.$attnum</em>");
                last; 
             }
          }
@@ -2612,9 +2780,9 @@ sub getattlist {
    }
 
    closedir (SESSIONSDIR);
-   return \@attlist;
+   return ($totalsize, \@namelist, \@filelist);
 }
-##################### END GETATTLIST ###########################
+##################### END GETATTLISTINFO ###########################
 
 ##################### DELETEATTACHMENTS ############################
 sub deleteattachments {
@@ -2738,19 +2906,32 @@ sub retrpop3 {
 ################## RETRIVE ALL POP3 ###########################
 sub retrpop3s {
    verifysession();
+
+   if ( ! -f "$folderdir/.pop3.book" ) {
+      print "Location: $prefsurl?action=editpop3&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage";
+   }
+  
+   _retrpop3s(10);
+
+   $folder="INBOX";
+   print "Location: $scripturl?action=displayheaders&sessionid=$thissession&sort=$sort&firstmessage=$firstmessage&folder=$folder\n\n";
+}
+
+sub _retrpop3s {
+   my $timeout=$_[0];
    my ($spoolfile, $header)=get_folderfile_headerdb($user, 'INBOX');
    my (%account, $response);
    my $fetch_complete=0;
    my $i;
 
+   if ( ! -f "$folderdir/.pop3.book" ) {
+      return;
+   }
+
    # create system spool file /var/mail/xxxx
    if ( ! -f "$spoolfile" ) {
       open (F, ">>$spoolfile");
       close(F);
-   }
-
-   if ( ! -f "$folderdir/.pop3.book" ) {
-      print "Location: $prefsurl?action=editpop3&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage";
    }
 
    %account = getpop3book("$folderdir/.pop3.book");
@@ -2779,16 +2960,15 @@ sub retrpop3s {
       }
    }
 
-   for ($i=0; $i<10; $i++) {	# wait fetch to complete for 10 seconds
+   for ($i=0; $i<$timeout; $i++) {	# wait fetch to complete for $timeout seconds
       sleep 1;
       if ($fetch_complete==1) {
          last;
       }
    }   
-
-   $folder="INBOX";
-   print "Location: $scripturl?action=displayheaders&sessionid=$thissession&sort=$sort&firstmessage=$firstmessage&folder=$folder\n\n";
+   return;
 }
+
 ################## END RETRIVE ALL POP3 ###########################
 
 ################# FILTERMESSAGE ###########################

@@ -131,6 +131,7 @@ $lang_charset = 'iso-8859-1';
             folder_with_name  => 'Un dossier du nom de',
             already_exists    => 'existe déjà !',
             cant_create_folder=> 'impossible de créer le dossier !',
+            under_indexing    => 'is still under indexing, please try later',
             abook_invalid     => 'Désolé, ce fichier ne semble pas être un carnet d\'adresses au format CSV exporté depuis Microsoft Outlook Express 5. Assurez-vous en le visualisant avec un éditeur de texte la première ligne débute par "Name,E-mail Address", puis recommencez.',
             back              => 'retour',
             tryagain          => 'réessayez.',

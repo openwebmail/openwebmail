@@ -277,6 +277,20 @@ if (defined(param("action"))) {      # an action has been chosen
 
    $html =~ s/\@\@\@HEADERSMENU\@\@\@/$temphtml/;
 
+   $temphtml = checkbox(-name=>'autopop3',
+                  -value=>'1',
+                  -checked=>$prefs{"autopop3"},
+                  -label=>'');
+
+   $html =~ s/\@\@\@AUTOPOP3CHECKBOX\@\@\@/$temphtml/g;
+
+   $temphtml = checkbox(-name=>'autoemptytrash',
+                  -value=>'1',
+                  -checked=>$prefs{"autoemptytrash"},
+                  -label=>'');
+
+   $html =~ s/\@\@\@AUTOEMPTYTRASHCHECKBOX\@\@\@/$temphtml/g;
+
    unless (defined($prefs{"signature"})) {
       $prefs{"signature"} = $defaultsignature;
    }
@@ -490,12 +504,12 @@ sub addfolder {
        $foldertoadd eq 'saved-messages' || 
        $foldertoadd eq 'sent-mail' ||
        $foldertoadd eq 'saved-drafts' ||
-       $foldertoadd eq 'trash-mail' ||
+       $foldertoadd eq 'mail-trash' ||
        $foldertoadd eq 'DELETE' ||
        $foldertoadd eq $lang_folders{'saved-messages'} ||
        $foldertoadd eq $lang_folders{'sent-mail'} ||
        $foldertoadd eq $lang_folders{'saved-drafts'} ||
-       $foldertoadd eq $lang_folders{'trash-mail'} ) {
+       $foldertoadd eq $lang_folders{'mail-trash'} ) {
       openwebmailerror("$lang_err{'cant_create_folder'}");
    }
 
@@ -525,6 +539,7 @@ sub deletefolder {
    if ( -f "$folderdir/$foldertodel" ) {
       unlink ("$folderdir/$foldertodel",
               "$folderdir/$foldertodel.lock",
+              "$folderdir/.$foldertodel.$dbm_ext",
               "$folderdir/.$foldertodel.db",
 	      "$folderdir/.$foldertodel.dir",
               "$folderdir/.$foldertodel.pag",
@@ -1550,7 +1565,7 @@ sub saveprefs {
    open (CONFIG,">$folderdir/.openwebmailrc") or
       openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.openwebmailrc!");
    foreach my $key (qw(realname domainname replyto sort headers style
-                       numberofmessages language fromname)) {
+                       numberofmessages language fromname autopop3 autoemptytrash)) {
       my $value = param("$key") || '';
       $value =~ s/[\n|=|\/|\||\\|\`]//; # Strip out any sort of nastiness.
       if ($key eq 'language') {

@@ -42,7 +42,7 @@
 @@@SUBJECTFIELD@@@
 &nbsp;
 <B>Confirm Reading</B>
-@@@CONFIRMREADINGFIELD@@@
+@@@CONFIRMREADINGCHECKBOX@@@
 </td></tr>
 <tr><td colspan="3" bgcolor=@@@WINDOW_LIGHT@@@>
 @@@BODYAREA@@@
@@ -84,6 +84,12 @@
       var hWnd = window.open(url,"HelpWindow","width=300,height=360,resizable=yes,scrollbars=yes");
       if ((document.window != null) && (!hWnd.opener))
          hWnd.opener = document.window;
+   }
+
+   function DeleteAttFile(deleteattfile)
+   {
+     document.composeform.deleteattfile.value=deleteattfile;
+     document.composeform.submit();
    }
 
    //-->

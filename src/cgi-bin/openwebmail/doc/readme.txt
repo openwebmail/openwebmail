@@ -46,7 +46,8 @@ then just
 3. add 'Tnobody' to the 'Trusted users' session in your sendmail.cf
 
 
-If you are using Redhat 6.2/CLE 0.9p1 with apache(or most Linux system),
+If you are using Redhat 6.2/CLE 0.9p1(or most Linux) with apache
+(by clarinet@totoro.cs.nthu.edu.tw)
 
 1. cd /home/httpd
    tar -zxvBpf openwebmail-X.XX.tgz
@@ -58,11 +59,28 @@ If you are using Redhat 6.2/CLE 0.9p1 with apache(or most Linux system),
    b. search all '/usr/local/www' and replace to '/home/httpd'
    c. change the $mailspooldir to '/var/spool/mail'
    d. change the $defaultsignature as your need
+   e. other changes as your needed
 3. cd /home/httpd/cgi-bin/openwebmail
    modify openwebmail*.pl and checkmail.pl
    a. change the '/usr/local/www/cgi-bin/openwebmail'
-      to '/home/httpd/cgi-bin/openwebmail'
+              to '/home/httpd/cgi-bin/openwebmail'
 4. add 'Tnobody' to the 'Trusted users' session in your /etc/sendmail.cf
+5. add
+   /var/log/openwebmail.log {
+       postrotate
+           /usr/bin/killall -HUP syslogd
+       endscript
+   }  
+   to /etc/logrotate.d/syslog to enable logrotate on openwebmail.log
+
+If you are upgrading from old openwebmail on Redhat 6.2/CLE 0.9p1
+
+1. move original openwebmail dir (cgi-bin/openwebmail and html/openwebmail) 
+    to different name (eg: something like openwebmail.old)
+2. install the new version of openwebmail
+3. migrate the old settings from openwebmail.old to openwebmail with
+   uty/migrate.pl
+4. delete the old original openwebmail dir (openwebmail.old)
 
 
 If you are using other UNIX with apache, that is okay
@@ -144,7 +162,7 @@ TEST
 test your webmail with http://your_server/cgi-bin/openwebmail/openwebmail.pl
 
 
-04/20/2001
+04/24/2001
 
 Ebola@turtle.ee.ncku.edu.tw
 eddie@turtle.ee.ncku.edu.tw

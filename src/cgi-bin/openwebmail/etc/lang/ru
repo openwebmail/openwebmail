@@ -131,6 +131,7 @@ $lang_charset = 'koi8-r';
             folder_with_name  => 'Папка с именем',
             already_exists    => 'уже существует!',
             cant_create_folder=> 'Не могу создать папку!',
+            under_indexing    => 'is still under indexing, please try later',
             abook_invalid     => 'Извините, этот файл не может быть экспортирован из формата Microsoft Outlook Express 5 в CSV формат.  Убедитесь, открыв этот файл в текстовом редакторе, что первая строка начинается со слов "Name,E-mail Address", затем вернитесь',
             back              => 'назад',
             tryagain          => 'и попробуйте еще раз.',

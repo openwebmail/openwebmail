@@ -1,4 +1,22 @@
-04/20/2001
+04/24/2001 (version 1.09)
+----------
+1. add option of 'autofetch pop3 mail at login and 
+   'auto empty trash at logout' at user preference
+2. fix a bug that shows the attribute of plain text message in sent-mail folder
+   with a '@' mistakenly.
+3. support 'delete attachment' in message editing
+4. fix a bug related to 'empty-trash' button
+
+
+04/23/2001
+----------
+1. greatly improve the speed of re-indexing in update_headerdb
+2. fix a minor bug in filelock_flock
+3. index folder at background if folder is large than 10M to avoid
+   http timeout
+
+
+04/20/2001 (version 1.08)
 ----------
 1. code clean for better security
    set_euid_egid_umask as early as possible

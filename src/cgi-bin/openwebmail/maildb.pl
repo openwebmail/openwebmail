@@ -147,8 +147,9 @@ if ( $dbm_ext eq "" ) {
 # and remove those with duplicated messageids
 sub update_headerdb {
    my ($headerdb, $folderfile) = @_;
-   my (%HDB, @datearray);
+   my (%HDB, %OLDHDB, @datearray);
 
+   ($headerdb =~ /^(.+)$/) && ($headerdb = $1);		# bypass taint check
    if ( -e "$headerdb.$dbm_ext" ) {
       my ($metainfo, $allmessages, $internalmessages, $newmessages);
 
@@ -161,53 +162,93 @@ sub update_headerdb {
       dbmclose(%HDB);
       filelock("$headerdb.$dbm_ext", LOCK_UN);
 
-      if ( $metainfo ne metainfo($folderfile) 
-        || $allmessages eq "" 
-        || $internalmessages eq "" 
-        || $newmessages eq "" ) {
-         ($headerdb =~ /^(.+)$/) && ($headerdb = $1);		# bypass taint check
-         unlink ("$headerdb.db", "$headerdb.dir","$headerdb.pag");
+      if ( $metainfo eq metainfo($folderfile) && $allmessages ne ""  
+           && $internalmessages ne "" && $newmessages ne "" ) {
+         return;  
       }
+
+      if ($dbm_ext eq 'dir') {
+         rename("$headerdb.dir", "$headerdb.old.dir");
+         rename("$headerdb.pag", "$headerdb.old.pag");
+      } else {
+         rename("$headerdb.$dbm_ext", "$headerdb.old.$dbm_ext");
+      }
+
+      # we will try to reference records in old headerdb if possible
+      filelock("$headerdb.old.$dbm_ext", LOCK_SH);
+      dbmopen(%OLDHDB, "$headerdb.old", undef);
    }
 
-   if ( !(-e "$headerdb.$dbm_ext") ) {
-      open (FOLDER, $folderfile);
-      dbmopen(%HDB, $headerdb, 0600);
-      filelock("$headerdb.$dbm_ext", LOCK_EX);
+   my $messagenumber = -1;
+   my $newmessages = 0;
+   my $internalmessages = 0;
 
-      my $messagenumber = -1;
-      my $newmessages = 0;
-      my $internalmessages = 0;
+   my $inheader = 1;
+   my $offset=0;
+   my $total_size=0;
 
-      my $inheader = 1;
-      my $offset=0;
-      my $total_size=0;
+   my @duplicateids=();
 
-      my @duplicateids=();
+   my ($line, $lastline);
+   my ($_message_id, $_offset);
+   my ($_from, $_to, $_date, $_subject);
+   my ($_content_type, $_status, $_messagesize);
 
-      my ($line, $lastline);
-      my ($_message_id, $_offset);
-      my ($_from, $_to, $_date, $_subject);
-      my ($_content_type, $_status, $_messagesize);
+   dbmopen(%HDB, $headerdb, 0600);
+   filelock("$headerdb.$dbm_ext", LOCK_EX);
+   %HDB=();	# ensure the headerdb is empty
 
-      %HDB=();	# ensure the headerdb is empty
+   open (FOLDER, $folderfile);
 
-      while (defined($line = <FOLDER>)) {
+   while (defined($line = <FOLDER>)) {
 
-         $offset=$total_size;
-         $total_size += length($line);
+      $offset=$total_size;
+      $total_size += length($line);
 
-         if ($line =~ /^From /) {
+      if ($line =~ /^From /) {
 
-            unless ($messagenumber == -1) {
+         if ($messagenumber != -1) {
+            if (! defined($HDB{$_message_id}) ) {
+               $HDB{$_message_id}=join('@@@', $_offset, $_from, $_to, 
+			$_date, $_subject, $_content_type, $_status, $_messagesize);
+            } else {
+               my $dup=$#duplicateids+1;
+               $HDB{"dup$dup-$_message_id"}=join('@@@', $_offset, $_from, $_to, 
+			$_date, $_subject, $_content_type, $_status, $_messagesize);
+               push(@duplicateids, "dup$dup-$_message_id");
+            }
+         }
+
+         $messagenumber++;
+         $_offset=$offset;
+         $_from = $_to = $_date = $_subject = $_message_id = $_content_type ='N/A';
+         $_status = '';
+         $_messagesize = length($line);
+         $_date = $line;
+         $inheader = 1;
+         $lastline = 'NONE';
+
+      } else {
+         $_messagesize += length($line);
+
+         if ($inheader) {
+            if ($line =~ /^\r*$/) {
+               $inheader = 0;
+
+               # We aren't interested in the sender in this case, but the recipient
+               # Handling it this way avoids having a separate sort sub for To:.
                if ( $folderfile=~ m#/SENT#i ) {
-### We aren't interested in the sender in this case, but the recipient
-### Handling it this way avoids having a separate sort sub for To:.
                   $_from = (split(/,/, $_to))[0];
                }
-### Convert to readable text from MIME-encoded
+               ### Convert to readable text from MIME-encoded
                $_from = decode_mimewords($_from);
                $_subject = decode_mimewords($_subject);
+
+               # some dbm(ex:ndbm on solaris) can only has value shorter than 1024 byte, 
+               # so we cut $_to to 256 byte to make dbm happy
+               if (length($_to) >256) {
+                  $_to=substr($_to, 0, 252)."...";
+               }
 
                @datearray = split(/\s+/, $_date);
                shift @datearray;
@@ -216,132 +257,98 @@ sub update_headerdb {
                $_date = "$month{$datearray[0]}/$datearray[1]/$datearray[3] $datearray[2]";
 
                if ( $_subject =~ /DON'T DELETE THIS MESSAGE/ ) {
-                  $internalmessages++;
+                  $internalmessages++
                }
                if ( $_status !~ /r/i ) {
                   $newmessages++;
                }
 
-### some dbm(ex:ndbm on solaris) can only has value shorter than 1024 byte, 
-### so we cut $_to to 256 byte to make dbm happy
-               if (length($_to) >256) {
-                  $_to=substr($_to, 0, 252)."...";
+               # check if msg info recorded in old headerdb, we can seek to msg end quickly
+               if (defined($OLDHDB{$_message_id}) ) {
+                  my $oldmsgsize=(split(/@@@/, $OLDHDB{$_message_id}))[$_SIZE];
+                  my $buff='';
+
+                  seek(FOLDER, $_offset+$oldmsgsize, 0);
+                  read(FOLDER, $buff, 6);
+                  
+                  if ( $buff=~/^From /) { # ya, msg end is found!
+                     $_messagesize=$oldmsgsize;
+                     $total_size=$_offset+$_messagesize;
+                  }  
+
+                  seek(FOLDER, $total_size, 0);
                }
 
-               if (! defined($HDB{$_message_id}) ) {
-                  $HDB{$_message_id}=join('@@@', $_offset, $_from, $_to, 
-			$_date, $_subject, $_content_type, $_status, $_messagesize);
-               } else {
-                  my $dup=$#duplicateids+1;
-                  $HDB{"dup$dup-$_message_id"}=join('@@@', $_offset, $_from, $_to, 
-			$_date, $_subject, $_content_type, $_status, $_messagesize);
-                  push(@duplicateids, "dup$dup-$_message_id");
+            } elsif ($line =~ /^\s/) {
+               if    ($lastline eq 'FROM') { $_from .= $line }
+               elsif ($lastline eq 'SUBJ') { $_subject .= $line }
+               elsif ($lastline eq 'TO') { $_to .= $line }
+               elsif ($lastline eq 'MESSID') { 
+                  $line =~ s/^\s+//;
+                  chomp($line);
+                  $_message_id .= $line;
                }
-            }
-
-            $messagenumber++;
-            $_offset=$offset;
-            $_from = $_to = $_date = $_subject = $_message_id = $_content_type ='N/A';
-            $_status = '';
-            $_messagesize = length($line);
-            $_date = $line;
-            $inheader = 1;
-            $lastline = 'NONE';
-
-         } else {
-            $_messagesize += length($line);
-
-            if ($inheader) {
-               if ($line =~ /^\r*$/) {
-                  $inheader = 0;
-               } elsif ($line =~ /^\s/) {
-                  if    ($lastline eq 'FROM') { $_from .= $line }
-                  elsif ($lastline eq 'SUBJ') { $_subject .= $line }
-                  elsif ($lastline eq 'TO') { $_to .= $line }
-                  elsif ($lastline eq 'MESSID') { 
-                     $line =~ s/^\s+//;
-                     chomp($line);
-                     $_message_id .= $line;
-                  }
-               } elsif ($line =~ /^from:\s+(.+)$/ig) {
-                  $_from = $1;
-                  $lastline = 'FROM';
-               } elsif ($line =~ /^to:\s+(.+)$/ig) {
-                  $_to = $1;
-                  $lastline = 'TO';
-               } elsif ($line =~ /^subject:\s+(.+)$/ig) {
-                  $_subject = $1;
-                  $lastline = 'SUBJ';
-               } elsif ($line =~ /^message-id:\s+(.*)$/ig) {
-                  $_message_id = $1;
-                  $lastline = 'MESSID';
-               } elsif ($line =~ /^content-type:\s+(.+)$/ig) {
-                  $_content_type = $1;
-                  $lastline = 'NONE';
-               } elsif ($line =~ /^status:\s+(.+)$/ig) {
-                  $_status = $1;
-                  $lastline = 'NONE';
-               } else {
-                  $lastline = 'NONE';
-               }
+            } elsif ($line =~ /^from:\s+(.+)$/ig) {
+               $_from = $1;
+               $lastline = 'FROM';
+            } elsif ($line =~ /^to:\s+(.+)$/ig) {
+               $_to = $1;
+               $lastline = 'TO';
+            } elsif ($line =~ /^subject:\s+(.+)$/ig) {
+               $_subject = $1;
+               $lastline = 'SUBJ';
+            } elsif ($line =~ /^message-id:\s+(.*)$/ig) {
+               $_message_id = $1;
+               $lastline = 'MESSID';
+            } elsif ($line =~ /^content-type:\s+(.+)$/ig) {
+               $_content_type = $1;
+               $lastline = 'NONE';
+            } elsif ($line =~ /^status:\s+(.+)$/ig) {
+               $_status = $1;
+               $lastline = 'NONE';
+            } else {
+               $lastline = 'NONE';
             }
          }
-      }
-
-###### Catch the last message, since there won't be a From: to trigger the capture
-
-      unless ($messagenumber == -1) {
-         if ( $folderfile=~ m#/SENT#i ) {
-###### We aren't interested in the sender in this case, but the recipient
-###### Handling it this way avoids having a separate sort sub for To:.
-            $_from = (split(/,/, $_to))[0];
-         }
-         $_from = decode_mimewords($_from);
-         $_subject = decode_mimewords($_subject);
-
-         @datearray = split(/\s+/, $_date);
-         shift @datearray;
-         shift @datearray;
-         shift @datearray;
-         $_date = "$month{$datearray[0]}/$datearray[1]/$datearray[3] $datearray[2]";
-
-         if ( $_subject =~ /DON'T DELETE THIS MESSAGE/ ) {
-            $internalmessages++;
-         }
-         if ( $_status !~ /r/i ) {
-            $newmessages++;
-         }
-
-### some dbm(ex:ndbm on solaris) can only has value shorter than 1024 byte, 
-### so we cut $_to to 256 byte to make dbm happy
-         if (length($_to) >256) {
-            $_to=substr($_to, 0, 252)."...";
-         }
-
-         if (! defined($HDB{$_message_id}) ) {
-            $HDB{$_message_id}=join('@@@', $_offset, $_from, $_to, 
-		$_date, $_subject, $_content_type, $_status, $_messagesize);
-         } else {
-            my $dup=$#duplicateids+1;
-            $HDB{"dup$dup-$_message_id"}=join('@@@', $_offset, $_from, $_to, 
-		$_date, $_subject, $_content_type, $_status, $_messagesize);
-            push(@duplicateids, "dup$dup-$_message_id");
-         }
-      }
-
-      $HDB{'METAINFO'}=metainfo($folderfile);
-      $HDB{'ALLMESSAGES'}=$messagenumber+1;
-      $HDB{'INTERNALMESSAGES'}=$internalmessages;
-      $HDB{'NEWMESSAGES'}=$newmessages;
-      filelock("$headerdb.$dbm_ext", LOCK_UN);
-      dbmclose(%HDB);
-      close (FOLDER);
-
-      # remove if any duplicates
-      if ($#duplicateids>=0) {
-         op_message_with_ids("delete", \@duplicateids, $folderfile, $headerdb);
       }
    }
+
+   # Catch the last message, since there won't be a From: to trigger the capture
+   if ($messagenumber != -1) {
+      if (! defined($HDB{$_message_id}) ) {
+         $HDB{$_message_id}=join('@@@', $_offset, $_from, $_to, 
+		$_date, $_subject, $_content_type, $_status, $_messagesize);
+      } else {
+         my $dup=$#duplicateids+1;
+         $HDB{"dup$dup-$_message_id"}=join('@@@', $_offset, $_from, $_to, 
+		$_date, $_subject, $_content_type, $_status, $_messagesize);
+         push(@duplicateids, "dup$dup-$_message_id");
+      }
+   }
+
+   close (FOLDER);
+
+   $HDB{'METAINFO'}=metainfo($folderfile);
+   $HDB{'ALLMESSAGES'}=$messagenumber+1;
+   $HDB{'INTERNALMESSAGES'}=$internalmessages;
+   $HDB{'NEWMESSAGES'}=$newmessages;
+
+   filelock("$headerdb.$dbm_ext", LOCK_UN);
+   dbmclose(%HDB);
+
+   # remove old headerdb
+   if (defined(%OLDHDB)) {
+      dbmclose(%OLDHDB);
+      filelock("$headerdb.old.$dbm_ext", LOCK_UN);
+      unlink("$headerdb.old.$dbm_ext", "$headerdb.old.dir", "$headerdb.old.pag");
+   }
+
+   # remove if any duplicates
+   if ($#duplicateids>=0) {
+      op_message_with_ids("delete", \@duplicateids, $folderfile, $headerdb);
+   }
+
+   return;
 }
 
 # return a string composed by the modify time & size of a file
@@ -1525,19 +1532,26 @@ sub filelock {
 my %opentable;
 sub filelock_flock {
    my ($filename, $lockflag)=@_;
-   my $fh;
+   my ($dev, $inode, $fh);
 
-   $fh=$opentable{$filename};
+   if ( (! -e $filename) && $lockflag ne LOCK_UN) {
+      ($filename =~ /^(.+)$/) && ($filename = $1);   
+      sysopen(F, $filename, O_RDWR|O_CREAT, 0600); # create file for lock
+      close(F);
+   } 
 
-  if (! defined($fh)) {                        # handle not found, open it!
-      $fh=FileHandle->new();   
-      if ( (! -e $filename) && $lockflag ne LOCK_UN) {
-         ($filename =~ /^(.+)$/) && ($filename = $1);   
-         sysopen($fh, $filename, O_RDWR|O_CREAT, 0600); # create file for lock
-         close($fh);
-      } 
+   ($dev, $inode)=(stat($filename))[0,1];
+   if ($dev eq '' || $inode eq '') {
+      return(0);
+   }
+
+
+   if (defined($opentable{"$dev-$inode"}) ) {	
+      $fh=$opentable{"$dev-$inode"};
+   } else { # handle not found, open it!
+      $fh=FileHandle->new();
       if (sysopen($fh, $filename, O_RDWR)) {
-         $opentable{$filename}=$fh;
+         $opentable{"$dev-$inode"}=$fh;
       } else {
          return(0);
       }

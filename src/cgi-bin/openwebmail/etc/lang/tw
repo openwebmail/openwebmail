@@ -7,7 +7,7 @@ $lang_charset = 'big5';
    INBOX => '新信件',
    'saved-messages' => '收件匣',
    'sent-mail'      => '寄件備分',
-   'saved-drafts'   => '草稿',
+   'saved-drafts'   => '草稿匣',
    'mail-trash'     => '垃圾桶',
    DELETE => '--直接刪除--'
    );
@@ -132,6 +132,7 @@ $lang_charset = 'big5';
             folder_with_name  => '該名稱的信件匣',
             already_exists    => '已存在!',
             cant_create_folder=> '不能建立信件匣!',
+            under_indexing    => '還在索引中, 請待會再試',
             abook_invalid     => '抱歉！這檔案不是 Outlook Express 5 的 CSV 格式.',
             back              => '回上一頁',
             tryagain          => '再試一次.',

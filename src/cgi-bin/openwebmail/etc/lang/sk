@@ -134,6 +134,7 @@ $lang_charset = 'iso-8859-2';
             folder_with_name  => 'Katalóg s týmto názvom',
             already_exists    => 'u¾ existuje!',
             cant_create_folder=> 'Nedá sa vytvori» katalóg!',
+            under_indexing    => 'is still under indexing, please try later',
             abook_invalid     => 'Prepáète, ale tento súbor nevyzerá ako adresár exportovaný z Microsoft Outlook Express 5 v CVS formáte. Uistite sa o tom prezretím v textovom editori. Prvý riadok by mal zaèína» "Name,E-mail Address", potom pokraèujte.',
             back              => 'spä»',
             tryagain          => 'a skúste znova.',

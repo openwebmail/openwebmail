@@ -131,6 +131,7 @@ $lang_charset = 'iso-8859-1';
             folder_with_name  => 'En mappe ved navn',
             already_exists    => 'eksisterer allerede!',
             cant_create_folder=> 'Kan ikke oprette mappe!',
+            under_indexing    => 'is still under indexing, please try later',
             abook_invalid     => 'Denne fil ser desværre ikke ud til at være en adressebog fra Microsoft Outlook Express 5 i CSV-format. Check i en teksteditor, at den første linie starter med "Name,E-mail Address", og gå ',
             back              => 'tilbage',
             tryagain          => 'og forsøg igen.',
