@@ -193,21 +193,22 @@ sub change_userpassword {
       return (-3, "Unable to match entry for modification");
    }
 
-   open(TMP, ">$pwdfile.tmp.$$") or goto authsys_error;
+   my $tmpfile=ow::tool::untaint("$pwdfile.tmp.$$.".rand());
+   open(TMP, ">$tmpfile") or goto authsys_error;
    print TMP $content or goto authsys_error;
    close(TMP) or goto authsys_error;
 
    # automic update passwd by rename
    my ($fmode, $fuid, $fgid) = (stat($pwdfile))[2,4,5];
-   chown($fuid, $fgid, "$pwdfile.tmp.$$");
-   chmod($fmode, "$pwdfile.tmp.$$");
-   rename("$pwdfile.tmp.$$", $pwdfile) or goto authsys_error;
+   chown($fuid, $fgid, $tmpfile);
+   chmod($fmode, $tmpfile);
+   rename($tmpfile, $pwdfile) or goto authsys_error;
 
    ow::filelock::lock($pwdfile, LOCK_UN);
    return (0, '');
 
 authsys_error:
-   unlink("$pwdfile.tmp.$$");
+   unlink($tmpfile);
    ow::filelock::lock($pwdfile, LOCK_UN);
    return (-3, "Unable to write $pwdfile");
 }

@@ -1185,8 +1185,8 @@ sub rebuild_message_with_partialid {
       }
    }
 
-   my $tmpfile=ow::tool::untaint("/tmp/rebuild_tmp_$$");
-   my $tmpdb=ow::tool::untaint("/tmp/.rebuild_tmp_$$");
+   my $tmpfile=ow::tool::tmpname('rebuild.tmpfile');
+   my $tmpdb=ow::tool::tmpname('rebuild.tmpdb');
 
    ow::filelock::lock($tmpfile, LOCK_EX) or return -5;
    open (TMP,  ">$tmpfile");

@@ -18,7 +18,7 @@ require "modules/suid.pl";
 sub get_tnef_filelist {
    my ($tnefbin, $r_tnef)=@_;
    my @filelist=();
-   my $tmpfile="/tmp/.tnef.tmpfile.$$";
+   my $tmpfile=ow::tool::tmpname('tnef.tmpfile');
 
    # ensure tmpfile is owned by current euid but wll be writeable for forked pipe
    open(F, ">$tmpfile"); close(F); chmod(0666, $tmpfile);
@@ -38,7 +38,7 @@ sub get_tnef_archive {
    my ($tnefbin, $tnefname, $r_tnef)=@_;
    my ($arcname, $arcdata);
    my @filelist=();
-   my $tmpdir="/tmp/.tnef.tmpdir.$$";
+   my $tmpdir=ow::tool::tmpname('tnef.tmpdir');
 
    if ($<!=$> && $<!=0) {
       local $SIG{CHLD}; undef $SIG{CHLD};  # disable $SIG{CHLD} temporarily for wait()

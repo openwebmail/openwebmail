@@ -418,7 +418,7 @@ sub msword2html {
    my $antiwordbin=ow::tool::findbin('antiword');
    return 0 if ($antiwordbin eq '');
 
-   my $tmpfile=ow::tool::untaint("/tmp/.msword2html.tmpfile.$$");
+   my $tmpfile=ow::tool::tmpname('msword2html.tmpfile');
    my $err=0;
    open(F, ">$tmpfile") or return 0;
    print F ${$r_content} or $err++;

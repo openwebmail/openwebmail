@@ -1617,7 +1617,7 @@ sub sendmessage {
    my $saveerr=0;
 
    my $smtp;
-   my $smtperrfile="/tmp/.openwebmail.smtperr.$$";
+   my $smtperrfile=ow::tool::tmpname('smtp.err');
    local (*STDERR);	# localize stderr to a new global variable
 
    my ($savefolder, $savefile, $savedb);

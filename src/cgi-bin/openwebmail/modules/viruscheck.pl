@@ -40,7 +40,7 @@ sub pipecmd_msg {
    my $username=getpwuid($>);	# username of euid
    my $pipecmd=ow::tool::untaint($_[0]); $pipecmd=~s/\@\@\@USERNAME\@\@\@/$username/g;
    my $r_message=$_[1]; # either sting ref or array ref may be used
-   my $tmpfile=ow::tool::untaint("/tmp/.viruscheck.tmpfile.$$");
+   my $tmpfile=ow::tool::tmpname('viruscheck.tmpfile');
 
    # ensure tmpfile is owned by current euid but wll be writeable for forked pipe
    open(F, ">$tmpfile"); close(F); chmod(0666, $tmpfile);

@@ -345,14 +345,6 @@ sub login {
    $ugid=ow::tool::untaint($ugid);
    $homedir=ow::tool::untaint($homedir);
 
-   # try to load lang and style based on user's preference (for error msg)
-   if ($>==0 || $>== $uuid) {
-      %prefs = readprefs();
-      %style = readstyle($prefs{'style'});
-      loadlang($prefs{'language'});
-      charset($prefs{'charset'}) if ($CGI::VERSION>=2.58);	# setup charset of CGI module
-   }
-
    my $password = param('password') || '';
    my ($errorcode, $errormsg);
    if ($config{'auth_withdomain'}) {
@@ -383,8 +375,16 @@ sub login {
       $html =~ s/\@\@\@ERRORMSG\@\@\@/$webmsg/;
 
       sleep $config{'loginerrordelay'};	# delayed response
-
+      $user='';				# to remove userinfo in htmlheader
       httpprint([], [htmlheader(), $html, htmlfooter(1)]);
+   }
+
+   # try to load lang and style based on user's preference (for error msg)
+   if ($>==0 || $>== $uuid) {
+      %prefs = readprefs();
+      %style = readstyle($prefs{'style'});
+      loadlang($prefs{'language'});
+      charset($prefs{'charset'}) if ($CGI::VERSION>=2.58);	# setup charset of CGI module
    }
 
    # create domainhome for stuff not put in syshomedir
@@ -501,17 +501,17 @@ sub login {
          if (! -f "$folderdir/saved-messages") {
             open(F,">>$folderdir/saved-messages"); close(F);
          }
-         rename("$homedir/mbox", "$homedir/mbox.tmp.$$");
-         symlink("$folderdir/saved-messages", "$homedir/mbox");
-
-         open(T,"$homedir/mbox.tmp.$$");
-         open(F,"+<$folderdir/saved-messages");
-         seek(F, 0, 2);	# seek to end;
-         while(<T>) { print F $_; }
-         close(F);
-         close(T);
-
-         unlink("$homedir/mbox.tmp.$$");
+         if (open(F,"+<$folderdir/saved-messages")) {
+            seek(F, 0, 2);	# seek to end;
+            rename("$homedir/mbox", "$homedir/mbox.old.$$");
+            symlink("$folderdir/saved-messages", "$homedir/mbox");
+            if (open(T,"$homedir/mbox.old.$$")) {
+               while(<T>) { print F $_; }
+               close(T);
+               unlink("$homedir/mbox.old.$$");
+            }
+            close(F);
+         }
          ow::filelock::lock("$folderdir/saved-messages", LOCK_UN);
       }
    }

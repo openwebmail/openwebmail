@@ -390,8 +390,8 @@ sub markreadfolder {
    ow::dbm::close(\%FDB, $folderdb);
    my @unreadmsgids=(sort { $offset{$a}<=>$offset{$b} } keys %offset);
 
-   my $tmpfile=ow::tool::untaint("/tmp/.markread.tmpfile.$$");
-   my $tmpdb=ow::tool::untaint("/tmp/.markread.tmpdb.$$");
+   my $tmpfile=ow::tool::tmpname("markread.tmpfile");
+   my $tmpdb=ow::tool::tmpname("markread.tmpdb");
 
    while (!$ioerr && $#unreadmsgids>=0) {
       my @markids=();

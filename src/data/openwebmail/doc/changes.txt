@@ -1,3 +1,10 @@
+01/22/2005
+----------
+1. use random number to generate tmp filename for security
+2. clear all user related info in login error message
+   (suggested by Joao S Veiga, openwebmail.AT.rf.com.br)
+
+
 01/21/2005
 ----------
 1. multiple charset support for rename function in editfolder and

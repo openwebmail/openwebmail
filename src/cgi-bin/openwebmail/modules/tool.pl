@@ -231,6 +231,16 @@ sub zh_dospath2fname {
    return $buff;
 }
 
+sub tmpname {
+   my ($basename)=@_;
+   my $fname;
+   for (1..5) {
+      my $n=rand(); $n=~s/^0.0*//; $fname="/tmp/.ow.$basename.$$-".substr($n,0,8);
+      return untaint($fname) if (!-e $fname);
+   }
+   return untaint($fname);	# this should never be reached
+}
+
 sub ext2contenttype {
    my $ext=lc($_[0]); $ext=~s/^.*\.//;	# remove part before .
 

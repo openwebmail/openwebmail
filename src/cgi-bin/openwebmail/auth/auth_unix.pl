@@ -208,7 +208,8 @@ sub change_userpassword {
       return (-3, "Unable to match entry for modification");
    }
 
-   open(TMP, ">$passwdfile_encrypted.tmp.$$") or goto authsys_error;
+   my $tmpfile=ow::tool::untaint("$passwdfile_encrypted.tmp.$$.".rand());
+   open(TMP, ">$tmpfile") or goto authsys_error;
    print TMP $content or goto authsys_error;
    close(TMP) or goto authsys_error;
 
@@ -216,15 +217,15 @@ sub change_userpassword {
       # disable $SIG{CHLD} temporarily for system() return value
       # local $SIG{CHLD}; undef $SIG{CHLD};	# already done in auth.pl
       # update passwd and db with pwdmkdb program
-      if ( system("$passwdmkdb $passwdfile_encrypted.tmp.$$")!=0 ) {
+      if ( system("$passwdmkdb $tmpfile")!=0 ) {
          goto authsys_error;
       }
    } else {
       # automic update passwd by rename
       my ($fmode, $fuid, $fgid) = (stat($passwdfile_encrypted))[2,4,5];
-      chown($fuid, $fgid, "$passwdfile_encrypted.tmp.$$");
-      chmod($fmode, "$passwdfile_encrypted.tmp.$$");
-      rename("$passwdfile_encrypted.tmp.$$", $passwdfile_encrypted) or goto authsys_error;
+      chown($fuid, $fgid, $tmpfile);
+      chmod($fmode, $tmpfile);
+      rename($tmpfile, $passwdfile_encrypted) or goto authsys_error;
    }
    ow::filelock::lock($passwdfile_encrypted, LOCK_UN);
 
@@ -234,7 +235,7 @@ sub change_userpassword {
    return (0, "");
 
 authsys_error:
-   unlink("$passwdfile_encrypted.tmp.$$");
+   unlink($tmpfile);
    ow::filelock::lock($passwdfile_encrypted, LOCK_UN);
    return (-3, "Unable to write $passwdfile_encrypted");
 }

@@ -12,8 +12,8 @@ require "modules/tool.pl";
 sub get_handle {
    my ($wgetbin, $url)=@_;
 
-   my $datafile=ow::tool::untaint("/var/tmp/.wget.data.$$");	# same location as CGI.pm
-   my $errfile=ow::tool::untaint("/tmp/.wget.err.$$");
+   my $datafile=ow::tool::tmpname('wget.tmpfile');
+   my $errfile=ow::tool::tmpname('wget.err');
    open(ERR, ">$errfile"); close(ERR);
 
    my $wgetcmd=ow::tool::untaint("$wgetbin -l0 -O- -o$errfile $url");

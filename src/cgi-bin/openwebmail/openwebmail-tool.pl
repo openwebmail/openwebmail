@@ -344,7 +344,9 @@ sub do_test {
 
    if ($MIME::Base64::VERSION < 3.00) {
       $err--;
-      print "Your MIME::Base64 moule is too old, please update to 3.00 or later\n\n";
+      print "Base64.pm\t\t$INC{'MIME/Base64.pm'}\n\n";
+      print "Your MIME::Base64 module is too old ($MIME::Base64::VERSION),\n".
+            "please update to 3.00 or later.\n\n\n";
    }
 
    load_owconf(\%config_raw, "$SCRIPT_DIR/etc/defaults/openwebmail.conf");
@@ -380,7 +382,7 @@ sub do_test {
 
 sub check_tell_bug {
    my $offset;
-   my $testfile=ow::tool::untaint("/tmp/testfile.$$");
+   my $testfile=ow::tool::tmpname('test.tmpfile');
 
    open(F, ">$testfile"); print F "test"; close(F);
    open(F, ">>$testfile"); $offset=tell(F); close(F);

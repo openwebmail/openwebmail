@@ -148,7 +148,7 @@ sub unlink {
 sub guessoptions {
    my (%DB, @filelist, @delfiles);
    my ($dbm_ext, $dbmopen_ext, $dbmopen_haslock);
-   my $testdir="/tmp/.dbmtest.tmpdir.$$";
+   my $testdir=ow::tool::tmpname('dbmtest.tmpdir');
 
    mkdir ($testdir, 0755);
 
@@ -205,7 +205,7 @@ sub guessoptions {
 use vars qw($_defaultdbtype);
 sub get_defaultdbtype {
    if ($_defaultdbtype eq '') {
-      my $t=ow::tool::untaint("/tmp/.dbmtest.$$");
+      my $t=ow::tool::tmpname('dbmtest.tmpfile');
       my %t; dbmopen(%t, "$t$dbmopen_ext", 0600); dbmclose(%t);
 
       $_defaultdbtype=get_dbtype("$t$dbm_ext");
@@ -216,7 +216,7 @@ sub get_defaultdbtype {
 }
 
 sub get_dbtype {
-   my $f=ow::tool::untaint("/tmp/.flist.$$");
+   my $f=ow::tool::tmpname('flist.tmpfile');
    open(F, ">$f"); print F "$_[0]\n"; close(F);	# pass arg through file for safety
 
    my $dbtype=`/usr/bin/file -f $f`; unlink($f);
