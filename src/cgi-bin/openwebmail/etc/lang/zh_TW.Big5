@@ -693,7 +693,7 @@ package ow::zh_TW_Big5;
    abook_ext_notsupported => '系統不支援您上傳的通訊錄的檔案型態 - ',
    abook_toobig => '很抱歉, 這將會超出您的通訊錄空間上限. 請到 ',
    abook_delete_first => '已經存在. 在試下一個之前請將其刪除.',
-   abook_global_denied => '您沒有編輯公用通訊錄的權限',
+   abook_global_denied => '您沒有修改公用通訊錄的權限',
    abook_editform_no_N => '連絡人資料要填入名字後才能儲存. 請回前一頁填入這個連絡人的名字',
    abook_agent_one_contact => '上傳的連絡人 vCard 內只能含有一個人的資料.',
    );

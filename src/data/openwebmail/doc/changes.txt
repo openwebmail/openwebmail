@@ -1,3 +1,19 @@
+11/03/2004
+----------
+1. jump directly to same location after form submission when user click + 
+   to add a new item/entry in addressbook editing
+2. fix a bug that the displayed addrbook name may be wrong in addreditform
+   when the entry in editing is in a readonly addrbook
+3. show only TO field in addrlistview in editgroup mode
+4. fix a bug that abookfolder was not passed in addredit which would
+   cause error in saving an existing entry to addressbook
+5. minor openwebmail-abook.pl code clean 
+   a. add is_abookfolder_writable() abookfolder2file() to openwebmail-abook.pl
+   b. variable convention: xxxfolder - logicalname of an addrbook
+                           xxxfile   - path of an addrbook
+                           xxxbook   - addrbook in mem hash
+
+
 11/02/2004
 ----------
 1. more checks on possible destination addressbooks in addrlistview

@@ -693,7 +693,7 @@ package ow::zh_CN_GB2312;
    abook_ext_notsupported => '系统不支援您上传的通讯录的档案型态 - ',
    abook_toobig => '很抱歉, 这将会超出您的通讯录空间上限. 请到 ',
    abook_delete_first => '已经存在. 在试下一个之前请将其删除.',
-   abook_global_denied => '您没有编辑公用通讯录的权限',
+   abook_global_denied => '您没有修改公用通讯录的权限',
    abook_editform_no_N => '连络人资料要填入名字后才能储存. 请回前一页填入这个连络人的名字',
    abook_agent_one_contact => '上传的连络人 vCard 内只能含有一个人的资料.',
    );

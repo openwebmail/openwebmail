@@ -47,7 +47,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Endereço de Email</b>&nbsp;<a href="javascript:document.editForm.formchange.value='EMAIL,0,1'; document.editForm.submit();">+</a></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Endereço de Email</b>&nbsp;<a name="EMAIL" href="javascript:document.editForm.formchange.value='EMAIL,0,1'; document.editForm.submit();">+</a></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -63,7 +63,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Números de Telefone</b>&nbsp;<a href="javascript:document.editForm.formchange.value='TEL,0,1'; document.editForm.submit();">+</a></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Números de Telefone</b>&nbsp;<a name="TEL" href="javascript:document.editForm.formchange.value='TEL,0,1'; document.editForm.submit();">+</a></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -79,7 +79,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Endereços</b>&nbsp;<a href="javascript:document.editForm.formchange.value='ADR,0,1'; document.editForm.submit();">+</a></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Endereços</b>&nbsp;<a name="ADR" href="javascript:document.editForm.formchange.value='ADR,0,1'; document.editForm.submit();">+</a></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -95,7 +95,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Dados Profissionais</b>&nbsp;<a href="javascript:document.editForm.formchange.value='ORG,0,1'; document.editForm.submit();">+</a></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Dados Profissionais</b>&nbsp;<a name="ORG" href="javascript:document.editForm.formchange.value='ORG,0,1'; document.editForm.submit();">+</a></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -111,7 +111,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Outras Informações</b></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Outras Informações</b><a name="URL"></a></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -143,7 +143,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Campos de Informações Personalizadas</b>&nbsp;<a href="javascript:document.editForm.formchange.value='X-OWM-CUSTOM,0,1'; document.editForm.submit();">+</a></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Campos de Informações Personalizadas</b>&nbsp;<a name="X-OWM-CUSTOM" href="javascript:document.editForm.formchange.value='X-OWM-CUSTOM,0,1'; document.editForm.submit();">+</a></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>

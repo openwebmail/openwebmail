@@ -50,7 +50,6 @@ use vars qw(%charset_convlist);	# defined in iconv.pl
 use vars qw($folder $messageid $sort $page $searchtype $keyword);
 use vars qw($escapedmessageid $escapedfolder $escapedkeyword);
 use vars qw($quotausage $quotalimit);
-use vars qw($webaddrdir);
 use vars qw($abookfolder $abookpage $abooklongpage $abooksort $abooksearchtype $abookkeyword $abookcollapse);
 use vars qw(%supportedimportexportformat);
 use vars qw($escapedabookfolder $escapedabookkeyword);
@@ -103,7 +102,6 @@ $escapedmessageid = ow::tool::escapeURL($messageid);
 $escapedkeyword = ow::tool::escapeURL($keyword);
 
 # addressbook globals
-$webaddrdir = dotpath('webaddr');
 $abookfolder = param('abookfolder') || 'ALL';
 $abookpage = param('abookpage') || 1;
 $abooklongpage = param('abooklongpage') || 0;
@@ -120,10 +118,8 @@ $escapedabookfolder = ow::tool::escapeURL($abookfolder);
 $escapedabookkeyword = ow::tool::escapeURL($abookkeyword);
 
 # does the requested book exist (mabye it was deleted)
-if ($abookfolder !~ m/^(?:ALL|GLOBAL)$/) {
-   if (!-e "$webaddrdir/$abookfolder") {
-      $abookfolder = $escapedabookfolder = 'ALL';
-   }
+if ($abookfolder !~ m/^(?:ALL|GLOBAL)$/ && !-e abookfolder2file($abookfolder)) {
+   $abookfolder = $escapedabookfolder = 'ALL';
 }
 
 # all webmail related settings to remember
@@ -203,29 +199,27 @@ openwebmail_requestend();
 
 ########## ADDRBOOKADD ###########################################
 sub addrbookadd {
-   $abookfolder = param('abookfoldernew') || '';
-   $abookfolder = safefoldername($abookfolder);
-   $abookfolder = ow::tool::untaint($abookfolder);
+   my $abookfoldernew = ow::tool::untaint(safefoldername(param('abookfoldernew')||''));
+   return addrbookedit() if ($abookfoldernew eq '');
 
-   # prepare error messages in case we need them
-   $lang_err{'abook_already_exists'} =~ s/\@\@\@ADDRESSBOOK\@\@\@/$abookfolder/;
-   $lang_err{'abook_name_too_long'} =~ s/\@\@\@ADDRESSBOOK\@\@\@/$abookfolder/;
-   $lang_err{'abook_name_too_long'} =~ s/\@\@\@FOLDERNAME_MAX\@\@\@/$config{'foldername_maxlen'}/;
-
-   if ($abookfolder eq '') {
-      addrbookedit();
-   } elsif (-e "$webaddrdir/$abookfolder" || $abookfolder =~ m/^(?:ALL|GLOBAL|DELETE)$/) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_already_exists'}");
+   my $abookfilenew = abookfolder2file($abookfoldernew);
+   if (-e $abookfilenew || $abookfoldernew =~ m/^(?:ALL|DELETE)$/) {
+      my $msg=$lang_err{'abook_already_exists'};
+      $msg =~ s/\@\@\@ADDRESSBOOK\@\@\@/$abookfoldernew/;
+      openwebmailerror(__FILE__, __LINE__, $msg);
    } else {
-      if (length($abookfolder) > $config{'foldername_maxlen'}) {
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_name_too_long'}");
+      if (length($abookfoldernew) > $config{'foldername_maxlen'}) {
+         my $msg="$lang_err{'abook_name_too_long'}";
+         $msg =~ s/\@\@\@ADDRESSBOOK\@\@\@/$abookfoldernew/;
+         $msg =~ s/\@\@\@FOLDERNAME_MAX\@\@\@/$config{'foldername_maxlen'}/;
+         openwebmailerror(__FILE__, __LINE__, $msg);
       } else {
-         open(NEWBOOK,">$webaddrdir/$abookfolder") or
+         open(NEWBOOK,">$abookfilenew") or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'cant_create_folder'}! ($!)");
          close(NEWBOOK);
 
-         writelog("add addressbook - $abookfolder");
-         writehistory("add addressbook - $abookfolder");
+         writelog("add addressbook - $abookfoldernew");
+         writehistory("add addressbook - $abookfoldernew");
       }
    }
 
@@ -236,21 +230,18 @@ sub addrbookadd {
 
 ########## ADDRBOOKDELETE ########################################
 sub addrbookdelete {
-   $abookfolder = safefoldername($abookfolder);
-   $abookfolder = ow::tool::untaint($abookfolder);
-
-   # prepare error messages in case we need them
-   $lang_err{'abook_delete_book'} =~ s/\@\@\@ADDRESSBOOK\@\@\@/$abookfolder/;
-   $lang_err{'abook_no_exist'} =~ s/\@\@\@ADDRESSBOOK\@\@\@/$abookfolder/;
+   $abookfolder = ow::tool::untaint(safefoldername($abookfolder));
+   my $abookfile = abookfolder2file($abookfolder);
 
    # do the delete
-   if (-e "$webaddrdir/$abookfolder") {
-      unlink("$webaddrdir/$abookfolder") or
-        openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_delete_book'}! ($!)");
+   if (-e $abookfile) {
+      my $msg=$lang_err{'abook_delete_book'}; $msg=~s/\@\@\@ADDRESSBOOK\@\@\@/$abookfolder/;
+      unlink($abookfile) or openwebmailerror(__FILE__, __LINE__, "$msg! ($!)");
       writelog("delete addressbook - $abookfolder");
       writehistory("delete addressbook - $abookfolder");
    } else {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_no_exist'}! ($!)");
+      my $msg=$lang_err{'abook_no_exist'}; $msg=~s/\@\@\@ADDRESSBOOK\@\@\@/$abookfolder/;
+      openwebmailerror(__FILE__, __LINE__, "$msg! ($!)");
    }
 
    addrbookedit();
@@ -268,14 +259,12 @@ sub addrbookedit {
    my %searchterms = ();
    my %only_return = ('N' => 1);
 
-   my @alladdressbooks = getaddrbooks_readable($webaddrdir);
-   foreach my $addressbook (@alladdressbooks) {
-      my $bookfile="$webaddrdir/$addressbook"; 
-      $bookfile=$config{'global_addressbook'} if ($addressbook eq 'GLOBAL');
-
-      my $thisbook = readadrbook($bookfile, (keys %searchterms?\%searchterms:undef), (keys %only_return?\%only_return:undef));
-      $total{$addressbook}{'entries'} = keys %{$thisbook};
-      $total{$addressbook}{'size'} = (-s $bookfile);
+   my @allabookfolders = get_readable_abookfolders();
+   foreach my $abookfolder (@allabookfolders) {
+      my $abookfile=abookfolder2file($abookfolder); 
+      my $thisbook = readadrbook($abookfile, (keys %searchterms?\%searchterms:undef), (keys %only_return?\%only_return:undef));
+      $total{$abookfolder}{'entries'} = keys %{$thisbook};
+      $total{$abookfolder}{'size'} = (-s $abookfile);
    }
 
    # get the html cooking
@@ -320,19 +309,19 @@ sub addrbookedit {
    # the personal abook folder data
    my $i = 1;
    $temphtml = '';
-   foreach my $abook (@alladdressbooks) {
-      next if ($abook eq 'GLOBAL');
-      my $escapedabook = ow::tool::escapeURL($abook);
-      my $jsfolderstr = $abook;
+   foreach my $abookfolder (@allabookfolders) {
+      next if ($abookfolder eq 'GLOBAL');
+      my $escapedabookfolder = ow::tool::escapeURL($abookfolder);
+      my $jsfolderstr = $abookfolder;
       $jsfolderstr =~ s/'/\\'/g;
       $temphtml .= qq|<tr>\n|.
                    qq|<td width="10" bgcolor=$bgcolor[$colornum]>&nbsp;</td>|.
                    qq|<td bgcolor=$bgcolor[$colornum]>|.
                    iconlink("download.gif", $lang_text{'download'},
-                             qq|accesskey="W" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrbookdownload&amp;sessionid=$thissession&amp;abookfolder=$escapedabook"|).
-                   qq|<a href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrlistview&amp;sessionid=$thissession&amp;abookfolder=$escapedabook">|.ow::htmltext::str2html($abook).qq|</a></td>\n|.
-                   qq|<td align="center" bgcolor=$bgcolor[$colornum]>$total{$abook}{'entries'}</td>\n|.
-                   qq|<td align="center" bgcolor=$bgcolor[$colornum]>|.lenstr($total{$abook}{'size'},0).qq|</td>\n|.
+                             qq|accesskey="W" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrbookdownload&amp;sessionid=$thissession&amp;abookfolder=$escapedabookfolder"|).
+                   qq|<a href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrlistview&amp;sessionid=$thissession&amp;abookfolder=$escapedabookfolder">|.ow::htmltext::str2html($abookfolder).qq|</a></td>\n|.
+                   qq|<td align="center" bgcolor=$bgcolor[$colornum]>$total{$abookfolder}{'entries'}</td>\n|.
+                   qq|<td align="center" bgcolor=$bgcolor[$colornum]>|.lenstr($total{$abookfolder}{'size'},0).qq|</td>\n|.
                    qq|<td bgcolor=$bgcolor[$colornum] align="center" nowrap>\n|.
                    qq|   <table cellpadding="0" cellspacing="0" border="0">\n|.
                    qq|   <tr>\n|.
@@ -342,7 +331,7 @@ sub addrbookedit {
                    ow::tool::hiddens(
                                      action=>'addrbookdelete',
                                      sessionid=>$thissession,
-                                     abookfolder=>ow::htmltext::str2html($abook),
+                                     abookfolder=>ow::htmltext::str2html($abookfolder),
                                     ).
                    submit(-name=>$lang_text{'delete'}, -class=>"medtext",
                           -onClick=>"return OpConfirm('deletebook', 'abookDeleteForm$i', $lang_text{'folderdelconf'}+'\\n($jsfolderstr)');").
@@ -354,7 +343,7 @@ sub addrbookedit {
                    ow::tool::hiddens(
                                      action=>'addrbookrename',
                                      sessionid=>$thissession,
-                                     abookfolder=>ow::htmltext::str2html($abook),
+                                     abookfolder=>ow::htmltext::str2html($abookfolder),
                                      abookfoldernew=>'',
                                     ).
                    submit(-name=>$lang_text{'rename'}, -class=>"medtext",
@@ -374,15 +363,15 @@ sub addrbookedit {
    # the default abook folder data
    $colornum = 1;
    $temphtml = '';
-   foreach my $abook (qw(GLOBAL)) {
+   foreach my $abookfolder (qw(GLOBAL)) {
       $temphtml .= qq|<tr>\n|.
                    qq|<td width="10" bgcolor=$bgcolor[$colornum]>&nbsp;</td>|.
                    qq|<td bgcolor=$bgcolor[$colornum]>|.
                    iconlink("download.gif", $lang_text{'download'},
-                             qq|accesskey="W" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrbookdownload&amp;sessionid=$thissession&amp;abookfolder=$abook"|).
-                   qq|<a href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrlistview&amp;sessionid=$thissession&amp;abookfolder=|.ow::tool::escapeURL($abook).qq|">|.ow::htmltext::str2html($lang_abookselectionlabels{$abook}).qq|</a></td>\n|.
-                   qq|<td align="center" bgcolor=$bgcolor[$colornum]>$total{$abook}{'entries'}</td>\n|.
-                   qq|<td align="center" bgcolor=$bgcolor[$colornum]>|.lenstr($total{$abook}{'size'},0).qq|</td>\n|.
+                             qq|accesskey="W" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrbookdownload&amp;sessionid=$thissession&amp;abookfolder=$abookfolder"|).
+                   qq|<a href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrlistview&amp;sessionid=$thissession&amp;abookfolder=|.ow::tool::escapeURL($abookfolder).qq|">|.ow::htmltext::str2html($lang_abookselectionlabels{$abookfolder}).qq|</a></td>\n|.
+                   qq|<td align="center" bgcolor=$bgcolor[$colornum]>$total{$abookfolder}{'entries'}</td>\n|.
+                   qq|<td align="center" bgcolor=$bgcolor[$colornum]>|.lenstr($total{$abookfolder}{'size'},0).qq|</td>\n|.
                    qq|<td bgcolor=$bgcolor[$colornum] align="center">&nbsp;</td>\n|.
                    qq|</tr>\n|;
       $colornum=($colornum+1)%2; # alternate the bgcolor
@@ -412,30 +401,29 @@ sub addrbookedit {
 
 ########## ADDRBOOKRENAME ########################################
 sub addrbookrename {
-   my $newname = param('abookfoldernew') || '';
-   $newname = safefoldername($newname);
-   $newname = ow::tool::untaint($newname);
+   my $abookfoldernew = param('abookfoldernew') || '';
+   $abookfoldernew = ow::tool::untaint(safefoldername($abookfoldernew));
+   return addrbookedit() if ($abookfoldernew eq '');
 
-   $abookfolder = safefoldername($abookfolder);
-   $abookfolder = ow::tool::untaint($abookfolder);
+   $abookfolder = ow::tool::untaint(safefoldername($abookfolder));
 
-   # prepare error messages in case we need them
-   $lang_err{'abook_already_exists'} =~ s/\@\@\@ADDRESSBOOK\@\@\@/$newname/;
-   $lang_err{'abook_name_too_long'} =~ s/\@\@\@ADDRESSBOOK\@\@\@/$newname/;
-   $lang_err{'abook_name_too_long'} =~ s/\@\@\@FOLDERNAME_MAX\@\@\@/$config{'foldername_maxlen'}/;
+   my $abookfilenew=abookfolder2file($abookfoldernew);
+   my $abookfile=abookfolder2file($abookfolder);
 
-   if ($newname eq '') {
-      addrbookedit();
-   } elsif (-e "$webaddrdir/$newname" || $newname =~ m/^(?:ALL|GLOBAL)$/) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_already_exists'}");
+   if (-e $abookfilenew || $abookfoldernew =~ m/^(?:ALL|GLOBAL|DELETE)$/) {
+      my $msg=$lang_err{'abook_already_exists'}; $msg =~ s/\@\@\@ADDRESSBOOK\@\@\@/$abookfoldernew/;
+      openwebmailerror(__FILE__, __LINE__, $msg);
    } else {
-      if (length($newname) > $config{'foldername_maxlen'}) {
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_name_too_long'}");
+      if (length($abookfoldernew) > $config{'foldername_maxlen'}) {
+         my $msg=$lang_err{'abook_name_too_long'}; 
+         $msg =~ s/\@\@\@ADDRESSBOOK\@\@\@/$abookfoldernew/;
+         $msg =~ s/\@\@\@FOLDERNAME_MAX\@\@\@/$config{'foldername_maxlen'}/;
+         openwebmailerror(__FILE__, __LINE__, $msg);
       } else {
-         rename("$webaddrdir/$abookfolder","$webaddrdir/$newname") or
+         rename($abookfile, $abookfilenew) or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_cant_rename'}! ($!)");
-         writelog("rename addressbook - $abookfolder to $newname");
-         writehistory("rename addressbook - $abookfolder to $newname");
+         writelog("rename addressbook - $abookfolder to $abookfoldernew");
+         writehistory("rename addressbook - $abookfolder to $abookfoldernew");
       }
    }
 
@@ -446,29 +434,28 @@ sub addrbookrename {
 
 ########## ADDRBOOKDOWNLOAD ######################################
 sub addrbookdownload {
-   $abookfolder = safefoldername($abookfolder);
-   $abookfolder = ow::tool::untaint($abookfolder);
-   my $folderfile="$webaddrdir/$abookfolder";
+   $abookfolder = ow::tool::untaint(safefoldername($abookfolder));
+   my $abookfile=abookfolder2file($abookfolder);
 
    my ($cmd, $contenttype, $filename);
    if ( ($cmd=ow::tool::findbin("zip")) ne "" ) {
-      $cmd.=" -qj - $folderfile |";
+      $cmd.=" -qj - $abookfile |";
       $contenttype='application/x-zip-compressed';
       $filename="$abookfolder.vcf.zip";
    } elsif ( ($cmd=ow::tool::findbin("gzip")) ne "" ) {
-      $cmd.=" -c $folderfile |";
+      $cmd.=" -c $abookfile |";
       $contenttype='application/x-gzip-compressed';
       $filename="$abookfolder.vcf.gz";
    } else {
-      $cmd="$folderfile";
+      $cmd="$abookfile";
       $contenttype='application/x-vcard';
       $filename="$abookfolder.vcf";
    }
 
    $filename=~s/\s+/_/g;
 
-   ow::filelock::lock($folderfile, LOCK_EX|LOCK_NB) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $folderfile");
+   ow::filelock::lock($abookfile, LOCK_EX|LOCK_NB) or
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $abookfile");
 
    # disposition:attachment default to save
    print qq|Connection: close\n|,
@@ -488,7 +475,7 @@ sub addrbookdownload {
    }
    close(T);
 
-   ow::filelock::lock($folderfile, LOCK_UN);
+   ow::filelock::lock($abookfile, LOCK_UN);
 
    writelog("download addressbook - $abookfolder");
    writehistory("download addressbook - $abookfolder");
@@ -501,7 +488,8 @@ sub addrbookdownload {
 ########## ADDRLISTVIEW ##########################################
 # addrlistview can run in 3 modes, so know what mode you are
 # running in before you start hacking here. The 3 modes are
-# '','composeselect', and 'export'.
+# '','composeselect', and 'export'. 
+# (composeselect has 2 cases, editgroup or compose)
 sub addrlistview {
    # show the book we left from
    my $editformcaller = safefoldername(param('editformcaller'));
@@ -550,14 +538,14 @@ sub addrlistview {
    for (0..$#headings) { $headingpos{$headings[$_]} = $_+1 }; # The +1 is for the num column
 
    # load up the list of available books
-   my @alladdressbooks = getaddrbooks_readable($webaddrdir);	# readable ones
-   my @writablebooks = getaddrbooks_writable($webaddrdir);	# writable ones
+   my @allabookfolders = get_readable_abookfolders();	# readable ones
+   my @writableabookfolders = get_writable_abookfolders();	# writable ones
 
    # calculate the available free space
    my $availfreespace = '';
-   for (@alladdressbooks) { 
+   for (@allabookfolders) { 
       next if ($_ eq 'GLOBAL');
-      $availfreespace += (-s "$webaddrdir/$_") || 0;
+      $availfreespace += (-s abookfolder2file($_)) || 0;
    }
    $availfreespace = int($config{'abook_maxsizeallbooks'} - ($availfreespace/1024) + .5);
 
@@ -605,21 +593,19 @@ sub addrlistview {
       }
    }
 
-   my @viewbooks=();
-   foreach (@alladdressbooks) {
+   my @viewabookfolders=();
+   foreach (@allabookfolders) {
       if ($abookfolder eq $_) {		#  current book is one of the readable books
-         push(@viewbooks, $_); last;
+         push(@viewabookfolders, $_); last;
       }
    }
-   @viewbooks=@alladdressbooks if ($#viewbooks<0);
-   foreach my $addressbook (@viewbooks) {
-      my $bookfile="$webaddrdir/$addressbook"; 
-      $bookfile=$config{'global_addressbook'} if ($addressbook eq 'GLOBAL');
-
-      my $thisbook = readadrbook($bookfile, (keys %searchterms?\%searchterms:undef), \%only_return);
+   @viewabookfolders=@allabookfolders if ($#viewabookfolders<0);
+   foreach my $abookfolder (@viewabookfolders) {
+      my $abookfile=abookfolder2file($abookfolder); 
+      my $thisbook = readadrbook($abookfile, (keys %searchterms?\%searchterms:undef), \%only_return);
       # remember what book this address came from
       foreach my $xowmuid (keys %{$thisbook}) {
-         ${$thisbook}{$xowmuid}{'X-OWM-BOOK'}[0]{VALUE} = $addressbook;
+         ${$thisbook}{$xowmuid}{'X-OWM-BOOK'}[0]{VALUE} = $abookfolder;
          # add it to addresses
          $addresses{$xowmuid} = ${$thisbook}{$xowmuid};
       }
@@ -897,8 +883,8 @@ sub addrlistview {
 
    # setup the table specs and row color toggle
    my $tabletotalspan = '';
-   if ($listviewmode eq 'export') {
-      $tabletotalspan = @headings + 2; # number,export
+   if ($listviewmode eq 'export' || param('editgroupform')) {
+      $tabletotalspan = @headings + 2; # number, (export|to)
    } else {
       $tabletotalspan = @headings + 4; # number,to,cc,bcc
    }
@@ -929,7 +915,7 @@ sub addrlistview {
 
    $temphtml .= popup_menu(-name=>'abookfolder',
                            -default=>$abookfolder,
-                           -values=>['ALL', @alladdressbooks],
+                           -values=>['ALL', @allabookfolders],
                            -override=>1,
                            -onChange=>"javascript:document.forms['contactsForm'].elements['abookfolder'].value=document.forms['abookFolderForm'].elements['abookfolder'].options[document.forms['abookFolderForm'].elements['abookfolder'].selectedIndex].value; document.contactsForm.submit();",
                            -labels=>\%lang_abookselectionlabels);
@@ -950,7 +936,7 @@ sub addrlistview {
    # left side navigation buttons
    $temphtml = '';
    if ($listviewmode eq '') {
-      if ($#writablebooks>=0) {
+      if ($#writableabookfolders>=0) {
          $temphtml .= iconlink("abooknewcontact.gif", $lang_text{'abook_newcontact'},
                                qq|accesskey="O" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addreditform&amp;$urlparm"|);
          $temphtml .= iconlink("abooknewgroup.gif", $lang_text{'abook_newgroup'},
@@ -1059,24 +1045,24 @@ sub addrlistview {
    my %movecopydeletelabels = %lang_abookselectionlabels;
    $movecopydeletelabels{'DELETE'} = $lang_folders{'DELETE'};
 
-   my @destbooks=();
+   my @destabookfolders=();
    my $is_src_editable=0;
    if ($abookfolder eq 'ALL') {
-      @destbooks=@writablebooks;
-      $is_src_editable=1 if ($#writablebooks>=0);
+      @destabookfolders=@writableabookfolders;
+      $is_src_editable=1 if ($#writableabookfolders>=0);
    } else {
-      foreach (@writablebooks) {
+      foreach (@writableabookfolders) {
          if ($_ eq $abookfolder) { 
             $is_src_editable=1; next;
          } else {
-            push(@destbooks, $_);
+            push(@destabookfolders, $_);
          }
       }
    }
 
    $temphtml = '';
    if ($listviewmode eq '' &&			# not in export or compose popup
-       ($is_src_editable || $#destbooks>=0) ) {	# either src or dst is writable, then cp/mv make sence
+       ($is_src_editable || $#destabookfolders>=0) ) {	# either src or dst is writable, then cp/mv make sence
       $temphtml = start_form(-name=>"moveCopyForm",
                              -action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl").
                   ow::tool::hiddens(action=>'addrmovecopydelete',
@@ -1093,9 +1079,9 @@ sub addrlistview {
                   $formparm;
       if ($is_src_editable) {	
          $temphtml .=popup_menu(-name=>'destinationabook',
-                                -default=>$writablebooks[0],
+                                -default=>$writableabookfolders[0],
                                 -override=>1,
-                                -values=>[@destbooks, 'DELETE'],
+                                -values=>[@destabookfolders, 'DELETE'],
                                 -labels=>\%movecopydeletelabels,
                                );
          $temphtml .=submit(-name=>'addrmoveaddresses',
@@ -1104,13 +1090,13 @@ sub addrlistview {
                             -class=>"medtext");
       } else {
          $temphtml .=popup_menu(-name=>'destinationabook',
-                                -default=>$writablebooks[0],
+                                -default=>$writableabookfolders[0],
                                 -override=>1,
-                                -values=>\@destbooks,
+                                -values=>\@destabookfolders,
                                 -labels=>\%movecopydeletelabels,
                                );
       }
-      if ($#destbooks>=0) {	# dest is writable
+      if ($#destabookfolders>=0) {	# dest is writable
          $temphtml .=submit(-name=>'addrcopyaddresses',
                             -value=>$lang_text{'abook_listview_copy'},
                             -onClick=>"javascript:addToForm('moveCopyForm','contactsForm','to','cc','bcc'); document.moveCopyForm.submit();",
@@ -1191,8 +1177,7 @@ sub addrlistview {
 
    # the quick-add toolbar
    if ($listviewmode eq '') {
-      if ( ($abookfolder !~ m/^ALL|GLOBAL$/ && -w "$webaddrdir/$abookfolder") || 
-           ($abookfolder eq 'GLOBAL' && $config{'abook_globaleditable'} && -w $config{'global_addressbook'})) {
+      if ( is_abookfolder_writable($abookfolder) ) {
          my %addaddressmap = (
                               'first' => 'N.0.VALUE.GIVENNAME',
                               'last' => 'N.0.VALUE.FAMILYNAME',
@@ -1324,8 +1309,8 @@ sub addrlistview {
                 $formparm;
 
    # the column headings
-   if ($listviewmode eq 'export') {
-      push(@headings, 'to'); # only one checkbox for exporting
+   if ($listviewmode eq 'export' || param('editgroupform')) {
+      push(@headings, 'to'); # only one checkbox for exporting or editgroup
    } else {
       push(@headings, qw(to cc bcc));
    }
@@ -1418,12 +1403,7 @@ sub addrlistview {
                   foreach my $heading (grep(!m/^(to|cc|bcc)$/, @headings)) {
                      if (exists $addresses{$xowmuid}{N}[$index]{VALUE}{$Nmap{$heading}}) {
                         if ($listviewmode eq '') {
-                           if (($addresses{$xowmuid}{'X-OWM-BOOK'}[0]{VALUE} eq 'GLOBAL' && $config{'abook_globaleditable'}) ||
-                                $addresses{$xowmuid}{'X-OWM-BOOK'}[0]{VALUE} ne 'GLOBAL') {
-                              $newrow[$headingpos{$heading}] .= qq|<td bgcolor=$bgcolor[$colornum]><a href="$editurl" $hreftitle>|.ow::htmltext::str2html($addresses{$xowmuid}{N}[$index]{VALUE}{$Nmap{$heading}}).qq|</a></td>\n|;
-                           } else {
-                              $newrow[$headingpos{$heading}] .= qq|<td bgcolor=$bgcolor[$colornum]>|.ow::htmltext::str2html($addresses{$xowmuid}{N}[$index]{VALUE}{$Nmap{$heading}}).qq|</td>\n|;
-                           }
+                           $newrow[$headingpos{$heading}] .= qq|<td bgcolor=$bgcolor[$colornum]><a href="$editurl" $hreftitle>|.ow::htmltext::str2html($addresses{$xowmuid}{N}[$index]{VALUE}{$Nmap{$heading}}).qq|</a></td>\n|;
                         } else {
                            $newrow[$headingpos{$heading}] .= qq|<td bgcolor=$bgcolor[$colornum]>|.ow::htmltext::str2html($addresses{$xowmuid}{N}[$index]{VALUE}{$Nmap{$heading}}).qq|</td>\n|;
                         }
@@ -1436,12 +1416,7 @@ sub addrlistview {
             if (exists $addresses{$xowmuid}{FN}) {
                if (defined $addresses{$xowmuid}{FN}[$index]) {
                   if ($listviewmode eq '') {
-                     if (($addresses{$xowmuid}{'X-OWM-BOOK'}[0]{VALUE} eq 'GLOBAL' && $config{'abook_globaleditable'}) ||
-                          $addresses{$xowmuid}{'X-OWM-BOOK'}[0]{VALUE} ne 'GLOBAL') {
-                        $newrow[$headingpos{'fullname'}] .= qq|<td bgcolor=$bgcolor[$colornum]><a href="$editurl" $hreftitle>|.ow::htmltext::str2html($addresses{$xowmuid}{FN}[$index]{VALUE}).qq|</a></td>\n|;
-                     } else {
-                        $newrow[$headingpos{'fullname'}] .= qq|<td bgcolor=$bgcolor[$colornum]>|.ow::htmltext::str2html($addresses{$xowmuid}{FN}[$index]{VALUE}).qq|</td>\n|;
-                     }
+                     $newrow[$headingpos{'fullname'}] .= qq|<td bgcolor=$bgcolor[$colornum]><a href="$editurl" $hreftitle>|.ow::htmltext::str2html($addresses{$xowmuid}{FN}[$index]{VALUE}).qq|</a></td>\n|;
                   } else {
                      $newrow[$headingpos{'fullname'}] .= qq|<td bgcolor=$bgcolor[$colornum]>|.ow::htmltext::str2html($addresses{$xowmuid}{FN}[$index]{VALUE}).qq|</td>\n|;
                   }
@@ -1506,12 +1481,7 @@ sub addrlistview {
                                            grep { !m/VOICE/ } keys %{$addresses{$xowmuid}{TEL}[$index]{TYPES}}
                                      );
                   if ($listviewmode eq '') {
-                     if (($addresses{$xowmuid}{'X-OWM-BOOK'}[0]{VALUE} eq 'GLOBAL' && $config{'abook_globaleditable'}) ||
-                          $addresses{$xowmuid}{'X-OWM-BOOK'}[0]{VALUE} ne 'GLOBAL') {
-                        $newrow[$headingpos{'phone'}] .= qq|<td bgcolor=$bgcolor[$colornum] nowrap><a href="$editurl">|.ow::htmltext::str2html("$addresses{$xowmuid}{TEL}[$index]{VALUE} $typestag").qq|</a></td>\n|;
-                     } else {
-                        $newrow[$headingpos{'phone'}] .= qq|<td bgcolor=$bgcolor[$colornum] nowrap>|.ow::htmltext::str2html("$addresses{$xowmuid}{TEL}[$index]{VALUE} $typestag").qq|</td>\n|;
-                     }
+                     $newrow[$headingpos{'phone'}] .= qq|<td bgcolor=$bgcolor[$colornum] nowrap><a href="$editurl">|.ow::htmltext::str2html("$addresses{$xowmuid}{TEL}[$index]{VALUE} $typestag").qq|</a></td>\n|;
                   } else {
                      $newrow[$headingpos{'phone'}] .= qq|<td bgcolor=$bgcolor[$colornum] nowrap>|.ow::htmltext::str2html("$addresses{$xowmuid}{TEL}[$index]{VALUE} $typestag").qq|</td>\n|;
                   }
@@ -1543,6 +1513,22 @@ sub addrlistview {
                # keep track of xowmuids, not email addresses
                $email = $allemails = $xowmuid;
                $newrow[$tabletotalspan-1] = qq|<td bgcolor=$bgcolor[$colornum] align="center"><input type="checkbox" name="to" value="|.ow::htmltext::str2html($email).qq|" |.(exists $ischecked{TO}{$email}?'checked':'').qq|></td>\n|;
+            } elsif (param('editgroupform')) {	# edit group
+               my $xowmuidtrack = '';
+               if (exists $addresses{$xowmuid}{'X-OWM-GROUP'}) {
+                  my $escapedxowmgroup = ow::htmltext::str2html($addresses{$xowmuid}{'X-OWM-GROUP'}[0]{'VALUE'});
+                  if ($index == 0) { # the first line of a group
+                     if ($abookcollapse == 1) {
+                        $newrow[$tabletotalspan-1] = qq|<td bgcolor=$bgcolor[$colornum] align="center"><input type="checkbox" name="bcc" value="|.ow::htmltext::str2html("$allemails$xowmuidtrack").qq|" $disabled|.is_groupbox_checked('TO',\%ischecked,\$allemails,$xowmuidtrack).qq|></td>\n|;
+                     } else {
+                        $newrow[$tabletotalspan-1] = qq|<td bgcolor=$bgcolor[$colornum] align="center"><input type="checkbox" onClick=CheckAll(this,'contactsForm','bcc','$escapedxowmgroup'); name="bcc" value="" $disabled|.is_groupbox_checked('TO',\%ischecked,\$allemails,$xowmuidtrack).qq|></td>\n|;
+                     }
+                  } elsif ($index > 0) { # not the first line of a group
+                     $newrow[$tabletotalspan-1] = qq|<td bgcolor=$bgcolor[$colornum] align="center"><input type="checkbox" name="bcc" value="|.ow::htmltext::str2html("$email$xowmuidtrack").qq|" $disabled|.(exists $ischecked{TO}{"$email$xowmuidtrack"}?'checked':'').qq|><input type="hidden" name="$escapedxowmgroup" value="1"></td>\n|;
+                  }
+               } else {
+                  $newrow[$tabletotalspan-1] = qq|<td bgcolor=$bgcolor[$colornum] align="center"><input type="checkbox" name="bcc" value="|.ow::htmltext::str2html("$email$xowmuidtrack").qq|" $disabled|.(exists $ischecked{TO}{"$email$xowmuidtrack"}?'checked':'').qq|></td>\n|;
+               }
             } else {
                my $xowmuidtrack = ($listviewmode eq "composeselect"?'':"%@#$xowmuid"); # allows move/copy to work
                if (exists $addresses{$xowmuid}{'X-OWM-GROUP'}) {
@@ -1694,7 +1680,6 @@ sub addrlistview {
 
 ########## ADDREDITFORM ##########################################
 sub addreditform {
-
    print header() if $addrdebug;
 
    # first time called?
@@ -1702,29 +1687,18 @@ sub addreditform {
       deleteattachments(); # delete previous attachments
    }
 
+   $abookfolder = ow::tool::untaint(safefoldername($abookfolder));
+
    # where are we coming from?
-   my $editformcaller = safefoldername(param('editformcaller')) || safefoldername($abookfolder);
+   my $editformcaller = safefoldername(param('editformcaller')) || $abookfolder;
    my $escapededitformcaller = ow::tool::escapeURL($editformcaller);
 
    # what do we want?
    my $xowmuid = param('rootxowmuid');
+   my $abookfile = abookfolder2file($abookfolder);
 
-   $abookfolder = safefoldername($abookfolder);
-   $abookfolder = ow::tool::untaint($abookfolder);
-
-   my @writablebooks = getaddrbooks_writable($webaddrdir);
-   openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_all_readonly'}") if ($#writablebooks<0);
-
-   my $is_abookfolder_writable=0;
-   foreach (@writablebooks) {
-      if ($abookfolder eq $_) {
-         $is_abookfolder_writable=1; last;
-      }
-   }
-   $abookfolder=$writablebooks[0] if (!$is_abookfolder_writable);
-
-   my $abookfile = "$webaddrdir/$abookfolder";
-   $abookfile = $config{'global_addressbook'} if ($abookfolder eq 'GLOBAL');
+   # possible destination for new entry
+   my @writableabookfolders = get_writable_abookfolders();
 
    # These data structures control which class each propertyname belongs to (100 class,
    # 200 class, etc) and how the propertyname is processed.
@@ -1986,7 +1960,6 @@ sub addreditform {
    # build up the template
    my ($html, $temphtml);
    $html = applystyle(readtemplate((param('editgroupform')?'addreditgroupform.template':'addreditform.template')));
-   $html =~ s/\@\@\@ABOOKNAME\@\@\@/$lang_text{'addressbook'}: $abookfolder&nbsp;/;
 
    if (param('editgroupform')) {
      # for the GoAddressWindow popup
@@ -2024,18 +1997,30 @@ sub addreditform {
    $html =~ s/\@\@\@EDITFORMSTART\@\@\@/$temphtml/;
 
    # destination pulldown
-   if ($abookfolder eq 'ALL') {
-      $temphtml = qq|$lang_text{'abook_editform_destination'}:&nbsp;&nbsp;|.
-                  popup_menu(-name=>'abookfolder',
-                             -override=>1,
-                             -values=>\@writablebooks,
-                             -labels=>\%lang_abookselectionlabels,
-                            );
-      $html =~ s/\@\@\@AGENTPATH\@\@\@/$temphtml/;
+   if ($xowmuid eq '') { 	# new entry
+      if ($#writableabookfolders>=0) {
+         $temphtml = qq|<table cellspacing=0 cellpadding=0 border=0><tr>|.
+                     qq|<td><font color=$style{'titlebar_text'} face=$style{'fontface'} size="3"><b>$lang_text{'abook_editform_destination'}:&nbsp;</b></font></td><td>|.
+                     popup_menu(-name=>'abookfolder',
+                                -override=>1,
+                                -values=>\@writableabookfolders,
+                                -default=>$abookfolder,
+                                -labels=>\%lang_abookselectionlabels,
+                               ).
+                     qq|</td></tr></table>\n|;
+         $html =~ s/\@\@\@ABOOKNAME\@\@\@/$temphtml/;
+      } else {
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_all_readonly'}");
+      }
    } else {
-      $temphtml = hidden(-name=>"abookfolder", -default=>$abookfolder, -override=>1)."<b>$path_to_agent_string</b>";
-      $html =~ s/\@\@\@AGENTPATH\@\@\@/$temphtml/;
+      $temphtml = hidden(-name=>"abookfolder", -default=>$abookfolder, -override=>1).
+                  qq|$lang_text{'addressbook'}: |.
+                  ow::htmltext::str2html($lang_abookselectionlabels{$abookfolder}||$abookfolder).
+                  qq|&nbsp;|;
+      $html =~ s/\@\@\@ABOOKNAME\@\@\@/$temphtml/;
    }
+
+   $html =~ s!\@\@\@AGENTPATH\@\@\@!<b>$path_to_agent_string</b>!;
 
    # charset conversion menu
    my $composecharset = $contact->{$xowmuid}{'X-OWM-CHARSET'}[0]{VALUE} || $prefs{'charset'};
@@ -2105,7 +2090,10 @@ sub addreditform {
                           -onClick=>"document.editForm.targetagent.value='$agenttarget'; return popupNotice('agentmustsave');");
       $temphtml .= "&nbsp;";
    }
-   $temphtml .= submit(-name=>$lang_text{'save'}, -class=>"medtext");
+   if ($xowmuid eq '' ||			# new entry
+       is_abookfolder_writable($abookfolder)) {	# old entry on writablebook
+      $temphtml .= submit(-name=>$lang_text{'save'}, -class=>"medtext");
+   }
    $html =~ s/\@\@\@EDITFORMSUBMIT\@\@\@/$temphtml/;
 
    $temphtml = endform();
@@ -2150,9 +2138,17 @@ sub addreditform {
                end_form();
    $html =~ s/\@\@\@CANCELEDITFORM\@\@\@/$temphtml/;
 
+   foreach my $anchor ('EMAIL', 'TEL', 'ADR', 'ORG', 'URL', 'X-OWM-CUSTOM') {
+      if (param('formchange') =~ /^$anchor/) {
+         $html .= qq|<script language="JavaScript">\n<!--\n|.
+                  qq|location.hash = '$anchor';\n|.
+                  qq|//-->\n</script>\n|;
+         last;
+      }
+   }
+
    httpprint([], [htmlheader(), $html, htmlfooter(2)]);
 }
-
 ########## END ADDREDITFORM ######################################
 
 
@@ -2487,6 +2483,8 @@ sub addreditform_KEYAGENT {
    my $htmlout;
    my @bgcolor = ($style{"tablerow_dark"}, $style{"tablerow_light"});
    my $colornum = 1;
+   my $writable=is_abookfolder_writable($abookfolder);
+
    for(my $index=0;$index<@{$r_data};$index++) {
       # take the first type as the filetype (this has a chance of being wrong, but 99.9% will be right)
       my $type = lc((grep {!m/(?:BASE64|URI)/} keys %{$r_data->[$index]{TYPES}})[0]);
@@ -2509,16 +2507,19 @@ sub addreditform_KEYAGENT {
                $valuestring = "&nbsp;&nbsp;" . $agentvcard->{$agentowmuid}{FN}[0]{VALUE};
             }
             my $agenttarget = join(",",(1,(@{$r_targetagent}?@{$r_targetagent}:()),$index)); # the leading 1 sets 'access agent' mode
-            $tablehtml .= iconlink("abook".lc($name).".gif", $lang_text{"abook_editform_download_$name"}, qq|href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrviewatt&amp;sessionid=$thissession&amp;file=$r_data->[$index]{VALUE}&amp;type=$type" target="_new"|).qq|\n|.
-                          qq|<a href="javascript:document.editForm.targetagent.value='$agenttarget'; document.editForm.submit();" onClick="return popupNotice('agentmustsave');">$valuestring</a>\n|;
+            $tablehtml .= iconlink("abook".lc($name).".gif", $lang_text{"abook_editform_download_$name"}, qq|href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrviewatt&amp;sessionid=$thissession&amp;file=$r_data->[$index]{VALUE}&amp;type=$type" target="_new"|).qq|\n|;
+            $tablehtml .= ($writable)?qq|<a href="javascript:document.editForm.targetagent.value='$agenttarget'; document.editForm.submit();" onClick="return popupNotice('agentmustsave');">$valuestring</a>\n|:qq|$valuestring\n|;
          } else { # binary data
             $tablehtml .= iconlink("abook".lc($name).".gif", $lang_text{"abook_editform_view_$name"}, qq|href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrviewatt&amp;sessionid=$thissession&amp;file=$r_data->[$index]{VALUE}&amp;type=$type" target="_new"|).qq|\n|.
                           qq|<a href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrviewatt&amp;sessionid=$thissession&amp;file=$r_data->[$index]{VALUE}&amp;type=$type" target="_new">$valuestring</a>\n|;
          }
          $tablehtml .= hidden(-name=>"$name.$index.GROUP", -default=>$r_data->[$index]{GROUP}, -override=>1).qq|\n|.
                        hidden(-name=>"$name.$index.VALUE", -default=>$r_data->[$index]{VALUE}, -override=>1).qq|\n|.
-                       hidden(-name=>"$name.$index.TYPE", -default=>[map {$_ eq 'PREF'?():$_} keys %{$r_data->[$index]{TYPES}}], -override=>1).qq|\n|.
-                       ($r_data->[$index]{VALUE}?qq|&nbsp;&nbsp;|.iconlink("cal-delete.gif", "$lang_text{'delete'}", qq|href="javascript:document.editForm.formchange.value='$name,$index,-1'; document.editForm.submit();"|):'');
+                       hidden(-name=>"$name.$index.TYPE", -default=>[map {$_ eq 'PREF'?():$_} keys %{$r_data->[$index]{TYPES}}], -override=>1).qq|\n|;
+         if ($writable && $r_data->[$index]{VALUE}) {
+            $tablehtml .= qq|&nbsp;&nbsp;|.
+                          iconlink("cal-delete.gif", "$lang_text{'delete'}", qq|href="javascript:document.editForm.formchange.value='$name,$index,-1'; document.editForm.submit();"|);
+         }
       } else {
          $tablehtml .= "&nbsp;".$lang_text{"abook_editform_undef_$name"};
          splice(@{$r_data},$index,1); # so that the nextagentposition number is correct
@@ -2531,7 +2532,7 @@ sub addreditform_KEYAGENT {
    $template =~ s/\@\@\@TABLE\@\@\@/$htmlout/;
    my $namelabel = $lang_text{"abook_editform_namelabel_$name"} || $name;
    $template =~ s/\@\@\@NAMELABEL\@\@\@/$namelabel/;
-   if ($name eq 'AGENT') {
+   if ($writable && $name eq 'AGENT') {
       my $nextagentposition = @{$r_data};
       my $agenttarget = join(",",(1,(@{$r_targetagent}?@{$r_targetagent}:()),$nextagentposition));
       my $newagentlink = qq|<a href="javascript:document.editForm.targetagent.value='$agenttarget'; document.editForm.submit();" onClick="return popupNotice('agentmustsave');">$lang_text{'abook_editform_new_agent_link'}</a>|;
@@ -3357,23 +3358,16 @@ sub addredit {
       #    the data of the card we're currently on.                        #
       ######################################################################
       print header() if $addrdebug;
-      my $xowmuid = param('rootxowmuid');
-
-      $abookfolder = safefoldername($abookfolder);
-      $abookfolder = ow::tool::untaint($abookfolder);
 
       my $completevcard;  # will contain all of the data for this card
       my $contact;        # will be a pointer to a level of data in $completevcard
 
-      my $abookfile = undef;
-      if ($abookfolder eq 'GLOBAL') {
-         if ($config{'global_addressbook'} ne "" && -f "$config{'global_addressbook'}") {
-            $abookfile = $config{'global_addressbook'};
-         } else {
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_global_denied'}");
-         }
-      } else {
-         $abookfile = "$webaddrdir/$abookfolder";
+      my $xowmuid = param('rootxowmuid');
+      $abookfolder = ow::tool::untaint(safefoldername($abookfolder));
+
+      my $abookfile = abookfolder2file($abookfolder);
+      if ($abookfolder eq 'GLOBAL' && !is_abookfolder_writable($abookfolder)) {
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_global_denied'}");
       }
 
       if ($xowmuid ne '') {
@@ -3582,9 +3576,9 @@ sub addredit {
 
 ########## ADDRMOVECOPYDELETE ####################################
 sub addrmovecopydelete {
-   my $targetbook = param('destinationabook');
+   my $targetfolder = param('destinationabook');
 
-   return addrlistview() if (param('addrcopyaddresses') && $targetbook eq 'DELETE');
+   return addrlistview() if (param('addrcopyaddresses') && $targetfolder eq 'DELETE');
 
    # Build a hash of the email addresses user checked and just take the xowmuids
    my %waschecked = ();
@@ -3601,64 +3595,52 @@ sub addrmovecopydelete {
    param(-name=>"checkedbcc", -value=>'');
 
    # load up the needed source books
-   my %alladdressbooks;
+   my %allabookfolders;
    if ($abookfolder eq 'ALL') {
-      opendir(WEBADDR, $webaddrdir) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $webaddrdir directory for reading! ($!)");
-      %alladdressbooks = map { (-f "$webaddrdir/$_")?("$_", "$webaddrdir/$_"):() }
-                         sort { $a cmp $b }
+      %allabookfolders = map { $_ => abookfolder2file($_) }
                          grep { /^[^.]/ && !/^categories\.cache$/ }
-                         readdir(WEBADDR);
-      closedir(WEBADDR) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $webaddrdir! ($!)");
-
-      if ($config{'global_addressbook'} ne "" && -f "$config{'global_addressbook'}") {
-         $alladdressbooks{GLOBAL} = $config{'global_addressbook'}; # add the GLOBAL book
-      }
-   } elsif ($abookfolder eq 'GLOBAL') {
-      if ($config{'global_addressbook'} ne "" && -f "$config{'global_addressbook'}") {
-         $alladdressbooks{GLOBAL} = $config{'global_addressbook'}; # add the GLOBAL book
-      } else {
-         $lang_err{'abook_doesnt_exist'} =~ s/\@\@\@ADDRESSBOOK\@\@\@/GLOBAL/;
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_doesnt_exist'}");
-      }
+                         get_readable_abookfolders();
    } else {
-      $alladdressbooks{$abookfolder} = "$webaddrdir/$abookfolder";
-   }
-
-   if ($targetbook eq 'GLOBAL') {
-      if ($config{'global_addressbook'} ne "" && -f "$config{'global_addressbook'}") {
-         $targetbook = $config{'global_addressbook'};
-      } else {
-         $lang_err{'abook_doesnt_exist'} =~ s/\@\@\@ADDRESSBOOK\@\@\@/GLOBAL/;
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_doesnt_exist'}");
+      $allabookfolders{$abookfolder} = abookfolder2file($abookfolder);
+      if (!-f $allabookfolders{$abookfolder}) {
+         my $msg=$lang_err{'abook_doesnt_exist'}; $msg=~s/\@\@\@ADDRESSBOOK\@\@\@/$abookfolder/;
+         openwebmailerror(__FILE__, __LINE__, $msg);
       }
    }
 
    # calculate the available free space
    my $availfreespace = '';
-   for (keys %alladdressbooks) { $availfreespace += (-s "$webaddrdir/$_") || 0 };
+   for (keys %allabookfolders) { $availfreespace += (-s abookfolder2file($_)) || 0 };
    $availfreespace = int($config{'abook_maxsizeallbooks'} - ($availfreespace/1024) + .5);
 
    # load the destination book
-   my ($targetfile, $changedtarget);
-   if ($targetbook ne 'DELETE') {
-      $targetfile = $targetbook eq $config{'global_addressbook'}?$targetbook:ow::tool::untaint(safefoldername("$webaddrdir/$targetbook"));
+   my ($targetfile, $targetbook, $changedtarget);
+   if ($targetfolder ne 'DELETE') {
+      $targetfile = abookfolder2file($targetfolder);
+      if (!-f $targetfile) {
+         my $msg=$lang_err{'abook_doesnt_exist'}; $msg =~ s/\@\@\@ADDRESSBOOK\@\@\@/$targetfolder/;
+         openwebmailerror(__FILE__, __LINE__, $msg);
+      }
+      if (!-w $targetfile) {
+         openwebmailerror(__FILE__, __LINE__, "$targetfolder is readonly");	# tung
+      }
       $targetbook = readadrbook($targetfile, undef, undef);
       $changedtarget = 0;
    }
 
    # load the addressbooks and perform the move/copy/delete
-   foreach my $abookfolder (keys %alladdressbooks) {
-      my $sourcefile = ow::tool::untaint(safefoldername($alladdressbooks{$abookfolder}));
+   foreach my $abookfolder (keys %allabookfolders) {
+      my $sourcefile = ow::tool::untaint(safefoldername($allabookfolders{$abookfolder}));
       my $sourcebook = readadrbook($sourcefile, undef, undef);
       my $changedsource = 0;
       foreach my $xowmuid (keys %{$waschecked{LIST}}) {
          if (exists $sourcebook->{$xowmuid}) {
             if (param('addrmoveaddresses')) {
                next if ($sourcefile eq $targetfile); # nothing to do
-               if (($sourcefile eq $config{'global_addressbook'} || $targetfile eq $config{'global_addressbook'}) && !$config{'abook_globaleditable'}) {
+               if ($abookfolder eq 'GLOBAL' && !is_abookfolder_writable($abookfolder)) {
                   openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_global_denied'}");
                }
-               if ($targetbook ne 'DELETE') {
+               if ($targetfolder ne 'DELETE') {
                   $targetbook->{$xowmuid} = $sourcebook->{$xowmuid}; # copy ref
                }
                delete $sourcebook->{$xowmuid};
@@ -3703,7 +3685,7 @@ sub addrmovecopydelete {
       }
    }
 
-   if ($changedtarget && $targetbook ne 'DELETE') {
+   if ($changedtarget && $targetfolder ne 'DELETE') {
       # save out the targetbook
       my $writeoutput = outputvfile('vcard',$targetbook);
 
@@ -3807,15 +3789,13 @@ sub addrshowchecked {
          my %searchterms = ();
          my %only_return = ( 'FN' => 1 );
 
-         my @alladdressbooks = getaddrbooks_readable($webaddrdir);
-         foreach my $addressbook (@alladdressbooks) {
-            my $bookfile="$webaddrdir/$addressbook"; 
-            $bookfile=$config{'global_addressbook'} if ($addressbook eq 'GLOBAL');
-
-            my $thisbook = readadrbook($bookfile, (keys %searchterms?\%searchterms:undef), \%only_return);
+         my @allabookfolders = get_readable_abookfolders();
+         foreach my $abookfolder (@allabookfolders) {
+            my $abookfile=abookfolder2file($abookfolder); 
+            my $thisbook = readadrbook($abookfile, (keys %searchterms?\%searchterms:undef), \%only_return);
             # remember what book this address came from
             foreach my $xowmuid (keys %{$thisbook}) {
-               ${$thisbook}{$xowmuid}{'X-OWM-BOOK'}[0]{VALUE} = $addressbook;
+               ${$thisbook}{$xowmuid}{'X-OWM-BOOK'}[0]{VALUE} = $abookfolder;
                # add it to addresses
                $addresses{$xowmuid} = ${$thisbook}{$xowmuid};
             }
@@ -4048,32 +4028,56 @@ sub is_groupbox_checked {
 ########## END IS_GROUPBOX_CHECKED ###############################
 
 ########## GETADDRBOOKS_.... #####################################
-sub getaddrbooks_readable {
-   my ($dir)=@_;
-   opendir(WEBADDR, $dir) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $dir directory for reading! ($!)");
-   my @books = map { (-f "$webaddrdir/$_")?$_:() }
+sub get_readable_abookfolders {
+   my $webaddrdir = dotpath('webaddr');
+   opendir(WEBADDR, $webaddrdir) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $webaddrdir directory for reading! ($!)");
+   my @books = map { (-r "$webaddrdir/$_")?$_:() }
                sort { $a cmp $b }
                grep { /^[^.]/ && !/^categories\.cache$/ }
                readdir(WEBADDR);
-   closedir(WEBADDR) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $dir! ($!)");
+   closedir(WEBADDR) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $webaddrdir! ($!)");
    if ($config{'global_addressbook'} ne "" && -f $config{'global_addressbook'}) {
       push(@books, 'GLOBAL');
    }
    return(@books);
 }
 
-sub getaddrbooks_writable {
-   my ($dir)=@_;
-   opendir(WEBADDR, $dir) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $dir directory for reading! ($!)");
+sub get_writable_abookfolders {
+   my $webaddrdir = dotpath('webaddr');
+   opendir(WEBADDR, $webaddrdir) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $webaddrdir directory for reading! ($!)");
    my @books = map { (-w "$webaddrdir/$_")?$_:() }
                sort { $a cmp $b }
                grep { /^[^.]/ && !/^categories\.cache$/ }
                readdir(WEBADDR);
-   closedir(WEBADDR) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $dir! ($!)");
+   closedir(WEBADDR) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $webaddrdir! ($!)");
    if ($config{'abook_globaleditable'} && $config{'global_addressbook'} ne "") { 
       push(@books, 'GLOBAL') if (-w $config{'global_addressbook'});
    }
    return(@books);
+}
+
+sub abookfolder2file {
+   if ($_[0] eq 'GLOBAL') {
+      return $config{'global_addressbook'};
+   } elsif ($_[0] eq 'ALL') {
+      return "/tmp/.nonexistance";
+   } else {
+      my $webaddrdir = dotpath('webaddr');
+      return ow::tool::untaint("$webaddrdir/$_[0]");
+   }
+}
+
+sub is_abookfolder_writable {
+   if ($_[0] eq 'GLOBAL') {
+      return 1 if ($config{'global_addressbook'} ne "" &&
+                   $config{'abook_globaleditable'} &&
+                   -w abookfolder2file($_[0]));
+   } elsif ($_[0] eq 'ALL') {
+      return 0;
+   } else {
+      return 1 if (-w abookfolder2file($_[0]));
+   }
+   return 0;
 }
 ########## END GETADDRBOOKS_.... #################################
 
@@ -4118,12 +4122,12 @@ sub deepcopy {
 
 ########## ADDRIMPORTFORM ########################################
 sub addrimportform {
-   my @alladdressbooks = getaddrbooks_readable($webaddrdir);
+   my @allabookfolders = get_readable_abookfolders();
    # calculate the available free space
    my $availfreespace = '';
-   for (@alladdressbooks) { 
+   for (@allabookfolders) { 
       next if ($_ eq 'GLOBAL');
-      $availfreespace += (-s "$webaddrdir/$_") || 0;
+      $availfreespace += (-s abookfolder2file($_)) || 0;
    }
    $availfreespace = int($config{'abook_maxsizeallbooks'} - ($availfreespace/1024) + .5);
 
@@ -4184,9 +4188,9 @@ sub addrimportform {
                           -disabled=>'1');
    $html =~ s/\@\@\@FIELDCHOICESMENU\@\@\@/$temphtml/g;
 
-   my @writablebooks = getaddrbooks_writable($webaddrdir);	# export destination must be writable 
+   my @writableabookfolders = get_writable_abookfolders();	# export destination must be writable 
    $temphtml = popup_menu(-name=>'importdest',
-                          -values=>[$lang_text{'abook_importdest'}, @writablebooks],
+                          -values=>[$lang_text{'abook_importdest'}, @writableabookfolders],
                           -override=>1,
                          );
    $html =~ s/\@\@\@ADDRBOOKSMENU\@\@\@/$temphtml/;
@@ -4237,12 +4241,12 @@ sub addrimport {
    }
    if ($config{'abook_maxsizeallbooks'}>0) {
       # load up the list of all books
-      my @alladdressbooks = getaddrbooks_readable($webaddrdir);
+      my @allabookfolders = get_readable_abookfolders();
       # calculate the available free space
       my $availfreespace = '';
-      for (@alladdressbooks) {
+      for (@allabookfolders) {
          next if ($_ eq 'GLOBAL');
-         $availfreespace += (-s "$webaddrdir/$_") || 0;
+         $availfreespace += (-s abookfolder2file($_)) || 0;
       }
       $availfreespace = int($config{'abook_maxsizeallbooks'} - ($availfreespace/1024) + .5);
 
@@ -4289,15 +4293,14 @@ sub addrimport {
       $fname =~ s|^.*/||;	# unix path
       $fname =~ s|^.*:||;	# mac path and dos drive
 
-      my $newbook = ow::tool::untaint("$webaddrdir/$fname");
-
-      if (-e "$newbook" || $fname =~ m/^(?:ALL|GLOBAL|DELETE)$/) {
+      my $newbookfile = ow::tool::untaint(abookfolder2file($fname));
+      if (-e "$newbookfile" || $fname =~ m/^(?:ALL|GLOBAL|DELETE)$/) {
          openwebmailerror(__FILE__, __LINE__, "\"$fname\" $lang_err{'already_exists'}\n");
       }
 
       my $writeoutput = outputvfile('vcard',$newaddrinfo);
 
-      if (open(IMPORT, ">$newbook")) {
+      if (open(IMPORT, ">$newbookfile")) {
          print IMPORT $writeoutput;
          close(IMPORT);
          writelog("import addressbook - upload new book $fname");
@@ -4309,8 +4312,8 @@ sub addrimport {
       }
    } else { # append it to a selected book
       # load the existing book
-      my $target = ow::tool::untaint("$webaddrdir/$importdest");
-      my $targetbook = readadrbook($target, undef, undef);
+      my $targetfile = ow::tool::untaint(abookfolder2file($importdest));
+      my $targetbook = readadrbook($targetfile, undef, undef);
 
       # merge the new data
       foreach my $xowmuid (keys %{$newaddrinfo}) {
@@ -4320,15 +4323,15 @@ sub addrimport {
       # stringify it
       my $writeoutput = outputvfile('vcard',$targetbook);
 
-      # overwrite the target with the new data
-      ow::filelock::lock($target, LOCK_EX|LOCK_NB) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $target");
-      open(TARGET, ">$target") or
-        openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $target ($!)\n");
+      # overwrite the targetfile with the new data
+      ow::filelock::lock($targetfile, LOCK_EX|LOCK_NB) or
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $targetfile");
+      open(TARGET, ">$targetfile") or
+        openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $targetfile ($!)\n");
       print TARGET $writeoutput;
       close(TARGET) or
-        openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $target ($!)\n");
-      ow::filelock::lock($target, LOCK_UN);
+        openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $targetfile ($!)\n");
+      ow::filelock::lock($targetfile, LOCK_UN);
 
       writelog("import addressbook - ".keys(%{$newaddrinfo})." contacts to $importdest");
       writehistory("import addressbook - ".keys(%{$newaddrinfo})." contacts to $importdest");
@@ -4422,7 +4425,7 @@ sub addrexport {
       }
 
       # load up the list of available books
-      my @alladdressbooks = getaddrbooks_readable($webaddrdir);
+      my @allabookfolders = get_readable_abookfolders();
       # The exports should have Product ID of the version of OWM they were exported from
       my $prodid_string = "$config{'name'} $config{'version'} $config{'releasedate'}";
 
@@ -4431,10 +4434,9 @@ sub addrexport {
       my %searchterms = ();
       $searchterms{'X-OWM-UID'}[0]{'VALUE'} = join("|", keys %waschecked);
 
-      foreach my $addressbook (@alladdressbooks) {
-         my $bookfile="$webaddrdir/$addressbook"; 
-         $bookfile=$config{'global_addressbook'} if ($addressbook eq 'GLOBAL');
-         my $thisbook = readadrbook($bookfile, (keys %searchterms?\%searchterms:undef), undef);
+      foreach my $abookfolder (@allabookfolders) {
+         my $abookfile=abookfolder2file($abookfolder); 
+         my $thisbook = readadrbook($abookfile, (keys %searchterms?\%searchterms:undef), undef);
          # remember what book this address came from
          foreach my $xowmuid (keys %{$thisbook}) {
             $addresses{$xowmuid} = ${$thisbook}{$xowmuid};

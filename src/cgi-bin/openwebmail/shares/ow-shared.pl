@@ -717,6 +717,8 @@ sub readprefs {
    $prefshash{'viruscheck_maxsize'}=$config{'viruscheck_maxsize_allowed'} if ($prefshash{'viruscheck_maxsize'} > $config{'viruscheck_maxsize_allowed'});
    $prefshash{'spamcheck_maxsize'}=$config{'spamcheck_maxsize_allowed'} if ($prefshash{'spamcheck_maxsize'} > $config{'spamcheck_maxsize_allowed'});
 
+   # rentries related to addressbook
+   $prefshash{'abook_listviewfieldorder'}=$config{'default_abook_listviewfieldorder'} if ($prefshash{'abook_listviewfieldorder'}!~/(fullname|prefix|first|middle|last|suffix|email)/);
    return %prefshash;
 }
 ########## END READPREFS #########################################
