@@ -149,7 +149,7 @@ Inici @@@STARTDATE@@@ &nbsp; final @@@ENDDATE@@@
       selectoption(document.advsearchform.month1, startmonth);
       selectoption(document.advsearchform.day1, startday);
       selectoption(document.advsearchform.year2, todayyear);
-      selectoption(document.advsearchform.month2, todaymonth+1);
+      selectoption(document.advsearchform.month2, todaymonth);
       selectoption(document.advsearchform.day2, todayday);
 
       return;

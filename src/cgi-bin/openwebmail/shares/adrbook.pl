@@ -73,7 +73,7 @@ sub convert_addressbook {
 
    my ($convertbook, $charset) = @_;
    $convertbook='user' if ($convertbook eq '');
-   my ($oldadrbookfile, $newadrbookfile, $adrbookfilebackup) = ();
+   my ($oldadrbookfile, $newadrbookfile, $adrbookfilebackup, $filemode) = ();
 
    if ($convertbook eq 'user') {
       my $webaddrdir = dotpath('webaddr');
@@ -81,27 +81,31 @@ sub convert_addressbook {
       $newadrbookfile = "$webaddrdir/".$lang_text{'abook_converted'}||'Converted';
       $newadrbookfile =~ s/[:@#$%^&*()!?|\\\[\]\/<>,`'+=\s]+$//; # no naughty filename
       $adrbookfilebackup = "$webaddrdir/.address.book.old";
+      $filemode=0600;		# read by owner only
    } elsif ($convertbook eq 'global') {
-      if ( $config{'global_addressbook'} ne "" && -f "$config{'global_addressbook'}") {
-         $oldadrbookfile = $config{'global_addressbook'};
-         $newadrbookfile = $config{'global_addressbook'};
-         $adrbookfilebackup = $config{'global_addressbook'} . ".old";
-      }
+      $oldadrbookfile = $config{'global_addressbook'};
+      $newadrbookfile = $config{'global_addressbook'};
+      $adrbookfilebackup = $config{'global_addressbook'} . ".old";
+      $filemode=0640;		# read by all mail group
    }
 
-   my $status = _convert_addressbook($oldadrbookfile, $newadrbookfile, $adrbookfilebackup, $charset);
+   ow::filelock::lock($oldadrbookfile, LOCK_SH|LOCK_NB) or croak("$lang_err{'couldnt_locksh'} $oldadrbookfile");
+   open(F, "$oldadrbookfile"); my $firstline=<F>; close(F);
+   ow::filelock::lock($oldadrbookfile, LOCK_UN);
+   return 0 if ($firstline=~/^BEGIN:VCARD/);	# already in vcard format
+
+   my $status = _convert_addressbook($oldadrbookfile, $newadrbookfile, $adrbookfilebackup, $charset, $filemode);
    return $status;
 }
 
-
 sub _convert_addressbook {
-   my ($old, $new, $backup, $charset) = @_;
+   my ($old, $new, $backup, $charset, $filemode) = @_;
 
    if (!defined $backup || $backup eq $old || $backup eq $new) {
       croak("Backup addressbook file must be specified!\n");
    }
 
-   return 0 if (!-e "$old"); # no file to convert
+   return 0 if ($old eq '' || !-e "$old"); # no file to convert
    return 0 if (-e "$backup"); # was already run before so skip it
 
    my @entries = ();
@@ -191,7 +195,7 @@ sub _convert_addressbook {
    ow::filelock::lock($new, LOCK_UN);
 
    # permissions
-   chmod(0666, $new) || croak("cant change permissions on $new");
+   chmod($filemode, $new) || croak("cant change permissions on $new");
 
    writelog("convert addressbook - $old to vcard file $new");
 

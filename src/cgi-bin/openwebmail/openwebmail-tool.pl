@@ -340,7 +340,12 @@ sub init {
 sub do_test {
    my ($in_init)=@_;
    my $err=0;
-   print "\n";
+   print "\n" if (!$in_init);
+
+   if ($MIME::Base64::VERSION < 3.00) {
+      $err--;
+      print "Your MIME::Base64 moule is too old, please update to 3.00 or later\n\n";
+   }
 
    load_owconf(\%config_raw, "$SCRIPT_DIR/etc/defaults/openwebmail.conf");
    if ( -f "$SCRIPT_DIR/etc/openwebmail.conf") {
@@ -393,7 +398,7 @@ sub check_tell_bug {
 }
 
 sub print_dbm_module {
-   print "You perl uses the following packages for dbm:\n\n";
+   print "Your perl uses the following packages for dbm:\n\n";
    my @pm;
    foreach (keys %INC) { push (@pm, $_) if (/DB.*File/); }
    foreach (sort @pm) { print "$_\t\t$INC{$_}\n"; }
@@ -861,6 +866,7 @@ sub usertool {
          print "D change realname to $userrealname\n" if ($opt{'debug'});
       }
 
+      my $syshomedir=$homedir;	# keep this for later use
       my $owuserdir = ow::tool::untaint("$config{'ow_usersdir'}/".($config{'auth_withdomain'}?"$domain/$user":$user));
       if ( !$config{'use_syshomedir'} ) {
          $homedir = $owuserdir;
@@ -916,6 +922,9 @@ sub usertool {
          }
       }
       print "D ruid=$<, euid=$>, rgid=$(, eguid=$)\n" if ($opt{'debug'});
+
+      # locate existing .openwebmail
+      find_and_move_dotdir($syshomedir, $owuserdir) if (!-d dotpath('/'));	# locate existing .openwebmail
 
       # get user release date
       my $user_releasedate=read_releasedatefile();

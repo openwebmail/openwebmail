@@ -1,3 +1,21 @@
+01/15/2005
+----------
+1. auto move .openwebmail between syshome and owuserdir
+   when use_syshomedir or use_syshomedir_for_dotdir is changed.
+   (ie: ~/.openwebmail <-> cgi-bin.openwebmail/etc/users/username/.openwebmail)
+ps: This would simplify the job for sysadm when he determines to change option
+    use_syshomedir_for_dotdir from yes (default) to 'no'
+    to avoid the .openwebmail/db coruption when quotahit happens
+2. fix a bug that the data in global addressbook would be corrupted
+   if sysadm executes openwebmail-tool.pl -c for more than once.
+3. sort messages in alphabet order if the sort field is sender or recepient
+   (suggested by rs232, bellocarico.AT.hotmail.com,
+                 ateslik, alex.AT.acatysmoof.com)
+4. fix a bug in openwebmail-advsearch.pl that current month was always one more than
+   the correct value
+5. support display of firend icon in openwebmail-advsearch.pl
+
+
 01/14/2005
 ----------
 1. fix a bug in advsearch that start/end day were passed to array2seconds()

@@ -1771,6 +1771,32 @@ sub _dotpath {
    return(ow::tool::untaint("$dotdir/$name"));
 }
 
+# move .openwebmail to right location automatically
+# if option use_syshomedir_for_dotdir is changed from yes(default) to no
+sub find_and_move_dotdir {
+   my ($syshomedir, $owuserdir)=@_;
+
+   my $dotdir_in_syshome=$config{'use_syshomedir'} && $config{'use_syshomedir_for_dotdir'};
+   my $syshomedotdir=ow::tool::untaint("$syshomedir/$config{'homedirdotdirname'}");
+   my $owuserdotdir=ow::tool::untaint("$owuserdir/$config{'homedirdotdirname'}");
+
+   my ($src, $dst);
+   if ($dotdir_in_syshome && -d $owuserdotdir && !-d $syshomedotdir) {
+      ($src, $dst)=($owuserdotdir, $syshomedotdir);
+   } elsif (!$dotdir_in_syshome && -d $syshomedotdir && !-d $owuserdotdir) {
+      ($src, $dst)=($syshomedotdir, $owuserdotdir);
+   } else {
+      return;
+   }
+
+   # try 'mv' first, then 'cp+rm'
+   if (system(ow::tool::untaint(ow::tool::findbin('mv')), '-f', $src, $dst)==0 or
+       (system(ow::tool::untaint(ow::tool::findbin('cp')), '-Rp', $src, $dst)==0 and
+        system(ow::tool::untaint(ow::tool::findbin('rm')), '-Rf', $src)==0) ) {
+      writelog("move dotdir - $src -> $dst");
+   }
+}
+
 sub check_and_create_dotdir {
    my $dotdir=$_[0];
 
@@ -1990,5 +2016,34 @@ sub del_staledb {
    }
 }
 ########## END DEL_STALEDB #######################################
+
+########## GET_ABOOKEMAILHASH ####################################
+# this routine gets the EMAIL attributes in abookfiles directly
+# to avoid the overhead of vcard parsing
+sub get_abookemailhash {
+   my (%emails, @abookfiles);
+
+   my $webaddrdir = dotpath('webaddr');
+   if (opendir(WEBADDR, $webaddrdir)) {
+      @abookfiles = map { "$webaddrdir/$_" }
+                          grep { /^[^.]/ && !/^categories\.cache$/ }
+                          readdir(WEBADDR);
+      closedir(WEBADDR);
+   }
+   if ($config{'global_addressbook'} ne "" && -f $config{'global_addressbook'}) {
+      push(@abookfiles, $config{'global_addressbook'});
+   }
+   foreach my $abookfile (@abookfiles) {
+      if (open(F, $abookfile)) {
+         while (<F>) {
+            $emails{$2}=1 if (/^EMAIL(;TYPE=PREF)?:(.+?)\s*$/);
+         }
+         close(F);
+      }
+   }
+
+   return(\%emails);
+}
+########## END GET_ABOOKEMAILHASH ################################
 
 1;

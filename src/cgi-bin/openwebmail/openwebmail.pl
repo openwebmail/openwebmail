@@ -334,6 +334,8 @@ sub login {
          openwebmailerror(__FILE__, __LINE__, $lang_err{'disallowed_client'}."<br> ( host: $clientdomain )");
    }
 
+   # keep this for later use
+   my $syshomedir=$homedir;
    my $owuserdir = ow::tool::untaint("$config{'ow_usersdir'}/".($config{'auth_withdomain'}?"$domain/$user":$user));
    $homedir = $owuserdir if ( !$config{'use_syshomedir'} );
 
@@ -341,6 +343,48 @@ sub login {
    $uuid=ow::tool::untaint($uuid);
    $ugid=ow::tool::untaint($ugid);
    $homedir=ow::tool::untaint($homedir);
+
+   # try to load lang and style based on user's preference (for error msg)
+   if ($>==0 || $>== $uuid) {
+      %prefs = readprefs();
+      %style = readstyle($prefs{'style'});
+      loadlang($prefs{'language'});
+      charset($prefs{'charset'}) if ($CGI::VERSION>=2.58);	# setup charset of CGI module
+   }
+
+   my $password = param('password') || '';
+   my ($errorcode, $errormsg);
+   if ($config{'auth_withdomain'}) {
+      ($errorcode, $errormsg)=ow::auth::check_userpassword(\%config, "$user\@$domain", $password);
+   } else {
+      ($errorcode, $errormsg)=ow::auth::check_userpassword(\%config, $user, $password);
+   }
+   if ( $errorcode!=0 ) { # Password is INCORRECT
+      writelog("login error - $config{'auth_module'}, ret $errorcode, $errormsg");
+      umask(0077);
+      if ( $>==0 ) {	# switch to uuid:mailgid if script is setuid root.
+         my $mailgid=getgrnam('mail');
+         ow::suid::set_euid_egids($uuid, $mailgid, split(/\s+/,$ugid));
+      }
+      my $historyfile=ow::tool::untaint(dotpath('history.log'));
+      if (-f $historyfile ) {
+         writehistory("login error - $config{'auth_module'}, ret $errorcode, $errormsg");
+      }
+
+      my %err = (
+         -1 => $lang_err{'func_notsupported'},
+         -2 => $lang_err{'param_fmterr'},
+         -3 => $lang_err{'auth_syserr'},
+         -4 => $lang_err{'pwd_incorrect'},
+      );
+      my $webmsg=$err{$errorcode} || "Unknow error code $errorcode";
+      my $html = applystyle(readtemplate("loginfailed.template"));
+      $html =~ s/\@\@\@ERRORMSG\@\@\@/$webmsg/;
+
+      sleep $config{'loginerrordelay'};	# delayed response
+
+      httpprint([], [htmlheader(), $html, htmlfooter(1)]);
+   }
 
    # create domainhome for stuff not put in syshomedir
    if (!$config{'use_syshomedir'} || !$config{'use_syshomedir_for_dotdir'}) {
@@ -356,304 +400,261 @@ sub login {
    }
    upgrade_20030323();
 
-   # try to load lang and style based on user's preference (for error msg)
-   if ($>==0 || $>== $uuid) {
-      %prefs = readprefs();
-      %style = readstyle($prefs{'style'});
-      loadlang($prefs{'language'});
-      charset($prefs{'charset'}) if ($CGI::VERSION>=2.58);	# setup charset of CGI module
+   # create owuserdir for stuff not put in syshomedir
+   # this must be done before changing to the user's uid.
+   if ( !$config{'use_syshomedir'} || !$config{'use_syshomedir_for_dotdir'} ) {
+      if (!-d $owuserdir) {
+         if (mkdir ($owuserdir, oct(700)) && chown($uuid, (split(/\s+/,$ugid))[0], $owuserdir)) {
+            writelog("create owuserdir - $owuserdir, uid=$uuid, gid=".(split(/\s+/,$ugid))[0]);
+         } else {
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'cant_create_dir'} $owuserdir ($!)");
+         }
+      }
    }
 
-   my ($errorcode, $errormsg, @sessioncount);
-   my $password = param('password') || '';
-   if ($config{'auth_withdomain'}) {
-      ($errorcode, $errormsg)=ow::auth::check_userpassword(\%config, "$user\@$domain", $password);
+   # create the user's syshome directory if necessary.
+   # this must be done before changing to the user's uid.
+   if (!-d $homedir && $config{'create_syshomedir'}) {
+      if (mkdir ($homedir, oct(700)) && chown($uuid, (split(/\s+/,$ugid))[0], $homedir)) {
+         writelog("create homedir - $homedir, uid=$uuid, gid=".(split(/\s+/,$ugid))[0]);
+      } else {
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'cant_create_dir'} $homedir ($!)");
+      }
+   }
+
+   # search old alive session and deletes old expired sessionids
+   my @sessioncount;
+   ($thissession, @sessioncount) = search_clean_oldsessions
+	($loginname, $default_logindomain, $uuid, cookie("ow-sessionkey-$domain-$user"));
+   if ($thissession eq "") {	# name the new sessionid
+      my $n=rand(); for (1..5) { last if $n>=0.1; $n*=10; }	# cover bug if rand return too small value
+      $thissession = $loginname."*".$default_logindomain."-session-$n";
+   }
+   $thissession =~ s!\.\.+!!g;  # remove ..
+   if ($thissession =~ /^([\w\.\-\%\@]+\*[\w\.\-]*\-session\-0\.\d+)$/) {
+      local $1; # fix perl $1 taintness propagation bug
+      $thissession = $1; # untaint
    } else {
-      ($errorcode, $errormsg)=ow::auth::check_userpassword(\%config, $user, $password);
+      openwebmailerror(__FILE__, __LINE__, "Session ID $thissession $lang_err{'has_illegal_chars'}");
    }
-   if ( $errorcode==0 ) {
-      # search old alive session and deletes old expired sessionids
-      ($thissession, @sessioncount) = search_clean_oldsessions
-		($loginname, $default_logindomain, $uuid, cookie("ow-sessionkey-$domain-$user"));
-      if ($thissession eq "") {	# name the new sessionid
-         my $n=rand(); for (1..5) { last if $n>=0.1; $n*=10; }	# cover bug if rand return too small value
-         $thissession = $loginname."*".$default_logindomain."-session-$n";
+   writelog("login - $thissession - active=$sessioncount[0],$sessioncount[1],$sessioncount[2]");
+
+   # set umask, switch to uuid:mailgid if script is setuid root.
+   umask(0077);
+   if ( $>==0 ) {
+      my $mailgid=getgrnam('mail');	# for better compatibility with other mail progs
+      ow::suid::set_euid_egids($uuid, $mailgid, split(/\s+/,$ugid));
+      if ( $)!~/\b$mailgid\b/) {	# group mail doesn't exist?
+         openwebmailerror(__FILE__, __LINE__, "Set effective gid to mail($mailgid) failed!");
       }
-      $thissession =~ s!\.\.+!!g;  # remove ..
-      if ($thissession =~ /^([\w\.\-\%\@]+\*[\w\.\-]*\-session\-0\.\d+)$/) {
-         local $1; # fix perl $1 taintness propagation bug
-         $thissession = $1; # untaint
-      } else {
-         openwebmailerror(__FILE__, __LINE__, "Session ID $thissession $lang_err{'has_illegal_chars'}");
-      }
-      writelog("login - $thissession - active=$sessioncount[0],$sessioncount[1],$sessioncount[2]");
-
-      # create owuserdir for stuff not put in syshomedir
-      # this must be done before changing to the user's uid.
-      if ( !$config{'use_syshomedir'} || !$config{'use_syshomedir_for_dotdir'} ) {
-         if (!-d $owuserdir) {
-            if (mkdir ($owuserdir, oct(700)) && chown($uuid, (split(/\s+/,$ugid))[0], $owuserdir)) {
-               writelog("create owuserdir - $owuserdir, uid=$uuid, gid=".(split(/\s+/,$ugid))[0]);
-            } else {
-               openwebmailerror(__FILE__, __LINE__, "$lang_err{'cant_create_dir'} $owuserdir ($!)");
-            }
-         }
-      }
-
-      # create the user's syshome directory if necessary.
-      # this must be done before changing to the user's uid.
-      if (!-d $homedir && $config{'create_syshomedir'}) {
-         if (mkdir ($homedir, oct(700)) && chown($uuid, (split(/\s+/,$ugid))[0], $homedir)) {
-            writelog("create homedir - $homedir, uid=$uuid, gid=".(split(/\s+/,$ugid))[0]);
-         } else {
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'cant_create_dir'} $homedir ($!)");
-         }
-      }
-
-      umask(0077);
-      if ( $>==0 ) {			# switch to uuid:mailgid if script is setuid root.
-         my $mailgid=getgrnam('mail');	# for better compatibility with other mail progs
-         ow::suid::set_euid_egids($uuid, $mailgid, split(/\s+/,$ugid));
-         if ( $)!~/\b$mailgid\b/) {	# group mail doesn't exist?
-            openwebmailerror(__FILE__, __LINE__, "Set effective gid to mail($mailgid) failed!");
-         }
-      }
-
-      # get user release date
-      my $user_releasedate=read_releasedatefile();
-
-      # create folderdir if it doesn't exist
-      my $folderdir="$homedir/$config{'homedirfolderdirname'}";
-      if (! -d $folderdir ) {
-         if (mkdir ($folderdir, 0700)) {
-            writelog("create folderdir - $folderdir, euid=$>, egid=$)");
-         } else {
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'cant_create_dir'} $folderdir ($!)");
-         }
-         upgrade_20021218($user_releasedate);
-      }
-
-      # create dirs under ~/.openwebmail/
-      check_and_create_dotdir(dotpath('/'));
-
-      # create system spool file /var/mail/xxxx
-      my $spoolfile=ow::tool::untaint((get_folderpath_folderdb($user, 'INBOX'))[0]);
-      if ( ! -f "$spoolfile" ) {
-         open (F, ">>$spoolfile"); close(F);
-         chown($uuid, (split(/\s+/,$ugid))[0], $spoolfile);
-      }
-
-      # create session file
-      my $sessionkey;
-      if ( -f "$config{'ow_sessionsdir'}/$thissession" ) { # continue an old session?
-         $sessionkey = cookie("ow-sessionkey-$domain-$user");
-      } else {						       # a brand new sesion?
-         $sessionkey = crypt(rand(),'OW');
-      }
-      open (SESSION, "> $config{'ow_sessionsdir'}/$thissession") or # create sessionid
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}/$thissession! ($!)");
-      print SESSION $sessionkey, "\n";
-      print SESSION $clientip, "\n";
-      print SESSION join("\@\@\@", $domain, $user, $userrealname, $uuid, $ugid, $homedir), "\n";
-      close (SESSION);
-      writehistory("login - $thissession");
-
-      # symbolic link ~/mbox to ~/mail/saved-messages
-      if ( $config{'symboliclink_mbox'} &&
-           ((lstat("$homedir/mbox"))[2] & 07770000) eq 0100000) { # regular file
-         if (ow::filelock::lock("$folderdir/saved-messages", LOCK_EX|LOCK_NB)) {
-            writelog("symlink mbox - $homedir/mbox -> $folderdir/saved-messages");
-
-            if (! -f "$folderdir/saved-messages") {
-               open(F,">>$folderdir/saved-messages"); close(F);
-            }
-            rename("$homedir/mbox", "$homedir/mbox.tmp.$$");
-            symlink("$folderdir/saved-messages", "$homedir/mbox");
-
-            open(T,"$homedir/mbox.tmp.$$");
-            open(F,"+<$folderdir/saved-messages");
-            seek(F, 0, 2);	# seek to end;
-            while(<T>) { print F $_; }
-            close(F);
-            close(T);
-
-            unlink("$homedir/mbox.tmp.$$");
-            ow::filelock::lock("$folderdir/saved-messages", LOCK_UN);
-         }
-      }
-
-      # check if releaseupgrade() is required
-      if ($user_releasedate ne $config{'releasedate'}) {
-         upgrade_all($user_releasedate) if ($user_releasedate ne "");
-         update_releasedatefile();
-      }
-      update_openwebmailrc($user_releasedate);
-
-      # remove stale folder db
-      my (@validfolders, $inboxusage, $folderusage);
-      getfolders(\@validfolders, \$inboxusage, \$folderusage);
-      del_staledb($user, \@validfolders);
-
-      # create authpop3 book if auth_pop3.pl or auth_ldap_vpopmail.pl
-      if ($config{'auth_module'} eq 'auth_pop3.pl' ||
-          $config{'auth_module'} eq 'auth_ldap_vpopmail.pl') {
-         update_authpop3book(dotpath('authpop3.book'), $domain, $user, $password);
-      }
-
-      # redirect page to openwebmail main/calendar/webdisk/prefs
-      my $refreshurl=refreshurl_after_login(param('action'));
-      if ( ! -f dotpath('openwebmailrc') ) {
-         $refreshurl="$config{'ow_cgiurl'}/openwebmail-prefs.pl?sessionid=$thissession&action=userfirsttime";
-      }
-      if ( !$config{'stay_ssl_afterlogin'} &&	# leave SSL
-           ($ENV{'HTTPS'}=~/on/i || $ENV{'SERVER_PORT'}==443) ) {
-         $refreshurl="http://$ENV{'HTTP_HOST'}$refreshurl" if ($refreshurl!~s!^https?://!http://!i);
-      }
-
-      my @cookies=();
-
-      # cookie for autologin switch, expired until 1 month later
-      my $autologin=param('autologin')||0;
-      if ($autologin && matchlist_fromhead('allowed_autologinip', $clientip)) {
-         $autologin=autologin_add();
-      } else {
-         autologin_rm();
-         $autologin=0;
-      }
-      push(@cookies, cookie(-name  => 'ow-autologin',
-                            -value => $autologin,
-                            -path  => '/',
-                            -expires => '+1M') );
-
-      # if autologin then expired until 1 week, else expired until browser close
-      my @expire=(); @expire=(-expires => '+7d') if ($autologin);
-      # cookie for openwebmail to verify session,
-      push(@cookies, cookie(-name  => "ow-sessionkey-$domain-$user",
-                            -value => $sessionkey,
-                            -path  => '/',
-                            @expire) );
-      # cookie for ssl session, expired if browser closed
-      push(@cookies, cookie(-name  => 'ow-ssl',
-                            -value => ($ENV{'HTTPS'}=~/on/i ||
-                                       $ENV{'SERVER_PORT'}==443 ||
-                                       0),
-                            @expire) );
-
-      # cookie for autologin other other ap to find openwebmail loginname, default_logindomain,
-      # expired until 1 month later
-      push(@cookies, cookie(-name  => 'ow-loginname',
-                            -value => $loginname,
-                            -path  => '/',
-                            -expires => '+1M') );
-      push(@cookies, cookie(-name  => 'ow-default_logindomain',
-                            -value => $default_logindomain,
-                            -path  => '/',
-                            -expires => '+1M') );
-      # cookie for httpcompress switch, expired until 1 month later
-      push(@cookies, cookie(-name  => 'ow-httpcompress',
-                            -value => param('httpcompress')||0,
-                            -path  => '/',
-                            -expires => '+1M') );
-
-      my ($js, $repeatstr)=('', 'no-repeat');
-      my @header=(-cookie=>\@cookies);
-      if ($ENV{'HTTP_USER_AGENT'}!~/MSIE.+Mac/) {
-         # reload page with Refresh header only if not MSIE on Mac
-         push(@header, -refresh=>"0.1;URL=$refreshurl");
-      } else {
-         # reload page with java script in 0.1 sec
-         $js=qq|<script language="JavaScript">\n<!--\n|.
-             qq|setTimeout("window.location.href='$refreshurl'", 100);\n|.
-             qq|//-->\n</script>|;
-      }
-      $repeatstr='repeat' if ($prefs{'bgrepeat'});
-
-      my $softwarestr=$config{'name'};
-      if ($config{'enable_about'} && $config{'about_info_software'}) {
-         $softwarestr.=qq| $config{'version'} $config{'releasedate'}|;
-      }
-
-      my $countstr='';
-      if ($config{'session_count_display'}) {
-         $countstr=qq|<br><br><br>\n|.
-                   qq|<a href=# title="number of active sessions in the past 1, 5, 15 minutes">Sessions&nbsp; :&nbsp; |.
-                   qq|$sessioncount[0],&nbsp; $sessioncount[1],&nbsp; $sessioncount[2]</a>\n|;
-      }
-
-      # display copyright. Don't touch it, please.
-      httpprint(\@header,
-      		[qq|<html>\n|.
-		 qq|<head>\n|.
-                 qq|<title>Copyright</title>\n|.
-                 qq|<meta http-equiv="Content-Type" content="text/html; charset=$prefs{'charset'}">\n|.
-                 qq|</head>\n|.
-		 qq|<body bgcolor="#ffffff" background="$prefs{'bgurl'}">\n|.
-		 qq|<style type="text/css"><!--\n|.
-		 qq|body {\n|.
-                 qq|background-image: url($prefs{'bgurl'});\n|.
-                 qq|background-repeat: $repeatstr;\n|.
-                 qq|font-family: Arial,Helvetica,sans-serif; font-size: 10pt; font-color: #cccccc\n|.
-                 qq|}\n|.
-                 qq|A:link    { color: #cccccc; text-decoration: none }\n|.
-                 qq|A:visited { color: #cccccc; text-decoration: none }\n|.
-                 qq|A:hover   { color: #333333; text-decoration: none }\n|.
-		 qq|--></style>\n|.
-		 qq|<center><br><br><br>\n|.
-		 qq|<a href="$refreshurl" title="click to next page" style="text-decoration: none">|.
-		 qq|<font color="#333333"> &nbsp; $lang_text{'loading'} ...</font></a>\n|.
-		 qq|<br><br><br>\n\n|.
-		 qq|<a href="http://openwebmail.org/" title="click to home of $config{'name'}" target="_blank" style="text-decoration: none">\n|.
-		 qq|$softwarestr<br><br>\n|.
-		 qq|Copyright (C) 2001-2005<br>\n|.
-		 qq|Chung-Kie Tung, Nai-Jung Kuo, Chao-Chiu Wang, Emir Litric,<br>|.
-                 qq|Thomas Chung, Dattola Filippo, Bernd Bass, Scott Mazur, Alex Teslik<br><br>\n|.
-		 qq|Copyright (C) 2000<br>\n|.
-		 qq|Ernie Miller  (original GPL project: Neomail)<br><br>\n|.
-		 qq|</a>\n\n|.
-		 qq|<a href="$config{'ow_htmlurl'}/doc/copyright.txt" title="click to see GPL version 2 licence" target="_blank" style="text-decoration: none">\n|.
-		 qq|This program is free software; you can redistribute it and/or modify<br>\n|.
-		 qq|it under the terms of the version 2 of GNU General Public License<br>\n|.
-		 qq|as published by the Free Software Foundation<br><br>\n|.
-		 qq|This program is distributed in the hope that it will be useful,<br>\n|.
-		 qq|but WITHOUT ANY WARRANTY; without even the implied warranty of<br>\n|.
-		 qq|MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.<br>\n|.
-		 qq|See the GNU General Public License for more details.<br><br>\n|.
-		 qq|Removal or change of this copyright is prohibited.\n|.
-		 qq|</a>\n|.
-		 qq|$countstr$js\n|.
-		 qq|</center></body></html>\n|] );
-
-   } else { # Password is INCORRECT
-      writelog("login error - $config{'auth_module'}, ret $errorcode, $errormsg");
-      umask(0077);
-      if ( $>==0 ) {	# switch to uuid:mailgid if script is setuid root.
-         my $mailgid=getgrnam('mail');
-         ow::suid::set_euid_egids($uuid, $mailgid, split(/\s+/,$ugid));
-      }
-      my $historyfile=ow::tool::untaint(dotpath('history.log'));
-      if (-f $historyfile ) {
-         writehistory("login error - $config{'auth_module'}, ret $errorcode, $errormsg");
-      }
-
-      my $html = applystyle(readtemplate("loginfailed.template"));
-
-      my $webmsg;
-      if ($errorcode==-1) {
-         $webmsg=$lang_err{'func_notsupported'};
-      } elsif ($errorcode==-2) {
-         $webmsg=$lang_err{'param_fmterr'};
-      } elsif ($errorcode==-3) {
-         $webmsg=$lang_err{'auth_syserr'};
-      } elsif ($errorcode==-4) {
-         $webmsg=$lang_err{'pwd_incorrect'};
-      } else {
-         $webmsg="Unknow error code $errorcode";
-      }
-      $html =~ s/\@\@\@ERRORMSG\@\@\@/$webmsg/;
-
-      sleep $config{'loginerrordelay'};	# delayed response
-      httpprint([], [htmlheader(), $html, htmlfooter(1)]);
    }
+
+   # locate existing .openwebmail
+   find_and_move_dotdir($syshomedir, $owuserdir) if (!-d dotpath('/'));
+
+   # get user release date
+   my $user_releasedate=read_releasedatefile();
+
+   # create folderdir if it doesn't exist
+   my $folderdir="$homedir/$config{'homedirfolderdirname'}";
+   if (! -d $folderdir ) {
+      if (mkdir ($folderdir, 0700)) {
+         writelog("create folderdir - $folderdir, euid=$>, egid=$)");
+      } else {
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'cant_create_dir'} $folderdir ($!)");
+      }
+      upgrade_20021218($user_releasedate);
+   }
+
+   # create dirs under ~/.openwebmail/
+   check_and_create_dotdir(dotpath('/'));
+
+   # create system spool file /var/mail/xxxx
+   my $spoolfile=ow::tool::untaint((get_folderpath_folderdb($user, 'INBOX'))[0]);
+   if ( ! -f "$spoolfile" ) {
+      open (F, ">>$spoolfile"); close(F);
+      chown($uuid, (split(/\s+/,$ugid))[0], $spoolfile);
+   }
+
+   # create session file
+   my $sessionkey;
+   if ( -f "$config{'ow_sessionsdir'}/$thissession" ) { # continue an old session?
+      $sessionkey = cookie("ow-sessionkey-$domain-$user");
+   } else {						       # a brand new sesion?
+      $sessionkey = crypt(rand(),'OW');
+   }
+   open (SESSION, "> $config{'ow_sessionsdir'}/$thissession") or # create sessionid
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}/$thissession! ($!)");
+   print SESSION $sessionkey, "\n";
+   print SESSION $clientip, "\n";
+   print SESSION join("\@\@\@", $domain, $user, $userrealname, $uuid, $ugid, $homedir), "\n";
+   close (SESSION);
+   writehistory("login - $thissession");
+
+   # symbolic link ~/mbox to ~/mail/saved-messages
+   if ( $config{'symboliclink_mbox'} &&
+        ((lstat("$homedir/mbox"))[2] & 07770000) eq 0100000) { # regular file
+      if (ow::filelock::lock("$folderdir/saved-messages", LOCK_EX|LOCK_NB)) {
+         writelog("symlink mbox - $homedir/mbox -> $folderdir/saved-messages");
+
+         if (! -f "$folderdir/saved-messages") {
+            open(F,">>$folderdir/saved-messages"); close(F);
+         }
+         rename("$homedir/mbox", "$homedir/mbox.tmp.$$");
+         symlink("$folderdir/saved-messages", "$homedir/mbox");
+
+         open(T,"$homedir/mbox.tmp.$$");
+         open(F,"+<$folderdir/saved-messages");
+         seek(F, 0, 2);	# seek to end;
+         while(<T>) { print F $_; }
+         close(F);
+         close(T);
+
+         unlink("$homedir/mbox.tmp.$$");
+         ow::filelock::lock("$folderdir/saved-messages", LOCK_UN);
+      }
+   }
+
+   # check if releaseupgrade() is required
+   if ($user_releasedate ne $config{'releasedate'}) {
+      upgrade_all($user_releasedate) if ($user_releasedate ne "");
+      update_releasedatefile();
+   }
+   update_openwebmailrc($user_releasedate);
+
+   # remove stale folder db
+   my (@validfolders, $inboxusage, $folderusage);
+   getfolders(\@validfolders, \$inboxusage, \$folderusage);
+   del_staledb($user, \@validfolders);
+
+   # create authpop3 book if auth_pop3.pl or auth_ldap_vpopmail.pl
+   if ($config{'auth_module'} eq 'auth_pop3.pl' ||
+       $config{'auth_module'} eq 'auth_ldap_vpopmail.pl') {
+      update_authpop3book(dotpath('authpop3.book'), $domain, $user, $password);
+   }
+
+   # redirect page to openwebmail main/calendar/webdisk/prefs
+   my $refreshurl=refreshurl_after_login(param('action'));
+   if ( ! -f dotpath('openwebmailrc') ) {
+      $refreshurl="$config{'ow_cgiurl'}/openwebmail-prefs.pl?sessionid=$thissession&action=userfirsttime";
+   }
+   if ( !$config{'stay_ssl_afterlogin'} &&	# leave SSL
+        ($ENV{'HTTPS'}=~/on/i || $ENV{'SERVER_PORT'}==443) ) {
+      $refreshurl="http://$ENV{'HTTP_HOST'}$refreshurl" if ($refreshurl!~s!^https?://!http://!i);
+   }
+
+   my @cookies=();
+   # cookie for autologin switch, expired until 1 month later
+   my $autologin=param('autologin')||0;
+   if ($autologin && matchlist_fromhead('allowed_autologinip', $clientip)) {
+      $autologin=autologin_add();
+   } else {
+      autologin_rm();
+      $autologin=0;
+   }
+   push(@cookies, cookie(-name  => 'ow-autologin',
+                         -value => $autologin,
+                         -path  => '/',
+                         -expires => '+1M') );
+
+   # if autologin then expired until 1 week, else expired until browser close
+   my @expire=(); @expire=(-expires => '+7d') if ($autologin);
+
+   # cookie for openwebmail to verify session,
+   push(@cookies, cookie(-name  => "ow-sessionkey-$domain-$user",
+                         -value => $sessionkey,
+                         -path  => '/',
+                         @expire) );
+   # cookie for ssl session, expired if browser closed
+   push(@cookies, cookie(-name  => 'ow-ssl',
+                         -value => ($ENV{'HTTPS'}=~/on/i ||
+                                    $ENV{'SERVER_PORT'}==443 ||
+                                    0),
+                         @expire) );
+
+   # cookie for autologin other other ap to find openwebmail loginname, default_logindomain,
+   # expired until 1 month later
+   push(@cookies, cookie(-name  => 'ow-loginname',
+                         -value => $loginname,
+                         -path  => '/',
+                         -expires => '+1M') );
+   push(@cookies, cookie(-name  => 'ow-default_logindomain',
+                         -value => $default_logindomain,
+                         -path  => '/',
+                         -expires => '+1M') );
+   # cookie for httpcompress switch, expired until 1 month later
+   push(@cookies, cookie(-name  => 'ow-httpcompress',
+                         -value => param('httpcompress')||0,
+                         -path  => '/',
+                         -expires => '+1M') );
+
+   my ($js, $repeatstr)=('', 'no-repeat');
+   my @header=(-cookie=>\@cookies);
+   if ($ENV{'HTTP_USER_AGENT'}!~/MSIE.+Mac/) {
+      # reload page with Refresh header only if not MSIE on Mac
+      push(@header, -refresh=>"0.1;URL=$refreshurl");
+   } else {
+      # reload page with java script in 0.1 sec
+      $js=qq|<script language="JavaScript">\n<!--\n|.
+          qq|setTimeout("window.location.href='$refreshurl'", 100);\n|.
+          qq|//-->\n</script>|;
+   }
+   $repeatstr='repeat' if ($prefs{'bgrepeat'});
+
+   my $softwarestr=$config{'name'};
+   if ($config{'enable_about'} && $config{'about_info_software'}) {
+      $softwarestr.=qq| $config{'version'} $config{'releasedate'}|;
+   }
+
+   my $countstr='';
+   if ($config{'session_count_display'}) {
+      $countstr=qq|<br><br><br>\n|.
+                qq|<a href=# title="number of active sessions in the past 1, 5, 15 minutes">Sessions&nbsp; :&nbsp; |.
+                qq|$sessioncount[0],&nbsp; $sessioncount[1],&nbsp; $sessioncount[2]</a>\n|;
+   }
+
+   # display copyright. Don't touch it, please.
+   httpprint(\@header, [
+	qq|<html>\n|.
+	qq|<head>\n|.
+	qq|<title>$config{'name'} - Copyright</title>\n|.
+	qq|<meta http-equiv="Content-Type" content="text/html; charset=$prefs{'charset'}">\n|.
+	qq|</head>\n|.
+	qq|<body bgcolor="#ffffff" background="$prefs{'bgurl'}">\n|.
+	qq|<style type="text/css"><!--\n|.
+	qq|body {\n|.
+	qq|background-image: url($prefs{'bgurl'});\n|.
+	qq|background-repeat: $repeatstr;\n|.
+	qq|font-family: Arial,Helvetica,sans-serif; font-size: 10pt; font-color: #cccccc\n|.
+	qq|}\n|.
+	qq|A:link    { color: #cccccc; text-decoration: none }\n|.
+	qq|A:visited { color: #cccccc; text-decoration: none }\n|.
+	qq|A:hover   { color: #333333; text-decoration: none }\n|.
+	qq|--></style>\n|.
+	qq|<center><br><br><br>\n|.
+	qq|<a href="$refreshurl" title="click to next page" style="text-decoration: none">|.
+	qq|<font color="#333333"> &nbsp; $lang_text{'loading'} ...</font></a>\n|.
+	qq|<br><br><br>\n\n|.
+	qq|<a href="http://openwebmail.org/" title="click to home of $config{'name'}" target="_blank" style="text-decoration: none">\n|.
+	qq|$softwarestr<br><br>\n|.
+	qq|Copyright (C) 2001-2005<br>\n|.
+	qq|Chung-Kie Tung, Nai-Jung Kuo, Chao-Chiu Wang, Emir Litric,<br>|.
+	qq|Thomas Chung, Dattola Filippo, Bernd Bass, Scott Mazur, Alex Teslik<br><br>\n|.
+	qq|Copyright (C) 2000<br>\n|.
+	qq|Ernie Miller  (original GPL project: Neomail)<br><br>\n|.
+	qq|</a>\n\n|.
+	qq|<a href="$config{'ow_htmlurl'}/doc/copyright.txt" title="click to see GPL version 2 licence" target="_blank" style="text-decoration: none">\n|.
+	qq|This program is free software; you can redistribute it and/or modify<br>\n|.
+	qq|it under the terms of the version 2 of GNU General Public License<br>\n|.
+	qq|as published by the Free Software Foundation<br><br>\n|.
+	qq|This program is distributed in the hope that it will be useful,<br>\n|.
+	qq|but WITHOUT ANY WARRANTY; without even the implied warranty of<br>\n|.
+	qq|MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.<br>\n|.
+	qq|See the GNU General Public License for more details.<br><br>\n|.
+	qq|Removal or change of this copyright is prohibited.\n|.
+	qq|</a>\n|.
+	qq|$countstr$js\n|.
+	qq|</center></body></html>\n| ]);
 }
 
 sub ip2hostname {

@@ -434,64 +434,32 @@ sub get_messageids_sorted_by_from {
    my ($folderdb, $ignore_internal)=@_;
 
    my ($total, $r_msgid2attrs)=get_msgid2attrs($folderdb, $ignore_internal, $_DATE, $_FROM);
+
+   my %msgfromname=();
+   foreach my $id (keys %{$r_msgid2attrs}) {
+      $msgfromname{$id}= lc ( (ow::tool::email2nameaddr(${${$r_msgid2attrs}{$id}}[1]))[0] );
+   }
    my @messageids= sort {
+                        $msgfromname{$a} cmp $msgfromname{$b} or
                         ${${$r_msgid2attrs}{$b}}[0]<=>${${$r_msgid2attrs}{$a}}[0];
-                        } keys %{$r_msgid2attrs};
-
-   # try to group message of same 'from'
-   my %groupdate=();
-   my %groupmembers=();
-   foreach my $key (@messageids) {
-      my $from=${${$r_msgid2attrs}{$key}}[1];
-      if ( !defined($groupdate{$from}) ) {
-         my @members=($key);
-         $groupmembers{$from}=\@members;
-         $groupdate{$from}=${${$r_msgid2attrs}{$key}}[0];
-      } else {
-         push(@{$groupmembers{$from}}, $key);
-      }
-   }
-   @messageids=();
-
-   # sort group by groupdate
-   my @froms=sort {$groupdate{$b} <=> $groupdate{$a}} keys(%groupdate);
-   foreach my $from (@froms) {
-      push(@messageids, @{$groupmembers{$from}});
-   }
-
+                        } keys %msgfromname;
    return(\@messageids);
 }
 
 sub get_messageids_sorted_by_to {
    my ($folderdb, $ignore_internal)=@_;
 
-   my ($total, $r_msgid2attrs)
-      =get_msgid2attrs($folderdb, $ignore_internal, $_DATE, $_TO);
+   my ($total, $r_msgid2attrs)=get_msgid2attrs($folderdb, $ignore_internal, $_DATE, $_TO);
+
+   my %msgtoname=();
+   foreach my $id (keys %{$r_msgid2attrs}) {
+      my @tos=ow::tool::str2list(${${$r_msgid2attrs}{$id}}[1]);
+      $msgtoname{$id}= lc( (ow::tool::email2nameaddr($tos[0]))[0] );
+   }
    my @messageids= sort {
-                        ${${$r_msgid2attrs}{$b}}[0]<=>${${$r_msgid2attrs}{$a}}[0]
-                        } keys(%{$r_msgid2attrs});
-
-   # try to group message of same 'to'
-   my %groupdate=();
-   my %groupmembers=();
-   foreach my $key (@messageids) {
-      my $to=${${$r_msgid2attrs}{$key}}[1];
-      if ( !defined($groupdate{$to}) ) {
-         my @members=($key);
-         $groupmembers{$to}=\@members;
-         $groupdate{$to}=${${$r_msgid2attrs}{$key}}[0];
-      } else {
-         push(@{$groupmembers{$to}}, $key);
-      }
-   }
-   @messageids=();
-
-   # sort group by groupdate
-   my @froms=sort {$groupdate{$b} <=> $groupdate{$a}} keys %groupdate;
-   foreach my $from (@froms) {
-      push(@messageids, @{$groupmembers{$from}});
-   }
-
+                        $msgtoname{$a} cmp $msgtoname{$b} or
+                        ${${$r_msgid2attrs}{$b}}[0]<=>${${$r_msgid2attrs}{$a}}[0];
+                        } keys %msgtoname;
    return(\@messageids);
 }
 
@@ -566,7 +534,7 @@ sub get_messageids_sorted_by_subject {
    # so we should connect them with the earliest article by the same title.
    @thread_pre_roots = sort {
                             $subject{$a} cmp $subject{$b} or
-                            $date{$a} cmp $date{$b}
+                            $date{$a} <=> $date{$b}
                             } @thread_pre_roots;
    my $previous_id = "";
    foreach my $id (@thread_pre_roots) {

@@ -4,11 +4,8 @@
 # change the module name to the one you want to test
 #
 
-# add the path of your openwebmail cgi-bin here if it is not listed
-push (@INC,
-      '/usr/local/www/cgi-bin/openwebmail',
-      '/var/www/cgi-bin/openwebmail'
-     );
+# change the following path to your openwebmail cgi-bin directory
+push (@INC, '/usr/local/www/cgi-bin/openwebmail');
 
 use strict; no strict 'vars';
 use vars qw (%config);

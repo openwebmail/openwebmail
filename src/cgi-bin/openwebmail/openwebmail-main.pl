@@ -458,17 +458,17 @@ sub listmessages {
         $folder=~ m#saved-drafts#i ||
         $folder=~ m#\Q$lang_folders{'sent-mail'}\E#i ||
         $folder=~ m#\Q$lang_folders{'saved-drafts'}\E#i ) {
-      if ($sort eq "recipient") {
+      if ($sort eq "recipient" || $sort eq "sender") {
          $temphtml = qq|<a href="$sort_url=recipient_rev">$lang_text{'recipient'}</a> |.iconlink("up.gif", "^", "");
-      } elsif ($sort eq "recipient_rev") {
+      } elsif ($sort eq "recipient_rev" || $sort eq "sender_rev") {
          $temphtml = qq|<a href="$sort_url=recipient">$lang_text{'recipient'}</a> |.iconlink("down.gif", "v", "");
       } else {
          $temphtml = qq|<a href="$sort_url=recipient">$lang_text{'recipient'}</a>|;
       }
    } else {
-      if ($sort eq "sender") {
+      if ($sort eq "sender" || $sort eq "recipient") {
          $temphtml = qq|<a href="$sort_url=sender_rev">$lang_text{'sender'}</a> |.iconlink("up.gif", "^", "");
-      } elsif ($sort eq "sender_rev") {
+      } elsif ($sort eq "sender_rev" || $sort eq "recepient_rev") {
          $temphtml = qq|<a href="$sort_url=sender">$lang_text{'sender'}</a> |.iconlink("down.gif", "v", "");
       } else {
          $temphtml = qq|<a href="$sort_url=sender">$lang_text{'sender'}</a>|;
@@ -1055,33 +1055,6 @@ sub eventreminder_html {
 
    $temphtml=qq|&nbsp;$temphtml|;
    return($temphtml);
-}
-
-# this routine gets the EMAIL attributes in abookfiles directly
-# to avoid the overhead of vcard parsing
-sub get_abookemailhash {
-   my (%emails, @abookfiles);
-
-   my $webaddrdir = dotpath('webaddr');
-   if (opendir(WEBADDR, $webaddrdir)) {
-      @abookfiles = map { "$webaddrdir/$_" }
-                          grep { /^[^.]/ && !/^categories\.cache$/ }
-                          readdir(WEBADDR);
-      closedir(WEBADDR);
-   }
-   if ($config{'global_addressbook'} ne "" && -f $config{'global_addressbook'}) {
-      push(@abookfiles, $config{'global_addressbook'});
-   }
-   foreach my $abookfile (@abookfiles) {
-      if (open(F, $abookfile)) {
-         while (<F>) {
-            $emails{$2}=1 if (/^EMAIL(;TYPE=PREF)?:(.+?)\s*$/);
-         }
-         close(F);
-      }
-   }
-
-   return(\%emails);
 }
 ########## END LISTMESSAGES ######################################
 

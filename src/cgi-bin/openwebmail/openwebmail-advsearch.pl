@@ -261,13 +261,15 @@ sub advsearch {
       my $r_result = search_folders($startserial, $endserial, \@search, \@folders, dotpath('search.cache'));
       my $totalfound= $#{$r_result}+1;
       my $totalsize=0;
+      my $r_abookemailhash;
 
-      $temphtml="";
+      $r_abookemailhash=get_abookemailhash() if ($totalfound>0);
+      $temphtml='';
       for (my $i=0; $i<$totalfound; $i++) {
          last if ($i>$resline);
          my $r_msg=${$r_result}[$i];
          $totalsize+=${${$r_msg}{attr}}[$_SIZE];
-         $temphtml.=genline($i%2, ${$r_msg}{folder}, ${$r_msg}{msgid}, ${$r_msg}{attr});
+         $temphtml.=genline($i%2, ${$r_msg}{folder}, ${$r_msg}{msgid}, ${$r_msg}{attr}, $r_abookemailhash);
       }
       $html =~ s/\@\@\@SEARCHRESULT\@\@\@/$temphtml/g;
 
@@ -552,7 +554,7 @@ sub search_folders2 {
 ########## GENLINE ###############################################
 # this routines generates one line table containing folder, msgid and @attr
 sub genline {
-   my ($colornum, $folder, $messageid, $r_attr) = @_;
+   my ($colornum, $folder, $messageid, $r_attr, $r_abookemailhash) = @_;
    my ($escapedmessageid);
    my ($offset, $from, $to, $dateserial, $subject, $content_type, $status, $messagesize, $references, $charset);
    my ($bgcolor, $message_status,$temphtml,$folderstr,$escapedfolder);
@@ -580,6 +582,12 @@ sub genline {
    my $escapedfrom=ow::tool::escapeURL($from);
    $from = qq|<a href="$config{'ow_cgiurl'}/openwebmail-send.pl\?action=composemessage&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$escapedfrom" title="$from_address">$from_name </a>|;
 
+   my $friendstr;
+   if ($config{'enable_addressbook'} &&
+       defined ${$r_abookemailhash}{$from_address}) {
+      $friendstr=iconlink("friend.gif", "$lang_text{'search'} $lang_text{'addressbook'}", qq|href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrlistview&amp;abookkeyword=$from_address&amp;abooksearchtype=email&amp;abookfolder=ALL&amp;sessionid=$thissession&amp;folder=$escapedfolder"|);
+   }
+
    $subject=substr($subject, 0, 64)."..." if (length($subject)>67);
    $subject = ow::htmltext::str2html($subject);
    if ($subject !~ /[^\s]/) {   # Make sure there's SOMETHING clickable
@@ -593,10 +601,11 @@ sub genline {
    my $datestr=ow::datetime::dateserial2str($dateserial,
                                $prefs{'timeoffset'}, $prefs{'daylightsaving'},
                                $prefs{'dateformat'}, $prefs{'hourformat'});
+
    $temphtml = qq|<tr>|.
                qq|<td nowrap bgcolor=$bgcolor>$folderstr&nbsp;</td>\n|.
                qq|<td bgcolor=$bgcolor>$datestr</td>\n|.
-               qq|<td bgcolor=$bgcolor>$from</td>\n|.
+               qq|<td bgcolor=$bgcolor>$friendstr $from</td>\n|.
                qq|<td bgcolor=$bgcolor>|.
                qq|<a href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&amp;|.
                qq|sessionid=$thissession&amp;folder=$escapedfolder&amp;|.
