@@ -16,11 +16,12 @@
 
 <h3>INTRODUCTION</h3>
 <blockquote>
-  <p>Open WebMail is a webmail system based on the <a href="http://neomail.sourceforge.net/">Neomail</a>
-    version 1.14 from <a href="mailto:neorants@users.sourceforge.net">Ernie Miller</a>.
+  <p>Open WebMail is a webmail system based on the 
+    <a href="http://neomail.sourceforge.net/">Neomail</a> version 1.14 from 
+    <a href="mailto:neorants.AT.users.sourceforge.net">Ernie Miller</a>.
     Open WebMail is designed to manage very large mail folder files in a memory
-    efficient way. It also provides a range of features to help users migrate smoothly
-    from Microsoft Outlook to Open WebMail.
+    efficient way. It also provides a range of features to help users migrate 
+    smoothly from Microsoft Outlook to Open WebMail.
   </p>
 </blockquote>
 
@@ -170,6 +171,15 @@
     http://openwebmail.org/openwebmail/download/redhat-7x-installer/</a>
   </td>
   </tr>
+
+  <tr valign="top">
+  <td nowrap><font color=#cc0000>Online Demo&nbsp;</font></td>
+  <td nowrap>
+    <a href="http://mail.ipspace.com/">
+    http://mail.ipspace.com/</a>
+  </td>
+  </tr>
+
   </table>
 
   </p>
@@ -246,7 +256,8 @@
   <p>
   You can even setup mail accounts for users without creating real unix accounts for them.
   Please refer to <a href="mailto:kevin.AT.bluelavalamp.net">Kevin Ellis</a>'s webpage:
-  <a href="http://www.bluelavalamp.net/owmvirtual/">"How to setup virtual users on Open WebMail using Postfix & vm-pop3d"</a>
+  <a href="http://www.bluelavalamp.net/owmvirtual/">"How to setup virtual users on Open WebMail 
+  using Postfix & vm-pop3d"</a>
   </p>
 
   <h4>User Alias</h4>
@@ -390,6 +401,50 @@
 
 </blockquote>
 
+<h3>AUTHENTICATION MODULES</h3>
+<blockquote>
+  <p>
+  Open Webmail has the following modules to support different types of authentication:
+  <p>
+  <table border=1 cellspacing=0 width=85%>
+  <tr><td bgcolor=#999999><font color=#ffffff>Name</font></td>
+      <td bgcolor=#999999><font color=#ffffff>Description</td>
+      <td bgcolor=#999999><font color=#ffffff>Maintainer</td><tr>
+  <tr><td nowrap>auth_ldap.pl</td>
+      <td>authenticate user with LDAP</td>
+      <td nowrap><a href="mailto:pengus.AT.libero.it">Ivan Cerrato</a>
+      <br><a href="mailto:kelson.AT.speed.net">Kelson Vibber</a></td></tr>
+  <tr><td nowrap>auth_mysql.pl</td>
+      <td>authenticate user with MySQL (through DBD::MySQL interface)</td>
+      <td nowrap><a href="mailto:AlanSung.AT.dragon2.net">Alan Sung</a></td></tr>
+  <tr><td nowrap>auth_mysql_vmail.pl</td>
+      <td>authenticate user with MySQL under vmail (through DBD::MySQL interface)</td>
+      <td nowrap><a href="mailto:werdy.AT.freemail.hu">Zoltan Kovacs</a></td></tr>
+  <tr><td nowrap>auth_pam.pl</td>
+      <td>authenticate user with PAM</td>
+      <td nowrap><a href="mailto:openwebmail.AT.turtle.ee.ncku.edu.tw">openwebmail</a></td><tr>
+  <tr><td nowrap>auth_pam_cobalt.pl</td>
+      <td>authenticate user with PAM on cobalt server</td>
+      <td nowrap><a href="mailto:webmaster.AT.pkgmaster.com">Taco Scargo</a></td><tr>
+  <tr><td nowrap>auth_pgsql.pl</td>
+      <td>authenticate user with PostgreSQL (through DBD::Pg interface))</td>
+      <td nowrap><a href="mailto:oliver.AT.kfs.org">Oliver Smith</a></td></tr>
+  <tr><td nowrap>auth_pgsql.pl</td>
+      <td>authenticate user with PostgreSQL (through native interface)</td>
+      <td nowrap><a href="mailto:vess.AT.btc.net">Veselin Slavov</a></td><tr>
+  <tr><td nowrap>auth_pop3.pl</td>
+      <td>authenticate user through pop3 server</td>
+      <td nowrap><a href="mailto:openwebmail.AT.turtle.ee.ncku.edu.tw">openwebmail</a></td><tr>
+  <tr><td nowrap>auth_unix.pl</td>
+      <td>authenticate user with unix passwd</td>
+      <td nowrap><a href="mailto:openwebmail.AT.turtle.ee.ncku.edu.tw">openwebmail</a></td><tr>
+  <tr><td nowrap>auth_unix_cobalt.pl</td>
+      <td>authenticate user with unix passwd on cobalt server</td>
+      <td nowrap><a href="mailto: Trevor.Paquette.AT.TeraGo.ca">Trevor Paquett</a></td></tr>
+  </table>
+  </p>
+</blockquote>
+
 <h3>LANGUAGES</h3>
 <blockquote>
   <p>
@@ -418,7 +473,7 @@
       <td><a href="mailto:wjun.AT.mail.iap.ac.cn">Wang Jun</a></td>
       <td>&nbsp;</td></tr>
   <tr><td nowrap>Chinese (Traditional)</td>
-      <td>zh_TW</td>
+      <td>zh_TW.Big5</td>
       <td><a href="mailto:openwebmail.AT.turtle.ee.ncku.edu.tw">openwebmail</a></td>
       <td><a href="mailto:hoyuan.AT.istyle.idv.tw">HoYuan</a></td></tr>
   <tr><td nowrap>Danish</td>
@@ -460,6 +515,10 @@
   <tr><td nowrap>Italian</td>
       <td>it</td>
       <td><a href="mailto:i3100579.AT.ingstud.univ.trieste.it">Benedet Marvi</a></td>
+      <td><a href="mailto:andrea.AT.linsys.it">Andrea Partinico</a></td></tr>
+  <tr><td nowrap>Japanese (ShiftJIS) </td>
+      <td>ja_JP.Shift_JIS</td>
+      <td><a href="mailto:james.AT.ActionMessage.com">Captain James and Interactive Artists, LLC</a></td>
       <td>&nbsp;</td></tr>
   <tr><td nowrap>Korean</td>
       <td>kr</td>
@@ -556,6 +615,13 @@
     Thank you, Thomas!
   </li>
   <li>
+  Thanks to <a href="http://www.norvasen.com/">Norvasen</a> 
+  for hardware, DNS and bandwidth for <a href="http://www.openwebmail.org">openwebmail.org</a>.
+  <br>
+  Thanks to <a href="http://www.davoice.net/">Pentecost Inc.</a> 
+  for their consulting expertise and operational support.
+  </li>
+  <li>
   Thanks to <a href="mailto:marndt.AT.bulldog.tzo.org">Michael Arndt</a>.
     The web calendar support in openwebmail is based on his great code in
     <a href="http://bulldog.tzo.org/webcal/webcal.html/">WebCal</a> 1.12.
@@ -630,7 +696,9 @@
   </li>
   <li>
   Thanks to <a href="mailto:kevlo.AT.openbsd.org">Kevin Lo</a>,
-    who made the <a href="http://www.openbsd.org/cgi-bin/cvsweb/ports/mail/openwebmail/">OpenBSD port</a> for openwebmail.
+    who made the 
+    <a href="http://www.openbsd.org/cgi-bin/cvsweb/ports/mail/openwebmail/">OpenBSD port</a>
+    for openwebmail.
   </li>
   <li>
   Thanks to <a href="mailto:lvm.AT.mystery.lviv.ne">Volodymyr M. Lisivka</a>,
@@ -653,7 +721,8 @@
   </li>
   <li>
   Thanks to <a href="mailto:leeym.AT.leeym.com">Yen-Ming Lee</a>,
-    who made the <a href="http://www.freebsd.org/cgi/cvsweb.cgi/ports/mail/openwebmail/">FreeBSD port</a> for openwebmail.
+    who made the <a href="http://www.freebsd.org/cgi/cvsweb.cgi/ports/mail/openwebmail/">FreeBSD port</a> 
+    for openwebmail.
   </li>
   <li>
   Thanks to <a href="mailto:johnson.AT.ooty.tenet.res.in">A.Johnson Jeba Asir</a>,
@@ -664,11 +733,8 @@
   Thanks to <a href="mailto:kevin.AT.bluelavalamp.net">Kevin Ellis</a>,
     who fixed the bugs related to virtualuser and option auth_withdomain
     so openwebmail could work smoothly with vm-pop3d. Please refer to Kevin's webpage
-    <a href="http://www.bluelavalamp.net/owmvirtual/">"How to setup virtual users on Open WebMail using Postfix & vm-pop3d"</a>
-  </li>
-  <li>
-  Thanks to <a href="mailto:AlanSung.AT.dragon2.net">Alan, Cheng-Lung Sung</a>,
-    who contributed the MySQL authentication module (auth_mysql.pl).
+    <a href="http://www.bluelavalamp.net/owmvirtual/">"How to setup virtual users on Open WebMail 
+    using Postfix & vm-pop3d"</a>
   </li>
   <li>
   Thanks to <a href="mailto:koppi.AT.action.at">Koppi</a>,
@@ -701,15 +767,6 @@
     added %1 variable support to virtusertable
   </li>
   <li>
-  Thanks to <a href="mailto:werdy.AT.freemail.hu">Zoltan Kovacs</a>,
-    who contributed the MySQL authentication module for vmail(auth_mysql_vmail.pl).
-    The module works best with vmail but not limited to, it is easy to customize.
-  </li>
-  <li>
-  Thanks to <a href="mailto:oli.AT.kfs.org">Oliver Smith</a>,
-    who contributed the PostgreSQL authentication module (auth_pgsql.pl. DBI interface).
-  </li>
-  <li>
   Thanks to Michael Karner and <a href="http://www.qeta.net">QETA.Net</a>,
     who registered and hosted the mirror site
     <a href="http://www.openwebmail.net">www.openwebmail.net</a>
@@ -722,9 +779,35 @@
   </li>
   <li>
   Thanks to <a href="mailto:filippo.AT.sms.it">Dattola Filippo</a>,
-    who wrote the advanced search, which can search more than one folders at a time and show the results from different folders in one page.
-    He also wrote the patch to support mark read operation on whole folder, save message to draft if sendmail error
-    and fixed the bug that the ' and \ chars in filterrule will be eat by javascript
+    who wrote the advanced search, which can search more than one folders at a time 
+    and show the results from different folders in one page.
+    He also wrote the patch to support mark read operation on whole folder, 
+    save message to draft if sendmail error and fixed the bug that the ' and \ chars 
+    in filterrule will be eat by javascript
+  </li>
+  <li>
+  Thanks to <a href="mailto:Trevor.Paquette.AT.TeraGo.ca">Trevor Paquette</a>,
+    who made fix for option domainname_override and folderusage_threshold and
+    the auth_module auth_unix_cobalt.pl for Cobalt server.
+  </li>
+  <li>
+  Thanks to <a href="mailto:andrea.AT.linsys.it">Andrea Partinico</a>,
+    who made the mkcool3d_en.sh and mkcool3d_it.sh under uty/, 
+    which can be used to generate the Cool3D iconsets for different languages.
+    The Cool3D.Large.English and Cool3D.Italian is made with these scripts.
+  </li>
+  <li>
+  Thanks to <a href="mailto:neil.AT.emailattitude.com">Neil Inns</a>,
+    who donated the openwebmail.con domainname to this project.
+  </li>
+  <li>
+  Thanks to <a href="mailto:beckerr.AT.fh-trier.de">Ralf Becker</a>,
+    who submitted the patch that added preliminary subdir support to mailfolder.
+  </li>
+  <li>
+  Thanks to <a href="mailto:premier.AT.qld.org">Herr Doktor C. Lesser</a>,
+    who provided the online demo site <a href="http://mail.ipspace.com">http://mail.ipspace.com</a> 
+    for openwebmail.
   </li>
   </ul>
   </p>
@@ -754,9 +837,10 @@
      <a href="http://turtle.ee.ncku.edu.tw/openwebmail/download/packages/mirror.openwebmail.sh">
      script</a>.
      <br><br>
-     Please <b>DO NOT</b> email questions/problems to openwebmail.AT.turtle.ee.ncku.edu.tw or the authors
-     directly, they will be just <b>simplely ignored</b>. We would prefer to do the discussion
-     on the <a href="http://sourceforge.net/forum/forum.php?forum_id=108433">forum</a>
+     Please <b>DO NOT</b> email questions/problems to openwebmail.AT.turtle.ee.ncku.edu.tw 
+     or the authors directly, they will be just <b>simplely ignored</b>. 
+     We would prefer to do the discussion on the 
+     <a href="http://sourceforge.net/forum/forum.php?forum_id=108433">forum</a>
      thus the information could be shared by others.
   </p>
 </blockquote>
@@ -794,25 +878,33 @@
     <a href="http://www.ee.ncku.edu.tw/" target=_blank style="text-decoration: none">
     <font color=#000000>Department of Electrical Engineering</font></a> <br>
     <a href="http://www.ncku.edu.tw/" target=_blank style="text-decoration: none">
-    <font color=#000000>National Chung-Kung University</font></a>,
+    <font color=#000000>National Cheng-Kung University</font></a>,
     Tainan, Taiwan, R.O.C. </p>
 </blockquote>
-<p>05/31/2002 </p>
+<p>08/22/2002 </p>
 
 <br>
 <center>
 <table>
 <tr><td>
 <a href="http://turtle.ee.ncku.edu.tw/openwebmail/download/icons">
-<IMG src="images/powered-by-openwebmail.gif" border=0 alt="Small icon collections"></a>
+<IMG src="images/powered-by-openwebmail.gif" 
+border=0 alt="Small icon collections"></a>
 </td><td>
 &nbsp;&nbsp;
 </td><td>
 <a href="http://sourceforge.net/projects/openwebmail/">
-<IMG src="http://sourceforge.net/sflogo.php?group_id=34552&type=1" width="88" height="31" border="0" alt="SourceForge Logo"></a>
-</center>
+<IMG src="http://sourceforge.net/sflogo.php?group_id=34552&type=1" 
+width="88" height="31" border="0" alt="SourceForge Logo"></a>
+</td><td>
+&nbsp;&nbsp;
+</td><td>
+<a href="http://www.norvasen.com/">
+<IMG src="images/spon_by_norv.gif" 
+border="0" alt="Sponsored by Norvasen"></a>
 </td></tr>
 </table>
+</center>
 
 </td></tr></table>
 
