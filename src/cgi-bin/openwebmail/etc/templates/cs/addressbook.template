@@ -27,9 +27,9 @@
    {
       for (var i=0;i<document.addressbook.elements.length;i++)
       {
-         var e = document.addressbook.elements[i];
-         if (e.type == 'checkbox')
-            e.checked = document.search.allbox.checked;
+	 var e = document.addressbook.elements[i];
+	 if (e.type == 'checkbox')
+	    e.checked = document.search.allbox.checked;
       }
    }
    function Update()
@@ -37,13 +37,13 @@
       var e2 = unescape(document.addressbook.remainingstr.value);
       for (var i = 0; i < document.addressbook.elements.length; i++)
       {
-         var e = document.addressbook.elements[i];
-         if (e.name == "to" && e.checked)
-         {
-            if (e2)
-               e2 += ",";
-            e2 += e.value;
-         }
+	 var e = document.addressbook.elements[i];
+	 if (e.name == "to" && e.checked)
+	 {
+	    if (e2)
+	       e2 += ",";
+	    e2 += e.value;
+	 }
       }
       window.opener.document.@@@FORMNAME@@@.@@@FIELDNAME@@@.value = e2;
       window.close();

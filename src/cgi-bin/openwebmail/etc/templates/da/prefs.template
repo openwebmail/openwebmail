@@ -6,7 +6,11 @@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Sprog:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@LANGUAGEFIELD@@@
+@@@LANGUAGEMENU@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>TimeZone offset:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@TIMEOFFSETMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Din standard afsender adresse:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
@@ -30,6 +34,10 @@
 &nbsp;URL
 @@@BGURLFIELD@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Font size:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@FONTSIZEMENU@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Meddelelser pr. side:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@HEADERSPERPAGE@@@
@@ -50,9 +58,9 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@HEADERSMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Synlig område ved afsendelse af email:</B>
+<B>Synlig omr&aring;de ved afsendelse af mail:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-Bredde (i karakterer) @@@EDITCOLUMNSMENU@@@ Højde (i linier) @@@EDITROWSMENU@@@
+Bredde (i karakterer) @@@EDITCOLUMNSMENU@@@ H&oslash;jde (i linier) @@@EDITROWSMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Standard ordbog :</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
@@ -70,72 +78,88 @@ Bredde (i karakterer) @@@EDITCOLUMNSMENU@@@ Højde (i linier) @@@EDITROWSMENU@@@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@USEFIXEDFONT@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Brug 'smiley' ved læsning af post:</B>
+<B>Brug 'smiley' ved l&aelig;sning af post:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@USESMILEICON@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Forbyd JavaScript i meddelser (virus beskyttelse):</B>
+<B>Forbyd JavaScript i meddelelser (virus beskyttelse):</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEJS@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Forbyd CGI i meddelser:</B>
+<B>Forbyd CGI i meddelelser:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEEMBCGI@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Bekræft inden meddelse flyttes/kopieres:</B>
+<B>Vis vedh&aelig;ftede billeder som links:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@SHOWIMGASLINK@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Use Regex in search and filterrule:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@REGEXMATCH@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Bekr&aelig;ft inden meddelelse flyttes/kopieres:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@CONFIRMMSGMOVECOPY@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Vis næste meddelse efter flytning/kopiering:</B>
+<B>Vis n&aelig;ste meddelelse efter flytning/kopiering:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@VIEWNEXTAFTERMSGMOVECOPY@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Reformatter meddelsen før afsendelse:</B>
+<B>Backup outgoing message to SENT folder:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@BACKUPSENTMSG@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Reformatter meddelelsen f&oslash;r afsendelse:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@REPARAGRAPHORIGMSG@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Besvar med original meddelse:</B>
+<B>Besvar med original meddelelse:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@REPLYWITHORIGMSGMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Bekræft til afsender når din post er læst:</B>
+<B>Bekr&aelig;ft til afsender n&aring;r din post er l&aelig;st:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@SENDRECEIPTMENU@@@
 </td></tr>
 @@@AUTOPOP3START@@@
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Hent automatisk POP3 post når du logger på:</B>
+<B>Hent automatisk POP3 post n&aring;r du logger p&aring;:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@AUTOPOP3CHECKBOX@@@
 </td></tr>
 @@@AUTOPOP3END@@@
 @@@MOVEOLDSTART@@@
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Flyt gammel post til 'Gemt post' når du logger af:</B>
+<B>Flyt gammel post til 'Gemt post' n&aring;r du logger af:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@MOVEOLDMSGFROMINBOX@@@
 </td></tr>
 @@@MOVEOLDEND@@@
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Begræns ens meddelser til:</B>
+<B>Begr&aelig;ns ens meddelelser til:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERREPEATLIMIT@@@ &nbsp( 0 deaktiverer )
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Flyt meddelser til papirkurv, som er sendt via falsk SMTP-server:</B>
+<B>Flyt meddelelser til papirkurven, som er sendt via falsk SMTP-server:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDSMTP@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Flyt meddelses til papirkurv, som indeholder falsk .exe content-type (virus):</B>
+<B>Flyt meddelelser til papirkurven, som har falsk FRA adresse:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@FILTERFAKEDFROM@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Flyt meddelelser til papirkurven, som indeholder falsk .exe content-type (virus):</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDEXECONTENTTYPE@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Fjern meddelser fra papirkurven når meddelsen er:</B>
+<B>Fjern meddelelser fra papirkurven n&aring;r meddelelsen er:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@RESERVEDDAYSMENU@@@ dag(e) gammel
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Session timeout:</B>
+<B>Afslut automatisk efter:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@SESSIONTIMEOUTMENU@@@
 </td></tr>
@@ -163,7 +187,7 @@ Subject:
 </td></tr>
 @@@AUTOREPLYEND@@@
 <tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@ class=msgbody>
-<B>Signatur ved afsendelse af post/autosvar (max 500 tegn)</B><BR>
+<B>Signatur ved afsendelse af mail/autosvar (max 500 tegn)</B><BR>
 @@@SIGAREA@@@
 </td></tr><tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>
 <table><tr><td>

@@ -16,7 +16,7 @@
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Kode rahasia</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Hapus Surat dari luar</B></td>
+@@@DELPOP3STRSTART@@@<B>Hapus Surat dari luar</B>@@@DELPOP3STREND@@@</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Aktif</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
@@ -67,4 +67,3 @@
    }
 //-->
 </script>
-

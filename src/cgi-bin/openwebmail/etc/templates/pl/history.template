@@ -7,15 +7,15 @@
 <table border="0" align="center" width="90%" cellspacing="0" cellpadding="0">
 <tr>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Time</B></td>
+<B>Czas</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Adres klienta</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>U¿ytkownik</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Event</B></td>
+<B>Zdarzenie</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Description</B></td>
+<B>Opis</B></td>
 </tr>
 @@@LOGINHISTORY@@@
 </table>

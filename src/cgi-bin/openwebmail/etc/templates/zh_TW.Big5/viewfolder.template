@@ -6,6 +6,7 @@
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@>
 <B>@@@FOLDERPOPUP@@@</B></FONT></td>
 @@@ENDFORM@@@
+<td><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><B>@@@QUOTAINFO@@@</B></font></td>
 <td nowrap bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>@@@NUMBEROFMESSAGES@@@</B></font>&nbsp;</td>

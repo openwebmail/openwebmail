@@ -11,13 +11,12 @@
    function timeoutcheck () {
       remainingseconds=remainingseconds-1;
       if (remainingseconds >= 65) {
-         setTimeout("timeoutcheck()", 1*1000);
+	 setTimeout("timeoutcheck()", 1*1000);
       } else if (remainingseconds > 0 ) {
-         timeoutwarning();
+	 timeoutwarning();
       }
    }
 
    timeoutcheck();
 //-->
 </script>
-

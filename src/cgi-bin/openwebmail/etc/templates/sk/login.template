@@ -18,7 +18,7 @@
 <td align=right nowrap>Heslo: </td><td align=left>@@@PASSWORDFIELD@@@</td>
 @@@DOMAINSTART@@@
 </tr><tr>
-<td align=right nowrap>Domain: </td><td align=left>@@@DOMAINMENU@@@</td>
+<td align=right nowrap>Doména: </td><td align=left>@@@DOMAINMENU@@@</td>
 @@@DOMAINEND@@@
 </tr><tr>
 <td align=center>

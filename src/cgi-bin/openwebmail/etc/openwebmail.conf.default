@@ -11,8 +11,8 @@
 #
 
 name			Open WebMail
-version			1.64
-releasedate		20020415
+version			1.65
+releasedate		20020606
 
 ##############################################################################
 # host dependent configuration
@@ -26,6 +26,7 @@ auth_module		auth_unix.pl
 auth_withdomain		no
 mailspooldir		/var/mail
 use_hashedmailspools	no
+create_homedir		no
 use_homedirspools	no
 homedirspoolname	Mailbox
 use_homedirfolders	yes
@@ -33,7 +34,6 @@ homedirfolderdirname	mail
 use_dotlockfile		no
 dbm_ext			.db
 dbmopen_ext		none
-timeoffset		+0800
 deliver_use_GMT		no
 savedsuid_support	yes
 
@@ -52,19 +52,27 @@ sound_url		%ow_htmlurl%/yougotmail.wav
 logfile			%ow_cgidir%/openwebmail.log
 global_addressbook	%ow_etcdir%/address.book
 global_filterbook	%ow_etcdir%/filter.book
+g2b_map			%ow_etcdir%/g2b.map
+b2g_map			%ow_etcdir%/b2g.map
 spellcheck		/usr/local/bin/ispell
 spellcheck_dictionaries	english, american
 vacationinit		%ow_cgidir%/vacation.pl -i
 vacationpipe		%ow_cgidir%/vacation.pl -t60s
-g2b_converter		%ow_cgidir%/hc -mode g2b -t %ow_cgidir%/hc.tab
-b2g_converter		%ow_cgidir%/hc -mode b2g -t %ow_cgidir%/hc.tab
 allowed_serverdomain	all
 allowed_clientdomain	all
 allowed_clientip	all
 allowed_receiverdomain	all
 enable_rootlogin	no
+enable_domainselectmenu yes
 enable_changepwd	yes
 enable_about		yes
+about_info_software		yes
+about_info_scriptfilename	no
+about_info_protocol		yes
+about_info_server		yes
+about_info_client		yes
+xmailer_has_version		yes
+xoriginatingip_has_userid	yes
 enable_setfromemail	yes
 enable_autoreply	yes
 enable_setforward	yes
@@ -72,6 +80,7 @@ enable_pop3		yes
 disallowed_pop3servers	your_server, your_server.domain
 getmail_from_pop3_authserver	no
 delpop3mail_by_default	yes
+delpop3mail_hidden	no
 symboliclink_mbox	yes
 loginerrordelay		10
 refreshinterval		15
@@ -93,11 +102,13 @@ version %version%
 # default setting for new user's preference
 ##############################################################################
 default_language	en
+default_timeoffset	auto
 default_realname	auto
 default_fromemails	auto
 default_bgurl		%ow_htmlurl%/images/backgrounds/Globe.gif
 default_style		Default
 default_iconset		Default
+default_fontsize	10pt
 default_headersperpage	10
 default_sort		date		
 default_dateformat	mm/dd/yyyy
@@ -110,8 +121,11 @@ default_usefixedfont	no
 default_usesmileicon	yes
 default_disablejs	no
 default_disableembcgi	no
+default_showimgaslink	no
+default_regexmatch	yes
 default_confirmmsgmovecopy	yes
 default_viewnextaftermsgmovecopy	yes
+default_backupsentmsg		yes	
 default_reparagraphorigmsg	yes
 default_replywithorigmsg	at_beginning
 default_sendreceipt		ask
@@ -120,6 +134,7 @@ default_moveoldmsgfrominbox	yes
 forced_moveoldmsgfrominbox	no
 default_filter_repeatlimit	10
 default_filter_fakedsmtp	no
+default_filter_fakedfrom	no
 default_filter_fakedexecontenttype	no
 default_trashreserveddays	7
 default_sessiontimeout		60

@@ -14,9 +14,12 @@
 my %dictionary_letters =
    (
    english   => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
-   magyar    => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzáÁéÉíÍóÓúÚüÜõÕûÛÀÁÈÉÌÍÒÓÔÕÖÙÚÛÜàáèéêëìíòóôõö¢~ûü',
-   ukrainian => 'ÊÃÕËÅÎÇÛİÚÈ§Æ¦×ÁĞÒÏÌÄÖ¤­ÑŞÓÍÉÔØÂÀ\'êãõëåîçûıúè·æ¶÷áğòïìäö´½ñşóíéôøâà',
+   br        => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzáÁéÉíÍóÓúÚüÜõÕãÃàÀôÔêÊÇç',
+   czech     => 'AÁBCÈDÏEÉÌFGHIÍJKLMNÒOÓPQRØS©T«UÚÙVWXYİZ®aábcèdïeéìfghiíjklmnòoópqrøs¹t»uúùvwxyız¾',
    deutsch   => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzäÄöÖüÜß',
+   magyar    => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzáÁéÉíÍóÓúÚüÜõÕûÛÀÁÈÉÌÍÒÓÔÕÖÙÚÛÜàáèéêëìíòóôõö¢~ûü',
+   polski    => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz±æê³ñó¶¼¿¡ÆÊ£ÑÓ¦¬¯',
+   ukrainian => 'ÊÃÕËÅÎÇÛİÚÈ§Æ¦×ÁĞÒÏÌÄÖ¤­ÑŞÓÍÉÔØÂÀ\'êãõëåîçûıúè·æ¶÷áğòïìäö´½ñşóíéôøâà',
    );
 
 
@@ -27,12 +30,12 @@ push (@INC, $SCRIPT_DIR, ".");
 
 $ENV{PATH} = ""; # no PATH should be needed
 $ENV{BASH_ENV} = ""; # no startup script for bash
-umask(0007); # make sure the openwebmail group can write
+umask(0002); # make sure the openwebmail group can write
 
 use strict;
 use Fcntl qw(:DEFAULT :flock);
 use IPC::Open3;
-use CGI qw(:standard);
+use CGI qw(-private_tempfiles :standard);
 use CGI::Carp qw(fatalsToBrowser);
 CGI::nph();   # Treat script as a non-parsed-header script
 
@@ -88,7 +91,7 @@ if (defined(param('string'))) {
    final($form,$field);
 } else {
    printheader();
-   print "What the heck? Inavlid input for Spellcheck!";
+   print "What the heck? Invalid input for Spellcheck!";
    printfooter(1);
 }
 

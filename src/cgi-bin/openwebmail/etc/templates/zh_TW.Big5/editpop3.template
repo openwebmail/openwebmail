@@ -16,7 +16,7 @@
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>密碼</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>刪除遠端郵件</B></td>
+@@@DELPOP3STRSTART@@@<B>刪除遠端郵件</B>@@@DELPOP3STREND@@@</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>啟動</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
@@ -67,4 +67,3 @@
    }
 //-->
 </script>
-

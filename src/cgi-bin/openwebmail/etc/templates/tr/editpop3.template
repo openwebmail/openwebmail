@@ -16,7 +16,7 @@
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Parola</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Uzaktaki iletiyi sil</B></td>
+@@@DELPOP3STRSTART@@@<B>Uzaktaki iletiyi sil</B>@@@DELPOP3STREND@@@</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Etkinleþtir</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
@@ -67,4 +67,3 @@
    }
 //-->
 </script>
-

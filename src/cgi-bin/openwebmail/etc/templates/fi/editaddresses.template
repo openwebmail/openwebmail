@@ -43,7 +43,7 @@
 <!--
    function GoAddressWindow(field)
    {
-      var url = "@@@PREFSURL@@@?action=addressbook&sessionid=@@@SESSIONID@@@&form=newaddress&field=" + field;
+      var url = "@@@ABOOKURL@@@?action=addressbook&sessionid=@@@SESSIONID@@@&form=newaddress&field=" + field;
       
       if (field == "email")
          url += "&preexisting=" + escape (document.newaddress.email.value);
@@ -61,4 +61,3 @@
    }
 //-->
 </script>
-

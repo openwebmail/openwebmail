@@ -7,13 +7,13 @@
 <BR>
 <table align=center border=0 cellspacing=2 cellpadding=0>
 <tr>
-<td align=right>UserID: </td><td align=left>@@@USERIDFIELD@@@</td>
+<td align=right>ID-ul utilizatorului: </td><td align=left>@@@USERIDFIELD@@@</td>
 </tr><tr>
-<td align=right>Old Password: </td><td align=left>@@@OLDPASSWORDFIELD@@@</td>
+<td align=right>Parola veche: </td><td align=left>@@@OLDPASSWORDFIELD@@@</td>
 </tr><tr>
-<td align=right>New Password: </td><td align=left>@@@NEWPASSWORDFIELD@@@</td>
+<td align=right>Parola noua: </td><td align=left>@@@NEWPASSWORDFIELD@@@</td>
 </tr><tr>
-<td align=right>Confirm New Password: </td><td align=left>@@@CONFIRMNEWPASSWORDFIELD@@@</td>
+<td align=right>Confirmare Parola noua: </td><td align=left>@@@CONFIRMNEWPASSWORDFIELD@@@</td>
 </tr><tr>
 <td colspan=2>
 <table width="100%"><tr>
@@ -31,17 +31,17 @@
       var s;
       s=document.passwordform.newpassword.value;
       if (s.length < 4) {
-         alert("Password must has at least 4 characters.");
+         alert("Lungimea parolei trebue sa fie minim 4 simboluri.");
          return false;
       }
       if (document.passwordform.newpassword.value !=
 	  document.passwordform.confirmnewpassword.value) {
-         alert("New password confirm mismatch.");
+         alert("Confirmarea parolei nu e corecta.");
          return false;
       }
       if (document.passwordform.newpassword.value ==
 	  document.passwordform.oldpassword.value) {
-         alert("New password is the same as the old one.");
+         alert("Parola noua e aceeasi ca si veche.");
          return false;
       }
       return true;

@@ -89,6 +89,12 @@ Set this to 'yes' if your mail spool directory is set up like
 set up this way, you'll know if you need it.
 
 
+create_homedir
+-----------------------------------------------------------------------
+If 'yes', then openwebmail will create the user's home directory if it 
+does not exist.
+
+
 use_homedirspools
 -----------------------------------------------------------------------
 Set this to 'yes' if you're using mailspool files in user homedir
@@ -131,17 +137,12 @@ ps: You can run 'perl openwebmail/uty/dbmtest.pl' to get value for this
 dbmopen_ext
 -----------------------------------------------------------------------
 This is the db extension passed to the dbmopen() call.
-It should be set to none in most case. You need to set it to %dbm_ext% 
+It should be set to 'none' in most case. You need to set it to %dbm_ext% 
 only if you use any DB File module in script explicitly
 
-ps: You can run 'perl openwebmail/uty/dbmtest.pl' to get value for this
-
-
-timeoffset
------------------------------------------------------------------------
-This is the time offset of your timezone from GMT.
-You can set it to 'auto' or value in the notation [-|+]XXXX.
-For example, for Taiwan, the offset is +0800.
+ps: It is said this option needs to be set to '%dbm_ext%' on the Sun 
+    Cobal server or Slackware 8.x. 
+    You can run 'perl openwebmail/uty/dbmtest.pl' to get value for this
 
 
 deliver_use_GMT
@@ -250,6 +251,18 @@ global_filterbook
 filterbook shared by all user
 
 
+g2b_map
+-----------------------------------------------------------------------
+chinese GB to Big5 mapping txt file
+
+
+b2g_map
+-----------------------------------------------------------------------
+chinese Big5 to GB mapping txt file
+
+ps: g2b_map and b2g_map are used only if lang is 'tw' or 'cn'
+
+
 spellcheck
 -----------------------------------------------------------------------
 The location of your spelling check program, 
@@ -276,18 +289,6 @@ vacationpipe
 The location of the vacation program with option to read data piped 
 from sendmail. 60s means mails from same user within 60 seconds will 
 be replied only once
-
-
-g2b_converter
------------------------------------------------------------------------
-program to convert chinese GB to Big5 code
-
-
-b2g_converter
------------------------------------------------------------------------
-program to convert chinese Big5 to GB code
-
-ps: g2b and b2g converters will be required only if lang is 'tw' or 'cn'
 
 
 allowed_serverdomain
@@ -343,6 +344,12 @@ Set this to 'yes' if you want to allow root login
 Warning! The option is dangerous, use it at your own risk!
 
 
+enable_domainselectmenu
+-----------------------------------------------------------------------
+Set this to 'yes' if you want a selection menu at login when there are 
+more than one domainnames defined.
+
+
 enable_changepwd
 -----------------------------------------------------------------------
 Set this to 'yes' if you want to let user set their password through 
@@ -353,6 +360,42 @@ enable_about
 -----------------------------------------------------------------------
 Set this to 'no' if you want to disable the 'About' button in the user 
 preference
+
+
+about_info_software
+-----------------------------------------------------------------------
+If cleared, the SOFTWARE part of the About dialog is not available. It
+contains OS, Perl and Open WebMail versions. You might find it
+undesirable for these data to be printed (it could help someone identify
+your system software as vulnerable if, say, a Perl exploit were found).
+
+Yes, it is paranoid.
+
+
+about_info_scriptfilename
+-----------------------------------------------------------------------
+This one is probably better off being left as is. Enabling it might
+reveal the DocumentRoot of the www server, which is generally a Bad
+Thing(tm).
+
+
+about_info_protocol
+about_info_server
+about_info_client
+-----------------------------------------------------------------------
+Other information part of the About dialog. For completeness only.
+
+
+xmailer_has_version
+-----------------------------------------------------------------------
+Set this option to 'no' if you don't want the openwebmail version number 
+to be displayed in the X-Mailer header for the outgoing messages
+
+
+xoriginatingip_has_userid
+-----------------------------------------------------------------------
+Set this option to 'no' if you don't want the userid to be displayed 
+in the X-OriginatingIP header for the outgoing messages
 
 
 enable_setfromemail
@@ -379,7 +422,7 @@ pop3 related functions from user, please set this to 'no'
 
 disallowed_pop3servers
 -----------------------------------------------------------------------
-a List of hostnames which we disallow. 
+a list of hostnames which we disallow. 
 The host may share the same mailspool, or for some administrative 
 reason be undesirable.
 
@@ -397,6 +440,13 @@ delpop3mail_by_default
 -----------------------------------------------------------------------
 If this option is on, openwebamil will set 'delete remote mail' to yes 
 when creating new record in pop3 book
+
+
+delpop3mail_hidden
+-----------------------------------------------------------------------
+If this option is on, openwebmail will hide the 'del remote mail'
+checkbox in editpop3 menu so uer will not be able to change it.
+Then the value delpop3mail_by_default will be used
 
 
 symboliclink_mbox
@@ -522,12 +572,20 @@ zh_CN.GB2312 => Chinese ( Simplified )
 zh_TW.Big5   => Chinese ( Traditional )
 
 
+default_timeoffset
+-----------------------------------------------------------------------
+This is the default time offset of user timezone from GMT.
+You can set it to 'auto' or value in the notation [-|+]XXXX.
+For example, for Taiwan, the offset is +0800.
+
+
 default_realname
 -----------------------------------------------------------------------
 the default realname for the user.
 If this option is set to 'auto', the realname will be derived from the 
-authentication system. This is primarily used in per user config to set
-realname for specific user.
+authentication system. If this option is set to 'none', then null string 
+will be used. This is primarily used in per user config to set realname 
+for specific user.
 
 Example:
 default_realname	Celia Wang
@@ -548,7 +606,7 @@ default_bgurl
 -----------------------------------------------------------------------
 the default background image used for new user
 
-ps: if set this to none, a transparent blank background will be used
+ps: if set this to 'none', a transparent blank background will be used
 
 
 default_style
@@ -559,6 +617,12 @@ the default style used for new user
 default_iconset
 -----------------------------------------------------------------------
 the default iconset used for new user
+
+
+default_fontsize
+-----------------------------------------------------------------------
+the default fontsize used for new user, 
+available value: 9pt, 10pt, 11pt, 12px, 13px, 14px
 
 
 default_headersperpage
@@ -634,6 +698,19 @@ be disabled. This prevents user email addresses being confirmed by
 spammer through the embedded CGIs.
 
 
+default_showimgaslink
+-----------------------------------------------------------------------
+if set this option to 'yes', the image attachments will be showed as 
+link instead of the image picutre. This is useful for users with slow
+link of network.
+
+
+default_regexmatch
+-----------------------------------------------------------------------
+if set this option to 'yes', the regular expression is assumed when 
+doing keyword match in search and filterrule.
+
+
 default_confirmmsgmovecopy
 -----------------------------------------------------------------------
 display confirm window before message move/copy
@@ -643,6 +720,11 @@ default_viewnextaftermsgmovecopy
 -----------------------------------------------------------------------
 goto next message after a message move/copy/deletion in the message 
 view window
+
+
+default_backupsentmsg
+-----------------------------------------------------------------------
+backup outgoing messages to SENT folder
 
 
 default_reparagraphorigmsg
@@ -704,6 +786,14 @@ We call a message 'fakedsmtp' if
   sender has invalid hostname.
 Messages in above cases are normally from spammers. When this option 
 is set to 'yes', these fakedsmtp messages will be moved to mail-trash.
+
+
+default_filter_fakedfrom
+-----------------------------------------------------------------------
+We call a message 'fakedfrom' if the email in From: field is different
+than the email address in the SMTP envelope. Messages of this type are 
+usually sent from a virus. When this option is set to 'yes', these 
+message will be moved to mail-trash.
 
 
 default_filter_fakedexecontenttype

@@ -16,7 +16,7 @@
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Kennwort</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Nachr. vom Server löschen</B></td>
+@@@DELPOP3STRSTART@@@<B>Nachr. vom Server löschen</B>@@@DELPOP3STREND@@@</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>aktivieren</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
@@ -67,4 +67,3 @@
    }
 //-->
 </script>
-

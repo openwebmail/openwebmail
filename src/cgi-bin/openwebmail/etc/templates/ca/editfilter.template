@@ -10,7 +10,7 @@
 </td></tr><tr><td colspan="9">&nbsp;</td></tr>
 <tr>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Count</B>&nbsp;</td>
+<B>Vegades</B>&nbsp;</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Prioritat</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
@@ -18,7 +18,7 @@
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Inc/Exc</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Cadena</B> (click to edit)</td>
+<B>Cadena</B> (clica per editar)</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Acci&oacute;</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>

@@ -1,18 +1,18 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td colspan="4" bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>Nastavení filtrù</b></font>
+<b>Nastavení filtrování po¹ty</b></font>
 </td><td nowrap colspan="6" bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b> @@@FREESPACE@@@ KB Umo¾nìno</b></font>
+<b> @@@FREESPACE@@@ kB k dispozici</b></font>
 </td></tr><tr><td colspan="9" bgcolor=@@@MENUBAR@@@ align="left">
 @@@MENUBARLINKS@@@
 </td></tr><tr><td colspan="9">&nbsp;</td></tr>
 <tr>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Count</B>&nbsp;</td>
+<B>Poøadí</B>&nbsp;</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Priority</B></td>
+<B>Priorita</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Pravidla</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
@@ -24,7 +24,7 @@
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Cíl</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Zapojit</B></td>
+<B>Aktivovat</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Akce</B>
 </td></tr>
@@ -69,49 +69,46 @@
       var i
 
       for (i=0; i<document.newfilter.priority.length; i++) {
-         if (document.newfilter.priority.options[i].value==priority) {
-            document.newfilter.priority.options[i].selected=true;
-            break;
-         }
+	 if (document.newfilter.priority.options[i].value==priority) {
+	    document.newfilter.priority.options[i].selected=true;
+	    break;
+	 }
       }
 
       for (i=0; i<document.newfilter.rules.length; i++) {
-         if (document.newfilter.rules.options[i].value==rules) {
-            document.newfilter.rules.options[i].selected=true;
-            break;
-         }
+	 if (document.newfilter.rules.options[i].value==rules) {
+	    document.newfilter.rules.options[i].selected=true;
+	    break;
+	 }
       }
 
       for (i=0; i<document.newfilter.include.length; i++) {
-         if (document.newfilter.include.options[i].value==include) {
-            document.newfilter.include.options[i].selected=true;
-            break;
-         }
+	 if (document.newfilter.include.options[i].value==include) {
+	    document.newfilter.include.options[i].selected=true;
+	    break;
+	 }
       }
 
       document.newfilter.text.value = text;
 
       for (i=0; i<document.newfilter.op.length; i++) {
-         if (document.newfilter.op.options[i].value==op) {
-            document.newfilter.op.options[i].selected=true;
-            break;
-         }
+	 if (document.newfilter.op.options[i].value==op) {
+	    document.newfilter.op.options[i].selected=true;
+	    break;
+	 }
       }
 
       for (i=0; i<document.newfilter.destination.length; i++) {
-         if (document.newfilter.destination.options[i].value==destination) {
-            document.newfilter.destination.options[i].selected=true;
-            break;
-         }
+	 if (document.newfilter.destination.options[i].value==destination) {
+	    document.newfilter.destination.options[i].selected=true;
+	    break;
+	 }
       }
 
       if (enable == 1)
-      	document.newfilter.enable.checked = true;
+	document.newfilter.enable.checked = true;
       else
-        document.newfilter.enable.checked = false;
+	document.newfilter.enable.checked = false;
    }
 //-->
 </script>
-
-
-

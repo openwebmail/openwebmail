@@ -26,7 +26,7 @@
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Aktywna</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Czynno¶æ</B>
+<B>Operacja</B>
 </td></tr>
 @@@STARTFILTERFORM@@@
 <tr>

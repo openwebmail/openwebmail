@@ -10,16 +10,16 @@
 # IMPORTANT!!!
 #
 # Functions in this file will do locks for dbm before read/write.
-# They doesn't do locks for folderfile/folderhandle and relies the 
-# caller for that lock.
+# but they don't do locks for folderfile/folderhandle. They rely the 
+# caller to do that lock
 # Functions with folderfile/folderhandle in argument must be inside
 # a folderfile lock session
 #
-# An global variable $config{'dbm_ext'} needs to be defined to represent the
+# The global variable $config{'dbm_ext'} needs to be defined to represent the
 # dbm filename extension on your system. 
 # ex: use 'db' for FreeBSD and 'dir' for Solaris
 #
-# An global variable $config{'use_dotlockfile'} needs to be defined to use 
+# The global variable $config{'use_dotlockfile'} needs to be defined to use 
 # dotlockfile style locking
 # This is recommended only if the lockd on your nfs server or client is broken
 # ps: FrreBSD/Linux nfs server/client may need this. Solaris doesn't.
@@ -31,7 +31,6 @@ use Fcntl qw(:DEFAULT :flock);
 use FileHandle;
 
 use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE $_STATUS $_SIZE $_REFERENCES);
-use vars qw(%month %timezones);
 
 # extern vars
 use vars qw(%config);	# defined in caller openwebmail-xxx.pl
@@ -39,107 +38,6 @@ use vars qw(%config);	# defined in caller openwebmail-xxx.pl
 # message attribute number, CONST
 ($_OFFSET, $_FROM, $_TO, $_DATE, $_SUBJECT, $_CONTENT_TYPE, $_STATUS, $_SIZE, $_REFERENCES)
  =(0,1,2,3,4,5,6,7,8);
-
-# %month is used in the getheaders() sub to convert localtime() dates to
-# a better format for readability and sorting.
-%month = qw(Jan   1
-            Feb   2
-            Mar   3
-            Apr   4
-            May   5
-            Jun   6
-            Jul   7
-            Aug   8
-            Sep   9
-            Oct   10
-            Nov   11
-            Dec   12);
-
-# @monthday=qw(31 31 29 31 30 31 30 31 31 30 31 30 31);
-
-%timezones = qw(ACDT +1030
-                ACST +0930
-                ADT  -0300
-                AEDT +1100
-                AEST +1000
-                AHDT -0900
-                AHST -1000
-                AST  -0400
-                AT   -0200
-                AWDT +0900
-                AWST +0800
-                AZST +0400
-                BAT  +0300
-                BDST +0200
-                BET  -1100
-                BST  -0300
-                BT   +0300
-                BZT2 -0300
-                CADT +1030
-                CAST +0930
-                CAT  -1000
-                CCT  +0800
-                CDT  -0500
-                CED  +0200
-                CET  +0100
-                CST  -0600
-                EAST +1000
-                EDT  -0400
-                EED  +0300
-                EET  +0200
-                EEST +0300
-                EST  -0500
-                FST  +0200
-                FWT  +0100
-                GMT  +0000
-                GST  +1000
-                HDT  -0900
-                HST  -1000
-                IDLE +1200
-                IDLW -1200
-                IST  +0530
-                IT   +0330
-                JST  +0900
-                JT   +0700
-                MDT  -0600
-                MED  +0200
-                MET  +0100
-                MEST +0200
-                MEWT +0100
-                MST  -0700
-                MT   +0800
-                NDT  -0230
-                NFT  -0330
-                NT   -1100
-                NST  +0630
-                NZ   +1100
-                NZST +1200
-                NZDT +1300
-                NZT  +1200
-                PDT  -0700
-                PST  -0800
-                ROK  +0900
-                SAD  +1000
-                SAST +0900
-                SAT  +0900
-                SDT  +1000
-                SST  +0200
-                SWT  +0100
-                USZ3 +0400
-                USZ4 +0500
-                USZ5 +0600
-                USZ6 +0700
-                UT   +0000
-                UTC  +0000
-                UZ10 +1100
-                WAT  -0100
-                WET  +0000
-                WST  +0800
-                YDT  -0800
-                YST  -0900
-                ZP4  +0400
-                ZP5  +0500
-                ZP6  +0600);
 
 if ( $config{'dbm_ext'} eq "" ) {
    $config{'dbm_ext'}=".db";
@@ -168,7 +66,7 @@ sub update_headerdb {
 
       if ( $metainfo eq metainfo($folderfile) && $allmessages >=0  
            && $internalmessages >=0 && $newmessages >=0 ) {
-         return;  
+         return 0;  
       }
 
       if ($config{'dbm_ext'} eq 'dir') {
@@ -194,7 +92,7 @@ sub update_headerdb {
 
    my @duplicateids=();
 
-   my ($line, $lastheader, $namedatt_count, $zhtype);
+   my ($line, $lastheader, $delimiter, $namedatt_count, $zhtype, $verified);
    my ($_message_id, $_offset);
    my ($_from, $_to, $_date, $_subject);
    my ($_content_type, $_status, $_messagesize, $_references, $_inreplyto);
@@ -241,8 +139,8 @@ sub update_headerdb {
       # ex: From tung@turtle.ee.ncku.edu.tw Fri Jun 22 14:15:33 2001
       # ex: From tung@turtle.ee.ncku.edu.tw Mon Aug 20 18:24 CST 2001
       # ex: From nsb@thumper.bellcore.com Wed Mar 11 16:27:37 EST 1992
-      if ( $line =~ /^From .*(\w\w\w)\s+(\w\w\w)\s+(\d+)\s+(\d+):(\d+):?(\d*)\s+(\w\w\w\s+)?(\d\d+)/ ) {
-         if ($_messagesize >0) {
+      if ( $line =~ /^From .*(\w\w\w)\s+(\w\w\w)\s+(\d+)\s+(\d+):(\d+):?(\d*)\s+([A-Z]{3,4}\d?\s+)?(\d\d+)/ ) {
+         if ($_messagesize >0) {	# save previous msg
 
             $_from=~s/\@\@/\@\@ /g;         $_from=~s/\@$/\@ /;
             $_to=~s/\@\@/\@\@ /g;           $_to=~s/\@$/\@ /;
@@ -255,16 +153,12 @@ sub update_headerdb {
             # in most case, a msg references field should already contain 
             # ids in in-reply-to: field, but do check it again here
 	    if ($_inreplyto =~ m/^\s*(\<\S+\>)\s*$/) {
-	       $_references .= " " . $1 if ($_references!~/$1/);
+	       $_references .= " " . $1 if ($_references!~/\Q$1\E/);
 	    }
 	    $_references =~ s/\s{2,}/ /g;
 
             if ($_message_id eq '') {	# fake messageid with date and from
-               if ($_date ne "") {
-                  $_message_id="$_date.".(email2nameaddr($_from))[1];
-               } else {
-                  $_message_id = getdateserial().'.X'.int(rand()*100000);
-               }
+               $_message_id="$_date.".(email2nameaddr($_from))[1];
                $_message_id=~s![\<\>\(\)\s\/"':]!!g;
                $_message_id="<$_message_id>";
             }
@@ -273,6 +167,7 @@ sub update_headerdb {
             $_status .= "T" if ($namedatt_count>0);
             $_status .= "B" if ($zhtype eq 'big5');
             $_status .= "G" if ($zhtype eq 'gb');
+            $_status .= "V" if ($verified);
 
             if (! defined($HDB{$_message_id}) ) {
                $HDB{$_message_id}=join('@@@', $_offset, $_from, $_to, 
@@ -286,6 +181,7 @@ sub update_headerdb {
          }
 
          $messagenumber++;
+         $delimiter=$line;
          $_offset=$offset;
          $_from = $_to = $_date = $_subject = $_content_type ='N/A';
          $_message_id='';
@@ -293,17 +189,17 @@ sub update_headerdb {
          $_references = '';
          $_status = '';
          $_messagesize = length($line);
-         $_date = $line;
          $inheader = 1;
          $lastheader = 'NONE';
          $namedatt_count=0;
          $zhtype='';
+         $verified=0;
 
       } else {
          $_messagesize += length($line);
 
          if ($inheader) {
-            if ($line =~ /^\r*$/) {
+            if ($line =~ /^\r*$/) {	# 1st blank line after msg header
                $inheader = 0;
 
                # Convert to readable text from MIME-encoded
@@ -312,23 +208,16 @@ sub update_headerdb {
 
                # some dbm(ex:ndbm on solaris) can only has value shorter than 1024 byte, 
                # so we cut $_to to 256 byte to make dbm happy
-               if (length($_to) >256) {
-                  $_to=substr($_to, 0, 252)."...";
-               }
+               $_to=substr($_to, 0, 252)."..." if (length($_to) >256);
 
-               # extract date from the 'From ' line, it must be in this form
-               my @d;
-               # From tung@turtle.ee.ncku.edu.tw Fri Jun 22 14:15:33 2001
-               # From tung@turtle.ee.ncku.edu.tw Mon Aug 20 18:24 CST 2001
-               # From nsb@thumper.bellcore.com Wed Mar 11 16:27:37 EST 1992
-               $_date =~ /(\w\w\w)\s+(\w\w\w)\s+(\d+)\s+(\d+):(\d+):?(\d*)\s+(\w\w\w\s+)?(\d\d+)/;
-               @d=($8, $month{$2}, $3, $4, $5, $6);
-               if ($d[0]<50) { 		# 2 digit year
-                   $d[0]+=2000; 
-               } elsif ($d[0]<=1900) {
-                   $d[0]+=1900;
+               my $dateserial=datefield2dateserial($_date);
+               my $deliserial=delimiter2dateserial($delimiter, $config{'deliver_use_GMT'});
+               if ($dateserial eq "" ||
+                   ($deliserial ne "" && dateserial2daydiff($dateserial)-dateserial2daydiff($deliserial)>1) ) {
+                  $dateserial=$deliserial; # use receiving time if sending time is newer than receiving time
                }
-               $_date=sprintf("%4d%02d%02d%02d%02d%02d", @d);
+               $dateserial=gmtime2dateserial() if ($dateserial eq "");
+               $_date=$dateserial;
 
                $internalmessages++ if (is_internal_subject($_subject));
                $newmessages++ if ($_status !~ /r/i);
@@ -349,6 +238,7 @@ sub update_headerdb {
                      $namedatt_count++   if ($oldstatus=~/T/);
                      $zhtype="big5"      if ($oldstatus=~/B/);
                      $zhtype="gb"        if ($oldstatus=~/G/);
+                     $verified=1         if ($oldstatus=~/V/);
                   }
 
                   seek(FOLDER, $totalsize, 0);
@@ -358,8 +248,9 @@ sub update_headerdb {
                $line =~ s/^\s+/ /;
                chomp($line);
                if    ($lastheader eq 'FROM') { $_from .= $line }
-               elsif ($lastheader eq 'SUBJ') { $_subject .= $line }
                elsif ($lastheader eq 'TO') { $_to .= $line }
+               elsif ($lastheader eq 'SUBJ') { $_subject .= $line }
+               elsif ($lastheader eq 'DATE') { $_date .= $line; }
                elsif ($lastheader eq 'MESSID') { $_message_id .= $line; }
                elsif ($lastheader eq 'TYPE') { $_content_type .= $line; }
 	       elsif ($lastheader eq 'REFERENCES') { $_references .= "$line "; }
@@ -373,6 +264,9 @@ sub update_headerdb {
             } elsif ($line =~ /^subject:\s?(.+)$/ig) {
                $_subject = $1;
                $lastheader = 'SUBJ';
+            } elsif ($line =~ /^date:\s?(.+)$/ig) {
+               $_date = $1;
+               $lastheader = 'DATE';
             } elsif ($line =~ /^message-id:\s?(.*)$/ig) {
                $_message_id = $1;
                $lastheader = 'MESSID';
@@ -436,7 +330,7 @@ sub update_headerdb {
       # in most case, a msg references field should already contain 
       # ids in in-reply-to: field, but do check it again here
       if ($_inreplyto =~ m/^\s*(\<\S+\>)\s*$/) {
-	 $_references .= " " . $1 if ($_references!~/$1/);
+	 $_references .= " " . $1 if ($_references!~/\Q$1\E/);
       }
       $_references =~ s/\s{2,}/ /g;
 
@@ -450,6 +344,7 @@ sub update_headerdb {
       $_status .= "T" if ($namedatt_count>0);
       $_status .= "B" if ($zhtype eq 'big5');
       $_status .= "G" if ($zhtype eq 'gb');
+      $_status .= "V" if ($verified);
 
       if (! defined($HDB{$_message_id}) ) {
          $HDB{$_message_id}=join('@@@', $_offset, $_from, $_to, 
@@ -484,7 +379,7 @@ sub update_headerdb {
       operate_message_with_ids("delete", \@duplicateids, $folderfile, $headerdb);
    }
 
-   return;
+   return 1;
 }
 
 ################## END UPDATEHEADERDB ####################
@@ -1277,22 +1172,22 @@ sub operate_message_with_ids {
 #################### DELETE_MESSAGE_BY_AGE #######################
 sub delete_message_by_age {
    my ($age, $headerdb, $folderfile)=@_;
-
    my $folderhandle=FileHandle->new();
    my %HDB;
    my (@allmessageids, @agedids);
    
    return 0 if ( ! -f $folderfile );
 
-   update_headerdb($headerdb, $folderfile);
+   my $nowdaydiff=dateserial2daydiff(gmtime2dateserial());
 
+   update_headerdb($headerdb, $folderfile);
    @allmessageids=get_messageids_sorted_by_offset($headerdb);
 
    filelock("$headerdb$config{'dbm_ext'}", LOCK_EX);
    dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", 0600);
    foreach (@allmessageids) {
       my @attr = split(/@@@/, $HDB{$_});
-      push(@agedids, $_) if (dateserial2age($attr[$_DATE])>=$age);
+      push(@agedids, $_) if ($nowdaydiff-dateserial2daydiff($attr[$_DATE])>=$age);
    }
    dbmclose(%HDB);
    filelock("$headerdb$config{'dbm_ext'}", LOCK_UN);
@@ -1986,7 +1881,7 @@ sub ext2contenttype {
 #################### SEARCH_MESSAGES_FOR_KEYWORD ###########################
 # searchtype: subject, from, to, date, attfilename, header, textcontent, all
 sub search_info_messages_for_keyword {
-   my ($keyword, $searchtype, $headerdb, $folderhandle, $cachefile, $ignore_internal)=@_;
+   my ($keyword, $searchtype, $headerdb, $folderhandle, $cachefile, $ignore_internal, $regexmatch)=@_;
    my ($metainfo, $cache_metainfo, $cache_headerdb, $cache_keyword, $cache_searchtype, $cache_ignore_internal);
    my (%HDB, @messageids, $messageid);
    my ($totalsize, $new)=(0,0);
@@ -2034,19 +1929,19 @@ sub search_info_messages_for_keyword {
          # check subject, from, to, date
          if ( ( ($searchtype eq 'all' || 
                  $searchtype eq 'subject') &&
-                ($attr[$_SUBJECT]=~/$keyword/i ||
+                (($regexmatch && $attr[$_SUBJECT]=~/$keyword/i) ||
                  $attr[$_SUBJECT]=~/\Q$keyword\E/i) )  ||
               ( ($searchtype eq 'all' || 
                  $searchtype eq 'from') &&
-                ($attr[$_FROM]=~/$keyword/i ||
+                (($regexmatch && $attr[$_FROM]=~/$keyword/i) ||
                  $attr[$_FROM]=~/\Q$keyword\E/i) )  ||
               ( ($searchtype eq 'all' || 
                  $searchtype eq 'to') &&
-                ($attr[$_TO]=~/$keyword/i ||
+                (($regexmatch && $attr[$_TO]=~/$keyword/i) ||
                  $attr[$_TO]=~/\Q$keyword\E/i) )  ||
               ( ($searchtype eq 'all' || 
                  $searchtype eq 'date') &&
-                ($attr[$_DATE]=~/$keyword/i ||
+                (($regexmatch && $attr[$_DATE]=~/$keyword/i) ||
                  $attr[$_DATE]=~/\Q$keyword\E/i) ) 
             ) {
             $new++ if ($attr[$_STATUS]!~/r/i);
@@ -2065,7 +1960,8 @@ sub search_info_messages_for_keyword {
                last if ($_ eq "\n");
             }
             $header = decode_mimewords($header);
-            if ( $header =~ /$keyword/im ||
+            $header=~s/\n / /g;	# handle folding roughly
+            if ( ($regexmatch && $header =~ /$keyword/im) ||
                  $header =~ /\Q$keyword\E/im ) {
                $new++ if ($attr[$_STATUS]!~/r/i);
                $totalsize+=$attr[$_SIZE];
@@ -2093,7 +1989,7 @@ sub search_info_messages_for_keyword {
                } elsif ($header =~ /content-transfer-encoding:\s+x-uuencode/i) {
                   $body = uudecode($body);
                }
-               if ( $body =~ /$keyword/im ||
+               if ( ($regexmatch && $body =~ /$keyword/im) ||
                     $body =~ /\Q$keyword\E/im ) {
                   $new++ if ($attr[$_STATUS]!~/r/i);
                   $totalsize+=$attr[$_SIZE];
@@ -2112,7 +2008,7 @@ sub search_info_messages_for_keyword {
                   } elsif ( ${$r_attachment}{encoding} =~ /^x-uuencode/i ) {
                      ${${$r_attachment}{r_content}} = uudecode( ${${$r_attachment}{r_content}});
                   }
-                  if ( ${${$r_attachment}{r_content}} =~ /$keyword/im ||
+                  if ( ($regexmatch && ${${$r_attachment}{r_content}} =~ /$keyword/im) ||
                        ${${$r_attachment}{r_content}} =~ /\Q$keyword\E/im ) {
                      $new++ if ($attr[$_STATUS]!~/r/i);
                      $totalsize+=$attr[$_SIZE];
@@ -2126,7 +2022,7 @@ sub search_info_messages_for_keyword {
 	 # check attfilename
          if ($searchtype eq 'all' || $searchtype eq 'attfilename') {
             foreach my $r_attachment (@{$r_attachments}) {
-               if ( ${$r_attachment}{filename} =~ /$keyword/im ||
+               if ( ($regexmatch && ${$r_attachment}{filename} =~ /$keyword/im) ||
                     ${$r_attachment}{filename} =~ /\Q$keyword\E/im ) { 
                   $new++ if ($attr[$_STATUS]!~/r/i);
                   $totalsize+=$attr[$_SIZE];
@@ -2493,24 +2389,5 @@ sub is_internal_subject {
 } 
   
 #################### END IS_INTERNAL_SUBJECT ###################
-
-#################### DATESERIAL2AGE ###########################
-# this routine takes the message date to calc the age of a message
-# it is not very precise since it always treats Feb as 28 days
-sub dateserial2age  {
-   my $dateserial=$_[0];
-   my @daybase=(0, 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334);
-
-   $dateserial =~ /^(\d\d\d\d)(\d\d)(\d\d)\d\d\d\d\d\d$/;
-   my ($year, $mon, $day) =($1, $2, $3); 
-
-   my ($nowyear,$nowyday) =(localtime())[5,7];
-   $nowyear+=1900;
-   $nowyday++;
-
-   return(($nowyear-$year)*365+$nowyday-($daybase[$mon]+$day));
-}
-
-#################### END DATESERIAL2AGE ###########################
 
 1;

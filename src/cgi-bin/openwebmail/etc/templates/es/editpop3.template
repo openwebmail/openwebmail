@@ -16,7 +16,7 @@
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Contrase&ntilde;a</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Borrar correo al descargar</B></td>
+@@@DELPOP3STRSTART@@@<B>Borrar correo al descargar</B>@@@DELPOP3STREND@@@</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Activar</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
@@ -67,4 +67,3 @@
    }
 //-->
 </script>
-

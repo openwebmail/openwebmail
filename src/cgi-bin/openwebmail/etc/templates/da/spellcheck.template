@@ -8,9 +8,9 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
 <BR>Et sæt forslag af &aelig;ndringer vil blive givet for hver ord med stavefejl.
-Du kan s&aring; v&aelig;lge et af dem, til erstatning af original ordet.
-Hvis der ikke bliver fundet forslag til &aelig;ndringer eller du vælger "-manuel-" 
-og s&aring; klikker på [Check igen], vil en tekst vil blive tilgængelig for manuel indsættelse.
+Du kan s&aring; v&aelig;lge et ord fra listen, til erstatning af original ordet.
+Hvis der ikke bliver fundet forslag til &aelig;ndringer kan du vælger "-Manuel rettelse-"
+og klikke på [Check igen], så vil ordet blive tilgængelig, og du kan selv rette det.
 </td></tr>
 </table>
 <br>

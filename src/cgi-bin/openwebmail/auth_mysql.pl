@@ -1,10 +1,10 @@
 # 
-# auth_mysql.pl - authenticate user with MySQL
+# auth_mysql.pl - authenticate user with DBD::MySQL
 # 
 # 2002/03/07 Alan Sung - AlanSung@dragon2.net
 #
 
-my $MySQLHost = "dragon2.net";	# INSERT THE MYSQL SERVER IP HERE.
+my $SQLHost = "dragon2.net";	# INSERT THE MYSQL SERVER IP HERE.
 my $sqlusr = "";		# INSERT THE MYSQL USER HERE.
 my $sqlpwd = "";		# INSERT THE MYSQL PASSWORD HERE.
 
@@ -28,9 +28,9 @@ sub get_userinfo {
    my $user=$_[0];
    my ($uid, $gid, $realname, $home);
 
-   my $dbh = DBI->connect("dbi:mysql:$auth_db;host=$MySQLHost", $sqlusr,$sqlpwd)
+   my $dbh = DBI->connect("dbi:mysql:$auth_db;host=$SQLHost", $sqlusr,$sqlpwd)
       or die "Cannot connect to db server: ", $DBI::errstr, "\n";
-   my $queryStr =qq|select $field_uid, $field_gid, $field_realname, $field_home from $auth_table where $field_username="$user"|;
+   my $queryStr =qq|select $field_uid, $field_gid, $field_realname, $field_home from $auth_table where $field_username='$user'|;
    my $sth = $dbh->prepare($queryStr)
       or die "Can't prepare SQL statement: ", $dbh->errstr(), "\n";
    $sth->execute
@@ -53,7 +53,7 @@ sub get_userinfo {
 sub get_userlist {      # only used by checkmail.pl -a
    my @userlist=();
 
-   my $dbh = DBI->connect("dbi:mysql:$auth_db;host=$MySQLHost", $sqlusr,$sqlpwd)
+   my $dbh = DBI->connect("dbi:mysql:$auth_db;host=$SQLHost", $sqlusr,$sqlpwd)
       or die "Cannot connect to db server: ", $DBI::errstr, "\n";
    my $queryStr = qq|select $field_username from $auth_table|;
    my $sth = $dbh->prepare($queryStr)
@@ -82,9 +82,9 @@ sub check_userpassword {
 
    return -2 unless ( $user ne "" && $password ne "");
 
-   my $dbh = DBI->connect("dbi:mysql:$auth_db;host=$MySQLHost", $sqlusr,$sqlpwd)
+   my $dbh = DBI->connect("dbi:mysql:$auth_db;host=$SQLHost", $sqlusr,$sqlpwd)
       or die "Cannot connect to db server: ", $DBI::errstr, "\n";
-   my $queryStr = qq|select $field_username, $field_password from $auth_table where $field_username="$user"|;
+   my $queryStr = qq|select $field_username, $field_password from $auth_table where $field_username='$user'|;
    my $sth = $dbh->prepare($queryStr)
       or die "Can't prepare SQL statement: ", $dbh->errstr(), "\n";
    $sth->execute
@@ -142,9 +142,9 @@ sub change_userpassword {
       $newpassword = crypt($newpassword, $salt);
    }
 
-   my $dbh = DBI->connect("dbi:mysql:$auth_db;host=$MySQLHost", $sqlusr,$sqlpwd)
+   my $dbh = DBI->connect("dbi:mysql:$auth_db;host=$SQLHost", $sqlusr,$sqlpwd)
       or die "Cannot connect to db server: ", $DBI::errstr, "\n";
-   my $queryStr = qq|update $auth_table set $field_password="$newpassword" where $field_username="$user"|;
+   my $queryStr = qq|update $auth_table set $field_password='$newpassword' where $field_username='$user'|;
    my $sth = $dbh->prepare($queryStr)
       or die "Can't prepare SQL statement: ", $dbh->errstr(), "\n";
    $sth->execute

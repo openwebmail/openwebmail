@@ -33,6 +33,9 @@
 <b>Válaszcím:</b>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@REPLYTOFIELD@@@
+&nbsp;
+<B>Visszaigazolás</B>
+@@@CONFIRMREADINGCHECKBOX@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
 <b>Csatolás:</b>
@@ -44,8 +47,8 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@SUBJECTFIELD@@@
 &nbsp;
-<B>Visszaigazolás</B>
-@@@CONFIRMREADINGCHECKBOX@@@
+<B>Backup sent message</B>
+@@@BACKUPSENTMSGCHECKBOX@@@
 </td></tr>
 <tr><td colspan="2" bgcolor=@@@WINDOW_LIGHT@@@ class=msgbody>
 @@@BODYAREA@@@
@@ -91,7 +94,7 @@
 
    function GoAddressWindow(toccbcc)
    {
-      var url = "@@@PREFSURL@@@?action=addressbook&sessionid=@@@SESSIONID@@@&form=composeform&field=" + toccbcc;
+      var url = "@@@ABOOKURL@@@?action=addressbook&sessionid=@@@SESSIONID@@@&form=composeform&field=" + toccbcc;
       
       if (toccbcc == "to")
          url += "&preexisting=" + escape (document.composeform.to.value);

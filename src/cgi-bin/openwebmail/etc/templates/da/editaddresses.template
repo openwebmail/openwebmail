@@ -4,7 +4,7 @@
 <b>REDIGER ADRESSEBOG</b></font>
 </td><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>@@@FREESPACE@@@ KB tilgængelig</b></font>
+<b>@@@FREESPACE@@@ KB tilg&aelig;ngelig</b></font>
 </td></tr><tr><td colspan="2" bgcolor=@@@MENUBAR@@@ align="left">
 @@@MENUBARLINKS@@@
 </td><td colspan="2" bgcolor=@@@MENUBAR@@@ align="right" nowrap>
@@ -43,7 +43,7 @@
 <!--
    function GoAddressWindow(field)
    {
-      var url = "@@@PREFSURL@@@?action=addressbook&sessionid=@@@SESSIONID@@@&form=newaddress&field=" + field;
+      var url = "@@@ABOOKURL@@@?action=addressbook&sessionid=@@@SESSIONID@@@&form=newaddress&field=" + field;
       
       if (field == "email")
          url += "&preexisting=" + escape (document.newaddress.email.value);
@@ -61,4 +61,3 @@
    }
 //-->
 </script>
-

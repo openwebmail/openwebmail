@@ -1,7 +1,7 @@
 
 Date: 07/09/2001
 Last Revision: 10/30/2001
-Author:  Emir Litric (elitric@digitex.cc)
+Author:  Emir Litric (elitric.AT.digitex.cc)
 File: RedHat-README.txt
 
 ------------------------------------------------------------------------------
@@ -271,7 +271,7 @@ If your apache root is setup somewhere else (e.g. /var/www) you will be fine.
 
 ------------------------------------------------------------------------------
 Some issues of the sendmail on RedHat 7.1 
-(thanks to Thomas Chung, tchung@pasadena.oao.com) 
+(thanks to Thomas Chung, tchung.AT.pasadena.oao.com) 
 ------------------------------------------------------------------------------
 
 For security reasons, the default configuration of sendmail allows sending,
@@ -316,5 +316,5 @@ permissions and read FAQ and README file.
 Have fun and let me know of any suggestions.
 
 
-Emir Litric (elitric@yahoo.com)
+Emir Litric (elitric.AT.yahoo.com)
 

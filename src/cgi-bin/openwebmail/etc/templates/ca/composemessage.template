@@ -2,7 +2,7 @@
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="1">
 <tr><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>COMPONDRE UN MISSATGE</B></font>
+<B>COMPOSAR UN MISSATGE</B></font>
 </td></tr><tr><td colspan="3" bgcolor=@@@MENUBAR@@@ align="left">
 @@@BACKTOFOLDER@@@
 </td></tr><tr><td colspan="3">&nbsp;</td></tr>
@@ -11,7 +11,7 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@FROMMENU@@@
 &nbsp;&nbsp;
-<B>Priority:</B>
+<B>Prioritat:</B>
 @@@PRIORITYMENU@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
@@ -33,6 +33,9 @@
 <B>Contestar a:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@REPLYTOFIELD@@@
+&nbsp;
+<B>Confirmar Lectura</B>
+@@@CONFIRMREADINGCHECKBOX@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
 <B>Afegits:</B>
@@ -44,8 +47,8 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@SUBJECTFIELD@@@
 &nbsp;
-<B>Confirmar Lectura</B>
-@@@CONFIRMREADINGCHECKBOX@@@
+<B>Copia el missatge enviat</B>
+@@@BACKUPSENTMSGCHECKBOX@@@
 </td></tr>
 <tr><td colspan="3" bgcolor=@@@WINDOW_LIGHT@@@ class=msgbody>
 @@@BODYAREA@@@
@@ -91,7 +94,7 @@
 
    function GoAddressWindow(toccbcc)
    {
-      var url = "@@@PREFSURL@@@?action=addressbook&sessionid=@@@SESSIONID@@@&form=composeform&field=" + toccbcc;
+      var url = "@@@ABOOKURL@@@?action=addressbook&sessionid=@@@SESSIONID@@@&form=composeform&field=" + toccbcc;
       
       if (toccbcc == "to")
          url += "&preexisting=" + escape (document.composeform.to.value);

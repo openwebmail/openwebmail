@@ -3,7 +3,7 @@
 # Open WebMail - Provides a web interface to user mailboxes                 #
 #                                                                           #
 # Copyright (C) 2001-2002                                                   #
-# Chung-Kie Tung, Nai-Jung Kuo, Chao-Chiu Wang, Emir Litric                 #
+# Chung-Kie Tung, Nai-Jung Kuo, Chao-Chiu Wang, Emir Litric, Thomas Chung   #
 # Copyright (C) 2000                                                        #
 # Ernie Miller  (original GPL project: Neomail)                             #
 #                                                                           #
@@ -17,12 +17,12 @@ push (@INC, $SCRIPT_DIR, ".");
 
 $ENV{PATH} = ""; # no PATH should be needed
 $ENV{BASH_ENV} = ""; # no startup script for bash
-umask(0007); # make sure the openwebmail group can write
+umask(0002); # make sure the openwebmail group can write
 
 use strict;
 use Fcntl qw(:DEFAULT :flock);
 use Socket;
-use CGI qw(:standard);
+use CGI qw(-private_tempfiles :standard);
 use CGI::Carp qw(fatalsToBrowser);
 CGI::nph();   # Treat script as a non-parsed-header script
 
@@ -54,13 +54,16 @@ if (! is_serverdomain_allowed($httphost) ) {
    exit 0;
 }
 
-if ( $config{'logfile'} ne 'no' && ! -f $config{'logfile'} ) {
+if ( ($config{'logfile'} ne 'no') ) {
    my $mailgid=getgrnam('mail');
-   open (LOGFILE,">>$config{'logfile'}") or 
-      openwebmailerror("Can't open log file $config{'logfile'}!");
-   close(LOGFILE);
-   chmod(0660, $config{'logfile'});
-   chown($>, $mailgid, $config{'logfile'});
+   my ($fmode, $fuid, $fgid) = (stat($config{'logfile'}))[2,4,5];
+   if ( !($fmode & 0100000) ) {
+      open (LOGFILE,">>$config{'logfile'}") or 
+         openwebmailerror("Can't open log file $config{'logfile'}!");
+      close(LOGFILE);
+   }
+   chmod(0660, $config{'logfile'}) if (($fmode&0660)!=0660);
+   chown($>, $mailgid, $config{'logfile'}) if ($fuid!=$>||$fgid!=$mailgid);
 }
 
 %prefs = %{&readprefs};
@@ -71,6 +74,7 @@ require "etc/lang/$prefs{'language'}";
 $lang_charset ||= 'iso-8859-1';
 
 ####################### MAIN ##########################
+
 if ( param("loginname") && param("password") ) {
    $loginname=param("loginname");
    if ($loginname!~/\@/ && param("logindomain") ne "") {
@@ -92,21 +96,33 @@ if ( param("loginname") && param("password") ) {
    require $config{'auth_module'} or
       openwebmailerror("Can't open authentication module $config{'auth_module'}");
 
-   if ( ($config{'logfile'} ne 'no') && (! -f $config{'logfile'})  ) {
+   if ( ($config{'logfile'} ne 'no') ) {
       my $mailgid=getgrnam('mail');
-      open (LOGFILE,">>$config{'logfile'}") or 
-         openwebmailerror("Can't open log file $config{'logfile'}!");
-      close(LOGFILE);
-      chmod(0660, $config{'logfile'});
-      chown($>, $mailgid, $config{'logfile'});
+      my ($fmode, $fuid, $fgid) = (stat($config{'logfile'}))[2,4,5];
+      if ( !($fmode & 0100000) ) {
+         open (LOGFILE,">>$config{'logfile'}") or 
+            openwebmailerror("Can't open log file $config{'logfile'}!");
+         close(LOGFILE);
+      }
+      chmod(0660, $config{'logfile'}) if (($fmode&0660)!=0660);
+      chown($>, $mailgid, $config{'logfile'}) if ($fuid!=$>||$fgid!=$mailgid);
    }
 
    my $virtname=$config{'virtusertable'}; 
    $virtname=~s!/!.!g; $virtname=~s/^\.+//;
    update_virtusertable("$config{'ow_etcdir'}/$virtname", $config{'virtusertable'});
 
+   # check & create mapping table for chinese BIG5/GB encoding
+   mkdb_b2g();
+   mkdb_g2b();
+
    login();
+
 } else {            # no action has been taken, display login page
+   my $httphost=$ENV{'HTTP_HOST'}; $httphost=~s/:\d+$//;	# remove port number
+   my $siteconf="$config{'ow_etcdir'}/sites.conf/$httphost";
+   readconf(\%config, \%config_raw, "$siteconf") if ( -f "$siteconf"); 
+
    loginmenu();
 }
 
@@ -144,7 +160,7 @@ sub loginmenu {
                               -override=>'1');
    $html =~ s/\@\@\@PASSWORDFIELD\@\@\@/$temphtml/;
 
-   if ( $#{$config{'domainnames'}} >0 ) {
+   if ( $#{$config{'domainnames'}} >0 && $config{'enable_domainselectmenu'} ) {
       $temphtml = popup_menu(-name=>'logindomain',
                              -values=>[@{$config{'domainnames'}}] );
       $html =~ s/\@\@\@DOMAINMENU\@\@\@/$temphtml/;
@@ -177,7 +193,13 @@ sub login {
    $password = $1;
 
    ($loginname, $domain, $user, $userrealname, $uuid, $ugid, $homedir)
-	=get_domain_user_userinfo($loginname);
+					=get_domain_user_userinfo($loginname);
+
+   ($user =~ /^(.+)$/) && ($user = $1);		# untaint...
+   ($uuid =~ /^(.+)$/) && ($uuid = $1);
+   ($ugid =~ /^(.+)$/) && ($ugid = $1);
+   ($homedir =~ /^(.+)$/) && ($homedir = $1);
+
    if ($user eq "") {
       sleep $config{'loginerrordelay'};	# delayed response
       openwebmailerror("$lang_err{'user_not_exist'}");
@@ -243,7 +265,18 @@ sub login {
          $thissession = $loginname. "-session-" . rand(); # name the sessionid
       }
       writelog("login - $thissession");
+      ($thissession =~ /^(.+)$/) && ($thissession = $1);  # untaint
 
+      # create the user's home directory if necessary.  
+      # this must be done before changing to the user's uid.
+      if ( $config{'create_homedir'} && ! -d "$homedir" ) {
+         if (mkdir ("$homedir", oct(700)) and chown($uuid, $ugid, $homedir)) {
+            writelog("mkdir - $homedir, uid=$uuid, gid=$ugid");
+         } else {
+            openwebmailerror("$lang_err{'cant_create_dir'} $homedir");
+         }
+      }
+  
       if ( $config{'use_homedirspools'} || $config{'use_homedirfolders'} ) {
          my $mailgid=getgrnam('mail');
          set_euid_egid_umask($uuid, $mailgid, 0077);	
@@ -258,18 +291,15 @@ sub login {
          $folderdir = "$config{'ow_etcdir'}/users/$user";
          $folderdir .= "\@$domain" if ($config{'auth_withdomain'});
       }
-
-      ($thissession =~ /^(.+)$/) && ($thissession = $1);  # untaint ...
-      ($user =~ /^(.+)$/) && ($user = $1);
-      ($uuid =~ /^(.+)$/) && ($uuid = $1);
-      ($ugid =~ /^(.+)$/) && ($ugid = $1);
-      ($homedir =~ /^(.+)$/) && ($homedir = $1);
-      ($folderdir =~ /^(.+)$/) && ($folderdir = $1);
+      ($folderdir =~ /^(.+)$/) && ($folderdir = $1);	# untaint
 
       # create folderdir if it doesn't exist
       if (! -d "$folderdir" ) {
-         mkdir ("$folderdir", oct(700)) or
+         if (mkdir ("$folderdir", oct(700))) {
+            writelog("mkdir - $folderdir, euid=$>, egid=$)");
+         } else {
             openwebmailerror("$lang_err{'cant_create_dir'} $folderdir");
+         }
       }
 
       # create system spool file /var/mail/xxxx
@@ -526,7 +556,7 @@ sub is_serverdomain_allowed {
 }
 ############### END IS_SERVERDOMAIN_ALLOWED ###################
 
-################ CLEANUPOLDSESSIONS ##################
+################ SEARCH_AND_CLEANOLDSESSIONS ##################
 # delete expired session files and 
 # try to find old session that is still valid for the same user cookie
 sub search_and_cleanoldsessions {
@@ -568,7 +598,7 @@ sub search_and_cleanoldsessions {
    closedir (SESSIONSDIR);
    return($oldsessionid);
 }
-############## END CLEANUPOLDSESSIONS ################
+############## END SEARCH_AND_CLEANOLDSESSIONS ################
 
 #################### RELEASEUPGRADE ####################
 # convert file format from old release for backward compatibility
@@ -790,7 +820,64 @@ sub releaseupgrade {
       writelog("release upgrade - $folderdir/.*$config{'dbm_ext'} by 20020108.02");
    }
 
-   if ( $user_releasedate lt "20020329" ) {
+   if ( $user_releasedate lt "20020601" ) {
+      my $timeoffset=gettimeoffset();
+      $timeoffset=~s/\+/-/ || $timeoffset=~s/\-/+/;	# switch +/-
+      my (@validfolders, $folderusage);
+      getfolders(\@validfolders, \$folderusage);
+
+      foreach my $foldername (@validfolders) {
+         my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $foldername);
+         my (%HDB, @messageids, @attr);
+         next if ( ! -f "$headerdb$config{'dbm_ext'}");
+
+         filelock($folderfile, LOCK_SH);
+         open (FOLDER, $folderfile);
+         filelock("$headerdb$config{'dbm_ext'}", LOCK_EX);
+         dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
+
+         @messageids=keys %HDB;
+         foreach my $id (@messageids) {
+            next if ( $id eq 'METAINFO' 
+                   || $id eq 'NEWMESSAGES' 
+                   || $id eq 'INTERNALMESSAGES' 
+                   || $id eq 'ALLMESSAGES' 
+                   || $id eq "" );
+            my ($buff, $delimiter, $datefield, $dateserial);
+            @attr=split( /@@@/, $HDB{$id} );
+            seek(FOLDER, $attr[$_OFFSET], 0);
+            if (length($attr[$_FROM].$attr[$_TO].$attr[$_SUBJECT].$attr[$_CONTENT_TYPE].$attr[$_REFERENCES])>384) {
+                read(FOLDER, $buff, 2048);
+            } else {
+                read(FOLDER, $buff, 1024);
+            }
+            if ( $buff =~ /^From (.+?)\n/ims) {
+               $delimiter=$1;
+               if ( $buff =~ /\nDate: (.+?)\n/ims ) {
+                  $datefield=$1;
+               }
+               my $dateserial=datefield2dateserial($datefield);
+               my $deliserial=delimiter2dateserial($delimiter, $config{'deliver_use_GMT'});
+               if ($dateserial eq "" ||
+                   ($deliserial ne "" && dateserial2daydiff($dateserial)-dateserial2daydiff($deliserial)>1) ) {
+                  $dateserial=$deliserial; # use receiving time if sending time is newer than receiving time
+               }
+               $dateserial=gmtime2dateserial() if ($dateserial eq "");
+               $attr[$_DATE]=$dateserial;
+            } else {
+               $attr[$_DATE]=add_dateserial_timeoffset($attr[$_DATE], $timeoffset);
+            }
+            $HDB{$id}=join('@@@', @attr);
+         }
+         dbmclose(%HDB);
+         filelock("$headerdb$config{'dbm_ext'}", LOCK_UN);
+         filelock($folderfile, LOCK_UN);
+      }
+      writehistory("release upgrade - $folderdir/* by 20020601");
+      writelog("release upgrade - $folderdir/* by 20020601");
+   }
+
+   if ( $user_releasedate lt "20020601" ) {
       $rc_upgrade=1;	# .openwebmailrc upgrade will be requested
    }
 

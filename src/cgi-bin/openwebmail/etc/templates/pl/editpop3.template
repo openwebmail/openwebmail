@@ -10,7 +10,7 @@
 </td></tr><tr><td colspan="6">&nbsp;</td></tr>
 <tr>
 <td nowrap bgcolor=@@@COLUMNHEADER@@@>
-<B>Serwer POP3</B> (kliknij, by zminieniæ)</td>
+<B>Serwer POP3</B> (kliknij by zmieniæ)</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Identyfikator</B> (kliknij by odebraæ)</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
@@ -20,7 +20,7 @@
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Aktywna</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Action</B>
+<B>Operacja</B>
 </td></tr>
 @@@STARTPOP3FORM@@@
 <tr>
@@ -67,4 +67,3 @@
    }
 //-->
 </script>
-

@@ -15,26 +15,26 @@ fontface="Arial"
 body {
     background-image: url(@@@BG_URL@@@);
     background-repeat: no-repeat;
-    font-family: Arial, Verdana; font-size: 10pt;
+    font-family: Arial, Verdana; font-size: @@@FONTSIZE@@@;
     color: black;
     scrollbar-arrow-color:black;
     scrollbar-base-color:#99BDDF;
     scrollbar-face-color:#F0F8FF;
      }
-th   {  font-family: Geneva, Arial, Helvetica, sans-serif; font-size: 10pt; font-weight: bold; background-color: #D3DAE3;}
-td   {  font-family: Geneva, Arial, Helvetica, sans-serif; font-size: 10pt;}
-td.msgbody   {  font-family: @@@FIXEDFONT@@@ Geneva, Arial, Helvetica, sans-serif; font-size: 10pt;}
-form   {  font-family: Geneva, Arial, Helvetica, sans-serif; font-size: 10pt}
+th   {  font-family: Geneva, Arial, Helvetica, sans-serif; font-size: @@@FONTSIZE@@@; font-weight: bold; background-color: #D3DAE3;}
+td   {  font-family: Geneva, Arial, Helvetica, sans-serif; font-size: @@@FONTSIZE@@@;}
+td.msgbody   {  font-family: @@@FIXEDFONT@@@ Geneva, Arial, Helvetica, sans-serif; font-size: @@@FONTSIZE@@@;}
+form   {  font-family: Geneva, Arial, Helvetica, sans-serif; font-size: @@@FONTSIZE@@@}
 h1   {  font-family: Geneva, Arial, Helvetica, sans-serif; font-size: 16pt; font-weight: bold;}
-A:link    {  font-family: Geneva, Arial, Helvetica, sans-serif; font-size: 10pt; text-decoration: none; color: black}
-A:visited {  font-family: Geneva, Arial, Helvetica, sans-serif; font-size: 10pt; text-decoration: none; color: black}
-A:hover   {  font-family: Geneva, Arial, Helvetica, sans-serif; font-size: 10pt; text-decoration: none; color: red}
-A.msgbody:link    {  font-family: @@@FIXEDFONT@@@ Geneva, Arial, Helvetica, sans-serif; font-size: 10pt; text-decoration: none; color: black}
-A.msgbody:visited {  font-family: @@@FIXEDFONT@@@ Geneva, Arial, Helvetica, sans-serif; font-size: 10pt; text-decoration: none; color: black}
-A.msgbody:hover   {  font-family: @@@FIXEDFONT@@@ Geneva, Arial, Helvetica, sans-serif; font-size: 10pt; text-decoration: none; color: red}
+A:link    {  font-family: Geneva, Arial, Helvetica, sans-serif; font-size: @@@FONTSIZE@@@; text-decoration: none; color: black}
+A:visited {  font-family: Geneva, Arial, Helvetica, sans-serif; font-size: @@@FONTSIZE@@@; text-decoration: none; color: black}
+A:hover   {  font-family: Geneva, Arial, Helvetica, sans-serif; font-size: @@@FONTSIZE@@@; text-decoration: none; color: red}
+A.msgbody:link    {  font-family: @@@FIXEDFONT@@@ Geneva, Arial, Helvetica, sans-serif; font-size: @@@FONTSIZE@@@; text-decoration: none; color: black}
+A.msgbody:visited {  font-family: @@@FIXEDFONT@@@ Geneva, Arial, Helvetica, sans-serif; font-size: @@@FONTSIZE@@@; text-decoration: none; color: black}
+A.msgbody:hover   {  font-family: @@@FIXEDFONT@@@ Geneva, Arial, Helvetica, sans-serif; font-size: @@@FONTSIZE@@@; text-decoration: none; color: red}
 A:link.nav {  font-family: Geneva, Arial, Helvetica, sans-serif; color: blue}
 A:visited.nav {  font-family: Geneva, Arial, Helvetica, sans-serif; color: blue}
 A:hover.nav {  font-family: Geneva, Arial, Helvetica, sans-serif; color: blue;}
 .nav {  font-family: Geneva, Arial, Helvetica, sans-serif; color: #000000}
-.medtext { font-size: 9pt;}
+.medtext { font-size: @@@MEDFONTSIZE@@@;}
 -->

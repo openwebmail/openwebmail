@@ -1,10 +1,12 @@
 # 
 # auth_ldap.pl - authenticate user with LDAP
 # 
+# 2002/04/10 Kelson Vibber - kelson@speed.net (fixed check_userpassword)
 # 2002/01/27 Ivan Cerrato - pengus@libero.it
 #
 
 my $ldapHost = "HOSTNAME";	# INSERT THE LDAP SERVER IP HERE.
+my $ou = "ou=People";		# INSERT THE LDAP ORGANIZATIONAL UNIT HERE.
 my $cn = "cn=LOGIN";		# INSERT THE LDAP USER HERE.
 my $dc1 = "dc=DC1";		# INSERT THE FIRST DC HERE.
 my $dc2 = "dc=DC2";		# INSERT THE SECOND DC HERE.
@@ -77,29 +79,18 @@ sub check_userpassword {
 
    return -2 unless ( $user ne "" && $password ne "");
 
-   my $list = $ldap->search (
-                             base    => $ldapBase,
-                             filter  => "(&(objectClass=posixAccount)(uid=$user))",
-                             attrs   => ['userPassword']
-                             );
-
-   if ($list->count eq 0) {
-        return -4;
-        }
-   else {
-	my $entry = $list->entry(0);
-	my $tmp_pwd = $entry->get_value("userPassword");
-
-	my $c_pwd = substr($tmp_pwd, 7, 13);
-	my $salt = substr($c_pwd, 0, 2);
-
-	if ($c_pwd eq crypt($password, $salt)) {
-        	return 0;
-		}
+	my $dn = "uid=$user, $ou, $dc1, $dc2";
+	# Attempt to bind using the username and password provided.
+	# (For a secure LDAP config, only auth should be allowed for
+	# any user other than self and rootdn.)
+	my $mesg = $ldap->bind ( dn        =>      $dn,
+        	password  =>      $password);
+	if( $mesg->code == 0 ) {
+		return 0;
+	}
 	else {
 		return -4;
-		}
-        }   
+	}
 }
 
 

@@ -6,7 +6,11 @@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Jêzyk:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@LANGUAGEFIELD@@@
+@@@LANGUAGEMENU@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Strefa czasowa (przesuniêcie):</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@TIMEOFFSETMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Adres:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
@@ -24,11 +28,15 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@ICONSETMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Background image:</B>
+<B>Obrazek t³a:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@ nowrap>
 @@@BACKGROUNDMENU@@@
 &nbsp;URL
 @@@BGURLFIELD@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Font size:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@FONTSIZEMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Nag³ówków na stronê:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
@@ -38,7 +46,7 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@SORTMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Date format:</B>
+<B>Format daty:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@DATEFORMATMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
@@ -54,7 +62,7 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 Szeroko¶æ @@@EDITCOLUMNSMENU@@@ Wysoko¶æ @@@EDITROWSMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Dictionary for spellcheck :</B>
+<B>S³ownik do sprawdzania pisowni :</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@DICTIONARYMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
@@ -66,11 +74,11 @@ Szeroko¶æ @@@EDITCOLUMNSMENU@@@ Wysoko¶æ @@@EDITROWSMENU@@@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@HIDEINTERNAL@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Use fixed-width font when reading messages:</B>
+<B>U¿ywaj czcionki o sta³ej szeroko¶ci:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@USEFIXEDFONT@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Use smiley images when reading messages:</B>
+<B>U¿ywaj obrazków jako 'smileys' ;-):</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@USESMILEICON@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
@@ -78,27 +86,39 @@ Szeroko¶æ @@@EDITCOLUMNSMENU@@@ Wysoko¶æ @@@EDITROWSMENU@@@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEJS@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Disable embedded CGI inside message:</B>
+<B>Zablokuj skrypty CGI wewn±trz wiadomo¶ci:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEEMBCGI@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Confirm before message move/copy:</B>
+<B>Poka¿ obrazy w za³±cznikach jako odno¶niki:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@SHOWIMGASLINK@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>U¿ywaj wyra¿eñ regularnych w wyszukiwaniu i regu³ach filtrowania:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@REGEXMATCH@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Potwierd¼ kopiowanie/przenoszenie wiadomo¶ci:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@CONFIRMMSGMOVECOPY@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>View next after message move/copy:</B>
+<B>Przejd¼ do nastêpnej wiadomo¶ci po kopiowaniu/przenoszeniu:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@VIEWNEXTAFTERMSGMOVECOPY@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Reparagraph message before reply:</B>
+<B>Zapisuj wysy³ane wiadomo¶ci w folderze WYS£ANE:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@BACKUPSENTMSG@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Akapitowanie wiadomo¶ci przed odpisywaniem:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@REPARAGRAPHORIGMSG@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Reply with original message:</B>
+<B>Cytuj oryginaln± wiadomo¶æ podczas odpisywania:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@REPLYWITHORIGMSGMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Send 'confirm reading' receipt:</B>
+<B>Wysy³aj 'potwierdzenie przeczytania' je¶li by³o ¿±dane:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@SENDRECEIPTMENU@@@
 </td></tr>
@@ -111,7 +131,7 @@ Szeroko¶æ @@@EDITCOLUMNSMENU@@@ Wysoko¶æ @@@EDITROWSMENU@@@
 @@@AUTOPOP3END@@@
 @@@MOVEOLDSTART@@@
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>move old msg to SAVED at logout:</B>
+<B>Przenosiæ star± pocztê do folderu ZAPISANE przy wylogowaniu?:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@MOVEOLDMSGFROMINBOX@@@
 </td></tr>
@@ -125,28 +145,32 @@ Szeroko¶æ @@@EDITCOLUMNSMENU@@@ Wysoko¶æ @@@EDITROWSMENU@@@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDSMTP@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Filter msgs with faked exe content-type:</B>
+<B>Filtruj wiadomo¶ci z fa³szywym polem 'From' (Od):</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@FILTERFAKEDFROM@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Filtruj wiadomo¶ci z nieprawid³owym 'exe content-type':</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDEXECONTENTTYPE@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Trzymaj pocztê w koszu przez:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@RESERVEDDAYSMENU@@@
+@@@RESERVEDDAYSMENU@@@ dni.
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Session timeout:</B>
+<B>Maksymalny czas trwania sesji:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@SESSIONTIMEOUTMENU@@@
 </td></tr>
 @@@FORWARDSTART@@@
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Forward mail to:</B>
+<B>Przesy³aj pocztê dalej na adres:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@FORWARDADDRESS@@@
 &nbsp;
 @@@KEEPLOCALCOPY@@@
-Keep local copy
+Zatrzymaj kopiê lokalnie
 </td></tr>
 @@@FORWARDEND@@@
 @@@AUTOREPLYSTART@@@
@@ -163,7 +187,7 @@ Temat:
 </td></tr>
 @@@AUTOREPLYEND@@@
 <tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@ class=msgbody>
-<B>Sygnatura (maksymalnie 500 znaków)</B><BR>
+<B>Podpis (maksymalnie 500 znaków)</B><BR>
 @@@SIGAREA@@@
 </td></tr><tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>
 <table><tr><td>

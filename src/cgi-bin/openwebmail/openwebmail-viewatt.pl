@@ -3,7 +3,7 @@
 # Open WebMail - Provides a web interface to user mailboxes                 #
 #                                                                           #
 # Copyright (C) 2001-2002                                                   #
-# Chung-Kie Tung, Nai-Jung Kuo, Chao-Chiu Wang, Emir Litric                 #
+# Chung-Kie Tung, Nai-Jung Kuo, Chao-Chiu Wang, Emir Litric, Thomas Chung   #
 # Copyright (C) 2000                                                        #
 # Ernie Miller  (original GPL project: Neomail)                             #
 #                                                                           #
@@ -17,11 +17,11 @@ push (@INC, $SCRIPT_DIR, ".");
 
 $ENV{PATH} = ""; # no PATH should be needed
 $ENV{BASH_ENV} = ""; # no startup script for bash
-umask(0007); # make sure the openwebmail group can write
+umask(0002); # make sure the openwebmail group can write
 
 use strict;
 use Fcntl qw(:DEFAULT :flock);
-use CGI qw(:standard);
+use CGI qw(-private_tempfiles :standard);
 use CGI::Carp qw(fatalsToBrowser);
 CGI::nph();   # Treat script as a non-parsed-header script
 
@@ -45,7 +45,7 @@ use vars qw($sort);
 use vars qw($searchtype $keyword $escapedkeyword);
 
 $firstmessage = param("firstmessage") || 1;
-$sort = param("sort") || $prefs{"sort"} || 'date';
+$sort = param("sort") || $prefs{'sort'} || 'date';
 $keyword = param("keyword") || '';
 $escapedkeyword = escapeURL($keyword);
 $searchtype = param("searchtype") || 'subject';
@@ -151,7 +151,7 @@ sub viewattachment {	# view attachments inside a message
             $content = html4disablejs($content) if ($prefs{'disablejs'}==1);
             $content = html4disableembcgi($content) if ($prefs{'disableembcgi'}==1);
             $content = html4attachments($content, $r_attachments, "$config{'ow_cgiurl'}/openwebmail-viewatt.pl", "action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder");
-            $content = html4mailto($content, "$config{'ow_cgiurl'}/openwebmail-send.pl", "action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto");
+#            $content = html4mailto($content, "$config{'ow_cgiurl'}/openwebmail-send.pl", "action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto");
          }
 
          my $length = length($content);
@@ -181,6 +181,12 @@ sub viewattachment {	# view attachments inside a message
               $contenttype !~ /application\/octet\-stream/i &&
               $contenttype !~ /application\/x\-msdownload/i ) {
             $filename="$filename.file";
+         }
+
+         # change contenttype of image to make it directly displayed by browser
+         if ( $contenttype =~ /application\/octet\-stream/i &&
+              $filename =~ /\.(jpg|jpeg|gif|png|bmp)$/i ) {
+            $contenttype="image/".lc($1);
          }
 
          # disposition:attachment default to save

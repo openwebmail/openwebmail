@@ -16,7 +16,7 @@
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>ÃÜÂë</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>É¾³ýÔ¶¶ËÓÊ¼þ</B></td>
+@@@DELPOP3STRSTART@@@<B>É¾³ýÔ¶¶ËÓÊ¼þ</B>@@@DELPOP3STREND@@@</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>ÆôÓÃ</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
@@ -67,4 +67,3 @@
    }
 //-->
 </script>
-

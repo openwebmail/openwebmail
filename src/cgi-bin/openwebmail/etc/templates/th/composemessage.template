@@ -1,0 +1,141 @@
+@@@STARTCOMPOSEFORM@@@
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="1">
+<tr><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="left">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>เขียนจดหมาย</B></font>
+</td></tr><tr><td colspan="2" bgcolor=@@@MENUBAR@@@ align="left">
+@@@BACKTOFOLDER@@@
+</td></tr><tr><td colspan="2">&nbsp;</td></tr>
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+<B>จาก:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@FROMMENU@@@
+&nbsp;&nbsp;
+<B>ความเร่งด่วน:</B>
+@@@PRIORITYMENU@@@
+</td></tr>
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+<B>ถึง:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@TOFIELD@@@
+</td></tr>
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+<B>สำเนา:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@CCFIELD@@@
+</td></tr>
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+<B>สำเนาซ่อน:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@BCCFIELD@@@
+</td></tr>
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+<B>ตอบกลับที่:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@REPLYTOFIELD@@@
+&nbsp;
+<B>ให้ผู้รับยืนยันการอ่าน</B>
+@@@CONFIRMREADINGCHECKBOX@@@
+</td></tr>
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+<B>แฟ้มแนบ:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@ATTACHMENTFIELD@@@
+</td></tr>
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+<B>เรื่อง:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@SUBJECTFIELD@@@
+&nbsp;
+<B>เก็บจดหมายที่ส่งแล้วไว้ด้วย</B>
+@@@BACKUPSENTMSGCHECKBOX@@@
+</td></tr>
+<tr><td colspan="2" bgcolor=@@@WINDOW_LIGHT@@@ class=msgbody>
+@@@BODYAREA@@@
+</td></tr>
+<tr><td colspan="2" align="left" valign="top">
+
+<table cellspacing="0" cellpadding="0" border="0"><tr>
+<td align="center" valign="top">
+@@@SENDBUTTON@@@
+&nbsp;&nbsp;
+</td>
+<td align="center" valign="top">
+@@@SAVEDRAFTBUTTON@@@
+&nbsp;&nbsp;
+</td>
+@@@ENDFORM@@@<!-- End of message composition form -->
+@@@STARTSPELLCHECKFORM@@@
+<td align="center" valign="top">
+@@@DICTIONARYMENU@@@
+@@@SPELLCHECKBUTTON@@@
+&nbsp;&nbsp;
+</td>
+@@@ENDFORM@@@
+@@@STARTCANCELFORM@@@
+<td align="center" valign="top">
+@@@CANCELBUTTON@@@
+&nbsp;&nbsp;
+</td>
+@@@ENDFORM@@@
+</tr></table>
+
+</td></tr></table>
+
+<script language="JavaScript">
+<!--
+   if (self.focus != null)
+      self.focus();
+
+   function OnLoadHandler()
+   {
+      document.composeform.to.focus();
+   }
+
+   function GoAddressWindow(toccbcc)
+   {
+      var url = "@@@ABOOKURL@@@?action=addressbook&sessionid=@@@SESSIONID@@@&form=composeform&field=" + toccbcc;
+      
+      if (toccbcc == "to")
+         url += "&preexisting=" + escape (document.composeform.to.value);
+      else if (toccbcc == "cc")
+         url += "&preexisting=" + escape (document.composeform.cc.value);
+      else if (toccbcc == "bcc")
+         url += "&preexisting=" + escape (document.composeform.bcc.value);   
+   
+      var hWnd = window.open(url,"HelpWindow","width=380,height=360,resizable=yes,scrollbars=yes");
+      if ((document.window != null) && (!hWnd.opener))
+         hWnd.opener = document.window;
+   }
+
+   function DeleteAttFile(deleteattfile)
+   {
+      document.composeform.deleteattfile.value=deleteattfile;
+      document.composeform.submit();
+   }
+
+   function spellcheck()
+   {
+      document.spellcheckform.sessionid.value = document.composeform.sessionid.value;
+      document.spellcheckform.form.value = "composeform";
+      document.spellcheckform.field.value = "body";
+      document.spellcheckform.string.value = document.composeform.body.value;
+      window.open('','SpellChecker','width=600,height=400,top=40,left=80,scrollbars=yes,resizable=yes,location=no');
+      return true;
+   }
+
+   function sendcheck()
+   {
+      if (document.composeform.to.value == "" 
+       && document.composeform.cc.value == "" 
+       && document.composeform.bcc.value == "" ) {
+         alert("Please specify the receiver before sending.");
+         return false;
+      }
+      if (document.composeform.subject.value == "" ) {
+         return(confirm("This message has no subject, do you still want to send it?"));
+      }
+      return true;
+   }
+//-->
+</script>

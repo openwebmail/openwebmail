@@ -1,5 +1,5 @@
---- openwebmail.conf.orig	Fri Feb 22 08:41:47 2002
-+++ openwebmail.conf	Fri Feb 22 08:43:16 2002
+--- openwebmail.conf.orig	Sat Jun  1 09:54:17 2002
++++ openwebmail.conf	Sat Jun  1 09:55:23 2002
 @@ -17,11 +17,9 @@
  ow_htmldir		/usr/local/www/data/openwebmail
  logfile			/var/log/openwebmail.log

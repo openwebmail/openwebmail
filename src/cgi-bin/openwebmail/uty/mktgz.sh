@@ -61,9 +61,11 @@ rm -Rf \
 www.orig/data/openwebmail/images \
 www.orig/data/openwebmail/*.wav \
 www.orig/data/openwebmail/*.au \
+www.orig/data/openwebmail/index.html \
 www/data/openwebmail/images \
 www/data/openwebmail/*.wav \
 www/data/openwebmail/*.au \
+www/data/openwebmail/index.html
 
 diff -ruN www.orig www|grep -v '^Binary files '|gzip -9>openwebmail-current-$oldrelease.diff.gz
 

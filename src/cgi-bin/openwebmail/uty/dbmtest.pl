@@ -16,7 +16,7 @@ closedir(TESTDIR);
 rmdir("/tmp/dbmtest.$$");
 
 @filelist=sort(@filelist);
-if ($filelist[0]=~/\.(.*)/) {
+if ($filelist[0]=~/(\..*)/) {
    print qq|dbm_ext\t\t$1\n|.
          qq|dbmopen_ext\tnone\n|;
 } else {

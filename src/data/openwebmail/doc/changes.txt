@@ -1,36 +1,306 @@
+06/06/2002 (version 1.65)
+----------
+1. add new iconset: Cool3D.Czech
+   Czech language and templates translation update
+   (thanks to Jan Bilik, jan.AT.bilik.org)
+
+
+06/05/2002
+----------
+1. add fontsize option to user preference
+2. always use regex in global filter rules
+
+
+06/04/2002
+----------
+1. add new iconset: Cool3D.Romanian
+   (thanks to Vladimir Hrusca, vladimir.AT.bitsoft.ro)
+2. Italian language and templates translation update
+   (thanks to Marvi Benedet, i3100579.AT.ingstud.univ.trieste.it)
+3. Thai language and templates translation update
+   (thanks to Atsawin Chaowanakritsanakul, joke.AT.nakhon.net)
+4. Portuguese Brazil language and templates translation minor update
+   (thanks to ruisb, ruisb.AT.ig.com.br)
+
+
+06/03/2002
+----------
+1. improve the parsing of date field of message header
+2. fix a bug in weekday calculation
+3. Romanian template file translation
+   (thanks to Vladimir Hrusca, vladimir.AT.bitsoft.ro)
+4. Polish language and templates translation update
+   (thanks to Grzegorz Nosek, blackfire.AT.virtual.net.pl)
+5. split addressbook related routine into openwebmail-abook.pl
+
+
+06/02/2002
+----------
+1. add world timezone map to help user set timeoffset in user preference
+
+
+06/01/2002
+----------
+1. add option timeoffset to user preference, users at different locations
+   may have their own timezone setting
+2. use datefield instead of delimiter as message date
+   (thanks to Dattola Filippo, filippo.AT.sms.it)
+3. if there are to many aliases for a user, .forward will use -j instead 
+   of detailed -a alias so it won't break the line length limit 254
+   (thanks to Hubertus A. Haniel, hubba.AT.unixcook.com)
+
+
+05/31/2002
+----------
+1. Romanian language file translation
+   (thanks to Vladimir Hrusca, vladimir.AT.bitsoft.ro)
+2. add option enable_domainselectmenu to openwebmail.conf
+   (suggested by Hubertus A. Haniel, hubba.AT.unixcook.com)
+3. Danish template spellcheck.template update
+   (thanks to /Frank, frank.AT.post12.tele.dk)
+4. add option xmailer_has_version and xoriginateip_has_userid 
+   to openwebmail.conf
+   add 'Use Regex in search and filterrule' option to user preference
+   (suggested by /Frank, frank.AT.post12.tele.dk)
+
+
+05/28/2002
+----------
+1. new mirror site at Austria/Europe.
+   http://www.openwebmail.net
+   (thanks to M.Karner and QETA.Net)
+
+
+05/24/2002
+----------
+1. fix a bug in maildb.pl which cause errors if messageid had "++" string
+   (thanks to Konrad Neitzel, neitzel.AT.softmediatec.de for his fix)
+2. Portuguese Brazil language and templates translation minor update
+   (thanks to ruisb, ruisb.AT.ig.com.br)
+3. Danish language and templates translation update
+   (thanks to /Frank, frank.AT.post12.tele.dk)
+
+
+05/23/2002
+----------
+1. minor change to maildb.pl and checkmail.pl so checkmail.pl -i print more 
+   detailed information
+2. Slovak language and template files translation update
+   (thanks to lubos klokner, lubos.AT.klokner.sk)
+
+
+05/22/2002
+----------
+1. fix a addressbook import bug caused by entries ended with @ symbo
+   (reported by weiren.AT.weiren.net)
+
+
+05/21/2002
+----------
+1. add 'move to trash' button in folderview menu and messageread menu.
+   (suggested by travisau.AT.users.sourceforge.net)
+2. Italian language and templates translation update
+   (thanks to Marvi Benedet, i3100579.AT.ingstud.units.it)
+3. Catalan language and templates translation update
+   (thanks Jordi Vidal, st.AT.e-puntcom.com)
+
+
+05/20/2002
+----------
+1. fix a javascript error caused by the ' character in foldername in 
+   openwebmail-folder.pl
+   (reported by weiren.AT.weiren.net)
+2. add option backupsentmsg to user preference and the message compose menu
+   (suggested by Victor Moral M., vmoral.AT.dcc.uchile.cl)
+
+
+05/17/2002
+----------
+1. Thai language and template files translation
+   (thanks to Atsawin Chaowanakritsanakul, joke.AT.nakhon.net)
+2. disable mailto processing in html attachment download
+   (suggested by FERNANDO COELHO MONTEIRO, fernando.AT.iepmail.unimep.br)
+
+
+05/11/2002
+----------
+1. minor fix to italian language file
+   (thanks to Marvi Benedet, i3100579.AT.ingstud.units.it)
+
+
+05/10/2002
+----------
+1. rename auth_pgsql.pl to auth_pg.pl (use pgsql interface) and 
+   add new auth module: auth_pgsql.pl (use DBI interface)
+   (thanks to Oliver Smith, oli.AT.kfs.org)
+2. fix a bug in date_for_delimiter in pop3mail.pl
+   (thanks to Edwin Lee, edwinlee2000.AT.users.sourceforge.net)
+
+
+05/09/2002
+----------
+1. add new iconset: Cool3D.German
+   (thanks to Ralf Becker, beckerr.AT.fh-trier.de)
+2. add new iconset: Cool3D.Polish
+   (thanks to Grzegorz Nosek, blackfire.AT.virtual.net.pl)
+
+
+05/08/2002
+----------
+1. minor update to pt_BR prefs.template
+   (thanks to ruisb, ruisb.AT.ig.com.br)
+
+
+05/07/2002
+----------
+1. Spanish lanuage translation update
+   (thanks to Daniel Hasan, dhasan.AT.accesstime.net)
+2. Polish language and templates translation update,
+   options in openwebmail.conf to control the about dialog in preference
+   (thanks to Grzegorz Nosek, blackfire.AT.virtual.net.pl)
+
+
+05/06/2002
+----------
+1. add "compose new message" button to message reading menu
+2. fix minor bug in dbmtest.pl
+
+
+05/05/2002
+----------
+1. pure perl version b2g(), g2b() for chinese BIG5<->GB conversion
+   (code from Encode::HanConvert by Autrijus Tang, autrijus.AT.autrijus.org,
+    suggested by Yen-Ming Lee, leeym.AT.leeym.com)
+2. Italian language and templates translation update
+   (thanks to Marvi Benedet, i3100579.AT.ingstud.units.it)
+3. German language and template trnaslation minor update
+   (thanks to Christian Schoepplein, mail.AT.schoeppi.net)
+
+
+05/04/2002
+----------
+1. load site conf before display login menu
+   (reported by Bob Harrison, rharrison.AT.users.sourceforge.net)
+
+
+04/30/2002
+----------
+1. auto correct the permission, owner, group of the logfile at login
+2. new option 'show image attachment as link' in user preference
+
+
+04/29/2002
+----------
+1. minor fix to filter_fakedsmtp so the mail from localhost won't be filtered
+2. add -private_tempfiles directive in 'use CGI' so tmp CGI file (/var/tmp/CGIxxxx)
+   could be deleted automatically by CGI.pm
+   (reported by Fr. Visminlu Vicente L. Chua, S.J., chuavv.AT.mail.savs.hcc.edu.tw)
+
+
+04/26/2002
+----------
+1. process the folding line in message header before mail header 
+   searching/filtering
+   (suggested by SG, sgsgsg.AT.users.sourceforge.net)
+2. fix the bug that language in user preference could not be changed 
+   when using netscape 4.x browser 
+   (reported by kyj.AT.cycu.edu.tw)
+3. Polish language and template files update
+   (thanks to michal talecki, mik.AT.orka.ibz.pl)
+
+
+04/25/2002
+----------
+1. auth_mysql_vmail.pl module
+   (thanks to Zoltan Kovacs, werdy.AT.freemail.hu)
+
+
+04/22/2002
+----------
+1. minor update to pt_BR prefs.template
+   (thanks to ruisb, ruisb.AT.ig.com.br)
+
+
+04/20/2002
+----------
+1. minor fix to faked smtp filter to handle Received line generated by qmail 
+   for internal usage
+
+
+04/19/2002
+----------
+1. add option filter faked from to user preference
+   This option will filter message whose From: field is different than the 
+   email address in SMTP envelope. This is very useful in filtering messages
+   generated by some virus
+2. fix a bug when importing addressbook from netscape csv file
+   (reported by Fernando C Monteiro, fernando.AT.iepmail.unimep.br)
+
+
+04/18/2002
+----------
+1. correction to readme.txt and minor update to lang/de
+   (thanks to Artur Neumann, artur.neumann.AT.teencamp.de)
+2. add br charlist to openwebmail-spell.pl and minor update to 
+   templates/br/prefs.template
+   (thanks to Marcelo Souza, xyo.AT.users.sourceforge.net)
+3. new mirror site at Malaysia
+   http://openwebmail.kkellas.com.my/mirrors/openwebmail/
+   (thanks to Ramli Mohd, meli.AT.kkellas.com.my)
+4. new option make_homedir, delpop3mail_hidden to openwebmail.conf.default
+   (thanks to greep)
+5. fix a bug in editfilter that cleard all global filter counters to zero
+
+
+04/17/2002
+----------
+1. replace the @ in email address with .AT. in all documents to avoid 
+   mail from spammer
+2. chmod .forward to 600 to make sendmail happy in openwebmail-prefs.pl
+   (thanks to Kelson Vibber, kelson.AT.speed.net)
+
+
+04/16/2002
+----------
+1. fix a serious bug in auth_ldap.pl
+   (thanks to Kelson Vibber, kelson.AT.speed.net)
+2. minor fix to it/composemessage.template
+   (thanks to Matteo Deserventi, teo.AT.molinette.piemonte.it)
+
+
 04/15/2002 (version 1.64)
 ----------
-1. remove the balnk check for the mail deimiter from maildb.pl
+1. remove the blank check for the mail deimiter from maildb.pl
 
 
 04/13/2002
 ----------
 1. german login.templates translation update
-   (thanks to Nicola Tiling, nti@w4w.net)
+   (thanks to Nicola Tiling, nti.AT.w4w.net)
 2. set Refresh directive with meta instead of http header for better 
    compatibility
-   (thanks to Jason Logan, jalogan@www.copperad.com)
+   (thanks to Jason Logan, jalogan.AT.www.copperad.com)
    
 
 04/11/2002
 ----------
 1. fix the bug that signature won't appear when forwarding a message with 
    empty body
-   (reported by Martin Gignac, lmcgign@mobilitylab.net)
+   (reported by Martin Gignac, lmcgign.AT.mobilitylab.net)
 2. fix the login page redirection problem on Mac MSIE browser
-   (thanks to Thomas Chung, tchung@pasadena.oao.com,
-              Jason Logan, jalogan@copperad.com)
+   (thanks to Thomas Chung, tchung.AT.pasadena.oao.com,
+              Jason Logan, jalogan.AT.copperad.com)
 3. fix a bug in virtuser table handle to support %1
-   (thanks to Kelson Vibber, kelson@speed.net)
+   (thanks to Kelson Vibber, kelson.AT.speed.net)
 4. add option enable_about to openwebmail.conf
-   (suggested by Marcelo Souza, xyo@users.sourceforge.net,
-                 Nicola Tiling, nti@w4w.net)
+   (suggested by Marcelo Souza, xyo.AT.users.sourceforge.net,
+                 Nicola Tiling, nti.AT.w4w.net)
 5. add option default_realname to openwebmail.conf
-   (suggested by Nicola Tiling, nti@w4w.net)
+   (suggested by Nicola Tiling, nti.AT.w4w.net)
 6. move description of each options to file openwebmail.conf.help to speedup 
    the parsing of openwebmail.conf.default
 7. minor fix to auth_pgsql.pl
-   (thanks to Veselin Slavov, vess@btc.net)
+   (thanks to Veselin Slavov, vess.AT.btc.net)
 
 
 04/10/2002
@@ -39,33 +309,34 @@
    to support multiple default email addresses
 2. do not check the ip address when verifying the session cookie,
    thus dialup user can use same openwebmail session cross multiple dialups.
-   (suggested by Nicola Tiling, nti@w4w.net)
+   (suggested by Nicola Tiling, nti.AT.w4w.net)
 3. remove HTTP_REFERER for the https judgement
-   (thanks to Nicola Tiling, nti@w4w.net)
+   (thanks to Nicola Tiling, nti.AT.w4w.net)
 4. Portuguese Brazil language and templates translation minor update
-   (thanks to ruisb, ruisb@ig.com.br)
+   (thanks to ruisb, ruisb.AT.ig.com.br)
 5. minor change to the filename of db for virtusertable so multiple
    virtusertable can coexist for different domain
 6. get default emails from virtusertable if possible
-   (suggested by Nicola Tiling, nti@w4w.net)
+   (suggested by Nicola Tiling, nti.AT.w4w.net)
 
 
 04/09/2002
 ----------
 1. fix a bug that new connection to SMTP server always falied on some plaform
-   (thanks to Edison Figueira Junior, efjlilo@users.sourceforge.net)
+   (thanks to Edison Figueira Junior, efjlilo.AT.users.sourceforge.net)
 2. add option http_protocol to openwebmail.conf.default
 3. support cleartxt and crypt type password in auth_mysql.pl
-   (thanks to Juan Martin Hashimoto, fhashimo@hotmail.com) 
+   (thanks to Juan Martin Hashimoto, fhashimo.AT.hotmail.com) 
 4. fix a bug caused by httpd not on port 80, which made $ENV{HTTP_HOST} 
    an invalid domainname for SMTP helo message.
-   (thanks Marcelo Souza, xyo@users.sourceforge.net)
+   (thanks Marcelo Souza, xyo.AT.users.sourceforge.net)
 
 
 04/08/2002
 ----------
 1. new mirror site at Portuguese
    http://www.brc.com.br/openwebmail/
+   (thanks to Edison Figueira, edison.AT.brc.com.br)
 2. add onchange handler for language field in user preference
 
 
@@ -74,27 +345,28 @@
 1. add an 'About' botton in user prefs menu.
 2. new mirror site at HongKong
    http://openwebmail.showhappy.net/
+   (thanks to Wicka, wicka.AT.showhappy.net)
 
 
 04/06/2002
 ----------
 1. Bulgarian login.template translation minor update
-   (thanks to Veselin Slavov, vess@btc.net)
+   (thanks to Veselin Slavov, vess.AT.btc.net)
 
 
 04/05/2002
 ----------
 1. provide a selection menu at login if multiple domainnames are defined
    in openwebmail.conf
-   (thanks to Veselin Slavov, vess@btc.net)
+   (thanks to Veselin Slavov, vess.AT.btc.net)
 2. Portuguese Brazil language and templates translation update
-   (thanks to ruisb, ruisb@ig.com.br)
+   (thanks to ruisb, ruisb.AT.ig.com.br)
 3. fix a javascript bug in openwebmail.pl that crashed the Opera 6.01
-   (thanks to Happy Camper, hcamper@users.sourceforge.net) 
+   (thanks to Happy Camper, hcamper.AT.users.sourceforge.net) 
 4. fix "internal server error" bug when copying messages to "--DELETE--" folder
-   (reported by Marcelo Souza, xyo@users.sourceforge.net) 
+   (reported by Marcelo Souza, xyo.AT.users.sourceforge.net) 
 5. auth_pgsql.pl module
-   (thanks to Veselin Slavov, vess@btc.net)
+   (thanks to Veselin Slavov, vess.AT.btc.net)
 
 
 04/04/2002
@@ -103,36 +375,36 @@
    ps: only plain type is supported which encode smtp auth name/passwd
        in base64 encoding
 2. clean code to avoid taint check error in openwebmail-folder.pl
-   (thanks to Oliver Schindler, schindlero@users.sourceforge.net) 
+   (thanks to Oliver Schindler, schindlero.AT.users.sourceforge.net) 
 3. Turkish language and template files translation
    and new icon set: Cool3D.Turkish
-   (thanks to Erdinc Guler, eguler@aegee.metu.edu.tr)
+   (thanks to Erdinc Guler, eguler.AT.aegee.metu.edu.tr)
 
 
 04/03/2002
 ----------
 1. new option allowed_serverdomain in openwebmail.conf.default
    to control the virtauldomain that openwebmail will serve
-   (suggested by Martin Kirk, jmkirk@users.sourceforge.net)
+   (suggested by Martin Kirk, jmkirk.AT.users.sourceforge.net)
 
 
 04/02/2002
 ----------
 1. Bulgarian language and template files translation
    and new icon set: Cool3D.Bulgarian
-   (thanks to Veselin Slavov, vess@btc.net)
+   (thanks to Veselin Slavov, vess.AT.btc.net)
 2. Indonesian language and template files translation
-   (thanks to hu-wei liang, liangs@kunchang.com.tw)
+   (thanks to hu-wei liang, liangs.AT.kunchang.com.tw)
 
 
 04/01/2002
 ----------
 1. fix a bug that domainnames option won't be recognized if user login with 
    domainame specified
-   (reported by Jay Brussels, dslx@users.sourceforge.net
-            and Martin Kirk,  jmkirk@users.sourceforge.net)
+   (reported by Jay Brussels, dslx.AT.users.sourceforge.net
+            and Martin Kirk,  jmkirk.AT.users.sourceforge.net)
 2. add original sender/receiver/subject/time when forwarding a message.
-   (suggested by curbside@users.sourceforge.net, Doug Raggett)
+   (suggested by curbside.AT.users.sourceforge.net, Doug Raggett)
 3. try to continue using old session after a new login 
    if the browser still hold the session cookie and the session is still valid
    So multi logins for same user from same client will use only one session.
@@ -150,13 +422,13 @@
    So each user may have different session timeout setting
 2. clean the code to avoid closure effect on inner sub routine
 3. fix a bug in editpop3menu that delpop3 was always set
-   (reported by cheton, cheton@lava.idv.tw)
+   (reported by cheton, cheton.AT.lava.idv.tw)
 
 
 03/27/2002
 ----------
 1. fix a bug that the usernote in addressbook could not be cleared after set
-   (reported by Norman, chew@users.sourceforge.net)
+   (reported by Norman, chew.AT.users.sourceforge.net)
 2. new option fetchpop3interval to replace old option authpop3_at_refresh
    Pop3 fetch interval is now independent with refresh interval
 
@@ -164,11 +436,11 @@
 03/26/2002
 ----------
 1. check the dangerous characters in forward email addresses
-   (suggested by Patrick, studi@users.sourceforge.net)
+   (suggested by Patrick, studi.AT.users.sourceforge.net)
 2. fix a bug in maildb.pl that caused the illegal reference on a string
 3. new date format: mm.dd.yyyy
    sort addressbook case insensitively
-   (suggested by gamato@host.sk)
+   (suggested by gamato.AT.host.sk)
 
 
 03/25/2002
@@ -181,23 +453,23 @@
 ----------
 1. fix a bug that the addresses in from book were not passed to vacation 
    program for alias checking
-   (reported by Patrick, studi@users.sourceforge.net)
+   (reported by Patrick, studi.AT.users.sourceforge.net)
 2. use top.window.close instead of window.close at logout to close 
    openwebmail inside a frame
-   (fixed by Taco Scargo, taco.scargo@sun.com)
+   (fixed by Taco Scargo, webmaster.AT.pkgmaster.com)
 3. add option dbmopen_ext to openwebmail.conf. It is useful if the dbmopen
    in your perl won't add the db extension automatically
-   (thanks to Taco Scargo, taco.scargo@sun.com)
+   (thanks to Taco Scargo, webmaster.AT.pkgmaster.com)
 
 
 03/21/2002
 ----------
 1. fix a bug in maildb.pl that could not handle MIME boundary with 
    space character
-   (reported by Eric, studelec@users.sourceforge.net)
+   (reported by Eric, studelec.AT.users.sourceforge.net)
 2. French language, templates translation, iconset update and 
    vous_avez_du_courrier.wav 
-   (thanks to Cyril Sabatier, c.sabatier@bocquet.com)
+   (thanks to Cyril Sabatier, c.sabatier.AT.bocquet.com)
 3. fix html code to get better rendering speed under mozilla for
    edit pop3, edit addressbook and edit folder menu.
 
@@ -209,40 +481,40 @@
 2. try to guess a better contenttype from filename extension if
    contenttype is application/octet-stream
 3. fix a bug that address-import in readmessage will inport wrong address
-   (reported by Erwin Kramer, ekramer@users.sourceforge.net)
+   (reported by Erwin Kramer, ekramer.AT.users.sourceforge.net)
 
 
 03/17/2002
 ----------
 1. Danish language and templates translation minor update
-   (thanks to /Frank, frank@post12.tele.dk)
+   (thanks to /Frank, frank.AT.post12.tele.dk)
 2. better error handing in message sending and draft saving.
 
 
 03/16/2002
 ----------
 1. add new iconset: Cool3D.Danish
-   (thanks to Kenneth Nielsen, knbn@hhf-kollegiet.dk)
+   (thanks to Kenneth Nielsen, knbn.AT.hhf-kollegiet.dk)
 
 
 03/15/2002
 ----------
 1. try to cover a bug in old IE that sent Euro symbo in unicode format
-   (reported by Cyril SABATIER, c.sabatier@bocquet.com)
+   (reported by Cyril SABATIER, c.sabatier.AT.bocquet.com)
 2. add option default_formemail to openwebmail.conf
    It can be used to set default from email address for the user.
 3. fix several bugs related to the variable localization in foreach statement
-   (thanks to Koppi, koppi@action.at)
+   (thanks to Koppi, koppi.AT.action.at)
 
 
 03/14/2002
 ----------
 1. fix a bug that expanded group address in global addressbook incorrectly
-   (reported by Van Hazard, hazard@rosta.com.tw)
+   (reported by Van Hazard, hazard.AT.rosta.com.tw)
 2. fix a bug that won't use useralias in virtusertable even that alias is matched
-   (reported by faifai@users.sourceforge.net)
+   (reported by faifai.AT.users.sourceforge.net)
 3. fix a bug that tried remove all blanks in .forward
-   (reported by Iain Lea, iain@caw.com)
+   (reported by Iain Lea, iain.AT.caw.com)
 
 
 03/13/2002
@@ -251,22 +523,22 @@
 2. remove pop3_authserver pop3 record from .pop3book
    So sysadm can configure getting mails from pop3 authserver and stop user 
    to fetch mails from other pop3 server at the same time
-   (suggested by anthony (hkanthony@user.sourceforge.net) 
+   (suggested by anthony (hkanthony.AT.user.sourceforge.net) 
 3. add option 'deletemail_on_pop3' to openwebmail.conf
 4. Hungarian language and templates translation update
-   (thanks to Nagy Endre, gumo@lucifer.kgt.bme.hu)
+   (thanks to Nagy Endre, gumo.AT.lucifer.kgt.bme.hu)
 
 
 03/12/2002
 ----------
 1. auth_mysql.pl module
-   (thanks to Alan, Cheng-Lung Sung - AlanSung@dragon2.net)
+   (thanks to Alan, Cheng-Lung Sung - AlanSung.AT.dragon2.net)
 2. Slovak language and template files translation update
    Cool3D.Slovak iconset update
-   (thanks to lubos klokner, lubos@klokner.sk)
+   (thanks to lubos klokner, lubos.AT.klokner.sk)
 3. fix a bug that load auth_module too earily so the auth_module option in 
    siteconf won't have effect
-   (thanks to Kevin Ellis, kevin@bluelavalamp.net)
+   (thanks to Kevin Ellis, kevin.AT.bluelavalamp.net)
 
 
 03/11/2002
@@ -277,7 +549,7 @@
 03/10/2002
 ----------
 1. portuguese brazil template translation minor update
-   (thanks to ruisb, ruisb@ig.com.br)
+   (thanks to ruisb, ruisb.AT.ig.com.br)
 
 
 03/09/2002
@@ -287,13 +559,13 @@
 2. split folder maintainance routines into openwebmail-folder.pl
 3. fix a bug that user conf won't be read if auth_withdomain is set to 'yes'
 4. Slovak language and templates translation update
-   (thanks to Peter Sedivy - PeSe, pese@us.svf.stuba.sk)
+   (thanks to Peter Sedivy - PeSe, pese.AT.us.svf.stuba.sk)
 5. fix a bug introduced by the patch in 03/07/2002
    which cause boundary directive missing for message with attachmentes
-   (reported by Martin Gignac, lmcgign@mobilitylab.net)
+   (reported by Martin Gignac, lmcgign.AT.mobilitylab.net)
 6. add "select all" checkbox in addressbook
 7. fix a bug in auth_unix.pl that didn't preserve the ownership of passwd file
-   (reported by Hubertus A. Haniel, hubertus@haniel.co.uk)
+   (reported by Hubertus A. Haniel, hubertus.AT.haniel.co.uk)
 
 
 03/07/2002
@@ -301,14 +573,14 @@
 1. add option 'auth_withdomain' to openwebmail.conf for auth modules that
    uses names like 'username@domainname' for login
 2. Russian language and template files translation
-   (thanks to Denis Mysenko, duster@tpu.ru)
+   (thanks to Denis Mysenko, duster.AT.tpu.ru)
 3. fix the hang problem in uploading attachment caused by a bug in 
    encode_base64 in mime.pl
-   (thanks to A.Johnson Jeba Asir, johnson@ooty.tenet.res.in)
+   (thanks to A.Johnson Jeba Asir, johnson.AT.ooty.tenet.res.in)
 4. fix the url link parsing bug that stoped at the char &
-   (reported by bplein@users.sourceforge.net, Bill Plein) 
+   (reported by bplein.AT.users.sourceforge.net, Bill Plein) 
 5. fix bugs related to auth_withdomain
-   (thanks to Kevin Ellis, kevin@bluelavalamp.net)
+   (thanks to Kevin Ellis, kevin.AT.bluelavalamp.net)
 6. add option 'loginerrordelay' to control the delay of the response for a 
    failed login attempt
 7. add title directives for anchors to be more friendly on mozilla
@@ -318,18 +590,18 @@
 03/05/2002
 ----------
 1. Lithuanian language and templates translation update
-   (thanks to Alvydas Sinkunas, dvm382@takas.lt)
+   (thanks to Alvydas Sinkunas, dvm382.AT.takas.lt)
 2. minor change to openwebmail.pl to support new message composing 
    immediately after login
 3. Portuguese language and templates translation update
-   (thanks to Jose Ferradeira, jferra@sfconsultores.pt)
+   (thanks to Jose Ferradeira, jferra.AT.sfconsultores.pt)
 
 
 03/03/2002
 ----------
 1. fix bugs in get_virtualuser_user_userinfo() and get_defaultemails()
    in openwebmail-shared.pl 
-   (thanks to Kevin Ellis, kevin@bluelavalamp.net)
+   (thanks to Kevin Ellis, kevin.AT.bluelavalamp.net)
 
 
 03/01/2002
@@ -341,14 +613,14 @@
 ----------
 1. new mirror site at catalonia, spain.
    http://www.correuweb.com/mirror
-   (thanks Jordi Vidal, st@e-puntcom.com)
+   (thanks Jordi Vidal, st.AT.e-puntcom.com)
 
 
 02/27/2002
 ----------
 1. fix a bug in openwebmail.pl for option pop3_authserver_in_book
-   (reported by Dilton Dantas, dilton@users.sourceforge.net
-                John Smith, c0nd0r@users.sourceforge.net)
+   (reported by Dilton Dantas, dilton.AT.users.sourceforge.net
+                John Smith, c0nd0r.AT.users.sourceforge.net)
 2. fix a minor bug in maildb.pl to handle mime with boundary='-'
 3. fix a javascript error in openwebmail.pl
 
@@ -356,13 +628,13 @@
 02/26/2002
 ----------
 1. Portuguese Brazil language and templates translation update
-   (thanks to ruisb, ruisb@ig.com.br)
+   (thanks to ruisb, ruisb.AT.ig.com.br)
 
 
 02/25/2002
 ----------
 1. German language and templates translation update
-   (thanks to Christian Schoepplein, mail@schoeppi.net)
+   (thanks to Christian Schoepplein, mail.AT.schoeppi.net)
 2. minor change to footer.template to be more compatible with lynx reader
 
 
@@ -375,35 +647,35 @@
    automatically so the mail on pop3 authserver will be fetched after login
 3. add 'reindex' and 'newindex' buttons to editfolder menu
 4. add new iconset: Cool3D.Korean
-   (thanks to matthewyi@usermail.com)
+   (thanks to matthewyi.AT.usermail.com)
 5. Mac OS X related info is added to auth_unix.pl
    a wrapsuid.pl is provided to generate C wrappers for suid scripts 
    automatically
-   (thanks to Chris Heegard, heegard@NativeI.com)
+   (thanks to Chris Heegard, heegard.AT.NativeI.com)
 6. use lang_text for text in status line
-   (suggested by ruisb, ruisb@ig.com.br)
+   (suggested by ruisb, ruisb.AT.ig.com.br)
 
 
 02/23/2002
 ----------
 1. hide the real password from user in editpop3 menu
-   (suggested by Peter Smulovics , szoke@users.sourceforge.net)
+   (suggested by Peter Smulovics , szoke.AT.users.sourceforge.net)
 
 
 02/22/2002
 ----------
 1. put all options to openwebmail.conf.default 
    and only set the overrides in openwebmail.conf
-   (suggested by ¯Î¤T°¶, sanwei@elesrv.saihs.edu.tw)
+   (suggested by ¯Î¤T°¶, sanwei.AT.elesrv.saihs.edu.tw)
 2. refilter all msg in INBOX if filterrule is changed
 
 
 02/21/2002 (version 1.62)
 ----------
 1. portuguese brazil template translation minor update
-   (thanks to ruisb, ruisb@ig.com.br)
+   (thanks to ruisb, ruisb.AT.ig.com.br)
 2. fix a bug that created opewebmail.log with wrong group
-   (reported by Thomas Chung, tchung@pasadena.oao.com)
+   (reported by Thomas Chung, tchung.AT.pasadena.oao.com)
    
 
 02/20/2002
@@ -416,22 +688,22 @@
 02/19/2002
 ----------
 1. Portuguese Brazil language translation minor update
-   (thanks to ruisb, ruisb@ig.com.br)
+   (thanks to ruisb, ruisb.AT.ig.com.br)
 2. Finnish template file translation minor update
-   (thanks to Jouni Kivilahti, jouni.kivilahti@los.fi)
+   (thanks to Jouni Kivilahti, jouni.kivilahti.AT.los.fi)
 3. add option disable_embcgi to openwebmail.conf and user preference.
    This prevents the user email addresses being confirmed by spammer through
    embedded CGIs inside html messages
-   (thanks to Frank@post12.tele.dk, frank@post12.tele.dk for his idea and code)
+   (thanks to Frank.AT.post12.tele.dk, frank.AT.post12.tele.dk for his idea and code)
 4. no more need to modify the *.pl at install
-   (thanks to Frank@post12.tele.dk, frank@post12.tele.dk for his idea)
+   (thanks to Frank.AT.post12.tele.dk, frank.AT.post12.tele.dk for his idea)
 5. clean the code of vacation.pl
 
 
 02/18/2002
 ----------
 1. add 'print friendly' support in read message
-   (suggested by Alex Janis, alex@alexjanis.com)
+   (suggested by Alex Janis, alex.AT.alexjanis.com)
 
 
 02/17/2002
@@ -447,9 +719,9 @@
    These 2 options could be very useful when used in the per user capability 
    config file.
 2. add new iconset: Cool3D.Francais
-   (thanks to Cyril SABATIER, c.sabatier@bocquet.com)
+   (thanks to Cyril SABATIER, c.sabatier.AT.bocquet.com)
 3. Portuguese Brazil language and templates translation update
-   (thanks to ruisb, ruisb@ig.com.br)
+   (thanks to ruisb, ruisb.AT.ig.com.br)
 
 
 02/13/2002
@@ -476,22 +748,22 @@
 1. rename spellcheck.pl to openwebmail-spell.pl
 2. fix the openwebmail-spell.pl to use dictionaries to check vocabularies
    composed by non english letters.
-   (thanks to Volodymyr M. Lisivka, lvm@mystery.lviv.net for his patch)
+   (thanks to Volodymyr M. Lisivka, lvm.AT.mystery.lviv.net for his patch)
 3. Ukrainian language and template files translation
-   (thanks to Volodymyr M. Lisivka, lvm@mystery.lviv.net)
+   (thanks to Volodymyr M. Lisivka, lvm.AT.mystery.lviv.net)
 4. Finnish language and template files translation
-   (thanks to Jouni Kivilahti, jouni.kivilahti@los.fi)
+   (thanks to Jouni Kivilahti, jouni.kivilahti.AT.los.fi)
 5. Portuguese Brazil language and templates translation update
-   (thanks to ruisb, ruisb@ig.com.br
-              Valdimir M Costa, vlad@univap.br)
+   (thanks to ruisb, ruisb.AT.ig.com.br
+              Valdimir M Costa, vlad.AT.univap.br)
 6. Chinese GB language and templates translation update
-   (thanks to Wang Jun, wjun@mail.iap.ac.cn)
+   (thanks to Wang Jun, wjun.AT.mail.iap.ac.cn)
 
 
 02/07/2002
 ----------
 1. display 'login again' instead of 'continue' at logout page
-   (suggested by /Frank, frank@post12.tele.dk)
+   (suggested by /Frank, frank.AT.post12.tele.dk)
 2. fix the bug that the bcc field will be always empty when loading a draft 
    to edit
 3. fix a bug in the vacation.pl introduced by the fix of 20020206
@@ -506,9 +778,9 @@
 02/05/2002
 ----------
 1. Danish language and templates translation
-   (thanks to /Frank, frank@post12.tele.dk)
+   (thanks to /Frank, frank.AT.post12.tele.dk)
 2. Portuguese Brazil language and templates translation update
-   (thanks to ruisb, ruisb@ig.com.br)
+   (thanks to ruisb, ruisb.AT.ig.com.br)
 
 
 02/04/2002 (version 1.61)
@@ -520,7 +792,7 @@
 02/02/2002
 ----------
 1. add new iconset: Cool3D.Portuguese.Brazilian
-   (thanks to Jordi S. Bunster, jsb@ductape.net)
+   (thanks to Jordi S. Bunster, jsb.AT.ductape.net)
 2. minor fix to the mime boundary handling in maildb.pl
    Openwebmail now passes the "MIME Torture Test" 
    that UW makes available at ftp://ftp.cac.washington.edu/imap/mime
@@ -530,9 +802,9 @@
 02/01/2002
 ----------
 1. folding the to, cc and bcc headers if they were longer than 960 chars
-   (suggested by Martin Gignac, lmcgign@mobilitylab.net)
+   (suggested by Martin Gignac, lmcgign.AT.mobilitylab.net)
 2. further correction to fixedfont support
-   (thanks to Martin Gignac, lmcgign@mobilitylab.net)
+   (thanks to Martin Gignac, lmcgign.AT.mobilitylab.net)
 3. display SMTP session detail if sendmessage failed.
    It could be helpful to find out the source of the problem
 4. auto reindexing if an invalid message is found in getmessage
@@ -542,27 +814,27 @@
 ----------
 1. improve the reparagraph code in openwebmail-send.pl
 2. add usefixedfont to openwebmail.conf and userpreference
-   (suggested by kyork, kyork@videovideo.com
-                 Martin Gignac, lmcgign@mobilitylab.net)
+   (suggested by kyork, kyork.AT.videovideo.com
+                 Martin Gignac, lmcgign.AT.mobilitylab.net)
 3. spanish language and template files update
-   (thanks to Javier Smaldone, jsmaldone@yahoo.com)
+   (thanks to Javier Smaldone, jsmaldone.AT.yahoo.com)
 
 
 01/30/2002
 ----------
 1. auth_ldap.pl module
-   (thanks to Ivan Cerrato, pengus@libero.it)
+   (thanks to Ivan Cerrato, pengus.AT.libero.it)
 2. support user capability configuration on per user basis
 3. add option savedsuid_support to openwebmail.conf
    This is used by openwebmail to determine if saving euid to ruid is required
    before changing the euid.
-   (Thanks to Jim Flowers, jflowers@ezo.net for his detailed report)
+   (Thanks to Jim Flowers, jflowers.AT.ezo.net for his detailed report)
 
 
 01/29/2002
 ----------
 1. minor fix to the smileicon replacement in openwebmail-read.pl
-   (thanks to Rossen Tchobanski, rosko@rosko.net)
+   (thanks to Rossen Tchobanski, rosko.AT.rosko.net)
 
 
 01/28/2002
@@ -582,7 +854,7 @@
 1. fix a bug in 'forward message as attachment' which copies the message 
    delimiter line into forward.msg without escaping the 'From ' mark
 2. fix a bug in addressbook which would expand the group address improperly
-   (thanks to clovis, cfcs98@users.sourceforge.net)
+   (thanks to clovis, cfcs98.AT.users.sourceforge.net)
 3. use '&' instead of '&amp;' in Location directive to fix a minor compatible 
    problem on old apache server
 
@@ -590,7 +862,7 @@
 01/25/2002
 ----------
 1. Portuguese Brazil language and templates translation update
-   (thanks to Rui - iG, ruisb@ig.com.br)
+   (thanks to Rui - iG, ruisb.AT.ig.com.br)
 2. add 'google search' on from email address when reading a message.
    It is useful to know who is sending mail to you :)
 
@@ -608,7 +880,7 @@
 01/23/2002
 ----------
 1. french language and templates translation
-   (thanks to Cyril Sabatier, c.sabatier@bocquet.com)
+   (thanks to Cyril Sabatier, c.sabatier.AT.bocquet.com)
 
 
 01/22/2002
@@ -624,15 +896,15 @@
 01/21/2002
 ----------
 1. italian language and templates translation update
-   (thanks to Marvi Benedet, i3100579@ingstud.units.it)
+   (thanks to Marvi Benedet, i3100579.AT.ingstud.units.it)
 
 
 01/19/2002
 ----------
 1. Catalan language and templates translation update
-   (thanks Jordi Vidal, st@e-puntcom.com)
+   (thanks Jordi Vidal, st.AT.e-puntcom.com)
 2. add option sendreceipt to preference and openwebmail.conf 
-   (suggested by Kashif Manzoor, guy2000@hi.net.pk)
+   (suggested by Kashif Manzoor, guy2000.AT.hi.net.pk)
 3. add option keep local copy to preference.
    It is used to save a local copy when message forwarding is on
 
@@ -640,12 +912,12 @@
 01/18/2002
 ----------
 1. Portuguese Brazil language and templates translation update
-   (thanks to Rui - iG, ruisb@ig.com.br)
+   (thanks to Rui - iG, ruisb.AT.ig.com.br)
 2. fix a bug in recent change to gb/big5 charset conversion
-   (reported by ³¯¨ó´I, jeff@tinp.com.tw)   
+   (reported by ³¯¨ó´I, jeff.AT.tinp.com.tw)   
 3. fix a bug in maildb.pl that could not properly handle mine boundary 
    generated by the HylaFAX Server
-   (reported by Aren, aren@aren.nl)
+   (reported by Aren, aren.AT.aren.nl)
 4. cut the filename sent in contenttype/content-disposition header to 45
    to avoid a bug in IE6
 
@@ -663,10 +935,10 @@
 01/16/2002
 ----------
 1. add style Hotmail
-   (thanks to Brian Suttonb, suttonb@users.sourceforge.net)
+   (thanks to Brian Suttonb, suttonb.AT.users.sourceforge.net)
 2. auto convert between charset big5 and gb2312 if possible
 3. slovak language and templates translation update
-   (thanks to lubos klokner, lubos@klokner.sk)
+   (thanks to lubos klokner, lubos.AT.klokner.sk)
 
 
 01/15/2002
@@ -681,7 +953,7 @@
 1. display confirm box when user clicks the 'import address' or 'block smtp'
    in message reading, and return back to message reading window after 
    the addressbook/filterrule is updated.
-   (suggested by Kashif Manzoor, guy2000@hi.net.pk)
+   (suggested by Kashif Manzoor, guy2000.AT.hi.net.pk)
 
 
 01/13/2002
@@ -699,7 +971,7 @@
 ----------
 1. very limited support for message/external-body contenttype
 2. fix the "illegal Character" bug when pressing cancel button in compose window
-   (reported by Kashif Manzoor, guy2000@hi.net.pk)
+   (reported by Kashif Manzoor, guy2000.AT.hi.net.pk)
 
 
 01/11/2002
@@ -711,13 +983,13 @@
 01/10/2002
 ----------
 1. hungarian language translationupdate
-   (thanks to Posz Marton, ful_s@fazekas.hu)
+   (thanks to Posz Marton, ful_s.AT.fazekas.hu)
 2. fix the 'illegal address syntax' warning in the postfix
-   (reported by ychsiao, pippen@linux.mis.stu.edu.tw)
+   (reported by ychsiao, pippen.AT.linux.mis.stu.edu.tw)
 3. fix the bug that editfromaddress couldn't go back to editprefs 
-   (reported by ychsiao, pippen@linux.mis.stu.edu.tw)
+   (reported by ychsiao, pippen.AT.linux.mis.stu.edu.tw)
 4. add new iconset: Cool3D.Chinese.Traditional
-   (thanks to yuan, hoyuan@istyle.idv.tw)
+   (thanks to yuan, hoyuan.AT.istyle.idv.tw)
 
 
 01/09/2002
@@ -725,46 +997,46 @@
 1. fix the bug that clicking email in addressbook will cause error of
    'Action has illegal characters!'
 2. fix a bug which didn't send messageid when relaying mail
-   (reported by Martin Gignac, lmcgign@mobilitylab.net)
+   (reported by Martin Gignac, lmcgign.AT.mobilitylab.net)
 3. split openwebmail-read.pl & openwebmail-viewatt.pl from openwebmail-main.pl
    for better speed
 4. fix a bug in routine dateserial2age which cause messages in mail-trash 
    cleaned all the time
 5. add option deliver_use_GMT to openwebmail.conf to adjust message date 
    field in folderview. It could be useful for users of qmail.
-   (reported by Martin Gignac, lmcgign@mobilitylab.net)
+   (reported by Martin Gignac, lmcgign.AT.mobilitylab.net)
 
 
 01/08/2002
 ----------
 1. fix a bug in creating group email entries
-   (reported by Kashif Manzoor, guy2000@hi.net.pk)
+   (reported by Kashif Manzoor, guy2000.AT.hi.net.pk)
 2. add support for multiple date format
 3. increase compatibility with some SMTP daemon by sending 'Date: '
    header when relaying mail
-   (reported by Martin Gignac, lmcgign@mobilitylab.net)
+   (reported by Martin Gignac, lmcgign.AT.mobilitylab.net)
 4. show addressbook icon in composemessage window for To:, Cc: and Bcc:
-   (thanks to u8711028@cc.nkfust.edu.tw for his patch)
+   (thanks to u8711028.AT.cc.nkfust.edu.tw for his patch)
 
 
 01/07/2002
 ----------
 1. fix the withoriglabels for english
-   (reported by Martin Gignac, lmcgign@mobilitylab.net)
+   (reported by Martin Gignac, lmcgign.AT.mobilitylab.net)
 2. fill full email address when composing new message to specific user
-   (reported by Martin Gignac, lmcgign@mobilitylab.net)
+   (reported by Martin Gignac, lmcgign.AT.mobilitylab.net)
 3. fix a bug that only one receiver got the mail even multiple recipients 
    were specified in mail header.
-   (reported by nmra@sys.com.tw)
+   (reported by nmra.AT.sys.com.tw)
 
 
 01/04/2002
 ----------
 1. email address from the address popup window now uses the complete format 
-   like "username" <user@somehost> instead of user@somehost.
+   like "username" <user@somehost> instead of user.AT.somehost.
 2. send charset directive in address popup window and use double column
 3. use Net::SMTP module for mail sending
-   (thanks to Carl Olsen, calle@batliv.nu. for his patch)
+   (thanks to Carl Olsen, calle.AT.batliv.nu. for his patch)
 4. split openwebmail-send.pl from original openwebmail-main.pl
    for better speed
 
@@ -780,9 +1052,9 @@
 01/02/2002
 ----------
 1. add search support to addressbook
-   (thanks to u8711028@cc.nkfust.edu.tw for his patch)
+   (thanks to u8711028.AT.cc.nkfust.edu.tw for his patch)
 2. fix minor bugs in email display in folderview
-   (reported by gamato@host.sk)
+   (reported by gamato.AT.host.sk)
 
 
 01/01/2002
@@ -797,7 +1069,7 @@ ps: this version will do a release upgrade of your db, it may take several
 12/31/2001
 ----------
 1. add support for message priority
-   (suggested by gamato@host.sk)
+   (suggested by gamato.AT.host.sk)
 2. minor change to inreplyto/reference support to fix the header db 
    inconsistency problem when a draft is saved for more than once
 
@@ -806,9 +1078,9 @@ ps: this version will do a release upgrade of your db, it may take several
 ----------
 1. display the email address if the mouse is focused over the sender/receiver 
    name in folder view
-   (suggested by gamato@host.sk)
+   (suggested by gamato.AT.host.sk)
 2. display multiple recipients in sent folder
-   (suggested by gamato@host.sk)
+   (suggested by gamato.AT.host.sk)
 
 
 12/27/2001
@@ -822,37 +1094,37 @@ ps: this version will do a release upgrade of your db, it may take several
 12/26/2001
 ----------
 1. add support for the .forward file editing
-   (thanks to Nimal Ratnayake, nimalr@mail.pdn.ac.lk for his patch)
+   (thanks to Nimal Ratnayake, nimalr.AT.mail.pdn.ac.lk for his patch)
 2. add support for 'markread' and 'markasunread'
-   (thanks to Chen-hsiu Huang, chenhsiu@gens.dhs.org for his markasread patch)
+   (thanks to Chen-hsiu Huang, chenhsiu.AT.gens.dhs.org for his markasread patch)
 3. add new iconsets: Default.Spanish and Cool3d.Spanish
-   (thanks to Javier Smaldone, jsmaldone@yahoo.com)
+   (thanks to Javier Smaldone, jsmaldone.AT.yahoo.com)
 
 
 12/23/2001
 ----------
 1. fix some display problem on mozilla or Netscape browser.
-   (thanks to Chen-hsiu Huang, chenhsiu@gens.dhs.org for his patch)
+   (thanks to Chen-hsiu Huang, chenhsiu.AT.gens.dhs.org for his patch)
 
 
 12/21/2001
 ----------
 1. minor fix to replyall to put original 'cc:' into new 'cc:' instead 'to:'
-   (reported by Martin Gignac, lmcgign@mobilitylab.net)
+   (reported by Martin Gignac, lmcgign.AT.mobilitylab.net)
 2. minor fix to maildb to parse mail header more properly
-   (reported by Yu-chung Tsao, tsaoyc@yggdrasil.ecosine.com.tw)
+   (reported by Yu-chung Tsao, tsaoyc.AT.yggdrasil.ecosine.com.tw)
 3. fix a bug in 'sort by thread' that falls into endless recursive loop when 
    processing message with no messageid
-   (reported by Martin Gignac, lmcgign@mobilitylab.net)
+   (reported by Martin Gignac, lmcgign.AT.mobilitylab.net)
 4. fake messageid with message date and sender email address if it doesn't exist.
    This prevents messages with no messageid being deleted cause of duplication.
-   (reported by Yu-chung Tsao, tsaoyc@yggdrasil.ecosine.com.tw)
+   (reported by Yu-chung Tsao, tsaoyc.AT.yggdrasil.ecosine.com.tw)
 
 
 12/20/2001
 ----------
 1. fix a bug in auth_unix again that may crash the passwd file under heave access.
-   (reported by ªôÃÙ·½, cty@mail2.scvs.tpc.edu.tw)
+   (reported by ªôÃÙ·½, cty.AT.mail2.scvs.tpc.edu.tw)
 
 
 12/19/2001
@@ -874,27 +1146,27 @@ ps: this version will do a release upgrade of your db, it may take several
 5. If a from line only has an address, then cut it off at the
    @ symbol in the from column.  
 
-Thanks to James Dean Palmer, james@tiger-marmalade.com,
+Thanks to James Dean Palmer, james.AT.tiger-marmalade.com,
 who contributed the all patches for the above features.
 
 
 12/13/2001
 ----------
 1. slovak language and templates translation update
-   (thanks to lubos klokner, lubos@klokner.sk)
+   (thanks to lubos klokner, lubos.AT.klokner.sk)
 2. korean language and templates translation
-   (thanks to Moonsang Kwon, kmscom@snu.ac.kr)
+   (thanks to Moonsang Kwon, kmscom.AT.snu.ac.kr)
 
 
 12/11/2001
 ----------
 1. fix a bug in auth_unix that may crash the passwd file under heave access.
-   (reported by ªôÃÙ·½, cty@mail2.scvs.tpc.edu.tw)
+   (reported by ªôÃÙ·½, cty.AT.mail2.scvs.tpc.edu.tw)
 2. fix a bug in readstyle that forgets to resolve the @@@BG_URL@@@ symbo
    in $style{"css"} and causes access non-exist background in openwebmailerror
-   (reported by ªôÃÙ·½, cty@mail2.scvs.tpc.edu.tw)
+   (reported by ªôÃÙ·½, cty.AT.mail2.scvs.tpc.edu.tw)
 3. fix a bug in parse_uuencode_body that may miss some uuencoded blocks in a message
-   (reported by Andrew Cheung, kycheung@netfront.net)
+   (reported by Andrew Cheung, kycheung.AT.netfront.net)
 
 
 12/04/2001 (version 1.52)
@@ -902,21 +1174,21 @@ who contributed the all patches for the above features.
 1. Emir Litric has done a lot of great powerd-by-openwebmail icons
 2. set $ENV{BASH_ENV} to "" at startup
 3. cool3d iconset for slovak
-   (thanks to lubos klokner, lubos@klokner.sk)
+   (thanks to lubos klokner, lubos.AT.klokner.sk)
 
 
 11/28/2001
 ----------
 1. use openwebmail.org as the portal site for this project
-   (thanks to Thomas Chung, tchung@pasadena.oao.com)
+   (thanks to Thomas Chung, tchung.AT.pasadena.oao.com)
 2. lithuanian language and templates translation update
-   (thanks to Alvydas Sinkunas, dvm382@takas.lt)
+   (thanks to Alvydas Sinkunas, dvm382.AT.takas.lt)
 
 
 11/27/2001
 ----------
 1. use case-sensitive comparison to match ignored user in vacation.pl
-   (thanks to erkac@users.sourceforge.net)
+   (thanks to erkac.AT.users.sourceforge.net)
 
 
 11/23/2001
@@ -934,20 +1206,20 @@ who contributed the all patches for the above features.
    This also has the effect that hides the login params if the login is
    redirected from other cgi by specifying loginname and password in url.
 2. fix a bug in addressbook import
-   (reported by Andrew Chang ±i§Ó¼Ð, andrew@ms15.url.com.tw)
+   (reported by Andrew Chang ±i§Ó¼Ð, andrew.AT.ms15.url.com.tw)
 
 
 11/20/2001
 ----------
 1. change the field delimiter from ':' to '@@@' in ~user/mail/.from.book, 
    ~user/mail/.address.book and ~user/mail/.pop3.book for better compatibility
-   (reported by Adams Fung, afung@startv.com)
+   (reported by Adams Fung, afung.AT.startv.com)
 ps: The user .*.book file will be converted automatically when user logins. 
     The global book file (etc/address.book, etc/filter.book) need to be 
     changed manually by replacing all ':' with '@@@'
     Or you can use the one in the openwebmail tarball.
 2. Catalan language and templates translation update
-   (thanks Jordi Vidal, st@e-puntcom.com)
+   (thanks Jordi Vidal, st.AT.e-puntcom.com)
 
 
 11/17/2001
@@ -965,29 +1237,29 @@ ps: The user .*.book file will be converted automatically when user logins.
 ----------
 1. fix a bug that vacation.pl won't generate reply for messages whose sender
    has same userid as the destinated username
-   (reported by Thomas Chung, tchung@pasadena.oao.com)
-2. czech language and templates translation update
-   (thanks to Michal Drapak, michal@stavlib.hiedu.cz)
+   (reported by Thomas Chung, tchung.AT.pasadena.oao.com)
+2. Czech language and templates translation update
+   (thanks to Michal Drapak, michal.AT.stavlib.hiedu.cz)
 
 
 11/14/2001
 ----------
 1. minor fix to do error checking on 'to:' field in replayall
-   (reported by Scott Ocken, jarlaxle@icsmail.net)
+   (reported by Scott Ocken, jarlaxle.AT.icsmail.net)
 
 
 11/13/2001
 ----------
 1. fix the 'internal server error' bug that appears if .pop3.book doesn't 
    exist and user presses 'retrieve pop3' button
-   (reported by erkac@users.sourceforge.net, lubos klokner)
+   (reported by erkac.AT.users.sourceforge.net, lubos klokner)
 2. add option 'filter msgs with faked exe contenttype' to openwebmail.conf
    and user preference. This is used to filter virus mails that faked 
    content-type of executable to make the executable auto downloaded/executed 
    on buggy browser.
 3. minor update to global filter rule to catch new viruses
 4. slovak language and templates translation update
-   (thanks to lubos klokner, lubos@klokner.sk)
+   (thanks to lubos klokner, lubos.AT.klokner.sk)
 
 
 11/12/2001
@@ -995,7 +1267,7 @@ ps: The user .*.book file will be converted automatically when user logins.
 1. fix a bug in mailfilter.pl that sometimes decodes same text block part 
    for more than once. This fix slightly speeds up the mail filtering.
 2. lithuanian language and templates translation
-   (thanks to Alvydas Sinkunas, dvm382@takas.lt)
+   (thanks to Alvydas Sinkunas, dvm382.AT.takas.lt)
 
 
 11/11/2001
@@ -1012,7 +1284,7 @@ ps: The user .*.book file will be converted automatically when user logins.
    will symlink ~/mbox -> ~/mail/saved-messages to make messages accessible
    either in pop3 client or openwebmail
 2. fix a javascript bug in setting background in user preference
-   (thanks to ¿c¬ö¾Ë, jslu@cobra.ee.ntu.edu.tw for his patch)
+   (thanks to ¿c¬ö¾Ë, jslu.AT.cobra.ee.ntu.edu.tw for his patch)
 
 
 11/08/2001 (version 1.51)
@@ -1037,9 +1309,9 @@ ps: The user .*.book file will be converted automatically when user logins.
 1. doc/RedHat-README.txt is updated for Openwebmail 1.50
 2. Catalan language and templates translation,
    cool3d iconset for Catalan
-   (thanks Jordi Vidal, st@e-puntcom.com)
+   (thanks Jordi Vidal, st.AT.e-puntcom.com)
 3. portuguese language and templates translation
-   (thanks to Jose Ferradeira, jferra@sfconsultores.pt)
+   (thanks to Jose Ferradeira, jferra.AT.sfconsultores.pt)
 
 
 10/29/2001
@@ -1051,9 +1323,9 @@ ps: The user .*.book file will be converted automatically when user logins.
 10/27/2001
 ----------
 1. minor fix for spanish templates
-   (thanks to Osvaldo Ancarola, oancarola@hotmail.com)
+   (thanks to Osvaldo Ancarola, oancarola.AT.hotmail.com)
 2. correct a bug that locates background images in wrong path
-   (thanks to Osvaldo Ancarola, oancarola@hotmail.com)
+   (thanks to Osvaldo Ancarola, oancarola.AT.hotmail.com)
 
 
 10/22/2001
@@ -1073,9 +1345,9 @@ ps: The user .*.book file will be converted automatically when user logins.
 ----------
 1. assume *.bmp display is support by the browser
 2. dutch language and templates translation update
-   (thanks to Christian Boer, chris@connectux.com)
+   (thanks to Christian Boer, chris.AT.connectux.com)
 3. minor correction to readme.txt for linux 7.x
-   (thanks to borching, borching@seed.net.tw)  
+   (thanks to borching, borching.AT.seed.net.tw)  
 
 
 10/07/2001
@@ -1105,7 +1377,7 @@ ps: The user .*.book file will be converted automatically when user logins.
 09/27/2001
 ----------
 1. fix a bug that dictionary other than english won't be used in openwebmail-spell.pl
-   (thanks to helio@compuland.com.br for his patch)
+   (thanks to helio.AT.compuland.com.br for his patch)
 2. minor fix to increase compatibility with https
 3. rename imageset to iconset in codes, openwebmail.conf and templates
    put all iconsets to images/iconsets/
@@ -1118,18 +1390,18 @@ ps: The user .*.book file will be converted automatically when user logins.
 1. minor fix to the address import routine so it can import fields other
    than username and email.
 2. autofocus to passwd and autosubmit in loginmenu
-   (thanks to Burghardt Fischer, mrql@users.sourceforge.net for his patch) 
+   (thanks to Burghardt Fischer, mrql.AT.users.sourceforge.net for his patch) 
 3. fix "Insecure dependency in chown while running setuid at 
    openwebmail-share.pl line..." bug
-   (reported by borching, borching@seed.net.tw)
+   (reported by borching, borching.AT.seed.net.tw)
 4. fix a bug that causes the reply error for read receipt request.
-   (reported by ws81050, ws81050@fire.tkvs.ylc.edu.tw)
+   (reported by ws81050, ws81050.AT.fire.tkvs.ylc.edu.tw)
 
 
 09/22/2001
 ----------
 1. chinese GB language and templates translation update
-   (thanks to Wang Jun, wjun@mail.iap.ac.cn)
+   (thanks to Wang Jun, wjun.AT.mail.iap.ac.cn)
 
 
 09/21/2001
@@ -1143,7 +1415,7 @@ ps: The user .*.book file will be converted automatically when user logins.
 ----------
 1. fix the 'Couldn't open openwebmail.log!' error in checkmail.pl
 2. Portuguese Brazil language and templates translation
-   (thanks to Edison Figueira Junior, edison@brc.com.br)
+   (thanks to Edison Figueira Junior, edison.AT.brc.com.br)
 3. change the abbreviation of languages to i18n format
 
 
@@ -1166,7 +1438,7 @@ ps: The user .*.book file will be converted automatically when user logins.
 09/13/2001
 ----------
 1. support multiple dictionaries in spellcheck
-   (thanks to Raul Monferrer, raul@est.ct.upc.es)
+   (thanks to Raul Monferrer, raul.AT.est.ct.upc.es)
 
 
 09/11/2001
@@ -1186,7 +1458,7 @@ ps: The user .*.book file will be converted automatically when user logins.
    in openwebmail.conf.
 3. all static links in templates are removed.
 4. spanish language and templates translation update
-   (thanks to Félix Martos, pakito@asinkecualo.org)
+   (thanks to Félix Martos, pakito.AT.asinkecualo.org)
 
 Note: Since openwebmail.conf is totally changed, a reinstallation is 
       required for those who upgrade from old version...
@@ -1202,7 +1474,7 @@ Note: Since openwebmail.conf is totally changed, a reinstallation is
 ----------
 1. replace CGI::escape and CGI::unecape with escapeURL and unescapeURL to 
    be compatible with CGI.pm-3.0 or above
-   (reported by Hal Baumgardner, yes_hal9000@hotmail.com)   
+   (reported by Hal Baumgardner, yes_hal9000.AT.hotmail.com)   
 
 
 09/02/2001
@@ -1210,7 +1482,7 @@ Note: Since openwebmail.conf is totally changed, a reinstallation is
 1. fix a bug that trashreserveddays can not be set to 'forever' 
    in user preference
 2. grammar correction to web pages
-   (Thanks to Simon Grabinar, Simon@Grabinar.com)
+   (Thanks to Simon Grabinar, Simon.AT.Grabinar.com)
 
 
 09/01/2001
@@ -1223,11 +1495,11 @@ Note: Since openwebmail.conf is totally changed, a reinstallation is
 ----------
 1. fix a typo that makes the content-type header not being sent to browser
    when user clicks the link of an attachment
-   (thanks to Dugal James P., jpd@louisiana.edu)
+   (thanks to Dugal James P., jpd.AT.louisiana.edu)
 2. fix a bug that sends wrong content-type headers for uuencoded 
    excel/powerpoint attachments
-   (thanks to Dugal James P., jpd@louisiana.edu)
-3. Welcome for Emir Litric, elitric@yahoo.com, 
+   (thanks to Dugal James P., jpd.AT.louisiana.edu)
+3. Welcome for Emir Litric, elitric.AT.yahoo.com, 
    He is one of the authors of OpenWebMail now :)
 
 
@@ -1250,17 +1522,17 @@ Note: Since openwebmail.conf is totally changed, a reinstallation is
 1. add $enable_autoreply to openwebmail.conf to control whether allow 
    user to enable autoreply for their incoming messages
 2. fix a broken link in pt/footer.template 
-   (thanks to Carlos Pina Soares, cps@fcsh.unl.pt)
+   (thanks to Carlos Pina Soares, cps.AT.fcsh.unl.pt)
 
 
 08/24/2001
 ----------
 1. add a submit button for search function since the '[enter] to submit'
    behavior seems not available on some browser
-   (reported by Ted TSUI, ted@gennet.com.tw)
+   (reported by Ted TSUI, ted.AT.gennet.com.tw)
 2. fix a bug that autoreply won't work when multidomain or 
    virtual user is used in openwebmail
-   (Thanks to Emir Litric, elitric@yahoo.com)
+   (Thanks to Emir Litric, elitric.AT.yahoo.com)
 3. the realname field in user preference now has better compatibility 
    with double-byte character set, ex:big5, gb
 4. vacation.pl supports -d option for debugging
@@ -1270,7 +1542,7 @@ Note: Since openwebmail.conf is totally changed, a reinstallation is
 08/23/2001
 ----------
 1. hungarian language and templates translation update
-   (thanks to Nagy Endre, gumo@lucifer.kgt.bme.hu)
+   (thanks to Nagy Endre, gumo.AT.lucifer.kgt.bme.hu)
 2. fix a bug that searchtype will be restored to 'subject' after 
    message composing
 
@@ -1281,7 +1553,7 @@ Note: Since openwebmail.conf is totally changed, a reinstallation is
    when displaying html attachment
 2. fix a bug that can not parse out messages with some 'From xxx' 
    line properly
-   (reported by Ted TSUI, ted@gennet.com.tw)
+   (reported by Ted TSUI, ted.AT.gennet.com.tw)
 3. change option $use_pam to $auth_type in openwebmail.conf
    with the hope to support multiple auth_type in the future :)
 
@@ -1290,25 +1562,25 @@ Note: Since openwebmail.conf is totally changed, a reinstallation is
 ----------
 1. fix the BIG5/GB conversion failure on linux
 2. polish language and templates translation update
-   (thanks to Pawel Jablonski, jablonski@dialogok.pl)
+   (thanks to Pawel Jablonski, jablonski.AT.dialogok.pl)
 
 
 08/17/2001
 ----------
 1. chinese GB language and templates translation
-   (thanks to Wang Jun, wjun@mail.iap.ac.cn)
+   (thanks to Wang Jun, wjun.AT.mail.iap.ac.cn)
 
 
 08/16/2001 (version 1.40)
 ----------
 1. a new mirror site is setup at http://www.geocities.com/openwebmail/
-   (Thanks to Emir Litric, elitric@yahoo.com)
+   (Thanks to Emir Litric, elitric.AT.yahoo.com)
 2. fix the bug that imageset is set to 'default' at login no matter what 
    user presference setting is.
-   (reported by Emir Litric, elitric@yahoo.com)
+   (reported by Emir Litric, elitric.AT.yahoo.com)
 3. guess real homedir under /export to avoid automount on localhost
    correct the weekday abbreviation of tuesday and wensday
-   (thanks to Dugal James P., jpd@louisiana.edu)
+   (thanks to Dugal James P., jpd.AT.louisiana.edu)
 4. clear path in vacation.pl to make it suitable for smrsh
 
 
@@ -1332,15 +1604,15 @@ Note: Since openwebmail.conf is totally changed, a reinstallation is
 08/03/2001
 ----------
 1. fix a bug when downloading a message with strange subject
-   (reported by Dugal James P., jpd@louisiana.edu)
+   (reported by Dugal James P., jpd.AT.louisiana.edu)
 2. add option 'disallowed_pop3servers' to openwebmail.conf
-   (thanks to Dugal James P., jpd@louisiana.edu for his patch)
+   (thanks to Dugal James P., jpd.AT.louisiana.edu for his patch)
 
 
 08/02/2001
 ----------
 1. portuguese language and templates translation
-   (thanks to Jose Ferradeira, jferra@sfconsultores.pt)
+   (thanks to Jose Ferradeira, jferra.AT.sfconsultores.pt)
 
 
 07/30/2001
@@ -1353,7 +1625,7 @@ Note: Since openwebmail.conf is totally changed, a reinstallation is
 
 07/28/2001
 ----------
-1. PAM support (from Nikolay Pelov, nikip@iname.com,
+1. PAM support (from Nikolay Pelov, nikip.AT.iname.com,
                 http://www.cs.kuleuven.ac.be/~pelov/pam/FAQ.html)
    DST(day saving time) automated adjustment 
    internal message detection of subject created by Solaris dtmail 
@@ -1361,42 +1633,42 @@ Note: Since openwebmail.conf is totally changed, a reinstallation is
    prefix /export to user $homedir for sun automounter
    change default trash folder cleanup interval to 7 days
    use ~/.signature instead of ~/mail/.signature if it exists
-   (thanks to Dugal James P., jpd@louisiana.edu for his great patch for all the above)
+   (thanks to Dugal James P., jpd.AT.louisiana.edu for his great patch for all the above)
 2. move authentication related functions into auth.pl
 3. add option 'background image url' to user preference
-   (thanks to Bhaskar Manda, bhaskar_manda@yahoo.com)
+   (thanks to Bhaskar Manda, bhaskar_manda.AT.yahoo.com)
 
 
 07/27/2001
 ----------
 1. add many fancy styles.
-   (thanks to Emir Litric, elitric@yahoo.com)
+   (thanks to Emir Litric, elitric.AT.yahoo.com)
 
 
 07/26/2001
 ----------
 1. spanish language and templates translation 
-   (thanks to Félix Martos, pakito@asinkecualo.org)
+   (thanks to Félix Martos, pakito.AT.asinkecualo.org)
 
 
 07/23/2001
 ----------
 1. fix the bug that the fromname could be set but not used when 
    $set_fromname='yes'
-   (reported by Edward Ping-Da Chuang, edwardc@tigers.idv.tw)
-   (thanks to Steve Hardy, s.a.hardy@connectux.com for his fix)
+   (reported by Edward Ping-Da Chuang, edwardc.AT.tigers.idv.tw)
+   (thanks to Steve Hardy, s.a.hardy.AT.connectux.com for his fix)
 
 
 07/22/2001
 ----------
 1. swedish language and templates translation 
-   (thanks to Goran Jartin, tryfan@telia.com)
+   (thanks to Goran Jartin, tryfan.AT.telia.com)
 
 
 07/21/2001
 ----------
 1. fix the strange layout problem in Mac with IE browser.
-   (reported by Goran Jartin, tryfan@telia.com)
+   (reported by Goran Jartin, tryfan.AT.telia.com)
 
 
 07/20/2001
@@ -1404,7 +1676,7 @@ Note: Since openwebmail.conf is totally changed, a reinstallation is
 1. minor fix to maildb.pl to handle multipart attblock with no boundary 
    specified in attblock header 
    This eliminate the "Not an ARRAY reference at maildb.pl line xxxx" error
-   (reported by Administrador de Sistemas Unix, master@xanum.uam.mx)
+   (reported by Administrador de Sistemas Unix, master.AT.xanum.uam.mx)
 
 
 07/19/2001
@@ -1423,7 +1695,7 @@ Note: Since openwebmail.conf is totally changed, a reinstallation is
 ----------
 1. minor fix to mailfilter.pl to trust mails delivered from private ip.
 2. fix the javascript CheckAll() malfunction problem on mozilla browser
-   (thanks to Sylvain COTINEAU, xorne@topfinance.com for his fix)
+   (thanks to Sylvain COTINEAU, xorne.AT.topfinance.com for his fix)
 
 
 07/14/2001
@@ -1434,11 +1706,11 @@ Note: Since openwebmail.conf is totally changed, a reinstallation is
 07/13/2001
 ----------
 1. fix a bug that newly created folder won't be displayed immediately
-   (reported by Carlos Pina Soares, cps@fcsh.unl.pt)
+   (reported by Carlos Pina Soares, cps.AT.fcsh.unl.pt)
 2. fix the 'undefined subroutine ..." error when checkmail.pl option -i is used
 3. minor fix to handle .csv addressbook with semicolon separated values
 4. dutch language and templates translation
-   (thanks to Christian Boer, chris@connectux.com)
+   (thanks to Christian Boer, chris.AT.connectux.com)
 
 
 07/12/2001 (version 1.32)
@@ -1449,7 +1721,7 @@ Note: Since openwebmail.conf is totally changed, a reinstallation is
 07/09/2001
 ----------
 1. fix a little bug related to email address in pop3 book 
-   (reported by Emir Litric, elitric@yahoo.com)
+   (reported by Emir Litric, elitric.AT.yahoo.com)
 2. display the total folders space usage when mouse is over 'folders' icon 
    if folderquota is set.
 
@@ -1457,27 +1729,27 @@ Note: Since openwebmail.conf is totally changed, a reinstallation is
 07/08/2001
 ----------
 1. fix the 'ndbm store returned -1.." empty key error
-   (reported by Justin Frydman, jfrydman@swiftbiz.ca and 
-    John McKay, john@eddystone.net)   
+   (reported by Justin Frydman, jfrydman.AT.swiftbiz.ca and 
+    John McKay, john.AT.eddystone.net)   
 
 
 07/05/2001
 ----------
 1. add a sign-up package 'useraddbyweb.tar.gz' to contrib/
-   (contributed by to Nimrod Zimerman, zimerman@mailandnews.com and 
-    Nimrod S. Carmi, simba@schoolsucks.com)   
+   (contributed by to Nimrod Zimerman, zimerman.AT.mailandnews.com and 
+    Nimrod S. Carmi, simba.AT.schoolsucks.com)   
 2. fix a bug that displays session timeout warning immediately 
    after successful login when using netscape 4.04
-   (reported by Fr. Visminlu Vicente L. Chua, S.J., chuavv@mail.savs.hcc.edu.tw)   
+   (reported by Fr. Visminlu Vicente L. Chua, S.J., chuavv.AT.mail.savs.hcc.edu.tw)   
 
 
 07/04/2001
 ----------
 1. fix a bug that creates ~user/.forward, ~user/.vacation.msg and mail spool
    with owner=root if both homedirspools and homedirfolders are set to 'no'
-   (reported by karun@mail2000.com.tw)
+   (reported by karun.AT.mail2000.com.tw)
 2. italian language and templates translation
-   (thanks to Benedet Marvi, i3100579@ingstud.univ.trieste.it)
+   (thanks to Benedet Marvi, i3100579.AT.ingstud.univ.trieste.it)
 3. add check for newmessages and allmessages count for non-negative value
 
 
@@ -1494,7 +1766,7 @@ Note: Since openwebmail.conf is totally changed, a reinstallation is
 07/02/2001
 ----------
 1. add RedHat-README.txt to doc/
-   (contributed by Emir Litric, elitric@yahoo.com)
+   (contributed by Emir Litric, elitric.AT.yahoo.com)
 
 
 06/29/2001
@@ -1505,7 +1777,7 @@ Note: Since openwebmail.conf is totally changed, a reinstallation is
 06/28/2001
 ----------
 1. dutch language translation
-   (thanks to Michiel van Slobbe, m.m.vanslobbe@connectux.com)
+   (thanks to Michiel van Slobbe, m.m.vanslobbe.AT.connectux.com)
 
 
 06/27/2001
@@ -1520,7 +1792,7 @@ Note: Since openwebmail.conf is totally changed, a reinstallation is
 2. fix a bug that searchtype will be restored to 'subject' after 
    any message is moved or copied from current folder
 3. italian language translation
-   (thanks to Benedet Marvi, i3100579@ingstud.univ.trieste.it)
+   (thanks to Benedet Marvi, i3100579.AT.ingstud.univ.trieste.it)
 
 
 06/23/2001 (version 1.31)
@@ -1542,27 +1814,27 @@ Note: Since openwebmail.conf is totally changed, a reinstallation is
 ----------
 1. fix a bug that creates .forward and .vacation.msg in / 
    instead of user homedir when homespooldir and homefolderdir is not enables
-   (reported by Emir Litric, elitric@yahoo.com)
+   (reported by Emir Litric, elitric.AT.yahoo.com)
 
 
 06/20/2001
 ----------
 1. fix a bug that won't fetch the first one message from pop3 server
    in some case
-   (reported by Jrgen Meurer, meurer@bad-gmbh.de)
+   (reported by Jrgen Meurer, meurer.AT.bad-gmbh.de)
 
 
 06/19/2001 
 ----------
 1. fix pop3 retrieval problem on NT exchange server.
-   (reported by jerry@email.wtuc.edu.tw)
+   (reported by jerry.AT.email.wtuc.edu.tw)
 2. fix a bug that resets the autoreply message to default when
    setting user preference
-   (reported by Emir Litric, elitric@yahoo.com)
+   (reported by Emir Litric, elitric.AT.yahoo.com)
 3. chinese GB language and templates translation
-   (thanks to Wang Jun, wjun@mail.iap.ac.cn)
+   (thanks to Wang Jun, wjun.AT.mail.iap.ac.cn)
 4. login alias/mapping support
-   (thanks to Russ Reese, russ@zerotech.net for his patch code)
+   (thanks to Russ Reese, russ.AT.zerotech.net for his patch code)
 
 
 06/18/2001 (version 1.30)
@@ -1571,7 +1843,7 @@ Note: Since openwebmail.conf is totally changed, a reinstallation is
    Mails from same user within 60 seconds will be replied only once.
 2. add support for sendmail genericstable 
 3. fix a bug that some subject will ends with a> in folderview
-   (reported by zmx.bbs@BirdNest.infoX.Net)
+   (reported by zmx.bbs.AT.BirdNest.infoX.Net)
 4. fix a bug that the attfilename won't be displayed correctly for mails 
    sent from program pine.
 
@@ -1581,31 +1853,31 @@ Note: Since openwebmail.conf is totally changed, a reinstallation is
 1. fix minor error in sendmessage which sets $from value in dbm to $to
    when storing message backup to SENT folder
 2. german language and templates translation
-   (thanks to Andreas Roedl, flood@flood-net.de)
+   (thanks to Andreas Roedl, flood.AT.flood-net.de)
 3. minor fix to displayheader to solve the delay problem on some 
    platform, eg: linux RedHat6.2/CLE0.9
-   (reported by hsienhsi@mail.yces.chc.edu.tw)
+   (reported by hsienhsi.AT.mail.yces.chc.edu.tw)
 
 
 06/13/2001 (version 1.22)
 ----------
 1. use new 3D icons instead of the original flat icons.
-   (thanks to Emir Litric, elitric@yahoo.com, for his grea work of art!!!)
+   (thanks to Emir Litric, elitric.AT.yahoo.com, for his grea work of art!!!)
 2. spanish language and templates translation
-   (thanks to Félix Martos, pakito@asinkecualo.org)
+   (thanks to Félix Martos, pakito.AT.asinkecualo.org)
 3. german language translation
-   (thanks to Andreas Roedl, flood@flood-net.de)
+   (thanks to Andreas Roedl, flood.AT.flood-net.de)
 4. fix .pop3.book open error when pop3book size=0
-   (reported by kwang@mail.cgjh.tcc.edu.tw)
+   (reported by kwang.AT.mail.cgjh.tcc.edu.tw)
 5. fix a bug in javascript routine 'spellcheck' in compose template
-   (thanks to Antony Street, antony@vigen.com.au)
+   (thanks to Antony Street, antony.AT.vigen.com.au)
 6. fix a color bug when displaying message/rfc822 header
 
 
 06/12/2001
 ----------
 1. fix .pop3.book open error when editing pop3book at first time
-   (thanks to Emir Litric, elitric@yahoo.com)
+   (thanks to Emir Litric, elitric.AT.yahoo.com)
 2. change session control from 'per host' to 'per user'.
    This means a user can login openwebmail with different ids at the 
    same time from same client.
@@ -1642,7 +1914,7 @@ Note: Since openwebmail.conf is totally changed, a reinstallation is
 ----------
 1. fix a bug that when clicking a email in global addressbook to enter the
    message editing menu, the 'To' field will be empty.
-   (thanks to karun@mail2000.com.tw)
+   (thanks to karun.AT.mail2000.com.tw)
 
 
 06/02/2001

@@ -30,7 +30,7 @@
 #       1> create an user for the openwebmail runtime, ex: owmail
 #          login as owmail
 #       2> mkdir public_html; cd public_html
-#       3> tar -zxvbpf openwebmail-x.yy.tgz
+#       3> tar -zxvBpf openwebmail-x.yy.tgz
 #       4> cd cgi-bin/openwebmail
 #       5> chmod u-s *pl to remove setuid bit from scripts
 #       6> make the *.pl to be executed by user 'owmail'

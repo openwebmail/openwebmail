@@ -192,7 +192,8 @@ sub checknewmail {
 
    my @folderlist=();
    my $filtered=mailfilter($user, 'INBOX', $folderdir, \@folderlist, 
-	$prefs{'filter_repeatlimit'}, $prefs{'filter_fakedsmtp'}, $prefs{'filter_fakedexecontenttype'});
+	$prefs{'filter_repeatlimit'}, $prefs{'filter_fakedsmtp'}, 
+        $prefs{'filter_fakedfrom'}, $prefs{'filter_fakedexecontenttype'});
    if ($filtered>0) {
       writelog("filtermsg - filter $filtered msgs from INBOX");
       writehistory("filtermsg - filter $filtered msgs from INBOX");
@@ -209,11 +210,11 @@ sub checknewmail {
       filelock("$headerdb$config{'dbm_ext'}", LOCK_UN);
 
       if ($newmessages > 0 ) {
-         print ("$loginname has new mail\n");
+         print ("$loginname has new mail\n") if (!$opt_quiet);
       } elsif ($allmessages-$internalmessages > 0 ) {
-         print ("$loginname has mail\n");
+         print ("$loginname has mail\n") if (!$opt_quiet);
       } else {
-         print ("$loginname has no mail\n");
+         print ("$loginname has no mail\n") if (!$opt_quiet);
       }
    }
 }
@@ -292,7 +293,9 @@ sub verifyfolders {
    getfolders(\@validfolders, \$folderusage);
    foreach (@validfolders) {
       my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $_);
-      update_headerdb($headerdb, $folderfile);
+      if (update_headerdb($headerdb, $folderfile)==1) {
+         print "$headerdb$config{'dbm_ext'} updated\n" if (!$opt_quiet);
+      }
    }
    return;
 }

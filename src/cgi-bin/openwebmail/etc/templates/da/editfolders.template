@@ -7,13 +7,13 @@
 @@@MENUBARLINKS@@@
 </td></tr><tr><td colspan="5">&nbsp;</td></tr>
 <tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Navn på ny mappe (max @@@FOLDERNAME_MAXLEN@@@ tegn)</B></td>
+<B>Navn p&aring; ny mappe (max @@@FOLDERNAME_MAXLEN@@@ tegn)</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Ulæst</B></td>
+<B>Ul&aelig;st</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Ialt</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Størrelse</B></td>
+<B>St&oslash;rrelse</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Handling</B>
 </td></tr>
@@ -37,11 +37,11 @@
 <tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Standard foldere</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Ulæst</B></td>
+<B>Ul&aelig;st</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Ialt</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Størrelse</B></td>
+<B>St&oslash;rrelse</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 &nbsp;
 </td></tr>

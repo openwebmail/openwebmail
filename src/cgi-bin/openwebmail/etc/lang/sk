@@ -1,11 +1,9 @@
 #!/usr/bin/perl -T
-
-$lang_charset = 'iso-8859-2';
-
 # Slovak translation by Maros Michalik, michalm@pobox.sk, 2000-MAY-23
 # updates by lubos klokner, <lubos@klokner.sk>, 2001-NOV-11
 # Revised by Peter Sedivy, <pese@rocketmail.com> , 2002-MAR-08
-# slovak alphabet encoded by ISO-8859-2
+
+$lang_charset = 'iso-8859-2';
 
 %lang_folders =
    (
@@ -53,20 +51,22 @@ $lang_charset = 'iso-8859-2';
 
 %lang_timelabels =
    (
-     10 => '10 minutes',
-     30 => '30 minutes',
-     60 => '60 minutes',
-    120 => '2 hours',
-    180 => '3 hours',
-    360 => '6 hours',
-    720 => '12 hours',
-   1440 => '24 hours'
+     10 => '10 minút',
+     30 => '30 minút',
+     60 => '60 minút',
+    120 => '2 hodiny',
+    180 => '3 hodiny',
+    360 => '6 hodín',
+    720 => '12 hodín',
+   1440 => '24 hodín'
    );
 
 %lang_text =
    (  
    login      => 'Prihlási»',
    clear      => 'Zmaza»',
+   point      => 'Point',
+   pixel      => 'Pixel',
    changepwd  => 'Zmeni» heslo',
    viewhistory=> 'Prezrie» históriu',
    of         => 'z',
@@ -79,13 +79,14 @@ $lang_charset = 'iso-8859-2';
    addressbook=> 'Adresár',
    folders    => 'Katalógy',
    emptytrash => 'Vysypa» kô¹',
+   totrash    => 'Presunú» do ko¹a',
    forever    => 'Nav¾dy',
    userdef    => 'Vlastné',
    logout     => 'Odhlási»',
    page       => 'Stránka',
-   msgcopyconf=> '\'Chcete naozaj kopírova» vybranú správu(y)?\'',
+   msgcopyconf=> '\'Chcete naozaj kopírova» vybranú(é) správu(y)?\'',
    copy       => 'Kopírova»',
-   msgmoveconf=> '\'Chcete naozaj presunú» vybranú správu(y)?\'',
+   msgmoveconf=> '\'Chcete naozaj presunú» vybranú(é) správu(y)?\'',
    move       => 'Presunú»',
    markasread => 'Oznaèi» ako preèítané',
    markasunread => 'Oznaèi» ako nepreèítané',
@@ -122,8 +123,8 @@ $lang_charset = 'iso-8859-2';
    editdraft  => 'Upravi» koncept',
    savedraft  => 'Ulo¾i» koncept',
    send       => 'Odosla»',
-   about      => 'About',
-   close      => 'Close',
+   about      => 'O aplikácii',
+   close      => 'Zatvori»',
    cancel     => 'Zru¹i»',
    continue   => 'Pokraèova»',
    loginagain => 'Znovu prihlási»',
@@ -156,6 +157,7 @@ $lang_charset = 'iso-8859-2';
    group      => 'Skupina',
    quota_hit  => 'Dosiahnutý limit (quota)',
    usage      => 'Vyu¾itie',
+   tzmap      => 'World timezone map',
    editfroms  => 'Upravi» osobné e-mail adresy',
    pop3book   => 'POP3 nastavenie',
    retr_pop3s => 'Prija» POP3 po¹tu',
@@ -188,45 +190,46 @@ $lang_charset = 'iso-8859-2';
    manuallyfix=> 'Ruène upravi»'
    );
 
-%lang_err = (
-            has_illegal_chars => 'má nepovolené znaky!',
-            couldnt_open      => 'Nedá sa otvori»',
-            couldnt_locksh    => 'Nedá sa uzamknú» na èítanie',
-            couldnt_lock      => 'Nedá sa uzamknú»',
-            couldnt_seek      => 'Nedá sa presunú» na zaèiatok',
-            couldnt_close     => 'Nedá sa zavrie»',
-            disallowed_pop3   => 'Zakázaný POP3 server',
-            disallowed_client => 'Nemáte povolenie pripája» sa z tohto poèítaèa',
-            disallowed_receiverdomain => 'Nemáte povolenie odosiela» po¹tu na túto adresu',
-            norootlogin       => 'Prepáète, prístup administrátora je z bezpeènostných dôvodov blokovaný.',
-            shouldnt_move_here=> 'Sem by ste sa nemali pokú¹a» presunú» správu!',
-            destination_folder=> 'Cieµový katalóg',
-            doesnt_exist      => 'neexistuje!',
-            foldername_long   => 'Meno katalógu nemô¾e presiahnu» 16 znakov!',
-            folder_with_name  => 'Katalóg s týmto názvom',
-            already_exists    => 'u¾ existuje!',
-            cant_create_folder=> 'Nedá sa vytvori» katalóg!',
-            under_indexing    => 'sa e¹te indexuje, skúste to prosím neskôr',
-            abook_invalid     => 'Prepáète, ale tento súbor nevyzerá ako adresár exportovaný z Microsoft Outlook Express 5 v CVS formáte. Uistite sa o tom prezretím v textovom editori. Prvý riadok by mal zaèína» "Name,E-mail Address", potom pokraèujte.',
-            back              => 'spä»',
-            tryagain          => 'a skúste znova.',
-            abook_toobig      => 'Prepáète, toto by presiahlo veµkostný limit pre Vá¹ adresár. Prosím pokraèujte.',
-            cant_create_dir   => 'Nadá sa vytvori» Vá¹ pou¾ívateµský adresár!',
-            folder_hitquota   => 'Prepáète, dosiahli ste Vá¹ limit (quotu) a u¾ ¾iadna z Va¹ích správ nemô¾e by» ulo¾ená do ¾iadneho katalógu. Nebudete môc» presunú» správu do iného katalógu okrem KO©A, kde mô¾e by» zmazaná. Vrá»te sa a zma¾te niektoré správy alebo vysypte KÔ© a skúste znovu.',
-            att_overlimit     => 'Prepáète, Va¹a príloha presiahla veµkostný limit, ktorý je',
-            inv_msg_op        => 'Neplatná operácia pre správu',
-            inv_sessid        => 'Va¹a po¾iadavka neobsahuje korektné ID sedenia -- prístup zamietnutý!',
-            no_endpart        => 'Koncová èas» chýba',
-            part_missing      => 'Niektoré èasti chýbajú',
-            rebuild_fmterr    => 'Chybný formát novej správy',
-            rebuild_sizeerr   => 'Chybná veµkos» novej správy',
-            user_not_exist    => 'pou¾ívateµ neexistuje',
-            func_notsupported => 'funkcia nieje podporovaná',
-            auth_syserr       => 'systémová chyba pri overovaní',
-            param_fmterr      => 'chybný formát parametra',
-            pwd_incorrect     => 'nesprávne heslo',
-            network_server_error => 'chyba sie»ového servera',
-            sendmail_error    => 'Prepáète, nastal problém pri posielaní Va¹ej správy. Prosím kliknite vo Va¹om prehliadaèi na tlaèidlo Spä», skontrolujte Va¹u správu a skúste to znovu.'
-            );
+%lang_err = 
+   (
+   has_illegal_chars => 'má nepovolené znaky!',
+   couldnt_open      => 'Nedá sa otvori»',
+   couldnt_locksh    => 'Nedá sa uzamknú» na èítanie',
+   couldnt_lock      => 'Nedá sa uzamknú»',
+   couldnt_seek      => 'Nedá sa presunú» na zaèiatok',
+   couldnt_close     => 'Nedá sa zavrie»',
+   disallowed_pop3   => 'Zakázaný POP3 server',
+   disallowed_client => 'Nemáte povolenie pripája» sa z tohto poèítaèa',
+   disallowed_receiverdomain => 'Nemáte povolenie odosiela» po¹tu na túto adresu',
+   norootlogin       => 'Prepáète, prístup administrátora je z bezpeènostných dôvodov blokovaný.',
+   shouldnt_move_here=> 'Sem by ste sa nemali pokú¹a» presunú» správu!',
+   destination_folder=> 'Cieµový katalóg',
+   doesnt_exist      => 'neexistuje!',
+   foldername_long   => 'Meno katalógu nemô¾e presiahnu» 16 znakov!',
+   folder_with_name  => 'Katalóg s týmto názvom',
+   already_exists    => 'u¾ existuje!',
+   cant_create_folder=> 'Nedá sa vytvori» katalóg!',
+   under_indexing    => 'sa e¹te indexuje, skúste to prosím neskôr',
+   abook_invalid     => 'Prepáète, ale tento súbor nevyzerá ako adresár exportovaný z Microsoft Outlook Express 5 v CVS formáte. Uistite sa o tom prezretím v textovom editori. Prvý riadok by mal zaèína» "Name,E-mail Address", potom pokraèujte.',
+   back     => 'spä»',
+   tryagain          => 'a skúste znova.',
+   abook_toobig      => 'Prepáète, toto by presiahlo veµkostný limit pre Vá¹ adresár. Prosím pokraèujte.',
+   cant_create_dir   => 'Nadá sa vytvori» Vá¹ pou¾ívateµský adresár!',
+   folder_hitquota   => 'Prepáète, dosiahli ste Vá¹ limit (quotu) a u¾ ¾iadna z Va¹ích správ nemô¾e by» ulo¾ená do ¾iadneho katalógu. Nebudete môc» presunú» správu do iného katalógu okrem KO©A, kde mô¾e by» zmazaná. Vrá»te sa a zma¾te niektoré správy alebo vysypte KÔ© a skúste znovu.',
+   att_overlimit     => 'Prepáète, Va¹a príloha presiahla veµkostný limit, ktorý je',
+   inv_msg_op        => 'Neplatná operácia pre správu',
+   inv_sessid        => 'Va¹a po¾iadavka neobsahuje korektné ID sedenia -- prístup zamietnutý!',
+   no_endpart        => 'Koncová èas» chýba',
+   part_missing      => 'Niektoré èasti chýbajú',
+   rebuild_fmterr    => 'Chybný formát novej správy',
+   rebuild_sizeerr   => 'Chybná veµkos» novej správy',
+   user_not_exist    => 'pou¾ívateµ neexistuje',
+   func_notsupported => 'funkcia nieje podporovaná',
+   auth_syserr       => 'systémová chyba pri overovaní',
+   param_fmterr      => 'chybný formát parametra',
+   pwd_incorrect     => 'nesprávne heslo',
+   network_server_error => 'chyba sie»ového servera',
+   sendmail_error    => 'Prepáète, nastal problém pri posielaní Va¹ej správy. Prosím kliknite vo Va¹om prehliadaèi na tlaèidlo Spä», skontrolujte Va¹u správu a skúste to znovu.'
+   );
 
 1;

@@ -2,7 +2,7 @@
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="1">
 <tr><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>PSANI ZPRÁVY</B></font>
+<B>Napsat zprávu</B></font>
 </td></tr><tr><td colspan="2" bgcolor=@@@MENUBAR@@@ align="left">
 @@@BACKTOFOLDER@@@
 </td></tr><tr><td colspan="2">&nbsp;</td></tr>
@@ -11,7 +11,7 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@FROMMENU@@@
 &nbsp;&nbsp;
-<B>Priority:</B>
+<B>Dùle¾itost:</B>
 @@@PRIORITYMENU@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
@@ -25,17 +25,20 @@
 @@@CCFIELD@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
-<B>Slepá kopie:</B>
+<B>Skrytá kopie:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@BCCFIELD@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
-<B>Odpovìdìt-Na:</B>
+<B>Opovìï na:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@REPLYTOFIELD@@@
+&nbsp;
+<B>Potvrdit ètení</B>
+@@@CONFIRMREADINGCHECKBOX@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
-<B>Pøíloha:</B>
+<tr><td valign="top" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+<B>Pøílohy:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@ATTACHMENTFIELD@@@
 </td></tr>
@@ -44,10 +47,10 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@SUBJECTFIELD@@@
 &nbsp;
-<B>Potvrdit ètení</B>
-@@@CONFIRMREADINGCHECKBOX@@@
+<B>Ulo¾it kopii do slo¾ky Odeslané</B>
+@@@BACKUPSENTMSGCHECKBOX@@@
 </td></tr>
-<tr><td colspan="2" bgcolor=@@@WINDOW_LIGHT@@@ class=msgbody>
+<tr><td colspan="2" bgcolor=@@@WINDOW_DARK@@@ class=msgbody>
 @@@BODYAREA@@@
 </td></tr>
 <tr><td colspan="2" align="left" valign="top">
@@ -91,18 +94,18 @@
 
    function GoAddressWindow(toccbcc)
    {
-      var url = "@@@PREFSURL@@@?action=addressbook&sessionid=@@@SESSIONID@@@&form=composeform&field=" + toccbcc;
-      
+      var url = "@@@ABOOKURL@@@?action=addressbook&sessionid=@@@SESSIONID@@@&form=composeform&field=" + toccbcc;
+
       if (toccbcc == "to")
-         url += "&preexisting=" + escape (document.composeform.to.value);
+   url += "&preexisting=" + escape (document.composeform.to.value);
       else if (toccbcc == "cc")
-         url += "&preexisting=" + escape (document.composeform.cc.value);
+   url += "&preexisting=" + escape (document.composeform.cc.value);
       else if (toccbcc == "bcc")
-         url += "&preexisting=" + escape (document.composeform.bcc.value);   
-   
+   url += "&preexisting=" + escape (document.composeform.bcc.value);
+
       var hWnd = window.open(url,"HelpWindow","width=380,height=360,resizable=yes,scrollbars=yes");
       if ((document.window != null) && (!hWnd.opener))
-         hWnd.opener = document.window;
+   hWnd.opener = document.window;
    }
 
    function DeleteAttFile(deleteattfile)
@@ -123,20 +126,16 @@
 
    function sendcheck()
    {
-      if (document.composeform.to.value == "" 
-       && document.composeform.cc.value == "" 
+      if (document.composeform.to.value == ""
+       && document.composeform.cc.value == ""
        && document.composeform.bcc.value == "" ) {
-         alert("Prosím napi¹te pøíjemce.");
-         return false;
+   alert("Prosím napi¹te pøíjemce.");
+   return false;
       }
       if (document.composeform.subject.value == "" ) {
-         return(confirm("Tato zpráva nemá pøedmìt, pøesto ji chcete odeslat?"));
+   return(confirm("Tato zpráva nemá pøedmìt, pøesto ji chcete odeslat?"));
       }
       return true;
    }
 //-->
 </script>
-
-
-
-

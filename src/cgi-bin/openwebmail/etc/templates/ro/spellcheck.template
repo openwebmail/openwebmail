@@ -7,11 +7,10 @@
 
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
-<BR>A set of suggested replacements will be provided for each mis-spelled word.
-The user can choose one from them to replace the original word.
-If no suggested replacement is found or the user chooses "-manually fix-" 
-and then clicks [Check Again], a text field will be available for user to 
-input manually.
+<BR>Va fi propus un set de sugestii a cuvantului solocitat. 
+Utilizatorul poate replace cuvantul incorect.
+Daca variante n-au fost gasite, user poate utiliza "-manually fix-" 
+si clicks [Check Again], atunci se poate fixa manual.
 </td></tr>
 </table>
 <br>

@@ -9,17 +9,18 @@ use Fcntl qw(:DEFAULT :flock);
 
 # extern vars
 use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE $_STATUS $_SIZE $_REFERENCES);
-use vars qw(%config);
+use vars qw(%config %prefs);
 
 # return: 0=nothing, <0=error, n=filted count
 # there are 4 op for a msg: 'copy', 'move', 'delete' and 'keep'
 sub mailfilter {
    my ($user, $folder, $folderdir, $r_validfolders, 
-	$filter_repeatlimit, $filter_fakedsmtp, $filter_fakedexecontenttype)=@_;
+	$filter_repeatlimit, $filter_fakedsmtp, 
+	$filter_fakedfrom, $filter_fakedexecontenttype)=@_;
    my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
    my @filterrules;
    my $folderhandle=FileHandle->new();
-   my (%HDB, %FTDB);
+   my (%HDB, %FTDB, %IS_GLOBAL);
    my (@allmessageids, $i);
    my $newfilterrule=0;
 
@@ -57,6 +58,7 @@ sub mailfilter {
          while (<FILTER>) {
             chomp($_);
             push (@filterrules, $_);
+            $IS_GLOBAL{$_}=1;
          }
          close (FILTER);
       }
@@ -136,12 +138,12 @@ sub mailfilter {
             }
             
             if ( $rules eq 'from' ) {
-               if (   ($include eq 'include' && $attr[$_FROM] =~ /$text/i)
+               if (   ($include eq 'include' && ($prefs{'regexmatch'}||$IS_GLOBAL{$line}) && $attr[$_FROM] =~ /$text/i)
                    || ($include eq 'include' && $attr[$_FROM] =~ /\Q$text\E/i)  
-                   || ($include eq 'exclude' && $attr[$_FROM] !~ /$text/i)  
+                   || ($include eq 'exclude' && ($prefs{'regexmatch'}||$IS_GLOBAL{$line}) && $attr[$_FROM] !~ /$text/i)  
                    || ($include eq 'exclude' && $attr[$_FROM] !~ /\Q$text\E/i)  ) {
                   my ($matchcount, $matchdate)=split(":", $FTDB{"$rules\@\@\@$include\@\@\@$text\@\@\@$destination"});
-                  $matchcount++; $matchdate=getdateserial();
+                  $matchcount++; $matchdate=localtime2dateserial();
                   $FTDB{"$rules\@\@\@$include\@\@\@$text\@\@\@$destination"}="$matchcount:$matchdate";
                   
                   $matched=1;
@@ -166,12 +168,12 @@ sub mailfilter {
                }
 
             } elsif ( $rules eq 'to' ) {
-               if (   ($include eq 'include' && $attr[$_TO] =~ /$text/i)
+               if (   ($include eq 'include' && ($prefs{'regexmatch'}||$IS_GLOBAL{$line}) && $attr[$_TO] =~ /$text/i)
                    || ($include eq 'include' && $attr[$_TO] =~ /\Q$text\E/i)
-                   || ($include eq 'exclude' && $attr[$_TO] !~ /$text/i)
+                   || ($include eq 'exclude' && ($prefs{'regexmatch'}||$IS_GLOBAL{$line}) && $attr[$_TO] !~ /$text/i)
                    || ($include eq 'exclude' && $attr[$_TO] !~ /\Q$text\E/i)  ) {
                   my ($matchcount, $matchdate)=split(":", $FTDB{"$rules\@\@\@$include\@\@\@$text\@\@\@$destination"});
-                  $matchcount++; $matchdate=getdateserial();
+                  $matchcount++; $matchdate=localtime2dateserial();
                   $FTDB{"$rules\@\@\@$include\@\@\@$text\@\@\@$destination"}="$matchcount:$matchdate";
 
                   $matched=1;
@@ -196,12 +198,12 @@ sub mailfilter {
                }
 
             } elsif ( $rules eq 'subject' ) {
-               if (   ($include eq 'include' && $attr[$_SUBJECT] =~ /$text/i)
+               if (   ($include eq 'include' && ($prefs{'regexmatch'}||$IS_GLOBAL{$line}) && $attr[$_SUBJECT] =~ /$text/i)
                    || ($include eq 'include' && $attr[$_SUBJECT] =~ /\Q$text\E/i)
-                   || ($include eq 'exclude' && $attr[$_SUBJECT] !~ /$text/i)
+                   || ($include eq 'exclude' && ($prefs{'regexmatch'}||$IS_GLOBAL{$line}) && $attr[$_SUBJECT] !~ /$text/i)
                    || ($include eq 'exclude' && $attr[$_SUBJECT] !~ /\Q$text\E/i)  ) {
                   my ($matchcount, $matchdate)=split(":", $FTDB{"$rules\@\@\@$include\@\@\@$text\@\@\@$destination"});
-                  $matchcount++; $matchdate=getdateserial();
+                  $matchcount++; $matchdate=localtime2dateserial();
                   $FTDB{"$rules\@\@\@$include\@\@\@$text\@\@\@$destination"}="$matchcount:$matchdate";
 
                   $matched=1;
@@ -238,12 +240,14 @@ sub mailfilter {
                   $header=decode_mimewords($header);
                   $is_header_decoded=1;
                }
-               if (  ( $include eq 'include' && $header =~ /$text/im )
+
+               $header=~s/\n / /g;	# handle folding roughly
+               if (  ( $include eq 'include' && ($prefs{'regexmatch'}||$IS_GLOBAL{$line}) && $header =~ /$text/im )
                    ||( $include eq 'include' && $header =~ /\Q$text\E/im )
-                   ||( $include eq 'exclude' && $header !~ /$text/im )
+                   ||( $include eq 'exclude' && ($prefs{'regexmatch'}||$IS_GLOBAL{$line}) && $header !~ /$text/im )
                    ||( $include eq 'exclude' && $header !~ /\Q$text\E/im ) ) {
                   my ($matchcount, $matchdate)=split(":", $FTDB{"$rules\@\@\@$include\@\@\@$text\@\@\@$destination"});
-                  $matchcount++; $matchdate=getdateserial();
+                  $matchcount++; $matchdate=localtime2dateserial();
                   $FTDB{"$rules\@\@\@$include\@\@\@$text\@\@\@$destination"}="$matchcount:$matchdate";
 
                   $matched=1;
@@ -279,12 +283,12 @@ sub mailfilter {
                foreach my $relay (@{$r_smtprelays}) {
                   $smtprelays.="$relay, ${$r_connectfrom}{$relay}, ${$r_byas}{$relay}, ";
                }
-               if (  ( $include eq 'include' && $smtprelays =~ /$text/im )
+               if (  ( $include eq 'include' && ($prefs{'regexmatch'}||$IS_GLOBAL{$line}) && $smtprelays =~ /$text/im )
                    ||( $include eq 'include' && $smtprelays =~ /\Q$text\E/im )
-                   ||( $include eq 'exclude' && $smtprelays !~ /$text/im )
+                   ||( $include eq 'exclude' && ($prefs{'regexmatch'}||$IS_GLOBAL{$line}) && $smtprelays !~ /$text/im )
                    ||( $include eq 'exclude' && $smtprelays !~ /\Q$text\E/im ) ) {
                   my ($matchcount, $matchdate)=split(":", $FTDB{"$rules\@\@\@$include\@\@\@$text\@\@\@$destination"});
-                  $matchcount++; $matchdate=getdateserial();
+                  $matchcount++; $matchdate=localtime2dateserial();
                   $FTDB{"$rules\@\@\@$include\@\@\@$text\@\@\@$destination"}="$matchcount:$matchdate";
 
                   $matched=1;
@@ -328,12 +332,12 @@ sub mailfilter {
                   $is_body_decoded=1;
                }
 
-               if (  ( $include eq 'include' && $body =~ /$text/im )
+               if (  ( $include eq 'include' && ($prefs{'regexmatch'}||$IS_GLOBAL{$line}) && $body =~ /$text/im )
                    ||( $include eq 'exclude' && $body !~ /\Q$text\E/im )
-                   ||( $include eq 'include' && $body =~ /$text/im )
+                   ||( $include eq 'include' && ($prefs{'regexmatch'}||$IS_GLOBAL{$line}) && $body =~ /$text/im )
                    ||( $include eq 'exclude' && $body !~ /\Q$text\E/im ) ) {
                   my ($matchcount, $matchdate)=split(":", $FTDB{"$rules\@\@\@$include\@\@\@$text\@\@\@$destination"});
-                  $matchcount++; $matchdate=getdateserial();
+                  $matchcount++; $matchdate=localtime2dateserial();
                   $FTDB{"$rules\@\@\@$include\@\@\@$text\@\@\@$destination"}="$matchcount:$matchdate";
 
                   $matched=1;
@@ -373,12 +377,12 @@ sub mailfilter {
                foreach my $r_attachment (@{$r_attachments}) {
                   if ( ${$r_attachment}{contenttype} =~ /^text/i ||
                        ${$r_attachment}{contenttype} eq "N/A" ) { # read all for text/plain. text/html
-                     if (  ( $include eq 'include' && ${${$r_attachment}{r_content}} =~ /$text/im )
+                     if (  ( $include eq 'include' && ($prefs{'regexmatch'}||$IS_GLOBAL{$line}) && ${${$r_attachment}{r_content}} =~ /$text/im )
                          ||( $include eq 'include' && ${${$r_attachment}{r_content}} =~ /\Q$text\E/im )
-                         ||( $include eq 'exclude' && ${${$r_attachment}{r_content}} !~ /$text/im )
+                         ||( $include eq 'exclude' && ($prefs{'regexmatch'}||$IS_GLOBAL{$line}) && ${${$r_attachment}{r_content}} !~ /$text/im )
                          ||( $include eq 'exclude' && ${${$r_attachment}{r_content}} !~ /\Q$text\E/im )  ) {
                         my ($matchcount, $matchdate)=split(":", $FTDB{"$rules\@\@\@$include\@\@\@$text\@\@\@$destination"});
-                        $matchcount++; $matchdate=getdateserial();
+                        $matchcount++; $matchdate=localtime2dateserial();
                         $FTDB{"$rules\@\@\@$include\@\@\@$text\@\@\@$destination"}="$matchcount:$matchdate";
 
                         $matched = 1;
@@ -414,12 +418,12 @@ sub mailfilter {
                }
                # check attachments
                foreach my $r_attachment (@{$r_attachments}) {
-                  if (   ( $include eq 'include' && ${$r_attachment}{filename} =~ /$text/i )
+                  if (   ( $include eq 'include' && ($prefs{'regexmatch'}||$IS_GLOBAL{$line}) && ${$r_attachment}{filename} =~ /$text/i )
                        ||( $include eq 'include' && ${$r_attachment}{filename} =~ /\Q$text\E/i )
-                       ||( $include eq 'exclude' && ${$r_attachment}{filename} !~ /$text/i )
+                       ||( $include eq 'exclude' && ($prefs{'regexmatch'}||$IS_GLOBAL{$line}) && ${$r_attachment}{filename} !~ /$text/i )
                        ||( $include eq 'exclude' && ${$r_attachment}{filename} !~ /\Q$text\E/i )  ) {
                      my ($matchcount, $matchdate)=split(":", $FTDB{"$rules\@\@\@$include\@\@\@$text\@\@\@$destination"});
-                     $matchcount++; $matchdate=getdateserial();
+                     $matchcount++; $matchdate=localtime2dateserial();
                      $FTDB{"$rules\@\@\@$include\@\@\@$text\@\@\@$destination"}="$matchcount:$matchdate";
 
                      $matched = 1;
@@ -463,7 +467,7 @@ sub mailfilter {
                     ${$r_attachment}{contenttype} !~ /application\/octet\-stream/i &&
                     ${$r_attachment}{contenttype} !~ /application\/x\-msdownload/i ) {
                   my ($matchcount, $matchdate)=split(":", $FTDB{"filter_fakedexecontenttype"});
-                  $matchcount++; $matchdate=getdateserial();
+                  $matchcount++; $matchdate=localtime2dateserial();
                   $FTDB{"filter_fakedexecontenttype"}="$matchcount:$matchdate";
 
                   $matched = 1;
@@ -482,6 +486,50 @@ sub mailfilter {
                }
             }
          } # end of checking faked exe contenttype
+
+         # filter message whose from: is different than the envelope email address
+         if ( $filter_fakedfrom &&
+              !($matched && ($op eq 'move' || $op eq 'delete')) ) {
+            if ($currmessage eq "") {
+               seek($folderhandle, $attr[$_OFFSET], 0);
+               read($folderhandle, $currmessage, $attr[$_SIZE]);
+            }
+            if ($is_message_parsed==0) {
+               ($header, $body, $r_attachments)=parse_rfc822block(\$currmessage);
+               $is_message_parsed=1;
+            }
+
+            my $envelopefrom="";
+            foreach (split(/\n/, $header)) {
+               if (/\(envelope\-from ([^\s]+).*\)/) {
+                  $envelopefrom=$1; last;
+               }
+            }
+            if ($envelopefrom eq "") {
+               $envelopefrom=$1 if ($header=~/^From ([^\s]+)/);
+            }
+
+            # compare user and domain independently
+            my ($hdr_user, $hdr_domain)=split(/\@/, (email2nameaddr($attr[$_FROM]))[1]);
+            my ($env_user, $env_domain)=split(/\@/, $envelopefrom);
+            if ( $hdr_user ne $env_user ||
+                ($hdr_domain ne "" && 
+                 $env_domain ne "" && 
+                 $hdr_domain!~/\Q$env_domain\E/i && 
+                 $env_domain!~/\Q$hdr_domain\E/i) ) {
+               my ($matchcount, $matchdate)=split(":", $FTDB{"filter_fakedfrom"});
+               $matchcount++; $matchdate=localtime2dateserial();
+               $FTDB{"filter_fakedfrom"}="$matchcount:$matchdate";
+
+               my $append=append_message_to_folder($allmessageids[$i],
+   					\@attr, \$currmessage, 'mail-trash', 
+   					$r_validfolders, $user);
+               if ($append>=0) {
+                  $op='move';
+                  $matched=1;
+               }
+            }
+         } # end of checking faked from
 
          # filter message from smtprelay with faked name if msg is not moved or deleted
          if ( $filter_fakedsmtp &&
@@ -535,7 +583,7 @@ sub mailfilter {
                    !$is_private && 
                    !$is_valid ) {
                   my ($matchcount, $matchdate)=split(":", $FTDB{"filter_fakedsmtp"});
-                  $matchcount++; $matchdate=getdateserial();
+                  $matchcount++; $matchdate=localtime2dateserial();
                   $FTDB{"filter_fakedsmtp"}="$matchcount:$matchdate";
 
                   my $append=append_message_to_folder($allmessageids[$i],
@@ -614,7 +662,7 @@ sub mailfilter {
       $filtered+=$repeated;
 
       my ($matchcount, $matchdate)=split(":", $FTDB{"filter_repeatlimit"});
-      $matchcount+=$repeated; $matchdate=getdateserial();
+      $matchcount+=$repeated; $matchdate=localtime2dateserial();
       $FTDB{"filter_repeatlimit"}="$matchcount:$matchdate";
    }   
 
@@ -709,6 +757,12 @@ sub get_smtprelays_connectfrom_byas {
          $received .= $_;
       } elsif (/^Received:(.+)$/ig) {
          $tmp=$1;
+         # skip Received: line for MTA internal usage, eg:
+         # Received: (qmail 16577 invoked from network); 19 Apr 2002 18:09:43 +0200
+         if ($tmp=~/^\s*\(.+?\);/) {	
+            $lastline = 'NONE';
+            next;
+         }
          if ($received=~ /^.*\sby\s([^\s]+)\s.*$/is) {
             if (defined($smtprelays[0])) {
                $byas{$smtprelays[0]}=$1;
@@ -774,12 +828,12 @@ sub namecompare {
          return 1 if ($a eq $b && $a =~/[\d\w\-_]+\.[\d\w\-_]+/);
       } else {						# a long, b short
          $b=(split(/\s/, $b))[0];
-         return 1 if ($a=~/^\Q$b\E\./i);
+         return 1 if ($a=~/^\Q$b\E\./i || $a=~/\@\Q$b\E/ );
       }
    } else {
       if ($b =~ /[\d\w\-_]+[\.\@][\d\w\-_]+/ ) {	# a short, b long
          $a=(split(/\s/, $a))[0];
-         return 1 if ($b=~/^\Q$a\E\./i);
+         return 1 if ($b=~/^\Q$a\E\./i || $b=~/\@\Q$a\E/ );
       } else {						# a, b are short
          return 0 if ($a eq $b);
       }

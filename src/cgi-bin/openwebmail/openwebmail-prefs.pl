@@ -3,7 +3,7 @@
 # Open WebMail - Provides a web interface to user mailboxes                 #
 #                                                                           #
 # Copyright (C) 2001-2002                                                   #
-# Chung-Kie Tung, Nai-Jung Kuo, Chao-Chiu Wang, Emir Litric                 #
+# Chung-Kie Tung, Nai-Jung Kuo, Chao-Chiu Wang, Emir Litric, Thomas Chung   #
 # Copyright (C) 2000                                                        #
 # Ernie Miller  (original GPL project: Neomail)                             #
 #                                                                           #
@@ -17,11 +17,11 @@ push (@INC, $SCRIPT_DIR, ".");
 
 $ENV{PATH} = ""; # no PATH should be needed
 $ENV{BASH_ENV} = ""; # no startup script for bash
-umask(0007); # make sure the openwebmail group can write
+umask(0002); # make sure the openwebmail group can write
 
 use strict;
 use Fcntl qw(:DEFAULT :flock);
-use CGI qw(:standard);
+use CGI qw(-private_tempfiles :standard);
 use CGI::Carp qw(fatalsToBrowser);
 CGI::nph();   # Treat script as a non-parsed-header script
 
@@ -39,20 +39,53 @@ use vars qw($folder $printfolder $escapedfolder);
 openwebmail_init();
 verifysession();
 
+use vars qw(%languagenames);
 use vars qw($firstmessage);
 use vars qw($sort);
 use vars qw($messageid $escapedmessageid);
 
 $firstmessage = param("firstmessage") || 1;
-$sort = param("sort") || $prefs{"sort"} || 'date';
+$sort = param("sort") || $prefs{'sort'} || 'date';
 $messageid=param("message_id") || '';
 $escapedmessageid=escapeURL($messageid);
 
 # extern vars
 use vars qw($lang_charset %lang_folders %lang_text %lang_err
 	    %lang_sortlabels %lang_withoriglabels %lang_receiptlabels
-	    %lang_timelabels);	# defined in lang/xy
-use vars qw(%languagenames);	# defined openwebmail-shared.pl
+	    %lang_timelabels);		# defined in lang/xy
+use vars qw(%medfontsize);		# defined in openwebmail-shared.pl
+
+# languagenames - The abbreviation of the languages and related names
+%languagenames = (
+                 'bg'		=> 'Bulgarian',
+                 'ca'           => 'Catalan',
+                 'cs'           => 'Czech',
+                 'da'           => 'Danish',
+                 'de'           => 'German',			# Deutsch
+                 'en'           => 'English',
+                 'es'           => 'Spanish',			# Espanol
+                 'fi'           => 'Finnish',
+                 'fr'           => 'French',
+                 'hu'           => 'Hungarian',
+                 'id'		=> 'Indonesian',
+                 'it'           => 'Italiano',
+                 'kr'           => 'Korean',
+                 'lt'           => 'Lithuanian',
+                 'nl'           => 'Nederlands',
+                 'no_NY'        => 'Norwegian Nynorsk',
+                 'pl'           => 'Polish',
+                 'pt'           => 'Portuguese',
+                 'pt_BR'        => 'Portuguese Brazil',
+                 'ro'           => 'Romanian',
+                 'ru'           => 'Russian',
+                 'sk'           => 'Slovak',
+                 'sv'           => 'Swedish',			# Svenska
+                 'th'           => 'Thai',
+                 'tr'           => 'Turkish',
+                 'uk'           => 'Ukrainian',
+                 'zh_CN.GB2312' => 'Chinese ( Simplified )',
+                 'zh_TW.Big5'   => 'Chinese ( Traditional )'
+                 );
 
 ########################## MAIN ##############################
 
@@ -71,20 +104,6 @@ if ($action eq "firsttimeuser") {
    changepassword();
 } elsif ($action eq "viewhistory") {
    viewhistory();
-} elsif ($action eq "addressbook") {
-   addressbook();
-} elsif ($action eq "editaddresses") {
-   editaddresses();
-} elsif ($action eq "addaddress") {
-   modaddress("add");
-} elsif ($action eq "deleteaddress") {
-   modaddress("delete");
-} elsif ($action eq "clearaddress") {
-   clearaddress();
-} elsif ($action eq "importabook") {
-   importabook();
-} elsif ($action eq "exportabook") {
-   exportabook();
 } elsif ($action eq "editfroms") {
    editfroms();
 } elsif ($action eq "addfrom") {
@@ -151,7 +170,13 @@ sub firsttimeuser {
 
 ########################### ABOUT ##############################
 sub about {
-   my $os=`/usr/bin/uname -srmp`;
+   my $os;
+   if ( -f "/usr/bin/uname") {
+      $os=`/usr/bin/uname -srmp`;
+   } else {
+      $os=`/bin/uname -srmp`;
+   }
+
    print qq|Content-type: text/html\n\n|,
          qq|<html>\n|,
 	 qq|<head><title>About</title></head>\n|,
@@ -161,34 +186,42 @@ sub about {
          qq|th   { font-family: Arial, Helvetica, sans-serif; font-size: 9pt; font-weight: bold; background-color: #D3DCE3;}\n|,
          qq|td   { font-family: Arial, Helvetica, sans-serif; font-size: 9pt;}\n|,
 	 qq|--></style>\n|,
-         qq|<center><br>\n|;
+         qq|<center><br>\n|,
+         qq|<table border=1 cellspacing=0>\n|;
 
-   print qq|<table border=1 cellspacing=0>\n|.
-         qq|<tr><td colspan=2 bgcolor=#999999><font color=#ffffff>SOFTWARE</td></tr>\n|,
-         qq|<tr><td>OS</td><td>$os</td></tr>\n|,
-         qq|<tr><td>PERL</td><td>$^X $]</td></tr>\n|,
-         qq|<tr><td>WebMail</td><td>$config{'name'} $config{'version'} $config{'releasedate'}</td></tr>\n|;
+   if($config{'about_info_software'}) {
+      print qq|<tr><td colspan=2 bgcolor=#999999><font color=#ffffff>SOFTWARE</td></tr>\n|,
+            qq|<tr><td>OS</td><td>$os</td></tr>\n|,
+            qq|<tr><td>PERL</td><td>$^X $]</td></tr>\n|,
+            qq|<tr><td>WebMail</td><td>$config{'name'} $config{'version'} $config{'releasedate'}</td></tr>\n|;
+   }
 
-   print qq|<tr><td colspan=2 bgcolor=#999999><font color=#ffffff>PROTOCOL</td></tr>\n|;
-   print_cgienv( qw(SERVER_PROTOCOL HTTP_CONNECTION HTTP_KEEP_ALIVE) );
+   if($config{'about_info_protocol'}) {
+      print qq|<tr><td colspan=2 bgcolor=#999999><font color=#ffffff>PROTOCOL</td></tr>\n|;
+      print_cgienv( qw(SERVER_PROTOCOL HTTP_CONNECTION HTTP_KEEP_ALIVE) );
+   }
 
-   print qq|<tr><td colspan=2 bgcolor=#999999><font color=#ffffff>SERVER</td></tr>\n|;
-   print_cgienv( qw(HTTP_HOST SCRIPT_NAME SCRIPT_FILENAME) );
-   print_cgienv( qw(SERVER_NAME SERVER_ADDR SERVER_PORT SERVER_SOFTWARE ) );
+   if($config{'about_info_server'}) {
+      print qq|<tr><td colspan=2 bgcolor=#999999><font color=#ffffff>SERVER</td></tr>\n|;
+      print_cgienv( qw(HTTP_HOST SCRIPT_NAME) );
+      if ($config{'about_info_scriptfilename'}) {
+         print_cgienv( qw(SCRIPT_FILENAME) );
+      }
+      print_cgienv( qw(SERVER_NAME SERVER_ADDR SERVER_PORT SERVER_SOFTWARE ) );
+   }
 
-   print qq|<tr><td colspan=2  bgcolor=#999999><font color=#ffffff>CLIENT</td></tr>\n|;
-   print_cgienv( qw(REMOTE_ADDR REMOTE_PORT HTTP_X_FORWARDED_FOR HTTP_VIA HTTP_USER_AGENT) );
+   if($config{'about_info_client'}) {
+      print qq|<tr><td colspan=2  bgcolor=#999999><font color=#ffffff>CLIENT</td></tr>\n|;
+      print_cgienv( qw(REMOTE_ADDR REMOTE_PORT HTTP_X_FORWARDED_FOR HTTP_VIA HTTP_USER_AGENT) );
+   }
 
-   print qq|</table>\n|;
-
-   print qq|<br><form>|.
+   print qq|</table>\n|,
+         qq|<br><form>|,
          button(-name=>"closebutton",
                        -value=>$lang_text{'close'},
                        -onclick=>'window.close();',
-                       -override=>'1').
-         qq|</font>|;
-
-   qq|</center></body></html>\n|;
+                       -override=>'1'),
+         qq|</center></body></html>\n|;
 }
 
 sub print_cgienv {
@@ -251,14 +284,28 @@ sub editprefs {
    my @availablelanguages = sort {
                                  $languagenames{$a} cmp $languagenames{$b}
                                  } keys(%languagenames);
+
    $temphtml = popup_menu(-name=>'language',
                           -"values"=>\@availablelanguages,
-                          -default=>$prefs{"language"},
+                          -default=>$prefs{'language'},
                           -labels=>\%languagenames,
-                          -onChange=>"javascript:window.open('$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;sessionid=$thissession&amp;sort=$sort&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;language='+this.value, '_self');",
+                          -onChange=>"javascript:if (this.value != null) { window.open('$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;sessionid=$thissession&amp;sort=$sort&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;language='+this.value, '_self'); }",
                           -override=>'1');
 
-   $html =~ s/\@\@\@LANGUAGEFIELD\@\@\@/$temphtml/;
+   $html =~ s/\@\@\@LANGUAGEMENU\@\@\@/$temphtml/;
+
+   my @timeoffsets=qw( +0000 +0100 +0200 +0300 +0330 +0400 +0500 +0530 +0600 +0630
+                       +0700 +0800 +0900 +0930 +1000 +1030 +1100 +1200 +1300
+                       -0100 -0200 -0230 -0300 -0330 -0400 -0500 -0600
+                       -0700 -0800 -0900 -1000 -1100 -1200 );
+   $temphtml = popup_menu(-name=>'timeoffset',
+                          -"values"=>\@timeoffsets,
+                          -default=>$prefs{'timeoffset'},
+                          -override=>'1').
+               qq|&nbsp;|.
+               qq|<a href="$config{'ow_htmlurl'}/images/timezone.jpg" target="timezonemap" title="$lang_text{'tzmap'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/earth.gif" border="0" ALT="$lang_text{'tzmap'}"></a>\n|;
+
+   $html =~ s/\@\@\@TIMEOFFSETMENU\@\@\@/$temphtml/;
 
    my @fromemails=sort keys %userfrom;
    my %fromlabels;
@@ -282,7 +329,7 @@ sub editprefs {
    $html =~ s/\@\@\@EDITFROMSBUTTON\@\@\@/$temphtml/;
 
    $temphtml = textfield(-name=>'replyto',
-                         -default=>$prefs{"replyto"} || '',
+                         -default=>$prefs{'replyto'} || '',
                          -size=>'40',
                          -override=>'1');
 
@@ -303,7 +350,7 @@ sub editprefs {
 
    $temphtml = popup_menu(-name=>'style',
                           -"values"=>\@styles,
-                          -default=>$prefs{"style"},
+                          -default=>$prefs{'style'},
                           -override=>'1');
 
    $html =~ s/\@\@\@STYLEMENU\@\@\@/$temphtml/;
@@ -323,7 +370,7 @@ sub editprefs {
 
    $temphtml = popup_menu(-name=>'iconset',
                           -"values"=>\@iconsets,
-                          -default=>$prefs{"iconset"},
+                          -default=>$prefs{'iconset'},
                           -override=>'1');
 
    $html =~ s/\@\@\@ICONSETMENU\@\@\@/$temphtml/;
@@ -368,11 +415,33 @@ sub editprefs {
 
    $html =~ s/\@\@\@BGURLFIELD\@\@\@/$temphtml/;
 
+   my @fontsize=sort { ($a=~/px$/ - $b=~/px$/) || $a <=> $b } keys %medfontsize;
+   my %fontsizelabels;
+   foreach (@fontsize) {
+      $fontsizelabels{$_}=$_;
+      $fontsizelabels{$_}=~s/pt/ $lang_text{'point'}/;
+      $fontsizelabels{$_}=~s/px/ $lang_text{'pixel'}/;
+   }
+   $temphtml = popup_menu(-name=>'fontsize',
+                          -"values"=>\@fontsize,
+                          -default=>$prefs{'fontsize'},
+                          -labels=>\%fontsizelabels,
+                          -override=>'1');
+
+   $html =~ s/\@\@\@FONTSIZEMENU\@\@\@/$temphtml/;
+
+   $temphtml = popup_menu(-name=>'headersperpage',
+                          -"values"=>[8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,50,100,500,1000],
+                          -default=>$prefs{'headersperpage'},
+                          -override=>'1');
+
+   $html =~ s/\@\@\@HEADERSPERPAGE\@\@\@/$temphtml/;
+
    $temphtml = popup_menu(-name=>'sort',
                           -"values"=>['date','date_rev','sender','sender_rev',
                                       'size','size_rev','subject','subject_rev',
                                       'status'],
-                          -default=>$prefs{"sort"},
+                          -default=>$prefs{'sort'},
                           -labels=>\%lang_sortlabels,
                           -override=>'1');
 
@@ -382,59 +451,106 @@ sub editprefs {
                           -"values"=>['mm/dd/yyyy', 'dd/mm/yyyy', 'yyyy/mm/dd',
                                       'mm-dd-yyyy', 'dd-mm-yyyy', 'yyyy-mm-dd',
                                       'mm.dd.yyyy', 'dd.mm.yyyy', 'yyyy.mm.dd'],
-                          -default=>$prefs{"dateformat"},
+                          -default=>$prefs{'dateformat'},
                           -override=>'1');
 
    $html =~ s/\@\@\@DATEFORMATMENU\@\@\@/$temphtml/;
 
-   $temphtml = popup_menu(-name=>'headersperpage',
-                          -"values"=>[8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,50,100,500,1000],
-                          -default=>$prefs{"headersperpage"},
+   $temphtml = popup_menu(-name=>'defaultdestination',
+                          -"values"=>['saved-messages','mail-trash', 'DELETE'],
+                          -default=>$prefs{'defaultdestination'} || 'mail-trash',
+                          -labels=>\%lang_folders,
                           -override=>'1');
 
-   $html =~ s/\@\@\@HEADERSPERPAGE\@\@\@/$temphtml/;
+   $html =~ s/\@\@\@DEFAULTDESTINATIONMENU\@\@\@/$temphtml/;
 
    my %headerlabels = ('simple'=>$lang_text{'simplehead'},
                        'all'=>$lang_text{'allhead'}
                       );
    $temphtml = popup_menu(-name=>'headers',
                           -"values"=>['simple','all'],
-                          -default=>$prefs{"headers"} || 'simple',
+                          -default=>$prefs{'headers'} || 'simple',
                           -labels=>\%headerlabels,
                           -override=>'1');
 
    $html =~ s/\@\@\@HEADERSMENU\@\@\@/$temphtml/;
 
-   $temphtml = popup_menu(-name=>'replywithorigmsg',
-                          -"values"=>['at_beginning', 'at_end', 'none'],
-                          -default=>$prefs{"replywithorigmsg"} || 'at_beginning',
-                          -labels=>\%lang_withoriglabels,
+   $temphtml = popup_menu(-name=>'editcolumns',
+                          -"values"=>[60,62,64,66,68,70,72,74,76,78,80,82,84,86,88,90,100,110,120],
+                          -default=>$prefs{'editcolumns'},
                           -override=>'1');
 
-   $html =~ s/\@\@\@REPLYWITHORIGMSGMENU\@\@\@/$temphtml/;
+   $html =~ s/\@\@\@EDITCOLUMNSMENU\@\@\@/$temphtml/;
 
-   $temphtml = popup_menu(-name=>'sendreceipt',
-                          -"values"=>['ask', 'yes', 'no'],
-                          -default=>$prefs{"sendreceipt"} || 'ask',
-                          -labels=>\%lang_receiptlabels,
+   $temphtml = popup_menu(-name=>'editrows',
+                          -"values"=>[10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,50,60,70,80],
+                          -default=>$prefs{'editrows'},
                           -override=>'1');
 
-   $html =~ s/\@\@\@SENDRECEIPTMENU\@\@\@/$temphtml/;
+   $html =~ s/\@\@\@EDITROWSMENU\@\@\@/$temphtml/;
 
-   $temphtml = popup_menu(-name=>'defaultdestination',
-                          -"values"=>['saved-messages','mail-trash', 'DELETE'],
-                          -default=>$prefs{"defaultdestination"} || 'mail-trash',
-                          -labels=>\%lang_folders,
+   $temphtml = popup_menu(-name=>'dictionary',
+                          -"values"=>$config{'spellcheck_dictionaries'},
+                          -default=>$prefs{'dictionary'},
                           -override=>'1');
 
-   $html =~ s/\@\@\@DEFAULTDESTINATIONMENU\@\@\@/$temphtml/;
+   $html =~ s/\@\@\@DICTIONARYMENU\@\@\@/$temphtml/;
 
-   $temphtml = checkbox(-name=>'reparagraphorigmsg',
-                        -value=>'1',
-                        -checked=>$prefs{'reparagraphorigmsg'},
-                        -label=>'');
+   $temphtml = checkbox(-name=>'newmailsound',
+                  -value=>'1',
+                  -checked=>$prefs{'newmailsound'},
+                  -label=>'');
 
-   $html =~ s/\@\@\@REPARAGRAPHORIGMSG\@\@\@/$temphtml/;
+   $html =~ s/\@\@\@NEWMAILSOUND\@\@\@/$temphtml/g;
+
+   $temphtml = checkbox(-name=>'hideinternal',
+                  -value=>'1',
+                  -checked=>$prefs{'hideinternal'},
+                  -label=>'');
+
+   $html =~ s/\@\@\@HIDEINTERNAL\@\@\@/$temphtml/g;
+
+   $temphtml = checkbox(-name=>'usefixedfont',
+                  -value=>'1',
+                  -checked=>$prefs{'usefixedfont'},
+                  -label=>'');
+
+   $html =~ s/\@\@\@USEFIXEDFONT\@\@\@/$temphtml/g;
+
+   $temphtml = checkbox(-name=>'usesmileicon',
+                  -value=>'1',
+                  -checked=>$prefs{'usesmileicon'},
+                  -label=>'');
+
+   $html =~ s/\@\@\@USESMILEICON\@\@\@/$temphtml/g;
+
+   $temphtml = checkbox(-name=>'disablejs',
+                  -value=>'1',
+                  -checked=>$prefs{'disablejs'},
+                  -label=>'');
+
+   $html =~ s/\@\@\@DISABLEJS\@\@\@/$temphtml/g;
+
+   $temphtml = checkbox(-name=>'disableembcgi',
+                  -value=>'1',
+                  -checked=>$prefs{'disableembcgi'},
+                  -label=>'');
+
+   $html =~ s/\@\@\@DISABLEEMBCGI\@\@\@/$temphtml/g;
+
+   $temphtml = checkbox(-name=>'showimgaslink',
+                  -value=>'1',
+                  -checked=>$prefs{'showimgaslink'},
+                  -label=>'');
+
+   $html =~ s/\@\@\@SHOWIMGASLINK\@\@\@/$temphtml/g;
+
+   $temphtml = checkbox(-name=>'regexmatch',
+                  -value=>'1',
+                  -checked=>$prefs{'regexmatch'},
+                  -label=>'');
+
+   $html =~ s/\@\@\@REGEXMATCH\@\@\@/$temphtml/g;
 
    $temphtml = checkbox(-name=>'confirmmsgmovecopy',
                         -value=>'1',
@@ -450,6 +566,50 @@ sub editprefs {
 
    $html =~ s/\@\@\@VIEWNEXTAFTERMSGMOVECOPY\@\@\@/$temphtml/;
 
+   $temphtml = checkbox(-name=>'backupsentmsg',
+                        -value=>'1',
+                        -checked=>$prefs{'backupsentmsg'},
+                        -label=>'');
+
+   $html =~ s/\@\@\@BACKUPSENTMSG\@\@\@/$temphtml/;
+
+   $temphtml = checkbox(-name=>'reparagraphorigmsg',
+                        -value=>'1',
+                        -checked=>$prefs{'reparagraphorigmsg'},
+                        -label=>'');
+
+   $html =~ s/\@\@\@REPARAGRAPHORIGMSG\@\@\@/$temphtml/;
+
+   $temphtml = popup_menu(-name=>'replywithorigmsg',
+                          -"values"=>['at_beginning', 'at_end', 'none'],
+                          -default=>$prefs{'replywithorigmsg'} || 'at_beginning',
+                          -labels=>\%lang_withoriglabels,
+                          -override=>'1');
+
+   $html =~ s/\@\@\@REPLYWITHORIGMSGMENU\@\@\@/$temphtml/;
+
+   $temphtml = popup_menu(-name=>'sendreceipt',
+                          -"values"=>['ask', 'yes', 'no'],
+                          -default=>$prefs{'sendreceipt'} || 'ask',
+                          -labels=>\%lang_receiptlabels,
+                          -override=>'1');
+
+   $html =~ s/\@\@\@SENDRECEIPTMENU\@\@\@/$temphtml/;
+
+   if ($config{'enable_pop3'}) {
+      $temphtml = checkbox(-name=>'autopop3',
+                           -value=>'1',
+                           -checked=>$prefs{'autopop3'},
+                           -label=>'');
+      $html =~ s/\@\@\@AUTOPOP3CHECKBOX\@\@\@/$temphtml/g;
+      $html =~ s/\@\@\@AUTOPOP3START\@\@\@//g;
+      $html =~ s/\@\@\@AUTOPOP3END\@\@\@//g;
+   } else {
+      $html =~ s/\@\@\@AUTOPOP3CHECKBOX\@\@\@/not available/g;
+      $html =~ s/\@\@\@AUTOPOP3START\@\@\@/<!--/g;
+      $html =~ s/\@\@\@AUTOPOP3END\@\@\@/-->/g;
+   }
+
    if ($config{'forced_moveoldmsgfrominbox'}) {
       $html =~ s/\@\@\@MOVEOLDCHECKBOX\@\@\@/not available/g;
       $html =~ s/\@\@\@MOVEOLDSTART\@\@\@/<!--/g;
@@ -463,27 +623,6 @@ sub editprefs {
       $html =~ s/\@\@\@MOVEOLDSTART\@\@\@//g;
       $html =~ s/\@\@\@MOVEOLDEND\@\@\@//g;
    }
-
-   $temphtml = popup_menu(-name=>'editcolumns',
-                          -"values"=>[60,62,64,66,68,70,72,74,76,78,80,82,84,86,88,90,100,110,120],
-                          -default=>$prefs{"editcolumns"},
-                          -override=>'1');
-
-   $html =~ s/\@\@\@EDITCOLUMNSMENU\@\@\@/$temphtml/;
-
-   $temphtml = popup_menu(-name=>'editrows',
-                          -"values"=>[10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,50,60,70,80],
-                          -default=>$prefs{"editrows"},
-                          -override=>'1');
-
-   $html =~ s/\@\@\@EDITROWSMENU\@\@\@/$temphtml/;
-
-   $temphtml = popup_menu(-name=>'dictionary',
-                          -"values"=>$config{'spellcheck_dictionaries'},
-                          -default=>$prefs{'dictionary'},
-                          -override=>'1');
-
-   $html =~ s/\@\@\@DICTIONARYMENU\@\@\@/$temphtml/;
 
    my (%FTDB, $matchcount, $matchdate);
    filelock("$folderdir/.filter.book$config{'dbm_ext'}", LOCK_SH);
@@ -513,6 +652,18 @@ sub editprefs {
 
    $html =~ s/\@\@\@FILTERFAKEDSMTP\@\@\@/$temphtml/g;
 
+   $temphtml = checkbox(-name=>'filter_fakedfrom',
+                        -value=>'1',
+                        -checked=>$prefs{'filter_fakedfrom'},
+                        -label=>'');
+   ($matchcount, $matchdate)=split(":", $FTDB{"filter_fakedfrom"});
+   if ($matchdate) {
+      $matchdate=dateserial2str($matchdate);
+      $temphtml .= "&nbsp;(<a title='$matchdate'>$lang_text{'filtered'}: $matchcount</a>)";
+   }
+
+   $html =~ s/\@\@\@FILTERFAKEDFROM\@\@\@/$temphtml/g;
+
    $temphtml = checkbox(-name=>'filter_fakedexecontenttype',
                         -value=>'1',
                         -checked=>$prefs{'filter_fakedexecontenttype'},
@@ -527,62 +678,6 @@ sub editprefs {
 
    dbmclose(%FTDB);
    filelock("$folderdir/.filter.book$config{'dbm_ext'}", LOCK_UN);
-
-   $temphtml = checkbox(-name=>'disablejs',
-                  -value=>'1',
-                  -checked=>$prefs{'disablejs'},
-                  -label=>'');
-
-   $html =~ s/\@\@\@DISABLEJS\@\@\@/$temphtml/g;
-
-   $temphtml = checkbox(-name=>'disableembcgi',
-                  -value=>'1',
-                  -checked=>$prefs{'disableembcgi'},
-                  -label=>'');
-
-   $html =~ s/\@\@\@DISABLEEMBCGI\@\@\@/$temphtml/g;
-
-   $temphtml = checkbox(-name=>'hideinternal',
-                  -value=>'1',
-                  -checked=>$prefs{'hideinternal'},
-                  -label=>'');
-
-   $html =~ s/\@\@\@HIDEINTERNAL\@\@\@/$temphtml/g;
-
-   $temphtml = checkbox(-name=>'newmailsound',
-                  -value=>'1',
-                  -checked=>$prefs{'newmailsound'},
-                  -label=>'');
-
-   $html =~ s/\@\@\@NEWMAILSOUND\@\@\@/$temphtml/g;
-
-   $temphtml = checkbox(-name=>'usefixedfont',
-                  -value=>'1',
-                  -checked=>$prefs{'usefixedfont'},
-                  -label=>'');
-
-   $html =~ s/\@\@\@USEFIXEDFONT\@\@\@/$temphtml/g;
-
-   $temphtml = checkbox(-name=>'usesmileicon',
-                  -value=>'1',
-                  -checked=>$prefs{'usesmileicon'},
-                  -label=>'');
-
-   $html =~ s/\@\@\@USESMILEICON\@\@\@/$temphtml/g;
-
-   if ($config{'enable_pop3'}) {
-      $temphtml = checkbox(-name=>'autopop3',
-                           -value=>'1',
-                           -checked=>$prefs{'autopop3'},
-                           -label=>'');
-      $html =~ s/\@\@\@AUTOPOP3CHECKBOX\@\@\@/$temphtml/g;
-      $html =~ s/\@\@\@AUTOPOP3START\@\@\@//g;
-      $html =~ s/\@\@\@AUTOPOP3END\@\@\@//g;
-   } else {
-      $html =~ s/\@\@\@AUTOPOP3CHECKBOX\@\@\@/not available/g;
-      $html =~ s/\@\@\@AUTOPOP3START\@\@\@/<!--/g;
-      $html =~ s/\@\@\@AUTOPOP3END\@\@\@/-->/g;
-   }
 
    my %dayslabels = ('0'=>$lang_text{'forever'});
    $temphtml = popup_menu(-name=>'trashreserveddays',
@@ -600,15 +695,6 @@ sub editprefs {
                           -override=>'1');
 
    $html =~ s/\@\@\@SESSIONTIMEOUTMENU\@\@\@/$temphtml/;
-
-   $temphtml = textarea(-name=>'signature',
-                        -default=>$prefs{"signature"},
-                        -rows=>'5',
-                        -columns=>'72',
-                        -wrap=>'hard',
-                        -override=>'1');
-
-   $html =~ s/\@\@\@SIGAREA\@\@\@/$temphtml/;
 
    # read .forward, also see if autoforwarding is on 
    my ($autoreply, $selfforward, @forwards)=readdotforward();
@@ -683,6 +769,15 @@ sub editprefs {
       $html =~ s/\@\@\@AUTOREPLYSTART\@\@\@/<!--/g;
       $html =~ s/\@\@\@AUTOREPLYEND\@\@\@/-->/g;
    }
+
+   $temphtml = textarea(-name=>'signature',
+                        -default=>$prefs{'signature'},
+                        -rows=>'5',
+                        -columns=>'72',
+                        -wrap=>'hard',
+                        -override=>'1');
+
+   $html =~ s/\@\@\@SIGAREA\@\@\@/$temphtml/;
 
    $temphtml = submit("$lang_text{'save'}") . end_form();
 
@@ -784,20 +879,20 @@ sub saveprefs {
 
    open (CONFIG,">$folderdir/.openwebmailrc") or
       openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.openwebmailrc!");
-   foreach my $key (qw(language email replyto 
-                       style iconset bgurl 
-                       sort dateformat headers headersperpage 
-                       editcolumns editrows dictionary
-                       defaultdestination 
-                       disablejs disableembcgi hideinternal newmailsound 
-                       usefixedfont usesmileicon 
-                       confirmmsgmovecopy viewnextaftermsgmovecopy 
-                       replywithorigmsg reparagraphorigmsg 
-                       sendreceipt 
-                       autopop3 moveoldmsgfrominbox 
-                       filter_repeatlimit filter_fakedsmtp 
-                       filter_fakedexecontenttype 
-                       trashreserveddays sessiontimeout)) {
+   foreach my $key ( qw(language timeoffset email replyto 
+                        style iconset bgurl fontsize 
+                        sort dateformat headers headersperpage 
+                        editcolumns editrows dictionary
+                        defaultdestination 
+                        disablejs disableembcgi showimgaslink hideinternal 
+                        newmailsound usefixedfont usesmileicon 
+                        confirmmsgmovecopy viewnextaftermsgmovecopy 
+                        reparagraphorigmsg backupsentmsg
+                        replywithorigmsg sendreceipt 
+                        autopop3 moveoldmsgfrominbox 
+                        filter_repeatlimit filter_fakedsmtp filter_fakedfrom 
+                        filter_fakedexecontenttype 
+                        trashreserveddays sessiontimeout) ) {
       my $value = param("$key");
       if ($key eq 'bgurl') {
          my $background=param("background");
@@ -836,12 +931,15 @@ sub saveprefs {
          print CONFIG "$key=$value\n";
       } elsif ( $key eq 'confirmmsgmovecopy' ||
                 $key eq 'reparagraphorigmsg' ||
+                $key eq 'backupsentmsg' ||
                 $key eq 'viewnextaftermsgmovecopy' ||
                 $key eq 'moveoldmsgfrominbox' ||
                 $key eq 'filter_fakedsmtp' ||
+                $key eq 'filter_fakedfrom' ||
                 $key eq 'filter_fakedexecontenttype' ||
                 $key eq 'disablejs' ||
                 $key eq 'disableembcgi' ||
+                $key eq 'showimgaslink' ||
                 $key eq 'hideinternal' ||
                 $key eq 'newmailsound' ||
                 $key eq 'usefixedfont' ||
@@ -872,10 +970,22 @@ sub saveprefs {
    close (SIGNATURE) or openwebmailerror("$lang_err{'couldnt_close'} $signaturefile!");
    chown($uuid, $ugid, $signaturefile) if ($signaturefile eq "$homedir/.signature");
 
+   # save oldprefs to know if to remove .filter.check to refilter inbox
    # reread prefs since email and signature are used in .vacation.msg
-   # reread style and language thus user will fell the change immediately
+   # reread style and language thus user will see the change immediately
+   my %oldprefs=%prefs;
    %prefs = %{&readprefs};
    %style = %{&readstyle};
+
+   if ( ($prefs{'filter_fakedsmtp'} && !$oldprefs{'filter_fakedsmtp'} ) ||
+        ($prefs{'filter_fakedfrom'} && !$oldprefs{'filter_fakedfrom'} ) ||
+        ($prefs{'filter_fakedexecontenttype'} && !$oldprefs{'filter_fakedexecontenttype'} ) ) {
+      unlink("$folderdir/.filter.check");
+   }
+   if ($prefs{'trashreserveddays'} ne $oldprefs{'trashreserveddays'} ) {
+      unlink("$folderdir/.trash.check");
+   }
+
    ($prefs{'language'} =~ /^([\w\d\._]+)$/) && ($prefs{'language'} = $1);
    require "etc/lang/$prefs{'language'}";
    $lang_charset ||= 'iso-8859-1';
@@ -897,7 +1007,7 @@ sub saveprefs {
 
    $forwardaddress =~ s/^\s*//; $forwardaddress =~ s/\s*$//;
    if ($forwardaddress=~/,/) {
-      @forwards= str2list($forwardaddress);
+      @forwards= str2list($forwardaddress,0);
    } elsif ($forwardaddress ne "") {
       push (@forwards, $forwardaddress);
    }
@@ -1027,8 +1137,11 @@ sub writedotforward {
          $aliasparm .= "-a $_ ";
       }
       $aliasparm .= "-a $loginname " if ($loginname ne $user);
-
-      push(@forwards, qq!"|$config{'vacationpipe'} $aliasparm$user"!);
+      if (length("$config{'vacationpipe'} $aliasparm$user")<250) {
+         push(@forwards, qq!"|$config{'vacationpipe'} $aliasparm$user"!);
+      } else {
+         push(@forwards, qq!"|$config{'vacationpipe'} -j $user"!);
+      }
    }
 
    if ($selfforward) {
@@ -1039,6 +1152,7 @@ sub writedotforward {
    print FOR join("\n", @forwards);
    close FOR;
    chown($uuid, $ugid, "$homedir/.forward");
+   chmod(0600, "$homedir/.forward");
 }
 
 sub readdotvacationmsg {
@@ -1408,860 +1522,6 @@ sub viewhistory {
 }
 ##################### END LOGINHISTORY #######################
 
-#################### ADDRESSBOOK #######################
-sub addressbook {
-   my $form=param("form");
-   my $field=param("field");
-   my $preexisting = param("preexisting") || '';
-   my $abook_keyword = param("abook_keyword") || '';
-   my $abook_searchtype = param("abook_searchtype") || 'name';
-
-   printheader();
-
-   my $html = '';
-   my $temphtml;
-
-   open (ABOOKTEMPLATE, "$config{'ow_etcdir'}/templates/$prefs{'language'}/addressbook.template") or
-      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/templates/$prefs{'language'}/addressbook.template");
-   while (<ABOOKTEMPLATE>) {
-      $html .= $_;
-   }
-   close (ABOOKTEMPLATE);
-
-   $html = applystyle($html);
-
-   if (defined($lang_text{$field})) {
-      $temphtml=$lang_text{$field}.": $lang_text{'abook'}";
-   } else {
-      $temphtml=uc($field).": $lang_text{'abook'}";
-   }
-
-   $html =~ s/\@\@\@ADDRESSBOOKFOR\@\@\@/$temphtml/g;
-
-   $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-prefs.pl",
-                   	  -name=>'search'
-                          );
-   $temphtml .= hidden(-name=>'action',
-                       -value=>'addressbook',
-                       -override=>'1');
-   $temphtml .= hidden(-name=>'sessionid',
-                       -value=>$thissession,
-                       -override=>'1');
-   $temphtml .= hidden(-name=>'form',
-                       -value=>$form,
-                       -override=>'1');
-   $temphtml .= hidden(-name=>'field',
-                       -value=>$field,
-                       -override=>'1');
-   $temphtml .= hidden(-name=>'preexisting',
-                       -value=>$preexisting,
-                       -override=>'1');
-
-   $html =~ s/\@\@\@STARTSEARCHFORM\@\@\@/$temphtml/g;
-
-   my %searchtypelabels = ('name'=>$lang_text{'name'},
-                           'email'=>$lang_text{'email'},
-                           'note'=>$lang_text{'note'},
-                           'all'=>$lang_text{'all'});
-   $temphtml = popup_menu(-name=>'abook_searchtype',
-                           -default=>$abook_searchtype || 'name',
-                           -values=>['name', 'email', 'note', 'all'],
-                           -labels=>\%searchtypelabels);
-   $temphtml .= textfield(-name=>'abook_keyword',
-                          -default=>$abook_keyword,
-                          -size=>'16',
-                          -override=>'1');
-   $temphtml .= "&nbsp;";
-   $temphtml .= submit(-name=>"$lang_text{'search'}",
-	               -class=>'medtext');
-
-   $html =~ s/\@\@\@SEARCH\@\@\@/$temphtml/g;
-   
-   $temphtml = startform(-action=>"javascript:Update()",
-                   	 -name=>'addressbook'
-                        );
-
-   $html =~ s/\@\@\@STARTADDRESSFORM\@\@\@/$temphtml/g;
-
-   # split $preexisting in to a hash
-   my %preexistinghash=();
-   foreach my $u (str2list($preexisting)) {
-      my ($name, $email)=email2nameaddr($u);
-      $preexistinghash{$email}=$u;
-   }
-
-   $temphtml="";
-   my $count=0;
-   my $bgcolor = $style{"tablerow_dark"};
-   if ( -f "$folderdir/.address.book" ||
-        -f "$folderdir/.address.book"  ) {
-      my %addresses=();
-      my %notes=();
-
-      # read openwebmail addressbook
-      if ( open(ABOOK,"$folderdir/.address.book") ) {
-         while (<ABOOK>) {
-            my ($name, $email, $note) = split(/\@\@\@/, $_, 3);
-            chomp($email);
-            chomp($note);
-            if ( $abook_keyword ne "" &&
-                 ( ($abook_searchtype eq "name" && 
-                    $name!~/$abook_keyword/i && $name!~/\Q$abook_keyword\E/i)   ||
-                   ($abook_searchtype eq "email" && 
-                    $email!~/$abook_keyword/i && $email!~/\Q$abook_keyword\E/i) ||
-                   ($abook_searchtype eq "note" && 
-                    $note!~/$abook_keyword/i && $note!~/\Q$abook_keyword\E/i)   ||
-                   ($abook_searchtype eq "all" && 
-                    "$name.$email.$note" !~ /$abook_keyword/i && 
-                    "$name.$email.$note" !~ /\Q$abook_keyword\E/i) )  ) {
-               next;
-            }
-            $addresses{"$name"} = "$email";
-            $notes{"$name"} = "$note";
-         }
-         close (ABOOK);
-      }
-
-      # import pine addressbook
-      if (open (ABOOK,"$homedir/.addressbook") ) {
-         while (<ABOOK>) {
-            my ($dummy, $name, $email, $dummy2, $note) = split(/\t/, $_, 5);
-            chomp($email);
-            chomp($note);
-            if ( $abook_keyword ne "" &&
-                 ( ($abook_searchtype eq "name" && 
-                    $name!~/$abook_keyword/i && $name!~/\Q$abook_keyword\E/i)   ||
-                   ($abook_searchtype eq "email" && 
-                    $email!~/$abook_keyword/i && $email!~/\Q$abook_keyword\E/i) ||
-                   ($abook_searchtype eq "note" && 
-                    $note!~/$abook_keyword/i && $note!~/\Q$abook_keyword\E/i)   ||
-                   ($abook_searchtype eq "all" && 
-                    "$name.$email.$note" !~ /$abook_keyword/i && 
-                    "$name.$email.$note" !~ /\Q$abook_keyword\E/i) )  ) {
-               next;
-            }
-            $addresses{"$name"} = "$email";
-            $notes{"$name"} = "$note";
-         }
-         close (ABOOK);
-      }
-
-      foreach my $name (sort { lc($a) cmp lc($b) } keys %addresses) {
-         my $email=$addresses{$name};
-         my $emailstr;
-
-         if ( $form eq "newaddress" && $field eq "email" ) { # definition mode
-            $emailstr="$email";	                             # need only pure addr 
-
-         } else {			# reference mode
-            if ( $email =~ /[,"]/ ) {	# expamd multiple addr to "name" <addr>
-               foreach my $e (str2list($email)) {
-                  foreach my $n (keys %addresses) {
-                     if ( $e eq $addresses{$n} ) {
-                        $e="\&quot;$n\&quot; &lt;$e&gt;";   
-                        last;
-                     }
-                  }
-                  $emailstr .= "," if ($emailstr ne "");
-                  $emailstr .= $e;
-               }
-            } else {
-               $emailstr="\&quot;$name\&quot; &lt;$email&gt;";
-            }
-         }
-
-         $temphtml .= qq|<tr>| if ($count %2 == 0);
-         $temphtml .= qq|<td width="20" bgcolor=$bgcolor><input type="checkbox" name="to" value="$emailstr"|;
-         if (defined($preexistinghash{$email})) {
-            delete $preexistinghash{$email};
-            $temphtml .= " checked";
-         }
-         $temphtml .= qq|></td><td width="49%" bgcolor=$bgcolor nowrap><a title="$email $notes{$name}">$name</a></td>\n|;
-         $temphtml .= qq|</tr>| if ($count %2 == 1);
-
-         if ($bgcolor eq $style{"tablerow_dark"}) {
-            $bgcolor = $style{"tablerow_light"} if ($count %2 == 0);
-         } else {
-            $bgcolor = $style{"tablerow_dark"} if ($count %2 == 0);
-         }
-         $count++
-      }
-   }
-   if ( $config{'global_addressbook'} ne "" && -f "$config{'global_addressbook'}" ) {
-      my %globaladdresses=();
-      my %globalnotes=();
-      my @namelist=();	# keep the order in global addressbook
-
-      if (open (ABOOK,"$config{'global_addressbook'}")) {
-         while (<ABOOK>) {
-            my ($name, $email, $note) = split(/\@\@\@/, $_, 3);
-            chomp($email);
-            chomp($note);
-            if ( $abook_keyword ne "" &&
-                 ( ($abook_searchtype eq "name" && 
-                    $name!~/$abook_keyword/i && $name!~/\Q$abook_keyword\E/i)   ||
-                   ($abook_searchtype eq "email" && 
-                    $email!~/$abook_keyword/i && $email!~/\Q$abook_keyword\E/i) ||
-                   ($abook_searchtype eq "note" && 
-                    $note!~/$abook_keyword/i && $note!~/\Q$abook_keyword\E/i)   ||
-                   ($abook_searchtype eq "all" && 
-                    "$name.$email.$note" !~ /$abook_keyword/i && 
-                    "$name.$email.$note" !~ /\Q$abook_keyword\E/i) )  ) {
-               next;
-            }
-            $globaladdresses{"$name"} = "$email";
-            $globalnotes{"$name"} = "$note";
-            push(@namelist, $name);
-         }
-         close (ABOOK);
-      }
-      foreach my $name (@namelist) {
-         my $email=$globaladdresses{$name};         
-         my $emailstr;
-         if ( $form eq "newaddress" && $field eq "email" ) { # chk if group email definition
-            $emailstr="$email";	                             # which needs only pure email
-         } else {
-            if ( $email =~ /[,"]/ ) {	# expamd multiple addr to "name" <addr>
-               foreach my $e (str2list($email)) {
-                  foreach my $n (keys %globaladdresses) {
-                     if ( $e eq $globaladdresses{$n} ) {
-                        $e="\&quot;$n\&quot; &lt;$e&gt;";   
-                        last;
-                     }
-                  }
-                  $emailstr .= "," if ($emailstr ne "");
-                  $emailstr .= $e;
-               }
-            } else {
-               $emailstr="\&quot;$name\&quot; &lt;$email&gt;";
-            }
-         }
-
-         $temphtml .= qq|<tr>| if ($count %2 == 0);
-         $temphtml .= qq|<td width="20" bgcolor=$bgcolor><input type="checkbox" name="to" value="$emailstr"|;
-         if (defined($preexistinghash{$email})) {
-            delete $preexistinghash{$email};
-            $temphtml .= " checked";
-         }
-         $temphtml .= qq|></td><td width="49%" bgcolor=$bgcolor nowrap><a title="$email $globalnotes{$name}">$name</a></td>\n|;
-         $temphtml .= qq|</tr>| if ($count %2 == 1);
-
-         if ($bgcolor eq $style{"tablerow_dark"}) {
-            $bgcolor = $style{"tablerow_light"} if ($count %2 == 0);
-         } else {
-            $bgcolor = $style{"tablerow_dark"} if ($count %2 == 0);
-         }
-         $count++
-      }
-   }
-
-   $temphtml .= qq|<td width="20" bgcolor=$bgcolor></td><td width="45%" bgcolor=$bgcolor></td></tr>| if ($count %2 == 1);
-
-   $html =~ s/\@\@\@ADDRESSES\@\@\@/$temphtml/g;
-
-   # rebuild others into preexisting
-   my @u=sort values(%preexistinghash);
-   $preexisting=join(",", @u);
-
-   $temphtml = hidden(-name=>'remainingstr',
-                      -value=>$preexisting,
-                      -override=>'1').
-               submit(-name=>"mailto.x",
-                       -value=>"$lang_text{'continue'}",
-	               -class=>'medtext').
-               "&nbsp;&nbsp;".
-               button(-name=>"cancel",
-                       -value=>"$lang_text{'cancel'}",
-                       -onclick=>'window.close();',
-	               -class=>'medtext',
-                       -override=>'1');
-   
-   $html =~ s/\@\@\@BUTTONS\@\@\@/$temphtml/g;
-
-   $temphtml = end_form();
-   $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/g;
-
-   $html =~ s/\@\@\@FORMNAME\@\@\@/$form/g;
-   $html =~ s/\@\@\@FIELDNAME\@\@\@/$field/g;
-   
-
-   print $html;
-
-   print end_html();
-}
-################## END ADDRESSBOOK #####################
-
-##################### IMPORTABOOK ############################
-sub importabook {
-   my ($name, $email, $note);
-   my (%addresses, %notes);
-   my $abookupload = param("abook") || '';
-   my $abooktowrite='';
-   my $mua = param("mua") || '';
-   if ($abookupload) {
-      no strict 'refs';
-      my $abookcontents = '';
-      while (<$abookupload>) {
-         $abookcontents .= $_;
-      }
-      close($abookupload);
-#      if ($mua eq 'outlookexp5') {
-#         unless ($abookcontents =~ /^Name,E-mail Address/) {
-#            openwebmailerror(qq|$lang_err{'abook_invalid'} <a href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=importabook&amp;sessionid=$thissession&amp;sort=$sort&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;message_id=$escapedmessageid">$lang_err{'back'}</a> $lang_err{'tryagain'}|);
-#         }
-#      }
-      unless ( -f "$folderdir/.address.book" ) {
-         open (ABOOK, ">>$folderdir/.address.book"); # Create if nonexistent
-         close(ABOOK);
-      }
-      filelock("$folderdir/.address.book", LOCK_EX|LOCK_NB) or
-         openwebmailerror("$lang_err{'couldnt_lock'} $folderdir/.address.book!");
-      open (ABOOK,"+<$folderdir/.address.book") or
-         openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.address.book!");
-      while (<ABOOK>) {
-         ($name, $email, $note) = split(/\@\@\@/, $_, 3);
-         chomp($email); chomp($note);
-         $addresses{"$name"} = $email;
-         $notes{"$name"}=$note;
-      }
-
-      foreach my $line (split(/\r*\n/, $abookcontents)) {
- #        next if ( ($mua eq 'outlookexp5') && (/^Name,E-mail Address/) );
-         next if ( $line !~ (/\@/) );
-
-         my @fields = str2list($line);
-         if ( ($mua eq 'outlookexp5') && ($fields[0]) && ($fields[1]) ) {
-            $fields[0] =~ s/://;
-            $fields[0] =~ s/</&lt;/g;
-            $fields[0] =~ s/>/&gt;/g;
-            $fields[1] =~ s/</&lt;/g;
-            $fields[1] =~ s/>/&gt;/g;
-            $addresses{$fields[0]} = $fields[1];
-            $note = join(",", @fields[2..9]);
-            $note =~ s/,\s*,//g; 
-            $note =~ s/^\s*,\s*//g;
-            $note =~ s/\s*,\s*$//g;
-            $notes{$fields[0]} = $note;
-         } elsif ( ($mua eq 'nsmail') && ($fields[0]) && ($fields[6]) ) {
-            $fields[0] =~ s/://;
-            $fields[0] =~ s/</&lt;/g;
-            $fields[0] =~ s/>/&gt;/g;
-            $fields[6] =~ s/</&lt;/g;
-            $fields[6] =~ s/>/&gt;/g;
-            $addresses{"$fields[0]"} = $fields[6];
-            $note = join(",", @fields[1..5,7..9]);
-            $note =~ s/,\s*,//g; 
-            $note =~ s/^\s*,\s*//g;
-            $note =~ s/\s*,\s*$//g;
-            $notes{$fields[0]} = $note;
-         }
-      }
-
-      seek (ABOOK, 0, 0) or
-         openwebmailerror("$lang_err{'couldnt_seek'} $folderdir/.address.book!");
-
-      foreach $name (sort keys %addresses) {
-         $abooktowrite .= "$name\@\@\@$addresses{$name}\@\@\@$notes{$name}\n";
-      }
-
-      if (length($abooktowrite) > ($config{'maxbooksize'} * 1024)) {
-         openwebmailerror(qq|$lang_err{'abook_toobig'}|.
-                          qq|<a href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=importabook&amp;sessionid=$thissession&amp;sort=$sort&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;message_id=$escapedmessageid">$lang_err{'back'}</a>|.
-                          qq|$lang_err{'tryagain'}|);
-      }
-      print ABOOK $abooktowrite;
-      truncate(ABOOK, tell(ABOOK));
-
-      close (ABOOK) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.address.book!");
-      filelock("$folderdir/.address.book", LOCK_UN);
-
-      writelog("import addressbook");
-      writehistory("import addressbook");
-
-#      print "Location: $config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editaddresses&sessionid=$thissession&sort=$sort&folder=$escapedfolder&firstmessage=$firstmessage&message_id=$escapedmessageid\n\n";
-      editaddresses();
-
-   } else {
-
-      my $abooksize = ( -s "$folderdir/.address.book" ) || 0;
-      my $freespace = int($config{'maxbooksize'} - ($abooksize/1024) + .5);
-
-      my $html = '';
-      my $temphtml;
-
-      open (IMPORTTEMPLATE, "$config{'ow_etcdir'}/templates/$prefs{'language'}/importabook.template") or
-         openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/templates/$prefs{'language'}/importabook.template");
-      while (<IMPORTTEMPLATE>) {
-         $html .= $_;
-      }
-      close (IMPORTTEMPLATE);
-
-      $html = applystyle($html);
-
-      printheader();
-
-      $html =~ s/\@\@\@FREESPACE\@\@\@/$freespace/g;
-
-      $temphtml = start_multipart_form();
-      $temphtml .= hidden(-name=>'action',
-                          -value=>'importabook',
-                          -override=>'1') .
-                   hidden(-name=>'sessionid',
-                          -value=>$thissession,
-                          -override=>'1') .
-                   hidden(-name=>'sort',
-                          -default=>$sort,
-                          -override=>'1') .
-                   hidden(-name=>'firstmessage',
-                          -default=>$firstmessage,
-                          -override=>'1') .
-                   hidden(-name=>'folder',
-                          -default=>$folder,
-                          -override=>'1');
-                   hidden(-name=>'message_id',
-                          -default=>$messageid,
-                          -override=>'1');
-      $html =~ s/\@\@\@STARTIMPORTFORM\@\@\@/$temphtml/;
-
-
-      my %mualabels =(outlookexp5 => 'Outlook Express 5',
-                      nsmail      => 'Netscape Mail 4.x');
-      $temphtml = radio_group(-name=>'mua',
-                              -"values"=>['outlookexp5','nsmail'],
-                              -default=>'outlookexp5',
-                              -labels=>\%mualabels);
-      $html =~ s/\@\@\@MUARADIOGROUP\@\@\@/$temphtml/;
-
-      $temphtml = filefield(-name=>'abook',
-                            -default=>'',
-                            -size=>'30',
-                            -override=>'1');
-      $html =~ s/\@\@\@IMPORTFILEFIELD\@\@\@/$temphtml/;
-
-      $temphtml = submit("$lang_text{'import'}");
-      $html =~ s/\@\@\@IMPORTBUTTON\@\@\@/$temphtml/;
-
-      $temphtml = end_form();
-      $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/g;
-
-      $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-prefs.pl") .
-                  hidden(-name=>'action',
-                         -value=>'editaddresses',
-                         -override=>'1') .
-                  hidden(-name=>'sessionid',
-                         -value=>$thissession,
-                         -override=>'1') .
-                  hidden(-name=>'sort',
-                         -default=>$sort,
-                         -override=>'1') .
-                  hidden(-name=>'folder',
-                         -default=>$folder,
-                         -override=>'1') .
-                  hidden(-name=>'firstmessage',
-                         -default=>$firstmessage,
-                         -override=>'1');
-                  hidden(-name=>'message_id',
-                         -default=>$messageid,
-                         -override=>'1') .
-      $html =~ s/\@\@\@STARTCANCELFORM\@\@\@/$temphtml/;
-
-
-      $temphtml = submit("$lang_text{'cancel'}");
-      $html =~ s/\@\@\@CANCELBUTTON\@\@\@/$temphtml/;
-
-      print $html;
-
-      printfooter(2);
-   }
-}
-#################### END IMPORTABOOK #########################
-
-##################### EXPORTABOOK ############################
-sub exportabook {
-   filelock("$folderdir/.address.book", LOCK_EX|LOCK_NB) or
-      openwebmailerror("$lang_err{'couldnt_lock'} $folderdir/.address.book!");
-   open (ABOOK,"$folderdir/.address.book") or
-      openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.address.book!");
-
-   # disposition:attachment default to save
-   print qq|Content-Transfer-Coding: binary\n|,
-         qq|Connection: close\n|,
-         qq|Content-Type: text/plain; name="adbook.csv"\n|;
-
-   # ugly hack since ie5.5 is broken with disposition: attchment
-   if ( $ENV{'HTTP_USER_AGENT'}!~/MSIE 5.5/ ) {
-      print qq|Content-Disposition: attachment; filename="adbook.csv"\n|,
-   }
-   print qq|\n|;
-
-   print qq|Name,E-mail Address,Note\n|;
-
-   while (<ABOOK>) {
-      print join(",", split(/\@\@\@/,$_,3));
-   }
-
-   close(ABOOK);
-   filelock("$folderdir/.address.book", LOCK_UN);
-
-   writelog("export addressbook");
-   writehistory("export addressbook");
-
-   return;
-}
-#################### END EXPORTABOOK #########################
-
-#################### EDITADDRESSES ###########################
-sub editaddresses {
-   my %addresses=();
-   my %notes=();
-   my %globaladdresses=();
-   my %globalnotes=();
-   my @globalnamelist=();
-   my ($name, $email, $note);
-   my $abook_keyword = param("abook_keyword") || '';
-   my $abook_searchtype = param("abook_searchtype") || 'name';
-
-   my $html = '';
-   my $temphtml;
-
-   open (EDITABOOKTEMPLATE, "$config{'ow_etcdir'}/templates/$prefs{'language'}/editaddresses.template") or
-      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/templates/$prefs{'language'}/editaddresses.template");
-   while (<EDITABOOKTEMPLATE>) {
-      $html .= $_;
-   }
-   close (EDITABOOKTEMPLATE);
-
-   $html = applystyle($html);
-
-   if ( -f "$folderdir/.address.book" ) {
-      open (ABOOK,"$folderdir/.address.book") or
-         openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.address.book!");
-      while (<ABOOK>) {
-         ($name, $email, $note) = split(/\@\@\@/, $_, 3);
-         chomp($email); chomp($note);
-         $addresses{"$name"} = $email;
-         $notes{"$name"}=$note;
-      }
-      close (ABOOK) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.address.book!");
-   }
-   my $abooksize = ( -s "$folderdir/.address.book" ) || 0;
-   my $freespace = int($config{'maxbooksize'} - ($abooksize/1024) + .5);
-
-   if ( $config{'global_addressbook'} ne "" && -f "$config{'global_addressbook'}" ) {
-      if (open (ABOOK,"$config{'global_addressbook'}") ) {
-         while (<ABOOK>) {
-            ($name, $email, $note) = split(/\@\@\@/, $_, 3);
-            chomp($email);
-            $globaladdresses{"$name"} = $email;
-            $globalnotes{"$name"} = $note;
-            push(@globalnamelist, $name);
-         }
-         close (ABOOK);
-      }
-   }
-
-   printheader();
-
-   $html =~ s/\@\@\@FREESPACE\@\@\@/$freespace/g;
-
-   if ( param("message_id") ) {
-      $temphtml = qq|<a href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid" title="$lang_text{'backto'} $printfolder"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/backtofolder.gif" border="0" ALT="$lang_text{'backto'} $printfolder"></a> &nbsp; |;
-   } else {
-      $temphtml = qq|<a href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=displayheaders&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder" title="$lang_text{'backto'} $printfolder"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/backtofolder.gif" border="0" ALT="$lang_text{'backto'} $printfolder"></a> &nbsp; |;
-   }
-   $temphtml .= qq|<a href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=importabook&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid" title="$lang_text{'importadd'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/import.gif" border="0" ALT="$lang_text{'importadd'}"></a> |.
-                qq|<a href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=exportabook&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid" title="$lang_text{'exportadd'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/export.gif" border="0" ALT="$lang_text{'exportadd'}"></a> |.
-                qq|<a href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=clearaddress&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid" onclick="return confirm('$lang_text{'clearadd'}?')" title="$lang_text{'clearadd'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/clearaddress.gif" border="0" ALT="$lang_text{'clearadd'}"></a> &nbsp; |;
-   if ($abook_keyword ne ''){
-      $temphtml .= qq|<a href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editaddresses&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid&amp;abook_keyword=" title="$lang_text{'refresh'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/refresh.gif" border="0" ALT="$lang_text{'refresh'}"></a>|;
-   }
-
-   $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
-
-   $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-prefs.pl");
-   $temphtml .= hidden(-name=>'action',
-                       -value=>'editaddresses',
-                       -override=>'1');
-   $temphtml .= hidden(-name=>'sessionid',
-                       -value=>$thissession,
-                       -override=>'1');
-   $temphtml .= hidden(-name=>'sort',
-                       -default=>$sort,
-                       -override=>'1');
-   $temphtml .= hidden(-name=>'firstmessage',
-                       -default=>$firstmessage,
-                       -override=>'1');
-   $temphtml .= hidden(-name=>'folder',
-                       -default=>$folder,
-                       -override=>'1');
-   $temphtml .= hidden(-name=>'message_id',
-                       -default=>$messageid,
-                       -override=>'1');
-   $html =~ s/\@\@\@STARTSEARCHFORM\@\@\@/$temphtml/g;
-
-   my %searchtypelabels = ('name'=>$lang_text{'name'},
-                           'email'=>$lang_text{'email'},
-                           'note'=>$lang_text{'note'},
-                           'all'=>$lang_text{'all'});
-   $temphtml = popup_menu(-name=>'abook_searchtype',
-                           -default=>$abook_searchtype || 'name',
-                           -values=>['name', 'email', 'note', 'all'],
-                           -labels=>\%searchtypelabels);
-   $temphtml .= textfield(-name=>'abook_keyword',
-                          -default=>$abook_keyword,
-                          -size=>'25',
-                          -override=>'1');
-   $temphtml .= "&nbsp;";
-   $temphtml .= submit(-name=>"$lang_text{'search'}",
-	               -class=>'medtext');
-   $html =~ s/\@\@\@SEARCH\@\@\@/$temphtml/g;
-   
-   $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-prefs.pl",
-                         -name=>'newaddress') .
-               hidden(-name=>'action',
-                      -value=>'addaddress',
-                      -override=>'1') .
-               hidden(-name=>'sessionid',
-                      -value=>$thissession,
-                      -override=>'1') .
-               hidden(-name=>'sort',
-                      -default=>$sort,
-                      -override=>'1') .
-               hidden(-name=>'firstmessage',
-                      -default=>$firstmessage,
-                      -override=>'1') .
-               hidden(-name=>'folder',
-                      -default=>$folder,
-                      -override=>'1');
-               hidden(-name=>'message_id',
-                      -default=>$messageid,
-                      -override=>'1');
-
-   $html =~ s/\@\@\@STARTADDRESSFORM\@\@\@/$temphtml/;
-
-   $temphtml = textfield(-name=>'realname',
-                         -default=>'',
-                         -size=>'20',
-                         -override=>'1');
-
-   $html =~ s/\@\@\@REALNAMEFIELD\@\@\@/$temphtml/;
-
-   $temphtml = textfield(-name=>'email',
-                         -default=>'',
-                         -size=>'30',
-                         -override=>'1');
-   $temphtml .= qq|<a href="Javascript:GoAddressWindow('email')" title="$lang_text{'group'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/group.gif" border="0" ALT="$lang_text{'group'}"></a>|;
-
-   $html =~ s/\@\@\@EMAILFIELD\@\@\@/$temphtml/;
-
-   $temphtml = textfield(-name=>'note',
-                         -default=>'',
-                         -size=>'25',
-                         -override=>'1');
-   $html =~ s/\@\@\@NOTEFIELD\@\@\@/$temphtml/;
-
-   $temphtml = submit(-name=>"$lang_text{'addmod'}",
-                      -class=>"medtext");
-   $html =~ s/\@\@\@ADDBUTTON\@\@\@/$temphtml/;
-
-   $temphtml = end_form();
-   $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/g;
-
-   $temphtml = '';
-   my $bgcolor = $style{"tablerow_dark"};
-
-   foreach my $key (sort { lc($a) cmp lc($b) } keys %addresses) {
-      my ($namestr, $emailstr, $notestr)=($key, $addresses{$key}, $notes{$key});
-      if ( $abook_keyword ne "" &&
-           ( ($abook_searchtype eq "name" && 
-              $namestr!~/$abook_keyword/i && $namestr!~/\Q$abook_keyword\E/i)   ||
-             ($abook_searchtype eq "email" && 
-              $emailstr!~/$abook_keyword/i && $emailstr!~/\Q$abook_keyword\E/i) ||
-             ($abook_searchtype eq "note" && 
-              $notestr!~/$abook_keyword/i && $notestr!~/\Q$abook_keyword\E/i)   ||
-             ($abook_searchtype eq "all" && 
-              "$namestr.$emailstr.$notestr" !~ /$abook_keyword/i && 
-              "$namestr.$emailstr.$notestr" !~ /\Q$abook_keyword\E/i) )  ) {
-         next;
-      }
-      $namestr=substr($namestr, 0, 25)."..." if (length($namestr)>30);
-      $emailstr=substr($emailstr, 0, 35)."..." if (length($emailstr)>40);
-      $temphtml .= qq|<tr>|.
-                   qq|<td bgcolor=$bgcolor width="150"><a href="Javascript:Update('$key','$addresses{$key}','$notes{$key}')">$namestr</a></td>|.
-                   qq|<td bgcolor=$bgcolor width="250"><a href="$config{'ow_cgiurl'}/openwebmail-send.pl?action=composemessage&amp;firstmessage=$firstmessage&amp;sort=$sort&amp;folder=$escapedfolder&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$addresses{$key}">$emailstr</a></td>|.
-                   qq|<td bgcolor=$bgcolor width="150">$notestr</td>|;
-
-      $temphtml .= qq|<td bgcolor=$bgcolor align="center">|;
-
-      $temphtml .= start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-prefs.pl");
-      $temphtml .= hidden(-name=>'action',
-                          -value=>'deleteaddress',
-                          -override=>'1');
-      $temphtml .= hidden(-name=>'sessionid',
-                          -value=>$thissession,
-                          -override=>'1');
-      $temphtml .= hidden(-name=>'sort',
-                          -default=>$sort,
-                          -override=>'1');
-      $temphtml .= hidden(-name=>'firstmessage',
-                          -default=>$firstmessage,
-                          -override=>'1');
-      $temphtml .= hidden(-name=>'folder',
-                          -default=>$folder,
-                          -override=>'1');
-      $temphtml .= hidden(-name=>'message_id',
-                          -default=>$messageid,
-                          -override=>'1');
-      $temphtml .= hidden(-name=>'realname',
-                          -value=>$key,
-                          -override=>'1');
-      $temphtml .= submit(-name=>"$lang_text{'delete'}",
-                          -class=>"medtext");
-
-      $temphtml .= '</td></tr>';
-      $temphtml .= end_form();
-
-      if ($bgcolor eq $style{"tablerow_dark"}) {
-         $bgcolor = $style{"tablerow_light"};
-      } else {
-         $bgcolor = $style{"tablerow_dark"};
-      }
-   }
-
-   if ($#globalnamelist >= 0) {
-      $temphtml .= qq|<tr><td colspan="4">&nbsp;</td></tr>\n|.
-                   qq|<tr><td colspan="4" bgcolor=$style{columnheader}><B>$lang_text{globaladdressbook}</B> ($lang_text{readonly})</td></tr>\n|;
-   }
-   $bgcolor = $style{"tablerow_dark"};
-   foreach my $key (@globalnamelist) {
-      my ($namestr, $emailstr, $notestr)=($key, $globaladdresses{$key}, $globalnotes{$key});
-      if ( $abook_keyword ne "" &&
-           ( ($abook_searchtype eq "name" && 
-              $namestr!~/$abook_keyword/i && $namestr!~/\Q$abook_keyword\E/i)   ||
-             ($abook_searchtype eq "email" && 
-              $emailstr!~/$abook_keyword/i && $emailstr!~/\Q$abook_keyword\E/i) ||
-             ($abook_searchtype eq "note" && 
-              $notestr!~/$abook_keyword/i && $notestr!~/\Q$abook_keyword\E/i)   ||
-             ($abook_searchtype eq "all" && 
-              "$namestr.$emailstr.$notestr" !~ /$abook_keyword/i && 
-              "$namestr.$emailstr.$notestr" !~ /\Q$abook_keyword\E/i) )  ) {
-         next;
-      }
-      $namestr=substr($namestr, 0, 25)."..." if (length($namestr)>30);
-      $emailstr=substr($emailstr, 0, 35)."..." if (length($emailstr)>40);
-      $temphtml .= qq|<tr>|.
-                   qq|<td bgcolor=$bgcolor width="150"><a href="Javascript:Update('$key','$globaladdresses{$key}','$globalnotes{$key}')">$namestr</a></td>|.
-                   qq|<td bgcolor=$bgcolor width="250"><a href="$config{'ow_cgiurl'}/openwebmail-send.pl?action=composemessage&amp;firstmessage=$firstmessage&amp;sort=$sort&amp;folder=$escapedfolder&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$globaladdresses{$key}">$emailstr</a></td>|.
-                   qq|<td bgcolor=$bgcolor width="150">$notestr</td>|.
-                   qq|<td bgcolor=$bgcolor align="center">-----</td></tr>|;
-
-      if ($bgcolor eq $style{"tablerow_dark"}) {
-         $bgcolor = $style{"tablerow_light"};
-      } else {
-         $bgcolor = $style{"tablerow_dark"};
-      }
-   }
-
-   $html =~ s/\@\@\@ADDRESSES\@\@\@/$temphtml/;
-
-   print $html;
-
-   printfooter(2);
-}
-################### END EDITADDRESSES ########################
-
-################### MODADDRESS ##############################
-sub modaddress {
-   my $mode = shift;
-   my ($realname, $address, $usernote);
-   $realname = param("realname") || '';
-   $address = param("email") || '';
-   $usernote = param("note") || '';
-   $realname =~ s/^\s*//; # strip beginning and trailing spaces from hash key
-   $address =~ s/[#&=\?]//g;
-   $address =~ s/^\s*mailto:\s*//;
-   $usernote =~ s/^\s*//; # strip beginning and trailing spaces
-   $usernote =~ s/\s*$//;
-
-   if (($realname && $address) || (($mode eq 'delete') && $realname) ) {
-      my %addresses;
-      my %notes;
-      my ($name,$email,$note);
-      if ( -f "$folderdir/.address.book" ) {
-         if ($mode ne 'delete') {
-            if ( (-s "$folderdir/.address.book") >= ($config{'maxbooksize'} * 1024) ) {
-               openwebmailerror(qq|$lang_err{'abook_toobig'} <a href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editaddresses&amp;sessionid=$thissession&amp;sort=$sort&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;message_id=$escapedmessageid">$lang_err{'back'}</a>$lang_err{'tryagain'}|);
-            }
-         }
-         filelock("$folderdir/.address.book", LOCK_EX|LOCK_NB) or
-            openwebmailerror("$lang_err{'couldnt_lock'} $folderdir/.address.book!");
-         open (ABOOK,"+<$folderdir/.address.book") or
-            openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.address.book!");
-         while (<ABOOK>) {
-            ($name, $email, $note) = split(/\@\@\@/, $_, 3);
-            chomp($email); chomp($note);
-            $addresses{"$name"} = $email;
-            $notes{"$name"} = $note;
-         }
-         if ($mode eq 'delete') {
-            delete $addresses{"$realname"};
-         } else {
-            $addresses{"$realname"} = $address;
-            # overwrite old note only if new one is not _reserved_
-            # check addaddress in openwebmail-read.pl
-            if ($usernote ne '_reserved_') { 
-               $notes{"$realname"} = $usernote;
-            }
-         }
-         seek (ABOOK, 0, 0) or
-            openwebmailerror("$lang_err{'couldnt_seek'} $folderdir/.address.book!");
-
-         foreach (sort keys %addresses) {
-            ($name,$email,$note)=($_, $addresses{$_}, $notes{$_});
-            $name=~s/\@\@/\@\@ /g; $name=~s/\@$/\@ /;
-            $email=~s/\@\@/\@\@ /g; $email=~s/\@$/\@ /;
-            print ABOOK "$name\@\@\@$email\@\@\@$note\n";
-         }
-         truncate(ABOOK, tell(ABOOK));
-         close (ABOOK) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.address.book!");
-         filelock("$folderdir/.address.book", LOCK_UN);
-      } else {
-         open (ABOOK, ">$folderdir/.address.book" ) or
-            openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.address.book!");
-         $realname=~s/\@\@/\@\@ /g; $realname=~s/\@$/\@ /;
-         $address=~s/\@\@/\@\@ /g; $address=~s/\@$/\@ /;
-         print ABOOK "$realname\@\@\@$address\@\@\@$usernote\n";
-         close (ABOOK) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.address.book!");
-      }
-   }
-
-   if ( param("message_id") ) {
-      my $searchtype = param("searchtype") || 'subject';
-      my $keyword = param("keyword") || '';
-      my $escapedkeyword = escapeURL($keyword);
-      print "Location: $config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&sessionid=$thissession&firstmessage=$firstmessage&sort=$sort&keyword=$escapedkeyword&searchtype=$searchtype&folder=$escapedfolder&message_id=$escapedmessageid\n\n";
-   } else {
-      editaddresses();
-   }
-}
-################## END MODADDRESS ###########################
-
-################## CLEARADDRESS ###########################
-sub clearaddress {
-   if ( -f "$folderdir/.address.book" ) {
-      open (ABOOK, ">$folderdir/.address.book") or
-         openwebmailerror ("$lang_err{'couldnt_open'} $folderdir/.address.book!");
-      close (ABOOK) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.address.book!");
-   }
-
-   writelog("clear addressbook");
-   writehistory("clear addressbook");
-
-#   print "Location: $config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editaddresses&sessionid=$thissession&sort=$sort&folder=$escapedfolder&firstmessage=$firstmessage&message_id=$escapedmessageid\n\n";
-   editaddresses();
-}
-################## END CLEARADDRESS ###########################
-
 #################### EDITFROMS ###########################
 sub editfroms {
    my $html = '';
@@ -2528,12 +1788,21 @@ sub editpop3 {
 
    $html =~ s/\@\@\@PASSFIELD\@\@\@/$temphtml/;
 
-   $temphtml = checkbox(-name=>'pop3del',
-                  -value=>'1',
-                  -checked=>$config{'delpop3mail_by_default'},
-                  -label=>'');
-
-   $html =~ s/\@\@\@DELCHECKBOX\@\@\@/$temphtml/;
+   # if hidden, disable user to change this option
+   if ($config{'delpop3mail_hidden'}) {
+      $temphtml = hidden(-name=>'pop3del', -value=>$config{'delpop3mail_by_default'});
+      $html =~ s/\@\@\@DELCHECKBOX\@\@\@/$temphtml/;
+      $html =~ s/\@\@\@DELPOP3STRSTART\@\@\@/<!--/;
+      $html =~ s/\@\@\@DELPOP3STREND\@\@\@/-->/;
+   } else {
+      $temphtml = checkbox(-name=>'pop3del',
+                           -value=>'1',
+                           -checked=>$config{'delpop3mail_by_default'},
+                           -label=>'');
+      $html =~ s/\@\@\@DELCHECKBOX\@\@\@/$temphtml/;
+      $html =~ s/\@\@\@DELPOP3STRSTART\@\@\@//;
+      $html =~ s/\@\@\@DELPOP3STREND\@\@\@//;
+   }
 
    $temphtml = checkbox(-name=>'enable',
                   -value=>'1',
@@ -2560,17 +1829,19 @@ sub editpop3 {
                    qq|<td align="center" bgcolor=$bgcolor>\*\*\*\*\*\*</td>\n|.
                    qq|<td align="center" bgcolor=$bgcolor>\n|;
 
-      if ( $pop3del == 1) {
-      	 $temphtml .= $lang_text{'delete'};
-      }
-      else {
-      	 $temphtml .= $lang_text{'reserve'};
+      if ($config{'delpop3mail_hidden'}) {
+      	 $temphtml .= "&nbsp;";
+      } else {
+         if ( $pop3del == 1) {
+       	    $temphtml .= $lang_text{'delete'};
+         } else {
+      	    $temphtml .= $lang_text{'reserve'};
+         }
       }
       $temphtml .= qq|</td><td align="center" bgcolor=$bgcolor>\n|;
       if ( $enable == 1) {
       	 $temphtml .= $lang_text{'enable'};
-      }
-      else {
+      } else {
       	 $temphtml .= $lang_text{'disable'};
       }
       $temphtml .= "</td>";
@@ -2995,6 +2266,8 @@ sub modfilter {
                openwebmailerror(qq|$lang_err{'abook_toobig'} <a href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editaddresses&amp;sessionid=$thissession&amp;sort=$sort&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;message_id=$escapedmessageid">$lang_err{'back'}</a>$lang_err{'tryagain'}|);
             }
          }
+
+         # read personal filter and update it
          filelock("$folderdir/.filter.book", LOCK_EX|LOCK_NB) or
             openwebmailerror("$lang_err{'couldnt_lock'} $folderdir/.filter.book!");
          open (FILTER,"+<$folderdir/.filter.book") or
@@ -3021,14 +2294,26 @@ sub modfilter {
          close (FILTER) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.filter.book!");         
          filelock("$folderdir/.filter.book", LOCK_UN);
 
-         # remove stale entries in filterrule db 
+         # read global filter into hash %filterrules
+         open (FILTER,"$config{'global_filterbook'}") or
+            openwebmailerror("$lang_err{'couldnt_open'} $config{'global_filterbook'}!");
+         while(<FILTER>) {
+            my ($epriority,$erules,$einclude,$etext,$eop,$edestination,$eenable);
+            my $line=$_; chomp($line);
+            ($epriority,$erules,$einclude,$etext,$eop,$edestination,$eenable) = split(/\@\@\@/, $line);
+            $filterrules{"$erules\@\@\@$einclude\@\@\@$etext\@\@\@$edestination"}="$epriority\@\@\@$erules\@\@\@$einclude\@\@\@$etext\@\@\@$eop\@\@\@$edestination\@\@\@$eenable";
+         }
+         close (FILTER) or openwebmailerror("$lang_err{'couldnt_close'} $config{'global_filterbook'}!");         
+
+         # remove stale entries in filterrule db by checking %filterrules
          filelock("$folderdir/.filter.book$config{'dbm_ext'}", LOCK_EX);
          my %FTDB;
          dbmopen (%FTDB, "$folderdir/.filter.book$config{'dbmopen_ext'}", undef);
          foreach my $key (keys %FTDB) {
            if ( ! defined($filterrules{$key}) &&
-                $key ne "filter_fakedexecontenttype" &&
-                $key ne "filter_fakedsmtp" ) {
+                $key ne "filter_fakedsmtp" &&
+                $key ne "filter_fakedfrom" &&
+                $key ne "filter_fakedexecontenttype" ) {
               delete $FTDB{$key};
            }
          }

@@ -4,6 +4,6 @@
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>CONFIRM MISMATCH</B></font>
 </td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>New passowrd confirm mismatch!<BR>
+<BR>Confirmarea parolei nu e correcta!<BR>
 @@@CONTINUEBUTTON@@@
 </td></tr></table>

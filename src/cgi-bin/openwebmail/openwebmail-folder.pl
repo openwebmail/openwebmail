@@ -3,7 +3,7 @@
 # Open WebMail - Provides a web interface to user mailboxes                 #
 #                                                                           #
 # Copyright (C) 2001-2002                                                   #
-# Chung-Kie Tung, Nai-Jung Kuo, Chao-Chiu Wang, Emir Litric                 #
+# Chung-Kie Tung, Nai-Jung Kuo, Chao-Chiu Wang, Emir Litric, Thomas Chung   #
 # Copyright (C) 2000                                                        #
 # Ernie Miller  (original GPL project: Neomail)                             #
 #                                                                           #
@@ -17,11 +17,11 @@ push (@INC, $SCRIPT_DIR, ".");
 
 $ENV{PATH} = ""; # no PATH should be needed
 $ENV{BASH_ENV} = ""; # no startup script for bash
-umask(0007); # make sure the openwebmail group can write
+umask(0002); # make sure the openwebmail group can write
 
 use strict;
 use Fcntl qw(:DEFAULT :flock);
-use CGI qw(:standard);
+use CGI qw(-private_tempfiles :standard);
 use CGI::Carp qw(fatalsToBrowser);
 CGI::nph();   # Treat script as a non-parsed-header script
 
@@ -44,7 +44,7 @@ use vars qw($firstmessage);
 use vars qw($sort);
 
 $firstmessage = param("firstmessage") || 1;
-$sort = param("sort") || $prefs{"sort"} || 'date';
+$sort = param("sort") || $prefs{'sort'} || 'date';
 
 # extern vars
 use vars qw($lang_charset %lang_folders %lang_text %lang_err);	# defined in lang/xy
@@ -191,7 +191,7 @@ sub editfolders {
    }
 
    if ($total_foldersize > 1048575){
-      $total_foldersize = int(($total_foldersize/1048576)+0.5) . "MB";
+      $total_foldersize = int($total_foldersize/1048576*10+0.5)/10 . "MB";
    } elsif ($total_foldersize > 1023) {
       $total_foldersize =  int(($total_foldersize/1024)+0.5) . "KB";
    }
@@ -245,7 +245,7 @@ sub _folderline {
    $total_foldersize+=$foldersize;
    # round foldersize and change to an appropriate unit for display
    if ($foldersize > 1048575){
-      $foldersize = int(($foldersize/1048576)+0.5) . "MB";
+      $foldersize = int($foldersize/1048576*10+0.5)/10 . "MB";
    } elsif ($foldersize > 1023) {
       $foldersize =  int(($foldersize/1024)+0.5) . "KB";
    }
@@ -292,19 +292,20 @@ sub _folderline {
                        -override=>'1');
    $temphtml .= "\n";
 
+   my $jsfolderstr=$currfolder; $jsfolderstr=~ s/'/\\'/g;	# escaep ' with \'
    $temphtml .= submit(-name=>"$lang_text{'chkindex'}",
                        -class=>"medtext",
-                       -onClick=>"return OpConfirm('folderform$i', 'chkindexfolder', $lang_text{'folderchkindexconf'}+' ( $currfolder )')");
+                       -onClick=>"return OpConfirm('folderform$i', 'chkindexfolder', $lang_text{'folderchkindexconf'}+' ( $jsfolderstr )')");
    $temphtml .= submit(-name=>"$lang_text{'reindex'}", 
                        -class=>"medtext",
-                       -onClick=>"return OpConfirm('folderform$i', 'reindexfolder', $lang_text{'folderreindexconf'}+' ( $currfolder )')");
+                       -onClick=>"return OpConfirm('folderform$i', 'reindexfolder', $lang_text{'folderreindexconf'}+' ( $jsfolderstr )')");
    if ($currfolder ne "INBOX") {
       $temphtml .= submit(-name=>"$lang_text{'rename'}", 
                           -class=>"medtext",
-                          -onClick=>"return OpConfirm('folderform$i', 'renamefolder', $lang_text{'folderrenprop'}+' ( $currfolder )')");
+                          -onClick=>"return OpConfirm('folderform$i', 'renamefolder', $lang_text{'folderrenprop'}+' ( $jsfolderstr )')");
       $temphtml .= submit(-name=>"$lang_text{'delete'}",
                           -class=>"medtext",
-                          -onClick=>"return OpConfirm('folderform$i', 'deletefolder', $lang_text{'folderdelconf'}+' ( $currfolder )')");
+                          -onClick=>"return OpConfirm('folderform$i', 'deletefolder', $lang_text{'folderdelconf'}+' ( $jsfolderstr )')");
    }
 
    $temphtml .= "</td></tr>";

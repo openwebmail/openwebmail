@@ -19,24 +19,24 @@ body
     scrollbar-arrow-color:black;
     scrollbar-base-color:#B9C1C9;
     scrollbar-face-color:#B9C1C9;
-    font-size: 10pt;
+    font-size: @@@FONTSIZE@@@;
     color: black;
     font-family: Arial, Verdana, Helvetica, Sans-sherif
 }
-th   {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt; font-weight: bold; background-color: #D3DCE3;}
-td   {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt;}
-td.msgbody   {  font-family: @@@FIXEDFONT@@@ Arial, Helvetica, sans-serif; font-size: 10pt;}
-form   {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+th   {  font-family: Arial, Helvetica, sans-serif; font-size: @@@FONTSIZE@@@; font-weight: bold; background-color: #D3DCE3;}
+td   {  font-family: Arial, Helvetica, sans-serif; font-size: @@@FONTSIZE@@@;}
+td.msgbody   {  font-family: @@@FIXEDFONT@@@ Arial, Helvetica, sans-serif; font-size: @@@FONTSIZE@@@;}
+form   {  font-family: Arial, Helvetica, sans-serif; font-size: @@@FONTSIZE@@@}
 h1   {  font-family: Arial, Helvetica, sans-serif; font-size: 16pt; font-weight: bold}
-A:link    {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt; text-decoration: none; color: black}
-A:visited {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt; text-decoration: none; color: black}
-A:hover   {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt; text-decoration: none; color: red}
-A.msgbody:link    {  font-family: @@@FIXEDFONT@@@ Arial, Helvetica, sans-serif; font-size: 10pt; text-decoration: none; color: black}
-A.msgbody:visited {  font-family: @@@FIXEDFONT@@@ Arial, Helvetica, sans-serif; font-size: 10pt; text-decoration: none; color: black}
-A.msgbody:hover   {  font-family: @@@FIXEDFONT@@@ Arial, Helvetica, sans-serif; font-size: 10pt; text-decoration: none; color: red}
+A:link    {  font-family: Arial, Helvetica, sans-serif; font-size: @@@FONTSIZE@@@; text-decoration: none; color: black}
+A:visited {  font-family: Arial, Helvetica, sans-serif; font-size: @@@FONTSIZE@@@; text-decoration: none; color: black}
+A:hover   {  font-family: Arial, Helvetica, sans-serif; font-size: @@@FONTSIZE@@@; text-decoration: none; color: red}
+A.msgbody:link    {  font-family: @@@FIXEDFONT@@@ Arial, Helvetica, sans-serif; font-size: @@@FONTSIZE@@@; text-decoration: none; color: black}
+A.msgbody:visited {  font-family: @@@FIXEDFONT@@@ Arial, Helvetica, sans-serif; font-size: @@@FONTSIZE@@@; text-decoration: none; color: black}
+A.msgbody:hover   {  font-family: @@@FIXEDFONT@@@ Arial, Helvetica, sans-serif; font-size: @@@FONTSIZE@@@; text-decoration: none; color: red}
 A:link.nav {  font-family: Arial, Helvetica, sans-serif; color: #000000}
 A:visited.nav {  font-family: Arial, Helvetica, sans-serif; color: #000000}
 A:hover.nav {  font-family: Arial, Helvetica, sans-serif; color: red;}
 .nav {  font-family: Arial, Helvetica, sans-serif; color: #000000}
-.medtext { font-size: 9pt;}
+.medtext { font-size: @@@MEDFONTSIZE@@@;}
 -->

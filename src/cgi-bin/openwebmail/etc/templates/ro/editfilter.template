@@ -10,23 +10,23 @@
 </td></tr><tr><td colspan="9">&nbsp;</td></tr>
 <tr>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Count</B>&nbsp;</td>
+<B>Caunt</B>&nbsp;</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Priority</B></td>
+<B>Prioritate</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Rules</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Inc/Exc</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>String</B> (click to edit)</td>
+<B>String</B> (click pentru editare)</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Action</B></td>
+<B>Actiune</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Destination</B></td>
+<B>Destinatar</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Enable</B></td>
+<B>Activeaza</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Action</B>
+<B>Actiune</B>
 </td></tr>
 @@@STARTFILTERFORM@@@
 <tr>

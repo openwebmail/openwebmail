@@ -17,7 +17,7 @@ A: Your apache is not properly configured to execute CGI program.
 
    Then reload httpd.
 
-   (thanks to Thomas Chung, tchung1970@users.sourceforge.net)
+   (thanks to Thomas Chung, tchung1970.AT.users.sourceforge.net)
 
 ps: If you are using Mandrake:
     httpd config file is loated at /etc/httpd/conf/commonhttpd.conf
@@ -42,7 +42,8 @@ A: There are many possible answers...
       openwebmail.pl, openwebmail-main.pl, 
       openwebmail-read.pl, openwebmail-viewatt.pl, 
       openwebmail-send.pl, openwebmail-spell.pl,
-      openwebmail-prefs.pl, openwebmail-folder.pl and checkmail.pl
+      openwebmail-prefs.pl, openwebmail-folder.pl, openwebmail-abook.pl
+      and checkmail.pl
 
       should be
 
@@ -63,7 +64,7 @@ A: There are many possible answers...
             d_dosuid='define' 
             d_suidsafe='undef'
          4. then make, make install (make suidperl if needed) 
-         (thanks to Nemo Kaiser, nemoo@users.sourceforge.net)
+         (thanks to Nemo Kaiser, nemoo.AT.users.sourceforge.net)
 
       c. Or use uty/suidwrap.pl to generate C wrappers for all suid scripts.
          Here are the steps:
@@ -72,7 +73,7 @@ A: There are many possible answers...
 
          All suid scripts will be renamed to .scriptname.pl and
          the C wrapper will be generated and named as script.pl
-         (thanks to Chris Heegard, heegard@NativeI.com)
+         (thanks to Chris Heegard, heegard.AT.NativeI.com)
 
    4. The MIME::Base64 or CGI module on your system may be too old
       a. install MIME-Base64-2.12.tar.gz
@@ -131,6 +132,7 @@ A: There are 2 possible answers for this:
 Q: I got "Couldn't open XXX-session-0.370606494136155!" error after login?
 A: You openwebmail-1.xx.tgz was uncompressed with improper parameter.
    It should be "tar -zxvBpf openwebmail-1.xx.tgz"
+   Or you can refer to the file permission list in the end of readme.txt
 
 Q: I got "Software error: Can't locate MIME/Base64.pm in @INC"?
 A: Please download MIME-Base64-2.12.tar.gz and install
@@ -169,6 +171,20 @@ A: Your sendmail may be configured to listen on the server_ip:25 only,
    Please change the x.x.x.x to 0.0.0.0 to make sendmail 
    listen on all IPs binding on the server network interfaces.
 
+Q: I still got the "Couldn't open SMTP server 127.0.0.1" error?
+A: Please check the permission of your /etc/protocols and /etc/services,
+   it should be 0644. (-rw-r--r--)
+
+Q: I got 'Sorry, there was a problem sending your message' error?
+A: a. Please check if smtpserver option in openwebmail.conf points to valid
+      SMTP server, its default is '127.0.0.1'. If you set it to name of some
+      other SMTP server, please be sure the SMTP server allows mails relayed 
+      from your host.
+   b. When SMTP server is set to 127.0.0.1, please be sure the hosts.allow
+      has the following entry
+
+      sendmail : localhost 127.0.0.1 : allow
+
 Q: Does openwebmail support SASL authentication on SMTP?
 A: Yes, but only the PLAIN type authentication is supported.
    The username/password will be encoded with base64, so it is not very secure.
@@ -190,10 +206,10 @@ A: Please set the domainnames option in openwebmail.conf from 'auto' to
 
 Q: How can I use LDAP to authenticate user in openwebmail?
 A: You have 2 ways to do this:
-   1. use the auth_ldap.pl written by Ivan Cerrato, pengus@libero.it
+   1. use the auth_ldap.pl written by Ivan Cerrato, pengus.AT.libero.it
    2. use auth_pam module and let pam to talk with ldap server.
 
-   Below is an article posted at sourceforge by "ispman@user.sourceforge.net
+   Below is an article posted at sourceforge by "ispman.AT.user.sourceforge.net
    (http://sourceforge.net/forum/message.php?msg_id=1462314)
 
    ---------------- begin ----------------
@@ -332,24 +348,29 @@ A: set option allow_setfromemail to 'no' in either openwebmal.conf or per
    user config.
 
 Q: Some of my messages were moved to trash folder automatically?
-A: Your messages were either filtered by 'global filter rule' or 
-   'faked smtp message filter' or 'faked exe contenttype filter'. 
+A: Your messages were either filtered by 'global filter rule',
+   'faked smtp filter', 'faked from filter' or 'faked exe contenttype filter'. 
 
    Global filter will filter messages with know virus attachments. The global
    filter rules are defined in the file global_filterbook
    (global_filterbook is defined as %ow_etcdir%/global_filterbook in 
     openwebmail.conf.)
 
-   The 'faked smtp message filter' will filter messages that have a faked smtp
-   source, those messages are often from spammers. 'faked smtp filter' is 
-   default disabled and can be changed in openwebmail.conf. The user can also 
-   enable/disable it in the user preference. 
+   The 'faked smtp filter' will filter messages that have a faked smtp
+   source, those messages are often from spammers. 
+   The 'faked from filter' will filter messages whose From: field is different
+   than the email address in the SMTP envelope address, those messages are 
+   often generated from virus. 
 
    The 'faked exe contenttype filter' will filter messages that have 
    executable attachment with faked contenttype, eg: audio, midi...
    These messages are often generated by viruses, the borwser will download
    the attachment because its contenttype is audio and then execute the 
    downloaded file because it file extension is exe/com/bat/scr/pif/lnk.
+
+   The three faked xxx filters are default disabled and the default can be 
+   changed in openwebmail.conf. The user can also enable/disable it in 
+   the user preference. 
 
 Q: What are "messages with faked smtp"?
 A: In short, they are messages coming from mail servers that fake their 
@@ -454,12 +475,6 @@ A: please check
    to see if any update fixes your problem and download the 
    openwebmail-current.tgz
 
-Q: I got 'Sorry, there was a problem sending your message' error?
-A: Please check if smtpserver option in openwebmail.conf points to valid
-   SMTP server, its default is '127.0.0.1'. If you set it to name of some
-   other SMTP server, please be sure the SMTP server allows mails relayed 
-   from your host.
-
 Q: The autoreply function doesn't work?
 A: An incoming message won't be replied by vacation.pl if
    1. the destinated username has entries defined in /etc/alias which causes
@@ -493,7 +508,7 @@ A: Your sendmail may be configured with Sendmail Restricted SHell or smrsh.
 
    cd /etc/smrsh
    ln -s /var/www/cgi-bin/openwebmail/vacation.pl /etc/smrsh/vacation.pl
-   (thanks to Emir Litric, elitric@yahoo.com)
+   (thanks to Emir Litric, elitric.AT.yahoo.com)
 
 Q: Can I use openwebmail with SSL?
    I got "site not found" or "could not connect to the server" error?
@@ -504,7 +519,11 @@ A: Yes, openwebmail can work with SSL.
    (or VirtualHost container)
 
    SetEnvIf User-Agent ".*MSIE.*" nokeepalive ssl-unclean-shutdown
-   (thanks to Happy Camper, hcamper@users.sourceforge.net) 
+   (thanks to Happy Camper, hcamper.AT.users.sourceforge.net) 
+
+Q: I got "Software error: ndbm store returned -1, errno 49, ..."?
+A: The user may exceed his quota limit on the file system.
+   Please remove unwanted files or increase the quota for user.
 
 Q: My SENT folder shows -1 or other negative message size rather then
    regular message size?
@@ -515,14 +534,24 @@ A: This problem occurs if you installed Open WebMail on the same partition
 
    Please read RedHat-README.txt for detailed explanation on setting up
    this, since this problem mostly occurs on RedHat Linux 6.2 and bellow. 
-   (thanks to Emir Litric, elitric@yahoo.com)
+   (thanks to Emir Litric, elitric.AT.yahoo.com)
 
 Q: There were strange characters in the mail filter menu and those rules could
    not be deleted?
-A: The ~/.filter.book and its index may be written into the same file.
-   The is due to the dbmopen() of your perl didn't add the ".db" extension 
-   automatically. You may set dbmopen_ext to %dbm_ext% in openwebmail.conf 
-   to fix this problem.
+A: This is due to the dbmopen() of your perl didn't add the ".db" extension 
+   automatically, so the ~/.filter.book and its index were written to the same
+   file. This problem can be fixed by properly setting option dbm_ext and 
+   dbmopen_ext. To find the correct setting for the two options: 
+
+   perl cgi-bin/openwebmail/uty/dbmtest.pl [enter]
+
+   and you will get output like this:
+
+   dbm_ext         .db
+   dbmopen_ext     none
+
+   Then put the two lines into your openwebmail.conf.
+
    I
 Q: My openwebmail was okay, but I got "Your request didn't contain the proper 
    session ID cookie -- access denied!" in these days?
@@ -571,6 +600,21 @@ A: Each version of openwebmail is made to be backward compatible with
    2. install new openwebmail in the same location as old version
    3. update the new openwebmail.conf with the setting in old one.
 
+Q: How can I move old messages in my mail client into openwebmail folders?
+A: a. If your mail client program supports IMAP and your mail server has 
+      imapd installed, you may move old messages in the mail client to 
+      remote folders on mail server through the IMAP protocol. 
+      Be sure to put the folders under ~/mail so openwebmail can find them
+      automatically.
+   b. Some mail client stores or can export messages into unix mbox format
+      folder file.(eg: Eudora) You can just upload the mbox file to the 
+      ~/mail/ and openwebmail will find them automatically.
+
+   ps: If your folder file is in dos text format, you may need use the 
+       following command to stripe out the \r at each end of line.
+
+       perl -pi -e "s/\r\n/\n/" folderfile
+
 Q: How can I report problem?
 A: If your Open WebMail doesn't work, please post your problem on
    openwebmail forum http://sourceforge.net/forum/forum.php?forum_id=108433
@@ -586,7 +630,7 @@ A: If your Open WebMail doesn't work, please post your problem on
 
    If your Open WebMail works but it shows strange output for some messages,
    please forward the message as an attachment to us
-   (openwebmail@turtle.ee.ncku.edu.tw)
+   (openwebmail.AT.turtle.ee.ncku.edu.tw)
    ps: clicking the 'forward as attachment' icon in message reading menu
 
 Q: Can I call openwebmail from my programs with username/password specified?
@@ -599,6 +643,15 @@ A: You can call the openwebmail with url
 Q: Can I call openwebmail and enter the composemessage menu directly?
 A: You can call the openwebmail with url
    http://server/openwebmail.pl?loginname=USER&password=PASS&to=EMAIL&subject=SUBJECT
+
+Q: I already have a web application which would authentication for user,
+   how can I integrate openwebmail with it so the user doesn't need to login
+   again when click the openwebmail link?
+A: All you have to do is to write a very simple auth_xxx.pl which checks if 
+   a user have already logined on your web application through server session 
+   file or cookies. 
+   And the link to call the openwebmail.pl should be 
+   http:/xxxx/openwebmail.pl?loginname=USERNAME&password=dummy 
 
 Q: How can I setup IE to trigger Open WebMail compose window when I click
    a "mailto:someone@somehost" link?
@@ -614,7 +667,7 @@ A: In Windows Explorer, if you go to Tools -> Folder Options, click on the
    This will make Windows open Internet Explorer and go directly to the .pl 
    page and login with the specified user and pass.
 
-   (Thanks to Mike Andrews, mike@lcso.org)
+   (Thanks to Mike Andrews, mike.AT.lcso.org)
 
 Q: How can I set an alias/redirection/link to the openwebmail script so users 
    can use openwebmail with a shorter url?
@@ -641,7 +694,7 @@ A: Yes, try the auth_pop3.pl. Some information is available in it.
 
 Q: Can I setup mail account for user without creating the unix acount?
 A: Yes, you need postfix + vm-pop3d + openwebmail.
-   Kevin Ellis(kevin@bluelavalamp.net) has made a webpage for this,
+   Kevin Ellis(kevin.AT.bluelavalamp.net) has made a webpage for this,
    it is available at http://www.bluelavalamp.net/owmvirtual/
 
 Q: Can Open WebMail be used with mod_perl?
@@ -669,4 +722,4 @@ A: Yes. Open WebMail is GPLed software (please see copyright.txt for
 
 04/02/2002 
 
-openwebmail@turtle.ee.ncku.edu.tw
+openwebmail.AT.turtle.ee.ncku.edu.tw

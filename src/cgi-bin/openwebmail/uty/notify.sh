@@ -49,7 +49,11 @@ if [ "$ans" = "y" -o "$ans" = "Y" ]; then
   duster@tpu.ru \
   vess@btc.net \
   liangs@kunchang.com.tw \
-  eguler@aegee.metu.edu.tr
+  eguler@aegee.metu.edu.tr \
+  mik@orka.ibz.pl \
+  blackfire@virtual.net.pl \
+  vladimir@bitsoft.ro \
+  jan@bilik.org
 
   echo "openwebmail current $date is available at
 http://turtle.ee.ncku.edu.tw/openwebmail/download/openwebmail-current.tgz">/tmp/mktgz.tmp.$$

@@ -31,17 +31,17 @@
       var s;
       s=document.passwordform.newpassword.value;
       if (s.length < 4) {
-         alert("Password must has at least 4 characters.");
+         alert("Has³o musi sk³adaæ siê z co najmniej 4 znaków.");
          return false;
       }
       if (document.passwordform.newpassword.value !=
 	  document.passwordform.confirmnewpassword.value) {
-         alert("New password confirm mismatch.");
+         alert("Podane has³a nie zgadzaj± siê.");
          return false;
       }
       if (document.passwordform.newpassword.value ==
 	  document.passwordform.oldpassword.value) {
-         alert("New password is the same as the old one.");
+         alert("Has³o jest takie samo jak poprzednie.");
          return false;
       }
       return true;

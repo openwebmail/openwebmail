@@ -43,7 +43,6 @@ MIME-Base64-2.12.tar.gz  (required)
 libnet-1.0901.tar.gz     (required)
 Authen-PAM-0.12.tar.gz   (optional)
 ispell-3.1.20.tar.gz     (optional)
-hc-30.tar.gz             (optional)
 
 
 INSTALL REQUIRED PACKAGES
@@ -115,10 +114,11 @@ then just
       openwebmail.pl, openwebmail-main.pl, 
       openwebmail-read.pl, openwebmail-viewatt.pl, 
       openwebmail-send.pl, openwebmail-spell.pl,
-      openwebmail-prefs.pl, openwebmail-folder.pl and checkmail.pl
+      openwebmail-prefs.pl, openwebmail-folder.pl, openwebmail-abook.pl
+      and checkmail.pl
 
 If you are using RedHat 6.2/CLE 0.9p1(or most Linux) with apache
-(by clarinet@totoro.cs.nthu.edu.tw)
+(by clarinet.AT.totoro.cs.nthu.edu.tw)
 
 1. cd /home/httpd
    tar -zxvBpf openwebmail-X.XX.tgz
@@ -148,9 +148,9 @@ If you are using RedHat 6.2/CLE 0.9p1(or most Linux) with apache
 
 ps: If you are using RedHat 7.1, please use /var/www instead of /home/httpd
     It is highly recommended to read the doc/RedHat-README.txt(contributed by 
-    elitric@yahoo.com) if you are installing Open WebMail on RedHat Linux.
+    elitric.AT.yahoo.com) if you are installing Open WebMail on RedHat Linux.
 
-ps: Thomas Chung (tchung@pasadena.oao.com) maintains a tarbal packed 
+ps: Thomas Chung (tchung.AT.pasadena.oao.com) maintains a tarbal packed 
     with an install script special for RedHat 7.x. It is available at
     http://openwebmail.org/openwebmail/download/redhat-7x-installer/.
     You can get openwebmail to work in 5 minutes with this :)
@@ -179,13 +179,32 @@ eg: /usr/local/apache/share, then
       openwebmail.pl, openwebmail-main.pl, 
       openwebmail-read.pl, openwebmail-viewatt.pl, 
       openwebmail-send.pl, openwebmail-spell.pl,
-      openwebmail-prefs.pl, openwebmail-folder.pl and checkmail.pl
+      openwebmail-prefs.pl, openwebmail-folder.pl, openwebmail-abook.pl
+      and checkmail.pl
 
    change the #!/usr/bin/perl to the location where your suidperl is.
 
    modify auth_unix.pl
    a. set variable $unix_passwdfile to '/etc/shadow'
    b  set variable $unix_passwdmkdb to 'none'
+
+
+CHECK YOUR DBM SYSTEM
+---------------------
+Some unix has different dbm system than others does, so you may have to 
+change the dbm_ext and dbmopen_ext option in openwebmail.conf to make 
+openwebmail work on your server. (eg: Cobalt, Solaris, Linux/Slackware)
+
+To find the correct setting for the two options: 
+
+perl cgi-bin/openwebmail/uty/dbmtest.pl [enter]
+
+and you will get output like this:
+
+dbm_ext         .db
+dbmopen_ext     none
+
+Then put the two lines into your openwebmail.conf.
 
 
 USING OPENWEBMAIL WITH OTHER SMTP SERVER
@@ -266,7 +285,8 @@ ps: if you are compiling ispell from source, you may enhance your ispell
    ispell binary
 
 3. If you have installed multiple dictionaries for your ispell/aspell,
-   you can add them to specllcheck_dictionaries in openwebmail.conf
+   you may put them in option spellcheck_dictionaries in openwebmail.conf
+   and these dictionary names should be seperated with comma.
 
 ps: To know if a specific dictionary is successfully installed on
     your system, you can do a test with following command
@@ -293,23 +313,6 @@ you can do debug with the -d option
    add the '-d' option after vacation.pl
 3. send a message to this user to test the autoreply
 4. check the /tmp/vacation.debug for possible error information
-
-
-BIG5<->GB CONVERSION
---------------------
-Openwebmail supports chinese charset conversion between Big5 encoding
-(used in taiwan, hongkong) and GB encoding(used in mainland) in both message 
-reading and writing.
-To make the conversion work properly, you have to 
-
-1. download the Hanzi Converter (hc-30.tar.gz) 
-   by Ricky Yeung(Ricky.Yeung@eng.sun.com) and 
-      Fung F. Lee (lee@umunhum.stanford.edu).
-2. tar -zxvf hc-30.tar.gz
-   cd hc-30
-   make
-3. copy 'hc' and 'hc.tab' to cgi-bin/openwebmail or /usr/local/bin
-4. modify the openwebmail.conf g2b_converter and b2g_converter.
 
 
 VIRTUAL HOSTING
@@ -494,7 +497,7 @@ openwebmail   auth	required	/lib/security/pam_unix.so
 openwebmail   account	required	/lib/security/pam_unix.so
 openwebmail   password	required	/lib/security/pam_unix.so
 
-(on Linux without /etc/pam.conf, by protech@protech.net.tw)
+(on Linux without /etc/pam.conf, by protech.AT.protech.net.tw)
 If you don't have /etc/pam.conf but the directory /etc/pam.d/,
 please create a file /etc/pam.d/openwebmail with the following content
 
@@ -516,15 +519,16 @@ ps: PAM support on some release of FreeBSD seems broken (eg:4.1)
 ps: For more detail about PAM configuration, it is recommended to read 
     "The Linux-PAM System Administrators' Guide"
     http://www.kernel.org/pub/linux/libs/pam/Linux-PAM-html/pam.html
-    by Andrew G. Morgan, morgan@kernel.org
+    by Andrew G. Morgan, morgan.AT.kernel.org
 
 
 ADD NEW AUTHENTICATION MODULE TO OPENWEBMAIL
 --------------------------------------------
 Various authentications are directly available for openwebmail, including
-auth_unix.pl, auth_ldap.pl, auth_mysql, auth_pgsql, auth_pop3.pl and auth_pam.pl.
-In case you found these modules not suitable for your need, you may write 
-a new authentication module for your own.
+auth_unix.pl, auth_ldap.pl, auth_mysql, auth_mysql_vmail.pl,
+auth_pgsql, auth_pop3.pl and auth_pam.pl. In case you found these modules 
+not suitable for your need, you may write a new authentication module for 
+your own.
 
 To add new authentication module into openwebmail, you have to:
 
@@ -548,7 +552,7 @@ To add new authentication module into openwebmail, you have to:
 4. test your new authentication module :)
 
 ps: If you wish your authentication module to be included in the next release
-    of openwebmail, please submit it to openwebmail@turtle.ee.ncku.edu.tw.
+    of openwebmail, please submit it to openwebmail.AT.turtle.ee.ncku.edu.tw.
 
 
 ADD SUPPORT FOR NEW LANGUAGE
@@ -566,11 +570,11 @@ ps: You may choose the abbreviation by referencing the following url
    cp lang/en lang/xy
    cp -R templates/en templates/xy
 3. translate file lang/xy and templates/xy/* from English to your language
-4. add your language to %languagenames in openwebmail-shared.pl,
+4. add your language to %languagenames in openwebmail-prefs.pl,
    then you can set default_language to 'xy' in openwebmail.conf
 
 ps: If you wish your translation to be included in the next release of 
-    openwebmail, please submit it to openwebmail@turtle.ee.ncku.edu.tw.
+    openwebmail, please submit it to openwebmail.AT.turtle.ee.ncku.edu.tw.
 
 
 ADD MORE BACKGROUNDS TO OPENWEBMAIL
@@ -580,7 +584,7 @@ user, you can copy them into %ow_htmldir%/images/backgrounds.
 Then the user can choose these backgrounds from user preference menu.
 
 ps: If you wish to share your wonderful backgrounds with others,
-    please email it to openwebmail@turtle.ee.ncku.edu.tw
+    please email it to openwebmail.AT.turtle.ee.ncku.edu.tw
 
 
 DESIGN YOUR OWN ICONSET IN OPENWEBMAIL
@@ -597,7 +601,7 @@ you have to
    for your need
 
 ps: If you wish the your new iconset to be included in the next release of 
-   openwebmail, please submit it to openwebmail@turtle.ee.ncku.edu.tw
+   openwebmail, please submit it to openwebmail.AT.turtle.ee.ncku.edu.tw
 
 
 TEST
@@ -613,6 +617,7 @@ TEST
    ~/openwebmail-spell.pl       - owner=root, group=mail, mode=4755
    ~/openwebmail-prefs.pl       - owner=root, group=mail, mode=4755
    ~/openwebmail-folder.pl      - owner=root, group=mail, mode=4755
+   ~/openwebmail-abook.pl       - owner=root, group=mail, mode=4755
    ~/checkmail.pl               - owner=root, group=mail, mode=4755
    ~/vacation.pl                - owner=root, group=mail, mode=0755
    ~/etc                        - owner=root, group=mail, mode=755
@@ -646,5 +651,5 @@ Features that people may also be interested
 
 03/14/2002
 
-openwebmail@turtle.ee.ncku.edu.tw
+openwebmail.AT.turtle.ee.ncku.edu.tw
 

@@ -3,7 +3,7 @@
 # Open WebMail - Provides a web interface to user mailboxes                 #
 #                                                                           #
 # Copyright (C) 2001-2002                                                   #
-# Chung-Kie Tung, Nai-Jung Kuo, Chao-Chiu Wang, Emir Litric                 #
+# Chung-Kie Tung, Nai-Jung Kuo, Chao-Chiu Wang, Emir Litric, Thomas Chung   #
 # Copyright (C) 2000                                                        #
 # Ernie Miller  (original GPL project: Neomail)                             #
 #                                                                           #
@@ -17,11 +17,11 @@ push (@INC, $SCRIPT_DIR, ".");
 
 $ENV{PATH} = ""; # no PATH should be needed
 $ENV{BASH_ENV} = ""; # no startup script for bash
-umask(0007); # make sure the openwebmail group can write
+umask(0002); # make sure the openwebmail group can write
 
 use strict;
 use Fcntl qw(:DEFAULT :flock);
-use CGI qw(:standard);
+use CGI qw(-private_tempfiles :standard);
 use CGI::Carp qw(fatalsToBrowser);
 CGI::nph();   # Treat script as a non-parsed-header script
 use Net::SMTP;
@@ -46,7 +46,7 @@ use vars qw($sort);
 use vars qw($searchtype $keyword $escapedkeyword);
 
 $firstmessage = param("firstmessage") || 1;
-$sort = param("sort") || $prefs{"sort"} || 'date';
+$sort = param("sort") || $prefs{'sort'} || 'date';
 $searchtype = param("searchtype") || 'subject';
 $keyword = param("keyword") || '';
 $escapedkeyword = escapeURL($keyword);
@@ -103,6 +103,7 @@ sub replyreceipt {
       if ($header=~/^Disposition-Notification-To:\s?(.*?)$/im ) {
          my $to=$1;
          my $from=$prefs{'email'};
+         my $date = dateserial2datefield(gmtime2dateserial(), $prefs{'timeoffset'});
 
          my %userfrom=get_userfrom($loginname, $user, $userrealname, "$folderdir/.from.book");
          foreach (sort keys %userfrom) {
@@ -111,14 +112,8 @@ sub replyreceipt {
             }
          }
          my $realname=$userfrom{$from};
-
          $realname =~ s/['"]/ /g;  # Get rid of shell escape attempts
          $from =~ s/['"]/ /g;  # Get rid of shell escape attempts 
-
-         # $date is used in message header Date: xxxx
-         my $localtime = scalar(localtime);
-         my @datearray = split(/ +/, $localtime);
-         my $date = "$datearray[0], $datearray[2] $datearray[1] $datearray[4] $datearray[3] ".dst_adjust($config{'timeoffset'});
 
          ($realname =~ /^(.+)$/) && ($realname = '"'.$1.'"');
          ($from =~ /^(.+)$/) && ($from = $1);
@@ -126,7 +121,7 @@ sub replyreceipt {
          ($date =~ /^(.+)$/) && ($date = $1);
 
          # fake a messageid for this message
-         my $fakedid = getdateserial().'.M'.int(rand()*100000);
+         my $fakedid = gmtime2dateserial().'.M'.int(rand()*100000);
          if ($from =~ /@(.*)$/) {
             $fakedid="<$fakedid".'@'."$1>";
          } else {
@@ -148,7 +143,7 @@ sub replyreceipt {
          }
 
          $smtp->mail($from);
-         if (! $smtp->recipient(str2list($to), { SkipBad => 1 }) ) {
+         if (! $smtp->recipient(str2list($to,0), { SkipBad => 1 }) ) {
             $smtp->reset();
             $smtp->quit();
             openwebmailerror("$lang_err{'sendmail_error'}!");
@@ -157,37 +152,42 @@ sub replyreceipt {
          $smtp->data();
          $smtp->datasend("From: $realname <$from>\n",
                          "To: $to\n");
-         $smtp->datasend("Reply-To: ", $prefs{"replyto"}, "\n") if ($prefs{"replyto"});
+         $smtp->datasend("Reply-To: ", $prefs{'replyto'}, "\n") if ($prefs{'replyto'});
+
+         my $xmailer = $config{'name'};
+         $xmailer .= " $config{'version'} $config{'releasedate'}" if ($config{'xmailer_has_version'});
+         my $xoriginatingip = get_clientip();
+         $xoriginatingip .= " ($loginname)" if ($config{'xoriginatingip_has_userid'});
 
          # reply with english if sender has different charset than us
          if ( $attr[$_CONTENT_TYPE]=~/charset="?\Q$lang_charset\E"?/i) {
             $smtp->datasend("Subject: $lang_text{'read'} - $attr[$_SUBJECT]\n",
                             "Date: $date\n",
                             "Message-Id: $fakedid\n",
-                            "X-Mailer: $config{'name'} $config{'version'} $config{'releasedate'}\n",
-                            "X-OriginatingIP: ", get_clientip(), " ($loginname)\n",
+                            "X-Mailer: $xmailer\n",
+                            "X-OriginatingIP: $xoriginatingip\n",
                             "MIME-Version: 1.0\n",
                             "Content-Type: text/plain; charset=$lang_charset\n\n");
             $smtp->datasend("$lang_text{'yourmsg'}\n\n",
                             "  $lang_text{'to'}: $attr[$_TO]\n",
                             "  $lang_text{'subject'}: $attr[$_SUBJECT]\n",
                             "  $lang_text{'delivered'}: ", dateserial2str($attr[$_DATE], $prefs{'dateformat'}), "\n\n",
-                            "$lang_text{'wasreadon1'} ", dateserial2str(getdateserial(), $prefs{'dateformat'}), " $lang_text{'wasreadon2'}\n\n");
+                            "$lang_text{'wasreadon1'} ", dateserial2str(localtime2dateserial(), $prefs{'dateformat'}), " $lang_text{'wasreadon2'}\n\n");
          } else {
             $smtp->datasend("Subject: Read - $attr[$_SUBJECT]\n",
                             "Date: $date\n",
                             "Message-Id: $fakedid\n",
-                            "X-Mailer: $config{'name'} $config{'version'} $config{'releasedate'}\n",
-                            "X-OriginatingIP: ", get_clientip(), " ($loginname)\n",
+                            "X-Mailer: $xmailer\n",
+                            "X-OriginatingIP: $xoriginatingip\n",
                             "MIME-Version: 1.0\n",
                             "Content-Type: text/plain; charset=iso-8859-1\n\n");
             $smtp->datasend("Your message\n\n",
                             "  To: $attr[$_TO]\n",
                             "  Subject: $attr[$_SUBJECT]\n",
                             "  Delivered: ", dateserial2str($attr[$_DATE], $prefs{'dateformat'}), "\n\n",
-                            "was read on", dateserial2str(getdateserial(), $prefs{'dateformat'}), ".\n\n");
+                            "was read on", dateserial2str(localtime2dateserial(), $prefs{'dateformat'}), ".\n\n");
          }
-         $smtp->datasend($prefs{'signature'},   "\n") if (defined($prefs{'signature'}));
+         # $smtp->datasend($prefs{'signature'},   "\n") if (defined($prefs{'signature'}));
          $smtp->datasend($config{'mailfooter'}, "\n") if ($config{'mailfooter'}=~/[^\s]/);
 
          if (!$smtp->dataend()) {
@@ -219,7 +219,7 @@ sub replyreceipt {
 #                sendto(newmail with dest user),
 #                none(newmail)
 sub composemessage {
-   no strict 'refs';
+#   no strict 'refs';
    my $html = '';
    my $temphtml;
    my ($savedattsize, $r_attnamelist, $r_attfilelist);
@@ -278,6 +278,7 @@ sub composemessage {
             print ATTFILE $attcontents;
          }
          close ATTFILE;
+         close($attachment);	# close tmpfile created by CGI.pm
 
          $attname = str2html($attname);
          push (@{$r_attnamelist}, "$attname");
@@ -300,7 +301,7 @@ sub composemessage {
    my $to = param("to") || '';
    my $cc = param("cc") || '';
    my $bcc = param("bcc") || '';
-   my $replyto = param("replyto") || $prefs{"replyto"} || '';
+   my $replyto = param("replyto") || $prefs{'replyto'} || '';
    my $subject = param("subject") || '';
    my $body = param("body") || '';
    my $inreplyto = param("inreplyto") || '';
@@ -422,7 +423,7 @@ sub composemessage {
             $to=join(",", split(/\s*,\s*/,$to));
             $cc=join(",", split(/\s*,\s*/,$cc));
          }
-         $replyto = $prefs{"replyto"} if (defined($prefs{"replyto"}));
+         $replyto = $prefs{'replyto'} if (defined($prefs{'replyto'}));
 
          $inreplyto = $message{'messageid'};
          if ( $message{'references'} ne "" ) {
@@ -438,8 +439,8 @@ sub composemessage {
             $body = "> " . $body;
          }
          if ($prefs{replywithorigmsg} eq 'at_beginning') {
-            if (defined($prefs{"signature"})) {
-               $body .= "\n\n\n".$prefs{"signature"};
+            if (defined($prefs{'signature'})) {
+               $body .= "\n\n\n".$prefs{'signature'};
             }
          } elsif ($prefs{replywithorigmsg} eq 'at_end') {
             $body = "---------- Original Message -----------\n".
@@ -449,14 +450,14 @@ sub composemessage {
                     "Subject: $message{'subject'}\n\n".
                     "$body\n".
                     "------- End of Original Message -------\n";
-            if (defined($prefs{"signature"})) {
-               $body = "\n\n\n".$prefs{"signature"}."\n\n".$body;
+            if (defined($prefs{'signature'})) {
+               $body = "\n\n\n".$prefs{'signature'}."\n\n".$body;
             } else {
                $body = "\n\n\n".$body;
             }
          } else {
-            if (defined($prefs{"signature"})) {
-               $body = "\n\n\n".$prefs{"signature"};
+            if (defined($prefs{'signature'})) {
+               $body = "\n\n\n".$prefs{'signature'};
             } else {
                $body = "";
             }
@@ -487,7 +488,7 @@ sub composemessage {
             if (defined($message{"replyto"})) {
                $replyto = $message{"replyto"} 
             } else {
-               $replyto = $prefs{"replyto"} if (defined($prefs{"replyto"}));
+               $replyto = $prefs{'replyto'} if (defined($prefs{'replyto'}));
             }
 
             $inreplyto = $message{'inreplyto'};
@@ -495,7 +496,7 @@ sub composemessage {
             $priority = $message{"priority"} if (defined($message{"priority"}));
 
          } elsif ($composetype eq "forward") {
-            $replyto = $prefs{"replyto"} if (defined($prefs{"replyto"}));
+            $replyto = $prefs{'replyto'} if (defined($prefs{'replyto'}));
             $subject = "Fw: " . $subject unless ($subject =~ /^fw:/i);
 
             $inreplyto = $message{'messageid'};
@@ -515,7 +516,7 @@ sub composemessage {
                     "Subject: $message{'subject'}\n\n".
                     "$body".
                     "\n------- End of Forwarded Message -------\n";
-            $body .= "\n\n".$prefs{"signature"} if (defined($prefs{"signature"}));
+            $body .= "\n\n".$prefs{'signature'} if (defined($prefs{'signature'}));
          }
       }
 
@@ -574,7 +575,7 @@ sub composemessage {
 
       ($savedattsize, $r_attnamelist, $r_attfilelist) = getattlistinfo();
 
-      $replyto = $prefs{"replyto"} if (defined($prefs{"replyto"}));
+      $replyto = $prefs{'replyto'} if (defined($prefs{'replyto'}));
       $subject = $attr[$_SUBJECT];
       $subject = "Fw: " . $subject unless ($subject =~ /^fw:/i);
 
@@ -588,13 +589,13 @@ sub composemessage {
       }
 
       $body = "\n\n# Message forwarded as attachment\n";
-      $body .= "\n\n".$prefs{"signature"} if (defined($prefs{"signature"}));
+      $body .= "\n\n".$prefs{'signature'} if (defined($prefs{'signature'}));
 
    } elsif ($composetype eq 'continue') {
       $body = "\n".$body;	# the form text area would eat leading \n, so we add it back here
 
    } else { # sendto or newmail
-      $body .= "\n\n\n".$prefs{"signature"} if (defined($prefs{"signature"}));
+      $body .= "\n\n\n".$prefs{'signature'} if (defined($prefs{'signature'}));
    } 
 
    # convert between gb and big5
@@ -714,10 +715,16 @@ sub composemessage {
  
    $temphtml = textfield(-name=>'replyto',
                          -default=>$replyto,
-                         -size=>'70',
+                         -size=>'55',
                          -override=>'1');
    $html =~ s/\@\@\@REPLYTOFIELD\@\@\@/$temphtml/g;
    
+   $temphtml = checkbox(-name=>'confirmreading',
+                        -value=>'1',
+                        -label=>'');
+
+   $html =~ s/\@\@\@CONFIRMREADINGCHECKBOX\@\@\@/$temphtml/;
+
    # table of attachment list 
    if ($#{$r_attnamelist}>=0) {
       $temphtml = "<table cellspacing='0' cellpadding='0' width='70%'><tr valign='bottom'>\n";
@@ -752,7 +759,7 @@ sub composemessage {
 
    $temphtml .= filefield(-name=>'attachment',
                          -default=>'',
-                         -size=>'60',
+                         -size=>'55',
                          -override=>'1',
                          -tabindex=>'-1');
    $temphtml .= submit(-name=>"$lang_text{'add'}",
@@ -763,15 +770,16 @@ sub composemessage {
 
    $temphtml = textfield(-name=>'subject',
                          -default=>$subject,
-                         -size=>'60',
+                         -size=>'55',
                          -override=>'1');
    $html =~ s/\@\@\@SUBJECTFIELD\@\@\@/$temphtml/g;
 
-   $temphtml = checkbox(-name=>'confirmreading',
+   $temphtml = checkbox(-name=>'backupsentmsg',
                         -value=>'1',
+                        -checked=>$prefs{'backupsentmsg'},
                         -label=>'');
 
-   $html =~ s/\@\@\@CONFIRMREADINGCHECKBOX\@\@\@/$temphtml/;
+   $html =~ s/\@\@\@BACKUPSENTMSGCHECKBOX\@\@\@/$temphtml/;
 
    $temphtml = textarea(-name=>'body',
                         -default=>$body,
@@ -847,7 +855,7 @@ sub composemessage {
                           -default=>$folder,
                           -override=>'1');
       $temphtml .= hidden(-name=>'headers',
-                          -default=>$prefs{"headers"} || 'simple',
+                          -default=>$prefs{'headers'} || 'simple',
                           -override=>'1');
       $temphtml .= hidden(-name=>'sessionid',
                           -default=>$thissession,
@@ -904,13 +912,6 @@ sub sendmessage {
       composemessage();
 
    } else {
-      # $localtime is used in delimiter line 'From ...' in folder file
-      # $date is used in message header Date: xxxx
-      my $localtime = scalar(localtime);
-      my $dateserial= getdateserial();
-      my @datearray = split(/ +/, $localtime);
-      my $date = "$datearray[0], $datearray[2] $datearray[1] $datearray[4] $datearray[3] ".dst_adjust($config{'timeoffset'});
-
       my %userfrom=get_userfrom($loginname, $user, $userrealname, "$folderdir/.from.book");
       my ($realname, $from);
       if (param('from')) {
@@ -918,17 +919,19 @@ sub sendmessage {
       } else {
          ($realname, $from)=($userfrom{$prefs{'email'}}, $prefs{'email'});
       }
-
       $from =~ s/['"]/ /g;  # Get rid of shell escape attempts
       $realname =~ s/['"]/ /g;  # Get rid of shell escape attempts
       ($realname =~ /^(.+)$/) && ($realname = '"'.$1.'"');
       ($from =~ /^(.+)$/) && ($from = $1);
 
+      my $dateserial=gmtime2dateserial();
+      my $date = dateserial2datefield($dateserial, $prefs{'timeoffset'});
+
       my $boundary = "----=OPENWEBMAIL_ATT_" . rand();
       my $to = param("to");
       my $cc = param("cc");
       my $bcc = param("bcc");
-      my $replyto = param("replyto") || $prefs{"replyto"};
+      my $replyto = param("replyto") || $prefs{'replyto'};
       my $subject = param("subject") || 'N/A';
       $subject =~ s/&#8364;/€/g;	# Euro symbo
 
@@ -997,14 +1000,14 @@ sub sendmessage {
          $do_savemsg=0 if  ($folderusage>=100);
       } else {					     # save msg to sent folder && send 
          $savefolder = 'sent-mail';
-         $do_savemsg=0 if  ($folderusage>=100);
+         $do_savemsg=0 if  ($folderusage>=100 || param("backupsentmsg")==0 );
       }
 
       if ($do_sendmsg) { 
          my @recipients=();
          foreach my $recv ($to, $cc, $bcc) {
             next if ($recv eq "");
-            foreach (str2list($recv)) {
+            foreach (str2list($recv,0)) {
                my $email=(email2nameaddr($_))[1];
                next if ($email eq "" || $email=~/\s/);
                push (@recipients, $email);
@@ -1128,7 +1131,13 @@ sub sendmessage {
 
       # Add a 'From ' as the message delimeter before save a message
       # into sent-mail/saved-drafts folder 
-      print FOLDER "From $user $localtime\n" || $save_errcount++ if ($do_savemsg && $save_errcount==0);
+      my $delimiter;
+      if ($config{'delimiter_use_GMT'}) {
+         $delimiter=dateserial2delimiter(gmtime2dateserial(), "");
+      } else {
+         $delimiter=dateserial2delimiter(localtime2dateserial(), "");
+      }
+      print FOLDER "From $user $delimiter\n" || $save_errcount++ if ($do_savemsg && $save_errcount==0);
 
       my $tempcontent="";
       $tempcontent .= "From: $realname <$from>\n";
@@ -1144,8 +1153,14 @@ sub sendmessage {
       $tempcontent .= "In-Reply-To: $inreplyto\n" if ($inreplyto);
       $tempcontent .= "References: $references\n" if ($references);
       $tempcontent .= "Priority: $priority\n" if ($priority && $priority ne 'normal');
-      $tempcontent .= "X-Mailer: $config{'name'} $config{'version'} $config{'releasedate'}\n";
-      $tempcontent .= "X-OriginatingIP: ".get_clientip()." ($loginname)\n";
+
+      my $xmailer = $config{'name'};
+      $xmailer .= " $config{'version'} $config{'releasedate'}" if ($config{'xmailer_has_version'});
+      my $xoriginatingip = get_clientip();
+      $xoriginatingip .= " ($loginname)" if ($config{'xoriginatingip_has_userid'});
+
+      $tempcontent .= "X-Mailer: $xmailer\n";
+      $tempcontent .= "X-OriginatingIP: $xoriginatingip\n";
       $tempcontent .= "MIME-Version: 1.0\n";
       if ($confirmreading) {
          if ($replyto) {
@@ -1215,6 +1230,7 @@ sub sendmessage {
                $smtp->datasend($tempcontent) || $send_errcount++ if ($do_sendmsg && $send_errcount==0);
                print FOLDER    $tempcontent  || $save_errcount++ if ($do_savemsg && $save_errcount==0);
             }
+            close($attachment);	# close tmpfile created by CGI.pm
 
             $smtp->datasend("\n") || $send_errcount++ if ($do_sendmsg && $send_errcount==0);
             print FOLDER    "\n"  || $save_errcount++ if ($do_savemsg && $save_errcount==0);
@@ -1460,7 +1476,7 @@ sub folding {
    return($_[0]) if (length($_[0])<960);
 
    my ($folding, $line)=('', '');
-   foreach my $token (str2list($_[0])) {
+   foreach my $token (str2list($_[0],0)) {
       if (length($line)+length($token) <960) {
          $line.=",$token";
       } else {

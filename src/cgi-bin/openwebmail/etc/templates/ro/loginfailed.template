@@ -4,6 +4,6 @@
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>INVALID LOGIN</B></FONT></TD></TR>
 <tr><td valign="middle" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>@@@ERRORMSG@@@! Please go back and
-<a href="@@@SCRIPTURL@@@">try again</a>.<BR><BR>
+<BR>@@@ERRORMSG@@@! Apasati tasta 'inapoi' si 
+<a href="@@@SCRIPTURL@@@">incercati inca o data</a>.<BR><BR>
 </td></tr></table>

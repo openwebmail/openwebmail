@@ -10,6 +10,8 @@ use Fcntl qw(:DEFAULT :flock);
 use FileHandle;
 use IO::Socket;
 
+use vars qw(%config);
+
 # return < 0 means error
 # -1 pop3book read error
 # -2 connect error
@@ -158,7 +160,9 @@ sub retrpop3mail {
          last if ($_ eq "." );	#end and exit while
          $FileContent .= "$_\n";
          # get $stAddress, $stDate to compose the mail delimiter 'From xxxx' line
-         if ( /^from:\s+(.+)$/i && $stAddress eq "" ) {
+         if ( /\(envelope\-from \s*(.+?)\s*\)/i && $stAddress eq "" ) {
+            $stAddress = $1;
+         } elsif ( /^from:\s+(.+)$/i && $stAddress eq "" ) {
             $_ = $1;
             if ($_=~ /^"?(.+?)"?\s*<(.*)>$/ ) {
                $_ = $2;
@@ -175,7 +179,19 @@ sub retrpop3mail {
             $stDate=$1;
          }
       }
-      $stDate=date_for_delimiter($stDate);
+
+
+      my $dateserial=datefield2dateserial($stDate);
+      my $gmserial=gmtime2dateserial();
+      if ($dateserial eq "" ||
+          dateserial2daydiff($dateserial)-dateserial2daydiff($gmserial)>1 ) {
+         $dateserial=$gmserial;	# use current time if msg time is newer than now
+      }
+      if ($config{'deliver_use_GMT'}) {
+         $stDate=dateserial2delimiter($dateserial, "");
+      } else {
+         $stDate=dateserial2delimiter($dateserial, gettimeoffset());
+      }
 
       # append message to mail folder
       filelock($spoolfile, LOCK_EX);
@@ -212,38 +228,6 @@ sub retrpop3mail {
 
    # return number of fetched mail
    return($retr_total);		
-}
-
-sub date_for_delimiter {
-   my $datefield=$1;
-
-   my @monthstr=qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec);
-   my @wdaystr=qw(Sun Mon Tue Wed Thu Fri Sat);
-
-   my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) =localtime;
-   $year=$year+1900;
-   $mon=$monthstr[$mon]; 
-   $wday=$wdaystr[$wday];
-
-   if ($datefield =~ /(\w+),\s+(\d+)\s+(\w+)\s+(\d+)\s+(\d+):(\d+):(\d+)\s/i) { 
-      #Date: Wed, 9 Sep 1998 19:30:17 +0800 (CST)
-      $wday=$1; $mday=$2; $mon=$3; $year=$4; $hour=$5; $min=$6; $sec=$7;
-   } elsif ($datefield =~ /(\d+)\s+(\w+)\s+(\d+)\s+(\d+):(\d+):(\d+)\s/i) { 
-      #Date: 07 Sep 2000 23:01:36 +0200
-      $mday=$1; $mon=$2; $year=$3; $hour=$4; $min=$5; $sec=$6;
-   } elsif ($datefield =~ /(\w+),\s+(\w+)\s+(\d+),\s+(\d+)\s+(\d+):(\d+):(\d+)\s/i) { 
-      #Date: Wednesday, February 10, 1999 3:39 PM
-      $wday=$1; $mon=$2; $mday=$3; $year=$4; $hour=$5; $min=$6; $sec=$7;
-      $wday=~s/^(...).*/$1/;
-      $mon=~s/^(...).*/$1/;
-   }
-   # some machines has reverse order for month and mday
-   if ( $mday=~/[A-Za-z]+/ ) {
-      my $tmp=$mday; $mday=$mon; $mon=$tmp;
-   }
-
-   return(sprintf("%3s %3s %2d %02d:%02d:%02d %4d",
-              $wday,$mon,$mday, $hour,$min,$sec, $year));
 }
 
 1;

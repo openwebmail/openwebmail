@@ -1,21 +1,20 @@
 <table border="0" align="center" width="75%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>IMPORTOVAT ADRESÁØE</B></font>
+<B>Import adresáøe</B></font>
 </td><td bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>@@@FREESPACE@@@ KB Volného místa</B></font>
+<B>@@@FREESPACE@@@ kB k dispozici</B></font>
 </td></tr>
 <tr><td colspan="2" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 
 <table border="0" align="center" width="75%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
-<BR>Outlook Express 5 a Netscape Mail mohou exportovat svoje adresáøe ve formátì CSV nebo Comma Separated Values. @@@NAME@@@ doká¾e importovat tyto soubory do Va¹eho osobního Adresáøe. Tím se zabráni hodinám pøepisování z jednoho adresáøe do druhého.
+<BR>Outlook Express 5 a Netscape Mail umo¾òují exportovat své adresáøe do souboru .CSV (zkratka Comma Separated Values). @@@NAME@@@ doká¾e tyto soubory importovat do Va¹eho osobního adresáøe. Tak je mo¾né vyhnout se pøepisování adres z jednoho adresáøe d
+o druhého.
 <ul>
-<li> V Netscape, otevøete Vá¹ adresáø a zvoµte File-&gt;Export, potom
-zvoµte "Save as type:" a vyberte "Comma Separated (*.csv)." <BR><BR>
-<li> Pro Outlook Express, v hlavním oknì Outlook Express zvolte
-File-&gt;Export-&gt;Address Book, a vyberte typ souboru "Text file." Ujistìte se, ¾e Jméno a E-mail pole budou jako první, co je standardnì nastaveno.
+<li> Netscape - otevøete Vá¹ adresáø a zvolte Soubor-&gt;Exportovat, potom zvolte "Ulo¾it jako:" a vyberte "Comma Separated (*.csv)." <BR><BR>
+<li> Outlook Express - v hlavním oknì Outlook Express zvolte Soubor-&gt;Exportovat-&gt;Adresáø, a vyberte typ souboru "textpvý soubor." Ujistìte se, ¾e v seznamu exportovaných údajù jsou vybrána pole Jméno a E-mail.
 </ul>
 </td></tr></table>
 
@@ -36,5 +35,3 @@ File-&gt;Export-&gt;Address Book, a vyberte typ souboru "Text file." Ujistìte se
 <tr><td colspan=2 bgcolor=@@@WINDOW_LIGHT@@@>&nbsp;</td></tr>
 </table>
 @@@ENDFORM@@@
-
-

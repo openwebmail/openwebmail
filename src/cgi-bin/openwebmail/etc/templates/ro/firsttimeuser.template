@@ -2,10 +2,10 @@
 <table border="0" align="center" width="40%" cellpadding="1" cellspacing="1">
 <tr><td bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>WELCOME TO @@@NAME@@@!</B></font>
+<B>BUN VENIT IN @@@NAME@@@!</B></font>
 </td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 <BR>Bine ai venit in @@@NAME@@@!  Vad ca e prima data cand intri aici,
 asa ca iti voi cere niste informatii pentru a configura @@@NAME@@@ sa
-iti fie de ajutor. Apasa pe continua pentru a incepe sa configuram @@@NAME@@@.
+iti fie de ajutor. Apasa pe 'continua' pentru a incepe sa configuram @@@NAME@@@.
 @@@CONTINUEBUTTON@@@
 </td></tr></table>

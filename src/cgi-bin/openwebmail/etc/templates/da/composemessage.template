@@ -33,9 +33,12 @@
 <B>Svar til:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@REPLYTOFIELD@@@
+&nbsp;
+<B>Kvittering for l&aelig;st post</B>
+@@@CONFIRMREADINGCHECKBOX@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
-<B>Vedhæftning:</B>
+<B>Vedh&aelig;ftning:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@ATTACHMENTFIELD@@@
 </td></tr>
@@ -44,8 +47,8 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@SUBJECTFIELD@@@
 &nbsp;
-<B>Kvittering for læst post</B>
-@@@CONFIRMREADINGCHECKBOX@@@
+<B>Gem i folderen Sendt post</B>
+@@@BACKUPSENTMSGCHECKBOX@@@
 </td></tr>
 <tr><td colspan="2" bgcolor=@@@WINDOW_LIGHT@@@ class=msgbody>
 @@@BODYAREA@@@
@@ -91,7 +94,7 @@
 
    function GoAddressWindow(toccbcc)
    {
-      var url = "@@@PREFSURL@@@?action=addressbook&sessionid=@@@SESSIONID@@@&form=composeform&field=" + toccbcc;
+      var url = "@@@ABOOKURL@@@?action=addressbook&sessionid=@@@SESSIONID@@@&form=composeform&field=" + toccbcc;
       
       if (toccbcc == "to")
          url += "&preexisting=" + escape (document.composeform.to.value);

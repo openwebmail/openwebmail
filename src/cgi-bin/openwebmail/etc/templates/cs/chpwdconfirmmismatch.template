@@ -2,9 +2,8 @@
 <table border="0" align="center" width="40%" cellpadding="1" cellspacing="1">
 <tr><td bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>©patné potvrzení</B></font>
+<B>Kontrola selhala</B></font>
 </td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>Nové heslo je ¹patnì potvrzeno!<BR>
+<BR>Nové heslo nebylo zadáno dvakrát stejnì <BR>
 @@@CONTINUEBUTTON@@@
 </td></tr></table>
-

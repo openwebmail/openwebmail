@@ -4,6 +4,5 @@
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>B£¡D LOGOWANIA</B></FONT></TD></TR>
 <tr><td valign="middle" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>@@@ERRORMSG@@@! Please go back and
-<a href="@@@SCRIPTURL@@@">try again</a>.<BR><BR>
+<BR>@@@ERRORMSG@@@! Wróæ i <a href="@@@SCRIPTURL@@@">spróbuj ponownie</a>.<BR><BR>
 </td></tr></table>

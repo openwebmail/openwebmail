@@ -9,11 +9,11 @@
 <tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Numele Folderului (@@@FOLDERNAME_MAXLEN@@@ caractere)</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>New</B></td>
+<B>Nou</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Mesg</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Size</B></td>
+<B>Dimens</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Actiune</B>
 </td></tr>
@@ -35,13 +35,13 @@
 
 <tr><td colspan="5">&nbsp;</td></tr>
 <tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Default folders</B></td>
+<B>Foldere default</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>New</B></td>
+<B>Nou</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Mesg</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Size</B></td>
+<B>Dimens</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 &nbsp;
 </td></tr>
