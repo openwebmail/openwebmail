@@ -1,3 +1,8 @@
+02/21/2005
+----------
+1. remove unnecessary file permission.template from english template
+
+
 02/20/2005
 ----------
 1. add "Read message with message charset" to user preference
