@@ -72,7 +72,7 @@ HTMLArea.Config = function () {
 		  "bold", "italic", "underline", "separator",
 		  "strikethrough", "subscript", "superscript", "separator",
 		  "copy", "cut", "paste", "space", "undo", "redo" ],
-		
+
 		[ "justifyleft", "justifycenter", "justifyright", "justifyfull", "separator",
 		  "insertorderedlist", "insertunorderedlist", "outdent", "indent", "separator",
 		  "forecolor", "hilitecolor", "textindicator", "separator",

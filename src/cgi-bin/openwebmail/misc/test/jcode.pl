@@ -160,7 +160,7 @@ package jcode;
 #      byte have to be same on first and last character.
 #
 #      CAUTION: Handling range operator is a kind of trick
-#      and it is not perfect.  So if you need to transfer `-' 
+#      and it is not perfect.  So if you need to transfer `-'
 #      character, please be sure to put it at the beginning
 #      or the end of $from and $to strings.
 #
@@ -772,8 +772,8 @@ if ($ocode ne 'jis' &&
 }
 
 foreach my $file (@ARGV) {
-   my $file2=$file; 
-   $file2=~s!^.*/!!; 
+   my $file2=$file;
+   $file2=~s!^.*/!!;
    $file2="$outputdir/$file2";
 
    open (F, $file) || die "$file read error";

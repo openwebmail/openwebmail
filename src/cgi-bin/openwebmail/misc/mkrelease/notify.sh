@@ -14,7 +14,7 @@ fi=pasi.sjoholm@tieto-x.fi
 fr=admin@osmium-work.com
 de=martin@bronk.de
 el=dimitris@michelinakis.gr
-he=yehuda@whatsup.org.il 
+he=yehuda@whatsup.org.il
 hu=ful_s@fazekas.hu
 id=liangs@kunchang.com.tw
 it=marvi@menhir.biz
@@ -65,7 +65,7 @@ if [ "$ans" = "y" -o "$ans" = "Y" ]; then
   -a /usr/local/www/data/openwebmail/download/current/openwebmail-current.tar.gz \
   openwebmail@turtle.ee.ncku.edu.tw \
   tchung@openwebmail.org
-#  elitric@hotmail.com 
+#  elitric@hotmail.com
 fi
 
 #################################################################
@@ -75,8 +75,8 @@ read ans
 if [ "$ans" = "y" -o "$ans" = "Y" ]; then
   echo "Dear translation maintainer,
 
-We are happy to announce that we are going to release the next 
-version of openwebmail. And we would like to request for your 
+We are happy to announce that we are going to release the next
+version of openwebmail. And we would like to request for your
 help to make the translation up to date.
 
 The latest tarball is available at
@@ -85,7 +85,7 @@ http://turtle.ee.ncku.edu.tw/openwebmail/download/current/openwebmail-current.ta
 The latest changes is available at
 http://turtle.ee.ncku.edu.tw/openwebmail/download/doc/changes.txt
 
-The difference of language and templates between last release and the 
+The difference of language and templates between last release and the
 latest current $releasedate is attached in this message.
 
 Finally, thank you for your efforts in openwebmail.

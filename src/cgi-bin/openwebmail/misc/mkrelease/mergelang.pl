@@ -1,12 +1,12 @@
 #
 # syntax: perl mergelang.pl translated_langfile_to_be_merged
 #
-# this script can merge specified lang file with the current one in system 
+# this script can merge specified lang file with the current one in system
 # and output the merged result to stdout.
 #
 
 my $default_lang_dir="/usr/local/www/cgi-bin/openwebmail/etc/lang/";
-my $langfile=$ARGV[0]; 
+my $langfile=$ARGV[0];
 my $lang=$langfile; $lang=~s!.*/!!;
 
 if ($ARGV[0] eq '') {

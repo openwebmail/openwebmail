@@ -113,7 +113,7 @@ package ow::da;
    both   => 'både over og under mailen'
    );
 
-%lang_abookbuttonpositionlabels = 
+%lang_abookbuttonpositionlabels =
    (
    before => 'over optagelserne',
    after  => 'under optagelserne',
@@ -203,7 +203,7 @@ package ow::da;
    byte => 'Byte'
    );
 
-%lang_calendar = 
+%lang_calendar =
    (
    yearview  => 'Års oversigt',
    monthview => 'Måneds oversigt',
@@ -283,7 +283,7 @@ package ow::da;
    mkthumbnail  => 'MkThumb',
    download => 'Hent',
    upload   => 'Send',
-   );   
+   );
 
 %lang_text =
    (

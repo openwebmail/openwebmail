@@ -33,7 +33,7 @@ use vars qw(%charset_convlist %charset_equiv);
 sub official_charset {
    my $charset=lc($_[0]);
    $charset=~s/iso_?8859/iso\-8859/;
-   $charset=$charset_equiv{$charset} if (defined($charset_equiv{$charset})); 
+   $charset=$charset_equiv{$charset} if (defined($charset_equiv{$charset}));
    return $charset;
 }
 

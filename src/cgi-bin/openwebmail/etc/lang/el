@@ -113,7 +113,7 @@ package ow::el;
    both   => 'Και πριν και μετά τον χώρο επεξεργασίας'
    );
 
-%lang_abookbuttonpositionlabels = 
+%lang_abookbuttonpositionlabels =
    (
    before => 'Πριν τον χώρο εισαγωγής διευθύνσεων',
    after  => 'Μετά τον χώρο εισαγωγής διευθύνσεων',
@@ -203,7 +203,7 @@ package ow::el;
    byte => 'Byte'
    );
 
-%lang_calendar = 
+%lang_calendar =
    (
    yearview  => 'Ετήσιο ημερολόγιο, ',
    monthview => 'Μηνιαίο ημερολόγιο, ',
@@ -283,7 +283,7 @@ package ow::el;
    mkthumbnail  => 'Δημιουργία Μικρογραφίας',
    download => 'Download',
    upload   => 'Upload',
-   );   
+   );
 
 %lang_text =
    (

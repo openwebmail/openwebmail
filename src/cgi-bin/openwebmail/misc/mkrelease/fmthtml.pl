@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# reformat html for easy reading and make it easier 
+# reformat html for easy reading and make it easier
 # to find the difference between different versions of a html
 # example: perl path_to_fmthtml.pl `find SOMEDIR -type f -name "*html"`
 

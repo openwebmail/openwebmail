@@ -113,7 +113,7 @@ package ow::zh_CN_GB2312;
    both   => '在邮件编辑区前后'
    );
 
-%lang_abookbuttonpositionlabels = 
+%lang_abookbuttonpositionlabels =
    (
    before => '在地址簿项目之前',
    after  => '在地址簿项目之后',
@@ -203,7 +203,7 @@ package ow::zh_CN_GB2312;
    byte => 'Byte'
    );
 
-%lang_calendar = 
+%lang_calendar =
    (
    yearview  => '年历',
    monthview => '月历',
@@ -283,7 +283,7 @@ package ow::zh_CN_GB2312;
    mkthumbnail  => '建缩略图',
    download => '下载',
    upload   => '上传',
-   );   
+   );
 
 %lang_text =
    (

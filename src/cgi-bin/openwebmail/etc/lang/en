@@ -113,7 +113,7 @@ package ow::en;
    both   => 'Before and after mail edit area'
    );
 
-%lang_abookbuttonpositionlabels = 
+%lang_abookbuttonpositionlabels =
    (
    before => 'Before addressbook entries',
    after  => 'After addressbook entries',
@@ -203,7 +203,7 @@ package ow::en;
    byte => 'Byte'
    );
 
-%lang_calendar = 
+%lang_calendar =
    (
    yearview  => 'Yearview',
    monthview => 'Monthview',
@@ -283,7 +283,7 @@ package ow::en;
    mkthumbnail  => 'MkThumb',
    download => 'Download',
    upload   => 'Upload',
-   );   
+   );
 
 %lang_text =
    (

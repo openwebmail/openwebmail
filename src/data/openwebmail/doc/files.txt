@@ -34,7 +34,7 @@ quota/				place for quota_xxx.pl modules
 modules/			place for module files
 				routines/variables in these files belong to packages other than main::
 shares/				place for shared routines files
-				routines/variables in these files belong to main::				
+				routines/variables in these files belong to main::
 misc/                           mkrelease uty, test script, patches, tools for adm
 
 openwebmail-abook.pl            CGI programs of openwebmail
@@ -103,7 +103,7 @@ for each USER
    filter.check                 file that marked the last INBOX filting dat
    trash.check                  file that marked the last trash-cleaning date
    search.cache                 cache file to store last search result
-				
+
 ~USER/.openwebmail/webcal/	location for webmail internal file
    calendar.book                calendar book
    notify.check                 file that marked the last calendar email notification check date
@@ -115,7 +115,7 @@ for each USER
    authpop3.book                pop3 book for pop3 auth server
    pop3.book                    pop3 book
    pop3.check                   file that marked the last pop3 retrieval date
-   
+
 ~USER/.forward                  mail forwarding file
 ~USER/.vacation.msg             text for auto reply
 ~USER/.vacation.db              db for autoreply history log

@@ -30,7 +30,7 @@ sub find_configfile {
    return ('');
 }
 
-sub load_configfile {	
+sub load_configfile {
    my ($configfile, $r_config)=@_;
 
    open(CONFIG, $configfile) or return(-1, $!);
@@ -167,13 +167,13 @@ sub escapeURL {
     return $toencode;
 }
 
-# convert UCS4 to UTF8: 
+# convert UCS4 to UTF8:
 # string passed by with javascript escape() will encode CJK char to unicode
 # like %u5B78%u9577, this is used to turn %u.... back to the CJK char
 # eg: $str=~ s/%u([0-9a-fA-F]{4})/ucs4_to_utf8(hex($1))/ge;
 sub ucs4_to_utf8 {
    my ($val)=@_;
-   my $c;   
+   my $c;
    if ($val < 0x7f){		#0000-007f
       $c .= chr($val);
    } elsif ($val < 0x800) {	#0080-0800

@@ -90,7 +90,7 @@ foreach (qw(
 )) { $is_config_option{'auto'}{$_}=1}
 
 # list type config options
-foreach (qw(	
+foreach (qw(
    domainnames domainselectmenu_list spellcheck_dictionaries
    allowed_serverdomain allowed_clientdomain allowed_clientip
    allowed_receiverdomain allowed_autologinip allowed_rootloginip
@@ -188,7 +188,7 @@ sub zombie_cleaner {
    while (waitpid(-1,WNOHANG)>0) {}
 }
 #
-# Note: zombie_cleaner is called at the begin/end of each request 
+# Note: zombie_cleaner is called at the begin/end of each request
 #
 # We don't put zombie_cleaner() into $SIG{CHLD} because
 # 1. if $SIG{CHLD} is set some signal handler, even a very simple one,
@@ -328,7 +328,7 @@ sub userenv_init {
    read_owconf(\%config, \%config_raw, "$userconf") if ( -f "$userconf");
 
    # override auto guessing domainanmes if loginam has domain or domainselectmenu enabled
-   if (${$config_raw{'domainnames'}}[0] eq 'auto' && 
+   if (${$config_raw{'domainnames'}}[0] eq 'auto' &&
        ($loginname=~/\@/ || $config{'enable_domainselectmenu'})) {
       $config{'domainnames'}=[ $logindomain ];
    }
@@ -511,7 +511,7 @@ sub load_owconf {
 
 # load ow conf file into a new hash, return ref of the new hash
 # so the hash can be cached to speedup later access
-sub _load_owconf {	
+sub _load_owconf {
    my $configfile=$_[0];
    if ($configfile=~/\.\./) {	# .. in path is not allowed for higher security
       openwebmailerror(__FILE__, __LINE__, "Invalid config file path $configfile!");
@@ -639,7 +639,7 @@ sub matchlist_fromtail {
 sub loadlang {
    my $lang=$_[0]; $lang='en' if ($lang eq 'en.utf8' or !-f "$config{'ow_langdir'}/$lang");
    ow::tool::loadmodule("main",
-                        $config{'ow_langdir'}, $lang);	
+                        $config{'ow_langdir'}, $lang);
                         # null list, load all symbos
 }
 ########## END LOADLANG ##########################################
@@ -651,7 +651,7 @@ sub readprefs {
 
    # read .openwebmailrc
    # ps: prefs entries are kept as pure strings to make the following things easier
-   #     1. copy default from $config{default...} 
+   #     1. copy default from $config{default...}
    #     2. store prefs value back to openwebmailrc file
    if ( -f $rcfile ) {
       open (RC, $rcfile) or
@@ -751,7 +751,7 @@ sub readprefs {
 use vars qw(%_templatecache);
 sub readtemplate {
    my ($templatename, $lang)=@_;
-   $lang=$prefs{'language'}||'en' if ($lang eq ''); 
+   $lang=$prefs{'language'}||'en' if ($lang eq '');
    $lang='en' if ($lang eq 'en.utf8');
 
    my $langfile="$config{'ow_templatesdir'}/$lang/$templatename";
@@ -765,7 +765,7 @@ sub readtemplate {
          local $/; undef $/; $_templatecache{$file}=<T>; # read whole file in once
          close (T);
          return $_templatecache{$file};
-      } 
+      }
    }
    openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_templatesdir'}/$lang/$templatename! ($!)");
 }
@@ -1762,7 +1762,7 @@ sub dotpath {
 # When vdomain adm has to determine dotpath for vusers,
 # the param of vuser($vdomain, $vuser, $vhomedir) will be passed
 # instead of the globals($domain, $user, $homedir), which are param of vdomain adm himself
-sub _dotpath {	
+sub _dotpath {
    my ($name, $domain, $user, $homedir)=@_;
    my $dotdir;
    if ($config{'use_syshomedir_for_dotdir'}) {

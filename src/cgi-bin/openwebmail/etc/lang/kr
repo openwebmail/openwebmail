@@ -115,7 +115,7 @@ package ow::kr;
    both   => '메일 편집 지역 전 과 후'
    );
 
-%lang_abookbuttonpositionlabels = 
+%lang_abookbuttonpositionlabels =
    (
    before => '주소록 등록 전',
    after  => '주소록 등록 후',
@@ -205,7 +205,7 @@ package ow::kr;
    byte => 'Byte'
    );
 
-%lang_calendar = 
+%lang_calendar =
    (
    yearview  => '년간 일정 보기',
    monthview => '월간 일정 보기',
@@ -285,7 +285,7 @@ package ow::kr;
    mkthumbnail  => '간단한 그림 만들기',
    download => '내려받기',
    upload   => '올리기',
-   );   
+   );
 
 %lang_text =
    (

@@ -113,7 +113,7 @@ package ow::pt;
    both   => 'Antes e depois da área de edição'
    );
 
-%lang_abookbuttonpositionlabels = 
+%lang_abookbuttonpositionlabels =
    (
    before => 'Antes do livro de endereços',
    after  => 'Depois do livro de endereços',
@@ -203,7 +203,7 @@ package ow::pt;
    byte => 'Byte'
    );
 
-%lang_calendar = 
+%lang_calendar =
    (
    yearview  => 'ANO',
    monthview => 'MÊS',
@@ -283,7 +283,7 @@ package ow::pt;
    mkthumbnail  => 'Criar Miniatura',
    download => 'Download',
    upload   => 'Upload',
-   );   
+   );
 
 %lang_text =
    (

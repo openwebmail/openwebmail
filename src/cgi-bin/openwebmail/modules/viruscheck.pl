@@ -43,7 +43,7 @@ sub pipecmd_msg {
    my $tmpfile=ow::tool::untaint("/tmp/.viruscheck.tmpfile.$$");
 
    # ensure tmpfile is owned by current euid but wll be writeable for forked pipe
-   open(F, ">$tmpfile"); close(F); chmod(0666, $tmpfile);	
+   open(F, ">$tmpfile"); close(F); chmod(0666, $tmpfile);
 
    # the pipe forked by shell may use ruid/rgid(bash) or euid/egid(sh, tcsh)
    # since that won't change the result, so we don't use fork to change ruid/rgid

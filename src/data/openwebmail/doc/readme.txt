@@ -66,10 +66,10 @@ Authen-PAM-0.14.tar.gz        (optional, for auth_pam support)
 ImageMagick-5.5.3.tar.gz      (optional, for thumbnail support in webdisk)
 antiword-0.35.tar.gz          (optional, for msword preview)
 openssl-0.9.7d.tar.gz         (optional, for pop3 over SSL support,
-                               required only if system doesn't support libssl) 
+                               required only if system doesn't support libssl)
 Net_SSLeay.pm-1.25.tar.gz     (optional, for pop3 over SSL support)
 IO-Socket-SSL-0.96.tar.gz     (optional, for pop3 over SSL support)
-clamav-0.70.tar.gz            (optional, for viruscheck, 
+clamav-0.70.tar.gz            (optional, for viruscheck,
                                available at http://www.clamav.net)
 Mail-SpamAssassin-2.63.tar.gz (optional, for spamcheck,
                                available at http://www.spamassassin.org)
@@ -132,7 +132,7 @@ Text-Iconv-1.2 installation:
 
    man iconv
 
-   If there is no manual page for iconv, your system might not support iconv(), 
+   If there is no manual page for iconv, your system might not support iconv(),
    You need to install libiconv package to get iconv() support.
 
    cd /tmp
@@ -162,7 +162,7 @@ Text-Iconv-1.2 installation:
 
    ps: If the 'make test' failed, it means you set wrong value for LIBS and
        INC in Makefile.PL or your iconv support is not complete.
-       You may copy the misc/patches/iconv.pl.fake to shares/iconv.pl to make 
+       You may copy the misc/patches/iconv.pl.fake to shares/iconv.pl to make
        openwebmail work without iconv support.
 
    make install
@@ -253,7 +253,7 @@ eg: /usr/local/apache/share, then
    change the #!/usr/bin/suidperl to the location where your suidperl is.
 
 3. cd /usr/local/apache/share/cgi-bin/openwebmail/etc
-   
+
    modify openwebmail.conf
    a. set mailspooldir to where your system mail spool is
    b. set ow_htmldir   to '/usr/local/apache/share/htdocs'
@@ -299,13 +299,13 @@ This init will create the mapping tables used by openwebmail in the future.
 If you skip this step, you will not be able to access the openwebmail through
 web interface.
 
-As perl on various platforms may use different underlying dbm system, the 
+As perl on various platforms may use different underlying dbm system, the
 default setting in the_directory_of_openwebmail_cgi_scripts/etc/dbm.conf
 may be not correct for your system.
 
 The init routine will test them and try to give you some useful suggestions.
 
-1. it checks options in etc/dbm.conf, 
+1. it checks options in etc/dbm.conf,
    if they are set to wrong value, you may see output like
 -------------------------------------------------------------
 Please change '/the_directory_of_openwebmail_scripts/etc/dbm.conf' from
@@ -321,7 +321,7 @@ dbmopen_ext             none
 dbmopen_haslock         no
 -------------------------------------------------------------
 
-2. it checks if the dbm system uses DB_File.pm by default and will 
+2. it checks if the dbm system uses DB_File.pm by default and will
    suggest a necessary patch to DB_File.pm, you may see output like
 -------------------------------------------------------------
 Please modify /usr/libdata/perl/5.00503/mach/DB_File.pm by adding
@@ -359,8 +359,8 @@ other rules will be ignored.
 
 VIRUSCHECK SUPPORT
 ------------------
-Openwebmail can call external programs to do viruscheck for pop3 or 
-other messages in INBOX. To enable virus check support, you have to 
+Openwebmail can call external programs to do viruscheck for pop3 or
+other messages in INBOX. To enable virus check support, you have to
 
 1. install ClamAV (http://www.clamav.net/)
    And ensure you have started up the daemon of the clamav - clamd
@@ -368,21 +368,21 @@ other messages in INBOX. To enable virus check support, you have to
    (it is the client side of ClamAV)
 3. set viruscheck_source_allowed to either pop3 or all.
    This depends on the configuration of your mail system
-   If MTA or mail deliver will do virus scanning, 
+   If MTA or mail deliver will do virus scanning,
    then you should set this to pop3, otherwise, you may set it to all.
 4. set enable_viruscheck to yes in openwebmail.conf
 5. there are some other viruscheck related options in defaults/openwebmail.conf,
    please refer to openwebmail.conf.help for more detail
 
-ps: Thomas Chung has written a document 
+ps: Thomas Chung has written a document
     "HOWTO install and configure ClamAV for Open WebMail on Red Hat/Fedora Core"
     It is available at http://openwebmail.org/openwebmail/download/redhat/howto/virus/ClamAV/HOWTO-clamav.txt
 
 
 SPAMCHECK SUPPORT
 -----------------
-Openwebmail can call external programs to do spamcheck for pop3 or 
-other messages in INBOX. To enable spam check support, you have to 
+Openwebmail can call external programs to do spamcheck for pop3 or
+other messages in INBOX. To enable spam check support, you have to
 
 1. install SpamAssassin (http://www.spamassassin.org)
    And ensure you have started up the daemon of the spamassasin (spamd)
@@ -393,7 +393,7 @@ ps:Please be sure that the spamd is started with -L or --local option
    (it is the client side of spamassassin)
 3. set spamcheck_source_allowed to either pop3 or all.
    This depends on the configuration of your mail system
-   If MTA or mail deliver will do spam scanning, 
+   If MTA or mail deliver will do spam scanning,
    then you should set this to pop3, otherwise, you should set it to all.
 4. set enable_spamcheck to yes in openwebmail.conf
 5. there are some other spamcheck related options in defaults/openwebmail.conf,
@@ -401,28 +401,28 @@ ps:Please be sure that the spamd is started with -L or --local option
 
 ps: How and when does openwebmail call the external programs to check messages?
 
-    The pop3 messages are checked when they are fetched 
+    The pop3 messages are checked when they are fetched
     from remote pop3 server, the fetching and checking are done in background.
-    Other new messages in INBOX (which is delivered by mail system) are checked 
+    Other new messages in INBOX (which is delivered by mail system) are checked
     at the time user accesses the mail folder. A mail filtering process will be
-    forked at background to check the messages in INBOX. 
+    forked at background to check the messages in INBOX.
 
 ps: An option "wait time for background filtering" is provided in preference,
-    which can be used to control how long user would like to wait for mail 
+    which can be used to control how long user would like to wait for mail
     filtering before the folder message list or message content is returned.
 
-    Please don't set it too short or some spam/virus may not get filtered 
+    Please don't set it too short or some spam/virus may not get filtered
     in time before user accesses them.
 
-ps: The viruscheck/spamcheck is majorly designed to check messages fetched 
-    from pop3 server since these messages won't be checked by scanners in 
+ps: The viruscheck/spamcheck is majorly designed to check messages fetched
+    from pop3 server since these messages won't be checked by scanners in
     MTA or local deliver.
 
     While viruscheck/spamcheck can also check all messages in INBOX, but
-    we suggest that the sysadm should install antispam/antivurs softwares 
-    in either MTA or local deliver so mails can get checked before delivered 
-    into INBOX. It is more efficient than scanning all mails in Open WebMail. 
-    And the mails will get checked even the user is using client other than 
+    we suggest that the sysadm should install antispam/antivurs softwares
+    in either MTA or local deliver so mails can get checked before delivered
+    into INBOX. It is more efficient than scanning all mails in Open WebMail.
+    And the mails will get checked even the user is using client other than
     Open WebMail.
 
 
@@ -430,10 +430,10 @@ LEARNSPAM SUPPORT
 -----------------
 Openwebmail can call external programs to learn HAM/SPAM messages by storing
 the tokens of messages in per user bayesian db..
-To enable learn ham/spam support, you have to 
+To enable learn ham/spam support, you have to
 
 1. install SpamAssassin (http://www.spamassassin.org)
-2. modify option learnspam_pipe and learnham_pipe according to the location 
+2. modify option learnspam_pipe and learnham_pipe according to the location
    of sa-learn (it is the ham/psam learner of spamassassin)
 3. set enable_learnspam to yes in openwebmail.conf
 
@@ -532,7 +532,7 @@ Some fingerd allow you to specify the name of finger program by -p option
 (eg: fingerd on FreeBSD). By changing the parameter to fingerd in
 /etc/inetd.conf, users can get their mail status from remote host.
 
-openwebmail-tool.pl can be also used in crontab to prefetch pop3mail or 
+openwebmail-tool.pl can be also used in crontab to prefetch pop3mail or
 do folder index verification for users. For example:
 
 59 5 * * *  /usr/local/www/cgi-bin/openwebmail/openwebmail-tool.pl -q -a -p -i
@@ -619,48 +619,48 @@ you can do debug with the -d option
 3. send a message to this user to test the autoreply
 4. check the /tmp/vacation.debug for possible error information
 
-Things you may find in /tmp/vacation.debug 
+Things you may find in /tmp/vacation.debug
 
-'User ... not found in to: and cc:', 
+'User ... not found in to: and cc:',
 
-This tends to occur (assuming the address is legitimate) when your email 
-addresses don't match your system accounts.  For instance, when mail for 
-tim.wood@xyz.com is deposited in system account twood.  The error will look 
-something like this: 
+This tends to occur (assuming the address is legitimate) when your email
+addresses don't match your system accounts.  For instance, when mail for
+tim.wood@xyz.com is deposited in system account twood.  The error will look
+something like this:
 
-20040505 170028 User twood@xyz.com twood not found in to: and cc:, autoreply canceled 
+20040505 170028 User twood@xyz.com twood not found in to: and cc:, autoreply canceled
 
-Vacation.pl assumes that the user part of the email address (e.g. tim.wood) 
-will match their account on the system (e.g. twood).  If they don't you can 
-work around this by 
+Vacation.pl assumes that the user part of the email address (e.g. tim.wood)
+will match their account on the system (e.g. twood).  If they don't you can
+work around this by
 
 a. add the -j after vacation.pl in option vacationpipe in openwebmail.conf
 
 vacationpipe            %ow_cgidir%/vacation.pl -j -t60s
 
-ps: this modification won't take effect until user reset their .forward 
+ps: this modification won't take effect until user reset their .forward
     file by switching on and off the email forwarding in openwebmail,
     so you may wish to use the following modification instead
 
-b. editing vacation.pl (in the openwebmail folder, typically at 
-   /var/www/cgi-bin/openwebmail/). At the top of the 'MAIN' section, 
-   you'll find a while that's used to parse options: 
+b. editing vacation.pl (in the openwebmail folder, typically at
+   /var/www/cgi-bin/openwebmail/). At the top of the 'MAIN' section,
+   you'll find a while that's used to parse options:
 
-    # parse options, handle initialization or interactive mode 
-    while (defined($ARGV[0]) && $ARGV[0] =~ /^-/) { 
-       $_ = shift; 
-    [snip] 
-       } 
-    } 
+    # parse options, handle initialization or interactive mode
+    while (defined($ARGV[0]) && $ARGV[0] =~ /^-/) {
+       $_ = shift;
+    [snip]
+       }
+    }
 
-   Immeadiately after that section, add: 
+   Immeadiately after that section, add:
 
-      $opt_j=1; 
+      $opt_j=1;
 
-   This tells vacation.pl to not check that the email address and system 
-   account match.  Note: this means that everytime the user receives an email 
-   from a mailing list, everyone on the mailing list will know the user is 
-   out-of-office.  And if it's a busy list, they'll hear about it a lot. 
+   This tells vacation.pl to not check that the email address and system
+   account match.  Note: this means that everytime the user receives an email
+   from a mailing list, everyone on the mailing list will know the user is
+   out-of-office.  And if it's a busy list, they'll hear about it a lot.
    (by twood, tim.wood.AT.compucomfed.com)
 
 
@@ -781,7 +781,7 @@ ps: if any alias found in virtusertable,
 
 Here is an example of /etc/virtusertable
 
-projectmanager		pm		
+projectmanager		pm
 johnson@company1.com	john1
 tom@company1.com	tom1
 tom@company2.com	tom2
@@ -830,7 +830,7 @@ designed for this purpose. Openwebmail also provides the web interface
 which can be used to manage(add/delete/edit) these virtual users under
 various virtual domains.
 
-Please refer to the description in auth_vdomain.pl and auth_vdomain.conf 
+Please refer to the description in auth_vdomain.pl and auth_vdomain.conf
 for more detail.
 
 ps: vm-pop3d : http://www.reedmedia.net/software/virtualmail-pop3d/
@@ -914,14 +914,14 @@ ps: For more detail about PAM configuration, it is recommended to read
     http://www.kernel.org/pub/linux/libs/pam/Linux-PAM-html/pam.html
     by Andrew G. Morgan, morgan.AT.kernel.org
 
-ps: The script in cgi-bin/openwebmail/misc/test/authtest.pl can used to 
+ps: The script in cgi-bin/openwebmail/misc/test/authtest.pl can used to
     test if the a authentication module under cgi-bin/openwebmail/auth/ works
     on your system.
 
     eg: cd your_cgi-bin/openwebmail/
         perl authtest.pl auth_unix.pl someusername passwd
         perl authtest.pl auth_pam.pl someusername passwd
-    
+
     ps: On some system, root is not allowed to login,
         and PAM will always return false for root login
 
@@ -1249,7 +1249,7 @@ ps: Kevin L. Ellis (kevin.AT.bluelavalamp.net) has written a tutorial
 
 7. Compatibility with perl 5.8.4
 
-   The latest perl 5.8.4 does more strict check for suid scripts, 
+   The latest perl 5.8.4 does more strict check for suid scripts,
    and the following two may cause incompatibility for some users
 
    a. the name of the perl interpreter must has string 'perl'
@@ -1258,21 +1258,21 @@ ps: Kevin L. Ellis (kevin.AT.bluelavalamp.net) has written a tutorial
       but we would like to suggest 'speedy_suidperl' as the name of speedy perl
       interpreter now.
 
-   b. the parameter passed in the first line of the script must be the same 
+   b. the parameter passed in the first line of the script must be the same
       as the one the perl interpreter get.
 
       This restirction stop us from using the following line in the script
 
 	#!/usr/bin/speedy_suidperl -T -- -T/tmp/speedy
 
-      All we can use is 
+      All we can use is
 
 	#!/usr/bin/speedy_suidperl
 
-      In other words, we can't use "-- -parameter_for_speedy" to pass parameter 
+      In other words, we can't use "-- -parameter_for_speedy" to pass parameter
       to speedycgi itself
 
-   ps: If you really need to change the tmpbase for SpeedyCGI, you may apply the 
+   ps: If you really need to change the tmpbase for SpeedyCGI, you may apply the
        patch in cgi-bin/openwebmail/misc/patches/speedycgi.tmpbase.patch to the
        SpeedyCGi 2.22 source, it changes tmpbase from /tmp/speedy to /var/run/speedy
 

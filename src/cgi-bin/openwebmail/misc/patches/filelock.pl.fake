@@ -1,11 +1,11 @@
 #
 # filelock.fake.pl - null lock version of filelock.pl
-# 
+#
 # This is primarily used as a temporary replacement of filelock.pl
-# to determine if dead filelock problem is caused by code in openwebmail 
+# to determine if dead filelock problem is caused by code in openwebmail
 # or by underlying perl DBM system
 #
-# Just copy this over the filelock.pl, then all filelock issued in 
+# Just copy this over the filelock.pl, then all filelock issued in
 # openwebmail scripts will be bypassed.
 #
 # WARNING! NEVER use this script as a solution for filelock problem.

@@ -1,3 +1,11 @@
+11/27/2004
+----------
+1. fix the color of listview in addressbook when lightbar is disabled
+   (thanks to Alex Teslik, alex.AT.acatysmoof.com)
+2. Hungarian language file translation update
+   (thanks to Posz Marton, ful_s.AT.fazekas.hu)
+
+
 11/26/2004
 ----------
 1. Bulgarian language and template files translation update
@@ -5,20 +13,20 @@
 2. fix a but that addressbook related function in message reading/composing
    was not disabled when option enable_addressbook is set to no
 3. fix a problem in mime.pl that encode_mimewords didn't encode two bytes of
-   a big5 char as a whole 
+   a big5 char as a whole
    (reported by wongyf.AT.mail.savs.ilc.edu.tw)
 
 
 11/25/2004
 ----------
-1. fix a problem that when dangerous chars in foldername in was silently 
-   removed in folder creation, the resulted string might contain invalid 
+1. fix a problem that when dangerous chars in foldername in was silently
+   removed in folder creation, the resulted string might contain invalid
    chars to user current charset
    (reported by chip.AT.turtle.ee.ncku.edu.tw)
 2. new mirror site at Beijing, China
    http://web.lasg.ac.cn/openwebmail/
    (thanks to Wang Jun, wjun.AT.mail.iap.ac.cn)
-3. fix a problem that shares/vfile.pl won't work without Text::Iconv.pm 
+3. fix a problem that shares/vfile.pl won't work without Text::Iconv.pm
    (reported by marvi.AT.menhir.biz, Marvi Benedet)
 4. Polish language and template files translation update
    (thanks to Pawel Foremski, pjf.AT.gna.org)
@@ -28,12 +36,12 @@
 
 11/24/2004
 ----------
-1. fix the "Undefined subroutine &main::get_messageids_sorted_by_date" error 
-   in openwebmail-tool.pl that 
+1. fix the "Undefined subroutine &main::get_messageids_sorted_by_date" error
+   in openwebmail-tool.pl that
    (reported by Yang Yao-Strong, ysyang.AT.visionnext.com)
 2. Polish language and template files translation update
    (thanks to Pawel Foremski, pjf.AT.gna.org)
-3. fix a bug that DEFAULT_ restriction in openwebmail.conf is always active 
+3. fix a bug that DEFAULT_ restriction in openwebmail.conf is always active
    even when its default_ counterpart has been overridden
    (reported by Yves MARTIN, ymartin.AT.mail.com)
 4. fix an error in iconv.pl.fake that the routine is_convertable() should be
@@ -43,16 +51,16 @@
 
 11/23/2004
 ----------
-1. remove the default chld signal handler to eliminate the 
+1. remove the default chld signal handler to eliminate the
    "recursive call...,out of memory!" error in httpd error log
-   To avoid zombie, we call zombie_cleaner explicitly at begin/end of 
+   To avoid zombie, we call zombie_cleaner explicitly at begin/end of
    each request
 
 
 11/21/2004
 ----------
-1. rewrite the chkd signal handler 
-   to eliminate the recursive call...,out of memory!" error 
+1. rewrite the chkd signal handler
+   to eliminate the recursive call...,out of memory!" error
 
 
 11/18/2004
@@ -65,13 +73,13 @@
 
 11/17/2004
 ----------
-1. minor fix to editfile in webdisk so it could be called from modules 
+1. minor fix to editfile in webdisk so it could be called from modules
    other than webdisk
 
 
 11/16/2004
 ----------
-1. fix a bug that parameters won't be remembered correctly in the url 
+1. fix a bug that parameters won't be remembered correctly in the url
    redirection in openwebmail.pl at user login
 2. fix a bug in vacation.pl that the from field in autoreplied message
    may be wrong if the user was not the first recipient in the To: field
@@ -88,9 +96,9 @@
 1. change default for enable_domainselectmenu from yes to no,
    rename domainselmenu_list to domainselectmenu_list
 2. fix a bug that if option domainanmes has only one entry,
-   domainanme select menu won't appear even enable_domainselectmenu 
-   is set to yes 
-3. fix a bug that domain selected from dropdown menu at login won't 
+   domainanme select menu won't appear even enable_domainselectmenu
+   is set to yes
+3. fix a bug that domain selected from dropdown menu at login won't
    be used as the default domain for user
 
 
@@ -111,7 +119,7 @@
 ----------
 1. the import/export support for csv and tab-seperated addressbook!
    (thanks to Joao S Veiga, openwebmail.AT.rf.com.br for his code)
-2. add option webmail_middle_plugfile to plugin content between menubar 
+2. add option webmail_middle_plugfile to plugin content between menubar
    and messagelist in webmail
 3. remove redundant file etc/vcard.pl
 
@@ -139,11 +147,11 @@
 ----------
 1. add routine decode_mimewords_iconv to decode a mimeowrd based on its own
    charset, so string encoded with charset other the message charset
-   could be displayed correctly 
-2. fix a bug that parameters in mailto: link (to, subject, body) were not 
+   could be displayed correctly
+2. fix a bug that parameters in mailto: link (to, subject, body) were not
    passed into the compose window correctly
    (reported by WONG, Wai Bun Ada, adawong.AT.ied.edu.hk)
-3. fix a bug that agentname may be showed in wrong charset if the agent has 
+3. fix a bug that agentname may be showed in wrong charset if the agent has
    different charset than its parent contact
 4. use cookie to remember the last used addressbook within a browser session
 5. check the firstname/lastname field in addreditform before form submission
@@ -155,7 +163,7 @@
 1. fix a bug in addressbook that when collapse mode is off,
    checking the checkox of any group will check all groups in currentpage
 2. fix a bug in addressbook that clicking save in groupedit form would
-   make the following addressbook listview have only a member field instead 
+   make the following addressbook listview have only a member field instead
    of the to, cc and bcc fields.
 3. use user prefs charset as the value for property X-OWM-CHARSET
    in convert old addressbook
@@ -174,14 +182,14 @@
 
 11/03/2004
 ----------
-1. jump directly to same location after form submission when user click + 
+1. jump directly to same location after form submission when user click +
    to add a new item/entry in addressbook editing
 2. fix a bug that the displayed addrbook name may be wrong in addreditform
    when the entry in editing is in a readonly addrbook
 3. show only TO field in addrlistview in editgroup mode
 4. fix a bug that abookfolder was not passed in addredit which would
    cause error in saving an existing entry to addressbook
-5. minor openwebmail-abook.pl code clean 
+5. minor openwebmail-abook.pl code clean
    a. add is_abookfolder_writable() abookfolder2file() to openwebmail-abook.pl
    b. variable convention: xxxfolder - logicalname of an addrbook
                            xxxfile   - path of an addrbook
@@ -191,7 +199,7 @@
 11/02/2004
 ----------
 1. more checks on possible destination addressbooks in addrlistview
-2. fix a bug that member checkboxs always have inverse state as the group 
+2. fix a bug that member checkboxs always have inverse state as the group
    checkbox when collapse mode is off in addrlistview
 3. fix the bug that string passed to displayNotes are escape with escapeURL,
    it should be str2html instead.
@@ -202,7 +210,7 @@
 1. adjust the default width/height of address popup window for upgraded users.
 2. minor change to js routine makeFullName() in addreditform_N.template
    so it can generate proper fullname for CJK
-3. calling sendmail with -f option in vacation.pl to specify envelope sender 
+3. calling sendmail with -f option in vacation.pl to specify envelope sender
    explicitly to avoid the intranet domainet being used in envelope.
    (thanks to Pasi Sjoholm, pasi.sjoholm.AT.tieto-x.fi for his fix)
 4. add 'local $1' in regex untaint matching to avoid the perl $1 taintness bug
@@ -210,14 +218,14 @@
     in debugging this problem)
 5. add ucs4_to_utf8() to tool.pl to solve CJK problem in addressbook popup
    it decodes the %uXXXX in CGI parameters encoded by javascript escape()
-6. fix a bug in composeselect and editgroup that parms set in form hiddens object 
-   should be escaped for < > & " chars only (ow::htmltext::str2html), 
+6. fix a bug in composeselect and editgroup that parms set in form hiddens object
+   should be escaped for < > & " chars only (ow::htmltext::str2html),
    not fully escaped (ow::tool::escapeURL)
 
 
 10/31/2004
 ----------
-1. integrate addressbook with other modules by putting the link of web 
+1. integrate addressbook with other modules by putting the link of web
    addresssbook to the menubar of msgread, webcalendar and webdisk
 2. Traditional Chinese language and templates translation update
 3. fix a bug in mailfilter that string with < > could not be showed correctly
@@ -226,34 +234,34 @@
    (reported by Dan Burke, drburke.AT.crhc.uiuc.edu)
 5. use a image itself as the thumbnail if the image size < 2k in webdisk.
 6. show addressbook name in editing addressbook personal/group entries
-7. fix alignment directives in addressbook templates for RTL languages 
+7. fix alignment directives in addressbook templates for RTL languages
    (eg:ar.* hr.* ur)
 
 
 10/30/2004
 ----------
-1. replace the openwebmail-abook.pl with the whole new vCard compliant 
+1. replace the openwebmail-abook.pl with the whole new vCard compliant
    implementation by Alex Teslik, it is much better than the old one :)
    (thanks to Alex Teslik, alex.AT.acatysmoof.com for his great implementation)
 
 ps: BETA! NOT PRODUCTION READY!
 
-    The new addressbook code has NOT been tested worldwide. 
-    Although every effort has been made to eliminate any possible errors, 
-    it is STRONGLY recommended that this code should NOT be run in a 
+    The new addressbook code has NOT been tested worldwide.
+    Although every effort has been made to eliminate any possible errors,
+    it is STRONGLY recommended that this code should NOT be run in a
     production environment until it can be tested by a larger user base.
 
 ps: It is okay to install the new version over the old one.
-    but don't forget to remove import.gif, export.gif 
+    but don't forget to remove import.gif, export.gif
     from data/images/iconsets/*/ (which are not used any more)
 
-ps: If you are upgrading from older openwebmail, don't forget to convert 
+ps: If you are upgrading from older openwebmail, don't forget to convert
     the global addressbook to new vard format by
-    
+
 	openwebmail-tool.pl -c
 
     The user addressbook will be auto converted at the first access.
-    However, the sysadm may also choose to convert the addressbook for all 
+    However, the sysadm may also choose to convert the addressbook for all
     users manually by
 
 	openwebmail-tool.pl -c -a
@@ -263,9 +271,9 @@ ps: If you are upgrading from older openwebmail, don't forget to convert
    (thanks to Joao S Veiga, openwebmail.AT.rf.com.br)
 4. remove stale iconsets from data/images/iconsets/
 5. move javascript in templates/*/addreditform_BDAY.template
-   to templates/COMMON/, so the js cached in memory could be shared 
+   to templates/COMMON/, so the js cached in memory could be shared
    among different languages
-6. change the default value for viruscheck_pipe 
+6. change the default value for viruscheck_pipe
    from /usr/local/bin/clamdscan --mbox --disable-summary --stdout -
    to   /usr/local/bin/clamdscan --disable-summary --stdout -
    to avoid the warning on clamav 0.8+
@@ -287,15 +295,15 @@ ps:If you encounter any problem with mail filtering,
 10/20/2004
 ----------
 1. add option enable_advsearch, enable_userfolders to openwebmail.conf
-2. if domainames option has more than one members and 
-   option enable_domainselectmenu is set to yes, 
+2. if domainames option has more than one members and
+   option enable_domainselectmenu is set to yes,
    only the selected domainname will become the domainname in default emails
 
 
 10/14/2004
 ----------
 1. new mirror site at Moscow, Russia
-   http://openwebmail.nigilist.ru 
+   http://openwebmail.nigilist.ru
    (thanks to Petya Kohts, nit.AT.nigilist.ru)
 2. fix a spelling mistake in the log file status names:
    "emport addressbook to pine" should be: "export addressbook to pine"
@@ -325,20 +333,20 @@ ps:If you encounter any problem with mail filtering,
 
 09/24/2004
 ----------
-1. fix a bug in addressbook csv export routine which didn't check if the 
+1. fix a bug in addressbook csv export routine which didn't check if the
    exported fields contain commas, so the resulting csv may be misunderstood
-   by other programs. 
+   by other programs.
    (thanks to Joao S Veiga, openwebmail.AT.rf.com.br for his fix)
 2. fix bugs in pine addressbook import routine
    a. entries across multiple lines were not parsed properly
    b. mime encoded strings were not decoded properly
    (reported by zlb.AT.lsec.cc.ac.cn)
-3. fix a bug in maildb.pl which didn't reset message type variable between 
+3. fix a bug in maildb.pl which didn't reset message type variable between
    loop and caused openwebmail to have wrong message size/count for folders
    in some cases.
 
-ps: This wrong size/count summary bug won't hurt the consistence of mail 
-    folder and related index, but we suggest that sites running imapd/pop3d 
+ps: This wrong size/count summary bug won't hurt the consistence of mail
+    folder and related index, but we suggest that sites running imapd/pop3d
     and openwebmail later than 20040804 should upgrade to this release.
 
 
@@ -350,15 +358,15 @@ ps: This wrong size/count summary bug won't hurt the consistence of mail
 
 09/14/2004
 ----------
-1. use title="..." directive instead of href="mailto:..." for email links 
+1. use title="..." directive instead of href="mailto:..." for email links
    in all html documents
 
 
 09/12/2004
 ----------
-1. fix a bug that en.utf8 did't exist in 
+1. fix a bug that en.utf8 did't exist in
    data/openwebmail/javascript/htmlarea.openwebmail/popups
-   which caused html editing not working for en.utf8 
+   which caused html editing not working for en.utf8
 
 
 09/11/2004
@@ -396,7 +404,7 @@ ps: This wrong size/count summary bug won't hurt the consistence of mail
 ----------
 1. Czech language file and Cool3D.Czech iconset update
    (thanks to Milan Kerslager, milan.kerslager.AT.pslib.cz)
-2. zh_CN.GB2312 help files update 
+2. zh_CN.GB2312 help files update
    (thanks to Wang Jun, irixer.AT.hotmail.com)
 
 
@@ -405,10 +413,10 @@ ps: This wrong size/count summary bug won't hurt the consistence of mail
 1. fix the bug that modification of arguments in option vacationinit
    may let openwebmail recognize autoreply entry as forward ones
    (reported by WONG, Wai Bun Ada, adawong.AT.ied.edu.hk)
-2. fix the bug that block_email, block_smtp icon were not removed 
+2. fix the bug that block_email, block_smtp icon were not removed
    when userfilter is disabled
    (reported by r-1, eperrotin.AT.contentia.fr)
-3. fix the bug that DEFAULT_... options(yesno, none, list) in openwebmail.conf 
+3. fix the bug that DEFAULT_... options(yesno, none, list) in openwebmail.conf
    may be parsed incorrectly.
    (reported by r-1, eperrotin.AT.contentia.fr)
 4. better support for non-official charset name in iconv.pl
@@ -418,7 +426,7 @@ ps: This wrong size/count summary bug won't hurt the consistence of mail
 ----------
 1. add option enable_globalfilter to openwebmail.conf
 2. avoid the fork of background filter by checking if
-   there is no user filters and no global filters and 
+   there is no user filters and no global filters and
    smartfilter, viruscheck, viruscheck are all disabled
 
 
@@ -449,10 +457,10 @@ ps: This wrong size/count summary bug won't hurt the consistence of mail
 1. new iconset: Cool3D.Russian.
    Russian language and templates minor translation update
    (thanks to Oleg Dzyza, dzoleg.AT.mail.ru)
-2. a. corrects "browing" to "browsing" on openwebmail-main.pl 
-   b. corrects multiple appearances of 
-      "Open Webmail Ajuda e Tutorial e Tutorial" to 
-      "Open Webmail Ajuda e Tutorial" on the pt_BR help pages. 
+2. a. corrects "browing" to "browsing" on openwebmail-main.pl
+   b. corrects multiple appearances of
+      "Open Webmail Ajuda e Tutorial e Tutorial" to
+      "Open Webmail Ajuda e Tutorial" on the pt_BR help pages.
    (thanks to Joao S Veiga, openwebmail.AT.rf.com.br for his patch)
 
 
@@ -472,9 +480,9 @@ ps: This wrong size/count summary bug won't hurt the consistence of mail
 
 08/17/2004
 ----------
-1. document correction in readme.txt and 
+1. document correction in readme.txt and
    misc/patches/suidperl2speedy_suidperl.notmp.patch
-   the '#!/usr/local/bin/speedy_suidperl -T' won't work under perl 5.8.4, 
+   the '#!/usr/local/bin/speedy_suidperl -T' won't work under perl 5.8.4,
    it should be '#!/usr/local/bin/speedy_suidperl' only
    (thanks to Yen-Ming Lee, leeym.AT.leeym.com for his correction)
 2. remove xmailer_has_version and xoriginatingip_has_userid from
@@ -488,7 +496,7 @@ ps: This wrong size/count summary bug won't hurt the consistence of mail
    it is based on the Laurent Frigault's implementation in 2.01.
    (thanks to Varadi Gabor, varadi.AT.mithrandir.hu for his patch)
 2. skip readprefs if euid !=0 && euid!=uuid in openwebmail.pl
-   so they won't permission error when user home is located on nfs server 
+   so they won't permission error when user home is located on nfs server
    with uid 0 mapping disabled
    (reported by cchs92.AT.cs.ccu.edu.tw)
 
@@ -508,7 +516,7 @@ ps: This wrong size/count summary bug won't hurt the consistence of mail
 ----------
 1. new mail sound: YouGotMail.German.wav
    (thanks to Helmut Grund, Helmut.Grund.AT.fh-furtwangen.de)
-2. check message existence in message attribute retrival to eliminate 
+2. check message existence in message attribute retrival to eliminate
    unnecessary warning of corrupted index
    (reported by James Briggs, james.AT.ActionMessage.com)
 
@@ -522,13 +530,13 @@ ps: This wrong size/count summary bug won't hurt the consistence of mail
 
 08/07/2004
 ----------
-1. new mail sound: YouGotMail.Korean.wav 
+1. new mail sound: YouGotMail.Korean.wav
    (thanks to Youngho Kang, ykang.AT.deskweb.net)
 2. check if subject is 'N/A' before sending message in composemessage.template
    (suggested by jsveiga, openwebmail.AT.rf.com.br)
 3. include owm-stats-1.1.zip in cgi-bin/openwebmail/misc/tools/owm-stats/
    (thanks to Dimitrios 'sehh' Michelinakis, dimitrios.AT.michelinakis.gr)
-4. fix a bug move_oldmsg_from_folder in maildb.pl which just moved new 
+4. fix a bug move_oldmsg_from_folder in maildb.pl which just moved new
    messages from INBOX to SAVED folder
    (reported by James Briggs, james.AT.ActionMessage.com)
 
@@ -543,10 +551,10 @@ ps: This wrong size/count summary bug won't hurt the consistence of mail
 
 08/05/2004
 ----------
-1. fix the bug in spamcheck.pl that negative spamlevel is always read as 
+1. fix the bug in spamcheck.pl that negative spamlevel is always read as
    positive
    (thanks xtremebassist.AY.basslessons.net for his fix)
-2. fix the bug in mailfilter that spammail will be moved to virus_destination 
+2. fix the bug in mailfilter that spammail will be moved to virus_destination
    instead of spam_destination
    (thanks to xtremebassist.AY.basslessons.net for his fix)
 3. index.html, readme.txt document update
@@ -564,15 +572,15 @@ ps: This wrong size/count summary bug won't hurt the consistence of mail
 4. fix bugs in repeated message filter in mailfilter.pl
    a. messages of same sender/subject were counted for only once
    b. old messages may be filtered because the index db recreation would
-      make all messages appear as new at once. 
-   c. the id of repeated msgs were not logged correctly when 
+      make all messages appear as new at once.
+   c. the id of repeated msgs were not logged correctly when
       log_filtermove_detail is on
 
 ps: the db format is changed slightly in this release,
     we suggest the system to execute the following command to avoid possible
     delay caused by reindex at user runtime.
 
-    /path_to_openwbemail/openwebmail-tool.pl -i -a 
+    /path_to_openwbemail/openwebmail-tool.pl -i -a
 
 
 08/03/2004
@@ -585,7 +593,7 @@ ps: the db format is changed slightly in this release,
 1. add a field 'LSTMTIME' to index db to mark the modified time of the
    message list, and getmsgids.pl only reload the message ids from index db
    when the LSTMTIME is changed.
-   This speeds up the msglist retrival, especially for folders with lots of 
+   This speeds up the msglist retrival, especially for folders with lots of
    messages (eg: more than 1000)
 
 
@@ -607,16 +615,16 @@ ps: the db format is changed slightly in this release,
 ----------
 1. zh_CN.GB2312 language and template files translation update
    (thanks to Wang Jun, irixer.AT.hotmail.com)
-2. fix a bug in mailfilter that viruscheck/spamcheck won't be 
-   issued if there is no filter rule in both global and per user 
+2. fix a bug in mailfilter that viruscheck/spamcheck won't be
+   issued if there is no filter rule in both global and per user
    filter book.
 
 
 07/27/2004
 ----------
-1. add a filter rule which filters messages with attachment filename of 
+1. add a filter rule which filters messages with attachment filename of
    the following pattern:
-   (readme|instruction|transcript|mail|letter|file|text|attachment|document|message).(cmd|bat|com|exe|pif|scr|zip) 
+   (readme|instruction|transcript|mail|letter|file|text|attachment|document|message).(cmd|bat|com|exe|pif|scr|zip)
    Please refer to http://securityresponse.symantec.com/avcenter/venc/data/w32.mydoom.m@mm.html
    for virus detail
    (suggested by Thomas Chung, tchung.AT.openwebmail.org)
@@ -627,7 +635,7 @@ ps: the db format is changed slightly in this release,
 4. Korean language and template file translation minor update
    (thanks to Sungjun Park, psj.AT.soosan.co.kr)
 5. fix the bug that virus-mail and spam-mail folder always appear
-   even option has_virusfolder_by_default and has_spamfolder_by_default 
+   even option has_virusfolder_by_default and has_spamfolder_by_default
    are set to no
    (reported by Oleg Dzyza, dzoleg.AT.mail.ru)
 
@@ -651,15 +659,15 @@ ps: the db format is changed slightly in this release,
 1. remove the long lock of folderfile/folderdb in mailfilter.pl
    put the filtering process into background, returns after 10 seconds wait.
    This is very helpful for the following cases
-   a. slow systems 
-   b. system that enable spamcheck/viruscheck for all messages. 
+   a. slow systems
+   b. system that enable spamcheck/viruscheck for all messages.
    c. user that has many messages reserved in INBOX
 ps: This background mailfilter is an experimental feature, there could be
     few messages not filtered immediately
 2. add option bgfilterwait to user preference so user can control how long
    they would like to wait for background mail filtering before message folder
    list or message content is returned
-3. fix the piperead error that happened in adding word to personal dictionary 
+3. fix the piperead error that happened in adding word to personal dictionary
    if aspell 0.50 is used.
    (reported by Thomas Chung, tchung.AT.openwebmail.org)
 
@@ -669,7 +677,7 @@ ps: This background mailfilter is an experimental feature, there could be
 1. change the default servicename used in auth_pam.pl from 'openwebmail' to
    'login' so sysadm doesn't have to add the openwebmail service name into
    /etc/pam.d/ or /etc/pam.conf before using auth_pam.pl
-2. log information of the clienip/language/browser for those who tries to 
+2. log information of the clienip/language/browser for those who tries to
    connect vavation.pl as CGI
 
 
@@ -678,14 +686,14 @@ ps: This background mailfilter is an experimental feature, there could be
 1. fix a bug in spamcheck.pl and viruscheck.pl that chmod(0666, filename)
    was typed as chmod(666, filename)
    (thanks to wsoft2002.AT.hotmail.com for his fix)
-2. fix the bug that the content of a message/rfc822 attachement or the 
-   description of an attachment may be displayed in wrong chrset 
+2. fix the bug that the content of a message/rfc822 attachement or the
+   description of an attachment may be displayed in wrong chrset
    in case user read message with charset different than the message charset
 
 
 07/20/2004
 ----------
-1.  hide --LEARNSPAM--, --LEARNHAM-- in destination folders if 
+1.  hide --LEARNSPAM--, --LEARNHAM-- in destination folders if
     option enable_learnspam is set to no in openwebmail.conf
     add options has_virusfolder_by_default, has_spamfolder_by_default
     to openwebmail.conf
@@ -697,13 +705,13 @@ ps: This background mailfilter is an experimental feature, there could be
       so the location of released tar ball won't be changed between releases
    c. daily nsapshot of openwebmail-current.tar.gz are put in download/snapshot/
       so it is easier to trace the changes between releases
-   d. the lastest current and the diff between latest current and last release 
+   d. the lastest current and the diff between latest current and last release
       are put in download/current/
 
 
 07/19/2004
 ----------
-1. fix the compatible issue of spamcheck, viruscheck, learnspam, 
+1. fix the compatible issue of spamcheck, viruscheck, learnspam,
    mstnef for platforms that use bash as default shell
 
 ps:perl process will invoke shell to execute commands in the following cases
@@ -712,7 +720,7 @@ ps:perl process will invoke shell to execute commands in the following cases
    c. command passed to system() or exec() as a whole string
       and the string has shell escape char in it
 
-   When bash is started and parent ruid!=0, 
+   When bash is started and parent ruid!=0,
    it will have ruid=parent ruid, euid=parnet ruid (for security reason, I guess)
    instead of ruid=parnet ruid, euid=parent euid
 
@@ -730,12 +738,12 @@ ps:perl process will invoke shell to execute commands in the following cases
 
 07/17/2004
 ----------
-1. fix a bug that check all box in folderview and webdisk won't work 
+1. fix a bug that check all box in folderview and webdisk won't work
    if lightbar feature is disabled in preference
    (reported by Phantasmagoria, stevenchow.AT.lichking.com)
 2. fix the "/b2g.map not found" error in openwebmail-tool.pl --init
    (reported by James Briggs, james.AT.ActionMessage.com)
-3. fix a bug that trash/spam/virus folders were not cleaned at logout 
+3. fix a bug that trash/spam/virus folders were not cleaned at logout
    when reserved day is set to 'Deleted at Logout'
    (reported by Thomas Chung, tchung.AT.openwebmail.org)
 4. Russian language and template files translation
@@ -764,26 +772,26 @@ ps:perl process will invoke shell to execute commands in the following cases
 ----------
 1. fix a bug in mailparse.pl that the first character of mail body will be cut.
    it was due a a modification in 20040707
-2. change the mirror site 19 
+2. change the mirror site 19
    from http://unixnetworks.org/openwebmail/, Florida, USA
    to   http://www.xtremhosting.com/openwebmail/, EU, Israel
    because unixnetworks.org is not available any more
    (thanks to Johnny, elonex.AT.kirkwor.com for his mirroring)
-3. speedup the response of learnspam/learnham greatly by putting it into 
+3. speedup the response of learnspam/learnham greatly by putting it into
    background
 
 
 07/08/2004
 ----------
 1. rearrange the hierarchy of files under cgi-bin/openwebmail/etc
-   a. move cgi-bin/openwebmail/etc/*.conf.default 
+   a. move cgi-bin/openwebmail/etc/*.conf.default
         to cgi-bin/openwebmail/etc/defaults/*.conf
    b. move cgi-bin/openwebmail/etc/*.(map|db)
         to cgi-bin/openwebmail/etc/maps/*.(map|db)
 ps: It is highly recommended to remove old openwebmail before installing this
     new one, or you will have some stale files in cgi-bin/openwebmail/etc
     All data format are the same, there should be no danger to upgrade. :)
-2. refix the log_debug error in vacation.pl which stoped vacation.pl from 
+2. refix the log_debug error in vacation.pl which stoped vacation.pl from
    working
    (reported by Milan Kerslager, milan.kerslager.AT.pslib.cz)
 3. Korean language and template file translation update
@@ -796,13 +804,13 @@ ps: It is highly recommended to remove old openwebmail before installing this
        b. spamcheck support to call the external SpamAssassin spam checker
        c. learnspam support to call the external SpamAssassin spam/ham learner
           so spamcheck can verify user mails with per user bayesian db
-   The sysadm can set openwebmail to check only pop3 mails or all mails 
+   The sysadm can set openwebmail to check only pop3 mails or all mails
    in inbox, and the user can also set how his mail is scanned in the user
    preference
-ps:viruscheck, spamcheck, laearnspam are off by default, 
+ps:viruscheck, spamcheck, laearnspam are off by default,
    system have to install the required softwares before enabling these options
 2. add virus-mail, spam-mail to the list of default folders
-3. fix a bug in addressbook that entries in global addressbook won't not 
+3. fix a bug in addressbook that entries in global addressbook won't not
    filtered when keyword is specified
    (thanks to Emmett Pate, epate.AT.williamewood.com for his patch)
 4. Korean language and template files translation update
@@ -841,7 +849,7 @@ ps:viruscheck, spamcheck, laearnspam are off by default,
 
 06/28/2004
 ----------
-1. fix to lightbar for selection feature to make it compatible with old 
+1. fix to lightbar for selection feature to make it compatible with old
    browser like NS 4.7
    (thanks to Alex Teslik, ateslik.AT.users.sourceforge.net for his patch)
 2. remove nowrap directive for event reminder in folder view
@@ -851,7 +859,7 @@ ps:viruscheck, spamcheck, laearnspam are off by default,
 06/26/2004
 ----------
 1. new option in user preference: use lightbar for selection
-   (thanks to Hans Poo, hanspoo.AT.users.sourceforge.net for his suggestion 
+   (thanks to Hans Poo, hanspoo.AT.users.sourceforge.net for his suggestion
     and code of the highlight of selected messages)
 2. minor changes in global filter
    a. remove the X-Mailer check
@@ -863,14 +871,14 @@ ps:viruscheck, spamcheck, laearnspam are off by default,
 ----------
 1. Korean template files minor translation update
    (thanks to Sungjun Park, psj.AT.soosan.co.kr)
-2. further improve the fast rebuild in update_folderindex() 
-   it now checks the (0, n/3, 2n/3, n-1, n) records in folder db instead of 
+2. further improve the fast rebuild in update_folderindex()
+   it now checks the (0, n/3, 2n/3, n-1, n) records in folder db instead of
    the last 5 records to decide if a folder db is directly reuseable
 
 
 06/18/2004
 ----------
-1. improve the speed of fast rebuild in update_folderindex() 
+1. improve the speed of fast rebuild in update_folderindex()
    by checking the latest few records to see if a folder db is reuseable
    the consistence of other records will be checked on demand at access
    (suggested by James Briggs, james.AT.ActionMessage.com)
@@ -900,7 +908,7 @@ ps:viruscheck, spamcheck, laearnspam are off by default,
 
 06/09/2004
 ----------
-1. fix a bug in openwebmail-tool.pl which did homedir re-processing check 
+1. fix a bug in openwebmail-tool.pl which did homedir re-processing check
    before the real homedir is determinated
    (thanks to Dimitrios Michelinakis, dimitrios.AT.michelinakis.gr for his fix)
 
@@ -921,13 +929,13 @@ ps:viruscheck, spamcheck, laearnspam are off by default,
 
 06/03/2004
 ----------
-1. change options in openwebmail.conf.default 
+1. change options in openwebmail.conf.default
    enable_rootlogin -> allowed_rootloginip
    enable_autologin -> allowed_autologinip
    so the feature availability can be controlled based on clinet ip address.
 2. Korean language and template files translation update
    (thanks to Sungjun Park, psj.AT.soosan.co.kr)
-3. fix a security bug that script embeded in attachment content type or 
+3. fix a security bug that script embeded in attachment content type or
    content description will be executed when user is read message
    (reported by aramosf.AT.unsec.net)
 ps: please refer to http://www.rs-labs.com/adv/RS-Labs-Advisory-2004-1.txt
@@ -941,11 +949,11 @@ ps: please refer to http://www.rs-labs.com/adv/RS-Labs-Advisory-2004-1.txt
 
 06/01/2004
 ----------
-1. invoke zip program with option -j in openwebmail-folders.pl so folder path 
+1. invoke zip program with option -j in openwebmail-folders.pl so folder path
    won't be included in the downloaded zip file
    (thanks to Dimitrios Michelinakis, dimitrios.AT.michelinakis.gr for his fix)
-2. support auto-login, so user doesn't have to input username/password 
-   if he didn't logout his previous openwebmail and that previous session 
+2. support auto-login, so user doesn't have to input username/password
+   if he didn't logout his previous openwebmail and that previous session
    is not timeouted
    (suggested by Justin Mercier, artvandelier.AT.yahoo.com)
 
@@ -969,7 +977,7 @@ ps: please refer to http://www.rs-labs.com/adv/RS-Labs-Advisory-2004-1.txt
 ----------
 1. new option change_smbpasswd in auth_unix.conf.default
    (suggested by koach.AT.ccsh.kh.edu.tw)
-2. fix a bug that the charset in message composing window would become none 
+2. fix a bug that the charset in message composing window would become none
    after adding attachment
    (reported by Dominic Lu, dominic.AT.dominic.idv.tw)
 
@@ -985,14 +993,14 @@ ps: please refer to http://www.rs-labs.com/adv/RS-Labs-Advisory-2004-1.txt
 1. fix the problem that update_folderindex() may generate index with
    zero or negative msg size in case the folder size is changed by
    other process that doesn't check filelock before writing.
-   (thanks to James Briggs, james.AT.ActionMessage.com for providing the 
-    detailed debugging information so many times, which were very helpful 
+   (thanks to James Briggs, james.AT.ActionMessage.com for providing the
+    detailed debugging information so many times, which were very helpful
     in locating this problem)
 
 
 05/17/2004
 ----------
-1. fix a bug that first time user would see access error after saving the 
+1. fix a bug that first time user would see access error after saving the
    preference if the webmail is not enabled for this user
 
 
@@ -1013,7 +1021,7 @@ ps: please refer to http://www.rs-labs.com/adv/RS-Labs-Advisory-2004-1.txt
 ----------
 1. add support for text/enreiched content type
    The Apple Mail in OS X 10.3 generates messages of this content type
-   (thanks to Bob Dobbs, beezleb0b.AT.users.sourceforge.net for 
+   (thanks to Bob Dobbs, beezleb0b.AT.users.sourceforge.net for
     providing sample messages)
 2. add support for GBK charset
 
@@ -1028,7 +1036,7 @@ ps: please refer to http://www.rs-labs.com/adv/RS-Labs-Advisory-2004-1.txt
 
 05/10/2004
 ----------
-1. fix a bug in webdisk that passed variable $escapedfolder as string 
+1. fix a bug in webdisk that passed variable $escapedfolder as string
    'escapedfolder'
    (thanks to Dimitris Michelinakis, dimitris.AT.michelinakis.gr)
 2. new tool to create Cool3D icons for all languages: ut/mkcool3d.sh
@@ -1043,7 +1051,7 @@ ps: please refer to http://www.rs-labs.com/adv/RS-Labs-Advisory-2004-1.txt
 2. fix a bug in popup addressbook which didn't escape the undefined email
    in target field properly and caused strange output in the end of addressbook
    (reported by Carlos Pina Soares, cpsoares.AT.fcsh.unl.pt)
-3. set $Carp::MaxArgNums to 0 in tool.pl so stacktrace() prints all arguments in 
+3. set $Carp::MaxArgNums to 0 in tool.pl so stacktrace() prints all arguments in
    routine calls.
 4. fix a bug in openwebmail-tool.pl which passed an array as array reference
    to getfolders()
@@ -1059,7 +1067,7 @@ ps: please refer to http://www.rs-labs.com/adv/RS-Labs-Advisory-2004-1.txt
 ----------
 1. more check on pop3 quit command
    (thanks to Steve Bromwich, Steve.Bromwich.AT.impsolutions.com)
-2. move argument of spellchecker from openwebmail-spell.pl to option 
+2. move argument of spellchecker from openwebmail-spell.pl to option
    spellcheck in openwebmail.conf.default for better flexibility
 3. fix a bug in stationery book that data is displayed in unescaped mode
    (reported by Thomas Chung, tchung.AT.openwebmail.org)
@@ -1073,14 +1081,14 @@ ps: please refer to http://www.rs-labs.com/adv/RS-Labs-Advisory-2004-1.txt
 
 05/01/2004
 ----------
-1. minor fix to pop3.pl to wait confirmation of quit from server before 
+1. minor fix to pop3.pl to wait confirmation of quit from server before
    closing the connection
    (suggested by Dop Ganger, dopganger.AT.users.sourceforge.net)
 
 
 04/30/2004
 ----------
-1. improve mailparser to find lost MIME attributes in header for messages 
+1. improve mailparser to find lost MIME attributes in header for messages
    resent from mailling list softwares (eg: mailman)
 2. minor fix to start code of in openwebmail*pl to open /etc/openwebmail.conf,
    so it won't do unnecessary open()
@@ -1103,7 +1111,7 @@ ps: please refer to http://www.rs-labs.com/adv/RS-Labs-Advisory-2004-1.txt
 
 04/27/2004
 ----------
-1. fix a typo error in maildb.pl which made the msg count always one more 
+1. fix a typo error in maildb.pl which made the msg count always one more
    than the real count when doing the fast rebuild of db index.
    (reported by SuperLight, superlight.AT.cheyi.net)
 2. Cool3D.Hellenic iconset update
@@ -1120,7 +1128,7 @@ ps: please refer to http://www.rs-labs.com/adv/RS-Labs-Advisory-2004-1.txt
 ps: Sysadm may execute the following command to convert db for all users,
     this eliminates the possible delay caused by db conversion at user access.
 
-    /path_to_openwbemail/openwebmail-tool.pl -i -a 
+    /path_to_openwbemail/openwebmail-tool.pl -i -a
 
 3. Hellenic/Greek language translation update
    (thanks to Dimitris Michelinakis, dimitris.AT.michelinakis.gr)
@@ -1133,9 +1141,9 @@ ps: Sysadm may execute the following command to convert db for all users,
    (reported by James Briggs, james.AT.ActionMessage.com)
 2. Polish login.template minor update
    (thanks to Pawel Foremski, pavcio.AT.4lo.bytom.pl)
-3. fix a bug in openwbemail-send,pl which won't calc the header size and 
+3. fix a bug in openwbemail-send,pl which won't calc the header size and
    header checksum for saved draft or sent message
-4. minor fix to maildb.pl so the 1st nl of delim nlnl between msg header 
+4. minor fix to maildb.pl so the 1st nl of delim nlnl between msg header
    and body is counted as part of message header
 5. more check in mailfilter.pl to eliminate the 'filter i/o error' problem
    (reported by James Briggs, james.AT.ActionMessage.com)
@@ -1148,9 +1156,9 @@ ps: Sysadm may execute the following command to convert db for all users,
    so all dbmopen/dbclose are handled by module dbm.pl.
 2. Bulgarian language, templates translation update
    (thanks to Veselin Slavov, vess.AT.vess.bnc.bg)
-3. display both sender and receiver email address when user puts the mouse 
+3. display both sender and receiver email address when user puts the mouse
    over the From field in folder view
-4. insert a blank line to the end of a pop3 fetched message 
+4. insert a blank line to the end of a pop3 fetched message
    if it is ended with empty line
    (reported by Owen Carter, sleasytarget.AT.users.sourceforge.net)
 
@@ -1160,8 +1168,8 @@ ps: Sysadm may execute the following command to convert db for all users,
 1. added explicit seek() to filelock.pl and openwebmail.pl after open with '<+'
 2. changed LOGFILE open from '>>' to '<+' to help speedup NFS access
    in ow-shared.pl
-3. removed folder update code from upgrade.pl 
-   (folders now have their own version number and will be updated 
+3. removed folder update code from upgrade.pl
+   (folders now have their own version number and will be updated
     automatically when opened)
 
 ps: Thanks to Scott A. Mazur, scott.AT.littlefish.ca for all the above fixes.
@@ -1170,18 +1178,18 @@ ps: Thanks to Scott A. Mazur, scott.AT.littlefish.ca for all the above fixes.
 5. check message size before reading in mailfilter.pl to avoid
    'Negative length at mailfilter.pl line 271' error
    (reported by James Briggs, james.AT.ActionMessage.com)
-6. fix the bug in datetime.pl that timeoffset in date field would be wrong 
+6. fix the bug in datetime.pl that timeoffset in date field would be wrong
    in message composing when daylightsaving is active
    (reported by James Briggs, james.AT.ActionMessage.com)
 7. minor fix to Secretaries' Day in en_US holiday file
    (thanks to James P. Dugal, jpd2.AT.users.sourceforge.net)
-8. fix a bug in openwebmail.pl that auth pop3 won't delete the 
+8. fix a bug in openwebmail.pl that auth pop3 won't delete the
    mail on pop3 server even option authpop3_delmail is set to 'yes'
 
 
 04/19/2004
 ----------
-1. fix a bug in sub writehistory which always wrote new records at the 
+1. fix a bug in sub writehistory which always wrote new records at the
    beginning of history.log
    (reported by Martin Och, ochm.AT.users.sourceforge.net)
 
@@ -1203,14 +1211,14 @@ ps: Thanks to Scott A. Mazur, scott.AT.littlefish.ca for all the above fixes.
 ps: Sysadm may execute the following command to convert db for all users,
     this eliminates the possible delay caused by db conversion at user login.
 
-    /path_to_openwbemail/openwebmail-tool.pl -i -a 
+    /path_to_openwbemail/openwebmail-tool.pl -i -a
 
 2. removed tell() function from all code (no more tell() warning).
 3. reduced code with common address/stationary book read and write functions
 
 ps: Thanks to Scott A. Mazur, scott.AT.littlefish.ca for all the above fixes.
 
-4. fix a bug that 'replying with stationary' won't do charset conversion 
+4. fix a bug that 'replying with stationary' won't do charset conversion
    correctly
 5. Polish language and holiday file update
    (thanks to Mikolaj Menke, miki.AT.z.pl)
@@ -1241,10 +1249,10 @@ ps: Thanks to Scott A. Mazur, scott.AT.littlefish.ca for all the above fixes.
 
 04/13/2004
 ----------
-1. fix the bug that changing calendar interval time to less than 30 minute 
+1. fix the bug that changing calendar interval time to less than 30 minute
    will affect the starthour in calendar
    (reported by jebright.AT.esisnet.com)
-2. fix invalid html in openwebmail-main.pl which prevented openwebmail 
+2. fix invalid html in openwebmail-main.pl which prevented openwebmail
    from working on PocketPC2003/iPAQ2210
    (reported by Robert.Eckardt.AT.Robert-Eckardt.de)
 3. fix a bug in auth_pop3.pl which called fetchmail() for authentication
@@ -1261,8 +1269,8 @@ ps: Thanks to Scott A. Mazur, scott.AT.littlefish.ca for all the above fixes.
 
 04/12/2004
 ----------
-1. check the existence of variable before doing undef() in 
-   openwebmail_clearall() to fix the 
+1. check the existence of variable before doing undef() in
+   openwebmail_clearall() to fix the
    'Attempt to free non-existent shared string ...' error
    (reported by Dugal James P., jpd.AT.louisiana.edu
                 Peter Friedrich, peterf1972.AT.users.sourceforge.net)
@@ -1271,7 +1279,7 @@ ps: Thanks to Scott A. Mazur, scott.AT.littlefish.ca for all the above fixes.
    (reported by Thomas Chung, tchung.AT.openwebmail.org)
 3. fix a bug that mail parser fell into the forever loop in dealing with
    null attachment block. this bug was introduced by the 20040408 fix 1
-   (reported by chukk.AT.mail.tn.edu.tw) 
+   (reported by chukk.AT.mail.tn.edu.tw)
 4. log the count of active sessions in past 1, 5, 15 minutes at user login,
    it can be used as a rough summary of the load of openwebmail
 
@@ -1288,8 +1296,8 @@ ps: Thanks to Scott A. Mazur, scott.AT.littlefish.ca for all the above fixes.
 ----------
 1.  fix broken 'effectiveuser' paramater in auth_pop3.pl module
 2.  fix broken index update code.  Index was being corrupted when
-    folders were updated outside of OWM (POP3/IMAP access).  
-    Added MD5 checksums of each message header to the index to ensure 
+    folders were updated outside of OWM (POP3/IMAP access).
+    Added MD5 checksums of each message header to the index to ensure
     message changes are not missed.
 3.  Fixed bug in mail fiter smart filter code where filtered message was
     being copied to a new folder without first reading full original message.
@@ -1301,27 +1309,27 @@ ps: Thanks to Scott A. Mazur, scott.AT.littlefish.ca for all the above fixes.
 7.  Replace webdisk button with webdisk icon in mail composer (eye candy).
 
 ps: Thanks to Scott A. Mazur, scott.AT.littlefish.ca for all the above fixes!
-    
+
 Note:
 
 1. Module Digest-MD5-2.33.tar.gz is required since this release.
 
-2. The folder db format is changed since this release, 
+2. The folder db format is changed since this release,
    the system will do the conversion automatically when user logins on
 
 3. Sysadm may execute the following command to convert the dbs for all users,
-   this would eliminate the possible delay caused by the conversion at 
+   this would eliminate the possible delay caused by the conversion at
    user login.
 
-   /path_to_openwbemail/openwebmail-tool.pl -i -a 
+   /path_to_openwbemail/openwebmail-tool.pl -i -a
 
 
 04/09/2004
 ----------
 1. holiday file en_GB for British update
    (thanks to Gareth Horth, GHorth.AT.GJG.co.uk)
-2. fix a security bug that arbitary directory could be created through web 
-   interface if the option use_syshomedir is set to no or create_syshomedir 
+2. fix a security bug that arbitary directory could be created through web
+   interface if the option use_syshomedir is set to no or create_syshomedir
    is set to 'yes'
    (reported by Eric Wheeler, ewheeler.AT.nsci.us)
 3. Czech language file update
@@ -1330,10 +1338,10 @@ Note:
 
 04/08/2004
 ----------
-1. minor fix to mailparse.pl for better compatibility with abnormal mime 
+1. minor fix to mailparse.pl for better compatibility with abnormal mime
    block
-   (reported by chukk.AT.mail.tn.edu.tw) 
-2. fix a bug that html2text() will remove the space chars betwen strings 
+   (reported by chukk.AT.mail.tn.edu.tw)
+2. fix a bug that html2text() will remove the space chars betwen strings
    if the space char is at the end of line in the source html.
    (reported by sistek.AT.sistek.com.ar)
 3. filter messages with X-Spam-Level: ******** in mail header
@@ -1342,14 +1350,14 @@ Note:
 
 03/04/2004
 ----------
-1. fix the bug that setting option enable_history to no won't stop the log of 
+1. fix the bug that setting option enable_history to no won't stop the log of
    user history
 
 
 02/25/2004
 ----------
 1. minor change to pop3.pl so less memory is used in fetching large message
-2. fix a bug in mailfilter that duplicated messages in INBOX may be filtered 
+2. fix a bug in mailfilter that duplicated messages in INBOX may be filtered
    into target folder and had the message counter updated like they were
    different messages.
 
@@ -1358,35 +1366,35 @@ Note:
 ----------
 1. fix a bug that @@@STARTSPELLCHKECKFORM@@@ appeared at top in the message
    composing form when enable_spellcheck was set to no
-   (reported by Mattijs Vreeling, mattgick.AT.users.sourceforge.net) 
+   (reported by Mattijs Vreeling, mattgick.AT.users.sourceforge.net)
 2. fix a bug that cal-popup.gif was missing in all Adjunct iconsets
    (reported by Alex Teslik, ateslik.AT.users.sourceforge.net)
 3. fix a type error in etc/lang/zh_TW.Big5
-   (reported by Robert Chang, robertchang.AT.users.sourceforge.net) 
+   (reported by Robert Chang, robertchang.AT.users.sourceforge.net)
 4. fix a bug that message with date larger than year 2037 would cause runtime
    error
-   (reported by Technical Support, netfront.AT.users.sourceforge.net) 
+   (reported by Technical Support, netfront.AT.users.sourceforge.net)
 
 
 01/27/2004
 ----------
-1. fix a security hole that parameters were passed to userstat.pl 
+1. fix a security hole that parameters were passed to userstat.pl
    without shell escape char checking
    (thanks to Ken Girrard, kgirrard.AT.users.sourceforge.net for his fix)
 
-ps: This userstat.pl is not used by openwbemail runtime system, 
+ps: This userstat.pl is not used by openwbemail runtime system,
     it is designed to query user mail/calendar status for static webpages.
-    So if you don't want to upgrade your openwebmail, you may just remove 
+    So if you don't want to upgrade your openwebmail, you may just remove
     this userstat.pl as a workaround.
 
 2. add md5 support to auth module auth_mysql.pl
    (thanks to Yuan-Chung Hsiao, ychsiao.AT.linux.mis.stu.edu.tw)
-3. fix a bug that setting allowed_clientdomain or allowed_clientip to none 
+3. fix a bug that setting allowed_clientdomain or allowed_clientip to none
    does work
    (thanks to Tom Smith, tomcyber.AT.users.sourceforge.net for his report)
 4. new iconsets: Adjunct.Blue, Adjunct.Metal, Adjunct.Silver
    new style: Adjunct
-   (thanks to Sergio Bukhgalter, sbukhgalter.AT.britishinstitute.it 
+   (thanks to Sergio Bukhgalter, sbukhgalter.AT.britishinstitute.it
     who made these great icons loosely based on Ximian Gnome)
 
 
@@ -1401,11 +1409,11 @@ ps: This userstat.pl is not used by openwbemail runtime system,
 1. move euid/egid setting routines into modules/suid.pl
 
    Note!!
-   The option has_savedsuid_support has been moved 
+   The option has_savedsuid_support has been moved
    from etc/openwebmail.conf.default to etc/suid.conf
 
 2. load auth module into ow::auth::internal.
-   and the routines in ow::auth are actually stub routines for the 
+   and the routines in ow::auth are actually stub routines for the
    counterpart in ow::auth::internal
    (thanks to Scott A. Mazur, scott.AT.littlefish.ca for his code)
 3. update zh_HK.Big5 holiday file, add en_HK holiday file
@@ -1416,7 +1424,7 @@ ps: This userstat.pl is not used by openwbemail runtime system,
 ----------
 1. add SSL support for pop3 message retrival
    (thanks to Dao-hui Chen, dhchen.AT.dhchen.com for his patch)
-2. fix a bug since openwebmail-2.30 that release.date file won't be 
+2. fix a bug since openwebmail-2.30 that release.date file won't be
    created for new user
 3. add two options for authpop3: authpop3_delmail, authpop3_usessl
    and rename other pop3 related options
@@ -1448,19 +1456,19 @@ ps: This userstat.pl is not used by openwbemail runtime system,
    to be the mailspool file.
    (reported by Karim Nasser, slashproc.AT.users.sourceforge.net)
 2. minor optimization for log message list and long filelist
-3. fix a bug that some options in preference could not be unchecked or set 
+3. fix a bug that some options in preference could not be unchecked or set
    to null
    (reported by ¼B«H§g, s2323540.AT.ncnu.edu.tw)
 
 
 01/04/2004
 ----------
-1. fix a bug that webdisk won't work if openwebmail.conf option logfile 
+1. fix a bug that webdisk won't work if openwebmail.conf option logfile
    is set to none
    (suggested by Vicente Chua, chuavv.AT.mail.savs.hcc.edu.tw)
 2. add long page support to message list
    (suggested by Pat Hagge, maxrebo82.AT.users.sourceforge.net)
-3. fix a bug that filterrule with action to move messages to INBOX will 
+3. fix a bug that filterrule with action to move messages to INBOX will
    actually erase the matched messages instead :(
    (reported by ¼B«H§g, s2323540.AT.ncnu.edu.tw)
 

@@ -2,8 +2,8 @@
 
 .htmlarea .toolbar {
   cursor: default;
-  background: @@@BGCOLOR@@@; 
-  padding: 3px; 
+  background: @@@BGCOLOR@@@;
+  padding: 3px;
 }
 .htmlarea .toolbar table { font-family: tahoma,verdana,sans-serif; font-size: 11px; }
 .htmlarea .toolbar img { border: none; }

@@ -113,7 +113,7 @@ package ow::fi;
    both   => 'Editointialueen ennen ja jälkeen'
    );
 
-%lang_abookbuttonpositionlabels = 
+%lang_abookbuttonpositionlabels =
    (
    before => 'Osoitekirjan tietoja ennen',
    after  => 'Osoitekirjan tietojen jälkeen',
@@ -203,7 +203,7 @@ package ow::fi;
    byte => ' Tavu'
    );
 
-%lang_calendar = 
+%lang_calendar =
    (
    yearview  => 'Vuosinäkymä',
    monthview => 'Kuukausinäkymä',
@@ -283,7 +283,7 @@ package ow::fi;
    mkthumbnail  => 'Tee näytekuva',
    download => 'Lataa (download)',
    upload   => 'Lähetä (upload)',
-   );   
+   );
 
 %lang_text =
    (

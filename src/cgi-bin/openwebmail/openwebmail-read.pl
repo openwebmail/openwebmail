@@ -196,7 +196,7 @@ sub readmessage {
    $showhtmlastext=param('showhtmlastext') if (param('showhtmlastext') ne "");
 
    my $convfrom=param('convfrom')||lc($message{'charset'});
-   if ($convfrom eq '' && $prefs{'charset'} eq 'utf-8') {	
+   if ($convfrom eq '' && $prefs{'charset'} eq 'utf-8') {
       # assume msg is from sender using same language as the recipient's browser
       $convfrom=$ow::lang::languagecharsets{ow::lang::guess_language()};
    }
@@ -657,7 +657,7 @@ sub readmessage {
                                 grep { /^[^.]/ && !/^categories\.cache$/ }
                                 readdir(WEBADDR);
             closedir(WEBADDR) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $webaddrdir! ($!)");
-            if ($config{'abook_globaleditable'} && $config{'global_addressbook'} ne "") { 
+            if ($config{'abook_globaleditable'} && $config{'global_addressbook'} ne "") {
                push(@writablebooks, 'GLOBAL') if (-w $config{'global_addressbook'});
             }
 

@@ -114,7 +114,7 @@ package ow::sk;
    both   => 'Pred aj za oblas»ou úpravy e-mailu'
    );
 
-%lang_abookbuttonpositionlabels = 
+%lang_abookbuttonpositionlabels =
    (
    before => 'Pred zoznamom kontaktov',
    after  => 'Za zoznamom kontaktov',
@@ -204,7 +204,7 @@ package ow::sk;
    byte => 'Bajt(y/ov)'
    );
 
-%lang_calendar = 
+%lang_calendar =
    (
    yearview  => 'Roèný prehµad',
    monthview => 'Mesaèný prehµad',
@@ -284,7 +284,7 @@ package ow::sk;
    mkthumbnail  => 'VytorNáhµad',
    download => 'Stiahnu»',
    upload   => 'Nahra»',
-   );   
+   );
 
 %lang_text =
    (

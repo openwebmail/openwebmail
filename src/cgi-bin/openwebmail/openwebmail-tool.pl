@@ -175,7 +175,7 @@ if ($opt{'init'}) {
          print "D readconf $SCRIPT_DIR/etc/openwebmail.conf\n" if ($opt{'debug'});
       }
 
-      my %prefs = readprefs();		
+      my %prefs = readprefs();
       loadlang($prefs{'language'});	# for converted filename $lang_text{abook_converted}
 
       print "converting GLOBAL addressbook..." if (!$opt{'quiet'});

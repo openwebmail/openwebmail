@@ -456,7 +456,7 @@ sub _skip_to_next_text_block {
       } elsif ($pos1>=0) {	# pos2<0, means not found
          $pos=$pos1;
       } elsif ($pos2>=0) {	# pos1<0, means not found
-         $pos=$pos2; 
+         $pos=$pos2;
       }
 
       # get max 500 chars or to the end of the block
@@ -467,7 +467,7 @@ sub _skip_to_next_text_block {
       } elsif ($pos>=0) {
          $block_content=buffer_getchars($pos);
       } else { # pos==-1 means not found until eof
-         $block_content=buffer_getchars(500);	
+         $block_content=buffer_getchars(500);
       }
    }
 
@@ -1328,7 +1328,7 @@ sub msgattr2string {
    # remove delimiter \r,\n from string attributes
    for my $i ($_FROM, $_TO, $_SUBJECT, $_CONTENT_TYPE, $_REFERENCES, $_CHARSET) {
       $attr[$i]=~s/[\r\n]/ /sg;
-   }	
+   }
 
    my $value=join("\n", @attr);
    if (length($value)>800) {

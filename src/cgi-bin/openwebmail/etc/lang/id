@@ -108,15 +108,15 @@ package ow::id;
 
 %lang_sendpositionlabels =
    (
-   before => 'Sebelum area email diubah',  
-   after  => 'Setelah area email diubah', 
-   both   => 'Sebelum dan setelah area email diubah' 
+   before => 'Sebelum area email diubah',
+   after  => 'Setelah area email diubah',
+   both   => 'Sebelum dan setelah area email diubah'
    );
 
-%lang_abookbuttonpositionlabels = 
+%lang_abookbuttonpositionlabels =
    (
-   before => 'Sebelum daftar alamat dimasukkan', 
-   after  => 'Setelah daftar alamat dimasukkan', 
+   before => 'Sebelum daftar alamat dimasukkan',
+   after  => 'Setelah daftar alamat dimasukkan',
    both   => 'Sebelum dan Setelah daftar alamat dimasukkan'
    );
 
@@ -203,7 +203,7 @@ package ow::id;
    byte => 'Byte'
    );
 
-%lang_calendar = 
+%lang_calendar =
    (
    yearview  => 'Lihat Tahun',
    monthview => 'Lihat Bulan',
@@ -283,7 +283,7 @@ package ow::id;
    mkthumbnail  => 'Simpan gambar kecil',
    download => 'Download',
    upload   => 'Upload',
-   );   
+   );
 
 %lang_text =
    (
@@ -674,8 +674,8 @@ package ow::id;
    quotahit_delmail  => 'Peringatan,  karena sudah melewati batas kuota (@@@QUOTALIMIT@@@), pesan yang paling lama berada dalam folder akan dipindahkan secara otomatis',
    quotahit_delfile  => 'Peringatan, karena sudah melewati batas kuota (@@@QUOTALIMIT@@@), beberapa file yang ada di webdisk akan dipindahkan secara otomatis',
    spool_overlimit   => 'Maaf, email baru hampir melewati batas <i>spool</i> (@@@SPOOLLIMIT@@@). Silakan memindahkan beberapa pesan dari email baru ke folder yang lain.',
-   vdomain_toomanyuser  => 'Maaf, pengguna dari domain ini sudah melewati batas maksimum', 
-   vdomain_toomanyalias => 'Maaf, email alias dari pengguna ini sudah melewati batas maksimum', 
+   vdomain_toomanyuser  => 'Maaf, pengguna dari domain ini sudah melewati batas maksimum',
+   vdomain_toomanyalias => 'Maaf, email alias dari pengguna ini sudah melewati batas maksimum',
    vdomain_userrequired => 'Nama pengguna diperlukan',
    vdomain_fwdrequired => 'Meneruskan email yang valid sangat diperlukan',
    all_module_disabled => 'Semua modul dinon-aktifkan',

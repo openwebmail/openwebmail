@@ -13,7 +13,7 @@ tablerow_hicolor="#FFCCCC"
 fontface="Arial, Helvetica"
 ###STARTSTYLESHEET###
 <!--
-body 
+body
 {
     background-image: url(@@@BG_URL@@@);
     background-repeat: @@@BGREPEAT@@@;

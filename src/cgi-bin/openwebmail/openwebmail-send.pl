@@ -1601,7 +1601,7 @@ sub sendmessage {
                      !$config{'enable_savedraft'});
    } else {					     # save msg to sent folder && send
       $savefolder = 'sent-mail';
-      $do_save=0 if (($quotalimit>0 && $quotausage>=$quotalimit) || 
+      $do_save=0 if (($quotalimit>0 && $quotausage>=$quotalimit) ||
                      param('backupsentmsg')==0 ||
                      !$config{'enable_backupsent'});
    }
@@ -1908,7 +1908,7 @@ sub sendmessage {
       dump_str(qq|\n--$boundary--\n|,
                $smtp, $folderhandle, $do_send, $do_save, \$senderr, \$saveerr);
 
-   } else {	
+   } else {
       # NO MIXED ATTACHMENT
       if ($#related>=0) { # has related att, no mixed att, !attachment param
 

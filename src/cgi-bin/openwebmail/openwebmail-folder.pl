@@ -472,7 +472,7 @@ sub addfolder {
    }
 
    my $foldertoadd = ow::tool::untaint(param('foldername')) || '';
-   is_safefoldername($foldertoadd) or 
+   is_safefoldername($foldertoadd) or
       openwebmailerror(__FILE__, __LINE__, "$foldertoadd $lang_err{'has_illegal_chars'}");
    $foldertoadd = safefoldername($foldertoadd);
    return editfolders() if ($foldertoadd eq '');
@@ -545,7 +545,7 @@ sub renamefolder {
    }
 
    my $newname = ow::tool::untaint(param('foldernewname'))||'';
-   is_safefoldername($newname) or 
+   is_safefoldername($newname) or
       openwebmailerror(__FILE__, __LINE__, "$newname $lang_err{'has_illegal_chars'}");
    $newname = safefoldername($newname);
    return editfolders() if ($newname eq '');

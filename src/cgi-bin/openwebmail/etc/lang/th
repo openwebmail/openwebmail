@@ -113,7 +113,7 @@ package ow::th;
    both   => 'ทั้งบนและล่างที่เขียนข้อความ'
    );
 
-%lang_abookbuttonpositionlabels = 
+%lang_abookbuttonpositionlabels =
    (
    before => 'ก่อนรายการสมุดรายชื่อ',
    after  => 'หลังรายการสมุดรายชื่อ',
@@ -203,7 +203,7 @@ package ow::th;
    byte => 'Byte'
    );
 
-%lang_calendar = 
+%lang_calendar =
    (
    yearview  => 'แสดงรายปี',
    monthview => 'แสดงรายเดือน',
@@ -283,7 +283,7 @@ package ow::th;
    mkthumbnail  => 'สร้างตัวอย่างรูป',
    download => 'ดาวน์โหลด',
    upload   => 'อัปโหลด',
-   );   
+   );
 
 %lang_text =
    (

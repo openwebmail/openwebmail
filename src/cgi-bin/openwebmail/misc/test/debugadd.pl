@@ -22,9 +22,9 @@ foreach my $script (@ARGV) {
       my $line=$_;
       if ($line=~/^sub .*{\s*/ && $line!~/sub log_time/) {
          $content.=$line;
-         my $debugline=$line; 
-         $debugline=~s/^sub //; 
-         $debugline=~s/\s*{.*$//g; 
+         my $debugline=$line;
+         $debugline=~s/^sub //;
+         $debugline=~s/\s*{.*$//g;
          chomp($debugline);
          $debugline=qq|log_time('$debugline :', \@_);\n|;
          $content.=$debugline;

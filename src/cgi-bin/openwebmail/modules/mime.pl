@@ -14,7 +14,7 @@ use MIME::Base64;
 use vars qw($NONPRINT $BIG5CHARS $WORDCHARS);
 
 ### Nonprintables (controls + x7F + 8bit):
-$NONPRINT = "\\x00-\\x1F\\x7F-\\xFF";	
+$NONPRINT = "\\x00-\\x1F\\x7F-\\xFF";
 
 $BIG5CHARS = "0-9 \\x40-\\xFF";		# char used in big5 words
 $WORDCHARS = "a-zA-Z0-9 \\x7F-\\xFF";	# char used in regular words
@@ -96,11 +96,11 @@ sub encode_mimewords {
     my $wordchars=(lc($charset) eq 'big5')?$BIG5CHARS:$WORDCHARS;
 
     ### Encode any "words" with unsafe characters.
-    ### We limit such words to 18 characters, to guarantee that 
+    ### We limit such words to 18 characters, to guarantee that
     ### the worst-case encoding give us no more than 75 characters (rfc2047, section2)
     # 18*3   + ~7+10   < 75  under Q encoding (7 is =? ?Q? ?=, 10 is charsetname)
     # 40/6*8 + ~7+10+3 < 75  under B encoding (7 is =? ?B? ?=, 10 is charsetname, 3 is base64 padding)
-    my $maxlen=($encoding eq 'q')?18:40; 
+    my $maxlen=($encoding eq 'q')?18:40;
 
     my $word;
     #$rawstr =~ s{([a-zA-Z0-9\x7F-\xFF]{1,18})}{	### get next "word"

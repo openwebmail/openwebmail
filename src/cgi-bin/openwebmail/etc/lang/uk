@@ -113,7 +113,7 @@ package ow::uk;
    both   => 'Перед ╕ п╕сля област╕ редагування пошти'
    );
 
-%lang_abookbuttonpositionlabels = 
+%lang_abookbuttonpositionlabels =
    (
    before => 'Перед елементами адресно╖ книги',
    after  => 'П╕сля елемент╕в адресно╖ книги',
@@ -203,7 +203,7 @@ package ow::uk;
    byte => 'байт'
    );
 
-%lang_calendar = 
+%lang_calendar =
    (
    yearview  => 'На р╕к',
    monthview => 'На м╕сяць',
@@ -283,7 +283,7 @@ package ow::uk;
    mkthumbnail  => 'Створити п╕ктограми',
    download => 'Завантажити',
    upload   => 'В╕двантажити',
-   );   
+   );
 
 %lang_text =
    (

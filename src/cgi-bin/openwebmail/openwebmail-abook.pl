@@ -206,7 +206,7 @@ openwebmail_requestend();
 ########## ADDRBOOKADD ###########################################
 sub addrbookadd {
    my $abookfoldernew = ow::tool::untaint(param('abookfoldernew'))||'';
-   is_safefoldername($abookfoldernew) or 
+   is_safefoldername($abookfoldernew) or
       openwebmailerror(__FILE__, __LINE__, "$abookfoldernew $lang_err{'has_illegal_chars'}");
 
    $abookfoldernew = ow::tool::untaint($abookfoldernew);
@@ -271,7 +271,7 @@ sub addrbookedit {
 
    my @allabookfolders = get_readable_abookfolders();
    foreach my $abookfolder (@allabookfolders) {
-      my $abookfile=abookfolder2file($abookfolder); 
+      my $abookfile=abookfolder2file($abookfolder);
       my $thisbook = readadrbook($abookfile, (keys %searchterms?\%searchterms:undef), (keys %only_return?\%only_return:undef));
       $total{$abookfolder}{'entries'} = keys %{$thisbook};
       $total{$abookfolder}{'size'} = (-s $abookfile);
@@ -412,7 +412,7 @@ sub addrbookedit {
 ########## ADDRBOOKRENAME ########################################
 sub addrbookrename {
    my $abookfoldernew = ow::tool::untaint(param('abookfoldernew')) || '';
-   is_safefoldername($abookfoldernew) or 
+   is_safefoldername($abookfoldernew) or
       openwebmailerror(__FILE__, __LINE__, "$abookfoldernew $lang_err{'has_illegal_chars'}");
    $abookfoldernew = safefoldername($abookfoldernew);
    return addrbookedit() if ($abookfoldernew eq '');
@@ -427,7 +427,7 @@ sub addrbookrename {
       openwebmailerror(__FILE__, __LINE__, $msg);
    } else {
       if (length($abookfoldernew) > $config{'foldername_maxlen'}) {
-         my $msg=$lang_err{'abook_name_too_long'}; 
+         my $msg=$lang_err{'abook_name_too_long'};
          $msg =~ s/\@\@\@ADDRESSBOOK\@\@\@/$abookfoldernew/;
          $msg =~ s/\@\@\@FOLDERNAME_MAX\@\@\@/$config{'foldername_maxlen'}/;
          openwebmailerror(__FILE__, __LINE__, $msg);
@@ -500,7 +500,7 @@ sub addrbookdownload {
 ########## ADDRLISTVIEW ##########################################
 # addrlistview can run in 3 modes, so know what mode you are
 # running in before you start hacking here. The 3 modes are
-# '','composeselect', and 'export'. 
+# '','composeselect', and 'export'.
 # (composeselect has 2 cases, editgroup or compose)
 sub addrlistview {
    # show the book we left from
@@ -616,7 +616,7 @@ sub addrlistview {
    }
    @viewabookfolders=@allabookfolders if ($#viewabookfolders<0);
    foreach my $abookfolder (@viewabookfolders) {
-      my $abookfile=abookfolder2file($abookfolder); 
+      my $abookfile=abookfolder2file($abookfolder);
       my $thisbook = readadrbook($abookfile, (keys %searchterms?\%searchterms:undef), \%only_return);
       # remember what book this address came from
       foreach my $xowmuid (keys %{$thisbook}) {
@@ -749,7 +749,7 @@ sub addrlistview {
    foreach my $key ('TO', 'CC', 'BCC') {
       foreach my $parmname (lc($key), 'checked'.lc($key)) {
          my $recipients = join(',', param(lc($parmname)));
-         # these param are passed in by javascript escape() routine         
+         # these param are passed in by javascript escape() routine
          # CJK will be encoded as %uXXXX, we have to convert them back to prefs charset
          if ($recipients =~ s/%u([0-9a-fA-F]{4})/ow::tool::ucs4_to_utf8(hex($1))/ge) {
             ($recipients) = iconv('utf-8', $prefs{'charset'}, $recipients);
@@ -1065,7 +1065,7 @@ sub addrlistview {
       $is_src_editable=1 if ($#writableabookfolders>=0);
    } else {
       foreach (@writableabookfolders) {
-         if ($_ eq $abookfolder) { 
+         if ($_ eq $abookfolder) {
             $is_src_editable=1; next;
          } else {
             push(@destabookfolders, $_);
@@ -1136,16 +1136,16 @@ sub addrlistview {
                           -default=>$abooksearchtype || $headings[0],
                           -values=>[@headings, 'categories'],
                           -labels=>\%searchtypelabels).
-               qq|</td><td>|. 
+               qq|</td><td>|.
                textfield(-name=>'abookkeyword',
                          -default=>$abookkeyword,
                          -size=>'15',
                          -accesskey=>'S',
                          -override=>'1').
-               qq|</td><td>|. 
+               qq|</td><td>|.
                submit(-name=>$lang_text{'search'},
                       -class=>'medtext').
-               qq|</td></tr>|. 
+               qq|</td></tr>|.
                end_form().
                qq|</table>\n|;
    $html =~ s/\@\@\@SEARCHBARFORM\@\@\@/$temphtml/g;
@@ -1393,7 +1393,7 @@ sub addrlistview {
          $td_bgcolorstr='';
       } else {
          $tr_bgcolorstr='';
-         $td_bgcolorstr=qq|bgcolor=|.($style{"tablerow_dark"},$style{"tablerow_light"})[$addrindex%2];
+         $td_bgcolorstr=qq|bgcolor=|.($style{"tablerow_light"},$style{"tablerow_dark"})[$addrindex%2];
       }
 
       # how many rows for this $xowmuid
@@ -1534,9 +1534,14 @@ sub addrlistview {
                   $displaynote =~ s!(https?|ftp|mms|nntp|news|gopher|telnet)://([\w\d\-\.]+?/?[^\s\(\)\<\>\x80-\xFF]*[\w/])([\b|\n| ]*)!<a href="$1://$2" target="_blank"+>$1://$2</a>$3!gs;
                   $displaynote =~ s!([\b|\n| ]+)(www\.[\w\d\-\.]+\.[\w\d\-]{2,4})([\b|\n| ]*)!$1<a href="http://$2" target="_blank">$2</a>$3!igs;
                   $displaynote =~ s!([\b|\n| ]+)(ftp\.[\w\d\-\.]+\.[\w\d\-]{2,4})([\b|\n| ]*)!$1<a href="ftp://$2" target="_blank">$2</a>$3!igs;
+
+                  # escape chars for javascript
+                  $displaynote =~ s!\\!\\\\!g;	# \ -> \\
+                  $displaynote =~ s!'!\\'!g;	# ' -> \'
+
                   my $noteoffset = ($headingpos{'note'} > int(((@headings-3)/2)+1) ? -350 : 150);
                   $newrow[$headingpos{'note'}] .= qq|<td $td_bgcolorstr nowrap><a href="javascript:{;}" onClick="displayNote(this,'notepopup',$noteoffset,-25,'|.
-                                                  ow::htmltext::str2html($displaynote).
+                                                  $displaynote.
                                                   qq|');">|.ow::htmltext::str2html($shortnote).qq|</a></td>\n|;
                }
             }
@@ -1675,7 +1680,7 @@ sub addrlistview {
       $html =~ s/\@\@\@EXPORTMODEFORMFORMATSMENU\@\@\@/$temphtml/;
 
       my %tmpset = reverse %ow::lang::languagecharsets;
-      my @charset = ($lang_text{'abook_noconversion'}); 
+      my @charset = ($lang_text{'abook_noconversion'});
       push @charset, sort keys %tmpset;
       my $defaultcharset = $prefs{'charset'};
       $temphtml = "$lang_text{'charset'}:";
@@ -1727,10 +1732,10 @@ sub addrlistview {
                         -value => $abookfolder,
                         -path  => '/');
    if ($listviewmode eq '') {
-      httpprint([-cookie=>[$cookie]], 
+      httpprint([-cookie=>[$cookie]],
                 [htmlheader(),
                  htmlplugin($config{'header_pluginfile'}, $config{'header_pluginfile_charset'}, $prefs{'charset'}),
-                 $html, 
+                 $html,
                  htmlplugin($config{'footer_pluginfile'}, $config{'footer_pluginfile_charset'}, $prefs{'charset'}),
                  htmlfooter(2)] );
    } else {
@@ -2014,7 +2019,7 @@ sub addreditform {
    # switch lang/charset from user prefs to en/composecharset temporarily
    # so we can load proper language and template file for the current contact
    my @tmp;
-   if ($composecharset ne $prefs{'charset'}) {   
+   if ($composecharset ne $prefs{'charset'}) {
       @tmp=($prefs{'language'}, $prefs{'charset'});
       ($prefs{'language'}, $prefs{'charset'})=('en', $composecharset);
       loadlang($prefs{'language'});
@@ -2178,7 +2183,7 @@ sub addreditform {
    }
    if ($xowmuid eq '' ||			# new entry
        is_abookfolder_writable($abookfolder)) {	# old entry on writablebook
-      $temphtml .= submit(-name=>$lang_text{'save'}, 
+      $temphtml .= submit(-name=>$lang_text{'save'},
                           -class=>"medtext",
                           -onClick=> "return savecheck('editForm');");
    }
@@ -3876,7 +3881,7 @@ sub addrshowchecked {
 
          my @allabookfolders = get_readable_abookfolders();
          foreach my $abookfolder (@allabookfolders) {
-            my $abookfile=abookfolder2file($abookfolder); 
+            my $abookfile=abookfolder2file($abookfolder);
             my $thisbook = readadrbook($abookfile, (keys %searchterms?\%searchterms:undef), \%only_return);
             # remember what book this address came from
             foreach my $xowmuid (keys %{$thisbook}) {
@@ -4135,7 +4140,7 @@ sub get_writable_abookfolders {
                grep { /^[^.]/ && !/^categories\.cache$/ }
                readdir(WEBADDR);
    closedir(WEBADDR) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $webaddrdir! ($!)");
-   if ($config{'abook_globaleditable'} && $config{'global_addressbook'} ne "") { 
+   if ($config{'abook_globaleditable'} && $config{'global_addressbook'} ne "") {
       push(@books, 'GLOBAL') if (-w $config{'global_addressbook'});
    }
    return(@books);
@@ -4167,7 +4172,7 @@ sub is_abookfolder_writable {
 
 sub userabookfolders_totalsize {
    my $totalsize=0;
-   for (get_readable_abookfolders()) { 
+   for (get_readable_abookfolders()) {
       next if ($_ eq 'GLOBAL');
       $totalsize += (-s abookfolder2file($_)) || 0;
    }
@@ -4206,11 +4211,14 @@ sub deepcopy {
 
 
 
-#========================== IMPORTANT =============================
-# Developers should familiarize themselves with the vCard hash
-# data structure format before writing an import or export module.
-# Set vcarddebug=1 in shares/vcard.pl or addrdebug=1 in this file.
-#========================== IMPORTANT =============================
+#================================== IMPORTANT =====================================
+# Developers should familiarize themselves with the vCard hash data structure
+# format before writing an import or export module. Set vcarddebug=1 in
+# shares/vcard.pl or addrdebug=1 in this file.
+#
+# Also see:
+# http://www.acatysmoof.com/posting/openwebmail-patches/041025/vCard_data_structure
+#================================== IMPORTANT =====================================
 
 
 
@@ -4285,7 +4293,7 @@ sub addrimportform {
    }
    $html =~ s/\@\@\@FIELDCHOICESMENU\@\@\@/$temphtml/g;
 
-   my @writableabookfolders = get_writable_abookfolders();	# export destination must be writable 
+   my @writableabookfolders = get_writable_abookfolders(); # export destination must be writable
    $temphtml = popup_menu(-name=>'importdest',
                           -values=>[$lang_text{'abook_importdest'}, @writableabookfolders],
                           -override=>1,
@@ -4432,7 +4440,7 @@ sub addrimport {
       $escapedabookfolder = ow::tool::escapeURL($importdest);
    }
 
-   # import done - go back to the listing 
+   # import done - go back to the listing
    # (maybe a http redirect is more clean here? tung)
    foreach ($abook_urlparm_with_abookfolder, $urlparm) {
       s/abookfolder=$oldescapedabookfolder&amp;/abookfolder=$escapedabookfolder&amp;/g;
@@ -4457,12 +4465,12 @@ sub importvcard {
 }
 ########## END IMPORTVCARD #######################################
 
-######################### IMPORTTXT #################################
 
+######################### IMPORTTXT #################################
 sub importtxt {
    # accepts a csv or tab string and returns a vCard hash data structure
 
-   my $importdata = $_[0]; 
+   my $importdata = $_[0];
    my $fs = $_[1];
 
    # NOTE: There may be fields which have double-quotes,
@@ -4486,41 +4494,42 @@ sub importtxt {
 
    my @import_order;
    if (param('importformat') =~ / auto/) {
-      @import_order = split (/::safe_fs::/, lc(shift(@recs))); # First line has the field names 
+      @import_order = split (/::safe_fs::/, lc(shift(@recs))); # First line has the field names
       map { s/^ +| +$|'//g } @import_order
    } else {
       for (my $i = 1; $i <= $importfieldcount; $i++) {
          # user specified from a form up to $importfieldorder fields for now.
-         push @import_order, param("importfieldorder$i"); 
+         push @import_order, param("importfieldorder$i");
       }
    }
 
    # Iterate records from txt file
    my %vcardhash = ();
    foreach my $rec (@recs) {
-      my @values = split (/::safe_fs::/, $rec); 
+      my @values = split (/::safe_fs::/, $rec);
       map { s/^ +| +$//g } @values;
       my %txt = ();
-      map { 
+      map {
          $txt{$_} = shift (@values);
          chomp ($txt{$_});
       } @import_order;
 
       my $x_owm_uid=make_x_owm_uid();
-      $vcardhash{$x_owm_uid} = make_vcard(\%txt, $x_owm_uid); 
+      $vcardhash{$x_owm_uid} = make_vcard(\%txt, $x_owm_uid);
    }
 
    return \%vcardhash;
 }
 ########################## END IMPORTTXT ###########################
 
-########################## IMPORTCSV ################################
 
+########################## IMPORTCSV ################################
 sub importcsv {
    # accepts a csv string and returns a vCard hash data structure
    return importtxt($_[0], ",");
 }
 ######################### END IMPORTCSV #############################
+
 
 ########################## IMPORTTAB ################################
 sub importtab {
@@ -4529,6 +4538,7 @@ sub importtab {
 }
 ######################### END IMPORTTAB #############################
 
+
 ########## IMPORTPINE ############################################
 sub importpine {
    # TO BE DONE
@@ -4536,6 +4546,7 @@ sub importpine {
    my $importdata = $_[0];
 }
 ########## END IMPORTPINE ########################################
+
 
 ########## IMPORTLDIF ############################################
 sub importldif {
@@ -4578,7 +4589,7 @@ sub addrexport {
       $searchterms{'X-OWM-UID'}[0]{'VALUE'} = join("|", keys %waschecked);
 
       foreach my $abookfolder (@allabookfolders) {
-         my $abookfile=abookfolder2file($abookfolder); 
+         my $abookfile=abookfolder2file($abookfolder);
          my $thisbook = readadrbook($abookfile, (keys %searchterms?\%searchterms:undef), undef);
          # remember what book this address came from
          foreach my $xowmuid (keys %{$thisbook}) {
@@ -4632,14 +4643,15 @@ sub exportvcard {
 }
 ########## END EXPORTVCARD #######################################
 
+
 ####################### MAKE VCARD ############################
-# This sub gets a hash ref with the fields for each record of the imported file
-# (csv/tab, or others), and returns one vcard hash.
-sub make_vcard { 
+sub make_vcard {
+   # This sub gets a hash ref with the fields for each record of
+   # the imported file (csv/tab, or others), and returns one vcard hash.
    my ($ref, $x_owm_uid) = @_;
    my %data = %{$ref};  #just for easier typing on the structure...
-   my ($rev_sec,$rev_min,$rev_hour,$rev_mday,$rev_mon,$rev_year) = 
-            gmtime(ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'})); 
+   my ($rev_sec,$rev_min,$rev_hour,$rev_mday,$rev_mon,$rev_year) =
+            gmtime(ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'}));
 
    # Field mapping: Key is the 'foreign' field name, value is the local, used on the $vcard assignment below.
    # If new csv/tab sources are to be supported, and there are foreign field names to be associated to ones
@@ -4654,8 +4666,8 @@ sub make_vcard {
       'primary phone' => 'phone'
    );
 
-   map { 
-       unless ($data{$fieldmap{$_}}) { 
+   map {
+       unless ($data{$fieldmap{$_}}) {
           $data{$fieldmap{$_}} = $data{$_};
           delete $data{$_};
        }
@@ -4672,7 +4684,7 @@ sub make_vcard {
    }
    $data{'private'} = (exists($data{'private'}) && (lc($data{'private'}) eq 'false'))?"Public":"Private";
 
-   my $vcard; 
+   my $vcard;
 
    # ADR - Left here for future reference
    #
@@ -4750,21 +4762,21 @@ sub make_vcard {
                                 };
    ${$vcard}{EMAIL}[3]{VALUE} = $data{'telex'};
 
-#   ${$vcard}{FN}[0]{VALUE} = '';
-#   ${$vcard}{GEO}[0]{VALUE} = {
-#                               'LATITUDE' => '',
-#                               'LONGITUDE' => ''
-#                              };
-#   ${$vcard}{LABEL}[0]{TYPES} = {
-#                                 'BASE64' => 'ENCODING',
-#                                 'DOM' => 'TYPE',
-#                                 'HOME' => 'TYPE',
-#                                 'INTL' => 'TYPE',
-#                                 'PARCEL' => 'TYPE',
-#                                 'POSTAL' => 'TYPE',
-#                                 'WORK' => 'TYPE'
-#                                };
-#   ${$vcard}{LABEL}[0]{VALUE} = '';
+   # ${$vcard}{FN}[0]{VALUE} = '';
+   # ${$vcard}{GEO}[0]{VALUE} = {
+   #                             'LATITUDE' => '',
+   #                             'LONGITUDE' => ''
+   #                            };
+   # ${$vcard}{LABEL}[0]{TYPES} = {
+   #                               'BASE64' => 'ENCODING',
+   #                               'DOM' => 'TYPE',
+   #                               'HOME' => 'TYPE',
+   #                               'INTL' => 'TYPE',
+   #                               'PARCEL' => 'TYPE',
+   #                               'POSTAL' => 'TYPE',
+   #                               'WORK' => 'TYPE'
+   #                              };
+   # ${$vcard}{LABEL}[0]{VALUE} = '';
 
    ${$vcard}{MAILER}[0]{VALUE} = 'OpenWebmail';
    ${$vcard}{N}[0]{VALUE} = {
@@ -4792,7 +4804,7 @@ sub make_vcard {
                               };
    ${$vcard}{ROLE}[0]{VALUE} = $data{'job title'};
    ${$vcard}{'SORT-STRING'}[0]{VALUE} = $data{'last'};
-#   ${$vcard}{SOURCE}[0]{VALUE} = '';
+   # ${$vcard}{SOURCE}[0]{VALUE} = '';
    ${$vcard}{TEL}[0]{TYPES} = {
                                'PREF' => 'TYPE',
                                'VOICE' => 'TYPE'
@@ -4878,9 +4890,9 @@ sub make_vcard {
                                 'ISDN' => 'TYPE'
                                };
    ${$vcard}{TEL}[17]{VALUE} = $data{'isdn'};
-#   ${$vcard}{TITLE}[0]{VALUE} = ''; #Don't use $data{'title'} here; OL2k uses 'title' as the name prefix
+   # ${$vcard}{TITLE}[0]{VALUE} = ''; #Don't use $data{'title'} here; OL2k uses 'title' as the name prefix
    ${$vcard}{TZ}[0]{VALUE} = $prefs{'timeoffset'};
-#   ${$vcard}{UID}[0]{VALUE} = '';
+   # ${$vcard}{UID}[0]{VALUE} = '';
    ${$vcard}{URL}[0]{VALUE} = $data{'web page'};
    ${$vcard}{VERSION}[0]{VALUE} = '3.0';
    ${$vcard}{'X-OWM-UID'}[0]{VALUE} = $x_owm_uid;
@@ -4894,7 +4906,7 @@ sub make_vcard {
       'company main phone', 'department', 'email', 'email 2 address', 'email 3 address',
       'first', 'home fax', 'home phone', 'home phone 2', 'internet free busy', 'isdn',
       'job title', 'last', 'middle', 'mobile phone', 'nickname', 'note', 'other fax',
-      'other phone', 'pager', 'phone', 'po box', 'prefix', 'private', 'radio phone', 
+      'other phone', 'pager', 'phone', 'po box', 'prefix', 'private', 'radio phone',
       'suffix', 'telex', 'tty/tdd phone', 'web page'
    )};
 
@@ -4909,7 +4921,7 @@ sub make_vcard {
       next if (($data{$_} =~ /^0{1,2}\D0{1,2}\D0{2,4}$/) || ($data{$_} eq 'Unspecified'));
       my %custom;
       $custom{VALUE}{CUSTOMNAME} = uc($_);
-      ${$custom{VALUE}{CUSTOMVALUES}}[0] = $data{$_}; 
+      ${$custom{VALUE}{CUSTOMVALUES}}[0] = $data{$_};
       push @{${$vcard}{'X-OWM-CUSTOM'}}, \%custom;
    }
 
@@ -4917,12 +4929,12 @@ sub make_vcard {
 }
 ########################### END MAKE VCARD ##########################
 
-########################### MAKE FLATHASH ##########################
 
-# This sub will get one vcard structure and make a "flat" hash (i.e., one key per scalar
-# value), which is then used to export to the other formats.
-#
+########################### MAKE FLATHASH ##########################
 sub make_flathash {
+   # This sub will get one vcard structure and make a "flat" hash
+   # (i.e., one key per scalar value), which is then used to export to
+   # the other formats.
    my %flathash = ();
    my $vcard = $_[0];
 
@@ -4980,6 +4992,7 @@ sub make_flathash {
 }
 ########################## END MAKE FLATHASH #######################
 
+
 ########################## EXPORTTXT ################################
 sub exporttxt {
    # accepts a vCard hash data structure passed in and returns a csv format string.
@@ -4987,7 +5000,7 @@ sub exporttxt {
    my ($r_addresses, $version, $fs) = @_; # r_addresses is a ref to a vcard_hash_structure
                                           # version is blank for this export type
    my $ext = ($fs eq ',')?"csv":"tab";
-   my ($exportcontenttype, $exportfilename) = ('application/', "$lang_text{'export'}.$ext"); 
+   my ($exportcontenttype, $exportfilename) = ('application/', "$lang_text{'export'}.$ext");
 
    #### iterate through the vcard hash converting data ####
    my %fields = ();
@@ -5007,7 +5020,7 @@ sub exporttxt {
       my @values = ();
       foreach my $key (@columns) {
          $_ = ${ $record }{$key} || '';
-         s/"/""/g;     
+         s/"/""/g;
          if (/$fs|\n/) {
             $_ = qq|"$_"|;
          }
@@ -5018,6 +5031,7 @@ sub exporttxt {
    return ($exportdata, $exportcontenttype, $exportfilename);
 }
 ######################### END EXPORTTXT #############################
+
 
 ########## EXPORTCSV #############################################
 sub exportcsv {

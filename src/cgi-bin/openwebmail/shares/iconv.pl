@@ -102,12 +102,12 @@ use vars qw(%charset_convlist %charset_equiv %charset_localname);
 sub official_charset {
    my $charset=lc($_[0]);
    $charset=~s/iso_?8859/iso\-8859/;
-   $charset=$charset_equiv{$charset} if (defined($charset_equiv{$charset})); 
+   $charset=$charset_equiv{$charset} if (defined($charset_equiv{$charset}));
    return $charset;
 }
 
 
-use vars qw(%is_convertible_cache); 
+use vars qw(%is_convertible_cache);
 %is_convertible_cache=(
    'big5#gb2312' => 1,
    'gb2312#big5' => 1,

@@ -24,9 +24,19 @@ else
    exit
 fi
 
+cd /usr/local/www
+
+echo strip script, lang, template and txt files
+perl /usr/local/www/cgi-bin/openwebmail/misc/mkrelease/stripblank.pl \
+cgi-bin/openwebmail/* \
+cgi-bin/openwebmail/*/* \
+cgi-bin/openwebmail/*/*/* \
+data/openwebmail/* \
+data/openwebmail/*/* \
+data/openwebmail/*/*/*
+
 echo collect openwebmail current files...
 
-cd /usr/local/www
 tar --exclude data/openwebmail/download \
     -zcBpf /$tmpdir/openwebmail-current.tar.gz cgi-bin/openwebmail data/openwebmail
 
@@ -37,8 +47,8 @@ cd $tmpdir
 mkdir openwebmail-current
 cd    openwebmail-current
 
-tar -zxBpf ../openwebmail-current.tar.gz 
-rm ../openwebmail-current.tar.gz 
+tar -zxBpf ../openwebmail-current.tar.gz
+rm ../openwebmail-current.tar.gz
 rm -Rf cgi-bin/openwebmail/etc/*.db
 rm -Rf cgi-bin/openwebmail/etc/maps/*.db
 rm -Rf cgi-bin/openwebmail/etc/sessions/* cgi-bin/openwebmail/etc/sessions/.[A-z]*
@@ -53,7 +63,7 @@ rm    cgi-bin/openwebmail/etc/address.book* cgi-bin/openwebmail/etc/calendar.boo
 touch cgi-bin/openwebmail/etc/address.book  cgi-bin/openwebmail/etc/calendar.book
 
 cd cgi-bin/openwebmail
-patch -R -f -p1 -s < /usr/local/www/cgi-bin/openwebmail/misc/patches/suidperl2speedy_suidperl.patch 
+patch -R -f -p1 -s < /usr/local/www/cgi-bin/openwebmail/misc/patches/suidperl2speedy_suidperl.patch
 rm *.orig
 cd ../..
 
@@ -170,7 +180,7 @@ fi
 
 cp /usr/local/www/data/openwebmail/doc/*.txt /usr/local/www/data/openwebmail/download/doc/
 
-rm /usr/local/www/data/openwebmail/download/current/openwebmail*current*gz 
+rm /usr/local/www/data/openwebmail/download/current/openwebmail*current*gz
 for f in openwebmail-current.tar.gz \
          current-$lastrelease-openwebmail.files.tar.gz \
          current-$lastrelease-openwebmail.diff.gz \
@@ -193,7 +203,7 @@ read ans
 if [ "$ans" = "y" -o "$ans" = "Y" ]; then
   echo copy current to snapshot $version-$releasedate...
   cd /usr/local/www/data/openwebmail/download/snapshot
-  cp /usr/local/www/data/openwebmail/download/current/openwebmail-current.tar.gz openwebmail-$version-$releasedate.tar.gz 
+  cp /usr/local/www/data/openwebmail/download/current/openwebmail-current.tar.gz openwebmail-$version-$releasedate.tar.gz
   grep -v $releasedate MD5SUM >/tmp/.md5.tmp.$$
   md5 -r openwebmail-$version-$releasedate.tar.gz >> /tmp/.md5.tmp.$$
   cp /tmp/.md5.tmp.$$ MD5SUM

@@ -17,10 +17,10 @@ the following patch first, or you may see incomplete result page.
  	else if ( r == 0 )
  	    break;
 -	nread += r;
-+	else 
++	else
 +	    nread += r;
  	}
- 
+
      return nread;
 @@ -4195,7 +4196,8 @@
  		return r;
@@ -30,7 +30,7 @@ the following patch first, or you may see incomplete result page.
 +	else
 +	    nwritten += r;
  	}
- 
+
      return nwritten;
 ---------------------------------------------------------------------
 
@@ -76,14 +76,14 @@ cd /usr/local/www
 echo 'thttpd '
 ---------------------------------------------------------------------
 
-Note: 
+Note:
 
 While apache has document root and cgi-bin root under same parent directory,
 The cgi-bin root must be under the document root in thttpd!
 
 In above example, the document root (option dir) is set to /usr/local/www, and
 the cgi-bin root is set as a pattern under /usr/local/www/cgi-bin/ (option cgipat)
-        
+
 So in your openwebmail.conf, you will need set the following options:
 
 ow_cgidir               /usr/local/www/cgi-bin/openwebmail

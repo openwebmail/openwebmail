@@ -690,7 +690,7 @@ sub autologin {
    return loginmenu() if (!autologin_check());	# db won't be created if it doesn't exist as euid has not been switched
 
    # load user prefs for search_clean_oldsessions, it  will check $prefs{sessiontimeout}
-   %prefs = readprefs();	
+   %prefs = readprefs();
    $thissession = (search_clean_oldsessions
 		($loginname, $default_logindomain, $uuid, cookie("$user-sessionid")))[0];
    $thissession =~ s!\.\.+!!g;  # remove ..

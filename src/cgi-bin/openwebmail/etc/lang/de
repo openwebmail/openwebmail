@@ -115,7 +115,7 @@ package ow::de;
    both   => 'Vor und nach dem Nachrichteneingabefeld'
    );
 
-%lang_abookbuttonpositionlabels = 
+%lang_abookbuttonpositionlabels =
    (
    before => 'Vor den Adressbucheinträgen',
    after  => 'Hinter den Adressbucheinträgen',
@@ -205,7 +205,7 @@ package ow::de;
    byte => 'Byte'
    );
 
-%lang_calendar = 
+%lang_calendar =
    (
    yearview  => 'Jahresübersicht',
    monthview => 'Monatsübersicht',
@@ -285,7 +285,7 @@ package ow::de;
    mkthumbnail  => 'Vorschaubilder erstellen',
    download => 'Download',
    upload   => 'Hinzufügen',
-   );   
+   );
 
 %lang_text =
    (

@@ -9,7 +9,7 @@ File: Mandrake-README.txt
 ------------------------------------------------------------------------------
 
 1. Download redhat RPM and tar/gzipped packages.
-   You will need both. Make sure you get the latest released version of 
+   You will need both. Make sure you get the latest released version of
    openwebmail, openwebmail-x.yy.tar.gz
 
 2. Make sure you have all of Perl installed. I did not.

@@ -116,7 +116,7 @@ package ow::cs;
    both   => 'Pøed a za oblastí úpravy zprávy'
    );
 
-%lang_abookbuttonpositionlabels = 
+%lang_abookbuttonpositionlabels =
    (
    before => 'Pøed adresáøovými vstupy',
    after  => 'Za adresáøovými vstupy',
@@ -206,7 +206,7 @@ package ow::cs;
    byte => 'Bajtù'
    );
 
-%lang_calendar = 
+%lang_calendar =
    (
    yearview  => 'Roèní pøehled',
    monthview => 'Mìsíèní pøehled',
@@ -286,7 +286,7 @@ package ow::cs;
    mkthumbnail  => 'VytvNáhled',
    download => 'Stáhnout',
    upload   => 'Poslat',
-   );   
+   );
 
 %lang_text =
    (

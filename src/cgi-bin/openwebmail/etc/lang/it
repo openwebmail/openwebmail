@@ -1,7 +1,7 @@
 package ow::it;
 
 # Italian translation, charset: iso-8859-1
-# by Benedet Marvi, marvi@menhir.biz 
+# by Benedet Marvi, marvi@menhir.biz
 
 %lang_folders =
    (
@@ -113,7 +113,7 @@ package ow::it;
    both   => 'Prima e dopo area messaggio'
    );
 
-%lang_abookbuttonpositionlabels = 
+%lang_abookbuttonpositionlabels =
    (
    before => 'Prima voci agenda',
    after  => 'Dopo voci agenda',
@@ -203,7 +203,7 @@ package ow::it;
    byte => 'Byte'
    );
 
-%lang_calendar = 
+%lang_calendar =
    (
    yearview  => 'Annuale',
    monthview => 'Mensile',
@@ -283,7 +283,7 @@ package ow::it;
    mkthumbnail  => 'Crea_Miniatura',
    download => 'Scarica',
    upload   => 'Carica',
-   );   
+   );
 
 %lang_text =
    (

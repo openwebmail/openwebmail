@@ -113,7 +113,7 @@ package ow::ro;
    both   => 'Inainte si dupa spatiul editor mesaj'
    );
 
-%lang_abookbuttonpositionlabels = 
+%lang_abookbuttonpositionlabels =
    (
    before => 'Inaintea intrarilor din agenda',
    after  => 'Dupa intrarile din agenda',
@@ -203,7 +203,7 @@ package ow::ro;
    byte => 'Octet'
    );
 
-%lang_calendar = 
+%lang_calendar =
    (
    yearview  => 'Afisare an',
    monthview => 'Afisare luna',
@@ -283,7 +283,7 @@ package ow::ro;
    mkthumbnail  => 'Creaza Icoana',
    download => 'Descarca',
    upload   => 'Incarca',
-   );   
+   );
 
 %lang_text =
    (

@@ -113,7 +113,7 @@ package ow::lt;
    both   => 'Prieð ir po laiðko langu'
    );
 
-%lang_abookbuttonpositionlabels = 
+%lang_abookbuttonpositionlabels =
    (
    before => 'Before addressbook entries',
    after  => 'After addressbook entries',
@@ -203,7 +203,7 @@ package ow::lt;
    byte => 'Byte'
    );
 
-%lang_calendar = 
+%lang_calendar =
    (
    yearview  => 'Metai',
    monthview => 'Mënuo',
@@ -283,7 +283,7 @@ package ow::lt;
    mkthumbnail  => 'MkThumb',
    download => 'Atsiøsti',
    upload   => 'Nusiøsti',
-   );   
+   );
 
 %lang_text =
    (

@@ -24,7 +24,7 @@ ps: domains specified in this option should be equivalent ones,
     in short, they are domains with exactly same group of users.
 
     If you have virtual domains that are actually independent,
-    you should leave this to auto, and try to 
+    you should leave this to auto, and try to
     a. set option enable_domainnameselectmeu to yes, and
     b. specify all virtualdomains in the option domainselectmenu_list
 
@@ -196,8 +196,8 @@ This option is useful for systems using syshomedir and running quota.
 Placing .openwebmail outside user syshomedir can avoid folder db index
 updating error caused by quota limit
 
-ps: In our experience, the folder db size is about 0.3% to 0.8% of the 
-    folder file, you can estimate the space required for %ow_usersdir% 
+ps: In our experience, the folder db size is about 0.3% to 0.8% of the
+    folder file, you can estimate the space required for %ow_usersdir%
     based on the ratio.
 
 
@@ -248,7 +248,7 @@ ps: No matter what value is set in this option,
     openwbemail.conf in %ow_cgidir%/etc
 
 
-ow_stylesdir		
+ow_stylesdir
 -----------------------------------------------------------------------
 the directory for styles definitions
 
@@ -389,7 +389,7 @@ ps: g2b_map, b2g_map and lunar_map are used only if lang is 'zh_TW.Big5'
 header_pluginfile
 footer_pluginfile
 -----------------------------------------------------------------------
-the files to be plugined at the header or footer of main pages of 
+the files to be plugined at the header or footer of main pages of
 webmail/abook/calendar/webdisk.
 If this option is set to 'none', the plugin will be disabled
 
@@ -401,14 +401,14 @@ ps: To plugin the output of a program into openwebmail,
     While method 1 is more realtime, moethod 2 would have samller overhead.
 
 ps: You may use %THISSESSION% in the plugin output, which will be replaced
-    with the user current sessionid in openwebmail, this may be useful 
+    with the user current sessionid in openwebmail, this may be useful
     if your plugin want to call links inside openwebmail
 
 
 webmail_middle_pluginfile
 -----------------------------------------------------------------------
-this option is similar as above, but the content of the pluginfile 
-will embedded between the menu bar and the messagelist in webmail 
+this option is similar as above, but the content of the pluginfile
+will embedded between the menu bar and the messagelist in webmail
 folderlist.
 
 
@@ -523,7 +523,7 @@ This limits the virtualdomain that openwebmail will serve.
 
 If this option is empty or 'all', request to any hostname will be served.
 If this option is 'none', no request be served, this disables openwebmail.
-If this option is a list of domainname tokens seperated by comma, request 
+If this option is a list of domainname tokens seperated by comma, request
 will be served only if the hostname in URL($ENV{HTTP_HOST}) appears in list
 
 The default is all.
@@ -583,12 +583,12 @@ This limits the clients that can use autologin by their ip address
 
 If this option is empty or 'all', any client can use autologin
 If this option is 'none', no client can use autologin
-If this option is a list of ips seperated by comma, only clients whose 
+If this option is a list of ips seperated by comma, only clients whose
 IP address matches these tokens from the beginning can use autologin.
 
 The default is all.
 
-ps: Sysadm may use this option to limit autologin feature 
+ps: Sysadm may use this option to limit autologin feature
     so it is only available to computers inside the company/organization.
 
 Example:
@@ -601,7 +601,7 @@ This limits the clients that can login as root user in openwebmail.
 
 If this option is empty or 'all', any client can login as root
 If this option is 'none', no client can login as root.
-If this option is a list of ips seperated by comma, only clients whose 
+If this option is a list of ips seperated by comma, only clients whose
 IP address matches these tokens from the beginning can login as root
 
 The default is none.
@@ -696,7 +696,7 @@ ps: We suggest you at least set one of the two options:
 
 session_count_display
 -----------------------------------------------------------------------
-Set this option to 'no' if you don't want the count of active sessions 
+Set this option to 'no' if you don't want the count of active sessions
 in the past 1, 5, 15 minutes to be displayed at the user login
 
 
@@ -735,13 +735,13 @@ symboliclink_mbox
 -----------------------------------------------------------------------
 Some pop3d uses both mail spool and ~user/mbox as the storage for messages.
 
-A new message is put into mail spool by mail deliver at the begining. 
+A new message is put into mail spool by mail deliver at the begining.
 When a user chooses to "reserve the messages on server" in his pop3 client,
 an read message will be moved from mail spool to ~user/mbox by the pop3d.
 
 Since ~user/mbox is not a folder in openwebmail, user won't see the
-messages in ~user/mbox. With this option set to 'yes', openwebmail will 
-symbolic link ~/mbox -> ~/mail/saved-messages, so users can access 
+messages in ~user/mbox. With this option set to 'yes', openwebmail will
+symbolic link ~/mbox -> ~/mail/saved-messages, so users can access
 the read messages from either pop3 client or openwebmail
 
 
@@ -825,11 +825,11 @@ about_info_software
 If cleared, the SOFTWARE part of the About dialog is not available. It
 contains OS, Perl and Open WebMail versions. You might find it
 undesirable for these data to be printed, it could help someone identify
-your system software as vulnerable if, say, an openwebmail or Perl exploit 
+your system software as vulnerable if, say, an openwebmail or Perl exploit
 were found.
 
 ps: if enable_about or about_info_software is set to 'no',
-    then the version number and releasedate of openwebmail won't be 
+    then the version number and releasedate of openwebmail won't be
     displayed in the copyright page.
 
 
@@ -910,8 +910,8 @@ This option enables the 'backup sent' support in message composing
 
 enable_globalfilter
 -----------------------------------------------------------------------
-Messages of all users will be filtered by the rules defined in the 
-file specified option global_filterbook, set this option to 'no' if 
+Messages of all users will be filtered by the rules defined in the
+file specified option global_filterbook, set this option to 'no' if
 you want to disable this feature.
 
 
@@ -948,13 +948,13 @@ This option enables external virus check program (clamav)
 
 viruscheck_pipe
 -----------------------------------------------------------------------
-The location of the virus check program with parmeters to read a 
+The location of the virus check program with parmeters to read a
 message from the stdin
 
 
 viruscheck_source_allowed
 -----------------------------------------------------------------------
-this option limits the value that user can set for viruscheck_source 
+this option limits the value that user can set for viruscheck_source
 in preference. available value: all, pop3
 
 
@@ -988,7 +988,7 @@ message from the stdin
 
 spamcheck_source_allowed
 -----------------------------------------------------------------------
-This option limits the value that user can set for viruscheck_source 
+This option limits the value that user can set for viruscheck_source
 in preference. available value: all, pop3
 
 
@@ -1034,14 +1034,14 @@ ps: HAM = non-SPAM
 
 learnspam_destination
 -----------------------------------------------------------------------
-If a message is learned as SPAM and it IS NOT located in either 
-spam-mail or virus-mail, then this is the folder that the learned 
+If a message is learned as SPAM and it IS NOT located in either
+spam-mail or virus-mail, then this is the folder that the learned
 message will be moved to. (default: spam-mail)
 
 
 learnham_destination
 -----------------------------------------------------------------------
-If a message is learned as HAM and it IS located in either 
+If a message is learned as HAM and it IS located in either
 mail-trash, spam-mail or virus-mail, then this is the folder that the
 learned message will be moved to. (default: INBOX)
 
@@ -1273,9 +1273,9 @@ webdisk_allow_unlzh
 The default for these options is 'yes', but you may want to disable some
 of them if your openwebmail users are running in same uid.
 
-ps: These programs can do decompression recursively. 
-    And we suggest sysadm should at least disable webdisk_allow_untar 
-    if the users are running in same uid, since the the user may untar 
+ps: These programs can do decompression recursively.
+    And we suggest sysadm should at least disable webdisk_allow_untar
+    if the users are running in same uid, since the the user may untar
     files containing symbolic links to files other than his own.
 
 
@@ -1737,7 +1737,7 @@ default message sorting, available value: date, sender, subject, size
 
 default_useminisearchicon
 -----------------------------------------------------------------------
-whether to use mini search icon in sender and subject fields in 
+whether to use mini search icon in sender and subject fields in
 message list
 
 
@@ -1779,8 +1779,8 @@ should wait before putting the pop3 fetch process into background
 
 default_bgfilterwait
 -----------------------------------------------------------------------
-This defines how long openwebmail should wait for background mail 
-filtering before returning the folder message listing or message 
+This defines how long openwebmail should wait for background mail
+filtering before returning the folder message listing or message
 content to user
 If the wait is too short, some spam/virus mails may be not filtered in time
 at the user access to the INBOX folder.
@@ -1931,7 +1931,7 @@ available value: sameascomposing or charset listed in iconv.pl
 default_fscharset
 -----------------------------------------------------------------------
 The default charset used for filenames on file system.
-If this is set to a supported charset, openwebmail will convert the 
+If this is set to a supported charset, openwebmail will convert the
 filename between user preference charset and the fscharset.
 If this is set to 'none', no conversion will be issued.
 
@@ -2007,7 +2007,7 @@ message in trash will be deleted if its day age is more than this value,
 
 default_spamvirusreserveddays
 -----------------------------------------------------------------------
-message in spam and virus folder will be deleted if its day age is more 
+message in spam and virus folder will be deleted if its day age is more
 than this value, 0 means "delete at logout", 999999 means "never delete"
 
 
@@ -2033,7 +2033,7 @@ ps: this option sets the default source of viruscheck for user,
 
 default_viruscheck_maxsize
 -----------------------------------------------------------------------
-To eliminate system load, messages larger than this size won't be 
+To eliminate system load, messages larger than this size won't be
 passed to virus check program (in KB)
 
 
@@ -2057,7 +2057,7 @@ ps: this option sets the default source of spamcheck for user,
 
 default_spamcheck_maxsize
 -----------------------------------------------------------------------
-To eliminate system load, messages larger than this size won't be 
+To eliminate system load, messages larger than this size won't be
 passed to spam check program (in KB)
 
 

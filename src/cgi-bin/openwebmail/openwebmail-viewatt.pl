@@ -251,7 +251,7 @@ sub getattachment {
          }
 
          if ($wordpreview && $filename =~ /\.(?:doc|dot)$/i &&	# in wordpreview mode?
-             msword2html(\$content)) {	
+             msword2html(\$content)) {
              $contenttype="text/html";
          }
 

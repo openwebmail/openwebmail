@@ -16,7 +16,7 @@ sub load {
 
 sub get_usage_limit {
    # disable $SIG{CHLD} temporarily in case module routine calls system()/wait()
-   local $SIG{CHLD}; undef $SIG{CHLD};	
+   local $SIG{CHLD}; undef $SIG{CHLD};
 
    my ($origruid, $origeuid, $origegid)=ow::suid::set_uid_to_root();
    my @results=ow::quota::internal::get_usage_limit(@_);

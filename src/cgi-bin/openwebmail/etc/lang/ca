@@ -114,7 +114,7 @@ package ow::ca;
    both   => 'Abans i després de l\'àrea d\'edició del missatge'
    );
 
-%lang_abookbuttonpositionlabels = 
+%lang_abookbuttonpositionlabels =
    (
    before => 'Abans de les entrades',
    after  => 'Després de les entrades',
@@ -204,7 +204,7 @@ package ow::ca;
    byte => ' bytes'
    );
 
-%lang_calendar = 
+%lang_calendar =
    (
    yearview  => 'Vista anual',
    monthview => 'Vista mensual',
@@ -284,7 +284,7 @@ package ow::ca;
    mkthumbnail  => 'Crea miniatura',
    download => 'Download',
    upload   => 'Upload'
-   );   
+   );
 
 %lang_text =
    (
@@ -479,7 +479,7 @@ package ow::ca;
    dest_of_thezip=> 'el nom del nou fitxer Zip',
    dest_of_thetgz=> 'el nom del nou fitxer Tgz',
    homedir      => 'directori personal',
-   showthumbnail    => 'Imatges', 
+   showthumbnail    => 'Imatges',
    showhidden   => 'Mostra fitxers amagats',
    lastmodified => 'Data de l\'última modificació',
    perm         => 'Permisos',

@@ -13,8 +13,8 @@ tablerow_hicolor="#FFCCCC"
 fontface="Verdana, Arial, Helvetica, sans-serif"
 ###STARTSTYLESHEET###
 <!--
-body 
-{  
+body
+{
     background-image: url(@@@BG_URL@@@);
     background-repeat: @@@BGREPEAT@@@;
     font-family: Verdana, Arial, Helvetica, sans-serif; font-size: @@@FONTSIZE@@@

@@ -61,7 +61,7 @@ sub writecalbook {
    open (CALBOOK, ">$calbook") or return -1;
    my $newindex=1;
    foreach (@indexlist) {
-      print CALBOOK join('@@@', $newindex, 
+      print CALBOOK join('@@@', $newindex,
                        ${$r_items}{$_}{'idate'},
                        ${$r_items}{$_}{'starthourmin'},
                        ${$r_items}{$_}{'endhourmin'},

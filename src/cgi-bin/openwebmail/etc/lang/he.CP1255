@@ -1,11 +1,11 @@
 package ow::he_CP1255;
-  
+
 # Hebrew translation, charset: windows-1255
 # by Yehuda Drori
 # Fixed for Visual by Shay Sevet
-  
+
 %lang_folders =
-   (   
+   (
    INBOX            => 'דואר נכנס',
    'saved-messages' => 'הודעות שמורות',
    'sent-mail'      => 'דואר שנשלח',
@@ -17,10 +17,10 @@ package ow::he_CP1255;
    LEARNHAM         => '--LEARN HAM--',
    FORWARD          => '--FORWARD--',
    DELETE           => '--מחיקה--'
-   );   
-  
+   );
+
 %lang_sortlabels =
-   (   
+   (
    status      => 'סטטוס (שלא נפתחו קודם)',
    date        => 'תאריך (חדשים קודם)',
    date_rev    => 'תאריך (ישנים קודם)',
@@ -30,7 +30,7 @@ package ow::he_CP1255;
    subject_rev => 'נושא (ישנים קודם)',
    size        => 'גודל (גדולים קודם)',
    size_rev    => 'גודל (קטנים קודם)'
-   );   
+   );
 
 %lang_abooksortlabels =
    (
@@ -59,68 +59,68 @@ package ow::he_CP1255;
    );
 
 %lang_onofflabels =
-   (   
+   (
    auto => 'מופעל אוטומטית',
    on   => 'פעיל',
-   off  => 'מבוטל'   
+   off  => 'מבוטל'
    );
-  
+
 %lang_prioritylabels =
-   (   
+   (
    normal      => 'רגיל',
    urgent      => 'דחוף',
    'non-urgent'=> 'לא דחוף'
-   );   
-  
+   );
+
 %lang_msgformatlabels =
-   (   
+   (
    auto => 'בחירה אוטומטית',
-   text => 'טקסט',	   
-   html => 'HTML',   
+   text => 'טקסט',
+   html => 'HTML',
    both => 'טקסט ו-HTML'
-   );   
-  
+   );
+
 %lang_withoriglabels =
-   (   
+   (
    at_beginning => 'בתחילה',
    at_end       => 'בסוף',
    none         => 'ללא'
-   );   
-  
+   );
+
 %lang_receiptlabels =
-   (   
+   (
    ask => 'שאל לוודא',
    yes => 'כן',
    no  => 'לא'
    );
 
 %lang_disableemblinklabels =
-   (   
+   (
    none    => 'ללא ביטול',
-   cgionly => 'CGI בלבד',   
+   cgionly => 'CGI בלבד',
    all     => 'כל ה"היפר קישורים"'
-   );   
+   );
 
 %lang_ctrlpositionlabels =
-   (  
+   (
    top    => 'בראש',
    bottom => 'בתחתית'
    );
-  
+
 %lang_sendpositionlabels =
-   (   
+   (
    before => 'לפני אזור עריכת דואר',
-   after  => 'לאחר אזור עריכת דואר',   
+   after  => 'לאחר אזור עריכת דואר',
    both   => 'ערוך איזור לפני ואחרי משלוח'
-   );   
+   );
 
 %lang_abookbuttonpositionlabels =
-   (   
+   (
    before => 'לפני הרשומות בספר הכתובות',
-   after  => 'אחרי הרשומות בספר הכתובות',   
+   after  => 'אחרי הרשומות בספר הכתובות',
    both   => 'לפני ואחרי הרשומות בספר הכתובות'
-   );   
-  
+   );
+
 %lang_checksourcelabels =
    (
    all  => 'All new messages in INBOX',
@@ -129,7 +129,7 @@ package ow::he_CP1255;
    );
 
 %lang_timelabels =
-   (   
+   (
       3 => '3 דקות',
       5 => '5 דקות',
      10 => '10 דקות',
@@ -141,8 +141,8 @@ package ow::he_CP1255;
     360 => '6 שעות',
     720 => '12 שעות',
    1440 => '24 שעות'
-   );   
-  
+   );
+
 %lang_timezonelabels =
    (
    '-1200' => 'International Date Line West',
@@ -187,7 +187,7 @@ package ow::he_CP1255;
    );
 
 %lang_advsearchlabels =
-   (   
+   (
    contains    => 'מכיל',
    notcontains => 'אינו מכיל',
    is          => 'הינו',
@@ -195,26 +195,26 @@ package ow::he_CP1255;
    startswith  => '-מתחיל ב',
    endswith    => '-מסתיים ב',
    regexp      => 'תואם'
-   );   
-  
+   );
+
 %lang_sizes =
-   (   
+   (
    mb   => 'MB',	# mega bytes
-   kb   => 'KB',	# kilo bytes	   
+   kb   => 'KB',	# kilo bytes
    byte => 'Byte'
-   );   
+   );
 
 %lang_calendar =
-   (   
+   (
    yearview  => 'שנתי',
    monthview => 'חודשי',
    weekview  => 'שבועי',
    dayview   => 'יומי',
    listview  => 'אחרון'
-   );   
-  
+   );
+
 %lang_month =
-   (   
+   (
    1  => 'ינואר',
    2  => 'פברואר',
    3  => 'מרץ',
@@ -227,10 +227,10 @@ package ow::he_CP1255;
    10 => 'אוקטובר',
    11 => 'נובמבר',
    12 => 'דצמבר'
-   );   
+   );
 
 %lang_wday =
-   (   
+   (
    0 => 'ראשון',
    1 => 'שני',
    2 => 'שלישי',
@@ -238,11 +238,11 @@ package ow::he_CP1255;
    4 => 'חמישי',
    5 => 'שישי',
    6 => 'שבת'
-   );   
+   );
 
 %lang_wday_abbrev =
    (
-   week => 'WK',   
+   week => 'WK',
    0 => 'א',
    1 => 'ב',
    2 => 'ג',
@@ -253,16 +253,16 @@ package ow::he_CP1255;
    );
 
 %lang_order =
-   (   
+   (
    1 => 'ראשון',
    2 => 'שני',
    3 => 'שלישי',
    4 => 'רביעי',
    5 => 'אחרון'
-   );   
-  
+   );
+
 %lang_wdbutton =
-   (   
+   (
    refresh  => 'רענן',
    preview  => 'תצוגה מקדימה',
    edit     => 'ערוך',
@@ -284,10 +284,10 @@ package ow::he_CP1255;
    mkthumbnail  => 'MkThumb',
    download => 'הורד',
    upload   => 'העלה',
-   );   
-  
+   );
+
 %lang_text =
-   (   
+   (
    loading    => 'מעלה, נא לחכות...',
    help       => 'עזרה',
    login      => 'כניסה',
@@ -365,7 +365,7 @@ package ow::he_CP1255;
    about      => 'על',
    close      => 'סגור',
    cancel     => 'ביטול',
-   ok         => 'אישור',   
+   ok         => 'אישור',
    continue   => 'המשך',
    loginagain => 'כניסה חוזרת',
    exit       => 'יציאה',
@@ -395,7 +395,7 @@ package ow::he_CP1255;
    max        => 'מקסימום',
    group      => 'קבוצה',
    quotausage => 'שימוש מההגבלה',
-   quotalimit => 'הגבלת גודל',   
+   quotalimit => 'הגבלת גודל',
    quotahit   => 'מגבלת מקום',
    tzmap      => 'מפת שמן עולמית',
    testsound  => 'בדוק צליל',
@@ -421,7 +421,7 @@ package ow::he_CP1255;
    yourmsg    => 'ההודעה שלך',
    delivered  => '-נשלח ב',
    wasreadon1 => '-נקרא ב',
-   wasreadon2 => '.',   
+   wasreadon2 => '.',
    globalfilterrule => 'חוקי סינון כללים',
    readonly   => 'קריאה בלבד',
    textcontent=> 'תכולת טקסט',
@@ -433,19 +433,19 @@ package ow::he_CP1255;
    spellcheck => 'בדוק איות',
    checkagain => 'בדוק שוב',
    finishchecking => 'סיים בדיקה',
-   editpdict  => 'עריכת מילון אישי',   
-   addtodict  => 'הוסף למילון',   
+   editpdict  => 'עריכת מילון אישי',
+   addtodict  => 'הוסף למילון',
    manuallyfix=> 'תיקון ידני',
-   editstat   => 'ערוך "נייר מכתבים"', 
-   savestat   => 'שמור "נייר מכתבים"',   
-   clearstat  => 'נקה את כל "ניירות המכתבים"',  
-   statreply  => '-- נייר מכתבים למענה על הודעה --',   
+   editstat   => 'ערוך "נייר מכתבים"',
+   savestat   => 'שמור "נייר מכתבים"',
+   clearstat  => 'נקה את כל "ניירות המכתבים"',
+   statreply  => '-- נייר מכתבים למענה על הודעה --',
    calendar   => 'לוח שנה',
-   allday     => 'כל היום',   
+   allday     => 'כל היום',
    today      => 'Today',
-   am         => 'am',   
-   pm         => 'pm',  
-   calfmt_year          => '@@@YEAR@@@ שנה',   
+   am         => 'am',
+   pm         => 'pm',
+   calfmt_year          => '@@@YEAR@@@ שנה',
    calfmt_yearmonth     => '@@@MONTH_STR@@@ @@@YEAR@@@',
    calfmt_yearmonthday  => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@',
    calfmt_yearmonthdaywday => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@ @@@WEEKDAY_STR@@@',
@@ -462,8 +462,8 @@ package ow::he_CP1255;
    every_wday_thismonth  => 'כל יום @@@WDAY@@@ בחודש זה',
    thismonth_only           => 'חודש זה בלבד',
    every_oddmonth_thisyear  => 'כל חודש אי-זוגי השנה',
-   every_evenmonth_thisyear => 'כל חודש זוגי השנה',   
-   every_month_thisyear     => 'כל חודש השנה',   
+   every_evenmonth_thisyear => 'כל חודש זוגי השנה',
+   every_month_thisyear     => 'כל חודש השנה',
    webdisk      => 'דיסק רשת',
    sshterm      => 'טרמינל מאובטח',
    dir          => 'סיפריה',
@@ -614,9 +614,9 @@ package ow::he_CP1255;
    abook_editform_cancel_and_return => 'Cancel and return to parent',
    abook_editform_new_agent_link => 'create',
    );
-  
+
 %lang_err =
-   (   
+   (
    has_illegal_chars => '!תווים חוקיים',
    couldnt_open      => 'לא נפתח',
    couldnt_locksh    => 'לא ננעל לקריאה',
@@ -627,7 +627,7 @@ package ow::he_CP1255;
    disallowed_pop3   => 'לא מורשה POP3  שרת',
    disallowed_client => 'אינך מורשה להתחבר מתחנה זו',
    disallowed_receiverdomain => 'אינך מורשה לשלוח דואר לכתובת זו',
-   norootlogin       => 'מצטערים, חשבון ה-root לא מאופשר מטעמי אבטחה.',   
+   norootlogin       => 'מצטערים, חשבון ה-root לא מאופשר מטעמי אבטחה.',
    shouldnt_move_here=> '!אינך אמור להעביר הודעות לכאן',
    destination_folder=> 'מחיצת יעד',
    doesnt_exist      => '!לא קיים',
@@ -700,5 +700,5 @@ package ow::he_CP1255;
    abook_editform_no_N => 'A contact cannot be saved until a name is defined. Please go back and enter a name for this contact.',
    abook_agent_one_contact => 'An Agent upload may only contain one contact.',
    );
-  
+
 1;

@@ -113,7 +113,7 @@ package ow::no;
    both   => 'Foran og etter meldingstekstfeltet'
    );
 
-%lang_abookbuttonpositionlabels = 
+%lang_abookbuttonpositionlabels =
    (
    before => 'Før adressebok-valg',
    after  => 'Etter adressebok-valg',
@@ -203,7 +203,7 @@ package ow::no;
    byte => 'Tegn'
    );
 
-%lang_calendar = 
+%lang_calendar =
    (
    yearview  => 'Årsvisning',
    monthview => 'Månedsvisning',
@@ -283,7 +283,7 @@ package ow::no;
    mkthumbnail  => 'Lag miniatyr',
    download => 'Last ned',
    upload   => 'Last opp',
-   );   
+   );
 
 %lang_text =
    (

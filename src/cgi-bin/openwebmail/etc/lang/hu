@@ -1,7 +1,7 @@
 package ow::hu;
 
 # Hungarian translation, charset: iso-8859-2
-# by Nagy Endre, gumo.AT.lucifer.kgt.bme.hu 
+# by Nagy Endre, gumo.AT.lucifer.kgt.bme.hu
 #    Posz Marton, ful_s.AT.fazekas.hu
 
 %lang_folders =
@@ -12,10 +12,10 @@ package ow::hu;
    'saved-drafts'   => 'FÉLRETETT',
    'mail-trash'     => 'SZEMETES',
    'spam-mail'      => 'Spam',
-   'virus-mail'     => 'Virus',
-   LEARNSPAM        => '--LEARN SPAM--',
-   LEARNHAM         => '--LEARN HAM--',
-   FORWARD          => '--FORWARD--',
+   'virus-mail'     => 'Vírus',
+   LEARNSPAM        => '--TANULD: SPAM--',
+   LEARNHAM         => '--TANULD: NEM SPAM--',
+   FORWARD          => '--ELÕRE--',
    DELETE           => '--TÖRÖL--'
    );
 
@@ -34,35 +34,35 @@ package ow::hu;
 
 %lang_abooksortlabels =
    (
-   fullname     => 'Full Name (A to Z)',
-   fullname_rev => 'Full Name (Z to A)',
-   prefix       => 'Name Prefix (A to Z)',
-   prefix_rev   => 'Name Prefix (Z to A)',
-   first        => 'First Name (A to Z)',
-   first_rev    => 'First Name (Z to A)',
-   middle       => 'Middle Name (A to Z)',
-   middle_rev   => 'Middle Name (Z to A)',
-   last         => 'Last Name (A to Z)',
-   last_rev     => 'Last Name (Z to A)',
-   suffix       => 'Name Suffix (A to Z)',
-   suffix_rev   => 'Name Suffix (Z to A)',
-   email        => 'First Email Address (A to Z)',
-   email_rev    => 'First Email Address (Z to A)',
-   phone        => 'First Phone Number (ascending numeric)',
-   phone_rev    => 'First Phone Number (descending numeric)',
+   fullname     => 'Teljes Név (A to Z)',
+   fullname_rev => 'Teljes Név (Z to A)',
+   prefix       => 'Titulus (A to Z)',
+   prefix_rev   => 'Titulus (Z to A)',
+   first        => 'Keresztnév (A to Z)',
+   first_rev    => 'Keresztnév (Z to A)',
+   middle       => 'Középsõ Név (A to Z)',
+   middle_rev   => 'Középsõ Név (Z to A)',
+   last         => 'Vezetéknév (A to Z)',
+   last_rev     => 'Vezetéknév (Z to A)',
+   suffix       => 'Név végzõdés (A to Z)',
+   suffix_rev   => 'Név végzõdés (Z to A)',
+   email        => 'Elsõ E-mail cím (A to Z)',
+   email_rev    => 'Elsõ E-mail cím (Z to A)',
+   phone        => 'Elsõ Telefonszám (növekvõ számsorrend)',
+   phone_rev    => 'Elsõ Telefonszám (csökkenõ számsorrend)',
    );
 
 %lang_abookselectionlabels =
    (
-   ALL => "All Addressbooks",
-   GLOBAL => "Global Addressbook",
+   ALL => "Összes Telefonkönyv",
+   GLOBAL => "Globális Telefonkönyv",
    );
 
 %lang_onofflabels =
    (
    auto => 'Automatikus váltás',
-   on   => 'On',
-   off  => 'Off',
+   on   => 'Ki',
+   off  => 'Be',
    );
 
 %lang_prioritylabels =
@@ -114,7 +114,7 @@ package ow::hu;
    both   => 'Szövegterület elõtt és után'
    );
 
-%lang_abookbuttonpositionlabels = 
+%lang_abookbuttonpositionlabels =
    (
    before => 'Címjegyzék elõtt',
    after  => 'Címjegyzék után',
@@ -123,9 +123,9 @@ package ow::hu;
 
 %lang_checksourcelabels =
    (
-   all  => 'All new messages in INBOX',
-   pop3 => 'Only messages from pop3 server',
-   none => 'None'
+   all  => 'A BEJÖVÕ-ben levõ összes új üzenet',
+   pop3 => 'Csak a POP3 szerver üzenetei',
+   none => 'Egyik sem'
    );
 
 %lang_timelabels =
@@ -182,8 +182,8 @@ package ow::hu;
 
 %lang_abookclasslabels =
    (
-   PRIVATE => 'Private',
-   PUBLIC => 'Public',
+   PRIVATE => 'Privát',
+   PUBLIC => 'Nyilvános',
    );
 
 %lang_advsearchlabels =
@@ -201,10 +201,10 @@ package ow::hu;
    (
    mb   => 'MB',	# mega bytes
    kb   => 'KB',	# kilo bytes
-   byte => 'Byte'
+   byte => 'Bájt'
    );
 
-%lang_calendar = 
+%lang_calendar =
    (
    yearview  => 'Éves nézet',
    monthview => 'Havi nézet',
@@ -284,7 +284,7 @@ package ow::hu;
    mkthumbnail  => 'Ikonkészítés',
    download => 'Letöltés',
    upload   => 'Feltöltés',
-   );   
+   );
 
 %lang_text =
    (
@@ -316,7 +316,7 @@ package ow::hu;
    userdef    => 'Felhasználó definiálja',
    logout     => 'Kijelentkezés',
    page       => 'oldal',
-   msgsperpage=> '@@@MSGCOUNT@@@ messages per page',
+   msgsperpage=> '@@@MSGCOUNT@@@ üzenet oldalanként',
    msgcopyconf=> '\'Biztosan átmásolja a kijelölt üzenet(ek)et?\'',
    copy       => 'Másol',
    msgmoveconf=> '\'Biztosan áthelyezi a kijelölt üzenet(ek)et?\'',
@@ -504,94 +504,94 @@ package ow::hu;
    set_passwd         => 'Jelszó megadása',
    reset_passwd       => 'Jelszó törlése',
    email_alias        => 'Emil Alias',
-   name       => 'Name',
-   email      => 'Email',
-   note       => 'Note',
-   abooks => 'Addressbooks',
-   abook_title => 'Addressbook',
-   abook_converted => 'Converted',
-   abook_group_member => 'Member',
-   abook_group_allmembers => 'All Members',
-   abook_import => 'Import Addressbook Information',
-   abook_importdest => 'Import to new addressbook...',
-   abook_export => 'Export Addressbook Information',
-   abook_exportnow => 'Export Now',
-   abook_newcontact => 'New Contact',
-   abook_noconversion => 'No Conversion',
-   abook_newgroup => 'New Group',
-   abook_listview_addrperpage => '@@@ADDRCOUNT@@@ addresses per page',
-   abook_listview_writemailto => 'Write mail to',
-   abook_listview_edit => 'Edit',
-   abook_listview_move => 'Move',
-   abook_listview_copy => 'Copy',
-   abook_listview_compose => 'Compose message from selected',
-   abook_listview_composemode => 'Select Addresses for Compose',
-   abook_listview_fullname => 'Full Name',
-   abook_listview_prefix   => 'Prefix',
-   abook_listview_first    => 'First',
-   abook_listview_middle   => 'Middle',
-   abook_listview_last     => 'Last',
-   abook_listview_suffix   => 'Suffix',
-   abook_listview_email    => 'Email',
-   abook_listview_phone    => 'Phone',
-   abook_listview_note     => 'Note',
-   abook_listview_none     => 'None',
-   abook_listview_telpref  => 'Pref',
-   abook_listview_telhome  => 'Home',
-   abook_listview_telwork  => 'Work',
-   abook_listview_telcell  => 'Cell',
-   abook_listview_telcar   => 'Car',
+   name       => 'Név',
+   email      => 'Emil',
+   note       => 'Megjegyzés',
+   abooks => 'Címlisták',
+   abook_title => 'Címlista',
+   abook_converted => 'Konvertált',
+   abook_group_member => 'Tag',
+   abook_group_allmembers => 'Minden Tag',
+   abook_import => 'Címlista Információjának Importálása',
+   abook_importdest => 'Importáld az új címjegyzékbe...',
+   abook_export => 'Címlista Információjának Exportálása',
+   abook_exportnow => 'Exportáld Most',
+   abook_newcontact => 'Új Ismerõs',
+   abook_noconversion => 'Nincs Konverzió',
+   abook_newgroup => 'Új Csoport',
+   abook_listview_addrperpage => '@@@ADDRCOUNT@@@ cím oldalanként',
+   abook_listview_writemailto => 'Üzenet írása:',
+   abook_listview_edit => 'Szerkeszt',
+   abook_listview_move => 'Mozgat',
+   abook_listview_copy => 'Másol',
+   abook_listview_compose => 'Üzenet készítése a kijelõltbõl',
+   abook_listview_composemode => 'Címek kijelölése az üzenetkészítéshez',
+   abook_listview_fullname => 'Teljes Név',
+   abook_listview_prefix   => 'Titulus',
+   abook_listview_first    => 'Kereszt',
+   abook_listview_middle   => 'Középsõ',
+   abook_listview_last     => 'Vezeték',
+   abook_listview_suffix   => 'Végzõdés',
+   abook_listview_email    => 'Emil',
+   abook_listview_phone    => 'Telefon',
+   abook_listview_note     => 'Megjegyzés',
+   abook_listview_none     => 'Nincs',
+   abook_listview_telpref  => 'Preferált',
+   abook_listview_telhome  => 'Otthon',
+   abook_listview_telwork  => 'Munkahely',
+   abook_listview_telcell  => 'Mobil',
+   abook_listview_telcar   => 'Autós',
    abook_listview_telfax   => 'Fax',
    abook_listview_telpager => 'Pager',
    abook_listview_telvoice => 'Voice',
-   abook_listview_telvideo => 'Video',
+   abook_listview_telvideo => 'Videó',
    abook_listview_telmsg   => 'Msg',
    abook_listview_telbbs   => 'BBS',
    abook_listview_telisdn  => 'ISDN',
    abook_listview_telmodem => 'Modem',
-   abook_listview_categories => 'Categories',
-   abook_listview_quickadd => 'Quick Add',
-   abook_listview_expandall => 'expand all',
-   abook_listview_collapseall => 'collapse all',
-   abook_listview_noaddresses => '-- No contacts in this addressbook --',
-   abook_listview_nomatch => '-- Your search returns no matches --',
-   abook_listview_done => 'Done',
-   abook_listview_viewselected => 'View list of selected addresses',
-   abook_listview_unselectall => 'Unselect all selected addresses',
+   abook_listview_categories => 'Kategóriák',
+   abook_listview_quickadd => 'Gyors hozzáadás',
+   abook_listview_expandall => 'mindet kibont',
+   abook_listview_collapseall => 'mindet bezár',
+   abook_listview_noaddresses => '-- Nincs egy bejegyzés sem a címjegyzékben --',
+   abook_listview_nomatch => '-- Nincs találat --',
+   abook_listview_done => 'Vége',
+   abook_listview_viewselected => 'A kijelölt címek listája',
+   abook_listview_unselectall => 'Kijelölés törlése',
    abook_showchecked_export => 'Checked And Ready For Exporting',
-   abook_editform_destination => 'Destination',
+   abook_editform_destination => 'Cél',
    abook_editform_new_agent => 'This New Agent',
-   abook_editform_grouplabel => 'group',
-   abook_editform_valuelabel => 'value',
-   abook_editform_namelabel_FN => 'Full Name @@@SOUND@@@',
+   abook_editform_grouplabel => 'csoport',
+   abook_editform_valuelabel => 'érték',
+   abook_editform_namelabel_FN => 'Teljes Név @@@SOUND@@@',
    abook_editform_valuelabel_FN => '&nbsp;',
-   abook_editform_namelabel_EMAIL => 'Email Addresses In This Group',
-   abook_editform_namelabel_GROUPNAME => 'Group Name @@@SOUND@@@',
-   abook_editform_namelabel_NICKNAME => 'Nickname</b>@@@ADDMORELINK@@@<b>',
+   abook_editform_namelabel_EMAIL => 'Ezen Csoport Emil Címei',
+   abook_editform_namelabel_GROUPNAME => 'Csoportnév @@@SOUND@@@',
+   abook_editform_namelabel_NICKNAME => 'Álnév</b>@@@ADDMORELINK@@@<b>',
    abook_editform_valuelabel_NICKNAME => '&nbsp;',
    'abook_editform_namelabel_SORT-STRING' => 'Last Name Sort Override',
    'abook_editform_valuelabel_SORT-STRING' => 'last name:<i>von Trapp</i>&nbsp;&nbsp;&nbsp;sort override:<i>Trapp</i>',
    abook_editform_valuelabel_TITLE => 'v.p., research and development',
    abook_editform_valuelabel_ROLE => 'manager, executive, etc',
-   abook_editform_valuelabel_ORGANIZATIONNAME => 'abc, inc.',
+   abook_editform_valuelabel_ORGANIZATIONNAME => 'abc, Kft.',
    abook_editform_valuelabel_ORGANIZATIONALUNITS => 'accounting, european division',
-   abook_editform_namelabel_URL => 'Websites</b> @@@ADDMORELINK@@@<b>',
-   abook_editform_valuelabel_URL => 'http://www.mysite.com',
-   abook_editform_namelabel_TZ => 'Timezone',
-   abook_editform_namelabel_MAILER => 'EMail Program',
+   abook_editform_namelabel_URL => 'Honlapok</b> @@@ADDMORELINK@@@<b>',
+   abook_editform_valuelabel_URL => 'http://www.honlapom.hu',
+   abook_editform_namelabel_TZ => 'Idõzóna',
+   abook_editform_namelabel_MAILER => 'Emil Alkalmazás',
    abook_editform_valuelabel_MAILER => 'openwebmail, outlook, etc',
-   abook_editform_namelabel_NOTE => 'Note',
+   abook_editform_namelabel_NOTE => 'Megjegyzés',
    abook_editform_namelabel_KEY => 'Privacy Keys',
    abook_editform_undef_KEY => 'no keys exist for this contact.',
    abook_editform_view_KEY => 'view this privacy key',
-   abook_editform_unknown_KEY => 'unknown key type',
-   abook_editform_x509_KEY => 'X.509 Public Key Certificate',
-   abook_editform_pgp_KEY => 'IETF Pretty Good Privacy PGP Key',
-   abook_editform_gpg_KEY => 'GNU Privacy Guard GPG Key',
-   abook_editform_namelabel_AGENT => 'Agents',
+   abook_editform_unknown_KEY => 'Ismeretlen kulcstípus',
+   abook_editform_x509_KEY => 'X.509 Nyilvános Kulcsú Bizonyítvány',
+   abook_editform_pgp_KEY => 'IETF Pretty Good Privacy PGP Kulcs',
+   abook_editform_gpg_KEY => 'GNU Privacy Guard GPG Kulcs',
+   abook_editform_namelabel_AGENT => 'Ügynökök',
    abook_editform_undef_AGENT => 'no one acts on behalf of this contact.',
    abook_editform_download_AGENT => 'download this agent\'s vcard information',
-   abook_editform_unknown_AGENT => 'unknown agent type',
+   abook_editform_unknown_AGENT => 'ismeretlen ügynöktípus',
    abook_editform_vcf_AGENT => 'Versit Card File',
    abook_editform_GEO_find => 'Find your geographic position',
    abook_editform_GEO_findurl => 'http://www.multimap.com/map/home.cgi?client=public&lang=&advanced=&db=US',

@@ -113,7 +113,7 @@ package ow::sr;
    both   => 'Pre i iza prostora za pisanje poruke'
    );
 
-%lang_abookbuttonpositionlabels = 
+%lang_abookbuttonpositionlabels =
    (
    before => 'Ispred zapisa u adresaru',
    after  => 'Iza zapisa u adresaru',
@@ -203,7 +203,7 @@ package ow::sr;
    byte => 'bajt(ov)(a)'
    );
 
-%lang_calendar = 
+%lang_calendar =
    (
    yearview  => 'Godi¹nji kalendar -',
    monthview => 'Meseèni kalendar -',
@@ -283,7 +283,7 @@ package ow::sr;
    mkthumbnail  => 'Napravi slièicu',
    download => 'Prenesi sa servera',
    upload   => 'Prebaci na server',
-   );   
+   );
 
 %lang_text =
    (

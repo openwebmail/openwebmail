@@ -123,7 +123,7 @@ For Text-Iconv-1.2 do the following:
 
    ps: If the 'make test' failed, it means you set wrong value for LIBS and
        INC in Makefile.PL or your iconv support is not complete.
-       You may copy the misc/patches/iconv.pl.fake to shares/iconv.pl to make 
+       You may copy the misc/patches/iconv.pl.fake to shares/iconv.pl to make
        openwebmail work without iconv support.
 
    make install

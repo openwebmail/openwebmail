@@ -113,7 +113,7 @@ package ow::zh_TW_Big5;
    both   => '在信件編輯區前後'
    );
 
-%lang_abookbuttonpositionlabels = 
+%lang_abookbuttonpositionlabels =
    (
    before => '在通訊錄項目之前',
    after  => '在通訊錄項目之後',
@@ -203,7 +203,7 @@ package ow::zh_TW_Big5;
    byte => 'Byte'
    );
 
-%lang_calendar = 
+%lang_calendar =
    (
    yearview  => '年行事曆',
    monthview => '月行事曆',
@@ -283,7 +283,7 @@ package ow::zh_TW_Big5;
    mkthumbnail  => '建縮圖',
    download => '下載',
    upload   => '上傳',
-   );   
+   );
 
 %lang_text =
    (

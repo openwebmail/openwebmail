@@ -113,7 +113,7 @@ package ow::ja_JP_Shift_JIS;
    both   => '編集エリアの上下'
    );
 
-%lang_abookbuttonpositionlabels = 
+%lang_abookbuttonpositionlabels =
    (
    before => 'アドレス帳入力の前に',
    after  => 'アドレス帳入力後に',
@@ -203,7 +203,7 @@ package ow::ja_JP_Shift_JIS;
    byte => 'バイト'
    );
 
-%lang_calendar = 
+%lang_calendar =
    (
    yearview  => '年表示',
    monthview => '月表示',
@@ -283,7 +283,7 @@ package ow::ja_JP_Shift_JIS;
    mkthumbnail  => 'サムネールの作成',
    download => 'ダウンロード',
    upload   => 'アップロード',
-   );   
+   );
 
 %lang_text =
    (

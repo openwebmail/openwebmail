@@ -2,7 +2,7 @@
 #
 # syntax: perl distimg.pl [gif1] [gif2]...
 #
-# this script make a shell script to be used to copy icons 
+# this script make a shell script to be used to copy icons
 #
 # default.english             -> other default.*
 # cool3d.english              -> other cool3d.*

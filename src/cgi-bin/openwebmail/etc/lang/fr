@@ -113,7 +113,7 @@ package ow::fr;
    both   => 'Avant et après la zone d\'édition du mail'
    );
 
-%lang_abookbuttonpositionlabels = 
+%lang_abookbuttonpositionlabels =
    (
    before => 'Avant les adresses',
    after  => 'Après les adresses',
@@ -203,7 +203,7 @@ package ow::fr;
    byte => 'Octets'
    );
 
-%lang_calendar = 
+%lang_calendar =
    (
    yearview  => 'Vue par année',
    monthview => 'Vue par mois',
@@ -263,7 +263,7 @@ package ow::fr;
 %lang_wdbutton =
    (
    refresh  => 'Rafraîchir',
-   preview  => 'Apperçu', 
+   preview  => 'Apperçu',
    edit     => 'Editer',
    listarchive=> 'Lister',
    decompress=>'Decompresser',
@@ -280,10 +280,10 @@ package ow::fr;
    gzip     => 'Créer gz',
    mkzip    => 'Créer zip',
    mktgz    => 'Créer tgz',
-   mkthumbnail  => 'Créer thumbnail', 
+   mkthumbnail  => 'Créer thumbnail',
    download => 'Télécharger',
    upload   => 'Envoyer',
-   );   
+   );
 
 %lang_text =
    (
@@ -459,7 +459,7 @@ package ow::fr;
    thisday_only          => 'La date d\'aujourd\'hui uniquement',
    the_wday_of_thismonth => 'le @@@ORDER@@@ @@@WDAY@@@ du mois',
    every_wday_thismonth  => 'chaque @@@WDAY@@@ de ce mois',
-   thismonth_only           => 'Seulement ce mois', 
+   thismonth_only           => 'Seulement ce mois',
    every_oddmonth_thisyear  => 'Tous les mois impairs de cette année',
    every_evenmonth_thisyear => 'Tous les mois pairs de cette année',
    every_month_thisyear     => 'Tous les mois de cette année',

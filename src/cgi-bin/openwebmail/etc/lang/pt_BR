@@ -116,7 +116,7 @@ package ow::pt_BR;
    both   => 'Antes e depois da área de edição'
    );
 
-%lang_abookbuttonpositionlabels = 
+%lang_abookbuttonpositionlabels =
    (
    before => 'Antes da lista de contatos',
    after  => 'Depois da lista de contatos',
@@ -206,7 +206,7 @@ package ow::pt_BR;
    byte => 'Byte'
    );
 
-%lang_calendar = 
+%lang_calendar =
    (
    yearview  => 'Visualizar o',
    monthview => 'Visualizar o Mês de',
@@ -286,7 +286,7 @@ package ow::pt_BR;
    mkthumbnail  => 'Criar Miniatura',
    download => 'Download',
    upload   => 'Upload',
-   );   
+   );
 
 %lang_text =
    (

@@ -140,7 +140,7 @@ sub print_dbm_option {
 sub check_savedsuid_support {
    return if ($>!=0);
 
-   $>=65534; 
+   $>=65534;
    $>=0;
    if ($>!=0) {
       print qq|Your system didn't have saved suid support,\n|.

@@ -64,8 +64,8 @@ $user=~s/[\/\"\'\`\|\<\>\\\(\)\[\]\{\}\$\s;&]//g; # filter out dangerous chars
 if ($user ne '' && length($user)<80) {
    $status=`$ow_cgidir/openwebmail-tool.pl -m -e $user`;
 }
-if ($user eq '' or 
-    $status eq '' or 
+if ($user eq '' or
+    $status eq '' or
     $status =~ /doesn't exist/) {
    sleep 8;
    print qq|Pragma: no-cache\n|.

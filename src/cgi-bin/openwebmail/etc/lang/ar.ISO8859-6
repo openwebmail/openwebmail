@@ -113,7 +113,7 @@ package ow::ar_ISO8859_6;
    both   => 'גÈה טÈÙÏ וÑÈÙ ÊÍÑךÑ ÇהÈÑךÏ'
    );
 
-%lang_abookbuttonpositionlabels = 
+%lang_abookbuttonpositionlabels =
    (
    before => 'גÈה ÙזÇÕÑ ÏבÊÑ ÇהÙזÇטךז',
    after  => 'ÈÙÏ ÙזÇÕÑ ÏבÊÑ ÇהÙזÇטךז',
@@ -203,7 +203,7 @@ package ow::ar_ISO8859_6;
    byte => ' ÈÇךÊ'
    );
 
-%lang_calendar = 
+%lang_calendar =
    (
    yearview  => 'ÙÑÖ',
    monthview => 'ÙÑÖ ÔחÑ',
@@ -283,7 +283,7 @@ package ow::ar_ISO8859_6;
    mkthumbnail  => 'MkThumb',
    download => 'ÊÍוךה וז ÇהÎÇÏו',
    upload   => 'ÊÍוךה Çהי ÇהÎÇÏו',
-   );   
+   );
 
 %lang_text =
    (

@@ -113,7 +113,7 @@ package ow::tr;
    both   => 'Ýleti yazma alanýndan önce ve sonra'
    );
 
-%lang_abookbuttonpositionlabels = 
+%lang_abookbuttonpositionlabels =
    (
    before => 'Before addressbook entries',
    after  => 'After addressbook entries',
@@ -203,7 +203,7 @@ package ow::tr;
    byte => 'Byte'
    );
 
-%lang_calendar = 
+%lang_calendar =
    (
    yearview  => 'YýllýkGörünüm',
    monthview => 'AylýkGörünüm',
@@ -283,7 +283,7 @@ package ow::tr;
    mkthumbnail  => 'KüçükresimYap',
    download => 'Ýndir',
    upload   => 'Yükle',
-   );   
+   );
 
 %lang_text =
    (

@@ -2,7 +2,7 @@
     How to setup virtual users on Open WebMail using Postfix & vm-pop3d
                          Written by Kevin L. Ellis
 
-    (The latest version of this document is available at 
+    (The latest version of this document is available at
      http://www.bluelavalamp.net/owmvirtual/)
 
 

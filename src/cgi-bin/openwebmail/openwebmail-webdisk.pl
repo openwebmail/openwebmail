@@ -1022,7 +1022,7 @@ sub makethumbnail {
       if ($err ne '') {
          $msg.="$err\n"; next;
       }
-      next if ( $vpath!~/\.(jpe?g|gif|png|bmp|tif)$/i || 
+      next if ( $vpath!~/\.(jpe?g|gif|png|bmp|tif)$/i ||
                 !-f "$webdiskrootdir/$vpath" ||
                 -s _ < 2048);				# use image itself is as thumbnail if size<2k
 
@@ -1193,7 +1193,7 @@ sub downloadfile {
 
    # we only log download other than thumbnail imgs
    my @p=split(/\//, $vpath);
-   if (!defined($p[$#p-1]) || $p[$#p-1] ne '.thumbnail') {	
+   if (!defined($p[$#p-1]) || $p[$#p-1] ne '.thumbnail') {
       writelog("webdisk download - $vpath");
       writehistory("webdisk download - $vpath ");
    }
@@ -2475,7 +2475,7 @@ sub showdir {
                         -path  => '/');
    httpprint([-cookie=>[$cookie],
               -Refresh=>"$refreshinterval;URL=$relative_url?sessionid=$thissession&folder=$escapedfolder&message_id=$escapedmessageid&action=showdir&currentdir=$escapedcurrentdir&gotodir=$escapedcurrentdir&showthumbnail=$showthumbnail&showhidden=$showhidden&singlepage=$singlepage&filesort=$filesort&page=$page&searchtype=$searchtype&keyword=$escapedkeyword&session_noupdate=1"],
-             [htmlheader(), 
+             [htmlheader(),
               htmlplugin($config{'header_pluginfile'}, $config{'header_pluginfile_charset'}, $prefs{'charset'}),
               $html,
               htmlplugin($config{'footer_pluginfile'}, $config{'footer_pluginfile_charset'}, $prefs{'charset'}),

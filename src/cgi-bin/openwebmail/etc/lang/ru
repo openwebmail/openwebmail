@@ -113,7 +113,7 @@ package ow::ru;
    both   => 'Перед и после области редактирования'
    );
 
-%lang_abookbuttonpositionlabels = 
+%lang_abookbuttonpositionlabels =
    (
    before => 'Перед списком адресной книги',
    after  => 'После списка адресной книги',
@@ -203,7 +203,7 @@ package ow::ru;
    byte => 'Байт'
    );
 
-%lang_calendar = 
+%lang_calendar =
    (
    yearview  => 'На год.',
    monthview => 'На месяц.',
@@ -283,7 +283,7 @@ package ow::ru;
    mkthumbnail  => 'СоздЭскиз',
    download => 'Скачать',
    upload   => 'Закачать',
-   );   
+   );
 
 %lang_text =
    (

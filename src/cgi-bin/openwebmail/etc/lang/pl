@@ -1,7 +1,7 @@
 package ow::pl;
 
 # Polish translation, charset: iso-8859-2
-# by Pawe³ Jab³oñski, jablonski.AT.dialogok.pl 
+# by Pawe³ Jab³oñski, jablonski.AT.dialogok.pl
 #    Micha³ Talecki, mik.AT.orka.ibz.pl
 #    Grzegorz Nosek, blackfire.AT.virtual.net.pl
 #    Andrzej Cuber, rea.AT.supermedia.pl
@@ -119,7 +119,7 @@ package ow::pl;
    both   => 'Przed i po obszarze edycji'
    );
 
-%lang_abookbuttonpositionlabels = 
+%lang_abookbuttonpositionlabels =
    (
    before => 'Przed wpisami ksi±¿ki adresowej',
    after  => 'Po wpisach ksi±¿ki adresowej',
@@ -209,7 +209,7 @@ package ow::pl;
    byte => 'bajtów'
    );
 
-%lang_calendar = 
+%lang_calendar =
    (
    yearview  => 'Rok',
    monthview => 'Miesi±c:',
@@ -289,7 +289,7 @@ package ow::pl;
    mkthumbnail  => 'UtwMin',
    download => 'Pobierz',
    upload   => 'Wy¶lij',
-   );   
+   );
 
 %lang_text =
    (

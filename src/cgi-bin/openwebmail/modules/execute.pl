@@ -12,7 +12,7 @@ use IPC::Open3;
 use vars qw(*cmdOUT *cmdIN *cmdERR);
 sub execute {
    my @cmd;
-   foreach (@_) { 
+   foreach (@_) {
       local $1; 			# fix perl $1 taintness propagation bug
       /^(.*)$/ && push(@cmd, $1);	# untaint all argument
    }

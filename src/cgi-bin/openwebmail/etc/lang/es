@@ -113,7 +113,7 @@ package ow::es;
    both   => 'Antes y después del área de edición del mensaje'
    );
 
-%lang_abookbuttonpositionlabels = 
+%lang_abookbuttonpositionlabels =
    (
    before => 'Antes de las entradas',
    after  => 'Después de las entradas',
@@ -203,7 +203,7 @@ package ow::es;
    byte => ' bytes'
    );
 
-%lang_calendar = 
+%lang_calendar =
    (
    yearview  => 'Vista anual',
    monthview => 'Vista mensual',
@@ -283,7 +283,7 @@ package ow::es;
    mkthumbnail  => 'Crear Imagen',
    download => 'Descargar',
    upload   => 'Almacenar',
-   );   
+   );
 
 %lang_text =
    (
@@ -478,7 +478,7 @@ package ow::es;
    dest_of_thezip=> 'el nombre del nuevo archivo Zip',
    dest_of_thetgz=> 'el nombre del nuevo archivo Tgz',
    homedir      => 'directorio raíz',
-   showthumbnail    => 'Imágenes', 
+   showthumbnail    => 'Imágenes',
    showhidden   => 'Mostrar archivos ocultos',
    lastmodified => 'Fecha de última modificación',
    perm         => 'Permisos',

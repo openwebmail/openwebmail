@@ -338,14 +338,14 @@ sub parsevcard {
 
    # define FN using N if FN not defined
    if (defined $parsedvcard{'N'} && $parsedvcard{'FN'} eq undef) {
-      my $is_FN_required=1; 
+      my $is_FN_required=1;
       $is_FN_required=0 if (defined $r_onlyreturn && !exists ${$r_onlyreturn}{'FN'});
       if ($is_FN_required) {
 
 
          $parsedvcard{'FN'}[0]{'VALUE'} .= $parsedvcard{'N'}[0]{'VALUE'}{'NAMEPREFIX'} if defined $parsedvcard{'N'}[0]{'VALUE'}{'NAMEPREFIX'};
 
-         if (defined $parsedvcard{'N'}[0]{'VALUE'}{'GIVENNAME'} && 
+         if (defined $parsedvcard{'N'}[0]{'VALUE'}{'GIVENNAME'} &&
              defined $parsedvcard{'N'}[0]{'VALUE'}{'FAMILYNAME'} &&
             $parsedvcard{'N'}[0]{'VALUE'}{'GIVENNAME'}=~/^[\xA1-\xF9][\x40-\x7E\xA1-\xFE]/) {		# chinese name
             $parsedvcard{'FN'}[0]{'VALUE'} .= " " . $parsedvcard{'N'}[0]{'VALUE'}{'FAMILYNAME'}		# big5:[A1-F9][40-7E,A1-FE], gb2312:[A1-F9][A1-FE]

@@ -237,7 +237,7 @@ sub _parse_username {
          if ($first=~/^(.+)\s+(\S+)$/) {			# First Mid von Last
             return($1, $2, $last, $nick);
          } else {						# First von Last
-            return($first, '', $last, $nick);			
+            return($first, '', $last, $nick);
          }
       } else {							# First ... Mid Last
          my $last=pop(@n);

@@ -72,7 +72,7 @@ HTMLArea.Config = function () {
 	  "formatblock", "space",
 	  "bold", "italic", "underline", "separator",
 	  "strikethrough", "subscript", "superscript", "separator",
-	  "copy", "cut", "paste", "space", "undo", "redo" ],		
+	  "copy", "cut", "paste", "space", "undo", "redo" ],
 	[ "justifyleft", "justifycenter", "justifyright", "justifyfull", "separator",
 	  "insertorderedlist", "insertunorderedlist", "outdent", "indent", "separator",
 	  "forecolor", "hilitecolor", "textindicator", "separator",
@@ -1172,7 +1172,7 @@ HTMLArea.prototype._insertSound = function() {
 			    case "f_type"     :	embed.type=value;     break;
 			    case "f_autoplay" :	embed.autoplay=value; break;
 			    case "f_hidden"   :	embed.hidden=value;   break;
-			    case "f_loop"     :	embed.loop=parseInt(value); 
+			    case "f_loop"     :	embed.loop=parseInt(value);
 						embed.playcount=parseInt(value);
 						break;
 			    case "f_alt"      : var alt = doc.createTextNode(value);
@@ -1205,7 +1205,7 @@ HTMLArea.prototype._insertSound = function() {
 		return true;
 	}, this.config.attlist);
 };
- 
+
 
 // Called when the user clicks the Insert Table button
 HTMLArea.prototype._insertTable = function() {
@@ -1416,16 +1416,16 @@ HTMLArea.prototype.getHTML = function() {
 	var html;
 	switch (this._editMode) {
 	    // regex to make html more realable (tung)
-	    case "wysiwyg"  : 
-		if (HTMLArea.is_ie5_5)   
-			html=this._doc.body.innerHTML; 
-		else 
-			html=HTMLArea.getHTML(this._doc.body, false); 
+	    case "wysiwyg"  :
+		if (HTMLArea.is_ie5_5)
+			html=this._doc.body.innerHTML;
+		else
+			html=HTMLArea.getHTML(this._doc.body, false);
                 break;
-	    case "textmode" : 
+	    case "textmode" :
 		html=this._textArea.value;
-                break;		
-	    default	    : 
+                break;
+	    default	    :
 		alert("Mode <" + this._editMode + "> not defined!");
 		return false;
 	}

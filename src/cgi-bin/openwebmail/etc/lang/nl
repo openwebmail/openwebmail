@@ -114,7 +114,7 @@ package ow::nl;
    both   => 'Boven en onder  e-mail invul velden'
    );
 
-%lang_abookbuttonpositionlabels = 
+%lang_abookbuttonpositionlabels =
    (
    before => 'Boven adresboek velden',
    after  => 'Onder adresboek velden',
@@ -204,7 +204,7 @@ package ow::nl;
    byte => 'Byte'
    );
 
-%lang_calendar = 
+%lang_calendar =
    (
    yearview  => 'Jaaroverzicht',
    monthview => 'Maandoverzicht',
@@ -284,7 +284,7 @@ package ow::nl;
    mkthumbnail  => 'Maak Voorbeeld',
    download => 'Ophalen',
    upload   => 'Voeg toe',
-   );   
+   );
 
 %lang_text =
    (

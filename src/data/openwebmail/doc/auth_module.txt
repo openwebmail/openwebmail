@@ -106,11 +106,11 @@ so you have to be very careful about the global variables.
    you need to delcare it with 'use vars qw(variable);'
 
 ps: this is due to the closure effect in persistent mode perl.
-    Once a my variable is referenced by a sub routine, then 
+    Once a my variable is referenced by a sub routine, then
     the subroutine will has its own copy of this my variable.
     Then further change in the global my variable won't be seen by the subroutine.
 
-2. code outside routines will be executed only once 
+2. code outside routines will be executed only once
    (when the module is required by main program)
    So the outside routine code should be used for init only
 

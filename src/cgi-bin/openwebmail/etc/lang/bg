@@ -113,7 +113,7 @@ package ow::bg;
    both   => 'над и под полето за редакция'
    );
 
-%lang_abookbuttonpositionlabels = 
+%lang_abookbuttonpositionlabels =
    (
    before => 'над адресната книга',
    after  => 'под адресната книга',
@@ -283,7 +283,7 @@ package ow::bg;
    mkthumbnail  => 'Създаване Thumb',
    download => 'Даунлоуд',
    upload   => 'Ъполуд',
-   );   
+   );
 
 %lang_text =
    (
@@ -500,7 +500,7 @@ package ow::bg;
    vdomain_fmtuseralias => 'форматирани потрбители/синоними',
    vdomain_admin      => 'Администратор',
    vdomain_localuser  => 'Локален пoтребител',
-   set_passwd         => 'Избери парола', 
+   set_passwd         => 'Избери парола',
    reset_passwd       => 'Ресет на паролата',
    email_alias        => 'E-MAIL синоним',
    name       => 'Име',

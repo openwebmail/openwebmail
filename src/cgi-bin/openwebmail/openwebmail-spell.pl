@@ -660,7 +660,7 @@ sub piperead {
          if ($stdout=~/\n/||$stderr=~/\n/) {	# data line already in
             last;
          } elsif ($stdout eq "" && $stderr eq "") {	# 1st read timeout
-            $stderr="piperead nothing"; last;	
+            $stderr="piperead nothing"; last;
          } # else continue to read until line
 
       } else {	# n<0, read err => child dead?

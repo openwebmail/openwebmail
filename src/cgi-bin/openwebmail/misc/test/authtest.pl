@@ -5,8 +5,8 @@
 #
 
 # add the path of your openwebmail cgi-bin here if it is not listed
-push (@INC, 
-      '/usr/local/www/cgi-bin/openwebmail', 
+push (@INC,
+      '/usr/local/www/cgi-bin/openwebmail',
       '/var/www/cgi-bin/openwebmail'
      );
 

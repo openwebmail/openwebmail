@@ -85,7 +85,7 @@ sub pipecmd_msg {
    my $tmpfile=ow::tool::untaint("/tmp/.spamcheck.tmpfile.$$");
 
    # ensure tmpfile is owned by current euid but wll be writeable for forked pipe
-   open(F, ">$tmpfile"); close(F); chmod(0666, $tmpfile);	
+   open(F, ">$tmpfile"); close(F); chmod(0666, $tmpfile);
 
    # use fork to set ruid only if ruid!=euid && ruid !=0
    # ps: if caller is already a 'forked then die' process, it can set ruid=euid to avoid fork here

@@ -104,7 +104,7 @@ sub filtermessage {
                      $rule[$_OP] ne 'copy' && $rule[$_OP] ne 'move' && $rule[$_OP] ne 'delete');
 
             $rule[$_DESTINATION]=safefoldername($rule[$_DESTINATION]);
-            next if (!is_defaultfolder($rule[$_DESTINATION]) && 
+            next if (!is_defaultfolder($rule[$_DESTINATION]) &&
                      !$config{'enable_userfolders'});
 
             if ($rule[$_DESTINATION] eq 'DELETE') {
@@ -133,8 +133,8 @@ sub filtermessage {
                      $folder_order{${$a}[$_DESTINATION]} <=> $folder_order{${$b}[$_DESTINATION]}
                      } @filterrules;
 
-   if ($#filterrules<0 && 
-       !$config{'enable_smartfilter'} && 
+   if ($#filterrules<0 &&
+       !$config{'enable_smartfilter'} &&
        !$config{'enabel_viruscheck'} &&
        !$config{'enable_spamcheck'}) {
       return 1;				# return immediately if nothing to do
@@ -521,7 +521,7 @@ sub filtermessage {
 
                # since if any smartrule matches, other smartrule would be skipped
                # so we use only one variable to record the matched smartrule.
-               my $matchedsmartrule;	
+               my $matchedsmartrule;
 
                # filter message with bad format from if msg is not moved or deleted
                if (${$r_prefs}{'filter_badaddrformat'} &&
@@ -731,7 +731,7 @@ sub filtermessage {
 
    # wait background filtering to complete for few seconds
    my $seconds=${$r_prefs}{'bgfilterwait'}; $seconds=5 if ($seconds<5);
-   for (my $i=0; $i<$seconds; $i++) {	
+   for (my $i=0; $i<$seconds; $i++) {
       sleep 1;
       last if ($_filter_complete);
    }

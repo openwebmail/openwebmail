@@ -1,5 +1,5 @@
 %languagecharsets =(
-   'ar.CP1256'    => 'windows-1256',	
+   'ar.CP1256'    => 'windows-1256',
    'ar.ISO8859-6' => 'iso-8859-6',
    'bg'           => 'windows-1251',
    'ca'           => 'iso-8859-1',
@@ -43,10 +43,10 @@ foreach my $d (keys %languagecharsets) {
    foreach my $file ("about.html", "insert_table.html", "insert_image.html", "select_color.html") {
       next if (! -f "$d/$file");
       my $data;
-      
+
       print "$d/$file\n";
       open (T, "$d/$file") || die $!;
-      local $/; undef $/; $data=<T> || die $!; 
+      local $/; undef $/; $data=<T> || die $!;
       close (T);
 
       my $h=qq|<meta http-equiv="Content-Type" content="text/html; charset=$languagecharsets{$d}">|;

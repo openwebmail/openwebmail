@@ -11,7 +11,7 @@ Neomail versión 1.14 de Ernie Miller.
 
 Open Webmail está orientado a la operación con archivos de bandejas de
 gran tamaño con un uso eficiente de la memoria. También provee varias
-caraterísticas para ayudar a los usuarios a migrar desde Microsoft 
+caraterísticas para ayudar a los usuarios a migrar desde Microsoft
 Outlook sin problemas.
 
 CARACTERÍSTICAS
@@ -29,7 +29,7 @@ Open Webmail tiene las siguientes características:
 9.  soporte de usuarios virtuales puros
 10. capacidad de configuración por cada usuario
 11. varios módulos de autenticación
-12. soporte de pam 
+12. soporte de pam
 13. búsqueda por contenido
 14. soporte completo de MIME (en presentación y redacción)
 15. soporte de bandeja de borradores
@@ -99,7 +99,7 @@ Para MIME-Base64 haga lo siguiente:
    make
    make install
 
-ps: Aunque quizás ya tenga el módulo perl MIME-Base64, le 
+ps: Aunque quizás ya tenga el módulo perl MIME-Base64, le
     recomendamos instalar MIME-Base64 desde las fuentes.
     Esto debería habilitar el soporte de XS en este módulo,
     lo cual mejora sustancialmente la velocidad de codificación/
@@ -110,7 +110,7 @@ Para libnet haga lo siguiente:
    cd /tmp
    tar -zxvf libnet-1.19.tar.gz
    cd libnet-1.19
-   perl Makefile.PL (responda 'no' si se le pregunta sobre actualizar 
+   perl Makefile.PL (responda 'no' si se le pregunta sobre actualizar
                      la configuración)
    make
    make install
@@ -125,7 +125,7 @@ Para Text-Iconv-1.2 haga lo siguiente:
    man iconv
 
    Si no hay una página del manual para iconv, sus sistema puede no soportar
-   iconv(). No se preocupe, puede tener soporte de iconv() instalando el 
+   iconv(). No se preocupe, puede tener soporte de iconv() instalando el
    paquete libiconv.
 
    cd /tmp
@@ -135,7 +135,7 @@ Para Text-Iconv-1.2 haga lo siguiente:
    make
    make install
 
-   Tipee nuevamente 'man iconv' para asegurarse de que libiconv está 
+   Tipee nuevamente 'man iconv' para asegurarse de que libiconv está
    correctamente instalado.
    Luego comience a instalar el paquete Text-Iconv
 
@@ -175,7 +175,7 @@ simplemente haga lo siguiente
 2. cd /usr/local/www
    tar -zxvBpf openwebmail-X.XX.tar.gz
 
-3. modique /usr/local/www/cgi-bin/openwebmail/etc/openwebmail.conf 
+3. modique /usr/local/www/cgi-bin/openwebmail/etc/openwebmail.conf
    a sus necesidades.
 
 4. ejecute /usr/local/www/cgi-bin/openwebmail/openwebmail-tool.pl --init
@@ -219,7 +219,7 @@ ps: Se recomienda altamente leer doc/RedHat-README.txt (contribuido por
     RedHat Linux.
 
 ps: Thomas Chung (tchung.AT.openwebmail.org) mantiene el rpm para todas
-    las versiones de openwebmail. Está disponible en 
+    las versiones de openwebmail. Está disponible en
     http://openwebmail.org/openwebmail/download/redhat/rpm/
     Puede tener a Open Webmail funcionnando en 5 minutos con esto :)
 
@@ -244,7 +244,7 @@ ej: /usr/local/apache/share, luego
 3. cd /usr/local/apache/share/cgi-bin/openwebmail
 
    modifique openwebmail*.pl
-   cambie la línea #!/usr/bin/suidperl a la ubicación en donde se encuentra 
+   cambie la línea #!/usr/bin/suidperl a la ubicación en donde se encuentra
    suidperl.
 
    modifique etc/auth_unix.conf from etc/defaults/auth_unix.conf
@@ -254,10 +254,10 @@ ej: /usr/local/apache/share, luego
 4. ejecute /usr/local/apache/share/cgi-bin/openwebmail/openwebmail-tool.pl --init
 
 ps:Si está instalando Open Webmail en Solares, por favor coloque
-   'el camino al directorio cgi de openwebmail' en la primera línea del 
+   'el camino al directorio cgi de openwebmail' en la primera línea del
    archivo /etc/openwebmail_path.conf.
 
-   Por ejemplo, si el script está ubicado en 
+   Por ejemplo, si el script está ubicado en
 
    /usr/local/apache/share/cgi-bin/openwebmail/openwebmail.pl,
 
@@ -284,10 +284,10 @@ cd the_directory_of_openwebmail_cgi_scripts
 
 Esta inicialización creará las tablas de mapas asignación que serán usadas
 por openwebmail en el futuro.
-Si omite este paso, no será capaz de acceder a openwebmail a través de la 
+Si omite este paso, no será capaz de acceder a openwebmail a través de la
 interfaz web.
 
-Y dado que perl en varias plataformas puede utilizar un sistema de dbm 
+Y dado que perl en varias plataformas puede utilizar un sistema de dbm
 subyacente diferente, la rutina de inicialización los probará y tratará
 de darle algunas sugerencias útiles.
 
@@ -317,9 +317,9 @@ before the following text (about line 247)
         # make recno in Berkeley DB version 2 work like recno in version 1
 -------------------------------------------------------------
 
-Por favor, siga la sugerencia ya que de lo contrario openwebmail puede 
+Por favor, siga la sugerencia ya que de lo contrario openwebmail puede
 no funcionar apropiadamente.
-Y no olvide volver a ejecutar './openwebmail-tool.pl --init' luego de 
+Y no olvide volver a ejecutar './openwebmail-tool.pl --init' luego de
 realizar las modificaciones.
 
 
@@ -340,16 +340,16 @@ El filtro de mensajes verifica si los mensajes en la bandeja INBOX coinciden
 con las reglas de filtrado definidas por el usuario. Si lo hacen, mueve/copia
 el mensaje a la bandeja de destino.
 Si mueve un mensaje a la bandeja DELETE, esto significa que está eliminando
-mensajes de la bandeja. Si utiliza INBOX como la bandeja de destino en una 
-regla de filtrado, cualquier mensaje que coincida con esta regla será 
+mensajes de la bandeja. Si utiliza INBOX como la bandeja de destino en una
+regla de filtrado, cualquier mensaje que coincida con esta regla será
 mantenido en la bandeja INBOX y el resto de las reglas serán ignoradas.
 
 
 LÍMITES DE ESPACIO DE USUARIO
 -----------------------------
 El espacio de disco usado por el webmail, el calendario o el disco web, se
-cuentan en suma como el uso del límite de espacio (quota) de usuario. Hay 
-cinco opciones que pueden utilizarse para controlar el límite de espacio en 
+cuentan en suma como el uso del límite de espacio (quota) de usuario. Hay
+cinco opciones que pueden utilizarse para controlar el límite de espacio en
 defaults/openwebmail.conf. Puede modificar los valores por defecto configurando
 las opciones en openwebmail.conf.
 
@@ -360,7 +360,7 @@ Hay dos módulos de límites disponibles en la actualidad.
 
 a. quota_unixfs.pl
 
-Este es el módulo de límites de espacio recomendado si el usuario de 
+Este es el módulo de límites de espacio recomendado si el usuario de
 openwebmail es el usuario real de unix y su sistema tiene habilitados los
 límites de espacio (disk quota).
 Produce una sobrecarga mínima.
@@ -371,16 +371,16 @@ b. quota_du.pl
 
 Este es el módulo recomendado solo si quota_unixfs.pl no puede ser utilizado
 en su sistema (p.ej: el usuario de openwebmail no es un usuario estándar de
-unix o no se dispone de soporte de límites de espacio (disk quota) en el 
-sistema unix), dado que usa 'du -sk' para obtener el uso de espacio del 
+unix o no se dispone de soporte de límites de espacio (disk quota) en el
+sistema unix), dado que usa 'du -sk' para obtener el uso de espacio del
 usuario.
 
 Dado que ejecutar 'du -sk' en un directorio de gran tamaño puede consumir
 demasiado tiempo, este módulo almacenará el resultado de 'du -sk' para evitar
-demasiada generar sobrecarga. El tiempo de vida de esta información es, por 
+demasiada generar sobrecarga. El tiempo de vida de esta información es, por
 defecto, de 60 segundos y puede ser cambiado en quota_du.pl
 
-Si configura esta opción como 'none', entonces no se usará el sistema de 
+Si configura esta opción como 'none', entonces no se usará el sistema de
 límites de espacio en openwebmail.
 
 2. quota_limit
@@ -389,7 +389,7 @@ Esta opción fija el límite (en kb) para el uso de espacio del usuario.
 La operación del webmail y del disco web está limitada a 'borrar' si se
 alcanza el límite de espacio.
 Esta opción no imposibilita la realización de una operación del usuario
-que lleve el uso de espacio más allá del límite, simplemente inhibe el 
+que lleve el uso de espacio más allá del límite, simplemente inhibe el
 almacenamiento de mensajes o archivos hasta que el uso de espacio esté
 nuevamente por debajo del límite.
 
@@ -397,7 +397,7 @@ ps: El valor de esta opción es usado solo si el módolo de quota no soporta
     quotalimit. ( aquellos en los cuales la rutina quota_info() retorna
     el valor -1)
 
-ps: Si utiliza el módulo quota_unixfs.pl, por favor asegúrese de que 
+ps: Si utiliza el módulo quota_unixfs.pl, por favor asegúrese de que
     existe espacio entre el softlimit y el hardlimit (ej: 5mb)
 
     ej: filesystem quota softlimit=25000, hardlimit=30000
@@ -405,15 +405,15 @@ ps: Si utiliza el módulo quota_unixfs.pl, por favor asegúrese de que
 3. quota_threshold
 
 Normalmente, la información del límite de espacio será colocada en el
-título de la ventana del navegador. 
+título de la ventana del navegador.
 Pero si el uso de espacio crece por encima del límite fijado por esta
-opción, se mostrará un mensaje de mayor tamaño en la parte superior 
+opción, se mostrará un mensaje de mayor tamaño en la parte superior
 del menú principal del webmail y del disco web.
 
 4. delmail_ifquotahit
 
-Configure esta opción a 'yes' para hacer que openwebmail elimine 
-automáticamente los mensajes más antiguos de las bandejas de mensajes 
+Configure esta opción a 'yes' para hacer que openwebmail elimine
+automáticamente los mensajes más antiguos de las bandejas de mensajes
 del usuario en caso de que alcance el límite de espacio. El nuevo espacio
 en uso será de aproximadamente el 90% del valor de la opción quota_limit
 
@@ -421,7 +421,7 @@ en uso será de aproximadamente el 90% del valor de la opción quota_limit
 
 Configure esta opción a 'yes' para hacer que openwebmail elimine
 automáticamente los archivos de la raíz del disco web del usuario
-en caso de que alcance el límite de espacio. El nuevo espacio 
+en caso de que alcance el límite de espacio. El nuevo espacio
 en uso será de aproximadamente el 90% del valor de la opción quota_limit
 
 ps:Las opciones anteriores son utilizadas para controlar el límite
@@ -435,7 +435,7 @@ ps:Las opciones anteriores son utilizadas para controlar el límite
 LA HERRAMIENTA openwebmail-tool.pl
 --------------------------------
 Dado que el filtrado de mensajes es activado sólo en Open Webmail,
-esto significa que los mensajes permanecerán en INBOX hasta que el 
+esto significa que los mensajes permanecerán en INBOX hasta que el
 usuario los lea con Open Webmail.
 Por lo tanto 'finger' u otras utilidades de informe del estado
 del correo pueden darle información errónea dado que no tienen
@@ -460,8 +460,8 @@ La línea anterior en el crontab desgargará el correo POP3, filtrará
 los mensajes y verificará los índices de las bandejas para todos los
 usuarios a las 5:59 horas cada mañana.
 
-Si tiene habilitada la opción calendar_email_notifyinterval en 
-openwebmail.conf,  también necesitará usar openwebmail-tool.pl 
+Si tiene habilitada la opción calendar_email_notifyinterval en
+openwebmail.conf,  también necesitará usar openwebmail-tool.pl
 en el crontab para verificar los eventos del calendario y así enviar
 los mensajes de notificación. Por ejemplo:
 
@@ -469,7 +469,7 @@ los mensajes de notificación. Por ejemplo:
 
 La línea anterior usará openwebmail-tool.pl para verificar los eventos
 del calendario de todos los usuarios cada dos horas. Note que usamos esta
-frecuencia porque el valor por defecto de calendar_email_notifyinterval 
+frecuencia porque el valor por defecto de calendar_email_notifyinterval
 es de 120 (minutos).
 Debe configurar el crontab de acuerdo al valor de calendar_email_notifyinterval.
 
@@ -479,7 +479,7 @@ LIBRETA DE DIRECCIONES, FILTROS Y CALENDARIO GLOBALES
 El soporte actual para libreta de direcciones/filtros/calendario global
 el muy limitado.
 El administrador debe hacer una copia de la libreta de direcciones/filtros/
-calendario al archivo especificado por las opciones global_addressbook, 
+calendario al archivo especificado por las opciones global_addressbook,
 global_filterbook o global_calendarbook, respectivamente.
 
 ps: Puede crearse una cuenta para mantener la libreta de direcciones/filtros/
@@ -502,7 +502,7 @@ el paquete ispell o aspell.
    http://www.cs.ucla.edu/ficus-members/geoff/ispell.html e instálelo.
    o puede instalar los binarios desde un paquete FreeBSD o un rpm Linux
 
-ps: Si está compilando ispell desde los fuentes, puede extenderlo 
+ps: Si está compilando ispell desde los fuentes, puede extenderlo
     utilizando un diccionario mejorado (en inglés)
     a. descargue http://openwebmail.org/openwebmail/download/contrib/words.gz
     b. gzip -d words.gz
@@ -522,7 +522,7 @@ ps: Para saber si un diccionario específico está correctamente instalado
     ispell -d dictionaryname -a
 
 4. Si el idioma usado por un diccionario tiene un juego de caracteres
-   diferente al del inglés, debe definir dichos caracteres en 
+   diferente al del inglés, debe definir dichos caracteres en
    %dictionary_letters en openwebmail-spell.pl para ese diccionario.
 
 
@@ -558,15 +558,15 @@ El directorio / del disco virtual se corresponde con el directorio
 home del usuario, cualquier ítem mostrado en el disco web está
 realmente ubicado dentro del directorio home del usuario.
 
-El disco web soporta operaciones básicas sobre archivos (mkdir, rmdir, 
+El disco web soporta operaciones básicas sobre archivos (mkdir, rmdir,
 copy, move, rm), carga y descarga (se soporta la descarga
-de múltiples archivos o directorios, ya que el disco web los comprime 
+de múltiples archivos o directorios, ya que el disco web los comprime
 en un archivo zip al transmitirlos).
 También puede manipular varios tipos de archivos, incluyendo zip, arj,
 rar, tar.gz, tar.bz, tar.bz2, tgz, tbz, gz, z...
 
 Obviamente, el disco web debe llamar a programas externos para proveer
-las funciones antes citadas. Los programas externos se buscan en 
+las funciones antes citadas. Los programas externos se buscan en
 /usr/local/bin, /usr/bin y /bin, respectivamente.
 
 Los programas externos usados por el disco web son:
@@ -576,8 +576,8 @@ compresión/descompresión n    - gzip, bzip2,
 utilidades                    - tar, zip, unzip, unrar, unarj, lha
 imágenes de muestra           - convert (en el paquete ImageMagick)
 
-ps: No necesita instalar todos los programas externos para utilizar el 
-    disco web. una función será desabilitada si el programa externo 
+ps: No necesita instalar todos los programas externos para utilizar el
+    disco web. una función será desabilitada si el programa externo
     relacionado no está disponible.
 
 Los comandos externos son invocados con exec() y los parámetros
@@ -591,8 +591,8 @@ por favor remítase a la sección 'LÍMITES DE ESPACIO DE USUARIO'.
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 Nota del traductor:
 
-En adelante, este archivo no se encuentra traducido al español. 
-En breve este trabajo estará finalizado. Por favor, sepa disculpar 
+En adelante, este archivo no se encuentra traducido al español.
+En breve este trabajo estará finalizado. Por favor, sepa disculpar
 las molestias.
 
                                                    Javier Smaldone
@@ -677,7 +677,7 @@ ps: if any alias found in virtusertable,
 
 Here is an example of /etc/virtusertable
 
-projectmanager		pm		
+projectmanager		pm
 johnson@company1.com	john1
 tom@company1.com	tom1
 tom@company2.com	tom2
@@ -726,7 +726,7 @@ designed for this purpose. Openwebmail also provides the web interface
 which can be used to manage(add/delete/edit) these virtual users under
 various virtual domains.
 
-Please refer to the description in auth_vdomain.pl and auth_vdomain.conf 
+Please refer to the description in auth_vdomain.pl and auth_vdomain.conf
 for more detail.
 
 ps: vm-pop3d : http://www.reedmedia.net/software/virtualmail-pop3d/
