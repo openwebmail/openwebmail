@@ -1,3 +1,8 @@
+03/04/2005
+----------
+1. minor improvement on addressbook quick selection
+
+
 03/03/2005
 ----------
 1. fix a bug in blacklist/whitelist deletion which always deles the entry

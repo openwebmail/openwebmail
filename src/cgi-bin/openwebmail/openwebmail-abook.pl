@@ -1517,6 +1517,8 @@ sub addrlistview {
                                                          iconlink("group.gif", "$lang_text{'abook_group_allmembers'}", qq|accesskey="G" href="$composeurl&amp;to=$escapedallemails"|).
                                                          qq|&nbsp;<a href="$composeurl&amp;to=$escapedallemails">|.ow::htmltext::str2html($addresses{$xowmuid}{EMAIL}[$index]{VALUE}).qq|</a>|.
                                                          qq|</td>\n|;
+                     } elsif ($listviewmode eq 'composeselect') {
+                        $newrow[$headingpos{'email'}] .= qq|<td $td_bgcolorstr $onclickstr nowrap><a href="javascript:document.closeform.okbutton.click();"><img src="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/group.gif" border="0" align="absmiddle">&nbsp;|.ow::htmltext::str2html($addresses{$xowmuid}{EMAIL}[$index]{VALUE}).qq|</a></td>\n|;
                      } else {
                         $newrow[$headingpos{'email'}] .= qq|<td $td_bgcolorstr $onclickstr nowrap><img src="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/group.gif" border="0" align="absmiddle">&nbsp;|.ow::htmltext::str2html($addresses{$xowmuid}{EMAIL}[$index]{VALUE}).qq|</td>\n|;
                      }
@@ -1540,6 +1542,8 @@ sub addrlistview {
                      $escapedemail = ow::tool::escapeURL($email);
                      if ($listviewmode eq '') {
                         $newrow[$headingpos{'email'}] .= qq|<td $td_bgcolorstr $onclickstr nowrap><a href="$composeurl&amp;to=$escapedemail" title="$lang_text{'abook_listview_writemailto'}|.ow::htmltext::str2html($email).qq|">|.ow::htmltext::str2html($addresses{$xowmuid}{EMAIL}[$index]{VALUE}).qq|</a></td>\n|;
+                     } elsif ($listviewmode eq 'composeselect') {
+                        $newrow[$headingpos{'email'}] .= qq|<td $td_bgcolorstr $onclickstr nowrap><a href="javascript:document.closeform.okbutton.click();">|.ow::htmltext::str2html($addresses{$xowmuid}{EMAIL}[$index]{VALUE}).qq|</a></td>\n|;
                      } else {
                         $newrow[$headingpos{'email'}] .= qq|<td $td_bgcolorstr $onclickstr nowrap>|.ow::htmltext::str2html($addresses{$xowmuid}{EMAIL}[$index]{VALUE}).qq|</td>\n|;
                      }
@@ -1686,14 +1690,16 @@ sub addrlistview {
 
       my $buttons = qq|<tr>|.
                     qq|<td colspan="$tabletotalspan" align="center" nowrap>|.
-                    startform(-name=>'dummyButtons',
+                    startform(-name=>'closeform',
                               -action=>"#").
-                    button(-name=>$lang_text{'abook_listview_done'},
+                    button(-name=>'okbutton',
+                           -value=>$lang_text{'abook_listview_done'},
                            -accesskey=>'J',
                            -onClick=>$jsfunction,
                            -class=>"medtext").
                     "&nbsp;".
-                    button(-name=>$lang_text{'cancel'},
+                    button(-name=>'cancelbutton',
+                           -value=>$lang_text{'cancel'},
                            -accesskey=>'X',
                            -onClick=>'javascript:window.close();',
                            -class=>"medtext").
