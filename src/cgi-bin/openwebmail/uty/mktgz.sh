@@ -14,6 +14,7 @@ cd    openwebmail-current
 
 tar -zxBpf ../openwebmail-current.tgz 
 
+rm -Rf cgi-bin/openwebmail/etc/*.db
 rm -Rf cgi-bin/openwebmail/etc/*-session-*
 rm -Rf cgi-bin/openwebmail/etc/sessions/*
 rm -Rf cgi-bin/openwebmail/etc/users/*

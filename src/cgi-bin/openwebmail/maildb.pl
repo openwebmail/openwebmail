@@ -1347,9 +1347,17 @@ sub make_attachment {
 
    $attfilename = $attcontenttype;
    $attcontenttype =~ s/^(.+);.*/$1/g;
-   unless ($attfilename =~ s/^.+name[:=]"?([^"]+)"?.*$/$1/ig) {
+   if ($attfilename =~ s/^.+name[:=]"?([^"]+)"?.*$/$1/ig) {
+      $attfilename = decode_mimewords($attfilename);
+   } elsif ($attfilename =~ s/^.+name\*[:=]"?[\w]+''([^"]+)"?.*$/$1/ig) {
+      $attfilename = CGI::unescape($attfilename);
+   } else {
       $attfilename = $attdisposition || '';
-      unless ($attfilename =~ s/^.+filename="?([^"]+)"?.*$/$1/ig) {
+      if ($attfilename =~ s/^.+filename="?([^"]+)"?.*$/$1/ig) {
+         $attfilename = decode_mimewords($attfilename);
+      } elsif ($attfilename =~ s/^.+filename\*="?[\w]+''([^"]+)"?.*$/$1/ig) {
+         $attfilename = CGI::unescape($attfilename);
+      } else {
          $attfilename = "Unknown.".contenttype2ext($attcontenttype);
       }
    }
@@ -1365,7 +1373,7 @@ sub make_attachment {
    $temphash{contenttype} = $attcontenttype || 'text/plain';
    $temphash{encoding} = $attencoding;
    $temphash{disposition} = $attdisposition;
-   $temphash{filename} = decode_mimewords($attfilename);
+   $temphash{filename} = $attfilename;
    $temphash{id} = $attid;
    $temphash{location} = $attlocation;
    $temphash{nodeid} = $nodeid;

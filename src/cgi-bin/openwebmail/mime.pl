@@ -5,7 +5,7 @@
 
 if (eval "require MIME::Base64") {
    import MIME::Base64;
-#   push @Uses, "B$MIME::Base64::VERSION";
+   push @Uses, "B$MIME::Base64::VERSION";
 } else {
    eval q{
 
@@ -53,7 +53,7 @@ sub decode_base64
 
 if (eval "require MIME::QuotedPrint") {
    import MIME::QuotedPrint qw(decode_qp);
-#   push @Uses, "Q$MIME::QuotedPrint::VERSION";
+   push @Uses, "Q$MIME::QuotedPrint::VERSION";
 } else {
    eval q{
 

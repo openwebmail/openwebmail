@@ -97,21 +97,21 @@ sub retrpop3mail {
    $_=<$remote_sock>;
    return(-3) if (/^\-/);		# server not ready
 
-   print $remote_sock "user $pop3user\n";
+   print $remote_sock "user $pop3user\r\n";
    $_=<$remote_sock>;
    return(-4) if (/^\-/);		# username error
 
-   print $remote_sock "pass $pop3passwd\n";
+   print $remote_sock "pass $pop3passwd\r\n";
    $_=<$remote_sock>;
    return (-5) if (/^\-/);		# passwd error
 
-   print $remote_sock "stat\n";
+   print $remote_sock "stat\r\n";
    $_=<$remote_sock>;
    return(-6) if (/^\-/);		# stat error
 
    $nMailCount=(split(/\s/))[1];
    if ($nMailCount == 0) {		# no message
-      print $remote_sock "quit\n";
+      print $remote_sock "quit\r\n";
       return 0;
    }
 
@@ -119,17 +119,17 @@ sub retrpop3mail {
    $support_uidl=0;
 
    # use 'uidl' to find the msg being retrieved last time
-   print $remote_sock "uidl " . $nMailCount . "\n";
+   print $remote_sock "uidl " . $nMailCount . "\r\n";
    $_ = <$remote_sock>;
    if (/^\+/) {
       $support_uidl=1;
       if ($lastid eq (split(/\s/))[2]) {	# +OK N ID
-         print $remote_sock "quit\n";
+         print $remote_sock "quit\r\n";
          return 0;
       }
       if ($lastid ne "none") {
          for ($i=1; $i<$nMailCount; $i++) {
-            print $remote_sock "uidl ".$i."\n";
+            print $remote_sock "uidl ".$i."\r\n";
             $_ = <$remote_sock>;
             if ($lastid eq (split(/\s/))[2]) {
                $last = $i;
@@ -142,12 +142,12 @@ sub retrpop3mail {
 
    # use 'last' to find the msg being retrieved last time
    } else {
-      print $remote_sock "last\n";
+      print $remote_sock "last\r\n";
       $_ = <$remote_sock>;
       if (/^\+/) { # server does support last
          $last=(split(/\s/))[1];		# +OK N
          if ($last eq $nMailCount) {
-            print $remote_sock "quit\n";
+            print $remote_sock "quit\r\n";
             return 0;
          }
       }
@@ -161,7 +161,7 @@ sub retrpop3mail {
    for ($i=$last+1; $i<=$nMailCount; $i++) {
       my ($FileContent,$stAddress,$stDate)=("","","");
 
-      print $remote_sock "retr ".$i."\n";
+      print $remote_sock "retr ".$i."\r\n";
       while (<$remote_sock>) {	# use loop to filter out verbose output
          if ( /^\+/ ) {
             next;
@@ -232,13 +232,13 @@ sub retrpop3mail {
       filelock($spoolfile, LOCK_UN);
 
       if ($pop3del == 1) {
-         print $remote_sock "dele " . $i . "\n";
+         print $remote_sock "dele " . $i . "\r\n";
          $_=<$remote_sock>;
       }
 
       $lastid="none";
       if ($support_uidl) {
-         print $remote_sock "uidl " . $i . "\n";
+         print $remote_sock "uidl " . $i . "\r\n";
          $_=<$remote_sock>;
          if (/^\+/) {
             $lastid=(split(/\s/))[2];
@@ -247,7 +247,7 @@ sub retrpop3mail {
 
       $retr_total++;
    }
-   print $remote_sock "quit\n";
+   print $remote_sock "quit\r\n";
    close($remote_sock);
 
    ###  write back to pop3book

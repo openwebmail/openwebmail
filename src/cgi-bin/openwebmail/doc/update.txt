@@ -1,9 +1,31 @@
+06/19/2001 
+----------
+1. fix pop3 retrieval problem on NT exchange server.
+   (reported by jerry@email.wtuc.edu.tw)
+2. fix a bug that resets the autoreply message to default when
+   setting user preference
+
+
+06/18/2001 (version 1.30)
+----------
+1. add support for auto reply.
+   Mails from same user within 60 seconds will be replied only once.
+2. add support for sendmail genericstable 
+3. fix a bug that some subject will ends with a> in folderview
+   (reported by zmx.bbs@BirdNest.infoX.Net)
+4. fix a bug that the attfilename won't be displayed correctly for mails 
+   sent from program pine.
+
+
 06/14/2001
 ----------
 1. fix minor error in sendmessage which sets $from value in dbm to $to
-   when store message backup to SENT folder
+   when storing message backup to SENT folder
 2. german language and template translation
    (thanks to Andreas Roedl, flood@flood-net.de)
+3. minor fix to displayheader to solve the delay problem on some 
+   platform, eg: linux RedHat6.2/CLE0.9
+   (reported by hsienhsi@mail.yces.chc.edu.tw)
 
 
 06/13/2001 (version 1.22)
@@ -15,7 +37,7 @@
 3. german language translation
    (thanks to Andreas Roedl, flood@flood-net.de)
 4. fix .pop3.book open error when pop3book size=0
-   (thanks to kwang@mail.cgjh.tcc.edu.tw)
+   (reported by kwang@mail.cgjh.tcc.edu.tw)
 5. fix a bug in javascript routine 'spellcheck' in compose template
    (thanks to Antony Street, antony@vigen.com.au)
 6. fix a color bug when displaying message/rfc822 header

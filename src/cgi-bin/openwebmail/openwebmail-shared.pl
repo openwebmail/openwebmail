@@ -43,7 +43,6 @@ sub set_euid_egid_umask {
 
 ############### GET_SPOOLFILE_FOLDERDB ################
 
-
 ############## VERIFYSESSION ########################
 local $validsession=0;
 sub verifysession {
@@ -161,6 +160,56 @@ sub getfolders {
    return \@folders;
 }
 ################ END GETFOLDERS ##################
+
+##################### GET_EMAIL_FROM_GENERICTABLE ################
+sub update_genericstable {
+   my ($gendb, $genfile)=@_;
+   my (%DB, $metainfo);
+
+   return if (! -e $genfile);
+
+   ($gendb =~ /^(.+)$/) && ($gendb = $1);		# bypass taint check
+   if ( -e "$gendb.$dbm_ext" ) {
+      my ($metainfo);
+
+      filelock("$gendb.$dbm_ext", LOCK_SH);
+      dbmopen (%DB, $gendb, undef);
+      $metainfo=$DB{'METAINFO'};
+      dbmclose(%DB);
+      filelock("$gendb.$dbm_ext", LOCK_UN);
+
+      return if ( $metainfo eq metainfo($genfile) );
+   } 
+
+   dbmopen(%DB, $gendb, 0644);
+   filelock("$gendb.$dbm_ext", LOCK_EX);
+   %DB=();	# ensure the gendb is empty
+
+   open (GEN, $genfile);
+   while (<GEN>) {
+      next if (/^#/);
+      my ($u, $m)=split(/[\s\t]+/);
+      $DB{$u}=$m;
+   }
+   close(GEN);
+
+   filelock("$gendb.$dbm_ext", LOCK_UN);
+   dbmclose(%DB);
+   return;
+}
+
+sub get_email_from_genericstable {
+   my ($user, $gendb)=@_;
+   my (%DB, $email);
+
+   dbmopen (%DB, $gendb, undef);
+   $email=$DB{$user};
+   dbmclose(%DB);
+   return($email);
+}
+
+
+##################### END GET_EMAIL_FROM_GENERICTABLE ################
 
 ###################### READPREFS #########################
 sub readprefs {

@@ -75,6 +75,16 @@
 <B>垃圾桶信件保留天數：</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@RESERVEDDAYSMENU@@@
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>自動回覆：</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@AUTOREPLYCHECKBOX@@@
+&nbsp;
+標題：
+@@@AUTOREPLYSUBJECT@@@
+</td></tr><tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>
+<B>自動回覆內容 (最多250個中文字)</B><BR>
+@@@AUTOREPLYTEXT@@@
 </td></tr><tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>
 <B>簽名 (最多250個中文字)</B><BR>
 @@@SIGAREA@@@

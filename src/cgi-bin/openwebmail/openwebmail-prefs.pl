@@ -54,6 +54,12 @@ local $escapedmessageid;
 local $firsttimeuser;
 
 
+# strip \n, blank from global domainnames since it may come from shell command
+for (my $i=0; $i<=$#domainnames; $i++) {
+    $domainnames[$i]=~s/^\s+//;
+    $domainnames[$i]=~s/\s+$//;
+}
+
 $thissession = param("sessionid") || '';
 $user = $thissession || '';
 $user =~ s/\-session\-0.*$//; # Grab userid from sessionid
@@ -246,14 +252,25 @@ sub editprefs {
 
    $html =~ s/\@\@\@REALNAMEFIELD\@\@\@/$temphtml/;
 
+   my ($virtualuser, $virtualdomain)=split(/\@/, get_email_from_genericstable($user, "$openwebmaildir/genericstable"));
+   if ($virtualdomain) {
+      my $fould=0;
+      foreach (@domainnames) {
+         if ($virtualdomain eq $_) {
+            $found=1; last;
+         }
+      }
+      push(@domainnames, $virtualdomain) if (!$found);
+   }
+
    if ($enable_setfromname eq 'yes') {
       $temphtml = textfield(-name=>'fromname',
-                            -default=>$prefs{"fromname"} || $user,
+                            -default=>$prefs{"fromname"} || $virtualuser || $user,
                             -size=>'15',
                             -override=>'1');
    } else {
       $temphtml = textfield(-name=>'fromname',
-                            -default=>$user,
+                            -default=>$virtualuser || $user,
                             -disabled=>1,
                             -size=>'15',
                             -override=>'1');
@@ -261,10 +278,25 @@ sub editprefs {
 
    $html =~ s/\@\@\@USERNAME\@\@\@/$temphtml/;
 
-   $temphtml = popup_menu(-name=>'domainname',
-                          -"values"=>\@domainnames,
-                          -default=>$prefs{"domainname"} || $domainnames[0],
-                          -override=>'1');
+   if ($enable_setfromname eq 'yes') {
+      $temphtml = popup_menu(-name=>'domainname',
+                             -"values"=>\@domainnames,
+                             -default=>$prefs{"domainname"} || $virtualdomain || $domainnames[0],
+                             -override=>'1');
+   } else {
+      if ($virtualdomain) {
+         $temphtml = popup_menu(-name=>'domainname',
+                                -"values"=>\@domainnames,
+                                -default=>$virtualdomain,
+                                -disabled=>1,
+                                -override=>'1');
+      } else {
+         $temphtml = popup_menu(-name=>'domainname',
+                                -"values"=>\@domainnames,
+                                -default=>$prefs{"domainname"} || $domainnames[0],
+                                -override=>'1');
+      }
+   }
 
    $html =~ s/\@\@\@DOMAINFIELD\@\@\@/$temphtml/;
 
@@ -403,6 +435,34 @@ sub editprefs {
 
    $html =~ s/\@\@\@SIGAREA\@\@\@/$temphtml/;
 
+
+   # whether autoreply active or not is determined by
+   # if .forward is set to call vacation program, not in .openwebmailrc
+   my ($autoreply, $autoreplysubject, $autoreplytext)=getautoreply();
+
+   $temphtml = checkbox(-name=>'autoreply',
+                  -value=>'1',
+                  -checked=>$autoreply,
+                  -label=>'');
+
+   $html =~ s/\@\@\@AUTOREPLYCHECKBOX\@\@\@/$temphtml/g;
+
+   $temphtml = textfield(-name=>'autoreplysubject',
+                         -default=>$autoreplysubject,
+                         -size=>'40',
+                         -override=>'1');
+
+   $html =~ s/\@\@\@AUTOREPLYSUBJECT\@\@\@/$temphtml/;
+
+   $temphtml = textarea(-name=>'autoreplytext',
+                        -default=>$autoreplytext,
+                        -rows=>'5',
+                        -columns=>'72',
+                        -wrap=>'hard',
+                        -override=>'1');
+
+   $html =~ s/\@\@\@AUTOREPLYTEXT\@\@\@/$temphtml/;
+
    $temphtml = submit("$lang_text{'save'}") . end_form();
 
    unless ( $firsttimeuser eq 'yes' ) {
@@ -432,7 +492,256 @@ sub editprefs {
 
    printfooter();
 }
+
+sub getautoreply {
+   my $autoreply=0;
+   my ($subject, $text)=("", "");
+
+   if (open(FOR, "$homedir/.forward")) {
+      my $tmp=$/;
+      $/=''; $_=<FOR>; $/=$tmp;
+      close(FOR);
+      if (/\|\s*$vacationpipe\s+/) {
+         $autoreply=1;
+      }
+   }
+
+   if (open(MSG, "$homedir/.vacation.msg")) {
+      my $inheader=1;
+      while (<MSG>) {
+         chomp($_);
+         if ($inheader==0) {
+            $text.="$_\n";
+            next;
+         }
+         if (/^Subject:\s*(.*)/i) {
+            $subject=$1;
+         } elsif (/^[A-Za-z0-9\-]+: /i) {
+            next;
+         } else {
+            $inheader=0;
+            $text.="$_\n";
+         }
+      }
+      close MSG;
+   }
+
+   $subject = $defaultautoreplysubject if ($subject eq "");
+   $subject =~ s/\s/ /g;
+   $subject =~ s/^\s+//;
+   $subject =~ s/\s+$//;
+
+   # remove signature 
+   my $s=$prefs{'signature'};
+   $s =~ s/\r\n/\n/g;
+   my $i=rindex($text, $s);
+
+   $text=substr($text, 0, $i) if ($i>0);
+
+   $text= $defaultautoreplytext if ($text eq "");
+   $text =~ s/\r\n/\n/g;
+   $text =~ s/^\s+//s;
+   $text =~ s/\s+$//s;
+
+   return($autoreply, $subject, $text);
+}
+
+sub setautoreply {
+   my ($autoreply, $subject, $text)=@_;
+   my @forwards=();
+   my $email;
+   my $selfforward=0;
+
+   if (open(FOR, "$homedir/.forward")) {
+      $/=''; $_=<FOR>; $/='\n';
+      close(FOR);
+   } else {
+      $selfforward=1;
+   }
+
+   # get forward list with selfemail and vacationpipe removed
+   foreach $email ( split(/[,\n\r]+/) ) {
+      if ($email=~/$vacationpipe/) {
+         next;
+      } elsif ( $email eq "\\$user" || $email eq "$user" ) {
+         $selfforward=1;
+         next;
+      } elsif ( $email=~/$user\@(.+)/ ) {
+         my $islocaldomain=0;
+         my $domain=$1;
+         foreach (@domainnames) {
+            if ($domain eq $_) {
+               $islocaldomain=1; 
+               last;
+            }
+         }
+         if ($islocaldomain) {
+            $selfforward=1; 
+            next;
+         }
+      }
+      push(@forwards, $email);
+   }
+
+   if ($autoreply) {
+      $|=1; 				# flush all output
+      if ( fork() == 0 ) {		# child
+         close(STDOUT);
+         close(STDIN);
+         # set enviro's for vacation program   
+         $ENV{'USER'}=$user;
+         $ENV{'LOGNAME'}=$user;
+         $ENV{'HOME'}=$homedir;
+         $<=$>;		# set uid = euid = user gid
+         exec($vacationinit);
+#         system("/bin/sh -c '$vacationinit 2>>/tmp/err.log2  >>/tmp/err.log'" );
+         exit 0;
+      }
+      push(@forwards, "\\$user") if ($selfforward);
+      push(@forwards, "\"|$vacationpipe $user\"");
+      open(FOR, ">$homedir/.forward") || return -1;
+      print FOR join("\n", @forwards);
+      close FOR;
+   } else {
+      if ($#forwards<0) {
+         unlink("$homedir/.forward");
+      } else {
+         push(@forwards, "\\$user") if ($selfforward);
+         open(FOR, ">$homedir/.forward") || return -1;
+         print FOR join("\n", @forwards);
+         close FOR;
+      }
+   }
+      
+   $subject =~ s/\s/ /g;
+   $subject =~ s/^\s+//;
+   $subject =~ s/\s+$//;
+   $subject = $defaultautoreplysubject if ($subject eq "");
+
+   $text =~ s/\r\n/\n/g;
+   $text =~ s/^\s+//s;
+   $text =~ s/\s+$//s;
+   $text = $defaultautoreplytext if ($text eq "");
+
+   if (length($text) > 500) {  # truncate to 500 chars
+      $text = substr($text, 0, 500);
+   }
+
+   open(MSG, ">$homedir/.vacation.msg") || return -2;
+   print MSG "Subject: ", $subject, "\n\n", $text;
+   print MSG "\n\n", $prefs{'signature'};	# append signature
+   close MSG;
+}
+
 #################### END EDITPREFS ###########################
+
+###################### SAVEPREFS #########################
+sub saveprefs {
+   verifysession();
+
+   if (! -d "$folderdir" ) {
+      mkdir ("$folderdir", oct(700)) or
+         openwebmailerror("$lang_err{'cant_create_dir'} $folderdir");
+   }
+   open (CONFIG,">$folderdir/.openwebmailrc") or
+      openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.openwebmailrc!");
+   foreach my $key (qw(language realname fromname domainname replyto 
+                       style sort headers headersperpage defaultdestination
+                       editwidth editheight
+                       filter_repeatlimit filter_fakedsmtp disablejs
+                       hideinternal newmailsound autopop3 trashreserveddays)) {
+      my $value = param("$key") || '';
+
+      $value =~ s/\.\.+//g;
+      $value =~ s/[=\n\/\`\|\<\>;]//g; # remove dangerous char
+      if ($key eq 'language') {
+         my $validlanguage=0;
+         my $currlanguage;
+         foreach $currlanguage (@availablelanguages) {
+            if ($value eq $currlanguage) {
+               print CONFIG "$key=$value\n";
+               last;
+            }
+         }
+      } elsif ($key eq 'fromname') {
+         $value =~ s/\s+//g; # Spaces will just screw people up.
+         $value = $user if ($value eq '');
+         print CONFIG "$key=$value\n";
+      } elsif ($key eq 'filter_repeatlimit') {
+         # if repeatlimit changed, redo filtering maybe needed
+         if ( $value != $prefs{'filter_repeatlimit'} ) { 
+            unlink("$folderdir/.filter.check");
+         }
+         print CONFIG "$key=$value\n";
+      } elsif ( $key eq 'filter_fakedsmtp' ||
+                $key eq 'disablejs' ||
+                $key eq 'hideinternal' ||
+                $key eq 'newmailsound' ||
+                $key eq 'autopop3' ) {
+         $value=0 if ($value eq '');
+         print CONFIG "$key=$value\n";
+      } else {
+         print CONFIG "$key=$value\n";
+      }
+   }
+   close (CONFIG) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.openwebmailrc!");
+
+   open (SIGNATURE,">$folderdir/.signature") or
+      openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.signature!");
+   my $value = param("signature") || '';
+   $value =~ s/\r\n/\n/g;
+   if (length($value) > 500) {  # truncate signature to 500 chars
+      $value = substr($value, 0, 500);
+   }
+   print SIGNATURE $value;
+   close (SIGNATURE) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.signature!");
+
+   # set this since setautoreply will use this
+   $prefs{'signature'}=$value;
+
+   my $autoreply=param("autoreply")||0;
+   my $autoreplysubject=param("autoreplysubject");
+   my $autoreplytext=param("autoreplytext");
+   setautoreply($autoreply, $autoreplysubject, $autoreplytext);
+
+   printheader();
+
+   my $html = '';
+   my $temphtml;
+
+   open (PREFSSAVEDTEMPLATE, "$openwebmaildir/templates/$lang/prefssaved.template") or
+      openwebmailerror("$lang_err{'couldnt_open'} prefssaved.template!");
+   while (<PREFSSAVEDTEMPLATE>) {
+      $html .= $_;
+   }
+   close (PREFSSAVEDTEMPLATE);
+
+   $html = applystyle($html);
+
+   $temphtml = startform(-action=>"$scripturl") .
+               hidden(-name=>'action',
+                      -default=>'displayheaders',
+                      -override=>'1') .
+               hidden(-name=>'sessionid',
+                      -default=>$thissession,
+                      -override=>'1') .
+               hidden(-name=>'sort',
+                      -default=>$sort,
+                      -override=>'1') .
+               hidden(-name=>'firstmessage',
+                      -default=>$firstmessage,
+                      -override=>'1') .
+               hidden(-name=>'folder',
+                      -default=>$folder,
+                      -override=>'1') .
+               submit("$lang_text{'continue'}") .
+               end_form();
+   $html =~ s/\@\@\@CONTINUEBUTTON\@\@\@/$temphtml/;
+   print $html;
+
+   printfooter();
+}
+##################### END SAVEPREFS ######################
 
 #################### EDITFOLDERS ###########################
 sub editfolders {
@@ -1917,104 +2226,6 @@ sub modfilter {
     editfilter();
 }
 ################## END MODFILTER ###########################
-
-###################### SAVEPREFS #########################
-sub saveprefs {
-   verifysession();
-
-   if (! -d "$folderdir" ) {
-      mkdir ("$folderdir", oct(700)) or
-         openwebmailerror("$lang_err{'cant_create_dir'} $folderdir");
-   }
-   open (CONFIG,">$folderdir/.openwebmailrc") or
-      openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.openwebmailrc!");
-   foreach my $key (qw(language realname fromname domainname replyto 
-                       style sort headers headersperpage defaultdestination
-                       editwidth editheight
-                       filter_repeatlimit filter_fakedsmtp disablejs
-                       hideinternal newmailsound autopop3 trashreserveddays)) {
-      my $value = param("$key") || '';
-
-      $value =~ s/\.\.+//g;
-      $value =~ s/[=\n\/\`\|\<\>;]//g; # remove dangerous char
-      if ($key eq 'language') {
-         my $validlanguage=0;
-         my $currlanguage;
-         foreach $currlanguage (@availablelanguages) {
-            if ($value eq $currlanguage) {
-               print CONFIG "$key=$value\n";
-               last;
-            }
-         }
-      } elsif ($key eq 'fromname') {
-         $value =~ s/\s+//g; # Spaces will just screw people up.
-         $value = $user if ($value eq '');
-         print CONFIG "$key=$value\n";
-      } elsif ($key eq 'filter_repeatlimit') {
-         # if repeatlimit changed, redo filtering maybe needed
-         if ( $value != $prefs{'filter_repeatlimit'} ) { 
-            unlink("$folderdir/.filter.check");
-         }
-         print CONFIG "$key=$value\n";
-      } elsif ( $key eq 'filter_fakedsmtp' ||
-                $key eq 'disablejs' ||
-                $key eq 'hideinternal' ||
-                $key eq 'newmailsound' ||
-                $key eq 'autopop3' ) {
-         $value=0 if ($value eq '');
-         print CONFIG "$key=$value\n";
-      } else {
-         print CONFIG "$key=$value\n";
-      }
-   }
-   close (CONFIG) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.openwebmailrc!");
-
-   open (SIGNATURE,">$folderdir/.signature") or
-      openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.signature!");
-   my $value = param("signature") || '';
-   if (length($value) > 500) {  # truncate signature to 500 chars
-      $value = substr($value, 0, 500);
-   }
-   print SIGNATURE $value;
-   close (SIGNATURE) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.signature!");
-   printheader();
-
-   my $html = '';
-   my $temphtml;
-
-   open (PREFSSAVEDTEMPLATE, "$openwebmaildir/templates/$lang/prefssaved.template") or
-      openwebmailerror("$lang_err{'couldnt_open'} prefssaved.template!");
-   while (<PREFSSAVEDTEMPLATE>) {
-      $html .= $_;
-   }
-   close (PREFSSAVEDTEMPLATE);
-
-   $html = applystyle($html);
-
-   $temphtml = startform(-action=>"$scripturl") .
-               hidden(-name=>'action',
-                      -default=>'displayheaders',
-                      -override=>'1') .
-               hidden(-name=>'sessionid',
-                      -default=>$thissession,
-                      -override=>'1') .
-               hidden(-name=>'sort',
-                      -default=>$sort,
-                      -override=>'1') .
-               hidden(-name=>'firstmessage',
-                      -default=>$firstmessage,
-                      -override=>'1') .
-               hidden(-name=>'folder',
-                      -default=>$folder,
-                      -override=>'1') .
-               submit("$lang_text{'continue'}") .
-               end_form();
-   $html =~ s/\@\@\@CONTINUEBUTTON\@\@\@/$temphtml/;
-   print $html;
-
-   printfooter();
-}
-##################### END SAVEPREFS ######################
 
 #################### ADDRESSBOOK #######################
 sub addressbook {

@@ -1,5 +1,6 @@
 #!/usr/bin/perl -w
-# spell check program modified from WBOSS Version 1.1.1d
+# spell check program by tung@turtle.ee.ncku.edu.tw
+# modified from WBOSS Version 1.1.1d 
 #
 # WBOSS is available at http://www.dontpokebadgers.com/spellchecker/ 
 # and is copyrighted by 2001, Joshua Cantara

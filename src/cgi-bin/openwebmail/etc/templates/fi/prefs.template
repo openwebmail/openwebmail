@@ -75,6 +75,16 @@ Width @@@EDITWIDTHMENU@@@ Height @@@EDITHEIGHTMENU@@@
 <B>Trash mail reserved day(s):</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@RESERVEDDAYSMENU@@@
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Auto Reply:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@AUTOREPLYCHECKBOX@@@
+&nbsp;
+Subject:
+@@@AUTOREPLYSUBJECT@@@
+</td></tr><tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>
+<B>Auto Reply Text (500 characters or less)</B><BR>
+@@@AUTOREPLYTEXT@@@
 </td></tr><tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>
 <B>Allekirjoitus (alle 500 merkkiä)</B><BR>
 @@@SIGAREA@@@

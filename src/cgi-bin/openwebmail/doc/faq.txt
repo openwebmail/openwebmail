@@ -112,21 +112,34 @@ A: If your Open WebMail doesn't work, please describe your problem
    please forward the message as an attachment to me 
    ps: clicking the 'forward as attachment' icon in message reading menu
 
+Q: When I enable autoreply feature, others got "Returned mail: see
+   transcript for details" instead of my autoreply message?
+   (thanks to Emir Litric, danguba@usa.net)
+A: Your sendmail may be configured with Sendmail Restricted SHell or smrsh.
+   vacation.pl file needs to be added to smrsh.
+
+   If you are using RedHat 7.1, you may link vacation.pl to /etc/smrsh/
+
+   cd /etc/smrsh
+   ln -s /var/www/cgi-bin/openwebmail/vacation.pl /etc/smrsh/vacation.pl
+
+Q: Will Open WebMail support maildir anf vpop3mail used by Qmail?
+A: Maybe, but it won't be implemented in the near future since we don't use
+   qmail on our mail server. It is said that qmail has a 'mbox' compatible 
+   mode, you may use that mode with openwebmail.
+
 Q: Can I use Open WebMail in a commercial web site? 
-   Can I change the page layout of openwebmail?
 A: Open WebMail is GPL software (please see copyright.txt for detail of GPL).
-   You can use or distribute it freely and you can also change the layout 
-   of Open WebMail only if
-   a. Any improvement of Open WebMail or any product based on Open WebMail 
-      must be released to the public, and
-   b. The link 'Open WebMail' must be kept on the web page to enable the user
-      link back to the home of Open WebMail.
+   You can use or distribute it freely only if
+
+   Any improvement of Open WebMail or any product based on Open WebMail 
+   must be released to the public.
 
 ps: I would be happy if you mail me a message that your commercial web site
     is using Open WebMail. I may put it into the web page as some kind of 
     advertisements :)
    
 
-05/05/2001 
+06/18/2001 
 
-tung@turtle.ee.ncku.edu.tw
+openwebmail@turtle.ee.ncku.edu.tw

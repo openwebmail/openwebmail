@@ -230,11 +230,9 @@ but we are not sure if they will happen or not...:)
 2. web disk
 3. shared folder
 4. LDAP support
-5. vacation reply
 
 
 06/13/2001
 
-Ebola@turtle.ee.ncku.edu.tw
-eddie@turtle.ee.ncku.edu.tw
-tung@turtle.ee.ncku.edu.tw
+openwebmail@turtle.ee.ncku.edu.tw
+

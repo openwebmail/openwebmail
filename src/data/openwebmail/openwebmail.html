@@ -23,7 +23,7 @@
 <h3><b>FEATURES</b></h3>
 
 <blockquote> 
-  <h4>Fast folder access</h4>
+  <h4>Fast Folder Access</h4>
   The folder access is greatly improved by using dbm (dbm is a simple database 
   provided by perl). When a mail folder is selected in the folder view, Open WebMail 
   will parse the mail folder file and cache the parsed result to a dbm. This dbm 
@@ -33,59 +33,59 @@
   file, the dbm will be automatically updated. The dbm update is incremental if 
   the folder modification is done by the Open WebMail itself. The dbm will only 
   be recreated when a folder is found to be changed by other programs. 
-  <h4> Efficient message movement</h4>
+  <h4> Efficient Message Movement</h4>
   The size of a message will be slightly increased after it is read at the first 
   time because of status&nbsp; change. A large movement of messages may be introduced 
   due to the size change. Also, the user may want to move a bunch of messages 
   between two folders. The routines for message update and movement are totally 
   rewrite so that only necessary movement will be made in a very memory efficient 
   way. 
-  <h4> Smaller memory footprint</h4>
+  <h4> Smaller Memory Footprint</h4>
   Many efforts have been put in optimizing the memory usage of Open WebMail. The 
   memory footprint of Open WebMail is much smaller than its ancestor when dealing 
-  with messages containing large attachments (ex: a 20MB attachment). It runs 
-  smoothly on a medium sized machine now. (ex: Celeron 300 with 128MB ram). 
-  <h4> Additional Message Operation</h4>
+  with messages containing large attachments (eg: a 20MB attachment). It runs 
+  smoothly on a medium sized machine now. (eg: Celeron 300 with 128MB ram). 
+  <h4> Convenient Message Operation</h4>
   <p>In additional to the 'move' operation on messages, Open WebMail supports 
     'copy', 'delete' and 'download' operation on messages.</p>
-  <h4> Graceful filelock</h4>
+  <h4> Graceful File Lock</h4>
   <p>Since a mail folder may be used by multiple programs simultaneously, it is 
     necessary to do file lock before accessing the folder. Open WebMail uses a 
     blocking lock with timeout limit 30 seconds. It gives the lock a better chance 
     to success than a nonblocking lock which returns error immediately if it can 
     not get the lock. Open WebMail also supports locking by dotlock file which 
     ensure the file locking will work on platform with incomplete NFS lockd implementation.</p>
-  <h4>Full content search</h4>
+  <h4>Full Content Search</h4>
   Full content search with regular expression support is provided. When user enters 
   a keyword in the search box, the scope of a mail folder will be limited to the 
   keyword related messages. This means the user can use the sort or static functions 
   on the search result. The scope limit will be released when the user selects 
   another folder or refreshes the current folder. 
-  <h4> Better MIME message display</h4>
+  <h4> Better MIME Message Capability</h4>
   While most webmail packages have poor effect on displaying MIME messages, the 
   Open Webmail gives you very fancy effect for that. You can get almost the same 
   output for MIME messages as you would get on Microsoft Outlook. It does this 
   through supporting unlimited levels of attachments and cid object cross-reference 
   inside attachments. Open WebMail also supports uuencoded block inside messages, 
   it displays those uuencoded block as they were normal attachments. 
-  <h4>Draft folder support</h4>
+  <h4>Draft Folder Support</h4>
   This feature enables the user to write a message by several times even several 
   days. The user can save the unfinished messages into the draft folder and continue 
   the editing at any time. It would be very convenient when you are writing a 
   long mail. 
-  <h4>Spelling check support</h4>
-  The spelling check in Open WebMail is very firendly yet powerful, it makes suggestions 
+  <h4>Spelling Check Support</h4>
+  The spelling check in Open WebMail is very friendly yet powerful, it makes suggestions 
   for those mis-spelled words. The user can correct the errors very easily by 
   selecting one of the suggestions from a drop-down menu. 
-  <h4>POP3 support</h4>
+  <h4>POP3 Support</h4>
   Multiple POP3 accounts can be defined at the same time to fetch mails from various 
   mail servers. All pop3 messages will be stored at the INBOX folder. In case 
-  the pop3 fetching takes more than 10 seconds (ex: slow link or large messages), 
+  the pop3 fetching takes more than 10 seconds (eg: slow link or large messages), 
   it will be put into background to avoid http timeout. </blockquote>
 
 <h3> </h3>
 <blockquote> 
-  <h4>Mail filter support</h4>
+  <h4>Mail Filter Support</h4>
   <p>Multiple filter rules can be set to move/copy incoming mails into different 
     folders automatically or even delete them directly. The user can categorize 
     mails from specific person, mails from spammer or mails containing viruses 
@@ -101,7 +101,7 @@
   of new messages and total messages of each mail folder will be displayed after 
   the folder name to help the user to find out those folders with unread messages. 
   <p></p>
-  <h4>Confirm Reading support</h4>
+  <h4>Confirm Reading Support</h4>
   <p>The user can request a 'confirm-reading receipt' for the message he sent. 
     When the message is read by the receiver, a receipt will be sent back to this 
     user. </p>
@@ -129,27 +129,42 @@
     web based spelling check is based on his code in <a href="http://www.dontpokebadgers.com/spellchecker/">WBOSS</a> 
     1.1.1d.<br>
   Thanks to <a href="mailto:danguba@usa.net">Emir Litric</a> for his great 
-    work of art. He makes all the great 3D icons in Open WebMail.<br>
+    work of art. He makes all the great 3D icons in Open WebMail and
+    he is a very good tester of Open Webmail.<br>
   Thanks to <a href="mailto:pakito@asinkecualo.org">Pakito Asinkecualo</a>, 
     he translates the language and template files for Spanish.<br>
   Thanks to <a href="mailto:flood@flood-net.de">Andreas Roedl</a>, he translates 
     the language and template files for German
   </p>
 </blockquote>
+<h3>CONTACT</h3>
+<blockquote> 
+  <p> If you encountered any problem with Open Webmail, please read the 
+     <a href="http://turtle.ee.ncku.edu.tw/openwebmail/download/doc/faq.txt">
+     FAQ</a> first. And if you are sure to contact us, please email to
+     <a href="mailto: openwebmail@turtle.ee.ncku.edu.tw">
+     openwebmail@turtle.ee.ncku.edu.tw</a>
+  </p>
+</blockquote>
 <p> 
 <h3>AUTHORS</h3>
 <blockquote> 
-  <p>Open WebMail were brought to you by </p>
-  <p> <a href="mailto: Ebola@turtle.ee.ncku.edu.tw" style="text-decoration: none"><font color=#000000>Nai-Jung 
-    Kuo</font></a>, <a href="mailto: eddie@turtle.ee.ncku.edu.tw" style="text-decoration: none"><font color=#000000>Chao-Chiu 
-    Wang</font></a>, <a href="mailto: tung@turtle.ee.ncku.edu.tw" style="text-decoration: none"><font color=#000000>Chung-Kie 
-    Tung</font></a> <br>
-    <a href="http://dslab.ee.ncku.edu.tw/" target=_blank style="text-decoration: none">Distributed 
-    System Laboratory</a> <br>
-    <a href="http://www.ee.ncku.edu.tw/" target=_blank style="text-decoration: none">Department 
-    of Electrical Engineering</a> <br>
-    <a href="http://www.ncku.edu.tw/" target=_blank style="text-decoration: none">National 
-    Chung-Kung University</a>, Tainan, Taiwan, R.O.C. </p>
+  <p>The Open WebMail is brought to you by</p>
+  <p> 
+    <a href="mailto: Ebola@turtle.ee.ncku.edu.tw">
+    Nai-Jung Kuo</a> &nbsp ³¢¤Dºa<br>
+    <a href="mailto: eddie@turtle.ee.ncku.edu.tw">
+    Chao-Chiu Wang</a> &nbsp ¤ý¶@¥C<br>
+    <a href="mailto: tung@turtle.ee.ncku.edu.tw">
+    Chung-Kie Tung</a> &nbsp ¸³¥ò·_<br>
+    <br>
+    <a href="http://dslab.ee.ncku.edu.tw/" target=_blank style="text-decoration: none">
+    <font color=#000000>Distributed System Laboratory</font></a> <br>
+    <a href="http://www.ee.ncku.edu.tw/" target=_blank style="text-decoration: none">
+    <font color=#000000>Department of Electrical Engineering</font></a> <br>
+    <a href="http://www.ncku.edu.tw/" target=_blank style="text-decoration: none">
+    <font color=#000000>National Chung-Kung University</font></a>, 
+    Tainan, Taiwan, R.O.C. </p>
 </blockquote>
 <p>06/13/2001 </p>
 </body>

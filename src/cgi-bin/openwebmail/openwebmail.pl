@@ -39,14 +39,6 @@ require "maildb.pl";
 require "pop3mail.pl";
 require "mailfilter.pl";
 
-if ( ($logfile ne 'no') && (! -f $logfile)  ) {
-   my $mailgid=getgrnam('mail');
-   open (LOGFILE,">>$logfile") or openwebmailerror("$lang_err{'couldnt_open'} $logfile!");
-   close(LOGFILE);
-   chmod(0660, $logfile);
-   chown($>, $mailgid, $logfile);
-}
-
 local $thissession;
 local $user;
 local $userip;
@@ -69,6 +61,23 @@ local $printfolder;
 local $escapedfolder;
 local $savedattsize;
 local $decodedhtml;
+
+
+if ( ($logfile ne 'no') && (! -f $logfile)  ) {
+   my $mailgid=getgrnam('mail');
+   open (LOGFILE,">>$logfile") or openwebmailerror("$lang_err{'couldnt_open'} $logfile!");
+   close(LOGFILE);
+   chmod(0660, $logfile);
+   chown($>, $mailgid, $logfile);
+}
+
+update_genericstable("$openwebmaildir/genericstable", $genericstable);
+
+# strip \n, blank from global domainnames since it may come from shell command
+for (my $i=0; $i<=$#domainnames; $i++) {
+    $domainnames[$i]=~s/^\s+//;
+    $domainnames[$i]=~s/\s+$//;
+}
 
 $thissession = param("sessionid") || '';
 $user = $thissession || '';
@@ -130,20 +139,36 @@ $lang_charset ||= 'iso-8859-1';
 $hitquota = 0;
 if ($user) {
    my $domainname;
+   my ($virtualuser, $virtualdomain)=split(/\@/, get_email_from_genericstable($user, "$openwebmaildir/genericstable"));
+
+   if ($virtualdomain) {
+      my $fould=0;
+      foreach (@domainnames) {
+         if ($virtualdomain eq $_) {
+            $found=1; last;
+         }
+      }
+      push(@domainnames, $virtualdomain) if (!$found);
+   }
+
    foreach (@domainnames) {
-      chomp;
       if ($prefs{domainname} eq $_) {
          $domainname=$_;
          last;
       }
    }
-   $domainname=$domainnames[0] if ($domainname eq '');
+   $domainname=$virtualdomain || $domainnames[0] if ($domainname eq '');
+
    if ($enable_setfromname eq 'yes' && $prefs{"fromname"}) {
       # Create from: address when "fromname" is not null
       $useremail = $prefs{"fromname"} . "@" . $domainname; 
    } else {	
       # Create from: address when "fromname" is null
-      $useremail = $user . "@" . $domainname; 
+      if ($virtualuser) {
+         $useremail = $virtualuser . "@" . $domainname; 
+      } else {
+         $useremail = $user . "@" . $domainname; 
+      }
    } 
 
    @validfolders = @{&getfolders(0)};
@@ -327,7 +352,6 @@ sub login {
 
          my $domainname;
          foreach (@domainnames) {
-            chomp;
             if ($prefs{domainname} eq $_) {
                $domainname=$_;
                last;
@@ -875,7 +899,7 @@ sub displayheaders {
          qq|status=$status&amp;folder=$escapedfolder&amp;sort=$sort&amp;|.
          qq|keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;|.
          qq|headers=|.($prefs{"headers"} || 'simple').qq|&amp;|.
-         qq|message_id=$escapedmessageid">$subject</a>$boldoff</td>|.
+         qq|message_id=$escapedmessageid">$subject </a>$boldoff</td>|.
          qq|<td valign="middle" width="40" bgcolor=$bgcolor>$boldon$messagesize$boldoff</td>|.
          qq|<td align="center" valign="middle" width="50" bgcolor=$bgcolor>|.
             checkbox(-name=>'message_ids',
