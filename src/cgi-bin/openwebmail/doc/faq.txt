@@ -13,7 +13,6 @@ A: You perl is compiled with suid ability disabled.
       and change #!/usr/bin/perl to the path of this suidperl
    b. recompile your perl with suid enabled
 
-
 Q: I got "Software error: Can't locate MIME/Base64.pm in @INC"?
 A: please download MIME-Base64-2.12.tar.gz and install
 
@@ -24,13 +23,18 @@ A: please download MIME-Base64-2.12.tar.gz and install
    make
    make install
 
+Q: The 'From' field of my message contains only 'username@'?
+A: you may has wrong setting of domainname in openwebmail.conf
+   Please be sure to use '' for a text string of hostname or
+   use `` for the program /bin/hostname
+
 Q: Attachments disappeared when I forward a message?
 A: check the permission of the following directories
    cgi-bin/openwebmail/etc          - owner=root, group=mail, mode=750
    cgi-bin/openwebmail/etc/sessions - owner=root, group=mail, mode=770
    cgi-bin/openwebmail/etc/users    - owner=root, group=mail, mode=770
 
-Q: The permission cgi-bin/openwebmail/etc is correct but attachments 
+Q: The permission of cgi-bin/openwebmail/etc is correct but attachments 
    still disappeared in message forwarding?
 A: mmm, please upgrade the latest version. 
    Some old version(1.03,1.04) has little problem in attachment handling.
@@ -48,7 +52,7 @@ A: It depends on how you define the "slow".
    1 second on a celeron300 machine.
 
 ps: Some operations would take more time than normal operation, for example:
-    re-indexing of a large folder, adding large attachment to a message.
+    indexing on a large folder, adding large attachment to a message.
 
    It is recommended that you install Open WebMail on a medium-sized machine.
    (ex: Celeron 300 with 128MB ram). Actually it runs well on a pentium 200mmx 
@@ -58,13 +62,28 @@ ps: Some operations would take more time than normal operation, for example:
    http://turtle.ee.ncku.edu.tw/openwebmail/download/memory.usage
 
 Q: How can I report problem?
-A: The best way is send me the message that has problems.
+A: The best way is to send me the message that causes problems.
    a. create a test folder
    b. move the message to the 'test' folder
    c. save the 'test' folder to a zip file
    ps: in version 1.06 or above, you can save a folder into a zip file
        by clicking the foldername in "folder management" menu
    d. mail it to me as an attachment and describe what the problem is.
+
+Q: Can I use Open WebMail in a commerical web site? 
+   Can I change the page layout of openwebmail?
+A: Open WebMail is GPL software (please see copyright.txt for detail of GPL).
+   You can use or distribute it freely and you can also change the layout 
+   of Open WebMail only if
+   a. Any improvement of Open WebMail or any product based on Open WebMail 
+      must be released to the public, and
+   b. The link 'Open WebMail' must be kept on the web page to enable the user
+      link back to the home of Open WebMail.
+
+ps: I would be happy if you mail me a message that your commerical website
+    is using Open WebMail. I may put it into the webpage as some kind of 
+    advertisments :)
+   
 
 04/24/2001 
 

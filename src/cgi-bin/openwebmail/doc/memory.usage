@@ -7,10 +7,11 @@ At first, the program itself takes at least 5.5 MB...:(
 
 folder view
 ===========
-The memory usage in the folder view is proportional to the message counts 
-in the mail folder. It is about
+The memory usage in the folder view is proportional to the message count
+in the mail folder, but it grows very little as message counts increases. 
+It is about
 
-	5.5MB(main) + message_count*1.4k
+	5.5MB(main) + message_count * 0.2k
 
 
 read a message
@@ -67,7 +68,7 @@ There are also 2 stages in the sending of message
 a. the user attaches an attachment to the message
 b. the user presses the [send] button to send the whole message.
 
-The memory usage for these 2 stage has no relation with the 
+The memory usage for these 2 stages has no relation with the 
 message or attachment size. It is about 5.5 MB.
 
 
@@ -77,6 +78,6 @@ Amazing? Yes, This program is a memory hog.....
 You'd better install more ram on your webmail server to make it faster...
 
 
-04/06/2001  
+04/26/2001  
 
 tung@turtle.ee.ncku.edu.tw

@@ -1,7 +1,27 @@
+04/26/2001
+----------
+1. greatly improve the speed of folder view on folders with thousands 
+   of messages
+2. reduce the memory usage in viewattachment
+3. fix a bug that shows 'Can't call method "att" without a package....'
+   when adding attachment
+4. change the character check of filename and preference to eliminate
+   incompatibility with som chinese characters
+5. change '$numberofheaders' to '$headersperpage' in openwebmail.conf
+6. change the method to find the smtprelay
+
+
+04/25/2001
+----------
+1. support 'download attachment' in message editing
+2. add option of 'default destination folder' in user preference
+   add option of 'newmail sound notification' in user preference
+
+
 04/24/2001 (version 1.09)
 ----------
-1. add option of 'autofetch pop3 mail at login and 
-   'auto empty trash at logout' at user preference
+1. add option of 'autofetch pop3 mail at login' in user preference
+   add option of 'auto empty trash at logout'   in user preference
 2. fix a bug that shows the attribute of plain text message in sent-mail folder
    with a '@' mistakenly.
 3. support 'delete attachment' in message editing

@@ -65,7 +65,6 @@ local ($uid, $gid, $homedir);
 local %prefs;
 local %style;
 local $lang;
-local $numberofheaders;
 local $firstmessage;
 local $sort;
 local $keyword;
@@ -77,7 +76,6 @@ local $folder;
 local @validfolders;
 local $printfolder;
 local $escapedfolder;
-local $total_size;
 local $savedattsize;
 local $decodedhtml;
 
@@ -155,7 +153,7 @@ if ($user) {
 $printfolder = $lang_folders{$folder} || $folder || '';
 $escapedfolder = CGI::escape($folder);
 
-$numberofheaders = $prefs{'numberofmessages'} || $numberofheaders;
+$headersperpage = $prefs{'headersperpage'} || $headersperpage || 20;
 
 $firstmessage = param("firstmessage") || 1;
 $sort = param("sort") || $prefs{"sort"} || 'date';
@@ -163,9 +161,6 @@ $sort = param("sort") || $prefs{"sort"} || 'date';
 $keyword = param("keyword") || '';
 $escapedkeyword=CGI::escape($keyword);
 $searchcontent = param("searchcontent") || 0;
-
-# store the total size of current folder
-$total_size = 0;
 
 # last html read within a message,
 # used to check if an attachment is linked by this html
@@ -316,7 +311,7 @@ sub login {
          @validfolders = @{&getfolders()};
          $folder = "INBOX";
 
-         $numberofheaders = $prefs{'numberofmessages'} || $numberofheaders;
+         $headersperpage = $prefs{'headersperpage'} || $headersperpage;
 
          $sort = $prefs{"sort"} || 'date';
 
@@ -378,39 +373,36 @@ sub displayheaders {
 
    filtermessage();
 
-   my ($bgcolor, $status, $message_size);
-   my $newmessages = 0;
-   my $escapedmessageid; # Used when creating link from subject line
-   my @headers = @{&getheaders()};
-   my $numheaders = $#headers + 1 || 1;
-   my $page_total = $numheaders/$numberofheaders || 1;
+   my ($totalsize, $newmessages, $internal, $r_messageids)=getinfomessageids();
+
+   my $numheaders;
+   if ($#{$r_messageids}>=0) {
+      $numheaders=$#{$r_messageids}+1;
+   } else {
+      $numheaders=0;
+   }
+
+   my $page_total = $numheaders/$headersperpage || 1;
    $page_total = int($page_total) + 1 if ($page_total != int($page_total));
 
    if (defined(param("custompage"))) {
       my $pagenumber = param("custompage");
       $pagenumber = 1 if ($pagenumber < 1);
       $pagenumber = $page_total if ($pagenumber > $page_total);
-      $firstmessage = (($pagenumber-1)*$numberofheaders) + 1;
+      $firstmessage = (($pagenumber-1)*$headersperpage) + 1;	# global
    }
 
-### Perform verification of $firstmessage, make sure it's within bounds
-   if ($firstmessage > ($#headers + 1)) {
-      $firstmessage = $#headers - ($numberofheaders - 1);
+   # Perform verification of $firstmessage, make sure it's within bounds
+   if ($firstmessage > $numheaders) {
+      $firstmessage = $numheaders - $headersperpage;
    }
    if ($firstmessage < 1) {
       $firstmessage = 1;
    }
-   my $lastmessage = $firstmessage + $numberofheaders - 1;
-   if ($lastmessage > ($#headers + 1)) {
-       $lastmessage = ($#headers + 1);
+   my $lastmessage = $firstmessage + $headersperpage - 1;
+   if ($lastmessage > $numheaders) {
+       $lastmessage = $numheaders;
    }
-
-   foreach my $messnum (0 .. $#headers) {
-      unless (${$headers[$messnum]}{status} =~ /r/i) {
-         $newmessages++;
-      }
-   }
-
    my $base_url = "$scripturl?sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder";
    my $base_url_nokeyword = "$scripturl?sessionid=$thissession&amp;sort=$sort&amp;folder=$escapedfolder";
 
@@ -418,19 +410,19 @@ sub displayheaders {
    printheader(-Refresh=>"900;URL='$scripturl?sessionid=$thissession&sort=$sort&keyword=$escapedkeyword&searchcontent=$searchcontent&folder=INBOX&action=displayheaders&firstmessage=1&refresh=$refresh'");
 
    my $page_nb;
-   if ($#headers > 0) {
-      $page_nb = ($firstmessage) * (($#headers + 1) / $numberofheaders) / ($#headers + 1);
+   if ($numheaders > 0) {
+      $page_nb = ($firstmessage) * ($numheaders / $headersperpage) / $numheaders;
       ($page_nb = int($page_nb) + 1) if ($page_nb != int($page_nb));
    } else {
       $page_nb = 1;
    }
 
-   if ($total_size > 1048575){
-      $total_size = int(($total_size/1048576)+0.5) . " MB";
-   } elsif ($total_size > 1023) {
-      $total_size =  int(($total_size/1024)+0.5) . " KB";
+   if ($totalsize > 1048575){
+      $totalsize = int(($totalsize/1048576)+0.5) . " MB";
+   } elsif ($totalsize > 1023) {
+      $totalsize =  int(($totalsize/1024)+0.5) . " KB";
    } else {
-      $total_size = $total_size . " B";
+      $totalsize = $totalsize . " B";
    }
 
    my $html = '';
@@ -467,7 +459,7 @@ sub displayheaders {
 
    my %folderlabels;
    foreach my $foldername (@validfolders) {
-      my ($headerdb, $newmessages, $allmessages);
+      my ($folderfile, $headerdb, $newmessages, $allmessages);
 
       if (defined $lang_folders{$foldername}) {
          $folderlabels{$foldername}=$lang_folders{$foldername};
@@ -475,15 +467,12 @@ sub displayheaders {
          $folderlabels{$foldername}=$foldername;
       }
 
-      if ($foldername eq 'INBOX') {
-         $headerdb="$folderdir/.$user";
-      } else {
-         $headerdb="$folderdir/.$foldername";
-      }
+      ($folderfile, $headerdb)=get_folderfile_headerdb($user, $foldername);
       filelock("$headerdb.$dbm_ext", LOCK_SH);
       dbmopen (%HDB, $headerdb, undef);
       if ($foldername eq 'INBOX') {	# don't count msg of 'DON'T DELETE THIS MAIL'
-         $allmessages=$HDB{'ALLMESSAGES'}-$HDB{'INTERNALMESSAGES'};
+						#-$HDB{'INTERNALMESSAGES'};
+         $allmessages=$HDB{'ALLMESSAGES'};
          $newmessages=$HDB{'NEWMESSAGES'};
          $now_inbox_newmessages=$newmessages;
       } else {
@@ -505,13 +494,13 @@ sub displayheaders {
                           -override=>'1');
    $html =~ s/\@\@\@FOLDERPOPUP\@\@\@/$temphtml/;
 
-   if (defined($headers[0])) {
+   if ($numheaders>0) {
       $temphtml = ($firstmessage) . " - " . ($lastmessage) . " $lang_text{'of'} " .
-                  ($#headers + 1) . " $lang_text{'messages'} ";
+                  $numheaders . " $lang_text{'messages'} ";
       if ($newmessages) {
          $temphtml .= "($newmessages $lang_text{'unread'})";
       }
-      $temphtml .= " - $total_size";
+      $temphtml .= " - $totalsize";
    } else {
       $temphtml = $lang_text{'nomessages'};
    }
@@ -564,8 +553,8 @@ sub displayheaders {
       $temphtml1 = "<img src=\"$imagedir_url/first-grey.gif\" align=\"absmiddle\" border=\"0\" alt=\"\">";
    }
 
-   if (($firstmessage - $numberofheaders) >= 1) {
-      $temphtml1 .= "<a href=\"$base_url&amp;action=displayheaders&amp;firstmessage=" . ($firstmessage - $numberofheaders) . "\">";
+   if (($firstmessage - $headersperpage) >= 1) {
+      $temphtml1 .= "<a href=\"$base_url&amp;action=displayheaders&amp;firstmessage=" . ($firstmessage - $headersperpage) . "\">";
       $temphtml1 .= "<img src=\"$imagedir_url/left.gif\" align=\"absmiddle\" border=\"0\" alt=\"&lt;\"></a>";
    } else {
       $temphtml1 .= "<img src=\"$imagedir_url/left-grey.gif\" align=\"absmiddle\" border=\"0\" alt=\"\">";
@@ -573,14 +562,14 @@ sub displayheaders {
 
    $html =~ s/\@\@\@LEFTPAGECONTROL\@\@\@/$temphtml1/g;
 
-   if (($firstmessage + $numberofheaders) <= ($#headers + 1)) {
-      $temphtml2 = "<a href=\"$base_url&amp;action=displayheaders&amp;firstmessage=" . ($firstmessage + $numberofheaders) . "\">";
+   if (($firstmessage + $headersperpage) <= $numheaders) {
+      $temphtml2 = "<a href=\"$base_url&amp;action=displayheaders&amp;firstmessage=" . ($firstmessage + $headersperpage) . "\">";
       $temphtml2 .= "<img src=\"$imagedir_url/right.gif\" align=\"absmiddle\" border=\"0\" alt=\"&gt;\"></a>";
    } else {
       $temphtml2 = "<img src=\"$imagedir_url/right-grey.gif\" align=\"absmiddle\" border=\"0\" alt=\"\">";
    }
 
-   if (($firstmessage + $numberofheaders) <= ($#headers +1) ) {
+   if (($firstmessage + $headersperpage) <= $numheaders ) {
       $temphtml2 .= "<a href=\"$base_url&amp;action=displayheaders&amp;custompage=" . "$page_total\">";
       $temphtml2 .= "<img src=\"$imagedir_url/last.gif\" align=\"absmiddle\" border=\"0\" alt=\"&gt;&gt;\"></a>";
    } else {
@@ -630,19 +619,20 @@ sub displayheaders {
                        -override=>'1');
    $html =~ s/\@\@\@STARTMOVEFORM\@\@\@/$temphtml/g;
    
-   if ($folder eq 'mail-trash') {
-      $temphtml = popup_menu(-name=>'destination',
-                             -"values"=>\@movefolders,
-                             -default=>'DELETE',
-                             -labels=>\%lang_folders,
-                             -override=>'1');
+   my $defaultdestination;
+   if ($folder eq 'sent-mail' || $folder eq 'saved-drafts') {
+      $defaultdestination='mail-trash';
+   } elsif ($folder eq 'mail-trash') {
+      $defaultdestination='DELETE';
    } else {
-      $temphtml = popup_menu(-name=>'destination',
-                             -"values"=>\@movefolders,
-                             -default=>'mail-trash',
-                             -labels=>\%lang_folders,
-                             -override=>'1');
+      $defaultdestination=$prefs{'defaultdestination'} || 'mail-trash';
+      $defaultdestination='mail-trash' if ( $folder eq $defaultdestination);
    }
+   $temphtml = popup_menu(-name=>'destination',
+                          -"values"=>\@movefolders,
+                          -default=>$defaultdestination,
+                          -labels=>\%lang_folders,
+                          -override=>'1');
 
    $temphtml .= submit(-name=>"$lang_text{'move'}",
                        -onClick=>"return OpConfirm($lang_text{'moveconfirm'})");
@@ -718,25 +708,37 @@ sub displayheaders {
 
    $html =~ s/\@\@\@SIZE\@\@\@/$temphtml/g;
 
-   $temphtml = '';
+
+   my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
+   my ($messageid, $escapedmessageid);
+   my ($offset, $from, $to, $date, $subject, $content_type, $status, $messagesize);
+   my ($bgcolor, $message_status);
    my ($boldon, $boldoff); # Used to control whether text is bold for new mails
+
+   filelock("$headerdb.$dbm_ext", LOCK_SH);
+   dbmopen (%HDB, $headerdb, undef);
+
+   $temphtml = '';
    foreach my $messnum (($firstmessage - 1) .. ($lastmessage - 1)) {
-### Stop when we're out of messages!
-      last if !(defined($headers[$messnum]));
 
-      (${$headers[$messnum]}{from} =~ s/^"?(.+?)"?\s*<(.*)>$/<a href="$scripturl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$2">$1<\/a>/) ||
-      (${$headers[$messnum]}{from} =~ s/<?(.*@.*)>?\s+\((.+?)\)/<a href="$scripturl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$1">$2<\/a>/) ||
-      (${$headers[$messnum]}{from} =~ s/<(.+)>/<a href="$scripturl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$1">$1<\/a>/) ||
-      (${$headers[$messnum]}{from} =~ s/(.+)/<a href="$scripturl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$1">$1<\/a>/);
+      $messageid=${$r_messageids}[$messnum];
+      next if (! defined($HDB{$messageid}) );
 
-      ${$headers[$messnum]}{subject} = str2html(${$headers[$messnum]}{subject});
+      $escapedmessageid = CGI::escape($messageid);
+      ($offset, $from, $to, $date, $subject, 
+	$content_type, $status, $messagesize)=split(/@@@/, $HDB{$messageid});
 
-### Make sure there's SOMETHING clickable for subject line
-      unless (${$headers[$messnum]}{subject} =~ /[^\s]/) {
-         ${$headers[$messnum]}{subject} = "N/A";
+      ($from =~ s/^"?(.+?)"?\s*<(.*)>$/<a href="$scripturl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$2">$1<\/a>/) ||
+      ($from =~ s/<?(.*@.*)>?\s+\((.+?)\)/<a href="$scripturl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$1">$2<\/a>/) ||
+      ($from =~ s/<(.+)>/<a href="$scripturl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$1">$1<\/a>/) ||
+      ($from =~ s/(.+)/<a href="$scripturl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$1">$1<\/a>/);
+
+      $subject = str2html($subject);
+
+      # Make sure there's SOMETHING clickable for subject line
+      unless ($subject =~ /[^\s]/) {
+         $subject = "N/A";
       }
-
-      $escapedmessageid = CGI::escape(${$headers[$messnum]}{message_id});
 
       if ( $messnum % 2 ) {
          $bgcolor = $style{"tablerow_light"};
@@ -744,51 +746,52 @@ sub displayheaders {
          $bgcolor = $style{"tablerow_dark"};
       }
 
-      $message_size = ${$headers[$messnum]}{messagesize};
-### Round message size and change to an appropriate unit for display
-      if ($message_size > 1048575){
-         $message_size = int(($message_size/1048576)+0.5) . "MB";
-      } elsif ($message_size > 1023) {
-         $message_size =  int(($message_size/1024)+0.5) . "KB";
+      # Round message size and change to an appropriate unit for display
+      if ($messagesize > 1048575){
+         $messagesize = int(($messagesize/1048576)+0.5) . "MB";
+      } elsif ($messagesize > 1023) {
+         $messagesize =  int(($messagesize/1024)+0.5) . "KB";
       }
 
-      $status = "<B>".($messnum+1)."</B> ";
-### Choose status icons based on Status: line and type of encoding
-      if ( ${$headers[$messnum]}{status} =~ /r/i ) {
+      $message_status = "<B>".($messnum+1)."</B> ";
+      # Choose status icons based on Status: line and type of encoding
+      if ( $status =~ /r/i ) {
          $boldon = '';
          $boldoff = '';
       } else {
-         $status .= "<img src=\"$imagedir_url/new.gif\" align=\"absmiddle\">";
+         $message_status .= "<img src=\"$imagedir_url/new.gif\" align=\"absmiddle\">";
          $boldon = "<B>";
          $boldoff = "</B>";
       }
 
-      if ( (${$headers[$messnum]}{content_type} ne '') && 
-           (${$headers[$messnum]}{content_type} ne 'N/A') && 
-           (${$headers[$messnum]}{content_type} !~ /^text/i) ) {
-         $status .= "<img src=\"$imagedir_url/attach.gif\" align=\"absmiddle\">";
+      if ( ($content_type ne '') && 
+           ($content_type ne 'N/A') && 
+           ($content_type !~ /^text/i) ) {
+         $message_status .= "<img src=\"$imagedir_url/attach.gif\" align=\"absmiddle\">";
       }
 
-      $temphtml .= "<tr><td valign=\"middle\" width=\"50\" bgcolor=$bgcolor>$status&nbsp;</td>".
-         "<td valign=\"middle\" width=\"150\" bgcolor=$bgcolor>$boldon<font size=-1>".
-         ${$headers[$messnum]}{date}."</font>$boldoff</td>".
-         "<td valign=\"middle\" width=\"150\" bgcolor=$bgcolor>$boldon".
-         ${$headers[$messnum]}{from}."$boldoff</td>".
-         "<td valign=\"middle\" width=\"350\" bgcolor=$bgcolor>".
-         "<a href=\"$scripturl?action=readmessage&amp;firstmessage=".
-         ($firstmessage)."&amp;sessionid=$thissession&amp;status=".
-         ${$headers[$messnum]}{status}."&amp;folder=$escapedfolder&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;headers=".
-         ($prefs{"headers"} || 'simple'). "&amp;message_id=".
-         $escapedmessageid ."\">$boldon".
-         ${$headers[$messnum]}{subject}."</a>$boldoff</td>".
-         "<td valign=\"middle\" width=\"40\" bgcolor=$bgcolor>$boldon".
-         $message_size . "$boldoff</td>".
-         "<td align=\"center\" valign=\"middle\" width=\"50\" bgcolor=$bgcolor>".
-         checkbox(-name=>'message_ids',
-                  -value=>${$headers[$messnum]}{message_id},
-                  -label=>'').
-         '</td></tr>';
+      $temphtml .= qq|<tr>|.
+         qq|<td valign="middle" width="50" bgcolor=$bgcolor>$message_status&nbsp;</td>|.
+         qq|<td valign="middle" width="150" bgcolor=$bgcolor>$boldon<font size=-1>$date</font>$boldoff</td>|.
+         qq|<td valign="middle" width="150" bgcolor=$bgcolor>$boldon$from$boldoff</td>|.
+         qq|<td valign="middle" width="350" bgcolor=$bgcolor>|.
+         qq|$boldon<a href="$scripturl?action=readmessage&amp;|.
+         qq|firstmessage=$firstmessage&amp;sessionid=$thissession&amp;|.
+         qq|status=$status&amp;folder=$escapedfolder&amp;sort=$sort&amp;|.
+         qq|keyword=$escapedkeyword&amp;searchcontent=$searchcontent&amp;|.
+         qq|headers=|.($prefs{"headers"} || 'simple').qq|&amp;|.
+         qq|message_id=$escapedmessageid">$subject</a>$boldoff</td>|.
+         qq|<td valign="middle" width="40" bgcolor=$bgcolor>$boldon$messagesize$boldoff</td>|.
+         qq|<td align="center" valign="middle" width="50" bgcolor=$bgcolor>|.
+            checkbox(-name=>'message_ids',
+                     -value=>$messageid,
+                     -label=>'').
+         qq|</td></tr>|;
    }
+
+   dbmclose(%HDB);
+   filelock("$headerdb.$dbm_ext", LOCK_UN);
+
    $html =~ s/\@\@\@HEADERS\@\@\@/$temphtml/;
 
 
@@ -828,7 +831,7 @@ sub displayheaders {
    # b. user is viewing other folder and new msg increases in INBOX
    if ( (defined(param("refresh")) && $now_inbox_newmessages>0) ||
         ($folder ne 'INBOX' && $now_inbox_newmessages>$orig_inbox_newmessages) ) {
-      if ($sound_url ne "" ) {
+      if ($prefs{'newmailsound'}==1 && $sound_url ne "" ) {
          # only enable sound on Windows platform
          if ( $ENV{'HTTP_USER_AGENT'} =~ /Win/ ) {
             print "<embed src=\"$sound_url\" autostart=true hidden=true>";
@@ -992,19 +995,21 @@ sub readmessage {
       }
       $html =~ s/\@\@\@STARTMOVEFORM\@\@\@/$temphtml/g;
    
-      if ($folder eq 'mail-trash') {
-         $temphtml = popup_menu(-name=>'destination',
-                                -"values"=>\@movefolders,
-                                -labels=>\%lang_folders,
-                                -default=>'DELETE',
-                                -override=>'1');
+      my $defaultdestination;
+      if ($folder eq 'sent-mail' || $folder eq 'saved-drafts') {
+         $defaultdestination='mail-trash';
+      } elsif ($folder eq 'mail-trash') {
+         $defaultdestination='DELETE';
       } else {
-         $temphtml = popup_menu(-name=>'destination',
-                                -"values"=>\@movefolders,
-                                -labels=>\%lang_folders,
-                                -default=>'mail-trash',
-                                -override=>'1');
+         $defaultdestination=$prefs{'defaultdestination'} || 'mail-trash';
+         $defaultdestination='mail-trash' if ( $folder eq $defaultdestination);
       }
+      $temphtml = popup_menu(-name=>'destination',
+                             -"values"=>\@movefolders,
+                             -default=>$defaultdestination,
+                             -labels=>\%lang_folders,
+                             -override=>'1');
+
       $temphtml .= submit(-name=>"$lang_text{'move'}",
                        -onClick=>"return confirm($lang_text{'moveconfirm'})");
       $temphtml .= submit(-name=>"$lang_text{'copy'}",
@@ -1367,8 +1372,8 @@ sub composemessage {
 
          $attname = str2html($attname);
          $attname =~ s/^(.*)$/<em>$1<\/em>/;
-         push (@{$r_attnamelist}, $attname);
-         push (@{$r_attfilelist}, $thissession-att$attserial);
+         push (@{$r_attnamelist}, "$attname");
+         push (@{$r_attfilelist}, "$thissession-att$attserial");
       }
    } elsif ( !(defined(param($lang_text{'add'}))) ) {
       deleteattachments();
@@ -1603,8 +1608,8 @@ sub composemessage {
    for (my $i=0; $i<=$#{$r_attnamelist}; $i++) {
       my $attsize=int((-s "$openwebmaildir/sessions/${$r_attfilelist}[$i]")/1024);
       $temphtml .= "<tr valign=top>".
-                   "<td><a href=\"$scripturl?sessionid=$thissession&amp;action=viewattfile&amp;attfile=${$r_attfilelist}[$i]\">${$r_attnamelist}[$i]</a>&nbsp;</td>".
-                   "<td align='right'>$attsize KB &nbsp;</td>".
+                   "<td><a href=\"$scripturl?sessionid=$thissession&amp;action=viewattfile&amp;attfile=${$r_attfilelist}[$i]\">${$r_attnamelist}[$i]</a></td>".
+                   "<td nowrap align='right'>&nbsp;$attsize KB &nbsp;</td>".
                    "<td nowrap><a href=\"javascript:DeleteAttFile('${$r_attfilelist}[$i]')\">[$lang_text{'delete'}]</a></td>".
                    "</tr>\n";
    }
@@ -2031,9 +2036,10 @@ sub viewattachment {	# view attachments inside a message
       return;
    }
 
-   if ( $nodeid eq 'all' ) {
+   if ( $nodeid eq 'all' ) { 
       # return whole msg as an message/rfc822 object
       my $length = length(${$r_block});
+      # disposition:attachment default to save
       print qq|Content-Length: $length\n|,
             qq|Content-Transfer-Coding: binary\n|,
             qq|Connection: close\n|,
@@ -2076,13 +2082,21 @@ sub viewattachment {	# view attachments inside a message
          }
 
          my $length = length($content);
+         # disposition:attachment default to save
          print qq|Content-Length: $length\n|,
                qq|Content-Transfer-Coding: binary\n|,
                qq|Connection: close\n|,
                qq|Content-Type: ${$r_attachment}{contenttype}; name="${$r_attachment}{filename}"\n|;
-         unless (${$r_attachment}{contenttype} =~ /^text/i) {
+         if (${$r_attachment}{contenttype} !~ /^text/i) {
             print qq|Content-Disposition: attachment; filename="${$r_attachment}{filename}"\n|;
          }
+
+         # use undef to free memory before attachment transfer
+         undef %{$r_attachment};
+         undef $r_attachment;
+         undef @{$r_attachments};
+         undef $r_attachments;
+
          print qq|\n|, $content;
       } else {
          printheader();
@@ -2168,12 +2182,13 @@ sub viewattfile {	# view attachments uploaded to openwebmail/etc/sessions/
    }
 
    my $length = length($attcontent);
+   # disposition:inline default to open
    print qq|Content-Length: $length\n|,
          qq|Content-Transfer-Coding: binary\n|,
          qq|Connection: close\n|,
          qq|Content-Type: $attcontenttype; name="$attfilename"\n|;
-   unless ($attcontenttype =~ /^text/i) {
-      print qq|Content-Disposition: attachment; filename="$attfilename"\n|;
+   if ($attcontenttype !~ /^text/i) {
+      print qq|Content-Disposition: inline; filename="$attfilename"\n|;
    }
    print qq|\n|, $attcontent;
 
@@ -2181,14 +2196,9 @@ sub viewattfile {	# view attachments uploaded to openwebmail/etc/sessions/
 }
 ################### END VIEWATTATTFILE ##################
 
-################## GETHEADERS #######################
-sub getheaders {
+################### GETINFOMESSAGEIDS ###################
+sub getinfomessageids {
    my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
-   my $folderhandle=FileHandle->new();
-   my @message = ();
-   my @messageids;
-   my $messageid;
-   my $messagenumber;
    my $index_complete=0;
 
    # do new indexing in background if folder > 10 M && empty db
@@ -2224,62 +2234,38 @@ sub getheaders {
       filelock($folderfile, LOCK_UN);
    }
 
-   unless ( filelock($folderfile, LOCK_SH|LOCK_NB) ) {
-      openwebmailerror("$lang_err{'couldnt_locksh'} $folderfile!");
-   }
    if ( $keyword ne '' ) {
-      open($folderhandle, "$folderfile");
-      my %haskeyword=search_messages_for_keyword($keyword, $searchcontent, $headerdb, $folderhandle, "$folderdir/.search.cache");
+      my $folderhandle=FileHandle->new();
+      my ($totalsize, $new, $internal, $r_haskeyword, $r_messageids);
+      my @messageids=();
+
+      ($totalsize, $new, $internal, $r_messageids)=get_info_messageids_sorted($headerdb, $sort, "$headerdb.cache");
+
+      filelock($folderfile, LOCK_SH|LOCK_NB) or
+         openwebmailerror("$lang_err{'couldnt_locksh'} $folderfile!");
+      open($folderhandle, $folderfile);
+      ($totalsize, $new, $internal, $r_haskeyword)=search_info_messages_for_keyword($keyword, $searchcontent, $headerdb, $folderhandle, "$folderdir/.search.cache");
       close($folderhandle);
-      foreach ( get_messageids_sorted($headerdb, $sort, "$headerdb.cache") ) {
-         push (@messageids, $_) if ( $haskeyword{$_} == 1 ); 
+      filelock($folderfile, LOCK_UN);
+
+      foreach (@{$r_messageids}) {
+         push (@messageids, $_) if ( ${$r_haskeyword}{$_} == 1 ); 
       }
-   } else {
-      @messageids=get_messageids_sorted($headerdb, $sort, "$headerdb.cache");
+      return($totalsize, $new, $internal, \@messageids);
+
+   } else { # return: $totalsize, $new, $internal, $r_messageids for whole folder
+      return(get_info_messageids_sorted($headerdb, $sort, "$headerdb.cache"))
+
    }
-   filelock($folderfile, LOCK_UN);
-
-   $messagenumber=-1;
-   $total_size=0;
-
-   filelock("$headerdb.$dbm_ext", LOCK_SH);
-   dbmopen (%HDB, $headerdb, undef);
-
-   foreach $messageid (@messageids) {
-### Get a unique memory address before creating pointer
-      my %header;
-            
-      $header{'message_id'}=$messageid;
-      ( $header{'offset'},
-	$header{'from'}, $header{'to'}, $header{'date'}, $header{'subject'},
-	$header{'content_type'}, $header{'status'}, 
-	$header{'messagesize'} )=split(/@@@/, $HDB{$messageid});
-
-      # don't show the imap control message in INBOX to user
-      if ( ($folder eq "INBOX") && ($header{'subject'} =~ /DON'T DELETE THIS MESSAGE/) ) {
-         undef(%header);
-         next;
-      }
-
-      $total_size+=$header{'messagesize'};
-      $messagenumber++;
-      $message[$messagenumber] = \%header;
-   }
-
-   dbmclose(%HDB);
-   filelock("$headerdb.$dbm_ext", LOCK_UN);
-
-   return \@message;
 }
 
-#################### END GETHEADERS #######################
+################# END GETINFOMESSAGEIDS #################
 
 #################### GETMESSAGE ###########################
 sub getmessage {
    my ($messageid, $mode) = @_;
    my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
    my $folderhandle=FileHandle->new();
-   my @messageids;
    my %message = ();
 
    my ($currentheader, $currentbody, $r_currentattachments, $currentfrom, $currentdate,
@@ -2291,15 +2277,6 @@ sub getmessage {
    }
    update_headerdb($headerdb, $folderfile);
    open($folderhandle, "$folderfile");
-
-   if ( $keyword ne '' ) {
-      my %haskeyword=search_messages_for_keyword($keyword, $searchcontent, $headerdb, $folderhandle, "$folderdir/.search.cache");
-      foreach ( get_messageids_sorted($headerdb, $sort, "$headerdb.cache") ) {
-         push (@messageids, $_) if ( $haskeyword{$_} == 1 ); 
-      }
-   } else {
-      @messageids=get_messageids_sorted($headerdb, $sort, "$headerdb.cache");
-   }
 
    # $r_attachment is a reference to attachment array!
    if ($mode eq "all") {
@@ -2378,12 +2355,18 @@ sub getmessage {
       }
    }
 
-   # we don't count last from host as smtp relay since it is sender pc
    if ($currentreceived=~ /.*by\s([^\s]+)\s.*/) {
       unshift(@smtprelays, $1);
    }
+   # count last fromhost as relay only if there is only 1 host on relaylist 
+   # it means sender pc uses smtp to talk to our mail server directly
+   if ($#smtprelays==0) {
+      if ($currentreceived=~ /.* from\s([^\s]+)\s.*/) {
+         unshift(@smtprelays, $1);
+      }
+   }
    foreach (@smtprelays) {
-      if (/[\w\d\-_]+\.[\w\d\-_]+/) {
+      if ($_=~/[\w\d\-_]+\.[\w\d\-_]+/ && $_ ne $prefs{domainname}) {
          $message{smtprelay} = $_;
          last;
       }
@@ -2405,14 +2388,14 @@ sub getmessage {
    $message{contenttype} = $currenttype;
    $message{encoding} = $currentencoding;
 
-
    # Determine message's number and previous and next message IDs.
-   foreach my $messagenumber (0..$#messageids) {
-      if ($messageids[$messagenumber] eq $messageid) {
-         $message{"prev"} = $messageids[$messagenumber-1] if ($messagenumber > 0);
-         $message{"next"} = $messageids[$messagenumber+1] if ($messagenumber < $#messageids);
-         $message{"number"} = $messagenumber+1;
-         $message{"total"}=$#messageids+1;
+   my ($totalsize, $newmessages, $internal, $r_messageids)=getinfomessageids();
+   foreach my $i (0..$#{$r_messageids}) {
+      if (${$r_messageids}[$i] eq $messageid) {
+         $message{"prev"} = ${$r_messageids}[$i-1] if ($i > 0);
+         $message{"next"} = ${$r_messageids}[$i+1] if ($i < $#{$r_messageids});
+         $message{"number"} = $i+1;
+         $message{"total"}=$#{$r_messageids}+1;
          last;
       }
    }
@@ -2592,7 +2575,9 @@ sub movemessage {
    if ($destination eq $folder) {
       openwebmailerror ("$lang_err{'shouldnt_move_here'}") 
    }
-   $destination =~ s/[\s|\.|\/|\\|\`|;|<|>]//g; # remove dangerous char
+
+   $destination =~ s/\.\.+//g;
+   $destination =~ s/[\s\/\`\|\<\>;]//g;		# remove dangerous char
    ($destination =~ /(.+)/) && ($destination = $1);	# bypass taint check
 
    my $op;
@@ -2702,6 +2687,7 @@ sub downloadfolder {
    filelock($folderfile, LOCK_EX|LOCK_NB) or
       openwebmailerror("$lang_err{'couldnt_lock'} $folderfile");
 
+   # disposition:attachment default to save
    print qq|Content-Transfer-Coding: binary\n|,
          qq|Connection: close\n|,
          qq|Content-Type: $contenttype; name="$filename"\n|,

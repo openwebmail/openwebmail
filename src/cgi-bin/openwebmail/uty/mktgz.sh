@@ -25,7 +25,7 @@ chmod 770 cgi-bin/openwebmail/etc/users
 chmod 770 cgi-bin/openwebmail/etc/sessions
 
 cp /dev/null cgi-bin/openwebmail/etc/address.book
-cp /dev/null cgi-bin/openwebmail/etc/filter.book
+#cp /dev/null cgi-bin/openwebmail/etc/filter.book
 
 tar -zcBpf /tmp/openwebmail-current.tgz *
 

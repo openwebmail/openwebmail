@@ -81,7 +81,8 @@ sub mailfilter {
             ($priority, $rules, $include, $text, $destination, $enable) = split(/\@\@\@/, $line);
             $op='move';
          }
-         $destination =~ s/[\s|\.|\/|\\|\`|;|<|>]//g; # remove dangerous char
+         $destination =~ s/\.\.+//g;
+         $destination =~ s/[\s\/\`\|\<\>;]//g; # remove dangerous char
 
          ## check if current rule is enabled ##
          next unless ($enable == 1);

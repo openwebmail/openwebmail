@@ -93,9 +93,9 @@ If you are using other UNIX with apache, that is okay
    for your need
 3. cd /usr/local/apache/share/cgi-bin/openwebmail
    modify openwebmail*.pl and checkmail.pl
-   a. change the #!/usr/bin/perl to the location your perl is.
+   a. change the #!/usr/bin/perl to the location where your perl is.
    b. change the '/usr/local/www/cgi-bin/openwebmail'
-      to '/usr/local/apache/share/cgi-bin/openwebmail'
+              to '/usr/local/apache/share/cgi-bin/openwebmail'
 4. add 'Tnobody' to the 'Trusted users' session in your sendmail.cf
 
 
@@ -126,8 +126,8 @@ Current support for global addressbook/filterrule is very limited.
 The administrator has to make a copy of addressbook/filterbook to
 the file specified by $global_addressbook/$global_filterbook by himself.
 
-ps: an account may be created to the maintain the global 
-    addressbook/filterbook, for example: 'global'
+ps: An account may be created to maintain the global addressbook/filterbook, 
+    for example: 'global'
 
     ln -s your_global_addressbook ~global/mail/.address.book
     ln -s your_global_filterbook  ~global/mail/.filter.book

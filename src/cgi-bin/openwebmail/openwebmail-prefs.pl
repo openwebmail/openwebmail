@@ -259,9 +259,9 @@ if (defined(param("action"))) {      # an action has been chosen
 
    $html =~ s/\@\@\@SORTMENU\@\@\@/$temphtml/;
 
-   $temphtml = popup_menu(-name=>'numberofmessages',
+   $temphtml = popup_menu(-name=>'headersperpage',
                           -"values"=>['10','20','30','40','50','100','500','1000'],
-                          -default=>$prefs{"numberofmessages"} || $numberofheaders,
+                          -default=>$prefs{"headersperpage"} || $headersperpage,
                           -override=>'1');
 
    $html =~ s/\@\@\@NUMBEROFMESSAGES\@\@\@/$temphtml/;
@@ -276,6 +276,21 @@ if (defined(param("action"))) {      # an action has been chosen
                           -override=>'1');
 
    $html =~ s/\@\@\@HEADERSMENU\@\@\@/$temphtml/;
+
+   $temphtml = popup_menu(-name=>'defaultdestination',
+                          -"values"=>['saved-messages','mail-trash', 'DELETE'],
+                          -default=>$prefs{"defaultdestination"} || 'mail-trash',
+                          -labels=>\%lang_folders,
+                          -override=>'1');
+
+   $html =~ s/\@\@\@DEFAULTDESTINATIONMENU\@\@\@/$temphtml/;
+
+   $temphtml = checkbox(-name=>'newmailsound',
+                  -value=>'1',
+                  -checked=>$prefs{"newmailsound"},
+                  -label=>'');
+
+   $html =~ s/\@\@\@NEWMAILSOUND\@\@\@/$temphtml/g;
 
    $temphtml = checkbox(-name=>'autopop3',
                   -value=>'1',
@@ -488,7 +503,8 @@ sub editfolders {
 ################### ADDFOLDER ##############################
 sub addfolder {
    my $foldertoadd = param('foldername') || '';
-   $foldertoadd =~ s/[\s|\.|\/|\\|\`|;|<|>]//g;
+   $foldertoadd =~ s/\.\.+//g;
+   $foldertoadd =~ s/[\s\/\`\|\<\>;]//g; # remove dangerous char
    unless ($homedirfolders eq 'yes') {
       $foldertoadd = uc($foldertoadd);
    }
@@ -531,7 +547,7 @@ sub addfolder {
 sub deletefolder {
    my $foldertodel = param('foldername') || '';
    $foldertodel =~ s/\.\.+//g;
-   $foldertodel =~ s/[\/|\\|\`|;|<|>]//g;
+   $foldertodel =~ s/[\s\/\`\|\<\>;]//g; # remove dangerous char
    ($foldertodel =~ /^(.+)$/) && ($foldertodel = $1);
    unless ($homedirfolders eq 'yes') {
       $foldertodel .= '.folder';
@@ -1503,7 +1519,8 @@ sub modfilter {
    $text =~ s/\@\@\@//g;
    $op = param("op") || 'move';
    $destination = param("destination") || '';
-   $destination =~ s/[\s|\.|\/|\\|\`|;|<|>]//g;	# remove dangerous char
+   $destination =~ s/\.\.+//g;
+   $destination =~ s/[\s\/\`\|\<\>;]//g; # remove dangerous char
    $enable = param("enable") || 0;
    
    ## add mode -> can't have null $rules, null $text, null $destination ##
@@ -1564,10 +1581,13 @@ sub saveprefs {
    }
    open (CONFIG,">$folderdir/.openwebmailrc") or
       openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.openwebmailrc!");
-   foreach my $key (qw(realname domainname replyto sort headers style
-                       numberofmessages language fromname autopop3 autoemptytrash)) {
+   foreach my $key (qw(language realname fromname domainname replyto 
+                       style sort headers headersperpage defaultdestination 
+                       newmailsound autopop3 autoemptytrash)) {
       my $value = param("$key") || '';
-      $value =~ s/[\n|=|\/|\||\\|\`]//; # Strip out any sort of nastiness.
+
+      $value =~ s/\.\.+//g;
+      $value =~ s/[=\n\/\`\|\<\>;]//g; # remove dangerous char
       if ($key eq 'language') {
          my $validlanguage=0;
          my $currlanguage;
