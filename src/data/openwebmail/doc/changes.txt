@@ -1,3 +1,13 @@
+03/15/2005
+----------
+1. new mirror site at Raleigh, NC
+   http://owm.opensourcerules.net/
+   (thanks to Sam Gates, sam.AT.opensourcerules.net)
+2. fix a bug that some words would inproperly changed to %%WORDnn%%
+   after spelling check
+   (reported by to Thomas Chung, tchung.AT.openwebmail.org)
+
+
 03/11/2005
 ----------
 1. fix the bug that default sort for new user was not properly set

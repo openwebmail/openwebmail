@@ -364,7 +364,7 @@ sub text2words {
       my @tags=();
       $wordframe=~s/(<[^\<\>]*?>|&nbsp;|&amp;|&quot;|&gt;|&lt;|&#\d\d+;)/_tag2label($1, \$tagcount, \@tags)/ige;
       $wordframe=~s/([$dicletters][$dicletters\-]*[$dicletters])|(~~[$dicletters][$dicletters\-]*[$dicletters])/_word2label($1, $ignore, \$wordcount, \@words, \%wordnums)/ge;
-      $wordframe=~s/%%TAG(\d+)%%/$tags[$1]/g;
+      $wordframe=~s/##TAG(\d+)##/$tags[$1]/g;
    } else {
       $wordframe=~s/([$dicletters][$dicletters\-]*[$dicletters])|(~~[$dicletters][$dicletters\-]*[$dicletters])/_word2label($1, $ignore, \$wordcount, \@words, \%wordnums)/ge;
    }
@@ -373,7 +373,7 @@ sub text2words {
 
 sub _tag2label {
    my ($tag, $r_tagcount, $r_tags)=@_;
-   my $label='%%TAG'.${$r_tagcount}.'%%';
+   my $label='##TAG'.${$r_tagcount}.'##';
    ${$r_tags}[${$r_tagcount}]=$tag;
    ${$r_tagcount}++;
    return($label);
@@ -383,9 +383,9 @@ sub _word2label {
    my ($word, $wordignore, $r_wordcount, $r_words, $r_wordnums)=@_;
    return($word) if ($memdic{lc($word)} || $wordignore=~/\Q$word\E/i ||
                      $word =~/^WORD/ || $word =~/^TAG/);
-   return('%%WORD'.${$r_wordnums}{$word}.'%%') if (defined ${$r_wordnums}{$word});
+   return('##WORD'.${$r_wordnums}{$word}.'##') if (defined ${$r_wordnums}{$word});
 
-   my $label='%%WORD'.${$r_wordcount}.'%%';
+   my $label='##WORD'.${$r_wordcount}.'##';
    ${$r_words}[${$r_wordcount}]=$word;
    ${$r_wordnums}{$word}=${$r_wordcount};
    ${$r_wordcount}++;
@@ -409,7 +409,7 @@ sub cgiparam2words {
             $newwordcount=$i+1;
          } else {
             # duplication found, replace WORD$i in wordframe with WORD$wordnums{$word}
-            $wordframe=~s/%%WORD$i%%/%%WORD$wordnums{$word}%%/g;
+            $wordframe=~s/##WORD$i##/##WORD$wordnums{$word}##/g;
          }
       }
    }
@@ -421,7 +421,7 @@ sub words2text {
    my ($r_wordframe, $r_words, $dicletters)=@_;
 
    my $text=${$r_wordframe};
-   $text=~s/%%WORD(\d+)%%/${$r_words}[$1]/g;
+   $text=~s/##WORD(\d+)##/${$r_words}[$1]/g;
    $text=~s/~~([$dicletters]*)/$1/g;		# covert manualfix to origword
    $text=~s/~!~([$dicletters]*)/$1/g;		# covert addtodict to origword
    return($text);
@@ -534,10 +534,10 @@ sub spellcheck_words2html {
       }
 
       # remove the word from wordframe if it is an okay word
-      ${$r_wordframe}=~s/%%WORD$i%%/$word/g if ($word eq $wordhtml);
+      ${$r_wordframe}=~s/##WORD$i##/$word/g if ($word eq $wordhtml);
 
-      $html=~s/%%WORD$i%%/$wordhtml/;
-      $html=~s/%%WORD$i%%/$dupwordhtml{$word}/g;
+      $html=~s/##WORD$i##/$wordhtml/;
+      $html=~s/##WORD$i##/$dupwordhtml{$word}/g;
    }
 
    pipeclose();
