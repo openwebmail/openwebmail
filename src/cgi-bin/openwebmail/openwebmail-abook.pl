@@ -118,7 +118,7 @@ $escapedabookfolder = ow::tool::escapeURL($abookfolder);
 $escapedabookkeyword = ow::tool::escapeURL($abookkeyword);
 
 # does the requested book exist (mabye it was deleted)
-if ($abookfolder !~ m/^(?:ALL|GLOBAL)$/ && !-e abookfolder2file($abookfolder)) {
+if ($abookfolder ne "ALL" && !-e abookfolder2file($abookfolder)) {
    $abookfolder = $escapedabookfolder = 'ALL';
 }
 
@@ -542,13 +542,7 @@ sub addrlistview {
    my @writableabookfolders = get_writable_abookfolders();	# writable ones
 
    # calculate the available free space
-   my $availfreespace = '';
-   for (@allabookfolders) { 
-      next if ($_ eq 'GLOBAL');
-      $availfreespace += (-s abookfolder2file($_)) || 0;
-   }
-   $availfreespace = int($config{'abook_maxsizeallbooks'} - ($availfreespace/1024) + .5);
-
+   my $availfreespace = $config{'abook_maxsizeallbooks'} - userabookfolders_totalsize();
 
    # load the addresses - only the required information
    my %addresses=();
@@ -1075,8 +1069,7 @@ sub addrlistview {
                                     to=>'',
                                     cc=>'',
                                     bcc=>'',
-                                    ).
-                  $formparm;
+                                    ). $formparm;
       if ($is_src_editable) {	
          $temphtml .=popup_menu(-name=>'destinationabook',
                                 -default=>$writableabookfolders[0],
@@ -1112,27 +1105,30 @@ sub addrlistview {
    }
 
    # search form
-   $temphtml = start_form(-name=>"searchForm",
-                          -action=>"javascript:document.forms['contactsForm'].elements['abooksearchtype'].value=document.forms['searchForm'].elements['abooksearchtype'].options[document.forms['searchForm'].elements['abooksearchtype'].selectedIndex].value; document.forms['contactsForm'].elements['abookkeyword'].value=document.forms['searchForm'].elements['abookkeyword'].value; document.contactsForm.submit();");
-
    my %searchtypelabels = ();
    for (@headings) { $searchtypelabels{$_} = $lang_text{"abook_listview_$_"} };
    $searchtypelabels{'categories'} = $lang_text{"abook_listview_categories"};
 
-   $temphtml .= popup_menu(-name=>'abooksearchtype',
-                           -default=>$abooksearchtype || $headings[0],
-                           -values=>[@headings, 'categories'],
-                           -labels=>\%searchtypelabels);
-
-   $temphtml .= textfield(-name=>'abookkeyword',
-                          -default=>$abookkeyword,
-                          -size=>'15',
-                          -accesskey=>'S',
-                          -override=>'1');
-   $temphtml .= "&nbsp;";
-   $temphtml .= submit(-name=>$lang_text{'search'},
-	               -class=>'medtext');
-   $temphtml .= end_form();
+   $temphtml = qq|<table cellspacing="0" cellpadding="0" border="0">|.
+               start_form(-name=>"searchForm",
+                          -action=>"javascript:document.forms['contactsForm'].elements['abooksearchtype'].value=document.forms['searchForm'].elements['abooksearchtype'].options[document.forms['searchForm'].elements['abooksearchtype'].selectedIndex].value; document.forms['contactsForm'].elements['abookkeyword'].value=document.forms['searchForm'].elements['abookkeyword'].value; document.contactsForm.submit();").
+               qq|<tr><td>|.
+               popup_menu(-name=>'abooksearchtype',
+                          -default=>$abooksearchtype || $headings[0],
+                          -values=>[@headings, 'categories'],
+                          -labels=>\%searchtypelabels).
+               qq|</td><td>|. 
+               textfield(-name=>'abookkeyword',
+                         -default=>$abookkeyword,
+                         -size=>'15',
+                         -accesskey=>'S',
+                         -override=>'1').
+               qq|</td><td>|. 
+               submit(-name=>$lang_text{'search'},
+	              -class=>'medtext').
+               qq|</td></tr>|. 
+               end_form().
+               qq|</table>\n|;
    $html =~ s/\@\@\@SEARCHBARFORM\@\@\@/$temphtml/g;
 
 
@@ -1265,8 +1261,7 @@ sub addrlistview {
                                        to=>'',
                                        cc=>'',
                                        bcc=>'',
-                                      ).
-                     $abook_formparm_with_abookfolder.
+                                      ). $abook_formparm_with_abookfolder.
                      end_form();
       }
    } elsif ($listviewmode eq 'export') {
@@ -1305,8 +1300,7 @@ sub addrlistview {
                                   checkedbcc=>ow::htmltext::str2html($checkedbcc),
                                   listviewmode=>$listviewmode,
                                   defined(param('editgroupform'))?('editgroupform'=>1):()
-                                 ).
-                $formparm;
+                                 ). $formparm;
 
    # the column headings
    if ($listviewmode eq 'export' || param('editgroupform')) {
@@ -1314,28 +1308,30 @@ sub addrlistview {
    } else {
       push(@headings, qw(to cc bcc));
    }
-   $temphtml .= qq|<tr>\n|;
-   $temphtml .= qq|<td bgcolor=$bgcolor[$colornum]>&nbsp;</td>|; # the number cell
+   $temphtml .= qq|<tr height="20">\n|;
+   $temphtml .= qq|<td bgcolor=$style{'columnheader'}>&nbsp;</td>|; # the number cell
    for (@headings) {
       if (m/^(?:to|cc|bcc)$/) {
          if ($listviewmode eq 'export') {
-            $temphtml .= qq|<td bgcolor=$bgcolor[$colornum] align="center"><a href="javascript:CheckAll(this,'contactsForm','|.$_.qq|');"><b>$lang_text{'export'}</b></a></td>\n|;
+            $temphtml .= qq|<td bgcolor=$style{'columnheader'} align="center"><a href="javascript:CheckAll(this,'contactsForm','|.$_.qq|');"><b>$lang_text{'export'}</b></a></td>\n|;
+         } elsif (param('editgroupform')) {
+            $temphtml .= qq|<td bgcolor=$style{'columnheader'} align="center"><a href="javascript:CheckAll(this,'contactsForm','|.$_.qq|');"><b>$lang_text{'abook_group_member'}</b></a></td>\n|;
          } else {
-            $temphtml .= qq|<td bgcolor=$bgcolor[$colornum] align="center"><a href="javascript:CheckAll(this,'contactsForm','|.$_.qq|');"><b>$lang_text{$_}</b></a></td>\n|;
+            $temphtml .= qq|<td bgcolor=$style{'columnheader'} align="center"><a href="javascript:CheckAll(this,'contactsForm','|.$_.qq|');"><b>$lang_text{$_}</b></a></td>\n|;
          }
       } else {
          if (m/$abooksort_short/) { # this heading is the sort column
             if ($abooksort =~ m/_rev$/) {
-               $temphtml .= qq|<td bgcolor=$bgcolor[$colornum]><a href="javascript:document.contactsForm.abooksort.value='$_'; document.contactsForm.submit();"><b>$lang_text{"abook_listview_$_"}&nbsp;|.
+               $temphtml .= qq|<td bgcolor=$style{'columnheader'}><a href="javascript:document.contactsForm.abooksort.value='$_'; document.contactsForm.submit();"><b>$lang_text{"abook_listview_$_"}&nbsp;|.
                             iconlink("down.gif", "v", "").
                             qq|</b></a></td>\n|;
             } else {
-               $temphtml .= qq|<td bgcolor=$bgcolor[$colornum]><a href="javascript:document.contactsForm.abooksort.value='$_\_rev'; document.contactsForm.submit();"><b>$lang_text{"abook_listview_$_"}&nbsp;|.
+               $temphtml .= qq|<td bgcolor=$style{'columnheader'}><a href="javascript:document.contactsForm.abooksort.value='$_\_rev'; document.contactsForm.submit();"><b>$lang_text{"abook_listview_$_"}&nbsp;|.
                             iconlink("up.gif", "^", "").
                             qq|</b></a></td>\n|;
             }
          } else {
-               $temphtml .= qq|<td bgcolor=$bgcolor[$colornum]><a href="javascript:document.contactsForm.abooksort.value='$_'; document.contactsForm.submit();"><b>$lang_text{"abook_listview_$_"}</b></a></td>\n|;
+               $temphtml .= qq|<td bgcolor=$style{'columnheader'}><a href="javascript:document.contactsForm.abooksort.value='$_'; document.contactsForm.submit();"><b>$lang_text{"abook_listview_$_"}</b></a></td>\n|;
          }
       }
    }
@@ -1370,6 +1366,17 @@ sub addrlistview {
       my $hreftitle = $abookfolder eq 'ALL'?qq|title="$lang_text{'abook_title'}:|.ow::htmltext::str2html($addresses{$xowmuid}{'X-OWM-BOOK'}[0]{VALUE}).qq|"|:'';
       $hreftitle = "title=\"$lang_abookselectionlabels{'GLOBAL'}\"" if $escapedaddrbook eq 'GLOBAL';
 
+      my ($tr_bgcolorstr, $td_bgcolorstr);
+      if ($prefs{'uselightbar'}) {
+         $tr_bgcolorstr=qq|bgcolor=$style{tablerow_light} |;
+         $tr_bgcolorstr.=qq|onMouseOver='this.style.backgroundColor=$style{tablerow_hicolor};' |.
+                         qq|onMouseOut='this.style.backgroundColor =$style{tablerow_light};' |.
+                         qq|id="tr_$addrindex" |;
+         $td_bgcolorstr='';
+      } else {
+         $tr_bgcolorstr='';
+         $td_bgcolorstr=qq|bgcolor=|.($style{"tablerow_dark"},$style{"tablerow_light"})[$addrindex%2];
+      }
 
       # how many rows for this $xowmuid
       my $rows = (# build a list of how many entries this xowmuid has for each heading, sort largest to the top
@@ -1387,7 +1394,7 @@ sub addrlistview {
 
             # the number cell
             if ($index == 0) {
-               $newrow[0] .= qq|<td bgcolor=$bgcolor[$colornum] nowrap><b>|.($addrindex+1);
+               $newrow[0] .= qq|<td $td_bgcolorstr nowrap><b>|.($addrindex+1);
                if ($listviewmode eq '') {
                   $newrow[0] .= qq|&nbsp;|;
                   if ($addresses{$xowmuid}{'X-OWM-BOOK'}[0]{VALUE} eq 'GLOBAL') {
@@ -1403,9 +1410,9 @@ sub addrlistview {
                   foreach my $heading (grep(!m/^(to|cc|bcc)$/, @headings)) {
                      if (exists $addresses{$xowmuid}{N}[$index]{VALUE}{$Nmap{$heading}}) {
                         if ($listviewmode eq '') {
-                           $newrow[$headingpos{$heading}] .= qq|<td bgcolor=$bgcolor[$colornum]><a href="$editurl" $hreftitle>|.ow::htmltext::str2html($addresses{$xowmuid}{N}[$index]{VALUE}{$Nmap{$heading}}).qq|</a></td>\n|;
+                           $newrow[$headingpos{$heading}] .= qq|<td $td_bgcolorstr><a href="$editurl" $hreftitle>|.ow::htmltext::str2html($addresses{$xowmuid}{N}[$index]{VALUE}{$Nmap{$heading}}).qq|</a></td>\n|;
                         } else {
-                           $newrow[$headingpos{$heading}] .= qq|<td bgcolor=$bgcolor[$colornum]>|.ow::htmltext::str2html($addresses{$xowmuid}{N}[$index]{VALUE}{$Nmap{$heading}}).qq|</td>\n|;
+                           $newrow[$headingpos{$heading}] .= qq|<td $td_bgcolorstr>|.ow::htmltext::str2html($addresses{$xowmuid}{N}[$index]{VALUE}{$Nmap{$heading}}).qq|</td>\n|;
                         }
                      }
                   }
@@ -1416,9 +1423,9 @@ sub addrlistview {
             if (exists $addresses{$xowmuid}{FN}) {
                if (defined $addresses{$xowmuid}{FN}[$index]) {
                   if ($listviewmode eq '') {
-                     $newrow[$headingpos{'fullname'}] .= qq|<td bgcolor=$bgcolor[$colornum]><a href="$editurl" $hreftitle>|.ow::htmltext::str2html($addresses{$xowmuid}{FN}[$index]{VALUE}).qq|</a></td>\n|;
+                     $newrow[$headingpos{'fullname'}] .= qq|<td $td_bgcolorstr><a href="$editurl" $hreftitle>|.ow::htmltext::str2html($addresses{$xowmuid}{FN}[$index]{VALUE}).qq|</a></td>\n|;
                   } else {
-                     $newrow[$headingpos{'fullname'}] .= qq|<td bgcolor=$bgcolor[$colornum]>|.ow::htmltext::str2html($addresses{$xowmuid}{FN}[$index]{VALUE}).qq|</td>\n|;
+                     $newrow[$headingpos{'fullname'}] .= qq|<td $td_bgcolorstr>|.ow::htmltext::str2html($addresses{$xowmuid}{FN}[$index]{VALUE}).qq|</td>\n|;
                   }
                }
             }
@@ -1439,12 +1446,12 @@ sub addrlistview {
 
                      $escapedallemails = ow::tool::escapeURL($allemails);
                      if ($listviewmode eq '') {
-                        $newrow[$headingpos{'email'}] .= qq|<td bgcolor=$bgcolor[$colornum] nowrap>|.
+                        $newrow[$headingpos{'email'}] .= qq|<td $td_bgcolorstr nowrap>|.
                                                          iconlink("group.gif", "$lang_text{'abook_group_allmembers'}", qq|accesskey="G" href="$composeurl&amp;to=$escapedallemails"|).
                                                          qq|&nbsp;<a href="$composeurl&amp;to=$escapedallemails">|.ow::htmltext::str2html($addresses{$xowmuid}{EMAIL}[$index]{VALUE}).qq|</a>|.
                                                          qq|</td>\n|;
                      } else {
-                        $newrow[$headingpos{'email'}] .= qq|<td bgcolor=$bgcolor[$colornum] nowrap><img src="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/group.gif" border="0" align="absmiddle">&nbsp;|.ow::htmltext::str2html($addresses{$xowmuid}{EMAIL}[$index]{VALUE}).qq|</td>\n|;
+                        $newrow[$headingpos{'email'}] .= qq|<td $td_bgcolorstr nowrap><img src="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/group.gif" border="0" align="absmiddle">&nbsp;|.ow::htmltext::str2html($addresses{$xowmuid}{EMAIL}[$index]{VALUE}).qq|</td>\n|;
                      }
                   } else {
                      if (!exists($addresses{$xowmuid}{'X-OWM-GROUP'}) && exists $addresses{$xowmuid}{FN}) {
@@ -1464,9 +1471,9 @@ sub addrlistview {
 
                      $escapedemail = ow::tool::escapeURL($email);
                      if ($listviewmode eq '') {
-                        $newrow[$headingpos{'email'}] .= qq|<td bgcolor=$bgcolor[$colornum] nowrap><a href="$composeurl&amp;to=$escapedemail" title="$lang_text{'abook_listview_writemailto'}|.ow::htmltext::str2html($email).qq|">|.ow::htmltext::str2html($addresses{$xowmuid}{EMAIL}[$index]{VALUE}).qq|</a></td>\n|;
+                        $newrow[$headingpos{'email'}] .= qq|<td $td_bgcolorstr nowrap><a href="$composeurl&amp;to=$escapedemail" title="$lang_text{'abook_listview_writemailto'}|.ow::htmltext::str2html($email).qq|">|.ow::htmltext::str2html($addresses{$xowmuid}{EMAIL}[$index]{VALUE}).qq|</a></td>\n|;
                      } else {
-                        $newrow[$headingpos{'email'}] .= qq|<td bgcolor=$bgcolor[$colornum] nowrap>|.ow::htmltext::str2html($addresses{$xowmuid}{EMAIL}[$index]{VALUE}).qq|</td>\n|;
+                        $newrow[$headingpos{'email'}] .= qq|<td $td_bgcolorstr nowrap>|.ow::htmltext::str2html($addresses{$xowmuid}{EMAIL}[$index]{VALUE}).qq|</td>\n|;
                      }
                   }
                }
@@ -1481,9 +1488,9 @@ sub addrlistview {
                                            grep { !m/VOICE/ } keys %{$addresses{$xowmuid}{TEL}[$index]{TYPES}}
                                      );
                   if ($listviewmode eq '') {
-                     $newrow[$headingpos{'phone'}] .= qq|<td bgcolor=$bgcolor[$colornum] nowrap><a href="$editurl">|.ow::htmltext::str2html("$addresses{$xowmuid}{TEL}[$index]{VALUE} $typestag").qq|</a></td>\n|;
+                     $newrow[$headingpos{'phone'}] .= qq|<td $td_bgcolorstr nowrap><a href="$editurl">|.ow::htmltext::str2html("$addresses{$xowmuid}{TEL}[$index]{VALUE} $typestag").qq|</a></td>\n|;
                   } else {
-                     $newrow[$headingpos{'phone'}] .= qq|<td bgcolor=$bgcolor[$colornum] nowrap>|.ow::htmltext::str2html("$addresses{$xowmuid}{TEL}[$index]{VALUE} $typestag").qq|</td>\n|;
+                     $newrow[$headingpos{'phone'}] .= qq|<td $td_bgcolorstr nowrap>|.ow::htmltext::str2html("$addresses{$xowmuid}{TEL}[$index]{VALUE} $typestag").qq|</td>\n|;
                   }
                }
             }
@@ -1502,7 +1509,7 @@ sub addrlistview {
                   $displaynote =~ s!([\b|\n| ]+)(www\.[\w\d\-\.]+\.[\w\d\-]{2,4})([\b|\n| ]*)!$1<a href="http://$2" target="_blank">$2</a>$3!igs;
                   $displaynote =~ s!([\b|\n| ]+)(ftp\.[\w\d\-\.]+\.[\w\d\-]{2,4})([\b|\n| ]*)!$1<a href="ftp://$2" target="_blank">$2</a>$3!igs;
                   my $noteoffset = ($headingpos{'note'} > int(((@headings-3)/2)+1) ? -350 : 150);
-                  $newrow[$headingpos{'note'}] .= qq|<td bgcolor=$bgcolor[$colornum] nowrap><a href="javascript:{;}" onClick="displayNote(this,'notepopup',$noteoffset,-25,'|.
+                  $newrow[$headingpos{'note'}] .= qq|<td $td_bgcolorstr nowrap><a href="javascript:{;}" onClick="displayNote(this,'notepopup',$noteoffset,-25,'|.
                                                   ow::htmltext::str2html($displaynote).
                                                   qq|');">|.ow::htmltext::str2html($shortnote).qq|</a></td>\n|;
                }
@@ -1512,22 +1519,22 @@ sub addrlistview {
             if ($listviewmode eq 'export') {
                # keep track of xowmuids, not email addresses
                $email = $allemails = $xowmuid;
-               $newrow[$tabletotalspan-1] = qq|<td bgcolor=$bgcolor[$colornum] align="center"><input type="checkbox" name="to" value="|.ow::htmltext::str2html($email).qq|" |.(exists $ischecked{TO}{$email}?'checked':'').qq|></td>\n|;
+               $newrow[$tabletotalspan-1] = qq|<td $td_bgcolorstr align="center"><input type="checkbox" name="to" value="|.ow::htmltext::str2html($email).qq|" |.(exists $ischecked{TO}{$email}?'checked':'').qq|></td>\n|;
             } elsif (param('editgroupform')) {	# edit group
                my $xowmuidtrack = '';
                if (exists $addresses{$xowmuid}{'X-OWM-GROUP'}) {
                   my $escapedxowmgroup = ow::htmltext::str2html($addresses{$xowmuid}{'X-OWM-GROUP'}[0]{'VALUE'});
                   if ($index == 0) { # the first line of a group
                      if ($abookcollapse == 1) {
-                        $newrow[$tabletotalspan-1] = qq|<td bgcolor=$bgcolor[$colornum] align="center"><input type="checkbox" name="bcc" value="|.ow::htmltext::str2html("$allemails$xowmuidtrack").qq|" $disabled|.is_groupbox_checked('TO',\%ischecked,\$allemails,$xowmuidtrack).qq|></td>\n|;
+                        $newrow[$tabletotalspan-1] = qq|<td $td_bgcolorstr align="center"><input type="checkbox" name="to" value="|.ow::htmltext::str2html("$allemails$xowmuidtrack").qq|" $disabled|.is_groupbox_checked('TO',\%ischecked,\$allemails,$xowmuidtrack).qq|></td>\n|;
                      } else {
-                        $newrow[$tabletotalspan-1] = qq|<td bgcolor=$bgcolor[$colornum] align="center"><input type="checkbox" onClick=CheckAll(this,'contactsForm','bcc','$escapedxowmgroup'); name="bcc" value="" $disabled|.is_groupbox_checked('TO',\%ischecked,\$allemails,$xowmuidtrack).qq|></td>\n|;
+                        $newrow[$tabletotalspan-1] = qq|<td $td_bgcolorstr align="center"><input type="checkbox" onClick=CheckAll(this,'contactsForm','to','$escapedxowmgroup'); name="to" value="" $disabled|.is_groupbox_checked('TO',\%ischecked,\$allemails,$xowmuidtrack).qq|></td>\n|;
                      }
                   } elsif ($index > 0) { # not the first line of a group
-                     $newrow[$tabletotalspan-1] = qq|<td bgcolor=$bgcolor[$colornum] align="center"><input type="checkbox" name="bcc" value="|.ow::htmltext::str2html("$email$xowmuidtrack").qq|" $disabled|.(exists $ischecked{TO}{"$email$xowmuidtrack"}?'checked':'').qq|><input type="hidden" name="$escapedxowmgroup" value="1"></td>\n|;
+                     $newrow[$tabletotalspan-1] = qq|<td $td_bgcolorstr align="center"><input type="checkbox" name="to" value="|.ow::htmltext::str2html("$email$xowmuidtrack").qq|" $disabled|.(exists $ischecked{TO}{"$email$xowmuidtrack"}?'checked':'').qq|><input type="hidden" name="$escapedxowmgroup" value="1"></td>\n|;
                   }
                } else {
-                  $newrow[$tabletotalspan-1] = qq|<td bgcolor=$bgcolor[$colornum] align="center"><input type="checkbox" name="bcc" value="|.ow::htmltext::str2html("$email$xowmuidtrack").qq|" $disabled|.(exists $ischecked{TO}{"$email$xowmuidtrack"}?'checked':'').qq|></td>\n|;
+                  $newrow[$tabletotalspan-1] = qq|<td $td_bgcolorstr align="center"><input type="checkbox" name="to" value="|.ow::htmltext::str2html("$email$xowmuidtrack").qq|" $disabled|.(exists $ischecked{TO}{"$email$xowmuidtrack"}?'checked':'').qq|></td>\n|;
                }
             } else {
                my $xowmuidtrack = ($listviewmode eq "composeselect"?'':"%@#$xowmuid"); # allows move/copy to work
@@ -1535,35 +1542,35 @@ sub addrlistview {
                   my $escapedxowmgroup = ow::htmltext::str2html($addresses{$xowmuid}{'X-OWM-GROUP'}[0]{'VALUE'});
                   if ($index == 0) { # the first line of a group
                      if ($abookcollapse == 1) {
-                        $newrow[$tabletotalspan-3] = qq|<td bgcolor=$bgcolor[$colornum] align="center"><input type="checkbox" name="to" value="|.ow::htmltext::str2html("$allemails$xowmuidtrack").qq|" $disabled|.is_groupbox_checked('TO',\%ischecked,\$allemails,$xowmuidtrack).qq|></td>\n|;
-                        $newrow[$tabletotalspan-2] = qq|<td bgcolor=$bgcolor[$colornum] align="center"><input type="checkbox" name="cc" value="|.ow::htmltext::str2html("$allemails$xowmuidtrack").qq|" $disabled|.is_groupbox_checked('CC',\%ischecked,\$allemails,$xowmuidtrack).qq|></td>\n|;
-                        $newrow[$tabletotalspan-1] = qq|<td bgcolor=$bgcolor[$colornum] align="center"><input type="checkbox" name="bcc" value="|.ow::htmltext::str2html("$allemails$xowmuidtrack").qq|" $disabled|.is_groupbox_checked('BCC',\%ischecked,\$allemails,$xowmuidtrack).qq|></td>\n|;
+                        $newrow[$tabletotalspan-3] = qq|<td $td_bgcolorstr align="center"><input type="checkbox" name="to" value="|.ow::htmltext::str2html("$allemails$xowmuidtrack").qq|" $disabled|.is_groupbox_checked('TO',\%ischecked,\$allemails,$xowmuidtrack).qq|></td>\n|;
+                        $newrow[$tabletotalspan-2] = qq|<td $td_bgcolorstr align="center"><input type="checkbox" name="cc" value="|.ow::htmltext::str2html("$allemails$xowmuidtrack").qq|" $disabled|.is_groupbox_checked('CC',\%ischecked,\$allemails,$xowmuidtrack).qq|></td>\n|;
+                        $newrow[$tabletotalspan-1] = qq|<td $td_bgcolorstr align="center"><input type="checkbox" name="bcc" value="|.ow::htmltext::str2html("$allemails$xowmuidtrack").qq|" $disabled|.is_groupbox_checked('BCC',\%ischecked,\$allemails,$xowmuidtrack).qq|></td>\n|;
                      } else {
-                        $newrow[$tabletotalspan-3] = qq|<td bgcolor=$bgcolor[$colornum] align="center"><input type="checkbox" onClick=CheckAll(this,'contactsForm','to','$escapedxowmgroup'); name="to" value="" $disabled|.is_groupbox_checked('TO',\%ischecked,\$allemails,$xowmuidtrack).qq|></td>\n|;
-                        $newrow[$tabletotalspan-2] = qq|<td bgcolor=$bgcolor[$colornum] align="center"><input type="checkbox" onClick=CheckAll(this,'contactsForm','cc','$escapedxowmgroup'); name="cc" value="" $disabled|.is_groupbox_checked('CC',\%ischecked,\$allemails,$xowmuidtrack).qq|></td>\n|;
-                        $newrow[$tabletotalspan-1] = qq|<td bgcolor=$bgcolor[$colornum] align="center"><input type="checkbox" onClick=CheckAll(this,'contactsForm','bcc','$escapedxowmgroup'); name="bcc" value="" $disabled|.is_groupbox_checked('BCC',\%ischecked,\$allemails,$xowmuidtrack).qq|></td>\n|;
+                        $newrow[$tabletotalspan-3] = qq|<td $td_bgcolorstr align="center"><input type="checkbox" onClick=CheckAll(this,'contactsForm','to','$escapedxowmgroup'); name="to" value="" $disabled|.is_groupbox_checked('TO',\%ischecked,\$allemails,$xowmuidtrack).qq|></td>\n|;
+                        $newrow[$tabletotalspan-2] = qq|<td $td_bgcolorstr align="center"><input type="checkbox" onClick=CheckAll(this,'contactsForm','cc','$escapedxowmgroup'); name="cc" value="" $disabled|.is_groupbox_checked('CC',\%ischecked,\$allemails,$xowmuidtrack).qq|></td>\n|;
+                        $newrow[$tabletotalspan-1] = qq|<td $td_bgcolorstr align="center"><input type="checkbox" onClick=CheckAll(this,'contactsForm','bcc','$escapedxowmgroup'); name="bcc" value="" $disabled|.is_groupbox_checked('BCC',\%ischecked,\$allemails,$xowmuidtrack).qq|></td>\n|;
                      }
                   } elsif ($index > 0) { # not the first line of a group
-                     $newrow[$tabletotalspan-3] = qq|<td bgcolor=$bgcolor[$colornum] align="center"><input type="checkbox" name="to" value="|.ow::htmltext::str2html("$email$xowmuidtrack").qq|" $disabled|.(exists $ischecked{TO}{"$email$xowmuidtrack"}?'checked':'').qq|><input type="hidden" name="$escapedxowmgroup" value="1"></td>\n|;
-                     $newrow[$tabletotalspan-2] = qq|<td bgcolor=$bgcolor[$colornum] align="center"><input type="checkbox" name="cc" value="|.ow::htmltext::str2html("$email$xowmuidtrack").qq|" $disabled|.(exists $ischecked{CC}{"$email$xowmuidtrack"}?'checked':'').qq|><input type="hidden" name="$escapedxowmgroup" value="1"></td>\n|;
-                     $newrow[$tabletotalspan-1] = qq|<td bgcolor=$bgcolor[$colornum] align="center"><input type="checkbox" name="bcc" value="|.ow::htmltext::str2html("$email$xowmuidtrack").qq|" $disabled|.(exists $ischecked{BCC}{"$email$xowmuidtrack"}?'checked':'').qq|><input type="hidden" name="$escapedxowmgroup" value="1"></td>\n|;
+                     $newrow[$tabletotalspan-3] = qq|<td $td_bgcolorstr align="center"><input type="checkbox" name="to" value="|.ow::htmltext::str2html("$email$xowmuidtrack").qq|" $disabled|.(exists $ischecked{TO}{"$email$xowmuidtrack"}?'checked':'').qq|><input type="hidden" name="$escapedxowmgroup" value="1"></td>\n|;
+                     $newrow[$tabletotalspan-2] = qq|<td $td_bgcolorstr align="center"><input type="checkbox" name="cc" value="|.ow::htmltext::str2html("$email$xowmuidtrack").qq|" $disabled|.(exists $ischecked{CC}{"$email$xowmuidtrack"}?'checked':'').qq|><input type="hidden" name="$escapedxowmgroup" value="1"></td>\n|;
+                     $newrow[$tabletotalspan-1] = qq|<td $td_bgcolorstr align="center"><input type="checkbox" name="bcc" value="|.ow::htmltext::str2html("$email$xowmuidtrack").qq|" $disabled|.(exists $ischecked{BCC}{"$email$xowmuidtrack"}?'checked':'').qq|><input type="hidden" name="$escapedxowmgroup" value="1"></td>\n|;
                   }
                } else {
-                  $newrow[$tabletotalspan-3] = qq|<td bgcolor=$bgcolor[$colornum] align="center"><input type="checkbox" name="to" value="|.ow::htmltext::str2html("$email$xowmuidtrack").qq|" $disabled|.(exists $ischecked{TO}{"$email$xowmuidtrack"}?'checked':'').qq|></td>\n|;
-                  $newrow[$tabletotalspan-2] = qq|<td bgcolor=$bgcolor[$colornum] align="center"><input type="checkbox" name="cc" value="|.ow::htmltext::str2html("$email$xowmuidtrack").qq|" $disabled|.(exists $ischecked{CC}{"$email$xowmuidtrack"}?'checked':'').qq|></td>\n|;
-                  $newrow[$tabletotalspan-1] = qq|<td bgcolor=$bgcolor[$colornum] align="center"><input type="checkbox" name="bcc" value="|.ow::htmltext::str2html("$email$xowmuidtrack").qq|" $disabled|.(exists $ischecked{BCC}{"$email$xowmuidtrack"}?'checked':'').qq|></td>\n|;
+                  $newrow[$tabletotalspan-3] = qq|<td $td_bgcolorstr align="center"><input type="checkbox" name="to" value="|.ow::htmltext::str2html("$email$xowmuidtrack").qq|" $disabled|.(exists $ischecked{TO}{"$email$xowmuidtrack"}?'checked':'').qq|></td>\n|;
+                  $newrow[$tabletotalspan-2] = qq|<td $td_bgcolorstr align="center"><input type="checkbox" name="cc" value="|.ow::htmltext::str2html("$email$xowmuidtrack").qq|" $disabled|.(exists $ischecked{CC}{"$email$xowmuidtrack"}?'checked':'').qq|></td>\n|;
+                  $newrow[$tabletotalspan-1] = qq|<td $td_bgcolorstr align="center"><input type="checkbox" name="bcc" value="|.ow::htmltext::str2html("$email$xowmuidtrack").qq|" $disabled|.(exists $ischecked{BCC}{"$email$xowmuidtrack"}?'checked':'').qq|></td>\n|;
                }
             }
 
             # add it on to the html
-            $temphtml .= qq|<tr>\n|;
+            $temphtml .= qq|<tr $tr_bgcolorstr>\n|;
             foreach my $slot (@newrow) {
                if (defined $slot) {
                   # the cell contents
                   $temphtml .= $slot;
                } else {
                   # a blank cell
-                  $temphtml .= qq|<td bgcolor=$bgcolor[$colornum]>&nbsp;</td>\n|;
+                  $temphtml .= qq|<td $td_bgcolorstr>&nbsp;</td>\n|;
                }
             }
             $temphtml .= qq|</tr>\n|;
@@ -1649,8 +1656,7 @@ sub addrlistview {
 
       $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl",
                               -name=>'cancelExportForm').
-                  ow::tool::hiddens(action=>'addrlistview').
-                  $formparm;
+                  ow::tool::hiddens(action=>'addrlistview'). $formparm;
       $temphtml .= submit(-name=>"$lang_text{'cancel'}",
                           -class=>"medtext");
       $temphtml .= endform();
@@ -1984,7 +1990,6 @@ sub addreditform {
    # start the form
    $temphtml = start_multipart_form(-name=>'editForm',
                                     -action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl").
-               $abook_formparm.
                ow::tool::hiddens(
                           action=>'addredit',
                           sessionid=>$thissession,
@@ -1993,7 +1998,7 @@ sub addreditform {
                           rootxowmuid=>($targetdepth>0?param('rootxowmuid'):$xowmuid),
                           editformcaller=>ow::htmltext::str2html($editformcaller),
                           defined(param('editgroupform'))?('editgroupform'=>1):()
-                         );
+                         ). $abook_formparm;
    $html =~ s/\@\@\@EDITFORMSTART\@\@\@/$temphtml/;
 
    # destination pulldown
@@ -2109,11 +2114,7 @@ sub addreditform {
                                     abookfolder=>ow::htmltext::str2html($abookfolder),
                                     targetagent=>join(",",(-1,@targetagent)),
                                     rootxowmuid=>param('rootxowmuid'),
-                                    abooksort=>$abooksort,
-                                    abooksearchtype=>$abooksearchtype,
-                                    abookkeyword=>ow::htmltext::str2html($abookkeyword),
-                                    abookcollapse=>$abookcollapse,
-                                   ).
+                                   ). $abook_formparm.
                   submit(-name=>"$lang_text{'abook_editform_cancel_and_return'}",
                          -class=>"medtext",
                          -onClick=>"return popupNotice('cancelchanges');",
@@ -2131,8 +2132,7 @@ sub addreditform {
                ow::tool::hiddens(action=>'addrlistview',
                                  sessionid=>$thissession,
                                  abookfolder=>ow::htmltext::str2html($editformcaller),
-                                ).
-               $abook_formparm.
+                                ). $abook_formparm.
                submit(-name=>"$lang_text{'cancel'}",
                       -class=>"medtext").
                end_form();
@@ -3609,9 +3609,7 @@ sub addrmovecopydelete {
    }
 
    # calculate the available free space
-   my $availfreespace = '';
-   for (keys %allabookfolders) { $availfreespace += (-s abookfolder2file($_)) || 0 };
-   $availfreespace = int($config{'abook_maxsizeallbooks'} - ($availfreespace/1024) + .5);
+   my $availfreespace = $config{'abook_maxsizeallbooks'} - userabookfolders_totalsize();
 
    # load the destination book
    my ($targetfile, $targetbook, $changedtarget);
@@ -4079,6 +4077,15 @@ sub is_abookfolder_writable {
    }
    return 0;
 }
+
+sub userabookfolders_totalsize {
+   my $totalsize=0;
+   for (get_readable_abookfolders()) { 
+      next if ($_ eq 'GLOBAL');
+      $totalsize += (-s abookfolder2file($_)) || 0;
+   }
+   return int($totalsize/1024+0.5);	# unit:kbyte
+}
 ########## END GETADDRBOOKS_.... #################################
 
 ########## IS_QUOTA_AVAILABLE ####################################
@@ -4124,12 +4131,7 @@ sub deepcopy {
 sub addrimportform {
    my @allabookfolders = get_readable_abookfolders();
    # calculate the available free space
-   my $availfreespace = '';
-   for (@allabookfolders) { 
-      next if ($_ eq 'GLOBAL');
-      $availfreespace += (-s abookfolder2file($_)) || 0;
-   }
-   $availfreespace = int($config{'abook_maxsizeallbooks'} - ($availfreespace/1024) + .5);
+   my $availfreespace = $config{'abook_maxsizeallbooks'} - userabookfolders_totalsize();
 
    # start the html
    my ($html, $temphtml);
@@ -4146,16 +4148,8 @@ sub addrimportform {
                                     -name=>'importForm').
                ow::tool::hiddens(action=>'addrimport',
                                  sessionid=>$thissession,
-                                 # mail settings to remember
-                                 folder=>ow::htmltext::str2html($folder),
-                                 page=>$page,
-                                 sort=>$sort,
-                                 searchtype=>$searchtype,
-                                 keyword=>ow::htmltext::str2html($keyword),
-                                 message_id=>$messageid,
-                                 # addressbook settings to remember
                                  abookcollapse=>$abookcollapse,
-                                );
+                                ). $webmail_formparm;
    $html =~ s/\@\@\@STARTIMPORTFORM\@\@\@/$temphtml/;
 
    $temphtml = filefield(-name=>'importfile',
@@ -4243,13 +4237,7 @@ sub addrimport {
       # load up the list of all books
       my @allabookfolders = get_readable_abookfolders();
       # calculate the available free space
-      my $availfreespace = '';
-      for (@allabookfolders) {
-         next if ($_ eq 'GLOBAL');
-         $availfreespace += (-s abookfolder2file($_)) || 0;
-      }
-      $availfreespace = int($config{'abook_maxsizeallbooks'} - ($availfreespace/1024) + .5);
-
+      my $availfreespace = $config{'abook_maxsizeallbooks'} - userabookfolders_totalsize();
       if ($importfilesizekb > $availfreespace) {
           openwebmailerror(__FILE__, __LINE__,"$importfilesizekb $lang_sizes{'kb'} > $availfreespace $lang_sizes{'kb'}. $lang_err{'abook_toobig'} $lang_err{'back'}\n");
       }

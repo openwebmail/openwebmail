@@ -10,7 +10,7 @@ gb2312=wjun@mail.iap.ac.cn
 big5=openwebmail@turtle.ee.ncku.edu.tw
 da=
 nl=openwebmail@forty-two.nl
-fi=kari.paivarinta@viivatieto.fi
+fi=pasi.sjoholm@tieto-x.fi
 fr=admin@osmium-work.com
 de=martin@bronk.de
 el=dimitris@michelinakis.gr
@@ -29,6 +29,7 @@ ro=zeno.popovici@ulbsibiu.ro
 ru=dzoleg@mail.ru
 sr=alexa@yunord.net
 sk=pese@us.svf.stuba.sk
+sl=copatek@yahoo.com
 es=jsmaldone@yahoo.com
 sv=tryfan@telia.com
 th=joke@nakhon.net
@@ -105,7 +106,7 @@ tung
     /usr/local/bin/mutt -s "OWM $releasedate translation update request" \
     -a /usr/local/www/data/openwebmail/download/current/*-lang-templates.diff \
     $ar $bg $ca $cs $gb2312 $big5 $da $nl $fi $fr $de $el $he $hu $id \
-    $it $jp $kr $lt $no $pl $pt $ptbr $ro $ru $sr $sk $es $sv $th $tr $uk $ur webmail
+    $it $jp $kr $lt $no $pl $pt $ptbr $ro $ru $sr $sk $sl $es $sv $th $tr $uk $ur webmail
   fi
   rm /tmp/notify.tmp.$$
 fi

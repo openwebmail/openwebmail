@@ -38,6 +38,7 @@ use vars qw(%languagenames %languagecharsets %httpaccept2language %RTL);
    'ro'           => 'Romanian',
    'ru'           => 'Russian',
    'sk'           => 'Slovak',
+   'sl'           => 'Slovene',
    'sr'           => 'Serbian',
    'sv'           => 'Swedish',			# Svenska
    'th'           => 'Thai',
@@ -79,6 +80,7 @@ use vars qw(%languagenames %languagecharsets %httpaccept2language %RTL);
    'ro'           => 'iso-8859-2',
    'ru'           => 'koi8-r',
    'sk'           => 'iso-8859-2',
+   'sl'           => 'windows-1250',
    'sr'           => 'iso-8859-2',
    'sv'           => 'iso-8859-1',
    'th'           => 'tis-620',

@@ -1,0 +1,13 @@
+<BR><BR><BR><BR><BR><BR><BR>
+<table border="0" align="center" width="60%" cellpadding="1" cellspacing="1">
+<tr><td bgcolor=@@@TITLEBAR@@@>
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>Dobrodošli, @@@NAME@@@!</B></font>
+</td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
+<table width=85%><tr><td align="center">
+<BR>Dobrodošli, @@@NAME@@@! Glede na to, da prviè uporabljate @@@NAME@@@, 
+moram zbrati nekatere informacije od vas, da bom boljše prilagodil @@@NAME@@@ 
+vašim potrebam. Prosim pritisnite tipko za vstop v @@@NAME@@@ nastavitveno okno.
+@@@CONTINUEBUTTON@@@
+</td></tr></table>
+</td></tr></table>

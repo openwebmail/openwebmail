@@ -45,6 +45,7 @@ use vars qw($quotausage $quotalimit);
 use vars qw($persistence_count);
 use vars qw(@openwebmailrcitem); # defined in ow-shared.pl
 use vars qw(%lang_folders %lang_sizes %lang_text %lang_err
+            %lang_timezonelabels
             %lang_calendar %lang_onofflabels %lang_sortlabels
             %lang_disableemblinklabels %lang_msgformatlabels
             %lang_withoriglabels %lang_receiptlabels
@@ -423,8 +424,10 @@ sub editprefs {
                        -0600 -0500 -0400 -0330 -0300 -0230 -0200 -0100
                        +0000 +0100 +0200 +0300 +0330 +0400 +0500 +0530 +0600 +0630
                        +0700 +0800 +0900 +0930 +1000 +1030 +1100 +1200 +1300 );
+   my %timeoffsetlabels = map { $_ => "$_ -  $lang_timezonelabels{$_}"} keys %lang_timezonelabels;
    $temphtml = popup_menu(-name=>'timeoffset',
                           -values=>\@timeoffsets,
+                          -labels=>\%timeoffsetlabels,
                           -default=>$prefs{'timeoffset'},
                           -override=>'1',
                           defined($config_raw{'DEFAULT_timeoffset'})?('-disabled'=>'1'):()).

@@ -1110,7 +1110,7 @@ sub composemessage {
 
    $temphtml = textfield(-name=>'to',
                          -default=>$to,
-                         -size=>'70',
+                         -size=>'66',
                          -accesskey=>'T',
                          -override=>'1').
                qq|\n |.iconlink("addrbook.s.gif", $lang_text{'addressbook'}, qq|href="javascript:GoAddressWindow()"|);
@@ -1118,17 +1118,15 @@ sub composemessage {
 
    $temphtml = textfield(-name=>'cc',
                          -default=>$cc,
-                         -size=>'70',
+                         -size=>'66',
                          -accesskey=>'C',
-                         -override=>'1').
-               qq|\n |.iconlink("addrbook.s.gif", $lang_text{'addressbook'}, qq|href="javascript:GoAddressWindow()"|);
+                         -override=>'1');
    $html =~ s/\@\@\@CCFIELD\@\@\@/$temphtml/;
 
    $temphtml = textfield(-name=>'bcc',
                          -default=>$bcc,
-                         -size=>'70',
-                         -override=>'1').
-               qq|\n |.iconlink("addrbook.s.gif", $lang_text{'addressbook'}, qq|href="javascript:GoAddressWindow()"|);
+                         -size=>'66',
+                         -override=>'1');
    $html =~ s/\@\@\@BCCFIELD\@\@\@/$temphtml/;
 
    $temphtml = textfield(-name=>'replyto',

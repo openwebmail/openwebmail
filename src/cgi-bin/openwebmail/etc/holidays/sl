@@ -1,0 +1,22 @@
+1@@@.*,01,01,.*@@@0@@@0@@@1. Novo leto (prosto)@@@0
+2@@@.*,01,02,.*@@@0@@@0@@@2. Novo leto (prosto)@@@0
+3@@@.*,02,08,.*@@@0@@@0@@@Prešernov dan (prosto)@@@0
+4@@@.*,02,14,.*@@@0@@@0@@@Valentinovo@@@0
+5@@@.*,03,08,.*@@@0@@@0@@@Dan žena@@@0
+6@@@.*,03,25,.*@@@0@@@0@@@Materinski dan@@@0
+7@@@.*,04,27,.*@@@0@@@0@@@Dan upora proti okupatorju (prosto)@@@0
+8@@@.*,05,01,.*@@@0@@@0@@@1. Praznik dela (prosto)@@@0
+9@@@.*,05,02,.*@@@0@@@0@@@2. Praznik dela (prosto)@@@0
+10@@@.*,06,25,.*@@@0@@@0@@@Dan državnosti (prosto)@@@0
+11@@@.*,08,15,.*@@@0@@@0@@@Marijino vnebovzetje (prosto)@@@0
+12@@@.*,10,31,.*@@@0@@@0@@@Dan reformacije (prosto)@@@0
+13@@@.*,11,01,.*@@@0@@@0@@@Dan spomina na mrtve (prosto)@@@0
+14@@@.*,12,25,.*@@@0@@@0@@@Božiè (prosto)@@@0
+15@@@.*,12,26,.*@@@0@@@0@@@Dan samostojnosti (prosto)@@@0
+16@@@.*,easter,easter-47,Tue@@@0@@@0@@@Pustni torek@@@0
+17@@@.*,easter,easter-46,Wed@@@0@@@0@@@Pepelnièna sreda@@@0
+18@@@.*,easter,easter,Sun@@@0@@@0@@@Velikonoèna nedelja (prosto)@@@0
+19@@@.*,easter,easter+1,Mon@@@0@@@0@@@Velikonoèni ponedeljek (prosto)@@@0
+20@@@.*,easter,easter+49,Sun@@@0@@@0@@@Binkoštna nedelja (prosto)@@@0
+21@@@.*,03,((2[5-9])|(3[0-1])),Sun@@@0200@@@0@@@Prehod na poletni èas@@@0
+22@@@.*,10,((2[5-9])|(3[0-1])),Sun@@@0300@@@0@@@Prehod na zimski èas@@@0

@@ -1,0 +1,19 @@
+<center>
+<table width="90%" cellspacing="0" cellpadding="0" border="0">
+<tr><td><font size="-1" color="#dd0000"><b>
+
+Spoštovani @@@USEREMAIL@@@,<br><br>
+Zelo dolgo èasa ste bili nedejavni.
+Èe ne boste naredili nobene akcije,
+se bo seja iztekla v naslednjih 60 sekundah.
+
+</b></font></td></tr></table>
+<br>
+<form>
+<input type="button" NAME="OK" value=" ok " onclick="window.close();"/>
+</form>
+<br><br>
+<script language="JavaScript">
+setTimeout("close()", 60*1000);
+</script>
+</center>

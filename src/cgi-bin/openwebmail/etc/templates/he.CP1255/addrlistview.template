@@ -39,7 +39,7 @@
 @@@QUICKADDFORM@@@
 @@@BUTTONSBEFORE@@@
 </table>
-<table border="0" align="center" width="90%" cellpadding="2" cellspacing="1">
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="1">
 @@@COLUMNHEADINGS@@@
 @@@ADDRESSES@@@
 </table>
@@ -76,7 +76,9 @@ function CheckAll(thisBox,formName,nameName,groupName) {
                e.checked = thisBox.toggle;
             }
          } else {
-            if (e.name == nameName && document.forms[formName].elements[i+1].name == escape(groupName)) {
+            if (e.name == nameName && 
+                document.forms[formName].elements[i+1] != null &&
+                document.forms[formName].elements[i+1].name == escape(groupName)) {
                e.checked = thisBox.toggle;
                i++;
             }

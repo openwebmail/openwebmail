@@ -1,0 +1,26 @@
+<tr>
+  <td>
+    <table cellpadding="0" cellspacing="0" border="0">
+    <tr>
+      <td colspan="6"><b>Geographic Position</b></td>
+    </tr>
+    <tr>
+      <td>@@@GROUP@@@</td>
+      <td><input class="mono" type="text" name="@@@LONGITUDE.NAME@@@" value="@@@LONGITUDE.VALUE@@@" size="20">&nbsp;&nbsp;</td>
+      <td><input class="mono" type="text" name="@@@LATITUDE.NAME@@@" value="@@@LATITUDE.VALUE@@@" size="20">&nbsp;&nbsp;</td>
+      <td class="smalltext">@@@FINDLINK@@@&nbsp;&nbsp;&nbsp;&nbsp;</td>
+      <td class="smalltext">@@@MAPLINK@@@&nbsp;&nbsp;&nbsp;&nbsp;</td>
+      <td class="smalltext">@@@PHOTOLINK@@@</td>
+    </tr>
+    <tr>
+      <td class="smalltext">@@@GROUPLABEL@@@</td>
+      <td class="smalltext">longitude&nbsp;&nbsp;(-120.209183)</td>
+      <td class="smalltext" colspan="4">latitude&nbsp;&nbsp;(32.550266)</td>
+    </tr>
+    <tr>
+      <td colspan="6">@@@TYPES@@@&nbsp;</td>
+    </tr>
+    </table>
+  <td>
+<tr>
+

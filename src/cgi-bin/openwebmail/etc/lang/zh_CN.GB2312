@@ -509,6 +509,7 @@ package ow::zh_CN_GB2312;
    abooks => '管理通讯录',
    abook_title => '通讯录',
    abook_converted => 'Converted:',
+   abook_group_member => '成员',
    abook_group_allmembers => '所有成员',
    abook_import => '汇入通讯录',
    abook_importdest => '汇入资料到目的通讯录中...',

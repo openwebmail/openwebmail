@@ -512,6 +512,7 @@ package ow::pt_BR;
    abooks => 'Listas de Contatos',
    abook_title => 'Lista de Contatos',
    abook_converted => 'Convertido:',
+   abook_group_member => 'Member',
    abook_group_allmembers => 'Todos do grupo',
    abook_import => 'Importar Informações de Contatos',
    abook_importdest => 'Importar para nova lista de contatos...',
