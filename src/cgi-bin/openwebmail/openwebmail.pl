@@ -579,7 +579,10 @@ sub login {
       # display copyright. Don't touch it, please.
       httpprint(\@header,
       		[qq|<html>\n|.
-		 qq|<head><title>Copyright</title></head>\n|.
+		 qq|<head>\n|.
+                 qq|<title>Copyright</title>\n|.
+                 qq|<meta http-equiv="Content-Type" content="text/html; charset=$prefs{'charset'}">\n|.
+                 qq|</head>\n|.
 		 qq|<body bgcolor="#ffffff" background="$prefs{'bgurl'}">\n|.
 		 qq|<style type="text/css"><!--\n|.
 		 qq|body {\n|.

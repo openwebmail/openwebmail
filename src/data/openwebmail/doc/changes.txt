@@ -1,3 +1,9 @@
+01/05/2005
+----------
+1. Cool3D.Deutsch iconset update
+   (thanks to Martin Bronk, martin.AT.bronk.de)
+
+
 01/04/2005
 ----------
 1. Indonesian lang and template files translation update
