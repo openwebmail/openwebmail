@@ -36,7 +36,9 @@ my @jsevents=('onAbort', 'onBlur', 'onChange', 'onClick', 'onDblClick',
               'onDragDrop', 'onError', 'onFocus', 'onKeyDown', 'onKeyPress',
               'onKeyUp', 'onLoad', 'onMouseDown', 'onMouseMove', 'onMouseOut',
               'onMouseOver', 'onMouseUp', 'onMove', 'onReset', 'onResize',
-              'onSelect', 'onSubmit', 'onUnload', 'window.open');
+              'onSelect', 'onSubmit', 'onUnload', 'window.open',
+              '@import', 'window.location', 'location.href',
+              'document.url', 'document.location', 'document.referrer');
 
 # this routine is used to add target=_blank to links in a html message
 # so clicking on it will open a new window
@@ -80,7 +82,7 @@ sub _frame2iframe {
 sub html4disablejs {
    my $html=$_[0];
    foreach my $event (@jsevents) {
-      $html=~s/$event/_$event/isg;
+      $html=~s/$event/x_$event/isg;
    }
    $html=~s/<script([^\<\>]*?)>/<disable_script$1>\n<!--\n/isg;
    $html=~s/<!--\s*<!--/<!--/isg;

@@ -1,6 +1,6 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr>
-  <td colspan="5" bgcolor=@@@TITLEBAR@@@><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>Edit Addressbooks</b></font></td>
+  <td colspan="5" bgcolor=@@@TITLEBAR@@@><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>Editare Agende</b></font></td>
 </tr>
 <tr>
   <td colspan="5" bgcolor=@@@MENUBAR@@@>@@@MENUBARLINKS@@@</td>
@@ -10,10 +10,10 @@
 </tr>
 <tr>
   <td width="10" bgcolor=@@@COLUMNHEADER@@@>&nbsp;</td>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Addressbook Name (@@@FOLDERNAME_MAXLEN@@@ characters)</b></td>
-  <td align="center" bgcolor=@@@COLUMNHEADER@@@><b>Entries</b></td>
-  <td align="center" bgcolor=@@@COLUMNHEADER@@@><b>Size</b></td>
-  <td align="center" bgcolor=@@@COLUMNHEADER@@@><b>Action</b></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Nume Agenda (@@@FOLDERNAME_MAXLEN@@@ charactere)</b></td>
+  <td align="center" bgcolor=@@@COLUMNHEADER@@@><b>Adrese</b></td>
+  <td align="center" bgcolor=@@@COLUMNHEADER@@@><b>Dimensiune</b></td>
+  <td align="center" bgcolor=@@@COLUMNHEADER@@@><b>Actiune</b></td>
 </tr>
 
 @@@STARTFOLDERFORM@@@
@@ -33,9 +33,9 @@
 </tr>
 <tr>
   <td width="10" bgcolor=@@@COLUMNHEADER@@@>&nbsp;</td>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Global Addressbooks</b></td>
-  <td align="center" bgcolor=@@@COLUMNHEADER@@@><b>Entries</b></td>
-  <td align="center" bgcolor=@@@COLUMNHEADER@@@><b>Size</b></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Agenda implicita</b></td>
+  <td align="center" bgcolor=@@@COLUMNHEADER@@@><b>Adrese</b></td>
+  <td align="center" bgcolor=@@@COLUMNHEADER@@@><b>Dimensiune</b></td>
   <td align="center" bgcolor=@@@COLUMNHEADER@@@>&nbsp;</td>
 </tr>
 

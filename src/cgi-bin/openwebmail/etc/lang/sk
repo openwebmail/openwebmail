@@ -363,7 +363,7 @@ package ow::sk;
    emptyfolder=> 'Empty folder',
    emptytrash => 'Vysypa» kô¹',
    totrash    => 'Presunú» do ko¹a',
-   learnham   => 'LEARN HAM',
+   learnham   => 'Learn Ham',
    learnspam  => 'Learn Spam',
    forever    => 'Nav¾dy',
    delatlogout=> 'Zmaza» pri odhlásení',

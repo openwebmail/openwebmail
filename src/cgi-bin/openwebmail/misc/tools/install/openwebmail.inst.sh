@@ -13,14 +13,15 @@ mv openwebmail-current.tar.gz openwebmail-current.tar.gz.orig
 wget http://turtle.ee.ncku.edu.tw/openwebmail/download/current/openwebmail-current.tar.gz
 
 cd /usr/local/www/cgi-bin/openwebmail/etc
-cp openwebmail.conf address.book filter.book $tmpdir
+cp openwebmail.conf calendar.book filter.book addressbooks/global $tmpdir
 
 cd /usr/local/www
 tar -zxBpf $tmpdir/openwebmail-current.tar.gz
 
 cd /usr/local/www/cgi-bin/openwebmail
 
-cp $tmpdir/openwebmail.conf $tmpdir/address.book $tmpdir/filter.book etc
+cp $tmpdir/openwebmail.conf $tmpdir/calendar.book $tmpdir/filter.book etc
+cp $tmpdir/global etc/addressbooks/
 
 # for perl 5.6 or above
 echo "has_savedsuid_support	no">etc/suid.conf

@@ -413,7 +413,7 @@ sub listmessages {
                ow::tool::hiddens(action=>'listmessages',
                                  sessionid=>$thissession,
                                  sort=>$sort,
-                                 folder=>$folder);
+                                 folder=>$escapedfolder);
    $html =~ s/\@\@\@STARTPAGEFORM\@\@\@/$temphtml/;
 
    $temphtml="";

@@ -2001,7 +2001,7 @@ sub showdir {
    $temphtml = start_multipart_form(-name=>'dirform',
 				    -action=>"$config{'ow_cgiurl'}/openwebmail-webdisk.pl") .
                ow::tool::hiddens(sessionid=>$thissession,
-                                 folder=>$folder,
+                                 folder=>$escapedfolder,
                                  message_id=>$messageid,
                                  currentdir=>ow::tool::escapeURL($currentdir),
                                  gotodir=>ow::tool::escapeURL($currentdir),

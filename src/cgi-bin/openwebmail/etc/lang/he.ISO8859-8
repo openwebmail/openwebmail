@@ -362,7 +362,7 @@ package ow::he_ISO8859_8;
    emptyfolder=> 'Empty folder',
    emptytrash => 'רוזחימ לס הקנ',
    totrash    => 'רוזחימ לסל רבעה',
-   learnham   => 'LEARN HAM',
+   learnham   => 'Learn Ham',
    learnspam  => 'Learn Spam',
    forever    => 'דימת',
    delatlogout=> 'האיציב קחמ',

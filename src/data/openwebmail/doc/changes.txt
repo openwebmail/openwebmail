@@ -1,3 +1,30 @@
+01/26/2005
+----------
+1. fix the problem that openwebmail-main.pl/openwebmail-read.pl process may die
+   unexpectedly if viruscheck/spamcheck option is enabled but related daemon
+   is not available.
+Why: When owm opens a pipe to the spamcheck/viruscheck client cmd (spamc/clamdscan),
+     the fd is available because the client cmd is started up properly.
+     However, while owm is writing data to the pipe, the pipe may be terminated
+     by the client because it can not connect to related daemon(spamd/clemd).
+     If this happens, the parent owm process die unexpectedly. :(
+     And we fix the problem by doing fork once before calling the client cmd.
+2. Romanian lang and template files translation update
+   (thanks to Gabriel Hojda, gabriel.hojda.AT.gmail.com)
+3. fix the bug that variable $folder is not transmitted in escaped format in
+   openwebmai-main.pl page form and openwebmail-cal.pl
+4. fix a bug that param folder in sendmessage() was not unescaped
+   which stoped the update message status from working.
+   (reported by Thomas Chung, tchung.AT.openwebmail.org)
+5. disable more js events in html4disablejs() in htmlrender.pl
+6. new mirror site at California, USA,
+   http://www.mirrormonster.com/openwebmail/
+   (thanks to Mike, apache.org.AT.mirrormonster.com)
+7. fix a bug that press enter in abook keyword field would cause parameter
+   format error
+   (reported by treo, directcommunications.AT.mail.com)
+
+
 01/25/2005
 ----------
 1. fix a bug that webdisk upload didn't handle filename properly

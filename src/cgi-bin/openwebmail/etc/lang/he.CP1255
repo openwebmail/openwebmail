@@ -363,7 +363,7 @@ package ow::he_CP1255;
    emptyfolder=> 'Empty folder',
    emptytrash => 'נקה סל מיחזור',
    totrash    => 'העבר לסל מיחזור',
-   learnham   => 'LEARN HAM',
+   learnham   => 'Learn Ham',
    learnspam  => 'Learn Spam',
    forever    => 'תמיד',
    delatlogout=> 'מחק ביציאה',

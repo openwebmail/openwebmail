@@ -37,41 +37,47 @@ sub scanmsg {
 
 # common routine, ret pipe output #########################################
 sub pipecmd_msg {
+   my ($pipecmd, $r_message)=@_;
+
    my $username=getpwuid($>);	# username of euid
-   my $pipecmd=ow::tool::untaint($_[0]); $pipecmd=~s/\@\@\@USERNAME\@\@\@/$username/g;
-   my $r_message=$_[1]; # either sting ref or array ref may be used
-   my $tmpfile=ow::tool::tmpname('viruscheck.tmpfile');
+   $pipecmd=~s/\@\@\@USERNAME\@\@\@/$username/g;
+   $pipecmd=ow::tool::untaint($pipecmd);
 
    # ensure tmpfile is owned by current euid but wll be writeable for forked pipe
+   my $tmpfile=ow::tool::tmpname('viruscheck.tmpfile');
    open(F, ">$tmpfile"); close(F); chmod(0666, $tmpfile);
 
-   # the pipe forked by shell may use ruid/rgid(bash) or euid/egid(sh, tcsh)
-   # since that won't change the result, so we don't use fork to change ruid/rgid
-   _pipecmd_msg($pipecmd, $r_message, $tmpfile);
+   local $SIG{CHLD}; undef $SIG{CHLD};  # disable $SIG{CHLD} temporarily for wait()
+   local $|=1; # flush all output
+   if (fork()==0) {
+      close(STDIN); close(STDOUT); close(STDERR);
+      # the pipe forked by shell may use ruid/rgid(bash) or euid/egid(sh, tcsh)
+      # drop ruid/rgid to guarentee child ruid=euid=current euid, rgid=egid=current gid
+      # thus dir/files created by child will be owned by current euid/egid
+      ow::suid::drop_ruid_rgid();
+      my $errmsg;
+      if (open(P, "|$pipecmd 2>/dev/null > $tmpfile")) {
+         if (ref($r_message) eq 'ARRAY') {
+            print P @{$r_message} or $errmsg=$!;
+         } else {
+            print P ${$r_message} or $errmsg=$!;
+         }
+         close(P);
+      } else {
+         $errmsg=$!;
+      }
+      # result/err in tmpfile for parent process
+      if ($errmsg ne '') {
+         open(F, ">$tmpfile"); print F $errmsg; close(F);
+      }
+      exit 0;
+   }
+   wait;
 
    open(F, $tmpfile); $_=<F>; close(F); $_=~s/[\r\n]//g;
    unlink $tmpfile;
 
    return $_;
-}
-
-# result/err in tmpfile since result may be used by different process
-sub _pipecmd_msg {
-   my ($pipecmd, $r_message, $tmpfile)=@_;
-   my $errmsg;
-   if (open(P, "|$pipecmd 2>/dev/null > $tmpfile")) {
-      if (ref($r_message) eq 'ARRAY') {
-         print P @{$r_message} or $errmsg=$!;
-      } else {
-         print P ${$r_message} or $errmsg=$!;
-      }
-      close(P);
-   } else {
-      $errmsg=$!;
-   }
-   if ($errmsg ne '') {
-      open(F, ">$tmpfile"); print F $errmsg; close(F);
-   }
 }
 
 1;

@@ -365,7 +365,7 @@ package ow::pt_BR;
    emptyfolder=> 'Esvaziar Pasta',
    emptytrash => 'Esvaziar Lixeira',
    totrash    => 'Enviar para Lixeira',
-   learnham   => 'LEARN HAM',
+   learnham   => 'Learn Ham',
    learnspam  => 'Treinar Spam',
    forever    => 'Para sempre',
    delatlogout=> 'Apagar ao Sair',

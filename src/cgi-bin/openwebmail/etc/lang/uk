@@ -362,7 +362,7 @@ package ow::uk;
    emptyfolder=> 'Empty folder',
    emptytrash => 'Очистити см╕тник',
    totrash    => 'Перенести в см╕тник',
-   learnham   => 'LEARN HAM',
+   learnham   => 'Learn Ham',
    learnspam  => 'Learn Spam',
    forever    => 'Завжди',
    delatlogout=> 'Видалити п╕сля виходу',

@@ -1539,7 +1539,6 @@ sub sendmessage {
    my $dateserial=ow::datetime::gmtime2dateserial();
    my $date=ow::datetime::dateserial2datefield($dateserial, $prefs{'timeoffset'}, $prefs{'daylightsaving'});
 
-   my $folder = param('folder')||'';
    my $to = param('to')||'';
    my $cc = param('cc')||'';
    my $bcc = param('bcc')||'';
@@ -2187,6 +2186,7 @@ sub sendmessage {
             $oldstatus = (string2msgattr($FDB{$inreplyto}))[$_STATUS];
             $found=1;
          }
+
          ow::dbm::close(\%FDB, $folderdb);
 
          if ( $found ) {

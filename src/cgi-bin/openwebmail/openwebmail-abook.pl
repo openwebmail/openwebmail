@@ -1158,7 +1158,8 @@ sub addrlistview {
    $searchtypelabels{'categories'} = $lang_text{"abook_listview_categories"};
 
    $temphtml = qq|<table cellspacing="0" cellpadding="0" border="0">|.
-               start_form(-name=>"searchForm").
+               start_form(-name=>"searchForm",
+                          -action=>"javascript:document.forms['contactsForm'].elements['abooksearchtype'].value=document.forms['searchForm'].elements['abooksearchtype'].options[document.forms['searchForm'].elements['abooksearchtype'].selectedIndex].value; document.forms['contactsForm'].elements['abookkeyword'].value=document.forms['searchForm'].elements['abookkeyword'].value; document.contactsForm.submit();").
                qq|<tr><td>|.
                popup_menu(-name=>'abooksearchtype',
                           -default=>$abooksearchtype || $headings[0],

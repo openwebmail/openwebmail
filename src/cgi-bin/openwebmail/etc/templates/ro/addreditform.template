@@ -5,7 +5,7 @@
   <td bgcolor=@@@TITLEBAR@@@>
     <table cellpadding="0" cellspacing="0" border="0" width="100%">
     <tr>
-      <td bgcolor=@@@TITLEBAR@@@><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>Edit Personal Information</b></font></td>
+      <td bgcolor=@@@TITLEBAR@@@><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>Editare Informatii Personale</b></font></td>
       <td bgcolor=@@@TITLEBAR@@@ align="right"><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>@@@ABOOKNAME@@@</b></td>
     </tr>
     </table>
@@ -22,7 +22,7 @@
     <table cellpadding="0" cellspacing="0" border="0" align="center" width="100%">
     <tr>
       <td>&nbsp;@@@AGENTPATH@@@</td>
-      <td align="right">Character Set:&nbsp;@@@CONVTOMENU@@@</td>
+      <td align="right">Set caractere:&nbsp;@@@CONVTOMENU@@@</td>
     </tr>
     </table>
   </td>
@@ -31,7 +31,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Personal Information</b></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Informatii Personale</b></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -47,7 +47,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Email Addresses</b>&nbsp;<a name="EMAIL" href="javascript:document.editForm.formchange.value='EMAIL,0,1'; document.editForm.submit();">+</a></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Adrese Email</b>&nbsp;<a name="EMAIL" href="javascript:document.editForm.formchange.value='EMAIL,0,1'; document.editForm.submit();">+</a></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -63,7 +63,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Telephone Numbers</b>&nbsp;<a name="TEL" href="javascript:document.editForm.formchange.value='TEL,0,1'; document.editForm.submit();">+</a></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Numere Telefon</b>&nbsp;<a name="TEL" href="javascript:document.editForm.formchange.value='TEL,0,1'; document.editForm.submit();">+</a></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -79,7 +79,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Addresses</b>&nbsp;<a name="ADR" href="javascript:document.editForm.formchange.value='ADR,0,1'; document.editForm.submit();">+</a></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Adresa</b>&nbsp;<a name="ADR" href="javascript:document.editForm.formchange.value='ADR,0,1'; document.editForm.submit();">+</a></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -95,7 +95,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Work Information</b>&nbsp;<a name="ORG" href="javascript:document.editForm.formchange.value='ORG,0,1'; document.editForm.submit();">+</a></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Informatii Servici</b>&nbsp;<a name="ORG" href="javascript:document.editForm.formchange.value='ORG,0,1'; document.editForm.submit();">+</a></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -111,7 +111,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Miscellaneous Information</b><a name="URL"></a></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Informatii Diverse</b><a name="URL"></a></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -127,7 +127,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>vCard Information</b></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Informatii vCard</b></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>

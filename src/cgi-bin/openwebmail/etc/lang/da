@@ -362,7 +362,7 @@ package ow::da;
    emptyfolder=> 'Empty folder',
    emptytrash => 'Tøm papirkurven',
    totrash    => 'Flyt til papirkurv',
-   learnham   => 'LEARN HAM',
+   learnham   => 'Learn Ham',
    learnspam  => 'Learn Spam',
    forever    => 'Aldrig',
    delatlogout=> 'Når webmail afsluttes',

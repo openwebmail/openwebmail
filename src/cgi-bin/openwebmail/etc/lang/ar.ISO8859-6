@@ -362,7 +362,7 @@ package ow::ar_ISO8859_6;
    emptyfolder=> 'וÌהÏ בÇÑÚ',
    emptytrash => 'ÊבÑךÚ ÓהÉ ÇהוחוהÇÊ',
    totrash    => 'Çזגה Åהי ÓהÉ ÇהוחוהÇÊ',
-   learnham   => 'LEARN HAM',
+   learnham   => 'Learn Ham',
    learnspam  => 'Learn Spam',
    forever    => 'Åהי ÇהÃÈÏ',
    delatlogout=> 'ÍÐב ÙזÏ ÊÓÌךה ÇהÎÑטÌ',

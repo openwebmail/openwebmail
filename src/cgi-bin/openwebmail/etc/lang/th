@@ -362,7 +362,7 @@ package ow::th;
    emptyfolder=> 'Empty folder',
    emptytrash => 'ล้างถังขยะ',
    totrash    => 'ทิ้งถังขยะ',
-   learnham   => 'LEARN HAM',
+   learnham   => 'Learn Ham',
    learnspam  => 'Learn Spam',
    forever    => 'ตลอดไป',
    delatlogout=> 'ลบเมื่อออกจากระบบ',

@@ -217,7 +217,7 @@ sub yearview {
 			 -action=>"$config{'ow_cgiurl'}/openwebmail-cal.pl").
                ow::tool::hiddens(action=>'calyear',
                                  sessionid=>$thissession,
-                                 folder=>$folder,
+                                 folder=>$escapedfolder,
                                  message_id=>$messageid);
    $html =~ s/\@\@\@STARTFORM\@\@\@/$temphtml/g;
 
@@ -396,7 +396,7 @@ sub monthview {
 			 -action=>"$config{'ow_cgiurl'}/openwebmail-cal.pl").
                ow::tool::hiddens(action=>'calmonth',
                                  sessionid=>$thissession,
-                                 folder=>$folder,
+                                 folder=>$escapedfolder,
                                  message_id=>$messageid);
    $html =~ s/\@\@\@STARTFORM\@\@\@/$temphtml/g;
 
@@ -477,7 +477,7 @@ sub monthview {
 
    $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-cal.pl").
                ow::tool::hiddens(sessionid=>$thissession,
-                                 folder=>$folder,
+                                 folder=>$escapedfolder,
                                  message_id=>$messageid,
                                  action=>'calday',
                                  year=>$year,
@@ -597,7 +597,7 @@ sub weekview {
 			 -action=>"$config{'ow_cgiurl'}/openwebmail-cal.pl").
                ow::tool::hiddens(action=>'calweek',
                                  sessionid=>$thissession,
-                                 folder=>$folder,
+                                 folder=>$escapedfolder,
                                  message_id=>$messageid);
    $html =~ s/\@\@\@STARTFORM\@\@\@/$temphtml/g;
 
@@ -720,7 +720,7 @@ sub weekview {
       $temphtml .= start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-cal.pl",
                               -name=> "day$day").
                    ow::tool::hiddens(sessionid=>$thissession,
-                                     folder=>$folder,
+                                     folder=>$escapedfolder,
                                      message_id=>$messageid,
                                      action=>'calday',
                                      year=>$year,
@@ -839,7 +839,7 @@ sub dayview {
 			 -action=>"$config{'ow_cgiurl'}/openwebmail-cal.pl").
                ow::tool::hiddens(action=>'calday',
                                  sessionid=>$thissession,
-                                 folder=>$folder,
+                                 folder=>$escapedfolder,
                                  message_id=>$messageid);
    $html =~ s/\@\@\@STARTFORM\@\@\@/$temphtml/g;
 
@@ -1201,7 +1201,7 @@ sub dayview {
                          -name=>'additemform',
                          -override=>'1').
                ow::tool::hiddens(sessionid=>$thissession,
-                                 folder=>$folder,
+                                 folder=>$escapedfolder,
                                  message_id=>$messageid,
                                  action=>'caladd');
    $html =~ s/\@\@\@STARTADDITEMFORM\@\@\@/$temphtml/;
@@ -1596,7 +1596,7 @@ sub listview {
 			 -action=>"$config{'ow_cgiurl'}/openwebmail-cal.pl").
                ow::tool::hiddens(action=>'callist',
                                  sessionid=>$thissession,
-                                 folder=>$folder,
+                                 folder=>$escapedfolder,
                                  message_id=>$messageid);
    $html =~ s/\@\@\@STARTFORM\@\@\@/$temphtml/g;
 
@@ -1837,7 +1837,7 @@ sub edit_item {
                           -name=>'editcalendar',
                           -override=>'1').
                ow::tool::hiddens(sessionid=>$thissession,
-                                 folder=>$folder,
+                                 folder=>$escapedfolder,
                                  message_id=>$messageid,
                                  action=>'calupdate',
                                  index=>$index);
@@ -2122,7 +2122,7 @@ sub edit_item {
                          -name=>'cancelform',
                          -override=>'1').
                ow::tool::hiddens(sessionid=>$thissession,
-                                 folder=>$folder,
+                                 folder=>$escapedfolder,
                                  message_id=>$messageid,
                                  year=>$year);
    if (defined(param('callist'))) {

@@ -362,7 +362,7 @@ package ow::pt;
    emptyfolder=> 'Empty folder',
    emptytrash => 'Apagar lixo',
    totrash    => 'Mover para o Lixo',
-   learnham   => 'LEARN HAM',
+   learnham   => 'Learn Ham',
    learnspam  => 'Learn Spam',
    forever    => 'Para sempre',
    delatlogout=> 'Apagar ao Sair',

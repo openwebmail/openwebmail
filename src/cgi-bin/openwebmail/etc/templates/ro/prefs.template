@@ -120,9 +120,9 @@ Subiect:
 
 @@@WEBMAILSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Messages Listing</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Navigare directoare</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Controlbar position in messages list:</B>
+<B>Pozitia bara de control in afisare directoare:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CTRLPOSITIONFOLDERVIEWMENU@@@
 </td></tr>
@@ -142,7 +142,7 @@ Subiect:
 @@@SORTMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Display mini search icon@@@MINISEARCHICON@@@:</B>
+<B>Afiseaza mini icoana de cautare@@@MINISEARCHICON@@@:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USEMINISEARCHICONCHECKBOX@@@<br>
 </td></tr>
@@ -160,7 +160,7 @@ Subiect:
 @@@DEFAULTDESTINATIONMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Destination inteligenta:</B>
+<B>Destinatie inteligenta:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SMARTDESTINATION@@@
 </td></tr>
@@ -177,18 +177,18 @@ Subiect:
 </td></tr>
 @@@AUTOPOP3END@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Put mail filter at background:</B>
+<B>Pune filtru email in fundal:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BGFILTERTHRESHOLDMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Wait time for background mail filtering:</B>
+<B>Timp de asteptare la filtrare email in fundal:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BGFILTERWAITMENU@@@ seconds
 </td></tr>
 @@@MOVEOLDSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>muta mesaje vechi in SAVED la iesire:</B>
+<B>Muta mesaje vechi in SAVED la iesire:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@MOVEOLDMSGFROMINBOX@@@
 </td></tr>
@@ -212,7 +212,7 @@ Subiect:
 @@@USEFIXEDFONT@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Folosesire smiles-uri:</B>
+<B>Folosire smiles-uri:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USESMILEICON@@@
 </td></tr>
@@ -232,7 +232,7 @@ Subiect:
 @@@DISABLEEMBCGI@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Show HTML message as plain text:</B>
+<B>Arata mesaje HTML ca text simplu:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SHOWHTMLASTEXT@@@
 </td></tr>
@@ -260,7 +260,7 @@ Subiect:
 Latime @@@EDITCOLUMNSMENU@@@ Inaltime @@@EDITROWSMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Pozitie button redactare:</B>
+<B>Pozitie buton redactare:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SENDBUTTONPOSITIONMENU@@@
 </td></tr>
@@ -270,7 +270,7 @@ Latime @@@EDITCOLUMNSMENU@@@ Inaltime @@@EDITROWSMENU@@@
 @@@REPARAGRAPHORIGMSG@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Raspundere cu mesajul original:</B>
+<B>Raspuns cu mesajul original:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REPLYWITHORIGMSGMENU@@@
 </td></tr>
@@ -289,19 +289,19 @@ Latime @@@EDITCOLUMNSMENU@@@ Inaltime @@@EDITROWSMENU@@@
 
 @@@VIRUSCHECKSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Virus Check</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Verificare virusi</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Messages to be checked:</B>
+<B>Mesaje ce vor fi verificate:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@VIRUSCHECKSOURCEMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Maximum size of the checked messages:</B>
+<B>Dimensiune maxima la verificare mesaje:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@VIRUSCHECKMAXSIZEMENU@@@ KB
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Minimum size of the body of checked messages:</B>
+<B>Dimensiune minima la verificare mesaje:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@VIRUSCHECKMINBODYSIZEMENU@@@ KB
 </td></tr>
@@ -309,19 +309,19 @@ Latime @@@EDITCOLUMNSMENU@@@ Inaltime @@@EDITROWSMENU@@@
 
 @@@SPAMCHECKSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Spam Check</B> &nbsp; @@@SAPREFSLINK@@@</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Verificare Spam</B> &nbsp; @@@SAPREFSLINK@@@</td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Messages to be checked:</B>
+<B>Mesaje ce vor fi verificate:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SPAMCHECKSOURCEMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Maximum size of the checked messages:</B>
+<B>Dimensiune maxima la verificare mesaje:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SPAMCHECKMAXSIZEMENU@@@ KB
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Threshold to determine Spam:</B>
+<B>Prag pentru determinare Spam:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SPAMCHECKTHRESHOLDMENU@@@
 </td></tr>
@@ -336,7 +336,7 @@ Latime @@@EDITCOLUMNSMENU@@@ Inaltime @@@EDITROWSMENU@@@
 @@@FILTERREPEATLIMIT@@@ &nbsp;( 0 inseamna Nu se verifica )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Filter msgs with email address in bad format:</B>
+<B>Filtrare mesaje cu adresa email eronata:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERBADADDRFORMAT@@@
 </td></tr>
@@ -360,39 +360,39 @@ Latime @@@EDITCOLUMNSMENU@@@ Inaltime @@@EDITROWSMENU@@@
 
 @@@WEBADDRSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>AddressBook Options</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Optiuni Agenda</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Size for addressbook window:</B>
+<B>Marime fereastra agenda:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Addressbook button position:</B>
+<B>Pozitie buton agenda:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKBUTTONPOSITIONMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Addressbook default filter:</B>
+<B>Filtru agenda implicit:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKDEFAULTFILTER@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Addresses displayed per page:</B>
+<B>Numar de adrese afisate per pagina:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKADDRSPERPAGE@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Display only one line per contact:</B>
+<B>Afiseaza doar o linie per adresa:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKADDRCOLLAPSE@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Default addressbook sort order:</B>
+<B>Sortare implicita agenda:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKADDRSORTORDER@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Listview field order:</B>
+<B>Ordine campuri la afisare adrese:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@ nowrap>
 @@@ABOOKLISTVIEWFIELDORDERMENU@@@
 </td></tr>
@@ -402,7 +402,7 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Optiuni Calendar</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Default calendar view:</B>
+<B>Afisare implicita calendar:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DEFAULTVIEWMENU@@@
 </td></tr>
@@ -427,7 +427,7 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 @@@STARTHOURMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Oura sfarsit:</B>
+<B>Ora sfarsit:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ENDHOURMENU@@@
 </td></tr>
@@ -437,7 +437,7 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 @@@INTERVALMENU@@@ minute
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Arata ore goale:</B>
+<B>Arata ore fara evenimente:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SHOWEMPTYHOURSCHECKBOX@@@
 </td></tr>
@@ -448,7 +448,7 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 @@@REMINDERDAYSMENU@@@ <b>zile.</b>
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Notificare pentru evenimente din calendarul global:</B>
+<B>Notificare evenimente din calendarul global:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REMINDERFORGLOBALCHECKBOX@@@
 </td></tr>
@@ -488,12 +488,12 @@ Latime @@@FILEEDITCOLUMNSMENU@@@ Inaltime @@@FILEEDITROWSMENU@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Alte Optiuni</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Default charset for file system:</B>
+<B>Set caractere implicit pentru fisiere:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FSCHARSETMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Use lightbar for selection:</B>
+<B>Foloseste bara de selectie:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USELIGHTBARCHECKBOX@@@
 </td></tr>
@@ -509,9 +509,9 @@ Latime @@@FILEEDITCOLUMNSMENU@@@ Inaltime @@@FILEEDITROWSMENU@@@
 @@@HIDEINTERNAL@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Categorized Folders list:</B>
+<B>Liste directoare dupa categorii:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@CATEGORIZEDFOLDERS@@@ &nbsp;( Category-Folder Separator @@@CATEGORIZEDFOLDERS_FS@@@ )
+@@@CATEGORIZEDFOLDERS@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Notificare sonora la mesaje noi:</B>
@@ -524,7 +524,7 @@ Latime @@@FILEEDITCOLUMNSMENU@@@ Inaltime @@@FILEEDITROWSMENU@@@
 ramase @@@NEWMAILWINDOWTIMEMENU@@@ secunde &nbsp;(0 inseamna - nici o notificare)
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Mail sent window notification:</B>
+<B>Fereastra de notificare la mesaje trimise:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 ramase @@@MAILSENTWINDOWTIMEMENU@@@ secunde &nbsp;(0 inseamna - nici o notificare)
 </td></tr>
@@ -542,7 +542,7 @@ ramase @@@MAILSENTWINDOWTIMEMENU@@@ secunde &nbsp;(0 inseamna - nici o notificar
 </td></tr>
 @@@SPAMVIRUSSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Spam/Virus mail reserved day(s):</B>
+<B>Zile de gratie pentru mesaje Spam/Virus:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SPAMVIRUSRESERVEDDAYSMENU@@@
 </td></tr>
