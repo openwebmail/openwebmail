@@ -1,0 +1,6 @@
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
+@@@INFORECORDS@@@
+<tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>
+@@@CLOSEBUTTON@@@
+</td></tr>
+</table>

@@ -35,6 +35,7 @@ chmod 770 cgi-bin/openwebmail/etc/users
 chmod 770 cgi-bin/openwebmail/etc/sessions
 
 cp /dev/null cgi-bin/openwebmail/etc/address.book
+cp /dev/null cgi-bin/openwebmail/etc/calendar.book
 #cp /dev/null cgi-bin/openwebmail/etc/filter.book
 patch cgi-bin/openwebmail/etc/openwebmail.conf < /usr/local/www/cgi-bin/openwebmail/uty/openwebmail.conf.diff
 rm cgi-bin/openwebmail/etc/openwebmail.conf.orig

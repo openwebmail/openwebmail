@@ -44,10 +44,10 @@
    function GoAddressWindow(field)
    {
       var url = "@@@ABOOKURL@@@?action=addressbook&sessionid=@@@SESSIONID@@@&form=newaddress&field=" + field;
-      
+
       if (field == "email")
          url += "&preexisting=" + escape (document.newaddress.email.value);
-   
+
       var hWnd = window.open(url,"Finestra d'ajuda","width=380,height=360,resizable=yes,scrollbars=yes");
       if ((document.window != null) && (!hWnd.opener))
          hWnd.opener = document.window;

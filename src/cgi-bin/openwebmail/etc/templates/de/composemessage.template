@@ -11,7 +11,7 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@FROMMENU@@@
 &nbsp;&nbsp;
-<B>Priority:</B>
+<B>Dringlichkeit:</B>
 @@@PRIORITYMENU@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
@@ -30,7 +30,7 @@
 @@@BCCFIELD@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
-<B>Antwort-An:</B>
+<B>Antwortadresse:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@REPLYTOFIELD@@@
 &nbsp;
@@ -47,7 +47,7 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@SUBJECTFIELD@@@
 &nbsp;
-<B>Backup sent message</B>
+<B>Gesendete Nachricht speichern</B>
 @@@BACKUPSENTMSGCHECKBOX@@@
 </td></tr>
 <tr><td colspan="2" bgcolor=@@@WINDOW_LIGHT@@@ class=msgbody>
@@ -95,14 +95,14 @@
    function GoAddressWindow(toccbcc)
    {
       var url = "@@@ABOOKURL@@@?action=addressbook&sessionid=@@@SESSIONID@@@&form=composeform&field=" + toccbcc;
-      
+
       if (toccbcc == "to")
          url += "&preexisting=" + escape (document.composeform.to.value);
       else if (toccbcc == "cc")
          url += "&preexisting=" + escape (document.composeform.cc.value);
       else if (toccbcc == "bcc")
-         url += "&preexisting=" + escape (document.composeform.bcc.value);   
-   
+         url += "&preexisting=" + escape (document.composeform.bcc.value);
+
       var hWnd = window.open(url,"HelpWindow","width=380,height=360,resizable=yes,scrollbars=yes");
       if ((document.window != null) && (!hWnd.opener))
          hWnd.opener = document.window;
@@ -126,14 +126,14 @@
 
    function sendcheck()
    {
-      if (document.composeform.to.value == "" 
-       && document.composeform.cc.value == "" 
+      if (document.composeform.to.value == ""
+       && document.composeform.cc.value == ""
        && document.composeform.bcc.value == "" ) {
-         alert("Bitte geben Sie einen Empfänger an, bevor Sie die Nachricht abschicken.");
+         alert("Bitte geben Sie einen Empfänger an, bevor Sie die Nachricht abschicken!");
          return false;
       }
       if (document.composeform.subject.value == "" ) {
-         return(confirm("Diese Nachricht besitzt keine Betreffzeile, trotzdem absenden?"));
+         return(confirm("Sie haben keinen Betreff angegeben, trotzdem absenden?"));
       }
       return true;
    }

@@ -1,6 +1,6 @@
-# 
+#
 # auth_pop3.pl - authenticate user with POP3 server
-# 
+#
 # This module assumes that
 #
 #   a. users are located on remote pop3 server, or
@@ -17,7 +17,7 @@
 #       2> cd cgi-bin/openwebmail
 #       3> chmod u-s *pl to remove setuid bit from scripts
 #       4> chown -R nobody.nobody ./etc
-#       Then the openwebmail runtime user will be the same as your web server, 
+#       Then the openwebmail runtime user will be the same as your web server,
 #       normally 'nobody'
 #
 #    b. if you have root permission on this machine.
@@ -34,7 +34,7 @@
 #       4> cd cgi-bin/openwebmail
 #       5> chmod u-s *pl to remove setuid bit from scripts
 #       6> make the *.pl to be executed by user 'owmail'
-#       ps: You may need to reference the manpage/document of your httpd to 
+#       ps: You may need to reference the manpage/document of your httpd to
 #           know how to do user specific CGI
 #       The openwebmail runtime user will be 'owmail'
 #
@@ -52,11 +52,11 @@
 #
 # 3. if your users are not on remote server but virtual users on this machine
 #    (eg: you use vm-pop3d on this machine for authentication)
-#    
+#
 #    a. you need to install openwebmail as described in step 1.b or 1.c
 #       and the user must be the same as the vm-pop3d is.
 #    b. replace the following two options in step 2
-#    
+#
 #       mailspooldir			the mailspool used by vmpop3d
 #       getmail_from_pop3_authserver	no
 #
@@ -65,7 +65,7 @@
 # $local_uid: uid used on this machine
 #
 # 2002/03/08 tung@turtle.ee.ncku.edu.tw
-# 
+#
 
 # global vars, also used by openwebmail.pl
 use vars qw($pop3_authserver $pop3_authport $local_uid);
@@ -82,6 +82,7 @@ $local_uid=$>;
 use strict;
 use FileHandle;
 use IO::Socket;
+require "mime.pl";
 
 sub get_userinfo {
    my $user=$_[0];
@@ -109,7 +110,7 @@ sub get_userlist {	# only used by checkmail.pl -a
 sub check_userpassword {
    my ($user, $password)=@_;
    my $remote_sock;
-   
+
    return -2 if ($user eq "");
 
    eval {
@@ -125,15 +126,26 @@ sub check_userpassword {
 
    $remote_sock->autoflush(1);
    $_=<$remote_sock>;
-   return(-3) if (/^\-/);		# server not ready
+   (close($remote_sock) && return(-3)) if (/^\-/);	# server not ready
 
-   print $remote_sock "user $user\r\n";
+   # try if server supports auth login(base64 encoding) first
+   print $remote_sock "auth login\r\n";
    $_=<$remote_sock>;
-   return(-2) if (/^\-/);		# username error
-
-   print $remote_sock "pass $password\r\n";
-   $_=<$remote_sock>;
-   return (-4) if (/^\-/);		# passwd error
+   if (/^\+/) {
+      print $remote_sock &encode_base64($user);
+      $_=<$remote_sock>;
+      (close($remote_sock) && return(-2)) if (/^\-/);		# username error
+      print $remote_sock &encode_base64($password);
+      $_=<$remote_sock>;
+      (close($remote_sock) && return(-4)) if (/^\-/);		# passwd error
+   } else {
+      print $remote_sock "user $user\r\n";
+      $_=<$remote_sock>;
+      (close($remote_sock) && return(-2)) if (/^\-/);		# username error
+      print $remote_sock "pass $password\r\n";
+      $_=<$remote_sock>;
+      (close($remote_sock) && return(-4)) if (/^\-/);		# passwd error
+   }
 
    print $remote_sock "quit\r\n";
    close($remote_sock);

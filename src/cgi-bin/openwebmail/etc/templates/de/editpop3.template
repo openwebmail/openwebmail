@@ -12,7 +12,7 @@
 <td nowrap bgcolor=@@@COLUMNHEADER@@@>
 <B>POP3 Server</B> (Zum Bearbeiten anklicken)</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Benutzer</B> (Zum Abholen anklicken)</td>
+<B>Benutzername</B> (Zum Abholen anklicken)</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Kennwort</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
@@ -47,6 +47,7 @@
 
 @@@ADDRESSES@@@
 
+<tr><td colspan="6" align=center><BR>@@@CONTINUEBUTTON@@@</td></tr>
 </table>
 
 <script language="JavaScript">

@@ -10,7 +10,7 @@
 </td></tr><tr><td colspan="9">&nbsp;</td></tr>
 <tr>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Count</B>&nbsp;</td>
+<B>Nr.</B>&nbsp;</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Priorität</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
@@ -66,7 +66,9 @@
 <!--
    function Update(priority,rules,include,text,op,destination,enable)
    {
-      var i
+      var i;
+      var quot=new RegExp("!QUOT!","g");
+      text=text.replace(quot, '"');
 
       for (i=0; i<document.newfilter.priority.length; i++) {
          if (document.newfilter.priority.options[i].value==priority) {

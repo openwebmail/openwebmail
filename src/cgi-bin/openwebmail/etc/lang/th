@@ -1,6 +1,7 @@
 #!/usr/bin/perl -T
 
-$lang_charset = 'tis-620';
+# Thai translation by Atsawin Chaowanakritsanakul, joke.AT.nakhon.net
+# charset: tis-620
 
 %lang_folders =
    (
@@ -9,6 +10,7 @@ $lang_charset = 'tis-620';
    'sent-mail'      => 'ส่งแล้ว',
    'saved-drafts'   => 'ร่าง',
    'mail-trash'     => 'ถังขยะ',
+   'all'            => 'All',
    DELETE => '--ลบทิ้ง--'
    );
 
@@ -58,8 +60,75 @@ $lang_charset = 'tis-620';
    1440 => '24 ชั่วโมง'
    );
 
+%lang_advsearchlabels =
+   (
+   contains    => 'contains',
+   notcontains => 'does not contain',
+   is          => 'is',
+   isnot       => 'is not',
+   startswith  => 'starts with',
+   endswith    => 'ends with',
+   regexp      => 'matches regexp(insensitive)',
+   );
+
+%lang_calendar = 
+   (
+   yearview  => 'Yearview',
+   monthview => 'Monthview',
+   weekview  => 'Weekview',
+   dayview   => 'Dayview'
+   );
+
+%lang_month =
+   (
+   1  => 'January',
+   2  => 'February',
+   3  => 'March',
+   4  => 'April',
+   5  => 'May',
+   6  => 'June',
+   7  => 'July',
+   8  => 'August',
+   9  => 'September',
+   10 => 'October',
+   11 => 'November',
+   12 => 'December'
+   );
+
+%lang_wday =
+   (
+   0 => 'Sunday',
+   1 => 'Monday',
+   2 => 'Tuesday',
+   3 => 'Wednesday',
+   4 => 'Thursday',
+   5 => 'Friday',
+   6 => 'Saturday'
+   );
+
+%lang_wday_abbrev =
+   (
+   week => 'WK',
+   0 => 'S',
+   1 => 'M',
+   2 => 'T',
+   3 => 'W',
+   4 => 'T',
+   5 => 'F',
+   6 => 'S'
+   );
+
+%lang_order =
+   (
+   1 => '1st',
+   2 => '2nd',
+   3 => '3rd',
+   4 => '4th',
+   5 => 'last'
+   );
+
 %lang_text =
-   (  
+   (
    login      => 'เข้าระบบ',
    clear      => 'ล้าง',
    point      => 'Point',
@@ -133,7 +202,9 @@ $lang_charset = 'tis-620';
    folderrenprop => '\'กรุณาตั้งชื่อโฟลเดอร์นี้ใหม่\'',
    rename     => 'เปลี่ยนชื่อ',
    folderdelconf => '\'กรุณายืนยันการลบโฟลเดอร์ และจดหมายทั้งหมดในโฟลเดอร์นี้?\'',
-   chkindex    => 'ตรวจสอบดัชนี',
+   markread   => 'MarkRead',
+   foldermarkreadconf => '\'Are you going to mark read on all messages in this folder?\'',
+   chkindex   => 'ตรวจสอบดัชนี',
    folderchkindexconf => '\'กรุณายืนยันการตรวจสอบดัชนีของโฟลเดอร์นี้?\'',
    reindex    => 'สร้างดัชนีใหม่',
    folderreindexconf => '\'กรุณายืนยันการสร้างดัชนีใหม่ของโฟลเดอร์นี้?\'',
@@ -181,13 +252,37 @@ $lang_charset = 'tis-620';
    readonly   => 'อ่านได้อย่างเดียว',
    textcontent=> 'เนื้อความ',
    search     => 'ค้นหา',
+   advsearch  => 'Advanced search',
+   folder     => 'Folder',
+   nofoldersel=> 'No Folder selected',
+   showall    => 'Show All',
    spellcheck => 'ตรวจคำผิด',
    checkagain => 'ตรวจอีกครั้ง',
    finishchecking => 'ตรวจเสร็จแล้ว',
-   manuallyfix=> 'แก้ไขเอง'
+   manuallyfix=> 'แก้ไขเอง',
+   calendar   => 'Calendar',
+   am         => 'am',
+   pm         => 'pm',
+   calfmt_year          => 'Year @@@YEAR@@@',
+   calfmt_yearmonth     => '@@@MONTH_STR@@@ @@@YEAR@@@',
+   calfmt_yearmonthday  => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@',
+   calfmt_yearmonthdaywday => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@ @@@WEEKDAY_STR@@@',
+   calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
+   none       => 'None',
+   moreitems  => 'more items',
+   multieditconf => 'This item was added for multiple dates.\\nEditing it will change the item for all dates.\\nContinue with Edit?',
+   multidelconf  => 'This item was added for multiple dates.\\nDeleting it will delete the item for all dates.\\nContinue with Delete?',
+   ed         => 'Ed',
+   del        => 'Del',
+   noitemforthisday => 'No items for this day',
+   today_only               => 'Today\'s date only',
+   the_wday_of_thismonth    => 'The',
+   the_wday_of_thismonth2   => 'of the month',
+   every_wday_of_thismonth  => 'Every',
+   every_wday_of_thismonth2 => 'this month'
    );
 
-%lang_err = 
+%lang_err =
    (
    has_illegal_chars => 'มีตัวอักขระที่ใช้ไม่ได้!',
    couldnt_open      => 'ไม่สามารถเปิด',
@@ -208,7 +303,7 @@ $lang_charset = 'tis-620';
    cant_create_folder=> 'ไม่สามารถสร้างโฟลเดอร์ได้!',
    under_indexing    => 'กำลังทำดัชนีอยู่ กรุณาลองใหม่ภายหลัง',
    abook_invalid     => 'แฟ้มนี้ไม่ใช่สมุดรายชื่อที่ถูกส่งออกจากโปรแกรม Microsoft Outlook Express 5 ในรูปแบบ CSV กรุณาตรวจสอบว่า เมื่ออ่านแฟ้มนี้ในโปรแกรมแก้ไขข้อความ แฟ้มนี้จะขึ้นต้นด้วย "Name,E-mail Address"',
-   back     => 'กลับ',
+   back              => 'กลับ',
    tryagain          => 'ลองใหม่อีกครั้ง',
    abook_toobig      => 'การกระทำนี้จะทำให้สมุดรายชื่อของคุณใหญ่กว่าที่กำหนดไว้',
    cant_create_dir   => 'ไม่สามารถสร้างไดเรกทอรีส่วนตัวของคุณได้!',
@@ -226,7 +321,9 @@ $lang_charset = 'tis-620';
    param_fmterr      => 'รูปแบบผิดพลาด',
    pwd_incorrect     => 'รหัสผ่านผิดพลาด',
    network_server_error => 'เซิร์ฟเวอร์เครือข่ายผิดพลาด',
-   sendmail_error    => 'มีความผิดพลาดในการส่งจดหมายของคุณ กรุณากดปุ่ม Back ในบราวเซอร์, ตรวจสอบจดหมาย แล้วลองใหม่อีกครั้ง'
+   sendmail_error    => 'มีความผิดพลาดในการส่งจดหมายของคุณ กรุณากดปุ่ม Back ในบราวเซอร์, ตรวจสอบจดหมาย แล้วลองใหม่อีกครั้ง',
+   at_char_not_allowed => 'The @ character is not allowed in this field.  Press browser back button and try again',
+   badnum_in_days => 'bad number in consecutive days field'
    );
 
 1;

@@ -1,17 +1,18 @@
 <table border="0" align="center" width="95%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>RECHTSCHREIBPRÜFUNG for @@@DICTIONARY@@@</B></font>
+<B>RECHTSCHREIBPRÜFUNG</B></font>
 </td></tr>
 <tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
-<BR>Eine Liste von Vorschlägen werden für jedes falsche Wort angeboten.
-Es kann eines dieser Wörter ausgewählt werden um es zu ersetzen.
-Werden keine Vorschläge gefunden kann "-manuell-" ausgewählt und [Check Again]
-angeklickt werden. Es erscheint eine Textbox, in der die Korrektur manuell
-eingegeben werden kann.
+<BR>Für jedes unbekannte oder nicht korrekte Wort wird innerhalb 
+einer Kombobox eine Liste mit alternativen Vorschlägen angeboten. Eines der Wörter aus der 
+Liste kann ausgewählt werden um das fehlerhafte Wort zu ersetzen. Soll kein Vorschlag aus der Liste verwendet werden bzw.
+Werden keine Vorschläge gefunden kann "manuell ändern" ausgewählt werden. Durch klicken auf "Erneut prüfen"
+erscheint eine Textbox, in der die Korrektur manuell
+eingetragen werden kann.
 </td></tr>
 </table>
 <br>

@@ -23,7 +23,9 @@
 </tr></table>
 
 </td></tr></table>
-<br>
+
+@@@EVENTREMINDER@@@
+
 <table border="0" align="center" width="95%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
 <tr><td valign="middle" width="6%" bgcolor=@@@COLUMNHEADER@@@>
 <CENTER>@@@STATUS@@@</CENTER></td>

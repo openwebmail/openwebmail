@@ -7,11 +7,11 @@
 @@@MENUBARLINKS@@@
 </td></tr><tr><td colspan="5">&nbsp;</td></tr>
 <tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Navn p&aring; ny mappe (max @@@FOLDERNAME_MAXLEN@@@ tegn)</B></td>
+<B>Navn p&aring; ny mappe (max. @@@FOLDERNAME_MAXLEN@@@ tegn)</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Ul&aelig;st</B></td>
+<B>Ul&aelig;ste</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Ialt</B></td>
+<B>I alt</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>St&oslash;rrelse</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
@@ -37,9 +37,9 @@
 <tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Standard foldere</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Ul&aelig;st</B></td>
+<B>Ul&aelig;ste</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Ialt</B></td>
+<B>I alt</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>St&oslash;rrelse</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
@@ -55,10 +55,14 @@
 <script language="JavaScript">
 <!--
    function OpConfirm(formname, op, text)
-   {   
+   {
       var newname='';
+      if ( op == 'markreadfolder' ) {
+         document.forms[formname].action.value='markreadfolder';
+         document.forms[formname].foldernewname.value='';
+         return(confirm(text));
 
-      if ( op == 'deletefolder' ) {
+      } else if ( op == 'deletefolder' ) {
          document.forms[formname].action.value='deletefolder';
          document.forms[formname].foldernewname.value='';
          return(confirm(text));
@@ -76,7 +80,7 @@
       } else {	// renamefolder
          newname=prompt(text, document.forms[formname].foldername.value);
          if ( newname==document.forms[formname].foldername.value ||
-              newname==null || 
+              newname==null ||
               newname==''      ) {
             return false;
          }

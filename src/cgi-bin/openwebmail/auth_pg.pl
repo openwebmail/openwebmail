@@ -1,13 +1,13 @@
-# 
+#
 # auth_pgsql.pl - authenticate user with PostgreSQL
-# 
-# 2002/04/05 Veselin Slavov vess@btc.net 
+#
+# 2002/04/05 Veselin Slavov vess@btc.net
 #
 
 #
 # CREATE TABLE "users" (
 #	"Uid"		serial,
-#	"Gid"		int4, 
+#	"Gid"		int4,
 #	"uname"		char(64),  -- username
 #	"upass"		char(32),  -- password (cleartxt, MD5 or crypt)
 #	"rname"		char(), -- realname
@@ -37,7 +37,7 @@ sub get_userinfo {
    my $q= qq/select "Uid", "Gid", "rname", "MailDir" from users where uname='$user'/;
    my @ret=();
    Pg::doQuery($DB,$q,\@ret);
-   
+
    if ($ret[0][0] eq '') {
 	return -1;
 	}

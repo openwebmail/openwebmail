@@ -7,11 +7,11 @@
 
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
-<BR>Her hatalý yazýlan kelime için bir takým öneriler sunulacaktýr. 
-Kullanýcý bu önerilerden birini seçip hatalý yazýlan kelimeyle 
-deðiþtirebilir.Eðer hiçbir öneri yoksa veya kullanýcý "-manuel düzelt-" 
-seçerse ve [Tekrar Kontrol Edin] üzerine týklarsa metin 
-alaný giriþ için açýlýr. 
+<BR>Her hatalý yazýlan kelime için bir takým öneriler sunulacaktýr.
+Kullanýcý bu önerilerden birini seçip hatalý yazýlan kelimeyle
+deðiþtirebilir.Eðer hiçbir öneri yoksa veya kullanýcý "-manuel düzelt-"
+seçerse ve [Tekrar Kontrol Edin] üzerine týklarsa metin
+alaný giriþ için açýlýr.
 </td></tr>
 </table>
 <br>

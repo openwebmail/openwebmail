@@ -1,9 +1,7 @@
 #!/usr/bin/perl -T
-# Slovak translation by Maros Michalik, michalm@pobox.sk, 2000-MAY-23
-# updates by lubos klokner, <lubos@klokner.sk>, 2001-NOV-11
-# Revised by Peter Sedivy, <pese@rocketmail.com> , 2002-MAR-08
 
-$lang_charset = 'iso-8859-2';
+# Slovak translation by lubos klokner, lubos@klokner.sk, 2002-JUL-11
+# charset: iso-8859-2
 
 %lang_folders =
    (
@@ -12,6 +10,7 @@ $lang_charset = 'iso-8859-2';
    'sent-mail'      => 'ODOSLANÉ',
    'saved-drafts'   => 'KONCEPT',
    'mail-trash'     => 'KÔ©',
+   'all'            => 'V¹etko',
    DELETE => '--ZMAZA«--'
    );
 
@@ -61,12 +60,79 @@ $lang_charset = 'iso-8859-2';
    1440 => '24 hodín'
    );
 
+%lang_advsearchlabels =
+   (
+   contains    => 'obsahuje',
+   notcontains => 'neobsahuje',
+   is          => 'je',
+   isnot       => 'nieje',
+   startswith  => 'zaèína s',
+   endswith    => 'konèí s',
+   regexp      => 'spåòa regulárny výraz',
+   );
+
+%lang_calendar = 
+   (
+   yearview  => 'Roèný prehµad',
+   monthview => 'Mesaèný prehµad',
+   weekview  => 'Tý¾denný prehµad',
+   dayview   => 'Denný prehµad'
+   );
+
+%lang_month =
+   (
+   1  => 'Január',
+   2  => 'Február',
+   3  => 'Marec',
+   4  => 'Apríl',
+   5  => 'Máj',
+   6  => 'Jún',
+   7  => 'Júl',
+   8  => 'August',
+   9  => 'September',
+   10 => 'Október',
+   11 => 'November',
+   12 => 'December'
+   );
+
+%lang_wday =
+   (
+   0 => 'Nedeµa',
+   1 => 'Pondelok',
+   2 => 'Útorok',
+   3 => 'Streda',
+   4 => '©tvrtok',
+   5 => 'Piatok',
+   6 => 'Sobota'
+   );
+
+%lang_wday_abbrev =
+   (
+   week => 'tý¾deò',
+   0 => 'N',
+   1 => 'P',
+   2 => 'U',
+   3 => 'S',
+   4 => '©',
+   5 => 'P',
+   6 => 'S'
+   );
+
+%lang_order =
+   (
+   1 => 'prvý',
+   2 => 'druhý',
+   3 => 'tretí',
+   4 => '¹tvrtý',
+   5 => 'posledný'
+   );
+
 %lang_text =
-   (  
+   (
    login      => 'Prihlási»',
    clear      => 'Zmaza»',
-   point      => 'Point',
-   pixel      => 'Pixel',
+   point      => 'Bod(ov)',
+   pixel      => 'Pixel(ov)',
    changepwd  => 'Zmeni» heslo',
    viewhistory=> 'Prezrie» históriu',
    of         => 'z',
@@ -129,14 +195,16 @@ $lang_charset = 'iso-8859-2';
    continue   => 'Pokraèova»',
    loginagain => 'Znovu prihlási»',
    exit       => 'Koniec',
-   for        => 'Pre',
+   for        => 'pre',
    yourname   => 'Va¹e Meno',
    save       => 'Ulo¾i»',
    add        => 'Prida»',
    folderrenprop => '\'Zadajte prosím nový názov pre tento katalóg\'',
    rename     => 'Premenova»',
    folderdelconf => '\'Chcete naozaj zmaza» tento katalóg a celý jeho obsah?\'',
-   chkindex    => 'Skontrolova» index',
+   markread   => 'Oznaèi» ako preèítané',
+   foldermarkreadconf => '\'Chcete naozaj oznaèi» v¹etky správy v tomto adresári ako prèítené?\'',
+   chkindex   => 'Skontrolova» index',
    folderchkindexconf => '\'Chcete naozaj skontrolova» index tohoto katalógu?\'',
    reindex    => 'Reindexova»',
    folderreindexconf => '\'Chcete naozaj reindexova» tento katalóg?\'',
@@ -150,16 +218,16 @@ $lang_charset = 'iso-8859-2';
    addmod     => 'Prida»/Zmeni»',
    modify     => 'Zmeni»',
    abooktitle => 'Adresár',
-   abook      => 'ADRESÁR',
+   abook      => 'Adresár',
    name       => 'Meno',
    email      => 'E-mail',
    note       => 'Poznámka',
    group      => 'Skupina',
    quota_hit  => 'Dosiahnutý limit (quota)',
    usage      => 'Vyu¾itie',
-   tzmap      => 'World timezone map',
+   tzmap      => 'Svetová mapa èasových zón',
    editfroms  => 'Upravi» osobné e-mail adresy',
-   pop3book   => 'POP3 nastavenie',
+   pop3book   => 'POP3 nastavenia',
    retr_pop3s => 'Prija» POP3 po¹tu',
    filterbook => 'Nastavenie e-mail filtra',
    include    => 'Obsahuje',
@@ -173,7 +241,7 @@ $lang_charset = 'iso-8859-2';
    disable    => 'Vypnuté',
    filtered   => 'Filtrované',
    blockrelay => 'Blokova» SMTP Relay',
-   blockemail => 'Blokova» email',
+   blockemail => 'Blokova» e-mail',
    read       => 'Preèítané',
    yourmsg    => 'Va¹a správa',
    delivered  => 'Doruèené',
@@ -184,13 +252,37 @@ $lang_charset = 'iso-8859-2';
    readonly   => 'Iba na èítanie',
    textcontent=> 'Textový obsah',
    search     => 'Hµada»',
+   advsearch  => 'Roz¹írené vyhµadávanie',
+   folder     => 'Katalóg',
+   nofoldersel=> 'Nebol vybraný ¾iadny katalóg',
+   showall    => 'Zobrazi» v¹etko',
    spellcheck => 'Skontrolova» pravopis',
    checkagain => 'Skontrolova» znovu',
    finishchecking => 'Ukonèi» kontrolu',
-   manuallyfix=> 'Ruène upravi»'
+   manuallyfix=> 'Ruène upravi»',
+   calendar   => 'Kalendár',
+   am         => 'doobeda',
+   pm         => 'poobede',
+   calfmt_year          => 'Rok @@@YEAR@@@',
+   calfmt_yearmonth     => '@@@MONTH_STR@@@ @@@YEAR@@@',
+   calfmt_yearmonthday  => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@',
+   calfmt_yearmonthdaywday => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@ @@@WEEKDAY_STR@@@',
+   calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
+   none       => '¾iadny',
+   moreitems  => 'viac polo¾iek',
+   multieditconf => 'Táto polo¾ka bola pridaná pre viac dátumov.\\nÚprava zmení hodnoty pre v¹etky dátumi.\\nPokraèova» s úpravou?',
+   multidelconf  => 'Táto polo¾ka bola pridaná pre viac dátumov.\\nVymazanie zma¾e hodnoty pre v¹etky dátumi.\\nPokraèova» s mazaním?',
+   ed         => 'Upravi»',
+   del        => 'Zmaza»',
+   noitemforthisday => '®iadne polo¾ky pre tento deò',
+   today_only               => 'Iba dne¹ný dátum',
+   the_wday_of_thismonth    => '',
+   the_wday_of_thismonth2   => 'v mesiaci',
+   every_wday_of_thismonth  => 'ka¾dý',
+   every_wday_of_thismonth2 => 'tento mesiac'
    );
 
-%lang_err = 
+%lang_err =
    (
    has_illegal_chars => 'má nepovolené znaky!',
    couldnt_open      => 'Nedá sa otvori»',
@@ -211,7 +303,7 @@ $lang_charset = 'iso-8859-2';
    cant_create_folder=> 'Nedá sa vytvori» katalóg!',
    under_indexing    => 'sa e¹te indexuje, skúste to prosím neskôr',
    abook_invalid     => 'Prepáète, ale tento súbor nevyzerá ako adresár exportovaný z Microsoft Outlook Express 5 v CVS formáte. Uistite sa o tom prezretím v textovom editori. Prvý riadok by mal zaèína» "Name,E-mail Address", potom pokraèujte.',
-   back     => 'spä»',
+   back              => 'spä»',
    tryagain          => 'a skúste znova.',
    abook_toobig      => 'Prepáète, toto by presiahlo veµkostný limit pre Vá¹ adresár. Prosím pokraèujte.',
    cant_create_dir   => 'Nadá sa vytvori» Vá¹ pou¾ívateµský adresár!',
@@ -229,7 +321,9 @@ $lang_charset = 'iso-8859-2';
    param_fmterr      => 'chybný formát parametra',
    pwd_incorrect     => 'nesprávne heslo',
    network_server_error => 'chyba sie»ového servera',
-   sendmail_error    => 'Prepáète, nastal problém pri posielaní Va¹ej správy. Prosím kliknite vo Va¹om prehliadaèi na tlaèidlo Spä», skontrolujte Va¹u správu a skúste to znovu.'
+   sendmail_error    => 'Prepáète, nastal problém pri posielaní Va¹ej správy. Kliknite prosím vo Va¹om prehliadaèi na tlaèidlo Spä», skontrolujte Va¹u správu a skúste to znovu.',
+   at_char_not_allowed => 'Znak @ nie je povolený v tomto políèku. Kliknite prosím na tlaèítko Spä» vo Va¹om prehliadaèi a skúste to znovu.',
+   badnum_in_days => 'zlé èíslo v políèku nasledujúcich dní'
    );
 
 1;

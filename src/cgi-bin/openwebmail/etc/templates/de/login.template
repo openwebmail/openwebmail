@@ -13,7 +13,7 @@
 <BR>
 <table align=center border=0 cellspacing=2 cellpadding=0>
 <tr>
-<td align=right nowrap>Benutzer: </td><td align=left>@@@USERIDFIELD@@@</td>
+<td align=right nowrap>Benutzername: </td><td align=left>@@@USERIDFIELD@@@</td>
 </tr><tr>
 <td align=right nowrap>Passwort: </td><td align=left>@@@PASSWORDFIELD@@@</td>
 @@@DOMAINSTART@@@
@@ -45,17 +45,17 @@
 
    document.login.loginname.focus()
 
-   function focuspwd() 
-   { 
-      document.login.password.focus(); 
-      return(true); 
-   } 
+   function focuspwd()
+   {
+      document.login.password.focus();
+      return(true);
+   }
 
-   function focuslogin() 
-   { 
-      document.login.login.focus(); 
-      return (true); 
-   } 
+   function focuslogin()
+   {
+      document.login.login.focus();
+      return (true);
+   }
 
 //-->
 </script>

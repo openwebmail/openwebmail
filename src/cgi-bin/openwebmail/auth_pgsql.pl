@@ -1,9 +1,9 @@
-# 
+#
 # auth_pg.pl - authenticate user with DBD::Pg
 #
 # 2002/05/08 Oliver Smith <oliver@kfs.org>
 # Adapted from auth_mysql.pl
-# 
+#
 # 2002/03/07 Alan Sung - AlanSung@dragon2.net
 # Original auth_mysql.pl
 #

@@ -55,10 +55,14 @@
 <script language="JavaScript">
 <!--
    function OpConfirm(formname, op, text)
-   {   
+   {
       var newname='';
+      if ( op == 'markreadfolder' ) {
+         document.forms[formname].action.value='markreadfolder';
+         document.forms[formname].foldernewname.value='';
+         return(confirm(text));
 
-      if ( op == 'deletefolder' ) {
+      } else if ( op == 'deletefolder' ) {
          document.forms[formname].action.value='deletefolder';
          document.forms[formname].foldernewname.value='';
          return(confirm(text));
@@ -76,7 +80,7 @@
       } else {	// renamefolder
          newname=prompt(text, document.forms[formname].foldername.value);
          if ( newname==document.forms[formname].foldername.value ||
-              newname==null || 
+              newname==null ||
               newname==''      ) {
             return false;
          }

@@ -26,10 +26,10 @@ sub filelock_flock {
    my ($dev, $inode, $fh);
 
    if ( (! -e $filename) && $lockflag ne LOCK_UN) {
-      ($filename =~ /^(.+)$/) && ($filename = $1);   
+      ($filename =~ /^(.+)$/) && ($filename = $1);
       sysopen(F, $filename, O_RDWR|O_CREAT, 0600); # create file for lock
       close(F);
-   } 
+   }
 
    ($dev, $inode)=(stat($filename))[0,1];
    if ($dev eq '' || $inode eq '') {
@@ -47,7 +47,7 @@ sub filelock_flock {
       }
    }
 
-   # Since nonblocking lock may return errors 
+   # Since nonblocking lock may return errors
    # even the target is locked by others for just a few seconds,
    # we turn nonblocking lock into a blocking lock with timeout limit=60sec
    # thus the lock will have more chance to success.
@@ -95,7 +95,7 @@ sub filelock_dotlockfile {
       $filename=readlink($filename);
    }
    ($filename =~ /^(.+)$/) && ($filename = $1);		# untaint ...
-   
+
    while (time() <= $endtime) {
       my $status=0;
 
@@ -175,7 +175,7 @@ sub filelock_dotlockfile {
          sleep 1;
          next;
       }
-   }   
+   }
 
    _unlock("$filename.lock");
    umask($oldumask);

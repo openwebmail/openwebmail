@@ -2,7 +2,7 @@
 <tr><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="center">
    <table border="0" width="100%" cellpadding="0" cellspacing="0">
    <tr><td align="left" width="33%"><font color=@@@TITLEBAR_TEXT@@@
-   face=@@@FONTFACE@@@ size="3"><B>ZOBRAZENIE SPRÁVY</B></font></td>
+   face=@@@FONTFACE@@@ size="3"><B>Zobrazenie správy</B></font></td>
    <td align="center"><font color=@@@TITLEBAR_TEXT@@@
    face=@@@FONTFACE@@@ size="3"><B>@@@FOLDER@@@</B></font></td>
    <td align="right" width="33%"><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@

@@ -4,6 +4,6 @@
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>登出</B></FONT></TD></TR>
 <tr><td valign="middle" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>登出完成, 謝謝您的使用. 
+<BR>登出完成, 謝謝您的使用.
 <BR><BR>@@@BUTTONS@@@
 </td></tr></table>

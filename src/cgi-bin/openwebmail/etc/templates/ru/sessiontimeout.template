@@ -4,6 +4,6 @@
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B></B></FONT></TD></TR>
 <tr><td valign="middle" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>Извините, время вашей сессии закончилось! Пожалуйста вернитесь назад и 
+<BR>Извините, время вашей сессии закончилось! Пожалуйста вернитесь назад и
 <a href="@@@SCRIPTURL@@@">повторите вход</a>.<BR><BR>
 </td></tr></table>

@@ -1,6 +1,7 @@
 #!/usr/bin/perl -T
 
-$lang_charset = 'koi8-r';
+# Russian translation by Denis Mysenko, duster.AT.tpu.ru
+# charset: koi8-r
 
 %lang_folders =
    (
@@ -9,6 +10,7 @@ $lang_charset = 'koi8-r';
    'sent-mail'      => 'ОТПРАВЛЕННЫЕ',
    'saved-drafts'   => 'ЧЕРНОВИКИ',
    'mail-trash'     => 'КОРЗИНА',
+   'all'            => 'All',
    DELETE => '--УДАЛИТЬ--'
    );
 
@@ -58,8 +60,75 @@ $lang_charset = 'koi8-r';
    1440 => '24 hours'
    );
 
+%lang_advsearchlabels =
+   (
+   contains    => 'contains',
+   notcontains => 'does not contain',
+   is          => 'is',
+   isnot       => 'is not',
+   startswith  => 'starts with',
+   endswith    => 'ends with',
+   regexp      => 'matches regexp(insensitive)',
+   );
+
+%lang_calendar = 
+   (
+   yearview  => 'Yearview',
+   monthview => 'Monthview',
+   weekview  => 'Weekview',
+   dayview   => 'Dayview'
+   );
+
+%lang_month =
+   (
+   1  => 'January',
+   2  => 'February',
+   3  => 'March',
+   4  => 'April',
+   5  => 'May',
+   6  => 'June',
+   7  => 'July',
+   8  => 'August',
+   9  => 'September',
+   10 => 'October',
+   11 => 'November',
+   12 => 'December'
+   );
+
+%lang_wday =
+   (
+   0 => 'Sunday',
+   1 => 'Monday',
+   2 => 'Tuesday',
+   3 => 'Wednesday',
+   4 => 'Thursday',
+   5 => 'Friday',
+   6 => 'Saturday'
+   );
+
+%lang_wday_abbrev =
+   (
+   week => 'WK',
+   0 => 'S',
+   1 => 'M',
+   2 => 'T',
+   3 => 'W',
+   4 => 'T',
+   5 => 'F',
+   6 => 'S'
+   );
+
+%lang_order =
+   (
+   1 => '1st',
+   2 => '2nd',
+   3 => '3rd',
+   4 => '4th',
+   5 => 'last'
+   );
+
 %lang_text =
-   (  
+   (
    login      => 'Вход',
    clear      => 'Сброс',
    point      => 'Point',
@@ -133,7 +202,9 @@ $lang_charset = 'koi8-r';
    folderrenprop => '\'Введите новое имя для папки\'',
    rename     => 'Переименовать',
    folderdelconf => 'Удалить папку и её содержимое?',
-   chkindex    => 'Проверить индекс',
+   markread   => 'MarkRead',
+   foldermarkreadconf => '\'Are you going to mark read on all messages in this folder?\'',
+   chkindex   => 'Проверить индекс',
    folderchkindexconf => '\'Вы хотите посмотреть индекс этой папки?\'',
    reindex    => 'Переиндексация',
    folderreindexconf => '\'Вы уверены что хотите переиндексировать папку?\'',
@@ -181,13 +252,37 @@ $lang_charset = 'koi8-r';
    readonly   => 'ТолькоЧтение',
    textcontent=> 'ТекстовоеСодержание',
    search     => 'Искать',
+   advsearch  => 'Advanced search',
+   folder     => 'Folder',
+   nofoldersel=> 'No Folder selected',
+   showall    => 'Show All',
    spellcheck => 'Орфография',
    checkagain => 'Проверить снова',
    finishchecking => 'Хватит проверять',
-   manuallyfix=> 'Исправить вручную'
+   manuallyfix=> 'Исправить вручную',
+   calendar   => 'Calendar',
+   am         => 'am',
+   pm         => 'pm',
+   calfmt_year          => 'Year @@@YEAR@@@',
+   calfmt_yearmonth     => '@@@MONTH_STR@@@ @@@YEAR@@@',
+   calfmt_yearmonthday  => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@',
+   calfmt_yearmonthdaywday => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@ @@@WEEKDAY_STR@@@',
+   calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
+   none       => 'None',
+   moreitems  => 'more items',
+   multieditconf => 'This item was added for multiple dates.\\nEditing it will change the item for all dates.\\nContinue with Edit?',
+   multidelconf  => 'This item was added for multiple dates.\\nDeleting it will delete the item for all dates.\\nContinue with Delete?',
+   ed         => 'Ed',
+   del        => 'Del',
+   noitemforthisday => 'No items for this day',
+   today_only               => 'Today\'s date only',
+   the_wday_of_thismonth    => 'The',
+   the_wday_of_thismonth2   => 'of the month',
+   every_wday_of_thismonth  => 'Every',
+   every_wday_of_thismonth2 => 'this month'
    );
 
-%lang_err = 
+%lang_err =
    (
    has_illegal_chars => 'имеет недопустимые символы!',
    couldnt_open      => 'Не могу открыть',
@@ -208,7 +303,7 @@ $lang_charset = 'koi8-r';
    cant_create_folder=> 'Не могу создать папку!',
    under_indexing    => 'все еще в процессе индексации, попробуйте позже',
    abook_invalid     => 'Извините, этот файл не может быть экспортирован из формата Microsoft Outlook Express 5 в CSV формат.  Убедитесь, открыв этот файл в текстовом редакторе, что первая строка начинается со слов "Name,E-mail Address", затем вернитесь',
-   back     => 'назад',
+   back              => 'назад',
    tryagain          => 'и попробуйте еще раз.',
    abook_toobig      => 'Извините, превышение размера адресной книги.',
    cant_create_dir   => 'Не могу создать вашу пользовательскую директорию!',
@@ -226,7 +321,9 @@ $lang_charset = 'koi8-r';
    param_fmterr      => 'Неправильный формат параметров',
    pwd_incorrect     => 'Неправильный пароль',
    network_server_error => 'Сетевая ошибка',
-   sendmail_error    => 'Извините, сообщение не может быть отослано. Попробуйте вернуться назад (кнопкой Back) и попробовать снова.'
+   sendmail_error    => 'Извините, сообщение не может быть отослано. Попробуйте вернуться назад (кнопкой Back) и попробовать снова.',
+   at_char_not_allowed => 'The @ character is not allowed in this field.  Press browser back button and try again',
+   badnum_in_days => 'bad number in consecutive days field'
    );
 
 1;

@@ -9,8 +9,8 @@
 <tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
 <BR>Een keuze aan vervangingen wordt getoond voor ieder verkeerd gespeld woord.
 De gebruiker kan hieruit een keuze maken om het incorrect gespelde woord te vervangen.
-Als er geen goed alternatief getoond wordt, kiest de gebruiker "-handmatig herstellen-" 
-en klikt op [Opnieuw openen], een tekstveld wordt getoond waarop de gebruiker zijn woord 
+Als er geen goed alternatief getoond wordt, kiest de gebruiker "-handmatig herstellen-"
+en klikt op [Opnieuw openen], een tekstveld wordt getoond waarop de gebruiker zijn woord
 kan invoeren.
 </td></tr>
 </table>

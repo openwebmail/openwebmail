@@ -1,4 +1,6 @@
-<table border="0" align="center" width="75%" cellpadding="0" cellspacing="0">
+<BR>
+<BR>
+<table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>IMPORTER ADRESSEBOG</B></font>
@@ -8,15 +10,15 @@
 </td></tr>
 <tr><td colspan="2" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 
-<table border="0" align="center" width="75%" cellpadding="0" cellspacing="0">
+<table border="0" align="center" width="85%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
-<BR>Outlook Express 5 og Netscape Mail kan eksportere deres adresseb&oslash;ger i et 
+<BR>Outlook Express 5 og Netscape Mail kan eksportere deres adresseb&oslash;ger i et
 format, der hedder CSV, eller Comma Separated Values. @@@NAME@@@ kan importere disse
-filer ind i din personlige Adressebog for at spare dig for at skulle skrive dem 
+filer ind i din personlige Adressebog for at spare dig for at skulle skrive dem
 ved h&aring;ndkraft.
 <ul>
 <li> I Netscape, &aring;ben din adressebog, og v&aelig;lg Fil-&gt;Eksporter, og under "Gem som filtype:" v&aelig;lg "Kommasepareret (*.csv)." <BR><BR>
-<li> I Outlook Express, v&aelig;lg Fil-&gt;Eksporter-&gt;Adressebog, og v&aelig;lg filtypen "Tekstfil." Check at navnet og emailfelterne kommer 
+<li> I Outlook Express, v&aelig;lg Fil-&gt;Eksporter-&gt;Adressebog, og v&aelig;lg filtypen "Tekstfil." Check at navnet og emailfelterne kommer
 f&oslash;rst (dette er standard-indstillingen).
 </ul>
 </td></tr></table>

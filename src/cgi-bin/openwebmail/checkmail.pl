@@ -26,16 +26,12 @@ require "mailfilter.pl";
 require "pop3mail.pl";
 
 use vars qw(%config %config_raw);
-readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf.default");
-readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf") if (-f "$SCRIPT_DIR/etc/openwebmail.conf");
-require $config{'auth_module'} or
-   openwebmailerror("Can't open authentication module $config{'auth_module'}");
-
 use vars qw($loginname $domain $user $userrealname $uuid $ugid $homedir);
 use vars qw($folderdir);
 use vars qw(%prefs);
 
 # extern vars
+use vars qw(@wdaystr);	# defined in openwebmail-shared.pl
 use vars qw($pop3_authserver);	# defined in auth_pop3.pl
 
 ################################ main ##################################
@@ -48,11 +44,16 @@ my %complete=();
 
 my $opt_pop3=0;
 my $opt_verify=0;
+my $opt_zap=0;
 my $opt_quiet=0;
+my $defaultdomain="";
 my $pop3_process_count=0;
 
 # handle zombie
 $SIG{CHLD} = sub { my $pid=wait; $complete{$pid}=1; $pop3_process_count--; };	
+
+# no buffer on stdout
+$|=1;
 
 if ($ARGV[0] eq "--") {
    push(@userlist, $ARGV[1]);
@@ -63,17 +64,38 @@ if ($ARGV[0] eq "--") {
          $opt_pop3=1;
       } elsif ($ARGV[$i] eq "--index" || $ARGV[$i] eq "-i") {
          $opt_verify=1;
+      } elsif ($ARGV[$i] eq "--zaptrash" || $ARGV[$i] eq "-z") {
+         $opt_zap=1;
       } elsif ($ARGV[$i] eq "--quiet" || $ARGV[$i] eq "-q") {
          $opt_quiet=1;
       } elsif ($ARGV[$i] eq "--alluser" || $ARGV[$i] eq "-a") {
+
+         readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf.default");
+         readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf") if (-f "$SCRIPT_DIR/etc/openwebmail.conf");
+         if ($defaultdomain ne "") {
+            my $siteconf="$config{'ow_etcdir'}/sites.conf/$defaultdomain";
+            readconf(\%config, \%config_raw, "$siteconf") if ( -f "$siteconf");
+         }
+
+         require $config{'auth_module'} or
+              die("Can't open authentication module $config{'auth_module'}");
+
          foreach my $u (get_userlist()) {
             push(@userlist, $u);
+            if ($#userlist <0 ) {
+               print("-a is not supported by $config{'auth_module'}, use -f instead\n") if (!$opt_quiet);
+               exit 1;
+            }
          }
+      } elsif ($ARGV[$i] eq "--domain" || $ARGV[$i] eq "-d") {
+         $i++ if $ARGV[$i+1]!~/^\-/;
+         $defaultdomain=$ARGV[$i];
       } elsif ($ARGV[$i] eq "--file" || $ARGV[$i] eq "-f") {
          $i++;
          if ( -f $ARGV[$i] ) {
             open(USER, $ARGV[$i]);
             while (<USER>) {
+               chomp $_;
                push(@userlist, $_);
             }
             close(USER);
@@ -85,11 +107,13 @@ if ($ARGV[0] eq "--") {
 }
 
 if ($#userlist<0) {
-   print "Syntax: checkmail.pl [-q] [-p] [-i] [-f userlist] [user1 user2 ...]
+   print "Syntax: checkmail.pl [-q] [-p] [-i] [-z] [-d domain] [-f userlist] [-a] [user1 user2 ...]
 
  -q, --quite  \t quiet, no output
  -p, --pop3   \t fetch pop3 mail for user
  -i, --index  \t check index for user folders and reindex if needed
+ -z, --zaptrash\t remove stale messages from trash folder
+ -d, --domain \t default domain for user with no domain specified
  -a, --alluser\t check for all users in passwd
  -f, --file   \t user list file, each line contains a username
 
@@ -102,26 +126,50 @@ foreach $loginname (@userlist) {
    # reset back to root before switch to next user
    $>=0;
 
+   %config=(); %config_raw=();
+   readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf.default");
+   readconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf") if (-f "$SCRIPT_DIR/etc/openwebmail.conf");
+
+   my $siteconf="";
+   if ($loginname=~/\@(.+)$/) {
+       $siteconf="$config{'ow_etcdir'}/sites.conf/$1";
+   } elsif ($defaultdomain ne "") {
+       $siteconf="$config{'ow_etcdir'}/sites.conf/$defaultdomain";
+   }
+   readconf(\%config, \%config_raw, "$siteconf") if ( $siteconf ne "" && -f "$siteconf");
+
+   require $config{'auth_module'} or
+      die("Can't open authentication module $config{'auth_module'}");
+
    ($loginname, $domain, $user, $userrealname, $uuid, $ugid, $homedir)
 	=get_domain_user_userinfo($loginname);
+
    if ($user eq "") {
       print("user $loginname doesn't exist\n") if (!$opt_quiet);
       next;
    }
+
+   if ($homedir eq '/') {
+      ## Lets assume it a virtual user, and see if the user exist
+      if ( -d "$config{'ow_etcdir'}/users/$loginname") {
+         $homedir = "$config{'ow_etcdir'}/users/$loginname";
+      }
+   }
+
    next if ($homedir eq '/');
    next if ($user eq 'root' || $user eq 'toor'||
             $user eq 'daemon' || $user eq 'operator' || $user eq 'bin' ||
             $user eq 'tty' || $user eq 'kmem' || $user eq 'uucp');
 
-   if ( -f "$config{'ow_etcdir'}/users.conf/$user") { # read per user conf
-      readconf(\%config, \%config_raw, "$config{'ow_etcdir'}/users.conf/$user");
-   }
+   my $userconf="$config{'ow_etcdir'}/users.conf/$user";
+   $userconf .= "\@$domain" if ($config{'auth_withdomain'});
+   readconf(\%config, \%config_raw, "$userconf") if ( -f "$userconf");
 
    if ( $config{'use_homedirspools'} || $config{'use_homedirfolders'} ) {
       my $mailgid=getgrnam('mail');
       set_euid_egid_umask($uuid, $mailgid, 0077);	
       if ( $) != $mailgid) {	# egid must be mail since this is a mail program...
-         openwebmailerror("Set effective gid to mail($mailgid) failed!");
+         die("Set effective gid to mail($mailgid) failed!");
       }
    }
 
@@ -151,7 +199,9 @@ foreach $loginname (@userlist) {
 
    getpop3s($POP3_TIMEOUT) if ($opt_pop3);
    verifyfolders() if ($opt_verify);
+   cleantrash() if ($opt_zap);
    checknewmail();
+   checknewevent();
 
    $usercount++;
 }
@@ -173,11 +223,26 @@ my %pop3error=( -1=>"pop3book read error",
                 -8=>"spoolfile write error",
                 -9=>"pop3book write error");
 
+
+sub cleantrash {
+   my ($trashfile, $trashdb)=get_folderfile_headerdb($user, 'mail-trash');
+   if (filelock($trashfile, LOCK_EX|LOCK_NB)) {
+      my $deleted=delete_message_by_age($prefs{'trashreserveddays'}, $trashdb, $trashfile);
+      if ($deleted >0) {
+         writelog("cleantrash - delete $deleted msgs from mail-trash");
+         writehistory("cleantrash - delete $deleted msgs from mail-trash");
+      }
+      filelock($trashfile, LOCK_UN);
+   }
+}
+
+
 sub checknewmail {
    my ($spoolfile, $headerdb)=get_folderfile_headerdb($user, 'INBOX');
+   print ("$loginname ") if (!$opt_quiet);
 
    if (defined($pop3_authserver) && $config{'getmail_from_pop3_authserver'}) {
-      my $login=$user; 
+      my $login=$user;
       $login .= "\@$domain" if ($config{'auth_withdomain'});
       my $response = retrpop3mail($login, $pop3_authserver, "$folderdir/.authpop3.book", $spoolfile);
       if ( $response<0) {
@@ -186,13 +251,13 @@ sub checknewmail {
    }
 
    if ( ! -f $spoolfile || (stat($spoolfile))[7]==0 ) {
-      print ("$loginname has no mail\n") if (!$opt_quiet);
+      print ("has no mail\n") if (!$opt_quiet);
       return 0;
    }
 
    my @folderlist=();
-   my $filtered=mailfilter($user, 'INBOX', $folderdir, \@folderlist, 
-	$prefs{'filter_repeatlimit'}, $prefs{'filter_fakedsmtp'}, 
+   my $filtered=mailfilter($user, 'INBOX', $folderdir, \@folderlist,
+	$prefs{'filter_repeatlimit'}, $prefs{'filter_fakedsmtp'},
         $prefs{'filter_fakedfrom'}, $prefs{'filter_fakedexecontenttype'});
    if ($filtered>0) {
       writelog("filtermsg - filter $filtered msgs from INBOX");
@@ -210,12 +275,54 @@ sub checknewmail {
       filelock("$headerdb$config{'dbm_ext'}", LOCK_UN);
 
       if ($newmessages > 0 ) {
-         print ("$loginname has new mail\n") if (!$opt_quiet);
+         print ("has new mail\n") if (!$opt_quiet);
       } elsif ($allmessages-$internalmessages > 0 ) {
-         print ("$loginname has mail\n") if (!$opt_quiet);
+         print ("has mail\n") if (!$opt_quiet);
       } else {
-         print ("$loginname has no mail\n") if (!$opt_quiet);
+         print ("has no mail\n") if (!$opt_quiet);
       }
+   }
+}
+
+sub checknewevent {
+   my ($newevent, $oldevent);
+   my $g2l=time()+timeoffset2seconds($prefs{'timeoffset'}); # trick makes gmtime($g2l) return localtime in timezone of timeoffsset
+   my ($wdaynum, $year, $month, $day, $hour, $min)=(gmtime($g2l))[6,5,4,3,2,1];
+   $year+=1900; $month++;
+   my $hourmin=sprintf("%02d%02d", $hour, $min);
+
+   my (%items, %indexes, $item_count);
+   $item_count=readcalbook("$folderdir/.calendar.book", \%items, \%indexes, 0);
+   if ($prefs{'calendar_reminderforglobal'} && -f $config{'global_calendarbook'}) {
+      $item_count+=readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6);
+   }
+
+   my $dow=$wdaystr[$wdaynum];
+   my $date=sprintf("%04d%02d%02d", $year, $month, $day);
+   my $date2=sprintf("%04d,%02d,%02d,%s", $year,$month,$day,$dow);
+
+   my @indexlist=();
+   push(@indexlist, @{$indexes{$date}}) if (defined($indexes{$date}));
+   push(@indexlist, @{$indexes{'*'}})   if (defined($indexes{'*'}));
+   @indexlist=sort { ($items{$a}{'starthourmin'}||1E9)<=>($items{$b}{'starthourmin'}||1E9) } @indexlist;
+
+   for my $index (@indexlist) {
+      if ($date=~/$items{$index}{'idate'}/ ||
+          $date2=~/$items{$index}{'idate'}/) {
+         if ($items{$index}{'starthourmin'}>=$hourmin ||
+             $items{$index}{'endhourmin'}>$hourmin ||
+             $items{$index}{'starthourmin'}==0) {
+            $newevent++;
+         } else {
+            $oldevent++;
+         }
+      }
+   }
+
+   if ($newevent > 0 ) {
+      print ("$loginname has new event\n") if (!$opt_quiet);
+   } elsif ($oldevent > 0 ) {
+      print ("$loginname has event\n") if (!$opt_quiet);
    }
 }
 
@@ -268,7 +375,7 @@ sub getpop3s {
             }
             next if ($disallowed);
 
-            $response = retrpop3mail($pop3host, $pop3user, 
+            $response = retrpop3mail($pop3host, $pop3user,
          				"$folderdir/.pop3.book",  $spoolfile);
             if ( $response<0) {
                writelog("pop3 error - $pop3error{$response} at $pop3user\@$pop3host");
@@ -282,7 +389,7 @@ sub getpop3s {
    for ($i=0; $i<$timeout; $i++) {	# wait fetch to complete for $timeout seconds
       sleep 1;
       last if ($complete{$childpid}==1);
-   }   
+   }
    return;
 }
 

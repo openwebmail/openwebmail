@@ -9,8 +9,8 @@
 <tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
 <BR>Se sugerir&aacute;n una serie de reemplazos por cada palabra incorrecta.
 Usted puede elegir una de ellas para reemplazar la palabra original.
-Si no se encuentran reemplazos para sugerir o el usuario elige "-corregir manualmente-" 
-y entonces haga un click en [Comprobar de nuevo], un campo de texto estar&aacute; disponible para  
+Si no se encuentran reemplazos para sugerir o el usuario elige "-corregir manualmente-"
+y entonces haga un click en [Comprobar de nuevo], un campo de texto estar&aacute; disponible para
 que introduzca la corecci&oacute;n manualmente.
 </td></tr>
 </table>

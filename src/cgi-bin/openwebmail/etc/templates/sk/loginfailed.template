@@ -2,8 +2,8 @@
 <table border="0" align="center" width="25%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>NEPLATNÉ PRIHLÁSENIE</B></FONT></TD></TR>
+<B>Neplatné prihlásenie</B></FONT></TD></TR>
 <tr><td valign="middle" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>@@@ERRORMSG@@@! Prosím choïte spä» a 
+<BR>@@@ERRORMSG@@@! Prosím choïte spä» a
 <a href="@@@SCRIPTURL@@@">skúste to znova</a>.<BR><BR>
 </td></tr></table>

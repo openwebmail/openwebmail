@@ -47,13 +47,16 @@ $firstmessage = param("firstmessage") || 1;
 $sort = param("sort") || $prefs{'sort'} || 'date';
 
 # extern vars
-use vars qw($lang_charset %lang_folders %lang_text %lang_err);	# defined in lang/xy
+use vars qw(%lang_folders %lang_text %lang_err);	# defined in lang/xy
+use vars qw($_OFFSET $_STATUS);				# defined in maildb.pl
 
 ########################## MAIN ##############################
 
 my $action = param("action");
 if ($action eq "editfolders") {
    editfolders();
+} elsif ($action eq "markreadfolder") {
+   markreadfolder();
 } elsif ($action eq "chkindexfolder") {
    reindexfolder(0);
 } elsif ($action eq "reindexfolder") {
@@ -81,10 +84,10 @@ sub editfolders {
    $total_allmessages=0;
    $total_foldersize=0;
 
-   push(@defaultfolders, 'INBOX', 
-                         'saved-messages', 
-                         'sent-mail', 
-                         'saved-drafts', 
+   push(@defaultfolders, 'INBOX',
+                         'saved-messages',
+                         'sent-mail',
+                         'saved-drafts',
                          'mail-trash');
 
    foreach (@validfolders) {
@@ -138,7 +141,7 @@ sub editfolders {
 
    $temphtml = textfield(-name=>'foldername',
                          -default=>'',
-                         -size=> $config{'foldername_maxlen'},
+                         -size=> 24,
                          -maxlength=>$config{'foldername_maxlen'},
                          -override=>'1');
 
@@ -190,16 +193,13 @@ sub editfolders {
       $usagestr="&nbsp;";
    }
 
-   if ($total_foldersize > 1048575){
-      $total_foldersize = int($total_foldersize/1048576*10+0.5)/10 . "MB";
-   } elsif ($total_foldersize > 1023) {
-      $total_foldersize =  int(($total_foldersize/1024)+0.5) . "KB";
-   }
+   $total_foldersize=lenstr($total_foldersize,0);
+
    $temphtml = qq|<tr>|.
                qq|<td align="center" bgcolor=$bgcolor><B>$lang_text{'total'}</B></td>|.
                qq|<td align="center" bgcolor=$bgcolor><B>$total_newmessages</B></td>|.
-               qq|<td align="center" bgcolor=$bgcolor><B>$total_allmessages</B></td>|.
-               qq|<td align="center" bgcolor=$bgcolor><B>$total_foldersize</B></td>|.
+               qq|<td align="center" bgcolor=$bgcolor><B>&nbsp;$total_allmessages</B></td>|.
+               qq|<td align="center" bgcolor=$bgcolor><B>&nbsp;$total_foldersize</B></td>|.
                qq|<td bgcolor=$bgcolor align="center">$usagestr</td>|.
                qq|</tr>|;
    $html =~ s/\@\@\@TOTAL\@\@\@/$temphtml/;
@@ -243,12 +243,7 @@ sub _folderline {
    $foldersize = (-s "$folderfile") + (-s "$headerdb$config{'dbm_ext'}");
 
    $total_foldersize+=$foldersize;
-   # round foldersize and change to an appropriate unit for display
-   if ($foldersize > 1048575){
-      $foldersize = int($foldersize/1048576*10+0.5)/10 . "MB";
-   } elsif ($foldersize > 1023) {
-      $foldersize =  int(($foldersize/1024)+0.5) . "KB";
-   }
+   $foldersize=lenstr($foldersize,0);
 
    my $escapedcurrfolder = escapeURL($currfolder);
    my $url = "$config{'ow_cgiurl'}/openwebmail-folder.pl?sessionid=$thissession&amp;folder=$escapedcurrfolder&amp;action=downloadfolder";
@@ -262,8 +257,8 @@ sub _folderline {
                 qq|<a href="$url" title="$lang_text{'download'} $folderstr"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/download.gif" align="absmiddle" border="0" ALT="$lang_text{'download'} $folderstr">|.
                 qq|</a></td>\n|.
                 qq|<td align="center" bgcolor=$bgcolor>$newmessages</td>|.
-                qq|<td align="center" bgcolor=$bgcolor>$allmessages</td>|.
-                qq|<td align="center" bgcolor=$bgcolor>$foldersize</td>\n|;
+                qq|<td align="center" bgcolor=$bgcolor>&nbsp;$allmessages</td>|.
+                qq|<td align="center" bgcolor=$bgcolor>&nbsp;$foldersize</td>\n|;
 
    $temphtml .= qq|<td bgcolor=$bgcolor align="center">\n|;
 
@@ -292,15 +287,19 @@ sub _folderline {
                        -override=>'1');
    $temphtml .= "\n";
 
-   my $jsfolderstr=$currfolder; $jsfolderstr=~ s/'/\\'/g;	# escaep ' with \'
+   my $jsfolderstr=$lang_folders{$currfolder}||$currfolder; 
+   $jsfolderstr=~ s/'/\\'/g;	# escaep ' with \'
+   $temphtml .= submit(-name=>"$lang_text{'markread'}",
+                       -class=>"medtext",
+                       -onClick=>"return OpConfirm('folderform$i', 'markreadfolder', $lang_text{'foldermarkreadconf'}+' ( $jsfolderstr )')");
    $temphtml .= submit(-name=>"$lang_text{'chkindex'}",
                        -class=>"medtext",
                        -onClick=>"return OpConfirm('folderform$i', 'chkindexfolder', $lang_text{'folderchkindexconf'}+' ( $jsfolderstr )')");
-   $temphtml .= submit(-name=>"$lang_text{'reindex'}", 
+   $temphtml .= submit(-name=>"$lang_text{'reindex'}",
                        -class=>"medtext",
                        -onClick=>"return OpConfirm('folderform$i', 'reindexfolder', $lang_text{'folderreindexconf'}+' ( $jsfolderstr )')");
    if ($currfolder ne "INBOX") {
-      $temphtml .= submit(-name=>"$lang_text{'rename'}", 
+      $temphtml .= submit(-name=>"$lang_text{'rename'}",
                           -class=>"medtext",
                           -onClick=>"return OpConfirm('folderform$i', 'renamefolder', $lang_text{'folderrenprop'}+' ( $jsfolderstr )')");
       $temphtml .= submit(-name=>"$lang_text{'delete'}",
@@ -314,6 +313,71 @@ sub _folderline {
    return($temphtml);
 }
 ################### END EDITFOLDERS ########################
+
+################### MARKREADFOLDER ##############################
+sub markreadfolder {
+   my $foldertomark = param('foldername') || '';
+   $foldertomark =~ s/\.\.+//g;
+   $foldertomark =~ s/[\s\/\`\|\<\>;]//g; # remove dangerous char
+   ($foldertomark =~ /^(.+)$/) && ($foldertomark = $1);
+   my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $foldertomark);
+
+   filelock($folderfile, LOCK_EX|LOCK_NB) or openwebmailerror("$lang_err{'couldnt_lock'} $folderfile!");
+
+   update_headerdb($headerdb, $folderfile);
+
+   my (%HDB, %offset, %status);
+   filelock("$headerdb$config{'dbm_ext'}", LOCK_SH);
+   dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
+   foreach my $messageid (keys %HDB) {
+      next if ( $messageid eq 'METAINFO'
+             || $messageid eq 'NEWMESSAGES'
+             || $messageid eq 'INTERNALMESSAGES'
+             || $messageid eq 'ALLMESSAGES'
+             || $messageid eq "" );
+      my @attr=split( /@@@/, $HDB{$messageid} );
+      if ($attr[$_STATUS] !~ /R/i) {
+         $offset{$messageid}=$attr[$_OFFSET];
+         $status{$messageid}=$attr[$_STATUS];
+      }
+   }
+   dbmclose(%HDB);
+   filelock("$headerdb$config{'dbm_ext'}", LOCK_UN);
+
+   my @markids;
+   my $tmpfile="/tmp/markread_tmp_$$";
+   my $tmpdb="/tmp/.markread_tmp_$$";
+   ($tmpfile =~ /^(.+)$/) && ($tmpfile = $1);
+   ($tmpdb =~ /^(.+)$/) && ($tmpdb = $1);
+
+   filelock("$tmpfile", LOCK_EX);
+
+   update_headerdb($tmpdb, $tmpfile);
+
+   foreach my $messageid (sort { $offset{$a}<=>$offset{$b} } keys %offset) {
+      my @copyid;
+      push(@copyid, $messageid);
+      if (operate_message_with_ids("copy", \@copyid,
+   					$folderfile, $headerdb, $tmpfile, $tmpdb) >0 ) {
+         update_message_status($messageid, $status{$messageid}."R", $tmpdb, $tmpfile);
+         push(@markids, $messageid);
+      }
+   }
+   operate_message_with_ids("delete", \@markids, $folderfile, $headerdb);
+   operate_message_with_ids("copy", \@markids,
+   					$tmpfile, $tmpdb, $folderfile, $headerdb);
+      
+   filelock("$tmpfile", LOCK_UN);
+   filelock($folderfile, LOCK_UN);
+   unlink("$tmpdb$config{'dbm_ext'}", $tmpfile);
+
+   writelog("markread folder - $foldertomark");
+   writehistory("markread folder - $foldertomark");
+
+   getfolders(\@validfolders, \$folderusage);
+   editfolders();
+}
+################### END MARKREADFOLDER ##########################
 
 ################### REINDEXFOLDER ##############################
 sub reindexfolder {
@@ -340,10 +404,17 @@ sub reindexfolder {
    }
    update_headerdb($headerdb, $folderfile);
 
-   getfolders(\@validfolders, \$folderusage);
-   editfolders();
+   if ($recreate) {
+      writelog("reindex folder - $foldertoindex");
+      writehistory("reindex folder - $foldertoindex");
+   } else {
+      writelog("chkindex folder - $foldertoindex");
+      writehistory("chkindex folder - $foldertoindex");
+   }
 
 #   print "Location: $config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editfolders&sessionid=$thissession&sort=$sort&folder=$escapedfolder&firstmessage=$firstmessage\n\n";
+   getfolders(\@validfolders, \$folderusage);
+   editfolders();
 }
 ################### END REINDEXFOLDER ##########################
 
@@ -386,7 +457,7 @@ sub addfolder {
 sub is_defaultfolder {
    my $foldername=$_[0];
    if ($foldername eq 'INBOX' ||
-       $foldername eq 'saved-messages' || 
+       $foldername eq 'saved-messages' ||
        $foldername eq 'sent-mail' ||
        $foldername eq 'saved-drafts' ||
        $foldername eq 'mail-trash' ||
@@ -423,7 +494,7 @@ sub deletefolder {
               "$folderdir/.$foldertodel.pag",
               "$folderdir/.$foldertodel.cache",
               "$folderdir/$foldertodel.lock",
-              "$folderdir/$foldertodel.lock.lock");              
+              "$folderdir/$foldertodel.lock.lock");
 
       writelog("delete folder - $foldertodel");
       writehistory("delete folder - $foldertodel");

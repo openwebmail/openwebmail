@@ -1,7 +1,7 @@
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="1">
 <tr><td bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>Benutzer Statistik</B></font>
+<B>Benutzer Logfile</B></font>
 </td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 &nbsp;
 <table border="0" align="center" width="90%" cellspacing="0" cellpadding="0">
@@ -9,7 +9,7 @@
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Zeit</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Client-Adresse</B></td>
+<B>Client-IP</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Benutzer</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>

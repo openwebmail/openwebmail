@@ -16,7 +16,7 @@
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Adgangskode</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-@@@DELPOP3STRSTART@@@<B>Slet fjern-post</B>@@@DELPOP3STREND@@@</td>
+@@@DELPOP3STRSTART@@@<B>Slet p&aring; server</B>@@@DELPOP3STREND@@@</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Aktiver</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
@@ -47,6 +47,7 @@
 
 @@@ADDRESSES@@@
 
+<tr><td colspan="6" align=center><BR>@@@CONTINUEBUTTON@@@</td></tr>
 </table>
 
 <script language="JavaScript">

@@ -1,6 +1,7 @@
 #!/usr/bin/perl -T
 
-$lang_charset = 'windows-1257';
+# Lithuanian translation by Alvydas Sinkunas, dvm382.AT.takas.lt
+# charset: windows-1257
 
 %lang_folders =
    (
@@ -9,6 +10,7 @@ $lang_charset = 'windows-1257';
    'sent-mail'      => 'Iğsiøsti laiğkai',
    'saved-drafts'   => 'Rağomi laiğkai',
    'mail-trash'     => 'Ğiukğliadëşë',
+   'all'            => 'Visur',
    DELETE => '--TRINTI--'
    );
 
@@ -48,18 +50,85 @@ $lang_charset = 'windows-1257';
 
 %lang_timelabels =
    (
-     10 => '10 minutes',
-     30 => '30 minutes',
-     60 => '60 minutes',
-    120 => '2 hours',
-    180 => '3 hours',
-    360 => '6 hours',
-    720 => '12 hours',
-   1440 => '24 hours'
+     10 => '10 min.',
+     30 => '30 min.',
+     60 => '60 min.',
+    120 => '2 val.',
+    180 => '3 val.',
+    360 => '6 val.',
+    720 => '12 val.',
+   1440 => '24 val.'
+   );
+
+%lang_advsearchlabels =
+   (
+   contains    => 'yra frazë',
+   notcontains => 'nëra frazës',
+   is          => 'yra tiksli frazë',
+   isnot       => 'nëra tikslios frazës',
+   startswith  => 'prasideda su',
+   endswith    => 'baigiasi su',
+   regexp      => 'matches regexp(insensitive)',
+   );
+
+%lang_calendar = 
+   (
+   yearview  => 'Metai',
+   monthview => 'Mënuo',
+   weekview  => 'Savaitë',
+   dayview   => 'Diena'
+   );
+
+%lang_month =
+   (
+   1  => 'Sausis',
+   2  => 'Vasaris',
+   3  => 'Kovas',
+   4  => 'Balandis',
+   5  => 'Geguşë',
+   6  => 'Birşelis',
+   7  => 'Liepa',
+   8  => 'Rugpjûtis',
+   9  => 'Rugsëjis',
+   10 => 'Spalis',
+   11 => 'Lapkritis',
+   12 => 'Gruodis'
+   );
+
+%lang_wday =
+   (
+   0 => 'Sekmadienis',
+   1 => 'Pirmadienis',
+   2 => 'Antradienis',
+   3 => 'Treèiadienis',
+   4 => 'Ketvirtadienis',
+   5 => 'Penktadienis',
+   6 => 'Ğeğtadienis'
+   );
+
+%lang_wday_abbrev =
+   (
+   week => '',
+   0 => 'S',
+   1 => 'P',
+   2 => 'A',
+   3 => 'T',
+   4 => 'k',
+   5 => 'P',
+   6 => 'Ğ'
+   );
+
+%lang_order =
+   (
+   1 => '1-as.',
+   2 => '2-as.',
+   3 => '3-as.',
+   4 => '4-as',
+   5 => '5-as'
    );
 
 %lang_text =
-   (  
+   (
    login      => 'Jungtis',
    clear      => 'Iğvalyti',
    point      => 'Point',
@@ -120,11 +189,11 @@ $lang_charset = 'windows-1257';
    editdraft  => 'Redaguoti rağomà laiğkà',
    savedraft  => 'Árağyti neiğsiunèiant',
    send       => 'Siøsti',
-   about      => 'About',
-   close      => 'Close',
+   about      => 'Apie',
+   close      => 'U=daryti',
    cancel     => 'Anuliuoti',
    continue   => 'Tæsti',
-   loginagain => 'Login again',
+   loginagain => 'Prisijungti vël',
    exit       => 'Iğeiti',
    for        => '-',
    yourname   => 'Jûsø vardas',
@@ -133,7 +202,9 @@ $lang_charset = 'windows-1257';
    folderrenprop => '\'Árağykite naujà segtuvo pavadinimà\'',
    rename     => 'Pervardinti',
    folderdelconf => '\'Ar tikrai norite iğtrinti ğá segtuvà ir visà jo turiná?\'',
-   chkindex    => 'CheckIndex',
+   markread   => 'MarkRead',
+   foldermarkreadconf => '\'Are you going to mark read on all messages in this folder?\'',
+   chkindex   => 'CheckIndex',
    folderchkindexconf => '\'Ar norite patikrinti katalogo indeksà?\'',
    reindex    => 'ReIndex',
    folderreindexconf => '\'Ar tikrai norite perindeksuoti ğá katalogà?\'',
@@ -154,23 +225,23 @@ $lang_charset = 'windows-1257';
    group      => 'Grupë',
    quota_hit  => 'JÛSØ DISKO VIETA IĞNAUDOTA',
    usage      => 'Iğnaudota disko vietos',
-   tzmap      => 'World timezone map',
+   tzmap      => 'Pasaulio laiko juostø şemëlapis',
    editfroms  => 'Redaguoti personaliná el. pağto adresà',
    pop3book   => 'POP3 nustatymai',
    retr_pop3s => 'Tikrinti POP3 pağto dëşutæ',
    filterbook => 'Pağto filtrai',
    include    => 'Naudoti',
    exclude    => 'Nenaudoti',
-   smtprelay  => 'SMTP Relay',
+   smtprelay  => 'SMTP leidimas',
    header     => 'Adresai',
    body       => 'Turinys',
-   attfilename=> 'AttFilename',
-   all        => 'All',
+   attfilename=> 'Priedø varduose',
+   all        => 'Visur',
    enable     => '',
    disable    => 'Uşdrausta',
-   filtered   => 'Filtered',
+   filtered   => 'Nufiltruota',
    blockrelay => 'Uşdraustas SMTP',
-   blockemail => 'Block email',
+   blockemail => 'Uşdraustas pağtas',
    read       => 'Skaityti',
    yourmsg    => 'Jûsø laiğkas',
    delivered  => 'Pristatytas',
@@ -181,13 +252,37 @@ $lang_charset = 'windows-1257';
    readonly   => 'Tik skaityti',
    textcontent=> 'Tekste',
    search     => 'Ieğkoti',
+   advsearch  => 'Iğplëstinë paieğka',
+   folder     => 'Katalogas',
+   nofoldersel=> 'Nepasirinktas katalogas',
+   showall    => 'rodyti viskà',
    spellcheck => 'Tikrinti rağybà',
    checkagain => 'Tikrinti vël',
    finishchecking => 'Patikrinta',
-   manuallyfix=> 'Fiksuoti'
+   manuallyfix=> 'Fiksuoti',
+   calendar   => 'Kalendorius',
+   am         => 'iki.p',
+   pm         => 'po.p',
+   calfmt_year          => 'Metai @@@YEAR@@@',
+   calfmt_yearmonth     => '@@@MONTH_STR@@@ @@@YEAR@@@',
+   calfmt_yearmonthday  => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@',
+   calfmt_yearmonthdaywday => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@ @@@WEEKDAY_STR@@@',
+   calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
+   none       => 'Nieko',
+   moreitems  => 'daugiau árağø',
+   multieditconf => 'Ğis árağas su keliomis datomis.\\nRedaguodami pakeisite árağà visoms datoms.\\nAr testi redagavimà?',
+   multidelconf  => 'Ğis árağas su keliomis datomis.\\nIğtrinti galima tik visas datas iğ karto.\\nAr tæsti trynimà?',
+   ed         => 'Red',
+   del        => 'Iğtr.',
+   noitemforthisday => 'Ğiai dienai árağø nëra',
+   today_only               => 'Tik ğiai datai',
+   the_wday_of_thismonth    => '',
+   the_wday_of_thismonth2   => 'per mënesá',
+   every_wday_of_thismonth  => 'Kiekvienas',
+   every_wday_of_thismonth2 => 'ğá mënesá'
    );
 
-%lang_err = 
+%lang_err =
    (
    has_illegal_chars => 'neleistini simboliai!',
    couldnt_open      => 'nepavyko atversti',
@@ -208,7 +303,7 @@ $lang_charset = 'windows-1257';
    cant_create_folder=> 'Nepavyko sukurti segtuvo!',
    under_indexing    => 'is still under indexing, please try later',
    abook_invalid     => 'Atrodo, kad norite importuoti bylà, kuri neatitinka Microsoft Outlook Express 5 CSV formato. Pasişiûrëkit ar pirmoje eilutë tokia: "Name,E-mail Address", jei taip, bandykite importuoti',
-   back     => 'atgal',
+   back              => 'atgal',
    tryagain          => 'bandykit dar kartà.',
    abook_toobig      => 'Gaila, bet Jûs iğnaudojote adresø knygelei skirtà disko vietà.',
    cant_create_dir   => 'Nepavyko sukurti segtuvo Jûsø darbui!',
@@ -226,7 +321,9 @@ $lang_charset = 'windows-1257';
    param_fmterr      => 'parametro formato klaida',
    pwd_incorrect     => 'slaptaşodis neteisingas',
    network_server_error => 'tinklo klaida',
-   sendmail_error    => 'Gaila, bet iğkilo bëdø siunèiant laiğkà. Gráşkite atgal ir bandykite dar kartà.'
+   sendmail_error    => 'Gaila, bet iğkilo bëdø siunèiant laiğkà. Gráşkite atgal ir bandykite dar kartà.',
+   at_char_not_allowed => 'Simbolis @ negalimas ğiame lauke.  Gráşkite atgal ir bandykite dar kartà',
+   badnum_in_days => 'blogas skaièius , nenuoseklus'
    );
 
 1;

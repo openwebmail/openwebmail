@@ -26,11 +26,12 @@ Open WebMail has the following enhanced features:
 13. strong MIME message capability
 14. draft folder support
 15. spelling check support
-16. POP3 mail support
-17. mail filter support
-18. message count preview
-19. confirm reading support
-20. BIG5/GB conversion (for Chinese only)
+16. calendar support
+17. POP3 mail support
+18. mail filter support
+19. message count preview
+20. confirm reading support
+21. BIG5/GB conversion (for Chinese only)
 
 
 REQUIREMENT
@@ -114,7 +115,8 @@ then just
       openwebmail.pl, openwebmail-main.pl, 
       openwebmail-read.pl, openwebmail-viewatt.pl, 
       openwebmail-send.pl, openwebmail-spell.pl,
-      openwebmail-prefs.pl, openwebmail-folder.pl, openwebmail-abook.pl
+      openwebmail-prefs.pl, openwebmail-folder.pl, 
+      openwebmail-abook.pl, openwebmail-advsearch.pl
       and checkmail.pl
 
 If you are using RedHat 6.2/CLE 0.9p1(or most Linux) with apache
@@ -249,17 +251,19 @@ The above line in crontab will do pop3mail prefetching, mail filtering and
 folder index verification quietly for all users at 23:59 every day .
 
 
-GLOBAL ADDRESSBOOK and FILTERRULE
----------------------------------
-Current support for global addressbook/filterrule is very limited.
-The administrator has to make a copy of addressbook/filterbook to
-the file specified by global_addressbook or global_filterbook by himself.
+GLOBAL ADDRESSBOOK, FILTERRULE and CALENDAR
+--------------------------------------------
+Current support for global addressbook/filterrule/calendar is very limited.
+The administrator has to make a copy of addressbook/filterbook/calendar to
+the file specified by global_addressbook, global_filterbook or 
+global_calendarbook by himself.
 
 ps: An account may be created to maintain the global addressbook/filterbook, 
     for example: 'global'
 
-    ln -s your_global_addressbook ~global/mail/.address.book
-    ln -s your_global_filterbook  ~global/mail/.filter.book
+    ln -s your_global_addressbook  ~global/mail/.address.book
+    ln -s your_global_filterbook   ~global/mail/.filter.book
+    ln -s your_global_calendarbook ~global/mail/.calendar.book
 
     Please be sure that the global files are writeable by user 'global'
     and readable by others
@@ -570,8 +574,8 @@ ps: You may choose the abbreviation by referencing the following url
    cp lang/en lang/xy
    cp -R templates/en templates/xy
 3. translate file lang/xy and templates/xy/* from English to your language
-4. add your language to %languagenames in openwebmail-prefs.pl,
-   then you can set default_language to 'xy' in openwebmail.conf
+4. add the name and charset of your language to %languagenames, %languagecharsets 
+   in openwebmail-shared.pl, then set default_language to 'xy' in openwebmail.conf
 
 ps: If you wish your translation to be included in the next release of 
     openwebmail, please submit it to openwebmail.AT.turtle.ee.ncku.edu.tw.

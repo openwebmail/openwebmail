@@ -90,7 +90,7 @@ sub viewattachment {	# view attachments inside a message
       return;
    }
 
-   if ( $nodeid eq 'all' ) { 
+   if ( $nodeid eq 'all' ) {
       # return whole msg as an message/rfc822 object
       my $subject = (get_message_attributes($messageid, $headerdb))[$_SUBJECT];
       $subject =~ s/\s+/_/g;
@@ -155,7 +155,7 @@ sub viewattachment {	# view attachments inside a message
          }
 
          my $length = length($content);
-         my $contenttype = ${$r_attachment}{contenttype}; 
+         my $contenttype = ${$r_attachment}{contenttype};
          my $filename = ${$r_attachment}{filename};
 
          # remove char disallowed in some fs
@@ -173,7 +173,7 @@ sub viewattachment {	# view attachments inside a message
             $contenttype = "text/plain";
          }
 
-         # we change the filename of an attachment 
+         # we change the filename of an attachment
          # from *.exe, *.com *.bat, *.pif, *.lnk, *.scr to *.file
          # if its contenttype is not application/octet-stream
          # to avoid this attachment is referenced by html and executed directly ie
@@ -235,12 +235,12 @@ sub viewattfile {	# view attachments uploaded to openwebmail/etc/sessions/
    }
 
    my ($attsize, $attheader, $attheaderlen, $attcontent);
-   my ($attcontenttype, $attencoding, $attdisposition, 
+   my ($attcontenttype, $attencoding, $attdisposition,
        $attid, $attlocation, $attfilename);
-   
+
    $attsize=(-s("$config{'ow_etcdir'}/sessions/$attfile"));
 
-   open(ATTFILE, "$config{'ow_etcdir'}/sessions/$attfile") or 
+   open(ATTFILE, "$config{'ow_etcdir'}/sessions/$attfile") or
       openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/sessions/$attfile!");
    read(ATTFILE, $attheader, 512);
    $attheaderlen=index($attheader,  "\n\n", 0);
@@ -264,7 +264,7 @@ sub viewattfile {	# view attachments uploaded to openwebmail/etc/sessions/
          $attdisposition = $1;
          $lastline = 'NONE';
       } elsif (/^content-id:\s+(.+)$/ig) {
-         $attid = $1; 
+         $attid = $1;
          $attid =~ s/^\<(.+)\>$/$1/;
          $lastline = 'NONE';
       } elsif (/^content-location:\s+(.+)$/ig) {

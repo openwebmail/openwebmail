@@ -1,18 +1,18 @@
 #
 # Open WebMail configuration file DEFAULT
 #
-# This is openwebmail.conf.default - a file full of useful variables that 
-# you can set for the openwebmail system. You should not edit this file!  
-# Put any overrides into openwebmail.conf instead. The openwebmail.conf 
-# should only contain values which override values set in this file.  
+# This is openwebmail.conf.default - a file full of useful variables that
+# you can set for the openwebmail system. You should not edit this file! 
+# Put any overrides into openwebmail.conf instead. The openwebmail.conf
+# should only contain values which override values set in this file. 
 # This eases the upgrade when defaults are changed or new features are added.
 #
 # Please refer to openwebmail.conf.help for description of each option
 #
 
 name			Open WebMail
-version			1.65
-releasedate		20020606
+version			1.70
+releasedate		20020712
 
 ##############################################################################
 # host dependent configuration
@@ -46,14 +46,17 @@ ow_cgiurl		/cgi-bin/openwebmail
 ow_htmldir		/usr/local/www/data/openwebmail
 ow_htmlurl		/openwebmail
 ow_etcdir		%ow_cgidir%/etc
+ico_url			%ow_htmlurl%/images/openwebmail.ico
 logo_url		%ow_htmlurl%/images/openwebmail.gif
 logo_link		http://openwebmail.org/
 sound_url		%ow_htmlurl%/yougotmail.wav
 logfile			%ow_cgidir%/openwebmail.log
 global_addressbook	%ow_etcdir%/address.book
 global_filterbook	%ow_etcdir%/filter.book
+global_calendarbook	%ow_etcdir%/calendar.book
 g2b_map			%ow_etcdir%/g2b.map
 b2g_map			%ow_etcdir%/b2g.map
+lunar_map		%ow_etcdir%/lunar.map
 spellcheck		/usr/local/bin/ispell
 spellcheck_dictionaries	english, american
 vacationinit		%ow_cgidir%/vacation.pl -i
@@ -148,6 +151,15 @@ Your mail regarding '$SUBJECT' will be read when I return.
 </default_autoreplytext>
 
 <default_signature>
---
+-- 
 Open WebMail Project (http://openwebmail.org)
 </default_signature>
+
+default_calendar_hourformat		12
+default_calendar_monthviewnumitems	5
+default_calendar_weekstart		S
+default_calendar_starthour		0800
+default_calendar_endhour		1700
+default_calendar_showemptyhours		yes
+default_calendar_reminderdays		7
+default_calendar_reminderforglobal	yes

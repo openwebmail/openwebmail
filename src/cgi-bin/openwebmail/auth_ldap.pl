@@ -1,6 +1,6 @@
-# 
+#
 # auth_ldap.pl - authenticate user with LDAP
-# 
+#
 # 2002/04/10 Kelson Vibber - kelson@speed.net (fixed check_userpassword)
 # 2002/01/27 Ivan Cerrato - pengus@libero.it
 #

@@ -1,4 +1,6 @@
-<table border="0" align="center" width="75%" cellpadding="0" cellspacing="0">
+<BR>
+<BR>
+<table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>Изчитане на книга с адреси</B></font>
@@ -8,14 +10,14 @@
 </td></tr>
 <tr><td colspan="2" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 
-<table border="0" align="center" width="75%" cellpadding="0" cellspacing="0">
+<table border="0" align="center" width="85%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
-<BR>Outlook Express 5 и Netscape Mail имат възможността да записват адресна книга в CSV (полета разделени със запетйка) формат.  
+<BR>Outlook Express 5 и Netscape Mail имат възможността да записват адресна книга в CSV (полета разделени със запетйка) формат.
 @@@NAME@@@ може да изчете такъв файл и да попълни адресната Ви книга.
 <ul>
 <li> За Netscape - Отворете адресната книга File-&gt;Export, от "Save as type:" изберете "Comma Separated (*.csv)." <BR><BR>
 <li> За Outlook Express - От главното меню на Outlook Express изберете последователно
-File-&gt;Export-&gt;Address Book тип на файла "Text file". Убедете се, че записите в редовете 
+File-&gt;Export-&gt;Address Book тип на файла "Text file". Убедете се, че записите в редовете
 са със следния формат (Име,е-mail адрес - това е по подразбиране).
 </ul>
 </td></tr></table>

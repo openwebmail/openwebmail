@@ -1,4 +1,6 @@
-<table border="0" align="center" width="80%" cellpadding="0" cellspacing="0">
+<BR>
+<BR>
+<table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>IMPORTAR LLIBRETA D'ADRECES</B></font>
@@ -8,7 +10,7 @@
 </td></tr>
 <tr><td colspan="2" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 
-<table border="0" align="center" width="80%" cellpadding="0" cellspacing="0">
+<table border="0" align="center" width="85%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
 <BR>Outlook Express 5 i Netscape Mail poden exportar libres d'adreces en
 format CSV, ó Comma Separated Values.  @@@NAME@@@ pot importar-ho.
@@ -17,7 +19,7 @@ format CSV, ó Comma Separated Values.  @@@NAME@@@ pot importar-ho.
 Arxiu-Exportar,desprès a "Guardar com tipus:" esculliu "Comma Separated (*.csv)." <BR><BR>
 <li> En Outlook Express, a la finestra principal, esculli la persiana de
 Arxiu-Exportar-Llibreta i seleccioni com a tipus d'arxiu "Arxiu de Text."
-Assegureu-vos que els camps Nom i E-mail estiguin primer. 
+Assegureu-vos que els camps Nom i E-mail estiguin primer.
 </ul>
 </td></tr></table>
 

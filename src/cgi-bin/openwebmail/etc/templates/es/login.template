@@ -18,7 +18,7 @@
 <td align=right nowrap>Contrase&ntilde;a: </td><td align=left>@@@PASSWORDFIELD@@@</td>
 @@@DOMAINSTART@@@
 </tr><tr>
-<td align=right nowrap>Domain: </td><td align=left>@@@DOMAINMENU@@@</td>
+<td align=right nowrap>Dominio: </td><td align=left>@@@DOMAINMENU@@@</td>
 @@@DOMAINEND@@@
 </tr><tr>
 <td align=center>
@@ -45,17 +45,17 @@
 
    document.login.loginname.focus()
 
-   function focuspwd() 
-   { 
-      document.login.password.focus(); 
-      return(true); 
-   } 
+   function focuspwd()
+   {
+      document.login.password.focus();
+      return(true);
+   }
 
-   function focuslogin() 
-   { 
-      document.login.login.focus(); 
-      return (true); 
-   } 
+   function focuslogin()
+   {
+      document.login.login.focus();
+      return (true);
+   }
 
 //-->
 </script>

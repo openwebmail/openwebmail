@@ -1,4 +1,6 @@
-<table border="0" align="center" width="75%" cellpadding="0" cellspacing="0">
+<BR>
+<BR>
+<table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>Adres Defteri Al</B></font>
@@ -8,18 +10,18 @@
 </td></tr>
 <tr><td colspan="2" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 
-<table border="0" align="center" width="75%" cellpadding="0" cellspacing="0">
+<table border="0" align="center" width="85%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
-<BR>Outlook Express 5 ve Netscape Mail adres defterlerini CSV (Comma 
+<BR>Outlook Express 5 ve Netscape Mail adres defterlerini CSV (Comma
 Separated Values) diye adlandýrýlan bir formatta oluþturabilirler. @@@NAME@@@
-bu dosyalarý kiþisel Adres Defterinize alarak sizi kallavi bir iþ yükünden 
+bu dosyalarý kiþisel Adres Defterinize alarak sizi kallavi bir iþ yükünden
 kurtarabilir.
 <ul>
-<li>Netscape için; adres defteriniz açýn ve  File-&gt;Export seçin, 
-altýndan "Save as type:" özelliðini  "Comma Separated (*.csv)." olarak 
+<li>Netscape için; adres defteriniz açýn ve  File-&gt;Export seçin,
+altýndan "Save as type:" özelliðini  "Comma Separated (*.csv)." olarak
 ayarlayýn. <BR><BR>
-<li>Outlook Express için; File-&gt;Export-&gt;Address Book, seçin ve "Text 
-file" olarak adres defterinizi kaydedin. Ýsim ve E-posta alanlarý ilk 
+<li>Outlook Express için; File-&gt;Export-&gt;Address Book, seçin ve "Text
+file" olarak adres defterinizi kaydedin. Ýsim ve E-posta alanlarý ilk
 baþta yazýlý olmalý.
 </ul>
 </td></tr></table>

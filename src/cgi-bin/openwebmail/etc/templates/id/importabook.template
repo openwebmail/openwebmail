@@ -1,4 +1,6 @@
-<table border="0" align="center" width="75%" cellpadding="0" cellspacing="0">
+<BR>
+<BR>
+<table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>Import Buku Alamat</B></font>
@@ -8,11 +10,11 @@
 </td></tr>
 <tr><td colspan="2" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 
-<table border="0" align="center" width="75%" cellpadding="0" cellspacing="0">
+<table border="0" align="center" width="85%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
-<BR>Outlook Express 5 dan Netscape Mail mempunyai fungsi export ke fromat CSV (Comma Seperated Values, 
+<BR>Outlook Express 5 dan Netscape Mail mempunyai fungsi export ke fromat CSV (Comma Seperated Values,
 , @@@NAME@@@ dapat menggunakan fungsi ini untuk mengimport ke buku alamat anda,
-Fungsi ini dapat menghemat waktu anda.Fungsi ini tidak akan mengganti seluruh data yang telah ada,terkecuali ada tulisan yang sama persis di dalam; 
+Fungsi ini dapat menghemat waktu anda.Fungsi ini tidak akan mengganti seluruh data yang telah ada,terkecuali ada tulisan yang sama persis di dalam;
 .
 <ul>
 <li> Pengguna Netscpe : Buka address book,pilih File-&gt;Export,Kemudian

@@ -1,7 +1,7 @@
 #
 # maildb.pl are functions for mail folderfile.
 #
-# 1. it speeds up the message access on folder file by hashing important 
+# 1. it speeds up the message access on folder file by hashing important
 #    information with perl dbm.
 # 2. it parse mail recursively.
 # 3. it converts uuencoded blocks into baed64-encoded attachments
@@ -10,16 +10,16 @@
 # IMPORTANT!!!
 #
 # Functions in this file will do locks for dbm before read/write.
-# but they don't do locks for folderfile/folderhandle. They rely the 
+# but they don't do locks for folderfile/folderhandle. They rely the
 # caller to do that lock
 # Functions with folderfile/folderhandle in argument must be inside
 # a folderfile lock session
 #
 # The global variable $config{'dbm_ext'} needs to be defined to represent the
-# dbm filename extension on your system. 
+# dbm filename extension on your system.
 # ex: use 'db' for FreeBSD and 'dir' for Solaris
 #
-# The global variable $config{'use_dotlockfile'} needs to be defined to use 
+# The global variable $config{'use_dotlockfile'} needs to be defined to use
 # dotlockfile style locking
 # This is recommended only if the lockd on your nfs server or client is broken
 # ps: FrreBSD/Linux nfs server/client may need this. Solaris doesn't.
@@ -64,9 +64,9 @@ sub update_headerdb {
       dbmclose(%HDB);
       filelock("$headerdb$config{'dbm_ext'}", LOCK_UN);
 
-      if ( $metainfo eq metainfo($folderfile) && $allmessages >=0  
+      if ( $metainfo eq metainfo($folderfile) && $allmessages >=0
            && $internalmessages >=0 && $newmessages >=0 ) {
-         return 0;  
+         return 0;
       }
 
       if ($config{'dbm_ext'} eq 'dir') {
@@ -118,7 +118,7 @@ sub update_headerdb {
       } else {
          $buff="From ";
       }
-                  
+
       if ( $buff=~/^From /) { # ya, msg end is found!
          $HDB{$id}=join('@@@', @attr);
          $internalmessages++ if ( is_internal_subject($attr[$_SUBJECT]) );
@@ -150,7 +150,7 @@ sub update_headerdb {
             $_references=~s/\@\@/\@\@ /g;   $_references=~s/\@$/\@ /;
             $_inreplyto=~s/\@\@/\@\@ /g;    $_inreplyto=~s/\@$/\@ /;
 
-            # in most case, a msg references field should already contain 
+            # in most case, a msg references field should already contain
             # ids in in-reply-to: field, but do check it again here
 	    if ($_inreplyto =~ m/^\s*(\<\S+\>)\s*$/) {
 	       $_references .= " " . $1 if ($_references!~/\Q$1\E/);
@@ -170,11 +170,11 @@ sub update_headerdb {
             $_status .= "V" if ($verified);
 
             if (! defined($HDB{$_message_id}) ) {
-               $HDB{$_message_id}=join('@@@', $_offset, $_from, $_to, 
+               $HDB{$_message_id}=join('@@@', $_offset, $_from, $_to,
 			$_date, $_subject, $_content_type, $_status, $_messagesize, $_references);
             } else {
                my $dup=$#duplicateids+1;
-               $HDB{"dup$dup-$_message_id"}=join('@@@', $_offset, $_from, $_to, 
+               $HDB{"dup$dup-$_message_id"}=join('@@@', $_offset, $_from, $_to,
 			$_date, $_subject, $_content_type, $_status, $_messagesize, $_references);
                push(@duplicateids, "dup$dup-$_message_id");
             }
@@ -206,7 +206,7 @@ sub update_headerdb {
                $_from = decode_mimewords($_from);
                $_subject = decode_mimewords($_subject);
 
-               # some dbm(ex:ndbm on solaris) can only has value shorter than 1024 byte, 
+               # some dbm(ex:ndbm on solaris) can only has value shorter than 1024 byte,
                # so we cut $_to to 256 byte to make dbm happy
                $_to=substr($_to, 0, 252)."..." if (length($_to) >256);
 
@@ -230,7 +230,7 @@ sub update_headerdb {
 
                   seek(FOLDER, $_offset+$oldmsgsize, 0);
                   read(FOLDER, $buff, 5);
-                  
+
                   if ( $buff=~/^From /) { # ya, msg end is found!
                      $_messagesize=$oldmsgsize;
                      $totalsize=$_offset+$_messagesize;
@@ -327,7 +327,7 @@ sub update_headerdb {
       $_references=~s/\@\@/\@\@ /g;   $_references=~s/\@$/\@ /;
       $_inreplyto=~s/\@\@/\@\@ /g;    $_inreplyto=~s/\@$/\@ /;
 
-      # in most case, a msg references field should already contain 
+      # in most case, a msg references field should already contain
       # ids in in-reply-to: field, but do check it again here
       if ($_inreplyto =~ m/^\s*(\<\S+\>)\s*$/) {
 	 $_references .= " " . $1 if ($_references!~/\Q$1\E/);
@@ -339,7 +339,7 @@ sub update_headerdb {
          $_message_id=~s![\<\>\(\)\s\/"':]!!g;
          $_message_id="<$_message_id>";
       }
-      
+
       # flags used by openwebmail internally
       $_status .= "T" if ($namedatt_count>0);
       $_status .= "B" if ($zhtype eq 'big5');
@@ -347,11 +347,11 @@ sub update_headerdb {
       $_status .= "V" if ($verified);
 
       if (! defined($HDB{$_message_id}) ) {
-         $HDB{$_message_id}=join('@@@', $_offset, $_from, $_to, 
+         $HDB{$_message_id}=join('@@@', $_offset, $_from, $_to,
 		$_date, $_subject, $_content_type, $_status, $_messagesize, $_references);
       } else {
          my $dup=$#duplicateids+1;
-         $HDB{"dup$dup-$_message_id"}=join('@@@', $_offset, $_from, $_to, 
+         $HDB{"dup$dup-$_message_id"}=join('@@@', $_offset, $_from, $_to,
 		$_date, $_subject, $_content_type, $_status, $_messagesize, $_references);
          push(@duplicateids, "dup$dup-$_message_id");
       }
@@ -393,10 +393,10 @@ sub get_messageids_sorted_by_offset {
    dbmopen(%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
 
    while ( ($key, $data)=each(%HDB) ) {
-      next if ( $key eq 'METAINFO' 
-             || $key eq 'NEWMESSAGES' 
-             || $key eq 'INTERNALMESSAGES' 
-             || $key eq 'ALLMESSAGES' 
+      next if ( $key eq 'METAINFO'
+             || $key eq 'NEWMESSAGES'
+             || $key eq 'INTERNALMESSAGES'
+             || $key eq 'ALLMESSAGES'
              || $key eq "" );
 
       @attr=split( /@@@/, $data );
@@ -465,8 +465,8 @@ sub get_info_messageids_sorted {
    }
 
    if ( $cache_metainfo ne $metainfo || $cache_headerdb ne $headerdb ||
-        $cache_sort ne $sort || $cache_ignore_internal ne $ignore_internal || 
-        $totalsize=~/[^\d]/ ) { 
+        $cache_sort ne $sort || $cache_ignore_internal ne $ignore_internal ||
+        $totalsize=~/[^\d]/ ) {
       ($cachefile =~ /^(.+)$/) && ($cachefile = $1);		# untaint ...
       open(CACHE, ">$cachefile");
       print CACHE $metainfo, "\n", $headerdb, "\n", $sort, "\n", $ignore_internal, "\n";
@@ -501,7 +501,7 @@ sub get_info_messageids_sorted {
 
    } else {
       open(CACHE, $cachefile);
-      $_=<CACHE>; 
+      $_=<CACHE>;
       $_=<CACHE>;
       $_=<CACHE>;
       $_=<CACHE>;
@@ -609,7 +609,7 @@ sub get_info_messageids_sorted_by_from {
    my @froms=sort {$groupdate{$b} <=> $groupdate{$a}} keys(%groupdate);
    foreach my $from (@froms) {
       push(@messageids, @{$groupmembers{$from}});
-   }      
+   }
 
    return($totalsize, $new, \@messageids);
 }
@@ -663,12 +663,12 @@ sub get_info_messageids_sorted_by_to {
    my @tos=sort {$groupdate{$b} <=> $groupdate{$a}} keys(%groupdate);
    foreach my $to (@tos) {
       push(@messageids, @{$groupmembers{$to}});
-   }      
+   }
 
    return($totalsize, $new, \@messageids);
 }
 
-# this routine actually sorts messages by thread, 
+# this routine actually sorts messages by thread,
 # contributed by <james@tiger-marmalade.com"> James Dean Palmer
 sub get_info_messageids_sorted_by_subject {
    my ($headerdb, $ignore_internal)=@_;
@@ -722,8 +722,8 @@ sub get_info_messageids_sorted_by_subject {
 
    # Some thread_parent will be completely disconnected, but title is the same
    # so we should connect them with the earliest article by the same title.
-   @thread_pre_roots = sort { 
-                            $subject{$a} cmp $subject{$b} or $dateserial{$a} <=> $dateserial{$b}; 
+   @thread_pre_roots = sort {
+                            $subject{$a} cmp $subject{$b} or $dateserial{$a} <=> $dateserial{$b};
                             } @thread_pre_roots;
    my $previous_id = "";
    foreach my $id (@thread_pre_roots) {
@@ -741,7 +741,7 @@ sub get_info_messageids_sorted_by_subject {
    # the thread tree from the top down.
    #
    # We also update the parent date with the latest one of the children,
-   # thus late coming message won't be hidden in case it belongs to a 
+   # thus late coming message won't be hidden in case it belongs to a
    # very old root
    #
    foreach my $id (sort {$dateserial{$b}<=>$dateserial{$a};} keys %thread_parent) {
@@ -756,14 +756,14 @@ sub get_info_messageids_sorted_by_subject {
    # Finally, we recursively traverse the tree.
    @thread_roots = sort { $dateserial{$a} <=> $dateserial{$b}; } @thread_roots;
    foreach my $key (@thread_roots) {
-      _recursively_thread ($key, 0, 
+      _recursively_thread ($key, 0,
 		\@message_ids, \@message_depths, \%thread_children, \%dateserial);
    }
    return($totalsize, $new, \@message_ids, \@message_depths);
 }
 
 sub _recursively_thread {
-   my ($id, $depth,  
+   my ($id, $depth,
 	$r_message_ids, $r_message_depths, $r_thread_children, $r_dateserial) = @_;
 
    push @{$r_message_ids}, $id;
@@ -771,7 +771,7 @@ sub _recursively_thread {
    if (defined(${$r_thread_children}{$id})) {
       my @children = sort { ${$r_dateserial}{$a} <=> ${$r_dateserial}{$b}; } @{${$r_thread_children}{$id}};
       foreach my $thread (@children) {
-         _recursively_thread ($thread, $depth+1, 
+         _recursively_thread ($thread, $depth+1,
 	 $r_message_ids, $r_message_depths, $r_thread_children, $r_dateserial);
       }
    }
@@ -852,7 +852,7 @@ sub get_info_messageids_sorted_by_status {
    dbmclose(%HDB);
    filelock("$headerdb$config{'dbm_ext'}", LOCK_UN);
 
-   @messageids=sort { 
+   @messageids=sort {
                     $status{$b} <=> $status{$a} or $dateserial{$b} <=> $dateserial{$a};
                     } keys(%status);
    return($totalsize, $new, \@messageids);
@@ -893,7 +893,7 @@ sub get_message_header {
    my (@attr, $header);
 
    @attr=get_message_attributes($messageid, $headerdb);
-   if ($#attr>=0) { 
+   if ($#attr>=0) {
       my $oldoffset=tell($folderhandle);
       seek($folderhandle, $attr[$_OFFSET], 0);
       $header="";
@@ -938,7 +938,7 @@ sub update_message_status {
          my $messagesize=$attr[$_SIZE];
          my ($header, $headerend, $headerlen, $newheaderlen);
          my $buff;
-         
+
          open ($folderhandle, "+<$folderfile");
          seek ($folderhandle, $messagestart, 0);
          $header="";
@@ -1014,7 +1014,7 @@ sub update_message_status {
 
    # if size of this message is changed
    if ($movement!=0) {
-      #  change offset attr for messages after the above one 
+      #  change offset attr for messages after the above one
       for (;$i<=$#messageids; $i++) {
          @attr=split(/@@@/, $HDB{$messageids[$i]});
          $attr[$_OFFSET]+=$movement;
@@ -1043,11 +1043,11 @@ sub operate_message_with_ids {
    my $messageids = join("\n", @{$r_messageids});
 
    # $lang_err{'inv_msg_op'}
-   return(-1) if ($op ne "move" && $op ne "copy" && $op ne "delete"); 
+   return(-1) if ($op ne "move" && $op ne "copy" && $op ne "delete");
    return(0) if ($srcfile eq $dstfile || $#{$r_messageids} < 0);
 
    update_headerdb($srcdb, $srcfile);
-   open ($folderhandle, "+<$srcfile") or 
+   open ($folderhandle, "+<$srcfile") or
       return(-2);	# $lang_err{'couldnt_open'} $srcfile!
 
    if ($op eq "move" || $op eq "copy") {
@@ -1060,7 +1060,7 @@ sub operate_message_with_ids {
    my ($blockstart, $blockend, $writepointer);
    my ($messagestart, $messagesize, $messagevalid, @attr, $buff);
    my $counted=0;
-   
+
    filelock("$srcdb$config{'dbm_ext'}", LOCK_EX);
    dbmopen (%HDB, "$srcdb$config{'dbmopen_ext'}", 0600);
 
@@ -1098,9 +1098,9 @@ sub operate_message_with_ids {
             $blockend=$messagestart+$messagesize;
          }
 
-         # append msg to dst folder only if 
+         # append msg to dst folder only if
          # op=move/copy and msg doesn't exist in dstfile
-         if (($op eq "move" || $op eq "copy") && 
+         if (($op eq "move" || $op eq "copy") &&
              !defined($HDB2{$allmessageids[$i]}) ) {
 
             seek($folderhandle, $attr[$_OFFSET], 0);
@@ -1124,8 +1124,8 @@ sub operate_message_with_ids {
             $HDB2{'INTERNALMESSAGES'}++ if (is_internal_subject($attr[$_SUBJECT]));
             $HDB2{'ALLMESSAGES'}++;
             $HDB2{$allmessageids[$i]}=join('@@@', @attr);
-         } 
-         
+         }
+
          if ($op eq 'move' || $op eq 'delete') {
             $HDB{'NEWMESSAGES'}-- if ($attr[$_STATUS]!~/r/i);
             $HDB{'NEWMESSAGES'}=0 if ($HDB{'NEWMESSAGES'}<0); # should not happen
@@ -1153,7 +1153,7 @@ sub operate_message_with_ids {
       truncate($folderhandle, tell($folderhandle));
    }
 
-   if ($op eq "move" || $op eq "copy") { 
+   if ($op eq "move" || $op eq "copy") {
       close (DEST);
       $HDB2{'METAINFO'}=metainfo($dstfile);
       dbmclose(%HDB2);
@@ -1175,7 +1175,7 @@ sub delete_message_by_age {
    my $folderhandle=FileHandle->new();
    my %HDB;
    my (@allmessageids, @agedids);
-   
+
    return 0 if ( ! -f $folderfile );
 
    my $nowdaydiff=dateserial2daydiff(gmtime2dateserial());
@@ -1210,13 +1210,13 @@ sub move_oldmsg_from_folder {
    # if oldmsg == internal msg or 0, then do not read ids
    if ( $HDB{'ALLMESSAGES'}-$HDB{'NEWMESSAGES'} > $HDB{'INTERNALMESSAGES'} ) {
       while ( ($key, $data)=each(%HDB) ) {
-         next if ( $key eq 'METAINFO' 
-                || $key eq 'NEWMESSAGES' 
-                || $key eq 'INTERNALMESSAGES' 
-                || $key eq 'ALLMESSAGES' 
+         next if ( $key eq 'METAINFO'
+                || $key eq 'NEWMESSAGES'
+                || $key eq 'INTERNALMESSAGES'
+                || $key eq 'ALLMESSAGES'
                 || $key eq "" );
          @attr=split( /@@@/, $data );
-         if ( $attr[$_STATUS] =~ /r/i && 
+         if ( $attr[$_STATUS] =~ /r/i &&
               !is_internal_subject($attr[$_SUBJECT]) ) {
             push(@messageids, $key);
          }
@@ -1226,10 +1226,10 @@ sub move_oldmsg_from_folder {
    dbmclose(%HDB);
    filelock("$srcdb$config{'dbm_ext'}", LOCK_UN);
 
-   # no old msg found 
+   # no old msg found
    return 0 if ($#messageids==-1);
 
-   return(operate_message_with_ids('move', \@messageids, $srcfile, $srcdb, 
+   return(operate_message_with_ids('move', \@messageids, $srcfile, $srcdb,
 					  		   $dstfile, $dstdb));
 }
 ##################### END MOVE_OLDMSG_FROM_FOLDER #################
@@ -1248,10 +1248,10 @@ sub rebuild_message_with_partialid {
    dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
    @messageids=keys %HDB;
    foreach my $id (@messageids) {
-      next if ( $id eq 'METAINFO' 
-             || $id eq 'NEWMESSAGES' 
-             || $id eq 'INTERNALMESSAGES' 
-             || $id eq 'ALLMESSAGES' 
+      next if ( $id eq 'METAINFO'
+             || $id eq 'NEWMESSAGES'
+             || $id eq 'INTERNALMESSAGES'
+             || $id eq 'ALLMESSAGES'
              || $id eq "" );
 
       my @attr=split( /@@@/, $HDB{$id} );
@@ -1271,7 +1271,7 @@ sub rebuild_message_with_partialid {
    dbmclose(%HDB);
    filelock("$headerdb$config{'dbm_ext'}", LOCK_UN);
 
-   # check completeness 
+   # check completeness
    if ($partialtotal<1) {	# last part not found
       return(-1);
    }
@@ -1333,7 +1333,7 @@ sub rebuild_message_with_partialid {
       return(-4);
    }
 
-   my $moved=operate_message_with_ids("move", \@rebuildmsgids, 
+   my $moved=operate_message_with_ids("move", \@rebuildmsgids,
 				$tmpfile, $tmpdb, $folderfile, $headerdb);
 
    unlink("$tmpdb$config{'dbm_ext'}", $tmpfile);
@@ -1344,7 +1344,7 @@ sub rebuild_message_with_partialid {
 ##################### END REBUILD_MESSAGE_WITH_PARTIALID #################
 
 ####################### PARSE_.... related ###########################
-# Handle "message/rfc822,multipart,uuencode inside message/rfc822" encapsulatio 
+# Handle "message/rfc822,multipart,uuencode inside message/rfc822" encapsulatio
 #
 # Note: These parse_... routine are designed for CGI program !
 #       if (nodeid eq "") {
@@ -1383,7 +1383,7 @@ sub parse_rfc822block {
       $subtype =~ s/^multipart\/(.*?)[;\s].*$/$1/i;
 
       $bodystart=$headerlen+2;
-      
+
       $boundarystart=index(${$r_block}, $boundary, $bodystart);
       if ($boundarystart >= $bodystart) {
           $body=substr(${$r_block}, $bodystart, $boundarystart-$bodystart);
@@ -1418,7 +1418,7 @@ sub parse_rfc822block {
             $attblockstart=$boundarystart+$boundarylen;
          } else {
             # abnormal attblock, last one?
-            if ( $searchid eq "" || $searchid eq "all" || 
+            if ( $searchid eq "" || $searchid eq "all" ||
                  $searchid eq "$nodeid-$i" || $searchid=~/^$nodeid-$i-/ ) {
                my $left=length(${$r_block})-$attblockstart;
                if ($left>0) {
@@ -1493,8 +1493,8 @@ sub parse_rfc822block {
    } else {
       if ( $searchid eq "all" || $searchid=~/^$nodeid/ ) {
          $body=substr(${$r_block}, $headerlen+2);
-         if ($body !~ /^\s*$/ ) { # if attach contains only \s, discard it 
-            push(@attachments, make_attachment("","", "",\$body,length($body), 
+         if ($body !~ /^\s*$/ ) { # if attach contains only \s, discard it
+            push(@attachments, make_attachment("","", "",\$body,length($body),
 					$encoding,$contenttype, "","","",$description, $nodeid) );
          }
       } else {
@@ -1514,11 +1514,11 @@ sub parse_rfc822block {
 sub parse_attblock {
    my ($r_buff, $attblockstart, $attblocklen, $subtype, $boundary, $nodeid, $searchid)=@_;
    my @attachments=();
-   my ($attheader, $attcontent, $attencoding, $attcontenttype, 
+   my ($attheader, $attcontent, $attencoding, $attcontenttype,
 	$attdisposition, $attid, $attlocation, $attdescription);
    my $attheaderlen;
    if (/^\-\-\n/) {	# return empty array
-      return(\@attachments) 
+      return(\@attachments)
    }
 
    $attheaderlen=index(${$r_buff},  "\n\n", $attblockstart) - $attblockstart;
@@ -1530,9 +1530,9 @@ sub parse_attblock {
       if (/^\s/) {
          s/^\s+//; # fields in attheader use ';' as delimiter, no space is ok
          if    ($lastline eq 'TYPE')     { $attcontenttype .= $_ }
-         elsif ($lastline eq 'DISPOSITION') { $attdisposition .= $_ } 
-         elsif ($lastline eq 'LOCATION') { $attlocation .= $_ } 
-         elsif ($lastline eq 'DESC') { $attdescription .= $_ } 
+         elsif ($lastline eq 'DISPOSITION') { $attdisposition .= $_ }
+         elsif ($lastline eq 'LOCATION') { $attlocation .= $_ }
+         elsif ($lastline eq 'DESC') { $attdescription .= $_ }
       } elsif (/^content-type:\s+(.+)$/ig) {
          $attcontenttype = $1;
          $lastline = 'TYPE';
@@ -1543,7 +1543,7 @@ sub parse_attblock {
          $attdisposition = $1;
          $lastline = 'DISPOSITION';
       } elsif (/^content-id:\s+(.+)$/ig) {
-         $attid = $1; 
+         $attid = $1;
          $attid =~ s/^\<(.+)\>$/$1/;
          $lastline = 'NONE';
       } elsif (/^content-location:\s+(.+)$/ig) {
@@ -1573,7 +1573,7 @@ sub parse_attblock {
       $boundarylen=length($boundary);
 
       $subtype =~ s/^multipart\/(.*?)[;\s].*$/$1/i;
-      
+
       $boundarystart=index(${$r_buff}, $boundary, $attblockstart);
       if ($boundarystart < $attblockstart) {
 	 # boundary not found in this multipart block
@@ -1583,7 +1583,7 @@ sub parse_attblock {
               ($searchid eq "" && $attcontenttype=~/^text/i) ) {
             my $attcontentlength=$attblocklen-($attheaderlen+2);
             $attcontent=substr(${$r_buff}, $attblockstart+$attheaderlen+2, $attcontentlength);
-            if ($attcontent !~ /^\s*$/ ) { # if attach contains only \s, discard it 
+            if ($attcontent !~ /^\s*$/ ) { # if attach contains only \s, discard it
                push(@attachments, make_attachment($subtype,$boundary, $attheader,\$attcontent, $attcontentlength,
 			$attencoding,$attcontenttype, $attdisposition,$attid,$attlocation,$attdescription, $nodeid) );
             }
@@ -1618,7 +1618,7 @@ sub parse_attblock {
             $subattblockstart=$boundarystart+$boundarylen;
          } else {
             # abnormal attblock, last one?
-            if ( $searchid eq "" || $searchid eq "all" || 
+            if ( $searchid eq "" || $searchid eq "all" ||
                  $searchid eq "$nodeid-$i" || $searchid=~/^$nodeid-$i-/ ) {
                my $left=$attblocklen-$subattblockstart;
                if ($left>0) {
@@ -1672,7 +1672,7 @@ sub parse_attblock {
       if ( $searchid eq "" || $searchid eq "all" || $searchid=~/^$nodeid/ ) {
          my $attcontentlength=$attblocklen-($attheaderlen+2);
          $attcontent=substr(${$r_buff}, $attblockstart+$attheaderlen+2, $attcontentlength);
-         if ($attcontent !~ /^\s*$/ ) { # if attach contains only \s, discard it 
+         if ($attcontent !~ /^\s*$/ ) { # if attach contains only \s, discard it
             push(@attachments, make_attachment($subtype,$boundary, $attheader,\$attcontent, $attcontentlength,
 		$attencoding,$attcontenttype, $attdisposition,$attid,$attlocation,$attdescription, $nodeid) );
          }
@@ -1682,7 +1682,7 @@ sub parse_attblock {
       if ( $searchid eq "all" || $searchid=~/^$nodeid/ ) {
          my $attcontentlength=$attblocklen-($attheaderlen+2);
          $attcontent=substr(${$r_buff}, $attblockstart+$attheaderlen+2, $attcontentlength);
-         if ($attcontent !~ /^\s*$/ ) { # if attach contains only \s, discard it 
+         if ($attcontent !~ /^\s*$/ ) { # if attach contains only \s, discard it
             push(@attachments, make_attachment($subtype,$boundary, $attheader,\$attcontent, $attcontentlength,
 		$attencoding,$attcontenttype, $attdisposition,$attid,$attlocation,$attdescription, $nodeid) );
          }
@@ -1764,11 +1764,11 @@ sub get_contenttype_encoding_from_header {
 # they are used to distingush if two attachments are winthin same group
 # note: the $r_attcontent is a reference to the contents of an attachment,
 #       this routine will save this reference to attachment hash directly.
-#       It means the caller must ensures the variable referenced by 
+#       It means the caller must ensures the variable referenced by
 #       $r_attcontent is kept untouched!
 sub make_attachment {
-   my ($subtype,$boundary, $attheader,$r_attcontent,$attcontentlength, 
-	$attencoding,$attcontenttype, 
+   my ($subtype,$boundary, $attheader,$r_attcontent,$attcontentlength,
+	$attencoding,$attcontenttype,
         $attdisposition,$attid,$attlocation,$attdescription, $nodeid)=@_;
    my $attfilename;
    my %temphash;
@@ -1824,7 +1824,7 @@ sub make_attachment {
 sub contenttype2ext {
    my $contenttype=$_[0];
    my ($class, $ext, $dummy)=split(/[\/\s;,]+/, $contenttype);
-   
+
    return("txt") if ($contenttype eq "N/A");
    return("mp3") if ($contenttype=~m!audio/mpeg!i);
    return("au")  if ($contenttype=~m!audio/x\-sun!i);
@@ -1927,22 +1927,22 @@ sub search_info_messages_for_keyword {
          next if ($ignore_internal && is_internal_subject($attr[$_SUBJECT]));
 
          # check subject, from, to, date
-         if ( ( ($searchtype eq 'all' || 
+         if ( ( ($searchtype eq 'all' ||
                  $searchtype eq 'subject') &&
                 (($regexmatch && $attr[$_SUBJECT]=~/$keyword/i) ||
                  $attr[$_SUBJECT]=~/\Q$keyword\E/i) )  ||
-              ( ($searchtype eq 'all' || 
+              ( ($searchtype eq 'all' ||
                  $searchtype eq 'from') &&
                 (($regexmatch && $attr[$_FROM]=~/$keyword/i) ||
                  $attr[$_FROM]=~/\Q$keyword\E/i) )  ||
-              ( ($searchtype eq 'all' || 
+              ( ($searchtype eq 'all' ||
                  $searchtype eq 'to') &&
                 (($regexmatch && $attr[$_TO]=~/$keyword/i) ||
                  $attr[$_TO]=~/\Q$keyword\E/i) )  ||
-              ( ($searchtype eq 'all' || 
+              ( ($searchtype eq 'all' ||
                  $searchtype eq 'date') &&
                 (($regexmatch && $attr[$_DATE]=~/$keyword/i) ||
-                 $attr[$_DATE]=~/\Q$keyword\E/i) ) 
+                 $attr[$_DATE]=~/\Q$keyword\E/i) )
             ) {
             $new++ if ($attr[$_STATUS]!~/r/i);
             $totalsize+=$attr[$_SIZE];
@@ -1969,7 +1969,7 @@ sub search_info_messages_for_keyword {
                next;
             }
          }
-         
+
          # read and parse message
          if ($searchtype eq 'all' || $searchtype eq 'textcontent' || $searchtype eq 'attfilename') {
             seek($folderhandle, $attr[$_OFFSET], 0);
@@ -2023,7 +2023,7 @@ sub search_info_messages_for_keyword {
          if ($searchtype eq 'all' || $searchtype eq 'attfilename') {
             foreach my $r_attachment (@{$r_attachments}) {
                if ( ($regexmatch && ${$r_attachment}{filename} =~ /$keyword/im) ||
-                    ${$r_attachment}{filename} =~ /\Q$keyword\E/im ) { 
+                    ${$r_attachment}{filename} =~ /\Q$keyword\E/im ) {
                   $new++ if ($attr[$_STATUS]!~/r/i);
                   $totalsize+=$attr[$_SIZE];
                   $found{$messageid}=1;
@@ -2041,7 +2041,7 @@ sub search_info_messages_for_keyword {
 
    } else {
       open(CACHE, $cachefile);
-      $_=<CACHE>; 
+      $_=<CACHE>;
       $_=<CACHE>;
       $_=<CACHE>;
       $_=<CACHE>;
@@ -2063,14 +2063,14 @@ sub search_info_messages_for_keyword {
 
 ######################## HTML related ##############################
 # it is suggested calling these following routine in the following order:
-# html4nobase, html4link, html4disablejs, html4disableembcgi, 
+# html4nobase, html4link, html4disablejs, html4disableembcgi,
 # html4attachment, html4mailto, html2table
 
-# since this routine deals with base directive, 
+# since this routine deals with base directive,
 # it must be called first before other html...routines when converting html
 sub html4nobase {
    my $html=$_[0];
-   my $urlbase; 
+   my $urlbase;
    if ( $html =~ m#\<base\s+href\s*=\s*"?([^\<\>]*?)"?\>#i ) {
       $urlbase=$1;
       $urlbase=~s#/[^/]+$#/#;
@@ -2080,15 +2080,15 @@ sub html4nobase {
    if ( ($urlbase ne "") && ($urlbase !~ /^file:/) ) {
       $html =~ s#(\<a\s+href|background|src|method|action)(=\s*"?)#$1$2$urlbase#gi;
       # recover links that should not be changed by base directive
-      $html =~ s#\Q$urlbase\E(http://|https://|ftp://|cid:|mailto:)#$1#gi;
+      $html =~ s#\Q$urlbase\E(http://|https://|ftp://|mms://|cid:|mailto:)#$1#gi;
    }
    return($html);
 }
 
-my @jsevents=('onAbort', 'onBlur', 'onChange', 'onClick', 'onDblClick', 
-              'onDragDrop', 'onError', 'onFocus', 'onKeyDown', 'onKeyPress', 
+my @jsevents=('onAbort', 'onBlur', 'onChange', 'onClick', 'onDblClick',
+              'onDragDrop', 'onError', 'onFocus', 'onKeyDown', 'onKeyPress',
               'onKeyUp', 'onLoad', 'onMouseDown', 'onMouseMove', 'onMouseOut',
-              'onMouseOver', 'onMouseUp', 'onMove', 'onReset', 'onResize', 
+              'onMouseOver', 'onMouseUp', 'onMove', 'onReset', 'onResize',
               'onSelect', 'onSubmit', 'onUnload');
 
 # this routine is used to add target=_blank to links in a html message
@@ -2126,7 +2126,7 @@ sub html4disablejs {
    $html=~s/<\/script>/\n\/\/-->\n<\/disable_script>/imsg;
    $html=~s/\/\/-->\s*\/\/-->/\/\/-->/imsg;
    $html=~s/<([^\<\>]*?)javascript:([^\<\>]*?)>/<$1disable_javascript:$2>/imsg;
-   
+
    return($html);
 }
 
@@ -2163,7 +2163,7 @@ sub html4attachments {
 
       if ( ($cid ne "cid:" && $html =~ s#\Q$cid\E#$link#ig ) ||
            ($loc ne "" && $html =~ s#\Q$loc\E#$link#ig ) ||
-           # ugly hack for strange CID     
+           # ugly hack for strange CID
            ($filename ne "" && $html =~ s#CID:\{[\d\w\-]+\}/$filename#$link#ig )
          ) {
          # this attachment is referenced by the html
@@ -2175,7 +2175,7 @@ sub html4attachments {
 
 # this routine chnage mailto: into webmail composemail function
 # to make it works with base directive, we use full url
-# to make it compatible with undecoded base64 block, 
+# to make it compatible with undecoded base64 block,
 # we put new url into a seperate line
 sub html4mailto {
    my ($html, $scripturl, $scriptparm)=@_;
@@ -2217,8 +2217,8 @@ sub html2text {
    $t=~s!<br>!\n!ig;
    $t=~s!<hr[^\<\>]*?>!\n-----------------------------------------------------------------------\n!ig;
 
-   $t=~s!<p>\s?</p>!\n\n!ig; 
-   $t=~s!<p>!\n\n!ig; 
+   $t=~s!<p>\s?</p>!\n\n!ig;
+   $t=~s!<p>!\n\n!ig;
    $t=~s!</p>!\n\n!ig;
 
    $t=~s!<th[^\<\>]*?>!\n!ig;
@@ -2237,7 +2237,7 @@ sub html2text {
    $t=~s!&gt;!>!g;
    $t=~s!&amp;!&!g;
    $t=~s!&quot;!\"!g;
-   $t=~s!&#8364;!€!g;	# Euro symbo 
+   $t=~s!&#8364;!€!g;	# Euro symbo
 
    $t=~s!\n\n\s+!\n\n!g;
 
@@ -2249,7 +2249,7 @@ sub text2html {
 
    $t=~s/&/ESCAPE_AMP/g;
 
-   $t=~s!€!&#8364;!g;	# Euro symbo 
+   $t=~s!€!&#8364;!g;	# Euro symbo
    $t=~s/\"/ &quot;/g;
    $t=~s/</ &lt;/g;
    $t=~s/>/ &gt;/g;
@@ -2258,7 +2258,7 @@ sub text2html {
    $t=~s/\t/ &nbsp;&nbsp;&nbsp;&nbsp;/g;
    $t=~s/\n/<BR>\n/g;
 
-   foreach (qw(http https ftp nntp news gopher telnet)) {
+   foreach (qw(http https ftp mms nntp news gopher telnet)) {
       $t=~s!($_://[\w\d\-\.]+?/?[^\s<>]*[\w/])([\b|\n| ]*)!<a href="$1" target="_blank">$1</A>$2!gs;
    }
    $t=~s!([\b|\n| ]+)(www\.[\w\d\-\.]+\.[\w\d\-]{2,3})([\b|\n| ]*)!$1<a href="http://$2" target="_blank">$2</a>$3!gs;
@@ -2348,7 +2348,7 @@ sub simpleheader {
               ($lastline eq 'TO') || ($lastline eq 'CC') ) {
             $simpleheader .= $_;
          }
-      } elsif (/^</) { 
+      } elsif (/^</) {
          $simpleheader .= $_;
          $lastline = 'NONE';
       } elsif (/^from:\s?/ig) {
@@ -2386,8 +2386,8 @@ sub is_internal_subject {
    } else {
       return(0);
    }
-} 
-  
+}
+
 #################### END IS_INTERNAL_SUBJECT ###################
 
 1;

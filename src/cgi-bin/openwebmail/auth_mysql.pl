@@ -1,6 +1,6 @@
-# 
+#
 # auth_mysql.pl - authenticate user with DBD::MySQL
-# 
+#
 # 2002/03/07 Alan Sung - AlanSung@dragon2.net
 #
 

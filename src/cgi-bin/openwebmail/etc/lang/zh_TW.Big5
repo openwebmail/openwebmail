@@ -1,6 +1,7 @@
 #!/usr/bin/perl -T
 
-$lang_charset = 'big5';
+# Traditional Chinese translation by openwebmail team
+# charset: big5
 
 %lang_folders =
    (
@@ -9,6 +10,7 @@ $lang_charset = 'big5';
    'sent-mail'      => '寄件備分',
    'saved-drafts'   => '草稿匣',
    'mail-trash'     => '垃圾桶',
+   'all'            => '所有信件匣',
    DELETE => '--直接刪除--'
    );
 
@@ -58,8 +60,75 @@ $lang_charset = 'big5';
    1440 => '24 小時'
    );
 
+%lang_advsearchlabels =
+   (
+   contains    => '包含',
+   notcontains => '不包含',
+   is          => '是',
+   isnot       => '不是',
+   startswith  => '開始於',
+   endswith    => '結束於',
+   regexp      => '正規表示式',
+   );
+
+%lang_calendar = 
+   (
+   yearview  => '年行事曆',
+   monthview => '月行事曆',
+   weekview  => '週行事曆',
+   dayview   => '日行事曆'
+   );
+
+%lang_month =
+   (
+   1  => '一月',
+   2  => '二月',
+   3  => '三月',
+   4  => '四月',
+   5  => '五月',
+   6  => '六月',
+   7  => '七月',
+   8  => '八月',
+   9  => '九月',
+   10 => '十月',
+   11 => '十一月',
+   12 => '十二月'
+   );
+
+%lang_wday =
+   (
+   0 => '星期日',
+   1 => '星期一',
+   2 => '星期二',
+   3 => '星期三',
+   4 => '星期四',
+   5 => '星期五',
+   6 => '星期六'
+   );
+
+%lang_wday_abbrev =
+   (
+   week => '週',
+   0 => '日',
+   1 => '一',
+   2 => '二',
+   3 => '三',
+   4 => '四',
+   5 => '五',
+   6 => '六'
+   );
+
+%lang_order =
+   (
+   1 => '第一個',
+   2 => '第二個',
+   3 => '第三個',
+   4 => '第四個',
+   5 => '最後一個'
+   );
+
 %lang_text =
-   (  
+   (
    login      => '登入',
    clear      => '清除',
    point      => '點',
@@ -133,7 +202,9 @@ $lang_charset = 'big5';
    folderrenprop => '\'請輸入這個信件匣的新名稱.\'',
    rename     => '更名',
    folderdelconf => '\'您確定要刪除這個信件匣嗎?\'',
-   chkindex    => '檢查索引',
+   markread   => '標示已讀',
+   foldermarkreadconf => '\'您確定要將這個信件匣內所有信件標示成已讀嗎?\'',
+   chkindex   => '檢查索引',
    folderchkindexconf => '\'您確定要檢查這個信件匣的索引嗎?\'',
    reindex    => '重建索引',
    folderreindexconf => '\'您確定要重建這個信件匣的索引嗎?\'',
@@ -153,7 +224,7 @@ $lang_charset = 'big5';
    note       => '附註',
    group      => '群組',
    quota_hit  => '儲存空間已滿',
-   usage      => '使用空間', 
+   usage      => '使用空間',
    tzmap      => '世界時區地圖',
    editfroms  => '編輯個人郵件地址',
    pop3book   => '設定外部郵件',
@@ -181,13 +252,37 @@ $lang_charset = 'big5';
    readonly   => '唯讀',
    textcontent=> '文字內容',
    search     => '搜尋',
+   advsearch  => '進階搜尋',
+   folder     => '信件匣',
+   nofoldersel=> '沒有信件匣被選擇',
+   showall    => '全部顯示',
    spellcheck => '拼字檢查',
    checkagain => '重新檢查',
    finishchecking => '檢查完畢',
-   manuallyfix=> '手動修正'
+   manuallyfix=> '手動修正',
+   calendar   => '行事曆',
+   am         => '上午',
+   pm         => '下午',
+   calfmt_year          => '@@@YEAR@@@年',
+   calfmt_yearmonth     => '@@@YEAR@@@年 @@@MONTH_STR@@@',
+   calfmt_yearmonthday  => '@@@YEAR@@@年 @@@MONTH_STR@@@ @@@DAY@@@日',
+   calfmt_yearmonthdaywday => '@@@YEAR@@@年 @@@MONTH_STR@@@ @@@DAY@@@日 @@@WEEKDAY_STR@@@',
+   calfmt_hourminampm => '@@@AMPM@@@ @@@HOURMIN@@@',
+   none       => '無',
+   moreitems  => '更多項目...',
+   multieditconf => '這個項目已經被放到多份的行程中.\\n如果修改會更動所有相關行程.\\n繼續修改?',
+   multidelconf  => '這個項目已經被放到多份的行程中..\\n如果刪除會全部刪掉.\\n進行刪除?',
+   ed         => '修改',
+   del        => '刪除',
+   noitemforthisday => '本日沒有安排事情',
+   today_only               => '今天',
+   the_wday_of_thismonth    => '這個月',
+   the_wday_of_thismonth2   => '',
+   every_wday_of_thismonth  => '這個月每個',
+   every_wday_of_thismonth2 => ''
    );
 
-%lang_err = 
+%lang_err =
    (
    has_illegal_chars => '內有非法字元!',
    couldnt_open      => '無法開啟',
@@ -208,7 +303,7 @@ $lang_charset = 'big5';
    cant_create_folder=> '不能建立信件匣!',
    under_indexing    => '還在索引中, 請待會再試',
    abook_invalid     => '抱歉！這檔案不是 Outlook Express 5 的 CSV 格式.',
-   back     => '回上一頁',
+   back              => '回上一頁',
    tryagain          => '再試一次.',
    abook_toobig      => '通訊錄超過容量限制. 請',
    cant_create_dir   => '無法建立使用者目錄!',
@@ -226,7 +321,9 @@ $lang_charset = 'big5';
    param_fmterr      => '參數格式錯誤',
    pwd_incorrect     => '密碼錯誤',
    network_server_error => '網路伺服器錯誤',
-   sendmail_error    => '抱歉！無法寄出您的信件，請回到上一頁檢查是否輸入錯誤後, 再重寄一次。'
+   sendmail_error    => '抱歉！無法寄出您的信件，請回到上一頁檢查是否輸入錯誤後, 再重寄一次。',
+   at_char_not_allowed => 'The @ character is not allowed in this field.  Press browser back button and try again',
+   badnum_in_days => '代表天數欄位的數值發生錯誤'
    );
 
 1;

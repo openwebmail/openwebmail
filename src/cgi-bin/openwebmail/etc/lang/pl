@@ -1,6 +1,10 @@
 #!/usr/bin/perl -T
 
-$lang_charset = 'iso-8859-2';
+# Polish translation by Pawel Jablonski, jablonski.AT.dialogok.pl 
+#                       michal talecki, mik.AT.orka.ibz.pl
+#                       Grzegorz Nosek, blackfire.AT.virtual.net.pl
+#                       Andrzej Cuber, rea.AT.supermedia.pl
+# charset: iso-8859-2
 
 %lang_folders =
    (
@@ -9,6 +13,7 @@ $lang_charset = 'iso-8859-2';
    'sent-mail'      => 'WYS£ANE',
    'saved-drafts'   => 'BRUDNOPIS',
    'mail-trash'     => 'KOSZ',
+   'all'            => 'WSZYSTKIE',
    DELETE => '--USUÑ--'
    );
 
@@ -58,11 +63,78 @@ $lang_charset = 'iso-8859-2';
    1440 => '24 godziny'
    );
 
+%lang_advsearchlabels =
+   (
+   contains    => 'zawiera',
+   notcontains => 'nie zawiera',
+   is          => 'jest równy',
+   isnot       => 'nie jest równy',
+   startswith  => 'rozpoczyna siê od',
+   endswith    => 'koñczy siê na',
+   regexp      => 'matches regexp(insensitive)',
+   );
+
+%lang_calendar = 
+   (
+   yearview  => '',
+   monthview => 'Miesi±c:',
+   weekview  => 'Tydzieñ:',
+   dayview   => ''
+   );
+
+%lang_month =
+   (
+   1  => 'Styczeñ',
+   2  => 'Luty',
+   3  => 'Marzec',
+   4  => 'Kwiecieñ',
+   5  => 'Maj',
+   6  => 'Czerwiec',
+   7  => 'Lipiec',
+   8  => 'Sierpieñ',
+   9  => 'Wrzesieñ',
+   10 => 'Pa¼dziernik',
+   11 => 'Listopad',
+   12 => 'Grudzieñ'
+   );
+
+%lang_wday =
+   (
+   0 => 'niedziela',
+   1 => 'poniedzia³ek',
+   2 => 'wtorek',
+   3 => '¶roda',
+   4 => 'czwartek',
+   5 => 'pi±tek',
+   6 => 'sobota'
+   );
+
+%lang_wday_abbrev =
+   (
+   week => 't.',
+   0 => 'N',
+   1 => 'Pn',
+   2 => 'Wt',
+   3 => '¦r',
+   4 => 'Cz',
+   5 => 'Pi',
+   6 => 'So'
+   );
+
+%lang_order =
+   (
+   1 => 'pierwszy(±)',
+   2 => 'drugi(±)',
+   3 => 'trzeci(±)',
+   4 => 'czwarty(±)',
+   5 => 'ostatni(±)'
+   );
+
 %lang_text =
-   (  
+   (
    login      => 'Wejd¼',
    clear      => 'Wyczy¶æ',
-   point      => 'Point',
+   point      => 'Pkt.',
    pixel      => 'Pixel',
    changepwd  => 'Zmiana has³a',
    viewhistory=> 'Obejrzyj historiê',
@@ -133,7 +205,9 @@ $lang_charset = 'iso-8859-2';
    folderrenprop => '\'Podaj now± nazwê folderu\'',
    rename     => 'Zmieñ nazwê',
    folderdelconf => '\'Na pewno chcesz usun±æ ten folder wraz z zawarto¶ci±?\'',
-   chkindex    => 'Sprawd¼ indeks',
+   markread   => 'MarkRead',
+   foldermarkreadconf => '\'Are you going to mark read on all messages in this folder?\'',
+   chkindex   => 'Sprawd¼ indeks',
    folderchkindexconf => '\'Czy chcesz sprawdziæ indeks tego folderu?\'',
    reindex    => 'Przeindeksuj',
    folderreindexconf => '\'Czy chcesz przeindeksowaæ ten folder?\'',
@@ -181,13 +255,37 @@ $lang_charset = 'iso-8859-2';
    readonly   => 'Tylko do odczytu',
    textcontent=> 'Zawarto¶æ',
    search     => 'Szukaj',
+   advsearch  => 'Zaawansowane wyszukiwanie',
+   folder     => 'Folder',
+   nofoldersel=> 'Nie wybrano folderu',
+   showall    => 'Poka¿ wszystkie',
    spellcheck => 'Sprawd¼ pisowniê',
    checkagain => 'Sprawd¼ powtórnie',
    finishchecking => 'Zakoñcz sprawdzanie ',
-   manuallyfix=> 'Popraw rêcznie'
+   manuallyfix=> 'Popraw rêcznie',
+   calendar   => 'Kalendarz',
+   am         => 'am',
+   pm         => 'pm',
+   calfmt_year          => 'Rok @@@YEAR@@@',
+   calfmt_yearmonth     => '@@@MONTH_STR@@@ @@@YEAR@@@',
+   calfmt_yearmonthday  => '@@@DAY@@@ @@@MONTH_STR@@@ @@@YEAR@@@',
+   calfmt_yearmonthdaywday => '@@@DAY@@@ @@@MONTH_STR@@@ @@@YEAR@@@ @@@WEEKDAY_STR@@@',
+   calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
+   none       => 'brak',
+   moreitems  => 'wiêcej',
+   multieditconf => 'This item was added for multiple dates.\\nEditing it will change the item for all dates.\\nContinue with Edit?',
+   multidelconf  => 'This item was added for multiple dates.\\nDeleting it will delete the item for all dates.\\nContinue with Delete?',
+   ed         => 'Zmieñ',
+   del        => 'Usuñ',
+   noitemforthisday => 'Koniec wpisów',
+   today_only               => 'Tylko w dniu dzisiejszym',
+   the_wday_of_thismonth    => 'W ',
+   the_wday_of_thismonth2   => 'miesi±ca',
+   every_wday_of_thismonth  => 'Ka¿dy(±)',
+   every_wday_of_thismonth2 => 'bie¿±cego miesi±ca'
    );
 
-%lang_err = 
+%lang_err =
    (
    has_illegal_chars => 'ma niedozwolone znaki!',
    couldnt_open      => 'Nie mo¿na otworzyæ',
@@ -208,7 +306,7 @@ $lang_charset = 'iso-8859-2';
    cant_create_folder=> 'Nie mo¿na utworzyæ foldera!',
    under_indexing    => 'jest ci±gle w trakcie indeksowania, proszê czekac',
    abook_invalid     => 'Niestety, ale ten plik nie wygl±da na wyeksportowany z Outlook Express 5 w formacie CSV.  Upewnij siê przy pomocy edytora tekstu, czy pierwsza linia rozpoczyna siê od "Name,E-mail", przejd¼',
-   back     => 'wstecz',
+   back              => 'wstecz',
    tryagain          => 'i spróbuj jeszcze raz.',
    abook_toobig      => 'Przykro mi ale przekraczasz dopuszczalny rozmiar swojej Ksi±¿ki Adresowej.  Przejd¼',
    cant_create_dir   => 'Nie mogê utworzyæ twojego osobistego katalogu!',
@@ -226,7 +324,9 @@ $lang_charset = 'iso-8859-2';
    param_fmterr      => 'nieprawid³owy format parametru',
    pwd_incorrect     => 'nieprawid³owe has³o',
    network_server_error => 'b³±d sieci',
-   sendmail_error    => 'Niestety wyst±pi³ problem podczas wysy³ania Twojej wiadomo¶ci. Naci¶nij przycisk wstecz w przegl±darce, sprawd¼ wiadomo¶æ i spróbuj ponownie.'
+   sendmail_error    => 'Niestety wyst±pi³ problem podczas wysy³ania Twojej wiadomo¶ci. Naci¶nij przycisk wstecz w przegl±darce, sprawd¼ wiadomo¶æ i spróbuj ponownie.',
+   at_char_not_allowed => 'The @ character is not allowed in this field.  Press browser back button and try again',
+   badnum_in_days => 'bad number in consecutive days field'
    );
 
 1;

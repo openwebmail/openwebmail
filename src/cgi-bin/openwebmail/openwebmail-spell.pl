@@ -1,14 +1,14 @@
 #!/usr/bin/perl -T
 #
 # spell check program by tung@turtle.ee.ncku.edu.tw
-# modified from WBOSS Version 1.50a 
+# modified from WBOSS Version 1.50a
 #
-# WBOSS is available at http://www.dontpokebadgers.com/spellchecker/ 
+# WBOSS is available at http://www.dontpokebadgers.com/spellchecker/
 # and is copyrighted by 2001, Joshua Cantara
 #
 
 # This is the table of valid letters for various dictionaries.
-# If your dictionary checks vocabularies composed by characters other 
+# If your dictionary checks vocabularies composed by characters other
 # than english letters, you have to define new entry in below hash
 
 my %dictionary_letters =
@@ -16,6 +16,7 @@ my %dictionary_letters =
    english   => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
    br        => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzáÁéÉíÍóÓúÚüÜõÕãÃàÀôÔêÊÇç',
    czech     => 'AÁBCÈDÏEÉÌFGHIÍJKLMNÒOÓPQRØS©T«UÚÙVWXYÝZ®aábcèdïeéìfghiíjklmnòoópqrøs¹t»uúùvwxyýz¾',
+   dansk     => 'ABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅabcdefghijklmnopqrstuvwxyzæøå',
    deutsch   => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzäÄöÖüÜß',
    magyar    => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzáÁéÉíÍóÓúÚüÜõÕûÛÀÁÈÉÌÍÒÓÔÕÖÙÚÛÜàáèéêëìíòóôõö¢~ûü',
    polski    => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz±æê³ñó¶¼¿¡ÆÊ£ÑÓ¦¬¯',
@@ -193,7 +194,7 @@ sub final {
 
    $escapedfinalstring=words2text();
 
-   # since jscript has problem in unescape doublebyte char string, 
+   # since jscript has problem in unescape doublebyte char string,
    # we only escape " to !QUOT! and unescape in jscript by RegExp
    # $escapedfinalstring=escapeURL(words2text());
    $escapedfinalstring=~s/"/!QUOT!/g;
@@ -208,7 +209,7 @@ sub final {
    <!--
    updateclose();
 
-   function updateclose() 
+   function updateclose()
    {
       var quot = new RegExp("!QUOT!","g");
 
@@ -265,7 +266,7 @@ sub text2words {
    $wordframe=$text;
    $wordframe=~s/([$dicletters][$dicletters\-]*[$dicletters])|(~~[$dicletters][$dicletters\-]*[$dicletters])/_word2label($1)/ge;
    return $wordcount;
-}   
+}
 
 # fill $wordframe and @words by CGI $query
 sub cgiparam2words {
@@ -308,7 +309,7 @@ sub words2html {
 
       if ( $words[$i]=~/^~~/ ) {	# check if manualfix
          my $origword=substr($words[$i],2);
-         my $len=length($origword);    
+         my $len=length($origword);
          $wordhtml=qq|<input type="text" size="$len" name="$i" value="$origword">\n|;
          $worderror++;
 
@@ -321,7 +322,7 @@ sub words2html {
             $worderror++;
 
          } elsif ($r->{'type'} eq 'miss')  {
-            my $sugg; 
+            my $sugg;
             $wordhtml=qq|<select size="1" name="$i">\n|.
                       qq|<option>$words[$i]</option>\n|.
                       qq|<option value="~~$words[$i]">--$lang_text{'manuallyfix'}--</option>\n|;

@@ -9,6 +9,7 @@ use strict;
 use Fcntl qw(:DEFAULT :flock);
 use FileHandle;
 use IO::Socket;
+require "mime.pl";
 
 use vars qw(%config);
 
@@ -59,21 +60,33 @@ sub retrpop3mail {
    $_=<$remote_sock>;
    return(-3) if (/^\-/);		# server not ready
 
-   print $remote_sock "user $pop3user\r\n";
+   # try if server supports auth login(base64 encoding) first
+   print $remote_sock "auth login\r\n";
    $_=<$remote_sock>;
-   return(-4) if (/^\-/);		# username error
-
-   print $remote_sock "pass $pop3passwd\r\n";
-   $_=<$remote_sock>;
-   return (-5) if (/^\-/);		# passwd error
+   if (/^\+/) {
+      print $remote_sock &encode_base64($pop3user);
+      $_=<$remote_sock>;
+      (close($remote_sock) && return(-4)) if (/^\-/);		# username error
+      print $remote_sock &encode_base64($pop3passwd);
+      $_=<$remote_sock>;
+      (close($remote_sock) && return(-5)) if (/^\-/);		# passwd error
+   } else {
+      print $remote_sock "user $pop3user\r\n";
+      $_=<$remote_sock>;
+      (close($remote_sock) && return(-4)) if (/^\-/);		# username error
+      print $remote_sock "pass $pop3passwd\r\n";
+      $_=<$remote_sock>;
+      (close($remote_sock) && return(-5)) if (/^\-/);		# passwd error
+   }
 
    print $remote_sock "stat\r\n";
    $_=<$remote_sock>;
-   return(-6) if (/^\-/);		# stat error
+   (close($remote_sock) && return(-6)) if (/^\-/);		# stat error
 
    $nMailCount=(split(/\s/))[1];
    if ($nMailCount == 0) {		# no message
       print $remote_sock "quit\r\n";
+      close($remote_sock);
       return 0;
    }
 
@@ -93,6 +106,7 @@ sub retrpop3mail {
          $last=(split(/\s/))[1];		# +OK N
          if ($last eq $nMailCount) {
             print $remote_sock "quit\r\n";
+            close($remote_sock);
             return 0;
          }
       }
@@ -107,6 +121,7 @@ sub retrpop3mail {
 
       if ($pop3lastid eq (split(/\s/))[$uidl_field]) {	# +OK N ID
          print $remote_sock "quit\r\n";
+         close($remote_sock);
          return 0;
       }
       if ($pop3lastid ne "none") {
@@ -139,6 +154,7 @@ sub retrpop3mail {
          if ( /^\+/ ) {
             next;
          } elsif (/^\-/) {
+            close($remote_sock);
             return(-7);
          } else {
             last;
@@ -168,7 +184,7 @@ sub retrpop3mail {
                $_ = $2;
             } elsif ($_=~ /<?(.*@.*)>?\s+\((.+?)\)/ ) {
                $_ = $1;
-            } elsif ($_=~ /<\s*(.+@.+)\s*>/ ) { 
+            } elsif ($_=~ /<\s*(.+@.+)\s*>/ ) {
                $_ = $1;
             } else {
                $_=~ s/\s*(.+@.+)\s*/$1/;
@@ -198,7 +214,7 @@ sub retrpop3mail {
       open(IN,">>$spoolfile") or return(-8);
       print IN "From $stAddress $stDate\n";
       print IN $FileContent;
-      print IN "\n";		# mark mail end 
+      print IN "\n";		# mark mail end
       close(IN);
       filelock($spoolfile, LOCK_UN);
 

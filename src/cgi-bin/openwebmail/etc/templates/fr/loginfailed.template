@@ -4,6 +4,6 @@
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>MAUVAISE IDENTIFICATION</B></FONT></TD></TR>
 <tr><td valign="middle" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>@@@ERRORMSG@@@! Cliquez sur 'Précédent' et 
+<BR>@@@ERRORMSG@@@! Cliquez sur 'Précédent' et
 <a href="@@@SCRIPTURL@@@">essayez encore</a>.<BR><BR>
 </td></tr></table>

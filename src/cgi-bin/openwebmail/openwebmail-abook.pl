@@ -48,7 +48,7 @@ $messageid=param("message_id") || '';
 $escapedmessageid=escapeURL($messageid);
 
 # extern vars
-use vars qw($lang_charset %lang_folders %lang_text %lang_err);	# defined in lang/xy
+use vars qw(%lang_folders %lang_text %lang_err);	# defined in lang/xy
 
 ########################## MAIN ##############################
 
@@ -140,7 +140,7 @@ sub addressbook {
 	               -class=>'medtext');
 
    $html =~ s/\@\@\@SEARCH\@\@\@/$temphtml/g;
-   
+
    $temphtml = startform(-action=>"javascript:Update()",
                    	 -name=>'addressbook'
                         );
@@ -154,7 +154,10 @@ sub addressbook {
       $preexistinghash{$email}=$u;
    }
 
+
    $temphtml="";
+   $temphtml .= qq|<tr><td colspan="4">&nbsp;</td></tr>|;
+
    my $count=0;
    my $bgcolor = $style{"tablerow_dark"};
    if ( -f "$folderdir/.address.book" ||
@@ -169,14 +172,14 @@ sub addressbook {
             chomp($email);
             chomp($note);
             if ( $abook_keyword ne "" &&
-                 ( ($abook_searchtype eq "name" && 
+                 ( ($abook_searchtype eq "name" &&
                     $name!~/$abook_keyword/i && $name!~/\Q$abook_keyword\E/i)   ||
-                   ($abook_searchtype eq "email" && 
+                   ($abook_searchtype eq "email" &&
                     $email!~/$abook_keyword/i && $email!~/\Q$abook_keyword\E/i) ||
-                   ($abook_searchtype eq "note" && 
+                   ($abook_searchtype eq "note" &&
                     $note!~/$abook_keyword/i && $note!~/\Q$abook_keyword\E/i)   ||
-                   ($abook_searchtype eq "all" && 
-                    "$name.$email.$note" !~ /$abook_keyword/i && 
+                   ($abook_searchtype eq "all" &&
+                    "$name.$email.$note" !~ /$abook_keyword/i &&
                     "$name.$email.$note" !~ /\Q$abook_keyword\E/i) )  ) {
                next;
             }
@@ -193,17 +196,18 @@ sub addressbook {
             chomp($email);
             chomp($note);
             if ( $abook_keyword ne "" &&
-                 ( ($abook_searchtype eq "name" && 
+                 ( ($abook_searchtype eq "name" &&
                     $name!~/$abook_keyword/i && $name!~/\Q$abook_keyword\E/i)   ||
-                   ($abook_searchtype eq "email" && 
+                   ($abook_searchtype eq "email" &&
                     $email!~/$abook_keyword/i && $email!~/\Q$abook_keyword\E/i) ||
-                   ($abook_searchtype eq "note" && 
+                   ($abook_searchtype eq "note" &&
                     $note!~/$abook_keyword/i && $note!~/\Q$abook_keyword\E/i)   ||
-                   ($abook_searchtype eq "all" && 
-                    "$name.$email.$note" !~ /$abook_keyword/i && 
+                   ($abook_searchtype eq "all" &&
+                    "$name.$email.$note" !~ /$abook_keyword/i &&
                     "$name.$email.$note" !~ /\Q$abook_keyword\E/i) )  ) {
                next;
             }
+            next if ($email=~/^\s*$/);	# skip if email is null
             $addresses{"$name"} = "$email";
             $notes{"$name"} = "$note";
          }
@@ -215,14 +219,14 @@ sub addressbook {
          my $emailstr;
 
          if ( $form eq "newaddress" && $field eq "email" ) { # definition mode
-            $emailstr="$email";	                             # need only pure addr 
+            $emailstr="$email";	                             # need only pure addr
 
          } else {			# reference mode
-            if ( $email =~ /[,"]/ ) {	# expamd multiple addr to "name" <addr>
+            if ( $email =~ /[,"]/ ) {	# expand multiple addr to multiple "name" <addr>
                foreach my $e (str2list($email,0)) {
                   foreach my $n (keys %addresses) {
                      if ( $e eq $addresses{$n} ) {
-                        $e="\&quot;$n\&quot; &lt;$e&gt;";   
+                        $e="\&quot;$n\&quot; &lt;$e&gt;";
                         last;
                      }
                   }
@@ -240,7 +244,8 @@ sub addressbook {
             delete $preexistinghash{$email};
             $temphtml .= " checked";
          }
-         $temphtml .= qq|></td><td width="49%" bgcolor=$bgcolor nowrap><a title="$email $notes{$name}">$name</a></td>\n|;
+         $temphtml .= qq|></td><td width="49%" bgcolor=$bgcolor nowrap>|.
+                      qq|<a href="javascript:Update('$emailstr')" title="$email $notes{$name}">$name</a></td>\n|;
          $temphtml .= qq|</tr>| if ($count %2 == 1);
 
          if ($bgcolor eq $style{"tablerow_dark"}) {
@@ -250,7 +255,12 @@ sub addressbook {
          }
          $count++
       }
+
    }
+
+   $temphtml .= qq|<tr><td colspan="4">&nbsp;</td></tr>| if ($count>0);
+   $count = 0;
+
    if ( $config{'global_addressbook'} ne "" && -f "$config{'global_addressbook'}" ) {
       my %globaladdresses=();
       my %globalnotes=();
@@ -262,17 +272,18 @@ sub addressbook {
             chomp($email);
             chomp($note);
             if ( $abook_keyword ne "" &&
-                 ( ($abook_searchtype eq "name" && 
+                 ( ($abook_searchtype eq "name" &&
                     $name!~/$abook_keyword/i && $name!~/\Q$abook_keyword\E/i)   ||
-                   ($abook_searchtype eq "email" && 
+                   ($abook_searchtype eq "email" &&
                     $email!~/$abook_keyword/i && $email!~/\Q$abook_keyword\E/i) ||
-                   ($abook_searchtype eq "note" && 
+                   ($abook_searchtype eq "note" &&
                     $note!~/$abook_keyword/i && $note!~/\Q$abook_keyword\E/i)   ||
-                   ($abook_searchtype eq "all" && 
-                    "$name.$email.$note" !~ /$abook_keyword/i && 
+                   ($abook_searchtype eq "all" &&
+                    "$name.$email.$note" !~ /$abook_keyword/i &&
                     "$name.$email.$note" !~ /\Q$abook_keyword\E/i) )  ) {
                next;
             }
+            next if ($email=~/^\s*$/);	# skip if email is null
             $globaladdresses{"$name"} = "$email";
             $globalnotes{"$name"} = "$note";
             push(@namelist, $name);
@@ -280,7 +291,7 @@ sub addressbook {
          close (ABOOK);
       }
       foreach my $name (@namelist) {
-         my $email=$globaladdresses{$name};         
+         my $email=$globaladdresses{$name};
          my $emailstr;
          if ( $form eq "newaddress" && $field eq "email" ) { # chk if group email definition
             $emailstr="$email";	                             # which needs only pure email
@@ -289,7 +300,7 @@ sub addressbook {
                foreach my $e (str2list($email,0)) {
                   foreach my $n (keys %globaladdresses) {
                      if ( $e eq $globaladdresses{$n} ) {
-                        $e="\&quot;$n\&quot; &lt;$e&gt;";   
+                        $e="\&quot;$n\&quot; &lt;$e&gt;";
                         last;
                      }
                   }
@@ -307,7 +318,8 @@ sub addressbook {
             delete $preexistinghash{$email};
             $temphtml .= " checked";
          }
-         $temphtml .= qq|></td><td width="49%" bgcolor=$bgcolor nowrap><a title="$email $globalnotes{$name}">$name</a></td>\n|;
+         $temphtml .= qq|></td><td width="49%" bgcolor=$bgcolor nowrap>|.
+                      qq|<a href="javascript:Update('$emailstr')" title="$email $globalnotes{$name}">$name</a></td>\n|;
          $temphtml .= qq|</tr>| if ($count %2 == 1);
 
          if ($bgcolor eq $style{"tablerow_dark"}) {
@@ -339,7 +351,7 @@ sub addressbook {
                        -onclick=>'window.close();',
 	               -class=>'medtext',
                        -override=>'1');
-   
+
    $html =~ s/\@\@\@BUTTONS\@\@\@/$temphtml/g;
 
    $temphtml = end_form();
@@ -347,7 +359,7 @@ sub addressbook {
 
    $html =~ s/\@\@\@FORMNAME\@\@\@/$form/g;
    $html =~ s/\@\@\@FIELDNAME\@\@\@/$field/g;
-   
+
 
    print $html;
 
@@ -363,7 +375,6 @@ sub importabook {
    my $abooktowrite='';
    my $mua = param("mua") || '';
    if ($abookupload) {
-#      no strict 'refs';
       my $abookcontents = '';
       while (<$abookupload>) {
          $abookcontents .= $_;
@@ -400,7 +411,7 @@ sub importabook {
             $fields[1] =~ s/>/&gt;/g;
             $addresses{$fields[0]} = $fields[1];
             $note = join(",", @fields[2..9]);
-            $note =~ s/,\s*,//g; 
+            $note =~ s/,\s*,//g;
             $note =~ s/^\s*,\s*//g;
             $note =~ s/\s*,\s*$//g;
             $notes{$fields[0]} = $note;
@@ -412,7 +423,7 @@ sub importabook {
             $fields[6] =~ s/>/&gt;/g;
             $addresses{"$fields[0]"} = $fields[6];
             $note = join(",", @fields[1..5,7..9]);
-            $note =~ s/,\s*,//g; 
+            $note =~ s/,\s*,//g;
             $note =~ s/^\s*,\s*//g;
             $note =~ s/\s*,\s*$//g;
             $notes{$fields[0]} = $note;
@@ -680,7 +691,7 @@ sub editaddresses {
    $temphtml .= submit(-name=>"$lang_text{'search'}",
 	               -class=>'medtext');
    $html =~ s/\@\@\@SEARCH\@\@\@/$temphtml/g;
-   
+
    $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl",
                          -name=>'newaddress') .
                hidden(-name=>'action',
@@ -738,14 +749,14 @@ sub editaddresses {
    foreach my $key (sort { lc($a) cmp lc($b) } keys %addresses) {
       my ($namestr, $emailstr, $notestr)=($key, $addresses{$key}, $notes{$key});
       if ( $abook_keyword ne "" &&
-           ( ($abook_searchtype eq "name" && 
+           ( ($abook_searchtype eq "name" &&
               $namestr!~/$abook_keyword/i && $namestr!~/\Q$abook_keyword\E/i)   ||
-             ($abook_searchtype eq "email" && 
+             ($abook_searchtype eq "email" &&
               $emailstr!~/$abook_keyword/i && $emailstr!~/\Q$abook_keyword\E/i) ||
-             ($abook_searchtype eq "note" && 
+             ($abook_searchtype eq "note" &&
               $notestr!~/$abook_keyword/i && $notestr!~/\Q$abook_keyword\E/i)   ||
-             ($abook_searchtype eq "all" && 
-              "$namestr.$emailstr.$notestr" !~ /$abook_keyword/i && 
+             ($abook_searchtype eq "all" &&
+              "$namestr.$emailstr.$notestr" !~ /$abook_keyword/i &&
               "$namestr.$emailstr.$notestr" !~ /\Q$abook_keyword\E/i) )  ) {
          next;
       }
@@ -801,14 +812,14 @@ sub editaddresses {
    foreach my $key (@globalnamelist) {
       my ($namestr, $emailstr, $notestr)=($key, $globaladdresses{$key}, $globalnotes{$key});
       if ( $abook_keyword ne "" &&
-           ( ($abook_searchtype eq "name" && 
+           ( ($abook_searchtype eq "name" &&
               $namestr!~/$abook_keyword/i && $namestr!~/\Q$abook_keyword\E/i)   ||
-             ($abook_searchtype eq "email" && 
+             ($abook_searchtype eq "email" &&
               $emailstr!~/$abook_keyword/i && $emailstr!~/\Q$abook_keyword\E/i) ||
-             ($abook_searchtype eq "note" && 
+             ($abook_searchtype eq "note" &&
               $notestr!~/$abook_keyword/i && $notestr!~/\Q$abook_keyword\E/i)   ||
-             ($abook_searchtype eq "all" && 
-              "$namestr.$emailstr.$notestr" !~ /$abook_keyword/i && 
+             ($abook_searchtype eq "all" &&
+              "$namestr.$emailstr.$notestr" !~ /$abook_keyword/i &&
               "$namestr.$emailstr.$notestr" !~ /\Q$abook_keyword\E/i) )  ) {
          next;
       }
@@ -874,7 +885,7 @@ sub modaddress {
             $addresses{"$realname"} = $address;
             # overwrite old note only if new one is not _reserved_
             # check addaddress in openwebmail-read.pl
-            if ($usernote ne '_reserved_') { 
+            if ($usernote ne '_reserved_') {
                $notes{"$realname"} = $usernote;
             }
          }

@@ -1,14 +1,14 @@
---- openwebmail.conf.orig	Sat Jun  1 09:54:17 2002
-+++ openwebmail.conf	Sat Jun  1 09:55:23 2002
-@@ -17,11 +17,9 @@
- ow_htmldir		/usr/local/www/data/openwebmail
+--- openwebmail.conf.orig	Sun Jun  9 16:40:03 2002
++++ openwebmail.conf	Sun Jun  9 16:40:42 2002
+@@ -19,11 +19,9 @@
+ ow_htmlurl		/openwebmail
  logfile			/var/log/openwebmail.log
  spellcheck		/usr/local/bin/ispell
 -default_language	zh_TW.Big5
 +default_language	en
  
  <default_signature>
- --
+ -- 
 -Distributed System Laboratory (http://dslab.ee.ncku.edu.tw)
 -Department of Electrical Engineering
 -National Cheng Kung University, Tainan, Taiwan, R.O.C.

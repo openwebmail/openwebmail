@@ -1,6 +1,7 @@
 #!/usr/bin/perl -T
 
-$lang_charset = 'euc-kr';
+# Korean translation by Moonsang Kwon, kmscom.AT.snu.ac.kr
+# charset: euc-kr
 
 %lang_folders =
    (
@@ -9,6 +10,7 @@ $lang_charset = 'euc-kr';
    'sent-mail'      => '보낸 편지함',
    'saved-drafts'   => '임시 편지함',
    'mail-trash'     => '휴지통',
+   'all'            => 'All',
    DELETE => '--삭제--'
    );
 
@@ -58,8 +60,75 @@ $lang_charset = 'euc-kr';
    1440 => '24 hours'
    );
 
+%lang_advsearchlabels =
+   (
+   contains    => 'contains',
+   notcontains => 'does not contain',
+   is          => 'is',
+   isnot       => 'is not',
+   startswith  => 'starts with',
+   endswith    => 'ends with',
+   regexp      => 'matches regexp(insensitive)',
+   );
+
+%lang_calendar = 
+   (
+   yearview  => 'Yearview',
+   monthview => 'Monthview',
+   weekview  => 'Weekview',
+   dayview   => 'Dayview'
+   );
+
+%lang_month =
+   (
+   1  => 'January',
+   2  => 'February',
+   3  => 'March',
+   4  => 'April',
+   5  => 'May',
+   6  => 'June',
+   7  => 'July',
+   8  => 'August',
+   9  => 'September',
+   10 => 'October',
+   11 => 'November',
+   12 => 'December'
+   );
+
+%lang_wday =
+   (
+   0 => 'Sunday',
+   1 => 'Monday',
+   2 => 'Tuesday',
+   3 => 'Wednesday',
+   4 => 'Thursday',
+   5 => 'Friday',
+   6 => 'Saturday'
+   );
+
+%lang_wday_abbrev =
+   (
+   week => 'WK',
+   0 => 'S',
+   1 => 'M',
+   2 => 'T',
+   3 => 'W',
+   4 => 'T',
+   5 => 'F',
+   6 => 'S'
+   );
+
+%lang_order =
+   (
+   1 => '1st',
+   2 => '2nd',
+   3 => '3rd',
+   4 => '4th',
+   5 => 'last'
+   );
+
 %lang_text =
-   (  
+   (
    login      => '로그인',
    clear      => '다시 시작',
    point      => 'Point',
@@ -133,7 +202,9 @@ $lang_charset = 'euc-kr';
    folderrenprop => '\'이 폴더의 새로운 이름을 입력하세요.\'',
    rename     => ' 이름 변경하기',
    folderdelconf => '\'이 폴더와 그 안에 저장된 내용을 모두 삭제하시겠습니까?\'',
-   chkindex    => 'CheckIndex',
+   markread   => 'MarkRead',
+   foldermarkreadconf => '\'Are you going to mark read on all messages in this folder?\'',
+   chkindex   => 'CheckIndex',
    folderchkindexconf => '\'Are you going to check the index of this folder?\'',
    reindex    => 'ReIndex',
    folderreindexconf => '\'Are you sure you want to reindex this folder?\'',
@@ -181,13 +252,37 @@ $lang_charset = 'euc-kr';
    readonly   => '일기전용',
    textcontent=> '본문',
    search     => '검색',
+   advsearch  => 'Advanced search',
+   folder     => 'Folder',
+   nofoldersel=> 'No Folder selected',
+   showall    => 'Show All',
    spellcheck => '철자 검사',
    checkagain => '다시 검사',
    finishchecking => '검사 종료',
-   manuallyfix=> '수동 변경'
+   manuallyfix=> '수동 변경',
+   calendar   => 'Calendar',
+   am         => 'am',
+   pm         => 'pm',
+   calfmt_year          => 'Year @@@YEAR@@@',
+   calfmt_yearmonth     => '@@@MONTH_STR@@@ @@@YEAR@@@',
+   calfmt_yearmonthday  => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@',
+   calfmt_yearmonthdaywday => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@ @@@WEEKDAY_STR@@@',
+   calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
+   none       => 'None',
+   moreitems  => 'more items',
+   multieditconf => 'This item was added for multiple dates.\\nEditing it will change the item for all dates.\\nContinue with Edit?',
+   multidelconf  => 'This item was added for multiple dates.\\nDeleting it will delete the item for all dates.\\nContinue with Delete?',
+   ed         => 'Ed',
+   del        => 'Del',
+   noitemforthisday => 'No items for this day',
+   today_only               => 'Today\'s date only',
+   the_wday_of_thismonth    => 'The',
+   the_wday_of_thismonth2   => 'of the month',
+   every_wday_of_thismonth  => 'Every',
+   every_wday_of_thismonth2 => 'this month'
    );
 
-%lang_err = 
+%lang_err =
    (
    has_illegal_chars => 'has illegal characters!',
    couldnt_open      => 'Couldn\'t open',
@@ -208,7 +303,7 @@ $lang_charset = 'euc-kr';
    cant_create_folder=> 'Can\'t create folder!',
    under_indexing    => 'is still under indexing, please try later',
    abook_invalid     => 'Sorry, this file doesn\'t appear to be an address book exported from Microsoft Outlook Express 5 in CSV format.  Make sure that when viewing it in a text editor, the first line starts out "Name,E-mail Address", then go',
-   back     => 'back',
+   back              => 'back',
    tryagain          => 'and try again.',
    abook_toobig      => 'Sorry, this would exceed the size limit for your address book.  Please go',
    cant_create_dir   => 'Can\'t create your user directory!',
@@ -226,7 +321,9 @@ $lang_charset = 'euc-kr';
    param_fmterr      => 'parameter format error',
    pwd_incorrect     => 'password incorrect',
    network_server_error => 'network server error',
-   sendmail_error    => 'Sorry, there was a problem sending your message.  Please click your browser\'s Back button, check your message, and try again.'
+   sendmail_error    => 'Sorry, there was a problem sending your message.  Please click your browser\'s Back button, check your message, and try again.',
+   at_char_not_allowed => 'The @ character is not allowed in this field.  Press browser back button and try again',
+   badnum_in_days => 'bad number in consecutive days field'
    );
 
 1;

@@ -45,17 +45,17 @@
 
    document.login.loginname.focus()
 
-   function focuspwd() 
-   { 
-      document.login.password.focus(); 
-      return(true); 
-   } 
+   function focuspwd()
+   {
+      document.login.password.focus();
+      return(true);
+   }
 
-   function focuslogin() 
-   { 
-      document.login.login.focus(); 
-      return (true); 
-   } 
+   function focuslogin()
+   {
+      document.login.login.focus();
+      return (true);
+   }
 
 //-->
 </script>

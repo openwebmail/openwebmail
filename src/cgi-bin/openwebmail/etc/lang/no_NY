@@ -1,6 +1,7 @@
 #!/usr/bin/perl -T
 
-$lang_charset = 'iso-8859-1';
+# Norwegian Nynorsk translation, incomplete...
+# charset: iso-8859-1
 
 %lang_folders =
    (
@@ -9,6 +10,7 @@ $lang_charset = 'iso-8859-1';
    'sent-mail'      => 'SENDT',
    'saved-drafts'   => 'DRAFT',
    'mail-trash'     => 'SØPPELBØTTE',
+   'all'            => 'All',
    DELETE => '--DELETE--'
    );
 
@@ -58,8 +60,75 @@ $lang_charset = 'iso-8859-1';
    1440 => '24 hours'
    );
 
+%lang_advsearchlabels =
+   (
+   contains    => 'contains',
+   notcontains => 'does not contain',
+   is          => 'is',
+   isnot       => 'is not',
+   startswith  => 'starts with',
+   endswith    => 'ends with',
+   regexp      => 'matches regexp(insensitive)',
+   );
+
+%lang_calendar = 
+   (
+   yearview  => 'Yearview',
+   monthview => 'Monthview',
+   weekview  => 'Weekview',
+   dayview   => 'Dayview'
+   );
+
+%lang_month =
+   (
+   1  => 'January',
+   2  => 'February',
+   3  => 'March',
+   4  => 'April',
+   5  => 'May',
+   6  => 'June',
+   7  => 'July',
+   8  => 'August',
+   9  => 'September',
+   10 => 'October',
+   11 => 'November',
+   12 => 'December'
+   );
+
+%lang_wday =
+   (
+   0 => 'Sunday',
+   1 => 'Monday',
+   2 => 'Tuesday',
+   3 => 'Wednesday',
+   4 => 'Thursday',
+   5 => 'Friday',
+   6 => 'Saturday'
+   );
+
+%lang_wday_abbrev =
+   (
+   week => 'WK',
+   0 => 'S',
+   1 => 'M',
+   2 => 'T',
+   3 => 'W',
+   4 => 'T',
+   5 => 'F',
+   6 => 'S'
+   );
+
+%lang_order =
+   (
+   1 => '1st',
+   2 => '2nd',
+   3 => '3rd',
+   4 => '4th',
+   5 => 'last'
+   );
+
 %lang_text =
-   (  
+   (
    login      => 'Logg inn',
    clear      => 'Slett',
    point      => 'Point',
@@ -133,7 +202,9 @@ $lang_charset = 'iso-8859-1';
    folderrenprop => '\'Please enter the new name for this folder\'',
    rename     => 'Rename',
    folderdelconf => '\'Er du sikker på at du vil slette denne mappen og alt innholdet?\'',
-   chkindex    => 'CheckIndex',
+   markread   => 'MarkRead',
+   foldermarkreadconf => '\'Are you going to mark read on all messages in this folder?\'',
+   chkindex   => 'CheckIndex',
    folderchkindexconf => '\'Are you going to check the index of this folder?\'',
    reindex    => 'ReIndex',
    folderreindexconf => '\'Are you sure you want to reindex this folder?\'',
@@ -181,13 +252,37 @@ $lang_charset = 'iso-8859-1';
    readonly   => 'ReadOnly',
    textcontent=> 'TextContent',
    search     => 'Search',
+   advsearch  => 'Advanced search',
+   folder     => 'Folder',
+   nofoldersel=> 'No Folder selected',
+   showall    => 'Show All',
    spellcheck => 'Spell Check',
    checkagain => 'Check Again',
    finishchecking => 'Finish Checking',
-   manuallyfix=> 'Manually Fix'
+   manuallyfix=> 'Manually Fix',
+   calendar   => 'Calendar',
+   am         => 'am',
+   pm         => 'pm',
+   calfmt_year          => 'Year @@@YEAR@@@',
+   calfmt_yearmonth     => '@@@MONTH_STR@@@ @@@YEAR@@@',
+   calfmt_yearmonthday  => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@',
+   calfmt_yearmonthdaywday => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@ @@@WEEKDAY_STR@@@',
+   calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
+   none       => 'None',
+   moreitems  => 'more items',
+   multieditconf => 'This item was added for multiple dates.\\nEditing it will change the item for all dates.\\nContinue with Edit?',
+   multidelconf  => 'This item was added for multiple dates.\\nDeleting it will delete the item for all dates.\\nContinue with Delete?',
+   ed         => 'Ed',
+   del        => 'Del',
+   noitemforthisday => 'No items for this day',
+   today_only               => 'Today\'s date only',
+   the_wday_of_thismonth    => 'The',
+   the_wday_of_thismonth2   => 'of the month',
+   every_wday_of_thismonth  => 'Every',
+   every_wday_of_thismonth2 => 'this month'
    );
 
-%lang_err = 
+%lang_err =
    (
    has_illegal_chars => 'inneholder ulovlige tegn!',
    couldnt_open      => 'Kunne ikke åpne',
@@ -208,7 +303,7 @@ $lang_charset = 'iso-8859-1';
    cant_create_folder=> 'Kan ikke opprette mappen!',
    under_indexing    => 'is still under indexing, please try later',
    abook_invalid     => 'Beklager, denne filen virker ikke som om den er en adressebok eksportert fra Microsoft Outlook Express 5 i CVS-format. Forsikre deg om at filen starter med:"Name,E-mail Address", og gå',
-   back     => 'tilbake',
+   back              => 'tilbake',
    tryagain          => 'og forsøk på nytt.',
    abook_toobig      => 'Beklager, du overstiger tillatt størrelse på adresseboken din. Gå',
    cant_create_dir   => 'Brukerkatalogen din kunne ikke opprettes!',
@@ -226,7 +321,9 @@ $lang_charset = 'iso-8859-1';
    param_fmterr      => 'parameter format error',
    pwd_incorrect     => 'password incorrect',
    network_server_error => 'network server error',
-   sendmail_error    => 'Sorry, there was a problem sending your message.  Please click your browser\'s Back button, check your message, and try again.'
+   sendmail_error    => 'Sorry, there was a problem sending your message.  Please click your browser\'s Back button, check your message, and try again.',
+   at_char_not_allowed => 'The @ character is not allowed in this field.  Press browser back button and try again',
+   badnum_in_days => 'bad number in consecutive days field'
    );
 
 1;

@@ -15,13 +15,13 @@
 #   vacation.pl [ -j ] [ -a alias ] [-f ifile] [ -tN ] [-d] username
 #      used in ~/.forward file to auto-generate reply message
 #
-#    username  A message will be replied only if the username 
+#    username  A message will be replied only if the username
 #            appears as an recipient in To: or Cc:
 #
-#    -j      Do not check whether the username appears as an 
+#    -j      Do not check whether the username appears as an
 #            recipient in the To: or the Cc: line.
 #
-#    -a alias  Indicate that alias is one of the valid names of the 
+#    -a alias  Indicate that alias is one of the valid names of the
 #            username, so the reply will be generated if the alias
 #            appears in To: or Cc:
 #
@@ -41,7 +41,7 @@
 #
 #   .forward file will contain a line of the form:
 #
-#            \username, "|/usr/local/bin/vacation.pl -t1d username"  
+#            \username, "|/usr/local/bin/vacation.pl -t1d username"
 #
 #   .vacation.msg should include a header with at least Subject: line
 #
@@ -49,7 +49,7 @@
 #
 #            Subject: I am on vacation
 #
-#            I am on vacation until July 22.  
+#            I am on vacation until July 22.
 #            If you have something urgent,
 #            please contact cilen (cilen@somehost).
 #            --tung
@@ -60,13 +60,13 @@
 #
 #            Subject: I am on vacation
 #
-#            I am on vacation until July 22.  
+#            I am on vacation until July 22.
 #            Your mail regarding "$SUBJECT" will be read when I return.
 #            If you have something urgent,
 #            please contact cilen (cilen@somehost).
 #            --tung
 #
-#   will include the subject of the message in the reply. 
+#   will include the subject of the message in the reply.
 
 use strict;
 $ENV{PATH} = "/bin:/usr/bin"; # only little PATH should be needed
@@ -77,7 +77,7 @@ if ($myname !~ m!^/! || ! -x $myname) {
    exit 1;
 }
 
-my $sendmail;
+my $sendmail="";
 if ( $sendmail eq "" ) {
    if ( -x '/usr/sbin/sendmail') {
       $sendmail='/usr/sbin/sendmail';
@@ -102,56 +102,16 @@ my %scale = (			# set-up time scale suffix ratios
          'w', 7 * 24 * 60 * 60,
          );
 
-my @ignores = ( 
-           'daemon', 
-           'postmaster', 
-           'mailer-daemon', 
+my @ignores = (
+           'daemon',
+           'postmaster',
+           'mailer-daemon',
            'mailer',
            'root',
            );
 my @aliases = ();
 
 my ($opt_i, $opt_d, $opt_j)=(0,0,0);
-
-#############################################################################
-
-# parse options, handle initialization or interactive mode ##############
-while ($ARGV[0] =~ /^-/) {
-   $_ = shift;
-   if (/^-I/i) {  # eric allman's source has both cases
-      $opt_i=1;
-   } elsif (/^-d/) {      # log debug information to /tmp/vacation.debug
-      $opt_d=1;
-   } elsif (/^-j/) {      # don't check if user is a valid receiver
-      $opt_j=1;
-   } elsif (/^-f(.*)/) {   # read ignorelist from file
-      push(@ignores, read_list_from_file($1 ? $1 : shift));
-   } elsif (/^-a(.*)/) {   # specify alias name
-      push(@aliases, $1 ? $1 : shift);
-   } elsif (/^-t([\d.]*)([smhdw])/) {   # specify reply once interval
-      $timeout = $1;
-      $timeout *= $scale{$2} if $2;
-   } else {
-      die $usage;
-   }
-}
-
-if ($opt_i) {
-   log_debug($0, "init mode with arg: ", @ARGV,
-             "ruid=$<, euid=$>, rgid=$(, egid=$)" ) if ($opt_d);
-   init_mode();
-} elsif (@ARGV) {
-   log_debug($0, "piped mode with arg: ", @ARGV,
-             "ruid=$<, euid=$>, rgid=$(, egid=$)" ) if ($opt_d);
-   push(@ignores, $ARGV[0]);
-   push(@aliases, $ARGV[0]);
-   pipe_mode($ARGV[0]);
-} else {
-   log_debug($0, "interactive mode(no arg)",
-             "ruid=$<, euid=$>, rgid=$(, egid=$)") if ($opt_d);
-   interactive_mode();
-}
-exit 0;
 
 
 #############################################################################
@@ -166,7 +126,7 @@ sub init_mode {
    my $home = $ENV{'HOME'} || (getpwnam($user))[7] || die "No home directory for user $user\n";
 
    # guess real homedir under automounter
-   $home="/export$home" if ( -d "/export$home" ); 
+   $home="/export$home" if ( -d "/export$home" );
    ($home =~ /^(.+)$/) && ($home = $1);  # untaint $home...
    chdir $home || die "Can't chdir to $home: $!\n";
 
@@ -178,7 +138,7 @@ sub init_vacation_db {
    dbmopen(%VAC, ".vacation", 0600) || die "Can't open vacation dbm files: $!\n";
    %VAC=();
    dbmclose(%VAC);
-} 
+}
 
 #############################################################################
 sub interactive_mode {
@@ -194,7 +154,7 @@ sub interactive_mode {
    my $pager = $ENV{'PAGER'} || 'more';
 
    # guess real homedir under automounter
-   $home="/export$home" if ( -d "/export$home" ); 
+   $home="/export$home" if ( -d "/export$home" );
    ($home =~ /^(.+)$/) && ($home = $1);  # untaint $home...
    chdir $home || die "Can't chdir to $home: $!\n";
 
@@ -217,7 +177,7 @@ sub interactive_mode {
             foreach (@keys) {
                my ($when) = unpack("L", $VAC{$_});
                printf PAGER "%-20s %s", $_, ctime($when);
-            } 
+            }
             print PAGER "\n";
             close PAGER;
          }
@@ -247,7 +207,7 @@ sub interactive_mode {
             qq|Press return when ready to continue, and you will enter your favorite\n|,
             qq|editor ($editor) to edit the messasge to your own tastes.\n|;
       $| = 1;
-      print "Press return to continue: "; 
+      print "Press return to continue: ";
       <STDIN>;
       system $editor, '.vacation.msg';
    }
@@ -282,7 +242,7 @@ sub create_default_vacation_msg {
              qq|I will not be reading my mail for a while.\n|,
              qq|Your mail regarding '\$SUBJECT' will be read when I return.\n|;
    close MSG;
-} 
+}
 
 sub yorn {
    my $answer;
@@ -309,7 +269,7 @@ sub pipe_mode {
    }
 
    # guess real homedir under automounter
-   $home="/export$home" if ( -d "/export$home" );   
+   $home="/export$home" if ( -d "/export$home" );
    ($home =~ /^(.+)$/) && ($home = $1);  # untaint $home...
    if (! chdir $home) {
       log_debug("Error! Can't chdir to $home: $!\n") if ($opt_d);
@@ -317,16 +277,16 @@ sub pipe_mode {
    }
 
    my ($header, $from, $subject, $to, $cc);
-   
+
    $/ = ''; # paragraph mode, readin until blank line
-   $header = <STDIN>; 
+   $header = <STDIN>;
    $header =~ s/\n\s+/ /g; # fix continuation lines
    $/ = "\n";
 
    ($from) = ($header =~ /^From\s+(\S+)/);   # that's the Unix-style From line
    if ($from eq "") {
       log_debug("Error! No 'From ' line!\n") if ($opt_d);
-      die "No 'From ' line!\n"; 
+      die "No 'From ' line!\n";
    }
 
    if ($header =~ /^Precedence:\s*(bulk|junk)/im || $from =~ /-REQUEST@/i ) {
@@ -338,17 +298,17 @@ sub pipe_mode {
          log_debug("Message from ignored user $_, autoreply canceled\n") if ($opt_d);
          exit 0;
       }
-   } 
-   
+   }
+
    ($subject) = ($header =~ /^Subject: +(.*)$/im);
    $subject = "(No subject)" unless $subject;
    $subject =~ s/\s+$//;
    $subject=decode_mimewords($subject);
-   
+
    ($to) = ($header =~ /^To:\s+(.*)$/im);
    ($cc) = ($header =~ /^Cc:\s+(.*)$/im);
    $to .= ', '.$cc if $cc;
-   
+
    if (!$opt_j) {
       my $found=0;
       foreach my $name (@aliases) {
@@ -361,7 +321,7 @@ sub pipe_mode {
          exit 0;
       }
    }
-   
+
    my (%VAC, $now, $lastdate);
    $now = time;
    dbmopen(%VAC, ".vacation", 0600) || die "Can't open vacation dbm files: $!\n";
@@ -380,37 +340,37 @@ sub pipe_mode {
    }
    $VAC{$from} = pack("L", $now);
    dbmclose(%VAC);
-   
+
    create_default_vacation_msg() if (! -f ".vacation.msg");
    my $msg;
    if (open(MSG,'.vacation.msg')) {
       undef $/;
       $msg = <MSG>;
       close MSG;
-   } 
+   }
    $msg=adjust_replymsg($msg, $from, $subject);
-   
+
    # remove ' in $from to prevent shell escape
    $from=~s/'/ /g;
-   
+
 #   open(MAIL, "|$sendmail -oi -t '$from'") || die "Can't run sendmail: $!\n";
    open(MAIL, "|$sendmail -oi '$from'") || die "Can't run sendmail: $!\n";
    print MAIL $msg;
    close MAIL;
-   
+
    log_debug("Auto reply for message $subject is sent to $from\n") if ($opt_d);
-}   
+}
 
 sub read_list_from_file {
    my @list=();
    if ( open (FILE, $_[0]) ) {
       while (<FILE>) {
          push(@list, split);
-      } 
+      }
       close (FILE);
    }
    return(@list);
-} 
+}
 
 # add proper header to .vacation.msg
 # it assumes each header in .vacation.msg takes only 1 line
@@ -463,10 +423,9 @@ sub adjust_replymsg {
    return($msg);
 }
 
-
 # MIME and DEBUG routines ######################################################
-# decode_mimewords, decode_base64 and _decode_q are blatantly snatched 
-# from parts of the MIME-Base64 Perl modules. 
+# decode_mimewords, decode_base64 and _decode_q are blatantly snatched
+# from parts of the MIME-Base64 Perl modules.
 sub decode_mimewords {
    my $encstr = shift;
    my %params = @_;
@@ -562,11 +521,51 @@ sub log_debug {
    open(Z, ">> /tmp/vacation.debug");
 
    # unbuffer mode
-   select(Z); $| = 1;   
-   select(STDOUT); 
+   select(Z); $| = 1;
+   select(STDOUT);
 
    print Z "$today $time ", join(" ",@msg), "\n";
    close(Z);
-   
+
    chmod(0666, "/tmp/vacation.debug");
 }
+
+# MAIN PROGRAM ################################################################
+
+# parse options, handle initialization or interactive mode ##############
+while (defined($ARGV[0]) && $ARGV[0] =~ /^-/) {
+   $_ = shift;
+   if (/^-I/i) {  # eric allman's source has both cases
+      $opt_i=1;
+   } elsif (/^-d/) {      # log debug information to /tmp/vacation.debug
+      $opt_d=1;
+   } elsif (/^-j/) {      # don't check if user is a valid receiver
+      $opt_j=1;
+   } elsif (/^-f(.*)/) {   # read ignorelist from file
+      push(@ignores, read_list_from_file($1 ? $1 : shift));
+   } elsif (/^-a(.*)/) {   # specify alias name
+      push(@aliases, $1 ? $1 : shift);
+   } elsif (/^-t([\d.]*)([smhdw])/) {   # specify reply once interval
+      $timeout = $1;
+      $timeout *= $scale{$2} if $2;
+   } else {
+      die $usage;
+   }
+}
+
+if ($opt_i) {
+   log_debug($0, "init mode with arg: ", @ARGV,
+             "ruid=$<, euid=$>, rgid=$(, egid=$)" ) if ($opt_d);
+   init_mode();
+} elsif (@ARGV) {
+   log_debug($0, "piped mode with arg: ", @ARGV,
+             "ruid=$<, euid=$>, rgid=$(, egid=$)" ) if ($opt_d);
+   push(@ignores, $ARGV[0]);
+   push(@aliases, $ARGV[0]);
+   pipe_mode($ARGV[0]);
+} else {
+   log_debug($0, "interactive mode(no arg)",
+             "ruid=$<, euid=$>, rgid=$(, egid=$)") if ($opt_d);
+   interactive_mode();
+}
+exit 0;

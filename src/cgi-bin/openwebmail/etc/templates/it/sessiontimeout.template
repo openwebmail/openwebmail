@@ -4,6 +4,6 @@
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>SESSIONE SCADUTA</B></FONT></TD></TR>
 <tr><td valign="middle" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>Spiacente, la tua sessione è scaduta. Torna al 
+<BR>Spiacente, la tua sessione è scaduta. Torna al
 <a href="@@@SCRIPTURL@@@">login</a>.<BR><BR>
 </td></tr></table>

@@ -53,7 +53,8 @@ if [ "$ans" = "y" -o "$ans" = "Y" ]; then
   mik@orka.ibz.pl \
   blackfire@virtual.net.pl \
   vladimir@bitsoft.ro \
-  jan@bilik.org
+  jan@bilik.org \
+  are@valinor.dolphinics.no
 
   echo "openwebmail current $date is available at
 http://turtle.ee.ncku.edu.tw/openwebmail/download/openwebmail-current.tgz">/tmp/mktgz.tmp.$$
@@ -62,7 +63,8 @@ http://turtle.ee.ncku.edu.tw/openwebmail/download/openwebmail-current.tgz">/tmp/
   /usr/local/bin/mutt -s "openwebmail current $date" \
   -a /usr/local/www/data/openwebmail/download/doc/changes.txt \
   i3100579@ingstud.units.it \
-  frank@post12.tele.dk
+  frank@post12.tele.dk \
+  webmaster@pkgmaster.com
 
   rm /tmp/mktgz.tmp.$$
 fi

@@ -4,6 +4,6 @@
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>LOGIN MISLUKT</B></FONT></TD></TR>
 <tr><td valign="middle" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>@@@ERRORMSG@@@! Ga terug en 
+<BR>@@@ERRORMSG@@@! Ga terug en
 <a href="@@@SCRIPTURL@@@">probeer opnieuw</a>.<BR><BR>
 </td></tr></table>

@@ -95,14 +95,14 @@
    function GoAddressWindow(toccbcc)
    {
       var url = "@@@ABOOKURL@@@?action=addressbook&sessionid=@@@SESSIONID@@@&form=composeform&field=" + toccbcc;
-      
+
       if (toccbcc == "to")
          url += "&preexisting=" + escape (document.composeform.to.value);
       else if (toccbcc == "cc")
          url += "&preexisting=" + escape (document.composeform.cc.value);
       else if (toccbcc == "bcc")
-         url += "&preexisting=" + escape (document.composeform.bcc.value);   
-   
+         url += "&preexisting=" + escape (document.composeform.bcc.value);
+
       var hWnd = window.open(url,"HelpWindow","width=380,height=360,resizable=yes,scrollbars=yes");
       if ((document.window != null) && (!hWnd.opener))
          hWnd.opener = document.window;
@@ -126,8 +126,8 @@
 
    function sendcheck()
    {
-      if (document.composeform.to.value == "" 
-       && document.composeform.cc.value == "" 
+      if (document.composeform.to.value == ""
+       && document.composeform.cc.value == ""
        && document.composeform.bcc.value == "" ) {
          alert("Koks laiðko gavëjo adresas?");
          return false;

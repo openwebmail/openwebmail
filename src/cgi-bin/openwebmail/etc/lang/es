@@ -1,6 +1,7 @@
 #!/usr/bin/perl -T
 
-$lang_charset = 'iso-8859-1';
+# Spanish translation by Javier Smaldone, jsmaldone.AT.yahoo.com
+# charset: iso-8859-1
 
 %lang_folders =
    (
@@ -9,6 +10,7 @@ $lang_charset = 'iso-8859-1';
    'sent-mail'      => 'ENVIADOS',
    'saved-drafts'   => 'BORRADOR',
    'mail-trash'     => 'PAPELERA',
+   'all'            => 'All',
    DELETE => '--BORRAR--'
    );
 
@@ -58,11 +60,78 @@ $lang_charset = 'iso-8859-1';
    1440 => '24 horas'
    );
 
+%lang_advsearchlabels =
+   (
+   contains    => 'contains',
+   notcontains => 'does not contain',
+   is          => 'is',
+   isnot       => 'is not',
+   startswith  => 'starts with',
+   endswith    => 'ends with',
+   regexp      => 'matches regexp(insensitive)',
+   );
+
+%lang_calendar = 
+   (
+   yearview  => 'Yearview',
+   monthview => 'Monthview',
+   weekview  => 'Weekview',
+   dayview   => 'Dayview'
+   );
+
+%lang_month =
+   (
+   1  => 'January',
+   2  => 'February',
+   3  => 'March',
+   4  => 'April',
+   5  => 'May',
+   6  => 'June',
+   7  => 'July',
+   8  => 'August',
+   9  => 'September',
+   10 => 'October',
+   11 => 'November',
+   12 => 'December'
+   );
+
+%lang_wday =
+   (
+   0 => 'Sunday',
+   1 => 'Monday',
+   2 => 'Tuesday',
+   3 => 'Wednesday',
+   4 => 'Thursday',
+   5 => 'Friday',
+   6 => 'Saturday'
+   );
+
+%lang_wday_abbrev =
+   (
+   week => 'WK',
+   0 => 'S',
+   1 => 'M',
+   2 => 'T',
+   3 => 'W',
+   4 => 'T',
+   5 => 'F',
+   6 => 'S'
+   );
+
+%lang_order =
+   (
+   1 => '1st',
+   2 => '2nd',
+   3 => '3rd',
+   4 => '4th',
+   5 => 'last'
+   );
+
 %lang_text =
-   (  
+   (
    login      => 'Entrar',
    clear      => 'Restablecer',
-   point      => 'Point',
+   point      => 'Punto',
    pixel      => 'Pixel',
    changepwd  => 'Cambiar contraseña',
    viewhistory=> 'Ver Historial',
@@ -76,7 +145,7 @@ $lang_charset = 'iso-8859-1';
    addressbook=> 'Libreta de direcciones',
    folders    => 'Carpetas',
    emptytrash => 'Vaciar Papelera',
-   totrash    => 'Move to Trash',
+   totrash    => 'Enviar a la Papelera',
    forever    => 'Para siempre',
    userdef    => 'Definido por el usuario',
    logout     => 'Salir',
@@ -95,13 +164,13 @@ $lang_charset = 'iso-8859-1';
    thread     => 'Conversación',
    size       => 'Tamaño',
    backto     => 'Volver a',
-   reply      => 'Contestar',
-   replyall   => 'Contestar a todos',
+   reply      => 'Responder',
+   replyall   => 'Responder a todos',
    forward    => 'Reenviar',
    forwardasatt=>'Reenviar como archivo adjunto',
-   printfriendly=> 'Impresion amigable',
+   printfriendly=> 'Versión imprimible',
    from       => 'De',
-   replyto    => 'Contestar a',
+   replyto    => 'Responder a',
    to         => 'Para',
    cc         => 'CC (copia)',
    bcc        => 'CCO (copia oculta)',
@@ -112,8 +181,8 @@ $lang_charset = 'iso-8859-1';
    attachment => 'Archivo adjunto',
    type       => 'Tipo',
    filename   => 'Archivo',
-   encoding   => 'Codificando',
-   description=> 'Description',
+   encoding   => 'Codificación',
+   description=> 'Descripción',
    download   => 'Descargar',
    thisispartialmsg => 'Este es un mensaje parcial.',
    msgrebuild => 'Reconstruir Mensaje',
@@ -126,17 +195,19 @@ $lang_charset = 'iso-8859-1';
    continue   => 'Continuar',
    loginagain => 'Volver a conectar',
    exit       => 'Salir',
-   for        => 'PARA',
+   for        => 'para',
    yourname   => 'Su Nombre y Apellido',
    save       => 'Guardar',
    add        => 'Agregar',
    folderrenprop => '\'Por favor introduzca el nuevo nombre de esta carpeta\'',
    rename     => 'Renombrar',
    folderdelconf => '\'¿Está seguro de querer borrar esta carpeta y todo su contenido?\'',
-   chkindex    => 'CheckIndex',
-   folderchkindexconf => '\'Are you going to check the index of this folder?\'',
+   markread   => 'MarkRead',
+   foldermarkreadconf => '\'Are you going to mark read on all messages in this folder?\'',
+   chkindex   => 'Verificar índice',
+   folderchkindexconf => '\'¿Desea verificar el índice de esta carpeta?\'',
    reindex    => 'ReIndex',
-   folderreindexconf => '\'Are you sure you want to reindex this folder?\'',
+   folderreindexconf => '\'¿Desea reindexar esta carpeta?\'',
    total      => 'Total',
    delete     => 'Borrar',
    reserve    => 'Reservar',
@@ -148,13 +219,13 @@ $lang_charset = 'iso-8859-1';
    modify     => 'Modificar',
    abooktitle => 'Libreta de direcciones',
    abook      => 'LIBRETA DE DIRECCIONES',
-   name       => 'Nnombre',
+   name       => 'Nombre',
    email      => 'Dirección',
    note       => 'Nota',
    group      => 'Grupo',
    quota_hit  => 'TAMAÑO MAXIMO PERMITIDO',
    usage      => 'Uso',
-   tzmap      => 'World timezone map',
+   tzmap      => 'Mapa de zonas horarias',
    editfroms  => 'Editar direcciones de correo personales',
    pop3book   => 'Configuración POP3',
    retr_pop3s => 'Descargar correo POP3',
@@ -176,28 +247,52 @@ $lang_charset = 'iso-8859-1';
    delivered  => 'Entregado',
    wasreadon1 => 'fue leído en',
    wasreadon2 => '.',
-   globaladdressbook => 'Libreta de direcciones global',
-   globalfilterrule => 'Reglas de filtrado globales',
+   globaladdressbook => 'Libreta global de direcciones',
+   globalfilterrule => 'Reglas globales de filtrado',
    readonly   => 'Sólo lectura',
    textcontent=> 'Contenido del texto',
    search     => 'Buscar',
+   advsearch  => 'Advanced search',
+   folder     => 'Folder',
+   nofoldersel=> 'No Folder selected',
+   showall    => 'Show All',
    spellcheck => 'Corregir ortografía',
    checkagain => 'Comprobar de nuevo',
    finishchecking => 'Acabar corrección',
-   manuallyfix=> 'Arreglar manualmente'
+   manuallyfix=> 'Arreglar manualmente',
+   calendar   => 'Calendar',
+   am         => 'am',
+   pm         => 'pm',
+   calfmt_year          => 'Year @@@YEAR@@@',
+   calfmt_yearmonth     => '@@@MONTH_STR@@@ @@@YEAR@@@',
+   calfmt_yearmonthday  => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@',
+   calfmt_yearmonthdaywday => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@ @@@WEEKDAY_STR@@@',
+   calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
+   none       => 'None',
+   moreitems  => 'more items',
+   multieditconf => 'This item was added for multiple dates.\\nEditing it will change the item for all dates.\\nContinue with Edit?',
+   multidelconf  => 'This item was added for multiple dates.\\nDeleting it will delete the item for all dates.\\nContinue with Delete?',
+   ed         => 'Ed',
+   del        => 'Del',
+   noitemforthisday => 'No items for this day',
+   today_only               => 'Today\'s date only',
+   the_wday_of_thismonth    => 'The',
+   the_wday_of_thismonth2   => 'of the month',
+   every_wday_of_thismonth  => 'Every',
+   every_wday_of_thismonth2 => 'this month'
    );
 
-%lang_err = 
+%lang_err =
    (
    has_illegal_chars => '¡tiene caracteres ilegales!',
    couldnt_open      => 'No pude abrir',
-   couldnt_locksh    => 'No pude bloquear de lectura',
-   couldnt_lock      => 'No pude bloquear de escritura',
+   couldnt_locksh    => 'No pude bloquear para lectura',
+   couldnt_lock      => 'No pude bloquear para escritura',
    couldnt_seek      => 'No pude encontrar el comienzo de',
    couldnt_close     => 'No pude cerrar',
    disallowed_pop3   => 'Servidor POP3 no permitido',
    disallowed_client => 'No esta permitido conectarse desde este cliente',
-   disallowed_receiverdomain => 'No tiene permiso para enviar un mensaje a esa direccion de correo',
+   disallowed_receiverdomain => 'No tiene permiso para enviar un mensaje a esa dirección de correo',
    norootlogin       => 'Lo siento, acceso a cuenta de root está inhabilitada por razones de seguridad.',
    shouldnt_move_here=> 'No debería de tratar de mover mensajes hasta aquí!',
    destination_folder=> 'Carpeta de destino',
@@ -208,25 +303,27 @@ $lang_charset = 'iso-8859-1';
    cant_create_folder=> '¡No puedo crear la carpeta!',
    under_indexing    => 'está aún indexándose, por favor intente después',
    abook_invalid     => 'Lo siento, este archivo no parece ser una libreta de direcciones exportada desde Microsoft Outlook Express 5 en formato CSV.  Asegurese de ver este archivo en un editor de textos y que la primera línea comience con "Nombre,Dirección E-mail", entonces regrese',
-   back     => 'atrás',
+   back              => 'atrás',
    tryagain          => 'y trate nuevamente.',
    abook_toobig      => 'Lo siento, se ha excedido del tamaño límite para su libreta de direcciones.  Por favor, regrese',
    cant_create_dir   => '¡No puedo crear su directorio de usuario!',
-   folder_hitquota   => 'Lo siento, usted llegó a su límite de quota y no puedo guardar más mensajes en ninguna carpeta. Sólo podrá mover los mensajes a la carpeta PAPELERA, donde serán borrados.  Regrese atrás, borre algunos mensajes o vacíe la Papelera y trate de nuevo.',
+   folder_hitquota   => 'Lo siento, usted llegó a su límite de espacio y no puedo guardar más mensajes en ninguna carpeta. Sólo podrá mover los mensajes a la carpeta PAPELERA, donde serán borrados.  Regrese atrás, borre algunos mensajes o vacíe la Papelera y trate de nuevo.',
    att_overlimit     => 'Lo siento, el tamaño de su archivo excede el tamaño límite permitido, el cual es de',
    inv_msg_op        => 'Operación no válida para el mensaje',
    inv_sessid        => 'Su petición no contiene la correspondiente Cookie de Identificación -- acceso denegado!',
    no_endpart        => 'Parte final no encontrada',
    part_missing      => 'Alguna parte se ha perdido',
    rebuild_fmterr    => 'Error en el formato del nuevo mensaje',
-   rebuild_sizeerr   => 'El tamaño del nuevo mensaje no conincide',
+   rebuild_sizeerr   => 'El tamaño del nuevo mensaje no coincide',
    user_not_exist    => 'el usuario no existe',
    func_notsupported => 'función no soportada',
    auth_syserr       => 'error del sistema de autenticación',
    param_fmterr      => 'error en el formato de un parámetro',
    pwd_incorrect     => 'contraseña incorrecta',
    network_server_error => 'error de red del servidor',
-   sendmail_error    => 'Disculpe, hubo un problema enviando su mensaje. Por favor presione el botón Anterior de su navegador, compruebe su mensaje, e intente nuevamente.'
+   sendmail_error    => 'Disculpe, hubo un problema enviando su mensaje. Por favor presione el botón Anterior de su navegador, compruebe su mensaje, e intente nuevamente.',
+   at_char_not_allowed => 'The @ character is not allowed in this field.  Press browser back button and try again',
+   badnum_in_days => 'bad number in consecutive days field'
    );
 
 1;

@@ -1,18 +1,18 @@
-# 
+#
 # auth_pam.pl - authenticate user with PAM
-# 
+#
 # The code of check_userpassword and change_userpassword is from
 # the example code of Authen::PAM by Nikolay Pelov <nikip@iname.com>
 # Webpage is available at http://www.cs.kuleuven.ac.be/~pelov/pam
 #
 # $pam_servicename : service name for authentication in /etc/pam.conf
-#                    refer to http://www.fazekas.hu/~sini/neomail_pam/ 
+#                    refer to http://www.fazekas.hu/~sini/neomail_pam/
 #                    for more detail
 #
-# $pam_passwdfile  : the location of the file containing all usernames 
+# $pam_passwdfile  : the location of the file containing all usernames
 #
 # 2001/10/05 tung@turtle.ee.ncku.edu.tw
-# 
+#
 
 my $pam_servicename="openwebmail";
 my $pam_passwdfile="/etc/passwd";
@@ -41,7 +41,7 @@ sub get_userinfo {
 
 sub get_userlist {	# only used by checkmail.pl -a
    my @userlist=();
-   my $line;   
+   my $line;
 
    open(PASSWD, $pam_passwdfile);
    while (defined($line=<PASSWD>)) {
@@ -62,7 +62,7 @@ sub check_userpassword {
    local ($pam_user, $pam_password)=@_;	# localized global to make reentry safe
    my $pamh;
    my $ret=0;
-   
+
    return -2 if ($pam_user eq "");
 
    sub checkpwd_conv_func {

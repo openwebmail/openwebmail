@@ -1,6 +1,7 @@
 #!/usr/bin/perl -T
 
-$lang_charset = 'iso-8859-9';
+# Turkish translation by Erdinc Guler, eguler.AT.aegee.metu.edu.tr
+# charset: iso-8859-9
 
 %lang_folders =
    (
@@ -9,6 +10,7 @@ $lang_charset = 'iso-8859-9';
    'sent-mail'      => 'Gönderilmiþ',
    'saved-drafts'   => 'Taslak',
    'mail-trash'     => 'Çöp Kutusu',
+   'all'            => 'All',
    DELETE => '--SÝLÝN--'
    );
 
@@ -58,8 +60,75 @@ $lang_charset = 'iso-8859-9';
    1440 => '24 hours'
    );
 
+%lang_advsearchlabels =
+   (
+   contains    => 'contains',
+   notcontains => 'does not contain',
+   is          => 'is',
+   isnot       => 'is not',
+   startswith  => 'starts with',
+   endswith    => 'ends with',
+   regexp      => 'matches regexp(insensitive)',
+   );
+
+%lang_calendar = 
+   (
+   yearview  => 'Yearview',
+   monthview => 'Monthview',
+   weekview  => 'Weekview',
+   dayview   => 'Dayview'
+   );
+
+%lang_month =
+   (
+   1  => 'January',
+   2  => 'February',
+   3  => 'March',
+   4  => 'April',
+   5  => 'May',
+   6  => 'June',
+   7  => 'July',
+   8  => 'August',
+   9  => 'September',
+   10 => 'October',
+   11 => 'November',
+   12 => 'December'
+   );
+
+%lang_wday =
+   (
+   0 => 'Sunday',
+   1 => 'Monday',
+   2 => 'Tuesday',
+   3 => 'Wednesday',
+   4 => 'Thursday',
+   5 => 'Friday',
+   6 => 'Saturday'
+   );
+
+%lang_wday_abbrev =
+   (
+   week => 'WK',
+   0 => 'S',
+   1 => 'M',
+   2 => 'T',
+   3 => 'W',
+   4 => 'T',
+   5 => 'F',
+   6 => 'S'
+   );
+
+%lang_order =
+   (
+   1 => '1st',
+   2 => '2nd',
+   3 => '3rd',
+   4 => '4th',
+   5 => 'last'
+   );
+
 %lang_text =
-   (  
+   (
    login      => 'Gir',
    clear      => 'Temizle',
    point      => 'Point',
@@ -133,7 +202,9 @@ $lang_charset = 'iso-8859-9';
    folderrenprop => '\'Bu klasör için lütfen yeni bir isim giriniz\'',
    rename     => 'Yeniden Ýsimlendir',
    folderdelconf => '\'Bu klasörü içindekilerle beraber silmek istediðinize emin misiniz?\'',
-   chkindex    => 'ÝndeksKontrol',
+   markread   => 'MarkRead',
+   foldermarkreadconf => '\'Are you going to mark read on all messages in this folder?\'',
+   chkindex   => 'ÝndeksKontrol',
    folderchkindexconf => '\'Bu klasörün indeksine bakmak istediðinize emin misiniz?\'',
    reindex    => 'YenidenÝndeksle',
    folderreindexconf => '\'Bu klasörü yeniden indekslemek istediðinize emin misiniz?\'',
@@ -181,13 +252,37 @@ $lang_charset = 'iso-8859-9';
    readonly   => 'SaltOkunur',
    textcontent=> 'MetinÝçeriði',
    search     => 'Ara',
+   advsearch  => 'Advanced search',
+   folder     => 'Folder',
+   nofoldersel=> 'No Folder selected',
+   showall    => 'Show All',
    spellcheck => 'Yazým Kontrolü',
    checkagain => 'Tekrar Kontrol Edin',
    finishchecking => 'Kontrolü Bitir',
-   manuallyfix=> 'Manuel Düzelt'
+   manuallyfix=> 'Manuel Düzelt',
+   calendar   => 'Calendar',
+   am         => 'am',
+   pm         => 'pm',
+   calfmt_year          => 'Year @@@YEAR@@@',
+   calfmt_yearmonth     => '@@@MONTH_STR@@@ @@@YEAR@@@',
+   calfmt_yearmonthday  => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@',
+   calfmt_yearmonthdaywday => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@ @@@WEEKDAY_STR@@@',
+   calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
+   none       => 'None',
+   moreitems  => 'more items',
+   multieditconf => 'This item was added for multiple dates.\\nEditing it will change the item for all dates.\\nContinue with Edit?',
+   multidelconf  => 'This item was added for multiple dates.\\nDeleting it will delete the item for all dates.\\nContinue with Delete?',
+   ed         => 'Ed',
+   del        => 'Del',
+   noitemforthisday => 'No items for this day',
+   today_only               => 'Today\'s date only',
+   the_wday_of_thismonth    => 'The',
+   the_wday_of_thismonth2   => 'of the month',
+   every_wday_of_thismonth  => 'Every',
+   every_wday_of_thismonth2 => 'this month'
    );
 
-%lang_err = 
+%lang_err =
    (
    has_illegal_chars => 'anlamsýz karakterler var!',
    couldnt_open      => 'Açamadý',
@@ -208,7 +303,7 @@ $lang_charset = 'iso-8859-9';
    cant_create_folder=> 'Klasör oluþturamýyor!',
    under_indexing    => 'hala indeksleme devam ediyor,daha sonra tekrar deneyiniz',
    abook_invalid     => 'Bu dosya geçerli Outlook Express 5 CSV formatýnda deðil. Lütfen metin düzenleyiciniz ile kontrol edip "Ýsim,Eposta" bilgileriyle baþladýðýna emin olunuz!',
-   back     => 'geri',
+   back              => 'geri',
    tryagain          => 've tekrar deneyiniz.',
    abook_toobig      => 'Adres defterinizin sýnýrda olduðu için bu deðer girilemiyor',
    cant_create_dir   => 'Kullanýcý klasörünüz oluþturulamýyor!',
@@ -226,7 +321,9 @@ $lang_charset = 'iso-8859-9';
    param_fmterr      => 'parametre biçem hatasý',
    pwd_incorrect     => 'hatalý parola',
    network_server_error => 'að sunucu hatasý',
-   sendmail_error    => 'Ýleti gönderimi sýrasýnda hata oluþtu. Tarayýcýnýzýn Geri tuþuna basýn,iletinizi kontrol edip tekrar deneyiniz.'
+   sendmail_error    => 'Ýleti gönderimi sýrasýnda hata oluþtu. Tarayýcýnýzýn Geri tuþuna basýn,iletinizi kontrol edip tekrar deneyiniz.',
+   at_char_not_allowed => 'The @ character is not allowed in this field.  Press browser back button and try again',
+   badnum_in_days => 'bad number in consecutive days field'
    );
 
 1;

@@ -1,6 +1,7 @@
 #!/usr/bin/perl -T
 
-$lang_charset = 'iso-8859-2';
+# Romanian translation by Vladimir Hrusca, vladimir.AT.bitsoft.ro
+# charset: iso-8859-2
 
 %lang_folders =
    (
@@ -9,6 +10,7 @@ $lang_charset = 'iso-8859-2';
    'sent-mail'      => 'TRIMISE',
    'saved-drafts'   => 'DRAFT',
    'mail-trash'     => 'STERSE',
+   'all'            => 'All',
    DELETE => '-STERGERE-'
    );
 
@@ -58,8 +60,75 @@ $lang_charset = 'iso-8859-2';
    1440 => '24 ore'
    );
 
+%lang_advsearchlabels =
+   (
+   contains    => 'contains',
+   notcontains => 'does not contain',
+   is          => 'is',
+   isnot       => 'is not',
+   startswith  => 'starts with',
+   endswith    => 'ends with',
+   regexp      => 'matches regexp(insensitive)',
+   );
+
+%lang_calendar = 
+   (
+   yearview  => 'Yearview',
+   monthview => 'Monthview',
+   weekview  => 'Weekview',
+   dayview   => 'Dayview'
+   );
+
+%lang_month =
+   (
+   1  => 'January',
+   2  => 'February',
+   3  => 'March',
+   4  => 'April',
+   5  => 'May',
+   6  => 'June',
+   7  => 'July',
+   8  => 'August',
+   9  => 'September',
+   10 => 'October',
+   11 => 'November',
+   12 => 'December'
+   );
+
+%lang_wday =
+   (
+   0 => 'Sunday',
+   1 => 'Monday',
+   2 => 'Tuesday',
+   3 => 'Wednesday',
+   4 => 'Thursday',
+   5 => 'Friday',
+   6 => 'Saturday'
+   );
+
+%lang_wday_abbrev =
+   (
+   week => 'WK',
+   0 => 'S',
+   1 => 'M',
+   2 => 'T',
+   3 => 'W',
+   4 => 'T',
+   5 => 'F',
+   6 => 'S'
+   );
+
+%lang_order =
+   (
+   1 => '1st',
+   2 => '2nd',
+   3 => '3rd',
+   4 => '4th',
+   5 => 'last'
+   );
+
 %lang_text =
-   (  
+   (
    login      => 'Intra',
    clear      => 'Sterge',
    point      => 'Point',
@@ -133,7 +202,9 @@ $lang_charset = 'iso-8859-2';
    folderrenprop => '\'Va rugam sa introduceti un nou nume pentru acest folder\'',
    rename     => 'Renumire',
    folderdelconf => '\'Esti sigur ca vrei sa stergi folderul asta si continutul lui?\'',
-   chkindex    => 'Verifica Index',
+   markread   => 'MarkRead',
+   foldermarkreadconf => '\'Are you going to mark read on all messages in this folder?\'',
+   chkindex   => 'Verifica Index',
    folderchkindexconf => '\'Doriti sa verificati Index pentru acest folder?\'',
    reindex    => 'ReIndexare',
    folderreindexconf => '\'Doriti sa reindexati acest folder?\'',
@@ -181,13 +252,37 @@ $lang_charset = 'iso-8859-2';
    readonly   => 'NumaiCitire',
    textcontent=> 'Content',
    search     => 'Cauta',
+   advsearch  => 'Advanced search',
+   folder     => 'Folder',
+   nofoldersel=> 'No Folder selected',
+   showall    => 'Show All',
    spellcheck => 'Verificare',
    checkagain => 'Verifica iar',
    finishchecking => 'Termina verificare',
-   manuallyfix=> 'Fixeaza manual'
+   manuallyfix=> 'Fixeaza manual',
+   calendar   => 'Calendar',
+   am         => 'am',
+   pm         => 'pm',
+   calfmt_year          => 'Year @@@YEAR@@@',
+   calfmt_yearmonth     => '@@@MONTH_STR@@@ @@@YEAR@@@',
+   calfmt_yearmonthday  => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@',
+   calfmt_yearmonthdaywday => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@ @@@WEEKDAY_STR@@@',
+   calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
+   none       => 'None',
+   moreitems  => 'more items',
+   multieditconf => 'This item was added for multiple dates.\\nEditing it will change the item for all dates.\\nContinue with Edit?',
+   multidelconf  => 'This item was added for multiple dates.\\nDeleting it will delete the item for all dates.\\nContinue with Delete?',
+   ed         => 'Ed',
+   del        => 'Del',
+   noitemforthisday => 'No items for this day',
+   today_only               => 'Today\'s date only',
+   the_wday_of_thismonth    => 'The',
+   the_wday_of_thismonth2   => 'of the month',
+   every_wday_of_thismonth  => 'Every',
+   every_wday_of_thismonth2 => 'this month'
    );
 
-%lang_err = 
+%lang_err =
    (
    has_illegal_chars => 'are caractere ilegale!',
    couldnt_open      => 'Nu pot deschide',
@@ -208,7 +303,7 @@ $lang_charset = 'iso-8859-2';
    cant_create_folder=> 'Nu pot crea folderul!',
    under_indexing    => 'is still under indexing, please try later',
    abook_invalid     => 'Imi pare rau dar acest fisier nu pare a fi exportat din Microsoft Outlook Express 5 in format CSV. Asigura-te ca atunci cand il vezi intr-un editor de texte, prima linie incepe cu "Name,E-mail Address", apoi du-te',
-   back     => 'inapoi',
+   back              => 'inapoi',
    tryagain          => 'incearca din nou.',
    abook_toobig      => 'Imi pare rau dar aceasta ar depasi limita agendei tale. Te rog du-te',
    cant_create_dir   => 'Nu pot creea directorul tau!',
@@ -226,7 +321,9 @@ $lang_charset = 'iso-8859-2';
    param_fmterr      => 'parameter incorect',
    pwd_incorrect     => 'parola incorecta',
    network_server_error => 'greseala serverului',
-   sendmail_error    => 'Este o problema in trimiterea mesajului Dv. Va rugam sa apasati inapoi si sa verificati mesajul.'
+   sendmail_error    => 'Este o problema in trimiterea mesajului Dv. Va rugam sa apasati inapoi si sa verificati mesajul.',
+   at_char_not_allowed => 'The @ character is not allowed in this field.  Press browser back button and try again',
+   badnum_in_days => 'bad number in consecutive days field'
    );
 
 1;

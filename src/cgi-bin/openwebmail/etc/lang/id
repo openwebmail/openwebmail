@@ -1,6 +1,7 @@
 #!/usr/bin/perl -T
 
-$lang_charset = 'big5';
+# Indonesian translation by Hu-Wei Liang, liangs.AT.kunchang.com.tw
+# charset: iso-8859-1
 
 %lang_folders =
    (
@@ -9,6 +10,7 @@ $lang_charset = 'big5';
    'sent-mail'      => 'Kotak Pengiriman',
    'saved-drafts'   => 'Kotak Catatan',
    'mail-trash'     => 'Kotak Sampah',
+   'all'            => 'All',
    DELETE => '--Hapus Langsung--'
    );
 
@@ -58,8 +60,75 @@ $lang_charset = 'big5';
    1440 => '24 Jam'
    );
 
+%lang_advsearchlabels =
+   (
+   contains    => 'contains',
+   notcontains => 'does not contain',
+   is          => 'is',
+   isnot       => 'is not',
+   startswith  => 'starts with',
+   endswith    => 'ends with',
+   regexp      => 'matches regexp(insensitive)',
+   );
+
+%lang_calendar = 
+   (
+   yearview  => 'Yearview',
+   monthview => 'Monthview',
+   weekview  => 'Weekview',
+   dayview   => 'Dayview'
+   );
+
+%lang_month =
+   (
+   1  => 'January',
+   2  => 'February',
+   3  => 'March',
+   4  => 'April',
+   5  => 'May',
+   6  => 'June',
+   7  => 'July',
+   8  => 'August',
+   9  => 'September',
+   10 => 'October',
+   11 => 'November',
+   12 => 'December'
+   );
+
+%lang_wday =
+   (
+   0 => 'Sunday',
+   1 => 'Monday',
+   2 => 'Tuesday',
+   3 => 'Wednesday',
+   4 => 'Thursday',
+   5 => 'Friday',
+   6 => 'Saturday'
+   );
+
+%lang_wday_abbrev =
+   (
+   week => 'WK',
+   0 => 'S',
+   1 => 'M',
+   2 => 'T',
+   3 => 'W',
+   4 => 'T',
+   5 => 'F',
+   6 => 'S'
+   );
+
+%lang_order =
+   (
+   1 => '1st',
+   2 => '2nd',
+   3 => '3rd',
+   4 => '4th',
+   5 => 'last'
+   );
+
 %lang_text =
-   (  
+   (
    login      => 'Login Masuk',
    clear      => 'Hapus',
    point      => 'Point',
@@ -131,9 +200,11 @@ $lang_charset = 'big5';
    save       => 'Simpan',
    add        => 'Tambah',
    folderrenprop => '\'Isi nama baru kotak folder.\'',
-   rename     => '§ó¦W',
+   rename     => 'Rename',
    folderdelconf => '\'Pastikah untuk menghapus kotak folder ini?\'',
-   chkindex    => 'Periksa Index',
+   markread   => 'MarkRead',
+   foldermarkreadconf => '\'Are you going to mark read on all messages in this folder?\'',
+   chkindex   => 'Periksa Index',
    folderchkindexconf => '\'Pastikah untuk memeriksa index folder ini?\'',
    reindex    => 'Buat Kembali index',
    folderreindexconf => '\'Pastikah untuk membuat kembali index?\'',
@@ -153,7 +224,7 @@ $lang_charset = 'big5';
    note       => 'Keterangan',
    group      => 'Kelompok',
    quota_hit  => 'Kapasitas sudah penuh',
-   usage      => 'Kapasitas Penggunaan', 
+   usage      => 'Kapasitas Penggunaan',
    tzmap      => 'World timezone map',
    editfroms  => 'Mengganti Alamat Email',
    pop3book   => 'Konfigurasi surat dari luar',
@@ -181,13 +252,37 @@ $lang_charset = 'big5';
    readonly   => 'Hanya baca',
    textcontent=> 'Isi',
    search     => 'Cari',
+   advsearch  => 'Advanced search',
+   folder     => 'Folder',
+   nofoldersel=> 'No Folder selected',
+   showall    => 'Show All',
    spellcheck => 'Periksa Spel tulisan',
    checkagain => 'Periksa Kembali',
    finishchecking => 'Pemeriksaan Selesai',
-   manuallyfix=> 'Pemeriksaan manual'
+   manuallyfix=> 'Pemeriksaan manual',
+   calendar   => 'Calendar',
+   am         => 'am',
+   pm         => 'pm',
+   calfmt_year          => 'Year @@@YEAR@@@',
+   calfmt_yearmonth     => '@@@MONTH_STR@@@ @@@YEAR@@@',
+   calfmt_yearmonthday  => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@',
+   calfmt_yearmonthdaywday => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@ @@@WEEKDAY_STR@@@',
+   calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
+   none       => 'None',
+   moreitems  => 'more items',
+   multieditconf => 'This item was added for multiple dates.\\nEditing it will change the item for all dates.\\nContinue with Edit?',
+   multidelconf  => 'This item was added for multiple dates.\\nDeleting it will delete the item for all dates.\\nContinue with Delete?',
+   ed         => 'Ed',
+   del        => 'Del',
+   noitemforthisday => 'No items for this day',
+   today_only               => 'Today\'s date only',
+   the_wday_of_thismonth    => 'The',
+   the_wday_of_thismonth2   => 'of the month',
+   every_wday_of_thismonth  => 'Every',
+   every_wday_of_thismonth2 => 'this month'
    );
 
-%lang_err = 
+%lang_err =
    (
    has_illegal_chars => 'Ada tulisan tidak bagus!',
    couldnt_open      => 'Tidak dapat dibuka',
@@ -208,7 +303,7 @@ $lang_charset = 'big5';
    cant_create_folder=> 'Tidak dapat membuat folder!',
    under_indexing    => 'Masih Dalam index,cobalah kemudian',
    abook_invalid     => 'Maaf,bukan format CSV dari Outlook Express 5.',
-   back     => 'Ke halaman depan',
+   back              => 'Ke halaman depan',
    tryagain          => 'Cobalah lagi.',
    abook_toobig      => 'Buku Alamat Melebihi kapasitas. silahkan',
    cant_create_dir   => 'Tidak dapat membuat Folder user',
@@ -226,7 +321,9 @@ $lang_charset = 'big5';
    param_fmterr      => 'Format yg salah',
    pwd_incorrect     => 'Kode Rahasia salah',
    network_server_error => 'Internet server ada yg salah',
-   sendmail_error    => 'Maaf,tidak dapat mengirim surat,kembalilah dan cobalah lagi'
+   sendmail_error    => 'Maaf,tidak dapat mengirim surat,kembalilah dan cobalah lagi',
+   at_char_not_allowed => 'The @ character is not allowed in this field.  Press browser back button and try again',
+   badnum_in_days => 'bad number in consecutive days field'
    );
 
 1;

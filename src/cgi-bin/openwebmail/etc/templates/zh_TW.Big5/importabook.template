@@ -1,4 +1,6 @@
-<table border="0" align="center" width="75%" cellpadding="0" cellspacing="0">
+<BR>
+<BR>
+<table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>匯入通訊錄</B></font>
@@ -8,11 +10,11 @@
 </td></tr>
 <tr><td colspan="2" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 
-<table border="0" align="center" width="75%" cellpadding="0" cellspacing="0">
+<table border="0" align="center" width="85%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
-<BR>Outlook Express 5 和 Netscape Mail 都具有匯出一種檔案格式為 CSV (Comma Seperated Values, 
+<BR>Outlook Express 5 和 Netscape Mail 都具有匯出一種檔案格式為 CSV (Comma Seperated Values,
 用逗號分開的文字檔) 的通訊錄的功能, @@@NAME@@@ 可以匯入這類的檔案並且將其內容存到您的個人通訊錄裡,
-這樣可節省用手鍵入這些資料的時間。這項功能並不會覆蓋您原先的通訊錄內容, 除非原本有相同的名字在上面; 
+這樣可節省用手鍵入這些資料的時間。這項功能並不會覆蓋您原先的通訊錄內容, 除非原本有相同的名字在上面;
 碰到這種情形時, 則原本的該筆資料會被覆蓋過去。
 <ul>
 <li> Netscpe 使用者: 開啟通訊錄, 選擇 檔案-&gt;匯出, 然後

@@ -1,3 +1,234 @@
+07/12/2002 (version 1.70)
+----------
+1. Lithuanian language and templates translation update
+   (thanks to Alvydas Sinkunas, dvm382.AT.takas.lt)
+2. fix bugs in checkmail.pl for server configured for pure virtualuser
+   (thanks to /Frank, frank.AT.post12.tele.dk for his patch)
+3. support startime and endtime in calendar event
+4. fix the bug in vacation.pl which caused program terminated unexpectedly
+   (fixed by Taco Scargo, webmaster.AT.pkgmaster.com)
+5. Slovak language and templates translation update
+   (thanks to lubos klokner, lubos.AT.klokner.sk)
+
+
+07/11/2002
+----------
+1. polish language and templates translation minor update
+   add one-click support to the addressbook popup.
+   (thanks to Andrzej Cuber, rea.AT.supermedia.pl)
+2. keep the from address in composing after attachment is uploaded
+   (suggested by /Frank, frank.AT.post12.tele.dk)
+3. fix a bug that item with time 00:00 will be showed as no time item
+   fix a bug that dayview start time 00:00 will be displayed as 0
+   under 24 hour format
+   add camfmt_yearmonthdaywday to language file so the weekday position 
+   in a date string could be set
+   (reported by /Frank, frank.AT.post12.tele.dk)
+
+
+07/10/2002
+----------
+1. add option global_calendarbook to openwebmail.conf,
+   prilimary support for global calendar
+2. reminder can be configured to show events in global calendar or not.
+3. German language and templates trnaslation update
+   (thanks to Christian Schoepplein, mail.AT.schoeppi.net)
+4. add dbm_test() to mkdb* routines, so the error setting of option 
+   dbm_ext and dbmopen_ext will be detected automatically
+5. polish language and templates translation update
+   (thanks to Andrzej Cuber, rea.AT.supermedia.pl)
+
+
+07/09/2002
+----------
+1. change reminder checkbox to a reminder days menu so user can specify 
+   the range of days that the reminder should check for.
+2. use timeoffset defined in preference to calculate current localtime 
+   of user timezone in calendar
+3. add -d option to checkmail.pl to specify the default domain for users
+   (suggested by /Frank, frank.AT.post12.tele.dk)
+
+
+07/08/2002
+----------
+1. move calendar related options from openwebmail.conf to user preference
+2. fix a bug in calendar when hourformat is set to 24
+   (reported by /Frank, frank.AT.post12.tele.dk)
+3. remove unused entry in readconf() in openwebmail-shared.pl
+   (thanks to Maurice Aubrey, maurice.AT.lovelyfilth.com)
+4. fix a bug in calendar for continusous days events
+5. support calendar event checking in checkmail.pl
+6. Italian language and templates translation update
+   (thanks to Marvi Benedet, i3100579.AT.ingstud.units.it)
+7. support reminder in folder view for events within 7 days
+
+
+07/07/2002
+----------
+1. move pop3 setup button from main menu to user preference menu.
+   display getpop3 button only if in INBOX folder
+   (suggested by /Frank, frank.AT.post12.tele.dk)
+2. rearrange the layout of the user preference menu for better readability.
+
+
+07/06/2002
+----------
+1. add chinese lunar calendar support for big5 and gb2312
+
+
+07/05/2002
+----------
+1. add calendar support based on the code in WebCal 1.12,
+   which is a GNU project by Michael Arndt, marndt.AT.bulldog.tzo.org
+
+
+07/03/2002
+----------
+1. fix a bug in advsearch related to textcontent searching
+   minor fix to openwebmail-send,pl so the message will be saved into draft 
+   when smtp server could not be opened
+   (thanks to Dattola Filippo, filippo.AT.sms.it)
+2. change signature delimiter from "--" to "-- "
+   (suggested by Reinout Hoornweg, reinout.AT.competa.com)
+2. Slovak language and templates translation minor update
+   (thanks to lubos klokner, lubos.AT.klokner.sk)
+
+
+07/01/2002
+----------
+1. fix the bug that user has an @domain assignment in virtusertable
+   (fixed by Taco Scargo, webmaster.AT.pkgmaster.com)
+2. fix the bug that filterrules destinated at INBOX will stop rules with
+   lower priority from working
+   (reported by /Frank, frank.AT.post12.tele.dk)
+3. Cool3D.Dutch update
+   (thanks to Jan Houtsma, jan.AT.houtsma.net)
+
+
+06/30/2002
+----------
+1. change charset immediately when user change language in prefs munu
+
+
+06/29/2002
+----------
+1. new module: openwebmail-advsearch.pl, which can search more than one 
+   folders at a time and show the results from different folders in one page. 
+   (code by Dattola Filippo, filippo.AT.sms.it)
+2. Czech language and templates translation minor update
+   (thanks to Jan Bilik, jan.AT.bilik.org)
+3. new iconset: Cool3D.Dutch
+   (thanks to Jan Houtsma, jan.AT.houtsma.net)
+
+
+06/26/2002
+----------
+1. German template trnaslation update
+   (thanks to Christian Schoepplein, mail.AT.schoeppi.net)
+
+
+06/24/2002
+----------
+1. escape " in filterrule so rule editing can work properly
+   (thanks to Dattola Filippo, filippo.AT.sms.it)
+
+06/23/2002
+----------
+1. greatly imporve the speed of markread operation on all messages in a 
+   folder
+
+
+06/22/2002
+----------
+1. markread on all messages in a folder
+   save msg to draft if send error
+   escape ' and \ in filterrule so the two chars won't be eat by javascript
+   (thanks to Dattola Filippo, filippo.AT.sms.it)
+2. Slovak language and template files translation minor update
+   (thanks to lubos klokner, lubos.AT.klokner.sk)
+
+
+06/19/2002
+----------
+1. fix a bug in checkmail.pl which didn't load site config
+   (reported by /Frank, frank.AT.post12.tele.dk)
+
+
+06/18/2002
+----------
+1. Norwegian language and template files translation
+   and new icon set: Cool3D.Norwegian
+   (thanks to Are Tysland, are.AT.valinor.dolphinics.no)
+
+
+06/17/2002
+----------
+1. use localized name instead of folder filename in folder inedex/reindex
+   confirm message.
+   (reported by /Frank, frank.AT.post12.tele.dk)
+
+
+06/15/2002
+----------
+1. fix to smiley code in openwebmail-read.pl so it won't convert tel number
+   to smiley icon
+   (thanks to Kelson Vibber, kelson.AT.speed.net for his patch)
+
+
+06/14/2002
+----------
+1. Portuguese Brazil language and templates translation minor update
+   (thanks to Rui - iG, ruisb.AT.ig.com.br)
+2. minor fix to openwebmail-send.pl to be more compatible with 
+   Symantac ACT!2000 
+   (thanks to Giray Devlet, giray.AT.osc.nl for his fix)
+
+
+06/13/2002
+----------
+1. polish language and template minor update
+   split global and personal addressbook in addressbook winodw
+   (thanks to Andrzej Cuber, rea.AT.supermedia.pl)
+
+
+06/12/2002
+----------
+1. fix the bug that option xmailer_has_version and xoriginateip_has_userid 
+   have no effect
+   (reported by /Frank, frank.AT.post12.tele.dk)
+2. add option ico_url to openwebmail.conf to support shortcut icon
+   (thanks to Dimitris 'sehh' Michelinakis, dimitris.AT.michelinakis.gr)
+
+
+06/10/2002
+----------
+1. spanish language and template files update
+   (thanks to Javier Smaldone, jsmaldone.AT.yahoo.com)
+2. move charset setting from language file to user preference,
+   so you may set charset independly with the language.
+
+
+06/09/2002
+----------
+1. Danish language and templates translation minor update
+   update openwebmail-spell.pl for dansk(danish)
+   (thanks to /Frank, frank.AT.post12.tele.dk)
+
+
+06/08/2002
+----------
+1. try to use auth in auth_pop3.pl and pop3mail.pl
+   ps: only login type is supported which encodes pop3 username/passwd 
+       with base64 encoding
+
+
+06/07/2002
+----------
+1. fix a bug in javascript on "move to trash" button in readmessage menu
+   which caused js error in IE 6.
+   (reported by Carlos Pina Soares, carlos.soares.AT.fcsh.unl.pt)
+
+
 06/06/2002 (version 1.65)
 ----------
 1. add new iconset: Cool3D.Czech
@@ -124,7 +355,7 @@
 
 05/11/2002
 ----------
-1. minor fix to italian language file
+1. minor fix to Italian language file
    (thanks to Marvi Benedet, i3100579.AT.ingstud.units.it)
 
 
@@ -895,7 +1126,7 @@
 
 01/21/2002
 ----------
-1. italian language and templates translation update
+1. Italian language and templates translation update
    (thanks to Marvi Benedet, i3100579.AT.ingstud.units.it)
 
 
@@ -1748,7 +1979,7 @@ Note: Since openwebmail.conf is totally changed, a reinstallation is
 1. fix a bug that creates ~user/.forward, ~user/.vacation.msg and mail spool
    with owner=root if both homedirspools and homedirfolders are set to 'no'
    (reported by karun.AT.mail2000.com.tw)
-2. italian language and templates translation
+2. Italian language and templates translation
    (thanks to Benedet Marvi, i3100579.AT.ingstud.univ.trieste.it)
 3. add check for newmessages and allmessages count for non-negative value
 
@@ -1791,7 +2022,7 @@ Note: Since openwebmail.conf is totally changed, a reinstallation is
 1. fix a bug that won't parse out attachment correctly in rare cases
 2. fix a bug that searchtype will be restored to 'subject' after 
    any message is moved or copied from current folder
-3. italian language translation
+3. Italian language translation
    (thanks to Benedet Marvi, i3100579.AT.ingstud.univ.trieste.it)
 
 

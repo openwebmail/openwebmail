@@ -1,0 +1,329 @@
+#!/usr/bin/perl -T
+
+# Norwegian translation by Are Tysland
+# charset: iso-8859-1
+
+%lang_folders =
+   (
+   INBOX => 'Innboks',
+   'saved-messages' => 'Lagret',
+   'sent-mail'      => 'Sendt',
+   'saved-drafts'   => 'Kladd',
+   'mail-trash'     => 'Papirkurv',
+   'all'            => 'All',
+   DELETE => '--SLETT--'
+   );
+
+%lang_sortlabels =
+   (
+   status      => 'Status (Ulest først)',
+   date        => 'Dato (Nyeste først)',
+   date_rev    => 'Dato (Eldste først)',
+   sender      => 'Avsender (Nyeste først)',
+   sender_rev  => 'Avsender (Eldste først)',
+   subject     => 'Emne (Nyeste først)',
+   subject_rev => 'Emne (Eldste først)',
+   size        => 'Størresle (Største først)',
+   size_rev    => 'Størrelse (Minste først)'
+   );
+
+%lang_prioritylabels =
+   (
+   normal      => 'Normal',
+   urgent      => 'Høy',
+   'non-urgent'=> 'Lav'
+   );
+
+%lang_withoriglabels =
+   (
+   at_beginning => 'øverst',
+   at_end      => 'nederst',
+   none        => 'Ingen'
+   );
+
+%lang_receiptlabels =
+   (
+   ask => 'Be om bekreftelse',
+   yes => 'Ja',
+   no  => 'Nei'
+   );
+
+%lang_timelabels =
+   (
+     10 => '10 minutter',
+     30 => '30 minutter',
+     60 => '1 time',
+    120 => '2 timer',
+    180 => '3 timer',
+    360 => '6 timer',
+    720 => '12 timer',
+   1440 => '24 timer'
+   );
+
+%lang_advsearchlabels =
+   (
+   contains    => 'contains',
+   notcontains => 'does not contain',
+   is          => 'is',
+   isnot       => 'is not',
+   startswith  => 'starts with',
+   endswith    => 'ends with',
+   regexp      => 'matches regexp(insensitive)',
+   );
+
+%lang_calendar = 
+   (
+   yearview  => 'Yearview',
+   monthview => 'Monthview',
+   weekview  => 'Weekview',
+   dayview   => 'Dayview'
+   );
+
+%lang_month =
+   (
+   1  => 'January',
+   2  => 'February',
+   3  => 'March',
+   4  => 'April',
+   5  => 'May',
+   6  => 'June',
+   7  => 'July',
+   8  => 'August',
+   9  => 'September',
+   10 => 'October',
+   11 => 'November',
+   12 => 'December'
+   );
+
+%lang_wday =
+   (
+   0 => 'Sunday',
+   1 => 'Monday',
+   2 => 'Tuesday',
+   3 => 'Wednesday',
+   4 => 'Thursday',
+   5 => 'Friday',
+   6 => 'Saturday'
+   );
+
+%lang_wday_abbrev =
+   (
+   week => 'WK',
+   0 => 'S',
+   1 => 'M',
+   2 => 'T',
+   3 => 'W',
+   4 => 'T',
+   5 => 'F',
+   6 => 'S'
+   );
+
+%lang_order =
+   (
+   1 => '1st',
+   2 => '2nd',
+   3 => '3rd',
+   4 => '4th',
+   5 => 'last'
+   );
+
+%lang_text =
+   (  
+   login      => 'Logg inn',
+   clear      => 'Slett',
+   point      => 'Punkt',
+   pixel      => 'Piksel',
+   changepwd  => 'Endre passord',
+   viewhistory=> 'Se historikk',
+   of         => 'av',
+   messages   => 'meldinger',
+   unread     => 'ulest',
+   nomessages => 'Ingen meldinger',
+   composenew => 'Skriv ny melding',
+   refresh    => 'Oppdatér',
+   userprefs  => 'Brukerinnstillinger',
+   addressbook=> 'Adressebok',
+   folders    => 'Mapper',
+   emptytrash => 'Tøm papirkurven',
+   totrash    => 'Flytt til papirkurven',
+   forever    => 'Alltid',
+   userdef    => 'Brukerdefinert',
+   logout     => 'Logg ut',
+   page       => 'Side',
+   msgcopyconf=> '\'Er du sikker på at du vil kopiere de valgte meldingene?\'',
+   copy       => 'Kopiér',
+   msgmoveconf=> '\'Er du sikker på at du vil flytte de valgte meldingene?\'',
+   move       => 'Flytt',
+   markasread => 'Markér som lest',
+   markasunread => 'Markér som ulest',
+   dateformat => 'Datoformat',
+   date       => 'Dato',
+   recipient  => 'Mottaker',
+   sender     => 'Avsender',
+   subject    => 'Emne',
+   thread     => 'Tråd',
+   size       => 'Størrelse',
+   backto     => 'Tilbake til',
+   reply      => 'Svar',
+   replyall   => 'Svar alle',
+   forward    => 'Videresend',
+   forwardasatt=>'Videresend som vedlegg',
+   printfriendly=> 'Utskriftsvennlig',
+   from       => 'Fra',
+   replyto    => 'Svar til',
+   to         => 'Til',
+   cc         => 'Kopi',
+   bcc        => 'Blindkopi',
+   simplehead => 'Enkle meldingshoder',
+   allhead    => 'Alle meldingshoder',
+   simpleattmode => 'Enkle vedlegg',
+   allattmode    => 'Alle vedlegg',
+   attachment => 'Vedlegg',
+   type       => 'Type',
+   filename   => 'Filnavn',
+   encoding   => 'Koding',
+   description=> 'Beskrivelse',
+   download   => 'Lagre',
+   thisispartialmsg => 'Dette er en delt melding.',
+   msgrebuild => 'Sett sammen melding',
+   editdraft  => 'Editér kladd',
+   savedraft  => 'Lagre kladd',
+   send       => 'Send',
+   about      => 'Om',
+   close      => 'Lukk',
+   cancel     => 'Avbryt',
+   continue   => 'Fortsett',
+   loginagain => 'Log inn igjen',
+   exit       => 'Avslutt',
+   for        => 'for',
+   yourname   => 'Ditt navn',
+   save       => 'Lagre',
+   add        => 'Legg til',
+   folderrenprop => '\'Skriv inn navn for denne mappen\'',
+   rename     => 'Nytt navn',
+   folderdelconf => '\'Er du sikker på at du vil slette denne mappen og alt innholdet?\'',
+   markread   => 'MarkRead',
+   foldermarkreadconf => '\'Are you going to mark read on all messages in this folder?\'',
+   chkindex   => 'Kontrollér indeks',
+   folderchkindexconf => '\'Vil du kontrollere indeksen for denne mappen?\'',
+   reindex    => 'Reindeksér',
+   folderreindexconf => '\'Er du sikker på at du vil reindeksere denne mappen?\'',
+   total      => 'Total',
+   delete     => 'Slett',
+   reserve    => '*** Reserve',
+   clearadd   => 'Slett alle addresser',
+   importadd  => 'Importér adresse',
+   exportadd  => 'Eksportér adresse',
+   import     => 'Importér',
+   addmod     => 'Legg til/Endre',
+   modify     => 'Endre',
+   abooktitle => 'Adressebok',
+   abook      => 'ADRESSEBOK',
+   name       => 'Navn',
+   email      => 'Epost',
+   note       => 'Notat',
+   group      => 'Gruppe',
+   quota_hit  => 'IKKE MER LAGRINGSPLASS',
+   usage      => 'Forbruk',
+   tzmap      => 'Tidssonekart',
+   editfroms  => 'Endre personlige epostadresser',
+   pop3book   => 'POP3-oppsett',
+   retr_pop3s => 'Hent POP3-epost',
+   filterbook => 'Epostfilter-oppsett',
+   include    => 'Inkludér',
+   exclude    => 'Ekskludér',
+   smtprelay  => 'SMTP-Relé',
+   header     => 'Meldingshode',
+   body       => 'Meldingstekst',
+   attfilename=> 'Vedleggs-filnavn',
+   all        => 'Alle',
+   enable     => 'På',
+   disable    => 'Av',
+   filtered   => 'Filtrert',
+   blockrelay => 'Blokkér SMTP-Relé',
+   blockemail => 'Blokkér avsender',
+   read       => 'Les',
+   yourmsg    => 'Din melding',
+   delivered  => 'Levert',
+   wasreadon1 => 'ble lest',
+   wasreadon2 => '.',
+   globaladdressbook => 'Felles adressebok',
+   globalfilterrule => 'Felles filterregler',
+   readonly   => 'Skrivebeskyttet',
+   textcontent=> 'Tekst-innhold',
+   search     => 'Søk',
+   advsearch  => 'Advanced search',
+   folder     => 'Folder',
+   nofoldersel=> 'No Folder selected',
+   showall    => 'Show All',
+   spellcheck => 'Stavekontroll',
+   checkagain => 'Kontrollér igjen',
+   finishchecking => 'Kontroll ferdig',
+   manuallyfix=> 'Rett manuellt',
+   calendar   => 'Calendar',
+   am         => 'am',
+   pm         => 'pm',
+   calfmt_year          => 'Year @@@YEAR@@@',
+   calfmt_yearmonth     => '@@@MONTH_STR@@@ @@@YEAR@@@',
+   calfmt_yearmonthday  => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@',
+   calfmt_yearmonthdaywday => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@ @@@WEEKDAY_STR@@@',
+   calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
+   none       => 'None',
+   moreitems  => 'more items',
+   multieditconf => 'This item was added for multiple dates.\\nEditing it will change the item for all dates.\\nContinue with Edit?',
+   multidelconf  => 'This item was added for multiple dates.\\nDeleting it will delete the item for all dates.\\nContinue with Delete?',
+   ed         => 'Ed',
+   del        => 'Del',
+   noitemforthisday => 'No items for this day',
+   today_only               => 'Today\'s date only',
+   the_wday_of_thismonth    => 'The',
+   the_wday_of_thismonth2   => 'of the month',
+   every_wday_of_thismonth  => 'Every',
+   every_wday_of_thismonth2 => 'this month'
+   );
+
+%lang_err =
+   (
+   has_illegal_chars => 'inneholder ulovlige tegn!',
+   couldnt_open      => 'Kunne ikke åpne',
+   couldnt_locksh    => 'Fikk ikke lesetingang til',
+   couldnt_lock      => 'Fikk ikke skrivetilgang til',
+   couldnt_seek      => 'Kunne ikke finne starten på',
+   couldnt_close     => 'Kunne ikke lukke',
+   disallowed_pop3   => 'Ulovelig POP3-tjener',
+   disallowed_client => 'Du får ikke koble opp fra denne klienten',
+   disallowed_receiverdomain => 'Du får ikke sende til denne epost-adressen',
+   norootlogin       => 'Beklager, root kan ikke logge seg inn på grunn av sikkerhetshensyn.',
+   shouldnt_move_here=> 'Du bør ikke flytte meldinger til denne mappen!',
+   destination_folder=> 'Målmappe',
+   doesnt_exist      => 'eksisterer ikke!',
+   foldername_long   => 'Mappenavnet kan ikke være mer enn 16 tegn!',
+   folder_with_name  => 'En mappe med navnet',
+   already_exists    => 'eksisterer allerede!',
+   cant_create_folder=> 'Kan ikke opprette mappen!',
+   under_indexing    => 'blir fortsatt reindeksert. Prøv igjen senere',
+   abook_invalid     => 'Beklager, denne filen virker ikke som om den er en adressebok eksportert fra Microsoft Outlook Express 5 i CVS-format. Forsikre deg om at filen starter med: "Name,E-mail Address", og gå',
+   back              => 'tilbake',
+   tryagain          => 'og prøv på nytt.',
+   abook_toobig      => 'Beklager, du overstiger tillatt størrelse på adresseboken din. Gå',
+   cant_create_dir   => 'Brukerkatalogen din kunne ikke opprettes!',
+   folder_hitquota   => 'Beklager, du har oversteget tillatt lagringsplass for mappene dine. Du har ikke adgang til å flytte meldinger til andre mapper enn papirkurven, hvor de vil bli slettet automatisk. Gå tilbake og slett noen meldinger eller tømme papirkurven, og prøv på nytt.',
+   att_overlimit     => 'Beklager, du har oversteget tillatt størrelse for vedlegg. Vedlegg må ikke overstige',
+   inv_msg_op        => 'Ugyldig operasjon for melding',
+   inv_sessid        => 'Din forespørsel inneholdt ikke rett sesjons-id-kjeks -- Ingen adgang!',
+   no_endpart        => 'Slutten ble ikke funnet',
+   part_missing      => 'En del mangler',
+   rebuild_fmterr    => 'Forateringsfeil i ny melding',
+   rebuild_sizeerr   => 'Feil størrelse i ny melding',
+   user_not_exist    => 'brukeren finnes ikke',
+   func_notsupported => 'funksjonen er ikke støttet',
+   auth_syserr       => 'autentiseringssystemet feilet',
+   param_fmterr      => 'feil format i paramerterene',
+   pwd_incorrect     => 'feil passord',
+   network_server_error => 'feil i nettverkstjeneren',
+   sendmail_error    => 'Beklager, det oppstod et problem ved sending av din melding. Gå tilbake med nettleserens tilbake-knapp, kontrollér meldingen og prøv igjen.',
+   at_char_not_allowed => 'The @ character is not allowed in this field.  Press browser back button and try again',
+   badnum_in_days => 'bad number in consecutive days field'
+   );
+
+1;

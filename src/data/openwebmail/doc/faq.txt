@@ -42,7 +42,8 @@ A: There are many possible answers...
       openwebmail.pl, openwebmail-main.pl, 
       openwebmail-read.pl, openwebmail-viewatt.pl, 
       openwebmail-send.pl, openwebmail-spell.pl,
-      openwebmail-prefs.pl, openwebmail-folder.pl, openwebmail-abook.pl
+      openwebmail-prefs.pl, openwebmail-folder.pl, 
+      openwebmail-abook.pl, openwebmail-advsearch.pl
       and checkmail.pl
 
       should be
@@ -106,6 +107,21 @@ A: Check auth_module option in openwebmail.conf:
    2. login to openwebmail
    3. check the /tmp/openwebmail.debug for more information.
 
+Q: It took a long time in the first login?
+A: Openwebmail has to initialize some mapping tables for future use,
+   it creates these tables in the first successful login, this guarentees 
+   that openwebmail creates files only if it is correctly installed.
+
+Q: It took a long time in every login?
+A: You probably have wrong settings for option dbm_ext and dbmopen_ext in the 
+   openwebmail.conf, please execute uty/dbmtest.pl to find the correct settings.
+
+Q: Will it speedup the login if the GNU copyright page is removed?
+A: The GNU copyright page should be displayed for less than 1 second.
+   if you see it for a very long time after you login, then openwebmail 
+   is busy in processing your INBOX folder (eg: mail indexing, filtering, 
+   trash cleaning..)
+
 Q: Some of my users login okay, but others don't, why?
 A: It is possible that you are upgrading from version prior to 1.41 
    to the newer version. The virtual user support is totally reimplemented.
@@ -129,10 +145,17 @@ A: There are 2 possible answers for this:
    3. The authentication module which you used doesn't support password 
       changing, ex: auth_pop3.pl
 
+Q: I use openwebmail with NIS/YP system, the user can login but can not 
+   change their password?
+A: The NIS/YP password can not be chnged with auth_unix.pl, you need to 
+   use the auth_pam.pl as the uthentication module.
+
 Q: I got "Couldn't open XXX-session-0.370606494136155!" error after login?
 A: You openwebmail-1.xx.tgz was uncompressed with improper parameter.
    It should be "tar -zxvBpf openwebmail-1.xx.tgz"
    Or you can refer to the file permission list in the end of readme.txt
+ps: you may check the permission cgi-bin/openwebmail/etc/sessions first,
+    it should be owner=root, group=mail, mode=770
 
 Q: I got "Software error: Can't locate MIME/Base64.pm in @INC"?
 A: Please download MIME-Base64-2.12.tar.gz and install
@@ -148,7 +171,7 @@ Q: I got "can't open /var/log/openwebmail.log" error?
 A: Please check the openwebmail.log permission, it should be
    owner=root, group=mail, mode=660
 
-Q: Most functions works fine, but I could not send message.
+Q: Most functions work fine, but I could not send message.
    I got "Can't locate Net/SMTP.pm in @INC ..." error?
    I got "Internal server error"?
 A: Please install the libnet-1.0901.tar.gz, this is required since 
@@ -633,18 +656,45 @@ A: If your Open WebMail doesn't work, please post your problem on
    (openwebmail.AT.turtle.ee.ncku.edu.tw)
    ps: clicking the 'forward as attachment' icon in message reading menu
 
-Q: Can I call openwebmail from my programs with username/password specified?
+Q: Can I specify the composemessage menu as the openwebmail default?
 A: You can call the openwebmail with url
-   http://server/openwebmail.pl?loginname=USER&password=PASS
+   http://server/openwebmail.pl?action=composemessage&to=EMAIL&subject=SUBJECT
 
-   But this is a little dangerous since the loginname and password will
+Q: Can I specify the calendar month view as the openwebmail default?
+A: You can call the openwebmail with url
+   http://server/openwebmail.pl?action=calmonth
+
+Q: Can I specify the calendar day view as the openwebmail default?
+A: You can call the openwebmail with url
+   http://server/openwebmail.pl?action=calday
+
+Q: Can I call openwebmail from my programs with username/password specified?
+A: this is a little dangerous since the loginname and password will
    be displayed on the URL line of the user's browser.
 
-Q: Can I call openwebmail and enter the composemessage menu directly?
-A: You can call the openwebmail with url
-   http://server/openwebmail.pl?loginname=USER&password=PASS&to=EMAIL&subject=SUBJECT
+   You can call the openwebmail with url
+   http://server/openwebmail.pl?loginname=USER&password=PASS
+   or even with action specified
+   http://server/openwebmail.pl?action=calmonth&loginname=USER&password=PASS
 
-Q: I already have a web application which would authentication for user,
+Q: Can I get the mail/event status of a user before he logins openwebmail?
+   How can I get the username before user really types it?
+A: If a user has ever successfully logined into openwebmail, the loginname 
+   will be stored to cookie "openwebmail-loginname" at the browser side.
+   The following CGI script demostrates how to use this information.
+-----------------------------------------
+#!/usr/bin/perl
+use CGI qw(-private_tempfiles :standard);
+print "Content-type: text/html\n\n";
+my $info;
+my $loginname = cookie("openwebmail-loginname");
+if ($loginname ne "") {
+   $info=`/usr/local/www/cgi-bin/openwebmail/checkmail.pl $loginname`;
+}
+print $info;
+------------------------------------------
+
+Q: I already have a web application which would do authentication for user,
    how can I integrate openwebmail with it so the user doesn't need to login
    again when click the openwebmail link?
 A: All you have to do is to write a very simple auth_xxx.pl which checks if 
@@ -696,6 +746,12 @@ Q: Can I setup mail account for user without creating the unix acount?
 A: Yes, you need postfix + vm-pop3d + openwebmail.
    Kevin Ellis(kevin.AT.bluelavalamp.net) has made a webpage for this,
    it is available at http://www.bluelavalamp.net/owmvirtual/
+
+Q: I have set openwebmail for virtual user with vm-pop3d, but I got
+   "Sorry, root login is disabled for security's sake" at login?
+A: Please check the descriptions in auth_pop3.pl and find which case you
+   are using. If you are using case b, don't forget to set the $local_uid
+   to the uid used by your vm-pop3d for all virtual users.
 
 Q: Can Open WebMail be used with mod_perl?
 A: No, lots of code needs to be changed to make Open WebMail a good behavior

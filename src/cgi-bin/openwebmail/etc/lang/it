@@ -1,6 +1,7 @@
 #!/usr/bin/perl -T
 
-$lang_charset = 'iso-8859-1';
+# Italian translation by Benedet Marvi, i3100579.AT.ingstud.univ.trieste.it
+# charset: iso-8859-1
 
 %lang_folders =
    (
@@ -9,6 +10,7 @@ $lang_charset = 'iso-8859-1';
    'sent-mail'      => 'INVIATI',
    'saved-drafts'   => 'BOZZE',
    'mail-trash'     => 'CESTINO',
+   'all'            => 'Tutti',
    DELETE => '--CANCELLA--'
    );
 
@@ -58,11 +60,78 @@ $lang_charset = 'iso-8859-1';
    1440 => '24 ore'
    );
 
+%lang_advsearchlabels =
+   (
+   contains    => 'contiene',
+   notcontains => 'non contiene',
+   is          => 'e\'',
+   isnot       => 'non e\'',
+   startswith  => 'inizia per',
+   endswith    => 'finisce per',
+   regexp      => 'soddisfa regexp(insensitive)',
+   );
+
+%lang_calendar = 
+   (
+   yearview  => 'Annuale',
+   monthview => 'Mensile',
+   weekview  => 'Settimanale',
+   dayview   => 'Giornaliero'
+   );
+
+%lang_month =
+   (
+   1  => 'Gennaio',
+   2  => 'Febbraio',
+   3  => 'Marzo',
+   4  => 'Aprile',
+   5  => 'Maggio',
+   6  => 'Giugno',
+   7  => 'Luglio',
+   8  => 'Agosto',
+   9  => 'Settembre',
+   10 => 'Ottobre',
+   11 => 'Novembre',
+   12 => 'Dicembre'
+   );
+
+%lang_wday =
+   (
+   0 => 'Domenica',
+   1 => 'Lunedi\'',
+   2 => 'Martedi\'',
+   3 => 'Mercoledi\'',
+   4 => 'Giovedi\'',
+   5 => 'Venerdi\'',
+   6 => 'Sabato'
+   );
+
+%lang_wday_abbrev =
+   (
+   week => 'ST',
+   0 => 'D',
+   1 => 'L',
+   2 => 'M',
+   3 => 'M',
+   4 => 'G',
+   5 => 'V',
+   6 => 'S'
+   );
+
+%lang_order =
+   (
+   1 => '1.',
+   2 => '2.',
+   3 => '3.',
+   4 => '4.',
+   5 => 'ultimo'
+   );
+
 %lang_text =
-   (  
+   (
    login      => 'Login',
    clear      => 'Cancella',
-   point      => 'Point',
+   point      => 'Punti',
    pixel      => 'Pixel',
    changepwd  => 'Cambia Password',
    viewhistory=> 'Mostra cronologia',
@@ -133,7 +202,9 @@ $lang_charset = 'iso-8859-1';
    folderrenprop => '\'Inserisci il nome di questa cartella\'',
    rename     => 'Rinomina',
    folderdelconf => '\'Cancello questa cartella e tutto il suo contenuto?\'',
-   chkindex    => 'ControlloIndice',
+   markread   => 'SegnaLetto',
+   foldermarkreadconf => '\'Vuoi segnare come letti tutti i messaggi di questa cartella?\'',
+   chkindex   => 'ControlloIndice',
    folderchkindexconf => '\'Vuoi controllare l\\\'indice di questa cartella?\'',
    reindex    => 'ReIndex',
    folderreindexconf => '\'Vuoi ricreare l\\\'indice di questa cartella?\'',
@@ -181,13 +252,37 @@ $lang_charset = 'iso-8859-1';
    readonly   => 'SolaLettura',
    textcontent=> 'Testo Contenuto',
    search     => 'Cerca',
+   advsearch  => 'Ricerca avanzata',
+   folder     => 'Cartella',
+   nofoldersel=> 'Nessuna cartella selezionata',
+   showall    => 'Mostra tutto',
    spellcheck => 'Controllo Ortografico',
    checkagain => 'Controlla Ancora',
    finishchecking => 'Ferma controllo',
-   manuallyfix=> 'Correggi a mano'
+   manuallyfix=> 'Correggi a mano',
+   calendar   => 'Calendario',
+   am         => 'am',
+   pm         => 'pm',
+   calfmt_year          => 'Anno @@@YEAR@@@',
+   calfmt_yearmonth     => '@@@MONTH_STR@@@ @@@YEAR@@@',
+   calfmt_yearmonthday  => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@',
+   calfmt_yearmonthdaywday => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@ @@@WEEKDAY_STR@@@',
+   calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
+   none       => 'Nessuno',
+   moreitems  => 'piu\' voci',
+   multieditconf => 'Questa voce e\' stata aggiunta per piu\' date.\\nModificandola verra\' cabiata per tutte le date.\\nContinuare?',
+   multidelconf  => 'Qeusto voce e\' stata aggiunta per piu\' date.\\nCancellandola verra\' eliminata per ogni data.\\nContinuare?',
+   ed         => 'Ed',
+   del        => 'Del',
+   noitemforthisday => 'Nessuna voce per questo giorno',
+   today_only               => 'Solo Oggi',
+   the_wday_of_thismonth    => 'Il',
+   the_wday_of_thismonth2   => 'del mese',
+   every_wday_of_thismonth  => 'Ogni',
+   every_wday_of_thismonth2 => 'questo mese'
    );
 
-%lang_err = 
+%lang_err =
    (
    has_illegal_chars => 'contiene caratteri non permessi!',
    couldnt_open      => 'Non posso aprire',
@@ -208,7 +303,7 @@ $lang_charset = 'iso-8859-1';
    cant_create_folder=> 'Non posso creare la cartella',
    under_indexing    => 'fase di indicizzazione, riprova dopo',
    abook_invalid     => 'Questo file non è una rubrica esportata da Outlook Express 5 in formato CSV. Assicurati che la prima riga inizi con "Nome ,E-mail", quindi torna',
-   back     => 'indietro',
+   back              => 'indietro',
    tryagain          => 'e riprova.',
    abook_toobig      => 'Spiacente, questo eccederebbe il limite per la tua rubrica. Torna',
    cant_create_dir   => 'Non posso creare la tua directory utente!',
@@ -226,7 +321,9 @@ $lang_charset = 'iso-8859-1';
    param_fmterr      => 'errore formato parametri',
    pwd_incorrect     => 'password sbagliata',
    network_server_error => 'errore del server di rete',
-   sendmail_error    => 'Spiacente, si e\' verificato  un errore nella spedizione del tuo messaggio. Prova a cliccare su bottone  indietro del tuo browser, controlla il messaggio e riprova'
+   sendmail_error    => 'Spiacente, si e\' verificato  un errore nella spedizione del tuo messaggio. Prova a cliccare su bottone  indietro del tuo browser, controlla il messaggio e riprova',
+   at_char_not_allowed => 'Il carattere @ non e\' permesso in questo campo. Premi Indietro sul browser e riprova',
+   badnum_in_days => 'numero errato nel campo giorni consecutivi'
    );
 
 1;

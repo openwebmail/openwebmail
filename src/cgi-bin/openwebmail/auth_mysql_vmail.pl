@@ -1,12 +1,12 @@
-# 
+#
 # auth_mysql_vmail.pl - authenticate user with MySQL, where required fields are in more tables (like in vmail-sql).
 #
 # v1.5
-# 
+#
 # 2002/04/23
 # Zoltan Kovacs
 # werdy@freemail.hu
-# 
+#
 # The sample config made for vmail-sql.
 
 # This is the table which holds information about domains in vmail-sql (got from vmail-sql's README).
@@ -26,7 +26,7 @@
 #         mbox_name VARCHAR(255),                 # appended to domain.path
 #         PRIMARY KEY (domain_name(16), local_part(32));
 # ) ;
- 
+
 my ( %mysql_auth, %mysql_query );
 
 ########################
@@ -71,10 +71,10 @@ if ( $mysql_auth{password_hash_method} =~ /md5/i ) { use Digest::MD5; }
 sub get_userinfo {
     my $user = $_[0];
     my ( $unix_user, $gid, $uid, $home, $key, $domain );
-    
+
     return -2 if ( !$user );
     if ( $user =~ /^(.*)\@(.*)$/ ) { ($user,$domain) = ($1,$2); }
-    
+
     foreach ( keys %mysql_query ) {
 	$mysql_query{$_} =~ s/_user_/$user/g;
 	$mysql_query{$_} =~ s/_domain_/$domain/g;
@@ -94,12 +94,12 @@ sub get_userinfo {
 
 sub get_userlist { # only used by checkmail.pl -a
     my @userlist;
-    
+
     if ( !&mysql_command("USE $mysql_auth{mysql_database}") ) {
 	@userlist = &mysql_command( $mysql_query{userlist} );
     } else { return -3; }
     &mysql_command("EXIT");
-    
+
     return @userlist;
 }
 
@@ -113,10 +113,10 @@ sub check_userpassword {
 
     return -2 if ( !$user || !$passwd );
     if ( $user =~ /^(.*)\@(.*)$/ ) { ($user,$domain) = ($1,$2); }
-        
+
     $mysql_query{user_password} =~ s/_user_/$user/g;
     $mysql_query{user_password} =~ s/_domain_/$domain/g;
-    
+
     if ( !&mysql_command("USE $mysql_auth{mysql_database}") ) {
 	( $passwd_hash ) = &mysql_command( $mysql_query{user_password} );
     } else { return -3; }
@@ -127,7 +127,7 @@ sub check_userpassword {
     } elsif ( $mysql_auth{password_hash_method} =~ /md5/i ) {
 	$passwd_hash =~ s/^\{.*\}(.*)$/$1/;
 	return 0 if ( $passwd_hash eq Digest::MD5::md5_hex($passwd) );
-    } 
+    }
     	
     return -4;
 }
@@ -141,14 +141,14 @@ sub check_userpassword {
 sub change_userpassword {
     my ($user, $oldpasswd, $newpasswd)=@_;
     my $domain;
-       
+
     return -2 if ( !$user || !$oldpasswd || !$newpasswd );
     return -4 if ( &check_userpassword ($user,$oldpasswd) );
     if ( $user =~ /^(.*)\@(.*)$/ ) { ($user,$domain) = ($1,$2); }
-    
+
     $mysql_query{change_password} =~ s/_user_/$user/g;
     $mysql_query{change_password} =~ s/_domain_/$domain/g;
-    
+
     if ( !&mysql_command("USE $mysql_auth{mysql_database}") ) {
 	if ( $mysql_auth{password_hash_method} =~ /plaintext/i ) {
 	    $mysql_query{change_password} =~ s/_new_password_/$newpasswd/g;
@@ -167,7 +167,7 @@ sub change_userpassword {
 sub mysql_command {
     my @query = @_;
     my ( @result, @row, $sth );
-    
+
     for ( 0 .. $#query ) {
 	if ( $query[$_] =~ /^SELECT/ ) {
     	    $sth = $main::dbh->prepare( $query[$_] );
@@ -185,7 +185,7 @@ sub mysql_command {
 	    return 0;
 	}
     }
-        
+
     return @result;
 }
 

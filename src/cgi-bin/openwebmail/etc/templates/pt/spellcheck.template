@@ -9,7 +9,7 @@
 <tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
 <BR>Um conjunto de sugestões serão fornecidas para cada palavra ortograficamente incorrecta.
 O utilizadoe pode escolher uma para substituir a palavra original.
-Se não encontrar nenhuma sugestão o utilizador pode substituir manualmente, 
+Se não encontrar nenhuma sugestão o utilizador pode substituir manualmente,
 e fazer a verificação ortigráfica novamente. Um campo de texto ficará disponivel para o utilizador.
 
 </td></tr>

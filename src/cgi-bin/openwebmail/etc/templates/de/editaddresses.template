@@ -4,7 +4,7 @@
 <b>ADRESSBUCH BEARBEITEN</b></font>
 </td><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>@@@FREESPACE@@@ kB frei</b></font>
+<b>@@@FREESPACE@@@ KB frei</b></font>
 </td></tr><tr><td colspan="2" bgcolor=@@@MENUBAR@@@ align="left">
 @@@MENUBARLINKS@@@
 </td><td colspan="2" bgcolor=@@@MENUBAR@@@ align="right" nowrap>
@@ -19,7 +19,7 @@
 <td bgcolor=@@@COLUMNHEADER@@@>
 <B>eMail Adresse(n)</B> (Zum eMail verfassen anklicken)</td>
 <td bgcolor=@@@COLUMNHEADER@@@>
-<B>Notiz</B></td>
+<B>Anmerkung</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Aktion</B>
 </td></tr>
@@ -44,10 +44,10 @@
    function GoAddressWindow(field)
    {
       var url = "@@@ABOOKURL@@@?action=addressbook&sessionid=@@@SESSIONID@@@&form=newaddress&field=" + field;
-      
+
       if (field == "email")
          url += "&preexisting=" + escape (document.newaddress.email.value);
-   
+
       var hWnd = window.open(url,"HelpWindow","width=380,height=360,resizable=yes,scrollbars=yes");
       if ((document.window != null) && (!hWnd.opener))
          hWnd.opener = document.window;

@@ -1,0 +1,24 @@
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="1">
+<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>Brukerhistorikk</B></font>
+</td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
+&nbsp;
+<table border="0" align="center" width="90%" cellspacing="0" cellpadding="0">
+<tr>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>Dato/Tid</B></td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>Klientadresse</B></td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>Bruker</B></td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>Hendelse</B></td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>Beskrivelse</B></td>
+</tr>
+@@@LOGINHISTORY@@@
+</table>
+
+@@@CONTINUEBUTTON@@@
+</td></tr></table>

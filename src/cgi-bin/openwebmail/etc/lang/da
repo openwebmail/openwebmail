@@ -1,20 +1,22 @@
 #!/usr/bin/perl -T
 
-$lang_charset = 'iso-8859-1';
+# Danish translation by Frank, frank.AT.post12.tele.dk
+# charset: iso-8859-1
 
 %lang_folders =
    (
    INBOX => 'Indbakke',
-   'saved-messages' => 'Gemt post',
-   'sent-mail'      => 'Sendt post',
+   'saved-messages' => 'Gemt mail',
+   'sent-mail'      => 'Sendt mail',
    'saved-drafts'   => 'Kladder',
    'mail-trash'     => 'Papirkurv',
+   'all'            => 'Alle',
    DELETE => '--Slet permanent--'
    );
 
 %lang_sortlabels =
    (
-   status      => 'Status (Ulæst post først)',
+   status      => 'Status (Ulæst mail først)',
    date        => 'Dato (Nyeste først)',
    date_rev    => 'Dato (Ældste først)',
    sender      => 'Afsender (Nyeste først)',
@@ -36,7 +38,7 @@ $lang_charset = 'iso-8859-1';
    (
    at_beginning => 'i starten',
    at_end      => 'i slutningen',
-   none        => 'fjernet'
+   none        => 'undlad'
    );
 
 %lang_receiptlabels =
@@ -58,32 +60,99 @@ $lang_charset = 'iso-8859-1';
    1440 => '24 timer'
    );
 
+%lang_advsearchlabels =
+   (
+   contains    => 'indeholder',
+   notcontains => 'indeholder ikke',
+   is          => 'er',
+   isnot       => 'er ikke',
+   startswith  => 'starter med',
+   endswith    => 'ender på',
+   regexp      => 'matcher regexp. (store og små bogstaver)',
+   );
+
+%lang_calendar = 
+   (
+   yearview  => 'Års oversigt',
+   monthview => 'Måneds oversigt',
+   weekview  => 'Uge oversigt',
+   dayview   => 'Dags oversigt'
+   );
+
+%lang_month =
+   (
+   1  => 'Januar',
+   2  => 'Februar',
+   3  => 'Marts',
+   4  => 'April',
+   5  => 'Maj',
+   6  => 'Juni',
+   7  => 'Juli',
+   8  => 'August',
+   9  => 'September',
+   10 => 'Oktober',
+   11 => 'November',
+   12 => 'December'
+   );
+
+%lang_wday =
+   (
+   0 => 'Søndag',
+   1 => 'Mandag',
+   2 => 'Tirsdag',
+   3 => 'Onsdag',
+   4 => 'Torsdag',
+   5 => 'Fredag',
+   6 => 'Lørdag'
+   );
+
+%lang_wday_abbrev =
+   (
+   week => 'Uge',
+   0 => 'S',
+   1 => 'M',
+   2 => 'T',
+   3 => 'O',
+   4 => 'T',
+   5 => 'F',
+   6 => 'L'
+   );
+
+%lang_order =
+   (
+   1 => 'første',
+   2 => 'anden',
+   3 => 'tredie',
+   4 => 'fjerde',
+   5 => 'sidste'
+   );
+
 %lang_text =
-   (  
+   (
    login      => 'Log ind',
    clear      => 'Ryd',
-   point      => 'Point',
+   point      => 'punkt',
    pixel      => 'Pixel',
    changepwd  => 'Ændre adgangskode',
    viewhistory=> 'Vis historik',
    of         => 'af',
-   messages   => 'meddelelser',
+   messages   => 'mails',
    unread     => 'ulæste',
-   nomessages => 'Ingen meddelelser',
-   composenew => 'Skriv ny meddelelse',
+   nomessages => 'Ingen mails',
+   composenew => 'Skriv ny mail',
    refresh    => 'Opdater',
-   userprefs  => 'Brugerindstillinger',
+   userprefs  => 'Standard indstillinger',
    addressbook=> 'Adressebog',
    folders    => 'Mappe oversigt',
    emptytrash => 'Tøm papirkurven',
    totrash    => 'Flyt til papirkurv',
    forever    => 'Aldrig',
    userdef    => 'Bruger defineret',
-   logout     => 'Afslut',
+   logout     => 'Afslut webmail',
    page       => 'Side',
-   msgcopyconf=> '\'Er du sikker på du vil kopiere de(n) valgte meddelelse(r)?\'',
+   msgcopyconf=> '\'Er du sikker på du vil kopiere de(n) valgte mails?\'',
    copy       => 'Kopier',
-   msgmoveconf=> '\'Er du sikker på, at du vil flytte de(n) valgte meddelelse(r)?\'',
+   msgmoveconf=> '\'Er du sikker på, at du vil flytte de(n) valgte mails?\'',
    move       => 'Flyt',
    markasread => 'Marker som læst',
    markasunread => 'Marker som ulæst',
@@ -115,11 +184,11 @@ $lang_charset = 'iso-8859-1';
    encoding   => 'Encoding',
    description=> 'Beskrivelse',
    download   => 'Gem',
-   thisispartialmsg => 'Dette er en del af en meddelelse.',
+   thisispartialmsg => 'Dette er en del af en mail.',
    msgrebuild => 'Besked genopbygget',
    editdraft  => 'Rediger kladde',
    savedraft  => 'Gem kladde',
-   send       => 'Send meddelelse',
+   send       => 'Send mail',
    about      => 'Om',
    close      => 'Luk',
    cancel     => 'Fortryd',
@@ -133,7 +202,9 @@ $lang_charset = 'iso-8859-1';
    folderrenprop => '\'Skriv venligst navnet på folderen\'',
    rename     => 'Omdøb',
    folderdelconf => '\'Er du sikker på, at du vil slette denne mappe og hele dens indhold?\'',
-   chkindex    => 'Kontroller indeks',
+   markread   => 'Marker som læst',
+   foldermarkreadconf => '\'Are you going to mark read on all messages in this folder?\'',
+   chkindex   => 'Kontroller indeks',
    folderchkindexconf => '\'Vil du have indeks i denne folder kontrolleret?\'',
    reindex    => 'Genindekser',
    folderreindexconf => '\'Er du sikker på du vil genindeksere denne folder?\'',
@@ -141,7 +212,7 @@ $lang_charset = 'iso-8859-1';
    delete     => 'Slet',
    reserve    => 'Efterlad',
    clearadd   => 'Slet alle mailadresser',
-   importadd  => 'Overfør mailadresse til adressebog',
+   importadd  => 'Importer mailadresser til adressebog',
    exportadd  => 'Exporter mailadresser',
    import     => 'Importer',
    addmod     => 'Tilføj/Rediger',
@@ -152,13 +223,13 @@ $lang_charset = 'iso-8859-1';
    email      => 'Email',
    note       => 'Notat',
    group      => 'Gruppe',
-   quota_hit  => 'Plads forbrug opbrugt',
-   usage      => 'I brug',
-   tzmap      => 'World timezone map',
+   quota_hit  => 'ADVARSEL, din postkasse er fuld',
+   usage      => 'ADVARSEL, din postkasse er snart fuld, du benytter nu:',
+   tzmap      => 'Verdenskort med tidszoner',
    editfroms  => 'Rediger personlige mailadresser',
-   pop3book   => 'Opsæt tømning af ekstern POP3 postkasse',
-   retr_pop3s => 'Hent post fra ekstern POP3 postkasse',
-   filterbook => 'Indstilling af post-filter',
+   pop3book   => 'Opsæt mail afhentning fra ekstern POP3 server',
+   retr_pop3s => 'Hent mail fra ekstern POP3 server',
+   filterbook => 'Filterregler',
    include    => 'Indeholder',
    exclude    => 'Indeholder IKKE',
    smtprelay  => 'SMTP server',
@@ -176,18 +247,42 @@ $lang_charset = 'iso-8859-1';
    delivered  => 'Leveret',
    wasreadon1 => 'blev læst d.',
    wasreadon2 => '.',
-   globaladdressbook => 'Global Adressebog',
-   globalfilterrule => 'Globale filter-regler',
+   globaladdressbook => 'GLOBAL ADRESSEBOG',
+   globalfilterrule => 'GLOBALE FILTERREGLER',
    readonly   => 'Skrive beskyttet',
    textcontent=> 'Tekst indhold',
    search     => 'Søg',
+   advsearch  => 'Avanceret søgning',
+   folder     => 'Folder',
+   nofoldersel=> 'Du skal vælge mindst én folder at søge i',
+   showall    => 'Show All',
    spellcheck => 'Stavekontrol',
    checkagain => 'Check igen',
    finishchecking => 'Afslut stavekontrol',
-   manuallyfix=> 'Manual rettelse'
+   manuallyfix=> 'Manual rettelse',
+   calendar   => 'Kalender',
+   am         => 'am',
+   pm         => 'pm',
+   calfmt_year          => 'År @@@YEAR@@@',
+   calfmt_yearmonth     => '@@@MONTH_STR@@@ @@@YEAR@@@',
+   calfmt_yearmonthday  => '@@@DAY@@@ @@@MONTH_STR@@@ @@@YEAR@@@',
+   calfmt_yearmonthdaywday => '@@@WEEKDAY_STR@@@ @@@DAY@@@ @@@MONTH_STR@@@ @@@YEAR@@@',
+   calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
+   none       => 'Hele dagen',
+   moreitems  => 'more items',
+   multieditconf => 'Dette er en tilbagevendende aftale. Ændringer af denne\\naftale, vil også ændre alle de tilbagevendende aftaler.\\nØnsker du at fortsætte?',
+   multidelconf  => 'Dette er en tilbagevendende aftale. Hvis du sletter denne\\naftale, sletter du også de tilbagevendende aftaler.\\nØnsker du at fortsætte?',
+   ed         => 'Rediger',
+   del        => 'Slet',
+   noitemforthisday => 'Ingen aftaler i dag',
+   today_only               => 'Kun dags dato',
+   the_wday_of_thismonth    => 'Den',
+   the_wday_of_thismonth2   => 'i hver måned',
+   every_wday_of_thismonth  => 'Hver',
+   every_wday_of_thismonth2 => 'i denne måned'
    );
 
-%lang_err = 
+%lang_err =
    (
    has_illegal_chars => 'indeholder ugyldige tegn!',
    couldnt_open      => 'Kunne ikke åbne',
@@ -198,8 +293,8 @@ $lang_charset = 'iso-8859-1';
    disallowed_pop3   => 'Ugyldig POP3 server',
    disallowed_client => 'Du har ikke tilladelse til at forbinde fra denne pc',
    disallowed_receiverdomain => 'Du har ikke tilladelse til at sende mail til denne mailadresse',
-   norootlogin       => 'Beklager, rootlogin er slået fra af sikkerhedshensyn.',
-   shouldnt_move_here=> 'Du kan ikke flytte meddelelser hertil!',
+   norootlogin       => 'Beklager, rootlogin er slået fra af sikkerheds hensyn.',
+   shouldnt_move_here=> 'Du kan ikke flytte mails hertil!',
    destination_folder=> 'Destinationsmappe',
    doesnt_exist      => 'findes ikke!',
    foldername_long   => 'Mappenavne kan ikke være længere end 16 tegn!',
@@ -208,12 +303,12 @@ $lang_charset = 'iso-8859-1';
    cant_create_folder=> 'Kan ikke oprette mappe!',
    under_indexing    => 'er igang med at indeksere, prøv venligst senere',
    abook_invalid     => 'Denne fil ser desværre ikke ud til at være en adressebog fra Microsoft Outlook Express 5 i CSV-format. Check i en teksteditor, at den første linie starter med "Name, mailaddress", og gå ',
-   back     => 'tilbage',
+   back              => 'tilbage',
    tryagain          => 'og forsøg igen.',
    abook_toobig      => 'Dette vil gøre din adressebog større end tilladt. Gå',
-   cant_create_dir   => 'Kan ikke oprette din brugermappe!',
-   folder_hitquota   => 'Beklager, du har brugt mere plads i dine mail-mapper end tilladt, og der kan ikke gemmes flere meddelelser i dine mapper. Du kan ikke flytte meddelelser andre steder end til papirkurven, hvor de vil blive slettet. Gå tilbage, slet nogle meddelelser eller tøm papirkurven, og forsøg igen.',
-   att_overlimit     => 'Dine vedhæftninger er større end de tilladte',
+   cant_create_dir   => 'Kan ikke oprette mappen!',
+   folder_hitquota   => 'Beklager, du har brugt mere plads end tilladt, og der kan ikke gemmes flere mails. Du er nødt til at rydde op. Det er kun muligt at flyttet til papirkurven, hvor de vil blive slettet. Gå tilbage, slet nogle mails eller tøm papirkurven, og forsøg igen.',
+   att_overlimit     => 'Dine vedhæftede filer er større end tilladt',
    inv_msg_op        => 'Ugyldig handling for besked',
    inv_sessid        => 'Din forespørgsel indeholdt ikke et gyldigt sessions ID - Ingen adgang!',
    no_endpart        => 'Slut besked ikke fundet',
@@ -226,7 +321,9 @@ $lang_charset = 'iso-8859-1';
    param_fmterr      => 'parameter format fejlede',
    pwd_incorrect     => 'Ugyldig brugernavn eller adgangskode',
    network_server_error => 'server netværks fejl',
-   sendmail_error    => 'Beklager, der skete en fejl ved afsendelse af din post. Tryk Tilbage i din browser og prøv igen.'
+   sendmail_error    => 'Beklager, der skete en fejl ved afsendelse af din mail. Tryk Tilbage i din browser og prøv igen.',
+   at_char_not_allowed => 'Du kan ikke benyttet @ i dette felt. Tryk på tilbage i din browser og prøv igen.',
+   badnum_in_days => 'ugyldigt antal dage, for tilbagevendende aftale'
    );
 
 1;

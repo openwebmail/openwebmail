@@ -1,6 +1,7 @@
 #!/usr/bin/perl -T
 
-$lang_charset = 'gb2312';
+# Simplified Chinese Translation by Wang Jun, wjun.AT.mail.iap.ac.cn
+# charset: gb2312
 
 %lang_folders =
    (
@@ -9,6 +10,7 @@ $lang_charset = 'gb2312';
    'sent-mail'      => '已发送邮件',
    'saved-drafts'   => '草稿箱',
    'mail-trash'     => '垃圾箱',
+   'all'            => '所有信件箱',
    DELETE => '--直接删除--'
    );
 
@@ -48,22 +50,90 @@ $lang_charset = 'gb2312';
 
 %lang_timelabels =
    (
-     10 => '10 minutes',
-     30 => '30 minutes',
-     60 => '60 minutes',
-    120 => '2 hours',
-    180 => '3 hours',
-    360 => '6 hours',
-    720 => '12 hours',
-   1440 => '24 hours'
+     10 => '10 分钟',
+     30 => '30 分钟',
+     60 => '60 分钟',
+    120 => '2 小时',
+    180 => '3 小时',
+    360 => '6 小时',
+    720 => '12 小时',
+   1440 => '24 小时'
+   );
+
+%lang_advsearchlabels =
+   (
+   contains    => '包含',
+   notcontains => '不包含',
+   is          => '是',
+   isnot       => '不是',
+   startswith  => '开始于',
+   endswith    => '结束于',
+   regexp      => '正规表示式',
+   );
+
+
+%lang_calendar = 
+   (
+   yearview  => '年行事历',
+   monthview => '月行事历',
+   weekview  => '周行事历',
+   dayview   => '日行事历'
+   );
+
+%lang_month =
+   (
+   1  => '一月',
+   2  => '二月',
+   3  => '三月',
+   4  => '四月',
+   5  => '五月',
+   6  => '六月',
+   7  => '七月',
+   8  => '八月',
+   9  => '九月',
+   10 => '十月',
+   11 => '十一月',
+   12 => '十二月'
+   );
+
+%lang_wday =
+   (
+   0 => '星期日',
+   1 => '星期一',
+   2 => '星期二',
+   3 => '星期三',
+   4 => '星期四',
+   5 => '星期五',
+   6 => '星期六'
+   );
+
+%lang_wday_abbrev =
+   (
+   week => '周',
+   0 => '日',
+   1 => '一',
+   2 => '二',
+   3 => '三',
+   4 => '四',
+   5 => '五',
+   6 => '六'
+   );
+
+%lang_order =
+   (
+   1 => '第一个',
+   2 => '第二个',
+   3 => '第三个',
+   4 => '第四个',
+   5 => '最后一个'
    );
 
 %lang_text =
-   (  
+   (
    login      => '登录',
    clear      => '清除',
-   point      => 'Point',
-   pixel      => 'Pixel',
+   point      => '点',
+   pixel      => '像素',
    changepwd  => '修改密码',
    viewhistory=> '查看历史记录',
    of         => '/',
@@ -74,9 +144,9 @@ $lang_charset = 'gb2312';
    refresh    => '刷新',
    userprefs  => '设定个人模版',
    addressbook=> '地址簿',
-   folders    => '邮件夹',
+   folders    => '邮件箱',
    emptytrash => '清空垃圾箱',
-   totrash    => 'Move to Trash',
+   totrash    => '搬到垃圾箱',
    forever    => '永久保留',
    userdef    => '使用者自订',
    logout     => '退出',
@@ -99,7 +169,7 @@ $lang_charset = 'gb2312';
    replyall   => '全部回复',
    forward    => '转发',
    forwardasatt=>'以附件方式转发',
-   printfriendly=> 'Print friendly',
+   printfriendly=> '友善列印',
    from       => '发件人',
    replyto    => '回复给',
    to         => '收件人',
@@ -120,8 +190,8 @@ $lang_charset = 'gb2312';
    editdraft  => '编辑草稿',
    savedraft  => '暂存草稿',
    send       => '发送',
-   about      => 'About',
-   close      => 'Close',
+   about      => '关于',
+   close      => '关闭',
    cancel     => '取消',
    continue   => '继续',
    loginagain => '重新登录',
@@ -130,13 +200,15 @@ $lang_charset = 'gb2312';
    yourname   => '您的姓名',
    save       => '保存',
    add        => '增加',
-   folderrenprop => '\'请输入这个邮件夹的新名称。\'',
+   folderrenprop => '\'请输入这个邮件箱的新名称。\'',
    rename     => '改名',
-   folderdelconf => '\'您确定要删除这个邮件夹及其内容吗？\'',
-   chkindex    => 'CheckIndex',
-   folderchkindexconf => '\'Are you going to check the index of this folder?\'',
-   reindex    => 'ReIndex',
-   folderreindexconf => '\'Are you sure you want to reindex this folder?\'',
+   folderdelconf => '\'您确定要删除这个邮件箱及其内容吗？\'',
+   markread   => '标示已读',
+   foldermarkreadconf => '\'您确定要将这个信件箱内所有信件标示成已读吗?\'',
+   chkindex   => '检查索引',
+   folderchkindexconf => '\'您确定要检查这个信件箱的索引吗?\'',
+   reindex    => '重建索引',
+   folderreindexconf => '\'您确定要重建这个信件箱的索引吗?\'',
    total      => '总计',
    delete     => '删除',
    reserve    => '保留',
@@ -154,7 +226,7 @@ $lang_charset = 'gb2312';
    group      => '邮件组',
    quota_hit  => '存储空间已满',
    usage      => '使用空间',
-   tzmap      => 'World timezone map',
+   tzmap      => '世界时区地图',
    editfroms  => '编辑个人邮件地址',
    pop3book   => '设定POP3邮件',
    retr_pop3s => '收取POP3邮件',
@@ -181,13 +253,37 @@ $lang_charset = 'gb2312';
    readonly   => '只读',
    textcontent=> '文字内容',
    search     => '搜索',
+   advsearch  => '进阶搜索',
+   folder     => '信件箱',
+   nofoldersel=> '没有信件箱被选择',
+   showall    => '全部显示',
    spellcheck => '拼写检查',
    checkagain => '重新检查',
    finishchecking => '检查完毕',
-   manuallyfix=> '手动修正'
+   manuallyfix=> '手动修正',
+   calendar   => '行事历',
+   am         => 'am',
+   pm         => 'pm',
+   calfmt_year          => '@@@YEAR@@@年',
+   calfmt_yearmonth     => '@@@YEAR@@@年 @@@MONTH_STR@@@',
+   calfmt_yearmonthday  => '@@@YEAR@@@年 @@@MONTH_STR@@@ @@@DAY@@@日',
+   calfmt_yearmonthdaywday => '@@@YEAR@@@年 @@@MONTH_STR@@@ @@@DAY@@@日 @@@WEEKDAY_STR@@@',
+   calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
+   none       => '无',
+   moreitems  => '更多项目...',
+   multieditconf => '这个项目已经被放到多份的行程中.\\n如果修改会更动所有相关行程.\\n继续修改?',
+   multidelconf  => '这个项目已经被放到多份的行程中..\\n如果删除会全部删掉.\\n进行删除?',
+   ed         => '修改',
+   del        => '删除',
+   noitemforthisday => '本日没有安排事情',
+   today_only               => '今天',
+   the_wday_of_thismonth    => '这个月',
+   the_wday_of_thismonth2   => '',
+   every_wday_of_thismonth  => '这个月每个',
+   every_wday_of_thismonth2 => ''
    );
 
-%lang_err = 
+%lang_err =
    (
    has_illegal_chars => '有非法字符！',
    couldnt_open      => '无法打开',
@@ -196,19 +292,19 @@ $lang_charset = 'gb2312';
    couldnt_seek      => '无法寻找',
    couldnt_close     => '无法关闭',
    disallowed_pop3   => '禁止连线至POP3服务器',
-   disallowed_client => 'You are not allowed to connect from this client',
-   disallowed_receiverdomain => 'You are not allowed to send message to this email address',
+   disallowed_client => '您不被允许由目前的位址连线使用 WebMail',
+   disallowed_receiverdomain => '您不被允许寄信到这个邮件地址',
    norootlogin       => '不能用root登录。',
    shouldnt_move_here=> '不能在这里移动邮件！',
-   destination_folder=> '目的邮件夹',
+   destination_folder=> '目的邮件箱',
    doesnt_exist      => '不存在！',
-   foldername_long   => '邮件夹名称不能超过16个字符！',
-   folder_with_name  => '该名称的邮件夹',
+   foldername_long   => '邮件箱名称不能超过16个字符！',
+   folder_with_name  => '该名称的邮件箱',
    already_exists    => '已存在！',
-   cant_create_folder=> '不能建立新邮件夹！',
+   cant_create_folder=> '不能建立新邮件箱！',
    under_indexing    => '还在索引中，请稍候再试',
    abook_invalid     => '抱歉！该文件不是Outlook Express 5的CSV格式。',
-   back     => '返回上一页',
+   back              => '返回上一页',
    tryagain          => '再试。',
    abook_toobig      => '地址簿超过容量限制。请',
    cant_create_dir   => '无法建立使用者目录！',
@@ -226,7 +322,9 @@ $lang_charset = 'gb2312';
    param_fmterr      => '参数格式错误',
    pwd_incorrect     => '密码错误',
    network_server_error => '网络服务器错误',
-   sendmail_error    => '抱歉！无法发出您的邮件，请回到上一页检查是否输入错误后，再重发一次。'
+   sendmail_error    => '抱歉！无法发出您的邮件，请回到上一页检查是否输入错误后，再重发一次。',
+   at_char_not_allowed => 'The @ character is not allowed in this field.  Press browser back button and try again',
+   badnum_in_days => '代表天数栏位的数值发生错误'
    );
 
 1;

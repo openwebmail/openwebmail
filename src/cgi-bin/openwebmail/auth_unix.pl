@@ -1,8 +1,8 @@
-# 
+#
 # auth_unix.pl - authenticate user with unix password
 #
-# $unix_passwdfile : the location of the file containing all usernames 
-#                    and their corresponding encrypted passwords. 
+# $unix_passwdfile : the location of the file containing all usernames
+#                    and their corresponding encrypted passwords.
 # ------------------------------   --------------------------------
 # platform                         passwdfile
 # ------------------------------   --------------------------------
@@ -14,7 +14,7 @@
 # else...                          /etc/passwd
 # ------------------------------   --------------------------------
 #
-# $unix_passwdmkdb : The command executed after any password modification 
+# $unix_passwdmkdb : The command executed after any password modification
 #                    to update the changes of passwdfile to passwd database.
 # ------------------------------   --------------------------------
 # platform                         passwd mkdb command
@@ -51,7 +51,7 @@ sub get_userinfo {
 
 sub get_userlist {	# only used by checkmail.pl -a
    my @userlist=();
-   my $line;   
+   my $line;
 
    # a file should be locked only if it is local accessable
    filelock("$unix_passwdfile", LOCK_SH) if ( -f $unix_passwdfile);
@@ -90,7 +90,7 @@ sub check_userpassword {
 
    if ($u eq $user && crypt($password,$p) eq $p) {
       return 0;
-   } else { 
+   } else {
       return -4;
    }
 }

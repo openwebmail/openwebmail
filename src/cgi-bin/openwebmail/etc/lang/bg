@@ -1,7 +1,7 @@
 #!/usr/bin/perl -T
-# Bulgarian translation by Veselin Slavov, vess@btc.net, 2002/04/02
 
-$lang_charset = 'windows-1251';
+# Bulgarian translation by Veselin Slavov, vess@btc.net, 2002/04/02
+# charset: windows-1251
 
 %lang_folders =
    (
@@ -10,6 +10,7 @@ $lang_charset = 'windows-1251';
    'sent-mail'      => 'Изпратени',
    'saved-drafts'   => 'Чернови',
    'mail-trash'     => 'Кошче',
+   'all'            => 'All',
    DELETE => '--ИЗТРИЙ--'
    );
 
@@ -59,8 +60,75 @@ $lang_charset = 'windows-1251';
    1440 => '24 часа'
    );
 
+%lang_advsearchlabels =
+   (
+   contains    => 'contains',
+   notcontains => 'does not contain',
+   is          => 'is',
+   isnot       => 'is not',
+   startswith  => 'starts with',
+   endswith    => 'ends with',
+   regexp      => 'matches regexp(insensitive)',
+   );
+
+%lang_calendar = 
+   (
+   yearview  => 'Yearview',
+   monthview => 'Monthview',
+   weekview  => 'Weekview',
+   dayview   => 'Dayview'
+   );
+
+%lang_month =
+   (
+   1  => 'January',
+   2  => 'February',
+   3  => 'March',
+   4  => 'April',
+   5  => 'May',
+   6  => 'June',
+   7  => 'July',
+   8  => 'August',
+   9  => 'September',
+   10 => 'October',
+   11 => 'November',
+   12 => 'December'
+   );
+
+%lang_wday =
+   (
+   0 => 'Sunday',
+   1 => 'Monday',
+   2 => 'Tuesday',
+   3 => 'Wednesday',
+   4 => 'Thursday',
+   5 => 'Friday',
+   6 => 'Saturday'
+   );
+
+%lang_wday_abbrev =
+   (
+   week => 'WK',
+   0 => 'S',
+   1 => 'M',
+   2 => 'T',
+   3 => 'W',
+   4 => 'T',
+   5 => 'F',
+   6 => 'S'
+   );
+
+%lang_order =
+   (
+   1 => '1st',
+   2 => '2nd',
+   3 => '3rd',
+   4 => '4th',
+   5 => 'last'
+   );
+
 %lang_text =
-   (  
+   (
    login      => 'Вход',
    clear      => 'Изчисти',
    point      => 'Point',
@@ -134,7 +202,9 @@ $lang_charset = 'windows-1251';
    folderrenprop => '\'Моля въведете ново име за тази папка\'',
    rename     => 'Смени името',
    folderdelconf => '\'Потвърди за изтриването на папката заедно със съдържанието й!\'',
-   chkindex    => 'Проверка на индекса',
+   markread   => 'MarkRead',
+   foldermarkreadconf => '\'Are you going to mark read on all messages in this folder?\'',
+   chkindex   => 'Проверка на индекса',
    folderchkindexconf => '\'Искате ли да проверите индекса на тази папка?\'',
    reindex    => 'Нов индекс',
    folderreindexconf => '\'Сигурни ли сте, че искате да реиндексирате тази папка?\'',
@@ -182,13 +252,37 @@ $lang_charset = 'windows-1251';
    readonly   => 'Само за четене',
    textcontent=> 'Съдържание',
    search     => 'Търсене',
+   advsearch  => 'Advanced search',
+   folder     => 'Folder',
+   nofoldersel=> 'No Folder selected',
+   showall    => 'Show All',
    spellcheck => 'Проверка правописа',
    checkagain => 'Провери отново',
    finishchecking => 'Край на проверката',
-   manuallyfix=> 'Ръчна поправка'
+   manuallyfix=> 'Ръчна поправка',
+   calendar   => 'Calendar',
+   am         => 'am',
+   pm         => 'pm',
+   calfmt_year          => 'Year @@@YEAR@@@',
+   calfmt_yearmonth     => '@@@MONTH_STR@@@ @@@YEAR@@@',
+   calfmt_yearmonthday  => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@',
+   calfmt_yearmonthdaywday => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@ @@@WEEKDAY_STR@@@',
+   calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
+   none       => 'None',
+   moreitems  => 'more items',
+   multieditconf => 'This item was added for multiple dates.\\nEditing it will change the item for all dates.\\nContinue with Edit?',
+   multidelconf  => 'This item was added for multiple dates.\\nDeleting it will delete the item for all dates.\\nContinue with Delete?',
+   ed         => 'Ed',
+   del        => 'Del',
+   noitemforthisday => 'No items for this day',
+   today_only               => 'Today\'s date only',
+   the_wday_of_thismonth    => 'The',
+   the_wday_of_thismonth2   => 'of the month',
+   every_wday_of_thismonth  => 'Every',
+   every_wday_of_thismonth2 => 'this month'
    );
 
-%lang_err = 
+%lang_err =
    (
    has_illegal_chars => 'съдържа непозволени символи!',
    couldnt_open      => 'Невъзможно отваряне',
@@ -209,7 +303,7 @@ $lang_charset = 'windows-1251';
    cant_create_folder=> 'Папката не може да бъде създадена!',
    under_indexing    => 'в процес на индексиране, опитайте по късно',
    abook_invalid     => 'За съжаление не е запесан от Microsoft Outlook Express 5 в CSV формат. Чрез текстов редактор се уверете, че записите са със синтаксис "Име,E-mail адрес", върнете се',
-   back     => 'назад',
+   back              => 'назад',
    tryagain          => 'и опитайте отново.',
    abook_toobig      => 'За съжаление сте достигнали лимита си за адресна книга. Моля върнете се',
    cant_create_dir   => 'Невъзможно е създаването на личната Ви папка!',
@@ -227,7 +321,9 @@ $lang_charset = 'windows-1251';
    param_fmterr      => 'грешен форматиращ параметър',
    pwd_incorrect     => 'грешна парола',
    network_server_error => 'грешка при свързване със сървъра',
-   sendmail_error    => 'Проблем при изпращане на съобщението.  Моля проверете за грешки и опитайте пак.'
+   sendmail_error    => 'Проблем при изпращане на съобщението.  Моля проверете за грешки и опитайте пак.',
+   at_char_not_allowed => 'The @ character is not allowed in this field.  Press browser back button and try again',
+   badnum_in_days => 'bad number in consecutive days field'
    );
 
 1;
