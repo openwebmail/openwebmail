@@ -1,53 +1,53 @@
+@@@STARTCOMPOSEFORM@@@
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="1">
-<tr><td colspan="3" bgcolor=@@@TITLEBAR@@@ align="left">
+<tr><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>撰写新邮件</B></font>
-</td></tr><tr><td colspan="3" bgcolor=@@@MENUBAR@@@ align="left">
+</td></tr><tr><td colspan="2" bgcolor=@@@MENUBAR@@@ align="left">
 @@@BACKTOFOLDER@@@
-</td></tr><tr><td colspan="3">&nbsp;</td></tr>
-@@@STARTCOMPOSEFORM@@@
+</td></tr><tr><td colspan="2">&nbsp;</td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ width="75">
 <B>发件人：</B>
-</td><td valign="middle" align="left" colspan="2" bgcolor=@@@WINDOW_DARK@@@>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@FROMMENU@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ width="75">
 <a href="Javascript:GoAddressWindow('to')" tabindex="-1"><B>收件人：</B></a>
-</td><td valign="middle" align="left" colspan="2" bgcolor=@@@WINDOW_DARK@@@>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@TOFIELD@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ width="75">
 <a href="Javascript:GoAddressWindow('cc')" tabindex="-1"><B>抄送：</B></a>
-</td><td valign="middle" align="left" colspan="2" bgcolor=@@@WINDOW_DARK@@@>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@CCFIELD@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ width="75">
 <a href="Javascript:GoAddressWindow('bcc')" tabindex="-1"><B>密件抄送：</B></a>
-</td><td valign="middle" align="left" colspan="2" bgcolor=@@@WINDOW_DARK@@@>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@BCCFIELD@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ width="75">
 <B>回复给：</B>
-</td><td valign="middle" align="left" colspan="2" bgcolor=@@@WINDOW_DARK@@@>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@REPLYTOFIELD@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ width="75">
 <B>附件：</B>
-</td><td valign="middle" align="left" colspan="2" bgcolor=@@@WINDOW_DARK@@@>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@ATTACHMENTFIELD@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ width="75">
 <B>主题：</B>
-</td><td valign="middle" align="left" colspan="2" bgcolor=@@@WINDOW_DARK@@@>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@SUBJECTFIELD@@@
 &nbsp;
 <B>要求读取收条</B>
 @@@CONFIRMREADINGCHECKBOX@@@
 </td></tr>
-<tr><td colspan="3" bgcolor=@@@WINDOW_LIGHT@@@>
+<tr><td colspan="2" bgcolor=@@@WINDOW_LIGHT@@@>
 @@@BODYAREA@@@
 </td></tr>
-<tr><td colspan="3" align="left" valign="top">
+<tr><td colspan="2" align="left" valign="top">
 
 <table cellspacing="0" cellpadding="0" border="0"><tr>
 <td align="center" valign="top">
@@ -122,13 +122,25 @@
       if (document.composeform.to.value == "" 
        && document.composeform.cc.value == "" 
        && document.composeform.bcc.value == "" ) {
-         alert("请填妥收件人，再开始寄信。");
+         alert("请填妥收件人，再开始发信。");
          return false;
       }
       if (document.composeform.subject.value == "" ) {
-         return(confirm("这封信件没有主题，请问仍然要寄出吗？"));
+         return(confirm("这封邮件没有主题，请问仍然要发出吗？"));
       }
       return true;
+   }
+
+   function convert_b2g()
+   {
+      document.composeform.convert.value='b2g';
+      document.composeform.submit();
+   }
+
+   function convert_g2b()
+   {
+      document.composeform.convert.value='g2b';
+      document.composeform.submit();
    }
    //-->
 </script>

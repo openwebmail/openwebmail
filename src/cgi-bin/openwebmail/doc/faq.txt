@@ -1,5 +1,5 @@
 
-Q: I got "Internal server error" when running openwebmail?
+Q: I got "Internal server error" when running Open WebMail?
    I got "can not do setuid" error?
    I got "Software error: Can't locate etc/openwebmail.conf in @INC" error?
 A: There are many possible answers...
@@ -58,6 +58,33 @@ A: Your messages are either filtered by 'global filter rule' or
    default enabled and can be changed in openwebmail.conf. The user can also 
    disable it in the user preference. 
 
+Q: What is  "messages with faked smtp"?
+A: In short, they are messages coming from mail servers that fake their 
+   name from other machines. 
+
+   Where is a message coming from?
+
+   A message sent from machine A to machine B may have 2 cases:
+   a. A ---> M1 ---> M2 ---> B (M1, M2 are mail servers)
+      In this case, openwebmail use M1 as the from server. 
+      Since most of the time, A is windows machine using outlook.
+   b  A -------------------> B
+      In this case, openwebmail use A as the from server.
+
+   How do we know if a from server fakes his name?   
+
+   Each host may have 3 names in the mail header:
+   $byas - name used by this server when saying hello to incoming connection
+   $relay - name used by this server when relaying mail thriough other host
+   $connectfrom - ip and name detected by other hosts resolved from DNS system
+                  when receiving connection from this server
+
+   A from host is faking his name if
+   a. $byas doesn't equal to $relay, and
+   b. $connectfrom doesn't equal to $relay, and
+   c. $connectfrom has different domain than the desition server B, and
+   d. $connectfrom is not private IP
+
 Q: I could not add attachments?
 A: 1. Your CGI or MIME-Base64 module may be too old,
       Please download CGI.pm-2.74.tar.gz and MIME-Base64-2.12.tar.gz in
@@ -80,8 +107,8 @@ A: Hmmm, please upgrade the latest version.
    Some old version(1.03,1.04) has little problem in attachment handling.
 
 Q: When I checked 'edit folder menu', I found some folders are empty but take 
-   diskspace?
-A: The diskspace occupied by a folder shown in 'edit folder menu' includes
+   disk space?
+A: The disk space occupied by a folder shown in 'edit folder menu' includes
    the size of folder and folder index. Though folder is empty, the folder 
    index still has some data structure to maintain.
 
@@ -92,13 +119,16 @@ A: Please be sure that you have installed Lingua-Ispell-0.07.tar.gz and
 
 Q: I have problems in reading some mail....
 A: please check 
-   http://turtle.ee.ncku.edu.tw/openwebmail/download/doc/update.txt
+   http://turtle.ee.ncku.edu.tw/openwebmail/download/doc/changes.txt
    to see if any update fixes your problem and download the 
    openwebmail-current.tgz
 
-Q: When I enable autoreply feature, others got "Returned mail: see
+Q: The autoreply function doesn't work?
+A: Please be sure that $vacationinit and $vacationpipe in openwebmail.conf 
+   have pointed to the path where the vacation program is.
+
+Q: When I enable autoreply feature, others get "Returned mail: see
    transcript for details" instead of my autoreply message?
-   (thanks to Emir Litric, elitric@hotmail.com)
 A: Your sendmail may be configured with Sendmail Restricted SHell or smrsh.
    vacation.pl file needs to be added to smrsh.
 
@@ -106,22 +136,23 @@ A: Your sendmail may be configured with Sendmail Restricted SHell or smrsh.
 
    cd /etc/smrsh
    ln -s /var/www/cgi-bin/openwebmail/vacation.pl /etc/smrsh/vacation.pl
+   (thanks to Emir Litric, elitric@hotmail.com)
 
 Q: My SENT folder showes -1 or other negative message size rather then
    regular message size?
-   (thanks to Emir Litric, elitric@hotmail.com)
-A: This problem occurs if you installed OpenWebmail on the same partition 
-   where quota is enabled. OpenWebmail uses temp files in 
+A: This problem occurs if you installed Open WebMail on the same partition 
+   where quota is enabled. Open WebMail uses temp files in 
    cgi-bin/openwebmail/etc/sessions folders.
    Solution is to move sessions folder to another partition with no Quota.
 
    Please read RedHat-README.txt for detailed explaination on setting up
    this, since this problem mostly occurs on RedHat Linux 6.2 and bellow. 
+   (thanks to Emir Litric, elitric@hotmail.com)
 
-Q: The OpenWebMail is very slow on my system?
+Q: The Open WebMail is very slow on my machine?
 A: It depends on how you define the "slow". 
 
-   The response time of OpenWebmail in normal operation would be:
+   The response time of Open WebMail in normal operation would be:
    6 second on a p133 machine.
    3 second on a p200mmx machine.
    1 second on a celeron300 machine.
@@ -149,7 +180,8 @@ A: If your Open WebMail doesn't work, please describe your problem
    the error message in your browser
 
    If your Open WebMail works but it shows strange output for some messages,
-   please forward the message as an attachment to me 
+   please forward the message as an attachment to us
+   (openwebmail@turtle.ee.ncku.edu.tw)
    ps: clicking the 'forward as attachment' icon in message reading menu
 
 Q: Will Open WebMail support maildir and vpop3mail used by Qmail?
@@ -176,6 +208,6 @@ ps: We would be happy if you mail us a message that your commercial web site
     advertisements :)
    
 
-06/20/2001 
+07/19/2001 
 
 openwebmail@turtle.ee.ncku.edu.tw

@@ -46,7 +46,7 @@
 &nbsp;
 </td>
 @@@STARTSEARCHFORM@@@
-<td valign="middle" align="center" bgcolor=@@@MENUBAR@@@>
+<td valign="middle" align="center" bgcolor=@@@MENUBAR@@@ nowrap>
 @@@SEARCH@@@
 </td>
 @@@ENDFORM@@@

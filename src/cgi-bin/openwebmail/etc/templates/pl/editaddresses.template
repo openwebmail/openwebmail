@@ -1,7 +1,7 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>EDIT ADDRESS BOOK</b></font>
+<b>Edycja ksi±¿ki adresowej</b></font>
 </td><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <b>DOSTÊPNE:@@@FREESPACE@@@ KB</b></font>
@@ -11,9 +11,9 @@
 <tr><td bgcolor=@@@COLUMNHEADER@@@>
 <B>Nazwisko</B> (edytuj)</td>
 <td bgcolor=@@@COLUMNHEADER@@@>
-<B>Adres e-mail(es)</B> (wy¶lij wiadomo¶æ)</td>
+<B>Adres e-mail</B> (wy¶lij wiadomo¶æ)</td>
 <td bgcolor=@@@COLUMNHEADER@@@>
-<B>Note</B></td>
+<B>Uwagi</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Operacja</B>
 </td></tr>

@@ -46,7 +46,7 @@
 &nbsp;
 </td>
 @@@STARTSEARCHFORM@@@
-<td valign="middle" align="center" bgcolor=@@@MENUBAR@@@>
+<td valign="middle" align="center" bgcolor=@@@MENUBAR@@@ nowrap>
 @@@SEARCH@@@
 </td>
 @@@ENDFORM@@@
@@ -59,7 +59,7 @@
       for (var i=0;i<document.moveform.elements.length;i++)
       {
          var e = document.moveform.elements[i];
-         if (e.name != "allbox")
+         if (e.type == 'checkbox' && e.name != 'allbox')
             e.checked = document.moveform.allbox.checked;
       }
    }
@@ -68,7 +68,7 @@
       for (var i=0;i<document.moveform.elements.length;i++)
       {
          var e = document.moveform.elements[i];
-         if (e.name != "allbox" && e.checked == 1 )
+         if (e.type == 'checkbox' && e.name != 'allbox' && e.checked == 1 )
             return confirm(text);
       }
       return false;

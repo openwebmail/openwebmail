@@ -29,15 +29,15 @@ For copy of GPL license please see copyright.txt file.
 Introduction:
 
 I wrote this document to help users of Red Hat Linux effectively setup 
-OpenWebmail with Quota
+Open WebMail with Quota
 Support.  It will help avoid some problems specific to Red Hat Linux 
 versions 6.2 and bellow.
-At the time of writing this document current version of OpenWebmail is 1.31.
+At the time of writing this document current version of Open WebMail is 1.31.
 
 Versions of Red Hat Linux covered in this document: 6.2 and 7.x
 Partly covers Red Hat Linux versions bellow 6.2. (Quota Setup Trick)
 
-Before you begin installing OpenWebmail on your Linux box please make sure 
+Before you begin installing Open WebMail on your Linux box please make sure 
 that you have read,
 readme.txt, and faq.txt files. Reading them will help them setup your 
 OpenWebMail easily.
@@ -45,7 +45,7 @@ Also, please make sure that you have downloaded and setup all necessary
 packages.
 
 Here is quick procedure to install and prepare packages before installing 
-OpenWebmail.
+Open WebMail.
 
 You will need:
 
@@ -354,7 +354,7 @@ directly
 #                    messages will be moved to mail-trash.
 $filter_fakedsmtp = 'no';
 
-# $enable_pop3 - Open Webmail has complete support for pop3 mail.
+# $enable_pop3 - Open WebMail has complete support for pop3 mail.
 #                If you want to disable pop3 related functions from user,
 #                please set this to 'no'
 $enable_pop3 = 'yes';
@@ -488,7 +488,7 @@ reasons.
 
 First one is:
 
-   OpenWebmail uses files in /var/spool/mail directory for INBOX folder.
+   Open WebMail uses files in /var/spool/mail directory for INBOX folder.
    If I left default sendmail mail spool configuration it in 
 /var/spool/mail,
    my users would have 10 MB quota on all directories except INBOX.
@@ -845,7 +845,7 @@ directly
 #                    messages will be moved to mail-trash.
 $filter_fakedsmtp = 'no';
 
-# $enable_pop3 - Open Webmail has complete support for pop3 mail.
+# $enable_pop3 - Open WebMail has complete support for pop3 mail.
 #                If you want to disable pop3 related functions from user,
 #                please set this to 'no'
 $enable_pop3 = 'yes';

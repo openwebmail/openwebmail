@@ -1,26 +1,26 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td colspan="3" bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>EDITING POP3 ACCOUNT</b></font>
+<b>POP3 INSTELLINGEN</b></font>
 </td><td nowrap colspan="3" bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b> @@@FREESPACE@@@ KB Available</b></font>
+<b> @@@FREESPACE@@@ KB Beschikbaar</b></font>
 </td></tr><tr><td colspan="6" bgcolor=@@@MENUBAR@@@ align="left">
 @@@MENUBARLINKS@@@
 </td></tr><tr><td colspan="6">&nbsp;</td></tr>
 <tr>
 <td nowrap bgcolor=@@@COLUMNHEADER@@@>
-<B>POP3 Server</B> (click to edit)</td>
+<B>POP3 Server</B> (klik om te bewerken)</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Id</B></td>
+<B>Login</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Passwd</B></td>
+<B>Wachtwoord</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Email</B> (click to receive)</td>
+<B>Email</B> (klik om te ontvangen)</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Del remote mail</B></td>
+<B>Verwijder externe e-mail</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Action</B>
+<B>Actie</B>
 </td></tr>
 @@@STARTADDRESSFORM@@@
 <tr>
@@ -60,7 +60,7 @@
         document.newpop3.pop3email.value = pop3email;
       else
         document.newpop3.pop3email.value = '"'+pop3realname+'"'+' <'+pop3email+'>';
-      if (del == 1)
+      if (pop3del == 1)
       	document.newpop3.pop3del.checked = true;
       else
         document.newpop3.pop3del.checked = false;

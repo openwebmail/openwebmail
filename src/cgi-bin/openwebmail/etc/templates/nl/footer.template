@@ -2,10 +2,10 @@
 <!--
    // alert before session end
    var remainingseconds=@@@REMAININGSECONDS@@@;
-   var msg="Dear @@@USEREMAIL@@@,<br><br>\n"+
-           "You have been idle for a long time. "+
-           "If no more action is taken, "+
-           "this session will be ended within 60 seconds.";
+   var msg="Beste @@@USEREMAIL@@@,<br><br>\n"+
+           "U heeft Webmail een tijd niet gebruikt. "+
+           "Als u nu niets doet, "+
+           "zal deze sessie over 60 seconden worden beeindigd.";
 
    function timeoutwarning () {
       var hWnd = window.open("","timeoutwarning","width=400,height=140,resizable=no,scrollbars=no");
@@ -37,5 +37,5 @@
 </script>
 
 <p align="center"><font size="-1"><BR>
-<a href="/openwebmail/openwebmail.html" target="_blank">Open WebMail</a> version @@@VERSION@@@<BR>
+<a href="/openwebmail/openwebmail.html" target="_blank">Open WebMail</a> versie @@@VERSION@@@<BR>
 </FONT></P></BODY></HTML>

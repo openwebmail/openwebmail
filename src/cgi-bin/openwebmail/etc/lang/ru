@@ -35,6 +35,8 @@ $lang_charset = 'koi8-r';
    (  
    login      => 'Вход',
    clear      => 'Сброс',
+   changepwd  => 'Change Password',
+   loginhistory=>'Login History',
    of         => 'из',
    messages   => 'сообщений',
    unread     => 'новых',
@@ -138,6 +140,7 @@ $lang_charset = 'koi8-r';
             couldnt_lock      => 'Не могу создать лок файл в ',
             couldnt_seek      => 'Не могу просмотреть начало ',
             couldnt_close     => 'Не могу закрыть',
+            disallowed_pop3   => 'Disallowed POP3 server',
             norootlogin       => 'Вход ROOTа закрыт для обеспечения безопасности.',
             shouldnt_move_here=> 'Вы не можете переместить сообщение здесь!',
             destination_folder=> 'Папка назначения',

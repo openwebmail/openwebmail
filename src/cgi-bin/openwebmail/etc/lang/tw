@@ -35,6 +35,8 @@ $lang_charset = 'big5';
    (  
    login      => '登入',
    clear      => '清除',
+   changepwd  => '變更密碼',
+   loginhistory=>'登入歷史紀錄',
    of         => '/',
    messages   => '封信',
    unread     => '未讀',
@@ -138,6 +140,7 @@ $lang_charset = 'big5';
             couldnt_lock      => '寫入無法鎖定',
             couldnt_seek      => '無法尋找',
             couldnt_close     => '無法關閉',
+            disallowed_pop3   => '禁止連線到 POP3 伺服器',
             norootlogin       => '不能用root登入.',
             shouldnt_move_here=> '不能在這裡搬移信件!',
             destination_folder=> '目的信件匣',

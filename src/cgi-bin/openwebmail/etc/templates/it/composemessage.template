@@ -1,53 +1,53 @@
+@@@STARTCOMPOSEFORM@@@
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="1">
-<tr><td colspan="3" bgcolor=@@@TITLEBAR@@@ align="left">
+<tr><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>COMPONI MESSAGGIO</B></font>
-</td></tr><tr><td colspan="3" bgcolor=@@@MENUBAR@@@ align="left">
+</td></tr><tr><td colspan="2" bgcolor=@@@MENUBAR@@@ align="left">
 @@@BACKTOFOLDER@@@
-</td></tr><tr><td colspan="3">&nbsp;</td></tr>
-@@@STARTCOMPOSEFORM@@@
+</td></tr><tr><td colspan="2">&nbsp;</td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ width="75">
 <B>Da:</B>
-</td><td valign="middle" align="left" colspan="2" bgcolor=@@@WINDOW_DARK@@@>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@FROMMENU@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ width="75">
 <a href="Javascript:GoAddressWindow('to')" tabindex="-1"><B>A:</B></a>
-</td><td valign="middle" align="left" colspan="2" bgcolor=@@@WINDOW_DARK@@@>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@TOFIELD@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ width="75">
 <a href="Javascript:GoAddressWindow('cc')" tabindex="-1"><B>CC:</B></a>
-</td><td valign="middle" align="left" colspan="2" bgcolor=@@@WINDOW_DARK@@@>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@CCFIELD@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ width="75">
 <a href="Javascript:GoAddressWindow('bcc')" tabindex="-1"><B>BCC:</B></a>
-</td><td valign="middle" align="left" colspan="2" bgcolor=@@@WINDOW_DARK@@@>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@BCCFIELD@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ width="75">
 <B>Rispondi a:</B>
-</td><td valign="middle" align="left" colspan="2" bgcolor=@@@WINDOW_DARK@@@>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@REPLYTOFIELD@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ width="75">
 <B>Allegato:</B>
-</td><td valign="middle" align="left" colspan="2" bgcolor=@@@WINDOW_DARK@@@>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@ATTACHMENTFIELD@@@
 </td></tr>
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ width="75">
 <B>Oggetto:</B>
-</td><td valign="middle" align="left" colspan="2" bgcolor=@@@WINDOW_DARK@@@>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@SUBJECTFIELD@@@
 &nbsp;
 <B>Conferma Lettura</B>
 @@@CONFIRMREADINGCHECKBOX@@@
 </td></tr>
-<tr><td colspan="3" bgcolor=@@@WINDOW_LIGHT@@@>
+<tr><td colspan="2" bgcolor=@@@WINDOW_LIGHT@@@>
 @@@BODYAREA@@@
 </td></tr>
-<tr><td colspan="3" align="left" valign="top">
+<tr><td colspan="2" align="left" valign="top">
 
 <table cellspacing="0" cellpadding="0" border="0"><tr>
 <td align="center" valign="top">

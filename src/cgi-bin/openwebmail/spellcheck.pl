@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl -T
 # spell check program by tung@turtle.ee.ncku.edu.tw
 # modified from WBOSS Version 1.1.1d 
 #
@@ -17,6 +17,7 @@ umask(0007); # make sure the openwebmail group can write
 
 push (@INC, '/usr/local/www/cgi-bin/openwebmail', ".");
 require "etc/openwebmail.conf";
+require "auth.pl";
 require "openwebmail-shared.pl";
 
 local $thissession;
@@ -34,11 +35,11 @@ $user =~ s/\-session\-0.*$//; # Grab userid from sessionid
 
 if ($user) {
    if (($homedirspools eq 'yes') || ($homedirfolders eq 'yes')) {
-      ($uid, $homedir) = (getpwnam($user))[2,7] or 
+      ($uid, $homedir) = (get_userinfo($user))[1,3] or 
          openwebmailerror("User $user doesn't exist!");
    } else {
       $uid=$>; 
-      $homedir = (getpwnam($user))[7] or 
+      $homedir = (get_userinfo($user))[3] or 
          openwebmailerror("User $user doesn't exist!");
    }
    $gid=getgrnam('mail');

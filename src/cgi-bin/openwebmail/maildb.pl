@@ -1,16 +1,11 @@
 #
 # maildb.pl are functions for mail folderfile.
 #
-# 1. it greatly speeds up the mail folderfiles access by hash 
-#    important info with the perl build in dbm. 
-# 2. it can parse mail with unlimited level attachments through 
-#    recursive parsing
-# 3. it converts uuencoded blocks in message body into baed64-encoded 
-#    attachments.
-# 4. it supports search on mail spool file and cache the results for 
-#    repeated queries.
-#
-# 2001/05/18 tung@turtle.ee.ncku.edu.tw
+# 1. it speeds up the message access on folder file by hashing important 
+#    information with perl dbm.
+# 2. it parse mail recursively.
+# 3. it converts uuencoded blocks into baed64-encoded attachments
+# 4. it supports full content search and caches results for repeated queries.
 #
 # IMPORTANT!!!
 #
@@ -28,7 +23,9 @@
 # dotlockfile style locking
 # This is recommended only if the lockd on your nfs server or client is broken
 # ps: FrreBSD/Linux nfs server/client may need this. Solaris doesn't.
-
+#
+# 2001/07/29 tung@turtle.ee.ncku.edu.tw
+#
 use Fcntl qw(:DEFAULT :flock);
 use FileHandle;
 
@@ -205,8 +202,17 @@ sub update_headerdb {
       $totalsize += length($line);
 
       # ex: From tung@turtle.ee.ncku.edu.tw Fri Jun 22 14:15:33 2001
-      if ($line =~ /^From .*(\w\w\w)\s+(\w\w\w)\s+(\d+)\s+(\d+:\d+:\d+)\s+(\d\d+)/) {
+      # ex: From tung@turtle.ee.ncku.edu.tw Mon Aug 20 18:24 CST 2001
+      if ($line =~ /^From .*(\w\w\w)\s+(\w\w\w)\s+(\d+)\s+(\d+:\d+:\d+)\s+(\d\d+)/ ||
+          $line =~ /^From .*(\w\w\w)\s+(\w\w\w)\s+(\d+)\s+(\d+:\d+)\s+\w\w\w\s+(\d\d+)/ ) {
          if ($messagenumber != -1) {
+
+            $_from=~s/\@\@/\@\@ /g;
+            $_to=~s/\@\@/\@\@ /g;
+            $_subject=~s/\@\@/\@\@ /g;
+            $_content_type=~s/\@\@/\@\@ /g;
+            $_status=~s/\@\@/\@\@ /g;
+
             if (! defined($HDB{$_message_id}) ) {
                $HDB{$_message_id}=join('@@@', $_offset, $_from, $_to, 
 			$_date, $_subject, $_content_type, $_status, $_messagesize);
@@ -246,10 +252,14 @@ sub update_headerdb {
 
                # extract date from the 'From ' line, it must be in this form
                # From tung@turtle.ee.ncku.edu.tw Fri Jun 22 14:15:33 2001
-               $_date=~/(\w\w\w)\s+(\w\w\w)\s+(\d+)\s+(\d+:\d+:\d+)\s+(\d\d+)/;
-               $_date = "$month{$2}/$3/$5 $4";
+               # From tung@turtle.ee.ncku.edu.tw Mon Aug 20 18:24 CST 2001
+               if ($_date=~/(\w\w\w)\s+(\w\w\w)\s+(\d+)\s+(\d+:\d+:\d+)\s+(\d\d+)/ ) {
+                  $_date = "$month{$2}/$3/$5 $4";
+               } elsif ($_date =~ /^From .*(\w\w\w)\s+(\w\w\w)\s+(\d+)\s+(\d+:\d+)\s+\w\w\w\s+(\d\d+)/ ) {
+                  $_date = "$month{$2}/$3/$5 $4:00";
+               }
 
-               $internalmessages++ if ($_subject=~/DON'T DELETE THIS MESSAGE/);
+               $internalmessages++ if (is_internal_subject($_subject));
                $newmessages++ if ($_status !~ /r/i);
 
                # check if msg info recorded in old headerdb, we can seek to msg end quickly
@@ -304,6 +314,13 @@ sub update_headerdb {
 
    # Catch the last message, since there won't be a From: to trigger the capture
    if ($messagenumber != -1) {
+
+      $_from=~s/\@\@/\@\@ /g;
+      $_to=~s/\@\@/\@\@ /g;
+      $_subject=~s/\@\@/\@\@ /g;
+      $_content_type=~s/\@\@/\@\@ /g;
+      $_status=~s/\@\@/\@\@ /g;
+
       if (! defined($HDB{$_message_id}) ) {
          $HDB{$_message_id}=join('@@@', $_offset, $_from, $_to, 
 		$_date, $_subject, $_content_type, $_status, $_messagesize);
@@ -498,7 +515,7 @@ sub get_info_messageids_sorted_by_date {
          next;
       } else {
          @attr=split( /@@@/, $data );
-         next if ($ignore_internal && $attr[$_SUBJECT]=~/DON'T DELETE THIS MESSAGE/);
+         next if ($ignore_internal && is_internal_subject($attr[$_SUBJECT]));
          $totalsize+=$attr[$_SIZE];
          $datestr{$key}=datestr($attr[$_DATE]);
       }
@@ -529,7 +546,7 @@ sub get_info_messageids_sorted_by_from {
          next;
       } else {
          @attr=split( /@@@/, $data );
-         next if ($ignore_internal && $attr[$_SUBJECT]=~/DON'T DELETE THIS MESSAGE/);
+         next if ($ignore_internal && is_internal_subject($attr[$_SUBJECT]));
          $totalsize+=$attr[$_SIZE];
          $from{$key}=$attr[$_FROM];
          $datestr{$key}=datestr($attr[$_DATE]);
@@ -563,7 +580,7 @@ sub get_info_messageids_sorted_by_to {
          next;
       } else {
          @attr=split( /@@@/, $data );
-         next if ($ignore_internal && $attr[$_SUBJECT]=~/DON'T DELETE THIS MESSAGE/);
+         next if ($ignore_internal && is_internal_subject($attr[$_SUBJECT]));
          $totalsize+=$attr[$_SIZE];
          $to{$key}=$attr[$_TO];
          $datestr{$key}=datestr($attr[$_DATE]);
@@ -597,7 +614,7 @@ sub get_info_messageids_sorted_by_subject {
          next;
       } else {
          @attr=split( /@@@/, $data );
-         next if ($ignore_internal && $attr[$_SUBJECT]=~/DON'T DELETE THIS MESSAGE/);
+         next if ($ignore_internal && is_internal_subject($attr[$_SUBJECT]));
          $totalsize+=$attr[$_SIZE];
          $subject{$key}=$attr[$_SUBJECT];
          $datestr{$key}=datestr($attr[$_DATE]);
@@ -631,7 +648,7 @@ sub get_info_messageids_sorted_by_size {
          next;
       } else {
          @attr=split( /@@@/, $data );
-         next if ($ignore_internal && $attr[$_SUBJECT]=~/DON'T DELETE THIS MESSAGE/);
+         next if ($ignore_internal && is_internal_subject($attr[$_SUBJECT]));
          $totalsize+=$attr[$_SIZE];
          $size{$key}=$attr[$_SIZE];
          $datestr{$key}=datestr($attr[$_DATE]);
@@ -665,7 +682,7 @@ sub get_info_messageids_sorted_by_status {
          next;
       } else {
          @attr=split( /@@@/, $data );
-         next if ($ignore_internal && $attr[$_SUBJECT]=~/DON'T DELETE THIS MESSAGE/);
+         next if ($ignore_internal && is_internal_subject($attr[$_SUBJECT]));
          $totalsize+=$attr[$_SIZE];
          if ($attr[$_STATUS]=~/r/i) {
             $status{$key}=0;
@@ -934,7 +951,7 @@ sub operate_message_with_ids {
             }
 
             $HDB2{'NEWMESSAGES'}++ if ($attr[$_STATUS]!~/r/i);
-            $HDB2{'INTERNALMESSAGES'}++ if ($attr[$_SUBJECT]=~/DON'T DELETE THIS MESSAGE/);
+            $HDB2{'INTERNALMESSAGES'}++ if (is_internal_subject($attr[$_SUBJECT]));
             $HDB2{'ALLMESSAGES'}++;
             $HDB2{$allmessageids[$i]}=join('@@@', @attr);
          } 
@@ -942,7 +959,7 @@ sub operate_message_with_ids {
          if ($op eq 'move' || $op eq 'delete') {
             $HDB{'NEWMESSAGES'}-- if ($attr[$_STATUS]!~/r/i);
             $HDB{'NEWMESSAGES'}=0 if ($HDB{'NEWMESSAGES'}<0); # should not happen
-            $HDB{'INTERNALMESSAGES'}-- if ($attr[$_SUBJECT]=~/DON'T DELETE THIS MESSAGE/);
+            $HDB{'INTERNALMESSAGES'}-- if (is_internal_subject($attr[$_SUBJECT]));
             $HDB{'ALLMESSAGES'}--;
             delete $HDB{$allmessageids[$i]};
          }
@@ -1143,7 +1160,9 @@ sub parse_attblock {
 	$attdisposition, $attid, $attlocation);
    my $attheaderlen;
 
-   return if (/^\-\-\n/);
+   if (/^\-\-\n/) {	# return empty array
+      return(\@attachments) 
+   }
 
    $attheaderlen=index(${$r_buff},  "\n\n", $attblockstart) - $attblockstart;
    $attheader=substr(${$r_buff}, $attblockstart, $attheaderlen);
@@ -1153,6 +1172,7 @@ sub parse_attblock {
    foreach (split(/\n/, $attheader)) {
       if (/^\s/) {
          if    ($lastline eq 'TYPE')     { $attcontenttype .= $_ }
+         elsif ($lastline eq 'DISPOSITION') { s/^\s+//; $attdisposition .= $_ } 
          elsif ($lastline eq 'LOCATION') { s/^\s+//; $attlocation .= $_ } 
       } elsif (/^content-type:\s+(.+)$/ig) {
          $attcontenttype = $1;
@@ -1162,7 +1182,7 @@ sub parse_attblock {
          $lastline = 'NONE';
       } elsif (/^content-disposition:\s+(.+)$/ig) {
          $attdisposition = $1;
-         $lastline = 'NONE';
+         $lastline = 'DISPOSITION';
       } elsif (/^content-id:\s+(.+)$/ig) {
          $attid = $1; 
          $attid =~ s/^\<(.+)\>$/$1/;
@@ -1191,7 +1211,19 @@ sub parse_attblock {
       
       $boundarystart=index(${$r_buff}, $boundary, $attblockstart);
       if ($boundarystart < $attblockstart) {
-          return(\());
+	 # boundary not found in this multipart block
+         # we handle this attblock as text/plain
+         $attcontenttype=~s!^multipart/\w+!text/plain!;
+         if ( ($searchid eq "all") || ($searchid eq $nodeid) ||
+              ($searchid eq "" && $attcontenttype=~/^text/i) ) {
+            my $attcontentlength=$attblocklen-($attheaderlen+2);
+            $attcontent=substr(${$r_buff}, $attblockstart+$attheaderlen+2, $attcontentlength);
+            if ($attcontent !~ /^\s*$/ ) { # if attach contains only \s, discard it 
+               push(@attachments, make_attachment($subtype,$boundary, $attheader,\$attcontent, $attcontentlength,
+			$attencoding,$attcontenttype, $attdisposition,$attid,$attlocation, $nodeid) );
+            }
+         }
+         return(\@attachments);	# return this non-boundaried multipart as text
       }
 
       my $i=0;
@@ -1460,7 +1492,7 @@ sub search_info_messages_for_keyword {
       foreach $messageid (@messageids) {
          my (@attr, $block, $header, $body, $r_attachments) ;
          @attr=split(/@@@/, $HDB{$messageid});
-         next if ($ignore_internal && $attr[$_SUBJECT]=~/DON'T DELETE THIS MESSAGE/);
+         next if ($ignore_internal && is_internal_subject($attr[$_SUBJECT]));
 
          # check subject, from, to, date
          if ( (($searchtype eq 'all' || $searchtype eq 'subject')
@@ -1670,6 +1702,7 @@ sub html2table {
    $html =~ s#\<style[^\<\>]*?\>#\n\<!-- style begin\n#gi;
    $html =~ s#\</style\>#\nstyle end --\>\n#gi;
    $html =~ s#\<[^\<]*?stylesheet[^\>]*?\>##gi;
+   $html =~ s#(\<div[^\<]*?)position\s*:\s*absolute\s*;([^\>]*?\>)#$1$2#gi;
 
    return($html);
 }
@@ -1914,6 +1947,18 @@ sub datestr {
 }
 
 #################### END DATESTR ###########################
+
+#################### IS_INTERNAL_SUBJECT ###################
+sub is_internal_subject {
+   if ($_[0] =~ /DON'T DELETE THIS MESSAGE/ ||
+       $_[0] =~ /Message from mail server/ ) {
+      return(1);
+   } else {
+      return(0);
+   }
+} 
+  
+#################### END IS_INTERNAL_SUBJECT ###################
 
 #################### END DATEAGE ###########################
 # this routine takes the message date to calc the age of a message

@@ -4,7 +4,7 @@
    <meta name="description" content="Open WebMail">
    <title>Open WebMail</title>
 </head>
-<body bgcolor="#FFFFFF" background="images/openwebmail-bg.gif">
+<body bgcolor="#FFFFFF">
 <center>
 <a href="http://turtle.ee.ncku.edu.tw/openwebmail/">
 <img SRC="images/openwebmail.gif" border="0" ALT="Open WebMail Logo"></a>
@@ -18,8 +18,53 @@
     version 1.14 from <a href="mailto:neorants@users.sourceforge.net">Ernie Miller</a>. 
     Open WebMail is targeted on dealing with very big mail folder files in a memory 
     efficient way. It also provides many features to help users to switch from 
-    Microsoft Outlook smoothly. </p>
+    Microsoft Outlook smoothly. 
+  </p>
 </blockquote>
+
+<h3>LINKS </h3>
+<blockquote> 
+  <p> 
+  <table cellspacing=0 cellpadding=0>
+  <tr>
+  <td><font color=#cc0000>Documents &nbsp; </font></td>
+  <td>
+    <a href="http://turtle.ee.ncku.edu.tw/openwebmail/download/doc/changes.txt">CHANGES</a>,
+    <a href="http://turtle.ee.ncku.edu.tw/openwebmail/download/doc/readme.txt">README</a> and
+    <a href="http://turtle.ee.ncku.edu.tw/openwebmail/download/doc/faq.txt">FAQ</a>.
+  </td>
+  </tr>
+
+  <tr>
+  <td><font color=#cc0000>Screenshots &nbsp; </font></td>
+  <td>
+    <a href="http://turtle.ee.ncku.edu.tw/openwebmail/screenshots/"> 
+    http://turtle.ee.ncku.edu.tw/openwebmail/screenshots/</a> 
+  </td>
+  </tr>
+
+  <tr>
+  <td><font color=#cc0000>Download &nbsp; </font></td>
+  <td>
+    <a href="http://turtle.ee.ncku.edu.tw/openwebmail/download/"> 
+    http://turtle.ee.ncku.edu.tw/openwebmail/download/</a> 
+  </td>
+  </tr>
+
+  <tr valign="top">
+  <td><font color=#cc0000>Mirror Site &nbsp; </font></td>
+  <td>
+    <a href="ftp://ftp.ee.ncku.edu.tw/pub/openwebmail/"> 
+    ftp://ftp.ee.ncku.edu.tw/pub/openwebmail/</a><br>
+    <a href="http://www.geocities.com/openwebmail/">
+    http://www.geocities.com/openwebmail/</a>
+  </td>
+  </tr>
+
+  </table>
+  </p>
+</blockquote>
+
 <h3><b>FEATURES</b></h3>
 
 <blockquote> 
@@ -66,6 +111,15 @@
      to virtualuser@virtualhost. The user can login the webmail system with the
      aliased name 'virtualuser' and all mails from this user will be sent with email 
      address 'virtualuser@virtualhost'
+  </p>
+
+  <h4>PAM support</h4>
+  <p>Openwebmail can use various type of sources for authentication through the 
+    PAM (pluggable authentication module) support. Ex: NIS+, NIS, LDAP....
+    Solaris 2.6, Linux and FreeBSD 3.1 are known to support PAM.
+    For more information about PAM, please see 
+    <a href="http://www.kernel.org/pub/linux/libs/pam/">
+    http://www.kernel.org/pub/linux/libs/pam/</a>
   </p>
 
   <h4>Full Content Search</h4>
@@ -125,16 +179,6 @@
     them by yourself... </p>
 </blockquote>
 
-<h3>SITES </h3>
-<blockquote> 
-  <p> <font color=#cc0000>Screenshots: </font> <a href="http://turtle.ee.ncku.edu.tw/openwebmail/screenshots/"> 
-    http://turtle.ee.ncku.edu.tw/openwebmail/screenshots/</a> <br>
-    <font color=#cc0000>Download: </font> <a href="http://turtle.ee.ncku.edu.tw/openwebmail/download/"> 
-    http://turtle.ee.ncku.edu.tw/openwebmail/download/</a> <br>
-    <font color=#cc0000>Mirror Site: </font> <a href="ftp://ftp.ee.ncku.edu.tw/pub/openwebmail/"> 
-    ftp://ftp.ee.ncku.edu.tw/pub/openwebmail/</a>
-  </p>
-</blockquote>
 <h3>THANKS</h3>
 <blockquote> 
   <p>
@@ -146,9 +190,9 @@
     web based spelling check is based on his code in <a href="http://www.dontpokebadgers.com/spellchecker/">WBOSS</a> 
     1.1.1d.<br>
   Thanks to <a href="mailto:elitric@hotmail.com">Emir Litric</a> for his great 
-    work of art. He makes all the great 3D icons in Open WebMail and contributes
+    work of art. He makes all the great 3D icons and many fancy styles in Open WebMail and contributes
     the doc/RedHat-README.txt. He is also the best beta tester of Open Webmail.<br>
-  Thanks to <a href="mailto:pakito@asinkecualo.org">Pakito Asinkecualo</a>, 
+  Thanks to <a href="mailto:pakito@asinkecualo.org">Félix Martos</a>, 
     he translates the language and template files for Spanish.<br>
   Thanks to <a href="mailto:flood@flood-net.de">Andreas Roedl</a>, he translates 
     the language and template files for German<br>
@@ -165,16 +209,33 @@
     <a href="http://turtle.ee.ncku.edu.tw/openwebmail/download/contrib/useraddbyweb.tar.gz">
     useraddbyweb</a> package in contrib/, 
     which can add users to a Linux system dynamically through web signup.<br>
+  Thanks to <a href="mailto:chris@connectux.com">Christian Boer</a>, he translates 
+    the language and template files for Dutch<br>
+  Thanks to <a href="mailto:tryfan@telia.com">Goran Jartin</a>, he translates 
+    the language and template files for Swedish<br>
+  Thanks to <a href="mailto:jpd@louisiana.edu">Dugal James P.</a>, he submits the
+    patch for PAM support, automated DST adjustment, internal msg detection on 
+    solaris dtmail, disallowed_pop3servers option, fix to passwdfile for NIS+ and 
+    fix to user homedir for sun automounter.<br>
+  Thanks to <a href="mailto:jferra@sfconsultores.pt">Jos Ferradeira</a>, he translates 
+    the language and template files for Portuguese<br>
+  Thanks to <a href="mailto:jablonski@dialogok.pl">Pawel Jablonski</a>, he translates 
+    the language and template files for Polish<br>
   </p>
 </blockquote>
 <h3>CONTACT</h3>
 <blockquote> 
-  <p> If you encountered any problem with Open Webmail, please read the 
+  <p> If you encountered any problem with Open Webmail, please check 
+     <a href="http://turtle.ee.ncku.edu.tw/openwebmail/download/doc/changes.txt">
+     CHNAGES</a> to see if the problem is fixed in 
+     <a href="http://turtle.ee.ncku.edu.tw/openwebmail/download/openwebmail-current.tgz">
+     the latest current version</a>.
+     If not, please read the 
      <a href="http://turtle.ee.ncku.edu.tw/openwebmail/download/doc/readme.txt">
      README</a> and
      <a href="http://turtle.ee.ncku.edu.tw/openwebmail/download/doc/faq.txt">
-     FAQ</a> first. 
-     And if you are sure to contact us, please email to
+     FAQ</a>. 
+     And if you still want to contact us, please email to
      <a href="mailto: openwebmail@turtle.ee.ncku.edu.tw">
      openwebmail@turtle.ee.ncku.edu.tw</a>
   </p>
@@ -199,6 +260,6 @@
     <font color=#000000>National Chung-Kung University</font></a>, 
     Tainan, Taiwan, R.O.C. </p>
 </blockquote>
-<p>06/20/2001 </p>
+<p>07/27/2001 </p>
 </body>
 </html>

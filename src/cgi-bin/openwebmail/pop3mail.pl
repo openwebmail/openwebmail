@@ -67,7 +67,8 @@ sub retrpop3mail {
    my ($pop3host, $pop3user, $pop3book, $spoolfile)=@_;
    my (%accounts, $pop3passwd, $pop3email, $pop3del, $lastid);
    my ($ServerPort, $remote_sock);
-   my ($last, $nMailCount, $support_uidl, $retr_total);
+   my ($uidl_support, $uidl_field);
+   my ($last, $nMailCount, $retr_total);
    my ($dummy, $i);
 
    if ( getpop3book($pop3book, \%accounts)<0 ) {
@@ -116,34 +117,17 @@ sub retrpop3mail {
    }
 
    $last=-1;
-   $support_uidl=0;
+   $uidl_support=0;
+   $uidl_field=2;
 
    # use 'uidl' to find the msg being retrieved last time
    print $remote_sock "uidl " . $nMailCount . "\r\n";
    $_ = <$remote_sock>;
-   if (/^\+/) {
-      $support_uidl=1;
-      if ($lastid eq (split(/\s/))[2]) {	# +OK N ID
-         print $remote_sock "quit\r\n";
-         return 0;
-      }
-      if ($lastid ne "none") {
-         for ($i=1; $i<$nMailCount; $i++) {
-            print $remote_sock "uidl ".$i."\r\n";
-            $_ = <$remote_sock>;
-            if ($lastid eq (split(/\s/))[2]) {
-               $last = $i;
-               last;
-            }
-         }
-      } else {
-         $last = 0;
-      }
 
-   # use 'last' to find the msg being retrieved last time
-   } else {
+   if (/^\-/) {	# pop3d not support uidl, try last command
+      # use 'last' to find the msg being retrieved last time
       print $remote_sock "last\r\n";
-      $_ = <$remote_sock>;
+      $_ = <$remote_sock>; s/^\s+//;
       if (/^\+/) { # server does support last
          $last=(split(/\s/))[1];		# +OK N
          if ($last eq $nMailCount) {
@@ -151,14 +135,50 @@ sub retrpop3mail {
             return 0;
          }
       }
+
+   } else {	# pop3d does support uidl
+      $uidl_support=1;
+      if (/^\+/) {
+         $uidl_field=2;
+      } else {
+         $uidl_field=1;	# some broken pop3d return uidl without leading +
+      }
+
+      if ($lastid eq (split(/\s/))[$uidl_field]) {	# +OK N ID
+         print $remote_sock "quit\r\n";
+         return 0;
+      }
+      if ($lastid ne "none") {
+         for ($i=1; $i<$nMailCount; $i++) {
+            print $remote_sock "uidl ".$i."\r\n";
+            $_ = <$remote_sock>; s/^\s+//;
+            if ($lastid eq (split(/\s/))[$uidl_field]) {
+               $last = $i;
+               last;
+            }
+         }
+
+      } else {
+         $last = 0;
+      }
    }
 
    # if last retrieved msg not found, fetech from the beginning
    $last=0 if ($last==-1);
+   # set lastid to none if fetech from the beginning
+   $lastid="none" if ($last==0);
 
    # retr messages
    $retr_total=0;
    for ($i=$last+1; $i<=$nMailCount; $i++) {
+      my @monthstr=qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec);
+      my @wdaystr=qw(Sun Mon Tue Wed Thu Fri Sat);
+
+      my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) =localtime;
+      $year=$year+1900;
+      $mon=$monthstr[$mon]; 
+      $wday=$wdaystr[$wday];
+
       my ($FileContent,$stAddress,$stDate)=("","","");
 
       print $remote_sock "retr ".$i."\r\n";
@@ -171,6 +191,7 @@ sub retrpop3mail {
             last;
          }
       }
+
 
       # first line of message
       s/\s+$//;
@@ -196,22 +217,14 @@ sub retrpop3mail {
             }
             $stAddress = $_;
 
-         } elsif ( /^Date:/ && $stDate eq "" ) {
-             my @monthstr=qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec);
-             my @wdaystr=qw(Sun Mon Tus Wen Thu Fri Sat);
-             my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) =localtime;
-
-             $year=$year+1900;
-             $mon=$monthstr[$mon]; 
-             $wday=$wdaystr[$wday];
-
-             if (/^Date:\s+(\w+),\s+(\d+)\s+(\w+)\s+(\d+)\s+(\d+):(\d+):(\d+)\s/) { 
+         } elsif ( /^Date:/i && $stDate eq "" ) {
+             if (/^Date:\s+(\w+),\s+(\d+)\s+(\w+)\s+(\d+)\s+(\d+):(\d+):(\d+)\s/i) { 
                  #Date: Wed, 9 Sep 1998 19:30:16 +0800 (CST)
                  $wday=$1; $mday=$2; $mon=$3; $year=$4; $hour=$5; $min=$6; $sec=$7;
-             } elsif (/^Date:\s+(\d+)\s+(\w+)\s+(\d+)\s+(\d+):(\d+):(\d+)\s/) { 
+             } elsif (/^Date:\s+(\d+)\s+(\w+)\s+(\d+)\s+(\d+):(\d+):(\d+)\s/i) { 
                  #Date: 07 Sep 2000 23:01:36 +0200
                  $mday=$1; $mon=$2; $year=$3; $hour=$4; $min=$5; $sec=$6;
-             } elsif (/^Date:\s+(\w+),\s+(\w+)\s+(\d+),\s+(\d+)\s+(\d+):(\d+):(\d+)\s/) { 
+             } elsif (/^Date:\s+(\w+),\s+(\w+)\s+(\d+),\s+(\d+)\s+(\d+):(\d+):(\d+)\s/i) { 
                  #Date: Wednesday, February 10, 1999 3:39 PM
                  $wday=$1; $mon=$2; $mday=$3; $year=$4; $hour=$5; $min=$6; $sec=$7;
                  $wday=~s/^(...).*/$1/;
@@ -231,18 +244,17 @@ sub retrpop3mail {
       close(IN);
       filelock($spoolfile, LOCK_UN);
 
+      if ($uidl_support) {
+         print $remote_sock "uidl " . $i . "\r\n";
+         $_=<$remote_sock>; s/^\s+//;
+         if ($_ !~ /^\-/) {
+            $lastid=(split(/\s/))[$uidl_field];
+         }
+      }
+
       if ($pop3del == 1) {
          print $remote_sock "dele " . $i . "\r\n";
          $_=<$remote_sock>;
-      }
-
-      $lastid="none";
-      if ($support_uidl) {
-         print $remote_sock "uidl " . $i . "\r\n";
-         $_=<$remote_sock>;
-         if (/^\+/) {
-            $lastid=(split(/\s/))[2];
-         }
       }
 
       $retr_total++;

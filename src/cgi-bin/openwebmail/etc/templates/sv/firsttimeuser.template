@@ -1,0 +1,11 @@
+<BR><BR><BR><BR><BR><BR>
+<table border="0" align="center" width="40%" cellpadding="1" cellspacing="1">
+<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>VÄLKOMMEN TILL OPEN WEBMAIL!</B></font>
+</td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
+<BR>Välkommen till Open WebMail! Det verkar vara första gången du använder tjänsten.
+Du bör lägga in lite information om dig själv, så att alla dina personliga inställningar blir korrekta.
+Tryck "fortsätt" för att gå vidare till användarinställningarna.
+@@@CONTINUEBUTTON@@@
+</td></tr></table>

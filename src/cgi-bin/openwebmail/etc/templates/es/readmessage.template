@@ -42,7 +42,7 @@
    <!--
    function replyreceiptconfirm(url)
    {
-      if (confirm('This message requests a read receipt, do you want to transmit?')) {
+      if (confirm('Este mensaje requiere una notificaci&oacute;n de que ha sido le&iacute;do, ¿quieres enviarla?')) {
          var hWnd = window.open("","ReplyReceipt","width=100,height=50,resizable=no,scrollbars=no");
          hWnd.document.write('Transmitting...');
          hWnd.location.href=url;

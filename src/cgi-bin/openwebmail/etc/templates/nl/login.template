@@ -9,7 +9,7 @@
 <BR>
 <table align=center border=0 cellspacing=2 cellpadding=0>
 <tr>
-<td align=right>Gebruikers ID: </td><td align=left>@@@USERIDFIELD@@@</td>
+<td align=right>Login: </td><td align=left>@@@USERIDFIELD@@@</td>
 </tr><tr>
 <td align=right>Wachtwoord: </td><td align=left>@@@PASSWORDFIELD@@@</td>
 </tr><tr>
@@ -20,7 +20,7 @@
 </td></tr></table>
 <p align="center">
 <BR>
-<a href="/openwebmail/openwebmail.html">Open WebMail</a> version @@@VERSION@@@<BR>
+<a href="/openwebmail/openwebmail.html">Open WebMail</a> versie @@@VERSION@@@<BR>
 </p>
 <script language="JavaScript">
    document.login.userid.focus()

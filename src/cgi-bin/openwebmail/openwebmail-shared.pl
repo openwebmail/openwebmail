@@ -286,7 +286,7 @@ sub getfolders {
       $totalsize += ( -s "$spoolfile" ) || 0;
    } else {
       # create spool file with user uid, gid if it doesn't exist
-      my ($uuid, $ugid) = (getpwnam($user))[2,3];
+      my ($uuid, $ugid) = (get_userinfo($user))[1,2];
       open (F, ">>$spoolfile");
       close(F);
       chown ($uuid, $ugid, $spoolfile);
@@ -306,6 +306,7 @@ sub getfolders {
 sub readprefs {
    my ($key,$value);
    my %prefshash;
+
    if ( -f "$folderdir/.openwebmailrc" ) {
       open (CONFIG,"$folderdir/.openwebmailrc") or
          openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.openwebmailrc!");
@@ -313,20 +314,27 @@ sub readprefs {
          ($key, $value) = split(/=/, $_);
          chomp($value);
          if ($key eq 'style') {
-            $value =~ s/\.//g;  ## In case someone gets a bright idea...
+            $value =~ s/^\.//g;  ## In case someone gets a bright idea...
          }
          $prefshash{"$key"} = $value;
       }
       close (CONFIG) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.openwebmailrc!");
    }
+
+   my $signaturefile="";
    if ( -f "$folderdir/.signature" ) {
+      $signaturefile="$folderdir/.signature";
+   } elsif ( -f "$homedir/.signature" ) {
+      $signaturefile="$homedir/.signature";
+   }
+   if ($signaturefile) {
       $prefshash{"signature"} = '';
-      open (SIGNATURE, "$folderdir/.signature") or
-         openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.signature!");
+      open (SIGNATURE, $signaturefile) or
+         openwebmailerror("$lang_err{'couldnt_open'} $signaturefile!");
       while (<SIGNATURE>) {
          $prefshash{"signature"} .= $_;
       }
-      close (SIGNATURE) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.signature!");
+      close (SIGNATURE) or openwebmailerror("$lang_err{'couldnt_close'} $signaturefile!");
    }
    return \%prefshash;
 }
@@ -403,7 +411,12 @@ sub printheader {
       close (HEADER);
 
       $html = applystyle($html);
-      $html =~ s/\@\@\@BG_URL\@\@\@/$bg_url/g;
+
+      if ($prefs{"bgurl"} ne "") {
+         $html =~ s/\@\@\@BG_URL\@\@\@/$prefs{"bgurl"}/g;
+      } else {
+         $html =~ s/\@\@\@BG_URL\@\@\@/$bg_url/g;
+      }
       $html =~ s/\@\@\@CHARSET\@\@\@/$lang_charset/g;
 
       if ($user) {
@@ -527,6 +540,26 @@ sub openwebmailerror{
 }
 ################### END OPENWEBMAILERROR #######################
 
+################### DST_ADJUST #######################
+# adjust timeoffset for DaySavingTime
+sub dst_adjust {
+   my $timeoffset=$_[0];
+   
+   if ( (localtime())[8] ) {
+      if ($timeoffset =~ m|^([\+\-]\d\d)(\d\d)| ) {
+         my ($h, $m)=($1, $2);
+         $h++;
+         if ($h>=0) {
+            $timeoffset=sprintf("+%02d%02d", $h, $m);
+         } else {
+            $timeoffset=sprintf("-%02d%02d", abs($h), $m);
+         }
+      }
+   }
+   return $timeoffset;
+}
+################### END DST_ADJUST #######################
+
 #################### LOG_TIME (for profiling) ####################
 sub log_time {
    my @msg=@_;
@@ -542,7 +575,7 @@ sub log_time {
 
    # unbuffer mode
    select(Z); $| = 1;    
-   select(stdout); 
+   select(STDOUT); 
 
    print Z "$today $time ", join(" ",@msg), "\n";
    close(Z);

@@ -35,6 +35,8 @@ $lang_charset = 'iso-8859-1';
    (  
    login      => 'Anmelden',
    clear      => 'Löschen',
+   changepwd  => 'Change Password',
+   loginhistory=>'Login History',
    of         => 'von',
    messages   => 'Nachrichten',
    unread     => 'ungelesen',
@@ -138,6 +140,7 @@ $lang_charset = 'iso-8859-1';
             couldnt_lock      => 'Fehler beim Schreiben der Datei',
             couldnt_seek      => 'Fehler beim Lesen der Datei',
             couldnt_close     => 'Fehler beim Schließen der Datei',
+            disallowed_pop3   => 'Disallowed POP3 server',
             norootlogin       => 'Der root Zugang ist aus Sicherheitsgründen deaktiviert!',
             shouldnt_move_here=> 'Sie können keine Nachrichten in diesen Ordner verschieben!',
             destination_folder=> 'Ziel Ordner',
@@ -163,4 +166,3 @@ $lang_charset = 'iso-8859-1';
             );
 
 1;
-

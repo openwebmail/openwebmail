@@ -38,6 +38,8 @@ $lang_charset = 'iso-8859-2';
    (  
    login      => 'Prihlási»',
    clear      => 'Zmaza»',
+   changepwd  => 'Change Password',
+   loginhistory=>'Login History',
    of         => 'z',
    messages   => 'správ',
    unread     => 'nepreèítaných',
@@ -141,6 +143,7 @@ $lang_charset = 'iso-8859-2';
             couldnt_lock      => 'Nedá sa uzamknú»',
             couldnt_seek      => 'Nedá sa presunú» na zaèiatok',
             couldnt_close     => 'Nedá sa zavrie»',
+            disallowed_pop3   => 'Disallowed POP3 server',
             norootlogin       => 'Prepáète, prístup administrátora je blokovaný kvôli bespeènostným príèinám.',
             shouldnt_move_here=> 'Sem by ste sa nemali pokú¹a» presunú» správu!',
             destination_folder=> 'Cieµový katalóg',

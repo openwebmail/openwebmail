@@ -32,6 +32,7 @@ $ENV{PATH} = ""; # no PATH should be needed
 umask(0007); # make sure the openwebmail group can write
 
 require "etc/openwebmail.conf";
+require "auth.pl";
 require "openwebmail-shared.pl";
 require "filelock.pl";
 require "pop3mail.pl";
@@ -42,6 +43,7 @@ local $useremail;
 local ($uid, $gid, $homedir);
 local %prefs;
 local %style;
+local $imageset;
 local $lang;
 local $firstmessage;
 local $sort;
@@ -81,16 +83,14 @@ $user =~ s/\-session\-0.*$//; # Grab userid from sessionid
 
 if ($user) {
    if (($homedirspools eq 'yes') || ($homedirfolders eq 'yes')) {
-      ($uid, $homedir) = (getpwnam($user))[2,7] or 
+      ($uid, $homedir) = (get_userinfo($user))[1,3] or 
          openwebmailerror("User $user doesn't exist!");
    } else {
       $uid=$>; 
-      $homedir = (getpwnam($user))[7] or 
+      $homedir = (get_userinfo($user))[3] or 
          openwebmailerror("User $user doesn't exist!");
    }
    $gid=getgrnam('mail');
-   # get useremail and domainnames from global @domainnames and genericstable db
-   ($useremail, @domainnames)=get_useremail_domainnames($user, "$openwebmaildir/genericstable", @domainnames);
 
 } else { # if no user specified, euid remains and we redo set_euid at sub login
    $uid=$>; 
@@ -116,6 +116,8 @@ $sessiontimeout = $sessiontimeout/60/24; # convert to format expected by -M
 %prefs = %{&readprefs};
 %style = %{&readstyle};
 
+$imageset = $prefs{'imageset'} || 'Default';
+
 $lang = $prefs{'language'} || $defaultlanguage;
 ($lang =~ /^(..)$/) && ($lang = $1);
 require "etc/lang/$lang";
@@ -123,6 +125,9 @@ $lang_charset ||= 'iso-8859-1';
 
 $folderusage = 0;
 if ($user) {
+   # get useremail and domainnames from global @domainnames and genericstable db
+   ($useremail, @domainnames)=get_useremail_domainnames($user, "$openwebmaildir/genericstable", @domainnames);
+
    @validfolders = @{&getfolders(0)};
    if (param("folder")) {
       my $isvalid = 0;
@@ -163,6 +168,12 @@ if (defined(param("action"))) {      # an action has been chosen
       $action = $1;
       if ($action eq "saveprefs") {
          saveprefs();
+      } elsif ($action eq "editpassword") {
+         editpassword();
+      } elsif ($action eq "changepassword" && $enable_changepwd eq 'yes' ) {
+         changepassword();
+      } elsif ($action eq "loginhistory") {
+         loginhistory();
       } elsif ($action eq "editfolders") {
          editfolders();
       } elsif ($action eq "addfolder") {
@@ -227,19 +238,33 @@ sub editprefs {
    $html = applystyle($html);
 
    my @styles;
+   my @imagesets;
    printheader();
 
-### Get a list of valid style files
+   ### Get a list of valid style files
    opendir (STYLESDIR, "$openwebmaildir/styles") or
       openwebmailerror("$lang_err{'couldnt_open'} $openwebmaildir/styles directory for reading!");
    while (defined(my $currentstyle = readdir(STYLESDIR))) {
-      unless ($currentstyle =~ /\./) {
+      unless ($currentstyle =~ /^\./) {
          push (@styles, $currentstyle);
       }
    }
    @styles = sort(@styles);
    closedir(STYLESDIR) or
       openwebmailerror("$lang_err{'couldnt_close'} $openwebmaildir/styles!");
+
+   ### Get a list of valid style files
+   opendir (IMAGEDIR, "$imagedir") or
+      openwebmailerror("$lang_err{'couldnt_open'} $imagedir directory for reading!");
+   while (defined(my $currentset = readdir(IMAGEDIR))) {
+      if (-d "$imagedir/$currentset" && $currentset !~ /^\./) {
+         push (@imagesets, $currentset);
+      }
+   }
+   @imagesets = sort(@imagesets);
+   closedir(IMAGEDIR) or
+      openwebmailerror("$lang_err{'couldnt_close'} $imagedir!");
+
    $temphtml = start_form(-action=>$prefsurl);
    $temphtml .= hidden(-name=>'action',
                        -default=>'saveprefs',
@@ -267,6 +292,7 @@ sub editprefs {
 
    $html =~ s/\@\@\@REALNAME\@\@\@/$temphtml/;
 
+   my @availablelanguages = sort keys(%languagenames);
    $temphtml = popup_menu(-name=>'language',
                           -"values"=>\@availablelanguages,
                           -default=>$prefs{"language"} || $defaultlanguage,
@@ -317,6 +343,20 @@ sub editprefs {
                           -override=>'1');
 
    $html =~ s/\@\@\@STYLEMENU\@\@\@/$temphtml/;
+
+   $temphtml = popup_menu(-name=>'imageset',
+                          -"values"=>\@imagesets,
+                          -default=>$prefs{"imageset"} || 'Default',
+                          -override=>'1');
+
+   $html =~ s/\@\@\@IMAGESETMENU\@\@\@/$temphtml/;
+
+   $temphtml = textfield(-name=>'bgurl',
+                         -default=>$prefs{"bgurl"} || '',
+                         -size=>'50',
+                         -override=>'1');
+
+   $html =~ s/\@\@\@BGURLFIELD\@\@\@/$temphtml/;
 
    $temphtml = popup_menu(-name=>'sort',
                           -"values"=>['date','date_rev','sender','sender_rev',
@@ -421,7 +461,7 @@ sub editprefs {
    my %dayslabels = ('0'=>$lang_text{'forever'});
    $temphtml = popup_menu(-name=>'trashreserveddays',
                           -"values"=>[0,1,2,3,4,5,6,7,14,21,30,60],
-                          -default=>$prefs{'trashreserveddays'} || '0',
+                          -default=>$prefs{'trashreserveddays'} || '7',
                           -labels=>\%dayslabels,
                           -override=>'1');
 
@@ -430,6 +470,7 @@ sub editprefs {
    unless (defined($prefs{"signature"})) {
       $prefs{"signature"} = $defaultsignature;
    }
+
    $temphtml = textarea(-name=>'signature',
                         -default=>$prefs{"signature"},
                         -rows=>'5',
@@ -488,6 +529,47 @@ sub editprefs {
                           -override=>'1') .
                    '</td><td>' .
                    submit("$lang_text{'cancel'}") . end_form();
+
+      $temphtml .= startform(-action=>"$prefsurl");
+      $temphtml .= hidden(-name=>'action',
+                          -default=>'loginhistory',
+                          -override=>'1');
+      $temphtml .= hidden(-name=>'sessionid',
+                          -default=>$thissession,
+                          -override=>'1');
+      $temphtml .= hidden(-name=>'sort',
+                          -default=>$sort,
+                          -override=>'1');
+      $temphtml .= hidden(-name=>'firstmessage',
+                          -default=>$firstmessage,
+                          -override=>'1');
+      $temphtml .= hidden(-name=>'folder',
+                          -default=>$folder,
+                          -override=>'1') .
+                   '</td><td>' .
+                   submit("$lang_text{'loginhistory'}") . end_form();
+
+   }
+
+   if ( $enable_changepwd eq 'yes' ) {
+      $temphtml .= startform(-action=>"$prefsurl");
+      $temphtml .= hidden(-name=>'action',
+                          -default=>'editpassword',
+                          -override=>'1');
+      $temphtml .= hidden(-name=>'sessionid',
+                          -default=>$thissession,
+                          -override=>'1');
+      $temphtml .= hidden(-name=>'sort',
+                          -default=>$sort,
+                          -override=>'1');
+      $temphtml .= hidden(-name=>'firstmessage',
+                          -default=>$firstmessage,
+                          -override=>'1');
+      $temphtml .= hidden(-name=>'folder',
+                          -default=>$folder,
+                          -override=>'1') .
+                   '</td><td>' .
+                   submit("$lang_text{'changepwd'}") . end_form();
    }
 
    $html =~ s/\@\@\@BUTTONS\@\@\@/$temphtml/;
@@ -555,7 +637,7 @@ sub setautoreply {
    my @forwards=();
    my $email;
    my $selfforward=0;
-   my ($uuid, $ugid) = (getpwnam($user))[2,3] or return;
+   my ($uuid, $ugid) = (get_userinfo($user))[1,2] or return;
 
    if (open(FOR, "$homedir/.forward")) {
       $/=''; $_=<FOR>; $/='\n';
@@ -654,17 +736,24 @@ sub saveprefs {
    open (CONFIG,">$folderdir/.openwebmailrc") or
       openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.openwebmailrc!");
    foreach my $key (qw(language realname fromname domainname replyto 
-                       style sort headers headersperpage defaultdestination
+                       style imageset bgurl 
+                       sort headers headersperpage defaultdestination
                        editwidth editheight
                        filter_repeatlimit filter_fakedsmtp disablejs
                        hideinternal newmailsound autopop3 trashreserveddays)) {
       my $value = param("$key") || '';
+
+      if ($key eq 'bgurl') {
+         print CONFIG "$key=$value\n";
+         next;
+      }
 
       $value =~ s/\.\.+//g;
       $value =~ s/[=\n\/\`\|\<\>;]//g; # remove dangerous char
       if ($key eq 'language') {
          my $validlanguage=0;
          my $currlanguage;
+         my @availablelanguages = sort keys(%languagenames);
          foreach $currlanguage (@availablelanguages) {
             if ($value eq $currlanguage) {
                print CONFIG "$key=$value\n";
@@ -694,15 +783,22 @@ sub saveprefs {
    }
    close (CONFIG) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.openwebmailrc!");
 
-   open (SIGNATURE,">$folderdir/.signature") or
-      openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.signature!");
+   my $signaturefile="$folderdir/.signature";
+   if ( -f "$folderdir/.signature" ) {
+      $signaturefile="$folderdir/.signature";
+   } elsif ( -f "$homedir/.signature" ) {
+      $signaturefile="$homedir/.signature";
+   }
+   open (SIGNATURE,">$signaturefile") or
+      openwebmailerror("$lang_err{'couldnt_open'} $signaturefile!");
    my $value = param("signature") || '';
    $value =~ s/\r\n/\n/g;
    if (length($value) > 500) {  # truncate signature to 500 chars
       $value = substr($value, 0, 500);
    }
    print SIGNATURE $value;
-   close (SIGNATURE) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.signature!");
+   close (SIGNATURE) or openwebmailerror("$lang_err{'couldnt_close'} $signaturefile!");
+   chown($uuid, $ugid, $signaturefile) if ($signaturefile eq "$homedir/.signature");
 
    # set this since setautoreply will use this
    $prefs{'signature'}=$value;
@@ -751,6 +847,265 @@ sub saveprefs {
 }
 ##################### END SAVEPREFS ######################
 
+##################### EDITPASSWORD #######################
+sub editpassword {
+   verifysession();
+   my $html = '';
+   my $temphtml;
+
+   open (CHANGEPASSWORDTEMPLATE, "$openwebmaildir/templates/$lang/changepassword.template") or
+      openwebmailerror("$lang_err{'couldnt_open'} changepassword.template!");
+   while (<CHANGEPASSWORDTEMPLATE>) {
+      $html .= $_;
+   }
+   close (CHANGEPASSWORDTEMPLATE);
+
+   $html = applystyle($html);
+
+   printheader();
+
+   $temphtml = startform(-name=>"passwordform",
+			 -action=>"$prefsurl") .
+               hidden(-name=>'action',
+                      -default=>'changepassword',
+                      -override=>'1') .
+               hidden(-name=>'sessionid',
+                      -default=>$thissession,
+                      -override=>'1') .
+               hidden(-name=>'sort',
+                      -default=>$sort,
+                      -override=>'1') .
+               hidden(-name=>'firstmessage',
+                      -default=>$firstmessage,
+                      -override=>'1') .
+               hidden(-name=>'folder',
+                      -default=>$folder,
+                      -override=>'1');
+
+   $html =~ s/\@\@\@STARTFORM\@\@\@/$temphtml/;
+
+   # display user from $useremail since it may be a virtual user
+   my $userid=$useremail;
+   $userid =~ s/\@.*$//;
+   $temphtml = textfield(-name=>'userid',
+                         -default=>$userid,
+                         -size=>'10',
+                         -disabled=>1,
+                         -override=>'1');
+
+   $html =~ s/\@\@\@USERIDFIELD\@\@\@/$temphtml/;
+
+   $temphtml = password_field(-name=>'oldpassword',
+                              -default=>'',
+                              -size=>'10',
+                              -override=>'1');
+   $html =~ s/\@\@\@OLDPASSWORDFIELD\@\@\@/$temphtml/;
+   
+   $temphtml = password_field(-name=>'newpassword',
+                              -default=>'',
+                              -size=>'10',
+                              -override=>'1');
+   $html =~ s/\@\@\@NEWPASSWORDFIELD\@\@\@/$temphtml/;
+   
+   $temphtml = password_field(-name=>'confirmnewpassword',
+                              -default=>'',
+                              -size=>'10',
+                              -override=>'1');
+   $html =~ s/\@\@\@CONFIRMNEWPASSWORDFIELD\@\@\@/$temphtml/;
+   
+   $temphtml = submit(-name=> $lang_text{'changepwd'},
+                      -onClick=>"return changecheck()");
+   $html =~ s/\@\@\@CHANGEBUTTON\@\@\@/$temphtml/;
+
+   $temphtml = end_form();
+   $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/;
+
+   $temphtml = startform(-action=>"$prefsurl") .
+               hidden(-name=>'sessionid',
+                      -default=>$thissession,
+                      -override=>'1') .
+               hidden(-name=>'sort',
+                      -default=>$sort,
+                      -override=>'1') .
+               hidden(-name=>'firstmessage',
+                      -default=>$firstmessage,
+                      -override=>'1') .
+               hidden(-name=>'folder',
+                      -default=>$folder,
+                      -override=>'1').
+               submit("$lang_text{'cancel'}").
+               end_form();
+
+   $html =~ s/\@\@\@CANCELBUTTON\@\@\@/$temphtml/;
+
+   print $html;
+
+   printfooter();
+}
+
+##################### END EDITPASSWORD #######################
+
+##################### CHANGEPASSWORD #######################
+sub changepassword {
+   verifysession();
+
+   my $oldpassword=param("oldpassword");
+   my $newpassword=param("newpassword");
+   my $confirmnewpassword=param("confirmnewpassword");
+
+   my $html = '';
+   my $temphtml;
+
+   if ( $newpassword ne $confirmnewpassword ) {
+      open (MISMATCH, "$openwebmaildir/templates/$lang/passwordconfirmmismatch.template") or
+         openwebmailerror("$lang_err{'couldnt_open'} passwordconfirmmismatch.template!");
+      while (<MISMATCH>) {
+         $html .= $_;
+      }
+      close (MISMATCH);
+
+   } else {
+      my $changed;
+
+      # reset euid to root to change password
+      my $euid=$>; $>=0;
+      $changed=change_userpassword($user, $oldpassword, $newpassword);
+      # fall back to original euid
+      $>=$euid;
+
+      if ( $changed ) {
+         open (CHANGED, "$openwebmaildir/templates/$lang/passwordchanged.template") or
+            openwebmailerror("$lang_err{'couldnt_open'} passwordchanged.template!");
+         while (<CHANGED>) {
+            $html .= $_;
+         }
+         close (CHANGED);
+
+      } else {
+         sleep 5;
+         open (INCORRECT, "$openwebmaildir/templates/$lang/passwordincorrect.template") or
+            openwebmailerror("$lang_err{'couldnt_open'} passwordincorrect.template!");
+         while (<INCORRECT>) {
+            $html .= $_;
+         }
+         close (INCORRECT);
+      }
+
+   }
+
+   $html = applystyle($html);
+
+   printheader();
+
+   $temphtml = startform(-action=>"$prefsurl") .
+               hidden(-name=>'sessionid',
+                      -default=>$thissession,
+                      -override=>'1') .
+               hidden(-name=>'sort',
+                      -default=>$sort,
+                      -override=>'1') .
+               hidden(-name=>'firstmessage',
+                      -default=>$firstmessage,
+                      -override=>'1') .
+               hidden(-name=>'folder',
+                      -default=>$folder,
+                      -override=>'1').
+               submit("$lang_text{'continue'}").
+               end_form();
+
+   $html =~ s/\@\@\@CONTINUEBUTTON\@\@\@/$temphtml/;
+
+   print $html;
+
+   printfooter();
+}
+
+##################### END CHANGEPASSWORD #######################
+
+##################### LOGINHISTORY #######################
+sub loginhistory {
+   verifysession();
+
+   my $html = '';
+   my $temphtml;
+
+   open (HISTORY, "$openwebmaildir/templates/$lang/loginhistory.template") or
+      openwebmailerror("$lang_err{'couldnt_open'} loginhistory.template!");
+   while (<HISTORY>) {
+      $html .= $_;
+   }
+   close (HISTORY);
+
+   $html = applystyle($html);
+
+   printheader();
+
+   $temphtml="";
+
+   open (HISBOOK, "$folderdir/.history.book");
+
+   my $bgcolor = $style{"tablerow_dark"};
+   while (<HISBOOK>) {
+      my $record;
+      my ($timestamp, $virtualuser, $realuser, $success, $client, $proxy)=split(/\@\@\@/);
+
+      my $currentclient;
+      if (defined $ENV{'HTTP_X_FORWARDED_FOR'}) {
+         $currentclient=$ENV{'HTTP_X_FORWARDED_FOR'};
+      } else {
+         $currentclient=$ENV{'REMOTE_ADDR'};
+      }
+
+      $record = qq|<tr>|.
+                qq|<td bgcolor=$bgcolor align="center">$timestamp</td>|.
+                qq|<td bgcolor=$bgcolor align="center">$virtualuser</td>|.
+                qq|<td bgcolor=$bgcolor align="center">$success</td>|;
+      if ($client ne $currentclient) {
+         $record .= qq|<td bgcolor=$bgcolor align="center"><font color="#cc0000">$client</font></td>|;
+      } else {
+         $record .= qq|<td bgcolor=$bgcolor align="center">$client</td>|;
+      }
+      $record .= qq|<td bgcolor=$bgcolor align="center">$proxy</td>|.
+                 qq|</tr>\n|;
+
+      $temphtml = $record . $temphtml;
+
+      if ($bgcolor eq $style{"tablerow_dark"}) {
+         $bgcolor = $style{"tablerow_light"};
+      } else {
+         $bgcolor = $style{"tablerow_dark"};
+      }
+   }
+
+   close(HISBOOK);
+
+   $html =~ s/\@\@\@LOGINHISTORY\@\@\@/$temphtml/;
+
+   $temphtml = startform(-action=>"$prefsurl") .
+               hidden(-name=>'sessionid',
+                      -default=>$thissession,
+                      -override=>'1') .
+               hidden(-name=>'sort',
+                      -default=>$sort,
+                      -override=>'1') .
+               hidden(-name=>'firstmessage',
+                      -default=>$firstmessage,
+                      -override=>'1') .
+               hidden(-name=>'folder',
+                      -default=>$folder,
+                      -override=>'1').
+               submit("$lang_text{'continue'}").
+               end_form();
+
+   $html =~ s/\@\@\@CONTINUEBUTTON\@\@\@/$temphtml/;
+
+   print $html;
+
+   printfooter();
+}
+
+##################### END LOGINHISTORY #######################
+
 #################### EDITFOLDERS ###########################
 sub editfolders {
    verifysession();
@@ -787,7 +1142,7 @@ sub editfolders {
 
    printheader();
 
-   $temphtml = "<a href=\"$scripturl?action=displayheaders&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$escapedfolder\"><IMG SRC=\"$imagedir_url/backtofolder.gif\" border=\"0\" ALT=\"$lang_text{'backto'} $printfolder\"></a>";
+   $temphtml = "<a href=\"$scripturl?action=displayheaders&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$escapedfolder\"><IMG SRC=\"$imagedir_url/$imageset/backtofolder.gif\" border=\"0\" ALT=\"$lang_text{'backto'} $printfolder\"></a>";
 
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
 
@@ -839,6 +1194,7 @@ sub editfolders {
    }
    $html =~ s/\@\@\@FOLDERS\@\@\@/$temphtml/;
 
+   $bgcolor = $style{"tablerow_dark"};
    $temphtml='';
    foreach $currfolder (@defaultfolders) {
       $temphtml .= _folderline($currfolder, $i, $bgcolor);
@@ -925,7 +1281,7 @@ sub _folderline {
    if ($currfolder eq 'INBOX') {
       $temphtml .= "<tr>".
                    "<td align=\"center\" bgcolor=$bgcolor>$folderstr".
-                   "&nbsp;<a href=\"$url\"><IMG SRC=\"$imagedir_url/download.gif\" align=\"absmiddle\" border=\"0\" ALT=\"$lang_text{'download'} $folderstr\">".
+                   "&nbsp;<a href=\"$url\"><IMG SRC=\"$imagedir_url/$imageset/download.gif\" align=\"absmiddle\" border=\"0\" ALT=\"$lang_text{'download'} $folderstr\">".
                    "</a></td>".
                    "<td align=\"center\" bgcolor=$bgcolor>$newmessages</td>".
                    "<td align=\"center\" bgcolor=$bgcolor>$allmessages</td>".
@@ -935,7 +1291,7 @@ sub _folderline {
    } else {
       $temphtml .= "<tr>".
                    "<td align=\"center\" bgcolor=$bgcolor>$folderstr".
-                   "&nbsp;<a href=\"$url\"><IMG SRC=\"$imagedir_url/download.gif\" align=\"absmiddle\" border=\"0\" ALT=\"$lang_text{'download'} $folderstr\">".
+                   "&nbsp;<a href=\"$url\"><IMG SRC=\"$imagedir_url/$imageset/download.gif\" align=\"absmiddle\" border=\"0\" ALT=\"$lang_text{'download'} $folderstr\">".
                    "</a></td>".
                    "<td align=\"center\" bgcolor=$bgcolor>$newmessages</td>".
                    "<td align=\"center\" bgcolor=$bgcolor>$allmessages</td>".
@@ -1142,6 +1498,8 @@ sub downloadfolder {
       $filename="$folder";
    }
 
+   $filename=~s/\s+/_/g;
+
    filelock($folderfile, LOCK_EX|LOCK_NB) or
       openwebmailerror("$lang_err{'couldnt_lock'} $folderfile");
 
@@ -1211,8 +1569,14 @@ sub importabook {
       foreach (split(/\r*\n/, $abookcontents)) {
  #        next if ( ($mua eq 'outlookexp5') && (/^Name,E-mail Address/) );
          next if ( $_ !~ (/\@/) );
+         if (/,/) {
+            @fields = split(/,/);
+         } elsif (/;/) {
+            @fields = split(/;/);
+         } else {
+            next;
+         }
          $quotecount = 0;
-         @fields = split(/,/);
          @processed = ();
          $tempstr = '';
          foreach my $str (@fields) {
@@ -1450,13 +1814,13 @@ sub editaddresses {
    $html =~ s/\@\@\@FREESPACE\@\@\@/$freespace/g;
 
    if ( param("message_id") ) {
-      $temphtml = "<a href=\"$scripturl?action=readmessage&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid\"><IMG SRC=\"$imagedir_url/backtofolder.gif\" border=\"0\" ALT=\"$lang_text{'backto'} $printfolder\"></a> &nbsp; &nbsp; ";
+      $temphtml = "<a href=\"$scripturl?action=readmessage&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid\"><IMG SRC=\"$imagedir_url/$imageset/backtofolder.gif\" border=\"0\" ALT=\"$lang_text{'backto'} $printfolder\"></a> &nbsp; &nbsp; ";
    } else {
-      $temphtml = "<a href=\"$scripturl?action=displayheaders&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder\"><IMG SRC=\"$imagedir_url/backtofolder.gif\" border=\"0\" ALT=\"$lang_text{'backto'} $printfolder\"></a> &nbsp; &nbsp; ";
+      $temphtml = "<a href=\"$scripturl?action=displayheaders&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder\"><IMG SRC=\"$imagedir_url/$imageset/backtofolder.gif\" border=\"0\" ALT=\"$lang_text{'backto'} $printfolder\"></a> &nbsp; &nbsp; ";
    }
-   $temphtml .= "<a href=\"$prefsurl?action=importabook&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid\"><IMG SRC=\"$imagedir_url/import.gif\" border=\"0\" ALT=\"$lang_text{'importadd'}\"></a>&nbsp;";
-   $temphtml .= "<a href=\"$prefsurl?action=exportabook&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid\"><IMG SRC=\"$imagedir_url/export.gif\" border=\"0\" ALT=\"$lang_text{'exportadd'}\"></a>&nbsp;";
-   $temphtml .= "<a href=\"$prefsurl?action=clearaddress&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid\" onclick=\"return confirm('$lang_text{'clearadd'}?')\"><IMG SRC=\"$imagedir_url/clearaddress.gif\" border=\"0\" ALT=\"$lang_text{'clearadd'}\"></a>";
+   $temphtml .= "<a href=\"$prefsurl?action=importabook&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid\"><IMG SRC=\"$imagedir_url/$imageset/import.gif\" border=\"0\" ALT=\"$lang_text{'importadd'}\"></a>&nbsp;";
+   $temphtml .= "<a href=\"$prefsurl?action=exportabook&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid\"><IMG SRC=\"$imagedir_url/$imageset/export.gif\" border=\"0\" ALT=\"$lang_text{'exportadd'}\"></a>&nbsp;";
+   $temphtml .= "<a href=\"$prefsurl?action=clearaddress&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid\" onclick=\"return confirm('$lang_text{'clearadd'}?')\"><IMG SRC=\"$imagedir_url/$imageset/clearaddress.gif\" border=\"0\" ALT=\"$lang_text{'clearadd'}\"></a>";
 
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
 
@@ -1494,7 +1858,7 @@ sub editaddresses {
                          -default=>'',
                          -size=>'30',
                          -override=>'1');
-   $temphtml .= "<a href=\"Javascript:GoAddressWindow('email')\">&nbsp;<IMG SRC=\"$imagedir_url/group.gif\" border=\"0\" ALT=\"$lang_text{'group'}\"></a>";
+   $temphtml .= "<a href=\"Javascript:GoAddressWindow('email')\">&nbsp;<IMG SRC=\"$imagedir_url/$imageset/group.gif\" border=\"0\" ALT=\"$lang_text{'group'}\"></a>";
 
    $html =~ s/\@\@\@EMAILFIELD\@\@\@/$temphtml/;
 
@@ -1560,6 +1924,7 @@ sub editaddresses {
       $temphtml .= "<tr><td colspan=\"4\">&nbsp;</td></tr>\n";
       $temphtml .= "<tr><td colspan=\"4\" bgcolor=$style{columnheader}><B>$lang_text{globaladdressbook}</B> ($lang_text{readonly})</td></tr>\n";
    }
+   $bgcolor = $style{"tablerow_dark"};
    foreach my $key (@sortkeys) {
       my ($namestr, $emailstr, $notestr)=($key, $globaladdresses{$key}, $globalnotes{$key});
       $namestr=substr($namestr, 0, 25)."..." if (length($namestr)>30);
@@ -1700,11 +2065,11 @@ sub editpop3 {
    $html =~ s/\@\@\@FREESPACE\@\@\@/$freespace/g;
 
    if ( param("message_id") ) {
-      $temphtml = "<a href=\"$scripturl?action=readmessage&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid\"><IMG SRC=\"$imagedir_url/backtofolder.gif\" border=\"0\" ALT=\"$lang_text{'backto'} $printfolder\"></a> &nbsp; &nbsp; ";
+      $temphtml = "<a href=\"$scripturl?action=readmessage&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid\"><IMG SRC=\"$imagedir_url/$imageset/backtofolder.gif\" border=\"0\" ALT=\"$lang_text{'backto'} $printfolder\"></a> &nbsp; &nbsp; ";
    } else {
-      $temphtml = "<a href=\"$scripturl?action=displayheaders&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder\"><IMG SRC=\"$imagedir_url/backtofolder.gif\" border=\"0\" ALT=\"$lang_text{'backto'} $printfolder\"></a> &nbsp; &nbsp; ";
+      $temphtml = "<a href=\"$scripturl?action=displayheaders&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder\"><IMG SRC=\"$imagedir_url/$imageset/backtofolder.gif\" border=\"0\" ALT=\"$lang_text{'backto'} $printfolder\"></a> &nbsp; &nbsp; ";
    }
-   $temphtml .= "<a href=\"$scripturl?action=retrpop3s&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid\"><IMG SRC=\"$imagedir_url/pop3.gif\" border=\"0\" ALT=\"$lang_text{'retr_pop3s'}\"></a>";
+   $temphtml .= "<a href=\"$scripturl?action=retrpop3s&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid\"><IMG SRC=\"$imagedir_url/$imageset/pop3.gif\" border=\"0\" ALT=\"$lang_text{'retr_pop3s'}\"></a>";
 
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
 
@@ -1899,12 +2264,22 @@ sub modpop3 {
          if ($mode eq 'delete') {
             delete $accounts{"$pop3host:$pop3user"};
          } else {
+            foreach (@disallowed_pop3servers) {
+               if ($pop3host eq $_) {
+                  openwebmailerror("$lang_err{'disallowed_pop3'} $pop3host");
+               }
+            }
             $accounts{"$pop3host:$pop3user"}="$pop3host:$pop3user:$pop3pass:$pop3email:$pop3del:$lastid";
          }
 
          writebackpop3book("$folderdir/.pop3.book", \%accounts);
 
       } else {
+         foreach (@disallowed_pop3servers) {
+            if ($pop3host eq $_) {
+               openwebmailerror("$lang_err{'disallowed_pop3'} $pop3host");
+            }
+         }
          open (POP3BOOK, ">$folderdir/.pop3.book" ) or
             openwebmailerror("$lang_err{'couldnt_open'} .pop3.book!");
          print POP3BOOK "$pop3host:$pop3user:$pop3pass:$pop3email:$pop3del:$lastid\n";
@@ -1949,9 +2324,9 @@ sub editfilter {
    
    ## replace @@@MENUBARLINKS@@@ ##
    if ( param("message_id") ) {
-      $temphtml = "<a href=\"$scripturl?action=readmessage&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid\"><IMG SRC=\"$imagedir_url/backtofolder.gif\" border=\"0\" ALT=\"$lang_text{'backto'} $printfolder\"></a>";
+      $temphtml = "<a href=\"$scripturl?action=readmessage&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid\"><IMG SRC=\"$imagedir_url/$imageset/backtofolder.gif\" border=\"0\" ALT=\"$lang_text{'backto'} $printfolder\"></a>";
    } else {
-      $temphtml = "<a href=\"$scripturl?action=displayheaders&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder\"><IMG SRC=\"$imagedir_url/backtofolder.gif\" border=\"0\" ALT=\"$lang_text{'backto'} $printfolder\"></a>";
+      $temphtml = "<a href=\"$scripturl?action=displayheaders&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder\"><IMG SRC=\"$imagedir_url/$imageset/backtofolder.gif\" border=\"0\" ALT=\"$lang_text{'backto'} $printfolder\"></a>";
    }
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
 
@@ -2148,6 +2523,7 @@ sub editfilter {
       $temphtml .= "<tr><td colspan=\"8\">&nbsp;</td></tr>\n";
       $temphtml .= "<tr><td colspan=\"8\" bgcolor=$style{columnheader}><B>$lang_text{globalfilterrule}</B> ($lang_text{readonly})</td></tr>\n";
    }
+   $bgcolor = $style{"tablerow_dark"};
    foreach $line (@globalfilterrules) {
       my ($priority, $rules, $include, $text, $op, $destination, $enable) = split(/\@\@\@/, $line);
       if ( $enable eq '') {	# compatible with old format

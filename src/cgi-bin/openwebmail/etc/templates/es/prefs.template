@@ -24,11 +24,19 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@STYLEMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Image set:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@IMAGESETMENU@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Background image url:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@BGURLFIELD@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Ordenar por:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@SORTMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Mensajes por página:</B>
+<B>Mensajes por p&aacute;gina:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@HEADERSPERPAGE@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
@@ -44,7 +52,7 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 Width @@@EDITWIDTHMENU@@@ Height @@@EDITHEIGHTMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>L&iacute;mite de mensajes reperidos:</B>
+<B>L&iacute;mite de mensajes repetidos:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERREPEATLIMIT@@@ &nbsp( 0 significa No comprobar repeticiones )
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
@@ -60,7 +68,7 @@ Width @@@EDITWIDTHMENU@@@ Height @@@EDITHEIGHTMENU@@@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@HIDEINTERNAL@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Notidicación sonora de Nuevo mensaje:</B>
+<B>Notificación sonora de Nuevo mensaje:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@NEWMAILSOUND@@@
 </td></tr>
@@ -72,21 +80,21 @@ Width @@@EDITWIDTHMENU@@@ Height @@@EDITHEIGHTMENU@@@
 </td></tr>
 @@@AUTOPOP3END@@@
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Guardar el correo borrado durante (dias):</B>
+<B>Guardar el correo borrado durante (d&iacute;as):</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@RESERVEDDAYSMENU@@@
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Auto Reply:</B>
+<B>Auto-responder:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@AUTOREPLYCHECKBOX@@@
 &nbsp;
-Subject:
+Asunto:
 @@@AUTOREPLYSUBJECT@@@
 </td></tr><tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>
-<B>Auto Reply Text (500 characters or less)</B><BR>
+<B>Texto de respuesta automática (500 caracteres o menos)</B><BR>
 @@@AUTOREPLYTEXT@@@
 </td></tr><tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>
-<B>Firma (500 caracteres ó menos)</B><BR>
+<B>Firma (500 caracteres o menos)</B><BR>
 @@@SIGAREA@@@
 </td></tr><tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>
 <table><tr><td>

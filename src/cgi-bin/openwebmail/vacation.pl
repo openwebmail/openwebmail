@@ -62,6 +62,7 @@ $defaulttimeout = 7 * 24 * 60 * 60;		# unit: second
 #
 #    will include the subject of the message in the reply. 
 
+$ENV{PATH} = ""; # no PATH should be needed
 $vacation = $0;
 $vacation = $myname unless $vacation =~ m#^/#;
 
@@ -95,8 +96,13 @@ $default_msg = qq|Subject: This is an autoreply...[Re: \$SUBJECT]\n|.
 $editor = $ENV{'VISUAL'} || $ENV{'EDITOR'} || 'vi';
 $pager = $ENV{'PAGER'} || 'more';
 $user = $ENV{'USER'} || $ENV{'LOGNAME'} || getlogin || (getpwuid($>))[0];
+
 $home = $ENV{'HOME'} || (getpwnam($user))[7];
 die "No home directory for user $user\n" unless $home;
+
+# guess real homedir under automounter
+$home="/export$home" if ( -d "/export$home" );	
+
 ($home =~ /^(.+)$/) && ($home = $1);  # untaint $home...
 chdir $home || die "Can't chdir to $home: $!\n";
 
@@ -135,6 +141,10 @@ die $usage if $user eq '' || @ARGV;
 
 $home = (getpwnam($user))[7];
 die "No home directory for user $user\n" unless $home;
+
+# guess real homedir under automounter
+$home="/export$home" if ( -d "/export$home" );	
+
 ($home =~ /^(.+)$/) && ($home = $1);  # untaint $home...
 chdir $home || die "Can't chdir to $home: $!\n";
 

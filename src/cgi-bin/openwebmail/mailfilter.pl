@@ -2,6 +2,7 @@
 # mailfilter.pl - function for mail filter
 #
 # 2001/03/15 Ebola@turtle.ee.ncku.edu.tw
+#
 
 # return: 0=nothing, <0=error, n=filted count
 # there are 4 op for a msg: 'copy', 'move', 'delete' and 'keep'
@@ -73,7 +74,7 @@ sub mailfilter {
       my ($messagestart, $messagesize);
       my @attr = split(/@@@/, $HDB{$allmessageids[$i]});
       my ($currmessage, $header, $body, $r_attachments)=("", "", "", "");
-      my ($r_smtprelays, $r_connectfrom);
+      my ($r_smtprelays, $r_connectfrom, $r_byas);
       my $matched=0;
 
       if ($filter_repeatlimit>0) {
@@ -201,7 +202,7 @@ sub mailfilter {
                ($header, $body, $r_attachments)=parse_rfc822block(\$currmessage);
             }
             if (!defined($r_smtprelays) ) {
-               ($r_smtprelays, $r_connectfrom)=get_smtprelays_connectfrom($header);
+               ($r_smtprelays, $r_connectfrom, $r_byas)=get_smtprelays_connectfrom_byas($header);
             }
             my $smtprelays=join(", ", @{$r_smtprelays});
             if (  ( $include eq 'include' && $smtprelays =~ /$text/im )
@@ -305,8 +306,9 @@ sub mailfilter {
          
       } # end @filterrules
          
-      # filter message from smtprelay with faked name
-      if ($filter_fakedsmtp) { 
+      # filter message from smtprelay with faked name if msg is not moved or deleted
+      if ( $filter_fakedsmtp &&
+           !($matched && ($op eq 'move' || $op eq 'delete')) ) {
          if ($currmessage eq "") {
             seek($folderhandle, $attr[$_OFFSET], 0);
             read($folderhandle, $currmessage, $attr[$_SIZE]);
@@ -315,24 +317,47 @@ sub mailfilter {
             ($header, $body, $r_attachments)=parse_rfc822block(\$currmessage);
          }
          if (!defined($r_smtprelays) ) {
-            ($r_smtprelays, $r_connectfrom)=get_smtprelays_connectfrom($header);
+            ($r_smtprelays, $r_connectfrom, $r_byas)=get_smtprelays_connectfrom_byas($header);
          }
 
          # move msg to trash if the first relay has invalid/faked hostname
          if ( defined(${$r_smtprelays}[0]) ) { 
             my $relay=${$r_smtprelays}[0];
-            # the last relay is the mail server whose domain is treated as localdomain
+            my $connectfrom=${$r_connectfrom}{$relay};
+            my $byas=${$r_byas}{$relay};
 
-            my $localdomain=domain(${$r_smtprelays}[$#{$r_smtprelays}]); 
+
+            my $is_private=0;
+            if ($connectfrom =~ /\[10\./ ||
+                $connectfrom =~ /\[172\.[1-3][0-9]\./ ||
+                $connectfrom =~ /\[192\.168\./ ||
+                $connectfrom =~ /\[127\.0\./ ) {
+                $is_private=1;
+            }
+           
+            my $is_valid=1;
+            if ($connectfrom ne "" && $connectfrom !~ /\Q$relay\E/i) {  # faked name
+                if ($relay=~ /[\d\w\-_]+\.[\d\w\-_]+/ && 
+                    $relay=~/\Q$byas\E/i) {
+                   $is_valid=1;
+                } else {
+                   $is_valid=0;
+                }
+            }
+
+            # the last relay is the mail server
+            my $dstdomain=domain(${$r_smtprelays}[$#{$r_smtprelays}]); 
 
 #log_time("relay $relay");
-#log_time("connectfrom ${$r_connectfrom}{$relay}");
-#log_time("localdomain $localdomain");
+#log_time("connectfrom $connectfrom");
+#log_time("byas $byas");
+#log_time("dstdomain $dstdomain");
+#log_time("is_private $is_private");
+#log_time("is_valid $is_valid");
 
-            if ($relay!~/[\w\d\-_]+\.[\w\d\-_]+/ && 
-                defined(${$r_connectfrom}{$relay}) &&
-                ${$r_connectfrom}{$relay}!~/$relay/i &&
-                ${$r_connectfrom}{$relay}!~/$localdomain/i ) {
+            if ($connectfrom !~ /\Q$dstdomain\E/i && 
+                !$is_private && 
+                !$is_valid ) {
                my $append=append_message_to_folder($allmessageids[$i],
 					\@attr, \$currmessage, 'mail-trash', 
 					$r_validfolders, $user);
@@ -360,7 +385,7 @@ sub mailfilter {
          delete $HDB{$allmessageids[$i]};
          
          $HDB{'NEWMESSAGES'}-- if ($attr[$_STATUS]!~/r/i);
-         $HDB{'INTERNALMESSAGES'}-- if ($attr[$_SUBJECT]=~/DON'T DELETE THIS MESSAGE/);
+         $HDB{'INTERNALMESSAGES'}-- if (is_internal_subject($attr[$_SUBJECT]));
          $HDB{'ALLMESSAGES'}--;
          
       } else { # message not to move or destination can not write
@@ -464,7 +489,7 @@ sub append_message_to_folder {
 
       $HDB2{$messageid}=join('@@@', @attr2);
       $HDB2{'NEWMESSAGES'}++ if ($attr2[$_STATUS]!~/r/i);
-      $HDB2{'INTERNALMESSAGES'}++ if ($attr2[$_SUBJECT]=~/DON'T DELETE THIS MESSAGE/);
+      $HDB2{'INTERNALMESSAGES'}++ if (is_internal_subject($attr2[$_SUBJECT]));
       $HDB2{'ALLMESSAGES'}++;
       $HDB2{'METAINFO'}=metainfo($dstfile);
    }
@@ -476,10 +501,11 @@ sub append_message_to_folder {
 }
 
 
-sub get_smtprelays_connectfrom {
+sub get_smtprelays_connectfrom_byas {
    my $header=$_[0];
    my @smtprelays=();
    my %connectfrom=();
+   my %byas=();
    my ($lastline, $received, $tmp);
 
    foreach (split(/\n/, $header)) {
@@ -488,7 +514,12 @@ sub get_smtprelays_connectfrom {
       } elsif (/^Received:(.+)$/ig) {
          $tmp=$1;
          if ($received=~ /^.*\sby\s([^\s]+)\s.*$/is) {
-            unshift(@smtprelays, $1) if ($smtprelays[0] ne $1);
+            if (defined($smtprelays[0])) {
+               $byas{$smtprelays[0]}=$1;
+            } else {
+               $smtprelays[0]=$1;	# the last relay on path
+               $byas{$smtprelays[0]}=$1;
+            }
          }
          if ($received=~ /^.* from\s([^\s]+)\s\((.*?)\).*$/is) {
             unshift(@smtprelays, $1);
@@ -506,7 +537,12 @@ sub get_smtprelays_connectfrom {
    }
    # capture last Received: block
    if ($received=~ /^.*\sby\s([^\s]+)\s.*$/is) {
-      unshift(@smtprelays, $1) if ($smtprelays[0] ne $1);
+      if (defined($smtprelays[0])) {
+         $byas{$smtprelays[0]}=$1;
+      } else {
+         $smtprelays[0]=$1;	# the last relay on path
+         $byas{$smtprelays[0]}=$1;
+      }
    }
    if ($received=~ /^.* from\s([^\s]+)\s\((.*?)\).*$/is) {
       unshift(@smtprelays, $1);
@@ -520,7 +556,7 @@ sub get_smtprelays_connectfrom {
    # since it means sender pc uses smtp to talk to our mail server directly
    shift(@smtprelays) if ($#smtprelays>1);
 
-   return(\@smtprelays, \%connectfrom);
+   return(\@smtprelays, \%connectfrom, \%byas);
 }
 
 

@@ -1,8 +1,165 @@
+08/22/2001
+----------
+1. remove absolution position directive in <div> tag 
+   when displaying html attachment
+2. fix a bug that can not parse out messages with some 'From xxx' line 
+   properly
+   (reported by Ted TSUI, ted@gennet.com.tw)
+
+
+08/21/2001
+----------
+1. fix the BIG5/GB conversion failure on linux
+2. polish language and templates translation update
+   (thanks to Pawel Jablonski, jablonski@dialogok.pl)
+
+
+08/17/2001
+----------
+1. chinese GB language and templates translation
+   (thanks to Wang Jun, wjun@mail.iap.ac.cn)
+
+
+08/16/2001 (version 1.40)
+----------
+1. a new mirror site is setup at http://www.geocities.com/openwebmail/
+   (Thanks to Emir Litric, elitric@hotmail.com)
+2. fix the bug that imageset is set to 'default' at login no matter what 
+   user presference setting is.
+   (reported by Emir Litric, elitric@hotmail.com)
+3. guess real homedir under /export to avoid automount on localhost
+   correct the weekday abbreviation of tuesday and wensday
+   (thanks to Dugal James P., jpd@louisiana.edu)
+4. clear path in vacation.pl to make it suitable for smrsh
+
+
+
+08/06/2001
+----------
+1. fix the 'password change' failure on system using MD5 encryption
+
+
+08/05/2001
+----------
+1. record the failure of login in histroy
+2. better support for chinese Big5 <-> GB convertion
+
+
+08/04/2001
+----------
+1. add option 'Image set' in user preference.
+
+
+08/03/2001
+----------
+1. fix a bug when downloading a message with strage subject
+   (reported by Dugal James P., jpd@louisiana.edu)
+2. add option 'disallowed_pop3servers' to openwebmail.conf
+   (thanks to Dugal James P., jpd@louisiana.edu for his patch)
+
+
+08/02/2001
+----------
+1. portuguese language and templates translation
+   (thanks to Jos Ferradeira, jferra@sfconsultores.pt)
+
+
+07/30/2001
+----------
+1. add [change password] button to user preference.
+2. add [login hostory] button to user preference. this enable user to check if
+   soemone else is hacking his mail account.
+3. support BIG5 <-> GB converting in message reading
+
+
+07/28/2001
+----------
+1. PAM support (from Nikolay Pelov, nikip@iname.com,
+                http://www.cs.kuleuven.ac.be/~pelov/pam/FAQ.html)
+   DST(day saving time) automated adjustment 
+   internal message detection of subject created by Solaris dtmail 
+   fix to openwebmail.conf $passwdfile for NIS+ password 
+   prefix /export to user $homedir for sun automounter
+   change default trash folder cleanup interval to 7 days
+   use ~/.signature instead of ~/mail/.signature if it exists
+   (thanks to Dugal James P., jpd@louisiana.edu for his great patch for all the above)
+2. move authentication related functions into auth.pl
+3. add option 'background image url' to user preference
+   (thanks to Bhaskar Manda, bhaskar_manda@yahoo.com)
+
+
+07/27/2001
+----------
+1. add many fancy styles.
+   (thanks to Emir Litric, elitric@hotmail.com)
+
+
+07/26/2001
+----------
+1. spanish language and templates translation 
+   (thanks to Félix Martos, pakito@asinkecualo.org)
+
+
+07/23/2001
+----------
+1. fix the bug that the fromname could be set but not used when 
+   $set_fromname='yes'
+   (reported by Edward Ping-Da Chuang, edwardc@tigers.idv.tw)
+   (thanks to Steve Hardy, s.a.hardy@connectux.com for his fix)
+
+
+07/22/2001
+----------
+1. swedish language and templates translation 
+   (thanks to Goran Jartin, tryfan@telia.com)
+
+
+07/21/2001
+----------
+1. fix the strange layout problem in Mac with IE browser.
+   (reported by Goran Jartin, tryfan@telia.com)
+
+
+07/20/2001
+----------
+1. minor fix to maildb.pl to handle multipart attblock with no boundary 
+   specfied in attblock header 
+   This eliminate the "Not an ARRAY reference at maildb.pl line xxxx" error
+   (reported by Administrador de Sistemas Unix, master@xanum.uam.mx)
+
+
+07/19/2001
+----------
+1. minor fix to pop3mail.pl to increase the compatibility with some broken 
+   pop3d which returns uidl without leading '+'.
+
+
+07/18/2001
+----------
+1. fix minor bug in mailfilter.pl that moves mails from localhost 
+   into trash folder 
+
+
+07/16/2001
+----------
+1. minor fix to mailfilter.pl to trust mails delivered from private ip.
+2. fix the javascript CheckAll() malfunction problem on mozilla browser
+   (thanks to Sylvain COTINEAU, xorne@topfinance.com for his fix)
+
+
+07/14/2001
+----------
+1. fix the 'message is gone' error caused by clicking 'Block SMTP Relay'
+
+
 07/13/2001
 ----------
 1. fix a bug that newly created folder won't be displayed immediately
    (reported by Carlos Pina Soares, cps@fcsh.unl.pt)
 2. fix the 'undefined subroutine ..." error when checkmail.pl option -i is used
+3. minor fix to handle .csv addressbook with semicolon separated values
+4. dutch language and templates translation
+   (thanks to Christian Boer, chris@connectux.com)
 
 
 07/12/2001 (version 1.32)
@@ -27,10 +184,10 @@
 
 07/05/2001
 ----------
-1. add a signup package 'useraddbyweb.tar.gz' to contrib/
+1. add a sign-up package 'useraddbyweb.tar.gz' to contrib/
    (contributed by to Nimrod Zimerman, zimerman@mailandnews.com and 
     Nimrod S. Carmi, simba@schoolsucks.com)   
-2. fix a bug that displays session timeout warning immidiately 
+2. fix a bug that displays session timeout warning immediately 
    after successful login when using netscape 4.04
    (reported by Fr. Visminlu Vicente L. Chua, S.J., chuavv@mail.savs.hcc.edu.tw)   
 
@@ -47,7 +204,7 @@
 
 07/03/2001
 ----------
-1. rewrite checkmail.pl. It supports newmail check, pop3 retrival and 
+1. rewrite checkmail.pl. It supports newmail check, pop3 prefetching and 
    folder index verification now.
    The sysadm can use 'checkmail.pl -p -a' in crontab to prefetch pop3
    mail for the user.
@@ -95,8 +252,8 @@
 
 06/22/2001
 ----------
-1. display a warning "session will be ended winthin 60 seconds" to user
-   before a session is timeouted
+1. display a warning "session will be ended within 60 seconds" to user
+   before a session is timeout-ed
 2. support login alias in checkmail.pl. 
    If checkmail.pl is used with fingerd, then user can get the mail status
    by 'finger virtualuser@virtualhost'
@@ -123,7 +280,7 @@
 2. fix a bug that resets the autoreply message to default when
    setting user preference
    (reported by Emir Litric, elitric@hotmail.com)
-3. Chinese GB language and template translation
+3. chinese GB language and templates translation
    (thanks to Wang Jun, wjun@mail.iap.ac.cn)
 4. Login alias/mapping support
    (thanks to Russ Reese, russ@zerotech.net for his patch code)
@@ -144,7 +301,7 @@
 ----------
 1. fix minor error in sendmessage which sets $from value in dbm to $to
    when storing message backup to SENT folder
-2. german language and template translation
+2. german language and templates translation
    (thanks to Andreas Roedl, flood@flood-net.de)
 3. minor fix to displayheader to solve the delay problem on some 
    platform, eg: linux RedHat6.2/CLE0.9
@@ -155,8 +312,8 @@
 ----------
 1. use new 3D icons instead of the original flat icons.
    (thanks to Emir Litric, elitric@hotmail.com, for his grea work of art!!!)
-2. spanish language and template translation
-   (thanks to Pakito Asinkecualo, pakito@asinkecualo.org)
+2. spanish language and templates translation
+   (thanks to Félix Martos, pakito@asinkecualo.org)
 3. german language translation
    (thanks to Andreas Roedl, flood@flood-net.de)
 4. fix .pop3.book open error when pop3book size=0
@@ -173,7 +330,7 @@
 2. change session control from 'per host' to 'per user'.
    This means a user can login openwebmail with different ids at the 
    same time from same client.
-3. the from address used in replying to a receipt rquest will depend
+3. the from address used in replying to a receipt request will depend
    on the receiver whom the message was deliver to
 
 
@@ -183,7 +340,7 @@
    Each pop3 account can set a from address now and these from addresses 
    can be used as from address when composing message
 2. count INBOX size for mail quota now
-3. prompt a confirm window beofre doing emptytrash
+3. prompt a confirm window before doing emptytrash
 
 
 06/09/2001
@@ -474,10 +631,10 @@ ps: Reinstallation is recommended for those who upgrade from old version...
 
 04/10/2001
 ----------
-1. add $use_dotlockfile to openmail.conf to support using dot lockfile
+1. add $use_dotlockfile to openwebmail.conf to support using dot lockfile
    for files located on remote NFS servers. This is recommended only if the 
    lockd on NFS server or client has problems
-ps: FrreBSD/Linux NFS server/client may need this. Solaris doesn't.
+ps: FreeBSD/Linux NFS server/client may need this. Solaris doesn't.
 ps: This dotlock routine has not been tested under heavy load yet...
 
 2. add support to filter mails relayed from a specific 'SMTP Relay'

@@ -1,3 +1,4 @@
+@@@STARTCOMPOSEFORM@@@
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="1">
 <tr><td colspan="3" bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
@@ -5,7 +6,6 @@
 </td></tr><tr><td colspan="3" bgcolor=@@@MENUBAR@@@ align="left">
 @@@BACKTOFOLDER@@@
 </td></tr><tr><td colspan="3">&nbsp;</td></tr>
-@@@STARTCOMPOSEFORM@@@
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ width="75">
 <B>De:</B>
 </td><td valign="middle" align="left" colspan="2" bgcolor=@@@WINDOW_DARK@@@>
@@ -41,7 +41,7 @@
 </td><td valign="middle" align="left" colspan="2" bgcolor=@@@WINDOW_DARK@@@>
 @@@SUBJECTFIELD@@@
 &nbsp;
-<B>Confirm Reading</B>
+<B>Confirmar Lectura</B>
 @@@CONFIRMREADINGCHECKBOX@@@
 </td></tr>
 <tr><td colspan="3" bgcolor=@@@WINDOW_LIGHT@@@>

@@ -7,15 +7,15 @@
 @@@MENUBARLINKS@@@
 </td></tr><tr><td colspan="5">&nbsp;</td></tr>
 <tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Map naam (16 karakters)</B></td>
+<B>Mapnaam (16 karakters)</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>New</B></td>
+<B>Nieuw</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Mesg</B></td>
+<B>Berichten</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Size</B></td>
+<B>Grootte</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Action</B>
+<B>Actie</B>
 </td></tr>
 @@@STARTFOLDERFORM@@@
 <tr><td align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
@@ -35,13 +35,13 @@
 
 <tr><td colspan="5">&nbsp;</td></tr>
 <tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Default folders</B></td>
+<B>Standaard mappen</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>New</B></td>
+<B>Nieuw</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Mesg</B></td>
+<B>Berichten</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Size</B></td>
+<B>Grootte</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 &nbsp;
 </td></tr>

@@ -2,13 +2,13 @@
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="1">
 <tr><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>Prefer&ecirc;ncias do usu&aacute;rio @@@REALNAME@@@</B></font>
+<B>Preferências do utilizador @@@REALNAME@@@</B></font>
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>L&iacute;ngua:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@LANGUAGEFIELD@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Seu Nome:</B>
+<B>Nome:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@REALNAMEFIELD@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
@@ -24,6 +24,14 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@STYLEMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Image set:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@IMAGESETMENU@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Background image url:</B>
+</td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@BGURLFIELD@@@
+</td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Ordena&ccedil;&atilde;o padr&atilde;o:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@SORTMENU@@@
@@ -36,54 +44,54 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@HEADERSMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Default destination:</B>
+<B>Destino por defeito:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@DEFAULTDESTINATIONMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Size for mail edit area:</B>
+<B>Área para edição de correio:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 Width @@@EDITWIDTHMENU@@@ Height @@@EDITHEIGHTMENU@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Limit for repeated messages:</B>
+<B>Limite para mensagens repetidas:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
-@@@FILTERREPEATLIMIT@@@ &nbsp( 0 means No check for repeatness )
+@@@FILTERREPEATLIMIT@@@ &nbsp( 0 significa a não verificação de repetições )
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Filter messages with faked SMTP:</B>
+<B>Filtrar mensagens com falso SMTP:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDSMTP@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Disable JavaScript inside message:</B>
+<B>Desactivar "JavaScript inside message":</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEJS@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Hide folder internal data:</B>
+<B>Ocultar pasta de dados internos:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@HIDEINTERNAL@@@
 </td></tr><tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>NewMail sound notification:</B>
+<B>Som para notificação de novo correio:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@NEWMAILSOUND@@@
 </td></tr>
 @@@AUTOPOP3START@@@
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Auto fetch POP3 at login:</B>
+<B>Auto fetch POP3 na entrada:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@AUTOPOP3CHECKBOX@@@
 </td></tr>
 @@@AUTOPOP3END@@@
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Trash mail reserved day(s):</B>
+<B>Temporização para o lixo:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@RESERVEDDAYSMENU@@@
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Auto Reply:</B>
+<B>Auto Resposta:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@AUTOREPLYCHECKBOX@@@
 &nbsp;
-Subject:
+Assunto:
 @@@AUTOREPLYSUBJECT@@@
 </td></tr><tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>
-<B>Auto Reply Text (500 characters or less)</B><BR>
+<B>Texto para a Auto Resposta (500 caracteres ou menos)</B><BR>
 @@@AUTOREPLYTEXT@@@
 </td></tr><tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>
 <B>Assinatura (m&aacute;ximo 500 caracteres)</B><BR>

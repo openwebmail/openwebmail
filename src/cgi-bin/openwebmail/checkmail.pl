@@ -19,6 +19,7 @@ $ENV{PATH} = ""; # no PATH should be needed
 
 push (@INC, '/usr/local/www/cgi-bin/openwebmail', ".");
 require "etc/openwebmail.conf";
+require "auth.pl";
 require "openwebmail-shared.pl";
 require "mime.pl";
 require "filelock.pl";
@@ -202,14 +203,12 @@ if ($ARGV[0] eq "--") {
       } elsif ($ARGV[$i] eq "--quiet" || $ARGV[$i] eq "-q") {
          $opt_quiet=1;
       } elsif ($ARGV[$i] eq "--alluser" || $ARGV[$i] eq "-a") {
-         open(PASSWD, $passwdfile);
-         while (<PASSWD>) {
-            my ($u, $id)=(split(/:/, $_))[0,2];
-            next if ($id==0 || $u eq 'daemon' || $u eq 'operator' || $u eq 'bin'
-                            || $u eq 'tty' || $u eq 'kmem' || $u eq 'uucp');
+         foreach $u (get_userlist()) {
+            next if ($u eq 'root' || $u eq 'toor'||
+                     $u eq 'daemon' || $u eq 'operator' || $u eq 'bin' ||
+                     $u eq 'tty' || $u eq 'kmem' || $u eq 'uucp');
             adduser2list($u);
          }
-         close(PASSWD);
       } elsif ($ARGV[$i] eq "--file" || $ARGV[$i] eq "-f") {
          $i++;
          if ( -f $ARGV[$i] ) {
@@ -232,7 +231,7 @@ foreach $user (@userlist) {
    $>=0;
 
    ($user =~ /^(.+)$/) && ($user = $1);  # untaint $user...
-   ($uid, $homedir) = (getpwnam($user))[2,7];
+   ($uid, $homedir) = (get_userinfo($user))[1,3];
    next if ($uid eq '' || $homedir eq '/');
 
    $uid=$> if (($homedirspools ne 'yes') && ($homedirfolders ne 'yes'));

@@ -2,10 +2,10 @@
 <!--
    // alert before session end
    var remainingseconds=@@@REMAININGSECONDS@@@;
-   var msg="Dear @@@USEREMAIL@@@,<br><br>\n"+
-           "You have been idle for a long time. "+
-           "If no more action is taken, "+
-           "this session will be ended within 60 seconds.";
+   var msg="亲爱的 @@@USEREMAIL@@@,<br><br>\n"+
+           "您已经休息很久了， "+
+           "如果没有其它后续操作，"+
+           "这个 session 将会在60秒内结束。";
 
    function timeoutwarning () {
       var hWnd = window.open("","timeoutwarning","width=400,height=140,resizable=no,scrollbars=no");

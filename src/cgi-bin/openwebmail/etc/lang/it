@@ -35,6 +35,8 @@ $lang_charset = 'iso-8859-1';
    (  
    login      => 'Login',
    clear      => 'Pulisci',
+   changepwd  => 'Change Password',
+   loginhistory=>'Login History',
    of         => 'di',
    messages   => 'messaggi',
    unread     => 'non letti',
@@ -138,6 +140,7 @@ $lang_charset = 'iso-8859-1';
             couldnt_lock      => 'Non posso scrivere',
             couldnt_seek      => 'Non posso raggiungere l\'inizio di',
             couldnt_close     => 'Non posso chiudere',
+            disallowed_pop3   => 'Disallowed POP3 server',
             norootlogin       => 'Spiacente, ma root non puo\' usare questo sistema per motivi di sicurezza',
             shouldnt_move_here=> 'Non dovresti tentare di spostare i tuoi messaggi qui!',
             destination_folder=> 'Cartella destinazione',

@@ -32,6 +32,7 @@ $ENV{PATH} = ""; # no PATH should be needed
 umask(0007); # make sure the openwebmail group can write
 
 require "etc/openwebmail.conf";
+require "auth.pl";
 require "openwebmail-shared.pl";
 require "mime.pl";
 require "filelock.pl";
@@ -47,6 +48,7 @@ local ($uid, $gid, $homedir);
 local $setcookie;
 local %prefs;
 local %style;
+local $imageset;
 local $lang;
 local $firstmessage;
 local $sort;
@@ -87,7 +89,7 @@ update_genericstable("$openwebmaildir/genericstable", $genericstable);
 
 if (defined $ENV{'HTTP_X_FORWARDED_FOR'} &&
    $ENV{'HTTP_X_FORWARDED_FOR'} !~ /^10\./ &&
-   $ENV{'HTTP_X_FORWARDED_FOR'} !~ /^172\.[1-2][6-9]\./ &&
+   $ENV{'HTTP_X_FORWARDED_FOR'} !~ /^172\.[1-3][0-9]\./ &&
    $ENV{'HTTP_X_FORWARDED_FOR'} !~ /^192\.168\./ &&
    $ENV{'HTTP_X_FORWARDED_FOR'} !~ /^127\.0\./ ) {
    $clientip=(split(/,/,$ENV{HTTP_X_FORWARDED_FOR}))[0];
@@ -109,16 +111,14 @@ $user =~ s/\-session\-0.*$//; # Grab userid from sessionid
 
 if ($user) {
    if (($homedirspools eq 'yes') || ($homedirfolders eq 'yes')) {
-      ($uid, $homedir) = (getpwnam($user))[2,7] or 
+      ($uid, $homedir) = (get_userinfo($user))[1,3] or 
          openwebmailerror("User $user doesn't exist!");
    } else {
       $uid=$>; 
-      $homedir = (getpwnam($user))[7] or 
+      $homedir = (get_userinfo($user))[3] or 
          openwebmailerror("User $user doesn't exist!");
    }
    $gid=getgrnam('mail');
-   # get useremail and domainnames from global @domainnames and genericstable db
-   ($useremail, @domainnames)=get_useremail_domainnames($user, "$openwebmaildir/genericstable", @domainnames);
 
 } else { # if no user specified, euid remains and we redo set_euid at sub login
    $uid=$>; 
@@ -144,6 +144,8 @@ $sessiontimeout = $sessiontimeout/60/24; # convert to format expected by -M
 %prefs = %{&readprefs};
 %style = %{&readstyle};
 
+$imageset = $prefs{'imageset'} || 'Default';
+
 $lang = $prefs{'language'} || $defaultlanguage;
 ($lang =~ /^(..)$/) && ($lang = $1);
 require "etc/lang/$lang";
@@ -151,6 +153,9 @@ $lang_charset ||= 'iso-8859-1';
 
 $folderusage = 0;
 if ($user) {
+   # get useremail and domainnames from global @domainnames and genericstable db
+   ($useremail, @domainnames)=get_useremail_domainnames($user, "$openwebmaildir/genericstable", @domainnames);
+
    @validfolders = @{&getfolders(0)};
    if (param("folder")) {
       my $isvalid = 0;
@@ -292,7 +297,7 @@ sub login {
    @userlist=get_userlist_by_virtualuser($userid, "$openwebmaildir/genericstable.r");
    push(@userlist, $userid);
    foreach (@userlist) {
-      if ( checklogin($passwdfile, $_, $password) ) {
+      if ( check_userpassword($_, $password) ) {
          $user = $_;
          $login_ok=1; 
          last;
@@ -305,16 +310,14 @@ sub login {
       cleanupoldsessions(); # Deletes sessionids that have expired
 
       if (($homedirspools eq 'yes') || ($homedirfolders eq 'yes')) {
-         ($uid, $homedir) = (getpwnam($user))[2,7] or 
+         ($uid, $homedir) = (get_userinfo($user))[1,3] or 
             openwebmailerror("User $user doesn't exist!");
       } else {
          $uid=$>; 
-         $homedir = (getpwnam($user))[7] or 
+         $homedir = (get_userinfo($user))[3] or 
             openwebmailerror("User $user doesn't exist!");
       }
       $gid=getgrnam('mail');
-      # get useremail and domainnames from global @domainnames and genericstable db
-      ($useremail, @domainnames)=get_useremail_domainnames($user, "$openwebmaildir/genericstable", @domainnames);
 
       set_euid_egid_umask($uid, $gid, 0077);	
       if ( $) != $gid) { # egid must be mail since this is a mail program...
@@ -326,6 +329,9 @@ sub login {
       } else {
          $folderdir = "$openwebmaildir/users/$user";
       }
+
+      # get useremail and domainnames from global @domainnames and genericstable db
+      ($useremail, @domainnames)=get_useremail_domainnames($user, "$openwebmaildir/genericstable", @domainnames);
 
       # create session file
       $setcookie = crypt(rand(),'OW');
@@ -340,10 +346,13 @@ sub login {
             openwebmailerror("$lang_err{'cant_create_dir'} $folderdir");
       }
 
+      writehistory($userid, $user, 1, "$folderdir/.history.book");
+
       if ( -f "$folderdir/.openwebmailrc" ) {
          %prefs = %{&readprefs};
          %style = %{&readstyle};
 
+         $imageset = $prefs{'imageset'} || 'Default';
          $lang = $prefs{'language'} || $defaultlanguage;
          ($lang =~ /^(..)$/) && ($lang = $1);
          require "etc/lang/$lang";
@@ -367,18 +376,44 @@ sub login {
          firsttimeuser();
       }
    } else { # Password is INCORRECT
+
+      # record this login error on history log of all possible user account
+      foreach $user (@userlist) {
+         if (($homedirspools eq 'yes') || ($homedirfolders eq 'yes')) {
+            ($uid, $gid, $homedir) = (get_userinfo($user))[1,2,3] or next;
+         } else {
+            $uid=$>; 
+            $gid=getgrnam('mail');
+            $homedir = (get_userinfo($user))[3] or next;
+         }
+
+         if ( $homedirfolders eq 'yes') {
+            $folderdir = "$homedir/$homedirfolderdirname";
+         } else {
+            $folderdir = "$openwebmaildir/users/$user";
+         }
+         next if (! -d $folderdir);
+
+         if ( ! -f "$folderdir/.history.book" ) {
+            open(HISBOOK, ">>$folderdir/.history.book");
+            close(HISBOOK);
+            chown($uid, $gid, "$folderdir/.history.book");
+         }
+         writehistory($userid, $user, 0, "$folderdir/.history.book");
+      }
+
       # delay response if login failed
       sleep 5;
 
       my $html = '';
       writelog("invalid login attempt for username=$userid");
       printheader();
-      open (INCORRECT, "$openwebmaildir/templates/$lang/passwordincorrect.template") or
-         openwebmailerror("$lang_err{'couldnt_open'} passwordincorrect.template!");
-      while (<INCORRECT>) {
+      open (LOGINFAILED, "$openwebmaildir/templates/$lang/loginfailed.template") or
+         openwebmailerror("$lang_err{'couldnt_open'} loginfailed.template!");
+      while (<LOGINFAILED>) {
          $html .= $_;
       }
-      close (INCORRECT);
+      close (LOGINFAILED);
 
       $html = applystyle($html);
       
@@ -407,6 +442,61 @@ sub logout {
    print "Location: http://$ENV{'HTTP_HOST'}$scripturl\n\n";
 }
 ################## END LOGOUT ######################
+
+################## WRITEHISTORY ####################
+sub writehistory {
+   my ($userid, $user, $success, $historybook)=@_;
+   my $timestamp = localtime();
+   my ($client, $proxy);
+
+   if (defined $ENV{'HTTP_X_FORWARDED_FOR'}) {
+      $client=$ENV{'HTTP_X_FORWARDED_FOR'};
+      $proxy=$ENV{'REMOTE_ADDR'};
+   } else {
+      $client=$ENV{'REMOTE_ADDR'};
+      $proxy="";
+   }
+
+   if ( -f $historybook ) {
+      my ($start, $end, $buff);
+
+      filelock($historybook, LOCK_EX);
+      open (HISBOOK,"+<$historybook") or return(-1);
+      seek(HISBOOK, 0, 2);	# seek to tail
+      $end=tell(HISBOOK);
+
+      if ( $end > ($maxabooksize * 1024)) {
+         seek(HISBOOK, $end-int($maxabooksize * 1024 * 0.8), 0);
+         $_=<HISBOOK>;
+         $start=tell(HISBOOK);
+
+         read(HISBOOK, $buff, $end-$start);
+
+         seek(HISBOOK, 0, 0);
+         print HISBOOK $buff;
+
+         $end=tell(HISBOOK);
+         truncate(HISBOOK, $end);
+      }
+      print HISBOOK join("\@\@\@", 
+			$timestamp, $userid, $user, $success, $client, $proxy);
+      print HISBOOK "\n";
+      close(HISBOOK);
+      filelock($historybook, LOCK_UN);
+
+   } else {
+      open(HISBOOK, ">$historybook") or return (-1);
+      print HISBOOK join("\@\@\@", 
+			$timestamp, $userid, $user, $success, $client, $proxy);
+      print HISBOOK "\n";
+      close(HISBOOK);
+   }
+
+   return(0);
+}
+
+################ END WRITEHISTORY ##################
+
 
 ################# CLEANTRASH ################
 sub cleantrash {
@@ -604,22 +694,22 @@ sub displayheaders {
 
    $html =~ s/\@\@\@NUMBEROFMESSAGES\@\@\@/$temphtml/g;
 
-   $temphtml = "<a href=\"$base_url&amp;action=composemessage&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/compose.gif\" border=\"0\" ALT=\"$lang_text{'composenew'}\"></a> ";
-   $temphtml .= "<a href=\"$base_url_nokeyword&amp;action=displayheaders&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/refresh.gif\" border=\"0\" ALT=\"$lang_text{'refresh'}\"></a> ";
-   $temphtml .= "<a href=\"$prefsurl?sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/prefs.gif\" border=\"0\" ALT=\"$lang_text{'userprefs'}\"></a> ";
+   $temphtml = "<a href=\"$base_url&amp;action=composemessage&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/$imageset/compose.gif\" border=\"0\" ALT=\"$lang_text{'composenew'}\"></a> ";
+   $temphtml .= "<a href=\"$base_url_nokeyword&amp;action=displayheaders&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/$imageset/refresh.gif\" border=\"0\" ALT=\"$lang_text{'refresh'}\"></a> ";
+   $temphtml .= "<a href=\"$prefsurl?sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/$imageset/prefs.gif\" border=\"0\" ALT=\"$lang_text{'userprefs'}\"></a> ";
    if ($folderquota) {
-      $temphtml .= "<a href=\"$prefsurl?action=editfolders&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/folder.gif\" border=\"0\" ALT=\"$lang_text{'folders'} ($lang_text{'usage'} $folderusage%)\"></a> ";
+      $temphtml .= "<a href=\"$prefsurl?action=editfolders&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/$imageset/folder.gif\" border=\"0\" ALT=\"$lang_text{'folders'} ($lang_text{'usage'} $folderusage%)\"></a> ";
    } else {
-      $temphtml .= "<a href=\"$prefsurl?action=editfolders&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/folder.gif\" border=\"0\" ALT=\"$lang_text{'folders'}\"></a> ";
+      $temphtml .= "<a href=\"$prefsurl?action=editfolders&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/$imageset/folder.gif\" border=\"0\" ALT=\"$lang_text{'folders'}\"></a> ";
    }
-   $temphtml .= "<a href=\"$prefsurl?action=editaddresses&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/addresses.gif\" border=\"0\" ALT=\"$lang_text{'addressbook'}\"></a> ";
-   $temphtml .= "<a href=\"$prefsurl?action=editfilter&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/filtersetup.gif\" border=\"0\" ALT=\"$lang_text{'filterbook'}\"></a> &nbsp; &nbsp; ";
+   $temphtml .= "<a href=\"$prefsurl?action=editaddresses&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/$imageset/addresses.gif\" border=\"0\" ALT=\"$lang_text{'addressbook'}\"></a> ";
+   $temphtml .= "<a href=\"$prefsurl?action=editfilter&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/$imageset/filtersetup.gif\" border=\"0\" ALT=\"$lang_text{'filterbook'}\"></a> &nbsp; &nbsp; ";
    if ($enable_pop3 eq 'yes') {
-      $temphtml .= "<a href=\"$prefsurl?action=editpop3&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/pop3setup.gif\" border=\"0\" ALT=\"$lang_text{'pop3book'}\"></a> ";
-      $temphtml .= "<a href=\"$scripturl?action=retrpop3s&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid\"><IMG SRC=\"$imagedir_url/pop3.gif\" border=\"0\" ALT=\"$lang_text{'retr_pop3s'}\"></a> &nbsp; &nbsp; ";
+      $temphtml .= "<a href=\"$prefsurl?action=editpop3&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/$imageset/pop3setup.gif\" border=\"0\" ALT=\"$lang_text{'pop3book'}\"></a> ";
+      $temphtml .= "<a href=\"$scripturl?action=retrpop3s&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid\"><IMG SRC=\"$imagedir_url/$imageset/pop3.gif\" border=\"0\" ALT=\"$lang_text{'retr_pop3s'}\"></a> &nbsp; &nbsp; ";
    }
-   $temphtml .= "<a href=\"$base_url&amp;action=emptytrash&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/trash.gif\" border=\"0\" ALT=\"$lang_text{'emptytrash'}\" onclick=\"return confirm('$lang_text{emptytrash} ($trash_allmessages $lang_text{messages}) ?');\"></a> ";
-   $temphtml .= "<a href=\"$base_url&amp;action=logout&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/logout.gif\" border=\"0\" ALT=\"$lang_text{'logout'} $useremail\"></a>";
+   $temphtml .= "<a href=\"$base_url&amp;action=emptytrash&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/$imageset/trash.gif\" border=\"0\" ALT=\"$lang_text{'emptytrash'}\" onclick=\"return confirm('$lang_text{emptytrash} ($trash_allmessages $lang_text{messages}) ?');\"></a> ";
+   $temphtml .= "<a href=\"$base_url&amp;action=logout&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/$imageset/logout.gif\" border=\"0\" ALT=\"$lang_text{'logout'} $useremail\"></a>";
 
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
 
@@ -649,32 +739,32 @@ sub displayheaders {
 
    if ($firstmessage != 1) {
       $temphtml1 = "<a href=\"$base_url&amp;action=displayheaders&amp;firstmessage=1\">";
-      $temphtml1 .= "<img src=\"$imagedir_url/first.gif\" align=\"absmiddle\" border=\"0\" alt=\"&lt;&lt;\"></a>";
+      $temphtml1 .= "<img src=\"$imagedir_url/$imageset/first.gif\" align=\"absmiddle\" border=\"0\" alt=\"&lt;&lt;\"></a>";
    } else {
-      $temphtml1 = "<img src=\"$imagedir_url/first-grey.gif\" align=\"absmiddle\" border=\"0\" alt=\"\">";
+      $temphtml1 = "<img src=\"$imagedir_url/$imageset/first-grey.gif\" align=\"absmiddle\" border=\"0\" alt=\"\">";
    }
 
    if (($firstmessage - $headersperpage) >= 1) {
       $temphtml1 .= "<a href=\"$base_url&amp;action=displayheaders&amp;firstmessage=" . ($firstmessage - $headersperpage) . "\">";
-      $temphtml1 .= "<img src=\"$imagedir_url/left.gif\" align=\"absmiddle\" border=\"0\" alt=\"&lt;\"></a>";
+      $temphtml1 .= "<img src=\"$imagedir_url/$imageset/left.gif\" align=\"absmiddle\" border=\"0\" alt=\"&lt;\"></a>";
    } else {
-      $temphtml1 .= "<img src=\"$imagedir_url/left-grey.gif\" align=\"absmiddle\" border=\"0\" alt=\"\">";
+      $temphtml1 .= "<img src=\"$imagedir_url/$imageset/left-grey.gif\" align=\"absmiddle\" border=\"0\" alt=\"\">";
    }
 
    $html =~ s/\@\@\@LEFTPAGECONTROL\@\@\@/$temphtml1/g;
 
    if (($firstmessage + $headersperpage) <= $numheaders) {
       $temphtml2 = "<a href=\"$base_url&amp;action=displayheaders&amp;firstmessage=" . ($firstmessage + $headersperpage) . "\">";
-      $temphtml2 .= "<img src=\"$imagedir_url/right.gif\" align=\"absmiddle\" border=\"0\" alt=\"&gt;\"></a>";
+      $temphtml2 .= "<img src=\"$imagedir_url/$imageset/right.gif\" align=\"absmiddle\" border=\"0\" alt=\"&gt;\"></a>";
    } else {
-      $temphtml2 = "<img src=\"$imagedir_url/right-grey.gif\" align=\"absmiddle\" border=\"0\" alt=\"\">";
+      $temphtml2 = "<img src=\"$imagedir_url/$imageset/right-grey.gif\" align=\"absmiddle\" border=\"0\" alt=\"\">";
    }
 
    if (($firstmessage + $headersperpage) <= $numheaders ) {
       $temphtml2 .= "<a href=\"$base_url&amp;action=displayheaders&amp;custompage=" . "$page_total\">";
-      $temphtml2 .= "<img src=\"$imagedir_url/last.gif\" align=\"absmiddle\" border=\"0\" alt=\"&gt;&gt;\"></a>";
+      $temphtml2 .= "<img src=\"$imagedir_url/$imageset/last.gif\" align=\"absmiddle\" border=\"0\" alt=\"&gt;&gt;\"></a>";
    } else {
-      $temphtml2 .= "<img src=\"$imagedir_url/last-grey.gif\" align=\"absmiddle\" border=\"0\" alt=\"\">";
+      $temphtml2 .= "<img src=\"$imagedir_url/$imageset/last-grey.gif\" align=\"absmiddle\" border=\"0\" alt=\"\">";
    }
 
    $html =~ s/\@\@\@RIGHTPAGECONTROL\@\@\@/$temphtml2/g;
@@ -752,16 +842,16 @@ sub displayheaders {
 
    $temphtml = "<a href=\"$scripturl?action=displayheaders&amp;firstmessage=".
                ($firstmessage)."&amp;sessionid=$thissession&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;sort=";
-   $temphtml .= "status\"><IMG SRC=\"$imagedir_url/new.gif\" border=\"0\" alt=\"$lang_sortlabels{'status'}\"></a>";
+   $temphtml .= "status\"><IMG SRC=\"$imagedir_url/$imageset/new.gif\" border=\"0\" alt=\"$lang_sortlabels{'status'}\"></a>";
 
    $html =~ s/\@\@\@STATUS\@\@\@/$temphtml/g;
    
    $temphtml = "<a href=\"$scripturl?action=displayheaders&amp;firstmessage=".
                ($firstmessage)."&amp;sessionid=$thissession&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;sort=";
    if ($sort eq "date") {
-      $temphtml .= "date_rev\">$lang_text{'date'} <IMG SRC=\"$imagedir_url/up.gif\" border=\"0\" alt=\"^\"></a>";
+      $temphtml .= "date_rev\">$lang_text{'date'} <IMG SRC=\"$imagedir_url/$imageset/up.gif\" border=\"0\" alt=\"^\"></a>";
    } elsif ($sort eq "date_rev") {
-      $temphtml .= "date\">$lang_text{'date'} <IMG SRC=\"$imagedir_url/down.gif\" border=\"0\" alt=\"v\"></a>";
+      $temphtml .= "date\">$lang_text{'date'} <IMG SRC=\"$imagedir_url/$imageset/down.gif\" border=\"0\" alt=\"v\"></a>";
    } else {
       $temphtml .= "date\">$lang_text{'date'}</a>";
    }
@@ -773,17 +863,17 @@ sub displayheaders {
 
    if ( ($folder eq 'sent-mail') || ($folder eq 'saved-drafts') ) {
       if ($sort eq "recipient") {
-         $temphtml .= "recipient_rev\">$lang_text{'recipient'} <IMG SRC=\"$imagedir_url/down.gif\" border=\"0\" alt=\"v\"></a></B></td>";
+         $temphtml .= "recipient_rev\">$lang_text{'recipient'} <IMG SRC=\"$imagedir_url/$imageset/down.gif\" border=\"0\" alt=\"v\"></a></B></td>";
       } elsif ($sort eq "recipient_rev") {
-         $temphtml .= "recipient\">$lang_text{'recipient'} <IMG SRC=\"$imagedir_url/up.gif\" border=\"0\" alt=\"^\"></a></B></td>";
+         $temphtml .= "recipient\">$lang_text{'recipient'} <IMG SRC=\"$imagedir_url/$imageset/up.gif\" border=\"0\" alt=\"^\"></a></B></td>";
       } else {
          $temphtml .= "recipient\">$lang_text{'recipient'}</a>";
       }
    } else {
       if ($sort eq "sender") {
-         $temphtml .= "sender_rev\">$lang_text{'sender'} <IMG SRC=\"$imagedir_url/down.gif\" border=\"0\" alt=\"v\"></a>";
+         $temphtml .= "sender_rev\">$lang_text{'sender'} <IMG SRC=\"$imagedir_url/$imageset/down.gif\" border=\"0\" alt=\"v\"></a>";
       } elsif ($sort eq "sender_rev") {
-         $temphtml .= "sender\">$lang_text{'sender'} <IMG SRC=\"$imagedir_url/up.gif\" border=\"0\" alt=\"^\"></a>";
+         $temphtml .= "sender\">$lang_text{'sender'} <IMG SRC=\"$imagedir_url/$imageset/up.gif\" border=\"0\" alt=\"^\"></a>";
       } else {
          $temphtml .= "sender\">$lang_text{'sender'}</a>";
       }
@@ -795,9 +885,9 @@ sub displayheaders {
                 ($firstmessage)."&amp;sessionid=$thissession&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;sort=";
 
    if ($sort eq "subject") {
-      $temphtml .= "subject_rev\">$lang_text{'subject'} <IMG SRC=\"$imagedir_url/down.gif\" border=\"0\" alt=\"v\"></a>";
+      $temphtml .= "subject_rev\">$lang_text{'subject'} <IMG SRC=\"$imagedir_url/$imageset/down.gif\" border=\"0\" alt=\"v\"></a>";
    } elsif ($sort eq "subject_rev") {
-      $temphtml .= "subject\">$lang_text{'subject'} <IMG SRC=\"$imagedir_url/up.gif\" border=\"0\" alt=\"^\"></a>";
+      $temphtml .= "subject\">$lang_text{'subject'} <IMG SRC=\"$imagedir_url/$imageset/up.gif\" border=\"0\" alt=\"^\"></a>";
    } else {
       $temphtml .= "subject\">$lang_text{'subject'}</a>";
    }
@@ -808,9 +898,9 @@ sub displayheaders {
                 ($firstmessage)."&amp;sessionid=$thissession&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;sort=";
 
    if ($sort eq "size") {
-      $temphtml .= "size_rev\">$lang_text{'size'} <IMG SRC=\"$imagedir_url/up.gif\" border=\"0\" alt=\"^\"></a>";
+      $temphtml .= "size_rev\">$lang_text{'size'} <IMG SRC=\"$imagedir_url/$imageset/up.gif\" border=\"0\" alt=\"^\"></a>";
    } elsif ($sort eq "size_rev") {
-      $temphtml .= "size\">$lang_text{'size'} <IMG SRC=\"$imagedir_url/down.gif\" border=\"0\" alt=\"v\"></a>";
+      $temphtml .= "size\">$lang_text{'size'} <IMG SRC=\"$imagedir_url/$imageset/down.gif\" border=\"0\" alt=\"v\"></a>";
    } else {
       $temphtml .= "size\">$lang_text{'size'}</a>";
    }
@@ -875,7 +965,7 @@ sub displayheaders {
          $boldon = '';
          $boldoff = '';
       } else {
-         $message_status .= "<img src=\"$imagedir_url/new.gif\" align=\"absmiddle\">";
+         $message_status .= "<img src=\"$imagedir_url/$imageset/new.gif\" align=\"absmiddle\">";
          $boldon = "<B>";
          $boldoff = "</B>";
       }
@@ -883,7 +973,7 @@ sub displayheaders {
       if ( ($content_type ne '') && 
            ($content_type ne 'N/A') && 
            ($content_type !~ /^text/i) ) {
-         $message_status .= "<img src=\"$imagedir_url/attach.gif\" align=\"absmiddle\">";
+         $message_status .= "<img src=\"$imagedir_url/$imageset/attach.gif\" align=\"absmiddle\">";
       }
 
       $temphtml .= qq|<tr>|.
@@ -898,11 +988,22 @@ sub displayheaders {
          qq|headers=|.($prefs{"headers"} || 'simple').qq|&amp;|.
          qq|message_id=$escapedmessageid">$subject </a>$boldoff</td>|.
          qq|<td valign="middle" width="40" bgcolor=$bgcolor>$boldon$messagesize$boldoff</td>|.
-         qq|<td align="center" valign="middle" width="50" bgcolor=$bgcolor>|.
-            checkbox(-name=>'message_ids',
-                     -value=>$messageid,
-                     -label=>'').
-         qq|</td></tr>|;
+         qq|<td align="center" valign="middle" width="50" bgcolor=$bgcolor>|;
+
+      if ( $numheaders==1 ) {
+         # make this msg selected if it is the only one
+         $temphtml .= checkbox(-name=>'message_ids',
+                               -value=>$messageid,
+                               -checked=>'checked',
+                               -label=>'');
+      } else {
+         $temphtml .= checkbox(-name=>'message_ids',
+                               -value=>$messageid,
+                               -label=>'');
+      }
+
+      $temphtml .= qq|</td></tr>|;
+
    }
 
    dbmclose(%HDB);
@@ -996,14 +1097,16 @@ sub readmessage {
    # filter junkmail at inbox beofre display any message in inbox
    filtermessage() if ($folder eq 'INBOX');
 
-   printheader();
    my $messageid = param("message_id");
-   my $escapedmessageid = CGI::escape($messageid);
    my %message = %{&getmessage($messageid)};
-   my $headers = param("headers") || $prefs{"headers"} || 'simple';
-   my $attmode = param("attmode") || 'simple';
 
    if (%message) {
+      printheader();
+
+      my $escapedmessageid = CGI::escape($messageid);
+      my $headers = param("headers") || $prefs{"headers"} || 'simple';
+      my $attmode = param("attmode") || 'simple';
+
       my $html = '';
       my ($temphtml, $temphtml1, $temphtml2);
       open (READMESSAGE, "$openwebmaildir/templates/$lang/readmessage.template") or
@@ -1028,6 +1131,7 @@ sub readmessage {
       $to = str2html($message{to} || '');
       $cc = str2html($message{cc} || '');
       $subject = str2html($message{subject} || '');
+
       if ($message{header}=~/^Disposition-Notification-To:\s?(.*?)$/im ) {
          $notificationto=$1;
       }
@@ -1041,6 +1145,16 @@ sub readmessage {
             $body= decode_base64($body);
          }
       }
+
+      # convert between gb and big5
+      if ( param('convert') eq 'b2g' ) {
+         $subject= b2g($subject);
+         $body= b2g($body);
+      } elsif ( param('convert') eq 'g2b' ) {
+         $subject= g2b($subject);
+         $body= g2b($body);
+      }
+
       if ($message{contenttype} =~ m#^text/html#i) { # convert into html table
          $body = html4nobase($body); 
          $body = html4mailto($body, $scripturl, "action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto");
@@ -1069,40 +1183,63 @@ sub readmessage {
 
       $html =~ s/\@\@\@MESSAGETOTAL\@\@\@/$message{"total"}/g;
 
-      $temphtml = "<a href=\"$base_url&amp;action=displayheaders\"><IMG SRC=\"$imagedir_url/backtofolder.gif\" border=\"0\" ALT=\"$lang_text{'backto'} $printfolder\"></a> &nbsp; &nbsp; ";
+      $temphtml = "<a href=\"$base_url&amp;action=displayheaders\"><IMG SRC=\"$imagedir_url/$imageset/backtofolder.gif\" border=\"0\" ALT=\"$lang_text{'backto'} $printfolder\"></a> &nbsp; &nbsp; ";
       $html =~ s/\@\@\@BACKTOLINK\@\@\@/$temphtml/g;
 
+      # passing covnert parm for big5/gb to composemessage if readmessage is converted
+      my $convertparm;
+      if ( param('convert') eq 'b2g' ) {
+         $convertparm="&amp;convert=b2g";
+      } elsif ( param('convert') eq 'g2b' ) {
+         $convertparm="&amp;convert=g2b";
+      }
+
       if ($folder eq 'saved-drafts') {
-         $temphtml .= "<a href=\"$base_url&amp;action=composemessage&amp;composetype=editdraft\"><IMG SRC=\"$imagedir_url/compose.gif\" border=\"0\" ALT=\"$lang_text{'editdraft'}\"></a> &nbsp; &nbsp; ";
+         $temphtml .= "<a href=\"$base_url&amp;action=composemessage&amp;composetype=editdraft\"><IMG SRC=\"$imagedir_url/$imageset/compose.gif\" border=\"0\" ALT=\"$lang_text{'editdraft'}\"></a> &nbsp; &nbsp; ";
       } elsif ($folder eq 'sent-mail') {
-         $temphtml .= "<a href=\"$base_url&amp;action=composemessage&amp;composetype=editdraft\"><IMG SRC=\"$imagedir_url/compose.gif\" border=\"0\" ALT=\"$lang_text{'editdraft'}\"></a> " .
-         "<a href=\"$base_url&amp;action=composemessage&amp;composetype=reply\"><IMG SRC=\"$imagedir_url/reply.gif\" border=\"0\" ALT=\"$lang_text{'reply'}\"></a> " .
-         "<a href=\"$base_url&amp;action=composemessage&amp;composetype=replyall\"><IMG SRC=\"$imagedir_url/replyall.gif\" border=\"0\" ALT=\"$lang_text{'replyall'}\"></a> " .
-         "<a href=\"$base_url&amp;action=composemessage&amp;composetype=forward\"><IMG SRC=\"$imagedir_url/forward.gif\" border=\"0\" ALT=\"$lang_text{'forward'}\"></a> " .
-         "<a href=\"$base_url&amp;action=composemessage&amp;composetype=forwardasatt\"><IMG SRC=\"$imagedir_url/forwardasatt.gif\" border=\"0\" ALT=\"$lang_text{'forwardasatt'}\"></a> " .
+         $temphtml .= "<a href=\"$base_url&amp;action=composemessage&amp;composetype=editdraft\"><IMG SRC=\"$imagedir_url/$imageset/compose.gif\" border=\"0\" ALT=\"$lang_text{'editdraft'}\"></a> " .
+         "<a href=\"$base_url&amp;action=composemessage&amp;composetype=reply$convertparm\"><IMG SRC=\"$imagedir_url/$imageset/reply.gif\" border=\"0\" ALT=\"$lang_text{'reply'}\"></a> " .
+         "<a href=\"$base_url&amp;action=composemessage&amp;composetype=replyall$convertparm\"><IMG SRC=\"$imagedir_url/$imageset/replyall.gif\" border=\"0\" ALT=\"$lang_text{'replyall'}\"></a> " .
+         "<a href=\"$base_url&amp;action=composemessage&amp;composetype=forward$convertparm\"><IMG SRC=\"$imagedir_url/$imageset/forward.gif\" border=\"0\" ALT=\"$lang_text{'forward'}\"></a> " .
+         "<a href=\"$base_url&amp;action=composemessage&amp;composetype=forwardasatt\"><IMG SRC=\"$imagedir_url/$imageset/forwardasatt.gif\" border=\"0\" ALT=\"$lang_text{'forwardasatt'}\"></a> " .
          "&nbsp; &nbsp; ";
       } else {
-         $temphtml .= "<a href=\"$base_url&amp;action=composemessage&amp;composetype=reply\"><IMG SRC=\"$imagedir_url/reply.gif\" border=\"0\" ALT=\"$lang_text{'reply'}\"></a> " .
-         "<a href=\"$base_url&amp;action=composemessage&amp;composetype=replyall\"><IMG SRC=\"$imagedir_url/replyall.gif\" border=\"0\" ALT=\"$lang_text{'replyall'}\"></a> " .
-         "<a href=\"$base_url&amp;action=composemessage&amp;composetype=forward\"><IMG SRC=\"$imagedir_url/forward.gif\" border=\"0\" ALT=\"$lang_text{'forward'}\"></a> " .
-         "<a href=\"$base_url&amp;action=composemessage&amp;composetype=forwardasatt\"><IMG SRC=\"$imagedir_url/forwardasatt.gif\" border=\"0\" ALT=\"$lang_text{'forwardasatt'}\"></a> " .
+         $temphtml .= "<a href=\"$base_url&amp;action=composemessage&amp;composetype=reply$convertparm\"><IMG SRC=\"$imagedir_url/$imageset/reply.gif\" border=\"0\" ALT=\"$lang_text{'reply'}\"></a> " .
+         "<a href=\"$base_url&amp;action=composemessage&amp;composetype=replyall$convertparm\"><IMG SRC=\"$imagedir_url/$imageset/replyall.gif\" border=\"0\" ALT=\"$lang_text{'replyall'}\"></a> " .
+         "<a href=\"$base_url&amp;action=composemessage&amp;composetype=forward$convertparm\"><IMG SRC=\"$imagedir_url/$imageset/forward.gif\" border=\"0\" ALT=\"$lang_text{'forward'}\"></a> " .
+         "<a href=\"$base_url&amp;action=composemessage&amp;composetype=forwardasatt\"><IMG SRC=\"$imagedir_url/$imageset/forwardasatt.gif\" border=\"0\" ALT=\"$lang_text{'forwardasatt'}\"></a> " .
          "&nbsp; &nbsp; ";
       }
-      $temphtml .= "<a href=\"$base_url&amp;action=logout\"><IMG SRC=\"$imagedir_url/logout.gif\" border=\"0\" ALT=\"$lang_text{'logout'} $useremail\"></a>";
+
+      if ($lang eq 'cn') {
+         if (defined(param('convert'))) {
+            $temphtml .= "<a href=\"$base_url&amp;action=readmessage&amp;headers=$headers&amp;attmode=$attmode\"><img src=\"$imagedir_url/$imageset/big52gb.gif\" border=\"0\" alt=\"revert back\"></a> ";
+         } else {
+            $temphtml .= "<a href=\"$base_url&amp;action=readmessage&amp;headers=$headers&amp;attmode=$attmode&amp;convert=b2g\"><img src=\"$imagedir_url/$imageset/big52gb.gif\" border=\"0\" alt=\"Big5 to GB\"></a> ";
+         }
+      } elsif ($lang eq 'tw') {
+         if (defined(param('convert'))) {
+            $temphtml .= "<a href=\"$base_url&amp;action=readmessage&amp;headers=$headers&amp;attmode=$attmode\"><img src=\"$imagedir_url/$imageset/gb2big5.gif\" border=\"0\" alt=\"revert back\"></a> ";
+         } else {
+            $temphtml .= "<a href=\"$base_url&amp;action=readmessage&amp;headers=$headers&amp;attmode=$attmode&amp;convert=g2b\"><img src=\"$imagedir_url/$imageset/gb2big5.gif\" border=\"0\" alt=\"GB to Big5\"></a> ";
+         }
+      }
+
+      $temphtml .= "<a href=\"$base_url&amp;action=logout\"><IMG SRC=\"$imagedir_url/$imageset/logout.gif\" border=\"0\" ALT=\"$lang_text{'logout'} $useremail\"></a>";
    
       $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
 
       if (defined($message{"prev"})) {
-         $temphtml1 = "<a href=\"$base_url_noid&amp;action=readmessage&amp;message_id=$message{'prev'}&amp;headers=$headers&amp;attmode=$attmode\"><img src=\"$imagedir_url/left.gif\" align=\"absmiddle\" border=\"0\" alt=\"&lt;&lt;\"></a>";
+         $temphtml1 = "<a href=\"$base_url_noid&amp;action=readmessage&amp;message_id=$message{'prev'}&amp;headers=$headers&amp;attmode=$attmode\"><img src=\"$imagedir_url/$imageset/left.gif\" align=\"absmiddle\" border=\"0\" alt=\"&lt;&lt;\"></a>";
       } else {
-         $temphtml1 = "<img src=\"$imagedir_url/left-grey.gif\" align=\"absmiddle\" border=\"0\" alt=\"\">";
+         $temphtml1 = "<img src=\"$imagedir_url/$imageset/left-grey.gif\" align=\"absmiddle\" border=\"0\" alt=\"\">";
       }
       $html =~ s/\@\@\@LEFTMESSAGECONTROL\@\@\@/$temphtml1/g;
 
       if (defined($message{"next"})) {
-         $temphtml2 = "<a href=\"$base_url_noid&amp;action=readmessage&amp;message_id=$message{'next'}&amp;headers=$headers&amp;attmode=$attmode\"><img src=\"$imagedir_url/right.gif\" align=\"absmiddle\" border=\"0\" alt=\"&gt;&gt;\"></a>";
+         $temphtml2 = "<a href=\"$base_url_noid&amp;action=readmessage&amp;message_id=$message{'next'}&amp;headers=$headers&amp;attmode=$attmode\"><img src=\"$imagedir_url/$imageset/right.gif\" align=\"absmiddle\" border=\"0\" alt=\"&gt;&gt;\"></a>";
       } else {
-         $temphtml2 = "<img src=\"$imagedir_url/right-grey.gif\" align=\"absmiddle\" border=\"0\" alt=\"\">";
+         $temphtml2 = "<img src=\"$imagedir_url/$imageset/right-grey.gif\" align=\"absmiddle\" border=\"0\" alt=\"\">";
       }
       $html =~ s/\@\@\@RIGHTMESSAGECONTROL\@\@\@/$temphtml2/g;
 
@@ -1203,12 +1340,12 @@ sub readmessage {
          $realname=CGI::escape($realname);
          $escapedemail=CGI::escape($email);
          $temphtml .= "&nbsp;<a href=\"$prefsurl?action=addaddress&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid&amp;realname=$realname&amp;email=$escapedemail\">".
-                      "<IMG SRC=\"$imagedir_url/imports.gif\" align=\"absmiddle\" border=\"0\" ALT=\"$lang_text{'importadd'} $email\">".
+                      "<IMG SRC=\"$imagedir_url/$imageset/imports.gif\" align=\"absmiddle\" border=\"0\" ALT=\"$lang_text{'importadd'} $email\">".
                       "</a>";
 
          if ($message{smtprelay} !~ /^\s*$/) {
             $temphtml .= "&nbsp;<a href=\"$prefsurl?action=addfilter&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid&amp;priority=20&amp;rules=smtprelay&amp;include=include&amp;text=$message{smtprelay}&amp;destination=mail-trash&amp;enable=1\">".
-                      "<IMG SRC=\"$imagedir_url/blockrelay.gif\" align=\"absmiddle\" border=\"0\" ALT=\"$lang_text{'blockrelay'} $message{smtprelay}\">".
+                      "<IMG SRC=\"$imagedir_url/$imageset/blockrelay.gif\" align=\"absmiddle\" border=\"0\" ALT=\"$lang_text{'blockrelay'} $message{smtprelay}\">".
                       "</a>";
          }
 
@@ -1242,7 +1379,7 @@ sub readmessage {
 
          # enable download the whole message
          $temphtml .= "&nbsp;<a href=\"$scripturl/Unknown.msg?action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder&amp;attachment_nodeid=all\">".
-                      "<IMG SRC=\"$imagedir_url/downloads.gif\" align=\"absmiddle\" border=\"0\" ALT=\"$lang_text{'download'} $subject.msg\">".
+                      "<IMG SRC=\"$imagedir_url/$imageset/downloads.gif\" align=\"absmiddle\" border=\"0\" ALT=\"$lang_text{'download'} $subject.msg\">".
                       "</a>\n";
       }
 
@@ -1309,13 +1446,31 @@ sub readmessage {
             # handle display of attachments in simple mode
             if ( ${$message{attachment}[$attnumber]}{contenttype}=~ /^text\/html/i ) {
                if ( ${$message{attachment}[$attnumber]}{filename}=~ /^Unknown\./ ) {
-                  $temphtml .= html_att2table($message{attachment}, $attnumber, $escapedmessageid);
+                  # convert between gb and big5
+                  if ( param('convert') eq 'b2g' ) {
+                     my $big5 = html_att2table($message{attachment}, $attnumber, $escapedmessageid);
+                     $temphtml .= b2g($big5);
+                  } elsif ( param('convert') eq 'g2b' ) {
+                     my $gb = html_att2table($message{attachment}, $attnumber, $escapedmessageid);
+                     $temphtml .= g2b($gb);
+                  } else {
+                     $temphtml .= html_att2table($message{attachment}, $attnumber, $escapedmessageid);
+                  }
                } else {
                   $temphtml .= misc_att2table($message{attachment}, $attnumber, $escapedmessageid);
                }
             } elsif ( ${$message{attachment}[$attnumber]}{contenttype}=~ /^text/i ) {
                if ( ${$message{attachment}[$attnumber]}{filename}=~ /^Unknown\./ ) {
-                  $temphtml .= text_att2table($message{attachment}, $attnumber);
+                  # convert between gb and big5
+                  if ( param('convert') eq 'b2g' ) {
+                     my $big5 = text_att2table($message{attachment}, $attnumber);
+                     $temphtml .= b2g($big5);
+                  } elsif ( param('convert') eq 'g2b' ) {
+                     my $gb = text_att2table($message{attachment}, $attnumber);
+                     $temphtml .= g2b($gb);
+                  } else {
+                     $temphtml .= text_att2table($message{attachment}, $attnumber);
+                  }
                } else {
                   $temphtml .= misc_att2table($message{attachment}, $attnumber, $escapedmessageid);
                }
@@ -1348,26 +1503,27 @@ sub readmessage {
                qq|replyreceiptconfirm('$base_url&amp;action=replyreceipt');\n|,
                qq|//-->\n</script>\n|;
       }
-   } else {
-      $messageid = str2html($messageid);
-      print "What the heck? Message $messageid seems to be gone!";
-   }
-   printfooter();
 
-### fork a child to do the status update and headerdb update
-   if ($message{status} !~ /r/i) {
-      $|=1; 				# flush all output
-      $SIG{CHLD} = sub { wait };	# handle zombie
-      if ( fork() == 0 ) {		# child
-         close(STDOUT);
-         close(STDIN);
+      printfooter();
 
-         my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
-         filelock($folderfile, LOCK_EX|LOCK_NB) or exit 1;
-         update_message_status($messageid, "R", $headerdb, $folderfile);
-         filelock("$folderfile", LOCK_UN);
-         exit 0;
+      ### fork a child to do the status update and headerdb update
+      if ($message{status} !~ /r/i) {
+         $|=1; 				# flush all output
+         $SIG{CHLD} = sub { wait };	# handle zombie
+         if ( fork() == 0 ) {		# child
+            close(STDOUT);
+            close(STDIN);
+
+            my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
+            filelock($folderfile, LOCK_EX|LOCK_NB) or exit 1;
+            update_message_status($messageid, "R", $headerdb, $folderfile);
+            filelock("$folderfile", LOCK_UN);
+            exit 0;
+         }
       }
+
+   } else {
+       displayheaders();
    }
 }
 
@@ -1513,6 +1669,57 @@ sub lenstr {
    }
    return ($len);
 }
+
+sub g2b {
+   my $gb=$_[0];
+   my $big5="";
+   my $tmpfile="/tmp/.tmpfile-$thissession";
+
+   ($tmpfile =~ /^(.+)$/) && ($tmpfile = $1);   # bypass taint check
+
+   open (TMP, ">$tmpfile");
+   print TMP $gb;
+   close(TMP);
+
+   # required on linux since it execute shell with real uid (nobody),
+   # thus $g2b_converter won't be able to read $tmpfile if mode not set
+   chmod(0644, $tmpfile);	
+
+   open(CONV, "$g2b_converter < $tmpfile |");
+   while (<CONV>) {
+      $big5 .= $_;
+   }
+   close(CONV);
+
+   unlink $tmpfile;
+   return($big5);
+}
+
+sub b2g {
+   my $big5=$_[0];
+   my $gb="";
+   my $tmpfile="/tmp/.tmpfile-$thissession";
+
+   ($tmpfile =~ /^(.+)$/) && ($tmpfile = $1);   # bypass taint check
+
+   open (TMP, ">$tmpfile");
+   print TMP $big5;
+   close(TMP);
+
+   # required on linux since it execute shell with real uid (nobody),
+   # thus $b2g_converter won't be able to read $tmpfile if mode not set
+   chmod(0644, $tmpfile);
+
+   open(CONV, "$b2g_converter < $tmpfile |");
+   while (<CONV>) {
+      $gb .= $_;
+   }
+   close(CONV);
+
+   unlink $tmpfile;
+   return($gb);
+}
+
 ############### END READMESSAGE ##################
 
 ################## REPLYRECEIPT ##################
@@ -1926,6 +2133,15 @@ sub composemessage {
 
    }
 
+   # convert between gb and big5
+   if ( param('convert') eq 'b2g' ) {
+      $subject= b2g($subject);
+      $body= b2g($body);
+   } elsif ( param('convert') eq 'g2b' ) {
+      $subject= g2b($subject);
+      $body= g2b($body);
+   }
+
    if ( (defined($prefs{"signature"})) && 
         ($composetype ne 'continue') &&
         ($composetype ne 'editdraft') ) {
@@ -1934,7 +2150,17 @@ sub composemessage {
 
    printheader();
    
-   $temphtml = "<a href=\"$scripturl?action=displayheaders&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/backtofolder.gif\" border=\"0\" ALT=\"$lang_text{'backto'} $printfolder\"></a>";
+   $temphtml = "<a href=\"$scripturl?action=displayheaders&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/$imageset/backtofolder.gif\" border=\"0\" ALT=\"$lang_text{'backto'} $printfolder\"></a>";
+   if ($lang eq 'cn' ) {
+       $temphtml .= " &nbsp; &nbsp; ".
+                    "<a href=\"javascript:convert_b2g()\"><IMG SRC=\"$imagedir_url/$imageset/big52gb.gif\" border=\"0\" ALT=\"Big5 to GB\"></a> ".
+                    "<a href=\"javascript:convert_g2b()\"><IMG SRC=\"$imagedir_url/$imageset/gb2big5.gif\" border=\"0\" ALT=\"GB to Big5\"></a>";
+   } elsif ($lang eq 'tw' ) {
+       $temphtml .= " &nbsp; &nbsp; ".
+                    "<a href=\"javascript:convert_g2b()\"><IMG SRC=\"$imagedir_url/$imageset/gb2big5.gif\" border=\"0\" ALT=\"GB to Big5\"></a> ".
+                    "<a href=\"javascript:convert_b2g()\"><IMG SRC=\"$imagedir_url/$imageset/big52gb.gif\" border=\"0\" ALT=\"Big5 to GB\"></a>";
+   }
+
    $html =~ s/\@\@\@BACKTOFOLDER\@\@\@/$temphtml/g;
 
    $temphtml = start_multipart_form(-name=>'composeform');
@@ -1961,6 +2187,9 @@ sub composemessage {
                        -default=>$folder,
                        -override=>'1');
    $temphtml .= hidden(-name=>'deleteattfile',
+                       -default=>'',
+                       -override=>'1');
+   $temphtml .= hidden(-name=>'convert',
                        -default=>'',
                        -override=>'1');
    if (param("message_id")) {
@@ -2001,24 +2230,32 @@ sub composemessage {
    $html =~ s/\@\@\@REPLYTOFIELD\@\@\@/$temphtml/g;
    
    # table of attachment list 
-   $temphtml = "<table cellspacing='0' cellpadding='0' width='70%'><tr valign='bottom'><td>\n";
-   $temphtml .= "<table cellspacing='0' cellpadding='0'>\n";
-   for (my $i=0; $i<=$#{$r_attnamelist}; $i++) {
-      my $attsize=int((-s "$openwebmaildir/sessions/${$r_attfilelist}[$i]")/1024);
-      $temphtml .= "<tr valign=top>".
-                   "<td><a href=\"$scripturl?sessionid=$thissession&amp;action=viewattfile&amp;attfile=${$r_attfilelist}[$i]\">${$r_attnamelist}[$i]</a></td>".
-                   "<td nowrap align='right'>&nbsp;$attsize KB &nbsp;</td>".
-                   "<td nowrap><a href=\"javascript:DeleteAttFile('${$r_attfilelist}[$i]')\">[$lang_text{'delete'}]</a></td>".
-                   "</tr>\n";
+   if ($#{$r_attnamelist}>=0) {
+      $temphtml = "<table cellspacing='0' cellpadding='0' width='70%'><tr valign='bottom'>\n";
+
+      $temphtml .= "<td><table cellspacing='0' cellpadding='0'>\n";
+      for (my $i=0; $i<=$#{$r_attnamelist}; $i++) {
+         my $attsize=int((-s "$openwebmaildir/sessions/${$r_attfilelist}[$i]")/1024);
+         $temphtml .= "<tr valign=top>".
+                      "<td><a href=\"$scripturl?sessionid=$thissession&amp;action=viewattfile&amp;attfile=${$r_attfilelist}[$i]\">${$r_attnamelist}[$i]</a></td>".
+                      "<td nowrap align='right'>&nbsp;$attsize KB &nbsp;</td>".
+                      "<td nowrap><a href=\"javascript:DeleteAttFile('${$r_attfilelist}[$i]')\">[$lang_text{'delete'}]</a></td>".
+                      "</tr>\n";
+      }
+      $temphtml .= "</table></td>\n";
+
+      $temphtml .= "<td align='right'>\n";
+      if ( $savedattsize ) {
+         $temphtml .= "<em>" . int($savedattsize/1024) . "KB";
+         $temphtml .= " $lang_text{'of'} $attlimit MB" if ( $attlimit );
+         $temphtml .= "</em>";
+      }
+      $temphtml .= "</td>";
+
+      $temphtml .= "</tr></table>\n";
+   } else {
+      $temphtml="";
    }
-   $temphtml .= "</table>\n";
-   $temphtml .= "</td><td align='right'>\n";
-   if ( $savedattsize ) {
-      $temphtml .= "<em>" . int($savedattsize/1024) . "KB";
-      $temphtml .= " $lang_text{'of'} $attlimit MB" if ( $attlimit );
-      $temphtml .= "</em>";
-   }
-   $temphtml .= "</td></tr></table>\n";
 
    $temphtml .= filefield(-name=>'attachment',
                          -default=>'',
@@ -2158,6 +2395,7 @@ sub sendmessage {
    # user press 'add' button or click 'delete' link
    if (defined(param($lang_text{'add'})) 
     || param("deleteattfile") ne '' 
+    || param("convert") ne ''
     || ( defined(param($lang_text{'send'}))
          && param("to") eq '' 
          && param("cc") eq '' 
@@ -2168,7 +2406,7 @@ sub sendmessage {
       my $localtime = scalar(localtime);
       my $date = localtime();
       my @datearray = split(/ +/, $date);
-      $date = "$datearray[0], $datearray[2] $datearray[1] $datearray[4] $datearray[3] $timeoffset";
+      $date = "$datearray[0], $datearray[2] $datearray[1] $datearray[4] $datearray[3] ".dst_adjust($timeoffset);
 
       my $from=param('from') || $useremail;
       my $realname = $prefs{"realname"} || '';
@@ -2482,6 +2720,7 @@ sub viewattachment {	# view attachments inside a message
    if ( $nodeid eq 'all' ) { 
       # return whole msg as an message/rfc822 object
       my $subject = (get_message_attributes($messageid, $headerdb))[$_SUBJECT];
+      $subject =~ s/\s+/_/g;
       my $length = length(${$r_block});
       # disposition:attachment default to save
       print qq|Content-Length: $length\n|,
@@ -3078,7 +3317,7 @@ sub firsttimeuser {
                        -default=>'yes',
                        -override=>'1');
    $temphtml .= hidden(-name=>'realname',
-                       -default=>(split(/,/,(getpwnam($user))[6]))[0] || "Your Name",
+                       -default=>(split(/,/,(get_userinfo($user))[0]))[0] || "Your Name",
                        -override=>'1');
    $temphtml .= submit("$lang_text{'continue'}");
    $temphtml .= end_form();
@@ -3111,7 +3350,7 @@ sub retrpop3 {
 
    # create system spool file /var/mail/xxxx
    if ( ! -f "$spoolfile" ) {
-      my ($uuid, $ugid) = (getpwnam($user))[2,3];
+      my ($uuid, $ugid) = (get_userinfo($user))[1,2];
       open (F, ">>$spoolfile");
       close(F);
       chown ($uuid, $ugid, $spoolfile);
@@ -3125,6 +3364,12 @@ sub retrpop3 {
    }
    if (getpop3book("$folderdir/.pop3.book", \%accounts) <0) {
       openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.pop3.book!");
+   }
+
+   foreach (@disallowed_pop3servers) {
+      if ($pop3host eq $_) {
+         openwebmailerror("$lang_err{'disallowed_pop3'} $pop3host");
+      }
    }
 
    # since pop3 fetch may be slow, the spoolfile lock is done inside routine.
@@ -3189,7 +3434,7 @@ sub _retrpop3s {
 
    # create system spool file /var/mail/xxxx
    if ( ! -f "$spoolfile" ) {
-      my ($uuid, $ugid) = (getpwnam($user))[2,3];
+      my ($uuid, $ugid) = (get_userinfo($user))[1,2];
       open (F, ">>$spoolfile");
       close(F);
       chown($uuid, $ugid, $spoolfile);
@@ -3210,9 +3455,15 @@ sub _retrpop3s {
 
          foreach (values %accounts) {
             my ($pop3host, $pop3user, $mbox);
-            my ($response, $dummy);
+            my ($response, $dummy, $h);
 
             ($pop3host, $pop3user, $dummy) = split(/:/,$_, 3);
+
+            foreach $h (@disallowed_pop3servers) {
+               last if ($pop3host eq $h);
+            }
+            next if ($pop3host eq $h);
+
             $response = retrpop3mail($pop3host, $pop3user, 
          				"$folderdir/.pop3.book",  $spoolfile);
             if ( $response<0) {
@@ -3255,22 +3506,3 @@ sub filtermessage {
 }
 ################# END FILTERMESSAGE #######################
 
-################ CHECKLOGIN ###############################
-sub checklogin {
-   my ($passwdfile, $username, $password)=@_;
-   return 0 unless ( $passwdfile && $username && $password );
-
-   open (PASSWD, $passwdfile) or return 0;
-   while (defined($line = <PASSWD>)) {
-      ($usr,$pswd) = (split(/:/, $line))[0,1];
-      last if ($usr eq $username); # We've found the user in /etc/passwd
-   }
-   close (PASSWD);
-
-   if ($usr eq $username && crypt($password,$pswd) eq $pswd) {
-      return 1;
-   } else { 		# User/Pass combo is WRONG!
-      return 0;
-   }
-}
-###################### END CHECKLOGIN ######################

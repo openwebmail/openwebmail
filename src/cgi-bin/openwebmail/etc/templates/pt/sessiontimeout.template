@@ -4,7 +4,7 @@
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>Tempo limite esgotado</B></FONT></TD></TR>
 <tr><td valign="middle" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>Lamento, pois a sua sess&atilde;o foi fechada por ter ficado
-muito tempo sem opera&ccedil;&atilde;o. Por favor clicar no botao voltar e tente
-<a href="@@@SCRIPTURL@@@">logar-se novamente</a>.<BR><BR>
+<BR>Lamento, a sua sess&atilde;o foi fechada por ter ficado
+muito tempo sem opera&ccedil;&atilde;o. Por favor clique no botão voltar e tente
+<a href="@@@SCRIPTURL@@@">entrar novamente</a>.<BR><BR>
 </td></tr></table>

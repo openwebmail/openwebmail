@@ -5,7 +5,7 @@ $lang_charset = 'GB2312';
 %lang_folders =
    (
    INBOX => '收件箱',
-   'saved-messages' => '邮件仓库',
+   'saved-messages' => '已存档邮件',
    'sent-mail'      => '已发送邮件',
    'saved-drafts'   => '草稿箱',
    'mail-trash'     => '垃圾箱',
@@ -35,6 +35,8 @@ $lang_charset = 'GB2312';
    (  
    login      => '登录',
    clear      => '清除',
+   changepwd  => '修改密码',
+   loginhistory=>'登录记录',
    of         => '/',
    messages   => '封信',
    unread     => '未读',
@@ -100,7 +102,7 @@ $lang_charset = 'GB2312';
    abook      => '地址簿',
    group      => '邮件组',
    quota_hit  => '存储空间已满',
-   usage      => 'Usage',
+   usage      => '使用空间',
    pop3book   => '设定POP3邮件',
    retr_pop3s => '收取POP3邮件',
    filterbook => '设定邮件规则',
@@ -138,8 +140,9 @@ $lang_charset = 'GB2312';
             couldnt_lock      => '写入无法锁定',
             couldnt_seek      => '无法寻找',
             couldnt_close     => '无法关闭',
+            disallowed_pop3   => '禁止连线至POP3服务器',
             norootlogin       => '不能用root登录。',
-            shouldnt_move_here=> '不能在这里转移信件！',
+            shouldnt_move_here=> '不能在这里转移邮件！',
             destination_folder=> '目的邮件夹',
             doesnt_exist      => '不存在！',
             foldername_long   => '邮件夹名称不能超过16个字符！',
@@ -159,7 +162,7 @@ $lang_charset = 'GB2312';
             user_not_exist    => '使用者不存在',
             password_error    => '密码错误',
             network_server_error => '网络服务器错误',
-            sendmail_error    => '抱歉！无法寄出您的邮件，请回到上一页检查是否输入错误后，再重寄一次。'
+            sendmail_error    => '抱歉！无法发出您的邮件，请回到上一页检查是否输入错误后，再重发一次。'
             );
 
 1;

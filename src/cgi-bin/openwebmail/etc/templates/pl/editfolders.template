@@ -9,11 +9,11 @@
 <tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Nazwa katalogu (max. 16 znaków)</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>New</B></td>
+<B>Nowych</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Mesg</B></td>
+<B>Wiad.</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Size</B></td>
+<B>Rozmiar</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Operacja</B>
 </td></tr>
@@ -35,13 +35,13 @@
 
 <tr><td colspan="5">&nbsp;</td></tr>
 <tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Default folders</B></td>
+<B>Standardowe foldery</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>New</B></td>
+<B>Nowych</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Mesg</B></td>
+<B>Wiad.</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Size</B></td>
+<B>Rozmiar</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 &nbsp;
 </td></tr>

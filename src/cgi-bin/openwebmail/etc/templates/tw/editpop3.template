@@ -60,7 +60,7 @@
         document.newpop3.pop3email.value = pop3email;
       else
         document.newpop3.pop3email.value = '"'+pop3realname+'"'+' <'+pop3email+'>';
-      if (del == 1)
+      if (pop3del == 1)
       	document.newpop3.pop3del.checked = true;
       else
         document.newpop3.pop3del.checked = false;

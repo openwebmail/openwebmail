@@ -35,6 +35,8 @@ $lang_charset = 'iso-8859-2';
    (  
    login      => 'Login',
    clear      => 'Töröl',
+   changepwd  => 'Change Password',
+   loginhistory=>'Login History',
    of         => '',
    messages   => 'üzenetek',
    unread     => 'olvasatlan',
@@ -138,6 +140,7 @@ $lang_charset = 'iso-8859-2';
             couldnt_lock      => 'Nem írható',
             couldnt_seek      => 'Nem találom az elejét',
             couldnt_close     => 'Nem tudom bezárni',
+            disallowed_pop3   => 'Disallowed POP3 server',
             norootlogin       => 'Sajnálom, biztonsági okokból root nem jelentkezhet be.',
             shouldnt_move_here=> 'Ide nem kellene üzenetet mozgatnod!',
             destination_folder=> 'Célmappa',

@@ -1,5 +1,5 @@
 
-Open WeMail is a webmail system based on 
+Open WebMail is a webmail system based on 
 the Neomail version 1.14 from Ernie Miller. 
 
 Open WebMail is targeted on dealing with very big mail folder files in a 
@@ -17,20 +17,23 @@ Open WebMail has the following enhanced features:
 4.  convenient folder and message operation
 5.  graceful filelock
 6.  virtual hosting and account alias
-7.  full content search
-8.  better MIME message display
-9.  draft folder support
-10. spelling check support
-11. POP3 mail support
-12. mail filter support
-13. message count preview
-14. confirm reading support
+7.  pam support
+8.  full content search
+9.  better MIME message display
+10.  draft folder support
+11. spelling check support
+12. POP3 mail support
+13. mail filter support
+14. message count preview
+15. confirm reading support
+16. BIG5/GB convertion (for chinese only)
 
 
 REQUIREMENT
 -----------
 Apache web server with cgi enabled
 Perl 5.005 or above
+Ispell package (ispell-3.1.20.tar.gz)
 
 
 INSTALL
@@ -47,7 +50,7 @@ then just
 3. add 'Tnobody' to the 'Trusted users' session in your sendmail.cf
 
 
-If you are using Redhat 6.2/CLE 0.9p1(or most Linux) with apache
+If you are using RedHat 6.2/CLE 0.9p1(or most Linux) with apache
 (by clarinet@totoro.cs.nthu.edu.tw)
 
 1. cd /home/httpd
@@ -78,7 +81,7 @@ If you are using Redhat 6.2/CLE 0.9p1(or most Linux) with apache
 ps: if you are using RedHat 7.1, please use /var/www instead of /home/httpd
     (by elitric@hotmail.com)
 
-If you are upgrading from old openwebmail on Redhat 6.2/CLE 0.9p1
+If you are upgrading from old openwebmail on RedHat 6.2/CLE 0.9p1
 
 1. move original openwebmail dir (cgi-bin/openwebmail and html/openwebmail) 
     to different name (eg: something like openwebmail.old)
@@ -87,8 +90,8 @@ If you are upgrading from old openwebmail on Redhat 6.2/CLE 0.9p1
    uty/migrate.pl
 4. delete the old original openwebmail dir (openwebmail.old)
 
-ps: It is highly recommended to read the doc/RedHat-README.txt(contribed by 
-    elitric@hotmail.com) if you are intsall OpenWebmail on RedHat Linux.
+ps: It is highly recommended to read the doc/RedHat-README.txt(contributed by 
+    elitric@hotmail.com) if you are installing Open WebMail on RedHat Linux.
 
 
 If you are using other UNIX with apache, that is okay
@@ -110,34 +113,13 @@ eg: /usr/local/apache/share, then
 4. add 'Tnobody' to the 'Trusted users' session in your sendmail.cf
 
 
-FILTER SUPPORT
---------------
-The mailfilter checks if messages in INBOX folder matches the filters rules 
-defined by user. If matches, move/copy the message to the target folder.
-If you move a message to the DELETE folder, which means deleting messages 
-from a folder. If you use INBOX as the destination in a filter rule, 
-any message matching this rule will be kept in the INBOX folder and 
-other rules will be ignored.
+SPEEDUP ENCODING/DECODING OF MIME ATTACHMENTS
+---------------------------------------------
+The encoding/decoding speed would be much faster if you install the 
+MIME-Base64 module from CPAN with XS support
 
-Since mail filtering is activated only in Open WebMail, it means messages 
-will stay in the INBOX until user reads their mail with Open WebMail. 
-So 'finger' or other mail status check utility may give you wrong 
-information since they don't know about the filter.
-
-A command tool 'checkmail.pl' can be used as finger replacement.
-It does mail filtering before report mail status. 
-
-Some fingerd allow you to specify the name of finger program by -p option
-(ex: fingerd on FreeBSD). By changing the parameter to fingerd in 
-/etc/inetd.conf, users can get their mail status from remote host.
-
-checkmail.pl can be also used in crontab to prefetch pop3mail or do folder 
-index verification for users. For exmaple:
-
-59 23 * * *      /usr/local/www/cgi-bin/openwebmail/checkmail.pl -a -p -i
-
-The above line in crontab will do pop3mail prefetching, mail filtering and
-folder index verification for all users at 23:59 every day.
+1. download MIME-Base64-2.12.tar.gz from CPAN 
+2. install the tar file by reading MIME-Base64-2.12.readme
 
 
 SPELL CHECK SUPPORT
@@ -147,7 +129,7 @@ program and a perl module that interfaces with the program.
 
 1. download ispell-3.1.20.tar.gz from 
    http://www.cs.ucla.edu/ficus-members/geoff/ispell.html and install it,
-   or you can install binary from freebsd package or linux rpm
+   or you can install binary from FreeBSD package or Linux rpm
 
 ps: if you are compiling ispell from source, you may enhance your ispell 
     by using a better dictionary source.
@@ -163,6 +145,98 @@ ps: if you are compiling ispell from source, you may enhance your ispell
 
 3. check the openwebmail.conf to see if $spellcheck is pointed to the 
    ispell binary
+
+
+PAM SUPPORT
+-----------
+PAM (Pluggable Authentication Modules) provides a flexible mechanism 
+for authenticating users. More detail is available at Linux-PAM webpage.
+http://www.kernel.org/pub/linux/libs/pam/ 
+
+Solaris 2.6, Linux and FreeBSD 3.1 are known to support PAM.
+To make Open WebMail use the support of PAM, you have to install the 
+Perl Authen::PAM module. It is available at 
+http://www.cs.kuleuven.ac.be/~pelov/pam/
+
+ps: Doing 'make test' is recommended when making the Authen::PAM,
+    if you encounter error in 'make test', the PAM on your system
+    will probablely not work.
+
+Then you have to add the following 2 lines to your /etc/pam.conf 
+
+(on FreeBSD)
+openwebmail auth    required    pam_unix.so         try_first_pass
+openwebmail account required    pam_unix.so         try_first_pass
+
+(on Linux)
+openwebmail auth    required    /lib/security/pam_unix.so                                                                            
+openwebmail account required    /lib/security/pam_unix.so                                                                            
+
+Finally, change $use_pam to 'yes' in the openwebmail.conf
+
+ps: It is recommended to reference the PAM webpage for Neomail by 
+    Peter Sinoros Szabo, sini@fazekas.hu
+    http://www.fazekas.hu/~sini/neomail_pam/
+
+
+AUTOREPLY SUPPORT
+-----------------
+The auto reply function in Open WebMail is done with the vacation utility.
+Since vacation utility is not available on some unix, a perl version of
+vacation utility 'vacation.pl' is distributed with openwebmail.
+This vacation.pl has the same syntax as the one on Solaris.
+To make it work properly, be sure to modify $myname, $sendmail definition
+in the vacation.pl.
+
+
+FILTER SUPPORT
+--------------
+The mailfilter checks if messages in INBOX folder matches the filters rules 
+defined by user. If matches, move/copy the message to the target folder.
+If you move a message to the DELETE folder, which means deleting messages 
+from a folder. If you use INBOX as the destination in a filter rule, 
+any message matching this rule will be kept in the INBOX folder and 
+other rules will be ignored.
+
+
+BIG5<->GB CONVERSION
+--------------------
+Openwebmail supports chinese charset conversion between Big5 encoding
+(used in taiwan, hongkong) and GB encoding(used in mainland) in both message 
+reading and writing.
+To make the conversion work properly, you have to 
+
+1. download the Hanzi Converter hc-30.tar.gz 
+   by Ricky Yeung(Ricky.Yeung@eng.sun.com) and 
+      Fung F. Lee (lee@umunhum.stanford.edu).
+2. tar -zxvf hc-30.tar.gz
+   cd hc-30
+   make
+3. copy 'hc' and 'hc.tab' to cgi-bin/openwebmail or /usr/local/bin
+4. modify the openwebmail.conf $g2b_converter and $b2g_converter.
+
+
+COMMAND TOOL checkmail.pl
+-------------------------
+Since mail filtering is activated only in Open WebMail, it means messages 
+will stay in the INBOX until user reads their mail with Open WebMail. 
+So 'finger' or other mail status check utility may give you wrong 
+information since they don't know about the filter.
+
+A command tool 'checkmail.pl' can be used as finger replacement.
+It does mail filtering before report mail status. 
+
+Some fingerd allow you to specify the name of finger program by -p option
+(ex: fingerd on FreeBSD). By changing the parameter to fingerd in 
+/etc/inetd.conf, users can get their mail status from remote host.
+
+checkmail.pl can be also used in crontab to prefetch pop3mail or do folder 
+index verification for users. For example:
+
+59 23 * * *      /usr/local/www/cgi-bin/openwebmail/checkmail.pl -a -p -i -q
+
+The above line in crontab will do pop3mail prefetching, mail filtering and
+folder index verification quietly for all users at 23:59 every day .
 
 
 GLOBAL ADDRESSBOOK and FILTERRULE
@@ -181,41 +255,32 @@ ps: An account may be created to maintain the global addressbook/filterbook,
     and readable by others
 
 
-SPEEDUP ENCODING/DECODING OF MIME ATTACHMENTS
----------------------------------------------
-The encoding/decoding speed would be much faster if you install the 
-MIME-Base64 module from CPAN with XS support
-
-1. download MIME-Base64-2.12.tar.gz from CPAN 
-2. install the tar file by reading MIME-Base64-2.12.readme
-
-
-MIGRATE FROM NEOMAIL
---------------------
-1. For get better compatibility with pine(an unix email reader)
-   user folderdir is changed from ~/neomail to ~/mail
-   folder saved_messages is changed to saved-messages
-   folder sent_mail      is changed to sent-mail
-   folder neomail_trash  is changed to mail-trash
-
-ps: a script 'migrate.pl' is provided in uty/ for administer 
-    to migrate user folders from neomail easily
-
-
-ADD SUPPORT FOR NEW LANGUEAGE
+ADD SUPPORT FOR NEW LANGUAGE
 -----------------------------
 It is very simple to add support for your language into openwebmail
 
-1. chooes an 2 character abbreviation for your language, eg: xy
+1. choose an 2 character abbreviation for your language, eg: xy
 2. cd cgi-bin/openwebmail/etc. 
    cp lang/en lang/xy
    cp -R templates/en templates/xy
-3. translate file lang/xy and templates/xy/* from english to your language
-4. add your language to @availablelanguages and %languagenames in 
-   openwebmail.conf
+3. translate file lang/xy and templates/xy/* from English to your language
+4. add your language to %languagenames in openwebmail.conf
 
-ps: If you wish the translation is put into the next release of openwebmail,
-    please submit it to me.
+ps: If you wish the translation to be included in the next release of 
+    openwebmail, please submit it to openwebmail@turtle.ee.ncku.edu.tw.
+
+
+DESIGN YOUR OWN IMAGESET IN OPENWEBMAIL
+---------------------------------------
+If you are interested in designing your own image set in the openwebmail,
+you have to
+
+1. create a new sub directory in the $imagedir (which is defined in 
+   openwebmail.conf) ex: MyImageSet
+2. copy all images from $imagedir/Default to $imagedir/MyImageSet
+3. modify the image files in the $imagedir/MyImageSet for your need
+4. If you wish the new imageset to be included in the next release of 
+   openwebmail, please submit it to openwebmail@turtle.ee.ncku.edu.tw
 
 
 TEST
@@ -226,17 +291,17 @@ TEST
    ~/openwebmail.pl		- owner=root, group=mail, mode=4755
    ~/openwebmail-prefs.pl	- owner=root, group=mail, mode=4755
    ~/spellcheck.pl		- owner=root, group=mail, mode=4755
-   ~/check.pl			- owner=root, group=mail, mode=4755
+   ~/checkmail.pl		- owner=root, group=mail, mode=4755
    ~/vacation.pl		- owner=root, group=mail, mode=0755
    ~/etc            	 	- owner=root, group=mail, mode=750
    ~/etc/sessions   	 	- owner=root, group=mail, mode=770
-   ~etc/users      	 	- owner=root, group=mail, mode=770
+   ~/etc/users      	 	- owner=root, group=mail, mode=770
 
-   /var/log/openwebmail.conf	- owner=root, group=mail, mode=660
+   /var/log/openwebmail.log	- owner=root, group=mail, mode=660
 
 2. test your webmail with http://your_server/cgi-bin/openwebmail/openwebmail.pl
 
-If there are any problem, please check the faq.txt.
+If there is any problem, please check the faq.txt.
 The latest version of FAQ will be available at
 http://turtle.ee.ncku.edu.tw/openwebmail/download/doc/faq.txt
 
@@ -251,14 +316,12 @@ Features that we would like to implement first...
 
 Features that people may also be interested
 
-1. LDAP support
-2. maildir support
-3. password change
-4. online people sign in
-5. log analyzer
+1. maildir support
+2. online people sign in
+3. log analyzer
 
 
-06/20/2001
+08/16/2001
 
 openwebmail@turtle.ee.ncku.edu.tw
 

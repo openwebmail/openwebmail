@@ -35,6 +35,8 @@ $lang_charset = 'iso-8859-1';
    (  
    login      => 'Login',
    clear      => 'Clear',
+   changepwd  => 'Change Password',
+   loginhistory=>'Login History',
    of         => 'of',
    messages   => 'messages',
    unread     => 'unread',
@@ -138,6 +140,7 @@ $lang_charset = 'iso-8859-1';
             couldnt_lock      => 'Couldn\'t get write lock on',
             couldnt_seek      => 'Couldn\'t seek to the beginning of',
             couldnt_close     => 'Couldn\'t close',
+            disallowed_pop3   => 'Disallowed POP3 server',
             norootlogin       => 'Sorry, root login is disabled for security\'s sake.',
             shouldnt_move_here=> 'You shouldn\'t be trying to move messages here!',
             destination_folder=> 'Destination folder',
