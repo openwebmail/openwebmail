@@ -56,7 +56,7 @@ foreach (qw(
    default_confirmmsgmovecopy default_smartdestination
    default_viewnextaftermsgmovecopy default_autopop3
    default_moveoldmsgfrominbox forced_moveoldmsgfrominbox
-   default_usefixedfont default_usesmileicon
+   default_readwithmsgcharset default_usefixedfont default_usesmileicon
    default_showhtmlastext default_showimgaslink
    default_disablejs default_disableembcode
    default_reparagraphorigmsg default_backupsentmsg
@@ -133,7 +133,7 @@ foreach my $opttype ('yesno', 'none', 'list') {
    language charset timeoffset daylightsaving email replyto
    style iconset bgurl bgrepeat fontsize dateformat hourformat
    ctrlposition_folderview msgsperpage fieldorder sort useminisearchicon
-   ctrlposition_msgread headers usefixedfont usesmileicon
+   ctrlposition_msgread headers readwithmsgcharset usefixedfont usesmileicon
    disablejs disableembcode disableemblink showhtmlastext showimgaslink sendreceipt
    confirmmsgmovecopy defaultdestination smartdestination
    viewnextaftermsgmovecopy autopop3 autopop3wait

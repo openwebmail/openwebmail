@@ -1,3 +1,9 @@
+02/20/2005
+----------
+1. add "Read message with message charset" to user preference
+   (suggested by chuavv, chuavv.AT.mail.savs.hcc.edu.tw)
+
+
 02/19/2005
 ----------
 1. add chmod support in webdisk

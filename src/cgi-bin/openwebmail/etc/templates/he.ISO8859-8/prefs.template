@@ -207,6 +207,11 @@
 @@@HEADERSMENU@@@
 </td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>Read with message charset:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@READWITHMSGCHARSET@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>תועדוה תאירק תעב לדוג יעובק םיטנופב שמתשה:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USEFIXEDFONT@@@

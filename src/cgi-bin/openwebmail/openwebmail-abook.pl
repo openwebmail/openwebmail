@@ -1725,9 +1725,8 @@ sub addrlistview {
                              -override=>1);
       $html =~ s/\@\@\@EXPORTMODEFORMFORMATSMENU\@\@\@/$temphtml/;
 
-      my %tmpset = reverse %ow::lang::languagecharsets;
       my @charset = ($lang_text{'abook_noconversion'});
-      push @charset, sort keys %tmpset;
+      push @charset, sort keys %ow::lang::is_charset_supported;
       my $defaultcharset = $prefs{'charset'};
       $temphtml = "$lang_text{'charset'}:";
       $temphtml .= popup_menu(-name=>'exportcharset',
@@ -2179,7 +2178,7 @@ sub addreditform {
    my %ctlabels=( $composecharset => "$composecharset *" );
    my @ctlist=($composecharset);
    my %allsets;
-   foreach (values %ow::lang::languagecharsets, keys %charset_convlist) {
+   foreach (keys %ow::lang::is_charset_supported, keys %charset_convlist) {
       $allsets{$_}=1 if (!defined $allsets{$_});
    }
    delete $allsets{$composecharset};
@@ -4350,8 +4349,7 @@ sub addrimportform {
                           -override=>1);
    $html =~ s/\@\@\@FORMATSMENU\@\@\@/$temphtml/;
 
-   my %tmpset=reverse %ow::lang::languagecharsets;
-   my @charset=sort keys %tmpset;
+   my @charset=sort keys %ow::lang::is_charset_supported;
    my $defaultcharset = $prefs{'charset'};
    $temphtml = "$lang_text{'charset'}:";
    $temphtml .= popup_menu(-name=>'importcharset',

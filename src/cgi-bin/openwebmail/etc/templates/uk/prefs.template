@@ -207,6 +207,11 @@
 @@@HEADERSMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Read with message charset:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@READWITHMSGCHARSET@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Використовувати ф╕ксований шрифт для показу пов╕домлень:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USEFIXEDFONT@@@

@@ -315,23 +315,16 @@ sub composemessage {
 
    # composecharset is the charset choosed by user for current composing
    my $composecharset= $prefs{'charset'};
-   foreach (values %ow::lang::languagecharsets, keys %charset_convlist) {
-      if ($_ eq param('composecharset')) {
-         $composecharset=$_; last;
-      }
+   if (defined $ow::lang::is_charset_supported{param('composecharset')} ||
+       defined $charset_convlist{param('composecharset')}) {
+      $composecharset=param('composecharset');
    }
 
    # convfrom is the charset choosed by user in last reading message
    my $convfrom=param('convfrom')||'';
    if ($convfrom =~/^none\.(.*)$/) {
-      my $cf=$1;
-      foreach (values %ow::lang::languagecharsets) {
-         if ($_ eq $cf) {
-            $composecharset=$_; last;
-         }
-      }
+      $composecharset=$1 if (defined $ow::lang::is_charset_supported{$1});
    }
-
 
    my ($attfiles_totalsize, $r_attfiles);
    if ( param('deleteattfile') ne '' ) { # user click 'del' link
@@ -979,10 +972,9 @@ sub composemessage {
       ($body, $subject, $from, $to, $cc, $bcc, $replyto)=
          iconv($composecharset, $convto, $body,$subject,$from,$to,$cc,$bcc,$replyto);
 
-      foreach (values %ow::lang::languagecharsets, keys %charset_convlist) {
-         if ($_ eq $convto) {
-            $composecharset=$_; last;
-         }
+      if (defined $ow::lang::is_charset_supported{$convto} ||
+          defined $charset_convlist{$convto}) {
+         $composecharset=$convto;
       }
 
       if ( $msgformat eq 'text' && $newmsgformat ne 'text') {
@@ -1110,7 +1102,7 @@ sub composemessage {
    my %ctlabels=( 'none' => "$composecharset *" );
    my @ctlist=('none');
    my %allsets=();
-   foreach (values %ow::lang::languagecharsets, keys %charset_convlist) {
+   foreach (keys %ow::lang::is_charset_supported, keys %charset_convlist) {
       $allsets{$_}=1 if (!defined $allsets{$_});
    }
    delete $allsets{$composecharset};

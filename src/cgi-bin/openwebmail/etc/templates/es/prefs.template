@@ -207,6 +207,11 @@ Asunto:
 @@@HEADERSMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Read with message charset:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@READWITHMSGCHARSET@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Mostrar mensajes con tipografía de ancho fijo:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USEFIXEDFONT@@@

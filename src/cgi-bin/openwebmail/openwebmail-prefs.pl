@@ -418,8 +418,7 @@ sub editprefs {
                           defined($config_raw{'DEFAULT_language'})?('-disabled'=>'1'):());
    $html =~ s/\@\@\@LANGUAGEMENU\@\@\@/$temphtml/;
 
-   my %tmpsets=reverse %ow::lang::languagecharsets;
-   my @allcharsets=sort keys %tmpsets;
+   my @allcharsets=sort keys %ow::lang::is_charset_supported;
    $temphtml = popup_menu(-name=>'charset',
                           -values=>\@allcharsets,
                           -default=>$defaultcharset,
@@ -807,6 +806,13 @@ sub editprefs {
                                 -override=>'1',
                                 defined($config_raw{'DEFAULT_headers'})?('-disabled'=>'1'):());
          $html =~ s/\@\@\@HEADERSMENU\@\@\@/$temphtml/;
+
+         $temphtml = checkbox(-name=>'readwithmsgcharset',
+                              -value=>'1',
+                              -checked=>$prefs{'readwithmsgcharset'},
+                              -label=>'',
+                              defined($config_raw{'DEFAULT_readwithmsgcharset'})?('-disabled'=>'1'):());
+         $html =~ s/\@\@\@READWITHMSGCHARSET\@\@\@/$temphtml/;
 
          $temphtml = checkbox(-name=>'usefixedfont',
                               -value=>'1',

@@ -207,6 +207,11 @@
 @@@HEADERSMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>讀信時, 使用信件本身字集:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@READWITHMSGCHARSET@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>讀信時, 使用固定寬度字型:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USEFIXEDFONT@@@

@@ -207,6 +207,11 @@ Assumpte:
 @@@HEADERSMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Read with message charset:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@READWITHMSGCHARSET@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Font de mida fixa en llegir missatges:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USEFIXEDFONT@@@

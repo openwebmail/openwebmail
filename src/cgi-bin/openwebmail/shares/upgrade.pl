@@ -389,7 +389,7 @@ sub update_openwebmailrc {
    my $rcfile=dotpath('openwebmailrc');
    my $saverc=0;
    if (-f $rcfile) {
-      $saverc=1 if ( $user_releasedate lt "20050106" );	# rc upgrade
+      $saverc=1 if ( $user_releasedate lt "20050220" );	# rc upgrade
       %prefs = readprefs() if ($saverc);		# load user old prefs + sys defaults
    } else {
       $saverc=1 if ($config{'auto_createrc'});		# rc auto create

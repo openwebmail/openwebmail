@@ -220,10 +220,15 @@ sub readmessage {
    my $showhtmlastext=$prefs{'showhtmlastext'};
    $showhtmlastext=param('showhtmlastext') if (param('showhtmlastext') ne "");
 
-   my $convfrom=param('convfrom')||lc($message{'charset'});
-   if ($convfrom eq '' && $prefs{'charset'} eq 'utf-8') {
-      # assume msg is from sender using same language as the recipient's browser
-      $convfrom=$ow::lang::languagecharsets{ow::lang::guess_language()};
+   my $convfrom=param('convfrom');
+   if ($convfrom eq '') {
+      $convfrom=official_charset($message{'charset'});
+      if ($convfrom eq '' && $prefs{'charset'} eq 'utf-8') {
+         # assume msg is from sender using same language as the recipient's browser
+         $convfrom=$ow::lang::languagecharsets{ow::lang::guess_language()};
+      }
+      $convfrom="none.$convfrom" if ($prefs{'readwithmsgcharset'} &&
+                                     defined $ow::lang::is_charset_supported{$convfrom});
    }
    $convfrom="none.$prefs{'charset'}" if ($convfrom!~/^none\./ && !is_convertible($convfrom, $prefs{'charset'}));
    my $readcharset=$prefs{'charset'};	# charset choosed by user to read current message
@@ -534,7 +539,7 @@ sub readmessage {
    # charset conversion menu
    if(defined $charset_convlist{$prefs{'charset'}} ) {
       my (@cflist, %cflabels, %allsets, $cf);
-      foreach (values %ow::lang::languagecharsets, keys %charset_convlist) {
+      foreach (keys %ow::lang::is_charset_supported, keys %charset_convlist) {
          $allsets{$_}=1 if (!defined $allsets{$_});
       }
 

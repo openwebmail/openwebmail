@@ -5,6 +5,7 @@ use strict;
 #
 use strict;
 use vars qw(%languagenames %languagecharsets %httpaccept2language %RTL);
+use vars qw(%is_charset_supported);
 
 # The language name for each language abbreviation
 %languagenames = (
@@ -125,6 +126,11 @@ use vars qw(%languagenames %languagecharsets %httpaccept2language %RTL);
    'zh-tw' => 'zh_TW.Big5',
    'zh-hk' => 'zh_TW.Big5'
 );
+
+# charset supported by this lang module
+foreach (values %languagecharsets) {
+   $is_charset_supported{$_}=1;
+}
 
 ########## GUESS_LANGUAGE ########################################
 sub guess_language {
