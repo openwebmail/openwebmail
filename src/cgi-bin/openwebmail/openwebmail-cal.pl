@@ -2172,10 +2172,10 @@ sub add_item {
 
    # check for bad input that would kill our database format
    if ($string =~ /\@\@\@/) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'pipe_char_not_allowed'}");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'at_char_not_allowed'}");
    }
    if ($link =~ /\@\@\@/) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'pipe_char_not_allowed'}");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'at_char_not_allowed'}");
    }
    # check for bad input that would confuse our database format
    if ($string =~ /\@$/) {

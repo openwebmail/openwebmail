@@ -2084,7 +2084,7 @@ sub changepassword {
          } elsif ($errorcode==-4) {
             $webmsg=$lang_err{'pwd_incorrect'};
          } else {
-            $webmsg="Unknow error code $errorcode";
+            $webmsg="Unknown error code $errorcode";
          }
          $html = readtemplate("chpwdfailed.template");
          $html =~ s/\@\@\@ERRORMSG\@\@\@/$webmsg/;

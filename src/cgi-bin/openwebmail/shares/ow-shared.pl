@@ -1274,7 +1274,7 @@ sub openwebmailerror {
    my $mailgid=getgrnam('mail');
    my $stackdump='';
    $file=~s!.*/!!;
-   $msg="Unknow error $msg at $file:$linenum" if (length($msg)<5);
+   $msg="Unknown error $msg at $file:$linenum" if (length($msg)<5);
    if ($config{'error_with_debuginfo'}) {
       $msg.=qq|<br><font class="medtext">( $file:$linenum, pid=$$, ruid=$<, euid=$>, egid=$), mailgid=$mailgid )</font>\n|;
       $stackdump=ow::tool::stacktrace();

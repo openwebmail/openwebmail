@@ -259,7 +259,7 @@ sub addrbookdelete {
       writelog("delete addressbook - $abookfolder");
       writehistory("delete addressbook - $abookfolder");
    } else {
-      my $msg=$lang_err{'abook_no_exist'}; $msg=~s/\@\@\@ADDRESSBOOK\@\@\@/$abookfolderstr/;
+      my $msg=$lang_err{'abook_doesnt_exist'}; $msg=~s/\@\@\@ADDRESSBOOK\@\@\@/$abookfolderstr/;
       openwebmailerror(__FILE__, __LINE__, "$msg! ($!)");
    }
 
@@ -2998,7 +2998,7 @@ sub addreditform_PHOTO {
          } else {
             $photo = qq|<td width="52" height="52" bgcolor="#000000" align="center">|.
                      qq|<table cellspacing="0" cellpadding="0" border="0"><tr><td align="center" width="50" height="50" bgcolor=$style{'tablerow_light'}>|.
-                     iconlink("cal-link.gif", "$lang_text{'link'}", qq|href="$escapedvalue" target="_new"|). # just a link
+                     iconlink("cal-link.gif", "$escapedvalue", qq|href="$escapedvalue" target="_new"|). # just a url link
                      qq|</td></tr></table></td>|;
          }
       } elsif (exists $r_data->[$index]{TYPES}{BASE64}) {

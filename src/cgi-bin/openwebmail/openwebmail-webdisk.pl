@@ -712,7 +712,7 @@ sub compressfiles {	# pack files with zip or tgz (tar -zcvf)
          @cmd=($tarbin, '-cpf', "$webdiskrootdir/$vpath2");
       }
    } else {
-      return("unknow ztype($ztype)?");
+      return("unknown ztype($ztype)?");
    }
 
    chdir("$webdiskrootdir/$currentdir") or
@@ -1517,7 +1517,7 @@ sub dirfilesel {
    } elsif ($action eq "sel_addattachment") {
       $html =~ s/\@\@\@SELTITLE\@\@\@/$lang_text{'addatt_fromwd'}/g;
    } else {
-      autoclosewindow("Unknow action: $action!");
+      autoclosewindow("Unknown action: $action!");
    }
    my $wd_url_sort_page=qq|$wd_url&amp;showhidden=$showhidden&amp;singlepage=$singlepage&amp;filesort=$filesort&amp;page=$page|;
 

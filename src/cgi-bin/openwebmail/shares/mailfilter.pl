@@ -765,7 +765,7 @@ sub mark_folderdb_err {
 }
 
 # hostname compare for loosely equal
-# >0 match, <0 unmatch, ==0 unknow
+# >0 match, <0 unmatch, ==0 unknown
 sub namecompare {
    my ($a, $b)=@_;
 

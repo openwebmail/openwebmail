@@ -108,7 +108,7 @@ sub hostname {
    my $hostname=`/bin/hostname`; chomp ($hostname);
    return($hostname) if ($hostname=~/\./);
 
-   my $domain="unknow";
+   my $domain="unknown";
    open (R, "/etc/resolv.conf");
    while (<R>) {
       chomp;

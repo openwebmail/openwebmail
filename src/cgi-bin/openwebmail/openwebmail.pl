@@ -378,7 +378,7 @@ sub login {
          -3 => $lang_err{'auth_syserr'},
          -4 => $lang_err{'pwd_incorrect'},
       );
-      my $webmsg=$err{$errorcode} || "Unknow error code $errorcode";
+      my $webmsg=$err{$errorcode} || "Unknown error code $errorcode";
       my $html = applystyle(readtemplate("loginfailed.template"));
       $html =~ s/\@\@\@ERRORMSG\@\@\@/$webmsg/;
 

@@ -515,7 +515,7 @@ sub composemessage {
                      ${$message{attachment}[1]}{subtype}=~/alternative/i &&
                      ${$message{attachment}[1]}{'content-type'}=~/^text/i  &&
                      ${$message{attachment}[1]}{filename}=~/^Unknown\./ ) ||
-               # rename next if this=unknow.txt and next=unknow.html
+               # rename next if this=unknown.txt and next=unknown.html
                     (${$message{attachment}[0]}{'content-type'}=~/^text\/(?:plain|enriched)/i &&
                      ${$message{attachment}[0]}{filename}=~/^Unknown\./       &&
                      ${$message{attachment}[1]}{'content-type'}=~/^text\/(?:html|enriched)/i  &&

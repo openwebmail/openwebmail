@@ -795,7 +795,7 @@ sub readmessage {
                  (${$message{attachment}[$attnumber+1]}{filename}=~ /^Unknown\./ ) ) {
                next;
             }
-            # skip to next attachment if this=unknow.(txt|enriched) and next=unknow.(html|enriched)
+            # skip to next attachment if this=unknown.(txt|enriched) and next=unknown.(html|enriched)
             if ( (${$message{attachment}[$attnumber]}{'content-type'}=~ /^text\/(?:plain|enriched)/i ) &&
                  (${$message{attachment}[$attnumber]}{filename}=~ /^Unknown\./ ) &&
                  (${$message{attachment}[$attnumber+1]}{'content-type'} =~ /^text\/(?:html|enriched)/i)  &&

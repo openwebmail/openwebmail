@@ -800,7 +800,7 @@ sub operate_message_with_ids {
    my $opendst=0;
 
    return (0, '') if ($srcfile eq $dstfile || $#{$r_messageids} < 0);
-   return (-1, $lang_err{'onv_msg_op'}) if ($op ne "move" && $op ne "copy" && $op ne "delete");
+   return (-1, $lang_err{'inv_msg_op'}) if ($op ne "move" && $op ne "copy" && $op ne "delete");
 
    if (update_folderindex($srcfile, $srcdb)<0) {
       writelog("db error - Couldn't update index db $srcdb");
