@@ -91,7 +91,7 @@ use vars qw(%op_order %ruletype_order %folder_order);	# filterrule prefered orde
 openwebmail_requestbegin();
 userenv_init();
 
-$folder = param('folder') || 'INBOX';
+$folder = ow::tool::unescapeURL(param('folder')) || 'INBOX';
 $messageid=param('message_id') || '';
 $page = param('page') || 1;
 $sort = param('sort') || $prefs{'sort'} || 'date';
@@ -107,7 +107,7 @@ $escapedmessageid=ow::tool::escapeURL($messageid);
 
 $urlparmstr=qq|&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;sort=$sort&amp;page=$page&amp;userfirsttime=$userfirsttime&amp;prefs_caller=$prefs_caller|;
 $formparmstr=ow::tool::hiddens(sessionid=>$thissession,
-                               folder=>$folder,
+                               folder=>$escapedfolder,
                                message_id=>$messageid,
                                sort=>$sort,
                                page=>$page,
@@ -360,16 +360,17 @@ sub editprefs {
 
    $temphtml = '';
    if (!$userfirsttime) {
+      my $folderstr=$lang_folders{$folder}||(iconv($prefs{'fscharset'}, $prefs{'charset'}, $folder))[0];
       if ($prefs_caller eq "cal") {
          $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} $lang_text{'calendar'}", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-cal.pl?action=$prefs{'calendar_defaultview'}&amp;$urlparmstr"|);
       } elsif ($prefs_caller eq "webdisk") {
          $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} $lang_text{'webdisk'}", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-webdisk.pl?action=showdir&amp;$urlparmstr"|);
       } elsif ($prefs_caller eq "read") {
-         $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} ".($lang_folders{$folder}||$folder), qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&amp;$urlparmstr"|);
+         $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} $folderstr", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&amp;$urlparmstr"|);
       } elsif ($prefs_caller eq "addrlistview") {
          $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} $lang_text{'addressbook'}", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrlistview&amp;$urlparmstr"|);
       } else {
-         $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} ".($lang_folders{$folder}||$folder), qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;$urlparmstr"|);
+         $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} $folderstr", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;$urlparmstr"|);
       }
       $temphtml .= qq|&nbsp;\n|;
 
@@ -1767,7 +1768,7 @@ sub saveprefs {
                    ow::tool::hiddens(action=>'listmessages');
    }
    $temphtml .= ow::tool::hiddens(sessionid=>$thissession,
-                                  folder=>$folder,
+                                  folder=>$escapedfolder,
                                   message_id=>$messageid,
                                   sort=>$prefs{'sort'},	# use new prefs instead of orig $sort
                                   page=>$page);
@@ -2543,14 +2544,15 @@ sub editfilter {
    my $freespace = int($config{'maxbooksize'} - ($filterbooksize/1024) + .5);
    $html =~ s/\@\@\@FREESPACE\@\@\@/$freespace $lang_sizes{'kb'}/;
 
+   my $folderstr=$lang_folders{$folder}||(iconv($prefs{'fscharset'}, $prefs{'charset'}, $folder))[0];
    if ($prefs_caller eq "cal") {
       $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} $lang_text{'calendar'}", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-cal.pl?action=$prefs{'calendar_defaultview'}&amp;$urlparmstr"|);
    } elsif ($prefs_caller eq "webdisk") {
       $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} $lang_text{'webdisk'}", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-webdisk.pl?action=showdir&amp;$urlparmstr"|);
    } elsif ($prefs_caller eq "read") {
-      $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} ".($lang_folders{$folder}||$folder), qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&amp;$urlparmstr"|);
+      $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} $folderstr", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&amp;$urlparmstr"|);
    } else {
-      $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} ".($lang_folders{$folder}||$folder), qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;$urlparmstr"|);
+      $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} $folderstr", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;$urlparmstr"|);
    }
 
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/;
@@ -2911,7 +2913,8 @@ sub editstat {
    }
 
    if ($prefs_caller eq "") {
-      $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} ".($lang_folders{$folder}||$folder), qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&amp;$urlparmstr"|);
+      my $folderstr=$lang_folders{$folder}||(iconv($prefs{'fscharset'}, $prefs{'charset'}, $folder))[0];
+      $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} $folderstr", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&amp;$urlparmstr"|);
    } else {
       $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} $lang_text{'userprefs'}", qq|accesskey="F" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;$urlparmstr"|);
    }

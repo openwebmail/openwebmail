@@ -59,7 +59,7 @@ if (!$config{'enable_webmail'}) {
    openwebmailerror(__FILE__, __LINE__, "$lang_text{'webmail'} $lang_err{'access_denied'}");
 }
 
-$folder = param('folder') || 'INBOX';
+$folder = ow::tool::unescapeURL(param('folder')) || 'INBOX';
 $page = param('page') || 1;
 $sort = param('sort') || $prefs{'sort'} || 'date';
 $messageid=param('message_id') || '';
@@ -70,7 +70,7 @@ $escapedmessageid=ow::tool::escapeURL($messageid);
 
 $urlparmstr=qq|sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;sort=$sort&amp;page=$page&amp;prefs_caller=$prefs_caller|;
 $formparmstr=ow::tool::hiddens(sessionid=>$thissession,
-                               folder=>$folder,
+                               folder=>$escapedfolder,
                                message_id=>$messageid,
                                sort=>$sort,
                                page=>$page,
@@ -115,7 +115,8 @@ sub edittest {
       $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $lang_text{'userprefs'}",
                            qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;$urlparmstr"|);
    } else {
-      $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} ".($lang_folders{$folder}||$folder),
+      my $folderstr=$lang_folders{$folder}||(iconv($prefs{'fscharset'}, $prefs{'charset'}, $folder))[0];
+      $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $folderstr",
                            qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;$urlparmstr"|);
    }
 
@@ -339,7 +340,8 @@ sub editlist {
       $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $lang_text{'userprefs'}",
                            qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;$urlparmstr"|);
    } else {
-      $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} ".($lang_folders{$folder}||$folder),
+      my $folderstr=$lang_folders{$folder}||(iconv($prefs{'fscharset'}, $prefs{'charset'}, $folder))[0];
+      $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $folderstr",
                            qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;$urlparmstr"|);
    }
 

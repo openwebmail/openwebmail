@@ -116,7 +116,7 @@ if (!$config{'enable_webmail'}) {
    openwebmailerror(__FILE__, __LINE__, "$lang_text{'webmail'} $lang_err{'access_denied'}");
 }
 
-$folder = param('folder')||'INBOX';
+$folder = ow::tool::unescapeURL(param('folder'))||'INBOX';
 $page = param('page') || 1;
 $longpage = param('longpage') || 0;
 $sort = param('sort') || $prefs{'sort'} || 'date';
@@ -230,11 +230,8 @@ sub readmessage {
       ($prefs{'language'}, $prefs{'charset'})=@tmp;
    }
 
-   if ( $lang_folders{$folder} ) {
-      $html =~ s/\@\@\@FOLDER\@\@\@/$lang_folders{$folder}/;
-   } else {
-      $html =~ s/\@\@\@FOLDER\@\@\@/$folder/;
-   }
+   my $folderstr=ow::htmltext::str2html($lang_folders{$folder}||(iconv($prefs{'fscharset'}, $readcharset, $folder))[0]);
+   $html =~ s/\@\@\@FOLDER\@\@\@/$folderstr/;
 
    my $is_htmlmsg=0;
 
@@ -331,8 +328,7 @@ sub readmessage {
 
    $html =~ s/\@\@\@MESSAGETOTAL\@\@\@/$message_total/;
 
-   $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} ".($lang_folders{$folder}||$folder), qq|accesskey="B" href="$main_url&amp;action=listmessages"|);
-
+   $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $folderstr", qq|accesskey="B" href="$main_url&amp;action=listmessages"|);
    $temphtml .= "&nbsp;\n";
 
    # quota or spool over the limit
@@ -481,7 +477,7 @@ sub readmessage {
                                     sort=>$sort,
                                     keyword=>$keyword,
                                     searchtype=>$searchtype,
-                                    folder=>$folder,
+                                    folder=>$escapedfolder,
                                     headers=>param('headers') ||$prefs{'headers'} || 'simple',
                                     attmode=>param('attmode') || 'simple',
                                     sessionid=>$thissession,
@@ -522,7 +518,7 @@ sub readmessage {
                             -name=>'ReplyWith').
                   ow::tool::hiddens(sessionid=>$thissession,
                                     message_id=>$messageid,
-                                    folder=>$folder,
+                                    folder=>$escapedfolder,
                                     sort=>$sort,
                                     page=>$page,
                                     convfrom=>$convfrom,
@@ -549,7 +545,7 @@ sub readmessage {
                                  sort=>$sort,
                                  keyword=>$keyword,
                                  searchtype=>$searchtype,
-                                 folder=>$folder,
+                                 folder=>$escapedfolder,
                                  headers=>$headers,
                                  message_ids=>$messageid,
                                  message_id=>$messageaftermove);
@@ -557,13 +553,19 @@ sub readmessage {
       $htmlmove .= ow::tool::hiddens(messageaftermove=>'1');
    }
 
-   my @movefolders;
+   my (@movefolders, %movelabels); %movelabels=%lang_folders;
    # option to del message directly from folder
    if ($quotalimit>0 && $quotausage>=$quotalimit) {
       @movefolders=('DELETE');
    } else {
-      foreach (@validfolders) {
-         push (@movefolders, $_) if ($_ ne $folder);
+      foreach my $f (@validfolders) {
+         my ($value, $label)=(ow::tool::escapeURL($f), $f);
+         if (defined $lang_folders{$f}) {
+            $label=$lang_folders{$f};
+         } else {
+            $label=(iconv($prefs{'fscharset'}, $prefs{'charset'}, $label))[0];
+         }
+         push(@movefolders, $value); $movelabels{$value}=$label if ($value ne $label);
       }
       push(@movefolders, 'LEARNSPAM', 'LEARNHAM') if ($config{'enable_learnspam'});
       push(@movefolders, 'FORWARD', 'DELETE');
@@ -592,9 +594,9 @@ sub readmessage {
 
    $htmlmove = qq|<table cellspacing=0 cellpadding=0 border=0><tr>$htmlmove<td nowrap>|.
                popup_menu(-name=>'destination',
+                          -default=>ow::tool::escapeURL($defaultdestination),
                           -values=>\@movefolders,
-                          -default=>$defaultdestination,
-                          -labels=>\%lang_folders,
+                          -labels=>\%movelabels,
                           -accesskey=>'T',	# target folder
                           -override=>'1');
    if ($prefs{'confirmmsgmovecopy'}) {
@@ -1335,7 +1337,7 @@ sub rebuildmessage {
                                     sort=>$sort,
                                     keyword=>$keyword,
                                     searchtype=>$searchtype,
-                                    folder=>$folder,
+                                    folder=>$escapedfolder,
                                     headers=>param('headers') ||$prefs{'headers'} || 'simple',
                                     attmode=>param('attmode') || 'simple',
                                     sessionid=>$thissession,

@@ -58,7 +58,7 @@ if (!$config{'enable_webmail'}) {
    openwebmailerror(__FILE__, __LINE__, "$lang_text{'webmail'} $lang_err{'access_denied'}");
 }
 
-$folder = param('folder') || 'INBOX';
+$folder = ow::tool::unescapeURL(param('folder')) || 'INBOX';
 $page = param('page') || 1;
 $sort = param('sort') || $prefs{'sort'} || 'date';
 
@@ -108,7 +108,8 @@ sub editfolders {
 
    $html =~ s/\@\@\@FOLDERNAME_MAXLEN\@\@\@/$config{'foldername_maxlen'}/g;
 
-   $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} ".( $lang_folders{$folder}||$folder), qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;sessionid=$thissession&amp;sort=$sort&amp;page=$page&amp;folder=$escapedfolder"|). qq|&nbsp; \n|;
+   my $folderstr=$lang_folders{$folder}||(iconv($prefs{'fscharset'}, $prefs{'charset'}, $folder))[0];
+   $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $folderstr", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;sessionid=$thissession&amp;sort=$sort&amp;page=$page&amp;folder=$escapedfolder"|). qq|&nbsp; \n|;
    $temphtml .= iconlink("refresh.gif", $lang_text{'refresh'}, qq|accesskey="R" href="$config{'ow_cgiurl'}/openwebmail-folder.pl?action=refreshfolders&amp;sessionid=$thissession&amp;sort=$sort&amp;folder=$escapedfolder&amp;page=$page"|). qq| \n|;
 
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
@@ -125,7 +126,7 @@ sub editfolders {
                                     sessionid=>$thissession,
                                     sort=>$sort,
                                     page=>$page,
-                                    folder=>$folder);
+                                    folder=>$escapedfolder);
       $html =~ s/\@\@\@STARTFOLDERFORM\@\@\@/$temphtml/;
 
       $temphtml = textfield(-name=>'foldername',
@@ -300,7 +301,7 @@ sub _folderline {
                                   sessionid=>$thissession,
                                   sort=>$sort,
                                   page=>$page,
-                                  folder=>$folder,
+                                  folder=>$escapedfolder,
                                   foldername=>$currfolder,
                                   foldernewname=>$currfolder)."\n";
 

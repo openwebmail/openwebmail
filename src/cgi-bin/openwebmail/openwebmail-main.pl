@@ -71,7 +71,7 @@ if (!$config{'enable_webmail'} && $action ne "logout") {
    openwebmailerror(__FILE__, __LINE__, "$lang_text{'webmail'} $lang_err{'access_denied'}");
 }
 
-$folder = param('folder')||'INBOX';
+$folder = ow::tool::unescapeURL(param('folder'))||'INBOX';
 $page = param('page') || 1;
 $longpage = param('longpage') || 0;
 $sort = param('sort') || $prefs{'sort'} || 'date';
@@ -85,7 +85,8 @@ if ($action eq "movemessage" ||
     defined(param('movebutton')) ||
     defined(param('copybutton')) ) {
    my @messageids = param('message_ids');
-   my $destination=ow::tool::untaint(safefoldername(param('destination')));
+   my $destination=ow::tool::unescapeURL(param('destination'));
+   $destination=ow::tool::untaint(safefoldername($destination));
 
    if ($destination eq 'FORWARD' && $#messageids>=0) {	# forwarding msgs
       open (FORWARDIDS, ">$config{'ow_sessionsdir'}/$thissession-forwardids");
@@ -284,7 +285,7 @@ sub listmessages {
          ow::dbm::close(\%FDB, $folderdb);
       }
 
-      my $option_str=qq|<OPTION value="|.ow::htmltext::str2html($foldername).qq|"|;
+      my $option_str=qq|<OPTION value="|.ow::tool::escapeURL($foldername).qq|"|;
       $option_str.=qq| selected| if ($foldername eq $folder);
       if ($newmessages>0) {
          $option_str.=qq| class="hilighttext">|;
@@ -797,13 +798,19 @@ sub listmessages {
    }
    $htmlpage.=qq|</td></tr></table>|;
 
-   my @movefolders;
+   my (@movefolders, %movelabels); %movelabels=%lang_folders;
    # option to del message directly from folder
    if ($quotalimit>0 && $quotausage>=$quotalimit) {
       @movefolders=('DELETE');
    } else {
-      foreach (@validfolders) {
-         push (@movefolders, (iconv($prefs{'fscharset'},$prefs{'charset'},$_))[0] ) if ($_ ne $folder);
+      foreach my $f (@validfolders) {
+         my ($value, $label)=(ow::tool::escapeURL($f), $f);
+         if (defined $lang_folders{$f}) {
+            $label=$lang_folders{$f};
+         } else {
+            $label=(iconv($prefs{'fscharset'}, $prefs{'charset'}, $label))[0];
+         }
+         push(@movefolders, $value); $movelabels{$value}=$label if ($value ne $label);
       }
       push(@movefolders, 'LEARNSPAM', 'LEARNHAM') if ($config{'enable_learnspam'});
       push(@movefolders, 'FORWARD', 'DELETE');
@@ -821,9 +828,9 @@ sub listmessages {
    }
    $htmlmove = qq|<table cellspacing="0" cellpadding="0"><tr><td>|.
                popup_menu(-name=>'destination',
+                          -default=>ow::tool::escapeURL($defaultdestination),
                           -values=>\@movefolders,
-                          -default=>$defaultdestination,
-                          -labels=>\%lang_folders,
+                          -labels=>\%movelabels,
                           -accesskey=>'T',	# target folder
                           -override=>'1').
                qq|</td><td>|.

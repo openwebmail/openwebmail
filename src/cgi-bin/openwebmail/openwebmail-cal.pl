@@ -71,7 +71,7 @@ if (!$config{'enable_calendar'}) {
    openwebmailerror(__FILE__, __LINE__, "$lang_text{'calendar'} $lang_err{'access_denied'}");
 }
 
-$folder = param('folder') || 'INBOX';
+$folder = ow::tool::unescapeURL(param('folder')) || 'INBOX';
 $messageid = param('message_id') ||'';
 
 $escapedfolder = ow::tool::escapeURL($folder);

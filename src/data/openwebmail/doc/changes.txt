@@ -1,3 +1,13 @@
+01/18/2005
+----------
+1. greatly impreoved multiple charset support on option fscharset.
+   Most openwebmail modules will do charset conversion between fscharset
+   and usercharset automatically, so the name of folder/addressbook can
+   be always displayed correctly.
+2. correct errors in the auth module auth_nis.pl
+   (reported by moniot, moniot.AT.fordham.edu)
+
+
 01/17/2005
 ----------
 1. multiple global addressbooks support

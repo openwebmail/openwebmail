@@ -61,7 +61,7 @@ if (!$config{'enable_webmail'} || !$config{'enable_advsearch'}) {
    openwebmailerror(__FILE__, __LINE__, "$lang_text{'advsearch'} $lang_err{'access_denied'}");
 }
 
-$folder = param('folder') || 'INBOX';
+$folder = ow::tool::unescapeURL(param('folder')) || 'INBOX';
 
 my $action = param('action')||'';
 if ($action eq "advsearch") {
@@ -84,14 +84,15 @@ sub advsearch {
    my $resline = param('resline') || $prefs{'msgsperpage'} || 10;
    my @folders = param('folders');
    for (my $i=0; $i<=$#folders; $i++) {
-      $folders[$i]=safefoldername($folders[$i]);
+      $folders[$i]=safefoldername(ow::tool::unescapeURL($folders[$i]));
    }
 
    my ($html, $temphtml);
    $html = applystyle(readtemplate("advsearch.template"));
 
    ## replace @@@MENUBARLINKS@@@ ##
-   $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} ".( $lang_folders{$folder}||$folder), qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;sessionid=$thissession&amp;folder=|.ow::tool::escapeURL($folder).qq|"|). qq| \n|;
+   my $folderstr=$lang_folders{$folder}||(iconv($prefs{'fscharset'}, $prefs{'charset'}, $folder))[0];
+   $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $folderstr", qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;sessionid=$thissession&amp;folder=|.ow::tool::escapeURL($folder).qq|"|). qq| \n|;
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
 
    ## replace @@@STARTADVSEARCHFORM@@@ ##
@@ -221,7 +222,7 @@ sub advsearch {
       $temphtml.=qq|<tr>| if ($i%4==0);
       $temphtml.=qq|<td>|.
                  checkbox(-name=>'folders',
-                          -value=>$validfolders[$i],
+                          -value=>ow::tool::escapeURL($validfolders[$i]),
                           -label=>'').
                  $folderstr.
                  qq|</td>|;
@@ -378,6 +379,11 @@ sub search_folders2 {
          # begin the search
          my ($block, $header, $body, $r_attachments);
          my @attr=string2msgattr($FDB{$messageid});
+         my $msgcharset=$attr[$_CHARSET];
+         if ($msgcharset eq '' && $prefs{'charset'} eq 'utf-8') {
+            # assume msg is from sender using same language as the recipient's browser
+            $msgcharset=$ow::lang::languagecharsets{ow::lang::guess_language()};
+         }
 
          # skip this msg if is not within date range
          next if ($attr[$_DATE] lt $startserial || $attr[$_DATE] gt $endserial);
@@ -406,7 +412,7 @@ sub search_folders2 {
                             to      => $_TO,
                             date    => $_DATE
                             );
-                  my ($data)=iconv($attr[$_CHARSET], $prefs{'charset'}, $attr[$index{$where}]);
+                  my ($data)=iconv($msgcharset, $prefs{'charset'}, $attr[$index{$where}]);
 
                   if ( ($type eq 'contains' && $data=~/\Q$keyword\E/i) ||
                        ($type eq 'notcontains' && $data!~/\Q$keyword\E/i) ||
@@ -427,9 +433,9 @@ sub search_folders2 {
                      $header.=$_;
                      last if ($_ eq "\n");
                   }
-                  $header = decode_mimewords_iconv($header, $attr[$_CHARSET]);
+                  $header = decode_mimewords_iconv($header, $msgcharset);
                   $header=~s/\n / /g;   # handle folding roughly
-                  ($header)=iconv($attr[$_CHARSET], $prefs{'charset'}, $header);
+                  ($header)=iconv($msgcharset, $prefs{'charset'}, $header);
 
                   if (($type eq 'contains' && $header=~/\Q$keyword\E/im) ||
                       ($type eq 'notcontains' && $header!~/\Q$keyword\E/im) ||
@@ -459,7 +465,7 @@ sub search_folders2 {
                         } elsif ($header =~ /content-transfer-encoding:\s+x-uuencode/i) {
                            $body = ow::mime::uudecode($body);
                         }
-                        ($body)=iconv($attr[$_CHARSET], $prefs{'charset'}, $body);
+                        ($body)=iconv($msgcharset, $prefs{'charset'}, $body);
 
                         if (($type eq 'contains' && $body=~/\Q$keyword\E/im) ||
                             ($type eq 'notcontains' && $body!~/\Q$keyword\E/im) ||
@@ -487,7 +493,7 @@ sub search_folders2 {
                            } else {
                               $content=${${$r_attachment}{r_content}};
                            }
-                           my $charset=${$r_attachment}{charset}||$attr[$_CHARSET];
+                           my $charset=${$r_attachment}{charset}||$msgcharset;
                            ($content)=iconv($charset, $prefs{'charset'}, $content);
 
                            if (($type eq 'contains' && $content=~/\Q$keyword\E/im) ||
@@ -510,7 +516,7 @@ sub search_folders2 {
                   if ($where eq 'attfilename') {
                      my $attfilename_macthed=0;
                      foreach my $r_attachment (@{$r_attachments}) {
-                        my $charset=${$r_attachment}{filenamecharset}||${$r_attachment}{charset}||$attr[$_CHARSET];
+                        my $charset=${$r_attachment}{filenamecharset}||${$r_attachment}{charset}||$msgcharset;
                         my ($filename)=iconv($charset, $prefs{'charset'}, ${$r_attachment}{filename});
                         if (($type eq 'contains' && $filename=~/\Q$keyword\E/im) ||
                             ($type eq 'notcontains' && $filename!~/\Q$keyword\E/im) ||
@@ -576,6 +582,10 @@ sub genline {
    ($offset, $from, $to, $dateserial, $subject, $content_type, $status, $messagesize, $references, $charset) = @{$r_attr};
 
    # convert from mesage charset to current user charset
+   if ($charset eq '' && $prefs{'charset'} eq 'utf-8') {
+      # assume msg is from sender using same language as the recipient's browser
+      $charset=$ow::lang::languagecharsets{ow::lang::guess_language()};
+   }
    ($from, $to, $subject)=iconv($charset, $prefs{'charset'}, $from, $to, $subject);
 
    my ($from_name, $from_address)=ow::tool::email2nameaddr($from);

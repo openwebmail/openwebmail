@@ -95,24 +95,22 @@ sub check_userpassword {
 
    $remote_sock->autoflush(1);
    $_=<$remote_sock>;
-   if (/^\-/) {
+   if (!/^200 /) {
       close($remote_sock);
       return(-3, "yppoppassd server $yppoppassd_host not ready");
    }
 
-   if (! /^\+/) {       # not supporting auth login or auth login failed
-      print $remote_sock "user $user\r\n";
-      $_=<$remote_sock>;
-      if (/^\-/) {              # username error
-         close($remote_sock);
-         return(-2, "yppoppassd server $yppoppassd_host username error");
-      }
-      print $remote_sock "pass $password\r\n";
-      $_=<$remote_sock>;
-      if (/^\-/) {              # passwd error
-         close($remote_sock);
-         return(-4, "yppoppassd server $yppoppassd_host password error");
-      }
+   print $remote_sock "user $user\r\n";
+   $_=<$remote_sock>;
+   if (!/^200 /) {              # username error
+      close($remote_sock);
+      return(-2, "yppoppassd server $yppoppassd_host username error");
+   }
+   print $remote_sock "pass $password\r\n";
+   $_=<$remote_sock>;
+   if (!/^200 /) {              # passwd error
+      close($remote_sock);
+      return(-4, "yppoppassd server $yppoppassd_host password error");
    }
 
    close($remote_sock);
@@ -148,30 +146,28 @@ sub change_userpassword {
 
    $remote_sock->autoflush(1);
    $_=<$remote_sock>;
-   if (/^\-/) {
+   if (!/^200 /) {
       close($remote_sock);
       return(-3, "yppoppassd server $yppoppassd_host not ready");
    }
 
-   if (! /^\+/) {       # not supporting auth login or auth login failed
-      print $remote_sock "user $user\r\n";
-      $_=<$remote_sock>;
-      if (/^\-/) {              # username error
-         close($remote_sock);
-         return(-2, "yppoppassd server $yppoppassd_host username error");
-      }
-      print $remote_sock "pass $oldpassword\r\n";
-      $_=<$remote_sock>;
-      if (/^\-/) {              # passwd error
-         close($remote_sock);
-         return(-4, "yppoppassd server $yppoppassd_host oldpassword error");
-      }
-      print $remote_sock "newpass $newpassword\r\n";
-      $_=<$remote_sock>;
-      if (/^\-/) {              # passwd error
-         close($remote_sock);
-         return(-4, "yppoppassd server $yppoppassd_host newpassword error");
-      }
+   print $remote_sock "user $user\r\n";
+   $_=<$remote_sock>;
+   if (!/^200 /) {              # username error
+      close($remote_sock);
+      return(-2, "yppoppassd server $yppoppassd_host username error");
+   }
+   print $remote_sock "pass $oldpassword\r\n";
+   $_=<$remote_sock>;
+   if (!/^200 /) {              # passwd error
+      close($remote_sock);
+      return(-4, "yppoppassd server $yppoppassd_host oldpassword error");
+   }
+   print $remote_sock "newpass $newpassword\r\n";
+   $_=<$remote_sock>;
+   if (!/^200 /) {              # passwd error
+      close($remote_sock);
+      return(-4, "yppoppassd server $yppoppassd_host newpassword error");
    }
 
    close($remote_sock);

@@ -65,7 +65,7 @@ if (!$config{'enable_webmail'}) {
    openwebmailerror(__FILE__, __LINE__, "$lang_text{'webmail'} $lang_err{'access_denied'}");
 }
 
-$folder = param('folder') || 'INBOX';
+$folder = ow::tool::unescapeURL(param('folder')) || 'INBOX';
 $page = param('page') || 1;
 $sort = param('sort') || $prefs{'sort'} || 'date';
 $keyword = param('keyword') || '';

@@ -72,7 +72,7 @@ if (!$config{'enable_webmail'}) {
    openwebmailerror(__FILE__, __LINE__, "$lang_text{'webmail'} $lang_err{'access_denied'}");
 }
 
-$folder = param('folder') || 'INBOX';
+$folder = ow::tool::unescapeURL(param('folder')) || 'INBOX';
 $messageid = param('message_id')||'';		# the orig message to reply/forward
 $mymessageid = param('mymessageid')||'';		# msg we are editing
 $page = param('page') || 1;
@@ -1016,20 +1016,24 @@ sub composemessage {
 
    my $compose_caller=param('compose_caller')||'';
    my $urlparm="sessionid=$thissession&amp;folder=$escapedfolder&amp;page=$page&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype";
+   my $folderstr=$lang_folders{$folder}||(iconv($prefs{'fscharset'}, $composecharset, $folder))[0];
    if ($compose_caller eq "read") {
-      $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} ".($lang_folders{$folder}||$folder),
+      $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $folderstr",
                            qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-read.pl?$urlparm&amp;action=readmessage&amp;message_id=$escapedmessageid&amp;headers=$prefs{'headers'}&amp;attmode=simple"|);
    } elsif ($compose_caller eq "addrlistview") {
-      my $abookfolder = ow::tool::escapeURL(param('abookfolder'));
+      # NOTE: ow::tool::escapeURL(ow::tool::unescapeURL($a)) may be not equal $a
+      #       as unescape will do nothing if the string is already unescaped.
+      # we call unescapeURL here for param because it may be protected by escapeURL to avoid charset problem caused by js in browser
+      my $escapedabookfolder=ow::tool::escapeURL(ow::tool::unescapeURL(param('abookfolder')));
       my $abookpage = param('abookpage');
       my $abooksort = param('abooksort');
-      my $abookkeyword = ow::tool::escapeURL(param('abookkeyword'));
+      my $escapedabookkeyword = ow::tool::escapeURL(ow::tool::unescapeURL(param('abookkeyword')));
       my $abooksearchtype = param('abooksearchtype');
       my $abookcollapse = param('abookcollapse');
       $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $lang_text{'addressbook'}",
-                           qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrlistview&amp;$urlparm&amp;abookfolder=$abookfolder&amp;abookpage=$abookpage&amp;abooksort=$abooksort&amp;abookkeyword=$abookkeyword&amp;abooksearchtype=$abooksearchtype&amp;abookcollapse=$abookcollapse"|). qq|\n|;
+                           qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrlistview&amp;$urlparm&amp;abookfolder=$escapedabookfolder&amp;abookpage=$abookpage&amp;abooksort=$abooksort&amp;abookkeyword=$escapedabookkeyword&amp;abooksearchtype=$abooksearchtype&amp;abookcollapse=$abookcollapse"|). qq|\n|;
    } else { # main
-      $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} ".($lang_folders{$folder}||$folder),
+      $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $folderstr",
                            qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;$urlparm"|). qq|\n|;
    }
 
@@ -1050,7 +1054,7 @@ sub composemessage {
                                  references=>$references,
                                  composecharset=>$composecharset,
                                  compose_caller=>$compose_caller,
-                                 folder=>$folder,
+                                 folder=>$escapedfolder,
                                  sort=>$sort,
                                  page=>$page,
                                  searchtype=>$searchtype,
@@ -1420,7 +1424,7 @@ sub composemessage {
                   ow::tool::hiddens(action=>'listmessages');
    }
    $temphtml .= ow::tool::hiddens(sessionid=>$thissession,
-                                  folder=>$folder,
+                                  folder=>$escapedfolder,
                                   sort=>$sort,
                                   page=>$page,
                                   searchtype=>$searchtype,

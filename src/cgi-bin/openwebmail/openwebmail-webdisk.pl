@@ -74,7 +74,7 @@ if (!$config{'enable_webdisk'}) {
 # set umask back to 0022 here dir & files are created as world readable
 umask(0022);
 
-$folder = param('folder') || 'INBOX';
+$folder = ow::tool::unescapeURL(param('folder')) || 'INBOX';
 $messageid = param('message_id')||'';
 
 $escapedfolder = ow::tool::escapeURL($folder);
