@@ -1,7 +1,7 @@
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>PERS&Ouml;NLICHE EMAIL-ADRESSEN BEARBEITEN</B></font>
+<B>PERS&Ouml;NLICHE E-MAIL-ADRESSEN BEARBEITEN</B></font>
 </td></tr>
 <tr><td bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
@@ -13,7 +13,7 @@
 <td nowrap bgcolor=@@@COLUMNHEADER@@@>
 <B>Name</B></td>
 <td nowrap bgcolor=@@@COLUMNHEADER@@@>
-<B>Email-Adresse</B> (Zum Bearbeiten hier klicken)</td>
+<B>E-Mail-Adresse</B> (Zum Bearbeiten hier klicken)</td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Aktion</B>
 </td></tr>

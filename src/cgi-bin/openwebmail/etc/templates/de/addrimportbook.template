@@ -1,10 +1,10 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr>
   <td bgcolor=@@@TITLEBAR@@@>
-    <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>Import Addressbook Information</b></font>
+    <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>Import ins Adressbuch</b></font>
   </td>
   <td bgcolor=@@@TITLEBAR@@@ align="right">
-    <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>@@@AVAILFREESPACE@@@ Available</b></font>
+    <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>@@@AVAILFREESPACE@@@ Verf&uuml;gbar</b></font>
   </td>
 </tr>
 <tr>
@@ -18,26 +18,28 @@
   <td colspan="2" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
     <table border="0" align="center" width="85%" cellpadding="0" cellspacing="0">
     <tr>
-      <td><br><b>Overview</b></td>
+      <td><br><b>&Uuml;bersicht</b></td>
     </tr>
     <tr>
-      <td>Many addressbook programs can export their addressbook data to files. @@@NAME@@@ can import some of these file formats, saving you hours of tediously typing them in by hand. The steps below will guide you through importing addressbook information. The file size limit on addressbook uploads is currently set to @@@ABOOKIMPORTLIMIT@@@ .</td>
+      <td>Viele Adressbuch-Programme k&ouml;nnen ihre Daten in Dateien exportieren.  @@@NAME@@@ kann einige dieser Datenformate importieren.
+          Dies erspart eine Menge manuelle Tipparbeit. Die Schritte unten f&uuml;hren durch den Import von Adressbuch-Daten.<br>
+          Die maxmimale Dateigr&ouml;&szlig;e bei Adressbuch-Uploads zum Import ist zur Zeit auf @@@ABOOKIMPORTLIMIT@@@ gesetzt.</td>
     </tr>
     @@@STARTIMPORTFORM@@@
     <tr>
-      <td><br><br><b>1. Browse for the file you are importing:</b></td>
+      <td><br><br><b>1. Geben Sie die Datei zum Import an:</b></td>
     </tr>
     <tr>
       <td>@@@IMPORTFILEFIELD@@@</td>
     </tr>
     <tr>
-      <td><br><b>2. Choose the format of your import file:</b></td>
+      <td><br><b>2. W&auml;hlen Sie das Format der Import-Datei aus:</b></td>
     </tr>
     <tr>
       <td>@@@FORMATSMENU@@@&nbsp;@@@IMPORTCHARSETMENU@@@</td>
     </tr>
     <tr>
-      <td><br><b>3. Choose the order of the fields in your import file (if applicable):</b></td>
+      <td><br><b>3. Ordnen Sie die Reihenfolge der Felder in Ihrer Import-Datei (falls zutreffend):</b></td>
     </tr>
     <tr>
       <td>
@@ -49,7 +51,7 @@
       </td>
     </tr>
     <tr>
-      <td><br><b>4. Choose a destination addressbook for the imported data:</b></td>
+      <td><br><b>4. W&auml;hlen Sie ein Adressbuch als Ziel für Ihren Datenimport:</b></td>
     </tr>
     <tr>
       <td>@@@ADDRBOOKSMENU@@@</td>

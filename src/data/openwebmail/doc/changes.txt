@@ -1,3 +1,11 @@
+12/28/2004
+----------
+1. Deutsch lang and template files translation update
+   (thanks to Martin Bronk, martin.AT.bronk.de)
+2. Indonesian language file translation update
+   (thanks to James Briggs, james.AT.ActionMessage.com)
+
+
 12/27/2004
 ----------
 1. fix a bug that spam/virus reserved days option does not show up in
