@@ -1,0 +1,51 @@
+--- filelock.pl.orig	Mon Jan 14 17:28:51 2002
++++ filelock.pl	Mon Jan 14 17:27:36 2002
+@@ -3,16 +3,48 @@
+ #
+ # 2001/04/25 tung@turtle.ee.ncku.edu.tw
+ #
++# This filelock.pl is a special version for debugging,
++# please install the lsof program first and ensure lsof path is right.
++#
++# The debug output will written to /tmp/openwebmail.debug
++#
+ 
+ use FileHandle;
+ 
++local %lockcount=();
+ sub filelock {
+    my $ret;
++
++   my $str;
++   if ($_[1] & LOCK_UN) {
++      $str="unlock"; $lockcount{$_[0]}--;
++   } elsif ($_[1] & LOCK_EX) {
++      $str="W lock"; $lockcount{$_[0]}++;
++   } elsif ($_[1] & LOCK_SH) {
++      $str="R lock"; $lockcount{$_[0]}++;
++   } else {
++      $str="UNKNOW";
++   }
++   log_time ("[$$] $str $lockcount{$_[0]}:", @_);
++
+    if ( $config{'use_dotlockfile'} ) {
+       $ret=filelock_dotlockfile(@_);
+    } else {
+       $ret=filelock_flock(@_);
+    }
++
++   if ($ret==0) {
++      my ($origruid, $origeuid)=($<, $>); 
++      my $prog="/usr/local/sbin/lsof $_[0]";
++      ($prog =~ /^(.+)$/) && ($prog = $1);
++
++      $>=0; $<=$>;			# set ruid/euid to root before exec
++      my $lsof=`$prog`;
++      $<=$origruid; $>=$origeuid;	# fall back to original ruid/euid	
++
++      log_time("[$$] LOCK ERROR: locks on file =>\n", $lsof);
++   }
++
+    return($ret);
+ }
+ 

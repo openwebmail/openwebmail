@@ -1,0 +1,40 @@
+<table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
+<tr><td colspan="4" bgcolor=@@@TITLEBAR@@@ align="left">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>@@@ADDRESSBOOKFOR@@@</B></font>
+</td></tr><tr><td colspan="4" align="center" bgcolor=@@@WINDOW_LIGHT@@@ nowrap>
+@@@STARTSEARCHFORM@@@
+@@@SEARCH@@@
+</td>
+@@@ENDFORM@@@
+</tr>
+
+@@@STARTADDRESSFORM@@@
+@@@ADDRESSES@@@
+<tr><td colspan="4" align="center">
+&nbsp;<br>
+@@@BUTTONS@@@
+</td>
+@@@ENDFORM@@@
+</tr></table>
+
+<script language="JavaScript">
+<!--
+   function Update()
+   {
+      var e2 = unescape(document.addressbook.remainingstr.value);
+      for (var i = 0; i < document.addressbook.elements.length; i++)
+      {
+         var e = document.addressbook.elements[i];
+         if (e.name == "to" && e.checked)
+         {
+            if (e2)
+               e2 += ",";
+            e2 += e.value;
+         }
+      }
+      window.opener.document.@@@FORMNAME@@@.@@@FIELDNAME@@@.value = e2;
+      window.close();
+   }
+//-->
+</script>
