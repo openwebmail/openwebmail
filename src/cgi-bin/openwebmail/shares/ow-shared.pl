@@ -1244,6 +1244,7 @@ sub htmlplugin {
    if ($file ne '' && open(F, $file) ) {	# $file is plugin file
       local $/; undef $/; $html=<F>;	# no seperator, read whole file in once
       close(F);
+      $html=~s/\%THISSESSION\%/$thissession/;
       ($html)=iconv($fromcharset, $tocharset, "<center>\n$html</center>\n") if ($html ne '');
    }
    return ($html);

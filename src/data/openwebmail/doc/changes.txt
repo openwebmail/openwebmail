@@ -1,3 +1,9 @@
+11/17/2004
+----------
+1. minor fix to editfile in webdisk so it could be called from modules 
+   other than webdisk
+
+
 11/16/2004
 ----------
 1. fix a bug that parameters won't be remembered correctly in the url 

@@ -394,10 +394,14 @@ If this option is set to 'none', the plugin will be disabled
 
 ps: To plugin the output of a program into openwebmail,
     you may have two choices:
-1. specify the plugin file as a pipe, eg: "/somepath/your_program |"
-2. execute the command in crontab,
-   then use the output file of command as the pluginfile
-While method 1 is more realtime, moethod 2 would have samller overhead.
+    a. specify the plugin file as a pipe, eg: "/somepath/your_program |"
+    b. execute the command in crontab,
+       then use the output file of command as the pluginfile
+    While method 1 is more realtime, moethod 2 would have samller overhead.
+
+ps: You may use %THISSESSION% in the plugin output, which will be replaced
+    with the user current sessionid in openwebmail, this may be useful 
+    if your plugin want to call links inside openwebmail
 
 
 webmail_middle_pluginfile

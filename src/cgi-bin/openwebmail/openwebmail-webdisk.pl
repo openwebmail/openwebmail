@@ -630,7 +630,7 @@ sub savefile {
    writelog("webdisk savefile - $vpath");
    writehistory("webdisk savefile - $vpath");
 
-   my $jscode=qq|window.opener.document.dirform.submit();|;
+   my $jscode=qq|if (window.opener.document.dirform!=null) {window.opener.document.dirform.submit();}|;	# refresh parent if it is dirform
    autoclosewindow($lang_text{'savefile'}, "$lang_text{'savefile'} $lang_text{'succeeded'} (".(iconv($prefs{fscharset},$prefs{charset},$vpath))[0].")", 5, $jscode);
 }
 ########## END SAVEFILE ##########################################
