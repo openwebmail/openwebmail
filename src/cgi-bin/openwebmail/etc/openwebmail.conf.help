@@ -1565,44 +1565,50 @@ default_language
 This is the language used for the login screen or for the new user
 that hasn't saved his own language preference yet.
 
-supported language including: (defined in ow-shared.pl)
+supported language including: (defined in modules/lang.pl)
 
-ar.CP1256    => Arabic - Windows
-ar.ISO8859-6 => Arabic - ISO 8859-6
-bg           => Bulgarian
-ca           => Catalan
-cs           => Czech
-da           => Danish
-de           => Deutsch			# German
-el           => Hellenic		# Hellenic/Greek
-en           => English
-es           => Spanish			# Espanol
-fi           => Finnish
-fr           => French
-he.ISO8859-8 => Hebrew
-hu           => Hungarian
-id           => Indonesian
-it           => Italiano
-ja_JP.eucJP     => Japanese - eucJP
-ja_JP.Shift_JIS => Japanese - ShiftJIS
-kr           => Korean
-lt           => Lithuanian
-nl           => Nederlands
-no           => Norwegian
-pl           => Polish
-pt           => Portuguese
-pt_BR        => Portuguese Brazil
-ro           => Romanian
-ru           => Russian
-sk           => Slovak
-sr           => Serbian
-sv           => Swedish			# Svenska
-th           => Thai
-tr           => Turkish
-uk           => Ukrainian
-ur           => Urdu
-zh_CN.GB2312 => Chinese - Simplified
-zh_TW.Big5   => Chinese - Traditional
+   'ar.CP1256'         => 'Arabic - Windows',
+   'ar.ISO8859-6'      => 'Arabic - ISO 8859-6',
+   'bg'                => 'Bulgarian',
+   'ca'                => 'Catalan',
+   'cs'                => 'Czech',
+   'da'                => 'Danish',
+   'de'                => 'Deutsch',		# German
+   'el'                => 'Hellenic',		# Hellenic/Greek
+   'en'                => 'English',
+   'en.utf8'           => 'English - Unicode',	# utf8
+   'es'                => 'Spanish',		# Espanol
+   'fi'                => 'Finnish',
+   'fr'                => 'French',
+   'he.ISO8859-8'      => 'Hebrew - ISO 8859-8',
+   'he.CP1255'         => 'Hebrew - Windows',
+   'hu'                => 'Hungarian',
+   'id'                => 'Indonesian',
+   'it'                => 'Italiano',
+   'ja_JP.eucJP'       => 'Japanese - eucJP',
+   'ja_JP.Shift_JIS'   => 'Japanese - ShiftJIS',
+   'ja_JP.utf8'        => 'Japanese - Unicode', # utf8
+   'ko'                => 'Korean',
+   'lt'                => 'Lithuanian',
+   'nl'                => 'Nederlands',
+   'no'                => 'Norwegian',
+   'pl'                => 'Polish',
+   'pt'                => 'Portuguese',
+   'pt_BR'             => 'Portuguese Brazil',
+   'ro'                => 'Romanian',
+   'ru'                => 'Russian',
+   'sk'                => 'Slovak',
+   'sl'                => 'Slovene',
+   'sr'                => 'Serbian',
+   'sv'                => 'Swedish',		# Svenska
+   'th'                => 'Thai',
+   'tr'                => 'Turkish',
+   'uk'                => 'Ukrainian',
+   'ur'                => 'Urdu',
+   'zh_CN.GB2312'      => 'Chinese - Simplified',
+   'zh_CN.GB2312.utf8' => 'Chinese - Simplified - Unicode',
+   'zh_TW.Big5'        => 'Chinese - Traditional ',
+   'zh_TW.Big5.utf8'   => 'Chinese - Traditional - Unicode'
 
 If this option is set to 'auto', openwebmail will choose the language
 based on the language that is prefered by the client browser

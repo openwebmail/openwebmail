@@ -1,3 +1,18 @@
+01/11/2005
+----------
+1. change korean language abbreviation from kr to ko
+   (thanks to Sergio Rua, srua.AT.debian.org for his correction)
+
+
+01/10/2005
+----------
+1. URL syntax support in uploading :)
+   the users can upload an URL in webdisk or message composing now
+   just as if the URL is a local file
+2. rename 'Folder Browsing' in preference to 'Messages Listing' to
+   avoid confusing
+
+
 01/09/2005
 ----------
 1. fix a minor bug in openwebmail-saprefs.pl that the default score

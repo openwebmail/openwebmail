@@ -40,6 +40,7 @@ require "modules/execute.pl";
 require "modules/datetime.pl";
 require "modules/lang.pl";
 require "modules/htmltext.pl";
+require "modules/wget.pl";
 require "auth/auth.pl";
 require "quota/quota.pl";
 require "shares/ow-shared.pl";
@@ -1281,8 +1282,8 @@ sub _linkconv2 {
 sub uploadfile {
    no strict 'refs';	# for $upload, which is fname and fhandle of the upload
    my ($currentdir, $upload)=@_;
-   my $size=(-s $upload);
 
+   my $size=(-s $upload);
    if (!is_quota_available($size/1024)) {
       return("$lang_err{'quotahit_alert'}\n");
    }
@@ -1290,22 +1291,38 @@ sub uploadfile {
        $size/1024>$config{'webdisk_uploadlimit'} ) {
       return ("$lang_err{'upload_overlimit'} $config{'webdisk_uploadlimit'} $lang_sizes{'kb'}\n");
    }
-   if ($size ==0) {
-      return("$lang_wdbutton{'upload'} $lang_text{'failed'} (filesize is zero)\n");
-   }
 
-   my $fname = $upload;
-   # Convert :: back to the ' like it should be.
-   $fname =~ s/::/'/g;
-   # Trim the path info from the filename
+   my ($fname, $wgethandle);
+   if ($upload=~m!^(https?|ftp)://!) {
+      my $wgetbin=ow::tool::findbin('wget');
+      return("$lang_text{'program'} wget $lang_err{'doesnt_exist'}\n") if ($wgetbin eq '');
 
-   if ($prefs{'charset'} eq 'big5' || $prefs{'charset'} eq 'gb2312') {
-      $fname=ow::tool::zh_dospath2fname($fname);	# dos path
+      my ($ret, $errmsg, $contenttype);
+      ($ret, $errmsg, $contenttype, $wgethandle)=ow::wget::get_handle($wgetbin, $upload);
+      return("$lang_wdbutton{'upload'} $upload $lang_text{'failed'}\n($errmsg)") if ($ret<0);
+
+      my $ext=ow::tool::contenttype2ext($contenttype);
+      $fname=$upload;				# url
+      $fname=~s/\?.*$//;			# clean cgi parm in url
+      $fname=~ s!/$!!; $fname =~ s|^.*/||;	# clear path in url
+      $fname.=".$ext" if ($fname!~/\.$ext$/ && $ext ne 'bin');
+
    } else {
-      $fname =~ s|^.*\\||;		# dos path
+      if ($size==0) {
+         return("$lang_wdbutton{'upload'} $lang_text{'failed'} (filesize is zero)\n");
+      }
+      $fname = $upload;
+      # Convert :: back to the ' like it should be.
+      $fname =~ s/::/'/g;
+      # Trim the path info from the filename
+      if ($prefs{'charset'} eq 'big5' || $prefs{'charset'} eq 'gb2312') {
+         $fname=ow::tool::zh_dospath2fname($fname);	# dos path
+      } else {
+         $fname =~ s|^.*\\||;	# dos path
+      }
+      $fname =~ s|^.*/||;	# unix path
+      $fname =~ s|^.*:||;	# mac path and dos drive
    }
-   $fname =~ s|^.*/||;	# unix path
-   $fname =~ s|^.*:||;	# mac path and dos drive
 
    my $vpath=ow::tool::untaint(absolute_vpath($currentdir, $fname));
    my $err=verify_vpath($webdiskrootdir, $vpath);
@@ -1313,19 +1330,25 @@ sub uploadfile {
 
    renameoldfile("$webdiskrootdir/$vpath") if ( -f "$webdiskrootdir/$vpath");
 
-   if (open(UPLOAD, ">$webdiskrootdir/$vpath")) {
-      my $buff;
+   open(UPLOAD, ">$webdiskrootdir/$vpath") or
+      return("$lang_wdbutton{'upload'} $vpath $lang_text{'failed'} ($!)\n");
+   my $buff;
+   if (defined $wgethandle) {
+      while (read($wgethandle, $buff, 32768)) {
+         print UPLOAD $buff;
+      }
+      close($wgethandle);
+   } else {
       while (read($upload, $buff, 32768)) {
          print UPLOAD $buff;
       }
-      close(UPLOAD);
-      writelog("webdisk upload - $vpath");
-      writehistory("webdisk upload - $vpath");
-      return("$lang_wdbutton{'upload'} $vpath $lang_text{'succeeded'}\n");
-
-   } else {
-      return("$lang_wdbutton{'upload'} $vpath $lang_text{'failed'} ($!)\n");
+      close($upload);
    }
+   close(UPLOAD);
+
+   writelog("webdisk upload - $vpath");
+   writehistory("webdisk upload - $vpath");
+   return("$lang_wdbutton{'upload'} $vpath $lang_text{'succeeded'}\n");
 }
 
 # rename fname.ext   to fname.0.ext
@@ -2414,7 +2437,7 @@ sub showdir {
                            -labels=>\%searchtypelabels);
    $temphtml .= textfield(-name=>'keyword',
                          -default=>$keyword,
-                         -size=>'25',
+                         -size=>'20',
                          -accesskey=>'S',
                          -onChange=>'document.dirform.searchbutton.focus();',
                          -override=>'1');
@@ -2427,7 +2450,7 @@ sub showdir {
       templateblock_enable($html, 'UPLOAD');
       $temphtml = filefield(-name=>'upload',
                             -default=>"",
-                            -size=>'20',
+                            -size=>'25',
                             -accesskey=>'W',
                             -override=>'1');
       $temphtml .= submit(-name=>'uploadbutton',

@@ -58,23 +58,24 @@ Digest-MD5-2.33.tar.gz        (required)
 Text-Iconv-1.2.tar.gz         (required)
 libiconv-1.9.1.tar.gz         (required if system doesn't support iconv)
 
-CGI-SpeedyCGI-2.22.tar.gz     (optional, for persistent running)
+CGI-SpeedyCGI-2.22.tar.gz     (optional but highly recommended, for persistent running)
 Compress-Zlib-1.33.tar.gz     (optional, for HTTP compression)
 ispell-3.1.20.tar.gz          (optional, for spellcheck)
 Quota-1.4.10.tar.gz           (optional, for unixfs quota support)
 Authen-PAM-0.14.tar.gz        (optional, for auth_pam support)
-ImageMagick-5.5.3.tar.gz      (optional, for thumbnail support in webdisk)
-antiword-0.35.tar.gz          (optional, for msword preview)
 openssl-0.9.7d.tar.gz         (optional, for pop3 over SSL support,
                                required only if system doesn't support libssl)
 Net_SSLeay.pm-1.25.tar.gz     (optional, for pop3 over SSL support)
 IO-Socket-SSL-0.96.tar.gz     (optional, for pop3 over SSL support)
 clamav-0.70.tar.gz            (optional, for viruscheck,
                                available at http://www.clamav.net)
-Mail-SpamAssassin-2.63.tar.gz (optional, for spamcheck,
+Mail-SpamAssassin-3.02.tar.gz (optional, for spamcheck,
                                available at http://www.spamassassin.org)
-lsof_4.73A.freebsd.tar.bz2    (optional, for openwebmail-tool --unlock,
-                               available at http://freshmeat.net/projects/lsof/)
+antiword-0.35.tar.gz          (optional, for msword preview)
+ImageMagick-5.5.3.tar.gz      (optional, for thumbnail support in webdisk)
+tnef-1.2.3.1.tar.gz           (optional, tnef is used mostly by mails from MS Outlook and Exchange)
+wget-1.9.1.tar.gz             (optional, for URL uploading support in webdisk & msg composing)
+lsof_4.73A.freebsd.tar.bz2    (optional, for openwebmail-tool --unlock)
 
 
 INSTALL REQUIRED PACKAGES
@@ -1043,7 +1044,7 @@ ps: You may choose the abbreviation by referencing the following url
    cd xy
 
    then translate htmlarea-lang.js, insert_image.html, insert_sound.html,
-   insert_table.html and select_color.html  into language xy
+   insert_table.html and select_color.html into language xy
 
    Some style sheel setting in insert*html may need to be adjusted to
    get the best layout for your language. They are

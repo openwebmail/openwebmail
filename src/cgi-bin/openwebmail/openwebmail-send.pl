@@ -34,6 +34,7 @@ require "modules/htmltext.pl";
 require "modules/htmlrender.pl";
 require "modules/enriched.pl";
 require "modules/tnef.pl";
+require "modules/wget.pl";
 require "auth/auth.pl";
 require "quota/quota.pl";
 require "shares/ow-shared.pl";
@@ -347,25 +348,45 @@ sub composemessage {
       my $attachment = param('attachment') ||'';
       my $webdisksel = param('webdisksel') ||'';
       my ($attname, $attcontenttype);
+
       if ($webdisksel || $attachment) {
          if ($attachment) {
-            # Convert :: back to the ' like it should be.
-            $attname = $attachment;
-            $attname =~ s/::/'/g;
-            # Trim the path info from the filename
-            if ($composecharset eq 'big5' || $composecharset eq 'gb2312') {
-               $attname = ow::tool::zh_dospath2fname($attname);	# dos path
+            if ($attachment=~m!^(https?|ftp)://!) {	# attachment is a url
+               my $wgetbin=ow::tool::findbin('wget');
+               if ($wgetbin ne '') {
+                  $attname=$attachment;			# url
+                  my ($ret, $errmsg);
+                  ($ret, $errmsg, $attcontenttype, $attachment)=ow::wget::get_handle($wgetbin, $attachment);
+                  if ($ret==0) {
+                     my $ext=ow::tool::contenttype2ext($attcontenttype);
+                     $attname=~s/\?.*$//;				# clean cgi parm in url
+                     $attname=~ s!/$!!; $attname =~ s|^.*/||;	# clear path in url
+                     $attname.=".$ext" if ($attname!~/\.$ext$/ && $ext ne 'bin');
+                  } else {
+                     undef $attachment;		# silent if wget err
+                  }
+               } else {
+                  undef $attachment;		# silent if wget no available
+               }
             } else {
-               $attname =~ s|^.*\\||;		# dos path
-            }
-            $attname =~ s|^.*/||;	# unix path
-            $attname =~ s|^.*:||;	# mac path and dos drive
+               # Convert :: back to the ' like it should be.
+               $attname = $attachment;
+               $attname =~ s/::/'/g;
+               # Trim the path info from the filename
+               if ($composecharset eq 'big5' || $composecharset eq 'gb2312') {
+                  $attname = ow::tool::zh_dospath2fname($attname);	# dos path
+               } else {
+                  $attname =~ s|^.*\\||;		# dos path
+               }
+               $attname =~ s|^.*/||;	# unix path
+               $attname =~ s|^.*:||;	# mac path and dos drive
 
-            if (defined(uploadInfo($attachment))) {
-#               my %info=%{uploadInfo($attachment)};
-               $attcontenttype = ${uploadInfo($attachment)}{'Content-Type'} || 'application/octet-stream';
-            } else {
-               $attcontenttype = 'application/octet-stream';
+               if (defined(uploadInfo($attachment))) {
+#                  my %info=%{uploadInfo($attachment)};
+                  $attcontenttype = ${uploadInfo($attachment)}{'Content-Type'} || 'application/octet-stream';
+               } else {
+                  $attcontenttype = 'application/octet-stream';
+               }
             }
 
          } elsif ($webdisksel && $config{'enable_webdisk'}) {
