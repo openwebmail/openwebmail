@@ -215,7 +215,7 @@ package ow::zh_CN_GB2312;
    USERDEFINE => '使用者自订',
    );
 
-%lang_advsearchlabels =
+%lang_searchtypelabels =
    (
    contains    => '包含',
    notcontains => '不包含',
@@ -224,6 +224,18 @@ package ow::zh_CN_GB2312;
    startswith  => '开始于',
    endswith    => '结束于',
    regexp      => '正则表示式',
+   );
+
+%lang_searchdaterangelabels =
+   (
+   all         => '全部',
+   today       => '今天',
+   oneweek     => '一星期内',
+   twoweeks    => '两星期内',
+   onemonth    => '一个月内',
+   threemonths => '三个月内',
+   sixmonths   => '六个月内',
+   oneyear     => '一年内',
    );
 
 %lang_sizes =

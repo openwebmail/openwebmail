@@ -215,7 +215,7 @@ package ow::tr;
    USERDEFINE => 'User Define',
    );
 
-%lang_advsearchlabels =
+%lang_searchtypelabels =
    (
    contains    => 'içeren',
    notcontains => 'içermeyen',
@@ -224,6 +224,18 @@ package ow::tr;
    startswith  => 'ile baþlayan',
    endswith    => 'ile biten',
    regexp      => 'aranan ifadeyle örtüþen',
+   );
+
+%lang_searchdaterangelabels =
+   (
+   all         => 'All',
+   today       => 'Today',
+   oneweek     => 'One week',
+   twoweeks    => 'Two weeks',
+   onemonth    => 'One month',
+   threemonths => 'Three months',
+   sixmonths   => 'Six months',
+   oneyear     => 'One year',
    );
 
 %lang_sizes =

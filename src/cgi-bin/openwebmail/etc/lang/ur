@@ -215,7 +215,7 @@ package ow::ur;
    USERDEFINE => 'User Define',
    );
 
-%lang_advsearchlabels =
+%lang_searchtypelabels =
    (
    contains    => 'ﻣﻮﺠﻮﺩ ﻫﻮ',
    notcontains => 'ﻣﻮﺠﻮﺩ ﻧﻬﻴﮟ ﻫﻮ',
@@ -224,6 +224,18 @@ package ow::ur;
    startswith  => 'ﺷﺮﻭﻉ ﻫﻮ',
    endswith    => 'ﺍﺨﺘﺎﻡ ﻫﻮ',
    regexp      => 'regexp ﻛﮯ ﻣﻄﺎﺑﻖ ﻫﻮ',
+   );
+
+%lang_searchdaterangelabels =
+   (
+   all         => 'All',
+   today       => 'Today',
+   oneweek     => 'One week',
+   twoweeks    => 'Two weeks',
+   onemonth    => 'One month',
+   threemonths => 'Three months',
+   sixmonths   => 'Six months',
+   oneyear     => 'One year',
    );
 
 %lang_sizes =

@@ -215,7 +215,7 @@ package ow::ar_ISO8859_6;
    USERDEFINE => 'User Define',
    );
 
-%lang_advsearchlabels =
+%lang_searchtypelabels =
    (
    contains    => 'êÍÊèê Ùäé',
    notcontains => 'äÇ êÍÊèê Ùäé',
@@ -224,6 +224,18 @@ package ow::ar_ISO8859_6;
    startswith  => 'êÈÏÃ Èàð',
    endswith    => 'êæÊçê Èàð',
    regexp      => 'ê×ÇÈâ regexp',
+   );
+
+%lang_searchdaterangelabels =
+   (
+   all         => 'All',
+   today       => 'Today',
+   oneweek     => 'One week',
+   twoweeks    => 'Two weeks',
+   onemonth    => 'One month',
+   threemonths => 'Three months',
+   sixmonths   => 'Six months',
+   oneyear     => 'One year',
    );
 
 %lang_sizes =

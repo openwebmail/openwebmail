@@ -47,7 +47,8 @@ use vars qw(%prefs %style %icontext);
 
 # extern vars
 use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE $_STATUS $_SIZE $_REFERENCES $_CHARSET); # defined in maildb.pl
-use vars qw(%lang_folders %lang_advsearchlabels %lang_text %lang_err);	# defined in lang/xy
+use vars qw(%lang_folders %lang_searchtypelabels %lang_searchdaterangelabels
+            %lang_text %lang_err);	# defined in lang/xy
 
 # local vars
 use vars qw($folder);
@@ -75,7 +76,6 @@ openwebmail_requestend();
 ########## ADVSEARCH #############################################
 sub advsearch {
    my @search;
-
    for (my $i=0; $i<3; $i++) {
       my $text=param('searchtext'.$i); $text=~s/^\s*//; $text=~s/\s*$//;
       push(@search, {where=>param('where'.$i)||'', type=>param('type'.$i)||'', text=>$text||''} );
@@ -101,6 +101,63 @@ sub advsearch {
                                  sessionid=>$thissession);
    $html =~ s/\@\@\@STARTADVSEARCHFORM\@\@\@/$temphtml/;
 
+
+   my $localtime=ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'});
+   my ($current_year, $current_month, $current_day)=(ow::datetime::seconds2array($localtime))[5,4,3];
+   $current_year+=1900; $current_month++;
+
+   $html =~ s/\@\@\@CURRENTYEAR\@\@\@/$current_year/;
+   $html =~ s/\@\@\@CURRENTMONTH\@\@\@/$current_month/;
+   $html =~ s/\@\@\@CURRENTDAY\@\@\@/$current_day/;
+
+   my $datehtml=$prefs{'dateformat'};
+   $temphtml = popup_menu(-name=>"year1",
+                          -values=>[1990..$current_year],
+                          -default=>param('year1')||'1990');
+   $datehtml =~ s/yyyy/$temphtml/;
+   $temphtml = popup_menu(-name=>"month1",
+                          -values=>[1..12],
+                          -default=>param('month1')||'1');
+   $datehtml =~ s/mm/$temphtml/;
+   $temphtml = popup_menu(-name=>"day1",
+                          -values=>[1..31],
+                          -default=>param('day1')||'1');
+   $datehtml =~ s/dd/$temphtml/;
+   $html =~ s/\@\@\@STARTDATE\@\@\@/$datehtml/;
+
+   $datehtml=$prefs{'dateformat'};
+   $temphtml = popup_menu(-name=>"year2",
+                          -values=>[1990..$current_year],
+                          -default=>param('year2')||$current_year);
+   $datehtml =~ s/yyyy/$temphtml/;
+   $temphtml = popup_menu(-name=>"month2",
+                          -values=>[1..12],
+                          -default=>param('month2')||$current_month);
+   $datehtml =~ s/mm/$temphtml/;
+   $temphtml = popup_menu(-name=>"day2",
+                          -values=>[1..31],
+                          -default=>param('day2')||$current_day);
+   $datehtml =~ s/dd/$temphtml/;
+   $html =~ s/\@\@\@ENDDATE\@\@\@/$datehtml/;
+
+   $temphtml = popup_menu(-name=>"daterange",
+                          -values=>['all', 'today', 'oneweek', 'twoweeks',
+                                    'onemonth', 'threemonths', 'sixmonths',
+                                    'oneyear'],
+                          -labels=>\%lang_searchdaterangelabels,
+                          -onChange=>"setdaterange(this.value)",
+                          -default=>param('daterange')||'all');
+   $html =~ s/\@\@\@DATERANGEMENU\@\@\@/$temphtml/;
+
+   my $startserial=sprintf("%04d%02d%02d%02d%02d%02d", 1990, 1, 1, 0, 0, 0);
+   my $endserial=sprintf("%04d%02d%02d%02d%02d%02d", $current_year, $current_month, $current_day, 23, 59, 59);
+   if (defined param('year1') && defined param('year2')) {
+      my $seconds=ow::datetime::array2seconds(0,0,0, param('day1'),param('month1')-1,param('year1')-1900);
+      $startserial=ow::datetime::gmtime2dateserial(ow::datetime::time_local2gm($seconds, $prefs{'timeoffset'}, $prefs{'daylighsaving'}));
+      $seconds=ow::datetime::array2seconds(23,59,59, param('day2'),param('month2')-1,param('year2')-1900);
+      $endserial=ow::datetime::gmtime2dateserial(ow::datetime::time_local2gm($seconds, $prefs{'timeoffset'}, $prefs{'daylighsaving'}));
+   }
+
    for(my $i=0; $i<=2; $i++) {
       my %labels = ('from'=>$lang_text{'from'},
                     'to'=>$lang_text{'to'},
@@ -119,7 +176,7 @@ sub advsearch {
       $temphtml = popup_menu(-name=>"type$i",
                              -values=>['contains', 'notcontains', 'is', 'isnot', 'startswith', 'endswith', 'regexp'],
                              -default=>${$search[$i]}{'type'} || 'contains',
-                             -labels=>\%lang_advsearchlabels);
+                             -labels=>\%lang_searchtypelabels);
       $html =~ s/\@\@\@TYPEMENU$i\@\@\@/$temphtml/;
 
       $temphtml = textfield(-name=>"searchtext$i",
@@ -148,27 +205,19 @@ sub advsearch {
    getfolders(\@validfolders, \$inboxusage, \$folderusage);
 
    for(my $i=0; $i<=$#validfolders; $i++) {
-      $temphtml.=qq|<tr>| if ($i%4==0);
-      $temphtml.=qq|<td>|;
-      if($validfolders[$i] eq 'INBOX') {
-         $temphtml .= checkbox(-name=>'folders',
-                               -value=>$validfolders[$i],
-                               -checked=>1,
-                               -label=>'').
-                      $lang_folders{$validfolders[$i]};
+      my $folderstr;
+      if ( defined($lang_folders{$validfolders[$i]}) ) {
+         $folderstr=$lang_folders{$validfolders[$i]};
       } else {
-         my $folderstr;
-         if ( defined($lang_folders{$validfolders[$i]}) ) {
-            $folderstr=$lang_folders{$validfolders[$i]};
-         } else {
-            $folderstr= (iconv($prefs{'fscharset'}, $prefs{'charset'}, $validfolders[$i]))[0];
-         }
-         $temphtml .= checkbox(-name=>'folders',
-                               -value=>$validfolders[$i],
-                               -label=>'').
-                      $folderstr;
+         $folderstr= (iconv($prefs{'fscharset'}, $prefs{'charset'}, $validfolders[$i]))[0];
       }
-      $temphtml.=qq|</td>|;
+      $temphtml.=qq|<tr>| if ($i%4==0);
+      $temphtml.=qq|<td>|.
+                 checkbox(-name=>'folders',
+                          -value=>$validfolders[$i],
+                          -label=>'').
+                 $folderstr.
+                 qq|</td>|;
       $temphtml.=qq|</tr>\n| if ($i%4==3);
    }
    $temphtml.=qq|</table>|;
@@ -185,9 +234,14 @@ sub advsearch {
    $html =~ s/\@\@\@SENDER\@\@\@/$temphtml/g;
    $temphtml = $lang_text{'subject'};
    $html =~ s/\@\@\@SUBJECT\@\@\@/$temphtml/g;
+   $temphtml = $lang_text{'size'};
+   $html =~ s/\@\@\@SIZE\@\@\@/$temphtml/g;
 
    my ($totalfound, $resulthtml);
-   if( ${$search[0]}{'text'} eq '' && ${$search[1]}{'text'}  eq '' && ${$search[2]}{'text'}  eq '') {
+#   if( ${$search[0]}{'text'} eq '' && ${$search[1]}{'text'}  eq '' && ${$search[2]}{'text'}  eq '') {
+   if( $startserial!~/^\d\d\d\d\d\d\d\d\d\d\d\d\d\d$/ ||
+       $endserial!~/^\d\d\d\d\d\d\d\d\d\d\d\d\d\d$/ ||
+       $startserial gt $endserial) {
       $temphtml = "";
       $html =~ s/\@\@\@TOTALFOUND\@\@\@/$temphtml/g;
       $html =~ s/\@\@\@SEARCHRESULT\@\@\@/$temphtml/g;
@@ -197,10 +251,23 @@ sub advsearch {
       $temphtml = "";
       $html =~ s/\@\@\@SEARCHRESULT\@\@\@/$temphtml/g;
    } else {
-      my $r_result = search_folders(\@search, \@folders, dotpath('search.cache'));
+      my $r_result = search_folders($startserial, $endserial, \@search, \@folders, dotpath('search.cache'));
       my $totalfound= $#{$r_result}+1;
+      my $totalsize=0;
+
+      $temphtml="";
+      for (my $i=0; $i<$totalfound; $i++) {
+         last if ($i>$resline);
+         my $r_msg=${$r_result}[$i];
+         $totalsize+=${${$r_msg}{attr}}[$_SIZE];
+         $temphtml.=genline($i%2, ${$r_msg}{folder}, ${$r_msg}{msgid}, ${$r_msg}{attr});
+      }
+      $html =~ s/\@\@\@SEARCHRESULT\@\@\@/$temphtml/g;
+
+      $totalsize=lenstr($totalsize,1);
+
       if ($totalfound <= $resline) {
-         $html =~ s/\@\@\@TOTALFOUND\@\@\@/$totalfound/g;
+         $html =~ s/\@\@\@TOTALFOUND\@\@\@/$totalfound ( $totalsize )/g;
       } else {
          my $escapedfolders;
          foreach (@folders) {
@@ -212,16 +279,13 @@ sub advsearch {
                          qq|&amp;where1=${$search[1]}{'where'}&amp;type1=${$search[1]}{'type'}&amp;searchtext1=|.ow::tool::escapeURL(${$search[1]}{'text'}).
                          qq|&amp;where2=${$search[2]}{'where'}&amp;type2=${$search[2]}{'type'}&amp;searchtext2=|.ow::tool::escapeURL(${$search[2]}{'text'}).
                          qq|&amp;resline=$totalfound&amp;$escapedfolders|;
-         $temphtml=qq|$totalfound &nbsp;<a href="$showall_url">[$lang_text{'showall'}]</a>|;
+         foreach (qw(year1 month1 day1 year2 month2 day2 daterange)) {
+            $showall_url.=qq|&amp;$_=|.param($_);
+         }
+         $temphtml=qq|$totalfound ( $totalsize ) &nbsp;<a href="$showall_url">[$lang_text{'showall'}]</a>|;
          $html =~ s/\@\@\@TOTALFOUND\@\@\@/$temphtml/g;
       }
 
-      $temphtml="";
-      for (my $i=0; $i<$totalfound; $i++) {
-         last if ($i>$resline);
-         $temphtml.=genline($i%2, split(/\@\@\@/, ${$r_result}[$i]));
-      }
-      $html =~ s/\@\@\@SEARCHRESULT\@\@\@/$temphtml/g;
    }
 
    httpprint([], [htmlheader(), $html, htmlfooter(2)]);
@@ -230,9 +294,10 @@ sub advsearch {
 
 ########## SEARCH_FOLDERS ########################################
 sub search_folders {
-   my ($r_search, $r_folders, $cachefile)=@_;
+   my ($startserial, $endserial, $r_search, $r_folders, $cachefile)=@_;
    my ($metainfo, $cache_metainfo, $r_result);
 
+   $metainfo=$startserial.'@@@'.$endserial.'@@@';
    foreach my $search (@{$r_search}) {
       if (${$search}{'text'} ne "") {
          $metainfo.=join("@@@", ${$search}{'where'}, ${$search}{'type'}, ${$search}{'text'});
@@ -253,8 +318,12 @@ sub search_folders {
    if ( $cache_metainfo ne $metainfo ) {
       open(CACHE, ">$cachefile");
       print CACHE $metainfo, "\n";
-      $r_result=search_folders2($r_search, $r_folders);
-      print CACHE join("\n", $#{$r_result}+1,  @{$r_result});
+      $r_result=search_folders2($startserial, $endserial, $r_search, $r_folders);
+      print CACHE $#{$r_result}+1, "\n";
+      foreach (@{$r_result}) {
+         my $r_msg=$_;
+         print CACHE join('@@@', ${$r_msg}{folder}, ${$r_msg}{msgid}, @{${$r_msg}{attr}}), "\n";
+      }
       close(CACHE);
 
    } else {
@@ -264,7 +333,10 @@ sub search_folders {
       my $totalfound=<CACHE>;
       while (<CACHE>) {
          chomp;
-         push (@result, $_)
+         my ($folder, $messageid, @attr)=split(/\@\@\@/);
+         push (@result, { folder=>$folder,
+                          msgid=>$messageid,
+                          attr=>\@attr } );
       }
       close(CACHE);
       $r_result=\@result;
@@ -276,9 +348,8 @@ sub search_folders {
 }
 
 sub search_folders2 {
-   my ($r_search, $r_folders)=@_;
-   my (@validsearch, %found);
-   my @result;
+   my ($startserial, $endserial, $r_search, $r_folders)=@_;
+   my (@validsearch, @result);
 
    foreach my $search (@{$r_search}) {
       push(@validsearch, $search) if (${$search}{'text'} ne "");
@@ -298,9 +369,14 @@ sub search_folders2 {
          # begin the search
          my ($block, $header, $body, $r_attachments);
          my @attr=string2msgattr($FDB{$messageid});
-         my $state=0;
 
+         # skip this msg if is not within date range
+         next if ($attr[$_DATE] lt $startserial || $attr[$_DATE] gt $endserial);
+
+         my $matchedsearch=0;
          foreach my $search (@validsearch) {
+            last if ($matchedsearch == $#validsearch+1);
+
             my ($where, $type, $keyword) = (${$search}{'where'}, ${$search}{'type'}, ${$search}{'text'});
             my $regexvalid=ow::tool::is_regex($keyword);
             my @placetosearch;
@@ -311,6 +387,8 @@ sub search_folders2 {
             }
 
             foreach $where (@placetosearch) {
+               last if($matchedsearch == $#validsearch+1);
+
                # check subject, from, to, date
                if ($where eq 'subject' || $where eq 'from' || $where eq 'to' || $where eq 'date') {
                   my %index=(
@@ -328,13 +406,7 @@ sub search_folders2 {
                        ($type eq 'startswith' && $data=~/^\Q$keyword\E/i) ||
                        ($type eq 'endswith' && $data=~/\Q$keyword\E$/i) ||
                        ($type eq 'regexp' && $regexvalid && $data=~/$keyword/i) ) {
-                     if($state == $#validsearch) {
-                        $found{$messageid}=1; $state = 0;
-                     } else {
-                        $state++;
-                     }
-                     @placetosearch = ();
-                     next;
+                        $matchedsearch++; last;
                   }
 
                # check header
@@ -357,13 +429,7 @@ sub search_folders2 {
                       ($type eq 'startswith' && $header=~/^\Q$keyword\E/im) ||
                       ($type eq 'endswith' && $header=~/\Q$keyword\E$/im) ||
                       ($type eq 'regexp' && $regexvalid && $header=~/$keyword/im)) {
-                     if($state == $#validsearch) {
-                        $found{$messageid}=1; $state = 0;
-                     } else {
-                        $state++;
-                     }
-                     @placetosearch = ();
-                     next;
+                     $matchedsearch++; last;
                   }
 
                # read and parse message
@@ -393,17 +459,12 @@ sub search_folders2 {
                             ($type eq 'startswith' && $body=~/^\Q$keyword\E/im) ||
                             ($type eq 'endswith' && $body=~/\Q$keyword\E$/im) ||
                             ($type eq 'regexp' && $regexvalid && $body=~/$keyword/im)) {
-                           if($state == $#validsearch) {
-                              $found{$messageid}=1; $state = 0;
-                           } else {
-                              $state++;
-                           }
-                           @placetosearch = ();
-                           next;
+                           $matchedsearch++; last;
                         }
                      }
 
                      # check attachments
+                     my $att_macthed=0;
                      foreach my $r_attachment (@{$r_attachments}) {
                         if ( ${$r_attachment}{'content-type'} =~ /^text/i ||
                              ${$r_attachment}{'content-type'} eq "N/A" ) {   # read all for text/plain. text/html
@@ -427,25 +488,21 @@ sub search_folders2 {
                                ($type eq 'startswith' && $content=~/^\Q$keyword\E/im) ||
                                ($type eq 'endswith' && $content=~/\Q$keyword\E$/im) ||
                                ($type eq 'regexp' && $regexvalid && $content=~/$keyword/im)) {
-                              if($state == $#validsearch) {
-                                 $found{$messageid}=1; $state = 0;
-                              } else {
-                                 $state++;
-                              }
-                              @placetosearch = ();
-                              @{$r_attachments} = ();
-                              next;
+                              $att_macthed=1; last;
                            }
                         }
+                     }
+                     if ($att_macthed) {
+                        $matchedsearch++; last;
                      }
                   }
 
                   # check attfilename
                   if ($where eq 'attfilename') {
+                     my $attfilename_macthed=0;
                      foreach my $r_attachment (@{$r_attachments}) {
                         my $charset=${$r_attachment}{filenamecharset}||${$r_attachment}{charset}||$attr[$_CHARSET];
                         my ($filename)=iconv($charset, $prefs{'charset'}, ${$r_attachment}{filename});
-
                         if (($type eq 'contains' && $filename=~/\Q$keyword\E/im) ||
                             ($type eq 'notcontains' && $filename!~/\Q$keyword\E/im) ||
                             ($type eq 'is' && $filename=~/^\Q$keyword\E$/im) ||
@@ -453,15 +510,11 @@ sub search_folders2 {
                             ($type eq 'startswith' && $filename=~/^\Q$keyword\E/im) ||
                             ($type eq 'endswith' && $filename=~/\Q$keyword\E$/im) ||
                             ($type eq 'regexp' && $regexvalid && $filename=~/$keyword/im)) {
-                           if($state == $#validsearch) {
-                              $found{$messageid}=1; $state = 0;
-                           } else {
-                              $state++;
-                           }
-                           @placetosearch = ();
-                           @{$r_attachments} = ();
-                           next;
+                           $attfilename_macthed=1; last;
                         }
+                     }
+                     if ($attfilename_macthed) {
+                        $matchedsearch++; last;
                      }
                   }
                } # end block check texcontent & attfilename
@@ -470,8 +523,10 @@ sub search_folders2 {
          } # end block multiple text search
 
          # generate messageid table line result if found
-         if($found{$messageid}) { # create the line to print into resultsearch
-            push(@result, join("@@@", $foldertosearch, $messageid, @attr));
+         if($matchedsearch == $#validsearch+1) {
+            push(@result, { folder=> $foldertosearch,
+                            msgid=>$messageid,
+                            attr=>\@attr});
          }
 
       } # end messageid loop
@@ -481,6 +536,8 @@ sub search_folders2 {
       ow::filelock::lock($folderfile, LOCK_UN);
    } # end foldertosearch loop
 
+   @result= sort { ${${$b}{attr}}[$_DATE] cmp ${${$a}{attr}}[$_DATE] } @result;
+
    return(\@result)
 }
 ########## END SEARCH_FOLDERS ####################################
@@ -488,7 +545,7 @@ sub search_folders2 {
 ########## GENLINE ###############################################
 # this routines generates one line table containing folder, msgid and @attr
 sub genline {
-   my ($colornum, $folder, $messageid, @attr) = @_;
+   my ($colornum, $folder, $messageid, $r_attr) = @_;
    my ($escapedmessageid);
    my ($offset, $from, $to, $dateserial, $subject, $content_type, $status, $messagesize, $references, $charset);
    my ($bgcolor, $message_status,$temphtml,$folderstr,$escapedfolder);
@@ -507,7 +564,7 @@ sub genline {
 
    $escapedfolder = ow::tool::escapeURL($folder);
    $escapedmessageid = ow::tool::escapeURL($messageid);
-   ($offset, $from, $to, $dateserial, $subject, $content_type, $status, $messagesize, $references, $charset) = @attr;
+   ($offset, $from, $to, $dateserial, $subject, $content_type, $status, $messagesize, $references, $charset) = @{$r_attr};
 
    # convert from mesage charset to current user charset
    ($from, $to, $subject)=iconv($charset, $prefs{'charset'}, $from, $to, $subject);
@@ -537,7 +594,9 @@ sub genline {
                qq|<a href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&amp;|.
                qq|sessionid=$thissession&amp;folder=$escapedfolder&amp;|.
                qq|headers=|.($prefs{'headers'} || 'simple').qq|&amp;|.
-               qq|message_id=$escapedmessageid">\n$subject \n</a></td></tr>\n|;
+               qq|message_id=$escapedmessageid">\n$subject \n</a></td>|.
+               qq|<td bgcolor=$bgcolor>$messagesize</td>\n|.
+               qq|</tr>\n|;
 
    return $temphtml;
 }

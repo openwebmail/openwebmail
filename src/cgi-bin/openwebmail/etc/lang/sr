@@ -215,7 +215,7 @@ package ow::sr;
    USERDEFINE => 'User Define',
    );
 
-%lang_advsearchlabels =
+%lang_searchtypelabels =
    (
    contains    => 'sadr¾i',
    notcontains => 'ne sadr¾i',
@@ -224,6 +224,18 @@ package ow::sr;
    startswith  => 'poèinje sa',
    endswith    => 'zavr¹ava sa',
    regexp      => 'sla¾e se sa regexp',
+   );
+
+%lang_searchdaterangelabels =
+   (
+   all         => 'All',
+   today       => 'Today',
+   oneweek     => 'One week',
+   twoweeks    => 'Two weeks',
+   onemonth    => 'One month',
+   threemonths => 'Three months',
+   sixmonths   => 'Six months',
+   oneyear     => 'One year',
    );
 
 %lang_sizes =

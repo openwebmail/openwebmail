@@ -216,7 +216,7 @@ package ow::sk;
    USERDEFINE => 'User Define',
    );
 
-%lang_advsearchlabels =
+%lang_searchtypelabels =
    (
    contains    => 'obsahuje',
    notcontains => 'neobsahuje',
@@ -225,6 +225,18 @@ package ow::sk;
    startswith  => 'zaèína s',
    endswith    => 'konèí s',
    regexp      => 'spåòa regulárny výraz',
+   );
+
+%lang_searchdaterangelabels =
+   (
+   all         => 'All',
+   today       => 'Today',
+   oneweek     => 'One week',
+   twoweeks    => 'Two weeks',
+   onemonth    => 'One month',
+   threemonths => 'Three months',
+   sixmonths   => 'Six months',
+   oneyear     => 'One year',
    );
 
 %lang_sizes =

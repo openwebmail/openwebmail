@@ -216,7 +216,7 @@ package ow::ca;
    USERDEFINE => 'User Define',
    );
 
-%lang_advsearchlabels =
+%lang_searchtypelabels =
    (
    contains    => 'conté',
    notcontains => 'no conté',
@@ -225,6 +225,18 @@ package ow::ca;
    startswith  => 'comença amb',
    endswith    => 'acaba amb',
    regexp      => 'coincideix amb l\'expresió regular',
+   );
+
+%lang_searchdaterangelabels =
+   (
+   all         => 'All',
+   today       => 'Today',
+   oneweek     => 'One week',
+   twoweeks    => 'Two weeks',
+   onemonth    => 'One month',
+   threemonths => 'Three months',
+   sixmonths   => 'Six months',
+   oneyear     => 'One year',
    );
 
 %lang_sizes =

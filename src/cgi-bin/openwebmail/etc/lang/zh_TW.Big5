@@ -215,7 +215,7 @@ package ow::zh_TW_Big5;
    USERDEFINE => '使用者自訂',
    );
 
-%lang_advsearchlabels =
+%lang_searchtypelabels =
    (
    contains    => '包含',
    notcontains => '不包含',
@@ -224,6 +224,18 @@ package ow::zh_TW_Big5;
    startswith  => '開始於',
    endswith    => '結束於',
    regexp      => '正規表示式',
+   );
+
+%lang_searchdaterangelabels =
+   (
+   all         => '全部',
+   today       => '今天',
+   oneweek     => '一星期內',
+   twoweeks    => '兩星期內',
+   onemonth    => '一個月內',
+   threemonths => '三個月內',
+   sixmonths   => '六個月內',
+   oneyear     => '一年內',
    );
 
 %lang_sizes =

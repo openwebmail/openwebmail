@@ -215,7 +215,7 @@ package ow::he_ISO8859_8;
    USERDEFINE => 'User Define',
    );
 
-%lang_advsearchlabels =
+%lang_searchtypelabels =
    (
    contains    => 'ליכמ',
    notcontains => 'ליכמ וניא',
@@ -224,6 +224,18 @@ package ow::he_ISO8859_8;
    startswith  => 'ב ליחתמ-',
    endswith    => 'ב םייתבמ-',
    regexp      => 'םאות',
+   );
+
+%lang_searchdaterangelabels =
+   (
+   all         => 'All',
+   today       => 'Today',
+   oneweek     => 'One week',
+   twoweeks    => 'Two weeks',
+   onemonth    => 'One month',
+   threemonths => 'Three months',
+   sixmonths   => 'Six months',
+   oneyear     => 'One year',
    );
 
 %lang_sizes =

@@ -215,7 +215,7 @@ package ow::ja_JP_Shift_JIS;
    USERDEFINE => 'User Define',
    );
 
-%lang_advsearchlabels =
+%lang_searchtypelabels =
    (
    contains    => 'ŠÜ‚Þ',
    notcontains => 'ŠÜ‚Ü‚È‚¢',
@@ -224,6 +224,18 @@ package ow::ja_JP_Shift_JIS;
    startswith  => 'Žn‚ß‚é',
    endswith    => 'I‚í‚é',
    regexp      => 'regexp@‚É‡‚¤',
+   );
+
+%lang_searchdaterangelabels =
+   (
+   all         => 'All',
+   today       => 'Today',
+   oneweek     => 'One week',
+   twoweeks    => 'Two weeks',
+   onemonth    => 'One month',
+   threemonths => 'Three months',
+   sixmonths   => 'Six months',
+   oneyear     => 'One year',
    );
 
 %lang_sizes =

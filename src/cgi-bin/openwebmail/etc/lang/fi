@@ -215,7 +215,7 @@ package ow::fi;
    USERDEFINE => 'User Define',
    );
 
-%lang_advsearchlabels =
+%lang_searchtypelabels =
    (
    contains    => 'Sisältää',
    notcontains => 'Ei sisällä',
@@ -224,6 +224,18 @@ package ow::fi;
    startswith  => 'Alkaa',
    endswith    => 'Loppuu',
    regexp      => 'Täsmää regexp',
+   );
+
+%lang_searchdaterangelabels =
+   (
+   all         => 'All',
+   today       => 'Today',
+   oneweek     => 'One week',
+   twoweeks    => 'Two weeks',
+   onemonth    => 'One month',
+   threemonths => 'Three months',
+   sixmonths   => 'Six months',
+   oneyear     => 'One year',
    );
 
 %lang_sizes =

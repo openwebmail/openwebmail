@@ -216,7 +216,7 @@ package ow::he_CP1255;
    USERDEFINE => 'User Define',
    );
 
-%lang_advsearchlabels =
+%lang_searchtypelabels =
    (
    contains    => 'מכיל',
    notcontains => 'אינו מכיל',
@@ -225,6 +225,18 @@ package ow::he_CP1255;
    startswith  => '-מתחיל ב',
    endswith    => '-מסתיים ב',
    regexp      => 'תואם'
+   );
+
+%lang_searchdaterangelabels =
+   (
+   all         => 'All',
+   today       => 'Today',
+   oneweek     => 'One week',
+   twoweeks    => 'Two weeks',
+   onemonth    => 'One month',
+   threemonths => 'Three months',
+   sixmonths   => 'Six months',
+   oneyear     => 'One year',
    );
 
 %lang_sizes =

@@ -215,7 +215,7 @@ package ow::lt;
    USERDEFINE => 'User Define',
    );
 
-%lang_advsearchlabels =
+%lang_searchtypelabels =
    (
    contains    => 'yra frazë',
    notcontains => 'nëra frazës',
@@ -224,6 +224,18 @@ package ow::lt;
    startswith  => 'prasideda su',
    endswith    => 'baigiasi su',
    regexp      => 'ðablonai',
+   );
+
+%lang_searchdaterangelabels =
+   (
+   all         => 'All',
+   today       => 'Today',
+   oneweek     => 'One week',
+   twoweeks    => 'Two weeks',
+   onemonth    => 'One month',
+   threemonths => 'Three months',
+   sixmonths   => 'Six months',
+   oneyear     => 'One year',
    );
 
 %lang_sizes =

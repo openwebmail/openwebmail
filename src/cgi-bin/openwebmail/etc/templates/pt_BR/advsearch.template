@@ -21,6 +21,19 @@
 </td></tr><tr><td>&nbsp;</td></tr><tr><td>
 
 <table border="0" width="100%" cellpadding="0" cellspacing="0">
+<tr><td bgcolor=@@@COLUMNHEADER@@@ colspan=2>
+<B>Date Range</B>
+</td></tr>
+<tr><td bgcolor=@@@TABLEROW_LIGHT@@@>
+Start @@@STARTDATE@@@ &nbsp; end @@@ENDDATE@@@
+</td><td bgcolor=@@@TABLEROW_LIGHT@@@>
+@@@DATERANGEMENU@@@
+</td></tr>
+</table>
+
+</td></tr><tr><td>&nbsp;</td></tr><tr><td>
+
+<table border="0" width="100%" cellpadding="0" cellspacing="0">
 <tr>
 <td bgcolor=@@@COLUMNHEADER@@@><B>Onde</B></td>
 <td bgcolor=@@@COLUMNHEADER@@@><B>Tipo da pesquisa</B></td>
@@ -50,7 +63,7 @@
 </td></tr><tr><td>&nbsp;</td></tr><tr><td>
 
 <table border="0" width="100%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
-<tr><td colspan="4"><B>Resultados: @@@TOTALFOUND@@@</B></td></tr>
+<tr><td colspan="5"><B>Resultados: @@@TOTALFOUND@@@</B></td></tr>
 <tr><td width="10%" bgcolor=@@@COLUMNHEADER@@@>
 <B>@@@FOLDER@@@</B></td>
 <td width="18%" bgcolor=@@@COLUMNHEADER@@@>
@@ -59,6 +72,8 @@
 <B>@@@SENDER@@@</B></td>
 <td bgcolor=@@@COLUMNHEADER@@@>
 <B>@@@SUBJECT@@@</B></td>
+<td bgcolor=@@@COLUMNHEADER@@@>
+<B>@@@SIZE@@@</B></td>
 </tr>
 @@@SEARCHRESULT@@@
 </table>
@@ -77,6 +92,85 @@
          if (e.type == 'checkbox' && e.name != 'allbox')
             e.checked = document.advsearchform.allbox.checked;
       }
+   }
+
+   function setdaterange (range) 
+   {
+      var todayyear=@@@CURRENTYEAR@@@;
+      var todaymonth=@@@CURRENTMONTH@@@;
+      var todayday=@@@CURRENTDAY@@@;
+
+      var daysInMonth = new Array(0, 31,28,31,30,31,30,31,31,30,31,30,31);
+      if ((todayyear % 4 == 0 && todayyear % 100 != 0) || todayyear % 400 == 0) {
+         daysInMonth[1] = 29;
+      }
+
+      var startyear=todayyear;
+      var startmonth=todaymonth;
+      var startday=todayday;
+
+      if (range=='today') {
+         // do nothing
+      } else if (range=='oneweek') {
+         startday-=6;
+      } else if (range=='twoweeks') {
+         startday-=13;
+      } else if (range=='onemonth') {
+         startmonth--;
+      } else if (range=='threemonths') {
+         startmonth-=3;
+      } else if (range=='sixmonths') {
+         startmonth-=6;
+      } else if (range=='oneyear') {
+         startyear--;
+      } else {	// 'all' or unknow range
+         startyear=1990;
+         startmonth=1;
+         startday=1;
+      } 
+
+      if (startday<1) {
+         startmonth--;
+         if (startmonth<1) {
+            startday+=daysInMonth[startmont+12];
+         } else {
+            startday+=daysInMonth[startmonth];
+         }
+      }
+      if (startmonth<0) {
+         startyear--;
+         startmonth+=12; 
+      }
+      if (startday>daysInMonth[startmonth]) {
+         startday=daysInMonth[startmonth];
+      }
+
+      selectoption(document.advsearchform.year1, startyear);
+      selectoption(document.advsearchform.month1, startmonth);
+      selectoption(document.advsearchform.day1, startday);
+      selectoption(document.advsearchform.year2, todayyear);
+      selectoption(document.advsearchform.month2, todaymonth+1);
+      selectoption(document.advsearchform.day2, todayday);
+
+      return;
+   }
+
+   function selectoption (menu, value)
+   {
+      var i_default=0;
+
+      for (var i=0; i<menu.length; i++) {
+         if (menu.options[i].value==value) {
+            menu.options[i].selected=true;
+            return i;
+         }
+         if (menu.options[i].defaultSelected) {
+            i_default=i;
+         }
+      }
+
+      menu.options[i_default].selected=true;
+      return i_default;
    }
 //-->
 </script>

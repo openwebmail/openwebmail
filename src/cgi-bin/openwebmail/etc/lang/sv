@@ -215,7 +215,7 @@ package ow::sv;
    USERDEFINE => 'User Define',
    );
 
-%lang_advsearchlabels =
+%lang_searchtypelabels =
    (
    contains    => 'contains',
    notcontains => 'does not contain',
@@ -224,6 +224,18 @@ package ow::sv;
    startswith  => 'starts with',
    endswith    => 'ends with',
    regexp      => 'matches regexp',
+   );
+
+%lang_searchdaterangelabels =
+   (
+   all         => 'All',
+   today       => 'Today',
+   oneweek     => 'One week',
+   twoweeks    => 'Two weeks',
+   onemonth    => 'One month',
+   threemonths => 'Three months',
+   sixmonths   => 'Six months',
+   oneyear     => 'One year',
    );
 
 %lang_sizes =

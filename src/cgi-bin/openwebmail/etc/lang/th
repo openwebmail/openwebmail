@@ -215,7 +215,7 @@ package ow::th;
    USERDEFINE => 'User Define',
    );
 
-%lang_advsearchlabels =
+%lang_searchtypelabels =
    (
    contains    => 'มี',
    notcontains => 'ไม่มี',
@@ -224,6 +224,18 @@ package ow::th;
    startswith  => 'ขึ้นต้นด้วย',
    endswith    => 'ลงท้ายด้วย',
    regexp      => 'ตรงกับ regexp',
+   );
+
+%lang_searchdaterangelabels =
+   (
+   all         => 'All',
+   today       => 'Today',
+   oneweek     => 'One week',
+   twoweeks    => 'Two weeks',
+   onemonth    => 'One month',
+   threemonths => 'Three months',
+   sixmonths   => 'Six months',
+   oneyear     => 'One year',
    );
 
 %lang_sizes =

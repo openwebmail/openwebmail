@@ -215,7 +215,7 @@ package ow::ja_JP_eucJP;
    USERDEFINE => 'User Define',
    );
 
-%lang_advsearchlabels =
+%lang_searchtypelabels =
    (
    contains    => '含む',
    notcontains => '含まない',
@@ -224,6 +224,18 @@ package ow::ja_JP_eucJP;
    startswith  => '始める',
    endswith    => '終わる',
    regexp      => 'regexp　に合う',
+   );
+
+%lang_searchdaterangelabels =
+   (
+   all         => 'All',
+   today       => 'Today',
+   oneweek     => 'One week',
+   twoweeks    => 'Two weeks',
+   onemonth    => 'One month',
+   threemonths => 'Three months',
+   sixmonths   => 'Six months',
+   oneyear     => 'One year',
    );
 
 %lang_sizes =

@@ -1,3 +1,8 @@
+12/19/2004
+----------
+1. add date range support to advsearch
+
+
 12/13/2004
 ----------
 1. fix some typo errors in French language file
