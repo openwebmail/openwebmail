@@ -1,5 +1,5 @@
 @@@STARTPREFSFORM@@@
-<table border="0" align="center" width="90%" cellpadding="1" cellspacing="1">
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
 <tr><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>PERSONLIGA INSTÄLLNINGAR @@@REALNAME@@@</B></font>
@@ -83,6 +83,8 @@ Bredd @@@EDITWIDTHMENU@@@ Höjd @@@EDITHEIGHTMENU@@@
 <B>Antal dagar att spara raderade meddelanden:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@RESERVEDDAYSMENU@@@
+</td></tr>
+@@@AUTOREPLYSTART@@@
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Auto-svar:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
@@ -93,7 +95,9 @@ Bredd @@@EDITWIDTHMENU@@@ Höjd @@@EDITHEIGHTMENU@@@
 </td></tr><tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>
 <B>Auto-svar text (500 tecken eller mindre)</B><BR>
 @@@AUTOREPLYTEXT@@@
-</td></tr><tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>
+</td></tr>
+@@@AUTOREPLYEND@@@
+<tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>
 <B>Signatur (500 tecken eller mindre)</B><BR>
 @@@SIGAREA@@@
 </td></tr><tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>

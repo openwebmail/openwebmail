@@ -1,6 +1,6 @@
 
 Date: 07/09/2001
-Author:  Emir Litric (elitric@digitex.cc)
+Author:  Emir Litric (elitric@yahoo.com)
 File: RedHat-README.txt
 
 
@@ -424,12 +424,20 @@ $defaultsignature = "";
 
 * Setup openwebmail.log rotation.  (optional)
 
-
 /var/log/openwebmail.log {
        postrotate
            /usr/bin/killall -HUP syslogd
        endscript
    }
+
+or
+
+/var/log/openwebmail.log {
+       postrotate
+           /bin/kill -HUP at /var/run/syslogd.pid 2> /dev/null 2> /dev/null
+           || true
+       endscript
+   } 
 
 to /etc/logrotate.d/syslog to enable logrotate on openwebmail.log
 
@@ -924,6 +932,15 @@ $defaultsignature = "";
        endscript
    }
 
+or
+
+/var/log/openwebmail.log {
+       postrotate
+           /bin/kill -HUP at /var/run/syslogd.pid 2> /dev/null 2> /dev/null
+           || true
+       endscript
+   } 
+
 to /etc/logrotate.d/syslog to enable logrotate on openwebmail.log
 
 
@@ -954,7 +971,7 @@ FAQ and README file.
 
 Have fun and let me know of any suggestions.
 
-Emir Litric (elitric@digitex.cc)
+Emir Litric (elitric@yahoo.com)
 
 
 

@@ -4,6 +4,6 @@
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <b>ÉRVÉNYTELEN BEJELENTKEZÉS</b></font></td></tr>
 <tr><td valign="middle" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<br>Sajnálom, de a bejelentkezés érvénytelen volt. Menj vissza és
-<a href="@@@SCRIPTURL@@@">próbáld újra</a>.<br><br>
+<br>A bejelentkezés érvénytelen. Kérem, hogy menjen vissza és
+<a href="@@@SCRIPTURL@@@">próbálja újra</a>.<br><br>
 </td></tr></table>

@@ -1,7 +1,7 @@
 <table border="0" align="center" width="75%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>IMPORT ADDRESS BOOK</B></font>
+<B>Import Address Book</B></font>
 </td><td bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>@@@FREESPACE@@@ KB Available</B></font>
@@ -28,6 +28,7 @@ sure that the Name and E-mail fields come first, which is the default setting.
 <BR>
 @@@IMPORTFILEFIELD@@@
 </td></tr>
+<tr><td colspan=2 bgcolor=@@@WINDOW_LIGHT@@@>&nbsp;</td></tr>
 <tr><td width="50%" align="right" bgcolor=@@@WINDOW_LIGHT@@@>
 @@@IMPORTBUTTON@@@ &nbsp;&nbsp;
 </td>
@@ -35,5 +36,7 @@ sure that the Name and E-mail fields come first, which is the default setting.
 @@@STARTCANCELFORM@@@
 <td width="50%" align="left" bgcolor=@@@WINDOW_LIGHT@@@>
 &nbsp;&nbsp;@@@CANCELBUTTON@@@
-</td></tr></table>
+</td></tr>
+<tr><td colspan=2 bgcolor=@@@WINDOW_LIGHT@@@>&nbsp;</td></tr>
+</table>
 @@@ENDFORM@@@

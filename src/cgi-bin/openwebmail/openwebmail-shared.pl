@@ -2,6 +2,24 @@
 # routines shared by openwebmail.pl, openwebmail-prefs.pl and checkmail.pl
 #
 
+##################### escapeURL, unescapeURL #################
+# escape & unescape routine are not available in CGI.pm 3.0
+# so we borrow the 2 routines from 2.xx version of CGI.pm
+sub unescapeURL {
+    my $todecode = shift;
+    return undef unless defined($todecode);
+    $todecode =~ tr/+/ /;       # pluses become spaces
+    $todecode =~ s/%([0-9a-fA-F]{2})/pack("c",hex($1))/ge;
+    return $todecode;
+}
+
+sub escapeURL {
+    my $toencode = shift;
+    return undef unless defined($toencode);
+    $toencode=~s/([^a-zA-Z0-9_.-])/uc sprintf("%%%02x",ord($1))/eg;
+    return $toencode;
+}
+
 ##################### SET_EUID_EGID_UMASK #################
 sub set_euid_egid_umask {
    my ($uid, $gid, $umask)=@_;
@@ -26,7 +44,7 @@ sub verifysession {
       my $html = '';
       printheader();
       open (TIMEOUT, "$openwebmaildir/templates/$lang/sessiontimeout.template") or
-         openwebmailerror("$lang_err{'couldnt_open'} sessiontimeout.template!");
+         openwebmailerror("$lang_err{'couldnt_open'} $openwebmaildir/templates/$lang/sessiontimeout.template!");
       while (<TIMEOUT>) {
          $html .= $_;
       }
@@ -57,7 +75,7 @@ sub verifysession {
    if ( !defined(param("refresh")) ) {
       # extend the session lifetime only if this is not a auto-refresh
       open (SESSION, "> $openwebmaildir/sessions/$thissession") or
-         openwebmailerror("$lang_err{'couldnt_open'} $thissession!");
+         openwebmailerror("$lang_err{'couldnt_open'} $openwebmaildir/sessions/$thissession!");
       print SESSION cookie("$user-sessionid");
       close (SESSION);
    }
@@ -72,30 +90,30 @@ sub update_genericstable {
    my (%DB, %DBR, $metainfo);
 
    if (! -e $genfile) {
-      unlink("$gendb.$dbm_ext") if (-e "$gendb.$dbm_ext");
-      unlink("$gendb.r.$dbm_ext") if (-e "$gendb.r.$dbm_ext");
+      unlink("$gendb$dbm_ext") if (-e "$gendb$dbm_ext");
+      unlink("$gendb.r$dbm_ext") if (-e "$gendb.r$dbm_ext");
       return;
    }
 
    ($gendb =~ /^(.+)$/) && ($gendb = $1);		# bypass taint check
-   if ( -e "$gendb.$dbm_ext" ) {
+   if ( -e "$gendb$dbm_ext" ) {
       my ($metainfo);
 
-      filelock("$gendb.$dbm_ext", LOCK_SH);
+      filelock("$gendb$dbm_ext", LOCK_SH);
       dbmopen (%DB, $gendb, undef);
       $metainfo=$DB{'METAINFO'};
       dbmclose(%DB);
-      filelock("$gendb.$dbm_ext", LOCK_UN);
+      filelock("$gendb$dbm_ext", LOCK_UN);
 
       return if ( $metainfo eq metainfo($genfile) );
    } 
 
    dbmopen(%DB, $gendb, 0644);
-   filelock("$gendb.$dbm_ext", LOCK_EX);
+   filelock("$gendb$dbm_ext", LOCK_EX);
    %DB=();	# ensure the gendb is empty
 
    dbmopen(%DBR, "$gendb.r", 0644);
-   filelock("$gendb.r.$dbm_ext", LOCK_EX);
+   filelock("$gendb.r$dbm_ext", LOCK_EX);
    %DBR=();
 
    open (GEN, $genfile);
@@ -118,10 +136,10 @@ sub update_genericstable {
    }
    close(GEN);
 
-   filelock("$gendb.r.$dbm_ext", LOCK_UN);
+   filelock("$gendb.r$dbm_ext", LOCK_UN);
    dbmclose(%DBR);
 
-   filelock("$gendb.$dbm_ext", LOCK_UN);
+   filelock("$gendb$dbm_ext", LOCK_UN);
    dbmclose(%DB);
    return;
 }
@@ -157,6 +175,7 @@ sub get_useremail_domainnames {
    my $domainname;
    my $useremail;
 
+   # add virtualdomain to global @domainnames 
    if ($virtualdomain) {
       my $found=0;
       foreach (@domainnames) {
@@ -167,6 +186,7 @@ sub get_useremail_domainnames {
       push(@domainnames, $virtualdomain) if (!$found);
    }
 
+   # determine domainname part of user email
    foreach (@domainnames) {
       if ($prefs{domainname} eq $_) {
          $domainname=$_;
@@ -175,6 +195,7 @@ sub get_useremail_domainnames {
    }
    $domainname=$virtualdomain || $domainnames[0] if ($domainname eq '');
 
+   # determine user part of user email
    if ($enable_setfromname eq 'yes' && $prefs{"fromname"}) {
       # Create from: address when "fromname" is not null
       $useremail = $prefs{"fromname"} . "@" . $domainname; 
@@ -303,13 +324,15 @@ sub getfolders {
 ################ END GETFOLDERS ##################
 
 ###################### READPREFS #########################
+# error message is hardcoded with english 
+# since $lang has not been initialized before this routine
 sub readprefs {
    my ($key,$value);
    my %prefshash;
 
    if ( -f "$folderdir/.openwebmailrc" ) {
       open (CONFIG,"$folderdir/.openwebmailrc") or
-         openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.openwebmailrc!");
+         openwebmailerror("Couldn't open $folderdir/.openwebmailrc!");
       while (<CONFIG>) {
          ($key, $value) = split(/=/, $_);
          chomp($value);
@@ -318,7 +341,7 @@ sub readprefs {
          }
          $prefshash{"$key"} = $value;
       }
-      close (CONFIG) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.openwebmailrc!");
+      close (CONFIG);
    }
 
    my $signaturefile="";
@@ -330,17 +353,19 @@ sub readprefs {
    if ($signaturefile) {
       $prefshash{"signature"} = '';
       open (SIGNATURE, $signaturefile) or
-         openwebmailerror("$lang_err{'couldnt_open'} $signaturefile!");
+         openwebmailerror("Couldn't open $signaturefile!");
       while (<SIGNATURE>) {
          $prefshash{"signature"} .= $_;
       }
-      close (SIGNATURE) or openwebmailerror("$lang_err{'couldnt_close'} $signaturefile!");
+      close (SIGNATURE);
    }
    return \%prefshash;
 }
 ##################### END READPREFS ######################
 
 ###################### READSTYLE #########################
+# error message is hardcoded with english 
+# since $lang has not been initialized before this routine
 sub readstyle {
    my ($key,$value);
    my $stylefile = $prefs{"style"} || 'Default';
@@ -349,7 +374,7 @@ sub readstyle {
       $stylefile = 'Default';
    }
    open (STYLE,"$openwebmaildir/styles/$stylefile") or
-      openwebmailerror("$lang_err{'couldnt_open'} $stylefile!");
+      openwebmailerror("Couldn't open $openwebmaildir/styles/$stylefile!");
    while (<STYLE>) {
       if (/###STARTSTYLESHEET###/) {
          $stylehash{"css"} = '';
@@ -362,7 +387,7 @@ sub readstyle {
          $stylehash{"$key"} = $value;
       }
    }
-   close (STYLE) or openwebmailerror("$lang_err{'couldnt_close'} $stylefile!");
+   close (STYLE);
    return \%stylehash;
 }
 ##################### END READSTYLE ######################
@@ -385,6 +410,7 @@ sub applystyle {
    $template =~ s/\@\@\@FONTFACE\@\@\@/$style{"fontface"}/g;
    $template =~ s/\@\@\@SCRIPTURL\@\@\@/$scripturl/g;
    $template =~ s/\@\@\@PREFSURL\@\@\@/$prefsurl/g;
+   $template =~ s/\@\@\@IMAGEDIR_URL\@\@\@/$imagedir_url/g;
    $template =~ s/\@\@\@CSS\@\@\@/$style{"css"}/g;
    $template =~ s/\@\@\@VERSION\@\@\@/$version/g;
 
@@ -404,7 +430,7 @@ sub printheader {
 
       my $html = '';
       open (HEADER, "$openwebmaildir/templates/$lang/header.template") or
-         openwebmailerror("$lang_err{'couldnt_open'} header.template!");
+         openwebmailerror("$lang_err{'couldnt_open'} $openwebmaildir/templates/$lang/header.template!");
       while (<HEADER>) {
          $html .= $_;
       }
@@ -450,7 +476,7 @@ sub printfooter {
    my $remainingseconds;
 
    open (FOOTER, "$openwebmaildir/templates/$lang/footer.template") or
-      openwebmailerror("$lang_err{'couldnt_open'} footer.template!");
+      openwebmailerror("$lang_err{'couldnt_open'} $openwebmaildir/templates/$lang/footer.template!");
    while (<FOOTER>) {
       $html .= $_;
    }
@@ -579,6 +605,8 @@ sub log_time {
 
    print Z "$today $time ", join(" ",@msg), "\n";
    close(Z);
+   chmod(0666, "/tmp/time.log");
+
    1;
 }
 

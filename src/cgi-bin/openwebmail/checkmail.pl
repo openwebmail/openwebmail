@@ -71,13 +71,13 @@ sub checknewmail {
 
    if (!$opt_quiet) {
       my (%HDB, $allmessages, $internalmessages, $newmessages);
-      filelock("$headerdb.$dbm_ext", LOCK_SH);
+      filelock("$headerdb$dbm_ext", LOCK_SH);
       dbmopen (%HDB, $headerdb, undef);
       $allmessages=$HDB{'ALLMESSAGES'};
       $internalmessages=$HDB{'INTERNALMESSAGES'};
       $newmessages=$HDB{'NEWMESSAGES'};
       dbmclose(%HDB);
-      filelock("$headerdb.$dbm_ext", LOCK_UN);
+      filelock("$headerdb$dbm_ext", LOCK_UN);
 
       if ($newmessages > 0 ) {
          print ("$username{$user} has new mail\n");

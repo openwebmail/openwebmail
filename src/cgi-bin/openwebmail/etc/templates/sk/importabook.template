@@ -24,6 +24,7 @@ File-&gt;Export-&gt;Address Book, a vyberte typ súboru "Text file." Uistite sa, 
 <BR>
 @@@IMPORTFILEFIELD@@@
 </td></tr>
+<tr><td colspan=2 bgcolor=@@@WINDOW_LIGHT@@@>&nbsp;</td></tr>
 <tr><td width="50%" align="right" bgcolor=@@@WINDOW_LIGHT@@@>
 @@@IMPORTBUTTON@@@ &nbsp;&nbsp;
 </td>
@@ -31,5 +32,7 @@ File-&gt;Export-&gt;Address Book, a vyberte typ súboru "Text file." Uistite sa, 
 @@@STARTCANCELFORM@@@
 <td width="50%" align="left" bgcolor=@@@WINDOW_LIGHT@@@>
 &nbsp;&nbsp;@@@CANCELBUTTON@@@
-</td></tr></table>
+</td></tr>
+<tr><td colspan=2 bgcolor=@@@WINDOW_LIGHT@@@>&nbsp;</td></tr>
+</table>
 @@@ENDFORM@@@

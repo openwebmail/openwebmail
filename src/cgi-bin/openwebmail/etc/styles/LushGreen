@@ -12,7 +12,12 @@ tablerow_dark="#AAEFAA"
 fontface="Arial, Helvetica"
 ###STARTSTYLESHEET###
 <!--
-body {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+body
+{
+    background-image: url(@@@BG_URL@@@);
+    background-repeat: no-repeat;
+    font-family: Arial, Helvetica, sans-serif; font-size: 10pt
+}
 th   {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt; font-weight: bold; background-color: #D3DCE3;}
 td   {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt;}
 test.td   {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt;}
@@ -25,4 +30,5 @@ A:link.nav {  font-family: Arial, Helvetica, sans-serif; color: #000000}
 A:visited.nav {  font-family: Arial, Helvetica, sans-serif; color: #000000}
 A:hover.nav {  font-family: Arial, Helvetica, sans-serif; color: red;}
 .nav {  font-family: Arial, Helvetica, sans-serif; color: #000000}
+.medtext { font-size: 9pt;}
 -->

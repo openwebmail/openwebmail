@@ -1,11 +1,15 @@
 <p align="center">
 <a href="http://turtle.ee.ncku.edu.tw/openwebmail/">
 <img border="0" src="@@@LOGO_URL@@@"></a></p>
-<table border="0" align="center" width="40%" cellpadding="0" cellspacing="0">
-<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
-<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><B>LOGIN</B></FONT>
-</td></tr><tr><td align="center" valign="middle" bgcolor=@@@WINDOW_LIGHT@@@>
+<table border="0" align="center" width="250" cellpadding="0" cellspacing="0">
+<tr><td bgcolor=@@@TITLEBAR@@@ background="@@@IMAGEDIR_URL@@@/bg-titleblue.gif" align="left">
+&nbsp;<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><B>LOGIN</B></FONT>
+</td></tr><tr><td align="center" valign="middle" bgcolor=#0000d0>
+
+<table width="100%" cellpadding="0" cellspacing="1" border="0">
+<tr>
 @@@STARTFORM@@@
+<td bgcolor=#ffffff>
 <BR>
 <table align=center border=0 cellspacing=2 cellpadding=0>
 <tr>
@@ -13,10 +17,19 @@
 </tr><tr>
 <td align=right>Wachtwoord: </td><td align=left>@@@PASSWORDFIELD@@@</td>
 </tr><tr>
-<td colspan=2 align=center>@@@LOGINBUTTON@@@ @@@CLEARBUTTON@@@</td>
+<td align=center>
+<table><tr><td>@@@LOGINBUTTON@@@</td></tr></table>
+</td>
+<td align=center>
+<table><tr><td><font size=1>All fields are<br>case sensitive</font></td></tr></table>
+</td>
 </tr>
 </table>
+<BR>
+</td>
 @@@ENDFORM@@@
+</tr></table>
+
 </td></tr></table>
 <p align="center">
 <BR>

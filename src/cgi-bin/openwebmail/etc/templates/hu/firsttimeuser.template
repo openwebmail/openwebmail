@@ -2,9 +2,11 @@
 <table border="0" align="center" width="40%" cellpadding="1" cellspacing="1">
 <tr><td bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>ÜDVÖZÖL A OPEN WEBMAIL!</B></font>
+<B>Üdvözli Önt az Openwebmail!</B></font>
 </td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>Légy üdvözölve a Open WebMail levelezõ rendszerben! Ugy tûnik, ez az elsõ alkalom, hogy
-e rendszert használod, ezért szükségem van némi információra rólad. Kattints a tovább gombra!
+<BR>Üdvözöljük az Openwebmail levelezõ rendszerben! Úgy tûnik, ez az elsõ
+alkalom, hogy a rendszert használja, ezért kérem, hogy töltse ki a
+beállításokat. Ezeket késõbb is bármikor módosíthatja.
+Kattintson a tovább gombra!
 @@@CONTINUEBUTTON@@@
 </td></tr></table>

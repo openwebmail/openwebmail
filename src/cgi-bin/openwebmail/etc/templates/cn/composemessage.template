@@ -6,37 +6,37 @@
 </td></tr><tr><td colspan="2" bgcolor=@@@MENUBAR@@@ align="left">
 @@@BACKTOFOLDER@@@
 </td></tr><tr><td colspan="2">&nbsp;</td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ width="75">
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
 <B>发件人：</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@FROMMENU@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ width="75">
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
 <a href="Javascript:GoAddressWindow('to')" tabindex="-1"><B>收件人：</B></a>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@TOFIELD@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ width="75">
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
 <a href="Javascript:GoAddressWindow('cc')" tabindex="-1"><B>抄送：</B></a>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@CCFIELD@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ width="75">
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
 <a href="Javascript:GoAddressWindow('bcc')" tabindex="-1"><B>密件抄送：</B></a>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@BCCFIELD@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ width="75">
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
 <B>回复给：</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@REPLYTOFIELD@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ width="75">
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
 <B>附件：</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@ATTACHMENTFIELD@@@
 </td></tr>
-<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ width="75">
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
 <B>主题：</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@SUBJECTFIELD@@@

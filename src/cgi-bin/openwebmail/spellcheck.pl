@@ -104,7 +104,7 @@ sub docheck {
    my $escapedwordframe;
 
    open (SPELLCHECKTEMPLATE, "$openwebmaildir/templates/$lang/spellcheck.template") or
-      openwebmailerror("$lang_err{'couldnt_open'} spellcheck.template");
+      openwebmailerror("$lang_err{'couldnt_open'} $openwebmaildir/templates/$lang/spellcheck.template");
    while (<SPELLCHECKTEMPLATE>) {
       $html .= $_;
    }
@@ -120,7 +120,7 @@ sub docheck {
 
    # escapedwordframe must be done after words2html()
    # since $wordframe may changed in words2html()
-   $escapedwordframe=CGI::escape($wordframe);	
+   $escapedwordframe=escapeURL($wordframe);	
 
    $temphtml = startform(-action=>$spellcheckurl,
                          -name=>'spellcheck') .
@@ -183,7 +183,7 @@ sub final {
 
    # since jscript has problem in unescape doublebyte char string, 
    # we only escape " to !QUOT! and unescape in jscript by RegExp
-   # $escapedfinalstring=CGI::escape(words2text());
+   # $escapedfinalstring=escapeURL(words2text());
    $escapedfinalstring=~s/"/!QUOT!/g;
 
    print qq|Content-type: text/html
@@ -266,7 +266,7 @@ sub cgiparam2words {
 
    @words=();
    $wordcount=param('wordcount');
-   $wordframe=CGI::unescape(param('wordframe'));
+   $wordframe=unescapeURL(param('wordframe'));
    for ($i=0; $i<$wordcount; $i++) {
       $words[$i]=param($i) if (defined(param($i)));
    }

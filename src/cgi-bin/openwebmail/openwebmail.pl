@@ -1,8 +1,11 @@
 #!/usr/bin/perl -T
 #############################################################################
-# Open WebMail - Provides a web interface to user maildir spools            #
-# Copyright (C) 2001 Nai-Jung Kuo, Chao-Chiu Wang, Chung-Kie Tung           #
-# Copyright (C) 2000 Ernie Miller  (original GPL project: Neomail)          #
+# Open WebMail - Provides a web interface to user mailboxes                 #
+#                                                                           #
+# Copyright (C) 2001                                                        #
+# Nai-Jung Kuo, Chao-Chiu Wang, Chung-Kie Tung, Emir Litric                 #
+# Copyright (C) 2000                                                        #
+# Ernie Miller  (original GPL project: Neomail)                             #
 #                                                                           #
 # This program is free software; you can redistribute it and/or             #
 # modify it under the terms of the GNU General Public License               #
@@ -172,7 +175,7 @@ if ($user) {
    }
 }
 $printfolder = $lang_folders{$folder} || $folder || '';
-$escapedfolder = CGI::escape($folder);
+$escapedfolder = escapeURL($folder);
 
 $headersperpage = $prefs{'headersperpage'} || $headersperpage || 20;
 
@@ -180,7 +183,7 @@ $firstmessage = param("firstmessage") || 1;
 $sort = param("sort") || $prefs{"sort"} || 'date';
 
 $keyword = param("keyword") || '';
-$escapedkeyword=CGI::escape($keyword);
+$escapedkeyword=escapeURL($keyword);
 $searchtype = param("searchtype") || 'subject';
 
 # override global in openwebmail.conf with user preference
@@ -243,7 +246,7 @@ sub loginmenu {
    my $html='';
    my $temphtml;
    open (LOGIN, "$openwebmaildir/templates/$lang/login.template") or
-      openwebmailerror("$lang_err{'couldnt_open'} login.template!");
+      openwebmailerror("$lang_err{'couldnt_open'} $openwebmaildir/templates/$lang/login.template!");
    while (<LOGIN>) {
       $html .= $_;
    }
@@ -336,7 +339,7 @@ sub login {
       # create session file
       $setcookie = crypt(rand(),'OW');
       open (SESSION, "> $openwebmaildir/sessions/$thissession") or # create sessionid
-         openwebmailerror("$lang_err{'couldnt_open'} $thissession!");
+         openwebmailerror("$lang_err{'couldnt_open'} $openwebmaildir/sessions/$thissession!");
       print SESSION $setcookie;
       close (SESSION);
 
@@ -409,7 +412,7 @@ sub login {
       writelog("invalid login attempt for username=$userid");
       printheader();
       open (LOGINFAILED, "$openwebmaildir/templates/$lang/loginfailed.template") or
-         openwebmailerror("$lang_err{'couldnt_open'} loginfailed.template!");
+         openwebmailerror("$lang_err{'couldnt_open'} $openwebmaildir/templates/$lang/loginfailed.template!");
       while (<LOGINFAILED>) {
          $html .= $_;
       }
@@ -517,7 +520,7 @@ sub cleantrash {
    filelock($trashfile, LOCK_UN);
 
    open (TRASHCHECK, ">$folderdir/.trash.check" ) or 
-      openwebmailerror("$lang_err{'couldnt_open'} .trash.check!");
+      openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.trash.check!");
    my $t=localtime();
    print TRASHCHECK "checktime=", $t;
    close (TRASHCHECK);
@@ -535,12 +538,12 @@ sub displayheaders {
    my $trash_allmessages=0;
    my %HDB;
 
-   if ( -f "$folderdir/.$user.$dbm_ext") {
-      filelock("$folderdir/.$user.$dbm_ext", LOCK_SH);
+   if ( -f "$folderdir/.$user$dbm_ext") {
+      filelock("$folderdir/.$user$dbm_ext", LOCK_SH);
       dbmopen (%HDB, "$folderdir/.$user", undef);	# dbm for INBOX
       $orig_inbox_newmessages=$HDB{'NEWMESSAGES'};	# new msg in INBOX
       dbmclose(%HDB);
-      filelock("$folderdir/.$user.$dbm_ext", LOCK_UN);
+      filelock("$folderdir/.$user$dbm_ext", LOCK_UN);
    }
 
    filtermessage();
@@ -604,7 +607,7 @@ sub displayheaders {
    my $html = '';
    my $temphtml;
    open (VIEWFOLDER, "$openwebmaildir/templates/$lang/viewfolder.template") or
-      openwebmailerror("$lang_err{'couldnt_open'} viewfolder.template!");
+      openwebmailerror("$lang_err{'couldnt_open'} $openwebmaildir/templates/$lang/viewfolder.template!");
    while (<VIEWFOLDER>) {
       $html .= $_;
    }
@@ -645,10 +648,10 @@ sub displayheaders {
 
       # add message count in folderlabel
       ($folderfile, $headerdb)=get_folderfile_headerdb($user, $foldername);
-      if ( -f "$headerdb.$dbm_ext" ) {
+      if ( -f "$headerdb$dbm_ext" ) {
          my ($newmessages, $allmessages);
 
-         filelock("$headerdb.$dbm_ext", LOCK_SH);
+         filelock("$headerdb$dbm_ext", LOCK_SH);
          dbmopen (%HDB, $headerdb, undef);
          $allmessages=$HDB{'ALLMESSAGES'};
          $allmessages-=$HDB{'INTERNALMESSAGES'} if ($hide_internal);
@@ -660,7 +663,7 @@ sub displayheaders {
             $trash_allmessages=$allmessages;
          }
          dbmclose(%HDB);
-         filelock("$headerdb.$dbm_ext", LOCK_UN);
+         filelock("$headerdb$dbm_ext", LOCK_UN);
 
          if ( $newmessages ne "" && $allmessages ne "" ) {
             $folderlabels{$foldername}.= " ($newmessages/$allmessages)";
@@ -703,13 +706,13 @@ sub displayheaders {
       $temphtml .= "<a href=\"$prefsurl?action=editfolders&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/$imageset/folder.gif\" border=\"0\" ALT=\"$lang_text{'folders'}\"></a> ";
    }
    $temphtml .= "<a href=\"$prefsurl?action=editaddresses&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/$imageset/addresses.gif\" border=\"0\" ALT=\"$lang_text{'addressbook'}\"></a> ";
-   $temphtml .= "<a href=\"$prefsurl?action=editfilter&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/$imageset/filtersetup.gif\" border=\"0\" ALT=\"$lang_text{'filterbook'}\"></a> &nbsp; &nbsp; ";
+   $temphtml .= "<a href=\"$prefsurl?action=editfilter&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/$imageset/filtersetup.gif\" border=\"0\" ALT=\"$lang_text{'filterbook'}\"></a> &nbsp; ";
    if ($enable_pop3 eq 'yes') {
       $temphtml .= "<a href=\"$prefsurl?action=editpop3&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/$imageset/pop3setup.gif\" border=\"0\" ALT=\"$lang_text{'pop3book'}\"></a> ";
-      $temphtml .= "<a href=\"$scripturl?action=retrpop3s&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid\"><IMG SRC=\"$imagedir_url/$imageset/pop3.gif\" border=\"0\" ALT=\"$lang_text{'retr_pop3s'}\"></a> &nbsp; &nbsp; ";
+      $temphtml .= "<a href=\"$scripturl?action=retrpop3s&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid\"><IMG SRC=\"$imagedir_url/$imageset/pop3.gif\" border=\"0\" ALT=\"$lang_text{'retr_pop3s'}\"></a> &nbsp; ";
    }
    $temphtml .= "<a href=\"$base_url&amp;action=emptytrash&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/$imageset/trash.gif\" border=\"0\" ALT=\"$lang_text{'emptytrash'}\" onclick=\"return confirm('$lang_text{emptytrash} ($trash_allmessages $lang_text{messages}) ?');\"></a> ";
-   $temphtml .= "<a href=\"$base_url&amp;action=logout&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/$imageset/logout.gif\" border=\"0\" ALT=\"$lang_text{'logout'} $useremail\"></a>";
+   $temphtml .= "<a href=\"$base_url&amp;action=logout&amp;firstmessage=$firstmessage\"><IMG SRC=\"$imagedir_url/$imageset/logout.gif\" border=\"0\" ALT=\"$lang_text{'logout'} $useremail\"></a> &nbsp; ";
 
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
 
@@ -832,9 +835,11 @@ sub displayheaders {
                           -override=>'1');
 
    $temphtml .= submit(-name=>"$lang_text{'move'}",
+                       -class=>"medtext",
                        -onClick=>"return OpConfirm($lang_text{'msgmoveconf'})");
    if ($folderusage<100) {
       $temphtml .= submit(-name=>"$lang_text{'copy'}",
+                       -class=>"medtext",
                        -onClick=>"return OpConfirm($lang_text{'msgcopyconf'})");
    }
 
@@ -885,9 +890,9 @@ sub displayheaders {
                 ($firstmessage)."&amp;sessionid=$thissession&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;sort=";
 
    if ($sort eq "subject") {
-      $temphtml .= "subject_rev\">$lang_text{'subject'} <IMG SRC=\"$imagedir_url/$imageset/down.gif\" border=\"0\" alt=\"v\"></a>";
+      $temphtml .= "subject_rev\">$lang_text{'subject'} <IMG SRC=\"$imagedir_url/$imageset/up.gif\" border=\"0\" alt=\"v\"></a>";
    } elsif ($sort eq "subject_rev") {
-      $temphtml .= "subject\">$lang_text{'subject'} <IMG SRC=\"$imagedir_url/$imageset/up.gif\" border=\"0\" alt=\"^\"></a>";
+      $temphtml .= "subject\">$lang_text{'subject'} <IMG SRC=\"$imagedir_url/$imageset/down.gif\" border=\"0\" alt=\"^\"></a>";
    } else {
       $temphtml .= "subject\">$lang_text{'subject'}</a>";
    }
@@ -914,7 +919,7 @@ sub displayheaders {
    my ($bgcolor, $message_status);
    my ($boldon, $boldoff); # Used to control whether text is bold for new mails
 
-   filelock("$headerdb.$dbm_ext", LOCK_SH);
+   filelock("$headerdb$dbm_ext", LOCK_SH);
    dbmopen (%HDB, $headerdb, undef);
 
    $temphtml = '';
@@ -923,7 +928,7 @@ sub displayheaders {
       $messageid=${$r_messageids}[$messnum];
       next if (! defined($HDB{$messageid}) );
 
-      $escapedmessageid = CGI::escape($messageid);
+      $escapedmessageid = escapeURL($messageid);
       ($offset, $from, $to, $date, $subject, 
 	$content_type, $status, $messagesize)=split(/@@@/, $HDB{$messageid});
 
@@ -961,6 +966,7 @@ sub displayheaders {
 
       $message_status = "<B>".($messnum+1)."</B> ";
       # Choose status icons based on Status: line and type of encoding
+      $status =~ s/\s//g;	# remove blanks
       if ( $status =~ /r/i ) {
          $boldon = '';
          $boldoff = '';
@@ -1007,7 +1013,7 @@ sub displayheaders {
    }
 
    dbmclose(%HDB);
-   filelock("$headerdb.$dbm_ext", LOCK_UN);
+   filelock("$headerdb$dbm_ext", LOCK_UN);
 
    $html =~ s/\@\@\@HEADERS\@\@\@/$temphtml/;
 
@@ -1028,8 +1034,6 @@ sub displayheaders {
 
    $html =~ s/\@\@\@STARTSEARCHFORM\@\@\@/$temphtml/g;
 
-   $temphtml = "<b>$lang_text{search}&nbsp;&nbsp;</b>";
-
    my %searchtypelabels = ('from'=>$lang_text{'from'},
                            'to'=>$lang_text{'to'},
                            'subject'=>$lang_text{'subject'},
@@ -1038,15 +1042,17 @@ sub displayheaders {
                            'header'=>$lang_text{'header'},
                            'textcontent'=>$lang_text{'textcontent'},
                            'all'=>$lang_text{'all'});
-   $temphtml .= popup_menu(-name=>'searchtype',
+   $temphtml = popup_menu(-name=>'searchtype',
                            -default=>'subject',
                            -values=>['from', 'to', 'subject', 'date', 'attfilename', 'header', 'textcontent' ,'all'],
                            -labels=>\%searchtypelabels);
-   $temphtml .= "&nbsp;";
    $temphtml .= textfield(-name=>'keyword',
                           -default=>$keyword,
                           -size=>'25',
                           -override=>'1');
+   $temphtml .= "&nbsp;";
+   $temphtml .= submit(-name=>"$lang_text{'search'}",
+		       -class=>'medtext');
 
    $html =~ s/\@\@\@SEARCH\@\@\@/$temphtml/g;
 
@@ -1103,14 +1109,14 @@ sub readmessage {
    if (%message) {
       printheader();
 
-      my $escapedmessageid = CGI::escape($messageid);
+      my $escapedmessageid = escapeURL($messageid);
       my $headers = param("headers") || $prefs{"headers"} || 'simple';
       my $attmode = param("attmode") || 'simple';
 
       my $html = '';
       my ($temphtml, $temphtml1, $temphtml2);
       open (READMESSAGE, "$openwebmaildir/templates/$lang/readmessage.template") or
-         openwebmailerror("$lang_err{'couldnt_open'} readmessage.template!");
+         openwebmailerror("$lang_err{'couldnt_open'} $openwebmaildir/templates/$lang/readmessage.template!");
       while (<READMESSAGE>) {
          $html .= $_;
       }
@@ -1195,9 +1201,9 @@ sub readmessage {
       }
 
       if ($folder eq 'saved-drafts') {
-         $temphtml .= "<a href=\"$base_url&amp;action=composemessage&amp;composetype=editdraft\"><IMG SRC=\"$imagedir_url/$imageset/compose.gif\" border=\"0\" ALT=\"$lang_text{'editdraft'}\"></a> &nbsp; &nbsp; ";
+         $temphtml .= "<a href=\"$base_url&amp;action=composemessage&amp;composetype=editdraft\"><IMG SRC=\"$imagedir_url/$imageset/editdraft.gif\" border=\"0\" ALT=\"$lang_text{'editdraft'}\"></a> &nbsp; &nbsp; ";
       } elsif ($folder eq 'sent-mail') {
-         $temphtml .= "<a href=\"$base_url&amp;action=composemessage&amp;composetype=editdraft\"><IMG SRC=\"$imagedir_url/$imageset/compose.gif\" border=\"0\" ALT=\"$lang_text{'editdraft'}\"></a> " .
+         $temphtml .= "<a href=\"$base_url&amp;action=composemessage&amp;composetype=editdraft\"><IMG SRC=\"$imagedir_url/$imageset/editdraft.gif\" border=\"0\" ALT=\"$lang_text{'editdraft'}\"></a> " .
          "<a href=\"$base_url&amp;action=composemessage&amp;composetype=reply$convertparm\"><IMG SRC=\"$imagedir_url/$imageset/reply.gif\" border=\"0\" ALT=\"$lang_text{'reply'}\"></a> " .
          "<a href=\"$base_url&amp;action=composemessage&amp;composetype=replyall$convertparm\"><IMG SRC=\"$imagedir_url/$imageset/replyall.gif\" border=\"0\" ALT=\"$lang_text{'replyall'}\"></a> " .
          "<a href=\"$base_url&amp;action=composemessage&amp;composetype=forward$convertparm\"><IMG SRC=\"$imagedir_url/$imageset/forward.gif\" border=\"0\" ALT=\"$lang_text{'forward'}\"></a> " .
@@ -1277,6 +1283,9 @@ sub readmessage {
       $temphtml .= hidden(-name=>'keyword',
                           -default=>$keyword,
                           -override=>'1');
+      $temphtml .= hidden(-name=>'searchtype',
+                          -default=>$searchtype,
+                          -override=>'1');
       $temphtml .= hidden(-name=>'folder',
                           -default=>$folder,
                           -override=>'1');
@@ -1337,8 +1346,8 @@ sub readmessage {
          } else {
             ($realname, $email)=($from, $from);
          }
-         $realname=CGI::escape($realname);
-         $escapedemail=CGI::escape($email);
+         $realname=escapeURL($realname);
+         $escapedemail=escapeURL($email);
          $temphtml .= "&nbsp;<a href=\"$prefsurl?action=addaddress&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid&amp;realname=$realname&amp;email=$escapedemail\">".
                       "<IMG SRC=\"$imagedir_url/$imageset/imports.gif\" align=\"absmiddle\" border=\"0\" ALT=\"$lang_text{'importadd'} $email\">".
                       "</a>";
@@ -1482,7 +1491,7 @@ sub readmessage {
                if ( ($decodedhtml !~ /\Q${$message{attachment}[$attnumber]}{id}\E/) &&
                     ($decodedhtml !~ /\Q${$message{attachment}[$attnumber]}{location}\E/) ) {
                   # ugly match for strange CID link
-                  my $filename=CGI::escape(${$message{attachment}[$attnumber]}{filename});
+                  my $filename=escapeURL(${$message{attachment}[$attnumber]}{filename});
                   if ($filename ne '' && $decodedhtml!~ m#CID:\{[\d\w\-]+\}/$filename#) {
                      $temphtml .= image_att2table($message{attachment}, $attnumber, $escapedmessageid);
                   }
@@ -1619,7 +1628,7 @@ sub image_att2table {
    my ($r_attachments, $attnumber, $escapedmessageid)=@_;
 
    my $r_attachment=${$r_attachments}[$attnumber];
-   my $escapedfilename = CGI::escape(${$r_attachment}{filename});
+   my $escapedfilename = escapeURL(${$r_attachment}{filename});
    my $attlen=lenstr(${$r_attachment}{contentlength});
    my $nodeid=${$r_attachment}{nodeid};
    my $disposition=${$r_attachment}{disposition};
@@ -1638,7 +1647,7 @@ sub misc_att2table {
    my ($r_attachments, $attnumber, $escapedmessageid)=@_;
 
    my $r_attachment=${$r_attachments}[$attnumber];
-   my $escapedfilename = CGI::escape(${$r_attachment}{filename});
+   my $escapedfilename = escapeURL(${$r_attachment}{filename});
    my $attlen=lenstr(${$r_attachment}{contentlength});
    my $nodeid=${$r_attachment}{nodeid};
    my $disposition=${$r_attachment}{disposition};
@@ -1733,11 +1742,11 @@ sub replyreceipt {
    my $folderhandle=FileHandle->new();
    my @attr;
 
-   filelock("$headerdb.$dbm_ext", LOCK_SH);
+   filelock("$headerdb$dbm_ext", LOCK_SH);
    dbmopen (%HDB, $headerdb, undef);
    @attr=split(/@@@/, $HDB{$messageid});
    dbmclose(%HDB);
-   filelock("$headerdb.$dbm_ext", LOCK_UN);
+   filelock("$headerdb$dbm_ext", LOCK_UN);
    
    if ($attr[$_SIZE]>0) {
       my $header;
@@ -1789,9 +1798,8 @@ sub replyreceipt {
          $to =~ s/<?(.*@.*)>?\s+\((.+?)\)/$1/ ||
          $to =~ s/<(.+)>/$1/;
 
-         $realname =~ s/[\||'|"|`]/ /g;  # Get rid of shell escape attempts
-         $from =~ s/[\||'|"|`]/ /g;  # Get rid of shell escape attempts
-         $to =~ s/[\||'|"|`]/ /g;  # Get rid of shell escape attempts
+         $realname =~ s/['"]/ /g;  # Get rid of shell escape attempts
+         $from =~ s/['"]/ /g;  # Get rid of shell escape attempts 
 
          ($realname =~ /^(.+)$/) && ($realname = '"'.$1.'"');
          ($from =~ /^(.+)$/) && ($from = $1);
@@ -1846,7 +1854,7 @@ sub composemessage {
    my ($r_attnamelist, $r_attfilelist);
 
    open (COMPOSEMESSAGE, "$openwebmaildir/templates/$lang/composemessage.template") or
-      openwebmailerror("$lang_err{'couldnt_open'} composemessage.template!");
+      openwebmailerror("$lang_err{'couldnt_open'} $openwebmaildir/templates/$lang/composemessage.template!");
    while (<COMPOSEMESSAGE>) {
       $html .= $_;
    }
@@ -2180,6 +2188,9 @@ sub composemessage {
    $temphtml .= hidden(-name=>'keyword',
                        -default=>$keyword,
                        -override=>'1');
+   $temphtml .= hidden(-name=>'searchtype',
+                       -default=>$searchtype,
+                       -override=>'1');
    $temphtml .= hidden(-name=>'firstmessage',
                        -default=>$firstmessage,
                        -override=>'1');
@@ -2342,6 +2353,9 @@ sub composemessage {
       $temphtml .= hidden(-name=>'keyword',
                           -default=>$keyword,
                           -override=>'1');
+      $temphtml .= hidden(-name=>'searchtype',
+                          -default=>$searchtype,
+                          -override=>'1');
       $temphtml .= hidden(-name=>'folder',
                           -default=>$folder,
                           -override=>'1');
@@ -2366,6 +2380,9 @@ sub composemessage {
                           -override=>'1');
       $temphtml .= hidden(-name=>'keyword',
                           -default=>$keyword,
+                          -override=>'1');
+      $temphtml .= hidden(-name=>'searchtype',
+                          -default=>$searchtype,
                           -override=>'1');
       $temphtml .= hidden(-name=>'folder',
                           -default=>$folder,
@@ -2419,8 +2436,8 @@ sub sendmessage {
          $realname="$1";
          $from="$1\@$2";
       }
-      $from =~ s/[\||'|"|`]/ /g;  # Get rid of shell escape attempts
-      $realname =~ s/[\||'|"|`]/ /g;  # Get rid of shell escape attempts
+      $from =~ s/['"]/ /g;  # Get rid of shell escape attempts
+      $realname =~ s/['"]/ /g;  # Get rid of shell escape attempts
       ($realname =~ /^(.+)$/) && ($realname = '"'.$1.'"');
       ($from =~ /^(.+)$/) && ($from = $1);
 
@@ -2503,7 +2520,7 @@ sub sendmessage {
                my $messageid=param("message_id");
                my %HDB;
 
-               filelock("$savedb.$dbm_ext", LOCK_EX);
+               filelock("$savedb$dbm_ext", LOCK_EX);
                dbmopen(%HDB, $savedb, undef);
                if (defined($HDB{$messageid})) {
                   my $oldsubject=(split(/@@@/, $HDB{$messageid}))[$_SUBJECT];
@@ -2512,7 +2529,7 @@ sub sendmessage {
                   }
                }
                dbmclose(%HDB);
-               filelock("$savedb.$dbm_ext", LOCK_UN);
+               filelock("$savedb$dbm_ext", LOCK_UN);
 
                if ($removeoldone) {
                   my @ids;
@@ -2667,13 +2684,13 @@ sub sendmessage {
          $attr[$_SIZE]=$messagesize;
 
          my %HDB;
-         filelock("$savedb.$dbm_ext", LOCK_EX);
+         filelock("$savedb$dbm_ext", LOCK_EX);
          dbmopen(%HDB, $savedb, 0600);
          $HDB{$messageid}=join('@@@', @attr);
          $HDB{'ALLMESSAGES'}++;
          $HDB{'METAINFO'}=metainfo($savefile);
          dbmclose(%HDB);
-         filelock("$savedb.$dbm_ext", LOCK_UN);
+         filelock("$savedb$dbm_ext", LOCK_UN);
 
          filelock($savefile, LOCK_UN);
       }
@@ -2728,7 +2745,7 @@ sub viewattachment {	# view attachments inside a message
             qq|Connection: close\n|,
             qq|Content-Type: message/rfc822; name="$subject.msg"\n|;
 
-      # ugly hack since ie5.5 is broken with disposition: attchhment
+      # ugly hack since ie5.5 is broken with disposition: attchment
       if ( $ENV{'HTTP_USER_AGENT'}!~/MSIE 5.5/ ) {
          print qq|Content-Disposition: attachment; filename="$subject.msg"\n|;
       }
@@ -2761,7 +2778,7 @@ sub viewattachment {	# view attachments inside a message
          }
 
          if (${$r_attachment}{contenttype} =~ m#^text/html#i ) {
-            my $escapedmessageid = CGI::escape($messageid);
+            my $escapedmessageid = escapeURL($messageid);
             $content = html4nobase($content);
             $content = html4attachments($content, $r_attachments, $scripturl, "action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder");
             $content = html4mailto($content, $scripturl, "action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;sessionid=$thissession&amp;composetype=sendto");
@@ -2778,10 +2795,10 @@ sub viewattachment {	# view attachments inside a message
          # disposition:attachment default to save
          print qq|Content-Length: $length\n|,
                qq|Content-Transfer-Coding: binary\n|,
-               qq|Connection: close\n|;
+               qq|Connection: close\n|,
                qq|Content-Type: $contenttype; name="${$r_attachment}{filename}"\n|;
 
-         # ugly hack since ie5.5 is broken with disposition: attchhment
+         # ugly hack since ie5.5 is broken with disposition: attchment
          if ( $ENV{'HTTP_USER_AGENT'}!~/MSIE 5.5/ ) {
             if ($contenttype =~ /^text/i) {
                print qq|Content-Disposition: inline; filename="${$r_attachment}{filename}"\n|;
@@ -2897,7 +2914,7 @@ sub getinfomessageids {
    my $index_complete=0;
 
    # do new indexing in background if folder > 10 M && empty db
-   if ( (stat($headerdb.$dbm_ext))[7]==0 && 
+   if ( (stat("$headerdb$dbm_ext"))[7]==0 && 
         (stat($folderfile))[7] >= 10485760 ) {
       $|=1; 				# flush all output
       $SIG{CHLD} = sub { wait; $index_complete=1 if ($?==0) };	# handle zombie
@@ -2906,7 +2923,7 @@ sub getinfomessageids {
          close(STDIN);
          filelock($folderfile, LOCK_SH|LOCK_NB) or exit 1;
          update_headerdb($headerdb, $folderfile);
-         filelock("$headerdb.$dbm_ext", LOCK_UN);
+         filelock("$headerdb$dbm_ext", LOCK_UN);
          exit 0;
       }
 
@@ -3068,6 +3085,9 @@ sub getmessage {
 
    foreach (@smtprelays) {
       if ($_=~/[\w\d\-_]+\.[\w\d\-_]+/ && $_ ne $prefs{domainname}) {
+         s/[\[\]]//g;	# remove [] around ip addr in mailheader
+			# since $message{smtprelay} may be put into filterrule
+                        # and we don't want [] be treat as regular expression
          $message{smtprelay} = $_;
          last;
       }
@@ -3299,7 +3319,7 @@ sub firsttimeuser {
    my $html = '';
    my $temphtml;
    open (FTUSER, "$openwebmaildir/templates/$lang/firsttimeuser.template") or
-      openwebmailerror("$lang_err{'couldnt_open'} firsttimeuser.template!");
+      openwebmailerror("$lang_err{'couldnt_open'} $openwebmaildir/templates/$lang/firsttimeuser.template!");
    while (<FTUSER>) {
       $html .= $_;
    }

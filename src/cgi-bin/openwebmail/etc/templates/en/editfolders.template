@@ -1,7 +1,7 @@
 <table border="0" align="center" width="70%" cellpadding="0" cellspacing="0">
 <tr><td colspan="5" bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>EDIT FOLDERS</b></font>
+<b>Edit Folders</b></font>
 </td></tr>
 <tr><td colspan="5" bgcolor=@@@MENUBAR@@@ align="left">
 @@@MENUBARLINKS@@@

@@ -146,17 +146,17 @@ sub update_headerdb {
    my (%HDB, %OLDHDB);
 
    ($headerdb =~ /^(.+)$/) && ($headerdb = $1);		# bypass taint check
-   if ( -e "$headerdb.$dbm_ext" ) {
+   if ( -e "$headerdb$dbm_ext" ) {
       my ($metainfo, $allmessages, $internalmessages, $newmessages);
 
-      filelock("$headerdb.$dbm_ext", LOCK_SH);
+      filelock("$headerdb$dbm_ext", LOCK_SH);
       dbmopen (%HDB, $headerdb, undef);
       $metainfo=$HDB{'METAINFO'};
       $allmessages=$HDB{'ALLMESSAGES'};
       $internalmessages=$HDB{'INTERNALMESSAGES'};
       $newmessages=$HDB{'NEWMESSAGES'};
       dbmclose(%HDB);
-      filelock("$headerdb.$dbm_ext", LOCK_UN);
+      filelock("$headerdb$dbm_ext", LOCK_UN);
 
       if ( $metainfo eq metainfo($folderfile) && $allmessages >=0  
            && $internalmessages >=0 && $newmessages >=0 ) {
@@ -167,11 +167,11 @@ sub update_headerdb {
          rename("$headerdb.dir", "$headerdb.old.dir");
          rename("$headerdb.pag", "$headerdb.old.pag");
       } else {
-         rename("$headerdb.$dbm_ext", "$headerdb.old.$dbm_ext");
+         rename("$headerdb$dbm_ext", "$headerdb.old$dbm_ext");
       }
 
       # we will try to reference records in old headerdb if possible
-      filelock("$headerdb.old.$dbm_ext", LOCK_SH);
+      filelock("$headerdb.old$dbm_ext", LOCK_SH);
       dbmopen(%OLDHDB, "$headerdb.old", undef);
    }
 
@@ -191,7 +191,7 @@ sub update_headerdb {
    my ($_content_type, $_status, $_messagesize);
 
    dbmopen(%HDB, $headerdb, 0600);
-   filelock("$headerdb.$dbm_ext", LOCK_EX);
+   filelock("$headerdb$dbm_ext", LOCK_EX);
    %HDB=();	# ensure the headerdb is empty
 
    open (FOLDER, $folderfile);
@@ -304,6 +304,7 @@ sub update_headerdb {
                $lastline = 'NONE';
             } elsif ($line =~ /^status:\s+(.+)$/ig) {
                $_status = $1;
+               $_status =~ s/\s//g;	# remove blanks
                $lastline = 'NONE';
             } else {
                $lastline = 'NONE';
@@ -339,14 +340,14 @@ sub update_headerdb {
    $HDB{'INTERNALMESSAGES'}=$internalmessages;
    $HDB{'NEWMESSAGES'}=$newmessages;
 
-   filelock("$headerdb.$dbm_ext", LOCK_UN);
+   filelock("$headerdb$dbm_ext", LOCK_UN);
    dbmclose(%HDB);
 
    # remove old headerdb
    if (defined(%OLDHDB)) {
       dbmclose(%OLDHDB);
-      filelock("$headerdb.old.$dbm_ext", LOCK_UN);
-      unlink("$headerdb.old.$dbm_ext", "$headerdb.old.dir", "$headerdb.old.pag");
+      filelock("$headerdb.old$dbm_ext", LOCK_UN);
+      unlink("$headerdb.old$dbm_ext", "$headerdb.old.dir", "$headerdb.old.pag");
    }
 
    # remove if any duplicates
@@ -375,7 +376,7 @@ sub get_messageids_sorted_by_offset {
    my $headerdb=$_[0];
    my (%HDB, @attr, %offset, $key, $data);
 
-   filelock("$headerdb.$dbm_ext", LOCK_SH);
+   filelock("$headerdb$dbm_ext", LOCK_SH);
    dbmopen(%HDB, $headerdb, undef);
 
    while ( ($key, $data)=each(%HDB) ) {
@@ -390,7 +391,7 @@ sub get_messageids_sorted_by_offset {
    }
 
    dbmclose(%HDB);
-   filelock("$headerdb.$dbm_ext", LOCK_UN);
+   filelock("$headerdb$dbm_ext", LOCK_UN);
 
    return( sort { $offset{$a}<=>$offset{$b} } keys(%offset) );
 }
@@ -427,11 +428,11 @@ sub get_info_messageids_sorted {
       $sort='status'; $rev=0;
    }
 
-   filelock("$headerdb.$dbm_ext", LOCK_SH);
+   filelock("$headerdb$dbm_ext", LOCK_SH);
    dbmopen(%HDB, $headerdb, undef);
    $metainfo=$HDB{'METAINFO'};
    dbmclose(%HDB);
-   filelock("$headerdb.$dbm_ext", LOCK_UN);
+   filelock("$headerdb$dbm_ext", LOCK_UN);
 
    filelock($cachefile, LOCK_EX);
 
@@ -502,7 +503,7 @@ sub get_info_messageids_sorted_by_date {
    my ($totalsize, $new)=(0,0);
    my @messageids;
 
-   filelock("$headerdb.$dbm_ext", LOCK_SH);
+   filelock("$headerdb$dbm_ext", LOCK_SH);
    dbmopen(%HDB, $headerdb, undef);
    while ( ($key, $data)=each(%HDB) ) {
       if ( $key eq 'METAINFO' ||
@@ -521,7 +522,7 @@ sub get_info_messageids_sorted_by_date {
       }
    }
    dbmclose(%HDB);
-   filelock("$headerdb.$dbm_ext", LOCK_UN);
+   filelock("$headerdb$dbm_ext", LOCK_UN);
 
    @messageids=sort { $datestr{$b}<=>$datestr{$a} } keys(%datestr);
    return($totalsize, $new, \@messageids);
@@ -533,7 +534,7 @@ sub get_info_messageids_sorted_by_from {
    my ($totalsize, $new)=(0,0);
    my @messageids;
 
-   filelock("$headerdb.$dbm_ext", LOCK_SH);
+   filelock("$headerdb$dbm_ext", LOCK_SH);
    dbmopen(%HDB, $headerdb, undef);
    while ( ($key, $data)=each(%HDB) ) {
       if ( $key eq 'METAINFO' ||
@@ -553,7 +554,7 @@ sub get_info_messageids_sorted_by_from {
       }
    }
    dbmclose(%HDB);
-   filelock("$headerdb.$dbm_ext", LOCK_UN);
+   filelock("$headerdb$dbm_ext", LOCK_UN);
 
    @messageids=sort {
                     lc($from{$a}) cmp lc($from{$b}) or $datestr{$b} <=> $datestr{$a};
@@ -567,7 +568,7 @@ sub get_info_messageids_sorted_by_to {
    my ($totalsize, $new)=(0,0);
    my @messageids;
 
-   filelock("$headerdb.$dbm_ext", LOCK_SH);
+   filelock("$headerdb$dbm_ext", LOCK_SH);
    dbmopen(%HDB, $headerdb, undef);
    while ( ($key, $data)=each(%HDB) ) {
       if ( $key eq 'METAINFO' ||
@@ -587,7 +588,7 @@ sub get_info_messageids_sorted_by_to {
       }
    }
    dbmclose(%HDB);
-   filelock("$headerdb.$dbm_ext", LOCK_UN);
+   filelock("$headerdb$dbm_ext", LOCK_UN);
 
    @messageids=sort {
                     lc($to{$a}) cmp lc($to{$b}) or $datestr{$b} <=> $datestr{$a};
@@ -601,7 +602,7 @@ sub get_info_messageids_sorted_by_subject {
    my ($totalsize, $new)=(0,0);
    my @messageids;
 
-   filelock("$headerdb.$dbm_ext", LOCK_SH);
+   filelock("$headerdb$dbm_ext", LOCK_SH);
    dbmopen(%HDB, $headerdb, undef);
    while ( ($key, $data)=each(%HDB) ) {
       if ( $key eq 'METAINFO' ||
@@ -616,16 +617,41 @@ sub get_info_messageids_sorted_by_subject {
          @attr=split( /@@@/, $data );
          next if ($ignore_internal && is_internal_subject($attr[$_SUBJECT]));
          $totalsize+=$attr[$_SIZE];
-         $subject{$key}=$attr[$_SUBJECT];
+         $subject{$key}=lc($attr[$_SUBJECT]);
+         # try to group thread and related followup together
+         $subject{$key}=~s/\[\d+\]//g;	
+         $subject{$key}=~s/[\[\]\s]//g;	
+         $subject{$key}=~s/^(Re:)*//ig;	
          $datestr{$key}=datestr($attr[$_DATE]);
       }
    }
    dbmclose(%HDB);
-   filelock("$headerdb.$dbm_ext", LOCK_UN);
+   filelock("$headerdb$dbm_ext", LOCK_UN);
 
-   @messageids=sort {
-                    lc($subject{$a}) cmp lc($subject{$b}) or $datestr{$b} <=> $datestr{$a};
-                    } keys(%subject);
+   @messageids=sort { $datestr{$b} <=> $datestr{$a}; } keys(%datestr);
+
+   # try to group thread and related followup together
+   my %groupdate=();
+   my %groupmembers=();
+   foreach $key (@messageids) {
+      if ( !defined($groupdate{$subject{$key}}) ) {
+         my @members=($key);
+         $groupmembers{$subject{$key}}=\@members;
+         $groupdate{$subject{$key}}=$datestr{$key};
+      } else {
+         my $r_members=$groupmembers{$subject{$key}};
+         push(@{$r_members}, $key);
+      }
+   }
+   @messageids=();
+
+   # sort group by groupdate
+   my @subjects=sort {$groupdate{$b} <=> $groupdate{$a}} keys(%groupdate);
+   my $subject;
+   foreach $subject (@subjects) {
+      push(@messageids, @{$groupmembers{$subject}});
+   }      
+
    return($totalsize, $new, \@messageids);
 }
 
@@ -635,7 +661,7 @@ sub get_info_messageids_sorted_by_size {
    my ($totalsize, $new)=(0,0);
    my @messageids;
 
-   filelock("$headerdb.$dbm_ext", LOCK_SH);
+   filelock("$headerdb$dbm_ext", LOCK_SH);
    dbmopen(%HDB, $headerdb, undef);
    while ( ($key, $data)=each(%HDB) ) {
       if ( $key eq 'METAINFO' ||
@@ -655,7 +681,7 @@ sub get_info_messageids_sorted_by_size {
       }
    }
    dbmclose(%HDB);
-   filelock("$headerdb.$dbm_ext", LOCK_UN);
+   filelock("$headerdb$dbm_ext", LOCK_UN);
 
    @messageids=sort {
                     $size{$b} <=> $size{$a} or $datestr{$b} <=> $datestr{$a};
@@ -669,7 +695,7 @@ sub get_info_messageids_sorted_by_status {
    my ($totalsize, $new)=(0,0);
    my @messageids;
 
-   filelock("$headerdb.$dbm_ext", LOCK_SH);
+   filelock("$headerdb$dbm_ext", LOCK_SH);
    dbmopen(%HDB, $headerdb, undef);
    while ( ($key, $data)=each(%HDB) ) {
       if ( $key eq 'METAINFO' ||
@@ -693,7 +719,7 @@ sub get_info_messageids_sorted_by_status {
       }
    }
    dbmclose(%HDB);
-   filelock("$headerdb.$dbm_ext", LOCK_UN);
+   filelock("$headerdb$dbm_ext", LOCK_UN);
 
    @messageids=sort { 
                     $status{$b} <=> $status{$a} or $datestr{$b} <=> $datestr{$a};
@@ -709,11 +735,11 @@ sub get_message_attributes {
    my ($messageid, $headerdb)=@_;
    my (%HDB, @attr);
 
-   filelock("$headerdb.$dbm_ext", LOCK_SH);
+   filelock("$headerdb$dbm_ext", LOCK_SH);
    dbmopen(%HDB, $headerdb, undef);
    @attr=split(/@@@/, $HDB{$messageid} );
    dbmclose(%HDB);
-   filelock("$headerdb.$dbm_ext", LOCK_UN);
+   filelock("$headerdb$dbm_ext", LOCK_UN);
    return(@attr);
 }
 
@@ -771,7 +797,7 @@ sub update_message_status {
    my @attr;
    my $i;
 
-   filelock("$headerdb.$dbm_ext", LOCK_EX);
+   filelock("$headerdb$dbm_ext", LOCK_EX);
    dbmopen (%HDB, $headerdb, 600);
 
    for ($i=0; $i<=$#messageids; $i++) {
@@ -787,9 +813,8 @@ sub update_message_status {
          my ($header, $headerend, $headerlen, $newheaderlen);
          my $buff;
          
-         open ($folderhandle, "+<$folderfile") or 
-            openwebmailerror("$lang_err{'couldnt_open'} $folderfile!");
-         seek ($folderhandle, $messagestart, 0) or openwebmailerror("$lang_err{'couldnt_seek'} $folderfile!");
+         open ($folderhandle, "+<$folderfile");
+         seek ($folderhandle, $messagestart, 0);
          $header="";
          while (<$folderhandle>) {
             last if ($_ eq "\n" && $header=~/\n$/);
@@ -808,6 +833,7 @@ sub update_message_status {
          # update status
          if ($header =~ s/^status:\s?(.*?)\n$/Status: $status$1\n/im) {
            $messagenewstatus="$status$1";
+           $messagenewstatus=~s/\s//g;	# remove blanks
          } else {
            $header .= "Status: $status\n";
            $messagenewstatus="$status";
@@ -820,12 +846,12 @@ sub update_message_status {
          my $foldersize=(stat($folderhandle))[7];
          shiftblock($folderhandle, $headerend, $foldersize-$headerend, $movement);
 
-         seek($folderhandle, $messagestart, 0) or openwebmailerror("$lang_err{'couldnt_seek'} $folderfile!");
+         seek($folderhandle, $messagestart, 0);
          print $folderhandle $header;
 
          seek($folderhandle, $foldersize+$movement, 0);
          truncate($folderhandle, tell($folderhandle));
-         close ($folderhandle) or openwebmailerror("$lang_err{'couldnt_close'} $folderfile!");
+         close ($folderhandle);
 
          # set attributes in headerdb for this status changed message
          if ($messageoldstatus!~/r/i && $messagenewstatus=~/r/i) {
@@ -854,7 +880,7 @@ sub update_message_status {
    }
 
    dbmclose(%HDB);
-   filelock("$headerdb.$dbm_ext", LOCK_UN);
+   filelock("$headerdb$dbm_ext", LOCK_UN);
 
    return($messageoldstatus, $notificationto);
 }
@@ -889,11 +915,11 @@ sub operate_message_with_ids {
    my ($messagestart, $messagesize, @attr);
    my $counted=0;
    
-   filelock("$srcdb.$dbm_ext", LOCK_EX);
+   filelock("$srcdb$dbm_ext", LOCK_EX);
    dbmopen (%HDB, $srcdb, 600);
 
    if ($op eq "move" || $op eq "copy") {
-      filelock("$dstdb.$dbm_ext", LOCK_EX);
+      filelock("$dstdb$dbm_ext", LOCK_EX);
       dbmopen (%HDB2, "$dstdb", 600);
    }
 
@@ -987,13 +1013,13 @@ sub operate_message_with_ids {
       close (DEST);
       $HDB2{'METAINFO'}=metainfo($dstfile);
       dbmclose(%HDB2);
-      filelock("$dstdb.$dbm_ext", LOCK_UN);
+      filelock("$dstdb$dbm_ext", LOCK_UN);
    }
 
    close ($folderhandle);
    $HDB{'METAINFO'}=metainfo($srcfile);
    dbmclose(%HDB);
-   filelock("$srcdb.$dbm_ext", LOCK_UN);
+   filelock("$srcdb$dbm_ext", LOCK_UN);
 
    return($counted);
 }
@@ -1013,14 +1039,14 @@ sub delete_message_by_age {
 
    @allmessageids=get_messageids_sorted_by_offset($headerdb);
 
-   filelock("$headerdb.$dbm_ext", LOCK_EX);
+   filelock("$headerdb$dbm_ext", LOCK_EX);
    dbmopen (%HDB, $headerdb, undef);
    foreach (@allmessageids) {
       my @attr = split(/@@@/, $HDB{$_});
       push(@agedids, $_) if (dateage($attr[$_DATE])>=$age);
    }
    dbmclose(%HDB);
-   filelock("$headerdb.$dbm_ext", LOCK_UN);
+   filelock("$headerdb$dbm_ext", LOCK_UN);
 
    return(operate_message_with_ids('delete', \@agedids, $folderfile, $headerdb));
 }
@@ -1321,9 +1347,9 @@ sub parse_uuencode_body {
          if ($uufilename=~/\.doc$/i) {
             $uutype="application/msword";
          } elsif ($uufilename=~/\.ppt$/i) {
-            $uutype="application/x-msexcel";
-         } elsif ($uufilename=~/\.xls$/i) {
             $uutype="application/x-mspowerpoint";
+         } elsif ($uufilename=~/\.xls$/i) {
+            $uutype="application/x-msexcel";
          } else {
             $uutype="application/octet-stream";
          }
@@ -1385,13 +1411,13 @@ sub make_attachment {
    if ($attfilename =~ s/^.+name\s?[:=]\s?"?([^"]+)"?.*$/$1/ig) {
       $attfilename = decode_mimewords($attfilename);
    } elsif ($attfilename =~ s/^.+name\*[:=]\s?"?[\w]+''([^"]+)"?.*$/$1/ig) {
-      $attfilename = CGI::unescape($attfilename);
+      $attfilename = unescapeURL($attfilename);
    } else {
       $attfilename = $attdisposition || '';
       if ($attfilename =~ s/^.+filename\s?=\s?"?([^"]+)"?.*$/$1/ig) {
          $attfilename = decode_mimewords($attfilename);
       } elsif ($attfilename =~ s/^.+filename\*=\s?"?[\w]+''([^"]+)"?.*$/$1/ig) {
-         $attfilename = CGI::unescape($attfilename);
+         $attfilename = unescapeURL($attfilename);
       } else {
          $attfilename = "Unknown.".contenttype2ext($attcontenttype);
       }
@@ -1455,11 +1481,11 @@ sub search_info_messages_for_keyword {
    my ($totalsize, $new)=(0,0);
    my %found=();
 
-   filelock("$headerdb.$dbm_ext", LOCK_SH);
+   filelock("$headerdb$dbm_ext", LOCK_SH);
    dbmopen (%HDB, $headerdb, undef);
    $metainfo=$HDB{'METAINFO'};
    dbmclose(%HDB);
-   filelock("$headerdb.$dbm_ext", LOCK_UN);
+   filelock("$headerdb$dbm_ext", LOCK_UN);
 
    filelock($cachefile, LOCK_EX);
 
@@ -1486,7 +1512,7 @@ sub search_info_messages_for_keyword {
 
       @messageids=get_messageids_sorted_by_offset($headerdb, $folderhandle);
 
-      filelock("$headerdb.$dbm_ext", LOCK_SH);
+      filelock("$headerdb$dbm_ext", LOCK_SH);
       dbmopen (%HDB, $headerdb, undef);
 
       foreach $messageid (@messageids) {
@@ -1582,7 +1608,7 @@ sub search_info_messages_for_keyword {
       }
 
       dbmclose(%HDB);
-      filelock("$headerdb.$dbm_ext", LOCK_UN);
+      filelock("$headerdb$dbm_ext", LOCK_UN);
 
       print CACHE join("\n", $totalsize, $new, keys(%found));
       close(CACHE);
@@ -1642,7 +1668,7 @@ sub html4attachments {
    my $i;
 
    for ($i=0; $i<=$#{$r_attachments}; $i++) {
-      my $filename=CGI::escape(${${$r_attachments}[$i]}{filename});
+      my $filename=escapeURL(${${$r_attachments}[$i]}{filename});
       my $link="$scripturl/$filename?$scriptparm&amp;attachment_nodeid=${${$r_attachments}[$i]}{nodeid}&amp;";
       my $cid="cid:"."${${$r_attachments}[$i]}{id}";
       my $loc=${${$r_attachments}[$i]}{location};

@@ -4,6 +4,6 @@
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <b>BEÁLLÍTÁSOK ELMENTVE</b></font>
 </td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<br>A beállítások mentése sikeres volt.<br>
+<br>A beállítások mentése sikeres.<br>
 @@@CONTINUEBUTTON@@@
 </td></tr></table>

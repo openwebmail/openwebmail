@@ -1,5 +1,5 @@
 @@@STARTPREFSFORM@@@
-<table border="0" align="center" width="90%" cellpadding="1" cellspacing="1">
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
 <tr><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>GEBRUIKERSINSTELLINGEN @@@REALNAME@@@</B></font>
@@ -83,6 +83,8 @@ Breedte @@@EDITWIDTHMENU@@@ Hoogte @@@EDITHEIGHTMENU@@@
 <B>Bewaar verwijderde e-mail(s):</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@RESERVEDDAYSMENU@@@
+</td></tr>
+@@@AUTOREPLYSTART@@@
 <tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Automatisch bericht terugsturen:</B>
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
@@ -93,7 +95,9 @@ Breedte @@@EDITWIDTHMENU@@@ Hoogte @@@EDITHEIGHTMENU@@@
 </td></tr><tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>
 <B>Terugstuurbericht (500 letters of minder)</B><BR>
 @@@AUTOREPLYTEXT@@@
-</td></tr><tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>
+</td></tr>
+@@@AUTOREPLYEND@@@
+<tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>
 <B>Handtekening (500 letters of minder)</B><BR>
 @@@SIGAREA@@@
 </td></tr><tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>

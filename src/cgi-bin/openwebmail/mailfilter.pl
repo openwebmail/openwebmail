@@ -62,7 +62,7 @@ sub mailfilter {
    @allmessageids=get_messageids_sorted_by_offset($headerdb);
 
    ## open INBOX dbm => lock before open ##
-   filelock("$headerdb.$dbm_ext", LOCK_EX);
+   filelock("$headerdb$dbm_ext", LOCK_EX);
    dbmopen (%HDB, $headerdb, 600);
 
    my ($blockstart, $blockend, $writepointer)=(0,0,0);
@@ -71,6 +71,7 @@ sub mailfilter {
 
    for ($i=0; $i<=$#allmessageids; $i++) {
       my ($priority, $rules, $include, $text, $op, $destination, $enable);
+      my $line;
       my ($messagestart, $messagesize);
       my @attr = split(/@@@/, $HDB{$allmessageids[$i]});
       my ($currmessage, $header, $body, $r_attachments)=("", "", "", "");
@@ -87,7 +88,7 @@ sub mailfilter {
       }
       
       ## if match filterrules => do $op (copy, move or delete)
-      foreach my $line (sort @filterrules) {
+      foreach $line (sort @filterrules) {
          $matched=0;
 
          ($priority, $rules, $include, $text, $op, $destination, $enable) = split(/\@\@\@/, $line);
@@ -120,6 +121,7 @@ sub mailfilter {
             if (   ($include eq 'include' && $attr[$_FROM] =~ /$text/i)
                 || ($include eq 'exclude' && $attr[$_FROM] !~ /$text/i)  ) {
                $matched=1;
+#log_time($priority, $rules, $include, $text, $op, $destination, $enable);
                if ( $op eq 'move' || $op eq 'copy') {
                   if ($currmessage eq "") {
                      seek($folderhandle, $attr[$_OFFSET], 0);
@@ -138,6 +140,7 @@ sub mailfilter {
             if (   ($include eq 'include' && $attr[$_TO] =~ /$text/i)
                 || ($include eq 'exclude' && $attr[$_TO] !~ /$text/i)  ) {
                $matched=1;
+#log_time($priority, $rules, $include, $text, $op, $destination, $enable);
                if ( $op eq 'move' || $op eq 'copy') {
                   if ($currmessage eq "") {
                      seek($folderhandle, $attr[$_OFFSET], 0);
@@ -156,6 +159,7 @@ sub mailfilter {
             if (   ($include eq 'include' && $attr[$_SUBJECT] =~ /$text/i)
                 || ($include eq 'exclude' && $attr[$_SUBJECT] !~ /$text/i)  ) {
                $matched=1;
+#log_time($priority, $rules, $include, $text, $op, $destination, $enable);
                if ( $op eq 'move' || $op eq 'copy') {
                   if ($currmessage eq "") {
                      seek($folderhandle, $attr[$_OFFSET], 0);
@@ -183,6 +187,7 @@ sub mailfilter {
             if (  ( $include eq 'include' && $header =~ /$text/im )
                 ||( $include eq 'exclude' && $header !~ /$text/im ) ) {
                $matched=1;
+#log_time($priority, $rules, $include, $text, $op, $destination, $enable);
                if ( $op eq 'move' || $op eq 'copy') {
                   my $append=append_message_to_folder($allmessageids[$i],
 					\@attr, \$currmessage, $destination, 
@@ -208,6 +213,7 @@ sub mailfilter {
             if (  ( $include eq 'include' && $smtprelays =~ /$text/im )
                 ||( $include eq 'exclude' && $smtprelays !~ /$text/im ) ) {
                $matched=1;
+#log_time($priority, $rules, $include, $text, $op, $destination, $enable);
                if ( $op eq 'move' || $op eq 'copy') {
                   my $append=append_message_to_folder($allmessageids[$i],
 					\@attr, \$currmessage, $destination, 
@@ -238,6 +244,7 @@ sub mailfilter {
             if (  ( $include eq 'include' && $body =~ /$text/im )
                 ||( $include eq 'exclude' && $body !~ /$text/im ) ) {
                $matched=1;
+#log_time($priority, $rules, $include, $text, $op, $destination, $enable);
                if ( $op eq 'move' || $op eq 'copy') {
                   my $append=append_message_to_folder($allmessageids[$i],
 					\@attr, \$currmessage, $destination, 
@@ -265,6 +272,7 @@ sub mailfilter {
                }
             }
             if ($matched) {
+#log_time($priority, $rules, $include, $text, $op, $destination, $enable);
                if ( $op eq 'move' || $op eq 'copy') {
                   my $append=append_message_to_folder($allmessageids[$i],
 					\@attr, \$currmessage, $destination, 
@@ -293,6 +301,7 @@ sub mailfilter {
                }
             }
             if ($matched) {
+#log_time($priority, $rules, $include, $text, $op, $destination, $enable);
                if ( $op eq 'move' || $op eq 'copy') {
                   my $append=append_message_to_folder($allmessageids[$i],
 					\@attr, \$currmessage, $destination, 
@@ -305,7 +314,7 @@ sub mailfilter {
          }
          
       } # end @filterrules
-         
+
       # filter message from smtprelay with faked name if msg is not moved or deleted
       if ( $filter_fakedsmtp &&
            !($matched && ($op eq 'move' || $op eq 'delete')) ) {
@@ -411,7 +420,7 @@ sub mailfilter {
 
    $HDB{'METAINFO'}=metainfo($folderfile);
    dbmclose(%HDB);
-   filelock("$headerdb.$dbm_ext", LOCK_UN);
+   filelock("$headerdb$dbm_ext", LOCK_UN);
 
    # remove repeated msgs with repeated count > $filter_repeatlimit
    my (@repeatedids, $fromsubject, $r_ids);
@@ -470,7 +479,7 @@ sub append_message_to_folder {
 
    update_headerdb($dstdb, $dstfile);
              
-   filelock("$dstdb.$dbm_ext", LOCK_EX);
+   filelock("$dstdb$dbm_ext", LOCK_EX);
 
    dbmopen (%HDB2, $dstdb, 600);
    if (! defined($HDB2{$messageid}) ) {	# append only if not found in dstfile
@@ -495,7 +504,7 @@ sub append_message_to_folder {
    }
    dbmclose(%HDB2);
 
-   filelock("$dstdb.$dbm_ext", LOCK_UN);
+   filelock("$dstdb$dbm_ext", LOCK_UN);
    filelock($dstfile, LOCK_UN);
    return(0);
 }

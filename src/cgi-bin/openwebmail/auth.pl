@@ -2,17 +2,17 @@
 # auth.pl are functions related to authentication
 # it uses global variables defined in openwebmail.conf
 # 
-# $use_pam - whether to use pam or passwdfile for authentication
+# $auth_type - authentication type to use: 'file', 'pam'
 # $pamservicename - service name for authentication in /etc/pam.conf
 # $passwdfile - passwd file containing the encrypted passwords
 # $passwdmkdb - command used to update $passwdfile into system database
 #
-# 2001/07/29 tung@turtle.ee.ncku.edu.tw
+# 2001/08/22 tung@turtle.ee.ncku.edu.tw
 # 
 
 sub check_userpassword {
    my ($user, $password)=@_;
-   if ($use_pam eq 'yes') {
+   if ($auth_type eq 'pam') {
       return(check_userpassword_by_pam($user, $password));
    } else {
       return(check_userpassword_by_file($user, $password));
@@ -21,7 +21,7 @@ sub check_userpassword {
 
 sub change_userpassword {
    my ($user, $oldpassword, $newpassword)=@_;
-   if ($use_pam eq 'yes') {
+   if ($auth_type eq 'pam') {
       return(change_userpassword_by_pam($user, $oldpassword, $newpassword));
    } else {
       return(change_userpassword_by_file($user, $oldpassword, $newpassword));

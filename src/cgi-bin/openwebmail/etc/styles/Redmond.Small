@@ -12,14 +12,16 @@ tablerow_dark="#FFFFFF"
 fontface="Geneva, Arial, Helvetica"
 ###STARTSTYLESHEET###
 <!--
-BODY
+body
 {
+    background-image: url(@@@BG_URL@@@);
+    background-repeat: no-repeat;
     scrollbar-arrow-color:black;
     scrollbar-base-color:#DCDCDC;
     scrollbar-face-color:#DCDCDC;
-    FONT-SIZE: 9pt;
-    COLOR: black;
-    FONT-FAMILY: Arial, Verdana
+    font-size: 9pt;
+    color: black;
+    font-family: Arial, Verdana
 }
 th   {  font-family: Geneva, Arial, Helvetica, sans-serif; font-size: 9pt; font-weight: bold; background-color: #D3DCE3;}
 td   {  font-family: Geneva, Arial, Helvetica, sans-serif; font-size: 9pt;}
@@ -33,5 +35,5 @@ A:link.nav {  font-family: Geneva, Arial, Helvetica, sans-serif; color: #000000}
 A:visited.nav {  font-family: Geneva, Arial, Helvetica, sans-serif; color: #000000}
 A:hover.nav {  font-family: Geneva, Arial, Helvetica, sans-serif; color: red;}
 .nav {  font-family: Geneva, Arial, Helvetica, sans-serif; color: #000000}
+.medtext { font-size: 9pt;}
 -->
-

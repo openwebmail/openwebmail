@@ -4,6 +4,6 @@
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <bIDÕTÚLLÉPÉS</b></font></td></tr>
 <tr><td valign="middle" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<br>Sajnálom, letelt az idõ. Menj vissza ide:
+<br>Letelt az idõ. Kérem, jelentkezzen be újra:
 <a href="@@@SCRIPTURL@@@">login</a>.<br><br>
 </td></tr></table>

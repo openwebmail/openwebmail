@@ -26,6 +26,7 @@ que le champ nom et le champ adresse viennent en premier, ce qui est la configur
 <BR>
 @@@IMPORTFILEFIELD@@@
 </td></tr>
+<tr><td colspan=2 bgcolor=@@@WINDOW_LIGHT@@@>&nbsp;</td></tr>
 <tr><td width="50%" align="right" bgcolor=@@@WINDOW_LIGHT@@@>
 @@@IMPORTBUTTON@@@ &nbsp;&nbsp;
 </td>
@@ -33,5 +34,7 @@ que le champ nom et le champ adresse viennent en premier, ce qui est la configur
 @@@STARTCANCELFORM@@@
 <td width="50%" align="left" bgcolor=@@@WINDOW_LIGHT@@@>
 &nbsp;&nbsp;@@@CANCELBUTTON@@@
-</td></tr></table>
+</td></tr>
+<tr><td colspan=2 bgcolor=@@@WINDOW_LIGHT@@@>&nbsp;</td></tr>
+</table>
 @@@ENDFORM@@@

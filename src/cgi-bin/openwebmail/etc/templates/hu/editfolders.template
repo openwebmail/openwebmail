@@ -9,13 +9,13 @@
 <tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <b>Mappa neve (16 karakter max.)</b></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>New</B></td>
+<B>Új</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Mesg</B></td>
+<B>Üzenet</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Size</B></td>
+<B>Méret</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<b>Akció</b>
+<b>Teendõ</b>
 </td></tr>
 @@@STARTFOLDERFORM@@@
 <tr><td align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
@@ -35,13 +35,13 @@
 
 <tr><td colspan="5">&nbsp;</td></tr>
 <tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Default folders</B></td>
+<B>Alapértelmezett mappák</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>New</B></td>
+<B>Új</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Mesg</B></td>
+<B>Üzenet</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Size</B></td>
+<B>Méret</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 &nbsp;
 </td></tr>

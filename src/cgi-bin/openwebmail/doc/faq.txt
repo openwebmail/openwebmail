@@ -4,9 +4,9 @@ Q: I got "Internal server error" when running Open WebMail?
    I got "Software error: Can't locate etc/openwebmail.conf in @INC" error?
 A: There are many possible answers...
 
-   1. Please check you have install a complete set of perl 5.005 above.
-      And You should uncompress the openwebmail-1.xx.tgz with proper parameter.
-      It is "tar -zxvBpf openwebmail-1.xx.tgz"
+   1. Please check you have installed a complete set of perl 5.005 or above.
+      And You uncompress the openwebmail-1.xx.tgz with proper parameter.
+      It should be "tar -zxvBpf openwebmail-1.xx.tgz"
 
    2. Your openwebmail scripts have wrong owner and mode.
       The owner and mode of openwebmail.pl, openwebmail-prefs.pl, 
@@ -16,14 +16,17 @@ A: There are many possible answers...
       group=mail
 
    3. Your perl may be compiled with suid ability disabled.
-      a. check if you have a executable of suidperl 
-         'chmod 4555 suidperl'
+      a. check if you have a executable of suidperl, 
+         then 'chmod 4555 suidperl'
          and change #!/usr/bin/perl to the path of this suidperl
       b. Or recompile your perl with suid enabled
 
    4. The MIME::Base64 or CGI module on your system may be too old
       a. install MIME-Base64-2.12.tar.gz
       b. install CGI.pm-2.74.tar.gz
+
+ps: In most cases, you can run the './openwebmail.pl' in text terminal
+    to get more information about the error.
 
 Q: I got "Couldn't open XXX-session-0.370606494136155!" error after login?
 A: You openwebmail-1.xx.tgz was uncompressed with improper parameter.
@@ -45,20 +48,22 @@ A: Please check the openwebmail.log permission, it should be
 
 Q: The 'From' field of my message contains only 'username@'?
 A: You may has wrong setting of domainname in openwebmail.conf
-   Please be sure to use '' for a text string of hostname or
-   use `` for the program /bin/hostname
+   Please be sure to use '' for a text string of hostname
+   or use `` for the program (ex: /bin/hostname)
 
 Q: Some of my messages are moved to trash folder automatically?
 A: Your messages are either filtered by 'global filter rule' or 
    'faked smtp message filter'. 
+
    Global filter will filter messages with know virus attachments. The global
    filter rules are defined in the file $global_filterbook in openwebmail.conf.
+
    The 'faked smtp message filter' will filter messages that have a faked smtp
    source, those messages are often from spammers. 'faked smtp filter' is 
    default enabled and can be changed in openwebmail.conf. The user can also 
    disable it in the user preference. 
 
-Q: What is  "messages with faked smtp"?
+Q: What are "messages with faked smtp"?
 A: In short, they are messages coming from mail servers that fake their 
    name from other machines. 
 
@@ -75,7 +80,7 @@ A: In short, they are messages coming from mail servers that fake their
 
    Each host may have 3 names in the mail header:
    $byas - name used by this server when saying hello to incoming connection
-   $relay - name used by this server when relaying mail thriough other host
+   $relay - name used by this server when relaying mail through other host
    $connectfrom - ip and name detected by other hosts resolved from DNS system
                   when receiving connection from this server
 
@@ -85,31 +90,39 @@ A: In short, they are messages coming from mail servers that fake their
    c. $connectfrom has different domain than the desition server B, and
    d. $connectfrom is not private IP
 
+Q: I still want the filtered messages, 
+   how can I disable faked smtp filter completely?
+A: 1. Set the $filter_fakedsmtp='no' in openwebmail.conf
+      This will unset the default fakedsmtp filter for all newly created user
+   2. Uncheck the faked smtp filter option in user preference
+      This will disable the fakedsmtp filter for a specific user
+
 Q: I could not add attachments?
+   Open WebMail was hanged when I pressed the 'add' button to add attachments?
 A: 1. Your CGI or MIME-Base64 module may be too old,
       Please download CGI.pm-2.74.tar.gz and MIME-Base64-2.12.tar.gz in
       http://turtle.ee.ncku.edu.tw/openwebmail/download/packages/ 
-      and install them
+      and install them to your system.
    2. Your proxy may limit the size of a POST request.
       Try to add attachments with no proxy setting in your browser.
       If you are the administrator of the squid proxy server,
       please set the request_body_max_size option to a larger value.
 
 Q: Attachments disappeared when I forwarded a message?
-A: check the permission of the following directories
+A: Check permission of the following directories
    cgi-bin/openwebmail/etc          - owner=root, group=mail, mode=750
    cgi-bin/openwebmail/etc/sessions - owner=root, group=mail, mode=770
    cgi-bin/openwebmail/etc/users    - owner=root, group=mail, mode=770
 
 Q: The permission of cgi-bin/openwebmail/etc is correct but attachments 
    still disappeared in message forwarding?
-A: Hmmm, please upgrade the latest version. 
+A: Hmmm, please upgrade to the latest version. 
    Some old version(1.03,1.04) has little problem in attachment handling.
 
-Q: When I checked 'edit folder menu', I found some folders are empty but take 
-   disk space?
+Q: When I checked 'edit folder menu', I found some folders were empty but 
+   took disk space?
 A: The disk space occupied by a folder shown in 'edit folder menu' includes
-   the size of folder and folder index. Though folder is empty, the folder 
+   the size of a folder and its index. Though folder is empty, the folder 
    index still has some data structure to maintain.
 
 Q: When I clicked 'spell check' button, I got "Internal Server error" in new
@@ -127,6 +140,21 @@ Q: The autoreply function doesn't work?
 A: Please be sure that $vacationinit and $vacationpipe in openwebmail.conf 
    have pointed to the path where the vacation program is.
 
+   If the path is correct, you can do debug with the -d option
+
+   1. choose a user, enable his autoreply in openwebmail user preference
+   2. edit the ~user/.forward file,
+      add the '-d' option after vacation.pl
+   3. send a message to this user to test the autoreply
+   4. check the /var/tmp/vacation.debug for possible error information
+
+   Please add this '-d' parameter to the $vacationpipe in openwebmail.conf.
+
+   $vacationpipe = '/usr/local/www/cgi-bin/openwebmail/vacation.pl -d -t60s';
+
+   Then send a testing mail to someone who enabled the autoreply.
+   The debugging information will be written into /var/tmp/vacation.debug.
+
 Q: When I enable autoreply feature, others get "Returned mail: see
    transcript for details" instead of my autoreply message?
 A: Your sendmail may be configured with Sendmail Restricted SHell or smrsh.
@@ -136,18 +164,18 @@ A: Your sendmail may be configured with Sendmail Restricted SHell or smrsh.
 
    cd /etc/smrsh
    ln -s /var/www/cgi-bin/openwebmail/vacation.pl /etc/smrsh/vacation.pl
-   (thanks to Emir Litric, elitric@hotmail.com)
+   (thanks to Emir Litric, elitric@yahoo.com)
 
-Q: My SENT folder showes -1 or other negative message size rather then
+Q: My SENT folder shows -1 or other negative message size rather then
    regular message size?
 A: This problem occurs if you installed Open WebMail on the same partition 
    where quota is enabled. Open WebMail uses temp files in 
    cgi-bin/openwebmail/etc/sessions folders.
    Solution is to move sessions folder to another partition with no Quota.
 
-   Please read RedHat-README.txt for detailed explaination on setting up
+   Please read RedHat-README.txt for detailed explanation on setting up
    this, since this problem mostly occurs on RedHat Linux 6.2 and bellow. 
-   (thanks to Emir Litric, elitric@hotmail.com)
+   (thanks to Emir Litric, elitric@yahoo.com)
 
 Q: The Open WebMail is very slow on my machine?
 A: It depends on how you define the "slow". 
@@ -184,11 +212,6 @@ A: If your Open WebMail doesn't work, please describe your problem
    (openwebmail@turtle.ee.ncku.edu.tw)
    ps: clicking the 'forward as attachment' icon in message reading menu
 
-Q: Will Open WebMail support maildir and vpop3mail used by Qmail?
-A: Maybe, but it won't be implemented in the near future since we don't use
-   qmail on our mail server. It is said that qmail has a 'mbox' compatible 
-   mode, you may use that mode with openwebmail.
-
 Q: Can I call openwebmail from my programs with username/password specified?
 A: You can call the openwebmail with url
    http://server/openwebmail.pl?action=login&userid=USER&password=PASS
@@ -196,18 +219,50 @@ A: You can call the openwebmail with url
    But this is somewhat dangerous since the username and password will
    be displayed at the URL line on the user's browser.
 
+Q: How can I set an alias or link to the openwebmail script so users can 
+   type in a shorter url?
+A: Please create a file, index.html, like below. Either a or b is okay. 
+   Than put this index.html to the location mapped by the url you want.
+   a.
+   ----------------------------------------
+   <html><head>
+   <meta http-equiv="Refresh" 
+   content="0;URL=http://your_server/cgi-bin/openwebmail/openwebmail.pl">
+   </head></html>
+   ----------------------------------------
+   b.
+   ---------------------------------------
+   <html>
+   <body onload=
+   "window.open('http://your_server/cgi-bin/openwebmail/openwebmail.pl','_top')">
+   </body>
+   </html>
+   ----------------------------------------
+
+Q: Does Open WebMail support maildir and vpop3mail user by Qmail?
+A: No, It doesn't.
+
+Q: Will Open WebMail support maildir and vpop3mail used by Qmail?
+A: Maybe, but it won't be implemented in the near future since we don't use
+   qmail on our mail server. It is said that qmail has a 'mbox' compatible 
+   mode, you may use that mode with openwebmail.
+
+Q: Can Open WebMail be used with mod_perl?
+A: No, lots of code needs to be changed to make Open WebMail a good behavior
+   program under mod_perl. Currently, it can not be used with mod_perl. 
+
 Q: Can I use Open WebMail in a commercial web site? 
-A: Open WebMail is GPL software (please see copyright.txt for detail of GPL).
-   You can use or distribute it freely only if
+A: Yes. Open WebMail is GPLed software (please see copyright.txt for 
+   detail of GPL). You can use or distribute it freely only if
 
    Any improvement of Open WebMail or any product based on Open WebMail 
-   must be released to the public.
+   must be released to the public in source form.
 
 ps: We would be happy if you mail us a message that your commercial web site
     is using Open WebMail. It may be put into the web page as some kind of 
     advertisements :)
    
 
-07/19/2001 
+08/28/2001 
 
 openwebmail@turtle.ee.ncku.edu.tw

@@ -25,6 +25,7 @@ Upewnij siê czy pola Name and E-mail bêd± pierwszymi, co jest ustawieniem domy¶l
 <BR>
 @@@IMPORTFILEFIELD@@@
 </td></tr>
+<tr><td colspan=2 bgcolor=@@@WINDOW_LIGHT@@@>&nbsp;</td></tr>
 <tr><td width="50%" align="right" bgcolor=@@@WINDOW_LIGHT@@@>
 @@@IMPORTBUTTON@@@ &nbsp;&nbsp;
 </td>
@@ -32,5 +33,7 @@ Upewnij siê czy pola Name and E-mail bêd± pierwszymi, co jest ustawieniem domy¶l
 @@@STARTCANCELFORM@@@
 <td width="50%" align="left" bgcolor=@@@WINDOW_LIGHT@@@>
 &nbsp;&nbsp;@@@CANCELBUTTON@@@
-</td></tr></table>
+</td></tr>
+<tr><td colspan=2 bgcolor=@@@WINDOW_LIGHT@@@>&nbsp;</td></tr>
+</table>
 @@@ENDFORM@@@

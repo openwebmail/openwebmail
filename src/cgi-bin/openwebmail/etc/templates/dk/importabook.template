@@ -26,6 +26,7 @@ først (dette er standard-indstillingen).
 <BR>
 @@@IMPORTFILEFIELD@@@
 </td></tr>
+<tr><td colspan=2 bgcolor=@@@WINDOW_LIGHT@@@>&nbsp;</td></tr>
 <tr><td width="50%" align="right" bgcolor=@@@WINDOW_LIGHT@@@>
 @@@IMPORTBUTTON@@@ &nbsp;&nbsp;
 </td>
@@ -33,5 +34,7 @@ først (dette er standard-indstillingen).
 @@@STARTCANCELFORM@@@
 <td width="50%" align="left" bgcolor=@@@WINDOW_LIGHT@@@>
 &nbsp;&nbsp;@@@CANCELBUTTON@@@
-</td></tr></table>
+</td></tr>
+<tr><td colspan=2 bgcolor=@@@WINDOW_LIGHT@@@>&nbsp;</td></tr>
+</table>
 @@@ENDFORM@@@

@@ -79,7 +79,7 @@ If you are using RedHat 6.2/CLE 0.9p1(or most Linux) with apache
    to /etc/logrotate.d/syslog to enable logrotate on openwebmail.log
 
 ps: if you are using RedHat 7.1, please use /var/www instead of /home/httpd
-    (by elitric@hotmail.com)
+    (by elitric@yahoo.com)
 
 If you are upgrading from old openwebmail on RedHat 6.2/CLE 0.9p1
 
@@ -91,7 +91,7 @@ If you are upgrading from old openwebmail on RedHat 6.2/CLE 0.9p1
 4. delete the old original openwebmail dir (openwebmail.old)
 
 ps: It is highly recommended to read the doc/RedHat-README.txt(contributed by 
-    elitric@hotmail.com) if you are installing Open WebMail on RedHat Linux.
+    elitric@yahoo.com) if you are installing Open WebMail on RedHat Linux.
 
 
 If you are using other UNIX with apache, that is okay
@@ -172,7 +172,7 @@ openwebmail account required    pam_unix.so         try_first_pass
 openwebmail auth    required    /lib/security/pam_unix.so                                                                            
 openwebmail account required    /lib/security/pam_unix.so                                                                            
 
-Finally, change $use_pam to 'yes' in the openwebmail.conf
+Finally, change $auth_type to 'pam' in the openwebmail.conf
 
 ps: It is recommended to reference the PAM webpage for Neomail by 
     Peter Sinoros Szabo, sini@fazekas.hu
@@ -187,6 +187,15 @@ vacation utility 'vacation.pl' is distributed with openwebmail.
 This vacation.pl has the same syntax as the one on Solaris.
 To make it work properly, be sure to modify $myname, $sendmail definition
 in the vacation.pl.
+
+If the autoreply doesn't work on your system, 
+you can do debug with the -d option
+
+1. choose a user, enable his autoreply in openwebmail user preference
+2. edit the ~user/.forward file,
+   add the '-d' option after vacation.pl
+3. send a message to this user to test the autoreply
+4. check the /var/tmp/vacation.debug for possible error information
 
 
 FILTER SUPPORT

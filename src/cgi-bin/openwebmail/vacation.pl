@@ -31,7 +31,9 @@ $defaulttimeout = 7 * 24 * 60 * 60;		# unit: second
 #               s, m, h, d, or w scales  N  to  seconds,  minutes,
 #               hours, days, or weeks respectively.
 #
-#    -j, -a or -t are options when vacation is used in .forward file         
+#     -d        log debug information to /var/tmp/vacation.debug
+#
+#    -j, -a -t or -d are options when vacation is used in .forward file         
 #
 #    .forward file will contain a line of the form:
 #
@@ -107,17 +109,20 @@ $home="/export$home" if ( -d "/export$home" );
 chdir $home || die "Can't chdir to $home: $!\n";
 
 # parse options, handle initialization or interactive mode ##############
+$opt_d=0;
 $opt_j=0;
 while ($ARGV[0] =~ /^-/) {
     $_ = shift;
     if (/^-I/i) {  # eric allman's source has both cases
 	&init_vacation_db;
 	exit 0;
-    } elsif (/^-j/) {			# don't check if user is a valid receiver
+    } elsif (/^-d/) {		# log debug information to /var/tmp/vacation.debug
+	$opt_d=1;
+    } elsif (/^-j/) {		# don't check if user is a valid receiver
 	$opt_j=1;
-    } elsif (/^-f(.*)/) {		# read ignorelist from file
+    } elsif (/^-f(.*)/) {	# read ignorelist from file
 	push(@ignores, read_list_from_file($1 ? $1 : shift));
-    } elsif (/^-a(.*)/) {		# specify alias name
+    } elsif (/^-a(.*)/) {	# specify alias name
 	push(@aliases, $1 ? $1 : shift);
     } elsif (/^-t([\d.]*)([smhdw])/) {	# specify reply once interval
 	$timeout = $1;
@@ -134,19 +139,30 @@ if (!@ARGV) {
 
 # handle pipe mode, used in .forward ################################
 
+log_debug($0, " is executed in piped mode with arg: ", @ARGV) if ($opt_d);
+
 $user = shift;
 push(@ignores, $user);
 push(@aliases, $user);
-die $usage if $user eq '' || @ARGV;
+if ($user eq '' || @ARGV ) {
+   log_debug("Error! Empty argument in pipe mode.\n") if ($opt_d);
+   die $usage;
+}
 
 $home = (getpwnam($user))[7];
-die "No home directory for user $user\n" unless $home;
+if (!$home) {
+   log_debug("Error! No home directory for user $user\n") if ($opt_d);
+   die "No home directory for user $user\n";
+}
 
 # guess real homedir under automounter
 $home="/export$home" if ( -d "/export$home" );	
 
 ($home =~ /^(.+)$/) && ($home = $1);  # untaint $home...
-chdir $home || die "Can't chdir to $home: $!\n";
+if (! chdir $home) {
+    log_debug("Error! Can't chdir to $home: $!\n") if ($opt_d);
+    die "Can't chdir to $home: $!\n";
+}
 
 $/ = '';			# paragraph mode, readin until blank line
 $header = <>;
@@ -154,19 +170,27 @@ $header =~ s/\n\s+/ /g;		# fix continuation lines
 $* = 1;
 if ($header =~ /^Precedence:\s*(bulk|junk)/i ||
     $header =~ /^From.*-REQUEST@/i ) {
+    log_debug("Junk mail, autoreply canceled\n") if ($opt_d);
     exit 0;
 }
 for (@ignores) {
-    exit 0 if $header =~ /^From.*\b$_\b/i;
+    if ($header =~ /^From.*\b$_\b/i) {
+        log_debug("Message from ignored user $_, autoreply canceled\n") if ($opt_d);
+        exit 0;
+    }
 } 
 
 
 ($from) = ($header =~ /^From\s+(\S+)/);	# that's the Unix-style From line
-die "No \"From\" line!!!!\n" if $from eq "";
+if ($from eq "") {
+    log_debug("Error! No \"From\" line.\n") if ($opt_d);
+    die "No \"From\" line!!!!\n"; 
+}
 
 ($subject) = ($header =~ /Subject: +(.*)/);
 $subject = "(No subject)" unless $subject;
 $subject =~ s/\s+$//;
+$subject=decode_mimewords($subject);
 
 ($to) = ($header =~ /To:\s+(.*)/);
 ($cc) = ($header =~ /Cc:(\s+.*)/);
@@ -179,7 +203,10 @@ if (!$opt_j) {
             $found=1;last;
         }
     }
-    exit 0 if(!$found);
+    if (!$found) {
+        log_debug("User", @aliases, "not found in to: and cc:, autoreply canceled\n") if ($opt_d);
+        exit 0;
+    }
 }
 
 
@@ -190,8 +217,16 @@ $lastdate = $VAC{$from};
 $now = time;
 if ($lastdate ne '') {
     ($lastdate) = unpack("L",$lastdate);
-    exit 1 unless $lastdate;	# unpack failed, data format error!
-    exit 0 if $now < $lastdate + $timeout;
+    if ($lastdate) {
+       if ($now < $lastdate + $timeout) {
+           log_debug("Time too short from last reply, autoreply canceled\n") if ($opt_d);
+           exit 0;
+       }
+    } else {
+       # unpack failed, data format error!
+       log_debug("Error! Invalid data format in .vacation dbm\n") if ($opt_d);
+       exit 1;
+    }
 }
 $VAC{$from} = pack("L", $now);
 dbmclose(VAC);
@@ -207,9 +242,14 @@ if (open(MSG,'.vacation.msg')) {
 
 $msg=adjust_replymsg($msg, $from, $subject);
 
-open(MAIL, "|$sendmail -oi -t $from") || die "Can't run sendmail: $!\n";
+# remove ' in $from to prevent shell escape
+$from=~s/'/ /g;
+
+open(MAIL, "|$sendmail -oi -t '$from'") || die "Can't run sendmail: $!\n";
 print MAIL $msg;
 close MAIL;
+
+log_debug("Auto reply for message $subject is sent to $from\n") if ($opt_d);
 exit 0;
 
 # subs ###############################################################
@@ -382,4 +422,111 @@ sub adjust_replymsg {
     # replace '$SUBJECT' token with real subject in original message
     $msg =~ s/\$SUBJECT/$subject/g;	# Sun's vacation does this
     return($msg);
+}
+
+
+# decode_mimewords, decode_base64 and _decode_q are blatantly snatched 
+# from parts of the MIME-Base64 Perl modules. 
+sub decode_mimewords {
+    my $encstr = shift;
+    my %params = @_;
+    my @tokens;
+    $@ = '';           # error-return
+
+    # Collapse boundaries between adjacent encoded words:
+    $encstr =~ s{(\?\=)[\r\n \t]*(\=\?)}{$1$2}gs;
+    pos($encstr) = 0;
+    ### print STDOUT "ENC = [", $encstr, "]\n";
+
+    # Decode:
+    my ($charset, $encoding, $enc, $dec);
+    while (1) {
+        last if (pos($encstr) >= length($encstr));
+        my $pos = pos($encstr);               # save it
+
+        # Case 1: are we looking at "=?..?..?="?
+        if ($encstr =~    m{\G                # from where we left off..
+                            =\?([^?]*)        # "=?" + charset +
+                             \?([bq])         #  "?" + encoding +
+                             \?([^?]+)        #  "?" + data maybe with spcs +
+                             \?=              #  "?="
+                            }xgi) {
+            ($charset, $encoding, $enc) = ($1, lc($2), $3);
+            $dec = (($encoding eq 'q') ? _decode_Q($enc) : decode_base64($enc));
+            push @tokens, [$dec, $charset];
+            next;
+        }
+
+        # Case 2: are we looking at a bad "=?..." prefix?
+        # We need this to detect problems for case 3, which stops at "=?":
+        pos($encstr) = $pos;               # reset the pointer.
+        if ($encstr =~ m{\G=\?}xg) {
+            $@ .= qq|unterminated "=?..?..?=" in "$encstr" (pos $pos)\n|;
+            push @tokens, ['=?'];
+            next;
+        }
+
+        # Case 3: are we looking at ordinary text?
+        pos($encstr) = $pos;               # reset the pointer.
+        if ($encstr =~ m{\G                # from where we left off...
+                         ([\x00-\xFF]*?    #   shortest possible string,
+                          \n*)             #   followed by 0 or more NLs,
+                         (?=(\Z|=\?))      # terminated by "=?" or EOS
+                        }xg) {
+            length($1) or die "MIME::Words: internal logic err: empty token\n";
+            push @tokens, [$1];
+            next;
+        }
+
+        # Case 4: bug!
+        die "MIME::Words: unexpected case:\n($encstr) pos $pos\n\t".
+            "Please alert developer.\n";
+    }
+    return (wantarray ? @tokens : join('',map {$_->[0]} @tokens));
+}
+
+sub decode_base64
+{
+    local($^W) = 0; # unpack("u",...) gives bogus warning in 5.00[123]
+
+    my $str = shift;
+    my $res = "";
+
+    $str =~ tr|A-Za-z0-9+=/||cd;            # remove non-base64 chars
+    $str =~ s/=+$//;                        # remove padding
+    $str =~ tr|A-Za-z0-9+/| -_|;            # convert to uuencoded format
+    while ($str =~ /(.{1,60})/gs) {
+        my $len = chr(32 + length($1)*3/4); # compute length byte
+        $res .= unpack("u", $len . $1 );    # uudecode
+    }
+    $res;
+}
+
+sub _decode_Q {
+    my $str = shift;
+    $str =~ s/=([\da-fA-F]{2})/pack("C", hex($1))/ge;  # RFC-1522, Q rule 1
+    $str =~ s/_/\x20/g;                                # RFC-1522, Q rule 2
+    $str;
+}
+
+sub log_debug {
+   my @msg=@_;
+   my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst);
+   my ($today, $time);
+
+   ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) =localtime;
+   $year+=1900; $mon++;
+   $today=sprintf("%4d%02d%02d", $year, $mon, $mday);
+   $time=sprintf("%02d%02d%02d",$hour,$min, $sec);
+
+   open(Z, ">> /var/tmp/vacation.debug");
+
+   # unbuffer mode
+   select(Z); $| = 1;    
+   select(STDOUT); 
+
+   print Z "$today $time ", join(" ",@msg), "\n";
+   close(Z);
+   
+   chmod(0666, "/var/tmp/vacation.debug");
 }

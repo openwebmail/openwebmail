@@ -1,10 +1,95 @@
+09/06/2001
+----------
+1. fix a bug that trashreserveddays is always displayed as 'forever' 
+   in user preference
+
+
+09/04/2001 (version 1.41)
+----------
+1. replace CGI::escape and CGI::unecape with escapeURL and unescapeURL to 
+   be compatible with CGI.pm-3.0 or above
+   (reported by Hal Baumgardner, yes_hal9000@hotmail.com)   
+
+
+09/02/2001
+----------
+1. fix a bug that trashreserveddays can not be set to 'forever' 
+   in user preference
+2. grammar correction to web pages
+   (Thanks to Simon Grabinar, Simon@Grabinar.com)
+
+
+09/01/2001
+----------
+1. new Open WebMail logo, new default background image
+   and lots of changes to templates to styles.
+
+
+08/29/2001
+----------
+1. fix a typo that makes the content-type header not being sent to browser
+   when user clicks the link of an attachment
+   (thanks to Dugal James P., jpd@louisiana.edu)
+2. fix a bug that sends wrong content-type headers for uuencoded 
+   excel/powerpoint attachments
+   (thanks to Dugal James P., jpd@louisiana.edu)
+3. Welcome for Emir Litric, elitric@yahoo.com, 
+   He is one of the authors of OpenWebMail now :)
+
+
+08/28/2001
+----------
+1. support mime-encoded subject in vacation.pl
+2. fix the mode=0000 problem on some linux distribution
+3. fix a minor bug in making filter rule with message smtprelay
+
+
+08/27/2001
+----------
+1. "sort by subject" now groups a thread and related follow-ups together.
+   The threads in a group are sorted by date and the groups are sorted by
+   date too.
+
+
+08/25/2001
+----------
+1. add $enable_autoreply to openwebmail.conf to control whether allow 
+   user to enable autoreply for their incoming messages
+2. fix a broken link in pt/footer.template 
+   (thanks to Carlos Pina Soares, cps@fcsh.unl.pt)
+
+
+08/24/2001
+----------
+1. add a submit button for search function since the '[enter] to submit'
+   behavior seems not available on some browser
+   (reported by Ted TSUI, ted@gennet.com.tw)
+2. fix a bug that autoreply won't work when multidomain or 
+   virtual user is used in openwebmail
+   (Thanks to Emir Litric, elitric@yahoo.com)
+3. the realname field in user preference now has better compatibility 
+   with double-byte character set, ex:big5, gb
+4. vacation.pl supports -d option for debugging
+   debug info will be logged to /var/tmp/vacation.debug
+
+
+08/23/2001
+----------
+1. hungarian language and templates translation update
+   (thanks to Nagy Endre, gumo@lucifer.kgt.bme.hu)
+2. fix a bug that searchtype will be restored to 'subject' after 
+   message composing
+
+
 08/22/2001
 ----------
-1. remove absolution position directive in <div> tag 
+1. remove absolute position directive in <div> tag 
    when displaying html attachment
-2. fix a bug that can not parse out messages with some 'From xxx' line 
-   properly
+2. fix a bug that can not parse out messages with some 'From xxx' 
+   line properly
    (reported by Ted TSUI, ted@gennet.com.tw)
+3. change option $use_pam to $auth_type in openwebmail.conf
+   with the hope to support multiple auth_type in the future :)
 
 
 08/21/2001
@@ -23,10 +108,10 @@
 08/16/2001 (version 1.40)
 ----------
 1. a new mirror site is setup at http://www.geocities.com/openwebmail/
-   (Thanks to Emir Litric, elitric@hotmail.com)
+   (Thanks to Emir Litric, elitric@yahoo.com)
 2. fix the bug that imageset is set to 'default' at login no matter what 
    user presference setting is.
-   (reported by Emir Litric, elitric@hotmail.com)
+   (reported by Emir Litric, elitric@yahoo.com)
 3. guess real homedir under /export to avoid automount on localhost
    correct the weekday abbreviation of tuesday and wensday
    (thanks to Dugal James P., jpd@louisiana.edu)
@@ -91,7 +176,7 @@
 07/27/2001
 ----------
 1. add many fancy styles.
-   (thanks to Emir Litric, elitric@hotmail.com)
+   (thanks to Emir Litric, elitric@yahoo.com)
 
 
 07/26/2001
@@ -170,7 +255,7 @@
 07/09/2001
 ----------
 1. fix a little bug related to email address in pop3 book 
-   (reported by Emir Litric, elitric@hotmail.com)
+   (reported by Emir Litric, elitric@yahoo.com)
 2. display the total folders space usage when mouse is over 'folders' icon 
    if folderquota is set.
 
@@ -215,7 +300,7 @@
 07/02/2001
 ----------
 1. add RedHat-README.txt to doc/
-   (contributed by Emir Litric, elitric@hotmail.com)
+   (contributed by Emir Litric, elitric@yahoo.com)
 
 
 06/29/2001
@@ -238,8 +323,8 @@
 06/26/2001
 ----------
 1. fix a bug that won't parse out attachment correctly in rare cases
-2. fix a bug that searchtype will be restored to 'subject' after any message is
-   moved or copied from current folder
+2. fix a bug that searchtype will be restored to 'subject' after 
+   any message is moved or copied from current folder
 3. italian language translation
    (thanks to Benedet Marvi, i3100579@ingstud.univ.trieste.it)
 
@@ -263,7 +348,7 @@
 ----------
 1. fix a bug that creates .forward and .vacation.msg in / 
    instead of user homedir when homespooldir and homefolderdir is not enables
-   (reported by Emir Litric, elitric@hotmail.com)
+   (reported by Emir Litric, elitric@yahoo.com)
 
 
 06/20/2001
@@ -279,10 +364,10 @@
    (reported by jerry@email.wtuc.edu.tw)
 2. fix a bug that resets the autoreply message to default when
    setting user preference
-   (reported by Emir Litric, elitric@hotmail.com)
+   (reported by Emir Litric, elitric@yahoo.com)
 3. chinese GB language and templates translation
    (thanks to Wang Jun, wjun@mail.iap.ac.cn)
-4. Login alias/mapping support
+4. login alias/mapping support
    (thanks to Russ Reese, russ@zerotech.net for his patch code)
 
 
@@ -311,7 +396,7 @@
 06/13/2001 (version 1.22)
 ----------
 1. use new 3D icons instead of the original flat icons.
-   (thanks to Emir Litric, elitric@hotmail.com, for his grea work of art!!!)
+   (thanks to Emir Litric, elitric@yahoo.com, for his grea work of art!!!)
 2. spanish language and templates translation
    (thanks to Félix Martos, pakito@asinkecualo.org)
 3. german language translation
@@ -326,7 +411,7 @@
 06/12/2001
 ----------
 1. fix .pop3.book open error when editing pop3book at first time
-   (thanks to Emir Litric, elitric@hotmail.com)
+   (thanks to Emir Litric, elitric@yahoo.com)
 2. change session control from 'per host' to 'per user'.
    This means a user can login openwebmail with different ids at the 
    same time from same client.

@@ -1,22 +1,29 @@
-<table border="0" align="center" width="95%" cellpadding="1" cellspacing="0">
-<tr>
+<table border="0" align="center" width="95%" cellpadding="0" cellspacing="0"><tr><td bgcolor=@@@TITLEBAR@@@ >
+
+<table border="0" width="100%" cellpadding="0" cellspacing="0"><tr>
 @@@STARTFOLDERFORM@@@
-<td width="55%" bgcolor=@@@TITLEBAR@@@ align="left">
+<td nowrap bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@>
 <B>@@@FOLDERPOPUP@@@</B></FONT></td>
 @@@ENDFORM@@@
-<td nowrap width="45%" bgcolor=@@@TITLEBAR@@@ align="right">
+<td nowrap bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>@@@NUMBEROFMESSAGES@@@</B></font></td></tr>
-<tr><td nowrap valign="middle" bgcolor=@@@MENUBAR@@@ align="left">
-@@@MENUBARLINKS@@@
-</td>
+<B>@@@NUMBEROFMESSAGES@@@</B></font>&nbsp;</td>
+</tr></table>
+
+</td></tr><tr><td bgcolor=@@@MENUBAR@@@>
+
+<table border="0" width="100%" cellpadding="0" cellspacing="0"><tr>
+<td nowrap bgcolor=@@@MENUBAR@@@ align="left">
+@@@MENUBARLINKS@@@</td>
 @@@STARTMOVEFORM@@@
-<td nowrap valign="middle" bgcolor=@@@MENUBAR@@@ align="right">
-@@@MOVECONTROLS@@@
+<td nowrap bgcolor=@@@MENUBAR@@@ align="right">
+@@@MOVECONTROLS@@@&nbsp;</td>
+</tr></table>
+
 </td></tr></table>
-<BR>
-<table border="0" align="center" width="95%" cellpadding="1" cellspacing="1">
+<br>
+<table border="0" align="center" width="95%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
 <tr><td valign="middle" width="50" bgcolor=@@@COLUMNHEADER@@@>
 <CENTER>@@@STATUS@@@</CENTER></td>
 <td valign="middle" width="150" bgcolor=@@@COLUMNHEADER@@@>
@@ -38,20 +45,18 @@
 <table border="0" align="center" width="95%" cellpadding="1" cellspacing="0">
 <tr>
 @@@STARTPAGEFORM@@@
-<td nowrap valign="middle" width="33%" align="center" bgcolor=@@@MENUBAR@@@>
+<td width="33%" align="center" bgcolor=@@@MENUBAR@@@ nowrap>
 @@@PAGECONTROL@@@
 </td>
 @@@ENDFORM@@@
-<td bgcolor=@@@MENUBAR@@@>
-&nbsp;
-</td>
 @@@STARTSEARCHFORM@@@
-<td valign="middle" align="center" bgcolor=@@@MENUBAR@@@ nowrap>
+<td align="center" bgcolor=@@@MENUBAR@@@ nowrap>
 @@@SEARCH@@@
 </td>
 @@@ENDFORM@@@
 </tr>
 </table>
+
 <script language="JavaScript">
    <!--
    function CheckAll()

@@ -4,21 +4,21 @@
 <b>CÍMJEGYZÉK IMPORTÁLÁSA</b></font>
 </td><td bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>@@@FREESPACE@@@ KB van még</b></font>
+<b>@@@FREESPACE@@@ KB fér még</b></font>
 </td></tr>
 <tr><td colspan="2" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 
 <table border="0" align="center" width="75%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
 <br>Mind az Outlook Express 5, mind a Netscape Mail képes a címjegyzékét kiexportálni
-egy speciális vesszõvel elválasztott értékeket tartalmazó formátumban. A Open WebMail képes
-ezeket beolvasni.
+egy vesszõvel elválasztott értékeket tartalmazó formátumban (csv), melyeket
+az Open WebMail be tud olvasni.
 <ul>
-<li>Netscape esetén nyisd meg az address bookot, és válaszd a File-&gt;Export menüpontot,
-majd a "Save as type:" esetén válaszd a "Comma Separated (*csv)" értéket.
+<li>Netscape esetén nyissa meg az Address Book-ot, és válassza a File-&gt;Export menüpontot,
+majd a "Save as type:" menüben a "Comma Separated (*csv)" formátumot.
 <br><br>
-<li> Outlook Express esetén a fõablakban válaszd a 
-File-&gt;Exportálás-&gt;Címjegyzék pontot, és válaszd a "Text file" tipust. 
+<li> Outlook Express esetén a fõablakban válassza ki a 
+File-&gt;Exportálás-&gt;Címjegyzék pontot, és ezen belül a "Text file" típust. 
 </ul>
 </td></tr></table>
 
@@ -27,6 +27,7 @@ File-&gt;Exportálás-&gt;Címjegyzék pontot, és válaszd a "Text file" tipust.
 <br>
 @@@IMPORTFILEFIELD@@@
 </td></tr>
+<tr><td colspan=2 bgcolor=@@@WINDOW_LIGHT@@@>&nbsp;</td></tr>
 <tr><td width="50%" align="right" bgcolor=@@@WINDOW_LIGHT@@@>
 @@@IMPORTBUTTON@@@ &nbsp;&nbsp;
 </td>
@@ -34,5 +35,7 @@ File-&gt;Exportálás-&gt;Címjegyzék pontot, és válaszd a "Text file" tipust.
 @@@STARTCANCELFORM@@@
 <td width="50%" align="left" bgcolor=@@@WINDOW_LIGHT@@@>
 &nbsp;&nbsp;@@@CANCELBUTTON@@@
-</td></tr></table>
+</td></tr>
+<tr><td colspan=2 bgcolor=@@@WINDOW_LIGHT@@@>&nbsp;</td></tr>
+</table>
 @@@ENDFORM@@@

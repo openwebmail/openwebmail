@@ -4,18 +4,18 @@
 <b>CÍMJEGYZÉK</b></font>
 </td><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>@@@FREESPACE@@@ KB van még</b></font>
+<b>@@@FREESPACE@@@ KB fér még</b></font>
 </td></tr><tr><td colspan="4" bgcolor=@@@MENUBAR@@@ align="left">
 @@@MENUBARLINKS@@@
 </td></tr><tr><td colspan="4">&nbsp;</td></tr>
 <tr><td bgcolor=@@@COLUMNHEADER@@@>
-<b>Név</b> (Klikkelj rá a cím szerkesztéséhez)</td>
+<b>Név</b></td>
 <td bgcolor=@@@COLUMNHEADER@@@>
-<b>E-mail cím(ek)</b> (Klikkelj rá a levélíráshoz)</td>
+<b>E-mail cím(ek)</b></td>
 <td bgcolor=@@@COLUMNHEADER@@@>
-<B>Note</B></td>
+<B>Megjegyzés</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<b>Akció</b>
+<b>Teendõ</b>
 </td></tr>
 @@@STARTADDRESSFORM@@@
 <tr><td bgcolor=@@@TABLEROW_LIGHT@@@ width="150">
