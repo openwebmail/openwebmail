@@ -137,12 +137,12 @@ sub mailfilter {
             foreach my $r_attachment (@{$r_attachments}) {
                if ( ${$r_attachment}{contenttype} =~ /^text/i ) {	# read all for text/plain. text/html
                   if ( ${$r_attachment}{encoding} =~ /^quoted-printable/i ) {
-                     ${$r_attachment}{contents} = decode_qp( ${$r_attachment}{contents});
+                     ${${$r_attachment}{r_content}} = decode_qp( ${${$r_attachment}{r_content}});
                   } elsif ( ${$r_attachment}{encoding} =~ /^base64/i ) {
-                     ${$r_attachment}{contents} = decode_base64( ${$r_attachment}{contents});
+                     ${${$r_attachment}{r_content}} = decode_base64( ${${$r_attachment}{r_content}});
                   }
-                  if (  ( $include eq 'include' && ${$r_attachment}{contents} =~ /$text/im )
-                      ||( $include eq 'exclude' && ${$r_attachment}{contents} !~ /$text/im )  ) {
+                  if (  ( $include eq 'include' && ${${$r_attachment}{r_content}} =~ /$text/im )
+                      ||( $include eq 'exclude' && ${${$r_attachment}{r_content}} !~ /$text/im )  ) {
                      $is_message_to_move = 1;
                      last;	# leave attachments check in one message
                   }
