@@ -1,3 +1,11 @@
+12/20/2004
+----------
+1. explcitly check old password in change_userpassword(0 in auth_pam.pl,
+   as the PAM of underlying authentication doesn't always check the old
+   password before changing the password
+   (thanks to Sergio Rua, srua.AT.pattrynet.org for his fix)
+
+
 12/19/2004
 ----------
 1. add date range support to advsearch

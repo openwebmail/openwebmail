@@ -179,6 +179,12 @@ sub change_userpassword {
    ($r_config, $pam_user, $pam_password, $pam_newpassword)=@_;
    return (-2, "User or password is null") if ($pam_user eq '' || $pam_password eq '' || $pam_newpassword eq '');
 
+   # the PAM of underlying authentication may forget to check old password
+   # before changing password, so we check old password explicitly here
+   if ((check_userpassword($r_config, $pam_user, $pam_password))[0] != 0) {
+      return (-4, "Password incorrect");
+   }
+
    local $pam_convstate=0;	# localized global to make reentry safe
    sub changepwd_conv_func {
       my @res;
