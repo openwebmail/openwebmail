@@ -1,3 +1,10 @@
+02/12/2005
+----------
+1. fix a bug that arbitary XSS code may be pluged in login page
+   because the domainanme parameter was not checked.
+   (reported by Oriol Torrent Santiago, oriol.torrent.AT.gmail.com)
+
+
 02/10/2005
 ----------
 1. fix several type errors that unknown was typed as unknow

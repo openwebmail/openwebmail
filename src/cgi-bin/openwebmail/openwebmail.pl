@@ -243,7 +243,7 @@ sub loginmenu {
                              -values=>[@{$config{'domainselectmenu_list'}}] );
       $html =~ s/\@\@\@DOMAINMENU\@\@\@/$temphtml/;
    } else {
-      $temphtml = ow::tool::hiddens(logindomain=>param('logindomain')||'');
+      $temphtml = ow::tool::hiddens(logindomain=>$logindomain||'');
       templateblock_disable($html, 'DOMAIN', $temphtml);
    }
 
@@ -266,7 +266,7 @@ sub login {
    my $clientip=ow::tool::clientip();
 
    $loginname=param('loginname')||'';
-   $default_logindomain=param('logindomain')||'';
+   $default_logindomain=safedomainname(param('logindomain')||'');
 
    ($logindomain, $loginuser)=login_name2domainuser($loginname, $default_logindomain);
 
@@ -683,7 +683,7 @@ sub ip2hostname {
 ########## AUTOLOGIN #############################################
 sub autologin {
    # auto login with cgi parm or cookie
-   $default_logindomain=param('logindomain')||cookie('ow-default_logindomain');
+   $default_logindomain=safedomainname(param('logindomain')||cookie('ow-default_logindomain'));
    $loginname=param('loginname')||cookie('ow-loginname');
    return loginmenu() if ($loginname eq '');
 
