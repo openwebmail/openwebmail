@@ -18,7 +18,7 @@
           <td><input class="mono" type="text" name="@@@STREET.NAME@@@" value="@@@STREET.VALUE@@@" size="30"></td>
         </tr>
         <tr>
-          <td class="smalltext">street address</td>
+          <td class="smalltext">alamat jalan</td>
         </tr>
         <tr>
           <td class="smalltext">&nbsp;</td>
@@ -27,7 +27,7 @@
           <td><input class="mono" type="text" name="@@@EXTENDEDADDRESS.NAME@@@" value="@@@EXTENDEDADDRESS.VALUE@@@" size="30"></td>
         </tr>
         <tr>
-          <td class="smalltext">suite, apartment, etc.</td>
+          <td class="smalltext">apartemen, flat, dll.</td>
         </tr>
         <tr>
           <td class="smalltext">&nbsp;</td>
@@ -36,7 +36,7 @@
           <td><input class="mono" type="text" name="@@@POSTOFFICEADDRESS.NAME@@@" value="@@@POSTOFFICEADDRESS.VALUE@@@" size="30"></td>
         </tr>
         <tr>
-          <td class="smalltext">postoffice box</td>
+          <td class="smalltext">kotak kantor pos</td>
         </tr>
         <tr>
           <td class="smalltext">&nbsp;</td>
@@ -50,9 +50,9 @@
               <td><input class="mono" type="text" name="@@@REGION.NAME@@@" value="@@@REGION.VALUE@@@" size="15"></td>
             </tr>
             <tr>
-              <td class="smalltext">city</td>
+              <td class="smalltext">kota</td>
               <td>&nbsp;</td>
-              <td class="smalltext">state/province</td>
+              <td class="smalltext">negara/propinsi</td>
             </tr>
             </table>
           </td>
@@ -69,9 +69,9 @@
               <td><input class="mono" type="text" name="@@@COUNTRY.NAME@@@" value="@@@COUNTRY.VALUE@@@" size="12" onBlur="javascript:if (document.forms['editForm'].elements['@@@LABEL.NAME@@@'].value == '') { makeLabel('editForm','@@@LABEL.INDEX@@@'); }"></td>
             </tr>
             <tr>
-              <td class="smalltext">zip/postcode</td>
+              <td class="smalltext">kode pos</td>
               <td>&nbsp;</td>
-              <td class="smalltext">country</td>
+              <td class="smalltext">negeri</td>
             </tr>
             <tr>
               <td colspan="3" height="40">&nbsp;</td>

@@ -1,7 +1,7 @@
 <table border="0" align="center" width="95%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>Edit file</b></font>
+<b>Ubah file</b></font>
 </td></tr>
 <tr><td bgcolor=@@@WINDOW_DARK@@@>&nbsp;</td></tr>
 @@@STARTEDITFORM@@@
@@ -9,7 +9,7 @@
 <table border="0" cellpadding="0" cellspacing="0"><tr><td><B>Filename</B>&nbsp;</td><td>@@@FILENAME@@@</td></tr></table>
 </td></tr>
 <tr><td align="center" bgcolor=@@@WINDOW_DARK@@@ class=msgbody>
-<B>Content</B><BR>@@@FILECONTENT@@@
+<B>Isi</B><BR>@@@FILECONTENT@@@
 </td></tr>
 <tr><td bgcolor=@@@WINDOW_DARK@@@>&nbsp;</td></tr>
 <tr><td align="center" bgcolor=@@@WINDOW_DARK@@@>

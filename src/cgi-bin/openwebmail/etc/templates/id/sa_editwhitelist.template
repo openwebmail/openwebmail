@@ -11,9 +11,9 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr>
 <td nowrap bgcolor=@@@COLUMNHEADER@@@>
-<B>White List From Email Address</B></td>
+<B>White List From Alamat Email</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Action</B>
+<B>Aksi</B>
 </td></tr>
 @@@STARTADDLISTFORM@@@
 <tr>

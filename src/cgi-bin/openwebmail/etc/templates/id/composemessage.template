@@ -58,7 +58,7 @@
 <table border="0" cellpadding="0" cellspacing="0"><tr>
 <td>@@@SUBJECTFIELD@@@&nbsp;&nbsp;</td>
 @@@BACKUPSENTSTART@@@
-<td><B>Backup sent message</B></td>
+<td><B>Backup pesan yang dikirim</B></td>
 <td>@@@BACKUPSENTMSGCHECKBOX@@@</td>
 @@@BACKUPSENTEND@@@
 </tr></table>
@@ -120,7 +120,7 @@
       if ((document.composeform.msgformat.value == "html" ||
            document.composeform.msgformat.value == "both") &&
           document.composeform.newmsgformat.value == "text" ) {
-         if (confirm("The HTML data format will be lost after the conversion, are you sure to change to Text mode?")) {
+         if (confirm("Format data HTML akan hilang setelah dikonversi, apakah anda yakin ingin mengubah ke mode teks?")) {
             bodygethtml();
             document.composeform.submit();
             return true;

@@ -87,7 +87,7 @@
 
 <table border="0" align="center" width="95%" cellpadding="1" cellspacing="1">
 <tr><td bgcolor=@@@COLUMNHEADER@@@>
-<B>Messages</B>
+<B>Pesan-pesan</B>
 </td></tr><tr><td bgcolor=@@@MENUBAR@@@>
 @@@MSGTEXTAREA@@@
 </td></tr>
@@ -169,13 +169,13 @@
          alert("Please choose the file to upload first.");
          return false;
       } else {
-         document.dirform.msg.value = 'Uploading file '+document.dirform.upload.value+', please wait...';
+         document.dirform.msg.value = 'Uploading file '+document.dirform.upload.value+', silakan tunggu...';
          return true;
       }
    }
    function opconfirm(op, conf) {
       if (conf) {
-         return(confirm('Are you sure you want to '+op+' the selected items? ( '+selectedstr()+' )'));
+         return(confirm('Apakah anda yakin ingin '+op+' item-item yang sudah dipilih? ( '+selectedstr()+' )'));
       } else {
          return true;
       }

@@ -4,13 +4,13 @@
     <tr>
       <td rowspan="2" valign="top" nowrap>@@@GROUP@@@@@@VALUE@@@&nbsp;</td>
       <td><input class="mono" type="checkbox" name="@@@HOME.NAME@@@" value="HOME" @@@HOME.VALUE@@@></td>
-      <td nowrap>&nbsp;<a href="javascript:check_toggle('@@@HOME.NAME@@@');"><span class="smalltext">home</span></a>&nbsp;</td>
+      <td nowrap>&nbsp;<a href="javascript:check_toggle('@@@HOME.NAME@@@');"><span class="smalltext">rumah</span></a>&nbsp;</td>
       <td><input class="mono" type="checkbox" name="@@@WORK.NAME@@@" value="WORK" @@@WORK.VALUE@@@></td>
-      <td nowrap>&nbsp;<a href="javascript:check_toggle('@@@WORK.NAME@@@');"><span class="smalltext">work</span></a>&nbsp;</td>
+      <td nowrap>&nbsp;<a href="javascript:check_toggle('@@@WORK.NAME@@@');"><span class="smalltext">kantor</span></a>&nbsp;</td>
       <td><input class="mono" type="checkbox" name="@@@CELL.NAME@@@" value="CELL" @@@CELL.VALUE@@@></td>
-      <td nowrap>&nbsp;<a href="javascript:check_toggle('@@@CELL.NAME@@@');"><span class="smalltext">cell</span></a>&nbsp;</td>
+      <td nowrap>&nbsp;<a href="javascript:check_toggle('@@@CELL.NAME@@@');"><span class="smalltext">hp</span></a>&nbsp;</td>
       <td><input class="mono" type="checkbox" name="@@@CAR.NAME@@@" value="CAR" @@@CAR.VALUE@@@></td>
-      <td nowrap>&nbsp;<a href="javascript:check_toggle('@@@CAR.NAME@@@');"><span class="smalltext">car</span></a>&nbsp;</td>
+      <td nowrap>&nbsp;<a href="javascript:check_toggle('@@@CAR.NAME@@@');"><span class="smalltext">mobil</span></a>&nbsp;</td>
       <td><input class="mono" type="checkbox" name="@@@VIDEO.NAME@@@" value="VIDEO" @@@VIDEO.VALUE@@@></td>
       <td nowrap>&nbsp;<a href="javascript:check_toggle('@@@VIDEO.NAME@@@');"><span class="smalltext">video</span></a>&nbsp;</td>
       <td><input class="mono" type="checkbox" name="@@@PAGER.NAME@@@" value="PAGER" @@@PAGER.VALUE@@@></td>
@@ -19,7 +19,7 @@
     </tr>
     <tr>
       <td><input class="mono" type="checkbox" name="@@@VOICE.NAME@@@" value="VOICE" @@@VOICE.VALUE@@@></td>
-      <td nowrap>&nbsp;<a href="javascript:check_toggle('@@@VOICE.NAME@@@');"><span class="smalltext">voice</span></a>&nbsp;</td>
+      <td nowrap>&nbsp;<a href="javascript:check_toggle('@@@VOICE.NAME@@@');"><span class="smalltext">suara</span></a>&nbsp;</td>
       <td><input class="mono" type="checkbox" name="@@@FAX.NAME@@@" value="FAX" @@@FAX.VALUE@@@></td>
       <td nowrap>&nbsp;<a href="javascript:check_toggle('@@@FAX.NAME@@@');"><span class="smalltext">fax</span></a>&nbsp;</td>
       <td><input class="mono" type="checkbox" name="@@@ISDN.NAME@@@" value="ISDN" @@@ISDN.VALUE@@@></td>

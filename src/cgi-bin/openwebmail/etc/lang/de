@@ -68,13 +68,13 @@ package ow::de;
 
 %lang_bgfilterthresholdlabels =
    (
-     0 => 'No',
-     1 => 'Yes',
-    20 => 'Only if INBOX has more than 20 new messages',
-    50 => 'Only if INBOX has more than 50 new messages',
-   100 => 'Only if INBOX has more than 100 new messages',
-   200 => 'Only if INBOX has more than 200 new messages',
-   500 => 'Only if INBOX has more than 500 new messages',
+     0 => 'Nein',
+     1 => 'Ja',
+    20 => 'Nur wenn die INBOX mehr als 20 Nachrichten hat',
+    50 => 'Nur wenn die INBOX mehr als 50 Nachrichten hat',
+   100 => 'Nur wenn die INBOX mehr als 100 Nachrichten hat',
+   200 => 'Nur wenn die INBOX mehr als 200 Nachrichten hat',
+   500 => 'Nur wenn die INBOX mehr als 500 Nachrichten hat',
    );
 
 %lang_prioritylabels =
@@ -581,8 +581,8 @@ package ow::de;
    abook_listview_copy => 'Kopieren',
    abook_listview_compose => 'Nachricht aus Auswahl erstellen',
    abook_listview_composemode => 'Adressen für Erstellung auswählen',
-   abook_listview_fullname => 'Vollst&auml;ndiger Name',
-   abook_listview_prefix   => 'Ür&auml;fix',
+   abook_listview_fullname => 'Vollständiger Name',
+   abook_listview_prefix   => 'Präfix',
    abook_listview_first    => 'Vorname',
    abook_listview_middle   => 'Mittelname',
    abook_listview_last     => 'Nachname',

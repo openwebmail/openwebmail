@@ -66,8 +66,8 @@ package ow::id;
 
 %lang_bgfilterthresholdlabels =
    (
-     0 => 'No',
-     1 => 'Yes',
+     0 => 'Tidak',
+     1 => 'Ya',
     20 => 'Only if INBOX has more than 20 new messages',
     50 => 'Only if INBOX has more than 50 new messages',
    100 => 'Only if INBOX has more than 100 new messages',
@@ -605,7 +605,7 @@ package ow::id;
    abook_listview_quickadd => 'Tambah Cepat',
    abook_listview_expandall => 'Semua Diperlihatkan',
    abook_listview_collapseall => 'Semua Diminimalisasikan',
-   abook_listview_noaddresses => '-- Tidak ada orang kontak di daftar alamat ini --',
+   abook_listview_noaddresses => '-- Tidak ada kontak person di daftar alamat ini --',
    abook_listview_nomatch => '-- Pencarian anda tidak ditemukan --',
    abook_listview_done => 'Selesai',
    abook_listview_viewselected => 'Lihat daftar alamat yang dipilih',
@@ -743,8 +743,8 @@ package ow::id;
    abook_import_unsupfmt => 'Format daftar alamat "@@@FORMAT@@@" tidak mendukung pada saat ini. Silakan memilih format lain untuk diimport',
    abook_export_unsupfmt => 'Format daftar alamat "@@@FORMAT@@@" tidak mendukung pada saat ini. Silakan memilih format lain untuk diexport',
    abook_export_undef => 'Paling tidak ada satu alamat email yang HARUS dicek untuk diexport. Tidak ada alamat yang sudah dicek',
-   abook_delete_xowmuid => 'Gagal untuk dihapus. Tidak ada id unik yang didefinisikan',    abook_delete_book => 'Tidak dapat menghapus daftar alamat @@@ADDRESSBOOK@@@',
-   abook_delete_book => 'Unable to delete addressbook @@@ADDRESSBOOK@@@',
+   abook_delete_xowmuid => 'Gagal untuk dihapus. Tidak ada id unik yang didefinisikan',
+   abook_delete_book => 'Tidak dapat menghapus daftar alamat @@@ADDRESSBOOK@@@',
    abook_doesnt_exist => 'Daftar Alamat @@@ADDRESSBOOK@@@ tidak ada',
    abook_already_exists => 'Daftar Alamat @@@ADDRESSBOOK@@@ sudah ada. Silakan pilih nama yang lain',
    abook_name_too_long => 'Nama Daftar Alamat @@@ADDRESSBOOK@@@ terlalu panjang. Batas maksimum adalah @@@FOLDERNAME_MAX@@@',

@@ -5,7 +5,7 @@
   <td bgcolor=@@@TITLEBAR@@@>
     <table cellpadding="0" cellspacing="0" border="0" width="100%">
     <tr>
-      <td bgcolor=@@@TITLEBAR@@@><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>Edit Personal Information</b></font></td>
+      <td bgcolor=@@@TITLEBAR@@@><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>Ubah Informasi Pribadi</b></font></td>
       <td bgcolor=@@@TITLEBAR@@@ align="right"><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>@@@ABOOKNAME@@@</b></td>
     </tr>
     </table>
@@ -31,7 +31,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Personal Information</b></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Informasi Pribadi</b></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -47,7 +47,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Email Addresses</b>&nbsp;<a name="EMAIL" href="javascript:document.editForm.formchange.value='EMAIL,0,1'; document.editForm.submit();">+</a></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Alamat Email</b>&nbsp;<a name="EMAIL" href="javascript:document.editForm.formchange.value='EMAIL,0,1'; document.editForm.submit();">+</a></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -63,7 +63,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Telephone Numbers</b>&nbsp;<a name="TEL" href="javascript:document.editForm.formchange.value='TEL,0,1'; document.editForm.submit();">+</a></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Nomor Telepon</b>&nbsp;<a name="TEL" href="javascript:document.editForm.formchange.value='TEL,0,1'; document.editForm.submit();">+</a></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -79,7 +79,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Addresses</b>&nbsp;<a name="ADR" href="javascript:document.editForm.formchange.value='ADR,0,1'; document.editForm.submit();">+</a></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Alamat</b>&nbsp;<a name="ADR" href="javascript:document.editForm.formchange.value='ADR,0,1'; document.editForm.submit();">+</a></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -95,7 +95,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Work Information</b>&nbsp;<a name="ORG" href="javascript:document.editForm.formchange.value='ORG,0,1'; document.editForm.submit();">+</a></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Informasi Kerja</b>&nbsp;<a name="ORG" href="javascript:document.editForm.formchange.value='ORG,0,1'; document.editForm.submit();">+</a></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -111,7 +111,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Miscellaneous Information</b><a name="URL"></a></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Informasi Lain</b><a name="URL"></a></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -159,7 +159,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Add Files to Contact - @@@AVAILABLEATTSPACE@@@ Available</b></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Tambahkan File di Kontak  - @@@AVAILABLEATTSPACE@@@ Tersedia</b></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -170,9 +170,9 @@
     <tr>
       <td>
         <select name="UPLOAD.FILE.TYPE" class="mono">
-        <option value="PHOTO" selected>Photo of Contact</option>
-        <option value="SOUND">Sound of Name</option>
-        <option value="LOGO">Company Logo</option>
+        <option value="PHOTO" selected>Foto Kontak</option>
+        <option value="SOUND">Suara Nama</option>
+        <option value="LOGO">Logo Perusahaan</option>
         <option value="KEY">Public Encryption Key</option>
         <option value="AGENT">Agent vCard</option>
         </select>
@@ -187,9 +187,9 @@
       <td>@@@UPLOADWEBDISKLINK@@@</td>
     </tr>
     <tr>
-      <td colspan="2" class="smalltext" nowrap>choose a file type to add</td>
-      <td colspan="2" class="smalltext" nowrap>enter a url to the file (http://...)</td>
-      <td colspan="5" class="smalltext" nowrap>or upload the file directly</td>
+      <td colspan="2" class="smalltext" nowrap>Pilih Jenis File Untuk Ditambahkan</td>
+      <td colspan="2" class="smalltext" nowrap>Masukkan url ke file (http://...)</td>
+      <td colspan="5" class="smalltext" nowrap>Atau upload file langsung</td>
     </tr>
     <tr>
       <td  colspan="9" height="10">&nbsp;</td>
@@ -291,26 +291,26 @@ function showGeo (formName, geoNumber, showThing) {
          window.open(url,"_showGeo","width=550,height=500,resizable=yes,scrollbars=yes");
       }
    } else {
-      alert('You must fill in the longitude and latitude\nbefore any maps or photos can be viewed.');
+      alert('Anda harus memberi garis bujur dan lintang sebelum peta bisa dilihat.');
    }
 }
 
 function popupNotice (msgOption) {
    if (msgOption == 'agentmustsave') {
-      return(confirm('All data must be saved before viewing or creating an agent card.\nSave and continue?'));
+      return(confirm('Semua data harus di simpan sebelum melihat atau membuat sebuah agen kartu\nsimpan dan lanjutkan?'));
    } else if (msgOption == 'cancelchanges') {
-      return(confirm('All changes to this agent will be lost, continue?'));
+      return(confirm('Semua perubahan di agen in akan hilang, lanjutkan?'));
    }
 }
 
 function savecheck (formName) {
    if (document.forms[formName].elements['N.0.VALUE.GIVENNAME'].value == '' &&
        document.forms[formName].elements['N.0.VALUE.FAMILYNAME'].value == '') {
-      alert("Please fill in the firstname or lastname field first.");
+      alert("Isilah nama pertama atau nama akhir terlebih dahulu.");
       return false;
    }
    if (document.forms[formName].elements['EMAIL.0.VALUE'].value == '') {
-      return(confirm("Email address is empty, are you sure to save this contact?"));
+      return(confirm("Alamat email kosong, apakah anda yakin ingin menyimapan kontak ini?"));
    }
    return true
 }

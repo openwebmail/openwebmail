@@ -1,3 +1,13 @@
+01/03/2005
+----------
+1. Deutsch lang file translation update
+   (thanks to Martin Bronk, martin.AT.bronk.de)
+2. Indonesian lang and template files translation update
+   (thanks to James Briggs, james.AT.ActionMessage.com)
+3. Slovenian language file translation update
+   (thanks to Uros Sajko, copatek.AT.yahoo.com)
+
+
 12/30/2004
 ----------
 1. Finish language translation update

@@ -13,10 +13,10 @@
 
 <table align="center" border="0" cellspacing="0" cellpadding="1">
 <tr>
-<td align="right">User Name: </td>
+<td align="right">Nama Pengguna: </td>
 <td>@@@VUSER@@@&nbsp;@&nbsp;@@@DOMAINNAME@@@</td>
 <td width="10%">&nbsp;</td>
-<td align="right">Real Name: </td>
+<td align="right">Nama Asli: </td>
 <td>@@@REALNAME@@@</td>
 </tr>
 </table>
@@ -36,10 +36,10 @@
 <td>&nbsp;</td>
 </tr>
 <tr>
-<td align="right">Confirm Password: </td>
+<td align="right">Konfirmasi Sandi: </td>
 <td>@@@CONFIRMNEWPASSWORDFIELD@@@</td>
 <td width="10%" align="right">@@@CHKFWD@@@ </td>
-<td>Forward E-Mail to: </td>
+<td>Meneruskan email ke: </td>
 <td>@@@DIRECT@@@</td>
 </tr>
 </table>
@@ -52,9 +52,9 @@
 <tr><td align="center" valign="middle" bgcolor=@@@WINDOW_LIGHT@@@>
 <table align="center" border="0" cellspacing="0" cellpadding="1" width="90%">
 <tr>
- <td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Email Address/Alias</B> (click to edit)</td>
- <td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Real Name</B></td>
- <td align="center" bgcolor=@@@COLUMNHEADER@@@><B>Action</B></td>
+ <td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Alamat Email/Alias</B> (click to edit)</td>
+ <td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Nama Asli</B></td>
+ <td align="center" bgcolor=@@@COLUMNHEADER@@@><B>Buat</B></td>
 </tr>
 <tr>
  <td nowrap bgcolor=@@@TABLEROW_LIGHT@@@>@@@EMAILFIELD@@@</td>

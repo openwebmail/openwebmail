@@ -1,7 +1,7 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>Edit Spamassassin Test Rules</b></font>
+<b>Ubah Aturan-aturan Test SpamAssassin</b></font>
 </td></tr>
 <tr><td bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
@@ -12,12 +12,12 @@
 
 <table bgcolor=@@@TABLEROW_DARK@@@ border="0" cellspacing="1" cellpadding="2" align="center" width="100%">
 @@@STARTADDTESTFORM@@@
-<tr><td><B>TestName:</B></td>
+<tr><td><B>Nama Tes:</B></td>
 <td colspan="2">@@@TESTNAMEFIELD@@@&nbsp;(letters, digits & underline only)</td></tr>
-<tr><td><B>Description:</B></td>
+<tr><td><B>Deskripsi:</B></td>
 <td colspan="2">@@@TESTDESCFIELD@@@</td></tr>
 
-<tr><td><B>TestType:</B></td>
+<tr><td><B>Tipe Tes:</B></td>
 <td colspan="2">
 <table border="0" cellpadding="0" cellspacing="0"><tr>
 <td>@@@TESTTYPEMENU@@@</td>
@@ -109,11 +109,11 @@
    function addcheck()
    {
       if (document.addtest.testname.value  == "") {
-         alert("Please specify the test name.");
+         alert("Silakan memperinci nama tes.");
          return false;
       }
       if (document.addtest.pattern.value  == "") {
-         alert("Please specify the test expression.");
+         alert("Silakan memperinci ekpresi tes.");
          return false;
       }
       return true;
