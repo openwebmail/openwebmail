@@ -123,7 +123,7 @@ Bellow is the example of my openwebmail.conf file:
 # Open WebMail configuration file
 #
 
-version                 1.50
+version                 1.51
 
 ##############################################################################
 # host depend configuration
@@ -379,6 +379,15 @@ disallowed_pop3servers  turtle.ee.ncku.edu.tw, turtle
 # fecth pop3mail at refresh, please refer to option refreshinterval
 #
 autopop3_at_refresh     yes
+
+#
+# symboliclink_mbox : Some pop3d moves messages from mail spool to ~/mbox 
+# if the pop3 client chooses to reserve the message on server.
+# With this option set to 'yes', openwebmail will symlink 
+# ~/mbox -> ~/mail/saved-messages to make messages accessable either in 
+# pop3 client or openwebmail
+#
+symboliclink_mbox	yes
 
 #
 # sessiontimeout : This indicates how many minutes of inactivity pass before

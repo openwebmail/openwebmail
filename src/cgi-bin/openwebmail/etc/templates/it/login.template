@@ -44,9 +44,9 @@
       return(true); 
    } 
 
-   function submitlogin() 
+   function focuslogin() 
    { 
-      document.login.submit(); 
+      document.login.login.focus(); 
       return (true); 
    } 
 </script>

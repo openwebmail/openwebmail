@@ -284,7 +284,7 @@ A: Openwebmail puts user uploaded attachments in cgi-bin/openwebmail/etc/session
    Please move cgi-bin/openwebmail/etc/sessions to a larger parition with
    diskquota disablaed, then create a symbolic link to that new directory
 
-   cd /new_palce
+   cd /new_place
 
    mkdir sessions
    chmod 770 sessions
@@ -312,6 +312,14 @@ ps: Some operations would take more time than normal operation, for example:
 
    There is an analysis of memory usage of Open WebMail available at
    http://turtle.ee.ncku.edu.tw/openwebmail/download/doc/memory.usage
+
+Q: How can I upgrade from old version of Open Webmail?
+A: Each version of openwebmail is made to be backward compatible with
+   old ones, no user setting or mail message will be lost after upgrade.
+   The upgrade steps:
+   1. make a copy of your old openwebmail.conf
+   2. install new openwebmail in the same location as old version
+   3. update the new openwebmail.conf with the setting in old one.
 
 Q: How can I report problem?
 A: If your Open WebMail doesn't work, please post your problem on

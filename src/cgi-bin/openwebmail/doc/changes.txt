@@ -1,7 +1,23 @@
-11/08/2001
+11/10/2001
 ----------
-1. minor fix to pop3mail.pl to handle message with month and mday in reverse
+1. add option 'symbolic_mbox' to openwebmail.conf
+   Some pop3d moves messages from mailspool to ~/mbox if the client chooses 
+   to reserve messages on server. With this option set to 'yes', openwebmail 
+   will symlink ~/mbox -> ~/mail/saved-messages to make messages accessable
+   either in pop3 client or openwebmail
+2. fix a javascript bug in setting background in user preference
+   (thanks to jslu@cobra.ee.ntu.edu.tw, ¿c¬ö¾Ë for his patch)
+
+
+11/08/2001 (version 1.51)
+----------
+1. fix a javascript bug in loginmenu which causes double processes for one 
+   login, This greatly speeds up the login on low-end machines.
+2. minor fix to pop3mail.pl to handle message with month and mday in reverse
    order 
+3. change option default_filter_fakedsmt to 'no' since most admin get confused
+   with this feature.
+4. fix the bug that causes update of virtuser.db at each login
 
 
 11/07/2001

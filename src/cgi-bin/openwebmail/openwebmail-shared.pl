@@ -71,7 +71,8 @@ sub readconf {
    foreach $key ( 'use_hashedmailspools', 'use_homedirspools',
                   'use_homedirfolders', 'use_dotlockfile', 
                   'enable_changepwd', 'enable_setfromemail', 
-                  'enable_pop3', 'enable_autoreply',
+                  'enable_autoreply', 'enable_pop3', 
+                  'autopop3_at_refresh', 'symboliclink_mbox',
                   'default_hideinternal', 'default_filter_fakedsmtp', 
                   'default_disablejs', 'default_autopop3', 
                   'default_newmailsound') {
@@ -137,6 +138,12 @@ sub update_virtusertable {
       return if ( $metainfo eq metainfo($virfile) );
    } 
 
+   writelog("update virtusertable.db");
+
+   unlink("$virdb$config{'dbm_ext'}",
+          "$virdb.rev$config{'dbm_ext'}",
+          "$virdb.short$config{'dbm_ext'}");
+
    dbmopen(%DB, $virdb, 0644);
    filelock("$virdb$config{'dbm_ext'}", LOCK_EX);
    %DB=();	# ensure the virdb is empty
@@ -177,6 +184,8 @@ sub update_virtusertable {
       }
    }
    close(VIRT);
+
+   $DB{'METAINFO'}=metainfo($virfile);
 
    filelock("$virdb.short$config{'dbm_ext'}", LOCK_UN);
    dbmclose(%DBS);
@@ -632,10 +641,10 @@ sub getfolders {
       # summary file size
       $totalsize += ( -s "$folderdir/$filename" ) || 0;
 
-      ### skip openwebmail internal files (conf, dbm, lock, search caches...)
+      # skip openwebmail internal files (conf, dbm, lock, search caches...)
       next if ( $filename=~/^\./ || $filename =~ /\.lock$/);
       
-      ### find all user folders
+      # find all user folders
       if ( $filename ne 'saved-messages' &&
            $filename ne 'sent-mail' &&
            $filename ne 'saved-drafts' &&

@@ -218,10 +218,12 @@ sub loginmenu {
    $temphtml = password_field(-name=>'password',
                               -default=>'',
                               -size=>'10',
-                              -onChange=>'submitlogin()', 
+                              -onChange=>'focuslogin()', 
                               -override=>'1');
    $html =~ s/\@\@\@PASSWORDFIELD\@\@\@/$temphtml/;
-   $temphtml = submit("$lang_text{'login'}");
+   $temphtml = submit(-name =>"login",
+		      -value=>"$lang_text{'login'}" );
+
    $html =~ s/\@\@\@LOGINBUTTON\@\@\@/$temphtml/;
    $temphtml = reset("$lang_text{'clear'}");
    $html =~ s/\@\@\@CLEARBUTTON\@\@\@/$temphtml/;
@@ -281,20 +283,39 @@ sub login {
       ($homedir =~ /^(.+)$/) && ($homedir = $1);
       ($folderdir =~ /^(.+)$/) && ($folderdir = $1);
 
-      # create session file
-      $setcookie = crypt(rand(),'OW');
-      open (SESSION, "> $config{'ow_etcdir'}/sessions/$thissession") or # create sessionid
-         openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/sessions/$thissession!");
-      print SESSION $setcookie;
-      close (SESSION);
-
       # create folderdir if it doesn't exist
       if (! -d "$folderdir" ) {
          mkdir ("$folderdir", oct(700)) or
             openwebmailerror("$lang_err{'cant_create_dir'} $folderdir");
       }
 
+      # create session file
+      $setcookie = crypt(rand(),'OW');
+      open (SESSION, "> $config{'ow_etcdir'}/sessions/$thissession") or # create sessionid
+         openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/sessions/$thissession!");
+      print SESSION $setcookie;
+      close (SESSION);
       writehistory("login - $thissession");
+
+      # symbolic link ~/mbox to ~/mail/saved-messages 
+      if ( $config{'symboliclink_mbox'} &&
+           ((lstat("$homedir/mbox"))[2] & 07770000) eq 0100000) { # regular file
+         if (filelock("$folderdir/saved-messages", LOCK_EX|LOCK_NB)) {
+            writelog("symlink mbox - $homedir/mbox -> $folderdir/saved-messages");
+
+            rename("$homedir/mbox", "$homedir/mbox.tmp");
+            symlink("$folderdir/saved-messages", "$homedir/mbox");
+
+            open(T,"$homedir/mbox.tmp");
+            open(F,">>$folderdir/saved-messages");
+            while(<T>) { print F $_; }
+            close(F);
+            close(T);
+
+            unlink("$homedir/mbox.tmp");
+            filelock("$folderdir/saved-messages", LOCK_UN);
+         }
+      }
 
       if ( -f "$folderdir/.openwebmailrc" ) {
          %prefs = %{&readprefs};
@@ -390,7 +411,7 @@ sub logout {
 
    # we do redirect with hostname specified.
    # Since if we do redirect with only url, the url line in browser will 
-   # keep the same as refered_from url, which make the cgi with action=logout 
+   # keep the same as refered_from url, which makes the cgi with action=logout
    # being called again.
    my $protocol=get_protocol();
    print "Location: $protocol://$ENV{'HTTP_HOST'}$config{'ow_cgiurl'}/openwebmail.pl\n\n";
@@ -515,8 +536,8 @@ sub displayheaders {
    $temphtml = end_form();
    $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/g;
 
-### we don't keep keyword between folders,
-### thus the keyword will be cleared when user change folder
+   ### we don't keep keyword between folders,
+   ### thus the keyword will be cleared when user change folder
    $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail.pl",
                          -name=>'FolderForm');
    $temphtml .= hidden(-name=>'sessionid',
@@ -904,7 +925,7 @@ sub displayheaders {
          # make this msg selected if it is the only one
          $temphtml .= checkbox(-name=>'message_ids',
                                -value=>$messageid,
-                               -checked=>'checked',
+                               -checked=>1,
                                -label=>'');
       } else {
          $temphtml .= checkbox(-name=>'message_ids',
@@ -1040,7 +1061,7 @@ sub readmessage {
          $html =~ s/\@\@\@FOLDER\@\@\@/$folder/g;
       }
 
-### these will hold web-ified headers
+      # web-ified headers
       my ($from, $replyto, $to, $notificationto, $cc, $subject, $body);
       $from = str2html($message{from} || '');
       $replyto = str2html($message{replyto} || '');
@@ -1089,7 +1110,7 @@ sub readmessage {
       my $base_url_noid = "$config{'ow_cgiurl'}/openwebmail.pl?sessionid=$thissession&amp;firstmessage=" . ($firstmessage) .
                           "&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder";
 
-##### Set up the message to go to after move.
+      # Set up the message to go to after move.
       my $messageaftermove;
       if (defined($message{"next"})) {
          $messageaftermove = $message{"next"};
@@ -1425,7 +1446,7 @@ sub readmessage {
 
       printfooter();
 
-      ### fork a child to do the status update and headerdb update
+      # fork a child to do the status update and headerdb update
       if ($message{status} !~ /r/i) {
          $|=1; 				# flush all output
          $SIG{CHLD} = sub { wait };	# handle zombie
@@ -1501,6 +1522,13 @@ sub message_att2table {
    
    $header=text2html($header);
    $header=simpleheader($header);
+
+   $header=~s!Date: !<B>$lang_text{'date'}:</B> !i;
+   $header=~s!From: !<B>$lang_text{'from'}:</B> !i;
+   $header=~s!Reply-To: !<B>$lang_text{'replyto'}:</B> !i;
+   $header=~s!To: !<B>$lang_text{'to'}:</B> !i;
+   $header=~s!Cc: !<B>$lang_text{'cc'}:</B> !i;
+   $header=~s!Subject: !<B>$lang_text{'subject'}:</B> !i;
 
    if ($contenttype =~ /^text/i) {
       if ($encoding =~ /^quoted-printable/i) {
@@ -1788,9 +1816,9 @@ sub composemessage {
             openwebmailerror ("$lang_err{'att_overlimit'} $config{'attlimit'} MB!");
          }
          my $content_type;
-### Convert :: back to the ' like it should be.
+         # Convert :: back to the ' like it should be.
          $attname =~ s/::/'/g;
-### Trim the path info from the filename
+         # Trim the path info from the filename
          $attname =~ s/^.*\\//;
          $attname =~ s/^.*\///;
          $attname =~ s/^.*://;
@@ -2361,9 +2389,9 @@ sub sendmessage {
          }
       }
       my $attname = $attachment;
-      ### Convert :: back to the ' like it should be.
+      # Convert :: back to the ' like it should be.
       $attname =~ s/::/'/g;
-      ### Trim the path info from the filename
+      # Trim the path info from the filename
       $attname =~ s/^.*\\//;
       $attname =~ s/^.*\///;
       $attname =~ s/^.*://;
@@ -2578,7 +2606,7 @@ sub sendmessage {
          $attr[$_OFFSET]=$messagestart;
          $attr[$_TO]=$to;
          $attr[$_FROM]="$realname <$from>";
-         ### we store localtime on dbm, so day offset is not needed
+         # we store localtime on dbm, so day offset is not needed
          $attr[$_DATE]="$month{$datearray[1]}/$datearray[0]/$datearray[2] $datearray[3]";
          $attr[$_SUBJECT]=$subject;
          $attr[$_CONTENT_TYPE]=$contenttype;

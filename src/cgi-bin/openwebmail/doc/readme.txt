@@ -92,20 +92,12 @@ If you are using RedHat 6.2/CLE 0.9p1(or most Linux) with apache
    to /etc/logrotate.d/syslog to enable logrotate on openwebmail.log
 
 ps: if you are using RedHat 7.1, please use /var/www instead of /home/httpd
-    (by elitric@yahoo.com)
-
-If you are upgrading from old openwebmail on RedHat 6.2/CLE 0.9p1
-
-1. move original openwebmail dir (cgi-bin/openwebmail and html/openwebmail) 
-     to different name (eg: something like openwebmail.old)
-2. install the new version of openwebmail
-3. migrate the old settings from openwebmail.old to openwebmail with
-   uty/migrate.pl
-4. delete the old original openwebmail dir (openwebmail.old)
-
-ps: It is highly recommended to read the doc/RedHat-README.txt(contributed by 
+    It is highly recommended to read the doc/RedHat-README.txt(contributed by 
     elitric@yahoo.com) if you are installing Open WebMail on RedHat Linux.
 
+ps: Thomas Chung (tchung@oaolinux.jpl.nasa.gov) maintains a tarbal packed 
+    with an install script special for RedHat 7.x. It is available at
+    http://oaolinux.jpl.nasa.gov/openwebmail/
 
 If you are using other UNIX with apache, that is okay
 

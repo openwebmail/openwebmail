@@ -278,7 +278,7 @@ sub editprefs {
 
    $html =~ s/\@\@\@REPLYTOFIELD\@\@\@/$temphtml/;
 
-   ### Get a list of valid style files
+   # Get a list of valid style files
    my @styles;
    opendir (STYLESDIR, "$config{'ow_etcdir'}/styles") or
       openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/styles directory for reading!");
@@ -298,7 +298,7 @@ sub editprefs {
 
    $html =~ s/\@\@\@STYLEMENU\@\@\@/$temphtml/;
 
-   ### Get a list of valid iconset
+   # Get a list of valid iconset
    my @iconsets;
    opendir (ICONSETSDIR, "$config{'ow_htmldir'}/images/iconsets") or
       openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_htmldir'}/images/iconsets directory for reading!");
@@ -319,7 +319,7 @@ sub editprefs {
    $html =~ s/\@\@\@ICONSETMENU\@\@\@/$temphtml/;
 
 
-   ### Get a list of valid background images
+   # Get a list of valid background images
    my @backgrounds;
    my %bglabels=();
    opendir (BACKGROUNDSDIR, "$config{'ow_htmldir'}/images/backgrounds") or
@@ -346,7 +346,7 @@ sub editprefs {
                           -"values"=>\@backgrounds,
                           -labels=>\%bglabels,
                           -default=>$background,
-                          -onChange=>'JavaScript:document.prefsform.bgurl.value="";',
+                          -onChange=>"JavaScript:document.prefsform.bgurl.value='';",
                           -override=>'1');
 
    $html =~ s/\@\@\@BACKGROUNDMENU\@\@\@/$temphtml/;
@@ -2655,16 +2655,13 @@ sub modpop3 {
 
 #################### EDITFILTER ###########################
 sub editfilter {
-   #### variables ####
    my $html = '';
    my $temphtml;
    my @filterrules=();
    my @globalfilterrules=();
 
-   #### UI: header ####
    printheader();
 
-   #### UI: between header/footer ####
    open (EDITFILTERTEMPLATE, "$config{'ow_etcdir'}/templates/$prefs{'language'}/editfilter.template") or
        openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/templates/$prefs{'language'}/editfilter.template");
    while (<EDITFILTERTEMPLATE>) {
@@ -2672,7 +2669,6 @@ sub editfilter {
    }
    close (EDITFILTERTEMPLATE);
 
-   ## user-prefer-UI-style ##
    $html = applystyle($html);
    
    ## replace @@@FREESPACE@@@ ##
@@ -2922,7 +2918,6 @@ sub editfilter {
 
    print $html;
    
-   #### UI: footer ####
    printfooter();
 }
 ################### END EDITFILTER ########################
