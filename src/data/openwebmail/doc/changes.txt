@@ -1,3 +1,16 @@
+12/09/2004
+----------
+1. change calendar event notification email to a more concise format
+   so it could be displayed well in PDA or cell phone
+2. fix the error of spamassassin user prefs filename,
+   it should be user_prefs, not userprefs
+3. clean code related to cookies,
+   rename cookienames from openwebmail-* to ow-* and include -$domain-$user
+   as suffix for cookie that should not shared accross domains
+4. fix a bug in openwebmail.pl that cgi param domainname was always not used
+   in autologin
+
+
 12/08/2004
 ----------
 1. fix a bug in cut.pl that parameter for utime is not untainted

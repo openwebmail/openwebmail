@@ -107,7 +107,7 @@ $escapedkeyword = ow::tool::escapeURL($keyword);
 if (defined(param('abookfolder')) && param('abookfolder') ne "") {
    $abookfolder = param('abookfolder');
 } else {
-   $abookfolder = cookie("$user-abookfolder") || 'ALL';
+   $abookfolder = cookie("ow-abookfolder-$domain-$user") || 'ALL';
 }
 $abookpage = param('abookpage') || 1;
 $abooklongpage = param('abooklongpage') || 0;
@@ -1728,7 +1728,7 @@ sub addrlistview {
       $html =~ s/\@\@\@BUTTONSBEFORE\@\@\@//g;
    }
 
-   my $cookie = cookie( -name  => "$user-abookfolder",
+   my $cookie = cookie( -name  => "ow-abookfolder-$domain-$user",
                         -value => $abookfolder,
                         -path  => '/');
    if ($listviewmode eq '') {

@@ -1049,7 +1049,7 @@ learned message will be moved to. (default: INBOX)
 enable_saprefs
 -----------------------------------------------------------------------
 If this option is set to yes, user will be allowed to edit their 
-SpamAssassin userprefs file (~/.spamassassin/userprefs) in openwebmail.
+SpamAssassin user_prefs file (~/.spamassassin/user_prefs) in openwebmail.
 
 
 enable_pop3

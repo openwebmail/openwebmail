@@ -1941,7 +1941,7 @@ sub editpassword {
    $html = applystyle(readtemplate("chpwd.template"));
 
    my $chpwd_url="$config{'ow_cgiurl'}/openwebmail-prefs.pl";
-   if (cookie("openwebmail-ssl")) {	# backto SSL
+   if (cookie("ow-ssl")) {	# backto SSL
       $chpwd_url="https://$ENV{'HTTP_HOST'}$chpwd_url" if ($chpwd_url!~s!^https?://!https://!i);
    }
    $temphtml = startform(-name=>'passwordform',

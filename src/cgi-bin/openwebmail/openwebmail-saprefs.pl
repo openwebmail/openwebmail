@@ -1,6 +1,6 @@
 #!/usr/bin/suidperl -T
 #
-# openwebmail-saprefs.pl - spamassassin userprefs config
+# openwebmail-saprefs.pl - spamassassin user_prefs file config
 #
 
 use vars qw($SCRIPT_DIR);
@@ -209,7 +209,7 @@ sub edittest {
    $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/g;
 
 
-   my $saprefsfile="$homedir/.spamassassin/userprefs";
+   my $saprefsfile="$homedir/.spamassassin/user_prefs";
    my ($r_datas, $r_rules, $r_whitelist_from, $r_blacklist_from)=read_saprefs($saprefsfile);
 
    my @testnames= sort (keys %{$r_rules});
@@ -283,12 +283,18 @@ sub modtest {
    return edittest() if ($testname eq '');
 
    my %test;
-   my $saprefsfile="$homedir/.spamassassin/userprefs";
+   my $saprefsfile="$homedir/.spamassassin/user_prefs";
    my ($r_datas, $r_rules, $r_whitelist_from, $r_blacklist_from)=read_saprefs($saprefsfile);
 
    if ($mode eq 'add') {
-      $test{type}=param('testtype');
-      $test{pattern}=param('pattern');
+      $test{type}=param('testtype'); $test{type}=~s/^\s*//; $test{type}=~s/\s*$//;
+      $test{pattern}=param('pattern'); $test{pattern}=~s/^\s*//; $test{pattern}=~s/\s*$//;
+
+      # remove / / outside th pattern
+      $test{pattern}=~s!^/(.*)/$!$1!;
+      # ensure all / are properly escaped
+      $test{pattern}=~s!\\/!/!g; $test{pattern}=~s!/!\\/!g;
+
       if ($test{type} ne '' && $test{pattern} ne '' && ow::tool::is_regex($test{pattern})) {
          $test{desc}=param('testdesc') if (param('testdesc') ne '');
          if ($test{type} eq 'header') {
@@ -359,7 +365,7 @@ sub editlist {
    $temphtml = end_form();
    $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/g;
 
-   my $saprefsfile="$homedir/.spamassassin/userprefs";
+   my $saprefsfile="$homedir/.spamassassin/user_prefs";
    my ($r_datas, $r_rules, $r_whitelist_from, $r_blacklist_from)=read_saprefs($saprefsfile);
 
    my @list;
@@ -413,7 +419,7 @@ sub modlist {
    my $email = param('email') || ''; $email=~s/^\s*//; $email=~s/\s*$//;
    return editlist($listtype) if ($email eq '' || $email=~/[^\d\w_\@\%\*\!\&\.#]/);
 
-   my $saprefsfile="$homedir/.spamassassin/userprefs";
+   my $saprefsfile="$homedir/.spamassassin/user_prefs";
    my ($r_datas, $r_rules, $r_whitelist_from, $r_blacklist_from)=read_saprefs($saprefsfile);
 
    my $r_list;
@@ -594,59 +600,3 @@ sub write_saprefs {
    return 0;
 }
 ########## END READ/WRITE_SA_PREFS ##############################
-
-########## READ/WRITE_LISTFILE ##################################
-# these 2 routines are reserved for future use
-sub read_listfile {
-   my ($file)=@_;
-   my %list=();
-
-   ow::filelock::lock($file, LOCK_SH);
-   if (!open(F, $file)) {
-      ow::filelock::lock($file, LOCK_UN);
-      return \%list;
-   }
-
-   while(<F>) {
-      foreach my $email (split(/[\s,]+/, $_)) {
-         $list{$email}=1 if (length($email)>=3);
-      }
-   }
-
-   close(F);
-   ow::filelock::lock($file, LOCK_UN);
-
-   return \%list;
-}
-
-sub write_listfile {
-   my ($file, $r_list)=@_;
-
-   my @p=split(/\//, $file); pop @p;
-   my $dir=join('/', @p);
-   mkdir ($dir, 0700) if (!-d $dir);
-
-   ow::filelock::lock($file, LOCK_EX);
-   if (!open(F, ">$file")) {
-      ow::filelock::lock($file, LOCK_UN);
-      return -1;
-   }
-
-   my $s;
-   my @list=sort (keys %{$r_list});
-   foreach my $email (@list) {
-      if (length($s)+length($email)>72) {
-         print F "$s\n";
-         $s='';
-      }
-      $s.=" " if ($s ne '');
-      $s.=$email;
-   }
-   print F "$s\n" if ($s ne '');
-
-   close(F);
-   ow::filelock::lock($file, LOCK_UN);
-
-   return 0;
-}
-########## END READ/WRITE_LISTFILE ##############################

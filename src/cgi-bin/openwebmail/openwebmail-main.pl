@@ -1473,7 +1473,7 @@ sub logout {
 
    my $start_url=$config{'start_url'};
 
-   if (cookie("openwebmail-ssl")) {	# backto SSL
+   if (cookie("ow-ssl")) {	# backto SSL
       $start_url="https://$ENV{'HTTP_HOST'}$start_url" if ($start_url!~s!^https?://!https://!i);
    }
    $temphtml = startform(-action=>"$start_url");
@@ -1488,7 +1488,7 @@ sub logout {
    $html =~ s/\@\@\@BUTTONS\@\@\@/$temphtml/;
 
    # clear session cookie at logout
-   my $cookie= cookie(-name  => "$user-sessionid",
+   my $cookie= cookie(-name  => "ow-sessionkey-$domain-$user",
                       -value => '',
                       -path  => '/',
                       -expires => '+1s');

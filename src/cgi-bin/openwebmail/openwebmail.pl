@@ -127,7 +127,7 @@ if ( $config{'forced_ssl_login'} &&	# check the forced use of SSL
 if ( param('loginname') && param('password') ) {
    login();
 } elsif (matchlist_fromhead('allowed_autologinip', ow::tool::clientip()) &&
-         cookie('openwebmail-autologin')) {
+         cookie('ow-autologin')) {
    autologin();
 } else {
    loginmenu();	# display login page if no login
@@ -198,7 +198,7 @@ sub loginmenu {
        ow::tool::has_module('Compress/Zlib.pm') ) {
       $temphtml = checkbox(-name=>'httpcompress',
                            -value=>'1',
-                           -checked=>cookie("openwebmail-httpcompress")||0,
+                           -checked=>cookie("ow-httpcompress")||0,
                            -onClick=>'httpcompresshelp()',
                            -label=>'');
    } else {
@@ -214,7 +214,7 @@ sub loginmenu {
       templateblock_enable($html, 'AUTOLOGIN');
       $temphtml = checkbox(-name=>'autologin',
                            -value=>'1',
-                           -checked=>cookie("openwebmail-autologin")||0,
+                           -checked=>cookie("ow-autologin")||0,
                            -onClick=>'autologinhelp()',
                            -label=>'');
       $html =~ s/\@\@\@AUTOLOGINCHECKBOX\@\@\@/$temphtml/;
@@ -367,7 +367,7 @@ sub login {
    if ( $errorcode==0 ) {
       # search old alive session and deletes old expired sessionids
       ($thissession, @sessioncount) = search_clean_oldsessions
-		($loginname, $default_logindomain, $uuid, cookie("$user-sessionid"));
+		($loginname, $default_logindomain, $uuid, cookie("ow-sessionkey-$domain-$user"));
       if ($thissession eq "") {	# name the new sessionid
          my $n=rand(); for (1..5) { last if $n>=0.1; $n*=10; }	# cover bug if rand return too small value
          $thissession = $loginname."*".$default_logindomain."-session-$n";
@@ -437,15 +437,15 @@ sub login {
       }
 
       # create session file
-      my $sessioncookie_value;
+      my $sessionkey;
       if ( -f "$config{'ow_sessionsdir'}/$thissession" ) { # continue an old session?
-         $sessioncookie_value = cookie("$user-sessionid");
+         $sessionkey = cookie("ow-sessionkey-$domain-$user");
       } else {						       # a brand new sesion?
-         $sessioncookie_value = crypt(rand(),'OW');
+         $sessionkey = crypt(rand(),'OW');
       }
       open (SESSION, "> $config{'ow_sessionsdir'}/$thissession") or # create sessionid
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}/$thissession! ($!)");
-      print SESSION $sessioncookie_value, "\n";
+      print SESSION $sessionkey, "\n";
       print SESSION $clientip, "\n";
       print SESSION join("\@\@\@", $domain, $user, $userrealname, $uuid, $ugid, $homedir), "\n";
       close (SESSION);
@@ -513,7 +513,7 @@ sub login {
          autologin_rm();
          $autologin=0;
       }
-      push(@cookies, cookie(-name  => 'openwebmail-autologin',
+      push(@cookies, cookie(-name  => 'ow-autologin',
                             -value => $autologin,
                             -path  => '/',
                             -expires => '+1M') );
@@ -521,12 +521,12 @@ sub login {
       # if autologin then expired until 1 week, else expired until browser close
       my @expire=(); @expire=(-expires => '+7d') if ($autologin);
       # cookie for openwebmail to verify session,
-      push(@cookies, cookie(-name  => "$user-sessionid",
-                            -value => $sessioncookie_value,
+      push(@cookies, cookie(-name  => "ow-sessionkey-$domain-$user",
+                            -value => $sessionkey,
                             -path  => '/',
                             @expire) );
       # cookie for ssl session, expired if browser closed
-      push(@cookies, cookie(-name  => 'openwebmail-ssl',
+      push(@cookies, cookie(-name  => 'ow-ssl',
                             -value => ($ENV{'HTTPS'}=~/on/i ||
                                        $ENV{'SERVER_PORT'}==443 ||
                                        0),
@@ -534,16 +534,16 @@ sub login {
 
       # cookie for autologin other other ap to find openwebmail loginname, default_logindomain,
       # expired until 1 month later
-      push(@cookies, cookie(-name  => 'openwebmail-loginname',
+      push(@cookies, cookie(-name  => 'ow-loginname',
                             -value => $loginname,
                             -path  => '/',
                             -expires => '+1M') );
-      push(@cookies, cookie(-name  => 'openwebmail-default_logindomain',
+      push(@cookies, cookie(-name  => 'ow-default_logindomain',
                             -value => $default_logindomain,
                             -path  => '/',
                             -expires => '+1M') );
       # cookie for httpcompress switch, expired until 1 month later
-      push(@cookies, cookie(-name  => 'openwebmail-httpcompress',
+      push(@cookies, cookie(-name  => 'ow-httpcompress',
                             -value => param('httpcompress')||0,
                             -path  => '/',
                             -expires => '+1M') );
@@ -663,8 +663,8 @@ sub ip2hostname {
 ########## AUTOLOGIN #############################################
 sub autologin {
    # auto login with cgi parm or cookie
-   $default_logindomain=param('default_logindomain')||cookie('openwebmail-default_logindomain');
-   $loginname=param('loginname')||cookie('openwebmail-loginname');
+   $default_logindomain=param('logindomain')||cookie('ow-default_logindomain');
+   $loginname=param('loginname')||cookie('ow-loginname');
    return loginmenu() if ($loginname eq '');
 
    ($logindomain, $loginuser)=login_name2domainuser($loginname, $default_logindomain);
@@ -677,7 +677,7 @@ sub autologin {
 				=get_domain_user_userinfo($logindomain, $loginuser);
    if ($user eq '' ||
        ($uuid==0 && !matchlist_fromhead('allowed_rootloginip', ow::tool::clientip())) ||
-       cookie("$user-sessionid") eq '') {
+       cookie("ow-sessionkey-$domain-$user") eq '') {
       return loginmenu();
    }
 
@@ -692,7 +692,7 @@ sub autologin {
    # load user prefs for search_clean_oldsessions, it  will check $prefs{sessiontimeout}
    %prefs = readprefs();
    $thissession = (search_clean_oldsessions
-		($loginname, $default_logindomain, $uuid, cookie("$user-sessionid")))[0];
+		($loginname, $default_logindomain, $uuid, cookie("ow-sessionkey-$domain-$user")))[0];
    $thissession =~ s!\.\.+!!g;  # remove ..
    return loginmenu() if ($thissession !~ /^([\w\.\-\%\@]+\*[\w\.\-]*\-session\-0\.\d+)$/);
 
@@ -739,7 +739,7 @@ sub refreshurl_after_login {
 # try to find old session that is still valid for the same user cookie
 # and delete expired session files
 sub search_clean_oldsessions {
-   my ($loginname, $default_logindomain, $owner_uid, $oldcookie)=@_;
+   my ($loginname, $default_logindomain, $owner_uid, $client_sessionkey)=@_;
    my $oldsessionid="";
    my @sessioncount=(0,0,0);	# active sessions in 1, 5, 15 minutes
    my @delfiles;
@@ -763,8 +763,10 @@ sub search_clean_oldsessions {
          if ( $modifyage > $prefs{'sessiontimeout'}*60 ) {
             push(@delfiles, $sessfile);
          } elsif ($misc eq '') {	# this is a session info file
-            my ($cookie, $ip, $userinfo)=sessioninfo($sessfile);
-            if ($oldcookie && $cookie eq $oldcookie && $ip eq $clientip &&
+            my ($sessionkey, $ip, $userinfo)=sessioninfo($sessfile);
+            if ($client_sessionkey ne '' &&
+                $client_sessionkey eq $sessionkey  &&
+                $clientip eq $ip &&
                 (stat("$config{'ow_sessionsdir'}/$sessfile"))[4] == $owner_uid ) {
                $oldsessionid=$sessfile;
             } elsif (!$config{'session_multilogin'}) { # remove old session of this user

@@ -1297,19 +1297,19 @@ sub checknotify {
                $checkstart eq "0000") ) {
             my $itemstr;
             if ($items{$index}{'starthourmin'}==0) {
-               $itemstr="##:##";
+               $itemstr="##:##\n";
             } elsif ($items{$index}{'endhourmin'}==0) {
-               $itemstr=hourmin($items{$index}{'starthourmin'});
+               $itemstr=hourmin($items{$index}{'starthourmin'})."\n";
             } else {
-               $itemstr=hourmin($items{$index}{'starthourmin'})."-".hourmin($items{$index}{'endhourmin'});
+               $itemstr=hourmin($items{$index}{'starthourmin'})."-".hourmin($items{$index}{'endhourmin'})."\n";
             }
-            $itemstr .= "  ".(iconv($items{$index}{'charset'}, $prefs{'charset'}, $items{$index}{'string'}))[0];
-            $itemstr .= " ($items{$index}{'link'})" if ($items{$index}{'link'});
+            $itemstr.=(iconv($items{$index}{'charset'}, $prefs{'charset'}, $items{$index}{'string'}))[0]."\n";
+            $itemstr.=$items{$index}{'link'}."\n" if ($items{$index}{'link'});
 
             if (defined($message{$items{$index}{'email'}})) {
-               $message{$items{$index}{'email'}} .= $itemstr."\n";
+               $message{$items{$index}{'email'}} .= $itemstr;
             } else {
-               $message{$items{$index}{'email'}} = $itemstr."\n";
+               $message{$items{$index}{'email'}} = $itemstr;
             }
          }
          if ($items{$index}{'starthourmin'}>=$checkend) {
@@ -1325,11 +1325,10 @@ sub checknotify {
       }
    }
 
-   my $title=$prefs{'dateformat'}||"mm/dd/yyyy";
    my ($m, $d)=(sprintf("%02d",$month), sprintf("%02d",$day));
+   my $title=$prefs{'dateformat'}||"mm/dd/yyyy";
    $title=~s/yyyy/$year/; $title=~s/mm/$m/; $title=~s/dd/$d/;
-   $title.=" Event(s) between ".hourmin($checkstart)."-".hourmin($checkend)."\n".
-           "------------------------------------------------------------\n";
+   $title.=" (".hourmin($checkstart)."-".hourmin($checkend).")\n\n";
    my $from=$prefs{'email'};
    my %userfrom=get_userfrom($logindomain, $loginuser, $user, $userrealname, dotpath('from.book'));
    my $realname=$userfrom{$from};

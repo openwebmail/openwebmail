@@ -840,7 +840,7 @@ sub applystyle {
    $template =~ s/\@\@\@HELP_TEXT\@\@\@/$lang_text{'help'}/g;
 
    $url=$config{'start_url'};
-   if (cookie("openwebmail-ssl")) {	# backto SSL
+   if (cookie("ow-ssl")) {	# backto SSL
       $url="https://$ENV{'HTTP_HOST'}$url" if ($url!~s!^https?://!https://!i);
    }
    # STARTURL in templates are all GET, so we can safely add cgi param after the url
@@ -891,11 +891,11 @@ sub verifysession {
       openwebmail_exit(0);
    }
 
-   my $clientcookie=cookie("$user-sessionid");
+   my $client_sessionkey=cookie("ow-sessionkey-$domain-$user");
 
-   my ($cookie, $ip, $userinfo)=sessioninfo($thissession);
+   my ($sessionkey, $ip, $userinfo)=sessioninfo($thissession);
    if ( $config{'session_checkcookie'} &&
-        $clientcookie ne $cookie ) {
+        $client_sessionkey ne $sessionkey ) {
       writelog("session error - request doesn't have proper cookie, access denied!");
       writehistory("session error - request doesn't have proper cookie, access denied !");
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'sess_cookieerr'}");
@@ -921,7 +921,7 @@ sub verifysession {
 
 sub sessioninfo {
    my $sessionid=$_[0];
-   my ($cookie, $ip, $userinfo);
+   my ($sessionkey, $ip, $userinfo);
 
    openwebmailerror(__FILE__, __LINE__, "Session ID $sessionid $lang_err{'doesnt_exist'}. <a href=\"$config{'ow_cgiurl'}/openwebmail.pl\">$lang_text{'loginagain'}?</a>") unless
       (-e "$config{'ow_sessionsdir'}/$sessionid");
@@ -930,12 +930,12 @@ sub sessioninfo {
       writelog("session error - couldn't open $config{'ow_sessionsdir'}/$sessionid ($@)");
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}/$sessionid");
    }
-   $cookie= <F>; chomp $cookie;
+   $sessionkey= <F>; chomp $sessionkey;
    $ip= <F>; chomp $ip;
    $userinfo = <F>; chomp $userinfo;
    close (F);
 
-   return($cookie, $ip, $userinfo);
+   return($sessionkey, $ip, $userinfo);
 }
 ########## END VERIFYSESSION #####################################
 
@@ -1168,7 +1168,7 @@ sub sort_emails_by_domainnames {
 
 ########## HTTPPRINT/HTMLHEADER/HTMLFOOTER #######################
 sub is_http_compression_enabled {
-   if (cookie("openwebmail-httpcompress") &&
+   if (cookie("ow-httpcompress") &&
        $ENV{'HTTP_ACCEPT_ENCODING'}=~/\bgzip\b/ &&
        ow::tool::has_module('Compress/Zlib.pm')) {
       return 1;

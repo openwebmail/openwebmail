@@ -54,7 +54,7 @@ if (!defined($ENV{'GATEWAY_INTERFACE'})) {	# cmd mode
    exit 1;
 }
 
-my $user=param('loginname')||cookie('openwebmail-loginname')||'';
+my $user=param('loginname')||cookie('ow-loginname')||'';
 my $status='';
 my $playsound = param('playsound')||'';
 my $html=qq|<a href="_URL_" target="_blank" style="text-decoration: none">|.

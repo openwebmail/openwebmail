@@ -1598,14 +1598,14 @@ ps: Openwebmail supports autologin since 2004/06/01, users doesn't have to
 Q: Can I get the mail/event status of a user before he logins openwebmail?
    How can I get the username before user really types it?
 A: If a user has ever successfully logined into openwebmail, the loginname
-   will be stored to cookie "openwebmail-loginname" at the browser side.
+   will be stored to cookie "ow-loginname" at the browser side.
    The following CGI script demonstrates how to use this information.
 -----------------------------------------
 #!/usr/bin/perl
 use CGI qw(-private_tempfiles :standard);
 print "Content-type: text/html\n\n";
 my $info;
-my $loginname = cookie("openwebmail-loginname");
+my $loginname = cookie("ow-loginname");
 $loginname=~s/[^\w\d\.\-\%\@]//g;	# remove dangerous char
 if ($loginname ne "") {
    $info=`/usr/local/www/cgi-bin/openwebmail/openwebmail-tool.pl -m -e $loginname`;

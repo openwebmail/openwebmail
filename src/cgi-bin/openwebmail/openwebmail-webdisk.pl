@@ -91,7 +91,7 @@ my $currentdir;
 if (defined(param('currentdir')) && param('currentdir') ne "") {
    $currentdir = param('currentdir');
 } else {
-   $currentdir = cookie("$user-currentdir"),
+   $currentdir = cookie("ow-currentdir-$domain-$user"),
 }
 my $gotodir = param('gotodir')||'';
 my @selitems = (param('selitems'));
@@ -1746,7 +1746,7 @@ sub dirfilesel {
    # since $filelisthtml may be large, we put it into $html as late as possible
    $html =~ s/\@\@\@FILELIST\@\@\@/$filelisthtml/; undef($filelisthtml);
 
-   my $cookie = cookie( -name  => "$user-currentdir",
+   my $cookie = cookie( -name  => "ow-currentdir-$domain-$user",
                         -value => $currentdir,
                         -path  => '/');
    httpprint([-cookie=>[$cookie]], [htmlheader(), $html, htmlfooter(2)]);
@@ -2470,7 +2470,7 @@ sub showdir {
    my $refreshinterval=$prefs{'refreshinterval'}*60;
    my $relative_url="$config{'ow_cgiurl'}/openwebmail-webdisk.pl";
    $relative_url=~s!/.*/!!g;
-   my $cookie = cookie( -name  => "$user-currentdir",
+   my $cookie = cookie( -name  => "ow-currentdir-$domain-$user",
                         -value => $currentdir,
                         -path  => '/');
    httpprint([-cookie=>[$cookie],
