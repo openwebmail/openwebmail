@@ -41,8 +41,9 @@ sub get_tnef_archive {
    my $tmpdir="/tmp/.tnef.tmpdir.$$";
 
    if ($<!=$> && $<!=0) {
-      local $SIG{CHLD}; undef $SIG{CHLD};  # disable outside $SIG{CHLD} handler temporarily for wait()
+      local $SIG{CHLD}; undef $SIG{CHLD};  # disable $SIG{CHLD} temporarily for wait()
       local $|=1; # flush all output
+
       if (fork()==0) {
          close(STDIN); close(STDOUT); close(STDERR);
          # drop ruid/rgid to guarentee child ruid=euid=current euid, rgid=egid=current gid

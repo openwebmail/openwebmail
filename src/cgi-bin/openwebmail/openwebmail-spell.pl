@@ -95,10 +95,6 @@ use vars qw(%lang_text %lang_err);	# defined in lang/xy
 
 ########## MAIN ##################################################
 openwebmail_requestbegin();
-$SIG{PIPE}=\&openwebmail_exit;	# for user stop
-$SIG{TERM}=\&openwebmail_exit;	# for user stop
-$SIG{CHLD}='IGNORE';		# avoid zombies
-
 userenv_init();
 
 if (!$config{'enable_webmail'} || !$config{'enable_spellcheck'}) {
@@ -624,7 +620,7 @@ sub pipeopen {
    my @cmd=@_; foreach (@cmd) { (/^(.*)$/) && ($_=$1) };	# untaint all argument
    local $|=1;				# flush CGI related output in parent
    ($piperun, $pipeexit, $pipesig)=(1,0,0);
-   $SIG{CHLD}=sub { wait; $pipeexit=$?>>8; $pipesig=$?&255; $piperun=0; };
+   local $SIG{CHLD}=sub { wait; $pipeexit=$?>>8; $pipesig=$?&255; $piperun=0; }; # to get child status
    eval { $pipepid = open3(\*spellIN, \*spellOUT, \*spellERR, @cmd); };
    if ($@) {			# open3 return err only in child
       if ($$!=$mypid){ 		# child

@@ -220,20 +220,34 @@ sub openwebmail_clearall {
 sub openwebmail_requestbegin {
    openwebmail_clearall() if ($_vars_used);	# clear global
    $_vars_used=1;
+
+   $SIG{PIPE}=\&openwebmail_exit;		# for user stop
+   $SIG{TERM}=\&openwebmail_exit;		# for user stop
+   $SIG{CHLD}=\&zombie_cleaner;			# catch signal CHLD by default
+						# so in case we need return status of wait()/system()
+                                                # we have to 'loca $SIG{CHLD}; undef $SIG{CHLD};'
 }
 
 # routine used at CGI request end
 sub openwebmail_requestend {
    openwebmail_clearall() if ($_vars_used);	# clear global
-   if ($persistence_count>0) { while (waitpid(-1,WNOHANG)>0) {}	} # clear zombie
    $_vars_used=0;
    $persistence_count++;
+
+   zombie_cleaner();				# in case any zombie exists
+   $SIG{CHLD}=\&zombie_cleaner;			# we hope this catches sig child inside speedycgi
 }
 
 # routine used at exit
 sub openwebmail_exit {
    openwebmail_requestend();
    exit $_[0];
+}
+
+# routine to clean all zombie child processes,
+# it is also used as the default handler for signal CHLD
+sub zombie_cleaner {
+   while (waitpid(-1,WNOHANG)>0) {}
 }
 ########## END CLEARVAR/ENDREQUEST/EXIT ##########################
 

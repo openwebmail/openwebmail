@@ -64,10 +64,6 @@ use vars qw($escapedfolder $escapedkeyword);
 
 ########## MAIN ##################################################
 openwebmail_requestbegin();
-$SIG{PIPE}=\&openwebmail_exit;	# for user stop
-$SIG{TERM}=\&openwebmail_exit;	# for user stop
-$SIG{CHLD}='IGNORE';		# prevent zombie
-
 userenv_init();
 
 my $action = param('action')||'';
@@ -1158,7 +1154,7 @@ sub movemessage {
    # fork a child to do learn the msg in background
    # thus the resulted msglist can be returned as soon as possible
    if ($learntype ne 'none') {
-      local $SIG{CHLD} = 'IGNORE';	# handle zombie
+      # local $SIG{CHLD}=\&zombie_cleaner;	# not necessary as this is default
       local $|=1; 			# flush all output
       if ( fork() == 0 ) {		# child
          close(STDIN); close(STDOUT); close(STDERR);
@@ -1320,7 +1316,7 @@ sub pop3_fetches {
    if (%accounts>0) {
       local $|=1; # flush all output
       local $pop3_fetches_complete=0;	# localize for reentry safe
-      local $SIG{CHLD} = sub { wait; $pop3_fetches_complete=1; };	# handle zombie
+      local $SIG{CHLD} = sub { wait; $pop3_fetches_complete=1; };	# signaled when pop3 fetch completes
 
       if ( fork() == 0 ) {		# child
          close(STDIN); close(STDOUT); close(STDERR);

@@ -60,8 +60,6 @@ use vars qw(%lang_text %lang_err);	# defined in lang/xy
 
 ########## MAIN ##################################################
 openwebmail_requestbegin();
-$SIG{PIPE}=\&openwebmail_exit;	# for user stop
-$SIG{TERM}=\&openwebmail_exit;	# for user stop
 
 load_owconf(\%config_raw, "$SCRIPT_DIR/etc/defaults/openwebmail.conf");
 read_owconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf") if (-f "$SCRIPT_DIR/etc/openwebmail.conf");

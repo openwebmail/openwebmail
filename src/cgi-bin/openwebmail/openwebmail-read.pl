@@ -110,10 +110,6 @@ use vars qw(%smilies);
 
 ########## MAIN ##################################################
 openwebmail_requestbegin();
-$SIG{PIPE}=\&openwebmail_exit;	# for user stop
-$SIG{TERM}=\&openwebmail_exit;	# for user stop
-$SIG{CHLD}='IGNORE';		# prevent zombie
-
 userenv_init();
 
 if (!$config{'enable_webmail'}) {
@@ -951,8 +947,8 @@ sub readmessage {
    # fork a child to do the status update and folderdb update
    # thus the result of readmessage can be returned as soon as possible
    if ($message{status} !~ /R/i) {	# msg file doesn't has R flag
-      local $SIG{CHLD} = 'IGNORE';	# handle zombie
       local $|=1; 			# flush all output
+      # local $SIG{CHLD}=\&zombie_cleaner;	# not necessary as this is default
       if ( fork() == 0 ) {		# child
          close(STDIN); close(STDOUT); close(STDERR);
 

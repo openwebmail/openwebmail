@@ -90,7 +90,7 @@ sub pipecmd_msg {
    # use fork to set ruid only if ruid!=euid && ruid !=0
    # ps: if caller is already a 'forked then die' process, it can set ruid=euid to avoid fork here
    if ($<!=$> && $<!=0) {
-      local $SIG{CHLD}; undef $SIG{CHLD};  # disable outside $SIG{CHLD} handler temporarily for wait()
+      local $SIG{CHLD}; undef $SIG{CHLD};  # disable $SIG{CHLD} temporarily for wait()
       local $|=1; # flush all output
       if (fork()==0) {
           close(STDIN); close(STDOUT); close(STDERR);

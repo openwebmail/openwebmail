@@ -213,8 +213,8 @@ sub change_userpassword {
    close(TMP) or goto authsys_error;
 
    if ($passwdmkdb ne "" && $passwdmkdb ne "none" ) {
-      # disable outside $SIG{CHLD} handler temporarily for system() return value
-      local $SIG{CHLD}; undef $SIG{CHLD};
+      # disable $SIG{CHLD} temporarily for system() return value
+      # local $SIG{CHLD}; undef $SIG{CHLD};	# already done in auth.pl
       # update passwd and db with pwdmkdb program
       if ( system("$passwdmkdb $passwdfile_encrypted.tmp.$$")!=0 ) {
          goto authsys_error;

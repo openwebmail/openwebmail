@@ -52,9 +52,6 @@ use vars qw($escapedfolder);
 
 ########## MAIN ##################################################
 openwebmail_requestbegin();
-$SIG{PIPE}=\&openwebmail_exit;	# for user stop
-$SIG{TERM}=\&openwebmail_exit;	# for user stop
-
 userenv_init();
 
 if (!$config{'enable_webmail'}) {

@@ -1,3 +1,10 @@
+11/11/2004
+----------
+1. fix a bug that caused the following warning in system log on linux system
+   "application bug: perl5.8.3 has SIGCHLD set to SIG_IGN but calls wait()..."
+   (thanks to Joachim Vorrath, joachim.vorrath.AT.de.easynet.net for his fix)
+
+
 11/10/2004
 ----------
 1. the import/export support for csv and tab-seperated addressbook!

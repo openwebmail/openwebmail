@@ -20,7 +20,7 @@ sub getinfomessageids {
    # do new indexing in background if folder > 10 M && empty db
    if (!ow::dbm::exist($folderdb) && (-s $folderfile) >= 10485760) {
       local $_index_complete=0;
-      local $SIG{CHLD} = sub { wait; $_index_complete=1 if ($?==0) };	# handle zombie
+      local $SIG{CHLD} = sub { wait; $_index_complete=1 if ($?==0) };	# signaled when indexing completes
       local $|=1; # flush all output
       if ( fork() == 0 ) {		# child
          close(STDIN); close(STDOUT); close(STDERR);

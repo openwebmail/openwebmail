@@ -72,9 +72,6 @@ use vars qw($POP3_TIMEOUT %opt);
 
 ########## main ##################################################
 openwebmail_requestbegin();
-$SIG{PIPE}=\&openwebmail_exit;	# for user stop
-$SIG{TERM}=\&openwebmail_exit;	# for user stop
-$SIG{CHLD}='IGNORE';		# prevent zombie
 
 $POP3_TIMEOUT=20;
 

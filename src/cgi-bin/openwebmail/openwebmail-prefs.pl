@@ -89,10 +89,6 @@ use vars qw(%op_order %ruletype_order %folder_order);	# filterrule prefered orde
 
 ########## MAIN ##################################################
 openwebmail_requestbegin();
-$SIG{PIPE}=\&openwebmail_exit;	# for user stop
-$SIG{TERM}=\&openwebmail_exit;	# for user stop
-$SIG{CHLD}='IGNORE';		# prevent zombie
-
 userenv_init();
 
 $folder = param('folder') || 'INBOX';

@@ -129,8 +129,8 @@ sub check_userpassword {
       return @res;
    }
 
-   # disable SIG CHLD since authsys in PAM may fork process
-   local $SIG{CHLD}; undef $SIG{CHLD};
+   # disable $SIG{CHLD} temporary since authsys in PAM may fork process
+   # local $SIG{CHLD}; undef $SIG{CHLD};	# already done in auth.pl
 
    my ($pamh, $ret, $errmsg);
    if ( ref($pamh = new Authen::PAM($servicename, $pam_user, \&checkpwd_conv_func)) ) {
@@ -206,7 +206,7 @@ sub change_userpassword {
    }
 
    # disable SIG CHLD since authsys in PAM may fork process
-   local $SIG{CHLD}; undef $SIG{CHLD};
+   # local $SIG{CHLD}; undef $SIG{CHLD};	# already done in auth.pl
 
    my ($pamh, $ret, $errmsg);
    if (ref($pamh = new Authen::PAM($servicename, $pam_user, \&changepwd_conv_func)) ) {

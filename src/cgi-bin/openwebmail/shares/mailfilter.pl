@@ -155,7 +155,7 @@ sub filtermessage {
    }
 
    local $_filter_complete=0;
-   local $SIG{CHLD} = sub { wait; $_filter_complete=1 if ($?==0) };	# handle zombie
+   local $SIG{CHLD} = sub { wait; $_filter_complete=1 if ($?==0) };	# signaled when filter completes
    local $|=1; # flush all output
 
    if ( fork() == 0 ) {		# child
