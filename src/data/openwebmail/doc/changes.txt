@@ -1,3 +1,11 @@
+11/18/2004
+----------
+1. Slovenian html editor files translation update
+   (thanks to Uros Sajko, copatek.AT.yahoo.com)
+2. fix a typo error in openwebmail-send.pl introduced by change4 in 11/16/2004
+   which stopped the 'save draft' function from working.
+
+
 11/17/2004
 ----------
 1. minor fix to editfile in webdisk so it could be called from modules 

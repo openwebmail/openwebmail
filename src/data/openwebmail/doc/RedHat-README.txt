@@ -4,6 +4,10 @@ Last Revision: 10/30/2001
 Author:  Emir Litric (elitric.AT.digitex.cc)
 File: RedHat-README.txt
 
+ps: This document is somewhat outdated,
+    please refer to http://forum.openwebmail.org/viewtopic.php?t=37
+    for more updated information.
+
 ------------------------------------------------------------------------------
      SETUP OF THE OPENWEBMAIL WITH QUOTA SYSTEM ENABLED ON REDHAT LINUX
 ------------------------------------------------------------------------------

@@ -1596,7 +1596,7 @@ sub sendmessage {
       $savefolder = 'saved-drafts';
       $do_send=0;
       $do_save=0 if ($quotalimit>0 && $quotausage>=$quotalimit ||
-                     !$config{'enable_savesraft'});
+                     !$config{'enable_savedraft'});
    } else {					     # save msg to sent folder && send
       $savefolder = 'sent-mail';
       $do_save=0 if (($quotalimit>0 && $quotausage>=$quotalimit) || 

@@ -1,8 +1,8 @@
 <html style="width: 398; height: 218">
 
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-  <title>Insert Table</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1250">
+  <title>Vstavi tabelo</title>
 
 <script type="text/javascript" src="popup.js"></script>
 
@@ -15,8 +15,8 @@ function Init() {
 
 function onOK() {
   var required = {
-    "f_rows": "You must enter a number of rows",
-    "f_cols": "You must enter a number of columns"
+    "f_rows": "Vpisati morate število vrstic",
+    "f_cols": "Vpisati morate število stolpcev"
   };
   for (var i in required) {
     var el = document.getElementById(i);
@@ -78,28 +78,28 @@ form { padding: 0px; margin: 0px; }
 
 <body onload="Init()">
 
-<div class="title">Insert Table</div>
+<div class="title">Vstavi tabelo</div>
 
 <form action="" method="get">
 <table border="0" style="padding: 0px; margin: 0px">
   <tbody>
 
   <tr>
-    <td style="width: 4em; text-align: right">Rows:</td>
-    <td><input type="text" name="rows" id="f_rows" size="5" title="Number of rows" value="2" /></td>
+    <td style="width: 4em; text-align: right">Vrstic:</td>
+    <td><input type="text" name="rows" id="f_rows" size="5" title="Število vrstic" value="2" /></td>
     <td></td>
     <td></td>
     <td></td>
   </tr>
   <tr>
-    <td style="width: 4em; text-align: right">Cols:</td>
-    <td><input type="text" name="cols" id="f_cols" size="5" title="Number of columns" value="4" /></td>
+    <td style="width: 4em; text-align: right">Stolpcev:</td>
+    <td><input type="text" name="cols" id="f_cols" size="5" title="Število stolpcev" value="4" /></td>
     <td style="width: 4em; text-align: right">Width:</td>
-    <td><input type="text" name="width" id="f_width" size="5" title="Width of the table" value="100" /></td>
-    <td><select size="1" name="unit" id="f_unit" title="Width unit">
-      <option value="%" selected="1"  >Percent</option>
-      <option value="px"              >Pixels</option>
-      <option value="em"              >Em</option>
+    <td><input type="text" name="width" id="f_width" size="5" title="Širina tabele" value="100" /></td>
+    <td><select size="1" name="unit" id="f_unit" title="Šitina enot">
+      <option value="%" selected="1"  >Odstotkov</option>
+      <option value="px"              >Pikslov</option>
+      <option value="em"              >Enot</option>
     </select></td>
   </tr>
 
@@ -113,26 +113,26 @@ form { padding: 0px; margin: 0px; }
 
 <div class="space"></div>
 
-<div class="fl">Alignment:</div>
+<div class="fl">Poravnava:</div>
 <select size="1" name="align" id="f_align"
-  title="Positioning of this table">
-  <option value="" selected="1"                >Not set</option>
-  <option value="left"                         >Left</option>
-  <option value="right"                        >Right</option>
-  <option value="texttop"                      >Texttop</option>
-  <option value="absmiddle"                    >Absmiddle</option>
-  <option value="baseline"                     >Baseline</option>
-  <option value="absbottom"                    >Absbottom</option>
-  <option value="bottom"                       >Bottom</option>
-  <option value="middle"                       >Middle</option>
-  <option value="top"                          >Top</option>
+  title="Položaj te tabele">
+  <option value="" selected="1"                >Ni doloèeno</option>
+  <option value="left"                         >Levo</option>
+  <option value="right"                        >Desno</option>
+  <option value="texttop"                      >Besedilo na vrhu</option>
+  <option value="absmiddle"                    >Absolutna sredina</option>
+  <option value="baseline"                     >Osnovna linija</option>
+  <option value="absbottom"                    >Absolutno spodaj</option>
+  <option value="bottom"                       >Spodaj</option>
+  <option value="middle"                       >Na sredini</option>
+  <option value="top"                          >Na vrhu</option>
 </select>
 
 <p />
 
-<div class="fl">Border thickness:</div>
+<div class="fl">Debelina obrobe:</div>
 <input type="text" name="border" id="f_border" size="5" value="1"
-title="Leave empty for no border" />
+title="Pustite prazno, èe ne želite obrobe" />
 <!--
 <p />
 
@@ -144,19 +144,19 @@ title="Leave empty for no border" />
 </fieldset>
 
 <fieldset style="float:right; margin-right: 5px;">
-<legend>Spacing</legend>
+<legend>Razmik</legend>
 
 <div class="space"></div>
 
 <div class="fr">Cell spacing:</div>
 <input type="text" name="spacing" id="f_spacing" size="5" value="1"
-title="Space between adjacent cells" />
+title="Razmik med sosednjimi celicami" />
 
 <p />
 
 <div class="fr">Cell padding:</div>
 <input type="text" name="padding" id="f_padding" size="5" value="1"
-title="Space between content and border in cell" />
+title="Razmik med vsebino in robom celic" />
 
 <div class="space"></div>
 
@@ -164,8 +164,8 @@ title="Space between content and border in cell" />
 
 <div style="margin-top: 85px; text-align: right;">
 <hr />
-<button type="button" name="ok" onclick="return onOK();">OK</button>
-<button type="button" name="cancel" onclick="return onCancel();">Cancel</button>
+<button type="button" name="ok" onclick="return onOK();">Potrdi</button>
+<button type="button" name="cancel" onclick="return onCancel();">Opusti</button>
 </div>
 
 </form>

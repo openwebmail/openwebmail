@@ -230,7 +230,10 @@ ps: It is highly recommended to read the doc/RedHat-README.txt(contributed by
 
 ps: Thomas Chung (tchung.AT.openwebmail.org) maintains the rpm for all
     released and current version of openwebmail, It is available at
-    http://openwebmail.org/openwebmail/download/redhat/rpm/
+    http://openwebmail.org/openwebmail/download/redhat/rpm/.
+
+    Documents for RH7.3/RH8/RH9, RHEL3, FC1/FC2/FC3 are available at
+    http://openwebmail.org/openwebmail/download/redhat/howto/00-openwebmail.html
     You can get openwebmail working in 5 minutes with this :)
 
 
