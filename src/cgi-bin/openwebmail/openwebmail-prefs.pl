@@ -31,20 +31,10 @@ CGI::nph();   # Treat script as a non-parsed-header script
 $ENV{PATH} = ""; # no PATH should be needed
 umask(0007); # make sure the openwebmail group can write
 
-if ($> != 0) {
-   my $suidperl=$^X;
-   $suidperl=~s/perl/suidperl/;
-   print "Content-type: text/html\n\n",
-         "<br><b>$0 is not setuid to root!</b><br>",
-         "<br>1. check if script is owned by root with mode 4755",
-         "<br>2. use #!$suidperl instead of #!$^X in script";
-   exit;
-}  
-
 require "etc/openwebmail.conf";
 require "openwebmail-shared.pl";
+require "filelock.pl";
 require "pop3mail.pl";
-require "maildb.pl";
 
 local $thissession;
 local $user;
@@ -69,15 +59,29 @@ $user = $thissession || '';
 $user =~ s/\-session\-0.*$//; # Grab userid from sessionid
 ($user =~ /^(.+)$/) && ($user = $1);  # untaint $user...
 
-$uid=0; $gid = getgrnam('mail');
-if ($user) {
-   if (($homedirspools eq 'yes') || ($homedirfolders eq 'yes')) {
+$uid=$>; $gid = getgrnam('mail');
+
+# setuid is required if mails is located in user's dir
+if (($homedirspools eq 'yes') || ($homedirfolders eq 'yes')) { 
+   if ( $> != 0 ) {
+      my $suidperl=$^X;
+      $suidperl=~s/perl/suidperl/;
+      openwebmailerror("<b>$0 must setuid to root!</b><br>".
+                       "<br>1. check if script is owned by root with mode 4755".
+                       "<br>2. use '#!$suidperl' instead of '#!$^X' in script");
+   }  
+   if ($user) {
       my $ugid;
       ($uid, $ugid, $homedir) = (getpwnam($user))[2,3,7] or
          openwebmailerror("User $user doesn't exist!");
    }
 }
 set_euid_egid_umask($uid, $gid, 0077);
+
+# egid must be mail since this is a mail program...
+if ( $) != $gid) { 
+   openwebmailerror("Set effective gid to mail($gid) failed!");
+}
 
 if ( $homedirfolders eq 'yes') {
    $folderdir = "$homedir/$homedirfolderdirname";
@@ -122,6 +126,8 @@ if (defined(param("action"))) {      # an action has been chosen
          addfolder();
       } elsif ($action eq "deletefolder") {
          deletefolder();
+      } elsif ($action eq "renamefolder") {
+         renamefolder();
       } elsif ($action eq "addressbook") {
          addressbook();
       } elsif ($action eq "editaddresses") {
@@ -130,6 +136,8 @@ if (defined(param("action"))) {      # an action has been chosen
          modaddress("add");
       } elsif ($action eq "deleteaddress") {
          modaddress("delete");
+      } elsif ($action eq "clearaddress") {
+         clearaddress();
       } elsif ($action eq "importabook") {
          importabook();
       } elsif ($action eq "editpop3") {
@@ -151,6 +159,12 @@ if (defined(param("action"))) {      # an action has been chosen
       openwebmailerror("Action $lang_err{'has_illegal_chars'}");
    }
 } else {            # no action has been taken, display prefs page
+   editprefs();
+}
+###################### END MAIN ##############################
+
+####################EDITPREFS ###########################
+sub editprefs {
    verifysession();
 
    my $html = '';
@@ -264,7 +278,15 @@ if (defined(param("action"))) {      # an action has been chosen
                           -default=>$prefs{"headersperpage"} || $headersperpage,
                           -override=>'1');
 
-   $html =~ s/\@\@\@NUMBEROFMESSAGES\@\@\@/$temphtml/;
+   $html =~ s/\@\@\@HEADERSPERPAGE\@\@\@/$temphtml/;
+
+   $filter_repeatlimit=$prefs{'filter_repeatlimit'} if ( defined($prefs{'filter_repeatlimit'}) );
+   $temphtml = popup_menu(-name=>'filter_repeatlimit',
+                          -"values"=>['0','5','10','20','30','40','50','100'],
+                          -default=>$filter_repeatlimit,
+                          -override=>'1');
+
+   $html =~ s/\@\@\@FILTERREPEATLIMIT\@\@\@/$temphtml/;
 
    my %headerlabels = ('simple'=>$lang_text{'simplehead'},
                        'all'=>$lang_text{'allhead'}
@@ -284,6 +306,14 @@ if (defined(param("action"))) {      # an action has been chosen
                           -override=>'1');
 
    $html =~ s/\@\@\@DEFAULTDESTINATIONMENU\@\@\@/$temphtml/;
+
+   $filter_fakedsmtp=($filter_fakedsmtp eq 'yes'||$filter_fakedsmtp==1)?1:0;
+   $filter_fakedsmtp=$prefs{'filter_fakedsmtp'} if ( defined($prefs{'filter_fakedsmtp'}) );
+   $temphtml = checkbox(-name=>'filter_fakedsmtp',
+                        -value=>'1',
+                        -checked=>$filter_fakedsmtp,
+                        -label=>'');
+   $html =~ s/\@\@\@FILTERFAKEDSMTP\@\@\@/$temphtml/g;
 
    $temphtml = checkbox(-name=>'newmailsound',
                   -value=>'1',
@@ -347,11 +377,12 @@ if (defined(param("action"))) {      # an action has been chosen
 
    printfooter();
 }
-###################### END MAIN ##############################
+#################### END EDITPREFS ###########################
 
 #################### EDITFOLDERS ###########################
 sub editfolders {
    verifysession();
+
    my @folders;
    opendir (FOLDERDIR, "$folderdir") or
       openwebmailerror("$lang_err{'couldnt_open'} $folderdir!");
@@ -360,21 +391,12 @@ sub editfolders {
       if ( $filename=~/^\./ ) {	
          next;
       }
-
-      if ($homedirfolders eq 'yes') {
-         unless ( ($filename eq 'saved-messages') ||
-                  ($filename eq 'sent-mail') ||
-                  ($filename eq 'saved-drafts') ||
-                  ($filename eq 'mail-trash') ||
-                  ($filename eq '.') ||
-                  ($filename eq '..')
-                ) {
-            push (@folders, $filename);
-         }
-      } else {
-         if ($filename =~ /^(.+)\.folder$/) {
-            push (@folders, $1);
-         }
+      if  ( $filename !~ /^\./ &&		# not . .. or .xxx
+            $filename ne 'saved-messages' &&
+            $filename ne 'sent-mail' &&
+            $filename ne 'saved-drafts' &&
+            $filename ne 'mail-trash' ) {
+         push (@folders, $filename);
       }
    }
    closedir (FOLDERDIR) or
@@ -434,18 +456,25 @@ sub editfolders {
    $temphtml = '';
    my $bgcolor = $style{"tablerow_dark"};
    my $currfolder;
+   my $i=0;
    foreach $currfolder (sort (@folders)) {
-
       my (%HDB, $newmessages, $allmessages, $foldersize);
-
       my $headerdb="$folderdir/.$currfolder";
 
-#      filelock("$headerdb.$dbm_ext", LOCK_SH);
+      filelock("$headerdb.$dbm_ext", LOCK_SH);
       dbmopen (%HDB, $headerdb, undef);
-      $allmessages=$HDB{'ALLMESSAGES'};
-      $newmessages=$HDB{'NEWMESSAGES'};
+      if ( defined($HDB{'ALLMESSAGES'}) ) {
+         $allmessages=$HDB{'ALLMESSAGES'};
+      } else {
+         $allmessages='&nbsp;';
+      }
+      if ( defined($HDB{'NEWMESSAGES'}) ) {
+         $newmessages=$HDB{'NEWMESSAGES'};
+      } else {
+         $newmessages='&nbsp;';
+      }
       dbmclose(%HDB);
-#      filelock("$headerdb.$dbm_ext", LOCK_UN);
+      filelock("$headerdb.$dbm_ext", LOCK_UN);
 
       $foldersize = (-s "$folderdir/$currfolder");
       # round foldersize and change to an appropriate unit for display
@@ -463,7 +492,7 @@ sub editfolders {
                    "<td align=\"center\" bgcolor=$bgcolor>$foldersize</td>";
 
       $temphtml .= start_form(-action=>$prefsurl,
-                              -onSubmit=>"return confirm($lang_text{'folderconf'}+' ( $currfolder )')");
+                              -name=>"folderform$i");
       $temphtml .= hidden(-name=>'action',
                           -value=>'deletefolder',
                           -override=>'1');
@@ -482,8 +511,17 @@ sub editfolders {
       $temphtml .= hidden(-name=>'foldername',
                           -value=>$currfolder,
                           -override=>'1');
+      $temphtml .= hidden(-name=>'foldernewname',
+                          -value=>$currfolder,
+                          -override=>'1');
+
       $temphtml .= "<td bgcolor=$bgcolor align=\"center\">";
-      $temphtml .= submit("$lang_text{'delete'}");
+
+      $temphtml .= submit(-name=>"$lang_text{'rename'}", 
+                          -onClick=>"return OpConfirm('folderform$i', 'renamefolder', $lang_text{'folderrenprop'}+' ( $currfolder )')");
+      $temphtml .= submit(-name=>"$lang_text{'delete'}",
+                          -onClick=>"return OpConfirm('folderform$i', 'deletefolder', $lang_text{'folderdelconf'}+' ( $currfolder )')");
+
       $temphtml .= '</td></tr>';
       $temphtml .= end_form();
       if ($bgcolor eq $style{"tablerow_dark"}) {
@@ -491,6 +529,8 @@ sub editfolders {
       } else {
          $bgcolor = $style{"tablerow_dark"};
       }
+
+      $i++;
    }
 
    $html =~ s/\@\@\@FOLDERS\@\@\@/$temphtml/;
@@ -502,30 +542,18 @@ sub editfolders {
 
 ################### ADDFOLDER ##############################
 sub addfolder {
+   verifysession();
+
    my $foldertoadd = param('foldername') || '';
    $foldertoadd =~ s/\.\.+//g;
    $foldertoadd =~ s/[\s\/\`\|\<\>;]//g; # remove dangerous char
-   unless ($homedirfolders eq 'yes') {
-      $foldertoadd = uc($foldertoadd);
-   }
+   ($foldertoadd =~ /^(.+)$/) && ($foldertoadd = $1);
+
    if (length($foldertoadd) > 16) {
       openwebmailerror("$lang_err{'foldername_long'}");
    }
-   ($foldertoadd =~ /^(.+)$/) && ($foldertoadd = $1);
-
-   if ($foldertoadd eq "$user") {
-      openwebmailerror("$lang_err{'cant_create_folder'}");
-   }
-   if ($foldertoadd eq 'INBOX' ||
-       $foldertoadd eq 'saved-messages' || 
-       $foldertoadd eq 'sent-mail' ||
-       $foldertoadd eq 'saved-drafts' ||
-       $foldertoadd eq 'mail-trash' ||
-       $foldertoadd eq 'DELETE' ||
-       $foldertoadd eq $lang_folders{'saved-messages'} ||
-       $foldertoadd eq $lang_folders{'sent-mail'} ||
-       $foldertoadd eq $lang_folders{'saved-drafts'} ||
-       $foldertoadd eq $lang_folders{'mail-trash'} ) {
+   if ( is_defaultfolder($foldertoadd) ||
+        $foldertoadd eq "$user" || $foldertoadd eq "" ) {
       openwebmailerror("$lang_err{'cant_create_folder'}");
    }
 
@@ -541,25 +569,49 @@ sub addfolder {
 #   print "Location: $prefsurl?action=editfolders&sessionid=$thissession&sort=$sort&folder=$escapedfolder&firstmessage=$firstmessage\n\n";
    editfolders();
 }
+
+sub is_defaultfolder {
+   my $foldername=$_[0];
+   if ($foldername eq 'INBOX' ||
+       $foldername eq 'saved-messages' || 
+       $foldername eq 'sent-mail' ||
+       $foldername eq 'saved-drafts' ||
+       $foldername eq 'mail-trash' ||
+       $foldername eq 'DELETE' ||
+       $foldername eq $lang_folders{'saved-messages'} ||
+       $foldername eq $lang_folders{'sent-mail'} ||
+       $foldername eq $lang_folders{'saved-drafts'} ||
+       $foldername eq $lang_folders{'mail-trash'} ) {
+      return(1);
+   } else {
+      return(0);
+   }
+}
 ################### END ADDFOLDER ##########################
 
 ################### DELETEFOLDER ##############################
 sub deletefolder {
+   verifysession();
+
    my $foldertodel = param('foldername') || '';
    $foldertodel =~ s/\.\.+//g;
    $foldertodel =~ s/[\s\/\`\|\<\>;]//g; # remove dangerous char
    ($foldertodel =~ /^(.+)$/) && ($foldertodel = $1);
-   unless ($homedirfolders eq 'yes') {
-      $foldertodel .= '.folder';
+
+   # if is default folder, return to editfolder immediately
+   if (is_defaultfolder($foldertodel)) {
+      editfolders();
    }
+
    if ( -f "$folderdir/$foldertodel" ) {
       unlink ("$folderdir/$foldertodel",
-              "$folderdir/$foldertodel.lock",
               "$folderdir/.$foldertodel.$dbm_ext",
               "$folderdir/.$foldertodel.db",
 	      "$folderdir/.$foldertodel.dir",
               "$folderdir/.$foldertodel.pag",
-              "$folderdir/.$foldertodel.cache");              
+              "$folderdir/.$foldertodel.cache",
+              "$folderdir/$foldertodel.lock",
+              "$folderdir/$foldertodel.lock.lock");              
    }
 
 #   print "Location: $prefsurl?action=editfolders&sessionid=$thissession&sort=$sort&folder=$escapedfolder&firstmessage=$firstmessage\n\n";
@@ -567,9 +619,54 @@ sub deletefolder {
 }
 ################### END DELETEFOLDER ##########################
 
+################### RENAMEFOLDER ##############################
+sub renamefolder {
+   verifysession();
+
+   my $oldname = param('foldername') || '';
+   $oldname =~ s/\.\.+//g;
+   $oldname =~ s/[\s\/\`\|\<\>;]//g; # remove dangerous char
+   ($oldname =~ /^(.+)$/) && ($oldname = $1);
+
+   if (is_defaultfolder($oldname)) {
+      editfolders();
+   }
+
+   my $newname = param('foldernewname');
+   $newname =~ s/\.\.+//g;
+   $newname =~ s/[\s\/\`\|\<\>;]//g; # remove dangerous char
+   ($newname =~ /^(.+)$/) && ($newname = $1);
+
+   if (length($newname) > 16) {
+      openwebmailerror("$lang_err{'foldername_long'}");
+   }
+   if ( is_defaultfolder($newname) ||
+        $newname eq "$user" || $newname eq "" ) {
+      openwebmailerror("$lang_err{'cant_create_folder'}");
+   }
+   if ( -f "$folderdir/$newname" ) {
+      openwebmailerror ("$lang_err{'folder_with_name'} $newname $lang_err{'already_exists'}");
+   }
+
+   if ( -f "$folderdir/$oldname" ) {
+      rename("$folderdir/$oldname",          "$folderdir/$newname");
+      rename("$folderdir/.$oldname.$dbm_ext","$folderdir/.$newname.$dbm_ext");
+      rename("$folderdir/.$oldname.db",      "$folderdir/.$newname.db");
+      rename("$folderdir/.$oldname.dir",     "$folderdir/.$newname.dir");
+      rename("$folderdir/.$oldname.pag",     "$folderdir/.$newname.pag");
+      rename("$folderdir/.$oldname.cache",   "$folderdir/.$newname.cache");
+      unlink("$folderdir/$oldname.lock", "$folderdir/$oldname.lock.lock");
+   }
+
+#   print "Location: $prefsurl?action=editfolders&sessionid=$thissession&sort=$sort&folder=$escapedfolder&firstmessage=$firstmessage\n\n";
+   editfolders();
+}
+################### END RENAMEFOLDER ##########################
+
 ##################### IMPORTABOOK ############################
 sub importabook {
    verifysession();
+
    my ($name, $email);
    my %addresses;
    my $abookupload = param("abook") || '';
@@ -591,11 +688,10 @@ sub importabook {
          open (ABOOK, ">>$folderdir/.address.book"); # Create if nonexistent
          close(ABOOK);
       }
+      filelock("$folderdir/.address.book", LOCK_EX|LOCK_NB) or
+         openwebmailerror("$lang_err{'couldnt_lock'} .address.book!");
       open (ABOOK,"+<$folderdir/.address.book") or
          openwebmailerror("$lang_err{'couldnt_open'} .address.book!");
-      unless (flock(ABOOK, LOCK_EX|LOCK_NB)) {
-         openwebmailerror("$lang_err{'couldnt_lock'} .address.book!");
-      }
       while (<ABOOK>) {
          ($name, $email) = split(/:/, $_);
          chomp($email);
@@ -664,7 +760,9 @@ sub importabook {
       }
       print ABOOK $abooktowrite;
       truncate(ABOOK, tell(ABOOK));
+
       close (ABOOK) or openwebmailerror("$lang_err{'couldnt_close'} .address.book!");
+      filelock("$folderdir/.address.book", LOCK_UN);
 
 #      print "Location: $prefsurl?action=editaddresses&sessionid=$thissession&sort=$sort&folder=$escapedfolder&firstmessage=$firstmessage&message_id=$escapedmessageid\n\n";
       editaddresses();
@@ -764,6 +862,7 @@ sub importabook {
 #################### EDITADDRESSES ###########################
 sub editaddresses {
    verifysession();
+
    my %addresses=();
    my %globaladdresses=();
    my ($name, $email);
@@ -813,7 +912,8 @@ sub editaddresses {
    } else {
       $temphtml = "<a href=\"$scripturl?action=displayheaders&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder\"><IMG SRC=\"$imagedir_url/backtofolder.gif\" border=\"0\" ALT=\"$lang_text{'backto'} $printfolder\"></a> &nbsp; &nbsp; ";
    }
-   $temphtml .= "<a href=\"$prefsurl?action=importabook&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid\"><IMG SRC=\"$imagedir_url/import.gif\" border=\"0\" ALT=\"$lang_text{'importadd'}\"></a>";
+   $temphtml .= "<a href=\"$prefsurl?action=importabook&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid\"><IMG SRC=\"$imagedir_url/import.gif\" border=\"0\" ALT=\"$lang_text{'importadd'}\"></a>&nbsp;";
+   $temphtml .= "<a href=\"$prefsurl?action=clearaddress&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid\" onclick=\"return confirm('$lang_text{'clearadd'}?')\"><IMG SRC=\"$imagedir_url/clearaddress.gif\" border=\"0\" ALT=\"$lang_text{'clearadd'}\"></a>";
 
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
 
@@ -942,6 +1042,7 @@ sub editaddresses {
 ################### MODADDRESS ##############################
 sub modaddress {
    verifysession();
+
    my $mode = shift;
    my ($realname, $address);
    $realname = param("realname") || '';
@@ -960,11 +1061,10 @@ sub modaddress {
             openwebmailerror("$lang_err{'abook_toobig'} <a href=\"$prefsurl?action=editaddresses&amp;sessionid=$thissession&amp;sort=$sort&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;message_id=$escapedmessageid\">$lang_err{'back'}</a>
                           $lang_err{'tryagain'}");
          }
+         filelock("$folderdir/.address.book", LOCK_EX|LOCK_NB) or
+            openwebmailerror("$lang_err{'couldnt_lock'} .address.book!");
          open (ABOOK,"+<$folderdir/.address.book") or
             openwebmailerror("$lang_err{'couldnt_open'} .address.book!");
-         unless (flock(ABOOK, LOCK_EX|LOCK_NB)) {
-            openwebmailerror("$lang_err{'couldnt_lock'} .address.book!");
-         }
          while (<ABOOK>) {
             ($name, $email) = split(/:/, $_);
             chomp($email);
@@ -982,6 +1082,7 @@ sub modaddress {
          }
          truncate(ABOOK, tell(ABOOK));
          close (ABOOK) or openwebmailerror("$lang_err{'couldnt_close'} .address.book!");
+         filelock("$folderdir/.address.book", LOCK_UN);
       } else {
          open (ABOOK, ">$folderdir/.address.book" ) or
             openwebmailerror("$lang_err{'couldnt_open'} .address.book!");
@@ -995,9 +1096,25 @@ sub modaddress {
 }
 ################## END MODADDRESS ###########################
 
+################## CLEARADDRESS ###########################
+sub clearaddress {
+   verifysession();
+
+   if ( -f "$folderdir/.address.book" ) {
+      open (ABOOK, ">$folderdir/.address.book") or
+         openwebmailerror ("$lang_err{'couldnt_open'} $folderdir/.address.book!");
+      close (ABOOK) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.address.book!");
+   }
+
+#   print "Location: $prefsurl?action=editaddresses&sessionid=$thissession&sort=$sort&folder=$escapedfolder&firstmessage=$firstmessage&amp;message_id=$escapedmessageid\n\n";
+   editaddresses();
+}
+################## END MODADDRESS ###########################
+
 #################### EDITPOP3 ###########################
 sub editpop3 {
    verifysession();
+
    my %account;
    my ($name, $pass, $host, $del);
 
@@ -1160,6 +1277,7 @@ sub editpop3 {
 ################### MODPOP3 ##############################
 sub modpop3 {
    verifysession();
+
    my $mode = shift;
    my ($host, $name, $pass, $del, $lastid);
    $host = param("host") || '';
@@ -1192,11 +1310,10 @@ sub modpop3 {
             openwebmailerror("$lang_err{'abook_toobig'} <a href=\"$prefsurl?action=editpop3&amp;sessionid=$thissession&amp;sort=$sort&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;message_id=$escapedmessageid\">$lang_err{'back'}</a>
                           $lang_err{'tryagain'}");
          }
+         filelock("$folderdir/.pop3.book", LOCK_EX|LOCK_NB) or
+            openwebmailerror("$lang_err{'couldnt_lock'} .pop3.book!");
          open (POP3BOOK,"+<$folderdir/.pop3.book") or
             openwebmailerror("$lang_err{'couldnt_open'} .pop3.book!");
-         unless (flock(POP3BOOK, LOCK_EX|LOCK_NB)) {
-            openwebmailerror("$lang_err{'couldnt_lock'} .pop3.book!");
-         }
          while (<POP3BOOK>) {
          	my ($ehost,$ename,$epass,$edel,$elastid);
          	chomp($_);
@@ -1216,6 +1333,7 @@ sub modpop3 {
          }
          truncate(POP3BOOK, tell(POP3BOOK));
          close (POP3BOOK) or openwebmailerror("$lang_err{'couldnt_close'} .pop3.book!");
+         filelock("$folderdir/.pop3.book", LOCK_UN);
       } else {
          open (POP3BOOK, ">$folderdir/.pop3.book" ) or
             openwebmailerror("$lang_err{'couldnt_open'} .pop3.book!");
@@ -1529,11 +1647,10 @@ sub modfilter {
        (($mode eq 'delete') && ($rules && $include && $text && $destination)) ) {
       my %filterrules;
       if ( -f "$folderdir/.filter.book" ) {
-         open (FILTER,"+<$folderdir/.filter.book") or
-               openwebmailerror("$lang_err{'couldnt_open'} .filter.book!");
-         unless (flock(FILTER, LOCK_EX|LOCK_NB)) {
+         filelock("$folderdir/.filter.book", LOCK_EX|LOCK_NB) or
             openwebmailerror("$lang_err{'couldnt_lock'} .filter.book!");
-         }
+         open (FILTER,"+<$folderdir/.filter.book") or
+            openwebmailerror("$lang_err{'couldnt_open'} .filter.book!");
          while(<FILTER>) {
             my ($epriority,$erules,$einclude,$etext,$eop,$edestination,$eenable);
             my $line=$_; chomp($line);
@@ -1557,6 +1674,7 @@ sub modfilter {
          }
          truncate(FILTER, tell(FILTER));
          close (FILTER) or openwebmailerror("$lang_err{'couldnt_close'} .filter.book!");         
+         filelock("$folderdir/.filter.book", LOCK_UN);
       } else {
          open (FILTER, ">$folderdir/.filter.book" ) or
                   openwebmailerror("$lang_err{'couldnt_open'} .filter.book!");
@@ -1575,6 +1693,7 @@ sub modfilter {
 ###################### SAVEPREFS #########################
 sub saveprefs {
    verifysession();
+
    if (! -d "$folderdir" ) {
       mkdir ("$folderdir", oct(700)) or
          openwebmailerror("$lang_err{'cant_create_dir'} $folderdir");
@@ -1582,7 +1701,8 @@ sub saveprefs {
    open (CONFIG,">$folderdir/.openwebmailrc") or
       openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.openwebmailrc!");
    foreach my $key (qw(language realname fromname domainname replyto 
-                       style sort headers headersperpage defaultdestination 
+                       style sort headers headersperpage defaultdestination
+                       filter_repeatlimit filter_fakedsmtp 
                        newmailsound autopop3 autoemptytrash)) {
       my $value = param("$key") || '';
 
@@ -1600,11 +1720,24 @@ sub saveprefs {
       } elsif ($key eq 'fromname') {
          $value =~ s/\s+//g; # Spaces will just screw people up.
          print CONFIG "$key=$value\n";
+      } elsif ($key eq 'filter_repeatlimit') {
+         # if repeatlimit changed, redo filtering maybe needed
+         if ( $value != $prefs{'filter_repeatlimit'} ) { 
+            unlink("$folderdir/.filter.check");
+         }
+         print CONFIG "$key=$value\n";
+      } elsif ( $key eq 'filter_fakedsmtp' ||
+                $key eq 'newmailsound' ||
+                $key eq 'autopop3' ||
+                $key eq 'autoemptytrash') {
+         $value=0 if ($value eq '');
+         print CONFIG "$key=$value\n";
       } else {
          print CONFIG "$key=$value\n";
       }
    }
    close (CONFIG) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.openwebmailrc!");
+
    open (SIGNATURE,">$folderdir/.signature") or
       openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.signature!");
    my $value = param("signature") || '';
@@ -1655,6 +1788,7 @@ sub saveprefs {
 #################### ADDRESSBOOK #######################
 sub addressbook {
    verifysession();
+
    if ( $CGI::VERSION>=2.57) {
       print header(-pragma=>'no-cache',
                    -charset=>$lang_charset);

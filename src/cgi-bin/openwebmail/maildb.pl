@@ -361,7 +361,6 @@ sub metainfo {
 ################## END UPDATEHEADERDB ####################
 
 ############### GET_MESSAGEIDS_SORTED_BY_...  #################
-
 sub get_messageids_sorted_by_offset {
    my $headerdb=$_[0];
    my (%HDB, @attr, %offset, $key, $data);
@@ -661,7 +660,6 @@ sub get_info_messageids_sorted_by_status {
 ############### END GET_MESSAGEIDS_SORTED_BY_...  #################
 
 ####################### GET_MESSAGE_.... ###########################
-
 sub get_message_attributes {
    my ($messageid, $headerdb)=@_;
    my (%HDB, @attr);
@@ -707,13 +705,11 @@ sub op_message_with_ids {
    return(-1) if ($op ne "move" && $op ne "copy" && $op ne "delete"); 
    return(0) if ($srcfile eq $dstfile || $#{$r_messageids} < 0);
 
-   # open source folder, since spool must exist => lock before open
    update_headerdb($srcdb, $srcfile);
    open ($folderhandle, "+<$srcfile") or 
       return(-2);	# $lang_err{'couldnt_open'} $srcfile!
 
    if ($op eq "move" || $op eq "copy") {
-      # open destination folder, since dest may not exist => open before lock
       open (DEST, ">>$dstfile") or
          return(-3);	# $lang_err{'couldnt_open'} $destination!
       update_headerdb("$dstdb", $dstfile);
@@ -918,16 +914,15 @@ sub parse_rfc822block {
       return($header, $body, \@attachments);
 
    } elsif ($contenttype =~ /^message/i ) {
-      if ( $searchid eq "" || $searchid eq "all" || $searchid=~/^$nodeid-0/ ) {
+      if ( $searchid eq "" || $searchid eq "all" || $searchid=~/^$nodeid/ ) {
          $body=substr(${$r_block}, $headerlen+2);
          my ($header2, $body2, $r_attachments2)=parse_rfc822block(\$body, "$nodeid-0", $searchid);
 
          if ( $searchid eq "" || $searchid eq "all" || $searchid eq $nodeid ) {
             $header2 = decode_mimewords($header2);
-
-            my $temphtml=headerbody2html($header2, $body2);
+            my $temphtml="$header2\n\n$body2";
             push(@attachments, make_attachment("","", "",\$temphtml, length($temphtml),
-   		$encoding,"text/html", "inline; filename=Unknown.msg","","", $nodeid) );
+   		$encoding,"message/rfc822", "inline; filename=Unknown.msg","","", $nodeid) );
          }
          push (@attachments, @{$r_attachments2});
       }
@@ -1056,15 +1051,16 @@ sub parse_attblock {
       }
 
    } elsif ($attcontenttype =~ /^message/i ) {
-      if ( $searchid eq "" || $searchid eq "all" || $searchid=~/^$nodeid-0/ ) {
+
+      if ( $searchid eq "" || $searchid eq "all" || $searchid=~/^$nodeid/ ) {
          $attcontent=substr(${$r_buff}, $attblockstart+$attheaderlen+2, $attblocklen-($attheaderlen+2));
          my ($header2, $body2, $r_attachments2)=parse_rfc822block(\$attcontent, "$nodeid-0", $searchid);
 
          if ( $searchid eq "" || $searchid eq "all" || $searchid eq $nodeid ) {
             $header2 = decode_mimewords($header2);
-            my $temphtml=headerbody2html($header2, $body2);
+            my $temphtml="$header2\n\n$body2";
             push(@attachments, make_attachment($subtype,"", $attheader,\$temphtml, length($temphtml),
-		$attencoding,"text/html", "inline; filename=Unknown.msg",$attid,$attlocation, $nodeid));
+		$attencoding,"message/rfc822", "inline; filename=Unknown.msg",$attid,$attlocation, $nodeid));
          }
          push (@attachments, @{$r_attachments2});
       }
@@ -1157,41 +1153,6 @@ sub get_contenttype_encoding_from_header {
    }
    return($contenttype, $encoding);
 }
-
-sub headerbody2html {
-   my ($header, $body)=@_;
-   my ($contenttype, $encoding)=get_contenttype_encoding_from_header($header);
-
-   if ($contenttype =~ /^text/i) {
-      if ($encoding =~ /^quoted-printable/i) {
-          $body = decode_qp($body);
-      } elsif ($encoding =~ /^base64/i) {
-          $body = decode_base64($body);
-      }
-   }
-   $header = text2html($header);
-   if ($contenttype =~ m#^text/html#i) { # convert into html table
-      $body = html4nobase($body); 
-      $body = html2table($body); 
-   } else {	
-      $body = text2html($body);
-   }
-
-   # be aware the message header are keep untouched here 
-   # in order to make it easy for further parsing
-   my $temphtml=qq|<table width="100%" border=0 cellpadding=2 cellspacing=0>\n|.
-                qq|<tr bgcolor=#dddddd><td>\n|.
-                qq|<font size=-1>\n|.
-                qq|$header\n|.
-                qq|</font>\n|.
-                qq|</td></tr>\n|.
-                qq|\n\n|.
-                qq|<tr><td>\n|.
-                qq|$body\n|.
-                qq|</td></tr></table>|;
-   return($temphtml);
-}
-
 
 # subtype and boundary are inherit from parent attblocks,
 # they are used to distingush if two attachments are winthin same group
@@ -1383,7 +1344,6 @@ sub search_info_messages_for_keyword {
 #################### END SEARCH_MESSAGES_FOR_KEYWORD ######################
 
 #################### GET_MESSAGEADDRS_SORTED_BY_COUNT #############
-
 sub get_messageaddrs_sorted_by_count {
    my @headerdbs = @_;
    my (@messageids, %count, %name, %date);
@@ -1584,207 +1544,7 @@ sub str2html {
 
 ######################## END HTML related ##############################
 
-################### FILELOCK ###########################
-
-sub filelock {
-   if ($use_dotlockfile eq "yes") {
-      return filelock_dotlockfile(@_);
-   } else {
-      return filelock_flock(@_);
-   }
-}
-
-# this routine provides flock with filename
-# it opens the file to get the handle if need,
-# than do lock operation on the related filehandle
-my %opentable;
-sub filelock_flock {
-   my ($filename, $lockflag)=@_;
-   my ($dev, $inode, $fh);
-
-   if ( (! -e $filename) && $lockflag ne LOCK_UN) {
-      ($filename =~ /^(.+)$/) && ($filename = $1);   
-      sysopen(F, $filename, O_RDWR|O_CREAT, 0600); # create file for lock
-      close(F);
-   } 
-
-   ($dev, $inode)=(stat($filename))[0,1];
-   if ($dev eq '' || $inode eq '') {
-      return(0);
-   }
-
-
-   if (defined($opentable{"$dev-$inode"}) ) {	
-      $fh=$opentable{"$dev-$inode"};
-   } else { # handle not found, open it!
-      $fh=FileHandle->new();
-      if (sysopen($fh, $filename, O_RDWR)) {
-         $opentable{"$dev-$inode"}=$fh;
-      } else {
-         return(0);
-      }
-   }
-
-   # Since nonblocking lock may return errors 
-   # even the target is locked by others for just a few seconds,
-   # we turn nonblocking lock into a blocking lock with timeout limit=30sec
-   # thus the lock will have more chance to success.
-
-   if ( $lockflag & LOCK_NB ) {	# nonblocking lock
-      my $retval;
-      eval {
-         local $SIG{ALRM} = sub { die "alarm\n" }; # NB: \n required
-         alarm 30;
-         $retval=flock($fh, $lockflag & (~LOCK_NB) );	
-         alarm 0;
-      };
-      if ($@) {	# eval error, it means timeout
-         $retval=0;
-      }
-      return($retval);
-
-   } else {			# blocking lock				
-      return(flock($fh, $lockflag));
-   }
-}
-
-
-# this routine use filename.lock for the lock of filename
-# it is only recommended if the files are located on remote nfs server
-# and the lockd on your nfs server or client has problems
-# since it is slower than flock
-sub filelock_dotlockfile {
-   my ($filename, $lockflag)=@_;
-   my ($mode, $count);
-
-   return 1 unless ($lockflag & (LOCK_SH|LOCK_EX|LOCK_UN));
-
-   my $endtime;
-   if ($lockflag & LOCK_NB) {	# turn nonblock lock to 30sec blocking lock
-      $endtime=time()+30;
-   } else {
-      $endtime=time()+86400;
-   }
-
-   my $oldumask=umask(0111);
-   ($filename =~ /^(.+)$/) && ($filename = $1);		# bypass taint check
-   
-   while (time() <= $endtime) {
-      my $status=0;
-
-      if ( -f "$filename.lock" ) {	# remove stale lock
-         my $t=(stat("$filename.lock"))[9];
-         unlink("$filename.lock") if (time()-$t > 300);
-      }
-
-      if (_lock("$filename.lock")==0) {
-         sleep 1;
-         next;
-      }
-
-      if ( $lockflag & LOCK_UN ) {
-         if ( -f "$filename.lock") {
-            if (open(L, "+<$filename.lock") ) {
-               $_=<L>; chop;
-               ($mode,$count)=split(/:/);
-               if ( $mode eq "READ" && $count>1 ) {
-                  $count--;
-                  seek(L, 0, 0);
-                  print L "READ:$count\n";
-                  truncate(L, tell(L));
-                  close(L);
-                  $status=1;
-               } else {
-                  close(L);
-                  unlink("$filename.lock");
-                  if ( -f "$filename.lock" ) {
-                     $status=0;
-                  } else {
-                     $status=1;
-                  }
-               }
-            } else { # can not read .lock
-               $status=0;
-            }
-         } else { # no .lock file
-            $status=1;
-         }
-
-      } elsif ( sysopen(L, "$filename.lock", O_RDWR|O_CREAT|O_EXCL) ) {
-         if ( $lockflag & LOCK_EX ) {
-            close(L);
-         } elsif ( $lockflag & LOCK_SH ) {
-            print L "READ:1\n";
-            close(L);
-         }
-         $status=1;
-
-      } else { # create failed, assume lock file already exists
-         if ( ($lockflag & LOCK_SH) && open(L,"+<$filename.lock") ) {
-            $_=<L>; chop;
-            print "$_\n";
-            ($mode, $count)=split(/:/);
-            if ( $mode eq "READ" ) {
-               $count++;
-               seek(L,0,0);
-               print L "READ:$count\n";
-               truncate(L, tell(L));
-               close(L);
-               $status=1;
-            } else {
-               $status=0;
-            }
-         } else {
-            $status=0;
-         }
-      }
-
-      if ($status==1) {
-         _unlock("$filename.lock");
-         umask($oldumask);
-         return(1);
-      } else {
-         _unlock("$filename.lock");
-         sleep 1;
-         next;
-      }
-   }   
-
-   _unlock("$filename.lock");
-   umask($oldumask);
-   return(0);
-}
-
-
-# _lock and _unlock are used to lock/unlock xxx.lock
-sub _lock {
-   my ($filename, $staletimeout)=@_;
-   ($filename =~ /^(.+)$/) && ($filename = $1);		# bypass taint check
-
-   $staletimeout=30 if $staletimeout eq 0;
-   if ( -f "$filename.lock" ) {
-      my $t=(stat("$filename.lock"))[9];
-      unlink("$filename.lock") if (time()-$t > $staletimeout);
-   }
-   if ( sysopen(LL, "$filename.lock", O_RDWR|O_CREAT|O_EXCL) ) {
-      close(LL);
-      return(1)
-   } else {
-      return(0);
-   }
-}
-sub _unlock {
-   my ($filename)=$_[0];
-   ($filename =~ /^(.+)$/) && ($filename = $1);		# bypass taint check
-
-   unlink("$filename.lock");
-   return(1);
-}
-
-#################### END LOCKFILE ####################
-
 #################### COPYBLOCK ####################
-
 sub copyblock {
    my ($srchandle, $srcstart, $dsthandle, $dststart, $size)=@_;
    my ($srcoffset, $dstoffset);
@@ -1819,7 +1579,6 @@ sub copyblock {
 ################## END COPYBLOCK ##################
 
 #################### SHIFTBLOCK ####################
-
 sub shiftblock {
    my ($fh, $start, $size, $movement)=@_;
    my ($oldoffset, $movestart, $left, $buff);
@@ -1872,7 +1631,6 @@ sub shiftblock {
 #################### END SHIFTBLOCK ####################
 
 #################### SIMPLEHEADER ######################
-
 sub simpleheader {
    my $header=$_[0];
    my $simpleheader="";
@@ -1916,7 +1674,6 @@ sub simpleheader {
 ################### END SIMPLEHEADER ###################
 
 #################### DATESTR ###########################
-
 sub datestr {
    my ($date, $time, $offset) = split(/\s/, $_[0]);
    my @d = split(/\//, $date); 
@@ -1962,7 +1719,6 @@ sub datestr {
 #################### END DATESTR ###########################
 
 #################### LOG_TIME (for profiling) ####################
-
 sub log_time {
    my @msg=@_;
    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst);

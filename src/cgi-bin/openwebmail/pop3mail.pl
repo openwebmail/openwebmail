@@ -14,16 +14,16 @@ sub getpop3book {
 
    if ( -f "$pop3book" ) {
 
+      filelock($pop3book, LOCK_SH);
       open (POP3BOOK,"$pop3book") or
          return ();
-      flock(POP3BOOK, LOCK_SH);
       while (<POP3BOOK>) {
       	 chomp($_);
       	 my ($pop3host, $pop3user, $pop3passwd, $pop3del, $lastid) = split(/:/, $_);
          $account{"$pop3host:$pop3user"} = "$pop3host:$pop3user:$pop3passwd:$pop3del:$lastid";
       }
-      flock(POP3BOOK, LOCK_UN);
       close (POP3BOOK);
+      filelock($pop3book, LOCK_UN);
    }
    return %account;
 }
@@ -32,15 +32,15 @@ sub writebackpop3book {
    my ($pop3book, %accounts) = @_;
 
    if ( -f "$pop3book" ) {
+      filelock($pop3book, LOCK_EX);
       open (POP3BOOK,">$pop3book") or
          return (-6);
-      flock(POP3BOOK, LOCK_EX);
       foreach (values %accounts) {
       	 chomp($_);
       	 print POP3BOOK $_ . "\n";
       }
-      flock(POP3BOOK, LOCK_UN);
       close (POP3BOOK);
+      filelock($pop3book, LOCK_UN);
    }
 }
 
@@ -195,13 +195,13 @@ sub retrpop3mail {
       }
 
       # append message to mail folder
+      filelock($spoolfile, LOCK_EX);
       open(IN,">>$spoolfile") or return(-2);
-      flock(IN,LOCK_EX);
       print IN "From $stAddress $stDate\n";
       print IN $FileContent;
       print IN "\n";		# mark mail end 
-      flock(IN,LOCK_UN);
       close(IN);
+      filelock($spoolfile, LOCK_UN);
 
       if ($pop3del == 1) {
          print $remote_sock "dele " . $i . "\n";

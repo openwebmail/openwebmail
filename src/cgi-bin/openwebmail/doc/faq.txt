@@ -3,13 +3,15 @@ Q: I got "Internal server error" when running openwebmail?
 A: please check you have install a complete set of perl 5.005 above
 
 Q: I got "can not do setuid" error?
+   I still got "Software error: Can't locate etc/openwebmail.conf in @INC" error?
 A: You may uncompress the openwebmail-1.xx.tgz with improper parameter.
    It is "tar -zxvBpf openwebmail-.1.xx.tgz"
 
 Q: I still got "cannot do set uid" error?
+   I still got "Software error: Can't locate etc/openwebmail.conf in @INC" error?
 A: You perl is compiled with suid ability disabled.
    a. check if you have a executable of suidperl 
-      'chmod 4755 suidperl'
+      'chmod 4555 suidperl'
       and change #!/usr/bin/perl to the path of this suidperl
    b. recompile your perl with suid enabled
 

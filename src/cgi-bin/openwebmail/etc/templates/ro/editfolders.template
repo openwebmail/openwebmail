@@ -1,4 +1,4 @@
-<table border="0" align="center" width="55%" cellpadding="0" cellspacing="0">
+<table border="0" align="center" width="65%" cellpadding="0" cellspacing="0">
 <tr><td colspan="5" bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <b>EDITEAZA FOLDERE</b></font>
@@ -34,3 +34,30 @@
 @@@FOLDERS@@@
 
 </table>
+<script language="JavaScript">
+   <!--
+   function OpConfirm(formname, op, text)
+   {   
+      var newname='';
+
+      if ( op == 'deletefolder' ) {
+         document.forms[formname].action.value='deletefolder';
+         document.forms[formname].foldernewname.value='';
+         return(confirm(text));
+
+      } else {	// renamefolder
+         newname=prompt(text, document.forms[formname].foldername.value);
+         if ( newname==document.forms[formname].foldername.value ||
+              newname==null || 
+              newname==''      ) {
+            return false;
+         }
+         document.forms[formname].action.value='renamefolder';
+         document.forms[formname].foldernewname.value=newname;
+         return true;
+      }
+
+      return false;
+   }
+   //-->
+</script>

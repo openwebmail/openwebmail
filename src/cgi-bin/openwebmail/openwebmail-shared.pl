@@ -1,5 +1,6 @@
 #
-# routines shared by openwebmail.pl and openwebmail-prefs.pl
+# routines shared by openwebmail.pl, openwebmail-prefs.pl and checkmail.pl
+#
 
 ############### GET_SPOOLFILE_FOLDERDB ################
 sub get_folderfile_headerdb {
@@ -34,7 +35,7 @@ sub set_euid_egid_umask {
    my ($uid, $gid, $umask)=@_;
 
    # note! egid must be set before set euid to normal user,
-   #       since a normal user can not set egid to mail
+   #       since a normal user can not set egid to others
    $) = $gid;
    $> = $uid if ($> == 0);
    umask($umask);
@@ -300,14 +301,22 @@ sub writelog {
       print LOGFILE "$timestamp - [$$] ($loggedip) $loggeduser - $logaction\n";
       close (LOGFILE);
    }
+   return;
 }
 #################### END WRITELOG #########################
 
 ##################### OPENWEBMAILERROR ##########################
-sub openwebmailerror {
+sub openwebmailerror{
+   # load prefs if possible, or use default value
+   my $background = $style{"background"}||"#FFFFFF";
+   my $css = $style{"css"}||"";
+   my $fontface = $style{"fontface"}||"Arial, Helvetica";
+   my $titlebar = $style{"titlebar"}||"#002266";
+   my $titlebar_text = $style{"titlebar_text"}||"#FFFFFF";
+   my $window_light = $style{"window_light"}||"#EEEEEE";
+
    unless ($headerprinted) {
       $headerprinted = 1;
-      my $background = $style{"background"};
       $background =~ s/"//g;
 
       if ( $CGI::VERSION>=2.57) {
@@ -320,16 +329,16 @@ sub openwebmailerror {
                        -BGCOLOR=>"$background",
                        -BACKGROUND=>$bg_url);
       print '<style type="text/css">';
-      print $style{"css"};
+      print $css;
       print '</style>';
-      print "<FONT FACE=",$style{"fontface"},">\n";
+      print "<FONT FACE=",$fontface,">\n";
    }
    print '<BR><BR><BR><BR><BR><BR>';
    print '<table border="0" align="center" width="40%" cellpadding="1" cellspacing="1">';
 
-   print '<tr><td bgcolor=',$style{"titlebar"},' align="left">',
-   '<font color=',$style{"titlebar_text"},' face=',$style{"fontface"},' size="3"><b>OPENWEBMAIL ERROR</b></font>',
-   '</td></tr><tr><td align="center" bgcolor=',$style{"window_light"},'><BR>';
+   print '<tr><td bgcolor=',$titlebar,' align="left">',
+   '<font color=',$titlebar_text,' face=',$fontface,' size="3"><b>OPENWEBMAIL ERROR</b></font>',
+   '</td></tr><tr><td align="center" bgcolor=',$window_light,'><BR>';
    print shift;
    print '<BR><BR></td></tr></table>';
    print '<p align="center"><font size="1"><BR>

@@ -62,14 +62,23 @@ if ( ! -f $spoolfile || (stat($spoolfile))[7]==0 ) {
 }
 
 require "mime.pl";
+require "filelock.pl";
 require "maildb.pl";
 require "mailfilter.pl";
 
 my @folderlist=();
-my $removed=mailfilter($spoolfile, $headerdb, 
-			$folderdir, \@folderlist, $user, $uid, $gid);
-if ($removed>0) {
-   writelog("filter $removed msgs from $spoolfile");
+
+# override global $filter_repeatlimit with user preference
+my %prefs = %{&readprefs};
+$filter_repeatlimit=$prefs{'filter_repeatlimit'} if ( defined($prefs{'filter_repeatlimit'}) );
+$filter_fakedsmtp=($filter_fakedsmtp eq 'yes'||$filter_fakedsmtp==1)?1:0;
+$filter_fakedsmtp=$prefs{'filter_fakedsmtp'} if ( defined($prefs{'filter_fakedsmtp'}) );
+
+my $filtered=mailfilter($user, 'INBOX', $folderdir, \@folderlist, 
+				$filter_repeatlimit, $filter_fakedsmtp);
+
+if ($filtered>0) {
+   writelog("filter $filtered msgs from INBOX");
 }
 
 my (%HDB, $allmessages, $internalmessages, $newmessages);

@@ -6,15 +6,15 @@
 # return: 0=nothing, <0=error, n=filted count
 # there are 4 op for a msg: 'copy', 'move', 'delete' and 'keep'
 sub mailfilter {
-   my ($folderfile, $headerdb, $folderdir, $r_validfolders, $user, $uid, $gid)=@_;
+   my ($user, $folder, $folderdir, $r_validfolders, 
+				$filter_repeatlimit, $filter_fakedsmtp)=@_;
+   my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
    my @filterrules;
    my $folderhandle=FileHandle->new();
    my %HDB;
-   my ($blockstart, $blockend, $writepointer);
    my (@allmessageids, $i);
-   my $removed=0;
    
-   ## check existence of spoolfile
+   ## check existence of folderfile
    if ( ! -f $folderfile ) {
       return 0;
    }
@@ -51,11 +51,11 @@ sub mailfilter {
 
    ## open INBOX, since spool must exist => lock before open ##
    unless (filelock($folderfile, LOCK_EX|LOCK_NB)) {
-      return -3; # $lang_err{'couldnt_lock'} $folderfile!
+      return -3; # $lang_err{'couldnt_lock'} $folder!
    }
    update_headerdb($headerdb, $folderfile);
    open ($folderhandle, "+<$folderfile") or 
-      return -4; # $lang_err{'couldnt_open'} $folderfile!;
+      return -4; # $lang_err{'couldnt_open'} $folder!;
 
    @allmessageids=get_messageids_sorted_by_offset($headerdb);
 
@@ -63,14 +63,26 @@ sub mailfilter {
    filelock("$headerdb.$dbm_ext", LOCK_EX);
    dbmopen (%HDB, $headerdb, 600);
 
-   $blockstart=$blockend=$writepointer=0;
+   my ($blockstart, $blockend, $writepointer)=(0,0,0);
+   my $filtered=0;
+   my %repeatlists=();	
 
    for ($i=0; $i<=$#allmessageids; $i++) {
       my ($priority, $rules, $include, $text, $op, $destination, $enable);
       my ($messagestart, $messagesize);
       my @attr = split(/@@@/, $HDB{$allmessageids[$i]});
       my ($currmessage, $header, $body, $r_attachments)=("", "", "", "");
+      my ($r_smtprelays, $r_connectfrom);
       my $matched=0;
+
+      if ($filter_repeatlimit>0) {
+         # store msgid with same '$from:$subject' to same array
+         if (! defined($repeatlists{"$attr[$_FROM]:$attr[$_SUBJECT]"}) ) {
+            my @a=();
+            $repeatlists{"$attr[$_FROM]:$attr[$_SUBJECT]"}=\@a;
+         }
+         push (@{$repeatlists{"$attr[$_FROM]:$attr[$_SUBJECT]"}}, $allmessageids[$i] );
+      }
       
       ## if match filterrules => do $op (copy, move or delete)
       foreach my $line (sort @filterrules) {
@@ -110,7 +122,7 @@ sub mailfilter {
                   }
                   my $append=append_message_to_folder($allmessageids[$i],
 					\@attr, \$currmessage, $destination, 
-					$r_validfolders, $user, $uid, $gid);
+					$r_validfolders, $user);
                   last if ($op eq 'move' && $append>=0);
                } elsif ($op eq 'delete') {
                   last;
@@ -128,7 +140,7 @@ sub mailfilter {
                   }
                   my $append=append_message_to_folder($allmessageids[$i],
 					\@attr, \$currmessage, $destination, 
-					$r_validfolders, $user, $uid, $gid);
+					$r_validfolders, $user);
                   last if ($op eq 'move' && $append>=0);
                } elsif ($op eq 'delete') {
                   last;
@@ -146,7 +158,7 @@ sub mailfilter {
                   }
                   my $append=append_message_to_folder($allmessageids[$i],
 					\@attr, \$currmessage, $destination, 
-					$r_validfolders, $user, $uid, $gid);
+					$r_validfolders, $user);
                   last if ($op eq 'move' && $append>=0);
                } elsif ($op eq 'delete') {
                   last;
@@ -169,7 +181,7 @@ sub mailfilter {
                if ( $op eq 'move' || $op eq 'copy') {
                   my $append=append_message_to_folder($allmessageids[$i],
 					\@attr, \$currmessage, $destination, 
-					$r_validfolders, $user, $uid, $gid);
+					$r_validfolders, $user);
                   last if ($op eq 'move' && $append>=0);
                } elsif ($op eq 'delete') {
                   last;
@@ -184,25 +196,17 @@ sub mailfilter {
             if ($header eq "") {
                ($header, $body, $r_attachments)=parse_rfc822block(\$currmessage);
             }
-
-            my $smtprelays="";
-            my @a=split(/Received:/,$header);
-            shift @a;
-            foreach (@a) {
-               if (/^.* by\s([^\s]+)\s.*$/is) {
-                  $smtprelays .= ", $1";
-               }
-               if (/^.* from\s([^\s]+)\s.*$/is) {
-                  $smtprelays .= ", $1";
-               }
+            if (!defined($r_smtprelays) ) {
+               ($r_smtprelays, $r_connectfrom)=get_smtprelays_connectfrom($header);
             }
+            my $smtprelays=join(", ", @{$r_smtprelays});
             if (  ( $include eq 'include' && $smtprelays =~ /$text/im )
                 ||( $include eq 'exclude' && $smtprelays !~ /$text/im ) ) {
                $matched=1;
                if ( $op eq 'move' || $op eq 'copy') {
                   my $append=append_message_to_folder($allmessageids[$i],
 					\@attr, \$currmessage, $destination, 
-					$r_validfolders, $user, $uid, $gid);
+					$r_validfolders, $user);
                   last if ($op eq 'move' && $append>=0);
                } elsif ($op eq 'delete') {
                   last;
@@ -231,7 +235,7 @@ sub mailfilter {
                if ( $op eq 'move' || $op eq 'copy') {
                   my $append=append_message_to_folder($allmessageids[$i],
 					\@attr, \$currmessage, $destination, 
-					$r_validfolders, $user, $uid, $gid);
+					$r_validfolders, $user);
                   last if ($op eq 'move' && $append>=0);
                } elsif ($op eq 'delete') {
                   last;
@@ -258,7 +262,7 @@ sub mailfilter {
                if ( $op eq 'move' || $op eq 'copy') {
                   my $append=append_message_to_folder($allmessageids[$i],
 					\@attr, \$currmessage, $destination, 
-					$r_validfolders, $user, $uid, $gid);
+					$r_validfolders, $user);
                   last if ($op eq 'move' && $append>=0);
                } elsif ($op eq 'delete') {
                   last;
@@ -286,7 +290,7 @@ sub mailfilter {
                if ( $op eq 'move' || $op eq 'copy') {
                   my $append=append_message_to_folder($allmessageids[$i],
 					\@attr, \$currmessage, $destination, 
-					$r_validfolders, $user, $uid, $gid);
+					$r_validfolders, $user);
                   last if ($op eq 'move' && $append>=0);
                } elsif ($op eq 'delete') {
                   last;
@@ -296,9 +300,35 @@ sub mailfilter {
          
       } # end @filterrules
          
+      # filter message from smtprelay with faked name
+      if ($filter_fakedsmtp) { 
+         if ($currmessage eq "") {
+            seek($folderhandle, $attr[$_OFFSET], 0);
+            read($folderhandle, $currmessage, $attr[$_SIZE]);
+         }
+         if ($header eq "") {
+            ($header, $body, $r_attachments)=parse_rfc822block(\$currmessage);
+         }
+         if (!defined($r_smtprelays) ) {
+            ($r_smtprelays, $r_connectfrom)=get_smtprelays_connectfrom($header);
+         }
+         # move msg to trash if smtprelay has faked id
+         my $relay=${$r_smtprelays}[0];
+         if ($relay!~/[\w\d\-_]+\.[\w\d\-_]+/ && 
+             ${$r_connectfrom}{$relay}!~/$relay/i ) {
+            my $append=append_message_to_folder($allmessageids[$i],
+					\@attr, \$currmessage, 'mail-trash', 
+					$r_validfolders, $user);
+            if ($append>=0) {
+               $op='move';
+               $matched=1;
+            }
+         }
+      }
+
       if ( $matched && ($op eq 'move' || $op eq 'delete') ) {
          ## remove message ##
-         $removed++;
+         $filtered++;
 
          $messagestart=$attr[$_OFFSET];
          $messagesize=$attr[$_SIZE];
@@ -328,7 +358,7 @@ sub mailfilter {
 
    } ## end of allmessages ##
 
-   if ($removed>0) {
+   if ($filtered>0) {
       shiftblock($folderhandle, $blockstart, $blockend-$blockstart, $writepointer-$blockstart);
       seek($folderhandle, $writepointer+($blockend-$blockstart), 0);
       truncate($folderhandle, tell($folderhandle));
@@ -339,29 +369,47 @@ sub mailfilter {
    dbmclose(%HDB);
    filelock("$headerdb.$dbm_ext", LOCK_UN);
 
+   # remove repeated msgs with repeated count > $filter_repeatlimit
+   my (@repeatedids, $fromsubject, $r_ids);
+   while ( ($fromsubject,$r_ids) = each %repeatlists) {
+      push(@repeatedids, @{$r_ids}) if ($#{$r_ids}>=$filter_repeatlimit);
+   }
+   if ($#repeatedids>=0) {
+      my $repeated;
+      my ($trashfile, $trashdb)=get_folderfile_headerdb($user, 'mail-trash');
+      
+      unless (filelock($trashfile, LOCK_EX|LOCK_NB)) {
+         return -5; # $lang_err{'couldnt_lock'} mail-trash!
+      }
+      $repeated=op_message_with_ids('move', \@repeatedids, $folderfile, $headerdb, 
+							$trashfile, $trashdb);
+      filelock($trashfile, LOCK_UN);
+      $filtered+=$repeated;
+   }   
+
    filelock($folderfile, LOCK_UN);
    
    ## update .filter.check ##
    if (-f "$folderdir/.filter.check" ) {
       open (FILTERCHECK, ">$folderdir/.filter.check" ) or
-         return -5; # $lang_err{'couldnt_open'} .filter.check!
+         return -6; # $lang_err{'couldnt_open'} .filter.check!
       print FILTERCHECK metainfo($folderfile);
       truncate(FILTERCHECK, tell(FILTERCHECK));
       close (FILTERCHECK);
    } else {
       open (FILTERCHECK, ">$folderdir/.filter.check" ) or
-         return -5; # $lang_err{'couldnt_open'} .filter.check!
+         return -6; # $lang_err{'couldnt_open'} .filter.check!
       print FILTERCHECK metainfo($folderfile);
       close (FILTERCHECK);
    }
 
-   return($removed);
+   return($filtered);
 }
 
 
 sub append_message_to_folder {
    my ($messageid, $r_attr, $r_currmessage, $destination, 
-	$r_validfolders, $user, $uid, $gid)=@_;
+	$r_validfolders, $user)=@_;
    my %HDB2;
    my ($dstfile, $dstdb)=get_folderfile_headerdb($user, $destination);
    ($dstfile =~ /^(.+)$/) && ($dstfile = $1);  # untaint $dstfile
@@ -406,6 +454,49 @@ sub append_message_to_folder {
    filelock("$dstdb.$dbm_ext", LOCK_UN);
    filelock($dstfile, LOCK_UN);
    return(0);
+}
+
+
+sub get_smtprelays_connectfrom {
+   my $header=$_[0];
+   my @smtprelays=();
+   my %connectfrom=();
+   my ($lastline, $received, $tmp);
+
+   foreach (split(/\n/, $header)) {
+      if (/^\s/ && $lastline eq 'RECEIVED') { 
+         $received .= $_;
+      } elsif (/^Received:(.+)$/ig) {
+         $tmp=$1;
+         if ($received=~ /^.*\sby\s([^\s]+)\s.*$/is) {
+            unshift(@smtprelays, $1) if ($smtprelays[0] ne $1);
+         }
+         if ($received=~ /^.* from\s([^\s]+)\s\((.*?)\).*$/is) {
+            unshift(@smtprelays, $1);
+            $connectfrom{$1}=$2;
+         } elsif ($received=~ /^.*\sfrom\s([^\s]+)\s.*$/is) {
+            unshift(@smtprelays, $1);
+         }
+         $received=$tmp;
+         $lastline = 'RECEIVED';
+      } else {
+         $lastline = 'NONE';
+      }
+   }
+   # capture last Received: block
+   if ($received=~ /^.*\sby\s([^\s]+)\s.*$/is) {
+      unshift(@smtprelays, $1) if ($smtprelays[0] ne $1);
+   }
+   if ($received=~ /^.* from\s([^\s]+)\s\((.*?)\).*$/is) {
+      unshift(@smtprelays, $1);
+      $connectfrom{$1}=$2;
+   } elsif ($received=~ /^.*\sfrom\s([^\s]+)\s.*$/is) {
+      unshift(@smtprelays, $1);
+   }
+   # count last fromhost as relay only if there are just 2 host on relaylist 
+   # since it means sender pc uses smtp to talk to our mail server directly
+   shift(@smtprelays) if ($#smtprelays>1);
+   return(\@smtprelays, \%connectfrom);
 }
 
 1;

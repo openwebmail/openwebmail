@@ -1,4 +1,49 @@
-04/26/2001
+05/02/2001
+----------
+1. fix thet replyto bug, the value of replyto field in message editing 
+   will override the replyto setting in user preference now.
+2. domainname in user preference will be checked if it is valid one of
+   the system domainanames.
+
+
+05/01/2001 (version 1.11)
+----------
+1. support 'clear addressbook'
+2. add option 'filter_fakesmtp' to openwebmail.conf and user preference.
+   It is designed to filter messages from spammers in 2 case
+   a. spammers relay from a smtp server and that has a invalid hostname
+   b. spammers deliver junk messages to you directly with a faked hostname
+
+
+04/30/2001
+----------
+1. better body text in message replying/forwarding
+2. fix a bug that changes the current message_id after copying the current message
+   to other folder.
+3. fix a bug related to message/rfc822 attachment
+
+
+04/28/2001
+----------
+1. fix a bug of url redirection in logout.
+2. clean code. ensure all file locking is done with sub filelock
+
+
+04/27/2001
+----------
+1. support filtering of repeated messages. It is useful to filter repeated 
+   virus mail from those imfected machines.
+
+   An option $repeatlimit is added to user preference and openwebmail.conf.
+   Messages at INBOX folder with same subject and from same sender will be 
+   treated as repeated messages. If the repeat count is more than 
+   $repeatlimit, these repeated messages will be moved to mail-trash. 
+
+2. support 'folder rename' in folder management menu
+3. fix security bug in add/delete folder
+
+
+04/26/2001 (version 1.10)
 ----------
 1. greatly improve the speed of folder view on folders with thousands 
    of messages
