@@ -1506,7 +1506,7 @@ sub editprefs {
                                 defined($config_raw{'DEFAULT_trashreserveddays'})?('-disabled'=>'1'):());
          $html =~ s/\@\@\@TRASHRESERVEDDAYSMENU\@\@\@/$temphtml/;
 
-         if ($config{'have_spamfolder_by_default'} || $config{'have_virusfolder_by_default'}) {
+         if ($config{'has_spamfolder_by_default'} || $config{'has_virusfolder_by_default'}) {
             templateblock_enable($html, 'SPAMVIRUS');
             $temphtml = popup_menu(-name=>'spamvirusreserveddays',
                                    -values=>[0,1,2,3,4,5,6,7,14,21,30,60,90,180,999999],

@@ -8,7 +8,7 @@
 <td>@@@BACKTOFOLDER@@@</td>
 <td align="right">
 <table border="0" cellpadding="0" cellspacing="0"><tr>
-<td>Znaková sada pro vytvoøení zprávy: </td>
+<td>Znaková sada pro vytvoøení zprávy:</td>
 <td>@@@CONVTOMENU@@@&nbsp;</td>
 </tr></table>
 </td>
@@ -39,11 +39,11 @@
 @@@BCCFIELD@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
-<B>Opovìï na:</B>
+<B>Odpovìdìt na:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 <table border="0" cellpadding="0" cellspacing="0"><tr>
 <td>@@@REPLYTOFIELD@@@&nbsp;&nbsp;</td>
-<td><B>Potvrdit ètení</B></td>
+<td><B>Potvrdit ètení:</B></td>
 <td>@@@CONFIRMREADINGCHECKBOX@@@</td>
 </tr></table>
 </td></tr>
@@ -58,7 +58,7 @@
 <table border="0" cellpadding="0" cellspacing="0"><tr>
 <td>@@@SUBJECTFIELD@@@&nbsp;&nbsp;</td>
 @@@BACKUPSENTSTART@@@
-<td><B>Ulo¾it kopii do slo¾ky Odeslané</B></td>
+<td><B>Ulo¾it kopii do slo¾ky Odeslané: </B></td>
 <td>@@@BACKUPSENTMSGCHECKBOX@@@</td>
 @@@BACKUPSENTEND@@@
 </tr></table>

@@ -34,7 +34,7 @@
       if (remainingseconds>0) {
          return true;
       } else {
-         alert("Sorry, your session is timeouted, please login again.");
+         alert("Pøekroèili jste maximální dobu neèinnosti. Pøihlaste se prosím znovu.");
          return false;
       }
    }

@@ -1,3 +1,19 @@
+12/27/2004
+----------
+1. fix a bug that spam/virus reserved days option does not show up in
+   user prefs
+   (thanks to kkenyon.AT.aircanopy.net for his fix)
+
+
+12/26/2004
+----------
+1. new mirror site at St. Petersburg, FL, USA,
+   http://holodeck3.net/owmirror
+   (thanks to Peter Friedrich, peterf.AT.peterf.com)
+2. Czech language and template files translation update
+   (thanks to Milan Kerslager, milan.kerslager.AT.pslib.cz)
+
+
 12/24/2004
 ----------
 1. fix a minor bug in mailfilter.pl that the filter.check file was not updated

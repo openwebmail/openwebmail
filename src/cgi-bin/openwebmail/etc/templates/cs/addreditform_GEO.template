@@ -2,7 +2,7 @@
   <td>
     <table cellpadding="0" cellspacing="0" border="0">
     <tr>
-      <td colspan="6"><b>Geographic Position</b></td>
+      <td colspan="6"><b>Zemìpisné umístìní (v pøíkladu je Praha)</b></td>
     </tr>
     <tr>
       <td>@@@GROUP@@@</td>
@@ -14,8 +14,8 @@
     </tr>
     <tr>
       <td class="smalltext">@@@GROUPLABEL@@@</td>
-      <td class="smalltext">longitude&nbsp;&nbsp;(-120.209183)</td>
-      <td class="smalltext" colspan="4">latitude&nbsp;&nbsp;(32.550266)</td>
+      <td class="smalltext">zemìpisná délka&nbsp;&nbsp;(14.4321)</td>
+      <td class="smalltext" colspan="4">zemìpisná ¹íøka&nbsp;&nbsp;(50.0873)</td>
     </tr>
     <tr>
       <td colspan="6">@@@TYPES@@@&nbsp;</td>

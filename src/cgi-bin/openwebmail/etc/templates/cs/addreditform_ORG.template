@@ -3,9 +3,9 @@
     <table cellpadding="0" cellspacing="0" border="0">
     <tr>
       <td></td>
-      <td><b>Company Name</b></td>
+      <td><b>Jméno firmy</b></td>
       <td rowspan="3">&nbsp;</td>
-      <td><b>Job Title</b></td>
+      <td><b>Pracovní zaøazení</b></td>
     </tr>
     <tr>
       <td>@@@GROUP@@@</td>
@@ -24,9 +24,9 @@
       <td colspan="3" class="smalltext">&nbsp;</td>
     </tr>
     <tr>
-      <td><b>Job Classification</b></td>
+      <td><b>Pracovní pozice</b></td>
       <td rowspan="2">&nbsp;</td>
-      <td><b>Division Structure</b>&nbsp;<a href="javascript:document.editForm.formchange.value='@@@ADDORGANIZATIONALUNITS@@@,0,1'; document.editForm.submit();">+</a></td>
+      <td><b>Jméno oddìlení</b>&nbsp;<a href="javascript:document.editForm.formchange.value='@@@ADDORGANIZATIONALUNITS@@@,0,1'; document.editForm.submit();">+</a></td>
     </tr>
     <tr>
       <td valign="top">

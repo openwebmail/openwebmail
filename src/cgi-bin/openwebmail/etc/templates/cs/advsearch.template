@@ -10,7 +10,7 @@
 
 <table border="0" width="100%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@COLUMNHEADER@@@>
-<B>Vybrat v¹echny slo¾ky</B>
+<B>Oznaèit v¹echny slo¾ky</B>
 &nbsp;<input name="allbox" type="checkbox" value="1" onClick="CheckAll();">
 </td></tr>
 <tr><td bgcolor=@@@TABLEROW_LIGHT@@@>
@@ -21,8 +21,10 @@
 </td></tr><tr><td>&nbsp;</td></tr><tr><td>
 
 <table border="0" width="100%" cellpadding="0" cellspacing="0">
-<tr><td bgcolor=@@@COLUMNHEADER@@@ colspan=2>
-<B>Date Range</B>
+<tr><td bgcolor=@@@COLUMNHEADER@@@>
+<B>Zadání rozsahu datumù pro vyhledávání</B>
+    <td bgcolor=@@@COLUMNHEADER@@@>
+<B>Rychlé zadání rozsahu vyhledávání</B>
 </td></tr>
 <tr><td bgcolor=@@@TABLEROW_LIGHT@@@>
 Start @@@STARTDATE@@@ &nbsp; end @@@ENDDATE@@@
@@ -38,7 +40,7 @@ Start @@@STARTDATE@@@ &nbsp; end @@@ENDDATE@@@
 <td bgcolor=@@@COLUMNHEADER@@@><B>Kde</B></td>
 <td bgcolor=@@@COLUMNHEADER@@@><B>Typ vyhledávání</B></td>
 <td bgcolor=@@@COLUMNHEADER@@@><B>Vyhledat text</B></td>
-<td bgcolor=@@@COLUMNHEADER@@@ align=center><B>Max. poèet øádkù výsledku</B></td>
+<td bgcolor=@@@COLUMNHEADER@@@ align=center><B>Max. poèet øádkù výstupu</B></td>
 </tr>
 <tr>
 <td bgcolor=@@@TABLEROW_LIGHT@@@>@@@WHEREMENU0@@@</td>

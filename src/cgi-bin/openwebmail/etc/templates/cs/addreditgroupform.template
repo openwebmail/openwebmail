@@ -5,7 +5,7 @@
   <td bgcolor=@@@TITLEBAR@@@>
     <table cellpadding="0" cellspacing="0" border="0" width="100%">
     <tr>
-      <td bgcolor=@@@TITLEBAR@@@><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>Edit Group Information</b></font></td>
+      <td bgcolor=@@@TITLEBAR@@@><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>Úprava informací o skupinì</b></font></td>
       <td bgcolor=@@@TITLEBAR@@@ align="right"><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>@@@ABOOKNAME@@@</b></td>
     </tr>
     </table>
@@ -31,7 +31,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Group Information</b></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Informace o skupinì</b></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -47,7 +47,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Add Files to Contact - @@@AVAILABLEATTSPACE@@@ Available</b></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Pøidávání souborù ke skupinì - zbývá @@@AVAILABLEATTSPACE@@@</b></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -58,8 +58,8 @@
     <tr>
       <td>
         <select name="UPLOAD.FILE.TYPE" class="mono">
-        <option value="PHOTO" selected>Photo of Group</option>
-        <option value="SOUND">Sound of Name</option>
+        <option value="PHOTO" selected>Fotografie skupiny</option>
+        <option value="SOUND">Zvukový záznam jména</option>
         </select>
       </td>
       <td width="5">&nbsp;</td>
@@ -72,9 +72,9 @@
       <td>@@@UPLOADWEBDISKLINK@@@</td>
     </tr>
     <tr>
-      <td colspan="2" class="smalltext" nowrap>choose a file type to add</td>
-      <td colspan="2" class="smalltext" nowrap>enter a url to the file (http://...)</td>
-      <td colspan="5" class="smalltext" nowrap>or upload the file directly</td>
+      <td colspan="2" class="smalltext" nowrap>zvolte typ souboru</td>
+      <td colspan="2" class="smalltext" nowrap>vlo¾te URL souboru (http://...)</td>
+      <td colspan="5" class="smalltext" nowrap>nebo vyberte soubor na disku</td>
     </tr>
     <tr>
       <td  colspan="9" height="10">&nbsp;</td>
@@ -117,9 +117,9 @@ function check_toggle(target) {
 
 function popupNotice (msgOption) {
    if (msgOption == 'agentmustsave') {
-      return(confirm('All data must be saved before viewing or creating an agent card.\nSave and continue?'));
+      return(confirm('Pøed vytvoøením nebo zobrazením Agent karty musí být v¹echna data ulo¾ena.\nUlo¾it a pokraèovat?'));
    } else if (msgOption == 'cancelchanges') {
-      return(confirm('All changes to this agent will be lost, continue?'));
+      return(confirm('V¹echny zmìny pro Agenta budou ztraceny. Pokraèovat?'));
    }
 }
 
