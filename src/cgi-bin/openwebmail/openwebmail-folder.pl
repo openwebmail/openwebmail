@@ -466,6 +466,8 @@ sub addfolder {
    }
 
    my $foldertoadd = ow::tool::untaint(safefoldername(param('foldername'))) || '';
+   return editfolders() if ($foldertoadd eq '');
+
    if (length($foldertoadd) > $config{'foldername_maxlen'}) {
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'foldername_long'}");
    }

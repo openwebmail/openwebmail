@@ -3,9 +3,9 @@ use strict;
 #
 # datetime.pl - date/time routines supporting timezone and daylightsaving
 #
-# This module uses gmtime(), timegm() to convert time between date array and seconds 
+# This module uses gmtime(), timegm() to convert time between date array and seconds
 # It uses time_gm2local(), time_local2gm() with parameter $timeoffset, $daylightsaving
-# to convert time between gm seconds and local seconds, 
+# to convert time between gm seconds and local seconds,
 # so it can handle multiple timezones other than where the server is.
 #
 
@@ -348,7 +348,7 @@ sub hour24to12 {
 use vars qw(%_gregoria_cache %_orthodox_cache);
 sub easter_match {
    my ($year, $month, $day, $idate) = @_;
-   my @fields = split(/,/,$idate); 
+   my @fields = split(/,/,$idate);
    return 0 unless ($year =~ /$fields[0]/);  # year matches?
 
    if ($idate =~ /easter/i) {

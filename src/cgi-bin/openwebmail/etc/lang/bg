@@ -240,6 +240,7 @@ package ow::bg;
    emptyfolder=> 'Празна папка',
    emptytrash => 'Изпразни кошчето',
    totrash    => 'Премести в коша',
+   learnspam  => 'Learn Spam',
    forever    => 'Завинаги',
    delatlogout=> 'Изтрий при влизане',
    userdef    => 'Дефинирано от потребителя',

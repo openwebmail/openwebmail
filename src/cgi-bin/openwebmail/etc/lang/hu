@@ -241,6 +241,7 @@ package ow::hu;
    emptyfolder=> 'Empty folder',
    emptytrash => 'Szemetes ürítése',
    totrash    => 'Szemetesbe',
+   learnspam  => 'Learn Spam',
    forever    => 'örökre',
    delatlogout=> 'Kilépéskor töröl',
    userdef    => 'Felhasználó definiálja',

@@ -4,7 +4,7 @@ use strict;
 # auth_pam.pl - authenticate user with PAM
 #
 # 2002/08/01 webmaster.AT.pkgmaster.com
-#            add check for nologin, validshell, cobaltuser 
+#            add check for nologin, validshell, cobaltuser
 #            based on work from Trevor.Paquette.AT.TeraGo.ca
 # 2001/10/05 tung.AT.turtle.ee.ncku.edu.tw
 #

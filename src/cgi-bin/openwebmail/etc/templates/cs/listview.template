@@ -23,8 +23,8 @@
 <tr>
 <td bgcolor=@@@COLUMNHEADER@@@ nowrap><B>Datum</B></td>
 <td bgcolor=@@@COLUMNHEADER@@@ nowrap><B>Den týdne</B></td>
-<td bgcolor=@@@COLUMNHEADER@@@ nowrap align="center" width="5%"><B>Dny</B></td>
-<td bgcolor=@@@COLUMNHEADER@@@ nowrap align="center" width="75%"><B>Polo¾ka</B></td>
+<td bgcolor=@@@COLUMNHEADER@@@ nowrap align="center" width="5%"><B>+- dnù</B></td>
+<td bgcolor=@@@COLUMNHEADER@@@ nowrap align="center" width="75%"><B>Popis</B></td>
 </tr>
 @@@ITEMLIST@@@
 </table>

@@ -150,7 +150,7 @@ sub cutdirfiles {
    return -1 if (!opendir(D, $dir));
    my @files=readdir(D);
    closedir(D);
-   
+
    my (%ftype, %fdate, %fsize);
 
    foreach my $fname (@files) {

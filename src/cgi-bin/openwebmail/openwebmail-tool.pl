@@ -85,11 +85,6 @@ my @list=();
 # if operation is from inetd or -m (query mail status ) or -e(query event status)
 my $euid_to_use=$<;
 
-# set clientip to 127.0.0.1 so openwebmail.log won't log wrong ip
-# when openwebmail-tool.pl is invoked from web program
-delete $ENV{'HTTP_X_FORWARDED_FOR'};
-$ENV{'REMOTE_ADDR'}='127.0.0.1';
-
 # no buffer on stdout
 local $|=1;
 
@@ -808,6 +803,7 @@ sub usertool {
             print "D do release upgrade...\n" if ($opt{'debug'});
             update_releasedatefile();
          }
+         update_openwebmailrc($user_releasedate);
       }
       if ( ! -d dotpath('/') ) {
          print "D ".dotpath('/')." doesn't exist\n" if ($opt{'debug'});
@@ -930,7 +926,7 @@ sub folderindex {
             seek(FOLDER, $attr[$_OFFSET]+$attr[$_SIZE], 0);
             read(FOLDER, $buff2, 6);
 
-            my @check=(0,0,0); 
+            my @check=(0,0,0);
             $check[0]=1 if ( $buff=~/^From / );
             $check[1]=1 if ( $attr[$_HEADERCHKSUM] eq ow::tool::calc_checksum(\$buff) );
             $check[2]=1 if ( $buff2=~/^From / || $buff2 eq "" );
@@ -938,7 +934,7 @@ sub folderindex {
             $error++ if (!$check[0] || !$check[1] || !$check[2]);
 
             printf ("%s%s%s %4d, OFFSET:%8d, SIZE:%8d, HSIZE:%4d, DATE:%s, CHARSET:%s, STAT:%3s, MSGID:%s, FROM:%s, TO:%s, SUB:%s\n",
-                    $check[0]?'+':'-', $check[1]?'+':'-', $check[2]?'+':'-', 
+                    $check[0]?'+':'-', $check[1]?'+':'-', $check[2]?'+':'-',
                     $i+1, $attr[$_OFFSET], $attr[$_SIZE], $attr[$_HEADERSIZE], $attr[$_DATE], $attr[$_CHARSET], $attr[$_STATUS],
                     substr($messageids[$i],0,50), $attr[$_FROM], $attr[$_TO], $attr[$_SUBJECT]) if (!$opt{'quiet'});
             #printf ("buf=$buff, buff2=$buff2\n");

@@ -244,6 +244,7 @@ package ow::pl;
    emptyfolder=> 'Opró¿nij folder',
    emptytrash => 'Opró¿nij kosz',
    totrash    => 'Przenie¶ do kosza',
+   learnspam  => 'Learn Spam',
    forever    => 'Zawsze',
    delatlogout=> 'Usuñ przy wylogowaniu',
    userdef    => 'Zdefiniowane przez u¿ytkownika',

@@ -54,7 +54,7 @@ use vars qw($quotausage $quotalimit);
 use vars qw(%lang_folders %lang_sizes %lang_wdbutton %lang_text %lang_err
             %lang_prioritylabels %lang_msgformatlabels); # defined in lang/xy
 use vars qw(%charset_convlist);	# defined in iconv.pl
-use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE $_STATUS 
+use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE $_STATUS
             $_SIZE $_REFERENCES $_CHARSET $_HEADERSIZE $_HEADERCHKSUM); # defined in maildb.pl
 
 # local globals
@@ -1282,7 +1282,7 @@ sub composemessage {
               qq|</td>\n|;
 
    if ($config{'enable_spellcheck'}) {
-      my $chkname=$config{'spellcheck'}; $chkname=~s|^.*/||;
+      my $chkname=(split(/\s/, $config{'spellcheck'}))[0]; $chkname=~s|^.*/||;
       $temphtml.=qq|<td nowrap align="center">|.
                  qq|<!--spellcheckstart-->\n|.
                  qq|<table cellpadding="0" cellspacing="0"><tr><td>|.
@@ -2315,7 +2315,7 @@ sub getattfilesinfo {
 
    foreach my $currentfile (@sessfiles) {
       if ($currentfile =~ /^(\Q$thissession\E\-att\d+)$/) {
-         my (%att, $attheader); 
+         my (%att, $attheader);
 
          push(@attfiles, \%att);
          $att{file}=$1;
@@ -2326,7 +2326,7 @@ sub getattfilesinfo {
          close (ATTFILE);
 
          $att{'content-type'}='application/octet-stream';	# assume attachment is binary
-         ow::mailparse::parse_header(\$attheader, \%att); 
+         ow::mailparse::parse_header(\$attheader, \%att);
          $att{'content-id'}=~s/^\s*\<(.+)\>\s*$/$1/;
 
          ($att{name}, $att{namecharset})=

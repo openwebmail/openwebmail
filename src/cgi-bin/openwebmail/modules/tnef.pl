@@ -5,7 +5,7 @@ use strict;
 #
 # 2004/07/18 tung.AT.turtle.ee.ncku.edu.tw
 #
-# tnef (Transport Neutral Encapsulation Format) is used mostly by 
+# tnef (Transport Neutral Encapsulation Format) is used mostly by
 # Microsoft Outlook and Exchange server
 #
 # This module requires the tnef program to be passed as $tnefbin
@@ -56,9 +56,9 @@ sub get_tnef_archive {
       _extract_files_from_tnef($tnefbin, $r_tnef, $tmpdir);
    }
 
-   opendir(T, $tmpdir); 
-   while (defined($_=readdir(T))) { 
-      push(@filelist, $_) if ($_ ne '.' && $_ ne '..'); 
+   opendir(T, $tmpdir);
+   while (defined($_=readdir(T))) {
+      push(@filelist, $_) if ($_ ne '.' && $_ ne '..');
    }
    close(T);
    if ($#filelist<0) {
@@ -85,17 +85,17 @@ sub get_tnef_archive {
 
    my $rmbin=ow::tool::findbin('rm');
    # cmd passed as array, so no shell in used, thus the rm is using current euid/egid
-   system($rmbin, '-Rf', $tmpdir) if ($rmbin ne ''); 
+   system($rmbin, '-Rf', $tmpdir) if ($rmbin ne '');
 
    return($arcname, \$arcdata, @filelist);
 }
 sub _extract_files_from_tnef {
    my ($tnefbin, $r_tnef, $tmpdir)=@_;
 
-   # set umask so the dir/file created by tnefbin will be readable 
+   # set umask so the dir/file created by tnefbin will be readable
    # by uid/gid other than current euid/egid
-   # (eg: if the shell is bash and current ruid!=0, the following froked 
-   #      tar/gzip may have ruid=euid=current ruid, 
+   # (eg: if the shell is bash and current ruid!=0, the following froked
+   #      tar/gzip may have ruid=euid=current ruid,
    #      which is not the same as current euid)
    my $oldumask=umask(0000);
 

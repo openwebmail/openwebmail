@@ -14,7 +14,7 @@
 <td nowrap bgcolor=@@@COLUMNHEADER@@@>
 <B>Port</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-@@@USEPOP3SSLSTART@@@<B>Use SSL</B>@@@USEPOP3SSLEND@@@</td>
+@@@USEPOP3SSLSTART@@@<B>Utiliser SSL</B>@@@USEPOP3SSLEND@@@</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Identifiant</B> (cliquer pour rappatrier)</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>

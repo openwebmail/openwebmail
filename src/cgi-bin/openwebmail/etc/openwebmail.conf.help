@@ -793,18 +793,6 @@ eg: X-Mailer: %name% %version% %releasedate%
 ps: please note that all xheaders must be started with X-
 
 
-xmailer_has_version
------------------------------------------------------------------------
-Set this option to 'no' if you don't want the openwebmail version number
-to be displayed in the X-Mailer header for the outgoing messages
-
-
-xoriginatingip_has_userid
------------------------------------------------------------------------
-Set this option to 'no' if you don't want the userid to be displayed
-in the X-OriginatingIP header for the outgoing messages
-
-
 enable_preference
 -----------------------------------------------------------------------
 set this option to 'no' if you want to disable preference setup fir users
@@ -853,9 +841,16 @@ enable_stationery
 This option enables the stationery support
 
 
+enable_globalfilter
+-----------------------------------------------------------------------
+Messages of all users will be filtered by the rules defined in the 
+file specified option global_filterbook, set this option to 'no' if 
+you want to disable this feature.
+
+
 enable_userfilter
 -----------------------------------------------------------------------
-Open WebMail default allows uyser to define mail filters for their
+Open WebMail default allows user to define mail filters for his
 incoming messages, set this option to 'no' if you want to disable it.
 
 
@@ -933,7 +928,7 @@ in preference. available value: all, pop3
 spamcheck_maxsize_allowed
 -----------------------------------------------------------------------
 This option limits the max value that user can set for spamcheck_maxsize
-in the iser preference. (in KB)
+in the user preference. (in KB)
 Value: 100, 150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000
 
 
@@ -973,14 +968,14 @@ ps: HAM = non-SPAM
 learnspam_destination
 -----------------------------------------------------------------------
 If a message is learned as SPAM and it IS NOT located in either 
-mail-trash, spam-mail or virus-mail, then this is the folder that this
-learned message will be moved to. (default: spam-mail)
+spam-mail or virus-mail, then this is the folder that the learned 
+message will be moved to. (default: spam-mail)
 
 
 learnham_destination
 -----------------------------------------------------------------------
 If a message is learned as HAM and it IS located in either 
-mail-trash, spam-mail or virus-mail, then this is the folder that this
+mail-trash, spam-mail or virus-mail, then this is the folder that the
 learned message will be moved to. (default: INBOX)
 
 
@@ -1062,13 +1057,6 @@ fetchpop3interval
 If user enables autopop3 in user preference, openwebmail will fetch
 pop3mail automatically after he login. And this option determines how
 long openwebmail should check mail on pop3 servers for the user.
-
-
-default_calendar_holidaydef
------------------------------------------------------------------------
-The default holiday file to use in calendar. If this option is set to
-'auto', then the moliday file will be choosed based on the user language.
-If this option is set to 'none', no holiday file will be used.
 
 
 calendar_email_notifyinterval
@@ -1343,13 +1331,6 @@ ps: the user mailspool fiile for USER@DOMAINANME will be
     $config{vdomain_vmpop3_mailpath}/DOMAINNAME/USERNAME
 
 
-vdomain_postfix_virtual
------------------------------------------------------------------------
-The path of the postfix virtual map file(s)
-
-Default: /etc/postfix/virtual
-
-
 vdomain_postfix_aliases
 -----------------------------------------------------------------------
 The path of the postfix alias file(s)
@@ -1357,11 +1338,11 @@ The path of the postfix alias file(s)
 Default: /etc/postfix/aliases
 
 
-vdomain_postfix_postmap
+vdomain_postfix_virtual
 -----------------------------------------------------------------------
-The program used to create index of the postfix virtual map file
+The path of the postfix virtual map file(s)
 
-Default: /usr/sbin/postmap
+Default: /etc/postfix/virtual
 
 
 vdomain_postfix_postalias
@@ -1369,6 +1350,13 @@ vdomain_postfix_postalias
 The program used to create index of the postfix alias file
 
 Default: /usr/sbin/postalias
+
+
+vdomain_postfix_postmap
+-----------------------------------------------------------------------
+The program used to create index of the postfix virtual map file
+
+Default: /usr/sbin/postmap
 
 
 vdomain_mailbox_command
@@ -1848,7 +1836,7 @@ if set this option to 'yes', the regular expression is assumed when
 doing keyword match in search and filterrule.
 
 
-hideinternal
+default_hideinternal
 -----------------------------------------------------------------------
 If this option is enabled, internal messages used by POP3 or IMAP
 server will be hidden from users

@@ -240,6 +240,7 @@ package ow::es;
    emptyfolder=> 'Vaciar bandeja',
    emptytrash => 'Vaciar Papelera',
    totrash    => 'Enviar a la Papelera',
+   learnspam  => 'Learn Spam',
    forever    => 'Para siempre',
    delatlogout=> 'Eliminar al salir',
    userdef    => 'Definido por el usuario',

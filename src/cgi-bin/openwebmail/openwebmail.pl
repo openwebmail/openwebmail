@@ -113,7 +113,7 @@ if ( $config{'forced_ssl_login'} &&	# check the forced use of SSL
 
 if ( param('loginname') && param('password') ) {
    login();
-} elsif (matchlist_fromhead('allowed_autologinip', ow::tool::clientip()) && 
+} elsif (matchlist_fromhead('allowed_autologinip', ow::tool::clientip()) &&
          cookie('openwebmail-autologin')) {
    autologin();
 } else {
@@ -173,7 +173,7 @@ sub loginmenu {
                               -override=>'1');
    $html =~ s/\@\@\@PASSWORDFIELD\@\@\@/$temphtml/;
 
-   if ($ENV{'HTTP_ACCEPT_ENCODING'}=~/\bgzip\b/ && 
+   if ($ENV{'HTTP_ACCEPT_ENCODING'}=~/\bgzip\b/ &&
        ow::tool::has_module('Compress/Zlib.pm') ) {
       $temphtml = checkbox(-name=>'httpcompress',
                            -value=>'1',
@@ -481,7 +481,7 @@ sub login {
          $refreshurl="http://$ENV{'HTTP_HOST'}$refreshurl" if ($refreshurl!~s!^https?://!http://!i);
       }
 
-      my @cookies=(); 
+      my @cookies=();
 
       # cookie for autologin switch, expired until 1 month later
       my $autologin=param('autologin')||0;
@@ -498,7 +498,7 @@ sub login {
 
       # if autologin then expired until 1 week, else expired until browser close
       my @expire=(); @expire=(-expires => '+7d') if ($autologin);
-      # cookie for openwebmail to verify session, 
+      # cookie for openwebmail to verify session,
       push(@cookies, cookie(-name  => "$user-sessionid",
                             -value => $sessioncookie_value,
                             -path  => '/',
@@ -510,7 +510,7 @@ sub login {
                                        0),
                             @expire) );
 
-      # cookie for autologin other other ap to find openwebmail loginname, default_logindomain, 
+      # cookie for autologin other other ap to find openwebmail loginname, default_logindomain,
       # expired until 1 month later
       push(@cookies, cookie(-name  => 'openwebmail-loginname',
                             -value => $loginname,
@@ -773,27 +773,3 @@ sub search_clean_oldsessions {
 }
 
 ########## END SEARCH_AND_CLEANOLDSESSIONS #######################
-
-########## UPDATE_OPENWEBMAILRC ##################################
-sub update_openwebmailrc {
-   my $user_releasedate=$_[0];
-
-   my $rcfile=dotpath('openwebmailrc');
-   my $saverc=0;
-   if (-f $rcfile) {
-      $saverc=1 if ( $user_releasedate lt "20040724" );	# rc upgrade
-      %prefs = readprefs() if ($saverc);		# load user old prefs + sys defaults
-   } else {
-      $saverc=1 if ($config{'auto_createrc'});		# rc auto create
-   }
-   if ($saverc) {
-      open (RC, ">$rcfile") or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $rcfile! ($!)");
-      foreach my $key (@openwebmailrcitem) {
-         print RC "$key=$prefs{$key}\n";
-      }
-      close (RC) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $rcfile!");
-   }
-   return;
-}
-########## END UPDATE_OPENWEBMAILRC ##############################

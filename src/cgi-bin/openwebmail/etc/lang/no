@@ -240,6 +240,7 @@ package ow::no;
    emptyfolder=> 'Empty folder',
    emptytrash => 'Tøm papirkurven',
    totrash    => 'Flytt til papirkurven',
+   learnspam  => 'Learn Spam',
    forever    => 'Alltid',
    delatlogout=> 'Slett ved utlogging',
    userdef    => 'Brukerdefinert',

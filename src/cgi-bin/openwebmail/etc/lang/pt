@@ -240,6 +240,7 @@ package ow::pt;
    emptyfolder=> 'Empty folder',
    emptytrash => 'Apagar lixo',
    totrash    => 'Mover para o Lixo',
+   learnspam  => 'Learn Spam',
    forever    => 'Para sempre',
    delatlogout=> 'Apagar ao Sair',
    userdef    => 'Defenido pelo Utilizador',

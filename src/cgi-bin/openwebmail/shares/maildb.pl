@@ -77,13 +77,20 @@ sub update_folderindex {
       ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or return -1;
 
       if ($FDB{'DBVERSION'} eq $DBVERSION) {
-         if ($FDB{'METAINFO'} eq $foldermeta && 
-             $FDB{'ALLMESSAGES'}>=0 && 
-             $FDB{'NEWMESSAGES'}>=0 &&
-             $FDB{'INTERNALMESSAGES'}>=0 && 
-             $FDB{'INTERNALSIZE'}>=0 && 
-             $FDB{'ZAPMESSAGES'}>=0 && 
-             $FDB{'ZAPSIZE'}>=0) {
+         my $is_folderattrs_ok=0;
+         $foldermeta=~/^mtime=\d+ size=(\d+)$/;	# $1 is foldersize
+         if ($FDB{'NEWMESSAGES'}>=0 &&
+             $FDB{'INTERNALMESSAGES'}>=0 &&
+             $FDB{'INTERNALSIZE'}>=0 &&
+             $FDB{'ZAPMESSAGES'}>=0 &&
+             $FDB{'ZAPSIZE'}>=0 &&
+             $FDB{'ALLMESSAGES'} >= $FDB{'NEWMESSAGES'}+$FDB{'INTERNALMESSAGES'}+$FDB{'ZAPMESSAGES'} &&
+             $1 >= $FDB{'INTERNALSIZE'}+$FDB{'ZAPSIZE'}) {
+            $is_folderattrs_ok=1;	# folder attrs are basicly correct
+         }
+
+         if ($is_folderattrs_ok &&
+             $FDB{'METAINFO'} eq $foldermeta) {
             ow::dbm::close(\%FDB, $folderdb);
             return 0;
          }
@@ -91,14 +98,15 @@ sub update_folderindex {
          $is_db_reuseable=-1;
          @oldmessageids=get_messageids_sorted_by_offset_db(\%FDB);
          # assume the db is reuseable if the last few records in db are consistent with msgs in folder
-         if ($FDB{'METAINFO'}=~/^mtime=\d+ size=(\d+)$/ &&	# not forced reindex (which put RENEW or ERR as metainfo)
+         if ($is_folderattrs_ok &&
+             $FDB{'METAINFO'}=~/^mtime=\d+ size=\d+$/ &&	# not forced reindex (which put RENEW or ERR as metainfo)
              $FDB{'ALLMESSAGES'}==$#oldmessageids+1) {		# mesg count is correct
             $is_db_reuseable=1;
 
-            my (@i, $i, @attr); 
+            my (@i, $i, @attr);
             if ($#oldmessageids>=4) {
                my $d=int(($#oldmessageids-1)/3);
-               for ($i=0; $i<$#oldmessageids-1; $i+=$d) { push (@i, $i) }; 
+               for ($i=0; $i<$#oldmessageids-1; $i+=$d) { push (@i, $i) };
                push(@i, $#oldmessageids-1, $#oldmessageids);
             } else {
                @i=(0..$#oldmessageids);
@@ -173,8 +181,9 @@ sub update_folderindex {
          $messagenumber++;
          ($lastsize, $lastid) = ($size, $id);
          # note: a message will be in one of the 4 types: zapped, internal, new, old
+         ($last_is_new, $last_is_internal, $last_is_zap)=(0, 0, 0);
          if ($status=~/Z/i) {
-            $last_is_zap;
+            $last_is_zap=1;
          } elsif (is_internal_subject($subject)) {
             $last_is_internal=1;
          } elsif ($status !~ m/R/i) {
@@ -230,7 +239,7 @@ sub update_folderindex {
          # copy internal flags
          foreach (qw(T V Z)) {
             $flag{$_}=1 if ($oldstatus=~/$_/i);
-         } 
+         }
          $$r_message{charset}=$oldcharset;
          # skip past this message, we're already positioned at the end of the header
          $skip -= $$r_message{headersize};
@@ -250,7 +259,7 @@ sub update_folderindex {
                      $block=~/^content-disposition:.*;\s*filename\s*\*?=/ims) ) {
                   $flag{T}=1;
                }
-               if (!$flag{T} or $$r_message{charset} eq '') { 
+               if (!$flag{T} or $$r_message{charset} eq '') {
                   $block=_skip_to_next_text_block();
                } else {
                   $block='';
@@ -264,7 +273,7 @@ sub update_folderindex {
                if ( $block=~/^begin [0-7][0-7][0-7][0-7]? [^\n\r]+/mi) {
                   $flag{T}=1;
                   $block='';
-               } else { 
+               } else {
                   $block=_skip_to_next_text_block();
                }
             }
@@ -432,7 +441,7 @@ sub _get_next_msgheader_buffered {
    # get msgheader until to the first nlnl (pos>0) or end of file(pos=-1)
    # note: the 1st nl is counted as part of the msgheader
    if ($offset >=0) {
-      $pos=buffer_index("\n\n",1); 
+      $pos=buffer_index("\n\n",1);
       $pos++ if ($pos>=0);		# count 1st nl into msgheader
       $content=buffer_getchars($pos);
    }
@@ -464,7 +473,7 @@ sub _prepare_msghash {
    my ($r_message, $r_flag)=@_;
 
    # try to get charset from contenttype header
-   if ($$r_message{charset} eq "" && 
+   if ($$r_message{charset} eq "" &&
        $$r_message{'content-type'}=~/charset\s*=\s*"?([^\s"';]*)"?\s?/i) {
       $$r_message{charset}=$1;
    }
@@ -492,8 +501,8 @@ sub _prepare_msghash {
 sub _update_index_with_msghash {
    my ($r_FDB, $id, $r_message)=@_;
    $$r_FDB{$id}=msgattr2string(${$r_message}{offset}, ${$r_message}{from}, ${$r_message}{to},
-      ${$r_message}{date}, ${$r_message}{subject}, ${$r_message}{'content-type'}, ${$r_message}{status}, 
-      ${$r_message}{size}, ${$r_message}{references}, ${$r_message}{charset}, 
+      ${$r_message}{date}, ${$r_message}{subject}, ${$r_message}{'content-type'}, ${$r_message}{status},
+      ${$r_message}{size}, ${$r_message}{references}, ${$r_message}{charset},
       ${$r_message}{headersize}, ${$r_message}{headerchksum});
    return 0;
 }
@@ -820,7 +829,7 @@ sub operate_message_with_ids {
 
          close ($srchandle);
          @FDB{'METAINFO', 'LSTMTIME'}=('ERR', -1);
-         ow::dbm::close(\%FDB, $srcdb);         
+         ow::dbm::close(\%FDB, $srcdb);
 
          # forced reindex since metainfo = ERR
          update_folderindex($srcfile, $srcdb);
@@ -832,7 +841,7 @@ sub operate_message_with_ids {
             update_folderindex($dsthandle, $dstdb);	# ensure msg cp/mv to dst are correctly indexed
          }
          return -8;
-      } 
+      }
 
       $counted++;
       # append msg to dst folder only if op=move/copy and msg doesn't exist in dstfile
@@ -979,7 +988,7 @@ sub folder_zapmessages {
          close ($folderhandle);
 
          return -10;
-      } 
+      }
 
       my $nextstart=ow::tool::untaint($attr[$_OFFSET]+$attr[$_SIZE]);
       if ( $attr[$_STATUS]=~/Z/i ) {
@@ -1277,7 +1286,7 @@ sub empty_folder {
 
 ########## STRING <-> MSGATTR ####################################
 # we use \n as delimiter for attributes
-# since we assume max record len is 1024, 
+# since we assume max record len is 1024,
 # len(msgid) < 128, len(other fields)<60, len(delimiter)=10,
 # so len( from + to + subject + contenttype + references ) must < 826
 sub msgattr2string {
@@ -1347,8 +1356,8 @@ sub is_msgattr_consistent_with_folder {
    my ($r_attr, $folderhandle)=@_;
    my $buff;
 
-   return 0 if (${$r_attr}[$_OFFSET]<0 || 
-                ${$r_attr}[$_HEADERSIZE]<=0 || 
+   return 0 if (${$r_attr}[$_OFFSET]<0 ||
+                ${$r_attr}[$_HEADERSIZE]<=0 ||
                 ${$r_attr}[$_SIZE]<=${$r_attr}[$_HEADERSIZE]);
 
    seek($folderhandle, ${$r_attr}[$_OFFSET], 0);

@@ -938,7 +938,7 @@ sub wordpreview {		# msword text preview
    } else {
       if (is_convertable('utf-8', $prefs{'charset'}) ) {
          ($stdout)=iconv('utf-8', $prefs{'charset'}, $stdout);
-      }      
+      }
       writelog("webdisk wordpreview - $vpath");
       writehistory("webdisk wordpreview - $vpath");
    }
@@ -1193,7 +1193,7 @@ sub downloadfile {
    }
 
    # we only log download other than thumbnail imgs
-   my @p=split(/\//, $vpath); 
+   my @p=split(/\//, $vpath);
    if (!defined($p[$#p-1]) || $p[$#p-1] ne '.thumbnail') {	
       writelog("webdisk download - $vpath");
       writehistory("webdisk download - $vpath ");
@@ -1337,17 +1337,17 @@ sub uploadfile {
 sub renameoldfile {
    my ($base, $ext)=($_[0], ''); ($base,$ext)=($1,$2) if ($_[0]=~/(.*)(\..*)/);
    my (%from, %to); $to{0}=1;
-   for my $i (0..9) { 
+   for my $i (0..9) {
       $from{$i}=1 if (-f "$base.$i$ext");
       $to{$i+1}=1 if ($to{$i} && $from{$i});
    }
-   for (my $i=9; $i>=0; $i--) { 
+   for (my $i=9; $i>=0; $i--) {
       if ($from{$i} && $to{$i+1}) {
          rename(ow::tool::untaint("$base.$i$ext"), ow::tool::untaint("$base.".($i+1).$ext));
-      } 
+      }
    }
    rename(ow::tool::untaint("$base$ext"), ow::tool::untaint("$base.0$ext"));
-}         
+}
 
 ########## END UPLOADFILE ########################################
 

@@ -25,6 +25,7 @@ require "modules/filelock.pl";
 require "modules/tool.pl";
 require "modules/datetime.pl";
 require "modules/lang.pl";
+require "modules/mime.pl";
 require "auth/auth.pl";
 require "quota/quota.pl";
 require "shares/ow-shared.pl";
@@ -155,7 +156,7 @@ sub addressbook {
       openwebmailerror(__FILE__, __LINE__, $err) if ($stat<0);
 
       foreach (@namelist) {
-         delete $addresses{$_} if (!is_entry_matched($abook_keyword,$abook_searchtype, 
+         delete $addresses{$_} if (!is_entry_matched($abook_keyword,$abook_searchtype,
                                                      $_, $notes{$_}, $addresses{$_}));
       }
       foreach my $name (sort { lc($a) cmp lc($b) } keys %addresses) {
@@ -221,8 +222,8 @@ sub addressbook {
       openwebmailerror(__FILE__, __LINE__, $err) if ($stat<0);
 
       foreach my $name (@namelist) {
-         next if (!is_entry_matched($abook_keyword,$abook_searchtype, 
-                                    $name, $globalnotes{$name}, $globaladdresses{$name})); 
+         next if (!is_entry_matched($abook_keyword,$abook_searchtype,
+                                    $name, $globalnotes{$name}, $globaladdresses{$name}));
          my $email=$globaladdresses{$name};
          my $emailstr;
 
@@ -274,7 +275,7 @@ sub addressbook {
    # rebuild entries not checked on address popup window backto elist
    my @u=sort values(%emailhash);
 
-   $elist=join(",", @u); 
+   $elist=join(",", @u);
    $elist=ow::tool::escapeURL($elist);	# escape elist to make it a safe string in HTML
 
    $temphtml = ow::tool::hiddens(elist=>$elist,
@@ -472,7 +473,9 @@ sub exportabook {
    print qq|\n|;
    print qq|Name,E-mail Address,Note\n|;
    foreach (@namelist) {
-      print "$_,$addresses{$_},$notes{$_}\n";
+      my @line = ($_, $addresses{$_}, $notes{$_}); 
+      map { $_ = qq|"$_"| if /,/; } @line; # quote str if contains comma
+      print join(",", @line)."\n"; 
    }
 
    writelog("export addressbook");
@@ -493,6 +496,7 @@ sub importabook_pine {
    }
 
    if (open (PINEBOOK,"$homedir/.addressbook") ) {
+      my @lines=();
       my ($name, $email, $note);
       my (%addresses, %notes);
       my $abooktowrite='';
@@ -504,14 +508,22 @@ sub importabook_pine {
       openwebmailerror(__FILE__, __LINE__, $err) if ($stat<0);
 
       while (<PINEBOOK>) {
-         my ($name, $email, $note) = (split(/\t/, $_,5))[1,2,4];
-         chomp($email);
-         chomp($note);
-         next if ($email=~/^\s*$/);  # skip if email is null
-         $addresses{"$name"} = $email;
-         $notes{"$name"}=$note;
+         chomp;
+         if (/^ / && $#lines>=0) {
+            s/^ //;
+            $lines[$#lines].=$_;
+         } else {
+            push(@lines, $_);
+         }
       }
       close (PINEBOOK);
+      foreach (@lines) {
+         my ($name, $email, $note) = (split(/\t/, $_,5))[1,2,4];
+         next if ($email=~/^\s*$/);  # skip if email is null
+         $name=decode_mimewords($name);
+         $addresses{"$name"} = decode_mimewords($email);
+         $notes{"$name"}=decode_mimewords($note);
+      }
 
       # replace the address book
       ($stat,$err)=write_abook($addrbookfile,$config{'maxbooksize'},\%addresses,\%notes);
@@ -543,7 +555,7 @@ sub exportabook_pine {
 
       ow::filelock::lock("$homedir/.addressbook", LOCK_EX) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $homedir/.addressbook!");
-           
+
       if (open (PINEBOOK, "$homedir/.addressbook")) {
          while (<PINEBOOK>) {
             my ($nickname, $name, $email, $fcc, $note) = (split(/\t/, $_,5))[1,2,4];
@@ -820,7 +832,7 @@ sub modaddress {
          }
          $addresses{"$realname"} = $address;
          # overwrite old note only if new one is not _reserved_
-         # check addaddress in openwebmail-read.pl         
+         # check addaddress in openwebmail-read.pl
          $notes{"$realname"} = $usernote if ($usernote ne '_reserved_');
       }
 

@@ -8,7 +8,7 @@ use Text::Iconv;
 require "shares/iconv-chinese.pl";
 require "shares/iconv-japan.pl";
 
-use vars qw(%charset_convlist %charset_localname %localname_cache);
+use vars qw(%charset_convlist %charset_equiv %charset_localname %localname_cache);
 
 # mapping www charset to all possible iconv charset on various platform
 %charset_localname=
@@ -17,7 +17,6 @@ use vars qw(%charset_convlist %charset_localname %localname_cache);
    'euc-jp'        => [ 'EUC-JP', 'EUC', 'eucJP' ],
    'euc-kr'        => [ 'EUC-KR', 'EUCKR' ],
    'gb2312'        => [ 'GB2312', 'gb2312' ],
-   'gbk'           => [ 'GBK', 'gbk' ],
    'iso-2022-jp'   => [ 'ISO-2022-JP', 'JIS' ],
    'iso-2022-kr'   => [ 'ISO-2022-KR' ],
    'iso-8859-1'    => [ 'ISO-8859-1', '8859-1', 'ISO8859-1', 'ISO_8859-1' ],
@@ -31,7 +30,6 @@ use vars qw(%charset_convlist %charset_localname %localname_cache);
    'koi8-r'        => [ 'KOI8-R' ],
    'koi8-u'        => [ 'KOI8-U' ],
    'ksc5601'       => [ 'KSC5601' ],
-   'ks_c_5601-1987'=> [ 'KSC5601' ],
    'shift_jis'     => [ 'SJIS', 'SHIFT_JIS', 'SHIFT-JIS' ],
    'tis-620'       => [ 'TIS-620', 'TIS620' ],
    'utf-8'         => [ 'UTF-8', 'UTF8' ],
@@ -45,18 +43,27 @@ use vars qw(%charset_convlist %charset_localname %localname_cache);
    'windows-1257'  => [ 'WINDOWS-1257', 'CP1257' ],
    );
 
+# map old/unofficial charset name to official charset name
+%charset_equiv=
+   (
+   'big-5'          => 'big5',
+   'gbk'            => 'gb2312',
+   'iso-8859'       => 'iso-8859-1',
+   'us-ascii'       => 'iso-8859-1',
+   'ks_c_5601-1987' => 'ksc5601',
+   'utf8'           => 'utf-8'
+   );
+
 # convertable list of WWW charset, the definition is:
 # charset in the left can be converted from the charsets in right list
 %charset_convlist=
    (
-   'big5'          => [ 'utf-8', 'gb2312', 'gbk' ],
+   'big5'          => [ 'utf-8', 'gb2312'],
    'euc-jp'        => [ 'utf-8', 'iso-2022-jp', 'shift_jis' ],
-   'euc-kr'        => [ 'utf-8', 'ks_c_5601-1987', 'ksc5601', 'iso-2022-kr' ],
-   'iso-2022-kr'   => [ 'utf-8', 'ks_c_5601-1987', 'ksc5601', 'euc-kr' ],
-   'ks_c_5601-1987'=> [ 'utf-8', 'euc-kr', 'iso-2022-kr' ],
+   'euc-kr'        => [ 'utf-8', 'ksc5601', 'iso-2022-kr' ],
+   'iso-2022-kr'   => [ 'utf-8', 'ksc5601', 'euc-kr' ],
    'ksc5601'       => [ 'utf-8', 'euc-kr', 'iso-2022-kr' ],
-   'gb2312'        => [ 'utf-8', 'big5', 'gbk' ],
-   'gbk'           => [ 'utf-8', 'big5', 'gb2312' ],
+   'gb2312'        => [ 'utf-8', 'big5' ],
    'iso-2022-jp'   => [ 'utf-8', 'shift_jis', 'euc-jp' ],
    'iso-8859-1'    => [ 'utf-8', 'windows-1252' ],
    'iso-8859-2'    => [ 'utf-8', 'windows-1250' ],
@@ -78,11 +85,11 @@ use vars qw(%charset_convlist %charset_localname %localname_cache);
    'windows-1255'  => [ 'utf-8', 'iso-8859-8' ],
    'windows-1256'  => [ 'utf-8', 'iso-8859-6' ],
    'windows-1257'  => [ 'utf-8', 'iso-8859-13' ],
-   'utf-8'         => [ 'big5', 'euc-jp', 'euc-kr', 'gb2312', 'gbk',
+   'utf-8'         => [ 'big5', 'euc-jp', 'euc-kr', 'gb2312',
 			'iso-2022-jp', 'iso-2022-kr',
 			'iso-8859-1', 'iso-8859-2', 'iso-8859-5', 'iso-8859-6',
 			'iso-8859-7', 'iso-8859-9', 'iso-8859-13',
-			'koi8-r', 'koi8-u', 'ksc5601', 'ks_c_5601-1987',
+			'koi8-r', 'koi8-u', 'ksc5601',
 			'shift_jis', 'tis-620',
 			'windows-1250', 'windows-1251', 'windows-1252',
 			'windows-1253', 'windows-1254', 'windows-1255',
@@ -91,10 +98,14 @@ use vars qw(%charset_convlist %charset_localname %localname_cache);
 
 sub is_convertable {
    my ($from, $to)=@_;
-   $from=lc($from); $to=lc($to);
+   foreach my $charset ($from, $to) {
+      $charset=lc($charset);
+      $charset=~s/iso_?8859/iso\-8859/;
+      $charset=$charset_equiv{$charset} if (defined($charset_equiv{$charset})); 
+   }
 
-   return 1 if ($from eq 'big5' && ($to eq 'gb2312'||$to eq 'gbk'));
-   return 1 if (($from eq 'gb2312'||$from eq 'gbk') && $to eq 'big5');
+   return 1 if ($from eq 'big5' && $to eq 'gb2312');
+   return 1 if ($from eq 'gb2312' && $to eq 'big5');
    return 1 if ($from eq 'shift_jis' && $to eq 'iso-2022-jp');
    return 1 if ($from eq 'iso-2022-jp' && $to eq 'shift_jis');
    return 1 if ($from eq 'shift_jis' && $to eq 'euc-jp');
@@ -112,31 +123,13 @@ sub is_convertable {
    return 0;
 }
 
-%localname_cache=();
-sub iconv_open {
-   my ($from, $to)=@_;
-
-   if (defined($localname_cache{$from}) &&
-       defined($localname_cache{$to}) ) {
-      return(Text::Iconv->new($localname_cache{$from}, $localname_cache{$to}));
-   }
-
-   my $converter;
-   foreach my $localfrom (@{$charset_localname{$from}}) {
-      foreach my $localto (@{$charset_localname{$to}}) {
-         eval { $converter = Text::Iconv->new($localfrom, $localto); };
-         next if ($@);
-         $localname_cache{$from}=$localfrom;
-         $localname_cache{$to}=$localto;
-       	 return($converter);
-      }
-   }
-   return('');
-}
-
 sub iconv {
    my ($from, $to, @text)=@_;
-   $from=lc($from); $to=lc($to);
+   foreach my $charset ($from, $to) {
+      $charset=lc($charset);
+      $charset=~s/iso_?8859/iso\-8859/;
+      $charset=$charset_equiv{$charset} if (defined($charset_equiv{$charset})); 
+   }
 
    my $converter = iconv_open($from, $to);
    my @result;
@@ -146,9 +139,9 @@ sub iconv {
          $result[$i]=$text[$i]; next;
       }
       # try convertion routine in iconv-chinese, iconv-japan first
-      if ($from  eq 'big5' && ($to eq 'gb2312'||$to eq 'gbk') ) {
+      if ($from  eq 'big5' && $to eq 'gb2312' ) {
          $result[$i]=b2g($text[$i]); next;
-      } elsif (($from eq 'gb2312'||$from eq 'gbk') && $to eq 'big5' ) {
+      } elsif ($from eq 'gb2312' && $to eq 'big5' ) {
          $result[$i]=g2b($text[$i]); next;
       } elsif ($from eq 'shift_jis' && $to eq 'iso-2022-jp' ) {
          $result[$i]=$text[$i]; sjis2jis(\$result[$i]); next;
@@ -180,6 +173,28 @@ sub iconv {
    }
    $converter='';
    return (@result);
+}
+
+%localname_cache=();
+sub iconv_open {
+   my ($from, $to)=@_;
+
+   if (defined($localname_cache{$from}) &&
+       defined($localname_cache{$to}) ) {
+      return(Text::Iconv->new($localname_cache{$from}, $localname_cache{$to}));
+   }
+
+   my $converter;
+   foreach my $localfrom (@{$charset_localname{$from}}) {
+      foreach my $localto (@{$charset_localname{$to}}) {
+         eval { $converter = Text::Iconv->new($localfrom, $localto); };
+         next if ($@);
+         $localname_cache{$from}=$localfrom;
+         $localname_cache{$to}=$localto;
+       	 return($converter);
+      }
+   }
+   return('');
 }
 
 1;

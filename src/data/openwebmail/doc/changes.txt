@@ -1,10 +1,175 @@
+09/26/2004 (version 2.41)
+----------
+1. French language and templates translation update
+   (thanks to Nabil SEFRIOUI, admin.AT.osmium-work.com)
+
+
+09/24/2004
+----------
+1. fix a bug in addressbook csv export routine which didn't check if the 
+   exported fields contain commas, so the resulting csv may be misunderstood
+   by other programs. 
+   (thanks to Joao S Veiga, openwebmail.AT.rf.com.br for his fix)
+2. fix bugs in pine addressbook import routine
+   a. entries across multiple lines were not parsed properly
+   b. mime encoded strings were not decoded properly
+   (reported by zlb.AT.lsec.cc.ac.cn)
+3. fix a bug in maildb.pl which didn't reset message type variable between 
+   loop and caused openwebmail to have wrong message size/count for folders
+   in some cases.
+
+ps: This wrong size/count summary bug won't hurt the consistence of mail 
+    folder and related index, but we suggest that sites running imapd/pop3d 
+    and openwebmail later than 20040804 should upgrade to this release.
+
+
+09/22/2004
+----------
+1. Deutsch template files translation update
+   (thanks to Martin Bronk, martin.AT.bronk.de)
+
+
+09/14/2004
+----------
+1. use title="..." directive instead of href="mailto:..." for email links 
+   in all html documents
+
+
+09/12/2004
+----------
+1. fix a bug that en.utf8 did't exist in 
+   data/openwebmail/javascript/htmlarea.openwebmail/popups
+   which caused html editing not working for en.utf8 
+
+
+09/11/2004
+----------
+1. fix a bug that mini search icon won't display correctly in preference
+   configuration if iconset is text based
+2. remove sites that are not available any more from the mirror list
+
+
+09/09/2004
+----------
+1. Korean language file translation minor update
+   (thanks to Sungjun Park, psj.AT.soosan.co.kr)
+2. add 'English -unicode' to language selection in user preference.
+
+
+09/08/2004
+----------
+1. improve the support of non-official charset name in iconv.pl
+
+
+09/07/2004
+----------
+1. add learnspam icon to message list toolbar and message read toolbar
+
+
+09/05/2004
+----------
+1. Czech language and template files translation update
+   new iconset: Text.Czech
+   (thanks to Milan Kerslager, milan.kerslager.AT.pslib.cz)
+
+
+09/04/2004
+----------
+1. Czech language file and Cool3D.Czech iconset update
+   (thanks to Milan Kerslager, milan.kerslager.AT.pslib.cz)
+2. zh_CN.GB2312 help files update 
+   (thanks to Wang Jun, irixer.AT.hotmail.com)
+
+
+08/30/2004
+----------
+1. fix the bug that modification of arguments in option vacationinit
+   may let openwebmail recognize autoreply entry as forward ones
+   (reported by WONG, Wai Bun Ada, adawong.AT.ied.edu.hk)
+2. fix the bug that block_email, block_smtp icon were not removed 
+   when userfilter is disabled
+   (reported by r-1, eperrotin.AT.contentia.fr)
+3. fix the bug that DEFAULT_... options(yesno, none, list) in openwebmail.conf 
+   may be parsed incorrectly.
+   (reported by r-1, eperrotin.AT.contentia.fr)
+4. better support for non-official charset name in iconv.pl
+
+
+08/28/2004
+----------
+1. add option enable_globalfilter to openwebmail.conf
+2. avoid the fork of background filter by checking if
+   there is no user filters and no global filters and 
+   smartfilter, viruscheck, viruscheck are all disabled
+
+
+08/26/2004
+----------
+1. clear zombie child process at the end of request to fix the "too many zombie"
+   problem on perl 5.8.4 or later
+   (reported by mfahey.AT.enter.net)
+
+
+08/25/2004
+----------
+1. rename holiday file es to es_AR as it is for Argentina
+   add definition of spanish letters to openwebmail-spell.pl
+   (thanks to ediaz)
+2. put the mini search icon and the from field in different cells in msglist
+   (suggested by Oleg D.(RSUTE), dzoleg.AT.rsute.ru)
+
+
+08/23/2004
+----------
+1. recover lost files in data/openwebmail/help/pt_BR/tutorial/
+   (reported by Joao S Veiga, openwebmail.AT.rf.com.br)
+
+
+08/22/2004
+----------
+1. new iconset: Cool3D.Russian.
+   Russian language and templates minor translation update
+   (thanks to Oleg Dzyza, dzoleg.AT.mail.ru)
+2. a. corrects "browing" to "browsing" on openwebmail-main.pl 
+   b. corrects multiple appearances of 
+      "Open Webmail Ajuda e Tutorial e Tutorial" to 
+      "Open Webmail Ajuda e Tutorial" on the pt_BR help pages. 
+   (thanks to Joao S Veiga, openwebmail.AT.rf.com.br for his patch)
+
+
+08/20/2004
+----------
+1. readme.txt and faq.txt minor document update for per use config file.
+2. add delay to userstat.pl in case queried username is not found
+
+
+08/18/2004
+----------
+1. Polish template file translation minor update
+   (thanks to Mikolaj Menke, miki.AT.z.pl)
+2. move update_openwebmailrc() to shares/upgrade.pl
+   so it can be called by both openwebmail.pl and openwebmail-tool.pl
+
+
+08/17/2004
+----------
+1. document correction in readme.txt and 
+   misc/patches/suidperl2speedy_suidperl.notmp.patch
+   the '#!/usr/local/bin/speedy_suidperl -T' won't work under perl 5.8.4, 
+   it should be '#!/usr/local/bin/speedy_suidperl' only
+   (thanks to Yen-Ming Lee, leeym.AT.leeym.com for his correction)
+2. remove xmailer_has_version and xoriginatingip_has_userid from
+   openwebmail.conf.help and some other minor correction
+   (thanks to Jordi Sanfeliu, mikaku.AT.fiwix.org for hist correction)
+
+
 08/16/2004 (version 2.40)
 ----------
 1. unofficial maildir patch for openwebmail 2.32 in download/contrib/
    it is based on the Laurent Frigault's implementation in 2.01.
    (thanks to Varadi Gabor, varadi.AT.mithrandir.hu for his patch)
 2. skip readprefs if euid !=0 && euid!=uuid in openwebmail.pl
-   so ther won't premission error when user home is located on nfs server 
+   so they won't permission error when user home is located on nfs server 
    with uid 0 mapping disabled
    (reported by cchs92.AT.cs.ccu.edu.tw)
 
@@ -63,9 +228,9 @@
    positive
    (thanks xtremebassist.AY.basslessons.net for his fix)
 2. fix the bug in mailfilter that spammail will be moved to virus_destination 
-   instead of spam_destinaion
+   instead of spam_destination
    (thanks to xtremebassist.AY.basslessons.net for his fix)
-3. index.html, readme.txt documenu update
+3. index.html, readme.txt document update
 
 
 08/04/2004
@@ -80,13 +245,13 @@
 4. fix bugs in repeated message filter in mailfilter.pl
    a. messages of same sender/subject were counted for only once
    b. old messages may be filtered because the index db recreation would
-      make all messages appeare as new at once. 
+      make all messages appear as new at once. 
    c. the id of repeated msgs were not logged correctly when 
       log_filtermove_detail is on
 
 ps: the db format is changed slightly in this release,
     we suggest the system to execute the following command to avoid possible
-    delay cuased by reindex at user runtime.
+    delay caused by reindex at user runtime.
 
     /path_to_openwbemail/openwebmail-tool.pl -i -a 
 
@@ -143,7 +308,7 @@ ps: the db format is changed slightly in this release,
 4. Korean language and template file translation minor update
    (thanks to Sungjun Park, psj.AT.soosan.co.kr)
 5. fix the bug that virus-mail and spam-mail folder always appear
-   even option has_virusfolder_by_defaul and has_spamfolder_by_default 
+   even option has_virusfolder_by_default and has_spamfolder_by_default 
    are set to no
    (reported by Oleg Dzyza, dzoleg.AT.mail.ru)
 

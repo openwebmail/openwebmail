@@ -242,6 +242,7 @@ package ow::pt_BR;
    emptyfolder=> 'Empty folder',
    emptytrash => 'Esvaziar Lixeira',
    totrash    => 'Enviar para Lixeira',
+   learnspam  => 'Learn Spam',
    forever    => 'Para sempre',
    delatlogout=> 'Apagar ao Sair',
    userdef    => 'Definição do Usuário',

@@ -272,7 +272,7 @@ sub yearview {
    for my $month (1..12) {
       my @days = set_days_in_month($year, $month, $days_in_month[$month]);
 
-      my $bgcolor=$style{tablerow_light}; 
+      my $bgcolor=$style{tablerow_light};
       $bgcolor=$style{tablerow_dark} if ($month==$current_month && $year == $current_year);
       my $td_bgcolorstr=qq|bgcolor=$bgcolor |;
       if ($prefs{'uselightbar'}) {
@@ -488,7 +488,7 @@ sub monthview {
          if ($year==$current_year && $month==$current_month && $day==$current_day) {
             $bgcolor=$style{tablerow_dark};
          } elsif ($days[$x][$y]) {
-            $bgcolor=$style{tablerow_light}; 
+            $bgcolor=$style{tablerow_light};
          } # else cell is not unused, bgcolor is not required
          if ($bgcolor ne '') {
             $td_bgcolorstr=qq|bgcolor=$bgcolor |;
@@ -497,7 +497,7 @@ sub monthview {
                                qq|onMouseOut='this.style.backgroundColor=$bgcolor;' |.
                                qq|onClick="window.location.href='$cal_url&amp;action=calday&amp;year=$year&amp;month=$month&amp;day=$day';"|;
             }
-         } 
+         }
 
          $temphtml = qq|<td $td_bgcolorstr valign=top>|.
                      qq|<table width="100%" cellpadding="0" cellspacing="0">\n|;
@@ -697,7 +697,7 @@ sub weekview {
       ($year, $month, $day)=(ow::datetime::seconds2array($start_time+$x*86400))[5,4,3];
       $year+=1900; $month++;
 
-      my $bgcolor=$style{tablerow_light}; 
+      my $bgcolor=$style{tablerow_light};
       $bgcolor=$style{tablerow_dark} if ($month==$current_month && $year == $current_year);
       my $td_bgcolorstr=qq|bgcolor=$bgcolor |;
       if ($prefs{'uselightbar'}) {
@@ -1668,7 +1668,7 @@ sub listview {
 
 
          my ($tr_bgcolorstr, $td_bgcolorstr);
-         my $bgcolor=$style{tablerow_light}; 
+         my $bgcolor=$style{tablerow_light};
          $bgcolor=$style{tablerow_dark} if ($year==$current_year && $month==$current_month && $day==$current_day);
          if ($prefs{'uselightbar'}) {
             $tr_bgcolorstr=qq|bgcolor=$bgcolor |.

@@ -138,7 +138,7 @@ Betreff:
 @@@SORTMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Display mini search icon@@@MINISEARCHICON@@@:</B>
+<B>Miniatur-Such-Icon anzeigen@@@MINISEARCHICON@@@:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USEMINISEARCHICONCHECKBOX@@@<br>
 </td></tr>
@@ -156,7 +156,7 @@ Betreff:
 @@@DEFAULTDESTINATIONMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Smart Destination:</B>
+<B>Smartes Ziel:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SMARTDESTINATION@@@
 </td></tr>
@@ -173,7 +173,7 @@ Betreff:
 </td></tr>
 @@@AUTOPOP3END@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Wait time for background mail filtering:</B>
+<B>Wartezeit f&uuml;r Mailfilterung im Hintergrund:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BGFILTERWAITMENU@@@ seconds
 </td></tr>
@@ -208,7 +208,7 @@ Betreff:
 @@@USESMILEICON@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Show HTML message as plain text:</B>
+<B>HTML-Nachricht als einfachen Text anzeigen:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SHOWHTMLASTEXT@@@
 </td></tr>
@@ -325,7 +325,7 @@ Breite @@@EDITCOLUMNSMENU@@@ H&ouml;he @@@EDITROWSMENU@@@
 @@@FILTERREPEATLIMIT@@@ &nbsp;( 0 f&uuml;hrt keine Pr&uuml;fung auf Wiederholung durch )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Filter msgs with email address in bad format:</B>
+<B>Nachrichten mit eMail-Adresse im falschen Format filtern:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERBADADDRFORMAT@@@
 </td></tr>
@@ -448,14 +448,14 @@ Breite @@@ABOOKWIDTHMENU@@@ H&ouml;he @@@ABOOKHEIGHTMENU@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Gr&ouml;&szlig;e des Eingabefeldes zum Bearbeiten von Dateien:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-Width @@@FILEEDITCOLUMNSMENU@@@ Height @@@FILEEDITROWSMENU@@@
+Breite @@@FILEEDITCOLUMNSMENU@@@ H&ouml;he @@@FILEEDITROWSMENU@@@
 </td></tr>
 @@@WEBDISKEND@@@
 
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Verschiedenes</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Use lightbar for selection:</B>
+<B>Leuchtbalken zum Ausw&auml;hlen benutzen:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USELIGHTBARCHECKBOX@@@
 </td></tr>
@@ -481,7 +481,7 @@ Width @@@FILEEDITCOLUMNSMENU@@@ Height @@@FILEEDITROWSMENU@@@
 Anzeigedauer in Sekunden: @@@NEWMAILWINDOWTIMEMENU@@@ &nbsp;( 0 schaltet die Benachrichtigung ab )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Mail sent window notification:</B>
+<B>Benachrichtungsfenster "Nachricht gesendet":</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 Anzeigedauer in Sekunden: @@@MAILSENTWINDOWTIMEMENU@@@ &nbsp;( 0 schaltet die Benachrichtigung ab )
 </td></tr>
@@ -498,7 +498,7 @@ Anzeigedauer in Sekunden: @@@MAILSENTWINDOWTIMEMENU@@@ &nbsp;( 0 schaltet die Be
 @@@TRASHRESERVEDDAYSMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Spam/Virus mail reserved day(s):</B>
+<B>Spam/Virus-Nachrichten maximal halten (Tage):</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SPAMVIRUSRESERVEDDAYSMENU@@@
 </td></tr>

@@ -15,8 +15,9 @@ use vars qw(%languagenames %languagecharsets %httpaccept2language %RTL);
    'cs'           => 'Czech',
    'da'           => 'Danish',
    'de'           => 'Deutsch',			# German
-   'el'           => 'Hellenic',			# Hellenic/Greek
+   'el'           => 'Hellenic',		# Hellenic/Greek
    'en'           => 'English',
+   'en.utf8'      => 'English - Unicode',	# utf8
    'es'           => 'Spanish',			# Espanol
    'fi'           => 'Finnish',
    'fr'           => 'French',
@@ -86,7 +87,7 @@ use vars qw(%languagenames %languagecharsets %httpaccept2language %RTL);
    'ur'           => 'utf-8',
    'zh_CN.GB2312' => 'gb2312',
    'zh_TW.Big5'   => 'big5',
-   'utf-8'        => 'utf-8'		# charset only, use en lang/template
+   'en.utf8'      => 'utf-8'		# charset only, use en lang/template
 );
 
 # Right-to-Left language table, used to siwtch direct of arrow

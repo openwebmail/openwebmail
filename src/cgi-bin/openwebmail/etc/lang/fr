@@ -12,9 +12,9 @@ package ow::fr;
    'mail-trash'     => 'Poubelle',
    'spam-mail'      => 'Spam',
    'virus-mail'     => 'Virus',
-   LEARNSPAM        => '--LEARN SPAM--',
-   LEARNHAM         => '--LEARN HAM--',
-   FORWARD          => '--FORWARD--',
+   LEARNSPAM        => '--APPRENDRE SPAM--',
+   LEARNHAM         => '--APPRENDRE HAM--',
+   FORWARD          => '--RENVOYER--',
    DELETE           => '-- SUPPRIMER --'
    );
 
@@ -96,9 +96,9 @@ package ow::fr;
 
 %lang_checksourcelabels =
    (
-   all  => 'All new messages in INBOX',
-   pop3 => 'Only messages from pop3 server',
-   none => 'None'
+   all  => 'Tous les nouveaux messages dans Reçus',
+   pop3 => 'Uniquement les messages provennant d\'un serveur pop3',
+   none => 'Aucun'
    );
 
 %lang_timelabels =
@@ -237,15 +237,16 @@ package ow::fr;
    userprefs  => 'Préférences Utilisateur',
    addressbook=> 'Carnet d\'adresses',
    folders    => 'Dossiers',
-   emptyfolder=> 'Empty folder',
+   emptyfolder=> 'Vider le dossier',
    emptytrash => 'Vider la poubelle',
    totrash    => 'Mettre à la poubelle',
+   learnspam  => 'Apprende Spam',
    forever    => 'Toujours',
    delatlogout=> 'Effacer à la déconnexion',
    userdef    => 'Personnaliser',
    logout     => 'Déconnecter',
    page       => 'Page',
-   msgsperpage=> '@@@MSGCOUNT@@@ messages per page',
+   msgsperpage=> '@@@MSGCOUNT@@@ messages par page',
    msgcopyconf=> '\'Êtes-vous sûr(e) de vouloir copier le(s) message(s) sélectionné(s)?\'',
    copy       => 'Copier',
    msgmoveconf=> '\'Êtes-vous sûr(e) de vouloir déplacer le(s) message(s) sélectionné(s) ?\'',
@@ -367,7 +368,7 @@ package ow::fr;
    spellcheck => 'Vérif. Orth.',
    checkagain => 'Vérif. encore',
    finishchecking => 'Fin vérif.',
-   editpdict  => 'Edit Personal Dictionary',
+   editpdict  => 'Editer le dictionnaire personnel',
    addtodict  => 'Ajouter au dictionnaire',
    manuallyfix=> 'Correction manuelle',
    editstat   => 'Editer modèle de documents',
@@ -432,7 +433,7 @@ package ow::fr;
    vdomain_changeview => 'Changer la vue',
    vdomain_usersonly  => 'utilisateurs uniquement',
    vdomain_useralias  => 'utilisateurs/aliases',
-   vdomain_fmtuseralias => 'formatted users/aliases',
+   vdomain_fmtuseralias => 'utilisateurs/aliases formatés',
    vdomain_admin      => 'Admin',
    vdomain_localuser  => 'Utilisateur local',
    set_passwd         => 'Mot de passe',
@@ -464,7 +465,7 @@ package ow::fr;
    abook_invalid     => 'Désolé, ce fichier ne semble pas être un carnet d\'adresses au format CSV exporté depuis Microsoft Outlook Express 5. Assurez-vous en le visualisant avec un éditeur de texte la première ligne débute par "Name,E-mail Address", puis recommencez.',
    back              => 'retour',
    tryagain          => 'réessayez.',
-   mailfilter_error  => 'Mail Filter Error',
+   mailfilter_error  => 'Erreur de filtrage mail',
    abook_toobig      => 'Désolé, la taille limite de votre carnet d\'adresses serait dépassée.',
    cant_create_dir   => 'Impossible de créer votre répertoire utilisateur !',
    att_overlimit     => 'Désolé, vous avez atteint la taille maximale d\'attachements, à savoir',
@@ -495,7 +496,7 @@ package ow::fr;
    no_file_todownload=> 'Aucun fichier n\'ets spécifier pour le téléchargement',
    upload_overlimit  => 'La taille du fichier d\'upload dépasse la taille limite',
    decomp_notsupported =>'La décompression n\'est pas disponible pour ce fichier.',
-   filefmt_notsupported =>'The file format is not supported.',
+   filefmt_notsupported =>'Le format de fichier n\'est pas supporté.',
    webdisk_readonly  => 'Désolé, votre webdisk est en lecture seule.',
    quota_syserr      => 'Erreur de quotas système',
    quotahit_alert    => 'Désolé, vous avez atteint votre quota. Prière d\'effacer des mails ou des fichiers dans WebDisk pour faire de la place',

@@ -15,10 +15,10 @@ package ow::cs;
    'mail-trash'     => 'Ko¹',
    'spam-mail'      => 'Spam',
    'virus-mail'     => 'Virus',
-   LEARNSPAM        => '--LEARN SPAM--',
-   LEARNHAM         => '--LEARN HAM--',
-   FORWARD          => '--FORWARD--',
-   DELETE           => '--SMAZAT--'
+   LEARNSPAM        => '--NAUÈIT SPAM--',
+   LEARNHAM         => '--NAUÈIT HAM--',
+   FORWARD          => '--PØEPOSLAT OZN.--',
+   DELETE           => '--ODSTRANIT OZN.--'
    );
 
 %lang_sortlabels =
@@ -99,9 +99,9 @@ package ow::cs;
 
 %lang_checksourcelabels =
    (
-   all  => 'All new messages in INBOX',
-   pop3 => 'Only messages from pop3 server',
-   none => 'None'
+   all  => 'V¹echny nové zprávy v Pøijatıch',
+   pop3 => 'Jen zprávy z POP3 serveru',
+   none => '®ádné'
    );
 
 %lang_timelabels =
@@ -134,7 +134,7 @@ package ow::cs;
    (
    mb   => 'MB',        # mega bytes
    kb   => 'KB',        # kilo bytes
-   byte => 'Byte'
+   byte => 'Bajtù'
    );
 
 %lang_calendar = 
@@ -228,27 +228,28 @@ package ow::cs;
    webmail    => 'WebMail',
    point      => 'Bodù',
    pixel      => 'Pixelù',
-   changepwd  => 'Zmìna hesla',
-   viewhistory=> 'Zobraz historii',
+   changepwd  => 'Zmìna pøístupového hesla',
+   viewhistory=> 'Zobrazení historie zadanıch pøíkazù',
    of         => 'z',
    messages   => 'zpráv',
    unread     => 'nepøeètenıch',
    nomessages => '®ádné zprávy',
    inmessages => 'Novıch zpráv',
    composenew => 'Napsat novou zprávu',
-   refresh    => 'Obnovit',
-   userprefs  => 'U¾ivatelské nastavení',
-   addressbook=> 'Adresáø',
+   refresh    => 'Obnovit stránku',
+   userprefs  => 'Správa nastavení Open WebMailu',
+   addressbook=> 'Správa adresáøe',
    folders    => 'Správa slo¾ek',
    emptyfolder=> 'Empty folder',
    emptytrash => 'Vysypat Ko¹',
-   totrash    => 'Pøesunout do Ko¹e',
+   totrash    => 'Pøesunout zprávy do Ko¹e',
+   learnspam  => 'Learn Spam',
    forever    => 'Napoøád',
    delatlogout=> 'Smazat pøi odhlá¹ení',
    userdef    => 'U¾iv.def.',
    logout     => 'Odhlásit',
    page       => 'Strana',
-   msgsperpage=> '@@@MSGCOUNT@@@ zpráv na stránku',
+   msgsperpage=> 'Zobrazit @@@MSGCOUNT@@@ zpráv na stránku',
    msgcopyconf=> '\'Jste si jisti, ¾e chcete zkopírovat vybrané zprávy?\'',
    copy       => 'Kopírovat',
    msgmoveconf=> '\'Jste si jisti ¾e chcete pøesunout vybrané zprávy?\'',
@@ -262,13 +263,13 @@ package ow::cs;
    subject    => 'Pøedmìt',
    thread     => 'Vlákno',
    size       => 'Velikost',
-   backto     => 'Zpìt',
+   backto     => 'Vrátit se zpìt do: ',
    reply      => 'Odpovìdìt',
    replyall   => 'Odpovìdìt v¹em',
-   forward    => 'Poslat dál',
-   forwardasatt=>'Poslat jako pøílohu',
-   forwardasorig=>'Pøeposlat jako originál',
-   printfriendly=> 'Formát pro tisk',
+   forward    => 'Pøeposlat zprávu jinému',
+   forwardasatt=>'Pøeposlat zprávu jako pøílohu',
+   forwardasorig=>'Pøeposlat zprávu jako originál',
+   printfriendly=> 'Formátování a tisk zprávy',
    msgformat  => 'Formát zprávy',
    from       => 'Od',
    replyto    => 'Kam odpovídat (jiná adresa) ',
@@ -285,16 +286,16 @@ package ow::cs;
    encoding   => 'Kódování',
    description=> 'Popis',
    download   => 'Ulo¾it do souboru',
-   charset    => 'Znaková sada',
+   charset    => 'Kódování',
    samecharset=> 'Stejná jako pro psaní zprávy',
    thisispartialmsg => 'Tato zpráva se skládá z více èástí.',
    msgrebuild => 'Zrekonstruovat zprávu',
    editdraft  => 'Editovat rozepsané',
    savedraft  => 'Ulo¾it rozepsané',
    draftsaved => 'Rozepsaná zpráva @@@SUBJECT@@@ byla úspì¹nì ulo¾ena',
-   send       => 'Poslat',
+   send       => 'Odeslat',
    msgsent    => 'Zpráva @@@SUBJECT@@@ byla úspì¹nì odeslána',
-   about      => 'O systému',
+   about      => 'Informace o systému',
    close      => 'Zavøít',
    cancel     => 'Zru¹it',
    ok         => 'Ok',
@@ -336,7 +337,7 @@ package ow::cs;
    tzmap      => 'Svìtová mapa èasovıch zón',
    testsound  => 'Otestovat zvuk',
    editfroms  => 'Správa vlastních e-mailovıch adres',
-   pop3book   => 'Správa POP3 úètù',
+   pop3book   => 'Správa stahování po¹ty z POP3 úètù',
    retr_pop3s => 'Stáhnout po¹tu z POP3 úètù',
    filterbook => 'Definice filtrù po¹ty',
    include    => 'Obsahuje',
@@ -373,11 +374,11 @@ package ow::cs;
    editpdict  => 'Editovat osobní slovník',
    addtodict  => 'Pøidat do slovníku',
    manuallyfix=> 'Opravit ruènì',
-   editstat   => 'Upravit ¹ablony',
+   editstat   => 'Správa ¹ablon',
    savestat   => 'Ulo¾it ¹ablonu',
    clearstat  => 'Vymazat v¹echny ¹ablony',
-   statreply  => '-- Vybrat ¹ablonu pro odpovìï --',
-   calendar   => 'Kalendáø',
+   statreply  => '-- Odpovìï ¹ablonou --',
+   calendar   => 'Kalendáø s plánovaèem',
    allday     => 'Ka¾dı den',
    today      => 'Dnes',
    am         => 'dop.',
@@ -401,8 +402,8 @@ package ow::cs;
    every_oddmonth_thisyear  => 'Ka¾dı lichı mìsíc tento rok',
    every_evenmonth_thisyear => 'Ka¾dı sudı mìsíc tento rok',
    every_month_thisyear     => 'Ka¾dı mìsíc tento rok',
-   webdisk      => 'WebDisk',
-   sshterm      => 'SSH Terminál',
+   webdisk      => 'WebDisk - správa domácího adresáøe',
+   sshterm      => 'SSH Terminál pro pøipojení ke vzdálenému systému',
    dir          => 'Slo¾ka',
    dirs         => 'Slo¾ek',
    file         => 'Soubor',
@@ -467,7 +468,7 @@ package ow::cs;
    abook_invalid     => 'Zdá se, ¾e tento soubor není slo¾kou adresáøe, exportované z Microsoft Outlook Express 5 jako soubor .CSV. Otevøete ho v textovém editoru a ujistìte se, ¾e první øádek má formát: "Name,E-mail Address" a poté pokraèujte.',
    back              => 'zpìt',
    tryagain          => 'a zkuste operaci opakovat.',
-   mailfilter_error  => 'Mail Filter Error',
+   mailfilter_error  => 'Chyba filtrování zpráv',
    abook_toobig      => 'Touto operací by do¹lo k pøekroèení kapacitního limitu Va¹eho adresáøe.',
    cant_create_dir   => 'Nelze vytvoøit Va¹i u¾ivatelskou slo¾ku!',
    att_overlimit     => 'Velikost pøílohy pøekroèila kapacitní limit, kterı je',

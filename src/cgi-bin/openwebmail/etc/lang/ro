@@ -240,6 +240,7 @@ package ow::ro;
    emptyfolder=> 'Empty folder',
    emptytrash => 'Goleste mesajele sterse',
    totrash    => 'Muta la STERSE',
+   learnspam  => 'Learn Spam',
    forever    => 'Intotdeauna',
    delatlogout=> 'Goleste la iesire',
    userdef    => 'definit de utilizator ',

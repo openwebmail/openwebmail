@@ -1,7 +1,7 @@
 #
 # lockget.pl - lock and get message ids, header, block
 #
-# routines in this file will do lock and db sync 
+# routines in this file will do lock and db sync
 # before making access to folderfile/folderdb
 #
 use strict;
@@ -60,7 +60,7 @@ sub lockget_message_header {
       substr(${$r_header}, $size-1, 1) ne "\n") {	# msg should end with blank line
       return(-5, "msg $messageid in $folderfile index inconsistence");
    }
-   return($size, '');   
+   return($size, '');
 }
 
 sub lockget_message_block {
@@ -88,7 +88,7 @@ sub lockget_message_block {
       substr(${$r_block}, $size-2, 2) ne "\n\n") {	# msg should end with blank line
       return(-5, "msg $messageid in $folderfile index inconsistence");
    }
-   return($size, '');   
+   return($size, '');
 }
 
 1;

@@ -241,6 +241,7 @@ package ow::ca;
    emptyfolder=> 'Buida carpeta',
    emptytrash => 'Buida paperera',
    totrash    => 'Envia a la paperera',
+   learnspam  => 'Learn Spam',
    forever    => 'Per sempre',
    delatlogout=> 'Suprimeix al sortir',
    userdef    => 'Definit per l\'usuari',

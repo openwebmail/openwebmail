@@ -67,7 +67,7 @@ sub learnspam {
    my $ret=pipecmd_msg(@_);
    return (-99999, $ret) if ($ret!~/(\d+) message.*?(\d+) message/);
    return($1, $2);
-}  
+}
 
 # cmd:    /usr/local/bin/sa-learn --local --ham
 # output: Learned from 1 message(s) (1 message(s) examined).
@@ -75,7 +75,7 @@ sub learnham {
    my $ret=pipecmd_msg(@_);
    return (-99999, $ret) if ($ret!~/(\d+) message.*?(\d+) message/);
    return($1, $2);
-}  
+}
 
 # common routine, ret pipe output #########################################
 sub pipecmd_msg {
@@ -89,7 +89,7 @@ sub pipecmd_msg {
 
    # use fork to set ruid only if ruid!=euid && ruid !=0
    # ps: if caller is already a 'forked then die' process, it can set ruid=euid to avoid fork here
-   if ($<!=$> && $<!=0) { 
+   if ($<!=$> && $<!=0) {
       local $SIG{CHLD}; undef $SIG{CHLD};  # disable outside $SIG{CHLD} handler temporarily for wait()
       local $|=1; # flush all output
       if (fork()==0) {

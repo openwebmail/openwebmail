@@ -22,8 +22,8 @@ For Users:
 * Spelling Check Support
 * POP3 Support
 * Mail Filter Support
-* AntiSpam Support through <a href="http://www.spamassassin.org">SpamAssassin</a>
-* AntiVirus Support through <a href="http://www.clamav.net">ClamAV</a>
+* AntiSpam Support through SpamAssassin (http://www.spamassassin.org)
+* AntiVirus Support through ClamAV (http://www.clamav.net)
 * Calendar with Reminder/Notification Support
 * Webdisk Support
 * HTTP Compression
@@ -552,9 +552,9 @@ global_calendarbook by himself.
 ps: An account may be created to maintain the global addressbook/filterbook,
     for example: 'global'
 
-    ln -s your_global_addressbook  ~global/mail/.address.book
-    ln -s your_global_filterbook   ~global/mail/.filter.book
-    ln -s your_global_calendarbook ~global/mail/.calendar.book
+    ln -s your_global_addressbook  ~global/.openwebmail/webmail/address.book
+    ln -s your_global_filterbook   ~global/.openwebmail/webmail/filter.book
+    ln -s your_global_calendarbook ~global/.openwebmail/webcal/calendar.book
 
     Please be sure that the global files are writeable by user 'global'
     and readable by others
@@ -859,7 +859,12 @@ ps: Openwebmail loads configuration files in the following order
    b. user alias is mapped to real userid.
    c. userid is authenticated.
 
-4. cgi-bin/openwebmail/etc/users.conf/username if file exists
+4. if (option auth_withdomain is yes) {
+      user conf = cgi-bin/openwebmail/etc/users.conf/domain/username
+   } else {
+      user conf = cgi-bin/openwebmail/etc/users.conf/username
+   }
+   Then openwebmail will load user conf if file exists.
 
 Options set in the later files will override the previous ones
 
@@ -1027,7 +1032,7 @@ ps: You may choose the abbreviation by referencing the following url
       you may try wider width for better layout
 
 8. If you want, you may create the holidays of your language with the
-   openwebmail calendar, then copy the ~/mail/.calendar.book into
+   openwebmail calendar, then copy the ~/.openwebmail/webcal/calendar.book into
    etc/holidaysdir/your_languagename. Them the holidays will be displayed
    to all users of this language
 
@@ -1251,7 +1256,7 @@ ps: Kevin L. Ellis (kevin.AT.bluelavalamp.net) has written a tutorial
 
       All we can use is 
 
-	#!/usr/bin/speedy_suidperl -T
+	#!/usr/bin/speedy_suidperl
 
       In other words, we can't use "-- -parameter_for_speedy" to pass parameter 
       to speedycgi itself

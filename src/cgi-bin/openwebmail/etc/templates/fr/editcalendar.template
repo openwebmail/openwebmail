@@ -27,7 +27,7 @@
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>&nbsp;</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@THISANDNEXTNDAYSCHECKBOX@@@ This day and next @@@NDAYSFIELD@@@ days
+@@@THISANDNEXTNDAYSCHECKBOX@@@ Ce jour et      les @@@NDAYSFIELD@@@ prochains jours
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>&nbsp;</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -35,7 +35,7 @@
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>&nbsp;</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@EVERYYEARCHECKBOX@@@ Every year
+@@@EVERYYEARCHECKBOX@@@ Chaque année
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Nouveau lien :</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>

@@ -113,7 +113,7 @@ sub rename {
    ($dbm_errno, $dbm_errmsg, $dbm_warning)=(0, '', '');
 
    if ($dbm_ext eq '.dir' || $dbm_ext eq '.pag') {
-     return 1 if (rename("$olddb.dir", "$newdb.dir") && 
+     return 1 if (rename("$olddb.dir", "$newdb.dir") &&
                   rename("$olddb.pag", "$newdb.pag") );
    } else {
      return 1 if (rename("$olddb$dbm_ext", "$newdb$dbm_ext") );
@@ -126,7 +126,7 @@ sub chown {
    my ($uid, $gid, @dblist)=@_;
    ($dbm_errno, $dbm_errmsg, $dbm_warning)=(0, '', '');
    return 1 if (chown($uid, $gid, dblist2dbfiles(@dblist)));
-   ($dbm_errno, $dbm_errmsg)=(-1, $!); 
+   ($dbm_errno, $dbm_errmsg)=(-1, $!);
    return 0;
 }
 

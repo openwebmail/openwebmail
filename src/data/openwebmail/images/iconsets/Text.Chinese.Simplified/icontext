@@ -59,6 +59,7 @@
    'left-grey.s.gif'   => ' < ',
    'left.gif'          => ' < ',
    'left.s.gif'        => ' < ',
+   'learnspam.gif'     => ' [垃圾邮件学习] ',
    'listview.gif'      => ' [项目列表] ',
    'logout.gif'        => ' [登出] ',
    'monthview.gif'     => ' [月行事历] ',

@@ -422,8 +422,8 @@ sub msword2html {
 
    my $tmpfile=ow::tool::untaint("/tmp/.msword2html.tmpfile.$$");
    my $err=0;
-   open(F, ">$tmpfile") or return 0; 
-   print F ${$r_content} or $err++; 
+   open(F, ">$tmpfile") or return 0;
+   print F ${$r_content} or $err++;
    close(F);
    if ($err) {
       unlink($tmpfile);

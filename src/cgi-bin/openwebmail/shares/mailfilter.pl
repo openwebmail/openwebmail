@@ -9,7 +9,7 @@
 # 1. external viruscheck (clamav)
 # 2. static global and user defined rules
 # 3. external spamcheck (spamassassin)
-# 4. smart filter rules 
+# 4. smart filter rules
 #
 
 use strict;
@@ -27,12 +27,12 @@ use vars qw ($_PRIORITY $_RULETYPE $_INCLUDE $_TEXT $_OP $_DESTINATION $_ENABLE 
 
 use vars qw(%op_order %ruletype_order %folder_order);	# rule prefered order, the smaller one is prefered
 %op_order=(
-   copy   => 0, 
+   copy   => 0,
    move   => 1,
    delete => 2,
 );
 %ruletype_order=(
-   from        => 0, 
+   from        => 0,
    to          => 1,
    subject     => 2,
    header      => 3,
@@ -50,7 +50,7 @@ use vars qw(%op_order %ruletype_order %folder_order);	# rule prefered order, the
 
 ########## FILTERMESSAGE #########################################
 # filter inbox messages in background
-# return: 0 filtere not necessary 
+# return: 0 filtere not necessary
 #         1 background filtering started
 # there are 4 op for a msg: 'copy', 'move', 'delete' and 'keep'
 use vars qw($_filter_complete);
@@ -68,7 +68,7 @@ sub filtermessage {
    # automic 'test & set' the metainfo value in filtercheckfile
    my $metainfo=ow::tool::metainfo($folderfile);
    if (!-f $filtercheckfile) {
-      open(F, ">>$filtercheckfile"); close(F); 
+      open(F, ">>$filtercheckfile"); close(F);
       $forced_recheck=1;	# new filterrule added?, so do filtering on all msg
    }
    ow::filelock::lock($filtercheckfile, LOCK_EX) or
@@ -82,7 +82,7 @@ sub filtermessage {
    if ($_ eq $metainfo) {
       ow::filelock::lock($filtercheckfile, LOCK_UN);
       return 0;
-   } 
+   }
    if (!open(FILTERCHECK, ">$filtercheckfile")) {
       ow::filelock::lock($filtercheckfile, LOCK_UN);
       openwebmailerror("$lang_err{'couldnt_open'} $filtercheckfile");
@@ -93,7 +93,7 @@ sub filtermessage {
 
    # get @filterrules
    push(@filterfiles, $filterbookfile)              if ($config{'enable_userfilter'} && -f $filterbookfile);
-   push(@filterfiles, $config{'global_filterbook'}) if ($config{'global_filterbook'} ne "" && -f $config{'global_filterbook'});
+   push(@filterfiles, $config{'global_filterbook'}) if ($config{'enable_globalfilter'} && -f $config{'global_filterbook'});
    foreach my $filterfile (@filterfiles) {
       open (FILTER, $filterfile) or next;
       while (<FILTER>) {
@@ -123,12 +123,19 @@ sub filtermessage {
    }
 
    # sort rules by priority, the smaller the top
-   @filterrules=sort { 
+   @filterrules=sort {
                      ${$a}[$_PRIORITY]                   <=> ${$b}[$_PRIORITY]                   or
                      $op_order{${$a}[$_OP]}              <=> $op_order{${$b}[$_OP]}              or
                      $ruletype_order{${$a}[$_RULETYPE]}  <=> $ruletype_order{${$b}[$_RULETYPE]}  or
                      $folder_order{${$a}[$_DESTINATION]} <=> $folder_order{${$b}[$_DESTINATION]}
                      } @filterrules;
+
+   if ($#filterrules<0 && 
+       !$config{'enable_smartfilter'} && 
+       !$config{'enabel_viruscheck'} &&
+       !$config{'enable_spamcheck'}) {
+      return 1;				# return immediately if nothing to do
+   }
 
    my (@allmessageids);
    my %repeatlists=();
@@ -138,7 +145,7 @@ sub filtermessage {
    my ($lockget_err, $lockget_errmsg);
    my ($appended, $append_errmsg)=(0, '');
 
-   ($lockget_err, $lockget_errmsg)=lockget_messageids($folderfile, $folderdb, \@allmessageids);   
+   ($lockget_err, $lockget_errmsg)=lockget_messageids($folderfile, $folderdb, \@allmessageids);
    if ($lockget_err<0) {
       my $m="mailfilter - $lockget_errmsg"; writelog($m); writehistory($m);
       openwebmailerror("$lang_err{'mailfilter_error'} ($lockget_errmsg)");;
@@ -193,7 +200,7 @@ sub filtermessage {
             $metainfo=$curr_metainfo;
             $i=$#allmessageids; next;
          }
-         
+
          my ($headersize, $header, $decoded_header, $currmessage, $body)=(0, "", "", "", "");
          my (%msg, $r_attachments, $r_smtprelays, $r_connectfrom, $r_byas);
          my ($is_body_decoded, $is_attachments_decoded)=(0, 0);
@@ -262,7 +269,7 @@ sub filtermessage {
                      $to_be_moved=1;
                   } else {
                      my $m="mailfilter - $config{'virus_destination'} write error"; writelog($m); writehistory($m);
-                     $io_errcount++; 
+                     $io_errcount++;
                   }
                }
             }
@@ -421,7 +428,7 @@ sub filtermessage {
                            }
                         } else {
                            my $m="mailfilter - ${$r_rule}[$_DESTINATION] write error"; writelog($m); writehistory($m);
-                           $io_errcount++; 
+                           $io_errcount++;
                         }
                         last;
                      }
@@ -467,7 +474,7 @@ sub filtermessage {
                      $to_be_moved=1;
                   } else {
                      my $m="mailfilter - $config{'spam_destination'} write error"; writelog($m); writehistory($m);
-                     $io_errcount++; 
+                     $io_errcount++;
                   }
                }
             }
@@ -626,7 +633,7 @@ sub filtermessage {
                   if (is_internal_subject($attr[$_SUBJECT])) {
                      $FDB{'INTERNALMESSAGES'}--; $FDB{'INTERNALSIZE'}-=$attr[$_SIZE];
                   } elsif ($attr[$_STATUS]!~m/R/i) {
-                     $FDB{'NEWMESSAGES'}--; 
+                     $FDB{'NEWMESSAGES'}--;
                   }
                }
                ow::dbm::close(\%FDB, $folderdb);
@@ -634,7 +641,7 @@ sub filtermessage {
 
          } # end of msg verify
 
-         if (${$r_prefs}{'filter_repeatlimit'}>0 && 
+         if (${$r_prefs}{'filter_repeatlimit'}>0 &&
              !$to_be_moved && !$reserved_in_folder &&
              ow::datetime::dateserial2gmtime($attr[$_DATE]) >= $repeatstarttime) {
             # store msgid with same '$from:$subject' to same array
@@ -798,7 +805,7 @@ sub append_filteredmsg_to_folder {
    }
    ow::dbm::close(\%FDB2, $dstdb);
    ow::filelock::lock($dstfile, LOCK_UN);
-   return(-2, "$dstfile write error") if ($ioerr); 
+   return(-2, "$dstfile write error") if ($ioerr);
    return 0;
 }
 ########## END APPEND_FILTEREDMSG_TO_FOLDER ######################

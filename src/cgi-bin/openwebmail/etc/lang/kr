@@ -242,6 +242,7 @@ package ow::kr;
    emptyfolder=> '폴더 비우기',
    emptytrash => '휴지통 비우기',
    totrash    => '휴지통으로 옮기기',
+   learnspam  => '스팸으로 분류',
    forever    => '영원히',
    delatlogout=> '로그아웃할시 삭제하기',
    userdef    => '사용자 정의',

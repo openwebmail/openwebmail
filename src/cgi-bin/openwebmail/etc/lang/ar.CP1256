@@ -240,6 +240,7 @@ package ow::ar_CP1256;
    emptyfolder=> 'Empty folder',
    emptytrash => 'ÊÝÑםÛ ÓבÉ ÇבדודבÇÊ',
    totrash    => 'ÇהÞב Åבל ÓבÉ ÇבדודבÇÊ',
+   learnspam  => 'Learn Spam',
    forever    => 'Åבל ÇבÃÈÏ',
    delatlogout=> 'ÍÐÝ ÚהÏ ÊÓÌםב ÇבÎÑזÌ',
    userdef    => 'דÍÏÏ דה ÇבדÓÊÎÏד',

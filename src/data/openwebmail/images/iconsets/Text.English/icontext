@@ -59,6 +59,7 @@
    'left-grey.s.gif'   => ' < ',
    'left.gif'          => ' < ',
    'left.s.gif'        => ' < ',
+   'learnspam.gif'     => ' [LearnSpam] ',
    'listview.gif'      => ' [ListView] ',
    'logout.gif'        => ' [Logout] ',
    'monthview.gif'     => ' [MonthView] ',

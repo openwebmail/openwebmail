@@ -485,9 +485,9 @@ global_filterbook o global_calendarbook, respectivamente.
 ps: Puede crearse una cuenta para mantener la libreta de direcciones/filtros/
     calendario global. Por ejemplo: 'global'
 
-    ln -s su_libreta_global      ~global/mail/.address.book
-    ln -s sus_filtros_globales   ~global/mail/.filter.book
-    ln -s su_calendario_global   ~global/mail/.calendar.book
+    ln -s su_libreta_global    ~global/.openwebmail/webmail/address.book
+    ln -s sus_filtros_globales ~global/.openwebmail/webmail/filter.book
+    ln -s su_calendario_global ~global/.openwebmail/webcal/calendar.book
 
     Asegúrese de que los archivos globales tienen permiso de escritura para
     el usuario 'global' y de lectura para el resto.
@@ -949,7 +949,7 @@ ps: You may choose the abbreviation by referencing the following url
       you may try wider width for better layout
 
 8. If you want, you may create the holidays of your language with the
-   openwebmail calendar, then copy the ~/mail/.calendar.book into
+   openwebmail calendar, then copy the ~/.openwebmail/webcal/calendar.book into
    etc/holidaysdir/your_languagename. Them the holidays will be displayed
    to all users of this language
 

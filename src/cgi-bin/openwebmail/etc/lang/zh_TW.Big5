@@ -240,6 +240,7 @@ package ow::zh_TW_Big5;
    emptyfolder=> '清空信件匣',
    emptytrash => '清空垃圾桶',
    totrash    => '搬到垃圾桶',
+   learnspam  => '廣告信學習',
    forever    => '永久保留',
    delatlogout=> '登出時刪除',
    userdef    => '使用者自訂',

@@ -96,7 +96,7 @@ sub check_userpassword {
        sendcmd($socket, &encode_base64($user), \@result) &&
        sendcmd($socket, &encode_base64($password), \@result)) {
       $authlogin=1;
-   }      
+   }
    if (!$authlogin &&
        !(sendcmd($socket, "user $user\r\n", \@result) &&
          sendcmd($socket, "pass $password\r\n", \@result)) ) {
@@ -127,7 +127,7 @@ sub sendcmd {
    my $ret;
 
    print $socket $cmd; $ret=<$socket>;
-   @{$r_result}=split(/\s+/, $ret); 
+   @{$r_result}=split(/\s+/, $ret);
    shift @{$r_result} if (${$r_result}[0]=~/^[\+\-]/); # rm str +OK or -ERR from @result
 
    return 1 if ($ret!~/^\-/);

@@ -38,7 +38,7 @@ sub getmessage {
 
    # member: header, body, attachment
    #         return-path from to cc bcc reply-to date subject status
-   #         message-id content-type encoding in-reply-to references priority 
+   #         message-id content-type encoding in-reply-to references priority
    foreach (qw(from to date subject content-type)) { $message{$_}= 'N/A' }
    foreach (qw(return-path cc reply-to status in-reply-to references charset priority)) { $message{$_}='' }
 
@@ -74,7 +74,7 @@ sub getmessage {
       next if ($_!~/[\w\d\-_]+\.[\w\d\-_]+/);
       $message{smtprelay} = $_;
       foreach my $localdomain (@{$config{'domainnames'}}) {
-         if ($message{smtprelay}=~$localdomain) { 
+         if ($message{smtprelay}=~$localdomain) {
             $message{smtprelay}=''; last;
          }
       }

@@ -240,6 +240,7 @@ package ow::it;
    emptyfolder=> 'Svuota cartella',
    emptytrash => 'Svuota cestino',
    totrash    => 'Sposta in cestino',
+   learnspam  => 'Learn Spam',
    forever    => 'Per Sempre',
    delatlogout=> 'Cancella all\'uscita',
    userdef    => 'Personalizzato',

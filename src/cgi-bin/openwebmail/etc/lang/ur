@@ -240,6 +240,7 @@ package ow::ur;
    emptyfolder=> 'Empty folder',
    emptytrash => 'ﺭﺩﻯ ﺧﺎﻟﻰ ﻛﺮﻳﮟ',
    totrash    => 'ﺭﺩﻯ ﻣﻴﮟ',
+   learnspam  => 'Learn Spam',
    forever    => 'ﮬﻤﻴﺸﮧ',
    delatlogout=> 'ﺑﮯ ﺩﺧﻠﻰ ﭘﺮ ﻣﭩﺎﺩﻳﮟ',
    userdef    => 'ﻳﻮﺯﺭ ﻛﮯ ﺑﻴﺎﻥ ﻛﺮﺩﻩ',

@@ -65,12 +65,12 @@ use vars qw($escapedfolder $escapedmessageid);
 # const globals
 use vars qw(%op_order %ruletype_order %folder_order);	# filterrule prefered order, the smaller one is prefered
 %op_order=(
-   copy   => 0, 
+   copy   => 0,
    move   => 1,
    delete => 2,
 );
 %ruletype_order=(
-   from        => 0, 
+   from        => 0,
    to          => 1,
    subject     => 2,
    header      => 3,
@@ -286,7 +286,7 @@ sub editprefs {
 
       my (%is_firsttimercitem, %hiddenvalue);
       foreach (qw(language charset timeoffset daylightsaving email replyto signature)) { $is_firsttimercitem{$_}=1 }
-      foreach (@openwebmailrcitem) { 
+      foreach (@openwebmailrcitem) {
          next if ($is_firsttimercitem{$_});
          if ($_ eq 'bgurl') {
             my ($background, $bgurl)=($prefs{'bgurl'}, '');
@@ -692,7 +692,7 @@ sub editprefs {
                                 defined($config_raw{'DEFAULT_msgsort'})?('-disabled'=>'1'):());
          $html =~ s/\@\@\@SORTMENU\@\@\@/$temphtml/;
 
-         $temphtml = qq|<IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/search.s.gif" border="0" align="absmiddle">|;
+         $temphtml = iconlink("search.s.gif", '', '');
          $html =~ s/\@\@\@MINISEARCHICON\@\@\@/$temphtml/;
          $temphtml = checkbox(-name=>'useminisearchicon',
                               -value=>'1',
@@ -1454,7 +1454,7 @@ sub editprefs {
 ########## END EDITPREFS #########################################
 
 ########## SAVEPREFS #############################################
-# if any param is not passed from the prefs form, 
+# if any param is not passed from the prefs form,
 # this routine will use old value will be used instead,
 # so we can use incomplete prefs form
 sub saveprefs {
@@ -1810,13 +1810,14 @@ sub splitforwardtext {
    # remove self email and vacation from forward list
    # set keeplocalcopy if self email found
    # set autoreply if vacation found
+   my $vacation_bin=(split(/\s+/,$config{'vacationpipe'}))[0];
    my @forwards=();
-   foreach ( split(/[,;\n\r]+/, $forwardtext) ) {
-      s/^\s+//; s/\s+$//;
-      next if ( /^$/ );
-      if (/$config{'vacationpipe'}/) { $autoreply=1; }
-      elsif ( is_selfemail($_) ) { $keeplocalcopy=1; }
-      else { push(@forwards, $_); }
+   foreach my $name ( split(/[,;\n\r]+/, $forwardtext) ) {
+      $name=~s/^\s+//; $name=~s/\s+$//;
+      next if ( $name=~/^$/ );
+      if ($name=~/$vacation_bin/) { $autoreply=1; }
+      elsif ( is_selfemail($name) ) { $keeplocalcopy=1; }
+      else { push(@forwards, $name); }
    }
    return ($autoreply, $keeplocalcopy, @forwards);
 }
@@ -2034,10 +2035,18 @@ sub editfroms {
                $formparmstr;
    $html =~ s/\@\@\@STARTFROMFORM\@\@\@/$temphtml/;
 
-   $temphtml = textfield(-name=>'realname',
-                         -default=>'',
-                         -size=>'20',
-                         -override=>'1');
+   if (defined($config{'DEFAULT_realname'})) {
+      $temphtml = textfield(-name=>'realname',
+                            -default=>$config{'DEFAULT_realname'},
+                            -size=>'20',
+                            -disabled=>'1',
+                            -override=>'1');
+   } else {
+      $temphtml = textfield(-name=>'realname',
+                            -default=>'',
+                            -size=>'20',
+                            -override=>'1');
+   }
    $html =~ s/\@\@\@REALNAMEFIELD\@\@\@/$temphtml/;
 
    $temphtml = textfield(-name=>'email',
@@ -2234,7 +2243,7 @@ sub editpop3 {
       		   qq|<td bgcolor=$bgcolor><a href="Javascript:Update('$pop3host','$pop3port','$pop3ssl','$pop3user','******','$pop3del','$enable')">$pop3host</a></td>\n|.
       		   qq|<td bgcolor=$bgcolor>$pop3port</td>\n|;
 
-      $temphtml .= qq|<td align="center" bgcolor=$bgcolor>\n|;      
+      $temphtml .= qq|<td align="center" bgcolor=$bgcolor>\n|;
       if ($is_ssl_supported) {
          if ( $pop3ssl == 1) {
             $temphtml .= $lang_text{'yes'};
@@ -2487,14 +2496,14 @@ sub editfilter {
       }
       close (FILTER) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $filterbookfile! ($!)");
    }
-   @filterrules=sort { 
+   @filterrules=sort {
                      ${$a}[$_PRIORITY]                   <=> ${$b}[$_PRIORITY]                   or
                      $op_order{${$a}[$_OP]}              <=> $op_order{${$b}[$_OP]}              or
                      $ruletype_order{${$a}[$_RULETYPE]}  <=> $ruletype_order{${$b}[$_RULETYPE]}  or
                      $folder_order{${$a}[$_DESTINATION]} <=> $folder_order{${$b}[$_DESTINATION]}
                      } @filterrules;
 
-   if ( $config{'global_filterbook'} ne "" && -f "$config{'global_filterbook'}" ) {
+   if ( $config{'enable_globalfilter'} && -f "$config{'global_filterbook'}" ) {
       if ( open (FILTER, "$config{'global_filterbook'}") ) {
          while (<FILTER>) {
             chomp($_);
@@ -2506,7 +2515,7 @@ sub editfilter {
          close (FILTER);
       }
    }
-   @globalfilterrules=sort { 
+   @globalfilterrules=sort {
                      ${$a}[$_PRIORITY]                   <=> ${$b}[$_PRIORITY]                   or
                      $op_order{${$a}[$_OP]}              <=> $op_order{${$b}[$_OP]}              or
                      $ruletype_order{${$a}[$_RULETYPE]}  <=> $ruletype_order{${$b}[$_RULETYPE]}  or

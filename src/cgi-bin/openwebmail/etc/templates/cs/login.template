@@ -27,9 +27,9 @@
 <td align=center>@@@LOGINBUTTON@@@</td>
 <td align=center>
 <table><tr>
-<td>@@@HTTPCOMPRESSIONCHECKBOX@@@</td><td><font size=1>HTTP<br>Compression</font></td>
+<td>@@@HTTPCOMPRESSIONCHECKBOX@@@</td><td><font size=1>HTTP<br>komprese</font></td>
 @@@AUTOLOGINSTART@@@
-<td>@@@AUTOLOGINCHECKBOX@@@</td><td><font size=1>Auto<br>Login</font></td>
+<td>@@@AUTOLOGINCHECKBOX@@@</td><td><font size=1>Automatické<br>pøihlá¹ení</font></td>
 @@@AUTOLOGINEND@@@
 </tr></table>
 </td>
@@ -73,12 +73,12 @@
 "HTTP komprese umo¾òuje sní¾it mno¾ství dat pøená¹ených mezi serverem a va¹ím poèítaèem, co¾ mù¾e "+
 "být výhodné pro pomalé pøipojení (napø. pomocí modemu). Mohou v¹ak vyvstat nìkteré problémy "+
 "s kompatibilitou:\n\n"+
-"1) nìkteré proxy servery podporují kompresi jen u HTTP/1.1, tak¾e mù¾e být nutné povolit "+
+"1) Nìkteré proxy servery podporují kompresi jen u HTTP/1.1, tak¾e mù¾e být nutné povolit "+
 "v prohlí¾eèi podporu HTTP/1.1 u pøipojení pøes proxy\n"+
-"2) nìkteré proxy servery vùbec nepodporují kompresi a budete muset v prohlí¾eèi nastavit "+
+"2) Nìkteré proxy servery vùbec nepodporují kompresi a budete muset v prohlí¾eèi nastavit "+
 "pøímý pøístup na WebMail server (tj. výjimku z pou¾ití proxy)\n"+
-"3) nìkteré prohlí¾eèe mají problémy pøi pou¾ití komprese spoleènì se SSL\n"+
-"4) nìkteré prohlí¾eèe oznamují podporu komprese, ale ve skuteènosti ji nepodporují\n\n"+
+"3) Nìkteré prohlí¾eèe mají problémy pøi pou¾ití komprese spoleènì se SSL\n"+
+"4) Nìkteré prohlí¾eèe oznamují podporu komprese, ale ve skuteènosti ji nepodporují\n\n"+
 "Tak¾e pokud budete mít nìjaké problémy, pøihlaste se prosím znovu a kompresi vypnìte.\n"
          );
       }
@@ -89,10 +89,12 @@
    {
       if (document.login.autologin.checked) {
          alert(
-"When this feature is enabled, you may login into openwebmail without typing username/password "+
-"if you didn't do logout in your previous openwebmail session and that session is not timeout. "+
-"However, others may also auto login into your openwebmail account with this computer, "+
-"so please DO NOT enable this feature on a public computer\n"
+"Pøi zapnutí Automatického pøihlá¹ení je mo¾né se do Open WebMailu pøihlásit bez vyplnìní "+
+"pøihla¹ovacího jména a hesla, pokud jste se z pøedchozího sezení neodhlásili a zároveò "+
+"toto sezení nepøekroèilo maximální povolenou dobu neèinnosti.\n\n"+
+"POZOR! Kdokoliv jiný se díky Automatickému pøihlá¹ení také mù¾e na tomto poèítaèi "+
+"v této dobì dostat k va¹í po¹tì bez vlo¾ení jména a hesla.\n"+
+"Proto tuto volbu NEPOU®ÍVEJTE na veøejnì pøístupných poèítaèích!\n"
          );
       }
       return(true);

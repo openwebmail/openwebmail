@@ -240,6 +240,7 @@ package ow::lt;
    emptyfolder=> 'Empty folder',
    emptytrash => 'Ar iðtrinti ðiukðledëþæ',
    totrash    => 'Perkelti á ðiukðledëþæ',
+   learnspam  => 'Learn Spam',
    forever    => 'Visam laikui',
    delatlogout=> 'Iðtrinti atsijungiant',
    userdef    => 'Vartotojo nustatyti',

@@ -10,6 +10,7 @@ use Fcntl qw(:DEFAULT :flock);
 # extern vars, defined in caller openwebmail-xxx.pl
 use vars qw(%config %prefs %lang_text %lang_err);
 use vars qw($domain $user $uuid $homedir);
+use vars qw(@openwebmailrcitem);	# defined in ow-shared.pl
 
 sub upgrade_20030323 {		# called only if homedir doesn't exist
    # rename old homedir for compatibility
@@ -315,10 +316,32 @@ sub read_releasedatefile {
 
 sub update_releasedatefile {
    my $releasedatefile=dotpath('release.date');
-   open(D, ">$releasedatefile") or 
+   open(D, ">$releasedatefile") or
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $releasedatefile ($!)");
    print D $config{'releasedate'};
    close(D);
+}
+
+sub update_openwebmailrc {
+   my $user_releasedate=$_[0];
+
+   my $rcfile=dotpath('openwebmailrc');
+   my $saverc=0;
+   if (-f $rcfile) {
+      $saverc=1 if ( $user_releasedate lt "20040818" );	# rc upgrade
+      %prefs = readprefs() if ($saverc);		# load user old prefs + sys defaults
+   } else {
+      $saverc=1 if ($config{'auto_createrc'});		# rc auto create
+   }
+   if ($saverc) {
+      open (RC, ">$rcfile") or
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $rcfile! ($!)");
+      foreach my $key (@openwebmailrcitem) {
+         print RC "$key=$prefs{$key}\n";
+      }
+      close (RC) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $rcfile!");
+   }
+   return;
 }
 
 1;

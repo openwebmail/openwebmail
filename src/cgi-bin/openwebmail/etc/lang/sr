@@ -240,6 +240,7 @@ package ow::sr;
    emptyfolder=> 'Isprazni folder',
    emptytrash => 'Isprazni smeæe',
    totrash    => 'Premesti u smeæe',
+   learnspam  => 'Learn Spam',
    forever    => 'Zauvek',
    delatlogout=> 'Izbri¹i pri odjavi',
    userdef    => 'Korisnièki odreðeno',

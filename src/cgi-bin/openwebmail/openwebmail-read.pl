@@ -201,7 +201,7 @@ sub readmessage {
 
    my $convfrom=param('convfrom')||lc($message{'charset'});
    if ($convfrom eq '' && $prefs{'charset'} eq 'utf-8') {	
-      # assume msg is from sender using same language as the repipient browser
+      # assume msg is from sender using same language as the recipient's browser
       $convfrom=$ow::lang::languagecharsets{ow::lang::guess_language()};
    }
    $convfrom="none.$prefs{'charset'}" if ($convfrom!~/^none\./ && !is_convertable($convfrom, $prefs{'charset'}));
@@ -388,6 +388,15 @@ sub readmessage {
    $html =~ s/\@\@\@LEFTMENUBARLINKS\@\@\@/$temphtml/;
 
    $temphtml='';
+   if ($config{'enable_learnspam'} &&
+       $folder ne 'saved-drafts' && $folder ne 'sent-mail' &&
+       $folder ne 'spam-mail' && $folder ne 'virus-mail') {
+      my $url=qq|accesskey="Z" href="$main_url&amp;action=movemessage&amp;message_ids=$escapedmessageid&amp;message_id=$escapedmessageaftermove&amp;destination=LEARNSPAM&amp;headers=$headers&amp;attmode=$attmode|;
+      $url .= qq|&amp;messageaftermove=1| if ($messageaftermove && $prefs{'viewnextaftermsgmovecopy'});
+      $url .= qq|" |;
+      $url .= qq|onClick="return confirm($lang_text{'msgmoveconf'})"| if ($prefs{'confirmmsgmovecopy'});
+      $temphtml .= iconlink("learnspam.gif", $lang_text{'learnspam'}, $url);
+   }
    if ($folder ne 'mail-trash') {
       my $trashfolder='mail-trash';
       $trashfolder='DELETE' if ($quotalimit>0 && $quotausage>=$quotalimit);
@@ -395,7 +404,7 @@ sub readmessage {
       $url .= qq|&amp;messageaftermove=1| if ($messageaftermove && $prefs{'viewnextaftermsgmovecopy'});
       $url .= qq|" |;
       $url .= qq|onClick="return confirm($lang_text{'msgmoveconf'})"| if ($prefs{'confirmmsgmovecopy'});
-      $temphtml = iconlink("totrash.gif", $lang_text{'totrash'}, $url);
+      $temphtml .= iconlink("totrash.gif", $lang_text{'totrash'}, $url);
    }
    $temphtml .= "&nbsp;\n";
 
@@ -641,9 +650,11 @@ sub readmessage {
       $temphtml .= qq|<B>$lang_text{'from'}:</B> <a href="http://www.google.com/search?q=$eaddr" title="google $lang_text{'search'}..." target="_blank">$from</a>&nbsp; \n|;
       if ($printfriendly ne "yes") {
          $temphtml .= qq|&nbsp;|. iconlink("import.s.gif",   "$lang_text{'importadd'} $eaddr",  qq|href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addaddress&amp;sessionid=$thissession&amp;sort=$sort&amp;page=$page&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;realname=|.ow::tool::escapeURL($ename).qq|&amp;email=|.ow::tool::escapeURL($eaddr).qq|&amp;usernote=_reserved_" onclick="return confirm('$lang_text{importadd} $eaddr ?');"|) . qq|\n|;
-         $temphtml .= qq|&nbsp;|. iconlink("blockemail.gif", "$lang_text{'blockemail'} $eaddr", qq|href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=addfilter&amp;sessionid=$thissession&amp;sort=$sort&amp;page=$page&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;priority=20&amp;ruletype=from&amp;include=include&amp;text=$eaddr&amp;destination=mail-trash&amp;enable=1" onclick="return confirm('$lang_text{blockemail} $eaddr ?');"|) . qq|\n|;
-         if ($message{smtprelay} !~ /^\s*$/) {
-            $temphtml .= qq|&nbsp; |.iconlink("blockrelay.gif", "$lang_text{'blockrelay'} $message{smtprelay}", qq|href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=addfilter&amp;sessionid=$thissession&amp;sort=$sort&amp;page=$page&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;priority=20&amp;ruletype=smtprelay&amp;include=include&amp;text=$message{smtprelay}&amp;destination=mail-trash&amp;enable=1" onclick="return confirm('$lang_text{blockrelay} $message{smtprelay} ?');"|) . qq|\n|;
+         if ($config{'enable_userfilter'}) {
+            $temphtml .= qq|&nbsp;|. iconlink("blockemail.gif", "$lang_text{'blockemail'} $eaddr", qq|href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=addfilter&amp;sessionid=$thissession&amp;sort=$sort&amp;page=$page&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;priority=20&amp;ruletype=from&amp;include=include&amp;text=$eaddr&amp;destination=mail-trash&amp;enable=1" onclick="return confirm('$lang_text{blockemail} $eaddr ?');"|) . qq|\n|;
+            if ($message{smtprelay} !~ /^\s*$/) {
+               $temphtml .= qq|&nbsp; |.iconlink("blockrelay.gif", "$lang_text{'blockrelay'} $message{smtprelay}", qq|href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=addfilter&amp;sessionid=$thissession&amp;sort=$sort&amp;page=$page&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;priority=20&amp;ruletype=smtprelay&amp;include=include&amp;text=$message{smtprelay}&amp;destination=mail-trash&amp;enable=1" onclick="return confirm('$lang_text{blockrelay} $message{smtprelay} ?');"|) . qq|\n|;
+            }
          }
       }
       $temphtml .= "<BR>";
@@ -673,7 +684,7 @@ sub readmessage {
       if ($printfriendly ne "yes") {
          if ($message{'priority'} eq 'urgent') {# display import icon
             $temphtml .= qq|&nbsp;|. iconlink("important.gif", "", "");
-         }         
+         }
          if ($message{'status'} =~ /a/i) {	# display read and answered icon
             $temphtml .= qq|&nbsp; |. iconlink("read.a.gif", "", "");
          }
@@ -718,7 +729,7 @@ sub readmessage {
       # if convfrom eq msgcharset, we try to get attcharset from attheader since it may differ from msgheader
       # but if convfrom ne msgcharset, which means user has spsecified other charset in interpreting the msg
       # which means the charset in attheader may be wrong either, then we use convfrom as attcharset
-      if ($convfrom eq lc($message{'charset'})) { 
+      if ($convfrom eq lc($message{'charset'})) {
          $attcharset=lc(${$message{attachment}[$attnumber]}{filenamecharset})||
                      lc(${$message{attachment}[$attnumber]}{charset})||
                      $convfrom;

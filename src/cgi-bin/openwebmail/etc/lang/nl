@@ -241,6 +241,7 @@ package ow::nl;
    emptyfolder=> 'Empty folder',
    emptytrash => 'Prullenbak legen',
    totrash    => 'Verplaats naar prullenbak',
+   learnspam  => 'Learn Spam',
    forever    => 'Altijd',
    delatlogout=> 'Verwijder bij uitloggen',
    userdef    => 'Gebruiker bepaald',

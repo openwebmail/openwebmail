@@ -89,7 +89,7 @@ sub getinfomessageids {
    } else { # return: $totalsize, $new, $r_messageids for whole folder
       my %FDB;
 
-      ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or 
+      ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or
          return($totalsize, $new, $r_messageids, $r_messagedepths);
       $new=$FDB{'NEWMESSAGES'};
       $totalsize=(stat($folderfile))[7];
@@ -346,7 +346,7 @@ sub get_messageids_sorted {
       ($sort, $rev)= ('date', 0);
    }
 
-   ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or 
+   ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or
       return(\@messageids, \@messagedepths);
    my $lstmtime=$FDB{'LSTMTIME'};
    ow::dbm::close(\%FDB, $folderdb);
@@ -362,7 +362,7 @@ sub get_messageids_sorted {
       close(CACHE);
    }
 
-   # LSTMTIME will be upated in case the message list of a folder is changed, 
+   # LSTMTIME will be upated in case the message list of a folder is changed,
    # eg: 1. db is rebuild
    #     2. messages added into or removed from db
    # But LSTMTIME won't be changed in message_status_update.

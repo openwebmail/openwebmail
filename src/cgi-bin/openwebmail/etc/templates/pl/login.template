@@ -27,9 +27,9 @@
 <td align=center>@@@LOGINBUTTON@@@</td>
 <td align=center>
 <table><tr>
-<td>@@@HTTPCOMPRESSIONCHECKBOX@@@</td><td><font size=1>HTTP<br>Compression</font></td>
+<td>@@@HTTPCOMPRESSIONCHECKBOX@@@</td><td><font size=1>Kompresja<br>HTTP</font></td>
 @@@AUTOLOGINSTART@@@
-<td>@@@AUTOLOGINCHECKBOX@@@</td><td><font size=1>Auto<br>Login</font></td>
+<td>@@@AUTOLOGINCHECKBOX@@@</td><td><font size=1>Automatyczne<br>logowanie</font></td>
 @@@AUTOLOGINEND@@@
 </tr></table>
 </td>
@@ -88,10 +88,10 @@
    {
       if (document.login.autologin.checked) {
          alert(
-"When this feature is enabled, you may login into openwebmail without typing username/password "+
-"if you didn't do logout in your previous openwebmail session and that session is not timeout. "+
-"However, others may also auto login into your openwebmail account with this computer, "+
-"so please DO NOT enable this feature on a public computer\n"
+"Po w³±czeniu tej funkcji mo¿esz zalogowaæ siê bez podawania loginu/has³a "+
+"je¶li nie wylogowa³e¶ siê w czasie poprzedniej sesji i sesja ta nie wygas³a. "+
+"Jednak inni równie¿ mog± siê zalogowaæ na Twoje konto z tego komputera, "+
+"dlatego NIE W£¡CZAJ tej opcji w publicznie dostêpnym komputerze!\n"
          );
       }
       return(true);

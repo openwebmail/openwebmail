@@ -25,7 +25,7 @@ require "modules/mime.pl";
 
 sub parse_header {
    # concatenate folding lines in header but not the last blank line
-   my $header=${$_[0]}; $header=~s/\s+$//s; $header=~s/\s*\n\s+/ /sg; 
+   my $header=${$_[0]}; $header=~s/\s+$//s; $header=~s/\s*\n\s+/ /sg;
    my $r_message=$_[1];
 
    my @lines=split(/\r*\n/, $header);
@@ -233,7 +233,7 @@ sub parse_attblock {
    my $attheader=substr(${$r_buff}, $attblockstart, $attheaderlen);
    my $attcontentlength=$attblocklen-($attheaderlen+1);
 
-   my %att; 
+   my %att;
    $att{'content-type'}='N/A';	# assume null content type
    parse_header(\$attheader, \%att);
    $att{'content-id'} =~ s/^\s*\<(.+)\>\s*$/$1/;
@@ -262,7 +262,7 @@ sub parse_attblock {
             my $attcontent=substr(${$r_buff}, $attblockstart+$attheaderlen+1, $attcontentlength);
             if ($attcontent=~/\S/ ) { # save att if contains chars other than \s
                push(@attachments, make_attachment($subtype,$boundary, $attheader,\$attcontent, $attcontentlength,
-                                     @att{'content-transfer-encoding', 'content-type', 'content-disposition', 'content-id', 'content-location', 'content-description'}, 
+                                     @att{'content-transfer-encoding', 'content-type', 'content-disposition', 'content-id', 'content-location', 'content-description'},
                                      $nodeid) );
             }
          }
@@ -335,7 +335,7 @@ sub parse_attblock {
                      join(";\n", @extbodyattr)."\n\n".
                      $attcontent;
          push(@attachments, make_attachment($subtype,$boundary, $attheader,\$attcontent, $attcontentlength,
-                               @att{'content-transfer-encoding', 'content-type', 'content-disposition', 'content-id', 'content-location', 'content-description'}, 
+                               @att{'content-transfer-encoding', 'content-type', 'content-disposition', 'content-id', 'content-location', 'content-description'},
                                $nodeid) );
       }
 
@@ -354,7 +354,7 @@ sub parse_attblock {
             $header2 = ow::mime::decode_mimewords($header2);
             my $temphtml="$header2\n$body2";
             push(@attachments, make_attachment($subtype,"", $attheader,\$temphtml, length($temphtml),
-                                  @att{'content-transfer-encoding', 'content-type', 'content-disposition', 'content-id', 'content-location', 'content-description'}, 
+                                  @att{'content-transfer-encoding', 'content-type', 'content-disposition', 'content-id', 'content-location', 'content-description'},
                                   $nodeid) );
          }
          push (@attachments, @{$r_attachments2});
@@ -366,7 +366,7 @@ sub parse_attblock {
          my $attcontent=substr(${$r_buff}, $attblockstart+$attheaderlen+1, $attcontentlength);
          if ($attcontent=~/\S/ ) { # save att if contains chars other than \s
             push(@attachments, make_attachment($subtype,$boundary, $attheader,\$attcontent, $attcontentlength,
-                                  @att{'content-transfer-encoding', 'content-type', 'content-disposition', 'content-id', 'content-location', 'content-description'}, 
+                                  @att{'content-transfer-encoding', 'content-type', 'content-disposition', 'content-id', 'content-location', 'content-description'},
                                   $nodeid) );
          }
       }
@@ -376,7 +376,7 @@ sub parse_attblock {
       if ( $searchid eq "" || $searchid eq "all" || $searchid=~/^$nodeid/ ) {
          my $attcontent=substr(${$r_buff}, $attblockstart+$attheaderlen+1, $attcontentlength);
          push(@attachments, make_attachment($subtype,$boundary, $attheader,\$attcontent, $attcontentlength,
-                               @att{'content-transfer-encoding', 'content-type', 'content-disposition', 'content-id', 'content-location', 'content-description'}, 
+                               @att{'content-transfer-encoding', 'content-type', 'content-disposition', 'content-id', 'content-location', 'content-description'},
                                $nodeid) );
       }
 
@@ -385,7 +385,7 @@ sub parse_attblock {
          my $attcontent=substr(${$r_buff}, $attblockstart+$attheaderlen+1, $attcontentlength);
          if ($attcontent=~/\S/ ) { # save att if contains chars other than \s
             push(@attachments, make_attachment($subtype,$boundary, $attheader,\$attcontent, $attcontentlength,
-                                  @att{'content-transfer-encoding', 'content-type', 'content-disposition', 'content-id', 'content-location', 'content-description'}, 
+                                  @att{'content-transfer-encoding', 'content-type', 'content-disposition', 'content-id', 'content-location', 'content-description'},
                                   $nodeid) );
          }
       } else {
@@ -393,7 +393,7 @@ sub parse_attblock {
          # thus content of an non-text based attachment is no need to be returned
          my $fakeddata="snipped...";
          push(@attachments, make_attachment($subtype,$boundary, $attheader,\$fakeddata,$attcontentlength,
-                                  @att{'content-transfer-encoding', 'content-type', 'content-disposition', 'content-id', 'content-location', 'content-description'}, 
+                                  @att{'content-transfer-encoding', 'content-type', 'content-disposition', 'content-id', 'content-location', 'content-description'},
                                   $nodeid) );
       }
 
@@ -443,7 +443,7 @@ sub parse_uuencode_body {
 #       $r_attcontent is kept untouched!
 sub make_attachment {
    my ($subtype,$boundary, $attheader,$r_attcontent,$attcontentlength,
-	$attencoding,$attcontenttype, $attdisposition,$attid,$attlocation,$attdescription, 
+	$attencoding,$attcontenttype, $attdisposition,$attid,$attlocation,$attdescription,
         $nodeid)=@_;
 
    my ($attcharset, $attfilename, $attfilenamecharset);

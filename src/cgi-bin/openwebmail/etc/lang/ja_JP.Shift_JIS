@@ -240,6 +240,7 @@ package ow::ja_JP_Shift_JIS;
    emptyfolder=> 'Empty folder',
    emptytrash => 'ごみ箱を空にする',
    totrash    => 'ごみ箱に移動する',
+   learnspam  => 'Learn Spam',
    forever    => '永久に',
    delatlogout=> 'ログアウト時に削除',
    userdef    => 'ユーザー定義',

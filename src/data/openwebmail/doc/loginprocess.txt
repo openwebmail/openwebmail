@@ -19,7 +19,7 @@ $loginname +-->$loginuser----->+                   +-->$auth_user---+---> auth s
            |                   |                   |                |                             b. domain in loginname
            v          load per domain conf         |                |                                domain in URL
            |                   |                   |                |                             c. domain by /bin/hostname
-           +-->$logindomain--->+                   +-->$auth_domain-+                          3. ~/mail/.form.book
+           +-->$logindomain--->+                   +-->$auth_domain-+                          3. ~/.openwebmail/webmail/from.book
 
 
 Note:

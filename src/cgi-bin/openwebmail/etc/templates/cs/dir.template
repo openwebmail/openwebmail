@@ -132,7 +132,7 @@
             return true;
          }
       }
-      alert("There is no directory or file selected.");
+      alert("Není vybrán ¾ádný adresáø ani slo¾ka.");
       return false;
    }
    function selectedstr()
@@ -158,7 +158,7 @@
    }
    function destnamefilled(target) {
       if (document.dirform.destname.value == '') {
-         alert('Please fill  < '+target+' >  first.');
+         alert('Vyplòte nejprve < '+target+' >.');
          return false;
       } else {
          return true;
@@ -166,16 +166,16 @@
    }
    function uploadfilled() {
       if (document.dirform.upload.value == '') {
-         alert("Please choose the file to upload first.");
+         alert("Zvolte nejprve soubor pro odeslání.");
          return false;
       } else {
-         document.dirform.msg.value = 'Uploading file '+document.dirform.upload.value+', please wait...';
+         document.dirform.msg.value = 'Odesílání souboru '+document.dirform.upload.value+', èekejte prosím...';
          return true;
       }
    }
    function opconfirm(op, conf) {
       if (conf) {
-         return(confirm('Are you sure you want to '+op+' the selected items? ( '+selectedstr()+' )'));
+         return(confirm('Jste si jisti, ¾e chcete '+op+' vybrané polo¾ky? ( '+selectedstr()+' )'));
       } else {
          return true;
       }

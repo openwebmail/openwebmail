@@ -15,9 +15,9 @@
 @@@ENDFORM@@@
 </tr><tr><td colspan="4">&nbsp;</td></tr>
 <tr><td bgcolor=@@@COLUMNHEADER@@@>
-<B>Jméno</B> (klik zmìní adresu)</td>
+<B>Jméno</B> (klik pro úpravu)</td>
 <td bgcolor=@@@COLUMNHEADER@@@>
-<B>Adresa/Skupina adres</B> (klik po¹le zprávu)</td>
+<B>Adresa/Skupina</B> (klik po¹le zprávu)</td>
 <td bgcolor=@@@COLUMNHEADER@@@>
 <B>Poznámka</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
@@ -64,7 +64,7 @@
    function addcheck()
    {
       if (document.newaddress.email.value  == "") {
-         alert("Please specify the email address.");
+         alert("Vyplòte nejprve adresu.");
          return false;
       }
       return true;

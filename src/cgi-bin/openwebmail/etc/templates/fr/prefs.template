@@ -51,7 +51,7 @@
 @@@FORWARDADDRESS@@@
 &nbsp;
 @@@KEEPLOCALCOPY@@@
-Garder une copie pour vous.
+Garder une copie 
 </td></tr>
 @@@FORWARDEND@@@
 @@@AUTOREPLYSTART@@@
@@ -173,7 +173,7 @@ Sujet :
 </td></tr>
 @@@AUTOPOP3END@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Wait time for background mail filtering:</B>
+<B>Temps d'attente pour le filtrage des mails en arrière plan :</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BGFILTERWAITMENU@@@ seconds
 </td></tr>
@@ -280,17 +280,17 @@ Largeur @@@EDITCOLUMNSMENU@@@ Hauteur @@@EDITROWSMENU@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Virus Check</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Messages to be checked:</B>
+<B>Messages a vérifier:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@VIRUSCHECKSOURCEMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Maximum size of the checked messages:</B>
+<B>Taille maximale des messages a vérifier:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@VIRUSCHECKMAXSIZEMENU@@@ KB
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Minimum size of the body of checked messages:</B>
+<B>Taille minimale des messages a vérifier:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@VIRUSCHECKMINBODYSIZEMENU@@@ KB
 </td></tr>
@@ -300,17 +300,17 @@ Largeur @@@EDITCOLUMNSMENU@@@ Hauteur @@@EDITROWSMENU@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Spam Check</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Messages to be checked:</B>
+<B>Messages a vérifier:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SPAMCHECKSOURCEMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Maximum size of the checked messages:</B>
+<B>Taille maximale des messages a vérifier:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SPAMCHECKMAXSIZEMENU@@@ KB
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Threshold to determine Spam:</B>
+<B>Seuil pour les spams:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SPAMCHECKTHRESHOLDMENU@@@
 </td></tr>
@@ -455,7 +455,7 @@ Largeur @@@FILEEDITCOLUMNSMENU@@@ Hauteur @@@FILEEDITROWSMENU@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Divers</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Use lightbar for selection:</B>
+<B>Utiliser la surbrillance pour la selection:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USELIGHTBARCHECKBOX@@@
 </td></tr>
@@ -498,7 +498,7 @@ la laisser pendant @@@MAILSENTWINDOWTIMEMENU@@@ secondes &nbsp;( 0 signifie pas 
 @@@TRASHRESERVEDDAYSMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Spam/Virus mail reserved day(s):</B>
+<B>Conserver les Spam/Virus pendant (jours):</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SPAMVIRUSRESERVEDDAYSMENU@@@
 </td></tr>

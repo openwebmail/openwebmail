@@ -94,7 +94,7 @@ sub check_userpassword {
 
    my $entry = $list->entry(0);
    my $vpwd = $entry->get_value("userPassword");
-   my $passwd_hash =""; 
+   my $passwd_hash ="";
    if ($vpwd =~ s/({MD5}|{crypt})//i) {
       $passwd_hash = $password;
    } else {

@@ -62,10 +62,10 @@ sub enriched2html {
 }
 
 sub _enriched_nofill_save {
-   $nofill_list[$nofill_i]=$_[0]; $nofill_i++;   
+   $nofill_list[$nofill_i]=$_[0]; $nofill_i++;
    return('NOFILL_'.($nofill_i-1));
 }
-   
+
 sub _enriched_nofill_restore {
    return("<pre>\n".$nofill_list[$_[0]]."</pre>\n");
 }

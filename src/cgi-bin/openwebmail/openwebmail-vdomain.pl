@@ -668,7 +668,7 @@ sub change_vuser {
 
       # switch to virtual user
       ow::suid::set_euid_egids($vuid,$vgid);
-      
+
       # create dot directory structure
       check_and_create_dotdir(_dotpath('/', $domain, $vuser, $vhomedir));
 

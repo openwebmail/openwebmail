@@ -51,7 +51,7 @@
 @@@FORWARDADDRESS@@@
 &nbsp;
 @@@KEEPLOCALCOPY@@@
-Ponechat kopii ve vlastní schránce
+Ponechat si kopie
 </td></tr>
 @@@FORWARDEND@@@
 @@@AUTOREPLYSTART@@@
@@ -169,11 +169,11 @@ Pøedmìt:
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Pøi pøihlá¹ení automaticky stahovat po¹tu z POP3 úètù:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@AUTOPOP3CHECKBOX@@@ (wait @@@AUTOPOP3WAITMENU@@@ seconds)
+@@@AUTOPOP3CHECKBOX@@@ (poèkat @@@AUTOPOP3WAITMENU@@@ vteøin)
 </td></tr>
 @@@AUTOPOP3END@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Wait time for background mail filtering:</B>
+<B>Prodleva pro filtrování po¹ty na pozadí:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BGFILTERWAITMENU@@@ seconds
 </td></tr>
@@ -203,7 +203,7 @@ Pøedmìt:
 @@@USEFIXEDFONT@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Pøi ètení zpráv pou¾ívat &quot;smiley&quot; obrázky:</B>
+<B>Pøi ètení zpráv pou¾ívat obrázky &quot;smajlíkù&quot;:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USESMILEICON@@@
 </td></tr>
@@ -218,17 +218,17 @@ Pøedmìt:
 @@@SHOWIMGASLINK@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Nepovolit JavaScript uvnitø zpráv:</B>
+<B>Zakázat JavaScript uvnitø zpráv:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEJS@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Nepovolit znaèky vlo¾ených objektù/appletù uvnitø zpráv:</B>
+<B>Zakázat vlo¾ené objekty/applety uvnitø zpráv:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEEMBCODE@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Nepovolit links vlo¾ené do zpráv:</B>
+<B>Zakázat vlo¾ené odkazy ve zprávách:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEEMBLINKMENU@@@
 </td></tr>
@@ -278,19 +278,19 @@ Pøedmìt:
 
 @@@VIRUSCHECKSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Virus Check</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Antivirová kontrola</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Messages to be checked:</B>
+<B>Kontrolovat zprávy:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@VIRUSCHECKSOURCEMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Maximum size of the checked messages:</B>
+<B>Maximální velikost kontrolovaných zpráv:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@VIRUSCHECKMAXSIZEMENU@@@ KB
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Minimum size of the body of checked messages:</B>
+<B>Minimální velikost tìla kontrolovaných zpráv:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@VIRUSCHECKMINBODYSIZEMENU@@@ KB
 </td></tr>
@@ -298,19 +298,19 @@ Pøedmìt:
 
 @@@SPAMCHECKSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Spam Check</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Kontrola SPAMu</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Messages to be checked:</B>
+<B>Kontrolovat zprávy:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SPAMCHECKSOURCEMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Maximum size of the checked messages:</B>
+<B>Maximální velikost kontrolovaných zpráv:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SPAMCHECKMAXSIZEMENU@@@ KB
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Threshold to determine Spam:</B>
+<B>Hranice pova¾ování zprávy za SPAM:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SPAMCHECKTHRESHOLDMENU@@@
 </td></tr>
@@ -322,7 +322,7 @@ Pøedmìt:
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Maximální poèet opakovaných zpráv:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@FILTERREPEATLIMIT@@@ &nbsp;( 0 znamená nekontrolovat, zda jsou opakované )
+@@@FILTERREPEATLIMIT@@@ &nbsp;(0 znamená nekontrolovat)
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Filtrovat zprávy s adresou ve ¹patném formátu:</B>
@@ -359,7 +359,7 @@ Pøedmìt:
 @@@ABOOKBUTTONPOSITIONMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Pøednastavený filtr adresáøe:</B>
+<B>Implicitní filtr adresáøe:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKDEFAULTFILTER@@@
 </td></tr>
@@ -394,7 +394,7 @@ Pøedmìt:
 @@@STARTHOURMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Koneèná hodina dne:</B>
+<B>Koncová hodina dne:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ENDHOURMENU@@@
 </td></tr>
@@ -410,12 +410,12 @@ Pøedmìt:
 </td></tr>
 @@@REMINDERSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Pøipomínaè událostí kontroluje dny:</B>
+<B>Pøipomínání událostí kontroluje dny:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REMINDERDAYSMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Aktivovat pøipomínaè událostí pro globální kalendáø:</B>
+<B>Aktivovat pøipomínání událostí pro globální kalendáø:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REMINDERFORGLOBALCHECKBOX@@@
 </td></tr>
@@ -455,7 +455,7 @@ Pøedmìt:
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Rùzná nastavení</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Use lightbar for selection:</B>
+<B>Zvýrazòovat zprávu pod kurzorem:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USELIGHTBARCHECKBOX@@@
 </td></tr>
@@ -478,12 +478,12 @@ Pøedmìt:
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Okno s oznámením nové zprávy:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-zobrazit @@@NEWMAILWINDOWTIMEMENU@@@ sekund &nbsp;( 0 znamená nezobrazovat )
+zobrazit @@@NEWMAILWINDOWTIMEMENU@@@ sekund &nbsp;(0 znamená nezobrazovat)
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Okno s oznámením odeslané zprávy:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-zobrazit @@@MAILSENTWINDOWTIMEMENU@@@ sekund &nbsp;( 0 znamená nezobrazovat )
+zobrazit @@@MAILSENTWINDOWTIMEMENU@@@ sekund &nbsp;(0 znamená nezobrazovat)
 </td></tr>
 @@@SPELLCHECKSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
@@ -493,23 +493,23 @@ zobrazit @@@MAILSENTWINDOWTIMEMENU@@@ sekund &nbsp;( 0 znamená nezobrazovat )
 </td></tr>
 @@@SPELLCHECKEND@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Poèet dní, po které ponechat zprávy v Ko¹i:</B>
+<B>Poèet dní pro uchování zpráv v Ko¹i:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@TRASHRESERVEDDAYSMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Spam/Virus mail reserved day(s):</B>
+<B>Poèet dní pro uchování virù/SPAMu:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SPAMVIRUSRESERVEDDAYSMENU@@@
 </td></tr>
 @@@WEBMAILEND@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Interval obnovení:</B>
+<B>Interval automatického obnovení stránky:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REFRESHINTERVALMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Maximální povolená doba neèinnosti pøed vypr¹ením pøihlásení:</B>
+<B>Maximální povolená doba neèinnosti pøed automatickým odhlá¹ením:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SESSIONTIMEOUTMENU@@@
 </td></tr>

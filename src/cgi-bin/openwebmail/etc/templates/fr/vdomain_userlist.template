@@ -2,14 +2,14 @@
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="0">
 <tr><td colspan="2" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>Userlist of Domain @@@DOMAINNAME@@@</B></font>
+<B>Liste des utilisateurs du domain @@@DOMAINNAME@@@</B></font>
 <tr><td colspan="2" bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
 </td></tr>
 </table>
 <table border="0" cols="4" align="center" width="90%" cellpadding="1" cellspacing="1">
 <tr><td colspan="4" bgcolor=@@@COLUMNHEADER@@@>
-<B>Userlist</B> ( view by: @@@VIEWFMT@@@ )
+<B>Liste des utilisateurs</B> ( vue par: @@@VIEWFMT@@@ ) 
 </td></tr>
 @@@USERS@@@
 </table>

@@ -4,6 +4,7 @@
 
 use strict;
 use Fcntl qw(:DEFAULT :flock);
+use POSIX qw(:sys_wait_h);	# for WNOHANG in waitpid()
 
 # extern vars, defined in caller openwebmail-xxx.pl
 use vars qw($SCRIPT_DIR);
@@ -34,26 +35,26 @@ foreach (qw(
    session_multilogin session_checksameip session_checkcookie session_count_display
    cache_userinfo
    auto_createrc domainnames_override symboliclink_mbox
-   enable_webmail enable_spellcheck enable_calendar enable_webdisk 
+   enable_webmail enable_spellcheck enable_calendar enable_webdisk
    enable_sshterm enable_vdomain
    enable_history enable_about about_info_software about_info_protocol
    about_info_server about_info_client about_info_scriptfilename
    enable_preference enable_setforward enable_strictforward
    enable_autoreply enable_strictfoldername enable_stationery
-   enable_smartfilter enable_userfilter 
+   enable_globalfilter enable_userfilter enable_smartfilter
    smartfilter_bypass_goodmessage log_filtermove_detail
    enable_viruscheck enable_spamcheck enable_learnspam
    has_virusfolder_by_default has_spamfolder_by_default
-   enable_pop3 pop3_delmail_by_default pop3_delmail_hidden pop3_usessl_by_default 
+   enable_pop3 pop3_delmail_by_default pop3_delmail_hidden pop3_usessl_by_default
    authpop3_getmail authpop3_delmail authpop3_usessl
    webdisk_readonly webdisk_lsmailfolder webdisk_lshidden webdisk_lsunixspec webdisk_lssymlink
    webdisk_allow_symlinkcreate webdisk_allow_symlinkout webdisk_allow_thumbnail
-   webdisk_allow_untar webdisk_allow_unzip webdisk_allow_unrar 
+   webdisk_allow_untar webdisk_allow_unzip webdisk_allow_unrar
    webdisk_allow_unarj webdisk_allow_unlzh
    delmail_ifquotahit delfile_ifquotahit
    default_bgrepeat default_useminisearchicon
    default_confirmmsgmovecopy default_smartdestination
-   default_viewnextaftermsgmovecopy default_autopop3 
+   default_viewnextaftermsgmovecopy default_autopop3
    default_moveoldmsgfrominbox forced_moveoldmsgfrominbox
    default_usefixedfont default_usesmileicon
    default_showhtmlastext default_showimgaslink
@@ -69,7 +70,7 @@ foreach (qw(
 
 # none type config options
 foreach (qw(
-   logfile b2g_map g2b_map lunar_map 
+   logfile b2g_map g2b_map lunar_map
    header_pluginfile footer_pluginfile
    allowed_serverdomain allowed_clientdomain allowed_clientip
    allowed_receiverdomain allowed_autologinip allowed_rootloginip
@@ -116,6 +117,15 @@ foreach (qw(
 foreach (qw(
    default_language auth_module
 )) { $is_config_option{'require'}{$_}=1}
+
+# set type for DEFAULT_ options (the forced defaults for default_ options)
+foreach my $opttype ('yesno', 'none', 'list') {
+   foreach my $optname (keys %{$is_config_option{$opttype}}) {
+      if ($optname=~s/^default_/DEFAULT_/) {
+         $is_config_option{$opttype}{$optname}=1;
+      }
+   }
+}
 
 @openwebmailrcitem=qw(
    language charset timeoffset daylightsaving email replyto
@@ -199,13 +209,14 @@ sub openwebmail_clearall {
 
 # routine used at CGI request begin
 sub openwebmail_requestbegin {
-   openwebmail_clearall() if ($_vars_used);
+   openwebmail_clearall() if ($_vars_used);	# clear global
    $_vars_used=1;
 }
 
 # routine used at CGI request end
 sub openwebmail_requestend {
-   openwebmail_clearall() if ($_vars_used);
+   openwebmail_clearall() if ($_vars_used);	# clear global
+   if ($persistence_count>0) { while (waitpid(-1,WNOHANG)>0) {}	} # clear zombie
    $_vars_used=0;
    $persistence_count++;
 }
@@ -588,9 +599,9 @@ sub matchlist_fromtail {
 
 ########## LOADLANG ##############################################
 sub loadlang {
-   my $langfile=$_[0]; $langfile='en' if (!-f "$config{'ow_langdir'}/$langfile");
+   my $lang=$_[0]; $lang='en' if ($lang eq 'en.utf8' or !-f "$config{'ow_langdir'}/$lang");
    ow::tool::loadmodule("main",
-                        $config{'ow_langdir'}, $langfile);	
+                        $config{'ow_langdir'}, $lang);	
                         # null list, load all symbos
 }
 ########## END LOADLANG ##########################################
@@ -697,13 +708,14 @@ sub readprefs {
 use vars qw(%_templatecache);
 sub readtemplate {
    my $templatename=$_[0];
-   my $lang=$prefs{'language'}||'en';
+   my $lang=$prefs{'language'}||'en'; $lang='en' if ($lang eq 'en.utf8');
    if (!defined($_templatecache{"$config{'ow_templatesdir'}/$lang/$templatename"})) {
       open (T, "$config{'ow_templatesdir'}/$lang/$templatename") or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_templatesdir'}/$lang/$templatename! ($!)");
       local $/; undef $/; $_templatecache{"$config{'ow_templatesdir'}/$lang/$templatename"}=<T>; # read whole file in once
       close (T);
    }
+
    return($_templatecache{"$config{'ow_templatesdir'}/$lang/$templatename"});
 }
 ########## END READTEMPLATE ######################################
@@ -1058,6 +1070,7 @@ sub get_defaultemails {
 sub get_userfrom {
    my ($logindomain, $loginuser, $user, $realname, $frombook)=@_;
    my %from=();
+   $realname=$config{'DEFAULT_realname'} if (defined($config{'DEFAULT_realname'}));
 
    # get default fromemail
    my @defaultemails=get_defaultemails($logindomain, $loginuser, $user);
@@ -1068,8 +1081,8 @@ sub get_userfrom {
    # get user defined fromemail
    if ($config{'enable_loadfrombook'} && open(FROMBOOK, $frombook)) {
       while (<FROMBOOK>) {
-         my ($_email, $_realname) = split(/\@\@\@/, $_, 2);
-         chomp($_realname);
+         my ($_email, $_realname) = split(/\@\@\@/, $_, 2); chomp($_realname);
+         $_realname=$config{'DEFAULT_realname'} if (defined($config{'DEFAULT_realname'}));
          if (!$config{'frombook_for_realname_only'} || defined($from{$_email}) ) {
              $from{"$_email"} = $_realname;
          }
@@ -1383,7 +1396,7 @@ sub writehistory {
 ########## UPDATE_AUTHPOP3BOOK ###################################
 sub update_authpop3book {
    my ($authpop3book, $domain, $user, $password)=@_;
- 
+
    $authpop3book=ow::tool::untaint($authpop3book);
    if ($config{'authpop3_getmail'}) {
       my $login=$user; $login .= "\@$domain" if ($config{'auth_withdomain'});
@@ -1657,14 +1670,14 @@ foreach (qw(
 
 
 # return the path of files within openwebmail dot dir (~/.openwebmail/)
-sub dotpath { 
+sub dotpath {
    # passing global $domain, $user, $homedir as parameters
    return _dotpath($_[0], $domain, $user, $homedir);
 }
 
 # This _ version of routine is used by dotpath() and openwebmail-vdomain.pl
 # When vdomain adm has to determine dotpath for vusers,
-# the param of vuser($vdomain, $vuser, $vhomedir) will be passed 
+# the param of vuser($vdomain, $vuser, $vhomedir) will be passed
 # instead of the globals($domain, $user, $homedir), which are param of vdomain adm himself
 sub _dotpath {	
    my ($name, $domain, $user, $homedir)=@_;

@@ -240,6 +240,7 @@ package ow::uk;
    emptyfolder=> 'Empty folder',
    emptytrash => 'Очистити см╕тник',
    totrash    => 'Перенести в см╕тник',
+   learnspam  => 'Learn Spam',
    forever    => 'Завжди',
    delatlogout=> 'Видалити п╕сля виходу',
    userdef    => 'Визначений користувачем',

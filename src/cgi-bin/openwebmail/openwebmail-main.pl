@@ -1,6 +1,6 @@
 #!/usr/bin/suidperl -T
 #
-# openwebmail-main.pl - message list browing program
+# openwebmail-main.pl - message list browsing program
 #
 
 use vars qw($SCRIPT_DIR);
@@ -382,12 +382,18 @@ sub listmessages {
 
    $html =~ s/\@\@\@LEFTMENUBARLINKS\@\@\@/$temphtml/;
 
+   $temphtml='';
+   if ($config{'enable_learnspam'} &&
+       $folder ne 'saved-drafts' && $folder ne 'sent-mail' &&
+       $folder ne 'spam-mail' && $folder ne 'virus-mail') {
+      $temphtml = iconlink("learnspam.gif", $lang_text{'learnspam'}, qq|accesskey="Z" href="JavaScript:document.pageform.destination.value='LEARNSPAM'; document.pageform.movebutton.click();"|);
+   }
    if ($folder eq 'mail-trash' || $folder eq 'spam-mail' || $folder eq 'virus-mail') {
-      $temphtml = iconlink("emptyfolder.gif", $lang_text{'emptyfolder'}, qq|accesskey="Z" href="$main_url_with_keyword&amp;action=emptyfolder&amp;page=$page&amp;longpage=$longpage" onclick="return confirm('$lang_text{emptyfolder} ($lang_folders{$folder}, $folder_allmessages $lang_text{messages}) ?');"|);
+      $temphtml .= iconlink("emptyfolder.gif", $lang_text{'emptyfolder'}, qq|accesskey="Z" href="$main_url_with_keyword&amp;action=emptyfolder&amp;page=$page&amp;longpage=$longpage" onclick="return confirm('$lang_text{emptyfolder} ($lang_folders{$folder}, $folder_allmessages $lang_text{messages}) ?');"|);
    } else {
       my $trashfolder='mail-trash';
       $trashfolder='DELETE' if ($quotalimit>0 && $quotausage>$quotalimit);
-      $temphtml = iconlink("totrash.gif", $lang_text{'totrash'}, qq|accesskey="Z" href="JavaScript:document.pageform.destination.value='$trashfolder'; document.pageform.movebutton.click();"|);
+      $temphtml .= iconlink("totrash.gif", $lang_text{'totrash'}, qq|accesskey="Z" href="JavaScript:document.pageform.destination.value='$trashfolder'; document.pageform.movebutton.click();"|);
    }
    $temphtml .= qq|&nbsp;\n|;
 
@@ -513,6 +519,7 @@ sub listmessages {
       ($offset, $from, $to, $dateserial, $subject,
 	$content_type, $status, $messagesize, $references, $charset)=string2msgattr($FDB{$messageid});
       if ($charset eq '' && $prefs{'charset'} eq 'utf-8') {
+         # assume msg is from sender using same language as the recipient's browser
          $charset=$ow::lang::languagecharsets{ow::lang::guess_language()};
       }
 
@@ -562,6 +569,7 @@ sub listmessages {
       $temphtml = qq|<td $td_bgcolorstr>$boldon$temphtml$boldoff</td>\n|;
       $linehtml =~ s/\@\@\@DATE\@\@\@/$temphtml/;
 
+      # FROM, find name, email of from and to field first
       my @recvlist = ow::tool::str2list($to,0);
       my (@namelist, @addrlist);
       foreach my $recv (@recvlist) {
@@ -570,49 +578,44 @@ sub listmessages {
          push(@namelist, $n) if ($n!~/"/);
          push(@addrlist, $a) if ($a!~/"/);;
       }
-
       my ($to_name, $to_address)=(join(",", @namelist), join(",", @addrlist));
       $to_name=substr($to_name, 0, 29)."..." if (length($to_name)>32);
       $to_address=substr($to_address, 0, 61)."..." if (length($to_address)>64);
-
       my ($from_name, $from_address)=ow::tool::email2nameaddr($from);
       $from_address=~s/"//g;
 
-      # FROM, we aren't interested in the sender of SENT/DRAFT folder,
+      # we aren't interested in the sender of SENT/DRAFT folder,
       # but the recipient, so display $to instead of $from
+      my ($from2, $from2_name, $from2_address, $from2_searchtype, $from2_keyword);
       if ( $folder=~ m#sent-mail#i ||
            $folder=~ m#saved-drafts#i ||
            $folder=~ m#\Q$lang_folders{'sent-mail'}\E#i ||
            $folder=~ m#\Q$lang_folders{'saved-drafts'}\E#i ) {
-         my $escapedto=ow::tool::escapeURL($to);
-         $from='';
-         if ($prefs{'useminisearchicon'}) {
-            $from .= iconlink("search.s.gif", "$lang_text{'search'} $to_address", 
-                               qq|href="$main_url&amp;action=listmessages&amp;sort=$sort&amp;searchtype=to&amp;keyword=|.
-                               ow::tool::escapeURL(join('|',@addrlist)).qq|"| ).
-                               qq|&nbsp;|;
-         }
-         if ($limited) {
-            $from .= $to_name;
-         } else {
-            $from .= qq|<a href="$config{'ow_cgiurl'}/openwebmail-send.pl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$escapedto&amp;compose_caller=main" title="$from_address -> $to_address">$to_name </a>|;
-         }
+         ($from2, $from2_name, $from2_address)=($to, $to_name, $to_address);
+         ($from2_searchtype, $from2_keyword)=('to', join('|',@addrlist));
       } else {
-         my $escapedfrom=ow::tool::escapeURL($from);
-         $from='';
-         if ($prefs{'useminisearchicon'}) {
-            $from .= iconlink("search.s.gif", "$lang_text{'search'} $from_address", 
-                              qq|href="$main_url&amp;action=listmessages&amp;sort=$sort&amp;searchtype=from&amp;keyword=|.
-                              ow::tool::escapeURL($from_address).qq|"| ).
-                              qq|&nbsp;|;
-         }
-         if ($limited) {
-            $from .= qq|$from_name |;
-         } else {
-            $from .= qq|<a href="$config{'ow_cgiurl'}/openwebmail-send.pl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$escapedfrom&amp;compose_caller=main" title="$from_address -> $to_address">$from_name </a>|;
-         }
+         ($from2, $from2_name, $from2_address)=($from, $from_name, $from_address);
+         ($from2_searchtype, $from2_keyword)=('from', $from_address);
       }
-      $temphtml=qq|<td $td_bgcolorstr>$boldon$from$boldoff</td>\n|;
+      my $from2str=$from2_name;
+      if (!$limited) {
+         $from2str=qq|<a href="$config{'ow_cgiurl'}/openwebmail-send.pl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=|.
+                   ow::tool::escapeURL($from2).
+                   qq|&amp;compose_caller=main" title="$from_address -> $to_address">$from2_name </a>|;
+      }
+      if ($prefs{'useminisearchicon'}) {
+         my $searchstr=iconlink("search.s.gif", "$lang_text{'search'} $from2_address",
+                               qq|href="$main_url&amp;action=listmessages&amp;sort=$sort&amp;searchtype=$from2_searchtype&amp;keyword=|.
+                               ow::tool::escapeURL($from2_keyword).qq|"| ).
+                               qq|&nbsp;|;
+         $temphtml = qq|<td $td_bgcolorstr>|.
+                     qq|<table cellspacing="0" cellpadding="0"><tr>\n|.
+                     qq|<td>$searchstr</td>|.
+                     qq|<td>$boldon$from2str$boldoff</td>\n|.
+                     qq|</tr></table></td>\n|;
+      } else {
+         $temphtml=qq|<td $td_bgcolorstr>$boldon$from2str$boldoff</td>\n|;
+      }
       $linehtml =~ s/\@\@\@FROM\@\@\@/$temphtml/;
 
       # SUBJECT, cut subject to less than 64
@@ -654,7 +657,7 @@ sub listmessages {
       }
       if ($prefs{'useminisearchicon'}) {
          my $subject2 = $subject; $subject2 =~ s/Res?:\s*//ig; $subject2=~s/\[.*?\]//g;
-         my $searchstr = iconlink("search.s.gif", "$lang_text{'search'} $subject2 ", 
+         my $searchstr = iconlink("search.s.gif", "$lang_text{'search'} $subject2 ",
                                   qq|href="$main_url&amp;action=listmessages&amp;sort=$sort&amp;searchtype=subject&amp;keyword=|.
                                   ow::tool::escapeURL($subject2).qq|"| ).
                                   qq|&nbsp;|;
@@ -1095,15 +1098,15 @@ sub movemessage {
 
    my ($learntype, $learnfolder)=('none', $folder);
    if ($destination eq 'LEARNSPAM') {
-      $learntype='learnspam'; 
-      ($op, $destination)=('move', $folder);	# default no move by set dst=src
-      if (!($folder eq 'mail-trash' || $folder eq 'spam-mail' || $folder eq 'virus-mail')) {
-         $learnfolder=$destination=$config{'learnspam_destination'};	# we will move spam if it was not in trash/spam/virus
+      $learntype='learnspam';
+      $destination=$folder;	# default no move by set dst=src
+      if ($folder ne 'spam-mail' && $folder ne 'virus-mail') {
+         $learnfolder=$destination=$config{'learnspam_destination'};	# we will move spam if it was not in spam/virus
       }
    } elsif ($destination eq 'LEARNHAM') {
       $learntype='learnham';
-      ($op, $destination)=('move', $folder);	# default no move by set dst=src
-      if (($folder eq 'mail-trash' || $folder eq 'spam-mail' || $folder eq 'virus-mail')) {
+      $destination=$folder;	# default no move by set dst=src
+      if ($folder eq 'mail-trash' || $folder eq 'spam-mail' || $folder eq 'virus-mail') {
          $learnfolder=$destination=$config{'learnham_destination'};	# we will move ham if it was in trash/spam/virus
       }
    }
@@ -1165,7 +1168,7 @@ sub movemessage {
                ($learned, $examed)=ow::spamcheck::learnham($config{'learnham_pipe'}, \$block);
             }
             if ($learned==-99999) {
-               my $m="$learntype - error ($examed) at $messageid"; 
+               my $m="$learntype - error ($examed) at $messageid";
                writelog($m); writehistory($m);
                last;
             } else {
@@ -1173,7 +1176,7 @@ sub movemessage {
                $totalexamed+=$examed;
             }
          }
-         my $m="$learntype - $totallearned learned, $totalexamed examined"; 
+         my $m="$learntype - $totallearned learned, $totalexamed examined";
          writelog($m); writehistory($m);
 
          openwebmail_exit(0);

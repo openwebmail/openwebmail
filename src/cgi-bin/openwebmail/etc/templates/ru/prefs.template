@@ -173,9 +173,9 @@
 </td></tr>
 @@@AUTOPOP3END@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Wait time for background mail filtering:</B>
+<B>Время ожидания фоновой фильтрации писем:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@BGFILTERWAITMENU@@@ seconds
+@@@BGFILTERWAITMENU@@@ секунд
 </td></tr>
 @@@MOVEOLDSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>

@@ -19,7 +19,7 @@ require "modules/viruscheck.pl";
 
 use vars qw(%config %prefs $user);
 
-# since fetch mail from remote pop3 may be slow, 
+# since fetch mail from remote pop3 may be slow,
 # the folder file lock is done inside routine,
 # it happens when each one complete msg is retrieved
 
@@ -31,7 +31,7 @@ use vars qw(%config %prefs $user);
 #     -2: pop3 error
 #     -3: folder write error
 sub fetchmail {
-   my ($pop3host, $pop3port, $pop3ssl, 
+   my ($pop3host, $pop3port, $pop3ssl,
        $pop3user, $pop3passwd, $pop3del)=@_;
    $pop3host=ow::tool::untaint($pop3host);	# untaint for connection creation
    $pop3port=ow::tool::untaint($pop3port);
@@ -57,7 +57,7 @@ sub fetchmail {
        sendcmd($socket, &encode_base64($pop3user), \@result) &&
        sendcmd($socket, &encode_base64($pop3passwd), \@result)) {
       $authlogin=1;
-   }      
+   }
    if (!$authlogin &&
        !(sendcmd($socket, "user $pop3user\r\n", \@result) &&
          sendcmd($socket, "pass $pop3passwd\r\n", \@result)) ) {
@@ -69,12 +69,12 @@ sub fetchmail {
    if (!sendcmd($socket, "stat\r\n", \@result)) {
       sendcmd($socket, "quit\r\n", \@result); close($socket);
       return (-2, 'stat error');
-   } 
+   }
    if (($msg_total=$result[0]) == 0) {			# no msg on pop3 server
       sendcmd($socket, "quit\r\n", \@result); close($socket);
       return (0, '');
    }
-        
+
    my (%UIDLDB, %uidldb);				# %UIDLDB on disk, %uidldb in mem
 
    my $uidl_support=0;
@@ -82,7 +82,7 @@ sub fetchmail {
    if (sendcmd($socket, "uidl 1\r\n", \@result) &&	# 'uidl' supported on pop3 server
        ow::dbm::open(\%UIDLDB, $uidldb, LOCK_EX) ) {	# local uidldb ready
       $uidl_support=1;
-   }   
+   }
    my $last=-1;
    if (!$uidl_support) {
       if (sendcmd($socket, "last\r\n", \@result)) {	# 'last' supported
@@ -182,7 +182,7 @@ sub fetchmail {
 
       # 1. virus check
       my ($virus_found, $viruscheck_xheader)=(0, '');
-      if ($config{'enable_viruscheck'} && 
+      if ($config{'enable_viruscheck'} &&
           ($prefs{'viruscheck_source'} eq 'all' || $prefs{'viruscheck_source'} eq 'pop3') &&
           !$viruscheck_err &&
           $msgsize <= $prefs{'viruscheck_maxsize'}*1024 &&
@@ -204,7 +204,7 @@ sub fetchmail {
 
       # 2. spam check
       my ($spam_found, $spamcheck_xheader)=(0, '');;
-      if (!$virus_found && 
+      if (!$virus_found &&
           $config{'enable_spamcheck'} &&
           ($prefs{'spamcheck_source'} eq 'all' || $prefs{'spamcheck_source'} eq 'pop3') &&
           !$spamcheck_err &&
@@ -262,7 +262,7 @@ sub sendcmd {
    };
    return 0 if ($@); 		# timeout
 
-   @{$r_result}=split(/\s+/, $ret); 
+   @{$r_result}=split(/\s+/, $ret);
    shift @{$r_result} if (${$r_result}[0]=~/^[\+\-]/); # rm str +OK or -ERR from @result
    return 1 if ($ret!~/^\-/);
 
@@ -300,7 +300,7 @@ sub get_fromemail {
 sub append_pop3msg_to_folder {
    my ($faked_dilimeter, $viruscheck_xheader, $spamcheck_xheader, $r_lines, $folderfile)=@_;
 
-   if (!-f $folderfile) { 
+   if (!-f $folderfile) {
       open(F, ">>$folderfile"); close(F);
    }
    return 0 if (!ow::filelock::lock($folderfile, LOCK_EX));

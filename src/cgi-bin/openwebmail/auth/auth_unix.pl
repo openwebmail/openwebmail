@@ -3,9 +3,9 @@ use strict;
 #
 # auth_unix.pl -  authenticate user with unix password
 #
-# 2002/07/16 Trevor.Paquette.AT.TeraGo.ca 
+# 2002/07/16 Trevor.Paquette.AT.TeraGo.ca
 #            add check for nologin, validshell, cobaltuser
-# 2001/12/20 tung.AT.turtle.ee.ncku.edu.tw 
+# 2001/12/20 tung.AT.turtle.ee.ncku.edu.tw
 #
 
 ########## No configuration required from here ###################

@@ -169,7 +169,7 @@
          alert("Wäheln sie bitte erst eine Datei für den Upload aus!");
          return false;
       } else {
-         document.dirform.msg.value = 'Uploading file '+document.dirform.upload.value+', please wait...';
+         document.dirform.msg.value = 'Datei '+document.dirform.upload.value+' wird übertragen, bitte warten...';
          return true;
       }
    }

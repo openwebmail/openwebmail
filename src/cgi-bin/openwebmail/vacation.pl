@@ -119,7 +119,7 @@ my ($opt_i, $opt_d, $opt_j, $home_path)=(0,0,0,0);
 
 if (defined($ENV{'GATEWAY_INTERFACE'})) {	# cgi mode
    my $clientip=clientip();
-   my $info=$ENV{'HTTP_ACCEPT_LANGUAGE'}; $info.=', ' if ($info ne ''); 
+   my $info=$ENV{'HTTP_ACCEPT_LANGUAGE'}; $info.=', ' if ($info ne '');
    $info.=$ENV{'HTTP_USER_AGENT'}; $info=" ($info)" if ($info ne '');
    log_debug("$clientip$info is cracking the system by calling vacation.pl as CGI?");
    sleep 10;

@@ -240,6 +240,7 @@ package ow::th;
    emptyfolder=> 'Empty folder',
    emptytrash => 'ล้างถังขยะ',
    totrash    => 'ทิ้งถังขยะ',
+   learnspam  => 'Learn Spam',
    forever    => 'ตลอดไป',
    delatlogout=> 'ลบเมื่อออกจากระบบ',
    userdef    => 'ผู้ใช้กำหนด',

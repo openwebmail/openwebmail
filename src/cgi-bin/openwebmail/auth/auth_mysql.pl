@@ -131,7 +131,7 @@ sub check_userpassword {
          } elsif ($pass_type eq "crypt") {
             if ($tmp_pwd eq crypt($password, $tmp_pwd)) {
                return (0, '');
-            } else { 
+            } else {
                return (-4, 'Password incorrect');
             }
          } elsif ($pass_type eq "md5") {

@@ -137,7 +137,7 @@ A: There are many possible answers...
           then please note that the SUID support is disabled by default
           since the port for perl 5.8.1
 
-          You need to do 'make -DENABLE_SUIDPER' in making port
+          You need to do 'make -DENABLE_SUIDPERL' in making port
 
       ps: If you don't want to recompile perl, you choose to may use 
           misc/tools/suidwrap.pl to generate C wrappers for all suid scripts.
@@ -167,7 +167,7 @@ A: There are many possible answers...
       d. please refer to section "PERSISTENT RUNNING through SpeedyCGI" 
          in readme.txt for how to compile SpeedyCGI.
 
-   5. If you are using SpeedyCGI, openwebmail seems be okay at the begining,
+   5. If you are using SpeedyCGI, openwebmail seems be okay at the beginning,
       but it shows "Internal Server Error" sometimes ...
 
       Please check the apache log to see if there is error messages like 
@@ -175,7 +175,7 @@ A: There are many possible answers...
       "unable to open tmp file ..."
 
       If yes, you system may not have the savedsuid support,
-      please set have_savedsuid_suooprt to 'no' in etc/suid.conf
+      please set have_savedsuid_support to 'no' in etc/suid.conf
       
    6. Some perl modules may be too old or not exist on your system
       a. install MIME-Base64-3.01.tar.gz or above
@@ -247,11 +247,11 @@ A: The perl system may use different dbm format depending on what packages
    (you may type 'perldoc AnyDBM_File' to see comparison of these packages)
 
    In the above example, the system uses NBDM package for dbm.
-   when you upgrade OS, perl or migrade openwebmail to other machine,
+   when you upgrade OS, perl or migrate openwebmail to other machine,
    you should run dbmtest.pl on both system to ensure that they use same 
    underlying dbm package.
 
-Q: ok, my two machins use different DBM systems, what can I do next?
+Q: ok, my two machines use different DBM systems, what can I do next?
 A: you can enforce the new one to use the same dbm package as the old one by
    putting the 'use XXX_File.pm' after the 'use strict;' in all openwebmail*pl.
    then try to run 'openwebmail-tool.pl --test' to see if the XXX_File.pm is
@@ -309,7 +309,7 @@ A: It is possible that you are upgrading from version prior to 1.41
 Q: Some of my user with invalid shell couldn't login since upgrade to 1.80?
 A: A new variable check_shell option has been added to the auth_unix.conf
    If it is set to yes, which means only users with valid shell can login. 
-   If it is set to no, then eopnwebmail won't do valid shell checking.
+   If it is set to no, then openwebmail won't do valid shell checking.
 
 Q: A string 'Sessions : 5, 10, 20' appeared at the bottom of the copyright 
    page after successful login, what does this string mean?
@@ -323,7 +323,7 @@ A: Whenever you have successfully logined openwebmail,
    main screen at your next login if the session is still not timeouted.
 
    Openwebmail does this by checking if you have a valid session file on server,
-   so your pasword is not required or stored in either server or cleint side.
+   so your password is not required or stored in either server or client side.
 
 Q: Is it safe to use autologin feature?
 A: It depends. You can enable it on your private computer if the computer is secure.
@@ -490,10 +490,10 @@ A: Openwebmail puts user uploaded attachments in
 Q: I got 'Couldn't get read lock on ....' error?
          'Couldn't get write lock on ....' error?
 A: If the error message appears immediately after you submit the CGI request,
-   then it may be due to the user doesn't has enough prvivledge to lock the
+   then it may be due to the user doesn't has enough privilege to lock the
    file or the directory for the file even doesn't exist.
 
-   If the error message appears after the cgi request submittion for more
+   If the error message appears after the cgi request submission for more
    than 30 seconds, then the folder openwebmail want to access may be locked
    by other process.
 
@@ -501,7 +501,7 @@ A: If the error message appears immediately after you submit the CGI request,
    other mail client through the pop3/imap daemons.
    This is okay, just back to previous page and try again.
 
-   To know where the error happend exactly, you may try to set option
+   To know where the error happened exactly, you may try to set option
    error_with_debuginfo to yes in openwebmail.conf. This would give you
    more detailed information in case openwebmailerror() happens.
 
@@ -509,7 +509,7 @@ A: If the error message appears immediately after you submit the CGI request,
    there could be openwebmail processes that lock the folder file for indexing.
    To release the lock, you may kill the openwebmail speedy_backend process.
 
-   It is okay for openwebmail to have an incomplemet index db,
+   It is okay for openwebmail to have an incomplete index db,
    the folder index db will be fixed or rebuild in the next access.
    
    Sometimes, the folder may be lock by process other than openwebmail,
@@ -645,6 +645,15 @@ A: First, you have to decide whether to use real virtual hosting or
    "How to setup virtual users on Open WebMail using Postfix & vm-pop3d"
    http://www.bluelavalamp.net/owmvirtual/
 
+Q: Could I have configuration file on per user basis?
+A: Yes, let us use tom@virtual_1.com as example.
+
+   If option auth_withdomain is set to yes, 
+   the user conf is cgi-bin/openwebmail/etc/users.conf/virtual_1.com/tom
+
+   If option auth_withdomain is set to no, 
+   the user conf is cgi-bin/openwebmail/etc/users.conf/tom
+
 Q: The default mail domain for my user is always wrong, how can I set it?
 A: To have openwebmail find the correct mail domain for the user,
    you'd give it some hint.
@@ -684,13 +693,13 @@ A: You can use the virtusertable or the per user config file
 
 Q: How can I disallow the user to set their from email address or realname?
 A: set option enable_loadfrombook to 'no' 
-   in either openwebmal.conf or per user config.
+   in either openwebmail.conf or per user config.
 
 Q: How can I allow user to change their realname 
    but disallow the user to set their from email address?
 A: set option enable_loadfrombook to 'yes' and 
    set option frombook_for_realname_only to 'yes'
-   in either openwebmal.conf or per user config.   
+   in either openwebmail.conf or per user config.   
 
 Q: Can I install openwebmail without iconv() support?
 A: Yes, you may copy the misc/patches/iconv.pl.fake over the shares/iconv.pl,
@@ -769,7 +778,7 @@ A: Solution 1:
 
    Solution 2:
 
-   You have to install the tnef extracter on the openwebmail server,
+   You have to install the tnef extractor on the openwebmail server,
    it is available at http://sourceforge.net/projects/tnef/.
 
    To extract the files inside a tnef attachment, the user can save the
@@ -777,7 +786,7 @@ A: Solution 1:
    interface.
 
 ps: Open WebMail has supported tnef extraction since 2.32 20040719,
-    you may see the files encaspulated in tnef attachment directly 
+    you may see the files encapsulated in tnef attachment directly 
     without extract them in webdisk by yourself
 
 ========================================================================
@@ -811,10 +820,10 @@ A: The HTML editor requires
    1. IE5.5+ on windows platform, or
    2. Mozilla 1.3b+ on all platforms
 
-Q: Is it possible to use openwebmail with borwser other than IE5.5+
+Q: Is it possible to use openwebmail with browser other than IE5.5+
    and Mozilla 1.3b+, e.g.: Opera or old Netscape?
 A: If you are using windows platform, then you may install neadroid
-   Neptune plug-in, which will add support for IE DHTML to your borwer.
+   Neptune plug-in, which will add support for IE DHTML to your browser.
    The URL is http://www.meadroid.com/neptune/download/index.htm
 
    Some discussion of this plug-in is available at
@@ -839,24 +848,28 @@ A: This is due to the web page cache of your browser.
 MAIL FILTERING
 ========================================================================
 
-Q: Some of my messages were moved to trash folder automatically?
-A: Your messages were either filtered by 'global filter rule',
-   'repeatness filter', 'bad format from filter', 'faked smtp filter',
-   'faked from filter' or 'faked exe contenttype filter'.
+Q: Some of my messages were moved to trash/virus/spam folder automatically?
+A: Your messages were either filtered by 'global filter',
+   'per user filter' or 'smart filters'.
 
-   Global filter will filter messages with know virus attachments. The global
-   filter rules are defined in the file global_filterbook
+   Global filter are rules defined in the file global_filterbook
    (global_filterbook is defined as %ow_etcdir%/global_filterbook in
-    openwebmail.conf.)
+    openwebmail.conf). By default, we will put rules that filters
+   know spammer or virus attachments in the global filter file.
+
+   Per user filter are filter rules defined by users themselves.
+
+   Smart filters includes repeatness filter, bad format from filter, 
+   faked smtp filter, faked from filter and faked exe contenttype filter.
 
    The 'repeatness filter' will filter messages with same from and subject for
-   more than certain times, those messages are ofterm from spammers or virus.
+   more than certain times, those messages are often from spammers or virus.
 
    The 'bad format from filter' will filter messages that have bad-format from
    email address. A from email address is in bad format if
    1. it is started with digits
    2. it contains both digits and dot
-   3. it caontains characters other than alphabets, digits, dot, dask, 
+   3. it contains characters other than alphabets, digits, dot, dash, 
       underline.
 
    The 'faked smtp filter' will filter messages that have a faked smtp
@@ -911,15 +924,22 @@ A: 1. Set default_filter_fakedsmtp and default_filter_fakedexecontenttype
    2. Uncheck the faked smtp filter and faked exe contenttype filter option
       in user preference. This will disable the two filters for a specific
       user
+   3. you may set 'enable_smartfilter' to 'no' in openwebmail.conf
 
-Q: Some of my messages disappeared?
-A: Your messages may be removed by the delmail_ifquota feature.
+Q: How can I disable the global filters?
+   How can I disable the per user filters?
+   How can I disable the smart filters?
+A: You may set options like enable_globalfilter, enable_userfilter, 
+   enable_smartfilter to 'no' in openwebmail.conf.help
 
 Q: How can I know which filter rule move my messages?
    How to debug the mailfilter message movement?
 A: An option log_filtermove_detail is available since openwebmail20040727,
    please set it to yes in openwebmail.conf, and you will see message
    movement detail in logfile
+
+Q: Some of my messages disappeared?
+A: Your messages may be removed by the delmail_ifquota feature.
 
 Q: How does the delmail_ifquotahit option work?
    Which message will be removed first?
@@ -952,6 +972,22 @@ A: This is due to the dbmopen() of your perl didn't add the ".db" extension
 SPAMCHECK/VIRUSCHECK
 ========================================================================
 
+Q: Why do I need spamcheck/viruscheck in openwebmail?
+   Isn't it better to do these checks in MTA or mail deliver?
+A: You may need spamcheck/viruscheck in openwebmail for two reasons:
+   1. filter mechanism in MTA or mail deliver won't check messages that
+      are fetched from remote pop3 servers
+   2. Spam filters in MTA won't do personalized filtering.
+
+ps: While Spam filters in local deliver can do personalized filtering,
+    it won't check outgoing messages.
+    So we suggest install the Spam and Virus filter in MTA level, 
+    (so both incoming and outgoing will be checked for spam and virus)
+    then enable the spamcheck for all messages in openwebmail
+    (so user can train the spam filter according to his own preference)
+    and enable viruscheck for pop3 messages in openwebmail
+    (so user won't get infected messages from remote pop3 servers)
+
 Q: What is the difference between pop3 and all when setting option 
    viruscheck_source and spamcheck_source?
 A: If check source is set to pop3, pop3 messages are checked after fetching
@@ -964,9 +1000,9 @@ A: If check source is set to pop3, pop3 messages are checked after fetching
    fetched from pop3 servers, and they will be checked when user want 
    to browse the message list of the INBOX folder.
 
-Q: What is the order of the processing of viruscheck, spamcheck, filter rules
-   and smart filter?
-A: viruscheck -> filter rules -> spamcheck -> smart filters
+Q: What is the order of the processing of viruscheck, spamcheck, global filter,
+   perl user filter and smart filter?
+A: viruscheck -> filter rules (including global and user filter rules) -> spamcheck -> smart filters
 
 Q: The spamcheck is very slow, even there are only few messages in INBOX?
 A: Please be sure you have start the spamd with --local option
@@ -982,7 +1018,21 @@ Q: My spamcheck/viruscheck/learnspam doesn't work?
 A: Please be sure your system has installed the spamassassin and clamav,
    then test spamc, sa-lean, clamdscan with the argument defined in pipecmd 
    in openwebmail.conf.
-ps:You should do the test in both root and non-root acocunt.
+ps:You should do the test in both root and non-root account.
+
+Q: I have disabled spamcheck/viruscheck feature, 
+   but the Virus and Spam folder exist in my folder list?
+A: you have to set option has_virusfolder_by_default and 
+   has_spamfolder_by_default to 'no'
+
+Q: I have set option has_virusfolder_by_default and has_spamfolder_by_default 
+   to 'no', the Virus and Spam folders still exist.
+A: When the two options are set to 'no', it only means openwebmail doesn't 
+   treat them as default folders. (In other words, openwebmail won't creat 
+   them automatically if they doesn't exist)
+   However, openwebmail will still list them if they already exist in 
+   ~user/mail/ after you change the options to 'no', so you may have to remove
+   the ~user/mail/spam-mail and ~user/mail/virus-mail manually. 
 
 ========================================================================
 SEND MESSAGE
@@ -1084,7 +1134,7 @@ A: 1. Please upgrade your openwebmail to 2003/11/16 or later.
       (thanks to Isam Ishaq, isam.AT.planet.edu)
    3. Please check the apache error log for more information
 
-Q: I can use aspell for spelling check, but persional dictionary doesn't work?
+Q: I can use aspell for spelling check, but personal dictionary doesn't work?
 A: 1. Please upgrade your openwebmail to 2003/11/16 or later.
    2. If you are using aspell, please be sure your homedir is group readable.
       Yes, this is strange, but it seems aspell need this.
@@ -1095,7 +1145,7 @@ A: 1. Please upgrade your openwebmail to 2003/11/16 or later.
       instead of aspell
 
 Q: Why is openwebmail-spell.pl a suid root program?
-A: Because it needs to read the preference file, ~/mail/.openwebmailrc,
+A: Because it needs to read the preference file, ~/.openwebmai/openwebmailrc
    of different users to get their language and dictionary setting.
 
 ========================================================================
@@ -1151,7 +1201,7 @@ A: Since apache only allow SSL for one virtual domain, you can have only one
 MISC PROBLEMS
 ========================================================================
 
-Q: The help turtorial doesn't show with correct charset?
+Q: The help tutorial doesn't show with correct charset?
 A: This mostly happens with apache web server 2.0 or later.
    Please edit your Apache Configuration file, replace
 
@@ -1222,7 +1272,7 @@ A: SpeedyCGI makes Open WebMail resident in memory at the first request,
 Q: Will the resident Open Webmail become larger and larger and finally
    a memory hog?
 A: No. We have tried our best to remove any memory leak from Open WebMail.
-   And a resident CGI will be restarted after it has serverd certain
+   And a resident CGI will be restarted after it has served certain
    number of requests. The default maxrun number is 500.
    You can set this with -r option in the Open WebMail scripts.
 
@@ -1245,7 +1295,7 @@ A: You can use the script preload.pl to preload openwebmail scripts,
    Please refer to preload.pl for default password and how to change it.
 
 2. through command line or you can put the following line in crontab
-   to preload the most frequently used scripts into mempry
+   to preload the most frequently used scripts into memory
 
    0 * * * *	/usr/local/www/cgi-bin/openwebmail/preload.pl -q openwebmail.pl openwebmail-main.pl openwebmail-read.pl
 
@@ -1301,7 +1351,7 @@ A: 1. Goto the user preference and click the 'about' button,
 
 Q: Openwebmail uses lot of static images.
    How can I avoid them being loaded frequently?
-   How can I entend the cache expire time for the static images?
+   How can I extend the cache expire time for the static images?
 A: Most web servers will set expire time in http header for static objects
    based on their file date and the time the files are accessed.
 
@@ -1346,7 +1396,7 @@ Q: What will happen at webmail server if I click the stop key in browser?
 A: When the stop key is pressed, the browser will close its connection to
    the httpd on webmail server. While httpd detects this immediately,
    what will httpd do to the CGI process is implementation dependent.
-   Basiclly, httpd will close the pipes to CGI process and terminate the
+   Basically, httpd will close the pipes to CGI process and terminate the
    CGI process.
 
    Below is our observation on apache 1.3.26 on FreeBSD.
@@ -1392,7 +1442,7 @@ A: It is determined in the following order
 
 Q: How does the delfile_ifquotahit option work?
    Which file will be removed first?
-A: It will remove the oldest files or direcotries under the webdiskrootdir
+A: It will remove the oldest files or directories under the webdiskrootdir
    (webdiskrootdir is default to / of user homedir, but you can change it).
    The removal will stop if the quota size is download to the 90% of user 
    quota limit.
@@ -1555,7 +1605,7 @@ A: All you have to do is writing an auth_XYZ.pl for openwebmail.
    If yes, routine check_userpassword() in auth_XYZ.pl should return 1; 
    if not, the routine should return 0
 
-   Then you sepcify auth_XYZ,pl as authentication module in openwebmail.conf
+   Then you specify auth_XYZ,pl as authentication module in openwebmail.conf
    And the link to call the openwebmail.pl should be
    http:/xxxx/openwebmail.pl?loginname=USERNAME&password=dummy
 
@@ -1619,13 +1669,13 @@ A: No, the most reason is mod_perl can't be used for setuid program.
    It is very fast too.
 
 Q: Does Open WebMail support maildir and vpop3mail user by Qmail?
-A: The offical release does still not support maildir, however,
+A: The official release does still not support maildir, however,
    Laurent Frigault, lfrigault.AT.users.sourceforge.net has made patched
-   Open WebMAil 2.01 to support maildir. It is available at
+   Open WebMail 2.01 to support maildir. It is available at
    http://www.agneau.org/openwebmail/openwebmail-2.01-storage-20031027.tgz
 
 Q: Will maildir be merged to official release of Open WebMail?
-A: Yes, but we need to reorgnaization the code of openwebmail first
+A: Yes, but we need to reorganization the code of openwebmail first
    so the maildir patch could be merged into smoothly.
    This would take some time...
 

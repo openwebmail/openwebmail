@@ -242,6 +242,7 @@ package ow::de;
    emptyfolder=> 'Empty folder',
    emptytrash => 'Papierkorb leeren',
    totrash    => 'In Papierkorb verschieben',
+   learnspam  => 'Learn Spam',
    forever    => 'für immer',
    delatlogout=> 'Bei der Abmeldung löschen',
    userdef    => 'benutzerdefiniert',

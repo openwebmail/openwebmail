@@ -240,6 +240,7 @@ package ow::tr;
    emptyfolder=> 'Empty folder',
    emptytrash => 'Çöpü Boþalt',
    totrash    => 'Çöpe At',
+   learnspam  => 'Learn Spam',
    forever    => 'Herzaman',
    delatlogout=> 'Çýkýþta Sil',
    userdef    => 'Kullancý Tanýmlý',
