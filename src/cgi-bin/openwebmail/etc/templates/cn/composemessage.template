@@ -1,0 +1,134 @@
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="1">
+<tr><td colspan="3" bgcolor=@@@TITLEBAR@@@ align="left">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>撰写新邮件</B></font>
+</td></tr><tr><td colspan="3" bgcolor=@@@MENUBAR@@@ align="left">
+@@@BACKTOFOLDER@@@
+</td></tr><tr><td colspan="3">&nbsp;</td></tr>
+@@@STARTCOMPOSEFORM@@@
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ width="75">
+<B>发件人：</B>
+</td><td valign="middle" align="left" colspan="2" bgcolor=@@@WINDOW_DARK@@@>
+@@@FROMMENU@@@
+</td></tr>
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ width="75">
+<a href="Javascript:GoAddressWindow('to')" tabindex="-1"><B>收件人：</B></a>
+</td><td valign="middle" align="left" colspan="2" bgcolor=@@@WINDOW_DARK@@@>
+@@@TOFIELD@@@
+</td></tr>
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ width="75">
+<a href="Javascript:GoAddressWindow('cc')" tabindex="-1"><B>抄送：</B></a>
+</td><td valign="middle" align="left" colspan="2" bgcolor=@@@WINDOW_DARK@@@>
+@@@CCFIELD@@@
+</td></tr>
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ width="75">
+<a href="Javascript:GoAddressWindow('bcc')" tabindex="-1"><B>密件抄送：</B></a>
+</td><td valign="middle" align="left" colspan="2" bgcolor=@@@WINDOW_DARK@@@>
+@@@BCCFIELD@@@
+</td></tr>
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ width="75">
+<B>回复给：</B>
+</td><td valign="middle" align="left" colspan="2" bgcolor=@@@WINDOW_DARK@@@>
+@@@REPLYTOFIELD@@@
+</td></tr>
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ width="75">
+<B>附件：</B>
+</td><td valign="middle" align="left" colspan="2" bgcolor=@@@WINDOW_DARK@@@>
+@@@ATTACHMENTFIELD@@@
+</td></tr>
+<tr><td valign="middle" align="right" bgcolor=@@@WINDOW_DARK@@@ width="75">
+<B>主题：</B>
+</td><td valign="middle" align="left" colspan="2" bgcolor=@@@WINDOW_DARK@@@>
+@@@SUBJECTFIELD@@@
+&nbsp;
+<B>要求读取收条</B>
+@@@CONFIRMREADINGCHECKBOX@@@
+</td></tr>
+<tr><td colspan="3" bgcolor=@@@WINDOW_LIGHT@@@>
+@@@BODYAREA@@@
+</td></tr>
+<tr><td colspan="3" align="left" valign="top">
+
+<table cellspacing="0" cellpadding="0" border="0"><tr>
+<td align="center" valign="top">
+@@@SENDBUTTON@@@
+&nbsp;&nbsp;
+</td>
+<td align="center" valign="top">
+@@@SAVEDRAFTBUTTON@@@
+&nbsp;&nbsp;
+</td>
+@@@ENDFORM@@@ <!-- End of message composition form -->
+@@@STARTSPELLCHECKFORM@@@
+<td align="center" valign="top">
+@@@SPELLCHECKBUTTON@@@
+&nbsp;&nbsp;
+</td>
+@@@ENDFORM@@@
+@@@STARTCANCELFORM@@@
+<td align="center" valign="top">
+@@@CANCELBUTTON@@@
+&nbsp;&nbsp;
+</td>
+@@@ENDFORM@@@
+</tr></table>
+
+</td></tr></table>
+
+<script language="JavaScript">
+  <!--
+   if (self.focus != null)
+      self.focus();
+
+   function OnLoadHandler()
+   {
+      document.composeform.to.focus();
+   }
+
+   function GoAddressWindow(toccbcc)
+   {
+      var url = "@@@PREFSURL@@@?action=addressbook&sessionid=@@@SESSIONID@@@&form=composeform&field=" + toccbcc;
+      
+      if (toccbcc == "to")
+         url += "&preexisting=" + escape (document.composeform.to.value);
+      else if (toccbcc == "cc")
+         url += "&preexisting=" + escape (document.composeform.cc.value);
+      else if (toccbcc == "bcc")
+         url += "&preexisting=" + escape (document.composeform.bcc.value);   
+   
+      var hWnd = window.open(url,"HelpWindow","width=300,height=360,resizable=yes,scrollbars=yes");
+      if ((document.window != null) && (!hWnd.opener))
+         hWnd.opener = document.window;
+   }
+
+   function DeleteAttFile(deleteattfile)
+   {
+      document.composeform.deleteattfile.value=deleteattfile;
+      document.composeform.submit();
+   }
+
+   function spellcheck()
+   {
+      document.spellcheckform.sessionid.value = document.composeform.sessionid.value;
+      document.spellcheckform.form.value = "composeform";
+      document.spellcheckform.field.value = "body";
+      document.spellcheckform.string.value = document.composeform.body.value;
+      window.open('','SpellChecker','width=600,height=400,top=40,left=80,scrollbars=yes,resizable=yes,location=no');
+      return true;
+   }
+
+   function sendcheck()
+   {
+      if (document.composeform.to.value == "" 
+       && document.composeform.cc.value == "" 
+       && document.composeform.bcc.value == "" ) {
+         alert("请填妥收件人，再开始寄信。");
+         return false;
+      }
+      if (document.composeform.subject.value == "" ) {
+         return(confirm("这封信件没有主题，请问仍然要寄出吗？"));
+      }
+      return true;
+   }
+   //-->
+</script>

@@ -40,11 +40,11 @@ require "pop3mail.pl";
 require "mailfilter.pl";
 
 local $thissession;
+local $clientip;
 local $user;
-local $userip;
 local $useremail;
-local $setcookie;
 local ($uid, $gid, $homedir);
+local $setcookie;
 local %prefs;
 local %style;
 local $lang;
@@ -63,38 +63,6 @@ local $savedattsize;
 local $decodedhtml;
 
 
-if ( ($logfile ne 'no') && (! -f $logfile)  ) {
-   my $mailgid=getgrnam('mail');
-   open (LOGFILE,">>$logfile") or openwebmailerror("$lang_err{'couldnt_open'} $logfile!");
-   close(LOGFILE);
-   chmod(0660, $logfile);
-   chown($>, $mailgid, $logfile);
-}
-
-update_genericstable("$openwebmaildir/genericstable", $genericstable);
-
-# strip \n, blank from global domainnames since it may come from shell command
-for (my $i=0; $i<=$#domainnames; $i++) {
-    $domainnames[$i]=~s/^\s+//;
-    $domainnames[$i]=~s/\s+$//;
-}
-
-$thissession = param("sessionid") || '';
-$user = $thissession || '';
-$user =~ s/\-session\-0.*$//; # Grab userid from sessionid
-($user =~ /^(.+)$/) && ($user = $1);  # untaint $user...
-
-if (defined $ENV{'HTTP_X_FORWARDED_FOR'} &&
-   $ENV{'HTTP_X_FORWARDED_FOR'} !~ /^10\./ &&
-   $ENV{'HTTP_X_FORWARDED_FOR'} !~ /^172\.[1-2][6-9]\./ &&
-   $ENV{'HTTP_X_FORWARDED_FOR'} !~ /^192\.168\./ &&
-   $ENV{'HTTP_X_FORWARDED_FOR'} !~ /^127\.0\./ ) {
-   $userip=(split(/,/,$ENV{HTTP_X_FORWARDED_FOR}))[0];
-} else {
-   $userip=$ENV{REMOTE_ADDR};
-}
-
-$uid=$>; $gid=getgrnam('mail');
 # setuid is required if mails is located in user's dir
 if (($homedirspools eq 'yes') || ($homedirfolders eq 'yes')) {
    if ( $> != 0 ) {
@@ -104,18 +72,63 @@ if (($homedirspools eq 'yes') || ($homedirfolders eq 'yes')) {
                        "<br>1. check if script is owned by root with mode 4755".
                        "<br>2. use '#!$suidperl' instead of '#!$^X' in script");
    }  
-   if ($user) {
-      my $ugid;
-      ($uid, $ugid, $homedir) = (getpwnam($user))[2,3,7] or
-         openwebmailerror("User $user doesn't exist!");
-   }
 }
 
-# if no user specified, euid remains and we redo set_euid at sub login
-set_euid_egid_umask($uid, $gid, 0077);	
+if ( ($logfile ne 'no') && (! -f $logfile)  ) {
+   my $mailgid=getgrnam('mail');
+   open (LOGFILE,">>$logfile") or 
+      openwebmailerror("$lang_err{'couldnt_open'} $logfile!");
+   close(LOGFILE);
+   chmod(0660, $logfile);
+   chown($>, $mailgid, $logfile);
+}
 
+update_genericstable("$openwebmaildir/genericstable", $genericstable);
+
+if (defined $ENV{'HTTP_X_FORWARDED_FOR'} &&
+   $ENV{'HTTP_X_FORWARDED_FOR'} !~ /^10\./ &&
+   $ENV{'HTTP_X_FORWARDED_FOR'} !~ /^172\.[1-2][6-9]\./ &&
+   $ENV{'HTTP_X_FORWARDED_FOR'} !~ /^192\.168\./ &&
+   $ENV{'HTTP_X_FORWARDED_FOR'} !~ /^127\.0\./ ) {
+   $clientip=(split(/,/,$ENV{HTTP_X_FORWARDED_FOR}))[0];
+} else {
+   $clientip=$ENV{REMOTE_ADDR};
+}
+
+# strip \n, blank from global domainnames since it may come from shell command
+for (my $i=0; $i<=$#domainnames; $i++) {
+    $domainnames[$i]=~s/^\s+//;
+    $domainnames[$i]=~s/\s+$//;
+}
+
+
+$thissession = param("sessionid") || '';
+$user = $thissession || '';
+$user =~ s/\-session\-0.*$//; # Grab userid from sessionid
+($user =~ /^(.+)$/) && ($user = $1);  # untaint $user...
+
+if ($user) {
+   if (($homedirspools eq 'yes') || ($homedirfolders eq 'yes')) {
+      ($uid, $homedir) = (getpwnam($user))[2,7] or 
+         openwebmailerror("User $user doesn't exist!");
+   } else {
+      $uid=$>; 
+      $homedir = (getpwnam($user))[7] or 
+         openwebmailerror("User $user doesn't exist!");
+   }
+   $gid=getgrnam('mail');
+   # get useremail and domainnames from global @domainnames and genericstable db
+   ($useremail, @domainnames)=get_useremail_domainnames($user, "$openwebmaildir/genericstable", @domainnames);
+
+} else { # if no user specified, euid remains and we redo set_euid at sub login
+   $uid=$>; 
+   $homedir="/tmp";	# actually not used
+   $gid=getgrnam('mail');
+}
+
+set_euid_egid_umask($uid, $gid, 0077);	
 # egid must be mail since this is a mail program...
-if ( $) != $gid) {
+if ( $) != $gid) { 
    openwebmailerror("Set effective gid to mail($gid) failed!");
 }
 
@@ -138,39 +151,6 @@ $lang_charset ||= 'iso-8859-1';
 
 $hitquota = 0;
 if ($user) {
-   my $domainname;
-   my ($virtualuser, $virtualdomain)=split(/\@/, get_email_from_genericstable($user, "$openwebmaildir/genericstable"));
-
-   if ($virtualdomain) {
-      my $fould=0;
-      foreach (@domainnames) {
-         if ($virtualdomain eq $_) {
-            $found=1; last;
-         }
-      }
-      push(@domainnames, $virtualdomain) if (!$found);
-   }
-
-   foreach (@domainnames) {
-      if ($prefs{domainname} eq $_) {
-         $domainname=$_;
-         last;
-      }
-   }
-   $domainname=$virtualdomain || $domainnames[0] if ($domainname eq '');
-
-   if ($enable_setfromname eq 'yes' && $prefs{"fromname"}) {
-      # Create from: address when "fromname" is not null
-      $useremail = $prefs{"fromname"} . "@" . $domainname; 
-   } else {	
-      # Create from: address when "fromname" is null
-      if ($virtualuser) {
-         $useremail = $virtualuser . "@" . $domainname; 
-      } else {
-         $useremail = $user . "@" . $domainname; 
-      }
-   } 
-
    @validfolders = @{&getfolders(0)};
    if (param("folder")) {
       my $isvalid = 0;
@@ -294,33 +274,52 @@ sub loginmenu {
 sub login {
    my $userid = param("userid") || '';
    my $password = param("password") || '';
+   my @userlist;
+   my $login_ok=0;   
+
    $userid =~ /^(.*)$/; # accept any characters for userid/pass auth info
    $userid = $1;
    $password =~ /^(.*)$/;
    $password = $1;
 
-# Checklogin() is modularized so that it's easily replaceable with other
-# auth methods.
+   # Checklogin() is modularized so that it's easily replaceable with other
+   # auth methods.
    if ($userid eq 'root') {
       writelog("ATTEMPTED ROOT LOGIN");
       openwebmailerror ("$lang_err{'norootlogin'}");
    }
 
-   if ( checklogin($passwdfile, $userid, $password) ) {
-      my $ugid;
+   @userlist=get_userlist_by_virtualuser($userid, "$openwebmaildir/genericstable.r");
+   push(@userlist, $userid);
+   foreach (@userlist) {
+      if ( checklogin($passwdfile, $_, $password) ) {
+         $user = $_;
+         $login_ok=1; 
+         last;
+      }
+   }
 
-      $thissession = $userid . "-session-" . rand(); # name the sessionid
-      $user = $userid;
-
+   if ( $login_ok ) {
+      $thissession = $user . "-session-" . rand(); # name the sessionid
       writelog("login - $thissession");
       cleanupoldsessions(); # Deletes sessionids that have expired
 
-      $uid=0; $gid=getgrnam('mail');
       if (($homedirspools eq 'yes') || ($homedirfolders eq 'yes')) {
-         ($uid, $ugid, $homedir) = (getpwnam($user))[2,3,7] or
+         ($uid, $homedir) = (getpwnam($user))[2,7] or 
+            openwebmailerror("User $user doesn't exist!");
+      } else {
+         $uid=$>; 
+         $homedir = (getpwnam($user))[7] or 
             openwebmailerror("User $user doesn't exist!");
       }
-      set_euid_egid_umask($uid, $gid, 0077);
+      $gid=getgrnam('mail');
+      # get useremail and domainnames from global @domainnames and genericstable db
+      ($useremail, @domainnames)=get_useremail_domainnames($user, "$openwebmaildir/genericstable", @domainnames);
+
+      set_euid_egid_umask($uid, $gid, 0077);	
+      if ( $) != $gid) { # egid must be mail since this is a mail program...
+         openwebmailerror("Set effective gid to mail($gid) failed!");
+      }
 
       if ( $homedirfolders eq 'yes') {
          $folderdir = "$homedir/$homedirfolderdirname";
@@ -349,22 +348,6 @@ sub login {
          ($lang =~ /^(..)$/) && ($lang = $1);
          require "etc/lang/$lang";
          $lang_charset ||= 'iso-8859-1'; 
-
-         my $domainname;
-         foreach (@domainnames) {
-            if ($prefs{domainname} eq $_) {
-               $domainname=$_;
-               last;
-            }
-         }
-         $domainname=$domainnames[0] if ($domainname eq '');
-         if ($enable_setfromname eq 'yes' && $prefs{"fromname"}) {
-            # Create from: address for when "fromname" is not null
-            $useremail = $prefs{"fromname"} . "@" . $domainname; 
-         } else {
-            # Create from: address for when "fromname" is null
-            $useremail = $user . "@" . $domainname; 
-         } 
 
          @validfolders = @{&getfolders(1)};	# 1 to del stale .db .cache of folders
          $folder = "INBOX";
@@ -401,6 +384,7 @@ sub login {
       exit 0;
    }
 }
+
 #################### END LOGIN #####################
 
 #################### LOGOUT ########################
@@ -645,6 +629,9 @@ sub displayheaders {
    $temphtml .= hidden(-name=>'keyword',
                        -default=>$keyword,
                        -override=>'1');
+   $temphtml .= hidden(-name=>'searchtype',
+                       -default=>$searchtype,
+                       -override=>'1');
    $temphtml .= hidden(-name=>'folder',
                        -default=>$folder,
                        -override=>'1');
@@ -723,6 +710,9 @@ sub displayheaders {
                        -override=>'1');
    $temphtml .= hidden(-name=>'keyword',
                        -default=>$keyword,
+                       -override=>'1');
+   $temphtml .= hidden(-name=>'searchtype',
+                       -default=>$searchtype,
                        -override=>'1');
    $temphtml .= hidden(-name=>'folder',
                        -default=>$folder,
@@ -1599,7 +1589,7 @@ sub replyreceipt {
             }
             print SENDMAIL "Subject: $lang_text{'read'} - $attr[$_SUBJECT]\n";
             print SENDMAIL "X-Mailer: Open WebMail $version\n";
-            print SENDMAIL "X-OriginatingIP: $userip ($user)\n";
+            print SENDMAIL "X-OriginatingIP: $clientip ($user)\n";
 
             print SENDMAIL "MIME-Version: 1.0\n";
             print SENDMAIL "Content-Type: text/plain; charset=$lang_charset\n\n";
@@ -2312,7 +2302,7 @@ sub sendmessage {
       $tempcontent .= "Reply-To: ".$replyto."\n" if ($replyto);
       $tempcontent .= "Subject: $subject\n";
       $tempcontent .= "X-Mailer: Open WebMail $version\n";
-      $tempcontent .= "X-OriginatingIP: $userip ($user)\n";
+      $tempcontent .= "X-OriginatingIP: $clientip ($user)\n";
       if ($confirmreading) {
          if ($replyto) {
             $tempcontent .= "X-Confirm-Reading-To: $replyto\n";

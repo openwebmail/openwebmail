@@ -38,6 +38,7 @@ require "pop3mail.pl";
 
 local $thissession;
 local $user;
+local $useremail;
 local ($uid, $gid, $homedir);
 local %prefs;
 local %style;
@@ -54,21 +55,8 @@ local $escapedmessageid;
 local $firsttimeuser;
 
 
-# strip \n, blank from global domainnames since it may come from shell command
-for (my $i=0; $i<=$#domainnames; $i++) {
-    $domainnames[$i]=~s/^\s+//;
-    $domainnames[$i]=~s/\s+$//;
-}
-
-$thissession = param("sessionid") || '';
-$user = $thissession || '';
-$user =~ s/\-session\-0.*$//; # Grab userid from sessionid
-($user =~ /^(.+)$/) && ($user = $1);  # untaint $user...
-
-$uid=$>; $gid = getgrnam('mail');
-
 # setuid is required if mails is located in user's dir
-if (($homedirspools eq 'yes') || ($homedirfolders eq 'yes')) { 
+if (($homedirspools eq 'yes') || ($homedirfolders eq 'yes')) {
    if ( $> != 0 ) {
       my $suidperl=$^X;
       $suidperl=~s/perl/suidperl/;
@@ -76,14 +64,40 @@ if (($homedirspools eq 'yes') || ($homedirfolders eq 'yes')) {
                        "<br>1. check if script is owned by root with mode 4755".
                        "<br>2. use '#!$suidperl' instead of '#!$^X' in script");
    }  
-   if ($user) {
-      my $ugid;
-      ($uid, $ugid, $homedir) = (getpwnam($user))[2,3,7] or
+}
+
+# strip \n, blank from global domainnames since it may come from shell command
+for (my $i=0; $i<=$#domainnames; $i++) {
+    $domainnames[$i]=~s/^\s+//;
+    $domainnames[$i]=~s/\s+$//;
+}
+
+
+$thissession = param("sessionid") || '';
+$user = $thissession || '';
+$user =~ s/\-session\-0.*$//; # Grab userid from sessionid
+($user =~ /^(.+)$/) && ($user = $1);  # untaint $user...
+
+if ($user) {
+   if (($homedirspools eq 'yes') || ($homedirfolders eq 'yes')) {
+      ($uid, $homedir) = (getpwnam($user))[2,7] or 
+         openwebmailerror("User $user doesn't exist!");
+   } else {
+      $uid=$>; 
+      $homedir = (getpwnam($user))[7] or 
          openwebmailerror("User $user doesn't exist!");
    }
-}
-set_euid_egid_umask($uid, $gid, 0077);
+   $gid=getgrnam('mail');
+   # get useremail and domainnames from global @domainnames and genericstable db
+   ($useremail, @domainnames)=get_useremail_domainnames($user, "$openwebmaildir/genericstable", @domainnames);
 
+} else { # if no user specified, euid remains and we redo set_euid at sub login
+   $uid=$>; 
+   $homedir="/tmp";	# actually not used
+   $gid=getgrnam('mail');
+}
+
+set_euid_egid_umask($uid, $gid, 0077);
 # egid must be mail since this is a mail program...
 if ( $) != $gid) { 
    openwebmailerror("Set effective gid to mail($gid) failed!");
@@ -252,51 +266,25 @@ sub editprefs {
 
    $html =~ s/\@\@\@REALNAMEFIELD\@\@\@/$temphtml/;
 
-   my ($virtualuser, $virtualdomain)=split(/\@/, get_email_from_genericstable($user, "$openwebmaildir/genericstable"));
-   if ($virtualdomain) {
-      my $fould=0;
-      foreach (@domainnames) {
-         if ($virtualdomain eq $_) {
-            $found=1; last;
-         }
-      }
-      push(@domainnames, $virtualdomain) if (!$found);
-   }
-
+   my ($defuser,$defdomain)=split(/\@/,$useremail);
    if ($enable_setfromname eq 'yes') {
       $temphtml = textfield(-name=>'fromname',
-                            -default=>$prefs{"fromname"} || $virtualuser || $user,
+                            -default=>$defuser,
                             -size=>'15',
                             -override=>'1');
    } else {
       $temphtml = textfield(-name=>'fromname',
-                            -default=>$virtualuser || $user,
+                            -default=>$defuser,
                             -disabled=>1,
                             -size=>'15',
                             -override=>'1');
    }
-
    $html =~ s/\@\@\@USERNAME\@\@\@/$temphtml/;
 
-   if ($enable_setfromname eq 'yes') {
-      $temphtml = popup_menu(-name=>'domainname',
-                             -"values"=>\@domainnames,
-                             -default=>$prefs{"domainname"} || $virtualdomain || $domainnames[0],
-                             -override=>'1');
-   } else {
-      if ($virtualdomain) {
-         $temphtml = popup_menu(-name=>'domainname',
+   $temphtml = popup_menu(-name=>'domainname',
                                 -"values"=>\@domainnames,
-                                -default=>$virtualdomain,
-                                -disabled=>1,
+                                -default=>$defdomain,
                                 -override=>'1');
-      } else {
-         $temphtml = popup_menu(-name=>'domainname',
-                                -"values"=>\@domainnames,
-                                -default=>$prefs{"domainname"} || $domainnames[0],
-                                -override=>'1');
-      }
-   }
 
    $html =~ s/\@\@\@DOMAINFIELD\@\@\@/$temphtml/;
 

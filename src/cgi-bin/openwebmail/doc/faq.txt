@@ -10,7 +10,7 @@ A: There are many possible answers...
 
    2. Your openwebmail scripts have wrong owner and mode.
       The owner and mode of openwebmail.pl, openwebmail-prefs.pl, 
-      checkmail.pl and spellcheck.pl should be
+      checkmail.pl, spellcheck.pl should be
       mode=4555
       owner=root
       group=mail
@@ -30,7 +30,7 @@ A: You openwebmail-1.xx.tgz was uncompressed with improper parameter.
    It should be "tar -zxvBpf openwebmail-1.xx.tgz"
 
 Q: I got "Software error: Can't locate MIME/Base64.pm in @INC"?
-A: please download MIME-Base64-2.12.tar.gz and install
+A: Please download MIME-Base64-2.12.tar.gz and install
 
    cd /tmp
    tar -zxvf MIME-Base64-2.12.tar.gz
@@ -40,19 +40,33 @@ A: please download MIME-Base64-2.12.tar.gz and install
    make install
 
 Q: I got "can't open /var/log/openwebmail.log" error?
-A: please check the openwebmail.log permission, it should be
+A: Please check the openwebmail.log permission, it should be
    owner=root, group=mail, mode=660
 
 Q: The 'From' field of my message contains only 'username@'?
-A: you may has wrong setting of domainname in openwebmail.conf
+A: You may has wrong setting of domainname in openwebmail.conf
    Please be sure to use '' for a text string of hostname or
    use `` for the program /bin/hostname
 
+Q: Some of my messages are moved to trash folder automatically?
+A: Your messages are either filtered by 'global filter rule' or 
+   'faked smtp message filter'. 
+   Global filter will filter messages with know virus attachments. The global
+   filter rules are defined in the file $global_filterbook in openwebmail.conf.
+   The 'faked smtp message filter' will filter messages that have a faked smtp
+   source, those messages are often from spammers. 'faked smtp filter' is 
+   default enabled and can be changed in openwebmail.conf. The user can also 
+   disable it in the user preference. 
+
 Q: I could not add attachments?
-A: Your proxy may limit the size of a POST request.
-   Try to add attachments with no proxy setting in your browser.
-   If you are the administrator of the proxy server and if you are using squid,
-   please set the request_body_max_size option to a larger value.
+A: 1. Your CGI or MIME-Base64 module may be too old,
+      Please download CGI.pm-2.74.tar.gz and MIME-Base64-2.12.tar.gz in
+      http://turtle.ee.ncku.edu.tw/openwebmail/download/packages/ 
+      and install them
+   2. Your proxy may limit the size of a POST request.
+      Try to add attachments with no proxy setting in your browser.
+      If you are the administrator of the squid proxy server,
+      please set the request_body_max_size option to a larger value.
 
 Q: Attachments disappeared when I forwarded a message?
 A: check the permission of the following directories
@@ -62,7 +76,7 @@ A: check the permission of the following directories
 
 Q: The permission of cgi-bin/openwebmail/etc is correct but attachments 
    still disappeared in message forwarding?
-A: mmm, please upgrade the latest version. 
+A: Hmmm, please upgrade the latest version. 
    Some old version(1.03,1.04) has little problem in attachment handling.
 
 Q: When I checked 'edit folder menu', I found some folders are empty but take 
@@ -77,8 +91,10 @@ A: Please be sure that you have installed Lingua-Ispell-0.07.tar.gz and
    ispell-3.1.20.tar.gz
 
 Q: I have problems in reading some mail....
-A: please check http://turtle.ee.ncku.edu.tw/openwebmail/download/doc/update.txt
-   to see if any update fixes your problem and download the openwebmail-current.tgz
+A: please check 
+   http://turtle.ee.ncku.edu.tw/openwebmail/download/doc/update.txt
+   to see if any update fixes your problem and download the 
+   openwebmail-current.tgz
 
 Q: The OpenWebMail is very slow on my system.
 A: It depends on how you define the "slow". 
@@ -92,7 +108,7 @@ ps: Some operations would take more time than normal operation, for example:
     indexing on a large folder, adding large attachment to a message.
 
    It is recommended that you install Open WebMail on a medium-sized machine.
-   (ex: Celeron 300 with 128MB ram). Actually it runs well on a pentium 200mmx 
+   (ex: Celeron 300 with 128MB ram). Actually it runs well on a pentium 200mmx
    machine only if you have enough ram installed.
 
    There is an analysis of memory usage of Open WebMail available at
@@ -123,10 +139,17 @@ A: Your sendmail may be configured with Sendmail Restricted SHell or smrsh.
    cd /etc/smrsh
    ln -s /var/www/cgi-bin/openwebmail/vacation.pl /etc/smrsh/vacation.pl
 
-Q: Will Open WebMail support maildir anf vpop3mail used by Qmail?
+Q: Will Open WebMail support maildir and vpop3mail used by Qmail?
 A: Maybe, but it won't be implemented in the near future since we don't use
    qmail on our mail server. It is said that qmail has a 'mbox' compatible 
    mode, you may use that mode with openwebmail.
+
+Q: Can I call openwebmail from my programs with username/password specified?
+A: You can call with openwebmail with url
+   http://server/openwebmail.pl?action=login&userid=USER&password=PASS
+
+   But this is somewhat dangerous since the username and password will
+   be displayed at the URL line on the user's browser.
 
 Q: Can I use Open WebMail in a commercial web site? 
 A: Open WebMail is GPL software (please see copyright.txt for detail of GPL).
@@ -135,11 +158,11 @@ A: Open WebMail is GPL software (please see copyright.txt for detail of GPL).
    Any improvement of Open WebMail or any product based on Open WebMail 
    must be released to the public.
 
-ps: I would be happy if you mail me a message that your commercial web site
+ps: We would be happy if you mail us a message that your commercial web site
     is using Open WebMail. I may put it into the web page as some kind of 
     advertisements :)
    
 
-06/18/2001 
+06/20/2001 
 
 openwebmail@turtle.ee.ncku.edu.tw

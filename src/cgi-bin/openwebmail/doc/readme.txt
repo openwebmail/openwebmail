@@ -11,19 +11,20 @@ FEATURES
 ---------
 Open WebMail has the following enhanced features:
 
-1.  faster folder access
+1.  fast folder access
 2.  efficient messages movement
 3.  smaller memory footprint
-4.  additional message operation, like copy, delete, download
+4.  convenient folder and message operation
 5.  graceful filelock
-6.  full content search
-7.  better MIME message display
-8.  Draft folder support
-9.  POP3 mail support
-10. mail filter support
-11. message count preview
-12. confirm reading support
-13. spelling check support
+6.  virtual hosting and account alias
+7.  full content search
+8.  better MIME message display
+9.  draft folder support
+10. spelling check support
+11. POP3 mail support
+12. mail filter support
+13. message count preview
+14. confirm reading support
 
 
 REQUIREMENT
@@ -85,6 +86,9 @@ If you are upgrading from old openwebmail on Redhat 6.2/CLE 0.9p1
 
 
 If you are using other UNIX with apache, that is okay
+
+Try to find the parent directory of both your data and cgi-bin directory,
+eg: /usr/local/apache/share, then
 
 1. cd /usr/local/apache/share
    tar -zxvBpf openwebmail-X.XX.tgz
@@ -193,7 +197,8 @@ It is very simple to add support for your language into openwebmail
    cp lang/en lang/xy
    cp -R templates/en templates/xy
 3. translate file lang/xy and templates/xy/* from english to your language
-4. add a line to %languagenames to openwebmail.conf
+4. add your language to @availablelanguages and %languagenames in 
+   openwebmail.conf
 
 ps: If you wish the translation is put into the next release of openwebmail,
     please submit it to me.
@@ -208,6 +213,7 @@ TEST
    ~/openwebmail-prefs.pl	- owner=root, group=mail, mode=4755
    ~/spellcheck.pl		- owner=root, group=mail, mode=4755
    ~/check.pl			- owner=root, group=mail, mode=4755
+   ~/vacation.pl		- owner=root, group=mail, mode=0755
    ~/etc            	 	- owner=root, group=mail, mode=750
    ~/etc/sessions   	 	- owner=root, group=mail, mode=770
    ~etc/users      	 	- owner=root, group=mail, mode=770
@@ -223,16 +229,22 @@ http://turtle.ee.ncku.edu.tw/openwebmail/download/doc/faq.txt
 
 TODO
 ----
-Here are some interesting features that we would like to add to Open WebMail,
-but we are not sure if they will happen or not...:)
+Features that we would like to implement first...
 
 1. web calendar
 2. web disk
 3. shared folder
-4. LDAP support
+
+Features that people may also be interested
+
+1. LDAP support
+2. maildir support
+3. password change
+4. online people sign in
+5. log analyzer
 
 
-06/13/2001
+06/20/2001
 
 openwebmail@turtle.ee.ncku.edu.tw
 

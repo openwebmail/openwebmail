@@ -137,7 +137,7 @@ sub retrpop3mail {
             }
          }
       } else {
-         $last = 1;
+         $last = 0;
       }
 
    # use 'last' to find the msg being retrieved last time

@@ -33,6 +33,7 @@
   file, the dbm will be automatically updated. The dbm update is incremental if 
   the folder modification is done by the Open WebMail itself. The dbm will only 
   be recreated when a folder is found to be changed by other programs. 
+
   <h4> Efficient Message Movement</h4>
   The size of a message will be slightly increased after it is read at the first 
   time because of status&nbsp; change. A large movement of messages may be introduced 
@@ -40,27 +41,40 @@
   between two folders. The routines for message update and movement are totally 
   rewrite so that only necessary movement will be made in a very memory efficient 
   way. 
+
   <h4> Smaller Memory Footprint</h4>
   Many efforts have been put in optimizing the memory usage of Open WebMail. The 
   memory footprint of Open WebMail is much smaller than its ancestor when dealing 
   with messages containing large attachments (eg: a 20MB attachment). It runs 
   smoothly on a medium sized machine now. (eg: Celeron 300 with 128MB ram). 
-  <h4> Convenient Message Operation</h4>
-  <p>In additional to the 'move' operation on messages, Open WebMail supports 
-    'copy', 'delete' and 'download' operation on messages.</p>
-  <h4> Graceful File Lock</h4>
+
+  <h4>Convenient Folder/Message Operation</h4>
+  <p>Open WebMail supports create, rename, delete, download operations on folders.
+     And it supports 'move', 'copy', 'delete' and 'download' operations on messages.</p>
+
+  <h4>Graceful File Lock</h4>
   <p>Since a mail folder may be used by multiple programs simultaneously, it is 
     necessary to do file lock before accessing the folder. Open WebMail uses a 
     blocking lock with timeout limit 30 seconds. It gives the lock a better chance 
     to success than a nonblocking lock which returns error immediately if it can 
     not get the lock. Open WebMail also supports locking by dotlock file which 
     ensure the file locking will work on platform with incomplete NFS lockd implementation.</p>
+
+  <h4>Virtual Hosting and Login Alias</h4>
+  <p>Open Webmail can use the <a href="http://www.sendmail.org/virtual-hosting.html">
+     sendmail genericstable</a> to map a local user account 
+     to virtualuser@virtualhost. The user can login the webmail system with the
+     aliased name 'virtualuser' and all mails from this user will be sent with email 
+     address 'virtualuser@virtualhost'
+  </p>
+
   <h4>Full Content Search</h4>
   Full content search with regular expression support is provided. When user enters 
   a keyword in the search box, the scope of a mail folder will be limited to the 
   keyword related messages. This means the user can use the sort or static functions 
   on the search result. The scope limit will be released when the user selects 
   another folder or refreshes the current folder. 
+
   <h4> Better MIME Message Capability</h4>
   While most webmail packages have poor effect on displaying MIME messages, the 
   Open Webmail gives you very fancy effect for that. You can get almost the same 
@@ -68,23 +82,24 @@
   through supporting unlimited levels of attachments and cid object cross-reference 
   inside attachments. Open WebMail also supports uuencoded block inside messages, 
   it displays those uuencoded block as they were normal attachments. 
+
   <h4>Draft Folder Support</h4>
   This feature enables the user to write a message by several times even several 
   days. The user can save the unfinished messages into the draft folder and continue 
   the editing at any time. It would be very convenient when you are writing a 
   long mail. 
+
   <h4>Spelling Check Support</h4>
   The spelling check in Open WebMail is very friendly yet powerful, it makes suggestions 
   for those mis-spelled words. The user can correct the errors very easily by 
   selecting one of the suggestions from a drop-down menu. 
+
   <h4>POP3 Support</h4>
   Multiple POP3 accounts can be defined at the same time to fetch mails from various 
   mail servers. All pop3 messages will be stored at the INBOX folder. In case 
   the pop3 fetching takes more than 10 seconds (eg: slow link or large messages), 
-  it will be put into background to avoid http timeout. </blockquote>
+  it will be put into background to avoid http timeout.
 
-<h3> </h3>
-<blockquote> 
   <h4>Mail Filter Support</h4>
   <p>Multiple filter rules can be set to move/copy incoming mails into different 
     folders automatically or even delete them directly. The user can categorize 
@@ -96,11 +111,12 @@
     or other mail status check utility may give you wrong information because 
     they don't know about the filter. A command tool 'checkmail.pl' can be used 
     as finger replacement. It does mail filtering before report mail status. 
+
   <h4>Message Count Preview</h4>
-  When the user pulls down the folderlist menu to select a folder, the counts 
+  <p>When the user pulls down the folderlist menu to select a folder, the counts 
   of new messages and total messages of each mail folder will be displayed after 
-  the folder name to help the user to find out those folders with unread messages. 
-  <p></p>
+  the folder name to help the user to find out those folders with unread messages.</p>
+
   <h4>Confirm Reading Support</h4>
   <p>The user can request a 'confirm-reading receipt' for the message he sent. 
     When the message is read by the receiver, a receipt will be sent back to this 
@@ -108,6 +124,7 @@
   <p>There are too many small enhancements to mention about. You may need to find 
     them by yourself... </p>
 </blockquote>
+
 <h3>SITES </h3>
 <blockquote> 
   <p> <font color=#cc0000>Screenshots: </font> <a href="http://turtle.ee.ncku.edu.tw/openwebmail/screenshots/"> 
@@ -134,7 +151,11 @@
   Thanks to <a href="mailto:pakito@asinkecualo.org">Pakito Asinkecualo</a>, 
     he translates the language and template files for Spanish.<br>
   Thanks to <a href="mailto:flood@flood-net.de">Andreas Roedl</a>, he translates 
-    the language and template files for German
+    the language and template files for German<br>
+  Thanks to <a href="mailto:wjun@mail.iap.ac.cn">Wang Jun</a>, he translates 
+    the language and template files for Chinese(GB)<br>
+  Thanks to <a href="mailto:russ@zerotech.net">Russ Reese</a>, the login 
+    alias/mapping is based on his patch code and idea
   </p>
 </blockquote>
 <h3>CONTACT</h3>
@@ -166,6 +187,6 @@
     <font color=#000000>National Chung-Kung University</font></a>, 
     Tainan, Taiwan, R.O.C. </p>
 </blockquote>
-<p>06/13/2001 </p>
+<p>06/20/2001 </p>
 </body>
 </html>

@@ -21,7 +21,6 @@ require "openwebmail-shared.pl";
 
 local $thissession;
 local $user;
-local $userip;
 local ($uid, $gid, $homedir);
 local %prefs;
 local %style;
@@ -33,29 +32,22 @@ $user = $thissession || '';
 $user =~ s/\-session\-0.*$//; # Grab userid from sessionid
 ($user =~ /^(.+)$/) && ($user = $1);  # untaint $user...
 
-$uid=$>; $gid = getgrnam('mail');
-
-# setuid is required if mails is located in user's dir
-if (($homedirspools eq 'yes') || ($homedirfolders eq 'yes')) { 
-   if ( $> != 0 ) {
-      my $suidperl=$^X;
-      $suidperl=~s/perl/suidperl/;
-      openwebmailerror("<b>$0 must setuid to root!</b><br>".
-                       "<br>1. check if script is owned by root with mode 4755".
-                       "<br>2. use '#!$suidperl' instead of '#!$^X' in script");
-   }  
-   if ($user) {
-      my $ugid;
-      ($uid, $ugid, $homedir) = (getpwnam($user))[2,3,7] or
+if ($user) {
+   if (($homedirspools eq 'yes') || ($homedirfolders eq 'yes')) {
+      ($uid, $homedir) = (getpwnam($user))[2,7] or 
+         openwebmailerror("User $user doesn't exist!");
+   } else {
+      $uid=$>; 
+      $homedir = (getpwnam($user))[7] or 
          openwebmailerror("User $user doesn't exist!");
    }
-}
-set_euid_egid_umask($uid, $gid, 0077);
+   $gid=getgrnam('mail');
 
-# egid must be mail since this is a mail program...
-if ( $) != $gid) { 
-   openwebmailerror("Set effective gid to mail($gid) failed!");
+} else { # if no user specified
+   openwebmailerror("No user specified!");
 }
+
+set_euid_egid_umask($uid, $gid, 0077);	
 
 if ( $homedirfolders eq 'yes') {
    $folderdir = "$homedir/$homedirfolderdirname";

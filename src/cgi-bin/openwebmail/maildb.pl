@@ -146,7 +146,7 @@ if ( $dbm_ext eq "" ) {
 # and remove those with duplicated messageids
 sub update_headerdb {
    my ($headerdb, $folderfile) = @_;
-   my (%HDB, %OLDHDB, @datearray);
+   my (%HDB, %OLDHDB);
 
    ($headerdb =~ /^(.+)$/) && ($headerdb = $1);		# bypass taint check
    if ( -e "$headerdb.$dbm_ext" ) {
@@ -244,11 +244,10 @@ sub update_headerdb {
                   $_to=substr($_to, 0, 252)."...";
                }
 
-               @datearray = split(/\s+/, $_date);
-               shift @datearray;
-               shift @datearray;
-               shift @datearray;
-               $_date = "$month{$datearray[0]}/$datearray[1]/$datearray[3] $datearray[2]";
+               # extract date from the 'From ' line, it must be in this form
+               # From tung@turtle.ee.ncku.edu.tw Fri Jun 22 14:15:33 2001
+               $_date=~/(\w\w\w)\s+(\w\w\w)\s+(\d+)\s+(\d+:\d+:\d+)\s+(\d\d+)/;
+               $_date = "$month{$2}/$3/$5 $4";
 
                $internalmessages++ if ($_subject=~/DON'T DELETE THIS MESSAGE/);
                $newmessages++ if ($_status !~ /r/i);
@@ -1914,7 +1913,7 @@ sub datestr {
 
 #################### END DATEAGE ###########################
 # this routine takes the message date to calc the age of a message
-# it is not very precise since it always count Edb as 28 days
+# it is not very precise since it always treats Feb as 28 days
 sub dateage  {
    my ($date, $time, $offset) = split(/\s/, $_[0]);
    my @daybase=(0, 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334);
@@ -1934,29 +1933,5 @@ sub dateage  {
 }
 
 #################### END DATEAGE ###########################
-
-#################### LOG_TIME (for profiling) ####################
-sub log_time {
-   my @msg=@_;
-   my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst);
-   my ($today, $time);
-
-   ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) =localtime;
-   $year+=1900; $mon++;
-   $today=sprintf("%4d%02d%02d", $year, $mon, $mday);
-   $time=sprintf("%02d%02d%02d",$hour,$min, $sec);
-
-   open(Z, ">> /tmp/time.log");
-
-   # unbuffer mode
-   select(Z); $| = 1;    
-   select(stdout); 
-
-   print Z "$today $time ", join(" ",@msg), "\n";
-   close(Z);
-   1;
-}
-
-################## END LOG_TIME (for profiling) ##################
 
 1;

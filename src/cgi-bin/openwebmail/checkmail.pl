@@ -19,7 +19,7 @@ require "etc/openwebmail.conf";
 require "openwebmail-shared.pl";
 
 local $user;
-local $userip='localhost';
+local @userlist;
 local ($uid, $gid, $homedir);
 local $folderdir;
 
@@ -33,15 +33,20 @@ if ($user !~ /^[A-Za-z0-9_]+$/) {
 }
 ($user =~ /^(.+)$/) && ($user = $1);  # untaint $user...
 
-$uid=0; $gid = getgrnam('mail');
-if (($homedirspools eq 'yes') || ($homedirfolders eq 'yes')) {
-   my $ugid;
-   ($uid, $ugid, $homedir) = (getpwnam($user))[2,3,7];
-   if ($uid eq '') {
-      print ("no such user\n");
-      exit 2;
-   }
+@userlist=get_userlist_by_virtualuser($user, "$openwebmaildir/genericstable.r");
+push(@userlist, $user);
+foreach (@userlist) {
+   ($uid, $homedir) = (getpwnam($_))[2,7];
+   last if ($uid ne '');
 }
+if ($uid eq '') {
+   print ("no such user\n");
+   exit 2;
+}
+
+$uid=$> if (($homedirspools ne 'yes') && ($homedirfolders ne 'yes'));
+$gid=getgrnam('mail');
+
 set_euid_egid_umask($uid, $gid, 0077);
 
 if ( $homedirfolders eq 'yes') {

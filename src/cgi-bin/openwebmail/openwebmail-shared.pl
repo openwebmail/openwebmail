@@ -2,35 +2,7 @@
 # routines shared by openwebmail.pl, openwebmail-prefs.pl and checkmail.pl
 #
 
-############### GET_SPOOLFILE_FOLDERDB ################
-sub get_folderfile_headerdb {
-   my ($username, $foldername)=@_;
-   my ($folderfile, $headerdb);
-
-   if ($foldername eq 'INBOX') {
-      if ($homedirspools eq "yes") {
-         $folderfile = "$homedir/$homedirspoolname";
-      } elsif ($hashedmailspools eq "yes") {
-         $username =~ /^(.)(.)/;
-         my $firstchar = $1;
-         my $secondchar = $2;
-         $folderfile = "$mailspooldir/$firstchar/$secondchar/$username";
-      } else {
-         $folderfile = "$mailspooldir/$username";
-      }
-      $headerdb="$folderdir/.$username";
-
-   } elsif ($foldername eq 'DELETE') {
-      $folderfile = $headerdb ='';
-
-   } else {
-      $folderfile = "$folderdir/$foldername";
-      $headerdb="$folderdir/.$foldername";
-   }
-
-   return($folderfile, $headerdb);
-}
-
+##################### SET_EUID_EGID_UMASK #################
 sub set_euid_egid_umask {
    my ($uid, $gid, $umask)=@_;
 
@@ -40,8 +12,7 @@ sub set_euid_egid_umask {
    $> = $uid if ($> == 0);
    umask($umask);
 }
-
-############### GET_SPOOLFILE_FOLDERDB ################
+################### END SET_EUID_EGID_UMASK ###############
 
 ############## VERIFYSESSION ########################
 local $validsession=0;
@@ -49,7 +20,9 @@ sub verifysession {
    if ($validsession == 1) {
       return 1;
    }
-   if ( -M "$openwebmaildir/sessions/$thissession" > $sessiontimeout || !(-e "$openwebmaildir/sessions/$thissession")) {
+
+   if ( (-M "$openwebmaildir/sessions/$thissession")>$sessiontimeout
+        || !(-e "$openwebmaildir/sessions/$thissession")) {
       my $html = '';
       printheader();
       open (TIMEOUT, "$openwebmaildir/templates/$lang/sessiontimeout.template") or
@@ -92,6 +65,155 @@ sub verifysession {
    return 1;
 }
 ############# END VERIFYSESSION #####################
+
+##################### VIRTUALUSER related ################
+sub update_genericstable {
+   my ($gendb, $genfile)=@_;
+   my (%DB, %DBR, $metainfo);
+
+   return if (! -e $genfile);
+
+   ($gendb =~ /^(.+)$/) && ($gendb = $1);		# bypass taint check
+   if ( -e "$gendb.$dbm_ext" ) {
+      my ($metainfo);
+
+      filelock("$gendb.$dbm_ext", LOCK_SH);
+      dbmopen (%DB, $gendb, undef);
+      $metainfo=$DB{'METAINFO'};
+      dbmclose(%DB);
+      filelock("$gendb.$dbm_ext", LOCK_UN);
+
+      return if ( $metainfo eq metainfo($genfile) );
+   } 
+
+   dbmopen(%DB, $gendb, 0644);
+   filelock("$gendb.$dbm_ext", LOCK_EX);
+   %DB=();	# ensure the gendb is empty
+
+   dbmopen(%DBR, "$gendb.r", 0644);
+   filelock("$gendb.r.$dbm_ext", LOCK_EX);
+   %DBR=();
+
+   open (GEN, $genfile);
+   while (<GEN>) {
+      next if (/^#/);
+
+      my ($u, $vm)=split(/[\s\t]+/);
+      $DB{$u}=$vm;
+
+      my ($vu, $vh)=split(/\@/, $vm);
+      if ( !defined($DBR{$vu}) ) {
+         $DBR{$vu}=$u;
+      } else {
+         $DBR{$vu}.=",$u";
+      }
+   }
+   close(GEN);
+
+   filelock("$gendb.r.$dbm_ext", LOCK_UN);
+   dbmclose(%DBR);
+
+   filelock("$gendb.$dbm_ext", LOCK_UN);
+   dbmclose(%DB);
+   return;
+}
+
+sub get_virtualemail_by_user {
+   my ($user, $gendb)=@_;
+   my (%DB, $email);
+
+   dbmopen (%DB, $gendb, undef);
+   $email=$DB{$user};
+   dbmclose(%DB);
+   return($email);
+}
+
+sub get_userlist_by_virtualuser {
+   my ($virtualuser, $gendbr)=@_;
+   my $userlist;
+
+   dbmopen (%DBR, $gendbr, undef);
+   $userlist=$DBR{$virtualuser};
+   dbmclose(%DBR);
+   return( split(/[,\s]+/, $userlist) );
+}   
+
+##################### END VIRTUALUSER related ################
+
+################# GET_USEREMAIL_DOMAINNAMES ###################
+# this routine handles virtualuser@virtualdomain in sendmail genericstable
+# and add virtualdomain to global @domainnames defined in openwebmail.conf
+sub get_useremail_domainnames {
+   my ($user, $gendb, @domainnames)=@_;
+   my ($virtualuser, $virtualdomain)=split(/\@/, get_virtualemail_by_user($user, $gendb));
+   my $domainname;
+   my $useremail;
+
+   if ($virtualdomain) {
+      my $found=0;
+      foreach (@domainnames) {
+         if ($virtualdomain eq $_) {
+            $found=1; last;
+         }
+      }
+      push(@domainnames, $virtualdomain) if (!$found);
+   }
+
+   foreach (@domainnames) {
+      if ($prefs{domainname} eq $_) {
+         $domainname=$_;
+         last;
+      }
+   }
+   $domainname=$virtualdomain || $domainnames[0] if ($domainname eq '');
+
+   if ($enable_setfromname eq 'yes' && $prefs{"fromname"}) {
+      # Create from: address when "fromname" is not null
+      $useremail = $prefs{"fromname"} . "@" . $domainname; 
+   } else {	
+      # Create from: address when "fromname" is null
+      if ($virtualuser) {
+         $useremail = $virtualuser . "@" . $domainname; 
+      } else {
+         $useremail = $user . "@" . $domainname; 
+      }
+   } 
+
+   return($useremail, @domainnames);
+}
+
+################# END GET_USEREMAIL_DOMAINNAMES ###################
+
+############### GET_SPOOLFILE_FOLDERDB ################
+sub get_folderfile_headerdb {
+   my ($username, $foldername)=@_;
+   my ($folderfile, $headerdb);
+
+   if ($foldername eq 'INBOX') {
+      if ($homedirspools eq "yes") {
+         $folderfile = "$homedir/$homedirspoolname";
+      } elsif ($hashedmailspools eq "yes") {
+         $username =~ /^(.)(.)/;
+         my $firstchar = $1;
+         my $secondchar = $2;
+         $folderfile = "$mailspooldir/$firstchar/$secondchar/$username";
+      } else {
+         $folderfile = "$mailspooldir/$username";
+      }
+      $headerdb="$folderdir/.$username";
+
+   } elsif ($foldername eq 'DELETE') {
+      $folderfile = $headerdb ='';
+
+   } else {
+      $folderfile = "$folderdir/$foldername";
+      $headerdb="$folderdir/.$foldername";
+   }
+
+   return($folderfile, $headerdb);
+}
+
+############### GET_SPOOLFILE_FOLDERDB ################
 
 ################## GETFOLDERS ####################
 sub getfolders {
@@ -160,56 +282,6 @@ sub getfolders {
    return \@folders;
 }
 ################ END GETFOLDERS ##################
-
-##################### GET_EMAIL_FROM_GENERICTABLE ################
-sub update_genericstable {
-   my ($gendb, $genfile)=@_;
-   my (%DB, $metainfo);
-
-   return if (! -e $genfile);
-
-   ($gendb =~ /^(.+)$/) && ($gendb = $1);		# bypass taint check
-   if ( -e "$gendb.$dbm_ext" ) {
-      my ($metainfo);
-
-      filelock("$gendb.$dbm_ext", LOCK_SH);
-      dbmopen (%DB, $gendb, undef);
-      $metainfo=$DB{'METAINFO'};
-      dbmclose(%DB);
-      filelock("$gendb.$dbm_ext", LOCK_UN);
-
-      return if ( $metainfo eq metainfo($genfile) );
-   } 
-
-   dbmopen(%DB, $gendb, 0644);
-   filelock("$gendb.$dbm_ext", LOCK_EX);
-   %DB=();	# ensure the gendb is empty
-
-   open (GEN, $genfile);
-   while (<GEN>) {
-      next if (/^#/);
-      my ($u, $m)=split(/[\s\t]+/);
-      $DB{$u}=$m;
-   }
-   close(GEN);
-
-   filelock("$gendb.$dbm_ext", LOCK_UN);
-   dbmclose(%DB);
-   return;
-}
-
-sub get_email_from_genericstable {
-   my ($user, $gendb)=@_;
-   my (%DB, $email);
-
-   dbmopen (%DB, $gendb, undef);
-   $email=$DB{$user};
-   dbmclose(%DB);
-   return($email);
-}
-
-
-##################### END GET_EMAIL_FROM_GENERICTABLE ################
 
 ###################### READPREFS #########################
 sub readprefs {
@@ -333,6 +405,8 @@ sub printheader {
 ################### PRINTFOOTER ###########################
 sub printfooter {
    my $html = '';
+   my $remainingseconds;
+
    open (FOOTER, "$openwebmaildir/templates/$lang/footer.template") or
       openwebmailerror("$lang_err{'couldnt_open'} footer.template!");
    while (<FOOTER>) {
@@ -342,6 +416,17 @@ sub printfooter {
    
    $html = applystyle($html);
    
+   if ($validsession) {
+      $remainingseconds=
+         ($sessiontimeout-(-M "$openwebmaildir/sessions/$thissession"))*24*60*60
+         - (time()-$^T);
+   } else {
+      $remainingseconds= 365*24*60*60;	# make session never timeout
+   }
+
+   $html =~ s/\@\@\@USEREMAIL\@\@\@/$useremail/g;
+   $html =~ s/\@\@\@REMAININGSECONDS\@\@\@/$remainingseconds/g;
+
    $html =~ s/\@\@\@VERSION\@\@\@/$version/g;
    print $html;
 }
@@ -354,7 +439,7 @@ sub writelog {
       my $timestamp = localtime();
       my $logaction = shift;
       my $loggeduser = $user || 'UNKNOWNUSER';
-      my $loggedip = $userip || 'UNKNOW';
+      my $loggedip = $clientip || 'UNKNOW';
       print LOGFILE "$timestamp - [$$] ($loggedip) $loggeduser - $logaction\n";
       close (LOGFILE);
    }
@@ -412,5 +497,29 @@ sub openwebmailerror{
    exit 0;
 }
 ################### END OPENWEBMAILERROR #######################
+
+#################### LOG_TIME (for profiling) ####################
+sub log_time {
+   my @msg=@_;
+   my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst);
+   my ($today, $time);
+
+   ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) =localtime;
+   $year+=1900; $mon++;
+   $today=sprintf("%4d%02d%02d", $year, $mon, $mday);
+   $time=sprintf("%02d%02d%02d",$hour,$min, $sec);
+
+   open(Z, ">> /tmp/time.log");
+
+   # unbuffer mode
+   select(Z); $| = 1;    
+   select(stdout); 
+
+   print Z "$today $time ", join(" ",@msg), "\n";
+   close(Z);
+   1;
+}
+
+################## END LOG_TIME (for profiling) ##################
 
 1;

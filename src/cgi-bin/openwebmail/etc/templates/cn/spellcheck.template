@@ -1,0 +1,41 @@
+<table border="0" align="center" width="95%" cellpadding="0" cellspacing="0">
+<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>拼写检查</B></font>
+</td></tr>
+<tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
+
+<table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
+<tr><td bgcolor=@@@WINDOW_LIGHT@@@ align="left">
+<BR>对于每个拼错的单词，系统会找出一组建议单词，
+让使用者由其中选择一个取代原本的错误单词。
+如果系统找不到合适的建议单词，
+或是使用者选择了“--手动修正--”然后按下[重新检查]，
+那么系统会提供一个文字栏让使用者自行输入单词内容。
+</td></tr>
+</table>
+<br>
+
+<table width="95%" bgcolor="#000000" border="0" cellpadding="0" cellspacing="1">
+@@@STARTSPELLCHECKFORM@@@
+<tr><td>
+<table width="100%" bgcolor=#FFFFFF border="0" cellpadding="2" cellspacing="1">
+<tr><td valign="top"><font size=-1>
+@@@WORDSHTML@@@
+</td></tr></table>
+</td></tr></table>
+
+<br>
+@@@CHECKAGAINBUTTON@@@
+&nbsp;&nbsp;&nbsp;
+@@@FINISHCHECKINGBUTTON@@@
+&nbsp;&nbsp;&nbsp;
+@@@CANCELBUTTON@@@
+<br><br>
+</td></tr></table>
+
+<script language="JavaScript">
+   <!--
+   self.focus();
+   //-->
+</script>

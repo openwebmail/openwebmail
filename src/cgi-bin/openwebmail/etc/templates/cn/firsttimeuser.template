@@ -1,0 +1,10 @@
+<BR><BR><BR><BR><BR><BR>
+<table border="0" align="center" width="40%" cellpadding="1" cellspacing="1">
+<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>欢迎使用 OPEN WEBMAIL 邮箱</B></font>
+</td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
+<BR>这是您第一次使用 Open WebMail 邮箱，必须先设定一些个人资料，
+请按继续钮进入个人模版设定页面。
+@@@CONTINUEBUTTON@@@
+</td></tr></table>

@@ -1,9 +1,43 @@
+06/23/2001 (version 1.31)
+----------
+1. use a new window instead of alert dialog to display the session timeout 
+   warning. Thus the window could be closed automatically when session is end.
+
+
+06/22/2001
+----------
+1. display a warning "session will be ended winthin 60 seconds" to user
+   before a session is timeouted
+2. support login alias in checkmail.pl. 
+   If checkmail.pl is used with fingerd, then user can get the mail status
+   by 'finger virtualuser@virtualhost'
+
+
+06/21/2001
+----------
+1. fix a bug that creates .forward and .vacation.msg in / 
+   instead of user homedir when homespooldir and homefolderdir is not enables
+   (reported by Emir Litric, danguba@usa.net)
+
+
+06/20/2001
+----------
+1. fix a bug that won't fetch the first one message from pop3 server
+   in some case
+   (reported by Jrgen Meurer, meurer@bad-gmbh.de)
+
+
 06/19/2001 
 ----------
 1. fix pop3 retrieval problem on NT exchange server.
    (reported by jerry@email.wtuc.edu.tw)
 2. fix a bug that resets the autoreply message to default when
    setting user preference
+   (reported by Emir Litric, danguba@usa.net)
+3. Chinese GB language and template translation
+   (thanks to Wang Jun, wjun@mail.iap.ac.cn)
+4. Login alias/mapping support
+   (thanks to Russ Reese, russ@zerotech.net for his patch code)
 
 
 06/18/2001 (version 1.30)
