@@ -66,19 +66,19 @@ if (defined $ENV{'GATEWAY_INTERFACE'}) {	# CGI mode
       print qq|<pre>\n|;
       preload($quiet, $httphost, $httpport, $cgiurl, @scripts);
       print qq|</pre>\n|;
-      print qq|<form method="post" action="/cgi-bin/openwebmail/preload.pl" enctype="application/x-www-form-urlencoded">\n|.
+      print qq|<form method="post" action="$cgiurl/preload.pl" enctype="application/x-www-form-urlencoded">\n|.
             qq|<input type="submit" name=" Clear " value=" Clear " />\n|.
             qq|</form>\n|;
    } else {
       sleep 8 if (defined $param{'password'});
-      print qq|<form method="post" action="/cgi-bin/openwebmail/preload.pl" enctype="application/x-www-form-urlencoded">\n|.
+      print qq|<form method="post" action="$cgiurl/preload.pl" enctype="application/x-www-form-urlencoded">\n|.
             qq|Access Password : \n|.
             qq|<input type="password" name="password"  size="16" />\n|.
             qq|<br><br>\n|.
             qq|<input type="submit" name=" Submit " value=" Submit " />\n|.
             qq|</form>\n|;
    }
-   print qq|<a href='/cgi-bin/openwebmail/openwebmail.pl'>Login Open WebMail</a>\n|.
+   print qq|<a href='$cgiurl/openwebmail.pl'>Login Open WebMail</a>\n|.
          qq|</body></html>\n|;
 
 } else {					# cmd mode
